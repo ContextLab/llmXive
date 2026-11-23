@@ -1,3 +1,2 @@
-# This directory is for processed/feature-extracted data files.
-# Intermediate and final training datasets should be written here.
-# Do not commit large binary files; use .gitkeep to ensure the directory exists in git.
+# This directory stores processed data files ready for analysis and modeling.
+# Do not commit large data files. Add patterns to .gitignore.

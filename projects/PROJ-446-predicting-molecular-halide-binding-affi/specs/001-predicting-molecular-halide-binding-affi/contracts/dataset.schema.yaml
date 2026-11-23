@@ -1,44 +1,51 @@
-$schema: "http://json-schema.org/draft-07/schema#"
+$schema: http://json-schema.org/draft-07/schema#
+title: Halide Binding Dataset Schema
+description: Schema for the processed halide binding dataset used in the ML pipeline.
 type: object
 properties:
   host_id:
     type: string
-    description: "Unique identifier for the host molecule (hash of SMILES)"
+    description: "Unique identifier for the host molecule"
   smiles:
     type: string
-    description: "Canonical SMILES string for the host molecule"
-  inchi:
-    type: string
-    description: "InChI string for the host molecule (optional)"
+    description: "Canonical SMILES string of the host"
   halide_identity:
     type: string
-    enum: ["F-", "Cl-", "Br-", "I-"]
-    description: "Identity of the halide ion"
+    enum:
+      - "F-"
+      - "Cl-"
+      - "Br-"
+      - "I-"
+    description: "Identity of the bound halide ion"
   binding_constant:
     type: number
-    description: "Binding constant (log K or ΔG in kcal/mol)"
-  units:
-    type: string
-    enum: ["log_K", "kcal_mol"]
-    description: "Units of the binding constant"
+    description: "Experimental or simulated binding constant (log K or ΔG)"
   solvent:
     type: string
-    enum: ["acetonitrile", "chloroform", "dichloromethane"]
+    enum:
+      - "acetonitrile"
+      - "chloroform"
+      - "dichloromethane"
     description: "Solvent used in the measurement"
+  charge_density:
+    type: number
+    description: "Sum of Gasteiger charges on the host molecule"
+  cavity_volume:
+    type: number
+    description: "Molecular volume in Å³ calculated via RDKit"
   source:
     type: string
-    enum: ["NIST", "PubChem", "Simulated"]
-    description: "Source of the data"
-  reference_doi:
-    type: string
-    description: "DOI of the source publication (if available)"
+    enum:
+      - "NIST"
+      - "PubChem"
+      - "Simulated"
+    description: "Origin of the data point"
 required:
   - host_id
   - smiles
   - halide_identity
   - binding_constant
-  - units
   - solvent
+  - charge_density
+  - cavity_volume
   - source
-additionalProperties: false
-description: "Schema for the halide binding affinity dataset. All records must have valid SMILES, halide identity, binding constant, and solvent. Simulated data will have source='Simulated'."

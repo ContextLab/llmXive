@@ -1,0 +1,6 @@
+'|corrected determined if less significance than':
+  quote: "First, the STRF is thresholded at \U0001D6FC = 0.05 with Bonferroni correction\
+    \ to determine whether the lightest"
+  source_id: '2407.16013'
+  url: https://arxiv.org/abs/2407.16013
+  value: '0.05'

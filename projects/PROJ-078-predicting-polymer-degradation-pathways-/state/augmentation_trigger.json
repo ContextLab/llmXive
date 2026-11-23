@@ -1,0 +1,6 @@
+{
+  "n": 100,
+  "required_n": 128,
+  "action": "augment",
+  "effect_size_assumed": 0.5
+}

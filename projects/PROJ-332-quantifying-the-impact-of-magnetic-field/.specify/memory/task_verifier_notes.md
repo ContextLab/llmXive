@@ -1,0 +1,8 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001a** — No directory listing or other evidence was provided showing that the required folders (`code/`, `data/raw/`, `data/intermediate/`, `data/processed/`, `outputs/`, `tests/`, `contracts/`, `.github/workflows/`) actually exist in the repository. Without concrete proof of these directories, the task cannot be considered completed.
+- **T001b** — I could find no `.gitignore` file in the provided evidence, nor any excerpt or listing showing its contents. Without the actual file (or a non‑empty representation of it) the requirement to create a Python‑ and data‑artifact‑aware `.gitignore` is not satisfied. The next implementer should add a `.gitignore` file containing appropriate entries (e.g., `__pycache__/`, `*.pyc`, `*.pyo`, `*.pyd`, `env/`, `venv/`, `*.ipynb_checkpoints`, `data/`, `*.csv`, `*.h5`, etc.).
+- **T003a** — I could find no `.flake8` file in the provided artifacts, nor any content showing the required `max-line-length = 88` and `extend-ignore = E203, W503` settings. The task’s deliverable is missing.
+- **T006b** — declared artifact(s) missing/empty/invalid: github/workflows/ci.yml

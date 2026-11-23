@@ -1,275 +1,297 @@
-"""
-Permutation-based p-value calculation for feature importances.
-
-This module implements a permutation test to determine the statistical
-significance of feature importances derived from a trained model.
-"""
 import os
 import sys
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional, Union
+
 import numpy as np
 import pandas as pd
 from sklearn.inspection import permutation_importance
-from sklearn.metrics import r2_score, mean_squared_error
-from joblib import load
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
 
-# Configure logging
+# Ensure imports align with existing project structure
+# We assume this file is run from the project root or code/ directory
+# Adding code/ to path if running as script
+if 'code' not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from models.entities import IsothermParameter
+from models.evaluate import load_models, load_test_data, ensure_dirs as ensure_eval_dirs
+
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Ensure output directories exist
-def ensure_dirs(output_dir: Path) -> None:
-    """Ensure the output directory exists."""
+def ensure_dirs(output_dir: Optional[Path] = None) -> Path:
+    """Create output directories for permutation analysis results."""
+    if output_dir is None:
+        output_dir = Path("data/validation")
     output_dir.mkdir(parents=True, exist_ok=True)
+    return output_dir
 
-def load_models(model_dir: Path) -> Dict[str, Any]:
+def load_test_data() -> pd.DataFrame:
     """
-    Load trained models from the model directory.
-    
-    Args:
-        model_dir: Path to the directory containing saved models.
-        
-    Returns:
-        Dictionary mapping model names to loaded model objects.
+    Load the preprocessed test data.
+    Expects data/processed/adsorption_dataset.csv as per pipeline convention.
     """
-    models = {}
-    for file_path in model_dir.glob("*.joblib"):
-        model_name = file_path.stem
-        logger.info(f"Loading model: {model_name}")
-        models[model_name] = load(file_path)
-    return models
-
-def load_test_data(data_path: Path) -> Tuple[pd.DataFrame, pd.Series]:
-    """
-    Load the test dataset.
-    
-    Args:
-        data_path: Path to the test CSV file.
-        
-    Returns:
-        Tuple of (feature DataFrame, target Series).
-    """
+    data_path = Path("data/processed/adsorption_dataset.csv")
     if not data_path.exists():
-        raise FileNotFoundError(f"Test data file not found: {data_path}")
+        raise FileNotFoundError(f"Test data not found at {data_path}. Run preprocessing first.")
     
     df = pd.read_csv(data_path)
     
-    # Identify target column (assuming 'langmuir_capacity' or similar)
-    target_col = None
-    for col in ['langmuir_capacity', 'henry_constant']:
-        if col in df.columns:
-            target_col = col
-            break
+    # Identify target columns based on schema
+    target_cols = [col for col in df.columns if col in ['langmuir_capacity', 'henry_constant']]
+    if not target_cols:
+        raise ValueError("No valid target columns found in dataset.")
     
-    if target_col is None:
-        raise ValueError("Could not identify target column in test data.")
+    # We focus on the primary target for permutation analysis if multiple exist
+    # For this implementation, we'll use 'langmuir_capacity' if present, else the first available
+    target = 'langmuir_capacity' if 'langmuir_capacity' in target_cols else target_cols[0]
     
-    feature_cols = [col for col in df.columns if col not in ['material_id', target_col]]
-    X = df[feature_cols]
-    y = df[target_col]
+    # Filter to only include rows with valid targets
+    df = df.dropna(subset=[target])
     
-    return X, y
+    return df, target
 
 def calculate_p_values(
+    model_name: str,
     model: Any,
     X: pd.DataFrame,
     y: pd.Series,
     n_permutations: int = 1000,
     scoring: str = 'r2',
-    random_state: Optional[int] = None,
+    random_state: int = 42,
     n_jobs: int = -1
-) -> pd.DataFrame:
+) -> Tuple[pd.DataFrame, Dict[str, float]]:
     """
-    Calculate p-values for feature importances using permutation testing.
+    Calculate permutation-based p-values for feature importances.
     
-    The null hypothesis is that the feature has no predictive power.
-    We permute the target variable y (not the features) to break the
-    relationship between X and y, then measure the drop in performance.
-    The p-value is the fraction of permutations where the permuted model
-    performs as well as or better than the original model.
+    The p-value represents the probability that the observed importance 
+    could have occurred by chance (i.e., importance of permuted feature >= original).
     
     Args:
-        model: Trained model object.
-        X: Feature DataFrame.
-        y: Target Series.
-        n_permutations: Number of permutations to perform.
-        scoring: Scoring metric (e.g., 'r2', 'neg_mean_squared_error').
-        random_state: Random seed for reproducibility.
-        n_jobs: Number of parallel jobs.
+        model_name: Name of the model being analyzed
+        model: Trained sklearn-compatible model
+        X: Feature matrix (test set)
+        y: Target values (test set)
+        n_permutations: Number of permutations per feature
+        scoring: Scoring metric to use (e.g., 'r2', 'neg_mean_squared_error')
+        random_state: Random seed for reproducibility
+        n_jobs: Number of parallel jobs (-1 for all)
         
     Returns:
-        DataFrame with feature names, original scores, permuted scores, and p-values.
+        Tuple of (results_df, p_values_dict)
     """
-    logger.info(f"Starting permutation test with {n_permutations} permutations...")
+    logger.info(f"Starting permutation analysis for {model_name} with {n_permutations} permutations")
     
     # Calculate original score
-    original_pred = model.predict(X)
-    if scoring == 'r2':
-        original_score = r2_score(y, original_pred)
-    elif scoring == 'neg_mean_squared_error':
-        original_score = mean_squared_error(y, original_pred)
-    else:
-        # Default to R2
-        original_score = r2_score(y, original_pred)
+    original_score = model.score(X, y)
+    logger.info(f"Original {scoring} score: {original_score:.4f}")
     
-    logger.info(f"Original model score ({scoring}): {original_score:.4f}")
-    
-    # Permute target variable y to break relationship with X
-    # This is more rigorous than permuting features because it tests
-    # the null hypothesis that y is independent of X
-    rng = np.random.RandomState(random_state)
-    perm_scores = []
-    
-    for i in range(n_permutations):
-        # Permute y
-        y_perm = y.sample(frac=1, random_state=rng).reset_index(drop=True)
-        
-        # Evaluate model on permuted target
-        # We use the same X but compare predictions against permuted y
-        # This measures how much the model's performance drops when the
-        # true relationship is broken
-        if scoring == 'r2':
-            perm_score = r2_score(y_perm, original_pred)
-        elif scoring == 'neg_mean_squared_error':
-            perm_score = mean_squared_error(y_perm, original_pred)
-        else:
-            perm_score = r2_score(y_perm, original_pred)
-        
-        perm_scores.append(perm_score)
-    
-    perm_scores = np.array(perm_scores)
-    
-    # Calculate p-value: proportion of permutations where permuted score >= original score
-    # For R2, higher is better, so we count how often perm_score >= original_score
-    # For MSE (negative), lower is better, so we need to adjust logic
-    if scoring == 'r2' or 'r2' in scoring.lower():
-        p_values = (perm_scores >= original_score) / n_permutations
-    else:
-        # For negative metrics, we want to count how often the permuted model
-        # performs as well as or better (less negative or more positive)
-        p_values = (perm_scores >= original_score) / n_permutations
-    
-    # Create results DataFrame
-    feature_names = list(X.columns)
-    results = pd.DataFrame({
-        'feature': feature_names,
-        'original_score': [original_score] * len(feature_names),
-        'mean_perm_score': np.mean(perm_scores),
-        'std_perm_score': np.std(perm_scores),
-        'p_value': p_values
-    })
-    
-    # Sort by p-value (most significant first)
-    results = results.sort_values('p_value', ascending=True).reset_index(drop=True)
-    
-    logger.info(f"Permutation test completed. Results saved.")
-    return results
-
-def run_permutation_analysis(
-    model_name: str,
-    model_dir: Path,
-    test_data_path: Path,
-    output_dir: Path,
-    n_permutations: int = 1000,
-    random_state: int = 42
-) -> Dict[str, Any]:
-    """
-    Run the full permutation analysis pipeline.
-    
-    Args:
-        model_name: Name of the model to analyze.
-        model_dir: Directory containing saved models.
-        test_data_path: Path to the test dataset.
-        output_dir: Directory to save results.
-        n_permutations: Number of permutations.
-        random_state: Random seed.
-        
-    Returns:
-        Dictionary containing analysis results.
-    """
-    ensure_dirs(output_dir)
-    
-    # Load model
-    models = load_models(model_dir)
-    if model_name not in models:
-        raise ValueError(f"Model '{model_name}' not found. Available: {list(models.keys())}")
-    
-    model = models[model_name]
-    
-    # Load test data
-    X, y = load_test_data(test_data_path)
-    
-    # Run permutation test
-    results = calculate_p_values(
-        model=model,
-        X=X,
-        y=y,
+    # Calculate permutation importance
+    # sklearn's permutation_importance returns mean and std of score decrease
+    perm_result = permutation_importance(
+        model, X, y,
         n_permutations=n_permutations,
-        random_state=random_state
+        scoring=scoring,
+        random_state=random_state,
+        n_jobs=n_jobs
     )
     
-    # Save results
-    output_path = output_dir / f"pvalues_{model_name}.csv"
-    results.to_csv(output_path, index=False)
-    logger.info(f"P-value results saved to {output_path}")
+    feature_names = X.columns.tolist()
+    mean_importance = perm_result.importances_mean
+    std_importance = perm_result.importances_std
     
-    # Also save a summary JSON
-    summary = {
-        'model_name': model_name,
+    # Calculate p-values
+    # For each feature, we compare the distribution of permuted importances
+    # against the observed importance.
+    # A low p-value means the feature's importance is significantly better than random.
+    
+    p_values = {}
+    importance_stats = []
+    
+    for i, feature in enumerate(feature_names):
+        # The importance in sklearn is defined as: original_score - permuted_score
+        # So higher positive values mean the feature is important.
+        # We want to test if the observed importance is significantly greater than 0 (or random).
+        
+        # Get the distribution of importance values for this feature
+        # perm_result.importances shape: (n_features, n_permutations)
+        feature_importances = perm_result.importances[i]
+        
+        # Calculate the observed importance for this feature
+        # Note: sklearn's mean_importance is the average decrease in score
+        observed_importance = mean_importance[i]
+        
+        # P-value: proportion of permuted importances >= observed importance
+        # This tests the null hypothesis that the feature is not important
+        # If the observed importance is much larger than permuted ones, p-value is small
+        p_value = np.mean(feature_importances >= observed_importance)
+        
+        # However, a more standard approach for feature importance p-values
+        # is to test if the importance is significantly greater than 0
+        # Let's use the distribution of permuted importances to create a null distribution
+        # and see where the observed importance falls.
+        
+        # Actually, the standard permutation test for feature importance:
+        # 1. Compute importance with original data
+        # 2. Shuffle the feature values many times
+        # 3. Compute importance for each shuffled version
+        # 4. p-value = (number of shuffled importances >= original importance + 1) / (n_permutations + 1)
+        
+        # But sklearn's permutation_importance already does the shuffling internally
+        # and returns the decrease in score. So we can use the distribution directly.
+        
+        # Let's recalculate to be precise:
+        # We have the distribution of score decreases from shuffling
+        # We want to know if the observed decrease is significantly larger than what we'd get by chance
+        
+        # The observed importance is mean_importance[i]
+        # The null distribution is feature_importances (the decreases from shuffling)
+        
+        # If the feature is important, shuffling it should cause a large drop in performance
+        # So the observed importance should be much larger than the permuted importances
+        
+        # P-value: probability that a random permutation gives an importance >= observed
+        # This is the standard one-sided test
+        p_val = (np.sum(feature_importances >= observed_importance) + 1) / (n_permutations + 1)
+        
+        p_values[feature] = p_val
+        
+        importance_stats.append({
+            'feature': feature,
+            'importance': observed_importance,
+            'std': std_importance[i],
+            'p_value': p_val
+        })
+    
+    results_df = pd.DataFrame(importance_stats)
+    results_df = results_df.sort_values('importance', ascending=False)
+    
+    logger.info(f"Permutation analysis complete. Top 3 features: {results_df.head(3)['feature'].tolist()}")
+    
+    return results_df, p_values
+
+def run_permutation_analysis(
+    model_names: Optional[List[str]] = None,
+    n_permutations: int = 1000,
+    scoring: str = 'r2',
+    random_state: int = 42,
+    output_dir: Optional[Path] = None
+) -> Dict[str, Any]:
+    """
+    Run permutation-based p-value calculation for all trained models.
+    
+    Args:
+        model_names: List of model names to analyze. If None, uses all available models.
+        n_permutations: Number of permutations per feature
+        scoring: Scoring metric
+        random_state: Random seed
+        output_dir: Directory to save results
+        
+    Returns:
+        Dictionary containing analysis results for all models
+    """
+    output_dir = ensure_dirs(output_dir)
+    
+    # Load data and models
+    logger.info("Loading test data and models...")
+    df, target = load_test_data()
+    models = load_models()
+    
+    if not models:
+        raise RuntimeError("No models found. Run training first.")
+    
+    # Filter models if specific names provided
+    if model_names:
+        models = {k: v for k, v in models.items() if k in model_names}
+    
+    results = {}
+    
+    for model_name, model in models.items():
+        logger.info(f"Analyzing {model_name}...")
+        
+        # Prepare features
+        # Exclude non-feature columns
+        exclude_cols = ['material_id', 'adsorbate_smiles', 'adsorbent_id', 
+                      'langmuir_capacity', 'henry_constant', 'surface_area']
+        feature_cols = [col for col in df.columns if col not in exclude_cols]
+        
+        X = df[feature_cols]
+        y = df[target]
+        
+        # Calculate p-values
+        importance_df, p_values = calculate_p_values(
+            model_name=model_name,
+            model=model,
+            X=X,
+            y=y,
+            n_permutations=n_permutations,
+            scoring=scoring,
+            random_state=random_state
+        )
+        
+        # Save results for this model
+        output_path = output_dir / f"permutation_pvalues_{model_name}.csv"
+        importance_df.to_csv(output_path, index=False)
+        logger.info(f"Saved results to {output_path}")
+        
+        results[model_name] = {
+            'importance_df': importance_df,
+            'p_values': p_values,
+            'output_file': str(output_path)
+        }
+    
+    # Save summary
+    summary_path = output_dir / "permutation_analysis_summary.json"
+    summary_data = {
+        'models_analyzed': list(results.keys()),
         'n_permutations': n_permutations,
+        'scoring_metric': scoring,
         'random_state': random_state,
-        'features': results['feature'].tolist(),
-        'p_values': results['p_value'].tolist(),
-        'significant_features': results[results['p_value'] < 0.05]['feature'].tolist(),
-        'output_file': str(output_path)
+        'results': {
+            model_name: {
+                'top_features': results[model_name]['importance_df'].head(5)[['feature', 'importance', 'p_value']].to_dict('records'),
+                'significant_features': [
+                    feat for feat, p in results[model_name]['p_values'].items() 
+                    if p < 0.05
+                ]
+            }
+            for model_name in results
+        }
     }
     
-    summary_path = output_dir / f"pvalues_{model_name}_summary.json"
     import json
     with open(summary_path, 'w') as f:
-        json.dump(summary, f, indent=2)
-    logger.info(f"Summary saved to {summary_path}")
+        json.dump(summary_data, f, indent=2)
     
-    return summary
+    logger.info(f"Summary saved to {summary_path}")
+    return results
 
 def main():
-    """Main entry point for the permutation p-value analysis."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Calculate p-values for feature importances")
-    parser.add_argument("--model_name", type=str, default="random_forest",
-                      help="Name of the model to analyze")
-    parser.add_argument("--model_dir", type=str, default="data/models",
-                      help="Directory containing saved models")
-    parser.add_argument("--test_data", type=str, default="data/processed/test_data.csv",
-                      help="Path to test dataset")
-    parser.add_argument("--output_dir", type=str, default="data/validation",
-                      help="Directory to save results")
-    parser.add_argument("--n_permutations", type=int, default=1000,
-                      help="Number of permutations")
-    parser.add_argument("--random_state", type=int, default=42,
-                      help="Random seed")
-    
-    args = parser.parse_args()
+    """Main entry point for permutation p-value analysis."""
+    logger.info("Starting permutation-based p-value calculation for feature importances")
     
     try:
-        result = run_permutation_analysis(
-            model_name=args.model_name,
-            model_dir=Path(args.model_dir),
-            test_data_path=Path(args.test_data),
-            output_dir=Path(args.output_dir),
-            n_permutations=args.n_permutations,
-            random_state=args.random_state
+        results = run_permutation_analysis(
+            n_permutations=1000,
+            scoring='r2',
+            random_state=42
         )
-        print(f"Analysis complete. Significant features: {result['significant_features']}")
+        
+        logger.info("Permutation analysis completed successfully")
+        
+        # Print summary
+        for model_name, model_results in results.items():
+            print(f"\n{model_name}:")
+            print(model_results['importance_df'].to_string(index=False))
+            
     except Exception as e:
-        logger.error(f"Analysis failed: {e}")
-        sys.exit(1)
+        logger.error(f"Error during permutation analysis: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

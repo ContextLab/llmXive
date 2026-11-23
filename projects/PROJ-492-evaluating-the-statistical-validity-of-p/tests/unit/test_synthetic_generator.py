@@ -1,196 +1,205 @@
-"""
-Unit tests for the synthetic dataset generator (T026).
-
-Verifies:
-- Generation of at least 10,000 records
-- Binary and continuous outcome types
-- Correct schema of generated summaries
-- Ground truth consistency
-"""
+"""Unit tests for synthetic dataset generator (T026)."""
+import csv
 import json
 import os
 import tempfile
 from pathlib import Path
+from unittest import TestCase
 
-import pytest
 import numpy as np
 
-from code.src.audit.synthetic import generate_synthetic_corpus, set_seeds
+from code.src.audit.synthetic import (
+    generate_binary_test_record,
+    generate_continuous_test_record,
+    generate_synthetic_dataset,
+    main,
+    set_seeds
+)
 from code.src.config import SEED
-from code.src.models.data_models import ABTestSummary
 
 
-class TestSyntheticGenerator:
+class TestSyntheticGenerator(TestCase):
     """Tests for the synthetic dataset generator."""
 
-    @pytest.fixture
-    def temp_output_dir(self):
-        """Create a temporary directory for test outputs."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            yield Path(tmpdir)
+    def setUp(self):
+        """Set up test fixtures."""
+        self.seed = SEED
+        self.test_domain = "example.com"
+        self.temp_dir = tempfile.mkdtemp()
 
-    def test_minimum_record_count(self, temp_output_dir):
-        """Verify that at least 10,000 records are generated (FR-030)."""
-        summaries, ground_truth = generate_synthetic_corpus(
-            n_records=10000,
-            output_dir=temp_output_dir,
-            seed=SEED
-        )
+    def tearDown(self):
+        """Clean up temporary files."""
+        if os.path.exists(self.temp_dir):
+            import shutil
+            shutil.rmtree(self.temp_dir)
 
-        assert len(summaries) >= 10000, f"Expected >= 10000 records, got {len(summaries)}"
-        assert len(ground_truth) >= 10000
+    def test_set_seeds_deterministic(self):
+        """Test that set_seeds produces deterministic results."""
+        set_seeds(self.seed)
+        result1 = generate_binary_test_record(True, self.test_domain, 1)
+        
+        set_seeds(self.seed)
+        result2 = generate_binary_test_record(True, self.test_domain, 1)
+        
+        self.assertEqual(result1["id"], result2["id"])
+        self.assertEqual(result1["baseline_conversion_rate"], result2["baseline_conversion_rate"])
+        self.assertEqual(result1["reported_p_value"], result2["reported_p_value"])
 
-    def test_binary_and_continuous_outcomes(self, temp_output_dir):
-        """Verify both binary and continuous outcomes are generated."""
-        summaries, _ = generate_synthetic_corpus(
-            n_records=10000,
-            binary_ratio=0.5,
-            output_dir=temp_output_dir,
-            seed=SEED
-        )
+    def test_binary_record_structure(self):
+        """Test that binary records have all required fields."""
+        record = generate_binary_test_record(True, self.test_domain, 1)
+        
+        required_fields = [
+            "id", "url", "domain", "test_date", "outcome_type",
+            "n_control", "n_treatment", "baseline_conversion_rate",
+            "treatment_conversion_rate", "reported_p_value", "reported_effect_size",
+            "reported_confidence_interval", "test_duration_days",
+            "is_consistent", "inconsistency_type"
+        ]
+        
+        for field in required_fields:
+            self.assertIn(field, record, f"Missing required field: {field}")
 
-        outcome_types = [s.outcome_type for s in summaries]
-        assert "binary" in outcome_types, "No binary outcomes generated"
-        assert "continuous" in outcome_types, "No continuous outcomes generated"
+    def test_continuous_record_structure(self):
+        """Test that continuous records have all required fields."""
+        record = generate_continuous_test_record(True, self.test_domain, 1)
+        
+        required_fields = [
+            "id", "url", "domain", "test_date", "outcome_type",
+            "n_control", "n_treatment", "baseline_mean", "baseline_std",
+            "treatment_mean", "treatment_std", "reported_p_value",
+            "reported_effect_size", "reported_confidence_interval",
+            "test_duration_days", "is_consistent", "inconsistency_type"
+        ]
+        
+        for field in required_fields:
+            self.assertIn(field, record, f"Missing required field: {field}")
 
-        binary_count = outcome_types.count("binary")
-        continuous_count = outcome_types.count("continuous")
-        assert binary_count > 0
-        assert continuous_count > 0
+    def test_binary_record_value_ranges(self):
+        """Test that binary record values are within expected ranges."""
+        record = generate_binary_test_record(True, self.test_domain, 1)
+        
+        self.assertGreaterEqual(record["n_control"], 1000)
+        self.assertLessEqual(record["n_control"], 50000)
+        self.assertGreaterEqual(record["n_treatment"], 1000)
+        self.assertLessEqual(record["n_treatment"], 50000)
+        self.assertGreaterEqual(record["baseline_conversion_rate"], 0.05)
+        self.assertLessEqual(record["baseline_conversion_rate"], 0.30)
+        self.assertGreaterEqual(record["reported_p_value"], 0.001)
+        self.assertLessEqual(record["reported_p_value"], 0.999)
+        self.assertEqual(record["outcome_type"], "binary")
 
-    def test_summary_schema_validity(self, temp_output_dir):
-        """Verify generated summaries conform to ABTestSummary schema."""
-        summaries, _ = generate_synthetic_corpus(
-            n_records=100,
-            output_dir=temp_output_dir,
-            seed=SEED
-        )
+    def test_continuous_record_value_ranges(self):
+        """Test that continuous record values are within expected ranges."""
+        record = generate_continuous_test_record(True, self.test_domain, 1)
+        
+        self.assertGreaterEqual(record["n_control"], 500)
+        self.assertLessEqual(record["n_control"], 20000)
+        self.assertGreaterEqual(record["n_treatment"], 500)
+        self.assertLessEqual(record["n_treatment"], 20000)
+        self.assertGreaterEqual(record["baseline_mean"], 10.0)
+        self.assertLessEqual(record["baseline_mean"], 100.0)
+        self.assertGreaterEqual(record["reported_p_value"], 0.001)
+        self.assertLessEqual(record["reported_p_value"], 0.999)
+        self.assertEqual(record["outcome_type"], "continuous")
 
-        for summary in summaries:
-            # Check required fields exist and have correct types
-            assert isinstance(summary.test_id, str) and len(summary.test_id) > 0
-            assert isinstance(summary.domain, str) and len(summary.domain) > 0
-            assert isinstance(summary.year, int) and 2010 <= summary.year <= 2030
-            assert summary.outcome_type in ["binary", "continuous"]
-            assert isinstance(summary.n_control, int) and summary.n_control > 0
-            assert isinstance(summary.n_treatment, int) and summary.n_treatment > 0
-            assert isinstance(summary.metric_control, (int, float))
-            assert isinstance(summary.metric_treatment, (int, float))
-            assert isinstance(summary.p_value, (int, float)) and 0 <= summary.p_value <= 1
-            assert isinstance(summary.is_significant, bool)
-            assert isinstance(summary.effect_size, (int, float))
+    def test_consistency_flag(self):
+        """Test that consistency flag is set correctly."""
+        consistent_record = generate_binary_test_record(True, self.test_domain, 1)
+        inconsistent_record = generate_binary_test_record(False, self.test_domain, 2)
+        
+        self.assertTrue(consistent_record["is_consistent"])
+        self.assertFalse(inconsistent_record["is_consistent"])
+        
+        if consistent_record["is_consistent"]:
+            self.assertIsNone(consistent_record["inconsistency_type"])
+        
+        if not inconsistent_record["is_consistent"]:
+            self.assertIsNotNone(inconsistent_record["inconsistency_type"])
+            self.assertIn(inconsistent_record["inconsistency_type"], 
+                         ["p_value_drift", "effect_size_drift", "sample_size_mismatch"])
 
-    def test_ground_truth_consistency(self, temp_output_dir):
-        """Verify ground truth matches generated summaries."""
-        summaries, ground_truth = generate_synthetic_corpus(
-            n_records=100,
-            output_dir=temp_output_dir,
-            seed=SEED
-        )
+    def test_generate_synthetic_dataset_count(self):
+        """Test that the dataset generator produces at least 10,000 records."""
+        binary_records, continuous_records = generate_synthetic_dataset(self.seed)
+        
+        total_records = len(binary_records) + len(continuous_records)
+        self.assertGreaterEqual(total_records, 10000, 
+                               f"Expected at least 10,000 records, got {total_records}")
+        
+        # Check that we have both binary and continuous records
+        self.assertGreater(len(binary_records), 0, "No binary records generated")
+        self.assertGreater(len(continuous_records), 0, "No continuous records generated")
 
-        # Create lookup by test_id
-        gt_by_id = {gt["test_id"]: gt for gt in ground_truth}
+    def test_generate_synthetic_dataset_types(self):
+        """Test that the dataset contains both binary and continuous outcomes."""
+        binary_records, continuous_records = generate_synthetic_dataset(self.seed)
+        
+        for record in binary_records:
+            self.assertEqual(record["outcome_type"], "binary")
+        
+        for record in continuous_records:
+            self.assertEqual(record["outcome_type"], "continuous")
 
-        for summary in summaries:
-            assert summary.test_id in gt_by_id, f"Missing ground truth for {summary.test_id}"
-            gt = gt_by_id[summary.test_id]
+    def test_main_creates_files(self):
+        """Test that main() creates the expected output files."""
+        original_cwd = os.getcwd()
+        temp_output_dir = Path(self.temp_dir) / "data" / "synthetic"
+        temp_output_dir.mkdir(parents=True, exist_ok=True)
+        
+        try:
+            os.chdir(self.temp_dir)
+            main()
+            
+            binary_path = temp_output_dir / "ab_summaries_binary.csv"
+            continuous_path = temp_output_dir / "ab_summaries_continuous.csv"
+            combined_path = temp_output_dir / "ab_summaries_combined.json"
+            
+            self.assertTrue(binary_path.exists(), "Binary CSV not created")
+            self.assertTrue(continuous_path.exists(), "Continuous CSV not created")
+            self.assertTrue(combined_path.exists(), "Combined JSON not created")
+            
+            # Verify CSV has content
+            with open(binary_path, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+                self.assertGreaterEqual(len(rows), 1000, "Binary CSV has too few rows")
+            
+            with open(continuous_path, 'r') as f:
+                reader = csv.DictReader(f)
+                rows = list(reader)
+                self.assertGreaterEqual(len(rows), 1000, "Continuous CSV has too few rows")
+            
+            # Verify JSON has content
+            with open(combined_path, 'r') as f:
+                data = json.load(f)
+                self.assertIn("binary_outcomes", data)
+                self.assertIn("continuous_outcomes", data)
+                self.assertGreaterEqual(len(data["binary_outcomes"]), 1000)
+                self.assertGreaterEqual(len(data["continuous_outcomes"]), 1000)
+                
+        finally:
+            os.chdir(original_cwd)
 
-            # Verify sample sizes match
-            assert gt["n_control"] == summary.n_control
-            assert gt["n_treatment"] == summary.n_treatment
+    def test_domain_diversity(self):
+        """Test that records are distributed across multiple domains."""
+        binary_records, continuous_records = generate_synthetic_dataset(self.seed)
+        all_records = binary_records + continuous_records
+        
+        domains = set(record["domain"] for record in all_records)
+        self.assertGreater(len(domains), 1, "All records have the same domain")
+        
+        # Check that we have at least 5 different domains
+        self.assertGreaterEqual(len(domains), 5, 
+                               f"Expected at least 5 domains, got {len(domains)}")
 
-            # Verify outcome type matches
-            assert gt["outcome_type"] == summary.outcome_type
-
-    def test_file_outputs_created(self, temp_output_dir):
-        """Verify output files are created on disk."""
-        summaries, ground_truth = generate_synthetic_corpus(
-            n_records=100,
-            output_dir=temp_output_dir,
-            seed=SEED
-        )
-
-        summaries_path = temp_output_dir / "synthetic_summaries.json"
-        ground_truth_path = temp_output_dir / "ground_truth.json"
-        metadata_path = temp_output_dir / "synthetic_metadata.json"
-
-        assert summaries_path.exists(), "Synthetic summaries file not created"
-        assert ground_truth_path.exists(), "Ground truth file not created"
-        assert metadata_path.exists(), "Metadata file not created"
-
-        # Verify file contents
-        with open(summaries_path, "r") as f:
-            data = json.load(f)
-            assert len(data) == 100
-
-        with open(ground_truth_path, "r") as f:
-            data = json.load(f)
-            assert len(data) == 100
-
-    def test_deterministic_generation(self, temp_output_dir):
-        """Verify generation is deterministic with same seed."""
-        summaries1, gt1 = generate_synthetic_corpus(
-            n_records=50,
-            output_dir=temp_output_dir / "run1",
-            seed=42
-        )
-
-        summaries2, gt2 = generate_synthetic_corpus(
-            n_records=50,
-            output_dir=temp_output_dir / "run2",
-            seed=42
-        )
-
-        # Compare test IDs and key values
-        for s1, s2 in zip(summaries1, summaries2):
-            assert s1.test_id == s2.test_id
-            assert np.isclose(s1.p_value, s2.p_value)
-            assert np.isclose(s1.effect_size, s2.effect_size)
-
-    def test_domain_distribution(self, temp_output_dir):
-        """Verify multiple domains are represented."""
-        summaries, _ = generate_synthetic_corpus(
-            n_records=1000,
-            output_dir=temp_output_dir,
-            seed=SEED
-        )
-
-        domains = set(s.domain for s in summaries)
-        assert len(domains) >= 5, f"Expected at least 5 domains, got {len(domains)}"
-
-    def test_year_distribution(self, temp_output_dir):
-        """Verify year range is reasonable."""
-        summaries, _ = generate_synthetic_corpus(
-            n_records=1000,
-            output_dir=temp_output_dir,
-            seed=SEED
-        )
-
-        years = [s.year for s in summaries]
-        assert min(years) >= 2018
-        assert max(years) <= 2025
-
-    def test_p_value_range(self, temp_output_dir):
-        """Verify p-values are in valid range [0, 1]."""
-        summaries, _ = generate_synthetic_corpus(
-            n_records=100,
-            output_dir=temp_output_dir,
-            seed=SEED
-        )
-
-        for s in summaries:
-            assert 0 <= s.p_value <= 1, f"Invalid p-value: {s.p_value}"
-
-    def test_sample_size_constraints(self, temp_output_dir):
-        """Verify sample sizes are positive integers."""
-        summaries, _ = generate_synthetic_corpus(
-            n_records=100,
-            output_dir=temp_output_dir,
-            seed=SEED
-        )
-
-        for s in summaries:
-            assert s.n_control > 0
-            assert s.n_treatment > 0
-            assert isinstance(s.n_control, int)
-            assert isinstance(s.n_treatment, int)
+    def test_record_id_uniqueness(self):
+        """Test that all record IDs are unique."""
+        binary_records, continuous_records = generate_synthetic_dataset(self.seed)
+        all_records = binary_records + continuous_records
+        
+        ids = [record["id"] for record in all_records]
+        unique_ids = set(ids)
+        
+        self.assertEqual(len(ids), len(unique_ids), 
+                       "Duplicate record IDs found in generated dataset")

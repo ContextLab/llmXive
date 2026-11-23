@@ -1,0 +1,16 @@
+T001:
+  c: true
+  h: edf6448d1f5b0ad6886e2ff634c538d2463be8eea09bd6086cee4e3c6a20011d
+  r: "Checked `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml`;\
+    \ it exists, is non\u2011empty, and defines the required `molecule_id` (string),\
+    \ `smiles` (string), and `logP` (number) properties with a valid JSON\u2011Schema\
+    \ structure."
+  sig: b5c06606ce9acc950c963fb793d4c6b17d56c42294ecd85c192f4548c9c8f278
+T001b:
+  c: false
+  h: 96a641cf26ef2c851e5c75ff445f54559d39dd8d3d9f4c20d1c6f9916397d313
+  r: "The manifest `data/checksums.txt` lists `data/raw/esol.csv` and `data/raw/lipophilicity.csv`,\
+    \ but these files are not present in the provided artifact list, so the script\
+    \ cannot verify all checksums and would exit with a non\u2011zero status. The\
+    \ required data files must be added for the checksum verification to succeed."
+  sig: 3ee884571edf591667ff2686ae63518d7d06967a797f5580f000dca2d8e24603

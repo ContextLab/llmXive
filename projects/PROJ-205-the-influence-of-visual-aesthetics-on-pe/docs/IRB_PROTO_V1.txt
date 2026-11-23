@@ -1,0 +1,37 @@
+INFORMED CONSENT FORM
+Project Title: The Influence of Visual Aesthetics on Perceived Credibility of Online Information
+Protocol ID: IRB-2024-AESTH-001
+Principal Investigator: [Research Team]
+Institution: [Research Institution]
+
+1. PURPOSE OF THE STUDY
+You are invited to participate in a research study investigating how the visual design of websites influences your perception of their credibility. The goal is to understand the relationship between aesthetic quality and trust in online information.
+
+2. PROCEDURES
+If you agree to participate, you will be asked to:
+- Read and acknowledge this consent form.
+- View four different versions of a webpage containing neutral text.
+- Rate each version on scales of credibility and professionalism.
+- Provide basic demographic information (Age, Education level).
+The entire session will take approximately 10-15 minutes.
+
+3. RISKS AND DISCOMFORTS
+There are no known risks greater than those encountered in everyday life. The study involves viewing website designs and answering questions.
+
+4. BENEFITS
+There is no direct benefit to you for participating. However, the results may contribute to a better understanding of online trust and design principles.
+
+5. CONFIDENTIALITY
+Your responses will be recorded anonymously. Your IP address will be hashed immediately upon capture and stored only as a cryptographic hash to detect duplicate submissions. The raw IP address will never be stored. Your demographic data and ratings will be associated with a unique participant ID.
+
+6. VOLUNTARY PARTICIPATION
+Your participation is entirely voluntary. You may choose not to participate or may withdraw at any time without penalty. If you withdraw, your data will be discarded if possible.
+
+7. CONTACT INFORMATION
+If you have questions about this study, please contact the research team at [Contact Email].
+
+8. CONSENT
+By clicking "I Agree", you confirm that you have read this form, understand the information, and voluntarily agree to participate.
+
+Protocol Version: 1.0
+Last Updated: 2024-01-01

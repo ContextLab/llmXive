@@ -39,7 +39,7 @@ A researcher needs to visualize the relationship between sample size and error r
 
 ### User Story 3 - Validation Against Real-World Small-Sample Datasets (Priority: P3)
 
-A researcher needs to validate the simulation findings by applying the identified thresholds to 2-3 public small-sample datasets (e.g., from UCI or OpenML) to confirm that the simulated p-value distributions and bootstrapped power estimates align with observed behavior in real data.
+A researcher needs to validate the simulation findings by applying the identified thresholds to a small number of public small-sample datasets (e.g., from UCI or OpenML) to confirm that the simulated p-value distributions and bootstrapped power estimates align with observed behavior in real data.
 
 **Why this priority**: This adds external validity to the simulation results, ensuring the findings are not artifacts of the synthetic data generation process. It is a "nice-to-have" for robustness but not strictly required for the core simulation logic.
 

@@ -1,54 +1,68 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: ReactionSample
-description: Schema for a single preprocessed chemical reaction sample.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ReactionSample"
+description: "Schema for a single reaction sample in the processed dataset."
+type: "object"
 properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the sample."
   reaction_smiles:
-    type: string
-    description: "Canonical SMILES of the reaction."
+    type: "string"
+    description: "Canonical SMILES string of the reaction."
   yield_percent:
-    type: number
-    minimum: 0.0
-    maximum: 100.0
-    description: "Reaction yield in percent (0-100) or normalized DFT total energy proxy."
+    type: "number"
+    minimum: 0
+    maximum: 100
+    description: "Reaction yield percentage."
   ir_spectrum:
-    type: array
+    type: "array"
     items:
-      type: number
-    description: "Resampled IR spectrum intensities."
+      type: "number"
+    minItems: a sufficiently large number of items
+    maxItems: 1000
+    description: "Resampled IR spectrum (400-4000 cm-1, 1 cm-1 step)."
   nmr_spectrum:
-    type: array
+    type: "array"
     items:
-      type: number
-    nullable: true
-    description: "Resampled NMR spectrum intensities (null if missing)."
-  rfp:
-    type: array
+      type: "number"
+    minItems: a sufficiently large number of items
+    maxItems: 1000
+    description: "Resampled ¹H‑NMR spectrum (0-10 ppm, 0.01 ppm step)."
+  fingerprint:
+    type: "array"
     items:
-      type: integer
+      type: "integer"
+    minItems: a sufficiently large value to meet the study’s requirements.
+    maxItems: 1024
     description: "ECFP4 fingerprint vector."
-  scaffold_id:
-    type: string
-    description: "Hash of the Bemis-Murcko scaffold."
+  rfp:
+    type: "array"
+    items:
+      type: "integer"
+    minItems: 1024
+    maxItems: 1024
+    description: "Alias for fingerprint (ECFP4) to support legacy code."
+  reaction_template_id:
+    type: "string"
+    description: "Hash of the reaction‑template identifier."
   solvent_id:
-    type: integer
-    description: "Encoded solvent category ID."
+    type: "integer"
+    description: "Encoded solvent category."
   catalyst_id:
-    type: integer
-    description: "Encoded catalyst category ID."
+    type: "integer"
+    description: "Encoded catalyst category."
   temperature_k:
-    type: number
-    description: "Temperature in Kelvin."
-  source_dataset:
-    type: string
-    description: "Source dataset name (e.g., DFT)."
+    type: "number"
+    description: "Reaction temperature in Kelvin."
 required:
+  - id
   - reaction_smiles
   - yield_percent
   - ir_spectrum
-  - rfp
-  - scaffold_id
+  - nmr_spectrum
+  - fingerprint
+  - reaction_template_id
   - solvent_id
   - catalyst_id
   - temperature_k
-  - source_dataset
+additionalProperties: false

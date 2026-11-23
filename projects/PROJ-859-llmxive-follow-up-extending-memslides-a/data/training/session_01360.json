@@ -1,0 +1,124 @@
+{
+  "trace_id": "training_42_01360",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 10,
+  "tool_sequence": [
+    "format_text",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "format_text",
+    "format_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 51.4111,
+        "x": 49.4715,
+        "y": 99.899
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 11.3308,
+        "y": 67.4491,
+        "width": 68.5323,
+        "height": 24.5324
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 0.2051,
+        "y": 60.7028,
+        "width": 42.2352,
+        "height": 53.886
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 50.5364,
+        "y": 76.6715,
+        "width": 78.088,
+        "height": 54.5512
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 58.586,
+        "y": 60.9798,
+        "width": 8.7008,
+        "height": 19.3468
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 92.9165,
+        "y": 12.9939,
+        "length": 40.7911
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 17.5724,
+        "y": 97.9827,
+        "length": 55.3644
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 46.3616,
+        "y": 16.0312,
+        "length": 45.6468
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 21.689,
+        "x": 83.7325,
+        "y": 67.8702
+      }
+    },
+    {
+      "step": 9,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 38.4588,
+        "x": 21.1429,
+        "y": 79.5262
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.0889,
+    "tool_repetition_freq": 0.7,
+    "arg_semantic_variance": 713.455532
+  },
+  "final_state": {
+    "dominant_tool": "insert_image",
+    "slide_element_count": 3,
+    "layout_hash": "42-1360-insert_image"
+  }
+}

@@ -1,0 +1,13 @@
+status: none
+intent: Human Connectome Project resting state fMRI DSST behavioral data python package
+  dataset
+required_fields:
+- subject_id
+- run_id
+- nifti_file_path
+- dsst_score
+- session_id
+- acquisition_date
+cache_key: 5cad83ec4627a8437303ef8b5ef84f24f7ad6d82634e506e4519ba5fac1db5e8
+searched_at: '2026-10-09T04:04:08.502567+00:00'
+retry_count: 1

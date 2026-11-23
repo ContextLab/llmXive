@@ -1,25 +1,22 @@
-# llmXive Project Configuration
-# This file defines data paths and project settings.
-# Override by setting the environment variable LLMXIVE_CONFIG_PATH.
+# Configuration for Calibration Drift Analysis Project
+# Paths are relative to the project root
 
-data:
-  raw_dir: data/raw
-  processed_dir: data/processed
-  models_dir: data/models
-  figures_dir: figures
+data_path: "data/raw"
+processed_data_path: "data/processed"
+models_path: "data/models"
+figures_path: "figures"
+contracts_path: "contracts"
 
-paths:
-  contracts_dir: contracts
-  specs_dir: specs
+# Data sources
+adult_dataset_url: "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data"
+adult_test_url: "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.test"
 
-# Optional: Data source settings
-data_sources:
-  adult_uci:
-    base_url: "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/"
-    files:
-      - "adult.data"
-      - "adult.test"
-  credit_card:
-    base_url: "https://archive.ics.uci.edu/ml/machine-learning-databases/"
-    # Specific path might vary, handled in acquisition script
-    note: "Credit Card Default dataset path requires manual verification or specific download link"
+# Analysis parameters
+default_bins: 10
+pca_variance_threshold: 0.95
+shift_detection_alpha: 0.05
+feature_overlap_threshold: 0.90
+
+# Logging
+log_level: "INFO"
+log_file: "logs/pipeline.log"

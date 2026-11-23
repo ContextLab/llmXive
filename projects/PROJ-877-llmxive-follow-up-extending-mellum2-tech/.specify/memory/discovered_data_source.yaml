@@ -1,0 +1,10 @@
+status: none
+intent: HuggingFace code repository dataset Python Java CodeXGLUE python package dataset
+required_fields:
+- repo_id
+- file_path
+- code
+- language
+cache_key: acb4d1be8cf5615b5c3e48774ed83c53358232c1d7db78e2b15f42e10aad36d4
+searched_at: '2026-10-21T16:09:40.894567+00:00'
+retry_count: 1

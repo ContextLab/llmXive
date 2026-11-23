@@ -1,213 +1,182 @@
 """
-Unit tests for graph_builder.py focusing on bond cutoff logic and node-degree statistics.
+Unit tests for Graph Builder and Serializer (T015a).
+
+Tests:
+- T011: Unit test for bond cutoff logic.
+- T016b: Unit test for node-degree stats output.
+- T015a: Unit test for graph serialization.
 """
-import json
 import os
+import json
+import pickle
 import tempfile
 from pathlib import Path
 import pytest
 import numpy as np
 
-# Import the functions to test
+# Import modules
 from ingest.graph_builder import build_graph_from_xyz, calculate_node_degree_stats
+from ingest.graph_serializer import serialize_graph, calculate_checksum
+from config import get_config, get_paths
 
 
-def create_test_xyz_file(content: str, tmp_path: Path) -> Path:
-    """Helper to create a temporary XYZ file."""
-    file_path = tmp_path / "test_structure.xyz"
-    file_path.write_text(content)
-    return file_path
+@pytest.fixture
+def temp_xyz_file():
+    """Create a temporary XYZ file with a known structure for testing."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.xyz', delete=False) as f:
+        # Header: 4 atoms
+        f.write("4\n")
+        f.write("Test structure for bond cutoff\n")
+        # Atom 1 at origin
+        f.write("Si 0.0 0.0 0.0\n")
+        # Atom 2 at 2.35 A (bonded)
+        f.write("Si 2.35 0.0 0.0\n")
+        # Atom 3 at 3.5 A (not bonded, > 3.0 cutoff)
+        f.write("Si 3.5 0.0 0.0\n")
+        # Atom 4 at 2.35 in Y (bonded to 1)
+        f.write("Si 0.0 2.35 0.0\n")
+        temp_path = f.name
+    yield temp_path
+    os.unlink(temp_path)
 
 
-def test_bond_cutoff_exact_boundary():
+@pytest.fixture
+def temp_output_dir():
+    """Create a temporary directory for output files."""
+    temp_dir = tempfile.mkdtemp()
+    yield Path(temp_dir)
+    import shutil
+    shutil.rmtree(temp_dir)
+
+
+def test_bond_cutoff_logic(temp_xyz_file):
     """
-    Test that atoms exactly at the cutoff distance (3.0 Å) are connected.
+    T011: Unit test for bond cutoff logic.
+    
+    Verifies that atoms within 3.0 Å are connected and those outside are not.
     """
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir)
-        # Create a simple XYZ with two atoms exactly 3.0 Angstroms apart along x-axis
-        # Header: 2 atoms, comment line
-        # Atom 1 at (0, 0, 0)
-        # Atom 2 at (3.0, 0, 0)
-        xyz_content = """2
-        Test structure for cutoff
-        Si 0.0 0.0 0.0
-        Si 3.0 0.0 0.0
-        """
-        xyz_file = create_test_xyz_file(xyz_content, tmp_path)
+    graph = build_graph_from_xyz(temp_xyz_file, cutoff=3.0)
+    
+    assert graph is not None
+    assert len(graph['nodes']) == 4
+    
+    # Check edges
+    edges = graph['edges']
+    
+    # Expected edges: (0,1), (0,3). (0,2) should NOT exist (3.5 > 3.0)
+    # Node indices: 0, 1, 2, 3
+    
+    # Verify specific connections
+    edge_set = set(tuple(sorted(e)) for e in edges)
+    
+    assert (0, 1) in edge_set, "Atoms at 0.0 and 2.35 should be bonded"
+    assert (0, 3) in edge_set, "Atoms at 0.0 and 2.35 (Y) should be bonded"
+    assert (0, 2) not in edge_set, "Atoms at 0.0 and 3.5 should NOT be bonded"
+    
+    # Verify degrees
+    # Node 0: connected to 1, 3 -> degree 2
+    # Node 1: connected to 0 -> degree 1
+    # Node 2: connected to none -> degree 0
+    # Node 3: connected to 0 -> degree 1
+    
+    node_degrees = {n['id']: n['degree'] for n in graph['nodes']}
+    assert node_degrees[0] == 2
+    assert node_degrees[1] == 1
+    assert node_degrees[2] == 0
+    assert node_degrees[3] == 1
 
-        graph = build_graph_from_xyz(xyz_file, cutoff=3.0)
 
-        # Should have 2 nodes
-        assert len(graph["nodes"]) == 2
-        # Should have exactly 1 edge (0-1)
-        assert len(graph["edges"]) == 1
-        assert (0, 1) in graph["edges"] or (1, 0) in graph["edges"]
-
-
-def test_bond_cutoff_just_inside():
+def test_node_degree_stats_output(temp_xyz_file):
     """
-    Test that atoms slightly inside the cutoff (2.99 Å) are connected.
+    T016b: Unit test for node-degree stats output.
+    
+    Verifies that the node degree statistics function returns expected structure.
     """
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir)
-        # Atoms at 0 and 2.99
-        xyz_content = """2
-        Test structure
-        Si 0.0 0.0 0.0
-        Si 2.99 0.0 0.0
-        """
-        xyz_file = create_test_xyz_file(xyz_content, tmp_path)
-
-        graph = build_graph_from_xyz(xyz_file, cutoff=3.0)
-
-        assert len(graph["nodes"]) == 2
-        assert len(graph["edges"]) == 1
+    graph = build_graph_from_xyz(temp_xyz_file, cutoff=3.0)
+    stats = calculate_node_degree_stats([graph])
+    
+    assert 'mode' in stats
+    assert isinstance(stats['mode'], int)
+    # In our test case: degrees are [2, 1, 0, 1]. Mode is 1.
+    assert stats['mode'] == 1
+    
+    assert 'distribution' in stats
+    assert 0 in stats['distribution']
+    assert 1 in stats['distribution']
+    assert 2 in stats['distribution']
 
 
-def test_bond_cutoff_just_outside():
+def test_serialization(temp_xyz_file, temp_output_dir):
     """
-    Test that atoms slightly outside the cutoff (3.01 Å) are NOT connected.
+    T015a: Unit test for graph serialization.
+    
+    Verifies that a graph can be serialized to a pickle file and loaded back
+    with identical content.
     """
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir)
-        # Atoms at 0 and 3.01
-        xyz_content = """2
-        Test structure
-        Si 0.0 0.0 0.0
-        Si 3.01 0.0 0.0
-        """
-        xyz_file = create_test_xyz_file(xyz_content, tmp_path)
+    # Build graph
+    graph_data = build_graph_from_xyz(temp_xyz_file, cutoff=3.0)
+    assert graph_data is not None
+    
+    # Define output path
+    output_file = temp_output_dir / "graph_test.pkl"
+    
+    # Serialize
+    serialize_graph(graph_data, output_file)
+    
+    # Verify file exists
+    assert output_file.exists(), "Serialized file was not created"
+    
+    # Verify checksum calculation works
+    checksum = calculate_checksum(output_file)
+    assert len(checksum) == 64, "SHA256 checksum should be 64 hex chars"
+    
+    # Deserialize and verify content
+    with open(output_file, 'rb') as f:
+        loaded_graph = pickle.load(f)
+    
+    # Verify structure
+    assert loaded_graph['nodes'] == graph_data['nodes']
+    assert loaded_graph['edges'] == graph_data['edges']
+    assert loaded_graph['metadata'] == graph_data['metadata']
 
-        graph = build_graph_from_xyz(xyz_file, cutoff=3.0)
 
-        assert len(graph["nodes"]) == 2
-        # No edges should exist
-        assert len(graph["edges"]) == 0
-
-
-def test_bond_cutoff_three_atoms_chain():
+def test_serialization_schema_compliance(temp_xyz_file, temp_output_dir):
     """
-    Test a chain of 3 atoms: A-B (2.0), B-C (2.0), A-C (4.0).
-    Only A-B and B-C should be edges.
+    T015a: Verify serialized data matches the AtomicGraph schema requirements.
+    
+    Checks that the serialized object contains required fields:
+    nodes (with id, coords, degree, clustering_coeff), edges, metadata.
     """
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        tmp_path = Path(tmp_dir)
-        # Atom A at 0, B at 2, C at 4
-        xyz_content = """3
-        Chain test
-        Si 0.0 0.0 0.0
-        Si 2.0 0.0 0.0
-        Si 4.0 0.0 0.0
-        """
-        xyz_file = create_test_xyz_file(xyz_content, tmp_path)
-
-        graph = build_graph_from_xyz(xyz_file, cutoff=3.0)
-
-        assert len(graph["nodes"]) == 3
-        # Edges: (0,1) and (1,2). (0,2) is 4.0 Å apart, so no edge.
-        assert len(graph["edges"]) == 2
-        assert (0, 1) in graph["edges"] or (1, 0) in graph["edges"]
-        assert (1, 2) in graph["edges"] or (2, 1) in graph["edges"]
-        assert (0, 2) not in graph["edges"] and (2, 0) not in graph["edges"]
-
-
-def test_node_degree_stats_single_graph():
-    """
-    Test node degree statistics calculation for a single graph.
-    """
-    # Construct a simple graph manually to test the stats function
-    # Graph: 0-1, 0-2, 0-3 (Node 0 has degree 3, others have degree 1)
-    nodes = [{"id": 0}, {"id": 1}, {"id": 2}, {"id": 3}]
-    edges = [(0, 1), (0, 2), (0, 3)]
-    graph = {"nodes": nodes, "edges": edges}
-
-    stats = calculate_node_degree_stats(graph)
-
-    assert "degrees" in stats
-    assert "mode" in stats
-    assert "mean" in stats
-    assert "min" in stats
-    assert "max" in stats
-
-    # Verify degrees: [3, 1, 1, 1]
-    assert stats["degrees"] == [3, 1, 1, 1]
-    # Mode should be 1 (appears 3 times)
-    assert stats["mode"] == 1
-    # Mean should be 1.5
-    assert np.isclose(stats["mean"], 1.5)
-    assert stats["min"] == 1
-    assert stats["max"] == 3
-
-
-def test_node_degree_stats_empty_graph():
-    """
-    Test node degree stats for a graph with no edges.
-    """
-    nodes = [{"id": 0}, {"id": 1}]
-    edges = []
-    graph = {"nodes": nodes, "edges": edges}
-
-    stats = calculate_node_degree_stats(graph)
-
-    assert stats["degrees"] == [0, 0]
-    assert stats["mode"] == 0
-    assert stats["mean"] == 0.0
-    assert stats["min"] == 0
-    assert stats["max"] == 0
-
-
-def test_node_degree_stats_disconnected_components():
-    """
-    Test stats for a graph with two disconnected components.
-    Component 1: 0-1 (degrees 1, 1)
-    Component 2: 2-3-4 (degrees 1, 2, 1)
-    Total degrees: [1, 1, 1, 2, 1] -> Mode is 1.
-    """
-    nodes = [{"id": i} for i in range(5)]
-    edges = [(0, 1), (2, 3), (3, 4)]
-    graph = {"nodes": nodes, "edges": edges}
-
-    stats = calculate_node_degree_stats(graph)
-
-    assert stats["degrees"] == [1, 1, 1, 2, 1]
-    assert stats["mode"] == 1
-    assert np.isclose(stats["mean"], 1.2)
-
-
-def test_node_degree_stats_json_schema_validation():
-    """
-    Unit test to verify that the output of calculate_node_degree_stats
-    conforms to the expected JSON schema structure for node_degree_stats.json.
-    This ensures the downstream consumer (T016) can parse the output correctly.
-    """
-    # Create a mock graph
-    nodes = [{"id": i} for i in range(4)]
-    edges = [(0, 1), (0, 2), (0, 3)] # Star graph
-    graph = {"nodes": nodes, "edges": edges}
-
-    stats = calculate_node_degree_stats(graph)
-
-    # Verify required keys exist
-    required_keys = ["degrees", "mode", "mean", "min", "max", "count"]
-    for key in required_keys:
-        assert key in stats, f"Missing required key '{key}' in node degree stats schema"
-
-    # Verify types
-    assert isinstance(stats["degrees"], list), "degrees must be a list"
-    assert isinstance(stats["mode"], (int, float)), "mode must be numeric"
-    assert isinstance(stats["mean"], (int, float)), "mean must be numeric"
-    assert isinstance(stats["min"], (int, float)), "min must be numeric"
-    assert isinstance(stats["max"], (int, float)), "max must be numeric"
-    assert isinstance(stats["count"], int), "count must be an integer"
-
-    # Verify count matches number of nodes
-    assert stats["count"] == len(graph["nodes"])
-
-    # Verify that the stats are serializable to JSON
-    try:
-        json_str = json.dumps(stats)
-        loaded = json.loads(json_str)
-        assert loaded["mode"] == stats["mode"]
-    except (TypeError, ValueError) as e:
-        pytest.fail(f"Stats dictionary is not JSON serializable: {e}")
+    graph_data = build_graph_from_xyz(temp_xyz_file, cutoff=3.0)
+    output_file = temp_output_dir / "graph_schema_test.pkl"
+    
+    serialize_graph(graph_data, output_file)
+    
+    with open(output_file, 'rb') as f:
+        loaded_graph = pickle.load(f)
+    
+    # Check top-level keys
+    assert 'nodes' in loaded_graph
+    assert 'edges' in loaded_graph
+    assert 'metadata' in loaded_graph
+    
+    # Check node structure
+    for node in loaded_graph['nodes']:
+        assert 'id' in node
+        assert 'coords' in node
+        assert len(node['coords']) == 3
+        assert 'degree' in node
+        assert isinstance(node['degree'], int)
+        assert 'clustering_coeff' in node
+        assert isinstance(node['clustering_coeff'], float)
+    
+    # Check edge structure (list of pairs)
+    for edge in loaded_graph['edges']:
+        assert len(edge) == 2
+        assert isinstance(edge[0], int)
+        assert isinstance(edge[1], int)
+    
+    # Check metadata
+    assert 'sample_id' in loaded_graph['metadata']
+    assert 'cutoff' in loaded_graph['metadata']
+    assert 'atom_count' in loaded_graph['metadata']

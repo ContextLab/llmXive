@@ -1,0 +1,5 @@
+'|dropout forward inference mc passe run sample set stochastic test':
+  quote: overT = 10, 000 MC runs is given by sampling from the
+  source_id: '2007.03293'
+  url: https://arxiv.org/abs/2007.03293
+  value: 10,000

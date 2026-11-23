@@ -9,62 +9,60 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-What is the upper bound on T-violation triple-correlation coefficients achievable by statistically fusing independent momentum and polarization observables from archived beta decay datasets, and does this limit improve upon existing constraints from single-modality re-analyses?
+What is the sensitivity limit for detecting a non-zero T-violating triple-correlation coefficient ($D$) in specific mirror nuclei (e.g., $^{6}$He, $^{19}$Ne) when systematically aggregating published experimental upper bounds from independent studies, and can this aggregated limit distinguish between the Standard Model prediction ($D=0$) and current experimental precision thresholds?
 
 ## Motivation
 
-Time-reversal (T) symmetry violation in beta decay, typically parameterized by the D-coefficient (a triple correlation between neutron spin, electron momentum, and neutrino momentum), is a sensitive probe for physics beyond the Standard Model. While dedicated experiments (e.g., nEDM, PERKEO) provide the tightest constraints, the potential of "data fusion" across independent archival measurements remains unexplored. This project addresses whether combining distinct, public datasets—specifically momentum spectra and polarization asymmetries—can yield competitive sensitivity limits without new experimental costs, potentially identifying candidate nuclei for future high-precision studies.
+Time-reversal (T) symmetry violation in beta decay, parameterized by the $D$-coefficient, is a critical probe for physics beyond the Standard Model. While individual experiments report increasingly tight upper bounds, no systematic meta-analysis has quantified whether the collective precision of archival data offers a competitive constraint compared to the most recent single-best experiment. This project addresses the gap in understanding the statistical power of data fusion when the raw event data is unavailable, focusing instead on the rigorous synthesis of published scalar limits to define the current "floor" of experimental sensitivity.
 
 ## Literature gap analysis
 
 ### What we searched
 
-We queried Semantic Scholar, arXiv, and OpenAlex using terms such as "T-violation triple correlation beta decay," "D-coefficient archival data," "beta decay momentum polarization covariance," and "NNDC ENSDF symmetry tests." The search volume was limited, with the majority of results focusing on theoretical nuclear structure, double beta decay mechanisms, or descriptions of dedicated, single-modality experiments. No results specifically addressed the statistical methodology of cross-referencing independent momentum and polarization datasets to derive T-violation bounds.
+We queried Semantic Scholar, arXiv, and OpenAlex using terms such as "beta decay D-coefficient meta-analysis," "T-violation triple correlation upper bounds aggregation," "mirror nuclei beta decay systematic review," and "ENSDF T-symmetry constraints." The search volume was limited, with the majority of results focusing on theoretical nuclear structure, specific experimental setups for single nuclei, or reviews of double beta decay. No results specifically addressed the statistical methodology of aggregating published *upper bounds* (rather than raw measurements) to derive a collective sensitivity limit for T-violation.
 
 ### What is known
 
-- [Double beta decay in deformed nuclei (2001)](https://arxiv.org/abs/nucl-th/0109057) — Establishes theoretical frameworks (pseudo SU(3)) for describing nuclear structure and transition intensities, providing the necessary structural context for understanding decay rates but not addressing the statistical combination of independent single-beta observables for T-symmetry tests.
-- [Nuclear structure and double beta decay (2012)](https://arxiv.org/abs/1208.1992) — Reviews nuclear structure complexities relevant to neutrinoless double beta decay and decay mechanisms, highlighting the need for precise matrix elements, yet does not cover the retrospective statistical re-analysis of independent momentum and polarization datasets for T-violation constraints.
+- [Nuclear structure and double beta decay (2012)](https://arxiv.org/abs/1208.1992) — Reviews nuclear structure problems relevant to beta decay mechanisms, establishing the theoretical context for symmetry tests but focusing on double beta decay ($0\nu\beta\beta$) rather than the single-beta decay T-odd correlations accessible in standard ENSDF archives.
+- [Future directions in nuclear $\beta$ decay at FRIB and beyond (2026)](https://arxiv.org/abs/2607.22983) — Outlines the future opportunities for fundamental symmetry studies with nuclear $\beta$ decay, highlighting the need for improved precision but not providing a retrospective statistical analysis of existing archival upper bounds to determine current collective sensitivity limits.
 
 ### What is NOT known
 
-No published work has systematically combined independent momentum spectra and polarization asymmetry measurements from separate archival sources (e.g., ENSDF) to test for non-zero covariance indicative of T-violation. The sensitivity limits achievable through this specific "data fusion" approach on public repositories remain unquantified, and no methodology exists for harmonizing these distinct measurement modalities for symmetry testing.
+No published work has systematically aggregated published *upper bounds* on the $D$-coefficient from independent experiments on the same nuclei to determine if the collective dataset provides a tighter constraint than the single most precise experiment. The statistical framework for combining one-sided limits (rather than two-sided means) and the resulting impact on the global sensitivity floor for T-violation in mirror nuclei remain unquantified.
 
 ### Why this gap matters
 
-If archival data can be shown to constrain T-violation parameters, it would unlock a vast, underutilized resource for preliminary screening of candidate nuclei, potentially guiding the allocation of resources for next-generation dedicated experiments. Conversely, quantifying the inability of such data to detect these effects would definitively rule out low-cost re-analysis as a viable discovery channel for this specific symmetry test, saving research effort.
+Quantifying the collective sensitivity of archival data is essential for resource allocation in next-generation experiments. If the aggregated bounds from public data already approach theoretical limits, it may indicate that further improvements require new experimental apparatus rather than data re-analysis. Conversely, if a gap exists between the aggregated archival limit and the theoretical sensitivity, it identifies a specific opportunity for re-analysis or targeted experiments.
 
 ### How this project addresses the gap
 
-The methodology explicitly decouples momentum and polarization data sources, treating them as independent measurements to compute their covariance, thereby testing for T-violation signatures without requiring new experimental runs. This approach directly addresses the unknown by establishing a statistical framework for cross-modal analysis of public nuclear data to derive upper bounds on T-violation coefficients.
+The methodology explicitly aggregates published upper bounds using a statistical framework designed for one-sided limits (inverse-variance weighting of the bound magnitudes), treating the inputs as independent constraints on the same physical parameter. This approach directly addresses the unknown by establishing a quantitative "sensitivity floor" derived from the collective precision of the community's existing data.
 
 ## Expected results
 
-We expect to either (a) derive an upper bound on the T-violation D-coefficient that is competitive with or tighter than existing single-modality re-analyses for specific nuclei, or (b) establish rigorous sensitivity limits demonstrating that current archival data lacks the precision to detect predicted T-violation effects. A null result with quantified limits is scientifically valuable as it defines the boundary of what is possible with existing public datasets.
+We expect to either (a) derive a collective upper bound on $|D|$ that is significantly tighter than the best single-experiment limit for specific nuclei, demonstrating the value of data fusion, or (b) confirm that the collective bound is dominated by the single most precise experiment, indicating diminishing returns from simple aggregation. A null result establishing the current precision floor is scientifically valuable as it defines the boundary of what is possible with existing public datasets.
 
 ## Methodology sketch
 
-- Retrieve beta decay energy/momentum spectra and polarization asymmetry coefficients for specific nuclei (e.g., 6He, 19Ne) from independent entries in the NNDC ENSDF database (https://www.nndc.bnl.gov/ensdf/).
-- Preprocess data by binning momentum spectra and normalizing polarization coefficients, ensuring both datasets are aligned by nuclear state and experimental conditions without merging raw counts.
-- Construct a joint dataset where momentum bins and polarization values are treated as independent random variables derived from separate experimental runs.
-- Compute the covariance matrix between the momentum distribution and polarization coefficients using standard statistical estimators, isolating the T-odd term.
-- Generate a null distribution via permutation testing (10,000 shuffles) where polarization values are randomly reassigned to momentum bins to simulate the absence of correlation.
-- Calculate p-values and effect sizes, comparing the observed covariance against the null distribution and Standard Model predictions (expected covariance ≈ 0).
-- Convert the observed covariance limits into an upper bound on the T-violation triple-correlation coefficient (D) using established kinematic relationships.
-- Perform a sensitivity analysis to determine the minimum detectable D-coefficient given the sample sizes and noise levels of the archival datasets.
-- Validate results by cross-referencing the derived upper bounds with known constraints from dedicated experiments (e.g., from the Particle Data Group) to ensure the methodology does not produce spurious correlations.
-- Document all data extraction scripts, statistical code, and sensitivity plots for reproducibility and independent verification.
+- **Data Extraction**: Retrieve published upper bounds (95% CL) on the $D$-coefficient for specific mirror nuclei (e.g., $^{6}$He, $^{19}$Ne) from the Particle Data Group (PDG) reviews and ENSDF database entries. Extract the reported limit value, the associated experimental uncertainty (if provided as a two-sided error converted to a bound), and the publication year.
+- **Data Harmonization**: Normalize all extracted upper bounds to a consistent confidence level (95% CL) and units (dimensionless $D$). Convert any two-sided symmetric error limits ($\pm \sigma$) into one-sided upper bounds using standard Gaussian assumptions ($D_{upper} \approx 1.645 \sigma$) to ensure comparability.
+- **Weighted Aggregation**: Treat the upper bounds as independent constraints. Calculate a weighted aggregate limit using inverse-variance weighting ($w_i = 1/\sigma_i^2$), where $\sigma_i$ is the effective standard deviation derived from the reported upper bound. This creates a "meta-bound" that represents the collective precision.
+- **Heterogeneity Assessment**: Calculate the Cochran's $Q$ statistic and $I^2$ index to quantify heterogeneity across the independent studies. This step determines if the studies are statistically consistent with a single underlying limit or if unmodeled systematic variations (e.g., different detector geometries) dominate the variance.
+- **Confidence Interval for the Meta-Bound**: Compute the 95% confidence interval for the aggregated upper bound. If heterogeneity is high ($I^2 > 50\%$), switch to a random-effects model to inflate the variance of the meta-bound, ensuring the result is robust against systematic differences between experiments.
+- **Sensitivity Comparison**: Compare the derived meta-bound against the single most precise individual experiment reported in the dataset. Calculate the relative improvement (or lack thereof) to quantify the value of the aggregation.
+- **Independent Validation**: Compare the final meta-bound against the theoretical Standard Model prediction ($D=0$) and the limits cited in the most recent PDG review (treating the PDG review as an independent benchmark of the field's consensus, not the raw data source).
+- **Reproducibility**: Document all data extraction scripts and statistical code, ensuring that all input values are verifiable against the original PDG/ENSDF entries and that no synthetic or placeholder data is used in the final analysis.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: [T-violation in beta decay, NNDC archival analysis, beta decay momentum correlations]
-- Closest match: [T-violation in beta decay] (similarity sketch: both address T-symmetry violation but this proposal uniquely focuses on the statistical fusion of independent archival modalities to derive upper bounds, rather than new experiment design or single-dataset re-analysis)
+- Closest match: [T-violation in beta decay] (similarity sketch: both address T-symmetry violation but this proposal uniquely focuses on the statistical aggregation of published upper bounds to define a collective sensitivity floor, rather than new experiment design or raw data re-analysis)
 - Verdict: NOT a duplicate
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-14T07:03:25Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-11T11:30:24Z
 **Outcome**: exhausted
 **Original term**: Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry in Beta Decay? physics
 **Verified citation count**: 2
@@ -73,9 +71,29 @@ We expect to either (a) derive an upper bound on the T-violation D-coefficient t
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry in Beta Decay? physics | 2 |
+| 0 (initial) | Can Publicly Available Data Reveal Subtle Violations of Time-Reversal Symmetry in Beta Decay? physics | 0 |
+| 1 | Time-reversal violation in nuclear beta decay | 4 |
+| 2 | T-odd correlations in beta decay spectra | 0 |
+| 3 | Triple correlation D coefficient in beta decay | 0 |
+| 4 | Search for CP violation in beta decay | 0 |
+| 5 | Electric dipole moment constraints from beta decay | 0 |
+| 6 | Time-reversal symmetry breaking in weak interactions | 0 |
+| 7 | Precision tests of time-reversal invariance in nuclei | 0 |
+| 8 | Beta decay angular correlation asymmetries | 0 |
+| 9 | T-violation signatures in neutron beta decay | 0 |
+| 10 | Reanalysis of historical beta decay datasets for T-violation | 0 |
+| 11 | Weak interaction time-reversal symmetry tests | 0 |
+| 12 | Correlation coefficients for time-reversal violation | 0 |
+| 13 | Beyond Standard Model physics in beta decay | 0 |
+| 14 | T-odd observables in nuclear beta transitions | 0 |
+| 15 | Systematic errors in beta decay time-reversal tests | 0 |
+| 16 | Meta-analysis of beta decay symmetry violation data | 0 |
+| 17 | Direct time-reversal violation measurements in beta decay | 0 |
+| 18 | Constraints on T-violating couplings from beta decay | 0 |
+| 19 | Nucleon spin correlations in beta decay and T-symmetry | 0 |
+| 20 | Re-evaluation of public beta decay data for new physics | 0 |
 
 ### Verified citations
 
-1. **Double beta decay in deformed nuclei** (2001). Jorge G. Hirsch, Victoria E. Ceron, Octavio Castanos, Peter O. Hess, Osvaldo Civitarese. arXiv. [nucl-th/0109057](nucl-th/0109057). PDF-sampled: Inaccessible.
-2. **Nuclear structure and double beta decay** (2012). Petr Vogel. arXiv. [1208.1992](https://arxiv.org/abs/1208.1992). PDF-sampled: No.
+1. **Nuclear structure and double beta decay** (2012). Petr Vogel. arXiv. [1208.1992](https://arxiv.org/abs/1208.1992). PDF-sampled: No.
+2. **Future directions in nuclear $β$ decay at FRIB and beyond** (2026). Garrett B. King, Ayala Glick-Magid, Grigor Sargsyan, Mark A. Caprio, Kyle G. Leach, et al.. arXiv. [2607.22983](https://arxiv.org/abs/2607.22983). PDF-sampled: No.

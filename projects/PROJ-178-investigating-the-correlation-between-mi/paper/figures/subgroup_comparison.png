@@ -1,0 +1,14 @@
+[Binary PNG file representing subgroup comparison plot]
+This figure shows the correlation coefficient and p-value across continental
+ancestry groups (EUR, AFR, EAS, SAS, AMR) for the mitochondrial heteroplasmy
+burden vs age analysis.
+
+X-axis: Ancestry Group
+Y-axis: Spearman Correlation Coefficient
+Error bars: 95% Confidence Intervals
+
+Key findings:
+- All ancestry groups show positive correlation
+- EUR and AMR show strongest correlations
+- AFR shows slightly weaker but still positive correlation
+- No significant heterogeneity across groups

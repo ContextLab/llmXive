@@ -10,7 +10,7 @@ This project implements a Graph Neural Network (GNN) pipeline to predict DFT-cal
 **Note on Spec Deviations**:
 1.  **Dataset (US-1)**: The spec mentions OC20, but OC20 contains ground-state relaxations, not transition states. The plan replaces OC20 with the verified **QM9-TS** dataset (Transition States subset of QM9) which explicitly contains barrier heights.
 2.  **Statistical Test (FR-006)**: The spec mandates a "paired" test, but the data consists of independent samples. The plan implements an **unpaired Welch's t-test**, which is statistically valid, and flags the spec for update.
-3.  **Cross-Validation (FR-008)**: The spec mandates LOOCV, but performing LOOCV on a 5-model ensemble exceeds the 6h runtime limit. The plan implements **5-Fold Leave-Ligand-Scaffold-Out (LLSO)** cross-validation to ensure feasibility and scientific validity.
+3.  **Cross-Validation (FR-008)**: The spec mandates LOOCV, but performing LOOCV on a multi-model ensemble exceeds the 6h runtime limit. The plan implements **5-Fold Leave-Ligand-Scaffold-Out (LLSO)** cross-validation to ensure feasibility and scientific validity.
 4.  **Ligand Definition**: "Group 13" ligands are defined as those where the **donor atom** in the coordination sphere is Boron (B), Aluminum (Al), or Gallium (Ga), consistent with organometallic classification.
 
 ## Technical Context

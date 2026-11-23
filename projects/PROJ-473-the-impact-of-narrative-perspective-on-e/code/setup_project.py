@@ -1,14 +1,23 @@
 """
-Script to initialize the project directory structure.
-This script ensures that the required directories exist.
+Project Structure Initialization Script.
+
+Creates the required directory structure for the llmXive science pipeline:
+- code/: Source code modules
+- data/: Raw and processed data
+- tests/: Unit and integration tests
+- artifacts/: Generated figures and reports
 """
 import os
 import sys
+from pathlib import Path
 
 def main():
-    """Create the standard project directories."""
-    root_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    directories = [
+    """Create the project directory structure."""
+    # Define the base directory (project root)
+    base_dir = Path(__file__).resolve().parent.parent
+    
+    # Define required directories relative to the project root
+    required_dirs = [
         "code",
         "data",
         "data/raw",
@@ -18,30 +27,34 @@ def main():
         "artifacts",
         "figures"
     ]
-
-    created = []
-    for dir_path in directories:
-        full_path = os.path.join(root_dir, dir_path)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path)
-            created.append(dir_path)
-        else:
-            print(f"Directory exists: {dir_path}")
-
-    if created:
-        print(f"Created directories: {', '.join(created)}")
-    else:
-        print("All directories already exist.")
     
-    # Create __init__.py files if missing
-    for dir_path in ["code", "tests", "tests/integration"]:
-        full_path = os.path.join(root_dir, dir_path, "__init__.py")
-        if not os.path.exists(full_path):
-            with open(full_path, 'w') as f:
-                f.write('"""Auto-generated init file."""\n')
-            print(f"Created __init__.py in {dir_path}")
-
-    return 0
+    created_count = 0
+    existing_count = 0
+    
+    print(f"Initializing project structure at: {base_dir}")
+    
+    for dir_path in required_dirs:
+        full_path = base_dir / dir_path
+        
+        if full_path.exists():
+            print(f"  [SKIP] {dir_path} already exists")
+            existing_count += 1
+        else:
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"  [CREATE] {dir_path}")
+            created_count += 1
+    
+    print(f"\nInitialization complete: {created_count} directories created, {existing_count} already existed.")
+    
+    # Verify all directories exist
+    all_exist = all((base_dir / d).exists() for d in required_dirs)
+    
+    if all_exist:
+        print("SUCCESS: All required directories are present.")
+        return 0
+    else:
+        print("FAILURE: Some directories could not be created.")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

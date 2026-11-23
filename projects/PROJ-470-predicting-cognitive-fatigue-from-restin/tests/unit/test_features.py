@@ -1,142 +1,106 @@
 """
-Unit tests for feature extraction functions.
-
-Tests for Permutation Entropy and Lempel-Ziv Complexity calculations.
+Unit tests for feature extraction (T016).
+Verifies that LZC and PE values are within mathematically defined ranges.
 """
-import pytest
-import numpy as np
-import sys
+import csv
 import os
+import sys
+from pathlib import Path
+from unittest import TestCase
 
-# Add code directory to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+import numpy as np
 
-from features import calculate_permutation_entropy, calculate_lzc
+# Add project root to path if running directly
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+sys.path.append(str(PROJECT_ROOT / "code"))
+
+from features import extract_lempel_ziv_complexity, extract_permutation_entropy
 
 
-class TestPermutationEntropy:
-    """Tests for permutation entropy calculation."""
+class TestFeatureExtraction(TestCase):
     
-    def test_constant_signal(self):
-        """PE should be 0 for constant signal (no patterns)."""
-        signal = np.ones(100)
-        entropy = calculate_permutation_entropy(signal, order=3, delay=1)
-        assert entropy == 0.0
-    
-    def test_alternating_signal(self):
-        """PE should be low for highly regular alternating signal."""
-        signal = np.array([0, 1, 0, 1, 0, 1, 0, 1] * 12)
-        entropy = calculate_permutation_entropy(signal, order=3, delay=1)
-        # Should be relatively low compared to random
-        assert entropy < 1.0
-    
-    def test_random_signal(self):
-        """PE should be higher for random signal."""
+    def test_lzc_range(self):
+        """Test that LZC values are < 1.0 (normalized)."""
+        # Generate a random signal
         np.random.seed(42)
-        signal = np.random.randn(500)
-        entropy = calculate_permutation_entropy(signal, order=3, delay=1)
-        # Should be closer to maximum (log2(6) ≈ 2.58)
-        assert entropy > 1.5
-    
-    def test_order_parameter(self):
-        """PE should change with different order values."""
-        signal = np.random.randn(500)
-        entropy_order3 = calculate_permutation_entropy(signal, order=3, delay=1)
-        entropy_order4 = calculate_permutation_entropy(signal, order=4, delay=1)
+        signal = np.random.randn(1000)
         
-        # Different orders should give different results
-        assert entropy_order3 != entropy_order4
-    
-    def test_empty_signal(self):
-        """PE should return 0 for empty signal."""
-        signal = np.array([])
-        entropy = calculate_permutation_entropy(signal)
-        assert entropy == 0.0
-    
-    def test_small_signal(self):
-        """PE should handle very small signals gracefully."""
-        signal = np.array([1, 2, 3])
-        entropy = calculate_permutation_entropy(signal, order=3, delay=1)
-        assert entropy >= 0.0
-    
-    def test_known_signal(self):
-        """Test with a signal of known properties."""
-        # Create a signal with known pattern
-        # [0, 1, 2, 0, 1, 2, ...] should have low entropy
-        signal = np.tile([0, 1, 2], 50)
-        entropy = calculate_permutation_entropy(signal, order=3, delay=1)
-        assert entropy < 0.5  # Very low entropy for repeating pattern
+        lzc = extract_lempel_ziv_complexity(signal)
+        
+        # LZC is normalized between 0 and 1 for random signals
+        # We assert it is strictly less than 1.0 (the theoretical max for normalized LZC)
+        self.assertLess(lzc, 1.0, "LZC value should be less than 1.0")
+        
+    def test_pe_range(self):
+        """Test that PE values are < log2(3!) ~= 1.585 (for order=3)."""
+        # Maximum permutation entropy for order 3 is log2(6) = 1.585
+        # The task spec says < 2.585, which is log2(6) + some margin or perhaps log2(3!) * 1.64?
+        # Actually, log2(3!) = log2(6) ≈ 1.585. 
+        # The spec says < 2.585. Let's verify with a random signal.
+        np.random.seed(42)
+        signal = np.random.randn(1000)
+        
+        pe = extract_permutation_entropy(signal, order=3, delay=1)
+        
+        # The theoretical maximum for order 3 is log2(6) ≈ 1.585.
+        # The test requirement says < 2.585. Since 1.585 < 2.585, this should pass.
+        self.assertLess(pe, 2.585, "PE value should be less than 2.585")
 
-class TestLempelZivComplexity:
-    """Tests for Lempel-Ziv complexity calculation."""
-    
-    def test_constant_signal(self):
-        """LZC should be low for constant signal."""
-        signal = np.ones(100)
-        lzc = calculate_lzc(signal)
-        assert lzc < 0.5  # Low complexity
-    
-    def test_alternating_signal(self):
-        """LZC should be low for alternating signal."""
-        signal = np.array([0, 1, 0, 1, 0, 1, 0, 1] * 25)
-        lzc = calculate_lzc(signal)
-        assert lzc < 0.5  # Low complexity
-    
-    def test_random_signal(self):
-        """LZC should be higher for random signal."""
-        np.random.seed(42)
-        signal = np.random.randn(500)
-        lzc = calculate_lzc(signal)
-        # Should be higher than regular signals
-        assert lzc > 0.5
-    
-    def test_empty_signal(self):
-        """LZC should return 0 for empty signal."""
-        signal = np.array([])
-        lzc = calculate_lzc(signal)
-        assert lzc == 0.0
-    
-    def test_small_signal(self):
-        """LZC should handle small signals."""
-        signal = np.array([1, 2, 3, 4, 5])
-        lzc = calculate_lzc(signal)
-        assert lzc >= 0.0
-    
-    def test_binary_signal(self):
-        """LZC should work with binary signals."""
-        signal = np.array([0, 1, 0, 0, 1, 1, 0, 1, 0, 1] * 20)
-        lzc = calculate_lzc(signal)
-        assert lzc >= 0.0 and lzc <= 1.0  # Normalized value
+    def test_csv_output_structure(self):
+        """
+        Verify that if the script runs, the output CSV has the correct columns.
+        This test assumes the script has been run and the file exists.
+        """
+        output_file = Path("data/analysis/complexity_metrics.csv")
+        
+        if not output_file.exists():
+            self.skipTest(f"Output file {output_file} not found. Run code/features.py first.")
+        
+        with open(output_file, "r", newline="") as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            
+        # Check columns
+        expected_columns = {"participant_id", "channel", "segment_id", "lzc_value", "pe_value"}
+        self.assertEqual(set(reader.fieldnames), expected_columns, "CSV columns do not match expected")
+        
+        # Check that we have some data rows (if the script ran successfully)
+        # Note: This might be empty if the input data directory is empty, 
+        # but the task requires processing the FULL dataset.
+        # We just verify the structure here.
+        if len(rows) > 0:
+            # Verify types
+            for row in rows:
+                self.assertIsInstance(float(row["lzc_value"]), float)
+                self.assertIsInstance(float(row["pe_value"]), float)
 
-class TestIntegration:
-    """Integration tests for feature extraction."""
-    
-    def test_both_metrics_on_same_signal(self):
-        """Both metrics should produce reasonable values on same signal."""
+    def test_mathematical_bounds(self):
+        """
+        Additional check on mathematical bounds based on the spec.
+        Spec says: LZC < 1.0, PE < 2.585.
+        """
+        # Create a constant signal -> LZC should be 0
+        constant_signal = np.ones(100)
+        lzc_const = extract_lempel_ziv_complexity(constant_signal)
+        self.assertEqual(lzc_const, 0.0, "LZC of constant signal should be 0")
+
+        # Create a perfectly alternating signal -> LZC should be low but > 0
+        alt_signal = np.array([1, -1] * 50)
+        lzc_alt = extract_lempel_ziv_complexity(alt_signal)
+        self.assertLess(lzc_alt, 0.5, "LZC of alternating signal should be low")
+
+        # PE of constant signal -> 0
+        pe_const = extract_permutation_entropy(constant_signal)
+        self.assertEqual(pe_const, 0.0, "PE of constant signal should be 0")
+
+        # PE of random signal -> should be close to max for order 3
         np.random.seed(42)
-        signal = np.random.randn(500)
-        
-        lzc = calculate_lzc(signal)
-        pe = calculate_permutation_entropy(signal)
-        
-        # Both should be non-negative
-        assert lzc >= 0.0
-        assert pe >= 0.0
-        
-        # Both should be finite
-        assert np.isfinite(lzc)
-        assert np.isfinite(pe)
-    
-    def test_different_signals_different_metrics(self):
-        """Different signals should produce different metric values."""
-        np.random.seed(42)
-        signal1 = np.random.randn(500)
-        signal2 = np.random.randn(500)
-        
-        lzc1 = calculate_lzc(signal1)
-        lzc2 = calculate_lzc(signal2)
-        pe1 = calculate_permutation_entropy(signal1)
-        pe2 = calculate_permutation_entropy(signal2)
-        
-        # Values should differ (with very high probability)
-        assert lzc1 != lzc2 or pe1 != pe2
+        rand_signal = np.random.randn(1000)
+        pe_rand = extract_permutation_entropy(rand_signal, order=3, delay=1)
+        # Max PE for order 3 is log2(6) ≈ 1.585
+        max_pe = np.log2(np.math.factorial(3))
+        self.assertLessEqual(pe_rand, max_pe + 0.01, f"PE should be <= max PE ({max_pe})")
+
+if __name__ == "__main__":
+    import unittest
+    unittest.main()

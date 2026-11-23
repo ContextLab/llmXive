@@ -1,66 +1,117 @@
-# Quickstart: The Effect of Simulated Social Rejection on Neural Responses to Positive Feedback
+# Quickstart: Simulated Social Rejection → Behavioral Proxies
 
 ## Prerequisites
-
-*   Python 3.11+
-*   Git
-*   GitHub Actions runner (or local environment for testing)
+- Python 3.11+  
+- Git  
+- Access to GitHub Actions (or a local runner with ≥ 7 GB RAM)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-258-the-effect-of-simulated-social-rejection
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-
-## Running the Pipeline
-
-### Option A: Full Run (with Mock Data for CI)
-Since no verified behavioral dataset is available in the provided list, run the pipeline with mock data to validate the logic and CPU feasibility.
-**Note**: The mock data is configured to generate a **Between-Subjects** design only. The "modulation" hypothesis cannot be tested with this mock data.
-
 ```bash
-python code/main.py --mode mock
+# 1️⃣ Clone the repository
+git clone 
+cd PROJ-258-the-effect-of-simulated-social-rejection
+
+# 2️⃣ Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3️⃣ Install pinned dependencies
+pip install -r code/requirements.txt
 ```
 
-### Option B: Run with Real Data (If available)
-If you have a local dataset that matches the schema (Single-Cohort with both tasks):
+## Running the Full Pipeline
 
-1.  Place your CSV/TSV files in `data/raw/`.
-2.  Run:
-    ```bash
-    python code/main.py --mode real --input data/raw/your_data.csv
-    ```
-    *Note: If the dataset is not a single-cohort (i.e., IDs do not match across tasks), the script will flag the design as "Between-Subjects" and drop the "modulation" claim. If required variables are missing, the script will exit with code 1.*
-
-## Expected Outputs
-
-*   `data/processed/analysis_results.json`: Contains F-values, p-values, FDR-corrected p-values, and `modulation_claim_valid` flag.
-*   `data/processed/sensitivity_report.md`: Table of results across α = {0.01, 0.05, 0.1} including power estimates.
-*   `output/report.md`: Final research report with "associational" limitations and explicit statements about design validity.
-
-## Testing
-
-Run the test suite to verify data validation and statistical logic:
-
+### Step 1 – Ingest the Cyberball dataset
 ```bash
-pytest tests/ -v
+python code/ingest.py \
+  --url "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet" \
+  --out-dir data/raw \
+  --dataset-id ds000208
 ```
+*Outputs*:
+- `data/raw/ds000208.parquet`
+- `data/raw/metadata.json` (SHA‑256 checksum, download timestamp)
+- `data/raw/CITATION.md`
+- `data/interim/reward_unavailable.json` (placeholder indicating no reward data)
+
+*Failure*: Exit code 1 if required columns are missing, file > 7 GB, or `condition` lacks both “rejection” and “control”.
+
+### Step 2 – Validate the download
+```bash
+python code/validate.py \
+  --raw data/raw/ds000208.parquet \
+  --schema contracts/dataset.schema.yaml \
+  --output data/interim/ingest_validation_report.json
+```
+*Outputs*: JSON validation report. The script exits 1 on any schema violation.
+
+### Step 3 – Preprocess
+```bash
+python code/preprocess.py \
+  --input data/raw/ds000208.parquet \
+  --output data/processed/analysis_ready_ds000208.csv
+```
+*Outputs*:
+- `data/processed/analysis_ready_ds000208.csv` (cleaned, outlier‑flagged, Z‑score normalized)
+- `data/interim/outlier_log.json` (per‑condition IQR thresholds & counts)
+
+*Failure*: Exit code 1 if memory usage exceeds 7 GB.
+
+### Step 4 – Statistical Analysis
+```bash
+python code/analyze.py \
+  --data data/processed/analysis_ready_ds000208.csv \
+  --output results/analysis_output.json
+```
+*Outputs*: `results/analysis_output.json` containing **design‑aware** ANOVA results (Between‑Subjects or Repeated‑Measures), FDR‑corrected p‑values, effect sizes, **95 % confidence intervals**, and α‑sensitivity flags.
+
+### Step 5 – Outlier Sensitivity Check
+```bash
+python code/analyze.py \
+  --data data/processed/analysis_ready_ds000208.csv \
+  --outlier-sensitivity results/outlier_sensitivity.json
+```
+*Outputs*: Comparison of statistics with vs. removed outliers.
+
+### Step 6 – Generate Report
+```bash
+python code/report.py \
+  --analysis results/analysis_output.json \
+  --outlier-sensitivity results/outlier_sensitivity.json \
+  --design data/interim/design_branch.json \
+  --output paper/report.md
+```
+*Outputs*: `paper/report.md` with:
+- Design type (“Between‑Subjects” or “Repeated‑Measures”)  
+- ANOVA tables (or non‑parametric equivalents) with 95 % CI for effect sizes  
+- FDR‑corrected p‑values  
+- Limitations paragraph containing **“associational”**  
+- No occurrence of **“causal”** in the Results section  
+- Statement that neural responses are inferred from behavioral proxies.
+
+### Step 7 – Verify Everything (CI style)
+```bash
+pytest tests/
+```
+All tests must pass. They enforce:
+- Schema compliance for raw, processed, and analysis files.  
+- Correct FDR inequality (`p_fdr >= p_raw`).  
+- Presence of required phrasing constraints in the final report.  
+- Execution time ≤ 6 h (enforced by task T013).  
 
 ## Troubleshooting
 
-*   **Exit Code 1**: Indicates missing variables (e.g., `Reaction_Time` not found) or memory overflow. Check logs in `logs/ingest.log`.
-*   **Low Power Warning**: If N < 30 per group, the report will flag this. No action needed; the analysis proceeds with confidence intervals.
-*   **Modulation Claim Invalid**: If the design is Between-Subjects, the report will state that the "modulation" hypothesis is untestable.
+| Symptom | Likely Cause | Fix |
+|---------|--------------|-----|
+| **Missing columns** (`participant_id`, `condition`, `reaction_time`, `mood_rating`) | Dataset version mismatch | Verify the URL points to the verified parquet file; re‑run `ingest.py`. |
+| **Memory overflow** | Dataset larger than RAM budget | `ingest.py` will halt; you cannot proceed until a smaller dataset is used. |
+| **Design not selected** | Unexpected condition values | Ensure both “rejection” and “control” appear in the `condition` column; the script will auto‑select the appropriate design. |
+| **Assumption violations** | Normality or homogeneity failures | Pipeline will automatically switch to Welch’s ANOVA or Kruskal‑Wallis and note this in the report. |
+| **“causal” appears in report** | Manual edit of `paper/report.md` | Regenerate the report; the script enforces the phrasing rule. |
+| **CITATION.md missing** | Ingestion step skipped | Re‑run `ingest.py`; it creates `CITATION.md`. |
+| **Outlier impact unclear** | Need to assess sensitivity | Run Step 5 to produce the outlier‑sensitivity summary. |
+| **Reward dataset needed** | No open‑access reward data exists | The pipeline creates `reward_unavailable.json` and proceeds with the Between‑Subjects analysis; limitation is documented in the final report. |
+
+---
+

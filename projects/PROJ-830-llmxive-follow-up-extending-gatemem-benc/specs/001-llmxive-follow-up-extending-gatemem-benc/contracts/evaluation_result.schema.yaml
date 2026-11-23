@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Evaluation Result
+type: object
+required:
+  - episode_id
+  - method
+  - access_decision
+  - latency_ms
+  - peak_ram_mb
+properties:
+  episode_id:
+    type: string
+  method:
+    type: string
+    enum: [gatekeeper, retrieval, longcontext]
+  access_decision:
+    type: string
+    enum: [allow, deny, unknown]
+  latency_ms:
+    type: number
+  peak_ram_mb:
+    type: number

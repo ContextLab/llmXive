@@ -1,47 +1,31 @@
-# Output Schema for Processed and Analyzed Data
-# Used to validate output files after processing
-
+$schema: http://json-schema.org/draft-07/schema#
+title: AnalysisResult
+description: Schema for statistical analysis output records
 type: object
-required:
-  - date
-  - gdelt_normalized
-  - trends_normalized
-
 properties:
-  date:
+  metric:
     type: string
-    constraints:
-      pattern: "^\\d{4}-\\d{2}-\\d{2}$"
-      min_length: 10
-      max_length: 10
-    description: "Date in YYYY-MM-DD format"
-
-  gdelt_normalized:
+    description: Name of the metric being analyzed
+  coefficient:
     type: number
-    constraints:
-      min: -3.0
-      max: 3.0
-    description: "Z-score normalized GDELT event count"
-
-  trends_normalized:
-    type: number
-    constraints:
-      min: -3.0
-      max: 3.0
-    description: "Z-score normalized Google Trends interest"
-
-  gdelt_stationary:
-    type: boolean
-    description: "Whether the GDELT series is stationary"
-
-  trends_stationary:
-    type: boolean
-    description: "Whether the Trends series is stationary"
-
-  lag:
-    type: integer
-    description: "Lag value for Granger causality (optional)"
-
+    description: Correlation or regression coefficient
   p_value:
     type: number
-    description: "P-value from Granger causality test (optional)"
+    description: P-value from statistical test
+  lag:
+    type: integer
+    description: Lag period for time-series analysis
+  significance_flag:
+    type: boolean
+    description: Whether the result is statistically significant
+  stationarity_status:
+    type: string
+    description: Status of the time series (e.g., 'stationary', 'non-stationary')
+required:
+  - metric
+  - coefficient
+  - p_value
+  - lag
+  - significance_flag
+  - stationarity_status
+additionalProperties: false

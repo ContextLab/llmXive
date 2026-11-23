@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelEvaluationOutput"
+description: "Schema for model evaluation metrics and feature importance rankings."
+type: object
+properties:
+  model_id:
+    type: string
+    description: "Unique identifier for the model instance."
+  model_type:
+    type: string
+    enum:
+      - "LinearRegression"
+      - "RandomForest"
+    description: "Type of algorithm used."
+  target_variable:
+    type: string
+    description: "The target variable this model predicts."
+  metrics:
+    type: object
+    properties:
+      rmse:
+        type: number
+        description: "Root Mean Squared Error."
+      pearson_r:
+        type: number
+        description: "Pearson correlation coefficient."
+      r_squared:
+        type: number
+        description: "Coefficient of determination."
+    required:
+      - rmse
+      - pearson_r
+      - r_squared
+  feature_importance:
+    type: array
+    description: "List of features ranked by importance."
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+        importance_score:
+          type: number
+      required:
+        - feature_name
+        - importance_score
+    minItems: 1
+  success_criteria_met:
+    type: boolean
+    description: "True if Pearson r >= 0.6 and logP/TPSA in top 3."
+required:
+  - model_id
+  - model_type
+  - target_variable
+  - metrics
+  - feature_importance
+  - success_criteria_met
+additionalProperties: false

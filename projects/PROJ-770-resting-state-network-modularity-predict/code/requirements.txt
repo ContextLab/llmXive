@@ -1,0 +1,13 @@
+# Core scientific stack
+numpy
+pandas
+scikit-learn
+nilearn
+nibabel
+python-louvain
+networkx
+statsmodels
+# Additional utilities used in the pipeline
+requests
+tqdm
+# The project already pins versions; they are omitted here for brevity.

@@ -1,10 +1,11 @@
 """
-Constants module for the MgB2 Impurity Impact project.
+Constants for the MgB2 Impurity Impact project.
 
-Contains atomic weights, unit conversion factors, and VIF thresholds.
+This module defines atomic weights, unit conversion factors, and
+statistical thresholds used throughout the pipeline.
 """
 
-# Atomic Weights (g/mol) from IUPAC standard atomic weights
+# Atomic weights (standard IUPAC values, g/mol)
 ATOMIC_WEIGHTS = {
     "H": 1.008,
     "He": 4.0026,
@@ -126,42 +127,37 @@ ATOMIC_WEIGHTS = {
     "Og": 294,
 }
 
-# Unit Conversion Factors
-# Temperature: Kelvin
+# Unit conversion factors
+# Temperature
 KELVIN_TO_CELSIUS = 273.15
 CELSIUS_TO_KELVIN = 273.15
 
-# Pressure: Gigapascals (GPa)
-# 1 GPa = 10^9 Pa
+# Pressure
 GPA_TO_PA = 1e9
 PA_TO_GPA = 1e-9
 GPA_TO_BAR = 10000
 BAR_TO_GPA = 1e-4
 
-# Concentration: Weight % to Atomic % conversion requires atomic weights
-# The conversion formula is: atomic_pct = (weight_pct / atomic_weight) / sum(weight_pct_i / atomic_weight_i) * 100
-# This function is implemented in preprocessing, but the factor for pure element conversion is 1:1
+# Statistical thresholds
+VIF_THRESHOLD = 5.0
 
-# VIF (Variance Inflation Factor) Threshold Constants
-# Established benchmarks for multicollinearity detection
-VIF_THRESHOLD_LOW = 5.0   # Moderate multicollinearity (commonly used threshold)
-VIF_THRESHOLD_HIGH = 10.0 # Severe multicollinearity (strict threshold)
+# Data processing constants
+NULL_VALUE = None
+MISSING_INDICATOR = -9999.0
 
-# Default VIF threshold for this project (based on FR-006 and plan.md)
-VIF_THRESHOLD = VIF_THRESHOLD_LOW
+def get_atomic_weight(element: str) -> float:
+    """
+    Retrieve the atomic weight of a given element.
 
-# Additional constants for data processing
-# Minimum number of samples required per impurity type for statistical significance
-MIN_SAMPLES_PER_IMPURITY = 5
+    Args:
+        element: The chemical symbol (e.g., 'Mg', 'B', 'C').
 
-# Maximum allowed missing value percentage per column before dropping
-MAX_MISSING_VALUE_PCT = 0.50
+    Returns:
+        The atomic weight in g/mol.
 
-# Default random seed for reproducibility
-DEFAULT_RANDOM_SEED = 42
-
-# MgB2 specific constants
-MAGNESIUM_BORIDE_FORMULA = "MgB2"
-MAGNESIUM_ATOMIC_WEIGHT = ATOMIC_WEIGHTS["Mg"]
-BORON_ATOMIC_WEIGHT = ATOMIC_WEIGHTS["B"]
-MAGNESIUM_BORIDE_MOLECULAR_WEIGHT = MAGNESIUM_ATOMIC_WEIGHT + 2 * BORON_ATOMIC_WEIGHT
+    Raises:
+        KeyError: If the element is not found in the atomic weights dictionary.
+    """
+    if element not in ATOMIC_WEIGHTS:
+        raise KeyError(f"Element '{element}' not found in atomic weights database.")
+    return ATOMIC_WEIGHTS[element]

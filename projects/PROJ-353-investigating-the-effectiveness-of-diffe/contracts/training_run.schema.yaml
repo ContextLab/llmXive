@@ -1,0 +1,82 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Run Schema"
+description: >
+  JSON Schema Draft 7 for a single training run result.
+  Captures convergence status, trajectory, and metadata as required by
+  Constitution Principle VI and User Story 2.
+type: object
+required:
+  - run_id
+  - graph_id
+  - loss_type
+  - beta
+  - node_count
+  - convergence_status
+  - steps_to_convergence
+  - final_accuracy
+  - trajectory
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier for this training run (e.g., 'run_001_ce')."
+  graph_id:
+    type: string
+    description: "Identifier of the source graph used for training."
+  loss_type:
+    type: string
+    enum:
+      - "cross_entropy"
+      - "infonce"
+    description: "The loss function used for training."
+  beta:
+    type: number
+    description: "The rewiring probability (beta) of the Watts-Strogatz graph."
+    minimum: 0.0
+    maximum: 1.0
+  node_count:
+    type: integer
+    description: "Number of nodes in the graph."
+    minimum: 1
+  convergence_status:
+    type: string
+    enum:
+      - "converged"
+      - "censored"
+    description: >
+      Status indicating if the model reached the convergence threshold
+      (accuracy >= 0.90) within MAX_EPOCHS.
+  steps_to_convergence:
+    type: integer
+    description: >
+      Number of epochs taken to reach convergence.
+      If censored, this equals MAX_EPOCHS.
+    minimum: 0
+  final_accuracy:
+    type: number
+    description: "Final accuracy achieved at the last epoch."
+    minimum: 0.0
+    maximum: 1.0
+  trajectory:
+    type: array
+    description: "List of per-epoch metrics recorded during training."
+    items:
+      type: object
+      required:
+        - epoch
+        - loss
+        - accuracy
+      properties:
+        epoch:
+          type: integer
+          description: "Epoch number (1-indexed)."
+          minimum: 1
+        loss:
+          type: number
+          description: "Loss value at this epoch."
+        accuracy:
+          type: number
+          description: "Accuracy value at this epoch."
+          minimum: 0.0
+          maximum: 1.0
+    minItems: 1
+additionalProperties: false

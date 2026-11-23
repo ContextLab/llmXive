@@ -1,0 +1,97 @@
+T003:
+  c: false
+  h: 1769759ca954066f7272c1daae9729c90cc3ca40710013d2f5c33b49f5af282d
+  r: The repository contains a `pyproject.toml` with Black and a minimal Ruff section,
+    but the required `.ruff.toml` file is missing entirely, and there is no evidence
+    that `ruff check src/` and `black --check src/` have been run successfully. The
+    deliverable is therefore not fully satisfied.
+T005:
+  c: false
+  h: 852cc90784a0b31ef02ce2a126bf8617173209bc58b204a0e3cc298c1364a744
+  r: "The provided `src/utils/logging.py` stops mid\u2011definition of `log_error`\
+    \ (and likely never defines `log_warning`), so the required functions are missing.\
+    \ Additionally, the file is truncated, indicating the implementation is incomplete.\
+    \ The logger setup is present, but without the full error\u2011handling functions\
+    \ the deliverable is not satisfied."
+T015:
+  c: false
+  h: e91c3bf7fea7da632e2842eb5a7b4ab531927dadf31bb6cc2c57a819e6a04cae
+  r: "The provided `src/data/acquisition.py` contains code for Xeno\u2011canto metadata,\
+    \ OSM land\u2011use mapping, and does not implement fetching the Global Soundscapes\
+    \ dataset, the fallback mirror, error handling, or merging with `interpolated_records.csv`.\
+    \ Moreover, the required output file `data/interim/noise_mapped.csv` (and the\
+    \ prerequisite `data/interim/interpolated_records.csv`) are absent. The task\u2019\
+    s core functionality and deliverables are therefore not satisfied."
+T015d:
+  c: false
+  h: cbd02327c86ac28a691692a02746f156ef508b78cac7ac96453c1a55913fea9e
+  r: "The repository lacks the required `data/interim/interpolated_records.csv` file,\
+    \ and the shown `src/data/acquisition.py` does not contain any implementation\
+    \ of a nearest\u2011neighbor interpolation routine (no function using `geopy`\
+    \ to search within 50\u202Fkm or to write the interpolated CSV). Consequently\
+    \ the task\u2019s core requirement is not satisfied."
+T015e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., log file, report, or code output) showing that missing noise\
+    \ values within 50\u202Fkm were interpolated, that failures were counted, and\
+    \ that a warning was logged when >10\u202F% failed is present. Without such evidence\
+    \ the requirement cannot be confirmed."
+T017a:
+  c: false
+  h: 4ba9b64cb5ad3b1316966afed5dc79044c6d5bbb5c9826dd2494c34c4bf42fa8
+  r: The `filter_by_snr_threshold` function in `src/data/preprocessing.py` is only
+    partially shown (truncated) and does not contain a concrete implementation that
+    reads, filters, and writes the CSV files. Moreover, the required output file `data/interim/filtered_snr.csv`
+    is absent from the repository. Both the core logic and the expected artifact are
+    missing, so the task is not genuinely completed.
+T020:
+  c: false
+  h: 1396832019d87e3a39c69b69df5ae1d431508037eb3e3705e99d46804a523911
+  r: The required output file `data/processed/final_dataset.csv` does not exist, and
+    the schema file `contracts/dataset.schema.yaml` is also missing. Moreover, the
+    provided `src/data/preprocessing.py` is truncated and does not show the logic
+    for combining filtered data, extracting metrics, saving the final CSV, or invoking
+    validation against the specified schema. These essential artifacts and functionality
+    are absent.
+T022:
+  c: false
+  h: 3dc4bdc86c2eca8d8341d93ba3cfadd46288a3555f6c0eaa64fe5e75692e4454
+  r: "The provided `tests/contract/test_output_schema.py` is present but the implementation\
+    \ of `test_numeric_columns_are_valid` is truncated, so the test suite is incomplete.\
+    \ Additionally, the required `data/processed/model_results.csv` file is missing,\
+    \ causing the existence check to fail. The test file must be fully implemented\
+    \ (including the numeric\u2011column validation logic) and the CSV file must be\
+    \ present for the contract test to pass."
+T023:
+  c: false
+  h: 18bd68ce61ce895b52a91ff2f13ccb527855fbcd44a438d2faf33e88f6ed32e2
+  r: The required artifact `tests/unit/test_loso_cv.py` does not exist in the repository,
+    so the unit test for LOSO cross-validation split logic is missing. The task cannot
+    be considered completed until this file is added with appropriate test code.
+T029b:
+  c: false
+  h: 42578b756036e9c38f2f8cae18f1733899a758cef5bba9bed157b18d8aa38f71
+  r: "The required artifact `data/processed/final_dataset.csv` does not exist, so\
+    \ no species count can be performed or verified. Without the file, the task\u2019\
+    s core requirement (counting species and ensuring \u2265\u202F50) cannot be satisfied."
+T030b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No correlation results (e.g., a CSV, table, or report containing the Pearson/Spearman
+    r values for each threshold dataset from T030a) were provided. The claim lacks
+    any artifact demonstrating that the required calculations were performed.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `state/projects/PROJ-255...yaml` file (or any updated version of it) is present,
+    and no artifact hashes have been supplied. The provided evidence only describes
+    feature specifications and test scenarios, not the required YAML update. The task
+    therefore remains unfinished.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No integration\u2011test artifacts (e.g., test script output, logs, or a report\
+    \ showing the end\u2011to\u2011end run on a representative subset of recordings)\
+    \ were provided. Without such evidence we cannot verify that the end\u2011to\u2011\
+    end flow was actually executed and passed. The required test results are missing."

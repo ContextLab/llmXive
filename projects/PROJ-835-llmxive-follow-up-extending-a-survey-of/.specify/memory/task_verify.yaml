@@ -1,11 +1,10 @@
-? T007a [P] Implement `src/utils/stats.py` Mahalanobis distance calculation logic
-  using `LedoitWolf` covariance estimator (FR-006)
-: 2
-T007b [P] Save the implemented Mahalanobis utility to `src/utils/stats.py` with proper documentation: 2
-T008 Configure error handling and logging infrastructure (global logger with file and console handlers): 2
-T009 Setup environment configuration to enforce CPU-only execution (`os.environ["CUDA_VISIBLE_DEVICES"]=""`): 2
-T010 [P] [US1] Contract test for embedding output schema in `tests/contract/test_embedding_schema.py`: 2
-? T011b [US1] Implement `src/data/verify_labels.py` to perform an automated check
-  for the *absence* of latent-space correlation in dataset metadata; fail the pipeline
-  if such correlation is detected (FR-007)
-: 2
+T001: 2
+T002: 1
+T003: 1
+T005: 1
+T006: 1
+T008: 1
+T009: 1
+T011: 1
+T012: 1
+T030: 1

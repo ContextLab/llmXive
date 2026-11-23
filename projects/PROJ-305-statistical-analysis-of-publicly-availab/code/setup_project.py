@@ -1,58 +1,54 @@
 """
-Script to initialize the project directory structure.
-This script creates the necessary directories for the project.
+Project setup script for llmXive COVID-19 Vaccine Adverse Event Analysis.
+Creates the required directory structure as specified in T001a.
 """
+
 import os
 from pathlib import Path
 
+
 def create_directories():
-    """Create the standard project directory structure."""
-    # Define the root based on where this script is run (project root)
-    root = Path.cwd()
-    
-    # Directories to create based on tasks.md and plan.md
+    """
+    Create the project directory structure.
+    Creates: src/, tests/, data/, data/raw/, data/processed/, output/, contracts/, logs/
+    """
+    # Define the project root (current directory where script is run)
+    project_root = Path(__file__).parent.resolve()
+
+    # Define all required directories relative to the project root
+    # Based on tasks.md: T001a requires src/, tests/, data/, data/raw/, data/processed/, output/, contracts/, logs/
     directories = [
-        "code/src",
-        "code/tests",
-        "code/data",
-        "code/data/raw",
-        "code/data/processed",
-        "code/output",
-        "code/output/temporal_profiles",
-        "code/specs",
-        "code/contracts",
-        "code/figures",
-        # Root level aliases if needed, though code/ is the main tree
         "src",
         "tests",
         "data",
         "data/raw",
         "data/processed",
         "output",
-        "output/temporal_profiles",
-        "specs",
         "contracts",
-        "figures",
+        "logs",
     ]
 
-    created = []
+    created_dirs = []
     for dir_path in directories:
-        full_path = root / dir_path
+        full_path = project_root / dir_path
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
-            created.append(dir_path)
-        # Ensure .gitkeep exists to track empty directories in git
-        gitkeep = full_path / ".gitkeep"
-        if not gitkeep.exists():
-            gitkeep.touch()
+            created_dirs.append(str(full_path))
+        else:
+            # Ensure it's actually a directory
+            if not full_path.is_dir():
+                raise NotADirectoryError(
+                    f"Path exists but is not a directory: {full_path}"
+                )
 
-    return created
+    return created_dirs
+
 
 if __name__ == "__main__":
-    print("Initializing project structure...")
-    created_dirs = create_directories()
-    if created_dirs:
-        print(f"Created directories: {', '.join(created_dirs)}")
+    print("Setting up project directory structure...")
+    created = create_directories()
+    if created:
+        print(f"Created directories: {created}")
     else:
-        print("All directories already exist.")
-    print("Project structure initialization complete.")
+        print("All required directories already exist.")
+    print("Project structure setup complete.")

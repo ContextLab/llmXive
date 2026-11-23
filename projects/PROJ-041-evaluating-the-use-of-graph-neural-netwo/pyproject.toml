@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-gnn-anomaly"
+version = "0.1.0"
+description = "Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Traffic"
+requires-python = ">=3.11,<3.12"
+dependencies = [
+    "torch==2.3.0",
+    "torch-geometric==2.5.0",
+    "networkx==3.2.1",
+    "scikit-learn==1.5.0",
+    "xgboost==2.0.3",
+    "pandas==2.2.2",
+    "numpy==1.26.4",
+    "matplotlib==3.8.4",
+    "seaborn==0.13.2",
+    "captum==0.7.0",
+    "pytest==8.2.2",
+    "pytest-memprof==1.0.0",
+    "datasets==2.19.0",
+    "pyyaml==6.0.2",
+    "pyarrow==16.1.0",
+    "jsonschema==4.22.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "code/tests"]
+python_files = ["test_*.py"]
+addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "integration: marks tests as integration",
+    "unit: marks tests as unit",
+]

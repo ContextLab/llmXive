@@ -1,0 +1,7 @@
+{
+  "USE_SYNTHETIC_DATA": true,
+  "SRA_ACCESSION": null,
+  "reason": "No suitable real dataset found in NCBI SRA",
+  "search_query": "Gut Microbiome AND Influenza AND 16S AND serology",
+  "timestamp": "2024-01-15T10:30:00.000000"
+}

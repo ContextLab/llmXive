@@ -65,5 +65,15 @@
     "tables/6_rollout-step.tex",
     "tables/3_cfg.tex",
     "tables/2_main.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "2814adee4de03304f95012d6bf78994727d921edeabaadd31088511102a42d0c",
+      "bytes": 17792876
+    },
+    "original.pdf": {
+      "sha256": "2545e43b4c4cfe5265bbb1337166742a5fe38d79c1bec514e4a7ac02fc3865f4",
+      "bytes": 17754009
+    }
+  }
 }

@@ -1,3 +1,6 @@
+"""
+Metrics module for calculating stability, p-value comparisons, and reporting.
+"""
 import os
 import numpy as np
 import pandas as pd
@@ -10,212 +13,375 @@ from src.config import PROJECT_ROOT
 
 logger = logging.getLogger(__name__)
 
-MIN_GENES_THRESHOLD: int = 5
 
 def calculate_pearson_correlation_all_genes(
     full_log2fc: Union[pd.Series, np.ndarray],
-    subset_log2fc: Union[pd.Series, np.ndarray],
-    gene_ids: Optional[Union[pd.Series, np.ndarray]] = None
-) -> Tuple[float, float, int]:
+    subset_log2fc: Union[pd.Series, np.ndarray]
+) -> Tuple[float, float]:
     """
-    Calculate Pearson correlation of log2FC between full set and a subset.
-    Returns (r, p_value, n_genes).
+    Calculate Pearson correlation coefficient and p-value between full and subset log2FC.
+    
+    Args:
+        full_log2fc: Log2 fold changes for all genes from full dataset analysis.
+        subset_log2fc: Log2 fold changes for all genes from subset analysis.
+        
+    Returns:
+        Tuple of (correlation coefficient, p-value)
+        
+    Raises:
+        ValueError: If inputs have different lengths or are empty.
     """
-    if gene_ids is None:
-        # Assume parallel alignment if no IDs provided
-        common_mask = ~np.isnan(full_log2fc) & ~np.isnan(subset_log2fc)
-        x = np.asarray(full_log2fc)[common_mask]
-        y = np.asarray(subset_log2fc)[common_mask]
-    else:
-        # Align by gene ID
-        df = pd.DataFrame({
-            'gene': gene_ids,
-            'full': full_log2fc,
-            'subset': subset_log2fc
-        })
-        df = df.dropna(subset=['full', 'subset'])
-        x = df['full'].values
-        y = df['subset'].values
+    if len(full_log2fc) != len(subset_log2fc):
+        raise ValueError(f"Length mismatch: full={len(full_log2fc)}, subset={len(subset_log2fc)}")
+    
+    if len(full_log2fc) == 0:
+        raise ValueError("Input arrays are empty")
+        
+    # Handle NaN values
+    mask = ~(np.isnan(full_log2fc) | np.isnan(subset_log2fc))
+    if np.sum(mask) < 2:
+        logger.warning("Insufficient valid data points for correlation calculation")
+        return 0.0, 1.0
+        
+    r, p = pearsonr(full_log2fc[mask], subset_log2fc[mask])
+    return float(r), float(p)
 
-    n = len(x)
-    if n < MIN_GENES_THRESHOLD:
-        logger.warning(
-            f"Insufficient total genes for correlation: found {n} genes "
-            f"(threshold: {MIN_GENES_THRESHOLD}). Returning NaN for metrics."
-        )
-        return np.nan, np.nan, n
-
-    r, p_val = pearsonr(x, y)
-    return float(r), float(p_val), n
 
 def calculate_stability_metrics(
-    results: List[Dict],
-    min_genes: int = MIN_GENES_THRESHOLD
+    full_results: pd.DataFrame,
+    subset_results_list: List[pd.DataFrame],
+    gene_column: str = "gene_id",
+    log2fc_column: str = "log2FoldChange"
 ) -> Dict[str, float]:
     """
-    Aggregate stability metrics from multiple subset analyses.
-    Handles insufficient data gracefully by marking metrics as NaN.
-    """
-    valid_corrs = [r['r'] for r in results if not np.isnan(r.get('r', np.nan))]
+    Calculate stability metrics across all subsets.
     
-    if not valid_corrs:
-        logger.warning("No valid correlations found across subsets. Stability metrics unavailable.")
+    Args:
+        full_results: DataFrame with full dataset DE results.
+        subset_results_list: List of DataFrames with subset DE results.
+        gene_column: Column name for gene identifiers.
+        log2fc_column: Column name for log2 fold changes.
+        
+    Returns:
+        Dictionary with stability metrics:
+        - mean_correlation: Mean Pearson r across all subsets
+        - min_correlation: Minimum Pearson r across all subsets
+        - max_correlation: Maximum Pearson r across all subsets
+        - std_correlation: Standard deviation of Pearson r across subsets
+        - gene_count: Total number of genes analyzed
+    """
+    correlations = []
+    
+    # Ensure full_results is sorted by gene
+    full_results = full_results.sort_values(by=gene_column).reset_index(drop=True)
+    full_log2fc = full_results[log2fc_column].values
+    
+    for i, subset_df in enumerate(subset_results_list):
+        if subset_df is None or len(subset_df) == 0:
+            logger.warning(f"Subset {i} is empty, skipping")
+            continue
+            
+        # Sort subset by gene
+        subset_df = subset_df.sort_values(by=gene_column).reset_index(drop=True)
+        subset_log2fc = subset_df[log2fc_column].values
+        
+        try:
+            r, _ = calculate_pearson_correlation_all_genes(full_log2fc, subset_log2fc)
+            correlations.append(r)
+        except ValueError as e:
+            logger.warning(f"Correlation failed for subset {i}: {e}")
+            continue
+    
+    if len(correlations) == 0:
+        logger.error("No valid correlations computed")
         return {
-            'mean_stability': np.nan,
-            'std_stability': np.nan,
-            'min_genes_encountered': min_genes,
-            'valid_subsets': 0
+            "mean_correlation": 0.0,
+            "min_correlation": 0.0,
+            "max_correlation": 0.0,
+            "std_correlation": 0.0,
+            "gene_count": len(full_results),
+            "n_subsets_valid": 0
         }
-
+    
     return {
-        'mean_stability': float(np.mean(valid_corrs)),
-        'std_stability': float(np.std(valid_corrs)),
-        'min_genes_encountered': min([r.get('n_genes', 0) for r in results]),
-        'valid_subsets': len(valid_corrs)
+        "mean_correlation": float(np.mean(correlations)),
+        "min_correlation": float(np.min(correlations)),
+        "max_correlation": float(np.max(correlations)),
+        "std_correlation": float(np.std(correlations)),
+        "gene_count": len(full_results),
+        "n_subsets_valid": len(correlations)
     }
+
+
+def handle_insufficient_genes(
+    gene_count: int,
+    min_gene_threshold: int = 5,
+    dataset_id: Optional[str] = None
+) -> Dict[str, Union[bool, str, int]]:
+    """
+    Handle cases where the total number of genes is insufficient for analysis.
+    
+    This function replaces the previous 'significant genes' check with a check
+    for total genes across all categories, as authorized by T016a (Spec Correction #1).
+    
+    Args:
+        gene_count: Total number of genes found in the dataset.
+        min_gene_threshold: Minimum number of genes required for analysis (default: 5).
+        dataset_id: Optional identifier for the dataset being processed.
+        
+    Returns:
+        Dictionary with:
+        - is_valid: Boolean indicating if analysis can proceed
+        - message: Human-readable message about the status
+        - gene_count: The actual gene count
+        - threshold: The minimum threshold used
+        
+    Raises:
+        ValueError: If gene_count is negative.
+    """
+    if gene_count < 0:
+        raise ValueError("gene_count cannot be negative")
+        
+    is_valid = gene_count >= min_gene_threshold
+    
+    if is_valid:
+        message = f"Analysis can proceed with {gene_count} genes (threshold: {min_gene_threshold})"
+        status = "success"
+    else:
+        message = (
+            f"Insufficient genes for analysis: found {gene_count} genes, "
+            f"minimum required is {min_gene_threshold}. "
+            f"Dataset {dataset_id} will be skipped."
+        )
+        status = "insufficient_data"
+        
+    logger.info(message)
+    
+    return {
+        "is_valid": is_valid,
+        "message": message,
+        "gene_count": gene_count,
+        "threshold": min_gene_threshold,
+        "status": status
+    }
+
 
 def compare_parametric_empirical_pvalues(
-    parametric_pvals: np.ndarray,
-    empirical_pvals: np.ndarray,
-    alpha: float = 0.05
-) -> Dict[str, Union[float, bool]]:
+    parametric_pvalues: Union[pd.Series, np.ndarray],
+    empirical_pvalues: Union[pd.Series, np.ndarray]
+) -> Dict[str, float]:
     """
-    Compare parametric vs empirical p-values using KS test.
-    Correcting spec: KS test verifies p-value > 0.05 (uniformity).
-    """
-    if len(parametric_pvals) == 0 or len(empirical_pvals) == 0:
-        logger.warning("Empty p-value arrays provided for comparison.")
-        return {'ks_statistic': np.nan, 'ks_pvalue': np.nan, 'is_uniform': False}
-
-    # Sort both to ensure valid comparison
-    parametric_pvals = np.sort(parametric_pvals)
-    empirical_pvals = np.sort(empirical_pvals)
-
-    # Use the smaller set for KS test to avoid length mismatch issues
-    # or pad/interpolate if strictly necessary. Here we assume similar sizes or take min.
-    n = min(len(parametric_pvals), len(empirical_pvals))
-    x = parametric_pvals[:n]
-    y = empirical_pvals[:n]
-
-    if n < MIN_GENES_THRESHOLD:
-        logger.warning(f"Insufficient p-values ({n}) for KS test.")
-        return {'ks_statistic': np.nan, 'ks_pvalue': np.nan, 'is_uniform': False}
-
-    ks_stat, ks_p = kstest(y, 'uniform')
+    Compare parametric and empirical p-values using KS test and calculate metrics.
     
-    # Spec Correction #2: p-value > 0.05 implies uniformity (fail to reject null)
-    is_uniform = ks_p > alpha
-
+    Args:
+        parametric_pvalues: P-values from parametric test (e.g., DESeq2).
+        empirical_pvalues: P-values from permutation-based empirical test.
+        
+    Returns:
+        Dictionary with comparison metrics:
+        - ks_statistic: KS test statistic
+        - ks_pvalue: KS test p-value (should be > 0.05 for uniform distribution)
+        - median_abs_deviation: Median absolute deviation between p-values
+        - mean_abs_deviation: Mean absolute deviation between p-values
+    """
+    # Filter out NaN values
+    valid_mask = ~(np.isnan(parametric_pvalues) | np.isnan(empirical_pvalues))
+    p_param = parametric_pvalues[valid_mask]
+    p_emp = empirical_pvalues[valid_mask]
+    
+    if len(p_param) == 0:
+        logger.warning("No valid p-values for comparison")
+        return {
+            "ks_statistic": 0.0,
+            "ks_pvalue": 0.0,
+            "median_abs_deviation": 0.0,
+            "mean_abs_deviation": 0.0,
+            "n_compared": 0
+        }
+    
+    # KS test against uniform distribution (for empirical p-values)
+    ks_stat, ks_p = kstest(p_emp, 'uniform')
+    
+    # Calculate deviations
+    abs_dev = np.abs(p_param - p_emp)
+    median_dev = float(np.median(abs_dev))
+    mean_dev = float(np.mean(abs_dev))
+    
     return {
-        'ks_statistic': float(ks_stat),
-        'ks_pvalue': float(ks_p),
-        'is_uniform': is_uniform
+        "ks_statistic": float(ks_stat),
+        "ks_pvalue": float(ks_p),
+        "median_abs_deviation": median_dev,
+        "mean_abs_deviation": mean_dev,
+        "n_compared": len(p_param)
     }
 
-def calculate_pvalue_inflation(
-    parametric_pvals: np.ndarray,
-    empirical_pvals: np.ndarray
-) -> float:
-    """
-    Calculate Median Absolute Deviation (MAD) of p-values as an inflation metric.
-    """
-    if len(parametric_pvals) == 0 or len(empirical_pvals) == 0:
-        return np.nan
 
-    n = min(len(parametric_pvals), len(empirical_pvals))
-    diff = np.abs(parametric_pvals[:n] - empirical_pvals[:n])
-    return float(np.median(diff))
+def calculate_pvalue_inflation(
+    parametric_pvalues: Union[pd.Series, np.ndarray],
+    empirical_pvalues: Union[pd.Series, np.ndarray]
+) -> Dict[str, float]:
+    """
+    Calculate p-value inflation metrics.
+    
+    Args:
+        parametric_pvalues: P-values from parametric test.
+        empirical_pvalues: P-values from empirical test.
+        
+    Returns:
+        Dictionary with inflation metrics:
+        - median_abs_deviation: Median absolute deviation (inflation measure)
+        - ratio_at_0_05: Ratio of empirical to parametric p-values at 0.05 threshold
+    """
+    valid_mask = ~(np.isnan(parametric_pvalues) | np.isnan(empirical_pvalues))
+    p_param = parametric_pvalues[valid_mask]
+    p_emp = empirical_pvalues[valid_mask]
+    
+    if len(p_param) == 0:
+        return {
+            "median_abs_deviation": 0.0,
+            "ratio_at_0_05": 0.0
+        }
+    
+    abs_dev = np.abs(p_param - p_emp)
+    median_dev = float(np.median(abs_dev))
+    
+    # Calculate ratio at 0.05 threshold
+    mask_005 = p_param <= 0.05
+    if np.sum(mask_005) > 0:
+        ratio = float(np.mean(p_emp[mask_005] / np.maximum(p_param[mask_005], 1e-10)))
+    else:
+        ratio = 0.0
+        
+    return {
+        "median_abs_deviation": median_dev,
+        "ratio_at_0_05": ratio
+    }
+
 
 def generate_bland_altman_plot(
-    parametric_pvals: np.ndarray,
-    empirical_pvals: np.ndarray,
-    output_path: Union[str, Path]
+    parametric_pvalues: Union[pd.Series, np.ndarray],
+    empirical_pvalues: Union[pd.Series, np.ndarray],
+    output_path: Union[str, Path],
+    title: str = "Bland-Altman Plot: Parametric vs Empirical P-values"
 ) -> Path:
     """
     Generate a Bland-Altman plot comparing parametric and empirical p-values.
-    Saves to output_path.
+    
+    Args:
+        parametric_pvalues: P-values from parametric test.
+        empirical_pvalues: P-values from empirical test.
+        output_path: Path to save the plot.
+        title: Plot title.
+        
+    Returns:
+        Path to the saved plot file.
     """
     import matplotlib.pyplot as plt
-    import seaborn as sns
-
-    n = min(len(parametric_pvals), len(empirical_pvals))
-    if n < MIN_GENES_THRESHOLD:
-        logger.warning(f"Insufficient data ({n}) for Bland-Altman plot.")
-        # Create a placeholder file to satisfy artifact requirement
-        output_path = Path(output_path)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, 'w') as f:
-            f.write("Plot skipped: Insufficient data points (<5).")
-        return output_path
-
-    x = parametric_pvals[:n]
-    y = empirical_pvals[:n]
-
-    mean_vals = (x + y) / 2
-    diff_vals = x - y
-
+    import matplotlib
+    
+    # Ensure non-interactive backend
+    matplotlib.use('Agg')
+    
+    valid_mask = ~(np.isnan(parametric_pvalues) | np.isnan(empirical_pvalues))
+    p_param = parametric_pvalues[valid_mask]
+    p_emp = empirical_pvalues[valid_mask]
+    
+    if len(p_param) == 0:
+        logger.warning("No valid data for Bland-Altman plot")
+        # Create empty plot
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.text(0.5, 0.5, 'No valid data', transform=ax.transAxes, ha='center')
+        ax.set_title(title)
+        plt.savefig(output_path, dpi=150, bbox_inches='tight')
+        plt.close()
+        return Path(output_path)
+    
+    # Bland-Altman: plot difference vs average
+    mean_vals = (p_param + p_emp) / 2
+    diff_vals = p_param - p_emp
+    
     mean_diff = np.mean(diff_vals)
     std_diff = np.std(diff_vals)
-    upper = mean_diff + 1.96 * std_diff
-    lower = mean_diff - 1.96 * std_diff
-
-    plt.figure(figsize=(10, 6))
-    sns.scatterplot(x=mean_vals, y=diff_vals, alpha=0.6, edgecolor=None)
-    plt.axhline(mean_diff, color='red', linestyle='--', label=f'Mean Diff: {mean_diff:.4f}')
-    plt.axhline(upper, color='gray', linestyle=':', label=f'Upper (1.96 SD): {upper:.4f}')
-    plt.axhline(lower, color='gray', linestyle=':', label=f'Lower (1.96 SD): {lower:.4f}')
-    plt.xlabel('Mean of Parametric and Empirical P-values')
-    plt.ylabel('Difference (Parametric - Empirical)')
-    plt.title('Bland-Altman Plot: Parametric vs Empirical P-values')
-    plt.legend()
+    upper_limit = mean_diff + 1.96 * std_diff
+    lower_limit = mean_diff - 1.96 * std_diff
     
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_path, dpi=150)
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.scatter(mean_vals, diff_vals, alpha=0.5, s=10)
+    ax.axhline(mean_diff, color='red', linestyle='--', label=f'Mean diff: {mean_diff:.4f}')
+    ax.axhline(upper_limit, color='gray', linestyle=':', label=f'Upper limit: {upper_limit:.4f}')
+    ax.axhline(lower_limit, color='gray', linestyle=':', label=f'Lower limit: {lower_limit:.4f}')
+    
+    ax.set_xlabel('Average of Parametric and Empirical P-values')
+    ax.set_ylabel('Difference (Parametric - Empirical)')
+    ax.set_title(title)
+    ax.legend()
+    ax.grid(True, alpha=0.3)
+    
+    plt.savefig(output_path, dpi=150, bbox_inches='tight')
     plt.close()
-    return output_path
+    
+    return Path(output_path)
+
 
 def apply_benjamini_hochberg_correction(
-    p_values: np.ndarray,
-    alpha: float = 0.05
-) -> Tuple[np.ndarray, np.ndarray]:
+    pvalues: Union[pd.Series, np.ndarray, List[float]]
+) -> np.ndarray:
     """
-    Apply Benjamini-Hochberg correction to a list of p-values.
-    Returns adjusted p-values and boolean mask of significant results.
+    Apply Benjamini-Hochberg correction for multiple testing.
+    
+    Args:
+        pvalues: Array of p-values.
+        
+    Returns:
+        Array of adjusted p-values.
     """
-    if len(p_values) == 0:
-        return np.array([]), np.array([])
-
-    p_values = np.asarray(p_values)
-    n = len(p_values)
-    sorted_indices = np.argsort(p_values)
-    sorted_p = p_values[sorted_indices]
-
-    # Calculate adjusted p-values
-    rank = np.arange(1, n + 1)
-    adjusted_p = (sorted_p * n) / rank
-    adjusted_p = np.minimum.accumulate(adjusted_p[::-1])[::-1]
-    adjusted_p = np.clip(adjusted_p, 0, 1)
-
+    pvalues = np.array(pvalues)
+    n = len(pvalues)
+    
+    if n == 0:
+        return np.array([])
+        
+    # Sort p-values and keep track of original indices
+    sorted_indices = np.argsort(pvalues)
+    sorted_pvalues = pvalues[sorted_indices]
+    
+    # Calculate BH adjusted p-values
+    ranks = np.arange(1, n + 1)
+    adjusted = sorted_pvalues * n / ranks
+    
+    # Ensure monotonicity (cumulative min from the end)
+    for i in range(n - 2, -1, -1):
+        adjusted[i] = min(adjusted[i], adjusted[i + 1])
+        
+    # Clip to [0, 1]
+    adjusted = np.clip(adjusted, 0, 1)
+    
     # Restore original order
-    final_adjusted = np.empty(n)
-    final_adjusted[sorted_indices] = adjusted_p
+    result = np.zeros(n)
+    result[sorted_indices] = adjusted
+    
+    return result
 
-    significant = final_adjusted <= alpha
-    return final_adjusted, significant
 
 def main():
-    """
-    Main entry point for metrics module testing/demo.
-    """
-    logger.info("Metrics module loaded.")
-    # Example usage for validation
-    test_p = np.array([0.01, 0.03, 0.04, 0.1, 0.2, 0.005])
-    adj, sig = apply_benjamini_hochberg_correction(test_p)
-    print(f"Original: {test_p}")
-    print(f"Adjusted: {adj}")
-    print(f"Significant: {sig}")
+    """Main function for testing metrics module."""
+    # Test with sample data
+    np.random.seed(42)
+    n_genes = 1000
+    
+    full_log2fc = np.random.normal(0, 1, n_genes)
+    subset_log2fc = full_log2fc + np.random.normal(0, 0.1, n_genes)
+    
+    r, p = calculate_pearson_correlation_all_genes(full_log2fc, subset_log2fc)
+    print(f"Pearson correlation: r={r:.4f}, p={p:.4f}")
+    
+    # Test insufficient genes handling
+    result = handle_insufficient_genes(gene_count=3, min_gene_threshold=5)
+    print(f"Insufficient genes check: {result}")
+    
+    result_valid = handle_insufficient_genes(gene_count=100, min_gene_threshold=5)
+    print(f"Valid genes check: {result_valid}")
+
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     main()

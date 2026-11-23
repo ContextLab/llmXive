@@ -1,0 +1,1031 @@
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: generate exactly 30 synthetic trajectories
+  claim_id: c_aecb65a6
+  context: Task T012 requires the implementation of synthetic_benchmark.py to output
+    data with annotated dependency links, generating exactly 30 synthetic trajectories
+    complying with amended FR-001.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate exactly 30 synthetic trajectories
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:11:55Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: dependency links exist for >95% of trajectories
+  claim_id: c_dbf6ce93
+  context: The independent test for User Story 1 requires the validation script to
+    assert that dependency links exist for more than 95% of the generated trajectories.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: validation script asserts dependency links exist for >95% of trajectories
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:11:55Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: review subset of at least 10 for semantically plausible rating
+  claim_id: c_f05abc4e
+  context: Task T017b implements an automated expert-system validator to review a
+    subset of at least 10 trajectories for a 'semantically plausible' rating.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Review_subset_of_at_least_10_for_semantically_plausible_rati
+  kind: magnitude
+  raw_text: "review a subset (\u226510) for 'semantically plausible' rating"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:13:24Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: force CPU-only execution with memory footprint less than 7GB
+  claim_id: c_647802d0
+  context: Task T021 requires the configuration of the baseline agent to force CPU-only
+    execution and manage the memory footprint to be less than 7GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Force_CPU-only_execution_with_memory_footprint_less_than_7GB
+  kind: magnitude
+  raw_text: force CPU-only execution and manage memory footprint (<7GB)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:14:02Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: attribute failure to missing context from step more than 10 indices prior
+  claim_id: c_cf69ddc0
+  context: Task T022 requires the implementation of explicit attribution logic to
+    attribute execution failures to missing context from a step more than 10 indices
+    prior.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Attribute_failure_to_missing_context_from_step_more_than_10
+  kind: magnitude
+  raw_text: attribute the failure to missing context from a step >10 indices prior
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:15:09Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: ensure less than 10% latency increase
+  claim_id: c_8a2dd93b
+  context: Task T037 requires the integration of the memory profiler to log overhead
+    and ensure a latency increase of less than 10%.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_less_than_10%25_latency_increase
+  kind: magnitude
+  raw_text: ensure <10% latency increase
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:15:49Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: validation script asserts dependency links exist for greater than 95
+    percent of trajectories
+  claim_id: c_3c6ed56c
+  context: 'Independent Test: The generation script runs successfully, outputs a JSONL
+    file, and the validation script asserts dependency links exist for >95% of trajectories.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_script_asserts_dependency_links_exist_for_greater
+  kind: magnitude
+  raw_text: The generation script outputs a JSONL file, and the validation script
+    asserts dependency links exist for >95% of trajectories.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:17:49Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: attribute failure to missing context from a step greater than 10 indices
+    prior
+  claim_id: c_26f73319
+  context: 'Task T022: Implement code/evaluation/runner.py... implement explicit attribution
+    logic to attribute the failure to missing context from a step >10 indices prior,
+    and generate data/results/baseline_execution_logs.jsonl.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Attribute_failure_to_missing_context_from_a_step_greater_tha
+  kind: magnitude
+  raw_text: implement explicit attribution logic to attribute the failure to missing
+    context from a step >10 indices prior
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:18:49Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: Plan.md selects Mixed-Effects Logistic Regression GLMM as primary analysis
+  claim_id: c_afb52e2b
+  context: 'Statistical Methodology Note: Plan.md selects ''Mixed-Effects Logistic
+    Regression (GLMM)'' as primary analysis due to hierarchical data. Spec FR-005
+    mandates Wilcoxon as primary.'
+  evidence:
+    entailment_evidence: md selects Mixed-Effects Logistic Regression GLMM as pr
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Plan.md_selects_Mixed-Effects_Logistic_Regression_GLMM_as_pr
+  kind: entity_fact
+  raw_text: Plan.md selects 'Mixed-Effects Logistic Regression (GLMM)' as primary
+    analysis due to hierarchical data.
+  resolved_value: Plan.md selects Mixed-Effects Logistic Regression GLMM as primary
+    analysis
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T08:18:52Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: hard limit of less than 10 percent overhead
+  claim_id: c_19b26527
+  context: 'Task T037a: Amend specs/001-llmxive-long-horizon-context/spec.md SC-004
+    to replace ''[deferred] limit'' with ''hard limit of <10% overhead'' to align
+    with Constitution Principle VII and FR-006.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hard_limit_of_less_than_10_percent_overhead
+  kind: magnitude
+  raw_text: hard limit of <10% overhead
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:19:30Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: ensure less than 10 percent latency increase
+  claim_id: c_691bb249
+  context: 'Task T037: Integrate code/utils/memory_profiler.py to log overhead and
+    ensure <10% latency increase (FR-006 / Constitution Principle VII / amended SC-004).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_less_than_10_percent_latency_increase
+  kind: magnitude
+  raw_text: ensure <10% latency increase
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:19:35Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: Mixed-Effects Logistic Regression model success agent_type random effect
+    trajectory_id
+  claim_id: c_d9fd0908
+  context: 'Task T036: Implement code/evaluation/stats.py to perform Mixed-Effects
+    Logistic Regression (GLMM) as Primary Analysis: Input data/results/combined_logs.csv
+    (from T034); Model: success ~ agent_type + (1|trajectory_id); Output p-value and
+    effect size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Model: success ~ agent_type + (1|trajectory_id)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:20:50Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: validation asserts dependency links exist for 95 percent of trajectories
+  claim_id: c_efa407bf
+  context: 'The examples below include test tasks. Tests are OPTIONAL - only include
+    them if explicitly requested in the feature specification. Independent Test: The
+    generation script runs successfully, outputs a JSONL file, and the validation
+    script asserts dependency links exist for >95% of trajectories.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation script asserts dependency links exist for >95% of trajectories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:21:56Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: generate 30 synthetic trajectories
+  claim_id: c_1e19a5d0
+  context: 'Implement code/data_generation/synthetic_benchmark.py: Load UltraData-SFT-Agent-2609
+    (split=train, streaming=True) to extract state templates; implement procedural
+    generation logic to chain workflows ensuring critical info is available only several
+    steps prior; output data/synthetic_benchmark/trajectories.jsonl with annotated
+    ''dependency links''; generate exactly 30 synthetic trajectories (A moderate number
+    of steps each) complying with amended FR-001 (T012a).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate exactly 30 synthetic trajectories
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:21:56Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: review subset of 10 for semantically plausible rating
+  claim_id: c_8296a4a1
+  context: "Implement code/data_generation/expert_system_validator.py: An automated\
+    \ expert-system validator to review a subset (\u226510) for 'semantically plausible'\
+    \ rating (FR-007 amended); output review results to data/synthetic_benchmark/review_results.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "review a subset (\u226510) for 'semantically plausible' rating"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:21:56Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: force CPU-only execution with memory footprint less than 7 GB
+  claim_id: c_0bf81231
+  context: Configure code/agents/base_conact.py to force CPU-only execution (no CUDA)
+    and manage memory footprint (<7GB).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Force_CPU-only_execution_with_memory_footprint_less_than_7_G
+  kind: magnitude
+  raw_text: force CPU-only execution (no CUDA) and manage memory footprint (<7GB)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:21:59Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: attribute failure to missing context from step more than 10 indices prior
+  claim_id: c_fee07bd4
+  context: 'Implement code/evaluation/runner.py (ATOMIC): Execute the baseline agent
+    on data/synthetic_benchmark/trajectories.jsonl, record the exact step where ''information
+    decay'' causes a failure, implement explicit attribution logic to attribute the
+    failure to missing context from a step >10 indices prior, and generate data/results/baseline_execution_logs.jsonl.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Attribute_failure_to_missing_context_from_step_more_than_10
+  kind: magnitude
+  raw_text: attribute the failure to missing context from a step >10 indices prior
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:22:02Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: ensure less than 10 percent latency increase
+  claim_id: c_296c1a82
+  context: Integrate code/utils/memory_profiler.py to log overhead and ensure <10%
+    latency increase (FR-006 / Constitution Principle VII / amended SC-004).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_less_than_10_percent_latency_increase
+  kind: magnitude
+  raw_text: ensure <10% latency increase
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:22:06Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: dependency links exist for >95% of trajectories
+  claim_id: c_6380403f
+  context: "The examples below include test tasks. Tests are OPTIONAL - only include\
+    \ them if explicitly requested in the feature specification. Goal: Construct a\
+    \ synthetic test dataset with a representative set of trajectories (50\u2013100\
+    \ steps) containing explicit cross-app dependencies. Independent Test: The generation\
+    \ script runs successfully, outputs a JSONL file, and the validation script asserts\
+    \ dependency links exist for >95% of trajectories."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generation script outputs a JSONL file, and the validation script
+    asserts dependency links exist for >95% of trajectories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:22:55Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: generate exactly 30 synthetic trajectories
+  claim_id: c_f45cc8d9
+  context: 'Implement code/data_generation/synthetic_benchmark.py: Load UltraData-SFT-Agent-2609
+    (split=train, streaming=True) to extract state templates; implement procedural
+    generation logic to chain workflows ensuring critical info is available only several
+    steps prior; output data/synthetic_benchmark/trajectories.jsonl with annotated
+    ''dependency links''; generate exactly 30 synthetic trajectories (A moderate number
+    of steps each) complying with amended FR-001 (T012a).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate exactly 30 synthetic trajectories
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:22:55Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: automated expert-system validator reviews subset of >=10 for semantically
+    plausible rating
+  claim_id: c_5d259f60
+  context: "Implement code/data_generation/expert_system_validator.py: An automated\
+    \ expert-system validator to review a subset (\u226510) for 'semantically plausible'\
+    \ rating (FR-007 amended); output review results to data/synthetic_benchmark/review_results.json.\
+    \ Note: Replaces human-in-the-loop requirement to ensure reproducibility (Constitution\
+    \ Principle I)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "An automated expert-system validator to review a subset (\u226510) for\
+    \ 'semantically plausible' rating"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:22:55Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: static pre-verification fails if no pre-verified model found without
+    runtime pivot
+  claim_id: c_f78cbbfd
+  context: Implement code/agents/model_checker.py to perform a static pre-verification
+    check against the 'Verified datasets' block in Plan/Spec for 'MemGUI-8B-SFT' or
+    a pre-verified substitute (e.g., 'microsoft/Phi-3-mini-4k-instruct'). Fail loud
+    if no pre-verified model is found; do NOT pivot at runtime.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P3616: 17491'
+      source_id: Q67535681
+      url: https://www.wikidata.org/wiki/Q67535681
+      value: '17491'
+    filled: true
+  kind: entity_fact
+  raw_text: fail if no pre-verified model is found; do NOT pivot at runtime
+  resolved_value: '17491'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T08:23:22Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: manage memory footprint <7GB
+  claim_id: c_0f3963fa
+  context: Configure code/agents/base_conact.py to force CPU-only execution (no CUDA)
+    and manage memory footprint (<7GB).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/manage_memory_footprint_%3C7GB
+  kind: entity_fact
+  raw_text: manage memory footprint (<7GB)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:23:56Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: attribute failure to missing context from step >10 indices prior
+  claim_id: c_cd9a18c1
+  context: 'Implement code/evaluation/runner.py (ATOMIC): Execute the baseline agent
+    on data/synthetic_benchmark/trajectories.jsonl, record the exact step where ''information
+    decay'' causes a failure, implement explicit attribution logic to attribute the
+    failure to missing context from a step >10 indices prior, and generate data/results/baseline_execution_logs.jsonl.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: attribute the failure to missing context from a step >10 indices prior
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:23:56Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: ensure <10% latency increase
+  claim_id: c_c579745a
+  context: Integrate code/utils/memory_profiler.py to log overhead and ensure <10%
+    latency increase (FR-006 / Constitution Principle VII / amended SC-004).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ensure <10% latency increase
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:23:56Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: hard limit of <10% overhead
+  claim_id: c_43a422a3
+  context: Amend specs/001-llmxive-long-horizon-context/spec.md SC-004 to replace
+    '[deferred] limit' with 'hard limit of <10% overhead ' to align with Constitution
+    Principle VII and FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: hard limit of <10% overhead
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:23:56Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: Mixed-Effects Logistic Regression model formula success ~ agent_type
+    + (1|trajectory_id)
+  claim_id: c_529e995a
+  context: 'Implement code/evaluation/stats.py to perform Mixed-Effects Logistic Regression
+    (GLMM) as Primary Analysis: Input data/results/combined_logs.csv (from T034);
+    Model: success ~ agent_type + (1|trajectory_id); Output p-value and effect size.
+    Comply with amended FR-005 (T036a).'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: trajectory_id)
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Mixed-Effects_Logistic_Regression_model_formula_success_~_ag
+    source_value: https://en.wikipedia.org/wiki/Mixed-Effects_Logistic_Regression_model_formula_success_~_ag
+    subject: Mixed-Effects Logistic Regression model formula success ~ agent_type
+      + (1
+  kind: relational
+  raw_text: 'Model: success ~ agent_type + (1|trajectory_id)'
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:24:00Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: validation script asserts dependency links exist for >95% of trajectories
+  claim_id: c_ee6f6a8f
+  context: 'Independent Test: The generation script runs successfully, outputs a JSONL
+    file, and the validation script asserts dependency links exist for >95% of trajectories.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generation script outputs a JSONL file, and the validation script
+    asserts dependency links exist for >95% of trajectories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:26:44Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: generate exactly 30 synthetic trajectories
+  claim_id: c_079c04f8
+  context: 'T012 [US1] Implement `code/data_generation/synthetic_benchmark.py`: ...
+    generate exactly **30 synthetic trajectories** (A moderate number of steps each)
+    complying with amended FR-001 (T012a).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task implements procedural generation logic to generate exactly 30
+    synthetic trajectories.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:27:11Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: expert-system validator reviews subset of 10 trajectories
+  claim_id: c_602a57f6
+  context: "T017b [US1] Implement `code/data_generation/expert_system_validator.py`:\
+    \ An automated expert-system validator to review a subset (\u226510) for 'semantically\
+    \ plausible' rating (FR-007 amended)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The automated expert-system validator reviews a subset of \u226510 trajectories\
+    \ for 'semantically plausible' rating."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:27:11Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: baseline agent runs without GPU acceleration using 4-bit quantization
+  claim_id: c_52367fa8
+  context: 'Goal: Execute the standard MemGUI-SFT agent (CPU-only, 4-bit quantized)
+    on the synthetic benchmark to measure information decay.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline agent runs without GPU acceleration using 4-bit quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:27:42Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: baseline execution manages memory footprint less than 7GB
+  claim_id: c_54871820
+  context: T021 [US2] Configure `code/agents/base_conact.py` to force CPU-only execution
+    (no CUDA) and manage memory footprint (<7GB).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_execution_manages_memory_footprint_less_than_7GB
+  kind: magnitude
+  raw_text: The baseline execution is configured to manage memory footprint of less
+    than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:28:22Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: failure attributed to missing context from step >10 indices prior
+  claim_id: c_d06eb216
+  context: 'T022 [US2] Implement `code/evaluation/runner.py` (ATOMIC): ... implement
+    explicit attribution logic to attribute the failure to missing context from a
+    step >10 indices prior...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system attributes failure to missing context from a step >10 indices
+    prior.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:28:22Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: Plan.md selects Mixed-Effects Logistic Regression GLMM as primary analysis
+  claim_id: c_e7f7a670
+  context: 'Statistical Methodology Note: Plan.md selects ''Mixed-Effects Logistic
+    Regression (GLMM)'' as primary analysis due to hierarchical data.'
+  evidence:
+    entailment_evidence: md selects Mixed-Effects Logistic Regression GLMM as pr
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Plan.md_selects_Mixed-Effects_Logistic_Regression_GLMM_as_pr
+  kind: entity_fact
+  raw_text: Plan.md selects 'Mixed-Effects Logistic Regression (GLMM)' as the primary
+    analysis method.
+  resolved_value: Plan.md selects Mixed-Effects Logistic Regression GLMM as primary
+    analysis
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T08:28:25Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: retrieval module uses all-MiniLM-L6-v2 model
+  claim_id: c_de9016ba
+  context: 'Goal: Implement a lightweight ''selective recall'' module using `all-MiniLM-L6-v2`
+    to retrieve historical snippets and measure improvement.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Retrieval_module_uses_all-MiniLM-L6-v2_model
+  kind: entity_fact
+  raw_text: The retrieval module uses the 'all-MiniLM-L6-v2' model to retrieve historical
+    snippets.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:29:26Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: system ensures less than 10% latency increase
+  claim_id: c_2a373699
+  context: T037 [US3] Integrate `code/utils/memory_profiler.py` to log overhead and
+    ensure <10% latency increase (FR-006 / Constitution Principle VII / amended SC-004).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_ensures_less_than_10%25_latency_increase
+  kind: magnitude
+  raw_text: The system ensures less than 10% latency increase.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:30:04Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 0
+  canonical: Plan.md selects Mixed-Effects Logistic Regression as primary analysis
+  claim_id: c_770ca496
+  context: 'Statistical Methodology Note: Plan.md selects ''Mixed-Effects Logistic
+    Regression (GLMM)'' as primary analysis due to hierarchical data. Spec FR-005
+    mandates Wilcoxon as primary.'
+  evidence:
+    entailment_evidence: md selects Mixed-Effects Logistic Regression GLMM as pr
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Plan.md_selects_Mixed-Effects_Logistic_Regression_GLMM_as_pr
+  kind: entity_fact
+  raw_text: Plan.md selects 'Mixed-Effects Logistic Regression (GLMM)' as primary
+    analysis due to hierarchical data.
+  resolved_value: Plan.md selects Mixed-Effects Logistic Regression GLMM as primary
+    analysis
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T08:31:46Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: Validation script asserts dependency links exist for greater than 95%
+    of trajectories
+  claim_id: c_76bf4ac6
+  context: 'Independent Test: The generation script runs successfully, outputs a JSONL
+    file, and the validation script asserts dependency links exist for >95% of trajectories.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_script_asserts_dependency_links_exist_for_greater
+  kind: magnitude
+  raw_text: The generation script runs successfully, outputs a JSONL file, and the
+    validation script asserts dependency links exist for >95% of trajectories.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:32:39Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: Attribute failure to missing context from a step greater than 10 indices
+    prior
+  claim_id: c_8de758de
+  context: 'Task T022: ...implement explicit attribution logic to attribute the failure
+    to missing context from a step >10 indices prior, and generate data/results/baseline_execution_logs.jsonl.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Attribute_failure_to_missing_context_from_a_step_greater_tha
+  kind: magnitude
+  raw_text: Implement explicit attribution logic to attribute the failure to missing
+    context from a step >10 indices prior
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:32:44Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: Plan.md reduces trajectory requirement from 50 to 30 due to 7GB RAM constraints
+  claim_id: c_13a33a68
+  context: "Scope Note: Spec FR-001 mandates '\u226550 trajectories', but Plan.md\
+    \ 'Scale/Scope' reduces this to '30 synthetic trajectories' to fit 7GB RAM constraints."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Plan.md 'Scale/Scope' reduces the requirement from '\u226550 trajectories'\
+    \ to '30 synthetic trajectories' to fit 7GB RAM constraints."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:33:38Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: Validation script asserts dependency links exist for more than 95 percent
+    of trajectories
+  claim_id: c_55464766
+  context: 'Independent Test: The generation script runs successfully, outputs a JSONL
+    file, and the validation script asserts dependency links exist for >95% of trajectories.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Validation_script_asserts_dependency_links_exist_for_more_th
+  kind: magnitude
+  raw_text: The validation script asserts dependency links exist for >95% of trajectories.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:34:08Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: Baseline agent uses CPU-only execution with 4-bit quantization
+  claim_id: c_1aef07d3
+  context: 'Goal: Execute the standard MemGUI-SFT agent (CPU-only, 4-bit quantized)
+    on the synthetic benchmark to measure information decay.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline agent execution is configured for CPU-only with 4-bit quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:34:35Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: Baseline agent memory footprint is managed to be less than 7GB
+  claim_id: c_c29f29cc
+  context: Task T021 [US2] Configure `code/agents/base_conact.py` to force CPU-only
+    execution (no CUDA) and manage memory footprint (<7GB).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_agent_memory_footprint_is_managed_to_be_less_than_7
+  kind: magnitude
+  raw_text: The baseline agent execution is managed to fit within a memory footprint
+    of less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:35:06Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: Expert-system validator reviews a subset of at least 10 trajectories
+  claim_id: c_b6879f08
+  context: "Task T017b [US1] Implement `code/data_generation/expert_system_validator.py`:\
+    \ An automated expert-system validator to review a subset (\u226510) for 'semantically\
+    \ plausible' rating (FR-007 amended)..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Expert-system_validator_reviews_a_subset_of_at_least_10_traj
+  kind: magnitude
+  raw_text: The expert-system validator reviews a subset of at least 10 trajectories.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:36:29Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: Information decay failure attributed to missing context from step more
+    than 10 indices prior
+  claim_id: c_210424a6
+  context: Task T022 [US2] ...implement explicit attribution logic to attribute the
+    failure to missing context from a step >10 indices prior...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Information_decay_failure_attributed_to_missing_context_from
+  kind: magnitude
+  raw_text: Information decay attribution logic attributes failure to missing context
+    from a step greater than 10 indices prior.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:37:27Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: Retrieval module uses all-MiniLM-L6-v2 model
+  claim_id: c_e72152df
+  context: 'Goal: Implement a lightweight ''selective recall'' module using `all-MiniLM-L6-v2`
+    to retrieve historical snippets and measure improvement.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Retrieval_module_uses_all-MiniLM-L6-v2_model
+  kind: entity_fact
+  raw_text: The retrieval module uses the 'all-MiniLM-L6-v2' model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:37:58Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: Primary analysis method is Mixed-Effects Logistic Regression GLMM
+  claim_id: c_9ba6648a
+  context: 'Statistical Methodology Note: Plan.md selects ''Mixed-Effects Logistic
+    Regression (GLMM)'' as primary analysis due to hierarchical data.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q32067819
+        url: https://www.wikidata.org/wiki/Q32067819
+        value: Mixed effects logistic regression models for longitudinal binary response
+          data with informative drop-out
+      quote: Mixed effects logistic regression models for longitudinal ordinal functional
+        response data with multiple-cause drop-out from the longitudinal study of
+        aging
+      source_id: Q30593010
+      url: https://www.wikidata.org/wiki/Q30593010
+      value: logistic regression model
+    filled: true
+  kind: entity_fact
+  raw_text: The primary analysis method is Mixed-Effects Logistic Regression (GLMM).
+  resolved_value: logistic regression model
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T08:38:28Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: Overhead limit is hard limit of less than 10 percent
+  claim_id: c_731653b8
+  context: 'Task T037a [P] [US3] **Spec Amendment**: Amend `specs/001-llmxive-long-horizon-context/spec.md`
+    SC-004 to replace ''[deferred] limit'' with ''hard limit of <10% overhead ''...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Overhead_limit_is_hard_limit_of_less_than_10_percent
+  kind: magnitude
+  raw_text: The overhead limit is set to a hard limit of less than 10%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:39:07Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: dependency links exist for greater than 95 percent of trajectories
+  claim_id: c_e6255f8c
+  context: 'Independent Test: The generation script runs successfully, outputs a JSONL
+    file, and the validation script asserts dependency links exist for >95% of trajectories.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dependency_links_exist_for_greater_than_95_percent_of_trajec
+  kind: magnitude
+  raw_text: The validation script asserts dependency links exist for >95% of trajectories.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:40:06Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: reduced synthetic trajectory requirement to 30 to fit 7GB RAM constraints
+  claim_id: c_33added3
+  context: "Scope Note: Spec FR-001 mandates '\u226550 trajectories', but Plan.md\
+    \ 'Scale/Scope' reduces this to '30 synthetic trajectories' to fit 7GB RAM constraints."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Plan.md Scale/Scope reduces the requirement from '\u226550 trajectories'\
+    \ to '30 synthetic trajectories' to fit 7GB RAM constraints."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:40:06Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: baseline agent CPU-only 4-bit quantization less than 7GB memory footprint
+  claim_id: c_95bd4bfe
+  context: 'Goal: Execute the standard MemGUI-SFT agent (CPU-only, 4-bit quantized)
+    on the synthetic benchmark to measure information decay.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_agent_CPU-only_4-bit_quantization_less_than_7GB_mem
+  kind: magnitude
+  raw_text: The baseline agent is configured for CPU-only execution with 4-bit quantization
+    and a memory footprint of less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:40:51Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: expert-system validator reviews subset of at least 10 trajectories
+  claim_id: c_3eb67c8d
+  context: "Implement `code/data_generation/expert_system_validator.py`: An automated\
+    \ expert-system validator to review a subset (\u226510) for 'semantically plausible'\
+    \ rating (FR-007 amended)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Expert-system_validator_reviews_subset_of_at_least_10_trajec
+  kind: magnitude
+  raw_text: The expert-system validator is mandated to review a subset of at least
+    10 trajectories for 'semantically plausible' rating.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:41:35Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: primary analysis Mixed-Effects Logistic Regression GLMM success agent_type
+    trajectory_id
+  claim_id: c_d411532a
+  context: 'Implement `code/evaluation/stats.py` to perform **Mixed-Effects Logistic
+    Regression (GLMM)** as **Primary Analysis**: Input `data/results/combined_logs.csv`
+    (from T034); Model: `success ~ agent_type + (1|trajectory_id)`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The primary analysis method is Mixed-Effects Logistic Regression (GLMM)
+    with the model 'success ~ agent_type + (1|trajectory_id)'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:42:04Z'
+- artifact_path: projects/PROJ-964-llmxive-follow-up-extending-memgui-agent/specs/001-llmxive-follow-up-extending-memgui-agent/tasks.md
+  attempts: 1
+  canonical: latency increase less than 10 percent for recall-enhanced agent
+  claim_id: c_51cbb58a
+  context: Integrate `code/utils/memory_profiler.py` to log overhead and ensure <10%
+    latency increase (FR-006 / Constitution Principle VII / amended SC-004).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Latency_increase_less_than_10_percent_for_recall-enhanced_ag
+  kind: magnitude
+  raw_text: The recall-enhanced agent integration must ensure a latency increase of
+    less than 10%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T08:43:05Z'

@@ -1,0 +1,73 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Household Data Schema"
+description: "Schema for the processed household dataset used in PSM and causal inference."
+type: "object"
+properties:
+  household_id:
+    type: "string"
+    description: "Unique identifier for the household."
+  income:
+    type: "number"
+    description: "Annual household income in USD."
+    minimum: 0
+  energy_cost:
+    type: "number"
+    description: "Annual energy expenditure in USD."
+    minimum: 0
+  log_energy_cost:
+    type: "number"
+    description: "Natural log of energy cost (Primary Causal Outcome, after winsorization)."
+  energy_cost_burden:
+    type: "number"
+    description: "Energy cost burden (Cost/Income) - Descriptive Only."
+  housing_type:
+    type: "string"
+    description: "Type of dwelling."
+    enum: ["single-family", "multi-unit", "mobile-home", "other"]
+  location:
+    type: "string"
+    description: "Census tract or ZIP code."
+  treatment:
+    type: "integer"
+    description: "Binary treatment indicator (1=adopted, 0=control)."
+    enum: [0, 1]
+  propensity_score:
+    type: "number"
+    description: "Estimated probability of treatment."
+    minimum: 0
+    maximum: 1
+  home_value:
+    type: "number"
+    description: "Tract-level median home value in USD (Proxy)."
+    minimum: 0
+  home_value_change:
+    type: "number"
+    nullable: true
+    description: "Not available in cross-sectional data. Set to null."
+  weight:
+    type: "number"
+    description: "Survey weight."
+    minimum: 0
+  age:
+    type: "integer"
+    description: "Age of head of household."
+  race:
+    type: "string"
+    description: "Race of head of household."
+  education:
+    type: "string"
+    description: "Education level of head of household."
+  years_in_residence:
+    type: "integer"
+    description: "Years in residence (Pre-treatment covariate for placebo test)."
+required:
+  - household_id
+  - income
+  - energy_cost
+  - log_energy_cost
+  - housing_type
+  - location
+  - treatment
+  - propensity_score
+  - home_value
+additionalProperties: false

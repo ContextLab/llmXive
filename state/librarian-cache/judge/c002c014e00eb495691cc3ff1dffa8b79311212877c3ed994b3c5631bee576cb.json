@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2305.02185",
+  "judged_at": "2026-08-10T12:47:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "estimating causal effects with doubly robust methods on observational data statistics",
+  "rationale": "This paper satisfies criteria (a) and (d) as it provides a foundational methodological contribution to doubly robust estimation for causal effects in observational data (specifically panel/difference-in-differences settings), which is a canonical approach for the user's topic. It directly addresses the mechanism of estimating causal effects using doubly robust methods, even though it focuses on a specific sub-domain (staggered DiD) and adds uniform confidence bands.",
+  "relevant": true
+}

@@ -1,0 +1,10 @@
+status: none
+intent: "### User Story 1 \u2013 Benchmark DFT\u2011D3 Interaction Energies (Priority:\
+  \ P1) A computational chemist wants to run an end\u2011to\u2011end benchmark that\
+  \ computes DFT\u2011D3 interaction energies for a set of ionic\u2011liquid ion\u2011\
+  pair complexes and compares them to high\u2011level CCSD(T)/CBS reference values,\
+  \ in order to assess"
+required_fields: []
+cache_key: 382be0660b02eb0885dedb90f76667368550c0457682c97b129c2eb853969a94
+searched_at: '2026-11-21T16:34:11.395613+00:00'
+retry_count: 2

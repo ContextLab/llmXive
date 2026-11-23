@@ -1,68 +1,75 @@
-# Data Model: Statistical Analysis of Sentiment Drift
+# Data Model: Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions
 
-## Key Entities
+## Entities
 
-### 1. TimeSeries (Aligned)
-Represents the merged, **monthly** dataset.
-
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `date` | `string` | ISO 8601 Month (e.g., "2020-03") | Unique, sorted ascending |
-| `sentiment_positive` | `float` | Mean ratio of positive sentiment | [0.0, 1.0] |
-| `sentiment_negative` | `float` | Mean ratio of negative sentiment | [0.0, 1.0] |
-| `sentiment_neutral` | `float` | Mean ratio of neutral sentiment | [0.0, 1.0] |
-| `sentiment_confidence` | `float` | Mean confidence of predictions | [0.0, 1.0] |
-| `sentiment_n` | `integer` | Number of items in month | ≥0 |
-| `sentiment_low_confidence` | `boolean` | True if `sentiment_n` < threshold OR `sentiment_confidence` < 0.7 | Enforced by logic |
-| `gdp_growth` | `float` | Monthly GDP growth rate (%) | - |
-| `unemployment_rate` | `float` | Monthly average unemployment rate (%) | - |
-| `consumer_confidence` | `float` | Monthly Consumer Confidence Index | - |
-| `is_recession` | `boolean` | True if date falls within NBER recession period | - |
-| `gdp_missing` | `boolean` | True if original value was missing and interpolated | - |
-| `unrate_missing` | `boolean` | True if original value was missing and interpolated | - |
-| `missing_rate` | `float` | Proportion of imputed values for this row (≤ 0.05) | - |
-
-### 2. ModelResult
-Represents the output of the Granger Causality and VAR tests.
-
+### TimeSeries (Quarterly Aligned)
 | Field | Type | Description |
 |-------|------|-------------|
-| `test_type` | `string` | "Granger", "ADF", "Johansen", "VAR" |
-| `variable_pair` | `string` | e.g., "Sentiment_Pos -> GDP" |
-| `lag_order` | `integer` | Optimal lag selected |
-| `statistic` | `float` | F-statistic or ADF statistic |
-| `p_value` | `float` | P-value of the test |
-| `is_significant` | `boolean` | True if p < 0.05 (after correction) |
-| `method` | `string` | "VAR", "VECM", "ADF" |
-| `stationary` | `boolean` | Result of stationarity test |
+| `quarter` | string (ISO‑format, e.g., `"2020-Q1"`) | Primary key. |
+| `sentiment_pos_ratio` | float (0‑1) | Proportion of positive sentiment scores (confidence ≥ 0.7). |
+| `sentiment_neg_ratio` | float (0‑1) | Proportion of negative sentiment scores (confidence ≥ 0.7). |
+| `sentiment_neu_ratio` | float (0‑1) | Proportion of neutral sentiment scores (confidence ≥ 0.7). |
+| `sentiment_ilr_1` | float | First ILR component derived from the three ratios. |
+| `sentiment_ilr_2` | float | Second ILR component derived from the three ratios. |
+| `media_volume` | integer | Total number of sentiment‑bearing posts observed in the quarter; used as a control variable. |
+| `gdp_growth` | float | Quarterly GDP growth rate (percent). |
+| `unemployment_rate` | float | Quarterly unemployment rate (percent). |
+| `consumer_confidence` | float | Quarterly Consumer Confidence Index (percent). |
+| `low_confidence_flag` | boolean | `true` if the quarter lacked sufficient sentiment sample size (≤ 30 observations). |
+| `interpolation_percent_gdp` | float (0‑100) | % of GDP points filled by linear interpolation. |
+| `interpolation_percent_unrate` | float (0‑100) | % of unemployment points filled by linear interpolation. |
+| `interpolation_percent_cons_conf` | float (0‑100) | % of consumer‑confidence points filled by linear interpolation. |
+| `vif_gdp` | float | VIF for GDP series. |
+| `vif_unrate` | float | VIF for unemployment series. |
+| `vif_cons_conf` | float | VIF for consumer‑confidence series. |
 
-### 3. RecessionPeriod
-Represents NBER recession dates for visualization.
-
+### TimeSeriesMonthly (Intermediate Monthly Alignment)
 | Field | Type | Description |
 |-------|------|-------------|
-| `start_date` | `string` | ISO 8601 Date (YYYY-MM-DD) |
-| `end_date` | `string` | ISO 8601 Date (YYYY-MM-DD) |
-| `source` | `string` | "NBER Business Cycle Dating Committee" |
+| `date` | string (ISO‑format `YYYY‑MM`) | Primary key. |
+| `sentiment_pos_ratio` | float (0‑1) | Monthly proportion of positive sentiment. |
+| `sentiment_neg_ratio` | float (0‑1) | Monthly proportion of negative sentiment. |
+| `sentiment_neu_ratio` | float (0‑1) | Monthly proportion of neutral sentiment. |
+| `sentiment_ilr_1` | float | ILR component (monthly). |
+| `sentiment_ilr_2` | float | ILR component (monthly). |
+| `media_volume` | integer | Monthly tweet count. |
+| `gdp_growth` | float | Monthly GDP growth (derived from quarterly series). |
+| `unemployment_rate` | float | Monthly unemployment rate. |
+| `consumer_confidence` | float | Monthly consumer confidence index. |
+| `low_confidence_flag` | boolean | `true` if the month has insufficient sentiment volume. |
+| `interpolation_percent_gdp` | float (0‑100) | % of GDP points interpolated in this month. |
+| `interpolation_percent_unrate` | float (0‑100) | % of unemployment points interpolated in this month. |
+| `interpolation_percent_cons_conf` | float (0‑100) | % of consumer‑confidence points interpolated in this month. |
+| `vif_gdp` | float | VIF for GDP (monthly view). |
+| `vif_unrate` | float | VIF for unemployment (monthly view). |
+| `vif_cons_conf` | float | VIF for consumer confidence (monthly view). |
 
-### 4. BootstrapResult
-Represents Moving Block Bootstrap validation metrics.
-
+### ModelResult
 | Field | Type | Description |
 |-------|------|-------------|
-| `metric` | `string` | e.g., "Granger_F_stat", "Coefficient" |
-| `original_value` | `float` | Value from baseline model |
-| `ci_lower` | `float` | 95% CI lower bound |
-| `ci_upper` | `float` | 95% CI upper bound |
-| `ci_width` | `float` | `ci_upper - ci_lower` |
-| `standard_error` | `float` | Standard error of the estimate |
-| `consistency_pass` | `boolean` | True if `ci_width` ≤ 20% of `original_value` AND CV < 0.1 |
-| `convergence_achieved` | `boolean` | True if CI width stabilized |
+| `model_type` | string (`"VAR"` or `"VECM"`) | Model fitted after cointegration decision. |
+| `optimal_lag` | integer | Lag order selected via AIC. |
+| `cointegration_rank` | integer | Rank from Johansen trace statistic (0 if none). |
+| `granger_results` | list of objects | Each object: `direction`, `f_stat`, `p_value`, `p_value_fdr`. |
+| `bootstrap_ci` | object | Keys = coefficient names; values = `{ "lower": float, "upper": float }`. |
+| `sensitivity_shifts` | list of objects | Each: `masking_proportion`, `p_value_shift`, `direction`. |
+| `recession_validation` | object | Contains `masked_periods`, `coeff_shift`, `passed`. |
+| `vif` | object | VIF values for macro predictors. |
+| `run_timestamp` | string (ISO‑8601) | Execution time. |
+| `random_seed` | integer | Seed used for bootstrap & sensitivity sampling. |
+| `block_length` | integer | Block length (weeks) used for Moving Block Bootstrap. |
 
-## Data Flow
+### RecessionPeriod
+| Field | Type | Description |
+|-------|------|-------------|
+| `start_date` | string (ISO‑date) | Start of recession (NBER). |
+| `end_date` | string (ISO‑date) | End of recession (NBER). |
+| `label` | string | Human‑readable label (e.g., `"2008‑2009 Financial Crisis"`). |
 
-1.  **Ingestion**: Raw GDELT/FRED data → `data/raw/` (checksummed).
-2.  **Alignment**: Raw data → `data/processed/aligned_monthly.csv` (TimeSeries).
-3.  **Modeling**: Aligned data → `data/processed/model_results.json` (ModelResult).
-4.  **Validation**: Model results → `data/processed/bootstrap_metrics.json` (BootstrapResult).
-5.  **Reporting**: All processed data → `notebooks/analysis_master.ipynb` → Final PDF/HTML.
+## Relationships
+- `TimeSeries` rows are merged on `quarter` to form the modeling matrix.  
+- `TimeSeriesMonthly` rows are merged on `date` to produce `aligned_monthly.csv` before quarterly aggregation.  
+- `ModelResult` references the set of `RecessionPeriod` used for validation.  
+- All entities are persisted as CSV/JSON files under `data/processed/` and `outputs/`.
+
+---

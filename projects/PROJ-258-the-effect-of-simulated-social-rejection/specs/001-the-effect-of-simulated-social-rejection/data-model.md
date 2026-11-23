@@ -1,54 +1,108 @@
 # Data Model: The Effect of Simulated Social Rejection on Neural Responses to Positive Feedback
 
 ## Overview
+The pipeline manipulates five logical data layers, each validated against a JSON/YAML schema in `contracts/`.
 
-This document defines the data structures used throughout the analysis pipeline. It ensures that data ingestion, preprocessing, and analysis adhere to the schema constraints required for valid statistical testing.
+| Layer | Description | File Location | Schema |
+|-------|-------------|---------------|--------|
+| **Raw Dataset** | Unmodified download from OpenNeuro (Parquet) | `data/raw/ds000208.parquet` | `contracts/dataset.schema.yaml` |
+| **Reward Availability Stub** | JSON indicating no reward dataset is available | `data/interim/reward_unavailable.json` | *inline schema validated by `validate.py`* |
+| **Preprocessed Dataset** | Cleaned, outlier‑flagged, Z‑score normalized, aggregated per participant/condition | `data/processed/analysis_ready_ds000208.csv` | `contracts/dataset.schema.yaml` (extended) |
+| **Outlier Log** | Per‑condition IQR thresholds and counts of flagged rows | `data/interim/outlier_log.json` | *description only* |
+| **Design Branch** | Stores the chosen design type (`Between-Subjects`, `Repeated-Measures`) | `data/interim/design_branch.json` | *description only* |
+| **Analysis Output** | Statistical results, FDR‑corrected p‑values, effect sizes, α‑sensitivity flags, **95 % confidence intervals** for effect size | `results/analysis_output.json` | `contracts/analysis_output.schema.yaml` |
+| **Full Results Package** | Combines `analysis_output.json` with design metadata, phrasing checks, and outlier‑sensitivity summary | `results/analysis_results.json` | `contracts/analysis_results.schema.yaml` |
+| **Metadata** | Checksum, download timestamp, citation for the raw dataset | `data/raw/metadata.json` | *description only* |
+| **Citation File** | Human‑readable citation for the dataset | `data/raw/CITATION.md` | – |
 
-## Entities
+## Entity Definitions
 
-### 1. RawDatasetRecord
-Represents a single row from the ingested raw dataset.
-*   **participant_id**: `string` (Unique identifier for the participant).
-*   **condition**: `string` (e.g., "Rejection", "Control", "Reward").
-*   **reaction_time_ms**: `float` (Reaction time in milliseconds).
-*   **mood_rating**: `float` (Self-reported mood, e.g., 1-7 scale).
-*   **source_file**: `string` (Origin filename).
-*   **timestamp_ingested**: `datetime`.
-*   **is_single_cohort**: `boolean` (True if the dataset contains both tasks for the same participant).
+### 1. Raw Dataset Record
+| Field | Type | Description |
+|-------|------|-------------|
+| `participant_id` | string | Anonymized participant identifier. |
+| `task` | string | Task name (e.g., `"cyberball"` or `"reward"`). **Optional**; present when the dataset includes multiple tasks. |
+| `condition` | string | `"rejection"` or `"control"` (both must be present). |
+| `reaction_time` | number (≥ 0) | RT in milliseconds. |
+| `mood_rating` | number (1 – 7) | Self‑reported mood. |
+| `age` | number (optional) | Age in years. |
+| `gender` | string (optional) | `"male"`, `"female"` or `"other"`. |
 
-### 2. PreprocessedRecord
-Cleaned and normalized data ready for analysis.
-*   **participant_id**: `string`.
-*   **rejection_group**: `boolean` (True if condition == "Rejection").
-*   **mean_rt**: `float` (Mean RT per participant per condition, normalized).
-*   **mean_mood**: `float` (Mean mood per participant per condition).
-*   **outlier_flag**: `boolean` (True if RT > Q3 + 1.5*IQR within condition group).
-*   **design_type**: `string` ("Within-Subjects", "Between-Subjects", or "Unavailable").
-    *   *Note*: This field is the explicit trigger for the adaptive ANOVA logic in `analysis.py`.
+### 2. Reward Availability Stub
+```json
+{
+  "reward_dataset_available": false,
+  "reason": "No open-access reward dataset with verified URL."
+}
+```
+Used by downstream steps to skip reward‑related processing.
 
-### 3. AnalysisResult
-Output of the statistical tests.
-*   **test_type**: `string` (e.g., "Mixed_ANOVA", "OneWay_ANOVA").
-*   **f_statistic**: `float`.
-*   **p_raw**: `float`.
-*   **p_fdr**: `float` (Benjamini-Hochberg corrected).
-*   **effect_size**: `float` (e.g., eta-squared).
-*   **power_estimate**: `float` (Estimated power for the effect).
-*   **alpha_threshold**: `float`.
-*   **significant**: `boolean`.
-*   **modulation_claim_valid**: `boolean` (False if design is Between-Subjects).
+### 3. Preprocessed Record
+| Field | Type | Description |
+|-------|------|-------------|
+| `participant_id` | string | Same as raw. |
+| `condition` | string | Same as raw. |
+| `rt_normalized` | number | Z‑score of `reaction_time` within the condition. |
+| `is_outlier` | boolean | `true` if flagged by IQR rule. |
+| `rt_mean` | number | Mean of `rt_normalized` for the participant‑condition pair. |
+| `mood_mean` | number | Mean of `mood_rating` for the participant‑condition pair. |
+| `age` | number (optional) | Propagated from raw. |
+| `gender` | string (optional) | Propagated from raw. |
+
+### 4. Outlier Log (JSON)
+```json
+{
+  "condition": "rejection",
+  "iqr_lower": <number>,
+  "iqr_upper": <number>,
+  "flagged_count": <int>
+}
+```
+One object per condition; stored in `data/interim/outlier_log.json`.
+
+### 5. Design Branch (JSON)
+```json
+{
+  "design_type": "Between-Subjects"  // or "Repeated-Measures"
+}
+```
+Reflects the automatic selection (FR‑007).
+
+### 6. Analysis Output – conforms to `contracts/analysis_output.schema.yaml`
+| Field | Type | Description |
+|-------|------|-------------|
+| `test_type` | string | `"One_Way_ANOVA"` (or `"Repeated_Measures_ANOVA"` when applicable). |
+| `design_type` | string | `"Between-Subjects"` or `"Repeated-Measures"`. |
+| `f_value` | number | F‑statistic. |
+| `p_raw` | number (0‑1) | Unadjusted p‑value. |
+| `p_fdr` | number (0‑1) | Benjamini‑Hochberg corrected p‑value (≥ `p_raw`). |
+| `effect_size` | number | Eta‑squared. |
+| `confidence_interval` | array[2] | 95 % CI for `effect_size`. |
+| `alpha_sensitivity` | object | Keys `"0.01"`, `"0.05"`, `"0.1"` → booleans indicating significance. |
+
+### 7. Full Results Package – conforms to `contracts/analysis_results.schema.yaml`
+| Field | Type | Description |
+|-------|------|-------------|
+| `design_type` | string | `"Between-Subjects"` or `"Repeated-Measures"` or `"Unavailable"`. |
+| `main_test` | object | Mirrors `analysis_output.json` (F, p_raw, p_fdr, effect size, CI). |
+| `sensitivity_analysis` | array | Results of α sweep (α = 0.01, 0.05, 0.1). |
+| `outlier_sensitivity` | object | Differences in statistics with vs. without outliers (from T010). |
+| `limitations` | object | Flags for required phrasing constraints. |
 
 ## Data Flow
+1. **Ingestion** (`code/ingest.py`) → `data/raw/ds000208.parquet`, `metadata.json`, `CITATION.md`.  
+2. **Reward stub** (`code/ingest.py`) → `data/interim/reward_unavailable.json`.  
+3. **Validation** (`code/validate.py`) → `data/interim/ingest_validation_report.json`.  
+4. **Preprocessing** (`code/preprocess.py`) → `data/processed/analysis_ready_ds000208.csv`, `outlier_log.json`.  
+5. **Analysis** (`code/analyze.py`) → `results/analysis_output.json`.  
+6. **Packaging** (`code/report.py`) → `results/analysis_results.json` & `paper/report.md`.  
 
-1.  **Ingestion**: `RawDatasetRecord` created. Validation checks for required columns and `is_single_cohort` flag.
-2.  **Preprocessing**: `RawDatasetRecord` → `PreprocessedRecord`. Outliers flagged/removed. `design_type` is set based on `is_single_cohort`.
-3.  **Analysis**: `PreprocessedRecord` → `AnalysisResult`. FDR correction applied. Power analysis performed.
-4.  **Reporting**: `AnalysisResult` → Final Report (JSON/Markdown).
+All intermediate files are immutable; any transformation writes a new file with documented provenance.
 
 ## Constraints
+- **Memory**: Files must fit within 7 GB RAM; raw parquet is streamed/memory‑mapped.  
+- **PII**: `participant_id` is anonymized; no personal data stored.  
+- **Immutability**: Raw files never overwritten; checksums guarantee integrity.
 
-*   **Memory**: Total dataset size must not exceed a manageable threshold suitable for the experimental setup. If `len(RawDatasetRecord) > 500000`, sampling is applied.
-*   **Integrity**: No in-place modification of raw data. All transformations create new files.
-*   **Missing Data**: If `reaction_time_ms` is missing, the record is dropped with a log entry.
-*   **Design Validity**: If `design_type` is "Between-Subjects", `modulation_claim_valid` must be set to `False`.
+---
 

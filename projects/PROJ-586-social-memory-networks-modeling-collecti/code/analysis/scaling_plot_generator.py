@@ -1,8 +1,8 @@
-"""Scaling plot generation with power-law fitting and reliability notes.
+"""Scaling plot generator for User Story 3.
 
-This module generates the scaling_plot.pdf required for T030, plotting
-specialization index and retrieval efficiency against agent count with
-fitted power-law curves and an explicit note about the limited data points.
+Generates a PDF plot of specialization index and retrieval efficiency versus
+number of agents, with fitted power-law curves and an explicit text note about
+the limitation of having only 3 data points.
 """
 from __future__ import annotations
 
@@ -14,160 +14,198 @@ import warnings
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+import matplotlib
+matplotlib.use('Agg')  # Non-interactive backend for headless execution
 import matplotlib.pyplot as plt
 import numpy as np
 
-# Import from existing project modules
-from analysis.scaling import load_scaling_data, aggregate_by_agent_count, fit_power_law
-from utils.logging import get_logger
+# Import project modules
+from analysis.scaling import fit_power_law, load_scaling_data
+
+
+def load_scaling_results_for_plot(results_path: Path) -> List[Dict[str, Any]]:
+    """Load scaling analysis results from a JSON file.
+
+    Args:
+        results_path: Path to the JSON file containing scaling results.
+
+    Returns:
+        List of dictionaries with keys: 'agent_count', 'specialization_index',
+        'retrieval_efficiency', and optionally 'ci_lower', 'ci_upper'.
+    """
+    if not results_path.exists():
+        raise FileNotFoundError(f"Scaling results file not found: {results_path}")
+
+    with open(results_path, 'r') as f:
+        data = json.load(f)
+
+    # Handle both list and dict formats
+    if isinstance(data, dict) and 'results' in data:
+        return data['results']
+    elif isinstance(data, list):
+        return data
+    else:
+        raise ValueError(f"Unexpected data format in {results_path}")
 
 
 def generate_scaling_plot_with_notes(
-    results_path: str,
-    output_path: str,
-    min_agents: int = 3,
-    max_agents: int = 10,
-) -> Dict[str, Any]:
-    """Generate scaling plot with power-law fits and reliability note.
+    results: List[Dict[str, Any]],
+    output_path: Path,
+    title: str = "Scaling of Collective Remembering Metrics",
+    note_text: str = "3 data points limit power-law reliability"
+) -> None:
+    """Generate a PDF plot of scaling metrics with power-law fits and a limitation note.
 
     Args:
-        results_path: Path to the scaling results JSON file.
-        output_path: Path where the PDF plot will be saved.
-        min_agents: Minimum agent count to include in the plot.
-        max_agents: Maximum agent count to include in the plot.
-
-    Returns:
-        Dictionary with plot metadata and fit statistics.
+        results: List of scaling result dictionaries.
+        output_path: Path to save the PDF plot.
+        title: Plot title.
+        note_text: Text note to display on the plot about data point limitation.
     """
-    logger = get_logger(__name__)
-    logger.log("generate_scaling_plot_with_notes", input_path=results_path, output_path=output_path)
+    if len(results) < 2:
+        raise ValueError("At least 2 data points are required for plotting.")
 
-    # Load and aggregate data
-    data = load_scaling_data(results_path)
-    aggregated = aggregate_by_agent_count(data, min_agents=min_agents, max_agents=max_agents)
+    # Extract data
+    agent_counts = sorted([r['agent_count'] for r in results])
+    spec_indices = [r['specialization_index'] for r in results if r['agent_count'] in agent_counts]
+    ret_effs = [r['retrieval_efficiency'] for r in results if r['agent_count'] in agent_counts]
 
-    if len(aggregated) < 3:
-        logger.log("warning", message="Fewer than 3 data points available for power-law fitting")
-        warnings.warn("Fewer than 3 data points for reliable power-law fitting")
+    # Ensure alignment
+    pairs = sorted(zip(agent_counts, spec_indices, ret_effs), key=lambda x: x[0])
+    agent_counts = [p[0] for p in pairs]
+    spec_indices = [p[1] for p in pairs]
+    ret_effs = [p[2] for p in pairs]
 
-    agent_counts = sorted(aggregated.keys())
-    spec_indices = [aggregated[n]["specialization_index"] for n in agent_counts]
-    retrieval_effs = [aggregated[n]["retrieval_efficiency"] for n in agent_counts]
+    # Convert to numpy arrays
+    x = np.array(agent_counts, dtype=float)
+    y_spec = np.array(spec_indices, dtype=float)
+    y_ret = np.array(ret_effs, dtype=float)
 
-    # Fit power-law curves
-    spec_fit = fit_power_law(agent_counts, spec_indices)
-    retrieval_fit = fit_power_law(agent_counts, retrieval_effs)
+    # Fit power laws
+    # y = a * x^b  ->  log(y) = log(a) + b * log(x)
+    # Filter out zero/negative values for log transformation
+    valid_mask_spec = (y_spec > 0) & (x > 0)
+    valid_mask_ret = (y_ret > 0) & (x > 0)
+
+    if np.sum(valid_mask_spec) < 2 or np.sum(valid_mask_ret) < 2:
+        warnings.warn("Insufficient valid data points for power-law fitting. "
+                     "Plotting raw data without fits.")
+        fit_spec = None
+        fit_ret = None
+    else:
+        x_valid_spec = x[valid_mask_spec]
+        y_valid_spec = y_spec[valid_mask_spec]
+        x_valid_ret = x[valid_mask_ret]
+        y_valid_ret = y_ret[valid_mask_ret]
+
+        fit_spec = fit_power_law(x_valid_spec, y_valid_spec)
+        fit_ret = fit_power_law(x_valid_ret, y_valid_ret)
 
     # Create the plot
-    fig, ax = plt.subplots(figsize=(10, 6))
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 6))
 
-    # Plot raw data points
-    ax.scatter(agent_counts, spec_indices, color='blue', label='Specialization Index', alpha=0.7, s=60)
-    ax.scatter(agent_counts, retrieval_effs, color='red', label='Retrieval Efficiency', alpha=0.7, s=60)
+    # Plot 1: Specialization Index
+    ax1.scatter(x, y_spec, color='blue', s=100, zorder=5, label='Measured')
+    if fit_spec:
+        x_fit = np.linspace(min(x), max(x), 100)
+        y_fit = fit_spec['a'] * np.power(x_fit, fit_spec['b'])
+        ax1.plot(x_fit, y_fit, 'b-', linewidth=2, label=f'Power-law fit (β={fit_spec["b"]:.3f})')
+    ax1.set_xlabel('Number of Agents')
+    ax1.set_ylabel('Specialization Index')
+    ax1.set_title('Specialization Index vs. Agent Count')
+    ax1.legend()
+    ax1.grid(True, alpha=0.3)
+    ax1.set_xscale('log')
+    ax1.set_yscale('log')
 
-    # Generate smooth curve for fits
-    x_smooth = np.linspace(min(agent_counts), max(agent_counts), 100)
+    # Plot 2: Retrieval Efficiency
+    ax2.scatter(x, y_ret, color='green', s=100, zorder=5, label='Measured')
+    if fit_ret:
+        x_fit = np.linspace(min(x), max(x), 100)
+        y_fit = fit_ret['a'] * np.power(x_fit, fit_ret['b'])
+        ax2.plot(x_fit, y_fit, 'g-', linewidth=2, label=f'Power-law fit (β={fit_ret["b"]:.3f})')
+    ax2.set_xlabel('Number of Agents')
+    ax2.set_ylabel('Retrieval Efficiency')
+    ax2.set_title('Retrieval Efficiency vs. Agent Count')
+    ax2.legend()
+    ax2.grid(True, alpha=0.3)
+    ax2.set_xscale('log')
+    ax2.set_yscale('log')
 
-    if spec_fit["success"]:
-        y_spec_smooth = spec_fit["a"] * np.power(x_smooth, spec_fit["b"])
-        ax.plot(x_smooth, y_spec_smooth, 'b--', linewidth=2, label=f'Spec Fit (exp={spec_fit["b"]:.3f})')
+    # Add the limitation note to both subplots
+    note_props = dict(boxstyle='round,pad=0.5', facecolor='yellow', alpha=0.7)
+    for ax in [ax1, ax2]:
+        ax.text(0.02, 0.98, note_text, transform=ax.transAxes, fontsize=10,
+               verticalalignment='top', bbox=note_props)
 
-    if retrieval_fit["success"]:
-        y_retrieval_smooth = retrieval_fit["a"] * np.power(x_smooth, retrieval_fit["b"])
-        ax.plot(x_smooth, y_retrieval_smooth, 'r--', linewidth=2, label=f'Retrieval Fit (exp={retrieval_fit["b"]:.3f})')
+    # Main title
+    fig.suptitle(title, fontsize=16, fontweight='bold')
 
-    # Labels and legend
-    ax.set_xlabel('Number of Agents', fontsize=12)
-    ax.set_ylabel('Metric Value', fontsize=12)
-    ax.set_title('Scaling of Collective Memory Metrics with Agent Count', fontsize=14)
-    ax.legend(loc='best')
-    ax.grid(True, alpha=0.3)
+    # Adjust layout to prevent overlap
+    plt.tight_layout(rect=[0, 0, 1, 0.95])
 
-    # Add explicit note about limited data points
-    note_text = "Note: 3 data points limit power-law reliability"
-    ax.text(0.02, 0.02, note_text, transform=ax.transAxes,
-            fontsize=10, verticalalignment='bottom',
-            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
     # Save the plot
-    plt.tight_layout()
-    plt.savefig(output_path, dpi=150, bbox_inches='tight')
-    plt.close()
+    plt.savefig(output_path, dpi=300, bbox_inches='tight')
+    plt.close(fig)
 
-    logger.log("plot_saved", path=output_path, data_points=len(agent_counts))
-
-    return {
-        "output_path": output_path,
-        "data_points": len(agent_counts),
-        "agent_counts": agent_counts,
-        "specialization_fit": spec_fit,
-        "retrieval_fit": retrieval_fit,
-        "note": note_text
-    }
+    print(f"Scaling plot saved to: {output_path}")
 
 
 def build_parser() -> argparse.ArgumentParser:
-    """Build argument parser for the scaling plot generator."""
+    """Build the argument parser for the scaling plot generator."""
     parser = argparse.ArgumentParser(
-        description="Generate scaling plot with power-law fits and reliability notes"
+        description="Generate scaling plot with power-law fits and limitation notes."
     )
     parser.add_argument(
         "--results",
         type=str,
         default="projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_results.json",
-        help="Path to the scaling results JSON file"
+        help="Path to the scaling results JSON file."
     )
     parser.add_argument(
         "--output",
         type=str,
         default="projects/PROJ-586-social-memory-networks-modeling-collecti/results/scaling_plot.pdf",
-        help="Path for the output PDF plot"
+        help="Path to save the output PDF plot."
     )
     parser.add_argument(
-        "--min-agents",
-        type=int,
-        default=3,
-        help="Minimum agent count to include"
+        "--title",
+        type=str,
+        default="Scaling of Collective Remembering Metrics",
+        help="Plot title."
     )
     parser.add_argument(
-        "--max-agents",
-        type=int,
-        default=10,
-        help="Maximum agent count to include"
+        "--note",
+        type=str,
+        default="3 data points limit power-law reliability",
+        help="Text note to display on the plot."
     )
     return parser
 
 
-def main() -> int:
+def main() -> None:
     """Main entry point for the scaling plot generator."""
     parser = build_parser()
     args = parser.parse_args()
 
-    output_dir = Path(args.output).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    results_path = Path(args.results)
+    output_path = Path(args.output)
 
     try:
-        result = generate_scaling_plot_with_notes(
-            results_path=args.results,
-            output_path=args.output,
-            min_agents=args.min_agents,
-            max_agents=args.max_agents
+        results = load_scaling_results_for_plot(results_path)
+        generate_scaling_plot_with_notes(
+            results=results,
+            output_path=output_path,
+            title=args.title,
+            note_text=args.note
         )
-
-        print(f"Plot generated successfully: {args.output}")
-        print(f"Data points used: {result['data_points']}")
-        print(f"Specialization exponent: {result['specialization_fit']['b']:.4f}")
-        print(f"Retrieval exponent: {result['retrieval_fit']['b']:.4f}")
-
-        return 0
-
-    except FileNotFoundError as e:
-        print(f"Error: Results file not found: {e}")
-        return 1
     except Exception as e:
-        print(f"Error generating plot: {e}")
-        return 1
+        print(f"Error generating scaling plot: {e}", file=sys.stderr)
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

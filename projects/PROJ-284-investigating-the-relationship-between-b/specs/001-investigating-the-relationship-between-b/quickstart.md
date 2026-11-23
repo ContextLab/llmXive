@@ -2,54 +2,78 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- `pip` or `conda`
-- HCP API credentials (optional, for raw data download; otherwise, the pipeline uses verified ICA-FIX parquet fallbacks).
+- **Python**: 3.11+
+- **System Tools**: `git`, `curl`, `wget`
+- **Dependencies**: `requirements.txt` (pinned versions)
+- **HCP Access**: Valid HCP credentials required for behavioral data download. For fMRI data, an OpenNeuro account is sufficient for programmatic access.
 
 ## Installation
 
-1. Clone the repository.
-2. Install dependencies:
+1. **Clone the repository**:
    ```bash
-   pip install -r code/requirements.txt
+   git clone <repository-url>
+   cd projects/PROJ-284-investigating-the-relationship-between-b
    ```
-3. (Optional) Set HCP credentials:
+
+2. **Create a virtual environment**:
    ```bash
-   export HCP_USERNAME="your_username"
-   export HCP_PASSWORD="your_password"
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
    ```
 
 ## Running the Pipeline
 
-### 1. Download and Preprocess Data (Fallback)
+The pipeline is executed via the main script `code/main_pipeline.py`.
+
+### Step 1: Data Download
 ```bash
-python code/main.py --step download_preprocess --subjects 50
+python code/download/fetch_openneuro.py --subjects 50 --output data/raw
+python code/download/fetch_hcp_behavioral.py --subjects 50 --output data/raw
 ```
-*Note: The pipeline will prioritize verified preprocessed (ICA-FIX) data. Raw preprocessing is only attempted if ICA-FIX data is unavailable for a subject.*
+*Note: This uses the official OpenNeuro API (`openneuro-py`) and HCP ConnectomeDB. It streams data to avoid memory issues.*
 
-### 2. Extract Network Metrics
+### Step 2: Preprocessing (QC Only)
 ```bash
-python code/main.py --step extract_metrics
+python code/preprocess/run_qc_only.py --input data/raw --output data/processed
 ```
+*This step calculates tSNR and FD. Subjects failing QC are logged and excluded. No re-preprocessing is performed.*
 
-### 3. Run Correlation Analysis (with PCA/MANOVA and CI)
+### Step 3: Analysis
 ```bash
-python code/main.py --step analyze
+python code/main_pipeline.py --batch-size 5 --mode cpu
 ```
+*This runs connectivity, metric extraction, PCA (2 components), correlation, and visualization in a single pass. `--batch-size` can be adjusted if memory errors occur.*
 
-### 4. Generate Visualizations and Report
+### Step 4: Generate Report
 ```bash
-python code/main.py --step viz_report
+python code/viz/generate_report.py --input data/analysis/correlation_results.csv --output reports/summary.md
 ```
 
-## Output
+## Verification
 
-- **Plots**: `output/plots/` (Scatter plots, network diagrams)
-- **Results**: `output/results/correlations.csv`, `output/results/confidence_intervals.json`
-- **Report**: `output/report/summary.md` (Includes Limitation Statement on proxy measure)
+To verify the pipeline integrity:
+1. **Check Checksums**:
+   ```bash
+   python code/utils/checksums.py verify
+   ```
+2. **Run Contract Tests**:
+   ```bash
+   pytest tests/contract/
+   ```
+3. **Check Output Files**:
+   Ensure the following files exist in `data/analysis/`:
+   - `pca_loadings.csv` (2 components)
+   - `factor_scores.csv` (2 scores per subject)
+   - `full_metrics.csv` (merged metrics + PCA)
+   - `correlation_results.csv` (contains columns: `metric`, `r`, `p`, `q`, `significant`)
 
 ## Troubleshooting
 
-- **Memory Error**: The pipeline automatically reduces batch size. If it fails, manually set `--batch-size 2` in the command.
-- **Missing Data**: Subjects with missing behavioral data are skipped and logged.
-- **API Errors**: If HCP API returns 403, the pipeline retries 3 times with exponential backoff before falling back to ICA-FIX parquet data.
+- **Memory Error**: If the script crashes with `MemoryError`, reduce `--batch-size` to 2 or 1. The pipeline will automatically retry with the smaller batch.
+- **Missing Data**: If a subject is missing behavioral data, it is skipped and logged. The final report will reflect the reduced N.
+- **GPU Fallback**: If running on a local machine with a GPU and memory errors persist, set `export CUDA_VISIBLE_DEVICES=0` and run with `--mode gpu`.

@@ -1,218 +1,158 @@
+"""
+Checksum computation and verification utilities.
+"""
 import os
 import sys
 import hashlib
 import logging
 import json
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional
 
-# Configure logging for this module
 logger = logging.getLogger(__name__)
 
-def compute_file_checksum(file_path: str, algorithm: str = "sha256") -> str:
+
+def compute_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
     """
-    Compute the checksum of a file using the specified algorithm.
-
+    Compute the checksum of a file.
+    
     Args:
-        file_path: Path to the file to checksum.
-        algorithm: Hash algorithm to use (default: sha256).
-
+        file_path: Path to the file.
+        algorithm: Hash algorithm to use.
+        
     Returns:
-        Hexadecimal string of the checksum.
-
+        str: The hexadecimal digest of the checksum.
+        
     Raises:
         FileNotFoundError: If the file does not exist.
-        ValueError: If the algorithm is not supported.
+        IOError: If the file cannot be read.
     """
-    path = Path(file_path)
-    if not path.exists():
+    if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-
-    hash_obj = hashlib.new(algorithm)
+        
+    hash_func = hashlib.new(algorithm)
+    
     try:
-        with open(path, "rb") as f:
+        with open(file_path, "rb") as f:
             # Read in chunks to handle large files
             for chunk in iter(lambda: f.read(4096), b""):
-                hash_obj.update(chunk)
-        return hash_obj.hexdigest()
-    except Exception as e:
-        logger.error(f"Error computing checksum for {file_path}: {e}")
+                hash_func.update(chunk)
+    except IOError as e:
+        logger.error(f"Failed to read file {file_path}: {e}")
+        raise
+        
+    return hash_func.hexdigest()
+
+
+def save_checksum(file_path: Path, checksum: str, checksum_file: Optional[Path] = None) -> None:
+    """
+    Save a checksum to a JSON file.
+    
+    Args:
+        file_path: Path to the file whose checksum is saved.
+        checksum: The checksum string.
+        checksum_file: Optional path for the checksum file. Defaults to <filename>.sha256.json.
+    """
+    if checksum_file is None:
+        checksum_file = file_path.with_suffix(file_path.suffix + ".sha256.json")
+        
+    data = {
+        "file": str(file_path),
+        "checksum": checksum,
+        "algorithm": "sha256"
+    }
+    
+    try:
+        with open(checksum_file, "w") as f:
+            json.dump(data, f, indent=2)
+        logger.info(f"Checksum saved to {checksum_file}")
+    except IOError as e:
+        logger.error(f"Failed to save checksum to {checksum_file}: {e}")
         raise
 
-def save_checksum(file_path: str, checksum_path: Optional[str] = None, algorithm: str = "sha256") -> Path:
+
+def verify_checksum(file_path: Path, checksum_file: Optional[Path] = None) -> bool:
     """
-    Compute the checksum of a file and save it to a .checksum.json file.
-
-    Args:
-        file_path: Path to the file to checksum.
-        checksum_path: Optional path for the checksum file. If None, creates
-                       <file_path>.checksum.json in the same directory.
-        algorithm: Hash algorithm to use.
-
-    Returns:
-        Path to the created checksum file.
-    """
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-
-    checksum = compute_file_checksum(str(path), algorithm)
-
-    if checksum_path is None:
-        checksum_path = str(path.parent / f"{path.name}.checksum.json")
+    Verify a file's checksum against a stored checksum.
     
-    checksum_file = Path(checksum_path)
-    
-    checksum_data = {
-        "file": str(path.absolute()),
-        "algorithm": algorithm,
-        "checksum": checksum,
-        "status": "verified"
-    }
-
-    with open(checksum_file, "w") as f:
-        json.dump(checksum_data, f, indent=2)
-    
-    logger.info(f"Checksum saved to {checksum_file}: {checksum}")
-    return checksum_file
-
-def verify_checksum(file_path: str, checksum_path: Optional[str] = None) -> bool:
-    """
-    Verify the checksum of a file against a saved checksum file.
-
     Args:
         file_path: Path to the file to verify.
-        checksum_path: Optional path to the checksum file. If None, looks for
-                       <file_path>.checksum.json in the same directory.
-
+        checksum_file: Optional path to the checksum file.
+        
     Returns:
-        True if checksums match, False otherwise.
+        bool: True if checksum matches, False otherwise.
+        
+    Raises:
+        FileNotFoundError: If the file or checksum file is missing.
     """
-    path = Path(file_path)
-    if not path.exists():
-        logger.error(f"File not found for verification: {file_path}")
-        return False
-
-    if checksum_path is None:
-        checksum_path = str(path.parent / f"{path.name}.checksum.json")
-    
-    checksum_file = Path(checksum_path)
+    if checksum_file is None:
+        checksum_file = file_path.with_suffix(file_path.suffix + ".sha256.json")
+        
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+        
     if not checksum_file.exists():
-        logger.warning(f"Checksum file not found: {checksum_file}")
-        return False
-
+        raise FileNotFoundError(f"Checksum file not found: {checksum_file}")
+        
     try:
         with open(checksum_file, "r") as f:
             data = json.load(f)
+            
+        stored_checksum = data["checksum"]
+        stored_algorithm = data.get("algorithm", "sha256")
         
-        saved_checksum = data.get("checksum")
-        saved_algorithm = data.get("algorithm", "sha256")
+        computed_checksum = compute_file_checksum(file_path, stored_algorithm)
         
-        if not saved_checksum:
-            logger.error("Checksum file is missing 'checksum' field")
-            return False
-
-        current_checksum = compute_file_checksum(str(path), saved_algorithm)
-        
-        if current_checksum == saved_checksum:
-            logger.info(f"Checksum verified for {file_path}")
+        if computed_checksum == stored_checksum:
+            logger.info(f"Checksum verification passed for {file_path}")
             return True
         else:
-            logger.error(f"Checksum mismatch for {file_path}. Expected: {saved_checksum}, Got: {current_checksum}")
+            logger.error(
+                f"Checksum mismatch for {file_path}. "
+                f"Expected: {stored_checksum}, Got: {computed_checksum}"
+            )
             return False
-    except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in checksum file {checksum_file}: {e}")
-        return False
-    except Exception as e:
-        logger.error(f"Error verifying checksum for {file_path}: {e}")
-        return False
+            
+    except (IOError, json.JSONDecodeError, KeyError) as e:
+        logger.error(f"Failed to verify checksum for {file_path}: {e}")
+        raise
 
-def initialize_data_directories(base_dir: Optional[str] = None) -> Dict[str, Path]:
-    """
-    Create the standard data directory structure for the project.
-    
-    Creates:
-        data/raw/
-        data/processed/
-        data/interim/ (optional, for intermediate processing steps)
-    
-    Args:
-        base_dir: Base directory for data folder. Defaults to project root 'data/'.
 
-    Returns:
-        Dictionary mapping directory names to their Path objects.
+def initialize_data_directories() -> None:
     """
-    if base_dir is None:
-        # Default to 'data' relative to current working directory or project root
-        base_dir = "data"
-    
-    base_path = Path(base_dir)
-    
-    directories = {
-        "raw": base_path / "raw",
-        "processed": base_path / "processed",
-        "interim": base_path / "interim"
-    }
-    
-    for name, dir_path in directories.items():
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {dir_path}")
-        else:
-            logger.debug(f"Directory already exists: {dir_path}")
-    
-    return directories
+    Initialize data directories and their checksum files if needed.
+    This is a wrapper around setup_dirs.initialize_directories.
+    """
+    from utils.setup_dirs import initialize_directories
+    initialize_directories()
+
 
 def main():
     """
-    Command-line entry point for checksum utilities.
-    
-    Usage:
-        python code/utils/checksum_utils.py --command <command> --file <path> [--checksum-file <path>]
-        
-    Commands:
-        compute  : Compute checksum for a file
-        verify   : Verify checksum for a file
-        init     : Initialize data directory structure
+    Main entry point for checksum utilities (for testing).
     """
     import argparse
-
-    parser = argparse.ArgumentParser(description="Checksum utilities for data integrity")
-    parser.add_argument("--command", required=True, choices=["compute", "verify", "init"],
-                      help="Command to execute")
-    parser.add_argument("--file", help="Path to the file to process")
-    parser.add_argument("--checksum-file", help="Path to the checksum file (for verify)")
-    parser.add_argument("--base-dir", help="Base directory for data (for init)")
+    parser = argparse.ArgumentParser(description="Checksum utilities")
+    parser.add_argument("command", choices=["compute", "verify"], help="Command to run")
+    parser.add_argument("file", help="Path to the file")
+    parser.add_argument("--checksum-file", help="Path to checksum file (for verify)")
     
     args = parser.parse_args()
+    file_path = Path(args.file)
     
-    if args.command == "init":
-        dirs = initialize_data_directories(args.base_dir)
-        print("Directories initialized:")
-        for name, path in dirs.items():
-            print(f"  {name}: {path}")
-    elif args.command == "compute":
-        if not args.file:
-            print("Error: --file is required for compute command")
-            sys.exit(1)
-        try:
-            checksum = compute_file_checksum(args.file)
-            print(f"Checksum for {args.file}: {checksum}")
-            save_checksum(args.file)
-            print(f"Checksum saved to {args.file}.checksum.json")
-        except Exception as e:
-            print(f"Error: {e}")
-            sys.exit(1)
+    if args.command == "compute":
+        checksum = compute_file_checksum(file_path)
+        print(f"Checksum: {checksum}")
+        save_checksum(file_path, checksum)
     elif args.command == "verify":
-        if not args.file:
-            print("Error: --file is required for verify command")
-            sys.exit(1)
-        if verify_checksum(args.file, args.checksum_file):
-            print(f"Verification passed for {args.file}")
+        checksum_file = Path(args.checksum_file) if args.checksum_file else None
+        if verify_checksum(file_path, checksum_file):
+            print("Verification passed")
             sys.exit(0)
         else:
-            print(f"Verification failed for {args.file}")
+            print("Verification failed")
             sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

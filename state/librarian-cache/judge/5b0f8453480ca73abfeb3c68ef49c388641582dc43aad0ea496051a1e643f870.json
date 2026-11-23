@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.17419",
+  "judged_at": "2026-09-02T21:20:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"tua-bench: a benchmark for general-purpose terminal-use agents\" computer science",
+  "rationale": "The paper focuses on security architectures and threat models for autonomous AI agents in healthcare, which is a distinct construct from the user's question regarding a benchmark for terminal-use agents (TUA-Bench). While both involve AI agents, the candidate paper does not measure the same mechanism, variables, or empirical population related to benchmarking general-purpose terminal interactions, nor does it serve as a foundational reference for the specific benchmarking methodology the user is",
+  "relevant": false
+}

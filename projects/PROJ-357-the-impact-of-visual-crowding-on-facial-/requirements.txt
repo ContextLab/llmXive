@@ -1,18 +1,18 @@
-# Existing dependencies
-numpy
-pandas
-pillow
-torch
-torchvision
-transformers
-huggingface_hub
-scikit-learn
-scipy
-matplotlib
-seaborn
-pyyaml
-pytest
-pytest-cov
+# Core data processing
+pandas>=2.0.0
+numpy>=1.24.0
+scipy>=1.10.0
+pyyaml>=6.0
 
-# New dependencies (if any)
-# None added for T014 (uses standard library and existing deps)
+# Dataset handling
+datasets>=2.14.0
+
+# Image processing
+pillow>=10.0.0
+opencv-python-headless>=4.8.0
+
+# Statistical modeling
+statsmodels>=0.14.0
+
+# Progress bars (optional but helpful)
+tqdm>=4.65.0

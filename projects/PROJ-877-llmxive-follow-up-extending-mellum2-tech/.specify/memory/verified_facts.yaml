@@ -1,0 +1,6 @@
+'|1b model primary tinyllama use':
+  quote: 1Our latest model, TinyLlama v1.1, is only trained for 2 trillion tokens.
+    More details about this latest version
+  source_id: '2401.02385'
+  url: https://arxiv.org/abs/2401.02385
+  value: TinyLlama v1.1

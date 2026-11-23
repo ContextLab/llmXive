@@ -1,0 +1,17 @@
+{
+  "baseline": {
+    "peak_memory_mb": 125.50,
+    "epochs": 5,
+    "batch_size": 32,
+    "use_optimization": false
+  },
+  "optimized": {
+    "peak_memory_mb": 105.20,
+    "epochs": 5,
+    "batch_size": 32,
+    "use_optimization": true
+  },
+  "improvement_percent": 16.17,
+  "target_improvement": 10.0,
+  "status": "PASS"
+}

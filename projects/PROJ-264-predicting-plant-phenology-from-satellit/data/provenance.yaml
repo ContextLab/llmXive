@@ -1,0 +1,174 @@
+# Provenance Record for Plant Phenology Prediction Project
+# This file tracks data sources, processing steps, and checksums for reproducibility.
+# Generated automatically by the data pipeline.
+
+version: "1.0.0"
+project_id: "PROJ-264-predicting-plant-phenology-from-satellit"
+created_at: "2023-10-27T12:00:00Z"
+last_updated: "2023-10-27T12:00:00Z"
+
+# Global processing parameters
+processing_params:
+  software_version: "0.1.0"
+  python_version: "3.9"
+  random_seed: 42
+  cloud_coverage_threshold: 0.8
+  spatial_resolution: "10m"
+  temporal_resolution: "10-day"
+
+# Data sources and their metadata
+data_sources:
+  - name: "sentinel-s2-l2a"
+    type: "satellite"
+    provider: "Google Earth Engine"
+    endpoint: "projects/earthengine/asset/Sentinel_S2_L2A"
+    date_range:
+      start: "2018-01-01"
+      end: "2023-12-31"
+    bands:
+      - "B04"  # Red
+      - "B08"  # NIR
+      - "B05"  # Red Edge 1
+      - "B06"  # Red Edge 2
+      - "B07"  # Red Edge 3
+      - "B11"  # SWIR 1
+      - "B12"  # SWIR 2
+    processing_level: "L2A"
+    checksums: {}
+    status: "pending"
+    last_accessed: null
+    
+  - name: "noaa-ghcn-daily"
+    type: "climate"
+    provider: "NOAA"
+    endpoint: "https://www.ncei.noaa.gov/access/services/data/v1/dataset/ghcn-daily"
+    date_range:
+      start: "2018-01-01"
+      end: "2023-12-31"
+    variables:
+      - "TMAX"  # Maximum temperature
+      - "TMIN"  # Minimum temperature
+      - "PRCP"  # Precipitation
+      - "SOLAR" # Solar radiation (from POWER API)
+    checksums: {}
+    status: "pending"
+    last_accessed: null
+    
+  - name: "nasa-power"
+    type: "climate"
+    provider: "NASA POWER"
+    endpoint: "https://power.larc.nasa.gov/api"
+    date_range:
+      start: "2018-01-01"
+      end: "2023-12-31"
+    variables:
+      - "T2M_MAX"
+      - "T2M_MIN"
+      - "PRECTOTCORR"
+      - "SOLAR"
+    checksums: {}
+    status: "pending"
+    last_accessed: null
+    
+  - name: "nature-notebook"
+    type: "phenology"
+    provider: "USA National Phenology Network"
+    endpoint: "https://www.usanpn.org/api/v2/observations"
+    date_range:
+      start: "2018-01-01"
+      end: "2023-12-31"
+    species:
+      - "Acer saccharum"
+      - "Quercus alba"
+      - "Prunus serotina"
+      - "Betula alleghaniensis"
+      - "Fraxinus pennsylvanica"
+    events:
+      - "leaf_out"
+      - "flowering"
+      - "fruiting"
+      - "leaf_color_change"
+      - "leaf_drop"
+    checksums: {}
+    status: "pending"
+    last_accessed: null
+
+# Processing steps and their metadata
+processing_steps:
+  - id: "step_001"
+    name: "site_selection"
+    description: "Selection of study sites based on cloud coverage"
+    script: "src/data/ingestion.py"
+    parameters:
+      cloud_threshold: 0.8
+      min_sites: 10
+      max_sites: 15
+    outputs:
+      - "data/processed/study_sites.csv"
+    checksums: {}
+    status: "pending"
+    executed_at: null
+    
+  - id: "step_002"
+    name: "satellite_ingestion"
+    description: "Download and process Sentinel-2 data"
+    script: "src/data/ingestion.py"
+    parameters:
+      bands: ["B04", "B08", "B05", "B06", "B07", "B11", "B12"]
+      resolution: 10
+      cloud_threshold: 0.8
+    outputs:
+      - "data/processed/sentinel_data.parquet"
+      - "data/processed/ndvi_evi.parquet"
+    checksums: {}
+    status: "pending"
+    executed_at: null
+    
+  - id: "step_003"
+    name: "climate_ingestion"
+    description: "Download and process climate data"
+    script: "src/data/ingestion.py"
+    parameters:
+      sources: ["noaa-ghcn", "nasa-power"]
+      variables: ["TMAX", "TMIN", "PRCP", "SOLAR"]
+    outputs:
+      - "data/processed/climate_data.parquet"
+    checksums: {}
+    status: "pending"
+    executed_at: null
+    
+  - id: "step_004"
+    name: "phenology_ingestion"
+    description: "Download and process ground truth phenology data"
+    script: "src/data/ingestion.py"
+    parameters:
+      species: ["Acer saccharum", "Quercus alba", "Prunus serotina", "Betula alleghaniensis", "Fraxinus pennsylvanica"]
+      events: ["leaf_out", "flowering", "fruiting", "leaf_color_change", "leaf_drop"]
+    outputs:
+      - "data/processed/phenology_data.parquet"
+    checksums: {}
+    status: "pending"
+    executed_at: null
+    
+  - id: "step_005"
+    name: "data_preprocessing"
+    description: "Clean, align, and feature engineer data"
+    script: "src/data/preprocessing.py"
+    parameters:
+      interpolation_max_gap: 10
+      exclude_features: ["gdd_cumulative"]
+      min_coverage: 0.8
+    outputs:
+      - "data/processed/final_dataset.parquet"
+    checksums: {}
+    status: "pending"
+    executed_at: null
+
+# Execution history
+execution_log: []
+
+# Metadata for reproducibility
+metadata:
+  git_commit: "unknown"
+  environment: "development"
+  notes: "Initial provenance file created by T007"

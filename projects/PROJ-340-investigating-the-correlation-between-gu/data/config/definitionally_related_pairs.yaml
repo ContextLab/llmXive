@@ -1,0 +1,29 @@
+# Definitionally Related Taxa Pairs
+#
+# This configuration file lists pairs of taxa that are definitionally related
+# (e.g., parent-child relationships in taxonomy, or mutually exclusive variants
+# that sum to a constant). These pairs are expected to exhibit perfect
+# multicollinearity in the predictor matrix.
+#
+# Format: A list of lists, where each inner list contains two taxon names.
+# This file is optional and serves as documentation; the primary detection
+# of collinearity is performed via matrix rank check in code/diagnostics.py.
+#
+# Addresses FR-006: Multicollinearity Detection
+pairs:
+  # Example: Phylum vs Class relationships (hypothetical taxonomy)
+  - ["Firmicutes", "Firmicutes_Bacilli"]
+  - ["Bacteroidetes", "Bacteroidetes_Bacteroidia"]
+  
+  # Example: Genus vs Species relationships
+  - ["Bacteroides", "Bacteroides_fragilis"]
+  - ["Bacteroides", "Bacteroides_thetaiotaomicron"]
+  - ["Prevotella", "Prevotella_copri"]
+  - ["Faecalibacterium", "Faecalibacterium_prausnitzii"]
+  
+  # Example: Mutually exclusive variants within a genus
+  - ["Clostridium_cluster_IV", "Clostridium_cluster_XIVa"]
+  
+  # Note: The actual list of required taxa names is provided in
+  # data/config/research_design.yaml at runtime. This file documents
+  # expected relationships for validation and debugging purposes.

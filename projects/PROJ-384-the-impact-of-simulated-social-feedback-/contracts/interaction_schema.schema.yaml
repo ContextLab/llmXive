@@ -1,0 +1,23 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Interaction Schema
+description: Schema for raw interaction data (post_text, reply_text, timestamp, user_id)
+type: object
+required:
+  - post_text
+  - reply_text
+  - timestamp
+  - user_id
+additionalProperties: false
+properties:
+  post_text:
+    type: string
+    description: The text content of the user's post
+  reply_text:
+    type: string
+    description: The text content of the reply to the post
+  timestamp:
+    type: integer
+    description: Unix timestamp of the interaction
+  user_id:
+    type: string
+    description: Unique identifier for the user

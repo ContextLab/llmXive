@@ -1,0 +1,15 @@
+db9399b1ae2ff449b422260b19b9af33  ./annotation_hashes.txt
+50c65444dcd936fbd5aa10c396ff438b  ./GCF_963674485.2_piMetSpef1.Methanolobus_sp_1.2_assembly_report.txt
+de40fa75e8dd37767d46d8b83d8b6056  ./GCF_963674485.2_piMetSpef1.Methanolobus_sp_1.2_assembly_stats.txt
+ae420e0e16fdc22c6ce154a14eef55f7  ./GCF_963674485.2_piMetSpef1.Methanolobus_sp_1.2_cds_from_genomic.fna.gz
+2457a7a61f940dcd0c719607cdb0baae  ./GCF_963674485.2_piMetSpef1.Methanolobus_sp_1.2_feature_count.txt
+97853521a1d81ee898e41ab122b5b13e  ./GCF_963674485.2_piMetSpef1.Methanolobus_sp_1.2_feature_table.txt.gz
+09af666fd664381392c5b6355e722740  ./GCF_963674485.2_piMetSpef1.Methanolobus_sp_1.2_genomic.fna.gz
+33ee1cf934c57cf77efa5562c01141b9  ./GCF_963674485.2_piMetSpef1.Methanolobus_sp_1.2_genomic.gbff.gz
+41e03c0d359b5e0b7b4f2ea6952a5959  ./GCF_963674485.2_piMetSpef1.Methanolobus_sp_1.2_genomic.gff.gz
+48b47dd8cf91835279785d9195f328f1  ./GCF_963674485.2_piMetSpef1.Methanolobus_sp_1.2_genomic.gtf.gz
+de0cce4c8a7e7e650dac282eabcb100b  ./GCF_963674485.2_piMetSpef1.Methanolobus_sp_1.2_protein.faa.gz
+61eedada4a62490ab915960ef5c5c574  ./GCF_963674485.2_piMetSpef1.Methanolobus_sp_1.2_protein.gpff.gz
+28c7b156e3b500833db8f0249a6b3863  ./GCF_963674485.2_piMetSpef1.Methanolobus_sp_1.2_rna_from_genomic.fna.gz
+5565c23da2eb7052e29f08fb82dfebf6  ./GCF_963674485.2_piMetSpef1.Methanolobus_sp_1.2_translated_cds.faa.gz
+33786a52c76990e181a3f603f9582cb8  ./GCF_963674485.2_piMetSpef1.Methanolobus_sp_1.2_wgsmaster.gbff.gz

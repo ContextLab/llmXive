@@ -1,0 +1,58 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HEA Dataset Schema"
+description: "Schema for the TrainingSet, HoldoutKnown, and TrueNovel datasets."
+type: object
+properties:
+  composition_id:
+    type: string
+    description: "Unique hash of the elemental composition."
+  elements:
+    type: string
+    description: "Comma-separated list of elements."
+  n_elements:
+    type: integer
+    minimum: 5
+    description: "Number of unique elements (must be 5+)."
+  formation_energy:
+    type: number
+    description: "Formation energy in eV/atom."
+  mixing_enthalpy:
+    type: number
+    description: "Mixing enthalpy in kJ/mol."
+  atomic_radius_mean:
+    type: number
+    description: "Weighted mean atomic radius."
+  atomic_radius_var:
+    type: number
+    description: "Weighted variance atomic radius (clamped to 1e-6 if near zero)."
+  electronegativity_mean:
+    type: number
+    description: "Weighted mean electronegativity."
+  electronegativity_var:
+    type: number
+    description: "Weighted variance electronegativity (clamped to 1e-6 if near zero)."
+  vec_mean:
+    type: number
+    description: "Weighted mean Valence Electron Count."
+  vec_var:
+    type: number
+    description: "Weighted variance Valence Electron Count (clamped to 1e-6 if near zero)."
+  melting_point_mean:
+    type: number
+    description: "Weighted mean melting point."
+  melting_point_var:
+    type: number
+    description: "Weighted variance melting point (clamped to 1e-6 if near zero)."
+required:
+  - composition_id
+  - elements
+  - n_elements
+  - atomic_radius_mean
+  - atomic_radius_var
+  - electronegativity_mean
+  - electronegativity_var
+  - vec_mean
+  - vec_var
+  - melting_point_mean
+  - melting_point_var
+additionalProperties: true

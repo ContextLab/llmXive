@@ -1,63 +1,78 @@
-# Data Model: Dynamic Socio-Cognitive State Injection
+# Data Model: llmXive Follow-up: Dynamic Socio-Cognitive State Injection
 
-## Overview
+## 1. Overview
+Defines all persistent artifacts produced or consumed by the pipeline. Each artifact is validated against a JSON‑Schema in `contracts/`.
 
-This document defines the data structures used for the `001-dynamic-state-injection` feature, ensuring data hygiene (Constitution Principle III) and providing schema contracts for validation.
+## 2. Core Entities
 
-## Entity Definitions
+### 2.1 ConflictTrajectory
+- **Source**: `data/processed/filtered_trajectories.jsonl` (generated, FR‑001).  
+- **Schema**: `contracts/dataset.schema.yaml`.  
 
-### 1. ConflictTrajectory
-Represents a single generated conflict scenario.
+| Field | Type | Description |
+|-------|------|-------------|
+| `trajectory_id` | string (UUID) | Unique identifier. |
+| `dialogue_history` | list[string] | Turn‑by‑turn text. |
+| `emotional_reactivity_score` | number (0‑1) | Generated intensity metric. |
+| `cultural_identity_tags` | list[string] | Cultural tags (e.g., “high‑context”). |
+| `ideal_resolution` | string | Ground‑truth ideal resolution text for the consensus‑gap evaluator. |
 
-- **trajectory_id**: Unique string (UUID).
-- **dialogue**: List of turns (speaker, text).
-- **metadata**:
-  - `emotional_reactivity`: Float (0.0–10.0).
-  - `cultural_identity`: List of strings (e.g., `["Western","Eastern"]`).
-  - `conflict_type`: String (e.g., `"resource"`).
-- **ideal_resolution**: String (ground‑truth resolution).
+### 2.2 ClassifierTrainingSet
+- **Source**: `data/processed/classifier_training_set.jsonl` ([deferred] of generated trajectories, used exclusively for LR training).
+- **Schema**: Same as `dataset.schema.yaml` (no additional fields).
 
-### 2. SocioCognitiveState
-The inferred state from the classifier.
+### 2.3 SocioCognitiveState (embedded in logs)
+- **Source**: Output of `state_classifier.py`.  
+- **Fields** (stored inside `experiment_log`): `state_label`, `confidence`, `injection_instruction`.
 
-- **label**: String (`escalating`, `cultural-friction`, `neutral`, `de-escalating`).
-- **confidence**: Float (0.0–1.0).
-- **trigger**: String (e.g., `"sentiment_spike"`).
+### 2.4 ExperimentLog
+- **Source**: `src/experiments/runner.py`.  
+- **Schema**: `contracts/experiment_log.schema.yaml`.  
 
-### 3. ExperimentRun
-One execution of an LLM on a trajectory under a specific condition.
+| Field | Type | Description |
+|-------|------|-------------|
+| `run_id` | string (UUID) | Unique run identifier. |
+| `trajectory_id` | string | FK → ConflictTrajectory. |
+| `model_name` | string | LLM identifier. |
+| `condition` | enum(`static`, `adapter`) | Experimental condition. |
+| `injected_state` | string | State label injected (or `neutral-monitoring`). |
+| `llm_output` | string | Generated resolution text. |
+| `consensus_gap_score` | number (0‑1) | Gap metric (0 = perfect, 1 = worst). |
+| `status` | enum(`success`, `skipped`, `timeout`) | Execution outcome. |
+| `timestamp` | ISO‑8601 datetime | Run timestamp. |
+| `inference_time_ms` | integer | Milliseconds spent in inference (also in `metrics`). |
 
-- **trajectory_id**: Reference to `ConflictTrajectory`.
-- **llm_id**: String (model name).
-- **condition**: Enum (`static`, `adapter`).
-- **prompt**: String (full system prompt used for the turn).
-- **output**: String (LLM response).
-- **metrics**:
-  - `consensus_gap_score`: Float (0.0–1.0).
-  - `inference_time_ms`: Integer.
+### 2.5 StatisticalReport
+- **Source**: `src/analysis/report_generator.py`.  
+- **Schema**: `contracts/report.schema.yaml`.  
 
-### 4. StatisticalReport
-Aggregated results for a single LLM.
+| Field | Type | Description |
+|-------|------|-------------|
+| `llm_id` | string | Model name. |
+| `comparison` | object | Contains `mean_diff`, `p_value`, `is_significant`, `effect_size`, `test_type`, `normality_p_value`. |
+| `correction_applied` | boolean | Whether Holm‑Bonferroni was used across models. |
 
-- **llm_id**: String.
-- **comparison**:
-  - `mean_diff`: Float (Adapter − Static).
-  - `p_value`: Float.
-  - `is_significant`: Boolean.
-  - `effect_size`: Float.
-  - `test_type`: String (`t-test` or `wilcoxon`).
-- **correction_applied**: Boolean.
+## 3. Auxiliary Artifacts
+- `data/results/oversampling_report.json` – verifies FR‑001.  
+- `data/results/feature_independence_audit.json` – audits FR‑002 feature separation.  
+- `data/results/evaluator_independence_audit.json` – audits FR‑005 independence.  
+- `data/results/scope_adjustments.json` – records any models excluded due to RAM/GPU constraints (T027).  
+- `data/results/throughput_report.json` – results of T051.  
+- `data/results/threshold_sensitivity_report.json` – results of T050.  
 
-## Data Flow
+## 4. Data Flow
+1. **Ingest** SoCRATES prompts → **Generate** trajectories (FR‑001).  
+2. **Split** trajectories into `classifier_training_set.jsonl` (training) and `filtered_trajectories.jsonl` (experiment) (Task T018).  
+3. **Train** classifier on the training split (FR‑002).  
+4. **Run** experiments (FR‑003‑FR‑004) → produce `ExperimentLog`.  
+5. **Evaluate** each output → store `consensus_gap_score` in the same log.  
+6. **Analyze** paired differences → generate `StatisticalReport`.  
 
-1. **Raw Generation**: `code/data/generator.py` creates `data/processed/trajectories.jsonl`.
-2. **State Annotation**: Heuristic rules annotate each turn with a `SocioCognitiveState`; these labels form the training set for the classifier.
-3. **Classifier Training**: `code/models/classifier.py` outputs `data/models/classifier.pkl`.
-4. **Experiment Logs**: `data/processed/experiments/{llm_id}.jsonl`.
-5. **Statistical Summary**: `data/results/statistical_summary.json`.
+## 5. Integrity Constraints
+- `trajectory_id` uniqueness across `data/processed/`.  
+- Referential integrity: every `experiment_log.trajectory_id` must exist in `filtered_trajectories.jsonl`.  
+- `consensus_gap_score` ∈ [0.0, 1.0].  
+- All raw and derived files have SHA‑256 checksums recorded in `state/...yaml`.  
 
-## Storage & Hygiene
+---
 
-- **Checksums**: SHA‑256 recorded for all raw and processed files.
-- **Immutability**: Raw generated trajectories are never overwritten; derivations write new files.
-- **PII**: All participant identifiers are synthetic; no personal data stored.

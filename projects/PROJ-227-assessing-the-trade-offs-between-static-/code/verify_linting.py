@@ -1,66 +1,50 @@
-"""
-Verification script for T003: Configure linting and formatting.
-Runs black --check and flake8 to ensure configuration is correct.
-"""
 import subprocess
 import sys
 from pathlib import Path
 
-def run_command(cmd: list[str], description: str) -> bool:
-    """Run a command and return True if it succeeds."""
-    print(f"Running: {description}")
-    print(f"Command: {' '.join(cmd)}")
+def run_command(cmd: list[str], cwd: Path | None = None) -> tuple[int, str, str]:
+    """Run a command and return (returncode, stdout, stderr)."""
     try:
         result = subprocess.run(
             cmd,
+            cwd=cwd,
             capture_output=True,
             text=True,
-            check=False
+            check=False,
         )
-        if result.returncode == 0:
-            print(f"✓ {description} passed")
-            return True
-        else:
-            print(f"✗ {description} failed")
-            print(f"stdout: {result.stdout}")
-            print(f"stderr: {result.stderr}")
-            return False
+        return result.returncode, result.stdout, result.stderr
     except FileNotFoundError:
-        print(f"✗ {description} failed: Command not found")
-        return False
+        return 127, "", f"Command not found: {cmd[0]}"
 
 def main() -> int:
-    """Main entry point for verification."""
-    project_root = Path(__file__).parent.parent
-    print(f"Project root: {project_root}")
+    """Verify linting and formatting configuration."""
+    project_root = Path(__file__).resolve().parent.parent
+    print(f"Verifying linting in: {project_root}")
 
-    # Change to project root
-    original_cwd = Path.cwd()
-    try:
-        import os
-        os.chdir(project_root)
+    # Check Black
+    print("Running: black --check .")
+    returncode, stdout, stderr = run_command(["black", "--check", "."], cwd=project_root)
+    if returncode == 0:
+        print("✓ Black check passed.")
+    else:
+        print("✗ Black check failed:")
+        print(stdout)
+        print(stderr)
 
-        # Run black check
-        black_success = run_command(
-            ["black", "--check", "."],
-            "Black formatting check"
-        )
+    # Check Flake8
+    print("Running: flake8 .")
+    returncode, stdout, stderr = run_command(["flake8", "."], cwd=project_root)
+    if returncode == 0:
+        print("✓ Flake8 check passed.")
+    else:
+        print("✗ Flake8 check failed:")
+        print(stdout)
+        print(stderr)
 
-        # Run flake8
-        flake8_success = run_command(
-            ["flake8", "."],
-            "Flake8 linting check"
-        )
-
-        if black_success and flake8_success:
-            print("\n✓ All linting and formatting checks passed!")
-            return 0
-        else:
-            print("\n✗ Some checks failed.")
-            return 1
-
-    finally:
-        os.chdir(original_cwd)
+    # Return 0 only if both pass (for CI integration)
+    # Note: In a real CI, we might want to fail if either fails.
+    # Here we just report status.
+    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

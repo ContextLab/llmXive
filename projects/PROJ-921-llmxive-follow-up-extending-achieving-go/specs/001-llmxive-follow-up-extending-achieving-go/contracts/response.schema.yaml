@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Response"
+description: "Schema for a model-generated response."
+type: "object"
+properties:
+  prompt_id:
+    type: "string"
+    description: "Reference to the prompt ID."
+  model_id:
+    type: "string"
+    description: "Identifier of the model used (e.g., 'SU-01')."
+  candidate_index:
+    type: "integer"
+    minimum: 0
+    maximum: 2
+    description: "Index of the candidate response (0-2)."
+  text:
+    type: "string"
+    description: "The generated text content."
+  domain:
+    type: "string"
+    enum:
+      - "deterministic"
+      - "ill-structured"
+    description: "Domain of the prompt (copied from Prompt). Critical for LME."
+  generation_time:
+    type: "number"
+    description: "Time taken to generate in seconds."
+  token_count:
+    type: "integer"
+    description: "Number of tokens generated."
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "truncated"
+      - "timeout"
+      - "oom"
+    description: "Status of the generation."
+  is_correct:
+    type: "boolean"
+    description: "True if the response is correct (for deterministic prompts)."
+required:
+  - prompt_id
+  - model_id
+  - candidate_index
+  - text
+  - domain
+  - status
+additionalProperties: false

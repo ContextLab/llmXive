@@ -1,1 +1,1 @@
-# Test suite for the calibration drift analysis pipeline.
+# Tests package for calibration drift analysis

@@ -1,0 +1,16 @@
+status: none
+intent: MemSlides benchmark synthetic multi turn tool execution traces download python
+  package dataset
+required_fields:
+- session_id
+- turn_index
+- tool_name
+- tool_arguments
+- tool_output
+- slide_state_before
+- slide_state_after
+- timestamp
+- sequence_length
+cache_key: 9b5800c14df2cc462ee1e6bcb896ee8d2087ca15874deb27f95dfe0714f352a7
+searched_at: '2026-10-21T18:52:21.831588+00:00'
+retry_count: 1

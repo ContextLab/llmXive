@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Trial Log Schema"
+description: "Schema for the primary results log (CSV/JSON)."
+type: object
+properties:
+  trial_id:
+    type: string
+    description: "Unique identifier for the trial."
+  method:
+    type: string
+    enum: ["symbolic", "baseline_gam"]
+    description: "Method used for the trial."
+  topology_id:
+    type: string
+    description: "ID of the topology used."
+  step:
+    type: integer
+    minimum: 0
+    description: "Timestep within the trial."
+  success:
+    type: boolean
+    description: "True if the manipulation was successful."
+  latency_ms:
+    type: number
+    description: "Inference latency in milliseconds."
+  timeout:
+    type: boolean
+    description: "True if the step exceeded the time limit."
+  timeout_reason:
+    type: string
+    enum: ["step_limit", "infeasible", "collision", "drift", "ci_limit", "none"]
+    description: "Reason for timeout or failure (distinguishes computational vs physical failure)."
+  error_reason:
+    type: string
+    nullable: true
+    description: "Reason for failure (e.g., 'infeasible', 'collision', 'timeout')."
+required: ["trial_id", "method", "topology_id", "step", "success", "latency_ms", "timeout", "timeout_reason"]
+additionalProperties: false

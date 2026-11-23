@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.16189",
+  "judged_at": "2026-10-21T06:29:26Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting adsorption isotherm parameters from molecular features chemistry",
+  "rationale": "This is a general methodological recommendations paper for ML validation in biology, with no connection to adsorption isotherms, molecular features, or chemistry. It shares only the broad keyword \"machine learning\" and is off-domain for the user's question.",
+  "relevant": false
+}

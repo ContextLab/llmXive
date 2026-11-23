@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelOutputSchema"
+description: "Schema for the model prediction and feature importance output."
+type: "object"
+properties:
+  model_id:
+    type: "string"
+    description: "Unique hash identifying the model configuration."
+  performance_metrics:
+    type: "object"
+    description: "Model performance metrics."
+    properties:
+      r_squared:
+        type: ["number", "null"]
+        description: "R² score on test set."
+      mse:
+        type: "number"
+        description: "Mean Squared Error."
+      accuracy:
+        type: ["number", "null"]
+        description: "Accuracy (if classification)."
+  feature_importance:
+    type: "array"
+    description: "List of metabolites ranked by importance."
+    items:
+      type: "object"
+      properties:
+        metabolite_name:
+          type: "string"
+        importance_score:
+          type: "number"
+      required:
+        - metabolite_name
+        - importance_score
+  top_metabolites:
+    type: "array"
+    description: "Top 20 metabolites by importance."
+    items:
+      type: "string"
+required:
+  - model_id
+  - performance_metrics
+  - feature_importance
+  - top_metabolites
+additionalProperties: false

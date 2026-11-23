@@ -1,32 +1,41 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "CodeSnippet"
-description: "Schema for a code snippet from CodeSearchNet with complexity metadata."
-type: "object"
+title: Snippet
+description: >-
+  Represents a code snippet extracted from the CodeSearchNet corpus,
+  annotated with complexity metrics.
+type: object
+required:
+  - snippet_id
+  - code
+  - docstring
+  - complexity_score
+  - complexity
 properties:
   snippet_id:
-    type: "string"
-    description: "Unique identifier for the snippet."
-  source_code:
-    type: "string"
-    description: "The raw Python source code."
-  complexity_label:
-    type: "string"
-    enum:
-      - "low"
-      - "medium"
-      - "high"
-    description: "Cyclomatic complexity category."
-  official_docstring:
-    type:
-      - "string"
-      - "null"
-    description: "Official docstring if available, else null."
+    type: string
+    description: Unique identifier for the code snippet.
+    minLength: 1
+  code:
+    type: string
+    description: The raw source code content.
+    minLength: 1
+  docstring:
+    type: string
+    description: The official docstring associated with the code snippet.
+    default: ""
   complexity_score:
-    type: "integer"
-    description: "Numeric cyclomatic complexity score."
-required:
-  - "snippet_id"
-  - "source_code"
-  - "complexity_label"
-  - "complexity_score"
+    type: number
+    description: Raw cyclomatic complexity score calculated via radon.
+    minimum: 0
+  complexity:
+    type: string
+    description: Categorical label based on complexity_score thresholds.
+    enum:
+      - low
+      - medium
+      - high
+    x-complexity-ranges:
+      low: "score < 5"
+      medium: "5 <= score <= 10"
+      high: "score > 10"
 additionalProperties: false

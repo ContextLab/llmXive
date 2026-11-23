@@ -1,0 +1,7 @@
+# Canonical project paths
+paths:
+  code: "code"
+  tests: "tests"
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  results: "results"

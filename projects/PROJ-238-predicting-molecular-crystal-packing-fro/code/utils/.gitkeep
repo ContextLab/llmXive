@@ -1,0 +1,2 @@
+# Placeholder to ensure code/utils/ directory exists in version control.
+# This directory hosts shared utility modules (descriptors.py, data_loaders.py, metrics.py).

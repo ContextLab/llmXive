@@ -1,2 +1,2 @@
-# This directory is for processed data and outputs.
-# Do not commit large binary files here.
+# This directory contains processed data artifacts.
+# Baseline vectors will be generated here by code/main.py.

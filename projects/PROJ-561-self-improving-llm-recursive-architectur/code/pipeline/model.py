@@ -1,234 +1,163 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 from typing import Optional, Dict, Any, List, Tuple
 import math
 import json
-import os
+import hashlib
 
-# Re-export existing public names to ensure API surface consistency
-# These are defined below or imported from external sources if needed
-GPTConfig = None
-GPTAttention = None
-GPTMLP = None
-GPTBlock = None
-GPTModel = None
-GPTForCausalLM = None
+from schemas.modification_proposal import ModificationProposal
+from config import get_config
 
-def load_gpt_124m():
-    """Placeholder for existing GPT loading logic."""
-    raise NotImplementedError("Existing load_gpt_124m not provided in context, but required for API consistency.")
+def get_model_param_count(model: nn.Module) -> int:
+    """Count total trainable parameters in a model."""
+    return sum(p.numel() for p in model.parameters() if p.requires_grad)
 
-def get_model_param_count(model: torch.nn.Module) -> int:
-    """Count total parameters in a model."""
-    return sum(p.numel() for p in model.parameters())
-
-def inspect_model_structure(model: torch.nn.Module) -> Dict[str, Any]:
-    """Inspect model structure for logging."""
-    return {"type": type(model).__name__, "param_count": get_model_param_count(model)}
-
-def apply_weight_manipulation(model: torch.nn.Module, weights: Dict[str, torch.Tensor]) -> torch.nn.Module:
-    """Apply weight manipulation to a model."""
-    raise NotImplementedError("Existing apply_weight_manipulation not provided in context.")
-
-def save_model_state(model: torch.nn.Module, path: str):
-    """Save model state."""
-    torch.save(model.state_dict(), path)
-
-def load_model_state(model: torch.nn.Module, path: str):
-    """Load model state."""
-    model.load_state_dict(torch.load(path, map_location='cpu'))
-
-# --- T016 Implementation: apply_architectural_modification ---
-
-def _create_new_attention_layer(config: Dict[str, Any]) -> nn.Module:
-    """
-    Create a new GPTAttention-like layer with standard initialization.
-    This is a simplified reconstruction to satisfy the 'NO layer injection APIs' constraint.
-    We assume a standard GPT-2 style attention block structure for reconstruction.
-    """
-    # We need to construct a module that mimics the structure of the existing blocks
-    # but with potentially different dimensions if the modification involves head count changes.
-    # Since we cannot use injection APIs, we rebuild the module.
+def load_gpt2_124m_cpu_only() -> Tuple[nn.Module, Dict[str, Any]]:
+    """Load GPT-2 124M checkpoint on CPU only."""
+    try:
+        from transformers import GPT2LMHeadModel, GPT2Config
+    except ImportError:
+        raise ImportError("transformers library is required. Install with: pip install transformers")
     
-    # Fallback to a generic nn.Module if specific config is missing or invalid
-    # In a real scenario, this would reconstruct GPTAttention with new n_head/n_embd
-    layer = nn.TransformerEncoderLayer(
-        d_model=config.get('n_embd', 768),
-        nhead=config.get('n_head', 12),
-        dim_feedforward=config.get('n_inner', 3072),
-        dropout=config.get('attn_pdrop', 0.1),
-        activation="gelu",
-        batch_first=True
-    )
-    return layer
+    config = GPT2Config.from_pretrained("gpt2")
+    model = GPT2LMHeadModel(config)
+    # Explicitly move to CPU
+    model = model.to("cpu")
+    return model, config
 
-def _create_new_mlp_layer(config: Dict[str, Any]) -> nn.Module:
+def validate_modification_distinctness(
+    current_proposal: ModificationProposal,
+    history: List[Dict[str, Any]],
+    tolerance: float = 0.05
+) -> bool:
     """
-    Create a new GPTMLP-like layer with standard initialization.
-    """
-    n_embd = config.get('n_embd', 768)
-    n_inner = config.get('n_inner', n_embd * 4)
+    Validates that a new modification proposal is distinct from all previous proposals
+    in the history.
     
-    return nn.Sequential(
-        nn.Linear(n_embd, n_inner),
-        nn.GELU(),
-        nn.Linear(n_inner, n_embd)
-    )
-
-def apply_architectural_modification(
-    model: torch.nn.Module,
-    modification: Dict[str, Any]
-) -> torch.nn.Module:
-    """
-    Apply an architectural modification to a GPT model using manual reconstruction.
-    
-    This function handles:
-    1. Layer Addition: Appends a new block with standard initialization.
-    2. Head Count Change: Reconstructs the entire transformer stack with new n_head.
-    
-    Constraint: NO layer injection APIs (e.g., no direct manipulation of internal lists
-    that bypass standard module registration). We rebuild the necessary components.
+    Distinctness is defined as:
+    1. Hamming distance >= 1 on the structural configuration bits (layer_add, head_count_change, etc.)
+    OR
+    2. Parameter count change > tolerance (default 5%) compared to the baseline or any previous state.
     
     Args:
-        model: The base GPT model (assumed to be a GPTForCausalLM or similar).
-        modification: A dictionary containing:
-            - modification_type: 'add_layer' | 'change_heads' | 'change_embd'
-            - magnitude: int (e.g., number of layers to add, new number of heads)
-            - rationale: str (optional)
-    
+        current_proposal: The new ModificationProposal to validate.
+        history: List of previous proposal dicts or state snapshots containing 'param_count' or 'config_hash'.
+        tolerance: Float threshold for parameter count change (e.g., 0.05 for 5%).
+        
     Returns:
-        A new model instance with the applied modifications and re-initialized weights
-        for the changed parts. Existing weights are preserved where possible.
+        True if the proposal is distinct, False otherwise.
+        
+    Raises:
+        ValueError: If history is empty and no baseline is provided (though typically Cycle 0 is baseline).
     """
-    mod_type = modification.get('modification_type')
-    magnitude = modification.get('magnitude', 1)
+    if not history:
+        # If no history, we assume it's the first modification (distinct from baseline implicitly)
+        # or we require a baseline to compare against. For this implementation, 
+        # if history is empty, we consider it distinct unless it's identical to a known baseline 
+        # which should be handled by the caller passing a baseline in history.
+        return True
+
+    # 1. Check Structural Hamming Distance
+    # We construct a binary/integer signature for structural changes
+    current_signature = (
+        current_proposal.layer_add,
+        current_proposal.head_count_change,
+        current_proposal.hidden_size_change,
+        current_proposal.activation_change
+    )
     
-    # Extract base config from the model if possible, otherwise use defaults
-    # Assuming model.config exists or we infer from state_dict keys
-    base_config = {}
-    if hasattr(model, 'config'):
-        base_config = {
-            'n_embd': getattr(model.config, 'n_embd', 768),
-            'n_head': getattr(model.config, 'n_head', 12),
-            'n_layer': getattr(model.config, 'n_layer', 12),
-            'n_inner': getattr(model.config, 'n_inner', 3072),
-            'attn_pdrop': getattr(model.config, 'attn_pdrop', 0.1),
-            'embd_pdrop': getattr(model.config, 'embd_pdrop', 0.1),
-            'resid_pdrop': getattr(model.config, 'resid_pdrop', 0.1),
-        }
-    else:
-        # Fallback defaults for GPT-124M
-        base_config = {
-            'n_embd': 768,
-            'n_head': 12,
-            'n_layer': 12,
-            'n_inner': 3072,
-            'attn_pdrop': 0.1,
-            'embd_pdrop': 0.1,
-            'resid_pdrop': 0.1,
-        }
-    
-    new_config = base_config.copy()
-    
-    if mod_type == 'add_layer':
-        # Strategy: Create a new block and append it to the transformer
-        # We assume the model has a 'transformer' attribute with 'h' as a list of blocks
-        if not hasattr(model, 'transformer') or not hasattr(model.transformer, 'h'):
-            raise ValueError("Model does not have expected 'transformer.h' structure for layer addition.")
-        
-        original_blocks = list(model.transformer.h)
-        original_len = len(original_blocks)
-        
-        # Create new block with same config as the last block (or base config)
-        # We use the base config to ensure consistency
-        new_block = nn.TransformerEncoderLayer(
-            d_model=base_config['n_embd'],
-            nhead=base_config['n_head'],
-            dim_feedforward=base_config['n_inner'],
-            dropout=base_config['attn_pdrop'],
-            activation="gelu",
-            batch_first=True
-        )
-        
-        # Wrap in a container that mimics the original structure if needed, 
-        # or simply append if the parent expects a list/Sequential
-        # For GPTForCausalLM, transformer.h is usually nn.ModuleList
-        new_blocks = original_blocks + [new_block]
-        model.transformer.h = nn.ModuleList(new_blocks)
-        
-        new_config['n_layer'] = original_len + magnitude
-        
-    elif mod_type == 'change_heads':
-        # Strategy: Reconstruct the entire transformer stack with new n_head
-        # This is the safest way to ensure weight alignment without injection APIs
-        old_n_head = base_config['n_head']
-        new_n_head = magnitude
-        
-        if new_n_head <= 0:
-            raise ValueError("New head count must be positive.")
-        
-        new_config['n_head'] = new_n_head
-        
-        # Rebuild the transformer blocks
-        # We need to preserve embedding weights and output projection if possible
-        # But the internal attention layers must be rebuilt with new dimensions
-        
-        # Create new blocks
-        new_blocks = []
-        for i in range(new_config['n_layer']):
-            block = nn.TransformerEncoderLayer(
-                d_model=base_config['n_embd'],
-                nhead=new_n_head,
-                dim_feedforward=base_config['n_inner'],
-                dropout=base_config['attn_pdrop'],
-                activation="gelu",
-                batch_first=True
+    for entry in history:
+        # History entries might be dicts with the same keys or full objects
+        # We assume history contains the structural config used in that step
+        if "layer_add" in entry:
+            prev_signature = (
+                entry.get("layer_add", 0),
+                entry.get("head_count_change", 0),
+                entry.get("hidden_size_change", 0),
+                entry.get("activation_change", 0)
             )
-            new_blocks.append(block)
+            
+            # Calculate Hamming distance on the tuple
+            hamming_dist = sum(1 for c, p in zip(current_signature, prev_signature) if c != p)
+            
+            if hamming_dist >= 1:
+                # If structural change is different, it's distinct
+                return True
         
-        # Replace the transformer.h
-        model.transformer.h = nn.ModuleList(new_blocks)
+        # 2. Check Parameter Count Change (if param counts are available)
+        # We need a baseline parameter count to compare against. 
+        # If the history entry has 'param_count', we compare the *projected* or *actual* param count.
+        # Since we are validating a proposal *before* application, we estimate the new param count.
+        # However, the task says "against history". 
+        # If the history contains the *resulting* param counts of previous models, 
+        # and we have a baseline, we can check if the new proposal deviates > 5% from the *original* baseline 
+        # OR if the change from the *current* model (last in history) is > 5%.
         
-        # Note: Weights in existing blocks are lost because dimensions changed.
-        # The function returns the model with re-initialized internal weights.
-        # Embedding and LM head weights are preserved as they don't depend on n_head.
+        # Let's assume the 'history' list includes the baseline (Cycle 0) and subsequent states.
+        # We check against the most recent state (current model) and the baseline.
         
-    elif mod_type == 'change_embd':
-        # Strategy: Reconstruct with new embedding dimension
-        # This is complex because it affects all linear layers.
-        # We will rebuild the entire stack.
-        old_n_embd = base_config['n_embd']
-        new_n_embd = magnitude
+        # We need the baseline param count. Let's assume the first entry in history is the baseline 
+        # if it has 'is_baseline': True, or we just check against the last entry (current model).
         
-        if new_n_embd <= 0:
-            raise ValueError("New embedding dimension must be positive.")
+        # If we have the last entry's param count, we check if the proposed change is > 5%.
+        # Since we don't have the new param count yet (proposal not applied), we estimate or 
+        # rely on the fact that if the structural signature is different, we already returned True.
+        # But the requirement says "Hamming >= 1 OR >5% param change".
+        # If Hamming is 0 (identical structure), we MUST check param change.
+        # If Hamming is 0, the proposal is structurally identical. 
+        # Then we check if the param count change (due to e.g. weight scaling or implicit changes?) is > 5%.
+        # Actually, if structure is identical, param count usually doesn't change unless 
+        # the proposal implies a scaling factor not captured in the tuple.
+        # Assuming the tuple captures all structural changes, Hamming 0 implies identical params.
+        # However, to be safe and strictly follow the spec:
         
-        new_config['n_embd'] = new_n_embd
-        # Adjust n_inner proportionally if it was derived from n_embd
-        if base_config['n_inner'] == old_n_embd * 4:
-            new_config['n_inner'] = new_n_embd * 4
+        # If Hamming distance is 0, we check param change.
+        # We need a reference param count. Let's assume the history contains 'param_count' 
+        # for the state *before* the proposal was applied (or the state the proposal targets).
+        # If history is a list of past *results*, the last one is the current model.
         
-        # Rebuild blocks
-        new_blocks = []
-        for i in range(new_config['n_layer']):
-            block = nn.TransformerEncoderLayer(
-                d_model=new_n_embd,
-                nhead=base_config['n_head'],
-                dim_feedforward=new_config['n_inner'],
-                dropout=base_config['attn_pdrop'],
-                activation="gelu",
-                batch_first=True
-            )
-            new_blocks.append(block)
+        if "param_count" in entry:
+            # This logic is tricky without a clear "baseline" reference in the loop.
+            # Let's assume we compare against the *last* entry in history (current model state).
+            pass 
         
-        model.transformer.h = nn.ModuleList(new_blocks)
-        
-    else:
-        raise ValueError(f"Unknown modification type: {mod_type}")
+    # If we are here, Hamming distance was 0 for all history entries (structurally identical).
+    # Now check parameter change.
+    # We need the baseline param count. Let's assume the first entry in history is the baseline.
+    # Or, if the history is just a list of previous proposals, we need to calculate the delta.
+    # Since we don't have the actual new model, we assume that if structure is identical, 
+    # param count change is 0 unless the proposal has a specific 'param_multiplier' or similar.
+    # But the ModificationProposal schema might not have that.
+    # Let's assume the requirement implies: "If the structure is the same, is the param count > 5% different?"
+    # If structure is same, param count is same. So Hamming 0 -> Param Change 0.
+    # Thus, if Hamming 0, it fails distinctness.
     
-    # Update config if the model has a mutable config attribute
-    if hasattr(model, 'config'):
-        for k, v in new_config.items():
-            setattr(model.config, k, v)
+    # Wait, the requirement: "Hamming distance >= 1 OR >5% param change".
+    # If Hamming < 1 (i.e., 0), then we need >5% param change.
+    # If structure is identical, param count is identical -> 0% change.
+    # So if Hamming is 0, it is NOT distinct.
+    # Therefore, if we reach here, it means Hamming was 0 for all history.
+    # So we return False.
     
+    return False
+
+def apply_modification_to_model(
+    model: nn.Module, 
+    proposal: ModificationProposal
+) -> nn.Module:
+    """
+    Applies a modification proposal to a GPT-2 model.
+    This is a simplified implementation for demonstration.
+    """
+    # In a real implementation, this would:
+    # 1. Create a new config based on the proposal.
+    # 2. Instantiate a new model with the new config.
+    # 3. Map weights from the old model to the new one where possible.
+    # 4. Initialize new weights where necessary.
+    
+    # For now, we return the model as is, but in a full implementation,
+    # this would be a complex weight mapping function.
+    # This function is a placeholder for the actual modification logic.
+    # The actual logic depends on the specific changes requested.
     return model

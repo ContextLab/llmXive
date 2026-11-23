@@ -1,0 +1,17 @@
+numpy>=1.24.0
+pandas>=2.0.0
+scipy>=1.11.0
+statsmodels>=0.14.0
+Pillow>=10.0.0
+requests>=2.31.0
+matplotlib>=3.7.0
+seaborn>=0.12.0
+opencv-python-headless>=4.8.0
+streamlit>=1.28.0
+torch>=2.0.0
+transformers>=4.35.0
+diffusers>=0.24.0
+ordinal>=1.0.0
+ordinal-mixed-models>=0.1.0
+fiftyone>=0.23.0
+# The above addition ensures the verified Open Images V6 loader is available.

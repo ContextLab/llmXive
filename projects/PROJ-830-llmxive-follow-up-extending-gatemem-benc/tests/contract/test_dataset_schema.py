@@ -1,81 +1,61 @@
 import pytest
-import os
 import yaml
+from pathlib import Path
 import json
-from code.data.loader import validate_fields, fetch_gatemem
 
-def get_schema_path():
-    """Locate the schema file relative to the project root."""
-    # Try standard relative paths based on project structure
-    # The task expects contracts/dataset.schema.yaml relative to root
-    paths = [
-        os.path.join("contracts", "dataset.schema.yaml"),
-        os.path.join("..", "contracts", "dataset.schema.yaml"),
-        os.path.join("..", "..", "contracts", "dataset.schema.yaml"),
-        os.path.join("projects", "PROJ-830-llmxive-follow-up-extending-gatemem-benc", "contracts", "dataset.schema.yaml")
-    ]
-    for p in paths:
-        if os.path.exists(p):
-            return p
-    raise FileNotFoundError("dataset.schema.yaml not found in expected paths")
+# Import functions from the data_loader module
+from code.utils.data_loader import load_schema, validate_fields, SCHEMA_PATH
 
-def test_validate_fields_missing_required():
-    """Test that validate_fields raises ValueError when required fields are missing."""
-    schema_path = get_schema_path()
-    
-    # Load schema to know what is required
-    with open(schema_path, 'r') as f:
-        schema = yaml.safe_load(f)
-    # Default to the known required fields if schema doesn't explicitly list them
-    required = schema.get('required', ['outcome', 'predictors', 'covariates', 'leak-target'])
-    
-    # Create incomplete data
-    incomplete_data = [
+def test_schema_exists():
+    """Test that the schema file exists."""
+    assert SCHEMA_PATH.exists(), f"Schema file not found at {SCHEMA_PATH}"
+
+def test_schema_is_valid_yaml():
+    """Test that the schema file is valid YAML."""
+    try:
+        with open(SCHEMA_PATH, "r") as f:
+            schema = yaml.safe_load(f)
+        assert isinstance(schema, dict), "Schema must be a dictionary"
+        assert "required" in schema, "Schema must have 'required' field"
+    except yaml.YAMLError as e:
+        pytest.fail(f"Invalid YAML in schema file: {e}")
+
+def test_validate_fields_with_valid_data():
+    """Test validation with data that matches the schema."""
+    schema = load_schema()
+    valid_data = [
         {
-            "outcome": "some_value",
-            "predictors": "some_value",
-            # Missing 'covariates' and 'leak-target'
+            "id": "1",
+            "domain": "medical",
+            "leak-target": "patient record",
+            "role": "doctor",
+            "outcome": "allowed",
+            "authorization_boundaries": {}
         }
     ]
     
-    with pytest.raises(ValueError) as exc_info:
-        validate_fields(incomplete_data, schema_path)
-    
-    assert "Missing required field" in str(exc_info.value)
-    for field in required:
-        if field not in incomplete_data[0]:
-            assert field in str(exc_info.value)
+    missing = validate_fields(valid_data, schema)
+    assert len(missing) == 0, f"Valid data should not have missing fields: {missing}"
 
-def test_validate_fields_success():
-    """Test that validate_fields passes when all required fields are present."""
-    schema_path = get_schema_path()
-    
-    # Load schema to know what is required
-    with open(schema_path, 'r') as f:
-        schema = yaml.safe_load(f)
-    required = schema.get('required', ['outcome', 'predictors', 'covariates', 'leak-target'])
-    
-    # Create complete data
-    complete_data = [
-        {field: "dummy_value" for field in required}
+def test_validate_fields_with_missing_required():
+    """Test validation detects missing required fields."""
+    schema = load_schema()
+    invalid_data = [
+        {
+            "id": "1",
+            "domain": "medical",
+            # Missing "leak-target", "role", etc.
+        }
     ]
     
-    # Should not raise
-    result = validate_fields(complete_data, schema_path)
-    assert result == complete_data
+    missing = validate_fields(invalid_data, schema)
+    assert len(missing) > 0, "Should detect missing required fields"
+    assert "leak-target" in str(missing), "Should report missing leak-target"
 
-def test_validate_fields_real_data():
-    """Test validation against real fetched data (if available)."""
-    schema_path = get_schema_path()
-    try:
-        data = fetch_gatemem()
-        if not data:
-            pytest.skip("No real data available for validation test")
-        validate_fields(data, schema_path)
-    except Exception as e:
-        # If fetch fails (network, etc.), skip or fail based on environment
-        # For robustness in CI, we might skip if data is not present
-        if "Failed to load GateMem dataset" in str(e) or "Connection" in str(e):
-            pytest.skip("GateMem dataset not accessible or network error")
-        else:
-            raise
+def test_schema_contains_expected_fields():
+    """Test that the schema defines the expected fields."""
+    schema = load_schema()
+    expected_fields = ["id", "domain", "leak-target", "role", "outcome", "authorization_boundaries"]
+    
+    for field in expected_fields:
+        assert field in schema["required"], f"Field '{field}' should be required"

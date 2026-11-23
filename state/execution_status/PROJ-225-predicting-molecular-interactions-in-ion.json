@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-225-predicting-molecular-interactions-in-ion",
+  "ok": false,
+  "reason": "3 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/analysis.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026}          # Check if synthetic data was used as fallback\u2026\u201d; code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026are provided, we cannot generate valid synthetic data.     # We will atte\u2026\u201d; code/data_ingestion.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026rquet')     logger.info(\"Synthetic data saved to data/raw/sapt.p\u2026\u201d; 3 command(s) failed: python code/data_ingestion.py (rc=1); python code/model_training.py (rc=1); python code/analysis.py (rc=1); 5 declared deliverable(s) absent: data/processed/train.parquet; data/processed/unified_dataset.parquet; data/raw/il_structures.json",
+  "artifacts": [],
+  "failures": [
+    "python code/data_ingestion.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-225-predicting-molecular-interactions-in-ion/code/data_ingestion.py\", line 11, in <module>\n    from .config import DataIngestionError\nImportError: attempted relative import with no known parent package",
+    "python code/model_training.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-225-predicting-molecular-interactions-in-ion/code/model_training.py\", line 9, in <module>\n    from .config import ModelTrainingError, load_config\nImportError: attempted relative import with no known parent package",
+    "python code/analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-225-predicting-molecular-interactions-in-ion/code/analysis.py\", line 5, in <module>\n    from .config import AnalysisError\nImportError: attempted relative import with no known parent package"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-19T17:50:03Z"
+}

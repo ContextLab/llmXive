@@ -1,132 +1,136 @@
-import os
+"""
+T013: Generate synthetic data IF download_status is 'unavailable' or instrument invalid.
+Checks status file, generates data with independent trigger column, and updates the
+download_status.json to reflect that synthetic data was used.
+"""
 import json
-import numpy as np
-import pandas as pd
+import sys
 from pathlib import Path
 from datetime import datetime
+import numpy as np
+import pandas as pd
+from utils.logging_config import get_logger
+
+logger = get_logger(__name__)
+
+STATUS_PATH = Path("data/raw/download_status.json")
+SYNTHETIC_DATA_PATH = Path("data/raw/synthetic_data.csv")
+
+def _load_status() -> dict:
+    """Load the download_status.json file."""
+    if not STATUS_PATH.exists():
+        logger.error(f"{STATUS_PATH} not found. Cannot determine download status.")
+        raise FileNotFoundError(f"{STATUS_PATH} does not exist.")
+    with STATUS_PATH.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+def _write_status(updates: dict) -> None:
+    """Merge updates into the existing status JSON and write back."""
+    status = _load_status()
+    status.update(updates)
+    # Ensure ISO‑8601 timestamp reflects the update time
+    status["timestamp"] = datetime.utcnow().isoformat() + "Z"
+    with STATUS_PATH.open("w", encoding="utf-8") as f:
+        json.dump(status, f, indent=2, sort_keys=True)
+    logger.info(f"Updated {STATUS_PATH} with {updates}")
+
+def check_download_status() -> str:
+    """Read data/raw/download_status.json and return its ``status`` field."""
+    status = _load_status()
+    return status.get("status")
 
 def generate_synthetic_data(n_samples: int = 150, seed: int = 42) -> pd.DataFrame:
     """
-    Generate synthetic human-avatar interaction data with known ground-truth
-    motion-agency relationships (FR-011).
-
-    This generator is used ONLY if T012 (real data download) fails or returns
-    "unavailable"/"invalid".
-
-    Features:
-    - latency: Interaction latency in ms (0-500ms)
-    - smoothness: Jerk metric normalized (0-1, higher is smoother)
-    - lead_time: Predictive lead time in ms (-100 to 200ms)
-    - user_response_trigger: Distinct from agency score (FR-012)
-    - agency_score: Perceived agency score (0-100)
-
-    Ground-truth relationships:
-    - Agency increases with smoother motion (positive correlation with smoothness)
-    - Agency decreases with higher latency (negative correlation with latency)
-    - Agency increases with positive lead_time (predictive motion)
-    - User response trigger is independent noise to ensure distinctness (FR-012)
+    Generate synthetic human‑avatar interaction data.
+    - Ground‑truth linear relationship between motion features and agency.
+    - Independent ``user_response_trigger`` column.
     """
-    np.random.seed(seed)
+    rng = np.random.default_rng(seed)
+    logger.info(f"Generating {n_samples} synthetic samples (seed={seed}).")
 
-    # Generate base features
-    latency = np.random.normal(loc=150, scale=80, size=n_samples)
-    latency = np.clip(latency, 0, 500)
+    # 1. Motion features
+    latency = rng.normal(loc=200, scale=50, size=n_samples)          # ms
+    smoothness = rng.beta(a=5, b=2, size=n_samples)                 # 0‑1
+    lead_time = rng.normal(loc=100, scale=30, size=n_samples)      # ms
 
-    smoothness = np.random.beta(a=2, b=5, size=n_samples)  # Skewed towards lower smoothness
-    smoothness = np.clip(smoothness, 0, 1)
-
-    lead_time = np.random.normal(loc=50, scale=60, size=n_samples)
-    lead_time = np.clip(lead_time, -100, 200)
-
-    # User response trigger (distinct from agency score per FR-012)
-    # This represents a separate behavioral metric
-    user_response_trigger = np.random.normal(loc=0.5, scale=0.2, size=n_samples)
-    user_response_trigger = np.clip(user_response_trigger, 0, 1)
-
-    # Generate agency score with known ground-truth relationships (FR-011)
-    # Agency = f(smoothness, latency, lead_time) + noise
-    # Weights chosen to create realistic but known correlations
-    agency_score = (
-        30 * smoothness -  # Positive correlation with smoothness
-        0.1 * latency +     # Negative correlation with latency
-        0.15 * lead_time +  # Positive correlation with lead_time
-        np.random.normal(0, 5, size=n_samples)  # Random noise
+    # 2. Agency score (linear model + noise)
+    agency_raw = (
+        0.4 * latency
+        - 0.3 * smoothness * 500   # scale smoothness to comparable magnitude
+        + 0.2 * lead_time
+        + rng.normal(0, 5, n_samples)  # ε ~ N(0,5)
     )
+    # Clip to 0‑100
+    agency_score = np.clip(agency_raw, 0, 100)
 
-    # Scale agency to 0-100 range
-    agency_score = np.clip(agency_score, 0, 100)
+    # 3. Independent user_response_trigger
+    trigger = rng.exponential(scale=1.0, size=n_samples)
+    # Rescale to comparable range (optional)
+    trigger = (trigger - trigger.min()) / (trigger.max() - trigger.min()) * 100
 
-    # Create DataFrame
+    # 4. Verify independence (Pearson |r| < 0.05)
+    corr = np.corrcoef(trigger, agency_score)[0, 1]
+    if abs(corr) >= 0.05:
+        logger.error(f"Synthetic independence check failed: |r|={abs(corr):.4f}")
+        raise ValueError("Generated trigger is not independent of agency_score.")
+
     df = pd.DataFrame({
-        'participant_id': [f'P{str(i).zfill(4)}' for i in range(n_samples)],
-        'latency': np.round(latency, 2),
-        'smoothness': np.round(smoothness, 4),
-        'lead_time': np.round(lead_time, 2),
-        'user_response_trigger': np.round(user_response_trigger, 4),
-        'agency_score': np.round(agency_score, 2)
+        "participant_id": [f"P{i:04d}" for i in range(n_samples)],
+        "latency": latency,
+        "smoothness": smoothness,
+        "lead_time": lead_time,
+        "agency_score": agency_score,
+        "user_response_trigger": trigger,
     })
-
+    logger.info(f"Synthetic data generated successfully (independence r={corr:.4f}).")
     return df
 
-def main():
+def main() -> int:
     """
-    Main entry point for synthetic data generation.
-    Checks if real data is available; if not, generates synthetic data.
+    Entry point for T003.
+    - Reads ``download_status.json``.
+    - If status == "invalid", aborts (instrument validation failed).
+    - If status == "success", does nothing (real data available).
+    - If status == "unavailable" or any other non‑success value, generates synthetic
+      data, writes it to ``data/raw/synthetic_data.csv`` and updates the status file
+      with ``use_synthetic: true`` and ``status: synthetic``.
     """
-    # Define paths
-    raw_dir = Path('data/raw')
-    processed_dir = Path('data/processed')
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    try:
+        status = check_download_status()
+    except Exception as e:
+        logger.error(f"Failed to read download status: {e}")
+        return 1
 
-    # Check if real data is available (T012 output)
-    download_status_path = raw_dir / 'download_status.json'
-    use_synthetic = True
+    if status == "invalid":
+        logger.error(
+            "Dataset excluded due to invalid instrument (FR‑009). "
+            "Synthetic generation will not run."
+        )
+        return 1
 
-    if download_status_path.exists():
-        with open(download_status_path, 'r') as f:
-            status_data = json.load(f)
-            if status_data.get('status') in ['available', 'valid']:
-                use_synthetic = False
-                print("Real data is available. Skipping synthetic generation.")
-                # We still create a marker to indicate we checked
-                marker_path = processed_dir / 'synthetic_data_status.json'
-                with open(marker_path, 'w') as f:
-                    json.dump({
-                        'status': 'skipped',
-                        'reason': 'Real data available',
-                        'timestamp': datetime.now().isoformat()
-                    }, f, indent=2)
-                return
+    if status == "success":
+        logger.info("Real dataset available – skipping synthetic generation.")
+        return 0
 
-    # Generate synthetic data
-    print("Real data unavailable or invalid. Generating synthetic data...")
-    df = generate_synthetic_data(n_samples=150, seed=42)
+    # Anything other than 'success' triggers synthetic generation
+    try:
+        df = generate_synthetic_data()
+    except Exception as e:
+        logger.error(f"Synthetic data generation failed: {e}")
+        return 1
 
-    # Save to processed directory
-    output_path = processed_dir / 'cleaned_data.csv'
-    df.to_csv(output_path, index=False)
+    # Write synthetic CSV
+    SYNTHETIC_DATA_PATH.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(SYNTHETIC_DATA_PATH, index=False)
+    logger.info(f"Synthetic data saved to {SYNTHETIC_DATA_PATH}")
 
-    # Save metadata
-    metadata = {
-        'source': 'synthetic_generator',
-        'n_samples': len(df),
-        'ground_truth_relationships': {
-            'latency': 'negative_correlation',
-            'smoothness': 'positive_correlation',
-            'lead_time': 'positive_correlation'
-        },
-        'distinct_user_trigger': True,
-        'timestamp': datetime.now().isoformat()
-    }
+    # Update status JSON
+    _write_status({
+        "use_synthetic": True,
+        "status": "synthetic",
+        "reason": "Synthetic data generated because no valid real dataset was found.",
+    })
+    return 0
 
-    metadata_path = processed_dir / 'synthetic_data_status.json'
-    with open(metadata_path, 'w') as f:
-        json.dump(metadata, f, indent=2)
-
-    print(f"Generated {len(df)} synthetic samples.")
-    print(f"Output saved to: {output_path}")
-    print(f"Metadata saved to: {metadata_path}")
-
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    sys.exit(main())

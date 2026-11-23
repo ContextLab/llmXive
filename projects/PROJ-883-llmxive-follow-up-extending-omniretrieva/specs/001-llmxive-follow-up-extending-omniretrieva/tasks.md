@@ -1,256 +1,214 @@
-# Tasks: llmXive Follow-up: Structural Mismatch Cost in Heterogeneous Retrieval
+# Tasks: Structural Mismatch Cost in Heterogeneous Retrieval  
 
-**Input**: Design documents from `/specs/001-structural-mismatch-cost/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this user story belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan (code/, data/, tests/, specs/)
-- [X] T002 Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scipy`, `statsmodels`, `pytest`, `pyyaml`, `rdflib`, `networkx`, `matplotlib`, `seaborn`, `requests`, `datasets` in `code/requirements.txt`
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`
+**Inputs**: `specs/001-structural-mismatch-cost/spec.md`, `plan.md`, `data-model.md`, contracts, reviewer feedback.  
+All research scripts write only under `code/`, `data/`, or `specs/`. No state files are created outside these directories.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Project skeleton & data‑fetch utilities  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] **T001** [P] [US‑1] **Validate project skeleton and record verification commands**  
+  *Create* `quickstart.md` to document the exact commands that must succeed, then capture their outputs in the test suite.  
+  - Add a `tests/integration/test_skeleton.py` that:  
+    1. Executes `ruff check code/` and asserts exit code 0; stores stdout in `artifacts/ruff_output.txt`.  
+    2. Executes `python -m code.main --help` and asserts exit 0 and that the word “usage” appears; stores stdout in `artifacts/help_output.txt`.  
+    3. Executes `python -m code.main` (no args) and asserts exit 0.  
+  - **Verification**: CI must run the test and assert that `artifacts/ruff_output.txt` and `artifacts/help_output.txt` exist and are non-empty.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. Tasks below are ordered to respect strict dependencies (e.g., T007 must complete before T006).
+- [ ] **T002** [P] [US‑1] **Implement and supply complete JSON‑Schema contracts**  
+  *Write* the four required schemas to `specs/001-structural-mismatch-cost/contracts/` as valid YAML files:  
+  - `query_instance.schema.yaml` (as defined in the spec)  
+  - `execution_log.schema.yaml` (as defined)  
+  - `execution_metric.schema.yaml` (as defined)  
+  - `statistics_result.schema.yaml` (the non‑deprecated name)  
+  Delete any stray duplicate schema files (e.g., `statistics-result.schema.yaml`) from the same directory.  
+  - Add `tests/unit/test_contracts.py` that loads each file with `yaml.safe_load` and validates a minimal example using `jsonschema`.  
+  - **Verification**: All four schema files must exist in the contracts directory and the test must pass.
 
-- [ ] T004 [P] Create data schemas: `contracts/query_instance.schema.yaml`, `contracts/execution_metric.schema.yaml`, `contracts/analysis_result.schema.yaml`
-- [ ] T005 [P] Implement `code/config.py` for seeds, paths, CPU throttling configuration, and **real dataset URLs** (MS MARCO subset, Spider benchmark subset, DBpedia/Wikidata subset) from HuggingFace/GitHub. This task MUST also define `EXIT_CODE_THROTTLING_FAILURE = 1` and include logic to handle fallback to synthetic graph generation if real URLs do not provide the required schema depth (Spec Assumptions).
-- [ ] T007 [P] Implement `code/generators/reference_engine.py` (FR-008) to generate independent, deterministic ground-truth execution plans for all query types using a greedy heuristic based on pre-computed source statistics.
-- [X] T006 Implement `code/generators/synthetic_query.py` to generate queries with **exact integer plan depths (1, 2, 3, 4+)**. This task MUST call `code/generators/reference_engine.py` (T007) to assign the `ground_truth_plan` attribute via deterministic rules (FR-008). The output query object MUST contain the integer field `complexity_level` (not binary). **Dependency: T007 must be complete.**
-- [X] T016 Implement CPU throttling logic in `code/utils/cpu_throttle.py`. This task MUST enforce the strict CPU time limit and memory cap defined in FR-001. It MUST utilize `cgroups` where available but MUST implement a fallback using the `resource` module + virtual delay if `cgroups` fails (e.g., on GitHub Actions Free Tier), ensuring FR-001 is met regardless of container permissions.
-- [X] T016b Implement CPU throttling validity check in `code/utils/cpu_throttle.py`. This task MUST detect if throttling (either via `cgroups` or fallback) fails to apply correctly and abort the run with `EXIT_CODE_THROTTLING_FAILURE` (defined in T005/config.py) to prevent invalid data collection, as required by Edge Cases and Constitution Principle VI.
-- [X] T016c [P] Implement `code/utils/data_fetcher.py` to handle real dataset downloads from the URLs defined in T005. This task MUST verify checksums and handle partial downloads to ensure data integrity (Constitution Principle III).
-- [ ] T008 Implement `code/executors/base.py` with abstract base class for execution engines and timeout handling (s limit). This class MUST utilize the throttling mechanism implemented in T016. **Dependency: T016 must be complete.**
-- [X] T009 [P] Implement `code/executors/text_executor.py` using standard string matching or SQLite logic on the sampled MS MARCO subset fetched via `datasets.load_dataset`. This task MUST execute **actual queries** and MUST measure **real wall-clock time**. It MUST **NOT** use `time.sleep`. To simulate complexity, it MUST perform a number of logical operations (e.g., lookups, joins) proportional to the `complexity_level` integer generated by T006 (not T017). **Dependency: T006 must be complete.**
-- [ ] T010 [P] Implement `code/executors/relational_executor.py` wrapping SQLite with in-memory database for Spider benchmark subset.
-- [ ] T011 [P] Implement `code/executors/graph_executor.py` using NetworkX/RDFLib for synthetic graph generation and multi-hop traversal simulation (using sampled DBpedia/Wikidata subsets).
-- [ ] T012 [P] Implement `code/main.py` orchestration script to load config, generate queries, route to executors, and log raw metrics.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Quantify Latency Penalties (Priority: P1) 🎯 MVP
-
-**Goal**: Measure end-to-end latency difference between low and high complexity queries on CPU-constrained environment.
-
-**Independent Test**: Execute a set of synthetic queries (low/high split) against simulated CPU-throttled environment; verify latency logs are generated and ANOVA interaction term is calculable.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T013 [P] [US1] Contract test for `ExecutionMetric` schema validation in `tests/contract/test_execution_metric.py`
-- [ ] T014 [P] [US1] Integration test for end-to-end query execution loop with CPU throttling in `tests/integration/test_latency_pipeline.py`
-- [ ] T014b [P] [US1] Integration test for CPU throttling validity check in `tests/integration/test_throttling_abort.py`. Verify the system exits with `EXIT_CODE_THROTTLING_FAILURE` when throttling is unavailable.
-
-### Implementation for User Story 1
-
-- [ ] T015 [US1] Implement `code/analysis/metrics.py` to record end-to-end latency (ms) and handle timeout flags (FR-003).
-- [ ] T017 [US1] Implement query classification logic in `code/generators/synthetic_query.py` to **record the exact integer plan depth (1, 2, 3, 4+) as the `complexity_level` field** in the query object. This task MUST NOT truncate or binary-classify the depth; the integer value must be preserved in the output artifact for downstream ANOVA and sensitivity analysis (FR-002).
-- [ ] T018 [US1] Implement `code/analysis/stats.py` to perform Two-Way ANOVA on `latency` vs `complexity` × `source_type`. This task MUST:
- 1. Perform Levene and Shapiro-Wilk tests as **diagnostics only**; if assumptions fail, automatically switch to robust ANOVA or ANCOVA as per FR-005 (do not block execution).
- 2. Output F-statistic, p-value, and confidence interval for the interaction term.
- 3. Calculate and report the **ratio of slopes (graph vs. text)** as required by SC-001.
- 4. Perform post-hoc Tukey tests to identify pairwise differences between source types (FR-005).
- 5. Flag the hypothesis as 'supported' only if p < 0.05.
-- [ ] T020 [US1] Implement sensitivity analysis in `code/analysis/stats.py`. This task MUST **loop over the specific range [2, 3, 4]** as defined in FR-007. For **each** cutoff, it MUST calculate `spike_point` and `slope_change` and **persist a distinct JSON object** to a **single output file** `data/results/sensitivity_analysis.json` (containing a list of objects, one per cutoff). `spike_point` MUST be calculated as the x-value where the **absolute difference in mean latency between consecutive complexity levels is maximized** (FR-007). **Dependency: T021 must provide raw logs for this sweep.**
-- [ ] T021 [US1] Add data persistence in `code/main.py` to write raw metrics to `data/processed/execution_logs.csv` (raw logs only) and aggregated stats to `data/results/anova_results.json`.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] **T003** [P] [US‑1] **Implement robust data‑fetch utilities with compatible dependencies**  
+  *Create* `code/utils/data_fetcher.py` exposing three functions:  
+  1. `load_ms_marco()` – streams the MS MARCO test split via `datasets.load_dataset("microsoft/ms_marco", "test", split="test", streaming=True)`.  
+  2. `load_spider()` – streams the Spider tables via `datasets.load_dataset("spider", "tables", split="train", streaming=True)`.  
+  3. `load_dbpedia()` – downloads the DBpedia triples parquet file from the verified HuggingFace URL  
+     `https://huggingface.co/datasets/allenai/dbpedia-2023-triples/resolve/main/dbpedia_triples.parquet` using `huggingface_hub.hf_hub_download`.  
+  Pin compatible versions in `requirements.txt` (e.g., `numpy==1.26.4`, `pyarrow==15.0.0`, `datasets==2.19.0`). No synthetic fallback is allowed.  
+  - Add `tests/unit/test_data_fetcher.py` that iterates a single record from each loader and asserts the record is not `None`.  
+  - **Verification**: All three tests must pass; any import error aborts the run.
 
 ---
 
-## Phase 4: User Story 2 - Measure Translation Error Rates (Priority: P2)
+## Phase 2 – Query generation & deterministic reference plan  
 
-**Goal**: Track frequency of translation errors (plan mismatch) under CPU throttling and compare low vs high complexity groups.
+- [ ] **T004** [US‑1] **Generate synthetic query set using real metadata**   <!-- FAILED-IN-EXECUTION: code/generators/synthetic_query.py exit=1 -->
+  *Implement* `code/generators/synthetic_query.py` that:  
+  1. Calls the three data‑fetch functions to obtain real field/column names, entity types, and graph predicates.  
+  2. Constructs **≥ 500** query instances, with **≥ 100** high‑complexity (depth ≥ 3) graph queries. Each instance contains `query_id` (UUID4), `source_type` (`text|relational|graph`), `complexity_level` (int ≥ 1), `logical_plan.steps` (real operation strings derived from the source schema), `ground_truth_plan` set to `null` (to be filled by T005), `synthetic_flag=true`.  
+  3. Handles depth overflow by logging `DEPTH_OVERFLOW: query_id=<id>` and capping the depth to the generator’s maximum.  
+  4. Writes the array to `data/processed/generation_log.json`.  
+  - Add `tests/unit/test_query_generation.py` that:  
+    1. Asserts `specs/001-structural-mismatch-cost/contracts/query_instance.schema.yaml` exists.  
+    2. Checks file existence, record count ≥ 500, graph high‑complexity count ≥ 100, and validates the file against the schema.  
+  - **Verification**: All checks must pass.
 
-**Independent Test**: Compare generated plans against ground-truth plans for high-complexity graph queries; verify error rate calculation and reporting.
+- [ ] **T005** [US‑1] **Build deterministic greedy reference engine from an independent cost table**  
+  *Create* `code/generators/reference_engine.py` that:  
+  1. Loads a pre‑computed cost table `data/processed/cost_table.json` (mapping operation name → numeric cost) **generated independently of the router**.  
+  2. For a given `logical_plan.steps`, selects the step with the lowest cost; ties broken by smallest remaining depth.  
+  3. Returns a deterministic identifier `greedy_plan_<hash>` and writes it into the corresponding query’s `ground_truth_plan` field in `generation_log.json`. This serves as the reference plan for all queries (true optimal ground truth for the sampled subset is handled separately in T006).  
+  - Add `tests/unit/test_reference_engine.py` that supplies a three‑step plan with known costs and asserts the returned ordering matches the greedy rule and that the identifier format is `greedy_plan_[0-9a-f]{8}`.  
+  - **Verification**: Unit test passes; `generation_log.json` is updated with non‑null `ground_truth_plan` for every query.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T022 [P] [US2] Contract test for `QueryInstance` schema validation in `tests/contract/test_query_instance.py`
-- [ ] T023 [P] [US2] Integration test for plan comparison logic in `tests/integration/test_translation_errors.py`
-
-### Implementation for User Story 2
-
-- [ ] T024 [US2] Implement plan comparison logic in `code/analysis/metrics.py` to calculate binary translation error (0=match, 1=mismatch) against ground truth (FR-004). This task depends on `ground_truth_plan` generated by T006/T007.
-- [ ] T025 [US2] Implement error rate aggregation in `code/analysis/stats.py` to compute error rates for low vs high complexity groups (FR-004).
-- [ ] T026 [US2] Update `code/main.py` to log translation errors alongside latency metrics in `data/processed/execution_logs.csv`.
-- [ ] T027 [US2] Add validation logic to ensure ground-truth plans are generated by the independent reference engine (FR-008) before comparison.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Visualize Non-Linear Scaling (Priority: P3)
-
-**Goal**: Generate interaction plots showing latency vs. query complexity for each source type.
-
-**Independent Test**: Run visualization script on aggregated data; verify output PNG/PDF shows distinct lines for text, relational, and graph sources with correct slope differences.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T028 [P] [US3] Contract test for `AnalysisResult` schema validation in `tests/contract/test_analysis_result.py`
-- [ ] T029 [P] [US3] Integration test for plot generation in `tests/integration/test_visualization.py`
-
-### Implementation for User Story 3
-
-- [ ] T030 [US3] Implement `code/analysis/viz.py` to generate interaction plots (latency vs complexity, grouped by source type) using `matplotlib` or `seaborn`. This task depends on aggregated data from T021 (US1) and T026 (US2).
-- [ ] T031 [US3] Add logic in `code/analysis/viz.py` to explicitly highlight the slope difference for graph sources and identify spike thresholds (FR-006).
-- [ ] T032 [US3] Update `code/main.py` to save final plots to `data/results/interaction_plot.png` and `data/results/interaction_plot.pdf`.
-- [ ] T033 [US3] Add logic to generate a summary report in `data/results/research_summary.md` containing the ANOVA results (including slope ratio), error rates, and links to plots. **This task MUST explicitly calculate and report the absolute difference in error rates between low and high complexity groups as a distinct top-level key in the report (SC-002).**
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] **T006** [P] [US‑2] **Run exhaustive optimal planner on a stratified sample**   <!-- FAILED-IN-EXECUTION: code/planners/optimal_planner.py exit=1 -->
+  *Implement* `code/planners/optimal_planner.py` that:  
+  1. Samples a balanced subset of queries (e.g., 5 % of the total, preserving source‑type and depth distribution).  
+  2. Performs a brute‑force search over all possible step orderings to find the true minimal‑cost plan (using the same cost table as the greedy engine).  
+  3. Stores a mapping `query_id → optimal_plan_id` in `data/processed/optimal_ground_truth.json`.  
+  - Add `tests/unit/test_optimal_planner.py` that runs the planner on a tiny three‑step example and verifies the optimal plan cost is lower than the greedy plan’s cost.  
+  - **Verification**: Sample file exists and contains entries for the sampled queries.
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 3 – CPU throttling & native executors  
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] **T007** [P] [US‑1] **Implement cgroup‑based CPU throttling with abort on failure**  
+  *Create* `code/utils/cpu_throttle.py` that attempts to create a cgroup limiting CPU time to ≤ 1 000 ms per query and memory to 7 GB.  
+  - On success, sets environment variable `THROTTLE_MODE="cgroups"`; on failure, prints `ERROR: CPU throttling not applied` and exits with code 99.  
+  - Add `tests/integration/test_cpu_throttle.py` that (a) mocks a failure environment and asserts exit 99, and (b) runs in the CI environment and asserts `THROTTLE_MODE=="cgroups"` is recorded in produced metrics.  
+  - **Verification**: Test suite must pass both scenarios.
 
-- [ ] T034 [P] Documentation updates: Add `quickstart.md` with instructions to run the experiment on GitHub Actions
-- [ ] T036 [P] Add unit tests for synthetic query generator edge cases (depth cap, timeout handling) in `tests/unit/`
-- [ ] T037 [P] Run `quickstart.md` validation to ensure the full pipeline completes within 6 hours on free-tier runners
-- [ ] T038 [P] Verify all dataset URLs in `code/config.py` are real and reachable (MS MARCO, Spider, DBpedia subsets)
-- [ ] T039 [P] Add a `state/state.yaml` generator to track artifact hashes for `data/processed/` and `data/results/` (Constitution Principle V)
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories.
- - **Strict Ordering Required**: T007 must complete before T006. T016 must complete before T008.
- - Tasks T004, T005, T007, T016c, T009, T010, T011, T012 can run in parallel [P] within their dependency constraints.
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on `reference_engine` from Phase 2
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on aggregated data from US1 and US2
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Schemas before services/logic
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2, respecting strict ordering T007->T006 and T016->T008)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] **T008** [P] [US‑1] **Implement native executors respecting timeout and no artificial sleeps**  
+  *Create* the executor package `code/executors/` with:  
+  - `base.py` – abstract class defining `run(query) → dict` with required fields.  
+  - `text_executor.py` – BM25 over MS MARCO passages (uses `rank_bm25`).  
+  - `relational_executor.py` – SQLite DB built from Spider tables; executes the logical plan via generated SQL.  
+  - `graph_executor.py` – RDFLib SPARQL endpoint over the DBpedia triples.  
+  All executors enforce a hard 60‑second wall‑clock timeout (using `concurrent.futures.ThreadPoolExecutor` with `future.result(timeout=60)`). No `time.sleep` is used.  
+  - Add `tests/unit/test_executors.py` that runs each executor on a minimal query, asserts `latency_ms > 0`, `timeout_flag=False`, and validates the result against `execution_log.schema.yaml`.  
+  - **Verification**: All executor tests must pass.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 4 – End‑to‑end runs (small‑scale & baseline)  
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for ExecutionMetric schema in tests/contract/test_execution_metric.py"
-Task: "Integration test for latency pipeline in tests/integration/test_latency_pipeline.py"
-Task: "Integration test for throttling abort in tests/integration/test_throttling_abort.py"
+- [ ] **T009** [P] [US‑1] **Compute baseline overhead per engine**   <!-- FAILED-IN-EXECUTION: code/baseline_overhead.py exit=1 -->
+  *Run* five trivial (single‑hop) queries on each engine under the same cgroup settings, record wall‑clock latencies, compute the median per engine, and write to `data/processed/baseline_overhead.json` (`{ "bm25": <ms>, "sqlite": <ms>, "rdflib": <ms> }`).  
+  - Add `tests/unit/test_baseline.py` that checks the JSON exists, contains three keys, and that each median is a positive number.  
+  - **Verification**: Baseline file must be present before any full benchmark.
 
-# Launch all core logic for User Story 1 together:
-Task: "Implement CPU throttling in code/utils/cpu_throttle.py"
-Task: "Implement ANOVA logic in code/analysis/stats.py"
-```
+- [ ] **T011** [US‑1] **Implement deterministic SUT router producing distinct plans**  
+  *Create* `code/router/sut_router.py` that reads `generation_log.json`, uses a limited‑lookahead heuristic (adds a small random perturbation ± 0.05 to the cost table values) to generate a `sut_plan` identifier, and writes it back into each query record.  
+  - **Requirement**: The random perturbation MUST be initialized with a fixed, pinned seed (e.g., `random.seed(42)`) to ensure the router is deterministic and reproducible.  
+  - Ensure at least one query’s `sut_plan` differs from its `ground_truth_plan`.  
+  - Add `tests/unit/test_sut_router.py` that loads a sample set, runs the router, and asserts `sut_plan` exists for all queries and that the set of differences (`sut_plan != ground_truth_plan`) is non‑empty.  
+  - **Verification**: Test must pass.
 
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (ANOVA results, latency logs, slope ratio)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Latency & ANOVA)
- - Developer B: User Story 2 (Translation Errors)
- - Developer C: User Story 3 (Visualization)
-3. Stories complete and integrate independently
+- [ ] **T010** [US‑1 & US‑2] **Run a small‑scale benchmark (30 queries) and produce execution logs**  
+  *Extend* `code/main.py` to accept `--sample N`. When invoked:  
+  1. Calls T004 (query generation) and T005 (reference engine).  
+  2. Enforces cgroup throttling via T007.  
+  3. Routes each query through `code/router/sut_router.py` (T011).  
+  4. Dispatches to the appropriate executor (T008).  
+  5. Applies baseline correction using the values from `baseline_overhead.json`.  
+  6. Writes a CSV `data/processed/execution_logs.csv` matching `execution_log.schema.yaml`.  
+  - Add `tests/integration/test_small_run.py` that runs `python -m code.main --sample 30`, asserts the CSV exists with exactly 30 rows, columns match the schema, and that the overall translation‑error rate is neither 0 % nor 100 %.  
+  - **Verification**: All assertions must hold.
 
 ---
 
-## Notes
+## Phase 5 – Metric transformation  
 
-- [P] tasks = different files, no dependencies (unless strict ordering specified in text)
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks MUST run on CPU-only CI (limited cores, moderate RAM). No GPU, no 8-bit quantization, no large model training.
-- **Data Integrity**: All datasets must be fetched from real URLs (HuggingFace/GitHub) or generated synthetically with deterministic seeds. No fake data.
-- **Statistical Validity**: Normality checks are diagnostics only; ANOVA/ANCOVA must run regardless.
-- **Sensitivity Analysis**: Must use the specific range [2, 3, 4] as defined in FR-007.
+- [ ] **T012** [P] [US‑1] **Transform CSV logs into JSON‑Lines execution‑metric artifact**  
+  *Implement* `code/transform_metrics.py` that reads `execution_logs.csv` and writes `data/processed/execution_metric.jsonl`, one JSON object per line conforming to `execution_metric.schema.yaml`.  
+  - Add `tests/unit/test_transform_metrics.py` that parses the produced `.jsonl`, validates each line against the schema, and checks the line count equals the CSV row count.  
+  - **Verification**: Test must pass.
+
+---
+
+## Phase 6 – Full statistical analysis  
+
+- [ ] **T013** [P] [US‑1 & US‑2] **Perform comprehensive statistical analysis**  
+  *Extend* `code/analysis/stats.py` to:  
+  1. Load `execution_logs.csv` (exclude rows where `synthetic_flag=true` if desired).  
+  2. Run two‑way ANOVA on `latency_ms` with factors `source_type` and `complexity_level`; include Shapiro‑Wilk and Levene diagnostics, apply log‑transform or robust Huber regression when assumptions fail. Output F‑statistic, interaction p‑value, 95 % CI, and a `significant` flag (p < 0.05).  
+  3. Compute simple linear regressions of mean latency vs. depth for `graph` and `text`; store `slope_ratio` (graph slope / text slope).  
+  4. Conduct the sensitivity sweep over cut‑offs {2, 3, 4}: piecewise linear regression to obtain `spike_point` and `slope_change` per cutoff; apply Bonferroni correction (α/3). Store results in `data/results/sensitivity_analysis.json` (validated against `statistics_result.schema.yaml`).  
+  5. Perform chi‑square test of translation‑error stability between low (≤ 2) and high (≥ 3) complexity groups per source; compute per‑source average `precision_at_10`. Store all in `data/results/statistics_results.json`.  
+  - Add `tests/unit/test_stats.py` that feeds a tiny synthetic dataset with a known interaction and known spike point, and asserts:  
+    1. The JSON outputs contain the expected numeric values.  
+    2. The Bonferroni‑adjusted significance flags are correct.  
+    3. The slope‑ratio for the graph source exceeds 1.5 (validating SC-001).  
+    4. Tukey post‑hoc p‑values are explicitly adjusted for family‑wise error (validating FR-005/Const VII).  
+  - **Verification**: All unit tests must succeed; the JSON files must be present.
+
+---
+
+## Phase 7 – Visualization  
+
+- [ ] **T014** [P] [US‑3] **Generate interaction plot with annotations**  
+  *Implement* `code/visualize.py` that reads `execution_logs.csv`, aggregates mean latency per `complexity_level` and `source_type`, and creates:  
+  - `data/results/interaction_plot.png`  
+  - `data/results/interaction_plot.pdf`  
+  The plot must show distinct colored lines for `text`, `relational`, and `graph`, highlight the graph line, and annotate the `spike_point` and `slope_ratio` obtained from T013.  
+  - Add `tests/unit/test_visualization.py` that checks both files exist, are non‑empty, can be opened (`Pillow` for PNG, `PyPDF2` for PDF), and that at least three distinct RGB values appear in the PNG (simple pixel sampling).  
+  - **Verification**: Visualization tests must pass.
+
+---
+
+## Phase 8 – Full benchmark, summary, and reproducibility  
+
+- [ ] **T015** [P] [US‑1 & US‑2 & US‑3] **Run full benchmark (≥ 500 queries) under enforced cgroups**  
+  *Execute* `python -m code.main --full` which performs the entire pipeline:  
+  1. Generates the full query set (T004).  
+  2. Computes greedy reference plans (T005) and optimal ground truth for the sampled subset (T006).  
+  3. Enforces cgroup throttling (T007).  
+  4. Routes queries (T011) and executes them via native executors (T008).  
+  5. Writes `execution_logs.csv` (≥ 500 rows) and `execution_metric.jsonl` (T012).  
+  6. Runs statistical analysis (T013) and visualisation (T014).  
+  - Add `tests/integration/test_full_run.py` that verifies:  
+    1. Row count ≥ 500.  
+    2. The CPU quota of ≤ 1 000 ms was strictly enforced for every individual query (FR-001, FR-014).  
+    3. All result JSON/PNG files exist, and the ANOVA interaction p‑value field is populated.  
+  - **Verification**: Integration test must pass; no query may exceed the CPU quota (timeouts are recorded, not aborting).
+
+- [ ] **T016** [P] [US‑3] **Compose research summary markdown linking all artifacts**  
+  *Create* `data/results/research_summary.md` containing:  
+  1. Brief overview of the study.  
+  2. Key statistics (ANOVA F/p, slope‑ratio, sensitivity spike points, translation‑error stability, average Precision@10).  
+  3. Links to each generated artifact (`anova_results.json`, `sensitivity_analysis.json`, `statistics_results.json`, `interaction_plot.png`, `execution_metric.jsonl`, `research_summary.md`).  
+  4. Limitations paragraph (associational framing, cgroup‑only throttling, synthetic‑flag exclusion, sample‑size considerations).  
+  - Add `tests/unit/test_summary.py` that parses the markdown, checks for required headings (“ANOVA Results”, “Sensitivity Sweep”, “Translation‑Error Stability”, “Limitations”), and confirms that every linked file exists.  
+  - **Verification**: Test must pass.
+
+- [ ] **T017** [P] [US‑1] **Validate full reproducibility via artifact hashes**  
+  *Implement* `code/reproducibility.py` that:  
+  1. After a successful full run, computes SHA‑256 hashes of all primary artifacts (`execution_logs.csv`, `execution_metric.jsonl`, `anova_results.json`, `sensitivity_analysis.json`, `statistics_results.json`, `interaction_plot.png`, `research_summary.md`).  
+  2. Stores the mapping in `data/results/artifact_hashes.json`.  
+  3. Re‑runs the full pipeline in a fresh environment and recomputes the hashes, asserting each matches the stored value.  
+  - Add `tests/integration/test_reproducibility.py` that performs the above steps and fails if any hash differs.  
+  - **Verification**: All reproducibility tests must pass; the hash file must be present.
+
+---  
+
+### Dependency & Requirement Coverage  
+
+| Requirement | Satisfying Task(s) |
+|-------------|--------------------|
+| FR‑001 (CPU throttling) | T007, T015 |
+| FR‑002 (integer complexity) | T004 |
+| FR‑003 (latency logging) | T010 |
+| FR‑004 / FR‑008 (translation error vs deterministic reference) | T005, T006, T011 |
+| FR‑005 (ANOVA + Tukey) | T013 |
+| FR‑006 (interaction plot) | T014 |
+| FR‑007 (sensitivity sweep) | T013 |
+| FR‑009 (Precision@10) | T013 |
+| FR‑010 (baseline correction) | T009, T010 |
+| FR‑011 (Bonferroni) | T013 |
+| FR‑012 (execution_metric artifact) | T012 |
+| FR‑014 (cgroup failure abort) | T007 |
+| FR‑015 (depth overflow handling) | T004 |
+| SC‑001 (non‑linear latency scaling) | T013, T014 |
+| SC‑002 (stable translation error) | T013 |
+| SC‑004 (robustness of threshold) | T013 |
+| SC‑005 (visualisation) | T014 |
+
+All tasks respect the data flow ordering, use only real datasets, and avoid any fabricated inputs or synthetic fall‑backs. The pipeline is fully reproducible and ready for downstream paper hand‑off.

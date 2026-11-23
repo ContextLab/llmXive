@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MovieLens Dataset Schema"
+description: "Schema for the MovieLens dataset used in the zero-shot ProRL pipeline. Verified source: ml-latest-small."
+type: "object"
+properties:
+  user_id:
+    type: "integer"
+    description: "Unique identifier for the user."
+  item_id:
+    type: "integer"
+    description: "Unique identifier for the item."
+  rating:
+    type: "number"
+    description: "User rating for the item."
+  timestamp:
+    type: "integer"
+    description: "Unix timestamp of the interaction."
+  genres:
+    type: "string"
+    description: "Pipe-separated list of genres (e.g., 'Action|Comedy')."
+required:
+  - user_id
+  - item_id
+  - timestamp
+  - genres
+additionalProperties: false

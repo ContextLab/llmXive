@@ -1,75 +1,74 @@
 # The Effects of Gamified Habit Tracking on Long-Term Behavioral Change
 
-**Project ID**: PROJ-138-the-effects-of-gamified-habit-tracking-o
+## Project Overview
 
-## Overview
+This research project investigates the impact of gamified habit-tracking applications on long-term behavioral adherence. Using a longitudinal dataset of user interactions, we analyze the relationship between gamification status, personality traits (specifically Conscientiousness), and habit adherence over time.
 
-This research project investigates the impact of gamified habit-tracking applications on long-term behavioral change. By analyzing longitudinal data from users who utilize gamified tools versus those who do not, we aim to quantify the effectiveness of gamification elements in sustaining adherence to behavioral goals.
+The study employs mixed-effects logistic regression, survival analysis, and robustness validation (bootstrapping) to determine if gamification significantly improves adherence, particularly for users with varying levels of conscientiousness.
 
-The study employs a mixed-methods approach, combining:
-- **Mixed-effects logistic regression** to model adherence probabilities while accounting for individual user variance.
-- **Survival analysis (Kaplan-Meier and Cox Proportional Hazards)** to assess dropout rates and time-to-event.
-- **Robustness validation** via bootstrapping and sensitivity analysis to ensure findings are stable across different adherence thresholds and sample variations.
+## Research Questions
 
-## Key Research Questions
-
-1. Does the use of gamified habit-tracking apps significantly improve long-term adherence compared to non-gamified methods?
-2. How do personality traits (specifically Conscientiousness and Need for Achievement) moderate the effect of gamification?
-3. What is the probability of dropout over time for different user segments?
+1. Does gamification status significantly predict habit adherence?
+2. Does Conscientiousness moderate the effect of gamification on adherence?
+3. What is the survival rate (time to dropout) for gamified vs. non-gamified users?
+4. Are the findings robust across different adherence thresholds and bootstrap iterations?
 
 ## Project Structure
 
-```text
-.
+```
+PROJ-138-the-effects-of-gamified-habit-tracking-o/
 ├── code/
 │ ├── analysis/ # Statistical modeling, survival analysis, robustness checks
-│ ├── data/ # Data ingestion, validation, aggregation, synthetic generation
-│ ├── reports/ # Report generation and visualization scripts
-│ ├── utils/ # Configuration, logging, versioning, setup utilities
-│ └── tests/ # Unit and integration tests for pipeline components
+│ ├── data/ # Data ingestion, validation, aggregation, models
+│ ├── reports/ # Report generation and visualization
+│ ├── utils/ # Configuration, logging, versioning
+│ ├── scripts/ # Pipeline orchestration scripts
+│ └── tests/ # Unit and integration tests
 ├── data/
-│ ├── raw/ # Raw input data (synthetic or external)
-│ ├── processed/ # Cleaned and aggregated data ready for analysis
-│ └── consent/ # Consent records (real or synthetic verification)
-├── data/consent/ # Consent artifacts
-├── data/raw/ # Raw data storage
-├── data/processed/ # Processed data storage
-├── data/reports/ # Final analysis reports
-├── specs/ # Feature specifications and user stories
-├── tests/ # Test suite
+│ ├── raw/ # Raw input data (synthetic or real)
+│ ├── processed/ # Aggregated and cleaned data
+│ ├── consent/ # Consent documentation
+│ └── reports/ # Final analysis reports
+├── contracts/ # Data schemas and validation contracts
+├── logs/ # Pipeline execution logs
+├── README.md # This file
+├── quickstart.md # Execution instructions
 ├── requirements.txt # Python dependencies
-├── README.md # Project overview
-└── quickstart.md # Execution instructions
+└── state.yaml # Artifact versioning and hashes
 ```
 
 ## Dependencies
 
-This project requires Python 3.11+. Install dependencies via:
+This project requires Python 3.11+. Install dependencies using:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-Key libraries include:
+Key dependencies include:
 - `pandas`, `numpy`: Data manipulation
 - `statsmodels`: Mixed-effects modeling
 - `lifelines`: Survival analysis
 - `pingouin`: Statistical tests (Cronbach's alpha)
-- `scikit-learn`: Data preprocessing
+- `scikit-learn`: VIF calculation
 - `matplotlib`, `seaborn`: Visualization
 
-## Usage
+## Quick Start
 
-See [`quickstart.md`](quickstart.md) for detailed execution steps, including:
-- Synthetic data generation (if real data is unavailable)
-- Consent verification procedures
-- Running the full analysis pipeline
-- Generating the final HTML report
+To run the full analysis pipeline, refer to the [quickstart.md](quickstart.md) guide.
 
-## Disclaimer
+```bash
+bash quickstart.sh
+```
 
-**Findings are associational, not causal.** The data analyzed in this project is observational. While statistical controls are applied, causality cannot be definitively established without randomized controlled trials.
+This will:
+1. Generate synthetic data (if real data is not present)
+2. Validate consent and schema
+3. Aggregate daily logs into weekly bins
+4. Fit mixed-effects and survival models
+5. Run robustness checks
+6. Generate the final HTML report
 
 ## License
 
-This research code is provided for educational and scientific purposes.
+This research project is for educational and scientific purposes.

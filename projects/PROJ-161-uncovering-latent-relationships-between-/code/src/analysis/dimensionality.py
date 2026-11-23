@@ -1,9 +1,8 @@
 """
-Dimensionality reduction module for molecular descriptor analysis.
+Dimensionality reduction module for UMAP embedding of molecular descriptors.
 
-Implements UMAP dimensionality reduction to project high-dimensional
-molecular descriptor space into a 2D embedding for visualization and
-cluster analysis.
+This module implements the application of UMAP to reduce high-dimensional
+molecular descriptor data to a 2D embedding for visualization and clustering.
 """
 import os
 import logging
@@ -12,250 +11,209 @@ import numpy as np
 from pathlib import Path
 from typing import Tuple, Optional
 
-try:
-    import umap
-except ImportError:
-    raise ImportError(
-        "umap-learn is required. Install with: pip install umap-learn"
-    )
-
-from src.config import (
-    get_project_root,
-    get_data_processed_path,
-    load_config,
-    set_seeds
-)
+from umap import UMAP
+from src.config import get_project_root, get_data_processed_path, load_config
 
 logger = logging.getLogger(__name__)
 
-# Default UMAP parameters as specified in the plan
-DEFAULT_N_NEIGHBORS = 15
-DEFAULT_MIN_DIST = 0.1
-DEFAULT_N_COMPONENTS = 2
-DEFAULT_METRIC = 'euclidean'
 
-def load_descriptors(
-    input_path: Optional[Path] = None,
-    config: Optional[dict] = None
-) -> pd.DataFrame:
+def load_descriptors() -> Tuple[pd.DataFrame, pd.Index]:
     """
-    Load the processed descriptor matrix from CSV.
-    
-    Args:
-        input_path: Optional path to the descriptor CSV. If None, uses
-                   the default path from config.
-        config: Optional configuration dictionary. If None, loads from config.py.
-    
+    Load the processed descriptor matrix from disk.
+
     Returns:
-        DataFrame containing molecular descriptors with InChIKey as index.
-    
+        Tuple of (descriptor DataFrame, InChIKey index)
+        
     Raises:
-        FileNotFoundError: If the descriptor file does not exist.
-        ValueError: If the file is empty or lacks required columns.
+        FileNotFoundError: If the descriptor file does not exist
+        ValueError: If the file is empty or has invalid structure
     """
-    if config is None:
-        config = load_config()
+    project_root = get_project_root()
+    descriptors_path = project_root / "data" / "processed" / "descriptors.csv"
     
-    if input_path is None:
-        input_path = get_data_processed_path() / "descriptors.csv"
-    
-    if not os.path.exists(input_path):
+    if not descriptors_path.exists():
         raise FileNotFoundError(
-            f"Descriptor file not found at {input_path}. "
-            "Please run US1 data processing first."
+            f"Descriptor file not found at {descriptors_path}. "
+            "Run the data processing pipeline (US1) first."
         )
     
-    df = pd.read_csv(input_path)
+    df = pd.read_csv(descriptors_path)
     
     if df.empty:
-        raise ValueError(f"Descriptor file at {input_path} is empty.")
+        raise ValueError("Descriptor DataFrame is empty. Check data processing pipeline.")
     
-    # Ensure InChIKey is the index or a column we can use for merging later
-    if 'InChIKey' in df.columns:
-        df = df.set_index('InChIKey')
-    
-    # Filter to numeric columns only for dimensionality reduction
-    numeric_df = df.select_dtypes(include=[np.number])
-    
-    if numeric_df.empty:
+    if "InChIKey" not in df.columns:
         raise ValueError(
-            f"No numeric descriptor columns found in {input_path}. "
-            "Expected columns like 'MolWt', 'LogP', etc."
+            "Descriptor DataFrame missing 'InChIKey' column. "
+            "Expected columns: InChIKey + descriptor columns."
         )
     
-    logger.info(f"Loaded {numeric_df.shape[0]} compounds with {numeric_df.shape[1]} descriptors.")
-    return numeric_df
+    # Set InChIKey as index for embedding
+    df = df.set_index("InChIKey")
+    
+    # Select only numeric descriptor columns
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    descriptor_matrix = df[numeric_cols]
+    
+    logger.info(f"Loaded {len(descriptor_matrix)} compounds with {len(numeric_cols)} descriptors")
+    
+    return descriptor_matrix, df.index
+
 
 def apply_umap(
-    data: pd.DataFrame,
-    n_neighbors: int = DEFAULT_N_NEIGHBORS,
-    min_dist: float = DEFAULT_MIN_DIST,
-    n_components: int = DEFAULT_N_COMPONENTS,
-    metric: str = DEFAULT_METRIC,
-    random_state: Optional[int] = None
+    descriptor_matrix: pd.DataFrame,
+    n_components: int = 2,
+    n_neighbors: int = 15,
+    min_dist: float = 0.1,
+    metric: str = "euclidean",
+    random_state: int = 42
 ) -> np.ndarray:
     """
     Apply UMAP dimensionality reduction to the descriptor matrix.
     
     Args:
-        data: DataFrame of numeric descriptors (rows=compounds, cols=descriptors).
-        n_neighbors: Number of neighbors for UMAP (default 15).
-        min_dist: Minimum distance between embedded points (default 0.1).
-        n_components: Target dimensionality (default 2).
-        metric: Distance metric for UMAP (default 'euclidean').
-        random_state: Random seed for reproducibility.
-    
+        descriptor_matrix: DataFrame with compounds as rows and descriptors as columns
+        n_components: Number of dimensions in the embedding (default: 2)
+        n_neighbors: Number of neighbors for UMAP (default: 15)
+        min_dist: Minimum distance between embedded points (default: 0.1)
+        metric: Distance metric to use (default: 'euclidean')
+        random_state: Random seed for reproducibility (default: 42)
+        
     Returns:
-        2D numpy array of shape (n_samples, n_components) containing the embedding.
+        2D numpy array of shape (n_samples, n_components) containing the embedding
+        
+    Raises:
+        ValueError: If input matrix is empty or has fewer than 2 samples
     """
-    # Fill NaN values with column median if any exist (UMAP doesn't handle NaN)
-    data_filled = data.fillna(data.median())
+    if descriptor_matrix.empty:
+        raise ValueError("Cannot apply UMAP to empty descriptor matrix")
     
-    # Handle constant columns (zero variance) which can cause UMAP to fail
-    variance = data_filled.var(axis=0)
-    if (variance == 0).any():
-        logger.warning(
-            f"Removing {sum(variance == 0)} constant descriptor columns "
-            "before UMAP to prevent errors."
-        )
-        data_filled = data_filled.loc[:, variance > 0]
-    
-    if data_filled.shape[1] == 0:
+    if len(descriptor_matrix) < 2:
         raise ValueError(
-            "No variable descriptor columns remaining after filtering. "
-            "Cannot perform dimensionality reduction."
+            f"Need at least 2 samples for UMAP, got {len(descriptor_matrix)}"
         )
     
     logger.info(
-        f"Applying UMAP with n_neighbors={n_neighbors}, min_dist={min_dist}, "
-        f"n_components={n_components}, metric='{metric}'."
+        f"Applying UMAP with n_neighbors={n_neighbors}, "
+        f"min_dist={min_dist}, metric={metric}"
     )
     
-    # Initialize UMAP
-    reducer = umap.UMAP(
+    # Initialize and fit UMAP
+    umap_model = UMAP(
+        n_components=n_components,
         n_neighbors=n_neighbors,
         min_dist=min_dist,
-        n_components=n_components,
         metric=metric,
-        random_state=random_state
+        random_state=random_state,
+        verbose=True
     )
     
-    # Fit and transform
-    embedding = reducer.fit_transform(data_filled.values)
+    # Transform the data
+    embedding = umap_model.fit_transform(descriptor_matrix.values)
     
-    logger.info(f"UMAP embedding computed: {embedding.shape}")
+    logger.info(f"UMAP embedding completed. Shape: {embedding.shape}")
+    
     return embedding
+
 
 def save_umap_embedding(
     embedding: np.ndarray,
-    index: pd.Index,
-    output_path: Optional[Path] = None,
-    config: Optional[dict] = None
+    indices: pd.Index,
+    output_filename: str = "umap_embedding.csv"
 ) -> Path:
     """
     Save the UMAP embedding to a CSV file.
     
     Args:
-        embedding: 2D numpy array of the embedding coordinates.
-        index: The original index (InChIKeys) to associate with rows.
-        output_path: Optional path for output. If None, uses default.
-        config: Optional configuration dictionary.
-    
+        embedding: 2D numpy array of UMAP coordinates
+        indices: InChIKey index corresponding to the embedding rows
+        output_filename: Name of the output file (default: 'umap_embedding.csv')
+        
     Returns:
-        Path to the saved CSV file.
+        Path to the saved file
+        
+    Raises:
+        ValueError: If embedding and indices have mismatched lengths
     """
-    if config is None:
-        config = load_config()
+    if len(embedding) != len(indices):
+        raise ValueError(
+            f"Embedding length ({len(embedding)}) does not match "
+            f"indices length ({len(indices)})"
+        )
     
-    if output_path is None:
-        output_path = get_data_processed_path() / "umap_embedding.csv"
+    processed_path = get_data_processed_path()
+    output_path = processed_path / output_filename
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Create DataFrame with embedding coordinates
+    if embedding.shape[1] == 2:
+        embedding_df = pd.DataFrame(
+            embedding,
+            columns=["UMAP1", "UMAP2"],
+            index=indices
+        )
+    else:
+        col_names = [f"UMAP{i+1}" for i in range(embedding.shape[1])]
+        embedding_df = pd.DataFrame(embedding, columns=col_names, index=indices)
     
-    # Create DataFrame with embedding columns
-    df = pd.DataFrame(
-        embedding,
-        index=index,
-        columns=[f'UMAP_{i+1}' for i in range(embedding.shape[1])]
-    )
+    # Save to CSV
+    embedding_df.to_csv(output_path)
     
-    df.to_csv(output_path)
-    logger.info(f"UMAP embedding saved to {output_path}")
+    logger.info(f"Saved UMAP embedding to {output_path}")
+    
     return output_path
 
-def run_umap_pipeline(
-    input_descriptors: Optional[Path] = None,
-    output_embedding: Optional[Path] = None,
-    n_neighbors: int = DEFAULT_N_NEIGHBORS,
-    min_dist: float = DEFAULT_MIN_DIST,
-    random_state: Optional[int] = None
-) -> Path:
+
+def run_umap_pipeline() -> Path:
     """
-    End-to-end pipeline: Load descriptors -> Apply UMAP -> Save embedding.
-    
-    Args:
-        input_descriptors: Path to input descriptors CSV.
-        output_embedding: Path for output embedding CSV.
-        n_neighbors: UMAP n_neighbors parameter.
-        min_dist: UMAP min_dist parameter.
-        random_state: Random seed for reproducibility.
+    Run the complete UMAP pipeline: load descriptors, apply UMAP, save embedding.
     
     Returns:
-        Path to the generated embedding file.
+        Path to the saved embedding file
+        
+    Raises:
+        FileNotFoundError: If input data files are missing
+        RuntimeError: If any step in the pipeline fails
     """
-    # Set seeds if provided
-    if random_state is not None:
-        set_seeds(random_state)
+    logger.info("Starting UMAP pipeline")
     
-    # Load data
-    descriptors = load_descriptors(input_descriptors)
-    
-    # Apply UMAP
-    embedding = apply_umap(
-        descriptors,
-        n_neighbors=n_neighbors,
-        min_dist=min_dist,
-        random_state=random_state
-    )
-    
-    # Save result
-    return save_umap_embedding(
-        embedding,
-        descriptors.index,
-        output_embedding
-    )
+    try:
+        # Load descriptors
+        descriptor_matrix, indices = load_descriptors()
+        
+        # Apply UMAP
+        embedding = apply_umap(descriptor_matrix)
+        
+        # Save embedding
+        output_path = save_umap_embedding(embedding, indices)
+        
+        logger.info("UMAP pipeline completed successfully")
+        
+        return output_path
+        
+    except FileNotFoundError as e:
+        logger.error(f"Missing input data: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"UMAP pipeline failed: {e}")
+        raise RuntimeError(f"UMAP pipeline failed: {e}") from e
+
 
 def main():
-    """
-    Main entry point for running the UMAP dimensionality reduction.
-    
-    Reads from data/processed/descriptors.csv (generated by US1)
-    and writes to data/processed/umap_embedding.csv.
-    """
+    """Main entry point for the UMAP dimensionality reduction script."""
+    # Configure logging
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
-    config = load_config()
-    random_state = config.get('RANDOM_SEED', 42)
-    
-    logger.info("Starting UMAP dimensionality reduction pipeline.")
-    
     try:
-        output_path = run_umap_pipeline(
-            n_neighbors=DEFAULT_N_NEIGHBORS,
-            min_dist=DEFAULT_MIN_DIST,
-            random_state=random_state
-        )
-        logger.info(f"Pipeline complete. Output: {output_path}")
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        raise
+        output_path = run_umap_pipeline()
+        print(f"UMAP embedding saved to: {output_path}")
+        return 0
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        raise
+        print(f"Error: {e}")
+        return 1
 
-if __name__ == '__main__':
-    main()
+
+if __name__ == "__main__":
+    exit(main())

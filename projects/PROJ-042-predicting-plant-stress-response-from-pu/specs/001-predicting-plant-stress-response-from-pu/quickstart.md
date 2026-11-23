@@ -1,77 +1,61 @@
-# Quickstart: 001-gene-regulation
+# Quickstart: Predicting Plant Stress Response from Publicly Available Transcriptomic Data
 
 ## Prerequisites
-
-- **Python**: 3.11+
-- **System**: Linux (Ubuntu 22.04 recommended for CI compatibility).
-- **Memory**: 7 GB RAM minimum.
-- **Disk**: 14 GB free space.
-- **Network**: Access to `ftp.ncbi.nlm.nih.gov`.
+- **Python** 3.11 or newer (Ubuntu 22.04 recommended).  
+- **Memory** ≥ 7 GB, **Disk** ≥ 14 GB, **Internet** access to NCBI GEO FTP.  
+- **GitHub Actions** free‑tier runner parameters (2 CPU, ≈ 7 GB RAM, ≤ 6 h) – the pipeline is designed to stay within these limits.
 
 ## Installation
-
-1. **Clone the repository** and navigate to the project root.  
-2. **Create a virtual environment**:
-   ```bash
-   python3.11 -m venv venv
-   source venv/bin/activate
-   ```
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *All packages are pinned to CPU‑only wheels.*
-
-## Running the Pipeline
-
-The pipeline is orchestrated via `code/main.py`.
-
-### 1. Fetch and Preprocess Data
-Downloads, verifies, filters, normalizes, and harmonizes gene IDs ([deferred] intersection). Datasets that fail verification (e.g., GSE40677) are automatically excluded.
 ```bash
-python code/main.py --stage preprocess \
-    --accessions GSE30047,GSE51148,GSE59991,GSE66904
-```
-*Output*: `data/processed/feature_space.csv`, intermediate TPM files in `data/processed/`.
+# Clone the repository
+git clone https://github.com/your-org/your-repo.git
+cd your-repo
 
-### 2. Train and Evaluate Model
-Runs leave‑one‑dataset‑out CV with intra‑fold batch correction, stability selection, and global permutation baseline.
-```bash
-python code/main.py --stage train \
-    --seed 42 \
-    --n_estimators 200 \
-    --bootstrap 1000
-```
-*Output*: `results/model_metrics.json`, `results/confusion_matrix.png`.
+# Create a virtual environment
+python3.11 -m venv venv
+source venv/bin/activate
 
-### 3. Generate Embeddings (Unsupervised Validation)
-Runs UMAP on the batch‑corrected test set of each LODO fold.
-```bash
-python code/main.py --stage embed --algorithm umap
-```
-*Output*: `results/embedding_coords.csv`, `results/umap_plot.png`.
-
-### 4. Full Run
-Executes all steps sequentially.
-```bash
-python code/main.py --full-run
+# Install pinned dependencies
+pip install -r requirements.txt
 ```
 
-## Verification
+## Running the Full Pipeline
+The entry point is `code/main.py`. Use the `--full-run` flag to execute every stage sequentially.
 
-1. Inspect `results/model_metrics.json` for cross‑dataset accuracy, post‑hoc power, MDES, and stability scores.  
-2. Open `results/umap_plot.png` – at least three stress clusters should have Silhouette > 0.4.  
-3. Run the test suite:
-   ```bash
-   pytest tests/ -v
-   ```
+```bash
+python code/main.py --full-run --seed 42 --top_k 50
+```
+
+### Individual Stages (optional)
+| Stage | Command | Description |
+|-------|---------|-------------|
+| 0 – Discovery & Verification | `python code/main.py --stage discover` | Queries GEO, verifies plant stress series, writes `data/raw/`. Fails early if < 7 series. |
+| 1 – Pre‑processing | `python code/main.py --stage preprocess` | CPM filter, TMM normalization, gene‑ID mapping, writes `data/processed/`. |
+| 2 – Feature Selection | `python code/main.py --stage select --top_k 50` | Computes variance, writes `data/processed/feature_space.csv`. |
+| 3 – Model Training & Evaluation | `python code/main.py --stage train --top_k 50` | LODO Logistic Regression, permutation tests, writes `results/model_metrics.json`. |
+| 4 – Stability Analysis | `python code/main.py --stage stability --bootstrap 100` | Bootstrap coefficient variance, writes `results/robust_biomarkers.csv`. |
+| 5 – Unsupervised Validation | `python code/main.py --stage embed --algorithm umap` | UMAP + Silhouette, writes `results/embedding_coords.csv` & plot. |
+| 6 – Reporting | `python code/main.py --stage report` | Generates PDF/HTML report, updates state file. |
+
+## Verification Checklist
+1. **State file** – `state/projects/PROJ-042-predicting-plant-stress-response-from-pu.yaml` contains `research_complete: true`, a UTC timestamp, and SHA‑256 hashes for all result artefacts.  
+2. **Performance metrics** – Open `results/model_metrics.json` and confirm:  
+   - Cross‑dataset accuracy ≥ 0.70 *or* a documented post‑hoc power analysis (SC‑001, SC‑005).  
+   - Permutation p‑value < 0.05 after FDR correction.  
+3. **Biomarker table** – `results/robust_biomarkers.csv` lists at least one gene meeting variance ≤ 0.30 and frequency ≥ 0.70, or a clear “No robust biomarkers” message (SC‑003).  
+4. **UMAP plot** – `results/umap_plot.png` shows stress clusters with Silhouette ≥ 0.40 for ≥ 3 classes and Δ ≥ 0.10 vs. dataset Silhouette (SC‑004).  
+5. **Resource usage** – `logs/resource_usage.txt` reports peak RAM ≤ 7 GB and total runtime ≤ 6 h (SC‑006).  
+
+Run the test suite to ensure all components behave as expected:
+
+```bash
+pytest tests/ -v
+```
 
 ## Troubleshooting
+- **Insufficient datasets**: The discovery stage will abort with `E‑DATA‑INSUFFICIENT`. Verify that GEO contains additional plant stress series or adjust the query terms.  
+- **Feature space < 1,500 genes**: Check `data/processed/feature_space.csv`; the abort message will indicate the actual count. Consider relaxing the CPM filter if appropriate.  
+- **MemoryError**: Reduce `--top_k` (e.g., to 50) or decrease `n_estimators` in the Logistic Regression config (`config.py`).  
+- **Low power**: Review `results/model_metrics.json` for MDES and power; if power < 0.80, the report will flag the result as underpowered (SC‑005).  
 
-- **Feature Space Insufficient**: Occurs if the [deferred] gene intersection yields < 1500 genes. Check `data/processed/feature_space.csv` for the actual count.
-- **Data Unavailable**: One of the GEO accessions could not be fetched or failed organism/stress verification. Review `logs/exclusion.log`.  
-- **Underpowered**: Post‑hoc power < 0.8; see `results/model_metrics.json` for MDES and power estimates.  
-- **Confounding Detected**: If a dataset contains only a single stress type or is highly confounded, it is excluded automatically; see the exclusion log.  
-- **Memory Error**: Reduce `--n_estimators` or the top‑k gene count in `config.py`.
-
-All steps are fully reproducible on a fresh GitHub Actions runner; random seeds are pinned in `code/config.py`, and the project state file `state/projects/PROJ-042-predicting-plant-stress-response-from-pu.yaml` is updated after each major artifact.
+All steps are deterministic; re‑running on a fresh CI runner reproduces identical outputs.

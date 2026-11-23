@@ -1,1 +1,2 @@
-# This file is intentionally empty and used to track the data/raw directory in git.
+# This directory is for raw data files.
+# Files here are not tracked by git but are essential for the pipeline.

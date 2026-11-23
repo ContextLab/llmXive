@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-13T19:40:36.472497+00:00'
+issue_number: 1380
+project_id: PROJ-912-llmxive-follow-up-extending-audio-intera

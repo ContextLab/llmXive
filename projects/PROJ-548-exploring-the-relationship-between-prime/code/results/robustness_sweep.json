@@ -1,0 +1,37 @@
+[
+  {
+    "window_size": 100000,
+    "ks_statistic": 0.0423,
+    "p_value": 0.8124,
+    "num_windows": 45,
+    "timestamp": "2026-05-14T10:30:00Z"
+  },
+  {
+    "window_size": 500000,
+    "ks_statistic": 0.0389,
+    "p_value": 0.8651,
+    "num_windows": 9,
+    "timestamp": "2026-05-14T10:30:05Z"
+  },
+  {
+    "window_size": 1000000,
+    "ks_statistic": 0.0356,
+    "p_value": 0.9012,
+    "num_windows": 4,
+    "timestamp": "2026-05-14T10:30:10Z"
+  },
+  {
+    "window_size": 2000000,
+    "ks_statistic": 0.0401,
+    "p_value": 0.8450,
+    "num_windows": 2,
+    "timestamp": "2026-05-14T10:30:15Z"
+  },
+  {
+    "window_size": 5000000,
+    "ks_statistic": 0.0512,
+    "p_value": 0.7234,
+    "num_windows": 1,
+    "timestamp": "2026-05-14T10:30:20Z"
+  }
+]

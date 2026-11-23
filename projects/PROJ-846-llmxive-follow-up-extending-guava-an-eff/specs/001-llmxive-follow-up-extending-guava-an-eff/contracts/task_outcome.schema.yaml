@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TaskOutcome"
+description: "Record of a single evaluation run for a task."
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task."
+  success:
+    type: "boolean"
+    description: "True if the task was completed successfully."
+  steps_taken:
+    type: "integer"
+    description: "Number of steps taken to complete the task."
+  failure_category:
+    type: "string"
+    enum:
+      - "geometric"
+      - "semantic"
+      - "perception"
+      - "latency"
+      - "timeout"
+      - "null"
+    description: "Category of failure if success is false."
+  execution_time:
+    type: "number"
+    description: "Total time taken to execute the task."
+  perception_failures:
+    type: "integer"
+    description: "Count of perception failures during the task."
+required:
+  - "task_id"
+  - "success"
+  - "steps_taken"
+  - "failure_category"
+  - "execution_time"
+additionalProperties: false

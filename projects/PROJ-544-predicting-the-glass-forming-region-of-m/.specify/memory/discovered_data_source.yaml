@@ -1,0 +1,14 @@
+status: none
+intent: Materials Project alloy composition dataset with phase labels and DScribe
+  benchmark data python package dataset
+required_fields:
+- composition_id
+- element_symbols
+- element_fractions
+- phase_label
+- atomic_radius
+- electronegativity
+- mixing_enthalpy_parameter
+cache_key: 15df4f247a5a50483955d5d0fdcf2a4b7c08c2be7fea5388872f081515890572
+searched_at: '2026-10-09T10:25:39.216423+00:00'
+retry_count: 1

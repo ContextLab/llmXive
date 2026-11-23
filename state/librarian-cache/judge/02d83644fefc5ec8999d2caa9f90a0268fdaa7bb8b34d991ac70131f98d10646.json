@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2309.06611",
+  "judged_at": "2026-08-23T14:41:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kairos: a native world model stack for physical ai\" computer science",
+  "rationale": "The paper focuses on software engineering practices (microservices, containerization, DevOps) for deploying robotic applications, whereas the user's question targets \"Kairos,\" a specific \"Native World Model Stack\" for Physical AI, which implies a focus on the underlying generative modeling architecture and physics simulation rather than deployment infrastructure. There is no overlap in the core mechanism, variables, or empirical domain between a deployment tooling suite and a world model stack.",
+  "relevant": false
+}

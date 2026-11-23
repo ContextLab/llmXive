@@ -1,1 +1,1 @@
-"""Integration test package for polymer degradation prediction."""
+# Integration tests package for llmXive polymer degradation project

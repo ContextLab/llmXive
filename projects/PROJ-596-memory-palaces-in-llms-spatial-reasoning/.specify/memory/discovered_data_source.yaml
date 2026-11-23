@@ -1,0 +1,16 @@
+status: none
+intent: huggingface datasets babi task3 lambada story cloze python package dataset
+required_fields:
+- story
+- question
+- answer
+- supporting_facts
+- text
+- target_word
+- context
+- ending0
+- ending1
+- label
+cache_key: 904ae84fbe4be138b64f7874fb6a42224b83afaac858d5f06a70acad7d28dd89
+searched_at: '2026-10-02T09:56:05.295065+00:00'
+retry_count: 1

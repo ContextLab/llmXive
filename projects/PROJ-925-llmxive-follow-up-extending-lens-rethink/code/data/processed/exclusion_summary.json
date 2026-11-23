@@ -1,0 +1,13 @@
+{
+  "exclusion_counts": {
+    "BERT_FAILURE": 127,
+    "SHORT_CAPTION": 45,
+    "TIMEOUT_EXCEEDED": 89
+  },
+  "reasons": [
+    "BERT_FAILURE",
+    "SHORT_CAPTION",
+    "TIMEOUT_EXCEEDED"
+  ],
+  "total_excluded": 261
+}

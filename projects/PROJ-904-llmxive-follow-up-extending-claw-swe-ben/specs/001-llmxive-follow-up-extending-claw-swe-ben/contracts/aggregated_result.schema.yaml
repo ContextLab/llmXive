@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aggregated Results Schema"
+description: "Schema for the final aggregated CSV results."
+type: "object"
+properties:
+  model_size:
+    type: "string"
+    enum: ["1B", "7B"]
+  context_strategy:
+    type: "string"
+    enum: ["baseline", "tfidf", "diff_aware", "summarization"]
+  n_instances:
+    type: "integer"
+    minimum: 1
+    description: "Number of instances in this cell."
+  pass_rate:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Pass@1 success rate."
+  avg_tokens:
+    type: "number"
+    minimum: 0
+    description: "Average token consumption."
+  failure_dist:
+    type: "string"
+    description: "JSON string of failure mode counts."
+required:
+  - model_size
+  - context_strategy
+  - n_instances
+  - pass_rate
+  - avg_tokens
+  - failure_dist
+additionalProperties: false

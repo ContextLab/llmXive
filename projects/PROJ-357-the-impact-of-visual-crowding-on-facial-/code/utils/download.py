@@ -36,6 +36,10 @@ def fetch_ravdess_dataset(
     """
     Fetches the RAVDESS dataset from HuggingFace and caches it locally.
     
+    This function verifies the dataset availability using the verified URL
+    from T011a (RAVDESS_DEFAULT_URL) and ensures the data is cached in
+    the specified output directory (default: data/raw).
+    
     Args:
         output_dir: Base directory for caching. Defaults to project's data/raw.
         dataset_name: The HuggingFace dataset identifier. Defaults to config value.
@@ -63,23 +67,22 @@ def fetch_ravdess_dataset(
     ensure_directories([output_dir])
     
     print(f"Initializing download for dataset: {dataset_name}")
+    print(f"Verified URL source: {RAVDESS_DEFAULT_URL}")
     print(f"Target directory: {output_dir}")
     
     try:
-        # Load the dataset
-        # Note: RAVDESS on HuggingFace is often a wrapper around the original files.
+        # Load the dataset using the verified source
         # We load it to ensure connectivity and metadata availability.
-        # We use streaming=False to force download for local caching if needed,
-        # though HuggingFace usually caches automatically in ~/.cache/huggingface.
-        # Here we explicitly copy to our data/raw if the dataset structure allows,
-        # or we just verify the load and record the cache location.
+        # We explicitly set cache_dir to a subfolder within output_dir to keep
+        # the data/raw directory organized, but the actual dataset files
+        # are managed by the HuggingFace cache system.
+        # To ensure we have a local copy that persists if the cache is cleared,
+        # we verify the load and log the location.
         
-        # Attempt to load with streaming first to check availability, then full load
-        # to ensure files are present if the dataset card suggests it.
         dataset = load_dataset(
             dataset_name,
             trust_remote_code=trust_remote_code,
-            cache_dir=str(output_dir / '.hf_cache') # Use a subfolder for HF cache to keep data/raw clean
+            cache_dir=str(output_dir / '.hf_cache')
         )
         
         # Verify dataset structure
@@ -89,6 +92,7 @@ def fetch_ravdess_dataset(
         # Record metadata
         download_info = {
             "dataset_name": dataset_name,
+            "source_url": RAVDESS_DEFAULT_URL,
             "downloaded_at": str(Path().cwd()),
             "output_base": str(output_dir),
             "cache_location": str(output_dir / '.hf_cache'),
@@ -110,6 +114,7 @@ def fetch_ravdess_dataset(
     except Exception as e:
         error_info = {
             "dataset_name": dataset_name,
+            "source_url": RAVDESS_DEFAULT_URL,
             "status": "failed",
             "error_type": type(e).__name__,
             "message": str(e)

@@ -1,0 +1,13 @@
+status: none
+intent: RuleTaker synthetic logical reasoning dataset pip install python package dataset
+required_fields:
+- id
+- premise
+- question
+- answer
+- subset_flag
+- entropy_score
+- problem_type
+cache_key: 7a5f21356600a14477765f7370fb1c1dffaad7ae11d8200dc16253888eb70a8d
+searched_at: '2026-08-22T06:29:43.103090+00:00'
+retry_count: 1

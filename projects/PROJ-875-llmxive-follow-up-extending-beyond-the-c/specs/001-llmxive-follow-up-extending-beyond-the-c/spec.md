@@ -94,8 +94,8 @@ The researcher needs to compute the "Memory Gap" score by comparing the agent's 
 ## Assumptions
 
 - The RNG-Bench environment codebase is accessible and can be modified to output ASCII grids without requiring changes to the core game logic.
-- A 3B parameter model (e.g., Qwen2-3B or Llama-3-8B-Instruct 4-bit) is sufficient to demonstrate the cognitive capability difference; if a larger model is required for reasoning, the project scope is limited to the CPU-tractable 3B class.
+- A B parameter model (e.g., Qwen2-3B or Llama-3-8B-Instruct 4-bit) is sufficient to demonstrate the cognitive capability difference; if a larger model is required for reasoning, the project scope is limited to the CPU-tractable 3B class.
 - The "Memory Gap" metric defined in the original RNG-Bench paper is applicable to text-based state representations and can be calculated via string comparison or semantic similarity without needing the original visual tokenization.
 - The GitHub Actions free-tier runner provides consistent 2 CPU cores and ~7 GB RAM; any variance in hardware performance is assumed to be within acceptable noise for statistical analysis.
 - The baseline MLLM can be adapted to process ASCII inputs (e.g., by treating ASCII as a text prompt or using a text-capable variant) to generate a valid baseline distribution for comparison.
-- The quantized model inference will not exceed the 14 GB disk space limit of the runner, including model weights and temporary cache files.
+- The quantized model inference will not exceed the disk space limit of the runner, including model weights and temporary cache files.

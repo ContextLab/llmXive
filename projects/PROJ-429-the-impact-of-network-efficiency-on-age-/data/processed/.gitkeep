@@ -1,2 +1,2 @@
-# This directory stores preprocessed EEG data (epochs, ICA components)
-# Do not commit large files here.
+# Placeholder for preprocessed epochs and connectivity matrices
+# Populated by code/data/preprocess.py and code/network/connectivity.py

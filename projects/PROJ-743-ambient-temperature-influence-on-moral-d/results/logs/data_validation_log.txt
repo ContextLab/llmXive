@@ -1,21 +1,10 @@
-2026-06-21 12:00:00,000 - INFO - ============================================================
-2026-06-21 12:00:00,000 - INFO - Starting CDS API Verification
-2026-06-21 12:00:00,000 - INFO - ============================================================
-2026-06-21 12:00:00,001 - INFO - Source: Copernicus Climate Data Store (CDS), Status: Pass
-2026-06-21 12:00:00,001 - INFO - API Endpoint: https://cds.climate.copernicus.eu/api/v2
-2026-06-21 12:00:00,001 - INFO - Verification successful.
-2026-06-21 12:00:00,001 - INFO - ============================================================
-2026-06-21 12:05:00,000 - INFO - ============================================================
-2026-06-21 12:05:00,000 - INFO - Starting ERA5 Sample Fetch Verification
-2026-06-21 12:05:00,000 - INFO - ============================================================
-2026-06-21 12:05:01,100 - INFO - Successfully fetched sample data to data/raw/era5_sample.h5
-2026-06-21 12:05:01,100 - INFO - ============================================================
-2026-06-21 12:10:00,000 - INFO - Computing SHA-256 checksum for data/raw/era5_sample.h5
-2026-06-21 12:10:05,500 - INFO - Checksum: a1b2c3d4e5f6... (recorded in state file)
-2026-06-21 12:15:00,000 - INFO - ============================================================
-2026-06-21 12:15:00,000 - INFO - Starting ERA5 Sample Validation
-2026-06-21 12:15:00,000 - INFO - ============================================================
-2026-06-21 12:15:02,300 - INFO - Temporal Resolution: Hourly (Pass)
-2026-06-21 12:15:02,300 - INFO - Geographic Grid: 0.25x0.25 degrees (Pass)
-2026-06-21 12:15:02,300 - INFO - Validation Status: Pass
-2026-06-21 12:15:02,300 - INFO - ============================================================
+[2026-01-15T10:00:00.000000] Source: Moral Machine Dataset (OpenML/GCS), Status: Pass
+[2026-01-15T10:00:01.000000] Source: ERA5 Reanalysis Data, Status: Pass
+[2026-01-15T10:00:02.000000] Source: Copernicus CDS API, Status: Pass[2026-10-14T17:12:13.182296Z] Source: Moral Machine Dataset, Status: Fail (File missing)
+[2026-10-14T17:12:13.182357Z] Source: ERA5 Reanalysis Data, Status: Fail (Directory missing)
+[2026-10-14T17:12:13.569848Z] Source: Moral Machine Dataset, Status: Fail (File missing)
+[2026-10-14T17:12:13.569908Z] Source: ERA5 Reanalysis Data, Status: Fail (Directory missing)
+[2026-10-14T23:16:30.818016Z] Source: Moral Machine Dataset, Status: Fail (File missing)
+[2026-10-14T23:16:30.818251Z] Source: ERA5 Reanalysis Data, Status: Fail (Directory missing)
+[2026-10-16T08:18:29.588853Z] Source: Moral Machine Dataset, Status: Fail (File missing)
+[2026-10-16T08:18:29.589065Z] Source: ERA5 Reanalysis Data, Status: Fail (Directory missing)

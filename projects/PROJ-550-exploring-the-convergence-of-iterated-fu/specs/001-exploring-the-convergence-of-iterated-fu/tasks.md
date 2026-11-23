@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure: `mkdir -p projects/PROJ-550-exploring-the-convergence-of-iterated-fu/{code,data/raw,data/derived,tests/unit,tests/contract,docs}`
-- [ ] T002 Initialize Python project: Create `requirements.txt` with pinned versions (`numpy==1.26.4`, `scipy==1.12.0`, `scikit-learn==1.4.0`, `pandas==2.1.4`, `pytest==7.4.3`, `matplotlib==3.8.2`, `pyarrow==14.0.1`) and run `pip install -r requirements.txt` then `pip freeze > requirements.txt`
+- [X] T002 Initialize Python project: Create `requirements.txt` with pinned versions (`numpy==1.26.4`, `scipy==1.12.0`, `scikit-learn==1.4.0`, `pandas==2.1.4`, `pytest==7.4.3`, `matplotlib==3.8.2`, `pyarrow==14.0.1`) and run `pip install -r requirements.txt` then `pip freeze > requirements.txt`
 - [ ] T003 [P] Configure linting (flake8/ruff) and formatting (black) tools: Add `.ruff.toml` and `.pre-commit-config.yaml`
 
 ---
@@ -72,18 +72,18 @@
 
 **Goal**: Generate diverse synthetic IFS with controlled Lipschitz constants (0.5 to 2.0 in 0.1 increments) and validate numerical properties.
 
-**Independent Test**: Generate 50 instances, compute Lipschitz on 1000-point grid, verify computed values are within ±0.05 of targets. [UNRESOLVED-CLAIM: c_68e4a657 — status=not_enough_info]
+**Independent Test**: Generate 50 instances, compute Lipschitz on 1000-point grid, verify computed values are within ±0.05 of targets.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T012 [P] [US1] Unit test `test_lipschitz_accuracy` in `tests/unit/test_generators.py`: Generate 50 instances with seed 42, compute Lipschitz on 1000-point grid, verify MAE ≤ 0.05 against targets. [UNRESOLVED-CLAIM: c_e531b428 — status=not_enough_info]
+- [ ] T012 [P] [US1] Unit test `test_lipschitz_accuracy` in `tests/unit/test_generators.py`: Generate 50 instances with seed 42, compute Lipschitz on 1000-point grid, verify MAE ≤ 0.05 against targets.
 - [ ] T013 [P] [US1] Unit test `test_benchmark_reconstruction` in `tests/unit/test_benchmarks.py`: Load benchmarks, verify Sierpinski/Barnsley parameters match literature values.
 
 ### Implementation for User Story 1
 
-- [ ] T014 [US1] Implement synthetic IFS generator in `code/generators.py`: Create 2-4 affine maps with **Lipschitz targets in fine increments from 0.5 to 2.0 [UNRESOLVED-CLAIM: c_9e7570e8 — status=not_enough_info] ** (discrete set, not continuous random).
+- [ ] T014 [US1] Implement synthetic IFS generator in `code/generators.py`: Create 2-4 affine maps with **Lipschitz targets in fine increments from 0.5 to 2.0 ** (discrete set, not continuous random).
 - [ ] T015 [US1] Implement numerical Lipschitz estimator in `code/generators.py`: Gradient estimation on a fine-point grid for contractive, a denser grid for non-contractive. (as per config).
 - [ ] T016 [US1] Implement validation logic in `code/generators.py`: Flag outliers (>±0.05 error) and trigger re-generation.
 - [ ] T017 [US1] Implement benchmark loader in `code/benchmarks.py`: Hardcode Sierpinski Triangle, Barnsley Fern, and da Cunha expanding map parameters per **da Cunha et al. (2021)** (Affine matrix: `[[scale_factor, 0.0], [0.0, scale_factor]]`, Translation: `[0.0, 0.0]`, Probability: `1.0`).
@@ -128,7 +128,7 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T029 [P] [US3] Unit test `test_box_counting_accuracy` in `tests/unit/test_topology.py`: Verify dimension estimates on Sierpinski (target theoretical fractal dimension) [UNRESOLVED-CLAIM: c_ec6733af — status=not_enough_info].
+- [ ] T029 [P] [US3] Unit test `test_box_counting_accuracy` in `tests/unit/test_topology.py`: Verify dimension estimates on Sierpinski (target theoretical fractal dimension).
 - [ ] T030 [P] [US3] Unit test `test_logistic_regression` in `tests/unit/test_analysis.py`: Verify AUC > random chance on synthetic labels.
 
 ### Implementation for User Story 3
@@ -155,13 +155,13 @@
 ### Implementation for Reviewer Concerns
 
 - [ ] T038 [US2] **REMOVED**: Task T038 (Chaotic Boundedness classification) has been removed to strictly adhere to FR-004 binary classification. Bounded non-convergent cases are handled in T024/T028 as "Divergent" or "Uniform Filling" (logged) without creating a new state label.
-- [ ] T039 [P] [US3] Implement `code/visualizer.py`: Generate side-by-side orbit plots for contractive vs. non-contractive IFS with same seed [UNRESOLVED-CLAIM: c_ccc87bb0 — status=not_enough_info].
+- [ ] T039 [P] [US3] Implement `code/visualizer.py`: Generate side-by-side orbit plots for contractive vs. non-contractive IFS with same seed.
 - [ ] T040 [P] [US3] Implement `code/visualizer.py`: Generate density heatmaps distinguishing "Uniform Filling" from "Fractal Attractor".
 - [ ] T041 [US3] Add "Transient Dimension" calculation in `code/topology.py`: Quantify rate of escape or mixing for non-contractive cases.
 - [ ] T042 [US3] Create script `code/run_visualization.py`: Generate `data/derived/visualizations/` (PDF/PNG) for key threshold cases (L=0.8, 1.0, 1.2).
 - [ ] T043 [US3] **Address Rockmore**: Implement `code/complex_dynamics_bridge.py`: Compute and compare Mandelbrot-like boundary metrics for selected IFS maps to visualize the "boundary between interior and exterior" analogous to complex dynamics. **Depends on T026**.
 - [ ] T044a [US3] **Address Wolfram (Metric)**: Define "complexity metric" for orbit traces (e.g., entropy, Lyapunov exponent approximation) in `code/ruliad_explorer.py`.
-- [ ] T044b [US3] **Address Wolfram (Sweep)**: Run a large-scale parameter sweep of non-contractive maps using the metric from Ta. [UNRESOLVED-CLAIM: c_7e780a0a — status=not_enough_info] using the metric from Ta.
+- [ ] T044b [US3] **Address Wolfram (Sweep)**: Run a large-scale parameter sweep of non-contractive maps using the metric from Ta. using the metric from Ta.
 - [ ] T044c [US3] **Address Wolfram (Selection)**: Select top 100 most "complex" cases (high entropy, bounded) and save raw orbit traces to `data/derived/ruliad_samples/`.
 - [ ] T044d [US3] **Address Wolfram (Taxonomy)**: Generate a "behavioral taxonomy" plot based on visual inspection of the traces from T044c. **Scope Justification**: These tasks address explicit reviewer feedback (Wolfram) regarding empirical visualization and are not silent scope expansion.
 

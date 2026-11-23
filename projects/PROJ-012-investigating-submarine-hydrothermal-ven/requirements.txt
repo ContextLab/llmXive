@@ -1,0 +1,13 @@
+pandas
+scikit-learn
+statsmodels
+biopython
+scipy
+matplotlib
+seaborn
+skbio
+pytest
+ruff
+black
+isort
+pyyaml

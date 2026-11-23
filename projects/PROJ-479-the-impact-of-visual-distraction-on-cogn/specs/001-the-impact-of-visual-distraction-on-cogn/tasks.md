@@ -1,282 +1,126 @@
-# Tasks: The Impact of Visual Distraction on Cognitive Control in Remote Work Environments
+---
+description: "Task list for feature 001‑visual‑distraction‑cognitive‑control"
+---
 
-**Input**: Design documents from `/specs/001-visual-distraction-cognitive-control/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+# Tasks: The Impact of Visual Distraction on Cognitive Control in Remote Work Environments  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Inputs**: `spec.md`, `plan.md`, existing artifacts in `code/`, `data/`, `results/`, `specs/…/contracts/`  
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001a [P] Create `code/` directory at repository root
-- [ ] T001b [P] Create `data/` directory at repository root
-- [ ] T001c [P] Create `results/` directory at repository root
-- [ ] T001d [P] Create `tests/` directory at repository root
-- [ ] T001e [P] Create `specs/001-visual-distraction-cognitive-control/` directory structure
+**Verification**: Every task lists a concrete verification step (unit‑/contract‑test, file‑existence check, schema validation, or runtime‑output check).
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T002 Create `code/requirements.txt` with pinned dependencies (pandas, numpy, scikit-learn, scipy, opencv-python-headless, ultralytics, matplotlib, seaborn, Pillow, pytest)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
-- [ ] T004 Setup data directory structure (`data/raw`, `data/processed`) and results directory (`results/statistics`, `results/plots`, `results/sensitivity`, `results/methodology`)
-- [X] T005 [P] Implement logging infrastructure in `code/utils.py` (handlers, formatters)
-- [X] T006 [P] Implement checksumming logic (sha256) in `code/utils.py`
-- [X] T007 [P] Implement global random seed management (pinned seeds) in `code/utils.py`
-- [X] T008 [P] Implement error handler in `code/utils.py` to log specific errors: 'unmatched_participant_ids' and 'image_processing_failures' with structured JSON messages as per Edge Cases in spec.md
-- [X] T009 [P] Implement contract test in `tests/contract/test_error_logging.py` to verify that `code/utils.py` logs the specific keys 'unmatched_participant_ids' and 'image_processing_failures` when triggered
-- [ ] T010 [P] Create dataset schema definition in `specs/001-visual-distraction-cognitive-control/contracts/dataset.schema.yaml`
-- [ ] T011 [P] Create analysis output schema definition in `specs/001-visual-distraction-cognitive-control/contracts/analysis_output.schema.yaml`
-- [ ] T012 [P] Implement contract tests in `tests/contract/` to validate JSON/CSV outputs against schemas
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Acquisition and Preprocessing (Priority: P1) 🎯 MVP
-
-**Goal**: Acquire or generate synthetic participant-level data linking cognitive metrics and workspace images, ensuring N ≥ 100 and ≤5% missing values.
-
-**Independent Test**: Verify that `data/processed/merged_data.csv` exists with ≥100 rows, non-null `reaction_time`, `accuracy`, and `visual_complexity` columns.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T013 [P] [US1] Contract test for merged dataset schema in `tests/contract/test_dataset_schema.py`
-- [ ] T014 [P] [US1] Unit test for synthetic data generator ensuring correlation structure (negative correlation) in `tests/unit/test_synthetic_data.py`
-
-### Implementation for User Story 1
-
-- [X] T015 [US1] Implement `code/01_data_acquisition.py` to: (1) Attempt download of Stroop/Flanker data from HuggingFace/OpenML; (2) If a linked dataset with participant-level image paths is found, use it; (3) If NO linked dataset exists (verified by check) OR download fails, **automatically transition to synthetic data generation** simulating the correlation structure. **CRITICAL: Do NOT raise an exception on download failure or missing linked dataset. The synthetic generation path is a valid primary execution path as mandated by FR-001.**
-- [ ] T016 [US1] Implement synthetic image generation logic in `code/01_data_acquisition.py` using `Pillow` compositing to create diverse workspace images (lighting, room type) for each participant ID. **Ensure images are saved to `data/raw/` with deterministic naming. CRITICAL: Also generate and save a `data/raw/metadata.json` file containing `lighting_condition`, `room_type`, and `demographic_group` for every generated image to satisfy Constitution Principle VII.**
-- [X] T017 [US1] Implement participant-level data merging logic in `code/01_data_acquisition.py` to join cognitive metrics with image paths, excluding unmatched records and logging counts.
-- [X] T018 [US1] Add data validation step in `code/01_data_acquisition.py` to ensure ≤5% missing values and raise error if N < 100.
-- [X] T020 [US1] Save processed merged dataset to `data/processed/merged_data.csv` and raw artifacts to `data/raw/`.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Visual Complexity Metric Extraction (Priority: P1)
-
-**Goal**: Compute edge density, color entropy, and object count for all workspace images using CPU-tractable methods.
-
-**Independent Test**: Verify that `results/statistics/visual_metrics.json` contains non-zero standard deviation for all three metrics across the sample.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T021 [P] [US2] Unit test for edge density calculation (normalized [0,1]) in `tests/unit/test_edge_density.py`
-- [ ] T022 [P] [US2] Unit test for color entropy calculation in `tests/unit/test_color_entropy.py`
-- [ ] T023 [P] [US2] Unit test for object count handling (NaN assignment on failure) in `tests/unit/test_object_count.py`
-
-### Implementation for User Story 2
-
-- [X] T024 [P] [US2] Implement edge density calculation in `code/02_visual_metrics.py` using OpenCV Canny/Sobel edge detection, outputting normalized values.
-- [X] T025 [P] [US2] Implement color entropy calculation in `code/02_visual_metrics.py` using histogram-based color distribution analysis.
-- [X] T026 [US2] Implement object count calculation in `code/02_visual_metrics.py` using `ultralytics` YOLOv5n/tiny (CPU mode). **CRITICAL: Implement a hard timeout and memory check. If the model exceeds these limits for an image, assign a 'count proxy' value derived from edge density ratio (to ensure pipeline completion within 6h) rather than failing or simulating random counts. Do not simulate object counts; use the real model where possible, fallback to proxy on timeout.**
-- [ ] T027 [US2] Create `code/02_visual_metrics.py` main execution block to process all images in `data/raw/`, compute metrics, and save to `data/processed/visual_metrics_intermediate.csv` (intermediate file). **Depends on T020 completion.**
-- [ ] T028 [US2] Implement merge logic in `code/02_visual_metrics.py` to join `visual_metrics_intermediate.csv` with `data/processed/merged_data.csv` (from US1) into `data/processed/final_analysis_data.csv`, ensuring US2 waits for US1 completion. **Depends on T020 completion.**
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Analysis and Reporting (Priority: P2)
-
-**Goal**: Perform Pearson correlation, linear regression, and generate visualizations with strict associational framing.
-
-**Independent Test**: Verify `results/statistics/statistics.json` contains r-values, p-values, and adjusted p-values (Holm-Bonferroni) for all metric pairs.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T029 [P] [US3] Contract test for statistics output schema in `tests/contract/test_analysis_schema.py`
-- [ ] T030 [P] [US3] Unit test for Holm-Bonferroni correction logic in `tests/unit/test_multiplicity_correction.py`
-
-### Implementation for User Story 3
-
-- [ ] T031 [US3] Implement Pearson correlation and linear regression in `code/03_analysis.py` for each predictor-outcome pair (A series of tests will be conducted.).
-- [ ] T032 [US3] Implement Variance Inflation Factor (VIF) calculation in the analysis script to diagnose collinearity among the three visual complexity metrics.
-- [ ] T033 [US3] Implement PCA generation in `code/03_analysis.py` to create `pca_component_1` if VIF ≥ 5 for any predictor, storing results in `data/processed/pca_results.json`.
-- [ ] T034 [US3] Implement conditional regression logic in `code/03_analysis.py` to read VIF status and **switch** the regression predictor to `pca_component_1` if VIF ≥ 5, otherwise use raw metrics (satisfies FR-012).
-- [ ] T035 [US3] Implement Holm-Bonferroni family-wise error correction in `code/03_analysis.py`.
-- [ ] T036 [US3] Generate `results/statistics/multiplicity_table.csv` with columns: `test_name`, `raw_p`, `adjusted_p`, `metric_pair`. **CRITICAL: Ensure this table is merged into the final `results/statistics/statistics.json` and explicitly referenced in the final report generation step to satisfy SC-005.**
-- [ ] T037 [US3] Implement logic in `code/03_analysis.py` to frame all findings as associational (no causal claims) in output documentation. **CRITICAL: Include citations for OpenCV edge detection and color entropy formulas directly in the final `results/statistics/statistics.json` and `results/report.md` (not a separate file) to satisfy SC-002 and SC-006.**
-- [ ] T038 [US3] Implement scatter plot generation in `code/04_visualization.py` with trend lines for significant correlations (p<0.05) and save to `results/plots/`.
-- [ ] T039 [US3] Save final statistics to `results/statistics/statistics.json` ensuring all required fields (r, p, beta, CI, adjusted_p) are present.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: User Story 4 - Sensitivity Analysis and Robustness Checks (Priority: P3)
-
-**Goal**: Conduct bootstrap resampling and alternative binning strategies to validate robustness.
-
-**Independent Test**: Verify `results/sensitivity/bootstrap_results.json` shows directional consistency and `results/sensitivity/binning_results.csv` shows magnitude stability (<0.1 change).
-
-### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T040 [P] [US4] Unit test for bootstrap resampling logic (≥1000 iterations) in `tests/unit/test_bootstrap.py`
-
-### Implementation for User Story 4
-
-- [ ] T041 [US4] Implement bootstrap resampling (≥1000 iterations) in `code/03_analysis.py` to compute % confidence intervals for correlation coefficients.
-- [ ] T042 [US4] Implement alternative binning strategies (quartiles, deciles) in `code/03_analysis.py` to re-calculate correlations.
-- [ ] T043 [US4] Generate `results/sensitivity/binning_results.csv` with columns: `binning_strategy`, `predictor`, `outcome`, `pearson_r`, `p_value` (satisfies FR-010).
-- [ ] T044 [US4] Save bootstrap confidence intervals to `results/sensitivity/bootstrap_results.json`.
-- [ ] T045 [US4] Add final report generation step that summarizes sensitivity analysis findings, confirms robustness, and **includes the citations and associational framing** (moved from T019) in the final `results/report.md` document.
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T046 [P] Documentation updates: Ensure `quickstart.md` explains the synthetic data fallback and associational framing.
-- [ ] T047 Code cleanup and refactoring to ensure PEP8 compliance.
-- [ ] T048 Performance optimization: Verify total runtime ≤ 6 hours on 2 CPU cores (profile `01_data_acquisition.py` and `02_visual_metrics.py`).
-- [ ] T049 [P] Additional unit tests for edge cases (image failure, zero variance) in `tests/unit/`.
-- [ ] T050 [P] Run `quickstart.md` validation to ensure end-to-end pipeline execution.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P1)**: Can start after Foundational (Phase 2) - Requires US1 data output (T020)
-- **User Story 3 (P2)**: Can start after Foundational (Phase 2) - Requires US1 & US2 data output (T028)
-- **User Story 4 (P3)**: Can start after Foundational (Phase 2) - Requires US3 analysis results
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for merged dataset schema in tests/contract/test_dataset_schema.py"
-Task: "Unit test for synthetic data generator in tests/unit/test_synthetic_data.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement 01_data_acquisition.py download/fallback logic"
-Task: "Implement 01_data_acquisition.py synthetic image generation"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must run on CPU-only CI (2 cores, limited RAM). No GPU models, no 8-bit quantization, no large LLMs.
-- **Critical Constraint**: Synthetic data must use real distributions exhibiting a negative correlation, and real image generation logic (Pillow), not hardcoded placeholders.
-- **Critical Constraint**: VIF/PCA logic MUST occur in the Analysis phase (T032-T034), not Metric Extraction, to satisfy FR-012.
-- **Critical Constraint**: Summary table of p-values (T036) and binning results (T043) must be generated as explicit CSV artifacts with specified columns and merged into the final statistics output.
-- **Critical Constraint**: Data acquisition (T015) MUST transition to synthetic generation if no linked public dataset exists; it must NOT raise an exception.
-- **Critical Constraint**: Object counting (T026) must use the real model but include a timeout/proxy fallback to ensure runtime constraints are met.
-- **Critical Constraint**: Metadata (lighting, room type) MUST be generated alongside synthetic images (T016) to satisfy Constitution Principle VII.
-- **Critical Constraint**: Citations and associational framing must be included in the final report and statistics output (T037, T045), not in a separate intermediate file.
+- [ ] T001 **Create project skeleton & core utilities** –  
+  • Initialise directory tree `code/`, `data/raw/`, `data/processed/`, `results/`, `tests/`, `specs/001-visual-distraction-cognitive-control/`.  
+  • Write `code/requirements.txt` with pinned versions of `numpy`, `pandas`, `scikit-learn`, `scipy`, `opencv-python-headless`, `ultralytics>=8.0.0`, `matplotlib`, `seaborn`, `pillow`, `pytest`, `statsmodels`, `requests`, `openml`.  
+  • Add linting script `code/lint.sh` (ruff + black) and utility module `code/utils.py` containing (`get_logger`, `compute_checksum`, `set_global_seed`, `sanitize_images`, `log_error`).  
+  • **Verification**: `tree .` shows the expected directories; `pip install -r code/requirements.txt` succeeds; `./code/lint.sh` exits with status 0; unit tests in `tests/unit/test_utils.py` pass.
+
+- [ ] T001a **Scaffold data‑acquisition script** –  
+  • Create file `code/01_data_acquisition.py` with stub functions: `download_cognitive_data()`, `download_workspace_images()`, `perform_proxy_linkage()`, `generate_synthetic_dataset()`.  
+  • Include docstrings and `if __name__ == "__main__":` placeholder.  
+  • **Verification**: `pytest tests/unit/test_01_data_acquisition_stub.py` confirms the module imports and all four functions exist.
+
+- [ ] T002 [US1] **Download and validate raw datasets** –  
+  • Implement `code/01_data_acquisition.py::download_cognitive_data()` to fetch a Stroop (or Flanker) dataset from OpenML (e.g., ID 4444) and save as `data/raw/cognitive_data.csv`.  
+  • Implement `code/01_data_acquisition.py::download_workspace_images()` to query the Unsplash API for **N = 150** “home office” images, store originals in `data/raw/workspace_images/`, and save the API response as `data/raw/unsplash_query_log.json`.  
+  • Verify that `cognitive_data.csv` contains ≥ 100 rows with ≤ 5 % missing values for `reaction_time` and `accuracy`; that exactly 150 image files (> 10 KB each) exist; and that `unsplash_query_log.json` records successful HTTP 200 responses.  
+  • **Verification**: Integration test `tests/integration/test_raw_download.py` asserts row counts, missing‑value thresholds, and image‑file existence.
+
+- [ ] T001b **Scaffold visual‑metrics script** –  
+  • Create file `code/02_visual_metrics.py` with stub functions: `compute_edge_density(img_path)`, `compute_color_entropy(img_path)`, `compute_object_count(img_path)`.  
+  • Include imports for OpenCV and a placeholder for YOLOv5‑tiny model loading (CPU‑only).  
+  • **Verification**: Unit test `tests/unit/test_02_visual_metrics_stub.py` confirms the module imports and that all three functions are defined.
+
+- [ ] T003 [US1] **Sanitise images & extract metadata** –  
+  • Use `code/utils.py::sanitize_images(src_dir, dst_dir)` to strip EXIF data, rename each image to `img_<sha256>.jpg`, and place them in `data/processed/sanitized_images/`.  
+  • Write accompanying metadata (original Unsplash ID, `environment_tag`, `lighting_condition`) to `data/processed/image_metadata.json`.  
+  • **Verification**: `tests/unit/test_sanitise.py` checks that every file in `sanitized_images/` is > 10 KB, has a SHA‑256‑based name, and that the JSON metadata contains 150 entries matching the original query.
+
+- [ ] T001c **Scaffold analysis script** –  
+  • Create file `code/03_analysis.py` with stub functions: `compute_vif(df)`, `run_pca(df)`, `pearson_correlations(df)`, `ols_regressions(df)`, `apply_holm_correction(pvals)`, `power_analysis_a_priori()`, `power_analysis_post_hoc()`.  
+  • Include imports for `statsmodels`, `scipy`, `sklearn.decomposition`, and placeholder bodies raising `NotImplementedError`.  
+  • **Verification**: Unit test `tests/unit/test_03_analysis_stub.py` confirms the module imports and that all listed functions exist.
+
+- [ ] T004 [US1] **Proxy linkage & synthetic fallback** –  
+  • Implement `code/01_data_acquisition.py::perform_proxy_linkage()` that joins participants and images on the shared `environment_tag` field, using a pinned random seed, and writes `data/processed/merged_data.csv`.  
+  • If the merged file contains < 100 rows, call `code/01_data_acquisition.py::generate_synthetic_dataset()` (Cholesky‑based) to produce a synthetic `merged_data.csv` with N ≥ 100 and a modest negative correlation (r ≈ ‑0.3) between `visual_complexity` and `reaction_time`.  
+  • Create marker file `data/processed/.ready` once the merged dataset meets the ≥ 100‑row requirement.  
+  • **Verification**: `tests/integration/test_proxy_linkage.py` asserts (a) row count ≥ 100, (b) no duplicate `participant_id`, (c) existence of `.ready`.
+
+- [ ] T001d **Scaffold sensitivity script** –  
+  • Create file `code/04_sensitivity.py` with stub functions: `run_bootstrap(df, n_iter=1000)`, `run_binning_sensitivity(df, strategies=["quartiles","deciles"])`.  
+  • Include imports for `numpy`, `pandas`, and `scipy.stats`.  
+  • **Verification**: Unit test `tests/unit/test_04_sensitivity_stub.py` confirms module imports and function definitions.
+
+- [ ] T005 [US2] **Compute visual‑complexity metrics** –  
+  • Implement functions in `code/02_visual_metrics.py`:  
+    * `compute_edge_density(img_path)` → OpenCV Canny, normalized to [0, 1].  
+    * `compute_color_entropy(img_path)` → 256‑bin RGB histogram, Shannon entropy.  
+    * `compute_object_count(img_path)` → YOLOv5‑tiny (CPU) detection; returns integer count or `np.nan` on failure.  
+  • Batch‑process all images in `data/processed/sanitized_images/`, output `data/processed/visual_metrics.csv` with columns `image_id`, `edge_density`, `color_entropy`, `object_count`.  
+  • **Verification**: Automated unit tests `tests/unit/test_edge_density.py`, `tests/unit/test_color_entropy.py`, `tests/unit/test_object_count.py` validate known‑output cases; additional test `tests/unit/test_visual_metrics_verification.py` programmatically asserts the CSV row count matches the number of sanitized images and that the `object_count` column contains at least one `NaN`.
+
+- [ ] T006 [US1 & US2] **Merge metrics with participant data** –  
+  • Join `visual_metrics.csv` with `merged_data.csv` on `image_id` → produce two files:  
+    * `data/processed/final_analysis_data_all.csv` (keeps NaNs for object count).  
+    * `data/processed/final_analysis_data_object_only.csv` (drops rows where `object_count` is NaN).  
+  • Validate against `specs/001-visual-distraction-cognitive-control/contracts/dataset.schema.yaml` using `jsonschema`.  
+  • Ensure ≤ 5 % missing per column and that variance of each visual metric > 0.  
+  • **Verification**: Contract test `tests/contract/test_dataset_schema.py` passes; a small script prints “VALIDATION PASS” when run.
+
+- [ ] T001e **Scaffold reporting script** –  
+  • Create file `code/05_reporting.py` with stub functions: `generate_scatter_plots(df)`, `write_alpha_justification()`, `write_methods_citations()`, `assemble_report()`.  
+  • Include imports for `matplotlib`, `seaborn`, and a placeholder for causal‑language filter.  
+  • **Verification**: Unit test `tests/unit/test_05_reporting_stub.py` confirms module imports and function definitions.
+
+- [ ] T007 [US3] **Statistical analysis & Holm‑Bonferroni correction** –  
+  • In `code/03_analysis.py`:  
+    1. Compute VIF for `edge_density`, `color_entropy`, `object_count` (excluding NaNs) → `results/statistics/vif_report.json`.  
+    2. If any VIF ≥ 5, run PCA on the three metrics, retain the first component (`pc1`), store `results/statistics/pca_report.json` (variance explained).  
+    3. Perform Pearson correlations for each predictor‑outcome pair (raw or `pc1` when PCA applied) → `results/statistics/correlation_results.json`.  
+    4. Fit OLS regressions for each pair → `results/statistics/regression_results.json`.  
+    5. Apply family‑wise error correction using `scipy.stats.multitest.multipletests(method='holm')` on all raw p‑values, write Holm‑adjusted p‑values back into the correlation JSON and create `results/statistics/multiplicity_table.csv` (columns: `test_name`, `raw_p`, `adjusted_p`, `metric_pair`).  
+    6. Consolidate all outputs into a single `results/statistics/statistics.json` that conforms to `specs/001-visual-distraction-cognitive-control/contracts/statistics_output.schema.yaml`.  
+  • **Verification**: (a) `jsonschema` validation of `statistics.json`; (b) `multiplicity_table.csv` contains exactly 6 rows (3 metrics × 2 outcomes) with corrected p‑values ≤ 1; (c) unit test `tests/unit/test_holm_correction.py` checks that the Holm‑adjusted vector matches SciPy’s output for a known p‑value list.
+
+- [ ] T008 [US4] **Sensitivity & robustness checks** –  
+  • Implement bootstrap resampling (≥ 1000 iterations) for each correlation pair in `code/04_sensitivity.py::run_bootstrap()`, store mean r and 95 % CI in `results/sensitivity/bootstrap_results.json`.  
+  • Implement alternative binning strategies (`quartiles`, `deciles`) in `code/04_sensitivity.py::run_binning_sensitivity()`, output `results/statistics/binning_sensitivity_table.csv` (columns: `binning_strategy`, `predictor`, `outcome`, `pearson_r`, `p_value`).  
+  • Validate both outputs against the schemas defined in `specs/.../contracts/` via `tests/contract/test_sensitivity_schema.py`.  
+  • **Verification**: Automated unit test `tests/unit/test_sensitivity_verification.py` loads `bootstrap_results.json` and `binning_sensitivity_table.csv` and asserts CI width < 0.2 for all pairs and Δr < 0.1 across binning strategies; contract tests pass with zero failures.
+
+- [ ] T009 [US3] **Power analysis (a‑priori & post‑hoc)** –  
+  • In `code/03_analysis.py`:  
+    * `power_analysis_a_priori()` uses `statsmodels.stats.power.FTestPower` with effect size r = 0.3, α = 0.05 to compute required sample size N; writes markdown `results/statistics/power_analysis_a_priori.md` containing N, achieved power, and justification.  
+    * `power_analysis_post_hoc()` computes achieved power from the observed r‑values; writes `results/statistics/power_analysis_post_hoc.md`.  
+  • **Verification**: Both markdown files exist, each contains a numeric N ≥ 100 (or a clear explanation if not) and a power ≥ 0.8 (or rationale). Unit test `tests/unit/test_power_analysis.py` parses the files and asserts the numeric conditions.
+
+- [ ] T010 [US3] **Generate visualisations & final report** –  
+  • `code/05_reporting.py::generate_scatter_plots()` creates PNGs for every predictor‑outcome pair whose Holm‑adjusted p < 0.05, saved as `results/figures/scatter_{predictor}_{outcome}.png`.  
+  • `code/05_reporting.py::write_alpha_justification()` reads `data/citations.yaml` and produces `results/statistics/alpha_threshold_justification.md` (≥ 150 words, ASA citation).  
+  • `code/05_reporting.py::write_methods_citations()` creates `results/statistics/methods_citations.md` with citations for OpenCV edge detection, color entropy, and YOLOv5‑tiny.  
+  • `code/05_reporting.py::assemble_report()` compiles Methods, Results, Sensitivity, Power, Alpha justification, and Methods citations into `results/report.md`; runs a regex filter to prohibit causal language (“cause”, “effect”, “impact”). Embeds a JSON block `{"seed": <value>}` at the end of the Methods section.  
+  • **Verification**: (a) At least one PNG exists in `results/figures/`; (b) `alpha_threshold_justification.md` contains ≥ 150 words and the ASA reference; (c) `methods_citations.md` lists all three primary sources; (d) `report.md` passes a regex scan for prohibited causal terms; (e) `statistics.json` is referenced from the report and matches the schema.
+
+- [ ] T011 **Quick‑start guide & end‑to‑end validation** –  
+  • Write `specs/001-visual-distraction-cognitive-control/quickstart.md` with a reproducible command sequence (e.g., `python -m code.run_pipeline --seed 42`) and explanation of data‑source selection (real vs synthetic).  
+  • Add script `run_all.sh` that sets the seed, invokes the full pipeline (`python -m code.run_pipeline --seed 42`), and exits with status 0 only if `results/report.md` exists and contains at least one scatter‑plot reference.  
+  • **Verification**: Running `./run_all.sh` on the CI runner completes in ≤ 6 hours, exits 0, and `grep -c "scatter_" results/report.md` returns ≥ 1.
+
+- [ ] T012 **Comprehensive contract & schema tests** –  
+  • Populate `tests/contract/` with:  
+    * `test_dataset_schema.py` (validates `final_analysis_data_all.csv`).  
+    * `test_analysis_schema.py` (validates `statistics.json`).  
+    * `test_sensitivity_schema.py` (validates bootstrap JSON and binning CSV).  
+  • Ensure the CI pipeline runs `pytest -q` and all contract tests pass.  
+  • **Verification**: CI log shows “6 passed, 0 failed” for the contract test suite.
+
+- [ ] T013 **Measure total pipeline runtime (SC‑008)** –  
+  • Add script `code/measure_runtime.py` that records wall‑clock time before and after invoking the full pipeline (`python -m code.run_pipeline`).  
+  • Write the elapsed time to `results/statistics/runtime_report.md` and assert it is ≤ 6 hours; the script exits with non‑zero status otherwise.  
+  • **Verification**: Unit test `tests/unit/test_runtime_measurement.py` runs the script on a short dummy pipeline and checks that the generated markdown contains a numeric hour value ≤ 6.
+
+- [ ] T014 **Document proxy‑linkage scope extension** –  
+  • Create `docs/proxy_linkage_extension.md` that explains the necessity of using `environment_tag` as a proxy linkage mechanism, notes that this extension is not present in the original specification, and records the design decision and its impact on reproducibility.  
+  • **Verification**: File existence check and a sanity‑check test `tests/unit/test_proxy_linkage_doc.py` that confirms the document contains the phrase “proxy linkage”.

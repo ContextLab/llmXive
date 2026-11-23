@@ -1,0 +1,152 @@
+{
+  "validation_status": "PASS",
+  "sections_validated": [
+    "prerequisites",
+    "commands",
+    "expected_outputs",
+    "data_sources"
+  ],
+  "issues": [],
+  "summary": {
+    "total_checks": 8,
+    "passed_checks": 8,
+    "failed_checks": 0,
+    "validation_status": "PASS"
+  },
+  "path_validation": [
+    {
+      "path": "data/processed/weighted_adjacency.npy",
+      "exists": true,
+      "status": "PASS"
+    },
+    {
+      "path": "data/processed/canonical_binary_adj.npy",
+      "exists": true,
+      "status": "PASS"
+    },
+    {
+      "path": "data/processed/rsfc.npy",
+      "exists": true,
+      "status": "PASS"
+    },
+    {
+      "path": "results/correlation_results.json",
+      "exists": true,
+      "status": "PASS"
+    },
+    {
+      "path": "results/permutation_results.json",
+      "exists": true,
+      "status": "PASS"
+    },
+    {
+      "path": "results/power_analysis.json",
+      "exists": true,
+      "status": "PASS"
+    },
+    {
+      "path": "results/report.pdf",
+      "exists": true,
+      "status": "PASS"
+    }
+  ],
+  "command_validation": [
+    {
+      "command": "python code/download.py",
+      "status": "PASS"
+    },
+    {
+      "command": "python code/preprocess.py",
+      "status": "PASS"
+    },
+    {
+      "command": "python code/motifs.py",
+      "status": "PASS"
+    },
+    {
+      "command": "python code/stats.py",
+      "status": "PASS"
+    },
+    {
+      "command": "python code/report.py",
+      "status": "PASS"
+    }
+  ],
+  "prerequisite_validation": [
+    {
+      "package": "numpy",
+      "status": "CHECKED",
+      "note": "Dependency listed: numpy"
+    },
+    {
+      "package": "scipy",
+      "status": "CHECKED",
+      "note": "Dependency listed: scipy"
+    },
+    {
+      "package": "pandas",
+      "status": "CHECKED",
+      "note": "Dependency listed: pandas"
+    },
+    {
+      "package": "networkx",
+      "status": "CHECKED",
+      "note": "Dependency listed: networkx"
+    },
+    {
+      "package": "matplotlib",
+      "status": "CHECKED",
+      "note": "Dependency listed: matplotlib"
+    },
+    {
+      "package": "seaborn",
+      "status": "CHECKED",
+      "note": "Dependency listed: seaborn"
+    },
+    {
+      "package": "nibabel",
+      "status": "CHECKED",
+      "note": "Dependency listed: nibabel"
+    },
+    {
+      "package": "requests",
+      "status": "CHECKED",
+      "note": "Dependency listed: requests"
+    },
+    {
+      "package": "reportlab",
+      "status": "CHECKED",
+      "note": "Dependency listed: reportlab"
+    },
+    {
+      "package": "tqdm",
+      "status": "CHECKED",
+      "note": "Dependency listed: tqdm"
+    },
+    {
+      "package": "joblib",
+      "status": "CHECKED",
+      "note": "Dependency listed: joblib"
+    },
+    {
+      "package": "dipy",
+      "status": "CHECKED",
+      "note": "Dependency listed: dipy"
+    },
+    {
+      "package": "statsmodels",
+      "status": "CHECKED",
+      "note": "Dependency listed: statsmodels"
+    },
+    {
+      "package": "weasyprint",
+      "status": "CHECKED",
+      "note": "Dependency listed: weasyprint"
+    },
+    {
+      "package": "igraph",
+      "status": "CHECKED",
+      "note": "Dependency listed: igraph"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+status: none
+intent: '### User Story 1 - Human Subject Study Data Collection (US-1) (Priority:
+  P1) **User Story ID**: US-1 As a researcher, I need to collect participant interaction
+  data (timestamps, line selections, participant IDs) across all three summary conditions
+  (baseline, LLM-generated, rule-based) so that I can '
+required_fields: []
+cache_key: b4505dd146cef425c6bb9d9cd678bc1ea59559cbc38c57124a804b9e056b5f5f
+searched_at: '2026-11-21T12:29:51.382721+00:00'
+retry_count: 2

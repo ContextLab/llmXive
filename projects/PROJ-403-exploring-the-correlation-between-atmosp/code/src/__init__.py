@@ -1,1 +1,3 @@
-"""llmXive research-implementer package."""
+"""
+llmXive Automated Science Pipeline - Source Package
+"""

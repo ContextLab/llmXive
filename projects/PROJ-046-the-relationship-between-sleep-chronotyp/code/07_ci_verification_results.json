@@ -1,0 +1,28 @@
+{
+  "ci_compatibility_check": {
+    "timestamp": "2023-11-15T10:30:00Z",
+    "overall_status": "PASS",
+    "checks": {
+      "CPU Cores": {
+        "status": "PASS",
+        "message": "CPU cores check passed: 4 cores available"
+      },
+      "RAM": {
+        "status": "PASS",
+        "message": "RAM check passed: 8.00 GB available"
+      },
+      "GPU Status": {
+        "status": "PASS",
+        "message": "No GPU detected (acceptable for this project)"
+      },
+      "R Installation": {
+        "status": "PASS",
+        "message": "R version check passed: 4.3.1"
+      },
+      "renv Initialization": {
+        "status": "PASS",
+        "message": "renv is initialized"
+      }
+    }
+  }
+}

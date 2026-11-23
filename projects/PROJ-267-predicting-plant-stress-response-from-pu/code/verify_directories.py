@@ -1,120 +1,65 @@
-"""
-Directory Structure Verification Script for llmXive Project.
-
-This script verifies that the required project directory structure exists
-and is writable. It creates directories if they do not exist and tests
-write permissions by creating and deleting a temporary marker file.
-"""
 import os
 import sys
 import logging
 from pathlib import Path
 
-# Configure logging to capture verification results
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/verification.log')
-    ]
-)
-logger = logging.getLogger(__name__)
+from utils.logging_config import get_logger
 
-# Define the required directory structure relative to project root
-REQUIRED_DIRS = [
-    "code/data_ingestion",
-    "code/modeling",
-    "code/reporting",
-    "code/utils",
-    "tests",
-    "data/raw",
-    "data/processed",
-    "results",
-    "logs",
-    "docs"
-]
+logger = get_logger(__name__)
+
 
 def ensure_directory(path: Path) -> bool:
     """
-    Ensure a directory exists and is writable.
-    
+    Ensure a directory exists, creating it if necessary.
+
     Args:
-        path: Path object representing the directory to check/create
-        
+        path: The path to the directory.
+
     Returns:
-        bool: True if directory exists and is writable, False otherwise
+        True if the directory exists or was created successfully.
     """
     try:
-        # Create directory if it doesn't exist (including parents)
         path.mkdir(parents=True, exist_ok=True)
-        
-        # Test write permissions by creating a temporary marker file
-        marker_file = path / ".write_test_marker"
-        try:
-            marker_file.touch()
-            marker_file.unlink()  # Remove immediately after creation
-            logger.info(f"✓ Directory {path} exists and is writable")
-            return True
-        except (PermissionError, OSError) as e:
-            logger.error(f"✗ Directory {path} exists but is NOT writable: {e}")
-            return False
+        logger.debug(f"Directory ensured: {path}")
+        return True
     except Exception as e:
-        logger.error(f"✗ Failed to create directory {path}: {e}")
+        logger.error(f"Failed to create directory {path}: {e}")
         return False
 
-def main():
+
+def main() -> int:
     """
-    Main function to verify the entire directory structure.
-    
+    Main entry point to verify and create standard project directories.
+
+    Verifies: code/, tests/, logs/, results/, data/raw/, data/processed/, docs/
+
     Returns:
-        int: 0 if all directories are verified, 1 if any verification failed
+        0 on success, 1 on failure.
     """
-    logger.info("Starting directory structure verification...")
-    
-    # Ensure logs directory exists first so logging works
-    logs_path = Path("logs")
-    if not logs_path.exists():
-        logs_path.mkdir(parents=True, exist_ok=True)
-        logger.info("Created logs directory for verification logging")
-    
-    all_passed = True
-    verified_dirs = []
-    failed_dirs = []
-    
-    for dir_path in REQUIRED_DIRS:
-        full_path = Path(dir_path)
-        if ensure_directory(full_path):
-            verified_dirs.append(dir_path)
-        else:
-            failed_dirs.append(dir_path)
-            all_passed = False
-    
-    # Summary
-    logger.info("=" * 50)
-    logger.info(f"Verification Summary:")
-    logger.info(f"  Total directories checked: {len(REQUIRED_DIRS)}")
-    logger.info(f"  Successfully verified: {len(verified_dirs)}")
-    logger.info(f"  Failed verification: {len(failed_dirs)}")
-    
-    if verified_dirs:
-        logger.info("  Verified directories:")
-        for d in verified_dirs:
-            logger.info(f"    - {d}")
-    
-    if failed_dirs:
-        logger.warning("  Failed directories:")
-        for d in failed_dirs:
-            logger.warning(f"    - {d}")
-    
-    logger.info("=" * 50)
-    
-    if all_passed:
-        logger.info("✓ All required directories exist and are writable")
+    project_root = Path(__file__).resolve().parent.parent
+
+    directories = [
+        project_root / "code",
+        project_root / "tests",
+        project_root / "logs",
+        project_root / "results",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "docs"
+    ]
+
+    success = True
+    for directory in directories:
+        if not ensure_directory(directory):
+            success = False
+
+    if success:
+        logger.info("All project directories verified/created successfully.")
         return 0
     else:
-        logger.error("✗ Directory verification failed for some directories")
+        logger.error("Some directories failed to be created.")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

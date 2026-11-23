@@ -1,245 +1,223 @@
-import os
-import sys
+"""
+Report Generator for the HEA Yield Strength Prediction project.
+
+This module reads the various JSON artifacts produced by the pipeline,
+assembles a markdown report, injects the mandatory disclaimer, and writes
+the final report to ``output/report.md``.
+"""
+
 import json
-import logging
-from typing import Dict, Any, Optional
+import os
+from pathlib import Path
+from typing import Dict, Any, List
 
 from utils.logging import get_logger
 from utils.report_utils import inject_disclaimer, finalize_report_markdown
 
-logger = get_logger(__name__)
+LOGGER = get_logger(__name__)
 
-def load_metrics(path: str) -> Dict[str, Any]:
-    """Load the metrics JSON file."""
-    if not os.path.exists(path):
-        logger.error(f"Metrics file not found: {path}")
-        return {}
-    with open(path, 'r') as f:
+# ----------------------------------------------------------------------
+# Helper functions to load JSON artifacts
+# ----------------------------------------------------------------------
+def _load_json(path: Path) -> Dict[str, Any]:
+    """Load a JSON file and return its content."""
+    if not path.is_file():
+        raise FileNotFoundError(f"Required JSON artifact not found: {path}")
+    with path.open("r", encoding="utf-8") as f:
         return json.load(f)
 
-def load_power_analysis(path: str) -> Dict[str, Any]:
-    """Load the power analysis JSON file."""
-    if not os.path.exists(path):
-        logger.error(f"Power analysis file not found: {path}")
-        return {"status": "unknown"}
-    with open(path, 'r') as f:
-        return json.load(f)
-
-def load_vif_results(path: str) -> Dict[str, Any]:
+# ----------------------------------------------------------------------
+# Content generation
+# ----------------------------------------------------------------------
+def generate_report_content() -> str:
     """
-    Load VIF results.
-    Note: Depending on T023 implementation, this might be part of metrics or a separate file.
-    We assume a standard location or structure for flexibility.
+    Assemble the markdown report content.
+
+    The function reads the following artifacts (all under the project root):
+      - output/data_status.json
+      - output/metrics.json
+      - output/vif_results.json
+      - output/permutation_results.json
+      - output/bootstrap_results.json
+      - output/sensitivity_results.json
+
+    It creates sections:
+      1. Overview
+      2. Model Performance
+      3. Statistical Validation
+      4. Sensitivity Analysis
+      5. Data Limitation Warning (conditional)
+      6. Disclaimer (added later via ``inject_disclaimer``)
+
+    Returns
+    -------
+    str
+        The full markdown report (without the final disclaimer).
     """
-    # T023 writes VIF to output/vif_results.json or similar.
-    # If it's embedded in metrics, we extract it.
-    # For this implementation, we look for a dedicated file or fallback to metrics.
-    dedicated_path = path.replace("metrics.json", "vif_results.json")
-    if os.path.exists(dedicated_path):
-        with open(dedicated_path, 'r') as f:
-            return json.load(f)
-    
-    # Fallback: Check if metrics contains VIF data (unlikely based on T023 spec but possible)
-    metrics = load_metrics(path)
-    if "vif" in metrics:
-        return metrics["vif"]
-    
-    return {}
+    # Base directory for output artifacts
+    out_dir = Path("output")
+    data_status_path = out_dir / "data_status.json"
+    metrics_path = out_dir / "metrics.json"
+    vif_path = out_dir / "vif_results.json"
+    perm_path = out_dir / "permutation_results.json"
+    boot_path = out_dir / "bootstrap_results.json"
+    sens_path = out_dir / "sensitivity_results.json"
 
-def load_permutation_results(path: str) -> Dict[str, Any]:
-    """Load permutation importance results."""
-    dedicated_path = path.replace("metrics.json", "permutation_results.json")
-    if os.path.exists(dedicated_path):
-        with open(dedicated_path, 'r') as f:
-            return json.load(f)
-    return {}
+    # Load all required JSON files
+    data_status = _load_json(data_status_path)
+    metrics = _load_json(metrics_path)
+    vif = _load_json(vif_path)
+    permutation = _load_json(perm_path)
+    bootstrap = _load_json(boot_path)
+    sensitivity = _load_json(sens_path)
 
-def load_bootstrap_results(path: str) -> Dict[str, Any]:
-    """Load bootstrap resampling results."""
-    dedicated_path = path.replace("metrics.json", "bootstrap_results.json")
-    if os.path.exists(dedicated_path):
-        with open(dedicated_path, 'r') as f:
-            return json.load(f)
-    return {}
-
-def load_sensitivity_results(path: str) -> Dict[str, Any]:
-    """Load sensitivity analysis results."""
-    dedicated_path = path.replace("metrics.json", "sensitivity_results.json")
-    if os.path.exists(dedicated_path):
-        with open(dedicated_path, 'r') as f:
-            return json.load(f)
-    return {}
-
-def generate_report_content(
-    metrics: Dict[str, Any],
-    power_analysis: Dict[str, Any],
-    vif_results: Dict[str, Any],
-    perm_results: Dict[str, Any],
-    boot_results: Dict[str, Any],
-    sens_results: Dict[str, Any]
-) -> str:
-    """
-    Generate the raw markdown content for the statistical report.
-    Integrates all results from T023-T027.
-    """
-    lines = []
-    lines.append("# Statistical Validation Report: HEA Yield Strength Prediction")
-    lines.append("")
-    
-    # 1. Executive Summary & Power Status
-    lines.append("## 1. Executive Summary")
-    lines.append("")
-    status = power_analysis.get("status", "unknown")
-    lines.append(f"**Sample Size Status**: {status}")
-    if status == "insufficient_power":
-        lines.append(f"> **Warning**: The dataset size (N={power_analysis.get('n', 'N/A')}) is insufficient for robust statistical inference (N < 50).")
-    lines.append("")
-
-    # 2. Model Performance Metrics
-    lines.append("## 2. Model Performance Metrics")
-    lines.append("")
-    lines.append("| Model | R² | MAE (MPa) | RMSE (MPa) |")
-    lines.append("| :--- | :--- | :--- | :--- |")
-    
-    model_metrics = metrics.get("models", metrics) # Handle both nested and flat structures
-    for model_name, data in model_metrics.items():
-        if isinstance(data, dict):
-            r2 = data.get("r2", "N/A")
-            mae = data.get("mae", "N/A")
-            rmse = data.get("rmse", "N/A")
-            lines.append(f"| {model_name} | {r2} | {mae} | {rmse} |")
-    lines.append("")
-
-    # 3. Multicollinearity (VIF) - Linear Baseline Only
-    lines.append("## 3. Multicollinearity Analysis (VIF)")
-    lines.append("")
-    lines.append("Variance Inflation Factors (VIF) calculated for the Linear Regression baseline descriptors.")
-    lines.append("A VIF > 10 indicates severe multicollinearity.")
-    lines.append("")
-    
-    if not vif_results:
-        lines.append("*No VIF results available.*")
-    else:
-        lines.append("| Descriptor | VIF | Flag (>10) |")
-        lines.append("| :--- | :--- | :--- |")
-        for desc, val in vif_results.items():
-            flag = "⚠️ HIGH" if val > 10 else "OK"
-            lines.append(f"| {desc} | {val:.2f} | {flag} |")
-    lines.append("")
-
-    # 4. Permutation Importance & Significance
-    lines.append("## 4. Permutation Importance & Significance")
-    lines.append("")
-    
-    if status == "insufficient_power":
-        lines.append("> **Skipped**: Permutation testing was skipped due to insufficient sample size (N < 50).")
-    else:
-        lines.append("P-values derived from 1000 permutations. Significance corrected via Bonferroni/Holm-Bonferroni.")
-        lines.append("")
-        
-        if not perm_results:
-            lines.append("*No permutation results available.*")
-        else:
-            lines.append("| Descriptor | Permutation Importance | Raw P-value | Corrected P-value | Significant? |")
-            lines.append("| :--- | :--- | :--- | :--- | :--- |")
-            
-            # Assuming structure: list of dicts or dict of dicts
-            items = perm_results if isinstance(perm_results, list) else [perm_results]
-            for item in items:
-                desc = item.get("descriptor", "Unknown")
-                imp = item.get("importance", "N/A")
-                raw_p = item.get("p_value", "N/A")
-                corr_p = item.get("corrected_p_value", "N/A")
-                sig = "Yes" if item.get("is_significant", False) else "No"
-                lines.append(f"| {desc} | {imp} | {raw_p} | {corr_p} | {sig} |")
-    lines.append("")
-
-    # 5. Bootstrap Confidence Intervals
-    lines.append("## 5. Bootstrap Resampling (95% CI)")
-    lines.append("")
-    
-    if status == "insufficient_power":
-        lines.append("> **Skipped**: Bootstrap resampling was skipped due to insufficient sample size (N < 50).")
-    else:
-        lines.append("95% Confidence Intervals for R² based on 1000 resamples.")
-        lines.append("")
-        
-        if not boot_results:
-            lines.append("*No bootstrap results available.*")
-        else:
-            lines.append("| Model | Mean R² | 95% CI Lower | 95% CI Upper |")
-            lines.append("| :--- | :--- | :--- | :--- |")
-            for model_name, data in boot_results.items():
-                if isinstance(data, dict):
-                    mean_r2 = data.get("mean_r2", "N/A")
-                    ci_low = data.get("ci_lower", "N/A")
-                    ci_high = data.get("ci_upper", "N/A")
-                    lines.append(f"| {model_name} | {mean_r2} | {ci_low} | {ci_high} |")
-    lines.append("")
-
-    # 6. Sensitivity Analysis
-    lines.append("## 6. Sensitivity Analysis (Alpha Sweep)")
-    lines.append("")
-    lines.append("Impact of varying significance threshold (α) on descriptor count and model performance.")
-    lines.append("")
-    
-    if not sens_results:
-        lines.append("*No sensitivity results available.*")
-    else:
-        lines.append("| Alpha (α) | Significant Descriptors | R² (Best Model) |")
-        lines.append("| :--- | :--- | :--- |")
-        for alpha_val, data in sens_results.items():
-            if isinstance(data, dict):
-                count = data.get("significant_count", "N/A")
-                r2 = data.get("best_r2", "N/A")
-                lines.append(f"| {alpha_val} | {count} | {r2} |")
-    lines.append("")
-
-    # 7. Conclusions
-    lines.append("## 7. Conclusions")
-    lines.append("")
-    lines.append("This report summarizes the statistical validation of the HEA yield strength prediction models.")
-    lines.append("Key findings include the performance metrics, descriptor stability (VIF), and significance of compositional features.")
-    lines.append("")
-
-    return "\n".join(lines)
-
-def main():
-    """Main entry point to generate the statistical report."""
-    logger.info("Starting statistical report generation (T028)...")
-    
-    # Define paths based on project structure
-    base_output_dir = "output"
-    metrics_path = os.path.join(base_output_dir, "metrics.json")
-    power_path = os.path.join(base_output_dir, "power_analysis.json")
-    report_path = os.path.join(base_output_dir, "report.md")
-    
-    # Load all necessary data artifacts
-    metrics = load_metrics(metrics_path)
-    power_analysis = load_power_analysis(power_path)
-    vif_results = load_vif_results(metrics_path)
-    perm_results = load_permutation_results(metrics_path)
-    boot_results = load_bootstrap_results(metrics_path)
-    sens_results = load_sensitivity_results(metrics_path)
-    
-    # Generate raw content
-    raw_content = generate_report_content(
-        metrics, power_analysis, vif_results, perm_results, boot_results, sens_results
+    # ------------------------------------------------------------------
+    # 1. Overview
+    # ------------------------------------------------------------------
+    overview = (
+        "# Overview\\n\\n"
+        "This report summarizes the results of the high‑entropy alloy (HEA) "
+        "yield‑strength prediction pipeline. The workflow includes data "
+        "acquisition, descriptor engineering, model training, and extensive "
+        "statistical validation.\\n\\n"
     )
-    
-    # Inject mandatory disclaimers using T029b utility
-    final_content = inject_disclaimer(raw_content)
-    final_content = finalize_report_markdown(final_content)
-    
-    # Ensure output directory exists
-    os.makedirs(base_output_dir, exist_ok=True)
-    
-    # Write the report
-    with open(report_path, 'w', encoding='utf-8') as f:
-        f.write(final_content)
-    
-    logger.info(f"Statistical report successfully generated at: {report_path}")
-    return 0
+
+    # ------------------------------------------------------------------
+    # 2. Model Performance
+    # ------------------------------------------------------------------
+    perf_lines = ["## Model Performance\\n"]
+    for model_key, model_metrics in metrics.items():
+        if model_key == "best_model":
+            continue
+        perf_lines.append(f"### {model_key.upper()} Model")
+        perf_lines.append(f"- **R²**: {model_metrics.get('R2', 'N/A')}")
+        perf_lines.append(f"- **MAE**: {model_metrics.get('MAE', 'N/A')}")
+        perf_lines.append(f"- **RMSE**: {model_metrics.get('RMSE', 'N/A')}\\n")
+    perf_lines.append(f"**Best Model:** `{metrics.get('best_model', 'N/A')}`\\n")
+    model_performance = "\\n".join(perf_lines) + "\\n"
+
+    # ------------------------------------------------------------------
+    # 3. Statistical Validation
+    # ------------------------------------------------------------------
+    stat_lines = ["## Statistical Validation\\n"]
+
+    # VIF results (linear model only)
+    stat_lines.append("### Variance Inflation Factor (VIF) – Linear Regression")
+    vif_vals = vif.get("vif_values", {})
+    if vif_vals:
+        for descriptor, value in vif_vals.items():
+            flag = "⚠️ High VIF (>10)" if value > 10 else ""
+            stat_lines.append(f"- {descriptor}: {value:.2f} {flag}")
+    else:
+        stat_lines.append("- No VIF values available.")
+    stat_lines.append("")
+
+    # Permutation importance
+    stat_lines.append("### Permutation Importance")
+    perm_summary = permutation.get("summary", {})
+    if perm_summary:
+        for desc, info in perm_summary.items():
+            pval = info.get("p_value", "N/A")
+            stat_lines.append(f"- {desc}: p‑value = {pval}")
+    else:
+        stat_lines.append("- Permutation results not available.")
+    stat_lines.append("")
+
+    # Bootstrap confidence intervals
+    stat_lines.append("### Bootstrap Confidence Intervals for R²")
+    boot_ci = bootstrap.get("r2_confidence_interval", {})
+    if boot_ci:
+        lower = boot_ci.get("lower", "N/A")
+        upper = boot_ci.get("upper", "N/A")
+        stat_lines.append(f"- 95 % CI: [{lower}, {upper}]")
+    else:
+        stat_lines.append("- Bootstrap results not available.")
+    stat_lines.append("")
+
+    statistical_validation = "\\n".join(stat_lines) + "\\n"
+
+    # ------------------------------------------------------------------
+    # 4. Sensitivity Analysis
+    # ------------------------------------------------------------------
+    sens_lines = ["## Sensitivity Analysis\\n"]
+    thresholds = sensitivity.get("thresholds", [])
+    if thresholds:
+        for entry in thresholds:
+            alpha = entry.get("alpha")
+            r2_best = entry.get("absolute_R2_best")
+            r2_linear = entry.get("absolute_R2_linear")
+            sig_cnt = entry.get("significant_count")
+            sens_lines.append(
+                f"- **α = {alpha}**: best model R² = {r2_best}, "
+                f"linear model R² = {r2_linear}, "
+                f"significant descriptors = {sig_cnt}"
+            )
+    else:
+        sens_lines.append("- No sensitivity analysis results available.")
+    sens_lines.append("")
+    sensitivity_analysis = "\\n".join(sens_lines) + "\\n"
+
+    # ------------------------------------------------------------------
+    # 5. Data Limitation Warning (conditional)
+    # ------------------------------------------------------------------
+    warning_section = ""
+    if data_status.get("count_warning", False):
+        count = data_status.get("count", 0)
+        warning_section = (
+            "## Data Limitation Warning\\n\\n"
+            f"Only **{count}** entries were found after preprocessing. "
+            "Statistical power may be reduced, and results should be "
+            "interpreted with caution.\\n\\n"
+        )
+
+    # Assemble full report (without disclaimer)
+    report_body = (
+        overview
+        + model_performance
+        + statistical_validation
+        + sensitivity_analysis
+        + warning_section
+    )
+
+    # The disclaimer will be injected later by ``inject_disclaimer``.
+    return report_body
+
+# ----------------------------------------------------------------------
+# Write report to disk
+# ----------------------------------------------------------------------
+def write_report(content: str, output_path: Path = Path("output/report.md")) -> None:
+    """
+    Write the markdown ``content`` to ``output_path``. The function ensures
+    the parent directory exists.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
+        f.write(content)
+    LOGGER.info(f"Report written to {output_path}")
+
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    """
+    Generate the report and write it to ``output/report.md``.
+    The function:
+      1. Generates the core content.
+      2. Injects the mandatory disclaimer (via ``utils.report_utils.inject_disclaimer``).
+      3. Finalises markdown formatting (via ``utils.report_utils.finalize_report_markdown``).
+      4. Writes the final markdown file.
+    """
+    try:
+        LOGGER.info("Generating report content...")
+        raw_content = generate_report_content()
+        LOGGER.info("Injecting disclaimer...")
+        content_with_disclaimer = inject_disclaimer(raw_content)
+        LOGGER.info("Finalising markdown...")
+        final_content = finalize_report_markdown(content_with_disclaimer)
+        write_report(final_content)
+    except Exception as exc:
+        LOGGER.error(f"Failed to generate report: {exc}")
+        raise
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

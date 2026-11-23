@@ -1,3 +1,32 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "perovskite-stability"
+version = "0.1.0"
+description = "Predicting Perovskite Stability via Compositional Fingerprints"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "scikit-learn",
+    "requests",
+    "pyyaml",
+    "numpy",
+    "pymatgen",
+]
+
+[project.optional-dependencies]
+dev = [
+    "flake8>=6.0",
+    "pylint>=3.0",
+    "black>=23.0",
+    "isort>=5.12",
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+]
+
 [tool.black]
 line-length = 88
 target-version = ['py311']
@@ -9,6 +38,7 @@ exclude = '''
     | \.mypy_cache
     | \.tox
     | \.venv
+    | venv
     | _build
     | buck-out
     | build
@@ -21,17 +51,22 @@ exclude = '''
 [tool.isort]
 profile = "black"
 line_length = 88
-skip_gitignore = true
-skip_glob = ["data/*", "state/*"]
-
-[tool.pylint.messages_control]
-disable = [
-    "C0114", # missing-module-docstring
-    "C0115", # missing-class-docstring
-    "C0116", # missing-function-docstring
-    "R0903", # too-few-public-methods
-    "W0511", # fixme
+known_first_party = ["utils", "data_ingestion", "feature_engineering", "model_training", "vif_diagnostic", "merge_datasets", "grid_search", "metric_logger", "save_models", "propagate_uncertainty", "uncertainty_flagger", "write_metadata", "extract_metadata", "finalize_descriptors", "filter_descriptors", "verify_descriptors", "fetch_mp_perovskites", "setup_directories"]
+skip = [
+    ".git",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "data",
+    "state"
 ]
 
-[tool.pylint.format]
-max-line-length = 88
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["code"]
+addopts = "-v --tb=short"

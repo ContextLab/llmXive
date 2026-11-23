@@ -1,0 +1,110 @@
+T001:
+  task: 2b3f22d592e7aba4b654f16eb6ed64a39c7c4c105cf000e7298639b5a18a0350
+T002:
+  task: d6fddfb5a191678c8562d57d522fd1b6ec7e08ed70eabc666b81167bfb9f1339
+T003:
+  task: 1053537c8a1cfa80be162e70ee9d2b7c9d447fb9f32947e2d987626aae47f820
+T004:
+  reason: "No artifacts were provided or confirmed on disk \u2014 there is no evidence\
+    \ of a Python 3.11 project structure, a `requirements.txt`/`pyproject.toml`/environment\
+    \ file listing pandas, numpy, statsmodels, pyyaml, requests, tqdm, scipy, and\
+    \ pytest, or any dependency installation/verification output. The task's claim\
+    \ of completion is unsupported by any artifact; the implementer must create the\
+    \ project scaffold with pinned dependencies and demonstrate they resolve/install."
+  task: 450a0d56e2591d0914993407e4de8daeb6d6ef83b95065421677efc040a6d294
+T005:
+  reason: "No artifacts were provided or confirmed on disk for this task \u2014 the\
+    \ collector explicitly notes the task references no code/data/figure path and\
+    \ no evidence exists to verify. Configuring flake8/black requires actual configuration\
+    \ files (e.g., `.flake8`, `setup.cfg`, `pyproject.toml`, or `tox.ini` with lint\
+    \ settings) plus evidence the tools run cleanly, none of which was shown. The\
+    \ next implementer should add the lint/format configuration files to the project\
+    \ and demonstrate they are installed and pass on the existing codebase."
+  task: 770db96bafd3584053d99230f1db58a866ac686d055eec5969c39a0b3675704e
+T006:
+  task: cfca8bda817570e2c8c238a53a26bddaddb0cb5ccbc965390b891aa2e51f6177
+T007:
+  task: 010bfab30a5fe67ce5cc8e5a03824f01118f5fe1daf5c331acae31b77b4eb341
+T008:
+  task: 28385b68d734223599bebe9ac6b6d24c98a0704b7807767b8a10407e51184a2a
+T009:
+  reason: "The task explicitly requires `validate_types()` in `code/schema.py`, but\
+    \ the file only provides `validate_column_types()` (and `validate_schema()`);\
+    \ no `validate_types` function exists, and `tests/test_schema.py` imports/tests\
+    \ `validate_column_types` instead \u2014 so the required contract is not implemented.\
+    \ Additionally, there is no execution evidence (e.g., pytest output) that the\
+    \ tests actually pass. The implementer should add a `validate_types()` function\
+    \ matching the schema contract and provide test-run evidence."
+  task: 73ae23aea02215df1a5b58cad2484ecef7beaf70adbc805a195be1e8ba08ae25
+T009a:
+  task: ca2f239a5e24ed10321b50ab37f0ebe7755a3ae77a05902b00fa8e53ea264d43
+T010:
+  task: ccf901d7f49ea3ceaff9485238ce2d4f3b746d683266e123678ff0e2fdedcca9
+T011:
+  task: a7870876bab47ad14c96907bf80e65288accecb62b0b2c228bd70c399fd159ae
+T012:
+  task: 9bb722308455986010de8c846349ce8bd42fc8ae18adf18ea63d595197b0d6a2
+T013:
+  task: c0f5b8846e3f5b04304a416c92c6a8a2eb5f0cd40129b7af93a523f002a2b9b8
+T014:
+  task: 30e0140eba9c83639d2a769b479864890f34e1813f0cd5424f7c863a77eabc14
+T015:
+  task: cb6a04b27d96f333311c8e61e4d68b0a1f1527cb15197ed9a0391bdc59845568
+T016:
+  task: 7734b8798707ed51adfecc3060dd772f9a64c931be529faf76d73924bb179467
+T017:
+  task: 4c18248101aac5e7e68adb653443b73dddd3c050f7ecc238db57b11db69b6753
+T020:
+  task: 3decba581b950f723526fb3670291900b522608b2a907209cad620eafa3533f2
+T021:
+  task: 6b02df917fcf4d80afa6a7bfce5f5160f869edf27ec3eb2056bd9afaefbe0ef8
+T022:
+  task: b4b38aa8f1e4711b9ea5e75de2980b33e8fae2ecaf6728f4169180eaade326f3
+T023:
+  task: a908174c910474b97fec4ce15349b59944de18466fcc9e350631bbb88d446633
+T024:
+  task: 99ccd3480a7348cbb19ac0c290297df328f190617ccf1ba09affd1c9f9c197a1
+T025:
+  task: 71c73c7b7c4a89f0e96cbe59893e96357b3070cb14e9928c328f9eb67bb5715f
+T026:
+  task: ca31ff669e2716236f2111f59a29fbfa0ecf7541a62d31289300a62c33c606be
+T027:
+  task: 16bccd7b54ccb2fcb2620e9ae9723359449bac5ba3409092c6341b1b91863758
+T028:
+  task: a08184f37633f54b2a7455c05371c93bf1b06f19ce5da502076aaf2e56d1e6d9
+T029:
+  task: e4ed496456990fbb53664413862dea18a0b67afa6053fffdfabaaf7e4cd11ef4
+T030:
+  task: 6d3a1275a633cb0f83147cc7f51784a725413f2993cd0afacbab8b84c8e7a9c5
+T031:
+  task: 0c5b8b81e39ac0c33e2f8c0674f10efafcdc4fb785555cc71ffeac139e513e65
+T032:
+  task: 715b5475ddae4d3a815f44cc814126df382805e90b6df543c73d157ea67a6351
+T033:
+  task: 668d9daddab7d28be9b57862344ec20656a5214507dc8ef218251b628c904344
+T034:
+  task: 35a399c24fc20db582f949021127cb2d55a8426e3b6fbfe19ccb874c589c5f5c
+T035:
+  task: f5336cbb8a91d17833e1cc9a1cc0242460159b5a57d888b72588f123a4a842f3
+T036:
+  task: 8f0ec8f6b2a95a7d91d14b7d28837ffbaf65ca35c039bb33efe37278d4340d57
+T037:
+  task: 88097671dd0a6bd2ce72375a2c8ae4cf4bf93dade74f022a124fff75ccbf5e26
+T038:
+  task: 09914fd767d8beb96202283af2a089b31200db6ce901696c5de17e0614665ed1
+T039:
+  task: 5e3f65ac4236670f6d9e7100a05d2643dfc10c5ab3894bce23db0098747f1942
+T040:
+  task: ded2940b94d8fc113dba93d52a50b360bb0ad3726553b2f4093c949e85b5774c
+T041:
+  task: e9af919540bef7893b875d7eda62ed3d9d2aad03f6745e95dd4fe174c1d55580
+T042:
+  task: 355b36ae5cb1ffebe49a0d29d0e0c3239a20949f2d86e1e1c9a8605f57f02394
+T043:
+  task: 82525aa59b62e63ea78e3a965347b20a821826099487cab7d363f0b7cb383b89
+T044:
+  task: 924839a33cf355b19cc89bd1353153ee2de37ff77d94c679bf72b2cb9e9c0fc2
+T045:
+  task: cf03989cd059f70e507ee02eb7d97a0086f33d9002a6cf2417bc5a5d3e0c976e
+T046:
+  task: 93883513868a589cd75fd317e9c730ce00b23dc040411640ff9490254275a5ef

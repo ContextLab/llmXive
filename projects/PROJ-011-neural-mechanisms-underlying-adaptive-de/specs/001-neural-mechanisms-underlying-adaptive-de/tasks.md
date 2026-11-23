@@ -1,265 +1,243 @@
 # Tasks: Neural Mechanisms Underlying Adaptive Decision-Making in Response to Social Feedback
 
-**Input**: Design documents from `/specs/001-neural-mechanisms-adaptive-decision/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: Design documents from `/specs/001-neural-mechanisms-adaptive-decision/`  
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+## Phase 1 – Setup and Reproducibility  
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+- [X] T001 [P] Establish reproducibility settings: pin global random seeds (`numpy`, `random`, `torch` if used) in a config file `code/utils/reproducibility.py` and verify that scripts import this module.  
+  - **Path**: `code/utils/reproducibility.py`, `README.md` (seed documentation)  
+  - **Verification**: Running `python -c "import code.utils.reproducibility as r; assert r.SEED == 42"` exits with status 0; `make quickstart` produces deterministic output across runs.
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T002 [P] Run the Reference‑Validator Agent on all citations in `spec.md`, `plan.md`, and `README.md`.  
+  - **Path**: `scripts/run_reference_validator.sh` (wrapper), `state/reference_validation_report.yaml`  
+  - **Verification**: Script exits with status 0 only if all citations are verified; report contains no `unreachable` or `mismatch` entries.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T003 [P] Document the project layout and dependencies in `quickstart.md` and `requirements.txt`.  
+  - **Path**: `quickstart.md`, `requirements.txt`  
+  - **Verification**: `make quickstart` prints the exact command documented and exits with status 0.
 
-## Path Conventions
+## Phase 3 – User Story 1: Data Acquisition & Pre‑processing (Priority P1)  
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T010 [P] [US1] Contract test for data validation (`tests/contract/test_data_validation.py`).  
+  - **Verification**: Test fails before implementation, passes after T012.  
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- [ ] T011 [P] [US1] Integration test for ROI extraction (`tests/integration/test_roi_extraction.py`).  
+  - **Verification**: Test fails before implementation, passes after T017.  
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T012 [US1] Implement `code/preprocessing/data_validation.py` to verify the OpenNeuro **ds003694** structure and write the dataset manifest.  
+  - **Path**: `code/preprocessing/data_validation.py`, `state/dataset_manifest.json`  
+  - **Verification**: Raises `FileNotFoundError` with a clear message if the expected files are absent; otherwise creates the manifest file.  
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+- [ ] T013 [US1] Implement `code/preprocessing/data_download.py` to fetch OpenNeuro ds003694 via `openneuro-py`.   <!-- FAILED-IN-EXECUTION: code/preprocessing/data_download.py exit=1 -->
+  - **Path**: `code/preprocessing/data_download.py`, `data/raw/`  
+  - **Verification**: On failure the script aborts with a loud exception; on success the raw NIfTI and behavioral files appear under `data/raw/`.  
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T014 [US1] Implement `code/preprocessing/motion_correction.py` using lightweight `nilearn` pipelines.  
+  - **Path**: `code/preprocessing/motion_correction.py`, `data/processed/mc/`  
+  - **Verification**: Produces motion‑corrected NIfTI files; a checksum file `state/mc_hashes.yaml` is written.  
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T014b [US1] Implement `code/preprocessing/validate_motion_correction.py` to ensure default `nilearn` parameters were used and document them.  
+  - **Path**: `code/preprocessing/validate_motion_correction.py`, `data/reports/mc_params.yaml`  
+  - **Verification**: Script exits with status 0 only if parameters match the documented defaults.  
 
-**Purpose**: Project initialization and basic structure
+- [ ] T015 [US1] Implement `code/preprocessing/normalization.py` for MNI152NLin2009cAsym spatial normalization.  
+  - **Path**: `code/preprocessing/normalization.py`, `data/processed/norm/`  
+  - **Verification**: Normalized files have affine matrices matching the MNI template; a log `data/reports/normalization.log` is created.  
 
-- [X] T001 Create project directories (`data/raw`, `data/processed`, `data/models`, `code/preprocessing`, `code/modeling`, `code/analysis`, `code/utils`, `code/reporting`, `tests/unit`, `tests/integration`, `tests/contract`, `state`, `docs`) and initialize `__init__.py` files in `code/`, `tests/` packages.
+- [ ] T016 [US1] Implement `code/preprocessing/smoothing.py` with a moderate (5 mm) kernel.  
+  - **Path**: `code/preprocessing/smoothing.py`, `data/processed/smooth/`  
+  - **Verification**: Smoothed files exist; `data/reports/smoothing.yaml` records kernel size.  
 
-- [X] T002 Initialize Python 3.11 project with dependencies (numpy, pandas, scipy, scikit-learn, nibabel, nilearn, pymc, numpyro, openneuro-py, pytest, pyyaml) in `requirements.txt`
-- [X] T003 [P] Configure linting (flake8) and formatting (black) tools
+- [ ] T017 [US1] Implement `code/preprocessing/roi_extraction.py` to extract BOLD time‑series from dlPFC, ventral striatum, and ACC using the Harvard‑Oxford atlas, processing data in 50‑time‑point chunks.  
+  - **Path**: `code/preprocessing/roi_extraction.py`, `data/processed/roi/`  
+  - **Verification**: For each participant a parquet file `roi_<sub>.parquet` with three region columns and matching time‑point length is created; schema validated against `contracts/roi_data.schema.yaml`.  
 
----
+- [ ] T018 [US1] Implement `code/preprocessing/qc_filter.py` to exclude participants with >10 % volumes exceeding 3 mm translation (SC‑001).  
+  - **Path**: `code/preprocessing/qc_filter.py`, `state/exclusions.yaml` (populated with participant IDs and reasons)  
+  - **Verification**: After run, `state/exclusions.yaml` contains only participants that failed the motion threshold; downstream tasks read this file to skip excluded IDs.  
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T018b [US1] Implement `code/preprocessing/qc_reporter.py` to generate `data/reports/qc_summary.json` (SC‑001 summary) **including** exclusion rate, and update `state/exclusions.yaml` with the final exclusion list.  
+  - **Path**: `code/preprocessing/qc_reporter.py`, `data/reports/qc_summary.json`, `state/exclusions.yaml`  
+  - **Verification**: `qc_summary.json` conforms to the schema shown in the spec and contains keys `total_participants`, `excluded_count`, `exclusion_rate`, `threshold_volumes_percent`, `threshold_motion_mm`, `exclusion_reasons`.  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T019 [US1] Create `code/main.py` entry point (initialisation only).  
+  - **Path**: `code/main.py`  
+  - **Verification**: Running `python -m code.main --help` displays usage without executing the pipeline.  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T049 [US1] Implement `code/preprocessing/streaming_loader.py` to stream the full ds003694 dataset participant‑wise; if streaming truly fails, the script aborts with an informative error (no sampling fallback) and logs the strategy in `data/reports/sampling_policy.json`.  
+  - **Path**: `code/preprocessing/streaming_loader.py`, `data/reports/sampling_policy.json`  
+  - **Verification**: Loader processes all participants; `sampling_policy.json` records `"strategy": "full_stream"` and any error messages if streaming is impossible.  
 
-Examples of foundational tasks (adjust based on your project):
+## Phase 4 – User Story 2: Computational Modeling of Belief Updating (Priority P2)  
 
-- [X] T004 Setup `code/utils/io.py` for robust file loading and CSV/JSON parsing
-- [X] T005 [P] Implement `code/utils/hashing.py` for `sha256sum` computation (utility function only)
-- [X] T006 [P] Setup `code/utils/config.py` for environment configuration and seed management (numpy/pymc)
-- [X] T007 Create `data/` directory structure (`raw`, `processed`, `models`) and `state/` for artifact hashes
-- [X] T008 Configure `pytest` with `conftest.py` for test fixtures and temporary data directories
-- [X] T009 Setup logging infrastructure in `code/utils/logger.py` to track QC failures and model convergence
+- [ ] T021 [P] [US2] Contract test for model convergence (`tests/contract/test_model_convergence.py`).  
+  - **Verification**: Fails before T024, passes after convergence logic is added.  
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T022 [P] [US2] Integration test for synthetic data recovery (`tests/integration/test_synthetic_recovery.py`).  
+  - **Verification**: Fails before T023, passes once synthetic generator and model are linked.  
 
----
+- [ ] T023 [US2] Implement `code/modeling/synthetic_data_generator.py` to create `data/synthetic/ground_truth.csv`.  
+  - **Path**: `code/modeling/synthetic_data_generator.py`, `data/synthetic/ground_truth.csv`  
+  - **Verification**: CSV contains columns `subject_id,true_alpha,true_precision,generated_choices`; model recovery test checks α within ±0.1 for ≥ 90 % of subjects.  
 
-## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+- [ ] T024a [US2] Implement `code/modeling/n_valid_calculator.py` to read `state/exclusions.yaml` and write `state/n_valid.yaml`.  
+  - **Path**: `code/modeling/n_valid_calculator.py`, `state/n_valid.yaml`  
+  - **Verification**: `n_valid.yaml` contains an integer field `N_valid` equal to the number of participants that passed QC.  
 
-**Goal**: Ingest raw fMRI and behavioral data, perform motion correction/normalization, extract ROI time-series, and enforce QC thresholds.
+- [ ] T024 [US2] Implement `code/modeling/belief_updater.py` using `pymc` with the `numpyro` CPU backend, including RAM‑usage guard (‑‑max‑ram 70 %) and runtime estimator (`code/utils/runtime_estimator.py`).  
+  - **Path**: `code/modeling/belief_updater.py`, `data/models/belief_updater_trace.nc`  
+  - **Verification**: Script writes a trace file; `data/models/convergence_report.json` records per‑participant R‑hat and ESS; runtime stays < 6 h for the given `N_valid`.  
 
-**Independent Test**: The pipeline can be validated by running it on a small subset of dummy or sample data and verifying that output files contain the expected ROI time-series matrices and behavioral matrices with no missing values or motion artifacts exceeding the threshold.
+- [ ] T025 [US2] Implement `code/modeling/validation.py` to check convergence (R‑hat < 1.01, ESS > 400) and retry up to three times on failure.  
+  - **Path**: `code/modeling/validation.py`, `data/models/convergence_report.json` (updated)  
+  - **Verification**: After execution, the report lists `converged: true/false` per participant.  
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T025b [US2] Implement `code/modeling/convergence_reporter.py` to aggregate convergence logs and compute the overall convergence rate against `N_valid`.  
+  - **Path**: `code/modeling/convergence_reporter.py`, `data/models/convergence_report.json`  
+  - **Verification**: JSON contains fields `converged_count`, `N_valid`, `convergence_rate`.  
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+- [ ] T025c [US2] Implement `code/modeling/failure_handler.py` to log permanently excluded participants in `data/models/failure_log.json`.  
+  - **Path**: `code/modeling/failure_handler.py`, `data/models/failure_log.json`  
+  - **Verification**: Log lists participant IDs with reason “non‑convergence after 3 attempts”.  
 
-- [ ] T010 [P] [US1] Contract test for data validation in `tests/contract/test_data_validation.py` (verifies OpenNeuro ds003694 structure)
-- [ ] T011 [P] [US1] Integration test for ROI extraction in `tests/integration/test_roi_extraction.py` (verifies dimensions match timepoints)
+- [ ] T025d [US2] **[SC‑002]** Verify that the overall convergence rate is ≥ 90 % and fail the pipeline otherwise.  
+  - **Path**: `code/modeling/convergence_rate_check.py` (new script)  
+  - **Verification**: Script reads `data/models/convergence_report.json`; exits with non‑zero status if `convergence_rate < 0.90`.  
 
-### Implementation for User Story 1
+- [ ] T028 [US2] Extend `code/main.py` to read the convergence report, filter out non‑converging participants, and write `state/valid_participants.yaml`.  
+  - **Path**: `code/main.py` (updated), `state/valid_participants.yaml`  
+  - **Verification**: YAML contains a list `valid_participants` that excludes IDs present in `failure_log.json`.  
 
-- [ ] T012 [P] [US1] Implement `code/preprocessing/data_validation.py` to verify presence of NIfTI and behavioral logs (private_belief, social_feedback, choice)
-- [ ] T013 [US1] Implement `code/preprocessing/data_download.py` to fetch OpenNeuro ds003694 using `openneuro-py` or direct URL; include logic to exclude participants with missing assets (NIfTI, logs, motion) and write reasons to `state/exclusions.yaml`
-- [X] T014 [US1] Implement `code/preprocessing/motion_correction.py` using `nibabel`/`nilearn` (no fMRIPrep dependency) to correct motion and extract framewise displacement
-- [X] T015 [US1] Implement `code/preprocessing/normalization.py` for spatial normalization to MNI space (using `nilearn` templates)
-- [X] T016 [US1] Implement `code/preprocessing/smoothing.py` for spatial smoothing with a moderate kernel width.
-- [X] T017 [US1] Implement `code/preprocessing/roi_extraction.py` to extract BOLD signals from dlPFC, ventral striatum, and ACC masks
-- [ ] T018 [US1] Implement `code/preprocessing/qc_filter.py` to exclude participants with >10% volumes exceeding 3mm translation (SC-001) and log reasons
-- [ ] T018b [US1] Implement `code/preprocessing/qc_reporter.py` to calculate the final exclusion rate against the SC-001 threshold (10% volumes > 3mm) and report stability in `data/reports/qc_summary.json`
-- [ ] T019 [US1] Create `code/main.py` entry point (setup only) - initializes config and logging, does not run pipeline logic yet.
+- [ ] T027 [US2] Implement `code/modeling/model_output.py` to save individual α parameters and group‑level hyperparameters for the valid participants only.  
+  - **Path**: `code/modeling/model_output.py`, `data/models/params.parquet`  
+  - **Verification**: Parquet file conforms to `contracts/model_params.schema.yaml`.  
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+## Phase 5 – User Story 3: Neural‑Behavioral Correlation & Hypothesis Testing (Priority P3)  
 
----
+- [ ] T029 [P] [US3] Contract test for GLM‑correlation (`tests/contract/test_glm_correlation.py`).  
+  - **Verification**: Fails before T031, passes after GLM implementation.  
 
-## Phase 4: User Story 2 - Computational Modeling of Belief Updating (Priority: P2)
+- [ ] T030 [P] [US3] Integration test for permutation testing (`tests/integration/test_permutation_test.py`).  
+  - **Verification**: Fails before T033, passes after permutation script is functional.  
 
-**Goal**: Implement a hierarchical Bayesian model to estimate individual belief-updating rates (alpha) and validate convergence.
+- [ ] T037a [US3] Implement `code/analysis/loader.py` to merge filtered α parameters and ROI time‑series into `data/processed/unified_analysis_data.parquet`.  
+  - **Path**: `code/analysis/loader.py`, `data/processed/unified_analysis_data.parquet`  
+  - **Verification**: Parquet has columns `participant_id, alpha, dlPFC, ventral_striatum, ACC` and rows = `N_valid`.  
 
-**Independent Test**: The model can be tested by feeding it synthetic data generated from a *different* generative process with noise characteristics distinct from the fitting model, verifying that the posterior estimates converge to the ground truth within a defined error margin.
+- [ ] T037b [US3] Implement `code/analysis/main_analysis.py` to orchestrate the analysis pipeline and produce `data/analysis/analysis_run_log.json`.  
+  - **Path**: `code/analysis/main_analysis.py`, `data/analysis/analysis_run_log.json`  
+  - **Verification**: Log records timestamps and the successful completion of each downstream task.  
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T031 [US3] Implement `code/analysis/glm_analysis.py` to run a GLM with parametric modulation by feedback discrepancy and output beta maps per ROI.  
+  - **Path**: `code/analysis/glm_analysis.py`, `data/analysis/glm_beta.parquet`  
+  - **Verification**: Parquet contains `participant_id, region, beta_discrepancy`; values pass a sanity check (|β| < 10).  
 
-- [ ] T021 [P] [US2] Contract test for model convergence in `tests/contract/test_model_convergence.py` (verifies {{claim:c_02979941}} (2607.02000, https://arxiv.org/abs/2607.02000))
-- [ ] T022 [P] [US2] Integration test for synthetic data recovery in `tests/integration/test_synthetic_recovery.py`
+- [ ] T032 [US3] Implement `code/analysis/partial_correlation.py` to compute LOSO partial correlations between neural activation and α, controlling for input discrepancy.  
+  - **Path**: `code/analysis/partial_correlation.py`, `data/analysis/partial_corr.parquet`  
+  - **Verification**: Parquet conforms to `contracts/neural_signatures.schema.yaml` (fields `correlation_alpha`, `p_value`, `fdr_q_value`).  
 
-### Implementation for User Story 2
+- [ ] T032b **[SC‑003]** Verify that the partial correlation coefficient `correlation_alpha` ≥ 0.3 for the primary analysis; fail otherwise.  
+  - **Path**: `code/analysis/partial_corr_check.py` (new script)  
+  - **Verification**: Script reads `data/analysis/partial_corr.parquet`; exits non‑zero if any `correlation_alpha < 0.3`.  
 
-- [ ] T023 [P] [US2] Implement `code/modeling/synthetic_data_generator.py` to create ground-truth behavioral data for validation
-- [ ] T024b [US2] Implement `code/modeling/runtime_enforcer.py` to enforce 6-hour runtime limit and N=30 sample size target; provides dynamic sample reduction logic if constraints are violated.
-- [ ] T024 [US2] Implement `code/modeling/belief_updater.py` using `pymc` with `numpyro` CPU backend (hierarchical structure, multiple chains, sufficient samples for convergence); **Must respect runtime constraints enforced by T024b**.
-- [ ] T025 [US2] Implement `code/modeling/validation.py` to check convergence (R-hat, ESS) and handle non-convergence (multiple restart attempts)
-- [ ] T025b [US2] Implement `code/modeling/convergence_reporter.py` to aggregate convergence logs, calculate the global convergence rate against the N_valid count, and explicitly verify/assert it meets the ≥90% threshold (SC-002), generating `data/models/convergence_report.json`.
-- [ ] T026 [US2] Implement `code/modeling/prediction.py` to generate held-out choice predictions and compute accuracy (target ≥ 60%)
-- [ ] T028 [US2] Implement `code/main.py` logic for P2 integration: Read convergence reports (T025b), filter non-converging participants, and prepare valid participant list for T027. **Sequential Dependency: Must run after T025b, before T027.**
-- [ ] T027 [US2] Create `code/modeling/model_output.py` to save individual alpha parameters and group-level hyperparameters to `data/models/` for valid participants only (input filtered by T028).
+- [ ] T033 [US3] Implement `code/analysis/permutation_test.py` for voxel‑wise inference with early‑stopping and Benjamini‑Hochberg FDR correction (q < 0.05).  
+  - **Path**: `code/analysis/permutation_test.py`, `data/analysis/fdr_status.json`  
+  - **Verification**: JSON contains `fdr_applied: true` and the computed `q_threshold`; runtime stays < 6 h.  
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T033b **[SC‑004]** Verify that the FDR‑corrected q‑value reported in `data/analysis/fdr_status.json` is < 0.05; fail otherwise.  
+  - **Path**: `code/analysis/fdr_q_check.py` (new script)  
+  - **Verification**: Script exits non‑zero if `q_threshold >= 0.05`.  
 
----
+- [ ] T034 [US3] Implement `code/analysis/confound_control.py` to add motion parameters and aCompCor components as regressors in the GLM.  
+  - **Path**: `code/analysis/confound_control.py`  
+  - **Verification**: GLM design matrix includes the additional columns; a log `data/reports/confound_matrix.yaml` records shapes.  
 
-## Phase 5: User Story 3 - Neural-Behavioral Correlation and Hypothesis Testing (Priority: P3)
+- [ ] T035 [US3] Implement `code/analysis/loso_validation.py` for Leave‑One‑Subject‑Out cross‑validation of the neural‑behavioral link.  
+  - **Path**: `code/analysis/loso_validation.py`, `data/analysis/loso_results.parquet`  
+  - **Verification**: Each fold’s correlation coefficient is stored; overall mean r matches the full‑sample result within 0.02.  
 
-**Goal**: Perform GLM analysis to link neural activation to computational parameters and apply FDR-corrected permutation testing.
+- [ ] T036a [US3] Implement `code/analysis/sensitivity_sweeper.py` to re‑run the correlation for α‑thresholds {0.01, 0.05, 0.1} without refitting the Bayesian model.  
+  - **Path**: `code/analysis/sensitivity_sweeper.py`, `data/analysis/sensitivity_raw.csv`  
+  - **Verification**: CSV lists `threshold, correlation_alpha, delta` and `delta < 0.05` for all thresholds.  
 
-**Independent Test**: The analysis can be tested on simulated data where the correlation between a specific ROI and the updating parameter is known, verifying that the statistical test correctly identifies the significant association.
+- [ ] T036b [US3] Implement `code/analysis/sensitivity_reporter.py` to aggregate sweep results into `data/analysis/sensitivity_stability_report.csv`.  
+  - **Path**: `code/analysis/sensitivity_reporter.py`, `data/analysis/sensitivity_stability_report.csv`  
+  - **Verification**: Report includes a summary row with `max_change < 0.05`.  
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T038a [US3] Implement `code/reporting/generate_stats.py` to compile final statistics into `results/final_stats.json`.  
+  - **Path**: `code/reporting/generate_stats.py`, `results/final_stats.json`  
+  - **Verification**: JSON contains keys `partial_corr_r`, `p_value`, `fdr_q_value`, `power_estimate`.  
 
-- [ ] T029 [P] [US3] Contract test for GLM correlation in `tests/contract/test_glm_correlation.py`
-- [ ] T030 [P] [US3] Integration test for permutation testing in `tests/integration/test_permutation_test.py`
+- [ ] T038b [US3] Implement `code/reporting/generate_figures.py` to produce PNG figures saved under `results/figures/`.  
+  - **Path**: `code/reporting/generate_figures.py`, `results/figures/`  
+  - **Verification**: At least three figures (GLM beta map, correlation scatter, permutation histogram) are present and readable.  
 
-### Implementation for User Story 3
+- [ ] T038c [US3] Implement `code/reporting/generate_research_doc.py` to assemble `docs/research.md` linking to all generated artifacts.  
+  - **Path**: `code/reporting/generate_research_doc.py`, `docs/research.md`  
+  - **Verification**: The markdown file contains hyperlinks to `final_stats.json`, the figures, and the analysis tables.  
 
-- [ ] T037 [US3] Implement `code/main.py` logic for P3-P5 integration: Ensure data flow from P2 (alpha parameters from T027) to P3 (correlation tasks). **Must run before T031-T036.**
-- [ ] T031 [P] [US3] Implement `code/analysis/glm_analysis.py` to perform GLM analysis with parametric modulation by feedback discrepancy and extract beta values (satisfies FR-003).
-- [ ] T032 [US3] Implement `code/analysis/partial_correlation.py` to compute partial correlation between neural activation and alpha (controlling for input discrepancy).
-- [ ] T033 [US3] Implement `code/analysis/permutation_test.py` for voxel-wise inference (1000 perms) with FDR correction explicitly applied to the union of all p-values from voxel-wise and ROI analyses (q < 0.05).
-- [ ] T034 [US3] Implement `code/analysis/confound_control.py` to include motion parameters and aCompCor components as regressors
-- [ ] T035 [US3] Implement `code/analysis/loso_validation.py` for Leave-One-Subject-Out cross-validation to prevent tautology
-- [ ] T036a [US3] Implement `code/analysis/sensitivity_sweeper.py` to re-run correlation logic for a sweep of **belief-updating threshold/cutoff** values ({0.01, 0.05, 0.1}) on the alpha parameter to verify stability of headline correlation rates (FR-006); depends on filtered alpha set from T028/T027.
-- [ ] T036b [US3] Implement `code/analysis/sensitivity_reporter.py` to aggregate sweep results and generate `data/analysis/sensitivity_stability_report.csv` containing stability metrics (change < 0.05) as required by FR-006
-- [ ] T038a [US3] Implement `code/reporting/generate_stats.py` to compile final statistics into `results/final_stats.json`
-- [ ] T038b [US3] Implement `code/reporting/generate_figures.py` to create figures and save to `results/figures/`
-- [ ] T038c [US3] Implement `code/reporting/generate_research_doc.py` to compile `docs/research.md` with all results
+## Phase 2 – Complete the study and validate its evidence  
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T004 Run the full analysis pipeline (preprocessing, modeling, and neural‑behavioral analysis) and produce the final result file.  
+  - **Path**: `code/main.py --full-run`, `data/results/full_run.parquet`  
+  - **Verification**: After execution, downstream validation script `code/utils/verify_full_run.py` runs without error, confirming that `data/results/full_run.parquet` exists and contains all required columns; exit code 0.
 
----
+- [ ] T005 Add comprehensive integration, sensitivity, and runtime checks; record outcomes alongside result artifacts.  
+  - **Path**: `tests/integration/`, `results/runtime_report.json`  
+  - **Verification**: `pytest -m integration` passes; `runtime_report.json` includes `total_runtime < 6h` and `peak_memory < 6GB`.  
 
-## Phase N: Polish & Cross-Cutting Concerns
+- [ ] T006 Generate the final tables and figures directly from validated outputs, including uncertainty statements where required.  
+  - **Path**: `code/reporting/generate_stats.py`, `code/reporting/generate_figures.py`, `results/tables/`, `results/figures/`  
+  - **Verification**: Scripts run without error and produce at least one CSV table and one PNG figure that validate against the schemas in `contracts/`.  
 
-**Purpose**: Improvements that affect multiple user stories
+## Phase N – Polish & Cross‑cutting concerns  
 
-- [ ] T039a [P] Update `README.md` with sections: Installation, Data Download, Usage, and Troubleshooting
-- [ ] T039b [P] Generate API documentation for modules: preprocessing, modeling, analysis in `docs/api/`
-- [ ] T040 Code cleanup and refactoring for CPU memory optimization (chunking, masking)
-- [ ] T041 Performance optimization for P4 (permutation testing) to fit within 6h on 2 CPU cores
-- [ ] T042 [P] Additional unit tests in `tests/unit/` for edge cases (motion exclusion, non-convergence)
-- [ ] T043 Run `quickstart.md` validation to ensure end-to-end reproducibility
-- [ ] T020 [P] Implement `code/utils/hash_artifacts.py` to compute sha256 checksums for **all final files** in `data/` and `code/` and store them in `state/artifact_hashes.yaml` in the required format. **Must run AFTER T038c (all data processing and model generation complete).**
+- [ ] T039a [P] Update `README.md` with Installation, Data Download, Usage, and Troubleshooting sections.  
+  - **Verification**: Running `make quickstart` after the update still succeeds; `README.md` contains the headings `Installation`, `Data Download`, `Usage`, `Troubleshooting`.  
 
----
+- [ ] T039b [P] Generate API documentation in `docs/api/`.  
+  - **Verification**: `docs/api/` directory exists with HTML/Markdown files; `pytest --doctest-glob='docs/api/*.md'` passes.  
 
-## Dependencies & Execution Order
+- [ ] T040a [Sequential] Refactor `code/modeling/belief_updater.py` for CPU memory optimisation (peak < 6 GB).  
+  - **Verification**: Run `python -m memory_profiler code/modeling/belief_updater.py` and assert peak memory < 6 GB.  
 
-### Phase Dependencies
+- [ ] T041a [P] Implement `code/utils/runtime_reporter.py` to produce `results/runtime_report.json`.  
+  - **Verification**: `results/runtime_report.json` exists and contains keys `total_runtime` (≤ 6 h) and `peak_memory` (≤ 6 GB).  
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] T042 [P] Add additional unit tests for edge cases (motion exclusion, non‑convergence).  
+  - **Verification**: New tests are discovered by `pytest` and all pass.  
 
-### User Story Dependencies
+- [ ] T043 [Terminal] Validate `quickstart.md` end‑to‑end reproducibility.  
+  - **Verification**: CI step runs `make quickstart` and asserts exit 0 and that expected output files (e.g., `data/results/demo_output.parquet`) are created.  
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
- - **CRITICAL**: T032 (Partial Correlation) MUST run AFTER T024 (Model Fitting) to ensure alpha parameters exist.
- - **CRITICAL**: T031 (GLM) MUST run AFTER T017 (ROI Extraction) to ensure BOLD signals exist.
- - **CRITICAL**: T037 (Integration) MUST run BEFORE T031-T036 to establish data flow.
+- [ ] T020 [Terminal] Implement `code/utils/hash_artifacts.py` to compute SHA‑256 checksums for all final files and store them in `state/artifact_hashes.yaml`.  
+  - **Verification**: Test that `state/artifact_hashes.yaml` contains an entry for every file under `data/` and `code/`.  
 
-### Within Each User Story
+- [ ] T044 [P] Implement `code/utils/runtime_stress_test.py` to stress‑test a representative sample (N = 5) and output `results/stress_test_report.json`.  
+  - **Verification**: `results/stress_test_report.json` exists and reports runtime < 6 h for the sample.  
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
+- [ ] T046 [P] Create `docs/reproducibility_checklist.md` documenting exact steps, seeds, and environment variables, citing `state/artifact_hashes.yaml`.  
+  - **Verification**: File exists; contains hyperlinks to `state/artifact_hashes.yaml` and lists all seed values used.  
 
-### Parallel Opportunities
+- [ ] T047 [P] Implement `code/analysis/power_analyzer.py` to perform a post‑hoc power analysis and write `data/reports/power_analysis.json`.  
+  - **Verification**: `data/reports/power_analysis.json` is created and includes fields `estimated_power` and `effect_size`.  
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-- **Main.py Logic**: T019 (Init), T028 (P2), T037 (P3) are **SEQUENTIAL** modifications to `code/main.py` to prevent parallel conflicts.
+- [ ] T048 [P] Implement `code/analysis/assumption_checker.py` to verify GLM residual normality and homoscedasticity, outputting `data/reports/assumption_checks.json`.  
+  - **Verification**: `data/reports/assumption_checks.json` exists and contains boolean flags `normality_pass` and `homoscedasticity_pass`.  
 
-### Parallel Example: User Story 1
+- [ ] T051 [US3] Implement `code/analysis/voxel_downsampler.py` to down‑sample the full‑brain mask, reducing voxel count by ≥ 50 % and writing `data/analysis/search_volume_mask.nii.gz`.  
+  - **Verification**: Output mask file exists; voxel count ≤ 50 % of the original mask (checked via a script).  
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data validation in tests/contract/test_data_validation.py"
-Task: "Integration test for ROI extraction in tests/integration/test_roi_extraction.py"
+- [ ] T058 [P] Add a final compliance check script `code/utils/verification_suite.py` that runs all contract‑validation commands and exits with status 0 only if every JSON/YAML artifact validates against its schema.  
+  - **Verification**: Running `python -m code.utils.verification_suite` exits with status 0 on a clean repo; non‑zero otherwise.  
 
-# Launch all models for User Story 1 together:
-Task: "Implement data_validation.py"
-Task: "Implement data_download.py"
-```
+- [ ] T060 [P] Generate `data-model.md` from the ER diagram and schema definitions, and validate it against the specifications.  
+  - **Path**: `data-model.md` (generated), `contracts/data-model.schema.yaml` (hypothetical)  
+  - **Verification**: Script `code/utils/generate_data_model.py` runs and produces `data-model.md`; a contract test confirms the file exists and matches expected structure.  
 
----
+- [ ] T061 [P] Pin random seeds globally (see T001) and verify via `code/utils/reproducibility_test.py`.  
+  - **Verification**: Test script runs and asserts deterministic output across multiple invocations.  
 
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data Pipeline)
- - Developer B: User Story 2 (Modeling)
- - Developer C: User Story 3 (Analysis)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint Reminder**: All tasks must run on CPU-only (limited cores, limited RAM). No GPU, no 8-bit quantization. Use `numpyro` backend for `pymc`.
-- **Data Integrity**: {{claim:c_5f643418}} No synthetic data for final results.
-- **Main.py Execution**: T019 (Init) -> T028 (P2 Logic) -> T037 (P3 Logic) are sequential. Do not run T028 or T037 in parallel.
-- **Hashing**: T020 runs only after all processing (Phase N) to hash final artifacts.
+- [ ] T062 [P] Run the Reference‑Validator Agent (see T002) as part of CI; fail the build if any citation is unverified.  
+  - **Verification**: CI step executes `scripts/run_reference_validator.sh`; non‑zero exit aborts the pipeline.  

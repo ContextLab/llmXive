@@ -1,0 +1,80 @@
+name: Reproducibility Integration Test (CI Resource Constraints)
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+# This workflow tests the reproducibility of the analysis pipeline
+# under strict CI resource constraints (≤7GB RAM, ≤6h runtime).
+# It depends on T030-workflow logic being implemented.
+
+jobs:
+  reproducibility-check:
+    runs-on: ubuntu-latest
+    
+    # Resource constraints are enforced by the runner environment (GitHub Actions free-tier)
+    # We explicitly assert memory and time limits within the script to ensure compliance.
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          else
+            echo "requirements.txt not found"
+            exit 1
+          fi
+
+      - name: Run Resource Monitor & Reproducibility Check
+        id: run_check
+        run: |
+          python code/utils/resource_monitor.py --check-only
+          python code/utils/verify_pii_removal.py
+          python code/utils/generate_artifact_hashes.py
+          python code/main.py --run-reproducibility-test
+        env:
+          # Ensure strict memory limits are respected
+          PYTHONMALLOC: malloc
+          TF_CPP_MIN_LOG_LEVEL: 3
+
+      - name: Verify Numerical Tolerance
+        run: |
+          python code/tests/test_reproducibility.py --tolerance 1e-4
+
+      - name: Check Output Artifacts
+        run: |
+          if [ ! -f "data/analysis_results/results.csv" ]; then
+            echo "ERROR: data/analysis_results/results.csv not found"
+            exit 1
+          fi
+          if [ ! -f "data/interaction_logs/anonymized_logs.csv" ]; then
+            echo "ERROR: data/interaction_logs/anonymized_logs.csv not found"
+            exit 1
+          fi
+          echo "All required artifacts found."
+
+      - name: Final Resource Validation
+        run: |
+          # Final check to ensure we didn't exceed limits during the run
+          python code/utils/resource_monitor.py --validate-run
+
+      - name: Upload Results Artifact
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: reproducibility-results
+          path: |
+            data/analysis_results/
+            data/interaction_logs/
+            state/

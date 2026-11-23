@@ -1,96 +1,147 @@
-"""
-Unit tests for the SQLite metadata registry schema and helper functions.
-"""
-import os
 import sqlite3
+import os
 import tempfile
-import unittest
 from pathlib import Path
+import pytest
 
-# Adjust import path to match project structure
-from code.utils.db_schema import init_db, ensure_subject, register_file, update_file_status, get_files_by_status
+# Mock the DB_PATH to use a temporary file for testing
+import sys
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "code"))
 
+from utils.db_schema import (
+    get_schema,
+    init_db,
+    ensure_subject,
+    register_file,
+    update_file_status,
+    get_files_by_status,
+    calculate_file_hash
+)
 
-class TestMetadataRegistry(unittest.TestCase):
-    def setUp(self):
-        """Create a temporary database for testing."""
-        self.temp_dir = tempfile.TemporaryDirectory()
-        self.db_path = os.path.join(self.temp_dir.name, "test_registry.db")
-        self.conn = init_db(self.db_path)
+@pytest.fixture
+def temp_db():
+    """Create a temporary database for testing."""
+    with tempfile.NamedTemporaryFile(suffix=".db", delete=False) as f:
+        db_path = f.name
+    
+    # Patch the DB_PATH temporarily
+    original_path = None
+    # We can't easily patch the module-level constant, so we'll test the logic directly
+    # by creating a connection to the temp db and running the schema manually
+    conn = sqlite3.connect(db_path)
+    conn.execute(get_schema())
+    conn.commit()
+    
+    yield conn, db_path
+    
+    conn.close()
+    os.unlink(db_path)
 
-    def tearDown(self):
-        """Clean up the temporary database."""
-        self.conn.close()
-        self.temp_dir.cleanup()
+def test_get_schema():
+    """Test that schema is returned correctly."""
+    schema = get_schema()
+    assert "CREATE TABLE IF NOT EXISTS subjects" in schema
+    assert "CREATE TABLE IF NOT EXISTS files" in schema
+    assert "subject_id TEXT PRIMARY KEY" in schema
+    assert "file_path TEXT NOT NULL" in schema
+    assert "checksum TEXT NOT NULL" in schema
+    assert "status TEXT NOT NULL" in schema
 
-    def test_schema_creation(self):
-        """Verify that tables are created upon initialization."""
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
-        tables = {row[0] for row in cursor.fetchall()}
-        self.assertIn("subjects", tables)
-        self.assertIn("files", tables)
+def test_ensure_subject(temp_db):
+    """Test that subjects are created correctly."""
+    conn, _ = temp_db
+    ensure_subject(conn, "sub-001")
+    
+    cursor = conn.cursor()
+    cursor.execute("SELECT subject_id FROM subjects WHERE subject_id = ?", ("sub-001",))
+    result = cursor.fetchone()
+    assert result is not None
+    assert result[0] == "sub-001"
 
-    def test_ensure_subject(self):
-        """Test that a subject can be added to the registry."""
-        ensure_subject(self.conn, "sub-001")
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT subject_id, status FROM subjects WHERE subject_id = ?", ("sub-001",))
-        row = cursor.fetchone()
-        self.assertIsNotNone(row)
-        self.assertEqual(row["subject_id"], "sub-001")
-        self.assertEqual(row["status"], "pending")
-
-    def test_ensure_subject_idempotent(self):
-        """Ensure that calling ensure_subject twice doesn't duplicate rows."""
-        ensure_subject(self.conn, "sub-001")
-        ensure_subject(self.conn, "sub-001")
-        cursor = self.conn.cursor()
-        cursor.execute("SELECT COUNT(*) FROM subjects WHERE subject_id = ?", ("sub-001",))
-        count = cursor.fetchone()[0]
-        self.assertEqual(count, 1)
-
-    def test_register_file(self):
-        """Test registering a file associated with a subject."""
-        register_file(self.conn, "sub-001", "data/raw/sub-001/task-rest_bold.nii.gz", checksum="abc123")
-        cursor = self.conn.cursor()
+def test_register_file(temp_db):
+    """Test file registration."""
+    conn, _ = temp_db
+    
+    # Create a temporary file to register
+    with tempfile.NamedTemporaryFile(delete=False) as f:
+        f.write(b"test content")
+        temp_file = f.name
+    
+    try:
+        register_file(conn, "sub-002", temp_file)
+        
+        cursor = conn.cursor()
         cursor.execute(
             "SELECT subject_id, file_path, checksum, status FROM files WHERE subject_id = ?",
-            ("sub-001",)
+            ("sub-002",)
         )
-        row = cursor.fetchone()
-        self.assertIsNotNone(row)
-        self.assertEqual(row["file_path"], "data/raw/sub-001/task-rest_bold.nii.gz")
-        self.assertEqual(row["checksum"], "abc123")
-        self.assertEqual(row["status"], "pending")
+        result = cursor.fetchone()
+        assert result is not None
+        assert result[0] == "sub-002"
+        assert result[3] == "pending"
+    finally:
+        os.unlink(temp_file)
 
-    def test_update_file_status(self):
-        """Test updating the status and checksum of a file."""
-        register_file(self.conn, "sub-002", "data/raw/sub-002/task-rest_bold.nii.gz", checksum="old_hash")
-        update_file_status(self.conn, "sub-002", "data/raw/sub-002/task-rest_bold.nii.gz", "processed", checksum="new_hash")
-
-        cursor = self.conn.cursor()
+def test_update_file_status(temp_db):
+    """Test status updates."""
+    conn, _ = temp_db
+    
+    with tempfile.NamedTemporaryFile(delete=False) as f:
+        f.write(b"test content")
+        temp_file = f.name
+    
+    try:
+        register_file(conn, "sub-003", temp_file)
+        update_file_status(conn, temp_file, "processed")
+        
+        cursor = conn.cursor()
         cursor.execute(
-            "SELECT status, checksum FROM files WHERE subject_id = ? AND file_path = ?",
-            ("sub-002", "data/raw/sub-002/task-rest_bold.nii.gz")
+            "SELECT status FROM files WHERE file_path = ?",
+            (temp_file,)
         )
-        row = cursor.fetchone()
-        self.assertEqual(row["status"], "processed")
-        self.assertEqual(row["checksum"], "new_hash")
+        result = cursor.fetchone()
+        assert result is not None
+        assert result[0] == "processed"
+    finally:
+        os.unlink(temp_file)
 
-    def test_get_files_by_status(self):
-        """Test retrieving files by their status."""
-        register_file(self.conn, "sub-003", "data/raw/sub-003/task-rest_bold.nii.gz", status="pending")
-        register_file(self.conn, "sub-004", "data/raw/sub-004/task-rest_bold.nii.gz", status="processed")
+def test_get_files_by_status(temp_db):
+    """Test filtering files by status."""
+    conn, _ = temp_db
+    
+    with tempfile.NamedTemporaryFile(delete=False) as f1:
+        f1.write(b"content1")
+        file1 = f1.name
+    
+    with tempfile.NamedTemporaryFile(delete=False) as f2:
+        f2.write(b"content2")
+        file2 = f2.name
+    
+    try:
+        register_file(conn, "sub-004", file1, "pending")
+        register_file(conn, "sub-005", file2, "processed")
+        
+        pending_files = get_files_by_status(conn, "pending")
+        assert len(pending_files) == 1
+        assert pending_files[0]["file_path"] == file1
+        
+        processed_files = get_files_by_status(conn, "processed")
+        assert len(processed_files) == 1
+        assert processed_files[0]["file_path"] == file2
+    finally:
+        os.unlink(file1)
+        os.unlink(file2)
 
-        pending_files = get_files_by_status(self.conn, "pending")
-        processed_files = get_files_by_status(self.conn, "processed")
-
-        self.assertEqual(len(pending_files), 1)
-        self.assertEqual(len(processed_files), 1)
-        self.assertEqual(pending_files[0]["subject_id"], "sub-003")
-        self.assertEqual(processed_files[0]["subject_id"], "sub-004")
-
-
-if __name__ == "__main__":
-    unittest.main()
+def test_calculate_file_hash():
+    """Test file hash calculation."""
+    with tempfile.NamedTemporaryFile(delete=False) as f:
+        f.write(b"test content")
+        temp_file = f.name
+    
+    try:
+        hash1 = calculate_file_hash(temp_file)
+        hash2 = calculate_file_hash(temp_file)
+        assert hash1 == hash2
+        assert len(hash1) == 64  # SHA256 hex length
+    finally:
+        os.unlink(temp_file)

@@ -1,6 +1,0 @@
-# Tasks an independent verifier REJECTED (redo these)
-
-A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
-
-- **T082** — The repository lacks `data/processed/crosslinker_sensitivity_report.csv` entirely, and `code/modeling.py` contains no logic that writes such a file with the required columns. Likewise, `code/main.py` does not include any check for the presence of this report before proceeding. The task’s core requirement is therefore unmet.
-- **T085** — The required file `data/processed/data_source_verification_report.json` does not exist, and the provided `utils.py` excerpt does not show any function that creates and writes this JSON report. Consequently, `main.py` cannot validate a non‑existent report, so the task’s core requirement is unmet. The next implementer must add a function in `utils.py` that generates the verification report and writes it to the specified path, and ensure `main.py` loads and checks this file before continuing.

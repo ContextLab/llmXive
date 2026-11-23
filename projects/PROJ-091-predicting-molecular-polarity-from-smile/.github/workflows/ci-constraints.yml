@@ -1,0 +1,184 @@
+name: CI Constraints Verification (T044)
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  verify-constraints:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.9'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r code/requirements.txt
+        # Install specific tools for constraint measurement
+        pip install memory-profiler psutil
+
+    - name: Run full pipeline with constraint monitoring
+      id: pipeline_run
+      run: |
+        # Create a temporary script to wrap the main pipeline with memory/time monitoring
+        cat > /tmp/run_with_monitoring.py << 'EOF'
+        import sys
+        import os
+        import time
+        import json
+        import psutil
+        import threading
+        from pathlib import Path
+
+        # Add code directory to path
+        code_dir = Path(__file__).parent / 'code'
+        sys.path.insert(0, str(code_dir))
+
+        def get_memory_usage_mb():
+            """Get current memory usage in MB"""
+            process = psutil.Process(os.getpid())
+            return process.memory_info().rss / 1024 / 1024
+
+        def monitor_memory(max_memory_file, interval=1.0):
+            """Continuously monitor memory and write peak to file"""
+            peak_memory = 0.0
+            start_time = time.time()
+            
+            try:
+                while True:
+                    current = get_memory_usage_mb()
+                    if current > peak_memory:
+                        peak_memory = current
+                    
+                    # Write current state periodically
+                    with open(max_memory_file, 'w') as f:
+                        json.dump({
+                            'peak_memory_mb': peak_memory,
+                            'elapsed_seconds': time.time() - start_time
+                        }, f)
+                    
+                    time.sleep(interval)
+            except KeyboardInterrupt:
+                pass
+            
+            return peak_memory
+
+        def run_pipeline():
+            """Run the main pipeline"""
+            from main import main
+            
+            # Set arguments for full pipeline run
+            sys.argv = ['main', '--full-pipeline']
+            main()
+
+        if __name__ == '__main__':
+            max_memory_file = '/tmp/peak_memory.json'
+            
+            # Start memory monitoring thread
+            monitor_thread = threading.Thread(
+                target=monitor_memory,
+                args=(max_memory_file,),
+                daemon=True
+            )
+            monitor_thread.start()
+            
+            start_time = time.time()
+            try:
+                run_pipeline()
+                success = True
+            except Exception as e:
+                print(f"Pipeline failed: {e}", file=sys.stderr)
+                success = False
+            end_time = time.time()
+            
+            # Wait for monitoring thread to finish writing
+            time.sleep(2)
+            
+            # Read final metrics
+            with open(max_memory_file, 'r') as f:
+                metrics = json.load(f)
+            
+            # Save results
+            results = {
+                'success': success,
+                'total_runtime_seconds': end_time - start_time,
+                'peak_memory_mb': metrics['peak_memory_mb'],
+                'constraints': {
+                    'max_runtime_seconds': 6 * 3600,  # 6 hours
+                    'max_memory_mb': 6 * 1024  # 6 GB
+                }
+            }
+            
+            with open('/tmp/constraint_results.json', 'w') as f:
+                json.dump(results, f, indent=2)
+            
+            # Print summary
+            print(f"Pipeline completed: {success}")
+            print(f"Runtime: {results['total_runtime_seconds']:.2f}s")
+            print(f"Peak Memory: {results['peak_memory_mb']:.2f} MB")
+            
+            if not success:
+                sys.exit(1)
+        EOF
+
+        # Execute monitoring script
+        python /tmp/run_with_monitoring.py
+
+    - name: Verify constraints
+      run: |
+        # Read results
+        RESULTS=$(cat /tmp/constraint_results.json)
+        
+        SUCCESS=$(echo $RESULTS | python -c "import sys, json; print(json.load(sys.stdin)['success'])")
+        RUNTIME=$(echo $RESULTS | python -c "import sys, json; print(json.load(sys.stdin)['total_runtime_seconds'])")
+        MEMORY=$(echo $RESULTS | python -c "import sys, json; print(json.load(sys.stdin)['peak_memory_mb'])")
+        MAX_RUNTIME=$(echo $RESULTS | python -c "import sys, json; print(json.load(sys.stdin)['constraints']['max_runtime_seconds'])")
+        MAX_MEMORY=$(echo $RESULTS | python -c "import sys, json; print(json.load(sys.stdin)['constraints']['max_memory_mb'])")
+        
+        echo "=== Constraint Verification Results ==="
+        echo "Success: $SUCCESS"
+        echo "Runtime: $RUNTIME seconds (limit: $MAX_RUNTIME seconds)"
+        echo "Peak Memory: $MEMORY MB (limit: $MAX_MEMORY MB)"
+        
+        # Check constraints
+        if [ "$SUCCESS" != "True" ]; then
+            echo "❌ Pipeline execution failed"
+            exit 1
+        fi
+        
+        # Check runtime constraint
+        RUNTIME_OK=$(python -c "print('true' if $RUNTIME <= $MAX_RUNTIME else 'false')")
+        if [ "$RUNTIME_OK" != "true" ]; then
+            echo "❌ Runtime constraint violated: ${RUNTIME}s > ${MAX_RUNTIME}s"
+            exit 1
+        fi
+        echo "✅ Runtime constraint satisfied"
+        
+        # Check memory constraint
+        MEMORY_OK=$(python -c "print('true' if $MEMORY <= $MAX_MEMORY else 'false')")
+        if [ "$MEMORY_OK" != "true" ]; then
+            echo "❌ Memory constraint violated: ${MEMORY}MB > ${MAX_MEMORY}MB"
+            exit 1
+        fi
+        echo "✅ Memory constraint satisfied"
+        
+        echo "✅ All computational constraints verified successfully"
+
+    - name: Upload constraint report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: constraint-verification-report
+        path: |
+          /tmp/constraint_results.json
+          /tmp/peak_memory.json
+        retention-days: 30

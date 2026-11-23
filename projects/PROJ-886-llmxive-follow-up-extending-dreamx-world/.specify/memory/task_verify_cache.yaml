@@ -1,0 +1,42 @@
+T001c:
+  c: false
+  h: 243a9beaece9cb34ef5a772eb6626454e2decaa0b53aa1cc20a3e5267c2a1a57
+  r: "The implementer supplied non\u2011empty `__init__.py` files (they contain imports\
+    \ and docstrings) and did not provide the required placeholder files `requirements.txt`,\
+    \ `README.md`, `pyproject.toml`, or `.ruff.toml` at all. The task demanded empty\
+    \ placeholder files for all listed paths, which is not satisfied."
+T005a:
+  c: false
+  h: fd5929e48b0185715ffb8c19e2fed27305a2183e9d3f63fd330235323a9cceba
+  r: The provided `pyproject.toml` correctly contains the `[tool.black]` and `[tool.ruff]`
+    sections, but the required `.ruff.toml` (or `ruff.toml`) file in `projects/PROJ-886-llmxive-follow-up-extending-dreamx-world/`
+    is missing, so the linting configuration is incomplete.
+T005b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting logs, command output, or any proof that `ruff check` and `black --check`
+    were run and passed without errors in the specified project directory were provided.
+    The required artifact (successful linting verification) is missing.
+T023b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `projects/PROJ-886-llmxive-follow-up-extending-dreamx-world/data/derived/videos/`
+    directory (or any files within it) is provided; the implementer only supplied
+    a feature specification, not the actual filesystem artifact. The task remains
+    undone until the directory structure is created and visible.
+T030:
+  c: false
+  h: aab5ca4a42103e53c93f31108d5c2b6cbd0ce71e329839be280fff23585a42fa
+  r: The `stats.py` script defines functions for loading metrics and computing censoring
+    rates, but it does not contain any logic that writes or appends those results
+    to `data/derived/statistical_results.json`. Moreover, the required `statistical_results.json`
+    file is absent from the repository. Both the output artifact and the append operation
+    are missing.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `README.md` under `projects/PROJ-886-llmxive-follow-up-extending-dreamx-world/`
+    nor any updated files in the `docs/` directory were presented. The claim only
+    contains a feature specification and test scenarios, but provides no actual documentation
+    artifacts covering the Data Fallback Protocol as required. The missing documentation
+    must be added and shown.

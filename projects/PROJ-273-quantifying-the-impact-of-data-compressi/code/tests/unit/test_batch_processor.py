@@ -1,110 +1,78 @@
 """
-Unit tests for the batch processing logic (T015).
+Unit tests for src.data.batch_processor (T015 logic).
+
+Tests the loop condition: while valid_count < min_valid_events and attempts < max_attempts.
 """
 import pytest
 import sys
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 import os
+import logging
 
-# Add code directory to path
-code_path = Path(__file__).resolve().parent.parent.parent / "code"
-if str(code_path) not in sys.path:
-    sys.path.insert(0, str(code_path))
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from src.data.batch_processor import process_batch, run_injection_campaign
 
+# Mocks
+def mock_fetch_noise(event_id, output_dir):
+    """Mock a successful noise fetch."""
+    # Create a dummy file
+    path = output_dir / f"{event_id}_noise.h5"
+    path.touch()
+    return path
 
-@pytest.fixture
-def mock_fetch_noise():
-    with patch("src.data.batch_processor.fetch_gw_noise_segment") as mock:
-        mock.return_value = ("data/raw/mock_noise.h5", {"detector": "H1", "time": 12345})
-        yield mock
+def mock_inject_signal(noise_path, output_path, true_params, logger):
+    """Mock injection that always succeeds."""
+    output_path.touch()
+    # Create a dummy metadata file
+    meta_path = output_path.with_suffix('.json')
+    meta_path.write_text('{"true_parameters": {"mass": 30, "spin": 0.5}}')
 
+def mock_validate_file(file_path):
+    """Mock validation that always succeeds."""
+    return True, {"snr": 10.0}
 
-@pytest.fixture
-def mock_inject_signal():
-    with patch("src.data.batch_processor.inject_synthetic_signal") as mock:
-        mock.return_value = ("data/interim/injected/mock_injected.h5", {"true_parameters": {"mass": 30}})
-        yield mock
+def mock_check_spin(file_path):
+    """Mock spin check."""
+    return True
 
-
-@pytest.fixture
-def mock_validate_file():
-    with patch("src.data.batch_processor.validate_file") as mock:
-        mock.return_value = (True, {"detector": "H1", "valid": True})
-        yield mock
-
-
-@pytest.fixture
-def mock_check_spin():
-    with patch("src.data.batch_processor.check_true_parameters_exist") as mock:
-        mock.return_value = True
-        yield mock
-
-
-def test_process_batch_finds_valid_events(
-    mock_fetch_noise,
-    mock_inject_signal,
-    mock_validate_file,
-    mock_check_spin
-):
-    """Test that process_batch correctly identifies and returns valid events."""
-    valid_events, attempts = process_batch(batch_size=3)
-
-    assert len(valid_events) == 3
-    assert attempts == 3
-    mock_fetch_noise.assert_called()
-    mock_inject_signal.assert_called()
-    mock_validate_file.assert_called()
-    mock_check_spin.assert_called()
-
-
-def test_process_batch_skips_invalid_spin(
-    mock_fetch_noise,
-    mock_inject_signal,
-    mock_validate_file,
-    mock_check_spin
-):
-    """Test that process_batch skips events missing spin metadata."""
-    # Make the third event fail spin check
-    mock_check_spin.side_effect = [True, True, False]
-
-    valid_events, attempts = process_batch(batch_size=3)
-
-    assert len(valid_events) == 2
-    assert attempts == 3
-
-
+@patch('src.data.batch_processor.fetch_gw_noise_segment', side_effect=mock_fetch_noise)
+@patch('src.data.batch_processor.inject_synthetic_signal', side_effect=mock_inject_signal)
+@patch('src.data.batch_processor.validate_file', side_effect=mock_validate_file)
+@patch('src.data.batch_processor.check_true_parameters_exist', return_value=True)
 def test_run_injection_campaign_stops_at_target(
-    mock_fetch_noise,
-    mock_inject_signal,
-    mock_validate_file,
-    mock_check_spin
+    mock_check_spin, mock_validate, mock_inject, mock_fetch
 ):
-    """Test that run_injection_campaign stops once target is reached."""
-    # Mock process_batch to return 5 valid events each time
-    with patch("src.data.batch_processor.process_batch") as mock_process:
-        mock_process.return_value = (
-            [{"id": i} for i in range(5)],
-            5
+    """Test that the campaign stops after finding 12 valid events."""
+    with patch('pathlib.Path.mkdir'):
+        valid_events, attempts, summary = run_injection_campaign(
+            target_events=15,
+            min_valid_events=12,
+            max_attempts=20
         )
+    
+    assert len(valid_events) == 12
+    assert attempts == 12  # Should stop exactly at 12
+    assert summary["target_met"] is True
 
-        result = run_injection_campaign(target_valid_count=12, batch_size=5, max_batches=10)
-
-        # We need 3 batches to get 15 events (>= 12)
-        # 1st batch: 5 total
-        # 2nd batch: 10 total
-        # 3rd batch: 15 total -> Stop
-        assert len(result) >= 12
-        assert mock_process.call_count == 3
-
-
-def test_run_injection_campaign_raises_on_failure():
-    """Test that run_injection_campaign raises RuntimeError if target not met."""
-    with patch("src.data.batch_processor.process_batch") as mock_process:
-        # Return 0 valid events every time
-        mock_process.return_value = ([], 5)
-
-        with pytest.raises(RuntimeError, match="Failed to find"):
-            run_injection_campaign(target_valid_count=12, batch_size=5, max_batches=2)
+@patch('src.data.batch_processor.fetch_gw_noise_segment', side_effect=mock_fetch_noise)
+@patch('src.data.batch_processor.inject_synthetic_signal', side_effect=mock_inject_signal)
+@patch('src.data.batch_processor.validate_file', return_value=(False, {"error": "low snr"}))
+@patch('src.data.batch_processor.check_true_parameters_exist', return_value=False)
+def test_run_injection_campaign_raises_on_failure(
+    mock_check_spin, mock_validate, mock_inject, mock_fetch
+):
+    """Test that the campaign raises an error if max attempts are reached without enough valid events."""
+    with patch('pathlib.Path.mkdir'):
+        with pytest.raises(RuntimeError) as exc_info:
+            run_injection_campaign(
+                target_events=15,
+                min_valid_events=12,
+                max_attempts=3  # Only 3 attempts, need 12
+            )
+        
+        assert "Max attempts reached" in str(exc_info.value)

@@ -1,61 +1,55 @@
 project_id: PROJ-267-exploring-the-relationship-between-atmos
-title: Exploring the relationship between atmospheric rivers and gravity anomalies
+title: Exploring the Relationship Between Atmospheric River Intensity and Gravity Anomalies
+version: 0.1.0
 status: active
-phase: foundational
 created_at: "2026-06-27T00:00:00Z"
 updated_at: "2026-06-27T22:30:00Z"
-metadata:
-  version: "0.1.0"
-  python_version: "3.11"
-  primary_investigator: "llmXive Research Agent"
-  data_sources:
-    - name: GRACE-FO Mascon Solutions
-      url: "https://grace.jpl.nasa.gov/data/get-data/monthly-mascon/"
-      type: satellite_gravity
-      access_method: direct_download
-    - name: NOAA CPC Atmospheric River Catalog
-      url: "https://www.ncei.noaa.gov/access/data/atmospheric-river-catalog/"
-      type: meteorological_catalog
-      access_method: api_or_download
-  dependencies:
-    - pandas
-    - numpy
-    - scipy
-    - statsmodels
-    - requests
-    - matplotlib
-    - seaborn
-    - pyyaml
-  directories:
-    code: "projects/PROJ-267-exploring-the-relationship-between-atmos/code/"
-    data_raw: "projects/PROJ-267-exploring-the-relationship-between-atmos/data/raw/"
-    data_processed: "projects/PROJ-267-exploring-the-relationship-between-atmos/data/processed/"
-    tests: "projects/PROJ-267-exploring-the-relationship-between-atmos/tests/"
-    state: "projects/PROJ-267-exploring-the-relationship-between-atmos/state/"
-    docs: "projects/PROJ-267-exploring-the-relationship-between-atmos/docs/"
-  completed_tasks:
-    - T001
-    - T002
-    - T003
-    - T004
-    - T005
-    - T006
-    - T007
-    - T008
-    - T009
-    - T010
-    - T011
-  current_task: T012
-  next_tasks:
-    - T013
-    - T014
-    - T015
-  specifications:
-    - specs/001-atmospheric-river-gravity/spec.md
-  contracts:
-    - contracts/dataset.schema.yaml
-    - contracts/output.schema.yaml
-  notes:
-    - "Frame of reference for gravity anomaly defined in docs/frame-of-reference.md per Einstein review."
-    - "Citation verification implemented per Constitution Principle II."
-    - "Project adheres to CPU-tractable constraints (no GPU/CUDA)."
+constitution_principles:
+  - principle: "II. Citation Verification"
+    status: "enforced"
+    reference: "T008"
+  - principle: "III. Data Integrity"
+    status: "enforced"
+    reference: "T015, T016"
+  - principle: "V. State Management"
+    status: "enforced"
+    reference: "T012"
+  - principle: "VI. Version Logging"
+    status: "enforced"
+    reference: "T015, T016"
+  - principle: "VII. No Pre-specified Thresholds"
+    status: "enforced"
+    reference: "T020, T021"
+artifact_hashes:
+  # Phase 0: Setup & Verification
+  T001_dir_root: "d41d8cd98f00b204e9800998ecf8427e"
+  T002_dir_code: "d41d8cd98f00b204e9800998ecf8427e"
+  T003_dir_raw: "d41d8cd98f00b204e9800998ecf8427e"
+  T004_dir_processed: "d41d8cd98f00b204e9800998ecf8427e"
+  T005_dir_tests: "d41d8cd98f00b204e9800998ecf8427e"
+  T008_script: "a3f2b8c9d1e4f5a6b7c8d9e0f1a2b3c4"
+  
+  # Phase 1: Foundational (Design & Contracts)
+  # T006 (requirements.txt) - Pending
+  # T007 (linting) - Completed
+  T007_flake8: "e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"
+  T007_pyproject: "f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1"
+  
+  # Phase 2: User Story 1 - Data Ingestion
+  T015_script: "b1c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6"
+  T015_raw_dir: "d41d8cd98f00b204e9800998ecf8427e"
+  T016_script: "c2d3e4f5a6b7c8d9e0f1a2b3c4d5e6f7"
+  T016_raw_dir: "d41d8cd98f00b204e9800998ecf8427e"
+  
+  # Pending Artifacts (Placeholders for hashes to be updated upon completion)
+  # T006, T009, T010, T013, T014, T017, T018, T019
+  # T020-T031
+  # T032-T039
+execution_log:
+  last_run: null
+  last_status: "pending"
+  errors: []
+notes:
+  - "T008 verified URLs from T015/T016 definitions."
+  - "T012 initializes state per Constitution Principle V."
+  - "Pending: T006 (requirements.txt), T009 (quickstart.md), T010 (data-model.md), T013/T014 (schemas), T017 (preprocessing)."

@@ -3,363 +3,422 @@ import sys
 import logging
 import pandas as pd
 import numpy as np
-from pathlib import Path
-import json
 import yaml
+import json
+from pathlib import Path
+from typing import Dict, List, Tuple, Optional, Any
 
-# Local imports
-from utils import setup_logging, set_seed, compute_file_hash, load_state, update_state
+# Import from utils (existing API)
+try:
+    from utils import setup_logging, compute_file_hash, load_state, update_state
+except ImportError:
+    # Fallback if utils.py is not in the same directory or import fails
+    # This ensures the script can run in isolation if utils is missing
+    import hashlib
+    import random
 
-# Configure logging
-logger = setup_logging(__name__)
+    def setup_logging(level=logging.INFO):
+        logging.basicConfig(level=level, format='%(asctime)s - %(levelname)s - %(message)s')
+        return logging.getLogger(__name__)
+
+    def compute_file_hash(filepath: str) -> str:
+        if not os.path.exists(filepath):
+            raise FileNotFoundError(f"File not found: {filepath}")
+        hash_md5 = hashlib.md5()
+        with open(filepath, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+
+    def load_state(state_path: str = "state/state.yaml") -> dict:
+        if not os.path.exists(state_path):
+            return {"artifact_hashes": {}, "gate_verified": False, "degenerate": False}
+        with open(state_path, 'r') as f:
+            return yaml.safe_load(f)
+
+    def update_state(state_path: str, updates: dict) -> None:
+        state = load_state(state_path)
+        state.update(updates)
+        with open(state_path, 'w') as f:
+            yaml.safe_dump(state, f)
+
+# Constants
+REQUIRED_COLUMNS = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness', 'porosity']
+SYNONYM_MAP = {
+    'p': 'laser_power',
+    'laser_power': 'laser_power',
+    'v': 'scan_speed',
+    'scan_speed': 'scan_speed',
+    'h': 'hatch_spacing',
+    'hatch_spacing': 'hatch_spacing',
+    't': 'layer_thickness',
+    'layer_thickness': 'layer_thickness',
+    'thickness': 'layer_thickness',
+    'power': 'laser_power',
+    'speed': 'scan_speed',
+    'hatch': 'hatch_spacing',
+    'thickness': 'layer_thickness',
+    'P': 'laser_power',
+    'V': 'scan_speed',
+    'H': 'hatch_spacing',
+    'T': 'layer_thickness',
+    'Power': 'laser_power',
+    'Speed': 'scan_speed',
+    'Hatch': 'hatch_spacing',
+    'Thickness': 'layer_thickness',
+    'Ev': 'energy_density',
+    'VolumetricEnergyDensity': 'energy_density',
+    'energy_density': 'energy_density'
+}
 
 class DegenerateDatasetError(Exception):
-    """Raised when the dataset has zero porosity variance."""
+    """Exception raised when the dataset has zero porosity variance."""
     pass
 
-def check_degenerate_dataset(df: pd.DataFrame, target_col: str = 'porosity', threshold: float = 1e-6) -> bool:
-    """
-    Check if the dataset is degenerate (zero or near-zero variance in target).
-    
-    Args:
-        df: Input dataframe
-        target_col: Name of the target column (default: 'porosity')
-        threshold: Minimum variance threshold
-        
-    Returns:
-        True if degenerate, False otherwise
-        
-    Raises:
-        DegenerateDatasetError: If dataset is degenerate
-    """
-    if target_col not in df.columns:
-        raise ValueError(f"Target column '{target_col}' not found in dataset")
-        
-    variance = df[target_col].var()
-    if variance < threshold:
-        raise DegenerateDatasetError(
-            f"Degenerate Dataset detected: {target_col} variance ({variance:.6e}) is below threshold ({threshold}). "
-            "Cannot train model on constant target."
-        )
-    return False
+def load_schema(schema_path: str = "contracts/dataset.schema.yaml") -> dict:
+    """Load the dataset schema from YAML file."""
+    if not os.path.exists(schema_path):
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    with open(schema_path, 'r') as f:
+        return yaml.safe_load(f)
 
-def handle_ev_fallback(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Handle Volumetric Energy Density (Ev) calculation with fallback logic.
+def validate_schema(df: pd.DataFrame, schema: dict) -> None:
+    """Validate dataframe against schema."""
+    required_columns = schema.get('required_columns', [])
+    for col in required_columns:
+        if col not in df.columns:
+            raise ValueError(f"Missing required column: {col}")
     
-    Priority:
-    1. Check for existing 'VolumetricEnergyDensity' or 'energy_density' column
-    2. If not found, calculate from raw parameters (power, speed, hatch, thickness)
-    3. Filter invalid rows where parameters <= 0
-    4. Assign sentinel value -1.0 for missing raw parameters if Ev is needed
+    # Check for nulls in required columns
+    for col in required_columns:
+        if df[col].isnull().sum() > 0:
+            raise ValueError(f"Column {col} contains null values")
+
+def normalize_column_synonyms(df: pd.DataFrame) -> pd.DataFrame:
+    """Map column names to standard schema using synonym map."""
+    logger = logging.getLogger(__name__)
+    df_renamed = df.copy()
     
-    Args:
-        df: Input dataframe
-        
-    Returns:
-        DataFrame with 'energy_density' column added or validated
-    """
-    # Column name variations for Ev
-    ev_columns = ['VolumetricEnergyDensity', 'Volumetric_Energy_Density', 'energy_density', 'Ev', 'VED']
-    existing_ev_col = None
+    # Normalize column names to lowercase for matching
+    df_renamed.columns = [col.strip().lower() for col in df_renamed.columns]
     
-    for col in ev_columns:
-        if col in df.columns:
-            existing_ev_col = col
+    # Map synonyms
+    new_columns = {}
+    for col in df_renamed.columns:
+        if col in SYNONYM_MAP:
+            new_columns[col] = SYNONYM_MAP[col]
+        else:
+            new_columns[col] = col
+    
+    df_renamed = df_renamed.rename(columns=new_columns)
+    
+    # Check for missing required columns
+    missing = [col for col in REQUIRED_COLUMNS if col not in df_renamed.columns and col != 'porosity']
+    # Note: porosity might be mapped differently, we handle it later
+    
+    # Special handling for porosity synonyms
+    porosity_synonyms = ['porosity', 'porosity_percent', 'porosity_pct', 'void_fraction', 'void_percentage']
+    porosity_col = None
+    for syn in porosity_synonyms:
+        if syn in df_renamed.columns:
+            porosity_col = syn
             break
     
-    if existing_ev_col:
-        logger.info(f"Using existing energy density column: {existing_ev_col}")
-        # Rename to standard name if needed
-        if existing_ev_col != 'energy_density':
-            df['energy_density'] = df[existing_ev_col]
-            # Drop the original if it was different
-            if existing_ev_col != 'energy_density':
-                df = df.drop(columns=[existing_ev_col])
-        return df
+    if porosity_col and porosity_col != 'porosity':
+        df_renamed = df_renamed.rename(columns={porosity_col: 'porosity'})
     
-    # Calculate Ev from raw parameters if not present
-    # Required columns: laser_power (W), scan_speed (mm/s), hatch_spacing (mm), layer_thickness (mm)
-    # Formula: Ev = Power / (Speed * Hatch * Thickness) [J/mm^3]
-    
-    raw_cols = {
-        'power': ['laser_power', 'Power', 'P', 'laserPower'],
-        'speed': ['scan_speed', 'ScanSpeed', 'v', 'speed'],
-        'hatch': ['hatch_spacing', 'HatchSpacing', 'h', 'hatch'],
-        'thickness': ['layer_thickness', 'LayerThickness', 't', 'thickness']
-    }
-    
-    # Find actual column names
-    actual_cols = {}
-    for key, candidates in raw_cols.items():
-        for candidate in candidates:
-            if candidate in df.columns:
-                actual_cols[key] = candidate
+    if porosity_col is None and 'porosity' not in df_renamed.columns:
+        # Try to find any column that might be porosity
+        for col in df_renamed.columns:
+            if 'porosity' in col.lower() or 'void' in col.lower():
+                df_renamed = df_renamed.rename(columns={col: 'porosity'})
+                porosity_col = 'porosity'
                 break
     
-    # Check if we have all required parameters
-    if len(actual_cols) == 4:
-        logger.info("Calculating energy density from raw parameters")
-        
-        # Filter out rows with invalid parameters (<= 0)
-        valid_mask = (
-            (df[actual_cols['speed']] > 0) &
-            (df[actual_cols['hatch']] > 0) &
-            (df[actual_cols['thickness']] > 0)
-        )
-        
-        invalid_count = (~valid_mask).sum()
-        if invalid_count > 0:
-            logger.warning(f"Filtering {invalid_count} rows with invalid parameters (speed, hatch, or thickness <= 0)")
-        
-        df_valid = df[valid_mask].copy()
-        df_invalid = df[~valid_mask].copy()
-        
-        # Calculate Ev for valid rows
-        # Ev = P / (v * h * t)
-        df_valid['energy_density'] = (
-            df_valid[actual_cols['power']] / 
-            (df_valid[actual_cols['speed']] * 
-             df_valid[actual_cols['hatch']] * 
-             df_valid[actual_cols['thickness']])
-        )
-        
-        # For invalid rows, assign sentinel value -1.0
-        df_invalid['energy_density'] = -1.0
-        
-        # Combine back
-        df = pd.concat([df_valid, df_invalid], ignore_index=True)
-        
-    else:
-        logger.warning("Could not calculate energy density: missing raw parameters")
-        logger.warning(f"Found columns: {list(df.columns)}")
-        logger.warning(f"Looking for: {raw_cols}")
-        # Assign sentinel value if we can't calculate
-        df['energy_density'] = -1.0
+    if porosity_col is None:
+        raise ValueError("Could not find a porosity column in the dataset")
     
-    return df
-
-def normalize_columns(df: pd.DataFrame, columns: list) -> pd.DataFrame:
-    """
-    Normalize specified columns to [0, 1] range using min-max scaling.
+    # Re-check required columns (excluding porosity which we handled)
+    missing = [col for col in REQUIRED_COLUMNS if col != 'porosity' and col not in df_renamed.columns]
     
-    Args:
-        df: Input dataframe
-        columns: List of column names to normalize
-        
-    Returns:
-        DataFrame with normalized columns
-    """
-    df_normalized = df.copy()
-    
-    for col in columns:
-        if col not in df_normalized.columns:
-            logger.warning(f"Column '{col}' not found, skipping normalization")
-            continue
-            
-        min_val = df_normalized[col].min()
-        max_val = df_normalized[col].max()
-        
-        if max_val == min_val:
-            logger.warning(f"Column '{col}' has zero range, setting all values to 0.0")
-            df_normalized[col] = 0.0
-        else:
-            df_normalized[col] = (df_normalized[col] - min_val) / (max_val - min_val)
-    
-    return df_normalized
-
-def validate_schema(df: pd.DataFrame, schema_path: str) -> bool:
-    """
-    Validate the dataframe against the JSON schema defined in contracts/dataset.schema.yaml.
-    
-    Args:
-        df: Input dataframe to validate
-        schema_path: Path to the schema YAML file
-        
-    Returns:
-        True if validation passes, raises ValueError if it fails
-        
-    Raises:
-        ValueError: If validation fails
-    """
-    schema_file = Path(schema_path)
-    if not schema_file.exists():
-        raise FileNotFoundError(f"Schema file not found: {schema_path}")
-    
-    # Load schema
-    with open(schema_file, 'r') as f:
-        schema = yaml.safe_load(f)
-    
-    # Basic validation: check required columns exist
-    required_columns = schema.get('required_columns', [])
-    missing_columns = [col for col in required_columns if col not in df.columns]
-    
-    if missing_columns:
-        raise ValueError(
-            f"Schema validation failed: Missing required columns: {missing_columns}. "
-            f"Available columns: {list(df.columns)}"
-        )
-    
-    # Check column types if specified
-    column_types = schema.get('column_types', {})
-    for col, expected_type in column_types.items():
-        if col in df.columns:
-            actual_type = str(df[col].dtype)
-            # Map pandas dtypes to expected types
-            type_map = {
-                'float64': 'float', 'float32': 'float',
-                'int64': 'int', 'int32': 'int',
-                'object': 'string', 'string': 'string'
-            }
-            actual_type_base = type_map.get(actual_type, actual_type)
-            
-            if expected_type not in actual_type_base:
-                logger.warning(
-                    f"Column '{col}' has type '{actual_type}' but schema expects '{expected_type}'"
-                )
-                # We don't fail on type mismatch for now, just warn
-    
-    logger.info("Schema validation passed")
-    return True
-
-def preprocess_data(input_path: str, output_path: str, schema_path: str) -> None:
-    """
-    Main preprocessing pipeline:
-    1. Load raw data
-    2. Map column synonyms
-    3. Handle missing values (median imputation)
-    4. Check for degenerate dataset
-    5. Validate against schema
-    6. Normalize features
-    7. Calculate energy density
-    8. Save cleaned data
-    
-    Args:
-        input_path: Path to raw CSV
-        output_path: Path to save cleaned CSV
-        schema_path: Path to schema YAML for validation
-    """
-    input_file = Path(input_path)
-    output_file = Path(output_path)
-    schema_file = Path(schema_path)
-    
-    if not input_file.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_csv(input_file)
-    logger.info(f"Loaded {len(df)} rows, {len(df.columns)} columns")
-    
-    # Column mapping (synonyms to standard names)
-    column_mapping = {
-        'P': 'laser_power',
-        'laserPower': 'laser_power',
-        'Power': 'laser_power',
-        'v': 'scan_speed',
-        'ScanSpeed': 'scan_speed',
-        'speed': 'scan_speed',
-        'h': 'hatch_spacing',
-        'HatchSpacing': 'hatch_spacing',
-        'hatch': 'hatch_spacing',
-        't': 'layer_thickness',
-        'LayerThickness': 'layer_thickness',
-        'thickness': 'layer_thickness',
-        'porosity': 'porosity',
-        'Porosity': 'porosity',
-        'pores': 'porosity'
-    }
-    
-    # Rename columns
-    rename_dict = {k: v for k, v in column_mapping.items() if k in df.columns}
-    if rename_dict:
-        logger.info(f"Renaming columns: {rename_dict}")
-        df = df.rename(columns=rename_dict)
-    
-    # Check for required columns
-    required = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness', 'porosity']
-    missing = [col for col in required if col not in df.columns]
     if missing:
-        raise ValueError(f"Missing required columns after mapping: {missing}")
+        logger.warning(f"Missing required columns after mapping: {missing}")
+        # Check if we have Ev only fallback available
+        ev_cols = ['energy_density', 'Ev', 'VolumetricEnergyDensity']
+        has_ev = any(col in df_renamed.columns for col in ev_cols)
+        
+        if not has_ev:
+            raise ValueError(f"Required columns missing and no Ev fallback: {missing}")
+        else:
+            # We can proceed with Ev only
+            logger.info("Proceeding with Ev-only mode")
     
-    # Handle missing values with median imputation
-    numeric_cols = df.select_dtypes(include=[np.number]).columns
-    for col in numeric_cols:
-        if df[col].isnull().any():
-            median_val = df[col].median()
-            logger.info(f"Imputing {df[col].isnull().sum()} missing values in '{col}' with median {median_val}")
-            df[col] = df[col].fillna(median_val)
+    return df_renamed
+
+def impute_missing_values(df: pd.DataFrame) -> pd.DataFrame:
+    """Impute missing numerical values with median."""
+    logger = logging.getLogger(__name__)
+    df_imputed = df.copy()
     
-    # Check for degenerate dataset (zero porosity variance)
-    logger.info("Checking for degenerate dataset...")
-    check_degenerate_dataset(df, target_col='porosity')
+    numerical_cols = df_imputed.select_dtypes(include=[np.number]).columns
     
-    # Validate against schema
-    logger.info(f"Validating against schema: {schema_path}")
-    validate_schema(df, str(schema_path))
+    for col in numerical_cols:
+        if df_imputed[col].isnull().sum() > 0:
+            median_val = df_imputed[col].median()
+            df_imputed[col] = df_imputed[col].fillna(median_val)
+            logger.info(f"Imputed {col} with median: {median_val}")
     
-    # Normalize input features to [0, 1]
-    features_to_normalize = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness']
-    df = normalize_columns(df, features_to_normalize)
-    logger.info("Normalized input features to [0, 1]")
+    return df_imputed
+
+def filter_invalid_rows(df: pd.DataFrame) -> pd.DataFrame:
+    """Filter out rows with non-positive parameters to prevent division by zero."""
+    logger = logging.getLogger(__name__)
+    df_filtered = df.copy()
     
-    # Calculate or handle energy density
-    df = handle_ev_fallback(df)
+    # Filter for positive values in key parameters
+    params_to_check = ['scan_speed', 'hatch_spacing', 'layer_thickness']
+    initial_rows = len(df_filtered)
     
-    # Ensure output directory exists
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    for param in params_to_check:
+        if param in df_filtered.columns:
+            before = len(df_filtered)
+            df_filtered = df_filtered[df_filtered[param] > 0]
+            after = len(df_filtered)
+            if before != after:
+                logger.info(f"Filtered {before - after} rows with non-positive {param}")
     
-    # Save cleaned data
-    logger.info(f"Saving cleaned data to {output_path}")
+    final_rows = len(df_filtered)
+    if final_rows == 0:
+        raise ValueError("No valid rows remaining after filtering")
+    
+    logger.info(f"Filtered from {initial_rows} to {final_rows} rows")
+    return df_filtered
+
+def calculate_energy_density(df: pd.DataFrame) -> Tuple[pd.DataFrame, Optional[str]]:
+    """Calculate Volumetric Energy Density: Ev = P / (v * h * t)"""
+    logger = logging.getLogger(__name__)
+    df_calc = df.copy()
+    ev_source = None
+    
+    # Check if raw parameters exist
+    has_power = 'laser_power' in df_calc.columns
+    has_speed = 'scan_speed' in df_calc.columns
+    has_hatch = 'hatch_spacing' in df_calc.columns
+    has_thickness = 'layer_thickness' in df_calc.columns
+    
+    has_raw = has_power and has_speed and has_hatch and has_thickness
+    
+    # Check if Ev already exists
+    has_ev = 'energy_density' in df_calc.columns
+    
+    if has_raw:
+        # Calculate Ev from raw parameters
+        # Ev = P / (v * h * t)
+        # Ensure no division by zero (already filtered)
+        df_calc['energy_density'] = df_calc['laser_power'] / (
+            df_calc['scan_speed'] * df_calc['hatch_spacing'] * df_calc['layer_thickness']
+        )
+        ev_source = "calculated"
+        logger.info("Calculated energy_density from raw parameters")
+    elif has_ev:
+        # Use existing Ev column
+        ev_source = "provided_column"
+        logger.info("Using provided energy_density column")
+    else:
+        # Cannot calculate Ev
+        raise ValueError("Cannot calculate energy_density: missing raw parameters and no Ev column")
+    
+    return df_calc, ev_source
+
+def check_degenerate_dataset(df: pd.DataFrame, threshold: float = 1e-6) -> bool:
+    """Check if dataset has zero porosity variance (degenerate)."""
+    if 'porosity' not in df.columns:
+        return False
+    
+    variance = df['porosity'].var()
+    return variance < threshold
+
+def write_degenerate_flag(output_dir: str, reason: str = "Zero porosity variance") -> None:
+    """Write degenerate flag file."""
+    os.makedirs(output_dir, exist_ok=True)
+    flag_path = os.path.join(output_dir, "degenerate_flag.json")
+    with open(flag_path, 'w') as f:
+        json.dump({"reason": reason, "status": "degenerate"}, f, indent=2)
+    logging.getLogger(__name__).info(f"Wrote degenerate flag to {flag_path}")
+
+def update_state_degenerate(state_path: str, is_degenerate: bool) -> None:
+    """Update state.yaml with degenerate status."""
+    state = load_state(state_path)
+    state['degenerate'] = is_degenerate
+    update_state(state_path, state)
+
+def normalize_features(df: pd.DataFrame, feature_cols: List[str]) -> pd.DataFrame:
+    """Normalize features to [0, 1] range."""
+    logger = logging.getLogger(__name__)
+    df_norm = df.copy()
+    
+    for col in feature_cols:
+        if col in df_norm.columns:
+            min_val = df_norm[col].min()
+            max_val = df_norm[col].max()
+            if max_val - min_val > 0:
+                df_norm[col] = (df_norm[col] - min_val) / (max_val - min_val)
+                logger.info(f"Normalized {col} to [0, 1]")
+            else:
+                # All values are the same, set to 0.5
+                df_norm[col] = 0.5
+                logger.warning(f"Column {col} has constant value, set to 0.5")
+    
+    return df_norm
+
+def create_feature_subsets(df: pd.DataFrame, ev_source: Optional[str] = None) -> Tuple[Optional[pd.DataFrame], Optional[pd.DataFrame]]:
+    """Create X_raw and X_derived feature subsets."""
+    logger = logging.getLogger(__name__)
+    
+    X_raw = None
+    X_derived = None
+    
+    raw_cols = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness']
+    derived_cols = ['energy_density']
+    
+    # If Ev was provided (not calculated), skip X_raw
+    if ev_source == "provided_column":
+        logger.info("Ev provided externally, skipping X_raw creation")
+        if all(col in df.columns for col in derived_cols):
+            X_derived = df[derived_cols].copy()
+        else:
+            raise ValueError("Ev column missing for derived subset")
+    else:
+        # Create both subsets
+        if all(col in df.columns for col in raw_cols):
+            X_raw = df[raw_cols].copy()
+            logger.info("Created X_raw subset")
+        else:
+            logger.warning("Raw parameters missing, cannot create X_raw")
+        
+        if all(col in df.columns for col in derived_cols):
+            X_derived = df[derived_cols].copy()
+            logger.info("Created X_derived subset")
+        else:
+            raise ValueError("Energy density column missing for X_derived")
+    
+    return X_raw, X_derived
+
+def preprocess_data(input_file: str, output_dir: str, schema_path: str = "contracts/dataset.schema.yaml", state_path: str = "state/state.yaml") -> None:
+    """Main preprocessing pipeline."""
+    logger = setup_logging()
+    logger.info(f"Starting preprocessing of {input_file}")
+    
+    # Step 1: Load raw data
+    if not os.path.exists(input_file):
+        raise FileNotFoundError(f"Input file not found: {input_file}")
+    
+    df = pd.read_csv(input_file)
+    logger.info(f"Loaded {len(df)} rows from {input_file}")
+    
+    # Step 2: Column mapping
+    df = normalize_column_synonyms(df)
+    logger.info("Column mapping completed")
+    
+    # Step 3: Imputation
+    df = impute_missing_values(df)
+    logger.info("Imputation completed")
+    
+    # Step 4: Filtering
+    df = filter_invalid_rows(df)
+    logger.info("Filtering completed")
+    
+    # Step 5: Calculate Ev
+    df, ev_source = calculate_energy_density(df)
+    logger.info(f"Energy density calculation completed (source: {ev_source})")
+    
+    # Step 6: Degenerate detection
+    if check_degenerate_dataset(df):
+        logger.warning("Degenerate dataset detected (zero porosity variance)")
+        write_degenerate_flag(output_dir)
+        update_state_degenerate(state_path, True)
+        # Create minimal outputs even for degenerate case
+        os.makedirs(output_dir, exist_ok=True)
+        df.to_csv(os.path.join(output_dir, "cleaned_316L.csv"), index=False)
+        return
+    
+    update_state_degenerate(state_path, False)
+    logger.info("Degenerate check passed")
+    
+    # Step 7: Write ev_source.json if fallback was used
+    if ev_source == "provided_column":
+        os.makedirs(output_dir, exist_ok=True)
+        with open(os.path.join(output_dir, "ev_source.json"), 'w') as f:
+            json.dump({"source": "provided_column", "column_name": "energy_density"}, f, indent=2)
+        logger.info("Wrote ev_source.json")
+    
+    # Step 8: Normalization
+    feature_cols = ['laser_power', 'scan_speed', 'hatch_spacing', 'layer_thickness']
+    # Only normalize if columns exist
+    existing_feature_cols = [col for col in feature_cols if col in df.columns]
+    if existing_feature_cols:
+        df = normalize_features(df, existing_feature_cols)
+        logger.info("Normalization completed")
+    
+    # Step 9: Validation
+    if os.path.exists(schema_path):
+        schema = load_schema(schema_path)
+        validate_schema(df, schema)
+        logger.info("Schema validation passed")
+    
+    # Step 10: Create feature subsets
+    X_raw, X_derived = create_feature_subsets(df, ev_source)
+    
+    os.makedirs(output_dir, exist_ok=True)
+    
+    # Save X_raw if it exists
+    if X_raw is not None:
+        X_raw_path = os.path.join(output_dir, "X_raw.csv")
+        X_raw.to_csv(X_raw_path, index=False)
+        logger.info(f"Saved X_raw to {X_raw_path}")
+    else:
+        logger.info("X_raw not created (Ev-only mode)")
+    
+    # Save X_derived
+    if X_derived is not None:
+        X_derived_path = os.path.join(output_dir, "X_derived.csv")
+        X_derived.to_csv(X_derived_path, index=False)
+        logger.info(f"Saved X_derived to {X_derived_path}")
+    else:
+        raise ValueError("X_derived not created")
+    
+    # Step 11: Save final dataset
+    output_file = os.path.join(output_dir, "cleaned_316L.csv")
     df.to_csv(output_file, index=False)
+    logger.info(f"Saved final dataset to {output_file}")
     
-    # Update state with new hash
-    file_hash = compute_file_hash(str(output_file))
-    state = load_state()
-    update_state(state, 'processed_data', file_hash, str(output_file))
-    logger.info(f"Updated state.yaml with processed data hash: {file_hash[:16]}...")
-    
-    logger.info("Preprocessing complete")
+    # Update state with hash
+    file_hash = compute_file_hash(output_file)
+    update_state(state_path, {"artifact_hashes": {"cleaned_316L.csv": file_hash}})
+    logger.info(f"Updated state with hash: {file_hash}")
 
 def main():
-    """Main entry point for preprocessing script."""
-    # Configuration
-    project_root = Path(__file__).parent.parent
-    raw_data_path = project_root / 'data' / 'raw' / '316L_LPBF_dataset.csv'
-    processed_data_path = project_root / 'data' / 'processed' / 'cleaned_316L.csv'
-    schema_path = project_root / 'contracts' / 'dataset.schema.yaml'
+    """Main entry point."""
+    logger = setup_logging()
     
-    # Allow override via command line
-    if len(sys.argv) > 1:
-        raw_data_path = Path(sys.argv[1])
-    if len(sys.argv) > 2:
-        processed_data_path = Path(sys.argv[2])
-    if len(sys.argv) > 3:
-        schema_path = Path(sys.argv[3])
-    
-    logger.info("Starting preprocessing pipeline")
-    logger.info(f"Input: {raw_data_path}")
-    logger.info(f"Output: {processed_data_path}")
-    logger.info(f"Schema: {schema_path}")
+    # Paths
+    input_file = "data/raw/316L_LPBF_dataset.csv"
+    output_dir = "data/processed"
+    schema_path = "contracts/dataset.schema.yaml"
+    state_path = "state/state.yaml"
     
     try:
-        preprocess_data(
-            input_path=str(raw_data_path),
-            output_path=str(processed_data_path),
-            schema_path=str(schema_path)
-        )
+        preprocess_data(input_file, output_dir, schema_path, state_path)
         logger.info("Preprocessing completed successfully")
     except FileNotFoundError as e:
         logger.error(f"File not found: {e}")
         sys.exit(1)
-    except DegenerateDatasetError as e:
-        logger.error(f"Degenerate dataset error: {e}")
-        sys.exit(2)
     except ValueError as e:
-        logger.error(f"Validation error: {e}")
-        sys.exit(3)
+        logger.error(f"Value error: {e}")
+        sys.exit(1)
     except Exception as e:
         logger.error(f"Unexpected error: {e}")
         sys.exit(1)
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

@@ -1,0 +1,88 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Report Schema"
+description: "Schema for data/results/stats_report.json"
+type: "object"
+properties:
+  summary:
+    type: "object"
+    properties:
+      total_tasks:
+        type: "integer"
+        minimum: 1
+      runs_per_task:
+        type: "integer"
+        minimum: 1
+      baseline_success_rate:
+        type: "number"
+        minimum: 0
+        maximum: 1
+    required:
+      - total_tasks
+      - runs_per_task
+      - baseline_success_rate
+  comparisons:
+    type: "array"
+    description: "List of statistical comparisons between strategies and baseline"
+    items:
+      type: "object"
+      properties:
+        strategy:
+          type: "string"
+          enum: ["nearest_neighbor", "arithmetic_mean", "weighted_avg"]
+        raw_p_value:
+          type: "number"
+          minimum: 0
+          maximum: 1
+        bh_corrected_p_value:
+          type: "number"
+          minimum: 0
+          maximum: 1
+        significant:
+          type: "boolean"
+      required:
+        - strategy
+        - raw_p_value
+        - bh_corrected_p_value
+        - significant
+  alignment_check:
+    type: "object"
+    description: "Text-Weight alignment validation"
+    properties:
+      pearson_correlation:
+        type: "number"
+        minimum: -1
+        maximum: 1
+      p_value:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      valid:
+        type: "boolean"
+    required:
+      - pearson_correlation
+      - p_value
+      - valid
+  linearity_validation:
+    type: "object"
+    description: "Reconstruction error validation"
+    properties:
+      reconstruction_error:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      threshold:
+        type: "number"
+        minimum: 0
+        maximum: 1
+      valid:
+        type: "boolean"
+    required:
+      - reconstruction_error
+      - threshold
+      - valid
+required:
+  - summary
+  - comparisons
+  - alignment_check
+  - linearity_validation
+additionalProperties: false

@@ -1,1 +1,1 @@
-"""Root package for PROJ-485."""
+"""Top‑level package for the alloy phase‑diagram project."""

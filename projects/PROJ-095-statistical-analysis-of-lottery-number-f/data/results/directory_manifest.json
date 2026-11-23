@@ -1,0 +1,22 @@
+{
+  "task_id": "T001a",
+  "required_directories": [
+    "data/raw",
+    "data/processed",
+    "data/results",
+    "code",
+    "tests/unit",
+    "tests/integration",
+    "config"
+  ],
+  "verification": {
+    "data/raw": true,
+    "data/processed": true,
+    "data/results": true,
+    "code": true,
+    "tests/unit": true,
+    "tests/integration": true,
+    "config": true
+  },
+  "all_directories_exist": true
+}

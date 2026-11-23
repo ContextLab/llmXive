@@ -1,3 +1,3 @@
 """
-Models package initialization.
+Data Models Package
 """

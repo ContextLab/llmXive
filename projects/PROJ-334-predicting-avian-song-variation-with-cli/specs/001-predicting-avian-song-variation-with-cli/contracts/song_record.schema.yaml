@@ -1,6 +1,6 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: SongRecord
-description: Schema for avian acoustic recording data.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SongRecord"
+description: "Schema for avian acoustic recording data."
 type: object
 properties:
   species_id:

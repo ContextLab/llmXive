@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Result"
+description: "Schema for a single evaluation result comparing static vs dynamic methods."
+type: "object"
+properties:
+  prompt_id:
+    type: "string"
+    description: "Unique identifier for the prompt."
+  method:
+    type: "string"
+    enum: ["static", "dynamic"]
+    description: "Quantization method used."
+  fid:
+    type: "number"
+    description: "Fréchet Inception Distance score."
+  clip_score:
+    type: "number"
+    description: "CLIP similarity score."
+  mse:
+    type: "number"
+    description: "Mean Squared Error of quantization."
+  inference_time_ms:
+    type: "number"
+    description: "Wall-clock inference time in milliseconds."
+  rotation_index:
+    type: "integer"
+    description: "Selected rotation matrix index (only for dynamic method)."
+    minimum: 0
+    maximum: 15
+required:
+  - prompt_id
+  - method
+  - fid
+  - clip_score
+  - mse
+  - inference_time_ms
+additionalProperties: false

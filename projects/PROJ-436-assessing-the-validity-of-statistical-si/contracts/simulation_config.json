@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/contracts/simulation_config.json",
+  "title": "SimulationConfig",
+  "description": "Configuration schema for statistical significance simulation experiments.",
+  "type": "object",
+  "properties": {
+    "dataset_id": {
+      "type": "integer",
+      "description": "OpenML dataset ID to use for the simulation."
+    },
+    "missing_mechanism": {
+      "type": "string",
+      "enum": ["MCAR", "MAR", "MNAR"],
+      "description": "The mechanism for generating missing data."
+    },
+    "missing_rate": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Proportion of data to make missing."
+    },
+    "outcome_type": {
+      "type": "string",
+      "enum": ["continuous", "binary"],
+      "description": "Type of the outcome variable."
+    },
+    "n_iterations": {
+      "type": "integer",
+      "minimum": 1,
+      "description": "Number of simulation iterations to run."
+    },
+    "seed": {
+      "type": "integer",
+      "description": "Random seed for reproducibility."
+    },
+    "imputation_method": {
+      "type": "string",
+      "enum": ["complete_case", "mice", "ipw"],
+      "description": "Method used to handle missing data during analysis."
+    },
+    "effect_size": {
+      "type": "number",
+      "description": "Cohen's d for alternative hypothesis simulations (optional)."
+    }
+  },
+  "required": [
+    "dataset_id",
+    "missing_mechanism",
+    "missing_rate",
+    "outcome_type",
+    "n_iterations",
+    "seed",
+    "imputation_method"
+  ]
+}

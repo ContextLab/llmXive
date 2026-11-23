@@ -1,0 +1,5 @@
+# This file is a symlink to code/pyproject.toml or a legacy config.
+# We maintain a dedicated config for quick access if needed,
+# but the primary configuration is in pyproject.toml.
+# For T003, we ensure the tool is configured.
+extend = "code/pyproject.toml"

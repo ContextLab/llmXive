@@ -1,0 +1,16 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+type: object
+required: [label_threshold_J_per_g, imputation_rate, decision_rule, notes]
+properties:
+  label_threshold_J_per_g:
+    type: number
+    description: "Latent‑heat threshold (J/g) used to define the binary 'phase‑change‑suitable' label."
+  imputation_rate:
+    type: number
+    description: "Fraction of rows where latent heat was imputed from melting point / heat capacity."
+  decision_rule:
+    type: string
+    description: "Human‑readable description of the rule (e.g., 'latent_heat_J_per_g > 150')."
+  notes:
+    type: string
+    description: "Any additional remarks, such as fallback strategies or data‑quality warnings."

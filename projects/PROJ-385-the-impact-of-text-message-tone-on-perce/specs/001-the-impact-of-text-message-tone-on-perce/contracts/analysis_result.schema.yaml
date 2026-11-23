@@ -1,37 +1,40 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Result Schema"
-description: "Schema for LMM and sensitivity analysis output (FR-003, FR-005)."
-type: "object"
+title: Analysis Result Schema
+description: Schema for the final aggregated analysis results JSON.
+type: object
 required:
-  - "model_id"
-  - "term"
-  - "estimate"
-  - "std_err"
-  - "p_value"
-  - "ci_lower"
-  - "ci_upper"
+  - model_summary
+  - post_hoc_results
+  - exclusion_summary
+  - sensitivity_analysis
 properties:
-  model_id:
-    type: "string"
-    description: "Identifier for the model run (e.g., 'lmm_primary', 'sensitivity_A')."
-  term:
-    type: "string"
-    description: "The fixed effect term (e.g., 'relationship', 'interaction')."
-  estimate:
-    type: "number"
-    description: "Coefficient estimate."
-  std_err:
-    type: "number"
-    description: "Standard error of the estimate."
-  p_value:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "P-value for the term."
-  ci_lower:
-    type: "number"
-    description: "Lower bound of the confidence interval."
-  ci_upper:
-    type: "number"
-    description: "Upper bound of the confidence interval."
-additionalProperties: false
+  model_summary:
+    type: object
+    description: The LMM fixed effects summary table.
+    additionalProperties: true
+  post_hoc_results:
+    type: array
+    description: Tukey HSD post-hoc test results.
+    items:
+      type: object
+      additionalProperties: true
+  exclusion_summary:
+    type: object
+    description: Summary of excluded participants (e.g., straight-lining).
+    properties:
+      total_excluded:
+        type: integer
+      reasons:
+        type: object
+  sensitivity_analysis:
+    type: array
+    description: Results from sensitivity analyses using different cue weighting schemes.
+    items:
+      type: object
+      properties:
+        scheme:
+          type: string
+        stability_score:
+          type: number
+        interaction_beta:
+          type: number

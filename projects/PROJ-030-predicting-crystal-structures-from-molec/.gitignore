@@ -1,0 +1,23 @@
+# Ignore generated data and logs
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/models/*
+!data/models/.gitkeep
+data/results/*
+!data/results/.gitkeep
+data/validation/*
+!data/validation/.gitkeep
+logs/*
+!logs/.gitkeep
+*.log
+.env
+__pycache__/
+*.pyc
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+*.egg-info/

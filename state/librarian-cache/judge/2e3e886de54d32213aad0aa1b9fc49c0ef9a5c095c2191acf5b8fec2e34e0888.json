@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.11113",
+  "judged_at": "2026-09-03T12:34:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"geometry-aware representation denoising for robust multi-view 3d recon\" computer science",
+  "rationale": "The candidate paper focuses on evidential deep learning and uncertainty quantification via belief theory, which is a distinct construct from the user's specific question about \"Geometry-Aware Representation Denoising\" for multi-view 3D reconstruction. While both involve deep learning, the paper does not address the geometric mechanisms, 3D reconstruction domain, or the specific denoising methodology required by the user's follow-up research, failing to meet any of the inclusion criteria (a-f) fo",
+  "relevant": false
+}

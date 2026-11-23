@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-10T07:50:41Z",
+  "fetched_at": "2026-08-13T07:03:25Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillat\"",
       "target_n": 5
     },
-    "duration_seconds": 48.983,
-    "ended_at": "2026-07-10T07:50:41Z",
+    "duration_seconds": 49.99,
+    "ended_at": "2026-08-13T07:03:25Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "few-step autoregressive diffusion models"
+          "scalable few-step autoregressive diffusion distillation"
         ],
         [
           2,
-          "scalable diffusion distillation techniques"
+          "causal forcing in generative models"
         ],
         [
           3,
-          "causal forcing in diffusion transformers"
+          "few-step autoregressive diffusion for LLMs"
         ],
         [
           4,
-          "autoregressive diffusion for LLM acceleration"
+          "distilling diffusion models for autoregressive generation"
         ],
         [
           5,
-          "knowledge distillation for diffusion language models"
+          "causal forcing++ methodology"
         ],
         [
           6,
-          "iterative refinement in few-step diffusion"
+          "efficient few-step diffusion sampling"
         ],
         [
           7,
-          "causal masking strategies for diffusion models"
+          "autoregressive diffusion models for language"
         ],
         [
           8,
-          "efficient sampling for autoregressive diffusion"
+          "reducing diffusion steps via distillation"
         ],
         [
           9,
-          "distilling large language models via diffusion"
+          "causal intervention in diffusion transformers"
         ],
         [
           10,
-          "reduced-step generative modeling with diffusion"
+          "fast autoregressive generation with diffusion"
         ],
         [
           11,
-          "autoregressive flow matching for text generation"
+          "knowledge distillation for diffusion-based LLMs"
         ],
         [
           12,
-          "causal inference in diffusion-based generation"
+          "iterative refinement in few-step diffusion"
         ],
         [
           13,
-          "fast convergence methods for diffusion LLMs"
+          "autoregressive denoising for text generation"
         ],
         [
           14,
-          "teacher-student distillation for diffusion transformers"
+          "scalable training of few-step diffusion models"
         ],
         [
           15,
-          "non-Markovian sampling in autoregressive diffusion"
+          "bridging autoregressive and diffusion language models"
         ],
         [
           16,
-          "scaling laws for few-step diffusion models"
+          "causal forcing techniques for generative AI"
         ],
         [
           17,
-          "hybrid autoregressive-diffusion architectures"
+          "acceleration of diffusion language models"
         ],
         [
           18,
-          "curriculum learning for diffusion distillation"
+          "step-reduction strategies in autoregressive diffusion"
         ],
         [
           19,
-          "causal attention mechanisms in generative diffusion"
+          "hybrid autoregressive-diffusion architectures"
         ],
         [
           20,
-          "low-latency text generation using diffusion distillation"
+          "low-latency diffusion distillation for LLMs"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "few-step autoregressive diffusion models": 5,
-        "llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillat\" computer science": 0
+        "llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillat\" computer science": 0,
+        "scalable few-step autoregressive diffusion distillation": 5
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "few-step distillation autoregressive diffusion",
-      "Causal Forcing++ scalability LLM training",
-      "step reduction knowledge distillation large language models",
-      "autoregressive diffusion model evaluation latency",
-      "teacher-student alignment iterative refinement"
+      "causal forcing few-step distillation",
+      "autoregressive diffusion student teacher alignment",
+      "LLMXive iterative refinement trajectory",
+      "distillation loss convergence step count",
+      "training data contamination causal intervention"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,16 +120,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2605.15141"
+        "2605.10518"
       ]
     },
     "per_query_hit_count": {
-      "Causal Forcing++ scalability LLM training": 3,
-      "autoregressive diffusion model evaluation latency": 3,
-      "few-step distillation autoregressive diffusion": 3,
+      "LLMXive iterative refinement trajectory": 3,
+      "autoregressive diffusion student teacher alignment": 3,
+      "causal forcing few-step distillation": 3,
+      "distillation loss convergence step count": 3,
       "llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillat\" computer science": 3,
-      "step reduction knowledge distillation large language models": 3,
-      "teacher-student alignment iterative refinement": 3
+      "training data contamination causal intervention": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -138,7 +138,7 @@
       "rejections": []
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-10T07:49:52Z",
+    "started_at": "2026-08-13T07:02:35Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"causal forcing++: scalable few-step autoregressive diffusion distillat\" computer science",
       "raw": "llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillat\" computer science"
@@ -157,7 +157,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-10T07:50:21Z",
+        "failed_at": "2026-08-13T07:03:04Z",
         "reason": "query_irrelevant"
       },
       {
@@ -176,7 +176,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-10T07:50:21Z",
+        "failed_at": "2026-08-13T07:03:04Z",
         "reason": "query_irrelevant"
       },
       {
@@ -194,7 +194,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-10T07:50:21Z",
+        "failed_at": "2026-08-13T07:03:04Z",
         "reason": "query_irrelevant"
       },
       {
@@ -218,316 +218,296 @@
           "primary_pointer": "2511.18834"
         },
         "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='FlowSteer: Guiding Few-Step Image Synthesis with Authentic Trajectories')",
-        "failed_at": "2026-07-10T07:50:21Z",
+        "failed_at": "2026-08-13T07:03:05Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Diffusion distillation has emerged as a promising strategy for accelerating text-to-image (T2I) diffusion models by distilling a pretrained score network into a one- or few-step generator. While existing methods have made notable progress, they often rely on real or teacher-synthesized images to perform well when distilling high-resolution T2I diffusion models such as Stable Diffusion XL (SDXL), and their use of classifier-free guidance (CFG) introduces a persistent trade-off between text-image alignment and generation diversity. We address these challenges by optimizing Score identity Distillation (SiD) -- a data-free, one-step distillation framework -- for few-step generation. Backed by theoretical analysis that justifies matching a uniform mixture of outputs from all generation steps to the data distribution, our few-step distillation algorithm avoids step-specific networks and integrates seamlessly into existing pipelines, achieving state-of-the-art performance on SDXL at 1024x1024 resolution. To mitigate the alignment-diversity trade-off when real text-image pairs are available, we introduce a Diffusion GAN-based adversarial loss applied to the uniform mixture and propose two new guidance strategies: Zero-CFG, which disables CFG in the teacher and removes text conditioning in the fake score network, and Anti-CFG, which applies negative CFG in the fake score network. This flexible setup improves diversity without sacrificing alignment. Comprehensive experiments on SD1.5 and SDXL demonstrate state-of-the-art performance in both one-step and few-step generation settings, along with robustness to the absence of real images. Our efficient PyTorch implementation, along with the resulting one- and few-step distilled generators, will be released publicly as a separate branch at https://github.com/mingyuanzhou/SiD-LSG.",
+          "claimed_abstract": "Recent advancements in video generation has shifted from bidirectional models for short videos to autoregressive ones for ultra long video generation. Previous models, which usually use sliding window attention to restrict inference cost, lack effective memory compression and retrieval for long-term generation beyond the window size, leading to issues of forgetting and spatiotemporal inconsistencies. To enhance the retention of historical information with a fixed memory budget, we additionally incorporate temporal recurrent neural network (RNN) layers into the diffusion transformer (DiT) model. Specifically, we found that a LSTM layer after attention at each DiT layer achieves comparable performance to other state-of-the-art RNN blocks, such as Test-Time Training (TTT) and Mamba2. Moreover, existing diffusion-RNN approaches often suffer from performance degradation due to training-inference gap or the lack of overlap across windows. To address these limitations, we propose a novel Recurrent Autoregressive Diffusion (RAD) framework, which leverages recurrent blocks for memory update and retrieval and preserves local details by full attention on overlapping sliding windows, with no training and inference gap. Experiments on Memory Maze and Minecraft datasets demonstrate the superiority for long video generation by our framework with global memory and local attention.",
           "claimed_authors": [
-            "Mingyuan Zhou",
-            "Yi Gu",
-            "Zhendong Wang"
+            "Taiye Chen",
+            "Zihan Ding",
+            "Anjian Li",
+            "Christina Zhang",
+            "Zeqi Xiao",
+            "Yisen Wang",
+            "Chi Jin"
           ],
-          "claimed_title": "Few-Step Diffusion via Score identity Distillation",
+          "claimed_title": "Recurrent Autoregressive Diffusion: Global Memory Meets Local Attention",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2505.12674"
+          "primary_pointer": "2511.12940"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Few-Step Diffusion via Score identity Distillation')",
-        "failed_at": "2026-07-10T07:50:22Z",
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Recurrent Autoregressive Diffusion: Global Memory Meets Local Attention')",
+        "failed_at": "2026-08-13T07:03:05Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We present quantitative probing as a model-agnostic framework for validating causal models in the presence of quantitative domain knowledge. The method is constructed as an analogue of the train/test split in correlation-based machine learning and as an enhancement of current causal validation strategies that are consistent with the logic of scientific discovery. The effectiveness of the method is illustrated using Pearl's sprinkler example, before a thorough simulation-based investigation is conducted. Limits of the technique are identified by studying exemplary failing scenarios, which are furthermore used to propose a list of topics for future research and improvements of the presented version of quantitative probing. The code for integrating quantitative probing into causal analysis, as well as the code for the presented simulation-based studies of the effectiveness of quantitative probing is provided in two separate open-source Python packages.",
+          "claimed_abstract": "This study aims to describe the communication of prospective teachers in learning mathematics. The research was conducted in SMAN 1 Madura. The subject of this research is PLP student from Mathematics Education Study Program of Madura University. The prospective teacher's math learning is using the concept of function limits and the derivative of functions in problem solving (Calculus). This research is descriptive qualitative research. Instruments in the study were interviews, field notes, and video recordings. The knowledge of prospective mathematics teacher in field practice involves communication in factual,conceptual, procedural, and metacognitive knowledge in facts, concepts, principles, procedures, and reasoning. Teacher communication plays a role in learning mathematics, especially the ability to use formulas, rules, and methods simultaneously correctly to make accurate calculations. Prospective teachers are able to provide guidance to their students when implementing mathematics lessons and when working on the blackboard, directing discussions and frequently asked questions, using language appropriate to the level of students ' understanding so that the symbols, procedures, and strategies described can be well understood by the students. Keywords: Communication, Prospective teachers, and Mathematics learning .",
           "claimed_authors": [
-            "Daniel Grünbaum",
-            "Maike L. Stern",
-            "Elmar W. Lang"
+            "Dian Kurniawan",
+            "Ipung Yuwono",
+            "Edy Bambang Irawan",
+            "Hery Susanto",
+            " Subanji",
+            " Susiswo"
           ],
-          "claimed_title": "Quantitative probing: Validating causal models using quantitative domain knowledge",
+          "claimed_title": "Communication of Prospective Teachers with Students in Mathematics Learning at Senior High School (SMA)",
           "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2209.03013"
+          "claimed_year": 2018,
+          "primary_pointer": "1804.11197"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Quantitative probing: Validating causal models using quantitative domain knowledge')",
-        "failed_at": "2026-07-10T07:50:22Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Communication of Prospective Teachers with Students in Mathematics Learning at Senior High School (SMA)')",
+        "failed_at": "2026-08-13T07:03:05Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+          "claimed_abstract": "We investigate how teacher-student capacity relationships modulate knowledge distillation (KD) effectiveness in ResNet-based image classification on CIFAR-10. Across four teacher-student pairs (R50->R18, R34->R18, R50->R34, and R101->R34) we compare Logit-KD and Feature-KD under a strict evaluation protocol: hyperparameters and checkpoints are selected on a held-out validation split, selected configurations are re-run with five seeds, and the test set is used exclusively for final reporting. Beyond accuracy, we measure distillation fidelity directly via teacher-student agreement and KL divergence. We report four findings. First, the student-capacity pattern survives the corrected protocol at reduced magnitude: the only statistically significant gains occur for R34 students under Feature-KD (+0.19 and +0.21 pp, p<0.05), in two pairs whose teachers differ two-fold in parameters but not in accuracy, localizing the moderating variable on the student side, while no KD gain for R18 students is distinguishable from zero. Second, Feature-KD matches or outperforms Logit-KD in all four pairs, and its students land closer to the teacher's output distribution (KL at T=1) than Logit-KD students despite never observing teacher logits. Third, top-1 teacher-student agreement is flat across all pairs, decoupling fidelity from accuracy gains. Fourth, architecture dominates KD: correcting the ResNet stem for 32x32 inputs is worth +5.5 to +7.2 pp, more than 25x the largest KD gain. We also retract an attribution made in v1: a controlled re-run shows the reported gradient-clipping bug had no measurable effect, and v1's larger gains are explained by test-set selection. Code and results: github.com/umutonuryasar/kd-capacity-gap (tag v2.0).",
           "claimed_authors": [
-            " PSBC LLM Team",
-            " Huawei LLM Team",
-            "Ruihan Long",
-            "Junjie Wu",
-            "Tianan Zhang",
-            "Duo Zhang",
-            "Yaozong Wu",
-            "Jinbin Fu",
-            "Chang Liu",
-            "Zhentao Tang",
-            "Wenshuang Yang",
-            "Xin Wang",
-            "Zhihao Song",
-            "Ning Huang",
-            "Wenjing Xu",
-            "Shuai Zong",
-            "Shupei Sun",
-            "Sen Wang",
-            "Jing Hu",
-            "Bin Wang",
-            "Xinyu Wang",
-            "Junkui Ju",
-            "Zequn Ding",
-            "Jie Ran",
-            "Man Luo",
-            "Shixiong Kai",
-            "Linkai Hou",
-            "Kaichao Liang",
-            "Hu Zhao",
-            "Yang Zhao",
-            "Shucheng Lin",
-            "Wei Yu",
-            "Chenghan Jiang",
-            "Jingjing Ding",
-            "Jiahui Zhang",
-            "Tian Jin",
-            "Yuhang Zhang",
-            "Dong Guo",
-            "Wei Sun",
-            "Jun Xie",
-            "Jianwei Li",
-            "Lei Cao",
-            "Pei Li",
-            "Jiabin Li",
-            "Jia Yuan",
-            "Rui Yuan",
-            "Jing Zhu",
-            "Mingxuan Yuan",
-            "Zhangcheng Lv",
-            "Xin Jiang",
-            "Xiuhong Fei",
-            "Xiaozhe Ren",
-            "Yulong Li",
-            "Zhipeng Zhang",
-            "Hang Wang",
-            "Zhaohui Xu",
-            "Rui Zhao",
-            "Yibo He",
-            "Xinzhuang Niu"
+            "Umut Onur Yasar"
           ],
-          "claimed_title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "claimed_title": "Student Capacity Moderates Knowledge Distillation Effectiveness: A Systematic Study Across ResNet Teacher-Student Pairs on CIFAR-10",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2606.05868"
+          "primary_pointer": "2605.31191"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition')",
-        "failed_at": "2026-07-10T07:50:22Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Student Capacity Moderates Knowledge Distillation Effectiveness: A Systematic Study Across ResNet Teacher-Student Pairs on CIFAR-10')",
+        "failed_at": "2026-08-13T07:03:05Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Recent interest in the external validity of prediction models (i.e., the problem of different train and test distributions, known as dataset shift) has produced many methods for finding predictive distributions that are invariant to dataset shifts and can be used for prediction in new, unseen environments. However, these methods consider different types of shifts and have been developed under disparate frameworks, making it difficult to theoretically analyze how solutions differ with respect to stability and accuracy. Taking a causal graphical view, we use a flexible graphical representation to express various types of dataset shifts. Given a known graph of the data generating process, we show that all invariant distributions correspond to a causal hierarchy of graphical operators which disable the edges in the graph that are responsible for the shifts. The hierarchy provides a common theoretical underpinning for understanding when and how stability to shifts can be achieved, and in what ways stable distributions can differ. We use it to establish conditions for minimax optimal performance across environments, and derive new algorithms that find optimal stable distributions. Using this new perspective, we empirically demonstrate that that there is a tradeoff between minimax and average performance.",
+          "claimed_abstract": "Text-to-image (T2I) models have achieved remarkable progress, yet they continue to struggle with complex prompts that require simultaneously handling multiple objects, relations, and attributes. Existing inference-time strategies, such as parallel sampling with verifiers or simply increasing denoising steps, can improve prompt alignment but remain inadequate for richly compositional settings where many constraints must be satisfied. Inspired by the success of chain-of-thought reasoning in large language models, we propose an iterative test-time strategy in which a T2I model progressively refines its generations across multiple steps, guided by feedback from a vision-language model as the critic in the loop. Our approach is simple, requires no external tools or priors, and can be flexibly applied to a wide range of image generators and vision-language models. Empirically, we demonstrate consistent gains on image generation across benchmarks: a 16.9% improvement in all-correct rate on ConceptMix (k=7), a 13.8% improvement on T2I-CompBench (3D-Spatial category) and a 12.5% improvement on Visual Jenga scene decomposition compared to compute-matched parallel sampling. Beyond quantitative gains, iterative refinement produces more faithful generations by decomposing complex prompts into sequential corrections, with human evaluators preferring our method 58.7% of the time over 41.3% for the parallel baseline. Together, these findings highlight iterative self-correction as a broadly applicable principle for compositional image generation. Results and visualizations are available at https://iterative-img-gen.github.io/",
           "claimed_authors": [
-            "Adarsh Subbaswamy",
-            "Bryant Chen",
-            "Suchi Saria"
+            "Shantanu Jaiswal",
+            "Mihir Prabhudesai",
+            "Nikash Bhardwaj",
+            "Zheyang Qin",
+            "Amir Zadeh",
+            "Chuan Li",
+            "Katerina Fragkiadaki",
+            "Deepak Pathak"
           ],
-          "claimed_title": "A Unifying Causal Framework for Analyzing Dataset Shift-stable Learning Algorithms",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1905.11374"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='A Unifying Causal Framework for Analyzing Dataset Shift-stable Learning Algorithms')",
-        "failed_at": "2026-07-10T07:50:22Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Corpus distillation for biomedical large language models (LLMs) seeks to address the pressing challenge of insufficient quantity and quality in open-source annotated scientific corpora, which remains a bottleneck for effective LLM training in biomedical research. This paper proposes a knowledge-driven, agentic framework for scientific corpus distillation, tailored explicitly for LLM training in the biomedical domain, addressing the challenge posed by the complex hierarchy of biomedical knowledge. Central to our approach is a collaborative multi-agent architecture, where specialized agents, each guided by the Medical Subject Headings (MeSH) hierarchy, work in concert to autonomously extract, synthesize, and self-evaluate high-quality textual data from vast scientific literature. This agentic framework collectively generates and refines domain-specific question-answer pairs, ensuring comprehensive coverage and consistency with biomedical ontologies while minimizing manual involvement. Extensive experimental results show that language models trained on our multi-agent distilled datasets achieve notable improvements in biomedical question-answering tasks, outperforming both strong life sciences LLM baselines and advanced proprietary models. Notably, our AI-Ready dataset enables Llama3-70B to surpass GPT-4 with MedPrompt and Med-PaLM-2, despite their larger scale. Detailed ablation studies and case analyses further validate the effectiveness and synergy of each agent within the framework, highlighting the potential of multi-agent collaboration in biomedical LLM training.",
-          "claimed_authors": [
-            "Meng Xiao",
-            "Xunxin Cai",
-            "Qingqing Long",
-            "Chengrui Wang",
-            "Yuanchun Zhou",
-            "Hengshu Zhu"
-          ],
-          "claimed_title": "Knowledge-Driven Agentic Scientific Corpus Distillation Framework for Biomedical Large Language Models Training",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2504.19565"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Knowledge-Driven Agentic Scientific Corpus Distillation Framework for Biomedical Large Language Models Training')",
-        "failed_at": "2026-07-10T07:50:22Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Recent Mixture-of-Experts (MoE)-based large language models (LLMs) such as Qwen-MoE and DeepSeek-MoE are transforming generative AI in natural language processing. However, these models require vast and diverse training data. Federated learning (FL) addresses this challenge by leveraging private data from heterogeneous edge devices for privacy-preserving MoE training. Nonetheless, traditional FL approaches require devices to host local MoE models, which is impractical for resource-constrained devices due to large model sizes. To address this, we propose DeepFusion, the first scalable federated MoE training framework that enables the fusion of heterogeneous on-device LLM knowledge via federated knowledge distillation, yielding a knowledge-abundant global MoE model. Specifically, DeepFusion features each device to independently configure and train an on-device LLM tailored to its own needs and hardware limitations. Furthermore, we propose a novel View-Aligned Attention (VAA) module that integrates multi-stage feature representations from the global MoE model to construct a predictive perspective aligned with on-device LLMs, thereby enabling effective cross-architecture knowledge distillation. By explicitly aligning predictive perspectives, VAA resolves the view-mismatch problem in traditional federated knowledge distillation, which arises from heterogeneity in model architectures and prediction behaviors between on-device LLMs and the global MoE model. Experiments with industry-level MoE models (Qwen-MoE and DeepSeek-MoE) and real-world datasets (medical and finance) demonstrate that DeepFusion achieves performance close to centralized MoE training. Compared with key federated MoE baselines, DeepFusion reduces communication costs by up to 71% and improves token perplexity by up to 5.28%.",
-          "claimed_authors": [
-            "Songyuan Li",
-            "Jia Hu",
-            "Ahmed M. Abdelmoniem",
-            "Geyong Min",
-            "Haojun Huang",
-            "Jiwei Huang"
-          ],
-          "claimed_title": "DeepFusion: Accelerating MoE Training via Federated Knowledge Distillation from Heterogeneous Edge Devices",
+          "claimed_title": "Iterative Refinement Improves Compositional Image Generation",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2602.14301"
+          "primary_pointer": "2601.15286"
         },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='DeepFusion: Accelerating MoE Training via Federated Knowledge Distillation from Heterogeneous Edge Devices')",
-        "failed_at": "2026-07-10T07:50:22Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Iterative Refinement Improves Compositional Image Generation')",
+        "failed_at": "2026-08-13T07:03:05Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Machine learning (ML) is increasingly vital for smart-grid research, yet restricted access to realistic, diverse data - often due to privacy concerns - slows progress and fuels doubts within the energy sector about adopting ML-based strategies. We propose integrating Large Language Models (LLMs) in energy modeling to generate realistic, culturally sensitive, and behavior-specific data for household energy usage across diverse geographies. In this study, we employ and compare five different LLMs to systematically produce family structures, weather patterns, and daily consumption profiles for households in six distinct countries. A four-stage methodology synthesizes contextual daily data, including culturally nuanced activities, realistic weather ranges, HVAC operations, and distinct `energy signatures' that capture unique consumption footprints. Additionally, we explore an alternative strategy where external weather datasets can be directly integrated, bypassing intermediate weather modeling stages while ensuring physically consistent data inputs. The resulting dataset provides insights into how cultural, climatic, and behavioral factors converge to shape carbon emissions, offering a cost-effective avenue for scenario-based energy optimization. This approach underscores how prompt engineering, combined with knowledge distillation, can advance sustainable energy research and climate mitigation efforts. Source code is available at https://github.com/Singularity-AI-Lab/LLM-Energy-Knowledge-Distillation .",
+          "claimed_abstract": "The task of determining the origin of a drifting object after it has been located is highly complex due to the uncertainties in drift properties and environmental forcing (wind, waves and surface currents). Usually the origin is inferred by running a trajectory model (stochastic or deterministic) in reverse. However, this approach has some severe drawbacks, most notably the fact that many drifting objects go through nonlinear state changes underway (e.g., evaporating oil or a capsizing lifeboat). This makes it difficult to naively construct a reverse-time trajectory model which realistically predicts the earliest possible time the object may have started drifting. We propose instead a different approach where the original (forward) trajectory model is kept unaltered while an iterative seeding and selection process allows us to retain only those particles that end up within a certain time-space radius of the observation. An iterative refinement process named BAKTRAK is employed where those trajectories that do not make it to the goal are rejected and new trajectories are spawned from successful trajectories. This allows the model to be run in the forward direction to determine the point of origin of a drifting object. The method is demonstrated using the Leeway stochastic trajectory model for drifting objects due to its relative simplicity and the practical importance of being able to identify the origin of drifting objects. However, the methodology is general and even more applicable to oil drift trajectories, drifting ships and hazardous material that exhibit non-linear state changes such as evaporation, chemical weathering, capsizing or swamping. The backtracking method is tested against the drift trajectory of a life raft and is shown to predict closely the initial release position of the raft and its subsequent trajectory.",
           "claimed_authors": [
-            "Mohannad Takrouri",
-            "Nicolás M. Cuadrado",
-            "Martin Takáč"
+            "Øyvind Breivik",
+            "Tor Christian Bekkvik",
+            "Atle Ommundsen",
+            "Cecilie Wettre"
           ],
-          "claimed_title": "Knowledge Distillation from Large Language Models for Household Energy Modeling",
+          "claimed_title": "BAKTRAK: Backtracking drifting objects using an iterative algorithm with a forward trajectory model",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2502.03034"
+          "claimed_year": 2011,
+          "primary_pointer": "1111.0756"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Knowledge Distillation from Large Language Models for Household Energy Modeling')",
-        "failed_at": "2026-07-10T07:50:22Z",
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='BAKTRAK: Backtracking drifting objects using an iterative algorithm with a forward trajectory model')",
+        "failed_at": "2026-08-13T07:03:05Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Graph generation has been dominated by autoregressive models due to their simplicity and effectiveness, despite their sensitivity to ordering. Yet diffusion models have garnered increasing attention, as they offer comparable performance while being permutation-invariant. Current graph diffusion models generate graphs in a one-shot fashion, but they require extra features and thousands of denoising steps to achieve optimal performance. We introduce PARD, a Permutation-invariant Auto Regressive Diffusion model that integrates diffusion models with autoregressive methods. PARD harnesses the effectiveness and efficiency of the autoregressive model while maintaining permutation invariance without ordering sensitivity. Specifically, we show that contrary to sets, elements in a graph are not entirely unordered and there is a unique partial order for nodes and edges. With this partial order, PARD generates a graph in a block-by-block, autoregressive fashion, where each block's probability is conditionally modeled by a shared diffusion model with an equivariant network. To ensure efficiency while being expressive, we further propose a higher-order graph transformer, which integrates transformer with PPGN. Like GPT, we extend the higher-order graph transformer to support parallel training of all blocks. Without any extra features, PARD achieves state-of-the-art performance on molecular and non-molecular datasets, and scales to large datasets like MOSES containing 1.9M molecules. Pard is open-sourced at https://github.com/LingxiaoShawn/Pard.",
+          "claimed_abstract": "We present an improved method for topology optimization with both adaptive mesh refinement and derefinement. Since the total volume fraction in topology optimization is usually modest, after a few initial iterations the domain of computation is largely void. Hence, it is inefficient to have many small elements, in such regions, that contribute significantly to the overall computational cost but contribute little to the accuracy of computation and design. At the same time, we want high spatial resolution for accurate three-dimensional designs to avoid postprocessing or interpretation as much as possible. Dynamic adaptive mesh refinement (AMR) offers the possibility to balance these two requirements. We discuss requirements on AMR for topology optimization and the algorithmic features to implement them. The numerical design problems demonstrate (1) that our AMR strategy for topology optimization leads to designs that are equivalent to optimal designs on uniform meshes, (2) how AMR strategies that do not satisfy the postulated requirements may lead to suboptimal designs, and (3) that our AMR strategy significantly reduces the time to compute optimal designs.",
           "claimed_authors": [
-            "Lingxiao Zhao",
-            "Xueying Ding",
-            "Leman Akoglu"
+            "Shun Wang",
+            "Eric de Sturler",
+            "Glaucio H. Paulino"
           ],
-          "claimed_title": "Pard: Permutation-Invariant Autoregressive Diffusion for Graph Generation",
+          "claimed_title": "Dynamic Adaptive Mesh Refinement for Topology Optimization",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2402.03687"
+          "claimed_year": 2010,
+          "primary_pointer": "1009.4975"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Pard: Permutation-Invariant Autoregressive Diffusion for Graph Generation')",
-        "failed_at": "2026-07-10T07:50:22Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Dynamic Adaptive Mesh Refinement for Topology Optimization')",
+        "failed_at": "2026-08-13T07:03:05Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Generative diffusion models are extensively used in unsupervised and self-supervised machine learning with the aim to generate new samples from a probability distribution estimated with a set of known samples. They have demonstrated impressive results in replicating dense, real-world contents such as images, musical pieces, or human languages. This work investigates their application to the numerical simulation of incompressible fluid flows, with a view toward incorporating physical constraints such as incompressibility in the probabilistic forecasting framework enabled by generative networks. For that purpose, we explore different conditional, score-based diffusion models where the divergence-free constraint is imposed by the Leray spectral projector, and autoregressive conditioning is aimed at stabilizing the forecasted flow snapshots at distant time horizons. The proposed models are run on a benchmark turbulence problem, namely a Kolmogorov flow, which allows for a fairly detailed analytical and numerical treatment and thus simplifies the evaluation of the numerical methods used to simulate it. Numerical experiments of increasing complexity are performed in order to compare the advantages and limitations of the diffusion models we have implemented and appraise their performances, including: (i) in-distribution assessment over the same time horizons and for similar physical conditions as the ones seen during training; (ii) rollout predictions over time horizons unseen during training; and (iii) out-of-distribution tests for forecasting flows markedly different from those seen during training. In particular, these results illustrate the ability of diffusion models to reproduce the main statistical characteristics of Kolmogorov turbulence in scenarios departing from the ones they were trained on.",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
           "claimed_authors": [
-            "Wilfried Genuist",
-            "Éric Savin",
-            "Filippo Gatti",
-            "Didier Clouteau"
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
           ],
-          "claimed_title": "Divergence-Free Diffusion Models for Incompressible Fluid Flows",
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
           "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2601.19368"
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Divergence-Free Diffusion Models for Incompressible Fluid Flows')",
-        "failed_at": "2026-07-10T07:50:22Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-08-13T07:03:05Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We investigate a fully Latent AutoRegressive scheme based on a Gaussian Process (GP) integrated into a Variational Autoencoder (VAE). In this setting, sequential dynamics are transferred from the observation space to a continuous latent space, while linguistic generation remains parallel through a non-autoregressive decoder. We present a complete methodological formulation, including a causal GP prior, a structured amortized posterior, and a training protocol based on a regularized ELBO. Empirical evaluation, conducted within a deliberately constrained proof-of-concept (POC) framework, shows that the model can be trained stably and that the sequential and parallel sampling variants exhibit consistent behavior. Overall, the results suggest that part of the temporal structure in a language model can be supported by the probabilistic geometry of the latent space rather than by explicit neural operations.",
+          "claimed_abstract": "In recent years, deep learning has spread rapidly, and deeper, larger models have been proposed. However, the calculation cost becomes enormous as the size of the models becomes larger. Various techniques for compressing the size of the models have been proposed to improve performance while reducing computational costs. One of the methods to compress the size of the models is knowledge distillation (KD). Knowledge distillation is a technique for transferring knowledge of deep or ensemble models with many parameters (teacher model) to smaller shallow models (student model). Since the purpose of knowledge distillation is to increase the similarity between the teacher model and the student model, we propose to introduce the concept of metric learning into knowledge distillation to make the student model closer to the teacher model using pairs or triplets of the training samples. In metric learning, the researchers are developing the methods to build a model that can increase the similarity of outputs for similar samples. Metric learning aims at reducing the distance between similar and increasing the distance between dissimilar. The functionality of the metric learning to reduce the differences between similar outputs can be used for the knowledge distillation to reduce the differences between the outputs of the teacher model and the student model. Since the outputs of the teacher model for different objects are usually different, the student model needs to distinguish them. We think that metric learning can clarify the difference between the different outputs, and the performance of the student model could be improved. We have performed experiments to compare the proposed method with state-of-the-art knowledge distillation methods.",
           "claimed_authors": [
-            "Yves Ruffenach"
+            "Hideki Oki",
+            "Motoshi Abe",
+            "Junichi Miyao",
+            "Takio Kurita"
           ],
-          "claimed_title": "Latent-Autoregressive GP-VAE Language Model",
+          "claimed_title": "Triplet Loss for Knowledge Distillation",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2512.09535"
+          "claimed_year": 2020,
+          "primary_pointer": "2004.08116"
         },
-        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Latent-Autoregressive GP-VAE Language Model')",
-        "failed_at": "2026-07-10T07:50:22Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Triplet Loss for Knowledge Distillation')",
+        "failed_at": "2026-08-13T07:03:05Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Purpose: The teacher role in the classroom can explain important aspects of the student's school experience. The teacher-student relationship, a central dimension of social capital, influences students' engagement, and the teaching style plays an important role in student outcomes. But there is scarce literature that links teaching styles to teacher-student relationship. This article aims to: 1) analyze whether there is a relationship between teaching styles and the type of relationship perceived by students; 2) test whether this relationship is equally strong for any teaching style; and 3) determine the extent to which students' perceptions vary according to their profile. Design/methodology/approach: A structural equation model with four latent variables is estimated: two for the teacher-student relationship (emotional vs. educational) and two for the teaching styles (directive vs. participative), with information for 21126 sixth-grade primary-students in 2019 in Spain. Findings: Teacher-student relationships and teaching styles are interconnected. The participative style implies a better relationship. The perceptions of the teacher are heterogeneous, depending on gender (girls perceive clearer than boys) and with the educational background (children from lower educational background perceive both types of teaching styles more clearly). Originality/value: The analysis is based on the point of view of the addressee of the teacher's work, i.e. the student. It provides a model that can be replicated in any other education system. The latent variables, based on a periodically administered questionnaire, could be estimated with data from diagnostic assessments in other countries, which in turn would allow the formulation of context-specific educational policy proposals that take into account student feedback.",
+          "claimed_abstract": "Dataset distillation aims to synthesize small datasets with little information loss from original large-scale ones for reducing storage and training costs. Recent state-of-the-art methods mainly constrain the sample synthesis process by matching synthetic images and the original ones regarding gradients, embedding distributions, or training trajectories. Although there are various matching objectives, currently the strategy for selecting original images is limited to naive random sampling.\n  We argue that random sampling overlooks the evenness of the selected sample distribution, which may result in noisy or biased matching targets.\n  Besides, the sample diversity is also not constrained by random sampling. These factors together lead to optimization instability in the distilling process and degrade the training efficiency. Accordingly, we propose a novel matching strategy named as \\textbf{D}ataset distillation by \\textbf{RE}present\\textbf{A}tive \\textbf{M}atching (DREAM), where only representative original images are selected for matching. DREAM is able to be easily plugged into popular dataset distillation frameworks and reduce the distilling iterations by more than 8 times without performance drop. Given sufficient training time, DREAM further provides significant improvements and achieves state-of-the-art performances.",
           "claimed_authors": [
-            "Maria-Eugenia Cardenal",
-            "Octavio-David Diaz-Santana",
-            "Sara-Maria Gonzalez-Betancor"
+            "Yanqing Liu",
+            "Jianyang Gu",
+            "Kai Wang",
+            "Zheng Zhu",
+            "Wei Jiang",
+            "Yang You"
           ],
-          "claimed_title": "Teacher-student relationship and teaching styles in primary education. A model of analysis",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2409.06562"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Teacher-student relationship and teaching styles in primary education. A model of analysis')",
-        "failed_at": "2026-07-10T07:50:22Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Mainstream approaches to aligning large language models (LLMs) heavily rely on human preference data, particularly when models require periodic updates. The standard process for iterative alignment of LLMs involves collecting new human feedback for each update. However, the data collection process is costly and challenging to scale. To address this issue, we introduce the \"TS-Align\" framework, which fine-tunes a policy model using pairwise feedback data automatically mined from its outputs. This automatic mining process is efficiently accomplished through the collaboration between a large-scale teacher model and a small-scale student model. The policy fine-tuning process can be iteratively repeated using on-policy generations within our proposed teacher-student collaborative framework. Through extensive experiments, we demonstrate that our final aligned policy outperforms the base policy model with an average win rate of 69.7% across seven conversational or instruction-following datasets. Furthermore, we show that the ranking capability of the teacher is effectively distilled into the student through our pipeline, resulting in a small-scale yet effective reward model for policy model alignment.",
-          "claimed_authors": [
-            "Chen Zhang",
-            "Chengguang Tang",
-            "Dading Chong",
-            "Ke Shi",
-            "Guohua Tang",
-            "Feng Jiang",
-            "Haizhou Li"
-          ],
-          "claimed_title": "TS-Align: A Teacher-Student Collaborative Framework for Scalable Iterative Finetuning of Large Language Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2405.20215"
-        },
-        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='TS-Align: A Teacher-Student Collaborative Framework for Scalable Iterative Finetuning of Large Language Models')",
-        "failed_at": "2026-07-10T07:50:22Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "For humanity to maintain and expand its agency into the future, the most powerful systems we create must be those which act to align the future with the will of humanity. The most powerful systems today are massive institutions like governments, firms, and NGOs. Deliberative technology is already being used across these institutions to help align governance and diplomacy with human will, and modern AI is poised to make this technology significantly better. At the same time, the race to superhuman AGI is already underway, and the AI systems it gives rise to may become the most powerful systems of the future. Failure to align the impact of such powerful AI with the will of humanity may lead to catastrophic consequences, while success may unleash abundance. Right now, there is a window of opportunity to use deliberative technology to align the impact of powerful AI with the will of humanity. Moreover, it may be possible to engineer a symbiotic coupling between powerful AI and deliberative alignment systems such that the quality of alignment improves as AI capabilities increase.",
-          "claimed_authors": [
-            "Andrew Konya",
-            "Deger Turan",
-            "Aviv Ovadya",
-            "Lina Qui",
-            "Daanish Masood",
-            "Flynn Devine",
-            "Lisa Schirch",
-            "Isabella Roberts",
-            "Deliberative Alignment Forum"
-          ],
-          "claimed_title": "Deliberative Technology for Alignment",
+          "claimed_title": "DREAM: Efficient Dataset Distillation by Representative Matching",
           "claimed_venue": "arXiv",
           "claimed_year": 2023,
-          "primary_pointer": "2312.03893"
+          "primary_pointer": "2302.14416"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Deliberative Technology for Alignment')",
-        "failed_at": "2026-07-10T07:50:22Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='DREAM: Efficient Dataset Distillation by Representative Matching')",
+        "failed_at": "2026-08-13T07:03:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-08-13T07:03:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-08-13T07:03:05Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The 1st Workshop on Data Contamination (CONDA 2024) focuses on all relevant aspects of data contamination in natural language processing, where data contamination is understood as situations where evaluation data is included in pre-training corpora used to train large scale models, compromising evaluation results. The workshop fostered a shared task to collect evidence on data contamination in current available datasets and models. The goal of the shared task and associated database is to assist the community in understanding the extent of the problem and to assist researchers in avoiding reporting evaluation results on known contaminated resources. The shared task provides a structured, centralized public database for the collection of contamination evidence, open to contributions from the community via GitHub pool requests. This first compilation paper is based on 566 reported entries over 91 contaminated sources from a total of 23 contributors. The details of the individual contamination events are available in the platform. The platform continues to be online, open to contributions from the community.",
+          "claimed_authors": [
+            "Oscar Sainz",
+            "Iker García-Ferrero",
+            "Alon Jacovi",
+            "Jon Ander Campos",
+            "Yanai Elazar",
+            "Eneko Agirre",
+            "Yoav Goldberg",
+            "Wei-Lin Chen",
+            "Jenny Chim",
+            "Leshem Choshen",
+            "Luca D'Amico-Wong",
+            "Melissa Dell",
+            "Run-Ze Fan",
+            "Shahriar Golchin",
+            "Yucheng Li",
+            "Pengfei Liu",
+            "Bhavish Pahwa",
+            "Ameya Prabhu",
+            "Suryansh Sharma",
+            "Emily Silcock",
+            "Kateryna Solonko",
+            "David Stap",
+            "Mihai Surdeanu",
+            "Yu-Min Tseng",
+            "Vishaal Udandarao",
+            "Zengzhi Wang",
+            "Ruijie Xu",
+            "Jinglin Yang"
+          ],
+          "claimed_title": "Data Contamination Report from the 2024 CONDA Shared Task",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.21530"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Causal Forcing++: Scalable Few-Step Autoregressive', candidate_title='Data Contamination Report from the 2024 CONDA Shared Task')",
+        "failed_at": "2026-08-13T07:03:05Z",
         "reason": "query_irrelevant"
       }
     ],
     "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hongzhou Zhu",
+            "Min Zhao",
+            "Guande He",
+            "Hang Su",
+            "Chongxuan Li",
+            "Jun Zhu"
+          ],
+          "title": "Causal Forcing: Autoregressive Diffusion Distillation Done Right for High-Quality Real-Time Interactive Video Generation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.02214",
+        "summary": "To achieve real-time interactive video generation, current methods distill pretrained bidirectional video diffusion models into few-step autoregressive (AR) models, facing an architectural gap when full attention is replaced by causal attention. However, existing approaches do not bridge this gap theoretically. They initialize the AR student via ODE distillation, which requires frame-level injectivity, where each noisy frame must map to a unique clean frame under the PF-ODE of an AR teacher. Distilling an AR student from a bidirectional teacher violates this condition, preventing recovery of the teacher's flow map and instead inducing a conditional-expectation solution, which degrades performance. To address this issue, we propose Causal Forcing, which uses an autoregressive teacher for ODE initialization to bridge the architectural gap, and then applies the same DMD procedure as in Self Forcing. Empirical results show that our method outperforms all baselines across all metrics, surpassing the SOTA Self Forcing by 19.3\\% in Dynamic Degree, 8.7\\% in VisionReward, and 16.7\\% in Instruction Following. Project page: \\href{https://thu-ml.github.io/CausalForcing.github.io/}{https://thu-ml.github.io/CausalForcing.github.io/}; the code: \\href{https://github.com/thu-ml/Causal-Forcing}{https://github.com/thu-ml/Causal-Forcing}.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.02214",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4167,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-13T07:03:04Z"
+        }
+      },
       {
         "bibliographic_info": {
           "authors": [
@@ -552,13 +532,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2605.15141",
           "http_status": 200,
-          "pdf_sample_score": 0.338,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-10T07:50:21Z"
+          "verified_at": "2026-08-13T07:03:05Z"
         }
       },
       {
@@ -586,94 +566,98 @@
           "final_url": "https://arxiv.org/abs/2511.18834",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.5,
+          "query_relevance_score": 0.4,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-10T07:50:27Z"
+          "verified_at": "2026-08-13T07:03:10Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Lingxiao Zhao",
-            "Xueying Ding",
-            "Leman Akoglu"
+            "Taiye Chen",
+            "Zihan Ding",
+            "Anjian Li",
+            "Christina Zhang",
+            "Zeqi Xiao",
+            "Yisen Wang",
+            "Chi Jin"
           ],
-          "title": "Pard: Permutation-Invariant Autoregressive Diffusion for Graph Generation",
-          "venue": "arXiv",
-          "year": 2024
-        },
-        "primary_pointer": "2402.03687",
-        "summary": "Graph generation has been dominated by autoregressive models due to their simplicity and effectiveness, despite their sensitivity to ordering. Yet diffusion models have garnered increasing attention, as they offer comparable performance while being permutation-invariant. Current graph diffusion models generate graphs in a one-shot fashion, but they require extra features and thousands of denoising steps to achieve optimal performance. We introduce PARD, a Permutation-invariant Auto Regressive Diffusion model that integrates diffusion models with autoregressive methods. PARD harnesses the effectiveness and efficiency of the autoregressive model while maintaining permutation invariance without ordering sensitivity. Specifically, we show that contrary to sets, elements in a graph are not entirely unordered and there is a unique partial order for nodes and edges. With this partial order, PARD generates a graph in a block-by-block, autoregressive fashion, where each block's probability is conditionally modeled by a shared diffusion model with an equivariant network. To ensure efficiency while being expressive, we further propose a higher-order graph transformer, which integrates transformer with PPGN. Like GPT, we extend the higher-order graph transformer to support parallel training of all blocks. Without any extra features, PARD achieves state-of-the-art performance on molecular and non-molecular datasets, and scales to large datasets like MOSES containing 1.9M molecules. Pard is open-sourced at https://github.com/LingxiaoShawn/Pard.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2402.03687",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.75,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-10T07:50:27Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Jiayi Fu",
-            "Yuxia Wang"
-          ],
-          "title": "A Tutorial on Diffusion Theory: From Differential Equations to Diffusion Models",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2605.22586",
-        "summary": "Diffusion models have emerged as a dominant framework for generative modeling, but their mathematical foundations are often presented separately through diffusion probabilistic models, score-based modeling, stochastic differential equations, and numerical sampling methods. We write this tutorial to provide a unified and self-contained account of these viewpoints from the perspective of differential equations. Starting from a conditional Gaussian noising process, we derive ordinary differential equation (ODE) and stochastic differential equation (SDE) representations, pass to the corresponding marginal forward dynamics, and then obtain the reverse-time SDE and probability-flow ODE that make generation possible. We show that the central unknown quantity in reverse sampling is the marginal score, explain how score matching becomes the standard denoising objective under a noise-prediction parameterization, and discuss practical reverse-time sampling and guidance. We further place DDPM, DDIM, flow matching, and score-based SDEs in a common framework, and conclude with diffusion language models in continuous embedding space together with a brief discussion of discrete masked-token diffusion. The tutorial is intended as a bridge between the analytical foundations of diffusion processes and the modern generative algorithms built upon them.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2605.22586",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.5,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-10T07:50:27Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Mihir Prabhudesai",
-            "Mengning Wu",
-            "Amir Zadeh",
-            "Katerina Fragkiadaki",
-            "Deepak Pathak"
-          ],
-          "title": "Diffusion Beats Autoregressive in Data-Constrained Settings",
+          "title": "Recurrent Autoregressive Diffusion: Global Memory Meets Local Attention",
           "venue": "arXiv",
           "year": 2025
         },
-        "primary_pointer": "2507.15857",
-        "summary": "Autoregressive (AR) models have long dominated the landscape of large language models, driving progress across a wide range of tasks. Recently, diffusion-based language models have emerged as a promising alternative, though their advantages over AR models remain underexplored. In this paper, we systematically study masked diffusion models in data-constrained settings where training involves repeated passes over limited data and find that they significantly outperform AR models when compute is abundant but data is scarce. Diffusion models make better use of repeated data, achieving lower validation loss and superior downstream performance. We find new scaling laws for diffusion models and derive a closed-form expression for the critical compute threshold at which diffusion begins to outperform AR. Finally, we explain why diffusion models excel in this regime: their randomized masking objective implicitly trains over a rich distribution of token orderings, acting as an implicit data augmentation that AR's fixed left-to-right factorization lacks. Our results suggest that when data, not compute, is the bottleneck, diffusion models offer a compelling alternative to the standard AR paradigm. Our code is available at: https://diffusion-scaling.github.io.",
+        "primary_pointer": "2511.12940",
+        "summary": "Recent advancements in video generation has shifted from bidirectional models for short videos to autoregressive ones for ultra long video generation. Previous models, which usually use sliding window attention to restrict inference cost, lack effective memory compression and retrieval for long-term generation beyond the window size, leading to issues of forgetting and spatiotemporal inconsistencies. To enhance the retention of historical information with a fixed memory budget, we additionally incorporate temporal recurrent neural network (RNN) layers into the diffusion transformer (DiT) model. Specifically, we found that a LSTM layer after attention at each DiT layer achieves comparable performance to other state-of-the-art RNN blocks, such as Test-Time Training (TTT) and Mamba2. Moreover, existing diffusion-RNN approaches often suffer from performance degradation due to training-inference gap or the lack of overlap across windows. To address these limitations, we propose a novel Recurrent Autoregressive Diffusion (RAD) framework, which leverages recurrent blocks for memory update and retrieval and preserves local details by full attention on overlapping sliding windows, with no training and inference gap. Experiments on Memory Maze and Minecraft datasets demonstrate the superiority for long video generation by our framework with global memory and local attention.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2507.15857",
+          "final_url": "https://arxiv.org/abs/2511.12940",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.75,
+          "query_relevance_score": 0.4,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-10T07:50:28Z"
+          "verified_at": "2026-08-13T07:03:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mingyuan Zhou",
+            "Yi Gu",
+            "Zhendong Wang"
+          ],
+          "title": "Few-Step Diffusion via Score identity Distillation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2505.12674",
+        "summary": "Diffusion distillation has emerged as a promising strategy for accelerating text-to-image (T2I) diffusion models by distilling a pretrained score network into a one- or few-step generator. While existing methods have made notable progress, they often rely on real or teacher-synthesized images to perform well when distilling high-resolution T2I diffusion models such as Stable Diffusion XL (SDXL), and their use of classifier-free guidance (CFG) introduces a persistent trade-off between text-image alignment and generation diversity. We address these challenges by optimizing Score identity Distillation (SiD) -- a data-free, one-step distillation framework -- for few-step generation. Backed by theoretical analysis that justifies matching a uniform mixture of outputs from all generation steps to the data distribution, our few-step distillation algorithm avoids step-specific networks and integrates seamlessly into existing pipelines, achieving state-of-the-art performance on SDXL at 1024x1024 resolution. To mitigate the alignment-diversity trade-off when real text-image pairs are available, we introduce a Diffusion GAN-based adversarial loss applied to the uniform mixture and propose two new guidance strategies: Zero-CFG, which disables CFG in the teacher and removes text conditioning in the fake score network, and Anti-CFG, which applies negative CFG in the fake score network. This flexible setup improves diversity without sacrificing alignment. Comprehensive experiments on SD1.5 and SDXL demonstrate state-of-the-art performance in both one-step and few-step generation settings, along with robustness to the absence of real images. Our efficient PyTorch implementation, along with the resulting one- and few-step distilled generators, will be released publicly as a separate branch at https://github.com/mingyuanzhou/SiD-LSG.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2505.12674",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-13T07:03:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jaehoon Yoo",
+            "Wonjung Kim",
+            "Chanhyuk Lee",
+            "Seunghoon Hong"
+          ],
+          "title": "Infinite Mask Diffusion for Few-Step Distillation",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.10518",
+        "summary": "Masked Diffusion Models (MDMs) have emerged as a promising alternative to autoregressive models in language modeling, offering the advantages of parallel decoding and bidirectional context processing within a simple yet effective framework. Specifically, their explicit distinction between masked tokens and data underlies their simple framework and effective conditional generation. However, MDMs typically require many sampling iterations due to factorization errors stemming from simultaneous token updates. We observe that a theoretical lower bound of the factorization error exists, which standard MDMs cannot reduce due to their use of a deterministic single-state mask. In this paper, we propose the Infinite Mask Diffusion Model (IMDM), which introduces a stochastic infinite-state mask to mitigate the theoretical bound while directly inheriting the benefits of MDMs, including the compatibility with pre-trained weights. We empirically demonstrate that MDM fails to perform few-step generation even in a simple synthetic task due to the factorization error bound, whereas IMDM can find an efficient solution for the same task. Finally, when equipped with appropriate distillation methods, IMDM surpasses existing few-step distillation methods at small step counts on LM1B and OpenWebText. Code is available at https://Ugness.github.io/official_imdm.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.10518",
+          "http_status": 200,
+          "pdf_sample_score": 0.2847,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-13T07:03:11Z"
         }
       }
     ]

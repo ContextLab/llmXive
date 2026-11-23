@@ -1,0 +1,46 @@
+# Phenomenological AI Pipeline Configuration
+# Used for T033 validation and general pipeline execution
+
+# Paths
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  data_qualitative: "data/qualitative"
+  logs: "data/logs"
+  prompts: "data/prompts"
+  
+# Model Configuration
+# Primary CI model: TinyLlama (CPU-tractable)
+model:
+  primary_id: "TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF"
+  primary_path: "models/tinyllama-1.1b-chat-v1.0.Q4_K_M.gguf"
+  local_id: "microsoft/phi-2"
+  local_path: "models/phi-2.Q4_K_M.gguf"
+  
+# Generation Parameters
+generation:
+  max_tokens: 256
+  temperature: 0.7
+  top_p: 0.9
+  repeat_penalty: 1.1
+  max_attempts: 3
+  timeout_seconds: 300
+  limit: 100  # Default limit for T033 validation
+  
+# Analysis Parameters
+analysis:
+  nli_model: "cross-encoder/stsb-distilroberta-base"
+  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
+  marker_window: 50
+  
+# Validation Parameters
+validation:
+  kappa_threshold: 0.6
+  sample_size_per_stratum: 10
+  
+# Output Configuration
+output:
+  validity_scores_path: "data/processed/validity_scores.csv"
+  stats_report_path: "data/processed/stats_report.json"
+  sensitivity_report_path: "data/processed/sensitivity_report.md"
+  

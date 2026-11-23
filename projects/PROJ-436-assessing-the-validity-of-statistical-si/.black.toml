@@ -1,0 +1,7 @@
+# This file is a duplicate of the configuration in pyproject.toml
+# to allow running black directly if needed, though pyproject.toml is standard.
+# It mirrors the settings in [tool.black] above.
+
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'

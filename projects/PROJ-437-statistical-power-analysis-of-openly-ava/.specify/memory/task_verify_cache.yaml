@@ -1,0 +1,10 @@
+V01:
+  c: false
+  h: 24020ade2ec1597df7dffe5f05cf4946ee8346e58c9436c9cd562b4d6c2eec98
+  r: "The provided evidence includes a valid `requirements.txt` and a fully\u2011\
+    implemented `code/utils/seed_manager.py`, but there are no artifacts for the memory\
+    \ monitor, the `SimulationConfig` and `ReplicationResult` data models, the timer\
+    \ utility, or the execution\u2011order validator required by the V01 scaffolding\
+    \ task. These missing files must be added and contain the specified functionality\
+    \ before the task can be considered complete."
+  sig: d766f391cf4a0589a87c4647bb224b40067b6e8a07c5c1cdaf152b039fc910d8

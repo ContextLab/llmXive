@@ -1,0 +1,11 @@
+materials_project:
+  verified: false
+  api_key_env: MP_API_KEY
+  url: https://materialsproject.org/rest/v2
+  endpoint: /materials
+nist_uci:
+  verified: false
+openalloy:
+  verified: true
+  url: https://openalloy.org/api/v1
+  endpoint: /compositions

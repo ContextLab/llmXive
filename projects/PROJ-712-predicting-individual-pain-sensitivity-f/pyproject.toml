@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "proj-712-pain-sensitivity-microstates"
+name = "llmxive-pain-sensitivity"
 version = "0.1.0"
 description = "Predicting Individual Pain Sensitivity from Resting-State EEG Microstates"
 requires-python = ">=3.11"
@@ -23,48 +23,53 @@ dev = [
     "ruff>=0.1.0",
     "black>=23.0.0",
     "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
 ]
 
 [tool.ruff]
-line-length = 88
-target-version = "py311"
+# Enable the default rule set (including E, F, W, C90, etc.).
+# This ensures that linting actually checks the code.
+# Line length is aligned with Black's configuration.
+line-length = 120
 select = [
-    "E",    # pycodestyle errors
-    "W",    # pycodestyle warnings
-    "F",    # pyflakes
-    "I",    # isort
-    "C",    # flake8-comprehensions
-    "B",    # flake8-bugbear
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "C90", # mccabe complexity
+    "B",   # bugbear
+    "UP",  # pyupgrade
+    "I",   # import sorting
 ]
-ignore = [
-    "E501", # line too long (black handles this)
-    "B008", # do not perform function calls in argument defaults (common in ML)
-]
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
 
 [tool.black]
-line-length = 88
+line-length = 120
 target-version = ["py311"]
-include = '\.pyi?$'
+include = '\\.pyi?$'
+# Exclude generated or data directories; keep source code under formatting checks.
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data/raw
+    | data/processed
+    | artifacts
+    | state
 )/
 '''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_classes = ["Test*"]
-python_functions = ["test_*"]
 addopts = "-v --strict-markers"
+markers = [
+    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
+    "unit: Unit tests",
+    "integration: Integration tests",
+]

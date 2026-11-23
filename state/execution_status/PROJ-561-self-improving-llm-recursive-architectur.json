@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-561-self-improving-llm-recursive-architectur",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/utils/metrics.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026tuple\")      # Create a dummy input tensor on CPU to avoid G\u2026\u201d; 1 command(s) failed: python code/main.py (rc=1)",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-561-self-improving-llm-recursive-architectur/code/main.py\", line 10, in <module>\n    from utils.logging import init_cycle_logger, log_cycle_summary, log_error, get_log_path\nImportError: cannot import name 'log_cycle_summary' from 'utils.logging' (/home/runner/work/llmXive/llmXive/projects/PROJ-561-self-improving-llm-recursive-architectur/code/utils/logging.py)"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-10-07T02:39:37Z"
+}

@@ -1,58 +1,63 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence was presented showing that the required directories (`code/`, `data/raw/`,\
-    \ `data/processed/`, `data/reports/`, `tests/`, `state/`) actually exist; the\
-    \ response contains only the task description without any file\u2011system listing\
-    \ or screenshots. The implementer must provide proof (e.g., a directory tree listing)\
-    \ that these folders have been created and are non\u2011empty where appropriate."
 T003:
   c: false
-  h: f39c5d37fc9a7ee51e6d00fd4c400a75d88249d1ea9d141f43b144e59a29bb51
-  r: "The repository contains a non\u2011empty `code/.ruff.toml` that configures ruff\
-    \ linting and its own formatter, but there is no configuration for the `black`\
-    \ formatter (e.g., a `pyproject.toml` or `black` section) and no `.flake8` file.\
-    \ The task required configuring both linting (ruff or flake8) **and** formatting\
-    \ with black, which is not satisfied."
+  h: 2c392c123b4e8ad8f7fa9cd42bfec9cb75154823bf553c9ad537d36993b82f33
+  r: "The repository contains a `code/.ruff.toml` file with extensive strict linting\
+    \ rules, satisfying the configuration requirement, but there is no provided evidence\
+    \ (e.g., command output or exit code) that `ruff check code/` actually runs successfully\
+    \ with exit code\u202F0. The verification step is missing."
 T008:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The submission provides no evidence of a pytest configuration (e.g., `pytest.ini`
-    or `conftest.py`) nor the required `tests/unit` and `tests/integration` directories
-    with any test files. Without these artifacts present, the task of setting up the
-    pytest framework and directory structure is not satisfied.
+  h: 022b9485f1eb14cbbf5c4c2feda1753aa53d3a011858f153b507d4056b3ed50a
+  r: "The provided `pytest.ini` exists, but the required `conftest.py` file is missing,\
+    \ and the `pytest.ini` does not contain any seed\u2011pinning configuration. Both\
+    \ artifacts are needed to satisfy the task."
 T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `ingest.py` script or any code, logs, or output files were presented. Without\
-    \ an actual artifact showing the download logic, rate\u2011limit backoff, and\
-    \ handling of NIST/Materials Project records, the requirement cannot be confirmed\
-    \ as met. The implementer must supply the `ingest.py` file (non\u2011empty) that\
-    \ implements the specified functionality."
+  r: "No `ingest.py` script or any code, data, or logs were provided; the claim lacks\
+    \ the required artifact implementing the NIST/Materials Project download with\
+    \ rate\u2011limit backoff. The task cannot be verified as completed without the\
+    \ actual script (and its behavior)."
 T013:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `ingest.py` script (or any code) was presented; the evidence contains only
-    the task description and project specifications, with no actual implementation
-    that validates and excludes records lacking explicit degradation pathway labels.
-    The required artifact is missing, so the task is not satisfied.
+  r: "No `ingest.py` script or any code, data files, or logs were provided; the claim\
+    \ lacks the required artifact that downloads NIST and Materials Project records\
+    \ with rate\u2011limit backoff. The task cannot be verified as completed without\
+    \ the actual implementation."
 T014:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `preprocess.py` script or any code, data files, or logs were presented. Consequently\
-    \ there is no evidence that SMILES strings were converted to molecular graphs\
-    \ with RDKit, nor that records lacking temperature/pH/UV were excluded as required.\
-    \ The task\u2019s deliverable is missing."
+  r: "No `ingest.py` script or any related code, data, or logs were provided; therefore\
+    \ there is no evidence that a script identifying records missing \u201Cdegradation\
+    \ pathway\u201D labels was created or that it functions as required. The required\
+    \ artifact is missing."
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `preprocess.py` script or any code implementing SMILES\u2011based polyester\
-    \ detection was provided, nor any example input/output showing that non\u2011\
-    polyester records are filtered out. Without the actual artifact, the requirement\
-    \ cannot be verified."
+  r: "No `preprocess.py` script or any code was presented; there is no evidence that\
+    \ SMILES strings are converted to RDKit molecular graphs with the specified parameters,\
+    \ nor that non\u2011polyesters are filtered by detecting the `C(=O)O` ester pattern.\
+    \ The required artifact is missing, so the task is not satisfied."
 T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `preprocess.py` script or any files under `data/raw/` or `data/processed/`
-    with accompanying checksum files were provided. The required implementation that
-    saves raw and processed datasets and generates checksums is missing.
+  r: No saved dataset files or checksum records are present; the implementer provided
+    no artifact paths, files, or content demonstrating that the raw ingested data
+    (T013) and processed graph data (T015) were actually saved with accompanying checksums.
+    Consequently the task requirement is not satisfied.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `train.py` (or equivalent training script) is present in the provided evidence,\
+    \ and thus there is no code implementing the required k\u2011fold (or leave\u2011\
+    one\u2011out) training loop, seed pinning, macro\u2011F1 reporting, or convergence\
+    \ check. The implementer must supply a non\u2011empty `train.py` that fulfills\
+    \ all specified behaviors."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `model.py` file or any code defining the required GCN\u2011style GNN (\u2264\
+    3 layers, hidden dim \u2264128, ReLU activation, mean pooling, CPU\u2011only)\
+    \ was provided; thus the artifact the task demands is missing. The implementer\u2019\
+    s claim cannot be verified without the actual model implementation."

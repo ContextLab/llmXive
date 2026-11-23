@@ -1,0 +1,28 @@
+# Schema definition for Feature entity (T006)
+# Used for validating JSON representations of features
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature"
+description: "Represents a single feature (predictor variable) in the dataset."
+type: "object"
+required:
+  - name
+  - feature_type
+properties:
+  name:
+    type: "string"
+    description: "The name of the feature (e.g., SNP ID or environmental variable name)."
+  feature_type:
+    type: "string"
+    enum:
+      - "genomic"
+      - "environmental"
+    description: "Whether this is a genomic or environmental feature."
+  source:
+    type: ["string", "null"]
+    description: "The original source of the data."
+  description:
+    type: ["string", "null"]
+    description: "Optional description of what the feature represents."
+  unit:
+    type: ["string", "null"]
+    description: "Optional unit of measurement."

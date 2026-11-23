@@ -1,166 +1,126 @@
-"""
-Utility functions for molecular processing, logging, and device configuration.
-
-This module provides:
-- RDKit-based SMILES parsing and validation
-- Centralized logging configuration
-- CPU-only device selection for PyTorch
-"""
-
 import logging
 import os
 import sys
 from pathlib import Path
-from typing import Optional, Tuple
-
+from typing import Optional, Tuple, Dict
+import hashlib
 import rdkit
 from rdkit import Chem
 from rdkit.Chem import AllChem
-import torch
+import numpy as np
 
-# Configure RDKit to suppress warnings
-rdkit.RDLogger.DisableLog('rdApp.*')
+# Logging Event Schema Definition
+# The following constants define the standardized log message prefixes
+# used across the pipeline to ensure consistent parsing and analysis.
+LOG_EVENT_DUPLICATE_RESOLVED = "duplicate_resolved"
+LOG_EVENT_INVALID_SMILES_EXCLUDED = "invalid_smiles_excluded"
+LOG_EVENT_LAMBDA_MAX_MISSING_EXCLUDED = "lambda_max_missing_excluded"
+LOG_EVENT_SPLIT_COMPLETE = "split_complete"
+LOG_EVENT_SCAFFOLD_LEAKAGE_DETECTED = "scaffold_leakage_detected"
+LOG_EVENT_SAMPLE_SIZE_LOGGED = "sample_size_logged"
 
-# Project root (assumes code/ is at project root or one level up)
-# Adjust if running from a subdirectory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-LOGS_DIR = PROJECT_ROOT / "logs"
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
-
-def get_device() -> torch.device:
+# Configure logging
+def setup_logging(level=logging.INFO):
     """
-    Returns a CPU-only device as required by project constraints.
-    GPU usage is explicitly disabled.
-    """
-    return torch.device("cpu")
-
-def setup_logging(
-    name: str,
-    log_file: Optional[str] = None,
-    level: int = logging.INFO,
-    console: bool = True
-) -> logging.Logger:
-    """
-    Configures and returns a logger with file and/or console handlers.
-
+    Setup basic logging configuration.
+    
     Args:
-        name: Logger name (typically __name__)
-        log_file: Relative path to log file (e.g., "ingest.log")
-        level: Logging level
-        console: Whether to log to stdout
-
-    Returns:
-        Configured logger instance
+        level: Logging level.
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    logger.propagate = False
-
-    # Remove existing handlers to avoid duplicates
-    logger.handlers.clear()
-
-    # Formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
+    logging.basicConfig(
+        level=level,
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout)
+        ]
     )
 
-    # File handler
-    if log_file:
-        log_path = LOGS_DIR / log_file
-        fh = logging.FileHandler(log_path)
-        fh.setLevel(level)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-
-    # Console handler
-    if console:
-        ch = logging.StreamHandler(sys.stdout)
-        ch.setLevel(level)
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
-
-    return logger
-
-def parse_smiles(
-    smiles: str,
-    sanitize: bool = True
-) -> Optional[Chem.Mol]:
+def get_logger(name: str) -> logging.Logger:
     """
-    Parses a SMILES string into an RDKit Mol object.
-
+    Get a logger instance.
+    
     Args:
-        smiles: SMILES string
-        sanitize: Whether to sanitize the molecule
-
+        name: Logger name.
+            
     Returns:
-        RDKit Mol object or None if parsing fails
+        Logger instance.
+    """
+    return logging.getLogger(name)
+
+def get_device():
+    """
+    Get the device for model training (CPU only).
+    
+    Returns:
+        String 'cpu'.
+    """
+    return 'cpu'
+
+def parse_smiles(smiles: str) -> Optional[Chem.Mol]:
+    """
+    Parse a SMILES string into an RDKit molecule.
+    
+    Args:
+        smiles: SMILES string.
+            
+    Returns:
+        RDKit Mol object or None if invalid.
     """
     if not smiles or not isinstance(smiles, str):
         return None
     try:
-        mol = Chem.MolFromSmiles(smiles, sanitize=sanitize)
+        mol = Chem.MolFromSmiles(smiles)
         return mol
     except Exception:
         return None
 
-def validate_molecule(
-    mol: Optional[Chem.Mol]
-) -> Tuple[bool, str]:
+def validate_molecule(smiles: str) -> bool:
     """
-    Validates an RDKit molecule object.
-
-    Checks:
-    - Object is not None
-    - Has at least one atom
-    - Has at least one bond (unless it's a single atom like [He])
-
+    Validate a SMILES string.
+    
     Args:
-        mol: RDKit Mol object
-
+        smiles: SMILES string.
+            
     Returns:
-        Tuple of (is_valid, reason)
+        True if valid, False otherwise.
     """
-    if mol is None:
-        return False, "Molecule is None"
+    mol = parse_smiles(smiles)
+    return mol is not None
 
-    if mol.GetNumAtoms() == 0:
-        return False, "Molecule has no atoms"
-
-    # Allow single atoms (e.g., noble gases)
-    if mol.GetNumBonds() == 0 and mol.GetNumAtoms() > 1:
-        return False, "Molecule has no bonds but has multiple atoms"
-
-    return True, "Valid"
-
-def smiles_to_ecfp(
-    smiles: str,
-    radius: int = 2,
-    n_bits: int = 2048
-) -> Optional[torch.Tensor]:
+def smiles_to_ecfp(smiles: str, radius: int = 2, nBits: int = 2048) -> np.ndarray:
     """
-    Converts a SMILES string to an ECFP (Morgan) fingerprint.
-
+    Convert SMILES to ECFP fingerprint.
+    
     Args:
-        smiles: SMILES string
-        radius: Morgan fingerprint radius (default 2 for ECFP4)
-        n_bits: Number of bits in the fingerprint
-
+        smiles: SMILES string.
+        radius: Radius of the fingerprint.
+        nBits: Number of bits.
+            
     Returns:
-        PyTorch tensor of shape (n_bits,) with dtype float32, or None if failed
+        Numpy array of fingerprint bits.
     """
     mol = parse_smiles(smiles)
     if mol is None:
-        return None
+        return np.zeros(nBits, dtype=int)
+    
+    fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=nBits)
+    arr = np.zeros((nBits,), dtype=int)
+    AllChem.DataStructs.ConvertToNumpyArray(fp, arr)
+    return arr
 
-    fp = AllChem.GetMorganFingerprintAsBitVect(mol, radius, nBits=n_bits)
-    arr = [0] * n_bits
-    for idx in fp.GetOnBits():
-        arr[idx] = 1
-    return torch.tensor(arr, dtype=torch.float32)
+def clear_mol_cache():
+    """
+    Clear RDKit molecule cache.
+    """
+    Chem.ClearMolBlockCache()
 
-def get_logger() -> logging.Logger:
+def get_cache_stats() -> Dict:
     """
-    Convenience function to get a default logger for this module.
+    Get RDKit cache statistics.
+    
+    Returns:
+        Dictionary of cache stats.
     """
-    return setup_logging(__name__, log_file="utils.log", console=True)
+    return {
+        "cache_size": Chem.GetMolBlockCacheSize()
+    }

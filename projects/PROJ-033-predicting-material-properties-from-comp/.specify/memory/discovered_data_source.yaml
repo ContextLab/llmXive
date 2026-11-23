@@ -1,0 +1,11 @@
+status: none
+intent: Materials Project Matbench Expt Gap band gap hardness dataset python package
+  dataset
+required_fields:
+- material_id
+- formula
+- band_gap
+- hardness
+cache_key: f439e46a493b166d71ef06b42ca93808baba236cf603e0a3546ab1998918fde7
+searched_at: '2026-10-24T13:38:54.199775+00:00'
+retry_count: 1

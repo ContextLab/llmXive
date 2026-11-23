@@ -1,68 +1,28 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Corrosion Dataset Schema"
-description: "Schema for the processed corrosion potential dataset used in training and evaluation."
-type: object
+title: "Processed Corrosion Dataset Schema"
+description: "Schema for the preprocessed dataset used for model training and evaluation, ensuring compositional transformations and environmental metadata are present (FR-003, FR-013, FR-020)."
+type: "object"
+required:
+  - "specific_alloy_designation"
+  - "ph"
+  - "temperature_celsius"
+  - "corrosion_potential_mV"
 properties:
-  record_id:
-    type: string
-    description: "Unique identifier for the record."
   specific_alloy_designation:
-    type: string
-    description: "Normalized alloy grade (e.g., SS304)."
-  fe_weight:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Iron weight fraction."
-  cr_weight:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Chromium weight fraction."
-  ni_weight:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Nickel weight fraction."
-  mo_weight:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Molybdenum weight fraction."
-  other_elements:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "Sum of remaining elemental weight fractions."
+    type: "string"
+    description: "The unique alloy grade used for Group Split (LOSO) to prevent data leakage (FR-004, FR-012)."
   ph:
-    type: number
+    type: "number"
     minimum: 0.0
     maximum: 14.0
-    description: "Environmental pH (aqueous range)."
-  temperature_c:
-    type: number
-    minimum: 0.0
-    description: "Temperature in Celsius."
-  corrosion_potential_mv:
-    type: number
-    description: "Target variable: Corrosion potential in millivolts vs SHE (normalized)."
-  reference_electrode:
-    type: string
-    description: "Original reference electrode used (e.g., SHE, SCE, Ag/AgCl)."
-  is_outlier:
-    type: boolean
-    description: "Flag for extreme pH conditions."
-required:
-  - record_id
-  - specific_alloy_designation
-  - fe_weight
-  - cr_weight
-  - ni_weight
-  - mo_weight
-  - other_elements
-  - ph
-  - temperature_c
-  - corrosion_potential_mv
-  - reference_electrode
-  - is_outlier
-additionalProperties: false
+    description: "The aqueous pH of the environment; values outside 0-14 are excluded from primary analysis (FR-016)."
+  temperature_celsius:
+    type: "number"
+    description: "The environmental temperature in degrees Celsius."
+  corrosion_potential_mV:
+    type: "number"
+    description: "The target variable: corrosion potential measured in millivolts (mV) vs SHE."
+  electrolyte_type:
+    type: "string"
+    description: "The categorical type of the electrolyte used in the measurement."
+additionalProperties: true # Allows for CLR-transformed elemental weight fractions (e.g., clr_Fe, clr_Cr) as per FR-020.

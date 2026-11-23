@@ -1,0 +1,106 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Log Schema
+description: Schema for static and dynamic analysis results
+type: object
+required:
+  - analysis_id
+  - dataset_id
+  - language
+  - tool
+  - timestamp
+  - results
+properties:
+  analysis_id:
+    type: string
+    description: Unique identifier for this analysis run
+  dataset_id:
+    type: string
+    description: Reference to the source dataset
+  language:
+    type: string
+    enum:
+      - python
+      - javascript
+      - java
+    description: Programming language analyzed
+  tool:
+    type: string
+    description: Name of the analysis tool (e.g., 'codeql', 'sonarqube', 'pylint', 'pytest')
+  tool_version:
+    type: string
+    description: Version of the tool used
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the analysis
+  execution_time_ms:
+    type: integer
+    minimum: 0
+    description: Duration of the analysis in milliseconds
+  results:
+    type: array
+    items:
+      type: object
+      required:
+        - snippet_id
+      properties:
+        snippet_id:
+          type: string
+          description: Identifier of the code snippet
+        status:
+          type: string
+          enum:
+            - passed
+            - failed
+            - error
+            - timeout
+            - untestable
+          description: Result status
+        issues:
+          type: array
+          items:
+            type: object
+            required:
+              - severity
+              - rule_id
+              - message
+            properties:
+              severity:
+                type: string
+                enum:
+                  - error
+                  - warning
+                  - info
+                  - hint
+                description: Severity level of the issue
+              rule_id:
+                type: string
+                description: Identifier of the rule/violation
+              message:
+                type: string
+                description: Description of the issue
+              location:
+                type: object
+                properties:
+                  line:
+                    type: integer
+                  column:
+                    type: integer
+                  start:
+                    type: integer
+                  end:
+                    type: integer
+                description: Location in the code snippet
+        test_results:
+          type: array
+          items:
+            type: object
+            properties:
+              test_name:
+                type: string
+              passed:
+                type: boolean
+              duration_ms:
+                type: integer
+          description: Detailed test results for dynamic analysis
+additionalProperties: false

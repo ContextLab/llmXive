@@ -1,16 +1,21 @@
 """
 Tests for code/config.py configuration constants and paths.
+
+This module validates that all configuration paths are correctly defined,
+exist on the filesystem, and that constant values match the project specifications.
 """
 
 import os
 from pathlib import Path
 import pytest
-
-# Import the config module
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent))
+
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
 from code.config import (
-    PROJECT_ROOT,
+    PROJECT_ROOT as CONFIG_PROJECT_ROOT,
     CODE_DIR,
     DATA_DIR,
     TESTS_DIR,
@@ -41,7 +46,7 @@ class TestConfigPaths:
     """Test that all paths are correctly defined and exist."""
 
     def test_project_root_is_absolute(self):
-        assert PROJECT_ROOT.is_absolute()
+        assert CONFIG_PROJECT_ROOT.is_absolute()
 
     def test_code_dir_exists(self):
         assert CODE_DIR.exists()
@@ -143,6 +148,15 @@ class TestEnsureDirectories:
         # Temporarily override PROJECT_ROOT for testing
         import code.config as config_module
         original_root = config_module.PROJECT_ROOT
+        original_data = config_module.DATA_DIR
+        original_raw = config_module.RAW_DATA_DIR
+        original_processed = config_module.PROCESSED_DATA_DIR
+        original_sims = config_module.SIMULATIONS_DIR
+        original_reports = config_module.REPORTS_DIR
+        original_figures = config_module.FIGURES_DIR
+        original_sims_maps = config_module.SIMULATED_MAPS_DIR
+        original_sims_cl = config_module.SIMULATED_CL_DIR
+
         config_module.PROJECT_ROOT = temp_root
         config_module.DATA_DIR = temp_data
         config_module.RAW_DATA_DIR = temp_data_raw
@@ -155,7 +169,7 @@ class TestEnsureDirectories:
 
         try:
             # Call ensure_directories
-            config_module.ensure_directories()
+            ensure_directories()
 
             # Verify all directories were created
             assert temp_root.exists()
@@ -171,3 +185,11 @@ class TestEnsureDirectories:
         finally:
             # Restore original values
             config_module.PROJECT_ROOT = original_root
+            config_module.DATA_DIR = original_data
+            config_module.RAW_DATA_DIR = original_raw
+            config_module.PROCESSED_DATA_DIR = original_processed
+            config_module.SIMULATIONS_DIR = original_sims
+            config_module.REPORTS_DIR = original_reports
+            config_module.FIGURES_DIR = original_figures
+            config_module.SIMULATED_MAPS_DIR = original_sims_maps
+            config_module.SIMULATED_CL_DIR = original_sims_cl

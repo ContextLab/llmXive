@@ -1,0 +1,30 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Synthetic Dataset Schema
+description: Schema for the synthetic dataset generated for multi-objective reinforcement learning experiments.
+type: object
+properties:
+  state:
+    type: integer
+    description: The state of the environment.
+  action:
+    type: integer
+    description: The action taken in the environment.
+  rewards:
+    type: array
+    description: The rewards received for each objective.
+    items:
+      type: number
+      format: float
+  N:
+    type: integer
+    description: The number of objectives.
+  noise_std:
+    type: number
+    format: float
+    description: The standard deviation of the noise in each reward objective.
+required:
+  - state
+  - action
+  - rewards
+  - N
+  - noise_std

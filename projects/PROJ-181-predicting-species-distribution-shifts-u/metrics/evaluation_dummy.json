@@ -1,0 +1,9 @@
+{
+  "model_id": "dummy_model",
+  "species": "Testus testus",
+  "algorithm": "random_forest",
+  "recent_auc": 0.73,
+  "recent_tss": 0.38,
+  "delta_auc": -0.02,
+  "delta_tss": -0.01
+}

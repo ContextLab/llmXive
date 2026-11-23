@@ -1,23 +1,5 @@
 - artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
   attempts: 1
-  canonical: unified dataset with at least 85% weather coverage
-  claim_id: c_d126a534
-  context: "Goal: Download FARS and NOAA ISD data, merge based on location/time, and\
-    \ produce a unified dataset with \u226585% weather coverage."
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Unified_dataset_with_at_least_85%25_weather_coverage
-  kind: magnitude
-  raw_text: "produce a unified dataset with \u226585% weather coverage"
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-05T16:35:57Z'
-- artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
-  attempts: 1
   canonical: verify at least 85% target for weather coverage
   claim_id: c_22e946e3
   context: "Implement calculation and verification of SC-001 coverage metric (valid\
@@ -169,3 +151,118 @@
   source_type: external
   status: verified
   updated_at: '2026-07-05T16:38:17Z'
+- artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 2
+  canonical: unified dataset with at least 85% weather coverage
+  claim_id: c_d126a534
+  context: "Goal: Download FARS and NOAA ISD data, merge based on location/time, and\
+    \ produce a unified dataset with \u226585% weather coverage."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Unified_dataset_with_at_least_85%25_weather_coverage
+  kind: magnitude
+  raw_text: "produce a unified dataset with \u226585% weather coverage"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:51:40Z'
+- artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: output contains match_method=interpolated for time-delta greater than
+    0
+  claim_id: c_420cfa01
+  context: 'T014 [US1] Implement spatial-temporal merge logic: MUST implement linear
+    interpolation for time gaps between weather stations; fallback to nearest-hour
+    ONLY if interpolation fails; verify output contains match_method=interpolated
+    for time-delta > 0 in code/ingest.py'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_contains_match_method%3Dinterpolated_for_time-delta_gre
+  kind: magnitude
+  raw_text: verify output contains match_method=interpolated for time-delta > 0
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:52:04Z'
+- artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: SC-001 coverage metric defined as valid weather records divided by total
+    FARS records
+  claim_id: c_61f2291d
+  context: "T017b [US1] Implement calculation and verification of SC-001 coverage\
+    \ metric (valid weather records / total FARS records) and verify \u226585% target"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: valid weather records / total FARS records
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:52:04Z'
+- artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: model convergence success within 50 iterations
+  claim_id: c_cfd2b461
+  context: "T024b [US2] Implement calculation and verification of SC-002 convergence\
+    \ rate (\u226595% (Wikipedia: Delta (rocket family), https://en.wikipedia.org/wiki/Delta_(rocket_family))\
+    \ success within 50 iterations)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: success within 50 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:52:23Z'
+- artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: maximum percentage change in odds ratios less than 15%
+  claim_id: c_70b14a7d
+  context: 'T028 [US3] Implement sensitivity analysis for FR-005/SC-003: Sweep precipitation
+    thresholds across a range of low values. on the *continuous* variable; calculate
+    the *maximum percentage change* in odds ratios across the sweep; verify variation
+    < 15%'
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 15.0
+    ordering_correct: true
+    source_url: https://en.wikipedia.org/wiki/Maximum_percentage_change_in_odds_ratios_less_than_15%25
+  kind: magnitude
+  raw_text: variation < 15%
+  resolved_value: maximum percentage change in odds ratios less than 15%
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T09:52:25Z'
+- artifact_path: projects/PROJ-223-statistical-analysis-of-publicly-availab/specs/001-statistical-analysis-of-publicly-availab/tasks.md
+  attempts: 1
+  canonical: memory usage less than 6GB peak
+  claim_id: c_e24a9a0c
+  context: T034a [P] Implement chunking logic in code/ingest.py to ensure memory usage
+    < 6GB peak (if not already covered by T012b)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_less_than_6GB_peak
+  kind: magnitude
+  raw_text: ensure memory usage < 6GB peak
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T09:52:39Z'

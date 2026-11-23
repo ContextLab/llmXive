@@ -1,69 +1,86 @@
 # Quickstart: Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted Material Properties
 
 ## Prerequisites
-- Python 3.11+
-- 2 CPU cores, 7 GB RAM, 14 GB disk (GitHub Actions Free Tier)
-- Network access to HuggingFace (to load `oqmd/formation-energy`)
 
-## Dataset Note
-**CRITICAL**: This project uses the **OQMD Formation Energy** dataset.
-- **Source**: `oqmd/formation-energy` on HuggingFace.
-- **Access**: The pipeline loads this dataset programmatically via `datasets.load_dataset("oqmd/formation-energy")`.
-- **No manual files required**: Do not provide local CSV files. The pipeline will fail if the HuggingFace source is unreachable.
+*   Python 3.10+
+*   Git
+*   Access to Hugging Face Hub (no token required for public datasets)
 
 ## Installation
 
-1. **Clone the repository** and navigate to the project root.
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+1.  **Clone and Setup**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-764-assessing-uncertainty-quantification-tec
+    ```
 
-## Running the Pipeline
+2.  **Create Virtual Environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-The entire pipeline (Training -> Evaluation -> Screening) can be run with a single command:
+3.  **Install Dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Note: `requirements.txt` pins versions for `torch`, `gpytorch`, `scikit-learn`, `datasets`.*
+
+## Data Download & Preprocessing
+
+Run the data pipeline to download the OQMD subset, validate, split, and transform:
 
 ```bash
-cd code
-python main.py
+python code/data/download.py
+python code/data/validation.py
+python code/data/preprocess.py
 ```
 
-### Configuration
-Edit `config.yaml` to adjust:
-- `seeds`: Random seed (default: 42).
-- `splits`: Train/Val/Test ratios.
-- `timeout`: Max runtime in hours (default: 5).
-- `gp_inducing_points`: Number of inducing points for Sparse GP (default: 500).
-- `risk_aversion`: Parameter $k$ for Expected Loss ranking in screening.
+**Expected Outputs**:
+*   `data/raw/oqmd_subset.parquet` (Checksummed)
+*   `data/processed/raw_train.csv`, `raw_val.csv`, `raw_test.csv`
+*   `data/processed/pca_transformer.pkl`
+*   `data/validation_report.json`
 
-### Output
-Results are saved in the `results/` directory:
-- `calibration_report.csv`: ECE, Interval Score, Sharpness per method.
-- `screening_results.csv`: Precision/Recall comparison (Expected Loss vs Point Prediction).
-- `validation_report.json`: Log of excluded data rows.
-- `uq_predictions.csv`: Full predictions with uncertainty intervals.
+## Training & UQ Inference
+
+Execute the full pipeline (training, inference, evaluation) with a 5-hour timeout:
+
+```bash
+# Set environment variable for timeout (optional, default is 5h)
+export PIPELINE_TIMEOUT=18000
+
+python code/main.py
+```
+
+**What this runs**:
+1.  **Baseline NN**: Trains and saves `results/models/baseline_nn_arch.pt`.
+2.  **Deep Ensemble**: Trains 5 models, saves to `results/models/ensemble/`.
+3.  **MC-Dropout**: Trains model, runs 30 passes, saves predictions.
+4.  **Sparse GP**: Fits PCA, trains GP, saves predictions.
+5.  **Evaluation**: Computes ECE, Interval Scores, and Screening Precision.
+
+**Expected Outputs**:
+*   `results/models/` (Checkpoints)
+*   `results/predictions/uq_predictions_*.csv`
+*   `results/metrics/calibration_summary.csv`
+
+## Verification
+
+Run the test suite to verify contract compliance and result integrity:
+
+```bash
+pytest tests/ -v
+```
+
+**Key Checks**:
+*   Model parameter count ≤ 10,000.
+*   Prediction CSVs contain required columns.
+*   ECE values are within theoretical bounds.
+*   Screening precision > random baseline (if applicable).
 
 ## Troubleshooting
 
-### "SOURCE_UNREACHABLE: OQMD dataset not found"
-- **Cause**: Network issue or HuggingFace source unreachable.
-- **Fix**: Check network connectivity. No local file fallback is supported.
-
-### "RuntimeError: GPU required"
-- **Cause**: A library attempted to use CUDA.
-- **Fix**: Ensure `torch` is installed with CPU support only (`pip install torch --index-url https://download.pytorch.org/whl/cpu`).
-
-### "GP Convergence Failed"
-- **Cause**: Sparse GP optimization did not converge.
-- **Fix**: The pipeline will log a warning and proceed with Deep Ensemble/MC-Dropout results only (GP excluded from ranking).
-
-## Verification
-Run the contract tests to ensure outputs match the schema:
-```bash
-pytest tests/contract/test_schemas.py
-```
+*   **Timeout**: If the pipeline exceeds 5 hours, check `results/logs/timeout.log`. Reduce dataset size in `config.yaml` (e.g., `max_samples: 5000`).
+*   **GP Convergence**: If Sparse GP fails, check `results/logs/gp_error.log`. The pipeline will fallback to Ensemble/MC-Dropout results.
+*   **Missing Data**: Check `data/validation_report.json` for excluded rows.

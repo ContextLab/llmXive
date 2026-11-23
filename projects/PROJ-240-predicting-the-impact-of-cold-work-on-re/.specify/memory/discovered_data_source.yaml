@@ -1,0 +1,15 @@
+status: none
+intent: download synthetic alloy recrystallization dataset with Mg Si Cu Mn from NIST
+  HuggingFace python package dataset
+required_fields:
+- cold_work_percent
+- mg_wt_percent
+- si_wt_percent
+- cu_wt_percent
+- mn_wt_percent
+- annealing_temperature_K
+- time_to_peak_softening
+- interaction_feature
+cache_key: 6ab2a47ac9c22a89ffd503397ab55e93d5b6b0d73e0e87f80a9ba227aadf05ac
+searched_at: '2026-10-20T18:32:17.491829+00:00'
+retry_count: 1

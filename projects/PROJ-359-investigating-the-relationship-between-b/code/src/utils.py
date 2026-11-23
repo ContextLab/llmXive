@@ -1,208 +1,219 @@
 """
-Utility module for the llmXive research pipeline.
+Utility functions for the llmXive automated science pipeline.
 
 Provides:
-- Deterministic random seeding based on RANDOM_SEED environment variable.
-- Structured JSON logging infrastructure for pipeline execution.
-- Motion threshold constants as defined in the specification.
+- Deterministic seeding based on RANDOM_SEED environment variable
+- JSON logging infrastructure for pipeline events and metrics
+- Path management for logs
 """
 import json
 import os
 import random
 import time
+import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional, List
 
-import numpy as np
+# Constants
+RANDOM_SEED = int(os.environ.get("RANDOM_SEED", 42))
+MOTION_THRESHOLD_MM = 3.0  # FR-002 mandated threshold
 
-# --- Configuration Constants ---
-# Motion exclusion threshold in mm (per Spec FR-002 and Constitution Principle VII)
-MOTION_THRESHOLD_MM = 3.0
+# Project root relative to this file
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+_LOG_DIR = _PROJECT_ROOT / "data" / "logs"
 
-# Default random seed if environment variable is not set
-DEFAULT_RANDOM_SEED = 42
-
-# --- Seeding Infrastructure ---
-def seed_manager() -> int:
+def seed_manager(seed: Optional[int] = None) -> None:
     """
-    Initialize deterministic seeding for reproducibility.
-    
-    Reads the RANDOM_SEED environment variable. If not set, uses DEFAULT_RANDOM_SEED.
-    Seeds the random module, numpy, and (optionally) torch if available.
-    
-    Returns:
-        int: The seed value used.
+    Initialize deterministic seeding for the entire pipeline.
+
+    Args:
+        seed: Optional seed override. If None, uses RANDOM_SEED env var.
     """
-    seed_val = int(os.environ.get("RANDOM_SEED", DEFAULT_RANDOM_SEED))
+    if seed is None:
+        seed = RANDOM_SEED
+
+    random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
     
-    random.seed(seed_val)
-    np.random.seed(seed_val)
-    
-    # Attempt to seed torch if available (common in ML pipelines)
+    # Seed numpy if available (lazy import to avoid hard dependency in utils)
     try:
-        import torch
-        torch.manual_seed(seed_val)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed_val)
+        import numpy as np
+        np.random.seed(seed)
     except ImportError:
-        pass  # Torch not required for this specific pipeline run
-        
-    return seed_val
+        pass
 
-
-# --- JSON Logging Infrastructure ---
-def get_log_path() -> Path:
+def get_log_path(filename: str = "pipeline_log.json") -> Path:
     """
-    Returns the path to the pipeline log file.
-    """
-    log_dir = Path("data/logs")
-    log_dir.mkdir(parents=True, exist_ok=True)
-    return log_dir / "pipeline_log.json"
-
-
-def load_existing_log() -> Dict[str, Any]:
-    """
-    Loads the existing log file if it exists, otherwise returns an empty structure.
-    """
-    log_path = get_log_path()
-    if log_path.exists():
-        try:
-            with open(log_path, "r", encoding="utf-8") as f:
-                return json.load(f)
-        except (json.JSONDecodeError, IOError):
-            return {
-                "pipeline_status": "ERROR",
-                "error": "Corrupt existing log file",
-                "logs": []
-            }
-    return {
-        "pipeline_status": "INITIALIZED",
-        "start_time": datetime.utcnow().isoformat(),
-        "logs": []
-    }
-
-
-def write_json_log(
-    log_path: Optional[Path] = None,
-    status: Optional[str] = None,
-    exclusion_motion: Optional[int] = None,
-    exclusion_missing_wm: Optional[int] = None,
-    exclusion_missing_id: Optional[int] = None,
-    total_runtime_seconds: Optional[float] = None,
-    custom_entries: Optional[List[Dict[str, Any]]] = None
-) -> Dict[str, Any]:
-    """
-    Writes or updates the pipeline execution log to `data/logs/pipeline_log.json`.
+    Get the absolute path for a log file in the data/logs directory.
     
     Args:
-        log_path: Optional override for the log file path.
-        status: Final pipeline status (e.g., 'SUCCESS', 'FAILED', 'RUNNING').
-        exclusion_motion: Count of subjects excluded due to motion.
-        exclusion_missing_wm: Count of subjects excluded due to missing WM scores.
-        exclusion_missing_id: Count of subjects excluded due to ID mismatch.
-        total_runtime_seconds: Total runtime in seconds.
-        custom_entries: List of additional log entries to append.
+        filename: Name of the log file.
         
     Returns:
-        The updated log dictionary.
+        Path to the log file.
     """
-    log_data = load_existing_log()
-    
-    if status:
-        log_data["pipeline_status"] = status
-    
-    if total_runtime_seconds is not None:
-        log_data["total_runtime_seconds"] = total_runtime_seconds
-    
-    # Update exclusion counts if provided
-    if exclusion_motion is not None:
-        log_data["exclusion_motion"] = exclusion_motion
-    if exclusion_missing_wm is not None:
-        log_data["exclusion_missing_wm"] = exclusion_missing_wm
-    if exclusion_missing_id is not None:
-        log_data["exclusion_missing_id"] = exclusion_missing_id
-        
-    if custom_entries:
-        if "logs" not in log_data:
-            log_data["logs"] = []
-        log_data["logs"].extend(custom_entries)
-        
-    # Ensure end_time is set if status is final
-    if status in ("SUCCESS", "FAILED", "ERROR") and "end_time" not in log_data:
-        log_data["end_time"] = datetime.utcnow().isoformat()
-        
-    target_path = log_path or get_log_path()
-    target_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(target_path, "w", encoding="utf-8") as f:
-        json.dump(log_data, f, indent=2, default=str)
-        
-    return log_data
+    _LOG_DIR.mkdir(parents=True, exist_ok=True)
+    return _LOG_DIR / filename
 
+def load_existing_log(filename: str = "pipeline_log.json") -> Dict[str, Any]:
+    """
+    Load an existing JSON log file or return a fresh structure.
+    
+    Args:
+        filename: Name of the log file.
+        
+    Returns:
+        Dictionary containing log data.
+    """
+    log_path = get_log_path(filename)
+    if log_path.exists():
+        with open(log_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {
+        "pipeline_status": "initialized",
+        "start_time": datetime.now().isoformat(),
+        "events": [],
+        "metrics": {},
+        "exclusion_motion": 0,
+        "exclusion_missing_wm": 0,
+        "exclusion_missing_id": 0,
+        "total_runtime_seconds": 0.0
+    }
+
+def write_json_log(data: Dict[str, Any], filename: str = "pipeline_log.json") -> None:
+    """
+    Write data to a JSON log file atomically.
+    
+    Args:
+        data: Dictionary to write.
+        filename: Name of the log file.
+    """
+    log_path = get_log_path(filename)
+    temp_path = log_path.with_suffix(".tmp")
+    
+    with open(temp_path, "w", encoding="utf-8") as f:
+        json.dump(data, f, indent=2, default=str)
+    
+    temp_path.replace(log_path)
 
 def log_event(
-    event_type: str,
-    message: str,
+    event_type: str, 
+    message: str, 
     data: Optional[Dict[str, Any]] = None,
-    log_path: Optional[Path] = None
+    filename: str = "pipeline_log.json"
 ) -> None:
     """
-    Appends a single event to the JSON log.
+    Log an event to the JSON log file.
     
     Args:
-        event_type: Type of event (e.g., 'INFO', 'WARNING', 'ERROR', 'EXCLUSION').
-        message: Human-readable description.
+        event_type: Type of event (e.g., 'INFO', 'ERROR', 'WARNING').
+        message: Human-readable message.
         data: Optional structured data associated with the event.
-        log_path: Optional override for the log file path.
+        filename: Name of the log file.
     """
-    log_data = load_existing_log()
-    if "logs" not in log_data:
-        log_data["logs"] = []
-        
-    entry = {
-        "timestamp": datetime.utcnow().isoformat(),
+    log_data = load_existing_log(filename)
+    
+    event = {
+        "timestamp": datetime.now().isoformat(),
         "type": event_type,
-        "message": message
+        "message": message,
+        "data": data or {}
     }
-    if data:
-        entry["data"] = data
+    
+    log_data["events"].append(event)
+    write_json_log(log_data, filename)
+
+def log_json_metric(
+    metric_name: str, 
+    value: Any, 
+    filename: str = "pipeline_log.json"
+) -> None:
+    """
+    Log a metric to the JSON log file.
+    
+    Args:
+        metric_name: Name of the metric.
+        value: Value of the metric.
+        filename: Name of the log file.
+    """
+    log_data = load_existing_log(filename)
+    log_data["metrics"][metric_name] = value
+    write_json_log(log_data, filename)
+
+def setup_logging(
+    log_level: int = logging.INFO,
+    log_file: Optional[str] = "pipeline_debug.log"
+) -> logging.Logger:
+    """
+    Setup the standard Python logging infrastructure.
+    
+    Args:
+        log_level: Logging level (e.g., logging.INFO).
+        log_file: Optional filename for file logging.
         
-    log_data["logs"].append(entry)
+    Returns:
+        Configured logger instance.
+    """
+    logger = logging.getLogger("llmXive_pipeline")
+    logger.setLevel(log_level)
     
-    target_path = log_path or get_log_path()
-    target_path.parent.mkdir(parents=True, exist_ok=True)
+    # Avoid duplicate handlers
+    if logger.handlers:
+        return logger
     
-    with open(target_path, "w", encoding="utf-8") as f:
-        json.dump(log_data, f, indent=2, default=str)
-
-
-# --- Main Execution Block for Testing ---
-if __name__ == "__main__":
-    # Test seeding
-    seed = seed_manager()
-    print(f"Seeded RNG with value: {seed}")
-    
-    # Test logging
-    log_event("INFO", "Utils module initialized for testing")
-    
-    # Test full write
-    final_log = write_json_log(
-        status="TEST_SUCCESS",
-        exclusion_motion=0,
-        total_runtime_seconds=1.5,
-        custom_entries=[{"type": "TEST", "message": "Verification entry"}]
+    # Console handler
+    ch = logging.StreamHandler()
+    ch.setLevel(log_level)
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     )
-    print(f"Log written. Status: {final_log.get('pipeline_status')}")
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
     
-    # Verify determinism
-    val1 = random.random()
-    np_val1 = np.random.rand()
+    # File handler (optional)
+    if log_file:
+        log_path = get_log_path(log_file)
+        fh = logging.FileHandler(log_path)
+        fh.setLevel(log_level)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
     
-    seed_manager() # Re-seed
-    val2 = random.random()
-    np_val2 = np.random.rand()
+    return logger
+
+def get_pipeline_status(filename: str = "pipeline_log.json") -> str:
+    """
+    Retrieve the current pipeline status from the log.
     
-    assert val1 == val2, "Random seeding failed"
-    assert np_val1 == np_val2, "Numpy seeding failed"
-    print("Determinism verified.")
+    Args:
+        filename: Name of the log file.
+        
+    Returns:
+        Current status string.
+    """
+    log_data = load_existing_log(filename)
+    return log_data.get("pipeline_status", "unknown")
+
+def update_pipeline_status(
+    status: str, 
+    filename: str = "pipeline_log.json"
+) -> None:
+    """
+    Update the pipeline status in the log.
+    
+    Args:
+        status: New status string.
+        filename: Name of the log file.
+    """
+    log_data = load_existing_log(filename)
+    log_data["pipeline_status"] = status
+    
+    # Update end time if finished
+    if status == "SUCCESS":
+        log_data["end_time"] = datetime.now().isoformat()
+        log_data["total_runtime_seconds"] = (
+            datetime.fromisoformat(log_data["end_time"]).timestamp() -
+            datetime.fromisoformat(log_data["start_time"]).timestamp()
+        )
+    
+    write_json_log(log_data, filename)

@@ -1,0 +1,7 @@
+{
+  "task_id": "T006",
+  "fingerprint": "1a3d3a4352fb9230f48d310508120c86039eba5fd9ea45c46f5a74e9cdb78396",
+  "count": 1,
+  "model": "zai-org.glm-5.3",
+  "reason": "[implementer] refusing to write 'tests/unit/test_stats.py': imports nonexistent names from sibling files: `from utils.stats_utils import fdr_adjusted_pvalues, ols_partial_r, ols_regression, run_ols_with_fdr` (available: Any, Dict, Iterable, Union, __all__, annotations, calculate_partial_r, calculate_vif...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

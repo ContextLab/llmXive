@@ -1,0 +1,91 @@
+T012:
+  c: false
+  h: fe8c76af8b3905a567540d5de05fe337b48b523671d50b57e600b5b19e34cc48
+  r: "The provided `run_baseline.py` is truncated and never computes variance, asserts\
+    \ the <\u202F0.02 threshold, or writes the required `baseline_metrics.json` with\
+    \ the specified schema. The needed `config.yaml` (for seed values) is missing,\
+    \ and `framing_utils.py` contains a placeholder `pass` and does not actually enforce\
+    \ associational framing for JSON output. Consequently the artifact does not meet\
+    \ the task\u2019s functional and output requirements."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided showing that error handling for\
+    \ `[UNK]` tokens was added to the WiC dataset processing pipeline. The required\
+    \ artifact (e.g., updated data\u2011loading module, unit test, or commit diff)\
+    \ is missing, so the task\u2019s requirement is not demonstrably satisfied."
+T023:
+  c: false
+  h: 41b18475466ebc7f9239c8ac8e6138dbaf575ecc618d36cf12546def3064e42e
+  r: "The provided `bert_adapter.py` is truncated and does not show a loss function\
+    \ with the phase\u2011penalty term, nor any code that calls `calculate_interference_cross_term`\
+    \ and writes its values to `data/results/cross_term_log.json`. Moreover, the required\
+    \ log file is missing from the repository. Consequently the task\u2019s core requirements\
+    \ are not met."
+T029:
+  c: false
+  h: 6cf286d2a91c8296aeecded6c56c02b544deaaf0a8c9133dd3907ac08c4b61fa
+  r: "The repository contains `code/analysis/stats_test.py` with a paired t\u2011\
+    test implementation, but the required output file `data/results/stats_report.json`\
+    \ is absent, so the task\u2019s verification step cannot be satisfied. The missing\
+    \ JSON file (or its contents) must be generated for the task to be complete."
+T030b:
+  c: false
+  h: bc30377312f2212723abf3c96efc0def792b806c36a0a3c6b7fdc4cb67fa3650
+  r: "The repository contains a partially shown `stats_test.py` that defines a bootstrap\
+    \ function but does not include code to write `data/results/bootstrap_ci.json`\
+    \ or to assert that the interval width is <\u202F0.1. Moreover, the required `bootstrap_ci.json`\
+    \ file is absent. The task\u2019s output artifact and verification step are therefore\
+    \ missing."
+T031:
+  c: false
+  h: f7832f67b29e4aec9bf9ffe67dca613493818ab4bc4b76988e771989e059b5ff
+  r: "The `run_stats.py` script exists, but the required output file `data/results/stats_report.json`\
+    \ is missing, indicating the script either does not generate the report or has\
+    \ not been executed. The task\u2019s core requirement\u2014to produce `stats_report.json`\u2014\
+    is not satisfied."
+T036:
+  c: false
+  h: 2c68ac864e7ea77f325607e8ef3906d203ffd632db56ba49ed4d32d1c64df561
+  r: "The script `code/analysis/interference_check.py` is present but its `main` function\
+    \ is truncated (e.g., `parser = a`), so it never runs the analysis or writes the\
+    \ required `data/results/interference_correlation.json`. Moreover, the expected\
+    \ output file does not exist. The implementation must be completed and produce\
+    \ the JSON with the correlation coefficient and p\u2011value."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides only the task description and specifications; there\
+    \ is no accompanying code, data, analysis notebook, or result file showing the\
+    \ ablation study or confirming that interference cross\u2011term values are negative\
+    \ for ambiguous cases. Without such artifacts, the requirement to verify the assumption\
+    \ is not met."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `research.md` file was presented; the claim lacks any visible artifact\
+    \ showing the required explicit definitions of \u201Cmeasurement\u201D (token\
+    \ selection) and \u201Cobservable\u201D (ambiguity resolution) that address Einstein/Von\u202F\
+    Neumann concerns. The task is therefore not satisfied."
+T093:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer did not provide any updated `research.md` file or any content
+    showing the required numerical example (embeddings, complex amplitudes, phase
+    shift, interference, Born rule calculation, and comparison to classical probability).
+    Without the actual document containing these calculations, the task is not satisfied.
+T094:
+  c: false
+  h: 51cee4b3e5d06b7476b98ed38aa294059b3a2b77ad8cd5f0daa127464bea3a5b
+  r: "The repository contains `code/examples/worked_example_interference.py`, but\
+    \ the script is truncated and does not show any code that writes `data/results/worked_example.json`.\
+    \ Moreover, the expected JSON output file is absent from the project. Without\
+    \ the generated JSON file (and a complete script that produces it), the task\u2019\
+    s requirement is not satisfied."
+T095:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file or excerpt was provided, and there is no evidence that\
+    \ Section\u202F5.2 now contains an ASCII diagram or description of the \u201C\
+    arrows\u201D illustrating constructive versus destructive interference. The required\
+    \ artifact is missing."

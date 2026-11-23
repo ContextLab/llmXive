@@ -1,0 +1,206 @@
+- artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/tasks.md
+  attempts: 1
+  canonical: Final aligned molecule count is at least 129000
+  claim_id: c_21c90a28
+  context: "Validation: Assert that the final aligned molecule count is \u2265 129,000.\
+    \ If not, raise a hard error and exit (FR-001)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Final_aligned_molecule_count_is_at_least_129000
+  kind: magnitude
+  raw_text: "Assert that the final aligned molecule count is \u2265 129,000."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T14:20:38Z'
+- artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/tasks.md
+  attempts: 1
+  canonical: Spectra interpolated to 400-4000 cm-1 grid with 1 cm-1 spacing
+  claim_id: c_d720b608
+  context: "Interpolation: Interpolate spectra to a fixed wavenumber grid covering\
+    \ 400\u20134000 cm\u207B\xB9 with 1 cm\u207B\xB9 spacing (FR-002, Constitution\
+    \ Principle VI)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Interpolate spectra to a fixed wavenumber grid covering 400\u20134000\
+    \ cm\u207B\xB9 with 1 cm\u207B\xB9 spacing."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T14:21:04Z'
+- artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/tasks.md
+  attempts: 1
+  canonical: Output file size is less than 10 GB
+  claim_id: c_11abaef7
+  context: 'Independent Test: The pipeline can be tested by running the data download
+    and preprocessing script alone, verifying that the output is a single .npz file
+    containing aligned spectra and property vectors, and that the file size is < 10
+    GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Output_file_size_is_less_than_10_GB
+  kind: magnitude
+  raw_text: The output file size is < 10 GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T14:21:37Z'
+- artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/tasks.md
+  attempts: 1
+  canonical: Model uses three convolutional blocks with kernel sizes 9, 7, and 5
+  claim_id: c_6b3fec33
+  context: Implement code/models/cnn_1d.py with exactly three convolutional blocks
+    (kernel sizes 9, 7, and 5; 64 filters each)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model uses exactly three convolutional blocks with kernel sizes 9,
+    7, and 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T14:22:23Z'
+- artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/tasks.md
+  attempts: 1
+  canonical: Convolutional blocks have 64 filters
+  claim_id: c_396c84f3
+  context: Implement code/models/cnn_1d.py with exactly three convolutional blocks
+    (kernel sizes 9, 7, and 5; 64 filters each)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Each convolutional block has 64 filters.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T14:23:16Z'
+- artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/tasks.md
+  attempts: 1
+  canonical: Model training uses Adam optimizer with learning rate 1e-3
+  claim_id: c_2f912d98
+  context: 'Implement code/models/trainer.py with: Adam optimizer (lr=1e-3)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model training uses an Adam optimizer with lr=1e-3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T14:24:02Z'
+- artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/tasks.md
+  attempts: 1
+  canonical: Early stopping patience is 10 for val_loss
+  claim_id: c_2c031a2f
+  context: Early stopping with patience=10 monitoring 'val_loss' (weighted sum of
+    3 heads)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Early stopping has a patience of 10 monitoring 'val_loss'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T14:24:57Z'
+- artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/tasks.md
+  attempts: 1
+  canonical: Script fails if p-value for systematic bias is greater than or equal
+    to 0.01
+  claim_id: c_fdfb0e26
+  context: 'explicitly verify if p-value < 0.01 for systematic bias. CRITICAL: If
+    p-value >= 0.01, the script MUST raise an assertion error or exit with a failure
+    status.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Script_fails_if_p-value_for_systematic_bias_is_greater_than
+  kind: magnitude
+  raw_text: The script raises an assertion error if the p-value is >= 0.01 for systematic
+    bias.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T14:26:32Z'
+- artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/tasks.md
+  attempts: 1
+  canonical: Independent validation tolerance is 20% increase in metrics
+  claim_id: c_a75ff649
+  context: "Compute MAE/R\xB2 and compare against test set (tolerance \u2264 20% increase)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Independent validation requires a tolerance of \u2264 20% increase in\
+    \ MAE/R\xB2 compared to test set."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T14:26:32Z'
+- artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage reduced to 7 GB
+  claim_id: c_6c924a7d
+  context: "Profile code/main.py with cProfile, identify top memory bottlenecks, and\
+    \ optimize dataset loading to reduce peak RAM usage to \u2264 7 GB RAM..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The task requires optimizing dataset loading to reduce peak RAM usage\
+    \ to \u2264 7 GB."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T14:26:32Z'
+- artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/tasks.md
+  attempts: 1
+  canonical: End-to-end time limit is 6 hours
+  claim_id: c_a5513d2d
+  context: 'Run code/main.py end-to-end to verify the established time limit. Mechanism:
+    Measure wall-clock time, compare against the 6 hours threshold defined in the
+    spec/plan...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The established time limit for the end-to-end run is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T14:26:57Z'
+- artifact_path: projects/PROJ-176-predicting-molecular-properties-from-vib/specs/001-predicting-molecular-properties-from-vib/tasks.md
+  attempts: 1
+  canonical: Gaussian smoothing sigma is 2 cm-1
+  claim_id: c_d40114b4
+  context: "Smoothing: Apply Gaussian smoothing (\u03C3 = 2 cm\u207B\xB9)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Gaussian smoothing is applied with \u03C3 = 2 cm\u207B\xB9."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T14:27:26Z'

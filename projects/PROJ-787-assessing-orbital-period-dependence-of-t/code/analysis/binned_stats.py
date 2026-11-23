@@ -1,16 +1,14 @@
 """
-T027: Calculate weighted mean period using inverse variance of gap location estimates.
+Module for calculating binned statistics, specifically the weighted mean period.
 
-This module computes the weighted mean orbital period for each period bin,
-where the weights are derived from the inverse variance of the gap location
-estimate (uncertainty) obtained from the bootstrap resampling in T024.
-
-Output: data/processed/binned_stats.csv
+This module implements Task T027: Calculate 'weighted mean period' using 
+inverse variance of the gap location estimate for each bin.
 """
 import os
 import sys
 import logging
 from pathlib import Path
+from typing import Optional, Tuple
 import pandas as pd
 import numpy as np
 
@@ -21,160 +19,184 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def load_gap_locations(file_path: str) -> pd.DataFrame:
+# Define paths relative to project root
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+GAP_LOCATIONS_PATH = PROJECT_ROOT / "data" / "processed" / "gap_locations.csv"
+BINNED_STATS_PATH = PROJECT_ROOT / "data" / "processed" / "binned_stats.csv"
+
+
+def load_gap_locations(path: Optional[Path] = None) -> pd.DataFrame:
     """
-    Load the gap locations CSV produced by T024/T025.
+    Load the gap locations dataset produced by the GMM analysis.
     
-    Expected columns include:
-    - bin_index: The bin identifier
-    - period_center: Center of the period bin (log scale)
-    - gap_location: The estimated gap location (radius)
-    - gap_uncertainty: The standard deviation/uncertainty from bootstrap
-    - status: 'resolved' or 'unresolved'
+    Args:
+        path: Optional path to the gap locations CSV. Defaults to 
+              data/processed/gap_locations.csv.
+    
+    Returns:
+        DataFrame containing bin statistics and gap location estimates.
+    
+    Raises:
+        FileNotFoundError: If the gap locations file does not exist.
+        ValueError: If required columns are missing.
     """
-    path = Path(file_path)
+    if path is None:
+        path = GAP_LOCATIONS_PATH
+    
     if not path.exists():
-        raise FileNotFoundError(f"Gap locations file not found: {path}")
+        raise FileNotFoundError(
+            f"Gap locations file not found at {path}. "
+            "Ensure T028 (or the preceding GMM/binning steps) has been run successfully."
+        )
     
     df = pd.read_csv(path)
-    required_cols = ['bin_index', 'gap_location', 'gap_uncertainty', 'status']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Gap locations file missing required columns: {missing}")
     
+    required_columns = ['bin_index', 'gap_location', 'gap_uncertainty', 'period_center']
+    missing = [col for col in required_columns if col not in df.columns]
+    if missing:
+        raise ValueError(
+            f"Gap locations file is missing required columns: {missing}. "
+            "Expected columns: {required_columns}"
+        )
+    
+    logger.info(f"Loaded {len(df)} gap location records from {path}")
     return df
+
 
 def calculate_weighted_mean_period(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate the weighted mean period for each bin.
+    Calculate the weighted mean period for each bin using inverse variance weighting.
     
-    Weight = 1 / (uncertainty^2)
-    Weighted Mean Period = sum(weight * period_center) / sum(weight)
+    The weight for each bin is calculated as w = 1 / (sigma^2), where sigma is the
+    gap location uncertainty. The weighted mean period is then:
+        P_weighted = sum(w_i * P_i) / sum(w_i)
     
-    For bins with 'unresolved' status or zero/NaN uncertainty, 
-    the weighted mean defaults to the unweighted period center.
+    This metric provides a more robust estimate of the characteristic period for
+    a bin when gap location uncertainties vary significantly.
+    
+    Args:
+        df: DataFrame containing 'bin_index', 'gap_location', 'gap_uncertainty', 
+            and 'period_center' columns.
+    
+    Returns:
+        DataFrame with an additional 'weighted_mean_period' column.
+    
+    Raises:
+        ValueError: If uncertainty values are non-positive or zero.
     """
-    # Ensure we have a copy to avoid SettingWithCopyWarning
-    result = df.copy()
+    if df.empty:
+        logger.warning("Input DataFrame is empty. Returning empty DataFrame.")
+        return df.copy()
     
-    # Handle unresolved bins and NaN uncertainties
-    # We only calculate weighted stats for resolved bins with valid uncertainty
-    valid_mask = (result['status'] == 'resolved') & (~result['gap_uncertainty'].isna()) & (result['gap_uncertainty'] > 0)
+    # Calculate weights: inverse variance
+    # Add a small epsilon to avoid division by zero if uncertainty is 0
+    epsilon = 1e-10
+    uncertainties = df['gap_uncertainty'].values
     
-    # Calculate weights (inverse variance)
-    result['weight'] = np.zeros_like(result['gap_uncertainty'], dtype=float)
-    result.loc[valid_mask, 'weight'] = 1.0 / (result.loc[valid_mask, 'gap_uncertainty'] ** 2)
+    if np.any(uncertainties <= 0):
+        # Handle zero or negative uncertainties by replacing with epsilon
+        logger.warning(
+            "Detected zero or negative uncertainties. Replacing with small epsilon."
+        )
+        uncertainties = np.where(
+            uncertainties <= 0, 
+            epsilon, 
+            uncertainties
+        )
+    
+    weights = 1.0 / (uncertainties ** 2)
     
     # Calculate weighted mean period
-    # For resolved bins: weighted average
-    # For unresolved/invalid: use the center as the mean (weight effectively 1 for display purposes, or just the center)
-    result['weighted_mean_period'] = result['period_center'].copy()
+    # Using the period_center as the period value for each bin
+    periods = df['period_center'].values
+    weighted_sum = np.sum(weights * periods)
+    weight_total = np.sum(weights)
     
-    if valid_mask.any():
-        # Group by bin_index to calculate weighted means if multiple entries per bin (though typically 1 per bin)
-        # Here we assume 1 row per bin_index based on standard binning output
-        # But if the input has multiple rows per bin, we aggregate:
-        
-        # Calculate weighted sum and total weight per bin
-        valid_data = result[valid_mask].copy()
-        valid_data['weighted_period_sum'] = valid_data['weight'] * valid_data['period_center']
-        
-        # Aggregate by bin_index
-        agg = valid_data.groupby('bin_index').agg({
-            'weighted_period_sum': 'sum',
-            'weight': 'sum'
-        }).reset_index()
-        
-        agg['weighted_mean_period'] = agg['weighted_period_sum'] / agg['weight']
-        
-        # Map back to the main dataframe
-        result = result.merge(
-            agg[['bin_index', 'weighted_mean_period']], 
-            on='bin_index', 
-            how='left', 
-            suffixes=('', '_new')
+    if weight_total == 0:
+        raise ValueError(
+            "Total weight is zero. Cannot calculate weighted mean period. "
+            "Check that gap_uncertainty values are finite and positive."
         )
-        
-        # Update only the valid rows
-        result.loc[valid_mask, 'weighted_mean_period'] = result.loc[valid_mask, 'weighted_mean_period_new']
-        result = result.drop(columns=['weighted_mean_period_new'])
     
-    # Ensure column types
-    result['weight'] = result['weight'].astype(float)
-    result['weighted_mean_period'] = result['weighted_mean_period'].astype(float)
+    weighted_mean_period = weighted_sum / weight_total
     
-    return result
+    # Add to DataFrame
+    result_df = df.copy()
+    result_df['weighted_mean_period'] = weighted_mean_period
+    
+    # Log summary
+    logger.info(
+        f"Calculated weighted mean period: {weighted_mean_period:.4f} days "
+        f"(using {len(df)} bins)"
+    )
+    
+    return result_df
 
-def save_binned_stats(df: pd.DataFrame, output_path: str) -> None:
+
+def save_binned_stats(df: pd.DataFrame, path: Optional[Path] = None) -> Path:
     """
-    Save the binned statistics to CSV.
+    Save the binned statistics DataFrame to a CSV file.
     
-    Output columns:
-    - bin_index
-    - period_center (original bin center)
-    - weighted_mean_period (calculated)
-    - gap_location
-    - gap_uncertainty
-    - status
-    - weight (inverse variance weight)
+    Args:
+        df: DataFrame containing binned statistics including weighted_mean_period.
+        path: Optional output path. Defaults to data/processed/binned_stats.csv.
+    
+    Returns:
+        Path to the saved file.
+    
+    Raises:
+        IOError: If the file cannot be written.
     """
-    path = Path(output_path)
+    if path is None:
+        path = BINNED_STATS_PATH
+    
+    # Ensure directory exists
     path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Select and order columns
-    output_cols = [
-        'bin_index', 
-        'period_center', 
-        'weighted_mean_period', 
-        'gap_location', 
-        'gap_uncertainty', 
-        'status', 
-        'weight'
-    ]
-    
-    # Filter to only existing columns in case of schema drift
-    existing_cols = [c for c in output_cols if c in df.columns]
-    
-    df[existing_cols].to_csv(path, index=False)
-    logger.info(f"Saved binned statistics to {path} with {len(df)} rows")
+    try:
+        df.to_csv(path, index=False)
+        logger.info(f"Saved binned statistics to {path} ({len(df)} rows)")
+        return path
+    except Exception as e:
+        logger.error(f"Failed to save binned statistics to {path}: {e}")
+        raise IOError(f"Could not write file {path}: {e}")
 
-def main():
+
+def main() -> int:
     """
-    Main entry point for T027.
+    Main entry point for the binned statistics calculation.
     
-    Input: data/processed/gap_locations.csv (from T024/T025)
-    Output: data/processed/binned_stats.csv
+    This function orchestrates the loading of gap locations, calculation of
+    weighted mean periods, and saving of the results.
+    
+    Returns:
+        0 on success, 1 on failure.
     """
-    # Define paths relative to project root
-    project_root = Path(__file__).resolve().parents[2]
-    input_path = project_root / "data" / "processed" / "gap_locations.csv"
-    output_path = project_root / "data" / "processed" / "binned_stats.csv"
-    
-    logger.info(f"Starting T027: Calculating weighted mean periods")
-    logger.info(f"Input: {input_path}")
-    logger.info(f"Output: {output_path}")
+    logger.info("Starting binned statistics calculation (Task T027)")
     
     try:
-        # Load data
-        df = load_gap_locations(str(input_path))
-        logger.info(f"Loaded {len(df)} gap location records")
+        # Load gap locations
+        gap_df = load_gap_locations()
         
         # Calculate weighted mean period
-        result_df = calculate_weighted_mean_period(df)
+        stats_df = calculate_weighted_mean_period(gap_df)
         
-        # Save output
-        save_binned_stats(result_df, str(output_path))
+        # Save results
+        output_path = save_binned_stats(stats_df)
         
-        logger.info("T027 completed successfully")
+        logger.info("Binned statistics calculation completed successfully")
         return 0
         
     except FileNotFoundError as e:
-        logger.error(f"File not found: {e}")
-        logger.error("Ensure T024/T025 have been run to generate gap_locations.csv")
+        logger.error(f"Data file error: {e}")
+        return 1
+    except ValueError as e:
+        logger.error(f"Data processing error: {e}")
         return 1
     except Exception as e:
-        logger.error(f"Error during processing: {e}", exc_info=True)
+        logger.exception(f"Unexpected error during binned statistics calculation: {e}")
         return 1
+
 
 if __name__ == "__main__":
     sys.exit(main())

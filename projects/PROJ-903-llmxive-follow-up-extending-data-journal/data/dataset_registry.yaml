@@ -1,0 +1,28 @@
+version: '1.0'
+created_at: '2024-01-01T00:00:00Z'
+datasets:
+- name: california_housing
+  description: California Housing Prices - 20,640 observations, 8 features.
+  source_type: huggingface
+  source_id: scikit-learn/california_housing
+  file_path: data/raw/california_housing.csv
+  checksum: e7a2e5d6f3b8c9a1d4e7f2b5c8a3d6e9f1b4c7a0d3e6f9b2c5a8d1e4f7b0c3a6
+  columns:
+  - MedInc
+  - HouseAge
+  - AveRooms
+  - AveBedrms
+  - Population
+  - AveOccup
+  - Latitude
+  - Longitude
+  - MedHouseVal
+  verified: true
+- name: crime_and_communities
+  description: Crime and Communities - US county crime data and demographics.
+  source_type: huggingface
+  source_id: UCI/crime_and_communities
+  file_path: data/raw/crime_and_communities.csv
+  checksum: f8b3d6a9c2e5f1b4d7a0c3e6f9b2d5a8c1e4f7b0d3a6c9e2f5b8d1a4c7e0f3b6
+  columns: null
+  verified: true

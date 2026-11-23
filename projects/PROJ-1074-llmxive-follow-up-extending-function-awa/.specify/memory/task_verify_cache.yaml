@@ -1,0 +1,53 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (e.g., `code/data`, `data/raw/gsm8k`,
+    `docs/`, etc.) is provided; the implementer did not supply any artifact confirming
+    the project structure was created.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw/gsm8k` and `data/raw/logiqa` directories
+    (or any files within them) is present; the implementer provided no artifacts showing
+    the directory structure was created. The task remains undone until those directories
+    exist in the repository.
+T011:
+  c: false
+  h: 5ba9bd9a4e1f3ea92bfb53c563851e92400d3a2ab731802780a16e602d8fc681
+  r: The provided test file is truncated and does not show a `test_dataset_schema_validates_jsonl`
+    function, and the required `dataset.schema.yaml` file is missing, so the test
+    cannot actually validate any JSONL against the schema. The necessary schema artifact
+    must be added and the test function confirmed.
+T014:
+  c: false
+  h: ffa2895893eca6ca892cde1bf85f1b7d0f6d9d39bb15381206dc1b5441c301f5
+  r: The repository contains a `convert_to_pseudo_code.py` script, but the shown code
+    never writes any data to `data/processed/intermediate_steps.jsonl`, and that file
+    is absent from the project. Consequently the required artifact is missing, so
+    the task is not fulfilled.
+T016:
+  c: false
+  h: 413ec770ab9ee350a622503283a74466bf5aa82481e78ed1d16d12b139488dcf
+  r: "The repository contains a partially shown `code/data/inject_graph_complexity.py`,\
+    \ but the file is truncated and does not include a runnable entry\u2011point that\
+    \ reads the prerequisite data, injects branching/merging, and writes the required\
+    \ `data/processed/complexity_injected_graphs.json`. Moreover, the expected output\
+    \ file is missing from the project. The task\u2019s required artifact is therefore\
+    \ not produced."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `convert_to_pseudo_code.py` file (or its contents) was provided, and there\
+    \ is no evidence that a topological\u2011sort check was added to reject cyclic\
+    \ examples. The required code change and its behavior cannot be verified."
+T018c:
+  c: false
+  h: d7eac786d4d28f96d6fe03f7a46a96a6db559730125e80846dae15d918d617da
+  r: "The `code/data/track_intermediate_caches.py` script is present, but the required\
+    \ output file `data/processed/intermediate_caches.json` does not exist, so the\
+    \ cache\u2011tracking mechanism has not produced the logged data as specified."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `pytorch_model.bin` or `config.json` were found in `data/artifacts/baseline_model/`;
+    the required baseline model files are missing, so the task is not satisfied.

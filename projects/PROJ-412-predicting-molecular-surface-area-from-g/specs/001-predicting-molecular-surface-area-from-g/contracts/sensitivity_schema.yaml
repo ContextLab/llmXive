@@ -1,0 +1,117 @@
+# Sensitivity Analysis Report Schema
+# Contract for sensitivity analysis outputs (FR-006, FR-007, US-3)
+# Produced by T028 (threshold sweep), T029 (multiple-comparison correction),
+# and T030 (sensitivity report generation).
+
+version: 1
+description: >
+  Expected fields for sensitivity analysis reports. Defines the structure
+  of the absolute-threshold sweep results (thresholds, success rates,
+  sample sizes, McNemar's test statistics and p-values) and the
+  Bonferroni-corrected p-values applied to the family of threshold tests.
+
+output_files:
+  - path: data/processed/sensitivity_absolute.csv
+    format: csv
+    description: >
+      Primary sensitivity sweep deliverable: success rate per absolute
+      threshold in Angstrom^2, with paired McNemar's test results
+      comparing GCN vs. Geometry-Based Baseline at each threshold.
+    required_columns:
+      - name: threshold
+        type: float
+        unit: angstrom^2
+        description: Absolute error threshold (MAE cutoff).
+        allowed_values: [0.01, 0.05, 0.1]
+      - name: success_rate
+        type: float
+        range: [0.0, 1.0]
+        description: >
+          Fraction of test molecules with |error| < threshold
+          (count(errors < threshold) / total_count).
+      - name: sample_size
+        type: int
+        minimum: 0
+        description: Number of test molecules with valid predictions.
+      - name: statistic
+        type: float
+        description: McNemar's chi-square statistic at this threshold.
+      - name: p_value
+        type: float
+        range: [0.0, 1.0]
+        description: Raw (uncorrected) McNemar's test p-value.
+    constraints:
+      - Each threshold's success_rate is reported independently; no aggregation across thresholds.
+      - Row order must match the order of thresholds [0.01, 0.05, 0.1].
+
+  - path: results/reports/sensitivity_analysis.md
+    format: markdown
+    description: >
+      Final sensitivity report with threshold justification, corrected
+      p-values, noise-floor check, and statistical-power limitations.
+    required_sections:
+      - name: thresholds
+        description: >
+          The threshold set {0.01, 0.05, 0.1} angstrom^2 with explicit
+          justification (citation from research.md or the Spec
+          Assumptions section on typical experimental error margins).
+      - name: success_rates
+        description: >
+          Success rate per threshold (the sensitivity curve is the
+          primary metric per FR-006).
+      - name: corrected_p_values
+        description: >
+          Bonferroni-corrected McNemar p-values for the 3 threshold
+          tests, with the correction method and condition (n > 1)
+          explicitly stated per FR-007.
+      - name: limitations
+        description: >
+          Statistical power of the sample size (from sampling_report.json)
+          and biases from chunked streaming; noise-floor caveat if
+          data/processed/noise_floor_report.json reports
+          threshold_validation == false.
+
+thresholds:
+  description: Spec-mandated absolute MAE thresholds (FR-006).
+  type: array
+  unit: angstrom^2
+  values: [0.01, 0.05, 0.1]
+
+success_rates:
+  description: >
+    Per-threshold fraction of molecules predicted within the threshold.
+    Each value is independent; reported per threshold, never summed.
+  type: array
+  items:
+    type: float
+    range: [0.0, 1.0]
+
+corrected_p_values:
+  description: >
+    Bonferroni-corrected p-values for the McNemar tests performed at
+    each threshold (n = 3 tests). Correction is applied whenever
+    multiple tests (n > 1) are performed (FR-007).
+  type: array
+  items:
+    type: float
+    range: [0.0, 1.0]
+  correction_method: bonferroni
+  correction_condition: "n_tests > 1"
+
+statistical_tests:
+  mcnemar:
+    description: >
+      McNemar's test on paired binary success/fail outcomes
+      (GCN vs. Baseline) at EACH threshold.
+    per_threshold: true
+    outputs:
+      - statistic: float
+      - p_value: float
+
+validation_rules:
+  - All required columns/sections must be present and non-empty.
+  - success_rate values must lie in [0.0, 1.0].
+  - corrected_p_values must be present whenever more than one
+    hypothesis test is reported.
+  - The report must state that the sensitivity curve (success rate
+    vs. threshold) is the primary metric.

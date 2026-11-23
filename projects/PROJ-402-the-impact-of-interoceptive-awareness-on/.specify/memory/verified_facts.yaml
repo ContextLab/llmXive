@@ -1,0 +1,9 @@
+'|full minute pipeline within':
+  quote: Suppose that assembling one car requires three tasks that take 20, 10, and
+    15 minutes, respectively. Then, if all three tasks were performed by a single
+    station, the factory would output one car every 45 minutes. By using a pipeline
+    of three stations, the factory would output the first car in 45 minutes, and then
+    a new one every 20 minutes.
+  source_id: Pipeline (computing)
+  url: https://en.wikipedia.org/wiki/Pipeline_(computing)
+  value: '45'

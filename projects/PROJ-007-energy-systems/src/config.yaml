@@ -1,0 +1,19 @@
+# Core Data & ML
+pandas>=2.0.0
+numpy>=1.24.0
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+
+# Utilities
+pyyaml>=6.0
+matplotlib>=3.7.0
+pyarrow>=12.0.0
+
+# Testing
+pytest>=7.4.0
+
+# Security (for T044)
+detect-secrets>=1.4.0
+
+# Data Fetching (if needed)
+censusdata>=2.0.0

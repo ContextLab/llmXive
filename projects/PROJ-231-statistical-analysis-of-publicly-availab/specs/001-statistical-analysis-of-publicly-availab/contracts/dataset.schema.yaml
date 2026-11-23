@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CMIP6 Ensemble Dataset Schema"
+description: "Schema for the raw and processed CMIP6 ensemble data used in fPCA analysis."
+type: object
+properties:
+  metadata:
+    type: object
+    properties:
+      source_url:
+        type: string
+        description: "URL of the source HuggingFace dataset"
+      checksum:
+        type: string
+        description: "SHA256 checksum of the raw file"
+      timestamp:
+        type: string
+        format: date-time
+    required:
+      - source_url
+      - checksum
+  records:
+    type: array
+    items:
+      type: object
+      properties:
+        model_id:
+          type: string
+          description: "Unique identifier for the CMIP6 model (e.g., ACCESS-CM2)"
+        variable:
+          type: string
+          enum:
+            - "tas"
+            - "pr"
+          description: "Climate variable (Temperature or Precipitation)"
+        time_steps:
+          type: array
+          items:
+            type: object
+            properties:
+              date:
+                type: string
+                format: date
+              value:
+                type: number
+              is_missing:
+                type: boolean
+            required:
+              - date
+              - value
+              - is_missing
+        coefficients:
+          type: array
+          items:
+            type: number
+          description: "B-spline basis coefficients"
+        standardized:
+          type: boolean
+          description: "Whether the time series has been standardized"
+      required:
+        - model_id
+        - variable
+        - time_steps
+        - coefficients
+        - standardized
+required:
+  - metadata
+  - records

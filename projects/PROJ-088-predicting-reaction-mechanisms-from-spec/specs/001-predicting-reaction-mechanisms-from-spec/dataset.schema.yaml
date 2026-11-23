@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Reaction Mechanism Spectroscopic Dataset Schema"
+description: "Schema for the unified dataset containing IR and NMR spectroscopic data with reaction mechanism labels."
+type: object
+required:
+  - metadata
+  - data
+properties:
+  metadata:
+    type: object
+    description: "Metadata describing the dataset generation."
+    required:
+      - version
+      - source
+      - provenance_filter_applied
+      - created_at
+      - checksum
+    properties:
+      version:
+        type: string
+        description: "Schema version or dataset version."
+      source:
+        type: string
+        description: "Primary data source (e.g., 'NIST', 'PubChem', 'Merged')."
+      provenance_filter_applied:
+        type: boolean
+        description: "Indicates whether provenance filtering was applied."
+      created_at:
+        type: string
+        format: date-time
+        description: "Timestamp of dataset creation."
+      checksum:
+        type: string
+        description: "SHA-256 checksum of the dataset file."
+  data:
+    type: array
+    description: "Array of data records."
+    items:
+      type: object
+      required:
+        - record_id
+        - spectrum
+        - label
+        - provenance
+      properties:
+        record_id:
+          type: string
+          description: "Unique identifier for the record."
+        spectrum:
+          type: array
+          description: "Binned spectral fingerprint (512 bins)."
+          items:
+            type: number
+          minItems: 512
+          maxItems: 512
+        label:
+          type: string
+          description: "Reaction mechanism classification."
+          enum:
+            - SN1
+            - SN2
+            - E1
+        provenance:
+          type: string
+          description: "Origin of the data provenance."
+          enum:
+            - kinetic_studies
+            - validated_intermediates

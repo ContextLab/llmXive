@@ -1,97 +1,82 @@
-"""
-Unit tests for preprocessing functions.
-"""
-
 import os
-import sys
-import tempfile
 import pandas as pd
 import numpy as np
+import pytest
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+from code.preprocess import (
+    load_gene_coords,
+    load_peaks,
+    bin_aggregation,
+    load_all_counts,
+    filter_zero_expression,
+    log_transform,
+    impute_median,
+    merge_features_expression,
+    PROC_DIR,
+    RAW_DIR,
+    CELL_LINES,
+)
 
-from preprocess import filter_genes_zero_expression, apply_log_pseudocount
+@pytest.fixture(scope="module")
+def gene_coords():
+    return load_gene_coords()
 
+@pytest.fixture(scope="module")
+def peaks():
+    # Load peaks for the first cell line (GM12878) for testing
+    return load_peaks(CELL_LINES[0])
 
-def test_filter_genes_zero_expression():
-    """Test that genes with all zeros are filtered out."""
-    # Create test data
-    data = {
-        'gene_id': ['gene1', 'gene2', 'gene3', 'gene4'],
-        'sample1': [0, 5, 0, 10],
-        'sample2': [0, 3, 0, 0],
-        'sample3': [0, 0, 0, 5]
-    }
-    df = pd.DataFrame(data)
-    df = df.set_index('gene_id')
+def test_bin_aggregation_shape(gene_coords, peaks):
+    binned = bin_aggregation(CELL_LINES[0], gene_coords, peaks)
+    # Should have one row per gene and 200 bin columns + gene_id
+    assert "gene_id" in binned.columns
+    bin_cols = [c for c in binned.columns if c.startswith("bin_")]
+    assert len(bin_cols) == 200
+    assert binned.shape[0] == gene_coords.shape[0]
 
-    # Filter
-    result = filter_genes_zero_expression(df)
+def test_load_all_counts():
+    counts = load_all_counts()
+    # Expect 5 cell lines * 2 genes = 10 rows in the synthetic test data
+    assert counts.shape[0] == 10
+    assert set(counts["cell_line"]) == set(CELL_LINES)
 
-    # gene1 and gene3 should be removed (all zeros)
-    # gene2 and gene4 should remain
-    assert len(result) == 2
-    assert 'gene2' in result.index
-    assert 'gene4' in result.index
-    assert 'gene1' not in result.index
-    assert 'gene3' not in result.index
+def test_filter_zero_expression():
+    counts = load_all_counts()
+    filtered = filter_zero_expression(counts)
+    # Gene ENSG000002 has zero count in all cell lines → should be removed
+    assert "ENSG000002" not in filtered["gene_id"].unique()
+    # Gene ENSG000001 should remain
+    assert "ENSG000001" in filtered["gene_id"].unique()
 
-    print("✓ test_filter_genes_zero_expression passed")
+def test_log_transform():
+    counts = load_all_counts()
+    filtered = filter_zero_expression(counts)
+    logged = log_transform(filtered)
+    assert "log_count" in logged.columns
+    # Verify transformation for a known count (123)
+    val = logged.loc[logged["count"] == 123, "log_count"].iloc[0]
+    assert np.isclose(val, np.log(124))
 
+def test_impute_median():
+    # Create a small DataFrame with NaNs
+    df = pd.DataFrame({
+        "gene_id": ["g1", "g2"],
+        "bin_1": [1.0, np.nan],
+        "bin_2": [np.nan, 3.0],
+    })
+    imputed = impute_median(df)
+    # Median of bin_1 is 1.0, bin_2 is 3.0
+    assert imputed.loc[imputed["gene_id"] == "g2", "bin_1"].iloc[0] == 1.0
+    assert imputed.loc[imputed["gene_id"] == "g1", "bin_2"].iloc[0] == 3.0
 
-def test_apply_log_pseudocount():
-    """Test log transformation with pseudocount."""
-    # Create test data
-    data = {
-        'gene_id': ['gene1', 'gene2'],
-        'sample1': [0, 1],
-        'sample2': [0, 10],
-        'sample3': [1, 100]
-    }
-    df = pd.DataFrame(data)
-    df = df.set_index('gene_id')
-
-    # Apply transformation with pseudocount=1
-    result = apply_log_pseudocount(df, pseudocount=1.0)
-
-    # Check that log(0+1) = 0
-    assert result.loc['gene1', 'sample1'] == np.log(1)  # Should be 0
-    # Check that log(1+1) = log(2)
-    assert result.loc['gene1', 'sample3'] == np.log(2)
-    # Check that log(100+1) ≈ log(101)
-    assert np.isclose(result.loc['gene2', 'sample3'], np.log(101))
-
-    print("✓ test_apply_log_pseudocount passed")
-
-
-def test_filter_and_transform_pipeline():
-    """Test the combined filter and transform pipeline."""
-    # Create test data with some genes having all zeros
-    data = {
-        'gene_id': ['gene1', 'gene2', 'gene3'],
-        'sample1': [0, 5, 0],
-        'sample2': [0, 3, 0],
-        'sample3': [0, 0, 0]  # gene3 has all zeros
-    }
-    df = pd.DataFrame(data)
-    df = df.set_index('gene_id')
-
-    # Filter
-    filtered = filter_genes_zero_expression(df)
-    assert len(filtered) == 1  # Only gene2 should remain
-    assert 'gene2' in filtered.index
-
-    # Transform
-    transformed = apply_log_pseudocount(filtered, pseudocount=1.0)
-    assert transformed.loc['gene2', 'sample1'] == np.log(6)  # log(5+1)
-    assert transformed.loc['gene2', 'sample2'] == np.log(4)  # log(3+1)
-
-    print("✓ test_filter_and_transform_pipeline passed")
-
-
-if __name__ == '__main__':
-    test_filter_genes_zero_expression()
-    test_apply_log_pseudocount()
-    test_filter_and_transform_pipeline()
-    print("\nAll tests passed!")
+def test_merge_features_expression(gene_coords, peaks):
+    binned = bin_aggregation(CELL_LINES[0], gene_coords, peaks)
+    counts = load_all_counts()
+    filtered = filter_zero_expression(counts)
+    logged = log_transform(filtered)
+    merged = merge_features_expression(binned, logged, CELL_LINES[0])
+    # Should contain gene_id, 200 bins, and log_expression
+    assert "log_expression" in merged.columns
+    assert merged.shape[0] == binned.shape[0]
+    bin_cols = [c for c in merged.columns if c.startswith("bin_")]
+    assert len(bin_cols) == 200

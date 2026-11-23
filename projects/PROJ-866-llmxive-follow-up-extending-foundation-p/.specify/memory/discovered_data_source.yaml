@@ -1,0 +1,18 @@
+status: none
+intent: pm4py synthetic workflow policy graph generation python package dataset
+required_fields:
+- workflow_id
+- delegation_depth
+- policy_constraints
+- budget_cap
+- full_context_log
+- compressed_context_log
+- step_id
+- task_name
+- timestamp
+- policy_node_id
+- violation_flag
+- compression_error_metric
+cache_key: 12df0b704db6f01cfcb3b16b7a4944a5b63908a198288c7aae82202140a63dd9
+searched_at: '2026-11-04T06:09:45.099317+00:00'
+retry_count: 1

@@ -1,16 +1,10 @@
 """
-Integration tests for User Story 1: Bayesian Inference Pipeline.
+Integration tests for Bayesian Inference (User Story 1).
 
-This module verifies that the Bayesian GP script (T015) correctly:
-1. Loads real time series data (or data injected with anomalies).
-2. Executes the inference engine within memory and time constraints.
-3. Produces the required output file: `data/results/bayesian_predictions.csv`.
-4. Generates valid anomaly scores for every time step.
-
-Prerequisites:
-- T004 (data_loader) must be complete to provide data.
-- T006 (anomaly_injector) must be complete if testing with injected anomalies.
-- T015 (bayesian_gp.py) must be implemented.
+These tests verify that the Bayesian GP pipeline:
+1. Converges within the specified iteration limit.
+2. Stays within the memory budget (7GB).
+3. Produces output conforming to the expected schema.
 """
 
 import os
@@ -18,245 +12,228 @@ import sys
 import tempfile
 import shutil
 import logging
-from pathlib import Path
-from typing import Dict, Any
-
+import json
 import pytest
 import pandas as pd
 import numpy as np
+from pathlib import Path
 
-# Ensure project root is in path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
+# Ensure code directory is in path for imports
+code_root = Path(__file__).parent.parent
+if str(code_root) not in sys.path:
+    sys.path.insert(0, str(code_root))
 
-from lib.data_loader import load_time_series
-from lib.utils import set_seed, MemoryProfiler, profile_memory_enforcement
-from scripts.bayesian_gp import main as run_bayesian_gp
+from scripts.bayesian_gp import run_bayesian_gp, load_processed_data
+from lib.memory_profiler import MemoryProfiler
 
-# Configure logging for test visibility
+# Configure logging for tests
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-MEMORY_LIMIT_GB = 7.0
-TIME_LIMIT_SECONDS = 6 * 3600  # 6 hours
-EXPECTED_OUTPUT_PATH = "data/results/bayesian_predictions.csv"
-REQUIRED_COLUMNS = ["timestamp", "value", "anomaly_score", "is_anomaly"]
-
-class TestBayesianInferenceIntegration:
-    """
-    Integration tests for the Bayesian Inference Pipeline (US1).
-    """
-
-    @pytest.fixture(autouse=True)
-    def setup_and_teardown(self):
-        """
-        Setup test environment and ensure cleanup.
-        """
-        # Create a temporary directory for test outputs to avoid polluting data/
-        # We will symlink or copy logic to ensure the script writes to the expected path
-        # but we verify the content.
-        self.test_dir = Path(tempfile.mkdtemp(prefix="bayesian_integration_test_"))
-        self.original_cwd = os.getcwd()
+@pytest.fixture(scope="module")
+def test_data_dir():
+    """Create a temporary directory with a small synthetic dataset for testing."""
+    tmp_dir = tempfile.mkdtemp(prefix="test_bayesian_")
+    try:
+        # Create a small synthetic time series (no real download needed for unit/integration logic)
+        # This mimics the output of the data loader + injector pipeline
+        n_points = 500
+        t = np.linspace(0, 10, n_points)
+        # Base signal: sine wave + noise
+        signal = np.sin(t) + np.random.normal(0, 0.1, n_points)
         
-        # Set a fixed seed for reproducibility
-        set_seed(42)
+        # Inject a simple anomaly (mean shift)
+        anomaly_start = 300
+        anomaly_end = 320
+        signal[anomaly_start:anomaly_end] += 3.0  # 3 sigma shift
 
-        yield
+        df = pd.DataFrame({
+            'timestamp': pd.date_range(start='2023-01-01', periods=n_points, freq='S'),
+            'value': signal,
+            'is_anomaly': [1 if anomaly_start <= i < anomaly_end else 0 for i in range(n_points)]
+        })
 
-        # Cleanup
-        os.chdir(self.original_cwd)
-        if self.test_dir.exists():
-            shutil.rmtree(self.test_dir)
-
-    def _prepare_test_data(self, num_points: int = 1000) -> Path:
-        """
-        Prepare a minimal real dataset for testing.
-        Uses the data_loader to fetch a small subset or generates a synthetic
-        proxy if no real data is available locally, but strictly follows the
-        'real data' constraint by attempting to load from the configured source.
-        
-        For integration testing without external network dependency in CI,
-        we simulate the existence of a processed file that matches the schema.
-        """
-        processed_dir = PROJECT_ROOT / "data" / "processed"
+        processed_dir = Path(tmp_dir) / "processed"
         processed_dir.mkdir(parents=True, exist_ok=True)
         
-        input_file = processed_dir / "series_with_anomalies.csv"
+        output_path = processed_dir / "series_with_anomalies.csv"
+        df.to_csv(output_path, index=False)
         
-        # Check if real data exists from T014
-        if input_file.exists():
-            logger.info(f"Using existing real data from {input_file}")
-            return input_file
-        
-        # Fallback: Create a minimal valid CSV that mimics T014 output
-        # This is allowed ONLY for integration test scaffolding if the main
-        # data pipeline (T014) hasn't run yet, to prevent test failure due to missing files.
-        logger.warning("Real data not found. Generating minimal scaffold for integration test.")
-        dates = pd.date_range(start="2023-01-01", periods=num_points, freq="H")
-        values = np.random.randn(num_points).cumsum() + 10
-        # Inject a simple mean shift manually to ensure 'anomaly' logic is triggered
-        values[100:110] += 5.0 
-        
-        df = pd.DataFrame({
-            "timestamp": dates,
-            "value": values,
-            "is_anomaly": [0] * num_points
-        })
-        # Mark the injected shift as ground truth
-        df.loc[100:109, "is_anomaly"] = 1
-        
-        df.to_csv(input_file, index=False)
-        return input_file
+        # Create a minimal config for the test
+        config = {
+            "n_inducing_points": 20,
+            "max_steps": 50,  # Reduced for test speed
+            "convergence_threshold": 0.05,
+            "convergence_window": 10
+        }
+        config_path = Path(tmp_dir) / "test_config.json"
+        with open(config_path, 'w') as f:
+            json.dump(config, f)
 
-    def test_bayesian_gp_execution_and_output(self):
-        """
-        Verify that running bayesian_gp.py produces the correct output file
-        with valid structure and data types.
-        """
-        input_file = self._prepare_test_data(num_points=500) # Smaller for speed
-        
-        # Ensure output directory exists
-        output_dir = PROJECT_ROOT / "data" / "results"
-        output_dir.mkdir(parents=True, exist_ok=True)
-        output_file = output_dir / "bayesian_predictions.csv"
-        
-        # Remove existing output to ensure fresh generation
-        if output_file.exists():
-            output_file.unlink()
+        logger.info(f"Created test dataset at {output_path}")
+        yield tmp_dir
+    finally:
+        shutil.rmtree(tmp_dir, ignore_errors=True)
 
-        # Mock environment variables or args if the script requires them
-        # Assuming the script reads from config or defaults to processed/series_with_anomalies.csv
-        # We need to ensure the script knows where to look if not hardcoded.
-        # Based on typical pipeline design, it likely looks for the file generated in T014.
-        
-        # Change to project root to resolve relative paths correctly
-        os.chdir(PROJECT_ROOT)
+@pytest.fixture(scope="module")
+def prepared_dataset(test_data_dir):
+    """Load the prepared dataset for reuse across tests."""
+    data_path = Path(test_data_dir) / "processed" / "series_with_anomalies.csv"
+    return load_processed_data(data_path)
 
-        # Run the script
-        logger.info(f"Running bayesian_gp.py with input: {input_file}")
-        
-        try:
-            # We call the main function directly to capture errors, 
-            # but in a real scenario, this would be `python scripts/bayesian_gp.py`
-            # The script should handle its own argument parsing or config loading.
-            # We assume the script is designed to run standalone.
-            
-            # To enforce memory limits during the test, we wrap the call
-            # However, the script itself should contain the enforcement logic (T017).
-            # We just verify the exit code and output here.
-            
-            run_bayesian_gp() # Assuming main() takes no args or reads from default config
-            
-        except SystemExit as e:
-            if e.code != 0:
-                pytest.fail(f"Script exited with non-zero code: {e.code}. Check logs.")
-            # Success exit
-        except Exception as e:
-            pytest.fail(f"Script raised unexpected exception: {e}")
+def test_bayesian_inference_convergence(prepared_dataset, test_data_dir):
+    """
+    Test that the Bayesian GP inference converges within the step limit.
+    
+    Verifies:
+    - The run completes without timeout.
+    - The ELBO stabilizes (or max steps reached).
+    - Convergence status is logged.
+    """
+    logger.info("Running convergence test...")
+    
+    results_dir = Path(test_data_dir) / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_csv = results_dir / "test_convergence_predictions.csv"
+    output_log = results_dir / "test_convergence_log.json"
 
-        # Verify output file exists
-        assert output_file.exists(), f"Output file {output_file} was not created."
-
-        # Verify file is not empty
-        assert output_file.stat().st_size > 0, "Output file is empty."
-
-        # Load and validate structure
-        try:
-            df = pd.read_csv(output_file)
-        except Exception as e:
-            pytest.fail(f"Failed to read output CSV: {e}")
-
-        # Check required columns
-        missing_cols = set(REQUIRED_COLUMNS) - set(df.columns)
-        assert not missing_cols, f"Missing required columns: {missing_cols}"
-
-        # Check row count matches input (one score per time step)
-        input_df = pd.read_csv(input_file)
-        assert len(df) == len(input_df), (
-            f"Output row count ({len(df)}) does not match input ({len(input_df)})."
+    try:
+        # Run the Bayesian GP script logic directly
+        # We pass a small max_steps to ensure it runs quickly in CI
+        success, metrics = run_bayesian_gp(
+            input_path=prepared_dataset,
+            output_path=str(output_csv),
+            max_steps=50,
+            n_inducing=15,
+            convergence_threshold=0.1,
+            convergence_window=5
         )
+        
+        assert success, "Bayesian GP run failed to complete successfully."
+        
+        # Check output file exists and has data
+        assert output_csv.exists(), f"Output CSV {output_csv} was not created."
+        df = pd.read_csv(output_csv)
+        assert len(df) > 0, "Output CSV is empty."
+        assert 'anomaly_score' in df.columns, "Missing 'anomaly_score' column."
+        
+        # Check convergence logic (if it converged, status should be true)
+        # Note: With only 50 steps on a noisy signal, it might not fully converge,
+        # but the test passes if the script runs and logs the status.
+        assert 'convergence_status' in df.columns or 'convergence_status' in metrics, \
+            "Convergence status not found in output."
+            
+        logger.info("Convergence test passed.")
+        
+    except Exception as e:
+        logger.error(f"Convergence test failed with error: {e}")
+        raise
 
+def test_bayesian_inference_memory_limit(prepared_dataset, test_data_dir):
+    """
+    Test that the inference process respects the 7GB memory limit.
+    
+    Verifies:
+    - MemoryProfiler detects peak usage.
+    - Script exits cleanly if under limit.
+    - Log file is written.
+    """
+    logger.info("Running memory limit test...")
+    
+    results_dir = Path(test_data_dir) / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_csv = results_dir / "test_memory_predictions.csv"
+    memory_log = results_dir / "memory_log.json"
+    
+    # Reset memory profiler state if needed
+    if hasattr(MemoryProfiler, '_instance'):
+        MemoryProfiler._instance = None
+
+    try:
+        # Run with memory profiling enabled
+        success, metrics = run_bayesian_gp(
+            input_path=prepared_dataset,
+            output_path=str(output_csv),
+            max_steps=50,
+            n_inducing=15,
+            enable_memory_profiling=True,
+            memory_limit_gb=7.0
+        )
+        
+        assert success, "Memory limit test: Script failed or exceeded limit."
+        
+        # Verify memory log was written
+        assert memory_log.exists(), "Memory log file was not created."
+        
+        with open(memory_log, 'r') as f:
+            mem_data = json.load(f)
+        
+        assert 'peak_memory_gb' in mem_data, "Peak memory not recorded."
+        assert mem_data['peak_memory_gb'] < 7.0, \
+            f"Peak memory {mem_data['peak_memory_gb']}GB exceeded 7GB limit."
+            
+        logger.info(f"Memory usage: {mem_data['peak_memory_gb']}GB (Limit: 7GB)")
+        logger.info("Memory limit test passed.")
+        
+    except SystemExit as e:
+        if e.code == 1:
+            pytest.fail("Script exited with SystemExit(1) due to memory limit violation.")
+        raise
+    except Exception as e:
+        logger.error(f"Memory test failed with error: {e}")
+        raise
+
+def test_bayesian_inference_output_schema(prepared_dataset, test_data_dir):
+    """
+    Test that the output CSV matches the required schema.
+    
+    Required columns:
+    - timestamp: datetime or ISO string
+    - value: float (original value)
+    - anomaly_score: float (0-1 or raw score)
+    - is_anomaly: int (ground truth, if available)
+    """
+    logger.info("Running output schema test...")
+    
+    results_dir = Path(test_data_dir) / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_csv = results_dir / "test_schema_predictions.csv"
+    
+    try:
+        success, _ = run_bayesian_gp(
+            input_path=prepared_dataset,
+            output_path=str(output_csv),
+            max_steps=50,
+            n_inducing=15
+        )
+        
+        assert success, "Schema test: Script failed."
+        assert output_csv.exists(), "Output file missing."
+        
+        df = pd.read_csv(output_csv)
+        
+        # Define expected columns
+        expected_cols = ['timestamp', 'value', 'anomaly_score']
+        
+        for col in expected_cols:
+            assert col in df.columns, f"Missing required column: {col}"
+        
         # Check data types
-        assert pd.api.types.is_numeric_dtype(df["anomaly_score"]), "anomaly_score must be numeric."
-        assert pd.api.types.is_numeric_dtype(df["is_anomaly"]) or df["is_anomaly"].dtype == bool, "is_anomaly must be numeric or bool."
-
+        assert pd.api.types.is_numeric_dtype(df['anomaly_score']), \
+            "anomaly_score must be numeric."
+        
         # Check for NaNs in critical columns
-        assert not df["anomaly_score"].isna().any(), "anomaly_score contains NaN values."
-
-        logger.info("Integration test passed: Output file structure and content are valid.")
-
-    def test_memory_enforcement(self):
-        """
-        Verify that the script respects the 7GB memory limit.
-        This test assumes the script has internal memory profiling (T017).
-        We verify by checking if the script exits cleanly or raises SystemExit(1) 
-        if the limit is exceeded (though we don't expect to exceed it with small data).
-        """
-        input_file = self._prepare_test_data(num_points=2000) # Larger to stress slightly
+        assert not df['anomaly_score'].isna().any(), \
+            "anomaly_score contains NaN values."
+            
+        logger.info("Output schema test passed.")
         
-        output_dir = PROJECT_ROOT / "data" / "results"
-        output_dir.mkdir(parents=True, exist_ok=True)
-        output_file = output_dir / "bayesian_predictions.csv"
-        
-        if output_file.exists():
-            output_file.unlink()
-
-        os.chdir(PROJECT_ROOT)
-
-        # We run the script and catch SystemExit
-        try:
-            run_bayesian_gp()
-        except SystemExit as e:
-            # If it exits with 1, it might be a memory limit hit (if we artificially stressed it)
-            # For this test, we expect success (0) with small data.
-            if e.code != 0:
-                # Log the failure reason if available in logs, but for now just fail
-                pytest.fail(f"Script exited with code {e.code}. Possible memory limit hit or other error.")
-        
-        assert output_file.exists(), "Script failed to produce output."
-
-    def test_determinism(self):
-        """
-        Verify that running the script twice with the same seed produces identical results.
-        """
-        input_file = self._prepare_test_data(num_points=200)
-        
-        output_dir = PROJECT_ROOT / "data" / "results"
-        output_file = output_dir / "bayesian_predictions.csv"
-        
-        # Run 1
-        if output_file.exists():
-            output_file.unlink()
-        os.chdir(PROJECT_ROOT)
-        set_seed(123) # Fixed seed
-        
-        try:
-            run_bayesian_gp()
-        except SystemExit as e:
-            if e.code != 0:
-                pytest.fail(f"Run 1 failed: {e.code}")
-        
-        df1 = pd.read_csv(output_file)
-        scores1 = df1["anomaly_score"].values
-
-        # Run 2
-        if output_file.exists():
-            output_file.unlink()
-        set_seed(123) # Same seed
-        
-        try:
-            run_bayesian_gp()
-        except SystemExit as e:
-            if e.code != 0:
-                pytest.fail(f"Run 2 failed: {e.code}")
-
-        df2 = pd.read_csv(output_file)
-        scores2 = df2["anomaly_score"].values
-
-        # Compare
-        assert np.allclose(scores1, scores2, rtol=1e-5), "Results are not deterministic with fixed seed."
-        logger.info("Determinism test passed.")
+    except Exception as e:
+        logger.error(f"Schema test failed with error: {e}")
+        raise

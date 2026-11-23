@@ -1,63 +1,111 @@
 # Quickstart: Predicting Gene Expression from Chromatin Accessibility
 
-## Prerequisites
+## 1. Prerequisites
+- Python 3.11+  
+- Git  
+- ~7 GiB RAM, ~14 GiB free disk space  
+- Internet access (for ENCODE download)
 
--   Python 3.11+
--   `git`
--   System dependency: `bedtools` (optional, can be simulated in Python).
--   Internet access (not required for data, as synthetic data is generated locally).
-
-## Installation
-
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-211-predicting-gene-expression-from-chromati
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-
-## Running the Pipeline
-
-The pipeline is executed via a main entry point script.
-
-### Step 1: Generate and Preprocess Data
+## 2. Installation
 ```bash
-python code/generate_data.py --output data/raw/
-python code/preprocess.py --input data/raw/ --output data/processed/
+# Clone the repository
+git clone https://github.com/your-org/PROJ-211-predicting-gene-expression-from-chromati.git
+cd PROJ-211-predicting-gene-expression-from-chromati
+
+# Create and activate a virtual environment
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+
+# Install pinned dependencies
+pip install -r requirements.txt
 ```
-*This step generates synthetic paired RNA-seq and DNase-seq data with valid genomic coordinates, maps peaks to TSS windows (±50kb), and filters zero-expression genes.*
 
-### Step 2: Train Models
+## 3. Data Download (real ENCODE data)
 ```bash
-python code/train.py --input data/processed/ --output data/models/
+python code/download_encode.py \
+    --cell-lines GM12878 K562 HMEC IMR90 HepG2 \
+    --output-dir data/raw
 ```
-*Trains Elastic Net models for each cell line with 5-fold cross-validation.*
+- The script queries the ENCODE REST API for the exact file IDs listed in `research.md`, streams each file, computes a SHA‑256 checksum, and aborts on mismatch.  
+- If a file exceeds 2 GB, the script automatically restricts processing to chromosome 1 (still a genuine ENCODE slice).  
+- On failure (e.g., network outage) the script retries up to three times before exiting with a clear error message.
 
-### Step 3: Evaluate and Interpret
+## 4. Optional Synthetic Fallback (CI only)
 ```bash
-python code/evaluate.py --models data/models/ --output results/
-python code/interpret.py --models data/models/ --output results/
+python code/generate_synthetic.py --seed 42 --output-dir data/raw
 ```
-*Generates R² scores, Bonferroni-corrected p-values, and feature importance rankings.*
+Creates deterministic small synthetic `synthetic_counts.tsv` and `synthetic_peaks.bed`. The main pipeline detects the presence of real ENCODE files; if they are missing, the synthetic files are used **only** to allow CI to run end‑to‑end. This is **not** a scientific requirement.
 
-### Step 4: Validate Contracts
+## 5. Preprocessing
 ```bash
+python code/preprocess.py \
+    --counts data/raw/rna_counts.tsv \
+    --peaks  data/raw/atac_peaks.bed \
+    --tss    data/raw/gene_tss.bed \
+    --output-dir data/processed
+```
+- CPM normalisation of RNA‑seq and ATAC/DNase counts.  
+- Log‑pseudocount (`log(count + 1)`).  
+- Median imputation per bin.  
+- Aggregation of peaks into 200 fixed‑width bins within ±50 kb of each TSS (promoter ±2 kb set to 0).  
+- Writes all processed CSVs listed in `data-model.md` and records checksums.
+
+## 6. Model Training
+```bash
+python code/train.py \
+    --features data/processed/binned_matrix.csv \
+    --targets  data/processed/imputed_expression.csv \
+    --output-dir data/models
+```
+- Trains Elastic Net per cell line (α = 0.5, l1_ratio tuned via LOOCV).  
+- Applies variance‑based filter (≤ N‑1 bins) and zero‑pads coefficients to maintain 200 entries.  
+- Computes Pearson r, R², raw p‑values, and Bonferroni‑corrected p‑values.  
+- Stores model pickle and `cv_scores.json`.
+
+### Cross‑Cell‑Line Validation (external validation)
+```bash
+python code/train.py \
+    --features data/processed/binned_matrix.csv \
+    --targets  data/processed/imputed_expression.csv \
+    --hold-out-cell-line HepG2 \
+    --output-dir data/models
+```
+- Trains on the other four lines, tests on the held‑out line, writes `external_validation.json` (fulfills SC‑006).
+
+## 7. Analysis & Reporting
+```bash
+python code/analyze.py \
+    --features data/processed/binned_matrix.csv \
+    --targets  data/processed/imputed_expression.csv \
+    --models   data/models \
+    --output-dir data/processed
+```
+- Extracts non‑zero coefficients, maps bins to TSS distance, ranks bins, computes % of top‑100 bins within ±10 kb, runs a 1 000‑draw permutation enrichment test (SC‑003).  
+- Calculates R² for housekeeping genes (FR‑009) and ΔR² between gene categories (FR‑010).  
+- Generates `paper/results.md` and `paper/limitations.md`.
+
+## 8. Testing (CI verification)
+```bash
+# Unit tests
+pytest tests/unit/
+
+# Contract (schema) validation
 pytest tests/contract/
+
+# Integration test (runs full pipeline on synthetic data)
+pytest tests/integration/
 ```
-*Ensures all output files match the schemas defined in `contracts/`.*
+All tests must pass; failures indicate checksum mismatches, schema violations, or runtime errors.
 
-## Troubleshooting
+## 9. Reproducibility Check
+```bash
+# Verify raw data checksums
+cat state/projects/PROJ-211-predicting-gene-expression-from-chromati.yaml | grep checksum
 
--   **Memory Error**: If the pipeline fails due to RAM, reduce the number of peaks selected in `code/preprocess.py` (adjust `MAX_PEAKS` constant).
--   **Data Generation Error**: If the synthetic data generator fails, check that the random seed is pinned and the environment has sufficient disk space.
--   **Runtime Limit**: If the job exceeds 6 hours, enable the `--sample` flag in `code/train.py` to use a subset of genes for the initial run.
+# Verify processed data checksums
+md5sum data/processed/*
+
+# Compare against recorded hashes – any mismatch aborts the pipeline (Constitution III)
+```
+
+---

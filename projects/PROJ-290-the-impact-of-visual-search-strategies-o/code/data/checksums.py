@@ -1,9 +1,8 @@
 """
-Task T015: Create data/raw/ directory structure and save downloaded dataset checksums.
+Data Checksums Module.
 
-This script ensures the `data/raw/` directory exists and computes SHA-256 checksums
-for all files found in that directory (populated by T010). It saves the results
-to `state/dataset_checksums.json` to support artifact verification (Constitution Principle V).
+Provides utilities to generate SHA-256 hashes for artifacts in the data directory.
+Implements the Constitution Principle V for data integrity tracking.
 """
 import os
 import json
@@ -12,106 +11,128 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, List
 
-# Import existing utilities from the project
 from config import get_config
 from utils.logging import get_logger
-from utils.hash_artifacts import calculate_sha256
 
 
-def get_logger_wrapper(name: str) -> logging.Logger:
-    """Wrapper to get a logger configured for this module."""
+def get_logger_wrapper(name: str):
+    """Helper to get a logger with a specific name."""
     return get_logger(name)
 
 
-def ensure_raw_directory(config: Any) -> Path:
+def ensure_raw_directory(raw_data_path: str | Path) -> Path:
     """
-    Ensures the data/raw directory exists.
-    Returns the Path object for the directory.
+    Ensures the raw data directory exists. Creates it if missing.
+
+    Args:
+        raw_data_path: Path to the raw data directory.
+
+    Returns:
+        The Path object for the raw data directory.
     """
-    raw_dir = config.get("paths", {}).get("data_raw")
-    if not raw_dir:
-        # Fallback to standard path if config is missing key, though T001b should have set it
-        base = config.get("paths", {}).get("data_root", Path("data"))
-        raw_dir = Path(base) / "raw"
-    else:
-        raw_dir = Path(raw_dir)
-
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    logging.info(f"Ensured directory exists: {raw_dir}")
-    return raw_dir
+    raw_path = Path(raw_data_path)
+    if not raw_path.exists():
+        logging.info(f"Creating raw data directory: {raw_path}")
+        raw_path.mkdir(parents=True, exist_ok=True)
+    return raw_path
 
 
-def scan_and_hash_directory(directory: Path) -> List[Dict[str, Any]]:
+def calculate_sha256(file_path: Path) -> str:
     """
-    Scans a directory for files and calculates SHA-256 hashes.
-    Returns a list of dicts: [{'path': str, 'hash': str, 'size_bytes': int}, ...]
-    """
-    results = []
-    if not directory.exists():
-        logging.warning(f"Directory does not exist, skipping scan: {directory}")
-        return results
+    Calculates the SHA-256 hash of a file.
 
-    for file_path in directory.rglob("*"):
-        if file_path.is_file():
+    Args:
+        file_path: Path to the file.
+
+    Returns:
+        Hexadecimal string of the SHA-256 hash.
+    """
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except Exception as e:
+        logging.error(f"Failed to hash file {file_path}: {e}")
+        raise
+
+
+def scan_and_hash_directory(directory_path: str | Path) -> List[Dict[str, Any]]:
+    """
+    Scans a directory recursively for files and calculates their SHA-256 hashes.
+
+    Args:
+        directory_path: Path to the directory to scan.
+
+    Returns:
+        A list of dictionaries containing file path (relative) and hash.
+    """
+    dir_path = Path(directory_path)
+    if not dir_path.exists():
+        logging.warning(f"Directory does not exist: {dir_path}. Returning empty list.")
+        return []
+
+    checksums = []
+    for root, _, files in os.walk(dir_path):
+        for file in files:
+            file_path = Path(root) / file
+            # Calculate relative path from the directory root
+            relative_path = file_path.relative_to(dir_path)
+            
             try:
                 file_hash = calculate_sha256(file_path)
-                results.append({
-                    "relative_path": str(file_path.relative_to(directory)),
-                    "absolute_path": str(file_path),
+                checksums.append({
+                    "file": str(relative_path),
                     "sha256": file_hash,
                     "size_bytes": file_path.stat().st_size
                 })
             except Exception as e:
-                logging.error(f"Failed to hash {file_path}: {e}")
+                logging.error(f"Skipping file {file_path} due to error: {e}")
     
-    return results
+    return checksums
 
 
-def save_checksums(checksums: List[Dict[str, Any]], output_path: Path) -> None:
+def save_checksums(checksums: List[Dict[str, Any]], output_path: str | Path) -> None:
     """
-    Saves the checksum list to a JSON file.
+    Saves the list of checksums to a JSON file.
+
+    Args:
+        checksums: List of checksum dictionaries.
+        output_path: Path where the JSON file will be saved.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump({
-            "generated_at": None, # Will be filled by caller if needed, or left null for raw hash
-            "source_directory": str(output_path.parent),
-            "checksums": checksums
-        }, f, indent=2)
-    logging.info(f"Checksums saved to: {output_path}")
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    manifest = {
+        "generated_from": str(output_file.parent.parent), # Contextual root
+        "checksums": checksums
+    }
+
+    with open(output_file, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
+    
+    logging.info(f"Checksums saved to {output_file}")
 
 
-def main() -> int:
+def main():
     """
-    Main entry point for T015.
-    1. Ensure data/raw/ exists.
-    2. Scan for files.
-    3. Compute checksums.
-    4. Save to state/dataset_checksums.json.
+    Command-line entry point for manual execution if needed.
     """
-    logger = get_logger("T015_checksums")
-    logger.info("Starting T015: Create data/raw/ structure and save checksums")
-
+    logger = get_logger("checksums_main")
     config = get_config()
     
-    # 1. Ensure directory structure
-    raw_dir = ensure_raw_directory(config)
+    raw_dir = config.get("paths.raw_data")
+    state_dir = config.get("paths.state")
     
-    # 2. Scan and hash
+    ensure_raw_directory(raw_dir)
     checksums = scan_and_hash_directory(raw_dir)
+    save_checksums(checksums, state_dir / "checksums_raw.json")
     
-    if not checksums:
-        logger.warning("No files found in data/raw/ to checksum. This may be expected if download hasn't run yet, but T010 should have populated this.")
-    
-    # 3. Save results
-    state_dir = config.get("paths", {}).get("state_root", Path("state"))
-    output_file = Path(state_dir) / "dataset_checksums.json"
-    
-    save_checksums(checksums, output_file)
-    
-    logger.info(f"T015 completed. Found {len(checksums)} files.")
+    logger.info("Done.")
     return 0
 
 
 if __name__ == "__main__":
-    exit(main())
+    import sys
+    sys.exit(main())

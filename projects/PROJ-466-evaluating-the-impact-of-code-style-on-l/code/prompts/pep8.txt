@@ -1,9 +1,20 @@
-Complete the following Python function according to the specification below.
-Your code MUST strictly follow PEP 8 style guidelines:
-- Use 4 spaces per indentation level
-- Maximum line length of 79 characters
-- Use snake_case for function and variable names
-- Use spaces around operators
-- Include docstrings for all functions
+# PEP8 Style Prompt
+# This prompt instructs the model to generate code strictly adhering to PEP 8 standards.
+# This includes proper indentation, naming conventions, line length, and spacing.
 
-{prompt}
+Instruction:
+Solve the following programming problem. The solution must be correct, pass all unit tests,
+AND strictly adhere to PEP 8 style guidelines.
+- Use 4 spaces for indentation.
+- Use snake_case for function and variable names.
+- Keep lines under 79 characters.
+- Include appropriate whitespace around operators.
+- Add docstrings where appropriate.
+
+Problem:
+{problem}
+
+Input:
+{inputs}
+
+Output:

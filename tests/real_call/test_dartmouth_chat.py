@@ -1,8 +1,4 @@
-"""Real-call: ChatDartmouth invocation (T032).
-
-Skipped unless LLMXIVE_REAL_TESTS=1. Issues exactly one chat completion
-against Dartmouth Chat with a tiny prompt and asserts response shape.
-"""
+"""Exercise the deployed primary on PRs and every configured free peer nightly."""
 
 from __future__ import annotations
 
@@ -10,49 +6,41 @@ import os
 
 import pytest
 
+from llmxive.backends.dartmouth import KNOWN_FREE_MODELS
+from llmxive.backends.router import DEFAULT_MODEL, MODEL_FALLBACKS, REASONING_MAX_TOKENS
+
+_MODELS = [
+    pytest.param(DEFAULT_MODEL, id="configured-primary"),
+    *(
+        pytest.param(model, id=model, marks=pytest.mark.slow)
+        for model in dict.fromkeys(MODEL_FALLBACKS.get(DEFAULT_MODEL, []))
+        if model != DEFAULT_MODEL and model in KNOWN_FREE_MODELS
+    ),
+]
+
 
 @pytest.mark.skipif(
     not os.environ.get("DARTMOUTH_CHAT_API_KEY"),
-    reason="DARTMOUTH_CHAT_API_KEY not set",
+    reason="DARTMOUTH_CHAT_API_KEY not set; live coverage unavailable",
 )
-def test_dartmouth_real_chat() -> None:
+@pytest.mark.parametrize("model_id", _MODELS)
+def test_dartmouth_real_chat(model_id: str) -> None:
     from llmxive.backends.base import ChatMessage
     from llmxive.backends.dartmouth import DartmouthBackend, is_free_model
 
     backend = DartmouthBackend()
     models = backend.list_models()
-    assert isinstance(models, list) and models, "list_models() should return >=1 model"
-
-    # v1 uses ONLY free Dartmouth models (Constitution Principle IV). The
-    # catalog also lists paid external providers (gpt-5, claude, gemini, ...)
-    # which DartmouthBackend.chat refuses, so this test must select a *free*
-    # model. Prefer the v1 default qwen.qwen3.5-122b. It is a *reasoning*
-    # model: it emits internal <think> tokens that count toward the
-    # completion budget but are stripped from .content. With too small a
-    # max_tokens the reasoning block consumes the entire budget and we
-    # get '' back with finish_reason=length — which dartmouth.py correctly
-    # surfaces as a TransientBackendError so the router falls through to a
-    # peer. So this test must give it a generous budget (see below).
-    # Fall back to gemma-4-31B (non-reasoning) or any other free model.
-    preferred = ("qwen.qwen3.5-122b", "google.gemma-4-31B-it")
-    model_id = next((m for m in preferred if m in models and is_free_model(m)), None)
-    if model_id is None:
-        free = [m for m in models if is_free_model(m)]
-        assert free, "no free Dartmouth model available in the catalog"
-        non_reasoning = [m for m in free if "gpt-oss" not in m and "reasoning" not in m.lower()]
-        model_id = (non_reasoning or free)[0]
-
-    # Reasoning models can burn 1-2K tokens on a <think> block even for a
-    # trivial prompt; 4096 leaves comfortable headroom for the answer.
+    assert model_id in models, f"configured model {model_id} missing from live catalog"
+    assert is_free_model(model_id), f"configured free model {model_id} is not free"
+    # Direct call: fallback must not hide a broken primary. Use the production
+    # reasoning allowance and deadline, not an artificial short timeout/budget.
     response = backend.chat(
         [ChatMessage(role="user", content="Reply with the single word OK.")],
         model=model_id,
-        max_tokens=4096,
+        max_tokens=REASONING_MAX_TOKENS,
         temperature=0.0,
     )
-    assert response.text.strip(), (
-        f"empty response from {model_id} — reasoning may have consumed the "
-        f"max_tokens budget; bump max_tokens or pick a non-reasoning model"
-    )
+    assert response.text.strip(), f"empty response from {model_id}"
+    assert response.model == model_id
     assert response.backend == "dartmouth"
     assert response.cost_estimate_usd == 0.0

@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Stimulus Complexity Record Schema"
+description: "Schema for data/interim/complexity_metrics.csv"
+type: "object"
+properties:
+  tr_index:
+    type: "integer"
+    description: "Timepoint index (TR index)."
+  entropy_regressor:
+    type: "number"
+    description: "HRF-convolved LBP entropy value."
+  fractal_regressor:
+    type: "number"
+    description: "HRF-convolved fractal dimension value."
+  luminance_regressor:
+    type: "number"
+    description: "HRF-convolved luminance value (covariate)."
+  contrast_regressor:
+    type: "number"
+    description: "HRF-convolved contrast value (covariate)."
+required:
+  - "tr_index"
+  - "entropy_regressor"
+  - "fractal_regressor"
+  - "luminance_regressor"
+  - "contrast_regressor"
+additionalProperties: false

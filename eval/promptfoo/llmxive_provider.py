@@ -3,13 +3,12 @@
 Why a custom provider instead of promptfoo's built-in ``openai:`` one:
 the router is the project's single LLM entry point (Constitution I) —
 it owns the free-model guard, per-model circuit breakers, peer-model
-fallback (qwen → gpt-oss → gemma), and the reasoning token budget.
+fallback across configured free peer models, and the reasoning token budget.
 Bypassing it would eval prompts under different serving semantics than
 production.
 
 Backend/model selection mirrors the real-call test suite:
-  - default: Dartmouth Chat + qwen.qwen3.5-122b (CI, where
-    DARTMOUTH_CHAT_API_KEY is available)
+  - default: Dartmouth Chat + the centrally configured primary model (CI)
   - override: LLMXIVE_EVAL_BACKEND=local + LLMXIVE_EVAL_MODEL=<hf-id>
     runs the identical code path through local transformers.
 
@@ -26,10 +25,10 @@ import os
 
 def call_api(prompt: str, options: dict, context: dict) -> dict:
     from llmxive.backends.base import ChatMessage
-    from llmxive.backends.router import REASONING_MAX_TOKENS, chat_with_fallback
+    from llmxive.backends.router import DEFAULT_MODEL, REASONING_MAX_TOKENS, chat_with_fallback
 
     backend = os.environ.get("LLMXIVE_EVAL_BACKEND", "dartmouth")
-    model = os.environ.get("LLMXIVE_EVAL_MODEL", "qwen.qwen3.5-122b")
+    model = os.environ.get("LLMXIVE_EVAL_MODEL", DEFAULT_MODEL)
     user_payload = str(
         ((context or {}).get("vars") or {}).get("user_payload")
         or "Review the supplied artifacts per the contract."
@@ -49,6 +48,9 @@ def call_api(prompt: str, options: dict, context: dict) -> dict:
         )
     except Exception as exc:  # surface backend failures as eval errors
         return {"error": f"{type(exc).__name__}: {exc}"}
+    if response.model != model:
+        return {"error": f"Requested model {model!r}, but provider returned {response.model!r}; "
+                         "a peer response cannot certify the configured prompt-eval model"}
     return {
         "output": response.text,
         "tokenUsage": {},

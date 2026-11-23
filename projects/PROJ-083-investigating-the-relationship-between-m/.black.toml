@@ -1,0 +1,3 @@
+# This file is a placeholder to ensure black respects the config in pyproject.toml.
+# Black primarily reads from pyproject.toml.
+# No specific overrides needed here.

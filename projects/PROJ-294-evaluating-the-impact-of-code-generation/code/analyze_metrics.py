@@ -1,134 +1,198 @@
 import os
+import sys
 import json
 import logging
 import subprocess
 import tempfile
-import sys
-from typing import Dict, List, Any, Optional
-from radon.complexity import cc_visit
-from radon.metrics import h_visit
-import xml.etree.ElementTree as ET
+from typing import Dict, Any, List, Optional
+from utils import setup_logging, get_logger, set_task_id, get_task_id, get_timestamp, get_unique_id
+from sandbox import run_test_suite
 
-def load_test_suites(code_samples: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    return code_samples
+# Global task context
+_task_id = None
 
-def calculate_code_metrics(code: str) -> Dict[str, Any]:
-    try:
-        # Cyclomatic Complexity
-        complexity_blocks = cc_visit(code)
-        cc_max = max([b.complexity for b in complexity_blocks], default=0)
-        cc_average = sum([b.complexity for b in complexity_blocks]) / len(complexity_blocks) if complexity_blocks else 0
+def set_task_id(task_id: str):
+    global _task_id
+    _task_id = task_id
+    setup_logging(task_id=task_id)
 
-        # Halstead Metrics
-        halstead_metrics = h_visit(code)
-        halstead_volume = halstead_metrics[0].volume if halstead_metrics else 0
+def get_task_id():
+    return _task_id
 
-        return {
-            "cyclomatic_complexity": cc_max,
-            "halstead_volume": halstead_volume
-        }
-    except Exception as e:
-        logging.error(f"Error calculating metrics: {e}")
-        return {"cyclomatic_complexity": -1, "halstead_volume": -1}
+def get_timestamp():
+    from datetime import datetime
+    return datetime.now().isoformat()
 
-def execute_test_suite(code: str, test_code: str) -> bool:
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-        f.write(code)
-        f.write("\n\n")
-        f.write(test_code)
-        temp_path = f.name
+def get_unique_id():
+    import uuid
+    return str(uuid.uuid4())
 
-    try:
-        result = subprocess.run(
-            [sys.executable, temp_path],
-            capture_output=True,
-            text=True,
-            timeout=30
+def setup_logging(task_id: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
+    global _task_id
+    if task_id:
+        _task_id = task_id
+    if not logging.root.handlers:
+        logging.basicConfig(
+            level=level,
+            format="%(asctime)s [%(levelname)s] [%(task_id)s] - %(message)s",
+            datefmt="%Y-%m-%d %H:%M:%S"
         )
-        return result.returncode == 0
-    except Exception:
-        return False
-    finally:
-        os.unlink(temp_path)
+    logger = logging.getLogger(__name__)
+    if not any(isinstance(f, logging.Filter) for f in logger.filters):
+        class TaskFilter(logging.Filter):
+            def filter(self, record):
+                record.task_id = _task_id or "UNKNOWN"
+                return True
+        logger.addFilter(TaskFilter())
+    return logger
 
-def execute_coverage_test(code: str, test_code: str) -> Optional[float]:
-    with tempfile.TemporaryDirectory() as tmpdir:
-        code_path = os.path.join(tmpdir, "module.py")
-        test_path = os.path.join(tmpdir, "test_module.py")
-        
-        with open(code_path, "w") as f:
-            f.write(code)
-        
-        with open(test_path, "w") as f:
-            f.write(test_code)
-        
-        try:
-            result = subprocess.run(
-                [sys.executable, "-m", "pytest", "--cov=module", "--cov-report=xml", test_path],
-                capture_output=True,
-                text=True,
-                cwd=tmpdir,
-                timeout=30
-            )
-            
-            xml_path = os.path.join(tmpdir, "coverage.xml")
-            if os.path.exists(xml_path):
-                tree = ET.parse(xml_path)
-                root = tree.getroot()
-                branch_coverage = float(root.get("branch-rate", 0)) * 100
-                return branch_coverage
-            return None
-        except Exception:
-            return None
+def get_logger(name: str = __name__) -> logging.Logger:
+    logger = logging.getLogger(name)
+    if not any(isinstance(f, logging.Filter) for f in logger.filters):
+        class TaskFilter(logging.Filter):
+            def filter(self, record):
+                record.task_id = _task_id or "UNKNOWN"
+                return True
+        logger.addFilter(TaskFilter())
+    return logger
 
-def analyze_batch_metrics(code_samples: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def log_info(msg: str):
+    logging.info(msg)
+
+def log_error(msg: str):
+    logging.error(msg)
+
+def log_warning(msg: str):
+    logging.warning(msg)
+
+def ensure_dirs():
+    """Ensure output directories exist."""
+    os.makedirs("data/analysis", exist_ok=True)
+    os.makedirs("data/generated", exist_ok=True)
+
+def load_human_reference_data() -> List[Dict[str, Any]]:
+    """Load human reference samples."""
+    path = "data/generated/human_samples.json"
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Human samples not found: {path}")
+    with open(path, "r") as f:
+        return [json.loads(line) for line in f]
+
+def load_generated_code_data() -> List[Dict[str, Any]]:
+    """Load generated code samples."""
+    path = "data/generated/codegen_samples.json"
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Generated samples not found: {path}")
+    with open(path, "r") as f:
+        return [json.loads(line) for line in f]
+
+def load_intermediate_metrics() -> Dict[str, Any]:
+    """Load intermediate metrics."""
+    path = "data/analysis/intermediate_metrics.json"
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Intermediate metrics not found: {path}")
+    with open(path, "r") as f:
+        return json.load(f)
+
+def save_intermediate_metrics(data: Dict[str, Any]):
+    """Save intermediate metrics."""
+    path = "data/analysis/intermediate_metrics.json"
+    with open(path, "w") as f:
+        json.dump(data, f, indent=2)
+
+def run_test_suite_in_sandbox(code: str, tests: str) -> bool:
+    """Run test suite in sandbox and return pass status."""
+    result = run_test_suite(code, tests, timeout=10)
+    return result.get("passed", False)
+
+def calculate_pass_rate(task_id: str, code: str, tests: str) -> float:
+    """Calculate pass rate for a single task."""
+    # In a real scenario, we would run multiple tests. 
+    # For HumanEval, the test string contains the assertions.
+    # We assume 1 test unit per task for this simplified metric.
+    if run_test_suite_in_sandbox(code, tests):
+        return 1.0
+    return 0.0
+
+def aggregate_pass_rates(samples: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Aggregate pass rates for a list of samples."""
     results = []
-    for sample in code_samples:
-        if sample.get("status") != "success" or not sample.get("generated_code"):
-            results.append({
-                "task_id": sample["task_id"],
-                "cyclomatic_complexity": -1,
-                "halstead_volume": -1,
-                "pass_rate": -1,
-                "branch_coverage_pct": -1
-            })
-            continue
-
-        code = sample["generated_code"]
-        test_code = sample.get("test", "")
-        
-        metrics = calculate_code_metrics(code)
-        pass_rate = 1 if execute_test_suite(code, test_code) else 0
-        branch_coverage = execute_coverage_test(code, test_code)
-        
+    for sample in samples:
+        pass_rate = calculate_pass_rate(
+            sample["task_id"], 
+            sample.get("generated_code") or sample.get("canonical_solution", ""), 
+            sample.get("test", "")
+        )
         results.append({
             "task_id": sample["task_id"],
-            "cyclomatic_complexity": metrics["cyclomatic_complexity"],
-            "halstead_volume": metrics["halstead_volume"],
-            "pass_rate": pass_rate,
-            "branch_coverage_pct": branch_coverage if branch_coverage is not None else -1
+            "pass_rate": pass_rate
         })
-    
     return results
 
 def main():
-    input_path = "data/generated/code_samples.json"
-    if not os.path.exists(input_path):
-        print(f"Error: {input_path} not found. Run generate_code.py first.")
-        return
+    logger = setup_logging(task_id="T017")
+    logger.info("Starting Metric Aggregation (T017)")
 
-    with open(input_path, "r", encoding="utf-8") as f:
-        samples = json.load(f)
+    try:
+        ensure_dirs()
+        human_samples = load_human_reference_data()
+        codegen_samples = load_generated_code_data()
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
 
-    print(f"Analyzing metrics for {len(samples)} samples...")
-    metrics = analyze_batch_metrics(samples)
+    # Process human samples
+    human_metrics = []
+    for sample in human_samples:
+        code = sample.get("canonical_solution", "")
+        tests = sample.get("test", "")
+        pass_rate = calculate_pass_rate(sample["task_id"], code, tests)
+        human_metrics.append({
+            "task_id": sample["task_id"],
+            "source_type": "human",
+            "pass_rate": pass_rate
+        })
 
-    output_path = "data/analysis/metrics.json"
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, "w", encoding="utf-8") as f:
-        json.dump(metrics, f, indent=2)
+    # Process codegen samples
+    codegen_metrics = []
+    for sample in codegen_samples:
+        code = sample.get("generated_code")
+        if not code:
+            continue
+        tests = sample.get("test", "")
+        pass_rate = calculate_pass_rate(sample["task_id"], code, tests)
+        codegen_metrics.append({
+            "task_id": sample["task_id"],
+            "source_type": "codegen",
+            "pass_rate": pass_rate
+        })
 
-    print(f"Metrics saved to {output_path}")
+    # Combine and save base metrics
+    base_metrics = human_metrics + codegen_metrics
+    with open("data/analysis/base_metrics.json", "w") as f:
+        json.dump(base_metrics, f, indent=2)
+    logger.info(f"Saved base_metrics.json with {len(base_metrics)} records")
+
+    # Filter valid metrics (pass_rate >= 0.80)
+    valid_metrics = [m for m in base_metrics if m["pass_rate"] >= 0.80]
+    valid_task_ids = [m["task_id"] for m in valid_metrics]
+
+    with open("data/analysis/valid_metrics.json", "w") as f:
+        json.dump(valid_metrics, f, indent=2)
+    with open("data/analysis/valid_task_ids.json", "w") as f:
+        json.dump(valid_task_ids, f, indent=2)
+    
+    logger.info(f"Saved valid_metrics.json ({len(valid_metrics)}) and valid_task_ids.json ({len(valid_task_ids)})")
+
+    # Create intermediate_metrics for downstream tasks
+    intermediate = {"base_metrics": base_metrics, "valid_metrics": valid_metrics}
+    save_intermediate_metrics(intermediate)
+    
+    # Create the main metrics.json file required by other tasks
+    with open("data/analysis/metrics.json", "w") as f:
+        json.dump(base_metrics, f, indent=2)
+    
+    logger.info("Metric Aggregation completed successfully.")
 
 if __name__ == "__main__":
     main()

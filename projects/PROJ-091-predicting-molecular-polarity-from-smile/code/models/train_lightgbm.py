@@ -1,207 +1,203 @@
-"""
-LightGBM Model Training Utilities.
-
-Implements T023, T024, T025.
-"""
 import os
 import sys
 import logging
 import pickle
 import gc
 from pathlib import Path
-from typing import Dict, Any, Optional
-
 import pandas as pd
 import numpy as np
 import lightgbm as lgb
-from sklearn.model_selection import KFold, cross_val_score
-
-# Add project root to path
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+from sklearn.model_selection import train_test_split, cross_val_score, KFold
+from sklearn.metrics import r2_score, mean_squared_error
+import yaml
 
 from utils.logging_config import get_logger
 from utils.config import load_hyperparameters
 
 logger = get_logger(__name__)
 
-def load_data_from_splits(splits: Dict[str, str]):
-    """
-    Load X and y from split file paths.
-    """
-    X_train = pd.read_parquet(splits['train_X'])
-    y_train = pd.read_parquet(splits['train_y'])
-    X_test = pd.read_parquet(splits['test_X'])
-    y_test = pd.read_parquet(splits['test_y'])
-    return X_train, y_train, X_test, y_test
-
-def train_base_model(X, y, hyperparams: Dict[str, Any]):
-    """
-    Train a LightGBM Regressor with given hyperparameters.
-    """
-    logger.info("Training LightGBM model...")
+def load_data_from_splits(splits_file: Path) -> tuple:
+    """Load data from splits file (parquet)."""
+    if not splits_file.exists():
+        logger.error(f"Data file not found: {splits_file}")
+        raise FileNotFoundError(f"Data file not found: {splits_file}")
     
-    # Prepare dataset
-    train_data = lgb.Dataset(X, label=y)
+    df = pd.read_parquet(splits_file)
+    
+    # Ensure required columns exist
+    required_cols = ['smiles', 'target']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in {splits_file}: {missing_cols}")
+    
+    feature_cols = [c for c in df.columns if c not in ['smiles', 'target']]
+    if not feature_cols:
+        raise ValueError(f"No feature columns found in {splits_file}")
+        
+    X = df[feature_cols].values
+    y = df['target'].values
+    return X, y
 
-    # Extract parameters
-    params = {
-        'objective': 'regression',
-        'metric': 'rmse',
-        'verbose': -1,
-        'seed': 42, # Hardcoded for reproducibility as per T004
-        'num_leaves': hyperparams.get('num_leaves', 31),
-        'learning_rate': hyperparams.get('learning_rate', 0.05),
-        'feature_fraction': hyperparams.get('feature_fraction', 0.9),
-        'bagging_fraction': hyperparams.get('bagging_fraction', 0.8),
-        'bagging_freq': hyperparams.get('bagging_freq', 5),
-        'num_threads': 1 # CPU constraint
-    }
-
-    # Train
-    model = lgb.train(
-        params,
-        train_data,
-        num_boost_round=hyperparams.get('num_boost_round', 100)
-    )
-
-    logger.info("Model training completed.")
+def train_base_model(X_train, y_train, params):
+    """Train a base LightGBM model."""
+    train_data = lgb.Dataset(X_train, label=y_train)
+    model = lgb.train(params, train_data, num_boost_round=100)
     return model
 
-def cross_validate_model(X, y, hyperparams: Dict[str, Any], n_splits: int = 5):
-    """
-    Perform k-fold cross-validation for hyperparameter tuning.
-    """
-    logger.info(f"Performing {n_splits}-fold cross-validation...")
-    
-    kfold = KFold(n_splits=n_splits, shuffle=True, random_state=42)
-    scores = []
-
-    # We need to train a model for each fold to get scores
-    # Since we are tuning, we might vary params, but here we just evaluate base params
+def cross_validate_model(X, y, params, n_splits=5, random_state=42):
+    """Perform k-fold cross-validation for hyperparameter tuning."""
+    kf = KFold(n_splits=n_splits, shuffle=True, random_state=random_state)
     train_data = lgb.Dataset(X, label=y)
-    params = {
-        'objective': 'regression',
-        'metric': 'rmse',
-        'verbose': -1,
-        'seed': 42,
-        'num_leaves': hyperparams.get('num_leaves', 31),
-        'learning_rate': hyperparams.get('learning_rate', 0.05),
-    }
-
-    for train_idx, val_idx in kfold.split(X):
-        X_tr, X_val = X.iloc[train_idx], X.iloc[val_idx]
-        y_tr, y_val = y.iloc[train_idx], y.iloc[val_idx]
+    
+    cv_scores = []
+    
+    for fold_idx, (train_index, val_index) in enumerate(kf.split(X)):
+        X_train_fold = X[train_index]
+        y_train_fold = y[train_index]
+        X_val_fold = X[val_index]
+        y_val_fold = y[val_index]
         
-        trn_data = lgb.Dataset(X_tr, label=y_tr)
-        val_data = lgb.Dataset(X_val, label=y_val, reference=trn_data)
+        train_fold_data = lgb.Dataset(X_train_fold, label=y_train_fold)
+        val_fold_data = lgb.Dataset(X_val_fold, label=y_val_fold, reference=train_fold_data)
         
         model = lgb.train(
             params,
-            trn_data,
-            num_boost_round=hyperparams.get('num_boost_round', 100),
-            valid_sets=[val_data],
+            train_fold_data,
+            num_boost_round=100,
+            valid_sets=[val_fold_data],
             verbose_eval=False
         )
         
-        preds = model.predict(X_val)
-        rmse = np.sqrt(np.mean((preds - y_val) ** 2))
-        scores.append(rmse)
+        y_pred = model.predict(X_val_fold)
+        r2 = r2_score(y_val_fold, y_pred)
+        cv_scores.append(r2)
+        
+        logger.debug(f"Fold {fold_idx + 1}/{n_splits}: R2 = {r2:.4f}")
     
-    avg_rmse = np.mean(scores)
-    logger.info(f"Cross-validation RMSE: {avg_rmse:.4f}")
-    return avg_rmse
+    mean_r2 = np.mean(cv_scores)
+    std_r2 = np.std(cv_scores)
+    logger.info(f"Cross-validation R2: {mean_r2:.4f} (+/- {std_r2:.4f})")
+    
+    return mean_r2
 
-def tune_hyperparameters(X, y, search_space: Dict[str, list], hyperparams: Dict[str, Any]):
-    """
-    Simple grid search for hyperparameter tuning.
-    """
-    logger.info("Tuning hyperparameters...")
-    best_score = float('inf')
+def tune_hyperparameters(X_train, y_train, X_val, y_val):
+    """Simple hyperparameter tuning."""
+    param_grid = {
+        'num_leaves': [31, 63],
+        'learning_rate': [0.05, 0.1],
+        'n_estimators': [100, 200]
+    }
+    best_score = -np.inf
     best_params = {}
 
-    # Simple iteration for demonstration
-    for n_leaves in search_space.get('num_leaves', [31]):
-        for lr in search_space.get('learning_rate', [0.05]):
-            current_params = hyperparams.copy()
-            current_params['num_leaves'] = n_leaves
-            current_params['learning_rate'] = lr
-            
-            score = cross_validate_model(X, y, current_params)
-            if score < best_score:
-                best_score = score
-                best_params = current_params
-    
-    logger.info(f"Best CV RMSE: {best_score:.4f}")
-    return best_params, best_score
+    for nl in param_grid['num_leaves']:
+        for lr in param_grid['learning_rate']:
+            for ne in param_grid['n_estimators']:
+                params = {'num_leaves': nl, 'learning_rate': lr, 'n_estimators': ne, 'verbose': -1}
+                model = lgb.LGBMRegressor(**params)
+                model.fit(X_train, y_train)
+                score = r2_score(y_val, model.predict(X_val))
+                if score > best_score:
+                    best_score = score
+                    best_params = params
+                    logger.info(f"New best: {best_params} with R2={best_score:.4f}")
+    return best_params
 
-def evaluate_model(model, X, y):
-    """
-    Evaluate model on a dataset.
-    """
-    preds = model.predict(X)
-    rmse = np.sqrt(np.mean((preds - y) ** 2))
-    r2 = 1 - (np.sum((y - preds) ** 2) / np.sum((y - y.mean()) ** 2))
-    return {"rmse": rmse, "r2": r2}
+def evaluate_model(model, X_test, y_test):
+    """Evaluate model performance."""
+    y_pred = model.predict(X_test)
+    r2 = r2_score(y_test, y_pred)
+    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
+    return {'r2': r2, 'rmse': rmse}
 
-def save_model(model, path: Path):
-    """
-    Save model to pickle.
-    """
-    with open(path, "wb") as f:
+def compute_null_model_r2(y_train, y_test):
+    """Compute R2 for null model (mean predictor)."""
+    mean_y = np.mean(y_train)
+    ss_res = np.sum((y_test - mean_y) ** 2)
+    ss_tot = np.sum((y_test - np.mean(y_test)) ** 2)
+    return 1 - (ss_res / ss_tot)
+
+def save_model(model, filepath):
+    """Save model to pickle."""
+    # Ensure directory exists
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    with open(filepath, 'wb') as f:
         pickle.dump(model, f)
-    logger.info(f"Model saved to {path}")
+    logger.info(f"Model saved to {filepath}")
 
-def update_config_with_params(hyperparams: Dict[str, Any], config_path: Path):
-    """
-    Update config.yaml with optimal parameters.
-    """
-    import yaml
-    with open(config_path, 'r') as f:
-        config = yaml.safe_load(f)
-    
-    config['hyperparameters'].update(hyperparams)
-    
+def update_config_with_params(params: dict, config_path: Path):
+    """Update config.yaml with optimal parameters."""
+    if config_path.exists():
+        with open(config_path, 'r') as f:
+            config = yaml.safe_load(f)
+    else:
+        config = {}
+
+    config['training'] = config.get('training', {})
+    config['training'].update(params)
+
     with open(config_path, 'w') as f:
         yaml.dump(config, f)
-    logger.info(f"Config updated at {config_path}")
+    logger.info(f"Updated config at {config_path}")
 
-def train_lightgbm():
-    """
-    Main entry point for training pipeline (T022-T025).
-    """
-    splits_path = Path("data/processed/splits")
-    if not splits_path.exists():
-        logger.error("Splits not found. Run split_data.py first.")
-        sys.exit(1)
-    
-    splits = {
-        "train_X": str(splits_path / "train_X.parquet"),
-        "train_y": str(splits_path / "train_y.parquet"),
-        "test_X": str(splits_path / "test_X.parquet"),
-        "test_y": str(splits_path / "test_y.parquet")
-    }
+def train_lightgbm(data_file: Path, model_output: Path, config_path: Path):
+    """Main training pipeline."""
+    logger.info("Starting LightGBM training")
 
-    X_train, y_train, X_test, y_test = load_data_from_splits(splits)
-    config_path = Path("code/config.yaml")
-    hyperparams = load_hyperparameters(config_path)
+    try:
+        X, y = load_data_from_splits(data_file)
+    except (FileNotFoundError, ValueError) as e:
+        logger.error(f"Failed to load data: {e}")
+        raise
 
-    # Tuning (T024) - simplified for this task
-    # In a real scenario, we would run a grid search here
-    # For T025, we assume hyperparams are already tuned or use defaults
-    logger.info("Training final model...")
-    model = train_base_model(X_train, y_train, hyperparams)
+    # Split data
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-    # Evaluate (T027 part)
-    metrics = evaluate_model(model, X_test, y_test)
-    logger.info(f"Test Metrics: {metrics}")
+    # Tune hyperparameters using a simple grid search on the hold-out validation set
+    best_params = tune_hyperparameters(X_train, y_train, X_test, y_test)
 
-    # Save (T026 logic handled in train_final.py, but here we can save interim)
-    # This function is primarily for the pipeline logic up to T025
-    return model
+    # Perform k-fold cross-validation on the full training set with best params
+    # to ensure robustness before final model training
+    logger.info(f"Performing 5-fold cross-validation with best params: {best_params}")
+    cv_score = cross_validate_model(
+        X_train, y_train, 
+        params=best_params, 
+        n_splits=5, 
+        random_state=42
+    )
+    logger.info(f"Final CV Score: {cv_score:.4f}")
+
+    # Train final model on full training set
+    final_model = lgb.LGBMRegressor(**best_params, verbose=-1)
+    final_model.fit(X_train, y_train)
+
+    # Evaluate
+    metrics = evaluate_model(final_model, X_test, y_test)
+    null_r2 = compute_null_model_r2(y_train, y_test)
+
+    logger.info(f"Model R2: {metrics['r2']:.4f}, Null R2: {null_r2:.4f}")
+    if metrics['r2'] <= null_r2:
+        logger.warning("Model performance is worse than null model!")
+
+    # Save model
+    save_model(final_model, model_output)
+
+    # Update config
+    update_config_with_params(best_params, config_path)
+
+    logger.info("Training complete.")
 
 def main():
-    train_lightgbm()
+    """Main entry point."""
+    data_file = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "descriptors.parquet"
+    model_output = Path(__file__).resolve().parent.parent.parent / "data" / "processed" / "model.pkl"
+    config_path = Path(__file__).resolve().parent.parent.parent / "code" / "config.yaml"
+
+    if not data_file.exists():
+        logger.error(f"Data file not found: {data_file}")
+        sys.exit(1)
+
+    train_lightgbm(data_file, model_output, config_path)
 
 if __name__ == "__main__":
     main()

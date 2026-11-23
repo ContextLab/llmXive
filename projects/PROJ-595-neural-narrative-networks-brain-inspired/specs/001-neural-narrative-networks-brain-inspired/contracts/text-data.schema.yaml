@@ -13,18 +13,25 @@ properties:
   sample_size:
     type: integer
     minimum: 1
-    description: "Number of stories used in the experiment."
+    description: "Number of stories used in the experiment (intersection size)."
   format:
     type: string
     const: "jsonl"
     description: "File format."
   checksum:
     type: string
-    description: "SHA-256 hash of the file content."
+    description: "SHA‑256 hash of the file content."
+  event_boundary_method:
+    type: string
+    enum:
+      - "provided"
+      - "inferred_nltk"
+    description: "Method used for event boundaries."
 required:
   - file_path
   - total_stories
   - sample_size
   - format
   - checksum
+  - event_boundary_method
 additionalProperties: false

@@ -1,0 +1,14 @@
+status: none
+intent: AMS-02 daily rigidity binned cosmic ray flux dataset with SILSO sunspot numbers
+  python package dataset
+required_fields:
+- date
+- rigidity_bin_lower
+- rigidity_bin_upper
+- proton_flux
+- helium_flux
+- heavy_flux_cno_fe
+- sunspot_number
+cache_key: 55e7fdfa6086df7d40ace67943530a74043b16a40aea465849506e53daaa2197
+searched_at: '2026-10-09T09:18:14.225790+00:00'
+retry_count: 1

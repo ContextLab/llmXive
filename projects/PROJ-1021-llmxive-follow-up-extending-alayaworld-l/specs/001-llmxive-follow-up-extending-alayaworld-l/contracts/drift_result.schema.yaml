@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Drift Result"
+description: "Aggregated metrics for a single sequence."
+type: "object"
+required:
+  - "sequence_id"
+  - "mode"
+  - "drift_score"
+  - "permanence_violations"
+  - "phantom_objects"
+  - "cv_accuracy"
+  - "is_valid"
+  - "resource_usage"
+  - "stationarity_check_method"
+  - "stationarity_p_value"
+properties:
+  sequence_id:
+    type: "string"
+    description: "Unique identifier."
+  mode:
+    type: "string"
+    enum:
+      - "baseline"
+      - "hybrid"
+    description: "Mode of execution."
+  drift_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized drift score (0.0 - 1.0)."
+  permanence_violations:
+    type: "integer"
+    minimum: 0
+    description: "Count of objects alive in video but dead in logic."
+  phantom_objects:
+    type: "integer"
+    minimum: 0
+    description: "Count of objects in video but not in logic."
+  cv_accuracy:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Validation accuracy (from FR-007)."
+  is_valid:
+    type: "boolean"
+    description: "True if cv_accuracy ≥ 0.85."
+  stationarity_check_method:
+    type: "string"
+    description: "Method used for stationarity check (e.g., 'Variance Check')."
+  stationarity_p_value:
+    type: "number"
+    description: "P-value from the stationarity check (Shapiro-Wilk)."
+  resource_usage:
+    type: "object"
+    required:
+      - "peak_ram_mb"
+      - "wall_clock_seconds"
+    properties:
+      peak_ram_mb:
+        type: "number"
+        minimum: 0.0
+        description: "Peak RAM in MB."
+      wall_clock_seconds:
+        type: "number"
+        minimum: 0.0
+        description: "Wall-clock time in seconds."
+additionalProperties: false

@@ -1,0 +1,30 @@
+T001:
+  c: true
+  h: 5ee2806a6cea75abe776f7bb1c681fc24191ae43d871814eaa8852b5c983f2eb
+  r: "The directory hierarchy (code/data, code/analysis, code/viz, code/tests, data/raw,\
+    \ data/processed, results, figures) exists as listed, the quickstart markdown\
+    \ at `specs/001-quantifying-correlations-between-solar-w/quickstart.md` contains\
+    \ the exact line `python -m code.main --stage all`, and the log `code/.tasks/T001.code_main.py.log`\
+    \ confirms that `python -m code.main --help` runs successfully with exit code\u202F\
+    0."
+  sig: edf07770b35a1ed272a824609bd1ba624d0d2bf89d7d8b6fe3fcebda0b49d516
+T003:
+  c: false
+  h: dbae956e04fd0efe1a0bd3c0c2c40550cbc39e9a5bbdf4525db2c38efdd93f50
+  r: The required test `code/tests/test_sync.py` is MISSING, so the mandated verification
+    (`pytest code/tests/test_sync.py::test_sync_monthly`) cannot pass. The output
+    `data/processed/synced.csv` contains only 24 rows covering a single day (2003-10-01)
+    of obviously synthetic, perfectly-linear fixture data (no real ACE/NOAA raw data
+    exists in `data/raw/`), not a representative month of real data; the fixture fallback
+    fabricates the "real data" requirement. Additionally, no interpolated rows exist
+    (all `interpolated_flag=False`), so the gap-interpolation behavior is untested/undemonstrated,
+    and the s
+  sig: e1e2737addb6df3af958c7842d139ce25ed4510f042cea4fd2b52487d79ea483
+T005:
+  c: false
+  h: 58b418a2cc42df68ff97c0487ecc9331459d9653698b02507efd69cd0785c4ab
+  r: "The provided `code/data/fetch.py` is a full implementation with many helper\
+    \ functions and download logic, not a minimal stub containing only empty `fetch_ace(start_date,\
+    \ end_date) -> str` and `fetch_noaa(start_date, end_date) -> str` that simply\
+    \ return the hard\u2011coded paths. Consequently the file does not meet the task\u2019\
+    s specification."

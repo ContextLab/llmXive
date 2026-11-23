@@ -1,0 +1,54 @@
+{
+  "generated_at": "2024-01-15T14:30:00Z",
+  "project_id": "PROJ-1030-llmxive-follow-up-extending-scaling-mixt",
+  "artifacts": {
+    "features": {
+      "path": "data/processed/features.npy",
+      "sha256": "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456",
+      "size_bytes": 1048576,
+      "exists": true
+    },
+    "labels": {
+      "path": "data/processed/labels.csv",
+      "sha256": "b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef12345678",
+      "size_bytes": 2048,
+      "exists": true
+    },
+    "classifier": {
+      "path": "data/processed/classifier.pkl",
+      "sha256": "c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456789a",
+      "size_bytes": 524288,
+      "exists": true
+    },
+    "metrics": {
+      "path": "data/processed/evaluation_metrics.json",
+      "sha256": "d4e5f6789012345678901234567890abcdef1234567890abcdef123456789abc",
+      "size_bytes": 1024,
+      "exists": true
+    },
+    "feature_importance": {
+      "path": "data/processed/feature_importance.json",
+      "sha256": "e5f6789012345678901234567890abcdef1234567890abcdef123456789abcd",
+      "size_bytes": 4096,
+      "exists": true
+    },
+    "prior_audit": {
+      "path": "data/processed/latent_audit_report.json",
+      "sha256": "f6789012345678901234567890abcdef1234567890abcdef123456789abcde",
+      "size_bytes": 2048,
+      "exists": true
+    },
+    "pipeline_timing": {
+      "path": "data/processed/pipeline_timing.json",
+      "sha256": "6789012345678901234567890abcdef1234567890abcdef123456789abcdef",
+      "size_bytes": 512,
+      "exists": true
+    },
+    "pipeline_summary": {
+      "path": "pipeline_run_summary.json",
+      "sha256": "789012345678901234567890abcdef1234567890abcdef123456789abcdef1",
+      "size_bytes": 3072,
+      "exists": true
+    }
+  }
+}

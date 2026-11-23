@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.06907",
+  "judged_at": "2026-08-09T06:25:52Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"minwm: a full-stack open-source framework for real-time interactive vi\" computer science",
+  "rationale": "The paper focuses on computer vision tasks (image annotation and retrieval) using dictionary learning, which is an off-domain application compared to the user's question about extending a real-time interactive visual interface framework for Large Language Models (LLMs). While both mention \"real-time\" and \"visual,\" the underlying mechanisms, data modalities (static images vs. interactive LLM agents), and research goals are distinct, failing to meet the criteria for same-mechanism evidence or shar",
+  "relevant": false
+}

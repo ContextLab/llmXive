@@ -1,104 +1,124 @@
 """
-Unit tests for code/data/compute/solvent_models.py (T029)
+Unit tests for T029: Solvent Model Data Generation.
+Verifies partitioning logic and CSV generation.
 """
+import os
+import sys
 import pytest
 import math
-from unittest.mock import patch, MagicMock
 from pathlib import Path
-import sys
-import os
+import csv
+import tempfile
+import json
 
 # Add project root to path
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from data.compute.solvent_models import partition_solvent_models, generate_solvent_models, _fetch_dft_solvation_energy_implicit
+from code.data.compute.solvent_models import partition_solvent_models, generate_solvent_models, write_solvent_models_csv
+from code.config import get_compute_data_path
 
-class TestPartitionSolventModels:
-    """Tests for the partitioning logic (FR-005 compliance)."""
+def test_partition_logic_small_n():
+    """Test partitioning for small N (N < 5)."""
+    # N=1: Implicit=1, Explicit=0
+    i, e = partition_solvent_models(['A'])
+    assert len(i) == 1
+    assert len(e) == 0
 
-    def test_partition_small_set(self):
-        """Test partitioning with N=5 (minimum for 20% rule)."""
-        solvents = ["A", "B", "C", "D", "E"]
-        implicit, explicit = partition_solvent_models(solvents, seed=42)
-        
-        # 5 * 0.8 = 4.0 -> floor = 4 implicit
-        # Remainder = 1 explicit
-        # 1/5 = 20% -> satisfies >= 20%
-        assert len(implicit) == 4
-        assert len(explicit) == 1
-        assert len(implicit) + len(explicit) == 5
+    # N=2: Implicit=1, Explicit=1
+    i, e = partition_solvent_models(['A', 'B'])
+    assert len(i) == 1
+    assert len(e) == 1
 
-    def test_partition_ensures_explicit_minimum(self):
-        """Verify that explicit count is at least ceil(N*0.2) for N >= 5."""
-        # Test with N=10
-        # floor(10*0.8) = 8 implicit, 2 explicit (20%) -> OK
-        # Test with N=12
-        # floor(12*0.8) = 9 implicit, 3 explicit (25%) -> OK
-        # Test with N=13
-        # floor(13*0.8) = 10 implicit, 3 explicit (23%) -> OK
-        
-        for n in range(5, 20):
-            solvents = [f"S{i}" for i in range(n)]
-            implicit, explicit = partition_solvent_models(solvents, seed=42)
-            
-            total = len(implicit) + len(explicit)
-            assert total == n, f"Total count mismatch for N={n}"
-            
-            min_explicit = math.ceil(n * 0.2)
-            assert len(explicit) >= min_explicit, f"Explicit count {len(explicit)} < {min_explicit} for N={n}"
+    # N=3: Implicit=2, Explicit=1
+    i, e = partition_solvent_models(['A', 'B', 'C'])
+    assert len(i) == 2
+    assert len(e) == 1
 
-    def test_partition_empty_list(self):
-        """Test with empty list."""
-        implicit, explicit = partition_solvent_models([], seed=42)
-        assert len(implicit) == 0
-        assert len(explicit) == 0
+    # N=4: Implicit=3, Explicit=1
+    i, e = partition_solvent_models(['A', 'B', 'C', 'D'])
+    assert len(i) == 3
+    assert len(e) == 1
 
-    def test_partition_deterministic(self):
-        """Test that same seed yields same partition."""
-        solvents = ["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"]
-        
-        imp1, exp1 = partition_solvent_models(solvents, seed=123)
-        imp2, exp2 = partition_solvent_models(solvents, seed=123)
-        
-        assert imp1 == imp2
-        assert exp1 == exp2
+def test_partition_logic_large_n():
+    """Test partitioning for larger N (N >= 5)."""
+    # N=5: floor(4.0) = 4 Implicit, 1 Explicit (20%)
+    i, e = partition_solvent_models(['A', 'B', 'C', 'D', 'E'])
+    assert len(i) == 4
+    assert len(e) == 1
+    assert (len(e) / 5) >= 0.20
 
-class TestGenerateSolventModels:
-    """Tests for the model generation logic."""
+    # N=10: floor(8.0) = 8 Implicit, 2 Explicit (20%)
+    i, e = partition_solvent_models(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J'])
+    assert len(i) == 8
+    assert len(e) == 2
+    assert (len(e) / 10) >= 0.20
 
-    @patch('data.compute.solvent_models.get_all_solvents')
-    @patch('data.compute.solvent_models.get_solvent_properties')
-    def test_generate_uses_all_solvents_if_none_provided(self, mock_get_props, mock_get_all):
-        """Test that generate_solvent_models uses all solvents if list is None."""
-        mock_get_all.return_value = ["Acetone", "Benzene"]
-        mock_get_props.side_effect = lambda name: {
-            "name": name,
-            "dielectric_constant": 20.0 if name == "Acetone" else 2.3
+    # N=11: floor(8.8) = 8 Implicit, 3 Explicit (~27%)
+    i, e = partition_solvent_models(['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K'])
+    assert len(i) == 8
+    assert len(e) == 3
+
+def test_partition_logic_minimum_explicit():
+    """Test that minimum explicit count is enforced if possible."""
+    # N=3: 2 Implicit, 1 Explicit. If we force min 2 explicit, we need 1 implicit.
+    # The logic in generate_solvent_models says: if explicit < 2 and N >= 2, force 2 explicit.
+    # Let's re-verify the logic in the code:
+    # implicit = floor(3 * 0.8) = 2. explicit = 1.
+    # if 1 < 2 and 3 >= 2: explicit = 2, implicit = 1.
+    i, e = partition_solvent_models(['A', 'B', 'C'])
+    # Wait, the function logic in the code:
+    # implicit_count = floor(3 * 0.8) = 2
+    # explicit_count = 1
+    # if explicit_count < 2 and n_total >= 2: explicit_count = 2, implicit_count = 1
+    assert len(i) == 1
+    assert len(e) == 2
+
+def test_generate_solvent_models_structure():
+    """Test that generate_solvent_models returns correct structure."""
+    solvents = ['benzene', 'acetone', 'water', 'ethanol', 'toluene']
+    results = generate_solvent_models(solvents)
+    
+    assert len(results) == 5
+    
+    # Check keys
+    required_keys = {
+        'solvent_name', 'model_type', 'method', 'dielectric_constant',
+        'delta_g_solv_kcal_mol', 'uncertainty_kcal_mol', 'computation_time_seconds'
+    }
+    
+    for r in results:
+        assert set(r.keys()) >= required_keys
+        assert r['model_type'] in ['Implicit', 'Explicit']
+        assert r['method'] in ['SMD', 'QM/MM']
+        assert isinstance(r['delta_g_solv_kcal_mol'], float)
+        assert isinstance(r['uncertainty_kcal_mol'], float)
+
+def test_write_csv(tmp_path):
+    """Test writing results to CSV."""
+    results = [
+        {
+            "solvent_name": "benzene",
+            "model_type": "Implicit",
+            "method": "SMD",
+            "dielectric_constant": 2.3,
+            "delta_g_solv_kcal_mol": -12.5,
+            "uncertainty_kcal_mol": 0.5,
+            "computation_time_seconds": 120
         }
-        
-        results = generate_solvent_models(solvent_names=None, seed=42)
-        
-        assert len(results) == 2
-        solvents_in_results = [r['solvent_name'] for r in results]
-        assert "Acetone" in solvents_in_results
-        assert "Benzene" in solvents_in_results
+    ]
+    
+    output_file = tmp_path / "test_output.csv"
+    write_solvent_models_csv(results, output_file)
+    
+    assert output_file.exists()
+    
+    with open(output_file, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    
+    assert len(rows) == 1
+    assert rows[0]['solvent_name'] == 'benzene'
+    assert rows[0]['model_type'] == 'Implicit'
 
-    @patch('data.compute.solvent_models.get_solvent_properties')
-    def test_generate_skips_missing_properties(self, mock_get_props):
-        """Test that missing solvent properties are skipped."""
-        mock_get_props.return_value = None
-        
-        results = generate_solvent_models(["MissingSolvent"], seed=42)
-        
-        assert len(results) == 0
-
-    def test_implicit_energy_physical_trend(self):
-        """Test that implicit energy correlates with dielectric constant."""
-        # Low dielectric -> less negative energy
-        e_low = _fetch_dft_solvation_energy_implicit("LowE", 2.0)
-        # High dielectric -> more negative energy
-        e_high = _fetch_dft_solvation_energy_implicit("HighE", 80.0)
-        
-        # The function implements: E ~ - (eps-1)/(2eps+1)
-        # As eps increases, the factor approaches 0.5, so energy becomes more negative.
-        assert e_high < e_low, "High dielectric should yield more negative solvation energy"
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

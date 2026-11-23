@@ -1,0 +1,17 @@
+status: none
+intent: Earth Microbiome Project MG-RAST agricultural soil microbiome plant disease
+  incidence dataset python package dataset
+required_fields:
+- sample_id
+- otu_counts
+- asv_counts
+- taxa
+- plant_species
+- latitude
+- longitude
+- soil_type
+- disease_incidence_rate
+- collection_date
+cache_key: 872be2e7c167b930bda591f01d6a725a4d1783b1fb25c619031cb84954515e18
+searched_at: '2026-08-30T07:15:43.014953+00:00'
+retry_count: 1

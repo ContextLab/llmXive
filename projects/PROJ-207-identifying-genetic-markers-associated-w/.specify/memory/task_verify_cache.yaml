@@ -1,0 +1,26 @@
+T001:
+  c: true
+  h: f0563501963e8d6534d6899ab8768a830815ad6859e22e7c2bc6b4fceae792c0
+  r: All required directories (code/, data/raw/, data/interim/, data/processed/, docs/,
+    tests/) exist and are non-empty, matching the task's mkdir specification. The
+    verification test `tests/test_project_layout.py::test_directories_created` passed
+    (exit 0) per the execution log, confirming the layout requirement.
+  sig: 769bfc7ccfe8217e60bcfe2fed254ce2138be699a441175b1b7024c6570bbb52
+T002:
+  c: true
+  h: 2c45aec2a1e07a56a2e9257711d3313f63da81516e82daab67358c1d0bbf8ac0
+  r: The `requirements.txt` exists (756 bytes) and contains all required packages
+    with pinned versions, including plink2, freebayes, bwa, scikit-learn (verified
+    via the file contents matching the grep pattern), plus samtools, pandas, numpy,
+    statsmodels, pyyaml, requests, and biopython. The non-pip tools are documented
+    with a conda install command, which is a reasonable interpretation of the manifest
+    requirement.
+  sig: f46f9fa33befc949dc14aecd44cb90776358c296ab61ef01b0a44926d923520c
+T017:
+  c: true
+  h: b8dd413a92037ea0c6fa8f10839527bd5ab205089be3931571dcc6fd598fd75e
+  r: "The `code/03_gwas.sh` script exists, is non\u2011empty, and contains a full\
+    \ PLINK logistic\u2011regression command that uses the mandatory covariates and\
+    \ writes results to `data/interim/gwas_raw.tsv` (renaming the PLINK output if\
+    \ needed). No placeholder or missing logic is present. The absence of the output\
+    \ file is expected until the script is run."

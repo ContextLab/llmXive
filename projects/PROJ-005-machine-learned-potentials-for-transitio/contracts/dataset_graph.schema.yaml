@@ -1,143 +1,113 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: TransitionStateGraph
-description: >
-  Schema defining the structure of Transition State Graphs for
-  machine-learned potentials in transition-metal catalysis.
-  Nodes represent atoms, edges represent interactions within a cutoff.
-type: object
-required:
-  - nodes
-  - edges
-  - energy_dft
-  - barrier_height
-  - metadata
-properties:
-  nodes:
-    type: array
-    description: List of atom nodes with their features.
-    items:
-      type: object
-      required:
-        - atomic_number
-        - formal_charge
-        - position
-      properties:
-        atomic_number:
-          type: integer
-          description: Atomic number (e.g., 46 for Pd, 28 for Ni, 29 for Cu).
-          minimum: 1
-        formal_charge:
-          type: integer
-          description: Formal charge of the atom.
-          default: 0
-        position:
-          type: array
-          description: Cartesian coordinates (x, y, z) in Angstroms.
-          items:
-            type: number
-          minItems: 3
-          maxItems: 3
-        coordination_number:
-          type: number
-          description: >
-            Calculated coordination number based on distance cutoff (default 3.5 Å).
-            Used for outlier detection (flag if > 6).
-        element_symbol:
-          type: string
-          description: Element symbol derived from atomic_number (e.g., 'Pd', 'C', 'H').
-    minItems: 1
+# Schema Definition: TransitionStateGraph
+# Project: PROJ-005-machine-learned-potentials-for-transition-metal-catalysis
+# Task: T008
+#
+# This schema defines the structure of the graph data used for training
+# machine-learned potentials on transition metal catalysis datasets.
+# It corresponds to the data structure produced by src/data/graph_construction.py
+# and validated by src/data/validate_graphs.py.
 
-  edges:
-    type: array
-    description: List of edges representing atom-atom interactions within cutoff.
-    items:
-      type: object
-      required:
-        - source
-        - target
-        - distance
-      properties:
-        source:
-          type: integer
-          description: Index of the source node in the nodes array.
-        target:
-          type: integer
-          description: Index of the target node in the nodes array.
-        distance:
-          type: number
-          description: Euclidean distance between source and target in Angstroms.
-          minimum: 0.0
-        edge_type:
-          type: string
-          description: Classification of the edge (e.g., 'bond', 'interaction').
-          default: 'interaction'
-    minItems: 0
+schema_name: TransitionStateGraph
+version: "1.0.0"
+description: |
+  Represents a transition state geometry as a graph where nodes are atoms
+  and edges represent bonds or spatial proximity within a cutoff distance.
+  Includes DFT-computed energy and barrier height labels.
 
-  energy_dft:
-    type: number
-    description: >
-      Total energy of the transition state calculated via DFT (Hartree or eV).
-      Unit must be specified in metadata.
-    minimum: -999999999.0
+node_attributes:
+  - name: atomic_number
+    type: integer
+    description: Atomic number (Z) of the atom (e.g., 6 for Carbon, 46 for Palladium).
+    required: true
+    constraints:
+      min: 1
+      max: 118
 
-  barrier_height:
-    type: number
-    description: >
-      Activation barrier height relative to the reactant state (Hartree or eV).
-      Calculated as E_TS - E_reactant.
-    minimum: 0.0
+  - name: formal_charge
+    type: integer
+    description: Formal charge assigned to the atom.
+    required: true
+    default: 0
 
-  metadata:
-    type: object
-    description: Metadata regarding the reaction and graph construction.
-    required:
-      - reaction_id
-      - ligand_class
-      - cutoff_used
-      - unit
-    properties:
-      reaction_id:
-        type: string
-        description: Unique identifier for the reaction step (e.g., 'QM9-TS-00123').
-      ligand_class:
-        type: string
-        description: >
-          Classification of the ligand environment.
-          Allowed values: 'Group 13', 'Conventional', 'Unknown'.
-        enum:
-          - Group 13
-          - Conventional
-          - Unknown
-      cutoff_used:
-        type: number
-        description: Distance cutoff in Angstroms used to define edges.
-        default: 3.5
-      unit:
-        type: string
-        description: Energy unit for energy_dft and barrier_height.
-        enum:
-          - Hartree
-          - eV
-      source_dataset:
-        type: string
-        description: Name of the source dataset (e.g., 'QM9-TS').
-      metal_center:
-        type: integer
-        description: Atomic number of the transition metal center.
-      outlier_flag:
-        type: boolean
-        description: >
-          True if the sample has coordination number > 6 and should be
-          excluded from training but retained for testing.
-          Default: false.
+  - name: element_symbol
+    type: string
+    description: Chemical symbol of the element (e.g., "C", "Pd", "O").
+    required: true
+    pattern: "^[A-Z][a-z]?$"
 
-  graph_stats:
-    type: object
-    description: Optional computed statistics for the graph.
-    properties:
-      num_nodes:
-        type: integer
-      num_edges:
-        type: integer
-      max_coordination:
-        type: number
+  - name: ligand_class
+    type: string
+    description: Classification of the ligand the atom belongs to.
+    required: true
+    allowed_values:
+      - "Group_13"
+      - "Conventional"
+      - "Metal_Center"
+      - "Other"
+
+  - name: x
+    type: float
+    description: Cartesian coordinate X (Angstroms).
+    required: true
+
+  - name: y
+    type: float
+    description: Cartesian coordinate Y (Angstroms).
+    required: true
+
+  - name: z
+    type: float
+    description: Cartesian coordinate Z (Angstroms).
+    required: true
+
+edge_attributes:
+  - name: distance
+    type: float
+    description: Euclidean distance between connected nodes (Angstroms).
+    required: true
+    constraints:
+      min: 0.0
+
+  - name: edge_index
+    type: tuple(integer, integer)
+    description: Indices of the source and target nodes in the node array.
+    required: true
+
+graph_level_attributes:
+  - name: energy_dft
+    type: float
+    description: Total energy of the system calculated via DFT (eV or kcal/mol, unit specified in metadata).
+    required: true
+    unit: "eV" # Default unit, can be overridden in metadata
+
+  - name: barrier_height
+    type: float
+    description: Activation energy barrier relative to the reactant state (eV).
+    required: true
+    unit: "eV"
+
+  - name: reaction_id
+    type: string
+    description: Unique identifier for the reaction step.
+    required: true
+
+  - name: catalyst_metal
+    type: string
+    description: Symbol of the transition metal catalyst (e.g., "Pd", "Ni", "Cu").
+    required: true
+    allowed_values:
+      - "Pd"
+      - "Ni"
+      - "Cu"
+
+  - name: cutoff_distance
+    type: float
+    description: The distance cutoff used to generate edges for this graph.
+    required: true
+    unit: "Angstroms"
+
+metadata:
+  source: "QM9-TS"
+  generated_by: "src/data/graph_construction.py"
+  validation_schema: "contracts/dataset_graph.schema.yaml"
+  created_at: "ISO-8601-timestamp"

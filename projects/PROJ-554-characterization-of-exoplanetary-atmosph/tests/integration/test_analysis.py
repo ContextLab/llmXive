@@ -1,182 +1,318 @@
 """
 Integration test for correlation and regression on mock data.
 
-This test validates the censored data handling (Kendall's tau) and
-Tobit regression logic in code/analysis.py using a deterministic
-mock dataset that mimics the structure of real exoplanet data
-(temperature, metallicity, water abundance with upper limits).
+This test validates the analysis pipeline (Kendall's tau, bootstrap, Tobit regression)
+using a controlled synthetic dataset. This ensures the statistical methods work correctly
+on data with known properties before running on the full real-world dataset.
 
-It verifies that:
-1. Censored Kendall's tau is computed correctly.
-2. Bootstrap confidence intervals are generated.
-3. Tobit regression fits without crashing on censored data.
-4. The output schema matches expectations.
+The mock data is generated deterministically with a fixed seed to ensure reproducibility.
+It includes censored values (upper limits) to test the survival analysis capabilities.
 """
+
 import os
 import sys
-import logging
+import json
 import tempfile
 import shutil
 from pathlib import Path
-
-import numpy as np
-import pandas as pd
 import pytest
+import pandas as pd
+import numpy as np
 
-# Ensure code directory is importable
-_code_root = Path(__file__).parent.parent.parent / "code"
-sys.path.insert(0, str(_code_root))
+# Add project root to path to import code modules
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-from analysis import compute_censored_kendall_tau, run_tobit_regression
-from config import set_random_seed, get_config
+from analysis import (
+    load_analysis_data,
+    quality_control_filter,
+    compute_censored_kendall_tau,
+    bootstrap_ats,
+    calculate_statistical_power,
+    generate_quality_report
+)
+from analysis_tobit import (
+    load_retrieval_data,
+    calculate_vif,
+    prepare_tobit_data,
+    fit_tobit_model,
+    save_regression_results
+)
+from config import get_config, set_random_seed
+from utils import setup_logging, CensoredDataError
 
-# Setup logging for the test
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
 
-# Fix random seed for reproducibility
-set_random_seed(42)
+# --- Fixtures ---
 
-def create_mock_censored_dataset(n_samples: int = 100):
+@pytest.fixture(scope="module")
+def mock_dataset_dir():
     """
-    Generates a mock dataset mimicking exoplanet atmospheric data.
-    Includes censored values (upper limits) for low SNR cases.
-
-    Returns a DataFrame with columns:
-    - temperature: float (K)
-    - metallicity: float ([Fe/H])
-    - water_log_mixing_ratio: float (log10)
-    - is_censored: bool (True if upper limit)
-    - snr: float
-    - resolution: int
-    - planet_category: str ('Hot Jupiter' or 'Super Earth')
+    Creates a temporary directory with a mock dataset for analysis.
+    The data is deterministic (seed=42) and includes censored values.
     """
-    np.random.seed(42)
+    seed = 42
+    np.random.seed(seed)
+    set_random_seed(seed)
 
-    # Base distributions
-    temps = np.random.uniform(1000, 2500, n_samples)
-    metallicity = np.random.normal(0.0, 0.5, n_samples)
-    categories = np.random.choice(['Hot Jupiter', 'Super Earth'], n_samples)
+    n_samples = 50
+    temp_dir = tempfile.mkdtemp(prefix="mock_analysis_")
+    data_path = Path(temp_dir) / "analysis_dataset.csv"
 
-    # Generate water abundance with some correlation to temperature
-    # water ~ 0.001 * temp + noise
-    base_water = -4.0 + (temps - 1000) * 0.001
-    noise = np.random.normal(0, 0.5, n_samples)
-    water_log = base_water + noise
+    # Generate mock data with known correlation
+    # Water abundance (log10) correlated with Temperature
+    # Add some noise and censored values (upper limits)
+    temps = np.random.uniform(800, 2500, n_samples)
+    # True correlation: higher temp -> higher water (slope ~ 0.0005)
+    water_true = -4.0 + 0.0005 * (temps - 1500)
+    noise = np.random.normal(0, 0.3, n_samples)
+    water_obs = water_true + noise
 
-    # Simulate censoring: Low SNR leads to upper limits
-    # Assume SNR depends on temperature and some noise
-    snr = 50 + (temps - 1000) * 0.02 + np.random.normal(0, 10, n_samples)
-    resolution = np.random.choice([100, 300, 1000], n_samples)
+    # Create censored values (upper limits) for low SNR planets (approx 20% of sample)
+    is_censored = np.random.random(n_samples) < 0.2
+    detection_limits = water_obs - np.random.uniform(0.5, 1.5, n_samples)
+    water_obs[is_censored] = detection_limits[is_censored]
 
-    # Censoring threshold: if SNR < 20, we only get an upper limit
-    # For the sake of the test, we mark low SNR as censored
-    is_censored = snr < 20
-    # For censored values, the 'observed' water is actually an upper limit
-    # In real data, this might be the detection limit.
-    # We'll set the value to a fixed detection limit for censored points
-    detection_limit = -5.0
-    water_log_final = np.where(is_censored, detection_limit, water_log)
+    # Metallicity (random, some missing)
+    metallicities = np.random.normal(0.0, 0.5, n_samples)
+    # Randomly mask some metallicity values (simulating missing data)
+    missing_mask = np.random.random(n_samples) < 0.1
+    metallicities[missing_mask] = np.nan
 
+    # Mass (random)
+    masses = np.random.uniform(0.5, 15.0, n_samples)
+
+    # SNR and Resolution
+    snrs = np.random.uniform(5, 50, n_samples)
+    resolutions = np.random.uniform(10, 100, n_samples)
+
+    # Planet names
+    planet_names = [f"Planet_{i:03d}" for i in range(n_samples)]
+
+    # Construct DataFrame
     df = pd.DataFrame({
-        'temperature': temps,
-        'metallicity': metallicity,
-        'water_log_mixing_ratio': water_log_final,
-        'is_censored': is_censored,
-        'snr': snr,
-        'resolution': resolution,
-        'planet_category': categories
+        "planet_name": planet_names,
+        "temperature": temps,
+        "water_mixing_ratio": water_obs,
+        "metallicity": metallicities,
+        "mass": masses,
+        "snr": snrs,
+        "resolution": resolutions,
+        "is_upper_limit": is_censored,
+        "detection_limit": detection_limits
     })
-    return df
 
-def test_compute_censored_kendall_tau():
-    """
-    Test that compute_censored_kendall_tau runs on mock data and returns
-    expected schema (tau, p_value, ci_low, ci_high).
-    """
-    logger.info("Running test_compute_censored_kendall_tau...")
-    df = create_mock_censored_dataset(n_samples=50)
+    df.to_csv(data_path, index=False)
 
-    # Filter for specific category to test subset logic if needed
-    # Here we test on the whole set
-    result = compute_censored_kendall_tau(
-        df,
-        x_col='temperature',
-        y_col='water_log_mixing_ratio',
-        censored_col='is_censored',
-        n_bootstrap=10  # Small number for speed in unit test
+    yield temp_dir
+
+    # Cleanup
+    shutil.rmtree(temp_dir)
+
+
+# --- Tests ---
+
+def test_quality_control_filter(mock_dataset_dir):
+    """
+    Tests that the quality control filter correctly separates data for
+    correlation (all) and regression (complete metallicity) analyses.
+    """
+    data_path = Path(mock_dataset_dir) / "analysis_dataset.csv"
+    df = pd.read_csv(data_path)
+
+    # Apply QC filter
+    corr_data, reg_data = quality_control_filter(df)
+
+    # Verify correlation data has all rows with temperature
+    assert len(corr_data) == len(df[df["temperature"].notna()])
+    assert "water_mixing_ratio" in corr_data.columns
+    assert "is_upper_limit" in corr_data.columns
+
+    # Verify regression data excludes rows with missing metallicity
+    expected_reg_count = len(df[df["metallicity"].notna()])
+    assert len(reg_data) == expected_reg_count
+    assert "metallicity" in reg_data.columns
+
+    # Verify no NaN in metallicity for regression data
+    assert reg_data["metallicity"].isna().sum() == 0
+
+
+def test_compute_censored_kendall_tau(mock_dataset_dir):
+    """
+    Tests the computation of Kendall's tau for censored data.
+    Verifies that the function returns valid statistics and handles
+    the censored flag correctly.
+    """
+    data_path = Path(mock_dataset_dir) / "analysis_dataset.csv"
+    df = pd.read_csv(data_path)
+    corr_data, _ = quality_control_filter(df)
+
+    # Run correlation analysis
+    tau, p_value, ci_lower, ci_upper = compute_censored_kendall_tau(
+        corr_data,
+        x_col="temperature",
+        y_col="water_mixing_ratio",
+        censor_col="is_upper_limit"
     )
 
-    assert result is not None, "Result should not be None"
-    assert 'tau' in result, "Result must contain 'tau'"
-    assert 'p_value' in result, "Result must contain 'p_value'"
-    assert 'ci_low' in result, "Result must contain 'ci_low'"
-    assert 'ci_high' in result, "Result must contain 'ci_high'"
-    assert isinstance(result['tau'], (int, float)), "Tau must be numeric"
-    assert -1 <= result['tau'] <= 1, "Tau must be between -1 and 1"
+    # Assertions on return types and ranges
+    assert isinstance(tau, float)
+    assert isinstance(p_value, float)
+    assert -1.0 <= tau <= 1.0
+    assert 0.0 <= p_value <= 1.0
+    assert ci_lower <= tau <= ci_upper
 
-    logger.info(f"Kendall's tau: {result['tau']:.4f}, p-value: {result['p_value']:.4f}")
-    logger.info("test_compute_censored_kendall_tau PASSED")
+    # Since we generated data with a positive correlation, tau should be positive
+    # (allowing for some variance due to noise and sample size)
+    assert tau > -0.2, f"Expected positive correlation, got {tau}"
 
-def test_run_tobit_regression():
+
+def test_bootstrap_ats(mock_dataset_dir):
     """
-    Test that run_tobit_regression handles censored data and returns
-    model coefficients and diagnostics.
+    Tests the bootstrap resampling for confidence interval estimation.
     """
-    logger.info("Running test_run_tobit_regression...")
-    df = create_mock_censored_dataset(n_samples=50)
+    data_path = Path(mock_dataset_dir) / "analysis_dataset.csv"
+    df = pd.read_csv(data_path)
+    corr_data, _ = quality_control_filter(df)
 
-    result = run_tobit_regression(
-        df,
-        target_col='water_log_mixing_ratio',
-        features=['temperature', 'metallicity'],
-        censored_col='is_censored'
+    # Run bootstrap
+    n_iterations = 100
+    tau_mean, ci_lower, ci_upper = bootstrap_ats(
+        corr_data,
+        x_col="temperature",
+        y_col="water_mixing_ratio",
+        censor_col="is_upper_limit",
+        n_iterations=n_iterations,
+        seed=42
     )
 
-    assert result is not None, "Result should not be None"
-    assert 'coefficients' in result, "Result must contain 'coefficients'"
-    assert 'log_likelihood' in result, "Result must contain 'log_likelihood'"
-    assert 'aic' in result, "Result must contain 'aic'"
+    assert isinstance(tau_mean, float)
+    assert isinstance(ci_lower, float)
+    assert isinstance(ci_upper, float)
+    assert ci_lower <= tau_mean <= ci_upper
 
-    coeffs = result['coefficients']
-    assert 'temperature' in coeffs, "Coefficients must include temperature"
-    assert 'metallicity' in coeffs, "Coefficients must include metallicity"
 
-    logger.info(f"Temperature coefficient: {coeffs['temperature']:.4f}")
-    logger.info("test_run_tobit_regression PASSED")
-
-def test_analysis_end_to_end():
+def test_tobit_regression_fallback(mock_dataset_dir):
     """
-    End-to-end integration test:
-    1. Create mock data.
-    2. Run correlation analysis.
-    3. Run regression analysis.
-    4. Verify outputs are consistent (e.g., sample size matches).
+    Tests the Tobit regression pipeline, including VIF calculation
+    and the fallback to Penalized Tobit if multicollinearity is detected.
     """
-    logger.info("Running test_analysis_end_to_end...")
-    df = create_mock_censored_dataset(n_samples=50)
+    data_path = Path(mock_dataset_dir) / "analysis_dataset.csv"
+    df = pd.read_csv(data_path)
+    _, reg_data = quality_control_filter(df)
 
-    # Run Correlation
-    corr_result = compute_censored_kendall_tau(
-        df, 'temperature', 'water_log_mixing_ratio', 'is_censored', n_bootstrap=5
+    # Prepare data
+    X, y, censor = prepare_tobit_data(
+        reg_data,
+        x_cols=["temperature", "mass", "metallicity"],
+        y_col="water_mixing_ratio",
+        censor_col="is_upper_limit"
     )
 
-    # Run Regression
-    reg_result = run_tobit_regression(
-        df, 'water_log_mixing_ratio', ['temperature', 'metallicity'], 'is_censored'
+    # Calculate VIF (should be low for random mock data)
+    vif_data = calculate_vif(X)
+    max_vif = vif_data["VIF"].max()
+    assert max_vif < 10.0, f"Unexpected high VIF in mock data: {max_vif}"
+
+    # Fit model
+    model, result_dict = fit_tobit_model(X, y, censor)
+
+    # Verify result dictionary structure
+    assert "coefficients" in result_dict
+    assert "p_values" in result_dict
+    assert "fallback_triggered" in result_dict
+    assert isinstance(result_dict["coefficients"], dict)
+
+
+def test_full_analysis_pipeline(mock_dataset_dir, tmp_path):
+    """
+    Integration test: Runs the full analysis pipeline (QC, Correlation, Regression)
+    and verifies that all expected output files are generated with valid content.
+    """
+    data_path = Path(mock_dataset_dir) / "analysis_dataset.csv"
+    output_dir = Path(tmp_path) / "results"
+    output_dir.mkdir(parents=True)
+
+    # 1. Load and Filter
+    df = pd.read_csv(data_path)
+    corr_data, reg_data = quality_control_filter(df)
+
+    # 2. Correlation Stats
+    tau, p_val, ci_l, ci_u = compute_censored_kendall_tau(
+        corr_data, "temperature", "water_mixing_ratio", "is_upper_limit"
+    )
+    corr_stats = {
+        "tau": tau,
+        "p_value": p_val,
+        "ci_95": [ci_l, ci_u],
+        "n_samples": len(corr_data)
+    }
+
+    # 3. Bootstrap
+    tau_boot, ci_b_l, ci_b_u = bootstrap_ats(
+        corr_data, "temperature", "water_mixing_ratio", "is_upper_limit",
+        n_iterations=50, seed=42
+    )
+    bootstrap_stats = {
+        "iterations": 50,
+        "tau_mean": tau_boot,
+        "ci_95": [ci_b_l, ci_b_u]
+    }
+
+    # 4. Regression
+    _, reg_result = fit_tobit_model(
+        *prepare_tobit_data(reg_data, ["temperature", "mass", "metallicity"], "water_mixing_ratio", "is_upper_limit")
     )
 
-    # Verify consistency
-    assert len(df) == 50, "Mock data size mismatch"
-    assert corr_result['tau'] is not None
-    assert reg_result['log_likelihood'] is not None
+    # 5. Save outputs to verify they can be written
+    stats_path = output_dir / "correlation_stats.json"
+    with open(stats_path, "w") as f:
+        json.dump(corr_stats, f, indent=2)
 
-    # Check that we didn't crash on censored data
-    censored_count = df['is_censored'].sum()
-    assert censored_count > 0, "Test data should have some censored values"
+    boot_path = output_dir / "bootstrap_ci.json"
+    with open(boot_path, "w") as f:
+        json.dump(bootstrap_stats, f, indent=2)
 
-    logger.info(f"Analysis completed with {censored_count} censored values.")
-    logger.info("test_analysis_end_to_end PASSED")
+    reg_path = output_dir / "regression_results.json"
+    with open(reg_path, "w") as f:
+        json.dump(reg_result, f, indent=2)
+
+    # Verification: Read back and assert schema
+    with open(stats_path) as f:
+        loaded_corr = json.load(f)
+    assert "tau" in loaded_corr
+    assert "ci_95" in loaded_corr
+
+    with open(boot_path) as f:
+        loaded_boot = json.load(f)
+    assert "tau_mean" in loaded_boot
+    assert "ci_95" in loaded_boot
+
+    with open(reg_path) as f:
+        loaded_reg = json.load(f)
+    assert "coefficients" in loaded_reg
+
+
+def test_power_analysis(mock_dataset_dir):
+    """
+    Tests the statistical power calculation for the correlation.
+    """
+    data_path = Path(mock_dataset_dir) / "analysis_dataset.csv"
+    df = pd.read_csv(data_path)
+    corr_data, _ = quality_control_filter(df)
+
+    power_estimate, power_sufficient = calculate_statistical_power(
+        corr_data,
+        x_col="temperature",
+        y_col="water_mixing_ratio",
+        censor_col="is_upper_limit",
+        n_iterations=50,
+        seed=42
+    )
+
+    assert isinstance(power_estimate, float)
+    assert 0.0 <= power_estimate <= 1.0
+    assert isinstance(power_sufficient, bool)
+
 
 if __name__ == "__main__":
     pytest.main([__file__, "-v"])

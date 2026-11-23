@@ -47,5 +47,15 @@
     "sections/sec3.tex",
     "sections/sec4.tex",
     "sections/sec5.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "32ea03f974f69c243d8c151c2fd043ff5270f453ce883e5a887754d62f344ef4",
+      "bytes": 7611458
+    },
+    "original.pdf": {
+      "sha256": "d0ee775b3db6469cafac6b2895f7a5cd34eed7a42c3f074543e8170b82f6be49",
+      "bytes": 7593274
+    }
+  }
 }

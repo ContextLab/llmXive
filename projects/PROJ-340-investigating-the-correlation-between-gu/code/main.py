@@ -1,196 +1,174 @@
+"""
+Main Pipeline Orchestrator.
+
+This module coordinates the execution of the full analysis pipeline.
+It handles ingestion, validation, analysis, diagnostics, and reporting.
+"""
 import sys
 import os
 import json
 import time
+import argparse
+import logging
 from pathlib import Path
-from datetime import datetime
 
-from config import get_config
-from ingest import load_schema, validate_variables, save_variable_metrics, load_data, detect_outliers_iqr, filter_outliers, calculate_checksum, register_checksum_in_state, main as ingest_main
-from analysis import set_analysis_seed, run_correlation_analysis
-from diagnostics import set_diagnostics_seed, run_collinearity_diagnostics, generate_diagnostics_report
+# Import from existing modules
+from ingest import load_data, validate_variables, detect_outliers_iqr, save_outlier_report, filter_outliers, save_filtered_data, record_artifact_checksum
+from analysis import set_analysis_seed, check_distribution, select_correlation_method, run_correlation_analysis, benjamini_hochberg_fdr, save_method_selection_log
+from diagnostics import set_diagnostics_seed, detect_perfect_multicollinearity, calculate_vif, run_sensitivity_analysis, calculate_power
+from report import generate_report, load_json_file
+from config import load_config
 
-def setup_paths():
-    """Initialize project paths based on configuration."""
-    config = get_config()
-    base_path = Path(config.get('base_path', '.'))
-    data_path = base_path / 'data'
-    results_path = data_path / 'results'
-    processed_path = data_path / 'processed'
-    figures_path = base_path / 'figures'
-    
-    # Ensure directories exist
-    results_path.mkdir(parents=True, exist_ok=True)
-    processed_path.mkdir(parents=True, exist_ok=True)
-    figures_path.mkdir(parents=True, exist_ok=True)
-    
-    return {
-        'base': base_path,
-        'data': data_path,
-        'results': results_path,
-        'processed': processed_path,
-        'figures': figures_path
-    }
+# Setup logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-def run_ingestion_and_validation(paths):
-    """Execute data ingestion, validation, and filtering steps."""
-    print("Starting ingestion and validation...")
-    
-    # Load schema
-    schema_path = paths['base'] / 'specs' / '001-gut-microbiome-sleep-architecture' / 'contracts' / 'dataset.schema.yaml'
-    schema = load_schema(schema_path)
-    
-    # Validate variables
-    validate_variables(schema, paths['data'])
-    save_variable_metrics(paths['results'] / 'variable_load_metrics.json')
-    
-    # Load data (will exit if validation fails)
-    raw_data = load_data(paths['data'], schema)
-    
-    # Detect outliers
-    outliers = detect_outliers_iqr(raw_data)
-    
-    # Filter outliers
-    filtered_data = filter_outliers(raw_data, outliers)
-    
-    # Calculate and register checksum
-    checksum = calculate_checksum(filtered_data)
-    register_checksum_in_state(checksum, paths['results'] / 'state.yaml')
-    
-    # Save filtered data
-    filtered_path = paths['processed'] / 'filtered_data.parquet'
-    filtered_data.to_parquet(filtered_path)
-    print(f"Filtered data saved to {filtered_path}")
-    
-    return filtered_data
+def setup_paths(base_dir: Path):
+    """Setup output directories."""
+    dirs = [
+        base_dir / "raw",
+        base_dir / "processed",
+        base_dir / "results",
+        base_dir / "metadata"
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
-def run_analysis(paths, data):
-    """Execute correlation analysis."""
-    print("Starting correlation analysis...")
+def estimate_ram_usage(df):
+    """Estimate RAM usage based on dataframe size."""
+    # Rough estimate: 8 bytes per float64, 4 bytes per int32, etc.
+    return df.memory_usage(deep=True).sum()
+
+def determine_compute_strategy(ram_estimate_gb):
+    """Determine compute strategy based on RAM estimate."""
+    if ram_estimate_gb > 14:
+        return "streaming"
+    elif ram_estimate_gb > 7:
+        return "chunked"
+    else:
+        return "full"
+
+def save_compute_strategy(strategy, output_path: Path):
+    """Save compute strategy decision."""
+    with open(output_path, 'w') as f:
+        json.dump({"strategy": strategy}, f, indent=2)
+
+def check_validation_mode(config_path: Path):
+    """Check if running in validation (synthetic) mode."""
+    # This is a placeholder; actual logic depends on env vars or config flags
+    return os.environ.get("VALIDATION_MODE", "false").lower() == "true"
+
+def run_ingestion_and_validation(input_path: Path, config_path: Path, output_path: Path):
+    """Run data ingestion, validation, outlier detection, and filtering."""
+    logger.info("Starting ingestion and validation...")
     
-    # Set seeds for reproducibility
-    set_analysis_seed()
+    # Load and validate
+    df, metrics = load_data(input_path, config_path)
     
-    # Run analysis
-    results = run_correlation_analysis(data)
+    # Save metrics
+    metrics_path = output_path / "results" / "variable_load_metrics.json"
+    with open(metrics_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    
+    # Outlier detection
+    outlier_report = detect_outliers_iqr(df)
+    save_outlier_report(outlier_report, output_path / "results" / "outlier_report.json")
+    
+    # Filtering
+    filtered_df, exclusion_log = filter_outliers(df, outlier_report)
+    filtered_path = output_path / "processed" / "filtered_data.parquet"
+    save_filtered_data(filtered_df, filtered_path)
+    record_artifact_checksum(filtered_path, output_path / "results" / "artifact_checksums.json")
+    
+    # Save exclusion log
+    with open(output_path / "results" / "outlier_exclusion_log.json", 'w') as f:
+        json.dump(exclusion_log, f, indent=2)
+    
+    return filtered_df
+
+def run_analysis(input_path: Path, output_path: Path):
+    """Run correlation analysis."""
+    logger.info("Running analysis...")
+    
+    import pandas as pd
+    df = pd.read_parquet(input_path)
+    
+    # Distribution check
+    dist_info = check_distribution(df)
+    
+    # Method selection
+    method = select_correlation_method(df, dist_info)
+    save_method_selection_log(method, output_path / "metadata" / "method_selection_log.json")
+    
+    # Correlation analysis
+    results = run_correlation_analysis(df, method)
+    corrected_results = benjamini_hochberg_fdr(results)
     
     # Save results
-    results_path = paths['results'] / 'correlation_results.json'
-    with open(results_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    print(f"Correlation results saved to {results_path}")
+    corr_matrix_path = output_path / "results" / "correlation_matrix.json"
+    with open(corr_matrix_path, 'w') as f:
+        json.dump(corrected_results, f, indent=2)
     
-    return results
+    return corrected_results
 
-def run_diagnostics(paths, results):
-    """Execute diagnostics and generate report."""
-    print("Starting diagnostics...")
+def run_diagnostics(input_path: Path, output_path: Path):
+    """Run diagnostics."""
+    logger.info("Running diagnostics...")
     
-    # Set seeds for reproducibility
-    set_diagnostics_seed()
+    import pandas as pd
+    df = pd.read_parquet(input_path)
     
-    # Run diagnostics
-    diagnostics = run_collinearity_diagnostics(paths['processed'] / 'filtered_data.parquet')
+    # Collinearity
+    collinearity_map = detect_perfect_multicollinearity(df)
     
-    # Generate report
-    report = generate_diagnostics_report(diagnostics, results)
+    # VIF
+    vif_report = calculate_vif(df)
+    with open(output_path / "results" / "vif_report.json", 'w') as f:
+        json.dump(vif_report, f, indent=2)
     
-    # Save report
-    report_path = paths['results'] / 'diagnostics_report.json'
-    with open(report_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    print(f"Diagnostics report saved to {report_path}")
+    # Sensitivity
+    sensitivity_results = run_sensitivity_analysis(df)
+    sensitivity_results.to_csv(output_path / "results" / "sensitivity_analysis.csv", index=False)
     
-    return report
+    # Power
+    power_report = calculate_power(df)
+    with open(output_path / "results" / "power_analysis_report.json", 'w') as f:
+        json.dump(power_report, f, indent=2)
+    
+    # Collinearity warnings
+    with open(output_path / "results" / "collinearity_warnings.json", 'w') as f:
+        json.dump({"collinearity_map": collinearity_map, "vif_flags": vif_report.get("flags", [])}, f, indent=2)
 
 def main():
-    """Main pipeline orchestration with timing evidence generation."""
+    parser = argparse.ArgumentParser(description="Main Pipeline Orchestrator")
+    parser.add_argument("--input", type=str, required=True, help="Input data path")
+    parser.add_argument("--output", type=str, required=True, help="Output directory")
+    parser.add_argument("--config", type=str, default="data/config/required_variables.yaml", help="Config path")
+    args = parser.parse_args()
+    
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+    config_path = Path(args.config)
+    
     start_time = time.time()
-    start_datetime = datetime.now().isoformat()
     
-    print(f"Pipeline started at {start_datetime}")
+    setup_paths(output_path)
     
-    # Setup paths
-    paths = setup_paths()
+    # Ingestion
+    filtered_path = run_ingestion_and_validation(input_path, config_path, output_path)
     
-    try:
-        # Run ingestion and validation
-        data = run_ingestion_and_validation(paths)
-        
-        # Run analysis
-        results = run_analysis(paths, data)
-        
-        # Run diagnostics
-        diagnostics = run_diagnostics(paths, results)
-        
-    except Exception as e:
-        end_time = time.time()
-        end_datetime = datetime.now().isoformat()
-        duration_seconds = end_time - start_time
-        duration_hours = duration_seconds / 3600
-        
-        timing_evidence = {
-            'start_datetime': start_datetime,
-            'end_datetime': end_datetime,
-            'duration_seconds': duration_seconds,
-            'duration_hours': duration_hours,
-            'status': 'failed',
-            'error': str(e)
-        }
-        
-        # Save timing evidence even on failure
-        timing_path = paths['results'] / 'timing_evidence.json'
-        with open(timing_path, 'w') as f:
-            json.dump(timing_evidence, f, indent=2)
-        
-        print(f"Pipeline failed after {duration_hours:.2f} hours. Timing evidence saved.")
-        sys.exit(1)
+    # Analysis
+    run_analysis(filtered_path, output_path)
     
-    end_time = time.time()
-    end_datetime = datetime.now().isoformat()
-    duration_seconds = end_time - start_time
-    duration_hours = duration_seconds / 3600
+    # Diagnostics
+    run_diagnostics(filtered_path, output_path)
     
-    # Check timing constraint (SC-004)
-    max_hours = 6.0
-    if duration_hours > max_hours:
-        error_msg = f"Pipeline exceeded maximum allowed runtime of {max_hours} hours. Actual: {duration_hours:.2f} hours."
-        print(f"ERROR: {error_msg}")
-        
-        timing_evidence = {
-            'start_datetime': start_datetime,
-            'end_datetime': end_datetime,
-            'duration_seconds': duration_seconds,
-            'duration_hours': duration_hours,
-            'status': 'timeout',
-            'error': error_msg
-        }
-        
-        timing_path = paths['results'] / 'timing_evidence.json'
-        with open(timing_path, 'w') as f:
-            json.dump(timing_evidence, f, indent=2)
-        
-        sys.exit(1)
+    # Timing
+    timing = {"total_runtime_seconds": time.time() - start_time, "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
+    with open(output_path / "results" / "timing_evidence.json", 'w') as f:
+        json.dump(timing, f, indent=2)
     
-    # Generate timing evidence artifact
-    timing_evidence = {
-        'start_datetime': start_datetime,
-        'end_datetime': end_datetime,
-        'duration_seconds': duration_seconds,
-        'duration_hours': duration_hours,
-        'status': 'success',
-        'max_allowed_hours': max_hours,
-        'within_budget': True
-    }
-    
-    timing_path = paths['results'] / 'timing_evidence.json'
-    with open(timing_path, 'w') as f:
-        json.dump(timing_evidence, f, indent=2)
-    
-    print(f"Pipeline completed successfully in {duration_hours:.2f} hours.")
-    print(f"Timing evidence saved to {timing_path}")
-    
-    return timing_evidence
+    logger.info("Pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()

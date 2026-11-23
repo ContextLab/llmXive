@@ -1,101 +1,86 @@
-"""
-Data aggregation module.
-Aggregates daily logs into weekly bins per user.
-"""
 import os
+import sys
 import pandas as pd
-from code.utils.logging import pipeline_logger
+from datetime import datetime
 
-INPUT_PATH = "data/processed/ingested_data.csv"
-OUTPUT_PATH = "data/processed/merged_data.csv"
+# Add project root to path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from code.utils.logging import setup_logger, log_pipeline_stage
+
+logger = setup_logger("aggregation")
 
 def aggregate_weekly(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Aggregate daily logs into weekly adherence flags per user.
+    Aggregate daily logs into weekly bins.
     
     Args:
-        df: DataFrame with daily logs.
+        df: DataFrame with columns: User_ID, date, event_type, week_number, gamified_status, conscientiousness_score, need_for_achievement
         
     Returns:
-        DataFrame with weekly aggregations.
+        DataFrame with weekly aggregations
     """
-    # Ensure week_number exists
-    if "week_number" not in df.columns:
-        # If not present, we might need to derive it from a date column.
-        # The synthetic generator already provides week_number.
-        pipeline_logger.error("week_number column missing in input data.")
-        raise ValueError("week_number column missing.")
+    # Ensure date is datetime
+    df['date'] = pd.to_datetime(df['date'])
     
-    if "user_id" not in df.columns:
-        pipeline_logger.error("user_id column missing in input data.")
-        raise ValueError("user_id column missing.")
-
-    if "adherence_flag" not in df.columns:
-        pipeline_logger.error("adherence_flag column missing in input data.")
-        raise ValueError("adherence_flag column missing.")
-
-    # Ensure adherence_flag is numeric
-    df = df.copy()
-    df["adherence_flag"] = pd.to_numeric(df["adherence_flag"], errors='coerce').fillna(0)
+    # Ensure week_number is integer
+    if 'week_number' not in df.columns:
+        # Calculate week number from date
+        # Assuming data starts from a known base date
+        min_date = df['date'].min()
+        df['week_number'] = ((df['date'] - min_date).dt.days // 7) + 1
     
     # Group by user and week
-    grouped = df.groupby(["user_id", "week_number"])
+    weekly_agg = df.groupby(['User_ID', 'week_number']).agg({
+        'event_type': 'count',
+        'gamified_status': 'first',
+        'conscientiousness_score': 'first',
+        'need_for_achievement': 'first' if 'need_for_achievement' in df.columns else None
+    }).reset_index()
     
-    aggregations = {
-        "gamification_status": "first",
-        "conscientiousness_score": "first",
-        "need_for_achievement": "first",
-        "adherence_flag": "mean"
-    }
+    # Rename columns
+    weekly_agg = weekly_agg.rename(columns={'event_type': 'daily_event_count'})
     
-    # Filter aggregation keys to only those present in the dataframe
-    available_cols = set(df.columns)
-    valid_agg = {k: v for k, v in aggregations.items() if k in available_cols}
+    # Calculate weekly adherence flag (1 if any adherence event, 0 otherwise)
+    # For simplicity, we assume any event is an adherence event
+    weekly_agg['weekly_adherence_flag'] = (weekly_agg['daily_event_count'] > 0).astype(int)
     
-    weekly_df = grouped.agg(valid_agg).reset_index()
+    # Sort by user and week
+    weekly_agg = weekly_agg.sort_values(['User_ID', 'week_number'])
     
-    # Calculate weekly_adherence_flag (binary 1/0)
-    # If mean adherence > 0.5, flag = 1, else 0
-    weekly_df["weekly_adherence_flag"] = (weekly_df["adherence_flag"] > 0.5).astype(int)
-    
-    # Rename mean adherence for clarity
-    weekly_df = weekly_df.rename(columns={"adherence_flag": "weekly_adherence_rate"})
-    
-    # Ensure week_number starts at 1 and is sequential per user
-    # The input should already be sequential, but we ensure it.
-    weekly_df["week_number"] = weekly_df["week_number"].astype(int)
-    
-    # Ensure required columns exist for downstream tasks (T017)
-    required_cols = ["user_id", "gamification_status", "conscientiousness_score", 
-                     "week_number", "weekly_adherence_flag", "weekly_adherence_rate"]
-     
-    # Check for optional columns that might be needed downstream
-    optional_cols = ["need_for_achievement"]
-    
-    final_cols = [c for c in required_cols if c in weekly_df.columns]
-    for c in optional_cols:
-        if c in weekly_df.columns:
-            final_cols.append(c)
-            
-    return weekly_df[final_cols]
+    return weekly_agg
 
 def main():
-    """Main entry point for aggregation."""
-    pipeline_logger.info("Starting data aggregation...")
+    parser = argparse.ArgumentParser(description="Aggregate daily logs to weekly")
+    args = parser.parse_args()
     
-    if not os.path.exists(INPUT_PATH):
-        raise FileNotFoundError(f"Input file not found: {INPUT_PATH}")
+    log_pipeline_stage(logger, "START", "Data Aggregation")
     
-    df = pd.read_csv(INPUT_PATH)
-    pipeline_logger.info(f"Loaded {len(df)} records for aggregation.")
-    
-    weekly_df = aggregate_weekly(df)
-    
-    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-    weekly_df.to_csv(OUTPUT_PATH, index=False)
-    
-    pipeline_logger.info(f"Aggregated data saved to {OUTPUT_PATH}")
-    pipeline_logger.info(f"Total weekly records: {len(weekly_df)}")
+    try:
+        # Load raw data
+        input_path = "data/raw/synthetic_data.csv"
+        if not os.path.exists(input_path):
+            raise FileNotFoundError(f"Input file not found: {input_path}")
+        
+        df = pd.read_csv(input_path)
+        logger.info(f"Loaded {len(df)} records for aggregation")
+        
+        # Aggregate
+        weekly_df = aggregate_weekly(df)
+        
+        # Save output
+        output_path = "data/processed/merged_data.csv"
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        weekly_df.to_csv(output_path, index=False)
+        logger.info(f"Written aggregated data to {output_path}")
+        
+        log_pipeline_stage(logger, "SUCCESS", "Data Aggregation Complete")
+        return 0
+        
+    except Exception as e:
+        log_pipeline_stage(logger, "ERROR", str(e))
+        return 1
 
 if __name__ == "__main__":
-    main()
+  import argparse
+  sys.exit(main())

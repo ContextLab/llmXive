@@ -1,28 +1,30 @@
 import os
+import pytest
 from pathlib import Path
+import sys
+
+# Add parent of tests to path to import code modules
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from code.setup_directories import create_directories
 
-def test_docs_output_directory_creation():
+def test_t010_docs_output_directory_exists():
     """
-    Verifies that T010 requirement is met:
-    Creates directory `projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/docs/output/`
+    Test for T010: Verify that the directory `projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/docs/output/` exists.
+    This test runs create_directories() to ensure the structure is established,
+    then asserts the specific T010 path exists on disk.
     """
-    base_path = Path("projects/PROJ-508-evaluating-the-impact-of-llm-based-code-")
-    target_dir = base_path / "docs" / "output"
+    # Ensure the directories are created
+    created = create_directories()
     
-    # Ensure clean state for test
-    if target_dir.exists():
-        # Remove existing dir to force recreation if logic is buggy
-        # Note: In a real CI, we might skip this to avoid permission issues if not empty
-        pass 
+    # Determine the expected path relative to the test file location
+    # Assuming project structure: code/setup_directories.py and tests/
+    project_root = Path(__file__).resolve().parent.parent
+    t010_path = project_root / "docs" / "output"
     
-    # Run the setup function
-    create_directories()
+    # Assert the directory exists
+    assert t010_path.exists(), f"Directory missing: {t010_path}"
+    assert t010_path.is_dir(), f"Path exists but is not a directory: {t010_path}"
     
-    # Assert the specific T010 directory exists
-    assert target_dir.exists(), f"Directory {target_dir} was not created by T010 implementation"
-    assert target_dir.is_dir(), f"{target_dir} exists but is not a directory"
-
-if __name__ == "__main__":
-    test_docs_output_directory_creation()
-    print("T010 verification passed.")
+    # Optional: Verify it is empty or contains expected placeholder if we added one
+    # For T010, existence is the primary requirement.

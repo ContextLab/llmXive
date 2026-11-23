@@ -1,84 +1,92 @@
 # Research: Mindfulness Components and Delivery Formats in ASD Social Skills
 
-## Summary
+## Research Question
+What is the efficacy of mindfulness‑based interventions for improving social skills in children aged 6‑12 with Autism Spectrum Disorder (ASD), and how do the effects vary by (a) mindfulness component (breathing, body‑scan, mindful movement, combined) and (b) delivery format (caregiver‑mediated vs. child‑led)?
 
-This research plan defines the strategy for data acquisition, variable verification, and statistical analysis to answer the primary research question: *Which mindfulness components and delivery formats are most effective for improving social skills in children (6-12) with ASD?* The plan prioritizes dataset-variable fit verification before any statistical modeling to prevent fatal flaws.
+## Hypotheses
+| # | Hypothesis | Expected Direction |
+|---|------------|--------------------|
+| H1 (Primary) | Mindfulness interventions produce a positive pooled effect (Hedges’ g > 0) on validated social‑skill outcomes. | Positive |
+| H2 (Component) | Interventions containing **multiple** mindfulness components yield larger effects than single‑component interventions. | Larger g |
+| H3 (Delivery) | Caregiver‑mediated delivery yields a larger pooled effect than child‑led delivery. | Larger g |
+| H4 (Follow‑up) | Effects are sustained (or increase) at ≥ 3‑month follow‑up compared with immediate post‑intervention. | Non‑decreasing g |
 
 ## Dataset Strategy
 
-The analysis relies on aggregated data from clinical trials and open science repositories. Per Constitution Principle II and the "Verified datasets" constraint, we only utilize sources explicitly verified for reachability and format.
+| Dataset | Source | Access Method | Role |
+|---------|--------|---------------|------|
+| ClinicalTrials.gov | https://clinicaltrials.gov/ | `requests` to public API (v2) | Primary source of registered RCTs (2015‑2024) |
+| OSF | https://osf.io/ | `requests` to OSF public API | Supplemental source for pre‑registered trials |
+| PubMed Central (Open‑Access) | https://www.ncbi.nlm.nih.gov/pmc/ | `biopython` Entrez API (PMC) | Retrieves **open‑access** full‑text articles to obtain means/SDs when not present in registries; if no open‑access full text is available, falls back to abstract extraction (FR‑023, FR‑031, updated for open‑access constraint). |
 
-| Dataset Source | Purpose | Verification Status | Access Method |
-| :--- | :--- | :--- | :--- |
-| ClinicalTrials.gov | Primary source for RCT metadata, inclusion criteria, and study identification (2015-2024). | Verified (API endpoint `/study/v2`). | `requests` library with rate limiting (10 req/s). |
-| Open Science Framework (OSF) | Supplemental source for pre-registered protocols. | Verified (API v2). | `requests` library. |
-| PubMed Central (PMC) | Primary source for full-text PDFs to extract numeric data (means/SDs). | Verified (PMC Open Access API). | `requests` (XML/Full-text). |
-| DOAJ | Secondary source for open-access journal articles. | Verified (DOAJ API). | `requests`. |
-| Semantic Scholar / OpenAlex | Metadata search only. **NOT** used for PDF retrieval. | Verified (Metadata API). | `requests` (Metadata only). |
+All sources are openly downloadable; no credentials required (Constitution VI). Registry records are archived verbatim under `data/raw/` and checksummed. PubMed queries are logged in `data/metadata/pubmed_log.json`.
 
-**Dataset-Variable Fit Verification**:
-Before calculating effect sizes, the `extractor.py` module will perform a strict schema check:
-1.  **Required Variables**: `age_min`, `age_max`, `diagnosis` (ASD), `outcome_measure` (social skill), `pre_mean`, `pre_sd`, `post_mean`, `post_sd`, `n`, `study_design`.
-2.  **Mismatch Handling**: If a study lacks a required variable (e.g., only reports p-values without means/SDs), the system will:
-    *   Attempt reconstruction via full-text PDF extraction from PMC/DOAJ (FR-009).
-    *   If reconstruction fails, log the exclusion reason (e.g., "Missing SD, reconstruction failed") to `excluded_studies.log` and remove the row from the analysis dataset.
-    *   **Crucial**: Do not proceed with analysis on studies with missing required variables.
+## Inclusion / Exclusion Criteria
+- **Population**: Children up to 12 years old, confirmed ASD diagnosis (DSM‑5 or ICD‑10).  
+- **Design**: **Only randomized controlled trials (RCTs)** are included (`design == 'rct'`). Quasi‑experimental studies are logged for a **sensitivity analysis** but excluded from the primary meta‑analysis (addresses methodology‑588d7186).  
+- **Intervention**: Must contain at least one core mindfulness component (breathing, body‑scan, mindful movement).  
+- **Outcome**: Must report a validated social‑skill measure (e.g., Social Responsiveness Scale‑2, Vineland Adaptive Behavior Scales) and provide sufficient summary statistics (means, SDs, Ns) either in the registry entry or in the associated **open‑access** journal article (addressing data_resources‑96035540).  
+- **Registration**: Listed in ClinicalTrials.gov or OSF, registration date between 2015‑01‑01 and 2024‑12‑31.  
+- **Exclusions**: Age outside 6‑12, no control group, no social‑skill outcome, duplicate publications, ambiguous delivery format, or missing outcome statistics that cannot be retrieved from PubMed Central. Records where component or delivery‑format extraction relied solely on abstracts are flagged `abstract_only=True` and **included** in the primary analysis with a flag; a separate sensitivity analysis will compare results with and without these flagged records (methodology‑abf95ff3).  
 
-**Inclusion Filter: RCT Verification**:
-To ensure causal validity, the inclusion criteria (FR-002) will strictly filter for **Randomized Controlled Trials (RCTs)** only. Studies with non-randomized, quasi-experimental, or observational designs will be excluded from the primary meta-analysis. If observational data is included in a secondary descriptive synthesis, claims will be explicitly framed as "associational."
+## Methodological Rigor
 
-## Coding Validation Protocol
+### Effect‑Size Computation
+- **Metric**: Hedges’ g with small‑sample correction (J = 1 − 3/(4N − 9)).  
+- **Preferred Input**: **Change‑score data** (pre‑post differences) when both baseline and post‑intervention means/SDs are available.  
+- **Fallback**: If change scores are unavailable, compute Hedges’ g from post‑intervention means/SDs **adjusted for baseline imbalance** using a **sensitivity analysis** over three plausible pre‑post correlations (r = 0.3, 0.5, 0.7). The range of resulting g values will be reported (addresses methodology‑dc72a3a8, scientific_soundness‑cb3b5961).  
+- **SE & CI**: Standard error computed per conventional formulas; 95 % CI via normal approximation.  
 
-To address measurement error risks in `delivery_format` and `intervention_component` tagging:
-1.  **Manual Double-Coding**: The initial subset of studies extracted will be manually coded by two independent reviewers.
-2.  **Reliability Check**: Inter-rater reliability (Cohen's Kappa) will be calculated.
-3.  **Threshold**: If Kappa < 0.6, regex rules in `extractor.py` will be refined and re-tested before processing the full dataset.
-4.  **Confidence Tag**: Each study will receive a `coding_confidence` tag (high/low) based on this validation.
+### Risk‑of‑Bias Assessment
+- Extract RoB2 ratings from trial protocols or associated publications (methodology‑2d4e176d).  
+- Store ratings in `metadata/rob_log.json` under the field `rob_rating`.  
+- Use `rob_rating` as a moderator and as a weighting factor in sensitivity analyses (FR‑030).
 
-## Statistical Methodology
+### Meta‑Analysis Model
+- **Model**: **Random‑effects** model using **REML** estimator with **Hartung‑Knapp** adjustment for **all** analyses, regardless of heterogeneity (methodology‑80dd5ee8).  
+- Compute Q, I², τ² for reporting.  
 
-### Effect Size Calculation (FR-004, FR-013)
-*   **Metric**: Hedges' *g* (standardized mean difference) to handle varying scales.
-*   **Formula**: $g = J \times \frac{\bar{X}_1 - \bar{X}_2}{S_{pooled}}$, where $J$ is the small-sample correction factor.
-*   **Implementation**: `statsmodels.stats.meta_analysis` or custom implementation validated against `metafor` (R) reference logic.
-*   **Precision**: Verified against synthetic data (SC-002).
+### Subgroup Analyses & Power
+- **Component**: breathing, body‑scan, mindful movement, combined.  
+- **Delivery Format**: caregiver‑mediated, child‑led, hybrid.  
+- **Social‑Skill Domain**: communication, peer interaction, emotional regulation, adaptive behavior.  
+- **Follow‑up**: ≤ 3 months vs. > 3 months.  
+- **Additional Moderators**: intervention dosage (sessions/week), therapist training level (certified/non‑certified), baseline severity (mean baseline score).  
+- **Multiple Comparisons**: Bonferroni correction across the four primary subgroup families.  
+- **Power**: Assuming a moderate sample size per study, the overall analysis is powered to detect a medium pooled effect size at [deferred] power. For subgroups, power calculations are performed for **g = 0.3, 0.5, 0.6**; required numbers of studies are reported for each scenario (methodology‑f1ea8fca, scientific_soundness‑d8a28d8d).  
+- Subgroups with fewer than 15 studies are not pursued to avoid severe under‑power.
 
-### Meta-Analysis Model (FR-005)
-*   **Model**: **Random-Effects Model** (DerSimonian-Laird or REML) is the **pre-specified default** due to expected heterogeneity in interventions and populations. The choice is not dependent on an I² threshold to avoid data-dredging bias.
-*   **Heterogeneity**: Quantified via $Q$ (total), $I^2$, and $\tau^2$.
-*   **Subgroup Analysis**:
-    *   **Components**: Breath, Body Scan, Loving-Kindness, Combined.
-    *   **Formats**: Caregiver-mediated, Child-led.
-    *   **Domains**: Peer interaction, Emotional recognition, Reciprocal communication.
-    *   **Test**: **Q-between (Qb)** statistic is used to compare effect sizes between independent subgroups (not Cochran's Q).
-    *   **Condition**: Formal subgroup testing (Qb) and meta-regression are **only performed if N >= 20**.
-    *   **Fallback**: If N < 20, the analysis will be purely descriptive/narrative. No formal hypothesis testing (including Q-tests) will be performed to avoid underpowered results.
+### Publication Bias
+- Funnel plot & Egger’s regression test only if total included studies **N ≥ 10** (FR‑006).  
+- Otherwise, report “insufficient studies for bias assessment”.
 
-### Publication Bias (FR-006, SC-004)
-*   **Visual**: Funnel plot (asymmetry assessment).
-*   **Statistical**: Egger's test.
-*   **Condition**: Only performed if N >= 10. If N < 10, suppressed with a warning in the report.
+### Multi‑Arm Study Handling
+- Combine multiple treatment arms into a single arm (averaging effect sizes) per Cochrane guidance (methodology‑603f7e57).  
+- Record the combination rationale in `metadata/multi_arm_log.json`.
 
-### Bayesian Fallback Strategy (N < 20)
-If N < 20, the project will utilize a Bayesian meta-analysis approach (using `bayesmeta` or equivalent Python implementation) with weakly informative priors to estimate the pooled effect size and uncertainty, providing a more robust inference than frequentist methods in small samples. If Bayesian analysis is not feasible due to tooling constraints, a purely narrative synthesis will be provided.
+### Component & Delivery‑Format Extraction
+- Use curated regex dictionary; each match receives a confidence score (0‑1).  
+- Records with confidence < 0.7 or where extraction relied solely on abstracts are flagged `abstract_only=True` and **included** with a flag; a sensitivity analysis will compare results with and without these records (methodology‑abf95ff3).
 
-## Statistical Rigor & Assumptions
+### DOI Verification
+- Extract DOI from registry metadata; validate via Crossref API.  
+- Log DOI verification status in `metadata/registry_log.json` (plan_consistency‑a02b0bf1).
 
-*   **Multiple Comparisons**: Not applicable. If N < 20, no formal tests are run. If N >= 20, a family-wise error correction (e.g., Bonferroni) will be applied to subgroup p-values.
-*   **Power Limitation**: Acknowledged that N < 20 is a high probability. The plan explicitly triggers the "descriptive fallback" (FR-014) or Bayesian approach rather than forcing invalid frequentist subgrouping.
-*   **Causal Claims**: Claims are restricted to **efficacy** for RCTs. Any observational data included in secondary synthesis is framed as **associational**.
-*   **Collinearity**: If "breath awareness" and "body scan" are often combined, they will be tagged as "Combined" to avoid claiming independent effects for definitionally overlapping predictors.
-*   **Measurement Validity**: Instruments (e.g., SRS-2) will be cited with validation evidence in `research.md` if used.
+### Power & Sample‑Size Considerations
+- Overall detectable g is estimated to be moderate, based on a modest sample size.  
+- Subgroup detectable g at a moderate level with a modest sample size.  
+- If final eligible N < 10, pipeline switches to descriptive synthesis and notes limited power (SC‑005).
 
-## Computational Feasibility
-
-*   **Environment**: CPU-only (2 cores, 7 GB RAM).
-*   **Methods**: All statistical methods (Hedges' g, REML, Qb, Bayesian inference) are computationally lightweight and CPU-tractable.
-*   **Data Volume**: Expected dataset size < 100 rows. No GPU required.
-*   **Runtime**: Estimated < 1 hour for full pipeline.
+## Compute Feasibility
+- All calculations use `numpy`, `scipy`, and `statsmodels` (CPU‑only).  
+- Expected study count ≤ 100 → Dataframe size < 10 MB; memory use < 200 MB.  
+- End‑to‑end runtime on GitHub Actions [deferred] (well within 6 h limit).
 
 ## Decision Rationale
+- **Hedges’ g** chosen for small‑sample bias correction.  
+- **Random‑effects (REML + Hartung‑Knapp)** as the **pre‑specified** primary model because mindfulness interventions differ in dosage, modality, and therapist training.  
+- **Delivery‑format tagging** mandated by Constitution VII to directly test the caregiver‑mediated hypothesis.  
+- **Bonferroni** correction ensures family‑wise error control across multiple subgroup families.  
 
-*   **Why Random-Effects?**: Anticipated heterogeneity in intervention protocols and populations across different studies necessitates a random-effects model over fixed-effects, pre-specified to avoid data-dredging.
-*   **Why N < 20 Fallback?**: Subgroup analysis and meta-regression with N < 20 are statistically underpowered and prone to false positives. The plan prioritizes validity (descriptive synthesis or Bayesian inference) over forcing a model that would yield unreliable confidence intervals.
-*   **Why No LLM for Extraction?**: LLM inference is too heavy for the 6h/7GB constraint and introduces non-determinism. Regex and structured API parsing are used for reproducibility (Constitution Principle I), validated by manual double-coding.
+---
+

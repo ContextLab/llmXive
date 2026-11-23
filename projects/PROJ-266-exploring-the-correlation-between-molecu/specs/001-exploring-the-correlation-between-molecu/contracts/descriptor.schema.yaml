@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Flexibility Descriptor Record"
+type: object
+additionalProperties: false
+required:
+  - smiles
+  - dihedral_variance
+  - bond_variance
+  - angle_variance
+  - conformer_count
+  - converged
+properties:
+  smiles:
+    type: string
+    description: "Canonical SMILES of the molecule."
+  dihedral_variance:
+    type: number
+    description: "Variance of dihedral angles (rad²)."
+  bond_variance:
+    type: number
+    description: "Variance of bond lengths (rad²)."
+  angle_variance:
+    type: number
+    description: "Variance of bond angles (rad²)."
+  conformer_count:
+    type: integer
+    minimum: 0
+    description: "Number of conformers generated for the molecule."
+  converged:
+    type: boolean
+    description: "True if descriptor calculation converged."

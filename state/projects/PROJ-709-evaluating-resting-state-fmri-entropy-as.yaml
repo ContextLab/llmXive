@@ -6,7 +6,7 @@ failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-709-evaluating-resting-state-fmri-entropy-as
-last_run_id: dc3bc81a-698b-4437-8fd4-c1ca3c1e05d6
+last_run_id: 7a898283-2f9a-46ed-a99b-e46c7b0cd54a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-709-evaluating-resting-state-fmri-entropy-as/specs/001-evaluating-resting-state-fmri-entropy-as
 title: "Evaluating Resting\u2011State fMRI Entropy as a Biomarker for Attention\u2011\
   Deficit Traits"
-updated_at: '2026-07-10T11:54:41.754438Z'
+updated_at: '2026-10-10T00:52:39.643123Z'

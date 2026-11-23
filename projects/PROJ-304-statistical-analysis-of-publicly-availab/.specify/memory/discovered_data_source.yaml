@@ -1,0 +1,15 @@
+status: none
+intent: NoiseTube citizen noise measurements OpenStreetMap traffic OSMnx land use
+  WorldPop population python package dataset
+required_fields:
+- grid_id
+- geometry
+- noise_mean
+- noise_median
+- noise_95th_percentile
+- traffic_volume
+- land_use_class
+- population_density
+cache_key: 759c2fd91c1c436d5560f68dfa5cf8af9873af108bab9ef616c0117e6f07bca7
+searched_at: '2026-10-21T03:49:10.499659+00:00'
+retry_count: 1

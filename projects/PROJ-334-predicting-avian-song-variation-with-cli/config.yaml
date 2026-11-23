@@ -1,0 +1,27 @@
+# Configuration for PROJ-334-predicting-avian-song-variation-with-cli
+# This file can be overridden by environment variables (e.g., JOIN_RADIUS_KM=5)
+
+paths:
+  data_dir: "data"
+  code_dir: "code"
+  logs_dir: "data/logs"
+
+spatial:
+  # Default join radius in km. Based on WorldClim v2.1 resolution (~1km) and typical
+  # spatial uncertainty in bird recording coordinates, 10km is a robust default.
+  # Override via env var: JOIN_RADIUS_KM=20
+  join_radius_km: 10.0
+
+xeno_canto:
+  # Base URL for Xeno-Canto API (v2)
+  base_url: "https://xeno-canto.org/api/2/recordings"
+  # API Key is optional but recommended for higher rate limits.
+  # Set via env var: XC_API_KEY=your_key
+  api_key: null
+
+worldclim:
+  # URL template for WorldClim v2.1 data (monthly temp/precip, 10 arc-min)
+  # Variables: {var} (tmean, tmin, tmax, precip), {month} (1-12)
+  url_template: "https://biogeo.ucdavis.edu/data/worldclim/v2.1/wc2.1_10m_{var}/wc2.1_10m_{var}_{month}.tif"
+  # Elevation data URL
+  elev_url: "https://biogeo.ucdavis.edu/data/worldclim/v2.1/wc2.1_10m_elev.tif"

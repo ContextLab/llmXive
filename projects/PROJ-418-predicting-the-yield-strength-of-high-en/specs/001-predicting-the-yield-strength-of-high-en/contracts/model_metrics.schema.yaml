@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Metrics"
+description: "Schema for model evaluation results including stability analysis"
+type: object
+properties:
+  models:
+    type: array
+    items:
+      type: object
+      properties:
+        model_name:
+          type: string
+          description: "e.g., 'Random Forest', 'Gradient Boosting', 'Linear Regression'."
+        metrics:
+          type: object
+          properties:
+            r2:
+              type: number
+            mae:
+              type: number
+            rmse:
+              type: number
+          required:
+            - r2
+            - mae
+            - rmse
+        stability:
+          type: object
+          properties:
+            bootstrap_n:
+              type: integer
+              description: "Number of bootstrap resamples (a sufficiently large number to ensure stable estimates)."
+            r2_ci_lower:
+              type: number
+            r2_ci_upper:
+              type: number
+            permutation_p_values:
+              type: object
+              additionalProperties:
+                type: number
+              description: "P-values for each descriptor."
+            corrected_p_values:
+              type: object
+              additionalProperties:
+                type: number
+              description: "P-values after multiple‑comparison correction."
+            significant_descriptors:
+              type: array
+              items:
+                type: string
+              description: "List of descriptors with corrected p < alpha."
+            vif_values:
+              type: object
+              additionalProperties:
+                type: number
+              description: "VIF values for linear model (if applicable)."
+      required:
+        - model_name
+        - metrics
+        - stability
+required:
+  - models

@@ -1,144 +1,192 @@
-"""
-T020: Implement test_split.py to partition a subset of full_pool_final.csv
-into a Fixed Test Set for model evaluation.
-
-Follows FR-009 and Plan Phase 0.5.
-Uses a fixed random seed to ensure reproducibility.
-"""
 import os
 import sys
 import json
 import hashlib
 import argparse
-from pathlib import Path
 import pandas as pd
-from sklearn.model_selection import train_test_split
+from pathlib import Path
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure project root is in path for imports if running as script
+_project_root = Path(__file__).resolve().parent.parent
+if str(_project_root) not in sys.path:
+    sys.path.insert(0, str(_project_root))
 
 from utils.logging import get_logger
-from utils.checksum_utils import compute_sha256, write_checksum_file
-from config import load_env
+from utils.checksum_utils import compute_sha256
 
-# Initialize logger
-logger = get_logger("test_split")
+logger = get_logger(__name__)
 
-# Constants
-TEST_SIZE = 0.20  # 20% for test set as per standard practice unless specified otherwise
-RANDOM_SEED = 42  # Fixed seed for reproducibility
-INPUT_FILE = project_root / "data" / "processed" / "full_pool_final.csv"
-OUTPUT_DIR = project_root / "data" / "processed"
-OUTPUT_FILE = OUTPUT_DIR / "test_set.csv"
-METADATA_FILE = OUTPUT_DIR / "test_set_metadata.json"
-CHECKSUM_SUFFIX = ".sha256"
+RAW_POOL_PATH = Path("data/raw/raw_pool.csv")
+TEST_CONFIG_PATH = Path("data/metadata/test_config.json")
+TEST_SET_PATH = Path("data/processed/test_set.csv")
+TEST_INDICES_PATH = Path("data/processed/test_set_indices.csv")
+TEST_METADATA_PATH = Path("data/metadata/test_set_metadata.json")
 
-def load_data(input_path: Path) -> pd.DataFrame:
-    """Load the full pool final dataset."""
-    logger.info(f"Loading data from {input_path}")
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
+def load_data():
+    """Load the raw pool CSV. Fails loudly if missing."""
+    if not RAW_POOL_PATH.exists():
+        raise RuntimeError(
+            f"CRITICAL: Input file {RAW_POOL_PATH} does not exist. "
+            "Task T024 (data ingestion) must complete successfully before T020 can run. "
+            "Do not generate synthetic data."
+        )
+    logger.info(f"Loading raw pool from {RAW_POOL_PATH}")
+    df = pd.read_csv(RAW_POOL_PATH)
+    logger.info(f"Loaded {len(df)} rows from raw pool.")
     return df
 
-def create_test_set(df: pd.DataFrame, test_size: float, seed: int) -> pd.DataFrame:
-    """
-    Partition the dataset into a fixed test set.
-    We use train_test_split with stratification if a target column exists,
-    otherwise simple random split. Here we assume 'formation_energy' is the target.
-    """
-    target_col = "formation_energy"
-    if target_col not in df.columns:
-        logger.warning(f"Target column '{target_col}' not found. Performing non-stratified split.")
-        train, test = train_test_split(
-            df, test_size=test_size, random_state=seed
+def load_test_config():
+    """Load test configuration (size) from metadata. Fails loudly if missing."""
+    if not TEST_CONFIG_PATH.exists():
+        raise RuntimeError(
+            f"CRITICAL: Test configuration file {TEST_CONFIG_PATH} does not exist. "
+            "Please ensure T005 or the planning phase has generated the test size configuration."
         )
-    else:
-        # Stratify by formation_energy bins to preserve distribution
-        # Create bins if necessary or just use the raw values if integer/low cardinality
-        # For continuous values, we can stratify by binned values or just the column if pandas handles it
-        # Pandas train_test_split supports stratifying on a continuous column directly in newer versions
-        # but often it's safer to bin for continuous targets.
-        # However, to keep it simple and robust for this task:
-        try:
-            train, test = train_test_split(
-                df, test_size=test_size, random_state=seed, stratify=df[target_col]
-            )
-        except (ValueError, TypeError):
-            # If stratification fails (e.g., too many unique values), fallback to non-stratified
-            logger.warning("Stratification failed (likely continuous target). Falling back to random split.")
-            train, test = train_test_split(
-                df, test_size=test_size, random_state=seed
-            )
+    with open(TEST_CONFIG_PATH, 'r') as f:
+        config = json.load(f)
     
-    logger.info(f"Created test set with {len(test)} rows ({len(test)/len(df)*100:.2f}%)")
-    return test
+    if 'test_size' not in config:
+        raise RuntimeError(f"CRITICAL: 'test_size' key missing in {TEST_CONFIG_PATH}")
+    
+    return config['test_size']
 
-def save_test_set(test_df: pd.DataFrame, output_path: Path) -> str:
-    """Save the test set to CSV and return its checksum."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    test_df.to_csv(output_path, index=False)
-    logger.info(f"Saved test set to {output_path}")
+def create_test_set(df, test_size, seed=42):
+    """
+    Create a stratified test set based on formation_energy bins.
     
-    checksum = compute_sha256(output_path)
-    checksum_file = str(output_path) + CHECKSUM_SUFFIX
-    write_checksum_file(checksum_file, checksum)
-    logger.info(f"Saved checksum to {checksum_file}")
+    Algorithm:
+    1. Use pd.qcut to create quantile bins on 'formation_energy'.
+    2. Sample 'test_size' rows stratified by these bins.
+    """
+    logger.info(f"Creating stratified test set of size {test_size} with seed {seed}")
     
-    return checksum
+    # Ensure formation_energy exists
+    if 'formation_energy' not in df.columns:
+        raise ValueError("Column 'formation_energy' not found in raw pool. Cannot stratify.")
+    
+    # Drop rows with NaN in formation_energy for binning purposes, but we need to handle them carefully
+    # For stratification, we only consider rows with valid formation_energy
+    valid_mask = df['formation_energy'].notna()
+    valid_df = df[valid_mask].copy()
+    
+    if len(valid_df) == 0:
+        raise ValueError("No rows with valid 'formation_energy' found for stratification.")
+    
+    # Create bins using qcut. We'll use 10 quantile bins for good stratification
+    n_bins = 10
+    try:
+        bins = pd.qcut(valid_df['formation_energy'], q=n_bins, duplicates='drop')
+    except ValueError as e:
+        # Fallback to fewer bins if not enough unique values
+        logger.warning(f"qcut failed with {n_bins} bins: {e}. Trying fewer bins.")
+        bins = pd.qcut(valid_df['formation_energy'], q=min(n_bins, len(valid_df)), duplicates='drop')
+    
+    valid_df['stratum'] = bins
+    
+    # Calculate how many to sample per stratum
+    stratum_counts = valid_df['stratum'].value_counts()
+    total_valid = len(valid_df)
+    
+    # Proportional allocation
+    sample_counts = (stratum_counts / total_valid * test_size).round().astype(int)
+    
+    # Ensure we don't exceed available rows in any stratum
+    sample_counts = sample_counts.clip(upper=stratum_counts)
+    
+    # Adjust to match exact test_size if rounding caused mismatch
+    current_sum = sample_counts.sum()
+    if current_sum != test_size:
+        diff = test_size - current_sum
+        if diff > 0:
+            # Add to largest strata
+            largest_strata = sample_counts.sort_values(ascending=False).index[:diff]
+            for idx in largest_strata:
+                if sample_counts[idx] < stratum_counts[idx]:
+                    sample_counts[idx] += 1
+        else:
+            # Remove from smallest non-zero strata
+            smallest_strata = sample_counts.sort_values(ascending=True).index
+            for idx in smallest_strata:
+                if sample_counts[idx] > 0:
+                    sample_counts[idx] -= 1
+                    diff += 1
+                    if diff == 0:
+                        break
+    
+    # Sample from each stratum
+    test_indices = []
+    for stratum, count in sample_counts.items():
+        stratum_df = valid_df[valid_df['stratum'] == stratum]
+        sampled = stratum_df.sample(n=count, random_state=seed)
+        test_indices.extend(sampled.index.tolist())
+    
+    test_df = df.loc[test_indices].copy()
+    
+    logger.info(f"Test set created with {len(test_df)} rows.")
+    return test_df, test_indices
 
-def save_metadata(test_df: pd.DataFrame, checksum: str, seed: int, output_path: Path) -> None:
-    """Save metadata about the test set."""
+def save_test_set(test_df):
+    """Save the test set DataFrame to CSV."""
+    TEST_SET_PATH.parent.mkdir(parents=True, exist_ok=True)
+    test_df.to_csv(TEST_SET_PATH, index=False)
+    logger.info(f"Saved test set to {TEST_SET_PATH}")
+    return TEST_SET_PATH
+
+def save_indices(indices):
+    """Save the list of indices to a CSV file."""
+    TEST_INDICES_PATH.parent.mkdir(parents=True, exist_ok=True)
+    indices_df = pd.DataFrame({'index': indices})
+    indices_df.to_csv(TEST_INDICES_PATH, index=False)
+    logger.info(f"Saved test indices to {TEST_INDICES_PATH}")
+    return TEST_INDICES_PATH
+
+def save_metadata(test_df, indices):
+    """Generate and save metadata about the test set."""
+    checksum = compute_sha256(TEST_SET_PATH)
     metadata = {
         "row_count": len(test_df),
-        "column_count": len(test_df.columns),
-        "columns": list(test_df.columns),
+        "seed": 42,
         "checksum": checksum,
-        "random_seed": seed,
-        "test_size_ratio": TEST_SIZE,
-        "source_file": str(INPUT_FILE),
-        "generated_at": pd.Timestamp.now().isoformat()
+        "creation_timestamp": pd.Timestamp.now().isoformat(),
+        "source_file": str(RAW_POOL_PATH),
+        "stratification_column": "formation_energy"
     }
     
-    with open(output_path, "w") as f:
+    TEST_METADATA_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(TEST_METADATA_PATH, 'w') as f:
         json.dump(metadata, f, indent=2)
-    logger.info(f"Saved metadata to {output_path}")
+    
+    logger.info(f"Saved test set metadata to {TEST_METADATA_PATH}")
+    return metadata
 
 def main():
-    """Main entry point for T020."""
-    logger.info("Starting T020: Test Set Partitioning")
+    """Main entry point for the test split task."""
+    parser = argparse.ArgumentParser(description="Split raw pool into fixed test set.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+    args = parser.parse_args()
     
-    # Load environment configuration (validates MP_API_KEY presence if needed, though not strictly needed for this local task)
     try:
-        load_env()
-    except Exception as e:
-        logger.warning(f"Environment config warning (non-fatal for this task): {e}")
-
-    if not INPUT_FILE.exists():
-        logger.error(f"Input file {INPUT_FILE} does not exist. Run T027 first.")
+        # 1. Load raw pool (fails if missing)
+        df = load_data()
+        
+        # 2. Load test config (fails if missing)
+        test_size = load_test_config()
+        
+        # 3. Create test set
+        test_df, indices = create_test_set(df, test_size, seed=args.seed)
+        
+        # 4. Save outputs
+        save_test_set(test_df)
+        save_indices(indices)
+        save_metadata(test_df, indices)
+        
+        logger.info("Task T020 completed successfully.")
+        
+    except RuntimeError as e:
+        logger.error(f"Runtime Error: {e}")
         sys.exit(1)
-
-    try:
-        # 1. Load Data
-        df = load_data(INPUT_FILE)
-
-        # 2. Create Test Set
-        test_df = create_test_set(df, TEST_SIZE, RANDOM_SEED)
-
-        # 3. Save Test Set and Checksum
-        checksum = save_test_set(test_df, OUTPUT_FILE)
-
-        # 4. Save Metadata
-        save_metadata(test_df, checksum, RANDOM_SEED, METADATA_FILE)
-
-        logger.info("T020 completed successfully.")
-        return 0
-
     except Exception as e:
-        logger.error(f"Error during test split: {e}", exc_info=True)
+        logger.error(f"Unexpected error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

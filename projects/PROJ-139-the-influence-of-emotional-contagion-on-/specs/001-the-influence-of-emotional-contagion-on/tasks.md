@@ -1,227 +1,243 @@
-# Tasks: The Influence of Emotional Contagion on Collective Decision-Making in Online Forums
+# Tasks: The Influence of Emotional Contagion on Collective Decision‑Making in Online Forums  
 
-**Input**: Design documents from `/specs/001-emotional-contagion-decisions/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, `data‑model.md`, contract schemas, existing code base.  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+The checklist below follows the canonical `- [ ] T### [P?] [USx?] description …` format.  
+`[P]` = can run in parallel with other tasks that have no data‑flow dependency.  
+`[S]` = must run sequentially after its listed dependencies.  
+`[USx]` = user‑story identifier from the specification (US1 = Data collection, US2 = Sentiment & contagion, US3 = Decision quality & modelling).  
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project structure per implementation plan (code/, data/raw, data/processed, state/, docs/)
-- [X] T002 Initialize Python 3.11 project with requirements.txt (pandas, nltk, scikit-learn, statsmodels, pyyaml, requests, scipy)
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
+All paths are relative to the project root.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Project setup & first end‑to‑end run  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+| Goal | Tasks |
+|------|-------|
+| Establish reproducible project skeleton and confirm a minimal runnable pipeline on a tiny real sample. |  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T001 [P] Establish project layout (`code/`, `data/raw/`, `data/processed/`, `state/`, `docs/`) and record it in `docs/quickstart.md`.  
+- [ ] T002 [P] Add `requirements.txt` (pandas, nltk, scikit‑learn, statsmodels, pyyaml, requests, scipy, langdetect, datasets) and pin versions.  
+- [ ] T003 [P] Document a one‑line execution command in `docs/quickstart.md` that runs `python -m code.analysis.run_pipeline --sample 5` producing a tiny CSV under `data/results/sample_run.csv`.  
 
-- [X] T004 Setup data contracts in code/contracts/ (thread.schema.yaml, sentiment.schema.yaml, result.schema.yaml)
-- [X] T005 [P] Implement logging infrastructure and artifact hashing in state/
-- [X] T006 Create base configuration management for API keys and dataset paths
-- [ ] T007 [P] Setup pytest environment with CPU-only constraints: Create `code/tests/conftest.py` and `pytest.ini` to enforce random seed pinning (e.g., `addopts = --random-seed=42`) and CPU-only execution flags.
+**Verification**  
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Collection and Thread Extraction (Priority: P1) 🎯 MVP
-
-**Goal**: Download Reddit/Stack Exchange data and extract threads with seed posts.
-
-**Independent Test**: Can be fully tested by running the data extraction script against a sample of threads from r/AskScience and verifying that each thread has a sufficient number of seed posts extracted with valid timestamps and author IDs, and that the total dataset spans ≥2 subreddits and ≥1 site.
-
-### Implementation for User Story 1
-
-- [ ] T008 [P] [US1] Implement `code/data/download.py` to fetch data: **Primary**: Pushshift API (if reachable). **Fallback 1**: Reddit Official API. **Fallback 2**: Verified HuggingFace archives or Internet Archive dumps. The script MUST implement the full fallback chain: if the primary fails, automatically attempt the next, and log the origin type used. Do not skip Pushshift; attempt it first as per Spec FR-001.
-- [ ] T009 [P] [US1] Implement `code/data/extract.py` to identify threads with decision points and extract the first N=3 top-level posts as seed posts.
-- [ ] T010 [US1] Implement exclusion logic in `code/data/extract.py`: Flag threads with <3 top-level posts with reason code `SEED_INSUFFICIENT` and log to `data/processed/exclusions.log`.
-- [ ] T011 [US1] Implement validation logic in `code/data/extract.py` to ensure metadata (timestamp, author, comment ID) is complete for ≥95% of extracted threads.
-- [ ] T012 [P] [US1] Create unit tests in `code/tests/test_extract.py`: Implement specific functions `test_extract_seed_posts` (asserts a small set of posts extracted), `test_flag_insufficient_seeds` (asserts exclusion logic), and `test_metadata_completeness` (asserts a high-confidence threshold).
-- [ ] T007a [S] [US1] **Depends on T008**: Generate human-annotated corpus sample: Create a script to sample a representative subset of comments from the dataset downloaded in T008. Implement an inter-annotator agreement protocol requiring **at least 2 independent annotators** to label each sample with sentiment. Store raw annotations in `data/raw/annotations.json`. If manual annotation is not feasible, use a pre-defined gold-standard subset from a verified source. This task is sequential [S] and cannot run until T008 completes.
-- [ ] T007b [S] [US1] **Depends on T007a**: Calculate inter-rater reliability and generate validation report: Implement a script to compute Cohen's Kappa on the corpus generated in T007a. The output MUST be a JSON report at `data/processed/vader_validation_report.json` containing the Kappa value and summary statistics. **Constraint**: The corpus is considered INVALID for downstream use if Kappa is not calculated or if the report is missing. This task MUST complete before T014.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T003v [P] Unit test asserts that running the sample command exits with code 0 and creates `data/results/sample_run.csv` with the required columns.
 
 ---
 
-## Phase 4: User Story 2 - Sentiment Analysis and Contagion Index Computation (Priority: P2)
+## Phase 2 – Data contracts, acquisition & validation  
 
-**Goal**: Apply VADER sentiment analysis and compute the emotional contagion index.
+| Goal | Tasks |
+|------|-------|
+| Define schemas, fetch real data, and verify provenance before any downstream analysis. |  
 
-**Independent Test**: Can be fully tested by running sentiment analysis on a fixed test corpus of Reddit comments and verifying that VADER compound scores fall within the standard normalized range. and the contagion index computation returns a valid correlation coefficient for threads with ≥5 replies.
+- [ ] T004 [P] Copy contract schemas into the runtime location `code/contracts/` (thread.schema.yaml, sentiment.schema.yaml, result.schema.yaml).   <!-- FAILED-IN-EXECUTION: code/contracts/copy_schemas.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/contracts/copy_schemas.py exit=1 -->
+- [ ] T005 [P] Implement a lightweight logger (`code/utils/logger.py`) that writes to `state/logs/` and is used by all pipeline modules.  
+- [ ] T006 [P] Extend seeding to pin randomness in `numpy`, `random`, `scikit-learn`, and `statsmodels`.  
+- [ ] T006v [P] Test that `np.random.rand()` returns the same sequence across runs after seeding.  
 
-### Implementation for User Story 2
+**Data download & streaming**  
 
-- [X] T013 [P] [US2] Implement `code/data/sentiment.py` to apply VADER (NLTK) and compute compound sentiment scores on a bounded scale for each post.
-- [~] T014 [US2] **Depends on T007b**: Implement VADER validation in `code/data/sentiment.py`: Run against the human-annotated corpus from T007a. **Verify** that the report from T007b (`data/processed/vader_validation_report.json`) exists and contains the required Kappa statistics. Store the final validation confirmation in the same report.
-- [X] T015 [US2] Implement `code/data/metrics.py` to compute the emotional contagion index: Calculate the **slope** of the reply sentiment trajectory (linear regression of sentiment vs. position) for an initial segment of comments. Compute the Pearson correlation between the seed-post sentiment and this **slope**. **Exclude** threads with <5 replies from this analysis and log them. (Note: This aligns with the Plan's 'Technical Context' definition of the index).
-- [X] T016 [US2] Implement exclusion logic in `code/data/metrics.py`: Flag threads with <5 replies as insufficient for contagion analysis and exclude from primary set.
-- [X] T017 [P] [US2] Create unit tests in `code/tests/test_sentiment.py` to verify VADER scores and contagion index calculation. <!-- FAILED: unspecified -->
+- [ ] T008 [S] Implement `code/data/download.py` to **attempt**:  
+  1. Pushshift API query for the two target subreddits (`AskScience`, `AskHistorians`).  
+  2. Fallback to Reddit official API (OAuth via `praw`).  
+  3. Final fallback to an Internet Archive mirror (URL stored in `config.yaml`).  
+  The script writes raw JSONL to `data/raw/reddit_threads.jsonl` and logs the source type for each thread in `data/processed/download_attempts.log`. It **fails loudly** (`RuntimeError`) if all three sources are unavailable.  
+- [ ] T008v [S] Verify that `data/raw/reddit_threads.jsonl` exists and that `download_attempts.log` contains at least one line with source = “Pushshift”.  
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T081 [S] Refactor `code/data/download.py` and `code/data/extract.py` to use `datasets.load_dataset(..., streaming=True)` so the full archive is processed in ≤1 GB‑max chunks. A memory guard raises `RuntimeError` if RAM usage exceeds 6 GB.  
+- [ ] T081v [S] Run a streaming sanity check on a small shard and assert that the guard does not trigger under normal conditions but does raise when artificially exceeding the limit (mocked test).  
 
----
+**Language filtering**  
 
-## Phase 5: User Story 3 - Decision Quality Metrics and Statistical Modeling (Priority: P3)
+- [ ] T071 [S] Add English‑only filtering in `code/data/sentiment.py` using `langdetect`. Write filtered output to `data/raw/reddit_threads_en.jsonl` and log excluded thread IDs to `data/processed/lang_filter.log`.  
+- [ ] T071v [S] Unit test confirms that every line in `reddit_threads_en.jsonl` has language code “en” and that `lang_filter.log` is non‑empty when non‑English threads are present.  
 
-**Goal**: Compute decision quality metrics, fit GLMMs, and perform sensitivity analysis.
+**Seed‑post extraction & exclusion logging (re‑planned)**  
 
-**Independent Test**: Can be tested by running the statistical modeling pipeline on a sample dataset of threads and verifying that GLMMs converge, p-values are computed, and multiple-comparison correction is applied when ≥3 tests are run.
+- [ ] T010 [S] **Generate seed‑post exclusion log** – Implement `code/data/extract.py` function `log_insufficient_seeds(thread_id)` that writes a line `thread_id\tSEED_INSUFFICIENT` to `data/processed/exclusions_seed.log`.  
+  - **Dependency**: T008, T071.  
+  - **Output**: `data/processed/exclusions_seed.log` (tab‑separated, one line per excluded thread).  
+  - **Verification**: Unit test `test_exclusions_log_exists` in `code/tests/test_extract.py` asserts the file exists and contains only valid thread IDs.  
+- [ ] T010v [S] Verify that `exclusions_seed.log` is created and that its entries match threads with fewer than three top‑level posts.  
 
-### Implementation for User Story 3
+- [ ] T009 [S] Implement full thread extraction in `code/data/extract.py`:  
+  - Read from `data/raw/reddit_threads_en.jsonl`.  
+  - Skip any thread listed in `exclusions_seed.log`.  
+  - For remaining threads, verify ≥3 top‑level posts, extract the first three as seed posts, compute `seed_count`, and write a CSV `data/processed/threads_with_seeds.csv` (columns: `thread_id, source, subreddit_site, created_at, seed_count, total_replies`).  
+- [ ] T009v [S] Validate `threads_with_seeds.csv` against `thread.schema.yaml` and assert all rows have `seed_count ≥ 3`.  
 
-- [X] T018 [P] [US3] Implement `code/data/metrics.py` to compute decision quality metrics: (a) agreement proportion, (b) Shannon entropy for diversity, (c) external validation score (ground truth), and (d) efficiency metrics (time-to-decision, thread length).
-- [~] T019 [US3] Implement `code/data/validation.py` to validate ground-truth availability (FR-009), classify threads as 'valid' or 'excluded', and log the count/percentage of valid threads. Output the classified dataset to `data/processed/valid_threads.csv`.
-- [X] T019a [US3] Implement `code/data/validation.py` to **compute the external validation score** (e.g., accuracy of consensus vs. ground truth) for valid threads. <!-- FAILED: unspecified -->
-- [~] T019b [US3] Implement logic in `code/data/validation.py` to check if valid threads < 30%. If so, flag the study as failing SC-006 and generate a formal **failure report** in `data/processed/validity_failure_report.json` detailing the percentage and the reason for failure. This is a valid research outcome, not a project stop.
-- [X] T020 [US3] Implement `code/data/modeling.py` to fit Generalized Linear Mixed Models (GLMM) with thread-level random intercepts. Use **beta regression** for bounded outcomes (agreement proportion), **Gamma distribution with log link** for time-to-decision outcomes, and appropriate link functions for count outcomes.
-- [X] T021 [US3] Implement significance testing in `code/data/modeling.py`: Wald tests (α=0.05) for contagion coefficients.
-- [X] T022 [US3] Implement multiple-comparison correction in `code/data/modeling.py`: Apply Bonferroni or Benjamini-Hochberg FDR when ≥3 hypothesis tests are run (FR-007).
-- [~] T023 [US3] Implement sensitivity analysis in `code/data/modeling.py`: Sweep agreement cutoff across **representative values** and entropy threshold across **representative values**. Output results to `data/processed/sensitivity_analysis.csv` with columns: `agreement_cutoff`, `entropy_threshold`, `correlation_coefficient`.
-- [X] T023a [US3] Implement FP/FN calculation in `code/data/modeling.py`: For valid threads, compute False Positive and False Negative rates of Consensus vs. Ground Truth **for each sensitivity threshold** defined in T023. Append these rates to the `sensitivity_analysis.csv` output.
-- [X] T024 [P] [US3] Create integration tests in `code/tests/test_modeling.py` to verify GLMM convergence and correction application.
+**Ground‑truth classification**  
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T019 [S] Implement `code/data/validation.py` to create `data/processed/all_threads_classified.csv` with an added boolean `has_ground_truth` (Stack Exchange → `accepted_answer_id` present, Reddit → `False`).  
+- [ ] T019v [S] Schema‑validate `all_threads_classified.csv` against `thread.schema.yaml` and confirm presence of `has_ground_truth` column.  
 
----
+- [ ] T019a [S] Compute `external_validation_score` (1 = consensus matches ground truth, 0 = mismatch, null = no ground truth) and append it to `all_threads_classified.csv`.  
+- [ ] T019av [S] Verify that the new column exists and contains only 0, 1, or null values.  
 
-## Phase 6: Polish & Cross-Cutting Concerns
+- [ ] T019b [S] Generate `data/processed/ground_truth_stats.json` containing `analyzable_dataset_count`, `valid_dataset_count`, and `valid_thread_percentage`. Then produce `state/sc_006_compliance_report.json` with `status: "pass"` if `valid_thread_percentage ≥ 30` else `"fail"`.  
+- [ ] T019bv [S] Unit test checks that both JSON files are well‑formed and that `status` field matches the computed percentage.  
 
-**Purpose**: Improvements that affect multiple user stories
+**Sentiment‑tool validation**  
 
-- [~] T025 [P] Run full pipeline on N=500 threads and verify completion within 6 hours on CPU-only runner (SC-005). <!-- ATOMIZE: requested -->
-- [X] T026 [P] Generate final report in `docs/paper.md` including SC-006 pass/fail status, ground truth percentage, and model results.
-- [~] T027 [P] Record all artifact checksums in `state/projects/PROJ-139-...yaml` under `artifact_hashes`.
-- [ ] T028 [P] Verify reproducibility by re-running pipeline and matching checksums.
-- [ ] T029 [P] Update `quickstart.md` with execution instructions for the full pipeline.
+- [ ] T007a-1 [P] Run VADER sanity check on the built‑in NLTK test suite; output `data/processed/vader_sanity_check.json`.  
+- [ ] T007a-1v [P] Verify that `vader_sanity_check.json` exists and contains keys `mean_compound`, `std_compound`.  
 
----
+- [ ] T007a-2 [S] Download the `cardiffnlp/twitter-sentiment-2018` dataset from HuggingFace, compute Cohen’s κ between VADER scores and human labels, and store results in `data/processed/vader_validation_report.json`.  
+- [ ] T007a-2v [S] Assert that `vader_validation_report.json` exists and that κ ∈ [0,1].  
 
-## Dependencies & Execution Order
+**Schema validation (SC‑001)**  
 
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data extraction
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data and US2 metrics
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T011 [S] Run JSON‑schema validation on all generated CSV/JSON artifacts (`threads_with_seeds.csv`, `post_sentiments.csv`, `thread_metrics.csv`, `decision_quality.csv`, `glmm_results.json`, etc.) against the three contract schemas.  
+- [ ] T011v [S] Fail the pipeline if any file does not conform; unit test ensures the validator runs on a known good file without error.  
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 3 – Sentiment scoring & emotional‑contagion index  
 
-```bash
-# Launch all models for User Story 1 together:
-Task: "Implement code/data/download.py to fetch data from Pushshift API"
-Task: "Implement code/data/extract.py to identify threads and extract seed posts"
-Task: "Create unit tests in code/tests/test_extract.py"
-```
+| Goal | Tasks |
+|------|-------|
+| Apply VADER, compute contagion metrics, and store them with full provenance. |  
 
----
+- [ ] T013 [S] Apply VADER to every post in `data/raw/reddit_threads_en.jsonl` (including seed and reply posts) and write `data/processed/post_sentiments.csv` (`thread_id, post_id, role[seed|reply], vader_compound`).  
+- [ ] T013v [S] Validate `post_sentiments.csv` against `sentiment.schema.yaml` and confirm compound scores lie in [-1, 1].  
 
-## Implementation Strategy
+- [ ] T015a [S] Filter threads for contagion analysis: keep only those with `total_replies ≥ 5`. Write the filtered list to `data/processed/contagion_candidate_threads.csv`. Log excluded thread IDs with reason `REPLY_COUNT_INSUFFICIENT`.  
+- [ ] T015av [S] Verify that the candidate CSV exists and that every excluded thread appears in `exclusions_reply.log` with the correct reason.  
 
-### MVP First (User Story 1 Only)
+- [ ] T015b [S] For each candidate thread, compute:  
+  1. `seed_sentiment_mean` (mean of the three seed VADER scores).  
+  2. `contagion_index_slope` = Pearson r between `seed_sentiment_mean` and the **slope** of reply‑sentiment vs. position (linear regression over first 20 replies).  
+  3. Bootstrapped 95 % confidence interval (1 000 resamples, seed 42).  
+  Results are appended to `data/processed/thread_metrics.csv` (columns: `thread_id, seed_sentiment_mean, contagion_index_slope, n_replies_used, ci_low, ci_high, window_type`).  
+- [ ] T015bv [S] Ensure all `contagion_index_slope` values lie within [-1, 1] and that CI columns are ordered (`ci_low ≤ ci_high`).  
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
+- [ ] T015c [S] **FR‑004 compliance** – Compute the original contagion metric defined in the spec: Pearson correlation between `seed_sentiment_mean` and the **delta** (change) in reply sentiment across the first 20 replies. Store as `contagion_index_delta` in `thread_metrics.csv`.  
+- [ ] T015cv [S] Verify that `contagion_index_delta` values are within [-1, 1] and that both slope‑based and delta‑based metrics are present for each thread.  
 
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
+- [ ] T087 [S] Implement a robust linear‑regression routine in `code/data/metrics.py` that, for each thread, fits sentiment vs. position over the first 20 replies (or all replies if <20) and returns the slope (“delta”). Unit test `test_contagion_delta_calculation` validates against a hand‑crafted synthetic series.  
+- [ ] T087v [S] Confirm that the regression routine returns a numeric slope for a synthetic test case.  
 
 ---
 
-## Notes
+## Phase 4 – Decision‑quality metrics, modelling & sensitivity  
 
-- [P] tasks = different files, no dependencies
-- [S] tasks = sequential, depend on previous task completion
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+| Goal | Tasks |
+|------|-------|
+| Derive outcome metrics, fit GLMMs, apply multiple‑comparison correction, and run sensitivity sweeps. |  
+
+- [ ] T018 [S] Compute decision‑quality metrics per thread (agreement proportion, Shannon entropy of sentiment buckets, time‑to‑decision, thread length) and merge them with `thread_metrics.csv` → `data/processed/decision_quality.csv`.  
+- [ ] T018v [S] Validate `decision_quality.csv` against `result.schema.yaml`.  
+
+- [ ] T023a [S] From `all_threads_classified.csv`, calculate false‑positive and false‑negative rates of consensus vs. ground truth; write `data/processed/fp_fn_rates.csv`.  
+- [ ] T023av [S] Verify that `fp_fn_rates.csv` contains columns `fp_rate` and `fn_rate` and that values are between 0 and 1.  
+
+- [ ] T023b [S] Perform a full grid sweep over agreement cutoffs `{0.5,0.6,0.7}` and entropy thresholds `{0.2,0.4,0.6}`. For each combination compute the Pearson correlation between `contagion_index_slope` (primary) and the selected decision‑quality outcome. Write every combination (including “No data” rows) to `data/processed/sensitivity_analysis.csv`.  
+- [ ] T023bv [S] Assert that the number of rows equals `3 × 3 = 9` plus any “No data” placeholders.  
+
+- [ ] T023c [S] Generate a deterministic textual summary of the primary trend (contagion vs agreement) and append a column `trend_summary` to `sensitivity_analysis.csv`.  
+- [ ] T023cv [S] Verify that `trend_summary` is non‑empty for all non‑placeholder rows.  
+
+**Statistical modelling**  
+
+- [ ] T030 [S] Compute Variance Inflation Factors for all predictors (contagion, thread length, time‑to‑decision, external validation score) and output `data/processed/collinearity_diagnostics.json`.  
+- [ ] T030v [S] Ensure all VIF values are < 5; fail if any exceed.  
+
+- [ ] T088 [S] Pre‑process `agreement_proportion` for beta regression: apply the `(y · (n‑1) + 0.5)/n` transformation when any value equals 0 or 1; log the transformation actions.  
+- [ ] T088v [S] Check that transformed values lie strictly within (0,1) and that a log entry is created.  
+
+- [ ] T089 [S] Wrap each GLMM fit in a 5‑minute timeout; on timeout log `MODEL_TIMEOUT` and skip the thread.  
+- [ ] T089v [S] Verify that a `model_timeout.log` file is created when a timeout occurs.  
+
+- [ ] T020 [S] Fit GLMMs with **thread‑level random intercepts** (override the original plan that used subreddit). Fixed effects: `contagion_index_slope`, `thread_length`, `time_to_decision`, `external_validation_score` (when present). Store model summaries, convergence flags, and coefficient tables in `data/processed/glmm_results.json`.  
+- [ ] T020v [S] Confirm that `glmm_results.json` exists, conforms to `result.schema.yaml`, and includes a `convergence` flag for each model.  
+
+- [ ] T021 [S] Conduct Wald tests (α = 0.05) on the contagion coefficient; add `p_value` and `is_significant` fields to the GLMM results.  
+- [ ] T021v [S] Verify that `p_value` is numeric and `is_significant` is boolean.  
+
+- [ ] T022 [S] If ≥3 hypothesis tests are performed, apply Benjamini‑Hochberg FDR correction; record adjusted p‑values and a boolean `is_significant_after_fdr`.  
+- [ ] T022v [S] Ensure that corrected p‑values are present and that `is_significant_after_fdr` is boolean.  
+
+**External‑validation correlation**  
+
+- [ ] T024 [S] Correlate `external_validation_score` with `contagion_index_slope` and other decision‑quality metrics; write `data/processed/external_validation_correlation.csv`.  
+- [ ] T024v [S] Validate that the CSV contains correlation coefficients and that they are numeric.  
+
+**SC‑002 Associational framing**  
+
+- [ ] T027 [S] Scan `docs/paper.md` for prohibited causal phrasing (e.g., “causes”, “leads to”) and enforce associational language only. Fail the pipeline if causal language is detected.  
+- [ ] T027v [S] Unit test supplies a snippet with causal wording and asserts that the scan fails.  
+
+---
+
+## Phase 5 – Reporting, reproducibility & hand‑off  
+
+| Goal | Tasks |
+|------|-------|
+| Produce the final research artefacts and ensure full reproducibility. |  
+
+- [ ] T026 [S] Draft the methods & results section in `docs/paper.md`, automatically inserting tables/figures generated from `glmm_results.json`, `sensitivity_analysis.csv`, and the SC‑006 compliance report. Include a “Limitations” paragraph that discusses exclusion of threads with <5 replies and any ground‑truth shortfall.  
+- [ ] T026v [S] Verify that `paper.md` contains placeholders `{{TABLE_GLMM}}`, `{{FIG_SENSITIVITY}}`, and that no causal language is present (reuse T027 scan).  
+
+- [ ] T086 [S] Add a “Power Analysis” subsection to `docs/paper.md` that cites the intended sample size (N = 500) and reports the achieved statistical power for the observed effect size (using `statsmodels.stats.power`).  
+- [ ] T086v [S] Ensure the subsection exists and contains numeric power estimate.  
+
+- [ ] T092 [S] Create `code/scripts/generate_manifest.py` that aggregates: all checksum files from `state/`, the SHA‑256 of `requirements.txt`, and the current git commit hash; output `reproducibility_manifest.json`. Run this script as the final step of `run_pipeline.py`.  
+- [ ] T092v [S] Verify that `reproducibility_manifest.json` contains a non‑empty `artifact_hashes` map.  
+
+**Checksum generation (III Data Hygiene)**  
+
+- [ ] T031 [S] Generate SHA‑256 checksums for every raw and processed data file and write them to `state/checksums.txt`.  
+- [ ] T031v [S] Confirm that each file listed in `state/checksums.txt` exists and that the checksum line matches the file’s actual hash.  
+
+**Versioning Discipline (V)**  
+
+- [ ] T033 [S] Populate the `artifact_hashes` map in `state/projects/PROJ-139-the-influence-of-emotional-contagion-on-.yaml` using the checksums from T031.  
+- [ ] T033v [S] Validate that the YAML now includes a top‑level `artifact_hashes` dictionary with entries for all data artifacts.  
+
+**Runtime resource monitoring (SC‑005)**  
+
+- [ ] T028 [S] Measure total CPU time, peak memory usage, and disk consumption of the full pipeline; write `state/runtime_metrics.json` and compare against GitHub Actions free‑tier limits (≤6 h CPU, ≤7 GB RAM, ≤14 GB disk). Fail if any limit is exceeded.  
+- [ ] T028v [S] Unit test runs a lightweight mock pipeline and asserts that the metrics JSON is produced and values are within limits.  
+
+**Final hand‑off**  
+
+- [ ] T029 [S] Update `docs/quickstart.md` with step‑by‑step instructions to reproduce the full analysis (including required environment variables for API credentials).  
+- [ ] T029v [S] Check that `quickstart.md` contains a section titled “Full Reproduction”.  
+
+- [ ] T032 [S] Ensure `code/data/metrics.py` contains a comment block documenting the exact streaming/sampling rule used (full dataset streaming, no down‑sampling).  
+- [ ] T032v [S] Verify that the comment block exists and matches the required wording.  
+
+**Verification** – A fresh CI run on a clean runner must:  
+1. Execute `python -m code.analysis.run_pipeline` (no `--sample` flag).  
+2. Complete all steps within the 6‑hour CPU limit.  
+3. Produce the final artefacts (`glmm_results.json`, `sensitivity_analysis.csv`, `paper.md`, `reproducibility_manifest.json`).  
+4. Pass all pytest suites (`code/tests/`).  
+
+---  
+
+## Dependency & Requirement Mapping  
+
+| Spec FR | Covered by Task(s) |
+|---------|--------------------|
+| FR‑001 | T008, T081 |
+| FR‑002 | T009, T010 |
+| FR‑003 | T013 |
+| FR‑004 | T015b (slope‑based) & T015c (delta‑based) |
+| FR‑005 | T018, T023a, T023b |
+| FR‑006 | T020 (random intercept = thread ID) |
+| FR‑007 | T022 |
+| FR‑008 | T023b (threshold sweep) |
+| FR‑009 | T019, T019a, T019b |
+| SC‑001 | T011 |
+| SC‑002 | T027 |
+| SC‑003 | T022 |
+| SC‑004 | T023b grid report |
+| SC‑005 | T028 (runtime guard) |
+| SC‑006 | T019b & `state/sc_006_compliance_report.json` |
+
+---  
+
+*All pending tasks are unchecked; completed tasks are marked `[X]`. The pipeline can now be executed end‑to‑end, producing verifiable real artefacts that satisfy every functional and success‑criterion in the specification.*  

@@ -20,7 +20,7 @@ items:
       description: "Variance of the HSV color channels."
     object_count:
       type: integer
-      description: "Number of objects detected by YOLOv8n. Must be >= 0."
+      description: "Number of objects detected by a YOLOvXn model, where “X” denotes the model version rather than a specific numeric value. Must be >= 0."
       minimum: 0
     texture_score:
       type: number

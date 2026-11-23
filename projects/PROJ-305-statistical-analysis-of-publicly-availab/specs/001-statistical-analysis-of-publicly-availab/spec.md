@@ -25,7 +25,7 @@ The system must successfully download, clean, and merge the VAERS 2020-2023 data
 
 ### User Story 2 - Disproportionality Signal Detection (Priority: P2)
 
-The system must calculate Reporting Odds Ratio (ROR), Proportional Reporting Ratio (PRR), and Information Component (IC) for each System Organ Class (SOC) comparing COVID-19 vaccines to non-COVID vaccines, and perform a sensitivity analysis against a Flu-only baseline.
+The system must calculate Reporting Odds Ratio (ROR), Proportional Reporting Ratio (PRR), and Information Component (IC) for each System Organ Class (SOC) comparing vaccines to non-vaccines., and perform a sensitivity analysis against a Flu-only baseline.
 
 **Why this priority**: This is the core analytical engine. It directly addresses the research question by identifying potential safety signals. It is independent of the temporal analysis.
 
@@ -69,7 +69,7 @@ The system must generate a descriptive weekly reporting profile for top candidat
 - **FR-003**: System MUST apply the Benjamini-Hochberg procedure to control the false discovery rate (FDR) across all SOC tests for the cross-sectional ROR/PRR/IC metrics, outputting adjusted p-values for every metric (See US-3).
 - **FR-004**: System MUST generate a descriptive weekly reporting profile for the top 5 candidate SOCs, aggregating counts relative to the median report date of the cohort, and explicitly label this analysis as 'Reporting Time' (not 'Post-Vaccination Time') to acknowledge the absence of `VACCINATION_DATE` data (See US-3).
 - **FR-005**: System MUST validate a safety signal only if it meets the threshold criteria (ROR > 2.0, lower 95% CI > 1.0; PRR > 1.5, lower 95% CI > 1.0; IC > 0, lower 95% CI > 0) in at least two of the three disproportionality metrics (ROR, PRR, IC) (See US-2).
-- **FR-006**: System MUST execute the entire analysis pipeline on a CPU-only environment with memory usage optimized to remain under 7 GB RAM, avoiding any GPU-dependent libraries (See US-1).
+- **FR-006**: System MUST execute the entire analysis pipeline on a CPU-only environment with memory usage optimized to remain within standard hardware constraints., avoiding any GPU-dependent libraries (See US-1).
 - **FR-007**: System MUST perform a sensitivity analysis comparing the 'Non-COVID' baseline (all other vaccines) against a 'Flu-only' baseline (VAX_TYPE contains 'Influenza') for the top 5 candidate signals, outputting the delta in metrics to assess robustness against confounding (See US-2).
 
 ### Key Entities
@@ -84,17 +84,17 @@ The system must generate a descriptive weekly reporting profile for top candidat
 
 - **SC-001**: The proportion of SOCs with valid ROR, PRR, and IC calculations (finite, non-NaN, non-Infinity) must be ≥ 95% of the total number of unique SOCs that meet the minimum sample size (≥ 5 reports) (See US-2).
 - **SC-002**: The implementation of the Benjamini-Hochberg correction MUST produce monotonically increasing adjusted p-values when sorted by raw p-value, verifying algorithmic correctness (See US-3).
-- **SC-003**: The temporal profile analysis MUST successfully generate weekly count plots for the top 5 candidate signals relative to the group median report date (See US-3).
-- **SC-004**: The memory footprint of the data processing pipeline is measured against the 7 GB RAM constraint of the target CI environment (See US-1).
+- **SC-003**: The temporal profile analysis MUST successfully generate weekly count plots for the top candidate signals relative to the group median report date (See US-3).
+- **SC-004**: The memory footprint of the data processing pipeline is measured against the RAM constraint of the target CI environment. (See US-1).
 - **SC-005**: [deferred] of reported signals MUST satisfy the 2-out-of-3 metrics validation rule defined in FR-005 (See US-2).
 
 ## Assumptions
 
-- The VAERS 2020-2023 datasets are publicly available and downloadable via `wget` without authentication or rate-limiting that exceeds the 6-hour CI job limit.
+- The VAERS multi-year datasets are publicly available and downloadable via `wget` without authentication or rate-limiting that exceeds the 6-hour CI job limit.
 - The MedDRA coding system in the VAERS data is consistent enough to allow aggregation into System Organ Classes (SOC) without requiring manual curation of every code.
 - The background incidence rates for adverse events, if required for context, are available in the cited literature or CDC resources and can be hard-coded or fetched as static values rather than dynamic API calls.
 - The relationship between vaccine type and adverse event reporting is observational; therefore, all findings will be framed as associational signals rather than causal evidence.
-- The dataset size (after filtering for 2020-2023) will fit within the ~7 GB RAM constraint of the free-tier GitHub Actions runner without requiring complex chunking strategies.
+- The dataset size (after filtering for recent years) will fit within the RAM constraint of the free-tier GitHub Actions runner. without requiring complex chunking strategies.
 - The "non-COVID" comparison group will include all other vaccine types reported in VAERS during the same period, assuming this provides a sufficient baseline for disproportionality analysis.
 - **Flu-only Baseline**: The 'Flu-only' baseline for sensitivity analysis (FR-007) is defined as any record where `VAX_TYPE` contains the string "Influenza".
 - **Temporal Limitation**: The dataset lacks `VACCINATION_DATE` for the vast majority of records; therefore, temporal analysis is limited to 'Reporting Time' relative to the median report date and cannot establish biological causality or post-vaccination clustering.

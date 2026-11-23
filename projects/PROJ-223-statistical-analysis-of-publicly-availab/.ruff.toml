@@ -1,0 +1,24 @@
+# Explicit configuration file for Ruff to ensure it is picked up by editors
+# This file mirrors the settings in pyproject.toml for clarity and editor support.
+
+line-length = 88
+target-version = "py311"
+
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+    "UP",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+]
+
+[isort]
+known-first-party = ["config", "ingest", "model", "diagnostics", "utils", "main", "logging_config", "schema_validation", "verification_utils"]
+force-sort-within-sections = true

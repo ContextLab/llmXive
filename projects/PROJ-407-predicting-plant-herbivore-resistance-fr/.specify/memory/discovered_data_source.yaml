@@ -1,0 +1,15 @@
+status: none
+intent: NCBI GEO plant-metabolomics/herbivore-resistance-v1 plant metabolomics herbivore
+  resistance dataset python package dataset
+required_fields:
+- genotype_id
+- resistance_score
+- metabolite_1
+- metabolite_2
+- metabolite_3
+- metabolite_4
+- metabolite_5
+- imputation_flag
+cache_key: 7a6bd0a328692dc7a653fbb348694c8ba66418ef0251a9a3c5e0a9b63f0ab0b8
+searched_at: '2026-10-11T15:14:41.099257+00:00'
+retry_count: 1

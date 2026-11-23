@@ -1,61 +1,26 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No repository skeleton directories (`src/`, `tests/`, `data/`, `results/`, `docs/`,
-    `contracts/`) are present in the provided evidence; the implementer supplied only
-    a textual claim without any actual folder structure or files. The required artifact
-    is missing.
+T002:
+  c: true
+  h: 1e2e5cb44ccb6661a129db2b05f516c24b3043bee715a10b1038a52bbf02c258
+  r: "Checked the `pyproject.toml` at the project root \u2013 it contains a full `[project]`\
+    \ table with name, version, authors, description, a `[build-system]` table, and\
+    \ all listed runtime dependencies are pinned with exact `==` versions. The required\
+    \ artifact is present and correctly formatted."
+  sig: 4659f5ce74eeb08706b5601f0976ea25222a23c18f8e938225ceba287a8c5fa7
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `renv.lock` file, R project initialization script, or any evidence of the
-    listed Bioconductor packages being installed is provided. The required artifact
-    (a reproducible R environment setup) is missing, so the task is not satisfied.
-T004:
+  h: 33f554a750a45c7cecb75fb5e8ccbc6c3136486a180fe521917e0c13cab09008
+  r: "The `requirements.txt` lists different packages and version pins than the `pyproject.toml`\
+    \ (e.g., `scipy==1.13.1` vs `1.13.0`, `matplotlib==3.9.2` vs `3.8.4`, missing\
+    \ `rpy2`, `goatools`, `networkx`, and extra `lxml`, `pytz`). Consequently the\
+    \ test that checks line\u2011by\u2011line equality would fail with the current\
+    \ files. The task needs a `requirements.txt` that exactly mirrors the `pyproject.toml`\
+    \ dependencies."
+  sig: d8fd3c7b2927421ca5ec0a7dbe4acd87079e9611d23de495ff7b7458efca0738
+T006:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The claim provides no linting or formatting configuration files (e.g., `pyproject.toml`
-    with ruff/black settings, `.ruff.toml`, `.style.yapf`, or similar) and no evidence
-    that `ruff`, `black`, or `styler` have been added to the project. The artifacts
-    listed are unrelated to the linting task, so the required configuration is missing.
-T012:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The claim provides no code, file, or snippet showing a CLI argument validator\
-    \ in `run_pipeline.py`, nor any test or documentation confirming that `--threshold`\
-    \ is enforced to be \u2265\u202F0.75. Without the actual artifact, the requirement\
-    \ is not satisfied."
-T013:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No CI configuration, script, or workflow file is provided that adds a citation\u2011\
-    verification step, nor any evidence (e.g., GitHub Actions YAML, test logs, or\
-    \ documentation) showing the Reference\u2011Validator Agent being invoked on markdown\
-    \ and code files. The required artifact is missing, so the task is not satisfied."
-T043:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code changes, log files, or test output were provided to demonstrate that\
-    \ the downloader now checks sample counts, skips series with fewer than\u202F\
-    30 samples, and writes a warning to `pipeline.log`. Without such artifacts, the\
-    \ requirement cannot be verified as satisfied."
-T098:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code changes, configuration, or example `pipeline.log` showing the added\
-    \ command\u2011line, version, and seed information were provided; thus the required\
-    \ logger extension cannot be verified. The implementer must supply the modified\
-    \ logger implementation and a sample log entry demonstrating the new fields."
-T099:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No test script, CI configuration, or code artifact was presented that runs the\
-    \ CLI validator with a threshold below\u202F0.75 and checks for rejection. The\
-    \ required CI test file (e.g., a pytest or GitHub Actions step) is missing, so\
-    \ the claim is unsupported."
-T100:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "The implementer provided no CI configuration, script, or workflow file that\
-    \ runs a Reference\u2011Validator Agent, nor any evidence that the pipeline would\
-    \ fail on citation mismatches. Consequently, the required artifact is missing."
+  h: 9693a943e467bab83f49bd7f0b78e97da79bf0a078e78781b65ef70e63f6702c
+  r: The required `species.yaml`, the populated `data/raw/` archives, the `data/artifact_hashes.yaml`
+    file, and the unit test `tests/unit/test_geo_downloader.py` are all missing, so
+    the script cannot be verified to download GEO series, skip those with <30 samples,
+    or record checksums as the task demands.
+  sig: 09fa681ee49221bb64ee94c885ece325a2c5126acf80d1d9430479a9d1c6741a

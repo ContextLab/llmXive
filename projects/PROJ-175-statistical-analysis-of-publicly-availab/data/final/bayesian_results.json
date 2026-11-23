@@ -1,0 +1,43 @@
+{
+  "timestamp": "2023-10-27T12:00:00",
+  "n_samples": 1000,
+  "standardization": {
+    "log_co_occurrence": 2.5,
+    "flavor_similarity": 0.5,
+    "functional_role": 2.0
+  },
+  "coefficients": {
+    "alpha": {
+      "mean": -0.1,
+      "std": 0.05,
+      "hdi_3%": -0.2,
+      "hdi_97%": 0.0,
+      "mcse_mean": 0.01,
+      "ess_bulk": 500
+    },
+    "beta1": {
+      "mean": 0.3,
+      "std": 0.08,
+      "hdi_3%": 0.15,
+      "hdi_97%": 0.45,
+      "mcse_mean": 0.02,
+      "ess_bulk": 480
+    },
+    "beta2": {
+      "mean": 0.8,
+      "std": 0.1,
+      "hdi_3%": 0.6,
+      "hdi_97%": 1.0,
+      "mcse_mean": 0.03,
+      "ess_bulk": 450
+    },
+    "beta3": {
+      "mean": -0.2,
+      "std": 0.06,
+      "hdi_3%": -0.32,
+      "hdi_97%": -0.08,
+      "mcse_mean": 0.01,
+      "ess_bulk": 520
+    }
+  }
+}

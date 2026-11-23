@@ -1,44 +1,41 @@
 T001:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No project files or directory structure were supplied; there is no evidence\
-    \ of a created repository, folder hierarchy, or placeholder files (e.g., `src/`,\
-    \ `data/`, `scripts/`, `README.md`) that would satisfy \u201CCreate project structure\
-    \ per implementation plan.\u201D The claim cannot be verified without tangible\
-    \ artifacts."
+  h: 3804c2edb8a9498963c30ddd51bf43654f045691c8999eecd93929cc4d0fe6c0
+  r: "The project root contains `data/raw`, `code`, `tests`, and `docs`, and the scaffold\
+    \ test file is present, but there is no evidence that the required `data/processed`\
+    \ sub\u2011folder actually exists (empty directories are not listed). Adding an\
+    \ empty `data/processed` directory is needed to satisfy the task."
+  sig: 640d812d152dbfbc90f0e504da8c78b0e83f018fe94d1b47022311c93590e2f3
 T002:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No project files (e.g., `pyproject.toml`, `requirements.txt`, `setup.cfg`, or\
-    \ a virtual environment) were provided, nor any evidence that a Python\u202F3.11\
-    \ project was created with the listed dependencies installed. The implementer\
-    \ must supply the initialized project directory and dependency specifications."
+  c: true
+  h: 66660d9e70d2cc939bff4637e934a9cad976256fa8c4643b76c10f1d43fbb88a
+  r: Checked `requirements.txt` and `pyproject.toml`; both exist and contain the required
+    pinned version specifications (`pandas==2.2.*`, `numpy==1.26.*`, `scipy==1.12.*`,
+    `statsmodels==0.14.*`, `scikit-learn==1.5.*`). The presence of the test file is
+    not a required artifact for this task.
+  sig: 949676971f78b5835e2cf65d3fe5bbd49b924a9e9de1c0a1e8df9fc6ad1ba1fd
 T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `black` settings, or a `pre-commit` hook) are present in the provided evidence,
-    so the requirement to configure ruff and black is not satisfied. The implementer
-    must add the appropriate configuration artifacts and verify they are functional.
-T004:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence was provided that the `data/raw/` and `data/processed/` directories
-    actually exist in the repository; the response contains no file listings, screenshots,
-    or code creating these folders. The required directory structure is therefore
-    missing or unverified.
-T006:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pytest configuration files (e.g.,\u202F`pytest.ini`, `conftest.py`) or a\
-    \ test directory (e.g.,\u202F`tests/`) are present, and the provided artifacts\
-    \ relate only to data ingestion and analysis, not to setting up the pytest framework\
-    \ or directory layout. The required testing infrastructure is missing."
+  c: true
+  h: 38eb915074abfffa8c52a90e4c0f4dad11a0f16b08da5a2ac10e8c77458bbd7f
+  r: "The `code/config.py` file exists, defines `RANDOM_SEED = 20241010`, and implements\
+    \ `get_random_state(offset=0)` returning a NumPy `RandomState` seeded with `RANDOM_SEED\
+    \ + offset` (with optional env\u2011var override). The accompanying `tests/test_config.py`\
+    \ validates the constant exposure, function behavior, and type, confirming the\
+    \ task requirements are met."
+  sig: 36e4807302e3b829cad725433a58063e04369cfe19217e0acdc244fc0ffd70a2
 T009:
+  c: true
+  h: d6e5e2421f45829879bf657156313847ea96e8a8650ffb4f869b05c18f047b91
+  r: "Checked `code/model/config.json` \u2013 it exists and contains exactly the required\
+    \ JSON. Reviewed `code/modeling.py` \u2013 it builds the correct path using `get_project_root()`\
+    \ and loads the file with `json.load` inside a try/except, so the configuration\
+    \ will be loaded without error."
+  sig: 1ee7bf28ba7f134157c564f8f8f8d70fa42d06e441f2f90e6fb6a645ba3d8946
+T022:
   c: false
-  h: 4cefec4f05eb23ccb3fb322406de0db2d4859a8399c3cc7e4b01b9f5d67b43c4
-  r: The `checksum.py` file exists but is truncated and never creates or updates the
-    required `state/projects/PROJ-196-the-role-of-temporal-discounting-in-proc.yaml`
-    (the file is missing). No evidence shows that the utility is invoked to populate
-    `artifact_hashes` for raw/processed artifacts, so the integration requirement
-    is unmet.
+  h: 8dae96574d1ac609fdf7138464c51b273e4ab6061e4388b463d4af0e30581e70
+  r: "The `model_config.json` file does not exist, so the code cannot read the `reduced_model`\
+    \ flag as required. Moreover, `code/modeling.py` ends abruptly in the `run_regression`\
+    \ function (truncated formula) and lacks the mandated memory\u2011profiler and\
+    \ elapsed\u2011time checks that would raise `SystemExit(1)` when limits are exceeded.\
+    \ These missing pieces prevent the task from being fully satisfied."

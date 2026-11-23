@@ -1,0 +1,135 @@
+T001:
+  reason: "The task requires creating a specific project directory structure (`code/data`,\
+    \ `code/analysis`, `code/viz`, `code/report`, `code/tests`, `data/raw`, `data/processed`,\
+    \ `data/analysis`, `logs`, `docs`), but the evidence collector found no artifacts\
+    \ on disk \u2014 no directories or files were confirmed to exist at the project\
+    \ root. There is no evidence that the `mkdir -p` command was executed or that\
+    \ any of the required directories exist."
+  task: b72683d7abb2a0fe68416717ba46ecbe2febbfe7e5ccf30a6188926daf5657b5
+T002:
+  task: 90aa276eae7d15f529343683e550119488b7c5747d829f56c864a15987fc5649
+T003:
+  reason: "No artifacts were provided or confirmed on disk for this task \u2014 there\
+    \ is no evidence of a ruff configuration (e.g., `pyproject.toml`/`ruff.toml` with\
+    \ lint rules), formatter setup, or any lint/format execution logs. The task \"\
+    Configure linting (ruff) and formatting tools\" requires actual configuration\
+    \ files to exist, and none were shown."
+  task: 02093b38e3dc2f17d6c53c6a92bec1606b8815c729c9ea86d0cd65c4dd145d14
+T004:
+  reason: '`code/config.py` exists but contains only a `get_hcp_credentials()` helper;
+    it defines none of the required configuration keys (`HCP_CREDENTIALS`, `BATCH_SIZE`,
+    `MEMORY_LIMIT` (7GB), `HCP_API_VERSION`, `SCHAEFER_ATLAS_URL`, `PCA_COMPONENTS`
+    (2)). The implementer must add these keys with the specified values (e.g., MEMORY_LIMIT
+    = 7GB, PCA_COMPONENTS = 2) rather than just a credentials helper.'
+  task: 0d2796a753912d3e236a8ec84cc363d854787ef5eed24c0187f223a84c387965
+T004a:
+  reason: 'declared artifact(s) missing/empty/invalid: pipeline_config.yaml'
+  task: 6da095cbe13760c7932d0730b7347bdbd717124058bc690433d89a35d128f566
+T005:
+  task: 5fdb749eec6074ffb62e7f21ce932a460b4eea24cbffe6ccd26e1c7963694721
+T006:
+  reason: "The task requires logging infrastructure writing structured logs to `logs/pipeline.log`,\
+    \ but the evidence collector found no artifacts at all \u2014 no logging module/code,\
+    \ no `logs/` directory, and no `pipeline.log` file exist in the project. There\
+    \ is nothing on disk to verify the claim against, so the task cannot be judged\
+    \ complete."
+  task: 9a32ecf3548b0e7479da39eee12d1ca74ca75b7c7a85c440fc1263fbac6bd3e7
+T007:
+  task: b1ae2b840ab4fd476d04f45186b48a5a7145a8fcdfd7fe76174168eab6dffb53
+T008:
+  task: 1e10682f41296f12e792218605acb1922e836dc5f03043d08b205f2858f8aaec
+T009:
+  task: 60165d72c1a34f5c70dfbd8eff5a617a6a474a71fe8c31fd1b20bc043ad22fef
+T012:
+  task: f736616812c2cca3485e764b8c10787d48702c8c85fb6fedb493bf264e6bcbb0
+T014:
+  task: 649f892304c86cc7599cbc292826b04bc43d221d8d9c646d14557944c74a0960
+T014a:
+  task: e87b5070d785e2f3ff1ce629d94b5536e772fe34380d63e2dd647836758ff913
+T014b:
+  task: 01a8d75931f57867e4736670ad8aad90dc1d001f3e61d8f278672bb638022c69
+T015:
+  task: 75d8fa7bb52deed03909f30b62263c8f52aaa3fef91757b718962199b45dca2d
+T016:
+  task: 489929c0b4ea16fb3c1c3f88e6d5dd4220af8dbd9f6fa4a055fd43a4a1743890
+T017:
+  task: b1c7c5f012298902ade7bd06426d94833dfd5d1da161416a6951ee311f0399e2
+T020:
+  task: 19231a6d5b105b02bd4812e567a41fc2e49bf7f50e1dff63c2788ec6c1f4cedb
+T021:
+  task: ea06c0fe014cb40a93d5c52b036e30671f78d84df7eea289e2e2b57e3e4a51c5
+T022:
+  task: f428ffecf5ca97875aa6cea66c5569261894be58b332e2bcdbc3123294b2d8d6
+T023a:
+  task: 1c72f5f26f60fc414eb1eee662613d68c41da81e931a63b29948300e6fedfcec
+T023b:
+  task: cf062801e1796b27a404fb8ce8e6575c0d08310fe4587feb0806b5ed83a07771
+T024:
+  task: ba4bd931a61c60d15ff0e36c6feea928b8e57ca3121ec3c26781fb64c8d1cacd
+T025:
+  task: 228ebfa4628b920c39a468eadb845103ebc6d2207598e3f5f719a14e6cd9c76c
+T026:
+  reason: 'Requested task execution failed; rerun successfully: code/analysis/power.py
+    exit=1'
+  task: eb4c68cdedf4889d87280982984de4609f37d1ff9fce76f05f22595292ced42a
+T027:
+  task: 460290a864eaeb7eca2fab6213b86eafc914102755a72edc0caece38dba54ea5
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/gpu_offload.py'
+  task: f63b00c1763f1d669b5c6026a7b662b0a1e9cd7151248c2332fff746e0370c2a
+T031:
+  task: 05580a7453ebc52b9dfed489e7b305365364a2f6965c7c7a5878d0454233410f
+T032:
+  task: f9764f688d5d7ed69f8d5cb8f9f565cd9c070f12e5a3cf2afb818d4aea54ccdf
+T033:
+  task: a2018d8762fd761b52f42532bc56578c2ca172c1a9cced70dbd9733dc84158bb
+T037:
+  task: ccd7c3af670c2a43a58a8d5c1fa80a421dab75b9dbcc74911bac7f9385f19cb6
+T038:
+  task: d00d5d8a5c58b5a131eb8fe1609b5000b16644a5ee6b3e88d87185e26c6a8155
+T039:
+  task: a6acccd7b7a20b80230908c452a805c5694e695c5cda21cc945db7720ab7a5c0
+T041:
+  task: 7ccd40e5a7378d71018bd3a5197fc7056a26217973e639483a5cdac7f07c4996
+T042:
+  task: 4afe18f645201dff72449fe2c9066ccb52374395bebb69a3ed3bb3218d724a6b
+T055:
+  task: f3db15949a4f9bb1f780b99cb302483344de9c42c38cf95bf00b456d8078c657
+T056:
+  reason: 'declared artifact(s) missing/empty/invalid: pipeline_dag.yaml, code/utils/pipeline_dag.yaml'
+  task: 09b9b076e0bab83c919c12cb6544932db62d9555561438200df1b532b1990e82
+T057:
+  task: a9340b62566e8deb86d9c7f5a401466f7dc2ecab147cefdc6945a3f9392025c4
+T058:
+  task: e42a8a72adb4d02d8ddaec1a2400e5b3a9ab0fed88844919f9939753f0fe1555
+T061:
+  task: 4cca7f88246a1c77b2bfa62668c21609dd7b89d7f1fdebed129ca07945912da4
+T062:
+  task: 25d2cfbf74aeed7843d612fc4c6c28477789d69df0e87889915d25a208a933c4
+T063:
+  task: 2e0728bba657c2d65950048cace8a36bf4629cc3cd4261db7fc5d824a946f6ac
+T064:
+  task: 89ad980f772ac2ae0d8d869904c3e34c526f471827643f14a5801ec2ae68c1cd
+T065:
+  task: b292691abc3022c58a3acab81748603ad1e957ec612e0205a9a8f64d562f1963
+T066:
+  task: 2a442e9427e854810cb491311a49f2003b978922915796b74863cab3619a971f
+T067:
+  task: 2f950aa7f187fa0886bfbfbf9eab3458f06b853d31ea264feaf5cc228f8c28d9
+T068:
+  task: 5223d1dee6e1925f1265eddf390bb942e18b3fb439728952e6f18c33cbeafa10
+T069:
+  task: effcc538b5b00b33b503b8e210f9aa61faebb504424a67da88f1ce91d9209f04
+T070:
+  task: f7914a83d8008ac54a6e86da708d6e3a9ea98ec7f13132e1e5183cd186706848
+T071:
+  task: 7471614323fb63f5adfd877b30a12048046e349ffd160beb1c86da91217c108f
+T072:
+  task: 6d5e70078071a08cd0b52d55cc1fdbf75bcc0a202e820bf45666363455cbf02f
+T073:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/gpu_offload.py'
+  task: 9e6c32e282e05eb374840b07356e8f5f7f6883568c7b12663f8fc73788645718
+T074:
+  task: e68f0a4724451168e020282262daa7f6cc8590f56f4c3408d5b2578ba8c5de32
+T075:
+  task: 8aafe3fe47481a30216a1491c2b4451a3ac64547867aee1c7daa1e567d5643d1

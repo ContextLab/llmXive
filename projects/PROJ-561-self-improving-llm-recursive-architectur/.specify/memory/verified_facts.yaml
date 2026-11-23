@@ -1,0 +1,7 @@
+0|baseline define initial model p0 parameter:
+  quote: Two other smaller releases of GPT-2 are available, including the small version
+    of 124M parameters and the medium size of 355M parameters. Both are available
+    to download from Huggingface.
+  source_id: GPT-2
+  url: https://en.wikipedia.org/wiki/GPT-2
+  value: 124M

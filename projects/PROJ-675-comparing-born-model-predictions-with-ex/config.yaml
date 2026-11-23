@@ -1,0 +1,7 @@
+# Configuration for PROJ-675: Comparing Born Model Predictions
+# This file controls environment paths, random seeds, and logging.
+
+data_path: data
+code_path: code
+random_seed: 42
+log_level: INFO

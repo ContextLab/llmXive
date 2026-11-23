@@ -1,6 +1,6 @@
 # Tasks: Evaluating the Impact of Data Imputation on Variance Estimation in Public Surveys
 
-**Input**: Design documents from `/specs/001-evaluating-imputation-impact/`
+**Input**: Design documents from `/specs/001-evaluating-the-impact-of-data-imputation/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -28,7 +28,7 @@
  - Entities from data-model.md
  - Endpoints from contracts/
 
- Tasks MUST be organized by user story so each story can be:
+ Tasks MUST be organized by user story so each story can:
  - Implemented independently
  - Tested independently
  - Delivered as an MVP increment
@@ -41,9 +41,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (code/, data/raw, data/processed, tests/)
+- [X] T001 Create project structure per implementation plan (code/, data/raw, data/processed, tests/)
 - [X] T002 Initialize Python project with requirements.txt (pandas, numpy, scipy, scikit-learn, statsmodels, pyyaml, pytest, miceforest)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools (Create `.ruff.toml` and `pypy.toml` with rules)
 
 ---
 
@@ -53,13 +53,62 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [FR-001] Implement `code/data_ingestion.py` with a configurable, verified URL fetcher for GSS/ACS data that dynamically checks for the presence of `weight`, `psu`, and `strata` columns before proceeding. The system MUST preserve these design variables (weights, strata, PSU) in the output artifact. Output the downloaded and parsed data to `data/raw/gss_2018_subset.csv`.
-- [ ] T005 [P] [FR-002b] Implement `code/synthetic_generator.py` to create datasets with known super-population parameters (mean, variance) and controlled missingness (MCAR/MAR), outputting `true_mean`, `true_variance`, `missingness_mechanism`, and the synthetic dataset artifact to `data/processed/synthetic_mar_v1.csv` conforming to `contracts/dataset.schema.yaml`.
-- [ ] T006 Create base data contracts in `specs/contracts/` with specific filenames: `dataset.schema.yaml`, `imputation_result.schema.yaml`, `bias_metric.schema.yaml`.
+- [ ] T006a [P] **Create Dataset Schema**: Create `contracts/dataset.schema.yaml` defining the following JSON Schema (saved as YAML):
+ ```yaml
+ $schema: http://json-schema.org/draft-07/schema#
+ title: SyntheticDataset
+ type: object
+ properties:
+ true_mean: { type: number }
+ true_variance: { type: number }
+ missingness_mechanism: { type: string, enum: [MCAR, MAR] }
+ n: { type: integer }
+ missing_rate: { type: number }
+ required: [true_mean, true_variance, missingness_mechanism, n, missing_rate]
+ ```
+ **Specific Instruction**: Must be a valid JSON Schema file saved as YAML.
+- [ ] T006b [P] **Create Imputation Result Schema**: Create `contracts/imputation_result.schema.yaml` defining the following JSON Schema (saved as YAML):
+ ```yaml
+ $schema: http://json-schema.org/draft-07/schema#
+ title: ImputationResult
+ type: object
+ properties:
+ method: { type: string }
+ variance_estimate: { type: number }
+ standard_error: { type: number }
+ convergence_diagnostics:
+ type: object
+ properties:
+ r_hat: { type: number }
+ converged: { type: boolean }
+ required: [method, variance_estimate, standard_error, convergence_diagnostics]
+ ```
+ **Specific Instruction**: Must be a valid JSON Schema file saved as YAML.
+- [ ] T006c [P] **Create Bias Metric Schema**: Create `contracts/bias_metric.schema.yaml` defining the following JSON Schema (saved as YAML):
+ ```yaml
+ $schema: http://json-schema.org/draft-07/schema#
+ title: BiasMetric
+ type: object
+ properties:
+ method: { type: string }
+ bias_percentage: { type: number }
+ is_pass_sc002: { type: boolean }
+ reference_value: { type: number }
+ required: [method, bias_percentage, is_pass_sc002, reference_value]
+ ```
+ **Specific Instruction**: Must be a valid JSON Schema file saved as YAML.
+- [ ] T004 [FR-001] **Implement Data Fetcher**: Implement `fetch_survey_data()` in `code/data/loader.py` with a configurable, verified URL fetcher for GSS/ACS data. The system MUST: (1) Use the URL from `config.py`; (2) **Check for a verified local cache** at `data/raw/cache/` if the URL fails; (3) Dynamically check for the presence of `weight`, `psu`, and `strata` columns; (4) **ABORT** analysis for any variable if these columns are missing, logging the specific missing column to `state/manifest.yaml` (satisfying Principle V); (5) Preserve design variables in the output artifact. **(6) Explicitly include logic to iterate through a list of candidate variables (e.g., 'hrs1', 'hrs4', 'age') and select the first one with >5% missingness, falling back to the next if the target lacks missingness.** (7) Explicitly include logic to subset the dataset to ≤50k rows BEFORE loading if the source file exceeds the limit, ensuring deterministic executability. Output the downloaded and parsed data to `data/raw/gss_2018_subset.csv`. **Verification**: Run `python code/data/loader.py --fetch --verify-abort` and confirm the script exits with code 0 on success or code 1 with a clear "Missing column: <col>" error message when columns are missing.
+- [ ] T004b [FR-001] **Execute Data Fetch**: Run the fetcher defined in T004 to download the GSS 2018 subset from the configured URL. **Logic**: (1) Implement the dynamic variable selection loop (hrs1 -> hrs4 -> age) checking for missingness >5% BEFORE finalizing the download; (2) Attempt URL download with `--var=hrs1 --fallback-vars=hrs4,age`; (3) If failed, check `data/raw/cache/` for a verified checksummed copy; (4) If cache exists and valid, use it; (5) If both fail, raise `DataFetchError` (no synthetic fallback). Save to `data/raw/gss_2018_subset.csv`, compute SHA-256 checksum, and record in `state/manifest.yaml`. **Verification**: Run `jq 'has("gss_2018_subset.csv")' state/manifest.yaml` to confirm the artifact is recorded. **Depends on T004**. <!-- FAILED: unspecified -->
+- [X] T041 [FR-001] **Enforce Subset Limit**: Update `code/data/loader.py` to explicitly enforce the subset limit of ≤ 50,000 rows as per Plan.md Technical Context, ensuring the dataset fits within RAM limits without requiring streaming infrastructure. **Verification**: Run `python code/data/loader.py --load-large-file` and confirm it raises a `SubsetLimitError` or truncates to 50k.
+- [X] T042 [FR-001] **Strict Data Loader**: Refactor `code/data/loader.py` to remove any `try/except` blocks that fall back to synthetic data. If the real fetch from the verified URL fails, the script MUST raise a `DataFetchError` and halt execution. **Preserve the dynamic check for presence of weight, psu, strata logic from T004** during this refactoring. This prevents silent fabrication and ensures the execution stage re-tries with a verified source. **Verification**: Run `python code/data/loader.py --fetch-invalid-url` and confirm `DataFetchError` is raised.
+- [ ] T005 [FR-002b] **Implement Synthetic Data Generator**: Implement `generate_synthetic_data()` in `code/data/synthetic.py` to create datasets with known super-population parameters. **Parameters**: Accept `n`, `true_mean`, `true_variance`, `missing_rate`, `mechanism` via CLI or a run-specific config file (NOT static `config.py`). Default values: `n=1000`, `true_mean=50`, `true_variance=100`, `missing_rate=0.2`. The generator MUST: (1) **Explicitly define the mechanism for generating MCAR (random mask) vs MAR (logistic probability mask based on observed covariates) missingness patterns** to ensure testability; (2) Output the synthetic dataset artifact to `data/processed/synthetic_<mechanism>_v1.csv` conforming to `contracts/dataset.schema.yaml`; (3) Output a metadata JSON file `data/processed/synthetic_<mechanism>_v1_meta.json` containing `true_mean`, `true_variance`, and `missingness_mechanism` fields as the **source of truth** for bias calculation (SC-001, FR-003). **Verification**: Run `python code/data/synthetic.py --generate --validate-schema --mechanism=MAR` to confirm schema compliance. **Depends on T006a**.
+- [ ] T005b [FR-002b] **Execute Synthetic Generator (MAR)**: Run the generator defined in T005 to produce `data/processed/synthetic_mar_v1.csv` and `data/processed/synthetic_mar_v1_meta.json`. Verify the outputs against the schema and record checksums in `state/manifest.yaml`. **Verification**: Run `jq 'has("synthetic_mar_v1.csv")' state/manifest.yaml` to confirm. **Depends on T005**.
+- [ ] T005c [FR-002b] **Implement MCAR Generator**: Implement `generate_synthetic_data_mcar()` in `code/data/synthetic.py` as a specific configuration of T005 to generate datasets with **Missing Completely At Random (MCAR)** mechanism. **Logic**: Apply a random boolean mask with probability `missing_rate` independent of any data values. **Output**: `data/processed/synthetic_mcar_v1.csv` and `data/processed/synthetic_mcar_v1_meta.json`. **Verification**: Run `python code/data/synthetic.py --generate --validate-schema --mechanism=MCAR`. **Depends on T005**.
+- [ ] T005d [FR-002b] **Execute Synthetic Generator (MCAR)**: Run the MCAR generator defined in T005c to produce `data/processed/synthetic_mcar_v1.csv` and `data/processed/synthetic_mcar_v1_meta.json`. Verify the outputs against the schema and record checksums in `state/manifest.yaml`. **Verification**: Run `jq 'has("synthetic_mcar_v1.csv")' state/manifest.yaml` to confirm. **Depends on T005c**.
 - [X] T007 Implement `code/update_state.py` to generate content hashes for artifacts and update `state/manifest.yaml` under the key `artifact_hashes` (Constitution Principle V).
-- [X] T008 [P] Implement `code/config.py` containing the `SeedManager` class/utility to derive distinct per-chain seeds from a base seed (e.g., base_seed + chain_id) to ensure reproducible convergence diagnostics for MICE, ensuring 4 distinct chains do not initialize identically. **Must explicitly implement logic to generate 4 unique seeds for downstream MICE runs.**
-- [X] T009 [FR-001] Implement design-based variance estimation utility in `code/variance_estimator.py` (Taylor series linearization) that explicitly detects missing design columns (`psu`, `strata`) and **ABORTS** analysis for that variable if they are missing. Do not proceed with fallback.
-- [X] T009b [Edge Case] Implement small-cluster fallback logic in `code/variance_estimator.py` to detect clusters where `psu` size = 1; issue a warning and flag variance as "potentially unstable", but do not abort (distinct from T009's missing column abort).
+- [X] T008 [P] Implement `code/config.py` containing the `SeedManager` class/utility to derive distinct per-chain seeds from a base seed (e.g., base_seed + chain_id) to ensure reproducible convergence diagnostics for MICE, ensuring 4 distinct chains do not initialize identically. **Must explicitly implement logic to generate multiple unique seeds for downstream MICE runs.**
+- [X] T009 [FR-001] **Design-Based Variance Estimator (Missing Columns)**: Implement design-based variance estimation utility in `code/variance/design.py` (Taylor series linearization) that explicitly detects missing design columns (`psu`, `strata`) and **ABORTS** analysis for that variable if they are missing. **Explicit Requirement**: Log the specific missing column (e.g., "missing psu") to `state/manifest.yaml` before aborting to satisfy Principle V. **Explicitly state: Skip this variable and continue processing other variables.** Do not proceed with fallback.
+- [X] T009b [FR-001] [Edge Case] **Small-Cluster Fallback (PSU=1)**: Implement small-cluster fallback logic in `code/variance/design.py` to detect clusters where `psu` size = 1; issue a warning and flag variance as "potentially unstable", but do not abort (distinct from T009's missing column abort).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,17 +124,18 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Contract test for data ingestion schema in `tests/contract/test_data_ingestion.py`
-- [X] T011 [P] [US1] Integration test for complete-case variance calculation in `tests/integration/test_baseline_variance.py`
+- [X] T014 [P] [US1] Contract test for data ingestion schema in `tests/contract/test_data_ingestion.py`
+- [X] T015 [P] [US1] Integration test for complete-case variance calculation in `tests/integration/test_baseline_variance.py`
 
 ### Implementation for User Story 1
 
-- [X] T012 [US1] Implement GSS/ACS data loading in `code/data_ingestion.py` handling weights, strata, and PSU, using the dynamic verification logic defined in T004.
-- [X] T013 [US1] Implement shared missingness detection utility in `code/data_ingestion.py` to skip variables with >30% missingness and log a warning, reusable across all user stories.
-- [X] T014 [US1] Implement Complete-Case analysis logic in `code/imputation_pipeline.py`
-- [ ] T015 [US1] Implement design-based variance calculation (Taylor series) for complete-case data in `code/variance_estimator.py`, utilizing the PSU=1 warning logic from T009b (but NOT the abort logic from T009, as T009 is for missing columns).
-- [ ] T016 [US1] Output JSON summary with status "success" for US1 in `data/processed/baseline_results.json` with required keys: `mean`, `variance`, `status`, `design_type`.
-- [ ] T017 [US1] Add robust error handling for small cluster sizes (PSU=1) with warning and exclusion logic (Integrated into T009b/T015)
+- [X] T016 [US1] Implement GSS/ACS data loading in `code/data/loader.py` handling weights, strata, and PSU, using the dynamic verification logic defined in T004. **Explicit Verification**: Must verify `status` is "success" before writing `baseline_results.json`; if design columns are missing, write `status: "failed"` and abort variable processing.
+- [ ] T017 [US1] Implement shared missingness detection utility in `code/data/loader.py` to skip variables with >30% missingness and log a warning, reusable across all user stories.
+- [ ] T018 [US1] Implement Complete-Case analysis logic in `code/imputation_pipeline.py`
+- [ ] T019 [US1] Implement design-based variance calculation (Taylor series) for complete-case data in `code/variance/design.py`, utilizing the PSU=1 warning logic from T009b and the missing column abort logic from T009. **Explicitly distinguish**: if `psu`/`strata` are missing, abort (T009); if `psu` size=1, warn (T009b).
+- [ ] T020 [US1] **Output JSON Summary**: Implement `write_baseline_summary()` in `code/main.py` to serialize the baseline results dict to `data/processed/baseline_results.json`. The JSON MUST contain keys `mean`, `variance`, `status` (value must be "success" or "failed"), and `design_type`. **Verification**: Run `python code/main.py --stage=baseline` and verify `jq '.status == "success" and.mean != null and.variance != null' data/processed/baseline_results.json` for success, or `jq '.status == "failed"'` for failure. **Depends on T019**.
+- [ ] T021 [US1] [Edge Case] **Write PSU=1 Warnings**: Implement `write_psu1_warnings()` in `code/main.py` to write detected PSU=1 warnings to `data/processed/psu1_warnings.json`. This task uses the detection logic from T009b to trigger a simplified variance estimator (or exclusion) and records the warning/exclusion evidence in `data/processed/psu1_warnings.json`. **Schema Requirements**: The JSON MUST contain keys `variable`, `psu_count`, and `action_taken`. **Verification**: Run `python code/main.py --stage=psu_check` and verify `jq '.variable and.psu_count != null and (.action_taken == "warn" or.action_taken == "exclude")' data/processed/psu1_warnings.json`. **Depends on T019**. **Logic**: Log warning to console or manifest; only generate JSON if fallback is applied.
+- [ ] T021b [US1] [Edge Case] **Implement Simplified Estimator Fallback**: Implement `apply_simplified_estimator()` in `code/variance/design.py` to provide the **simplified estimator fallback** mentioned in the Edge Cases for PSU=1 clusters. If `psu` size=1, this function must compute variance using a **conservative variance inflation factor (e.g., 2x the naive variance)** and flag the result as "estimated_with_fallback". **Do NOT ignore clustering entirely** to preserve Constitution Principle VI. **Verification**: Run `python code/main.py --stage=psu_fallback` and confirm the fallback is applied and logged in `psu1_warnings.json` with `action_taken: "fallback"`. **Depends on T009b**. **Note**: This fallback is optional and conditional; if not applicable, flag as "potentially unstable" without applying a heuristic. **Correction**: The task description has been updated to remove the mandatory "2x" heuristic. The system MUST flag the variance as "potentially unstable" and issue a warning. If a fallback is implemented, it must be a design-based method or clearly documented as a heuristic approximation, but the primary directive is to flag instability rather than enforce a specific heuristic. **Revised Instruction**: The system MUST flag the variance as "potentially unstable" and issue a warning. If a fallback is implemented, it must be a design-based method or clearly documented as a heuristic approximation. The primary directive is to flag instability rather than enforce a specific heuristic.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -99,20 +149,22 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Contract test for synthetic data generation in `tests/contract/test_synthetic_generator.py`
-- [ ] T019 [P] [US2] Integration test for MICE convergence and bias calculation in `tests/integration/test_imputation_validation.py`
+- [ ] T022 [P] [US2] Contract test for synthetic data generation in `tests/contract/test_synthetic_generator.py`. **Specific Test**: Implement `test_synthetic_produces_known_variance()` which generates data and asserts that the calculated variance matches `true_variance` within a small tolerance.
+- [ ] T023 [P] [US2] Integration test for MICE convergence and bias calculation in `tests/integration/test_imputation_validation.py`. **Specific Test**: Implement `test_mice_bias_vs_single()` which runs MICE and Single Mean, calculates bias against ground truth, and asserts `abs(mice_bias) <= 0.8 * abs(single_bias)`.
 
 ### Implementation for User Story 2
 
-- [ ] T020 [US2] Implement Single Mean Imputation as a reusable function in `code/imputation_pipeline.py`
-- [ ] T021a [US2] Implement MICE Chain Runner in `code/imputation_pipeline.py`: Explicitly run 4 independent instances of `miceforest.ImputedDataSet` with `max_iter=1000` each, deriving distinct seeds from T008 for each instance. **Consume the `missingness_mechanism` field from T005's output artifact** to log the assumed mechanism (MCAR/MAR) for every imputation run, satisfying Constitution Principle VII. **Discard the initial burn-in iterations of the pooled process** (interpreted as the total burn-in period) before pooling the remaining `m` imputations via Rubin's Rules. The function MUST accept `m` (number of imputations) as a configurable parameter to support sensitivity sweeps. Handle binary outcomes using Predictive Mean Matching (PMM) with `RandomForestRegressor` (integrated logic, no separate task).
-- [ ] T021b [US2] [REMOVED] Convergence diagnostics logic integrated into T021a.
-- [ ] T021c [US2] Implement Retry Logic in `code/imputation_pipeline.py`: On convergence failure, retry up to 3 times with a new seed (`base_seed + 100*attempt`). If still failing, set `status: warning` and record `error_message`.
-- [ ] T022 [US2] **REMOVED**: Logic for convergence check and retry logic is fully integrated into T021a-c.
-- [ ] T023 [US2] [FR-003] Implement bias calculation in `code/analysis.py` that: (1) Consumes output artifacts from T005 (synthetic ground truth including `true_variance`), T020 (Single Mean), and T021 (MICE); (2) Validates the artifact schema; (3) Calculates percentage bias; (4) **Computes the ratio (|MICE_bias| / |Single_bias|) ONLY if missingness_mechanism == MAR**; (5) **Logs the result and sets `is_pass_sc002` boolean** based on whether MICE bias magnitude is <= 80% of Single Imputation bias magnitude in synthetic MAR scenarios, **without raising an exception** if the condition is not met. Output to `data/processed/bias_metrics.json`.
-- [ ] T024 [US2] [FR-003] Implement relative efficiency calculation against Jackknife/BRR benchmark for real data in `code/analysis.py`.
-- [ ] T025 [US2] Generate comparison table (percentage bias) for synthetic and real datasets in `data/processed/imputation_comparison.json`
-- [ ] T026 [US2] **REMOVED**: Binary Outcome Handling (PMM) is integrated into T021a.
+- [ ] T024 [US2] Implement Single Mean Imputation as a reusable function in `code/imputation_pipeline.py`
+- [ ] T025a [US2] **MICE Chain Runner**: Implement `run_mice_chains()` in `code/imputation_pipeline.py`. Explicitly run independent instances of `miceforest.ImputedDataSet` with `max_iter=1000` each, deriving distinct seeds from T008 for each instance. **Consume the `missingness_mechanism` field from `data/processed/synthetic_mar_v1_meta.json` (T005b output) and `data/processed/synthetic_mcar_v1_meta.json` (T005d output)** to log the assumed mechanism (MCAR/MAR) for every imputation run, satisfying Constitution Principle VII. **Explicitly discard a sufficient number of initial iterations from EACH chain to ensure convergence** before pooling the remaining iterations per chain. **Explicitly discard the initial iterations of EACH chain to ensure convergence.** and **pool exactly m=5 imputations** from the post-burn-in samples. **(Depends on T005b, T005d)**.
+- [ ] T025b [US2] **Burn-in & Pooling**: Implement `pool_imputations()` in `code/imputation_pipeline.py`. **Explicitly discard the initial iterations of EACH chain** before **pooling m imputations (e.g., m=5) via Rubin's Rules**. The function MUST accept `m` (number of imputations) as a configurable parameter to support sensitivity sweeps. **The final pooled dataset consists of m imputations, not an excessive number of samples.** **Explicit instruction: Select exactly m=5 imputations from the post-burn-in samples; do not pool all remaining samples.** **(Depends on T025a)**.
+- [ ] T025c [US2] **Binary Outcome Handling**: Implement `configure_pmm()` in `code/imputation_pipeline.py`. For binary target variables, configure `miceforest` with `predictive_mean_matching=True` and `RandomForestRegressor`.
+- [ ] T026 [US2] [FR-002] **Implement Retry Logic**: Implement Retry Logic in `code/imputation_pipeline.py`: On convergence failure (R-hat >= 1.05), retry up to 3 times with a new seed (`base_seed + 100*attempt`) **OR increased iterations (max_iter + a substantial buffer)**. Log the specific seed, iteration count, and attempt number to `data/processed/imputation_logs.json`. **If still failing after Several attempts, the system MUST log the failure for the specific variable and skip to the next variable, recording the failure state in `imputation_logs.json` with `status: "failed"` and `error_message`**, satisfying the Edge Case requirement to "abort that specific variable". **Depends on T008**.
+- [ ] T011 [US2] **Implement MICE Orchestration**: Implement `code/imputation/run_all.py` to orchestrate the full imputation pipeline. **Logic**: (1) Load data from T004b/T005b/T005d; (2) Route to Single Mean (T024) or MICE (T025); (3) Handle binary outcomes (T026); (4) Trigger retry logic (T026) on failure; (5) Output pooled results. **Depends on T008, T024, T025, T026**. **(Moved from Phase 2 to Phase 4)**.
+- [ ] T027 [US2] [FR-003] **Bias Calculation**: Implement bias calculation in `code/metrics/bias.py` that: (1) Consumes output artifacts from `data/processed/synthetic_mar_v1_meta.json` (T005b), `data/processed/synthetic_mcar_v1_meta.json` (T005d), `data/processed/single_mean_results.json` (T024), and `data/processed/mice_results.json` (T025a); (2) Validates the artifact schema; (3) Calculates percentage bias for **both MCAR and MAR** mechanisms; (4) **Computes the ratio (|MICE_bias| / |Single_bias|)**; (5) **Logs the result and sets `is_pass_sc002` boolean** based on whether MICE bias magnitude is <= 80% of Single Imputation bias magnitude. Output to `data/processed/bias_metrics.json`. **(Depends on T005b, T005d, T024, T025a, T026)**.
+- [ ] T009c [US2] [FR-003] **Jackknife Variance Estimator**: Implement Jackknife variance estimator in `code/variance/design.py` to calculate robust design-based variance for real-world datasets. **Algorithm**: Use delete-one Jackknife. **Input**: Cleaned data from T009 (e.g., `data/processed/gss_2018_subset_clean.csv`). **Output**: `data/processed/jackknife_variance.json`. **Depends on T009**.
+- [ ] T028 [US2] [FR-003] Implement relative efficiency calculation against Jackknife/BRR benchmark for real data in `code/metrics/bias.py`. (Depends on T009c).
+- [ ] T029 [US2] Generate comparison table (percentage bias) for synthetic and real datasets in `data/processed/imputation_comparison.json`
+- [ ] T029b [US2] **Log Imputation Mechanism Transparency**: Implement logging in `code/imputation/mice.py` to explicitly record the `missingness_mechanism` (MCAR/MAR) assumed for each imputation run in `data/processed/imputation_logs.json`. This satisfies Constitution Principle VII and the plan's T021 reference. **Schema**: Log entry must include `variable`, `mechanism`, `chain_id`, and `timestamp`. **Depends on T025a**.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -126,17 +178,18 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T027 [P] [US3] Contract test for report schema in `tests/contract/test_report_schema.py`
-- [ ] T028 [P] [US3] Integration test for sensitivity analysis sweep in `tests/integration/test_sensitivity_analysis.py`
+- [ ] T030 [P] [US3] Contract test for report schema in `tests/contract/test_report_schema.py`. **Specific Test**: Implement `test_report_contains_associational_footer()` which asserts the presence of the mandatory footer string.
+- [ ] T031 [P] [US3] Integration test for sensitivity analysis sweep in `tests/integration/test_sensitivity_analysis.py`. **Specific Test**: Implement `test_sweep_produces_stable_bias()` which runs the sweep and asserts that the standard deviation of bias rates across {5, 10, 20} is < 5%.
 
 ### Implementation for User Story 3
 
-- [ ] T029 [US3] [FR-004] Implement Holm-Bonferroni correction for p-values in paired t-tests in `code/analysis.py`. (Note: Holm-Bonferroni is stricter than generic Bonferroni and mandated by the Plan).
-- [ ] T030 [US3] Implement sensitivity analysis sweep in `code/analysis.py` that: (1) Orchestrates a loop over the reusable functions defined in T020 and T021; (2) **Sweeps the parameter `m` (number of imputations) over a set of concrete values.** (as defined in FR-005, used to resolve SC-003 ambiguity); (3) **Reports the variation in variance bias rate** for each value in the set.
-- [ ] T031 [US3] [FR-006] Generate final report in `data/processed/final_report.md` that: (1) **Explicitly inserts the phrase "associational"** to label all findings; (2) **Strictly avoids causal language**; (3) **Includes the mandatory footer: "All findings are associational; no causal claims are made."**; (4) Satisfies FR-006.
-- [ ] T032 [US3] Include "Multiplicity Correction" and "Sensitivity Analysis" sections in final report
-- [ ] T033 [US3] Implement stability analysis in `code/analysis.py` that: (1) Computes `stability_score = std(bias_rates)` across the sweep defined in T030 (parameter range {5, 10, 20}); (2) Verifies the condition "variation in bias < 5%" as per SC-003; (3) Stores result in `SensitivitySweepResult`.
-- [ ] T034 [US3] **REMOVED**: Redundant with T009 and T015.
+- [ ] T032 [US3] [FR-004] **Multiplicity Correction**: Implement Holm-Bonferroni correction for p-values in paired t-tests in `code/metrics/bias.py`. **Explicitly state** that Holm-Bonferroni satisfies FR-004's "Bonferroni or similar" requirement. Apply correction to the specific pairwise tests: CC vs Single, Single vs MICE, CC vs MICE. Store raw and adjusted p-values in `BiasMetric`.
+- [ ] T033a [US3] [FR-005] **Sweep Orchestrator**: Implement `run_sensitivity_sweep()` in `code/main.py` that defines the parameter loop for `m` over a set of representative values. **Function Signature**: `run_sensitivity_sweep(m_values=[representative_low, 10, 20]), output_path="data/processed/sensitivity_sweep_results.json")`. **(Depends on T024, T025)**. **Verification**: Run `python code/main.py --sweep --m-values=5,10,20` and verify the output contains multiple entries.
+- [ ] T033b [US3] [FR-005] **Sweep Execution**: Implement the execution logic that runs the full pipeline (T024/T025) for each `m` value on both real and synthetic datasets. **(Depends on T033a)**.
+- [ ] T033c [US3] [FR-005] **Artifact Generation**: Implement `generate_sensitivity_table()` in `code/main.py` to generate `data/processed/sensitivity_sweep_results.json` and the "Sensitivity Analysis" table in the final report. **(Depends on T033b)**. **Verification**: Run `jq '.sweep_results | length == 3' data/processed/sensitivity_sweep_results.json`.
+- [ ] T035 [US3] [FR-005] **Stability Analysis**: Implement `calculate_stability_score()` in `code/metrics/bias.py` that: (1) Computes `stability_score = std(bias_rates)` across the sweep defined in T033 (parameter range {5, 10, 20}); (2) Verifies the condition "variation in bias < 5%" as per SC-003, where **`bias_rates` are explicitly stored as percentages (e.g., 15.0) and the The threshold is set to a predefined value.**; (3) Stores result in `SensitivitySweepResult`. **(Depends on T033)**. **Verification**: Run `python code/main.py --stability-check` and verify the score is < 5.0.
+- [ ] T034 [US3] [FR-006] Generate final report in `data/processed/final_report.md` that: (1) **Explicitly inserts the phrase "associational"** to label all findings; (2) **Strictly avoids causal language**; (3) **Includes the mandatory footer: "All findings are associational; no causal claims are made."**; (4) **Includes "Multiplicity Correction" (from T032) and "Sensitivity Analysis" (from T033) sections**; (5) Satisfies FR-006. **(Depends on T032, T033, T035)**.
+- [ ] T013 [P] **Implement Main Entry Point**: Implement `code/main.py` to orchestrate the full pipeline. **Logic**: (1) Load config; (2) Run T004b (if needed); (3) Run T005b/T005d (if needed); (4) Run T011 (imputation); (5) Run T027 (bias); (6) Run T033 (sensitivity); (7) Generate report (T034). **Verification**: Run `python code/main.py --full-pipeline` and verify all artifacts are generated. **Depends on T011, T027, T033**.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -146,102 +199,25 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035 [P] Documentation updates in `README.md` and `docs/`
-- [ ] T036 Code cleanup and refactoring in `code/`
-- [ ] T037 Performance optimization to ensure runtime < 6 hours on CPU-only runner
-- [ ] T038 [P] Additional unit tests in `tests/unit/` for edge cases (MNAR handling, PSU=1 detection)
-- [ ] T039 Run quickstart.md validation
-- [ ] T040 Final verification of all JSON outputs against contract schemas
+- [ ] T036 [P] **Documentation**: Update `README.md` with usage examples, installation instructions, and a "How to Run" section. Update `docs/` with API references for `code/imputation_pipeline.py`.
+- [ ] T037 **Code Cleanup**: Refactor `code/imputation_pipeline.py` to reduce cyclomatic complexity to < 10. Remove unused imports and dead code.
+- [ ] T038 [P] **Unit Tests**: Add unit tests in `tests/unit/` for edge cases: `test_mnar_handling.py` (MNAR detection), `test_psu1_detection.py` (PSU=1 warning trigger).
+- [ ] T039 Run `quickstart.md` validation to ensure all commands execute successfully.
+- [ ] T040 Final verification of all JSON outputs against contract schemas using `code/validate_schemas.py`.
+- [ ] T044 [US2] **Convergence Retry Verification**: Update `code/imputation_pipeline.py` (T026) to log the specific seed used for each retry attempt in `data/processed/imputation_logs.json`. This provides an audit trail for the "3 attempts" rule and ensures the retry logic is deterministic and traceable. **Verification**: Run `jq '.retry_attempts | length <= 3' data/processed/imputation_logs.json`.
+- [ ] T045 [US3] **Report Footer Verification**: Add a pre-commit hook or CI step that parses `data/processed/final_report.md` and asserts the presence of the exact string "All findings are associational; no causal claims are made." to prevent accidental omission of the mandatory disclaimer.
+- [ ] T046 [P] **Runtime Monitoring**: Implement a runtime monitoring script in `code/monitor_runtime.py` that asserts `runtime ≤ 6 hours` (the standard time limit of the GitHub Actions free-tier runner as per SC-004) and logs the result to `state/manifest.yaml`.
+- [ ] T048 [US2] **MNAR Sensitivity Check**: Implement a specific test case in `tests/integration/test_imputation_validation.py` that injects a known MNAR mechanism into the synthetic data and verifies that the system correctly flags the bias as a "sensitivity check" rather than calculating a precise bias percentage, adhering to the assumption that MNAR results are sensitivity checks only. **Verification**: Confirm the system writes `data/processed/mnar_sensitivity.json` with a field `bias_flag` set to "sensitivity_check".
+- [ ] T050 [US3] **Verify Multiplicity Correction Logic**: Add a unit test in `tests/unit/test_bias.py` that manually calculates the Holm-Bonferroni adjusted p-values for a small set of inputs and asserts that `code/metrics/bias.py` produces the exact same results. **Verification**: Run `pytest tests/unit/test_bias.py::test_holm_bonferroni_manual`.
+- [ ] T051 [US2] **Validate Real Data Source Integration**: Update `code/data/loader.py` to strictly adopt any "VERIFIED REAL DATA SOURCE" provided by the execution stage (if injected) as the single source of truth, removing any hard-coded or guessed URLs. **Verification**: Run `python code/data/loader.py --verify-source` to confirm it uses the injected source or raises an error if none is provided and the default fails. **Depends on T004**.
 
 ---
 
-## Dependencies & Execution Order
+## Phase 6: Review-Driven Revisions (Addressing Prior Research Concerns)
 
-### Phase Dependencies
+**Goal**: Address specific reviewer concerns regarding data sourcing, streaming, and edge-case handling identified in prior research-stage reviews.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data ingestion schema in tests/contract/test_data_ingestion.py"
-Task: "Integration test for complete-case variance calculation in tests/integration/test_baseline_variance.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement GSS/ACS data loading in code/data_ingestion.py"
-Task: "Implement missingness detection and variable filtering in code/data_ingestion.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- [ ] T053 [US2] [Review Concern] **Explicit Sample Definition**: Update `code/data/synthetic.py` (T005) to explicitly document the sampling strategy if a subset is used. If `n < 10000` is used for MAR/MCAR generation, add a `sampling_note` field to `synthetic_<mechanism>_v1_meta.json` stating "Sampled from full synthetic population of size N=100000 with seed X". **Verification**: Run `python code/data/synthetic.py --generate --n=5000` and verify the metadata file contains the `sampling_note`. **Depends on T005**.
+- [ ] T054 [US2] [Review Concern] **Convergence Retry Audit**: Extend `code/imputation_pipeline.py` (T026) to write a detailed `convergence_audit.json` file for every variable that required a retry. This file must contain the initial R-hat, the seed used for each retry, the R-hat after each retry, and the final decision (pass/fail). **Verification**: Run the pipeline on a dataset known to cause convergence issues and confirm `convergence_audit.json` is populated with the full history. **Depends on T026**.
+- [ ] T055 [US3] [Review Concern] **Multiplicity Correction Scope**: Update `code/metrics/bias.py` (T032) to ensure the Bonferroni correction is applied *only* to the specific set of comparisons defined in FR-004 (CC vs Single, Single vs MICE, CC vs MICE) and not to all pairwise tests across all variables, preventing over-correction. Add a `correction_scope` field to the output `bias_metrics.json` listing the exact tests corrected. **Verification**: Run `python code/metrics/bias.py --test-correction-scope` and verify the scope matches the FR-004 definition. **Depends on T032**.
+- [ ] T056 [US1] [Review Concern] **PSU=1 Edge Case Handling**: Enhance `code/variance/design.py` (T009b) to not just warn about PSU=1, but to automatically exclude those clusters from the variance calculation and report the number of excluded clusters in `data/processed/exclusion_report.json`. **Verification**: Run `python code/main.py --stage=psu_check` and confirm `exclusion_report.json` lists excluded variables and counts. **Depends on T009b**.

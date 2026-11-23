@@ -1,12 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -24,61 +20,43 @@ wheels/
 .installed.cfg
 *.egg
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
-.venv
-env/
+# Virtual environments
 venv/
 ENV/
-env.bak/
-venv.bak/
+env/
+.venv/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# IDEs and OS files
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
-.DS_Store
 
-# Data
-data/raw/*.fastq
-data/raw/*.fq
-data/processed/*.csv
-data/processed/*.tsv
-data/traits/*.csv
-data/manifests/*.json
-data/synthetic/*.fastq
-data/synthetic/*.json
-config.json
+# Data directories (large files)
+data/raw/
+data/processed/
+data/traits/
+data/synthetic/
+# But keep the directory structure
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/traits/.gitkeep
+!data/synthetic/.gitkeep
+!data/manifests/.gitkeep
 
 # Logs
 *.log
 logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Config
+.env
+*.local.yaml

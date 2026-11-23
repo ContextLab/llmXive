@@ -1,202 +1,339 @@
 """
-Configuration management for the llmXive brain-music preference pipeline.
-
-This module defines all project paths, hyperparameters, dataset identifiers,
-and mechanisms to handle dataset validation failures.
+Configuration management for the Brain-Music Preference pipeline.
+Handles paths, hyperparameters, dataset IDs, and environment constraints.
+Includes a simple mechanism to switch the active dataset if validation fails.
 """
-
 import os
 import json
+import resource
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Tuple
 
-# --- Base Directories ---
-# Assumes this file is at code/config.py, root is parent of 'code'
-_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = _ROOT / "data"
-CODE_DIR = _ROOT / "code"
-TESTS_DIR = _ROOT / "tests"
-STATE_DIR = _ROOT / "state"
+# ----------------------------------------------------------------------
+# Project root and directory layout
+# ----------------------------------------------------------------------
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# Subdirectories
-DATA_RAW = DATA_DIR / "raw"
-DATA_PROCESSED = DATA_DIR / "processed"
-DATA_DERIVED = DATA_DIR / "derived"
-FIGURES_DIR = DATA_DERIVED / "figures"
-
-# Ensure directories exist (lazy initialization)
-def ensure_dirs():
-    """Create all required directories if they do not exist."""
-    for d in [DATA_RAW, DATA_PROCESSED, DATA_DERIVED, FIGURES_DIR, STATE_DIR]:
-        d.mkdir(parents=True, exist_ok=True)
-
-# --- Hyperparameters ---
-# fMRI Preprocessing
-TR_DEFAULT = 2.0  # Repetition time in seconds
-SLICE_TIMING_REF = "center"
-MOTION_THRESHOLD_MM = 0.5  # Framewise Displacement threshold
-MISSING_DATA_THRESHOLD = 0.10  # 10% missing data tolerance
-
-# Network Analysis
-WINDOW_SIZES: List[int] = [30, 40]  # Window sizes in TRs for sliding window
-WINDOW_STEP: int = 5  # Step size in TRs
-ATLAS_NAME = "Schaefer2018_400Parcels_7Networks"
-ATLAS_RESOLUTION = 2  # mm
-
-# Statistical Analysis
-CORRECTION_METHOD = "fdr_bh"  # Benjamini-Hochberg
-POWER_TARGET = 0.80
-EFFECT_SIZE_TARGET = 0.30
-
-# --- Dataset Configuration ---
-# Primary dataset IDs from OpenNeuro
-DATASET_IDS_PRIMARY = ["ds000030", "ds000208"]
-
-# Verified list of datasets containing required behavioral variables
-# In a real implementation, this might be fetched from a remote registry or DB
-VERIFIED_DATASETS = {
-    "ds000030": {
-        "name": "OpenNeuro ds000030",
-        "required_vars": ["musical_genre", "age", "sex"],
-        "fallback_vars": ["STOMP-R"],
-        "url": "https://openneuro.org/datasets/ds000030"
-    },
-    "ds000208": {
-        "name": "OpenNeuro ds000208",
-        "required_vars": ["musical_genre", "age", "sex"],
-        "fallback_vars": ["STOMP-R"],
-        "url": "https://openneuro.org/datasets/ds000208"
-    },
-    # Fallback datasets if primary ones fail validation
-    "ds000117": {
-        "name": "OpenNeuro ds000117 (HCP)",
-        "required_vars": ["musical_genre", "age", "sex"],
-        "fallback_vars": ["STOMP-R"],
-        "url": "https://openneuro.org/datasets/ds000117"
-    }
+DIRS = {
+    "code": PROJECT_ROOT / "code",
+    "tests": PROJECT_ROOT / "tests",
+    "data": PROJECT_ROOT / "data",
+    "state": PROJECT_ROOT / "state",
+    "data_raw": PROJECT_ROOT / "data" / "raw",
+    "data_processed": PROJECT_ROOT / "data" / "processed",
+    "data_derived": PROJECT_ROOT / "data" / "derived",
+    "figures": PROJECT_ROOT / "figures",
+    "state_projects": PROJECT_ROOT / "state" / "projects",
 }
 
-# --- Dataset Switching Mechanism ---
-class DatasetConfig:
-    """
-    Manages dataset selection and fallback logic.
-    
-    If a primary dataset fails validation (e.g., missing 'musical_genre'),
-    this class provides a mechanism to switch to a verified fallback dataset.
-    """
-    
-    def __init__(self, initial_ids: Optional[List[str]] = None):
-        self._current_ids = initial_ids or DATASET_IDS_PRIMARY.copy()
-        self._validation_errors: Dict[str, str] = {}
-        
-    @property
-    def current_ids(self) -> List[str]:
-        """Returns the list of currently active dataset IDs."""
-        return self._current_ids.copy()
-        
-    def register_validation_failure(self, dataset_id: str, error_code: str, message: str):
-        """
-        Registers a validation failure for a specific dataset.
-        
-        Args:
-            dataset_id: The ID of the failed dataset.
-            error_code: Machine-readable error code (e.g., 'ERR_DATA_MISSING').
-            message: Human-readable description of the failure.
-        """
-        self._validation_errors[dataset_id] = f"{error_code}: {message}"
-        
-        # If the failed dataset is in our current list, trigger fallback logic
-        if dataset_id in self._current_ids:
-            self._attempt_fallback(dataset_id)
-            
-    def _attempt_fallback(self, failed_id: str):
-        """
-        Attempts to switch to a fallback dataset if the primary fails.
-        
-        Logic:
-        1. Remove failed ID from current list.
-        2. If list is empty, check VERIFIED_DATASETS for alternatives.
-        3. Select the first verified alternative that is not the failed ID.
-        """
-        self._current_ids.remove(failed_id)
-        
-        if not self._current_ids:
-            # Try to find a fallback from the verified list
-            for alt_id, info in VERIFIED_DATASETS.items():
-                if alt_id != failed_id and alt_id not in self._current_ids:
-                    # Verify the fallback has the required structure
-                    if self._verify_fallback_structure(alt_id):
-                        self._current_ids.append(alt_id)
-                        print(f"Switched to fallback dataset: {alt_id} ({info['name']})")
-                        break
-            
-            if not self._current_ids:
-                raise RuntimeError(
-                    f"No valid fallback datasets available after failure of {failed_id}. "
-                    "Please check verified datasets or update VERIFIED_DATASETS."
-                )
-                
-    def _verify_fallback_structure(self, dataset_id: str) -> bool:
-        """
-        Basic check to ensure the fallback dataset is defined in our registry.
-        In a real system, this would perform a HEAD request or metadata check.
-        """
-        return dataset_id in VERIFIED_DATASETS
-        
-    def get_fallback_candidates(self) -> List[str]:
-        """Returns a list of available fallback dataset IDs."""
-        return [k for k in VERIFIED_DATASETS.keys() if k not in self._current_ids]
-        
-    def to_json(self) -> str:
-        """Serializes current config state to JSON."""
-        return json.dumps({
-            "current_ids": self._current_ids,
-            "errors": self._validation_errors,
-            "fallbacks_available": self.get_fallback_candidates()
-        }, indent=2)
+# ----------------------------------------------------------------------
+# Dataset configuration
+# ----------------------------------------------------------------------
+DATASET_CONFIG = {
+    "ds000030": {
+        "id": "ds000030",
+        "name": "OpenNeuro ds000030",
+        "url": "https://openneuro.org/datasets/ds000030",
+        "type": "resting_state",
+        "active": True,
+    },
+    "ds000208": {
+        "id": "ds000208",
+        "name": "OpenNeuro ds000208",
+        "url": "https://openneuro.org/datasets/ds000208",
+        "type": "resting_state",
+        "active": True,
+    },
+}
 
-# Global instance for the pipeline
-dataset_config = DatasetConfig()
+# Exported name expected by legacy tests
+dataset_config = DATASET_CONFIG
 
-# --- Path Helpers ---
-def get_data_path(subpath: str) -> Path:
+# Primary (active) dataset IDs – used by tests
+DATASET_IDS_PRIMARY = [
+    cfg["id"] for cfg in DATASET_CONFIG.values() if cfg.get("active")
+]
+
+# List of all verified dataset IDs (used for fallback logic)
+VERIFIED_DATASETS = list(DATASET_CONFIG.keys())
+
+# Default active dataset – can be overridden by environment variable
+_CURRENT_DATASET_ID: str = os.getenv("DATASET_ID") or next(
+    (cfg["id"] for cfg in DATASET_CONFIG.values() if cfg["active"]),
+    list(DATASET_CONFIG.keys())[0],
+)
+
+# ----------------------------------------------------------------------
+# Hyperparameters
+# ----------------------------------------------------------------------
+HYPERPARAMETERS = {
+    "window_sizes": [20, 30, 40],  # TRs
+    "step_size": 5,                # TRs
+    "fmriprep_args": [
+        "--output-space",
+        "MNI152NLin2009cAsym",
+        "--confounds",
+        "trans_x,trans_y,trans_z,rot_x,rot_y,rot_z,framewise_displacement,dvars",
+    ],
+    "fd_threshold": 0.5,               # mm
+    "missing_data_threshold": 0.1,      # 10%
+    "min_sample_size": 85,              # Power requirement
+    "permutations": 1000,               # Null‑distribution permutations
+}
+
+# Exported hyperparameter names expected by tests
+WINDOW_SIZES = HYPERPARAMETERS["window_sizes"]
+TR_DEFAULT = 2.0  # Typical TR for many OpenNeuro datasets (seconds)
+
+# ----------------------------------------------------------------------
+# Environment constraints
+# ----------------------------------------------------------------------
+ENV_CONSTRAINTS = {
+    "memory_limit_gb": 16.0,   # Soft limit for fMRIPrep
+    "runtime_limit_hours": 6.0,
+    "warning_threshold": 0.8, # Warn at 80 % of limit
+}
+
+# ----------------------------------------------------------------------
+# Directory helpers
+# ----------------------------------------------------------------------
+def ensure_dirs() -> None:
+    """Create all required directories if they do not exist."""
+    for path in DIRS.values():
+        path.mkdir(parents=True, exist_ok=True)
+
+def get_data_path(dataset_id: Optional[str] = None, filename: Optional[str] = None) -> Path:
     """
-    Constructs a full path relative to the data directory.
-    
-    Args:
-        subpath: Relative path string (e.g., 'raw/ds000030').
+    Construct a path to raw data.
+
+    If ``dataset_id`` is ``None`` the base raw‑data directory is returned.
     """
-    ensure_dirs()
-    return DATA_RAW / subpath
+    base = DIRS["data_raw"]
+    if dataset_id:
+        base = base / dataset_id
+    if filename:
+        return base / filename
+    return base
 
-def get_processed_path(subpath: str) -> Path:
-    """Constructs a full path relative to the processed data directory."""
-    ensure_dirs()
-    return DATA_PROCESSED / subpath
+def get_processed_path(subject_id: str, filename: Optional[str] = None) -> Path:
+    """
+    Construct a path to processed data for a specific subject.
+    """
+    base = DIRS["data_processed"] / subject_id
+    if filename:
+        return base / filename
+    return base
 
-def get_derived_path(subpath: str) -> Path:
-    """Constructs a full path relative to the derived data directory."""
-    ensure_dirs()
-    return DATA_DERIVED / subpath
+def get_derived_path(filename: str) -> Path:
+    """
+    Construct a path to derived data (aggregates, reports).
+    """
+    return DIRS["data_derived"] / filename
 
 def get_figure_path(filename: str) -> Path:
-    """Constructs a full path for a figure file."""
-    ensure_dirs()
-    return FIGURES_DIR / filename
+    """
+    Construct a path to a figure.
+    """
+    return DIRS["figures"] / filename
 
-# --- Execution Guard ---
-if __name__ == "__main__":
-    # Simple verification that paths are resolvable
-    print(f"Project Root: {_ROOT}")
-    print(f"Data Directory: {DATA_DIR}")
-    print(f"Initial Datasets: {dataset_config.current_ids}")
-    ensure_dirs()
-    print("Directory structure verified.")
-    
-    # Demonstrate fallback mechanism (mock failure)
-    # In a real run, this would happen after a validation check
-    # dataset_config.register_validation_failure("ds000030", "ERR_DATA_MISSING", "Missing 'musical_genre'")
-    # print(f"After failure: {dataset_config.current_ids}")
-    # print(f"Fallback candidates: {dataset_config.get_fallback_candidates()}")
-    
-    print("Configuration loaded successfully.")
+# Exported path for tests that check the existence of the top‑level data folder
+DATA_DIR = DIRS["data"]
+
+def get_env_config() -> Dict[str, Any]:
+    """Return the environment‑constraint dictionary."""
+    return ENV_CONSTRAINTS.copy()
+
+# ----------------------------------------------------------------------
+# Memory‑limit helper
+# ----------------------------------------------------------------------
+def check_memory_limit(limit_gb: Optional[float] = None) -> Tuple[bool, float]:
+    """
+    Verify available RAM against a specified or configured limit.
+
+    Returns (is_sufficient, available_gb).
+    """
+    if limit_gb is None:
+        limit_gb = ENV_CONSTRAINTS["memory_limit_gb"]
+
+    soft_limit, _ = resource.getrlimit(resource.RLIMIT_AS)
+
+    if soft_limit == 0:
+        # Unlimited – try to read /proc/meminfo on Linux
+        try:
+            with open("/proc/meminfo", "r") as f:
+                for line in f:
+                    if line.startswith("MemTotal:"):
+                        parts = line.split()
+                        mem_kb = int(parts[1])
+                        available_gb = mem_kb / (1024 * 1024)
+                        break
+                else:
+                    available_gb = 32.0
+        except (FileNotFoundError, ValueError):
+            available_gb = 32.0
+    else:
+        available_gb = soft_limit / (1024 * 1024 * 1024)
+
+    return available_gb >= limit_gb, available_gb
+
+# ----------------------------------------------------------------------
+# Runtime‑cap helper
+# ----------------------------------------------------------------------
+def set_runtime_cap(hours: Optional[float] = None) -> None:
+    """
+    Set a soft CPU‑time limit (SIGXCPU). This is only a warning mechanism.
+    """
+    if hours is None:
+        hours = ENV_CONSTRAINTS["runtime_limit_hours"]
+    seconds = int(hours * 3600)
+    resource.setrlimit(resource.RLIMIT_CPU, (seconds, seconds))
+
+# ----------------------------------------------------------------------
+# Dataset‑selection utilities
+# ----------------------------------------------------------------------
+def get_active_dataset_id() -> str:
+    """
+    Return the currently selected dataset identifier.
+    """
+    return _CURRENT_DATASET_ID
+
+def set_active_dataset_id(new_id: str) -> None:
+    """
+    Switch the active dataset to ``new_id`` if it exists in ``DATASET_CONFIG``.
+    Raises ``KeyError`` if the identifier is unknown.
+    """
+    global _CURRENT_DATASET_ID
+    if new_id not in DATASET_CONFIG:
+        raise KeyError(f"Dataset ID '{new_id}' is not configured.")
+    _CURRENT_DATASET_ID = new_id
+
+def switch_dataset_on_failure(failed_id: str) -> str:
+    """
+    If validation of ``failed_id`` fails, automatically pick an alternative
+    active dataset. Returns the newly selected dataset ID.
+
+    The simple strategy is:
+    1. Mark the failed dataset as inactive.
+    2. Return the first remaining active dataset.
+    3. If none remain, raise ``RuntimeError``.
+    """
+    if failed_id in DATASET_CONFIG:
+        DATASET_CONFIG[failed_id]["active"] = False
+    # Find first still‑active dataset
+    for cfg in DATASET_CONFIG.values():
+        if cfg.get("active"):
+            set_active_dataset_id(cfg["id"])
+            return cfg["id"]
+    raise RuntimeError("No active datasets remain after failure.")
+
+# ----------------------------------------------------------------------
+# Convenience wrappers used throughout the pipeline
+# ----------------------------------------------------------------------
+def data_path(*, filename: Optional[str] = None) -> Path:
+    """
+    Shortcut for ``get_data_path`` using the currently active dataset.
+    """
+    return get_data_path(_CURRENT_DATASET_ID, filename)
+
+# ----------------------------------------------------------------------
+# DatasetConfig class – legacy API required by unit tests
+# ----------------------------------------------------------------------
+class DatasetConfig:
+    """
+    Lightweight helper used by legacy unit tests to manage the list of
+    active dataset identifiers and to record validation failures.
+    """
+
+    def __init__(self, initial_ids: Optional[List[str]] = None):
+        """
+        Initialise the configuration.
+
+        Args:
+            initial_ids: Optional explicit list of dataset IDs to start with.
+                         If omitted, the primary active IDs are used.
+        """
+        if initial_ids is None:
+            self.current_ids = list(DATASET_IDS_PRIMARY)
+        else:
+            # Validate that supplied IDs exist in the global config
+            self.current_ids = [
+                ds_id for ds_id in initial_ids if ds_id in DATASET_CONFIG
+            ]
+        self.errors: List[Dict[str, Any]] = []
+
+    @property
+    def fallbacks_available(self) -> List[str]:
+        """
+        Return a list of dataset IDs that are still marked as active
+        (i.e., potential fallbacks) but are not currently in ``current_ids``.
+        """
+        return [
+            cfg["id"]
+            for cfg in DATASET_CONFIG.values()
+            if cfg.get("active") and cfg["id"] not in self.current_ids
+        ]
+
+    def register_validation_failure(
+        self, dataset_id: str, error_code: str, message: str
+    ) -> None:
+        """
+        Record a validation failure for a specific dataset and remove it
+        from the active list.
+
+        Args:
+            dataset_id: The identifier of the dataset that failed validation.
+            error_code: Short error code (e.g., ``ERR_DATA_MISSING``).
+            message: Human‑readable description of the problem.
+        """
+        if dataset_id in self.current_ids:
+            self.current_ids.remove(dataset_id)
+        self.errors.append(
+            {"dataset_id": dataset_id, "code": error_code, "message": message}
+        )
+
+    def to_json(self) -> str:
+        """
+        Serialise the current configuration state to JSON.
+
+        Returns:
+            JSON string containing ``current_ids``, ``errors`` and
+            ``fallbacks_available``.
+        """
+        state = {
+            "current_ids": self.current_ids,
+            "errors": self.errors,
+            "fallbacks_available": self.fallbacks_available,
+        }
+        return json.dumps(state)
+
+    def __repr__(self) -> str:  # pragma: no cover
+        return (
+            f"DatasetConfig(current_ids={self.current_ids}, "
+            f"errors={self.errors})"
+        )
+
+# The module's public interface
+__all__ = [
+    "ensure_dirs",
+    "get_data_path",
+    "get_processed_path",
+    "get_derived_path",
+    "get_figure_path",
+    "get_env_config",
+    "check_memory_limit",
+    "set_runtime_cap",
+    "get_active_dataset_id",
+    "set_active_dataset_id",
+    "switch_dataset_on_failure",
+    "data_path",
+    "HYPERPARAMETERS",
+    "DATASET_CONFIG",
+    # Legacy names required by tests
+    "dataset_config",
+    "DATASET_IDS_PRIMARY",
+    "WINDOW_SIZES",
+    "TR_DEFAULT",
+    "DatasetConfig",
+    "VERIFIED_DATASETS",
+    "DATA_DIR",
+]

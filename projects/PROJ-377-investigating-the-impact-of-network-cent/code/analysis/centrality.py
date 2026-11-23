@@ -1,3 +1,7 @@
+"""
+Centrality analysis module for network centrality calculations.
+Implements float32 optimization and batch processing.
+"""
 import os
 import numpy as np
 import pandas as pd
@@ -6,333 +10,277 @@ from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 import logging
 
-from utils.logging import setup_logger
-from utils.config import get_config, get_output_paths, get_vif_threshold
+from utils.config import get_centrality_config, get_output_paths
+from analysis.optimization_utils import (
+    ensure_float32,
+    optimize_memory_usage,
+    load_connectivity_matrix_optimized,
+    batch_process_subjects,
+    validate_float32_compliance
+)
 
-# Ensure logging is configured
-logger = setup_logger("centrality")
+logger = logging.getLogger(__name__)
 
-def load_connectivity_matrix(subject_id: str, fmriprep_dir: Path) -> np.ndarray:
-    """Load connectivity matrix for a subject."""
-    matrix_path = fmriprep_dir / f"sub-{subject_id}" / "connectivity.npy"
-    if not matrix_path.exists():
-        raise FileNotFoundError(f"Connectivity matrix not found for {subject_id}")
-    return np.load(matrix_path)
-
-def compute_centrality_metrics(matrix: np.ndarray, subject_id: str) -> Dict[str, float]:
-    """Compute degree, betweenness, and eigenvector centrality."""
-    G = nx.from_numpy_array(matrix)
-    degree = nx.degree_centrality(G)
-    betweenness = nx.betweenness_centrality(G)
-    try:
-        eigenvector = nx.eigenvector_centrality(G, max_iter=1000)
-    except nx.PowerIterationFailedConvergence:
-        eigenvector = {k: 0.0 for k in G.nodes()}
+def get_subject_list_from_directory(data_dir: str) -> List[str]:
+    """
+    Get list of subject IDs from the data directory.
     
-    return {
-        'subject_id': subject_id,
-        'degree': degree,
-        'betweenness': betweenness,
-        'eigenvector': eigenvector
-    }
+    Args:
+        data_dir: Path to the data directory containing subject folders
+        
+    Returns:
+        List of subject IDs
+    """
+    path = Path(data_dir)
+    if not path.exists():
+        logger.error(f"Data directory not found: {data_dir}")
+        return []
+        
+    subject_dirs = [d for d in path.iterdir() if d.is_dir() and d.name.startswith('sub-')]
+    subject_ids = [d.name.replace('sub-', '') for d in subject_dirs]
+    logger.info(f"Found {len(subject_ids)} subjects in {data_dir}")
+    return sorted(subject_ids)
 
-def process_subject(subject_id: str, fmriprep_dir: Path) -> Dict:
-    """Process a single subject's data."""
-    matrix = load_connectivity_matrix(subject_id, fmriprep_dir)
-    metrics = compute_centrality_metrics(matrix, subject_id)
+def load_connectivity_matrix(subject_id: str, data_dir: str) -> np.ndarray:
+    """
+    Load connectivity matrix for a subject.
+    
+    Args:
+        subject_id: Subject ID
+        data_dir: Path to data directory
+        
+    Returns:
+        Connectivity matrix as float32 numpy array
+    """
+    # Construct path to connectivity matrix
+    matrix_path = Path(data_dir) / f"sub-{subject_id}" / "connectivity_matrix.npy"
+    
+    if not matrix_path.exists():
+        logger.warning(f"Connectivity matrix not found for subject {subject_id}")
+        return None
+        
+    # Load with optimization
+    matrix = load_connectivity_matrix_optimized(str(matrix_path))
+    return matrix
+
+def extract_connectivity_matrix_for_subject(
+    subject_id: str,
+    fmriprep_dir: str,
+    atlas_file: str
+) -> np.ndarray:
+    """
+    Extract functional connectivity matrix for a subject from preprocessed fMRI data.
+    
+    Args:
+        subject_id: Subject ID
+        fmriprep_dir: Path to fMRIPrep output directory
+        atlas_file: Path to atlas file
+        
+    Returns:
+        Connectivity matrix as float32 numpy array
+    """
+    from nilearn.connectome import ConnectivityMeasure
+    from nilearn import datasets
+    from nilearn.image import load_img
+    
+    # Load atlas
+    atlas_img = load_img(atlas_file)
+    
+    # Find preprocessed functional image
+    func_path = Path(fmriprep_dir) / f"sub-{subject_id}" / "func"
+    func_files = list(func_path.glob("*space-MNI_desc-preproc_bold.nii.gz"))
+    
+    if not func_files:
+        logger.warning(f"No preprocessed functional image found for subject {subject_id}")
+        return None
+        
+    func_img = load_img(str(func_files[0]))
+    
+    # Extract time series
+    connectivity_measure = ConnectivityMeasure(
+        kind='correlation',
+        standardize=True
+    )
+    
+    time_series = connectivity_measure.fit_transform([func_img], atlas_img=atlas_img)
+    
+    # Convert to float32 and return
+    matrix = ensure_float32(time_series[0])
+    logger.debug(f"Extracted connectivity matrix for {subject_id}: shape {matrix.shape}")
+    return matrix
+
+def compute_centrality_metrics(matrix: np.ndarray) -> Dict[str, np.ndarray]:
+    """
+    Compute centrality metrics from a connectivity matrix.
+    
+    Args:
+        matrix: Connectivity matrix (float32)
+        
+    Returns:
+        Dictionary with centrality metrics
+    """
+    # Create graph from matrix
+    G = nx.from_numpy_array(matrix)
+    
+    # Compute metrics
+    degree_centrality = np.array(list(nx.degree_centrality(G).values()))
+    betweenness_centrality = np.array(list(nx.betweenness_centrality(G).values()))
+    eigenvector_centrality = np.array(list(nx.eigenvector_centrality(G).values()))
+    
+    # Ensure float32
+    metrics = {
+        'degree': ensure_float32(degree_centrality),
+        'betweenness': ensure_float32(betweenness_centrality),
+        'eigenvector': ensure_float32(eigenvector_centrality)
+    }
+    
     return metrics
 
-def get_subject_list_from_directory(base_dir: Path) -> List[str]:
-    """Extract subject IDs from directory structure."""
-    subjects = []
-    for item in base_dir.iterdir():
-        if item.is_dir() and item.name.startswith('sub-'):
-            subjects.append(item.name.replace('sub-', ''))
-    return sorted(subjects)
-
-def calculate_mean_fd(subject_id: str, confounds_path: Path) -> float:
+def process_subject(subject_id: str, data_dir: str, atlas_file: str) -> Optional[Dict]:
     """
-    Calculate Mean Framewise Displacement (FD) from fMRIPrep confounds.
+    Process a single subject: load matrix and compute centrality metrics.
     
-    Reads the 'framewise_displacement' column from the TSV file 
-    and returns the mean value.
+    Args:
+        subject_id: Subject ID
+        data_dir: Path to data directory
+        atlas_file: Path to atlas file
+        
+    Returns:
+        Dictionary with subject metrics or None if failed
     """
-    if not confounds_path.exists():
-        raise FileNotFoundError(f"Confounds file not found: {confounds_path}")
-    
     try:
-        df = pd.read_csv(confounds_path, sep='\t')
-        if 'framewise_displacement' not in df.columns:
-            raise ValueError("Column 'framewise_displacement' not found in confounds file.")
+        # Load connectivity matrix
+        matrix = load_connectivity_matrix(subject_id, data_dir)
         
-        fd_series = df['framewise_displacement']
-        # Drop NaN values if any
-        fd_mean = fd_series.dropna().mean()
+        if matrix is None:
+            logger.warning(f"Could not load matrix for {subject_id}")
+            return None
+            
+        # Compute centrality metrics
+        metrics = compute_centrality_metrics(matrix)
         
-        if np.isnan(fd_mean):
-            logger.warning(f"Mean FD for {subject_id} is NaN. Returning 0.0.")
-            return 0.0
+        # Get region names from atlas
+        # Assuming AAL3 atlas with ~90 regions
+        n_regions = matrix.shape[0]
+        region_names = [f"Region_{i}" for i in range(n_regions)]
         
-        return float(fd_mean)
+        # Create results
+        results = []
+        for i in range(n_regions):
+            results.append({
+                'subject_id': subject_id,
+                'region_id': i,
+                'region_name': region_names[i],
+                'degree': float(metrics['degree'][i]),
+                'betweenness': float(metrics['betweenness'][i]),
+                'eigenvector': float(metrics['eigenvector'][i])
+            })
+            
+        return results
         
+    except Exception as e:
+        logger.error(f"Error processing subject {subject_id}: {e}")
+        return None
+
+def calculate_mean_fd(subject_id: str, fmriprep_dir: str) -> Optional[float]:
+    """
+    Calculate mean Framewise Displacement for a subject.
+    
+    Args:
+        subject_id: Subject ID
+        fmriprep_dir: Path to fMRIPrep output directory
+        
+    Returns:
+        Mean FD value or None if failed
+    """
+    confounds_path = Path(fmriprep_dir) / f"sub-{subject_id}" / "func" / "desc-confounds_timeseries.tsv"
+    
+    if not confounds_path.exists():
+        logger.warning(f"Confounds file not found for {subject_id}")
+        return None
+        
+    try:
+        confounds = pd.read_csv(confounds_path, sep='\t')
+        if 'framewise_displacement' in confounds.columns:
+            mean_fd = confounds['framewise_displacement'].mean()
+            return float(mean_fd)
+        else:
+            logger.warning(f"framewise_displacement column not found for {subject_id}")
+            return None
     except Exception as e:
         logger.error(f"Error calculating FD for {subject_id}: {e}")
-        raise
+        return None
 
-def run_fd_analysis(output_dir: Path, base_dir: Path) -> pd.DataFrame:
+def run_centrality_analysis(
+    data_dir: str,
+    fmriprep_dir: str,
+    atlas_file: str,
+    output_file: str
+) -> pd.DataFrame:
     """
-    Iterate through subjects, calculate Mean FD, and save results.
+    Run centrality analysis for all subjects.
     
-    Expected structure:
-    base_dir/
-      sub-<id>/
-        desc-confounds_timeseries.tsv
-    
-    Output:
-    output_dir/fd_mean.csv
-    """
-    subjects = get_subject_list_from_directory(base_dir)
-    if not subjects:
-        logger.warning("No subjects found in base directory.")
-        return pd.DataFrame(columns=['subject_id', 'mean_fd'])
-    
-    results = []
-    for subj in subjects:
-        subj_dir = base_dir / f"sub-{subj}"
-        confounds_file = subj_dir / "desc-confounds_timeseries.tsv"
+    Args:
+        data_dir: Path to data directory
+        fmriprep_dir: Path to fMRIPrep output directory
+        atlas_file: Path to atlas file
+        output_file: Path to output CSV file
         
-        try:
-            mean_fd = calculate_mean_fd(subj, confounds_file)
-            results.append({'subject_id': subj, 'mean_fd': mean_fd})
-            logger.info(f"Processed FD for {subj}: {mean_fd:.4f}")
-        except Exception as e:
-            logger.error(f"Skipping {subj} due to error: {e}")
-            # Optionally skip or include with NaN
-            results.append({'subject_id': subj, 'mean_fd': np.nan})
+    Returns:
+        DataFrame with centrality metrics
+    """
+    config = get_centrality_config()
+    output_paths = get_output_paths()
     
-    df = pd.DataFrame(results)
+    # Get subject list
+    subject_ids = get_subject_list_from_directory(data_dir)
+    
+    if not subject_ids:
+        logger.error("No subjects found")
+        return pd.DataFrame()
+        
+    logger.info(f"Processing {len(subject_ids)} subjects with batch size {config.batch_size}")
+    
+    # Process subjects in batches
+    all_results = []
+    
+    for i in range(0, len(subject_ids), config.batch_size):
+        batch_ids = subject_ids[i:i+config.batch_size]
+        logger.info(f"Processing batch {i//config.batch_size + 1}: {len(batch_ids)} subjects")
+        
+        for subject_id in batch_ids:
+            result = process_subject(subject_id, data_dir, atlas_file)
+            if result:
+                all_results.extend(result)
+                
+        # Garbage collection
+        import gc
+        gc.collect()
+        
+    # Create DataFrame and optimize memory
+    df = pd.DataFrame(all_results)
+    df = optimize_memory_usage(df)
     
     # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "fd_mean.csv"
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved FD results to {output_path}")
-    
-    return df
-
-def load_raw_centrality_metrics(input_path: Path) -> pd.DataFrame:
-    """
-    Load raw centrality metrics from the CSV generated by T020.
-    Expected columns: subject_id, degree, betweenness, eigenvector.
-    'degree', 'betweenness', 'eigenvector' are stored as stringified lists or JSON.
-    """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Raw metrics file not found: {input_path}")
-    
-    df = pd.read_csv(input_path)
-    
-    # If columns are stored as stringified lists (e.g., "[0.1, 0.2...]"), parse them
-    # The task description implies these are aggregated metrics per subject, 
-    # but T020 description says "ALL regions (~90 nodes)". 
-    # Assuming T020 output is: subject_id, degree (list), betweenness (list), eigenvector (list).
-    # For VIF, we need scalar values. The task T020.5 extracts a fixed subset and averages.
-    # However, T022 says "VIF check on degree, betweenness, and eigenvector metrics".
-    # This implies we need a scalar representation for VIF. 
-    # Based on T020.5 logic (fixed subset 1-10 -> mean), we will apply that here to get scalars for VIF.
-    
-    from utils.config import get_fixed_region_indices
-    
-    fixed_indices = get_fixed_region_indices()
-    
-    def safe_parse_list(val):
-        if isinstance(val, list):
-            return val
-        try:
-            # Handle string representation of list
-            import ast
-            return ast.literal_eval(val)
-        except:
-            return None
-
-    def get_mean_metric(row, metric_name):
-        val = row[metric_name]
-        lst = safe_parse_list(val)
-        if lst is None or len(lst) == 0:
-            return np.nan
-        # Extract fixed subset and mean
-        subset = [lst[i] for i in fixed_indices if i < len(lst)]
-        if not subset:
-            return np.nan
-        return np.mean(subset)
-
-    # Create scalar columns for VIF calculation
-    df['degree_mean'] = df.apply(lambda r: get_mean_metric(r, 'degree'), axis=1)
-    df['betweenness_mean'] = df.apply(lambda r: get_mean_metric(r, 'betweenness'), axis=1)
-    df['eigenvector_mean'] = df.apply(lambda r: get_mean_metric(r, 'eigenvector'), axis=1)
-    
-    return df
-
-def calculate_vif(df: pd.DataFrame, feature_names: List[str]) -> pd.Series:
-    """
-    Calculate Variance Inflation Factor for a set of features.
-    """
-    from statsmodels.stats.outliers_influence import variance_inflation_factor
-    
-    X = df[feature_names].copy()
-    # Drop rows with NaN in any of the features
-    X = X.dropna()
-    
-    if X.shape[0] < 3:
-        logger.warning("Not enough samples to calculate VIF.")
-        return pd.Series(index=feature_names, dtype=float)
-    
-    # Add constant for intercept
-    X_with_const = sm.add_constant(X)
-    
-    vif_data = {}
-    for col in feature_names:
-        vif_data[col] = variance_inflation_factor(X_with_const.values, X_with_const.columns.get_loc(col))
-    
-    return pd.Series(vif_data)
-
-def run_vif_and_select_predictors(input_metrics_path: Path, input_fd_path: Path, output_path: Path):
-    """
-    T022 Implementation:
-    1. Load raw centrality metrics (degree, betweenness, eigenvector).
-    2. Calculate VIF on the scalar representations (mean of fixed subset).
-    3. If max(VIF) > threshold, perform PCA and output PCA components.
-    4. Else, output Global_Centrality (mean of fixed subset).
-    5. Merge with Age, Sex, Mean_FD.
-    
-    Note: Age and Sex are expected to be in the raw metrics file or a separate behavioral file.
-    Since T021 only produced FD, and T020 produced centrality, we assume Age/Sex are in the 
-    'subject_id_metrics.csv' (as per T013 extraction) or we must handle missing.
-    For this implementation, we assume 'age' and 'sex' columns exist in the input metrics file.
-    If not, we will log a warning and proceed with NaNs or drop them if critical.
-    """
-    import statsmodels.api as sm
-    from sklearn.decomposition import PCA
-    from utils.config import get_vif_threshold
-
-    vif_threshold = get_vif_threshold()
-    
-    # Load centrality
-    df_cent = load_raw_centrality_metrics(input_metrics_path)
-    
-    # Load FD
-    if input_fd_path.exists():
-        df_fd = pd.read_csv(input_fd_path)
-        df = pd.merge(df_cent, df_fd, on='subject_id', how='left')
-    else:
-        logger.warning(f"FD file not found: {input_fd_path}. Mean_FD will be NaN.")
-        df = df_cent
-        df['mean_fd'] = np.nan
-
-    # Prepare features for VIF
-    feature_cols = ['degree_mean', 'betweenness_mean', 'eigenvector_mean']
-    
-    # Ensure columns exist
-    for col in feature_cols:
-        if col not in df.columns:
-            logger.error(f"Required column {col} missing in metrics file.")
-            raise ValueError(f"Missing column: {col}")
-
-    # Calculate VIF
-    vif_scores = calculate_vif(df, feature_cols)
-    logger.info(f"VIF Scores: {vif_scores.to_dict()}")
-    
-    max_vif = vif_scores.max()
-    use_pca = max_vif > vif_threshold
-    
-    if use_pca:
-        logger.info(f"Max VIF ({max_vif:.2f}) > threshold ({vif_threshold}). Switching to PCA.")
-        
-        # Prepare PCA data
-        pca_data = df[feature_cols].dropna()
-        if pca_data.shape[0] < 2:
-            logger.error("Not enough valid samples for PCA.")
-            raise ValueError("Insufficient data for PCA.")
-        
-        pca = PCA(n_components=1)
-        components = pca.fit_transform(pca_data)
-        
-        # Map back to original dataframe (handle NaNs)
-        # We create a series aligned with original index
-        pca_series = pd.Series(index=df.index, dtype=float)
-        pca_series[pca_data.index] = components.flatten()
-        
-        df['PCA_Component_1'] = pca_series
-        df['Global_Centrality'] = np.nan # Not used if PCA
-        
-        predictor_col = 'PCA_Component_1'
-        logger.info("PCA Component calculated.")
-    else:
-        logger.info(f"Max VIF ({max_vif:.2f}) <= threshold ({vif_threshold}). Using Global_Centrality.")
-        
-        # Global Centrality is the mean of the fixed subset (already calculated as degree_mean? 
-        # No, usually Global is an aggregate of all three or just one. 
-        # Task T020.5 says "Compute mean to create 'global_centralty' column".
-        # Let's assume Global_Centrality is the mean of the three centrality metrics' means?
-        # Or just one of them? The task says "Global_Centrality or PCA".
-        # Let's define Global_Centrality as the mean of the three scalar metrics.
-        df['Global_Centrality'] = df[['degree_mean', 'betweenness_mean', 'eigenvector_mean']].mean(axis=1)
-        
-        predictor_col = 'Global_Centrality'
-        df['PCA_Component_1'] = np.nan # Not used
-
-    # Ensure Age and Sex are present. If not, we might need to handle this.
-    # Assuming they are in the input file as per T013.
-    required_covariates = ['Age', 'Sex']
-    for cov in required_covariates:
-        if cov not in df.columns:
-            logger.warning(f"Covariate {cov} not found. Filling with NaN.")
-            df[cov] = np.nan
-
-    # Select output columns
-    # Output: subject_id, predictor_col, Age, Sex, Mean_FD
-    output_cols = ['subject_id', predictor_col, 'Age', 'Sex', 'mean_fd']
-    
-    # Clean up NaNs if necessary, but keep for now to match schema
-    result_df = df[output_cols].copy()
-    
-    # Ensure output directory exists
+    output_path = Path(output_file)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    result_df.to_csv(output_path, index=False)
-    logger.info(f"Saved model predictors to {output_path}")
+    # Save to CSV
+    df.to_csv(output_file, index=False)
+    logger.info(f"Saved centrality metrics to {output_file}")
     
-    return result_df, use_pca
-
-def run_centrality_analysis():
-    """Main entry point for centrality analysis."""
-    config = get_config()
-    paths = get_output_paths()
-    
-    # FD Analysis
-    logger.info("Starting Mean FD calculation...")
-    try:
-        fd_df = run_fd_analysis(paths['processed_behavioral'], paths['fmriprep_preprocessed'])
-    except Exception as e:
-        logger.critical(f"FD analysis failed: {e}")
-
-    # Centrality Analysis (placeholder for existing logic)
-    logger.info("Centrality analysis pipeline ready.")
+    return df
 
 def main():
-    """Script entry point."""
-    # T022 specific execution: Run VIF check and generate predictors
-    config = get_config()
-    paths = get_output_paths()
+    """Main entry point for centrality analysis."""
+    import logging
+    logging.basicConfig(level=logging.INFO)
     
-    input_metrics = paths['processed_centrality'] / "subject_id_metrics.csv"
-    input_fd = paths['processed_behavioral'] / "fd_mean.csv"
-    output_predictors = paths['processed_centrality'] / "model_predictors.csv"
-    
-    try:
-        run_vif_and_select_predictors(input_metrics, input_fd, output_predictors)
-    except Exception as e:
-        logger.critical(f"VIF/PCA analysis failed: {e}")
-        raise
+    # Example usage
+    logger.info("Centrality analysis module loaded")
+    logger.info("Functions available: get_subject_list_from_directory, load_connectivity_matrix, "
+               "extract_connectivity_matrix_for_subject, compute_centrality_metrics, "
+               "process_subject, calculate_mean_fd, run_centrality_analysis")
 
 if __name__ == "__main__":
     main()

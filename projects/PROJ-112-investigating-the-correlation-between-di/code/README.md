@@ -1,51 +1,41 @@
-# Dietary Fiber Intake and Gut Microbiome Composition Analysis
+# llmXive Research Pipeline: Dietary Fiber and Gut Microbiome
 
-## Overview
 This project investigates the correlation between dietary fiber intake and gut microbiome composition using data from the American Gut Project (AGP) and UK Biobank (UKBB).
 
 ## Project Structure
-```
-.
-├── code/
-│ ├── main.py # Entry point
-│ ├── ingestion/ # Data loading scripts
-│ ├── preprocessing/ # Data cleaning and transformation
-│ ├── analysis/ # Statistical analysis (MaAsLin2, etc.)
-│ ├── utils/ # Utilities (logger, power analysis)
-│ └── tests/ # Test suites
-├── data/
-│ ├── raw/ # Raw downloaded data
-│ └── processed/ # Processed and harmonized data
-├── docs/ # Documentation
-├── state/ # Pipeline state tracking
-└── logs/ # Log files
-```
 
-## Setup
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-2. Install dependencies:
- ```bash
- pip install -r code/requirements.txt
- ```
+- `src/`: Source code for the pipeline
+ - `ingestion/`: Data loading and harmonization
+ - `preprocessing/`: Data cleaning, transformation, and imputation
+ - `analysis/`: Statistical analysis and correlation
+ - `utils/`: Utility functions
+- `tests/`: Test suites
+ - `contract/`: Schema validation tests
+ - `integration/`: Integration tests
+ - `unit/`: Unit tests
+- `data/`: Data directories
+ - `raw/`: Raw downloaded data
+ - `processed/`: Processed and harmonized data
+ - `processed/results/`: Final analysis results
+- `docs/`: Documentation
+- `state/`: Pipeline state and logs
+- `figures/`: Generated plots
 
 ## Usage
-Run the main pipeline:
-```bash
-python code/main.py
-```
 
-Run tests:
-```bash
-pytest code/tests/
-```
+1. **Setup Environment**:
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-## Data Sources
-- American Gut Project (AGP): Via Qiita
-- UK Biobank (UKBB): Via UKBB portal
+2. **Setup Directory Structure**:
+ ```bash
+ python code/src/setup_data_structure.py
+ ```
 
-## License
-MIT
+3. **Run Pipeline**:
+ Follow the steps in `quickstart.md`.
+
+## Dependencies
+
+See `requirements.txt` for the full list of dependencies.

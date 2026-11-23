@@ -1,0 +1,84 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "fPCA Analysis Output Schema"
+description: "Schema for the results of fPCA and LOO Jackknife robustness analysis."
+type: object
+properties:
+  fpca_results:
+    type: object
+    properties:
+      eigenvalues:
+        type: array
+        items:
+          type: number
+        description: "Eigenvalues for each component"
+      cumulative_variance:
+        type: array
+        items:
+          type: number
+        description: "Cumulative variance explained by components"
+      eigenfunctions:
+        type: array
+        items:
+          type: array
+          items:
+            type: number
+          description: "Coefficients representing the eigenfunctions"
+      components_retained:
+        type: integer
+        description: "Number of components retained (3-5)"
+    required:
+      - eigenvalues
+      - cumulative_variance
+      - eigenfunctions
+      - components_retained
+  jackknife_stability:
+    type: object
+    properties:
+      method:
+        type: string
+        enum:
+          - "LOO_Jackknife"
+          - "Block_Jackknife"
+        description: "Robustness method used"
+      iterations:
+        type: integer
+        description: "Number of LOO iterations (e.g., N models)"
+      metrics:
+        type: array
+        items:
+          type: object
+          properties:
+            component_index:
+              type: integer
+            mean_procrustes_distance:
+              type: number
+              description: "Mean Procrustes distance from full ensemble modes"
+            std_procrustes_distance:
+              type: number
+            influential_models:
+              type: array
+              items:
+                type: string
+              description: "List of models whose removal caused large shifts"
+          required:
+            - component_index
+            - mean_procrustes_distance
+            - std_procrustes_distance
+    required:
+      - method
+      - iterations
+      - metrics
+  artifacts:
+    type: object
+    properties:
+      plots:
+        type: array
+        items:
+          type: string
+          description: "Relative paths to generated plot files"
+    required:
+      - plots
+required:
+  - fpca_results
+  - jackknife_stability
+  - artifacts

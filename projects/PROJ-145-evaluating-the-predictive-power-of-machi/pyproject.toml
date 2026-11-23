@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hea-predictive-power"
+version = "0.1.0"
+description = "Evaluating the Predictive Power of Machine Learning for Identifying Novel High-Entropy Alloy Compositions"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "pymatgen",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "scipy",
+    "datasets",
+    "matplotlib",
+    "seaborn",
+    "pytest",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+# Ruff configuration is in ruff.toml for better readability
+# This file just ensures the tool is recognized
+extend = "ruff.toml"

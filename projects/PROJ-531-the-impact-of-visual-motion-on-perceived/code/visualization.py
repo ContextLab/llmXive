@@ -1,145 +1,147 @@
+"""
+Main visualization module for T028.
+Generates scatter plots of motion features vs. agency scores (FR-007).
+"""
 import os
 import json
 import pandas as pd
 import matplotlib.pyplot as plt
 import seaborn as sns
 from pathlib import Path
-from typing import Optional, Dict, Any
-import logging
-import sys
+from typing import List, Dict, Any
 
-# Import sibling modules
-from visualization.plots import generate_importance_plot, generate_scatter_plots, generate_partial_dependence
+# Import from sibling module as defined in API surface
+from visualization.plots import generate_scatter_plots, generate_importance_plot, generate_partial_dependence
 from utils.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-def run_visualization(
-    data_path: str,
-    metrics_path: str,
-    output_dir: str
-) -> None:
+def run_visualization(data_path: str, metrics_path: str, output_dir: str):
     """
-    Main entry point for visualization tasks.
-    1. Loads cleaned data.
-    2. Loads model metrics to identify the top predictor.
-    3. Generates scatter plots for all motion features.
-    4. Generates feature importance plot.
-    5. Generates partial dependence plot for the top predictor.
+    Run all visualization tasks for User Story 3.
     
     Args:
-        data_path: Path to cleaned CSV.
-        metrics_path: Path to model_metrics.json.
-        output_dir: Directory to save plots.
+        data_path: Path to the cleaned dataset (CSV).
+        metrics_path: Path to the model metrics JSON.
+        output_dir: Directory to save generated plots.
     """
     logger.info(f"Starting visualization pipeline. Data: {data_path}, Metrics: {metrics_path}")
     
-    data_path = Path(data_path)
-    metrics_path = Path(metrics_path)
-    output_dir = Path(output_dir)
+    # Load data
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Data file not found: {data_path}")
+    data = pd.read_csv(data_path)
     
-    # 1. Load Data
-    if not data_path.exists():
-        logger.error(f"Data file not found: {data_path}")
-        sys.exit(1)
-    
-    df = pd.read_csv(data_path)
-    logger.info(f"Loaded {len(df)} rows from {data_path}")
-    
-    # 2. Load Metrics to find top predictor
-    if not metrics_path.exists():
-        logger.error(f"Metrics file not found: {metrics_path}")
-        sys.exit(1)
-    
+    # Load metrics
+    if not os.path.exists(metrics_path):
+        raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
     with open(metrics_path, 'r') as f:
         metrics = json.load(f)
     
-    # Extract feature importance from metrics
-    # Assuming structure: {"rf_importance": [{"feature": ..., "importance": ...}, ...]}
-    importance_data = metrics.get('rf_importance', [])
+    # Ensure output directory exists
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Output directory ready: {output_path}")
     
-    if not importance_data:
-        logger.warning("No feature importance data found in metrics. Skipping importance plot.")
-        top_feature = None
+    # Identify motion features from data columns
+    # Based on T004 schema and T014/T017 processing, these are the expected motion predictors
+    motion_features = ['latency', 'smoothness', 'lead_time']
+    available_features = [f for f in motion_features if f in data.columns]
+    
+    if not available_features:
+        logger.warning("No motion features found in data for scatter plots.")
+        return
+
+    # 1. Generate scatter plots for each motion feature vs. agency_score (FR-007)
+    logger.info(f"Generating scatter plots for features: {available_features}")
+    generate_scatter_plots(
+        data=data,
+        x_cols=available_features,
+        y_col='agency_score',
+        output_dir=output_path
+    )
+    
+    # 2. Generate feature importance bar chart (FR-007)
+    if 'rf_results' in metrics and 'feature_importance' in metrics['rf_results']:
+        logger.info("Generating feature importance plot from Random Forest results.")
+        generate_importance_plot(
+            importance_dict=metrics['rf_results']['feature_importance'],
+            output_dir=output_path
+        )
+    elif 'ols_results' in metrics and 'coefficients' in metrics['ols_results']:
+        # Fallback to OLS coefficients if RF not available, normalized by magnitude
+        logger.info("Generating feature importance plot from OLS coefficients.")
+        coeffs = metrics['ols_results']['coefficients']
+        # Filter out intercept if present
+        feat_importance = {k: abs(v) for k, v in coeffs.items() if k != 'Intercept'}
+        generate_importance_plot(importance_dict=feat_importance, output_dir=output_path)
     else:
-        imp_df = pd.DataFrame(importance_data)
-        imp_df = imp_df.sort_values(by='importance', ascending=False)
-        top_feature = imp_df.iloc[0]['feature']
-        logger.info(f"Top predictor identified: {top_feature}")
+        logger.warning("No feature importance data found in metrics.")
+
+    # 3. Generate partial dependence plot for top predictor (FR-007)
+    # Determine top predictor from RF importance or OLS magnitude
+    top_feature = None
+    if 'rf_results' in metrics and 'feature_importance' in metrics['rf_results']:
+        importance = metrics['rf_results']['feature_importance']
+        if importance:
+            top_feature = max(importance, key=importance.get)
+    elif 'ols_results' in metrics and 'coefficients' in metrics['ols_results']:
+        coeffs = metrics['ols_results']['coefficients']
+        # Exclude intercept
+        valid_coeffs = {k: abs(v) for k, v in coeffs.items() if k != 'Intercept'}
+        if valid_coeffs:
+            top_feature = max(valid_coeffs, key=valid_coeffs.get)
+    
+    if top_feature and top_feature in data.columns:
+        logger.info(f"Generating partial dependence plot for top feature: {top_feature}")
+        # We need the fitted model for PDP. If stored in metrics, use it; otherwise skip or approximate.
+        # For this task, we assume the model object is not serialized in JSON, so we re-fit a simple RF on the fly for PDP.
+        # This is a standard practice for visualization-only steps if the model isn't persisted.
+        from sklearn.ensemble import RandomForestRegressor
+        from sklearn.inspection import PartialDependenceDisplay
         
-        # Generate Importance Plot
-        importance_output = output_dir / "feature_importance.png"
-        generate_importance_plot(imp_df, importance_output)
-        logger.info(f"Saved importance plot to {importance_output}")
-    
-    # 3. Generate Scatter Plots
-    # Identify motion features (exclude 'participant_id', 'agency_score')
-    motion_features = [col for col in df.columns if col not in ['participant_id', 'agency_score']]
-    if motion_features:
-        scatter_output_dir = output_dir
-        generate_scatter_plots(df, motion_features, 'agency_score', scatter_output_dir)
-        logger.info(f"Generated scatter plots for {len(motion_features)} features.")
-    else:
-        logger.warning("No motion features found for scatter plots.")
-    
-    # 4. Generate Partial Dependence Plot for Top Predictor
-    if top_feature:
-        # We need the model to generate the PDP. 
-        # Since the model isn't passed directly here, we have two options:
-        # A. Re-train the model (expensive, but ensures consistency).
-        # B. Assume the model is saved in a standard location or passed via config.
-        # Given the task description "Implement partial dependence plot for the top predictor",
-        # and the dependency on US2 (model fitting), we should ideally load the model.
-        # However, the `model_fitting.py` task (T022b) likely saved the model.
-        # Let's look for a saved model or re-run a quick fit if necessary.
-        # For this specific task T030, we will assume the model was saved as `data/results/model.pkl`
-        # by the modeling phase. If not, we might need to re-run the fitting logic.
+        X = data[available_features]
+        y = data['agency_score']
         
-        model_path = Path("data/results/model_rf.pkl")
-        if not model_path.exists():
-            logger.warning(f"Model file not found at {model_path}. Attempting to re-fit or skip.")
-            # If we can't load the model, we cannot generate a PDP.
-            # We will skip this step with a warning.
-            logger.warning("Skipping Partial Dependence Plot: Model not found.")
-        else:
-            import joblib
-            model = joblib.load(model_path)
-            
-            # Ensure the model was trained on the same features
-            # We'll use the full dataframe, assuming the model handles the columns
-            # or we subset to the columns the model expects if we had that info.
-            # For safety, we pass the dataframe columns that match the model's training.
-            # If the model was trained on a subset, we need to know which.
-            # Assuming standard practice: model was trained on `motion_features`.
-            X_for_pdp = df[motion_features]
-            
-            pdp_output = output_dir / f"pdp_{top_feature}.png"
-            generate_partial_dependence(
-                model, 
-                X_for_pdp, 
-                top_feature, 
-                pdp_output,
-                title=f"Partial Dependence: {top_feature}"
-            )
-            logger.info(f"Saved partial dependence plot to {pdp_output}")
+        # Simple RF for PDP visualization
+        rf_pdp = RandomForestRegressor(n_estimators=100, random_state=42)
+        rf_pdp.fit(X, y)
+        
+        fig, ax = plt.subplots(figsize=(8, 6))
+        PartialDependenceDisplay.from_estimator(rf_pdp, X, features=[top_feature], ax=ax)
+        plt.title(f'Partial Dependence: {top_feature} on Agency Score')
+        plt.tight_layout()
+        pdp_path = output_path / f'partial_dependence_{top_feature}.png'
+        plt.savefig(pdp_path)
+        plt.close(fig)
+        logger.info(f"Saved partial dependence plot to {pdp_path}")
     else:
-        logger.info("No top feature identified; skipping partial dependence plot.")
-    
-    logger.info("Visualization pipeline complete.")
+        logger.warning("Could not identify a top predictor for partial dependence plot.")
+
+    logger.info("Visualization pipeline completed successfully.")
 
 def main():
-    """
-    CLI entry point.
-    Expects environment variables or default paths:
-    - DATA_PATH: data/processed/cleaned_data.csv
-    - METRICS_PATH: data/results/model_metrics.json
-    - OUTPUT_DIR: data/results/plots
-    """
-    data_path = os.getenv("DATA_PATH", "data/processed/cleaned_data.csv")
-    metrics_path = os.getenv("METRICS_PATH", "data/results/model_metrics.json")
-    output_dir = os.getenv("OUTPUT_DIR", "data/results/plots")
+    """Main entry point for visualization script."""
+    # Paths as defined in tasks.md and quickstart.md conventions
+    data_path = "data/processed/raw_cleaned.csv"
+    metrics_path = "data/results/model_metrics.json"
+    output_dir = "data/results/plots"
     
-    run_visualization(data_path, metrics_path, output_dir)
+    # Ensure we are running from project root
+    if not os.path.exists(data_path):
+        print(f"Error: Data file not found at {data_path}. Please ensure preprocessing is complete.")
+        sys.exit(1)
+    if not os.path.exists(metrics_path):
+        print(f"Error: Metrics file not found at {metrics_path}. Please ensure modeling is complete.")
+        sys.exit(1)
+        
+    try:
+        run_visualization(data_path, metrics_path, output_dir)
+        print("Visualization artifacts generated successfully.")
+    except Exception as e:
+        logger.error(f"Visualization failed: {e}")
+        raise
 
 if __name__ == "__main__":
+    import sys
     main()

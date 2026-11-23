@@ -1,0 +1,7 @@
+[
+  {
+    "step": "WARNING",
+    "details": "sklearn-combat not installed. Batch correction will be skipped if multiple studies detected.",
+    "status": "completed"
+  }
+]

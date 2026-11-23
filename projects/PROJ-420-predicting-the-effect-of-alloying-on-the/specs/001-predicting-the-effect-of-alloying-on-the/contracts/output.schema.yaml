@@ -1,0 +1,71 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelMetrics Schema
+description: Schema for model performance and diagnostic outputs.
+type: object
+properties:
+  cv_mae:
+    type: number
+    description: Mean Absolute Error from 5-fold Cross-Validation.
+  test_mae:
+    type: number
+    description: Mean Absolute Error on the held-out test set.
+  best_params:
+    type: object
+    description: Best hyperparameters found during CV.
+    additionalProperties: true
+  feature_importance:
+    type: object
+    description: Grouped ILR Importance scores for alloying elements.
+    properties:
+      Cu:
+        type: number
+      Mg:
+        type: number
+      Si:
+        type: number
+      Zn:
+        type: number
+      Mn:
+        type: number
+    required:
+      - Cu
+      - Mg
+      - Si
+      - Zn
+      - Mn
+  vif_scores:
+    type: object
+    description: Variance Inflation Factors for ILR features.
+    properties:
+      ilr_1:
+        type: number
+      ilr_2:
+        type: number
+      ilr_3:
+        type: number
+      ilr_4:
+        type: number
+      ilr_5:
+        type: number
+    required:
+      - ilr_1
+      - ilr_2
+      - ilr_3
+      - ilr_4
+      - ilr_5
+  vif_flag:
+    type: boolean
+    description: True if any VIF > 5.
+  associational_framing:
+    type: boolean
+    const: true
+    description: "Flag indicating results are framed as associational (not causal)."
+required:
+  - cv_mae
+  - test_mae
+  - best_params
+  - feature_importance
+  - vif_scores
+  - vif_flag
+  - associational_framing
+additionalProperties: false

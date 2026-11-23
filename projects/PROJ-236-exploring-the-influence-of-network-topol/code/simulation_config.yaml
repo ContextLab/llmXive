@@ -1,37 +1,22 @@
-# Simulation Configuration for Network Topology Heat Transport Study
-# This file defines parameters for network generation and transport analysis.
+# Simulation configuration for network ensemble generation
+#
+# This file drives ``code/generate_networks.py``.  The values are deliberately
+# modest so that the integration test can run quickly while still exercising
+# the full cutoff sweep logic (FR‑008).
 
-network_generation:
-  # Base cutoff factor relative to nearest-neighbor distance
-  base_cutoff_factor: 1.2
-  # Range for sensitivity analysis
-  cutoff_sweep:
-    start: 1.0
-    end: 2.0
-    step: 0.1
-  # Topologies to generate
-  topologies:
-    - small_world
-    - scale_free
-    - random
-  # Number of realizations per topology
-  num_realizations: 100
+topologies:
+  - small_world
+  - scale_free
+  - random
 
-transport:
-  # Solver parameters
-  max_iterations: 1000
-  convergence_threshold: 1e-6
-  # Regime detection thresholds
-  ballistic_threshold: 0.5
+# Cutoff factors – the factor multiplies the nearest‑neighbor distance.
+# The ensemble generation loop records the factor but does not apply a
+# physical distance filter in this minimal implementation.
+cutoffs:
+  - 1.0
+  - 1.2
+  - 1.5
 
-analysis:
-  # Statistical parameters
-  significance_level: 0.05
-  bootstrap_iterations: 1000
-  # Correlation thresholds
-  min_correlation_strength: 0.3
-
-runtime:
-  # Limits in seconds
-  per_realization_limit: 2700  # 45 minutes
-  total_pipeline_limit: 21600  # 6 hours
+realizations_per_topology: 2   # two realizations for each (topology, cutoff) pair
+nodes: 100                    # number of nodes per graph
+output_dir: data/networks    # where graphs and meta.json files are stored

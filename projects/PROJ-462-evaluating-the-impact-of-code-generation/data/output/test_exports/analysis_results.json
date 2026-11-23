@@ -1,0 +1,26 @@
+{
+  "data": {
+    "anova_results": {
+      "f_statistic": 12.5,
+      "p_value": 0.001,
+      "degrees_of_freedom": [
+        2,
+        150
+      ]
+    },
+    "effect_sizes": {
+      "cohens_d": 0.8,
+      "confidence_interval": [
+        0.5,
+        1.1
+      ]
+    },
+    "metadata": {
+      "analysis_date": "2024-01-15",
+      "sample_size": 153
+    }
+  },
+  "metadata": {
+    "test_run": true
+  }
+}

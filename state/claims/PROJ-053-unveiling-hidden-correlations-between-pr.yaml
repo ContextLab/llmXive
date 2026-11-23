@@ -1,0 +1,960 @@
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: optimize memory usage to ensure less than 7GB peak usage on 500 samples
+  claim_id: c_11445057
+  context: Optimize memory usage in preprocess.py to ensure < 7GB peak usage on N=500
+    samples
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Optimize_memory_usage_to_ensure_less_than_7GB_peak_usage_on
+  kind: magnitude
+  raw_text: Optimize memory usage in preprocess.py to ensure < 7GB peak usage on N=500
+    samples
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T04:25:41Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: optimize GPR training loop to ensure runtime less than 30 minutes
+  claim_id: c_3682743f
+  context: Optimize GPR training loop in gpr_trainer.py to ensure runtime < 30 minutes
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Optimize_GPR_training_loop_to_ensure_runtime_less_than_30_mi
+  kind: magnitude
+  raw_text: Optimize GPR training loop in gpr_trainer.py to ensure runtime < 30 minutes
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T04:25:53Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: halt execution if sample count is less than 50
+  claim_id: c_d04f0b25
+  context: Implement sample count check (N < 50) to halt execution with specific error
+    message in code/data/preprocess.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_execution_if_sample_count_is_less_than_50
+  kind: magnitude
+  raw_text: Implement sample count check (N < 50) to halt execution
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T04:26:42Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 4
+  canonical: fetch literature baseline from DOI 10.1016/j.addma.2020.101632
+  claim_id: c_454e85b5
+  context: 'Implement permutation importance correlation analysis: load user-provided
+    baseline OR fetch literature baseline from DOI ''10.1016/j.addma.2020.101632''.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: fetch literature baseline from DOI '10.1016/j.addma.2020.101632'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T04:29:53Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 2
+  canonical: fetch literature baseline from DOI 10.1016/j.addma.2020.101632
+  claim_id: c_2342a564
+  context: 'Implement permutation importance correlation analysis: load user-provided
+    baseline OR fetch literature baseline from DOI ''10.1016/j.addma.2020.101632''.
+    If fetch fails, use hardcoded default ranking.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: citation
+  raw_text: fetch literature baseline from DOI '10.1016/j.addma.2020.101632'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T04:34:26Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: GPR trainer detects and handles zero-variance features
+  claim_id: c_5dad81d6
+  context: T028 [US2] [DEPENDS ON T014, T015A] Implement stratified analysis by `alloy_type`...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GPR_trainer_detects_and_handles_zero-variance_features
+  kind: entity_fact
+  raw_text: Implement `code/models/gpr_trainer.py` logic to detect and handle zero-variance
+    features if not already caught in preprocessing
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T04:38:58Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Literature baseline fetched from DOI 10.1016/j.addma.2020.101632
+  claim_id: c_5e75aeb5
+  context: 'T030 [US2] [DEPENDS ON T024, T016] Implement permutation importance correlation
+    analysis: load user-provided baseline OR fetch literature baseline from DOI ''10.1016/j.addma.2020.101632''.'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: Fetch literature baseline from DOI '10.1016/j.addma.2020.101632'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T04:38:59Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Query crossref API for DOI 10.1016/j.addma.2020.101632
+  claim_id: c_a750135f
+  context: 'Attempt Literature Baseline: Query crossref API for DOI ''10.1016/j.addma.2020.101632''.
+    If fetch fails or metadata lacks rankings, use a hardcoded default literature
+    ranking.'
+  evidence:
+    asserted: '10.1016'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: citation
+  raw_text: Query crossref API for DOI '10.1016/j.addma.2020.101632'
+  resolved_value: '3.1416'
+  resolver: approximate
+  source_hash: 1b9312a101b0e4d349df9333e120b1449b28e444bfb44f96307ede5773c1fde7
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T13:36:34Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Zenodo ID 4685643 contains Additive Manufacturing Alloy Dataset
+  claim_id: c_fc448f20
+  context: 'Implement code/data/download.py to attempt automated download from Zenodo
+    ID 10.5281/zenodo.4685643. Explicit Sources: Zenodo ID 4685643 (Additive Manufacturing
+    Alloy Dataset).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Zenodo ID 4685643 (Additive Manufacturing Alloy Dataset)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:19:16Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Time limit set to 21600 seconds or 6 hours
+  claim_id: c_9bae3791
+  context: Define TIME_LIMIT_SECONDS = 21600 (6 hours) in code/config.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: TIME_LIMIT_SECONDS = 21600 (6 hours)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:19:58Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Crossref metadata lacks rankings data
+  claim_id: c_087133ba
+  context: 'Verify Literature Source: Query crossref API... Note: Crossref metadata
+    does NOT contain ''rankings''. This step is only to confirm the paper''s existence.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Crossref_metadata_lacks_rankings_data
+  kind: entity_fact
+  raw_text: Crossref metadata does NOT contain 'rankings'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:20:45Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Zenodo ID 10.5281/zenodo.4685643 is the Additive Manufacturing Alloy
+    Dataset
+  claim_id: c_88a5b35f
+  context: 'Implement code/data/download.py to attempt automated download from Zenodo
+    ID 10.5281/zenodo.4685643. Explicit Sources: Zenodo ID 4685643 (Additive Manufacturing
+    Alloy Dataset).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Implement code/data/download.py to attempt automated download from Zenodo
+    ID 10.5281/zenodo.4685643.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:21:27Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Pipeline time limit is 21600 seconds
+  claim_id: c_83154be7
+  context: Define TIME_LIMIT_SECONDS = 21600 (6 hours) in code/config.py. Log total_runtime_seconds
+    to results/metrics.json unconditionally.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define TIME_LIMIT_SECONDS = 21600 (6 hours) in code/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:22:22Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Optimized memory usage target is less than 7000 MB
+  claim_id: c_c8d7313b
+  context: Optimize memory usage in preprocess.py (chunked processing, dtype conversion)
+    if max_memory_mb >= 7000. Verify optimized memory usage is < 7000 MB by re-running
+    T047A.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Optimized_memory_usage_target_is_less_than_7000_MB
+  kind: magnitude
+  raw_text: Verify optimized memory usage is < 7000 MB by re-running T047A.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:22:59Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Stratified analysis by alloy_type assesses confounder sensitivity
+  claim_id: c_a1f38e62
+  context: Implement stratified analysis by alloy_type in code/models/stratified_analysis.py
+    to assess confounder sensitivity (Plan Task 2.4). This task consumes the processed
+    CSV from T016/T017A and performs grouping/analysis WITHOUT requiring the GPR model
+    (T026).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stratified analysis by alloy_type in code/models/stratified_analysis.py
+    to assess confounder sensitivity (Plan Task 2.4).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:23:29Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Download from Zenodo ID 10.5281/zenodo.4685643
+  claim_id: c_0ee16d7b
+  context: 'Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline. Task
+    T014A specifies the automated download source for the Additive Manufacturing Alloy
+    Dataset.'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Implement code/data/download.py to attempt automated download from Zenodo
+    ID 10.5281/zenodo.4685643.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:29:43Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Runtime limit set to 21600 seconds
+  claim_id: c_decc70f3
+  context: 'Phase 5: User Story 3 - Uncertainty Quantification and Visualization.
+    Task T040 specifies a critical runtime limit for the pipeline.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define TIME_LIMIT_SECONDS = 21600 (6 hours) in code/config.py.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:29:43Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Dataset available at Zenodo ID 10.5281/zenodo.4685643
+  claim_id: c_6b613d99
+  context: 'Implement code/data/download.py to attempt automated download from Zenodo
+    ID 10.5281/zenodo.4685643. Explicit Sources: Zenodo ID 4685643 (Additive Manufacturing
+    Alloy Dataset).'
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Attempt automated download from Zenodo ID 10.5281/zenodo.4685643.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T00:35:01Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: energy_density formula definition
+  claim_id: c_5d057163
+  context: 'Derived Feature Check: Check for the presence of derived feature columns...
+    Formula for energy_density = laser_power / (scan_speed * layer_thickness).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Energy_density_formula_definition
+  kind: entity_fact
+  raw_text: Formula for energy_density = laser_power / (scan_speed * layer_thickness).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:27:42Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Pearson correlation threshold for tautology detection
+  claim_id: c_19904573
+  context: 'Tautology Check: Check if any predictor column has a Pearson correlation
+    > 0.99 with any target variable (yield_strength, ductility, fatigue_life).'
+  evidence:
+    asserted: '0.99'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: Check if any predictor column has a Pearson correlation > 0.99 with any
+    target variable.
+  resolved_value: '6.28'
+  resolver: approximate
+  source_hash: ef61cd0bad15eb24da72ad1243f4f9fb88556d6d4a13cc4dcfd9788c7a143e38
+  source_type: external
+  status: verified
+  updated_at: '2026-09-04T13:27:42Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Minimum sample count requirement for GPR training
+  claim_id: c_b8b733c0
+  context: 'Sample Count Check: Verify if N < 50. If so, halt execution immediately
+    with error: Insufficient data for GPR training; minimum 50 samples required.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify if N < 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:27:42Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Edge case handling for rmse_percentage_of_range calculation
+  claim_id: c_7b68c16f
+  context: 'Edge Case: If max(test_y) == min(test_y), set rmse_percentage_of_range
+    to null and log a warning to avoid division by zero.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Edge_case_handling_for_rmse_percentage_of_range_calculation
+  kind: entity_fact
+  raw_text: If max(test_y) == min(test_y), set rmse_percentage_of_range to null.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:28:22Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Default literature baseline citation allow-list
+  claim_id: c_e0a3bd25
+  context: 'Step 2: If Step 1 fails, load the citation key LITERATURE_BASELINE_CITATION...
+    (default allow-list:, 10.1016/j.addma.2020.101456).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: Default allow-list includes DOI 10.1016/j.addma.2020.101456.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:28:23Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: High uncertainty threshold multiplier
+  claim_id: c_a8fcc889
+  context: Extend contour_plots.py to generate uncertainty heatmaps where sigma >
+    2x median is colored red.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/High_uncertainty_threshold_multiplier
+  kind: entity_fact
+  raw_text: Uncertainty heatmaps where sigma > 2x median is colored red.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:28:48Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: High uncertainty percentage calculation formula
+  claim_id: c_32003832
+  context: 'Calculate percentage of test samples in high uncertainty regions... Logic:
+    high_uncertainty_percentage = (count(sigma > 2*median) / total_test_samples) *
+    100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Logic: high_uncertainty_percentage = (count(sigma > 2*median) / total_test_samples)
+    * 100.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:28:48Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Default CI time limit in seconds
+  claim_id: c_164aa417
+  context: 'If GITHUB_ACTIONS is set (CI environment): Compare against TIME_LIMIT_SECONDS
+    (default 21600) from code/config.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default TIME_LIMIT_SECONDS is 21600.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:29:28Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Memory optimization trigger threshold
+  claim_id: c_bfb04d29
+  context: 'Conditional Optimization: If max_memory_mb >= 7000, apply the following
+    specific techniques...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If max_memory_mb >= 7000, apply specific optimization techniques.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:30:11Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Target memory usage after optimization
+  claim_id: c_3b570689
+  context: 'Verification: Re-run the profile to verify optimized memory usage is <
+    7000 MB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify optimized memory usage is < 7000 MB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:30:11Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: Flake8 configuration flags
+  claim_id: c_b711af1d
+  context: 'Flags: --ignore=E501,W605 --max-line-length=100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Flake8 flags: --ignore=E501,W605 --max-line-length=100.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:30:42Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: GPR model achieved an R-squared of 0.85
+  claim_id: c_2bf8b8e4
+  context: "Model Performance Metrics table lists GPR R\xB2 as 0.85."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "GPR R\xB2: 0.85"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:33:52Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: GPR model achieved an RMSE of 45.2
+  claim_id: c_d754cb89
+  context: Model Performance Metrics table lists GPR RMSE as 45.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'GPR RMSE: 45.2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:34:08Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: GPR model achieved an MAE of 38.1
+  claim_id: c_ae5d49be
+  context: Model Performance Metrics table lists GPR MAE as 38.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'GPR MAE: 38.1'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:34:35Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: Linear Regression baseline achieved an R-squared of 0.62
+  claim_id: c_298e71e8
+  context: "Model Performance Metrics table lists Baseline R\xB2 as 0.62."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Baseline R\xB2: 0.62"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:35:01Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: The difference in R-squared between GPR and baseline is 0.23
+  claim_id: c_316238ff
+  context: "Model Performance Metrics table lists \u0394 R\xB2 (GPR - Baseline) as\
+    \ 0.23."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u0394 R\xB2 (GPR - Baseline): 0.23"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:36:00Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: The GPR model showed a 37.1% improvement over the baseline
+  claim_id: c_f3dc7cae
+  context: Model Performance Metrics table lists % Improvement as 37.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '% Improvement: 37.1'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:36:25Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: 12.5% of samples had high uncertainty
+  claim_id: c_c4135259
+  context: Model Performance Metrics table lists High Uncertainty Samples (%) as 12.5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'High Uncertainty Samples (%): 12.5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:36:47Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: Permutation Importance Correlation against baseline was 0.78
+  claim_id: c_3f2e1141
+  context: Model Performance Metrics table lists Permutation Importance Correlation
+    (vs Baseline) as 0.78.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Permutation Importance Correlation (vs Baseline): 0.78'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:37:09Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: Total runtime for the study was 1450.25 seconds
+  claim_id: c_01a20b3e
+  context: Computational Cost section lists Total Runtime as 1450.25 seconds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total Runtime: 1450.25 seconds'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:37:29Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: Aluminum 6061 alloy group achieved an R-squared of 0.88
+  claim_id: c_13074464
+  context: "Confounder Analysis section lists R\xB2 for Aluminum 6061 as 0.88."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Aluminum 6061 R\xB2: 0.88"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:37:51Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: Aluminum 6061 alloy group achieved an RMSE of 40.5
+  claim_id: c_8ed2c859
+  context: Confounder Analysis section lists RMSE for Aluminum 6061 as 40.5.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Aluminum 6061 RMSE: 40.5'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:38:07Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: Aluminum 6061 alloy group achieved an MAE of 35.2
+  claim_id: c_e195936c
+  context: Confounder Analysis section lists MAE for Aluminum 6061 as 35.2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Aluminum 6061 MAE: 35.2'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:38:26Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: Titanium Ti-6Al-4V alloy group achieved an R-squared of 0.82
+  claim_id: c_33ba55bc
+  context: "Confounder Analysis section lists R\xB2 for Titanium Ti-6Al-4V as 0.82."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Titanium Ti-6Al-4V R\xB2: 0.82"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:39:27Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: Titanium Ti-6Al-4V alloy group achieved an RMSE of 52.1
+  claim_id: c_55ee2d56
+  context: Confounder Analysis section lists RMSE for Titanium Ti-6Al-4V as 52.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Titanium Ti-6Al-4V RMSE: 52.1'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:39:51Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: Titanium Ti-6Al-4V alloy group achieved an MAE of 44.3
+  claim_id: c_92b76671
+  context: Confounder Analysis section lists MAE for Titanium Ti-6Al-4V as 44.3.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Titanium Ti-6Al-4V MAE: 44.3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:40:13Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: Inconel 718 alloy group achieved an R-squared of 0.79
+  claim_id: c_01b1d671
+  context: "Confounder Analysis section lists R\xB2 for Inconel 718 as 0.79."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Inconel 718 R\xB2: 0.79"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:40:44Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: Inconel 718 alloy group achieved an RMSE of 58.7
+  claim_id: c_41179f9b
+  context: Confounder Analysis section lists RMSE for Inconel 718 as 58.7.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Inconel 718 RMSE: 58.7'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:41:03Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: Inconel 718 alloy group achieved an MAE of 50.1
+  claim_id: c_6852c75f
+  context: Confounder Analysis section lists MAE for Inconel 718 as 50.1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Inconel 718 MAE: 50.1'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:41:23Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  attempts: 1
+  canonical: The study's literature source is DOI 10.1016/j.addma.2020.101456
+  claim_id: c_3a30a307
+  context: Data Provenance & Reproducibility section lists Literature Source as 10.1016/j.addma.2020.101456.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: 'Literature Source: 10.1016/j.addma.2020.101456'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:41:26Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: 'energy_density formula: laser_power / (scan_speed * layer_thickness)'
+  claim_id: c_f075b4d4
+  context: 'Derived Feature Check: Check for the presence of derived feature columns
+    (e.g., energy_density, line_energy, volume_energy, energy_per_unit_length, heat_input).
+    Formula for energy_density = laser_power / (scan_speed * layer_thickness).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Energy_density_formula:_laser_power_/_(scan_speed_*_layer_th
+  kind: entity_fact
+  raw_text: The formula for energy_density is laser_power / (scan_speed * layer_thickness).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:47:50Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: 'tautology detection threshold: Pearson correlation > 0.99 with target'
+  claim_id: c_2cc94a3b
+  context: 'Tautology Check: Definition: A predictor is a tautology if it is a direct
+    mathematical transformation of a target variable. Logic: Check if any predictor
+    column has a Pearson correlation > 0.99 with any target variable (yield_strength,
+    ductility, fatigue_life).'
+  evidence:
+    asserted: '0.99'
+    authority: math.tau (IEEE-754 double, Python stdlib)
+    constant: tau
+    corrected: true
+    mode: approximate
+    true_value: 6.283185307179586
+    url: https://en.wikipedia.org/wiki/Turn_(angle)#Tau_proposals
+  kind: numeric
+  raw_text: A predictor is flagged as a tautology if it has a Pearson correlation
+    > 0.99 with any target variable (yield_strength, ductility, fatigue_life).
+  resolved_value: '6.28'
+  resolver: approximate
+  source_hash: ef61cd0bad15eb24da72ad1243f4f9fb88556d6d4a13cc4dcfd9788c7a143e38
+  source_type: external
+  status: verified
+  updated_at: '2026-09-04T13:47:50Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: 'minimum sample count required: 50'
+  claim_id: c_bcfe8026
+  context: 'Sample Count Check: Verify if N < 50. If so, halt execution immediately
+    with error: Insufficient data for GPR training; minimum 50 samples required.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_sample_count_required:_50
+  kind: magnitude
+  raw_text: The system halts execution if the sample count N is less than 50.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:48:47Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: 'baseline importance default Zenodo ID: 10.1016/j.addma.2020.101456'
+  claim_id: c_9f0942b3
+  context: 'Baseline Loading: Step 2: If Step 1 fails, load the citation key LITERATURE_BASELINE_CITATION
+    from code/config.py. This key MUST contain a verified DOI or Zenodo ID (default
+    allow-list:, 10.1016/j.addma.2020.101456).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: The default Zenodo ID for the baseline importance citation is 10.1016/j.addma.2020.101456.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:48:49Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: 'high uncertainty threshold: sigma > 2 * median'
+  claim_id: c_b69f78a4
+  context: "Extend contour_plots.py to generate uncertainty heatmaps where \u03C3\
+    \ > 2\xD7 median is colored red."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/high_uncertainty_threshold:_sigma_%3E_2_*_median
+  kind: magnitude
+  raw_text: "Regions with standard deviation (\u03C3) greater than 2 times the median\
+    \ are colored red in uncertainty heatmaps."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:49:27Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: 'CI time limit: 21600 seconds'
+  claim_id: c_ff74602a
+  context: 'Dynamic Limit Detection: Check os.environ.get(''GITHUB_ACTIONS''). If
+    GITHUB_ACTIONS is set (CI environment): Compare against TIME_LIMIT_SECONDS (default
+    21600) from code/config.py.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default time limit for CI environments (GITHUB_ACTIONS) is 21600 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:49:53Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: 'memory optimization trigger: max_memory_mb >= 7000'
+  claim_id: c_78ceb422
+  context: 'Conditional Optimization: If max_memory_mb >= 7000, apply the following
+    specific techniques: Convert all numeric columns to dtype=''float32'' instead
+    of float64.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/memory_optimization_trigger:_max_memory_mb_%3E=_7000
+  kind: magnitude
+  raw_text: Memory optimization techniques are applied if max_memory_mb is greater
+    than or equal to 7000.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:50:32Z'
+- artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/tasks.md
+  attempts: 1
+  canonical: 'flake8 max-line-length: 100'
+  claim_id: c_687000a8
+  context: 'Run flake8 on all code/ files. Config: .flake8 (create if missing). Flags:
+    --ignore=E501,W605 --max-line-length=100.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The flake8 linter is configured with a max-line-length of 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T13:50:54Z'

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1709.06342",
+  "judged_at": "2026-08-15T09:41:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"vidu s1: a real-time interactive video generation model\" computer science",
+  "rationale": "The paper focuses on visual quality assessment (VQA) metrics for omnidirectional video encoding and human viewing behavior, which is a distinct construct from the user's question about extending a specific real-time interactive video generation model (Vidu S1). While both involve video, the candidate paper does not address the generative mechanism, real-time interaction architecture, or the specific \"llmXive\" follow-up context required for the user's literature review.",
+  "relevant": false
+}

@@ -1,69 +1,52 @@
 # Data Model: Investigating the Validity of the Inverse‑Square Law at Sub‑Millimeter Scales
 
-## Overview
+## Entity Definitions
 
-This document defines the data structures for the harmonized dataset, model outputs, and validation results. All data is stored in `data/processed/` and `data/results/`.
+### 1. RawDataFile
+Represents a downloaded file from arXiv.
+-   `file_path`: string (relative to `data/raw/`)
+-   `source_url`: string (verified arXiv URL)
+-   `checksum_sha256`: string
+-   `format`: string (e.g., "csv", "ascii", "tar")
+-   `extracted_files`: list of strings (paths to extracted contents)
 
-## Entities
+### 2. HarmonizedDataset
+The unified dataset used for inference.
+-   `separation_m`: array(float) - Aligned separation distances in meters.
+-   `force_n`: array(float) - Force values in Newtons.
+-   `uncertainty_stat`: array(float) - Statistical uncertainty (1$\sigma$) in Newtons.
+-   `uncertainty_sys`: array(float) - Systematic uncertainty (1$\sigma$) in Newtons.
+-   `covariance_matrix`: string (path to `.npz` or `.memmap` file) - Full $N \times N$ covariance matrix stored on disk.
+    -   Diagonal: $(\text{uncertainty\_stat})^2 + (\text{uncertainty\_sys})^2$
+    -   Off-diagonal: 0.0 (due to lack of correlation data).
+-   `source_runs`: list of strings - IDs of original experimental runs included.
+-   `interpolation_method`: string (e.g., "linear", "cubic")
+-   `storage_type`: string ("memmap" if N > 80000, "numpy" otherwise)
 
-### 1. HarmonizedDataset
+### 3. InferenceResult
+Output of the MCMC/Nested Sampling run.
+-   `model_name`: string ("Newtonian" or "Yukawa")
+-   `samples`: array(float, 2D) - Posterior samples (walkers $\times$ steps $\times$ params).
+-   `params`: list of strings - ["alpha", "lambda", "scale", "sys_scale"]
+-   `log_evidence`: float - $\ln Z$ from `dynesty`.
+-   `gelman_rubin`: float - Convergence statistic.
+-   `credible_interval_95`: dict - {"alpha": [low, high], "lambda": [low, high], "sys_scale": [low, high]}
 
-The unified dataset containing aligned force-distance measurements and the full or diagonal covariance matrix.
-
-**Schema**:
--   `separation`: 1D array (float64), unit: meters (m).
--   `force`: 1D array (float64), unit: Newtons (N).
--   `force_stat_err`: 1D array (float64), unit: Newtons (N).
--   `force_sys_err`: 1D array (float64), unit: Newtons (N).
--   `covariance_matrix`: 2D array (float64), shape `(N, N)`, unit: $N^2$.
--   `covariance_type`: String, "full", "diagonal", or "banded" (indicating the approximation used).
--   `source_id`: String, identifier of the original experiment (e.g., "2106.08611-run-1").
--   `metadata`: JSON object containing original units, conversion factors, and checksum.
-
-**Constraints**:
--   `separation` must be strictly increasing and within [10⁻⁵, 10⁻⁴] m.
--   `covariance_matrix` must be symmetric and positive-definite.
--   No missing values allowed.
--   If `covariance_type` is "diagonal", the matrix must be stored as a 2D array with zeros off-diagonal, but the type must be explicitly flagged.
-
-### 2. ModelPosterior
-
-Output from the `emcee` MCMC run.
-
-**Schema**:
--   `samples`: 2D array (float64), shape `(n_walkers * n_steps, 2)`.
-    -   Column 0: $\alpha$ (dimensionless).
-    -   Column 1: $\lambda$ (meters).
--   `burn_in`: Integer, number of steps discarded.
--   `gelman_rubin`: Float, convergence statistic.
--   `metadata`: JSON with random seed, walker count, step count, and prior bounds.
-
-### 3. BayesianEvidence
-
-Output from the `dynesty` nested sampling run.
-
-**Schema**:
--   `model_name`: String ("Newtonian" or "Yukawa").
--   `log_evidence`: Float, $\ln Z$.
--   `evidence_error`: Float, uncertainty on $\ln Z$.
--   `samples`: 2D array of weighted samples (optional, for plotting).
--   `bayes_factor`: Float, $K = Z_{Yukawa} / Z_{Newtonian}$ (computed relative to Newtonian).
-
-### 4. RobustnessResult
-
-Output from cross-validation and sensitivity tests.
-
-**Schema**:
--   `test_type`: String ("leave_one_out", "uncertainty_inflation", "injection_recovery", "null_simulation").
--   `parameter`: String ("alpha", "lambda", "bayes_factor").
--   `value`: Float, the measured quantity.
--   `uncertainty`: Float, 95% credible interval width or error.
--   `iteration`: Integer, for leave-one-out index.
--   `status`: String ("passed", "failed", "warning").
+### 4. RobustnessReport
+Output of LOO and Injection-Recovery tests.
+-   `loo_iterations`: list of InferenceResult - Results for each excluded run.
+-   `injection_recovery`: dict - {"injected_alpha": float, "recovered_alpha": float, "recovered_interval": [low, high], "success": bool}
+-   `null_simulation`: dict - {"bayes_factor_mean": float, "false_positive_rate": float}
+-   `stability_metric`: float - Variation in upper limits across LOO iterations (must be < 15%).
 
 ## Data Flow
 
-1.  **Raw Data** (arXiv) → `data/raw/` (Checksummed).
-2.  **Harmonization** → `data/processed/harmonized_dataset.csv` (plus separate `.npz` for covariance).
-3.  **Inference** → `data/results/posterior_samples.npz`, `data/results/evidence.json`.
-4.  **Robustness** → `data/results/robustness_summary.json`.
+1.  **Ingestion**: `RawDataFile` -> `harmonize.py` -> `HarmonizedDataset`.
+2.  **Inference**: `HarmonizedDataset` + `config.yaml` -> `mcmc.py`/`nested.py` -> `InferenceResult`.
+3.  **Validation**: `HarmonizedDataset` + `InferenceResult` -> `robustness.py` -> `RobustnessReport`.
+
+## Storage Format
+
+-   **HarmonizedDataset**: Saved as `data/harmonized/dataset_v1.csv` (for tabular data) and `data/harmonized/covariance_v1.npz` (for the matrix, or `.memmap` for large N).
+-   **InferenceResult**: Saved as `results/inference_run_001.json` (summary) and `results/samples_run_001.h5` (large samples).
+-   **RobustnessReport**: Saved as `results/robustness_report.json`.

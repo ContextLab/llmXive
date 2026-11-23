@@ -1,0 +1,2 @@
+# This directory holds raw, curated experimental data.
+# Do not commit large binary files; use .gitkeep to preserve the directory structure.

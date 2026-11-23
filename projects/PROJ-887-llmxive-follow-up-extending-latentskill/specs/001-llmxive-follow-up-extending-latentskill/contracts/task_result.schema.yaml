@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Task Result Schema"
+description: "Schema for data/results/stats_raw.json"
+type: "object"
+patternProperties:
+  "^task_\\d+$":
+    type: "object"
+    description: "Results for a specific composite task"
+    properties:
+      baseline:
+        type: "number"
+        description: "Success rate of the baseline method"
+        minimum: 0
+        maximum: 1
+      nearest_neighbor:
+        type: "number"
+        description: "Success rate of the nearest neighbor strategy"
+        minimum: 0
+        maximum: 1
+      arithmetic_mean:
+        type: "number"
+        description: "Success rate of the arithmetic mean strategy"
+        minimum: 0
+        maximum: 1
+      weighted_avg:
+        type: "number"
+        description: "Success rate of the cosine-weighted average strategy"
+        minimum: 0
+        maximum: 1
+    required:
+      - baseline
+      - nearest_neighbor
+      - arithmetic_mean
+      - weighted_avg
+additionalProperties: false

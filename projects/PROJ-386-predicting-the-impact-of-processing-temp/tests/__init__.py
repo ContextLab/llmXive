@@ -1,1 +1,1 @@
-"""Tests module initialization."""
+# Empty init to make tests a package.

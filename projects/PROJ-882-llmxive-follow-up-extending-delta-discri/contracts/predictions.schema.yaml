@@ -1,0 +1,35 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Predictions
+description: |
+  JSON structure for model outputs from the static MLP predictor.
+  Contains predicted coefficients, true coefficients (ground truth),
+  and the example identifier linking them.
+type: array
+items:
+  type: object
+  required:
+    - example_id
+    - token_id
+    - predicted_coefficient
+    - true_coefficient
+  properties:
+    example_id:
+      type: string
+      description: Unique identifier for the GSM8K example (e.g., from dataset index or hash).
+      minLength: 1
+    token_id:
+      type: integer
+      description: The specific token index within the example for which the coefficient is predicted.
+      minimum: 0
+    predicted_coefficient:
+      type: number
+      description: The coefficient value predicted by the static MLP model.
+    true_coefficient:
+      type: number
+      description: The ground-truth DelTA coefficient for this token, computed by the Oracle.
+    variance:
+      type: number
+      description: (Optional) Variance of the coefficient estimate, used for quality filtering.
+      minimum: 0
+  additionalProperties: false
+required: true

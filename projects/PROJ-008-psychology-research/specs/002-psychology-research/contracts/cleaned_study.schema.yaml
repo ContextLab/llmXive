@@ -1,0 +1,101 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Cleaned Study Schema"
+type: "object"
+required:
+  - "study_id"
+  - "registry"
+  - "age_min"
+  - "age_max"
+  - "design"
+  - "n_treatment"
+  - "n_control"
+  - "delivery_format"
+  - "social_skill_domain"
+  - "title"
+  - "intervention_components"
+  - "mean_treatment"
+  - "sd_treatment"
+  - "mean_control"
+  - "sd_control"
+  - "rob_rating"
+  - "included"
+properties:
+  study_id:
+    type: "string"
+    pattern: "^(ctgov|osf)_.*$"
+  registry:
+    type: "string"
+    enum: ["clinicaltrials.gov", "osf.io"]
+  age_min:
+    type: "integer"
+    minimum: 6
+    maximum: 12
+  age_max:
+    type: "integer"
+    minimum: 6
+    maximum: 12
+  design:
+    type: "string"
+    enum: ["rct", "quasi"]
+  n_treatment:
+    type: "integer"
+    minimum: 1
+  n_control:
+    type: "integer"
+    minimum: 1
+  delivery_format:
+    type: "string"
+    enum: ["caregiver_mediated", "child_led", "hybrid", "unknown"]
+  social_skill_domain:
+    type: "string"
+    enum: ["communication", "peer_interaction", "emotional_regulation", "adaptive_behavior", "unknown"]
+  title:
+    type: "string"
+  intervention_components:
+    type: "array"
+    items:
+      type: "string"
+  mean_treatment:
+    type: "number"
+  sd_treatment:
+    type: "number"
+    minimum: 0
+  mean_control:
+    type: "number"
+  sd_control:
+    type: "number"
+    minimum: 0
+  pre_mean_treatment:
+    type: "number"
+  pre_sd_treatment:
+    type: "number"
+    minimum: 0
+  pre_mean_control:
+    type: "number"
+  pre_sd_control:
+    type: "number"
+    minimum: 0
+  dosage:
+    type: "number"
+  therapist_training:
+    type: "string"
+  baseline_severity:
+    type: "number"
+  follow_up_months:
+    type: "integer"
+    minimum: 0
+  included:
+    type: "boolean"
+  exclusion_reason:
+    type: "string"
+  abstract_only:
+    type: "boolean"
+  doi:
+    type: "string"
+  retrieval_timestamp:
+    type: "string"
+    format: "date-time"
+  rob_rating:
+    type: "string"
+    enum: ["low", "some concerns", "high"]
+additionalProperties: false

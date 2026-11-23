@@ -1,137 +1,174 @@
 """
-Unit tests for checkpointing utilities.
+Unit tests for checkpointing functionality.
 """
-
 import os
 import json
-import tempfile
-from pathlib import Path
 import pytest
+from pathlib import Path
+import tempfile
+import shutil
 
-# Adjust import path for testing context
+# Add code to path for imports
 import sys
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from code.utils.checkpointing import (
-    save_checkpoint,
-    load_checkpoint,
-    has_checkpoint,
+    save_state,
+    load_state,
     delete_checkpoint,
+    has_checkpoint,
     list_checkpoints,
     ensure_checkpoint_dir,
-    compute_file_hash,
-    save_state_snapshot,
-    get_resume_info
+    get_checkpoint_path
 )
 
-
 @pytest.fixture
-def temp_checkpoint_dir(tmp_path):
-    """Create a temporary directory to simulate checkpoint storage."""
-    # Override the global CHECKPOINT_DIR for testing
+def temp_checkpoint_dir():
+    """Create a temporary checkpoint directory for testing."""
+    temp_dir = tempfile.mkdtemp()
+    original_checkpoint_dir = Path("results/checkpoints")
+    
+    # Save original
+    if original_checkpoint_dir.exists():
+        original_checkpoint_dir.rename(Path(temp_dir) / "original_checkpoints")
+    
+    # Create new temp directory
+    test_checkpoint_dir = Path(temp_dir) / "results" / "checkpoints"
+    test_checkpoint_dir.mkdir(parents=True)
+    
+    # Temporarily override the module's checkpoint dir
     import code.utils.checkpointing as cp_module
     original_dir = cp_module.CHECKPOINT_DIR
-    cp_module.CHECKPOINT_DIR = tmp_path
-    yield tmp_path
+    cp_module.CHECKPOINT_DIR = test_checkpoint_dir
+    cp_module.RESULTS_DIR = test_checkpoint_dir.parent
+    
+    yield test_checkpoint_dir
+    
+    # Restore original
     cp_module.CHECKPOINT_DIR = original_dir
+    cp_module.RESULTS_DIR = original_checkpoint_dir.parent
+    
+    # Cleanup
+    shutil.rmtree(temp_dir)
 
+def test_save_state_creates_checkpoint(temp_checkpoint_dir):
+    """Test that save_state creates a valid checkpoint file."""
+    run_id = "test_run_1"
+    step = "initialization"
+    data = {
+        "current_dataset_id": "dataset_001",
+        "last_seed": 42,
+        "error_counts": {"missing": 0, "filter": 1}
+    }
+    
+    save_state(run_id, step, data)
+    
+    checkpoint_path = get_checkpoint_path(run_id)
+    assert checkpoint_path.exists(), "Checkpoint file was not created"
+    
+    with open(checkpoint_path, 'r') as f:
+        saved_state = json.load(f)
+    
+    assert saved_state["run_id"] == run_id
+    assert saved_state["step"] == step
+    assert saved_state["current_dataset_id"] == data["current_dataset_id"]
+    assert saved_state["last_seed"] == data["last_seed"]
+    assert saved_state["error_counts"] == data["error_counts"]
 
-def test_save_and_load_checkpoint(temp_checkpoint_dir):
-    """Test saving and loading a basic checkpoint."""
-    run_id = "test_run_001"
-    state = {"progress": 50, "items": [1, 2, 3]}
-    metadata = {"config": "v1"}
+def test_load_state_returns_correct_data(temp_checkpoint_dir):
+    """Test that load_state returns the correct data."""
+    run_id = "test_run_2"
+    step = "processing"
+    data = {
+        "current_dataset_id": "dataset_002",
+        "last_seed": 123,
+        "error_counts": {"missing": 2, "filter": 0}
+    }
+    
+    save_state(run_id, step, data)
+    loaded_state = load_state(run_id)
+    
+    assert loaded_state is not None
+    assert loaded_state["run_id"] == run_id
+    assert loaded_state["step"] == step
+    assert loaded_state["current_dataset_id"] == data["current_dataset_id"]
+    assert loaded_state["last_seed"] == data["last_seed"]
+    assert loaded_state["error_counts"] == data["error_counts"]
 
-    path = save_checkpoint(run_id, state, metadata=metadata)
+def test_load_state_returns_none_for_missing_checkpoint(temp_checkpoint_dir):
+    """Test that load_state returns None for non-existent checkpoint."""
+    loaded_state = load_state("non_existent_run")
+    assert loaded_state is None
 
-    assert path.exists()
+def test_delete_checkpoint_removes_file(temp_checkpoint_dir):
+    """Test that delete_checkpoint removes the checkpoint file."""
+    run_id = "test_run_3"
+    data = {
+        "current_dataset_id": "dataset_003",
+        "last_seed": 999,
+        "error_counts": {}
+    }
+    
+    save_state(run_id, "test", data)
     assert has_checkpoint(run_id)
-
-    loaded_state = load_checkpoint(run_id)
-    assert loaded_state == state
-
-    # Verify metadata is saved in the file structure
-    with open(path, "r") as f:
-        data = json.load(f)
-    assert data["metadata"] == metadata
-    assert data["run_id"] == run_id
-
-
-def test_load_nonexistent_checkpoint(temp_checkpoint_dir):
-    """Test loading a checkpoint that doesn't exist returns None."""
-    assert load_checkpoint("fake_run") is None
-    assert not has_checkpoint("fake_run")
-
-
-def test_delete_checkpoint(temp_checkpoint_dir):
-    """Test deleting a checkpoint."""
-    run_id = "run_to_delete"
-    save_checkpoint(run_id, {"key": "value"})
-
-    assert has_checkpoint(run_id)
-    assert delete_checkpoint(run_id)
+    
+    result = delete_checkpoint(run_id)
+    assert result is True
     assert not has_checkpoint(run_id)
 
-    # Deleting again should return False
-    assert not delete_checkpoint(run_id)
+def test_delete_checkpoint_returns_false_for_missing(temp_checkpoint_dir):
+    """Test that delete_checkpoint returns False for non-existent checkpoint."""
+    result = delete_checkpoint("non_existent_run")
+    assert result is False
 
+def test_has_checkpoint(temp_checkpoint_dir):
+    """Test has_checkpoint function."""
+    run_id = "test_run_4"
+    data = {
+        "current_dataset_id": "dataset_004",
+        "last_seed": 555,
+        "error_counts": {}
+    }
+    
+    assert not has_checkpoint(run_id)
+    save_state(run_id, "test", data)
+    assert has_checkpoint(run_id)
+    delete_checkpoint(run_id)
+    assert not has_checkpoint(run_id)
 
 def test_list_checkpoints(temp_checkpoint_dir):
-    """Test listing available checkpoints."""
-    save_checkpoint("run_a", {})
-    save_checkpoint("run_b", {})
-    # Create a non-json file to ensure it's ignored
-    (temp_checkpoint_dir / "ignore_me.txt").touch()
-
+    """Test list_checkpoints function."""
+    run_ids = ["run_a", "run_b", "run_c"]
+    
+    for run_id in run_ids:
+        save_state(run_id, "test", {
+            "current_dataset_id": f"dataset_{run_id}",
+            "last_seed": 1,
+            "error_counts": {}
+        })
+    
     checkpoints = list_checkpoints()
-    assert "run_a" in checkpoints
-    assert "run_b" in checkpoints
-    assert "ignore_me" not in checkpoints
+    assert set(checkpoints) == set(run_ids)
 
+def test_save_state_with_invalid_data(temp_checkpoint_dir):
+    """Test that save_state raises ValueError for invalid data."""
+    with pytest.raises(ValueError):
+        save_state("test_run", "step", "invalid_data")
+    
+    with pytest.raises(ValueError):
+        save_state("test_run", "step", [1, 2, 3])
 
-def test_compute_file_hash(temp_checkpoint_dir):
-    """Test SHA-256 hash computation."""
-    test_file = temp_checkpoint_dir / "test.txt"
-    test_file.write_text("Hello, World!")
-
-    hash1 = compute_file_hash(test_file)
-    hash2 = compute_file_hash(test_file)
-
-    assert len(hash1) == 64  # SHA-256 hex length
-    assert hash1 == hash2
-
-    # Different content should yield different hash
-    test_file.write_text("Different content")
-    hash3 = compute_file_hash(test_file)
-    assert hash1 != hash3
-
-
-def test_save_state_snapshot(temp_checkpoint_dir):
-    """Test the convenience snapshot function."""
-    run_id = "snapshot_run"
-    path = save_state_snapshot(
-        run_id,
-        current_step="filtering",
-        processed_items=["dataset_1", "dataset_2"],
-        errors=[{"msg": "Missing value"}],
-        extra_state={"config_hash": "abc123"}
-    )
-
-    resume = get_resume_info(run_id)
-    assert resume is not None
-    assert resume["current_step"] == "filtering"
-    assert resume["processed_items"] == ["dataset_1", "dataset_2"]
-    assert len(resume["errors"]) == 1
-
-
-def test_overwrite_checkpoint_false(temp_checkpoint_dir):
-    """Test that saving without overwrite raises error if exists."""
-    run_id = "overwrite_test"
-    save_checkpoint(run_id, {"v": 1})
-
-    with pytest.raises(FileExistsError):
-        save_checkpoint(run_id, {"v": 2})
-
-    # Verify overwrite works
-    save_checkpoint(run_id, {"v": 2}, overwrite=True)
-    assert load_checkpoint(run_id) == {"v": 2}
+def test_atomic_write(temp_checkpoint_dir):
+    """Test that checkpoint files are written atomically."""
+    run_id = "test_atomic"
+    data = {
+        "current_dataset_id": "dataset_atomic",
+        "last_seed": 777,
+        "error_counts": {}
+    }
+    
+    save_state(run_id, "test", data)
+    
+    # Verify no temp files remain
+    temp_files = list(temp_checkpoint_dir.glob("*.tmp"))
+    assert len(temp_files) == 0, "Temp files should be cleaned up"

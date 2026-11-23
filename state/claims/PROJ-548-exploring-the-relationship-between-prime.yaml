@@ -1,0 +1,822 @@
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: primes generated to 10^10
+  claim_id: c_a79bbc42
+  context: Implement segmented sieve algorithm in `src/data/generate_primes.py` to
+    generate primes up to 10^10, processing in chunks to stay within 7GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: generate primes up to 10^10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:36:13Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: pipeline halts on zero verification failure
+  claim_id: c_6d961f5e
+  context: '[ ] T013a [US1] **Verified Accuracy Check**: Implement logic in `src/data/ingest_zeros.py`
+    to verify and fetch zeta zeros from the following **hardcoded verified sources**
+    (per Constitution Principle II): 1. LMFDB:  2. Odlyzko:  If these specific URLs
+    are unreachable, the pipeline MUST halt with a clear "Data Unavailable" error.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_halts_on_zero_verification_failure
+  kind: entity_fact
+  raw_text: If verification fails, the pipeline MUST halt with a clear error message.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:36:37Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: window size W = 10^6
+  claim_id: c_c4fc8081
+  context: 'Implement sliding window analysis in `src/analysis/distribution_test.py`
+    to compute *maximal* prime gap $g_{max}$ within windows of length $W=10^6$. **Windowing
+    Logic**: Use non-overlapping windows of size $W$, stepping by $W$.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use non-overlapping windows of size $W=10^6$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:37:04Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: RAM usage less than 7 GB
+  claim_id: c_e7939960
+  context: Run `src/data/generate_primes.py` and `src/data/ingest_zeros.py` in isolation;
+    verify `data/processed/primes_gaps.csv` and `data/processed/zeta_zeros.csv` exist,
+    contain correct counts, and peak RAM < 7GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_less_than_7_GB
+  kind: magnitude
+  raw_text: peak RAM < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:37:30Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: GUE-derived extreme value CDF formula defined
+  claim_id: c_f5a91288
+  context: Define the mathematical formula for the **GUE-derived extreme value CDF**
+    for maximal gaps in `data-model.md`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GUE-derived_extreme_value_CDF_formula_defined
+  kind: entity_fact
+  raw_text: Define the mathematical formula for the GUE-derived extreme value CDF
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T14:37:49Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: Generate primes up to 10^10
+  claim_id: c_8c650128
+  context: The primary target is N=10^10 per FR-001. The pipeline MUST complete within
+    the CI time limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline generates primes up to 10^10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:45:31Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: Prime generation peak RAM under 7GB
+  claim_id: c_95800958
+  context: Implement segmented sieve algorithm in src/data/generate_primes.py to generate
+    primes up to 10^10, processing in chunks to stay within 7GB RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prime_generation_peak_RAM_under_7GB
+  kind: entity_fact
+  raw_text: The pipeline processes primes in chunks to stay within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:48:24Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: Sliding window length set to 10^6
+  claim_id: c_c9e222b6
+  context: Create configuration management in src/utils/config.py (defines N=10^10,
+    W=10^6, file paths, and WINDOW_STEP for sliding window stride).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration defines a window length W of 10^6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:51:05Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: Zeta zeros sourced from LMFDB API
+  claim_id: c_dffb5b7c
+  context: 'Implement logic in src/data/ingest_zeros.py to verify and fetch zeta zeros
+    from the following hardcoded verified sources: LMFDB: https://www.lmfdb.org/api/.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Zeta_zeros_sourced_from_LMFDB_API
+  kind: entity_fact
+  raw_text: Zeta zeros are fetched from the LMFDB API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:53:52Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: Zeta zeros sourced from Odlyzko
+  claim_id: c_a3206744
+  context: Verify and fetch zeta zeros from the following hardcoded verified sources...
+    Odlyzko.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Zeta_zeros_sourced_from_Odlyzko
+  kind: entity_fact
+  raw_text: Zeta zeros are fetched from Odlyzko.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T01:59:50Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps window sizes 10^5, 10^6, and 10^7
+  claim_id: c_d806ccca
+  context: The specific window sizes to sweep are W in {10^5, 10^6, 10^7}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis sweeps window sizes W over the set {10^5, 10^6, 10^7}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:01:06Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: Tracy-Widom distribution used for GUE maxima
+  claim_id: c_6be604f5
+  context: This includes the Tracy-Widom distribution approximation for GUE maxima
+    and the normalization logic, explicitly deriving it from the pair-correlation
+    distribution required by FR-004.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tracy-Widom_distribution_used_for_GUE_maxima
+  kind: entity_fact
+  raw_text: The analysis uses the Tracy-Widom distribution approximation for GUE maxima.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:01:26Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Montgomery's Pair Correlation Conjecture states Riemann zeta zero spacings
+    match GUE eigenvalue spacing distribution
+  claim_id: c_8cee1844
+  context: Montgomery's Pair Correlation Conjecture states that the statistical distribution
+    of the spacings between consecutive non-trivial zeros of the Riemann zeta function,
+    $\rho_n = \frac{1}{2} + i\gamma_n$, is identical to the eigenvalue spacing distribution
+    of large random matrices from the Gaussian Unitary Ensemble (GUE).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Montgomery's_Pair_Correlation_Conjecture_states_Riemann_zeta
+  kind: entity_fact
+  raw_text: Montgomery's Pair Correlation Conjecture states that the statistical distribution
+    of the spacings between consecutive non-trivial zeros of the Riemann zeta function
+    is identical to the eigenvalue spacing distribution of large random matrices from
+    the Gaussian Unitary Ensemble (GUE).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:08:32Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Pair correlation function R2(u) converges to 1 - (sin(pi u) / pi u)^2
+  claim_id: c_4332a4c3
+  context: 'If we normalize the zero spacings $\delta_n = \gamma_{n+1} - \gamma_n$
+    by their mean spacing (which is $2\pi / \log \gamma_n$), the pair correlation
+    function $R_2(u)$ converges to: $$ R_2(u) = 1 - \\left( \\frac{\\sin(\\pi u)}{\\pi
+    u} \\right)^2 $$'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pair correlation function $R_2(u)$ converges to $1 - (\\sin(\\pi u)
+    / \\pi u)^2$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:13:26Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Mean spacing between Riemann zeta non-trivial zeros is 2pi / log gamma_n
+  claim_id: c_72700821
+  context: 'If we normalize the zero spacings $\delta_n = \gamma_{n+1} - \gamma_n$
+    by their mean spacing (which is $2\pi / \log \gamma_n$), the pair correlation
+    function $R_2(u)$ converges to:'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean spacing between consecutive non-trivial zeros of the Riemann
+    zeta function is $2\pi / \log \gamma_n$.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:17:18Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Mean gap between primes is log p
+  claim_id: c_5136d272
+  context: While the mean gap is $\log p_n$, the maximal gap scales as $(\log p_n)^2$.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: Riemann hypothesis
+        url: https://en.wikipedia.org/wiki/Riemann_hypothesis
+        value: log p
+      quote: "The first such distribution found is \u03C0(N) ~ \u2060N/log(N)\u2060\
+        , where \u03C0(N) is the prime-counting function (the number of primes less\
+        \ than or equal to N) and log(N) is the natural logarithm of N. This means\
+        \ that for large enough N, the probability that a random integer not greater\
+        \ than N is prime is very close to 1 / log(N). In other words, the average\
+        \ gap between consecutive prime numbers among the first N integers is roughly\
+        \ log(N). Consequently, a random integer with at most 2n digits (for large\
+        \ enough n) is about half as likely to be prime as a random integer with at\
+        \ most n digits. For example, among the positive integers of at most 1000\
+        \ digits, about one in 2300 is prime (log(101000) \u2248 2302.6), whereas\
+        \ among positive integers of at most 2000 digits, about one in 4600 is prime\
+        \ (log(102000) \u2248 4605.2)."
+      source_id: Prime number theorem
+      url: https://en.wikipedia.org/wiki/Prime_number_theorem
+      value: log(N)
+    filled: true
+  kind: entity_fact
+  raw_text: The mean gap between primes is $\log p$.
+  resolved_value: log(N)
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T02:18:04Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Maximal gap between primes scales as log p squared
+  claim_id: c_5c8b232d
+  context: While the mean gap is $\log p_n$, the maximal gap scales as $(\log p_n)^2$.
+  evidence:
+    fill:
+      channel: oeis
+      conflicts: []
+      quote: 7 20831323
+      source_id: A111943
+      url: https://oeis.org/A111943
+      value: '20831323'
+    filled: true
+  kind: numeric
+  raw_text: The maximal gap between primes scales as $(\log p)^2$.
+  resolved_value: '20831323'
+  resolver: fill:oeis
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T02:18:43Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Largest eigenvalue of NxN GUE matrix converges to Tracy-Widom TW2 distribution
+  claim_id: c_50a87c14
+  context: The extreme value statistics for GUE eigenvalues are governed by the distribution
+    of the largest eigenvalue $\lambda_{max}$ in an $N \times N$ matrix as $N \to
+    \infty$. After centering and scaling, this distribution converges to the **Tracy-Widom
+    distribution** (specifically $TW_2$ for GUE).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Largest_eigenvalue_of_NxN_GUE_matrix_converges_to_Tracy-Wido
+  kind: magnitude
+  raw_text: The distribution of the largest eigenvalue in an $N \times N$ Gaussian
+    Unitary Ensemble matrix, after centering and scaling, converges to the Tracy-Widom
+    distribution $TW_2$.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:21:11Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Tracy-Widom F2(s) defined by integral of square of Painleve II solution
+  claim_id: c_552a5507
+  context: "The CDF is given by: $$ F_2(s) = \\\\exp\\\\left( -\\\\int_s^\\\\infty\
+    \ (t-s) u(t)^2 \\\\, dt \\\\right) $$ where $u(t)$ is the solution to the Painlev\xE9\
+    \ II differential equation."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tracy-Widom_F2(s)_defined_by_integral_of_square_of_Painleve
+  kind: entity_fact
+  raw_text: "The Tracy-Widom distribution $F_2(s)$ is defined by the integral of the\
+    \ square of the solution to the Painlev\xE9 II differential equation."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:21:33Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Tracy and Widom 1994 paper title is Level-spacing distributions and the
+    Airy kernel
+  claim_id: c_8e7dd014
+  context: References 1. Tracy, C. A., & Widom, H. (1994). 'Level-spacing distributions
+    and the Airy kernel'. *Communications in Mathematical Physics*.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Tracy, C. A., & Widom, H. (1994) paper is titled 'Level-spacing distributions
+    and the Airy kernel'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:21:39Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Odlyzko 1987 paper title is On the distribution of spacings between zeros
+    of the zeta function
+  claim_id: c_34032076
+  context: References 2. Odlyzko, A. M. (1987). 'On the distribution of spacings between
+    zeros of the zeta function'. *Mathematics of Computation*.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Odlyzko, A. M. (1987) paper is titled 'On the distribution of spacings
+    between zeros of the zeta function'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:25:37Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/code/data-model.md
+  attempts: 1
+  canonical: Keating and Snaith 2000 paper title is Random matrix theory and zeta(1/2+it)
+  claim_id: c_7d17a6bf
+  context: References 3. Keating, J. P., & Snaith, N. C. (2000). 'Random matrix theory
+    and $\zeta(1/2+it)$'. *Communications in Mathematical Physics*.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Keating, J. P., & Snaith, N. C. (2000) paper is titled 'Random matrix
+    theory and $\zeta(1/2+it)$'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T02:25:43Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/data-model.md
+  attempts: 1
+  canonical: GUE pair-correlation function formula R_2(u) = 1 - (sin(pi*u)/(pi*u))^2
+  claim_id: c_a8e8e38b
+  context: Section 3.1 describes the theoretical distribution for normalized zero
+    spacings under the GUE hypothesis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pair-correlation function R_2(u) for the normalized zero spacings,
+    assuming the GUE hypothesis, is given by R_2(u) = 1 - (sin(pi*u)/(pi*u))^2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T03:46:02Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/data-model.md
+  attempts: 1
+  canonical: "Tracy-Widom F_2(s) defined by Painlev\xE9 II equation q''(s) = s*q(s)\
+    \ + 2*q(s)^3"
+  claim_id: c_dd7606c7
+  context: Section 3.2 defines the CDF of the largest eigenvalue of a GUE matrix.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The cumulative distribution function F_2(s) of the Tracy-Widom distribution\
+    \ for beta=2 is defined via the solution q(s) to the Painlev\xE9 II equation q''(s)\
+    \ = s*q(s) + 2*q(s)^3."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T03:49:34Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/data-model.md
+  attempts: 1
+  canonical: Tracy-Widom F_2(s) integral formula exp(-integral (x-s)*q(x)^2 dx)
+  claim_id: c_768cab5f
+  context: Section 3.2 provides the integral definition of the Tracy-Widom CDF.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CDF F_2(s) is given by the formula exp(-integral from s to infinity
+    of (x-s)*q(x)^2 dx).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T03:52:24Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/data-model.md
+  attempts: 1
+  canonical: "Painlev\xE9 II solution asymptotic q(s) ~ Ai(s) as s -> infinity"
+  claim_id: c_45160f37
+  context: Section 3.2 describes the boundary conditions for the Tracy-Widom distribution.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Painlev%C3%A9_II_solution_asymptotic_q(s)_~_Ai(s)_as_s_-%3E_infinit
+  kind: entity_fact
+  raw_text: "The asymptotic behavior of the solution q(s) to the Painlev\xE9 II equation\
+    \ is q(s) ~ Ai(s) as s approaches infinity."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T03:52:58Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/data-model.md
+  attempts: 1
+  canonical: "Cram\xE9r model expected gap size near p is ln(p)"
+  claim_id: c_3bb695d6
+  context: "Section 2.1 introduces the normalization of prime gaps using the Cram\xE9\
+    r prediction."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cram%C3%A9r_model_expected_gap_size_near_p_is_ln(p)
+  kind: entity_fact
+  raw_text: "The Cram\xE9r model predicts the expected gap size near p is ln(p)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T03:54:05Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/data-model.md
+  attempts: 1
+  canonical: Average spacing between zeta zeros near height T is 2*pi / ln(T)
+  claim_id: c_d0ba2d84
+  context: Section 2.2 defines the normalization of zeta zero spacings.
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The average spacing between Riemann zeta zeros near height T is approximately
+    2*pi / ln(T).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-23T03:54:05Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/data-model.md
+  attempts: 1
+  canonical: Tracy-Widom location parameter mu_W approx ln(W) for window size W
+  claim_id: c_a55a3c83
+  context: Section 3.2 defines the parameters for modeling the maximum gap distribution.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tracy-Widom_location_parameter_mu_W_approx_ln(W)_for_window
+  kind: entity_fact
+  raw_text: The location parameter mu_W for the maximum gap in a window of size W
+    is approximately ln(W).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T03:54:44Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/data-model.md
+  attempts: 1
+  canonical: Tracy-Widom scale parameter sigma_W approx (ln(W))^(1/3) for window size
+    W
+  claim_id: c_97d75456
+  context: Section 3.2 defines the parameters for modeling the maximum gap distribution.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scale parameter sigma_W for the maximum gap in a window of size W
+    is approximately (ln(W))^(1/3).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T03:56:20Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: generate primes up to 10^10
+  claim_id: c_a19b565b
+  context: T011 [US1] Implement segmented sieve algorithm in src/data/generate_primes.py
+    to generate primes up to 10^10, processing in chunks to stay within 7GB RAM.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task MUST generate primes up to N=10^10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:32:40Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: stay within 7GB RAM
+  claim_id: c_1da7d200
+  context: T011 [US1] Implement segmented sieve algorithm in src/data/generate_primes.py
+    to generate primes up to 10^10, processing in chunks to stay within 7GB RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stay_within_7GB_RAM
+  kind: entity_fact
+  raw_text: The pipeline must stay within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:33:10Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: verify peak RAM less than 7GB
+  claim_id: c_c5ec0d3f
+  context: 'Independent Test: Run src/data/generate_primes.py and src/data/ingest_zeros.py
+    in isolation; verify data/processed/raw_gaps.csv and data/processed/zeta_zeros.csv
+    exist, contain correct counts, and peak RAM < 7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_RAM_less_than_7GB
+  kind: magnitude
+  raw_text: Verify peak RAM < 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:33:32Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: compute maximal prime gap in sliding windows of length 10^6
+  claim_id: c_a87c33b1
+  context: 'T018b [US2] Primary Analysis (FR-003): Implement sliding window analysis
+    in src/analysis/distribution_test.py to compute maximal prime gap g_max within
+    sliding windows of length W=10^6.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute maximal prime gap g_max within sliding windows of length W=10^6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:33:52Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: verify zeta zero source URL against LMFDB and Odlyzko
+  claim_id: c_c9471183
+  context: 'T015 [US1] Implement Ingestion & Verification: Implement logic in src/data/ingest_zeros.py
+    that FIRST verifies the zeta zero source URL against the hardcoded canonical list
+    (LMFDB/Odlyzko) defined in the spec.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_zeta_zero_source_URL_against_LMFDB_and_Odlyzko
+  kind: entity_fact
+  raw_text: The zeta zero source URL must be verified against the hardcoded canonical
+    list (LMFDB/Odlyzko).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:34:11Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: generate correlation results JSON with KS statistic and p-value
+  claim_id: c_cb5af471
+  context: 'Independent Test: Run src/analysis/distribution_test.py on small synthetic
+    datasets; verify results/correlation_results.json contains KS statistic, p-value,
+    and plots.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_correlation_results_JSON_with_KS_statistic_and_p-va
+  kind: entity_fact
+  raw_text: Generate results/correlation_results.json with keys ks_statistic and p_value.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:34:25Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: generate KS test results JSON with specific keys
+  claim_id: c_295938c1
+  context: 'T022 [US2] Perform Kolmogorov-Smirnov (KS) test... Output: Generate results/ks_test_results.json
+    with keys: {ks_statistic, p_value, distribution_compared: GUE_EVF, method: scipy.stats.ks_2samp}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_KS_test_results_JSON_with_specific_keys
+  kind: entity_fact
+  raw_text: Generate results/ks_test_results.json with keys ks_statistic, p_value,
+    distribution_compared, and method.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:34:46Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: "generate Cram\xE9r null distribution JSON"
+  claim_id: c_6339e965
+  context: "T023 [US2] Implement Monte Carlo simulation using the Cram\xE9r model\
+    \ in src/analysis/monte_carlo.py to generate a null distribution of the KS statistic.\
+    \ Output: results/cramer_null_distribution.json."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_Cram%C3%A9r_null_distribution_JSON
+  kind: entity_fact
+  raw_text: Generate results/cramer_null_distribution.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:35:12Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: generate robustness sweep JSON with specific keys
+  claim_id: c_ce25e3d0
+  context: 'T028 [US3] Sensitivity Analysis... Output: Generate results/robustness_sweep.json
+    containing a list of objects with keys: {window_size, ks_statistic, p_value, timestamp}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_robustness_sweep_JSON_with_specific_keys
+  kind: entity_fact
+  raw_text: Generate results/robustness_sweep.json containing a list of objects with
+    keys window_size, ks_statistic, p_value, and timestamp.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:35:33Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: stay within 7GB RAM
+  claim_id: c_ff19faa2
+  context: Implement segmented sieve algorithm in src/data/generate_primes.py to generate
+    primes up to 10^10, processing in chunks to stay within 7GB RAM.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stay_within_7GB_RAM
+  kind: entity_fact
+  raw_text: The pipeline must stay within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:45:47Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: configuration defines N=10^10
+  claim_id: c_86432770
+  context: Create configuration management in src/utils/config.py (defines N=10^10,
+    W=10^6, file paths, and WINDOW_STEP for sliding window stride).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration defines N=10^10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:47:27Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: configuration defines W=10^6
+  claim_id: c_6a86f1c8
+  context: Create configuration management in src/utils/config.py (defines N=10^10,
+    W=10^6, file paths, and WINDOW_STEP for sliding window stride).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The configuration defines W=10^6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:48:05Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: sliding window length 10^6
+  claim_id: c_a91fc4db
+  context: Implement sliding window analysis in src/analysis/distribution_test.py
+    to compute maximal prime gap g_max within sliding windows of length W=10^6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sliding window analysis computes maximal prime gap within windows
+    of length W=10^6.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:48:32Z'
+- artifact_path: projects/PROJ-548-exploring-the-relationship-between-prime/specs/001-exploring-the-relationship-between-prime/tasks.md
+  attempts: 1
+  canonical: verify zeta zero source URL against LMFDB and Odlyzko
+  claim_id: c_dddc1690
+  context: Implement logic in src/data/ingest_zeros.py that FIRST verifies the zeta
+    zero source URL against the hardcoded canonical list (LMFDB/Odlyzko) defined in
+    the spec.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_zeta_zero_source_URL_against_LMFDB_and_Odlyzko
+  kind: entity_fact
+  raw_text: The verification logic checks the zeta zero source URL against the hardcoded
+    canonical list (LMFDB/Odlyzko).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T09:49:02Z'

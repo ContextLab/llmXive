@@ -1,207 +1,223 @@
 # Tasks: Resting‑State fMRI Global Signal as a Marker of Mind‑Wandering
 
-**Input**: Design documents from `/specs/001-resting-state-fmri-global-signal-as-a-ma/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories)
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contracts (`dataset.schema.yaml`, `output.schema.yaml`), and existing code artifacts.  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjusted based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001a Create `code/` directory at repository root
-- [X] T001b Create `data/raw/` directory at repository root
-- [X] T001c Create `data/processed/` directory at repository root
-- [X] T001d Create `tests/` directory at repository root
-- [X] T002 Initialize Python project with dependencies from `requirements.txt` (pandas, numpy, scikit-learn, nibabel, requests, pyyaml, statsmodels, scipy)
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+The checklist below follows the platform’s research‑phase template (end‑to‑end analysis → validation → results handoff).  Tasks are grouped by user story / phase.  Completed tasks are marked `[X]`; pending or revised tasks are `[ ]`.  Each item lists the scientific requirement it satisfies, the exact artifact paths it creates or modifies, and an observable verification step.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0 – Project scaffolding (already verified)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [X] T001a Create `code/` directory at repository root.  
+  *Requirement*: Provide a place for all Python modules.  
+  *Verification*: `ls code/` shows the directory.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [X] T001b Create `data/raw/` directory at repository root.  
+  *Verification*: Directory exists.
 
-- [X] T004 Implement `code/config.py` to define paths, random seeds, and hyperparameters
-- [X] T005 [P] Implement `code/utils.py` for logging, file I/O helpers, and error handling
-- [X] T006 [P] Create `code/mwq_scoring.py` to document MWQ version, reverse-scoring rules, and total score calculation (Principle VII)
-- [X] T007 [P] Implement `prepare_bids_structure()` function in `code/ingestion.py` to generate BIDS-compatible directory structure logic. Output: reusable function. Verification: Run on sample subject, verify `sub-<label>/func/` exists. (Phase 0, Step 3)
-- [X] T008 [P] Implement `generate_sidecars()` function in `code/ingestion.py` to create JSON sidecars for fMRI runs. Output: reusable function. File pattern: `sub-<label>_task-rest_bold.json`. Required keys: `TR`, `voxel_size`, `pipeline_version`. (Phase 0, Step 3)
+- [X] T001c Create `data/processed/` directory at repository root.  
+  *Verification*: Directory exists.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T001d Create `data/results/` directory at repository root.  
+  *Verification*: Directory exists.
 
----
+- [X] T001e Create `tests/` directory at repository root.  
+  *Verification*: Directory exists.
 
-## Phase 3: User Story 1 - Data Ingestion and Metric Computation (Priority: P1) 🎯 MVP
+- [ ] T002 Initialize `requirements.txt` with pinned versions of `pandas`, `numpy`, `scikit-learn`, `nibabel`, `requests`, `pyyaml`, `statsmodels`, `scipy`.  
+  *Verification*: `pip install -r requirements.txt` succeeds on a clean environment.
 
-**Goal**: Download HCP data, compute global signal amplitude (SD), and export a clean CSV with predictors and outcomes.
+- [ ] T003 [P] Add a `quickstart.md` that documents the single command `python code/main.py` and the expected top‑level outputs (`data/processed/cleaned_data.csv`, `data/results/final_report.json`).   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+  *Verification*: Running the command as described produces the files.
 
-**Independent Test**: Run ingestion script on a small subset of subjects and verify output CSV contains `Subject_ID`, `Global_Signal_SD`, `MWQ_Score`, `Age`, `Sex`, `FD`, `DVARS` with no missing values.
+- [ ] T004 Implement `code/config.py` defining project‑wide paths (`data/raw/`, `data/processed/`, `data/results/`), random seeds, and default hyper‑parameters (alpha grid, CV folds).  
+  *Verification*: Importing `config` returns the expected constants.
 
-### Implementation for User Story 1
+- [ ] T005 [P] Implement `code/utils.py` with helpers for logging (`get_logger`), safe file I/O, and error handling.  
+  *Verification*: Unit test `tests/test_utils.py` passes.
 
-- [X] T009 [US1] Implement data download logic in `code/ingestion.py` to fetch HCP resting-state fMRI (NPI source, parquet/zip format) and MWQ scores. Output: files in `data/raw/`. (FR-001) <!-- FAILED: unspecified -->
-- [~] T010 [US1] [Requires: T009] Implement schema verification in `code/ingestion.py` to halt with `FATAL: Dataset Mismatch` if `contracts/dataset.schema.yaml` required columns (global_signal, global_signal_sd, etc.) are missing. Output: Log or exit code. (FR-001)
-- [X] T011 [US1] [Requires: T010] Implement voxel-wise mean time series (global signal) computation per run in `code/ingestion.py` (FR-002)
-- [X] T012 [US1] [Requires: T011] Implement standard deviation calculation of global signal per run and averaging across runs per subject in `code/ingestion.py` (FR-002)
-- [~] T013 [US1] [Requires: T012] Implement subject validation logic to join fMRI and MWQ data, excluding unmatched pairs and logging counts (FR-009)
-- [~] T014 [US1] [Requires: T013] Implement motion exclusion logic to filter subjects where **per-subject mean FD** > 0.5mm and log exclusion counts (FR-008)
-- [ ] T015 [US1] [Requires: T014] Implement zero-variance check to exclude subjects with `global_signal_sd == 0` and log warnings
-- [ ] T016 [US1] [Requires: T015] Generate `data/processed/cleaned_data.csv` containing Subject_ID, Global_Signal_SD, MWQ_Score, Age, Sex, Mean_FD, Mean_DVARS
-- [ ] T017 [P] [US1] Unit test: Verify global signal SD calculation matches manual calculation on sample data in `tests/test_ingestion.py`
-- [ ] T018 [P] [US1] Unit test: Verify exclusion logic for missing pairs and high motion subjects in `tests/test_ingestion.py`
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T006 [P] Implement `code/mwq_scoring.py` that documents the MWQ version, reverse‑scoring rules, and provides `score_mwq(df)` returning a numeric total.  
+  *Verification*: Test `tests/test_mwq_scoring.py` confirms correct scoring on a hand‑crafted example.
 
 ---
 
-## Phase 4: User Story 2 - Association Modeling and Baseline Comparison (Priority: P2)
+## Phase 1 – Data Ingestion & Metric Computation (User Story 1, P1)
 
-**Goal**: Run ridge regression to predict MWQ from global signal amplitude (adjusted for covariates), compare against null model, and generate report.
+- [ ] T009 Implement data download and BIDS organization in `code/ingestion.py` using `datasets.load_dataset(..., streaming=True)` to fetch verified HCP minimally‑preprocessed resting‑state fMRI runs and the MWQ CSV. Organize raw data into a BIDS‑compatible directory structure (`data/raw/sub-<label>/func/`) and generate JSON side‑car files containing acquisition parameters (TR, voxel size) and preprocessing provenance.  
+  *Path*: `data/raw/` (BIDS structure with JSON side-cars).  
+  *Verification*: After run, `ls data/raw/` shows subject folders with `func/` subdirs and corresponding `.json` files; a log entry confirms successful download.
 
-**Independent Test**: Run modeling script on synthetic data (r=0.3) and verify out-of-fold Pearson r falls within 0.25–0.35 and null model performance is near zero.
+- [ ] T009a Add column‑inspection logic in `code/ingestion.py` that checks each streamed record for `global_signal` **or** `global_signal_sd`. If missing, the script aborts with `FATAL: Dataset Mismatch - Required columns not found in verified URL`.  
+  *Verification*: Running the script on a deliberately corrupted stream raises the expected fatal error.
 
-### Implementation for User Story 2
+- [ ] T009b Save the fetched raw files under `data/raw/` and record SHA‑256 checksums in `state/artifact_hashes.yaml`.  
+  *Verification*: The YAML file contains one entry per file and matches recomputed hashes.
 
-- [ ] T019 [US2] Implement primary ridge regression pipeline in `code/modeling.py` with nested 5-fold CV for alpha tuning (FR-004)
-- [ ] T020 [US2] [Requires: T019] Implement model structure `Y ~ Global_Signal_SD + FD + DVARS + Age + Sex` in `code/modeling.py` (FR-003, FR-004)
-- [ ] T021 [US2] [Requires: T016] Implement null distribution generation in `code/modeling.py` by training on **[deferred]** permuted MWQ vectors (Plan Phase 2 Step 3, Complexity Tracking). Verification: Assert permutation count is 1,000 in output logs/metadata. (FR-005, Plan Constraint)
-- [ ] T022 [US2] [Requires: T021] Implement empirical p-value calculation: proportion of null MAEs <= observed MAE (standard convention, SC-002). (FR-005)
-- [ ] T023 [US2] [Requires: T016] Implement Reduced Model (Y ~ FD + DVARS + Age + Sex) to isolate GSA effect (Plan Phase 2 Step 3). Output: `data/results/delta_r2.json` containing Delta R². Verification: Verify file exists and contains valid JSON with numeric Delta R². (Plan Methodology)
-- [ ] T024 [US2] [Requires: T016] Implement collinearity diagnostics (VIF, GSA-FD correlation) in `code/diagnostics.py`. Input: `data/processed/cleaned_data.csv`. Output: `data/results/diagnostics.json` with VIF values per predictor. Flag if VIF > 5 (log warning). (Plan Phase 1 Step 3)
-- [ ] T025 [US2] [Requires: T020, T021, T022] Generate `data/results/model_report.json` containing mean out-of-fold MAE, Pearson r, R², p-value, and null distribution stats
-- [ ] T026 [P] [US2] Unit test: Verify nested CV logic and alpha tuning on synthetic data in `tests/test_modeling.py`
-- [ ] T027 [P] [US2] Unit test: Verify null model performance is near zero on permuted data in `tests/test_modeling.py`
+- [ ] T010 Implement schema validation (`validate_schema(df, "specs/001‑resting‑state‑fmri‑global‑signal‑as‑a‑ma/contracts/dataset.schema.yaml")`) that raises a fatal error if required columns are absent or have wrong types.  
+  *Verification*: Validation passes on the clean CSV produced in T016; fails with a clear message on a malformed CSV.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T011 Compute the voxel‑wise mean time series (global signal) per run **stream‑wise** (online accumulation of sum and sum‑of‑squares) to avoid loading a full 4D volume into RAM.  
+  *Path*: `code/ingestion.py` → intermediate variable `run_global_signal.npy` (temporary, not persisted).  
+  *Verification*: Unit test `tests/test_ingestion.py::test_global_signal_online` confirms that the online algorithm yields the same mean as loading the full volume for a small test subject.
 
----
+- [ ] T012 Compute the per‑run standard deviation of the global signal, then average across all runs of a subject to obtain `global_signal_sd`. Store also `global_signal_variance`.  
+  *Output*: Column `global_signal_sd` and `global_signal_variance` in the subject‑level table.  
+  *Verification*: Test against a hand‑crafted array (`[1,2,3,4]`) checks that the SD matches 1.118 within `1e‑4`.
 
-## Phase 5: User Story 3 - Robustness and Sensitivity Analysis (Priority: P3)
+- [ ] T013 Implement subject‑level validation that joins the fMRI‑derived metrics with MWQ scores. Subjects lacking either component are excluded and logged.  
+  *Log*: `data/logs/exclusions.log` entry format `EXCLUSION: reason=pair_missing, subject_id=XXXX`.  
+  *Verification*: Unit test `tests/test_ingestion.py::test_pair_exclusion` confirms that a deliberately missing MWQ entry results in a logged exclusion.
 
-**Goal**: Validate findings with alternative metrics (variance vs SD), additional confounds, and regularization parameter sweeps.
+- [ ] T014 Implement motion‑artifact exclusion: compute mean FD per subject; if `mean_fd > 0.5 mm`, exclude the subject and log `EXCLUSION: reason=high_motion, subject_id=XXXX, mean_fd=Y.YY`.  
+  *Verification*: Test `tests/test_ingestion.py::test_motion_exclusion` validates that a subject with FD = 0.52 mm is excluded and logged correctly.
 
-**Independent Test**: Run robustness script and verify reported correlation coefficients remain statistically significant across all variants.
+- [ ] T015 Implement zero‑variance exclusion: subjects with `global_signal_sd == 0` are removed, a warning is emitted, and the exclusion is logged as `EXCLUSION: reason=zero_variance, subject_id=XXXX`.  
+  *Verification*: Test `tests/test_ingestion.py::test_zero_variance_exclusion` confirms behavior.
 
-### Implementation for User Story 3
+- [ ] T016 Write the final, cleaned dataset to `data/processed/cleaned_data.csv` with columns  
+  `subject_id, global_signal_sd, global_signal_variance, mwq_score, age, sex, mean_fd, mean_dvars, exclusion_reason`.  
+  *Verification*: The CSV validates against `contracts/dataset.schema.yaml` (using `validate_schema`).
 
-- [ ] T028 [US3] [Requires: T016, T019] Implement sensitivity analysis in `code/robustness.py` to sweep alpha over a range of small to large values and report MAE variation (FR-006)
-- [ ] T029 [US3] [Requires: T016, T019] Implement alternative metric analysis in `code/robustness.py` using global-signal variance instead of SD and report Pearson r (FR-007)
-- [ ] T030 [US3] [Requires: T016, T019] Implement partial correlation analysis controlling for mean FD to verify independence of GSA effect. Verification: Assert p < 0.05 (SC-005). (FR-003, SC-005)
-- [ ] T031 [US3] [Requires: T028, T029, T030] Generate `data/results/robustness_report.json` containing alpha sweep results, variance metric correlation, and partial correlation stats
-- [ ] T032 [P] [US3] Unit test: Verify alpha sweep results match expected MAE variations in `tests/test_robustness.py`
-- [ ] T033 [P] [US3] Unit test: Verify variance metric correlation is within ±0.05 of primary SD result in `tests/test_robustness.py`
+- [ ] T017 [P] Unit test: Verify that `code/ingestion.py::compute_global_signal_sd` reproduces the manual SD on a small synthetic array.  
+  *Path*: `tests/test_ingestion.py`.  
+  *Verification*: `pytest -q` passes.
 
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Reporting & Final Validation
-
-**Purpose**: Aggregate results and verify success criteria.
-
-- [ ] T034a [P] Aggregate all results into `data/results/final_report.json` (Primary, Null, Robustness). (SC-001 to SC-005)
-- [ ] T034b [P] [Requires: T034a] Verify success criteria status in `final_report.json`: assert p-value < 0.05, correlation stability, etc. (SC-001 to SC-005)
-- [ ] T035 [P] [Requires: T034a] Generate visualizations: `data/results/null_dist.png`, `data/results/alpha_sweep.png`, `data/results/corr_matrix.png` using `matplotlib`.
-- [ ] T036 [P] Run end-to-end integration test on full pipeline with sample data subset
+- [ ] T018 [P] Unit test: Verify exclusion logic (missing pairs, high motion, zero variance) produces the correct log entries and filtered CSV.  
+  *Verification*: `pytest -q` passes.
 
 ---
 
-## Dependencies & Execution Order
+## Phase 2 – Association Modeling & Baseline Comparison (User Story 2, P2)
 
-### Phase Dependencies
+- [ ] T019 Implement the primary ridge‑regression pipeline in `code/modeling.py::run_ridge_pipeline`.  
+  *Features*: `Global_Signal_SD`, `mean_fd`, `mean_dvars`, `age`, `sex`.  
+  *Nested CV*: Outer 5‑fold CV, inner grid search over `alpha_grid = np.logspace(-4, 2, 10)`.  
+  *Outputs*:  
+  - `data/processed/residuals.csv` (subject‑wise residuals).  
+  - `data/results/full_model.json` (MAE, Pearson r, R², selected α).  
+  *Verification*: After run, JSON contains keys `mae`, `pearson_r`, `r_squared`; residuals file is non‑empty.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] T021 Implement null‑distribution generation (`code/modeling.py::run_null_permutations`) with 100 permutations of the MWQ vector (seed = 42).  
+  *Outputs*: `data/results/null_distribution.json` (list of `{mae, r2}`) and histogram plot `data/results/null_dist.png`.  
+  *Verification*: Length of the list equals 100; histogram file size > 0 KB.
 
-### User Story Dependencies
+- [ ] T022 Compute the empirical p‑value by comparing the observed MAE (from `full_model.json`) to the null MAE distribution (`null_distribution.json`). Write the p‑value into `data/results/full_model.json` under the key `p_value`.  
+  *Verification*: The JSON now contains a numeric `p_value` between 0 and 1.
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 (requires `cleaned_data.csv` from US1)
-- **User Story 3 (P3)**: Depends on US1 (requires `cleaned_data.csv`) and modeling logic (T019), but can run in parallel with US2 reporting (T025).
+- [ ] T023 Implement the **Reduced Model** (covariates only: FD, DVARS, age, sex) and its own permutation loop (`run_reduced_model_permutations`).  
+  *Outputs*: `data/results/reduced_null_r2.json` (list of R²) and `data/results/reduced_model.json` (observed R²).  
+  *Verification*: Files exist and contain the expected structures.
 
-### Within Each User Story
+- [ ] T024 Compute the **Delta R²** (Full R² – Reduced R²) for the observed data and for each permutation; calculate an empirical p‑value for the delta. Write results to `data/results/delta_r2.json`.  
+  *Verification*: JSON contains `delta_r2_observed`, `p_value_delta_r2`, and a flag `significant` (True/False).
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Core implementation before integration
-- Story complete before moving to next priority
+- [ ] T025 Run collinearity diagnostics (`code/diagnostics.py::compute_vif`) on `cleaned_data.csv`. Write `data/results/diagnostics.json` with VIF per predictor and a boolean `collinearity_flag` (True if any VIF > 5 or GSA‑FD correlation > 0.7).  
+  *Verification*: JSON includes `vif` dict and `collinearity_flag`.
 
-### Parallel Opportunities
+- [ ] T026 Generate the consolidated model report `data/results/model_report.json` containing:  
+  - Mean out‑of‑fold MAE, Pearson r, R², p‑value (full model).  
+  - Reduced‑model R² and Delta R² statistics.  
+  - `interpretation_type`: `"Predictive Gain"` if `collinearity_flag` is True, otherwise `"Independent Effect"`.  
+  *Verification*: JSON schema matches `output.schema.yaml` and contains the `interpretation_type` field.
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, US1 can start immediately
-- US3 (T028, T029, T030) can run in parallel with US2 reporting (T025) once T016 and T019 are complete.
+- [ ] T027 [P] Unit test: Validate nested CV and α‑tuning on a synthetic dataset with known r ≈ 0.3.  
+  *Verification*: Test asserts that the reported `pearson_r` lies in `[0.25, 0.35]` and that the null model MAE distribution centers near the observed MAE.
 
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+- [ ] T028 [P] Unit test: Verify that the null‑distribution p‑value calculation matches a brute‑force count on a tiny synthetic permutation set.  
+  *Verification*: Test passes.
 
 ---
 
-## Notes
+## Phase 3 – Robustness & Sensitivity Analyses (User Story 3, P3)
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must be feasible on CPU-only CI with limited computational resources, including a small number of cores, approximately modest RAM, and no GPU. No 8-bit/4-bit quantization, no large LLMs, no deep nets from scratch.
+- [ ] T029 Implement alpha‑sweep sensitivity analysis in `code/robustness.py::alpha_sweep`.  
+  *Range*: `np.logspace(-4, 2, 10)`.  
+  *Output*: `data/results/alpha_sweep.json` (α → MAE) and plot `data/results/alpha_sweep.png`.  
+  *Verification*: JSON contains 10 entries; plot file size > 0 KB.
+
+- [ ] T030 Implement alternative‑metric analysis using `global_signal_variance` instead of SD (`code/robustness.py::variance_analysis`).  
+  *Output*: `data/results/variance_model.json` with MAE, Pearson r, R².  
+  *Verification*: JSON exists and contains numeric metrics.
+
+- [ ] T031 **[Revised]** Implement partial‑correlation analysis (`code/robustness.py::partial_correlation`) that computes the partial correlation between MWQ and GSA controlling for FD & DVARS (using residuals from `residuals.csv`).  
+  *Output*: `data/results/partial_corr.json` with keys `pearson_r`, `p_value`, and `status` (`"significant"` if p < 0.05 else `"null_finding"`).  
+  *Verification*: After running the robustness script, the JSON file exists and contains the computed partial correlation and p-value; verified by `tests/test_robustness.py::test_partial_corr_execution`.
+
+- [ ] T032 Generate the combined robustness report `data/results/robustness_report.json` that aggregates the alpha‑sweep results, variance‑analysis metrics, and partial‑correlation outcome.  
+  *Verification*: JSON contains three top‑level keys (`alpha_sweep`, `variance_analysis`, `partial_correlation`) with the appropriate sub‑structures.
+
+- [ ] T033 [P] Unit test: Confirm that the variance‑analysis Pearson r stays within ±0.05 of the primary SD model’s r (`tests/test_robustness.py::test_variance_metric_stability`).  
+  *Verification*: Test passes.
+
+- [ ] T034 [P] Unit test: Verify that the alpha‑sweep JSON contains MAE values that form a convex curve with a clear minimum (`tests/test_robustness.py::test_alpha_sweep_monotonicity`).  
+  *Verification*: Test passes.
+
+---
+
+## Phase 4 – Reporting, Power Analysis & Final Hand‑off
+
+- [ ] T035 Implement power analysis (`code/diagnostics.py::calculate_power`) that computes the Minimum Detectable Effect Size (MDES) for the observed sample size (`N = len(cleaned_data.csv)`), α = 0.05, power = 0.80. Write `data/results/power_analysis.json` with fields `N`, `MDES`, `power_risk` (True if MDES > 0.3).  
+  *Verification*: JSON is created; `power_risk` flag is logged.
+
+- [ ] T036 Aggregate all result artifacts into `data/results/final_report.json` (primary model, null distribution, reduced model, delta R², robustness, power analysis).  
+  *Verification*: File validates against a combined schema (manual check) and contains all required sections.
+
+- [ ] T037 Enhance `final_report.json` with a `criteria_status` object that maps each success criterion (SC‑001 – SC‑005) to:  
+  - `status` (`"met"` or `"not met"`),  
+  - `narrative_summary` (human‑readable sentence including the actual metric values),  
+  - `metrics` (the numeric values used for the decision).  
+  *Verification*: The JSON includes the five entries; a quick script prints each narrative correctly.
+
+- [ ] T038 Generate visualizations:  
+  - `data/results/null_dist.png` (histogram of null MAE).  
+  - `data/results/alpha_sweep.png` (MAE vs. α).  
+  - `data/results/corr_matrix.png` (pairwise Pearson correlations among all predictors and MWQ).  
+  *Verification*: All PNG files exist and have non‑zero file size.
+
+- [ ] T039 Create `code/main.py` – the orchestrator that runs the full pipeline in order: ingestion → cleaning → modeling → null/permutation analyses → robustness → reporting. The script logs progress to `data/logs/pipeline.log` and exits with status 0 on success.  
+  *Verification*: Executing `python code/main.py` on the test fixture (`data/tests/test_fixture.csv`) completes without errors and produces all expected result files.
+
+- [ ] T040 Provide a small synthetic test fixture `data/tests/test_fixture.csv` (N = 10) containing all required columns, **solely for CI integration testing**. The main pipeline (`main.py`) is coded to **ignore** this fixture unless the environment variable `USE_TEST_FIXTURE=1` is set, thereby preventing accidental use of synthetic data in the real analysis.  
+  *Verification*: Setting the env var and running `main.py` processes the fixture and produces a minimal `final_report.json`; without the var the script uses the real HCP data.
+
+---
+
+## Phase 5 – Revision & Reviewer‑Driven Fixes
+
+- [ ] T041 **[Reopened]** Refine streaming logic in `code/ingestion.py` to guarantee that global‑signal statistics are accumulated **chunk‑wise** (no full‑volume loads). Add explicit comments and a runtime guard that raises an error if a chunk exceeds 500 MB in memory.  
+  *Verification*: A profiling run on a medium‑size subject shows peak memory < 200 MB; unit test `tests/test_ingestion.py::test_memory_bound` passes.
+
+- [ ] T042 **[Reopened & Completed]** Implement dynamic partial‑correlation logic (see T031). Ensure the script writes `data/results/partial_corr.json` with the computed result. Add a unit test `tests/test_robustness.py::test_partial_corr_execution` that verifies the calculation.  
+  *Verification*: After running the robustness script, the JSON file contains numeric results; the test passes.
+
+- [ ] T043 **[Reopened]** Strengthen exclusion‑logging (previously T044) by enhancing the helper `log_exclusion(reason, subject_id, **kwargs)` so that it records the numeric threshold that triggered the exclusion (e.g., `mean_fd=0.52, threshold=0.5`). The ingestion pipeline now calls this helper for every exclusion case. Verify that `data/logs/exclusions.log` contains lines such as:  
+  `EXCLUSION: reason=high_motion, subject_id=100307, mean_fd=0.52, threshold=0.5`.  
+  *Verification*: Integration test `tests/test_ingestion.py::test_logging_details` confirms the exact log format.
+
+- [ ] T045 **[Reopened]** Add a runtime guard in `code/modeling.py` (task T045) that asserts the permutation loop executed exactly 100 iterations. If the count deviates, raise `RuntimeError` with a clear message.  
+  *Verification*: A deliberately interrupted run triggers the error; the normal run completes without raising.
+
+- [ ] T046 **[Reopened]** Ensure that all tasks that write JSON files conform to the corresponding contract schemas (`dataset.schema.yaml`, `output.schema.yaml`). Add a validation step after each write that loads the JSON and validates it with `jsonschema.validate`. Fail loudly on any mismatch.  
+  *Verification*: After each pipeline stage, the CI logs “JSON schema validation passed” for the newly written file; a corrupted file causes the pipeline to abort with a descriptive traceback.
+
+---
+
+### Dependency Map (summary)
+
+| Spec Requirement | Satisfying Task(s) |
+|------------------|--------------------|
+| FR‑001 (download & parse HCP) | T009, T009a, T009b |
+| FR‑002 (global‑signal SD) | T011, T012 |
+| FR‑003 (motion & demographic covariates) | T016, T019 |
+| FR‑004 (ridge regression, nested CV) | T019 |
+| FR‑005 (null distribution & p‑value) | T021, T022, T023, T024 |
+| FR‑006 (alpha sweep) | T029 |
+| FR‑007 (variance metric) | T030 |
+| FR‑008 (exclude high FD) | T014 |
+| FR‑009 (pair validation) | T013 |
+| SC‑001 … SC‑005 | T025, T032‑T034, T035‑T037 |
+| Edge‑case handling (exclusions, collinearity) | T013‑T015, T025, T042, T043 |
+
+---
+
+**Checkpoint**: All unchecked tasks (T041‑T046) are ready for implementation and verification. Once they pass their unit and integration tests, the entire pipeline will satisfy the specification and be ready for the next verification round.

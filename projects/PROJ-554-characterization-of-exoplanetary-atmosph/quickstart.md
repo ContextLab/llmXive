@@ -1,82 +1,72 @@
-# Quickstart Guide: Exoplanetary Atmosphere Characterization
+# Quickstart Guide: Exoplanetary Atmosphere Characterization Pipeline
 
-This guide walks you through running the full pipeline to characterize exoplanetary atmospheres, from data acquisition to statistical analysis.
+This guide provides instructions for running the complete pipeline to characterize exoplanetary atmospheres.
 
-## 1. Environment Setup
+## Prerequisites
 
-Ensure you are in the project root directory:
+- Python 3.9+
+- pip
+- Required packages (see `requirements.txt`)
+
+## Installation
+
 ```bash
-cd projects/PROJ-554-characterization-of-exoplanetary-atmosph
-```
+# Create virtual environment
+python -m venv code/.venv
+source code/.venv/bin/activate # On Windows: code\.venv\Scripts\activate
 
-Install dependencies:
-```bash
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-Verify directory structure (created by T001a/T006b):
+## Running the Pipeline
+
+The pipeline can be run in stages or all at once using `code/main.py`:
+
 ```bash
-ls -d code/ data/ tests/ results/
+# Run all stages
+python code/main.py --stage all
+
+# Run individual stages
+python code/main.py --stage download
+python code/main.py --stage retrieval
+python code/main.py --stage analysis
 ```
 
-## 2. Run the Pipeline
+## Manual Stage Execution
 
-Execute the tasks in order. Each script writes its output to the `data/` or `results/` directory.
+Alternatively, you can run each stage manually:
 
-### Step 1: Download Data (User Story 1)
-Fetches transmission spectra and metadata from the NASA Exoplanet Archive.
 ```bash
-python code/download.py
-```
-**Expected Output**:
-- `data/raw/`: Spectrum files.
-- `data/processed/metadata.csv`: Contains columns `planet_name`, `equilibrium_temperature`, `metallicity`, `snr`, `resolution`, `category`.
+# Stage 1: Download data
+python code/download.py --output data/raw
 
-*Note: If the sample size is < 30 or > 45, a warning is logged, but the process continues.*
+# Stage 2: Run retrieval
+python code/retrieval.py --input data/raw --output data/processed
 
-### Step 2: Atmospheric Retrieval (User Story 2)
-Runs `petitRADTRANS` to derive water vapor mixing ratios.
-```bash
-python code/retrieval.py
-```
-**Expected Output**:
-- `data/processed/retrieval_results.csv`: Contains `log10_water_abundance`, `uncertainty`, `censored_flag`.
-
-### Step 3: Statistical Analysis (User Story 3)
-Computes Kendall's tau (censored), Tobit regression, and detection limits.
-```bash
-python code/analysis.py
-```
-**Expected Output**:
-- `data/processed/analysis_results.json`: Correlation coefficients, p-values, model fit statistics.
-- `data/processed/detection_limits.csv`: Detection limits per spectrum.
-
-### Step 4: Visualization
-Generates plots for review.
-```bash
-python code/plots.py
-```
-**Expected Output**:
-- `results/plots/instrumental_noise_vs_signal.png`: SNR distribution and thresholds.
-
-## 3. Verify Results
-
-Check the generated files:
-```bash
-cat data/processed/analysis_results.json
-ls results/plots/
+# Stage 3: Analysis
+python code/analysis.py --input data/processed/analysis_dataset.csv --output results
 ```
 
-Ensure `metadata.csv` has non-null values for critical columns (Temperature, Metallicity, SNR, Resolution).
+## Output Files
 
-## 4. Troubleshooting
+The pipeline produces the following outputs:
 
-- **Missing Dependencies**: If `petitRADTRANS` fails to import, ensure `requirements.txt` was installed correctly.
-- **API Errors**: Check `code/config.py` for correct path settings and internet connectivity.
-- **Censored Data Warnings**: If many spectra are flagged as censored, check the SNR distribution in `data/processed/metadata.csv`.
+- `data/raw/metadata.csv`: Raw metadata from NASA Exoplanet Archive
+- `data/processed/retrieval_results.csv`: Water abundance retrievals
+- `data/processed/analysis_results.json`: Statistical analysis results
+- `results/plots/*.png`: Diagnostic plots
+- `results/*.md`: Reports and summaries
 
-## 5. Next Steps
+## Troubleshooting
 
-- Review `results/quality_report.md` for statistical power analysis.
-- Examine `results/plots/` for visual validation of noise thresholds.
-- Run `python -m pytest tests/` to validate contract and integration tests.
+If you encounter errors:
+
+1. Check that all dependencies are installed: `pip check`
+2. Verify data directories exist: `ls data/raw data/processed results`
+3. Check log files: `cat logs/*.log`
+4. Ensure network connectivity for NASA Exoplanet Archive API
+
+## Data Integrity
+
+All data is fetched programmatically from the NASA Exoplanet Archive. No static data files are included in the repository.

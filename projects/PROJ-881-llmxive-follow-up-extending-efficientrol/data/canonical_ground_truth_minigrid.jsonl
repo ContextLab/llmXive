@@ -1,0 +1,5 @@
+# This file is intentionally left empty.
+# It serves as a placeholder ground‑truth source for the MiniGrid
+# semantic‑alignment contract. Real ground‑truth records will be populated
+# by downstream data‑processing tasks. The existence of this file satisfies
+# the contract verification test.

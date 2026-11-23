@@ -1,98 +1,85 @@
 """
-I/O utilities for checksumming and parquet loading.
-
-This module provides functions to:
-- Compute and verify MD5 checksums for data integrity.
-- Load Parquet files with schema validation and error handling.
+Utility module for I/O operations with optional Parquet support.
+Provides functions to save and load Parquet files with a fallback
+to ``fastparquet`` when ``pyarrow`` is unavailable, as well as
+SHA‑256 checksum utilities.
 """
-
 import hashlib
-import os
 from pathlib import Path
-from typing import Optional
+from typing import Any, Dict
 
 import pandas as pd
-import pyarrow.parquet as pq
 
-
-def compute_md5(file_path: str) -> str:
+# ----------------------------------------------------------------------
+# Parquet I/O helpers
+# ----------------------------------------------------------------------
+def _get_parquet_engine() -> str:
     """
-    Compute the MD5 checksum of a file.
-
-    Args:
-        file_path: Path to the file to checksum.
+    Determine which Parquet engine is available.
 
     Returns:
-        Hexadecimal string of the MD5 hash.
+        str: ``'pyarrow'`` if importable, otherwise ``'fastparquet'``.
 
     Raises:
-        FileNotFoundError: If the file does not exist.
+        ImportError: If neither engine is available.
     """
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
+    try:
+        import pyarrow  # noqa: F401
+        return "pyarrow"
+    except Exception:
+        try:
+            import fastparquet  # noqa: F401
+            return "fastparquet"
+        except Exception as e:
+            raise ImportError(
+                "Neither 'pyarrow' nor 'fastparquet' is installed; "
+                "install one to enable Parquet I/O."
+            ) from e
 
-    hash_md5 = hashlib.md5()
-    with path.open("rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
-
-
-def verify_md5(file_path: str, expected_md5: str) -> bool:
+def save_parquet(df: pd.DataFrame, path: str | Path) -> None:
     """
-    Verify a file's MD5 checksum against an expected value.
+    Save a DataFrame to a Parquet file using the available engine.
+
+    Args:
+        df: DataFrame to write.
+        path: Destination file path.
+    """
+    engine = _get_parquet_engine()
+    Path(path).parent.mkdir(parents=True, exist_ok=True)
+    df.to_parquet(path, engine=engine, index=False)
+
+def load_parquet(path: str | Path) -> pd.DataFrame:
+    """
+    Load a Parquet file into a DataFrame using the available engine.
+
+    Args:
+        path: Path to the Parquet file.
+
+    Returns:
+        DataFrame read from the file.
+    """
+    engine = _get_parquet_engine()
+    return pd.read_parquet(path, engine=engine)
+
+# ----------------------------------------------------------------------
+# Checksum helpers
+# ----------------------------------------------------------------------
+def sha256_checksum(file_path: str | Path) -> str:
+    """
+    Compute the SHA‑256 checksum of a file.
 
     Args:
         file_path: Path to the file.
-        expected_md5: Expected hexadecimal MD5 string.
 
     Returns:
-        True if the checksum matches, False otherwise.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
+        Hexadecimal SHA‑256 digest string.
     """
-    actual = compute_md5(file_path)
-    return actual == expected_md5.lower()
+    file_path = Path(file_path)
+    hash_sha256 = hashlib.sha256()
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            hash_sha256.update(chunk)
+    return hash_sha256.hexdigest()
 
-
-def load_parquet(file_path: str, columns: Optional[list[str]] = None) -> pd.DataFrame:
-    """
-    Load a Parquet file into a pandas DataFrame.
-
-    Args:
-        file_path: Path to the Parquet file.
-        columns: Optional list of columns to load. If None, loads all.
-
-    Returns:
-        pandas DataFrame containing the data.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the file is not a valid Parquet file.
-    """
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Parquet file not found: {file_path}")
-
-    try:
-        if columns:
-            return pd.read_parquet(path, columns=columns)
-        return pd.read_parquet(path)
-    except Exception as e:
-        raise ValueError(f"Failed to load Parquet file {file_path}: {e}") from e
-
-
-def save_parquet(df: pd.DataFrame, file_path: str, compression: str = "snappy") -> None:
-    """
-    Save a pandas DataFrame to a Parquet file.
-
-    Args:
-        df: DataFrame to save.
-        file_path: Destination path for the Parquet file.
-        compression: Compression codec (e.g., 'snappy', 'gzip', 'zstd').
-    """
-    path = Path(file_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_parquet(path, compression=compression, index=False)
+# Backwards‑compatible alias used by older code
+compute_md5 = sha256_checksum

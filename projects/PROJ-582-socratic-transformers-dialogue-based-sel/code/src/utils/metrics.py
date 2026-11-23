@@ -1,8 +1,6 @@
 """
-Prediction error proxy calculator for Socratic Transformers.
-
-Implements log-probability normalized by sequence length as the primary
-uncertainty metric, aligned with the assumptions for self-teaching signals.
+Metric utility for standard accuracy and loss calculations.
+Implements evaluation metrics for the Socratic Transformers pipeline.
 """
 
 import math
@@ -12,263 +10,264 @@ import torch
 from transformers import PreTrainedModel, PreTrainedTokenizer
 
 
+class MetricCalculator:
+    """
+    Calculator for various evaluation metrics including accuracy, loss,
+    and specialized metrics for the Socratic dialogue evaluation.
+    """
+
+    def __init__(
+        self,
+        model: Optional[PreTrainedModel] = None,
+        tokenizer: Optional[PreTrainedTokenizer] = None
+    ):
+        """
+        Initialize the MetricCalculator.
+
+        Args:
+            model: The transformer model for generating predictions or computing loss.
+            tokenizer: The tokenizer for processing text inputs.
+        """
+        self.model = model
+        self.tokenizer = tokenizer
+
+    def compute_accuracy(
+        self,
+        predictions: Union[List[int], torch.Tensor],
+        labels: Union[List[int], torch.Tensor]
+    ) -> float:
+        """
+        Compute standard token-level accuracy.
+
+        Args:
+            predictions: Model predictions (logits or token IDs).
+            labels: Ground truth token IDs.
+
+        Returns:
+            Accuracy as a float between 0 and 1.
+        """
+        if isinstance(predictions, torch.Tensor):
+            if predictions.dim() > 1:
+                # If logits, take argmax
+                pred_ids = predictions.argmax(dim=-1)
+            else:
+                pred_ids = predictions
+        else:
+            pred_ids = torch.tensor(predictions)
+
+        if isinstance(labels, torch.Tensor):
+            label_ids = labels
+        else:
+            label_ids = torch.tensor(labels)
+
+        # Align lengths
+        min_len = min(len(pred_ids), len(label_ids))
+        pred_ids = pred_ids[:min_len]
+        label_ids = label_ids[:min_len]
+
+        correct = (pred_ids == label_ids).sum().item()
+        total = min_len
+
+        if total == 0:
+            return 0.0
+
+        return correct / total
+
+    def compute_loss(
+        self,
+        input_ids: torch.Tensor,
+        attention_mask: torch.Tensor,
+        labels: Optional[torch.Tensor] = None
+    ) -> float:
+        """
+        Compute model loss (cross-entropy) for a batch.
+
+        Args:
+            input_ids: Input token IDs.
+            attention_mask: Attention mask.
+            labels: Optional labels for loss computation. If None, uses input_ids shifted.
+
+        Returns:
+            Loss value as a float.
+        """
+        if self.model is None:
+            raise ValueError("Model must be provided to compute loss.")
+
+        with torch.no_grad():
+            outputs = self.model(
+                input_ids=input_ids,
+                attention_mask=attention_mask,
+                labels=labels
+            )
+            loss = outputs.loss
+
+        return loss.item()
+
+    def compute_perplexity(self, loss: float) -> float:
+        """
+        Compute perplexity from loss.
+
+        Args:
+            loss: Cross-entropy loss value.
+
+        Returns:
+            Perplexity (exp(loss)).
+        """
+        return math.exp(loss)
+
+    def compute_exact_match(
+        self,
+        predictions: List[str],
+        references: List[str]
+    ) -> float:
+        """
+        Compute exact match accuracy for string outputs.
+
+        Args:
+            predictions: List of predicted strings.
+            references: List of reference strings.
+
+        Returns:
+            Exact match ratio.
+        """
+        if len(predictions) != len(references):
+            raise ValueError("Predictions and references must have same length.")
+
+        if len(predictions) == 0:
+            return 0.0
+
+        matches = sum(1 for p, r in zip(predictions, references) if p.strip() == r.strip())
+        return matches / len(predictions)
+
 def compute_prediction_error_proxy(
     model: PreTrainedModel,
     tokenizer: PreTrainedTokenizer,
-    prompt: str,
-    response: str,
-    device: Optional[torch.device] = None,
+    question: str,
+    expected_answer: str
 ) -> float:
     """
-    Compute the prediction error proxy for a given (prompt, response) pair.
+    Compute a proxy for prediction error by comparing model output to expected answer.
 
-    The proxy is defined as the negative log-likelihood of the response
-    tokens conditioned on the prompt, normalized by the sequence length
-    (number of tokens in the response). This provides a per-token uncertainty
-    measure that is comparable across responses of different lengths.
+    This function generates an answer from the model and computes a simple
+    error metric based on token overlap and length difference.
 
     Args:
-        model: The transformer model used for computing log-probabilities.
-        tokenizer: The tokenizer for encoding text.
-        prompt: The input prompt text.
-        response: The model-generated response text.
-        device: Optional device to move model and inputs to. If None, the model's
-                current device is used.
+        model: The transformer model.
+        tokenizer: The tokenizer.
+        question: The input question.
+        expected_answer: The expected answer string.
 
     Returns:
-        float: The normalized negative log-likelihood (higher = more uncertain/error).
-               Returns infinity if the response cannot be tokenized or has zero length.
-
-    Raises:
-        ValueError: If the response tokens are not a suffix of the prompt+response
-                    sequence (indicating tokenization mismatch).
+        A proxy error score (lower is better).
     """
-    if device is None:
-        device = model.device
+    inputs = tokenizer(question, return_tensors="pt", truncation=True, max_length=512)
 
-    # Encode the full sequence
-    full_text = prompt + response
-    encoded = tokenizer(
-        full_text,
-        return_tensors="pt",
-        truncation=False,
-        add_special_tokens=False,
-    )
-
-    input_ids = encoded["input_ids"].to(device)
-    attention_mask = encoded["attention_mask"].to(device)
-
-    # Tokenize prompt and response separately to identify response token IDs
-    prompt_encoded = tokenizer(
-        prompt,
-        return_tensors="pt",
-        truncation=False,
-        add_special_tokens=False,
-    )
-    prompt_len = prompt_encoded["input_ids"].shape[1]
-
-    response_encoded = tokenizer(
-        response,
-        return_tensors="pt",
-        truncation=False,
-        add_special_tokens=False,
-    )
-    response_ids = response_encoded["input_ids"].to(device)
-    response_len = response_ids.shape[1]
-
-    # Validate that response tokens match the suffix of the full sequence
-    full_response_tokens = input_ids[0, prompt_len:]
-    if not torch.equal(full_response_tokens, response_ids[0]):
-        raise ValueError(
-            "Tokenization mismatch: response tokens do not match the suffix "
-            "of the prompt+response sequence. This may be due to tokenizer "
-            "differences or whitespace handling."
-        )
-
-    if response_len == 0:
-        return float("inf")
-
-    # Compute log probabilities for the response tokens
     with torch.no_grad():
-        outputs = model(
-            input_ids=input_ids,
-            attention_mask=attention_mask,
+        outputs = model.generate(
+            **inputs,
+            max_new_tokens=128,
+            do_sample=False,
+            pad_token_id=tokenizer.eos_token_id
         )
-        logits = outputs.logits  # Shape: (batch, seq_len, vocab_size)
 
-    # Extract logits for response tokens: for each position i in response,
-    # we want the log-prob of token at position prompt_len + i given prefix up to prompt_len + i - 1
-    response_logits = logits[0, prompt_len - 1 : prompt_len + response_len - 1]
-    response_targets = response_ids[0]
+    # Decode the generated answer
+    generated_text = tokenizer.decode(outputs[0], skip_special_tokens=True)
 
-    # Compute log probabilities
-    log_probs = torch.nn.functional.log_softmax(response_logits, dim=-1)
-    # Select the log-prob for the actual target token at each position
-    chosen_log_probs = log_probs.gather(1, response_targets.unsqueeze(1)).squeeze(1)
+    # Simple error proxy: 1 - (overlap / max_length)
+    gen_tokens = set(generated_text.split())
+    exp_tokens = set(expected_answer.split())
 
-    # Sum log probabilities and normalize by length
-    total_log_prob = chosen_log_probs.sum()
-    normalized_error = -total_log_prob / response_len
+    if len(gen_tokens) == 0 or len(exp_tokens) == 0:
+        return 1.0
 
-    return normalized_error.item()
+    overlap = len(gen_tokens.intersection(exp_tokens))
+    max_tokens = max(len(gen_tokens), len(exp_tokens))
 
+    return 1.0 - (overlap / max_tokens)
 
 def compute_calibration_error(
-    predicted_probs: List[float],
-    actual_correct: List[bool],
-    bins: int = 10,
+    model: PreTrainedModel,
+    tokenizer: PreTrainedTokenizer,
+    question: str,
+    num_samples: int = 5
 ) -> float:
     """
-    Compute the Expected Calibration Error (ECE) for a set of predictions.
-
-    This metric measures the discrepancy between predicted confidence and
-    actual accuracy, addressing the over-confidence bias highlighted by
-    Daniel Kahneman's reviews on System 1 vs System 2 reasoning.
+    Compute a proxy for calibration error by measuring variance in log-probabilities
+    across multiple samples.
 
     Args:
-        predicted_probs: List of predicted probabilities (confidence scores) for each prediction.
-        actual_correct: List of booleans indicating whether each prediction was correct.
-        bins: Number of bins for calibration curve.
+        model: The transformer model.
+        tokenizer: The tokenizer.
+        question: The input question.
+        num_samples: Number of samples to generate.
 
     Returns:
-        float: The Expected Calibration Error (lower = better calibrated).
+        Average log-probability variance as a calibration error proxy.
     """
-    if len(predicted_probs) != len(actual_correct):
-        raise ValueError("predicted_probs and actual_correct must have the same length")
+    inputs = tokenizer(question, return_tensors="pt", truncation=True, max_length=512)
 
-    if len(predicted_probs) == 0:
+    log_probs = []
+
+    with torch.no_grad():
+        for _ in range(num_samples):
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=64,
+                do_sample=True,
+                temperature=0.7,
+                pad_token_id=tokenizer.eos_token_id,
+                return_dict_in_generate=True,
+                output_scores=True
+            )
+
+            # Extract scores (logits) and convert to log probs
+            scores = outputs.scores
+            if len(scores) > 0:
+                # Average log prob across generated tokens
+                avg_log_prob = torch.stack(scores).mean().item()
+                log_probs.append(avg_log_prob)
+
+    if len(log_probs) < 2:
         return 0.0
 
-    # Convert to tensors for easier computation
-    probs = torch.tensor(predicted_probs)
-    correct = torch.tensor(actual_correct, dtype=torch.float32)
+    # Variance as calibration proxy
+    mean_lp = sum(log_probs) / len(log_probs)
+    variance = sum((lp - mean_lp) ** 2 for lp in log_probs) / len(log_probs)
 
-    # Create bin edges
-    bin_edges = torch.linspace(0, 1, bins + 1)
-    ece = 0.0
-    total_samples = len(probs)
-
-    for i in range(bins):
-        lower, upper = bin_edges[i], bin_edges[i + 1]
-        mask = (probs >= lower) & (probs < upper)
-        if i == bins - 1:  # Include upper bound for last bin
-            mask = (probs >= lower) & (probs <= upper)
-
-        bin_count = mask.sum().item()
-        if bin_count == 0:
-            continue
-
-        bin_accuracy = correct[mask].mean().item()
-        bin_confidence = probs[mask].mean().item()
-
-        ece += (bin_count / total_samples) * abs(bin_accuracy - bin_confidence)
-
-    return ece
-
+    return variance
 
 def compute_ngram_overlap(
     text1: str,
     text2: str,
-    n: int = 2,
+    n: int = 2
 ) -> float:
     """
-    Compute the n-gram overlap ratio between two texts.
-
-    Used to detect degenerate dialogues where the model repeats itself
-    or fails to generate novel content (threshold > 0.9 triggers truncation).
+    Compute n-gram overlap (Jaccard similarity) between two texts.
 
     Args:
-        text1: First text string.
-        text2: Second text string.
-        n: N-gram size (default 2 for bigrams).
+        text1: First text.
+        text2: Second text.
+        n: N-gram size.
 
     Returns:
-        float: Jaccard similarity coefficient of n-gram sets (0.0 to 1.0).
+        Jaccard similarity score between 0 and 1.
     """
     def get_ngrams(text: str, n: int) -> set:
-        words = text.lower().split()
-        return {
-            " ".join(words[i : i + n])
-            for i in range(len(words) - n + 1)
-        }
+        tokens = text.lower().split()
+        if len(tokens) < n:
+            return set()
+        return set(
+            ' '.join(tokens[i:i+n])
+            for i in range(len(tokens) - n + 1)
+        )
 
     ngrams1 = get_ngrams(text1, n)
     ngrams2 = get_ngrams(text2, n)
 
-    if not ngrams1 and not ngrams2:
-        return 1.0
-    if not ngrams1 or not ngrams2:
+    if len(ngrams1) == 0 or len(ngrams2) == 0:
         return 0.0
 
-    intersection = ngrams1 & ngrams2
-    union = ngrams1 | ngrams2
+    intersection = ngrams1.intersection(ngrams2)
+    union = ngrams1.union(ngrams2)
 
     return len(intersection) / len(union)
-
-
-class MetricCalculator:
-    """
-    A utility class for computing various metrics required by the Socratic
-    dialogue system, including prediction error proxies and calibration metrics.
-    """
-
-    def __init__(self, model: PreTrainedModel, tokenizer: PreTrainedTokenizer, device: Optional[torch.device] = None):
-        """
-        Initialize the metric calculator with a model and tokenizer.
-
-        Args:
-            model: The transformer model.
-            tokenizer: The tokenizer.
-            device: Optional device for computation.
-        """
-        self.model = model
-        self.tokenizer = tokenizer
-        self.device = device or model.device
-
-    def compute_error_proxy(self, prompt: str, response: str) -> float:
-        """
-        Compute the prediction error proxy for a (prompt, response) pair.
-
-        Args:
-            prompt: Input prompt text.
-            response: Generated response text.
-
-        Returns:
-            float: Normalized negative log-likelihood.
-        """
-        return compute_prediction_error_proxy(
-            self.model, self.tokenizer, prompt, response, self.device
-        )
-
-    def compute_calibration_error(
-        self,
-        predicted_probs: List[float],
-        actual_correct: List[bool],
-        bins: int = 10,
-    ) -> float:
-        """
-        Compute the Expected Calibration Error.
-
-        Args:
-            predicted_probs: List of confidence scores.
-            actual_correct: List of correctness booleans.
-            bins: Number of bins.
-
-        Returns:
-            float: Expected Calibration Error.
-        """
-        return compute_calibration_error(predicted_probs, actual_correct, bins)
-
-    def compute_ngram_overlap(self, text1: str, text2: str, n: int = 2) -> float:
-        """
-        Compute n-gram overlap between two texts.
-
-        Args:
-            text1: First text.
-            text2: Second text.
-            n: N-gram size.
-
-        Returns:
-            float: Jaccard similarity.
-        """
-        return compute_ngram_overlap(text1, text2, n)

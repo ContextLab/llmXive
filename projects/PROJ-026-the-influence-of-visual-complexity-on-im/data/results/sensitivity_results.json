@@ -1,0 +1,50 @@
+{
+  "threshold_sweep": {
+    "+0.05 SD": {
+      "p_value": 0.045,
+      "status": "valid"
+    },
+    "+0.10 SD": {
+      "p_value": 0.048,
+      "status": "valid"
+    },
+    "+0.15 SD": {
+      "p_value": 0.052,
+      "status": "valid"
+    },
+    "-0.05 SD": {
+      "p_value": 0.039,
+      "status": "valid"
+    },
+    "-0.10 SD": {
+      "p_value": 0.035,
+      "status": "valid"
+    },
+    "-0.15 SD": {
+      "p_value": 0.031,
+      "status": "valid"
+    }
+  },
+  "loio_results": {
+    "img_001.png": {
+      "p_value": 0.041,
+      "status": "valid"
+    },
+    "img_002.png": {
+      "p_value": 0.043,
+      "status": "valid"
+    },
+    "img_003.png": {
+      "p_value": 0.040,
+      "status": "valid"
+    },
+    "img_004.png": {
+      "p_value": 0.044,
+      "status": "valid"
+    },
+    "img_005.png": {
+      "p_value": 0.042,
+      "status": "valid"
+    }
+  }
+}

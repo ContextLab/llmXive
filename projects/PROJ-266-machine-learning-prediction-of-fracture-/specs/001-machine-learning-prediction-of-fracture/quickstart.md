@@ -1,99 +1,66 @@
 # Quickstart: Machine Learning Prediction of Fracture Toughness from Microstructure Images
 
 ## Prerequisites
-
-*   Python 3.11+
-*   Git
-*   (Optional) A dataset containing:
-    *   A CSV file with columns: `image_path`, `k_ic`, `alloy_family`.
-    *   A folder containing the images referenced in the CSV.
+- Python 3.11+
+- Git
+- Access to a Linux environment (GitHub Actions or local Linux)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-266-machine-learning-prediction-of-fracture-/
-    ```
+1. **Clone the repository**
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-266-machine-learning-prediction-of-fracture-
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins CPU-only versions of PyTorch and `captum` for InputXGrad.*
-
-## Data Preparation
-
-### Option A: Synthetic Data (Recommended for Reproducibility)
-Generate a synthetic dataset of images:
-```bash
-python code/data/synthetic_gen.py --output data/raw/ --count 2000
-```
-*Output*: `data/raw/images/` and `data/raw/labels.csv` with synthetic $K_{IC}$ values.
-
-### Option B: User-Provided Data
-Place your raw data in the `data/raw/` directory:
-*   `images/`: Folder containing `.png` or `.jpg` files.
-*   `labels.csv`: CSV file with columns `image_path`, `k_ic`, `alloy_family`.
-
-*Example `labels.csv`:*
-```csv
-image_path,k_ic,alloy_family
-images/steel_001.png,120.5,steel
-images/al_002.png,45.2,al
-```
+3. **Install dependencies**
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
 ## Running the Pipeline
 
-### 1. Preprocessing
-Convert images to 128x128 grayscale and split the dataset.
+### 1. Generate Synthetic Data
+Since no open real-world dataset for metallic alloy fracture toughness is available in the verified sources, the pipeline uses a synthetic generator to **simulate the upload scenario** described in User Story 1.
 ```bash
-python code/data/preprocess.py --input data/raw/labels.csv --output data/processed/
+cd code
+python data/synthetic_gen.py --output-dir ../data/raw --n-images [qualitative_quantity]
 ```
-*Output*: `data/processed/train/`, `data/processed/val/`, `data/processed/test/`, and `split_metadata.csv`.
+*This generates 2,000 synthetic microstructure images and a `metadata.csv`, simulating the upload of a real dataset.*
 
-### 2. Training & Evaluation
-Train the CNN and baselines (5 seeds).
+### 2. Preprocess Data
 ```bash
-python code/train/train_cnn.py --data data/processed/ --seeds 5
-python code/train/evaluate.py --data data/processed/ --results code/train/results.json
+python data/preprocess.py --input-dir ../data/raw --output-dir ../data/processed
 ```
-*Output*: `code/train/results.json` containing R², MAE, RMSE, and Permutation Test p-values.
+*This resizes images to 128x128, normalizes, and splits them into train/val/test sets stratified by alloy family.*
 
-### 3. Attribution & Stability
-Generate InputXGrad heatmaps and check stability.
+### 3. Train Models
 ```bash
-python code/explain/inputxgrad.py --model code/train/cnn_best.pt --data data/processed/test/
-python code/explain/stability.py --heatmaps data/explainability/
+python models/train.py --data-dir ../data/processed --seeds 0 1 2 3 4
 ```
-*Output*: Heatmaps in `data/explainability/` and a stability report.
+*Trains the CNN and baselines for multiple seeds. Outputs `results.json`.*
+
+### 4. Evaluate and Attribute
+```bash
+python eval/attribution.py --model-path ../models/cnn_best.pth --data-dir ../data/processed/test
+python eval/stability.py --heatmaps-dir ../data/explainability/heatmaps
+```
+*Generates Grad-CAM heatmaps and calculates IoU stability scores.*
 
 ## Verification
-
-Run the test suite to ensure the pipeline is working correctly:
+Run the test suite to ensure the pipeline is functioning correctly:
 ```bash
 pytest tests/
 ```
+*Expected output: All tests pass, including split validation and model architecture checks.*
 
-## Expected Output Structure
-
-```text
-data/
-├── raw/
-│   ├── images/
-│   └── labels.csv
-├── processed/
-│   ├── train/
-│   ├── val/
-│   ├── test/
-│   └── split_metadata.csv
-└── explainability/
-    ├── heatmap_img_001_seed_0.png
-    └── stability_report.json
-```
+## Troubleshooting
+- **Memory Error**: Ensure you are not loading the entire dataset into memory at once. Use streaming or batch processing.
+- **CUDA Error**: The pipeline is CPU-only. If you see CUDA errors, check `code/models/cnn.py` to ensure `device="cpu"` is set.
+- **Missing Data**: If `data/raw` is empty, re-run `synthetic_gen.py`.

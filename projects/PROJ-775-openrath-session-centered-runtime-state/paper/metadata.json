@@ -47,5 +47,15 @@
     "sections/07-00-compact-evidence-protocol.tex",
     "sections/09-00-scoped-limitations.tex",
     "sections/11-00-conclusion.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "84941d6ee86a9ce6772c3ab5e485a19c5307dcda6cc7b8fe326f27a3d3d7d5d4",
+      "bytes": 3019023
+    },
+    "original.pdf": {
+      "sha256": "9bfab35a4775808b83c58005121671c894bfa2762a7220daf8f3e3a9eb2a0780",
+      "bytes": 2985947
+    }
+  }
 }

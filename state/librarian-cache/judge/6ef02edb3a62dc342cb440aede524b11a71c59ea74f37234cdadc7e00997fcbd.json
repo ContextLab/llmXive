@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2511.07419",
+  "judged_at": "2026-09-30T18:41:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"redesign mixture-of-experts routers with manifold power iteration\" computer science",
+  "rationale": "This paper directly addresses the user's research question by proposing a method to improve Mixture-of-Experts (MoE) routers using manifold-based techniques (manifold alignment), which is the same core mechanism and domain as the user's follow-up to \"Redesign Mixture-of-Experts Routers with Manifold Power Iteration.\" It satisfies criteria (a) and (d) as it measures the same biological/algorithmic mechanism (router optimization via manifold geometry) and serves as a canonical reference for the sp",
+  "relevant": true
+}

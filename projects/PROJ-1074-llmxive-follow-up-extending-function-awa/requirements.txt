@@ -1,0 +1,9 @@
+transformers==4.36.0
+datasets==2.14.0
+scikit-learn==1.3.0
+torch==2.1.0+cpu
+networkx==3.2.1
+pytest==7.4.0
+scipy==1.11.0
+psutil==5.9.0
+pyyaml==6.0.1

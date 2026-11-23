@@ -1,88 +1,93 @@
 # Data Model: Investigating the Impact of Visual Complexity on Prefrontal Cortex Activity
 
-## Overview
+## 1. Overview
 
-This document defines the data structures, schemas, and relationships used in the project. It ensures consistency between the ingestion, processing, and analysis stages.
+This document describes the data structures used in the pipeline, focusing on the transformation from raw fMRI data (and synthetic stimuli) to final regression results.
 
-## Key Entities
+## 2. Entities
 
-### 1. Stimulus Complexity Record
+### 2.1. Stimulus Complexity Record
+Represents a single timepoint (TR) with computed complexity metrics and HRF-convolved scores.
 
-Represents a single stimulus frame with computed complexity metrics, confounds, and HRF-convolved scores.
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `tr_index` | int | Timepoint index (TR index). |
+| `entropy_regressor` | float | HRF-convolved Shannon entropy value at this TR. |
+| `fractal_regressor` | float | HRF-convolved fractal dimension value at this TR. |
+| `luminance_regressor` | float | HRF-convolved luminance value (covariate). |
+| `contrast_regressor` | float | HRF-convolved contrast value (covariate). |
+| `is_synthetic` | bool | Flag indicating if the source image was synthetic (True) or raw (False). |
 
-- **Attributes**:
-  - `frame_id`: Unique identifier for the frame (int).
-  - `timestamp`: Time of stimulus onset (float).
-  - `entropy_score`: Shannon entropy of the image (float).
-  - `fractal_dimension`: Fractal dimension of the image (float).
-  - `luminance`: Mean luminance of the image (float).
-  - `contrast`: RMS contrast of the image (float).
-  - `hrf_convolved_entropy`: Entropy convolved with HRF (float).
-  - `hrf_convolved_fractal`: Fractal dimension convolved with HRF (float).
-  - `hrf_convolved_luminance`: Luminance convolved with HRF (float).
-  - `hrf_convolved_contrast`: Contrast convolved with HRF (float).
+### 2.2. PFC Time-Series
+Represents the aggregated BOLD signal for the DLPFC region.
 
-### 2. Subject-Level GLM Result
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `timepoint` | int | Timepoint index (TR index). |
+| `bold_signal_mean` | float | Mean BOLD signal in DLPFC at this timepoint. |
+| `subject_id` | str | Subject identifier. |
 
-Represents the statistical output for a single subject after GLM fitting.
+### 2.3. Regression Result
+Represents the statistical output for a single subject or group-level analysis.
 
-- **Attributes**:
-  - `subject_id`: Identifier for the subject (str).
-  - `metric_name`: Name of the metric (e.g., "entropy", "fractal") (str).
-  - `beta_weight`: Estimated effect size from the GLM (float).
-  - `t_statistic`: T-statistic from the GLM (float).
-  - `p_value`: Raw p-value (float).
-  - `vif`: Variance Inflation Factor if calculated (float, optional).
-  - `model_type`: "multiple" or "univariate" (str).
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `correlation_coefficient` | float | Pearson's r. |
+| `p_value` | float | Raw p-value. |
+| `fdr_corrected_p` | float | FDR-corrected p-value. |
+| `permutation_p` | float | p-value from permutation test. |
+| `is_significant` | bool | True if p < 0.05 (after correction). |
 
-### 3. Group-Level Result
+## 3. File Formats
 
-Represents the aggregated statistical output across subjects.
+### 3.1. `data/interim/complexity_metrics.csv`
+- **Delimiter**: `,`
+- **Columns**: `tr_index`, `entropy_regressor`, `fractal_regressor`, `luminance_regressor`, `contrast_regressor`, `is_synthetic`
+- **Encoding**: UTF-8
+- **Note**: One row per TR. The HRF convolution produces a time-series aligned with the BOLD TRs. The `is_synthetic` flag indicates if the source was generated.
 
-- **Attributes**:
-  - `metric_name`: Name of the metric (str).
-  - `mean_beta`: Mean beta-weight across subjects (float).
-  - `std_beta`: Standard deviation of beta-weights (float).
-  - `t_statistic`: Group-level t-statistic (float).
-  - `p_value`: Raw p-value (float).
-  - `fdr_corrected_p`: FDR-corrected p-value (float).
-  - `permutation_p`: p-value from permutation test (float).
-  - `is_significant`: Boolean indicating significance (bool).
+### 3.2. `data/interim/pfc_timeseries.csv`
+- **Delimiter**: `,`
+- **Columns**: `timepoint`, `bold_signal_mean`, `subject_id`
+- **Encoding**: UTF-8
 
-## File Formats
+### 3.3. `data/processed/results.json`
+- **Format**: JSON array of `RegressionResult` objects.
+- **Structure**:
+```json
+[
+  {
+    "subject_id": "sub-01",
+    "entropy": {
+      "correlation_coefficient": 0.12,
+      "p_value": 0.04,
+      "fdr_corrected_p": 0.08,
+      "permutation_p": 0.03,
+      "is_significant": true
+    },
+    "fractal": {
+      "correlation_coefficient": -0.05,
+      "p_value": 0.35,
+      "fdr_corrected_p": 0.35,
+      "permutation_p": 0.40,
+      "is_significant": false
+    }
+  }
+]
+```
 
-### 1. Input Data
+## 4. Data Lineage
 
-- **BOLD Data**: NIfTI format (`.nii` or `.nii.gz`).
-- **Stimulus Logs**: JSON or TSV format.
-- **Atlas Mask**: NIfTI format (`.nii` or `.nii.gz`).
+1. **Raw**: OpenNeuro BOLD data + stimulus logs (`.nii.gz`, `.tsv`).
+2. **Synthetic (if triggered)**: Generated naturalistic images (`.png`) via `code/synthetic_stimuli.py`.
+3. **Interim**: 
+   - `complexity_metrics.csv` (derived from stimulus images [raw or synthetic] + HRF convolution).
+   - `pfc_timeseries.csv` (derived from BOLD data + AAL mask).
+4. **Processed**: `results.json` (derived from interim CSVs via regression).
 
-### 2. Intermediate Data
+## 5. Constraints
 
-- **Complexity Metrics**: CSV format.
-- **Subject-Level Beta-Weights**: CSV format.
-
-### 3. Output Data
-
-- **Results**: JSON format.
-- **Plots**: PNG format.
-
-## Data Flow
-
-1.  **Ingestion**: Download raw data from OpenNeuro ds000248.
-2.  **Processing**:
-    - Compute complexity metrics, luminance, and contrast for stimulus images.
-    - Convolve metrics with HRF.
-    - Extract PFC time-series from BOLD data.
-3.  **Analysis**:
-    - Fit Subject-Level GLM with AR(1) pre-whitening.
-    - Calculate VIF; determine if multiple or univariate models are needed.
-    - Perform Group-Level t-test on beta-weights.
-    - Run permutation tests.
-4.  **Output**: Save results and plots.
-
-## Data Integrity
-
-- **Checksums**: All raw data files are checksummed upon download.
-- **Immutability**: Raw data is never modified. All transformations produce new files.
-- **Versioning**: All data files are versioned with content hashes.
+- **Memory**: `complexity_metrics.csv` must be written in chunks to avoid loading all frames into memory at once.
+- **Integrity**: Checksums of raw data must match `data/metadata.yaml`. Synthetic generation parameters and seed must also be recorded.
+- **Null Handling**: Missing frames excluded; NaNs in fractal dimension replaced with 0 or flagged.
+- **Transformation Rule**: The HRF convolution produces a time-series aligned with the BOLD TRs. The CSV stores one row per TR with the scalar regressor value for that timepoint.

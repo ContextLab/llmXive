@@ -1,0 +1,173 @@
+T001:
+  task: 75911b335c43db1195c2d53b65707bf0faae8ace58a8c8979a619b65d0da2851
+T002:
+  task: 9c23f9380dff2019f0ecf7cd0affbafbc5cb21df56b8b31dc24a203d46f36b79
+T002b:
+  reason: "The execution log itself admits fabrication: it prints \"Synthesised success\
+    \ line: Successfully installed (dry-run) all requirements.\" rather than capturing\
+    \ real pip output, and the entire dry-run completed in 0.7s with no actual pip\
+    \ resolution output shown. The task requires the captured `pip install --dry-run\
+    \ -r requirements.txt` log showing a genuine \"Successfully installed \u2026\"\
+    \ line with no conflicts; no real pip output artifact (e.g., `results/requirements_check.txt`\
+    \ contents) was supplied as evidence, and the \"success\" line was synthesized\
+    \ by the script, not produced by pip."
+  task: af22df937c58a4d5e0327c722a519cb45a13a4f6447b482e0458141183e06ccd
+T003a:
+  reason: "The task requires creating a `.flake8` file containing `max-line-length\
+    \ = 88`, but the evidence collection shows no artifact path was resolved and no\
+    \ file contents were provided \u2014 there is no on-disk evidence that `.flake8`\
+    \ exists or contains the required setting. The implementer must actually create\
+    \ the `.flake8` file (at the project root, `projects/PROJ-349-predicting-the-impact-of-ball-milling-on/.flake8`)\
+    \ with `max-line-length = 88`."
+  task: b88a977d230f3aa17192bf61e774277541c07870ab2935208b62336ffeece8c5
+T003b:
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/check_black.sh
+    exit=127'
+  task: 97cdc182e39ed3bfe6a3bdc94cd4fde3458379d32ccddd92811d446e7d3960b0
+T004:
+  task: 742d923df85f33b5a4e6f01111b0f9e04546657b02371180bfb7c2db7aa4aae6
+T005:
+  task: 08147498d7165e9d56a14648b20ba76e1715e3f1a9434a5de3d81b8c39227015
+T006:
+  reason: "The artifact `src/utils/logger.py` exists and exposes `get_logger(name)`\
+    \ with stdout StreamHandler and `set_log_level`, but the recorded execution evidence\
+    \ (`code/.tasks/T006.tests_unit_test_logger.py.log`) shows both verification tests\
+    \ FAILED: `test_logger_writes_to_stdout` and `test_logger_respects_set_log_level`\
+    \ both got empty captured stdout (exit 1, ok=False). The task's verification criterion\
+    \ \u2014 logger writes messages to stdout with configurable level \u2014 is demonstrably\
+    \ not met; the implementer must fix the handler/stdout binding (likely the handler\
+    \ is attached to a stale `sys.stdout` or t"
+  task: 56a1e878ba23b36f1046e71d3bc66a5beac802c7ce7f8c1943ced255c51f4bfd
+T007a:
+  task: 7bd9fb34291b42161a49604febd3b6424065a14d12c764fa0e768dee631c1e31
+T007b:
+  reason: "The `validate(df)` function exists and does raise `jsonschema.ValidationError`\
+    \ on row violations, but there is no evidence that `contracts/dataset.schema.yaml`\
+    \ (which `load_schema` requires and without which `validate` fails with `FileNotFoundError`)\
+    \ exists, and no execution/test evidence demonstrating the required verification\
+    \ behavior \u2014 that the function actually raises on mismatched rows. The module\
+    \ docstring itself admits the prior implementation never raised, so a demonstrated\
+    \ passing check (e.g., a test or run log) is essential; provide the schema file\
+    \ and evidence of a successful mismat"
+  task: d860bd943d39f754b5986a3187a1416d81a1855906f7c1eb3fac860da38393a0
+T008:
+  task: 1514134eff96a62bdf085df8831b185db521e311af9b3a259819ccd91823546a
+T009:
+  task: 3dc314d10e815a30b296e1fab9a175f4f2407a1d6ecc606e83a4736b44d8c531
+T009b:
+  task: 5a00e9b153ab25cc3f8a7a9ba4d3bdb8882c9294ac78b7ca15d8be82db85e6a6
+T012:
+  task: 9409afd0dd636d20298c4595fc3049e6d2910e548dd60fa3418fcaf6005088ca
+T013:
+  reason: "The module's `NIST_DATA_URL` points to the seaborn iris dataset on GitHub\
+    \ (the code itself admits \"not a NIST-specific ball-milling dataset\"), and `process_data`\
+    \ arbitrarily maps iris's numeric columns (sepal length, etc.) onto `milling_speed`,\
+    \ `d10`, `d90`, etc. \u2014 fabricated stand-in data, not NIST repository data.\
+    \ The task requires a NIST repository downloader that parses NIST CSV/JSON into\
+    \ a DataFrame; the implementer substituted an unrelated public CSV and relabeled\
+    \ its columns, which does not satisfy the requirement."
+  task: 322c147d27974a5bd62ef34b4b80d596cd58f747dc8b7f3797a6277ad80aba2a
+T013b:
+  task: 591d5a7fed0fdb2d7691812aa1f1e5d31674220108cc330a8c8353b1f3be78d0
+T014a:
+  task: e253126d8245a85c2f1cb19b3daf00666687964aaa0c0dff5602f54476cc5848
+T014b:
+  task: 688b0fd0854a9342c17c699604c0be7cb0301addaf1baa49738ac064db65417f
+T014c:
+  task: 6d4382ba9606e199b2253f96b5489c73d1dddf6842e320abbc32585e2e72518a
+T015a:
+  task: 30aa5b601daf8b1887da4609c1c2df8aa71b29c73a4721ceb17a53c73c8ae778
+T016a:
+  task: 5b6bf0b7cb845c4ddadae8cf09e5e110f28bd4d7a41b2e094bf05a1290050639
+T016b:
+  task: d55d02975192bd419766bb95ffa949b33e22e2cd8bbf62e772230f0630b39b9c
+T016c:
+  task: 61ac68d6cdddf06c12464601970cc811e167b543e98692198f3d9966ad01f238
+T016e:
+  reason: 'Requested task execution failed; rerun successfully: code/src/ingest/process_duration_extractor.py
+    exit=1'
+  task: 6276cbb1d07e2526d73ddf34d2f33a7bbb0690272153b49cfccdf583a1ca3b8a
+T017a:
+  task: 62f87dd9fddb01bc473337cfc9e679bc380cfdc219bd4e3763c2793827ed8dcf
+T017b:
+  task: 21eff770308f5089ec52bfdf4f555391b82b1ec6e3efc137c22a82f3abf6984a
+T020:
+  task: f5a50e578b4f318359823a4151dc37f2e14b5fddd6602dda0d662d48e4e05dbb
+T023:
+  task: 861d8f6d683bead3da8b556eb7f546e2448423420e25209b9b63c53c4278e36a
+T024:
+  task: bbf6b58bd5d0dcaa743b1be21b7198a55e8aed46e081cf7a423af6a83d291a51
+T025:
+  task: 2a12b3e62d67cb91c5e9b530d0badf8c22b7e20e17ace2a1f57c89186bdb08b8
+T026:
+  task: 44fc382524b22b3dcf47cf683c201710e596ec1901afbb4e617595fe1ef55820
+T026b:
+  task: 10e36983d181fc92c77c08115552537013641f840ef83e26a59976e7402e0c71
+T027:
+  task: 22eac2ca6f775b8a3f314f7492b35bdcbf294a6b691a8fe45042ffa5acb0b1b0
+T028a:
+  task: ba7fba3abc900f47a616d75b81a300c7939c9a7fd85a9972b79483d6fbc320f5
+T028b:
+  task: cea41d9c304e63aee45629e63e36ec6923613b6b216ae1b107835b39e40b16a7
+T029a:
+  task: 5102c7cc551746fe55dda54aa587be76a9359f8897ae597a0db433a15498385c
+T029b:
+  task: 0685db8bdae047ed6c8040e3860bc8327466fbeb4a8018d408b7a840603eae6d
+T030:
+  task: 86f1677a2cc10f14642bfeb6dfa6b7d516cb9636c0a9297587e17a225291184d
+T033:
+  task: 12f1ce18aee6d0cc19fbcbb5cb27377962ab6b62e58316e283f63e9fdbd6f2cb
+T034:
+  task: bda8364ceccc1c1099eacf343acdab4eeb5e39cd79d68ad6e86c90204c44005d
+T035:
+  task: d1d29f5eba6c06b796715d0d906298f0b3397e99851c09ebd202329a0b4cebd1
+T036:
+  task: cda7e84021adb3f2065d107e15e7a8e19b9918bce040df797e16f82eb8f471da
+T037:
+  task: 1baaf3abaef07026889dec9e4778f1d67f8e0868ff90e7e4aa236ae7cfa3b03b
+T038:
+  task: bedac967f36cbb25e22caf9179dacb04917760984961e874c9f61ca1c74d9e1f
+T039:
+  task: 57decfb56fad5f4443516181af4a059b9ea44df21f4bbf9b983133e65e37998c
+T040:
+  task: e83f602d38668b6d6f24d88d27cfd68a59953337379f1f09bb7ea6055769f927
+T041:
+  task: 5efe6b1565bf2af186e698429d514773605a584e54e6d15fff021c91065e487b
+T042:
+  task: 4e60a51bcd2fc187dc59d669e1dc941d79f255d5900efba4a12a72de6e040da5
+T043:
+  task: ccfe0180b9b2100c0c882c8804ba741884aa6c746983305c525bc2650e8e4f0f
+T044:
+  task: 3e3b36a37ebb2276b829cba9ae12007ab4d30ec2d8c4b0495cf9f0edf68eb0ef
+T053:
+  task: e6068678e4301efc5ced03a8a8511764b56b49096b77f1195f8b882babeb4ef4
+T054:
+  task: 832cfaf66d17cf9d3861452e17944651fac940a4a79d45966868df9402209a86
+T055:
+  task: 33c1d82988c9d364d282448475c7070056f05b34423f5f986aa13b7fb29a93f4
+T056:
+  task: aed457fdd7abe5704dddb81a5548e5b2e9868149db32ed5afedf3cbdb048e54e
+T057:
+  task: d3d58e2589269f6645be684cc8f5e02c75f5bf664677f3f4c5936ac5f4dca781
+T058:
+  task: fdf385eef923b026df044f097377fe9e562a22a416309bf34f31109a0cc746a2
+T060:
+  task: 67629151cf6a041b70adb24db31494e949dd57df083cd52ff976a02f1c4b621b
+T061:
+  task: fecf6ea2da6c702d42b7611366a56397ca404e32c465123fe98a4e177ea00f5e
+T062:
+  task: 12153b7f2216cc23929b192ff6af09deeec8b56f630a4a58e598ed1a703c7ea1
+T063:
+  task: 912710d75e6d2a2169a909a5a14bd93f993869214659c7a109f0db1f2b07cfcc
+T067:
+  task: 213f3731ec59d80e08973f69423950e799891a3835872227a6db783a63f9d493
+T068:
+  task: e226dca25ce514c2bd7284b42d15fdc7fb4cd38ace095aac42c4d19f87b02e87
+T069:
+  task: 364ea87856970fa33092c45a8f33d9c1f46004efa8a8f8c7d6e45157a24c0a4e
+T070:
+  task: 6fd9a2e99901e429d31b636f1fc5f64b44405fe50f4c46d5375bdd80f5400dbf
+T071:
+  task: 4039ab39ca14c5bc13d344392104d84f2137055613f3eeec050c69218216453b
+T072:
+  task: 04bce0e397412fca5f4f63d4006539f51da6a5418cfd369f59c5c2658be41b26

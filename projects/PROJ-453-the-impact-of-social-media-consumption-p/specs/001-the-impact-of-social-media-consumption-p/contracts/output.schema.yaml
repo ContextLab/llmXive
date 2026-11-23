@@ -1,0 +1,55 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Regression Model Output Schema"
+description: "Schema for the JSON output of the regression analysis."
+type: object
+properties:
+  model_id:
+    type: string
+    description: "Unique ID for the model run."
+  r_squared:
+    type: number
+    description: "Coefficient of determination."
+  coefficients:
+    type: object
+    description: "Map of predictor name to beta coefficient."
+    additionalProperties:
+      type: number
+  p_values:
+    type: object
+    description: "Map of predictor name to raw p-value."
+    additionalProperties:
+      type: number
+  p_values_corrected:
+    type: object
+    description: "Map of predictor name to FDR-corrected p-value."
+    additionalProperties:
+      type: number
+  vif_scores:
+    type: object
+    description: "Map of predictor name to VIF score."
+    additionalProperties:
+      type: number
+  interaction_significant:
+    type: boolean
+    description: "True if interaction term p-value < 0.05."
+  collinearity_flag:
+    type: boolean
+    description: "True if any VIF > 5 or correlation > 0.7."
+  residualized_model_used:
+    type: boolean
+    description: "True if the residualized model was used to mitigate mathematical coupling."
+  interpretation:
+    type: string
+    description: "Associational interpretation of the results. MUST NOT contain causal language (e.g., 'causes', 'leads to')."
+    pattern: "^(?!.*causes)(?!.*leads to)(?!.*impacts)(?!.*causally)(?!.*results in)(?!.*determines).*$"
+required:
+  - model_id
+  - r_squared
+  - coefficients
+  - p_values
+  - p_values_corrected
+  - vif_scores
+  - interaction_significant
+  - collinearity_flag
+  - residualized_model_used
+  - interpretation

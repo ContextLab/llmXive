@@ -1,119 +1,68 @@
 # Data Model: Self-improving LLM: recursive architecture refinement and re‑training
 
-## Overview
+## 1. Overview
 
-This document defines the data structures used to track the state of the recursive refinement pipeline. All data is persisted to `results/` and `data/` directories in JSON/YAML format to ensure reproducibility (Constitution Principle I).
+This document defines the data structures used to track the state of the recursive refinement pipeline. All data is persisted to `results/` and `data/` directories. The model ensures that every artifact can be traced back to a specific cycle and configuration.
 
-## Core Entities
+## 2. Core Entities
 
-### 1. ModelCheckpoint
+### 2.1 ModelCheckpoint
+Represents the state of the model at the end of a cycle.
+- `cycle_number`: int
+- `parameter_count`: int (total parameters after modification)
+- `architecture_modification`: str (description of the change)
+- `training_time`: float (seconds)
+- `flops`: float (total FLOPs consumed during training)
+- `model_path`: str (relative path to saved weights)
+- `training_subset_size`: int (number of samples used, e.g., 10000 or 1000)
 
-Represents a specific version of the model at a given cycle.
+### 2.2 PerformanceMetric
+Represents the evaluation results for a specific benchmark.
+- `cycle_number`: int
+- `benchmark_name`: str (`GSM8K`, `ARC-Challenge`, `BoolQ`)
+- `accuracy_or_ECE`: float (accuracy for GSM8K/ARC, ECE for BoolQ)
+- `p_value_vs_predecessor`: float (or null for Cycle 0)
+- `confidence_interval_lower`: float
+- `confidence_interval_upper`: float
+- `effect_size_cohen_d`: float (added for low-power analysis)
+- `samples_evaluated`: int (100 for GSM8K/ARC, 1000 for BoolQ)
 
-```json
-{
-  "cycle_number": 1,
-  "base_model": "gpt2-124m",
-  "modification_type": "add_layer",
-  "modification_details": {
-    "added_layers": 2,
-    "added_params": 12000000
-  },
-  "pre_modification_params": 124000000,
-  "post_modification_params": 136000000,
-  "parameter_increase_pct": 9.68,
-  "training_time_seconds": 3600,
-  "flops_total": 1.2e12,
-  "path_to_weights": "data/models/cycle_1_weights.bin",
-  "seed": 42
-}
-```
+### 2.3 RefinementCycle
+Aggregates all data for a single iteration.
+- `cycle_number`: int
+- `pre_modification_params`: int
+- `post_modification_params`: int
+- `training_duration`: float
+- `evaluation_results`: list of `PerformanceMetric`
+- `success_status`: bool (True if training completed, False if failed after retries)
+- `modification_rejected`: bool (if oracle rejected the proposal)
+- `is_control_cycle`: bool (True if this was a random modification control)
 
-### 2. PerformanceMetric
+### 2.4 TrajectorySummary
+Aggregated results for the entire experiment.
+- `cycles_completed`: int
+- `baseline_metrics`: dict (Cycle 0 metrics)
+- `trajectory_data`: list of `RefinementCycle`
+- `linear_regression`: dict (`slope`, `intercept`, `r_squared`, `trend_direction`)
+- `trade_off_metrics`: list of dict (`cycle`, `perf_per_flop`, `perf_per_hour`)
+- `capacity_analysis`: dict (`correlation_params_perf`, `control_cycle_result`)
 
-Represents the evaluation results for a single benchmark at a specific cycle.
+## 3. Data Flow
 
-```json
-{
-  "cycle_number": 1,
-  "benchmark_name": "GSM8K",
-  "accuracy": 0.234,
-  "samples_evaluated": 100,
-  "p_value_vs_baseline": 0.042,
-  "is_significant": true,
-  "bootstrapped_ci_lower": 0.220,
-  "bootstrapped_ci_upper": 0.248
-}
-```
+1. **Input**: `config.py` (hyperparameters), `data/raw/*` (datasets).
+2. **Process**:
+   - `pipeline/trainer.py` generates `ModelCheckpoint` data.
+   - `pipeline/evaluator.py` generates `PerformanceMetric` data.
+   - `pipeline/trajectory.py` aggregates into `TrajectorySummary`.
+3. **Output**:
+   - `results/logs/cycle_N.log` (JSON log per cycle).
+   - `results/trajectory.json` (final summary).
+   - `data/processed/cycle_N_checkpoint.pt` (model weights).
 
-### 3. RefinementCycle
+## 4. Constraints & Validation
 
-Aggregates all data for a single iteration of the pipeline.
-
-```json
-{
-  "cycle_number": 1,
-  "status": "success",
-  "start_time": "2026-06-16T10:00:00Z",
-  "end_time": "2026-06-16T11:45:00Z",
-  "model_checkpoint": { ... },
-  "evaluation_results": [
-    { ... }, // PerformanceMetric for GSM8K
-    { ... }, // PerformanceMetric for ARC
-    { ... }  // PerformanceMetric for ECE
-  ],
-  "resource_usage": {
-    "peak_ram_gb": 6.2,
-    "total_flops": 1.2e12
-  },
-  "modification_proposal": "Add 2 transformer layers...",
-  "modification_validation": "valid"
-}
-```
-
-### 4. TrajectorySummary
-
-The final aggregated output for the 3-cycle experiment (or single cycle if scaling study fails).
-
-```json
-{
-  "experiment_id": "PROJ-561-001",
-  "cycles_completed": 1,
-  "trajectory": [
-    { "cycle": 0, "gsm8k": 0.150, "arc": 0.300, "ece": 0.450 },
-    { "cycle": 1, "gsm8k": 0.160, "arc": 0.310, "ece": 0.440 }
-  ],
-  "decay_model_fit": {
-    "formula": "y = a * e^(-bx) + c",
-    "params": { "a": 0.1, "b": 0.5, "c": 0.16 },
-    "plateau_cycle": null,
-    "degradation_cycle": null
-  },
-  "trade_off_metrics": {
-    "cycle_1": { "perf_per_flop": 1.2e-10, "perf_per_hour": 0.15 }
-  },
-  "dataset_status": {
-    "openwebtext": "loaded",
-    "gsm8k": "loaded",
-    "arc_challenge": "loaded",
-    "wikitext2": "loaded"
-  },
-  "pipeline_status": "success"
-}
-```
-
-**Note**: If any dataset fails to load, the `pipeline_status` is set to "failed_data", and the `trajectory` array contains only the baseline (cycle 0) or previous successful cycles. No synthetic data is recorded for any part of the experiment.
-
-## Data Flow
-
-1.  **Input**: `spec.md` (defines constraints), `constitution.md` (defines rules).
-2.  **Download**: Datasets loaded to `data/raw/`. Checksums recorded.
-    *   **Fail-Fast**: If OpenWebText, GSM8K, ARC, or Wikitext-2 fails to load, terminate immediately.
-3.  **Cycle Loop**:
-    *   Load `ModelCheckpoint` (or base).
-    *   Generate `modification_proposal` (using training loss only).
-    *   Validate modification (parameter count).
-    *   Train -> Update `ModelCheckpoint`.
-    *   Evaluate -> Generate `PerformanceMetric`.
-    *   Store `RefinementCycle` in `results/logs/cycle_N.json`.
-4.  **Output**: Aggregate all cycles into `results/trajectory.json`.
+- **Parameter Count**: `post_modification_params` must be ≤ 1.3 * `baseline_params` (FR-003).
+- **Distinctness**: `architecture_modification` must differ from previous cycles by Hamming distance ≥ 1 or >5% parameter change (FR-002).
+- **Precision**: All floating point metrics stored with ≥3 decimal places.
+- **Uniqueness**: Each `cycle_number` is unique within a run.
+- **Sample Sizes**: `samples_evaluated` must match the plan (100 for GSM8K/ARC, 1000 for BoolQ).

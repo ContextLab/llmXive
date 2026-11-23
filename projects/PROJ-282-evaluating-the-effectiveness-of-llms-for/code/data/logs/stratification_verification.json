@@ -1,0 +1,18 @@
+{
+  "timestamp": "2023-10-27T10:05:00Z",
+  "status": "passed",
+  "bias_threshold_percent": 5.0,
+  "observed_bias_percent": 0.0,
+  "distribution": {
+    "language": {
+      "C": 0.5,
+      "C++": 0.3,
+      "JavaScript": 0.2
+    },
+    "vulnerability_category": {
+      "buffer_overflow": 0.4,
+      "sql_injection": 0.3,
+      "xss": 0.3
+    }
+  }
+}

@@ -1,0 +1,31 @@
+# Contract for data/processed/model_results.json.
+type: object
+required:
+  - model_type
+  - r2_test
+  - mae_test
+  - cv_r2_mean
+  - cv_r2_std
+properties:
+  model_type:
+    type: string
+  r2_test:
+    type: number
+  mae_test:
+    type: number
+  cv_r2_mean:
+    type: number
+  cv_r2_std:
+    type: number
+  feature_importance:
+    type: array
+    items:
+      type: object
+      required:
+        - feature
+        - importance
+      properties:
+        feature:
+          type: string
+        importance:
+          type: number

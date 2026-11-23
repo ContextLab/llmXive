@@ -1,0 +1,59 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: StatisticalMetric Schema
+description: Schema for the extracted_metrics.csv file containing statistical values.
+type: object
+properties:
+  metric_id:
+    type: string
+    description: "Unique identifier for the metric"
+  pair_id:
+    type: string
+    description: "Foreign key to MatchedPaperPair"
+  version:
+    type: string
+    enum:
+      - preprint
+      - journal
+    description: "Version of the paper"
+  metric_type:
+    type: string
+    enum:
+      - p-value
+      - effect_size
+      - sample_size
+    description: "Type of metric"
+  value:
+    type: number
+    nullable: true
+    description: "Numeric value (nullable if inequality)"
+  inequality_flag:
+    type: boolean
+    description: "True if value is an inequality"
+  interval_lower:
+    type: number
+    nullable: true
+    description: "Lower bound of interval (if inequality)"
+  interval_upper:
+    type: number
+    nullable: true
+    description: "Upper bound of interval (if inequality)"
+  stat_method:
+    type: string
+    description: "Statistical method (e.g., t-test, regression)"
+  n_sample:
+    type: integer
+    minimum: 1
+    description: "Sample size"
+  confidence_interval:
+    type: string
+    nullable: true
+    description: "CI string (e.g., 95% CI [0.5, 1.2])"
+required:
+  - metric_id
+  - pair_id
+  - version
+  - metric_type
+  - inequality_flag
+  - stat_method
+  - n_sample
+additionalProperties: false

@@ -1,72 +1,58 @@
-"""
-Script to run formatting (black/isort) and linting (flake8) checks.
-This script is intended to be run from the code/ directory.
-
-Usage:
-    python scripts/format_and_lint.py --check   # Run checks only (CI mode)
-    python scripts/format_and_lint.py           # Run formatting fixes
-"""
 import subprocess
 import sys
 import argparse
 from pathlib import Path
+from utils.logging_utils import get_logger
 
-def run_command(cmd: list[str], check: bool = False) -> bool:
-    """Run a shell command and return True if successful."""
-    print(f"Running: {' '.join(cmd)}")
+logger = get_logger(__name__)
+
+def run_command(cmd: list) -> bool:
+    """Run a command and return success status."""
     try:
-        result = subprocess.run(cmd, check=check)
+        result = subprocess.run(cmd, check=True)
         return result.returncode == 0
     except subprocess.CalledProcessError as e:
-        print(f"Command failed with return code {e.returncode}")
+        logger.error(f"Command failed: {e}")
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
         return False
 
 def main():
-    parser = argparse.ArgumentParser(description="Format and lint code")
-    parser.add_argument(
-        "--check",
-        action="store_true",
-        help="Run checks only without modifying files (CI mode)"
-    )
+    parser = argparse.ArgumentParser(description="Format and lint the project code.")
+    parser.add_argument("--fix", action="store_true", help="Fix formatting issues with black.")
+    parser.add_argument("--check", action="store_true", help="Only check formatting and linting (default).")
     args = parser.parse_args()
 
-    project_root = Path(__file__).parent.parent
-    os.chdir(project_root)
+    project_root = Path(__file__).resolve().parent.parent
+    code_dir = project_root / "code"
+    tests_dir = project_root / "tests"
 
-    print(f"Working in: {project_root}")
+    if args.fix:
+        logger.info("Fixing formatting with black...")
+        success = run_command([sys.executable, "-m", "black", str(code_dir), str(tests_dir)])
+        if success:
+            logger.info("Formatting fixed successfully.")
+        else:
+            logger.error("Failed to fix formatting.")
+            sys.exit(1)
+    
+    logger.info("Running flake8...")
+    flake8_success = run_command([sys.executable, "-m", "flake8", str(code_dir), str(tests_dir)])
+    
+    if not flake8_success:
+        logger.error("flake8 found issues. Please fix them manually.")
+        sys.exit(1)
 
-    if args.check:
-        # Check mode: verify formatting and linting
-        print("\n--- Running isort (check mode) ---")
-        if not run_command(["isort", "--check-only", "."], check=True):
-            print("ERROR: isort check failed. Run without --check to fix.")
-            return 1
+    logger.info("Running black check...")
+    black_success = run_command([sys.executable, "-m", "black", "--check", str(code_dir), str(tests_dir)])
+    
+    if not black_success:
+        logger.error("black found formatting issues. Run with --fix to fix them.")
+        sys.exit(1)
 
-        print("\n--- Running black (check mode) ---")
-        if not run_command(["black", "--check", "."], check=True):
-            print("ERROR: black check failed. Run without --check to fix.")
-            return 1
-
-        print("\n--- Running flake8 ---")
-        if not run_command(["flake8", "."], check=True):
-            print("ERROR: flake8 found issues.")
-            return 1
-
-        print("\n✅ All checks passed!")
-        return 0
-    else:
-        # Fix mode: apply formatting
-        print("\n--- Running isort ---")
-        run_command(["isort", "."])
-
-        print("\n--- Running black ---")
-        run_command(["black", "."])
-
-        print("\n--- Running flake8 (report only) ---")
-        run_command(["flake8", "."])
-
-        print("\n✅ Formatting complete. Please review flake8 output above.")
-        return 0
+    logger.info("All linting and formatting checks passed.")
+    sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

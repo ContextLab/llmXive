@@ -1,0 +1,201 @@
+{
+  "fetched_at": "2026-09-13T23:40:49Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Viscosity from Structural Features with Machine Learning",
+      "target_n": 5
+    },
+    "duration_seconds": 4535.337,
+    "ended_at": "2026-09-13T23:40:49Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "molecular fluid dynamics"
+        ],
+        [
+          2,
+          "viscosity prediction models"
+        ],
+        [
+          3,
+          "structure-property relationships viscosity"
+        ],
+        [
+          4,
+          "machine learning molecular properties"
+        ],
+        [
+          5,
+          "quantitative structure-property relationships viscosity"
+        ],
+        [
+          6,
+          "molecular descriptors viscosity"
+        ],
+        [
+          7,
+          "viscosity of liquids and solutions"
+        ],
+        [
+          8,
+          "computational viscosity"
+        ],
+        [
+          9,
+          "molecular simulation viscosity"
+        ],
+        [
+          10,
+          "intermolecular forces viscosity"
+        ],
+        [
+          11,
+          "machine learning for fluid properties"
+        ],
+        [
+          12,
+          "viscosity estimation"
+        ],
+        [
+          13,
+          "molecular dynamics viscosity"
+        ],
+        [
+          14,
+          "group contribution methods viscosity"
+        ],
+        [
+          15,
+          "free volume theory viscosity"
+        ],
+        [
+          16,
+          "polymer solution viscosity"
+        ],
+        [
+          17,
+          "liquid state theory viscosity"
+        ],
+        [
+          18,
+          "viscosity modeling"
+        ],
+        [
+          19,
+          "molecular viscosity correlations"
+        ],
+        [
+          20,
+          "machine learning chemical engineering properties"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Molecular Viscosity from Structural Features with Machine Learning chemistry": 0,
+        "computational viscosity": 0,
+        "free volume theory viscosity": 0,
+        "group contribution methods viscosity": 0,
+        "intermolecular forces viscosity": 0,
+        "liquid state theory viscosity": 0,
+        "machine learning chemical engineering properties": 0,
+        "machine learning for fluid properties": 0,
+        "machine learning molecular properties": 0,
+        "molecular descriptors viscosity": 0,
+        "molecular dynamics viscosity": 0,
+        "molecular fluid dynamics": 0,
+        "molecular simulation viscosity": 0,
+        "molecular viscosity correlations": 0,
+        "polymer solution viscosity": 0,
+        "quantitative structure-property relationships viscosity": 0,
+        "structure-property relationships viscosity": 0,
+        "viscosity estimation": 0,
+        "viscosity modeling": 0,
+        "viscosity of liquids and solutions": 0,
+        "viscosity prediction models": 1
+      },
+      "total_queries_issued": 20
+    },
+    "extracted_queries": [
+      "molecular dynamics viscosity prediction",
+      "QM9 dataset GNN molecular properties",
+      "graph neural network molecular descriptors",
+      "viscosity machine learning evaluation metrics",
+      "structure-property relationships molecular simulation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2409.15502"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Molecular Viscosity from Structural Features with Machine Learning chemistry": 0,
+      "QM9 dataset GNN molecular properties": 0,
+      "graph neural network molecular descriptors": 0,
+      "molecular dynamics viscosity prediction": 0,
+      "structure-property relationships molecular simulation": 0,
+      "viscosity machine learning evaluation metrics": 0
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-13T22:25:13Z",
+    "term_input": {
+      "normalized": "predicting molecular viscosity from structural features with machine learning chemistry",
+      "raw": "Predicting Molecular Viscosity from Structural Features with Machine Learning chemistry"
+    },
+    "verification_failures": [],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fabio Peluso"
+          ],
+          "title": "The Viscosity of Liquids in the Dual Model",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.15502",
+        "summary": "A reliable model of viscosity in liquids using a dual liquid model framework is developed. The analytical expression arrived at exhibits the correct T-dependence Arrhenius-like. It is compared with the values of viscosity for water with acceptable accuracy and those related to the mechano-thermal effect in liquids under low-frequency shear. It has even been shown that a numerical approach of viscosity in liquids dealt with as dual systems provides good agreement with experimental data. The expression of viscosity shows an explicit dependence upon the sound velocity and the collective vibratory degrees of freedom excited at a given temperature. The terms involved depend upon the Boltzmann and Planck constants. Finally, the physical model is coherent with the postulate of microscopic reversibility as well as with the time's arrow for macroscopic dissipative mechanisms.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2409.15502",
+          "http_status": 200,
+          "pdf_sample_score": 0.1945,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-13T23:15:05Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular viscosity from structural features with machine learning chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

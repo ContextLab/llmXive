@@ -1,195 +1,168 @@
 """
-Unit tests for src/scripts/hygiene_check.py
-"""
+Unit tests for the hygiene_check.py script.
 
-import hashlib
+These tests verify:
+- SHA-256 computation for known files
+- Directory scanning logic
+- Manifest generation
+"""
 import os
 import tempfile
+import hashlib
+import yaml
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 import pytest
+from unittest.mock import patch, MagicMock
 
 # Import the functions to test
-# We need to import the module directly to access internal helpers
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from src.scripts.hygiene_check import compute_sha256, scan_raw_data_directory, write_manifest
 
-from src.scripts.hygiene_check import (
-    compute_sha256,
-    scan_raw_data_directory,
-    generate_hygiene_report,
-    write_hygiene_report
-)
-
-
-class TestComputeSha256:
-    def test_hash_of_known_string(self, tmp_path):
-        """Test SHA256 calculation on a known file content."""
-        test_file = tmp_path / "test.txt"
-        content = b"Hello, World!"
-        test_file.write_bytes(content)
-
-        expected_hash = hashlib.sha256(content).hexdigest()
-        actual_hash = compute_sha256(test_file)
-
-        assert actual_hash == expected_hash
-
-    def test_hash_of_empty_file(self, tmp_path):
-        """Test SHA256 calculation on an empty file."""
-        test_file = tmp_path / "empty.txt"
-        test_file.write_bytes(b"")
-
+class TestHygieneCheck:
+    
+    @pytest.fixture
+    def temp_dir(self):
+        """Create a temporary directory structure for testing."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            tmp_path = Path(tmpdir)
+            
+            # Create subdirectories
+            (tmp_path / "subdir1").mkdir()
+            (tmp_path / "subdir2").mkdir()
+            
+            # Create test files with known content
+            test_files = {
+                "file1.txt": b"Hello, World!",
+                "subdir1/file2.txt": b"Test content 1",
+                "subdir2/file3.txt": b"Test content 2",
+                ".hidden_file": b"Should be ignored"
+            }
+            
+            for rel_path, content in test_files.items():
+                file_path = tmp_path / rel_path
+                file_path.write_bytes(content)
+            
+            yield tmp_path
+    
+    def test_compute_sha256(self, temp_dir):
+        """Test SHA-256 computation against known values."""
+        file_path = temp_dir / "file1.txt"
+        expected_hash = hashlib.sha256(b"Hello, World!").hexdigest()
+        
+        computed_hash = compute_sha256(file_path)
+        
+        assert computed_hash == expected_hash
+        assert len(computed_hash) == 64  # SHA-256 hex length
+    
+    def test_compute_sha256_empty_file(self, temp_dir):
+        """Test SHA-256 computation on an empty file."""
+        empty_file = temp_dir / "empty.txt"
+        empty_file.write_bytes(b"")
+        
         expected_hash = hashlib.sha256(b"").hexdigest()
-        actual_hash = compute_sha256(test_file)
-
-        assert actual_hash == expected_hash
-
-    def test_binary_file(self, tmp_path):
-        """Test SHA256 calculation on a binary file."""
-        test_file = tmp_path / "binary.bin"
-        content = bytes(range(256))
-        test_file.write_bytes(content)
-
-        expected_hash = hashlib.sha256(content).hexdigest()
-        actual_hash = compute_sha256(test_file)
-
-        assert actual_hash == expected_hash
-
-
-class TestScanRawDataDirectory:
-    def test_scan_single_file(self, tmp_path):
-        """Test scanning a directory with a single file."""
-        test_file = tmp_path / "data.txt"
-        test_file.write_text("data")
-
-        files = scan_raw_data_directory(tmp_path)
-        assert len(files) == 1
-        assert files[0] == test_file
-
-    def test_scan_nested_directories(self, tmp_path):
-        """Test scanning a directory with nested subdirectories."""
-        subdir = tmp_path / "subdir"
-        subdir.mkdir()
-        file1 = tmp_path / "file1.txt"
-        file2 = subdir / "file2.txt"
-        file1.write_text("data1")
-        file2.write_text("data2")
-
-        files = scan_raw_data_directory(tmp_path)
-        assert len(files) == 2
-        assert file1 in files
-        assert file2 in files
-
-    def test_skip_hidden_files(self, tmp_path):
-        """Test that hidden files are skipped."""
-        visible_file = tmp_path / "visible.txt"
-        hidden_file = tmp_path / ".hidden.txt"
-        visible_file.write_text("data")
-        hidden_file.write_text("data")
-
-        files = scan_raw_data_directory(tmp_path)
-        assert len(files) == 1
-        assert visible_file in files
-        assert hidden_file not in files
-
-    def test_skip_tmp_files(self, tmp_path):
-        """Test that .tmp files are skipped."""
-        valid_file = tmp_path / "valid.txt"
-        tmp_file = tmp_path / "temp.tmp"
-        valid_file.write_text("data")
-        tmp_file.write_text("data")
-
-        files = scan_raw_data_directory(tmp_path)
-        assert len(files) == 1
-        assert valid_file in files
-        assert tmp_file not in files
-
-    def test_empty_directory(self, tmp_path):
-        """Test scanning an empty directory."""
-        files = scan_raw_data_directory(tmp_path)
-        assert len(files) == 0
-
-    def test_non_existent_directory(self, tmp_path):
-        """Test scanning a non-existent directory raises error."""
+        computed_hash = compute_sha256(empty_file)
+        
+        assert computed_hash == expected_hash
+    
+    def test_compute_sha256_nonexistent_file(self, temp_dir):
+        """Test that computing hash of nonexistent file raises FileNotFoundError."""
+        nonexistent = temp_dir / "does_not_exist.txt"
+        
         with pytest.raises(FileNotFoundError):
-            scan_raw_data_directory(tmp_path / "non_existent")
-
-
-class TestGenerateHygieneReport:
-    def test_report_structure(self, tmp_path):
-        """Test the structure of the generated report."""
-        test_file = tmp_path / "test.txt"
-        test_file.write_bytes(b"test content")
-
-        report = generate_hygiene_report([test_file], "test-project")
-
-        assert "project_id" in report
-        assert report["project_id"] == "test-project"
-        assert "timestamp" in report
-        assert report["status"] == "success"
-        assert "files" in report
-        assert "aggregate_hash" in report
-        assert "total_files" in report
-        assert report["total_files"] == 1
-
-    def test_file_entry_details(self, tmp_path):
-        """Test that file entries contain correct details."""
-        test_file = tmp_path / "test.txt"
-        content = b"test content"
-        test_file.write_bytes(content)
-
-        report = generate_hygiene_report([test_file], "test-project")
-        file_entry = report["files"][0]
-
-        assert "path" in file_entry
-        assert "size_bytes" in file_entry
-        assert "sha256" in file_entry
-        assert file_entry["size_bytes"] == len(content)
-        assert file_entry["sha256"] == hashlib.sha256(content).hexdigest()
-
-    def test_aggregate_hash_consistency(self, tmp_path):
-        """Test that aggregate hash is deterministic."""
-        test_file = tmp_path / "test.txt"
-        test_file.write_bytes(b"test")
-
-        report1 = generate_hygiene_report([test_file], "test-project")
-        report2 = generate_hygiene_report([test_file], "test-project")
-
-        assert report1["aggregate_hash"] == report2["aggregate_hash"]
-
-
-class TestWriteHygieneReport:
-    def test_write_valid_report(self, tmp_path):
-        """Test writing a valid report to a file."""
-        report = {
-            "project_id": "test",
-            "timestamp": "2023-01-01T00:00:00",
-            "status": "success",
-            "files": [],
-            "aggregate_hash": "abc123",
-            "total_files": 0
-        }
-        output_path = tmp_path / "hygiene.yaml"
-
-        write_hygiene_report(report, output_path)
-
-        assert output_path.exists()
-        content = output_path.read_text()
-        assert "project_id: test" in content
-        assert "status: success" in content
-
-    def test_create_parent_directories(self, tmp_path):
-        """Test that parent directories are created if they don't exist."""
-        report = {
-            "project_id": "test",
-            "timestamp": "2023-01-01T00:00:00",
-            "status": "success",
-            "files": [],
-            "aggregate_hash": "abc123",
-            "total_files": 0
-        }
-        output_path = tmp_path / "deep" / "nested" / "dir" / "hygiene.yaml"
-
-        write_hygiene_report(report, output_path)
-
-        assert output_path.exists()
+            compute_sha256(nonexistent)
+    
+    def test_scan_raw_data_directory(self, temp_dir):
+        """Test directory scanning and hashing."""
+        file_hashes = scan_raw_data_directory(temp_dir)
+        
+        # Should find 3 files (excluding hidden file)
+        assert len(file_hashes) == 3
+        
+        # Check that all expected files are present
+        file_paths = [f["file_path"] for f in file_hashes]
+        assert any("file1.txt" in p for p in file_paths)
+        assert any("file2.txt" in p for p in file_paths)
+        assert any("file3.txt" in p for p in file_paths)
+        
+        # Verify no hidden files
+        assert not any(".hidden_file" in p for p in file_paths)
+        
+        # Check that hashes are computed correctly
+        for f in file_hashes:
+            assert "sha256" in f
+            assert len(f["sha256"]) == 64
+            assert "size_bytes" in f
+            assert "file_path" in f
+    
+    def test_scan_nonexistent_directory(self):
+        """Test that scanning nonexistent directory raises FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            scan_raw_data_directory(Path("/nonexistent/path"))
+    
+    def test_scan_not_a_directory(self, temp_dir):
+        """Test that scanning a file instead of directory raises NotADirectoryError."""
+        file_path = temp_dir / "file1.txt"
+        
+        with pytest.raises(NotADirectoryError):
+            scan_raw_data_directory(file_path)
+    
+    def test_write_manifest(self, temp_dir):
+        """Test manifest generation and YAML writing."""
+        # Create mock file hash data
+        mock_hashes = [
+            {
+                "file_path": "test.txt",
+                "absolute_path": str(temp_dir / "test.txt"),
+                "size_bytes": 100,
+                "sha256": "abc123",
+                "last_modified": "2023-01-01T00:00:00"
+            }
+        ]
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "manifest.yaml"
+            
+            write_manifest(mock_hashes, output_path)
+            
+            # Verify file was created
+            assert output_path.exists()
+            
+            # Verify YAML content
+            with open(output_path, 'r') as f:
+                manifest = yaml.safe_load(f)
+            
+            assert "metadata" in manifest
+            assert "files" in manifest
+            assert manifest["metadata"]["total_files"] == 1
+            assert manifest["metadata"]["total_size_bytes"] == 100
+            assert len(manifest["files"]) == 1
+            assert manifest["files"][0]["file_path"] == "test.txt"
+    
+    def test_write_manifest_empty_list(self, temp_dir):
+        """Test manifest generation with empty file list."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "empty_manifest.yaml"
+            
+            write_manifest([], output_path)
+            
+            assert output_path.exists()
+            
+            with open(output_path, 'r') as f:
+                manifest = yaml.safe_load(f)
+            
+            assert manifest["metadata"]["total_files"] == 0
+            assert manifest["metadata"]["total_size_bytes"] == 0
+            assert manifest["files"] == []
+    
+    def test_file_size_accuracy(self, temp_dir):
+        """Test that reported file size matches actual file size."""
+        file_path = temp_dir / "file1.txt"
+        expected_size = file_path.stat().st_size
+        
+        file_hashes = scan_raw_data_directory(temp_dir)
+        
+        for f in file_hashes:
+            if "file1.txt" in f["file_path"]:
+                assert f["size_bytes"] == expected_size
+                break
+        else:
+            pytest.fail("file1.txt not found in scan results")

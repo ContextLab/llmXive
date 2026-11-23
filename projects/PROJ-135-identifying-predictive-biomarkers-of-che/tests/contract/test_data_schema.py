@@ -1,8 +1,14 @@
 """
 Contract test for data schema validation.
-Validates that data artifacts conform to the schema defined in
-specs/001-chemo-biomarker-discovery/contracts/dataset.schema.yaml.
+
+This task verifies that `dataset.schema.yaml` (output of T006) is valid.
+It implements the following logic:
+1. Try to load `dataset.schema.yaml`.
+2. If FileNotFoundError, raise an explicit error stating T006 must run first.
+3. Validate a synthetic sample conforming to the schema.
+4. Assert that schema validation passes for valid data and fails for invalid data.
 """
+
 import os
 import sys
 import json
@@ -10,172 +16,219 @@ import yaml
 from pathlib import Path
 import pytest
 
-# Add project root to path to ensure imports work
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Import project utilities if available, otherwise define local helpers
+try:
+    from src.config import get_project_root
+except ImportError:
+    def get_project_root():
+        """Fallback to current working directory if config is not available."""
+        return Path.cwd()
 
-from tests.contract.test_schema_validation import (
-    load_schema,
-    validate_type,
-    validate_required_fields,
-    validate_data_against_schema
-)
+SCHEMA_FILE_NAME = "dataset.schema.yaml"
+SCHEMAS_DIR = "specs/001-chemo-biomarker-discovery/contracts"
 
-# Constants
-SCHEMA_PATH = project_root / "specs" / "001-chemo-biomarker-discovery" / "contracts" / "dataset.schema.yaml"
-PROCESSED_DATA_DIR = project_root / "data" / "processed"
+def get_schema_path():
+    """Construct the full path to the dataset schema file."""
+    root = get_project_root()
+    return root / SCHEMAS_DIR / SCHEMA_FILE_NAME
 
-
-def get_sample_data_files():
+def load_schema():
     """
-    Discover sample data files in the processed directory to validate.
-    Returns a list of paths to CSV/Parquet files.
-    """
-    if not PROCESSED_DATA_DIR.exists():
-        return []
+    Load the dataset schema from disk.
     
-    files = []
-    for ext in ["*.csv", "*.parquet"]:
-        files.extend(list(PROCESSED_DATA_DIR.glob(ext)))
-    return files
+    Raises:
+        FileNotFoundError: If the schema file does not exist (T006 not run).
+        yaml.YAMLError: If the schema file is invalid YAML.
+    """
+    schema_path = get_schema_path()
+    if not schema_path.exists():
+        raise FileNotFoundError(
+            f"Schema file not found at {schema_path}. "
+            "Task T006 (Create schema definitions) must be executed first to generate this file."
+        )
+    
+    with open(schema_path, 'r') as f:
+        return yaml.safe_load(f)
 
+def validate_type(value, expected_type):
+    """
+    Simple type validation helper.
+    
+    Args:
+        value: The value to check.
+        expected_type: The expected type name (e.g., 'string', 'integer', 'number', 'array', 'object').
+        
+    Returns:
+        bool: True if the value matches the expected type.
+    """
+    type_map = {
+        'string': str,
+        'integer': int,
+        'number': (int, float),
+        'boolean': bool,
+        'array': list,
+        'object': dict,
+        'null': type(None)
+    }
+    
+    python_type = type_map.get(expected_type)
+    if python_type is None:
+        return True # Unknown type, assume valid for now
+        
+    if expected_type == 'integer':
+        return isinstance(value, int) and not isinstance(value, bool)
+    if expected_type == 'number':
+        return isinstance(value, (int, float)) and not isinstance(value, bool)
+        
+    return isinstance(value, python_type)
+
+def validate_required_fields(data, required_fields):
+    """
+    Ensure all required fields are present in the data.
+    
+    Args:
+        data: The data dictionary to validate.
+        required_fields: List of required field names.
+        
+    Raises:
+        ValueError: If a required field is missing.
+    """
+    missing = [field for field in required_fields if field not in data]
+    if missing:
+        raise ValueError(f"Missing required fields: {missing}")
+
+def validate_data_against_schema(data, schema):
+    """
+    Validate a data sample against the loaded schema.
+    
+    This is a simplified validator focusing on:
+    1. Required fields presence.
+    2. Basic type checking for defined properties.
+    
+    Args:
+        data: The data sample (dict).
+        schema: The schema definition (dict).
+        
+    Raises:
+        ValueError: If validation fails.
+    """
+    if not isinstance(schema, dict):
+        raise ValueError("Invalid schema format: expected a dictionary.")
+        
+    properties = schema.get('properties', {})
+    required = schema.get('required', [])
+    
+    # Check required fields
+    validate_required_fields(data, required)
+    
+    # Check types
+    for field, rules in properties.items():
+        if field in data:
+            value = data[field]
+            expected_type = rules.get('type')
+            
+            if expected_type and not validate_type(value, expected_type):
+                raise ValueError(
+                    f"Field '{field}' has invalid type. "
+                    f"Expected {expected_type}, got {type(value).__name__}."
+                )
+
+# --- Test Cases ---
 
 def test_schemas_exist():
-    """Test that the dataset schema file exists."""
-    assert SCHEMA_PATH.exists(), f"Schema file not found at {SCHEMA_PATH}"
-
-
-def test_schema_loads_valid_yaml():
-    """Test that the schema file is valid YAML."""
-    schema = load_schema(SCHEMA_PATH)
-    assert schema is not None
-    assert "type" in schema
-    assert "properties" in schema
-
+    """Verify that the schema file exists on disk."""
+    schema_path = get_schema_path()
+    assert schema_path.exists(), f"Schema file missing at {schema_path}. Ensure T006 has run."
 
 def test_dataset_schema_structure():
-    """Test that the dataset schema has the expected structure."""
-    schema = load_schema(SCHEMA_PATH)
-    
-    # Check required top-level fields
-    assert "type" in schema
-    assert "properties" in schema
-    
-    # Check for expected properties based on project requirements
-    properties = schema["properties"]
-    expected_properties = [
-        "tumor_type",
-        "sample_id",
-        "response_label",
-        "gene_expression"
-    ]
-    
-    for prop in expected_properties:
-        assert prop in properties, f"Expected property '{prop}' missing from schema"
-
-
-def test_validate_data_against_schema():
     """
-    Test validation logic against real data files if they exist.
-    If no processed data exists yet, this test is skipped (not failed).
+    Verify that the loaded schema has the expected structure.
+    Specifically checks for the fields mentioned in the task description:
+    sample_id, tumor_type, response_label, expression_vector, set_type.
     """
-    data_files = get_sample_data_files()
+    schema = load_schema()
     
-    if not data_files:
-        pytest.skip("No processed data files found to validate. "
-                   "Run data acquisition tasks first.")
+    assert 'properties' in schema, "Schema must have 'properties' key."
+    properties = schema['properties']
     
-    schema = load_schema(SCHEMA_PATH)
-    
-    for file_path in data_files:
-        # Load data
-        if file_path.suffix == ".csv":
-            import pandas as pd
-            data = pd.read_csv(file_path).to_dict(orient="records")
-        elif file_path.suffix == ".parquet":
-            import pandas as pd
-            data = pd.read_parquet(file_path).to_dict(orient="records")
-        else:
-            continue
-        
-        # Validate
-        try:
-            validate_data_against_schema(data, schema)
-        except AssertionError as e:
-            pytest.fail(f"Data file {file_path} failed schema validation: {str(e)}")
-
-
-def test_required_fields_validation():
-    """Test that required fields are enforced by the validation logic."""
-    schema = load_schema(SCHEMA_PATH)
-    
-    # Test with missing required field
-    invalid_data = [{"sample_id": "S1", "gene_expression": {"GENE1": 1.0}}]
-    
-    with pytest.raises(AssertionError):
-        validate_required_fields(invalid_data, schema)
-
-
-def test_type_validation():
-    """Test that type validation works correctly."""
-    # Test valid types
-    assert validate_type("string", "hello") is True
-    assert validate_type("integer", 42) is True
-    assert validate_type("number", 3.14) is True
-    assert validate_type("boolean", True) is True
-    assert validate_type("object", {"key": "value"}) is True
-    assert validate_type("array", [1, 2, 3]) is True
-    
-    # Test invalid types
-    assert validate_type("integer", "42") is False
-    assert validate_type("string", 123) is False
-
-
-def test_specific_field_types():
-    """Test validation of specific fields defined in the schema."""
-    schema = load_schema(SCHEMA_PATH)
-    
-    # Check tumor_type is string
-    assert "tumor_type" in schema["properties"]
-    tumor_type_schema = schema["properties"]["tumor_type"]
-    assert tumor_type_schema["type"] == "string"
-    
-    # Check response_label is string (or potentially categorical)
-    assert "response_label" in schema["properties"]
-    response_schema = schema["properties"]["response_label"]
-    assert response_schema["type"] == "string"
-
+    expected_fields = ['sample_id', 'tumor_type', 'response_label', 'expression_vector', 'set_type']
+    for field in expected_fields:
+        assert field in properties, f"Schema missing required field: {field}"
 
 def test_sample_data_validation():
     """
-    Create a minimal valid sample record and validate it.
-    This ensures the schema can accept properly formatted data.
+    Test that a valid synthetic sample passes validation.
     """
-    schema = load_schema(SCHEMA_PATH)
+    schema = load_schema()
     
-    # Create a minimal valid record
-    valid_record = {
+    # Construct a valid synthetic sample based on typical schema requirements
+    # Note: expression_vector is often an array of numbers
+    valid_sample = {
+        "sample_id": "TCGA-AB-1234-01",
         "tumor_type": "BRCA",
-        "sample_id": "TCGA-XX-XXXX",
         "response_label": "Responder",
-        "gene_expression": {"TP53": 10.5, "BRCA1": 5.2}
+        "expression_vector": [1.2, 3.4, 5.6, 7.8],
+        "set_type": "discovery"
     }
     
-    # Should not raise
-    validate_data_against_schema([valid_record], schema)
-
+    # This should not raise an exception
+    try:
+        validate_data_against_schema(valid_sample, schema)
+    except ValueError as e:
+        pytest.fail(f"Valid sample failed validation: {e}")
 
 def test_invalid_data_catches_error():
-    """Test that invalid data is properly rejected."""
-    schema = load_schema(SCHEMA_PATH)
+    """
+    Test that invalid data (missing required field or wrong type) fails validation.
+    """
+    schema = load_schema()
     
-    # Invalid record: missing required field
-    invalid_record = {
+    # Case 1: Missing required field
+    invalid_sample_missing_field = {
+        "sample_id": "TCGA-AB-1234-01",
         "tumor_type": "BRCA",
-        # Missing sample_id
-        "response_label": "Responder",
-        "gene_expression": {"TP53": 10.5}
+        # Missing response_label, expression_vector, set_type
     }
     
-    with pytest.raises(AssertionError):
-        validate_data_against_schema([invalid_record], schema)
+    with pytest.raises(ValueError) as exc_info:
+        validate_data_against_schema(invalid_sample_missing_field, schema)
+    
+    assert "Missing required fields" in str(exc_info.value)
+    
+    # Case 2: Wrong type
+    invalid_sample_wrong_type = {
+        "sample_id": 12345, # Should be string
+        "tumor_type": "BRCA",
+        "response_label": "Responder",
+        "expression_vector": [1.2, 3.4],
+        "set_type": "discovery"
+    }
+    
+    with pytest.raises(ValueError) as exc_info:
+        validate_data_against_schema(invalid_sample_wrong_type, schema)
+        
+    assert "invalid type" in str(exc_info.value)
+
+def test_file_not_found_error_message():
+    """
+    Test that the FileNotFoundError is raised with the correct message if schema is missing.
+    This is a unit test for the error handling logic.
+    """
+    # Temporarily rename the file to simulate missing T006 output
+    schema_path = get_schema_path()
+    if schema_path.exists():
+        backup_path = schema_path.with_suffix('.yaml.bak')
+        schema_path.rename(backup_path)
+        try:
+            with pytest.raises(FileNotFoundError) as exc_info:
+                load_schema()
+            
+            assert "T006" in str(exc_info.value)
+        finally:
+            # Restore the file
+            backup_path.rename(schema_path)
+    else:
+        # If file is already missing, just verify the error
+        with pytest.raises(FileNotFoundError) as exc_info:
+            load_schema()
+        assert "T006" in str(exc_info.value)

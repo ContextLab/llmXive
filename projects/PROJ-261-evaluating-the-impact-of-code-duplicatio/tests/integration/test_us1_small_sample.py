@@ -1,22 +1,25 @@
-"""
-Integration test that runs the full pipeline on a very small sample
-and checks that the two processed CSV artefacts are produced.
-"""
 import pathlib
 
-from main import run_pipeline
+import pytest
 
-def test_full_pipeline_small_sample(tmp_path: pathlib.Path, monkeypatch):
-    # Redirect data directories to the temporary location.
-    monkeypatch.setattr(
-        "data_loader.Path", lambda *args, **kwargs: tmp_path / "raw"
-    )
-    monkeypatch.setattr(
-        "ast_cloner.Path", lambda *args, **kwargs: tmp_path / "processed"
-    )
-    # Run pipeline.
-    rc = run_pipeline()
-    assert rc == 0
-    # Verify artefacts exist.
-    assert (tmp_path / "processed" / "clone_metrics.csv").exists()
-    assert (tmp_path / "processed" / "perplexity_scores.csv").exists()
+from code.main import run_pipeline
+from config import get_processed_dir, get_raw_dir
+
+@pytest.mark.integration
+def test_us1_small_sample(tmp_path: pathlib.Path, monkeypatch):
+    """
+    End‑to‑end integration test for US‑1 on a tiny sample.
+    The test monkey‑patches the configuration directories to a temporary
+    location so the real repository is not polluted.
+    """
+    # Redirect config directories to the temporary path.
+    monkeypatch.setattr("config.get_raw_dir", lambda: tmp_path / "raw")
+    monkeypatch.setattr("config.get_processed_dir", lambda: tmp_path / "processed")
+
+    # Ensure the pipeline runs without raising.
+    run_pipeline()
+
+    # Verify that both required CSVs exist.
+    processed = tmp_path / "processed"
+    assert (processed / "clone_metrics.csv").exists()
+    assert (processed / "perplexity_scores.csv").exists()

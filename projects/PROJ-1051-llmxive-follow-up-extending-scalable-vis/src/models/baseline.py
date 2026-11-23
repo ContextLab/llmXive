@@ -1,0 +1,1 @@
+"""Placeholder for baseline model training (not part of T001)."""

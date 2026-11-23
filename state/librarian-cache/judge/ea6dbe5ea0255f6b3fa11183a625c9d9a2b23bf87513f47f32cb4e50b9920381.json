@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1402.2581",
+  "judged_at": "2026-08-13T09:48:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "computational screening of deep eutectic solvent mixtures for co2 capture chemistry",
+  "rationale": "The paper focuses on the hydration of clay surfaces using classical density functional theory, which is a distinct domain (mineral surface solvation) from the user's question regarding the computational screening of deep eutectic solvent mixtures for CO2 capture. While both involve molecular simulation and solvation, the paper does not measure the specific mechanism (CO2 capture), the specific materials (deep eutectic solvents), or the specific screening objective required by the user's question",
+  "relevant": false
+}

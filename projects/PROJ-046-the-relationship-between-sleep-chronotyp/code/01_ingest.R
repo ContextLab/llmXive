@@ -1,139 +1,126 @@
 #!/usr/bin/env Rscript
-# Task T011: Implement data ingestion and initial cleaning for US1
-# Dependencies: code/00_config.R, code/utils_validation.R, code/utils_logging.R
+#
+# Data Source Note:
+# This pipeline requires a user-provided merged CSV file at data/raw/merged_questionnaire_data.csv.
+# The script will ABORT immediately if required columns are missing.
+# DO NOT use synthetic or placeholder data for primary analysis.
+#
+# Task: T011 - Ingest and Clean Data
+# Description: Load CSV, verify columns, handle missing acute_sleepiness, check exclusion rate.
+#
+# Dependencies:
+# - T006 (code/00_config.R)
+# - T007 (code/utils_validation.R)
+# - T008 (code/utils_logging.R)
+#
 
-# Load configuration
+# Load configuration and utilities
 source("code/00_config.R")
-
-# Load utility functions
 source("code/utils_validation.R")
 source("code/utils_logging.R")
 
-# Define required columns based on FR-001 and task description
-REQUIRED_COLUMNS <- c("MEQ_score", "MFQ_1", "MFQ_2", "MFQ_3", "MFQ_4", "MFQ_5", 
-                      "MFQ_6", "MFQ_7", "MFQ_8", "MFQ_9", "MFQ_10", "MFQ_11", 
-                      "MFQ_12", "MFQ_13", "MFQ_14", "MFQ_15", "MFQ_16", "MFQ_17", 
-                      "MFQ_18", "MFQ_19", "MFQ_20", "PSQI", "acute_sleepiness", 
-                      "age", "sex")
-
-# Note: The exact MFQ column names (MFQ_1..MFQ_20) are assumed based on standard 
-# Morningness-Eveningness Questionnaire structure. In a real implementation, 
-# these would be defined in code/measurements.md (T005) and validated against T005.
-
+# Main execution
 main <- function() {
-  log_info("Starting data ingestion process (T011)...")
-  
-  # Ensure output directories exist
-  if (!dir.exists(OUTPUT_PROCESSED)) {
-    dir.create(OUTPUT_PROCESSED, recursive = TRUE)
+  # Initialize logger
+  logger <- get_pipeline_logger()
+  log_info(logger, "Starting data ingestion...")
+
+  # Define paths
+  input_path <- file.path(get_project_root(), "data", "raw", "merged_questionnaire_data.csv")
+  output_path <- file.path(get_project_root(), "data", "processed", "cleaned_data.csv")
+  exclusion_log_path <- file.path(get_project_root(), "logs", "ingest_exclusions.log")
+
+  # Check if input file exists
+  if (!file.exists(input_path)) {
+    log_error(logger, "Input file not found: %s", input_path)
+    log_abort(logger, "Pipeline aborted: Input file missing.")
+    quit(status = 1)
   }
-  if (!dir.exists(OUTPUT_DERIVED)) {
-    dir.create(OUTPUT_DERIVED, recursive = TRUE)
-  }
-  if (!dir.exists(LOGS_DIR)) {
-    dir.create(LOGS_DIR, recursive = TRUE)
-  }
-  
-  # Check if raw data exists
-  if (!file.exists(RAW_DATA_PATH)) {
-    log_error(paste("Raw data file not found:", RAW_DATA_PATH))
-    stop("Raw data file not found. Please ensure data is available at the specified path.")
-  }
-  
-  # Load raw data
-  log_info(paste("Loading raw data from:", RAW_DATA_PATH))
+
+  # Load data
+  log_info(logger, "Loading data from %s", input_path)
   tryCatch({
-    raw_data <- read.csv(RAW_DATA_PATH, stringsAsFactors = FALSE)
+    raw_data <- read.csv(input_path, stringsAsFactors = FALSE)
   }, error = function(e) {
-    log_error(paste("Failed to load raw data:", e$message))
-    stop(e)
+    log_error(logger, "Failed to load CSV: %s", e$message)
+    log_abort(logger, "Pipeline aborted: Could not read input file.")
+    quit(status = 1)
   })
-  
-  original_rows <- nrow(raw_data)
-  log_info(paste("Loaded", original_rows, "rows"))
-  
-  # Validate required columns
-  log_info("Validating required columns...")
-  missing_cols <- validate_required_columns(raw_data, REQUIRED_COLUMNS)
-  
+
+  total_rows <- nrow(raw_data)
+  log_info(logger, "Loaded %d rows", total_rows)
+
+  # Define required columns
+  required_cols <- c("MEQ_score", "MFQ_moral", "MFQ_utility", "MFQ_deontological", "MFQ_consequentialist", "MFQ_virtue", "PSQI", "acute_sleepiness", "age", "sex")
+
+  # Verify presence of ALL required columns
+  missing_cols <- setdiff(required_cols, colnames(raw_data))
   if (length(missing_cols) > 0) {
-    log_error(paste("Missing required columns:", paste(missing_cols, collapse = ", ")))
-    log_error("ABORTING: FR-001 violation - missing required columns")
-    stop("ABORT: Missing required columns. Pipeline cannot proceed.")
+    log_error(logger, "Missing required columns: %s", paste(missing_cols, collapse = ", "))
+    log_abort(logger, "Pipeline aborted: Missing required columns. Data source invalid.")
+    quit(status = 1)
   }
-  
-  log_info("All required columns present")
-  
-  # Track exclusions
-  exclusion_log_file <- file.path(LOGS_DIR, "ingest_exclusions.log")
-  excluded_rows <- data.frame(
-    row_id = integer(),
-    reason = character(),
-    stringsAsFactors = FALSE
-  )
-  
-  # Process missing acute_sleepiness values
-  log_info("Checking for missing acute_sleepiness values...")
-  missing_sleepiness <- which(is.na(raw_data$acute_sleepiness))
-  
-  if (length(missing_sleepiness) > 0) {
-    log_info(paste("Found", length(missing_sleepiness), "rows with missing acute_sleepiness"))
-    
-    # Log exclusions
-    for (idx in missing_sleepiness) {
-      excluded_rows <- rbind(excluded_rows, data.frame(
-        row_id = idx,
-        reason = "missing_acute_sleepiness",
-        stringsAsFactors = FALSE
-      ))
-    }
-    
-    # Write to log file
-    log_exclusions(excluded_rows, exclusion_log_file)
-    
-    # Remove excluded rows
-    raw_data <- raw_data[-missing_sleepiness, ]
+
+  log_info(logger, "All required columns present.")
+
+  # Initialize exclusion tracking
+  exclusions <- data.frame(row_id = integer(), reason = character(), stringsAsFactors = FALSE)
+
+  # Step 1: Check for missing acute_sleepiness
+  missing_sleepiness <- is.na(raw_data$acute_sleepiness)
+  if (any(missing_sleepiness)) {
+    excluded_ids <- which(missing_sleepiness)
+    exclusions <- rbind(exclusions, data.frame(row_id = excluded_ids, reason = "missing_acute_sleepiness", stringsAsFactors = FALSE))
+    log_warning(logger, "Excluding %d rows due to missing acute_sleepiness", length(excluded_ids))
   }
-  
+
+  # Filter out missing acute_sleepiness
+  cleaned_data <- raw_data[!missing_sleepiness, ]
+
+  # Calculate exclusion rate
+  current_excluded <- nrow(raw_data) - nrow(cleaned_data)
+  exclusion_rate <- current_excluded / total_rows
+
+  log_info(logger, "Exclusion rate after step 1: %.2f%%", exclusion_rate * 100)
+
+  # IMMEDIATE ABORT CHECK: If exclusion rate > 20%, abort
+  if (exclusion_rate > 0.20) {
+    log_error(logger, "Exclusion rate (%.2f%%) exceeds 20%% threshold.", exclusion_rate * 100)
+    log_abort(logger, "Pipeline aborted: Exclusion rate too high. No intermediate files saved.")
+    quit(status = 1)
+  }
+
+  # Log exclusions
+  if (nrow(exclusions) > 0) {
+    log_exclusion(logger, exclusion_log_path, exclusions$row_id, exclusions$reason, "ingest")
+    log_info(logger, "Exclusions logged to %s", exclusion_log_path)
+  }
+
   # Save cleaned data
-  cleaned_data_path <- file.path(OUTPUT_PROCESSED, "cleaned_data.csv")
-  log_info(paste("Saving cleaned data to:", cleaned_data_path))
-  write.csv(raw_data, cleaned_data_path, row.names = FALSE)
-  
-  # Save exclusion count
-  exclusion_count_path <- file.path(OUTPUT_DERIVED, "ingest_exclusion_count.json")
-  exclusion_summary <- list(
-    total_original_rows = original_rows,
-    rows_excluded_missing_sleepiness = length(missing_sleepiness),
-    rows_remaining = nrow(raw_data),
-    exclusion_timestamp = Sys.time()
-  )
-  
-  log_info(paste("Saving exclusion count to:", exclusion_count_path))
-  writeLines(toJSON(exclusion_summary, pretty = TRUE), exclusion_count_path)
-  
-  log_info(paste("Ingestion complete. Original rows:", original_rows, 
-                "Excluded:", length(missing_sleepiness), 
-                "Remaining:", nrow(raw_data)))
-  
-  invisible(raw_data)
-}
-
-# Helper function to log exclusions
-log_exclusions <- function(excluded_data, log_file) {
-  if (!file.exists(log_file)) {
-    # Create header if file doesn't exist
-    header <- "row_id,reason\n"
-    writeLines(header, log_file)
-  }
-  
-  # Append exclusions
-  exclusion_text <- apply(excluded_data, 1, function(row) {
-    paste(row["row_id"], row["reason"], sep = ",")
+  log_info(logger, "Saving cleaned data to %s", output_path)
+  tryCatch({
+    write.csv(cleaned_data, output_path, row.names = FALSE)
+    log_info(logger, "Successfully saved %d rows to %s", nrow(cleaned_data), output_path)
+  }, error = function(e) {
+    log_error(logger, "Failed to save cleaned data: %s", e$message)
+    log_abort(logger, "Pipeline aborted: Could not write output file.")
+    quit(status = 1)
   })
-  
-  writeLines(exclusion_text, log_file, append = TRUE)
+
+  # Save exclusion summary to JSON for report
+  exclusion_summary <- list(
+    total_rows = total_rows,
+    excluded_rows = current_excluded,
+    exclusion_rate = exclusion_rate,
+    steps = list(
+      list(step = "ingest", excluded = current_excluded, reason = "missing_acute_sleepiness")
+    )
+  )
+  jsonlite::write_json(exclusion_summary, file.path(get_project_root(), "data", "derived", "exclusion_counts.json"), auto_unbox = TRUE)
+
+  log_info(logger, "Ingestion complete. Exclusion rate: %.2f%%", exclusion_rate * 100)
+  quit(status = 0)
 }
 
-# Run main function
+# Run main
 main()

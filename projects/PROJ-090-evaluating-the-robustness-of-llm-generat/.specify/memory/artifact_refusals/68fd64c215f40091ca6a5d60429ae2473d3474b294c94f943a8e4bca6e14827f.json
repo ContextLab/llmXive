@@ -1,0 +1,7 @@
+{
+  "task_id": "T008a",
+  "fingerprint": "56dd644f7914b1ea80138f8ced7228a8c6b42976f183537a2d5a1d6d86543324",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refused empty contents without execution: 'contracts/perturbation_schema.json'"
+}

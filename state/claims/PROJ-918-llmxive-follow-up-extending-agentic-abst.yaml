@@ -1,0 +1,24 @@
+- artifact_path: projects/PROJ-918-llmxive-follow-up-extending-agentic-abst/docs/README.md
+  attempts: 1
+  canonical: aiming to reduce token consumption by at least 40% compared to full-context
+    baselines
+  claim_id: c_e7a75df3
+  context: Overview section describing the project's goal and the Meta-Critic model.
+  evidence:
+    candidates:
+    - - ''
+      - 40.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Aiming_to_reduce_token_consumption_by_at_least_40%25_compared
+  kind: magnitude
+  raw_text: This project implements a Meta-Critic model that predicts optimal abstention
+    points based on low-level state features, aiming to reduce token consumption by
+    at least 40% compared to full-context baselines.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-03T17:06:56Z'

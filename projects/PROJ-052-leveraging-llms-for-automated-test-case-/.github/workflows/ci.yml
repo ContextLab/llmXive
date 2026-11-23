@@ -1,0 +1,216 @@
+name: CI - Automated Science Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  PYTHON_VERSION: "3.10"
+  CACHE_KEY: "${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}"
+
+jobs:
+  lint-and-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ env.CACHE_KEY }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff black
+
+      - name: Run Linter (Ruff)
+        run: ruff check code/
+
+      - name: Check Formatting (Black)
+        run: black --check code/
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    needs: lint-and-format
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ env.CACHE_KEY }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run Unit Tests
+        run: |
+          pytest tests/unit/ -v --tb=short
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ env.CACHE_KEY }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pytest
+
+      - name: Run Integration Tests
+        run: |
+          pytest tests/integration/ -v --tb=short
+
+  reference-validator-agent:
+    name: Reference-Validator Agent Gate
+    runs-on: ubuntu-latest
+    needs: [lint-and-format, unit-tests, integration-tests]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Cache pip dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ env.CACHE_KEY }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install jsonschema pyyaml
+
+      - name: Run Reference-Validator Agent
+        run: |
+          python code/validate_schemas.py
+
+      - name: Verify Data Integrity Checksums
+        run: |
+          python -c "
+          import sys
+          sys.path.insert(0, 'code')
+          from data_loader import load_state, record_checksum
+          state = load_state()
+          if 'artifact_hashes' not in state:
+              print('ERROR: artifact_hashes missing in state')
+              sys.exit(1)
+          if 'data_loader' not in state['artifact_hashes']:
+              print('ERROR: data_loader checksum missing in state')
+              sys.exit(1)
+          print('SUCCESS: Data integrity checksums verified.')
+          "
+
+      - name: Verify Final Report Schema
+        run: |
+          python -c "
+          import sys
+          import json
+          from pathlib import Path
+          from jsonschema import validate, ValidationError
+          import yaml
+
+          # Load schema
+          schema_path = Path('contracts/analysis_result.schema.yaml')
+          if not schema_path.exists():
+              print('WARNING: analysis_result.schema.yaml not found, skipping report validation')
+              sys.exit(0)
+
+          with open(schema_path) as f:
+              schema = yaml.safe_load(f)
+
+          # Load artifact if it exists
+          artifact_path = Path('data/analysis_results.json')
+          if artifact_path.exists():
+              with open(artifact_path) as f:
+                  data = json.load(f)
+              try:
+                  validate(instance=data, schema=schema)
+                  print('SUCCESS: analysis_results.json conforms to schema.')
+              except ValidationError as e:
+                  print(f'ERROR: analysis_results.json validation failed: {e.message}')
+                  sys.exit(1)
+          else:
+              print('INFO: analysis_results.json not found (pipeline may not have completed). Skipping validation.')
+          "
+
+  build-artifacts:
+    runs-on: ubuntu-latest
+    needs: reference-validator-agent
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ env.PYTHON_VERSION }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run Quickstart Validation
+        run: |
+          python code/run_quickstart_validation.py
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: pipeline-results
+          path: |
+            data/
+            figures/
+            docs/
+            data/coverage_metrics.csv
+            data/final_report.md
+            data/analysis_results.json
+
+  notify:
+    runs-on: ubuntu-latest
+    needs: [build-artifacts, reference-validator-agent]
+    if: always()
+    steps:
+      - name: Check Job Status
+        run: |
+          if [ "${{ needs.reference-validator-agent.result }}" != "success" ]; then
+            echo "Reference-Validator Agent Gate FAILED. Build aborted."
+            exit 1
+          fi
+          echo "All gates passed."

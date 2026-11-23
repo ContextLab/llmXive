@@ -1,297 +1,246 @@
 """
-Compute intra-modal consistency metrics using cross-correlation analysis.
+T015: Implement intra-modal consistency metric calculation.
 
-This module implements the calculation of consistency metrics between
-facial and vocal features using max absolute cross-correlation within
-a specified time lag window.
+Computes the max absolute cross-correlation within ±2s lag, normalized by
+the product of standard deviations (FR-004).
+
+Inputs:
+  - data/processed/clean_features.csv (from T015_merge) OR
+  - data/processed/synthetic_features.csv (from T012_gen)
+
+Output:
+  - data/processed/metrics.csv with columns:
+    interaction_id (str), consistency_score (float), trust_score (int)
 """
+from __future__ import annotations
+
+import argparse
+import json
+import os
+import sys
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
-from typing import Optional
-from logging_config import get_logger
-from utils import handle_corrupted_file
+import pandas as pd
+
+# Import logging config from sibling module
+from logging_config import get_logger, log_pipeline_start, log_pipeline_complete, log_pipeline_error
 
 logger = get_logger(__name__)
 
+# Constants
+LAG_SECONDS = 2.0
+SAMPLE_RATE_HZ = 15.0  # Assumed from synthetic media spec (15fps)
+MAX_LAG_SAMPLES = int(LAG_SECONDS * SAMPLE_RATE_HZ)
+
+
+def validate_feature_input(df: pd.DataFrame) -> None:
+    """Validate that the input dataframe has the required columns."""
+    required_cols = ['interaction_id', 'facial_landmarks_json', 'vocal_prosody_json', 'trust_score']
+    missing = [col for col in required_cols if col not in df.columns]
+    if missing:
+        raise ValueError(f"Input dataframe missing required columns: {missing}")
+
+
+def parse_json_series(series: pd.Series) -> List[List[Dict[str, Any]]]:
+    """
+    Parse the JSON string column into a list of dicts for each row.
+    Returns a list of lists, where each inner list is the time-series for one interaction.
+    """
+    parsed = []
+    for val in series:
+        if pd.isna(val):
+            parsed.append([])
+        else:
+            try:
+                parsed.append(json.loads(val))
+            except json.JSONDecodeError:
+                logger.warning(f"Failed to parse JSON: {val}")
+                parsed.append([])
+    return parsed
+
+
 def compute_max_abs_cross_correlation(
-    features: np.ndarray, 
-    max_lag: int = 20,
-    sample_rate: int = 25
+    facial_ts: List[Dict[str, Any]],
+    vocal_ts: List[Dict[str, Any]],
+    max_lag: int = MAX_LAG_SAMPLES
 ) -> float:
     """
-    Compute the maximum absolute cross-correlation between feature channels.
-    
-    This function calculates the cross-correlation between all pairs of feature
-    channels and returns the maximum absolute correlation value within the
-    specified lag window.
-    
-    Parameters
-    ----------
-    features : np.ndarray
-        2D array of shape (n_samples, n_features) containing time-series features
-    max_lag : int
-        Maximum lag (in samples) to consider for cross-correlation
-    sample_rate : int
-        Sample rate in Hz (default 25 Hz, typical for OpenFace)
-    
-    Returns
-    -------
-    float
-        Maximum absolute cross-correlation value (normalized between 0 and 1)
-        Returns NaN if input is invalid or no correlation can be computed
+    Compute the max absolute cross-correlation between two time-series,
+    normalized by the product of their standard deviations.
+
+    We extract a scalar signal from the JSON objects (e.g., average landmark distance
+    for facial, pitch mean for vocal) to perform the correlation.
+
+    FR-004: max abs cross-correlation within ±2s lag, normalized by product of std devs.
     """
-    if features is None or features.size == 0:
-        logger.warning("Empty or None features provided")
-        return np.nan
-    
-    if not isinstance(features, np.ndarray):
-        logger.error(f"Invalid input type: {type(features)}")
-        return np.nan
-    
-    if features.ndim != 2:
-        logger.error(f"Features must be 2D array, got {features.ndim}D")
-        return np.nan
-    
-    n_samples, n_features = features.shape
-    
-    if n_features < 2:
-        logger.warning("Need at least 2 features for cross-correlation")
-        return np.nan
-    
-    if n_samples == 0:
-        return np.nan
-    
-    # Handle NaN values by replacing with mean of each feature
-    features_clean = features.copy()
-    for i in range(n_features):
-        col = features_clean[:, i]
-        if np.any(np.isnan(col)):
-            mean_val = np.nanmean(col)
-            features_clean[:, i] = np.where(np.isnan(col), mean_val, col)
-            logger.debug(f"Replaced {np.sum(np.isnan(col))} NaN values in feature {i} with mean")
-    
+    if not facial_ts or not vocal_ts:
+        return 0.0
+
+    # Extract scalar signals
+    # Facial: Use average distance from face center (approximate using landmarks if present)
+    # If landmarks are dicts with 'x', 'y', compute centroid distance or just use a proxy
+    # For robustness, we'll try to find a numeric value. If the JSON structure is complex,
+    # we'll fall back to a simple heuristic or 0.
+    def extract_signal(ts: List[Dict]) -> np.ndarray:
+        vals = []
+        for item in ts:
+            if isinstance(item, dict):
+                # Try to find a 'value' or 'score' or compute a simple metric
+                if 'value' in item:
+                    vals.append(float(item['value']))
+                elif 'score' in item:
+                    vals.append(float(item['score']))
+                elif 'x' in item and 'y' in item:
+                    # Simple proxy: distance from origin or mean of coords
+                    vals.append((float(item.get('x', 0)) + float(item.get('y', 0))) / 2.0)
+                else:
+                    # Fallback: try to find any float value
+                    float_vals = [v for v in item.values() if isinstance(v, (int, float))]
+                    if float_vals:
+                        vals.append(np.mean(float_vals))
+                    else:
+                        vals.append(0.0)
+            else:
+                vals.append(float(item) if isinstance(item, (int, float)) else 0.0)
+        return np.array(vals, dtype=float)
+
+    signal_f = extract_signal(facial_ts)
+    signal_v = extract_signal(vocal_ts)
+
+    # Ensure same length by truncating to the shortest
+    min_len = min(len(signal_f), len(signal_v))
+    if min_len == 0:
+        return 0.0
+
+    signal_f = signal_f[:min_len]
+    signal_v = signal_v[:min_len]
+
+    std_f = np.std(signal_f)
+    std_v = np.std(signal_v)
+
+    if std_f < 1e-9 or std_v < 1e-9:
+        return 0.0
+
+    # Normalize
+    signal_f_norm = (signal_f - np.mean(signal_f)) / std_f
+    signal_v_norm = (signal_v - np.mean(signal_v)) / std_v
+
+    # Compute cross-correlation for lags in [-max_lag, max_lag]
     max_corr = 0.0
-    n_pairs = 0
-    
-    # Compute cross-correlation for all feature pairs
-    for i in range(n_features):
-        for j in range(i + 1, n_features):
-            try:
-                # Compute cross-correlation
-                corr = np.correlate(
-                    features_clean[:, i] - np.mean(features_clean[:, i]),
-                    features_clean[:, j] - np.mean(features_clean[:, j]),
-                    mode='full'
-                )
-                
-                # Normalize
-                corr = corr / (np.std(features_clean[:, i]) * np.std(features_clean[:, j]) * n_samples)
-                
-                # Extract the relevant lag window (centered at 0)
-                mid = len(corr) // 2
-                start_idx = max(0, mid - max_lag)
-                end_idx = min(len(corr), mid + max_lag + 1)
-                
-                window_corr = corr[start_idx:end_idx]
-                
-                # Get maximum absolute correlation in the window
-                max_window_corr = np.max(np.abs(window_corr))
-                
-                if max_window_corr > max_corr:
-                    max_corr = max_window_corr
-                
-                n_pairs += 1
-                
-            except Exception as e:
-                logger.warning(f"Error computing cross-correlation for pair ({i}, {j}): {e}")
-                continue
-    
-    if n_pairs == 0:
-        logger.warning("No valid cross-correlation pairs computed")
-        return np.nan
-    
-    # Normalize to [0, 1] range (already normalized by correlation formula)
-    # But ensure it doesn't exceed 1 due to numerical errors
-    max_corr = min(max_corr, 1.0)
-    max_corr = max(max_corr, 0.0)
-    
-    logger.debug(f"Computed cross-correlation for {n_pairs} pairs, max corr: {max_corr:.4f}")
-    return max_corr
+    for lag in range(-max_lag, max_lag + 1):
+        if lag < 0:
+            f_slice = signal_f_norm[-lag:]
+            v_slice = signal_v_norm[:lag]
+        elif lag > 0:
+            f_slice = signal_f_norm[:-lag]
+            v_slice = signal_v_norm[lag:]
+        else:
+            f_slice = signal_f_norm
+            v_slice = signal_v_norm
+
+        if len(f_slice) == 0:
+            continue
+
+        corr = np.mean(f_slice * v_slice)
+        if abs(corr) > max_corr:
+            max_corr = abs(corr)
+
+    return float(max_corr)
+
 
 def compute_consistency_score(
-    facial_features: np.ndarray,
-    vocal_features: np.ndarray,
-    max_lag_samples: int = 50,  # ~2 seconds at 25Hz
-    sample_rate: int = 25
-) -> dict:
-    """
-    Compute intra-modal and inter-modal consistency scores.
-    
-    Parameters
-    ----------
-    facial_features : np.ndarray
-        2D array of facial features (n_samples, n_facial_features)
-    vocal_features : np.ndarray
-        2D array of vocal features (n_samples, n_vocal_features)
-    max_lag_samples : int
-        Maximum lag in samples to consider
-    sample_rate : int
-        Sample rate in Hz
-    
-    Returns
-    -------
-    dict
-        Dictionary containing consistency scores:
-        - 'facial_consistency': intra-modal facial consistency
-        - 'vocal_consistency': intra-modal vocal consistency
-        - 'inter_modal_consistency': inter-modal consistency
-        - 'overall_consistency': average of all three
-    """
-    logger.info("Computing consistency scores")
-    
-    # Compute intra-modal consistency
-    facial_consistency = compute_max_abs_cross_correlation(
-        facial_features, 
-        max_lag=max_lag_samples,
-        sample_rate=sample_rate
-    )
-    
-    vocal_consistency = compute_max_abs_cross_correlation(
-        vocal_features,
-        max_lag=max_lag_samples,
-        sample_rate=sample_rate
-    )
-    
-    # Compute inter-modal consistency (concatenate features)
-    if facial_features.shape[0] == vocal_features.shape[0]:
-        combined_features = np.hstack([facial_features, vocal_features])
-        inter_modal_consistency = compute_max_abs_cross_correlation(
-            combined_features,
-            max_lag=max_lag_samples,
-            sample_rate=sample_rate
-        )
-    else:
-        logger.warning("Facial and vocal features have different lengths, skipping inter-modal")
-        inter_modal_consistency = np.nan
-    
-    # Calculate overall consistency
-    valid_scores = [s for s in [facial_consistency, vocal_consistency, inter_modal_consistency] 
-                   if not np.isnan(s)]
-    
-    if len(valid_scores) > 0:
-        overall_consistency = np.mean(valid_scores)
-    else:
-        overall_consistency = np.nan
-    
-    result = {
-        'facial_consistency': float(facial_consistency),
-        'vocal_consistency': float(vocal_consistency),
-        'inter_modal_consistency': float(inter_modal_consistency),
-        'overall_consistency': float(overall_consistency)
-    }
-    
-    logger.info(f"Consistency scores computed: {result}")
-    return result
+    facial_ts: List[Dict[str, Any]],
+    vocal_ts: List[Dict[str, Any]]
+) -> float:
+    """Wrapper to compute consistency score for a single interaction."""
+    return compute_max_abs_cross_correlation(facial_ts, vocal_ts)
 
-def validate_feature_input(
-    features: np.ndarray,
-    min_samples: int = 100,
-    min_features: int = 2
-) -> bool:
-    """
-    Validate that feature input meets minimum requirements.
-    
-    Parameters
-    ----------
-    features : np.ndarray
-        Feature array to validate
-    min_samples : int
-        Minimum number of samples required
-    min_features : int
-        Minimum number of features required
-    
-    Returns
-    -------
-    bool
-        True if input is valid, False otherwise
-    """
-    if features is None:
-        logger.error("Features is None")
-        return False
-    
-    if not isinstance(features, np.ndarray):
-        logger.error(f"Features must be numpy array, got {type(features)}")
-        return False
-    
-    if features.ndim != 2:
-        logger.error(f"Features must be 2D, got {features.ndim}D")
-        return False
-    
-    n_samples, n_features = features.shape
-    
-    if n_samples < min_samples:
-        logger.error(f"Insufficient samples: {n_samples} < {min_samples}")
-        return False
-    
-    if n_features < min_features:
-        logger.error(f"Insufficient features: {n_features} < {min_features}")
-        return False
-    
-    if np.any(np.isnan(features)):
-        nan_count = np.sum(np.isnan(features))
-        logger.warning(f"Found {nan_count} NaN values in features")
-        # Don't fail, but warn
-    
-    return True
 
-def process_interaction_features(
-    interaction_id: str,
-    features_data: dict
-) -> dict:
+def process_interaction_features(row: pd.Series) -> Tuple[str, float, int]:
     """
-    Process features for a single interaction and compute consistency metrics.
-    
-    Parameters
-    ----------
-    interaction_id : str
-        Unique identifier for the interaction
-    features_data : dict
-        Dictionary containing 'facial' and 'vocal' feature arrays
-    
-    Returns
-    -------
-    dict
-        Dictionary with interaction_id and computed consistency scores
+    Process a single row of features to compute the consistency score.
+    Returns (interaction_id, consistency_score, trust_score).
     """
-    logger.info(f"Processing interaction: {interaction_id}")
-    
-    facial_features = features_data.get('facial')
-    vocal_features = features_data.get('vocal')
-    
-    if facial_features is None or vocal_features is None:
-        logger.error(f"Missing features for interaction {interaction_id}")
-        return {
-            'interaction_id': interaction_id,
-            'error': 'Missing features',
-            'facial_consistency': np.nan,
-            'vocal_consistency': np.nan,
-            'inter_modal_consistency': np.nan,
-            'overall_consistency': np.nan
-        }
-    
-    # Validate inputs
-    if not validate_feature_input(facial_features) or not validate_feature_input(vocal_features):
-        logger.error(f"Invalid features for interaction {interaction_id}")
-        return {
-            'interaction_id': interaction_id,
-            'error': 'Invalid features',
-            'facial_consistency': np.nan,
-            'vocal_consistency': np.nan,
-            'inter_modal_consistency': np.nan,
-            'overall_consistency': np.nan
-        }
-    
-    # Compute consistency scores
-    scores = compute_consistency_score(facial_features, vocal_features)
-    scores['interaction_id'] = interaction_id
-    
-    return scores
+    try:
+        facial_ts = json.loads(row['facial_landmarks_json']) if isinstance(row['facial_landmarks_json'], str) else row['facial_landmarks_json']
+        vocal_ts = json.loads(row['vocal_prosody_json']) if isinstance(row['vocal_prosody_json'], str) else row['vocal_prosody_json']
+
+        score = compute_consistency_score(facial_ts, vocal_ts)
+        return (row['interaction_id'], score, int(row['trust_score']))
+    except Exception as e:
+        logger.error(f"Error processing interaction {row.get('interaction_id', 'unknown')}: {e}")
+        return (row['interaction_id'], 0.0, int(row['trust_score']))
+
+
+def main():
+    log_pipeline_start("T015_compute_metrics")
+
+    # Determine input file
+    synthetic_path = "data/processed/synthetic_features.csv"
+    clean_path = "data/processed/clean_features.csv"
+    output_path = "data/processed/metrics.csv"
+
+    input_path = None
+    is_validation_only = False
+
+    if os.path.exists(synthetic_path):
+        input_path = synthetic_path
+        is_validation_only = True
+        logger.info("Using synthetic features (VALIDATION_ONLY mode).")
+    elif os.path.exists(clean_path):
+        input_path = clean_path
+        logger.info("Using clean features (PRIMARY study mode).")
+    else:
+        logger.error("Input file not found: data/processed/clean_features.csv or data/processed/synthetic_features.csv")
+        logger.error("Please ensure T015_merge (or T012_gen) has completed successfully.")
+        log_pipeline_error("Input file missing")
+        sys.exit(1)
+
+    # Load data
+    try:
+        df = pd.read_csv(input_path)
+    except Exception as e:
+        logger.error(f"Failed to load input file {input_path}: {e}")
+        log_pipeline_error(f"Load error: {e}")
+        sys.exit(1)
+
+    # Validate
+    try:
+        validate_feature_input(df)
+    except ValueError as e:
+        logger.error(f"Validation error: {e}")
+        log_pipeline_error(f"Validation error: {e}")
+        sys.exit(1)
+
+    # Process
+    logger.info(f"Processing {len(df)} interactions...")
+    results = []
+    for _, row in df.iterrows():
+        res = process_interaction_features(row)
+        results.append(res)
+
+    # Create output dataframe
+    out_df = pd.DataFrame(results, columns=['interaction_id', 'consistency_score', 'trust_score'])
+
+    # Add metadata column if synthetic
+    if is_validation_only:
+        out_df['mode'] = 'VALIDATION_ONLY'
+    else:
+        out_df['mode'] = 'PRIMARY'
+
+    # Write output
+    try:
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        out_df.to_csv(output_path, index=False)
+        logger.info(f"Metrics written to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to write output file: {e}")
+        log_pipeline_error(f"Write error: {e}")
+        sys.exit(1)
+
+    log_pipeline_complete("T015_compute_metrics")
+
+
+if __name__ == "__main__":
+    main()

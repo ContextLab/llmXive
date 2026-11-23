@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.08271",
+  "judged_at": "2026-10-03T19:16:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"rynnworld-teleop: an action-conditioned world model for digital teleop\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core domain of \"teleoperation\" and \"world models\" (specifically 6-DoF world models for multi-robot systems) using a related mechanism (sensor fusion and 3D Gaussian Splatting) to achieve the user's stated goal of extending action-conditioned world models for digital teleop.",
+  "relevant": true
+}

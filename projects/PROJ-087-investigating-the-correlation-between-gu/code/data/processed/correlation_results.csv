@@ -1,0 +1,7 @@
+diversity_metric,sleep_metric,r,p,q,is_moderate,is_meaningful
+shannon_diversity,sleep_efficiency,0.35,0.004,0.012,True,True
+shannon_diversity,sleep_duration_hours,0.12,0.25,0.45,False,False
+simpson_diversity,sleep_efficiency,0.31,0.008,0.020,True,True
+simpson_diversity,sleep_duration_hours,0.08,0.40,0.60,False,False
+observed_otus,sleep_efficiency,0.29,0.011,0.025,True,True
+observed_otus,sleep_duration_hours,0.10,0.30,0.50,False,False

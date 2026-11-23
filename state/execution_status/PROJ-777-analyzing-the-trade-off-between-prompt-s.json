@@ -1,7 +1,7 @@
 {
-  "model_tier": 1,
+  "model_tier": 2,
   "fix_rounds": 0,
-  "updated_at": "2026-07-11T03:43:03Z",
+  "updated_at": "2026-08-17T18:27:15Z",
   "project_id": "PROJ-777-analyzing-the-trade-off-between-prompt-s",
   "total_attempts": 0,
   "replan_rounds": 0,

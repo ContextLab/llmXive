@@ -1,75 +1,55 @@
-"""
-Unit tests for the setup_data_dirs script.
-Verifies that the required data directory structure is created.
-"""
 import os
 import tempfile
 import shutil
 from pathlib import Path
 import pytest
+from unittest.mock import patch, MagicMock
 
-# We need to import the function. Since it's in code/setup_data_dirs.py,
-# we adjust the path or import it directly if the test runner handles it.
-# For this test, we will mock the logic or run the main function in a temp env.
-# However, to strictly follow the "no fabricate" rule, we test the logic of directory creation.
+# Mock the config module to use a temporary directory for testing
+@pytest.fixture
+def temp_project_root():
+    """Create a temporary directory to act as the project root."""
+    tmpdir = tempfile.mkdtemp()
+    yield Path(tmpdir)
+    shutil.rmtree(tmpdir)
 
-def test_data_directory_structure_creation():
-    """
-    Test that the setup_data_dirs script creates the correct directory structure.
-    This test creates a temporary directory to simulate the project root.
-    """
-    # Create a temporary project root
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        project_root = Path(tmp_dir)
-        
-        # Simulate the structure expected by setup_data_dirs.py
-        # The script assumes it is in code/ and looks at parent for data/
-        code_dir = project_root / "code"
-        code_dir.mkdir()
-        
-        # Create the script file content dynamically to run it in this context
-        # OR simply import and patch the path. 
-        # Given the constraints, let's verify the logic by checking what directories
-        # SHOULD exist after running the logic defined in setup_data_dirs.py.
-        
-        # Logic extraction from setup_data_dirs.py:
-        # data_root = project_root / "data"
-        # subdirs = ["raw", "derived", "logs", "results"]
-        # for subdir in subdirs: (project_root / "data" / subdir).mkdir(...)
-        
-        data_root = project_root / "data"
-        expected_dirs = [
-            data_root,
-            data_root / "raw",
-            data_root / "derived",
-            data_root / "logs",
-            data_root / "results"
-        ]
-        
-        # Execute the creation logic locally to verify
-        for d in expected_dirs:
-            d.mkdir(parents=True, exist_ok=True)
-        
-        # Verify existence
-        for d in expected_dirs:
-            assert d.exists(), f"Directory {d} was not created"
-            assert d.is_dir(), f"Path {d} is not a directory"
+@pytest.fixture
+def mock_config(temp_project_root):
+    """Patch utils.config functions to use the temporary root."""
+    with patch('utils.config.get_project_root', return_value=temp_project_root):
+        with patch('utils.config.get_path', side_effect=lambda key: temp_project_root / key):
+            with patch('utils.config.ensure_dirs_exist', side_effect=lambda p: p.mkdir(parents=True, exist_ok=True)):
+                yield temp_project_root
 
-def test_data_dirs_are_empty():
-    """
-    Test that the created directories are initially empty.
-    """
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        project_root = Path(tmp_dir)
-        data_root = project_root / "data"
-        data_root.mkdir()
+class TestSetupDataDirs:
+    """Test the data directory setup logic."""
+
+    def test_creates_required_directories(self, mock_config):
+        """Verify that setup_data_dirs creates raw, derived, logs, and results."""
+        from setup_data_dirs import main
+        import utils.config
+
+        # Ensure the mock is active
+        root = utils.config.get_project_root()
         
-        subdirs = ["raw", "derived", "logs", "results"]
-        for subdir in subdirs:
-            (data_root / subdir).mkdir()
-        
-        for subdir in subdirs:
-            dir_path = data_root / subdir
-            # Check if directory is empty (no files or subdirs)
-            # Note: os.listdir returns entries, if empty list is []
-            assert not os.listdir(dir_path), f"Directory {dir_path} should be empty"
+        # Run the setup
+        main()
+
+        # Check directories exist
+        expected_dirs = ["raw", "derived", "logs", "results"]
+        for subdir in expected_dirs:
+            dir_path = root / "data" / subdir
+            assert dir_path.exists(), f"Directory {dir_path} was not created."
+            assert dir_path.is_dir(), f"{dir_path} exists but is not a directory."
+
+    def test_data_root_created(self, mock_config):
+        """Verify that the main data directory is created."""
+        from setup_data_dirs import main
+        import utils.config
+
+        root = utils.config.get_project_root()
+        main()
+
+        data_root = root / "data"
+        assert data_root.exists()
+        assert data_root.is_dir()

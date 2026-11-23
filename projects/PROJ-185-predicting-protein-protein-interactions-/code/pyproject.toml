@@ -1,13 +1,8 @@
-[build-system]
-requires = ["setuptools>=61.0", "wheel"]
-build-backend = "setuptools.build_meta"
-
 [project]
-name = "predict-protein-protein-interactions"
+name = "proj-185"
 version = "0.1.0"
-description = "Predict Protein-Protein Interactions from Co-expression Networks"
-readme = "README.md"
-requires-python = ">=3.9"
+description = "Predict Protein‑Protein Interactions from Co‑expression Networks"
+# Core dependencies required by the pipeline
 dependencies = [
     "numpy",
     "pandas",
@@ -15,37 +10,22 @@ dependencies = [
     "goatools",
     "scikit-learn",
     "tqdm",
-    "requests",
-    "pyyaml",
-    "rpy2",
+    "requests"
 ]
 
-[project.optional-dependencies]
-dev = [
-    "ruff",
-    "black",
-    "pytest",
-    "pytest-cov",
-    "mypy",
-]
+[build-system]
+requires = ["setuptools", "wheel"]
+build-backend = "setuptools.build_meta"
 
+# Black configuration – used by the test suite to ensure formatting settings exist
 [tool.black]
 line-length = 88
-target-version = ['py39', 'py310', 'py311']
+target-version = ["py38"]
+skip-string-normalization = false
 
+# Ruff configuration – mirrors the separate .ruff.toml but is also included here for completeness
 [tool.ruff]
 line-length = 88
-target-version = "py39"
-
-[tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4", "UP", "N", "RUF"]
+select = ["E", "F", "W", "C90"]
 ignore = ["E501"]
-
-[tool.ruff.lint.isort]
-known-first-party = ["pipeline", "utils", "cli"]
-
-[tool.mypy]
-python_version = "3.9"
-warn_return_any = true
-warn_unused_configs = true
-ignore_missing_imports = true
+target-version = "py38"

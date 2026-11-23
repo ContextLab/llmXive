@@ -1,0 +1,22 @@
+[
+  {
+    "url": "https://materialsproject.org/rest/v2/materials/",
+    "source_type": "api",
+    "citation": "Materials Project API - Solder Alloy Database"
+  },
+  {
+    "url": "https://www.nist.gov/programs-projects/open-alloy-database",
+    "source_type": "api",
+    "citation": "NIST Open Alloy Database"
+  },
+  {
+    "url": "https://arxiv.org/search/?query=solder+hardness&searchtype=all",
+    "source_type": "html",
+    "citation": "ArXiv Search for Solder Hardness Literature"
+  },
+  {
+    "url": "https://www.sciencedirect.com/journal/materials-science-and-engineering-a",
+    "source_type": "pdf",
+    "citation": "Materials Science and Engineering A - Solder Alloy Studies"
+  }
+]

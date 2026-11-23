@@ -42,7 +42,7 @@
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/codeparrot/code-parrot
   verified_at: '2026-07-03T19:54:04.706040Z'
-- artifact_hash: 97e7c4412c51c03adc09837539f6b5875b520ea534dd1c4c34c9a0bbfa3a29a7
+- artifact_hash: 2229bb8c9da1d19ba28a48a612ce942b475adf3d0a3cdb36fed68ed2d275800f
   artifact_path: projects/PROJ-288-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -52,4 +52,4 @@
   value: https://huggingface.co/datasets/codeparrot/codeparrot-small`
   verification_status: pending
   verified_against_url: https://huggingface.co/datasets/codeparrot/codeparrot-small
-  verified_at: '2026-07-04T01:04:13.610731Z'
+  verified_at: '2026-09-05T01:35:51.117355Z'

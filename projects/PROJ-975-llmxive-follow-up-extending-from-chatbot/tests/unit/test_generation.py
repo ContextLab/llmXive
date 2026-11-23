@@ -1,118 +1,137 @@
-"""
-tests/unit/test_generation.py
-
-Unit tests for code/generate_data.py
-Verifies ground-truth independence between Seed A (skills) and Seed B (tasks).
-"""
-import pytest
-import random
-import json
 import os
-import sys
-from unittest.mock import patch, MagicMock
+import json
+import pytest
 import numpy as np
-
-# Add project root to path
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
-
-from code.generate_data import generate_skills, generate_tasks_with_ground_truth
+from code.generate_data import (
+    generate_skills, 
+    calculate_similarity_metrics, 
+    generate_tasks_with_ground_truth,
+    handle_maximal_overlap,
+    generate_checksum,
+    save_artifacts
+)
 from code.config import get_seeds, pin_seeds
 
-# Mock dependencies that might fail in test environment
-@pytest.fixture
-def mock_utils():
-    with patch('code.generate_data.get_model') as mock_model, \
-         patch('code.generate_data.get_embedding') as mock_emb, \
-         patch('code.generate_data.pairwise_cosine_similarity_matrix') as mock_sim, \
-         patch('code.generate_data.mean_pairwise_similarity') as mock_mean:
-         
-         mock_model.return_value = MagicMock()
-         mock_emb.return_value = np.array([1.0, 0.0])
-         mock_sim.return_value = np.array([[1.0, 0.1], [0.1, 1.0]])
-         mock_mean.return_value = 0.1
-         yield mock_model, mock_emb, mock_sim, mock_mean
+def test_generate_skills_deterministic():
+    """Test that skill generation is deterministic with same seed."""
+    seed = 42
+    pin_seeds(seed)
+    skills1, _ = generate_skills(seed, "low")
+    
+    pin_seeds(seed)
+    skills2, _ = generate_skills(seed, "low")
+    
+    assert len(skills1) == len(skills2)
+    assert skills1[0]["skill_id"] == skills2[0]["skill_id"]
+    assert skills1[0]["description"] == skills2[0]["description"]
 
-def test_ground_truth_independence(mock_utils):
-    """
-    Test that task generation uses a distinct seed (Seed B) from skill generation (Seed A).
-    This ensures that the ground-truth paths are independent of the semantic embedding space.
-    """
-    seed_a = 42
-    seed_b = 123
+def test_similarity_metrics_calculation():
+    """Test that similarity metrics are calculated correctly."""
+    # Create dummy embeddings
+    embeddings = np.array([
+        [1.0, 0.0, 0.0],
+        [0.0, 1.0, 0.0],
+        [0.0, 0.0, 1.0]
+    ])
     
-    # Mock skills
-    mock_skills = [{"id": "skill_1", "code": "def f(): pass"}]
+    metrics = calculate_similarity_metrics(embeddings)
     
-    # Generate tasks with Seed B
-    tasks_b1 = generate_tasks_with_ground_truth(mock_skills, seed_b)
-    tasks_b2 = generate_tasks_with_ground_truth(mock_skills, seed_b)
-    
-    # Generate tasks with a different seed
-    tasks_b3 = generate_tasks_with_ground_truth(mock_skills, seed_b + 1)
-    
-    # Verify reproducibility with same seed
-    assert len(tasks_b1) == len(tasks_b2)
-    assert tasks_b1[0]["ground_truth_path"] == tasks_b2[0]["ground_truth_path"]
-    
-    # Verify difference with different seed (should be different paths if randomness affects selection)
-    # Note: With only 1 skill, path length is limited, so we check if the logic runs without error
-    # and the seed is actually used.
-    assert tasks_b1[0]["seed_used"] == seed_b
-    assert tasks_b3[0]["seed_used"] == seed_b + 1
-    
-    # Verify that skills are not used in task generation logic (independence)
-    # The function should only use skill IDs, not their embeddings or content
-    assert all("code" not in str(t) for t in tasks_b1)
+    assert "mean_pairwise_similarity" in metrics
+    assert "pairwise_matrix" in metrics
+    assert metrics["mean_pairwise_similarity"] == pytest.approx(0.0, abs=1e-5)
+    assert len(metrics["pairwise_matrix"]) == 3
 
-def test_skill_generation_seed_a(mock_utils):
-    """
-    Test that skill generation is deterministic with Seed A.
-    """
-    seed_a = 42
+def test_ground_truth_independence():
+    """Test that task ground truth assignment uses distinct seed (Seed B)."""
+    skill_ids = ["skill_001", "skill_002", "skill_003"]
     
-    skills_1, _ = generate_skills(seed_a, "low")
-    skills_2, _ = generate_skills(seed_a, "low")
+    # Generate with Seed B = 100
+    tasks1 = generate_tasks_with_ground_truth(skill_ids, 100, 5)
     
-    # Verify same seed produces same skills
-    assert len(skills_1) == len(skills_2)
-    assert skills_1[0]["id"] == skills_2[0]["id"]
-    assert skills_1[0]["code"] == skills_2[0]["code"]
+    # Generate with Seed B = 200
+    tasks2 = generate_tasks_with_ground_truth(skill_ids, 200, 5)
+    
+    # The ground truth paths should differ
+    # (At least one task should have a different ground_truth_path)
+    different = False
+    for t1, t2 in zip(tasks1, tasks2):
+        if t1["ground_truth_path"] != t2["ground_truth_path"]:
+            different = True
+            break
+    
+    assert different, "Ground truth paths should differ when using different seeds"
 
-def test_task_count_and_path_length(mock_utils):
-    """
-    Test that exactly 500 tasks are generated with path lengths between 3 and 5.
-    """
-    # Create enough skills for sampling
-    mock_skills = [{"id": f"skill_{i}"} for i in range(100)]
+def test_maximal_overlap_handling():
+    """Test handling of maximal overlap (mean_sim >= 0.95)."""
+    high_sim = 0.96
+    tasks = [{"task_id": "task_001"}]
     
-    tasks = generate_tasks_with_ground_truth(mock_skills, 123)
+    metadata = handle_maximal_overlap(high_sim, tasks)
     
-    assert len(tasks) == 500
-    for task in tasks:
-        path = task["ground_truth_path"]
-        assert 3 <= len(path) <= 5
-        # Verify unique skills in path
-        assert len(path) == len(set(path))
+    assert metadata["maximal_overlap_detected"] is True
+    assert metadata["tie_breaking_applied"] is True
 
-def test_seed_usage_in_metadata(mock_utils):
-    """
-    Test that the correct seeds are recorded in the output metadata.
-    """
-    seed_a = 999
-    seed_b = 888
+def test_checksum_generation():
+    """Test that checksum generation produces valid SHA-256 hashes."""
+    import tempfile
     
-    # We can't easily run the full main() in unit test without file IO,
-    # so we check the functions directly.
-    skills, skill_meta = generate_skills(seed_a, "low")
-    assert skill_meta["seed_used"] == seed_a
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
+        json.dump({"test": "data"}, f)
+        temp_path = f.name
     
-    mock_skills = [{"id": "s1"} for _ in range(100)]
-    tasks = generate_tasks_with_ground_truth(mock_skills, seed_b)
-    # The function returns a list, metadata is usually attached in main()
-    # But we can verify the seed is used in the generation logic
-    # by checking if the seed is passed correctly.
-    # The generate_tasks_with_ground_truth function sets the seed at the start.
+    try:
+        checksum = generate_checksum(temp_path)
+        assert len(checksum) == 64  # SHA-256 hex length
+        assert all(c in '0123456789abcdef' for c in checksum)
+    finally:
+        os.unlink(temp_path)
+
+def test_save_artifacts_creates_files():
+    """Test that save_artifacts creates the required files."""
+    import tempfile
+    import shutil
     
-    # Re-run to ensure reproducibility
-    tasks_2 = generate_tasks_with_ground_truth(mock_skills, seed_b)
-    assert tasks[0]["ground_truth_path"] == tasks_2[0]["ground_truth_path"]
+    # Create a temporary directory for testing
+    test_dir = tempfile.mkdtemp()
+    original_cwd = os.getcwd()
+    
+    try:
+        os.chdir(test_dir)
+        os.makedirs("data/raw", exist_ok=True)
+        os.makedirs("state", exist_ok=True)
+        
+        skills = [{"skill_id": "s1", "description": "Test"}]
+        tasks = [{"task_id": "t1", "ground_truth_path": ["s1"]}]
+        metadata = {"maximal_overlap_detected": False}
+        
+        save_artifacts(skills, tasks, metadata, "low", 42, 123)
+        
+        # Verify files exist
+        assert os.path.exists("data/raw/skills.json")
+        assert os.path.exists("data/raw/tasks.json")
+        assert os.path.exists("data/raw/checksums.json")
+        assert os.path.exists("state/artifact_hashes.json")
+        
+        # Verify content structure
+        with open("data/raw/skills.json") as f:
+            skills_data = json.load(f)
+            assert "metadata" in skills_data
+            assert "skills" in skills_data
+            assert skills_data["metadata"]["overlap_level"] == "low"
+        
+        with open("data/raw/tasks.json") as f:
+            tasks_data = json.load(f)
+            assert "metadata" in tasks_data
+            assert "tasks" in tasks_data
+            assert "maximal_overlap_detected" in tasks_data["metadata"]
+        
+        with open("data/raw/checksums.json") as f:
+            checksums = json.load(f)
+            assert "skills.json" in checksums
+            assert "tasks.json" in checksums
+            assert len(checksums["skills.json"]) == 64
+            assert len(checksums["tasks.json"]) == 64
+    
+    finally:
+        os.chdir(original_cwd)
+        shutil.rmtree(test_dir)

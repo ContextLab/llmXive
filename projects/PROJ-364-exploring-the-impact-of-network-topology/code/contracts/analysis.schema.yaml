@@ -1,0 +1,140 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Result Schema
+description: Schema for correlation analysis and statistical validation results.
+type: object
+required:
+  - analysis_id
+  - timestamp
+  - correlation_results
+  - regression_results
+  - sensitivity_analysis
+properties:
+  analysis_id:
+    type: string
+    description: Unique identifier for the analysis run.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp.
+  data_status:
+    type: object
+    description: Status of data availability (paired vs unpaired).
+    properties:
+      has_real_data:
+        type: boolean
+      is_unpaired:
+        type: boolean
+      fallback_mode:
+        type: boolean
+  correlation_results:
+    type: array
+    description: List of correlation test results.
+    items:
+      type: object
+      required:
+        - metric_name
+        - method
+        - coefficient
+        - p_value
+        - corrected_p_value
+        - confidence_interval
+      properties:
+        metric_name:
+          type: string
+          description: Name of the topological metric.
+        method:
+          type: string
+          enum: [pearson, spearman]
+          description: Correlation method used.
+        coefficient:
+          type: number
+          description: Correlation coefficient (r).
+        p_value:
+          type: number
+          description: Raw p-value.
+        corrected_p_value:
+          type: number
+          description: P-value after multiple comparison correction.
+        confidence_interval:
+          type: array
+          items:
+            type: number
+          minItems: 2
+          maxItems: 2
+          description: 95% Confidence Interval [lower, upper].
+        significance:
+          type: boolean
+          description: Whether the result is significant after correction.
+  regression_results:
+    type: array
+    description: List of regression model results.
+    items:
+      type: object
+      required:
+        - metric_name
+        - model_type
+        - score
+        - params
+      properties:
+        metric_name:
+          type: string
+        model_type:
+          type: string
+          description: e.g., linear, polynomial, gaussian_process.
+        score:
+          type: number
+          description: R-squared or similar score.
+        params:
+          type: object
+          description: Model hyperparameters.
+        aic:
+          type: number
+          description: Akaike Information Criterion.
+        bic:
+          type: number
+          description: Bayesian Information Criterion.
+  sensitivity_analysis:
+    type: object
+    description: Results of threshold sensitivity analysis.
+    required:
+      - std_dev
+      - thresholds_tested
+    properties:
+      std_dev:
+        type: number
+        description: Standard deviation of correlation coefficients across thresholds.
+      thresholds_tested:
+        type: array
+        items:
+          type: number
+        description: List of thresholds used (e.g., 1.5x, 2.0x, 2.5x).
+      target_met:
+        type: boolean
+        description: True if std_dev <= 0.05.
+  population_correlation:
+    type: object
+    nullable: true
+    description: Results if unpaired data analysis was performed.
+    properties:
+      method:
+        type: string
+        description: "population_mean_correlation"
+      coefficient:
+        type: number
+      p_value:
+        type: number
+  synthetic_warning:
+    type: object
+    nullable: true
+    description: Warning if synthetic data was detected.
+    properties:
+      detected:
+        type: boolean
+      message:
+        type: string
+  metadata:
+    type: object
+    additionalProperties: true
+additionalProperties: false

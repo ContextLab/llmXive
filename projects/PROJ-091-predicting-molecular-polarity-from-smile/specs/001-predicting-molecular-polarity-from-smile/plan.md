@@ -1,129 +1,146 @@
 # Implementation Plan: Predicting Molecular Polarity from SMILES Strings with Machine Learning
 
-**Branch**: `001-predict-molecular-polarity` | **Date**: 2026-07-13 | **Spec**: `specs/001-predicting-molecular-polarity/spec.md`
-**Input**: Feature specification from `/specs/001-predicting-molecular-polarity/spec.md`
+**Branch**: `001-predict-molecular-polarity` | **Date**: 2026-10-19 | **Spec**: `specs/001-predict-molecular-polarity/spec.md`  
+**Input**: Feature specification from `/specs/001-predict-molecular-polarity/spec.md`
 
 ## Summary
-This project implements a machine learning pipeline to predict molecular dipole moments (polarity) using **exclusively** 2D topological descriptors derived from SMILES strings. The system will utilize the QM dataset as the source of truth for both SMILES strings and target dipole values. The core innovation is the strict exclusion of 3D conformer generation, TPSA, and functional group SMARTS patterns to isolate the information content of 2D topology. The pipeline involves data ingestion, rigorous 2D feature engineering (RDKit), LightGBM regression training, and **Cluster-Aware SHAP** interpretability. All operations are constrained to run on CPU-only CI resources (≤6GB RAM, ≤6h runtime).
+The plan delivers a fully reproducible, CPU‑only research pipeline that:
+
+1. **Downloads** the open QM9 dataset (130 831 molecules) via `qm9pack`.  
+2. **Generates** ≥ 200 2‑D topological descriptors per molecule using RDKit, explicitly **excluding** any 3‑D conformer generation, TPSA‑related descriptors, and SMARTS‑based functional‑group counts (FR‑001, FR‑006).  
+3. **Handles** malformed SMILES, undefined stereochemistry, NaNs, and highly flexible molecules (FR‑008, FR‑009).  
+4. **Mitigates collinearity** with iterative VIF pruning (threshold 5.0). **Fallback**: If pruning would leave **fewer than 150** descriptors, the pipeline switches to an L1‑regularized LightGBM model (instead of further pruning), preserving the ≥ 150 descriptor requirement (FR‑007).  
+5. **Trains** a LightGBM gradient‑boosting regressor on the 2‑D matrix using a random train/test split, k‑fold CV, and hyper‑parameter logging (FR‑002, FR‑003).  
+6. **Evaluates** model performance (R², RMSE) against a null‑mean baseline (SC‑001).  
+7. **Applies** SHAP (with interaction values) to obtain feature importance and runs **100 bootstrap resamples** (a subsample of ~10 k per resample) to compute Jaccard similarity of the top‑10 SHAP features across resamples (target ≥ 0.7, SC‑003).  
+8. **Validates** the stability of the top‑10 SHAP features by training **single‑feature LightGBM** models and recording per‑feature R² (must be ≥ 0.02, SC‑009).  
+9. **Produces** contracts‑validated artifacts (schemas, checksum manifests) and a reproducibility verification step (SC‑005).  
+
+> **Note on FR‑010 / FR‑011** – These functional requirements request a 3‑D baseline model. They directly conflict with **Constitution Principle VI** (“All predictive models MUST rely exclusively on 2D descriptors”). Consequently, they are **out of scope** under the current constitution. The spec should be revised if a 3‑D comparison is required; otherwise the project proceeds with the 2‑D‑only pipeline. Accordingly, **SC‑008** (ΔR²) cannot be computed and is omitted.
 
 ## Technical Context
-
-**Language/Version**: Python 3.10+  
-**Primary Dependencies**: `rdkit`, `lightgbm`, `pandas`, `numpy`, `scikit-learn`, `shap`, `pyyaml`, `pytest`  
-**Storage**: Local file system (Parquet/CSV) for data; `.pkl` for model artifacts  
-**Testing**: `pytest` (unit, integration, contract tests)  
-**Target Platform**: GitHub Actions free-tier runner (Linux, CPU-only)  
-**Project Type**: Computational research pipeline / CLI  
-**Performance Goals**: Peak memory < 6 GB; Runtime < 6 hours; **R² must be statistically significantly greater than 0.0 (Null Model) via permutation test (p < 0.05)**.  
-**Constraints**: NO 3D geometry generation (`EmbedMolecule`, `Get3DConformer`); NO GPU; NO TPSA/Functional Group features; **NO arbitrary feature removal based on VIF** (VIF used for diagnostic clustering only).  
-**Scale/Scope**: QM9 dataset (sampled to fit memory); A set of 2D descriptors; **Cluster-Aware SHAP analysis with multiple bootstrap iterations (SHAP-only resampling)**.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `rdkit`, `lightgbm`, `shap`, `pandas`, `numpy`, `scikit-learn`, `qm9pack`, `scipy` (pinned in `requirements.txt`)  
+- **Storage**: Parquet files for raw/processed tables; Pickle for the LightGBM model; JSON for stability reports.  
+- **Testing**: `pytest` (unit, integration, contract).  
+- **Target Platform**: Linux GitHub Actions free‑tier (2 vCPU, ~7 GB RAM, ≤ 6 h).  
+- **Constraints**: CPU‑only; peak RAM ≤ 6 GB; runtime ≤ 6 h; strict 2‑D descriptor usage.
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Verification Method | Reference in Constitution |
-|-----------|---------------------|---------------------------|
-| **I. Reproducibility** | `requirements.txt` pins all deps; random seeds hardcoded in `code/`; dataset source pinned to verified URL. | [Section I](constitution.md#i-reproducibility-non-negotiable) |
-| **II. Verified Accuracy** | Dataset URLs in `research.md` strictly limited to the "Verified datasets" block provided in the prompt. | [Section II](constitution.md#ii-verified-accuracy-inherits-parent-principle-ii) |
-| **III. Data Hygiene** | Raw QM9 data downloaded to `data/raw/` with checksum; derived features written to `data/processed/` with new filenames. | [Section III](constitution.md#iii-data-hygiene) |
-| **IV. Single Source of Truth** | All metrics (R², RMSE, SHAP values) generated programmatically from `data/processed/` and `code/`; no hand-typed numbers in paper. | [Section IV](constitution.md#iv-single-source-of-truth-inherits-parent-principle-i) |
-| **V. Versioning Discipline** | Content hashes for data artifacts tracked in `state/`; `updated_at` timestamps managed by advancement evaluator. | [Section V](constitution.md#v-versioning-discipline) |
-| **VI. 2D-Topological Fidelity** | Pipeline explicitly excludes 3D functions (FR-006, FR-001); unit test asserts no 3D calls. | [Section VI](constitution.md#vi-2d-topological-fidelity) |
-| **VII. Computational Constraint Adherence** | Memory checks (FR-006) and CPU-only LightGBM (FR-002) ensure feasibility on free-tier CI. | [Section VII](constitution.md#vii-computational-constraint-adherence) |
+| Principle | Status | Comment |
+|-----------|--------|---------|
+| I. Reproducibility | ✅ | Fixed seeds in `code/utils/config.py`; deterministic data loaders; `requirements.txt` pins versions. |
+| II. Verified Accuracy | ✅ | All citations limited to verified URLs (QM9 HuggingFace link, RDKit docs). |
+| III. Data Hygiene | ✅ | Raw data checksummed; each transformation produces a new file; no in‑place edits. |
+| IV. Single Source of Truth | ✅ | Every figure/table references a single row in `data/processed/` and a single function in `code/`. |
+| V. Versioning Discipline | ✅ | Content hashes stored in `state/manifest.json`; timestamps updated by agents. |
+| VI. 2D‑Topological Fidelity | ✅ | No calls to `EmbedMolecule`/`Get3DConformer`; TPSA and SMARTS excluded; unit test enforces this. |
+| VII. Computational Constraint | ✅ | LightGBM & RDKit run comfortably on CPU; streaming/chunked processing keeps RAM ≤ 6 GB; total estimated runtime < 6 h. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-predict-molecular-polarity/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
     ├── dataset.schema.yaml
-    └── model_output.schema.yaml
-```
+    ├── descriptor_schema.schema.yaml
+    ├── features.schema.yaml
+    ├── model_output.schema.yaml
+    ├── model_output_schema.schema.yaml
+    └── vif_schema.schema.yaml
 
-### Source Code (repository root)
-
-```text
 code/
 ├── data/
-│   ├── download_qm9.py          # Fetches and checksums raw data
-│   ├── preprocess_2d.py         # Generates 2D descriptors (excludes 3D/TPSA)
-│   ├── feature_clustering.py    # Computes correlation matrix and clusters (VIF diagnostic only)
-│   └── split_data.py            # Train/test split
-├── models/
-│   ├── train_lightgbm.py        # Model training and CV
-│   ├── evaluate.py              # Metrics calculation
-│   └── interpret.py             # Cluster-Aware SHAP and bootstrapping
+│   ├── fetch.py                # QM9 download via qm9pack
+│   ├── preprocess.py           # 2‑D descriptor generation, NaN handling
+│   ├── feature_selection.py    # VIF pruning + L1 fallback
+│   └── validate.py             # Schema & checksum validation
+├── model/
+│   ├── train.py                # LightGBM training & CV
+│   ├── evaluate.py             # SHAP, bootstrap stability, single‑feature R²
+│   └── predict.py              # Inference wrapper
 ├── utils/
-│   ├── config.py                # Global seeds and paths
-│   └── validators.py            # Assertions for 3D exclusion
-├── main.py                      # Orchestration script
-└── requirements.txt
-
-tests/
-├── contract/
-│   ├── test_dataset_schema.py   # Validates input/output schemas
-│   └── test_model_output.py     # Validates prediction formats
-├── unit/
-│   ├── test_preprocess.py       # Tests descriptor generation logic
-│   └── test_3d_exclusion.py     # Asserts no 3D functions are called
-└── integration/
-    └── test_full_pipeline.py    # End-to-end run on small batch
+│   ├── config.py               # Global seeds, paths, hyper‑params
+│   └── logging.py
+├── main.py                     # Orchestrator (steps: fetch, preprocess, select, train, analyze, verify)
+└── __init__.py
 
 data/
-├── raw/                         # Downloaded QM9 parquet (immutable)
-└── processed/                   # Feature matrices and splits
+├── raw/
+│   └── qm9_raw.parquet
+├── processed/
+│   ├── descriptors.parquet
+│   ├── vif_scores.csv
+│   ├── cluster_map.csv
+│   └── model.pkl
+└── results/
+    ├── shap_summary.png
+    └── stability_report.json
+
+state/
+└── manifest.json               # SHA‑256 checksums for all processed artifacts
+
+tests/
+├── unit/
+│   ├── test_descriptors.py     # Mocks RDKit 3‑D functions → asserts none called
+│   └── test_vif.py
+├── contract/
+│   ├── test_schema_validation.py
+│   └── test_data_integrity.py
+└── integration/
+    └── test_pipeline.py
 ```
 
-**Structure Decision**: A linear, script-based pipeline (`code/data`, `code/models`) is selected over a library pattern to ensure strict control over execution order and resource usage for the CI environment. The `code/` directory is self-contained within the project root for simplicity.
+## Complexity Tracking (FR → Phase Mapping)
 
-## Complexity Tracking
+| Functional Requirement | Phase / Script | Reason |
+|------------------------|----------------|--------|
+| FR‑001 | `code/data/preprocess.py` | Generates ≥200 2‑D descriptors, excludes TPSA & SMARTS. |
+| FR‑002 | `code/model/train.py` | LightGBM regression on 2‑D matrix. |
+| FR‑003 | `code/model/train.py` (CV) | k‑fold CV, hyper‑parameter logging. |
+| FR‑004 | `code/model/evaluate.py` (SHAP) | SHAP interaction values for correlated features. |
+| FR‑005 | `code/model/evaluate.py` (bootstrap) | 100 resamples of the full dataset; Jaccard stability (≥ 0.7). |
+| FR‑006 | `code/data/preprocess.py` (batching, NaN handling) + unit test | Memory ≤6 GB, NaN imputation, 3‑D function guard. |
+| FR‑007 | `code/data/feature_selection.py` (VIF + L1 fallback) | Iterative VIF removal, retain ≥150 descriptors; fallback to L1 if < 150 would remain. |
+| FR‑008 | `code/data/preprocess.py` (stereochemistry) | Normalizes undefined stereochemistry, logs proportion. |
+| FR‑009 | `code/data/preprocess.py` (flexibility flag) | Identifies rotatable‑bond ≥ 5, flags outliers; dual heuristics with Jaccard ≥ 0.8. |
+| FR‑010 / FR‑011 | **Out of scope** (conflict with Principle VI) | Documented; requires spec amendment. |
+| FR‑012 | `code/model/evaluate.py` (single‑feature models) | Trains ten single‑feature LightGBM models, records R². |
+| FR‑013 | `code/data/feature_selection.py` (correlation filter on train split) | Applies |r| > 0.85 filter **only** on training data. |
+| SC‑001 | `code/model/evaluate.py` | Computes R² vs. null‑model. |
+| SC‑002 | `code/model/evaluate.py` (SHAP) | Reports mean absolute SHAP values. |
+| SC‑003 | `code/model/evaluate.py` (bootstrap) | Jaccard similarity of top‑10 SHAP features. |
+| SC‑004 | CI logs & `code/utils/logging.py` | Records runtime & peak RAM. |
+| SC‑005 | `tests/unit/test_descriptors.py` | Asserts no 3‑D calls. |
+| SC‑006 | `code/data/preprocess.py` | Logs stereochemistry normalization proportion (≤ 5 %). |
+| SC‑007 | `code/data/preprocess.py` + `code/model/evaluate.py` | Dual heuristics for flexibility; Jaccard ≥ 0.8. |
+| SC‑009 | `code/model/evaluate.py` (single‑feature R²) | Each top‑10 SHAP feature ≥ 0.02 R². |
+| SC‑010 | CI monitoring | Peak RAM ≤ 6 GB enforced via `resource` module. |
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Cluster-Aware SHAP** | Required by FR-005/SC-003 to validate signal in correlated clusters without arbitrary pruning. | Simple VIF pruning removes signal; correlation filtering ignores multi-variable dependencies. |
-| **Two-Stage Bootstrap** | Required to meet 6h runtime on CPU while maintaining statistical validity for stability. | Full re-training 100x exceeds runtime; single-split SHAP is unstable. |
-| **Strict 3D Exclusion Test** | Required by Constitution Principle VI and FR-006. | Relying on documentation alone is insufficient; automated assertion is needed to prevent accidental 3D leakage. |
-| **SHAP Interaction Values** | Required to attribute signal within correlated clusters (methodology concern). | Standard SHAP splits credit arbitrarily; Interaction values provide a rigorous attribution for collinear features. |
+## Contract Validation Mapping
+| Contract File | Pipeline Step | Validation Action |
+|---------------|---------------|-------------------|
+| `contracts/dataset.schema.yaml` | `code/data/fetch.py` → after download | `validate.py` checks raw QM9 metadata against schema. |
+| `contracts/descriptor_schema.schema.yaml` | `code/data/preprocess.py` | `validate.py` confirms descriptor matrix shape, exclusion rules, and column metadata. |
+| `contracts/vif_schema.schema.yaml` | `code/data/feature_selection.py` | `validate.py` verifies VIF scores, fallback flag, and descriptor count. |
+| `contracts/features.schema.yaml` | `code/data/preprocess.py` (post‑processing) | `validate.py` ensures each record conforms to the feature schema (flags, imputation status). |
+| `contracts/model_output.schema.yaml` | `code/model/train.py` & `code/model/evaluate.py` | `validate.py` checks model artifact, predictions, and SHAP output against schema. |
+| `contracts/model_output_schema.schema.yaml` | `code/model/evaluate.py` | Additional sanity check on aggregated metrics and SHAP summary. |
 
-## Functional Requirements (Updated)
+## Data Flow & Execution Logic
+1. **Fetch** (`fetch.py`) → `data/raw/qm9_raw.parquet`.  
+2. **Preprocess** (`preprocess.py`) → `data/processed/descriptors.parquet`.  
+3. **Feature Selection** (`feature_selection.py`) → `data/processed/vif_scores.csv`, `data/processed/cluster_map.csv`.  
+4. **Validate** (`validate.py`) → contracts checked against generated artifacts.  
+5. **Train** (`train.py`) → `data/processed/model.pkl`.  
+6. **Analyze** (`evaluate.py`) → SHAP summary PNG, stability JSON, single‑feature R² table.  
+7. **Verify** (`main.py --step verify`) → checksum comparison against `state/manifest.json`.  
 
-- **FR-001**: System MUST parse SMILES strings and generate a feature matrix of ≥200 2D topological descriptors using `rdkit.Chem.Descriptors` and `rdkit.Chem.rdMolDescriptors` (excluding 3D functions). The system MUST explicitly exclude: (a) TPSA, TPSA_E, and any surface-area proxies; (b) direct functional group identifiers (SMARTS patterns for -OH, -C=O, etc.). **CRITICAL: The system MUST NOT exclude features based on correlation with the target (|r| > 0.85) as this would invalidate the hypothesis test.** (See US-1).
-- **FR-002**: System MUST train a Gradient Boosting Regressor (LightGBM) on the 2D feature matrix to predict dipole moments, ensuring strict separation between training and test sets using a standard random split (no target binning or stratification) (See US-2).
-- **FR-003**: System MUST implement k-fold cross-validation to tune hyperparameters and prevent overfitting, logging all random seeds for reproducibility (See US-2).
-- **FR-004**: System MUST apply SHAP analysis to the trained model to quantify the contribution of individual 2D descriptors to the dipole moment prediction (See US-3).
-- **FR-005**: System MUST perform a feature-set stability analysis by bootstrapping the dataset multiple times (sample size [deferred]) and verifying that the **top clusters of correlated features** remain consistent (Jaccard similarity ≥ 0.7) across resamples. **Method: Two-Stage Bootstrap (SHAP-only resampling) to ensure runtime feasibility.** (See US-3).
-- **FR-006**: System MUST process the QM dataset in batches to ensure peak memory usage remains within feasible operational limits. The system MUST implement NaN handling (median imputation or record drop) as a prerequisite for stable batch processing, and MUST include a runtime assertion and a dedicated unit test that asserts no 3D conformer generation functions (e.g., `rdkit.Chem.AllChem.EmbedMolecule`, `Get3DConformer`) are called during the descriptor generation pipeline (See US-1, Edge Cases: NaN handling).
-- **FR-007**: System MUST calculate Variance Inflation Factor (VIF) for all generated descriptors **for diagnostic clustering purposes only**. The system MUST group highly correlated descriptors (|r| > 0.8) into clusters and report the aggregate importance of these clusters. **No features are removed based on VIF thresholds.** This logic resides in `code/data/feature_clustering.py` (See US-3).
+All steps are ordered so that data is downloaded before any consumption, models are trained before evaluation, and figures are generated before any downstream reporting.
 
-## Success Criteria (Updated)
+---
 
-### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
-
-- **SC-001**: The variance explained (R²) by the 2D-only model is measured against the variance explained by a null model that predicts the mean dipole moment of the training set (R²=0.0) (See US-2).
-- **SC-002**: The contribution of specific 2D descriptors is measured against the SHAP value magnitude to identify the "strongest signal" features **within clusters** (See US-3).
-- **SC-003**: The sensitivity of the model to the feature set is measured by the Jaccard similarity of the **top 10 feature clusters** across 100 bootstrap resamples (See US-3).
-- **SC-004**: The computational feasibility is measured by the total runtime on the GitHub Actions free-tier runner (CPU only, ≤6h) and peak memory usage (≤6 GB) (See US-1, US-2).
-- **SC-005**: The methodological validity is measured by an automated unit test that asserts no function in the pipeline calls RDKit's `EmbedMolecule` or `Get3DConformer`, verifying the absence of 3D geometry leakage (See US-1).
-
-## Assumptions
-
-- The QM9 dataset is available via `wget`/`curl` from the Maxwell Institute or Zenodo without requiring authentication or paid access.
-- The QM9 dataset contains the necessary dipole moment values (target variable) and SMILES strings (source) for all molecules required for the analysis.
-- RDKit is available in the GitHub Actions environment with sufficient functionality to compute 200+ 2D descriptors without 3D conformer generation.
-- The GitHub Actions free-tier runner provides at least 2 CPU cores and 6 GB of RAM, sufficient for the LightGBM training on the sampled dataset.
-- The relationship between 2D topological features and dipole moments is empirically testable without requiring random assignment (observational study framing).
-- The QM9 dataset's dipole moments are calculated using a consistent quantum mechanical method, ensuring the target variable is homogeneous.
-- No GPU acceleration is required or available; all computations must be CPU-tractable.
-- The dataset variables (predictors and outcomes) are fully contained within the QM9 release; no external data sources are needed for the 2D descriptors.
-- Schema contracts reside in `tests/contract/` relative to the project root, ensuring compatibility with the `quickstart.md` and `data-model.md` test runners.

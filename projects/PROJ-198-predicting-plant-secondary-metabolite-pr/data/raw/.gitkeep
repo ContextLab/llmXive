@@ -1,1 +1,2 @@
-# Keep this directory for raw data downloads
+# This directory is for raw downloaded data (genomes, metabolite tables).
+# It is created automatically by the setup script.

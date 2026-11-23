@@ -1,0 +1,61 @@
+T001:
+  reason: "The evidence shows `code/src/__init__.py` but does not include `__init__.py`\
+    \ files inside the required sub\u2011packages (`data/`, `analysis/`, `stats/`,\
+    \ `reporting/`, `utils/`). Moreover, there is no execution evidence that `python\
+    \ -m code.src.run_pipeline --dry-run` exits with code\u202F0 and prints \u201C\
+    Pipeline completed (dry\u2011run)\u201D, nor any pytest output confirming \u201C\
+    0 failed, X passed\u201D. These missing artifacts prevent the task from being\
+    \ considered complete."
+  task: 7206176e37b9af32937c9b4ae4a8ac6a42f3658a4d6daffd687b234f6eec0018
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/src/data/download_hcp.py
+    exit=1'
+  task: a33675c07213d536631f285b9d94ce261b82acdb894421ea1e551f3802de4e7e
+T003:
+  reason: "The repository contains the `code/src/data/qc.py` script, but the required\
+    \ input file `data/raw/dsrt_scores.parquet` is missing, and the expected output\
+    \ artifacts `data/derived/clean_subjects.parquet` and `data/derived/subject_qc.csv`\
+    \ do not exist. Moreover, the unit test for the QC module fails during import\
+    \ (pandas version error), so the script\u2019s behavior has not been validated\
+    \ nor proven to meet the schema requirements. These missing files and failing\
+    \ tests must be addressed for the task to be considered complete."
+  task: 391bce7862386bb9a5d2800208d074af689580f7eb721add72c140d518d32a42
+T004:
+  reason: "Checked the repository and found that while `code/src/analysis/entropy.py`\
+    \ is present and implements the required functions, the required output artifacts\
+    \ `data/derived/entropy_matrix.parquet`, `data/derived/entropy_metadata.json`,\
+    \ and `data/derived/invalid_parcels.csv` are all missing. Without these files\
+    \ the task\u2019s deliverables (matrix with checksum, metadata JSON, and invalid\u2011\
+    parcel log) are not satisfied."
+  task: 1bfb769ac75860aecd80ae4b97148b43113755aa03757bd73b3527c6599b11df
+T005:
+  reason: "The run_pipeline script exists and logs \u201CCompleted 5 subjects, 400\
+    \ parcels\u201D, but the required output files are missing \u2013 `results/entropy_matrix.parquet`\
+    \ (and its source `data/derived/entropy_matrix.parquet`) and `results/covariates.parquet`\
+    \ do not exist, so their columns cannot be verified. Additionally, there is no\
+    \ evidence that the pipeline processes parcels in batches of \u2264\u202F50 to\
+    \ keep RAM\u202F<\u202F4\u202FGB. The task\u2019s core deliverables are therefore\
+    \ not satisfied."
+  task: f8b545799a6955438f89b1ce261e9f95f866e45e8e497bafc8dec68135b1f52f
+T006:
+  reason: 'Requested task execution failed; rerun successfully: code/src/run_pipeline.py
+    exit=1'
+  task: 556f632971af234ae02e92d0d4a8aeadd95e713ae52cd140c5d9a54b1813c649
+T007:
+  reason: 'Requested task execution failed; rerun successfully: code/src/stats/model.py
+    exit=1'
+  task: 778d58dc95f57eb373d17502ad08ac14ce59187e7f058fdef986e988c1660719
+T008:
+  task: d4d82cf70b92acf3d9f23732f0bcbe33ee05925febc2c58e97208624271206a0
+T009:
+  task: 724858a5a0bdda8aa8f4374f3c223aa090059186a5141d4e8deddd58852f68d9
+T010:
+  task: f3bb76e7091cbb26dbb685a20c111e15c73d417c85b31a336fb0a8f7c78b4cbd
+T011:
+  task: 489807dec49e7f190b785250cf38780a864e3dcdb6537cc91a9400adfe4b3bf6
+T014:
+  task: af80f796d27246384fecace19d36e539a0c688c76d427ea678afaf57c11b4cbe
+T015:
+  task: 987024063dfb8a47ff2de804b2e00300c5412fc5b69129062c981e1b9a0412e4
+T016:
+  task: 309bf8061256e2f48ec5be567f8c25d2f2665f9b2182cb4afb8f033686424c5e

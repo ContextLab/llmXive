@@ -1,81 +1,29 @@
-%YAML 1.2
----
-$schema: http://json-schema.org/draft-07/schema#
-title: NIST Ingest Raw Schema
-description: >
-  Schema for raw data fetched from NIST-IR-8200 before preprocessing.
-  Corresponds to the initial ingestion step in code/data/download_nist.py.
+# Schema for raw data ingestion from NIST-IR-8200
+# Based on AlloyRecord definition in data-model.md
 type: object
 required:
-  - metadata
-  - records
+  - alloy_id
+  - composition
+  - specific_alloy_designation
 properties:
-  metadata:
+  alloy_id:
+    type: string
+    description: Unique identifier for the alloy record
+  composition:
     type: object
-    required:
-      - source
-      - fetched_at
-      - version
-    properties:
-      source:
-        type: string
-        const: "NIST-IR-8200"
-      fetched_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of the fetch operation.
-      version:
-        type: string
-        description: Version of the dataset or schema used.
-  records:
-    type: array
-    minItems: 0
-    items:
-      type: object
-      required:
-        - record_id
-        - alloy_composition
-        - environment
-        - measurement
-      properties:
-        record_id:
-          type: string
-          description: Unique identifier for the raw record.
-        alloy_composition:
-          type: object
-          description: Raw composition data (may contain nulls or varied units).
-          properties:
-            alloy_designation:
-              type: ["string", "null"]
-            elements:
-              type: array
-              items:
-                type: object
-                properties:
-                  symbol:
-                    type: string
-                  weight_fraction:
-                    type: ["number", "null"]
-                  unit:
-                    type: ["string", "null"]
-        environment:
-          type: object
-          description: Raw environmental conditions.
-          properties:
-            temperature_c:
-              type: ["number", "null"]
-            ph:
-              type: ["number", "null"]
-            electrolyte:
-              type: ["string", "null"]
-        measurement:
-          type: object
-          description: Raw corrosion measurement.
-          properties:
-            corrosion_potential_mv:
-              type: ["number", "null"]
-            corrosion_rate:
-              type: ["number", "null"]
-            unit:
-              type: ["string", "null"]
-additionalProperties: false
+    description: Dictionary of chemical composition (element: weight_fraction)
+    additionalProperties:
+      type: number
+      minimum: 0.0
+      maximum: 1.0
+  specific_alloy_designation:
+    type: string
+    description: Specific alloy grade or designation (e.g., "304L", "Inconel 625")
+  source:
+    type: string
+    description: Source identifier (e.g., "NIST-IR-8200")
+  record_date:
+    type: string
+    format: date-time
+    description: Timestamp of record creation or ingestion
+additionalProperties: true

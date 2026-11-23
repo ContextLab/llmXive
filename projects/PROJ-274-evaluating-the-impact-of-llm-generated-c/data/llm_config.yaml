@@ -1,0 +1,6 @@
+commit_hash: Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF@refs/heads/main
+fallback_type: local_llama_cpp
+max_tokens: 2048
+model: Qwen/Qwen2.5-Coder-1.5B-Instruct-GGUF
+prompt_template: architecture_api_setup
+temperature: 0.7

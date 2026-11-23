@@ -53,7 +53,7 @@ properties:
     type: object
     additionalProperties:
       type: number
-    description: "Map of feature names to importance scores."
+    description: "Map of feature names to importance scores (CLR transformed)."
 required:
   - model_id
   - random_seed

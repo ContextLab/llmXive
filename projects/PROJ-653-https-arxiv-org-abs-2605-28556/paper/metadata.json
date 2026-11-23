@@ -82,5 +82,15 @@
     "sections/appendix/main.tex",
     "sections/appendix/method_implementation.tex",
     "sections/appendix/prompts.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "ec7dd8479c1361f22767e5104d1fd7bb09b044259b3065402717f847213f3bae",
+      "bytes": 1379607
+    },
+    "original.pdf": {
+      "sha256": "bf946a66f45167981aba435b8e5334e9e7cb73c7e31c8b54ba9e470b2e3b625b",
+      "bytes": 1390277
+    }
+  }
 }

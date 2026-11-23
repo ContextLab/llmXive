@@ -1,6 +1,3 @@
-"""
-Disk space verification utilities.
-"""
 import os
 import sys
 from pathlib import Path
@@ -14,55 +11,54 @@ class InsufficientDiskSpaceError(Exception):
 def get_available_space(path: Path) -> int:
     """
     Get available disk space in bytes for the given path.
-    
-    Args:
-        path: Directory path to check.
-        
-    Returns:
-        Available space in bytes.
+    Returns 0 if the path does not exist or an error occurs.
     """
     try:
-        stat = os.statvfs(path)
-        return stat.f_bavail * stat.f_frsize
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Path does not exist: {path}")
-    except PermissionError:
-        raise PermissionError(f"Permission denied to access path: {path}")
+        # Use os.statvfs for Unix-like systems and os.stat for Windows
+        if sys.platform == "win32":
+            import ctypes
+            kernel32 = ctypes.windll.kernel32
+            c_free_bytes = ctypes.c_ulonglong(0)
+            c_total_bytes = ctypes.c_ulonglong(0)
+            c_total_free_bytes = ctypes.c_ulonglong(0)
+            if kernel32.GetDiskFreeSpaceExW(
+                str(path),
+                ctypes.byref(c_free_bytes),
+                ctypes.byref(c_total_bytes),
+                ctypes.byref(c_total_free_bytes)
+            ):
+                return c_free_bytes.value
+            return 0
+        else:
+            stat = os.statvfs(path)
+            return stat.f_bavail * stat.f_frsize
+    except Exception:
+        return 0
 
-def check_disk_space(path: Path = TMP_DIR, required_bytes: int = MIN_DISK_SPACE_BYTES) -> bool:
+def check_disk_space(path: Optional[Path] = None, min_space: int = MIN_DISK_SPACE_BYTES) -> None:
     """
     Check if there is sufficient disk space at the given path.
-    
-    Args:
-        path: Directory path to check.
-        required_bytes: Minimum required space in bytes.
-        
-    Returns:
-        True if sufficient space is available.
-        
-    Raises:
-        InsufficientDiskSpaceError: If insufficient space is available.
-        FileNotFoundError: If path does not exist.
-        PermissionError: If permission denied.
+    Raises InsufficientDiskSpaceError if space is insufficient.
     """
-    available = get_available_space(path)
-    if available < required_bytes:
-        raise InsufficientDiskSpaceError(
-            f"Insufficient disk space at {path}: "
-            f"{available / (1024**3):.2f}GB available, "
-            f"{required_bytes / (1024**3):.2f}GB required."
-        )
-    return True
+    target_path = path or TMP_DIR
+    available = get_available_space(target_path)
 
-def main():
-    """Main entry point for disk check script."""
+    if available < min_space:
+        available_gb = available / (1024**3)
+        required_gb = min_space / (1024**3)
+        raise InsufficientDiskSpaceError(
+            f"Insufficient disk space at {target_path}. "
+            f"Available: {available_gb:.2f} GB, Required: {required_gb:.2f} GB."
+        )
+
+def main() -> None:
+    """Entry point for CLI usage."""
     try:
         check_disk_space()
-        print(f"Disk space check passed for {TMP_DIR}")
-        return 0
-    except (InsufficientDiskSpaceError, FileNotFoundError, PermissionError) as e:
-        print(f"Disk space check failed: {e}", file=sys.stderr)
-        return 1
+        print("Disk space check passed.")
+    except InsufficientDiskSpaceError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

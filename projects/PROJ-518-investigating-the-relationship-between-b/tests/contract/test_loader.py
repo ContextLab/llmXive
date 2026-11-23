@@ -15,14 +15,13 @@ from code.data.loader import validate_caq_availability
 from code.errors import DataMissingCreativityError
 
 
-def test_loader_raises_on_missing_caq():
+def test_validate_caq_availability_raises_on_missing():
     """
-    Test that DataMissingCreativityError is raised when CAQ is missing.
+    Contract test: Asserting DataMissingCreativityError is raised when CAQ is missing in the manifest.
     
-    This is a contract test ensuring the validation logic correctly
-    identifies missing critical fields.
+    This verifies the validation logic correctly identifies missing critical fields
+    as required by US4 acceptance criteria.
     """
-    # Create temporary files
     with tempfile.TemporaryDirectory() as tmpdir:
         manifest_path = os.path.join(tmpdir, "manifest.json")
         behavioral_path = os.path.join(tmpdir, "behavioral.json")
@@ -57,9 +56,9 @@ def test_loader_raises_on_missing_caq():
         assert "missing" in str(exc_info.value).lower()
 
 
-def test_loader_valid_with_caq():
+def test_validate_caq_availability_passes_on_present():
     """
-    Test that validate_caq_availability returns True when CAQ is present.
+    Contract test: Asserting function returns True when CAQ is present.
     """
     with tempfile.TemporaryDirectory() as tmpdir:
         manifest_path = os.path.join(tmpdir, "manifest.json")
@@ -91,9 +90,9 @@ def test_loader_valid_with_caq():
         assert result is True
 
 
-def test_loader_raises_on_nonexistent_file():
+def test_validate_caq_availability_raises_on_nonexistent_file():
     """
-    Test that FileNotFoundError is raised when the behavioral file doesn't exist.
+    Contract test: Asserting FileNotFoundError is raised when the behavioral file doesn't exist.
     """
     with tempfile.TemporaryDirectory() as tmpdir:
         manifest_path = os.path.join(tmpdir, "manifest.json")

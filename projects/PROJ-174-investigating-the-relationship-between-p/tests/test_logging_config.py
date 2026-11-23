@@ -1,121 +1,157 @@
-"""
-Tests for the logging configuration and quality report initialization.
-"""
+import pytest
 import os
 import csv
+import sys
 import tempfile
 import shutil
-import pytest
 from pathlib import Path
-import sys
 
 # Add code directory to path
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from logging_config import (
-    setup_logging,
-    init_quality_report,
-    append_quality_report,
-    get_logger,
-    QUALITY_REPORT_HEADERS,
-    LOGS_DIR,
-    RESULTS_DIR
-)
+from logging_config import LoggingContext, initialize_quality_report, write_quality_entry, QUALITY_REPORT_PATH
 
-
-class TestLoggingConfig:
+class TestLoggingContext:
     @pytest.fixture(autouse=True)
     def setup_and_teardown(self):
-        """Create temporary directories for testing to avoid polluting the real project."""
-        # We will test against the actual paths in the project, but we ensure
-        # directories exist. The main script clears the log file, which is fine.
-        LOGS_DIR.mkdir(parents=True, exist_ok=True)
-        RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+        """
+        Setup: Create a temporary directory for test artifacts.
+        Teardown: Clean up temporary directory.
+        """
+        self.temp_dir = tempfile.mkdtemp()
+        self.test_report_path = Path(self.temp_dir) / "test_quality_report.csv"
+        
+        # Temporarily override the global path for this test class
+        # We will pass the path explicitly to write_report instead of relying on global state
         yield
-        # Cleanup is optional in CI, but we don't delete the actual log files 
-        # to allow manual inspection if needed.
-    
-    def test_setup_logging_creates_file(self):
-        """Verify that setup_logging creates the log file."""
-        # Clear existing handlers to ensure clean test
-        import logging
-        root_logger = logging.getLogger()
-        if root_logger.handlers:
-            root_logger.handlers.clear()
         
-        log_path = LOGS_DIR / "test_preprocess.log"
-        logger = setup_logging(log_file=log_path, level=logging.DEBUG)
-        
-        assert log_path.exists(), "Log file was not created."
-        
-        # Check content
-        with open(log_path, 'r') as f:
-            content = f.read()
-            assert "INFO" in content or "DEBUG" in content, "Log file is empty or missing expected levels."
-    
-    def test_init_quality_report_creates_headers(self):
-        """Verify that init_quality_report creates the CSV with correct headers."""
-        report_path = RESULTS_DIR / "test_quality_report.csv"
-        
-        # Remove if exists to ensure fresh creation
-        if report_path.exists():
-            report_path.unlink()
-        
-        result_path = init_quality_report(report_path)
-        
-        assert result_path.exists(), "Quality report file was not created."
-        
-        with open(result_path, 'r') as f:
-            reader = csv.reader(f)
-            headers = next(reader)
-            assert headers == QUALITY_REPORT_HEADERS, f"Headers mismatch. Expected {QUALITY_REPORT_HEADERS}, got {headers}"
-    
-    def test_append_quality_report(self):
-        """Verify that append_quality_report adds rows correctly."""
-        report_path = RESULTS_DIR / "test_append_report.csv"
-        
-        # Initialize first
-        init_quality_report(report_path)
-        
-        # Append a record
-        append_quality_report("blink_exclusion", 15, report_path)
-        append_quality_report("missing_data", 3, report_path)
-        
-        with open(report_path, 'r') as f:
-            reader = list(csv.reader(f))
-            # Check header
-            assert reader[0] == QUALITY_REPORT_HEADERS
-            # Check rows
-            assert len(reader) == 3, f"Expected 3 rows (header + 2 data), got {len(reader)}"
-            assert reader[1] == ["blink_exclusion", "15"]
-            assert reader[2] == ["missing_data", "3"]
-    
-    def test_get_logger(self):
-        """Verify that get_logger returns a valid logger."""
-        logger = get_logger("test_module")
-        assert logger is not None
-        assert logger.name == "test_module"
-        # Should be able to log without error
-        logger.info("Test message")
+        # Cleanup
+        shutil.rmtree(self.temp_dir, ignore_errors=True)
 
-    def test_t005_verification_script_simulation(self):
-        """
-        Simulate the verification logic described in T005:
-        'verify by asserting file creation and column presence'.
-        """
-        test_log = LOGS_DIR / "verify_test.log"
-        test_report = RESULTS_DIR / "verify_report.csv"
+    def test_add_exclusion_accumulates(self, setup_and_teardown):
+        """Test that add_exclusion correctly accumulates counts for the same type."""
+        ctx = LoggingContext()
+        ctx.add_exclusion("blink_loss", 10)
+        ctx.add_exclusion("blink_loss", 5)
+        ctx.add_exclusion("missing_data", 2)
         
-        # Run setup
-        setup_logging(test_log)
-        init_quality_report(test_report)
+        assert ctx.exclusions["blink_loss"] == 15
+        assert ctx.exclusions["missing_data"] == 2
+        assert len(ctx.exclusions) == 2
+
+    def test_write_report_creates_file(self, setup_and_teardown):
+        """Test that write_report creates the CSV file with correct headers and data."""
+        ctx = LoggingContext()
+        ctx.add_exclusion("blink_loss", 10)
+        ctx.add_exclusion("missing_data", 5)
         
-        # Assert file creation
-        assert test_log.exists(), "Log file missing"
-        assert test_report.exists(), "Report file missing"
+        # Write to our temp path
+        ctx.write_report(str(self.test_report_path))
         
-        # Assert column presence
-        with open(test_report, 'r') as f:
+        assert self.test_report_path.exists()
+        
+        with open(self.test_report_path, 'r', newline='') as f:
             reader = csv.reader(f)
-            headers = next(reader)
-            assert headers == QUALITY_REPORT_HEADERS, "Columns missing or incorrect"
+            rows = list(reader)
+            
+        # Check headers
+        assert rows[0] == ['exclusion_type', 'count', 'timestamp']
+        
+        # Check data rows (order might vary, so we check content presence)
+        data_rows = rows[1:]
+        assert len(data_rows) == 2
+        
+        # Verify content
+        found_blink = False
+        found_missing = False
+        for row in data_rows:
+            if row[0] == 'blink_loss' and int(row[1]) == 10:
+                found_blink = True
+            if row[0] == 'missing_data' and int(row[1]) == 5:
+                found_missing = True
+        
+        assert found_blink, "blink_loss entry not found"
+        assert found_missing, "missing_data entry not found"
+
+    def test_write_report_appends(self, setup_and_teardown):
+        """Test that write_report appends to an existing file."""
+        # Create initial file with headers
+        initialize_quality_report()
+        # Override path for test
+        import logging_config
+        original_path = logging_config.QUALITY_REPORT_PATH
+        logging_config.QUALITY_REPORT_PATH = self.test_report_path
+        
+        try:
+            # Manually write headers to temp file to simulate existing file
+            with open(self.test_report_path, 'w', newline='') as f:
+                writer = csv.writer(f)
+                writer.writerow(['exclusion_type', 'count', 'timestamp'])
+                writer.writerow(['initial', '1', '2023-01-01'])
+            
+            ctx = LoggingContext()
+            ctx.add_exclusion("new_exclusion", 42)
+            ctx.write_report(str(self.test_report_path))
+            
+            with open(self.test_report_path, 'r') as f:
+                reader = csv.reader(f)
+                rows = list(reader)
+            
+            assert len(rows) == 3 # Header + initial + new
+            assert rows[2][0] == 'new_exclusion'
+            assert int(rows[2][1]) == 42
+        finally:
+            # Restore original path
+            logging_config.QUALITY_REPORT_PATH = original_path
+
+    def test_add_exclusion_negative_count_fails(self, setup_and_teardown):
+        """Test that adding a negative count raises ValueError."""
+        ctx = LoggingContext()
+        with pytest.raises(ValueError):
+            ctx.add_exclusion("error_type", -1)
+
+class TestInitializeQualityReport:
+    def test_creates_file_with_headers(self, tmp_path):
+        """Test that initialize_quality_report creates the file with correct headers."""
+        # Mock the global path
+        import logging_config
+        original_path = logging_config.QUALITY_REPORT_PATH
+        test_path = tmp_path / "quality_report.csv"
+        logging_config.QUALITY_REPORT_PATH = test_path
+        
+        try:
+            assert not test_path.exists()
+            initialize_quality_report()
+            assert test_path.exists()
+            
+            with open(test_path, 'r') as f:
+                reader = csv.reader(f)
+                headers = next(reader)
+            
+            assert headers == ['exclusion_type', 'count', 'timestamp']
+        finally:
+            logging_config.QUALITY_REPORT_PATH = original_path
+
+class TestWriteQualityEntry:
+    def test_writes_entry_correctly(self, tmp_path):
+        """Test that write_quality_entry appends a row correctly."""
+        import logging_config
+        original_path = logging_config.QUALITY_REPORT_PATH
+        test_path = tmp_path / "quality_report.csv"
+        logging_config.QUALITY_REPORT_PATH = test_path
+        
+        try:
+            initialize_quality_report()
+            write_quality_entry("test_type", 99)
+            
+            with open(test_path, 'r') as f:
+                reader = csv.reader(f)
+                rows = list(reader)
+            
+            assert len(rows) == 2 # Header + 1 entry
+            assert rows[1][0] == 'test_type'
+            assert int(rows[1][1]) == 99
+            # Check that timestamp exists (just verify it's a string)
+            assert isinstance(rows[1][2], str)
+        finally:
+            logging_config.QUALITY_REPORT_PATH = original_path

@@ -1,61 +1,37 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "MicrostructureDataset"
-description: "Schema for generated microstructure images and stiffness tensors"
-type: "object"
-properties:
-  image_id:
-    type: "string"
-    description: "Unique identifier for the image"
-  resolution:
-    type: "array"
-    items:
-      type: "integer"
-    minItems: 2
-    maxItems: 2
-    description: "Image dimensions (height, width)"
-  void_density:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Fraction of void space in the image"
-  inclusion_density:
-    type: "number"
-    minimum: 0.0
-    maximum: 1.0
-    description: "Fraction of inclusion space in the image"
-  topology_metric:
-    type: "number"
-    description: "Quantitative measure of spatial arrangement (e.g., clustering coefficient)"
-  stiffness_tensor:
-    type: "object"
-    properties:
-      C11:
-        type: "number"
-        description: "Stiffness component C11"
-      C12:
-        type: "number"
-        description: "Stiffness component C12"
-      C22:
-        type: "number"
-        description: "Stiffness component C22"
-      C66:
-        type: "number"
-        description: "Stiffness component C66"
-    required:
-      - C11
-      - C12
-      - C22
-      - C66
-    description: "Effective elastic stiffness tensor (Voigt notation) calculated via FFT"
-  within_voigt_reuss_hill:
-    type: "boolean"
-    description: "Whether the calculated tensor is within theoretical bounds (plausibility check only)"
+type: object
 required:
-  - image_id
-  - resolution
-  - void_density
-  - inclusion_density
-  - topology_metric
+  - image_path
   - stiffness_tensor
-  - within_voigt_reuss_hill
-additionalProperties: false
+  - inclusion_density
+  - topology_type
+  - shape_factor
+  - connectivity
+  - seed
+properties:
+  image_path:
+    type: string
+    description: "Path to the 128x128 PNG image"
+  stiffness_tensor:
+    type: array
+    items:
+      type: number
+    description: "Effective elastic stiffness tensor components"
+  inclusion_density:
+    type: number
+    description: "Volume fraction of inclusions"
+  topology_type:
+    type: string
+    enum:
+      - random
+      - aligned
+      - percolating
+    description: "Topological classification"
+  shape_factor:
+    type: number
+    description: "Calculated using scikit-image morphology (perimeter^2 / (4 * pi * area))"
+  connectivity:
+    type: number
+    description: "Calculated using scikit-image morphology (Euler number or component count)"
+  seed:
+    type: integer
+    description: "Random seed used for generation"

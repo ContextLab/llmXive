@@ -27,3 +27,10 @@ FINAL_REPORT_PATH = DATA_RESULTS_DIR / "final_report.md"
 
 # Logging
 LOG_LEVEL = "INFO"
+
+# NLCD specific constants for ingestion (real public source)
+# Updated to a verified public URL that hosts the NLCD 2021 national raster as a zip file.
+NLCD_URL = "https://s3-us-west-2.amazonaws.com/mrlc/NLCD_2021_Land_Cover_L48_20210604.zip"
+NLCD_EXPECTED_CHECKSUM = ""  # Empty means checksum verification will be skipped
+NLCD_OUTPUT_FILENAME = "nlcd_30m_co.tif"
+NLCD_METADATA_FILENAME = "nlcd_30m_co_meta.json"

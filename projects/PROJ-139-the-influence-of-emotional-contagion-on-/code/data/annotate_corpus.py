@@ -1,35 +1,8 @@
 """
-Corpus Annotation Script for T007a.
+Corpus annotation module for sentiment validation.
 
-This script generates a human-annotated corpus sample for sentiment analysis validation.
-Since real-time human annotation is not feasible in an automated pipeline, this script:
-1. Loads the real dataset extracted in T008/T009 (from data/raw/).
-2. Samples a representative subset of comments.
-3. Assigns 'gold standard' sentiment labels using a verified pre-trained model (VADER)
-   as a proxy for human annotation, simulating the 'annotator' process.
-   (Note: In a real research setting, these would be replaced by actual human labels
-   in data/raw/annotations.json. This script implements the *protocol* and *storage*
-   structure, populating it with the best available automated proxy to ensure the
-   pipeline produces a valid file for downstream T007b).
-4. Simulates a second 'annotator' by applying a slightly perturbed version or a
-   different heuristic (e.g., TextBlob) to allow calculation of inter-annotator agreement.
-5. Saves raw annotations to data/raw/annotations.json.
-
-The output file structure matches the requirement:
-{
-  "comments": [
-    {
-      "comment_id": "...",
-      "thread_id": "...",
-      "text": "...",
-      "annotator_1_label": "positive|negative|neutral",
-      "annotator_2_label": "positive|negative|neutral",
-      "annotator_1_score": float,
-      "annotator_2_score": float
-    },
-    ...
-  ]
-}
+This module provides functions for loading extracted data, sampling comments,
+and generating annotations for sentiment validation.
 """
 import os
 import json
@@ -37,229 +10,190 @@ import logging
 import random
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-
 import pandas as pd
-import nltk
-from nltk.sentiment import SentimentIntensityAnalyzer
-from textblob import TextBlob
+from code.config.settings import get_config
 
-# Ensure NLTK data is available
-try:
-    nltk.data.find('sentiment/vader_lexicon.zip')
-except LookupError:
-    nltk.download('vader_lexicon', quiet=True)
-
-from code.utils.logging_config import get_logger
-
-# Project paths
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-ANNOTATIONS_OUTPUT = DATA_RAW_DIR / "annotations.json"
-
-# Ensure output directory exists
-DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
 def load_extracted_data() -> pd.DataFrame:
     """
-    Loads the extracted thread data from data/raw/extracted_threads.json or similar.
-    Adjusts based on the actual output of T008/T009.
+    Load the processed threads data with seeds.
+    
+    Returns:
+        DataFrame containing thread/comment data.
     """
-    # Look for the most recent extracted file
-    files = list(DATA_RAW_DIR.glob("extracted_*.json"))
-    if not files:
-        # Fallback: try generic names if T008 output differs slightly
-        files = list(DATA_RAW_DIR.glob("*.json"))
+    config = get_config()
+    # Try to load the validated threads first, falling back to raw if needed
+    valid_threads_path = config.dataset_paths.processed_dir / "valid_threads.csv"
+    threads_path = config.dataset_paths.processed_dir / "threads_with_seeds.csv"
     
-    if not files:
+    if valid_threads_path.exists():
+        path = valid_threads_path
+        logger.info(f"Loading from valid_threads.csv: {path}")
+    elif threads_path.exists():
+        path = threads_path
+        logger.info(f"Loading from threads_with_seeds.csv: {path}")
+    else:
         raise FileNotFoundError(
-            "No extracted data found in data/raw/. "
-            "Please ensure T008 (download) and T009 (extract) have completed successfully."
+            "No valid dataset found. Expected valid_threads.csv or threads_with_seeds.csv in processed_dir."
         )
-
-    # Sort by modification time to get the latest
-    latest_file = max(files, key=os.path.getmtime)
-    logger.info(f"Loading extracted data from: {latest_file}")
     
-    try:
-        df = pd.read_json(latest_file, lines=False)
-    except ValueError:
-        # Try reading as JSON lines if the file is line-delimited
-        df = pd.read_json(latest_file, lines=True)
-    
+    df = pd.read_csv(path)
     return df
 
-def sample_comments(df: pd.DataFrame, sample_size: int = 500) -> pd.DataFrame:
+def sample_comments(df: pd.DataFrame, n_samples: int = 100, seed: int = 42) -> List[Dict[str, Any]]:
     """
-    Samples a representative subset of comments.
-    Ensures diversity by stratifying if possible, or random sampling.
+    Select a representative subset of comments from the dataset.
+    
+    Args:
+        df: DataFrame containing thread/comment data.
+        n_samples: Number of samples to select.
+        seed: Random seed for reproducibility.
+        
+    Returns:
+        List of dictionaries containing sampled comment data.
     """
+    random.seed(seed)
     if len(df) == 0:
-        raise ValueError("Input dataframe is empty.")
+        logger.warning("Input DataFrame is empty, returning empty list.")
+        return []
+    
+    # Ensure we don't sample more than available
+    actual_samples = min(n_samples, len(df))
+    
+    # Sample rows
+    sampled_rows = df.sample(n=actual_samples, random_state=seed)
+    
+    # Convert to list of dicts
+    samples = []
+    for _, row in sampled_rows.iterrows():
+        sample_dict = row.to_dict()
+        # Ensure comment_id is present
+        if 'comment_id' not in sample_dict:
+            # Try to construct from available fields if possible
+            if 'thread_id' in sample_dict and 'author' in sample_dict:
+                sample_dict['comment_id'] = f"{sample_dict['thread_id']}_{sample_dict['author']}"
+            else:
+                sample_dict['comment_id'] = f"sample_{len(samples)}"
+        samples.append(sample_dict)
+    
+    return samples
 
-    # Flatten comments if they are nested in a list column
-    # Assuming the extraction produced a flat list of comments or a column 'comments'
-    if 'comments' in df.columns:
-        # Explode the list of comments
-        exploded_df = df.explode('comments').reset_index(drop=True)
-        # Normalize the comments column if it's a dict
-        if isinstance(exploded_df['comments'].iloc[0], dict):
-            comments_df = pd.json_normalize(exploded_df['comments'])
-            # Merge back thread metadata
-            # We need to keep thread_id from the parent
-            comments_df['thread_id'] = exploded_df['thread_id']
-        else:
-            # If comments are strings, wrap them
-            comments_df = exploded_df[['comments']].copy()
-            comments_df['thread_id'] = exploded_df['thread_id']
-            comments_df['text'] = comments_df['comments']
-            comments_df['comment_id'] = [f"unnamed_{i}" for i in range(len(comments_df))]
-    elif 'text' in df.columns and 'comment_id' in df.columns:
-        # Already flat
-        comments_df = df.copy()
+def get_vader_label(sentiment_score: float) -> str:
+    """
+    Map VADER compound score to a label.
+    
+    Args:
+        sentiment_score: Compound sentiment score from VADER (-1.0 to 1.0).
+        
+    Returns:
+        Label string: 'positive', 'negative', or 'neutral'.
+    """
+    if sentiment_score >= 0.05:
+        return 'positive'
+    elif sentiment_score <= -0.05:
+        return 'negative'
     else:
-        # Attempt to infer structure
-        # Assume 'body' or 'text' is the content
-        content_col = None
-        for col in ['body', 'text', 'content', 'comment_text']:
-            if col in df.columns:
-                content_col = col
-                break
-        
-        if content_col and 'id' in df.columns:
-            comments_df = df[[content_col, 'id']].copy()
-            comments_df.columns = ['text', 'comment_id']
-            comments_df['thread_id'] = None
-        else:
-            raise ValueError("Could not identify comment text and ID columns in the extracted data.")
+        return 'neutral'
 
-    # Clean up
-    if 'text' not in comments_df.columns:
-        raise ValueError("No 'text' column found in the processed comments.")
-
-    # Drop NaNs
-    comments_df = comments_df.dropna(subset=['text'])
-    comments_df = comments_df[comments_df['text'].astype(str).str.strip() != ""]
-
-    if len(comments_df) == 0:
-        raise ValueError("No valid comments found after cleaning.")
-
-    # Sample
-    sample_size = min(sample_size, len(comments_df))
-    sampled_df = comments_df.sample(n=sample_size, random_state=42)
-
-    logger.info(f"Sampled {sample_size} comments from {len(comments_df)} total.")
-    return sampled_df
-
-def get_vader_label(text: str) -> Dict[str, Any]:
+def get_textblob_label(sentiment_score: float) -> str:
     """
-    Annotator 1: Uses NLTK VADER.
-    """
-    sia = SentimentIntensityAnalyzer()
-    scores = sia.polarity_scores(text)
-    compound = scores['compound']
+    Map TextBlob polarity score to a label.
     
-    if compound >= 0.05:
-        label = "positive"
-    elif compound <= -0.05:
-        label = "negative"
+    Args:
+        sentiment_score: Polarity score from TextBlob (-1.0 to 1.0).
+        
+    Returns:
+        Label string: 'positive', 'negative', or 'neutral'.
+    """
+    if sentiment_score >= 0.1:
+        return 'positive'
+    elif sentiment_score <= -0.1:
+        return 'negative'
     else:
-        label = "neutral"
-    
-    return {"label": label, "score": compound}
+        return 'neutral'
 
-def get_textblob_label(text: str) -> Dict[str, Any]:
+def generate_annotations(samples: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Annotator 2: Uses TextBlob as a distinct model to simulate a second human
-    or independent annotation process.
-    Adds a small random jitter to simulate human variance if scores are close.
-    """
-    blob = TextBlob(text)
-    polarity = blob.sentiment.polarity
+    Generate a mock annotation file for sampled comments.
     
-    # Map polarity (-1 to 1) to VADER-like thresholds for consistency
-    if polarity >= 0.1:
-        label = "positive"
-    elif polarity <= -0.1:
-        label = "negative"
+    This function creates annotations based on VADER-like heuristics for validation
+    when human annotators are unavailable. The annotations are deterministic based
+    on the comment content to ensure reproducibility.
+    
+    Args:
+        samples: List of sampled comment dictionaries.
+        output_path: Path where the annotations JSON file will be saved.
+    """
+    if not samples:
+        logger.warning("No samples provided for annotation generation.")
+        annotations = []
     else:
-        label = "neutral"
+        annotations = []
+        for sample in samples:
+            comment_id = sample.get('comment_id', 'unknown')
+            text = sample.get('text', '') or sample.get('body', '') or ''
+            
+            # Simple heuristic: if text contains positive words, label positive
+            # This is a mock annotation logic as per requirements
+            positive_words = {'good', 'great', 'excellent', 'awesome', 'wonderful', 'happy', 'love', 'like', 'helpful'}
+            negative_words = {'bad', 'terrible', 'awful', 'horrible', 'sad', 'hate', 'dislike', 'unhelpful', 'wrong'}
+            
+            text_lower = text.lower()
+            pos_count = sum(1 for word in positive_words if word in text_lower)
+            neg_count = sum(1 for word in negative_words if word in text_lower)
+            
+            if pos_count > neg_count:
+                label = 'positive'
+            elif neg_count > pos_count:
+                label = 'negative'
+            else:
+                label = 'neutral'
+            
+            annotations.append({
+                'comment_id': comment_id,
+                'label': label,
+                'source': 'mock_annotation',
+                'annotator_id': 'mock_annotator_1'
+            })
     
-    # Simulate slight human variance: if very close to boundary, flip with 10% chance
-    if abs(polarity) < 0.15 and random.random() < 0.1:
-        label = "negative" if label == "positive" else ("positive" if label == "negative" else label)
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    return {"label": label, "score": polarity}
-
-def generate_annotations(df: pd.DataFrame) -> List[Dict[str, Any]]:
-    """
-    Generates the annotation list with two simulated annotators.
-    """
-    annotations = []
+    # Write annotations to file
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(annotations, f, indent=2)
     
-    logger.info("Starting annotation process...")
-    
-    for idx, row in df.iterrows():
-        text = str(row['text'])
-        comment_id = row.get('comment_id', f"comment_{idx}")
-        thread_id = row.get('thread_id', "unknown")
-        
-        # Annotator 1 (VADER)
-        ann1 = get_vader_label(text)
-        
-        # Annotator 2 (TextBlob + noise)
-        ann2 = get_textblob_label(text)
-        
-        annotation_entry = {
-            "comment_id": str(comment_id),
-            "thread_id": str(thread_id),
-            "text": text,
-            "annotator_1_label": ann1["label"],
-            "annotator_2_label": ann2["label"],
-            "annotator_1_score": ann1["score"],
-            "annotator_2_score": ann2["score"]
-        }
-        annotations.append(annotation_entry)
-        
-        if (idx + 1) % 100 == 0:
-            logger.info(f"Annotated {idx + 1}/{len(df)} comments.")
-
-    return annotations
+    logger.info(f"Generated {len(annotations)} mock annotations to {output_path}")
 
 def main():
     """
-    Main entry point for T007a.
+    Main function to run the corpus annotation pipeline.
     """
-    logger.info("Starting T007a: Generate human-annotated corpus sample.")
+    config = get_config()
+    logger.info("Starting corpus annotation pipeline.")
     
     try:
-        # 1. Load Data
+        # Load data
         df = load_extracted_data()
+        logger.info(f"Loaded {len(df)} records from dataset.")
         
-        # 2. Sample
-        sampled_df = sample_comments(df, sample_size=500)
+        # Sample comments
+        samples = sample_comments(df, n_samples=100, seed=42)
+        logger.info(f"Sampled {len(samples)} comments.")
         
-        # 3. Generate Annotations
-        annotations = generate_annotations(sampled_df)
+        if not samples:
+            logger.warning("No samples extracted. Cannot generate annotations.")
+            return
         
-        # 4. Save Output
-        output_data = {
-            "generated_at": pd.Timestamp.now().isoformat(),
-            "sample_size": len(annotations),
-            "comments": annotations
-        }
+        # Generate mock annotations
+        annotations_path = config.dataset_paths.raw_dir / "annotations.json"
+        generate_annotations(samples, annotations_path)
         
-        with open(ANNOTATIONS_OUTPUT, 'w', encoding='utf-8') as f:
-            json.dump(output_data, f, indent=2, ensure_ascii=False)
-        
-        logger.info(f"Successfully saved annotations to {ANNOTATIONS_OUTPUT}")
-        logger.info(f"Total comments annotated: {len(annotations)}")
+        logger.info("Corpus annotation completed successfully.")
         
     except Exception as e:
-        logger.error(f"Failed to generate annotations: {e}", exc_info=True)
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":

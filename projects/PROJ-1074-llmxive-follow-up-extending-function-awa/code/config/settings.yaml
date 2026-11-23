@@ -1,0 +1,7 @@
+dataset_paths:
+  gsm8k: "data/raw/gsm8k"
+  logiqa: "data/raw/logiqa"
+model_hyperparameters:
+  model_name: "TinyLlama/TinyLlama-1.1B-Chat-v1.0"
+  batch_size: 8
+  max_length: 512

@@ -1,0 +1,42 @@
+# generated using pymatgen
+data_Li3ErI6
+_symmetry_space_group_name_H-M   C2/c
+_cell_length_a   7.41300000
+_cell_length_b   12.83800000
+_cell_length_c   14.20000000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   100.01000200
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   15
+_chemical_formula_structural   Li3ErI6
+_chemical_formula_sum   'Li12 Er4 I24'
+_cell_volume   1330.81534532
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-x, y, -z+1/2'
+  4  'x, -y, z+1/2'
+  5  'x+1/2, y+1/2, z'
+  6  '-x+1/2, -y+1/2, -z'
+  7  '-x+1/2, y+1/2, -z+1/2'
+  8  'x+1/2, -y+1/2, z+1/2'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li0  4  0.00000000  0.27500000  0.75000000  0.8
+  Li  Li1  4  0.00000000  0.42180000  0.25000000  0.2
+  Er  Er2  8  0.25000000  0.07820000  0.00000000  0.16
+  Li  Li3  8  0.25000000  0.07820000  0.00000000  0.84
+  Er  Er4  4  0.25000000  0.25000000  0.50000000  0.68
+  Li  Li5  4  0.25000000  0.25000000  0.50000000  0.32
+  I  I6  8  0.10900000  0.09880000  0.61700000  1.0
+  I  I7  8  0.11400000  0.41900000  0.62700000  1.0
+  I  I8  8  0.11600000  0.24700000  0.12300000  1.0

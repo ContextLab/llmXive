@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MoleculeDescriptorRecord"
+description: "Schema for a single molecule record with calculated descriptors and experimental values."
+type: object
+properties:
+  smiles:
+    type: string
+    description: "Canonical SMILES string of the molecule."
+  target_value:
+    type: number
+    description: "Experimental value (e.g., bioavailability %, pIC50)."
+    minimum: -1000
+    maximum: 1000
+  target_type:
+    type: string
+    enum:
+      - "bioavailability"
+      - "permeability"
+      - "clearance"
+    description: "Type of experimental measurement."
+  descriptors:
+    type: object
+    properties:
+      logP:
+        type: number
+        description: "Partition coefficient (octanol-water)."
+      TPSA:
+        type: number
+        description: "Topological Polar Surface Area."
+      MW:
+        type: number
+        description: "Molecular Weight."
+      rotatable_bonds:
+        type: integer
+        description: "Number of rotatable bonds."
+      h_bond_donors:
+        type: integer
+        description: "Number of hydrogen bond donors."
+      h_bond_acceptors:
+        type: integer
+        description: "Number of hydrogen bond acceptors."
+      ring_count:
+        type: integer
+        description: "Number of rings."
+    required:
+      - logP
+      - TPSA
+      - MW
+      - rotatable_bonds
+      - h_bond_donors
+      - h_bond_acceptors
+      - ring_count
+  metadata:
+    type: object
+    properties:
+      assay_date:
+        type: string
+        format: date-time
+        description: "Date of the assay."
+      source_id:
+        type: string
+        description: "Original database identifier (e.g., ChEMBL ID)."
+required:
+  - smiles
+  - target_value
+  - target_type
+  - descriptors
+  - metadata
+additionalProperties: false

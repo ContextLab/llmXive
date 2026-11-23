@@ -1,0 +1,100 @@
+T001:
+  reason: The project contains `code/`, `data/raw/`, `tests/` with `unit/` and `integration/`,
+    `contracts/`, `requirements.txt`, and `code/__init__.py`, but the `data/processed/`
+    directory is not present, and the required `.gitignore` and `README.md` files
+    are missing.
+  task: 352186868a9e5e7ee74d5aab42bb85eb58897097cac21e67b2539c32f3ba86f6
+T002:
+  task: 65bba174da764949136c8b2ed291bd81301bdd1720db501e5f0327435a2446f1
+T003a:
+  task: 0c6b11d2e6b8954bb335d7d22d88313824d7b3d401b08da79be96690862de3fc
+T003b:
+  task: c0039b35e1a719e1efbea47579fcad2f802752f60ed4d06122b94fd5f8218940
+T004a:
+  reason: The evidence does not show the presence of the required `data/raw` and `data/processed`
+    directories at the repository root; no artifact listing or directory listing confirming
+    their creation is provided. The implementer must add these two directories (or
+    evidence thereof) to satisfy the task.
+  task: 0c544fda6d1a77b638096c2388c678e46c38ff24ea7c0b3f985d5c0216c9599d
+T004b:
+  reason: The evidence only shows `.gitignore` files located inside `data/raw/` and
+    `data/processed/`, and their contents are not provided. The task requires updating
+    a `.gitignore` (typically at the repository root) to exclude the paths `data/raw/*`
+    and `data/processed/*` while preserving the directory structure, but no such file
+    or the necessary pattern lines are demonstrated. Consequently the required artifact
+    is missing or insufficient.
+  task: 46e5c8fcf93269608b8f333e1bc807a3fe999cc93c7236caa0aa56951aa5f97c
+T005a:
+  task: ae875e5d985ffd346f0aa6377dee047b6bfb2f28476e735b0e27d3a56c58da88
+T005b:
+  task: c16ce489400ed97e130c5425450dbf9fb9437eef841e5ef2128ca9739ebf0e73
+T006:
+  task: 65f197e0c12f6d344b4ece3ae8f0f25d8e4cbac2ee201cb5f7d578644e6844a0
+T007:
+  task: 560608f2260adde070f63fedadb72ad9e2619a62a3a4427eedea48ee1071d024
+T010:
+  task: 94a08d0934316cf96fb2f40adfe72ace506f4857db8dcf6a413f4e528a762705
+T011:
+  task: cdbeaae6844c482cdd188cb6f991eed64c87a1742404847955f561295c905696
+T012:
+  task: 6d5883b5a17ab0821064d23344f8e181f70f5c327f35cd85e33b41ac5b96273c
+T013:
+  task: 2b5a2e351c8842f021536326028836de70273b8cfad2b52481d22eab91b3e1eb
+T013b:
+  task: fbf2d95520d81193a1e7e70072d20706fc8a250290e569887ad40f0596e4bb02
+T014:
+  task: b90f83230ddb97b40f2df886a0d4238dc675a6174dd343e2fccfeec4c08f1651
+T015:
+  task: 58e86a3226c8c9d455b3f9586479ba78d13e7cd7f7ff3a1ec32e62d9554d8a53
+T017:
+  task: 9bf6b671de86ec866ac1ac47126b5e39c32e7d84ae7bcfd0aff8b5dbcb0deb0c
+T018:
+  task: 4622e9d5b15f3f54fabdfdf66f1a65db80856598c864146d65d31fc8a0adcfa8
+T019:
+  task: 80467ae2888a04b73c3e59258257c9daef63e268e75403342f4e119fef2a6338
+T020:
+  task: 9739f886ab0bfea8bd98e7675d89d15218df601fb34c8643c028b4610a79c17f
+T021:
+  reason: 'Requested task execution failed; rerun successfully: code/detector.py exit=1'
+  task: 89edae1e2e94388010024d0e3b14eb039d44aa759cb85aa8062d054d7f5b9103
+T022:
+  task: 0a8e672573cb7b2b98624ab68d7864348280e4013848e9f458aed1a0439c4a05
+T023:
+  task: c6e70ef63396e850e22bf5fa8cdb1bcf3a12312425e9ee030d8d7c071a301e26
+T025:
+  task: 7225e3605e79e60a0453fb2a1d3a4d5ef803bdea6f9013189c389cafeb9a66a5
+T026:
+  task: bdb0a7089af9a0d01c36ecd3486c30bcfd1bc338e5a2468da45ed5da865a6ebc
+T027:
+  task: eef005b9225ecf4f0619c9688d41107c6312cd04fdc18576384faf61c0ef2789
+T028:
+  task: 71f75f7cbf4dcab604fa904e356742c7d40c23c0f3f92643b9c95ab4871851d6
+T029:
+  task: 075f729d08f14c0fd83eb25613dd0d8517eeda1d6f8cfdbc6c530139a312d821
+T030:
+  task: 01c5088b4da5591557168f12b43adbf80848f8a709a370ef385c9143ed5ee634
+T031:
+  task: adafd42afcfaff3fa3a8353b3555723d10fcbf945985ce03c72ccf09b0d2bc16
+T032:
+  task: 7135ffd2596ce0f54089e069a32d66cbc06a9e1395b351f6e0369d241b8f3ac4
+T033:
+  task: 3414d1fc04bc8e6fd0b91181c66776643328f06faec8f5672b9f25822e505cde
+T034a:
+  task: c93546a5c161b3e20f04c87f984a423a4ede006a7f6efd796cfdc5f09fdcbc5d
+T035:
+  task: f96f0d356b0f1fa71cda73b454113807d6459c7a5853aeb1fabaf9cb6eebf1c2
+T037:
+  task: a7a8ae4b0de940322a61a82c08f315777489958aeff6f40904a8a8bb73d32a59
+T038:
+  task: afee0c4b2492f3ce50da69e141dafb01fb3464d613d9c6eb8079ae501cb4a4ee
+T039:
+  task: cc94305326f47f4928aa9cf5a6fa379aeb7a58edf983aa86f9073c1dfba76f6d
+T040b:
+  task: 77fc782bbe75c9faa1e8421cd3ac0d2033295b8f153bb562282f6e293cca6fc3
+T041:
+  reason: 'declared artifact(s) missing/empty/invalid: code/main.py'
+  task: 8538bf62dcf9fb0575de49aa0670ac87a8d53d2e41308be2259dbdc5f205681a
+T042:
+  task: 204a4b2b458e809b7ef3505b7548255fa2302cc2ca92652c5c855dc160fc9dd5
+T043:
+  task: 5f85b7d1bea2a33f7d0920b7bedc129925d370043fcddd07b081a1fffe6f9c16

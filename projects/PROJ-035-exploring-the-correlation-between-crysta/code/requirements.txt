@@ -8,3 +8,12 @@ seaborn==0.13.2
 requests==2.32.3
 tqdm==4.66.5
 pytest
+pyyaml
+huggingface_hub
+flake8
+black
+mypy
+contracts  # auto-added: imported by run-book but missing from venv
+python-dotenv  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv

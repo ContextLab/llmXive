@@ -2,71 +2,72 @@
 
 ## Prerequisites
 
-* Python 3.11+
-* Git
-* 7 GB+ RAM (for running the full pipeline)
+*   Python 3.11+
+*   GB+ RAM (for CPU execution) or access to a free Kaggle GPU.
+*   Git.
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone
- cd llmxive-follow-up
- ```
+1.  **Clone and Setup**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-887-llmxive-follow-up-extending-latentskill
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    pip install -r code/requirements.txt
+    ```
 
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+2.  **Verify Dependencies**:
+    ```bash
+    python -c "import torch, transformers, sentence_transformers; print('All deps OK')"
+    ```
 
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
- *Note: `requirements.txt` pins `torch` to CPU-only version and `llama-cpp-python` for CPU inference.*
+## Data Preparation
 
-4. **Download Data**:
- Run the ingestion script to download LoRA weights (ensure you have network access).
- ```bash
- python src/ingestion/download_weights.py --output data/raw
- ```
- *If the specific HuggingFace dataset is unavailable, the script will log a warning and skip that task, allowing the pipeline to proceed with available data.*
+1.  **Download Weights**:
+    *   The script `code/ingest/build_index.py` will automatically attempt to download the verified LoRA weights from the Hugging Face dataset repository (e.g., `peft/examples`).
+    *   If the download fails (e.g., no open source), the script will exit with a clear error message.
+    *   **Manual Override**: If you have local weights, place them in `data/raw/weights.npz`.
 
-## Running the Pipeline
+2.  **Build Index**:
+    ```bash
+    python code/main.py --step ingest
+    ```
+    *   **Output**: `data/processed/skill_index.npz`.
+    *   **Verification**: Check `state/...yaml` for the checksum.
 
-### Step 1: Build the Skill Vector Database
-```bash
-python src/ingestion/flatten_lora.py --input data/raw --output data/processed
-```
-*Output*: `data/processed/skill_vectors.npy`, `data/processed/skill_metadata.json`.
+## Running the Evaluation
 
-### Step 2: Run Evaluation
-This script performs retrieval, synthesis, and evaluation on a held-out set of tasks.
-```bash
-python src/evaluation/runner.py \
- --vectors data/processed/skill_vectors.npy \
- --metadata data/processed/skill_metadata.json \
- --tasks data/raw/composite_tasks.json \
- --runs 5 \
- --output data/results/eval_log.csv
-```
+1.  **Execute Full Pipeline**:
+    ```bash
+    python code/main.py --step evaluate
+    ```
+    *   This runs the retrieval, synthesis, and evaluation loops.
+    *   **Note**: This step is computationally intensive. On CPU, it may take 2-4 hours (reduced scale: a small number of tasks, 3 runs).
+    *   **GPU Offload**: If the runner detects CUDA, it will automatically switch to GPU mode (if configured).
 
-### Step 3: Statistical Analysis
-```bash
-python src/evaluation/stats.py \
- --input data/results/eval_log.csv \
- --output data/results/stats_summary.json
-```
+2.  **Generate Report**:
+    ```bash
+    python code/main.py --step report
+    ```
+    *   **Output**: `data/results/stats_report.json`.
 
-## Verification
+## Validation
 
-Check the output `data/results/stats_summary.json` for:
-* `linearity_correlation`: Should be $\ge 0.6$ (FR-007).
-* `significant_methods`: List of methods where `p_value_bh < 0.05` (FR-006).
-* `latency_ms`: Selection time (SC-003).
+1.  **Check Results**:
+    ```bash
+    cat data/results/stats_report.json | python -m json.tool
+    ```
+    *   Verify `linearity_validation.valid` is `true`.
+    *   Verify `comparisons` contain BH-corrected p-values.
+
+2.  **Reproducibility Test**:
+    ```bash
+    python code/utils/seeds.py --verify
+    ```
+    *   Ensures all random seeds are pinned.
 
 ## Troubleshooting
 
-* **OOM Error**: Reduce the number of concurrent tasks or switch to a smaller base model in `src/utils/config.py`.
-* **Dataset 404**: Verify the URL in `src/ingestion/download_weights.py` against the `Verified datasets` block in `research.md`.
+*   **OOM (Out of Memory)**: If the base model fails to load on CPU, reduce the `batch_size` in `config.py` or enable the GPU escape hatch (if available).
+*   **Missing Data**: If `data/raw/weights.npz` is missing, ensure the Hugging Face dataset is accessible. If not, the project cannot proceed (Constitution Principle III).

@@ -1,98 +1,92 @@
 """
-Custom exceptions for the corrosion potential prediction pipeline.
-
-This module defines specific exception classes used throughout the data
-ingestion, validation, and modeling processes to provide clear error
-handling and debugging information.
+Custom exception hierarchy for the corrosion prediction pipeline.
+Provides structured error messages with optional detail metadata
+and integrates with the project's logging infrastructure.
 """
 
+# Use relative import to access the project's logging utility
+from .logging import get_logger
+
+logger = get_logger(__name__)
 
 class CorrosionPipelineError(Exception):
-    """Base exception for all corrosion pipeline errors."""
+    """Base exception for the corrosion prediction pipeline."""
 
-    def __init__(self, message: str, details: dict | None = None):
+    def __init__(self, message: str, **kwargs):
+        """
+        Initialise the exception.
+
+        Args:
+            message: Human‑readable error message.
+            **kwargs: Optional detail information.  A special keyword
+                     ``details`` may be supplied containing a dict;
+                     its contents are merged with any other supplied
+                     keyword arguments.
+        """
+        # Extract a possible ``details`` dict from kwargs
+        details = {}
+        if "details" in kwargs and isinstance(kwargs["details"], dict):
+            details = kwargs.pop("details")
+        # Handle special renaming of ``field_name`` to ``field`` for test compatibility
+        if "field_name" in kwargs:
+            field_val = kwargs.pop("field_name")
+            details["field"] = field_val
+            setattr(self, "field", field_val)
+
+        # Remaining kwargs are also treated as details
+        details.update(kwargs)
+
         super().__init__(message)
         self.message = message
         self.details = details or {}
 
-    def __str__(self) -> str:
-        base = self.message
+        # Expose each detail as an attribute for easy access in tests
+        for key, value in self.details.items():
+            setattr(self, key, value)
+
+        # Log the error with details for traceability
         if self.details:
-            detail_str = ", ".join(f"{k}={v}" for k, v in self.details.items())
-            return f"{base} [{detail_str}]"
-        return base
+            logger.error(f"{self.__class__.__name__}: {message} | details: {self.details}")
+        else:
+            logger.error(f"{self.__class__.__name__}: {message}")
+
+    def __str__(self) -> str:
+        """Return a readable representation that includes details when present."""
+        if not self.details:
+            return self.message
+
+        # Map internal keys to the names expected by the test suite
+        def _display_key(k: str) -> str:
+            return "field" if k == "field_name" else k
+
+        details_str = ", ".join(
+            f"{_display_key(k)}={v!r}"
+            for k, v in self.details.items()
+        )
+        return f"{self.message} ({details_str})"
 
 
 class DataInsufficientError(CorrosionPipelineError):
     """
-    Raised when the dataset does not meet minimum requirements for analysis.
+    Raised when required data is missing, incomplete, or insufficient.
 
-    This occurs when:
-    - The number of records is below the minimum threshold (e.g., < 500).
-    - Required fields are missing or null in critical columns.
-    - The number of unique alloy designations is insufficient for GroupKFold.
-    - External data sources are unreachable or return empty results.
-
-    Attributes:
-        message (str): Human-readable description of the insufficiency.
-        details (dict): Optional context (e.g., record_count, missing_fields, threshold).
+    Typical scenarios:
+    - NIST URL missing from config
+    - Dataset has fewer than the required number of records
+    - Alloy diversity is insufficient for a LOSO split
     """
-
-    def __init__(
-        self,
-        message: str,
-        record_count: int | None = None,
-        threshold: int | None = None,
-        missing_fields: list[str] | None = None,
-        source: str | None = None,
-    ):
-        details = {}
-        if record_count is not None:
-            details["record_count"] = record_count
-        if threshold is not None:
-            details["threshold"] = threshold
-        if missing_fields:
-            details["missing_fields"] = missing_fields
-        if source:
-            details["source"] = source
-
-        super().__init__(message, details)
+    def __init__(self, message: str, **kwargs):
+        super().__init__(message, **kwargs)
 
 
 class SchemaMismatchError(CorrosionPipelineError):
     """
-    Raised when data fails schema validation or contract compliance.
+    Raised when data does not conform to the expected schema.
 
-    This occurs when:
-    - A DataFrame column does not match the expected type or format.
-    - Required columns defined in contracts are missing.
-    - Enum values or constraints (e.g., pH range) are violated.
-    - JSON/YAML configuration files fail structural validation.
-
-    Attributes:
-        message (str): Description of the mismatch.
-        details (dict): Context including expected vs. actual values, field names, etc.
+    Typical scenarios:
+    - Null values in critical fields
+    - Missing required columns
+    - Type mismatches in data
     """
-
-    def __init__(
-        self,
-        message: str,
-        field_name: str | None = None,
-        expected_type: str | None = None,
-        actual_type: str | None = None,
-        missing_columns: list[str] | None = None,
-        invalid_values: list[str] | None = None,
-    ):
-        details = {}
-        if field_name:
-            details["field"] = field_name
-        if expected_type:
-            details["expected_type"] = expected_type
-        if actual_type:
-            details["actual_type"] = actual_type
-        if missing_columns:
-            details["missing_columns"] = missing_columns
-        if invalid_values:
-            details["invalid_values"] = invalid_values
-
-        super().__init__(message, details)
+    def __init__(self, message: str, **kwargs):
+        super().__init__(message, **kwargs)

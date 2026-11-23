@@ -1,43 +1,105 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "StatisticalResultSchema"
-description: "Schema for the aggregated statistical results."
-type: "object"
-properties:
-  metric_name:
-    type: "string"
-    description: "Name of the metric tested (e.g., 'coverage_score')."
-  test_type:
-    type: "string"
-    enum:
-      - "wilcoxon"
-      - "cox_regression"
-      - "permutation"
-    description: "Type of statistical test used."
-  statistic:
-    type: "number"
-    description: "The test statistic value."
-  p_value:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Raw p-value from the test."
-  adjusted_p_value:
-    type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Bonferroni corrected p-value."
-  significant:
-    type: "boolean"
-    description: "True if adjusted p-value < 0.05."
-  effect_size:
-    type: "number"
-    description: "Magnitude of the effect (e.g., r or hazard ratio)."
+title: Final Results Schema
+description: Schema for the aggregated final metrics and statistical test results.
+type: object
 required:
-  - metric_name
-  - test_type
-  - statistic
-  - p_value
-  - adjusted_p_value
-  - significant
-  - effect_size
-additionalProperties: false
+  - experiment_id
+  - coverage_comparison
+  - ranking_comparison
+  - statistical_test_method
+properties:
+  experiment_id:
+    type: string
+    description: Unique identifier for this experiment run.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of result generation.
+  coverage_comparison:
+    type: object
+    description: Statistical comparison of coverage metrics.
+    properties:
+      baseline_mean:
+        type: number
+        format: float
+      iterative_mean:
+        type: number
+        format: float
+      p_value:
+        type: number
+        format: float
+      adjusted_p_value:
+        type: number
+        format: float
+        description: Bonferroni corrected p-value.
+      effect_size:
+        type: number
+        format: float
+      conclusion:
+        type: string
+        description: Textual conclusion using associational language.
+  ranking_comparison:
+    type: object
+    description: Statistical comparison of ranking metrics.
+    properties:
+      baseline_mean:
+        type: number
+        format: float
+      iterative_mean:
+        type: number
+        format: float
+      p_value:
+        type: number
+        format: float
+      adjusted_p_value:
+        type: number
+        format: float
+        description: Bonferroni corrected p-value.
+      effect_size:
+        type: number
+        format: float
+      conclusion:
+        type: string
+        description: Textual conclusion using associational language.
+  statistical_test_method:
+    type: string
+    enum:
+      - "Wilcoxon Signed-Rank"
+      - "Exact Permutation"
+    description: The statistical test method used.
+  tie_analysis:
+    type: object
+    description: Summary of tie distribution and censored data.
+    properties:
+      tie_proportion:
+        type: number
+        format: float
+      censored_count:
+        type: integer
+      justification:
+        type: string
+  sweep_results:
+    type: array
+    description: Results from the turn-limit sensitivity sweep.
+    items:
+      type: object
+      properties:
+        turn_limit:
+          type: integer
+        mean_coverage:
+          type: number
+          format: float
+        mean_ranking:
+          type: number
+          format: float
+  feasibility_status:
+    type: string
+    enum:
+      - "PASS"
+      - "FAIL"
+    description: Whether the pipeline completed within the time budget.
+  runtime_hours:
+    type: number
+    format: float
+    description: Total runtime in hours.
+additionalProperties: true

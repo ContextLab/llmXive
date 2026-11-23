@@ -1,102 +1,204 @@
-# Feature Specification: llmXive follow-up: extending "VideoKR: Towards Knowledge- and Reasoning-Intensive Video Understandin"
+# Specification: Video Reasoning Threshold Analysis
+**Project**: llmXive follow-up: extending "VideoKR: Towards Knowledge- and Reasoning-Intensive Video Understanding"
+**Version**: 1.2 (Revised)
+**Date**: 2023-10-27
+**Status**: Active
 
-**Feature Branch**: `001-video-reasoning-threshold`  
-**Created**: 2026-07-13  
-**Status**: Draft  
-**Input**: User description: "Does the structural complexity of video QA questions, defined by the number of distinct entity hops required in the ground-truth knowledge graph, exhibit a non-linear threshold effect on the reasoning accuracy of models trained on knowledge-intensive video datasets?"
+## 1. Overview
 
-## User Scenarios & Testing
+This specification defines the requirements for analyzing the "reasoning cliff" in video question answering tasks. The goal is to determine if there is a statistically significant drop in accuracy as the complexity (measured by graph hop count) of the required reasoning increases.
 
-### User Story 1 - Data Ingestion and Structural Annotation (Priority: P1)
+## 2. User Stories
 
-As a researcher, I need to download the VideoKR-SFT dataset and its associated knowledge graph, then programmatically annotate each question with its "structural chain length" (1-hop, 2-hop, 3+ hops) based strictly on the ground-truth graph structure, so that I can stratify the data by reasoning complexity before any model analysis.
+### US1: Data Ingestion and Structural Annotation
+As a researcher, I want to download the VideoKR‑SFT dataset and annotate each question with the exact shortest‑path hop count from the ground‑truth knowledge graph, so that I can stratify performance by reasoning complexity.
 
-**Why this priority**: This is the foundational step. Without accurate, non-circular structural labels derived from the ground truth, the subsequent analysis of the "reasoning cliff" cannot be performed. It isolates the predictor variable (complexity) from the outcome (accuracy).
+### US2: Accuracy Stratification, Threshold Detection, and Model‑Based Evaluation
+As a researcher, I want to calculate accuracy per hop‑bin, detect a non‑linear "reasoning cliff" using both a permutation change‑point test **and** a likelihood‑ratio test (LRT) between linear and piecewise‑linear models, and train a text‑only logistic regression model to predict correctness, so that I can quantify the threshold where reasoning capability breaks down and validate it against a predictive baseline.
 
-**Independent Test**: The pipeline can be tested by running the annotation script on a small, manually verified subset of the dataset and confirming that the generated `chain_length` column matches manual graph-traversal counts for 50 randomly selected records.
+### US3: Sensitivity Analysis of Threshold Definition
+As a researcher, I want to verify the robustness of the detected "cliff" by sweeping threshold definitions and by controlling for plausible confounds (question difficulty, video length, answer type), so that I can ensure the finding is not an artifact of a specific binning choice or omitted variable bias.
 
-**Acceptance Scenarios**:
+### US4: Runtime Monitoring
+As a researcher, I want the pipeline to log total end‑to‑end runtime and automatically compare it against a predefined continuous‑integration (CI) runtime limit, so that I can enforce reproducibility constraints in automated testing environments.
 
-1. **Given** the VideoKR-SFT dataset and knowledge graph are downloaded, **When** the annotation script processes the data, **Then** every question record is assigned a discrete integer or categorical label representing the number of hops required to reach the answer in the ground-truth graph.
-2. **Given** a question with a known 3-hop path in the graph, **When** the script runs, **Then** the record is labeled as "3+ hops" (or equivalent) and the label is stored independently of any model prediction logs.
-3. **Given** the dataset contains all records from the input dataset, **When** the full ingestion runs, **Then** the output file contains all records from the input dataset with no missing values in the `chain_length` field.
+### US5: Memory Usage Monitoring
+As a researcher, I want the pipeline to record peak memory consumption and compare it against a CI memory limit (7 GB), so that resource usage stays within CI sandbox constraints.
 
----
+## 3. Functional Requirements
 
-### User Story 2 - Accuracy Stratification and Threshold Detection (Priority: P2)
+### FR-001: Data Annotation
+The system must ingest the VideoKR‑SFT dataset and the associated Knowledge Graph, and produce an annotated CSV that conforms to the project's schema contract (`contracts/annotated_questions.schema.yaml`).  
+- Output: `data/processed/annotated_videokr.csv`  
+- Columns (exactly as required by the **updated** schema):  
+  - `question_id` (string)  
+  - `question_text` (string)  
+  - `answer_text` (string)  
+  - `chain_length` (integer, 1, 2, 3…) – shortest‑path hop count  
+  - `status` (string, e.g., `"annotated"`)  
 
-As a researcher, I need to calculate the model's binary correctness rate for each chain-length bin (1-hop, 2-hop, 3+ hops) and perform a statistical test (e.g., likelihood ratio test) to determine if the drop in accuracy between 2-hop and 3+ hops is statistically significant and non-linear, so that I can confirm the existence of a "reasoning cliff."
+*Note*: The `predicted_correctness` column required by the original schema is omitted here; it will be added later by **FR-013 (Predicted Correctness Injection)** after the annotation stage. The schema file will be revised accordingly (see FR‑012).
 
-**Why this priority**: This addresses the core research question. It transforms the annotated data into the primary evidence for the hypothesis, distinguishing between linear degradation and a catastrophic failure point.
+### FR-002: Binning Strategy
+The system must generate a separate file containing the categorical **hop_bin** for each question.  
+- Output: `data/processed/chain_bins.csv`  
+- Columns: `question_id`, `hop_bin` (categorical values `'1'`, `'2'`, `'3+'` where all hop counts ≥ 3 are aggregated).  
+- Logic: Aggregate hop counts ≥ 3 into the `'3+'` category. (See US1)
 
-**Independent Test**: The analysis can be tested by generating a plot of accuracy vs. hop count and a statistical report; a human reviewer can verify the trend and the p-value of the non-linearity test against the raw data summary.
+### FR-003: Stratified Accuracy
+The system must calculate accuracy rates for each hop‑bin (1‑hop, 2‑hop, 3+).  
+- Output: `data/processed/accuracy_binned.png`, `data/processed/accuracy_binned.csv`.  
+- Constraint: If a bin contains **fewer than the sample size determined by FR‑011** (minimum required per‑bin n), the system must flag the bin for merging or defer the statistical test for that bin. (See US1)
 
-**Acceptance Scenarios**:
+### FR-004: Threshold Detection (Permutation Test & Logistic‑Regression LRT)
+The system must detect the optimal “knot” (threshold hop count) where accuracy drops significantly.  
 
-1. **Given** the annotated dataset with correctness labels, **When** the analysis script runs, **Then** it outputs a summary table showing the accuracy percentage for each hop-count bin (1, 2, 3+).
-2. **Given** the stratified accuracies, **When** the statistical test is performed, **Then** the system reports whether a piecewise linear model (with a knot at the optimal hop count) fits the data significantly better than a standard linear model (p < 0.05).
-3. **Given** the existence of a "cliff" hypothesis, **When** the analysis completes, **Then** the output explicitly quantifies the observed accuracy drop between bins and reports whether the drop exceeds a [deferred] absolute difference, quantifying the severity of the cliff.
+- **Permutation Test**: Operates on raw per‑sample correctness labels (binary 0/1), not on aggregated bin means. Perform a non‑parametric change‑point test with **10,000 permutations**.  
 
----
+- **Likelihood‑Ratio Test (LRT)**: Fit a **logistic regression** (binomial GLM) of correctness vs. hop count as the null model, and a piecewise‑logistic model with a knot at each candidate location (1 – 5). Compare models with an LRT to obtain a p‑value.  
 
-### User Story 3 - Sensitivity Analysis of Threshold Definition (Priority: P3)
+- Grid Search: Evaluate knot locations across the early portion of the range up to five.  
+- Multiple‑Comparison Correction: Apply Bonferroni correction across the five knot tests.  
+- Output: `data/processed/threshold_results.json` containing both permutation‑test and LRT p‑values, the selected knot, and significance flags. (See US2)
 
-As a researcher, I need to re-run the threshold detection analysis by shifting the "cliff" definition to alternative boundaries (e.g., 2-hop vs. 3-hop, or 3-hop vs. 4-hop) and report how the statistical significance and effect size vary, so that I can justify the robustness of the identified threshold.
+### FR-005: Continuous Visualization
+The system must generate a continuous plot of accuracy vs. hop count to visualize the trend without binning artifacts.  
+- Output: `data/processed/accuracy_vs_hop_raw.png`.  
+- Method: Scatter plot of raw binary correctness against hop count with a LOESS smooth trend line.  
+- Output Data: `data/processed/accuracy_vs_hop_raw.csv`. (See US2)
 
-**Why this priority**: This ensures methodological soundness by preventing overfitting to a specific arbitrary cutoff (e.g., exactly 3 hops). It demonstrates that the "reasoning cliff" is a stable phenomenon, not an artifact of the chosen binning.
+### FR-006: Runtime Measurement
+The system must log the total end‑to‑end runtime of the pipeline and compare it against the CI runtime limit (i.e., the predefined maximum allowable duration). Runtime monitoring is essential for reproducible research pipelines and to respect CI sandbox constraints.  
+- Output: `data/processed/runtime_log.json` containing fields `total_seconds` and `limit_exceeded` (boolean). (See US4)
 
-**Independent Test**: The sensitivity analysis can be tested by manually changing the threshold parameter in the config and verifying that the output report shows the variation in p-values and accuracy drops across the tested range.
+### FR-007: [REMOVED] Generalized Additive Models (GAM)
+**STATUS**: REMOVED.  
+**Reason**: The Plan’s “Complexity Tracking” table explicitly rejects GAMs for this task due to statistical invalidity on discrete ordinal variables (hop counts). The permutation test and LRT are the approved methodologies for non‑linearity detection. (Retained for traceability; not active.)
 
-**Acceptance Scenarios**:
+### FR-008: Sensitivity Analysis of Threshold Definition
+The system must repeat the threshold detection (both permutation test and LRT) under three alternative binning schemes:
 
-1. **Given** the primary threshold is set at 3 hops, **When** the sensitivity analysis runs with offsets of ±1 hop, **Then** the system generates a table comparing the significance (p-value) and effect size (accuracy drop) for thresholds at 2, 3, and 4 hops.
-2. **Given** the sensitivity results, **When** the report is generated, **Then** it explicitly states whether the "reasoning cliff" phenomenon remains statistically significant (p < 0.05) across the tested range of thresholds.
-3. **Given** the analysis is complete, **When** the final report is rendered, **Then** it includes a plot overlaying the accuracy curves for the different threshold definitions to visualize the stability of the drop-off point.
+1. **Scheme A** – `'1', '2', '3+'` (identical to the default binning).  
+2. **Scheme B** – `'1', '2', '3', '4+'` (aggregates hop counts ≥ 4 into `'4+'`).  
+3. **Scheme C** – `'1', '2', '3', '4', '5+'` (aggregates hop counts ≥ 5 into `'5+'`).  
 
----
+The term “initial” corresponds to hop count 1.  
+- Output: `data/processed/sensitivity_analysis.json` with per‑scheme knots and significance flags. (See US3)
 
-### Edge Cases
+### FR-009: Memory Usage Logging
+The system must record peak memory consumption during execution and compare it against the CI memory limit. Memory monitoring is required to guarantee that the pipeline can run within the limited resources of CI environments, ensuring reproducibility.  
+- Output: `data/processed/memory_log.json` containing fields `peak_gb` and `limit_exceeded` (boolean). (See US5)
 
-- **What happens when the knowledge graph is disconnected?** The system must handle questions where the answer node is unreachable from the query entity (infinite hops or disconnected) by excluding them from the analysis or assigning a specific "unresolvable" label, ensuring they do not skew the accuracy metrics.
-- **How does the system handle questions with multiple valid paths of different lengths?** The system must define a deterministic rule (e.g., "use the shortest path") for calculating the hop count to ensure a single, reproducible label per question.
-- **What if the dataset size is insufficient for the 3+ hop bin?** If the multi-hop bin contains fewer than 50 examples (minimum n=50 required for asymptotic test validity), the system must flag this limitation in the output and potentially merge bins or defer the statistical test for that specific comparison.
+### FR-010: Predictive Model & Likelihood‑Ratio Evaluation
+The system must train a logistic regression model using only text‑only features (e.g., TF‑IDF of question and answer) to predict correctness, and evaluate whether adding hop‑count as a predictor significantly improves fit via an LRT.  
+- Steps:  
+  1. Train baseline model on text features.  
+  2. Train extended model adding `chain_length` as an additional feature.  
+  3. Perform LRT between baseline and extended models.  
+- Output: `data/processed/model_lrt_results.json` with LRT statistic, p‑value, and conclusion. (See US2)
 
-## Requirements
+### FR-011: Power Analysis for Per‑Bin Sample Size
+Before conducting statistical tests, the system must perform a power analysis to determine the minimum number of samples required per hop‑bin to detect an effect size of **0.1** with **80 % power** at **α = 0.05** (two‑sided).  
+- The computed minimum n is recorded in `data/processed/power_analysis.json` and used by FR‑003 to validate bin adequacy. (See US1)
 
-### Functional Requirements
+### FR-012: Covariate Extraction for Confound Adjustment
+The system must extract the following covariates for each question to enable confound‑adjusted analyses required by SC‑006 and SC‑003:  
+- **question_difficulty** (float, 0–1): sourced from the dataset’s `difficulty_score` column.  
+- **video_length_seconds** (float): sourced from accompanying video metadata file `metadata/video_lengths.csv`.  
+- **answer_type** (categorical, `"multiple_choice"` or `"open_ended"`): derived from the answer format field in the original dataset.  
+These covariates are added to `data/processed/annotated_videokr.csv` (as new columns) and are used in the adjusted LRTs.  
 
-- **FR-001**: The system MUST parse the ground-truth knowledge graph associated with the VideoKR-SFT dataset to calculate the shortest path length (number of hops) between the query entity and the answer entity for every question, explicitly ignoring model rationales. (See US-1)
-- **FR-002**: The system MUST generate a structured output file (CSV/JSON) that maps each dataset record to its calculated structural chain length (1, 2, or 3+ hops) and its original binary correctness label. (See US-1)
-- **FR-003**: The system MUST calculate the accuracy rate (correct predictions / total predictions) for each distinct chain-length bin (1-hop, 2-hop, 3+ hops). (See US-2)
-- **FR-004**: The system MUST perform a grid-search change-point detection algorithm over hop counts 1-5 to identify the optimal knot location, comparing a linear model against a piecewise linear model at that location, and apply a Bonferroni correction for multiple comparisons to detect non-linear degradation. (See US-2)
-- **FR-005**: The system MUST execute a sensitivity analysis sweeping the threshold definition across at least three values (e.g., 2, 3, and 4 hops) AND include a continuous plot of accuracy vs. exact hop count (without binning) to verify the robustness of the identified threshold. (See US-3)
-- **FR-006**: The system MUST handle large datasets by processing the VideoKR-SFT data in chunks or sampling if necessary, ensuring the analysis completes within the 6-hour CI limit on a 2-core CPU runner. (See US-1, US-2)
-- **FR-007**: The system MUST fit a Generalized Additive Model (GAM) with a smooth spline term for hop count to test for non-linearity in the continuous domain, ensuring the "cliff" is not an artifact of discrete binning. (See US-2)
+### FR-013: Predicted Correctness Injection
+The system must run the logistic regression model from FR-010 on the annotated data and write the predicted probability of correctness to a new column `predicted_correctness` (float, 0–1) in `data/processed/annotated_videokr.csv`.  
+- Output: the same CSV file now containing the additional column.  
+- This step follows FR-010 model training and is required for downstream analysis. (See US2)
 
-### Key Entities
+### FR-014: Data Ingestion Script Success
+The data download and ingestion script (`code/ingest/download_data.py`) must complete without error, exiting with status code 0. Failure must be logged and abort the pipeline.  
+- Output: log entry in `data/processed/ingest_log.json` with field `exit_code`. (See US1)
 
-- **QuestionRecord**: Represents a single entry from the VideoKR-SFT dataset, containing the text query, the ground-truth answer, and the associated model prediction correctness label.
-- **KnowledgeGraph**: The static graph structure where nodes are entities and edges represent relationships; used exclusively to derive the `chain_length` attribute.
-- **AccuracyMetric**: A calculated value representing the ratio of correct predictions to total predictions for a specific subset of data (e.g., all 2-hop questions).
-- **ThresholdResult**: A structured output containing the p-value, effect size, and direction of the relationship for a specific hypothesis test regarding the "reasoning cliff."
+## 4. Data Model
 
-## Success Criteria
+### 4.1 Input Data
+- **VideoKR‑SFT**: A CSV/JSONL dataset of video questions, answers, and correctness labels, including `difficulty_score` and answer format fields.  
+- **Knowledge Graph**: A graph structure (nodes and edges) representing entities and relationships required for reasoning.  
+- **Video Metadata**: `metadata/video_lengths.csv` containing `video_id` and `length_seconds`.
 
-### Measurable Outcomes
+### 4.2 Annotated Output
+- **CSV**: `data/processed/annotated_videokr.csv` (see FR‑001, FR‑012, FR‑013).  
+- **Bin Mapping**: `data/processed/chain_bins.csv` (see FR‑002).  
+- **Stratified Accuracy Visuals**: `data/processed/accuracy_binned.png` and `data/processed/accuracy_binned.csv` (see FR‑003).  
+- **Raw Accuracy Visuals**: `data/processed/accuracy_vs_hop_raw.png` and `data/processed/accuracy_vs_hop_raw.csv` (see FR‑005).  
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+## 5. Success Criteria
 
-- **SC-001**: The proportion of questions successfully annotated with a valid `chain_length` is measured against the total number of records in the VideoKR-SFT dataset (Target: [deferred] coverage (all input records must have a valid chain_length)). (See US-1)
-- **SC-002**: The statistical significance (p-value) of the non-linear drop in accuracy between the 2-hop and 3+ hop bins is measured against the standard alpha level of 0.05 (p < 0.05) to confirm the "reasoning cliff" hypothesis. (See US-2)
-- **SC-003**: The stability of the identified threshold is measured by the consistency of the p-value and effect size across the sensitivity analysis range (2, 3, and 4 hops); a result is considered robust if the significance holds (p < 0.05) in at least 2 of the 3 tested thresholds. (See US-3)
-- **SC-004**: The total runtime of the end-to-end analysis (ingestion, annotation, modeling, and reporting) is measured against the GitHub Actions free-tier limit of 6 hours. (See US-1, US-2, US-3)
-- **SC-005**: The memory footprint of the processing pipeline is measured against the 7 GB RAM constraint of the CI runner, ensuring no OOM errors occur during the full dataset load. (See US-1, US-2)
+### SC-001: Annotation Coverage
+- Log total input records, unresolvable count, and annotated count.  
+- Output: `data/processed/annotation_coverage.json`. (See US1)
 
-## Assumptions
+### SC-002: Threshold Significance
+- Explicitly compare calculated p‑values (both permutation test and LRT) against **α = 0.05**.  
+- Output: `data/processed/threshold_results.json` with `is_significant` boolean and `conclusion` string. (See US2)
 
-- The VideoKR-SFT dataset and its associated ground-truth knowledge graph are publicly available and accessible via the official repository or arXiv supplementary materials without authentication barriers.
-- The "structural chain length" can be unambiguously derived from the provided knowledge graph metadata; if the graph is incomplete or lacks necessary edges, the analysis will be limited to the subset of questions with fully connected paths.
-- The model correctness labels provided in the evaluation logs are accurate and representative of the model's performance on the specific questions; no re-evaluation of the model outputs is performed.
-- The dataset size and the complexity of the graph traversal operations fit within the ~7 GB RAM and ~14 GB disk constraints of the free-tier GitHub Actions runner when processed with standard Python libraries (pandas, networkx).
-- The "reasoning cliff" phenomenon, if it exists, is distinct enough to be detected with the available sample size in the 3+ hop bin; if the 3+ hop bin is too small (< 50 samples), the statistical power will be noted as a limitation in the final report.
-- The analysis assumes that the "chain length" metric is the primary driver of difficulty; other factors (e.g., video length, visual complexity) are treated as noise or controlled for via the statistical model's intercept, but are not explicitly modeled in this scope.
+### SC-003: Robustness Verification (Binning & Confounds)
+- Verify that the “cliff” remains significant (p < 0.05) in **≥ 2 of 3** binning schemes **and** after controlling for question difficulty, video length, and answer type (via covariate‑adjusted LRT).  
+- Output: `data/processed/stability_metric.json` with `robustness_status` (`PASS`/`FAIL`). (See US3)
+
+### SC-004: Runtime Compliance
+- Measure total runtime and compare against the CI runtime limit of **7200 seconds**; set `limit_exceeded` flag accordingly.  
+- Output: `data/processed/runtime_log.json`. (See US4)
+
+### SC-005: Memory Compliance
+- Measure peak memory usage and compare against the CI memory limit of **7 GB**; set `limit_exceeded` flag accordingly.  
+- Output: `data/processed/memory_log.json`. (See US5)
+
+### SC-006: Extended Confound Robustness
+- Perform additional regression analyses including covariates for question difficulty (float), video length (seconds), and answer type (categorical). Confirm that the identified knot remains significant after adjusting for these covariates (p < 0.05).  
+- Output: `data/processed/confound_adjusted_lrt.json` with adjusted LRT results. (See US3)
+
+### SC-007: Model LRT Evaluation
+- Verify that `model_lrt_results.json` contains the LRT statistic, p‑value, and a boolean `is_significant` indicating whether adding hop count improves the model (p < 0.05).  
+- Output: `data/processed/model_lrt_results.json`. (See US2)
+
+### SC-008: Predicted Correctness Column Validation
+- Confirm that `annotated_videokr.csv` includes a `predicted_correctness` column with values in the range [0, 1] for every record after FR‑013 execution.  
+- Output: validation flag in `data/processed/predicted_correctness_check.json`. (See US2)
+
+### SC-009: Ingestion Script Success
+- Check `ingest_log.json` for `exit_code` = 0; if not, set `limit_exceeded` flag to true and abort further processing.  
+- Output: `data/processed/ingest_log.json`. (See US1)
+
+### SC-010: Real Dataset Usage
+- Ensure that the pipeline processes the official VideoKR‑SFT dataset files (`data/raw/videokr_sft.csv` etc.). Verify source file checksum matches the known release checksum; abort if mismatch.  
+- Output: `data/processed/dataset_verification.json` with `checksum_match: true/false`. (See US1)
+
+### SC-011: Correctness Label Integrity
+- Confirm that the `correctness` labels used in all analyses are taken directly from the original dataset without synthetic generation. Log a verification flag `original_labels_used: true`.  
+- Output: `data/processed/label_integrity_check.json`. (See US2)
+
+## 6. Methodology Notes
+
+### 6.1 Change‑Point Detection
+The project employs **both** a permutation‑based change‑point test (operating on raw binary correctness) and a **logistic‑regression** likelihood‑ratio test (LRT) comparing a null logistic model to a piecewise‑logistic model. This dual approach satisfies Constitution VII (mandatory LRT) while providing a non‑parametric robustness check.
+
+### 6.2 Handling Small Bins
+If a bin contains fewer samples than the minimum required by the power analysis (FR‑011), the system will attempt to merge it with the adjacent bin. Should the merged bin still fall below the required n, the statistical test for that bin is deferred and logged.
+
+### 6.3 Predictive Baseline Model
+A logistic regression model using only textual features serves as a baseline. Adding hop count as a predictor tests whether structural reasoning information provides additional explanatory power, evaluated via LRT (FR‑010).
+
+### 6.4 Runtime & Memory Limits
+- **CI runtime limit**: 7200 seconds (2 hours).  
+- **CI memory limit**: 7 GB.  
+
+These limits are enforced by FR‑006 and FR‑009 respectively and are justified as essential for reproducible CI‑based research pipelines.
+
+## 7. Revision History
+
+| Version | Date | Author | Changes |
+|:--- |:--- |:--- |:--- |
+| 1.0 | 2023-10-20 | Research Team | Initial draft including FR‑007 (GAM). |
+| 1.1 | 2023-10-27 | Research Team | Removed FR‑007 to align with Plan's Complexity Tracking table (Resolves F001). |
+| 1.2 | 2023-10-27 | Research Team | Added missing FR/SC links, defined CI limits, introduced power analysis, reinstated FR‑007 as removed for traceability, added FR‑008‑012, SC‑006, and predictive‑model requirement to satisfy methodological and scientific‑soundness concerns. |
+| 1.3 | 2023-10-27 | Research Team | Fixed internal consistency (removed `predicted_correctness` from FR‑001), unified naming to `hop_bin`, added covariate extraction FR‑012, replaced linear model with logistic regression in FR‑004, justified runtime and memory monitoring, expanded Data Model with missing visual artefacts. |
+| 1.4 | 2023-10-25 | Research Team | Added FR‑013 (Predicted Correctness Injection), FR‑014 (Ingestion Script Success), clarified binning schemes, specified permutation count, introduced SC‑007 to SC‑011 for new requirements, linked all new FRs/SCs to relevant User Stories. |

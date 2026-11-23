@@ -1,0 +1,14 @@
+beautifulsoup4  # auto-added: imported by run-book but missing from venv
+datasets  # auto-added: imported by run-book but missing from venv
+joblib  # auto-added: imported by run-book but missing from venv
+mp_api  # auto-added: imported by run-book but missing from venv
+numpy  # auto-added: imported by run-book but missing from venv
+pandas  # auto-added: imported by run-book but missing from venv
+psutil  # auto-added: imported by run-book but missing from venv
+pymatgen  # auto-added: imported by run-book but missing from venv
+pysr  # auto-added: imported by run-book but missing from venv
+requests  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv
+shap  # auto-added: imported by run-book but missing from venv
+scikit-learn  # auto-added: imported by run-book but missing from venv
+pyyaml  # auto-added: imported by run-book but missing from venv

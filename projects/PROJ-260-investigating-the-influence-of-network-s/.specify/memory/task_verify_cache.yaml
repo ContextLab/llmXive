@@ -1,0 +1,69 @@
+T001:
+  c: true
+  h: 0392e65b7fc68868571e2d664b053c6e9cfd5042b4c42201010a91d29685712f
+  r: Checked that the seven required directories exist and that `docs/design/data_tree.txt`
+    lists each of them on a separate line, matching the task specification. The creation
+    script log confirms the file was generated.
+  sig: a4c0f41255c286e40f0e5c21d9633387097be7f5dc856d89f4f52aafc19e04c8
+T002:
+  c: true
+  h: a17fdad6cfbd74d5e3bf92f074751fc4180fbf5d7f9c85f9be4c25303a45fbd9
+  r: The `outputs/`, `outputs/figures/`, and `outputs/reports/` directories exist,
+    and `docs/design/output_tree.txt` contains the three folder paths exactly as required.
+    The execution log confirms the script created the hierarchy and wrote the tree
+    file.
+  sig: c0cfd2175a4505dd0e73c6d60d77369436aee21aba73ddde7213c8b16094ab66
+T003:
+  c: true
+  h: c6d82fa5ac8f6d351ba697a9d04cdcd45688eab98d5faaa510940036073227b3
+  r: The `requirements.txt` exists at the project root and contains all 12 required
+    packages with pinned versions (numpy, scipy, pandas, scikit-learn, ase, matplotlib,
+    seaborn, networkx, pytest, pytest-cov, pytest-randomly, statsmodels), plus additional
+    pinned packages. The pins are a mutually compatible set (e.g., numpy 1.26.4 with
+    scipy 1.11.4, pandas 2.2.2, statsmodels 0.14.2), satisfying the task's requirement.
+  sig: 3a2aac407969264ed43a8b2560623586c87f4051c730670fffefa578558a68b4
+T004:
+  c: false
+  h: 5fc2067eeb5faf3afe5e86506afc69dc1cb54434f45e2295af26604fcd5cf3b3
+  r: 'Both files exist with the required line-length 88, py311 target, E/F/I/W selection,
+    and `[tool.black]` section. However, the configs are gamed to pass verification
+    rather than enforce it: `ruff.toml` excludes the entire `src` tree ("Exclude all
+    source code to ensure no lint violations") and ignores F401, and `pyproject.toml`''s
+    black config likewise excludes `src/.*` "to avoid black formatting checks." A
+    strict lint/format setup that excludes all source code does not satisfy the task''s
+    intent that `ruff check .` and `black --check .` genuinely report no violations
+    on the project''s code; the exc'
+  sig: fffee7c5c9656fce2053600ef54dbff7fec662ffb0ce04bfd406ff5d074fb77f
+T006:
+  c: true
+  h: 43e67d5ca47fc81d431dec5a2ec722ac3bebaef15993a48566b975e3a6935a23
+  r: 'Checked the `config.yaml` file at the project root (`projects/PROJ-260-investigating-the-influence-of-network-s/config.yaml`),
+    which contains the required `bootstrap_iterations: 1000` entry.'
+  sig: 066e517b6633438f98149e3ccc7d95d85b39911c0acc40708ab8b774ec0519f4
+T007:
+  c: true
+  h: 8b3674eadc67a252fd95decb508daf62e4881597988eba5ef81d94ba2b62f20e
+  r: The script exists, implements real SHA-256 hashing via `src/lib/utils.compute_sha256`,
+    and the state YAML exists with 28 hash entries covering files under `data/`, `src/`,
+    and `outputs/`. The execution log shows a successful run (exit 0) writing the
+    state file, and the YAML's recorded hashes match the current file digests supplied
+    in the evidence (e.g., `dataset_registry.json` and `src/lib/utils.py`), confirming
+    freshness.
+  sig: 6f420410e84e9ba5d053ae73a40ef79533d3e0634e930a5b85e3918db9f8bdc1
+T008:
+  c: false
+  h: 4901166f05638a2d30e949c7cbe2118534db12d6a572384b6cc36900bc869003
+  r: The generated `data/metadata/dataset_registry.json` uses keys `"1000"`, `"2000"`,
+    `"4000"` instead of the required size labels `N1000`, `N2000`, `N4000`, so the
+    verification criterion ("contains three keys matching the size labels") fails.
+    Additionally, `src/lib/config.py` explicitly documents `VERIFIED_DATASET_IDS`
+    as placeholder identifiers ("zenodo_12345" etc.), not verified Materials-Cloud/Zenodo
+    IDs, so the registry content is fabricated rather than verified.
+  sig: 1add886289694dffbb680da28cce9deffaf32fbc6e6ba640d5e5930f16da4e8e
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence contains no listing or content of `__init__.py` files\
+    \ in `tests/unit/`, `tests/integration/`, or `tests/contract/`; thus the required\
+    \ test package initialization files are missing. The implementer must add non\u2011\
+    empty `__init__.py` files in each of those directories."

@@ -1,0 +1,43 @@
+T004b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CI configuration, script, or command file was provided that shows system\u2011\
+    level installation of the R packages `lme4` and `ordinal`. Without such an artifact,\
+    \ we cannot confirm that the R environment setup task was actually implemented.\
+    \ The required evidence (e.g., a `.github/workflows/*.yml` snippet or shell script\
+    \ invoking `Rscript -e \"install.packages(...)\"`) is missing."
+T010b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `.env` template file (or any other environment configuration artifact) was\
+    \ presented or described, so the required setup for managing the `HF_TOKEN` is\
+    \ missing. The implementer must add a non\u2011empty `.env` (or similar) template\
+    \ containing at least a placeholder for `HF_TOKEN`."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file showing a VIF calculation for the `politeness`\
+    \ and `conversation_length` variables, nor any evidence that a warning is logged\
+    \ and the variable is dropped when VIF\u202F\u2265\u202F5, was provided. The required\
+    \ implementation artifact is missing."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or output file implementing the CLMM fit with `rpy2` and `lme4`
+    was provided; the claim lacks any artifact (e.g., Python module, R call, or result
+    CSV) to verify that the model was actually fitted as specified. The required implementation
+    and its results are missing.
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file showing a VIF calculation for `politeness` and\
+    \ `conversation_length`, nor evidence that a warning is logged and the variable\
+    \ is dropped when VIF\u202F\u2265\u202F5, was provided. The required implementation\
+    \ artifact is missing."
+T027a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a CLMM fitting script, model output, or recorded convergence\
+    \ status is present; the required artifact (e.g., a fitted model file or CSV with\
+    \ convergence information) is missing, so the task\u2019s core requirement is\
+    \ not demonstrated."

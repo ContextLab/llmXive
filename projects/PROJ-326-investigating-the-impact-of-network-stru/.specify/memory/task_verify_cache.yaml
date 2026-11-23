@@ -1,0 +1,70 @@
+T005:
+  c: true
+  h: 74055314d68f314d3e8846e8e6365de1ba476edd62e74c0d8bb9a691f4780c22
+  r: The repository contains `code/src/utils/logging.py` with the required `init_logging`
+    and `log_metric` functions, and `data/run_log.json` exists initialized as an empty
+    JSON array `[]`. The `log_metric` implementation validates the exact schema and
+    event types before appending entries.
+T018b:
+  c: false
+  h: 43a4e5aa188c4d534cafdeebc109332ed081635b4866905fbbf20839fe33d7cb
+  r: The repository lacks a `config.yaml` file, which the task explicitly requires
+    to be loaded. Moreover, the provided `batch_runner.py` snippet does not contain
+    a `main()` function or any orchestration logic that calls `load_config` and initializes
+    the generation pipeline. Both the essential configuration file and the required
+    `main()` implementation are missing.
+T018c:
+  c: false
+  h: a573d1fd31cd48d26da5166d7153ff486f93f9ac89e209f7f4011db8fb540d07
+  r: "The required output file `contracts/manifest.schema.yaml` does not exist, so\
+    \ the JSON schema was never provided. Consequently the task\u2019s core deliverable\
+    \ is missing."
+T018f:
+  c: false
+  h: e300de1d3d29c35d79e009766c3d1775c9676c275c0df568a897c69221de6224
+  r: "The `batch_runner.py` defines a `GlobalSuccessRateMonitor` but it contains errors\
+    \ (e.g., typo `self.min_success_rat`), does not read `config.yaml` (which is missing),\
+    \ never writes the final success rate to `data/run_log.json` (the file remains\
+    \ an empty list), and there is no evidence that the monitor is integrated into\
+    \ the batch process or that a test exercising low success rates is provided. These\
+    \ gaps mean the task\u2019s requirements are not satisfied."
+T027:
+  c: false
+  h: f623ffc6a29cbc4d42f2034c12a3790683fc387cb10c0d71508999840687bb6f
+  r: "The `diffusion.py` file exists but is incomplete (truncated) and does not show\
+    \ any logic that writes verification results to `data/analysis/diffusion_verification.json`.\
+    \ Moreover, the required tolerance\u2011based monotonicity check and JSON output\
+    \ are missing, and the expected verification file is absent. The task therefore\
+    \ remains unfinished."
+T035b:
+  c: false
+  h: 3c89ac18c43308cbe69162d92f2d127a68757dd154c89cea2d154a2f47e9fd33
+  r: The repository lacks the required `config.yaml` (so thresholds cannot be read)
+    and the output file `data/analysis/sensitivity_sweep.json` does not exist. Moreover,
+    the provided `sensitivity.py` only defines helper functions and does not contain
+    code that iterates over thresholds, invokes the simulation for each, and writes
+    the results to the specified JSON file. These essential components are missing,
+    so the task is not genuinely completed.
+T044:
+  c: false
+  h: ece1c6d515a60790dd8b0dcf01459ff503bc4d85b815ac58f6c8a94861f77e13
+  r: "The repository contains a partially implemented `power.py`, but it does not\
+    \ include code that writes the required `data/analysis/power_analysis_report.json`.\
+    \ Moreover, the JSON report file is missing entirely, so the task\u2019s output\
+    \ artifact and schema are not satisfied."
+T070:
+  c: false
+  h: 568a684327dfc445be270f47468cf5b8bda737933a64e2ad0d343f361874b973
+  r: "The repository contains `code/src/simulation/profiler.py`, but the file is truncated,\
+    \ contains a syntax error (`total_duratio`), and never writes the profiling data\
+    \ to `data/analysis/profiler_report.json`. Moreover, the required JSON report\
+    \ file does not exist. Hence the task\u2019s output artifact is missing and the\
+    \ implementation is incomplete."
+T080:
+  c: false
+  h: ebf6e86c8eec9de9323228363207044e2bd1811ed77ab9a36c352a9598e6b497
+  r: "The provided `run_simulation.py` contains a generic `run_with_timeout` helper\
+    \ but never reads `simulation_timeout_seconds` from a `config.yaml` (the file\
+    \ is missing) nor applies the min\u2011with\u2011MAX_TIMEOUT logic, logs `timeout_reached`,\
+    \ or flags the result as `[TIMEOUT_EXCEEDED]`. Consequently the required timeout\
+    \ enforcement behavior is not demonstrated."

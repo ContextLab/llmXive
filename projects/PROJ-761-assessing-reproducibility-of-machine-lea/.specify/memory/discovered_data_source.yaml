@@ -1,0 +1,12 @@
+status: none
+intent: USPTO Extract reaction dataset USPTO Balanced v1.0 download pip install python
+  package dataset
+required_fields:
+- reaction_smiles
+- reactant_smiles
+- product_smiles
+- yield_percent
+- reaction_id
+cache_key: 845972799cfcffce48d0a5d30b7dc99f5a5bb2df2961982242639f248544940d
+searched_at: '2026-09-08T06:35:50.841223+00:00'
+retry_count: 1

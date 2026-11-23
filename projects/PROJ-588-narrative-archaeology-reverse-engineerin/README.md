@@ -1,83 +1,29 @@
 # Narrative Archaeology: Reverse-Engineering Story Memories from Brain Data
 
-## Project Setup
+**Project ID**: PROJ-588-narrative-archaeology-reverse-engineerin
 
-This project uses Python 3.11+ with the following linting and formatting tools:
+## Overview
+This project implements a pipeline to reverse-engineer story memories from fMRI brain data.
+It focuses on the "Early vs. Late Event Stability" analysis and linear decoding of narrative elements.
 
-- **black**: Code formatter
-- **flake8**: Linter
-- **isort**: Import sorter
-- **pre-commit**: Git hooks for automated checks
+## Structure
+- `code/`: Source code modules (data processing, models, utils)
+- `data/`: Input datasets, intermediate files, and final outputs
+- `tests/`: Unit and integration tests
+- `specs/`: Design documents and requirements
+- `docs/`: Project documentation
+
+## Requirements
+- Python 3.11+
+- See `requirements.txt` for dependencies.
 
 ## Installation
-
-1. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
-3. Install pre-commit hooks:
- ```bash
- pre-commit install
- ```
-
-## Development Workflow
-
-### Running Linters Manually
-
 ```bash
-# Check formatting
-black --check code/ tests/
-
-# Fix formatting
-black code/ tests/
-
-# Check imports
-isort --check code/ tests/
-
-# Fix imports
-isort code/ tests/
-
-# Run linter
-flake8 code/ tests/
+python -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
 ```
 
-### Using Pre-commit
-
-Run all checks before committing:
-```bash
-pre-commit run --all-files
-```
-
-## Configuration Files
-
-- `.flake8`: Flake8 linting rules
-- `pyproject.toml`: Black, isort, and pytest configuration
-- `.pre-commit-config.yaml`: Pre-commit hook definitions
-- `requirements.txt`: Project dependencies
-
-## Testing
-
-Run tests with pytest:
-```bash
-pytest
-```
-
-Run with coverage:
-```bash
-pytest --cov=code --cov-report=html
-```
-
-## Architecture
-
-- `code/`: Source code for the research pipeline
-- `data/`: Data files and outputs
-- `tests/`: Test suite
-- `docs/`: Documentation
-- `specs/`: Feature specifications
+## Execution
+Refer to `tasks.md` for the implementation order.
+The pipeline is orchestrated via scripts in `code/`.

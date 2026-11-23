@@ -1,60 +1,57 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "OULAD Learner Dataset Schema"
-description: "Schema for the processed learner dataset derived from OULAD."
-type: object
+title: "Learner Record Schema"
+description: "Schema for the processed learner records used in the OULAD analysis. Note: response_timestamp is a proxy for student engagement, not instructor feedback."
+type: "object"
 properties:
   student_id:
-    type: string
-    description: "Anonymized unique identifier for the learner."
+    type: "string"
+    description: "Unique identifier for the learner."
   course_id:
-    type: string
+    type: "string"
     description: "Unique identifier for the course."
+  final_grade:
+    type: "number"
+    description: "Final grade achieved by the learner."
+  is_complete:
+    type: "boolean"
+    description: "Whether the learner completed the course."
   submission_timestamp:
-    type: string
-    format: date-time
-    description: "UTC timestamp of learner submission."
-  response_proxy_timestamp:
-    type: string
-    format: date-time
-    description: "UTC timestamp of system/instructor response (or forum reply proxy)."
-  interval_hours:
-    type: number
-    description: "Time difference in hours (response - submission). Precision ≥0.1h."
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of the assessment submission (UTC)."
+  response_timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of the next student event (proxy for feedback) (UTC). May be null if no next event exists."
+  proxy_source:
+    type: "string"
+    description: "Source of the proxy timestamp (e.g., 'next_forum', 'next_assessment')."
+  feedback_interval:
+    type: "number"
+    description: "Time delta between submission and response in hours."
   feedback_group:
-    type: string
+    type: "string"
     enum:
       - "Immediate"
       - "Delayed"
       - "Variable"
-    description: "Binned feedback timing group."
-  final_grade:
-    type: number
-    minimum: 0
-    maximum: 100
-    description: "Final course grade."
-  is_complete:
-    type: integer
-    enum:
-      - 0
-      - 1
-    description: "Course completion status (1=completed, 0=incomplete)."
-  missing_response_flag:
-    type: integer
-    enum:
-      - 0
-      - 1
-    description: "Indicator for missing response timestamp (1=missing)."
-  engagement_count:
-    type: integer
-    description: "Total number of submissions/forum posts (covariate)."
+    description: "Binned category based on median feedback interval."
+  num_past_attempts:
+    type: "integer"
+    description: "Number of past attempts."
+  total_forum_posts:
+    type: "integer"
+    description: "Total forum posts (engagement control)."
+  total_clicks:
+    type: "integer"
+    description: "Total clicks (engagement control)."
 required:
   - student_id
   - course_id
-  - submission_timestamp
-  - interval_hours
-  - feedback_group
   - final_grade
   - is_complete
-  - missing_response_flag
-  - engagement_count
+  - submission_timestamp
+  - feedback_interval
+  - feedback_group
+  - proxy_source
 additionalProperties: false

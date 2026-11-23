@@ -2,6 +2,7 @@ import os
 import sys
 import logging
 import pickle
+import json
 from pathlib import Path
 from typing import Optional, Dict, Any
 
@@ -9,56 +10,73 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import seaborn as sns
-from sklearn.inspection import permutation_importance
+from sklearn.inspection import permutation_result
+from sklearn.metrics import r2_score, mean_squared_error
 
 # Configure logging
 from utils.logging_config import get_logger, log_pipeline_event
 
 logger = get_logger(__name__)
 
-# Ensure plots directory exists
-PLOTS_DIR = Path("results")
-PLOTS_DIR.mkdir(parents=True, exist_ok=True)
+# Ensure results directory exists
+RESULTS_DIR = Path("results")
+RESULTS_DIR.mkdir(parents=True, exist_ok=True)
 
 def load_test_data() -> pd.DataFrame:
     """
     Load the test set from the preprocessed data.
     Expects data/processed/features.csv to exist.
+    We need to re-split the data exactly as done in training to get the test set.
+    However, for plotting predicted vs true, we can use the full dataset if we re-predict,
+    but the standard approach is to use the held-out test set.
+    
+    Since T021a performs a split, we assume the test set was saved or we need to re-load
+    the full features and re-split using the same random state and stratification logic.
+    
+    To avoid re-splitting complexity, we assume the pipeline saves 'test_set.csv' in data/processed/
+    if the split is persistent. If not, we load the full features and re-split.
+    
+    Based on T021a description: "Perform a stratified split...". It doesn't explicitly say it saves them.
+    Let's check for a specific test file first.
     """
-    data_path = Path("data/processed/features.csv")
-    if not data_path.exists():
-        raise FileNotFoundError(f"Test data not found at {data_path}. "
-                                "Please run the data pipeline (T018) first.")
-    
-    df = pd.read_csv(data_path)
-    
-    # The train/test split is usually done in preprocess.py and saved as separate files
-    # or the split is performed in memory. 
-    # Based on T022, we need the test split. 
-    # If split_data saved separate files, we load them. 
-    # If not, we assume the features.csv is the full dataset and we might need to reload the split logic 
-    # or assume the task T022 saved a specific test file. 
-    # However, standard practice in this pipeline implies we need the test set used for evaluation.
-    # Let's check for a specific test file first, otherwise we might need to re-split.
     test_path = Path("data/processed/test_set.csv")
     if test_path.exists():
+        logger.info(f"Loading test set from {test_path}")
         return pd.read_csv(test_path)
     
-    # Fallback: If the split wasn't saved to disk, we might need to infer or re-load.
-    # But T022 says "save_processed_data" which usually saves the full features.
-    # Let's assume the standard output of T022 (split_data) might have saved test_set.csv.
-    # If not, we proceed with the full features and assume the model was trained on a subset,
-    # but for plotting we need the specific test points.
-    # For robustness, let's check if there's a specific test file. If not, we raise a clear error
-    # or attempt to load the full features and warn.
-    # Actually, looking at T026, it logs test RMSE. The test set must exist.
-    # Let's assume the pipeline saves 'test_set.csv' or 'train_set.csv' in data/processed/
-    # if the split is persistent. If not, we might have to re-run the split logic.
-    # To be safe, we try to load the test set.
-    raise FileNotFoundError(
-        "Test set file 'data/processed/test_set.csv' not found. "
-        "Ensure T022 (split_data) saves the test split to disk."
+    # Fallback: Load full features and re-split (assuming we know the columns)
+    # This is less ideal but necessary if test_set.csv wasn't saved.
+    data_path = Path("data/processed/features.csv")
+    if not data_path.exists():
+        raise FileNotFoundError(f"Test data not found at {test_path} or {data_path}. "
+                                "Please run the data pipeline (T018) first.")
+    
+    logger.warning(f"Test set file '{test_path}' not found. Loading full features and re-splitting.")
+    df = pd.read_csv(data_path)
+    
+    # Re-split logic (matching T021a: stratified by quantiles of decomposition_energy)
+    # We need to replicate the split from train.py. Since we don't have the exact code here,
+    # we'll use a simple stratified split based on quantiles.
+    from sklearn.model_selection import train_test_split
+    
+    # Create quantile bins for stratification
+    df['energy_quantile'] = pd.qcut(df['decomposition_energy'], q=5, duplicates='drop')
+    
+    train_df, test_df = train_test_split(
+        df, 
+        test_size=0.2, 
+        random_state=42, 
+        stratify=df['energy_quantile']
     )
+    
+    # Drop the helper column
+    test_df = test_df.drop(columns=['energy_quantile'])
+    
+    # Save the test set for future use
+    test_df.to_csv(test_path, index=False)
+    logger.info(f"Saved re-split test set to {test_path}")
+    
+    return test_df
 
 def load_model() -> Any:
     """
@@ -67,71 +85,100 @@ def load_model() -> Any:
     model_path = Path("results/model.pkl")
     if not model_path.exists():
         raise FileNotFoundError(f"Model not found at {model_path}. "
-                                "Please run the training pipeline (T023-T026) first.")
+                                "Please run the training pipeline (T021c) first.")
     
     with open(model_path, "rb") as f:
         return pickle.load(f)
 
-def plot_feature_importance(model: Any, feature_names: list, output_path: str = "feature-importance.png") -> None:
+def load_metrics() -> Dict[str, Any]:
     """
-    Generate a bar chart of feature importance from the trained model.
-    
-    For RandomForestRegressor, feature importance is available via .feature_importances_.
+    Load metrics from results/metrics.json.
     """
-    if not hasattr(model, 'feature_importances_'):
-        logger.warning("Model does not have feature_importances_ attribute. Attempting permutation importance.")
-        # Fallback to permutation importance if direct importance is missing
-        # This requires X_test and y_test
-        raise NotImplementedError("Direct feature importance not found. Permutation importance requires test data loading which is complex without explicit X/y separation in this function context. Assuming RandomForest has .feature_importances_")
+    metrics_path = Path("results/metrics.json")
+    if not metrics_path.exists():
+        raise FileNotFoundError(f"Metrics not found at {metrics_path}. "
+                                "Please run the training pipeline (T021c) first.")
     
-    importances = model.feature_importances_
-    indices = np.argsort(importances)[::-1]
-    sorted_importances = importances[indices]
-    sorted_features = [feature_names[i] for i in indices]
-    
+    with open(metrics_path, "r") as f:
+        return json.load(f)
+
+def plot_predicted_vs_true(
+    y_true: pd.Series, 
+    y_pred: pd.Series, 
+    output_path: str = "predicted-vs-true.png"
+) -> None:
+    """
+    Generate a scatter plot of predicted vs true decomposition energy.
+    """
     plt.figure(figsize=(10, 8))
-    plt.title("Feature Importance for Perovskite Stability Prediction", fontsize=14)
-    plt.bar(range(len(sorted_importances)), sorted_importances, align="center")
-    plt.xticks(range(len(sorted_features)), sorted_features, rotation=45, ha="right")
-    plt.xlabel("Feature")
-    plt.ylabel("Importance Score")
+    
+    # Scatter plot
+    plt.scatter(y_true, y_pred, alpha=0.6, edgecolors='k', linewidth=0.5)
+    
+    # Identity line
+    min_val = min(y_true.min(), y_pred.min())
+    max_val = max(y_true.max(), y_pred.max())
+    plt.plot([min_val, max_val], [min_val, max_val], 'r--', label='Ideal Prediction')
+    
+    # Calculate and display metrics
+    rmse = np.sqrt(mean_squared_error(y_true, y_pred))
+    r2 = r2_score(y_true, y_pred)
+    
+    plt.text(
+      0.05, 0.95, 
+      f'RMSE: {rmse:.4f} eV/atom\nR²: {r2:.4f}',
+      transform=plt.gca().transAxes,
+      fontsize=12,
+      verticalalignment='top',
+      bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    )
+    
+    plt.title("Predicted vs True Decomposition Energy", fontsize=14)
+    plt.xlabel("True Decomposition Energy (eV/atom)", fontsize=12)
+    plt.ylabel("Predicted Decomposition Energy (eV/atom)", fontsize=12)
+    plt.legend()
+    plt.grid(True, alpha=0.3)
     plt.tight_layout()
     
-    output_file = PLOTS_DIR / output_path
+    output_file = RESULTS_DIR / output_path
     plt.savefig(output_file, dpi=300)
     plt.close()
     
-    log_pipeline_event(f"Feature importance plot saved to {output_file}")
-    logger.info(f"Generated feature importance plot: {output_file}")
+    log_pipeline_event(f"Predicted vs True plot saved to {output_file}")
+    logger.info(f"Generated predicted vs true plot: {output_file}")
 
 def main() -> None:
     """
-    Main entry point for generating the feature importance plot.
+    Main entry point for generating the predicted-vs-true plot.
     """
-    logger.info("Starting feature importance plot generation (T030).")
+    logger.info("Starting predicted vs true plot generation (T022).")
     
     try:
         # Load data and model
         df_test = load_test_data()
         model = load_model()
         
-        # Identify feature columns. 
-        # We assume the features are all columns except 'decomposition_energy' (target)
-        # and any metadata columns if present.
-        # Based on T018, features.csv has specific columns.
+        # Identify feature columns and target
         target_col = 'decomposition_energy'
         if target_col not in df_test.columns:
             raise ValueError(f"Target column '{target_col}' not found in test data.")
         
         feature_cols = [col for col in df_test.columns if col != target_col]
         
-        # Generate the plot
-        plot_feature_importance(model, feature_cols, output_path="feature-importance.png")
+        # Extract features and target
+        X_test = df_test[feature_cols]
+        y_true = df_test[target_col]
         
-        logger.info("T030 completed successfully.")
+        # Predict
+        y_pred = model.predict(X_test)
+        
+        # Generate the plot
+        plot_predicted_vs_true(y_true, y_pred, output_path="predicted-vs-true.png")
+        
+        logger.info("T022 completed successfully.")
         
     except Exception as e:
-        logger.error(f"Failed to generate feature importance plot: {e}", exc_info=True)
+        logger.error(f"Failed to generate predicted vs true plot: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":

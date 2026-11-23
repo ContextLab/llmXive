@@ -1,15 +1,14 @@
 """
-Module to flag non-compliant days while retaining data for analysis.
+Implementation of logic to flag non-compliant days while retaining data for analysis.
 
-This module implements the logic required for US-2 to identify days where
-participants did not meet the strict compliance rules (e.g., >30 min social media,
-news consumption, notifications on) but preserves the raw data for downstream
-sensitivity analyses and intention-to-treat assessments.
+This module processes daily compliance logs, evaluates them against defined rules,
+and adds a 'flag' field to the records indicating compliance status. Crucially,
+it retains ALL data (both compliant and non-compliant) for downstream analysis,
+allowing researchers to study the impact of non-compliance or perform sensitivity
+analyses.
 
-The output includes a flag indicating non-compliance and a reason code,
-allowing researchers to filter or weight data without losing the record.
+US-2 Requirement: "Implement logic to flag non-compliant days but retain data for analysis."
 """
-
 import os
 import csv
 import json
@@ -17,188 +16,198 @@ from pathlib import Path
 from datetime import datetime
 from typing import List, Dict, Any, Optional
 
-from compliance.rules_engine import check_compliance_rules, ComplianceResult
-from config.env_config import get_path
-
-# Constants for flagging reasons
-REASON_EXCESSIVE_SOCIAL_MEDIA = "EXCESSIVE_SOCIAL_MEDIA"
-REASON_NEWS_CONSUMPTION = "NEWS_CONSUMPTION"
-REASON_NOTIFICATIONS_ON = "NOTIFICATIONS_ON"
-REASON_MULTIPLE_VIOLATIONS = "MULTIPLE_VIOLATIONS"
-REASON_COMPLIANT = "COMPLIANT"
+# Import existing compliance logic
+from code.compliance.rules_engine import check_compliance_rules, ComplianceResult
+from code.config.env_config import get_path
 
 
-def flag_non_compliant_day(compliance_result: ComplianceResult) -> Dict[str, Any]:
+def flag_non_compliant_day(log_entry: Dict[str, Any], rules_config: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
-    Convert a ComplianceResult into a flagging record that retains data.
-
-    This function takes the result of the rules engine and generates a
-    structured record that:
-    1. Marks the day as compliant or non-compliant.
-    2. Identifies the specific reason for non-compliance.
-    3. Retains all original metric data for analysis.
-
-    Args:
-        compliance_result: The result object from check_compliance_rules.
-
-    Returns:
-        A dictionary containing the flag, reason, and original data.
-    """
-    is_compliant = compliance_result.is_compliant
-    reason = REASON_COMPLIANT
+    Evaluate a single day's log entry against compliance rules and add a flag.
     
-    if not is_compliant:
-        # Determine the primary reason for non-compliance
-        # Priority: Multiple > News > Social Media > Notifications
-        violations = []
-        if compliance_result.social_media_minutes > 30:
-            violations.append(REASON_EXCESSIVE_SOCIAL_MEDIA)
-        if compliance_result.news_minutes > 0:
-            violations.append(REASON_NEWS_CONSUMPTION)
-        if compliance_result.notifications_enabled:
-            violations.append(REASON_NOTIFICATIONS_ON)
+    This function:
+    1. Validates the log entry structure
+    2. Runs the compliance rules engine
+    3. Adds a 'compliance_flag' field ('COMPLIANT', 'NON_COMPLIANT', 'INVALID')
+    4. Adds a 'violation_details' field with specific reasons if non-compliant
+    5. Returns the original log entry UNMODIFIED except for the added fields
+       (data is retained regardless of compliance status)
+    
+    Args:
+        log_entry: Dictionary containing daily log data
+        rules_config: Optional override for rules configuration
         
-        if len(violations) > 1:
-            reason = REASON_MULTIPLE_VIOLATIONS
-        elif len(violations) == 1:
-            reason = violations[0]
+    Returns:
+        Updated log entry with compliance flag and details
+    """
+    # Create a copy to avoid mutating the original in unexpected ways
+    result_entry = log_entry.copy()
+    
+    # Initialize flag as 'INVALID' by default
+    result_entry['compliance_flag'] = 'INVALID'
+    result_entry['violation_details'] = []
+    
+    try:
+        # Run the compliance rules engine
+        compliance_result: ComplianceResult = check_compliance_rules(log_entry, rules_config)
+        
+        if compliance_result.is_compliant:
+            result_entry['compliance_flag'] = 'COMPLIANT'
+            result_entry['violation_details'] = []
         else:
-            # Fallback if is_compliant is False but no specific flag caught
-            reason = "UNKNOWN_VIOLATION"
-
-    return {
-        "participant_id": compliance_result.participant_id,
-        "date": compliance_result.date,
-        "is_compliant": is_compliant,
-        "flag": "NON_COMPLIANT" if not is_compliant else "COMPLIANT",
-        "reason_code": reason,
-        "social_media_minutes": compliance_result.social_media_minutes,
-        "news_minutes": compliance_result.news_minutes,
-        "notifications_enabled": compliance_result.notifications_enabled,
-        "raw_data_retained": True,
-        "violation_details": compliance_result.violations
-    }
+            result_entry['compliance_flag'] = 'NON_COMPLIANT'
+            result_entry['violation_details'] = compliance_result.violations
+            
+    except Exception as e:
+        # If evaluation fails, mark as invalid but RETAIN the data
+        result_entry['compliance_flag'] = 'INVALID'
+        result_entry['violation_details'] = [f"Evaluation error: {str(e)}"]
+    
+    return result_entry
 
 
 def process_and_flag_logs(
     input_path: Optional[str] = None,
-    output_path: Optional[str] = None
+    output_path: Optional[str] = None,
+    rules_config: Optional[Dict[str, Any]] = None
 ) -> List[Dict[str, Any]]:
     """
-    Process compliance logs, run the rules engine, and flag non-compliant days.
-
-    This function orchestrates the workflow:
-    1. Loads compliance data (JSON or CSV).
-    2. Runs the rules engine on each record.
-    3. Generates a flagging record for each day.
-    4. Writes the results to a new file.
-
+    Process a batch of compliance logs, flag non-compliant days, and save results.
+    
+    This function:
+    1. Loads logs from the input file (JSON or CSV)
+    2. Flags each day's log using flag_non_compliant_day
+    3. Saves the flagged logs to the output file
+    4. Returns the processed list for further analysis
+    
+    CRITICAL: All data is retained in the output, regardless of compliance status.
+    This allows downstream analysis to:
+    - Compare compliant vs. non-compliant participants
+    - Perform sensitivity analyses excluding non-compliant days
+    - Study patterns of non-compliance
+    
     Args:
-        input_path: Path to the input compliance log file. Defaults to
-                    data/compliance/processed_logs.csv if not provided.
-        output_path: Path to the output flagged file. Defaults to
-                     data/compliance/flagged_logs.csv if not provided.
-
+        input_path: Path to input log file (defaults to processed compliance logs)
+        output_path: Path to output flagged file (defaults to flagged compliance logs)
+        rules_config: Optional override for rules configuration
+        
     Returns:
-        A list of flagged record dictionaries.
+        List of log entries with compliance flags added
     """
-    # Resolve paths
-    config_path = get_path("data_compliance")
+    # Set default paths if not provided
     if input_path is None:
-        input_path = str(Path(config_path) / "processed_logs.csv")
+        input_path = str(get_path('data_processed', 'compliance_logs.csv'))
     if output_path is None:
-        output_path = str(Path(config_path) / "flagged_logs.csv")
-
-    input_file = Path(input_path)
-    output_file = Path(output_path)
-
-    if not input_file.exists():
-        raise FileNotFoundError(f"Input compliance log not found: {input_path}")
-
-    flagged_records = []
-
-    # Load and process logs
-    with open(input_file, 'r', newline='', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            try:
-                # Convert row to the format expected by rules_engine
-                # Assuming row contains: participant_id, date, social_media_minutes, 
-                # news_minutes, notifications_enabled
-                compliance_input = {
-                    "participant_id": row.get("participant_id"),
-                    "date": row.get("date"),
-                    "social_media_minutes": float(row.get("social_media_minutes", 0)),
-                    "news_minutes": float(row.get("news_minutes", 0)),
-                    "notifications_enabled": row.get("notifications_enabled", "").lower() == "true",
-                    "raw_data": row
-                }
-
-                # Run rules engine
-                result = check_compliance_rules(compliance_input)
-                
-                # Flag the day
-                flagged_record = flag_non_compliant_day(result)
-                flagged_records.append(flagged_record)
-
-            except (ValueError, KeyError) as e:
-                # Log error but continue processing other rows
-                print(f"Warning: Could not process row {row}: {e}")
-                continue
-
-    # Write output
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    fieldnames = [
-        "participant_id", "date", "is_compliant", "flag", "reason_code",
-        "social_media_minutes", "news_minutes", "notifications_enabled",
-        "raw_data_retained", "violation_details"
-    ]
-
-    with open(output_file, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        for record in flagged_records:
-            # Convert violation_details (list) to string for CSV
-            csv_record = record.copy()
-            csv_record["violation_details"] = json.dumps(csv_record["violation_details"])
-            writer.writerow(csv_record)
-
-    print(f"Flagged {len(flagged_records)} days. Output written to {output_file}")
-    return flagged_records
+        output_path = str(get_path('data_processed', 'compliance_logs_flagged.csv'))
+    
+    # Ensure output directory exists
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Determine input format and load data
+    input_path_obj = Path(input_path)
+    if not input_path_obj.exists():
+        raise FileNotFoundError(f"Input log file not found: {input_path}")
+    
+    logs = []
+    if input_path_obj.suffix.lower() == '.json':
+        with open(input_path_obj, 'r', encoding='utf-8') as f:
+            logs = json.load(f)
+    else:
+        # Assume CSV
+        with open(input_path_obj, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            logs = list(reader)
+    
+    # Flag each log entry
+    flagged_logs = []
+    for i, log_entry in enumerate(logs):
+        # Ensure numeric fields are numeric if they came from CSV
+        processed_entry = {}
+        for k, v in log_entry.items():
+            # Try to convert numeric fields
+            if k in ['minutes_social_media', 'minutes_news', 'notifications_off'] and v is not None:
+                try:
+                    processed_entry[k] = int(v) if isinstance(v, str) else v
+                except (ValueError, TypeError):
+                    processed_entry[k] = v
+            else:
+                processed_entry[k] = v
+        
+        flagged_entry = flag_non_compliant_day(processed_entry, rules_config)
+        flagged_logs.append(flagged_entry)
+        
+        # Log progress for large files
+        if (i + 1) % 100 == 0:
+            print(f"Processed {i + 1}/{len(logs)} logs...")
+    
+    # Write output file
+    if flagged_logs:
+        # Determine fields to write
+        fields = list(flagged_logs[0].keys())
+        
+        with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fields)
+            writer.writeheader()
+            writer.writerows(flagged_logs)
+        
+        print(f"Flagged compliance logs written to: {output_path}")
+    
+    return flagged_logs
 
 
 def main():
     """
-    Main entry point for the flagging script.
+    Main entry point for the compliance flagging pipeline.
+    
+    Usage:
+        python -m code.compliance.flag_non_compliant
+        
+    This script:
+    1. Loads compliance logs from the default processed location
+    2. Flags each day as COMPLIANT, NON_COMPLIANT, or INVALID
+    3. Saves the flagged logs to data/processed/compliance_logs_flagged.csv
+    4. Prints a summary of the flagging results
     """
-    print("Starting non-compliant day flagging process...")
+    print("Starting compliance flagging pipeline...")
+    
     try:
-        records = process_and_flag_logs()
+        # Process and flag logs
+        flagged_logs = process_and_flag_logs()
         
-        # Summary statistics
-        compliant_count = sum(1 for r in records if r["is_compliant"])
-        non_compliant_count = len(records) - compliant_count
+        # Generate summary statistics
+        total = len(flagged_logs)
+        compliant = sum(1 for log in flagged_logs if log['compliance_flag'] == 'COMPLIANT')
+        non_compliant = sum(1 for log in flagged_logs if log['compliance_flag'] == 'NON_COMPLIANT')
+        invalid = sum(1 for log in flagged_logs if log['compliance_flag'] == 'INVALID')
         
-        print(f"\nSummary:")
-        print(f"  Total days processed: {len(records)}")
-        print(f"  Compliant days: {compliant_count}")
-        print(f"  Non-compliant days: {non_compliant_count}")
+        print("\n--- Compliance Flagging Summary ---")
+        print(f"Total logs processed: {total}")
+        print(f"Compliant days: {compliant} ({100*compliant/total:.1f}%)")
+        print(f"Non-compliant days: {non_compliant} ({100*non_compliant/total:.1f}%)")
+        print(f"Invalid/Unprocessable: {invalid} ({100*invalid/total:.1f}%)")
+        print(f"Data retention: All {total} records retained for analysis.")
         
-        if non_compliant_count > 0:
-            reason_counts = {}
-            for r in records:
-                if not r["is_compliant"]:
-                    reason = r["reason_code"]
-                    reason_counts[reason] = reason_counts.get(reason, 0) + 1
+        # Show sample violations for non-compliant entries
+        if non_compliant > 0:
+            print("\nSample non-compliance reasons:")
+            sample_violations = []
+            for log in flagged_logs:
+                if log['compliance_flag'] == 'NON_COMPLIANT' and log['violation_details']:
+                    sample_violations.extend(log['violation_details'][:2])
+                if len(sample_violations) >= 5:
+                    break
             
-            print(f"  Non-compliance breakdown:")
-            for reason, count in sorted(reason_counts.items()):
-                print(f"    - {reason}: {count}")
-                
+            for i, v in enumerate(set(sample_violations)):
+                print(f"  {i+1}. {v}")
+        
+        print("\nPipeline completed successfully.")
+        print(f"Output file: {get_path('data_processed', 'compliance_logs_flagged.csv')}")
+        
     except Exception as e:
-        print(f"Error during flagging process: {e}")
+        print(f"Error during flagging pipeline: {str(e)}")
         raise
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

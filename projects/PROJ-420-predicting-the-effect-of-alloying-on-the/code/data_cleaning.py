@@ -4,335 +4,214 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 from datetime import datetime
 import numpy as np
+import pandas as pd
 
+from schemas.alloy_record import AlloyRecord
 from config import get_config
 from logging_config import get_logger
-from schemas.alloy_record import AlloyRecord
 
 logger = get_logger(__name__)
 
-def load_raw_data(raw_dir: Path) -> List[Dict[str, Any]]:
-    """
-    Load raw JSON files from the raw data directory.
-    Expects files like 'mp_aluminum.json' and 'nist_aluminum.json'.
-    """
-    records = []
-    if not raw_dir.exists():
-        logger.error(f"Raw data directory not found: {raw_dir}")
-        return records
+def load_raw_data(raw_path: Path) -> List[Dict[str, Any]]:
+    """Load raw JSON data from disk."""
+    if not raw_path.exists():
+        raise FileNotFoundError(f"Raw data file not found: {raw_path}")
+    
+    with open(raw_path, 'r') as f:
+        data = json.load(f)
+    
+    # Ensure we have a list of records
+    if isinstance(data, dict) and 'records' in data:
+        return data['records']
+    elif isinstance(data, list):
+        return data
+    else:
+        raise ValueError("Raw data must be a list of records or a dict with 'records' key")
 
-    for json_file in raw_dir.glob("*.json"):
-        logger.info(f"Loading raw data from {json_file}")
+def apply_schema_validation(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Validate records against the AlloyRecord schema (T010)."""
+    validated = []
+    missing_fields = set()
+    
+    for i, record in enumerate(records):
         try:
-            with open(json_file, 'r') as f:
-                data = json.load(f)
-                if isinstance(data, list):
-                    records.extend(data)
-                elif isinstance(data, dict):
-                    # Handle cases where data is wrapped in a key
-                    records.append(data)
-        except json.JSONDecodeError as e:
-            logger.error(f"Failed to decode JSON in {json_file}: {e}")
-        except Exception as e:
-            logger.error(f"Unexpected error loading {json_file}: {e}")
-
-    logger.info(f"Loaded {len(records)} total raw records.")
-    return records
-
-def verify_measurement_independence(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Filter out records where Poisson's ratio is not computationally independent.
-    Excludes entries where:
-    - measurement_method is 'calculated', 'derived', 'derived_from_Youngs_modulus', or missing.
-    - If method is missing but Young's and Bulk modulus are present, check for derivation.
-    """
-    independent_records = []
-    excluded_count = 0
-
-    for record in records:
-        method = record.get('measurement_method', None)
-        poiss = record.get('poissons_ratio', None)
-        youngs = record.get('youngs_modulus', None)
-        bulk = record.get('bulk_modulus', None)
-
-        # Check for missing or invalid method
-        if method is None or method in ['calculated', 'derived', 'derived_from_Youngs_modulus', 'unknown', '']:
-            logger.debug(f"Excluding record: missing or invalid measurement_method. Record: {record.get('material_id', 'N/A')}")
-            excluded_count += 1
-            continue
-
-        # If method is present but we have Young's and Bulk, check for derivation
-        if youngs is not None and bulk is not None and poiss is not None:
-            # Poisson's ratio derived from Young's (E) and Bulk (K) is:
-            # nu = (3K - E) / (6K)  =>  E = 3K(1 - 2nu) => nu = 0.5 - E/(6K)
-            # Alternatively, standard relation: E = 2G(1+nu) and K = E / (3(1-2nu))
-            # Derived nu from E and K: nu = (3K - E) / (6K)
-            try:
-                derived_nu = (3 * bulk - youngs) / (6 * bulk)
-                if abs(derived_nu - poiss) / (poiss + 1e-9) < 0.01: # 1% tolerance
-                    logger.warning(f"Excluding record: Poisson's ratio appears derived from E and K. Material ID: {record.get('material_id', 'N/A')}, Method: {method}")
-                    excluded_count += 1
-                    continue
-            except ZeroDivisionError:
-                logger.warning(f"Excluding record: Zero division in derived check. Material ID: {record.get('material_id', 'N/A')}")
-                excluded_count += 1
+            # Check for required fields explicitly before Pydantic validation
+            required_fields = [
+                'poisson_ratio', 'young_modulus', 
+                'cu_fraction', 'mg_fraction', 'si_fraction', 
+                'zn_fraction', 'mn_fraction', 'measurement_method'
+            ]
+            
+            for field in required_fields:
+                if field not in record or record[field] is None:
+                    missing_fields.add(field)
+            
+            if missing_fields:
+                logger.warning(f"Record {i} missing fields: {missing_fields}. Excluding.")
+                missing_fields.clear()
                 continue
+            
+            # Pydantic validation
+            alloy = AlloyRecord(**record)
+            validated.append(alloy.model_dump())
+            
+        except Exception as e:
+            logger.warning(f"Record {i} failed validation: {e}. Excluding.")
+            continue
+    
+    if not validated:
+        raise ValueError("No records passed schema validation.")
+    
+    logger.info(f"Schema validation passed for {len(validated)} records.")
+    return validated
 
-        independent_records.append(record)
-
-    logger.info(f"Measurement independence check complete. Excluded {excluded_count} records. Kept {len(independent_records)}.")
-    return independent_records
-
-def filter_monolithic_alloys(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Filter for monolithic alloys with:
-    - Non-missing Poisson's ratio, Young's modulus.
-    - Non-missing composition for Cu, Mg, Si, Zn, Mn.
-    """
-    filtered = []
+def apply_independence_filter(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Filter out 'Derived' measurement methods (T014)."""
+    kept = []
     excluded_count = 0
-    required_elements = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
+    log_path = Path("data/logs/independence_check.log")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(log_path, 'w') as log_file:
+        for record in records:
+            method = record.get('measurement_method', '')
+            if method in ['Derived', 'calculated_from_Youngs_modulus', 'calculated']:
+                excluded_count += 1
+                log_file.write(f"Excluded: {method}\n")
+                logger.debug(f"Excluded record due to method: {method}")
+            else:
+                kept.append(record)
+    
+    metrics = {
+        "kept": len(kept),
+        "excluded_derived": excluded_count
+    }
+    
+    metrics_path = Path("data/logs/independence_metrics.json")
+    with open(metrics_path, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    
+    logger.info(f"Independence filter applied. Kept: {len(kept)}, Excluded: {excluded_count}")
+    return kept
 
+def apply_monolithic_filter(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Filter for monolithic alloys with non-missing composition (T011)."""
+    filtered = []
     for record in records:
-        # Check property presence
-        if record.get('poissons_ratio') is None or record.get('youngs_modulus') is None:
-            excluded_count += 1
+        # Check for non-missing Poisson's ratio and Young's modulus
+        if record.get('poisson_ratio') is None or record.get('young_modulus') is None:
             continue
-
-        # Check composition presence
-        composition = record.get('composition', {})
-        missing_elements = False
-        for elem in required_elements:
-            if composition.get(elem) is None:
-                missing_elements = True
-                break
-
-        if missing_elements:
-            excluded_count += 1
+        
+        # Check for non-missing composition fractions
+        fractions = ['cu_fraction', 'mg_fraction', 'si_fraction', 'zn_fraction', 'mn_fraction']
+        if any(record.get(f) is None for f in fractions):
             continue
-
+        
         filtered.append(record)
-
-    logger.info(f"Monolithic alloy filter complete. Excluded {excluded_count} records. Kept {len(filtered)}.")
+    
+    logger.info(f"Monolithic filter applied. Result: {len(filtered)} records.")
     return filtered
 
-def check_major_element_sum(records: List[Dict[str, Any]], threshold: float = 0.95) -> List[Dict[str, Any]]:
-    """
-    Implement exclusion logic for entries where the sum of major elemental fractions < threshold.
-    Logs a warning and drops the row.
-    """
-    valid_records = []
-    dropped_count = 0
-
-    for record in records:
-        composition = record.get('composition', {})
-        # Sum the atomic fractions of the specified major elements: Cu, Mg, Si, Zn, Mn
-        # We assume the composition dict contains these keys with float values.
-        major_elements = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
-        current_sum = 0.0
-        for elem in major_elements:
-            val = composition.get(elem)
-            if val is not None:
-                current_sum += float(val)
-
-        if current_sum < threshold:
-            logger.warning(f"Dropping record due to major element sum < {threshold}. Material ID: {record.get('material_id', 'N/A')}, Sum: {current_sum:.4f}")
-            dropped_count += 1
-            continue
-
-        valid_records.append(record)
-
-    logger.info(f"Major element sum check complete. Dropped {dropped_count} records. Kept {len(valid_records)}.")
-    return valid_records
-
 def normalize_units(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Normalize units:
-    - Convert elastic constants to GPa (assuming input might be in MPa or other units, but spec implies standardization).
-      *Assumption*: Input from MP is often in GPa, but we ensure consistency.
-      If the source provides MPa, we convert. For this task, we assume the input is in GPa as per typical MP API,
-      but we add a check or conversion logic if a unit field exists.
-      *Refinement*: The task asks to convert to GPa. We will assume input is in GPa if not specified, or convert if 'units' field exists.
-      However, to be robust, we will check for a 'units' field or standard conversion factors if the magnitude suggests MPa.
-      *Simpler approach per task*: Ensure values are treated as GPa. If the raw data has a unit field, convert.
-      If the raw data is from MP, it's usually GPa. We will just ensure the field exists and is numeric.
-      *Correction*: The task explicitly says "convert elastic constants to GPa".
-      We will assume the input is in GPa. If the source provides MPa (values > 1000 for typical metals), we divide by 1000.
-      Aluminum Young's Modulus is ~70 GPa (70,000 MPa). If value > 1000, assume MPa.
-    - Calculate atomic fractions summing to unity.
-    """
+    """Normalize units (GPa) and calculate atomic fractions (T012)."""
     normalized = []
-
     for record in records:
-        youngs = record.get('youngs_modulus')
-        bulk = record.get('bulk_modulus')
-        poiss = record.get('poissons_ratio')
-        composition = record.get('composition', {})
-
-        # Unit conversion for elastic constants
-        # Heuristic: If Young's Modulus > 1000, assume MPa and convert to GPa.
-        if youngs is not None:
-            if youngs > 1000:
-                record['youngs_modulus'] = youngs / 1000.0
-                logger.debug(f"Converted Young's Modulus from MPa to GPa for {record.get('material_id')}")
-            # Else assume GPa
-
-        if bulk is not None:
-            if bulk > 1000:
-                record['bulk_modulus'] = bulk / 1000.0
-                logger.debug(f"Converted Bulk Modulus from MPa to GPa for {record.get('material_id')}")
-
-        # Normalize composition to atomic fractions summing to 1.0
-        # Sum all provided composition values
-        total_sum = sum(float(v) for v in composition.values() if v is not None)
-        if total_sum > 0:
-            new_composition = {}
-            for k, v in composition.items():
-                if v is not None:
-                    new_composition[k] = float(v) / total_sum
-                else:
-                    new_composition[k] = 0.0
-            record['composition'] = new_composition
+        # Assume input is already in GPa or convert if necessary (placeholder logic)
+        # If input is in Pa, divide by 1e9
+        if 'young_modulus' in record and record['young_modulus'] > 1000: 
+            # Heuristic: if value is very large, assume Pa
+            pass # Keep as is, assuming GPa input per task description
+        
+        # Ensure fractions sum to 1.0 (normalize if needed)
+        fractions = ['cu_fraction', 'mg_fraction', 'si_fraction', 'zn_fraction', 'mn_fraction']
+        current_sum = sum(record.get(f, 0) for f in fractions)
+        
+        if current_sum > 0 and abs(current_sum - 1.0) > 0.01:
+            # Normalize
+            for f in fractions:
+                record[f] = record.get(f, 0) / current_sum
+            # Al fraction is the balance
+            record['al_fraction'] = 1.0 - current_sum
         else:
-            logger.warning(f"Zero total composition sum for {record.get('material_id')}, skipping normalization.")
-
+            record['al_fraction'] = 1.0 - sum(record.get(f, 0) for f in fractions)
+        
         normalized.append(record)
-
-    logger.info(f"Unit normalization complete. Processed {len(normalized)} records.")
+    
+    logger.info(f"Unit normalization complete. {len(normalized)} records.")
     return normalized
 
-def apply_ilr_transformation(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Apply Isometric Log-Ratio (ILR) transformation to compositional data.
-    Uses the 'compositional' package as per plan.md.
-    """
-    try:
-        import compositional
-    except ImportError:
-        logger.error("compositional package not found. Install with: pip install compositional")
-        raise
-
-    ilr_records = []
-    elements = ['Cu', 'Mg', 'Si', 'Zn', 'Mn']
-
+def apply_major_element_filter(records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    """Exclude entries where major element sum < 0.95 (T013)."""
+    filtered = []
     for record in records:
-        composition = record.get('composition', {})
-        # Extract values in order
-        vals = [composition.get(e, 0.0) for e in elements]
-        vals = np.array(vals)
-
-        # Avoid zero or negative values for log
-        # Add small epsilon if necessary, though normalization should handle zeros by setting to 0?
-        # compositional package usually requires strictly positive.
-        # We will filter out records with zero in any of the target elements if the package requires it.
-        if np.any(vals <= 0):
-            # If any element is 0, we cannot take log.
-            # Strategy: Replace 0 with a small value (e.g., 1e-6) relative to sum?
-            # Or drop the record? The task says "monolithic alloys with non-missing...".
-            # Let's assume we replace 0 with a small value to allow transformation,
-            # but log a warning.
-            vals[vals <= 0] = 1e-6
-            logger.debug(f"Replaced zero values with 1e-6 for ILR in {record.get('material_id')}")
-
-        # Create a Compositional object
-        try:
-            comp_obj = compositional.Compositional(vals)
-            ilr_vals = comp_obj.ilr()
-            record['ilr_features'] = ilr_vals.tolist()
-            ilr_records.append(record)
-        except Exception as e:
-            logger.error(f"Failed ILR transformation for {record.get('material_id')}: {e}")
+        fractions = ['cu_fraction', 'mg_fraction', 'si_fraction', 'zn_fraction', 'mn_fraction', 'al_fraction']
+        total = sum(record.get(f, 0) for f in fractions)
+        
+        if total < 0.95:
+            logger.warning(f"Major element sum {total:.4f} < 0.95. Excluding record.")
             continue
-
-    logger.info(f"ILR transformation complete. Processed {len(ilr_records)} records.")
-    return ilr_records
-
-def clean_data(raw_dir: Path, processed_dir: Path, output_filename: str = "filtered_alloys.csv") -> Path:
-    """
-    Main cleaning pipeline:
-    1. Load raw data
-    2. Verify measurement independence
-    3. Filter monolithic alloys
-    4. Check major element sum (T013)
-    5. Normalize units
-    6. Apply ILR
-    7. Save to CSV
-    """
-    logger.info("Starting data cleaning pipeline.")
+        
+        filtered.append(record)
     
-    records = load_raw_data(raw_dir)
-    if not records:
-        logger.error("No raw data found to clean.")
-        return processed_dir / output_filename
+    logger.info(f"Major element filter applied. Result: {len(filtered)} records.")
+    return filtered
 
-    records = verify_measurement_independence(records)
-    records = filter_monolithic_alloys(records)
+def run_cleaning_pipeline(raw_path: Path, output_path: Path) -> pd.DataFrame:
+    """Orchestrate the full cleaning pipeline (T018)."""
+    logger.info("Starting full cleaning pipeline.")
     
-    # T013: Check major element sum
-    records = check_major_element_sum(records, threshold=0.95)
-
+    # 1. Load
+    records = load_raw_data(raw_path)
+    logger.info(f"Loaded {len(records)} raw records.")
+    
+    # 2. Schema Validation (T010)
+    records = apply_schema_validation(records)
+    
+    # 3. Independence Filter (T014)
+    records = apply_independence_filter(records)
+    
+    # 4. Monolithic Filter (T011)
+    records = apply_monolithic_filter(records)
+    
+    # 5. Normalize Units (T012)
     records = normalize_units(records)
-    records = apply_ilr_transformation(records)
-
-    # Save to CSV
-    processed_dir.mkdir(parents=True, exist_ok=True)
-    output_path = processed_dir / output_filename
-
-    if not records:
-        logger.warning("No records remaining after cleaning.")
-        # Create empty file with headers if needed, or just empty
-        import pandas as pd
-        pd.DataFrame().to_csv(output_path, index=False)
-        return output_path
-
+    
+    # 6. Major Element Filter (T013)
+    records = apply_major_element_filter(records)
+    
     # Convert to DataFrame
-    import pandas as pd
-    df_records = []
-    for r in records:
-        row = {
-            'material_id': r.get('material_id'),
-            'poissons_ratio': r.get('poissons_ratio'),
-            'youngs_modulus': r.get('youngs_modulus'),
-            'bulk_modulus': r.get('bulk_modulus'),
-            'measurement_method': r.get('measurement_method'),
-            'measurement_source': r.get('measurement_source')
-        }
-        # Flatten composition
-        comp = r.get('composition', {})
-        for k, v in comp.items():
-            row[f'comp_{k}'] = v
-        
-        # Flatten ILR features
-        ilr = r.get('ilr_features', [])
-        for i, v in enumerate(ilr):
-            row[f'ilr_{i}'] = v
-        
-        df_records.append(row)
-
-    df = pd.DataFrame(df_records)
+    df = pd.DataFrame(records)
+    
+    # T018 Final Validation
+    if len(df) == 0:
+        logger.error("CRITICAL: No valid entries found after filtering. Pipeline halted.")
+        raise RuntimeError("CRITICAL: No valid entries found after filtering. Pipeline halted.")
+    
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write output
     df.to_csv(output_path, index=False)
-    logger.info(f"Cleaned data saved to {output_path}")
-
-    return output_path
-
-def run_cleaning_pipeline():
-    """
-    Entry point for running the cleaning pipeline.
-    """
-    config = get_config()
-    raw_dir = config.data_dir / "raw"
-    processed_dir = config.data_dir / "processed"
-
-    output_path = clean_data(raw_dir, processed_dir)
-    return output_path
+    logger.info(f"Pipeline completed. Output written to {output_path} ({len(df)} rows).")
+    
+    # Log warning if sample size is small
+    if len(df) < 50:
+        logger.warning("Sample size < 50: Limiting model complexity per plan.md Assumptions")
+    
+    return df
 
 def main():
-    """
-    CLI entry point.
-    """
-    setup_logging()
-    output_path = run_cleaning_pipeline()
-    print(f"Pipeline complete. Output: {output_path}")
+    """Entry point for testing the cleaning logic directly."""
+    config = get_config()
+    raw_path = Path(config.data_raw_dir) / "openml_aluminum.json"
+    output_path = Path(config.data_processed_dir) / "filtered_alloys.csv"
+    
+    try:
+        df = run_cleaning_pipeline(raw_path, output_path)
+        print(f"Success: {len(df)} records processed.")
+    except Exception as e:
+        print(f"Pipeline failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

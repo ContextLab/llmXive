@@ -1,0 +1,9 @@
+status: none
+intent: '### User Story 1 - Dataset Acquisition and Preparation (Priority: P1) The
+  system MUST acquire a balanced dataset of programming challenges containing both
+  human-written reference solutions and LLM-generated variants. This is the foundational
+  step; without valid, paired data, no security analysis can'
+required_fields: []
+cache_key: b6c1af95181869437a87e7f198276914ba45b3eb31021d0ea2df82bf512f604c
+searched_at: '2026-11-22T01:30:58.274498+00:00'
+retry_count: 2

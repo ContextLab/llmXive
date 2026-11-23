@@ -5,129 +5,99 @@ from pathlib import Path
 from typing import Optional, Dict, Any, Tuple
 import yaml
 
+logger = logging.getLogger(__name__)
+
 class ConfigError(Exception):
-    """Exception raised for configuration errors."""
+    """Raised when configuration is invalid."""
     pass
 
-def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+def _log_step(message: str) -> None:
+    """Helper to log steps with consistent formatting."""
+    logger.info(f"CONFIG: {message}")
+
+def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Load configuration from a YAML file.
+    Load configuration from YAML file.
+    """
+    _log_step("Loading configuration")
     
-    Args:
-        config_path: Path to the config file. If None, looks for 'config.yaml' in project root.
-        
-    Returns:
-        Dictionary containing configuration values.
-        
-    Raises:
-        ConfigError: If config file is not found or invalid.
-    """
     if config_path is None:
-        # Default to project root config
-        config_path = Path(__file__).parent.parent / 'config.yaml'
-    else:
-        config_path = Path(config_path)
+        config_path = Path("config.yaml")
     
     if not config_path.exists():
-        # Create a default config if none exists
-        default_config = {
-            'dataset_url': 'https://raw.githubusercontent.com/pewresearch/social-media-data/main/survey_data.csv',
-            'random_seed': 42,
-            'paths': {
-                'raw_data': 'data/raw',
-                'processed_data': 'data/processed',
-                'outputs': 'outputs'
-            }
-        }
-        config_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(config_path, 'w') as f:
-            yaml.dump(default_config, f)
-        logging.warning(f"Created default config at {config_path}")
-        return default_config
+        logger.warning(f"Config file not found: {config_path}. Using defaults.")
+        return {}
     
     try:
         with open(config_path, 'r') as f:
             config = yaml.safe_load(f)
-        return config
+        return config if config else {}
     except yaml.YAMLError as e:
-        raise ConfigError(f"Invalid YAML in config file: {e}")
-    except Exception as e:
-        raise ConfigError(f"Error loading config file: {e}")
+        raise ConfigError(f"Failed to parse config file: {e}") from e
 
 def set_seed(seed: int) -> None:
-    """
-    Set random seed for reproducibility.
-    
-    Args:
-        seed: Integer seed value.
-    """
+    """Set random seed for reproducibility."""
+    _log_step(f"Setting seed to {seed}")
     random.seed(seed)
-    logging.info(f"Random seed set to: {seed}")
+    np.random.seed(seed)
 
-def verify_and_apply_seed(config: Dict[str, Any]) -> bool:
+def verify_and_apply_seed(config: Dict[str, Any]) -> int:
     """
-    Verify if a random seed is configured, apply it if present, and log status.
-    
-    This function satisfies Constitution Principle I (Reproducibility) by ensuring
-    that seeds are actively applied and logged at runtime. If no seed is set,
-    it logs a warning.
-    
-    Args:
-        config: Configuration dictionary.
-        
-    Returns:
-        True if a seed was found and applied, False otherwise.
+    Verify seed is set in config and apply it.
+    Raises ValueError if seed is missing.
     """
-    seed = config.get('random_seed')
+    _log_step("Verifying and applying seed")
     
+    seed = config.get("seed")
     if seed is None:
-        logging.warning(
-            "Constitution Principle I (Reproducibility) Warning: "
-            "No random seed configured in config. "
-            "Results may not be reproducible across runs. "
-            "Please set 'random_seed' in config.yaml."
-        )
-        return False
+        logger.warning("Seed not set in config")
+        raise ValueError("Seed variable is missing from config")
     
-    try:
-        seed_int = int(seed)
-        set_seed(seed_int)
-        logging.info(f"Seed verification successful: Applied seed {seed_int}")
-        return True
-    except (ValueError, TypeError):
-        logging.warning(
-            f"Invalid random seed value in config: {seed}. "
-            "Seed must be an integer. Reproducibility not guaranteed."
-        )
-        return False
+    set_seed(seed)
+    return seed
+
+def log_seed_status(seed: Optional[int]) -> None:
+    """Log seed status for reproducibility tracking."""
+    if seed is not None:
+        logger.info(f"LOG: SEED={seed} (INFO)")
+    else:
+        logger.warning("LOG: SEED NOT SET (WARNING)")
 
 def get_dataset_url(config: Dict[str, Any]) -> str:
-    """
-    Get dataset URL from configuration.
-    
-    Args:
-        config: Configuration dictionary.
-        
-    Returns:
-        Dataset URL string.
-        
-    Raises:
-        ConfigError: If URL is not found in config.
-    """
-    url = config.get('dataset_url')
+    """Get dataset URL from config."""
+    url = config.get("dataset_url")
     if not url:
-        raise ConfigError("Dataset URL not found in configuration")
+        raise ConfigError("Dataset URL not found in config")
     return url
 
-def ensure_directories(config: Dict[str, Any]) -> None:
-    """
-    Ensure all required directories exist based on configuration.
+def ensure_directories() -> None:
+    """Ensure necessary directories exist."""
+    dirs = [
+        "data/raw",
+        "data/processed",
+        "outputs",
+        "figures",
+        "tests"
+    ]
+    for dir_path in dirs:
+        Path(dir_path).mkdir(parents=True, exist_ok=True)
+        _log_step(f"Ensured directory: {dir_path}")
+
+def main() -> None:
+    """Main entry point for config script."""
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    Args:
-        config: Configuration dictionary containing path settings.
-    """
-    paths = config.get('paths', {})
-    for path_key, path_value in paths.items():
-        path_obj = Path(path_value)
-        path_obj.mkdir(parents=True, exist_ok=True)
-        logging.debug(f"Ensured directory exists: {path_obj}")
+    config = load_config()
+    try:
+        seed = verify_and_apply_seed(config)
+        log_seed_status(seed)
+        ensure_directories()
+        logger.info("Configuration loaded and applied successfully")
+    except (ConfigError, ValueError) as e:
+        logger.error(f"Configuration error: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    import sys
+    import numpy as np
+    main()

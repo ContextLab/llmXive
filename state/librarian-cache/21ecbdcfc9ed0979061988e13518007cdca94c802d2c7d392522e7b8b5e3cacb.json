@@ -1,0 +1,458 @@
+{
+  "fetched_at": "2026-09-22T01:20:54Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "Predicting Gut Microbiome Response to Dietary Interventions Using Publicly Available Data",
+      "target_n": 5
+    },
+    "duration_seconds": 52.626,
+    "ended_at": "2026-09-22T01:20:54Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "gut microbiota response to diet"
+        ],
+        [
+          2,
+          "dietary modulation of gut microbiome"
+        ],
+        [
+          3,
+          "personalized nutrition microbiome prediction"
+        ],
+        [
+          4,
+          "machine learning gut microbiome diet"
+        ],
+        [
+          5,
+          "meta-analysis diet microbiome intervention"
+        ],
+        [
+          6,
+          "fecal microbiota diet response prediction"
+        ],
+        [
+          7,
+          "nutritional intervention microbiome composition"
+        ],
+        [
+          8,
+          "public microbiome datasets diet"
+        ],
+        [
+          9,
+          "microbiome dietary intervention modeling"
+        ],
+        [
+          10,
+          "gut ecosystem response to nutrition"
+        ],
+        [
+          11,
+          "diet-induced microbiome shifts"
+        ],
+        [
+          12,
+          "microbiome-based dietary response biomarkers"
+        ],
+        [
+          13,
+          "supervised learning gut microbiome prediction"
+        ],
+        [
+          14,
+          "integrative analysis diet microbiome data"
+        ],
+        [
+          15,
+          "gut microbiome variability diet"
+        ],
+        [
+          16,
+          "computational prediction microbiome diet"
+        ],
+        [
+          17,
+          "diet-microbiome-host interaction modeling"
+        ],
+        [
+          18,
+          "open-access microbiome diet studies"
+        ],
+        [
+          19,
+          "longitudinal microbiome diet analysis"
+        ],
+        [
+          20,
+          "microbial community response to dietary changes"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Gut Microbiome Response to Dietary Interventions Using Publicly Available Data biology": 0,
+        "gut microbiota response to diet": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "dietary intervention microbiome response prediction",
+      "American Gut Project MetaHIT dietary data",
+      "enterotype stratification diet microbiome association",
+      "longitudinal microbiome trajectory machine learning",
+      "causality inference microbiome diet perturbation"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2306.06364"
+      ]
+    },
+    "per_query_hit_count": {
+      "American Gut Project MetaHIT dietary data": 1,
+      "Predicting Gut Microbiome Response to Dietary Interventions Using Publicly Available Data biology": 3,
+      "causality inference microbiome diet perturbation": 1,
+      "dietary intervention microbiome response prediction": 3,
+      "enterotype stratification diet microbiome association": 2,
+      "longitudinal microbiome trajectory machine learning": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 4,
+      "rejections": [
+        {
+          "primary_pointer": "1110.5626",
+          "rationale": "The paper focuses on astrophysics (dark energy, galaxy redshift) and has no measurable connection to the user's domain of gut microbiome biology, dietary interventions, or public health data, satisfying the \"Off-domain entirely\" rejection rule.",
+          "title": "Constraints on dark energy from H II starburst galaxy apparent magnitude versus redshift data"
+        },
+        {
+          "primary_pointer": "2511.02766",
+          "rationale": "The paper focuses on the gut microbiota's influence on sleep physiology and circadian rhythms, which is a distinct biological outcome from the user's specific question regarding the prediction of microbiome *response* to *dietary interventions*. While both involve the gut microbiome, the paper does not measure the mechanism of dietary impact, establish a baseline for diet-induced changes, or provide the canonical methodology for predicting microbial shifts in response to diet, thus failing to me",
+          "title": "Microbes in the Moonlight: How the Gut Microbiota Influences Sleep"
+        },
+        {
+          "primary_pointer": "2409.12209",
+          "rationale": "The paper focuses on the correlation between gut microbiota and gastric cancer risk, which is a distinct biological construct from the user's question about predicting microbiome *response* to *dietary interventions*. While both involve the gut microbiome, the paper does not measure the independent variable (dietary intervention) or the dependent variable (microbiome change over time in response to diet), nor does it establish a baseline for dietary prediction models, failing to meet criteria (a",
+          "title": "Multivariate Analysis of Gut Microbiota Composition and Prevalence of Gastric Cancer"
+        },
+        {
+          "primary_pointer": "2302.11314",
+          "rationale": "The paper focuses on a data integration and query platform for swine gut microbiota, which is an off-domain software engineering solution rather than a study of the biological mechanism, predictive modeling, or dietary intervention response requested by the user. While it shares the keywords \"gut microbiota\" and \"feed\" (diet), it does not measure the biological response to interventions or provide predictive algorithms, failing to satisfy the criteria for same-mechanism evidence, variable measur",
+          "title": "SGMFQP:An Ontology-based Swine Gut Microbiota Federated Query Platform"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-22T01:20:02Z",
+    "term_input": {
+      "normalized": "predicting gut microbiome response to dietary interventions using publicly available data biology",
+      "raw": "Predicting Gut Microbiome Response to Dietary Interventions Using Publicly Available Data biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: Many mathematical models have now been employed across every area of systems biology. These models increasingly involve large numbers of unknown parameters, have complex structure which can result in substantial evaluation time relative to the needs of the analysis, and need to be compared to observed data. The correct analysis of such models usually requires a global parameter search, over a high dimensional parameter space, that incorporates and respects the most important sources of uncertainty. This can be an extremely difficult task, but it is essential for any meaningful inference or prediction to be made about any biological system. It hence represents a fundamental challenge for the whole of systems biology.\n  Results: Bayesian statistical methodology for the uncertainty analysis of complex models is introduced, which is designed to address the high dimensional global parameter search problem. Bayesian emulators that mimic the systems biology model but which are extremely fast to evaluate are embedded within an iterative history match: an efficient method to search high dimensional spaces within a more formal statistical setting, while incorporating major sources of uncertainty. The approach is demonstrated via application to two models of hormonal crosstalk in Arabidopsis root development, which have 32 rate parameters, for which we identify the sets of rate parameter values that lead to acceptable matches to observed trend data. The biological consequences of the resulting comparison, including the evaluation of gene functions, are described.",
+          "claimed_authors": [
+            "Ian Vernon",
+            "Junli Liu",
+            "Michael Goldstein",
+            "James Rowe",
+            "Jen Topping",
+            "Keith Lindsey"
+          ],
+          "claimed_title": "Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.06358"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Gut Microbiome Response to Dietary Interventions Using Publicly Avail', candidate_title='Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions')",
+        "failed_at": "2026-09-22T01:20:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed optimization in the presence of Byzantine adversaries, where both data and computation are distributed among $m$ worker machines, $t$ of which may be corrupt. The compromised nodes may collaboratively and arbitrarily deviate from their pre-specified programs, and a designated (master) node iteratively computes the model/parameter vector for generalized linear models. In this work, we primarily focus on two iterative algorithms: Proximal Gradient Descent (PGD) and Coordinate Descent (CD). Gradient descent (GD) is a special case of these algorithms. PGD is typically used in the data-parallel setting, where data is partitioned across different samples, whereas, CD is used in the model-parallelism setting, where data is partitioned across the parameter space.\n  In this paper, we propose a method based on data encoding and error correction over real numbers to combat adversarial attacks. We can tolerate up to $t\\leq \\lfloor\\frac{m-1}{2}\\rfloor$ corrupt worker nodes, which is information-theoretically optimal. We give deterministic guarantees, and our method does not assume any probability distribution on the data. We develop a {\\em sparse} encoding scheme which enables computationally efficient data encoding and decoding. We demonstrate a trade-off between the corruption threshold and the resource requirements (storage, computational, and communication complexity). As an example, for $t\\leq\\frac{m}{3}$, our scheme incurs only a {\\em constant} overhead on these resources, over that required by the plain distributed PGD/CD algorithms which provide no adversarial protection. To the best of our knowledge, ours is the first paper that makes CD secure against adversarial attacks.\n  Our encoding scheme extends efficiently to the data streaming model and for stochastic gradient descent (SGD). We also give experimental results to show the efficacy of our proposed schemes.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Linqi Song",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Data Encoding for Byzantine-Resilient Distributed Optimization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1907.02664"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Gut Microbiome Response to Dietary Interventions Using Publicly Avail', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
+        "failed_at": "2026-09-22T01:20:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent attacks of various viruses with having deep and extensive impact at a global scale has warranted that microbiome be studied extensively and in a robust analytic framework. Microbiome typically refers to the collective genomes of such organisms, although it could also refer to the collection of the organisms by themselves. Here we provide an overview of statistical techniques that are useful in analysing such data.",
+          "claimed_authors": [
+            "M. Bhattacharjee"
+          ],
+          "claimed_title": "Statistical Methods for Microbiome Analysis: A brief review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.16722"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Gut Microbiome Response to Dietary Interventions Using Publicly Avail', candidate_title='Statistical Methods for Microbiome Analysis: A brief review')",
+        "failed_at": "2026-09-22T01:20:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Gut Microbiome Response to Dietary Interventions Using Publicly Avail', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-09-22T01:20:30Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) have demonstrated remarkable capabilities, but their massive scale poses significant challenges for practical deployment. Structured pruning offers a promising solution by removing entire dimensions or layers, yet existing methods face critical trade-offs: task-agnostic approaches cannot adapt to task-specific requirements, while task-aware methods require costly training to learn task adaptability. We propose DIET (Dimension-wise global pruning of LLMs via merging Task-wise importance scores), a training-free structured pruning method that combines dimension-level granularity with task-aware selection. DIET profiles activation magnitudes across tasks using only 100 samples per task, then applies majority voting to construct a single global mask. DIET does not require large costs from pre-computation or training. Experiments on seven zero-shot benchmarks using Gemma-2 2B and 9B models demonstrate the effectiveness of DIET; for example, at 20% sparsity on Gemma-2 2B, DIET achieves near 10% average accuracy improvement, compared to previous state-of-the-art structured pruning methods. This advantage persists across various sparsity levels and model scales, positioning DIET as a practical and robust choice for structured LLM pruning.",
+          "claimed_authors": [
+            "Jimyung Hong",
+            "Jaehyung Kim"
+          ],
+          "claimed_title": "Diet Your LLM: Dimension-wise Global Pruning of LLMs via Merging Task-specific Importance Score",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.23985"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Gut Microbiome Response to Dietary Interventions Using Publicly Avail', candidate_title='Diet Your LLM: Dimension-wise Global Pruning of LLMs via Merging Task-specific Importance Score')",
+        "failed_at": "2026-09-22T01:20:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Gut Microbiome Response to Dietary Interventions Using Publicly Avail', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-09-22T01:20:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Gut Microbiome Response to Dietary Interventions Using Publicly Avail', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-09-22T01:20:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='Predicting Gut Microbiome Response to Dietary Interventions Using Publicly Avail', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-09-22T01:20:31Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Our goal is to estimate causal interactions in multivariate time series. Using vector autoregressive (VAR) models, these can be defined based on non-vanishing coefficients belonging to respective time-lagged instances. As in most cases a parsimonious causality structure is assumed, a promising approach to causal discovery consists in fitting VAR models with an additional sparsity-promoting regularization. Along this line we here propose that sparsity should be enforced for the subgroups of coefficients that belong to each pair of time series, as the absence of a causal relation requires the coefficients for all time-lags to become jointly zero. Such behavior can be achieved by means of l1-l2-norm regularized regression, for which an efficient active set solver has been proposed recently. Our method is shown to outperform standard methods in recovering simulated causality graphs. The results are on par with a second novel approach which uses multiple statistical testing.",
+          "claimed_authors": [
+            "Stefan Haufe",
+            "Guido Nolte",
+            "Klaus-Robert Mueller",
+            "Nicole Kraemer"
+          ],
+          "claimed_title": "Sparse Causal Discovery in Multivariate Time Series",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0901.2234"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='Predicting Gut Microbiome Response to Dietary Interventions Using Publicly Avail', candidate_title='Sparse Causal Discovery in Multivariate Time Series')",
+        "failed_at": "2026-09-22T01:20:31Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Kris Sankaran",
+            "Pratheepa Jeganathan"
+          ],
+          "title": "Microbiome Intervention Analysis with Transfer Functions and Mirror Statistics",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.06364",
+        "summary": "Microbiome interventions provide valuable data about microbial ecosystem structure and dynamics. Despite their ubiquity in microbiome research, few rigorous data analysis approaches are available. In this study, we extend transfer function-based intervention analysis to the microbiome setting, drawing from advances in statistical learning and selective inference. Our proposal supports the simulation of hypothetical intervention trajectories and False Discovery Rate-guaranteed selection of significantly perturbed taxa. We explore the properties of our approach through simulation and re-analyze three contrasting microbiome studies. An R package, mbtransfer, is available at https://go.wisc.edu/crj6k6. Notebooks to reproduce the simulation and case studies can be found at https://go.wisc.edu/dxuibh and https://go.wisc.edu/emxv33.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.06364",
+          "http_status": 200,
+          "pdf_sample_score": 0.1723,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-22T01:20:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Matthew D. Koslovsky",
+            "Kristi L. Hoffman",
+            "Carrie R. Daniel",
+            "Marina Vannucci"
+          ],
+          "title": "A Bayesian model of microbiome data for simultaneous identification of covariate associations and prediction of phenotypic outcomes",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2004.14817",
+        "summary": "One of the major research questions regarding human microbiome studies is the feasibility of designing interventions that modulate the composition of the microbiome to promote health and cure disease. This requires extensive understanding of the modulating factors of the microbiome, such as dietary intake, as well as the relation between microbial composition and phenotypic outcomes, such as body mass index (BMI). Previous efforts have modeled these data separately, employing two-step approaches that can produce biased interpretations of the results. Here, we propose a Bayesian joint model that simultaneously identifies clinical covariates associated with microbial composition data and predicts a phenotypic response using information contained in the compositional data. Using spike-and-slab priors, our approach can handle high-dimensional compositional as well as clinical data. Additionally, we accommodate the compositional structure of the data via balances and overdispersion typically found in microbial samples. We apply our model to understand the relations between dietary intake, microbial samples, and BMI. In this analysis, we find numerous associations between microbial taxa and dietary factors that may lead to a microbiome that is generally more hospitable to the development of chronic diseases, such as obesity. Additionally, we demonstrate on simulated data how our method outperforms two-step approaches and also present a sensitivity analysis.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2004.14817",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-22T01:20:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gibong Hong",
+            "Veronica Hindle",
+            "Nadine M. Veasley",
+            "Hannah D. Holscher",
+            "Halil Kilicoglu"
+          ],
+          "title": "DiMB-RE: Mining the Scientific Literature for Diet-Microbiome Associations",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2409.19581",
+        "summary": "Objective: To develop a corpus annotated for diet-microbiome associations from the biomedical literature and train natural language processing (NLP) models to identify these associations, thereby improving the understanding of their role in health and disease, and supporting personalized nutrition strategies. Materials and Methods: We constructed DiMB-RE, a comprehensive corpus annotated with 15 entity types (e.g., Nutrient, Microorganism) and 13 relation types (e.g., INCREASES, IMPROVES) capturing diet-microbiome associations. We fine-tuned and evaluated state-of-the-art NLP models for named entity, trigger, and relation extraction as well as factuality detection using DiMB-RE. In addition, we benchmarked two generative large language models (GPT-4o-mini and GPT-4o) on a subset of the dataset in zero- and one-shot settings. Results: DiMB-RE consists of 14,450 entities and 4,206 relationships from 165 publications (including 30 full-text Results sections). Fine-tuned NLP models performed reasonably well for named entity recognition (0.800 F1 score), while end-to-end relation extraction performance was modest (0.445 F1). The use of Results section annotations improved relation extraction. The impact of trigger detection was mixed. Generative models showed lower accuracy compared to fine-tuned models. Discussion: To our knowledge, DiMB-RE is the largest and most diverse corpus focusing on diet-microbiome interactions. NLP models fine-tuned on DiMB-RE exhibit lower performance compared to similar corpora, highlighting the complexity of information extraction in this domain. Misclassified entities, missed triggers, and cross-sentence relations are the major sources of relation extraction errors. Conclusions: DiMB-RE can serve as a benchmark corpus for biomedical literature mining. DiMB-RE and the NLP models are available at https://github.com/ScienceNLP-Lab/DiMB-RE.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2409.19581",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-22T01:20:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Weston D. Viles",
+            "Juliette C. Madan",
+            "Hongzhe Li",
+            "Jason C. Moore",
+            "Margaret R. Karagas",
+            "Anne G. Hoen"
+          ],
+          "title": "Information content of high-order associations of the human gut microbiota network",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2005.08107",
+        "summary": "The human gastrointestinal tract is an environment that hosts an ecosystem of microorganisms essential to human health. Vital biological processes emerge from fundamental inter- and intra-species molecular interactions that influence the assembly and composition of the gut microbiota ecology. Here we quantify the complexity of the ecological relationships within the human infant gut microbiota ecosystem as a function of the information contained in the nonlinear associations of a sequence of increasingly-specified maximum entropy representations of the system. Our paradigm frames the ecological state, in terms of the presence or absence of individual microbial ecological units that are identified by amplicon sequence variants (ASV) in the gut microenvironment, as a function of both the ecological states of its neighboring units and, in a departure from standard graphical model representations, the associations among the units within its neighborhood. We characterize the order of the system based on the relative quantity of statistical information encoded by high-order statistical associations of the infant gut microbiota.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2005.08107",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-22T01:20:36Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting gut microbiome response to dietary interventions using publicly available data biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,45 +1,62 @@
-# Data Model: Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases
+# Data Model: Predicting Molecular Reactivity
 
-## Entity Relationship Overview
-
-The system processes raw chemical data into graph structures, trains models, and outputs metrics and attribution maps.
-
-### 1. Raw Data (Input)
-*   **Source**: QM9 Parquet files.
-*   **Fields**: `smiles`, `atom_types`, `bond_types`, `homo`, `lumo`, `gap`, `energy`, `dipole_moment`.
-
-### 2. Processed Graph (Internal)
-*   **Node**: Represents an atom.
-    *   `atomic_number` (int)
-    *   `hybridization` (int: 0=sp, 1=sp2, 2=sp3, 3=other)
-    *   `formal_charge` (int)
-    *   `is_aromatic` (bool)
-*   **Edge**: Represents a bond.
-    *   `bond_type` (int: 1=single, 2=double, 3=triple, 4=aromatic)
-    *   `conjugation` (bool)
-    *   `is_in_ring` (bool)
-*   **Graph ID**: Unique identifier (derived from SMILES hash).
-*   **Target**: `gap` (float).
-
-### 3. Model Outputs
-*   **Predictions**: `graph_id`, `predicted_gap`, `actual_gap`, `error`.
-*   **Attribution**: `graph_id`, `node_importance` (list), `edge_importance` (list), `top_subgraph_smiles`.
-
-### 4. Evaluation Metrics
-*   **Metrics**: `model_name`, `mse`, `mae`, `pearson_r`, `p_value_wilcoxon`, `p_value_ttest`, `significant_wilcoxon`, `significant_ttest`.
+## Overview
+Defines schemas, transformations, and storage formats for the end‑to‑end pipeline. All artifacts are validated against JSON‑Schema contracts under `contracts/`.
 
 ## Data Flow
+1. **Raw Data** (`data/raw/`) – immutable downloads and curated CSV assets.  
+2. **Processed Data** (`data/processed/`) – graph objects (`graphs.pt`), a JSON dataset (`dataset.json`) adhering to `contracts/dataset.schema.yaml`, and scaffold split indices.  
+3. **Artifacts** (`artifacts/`) – model checkpoints, predictions (both parquet and JSON), metrics, attribution maps, logs, and checksums.
 
-1.  **Download**: Raw Parquet -> `data/raw/qm9.parquet`
-2.  **Preprocess**: `data/raw/qm9.parquet` -> `data/processed/graphs.pkl` (List of Graph objects)
-3.  **Split**: `data/processed/graphs.pkl` -> `data/processed/train_graphs.pkl`, `data/processed/test_graphs.pkl`
-4.  **Train**: `train_graphs.pkl` -> `code/models/weights.pth`
-5.  **Evaluate**: `test_graphs.pkl` + `weights.pth` -> `data/processed/predictions.csv`, `data/processed/metrics.json`
-6.  **Explain**: `test_graphs.pkl` + `weights.pth` -> `data/processed/attribution.json`
+## Schema Definitions
 
-## Constraints & Types
+### 1. Molecular Graph (`contracts/dataset.schema.yaml`)
+- `molecule_id`: string  
+- `smiles`: string  
+- `node_features`: list of objects (`atomic_number`, `hybridization`, `formal_charge`, `num_neighbors`)  
+- `edge_features`: list of objects (`bond_type`, `conjugation`, `in_ring`)  
+- `target`: object (`homo_lumo_gap`: float)  
+- `split`: enum(`train`, `val`, `test`)  
+- `similarity_score`: float (max Tanimoto to training set)  
 
-*   **Memory**: All graph objects must be serialized to disk if memory usage > 3.5 GB.
-*   **Precision**: Float32 for model weights to save memory; Float64 for statistical calculations.
-*   **Validity**: SMILES strings must pass RDKit validation. Invalid entries are logged and dropped.
-*   **Provenance**: The `Curated Reference Set` (FR-008) must include a `source_type` field indicating "Experimental" or "Independent Literature" to ensure it is not derived from QM9.
+### 2. Checksum File (`data/raw/checksums.json`)
+Conforms to `contracts/checksums.schema.yaml` (array of objects with `file_path` and `sha256`). Initially empty `[]` (empty array) to satisfy the schema; entries will be appended after download.
+
+### 3. Model Predictions (`contracts/model-output.schema.yaml`)
+- `graph_id`: string  
+- `actual_gap`: float  
+- `predicted_gap`: float  
+- `error`: float (`predicted_gap - actual_gap`)  
+- `model_name`: enum(`spectral_gnn`, `heterophily_gnn`, `random_forest`)  
+
+### 4. Evaluation Metrics (`contracts/metrics.schema.yaml`)
+- Per‑model `mse`, `mae`, `pearson_r`  
+- `statistical_tests` array (paired t‑test, Fisher‑Z test, p‑value, Bonferroni‑adjusted α, significance flag)  
+- `interpretability` block (`alignment_score`, `top_features`, `reference_source_type`)  
+
+### 5. Attribution Maps (`contracts/attribution.schema.yaml`)
+- `molecule_id`: string  
+- `node_importance`: array[float]  
+- `edge_importance`: array[float]  
+- `top_substructures`: array of objects (`substructure_smiles`, `importance_score`, `matches_reference`)  
+- `alignment_score`: float (0.0 to 1.0)  
+- `recall_at_k`: float  
+- `null_model_score`: float  
+
+### 6. Final Output (`contracts/output.schema.yaml`)
+Aggregates performance metrics, statistical tests, predictions, and attribution.
+
+## Storage Formats
+- **Parquet** – QM9 raw, predictions (columnar, efficient).  
+- **CSV** – Curated reference & kinetic assets.  
+- **PyTorch `.pt`** – Serialized `torch_geometric` graphs.  
+- **JSON** – `dataset.json`, `checksums.json`, `metrics.json`, `predictions.json`, `attribution_maps.json`, `final_output.json`, checksum manifests.
+
+## Data Hygiene Rules
+- **Immutability**: Files under `data/raw/` are never overwritten. New versions go to a versioned subdirectory.  
+- **Checksums**: Every raw file must have a corresponding entry in `checksums.json`. Validation performed in **T006** and **T007**.  
+- **Schema Validation**: After each generation step, the corresponding contract schema is validated; failures abort the pipeline.  
+
+---
+
+

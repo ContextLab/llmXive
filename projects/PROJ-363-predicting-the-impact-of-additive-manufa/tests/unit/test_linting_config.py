@@ -1,91 +1,212 @@
-"""
-Unit tests for the linting configuration script.
-These tests verify that the configuration files are valid and the
-helper functions behave as expected without actually running heavy linters.
-"""
-
-import os
-import sys
-import tempfile
-from pathlib import Path
-
 import pytest
+import subprocess
+import sys
+from unittest.mock import patch, MagicMock
+from pathlib import Path
+import os
 
+# Import the module to test
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from linting_config import run_command, check_linting, check_formatting, fix_linting, fix_formatting
 
-# Add the project root to the path to import the script logic if needed
-# However, for this task, we mostly test the existence and validity of config files
-# and the structure of the helper function logic.
+class TestRunCommand:
+    """Tests for the run_command function"""
 
-def test_ruff_config_exists():
-    """Verify that ruff.toml exists in the project root."""
-    ruff_config = Path("ruff.toml")
-    assert ruff_config.exists(), "ruff.toml must exist in the project root"
+    def test_run_command_success(self):
+        """Test that run_command returns True for successful command"""
+        with patch('subprocess.run') as mock_run:
+            mock_run.return_value = MagicMock(
+                stdout="Success output",
+                stderr="",
+                returncode=0
+            )
+            
+            result = run_command(["echo", "hello"], "Test command")
+            
+            assert result is True
+            mock_run.assert_called_once()
 
+    def test_run_command_failure(self):
+        """Test that run_command returns False for failed command"""
+        with patch('subprocess.run') as mock_run:
+            mock_run.side_effect = subprocess.CalledProcessError(1, "cmd", stderr="Error message")
+            
+            result = run_command(["false"], "Failing command")
+            
+            assert result is False
 
-def test_black_config_exists():
-    """Verify that black configuration is present in pyproject.toml."""
-    pyproject = Path("pyproject.toml")
-    assert pyproject.exists(), "pyproject.toml must exist"
+    def test_run_command_exception(self):
+        """Test that run_command returns False for unexpected exceptions"""
+        with patch('subprocess.run') as mock_run:
+            mock_run.side_effect = Exception("Unexpected error")
+            
+            result = run_command(["test"], "Exception command")
+            
+            assert result is False
 
-    content = pyproject.read_text()
-    assert "[tool.black]" in content, "pyproject.toml must contain [tool.black] section"
+class TestCheckLinting:
+    """Tests for the check_linting function"""
 
+    @patch('linting_config.run_command')
+    def test_check_linting_ruff_not_installed(self, mock_run_command):
+        """Test check_linting when ruff is not installed"""
+        mock_run_command.return_value = False
+        
+        result = check_linting()
+        
+        assert result is False
+        mock_run_command.assert_called()
 
-def test_pyproject_dependencies():
-    """Verify that dev dependencies include ruff and black."""
-    pyproject = Path("pyproject.toml")
-    content = pyproject.read_text()
-
-    # Check for optional dependencies section
-    assert "ruff" in content, "ruff should be listed in dependencies or optional-dependencies"
-    assert "black" in content, "black should be listed in dependencies or optional-dependencies"
-
-
-def test_linting_config_script_exists():
-    """Verify that the helper script exists and is syntactically valid."""
-    script_path = Path("code/linting_config.py")
-    assert script_path.exists(), "code/linting_config.py must exist"
-
-    # Compile check
-    try:
-        with open(script_path) as f:
-            compile(f.read(), script_path, 'exec')
-    except SyntaxError as e:
-        pytest.fail(f"Syntax error in code/linting_config.py: {e}")
-
-
-def test_run_command_logic():
-    """
-    Test the logic of run_command with a harmless command.
-    We mock the subprocess call to ensure the logic flow is correct.
-    """
-    from code.linting_config import run_command
-
-    # Test with a command that should succeed (echo)
-    # Note: On Windows 'echo' is a built-in, on Unix it's a binary.
-    # We use 'true' for Unix-like and 'cmd /c exit 0' for Windows,
-    # but for simplicity in this test, we rely on the fact that
-    # run_command handles exceptions. We will test the success path
-    # with a known working command if possible, or just verify structure.
-
-    # Since we can't easily guarantee 'echo' availability in all test envs
-    # without shelling out, let's just verify the function signature and
-    # that it returns a boolean.
-    import subprocess
-    from unittest.mock import patch, MagicMock
-
-    with patch('code.linting_config.subprocess.run') as mock_run:
-        mock_run.return_value = MagicMock(returncode=0)
-        result = run_command(["echo", "test"], "Test Description")
+    @patch('linting_config.run_command')
+    @patch('linting_config.Path')
+    def test_check_linting_code_dir_not_exists(self, mock_path, mock_run_command):
+        """Test check_linting when code directory does not exist"""
+        mock_path.return_value.exists.return_value = False
+        mock_run_command.return_value = True  # Ruff is available
+        
+        result = check_linting()
+        
         assert result is True
-        mock_run.assert_called_once()
+        # Should not try to run ruff check on non-existent directory
 
-    with patch('code.linting_config.subprocess.run') as mock_run:
-        mock_run.side_effect = subprocess.CalledProcessError(1, "cmd")
-        result = run_command(["bad_cmd"], "Test Description")
+    @patch('linting_config.run_command')
+    @patch('linting_config.Path')
+    def test_check_linting_success(self, mock_path, mock_run_command):
+        """Test successful linting check"""
+        mock_path.return_value.exists.return_value = True
+        mock_run_command.return_value = True  # Ruff check passes
+        
+        result = check_linting()
+        
+        assert result is True
+
+    @patch('linting_config.run_command')
+    @patch('linting_config.Path')
+    def test_check_linting_failure(self, mock_path, mock_run_command):
+        """Test failed linting check"""
+        mock_path.return_value.exists.return_value = True
+        mock_run_command.return_value = False  # Ruff check fails
+        
+        result = check_linting()
+        
         assert result is False
 
-    with patch('code.linting_config.subprocess.run') as mock_run:
-        mock_run.side_effect = FileNotFoundError()
-        result = run_command(["missing"], "Test Description")
+class TestCheckFormatting:
+    """Tests for the check_formatting function"""
+
+    @patch('linting_config.run_command')
+    def test_check_formatting_black_not_installed(self, mock_run_command):
+        """Test check_formatting when black is not installed"""
+        mock_run_command.return_value = False
+        
+        result = check_formatting()
+        
         assert result is False
+
+    @patch('linting_config.run_command')
+    @patch('linting_config.Path')
+    def test_check_formatting_code_dir_not_exists(self, mock_path, mock_run_command):
+        """Test check_formatting when code directory does not exist"""
+        mock_path.return_value.exists.return_value = False
+        mock_run_command.return_value = True  # Black is available
+        
+        result = check_formatting()
+        
+        assert result is True
+
+    @patch('linting_config.run_command')
+    @patch('linting_config.Path')
+    def test_check_formatting_success(self, mock_path, mock_run_command):
+        """Test successful formatting check"""
+        mock_path.return_value.exists.return_value = True
+        mock_run_command.return_value = True  # Black check passes
+        
+        result = check_formatting()
+        
+        assert result is True
+
+    @patch('linting_config.run_command')
+    @patch('linting_config.Path')
+    def test_check_formatting_failure(self, mock_path, mock_run_command):
+        """Test failed formatting check"""
+        mock_path.return_value.exists.return_value = True
+        mock_run_command.return_value = False  # Black check fails
+        
+        result = check_formatting()
+        
+        assert result is False
+
+class TestFixLinting:
+    """Tests for the fix_linting function"""
+
+    @patch('linting_config.run_command')
+    def test_fix_linting_ruff_not_installed(self, mock_run_command):
+        """Test fix_linting when ruff is not installed"""
+        mock_run_command.return_value = False
+        
+        result = fix_linting()
+        
+        assert result is False
+
+    @patch('linting_config.run_command')
+    @patch('linting_config.Path')
+    def test_fix_linting_code_dir_not_exists(self, mock_path, mock_run_command):
+        """Test fix_linting when code directory does not exist"""
+        mock_path.return_value.exists.return_value = False
+        mock_run_command.return_value = True  # Ruff is available
+        
+        result = fix_linting()
+        
+        assert result is True
+
+    @patch('linting_config.run_command')
+    @patch('linting_config.Path')
+    def test_fix_linting_success(self, mock_path, mock_run_command):
+        """Test successful linting fix"""
+        mock_path.return_value.exists.return_value = True
+        mock_run_command.return_value = True  # Ruff fix succeeds
+        
+        result = fix_linting()
+        
+        assert result is True
+
+class TestFixFormatting:
+    """Tests for the fix_formatting function"""
+
+    @patch('linting_config.run_command')
+    def test_fix_formatting_black_not_installed(self, mock_run_command):
+        """Test fix_formatting when black is not installed"""
+        mock_run_command.return_value = False
+        
+        result = fix_formatting()
+        
+        assert result is False
+
+    @patch('linting_config.run_command')
+    @patch('linting_config.Path')
+    def test_fix_formatting_code_dir_not_exists(self, mock_path, mock_run_command):
+        """Test fix_formatting when code directory does not exist"""
+        mock_path.return_value.exists.return_value = False
+        mock_run_command.return_value = True  # Black is available
+        
+        result = fix_formatting()
+        
+        assert result is True
+
+    @patch('linting_config.run_command')
+    @patch('linting_config.Path')
+    def test_fix_formatting_success(self, mock_path, mock_run_command):
+        """Test successful formatting fix"""
+        mock_path.return_value.exists.return_value = True
+        mock_run_command.return_value = True  # Black fix succeeds
+        
+        result = fix_formatting()
+        
+        assert result is True
+
+@pytest.mark.integration
+def test_integration_run_command():
+    """Integration test for run_command with a real command"""
+    result = run_command([sys.executable, "--version"], "Python version check")
+    assert result is True

@@ -1,209 +1,208 @@
-"""
-Verification script for T017: Verify output file data/processed/features.parquet
-contains no full semantic context strings and matches dataset.schema.yaml.
-"""
 import os
 import sys
 import json
 import logging
 from pathlib import Path
 from typing import Dict, List, Any, Set
+
 import pyarrow.parquet as pq
-import pandas as pd
 import yaml
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+logger = logging.getLogger(__name__)
 
-from logging_config import setup_logging
-from config import get_path, load_config
-
-# Setup logging
-logger = setup_logging(level="INFO")
-
-# Constants
-FEATURES_FILE = get_path("processed_features")
-SCHEMA_FILE = get_path("dataset_schema")
-OUTPUT_REPORT = get_path("verification_report")
-CONTEXT_KEYWORDS = ["context_text", "full_context", "semantic_context", "prompt_context", "raw_context"]
+# Configuration constants
 MAX_STRING_LENGTH = 500  # Threshold to flag potential full context strings
-MAX_COLUMN_LENGTH = 100  # Threshold for column names that might indicate context
+CRITICAL_COLUMNS = {"search_count", "error_frequency", "token_usage", "turn_number", "abstention_label"}
+
 
 def load_schema(schema_path: Path) -> Dict[str, Any]:
-    """Load and parse the dataset schema YAML."""
+    """Load the dataset schema from a YAML file."""
     if not schema_path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
-    with open(schema_path, 'r') as f:
+    with open(schema_path, "r", encoding="utf-8") as f:
         schema = yaml.safe_load(f)
+    
     return schema
 
-def validate_schema_compliance(df: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
-    """Check if DataFrame matches the schema definition."""
+
+def validate_schema_compliance(
+    table: pq.Table, 
+    schema: Dict[str, Any]
+) -> List[str]:
+    """
+    Validate that the Parquet table matches the schema definition.
+    Returns a list of errors (empty if valid).
+    """
     errors = []
-    
-    expected_columns = set(schema.get("fields", {}).keys())
-    actual_columns = set(df.columns)
-    
+    schema_fields = schema.get("fields", {})
+    table_schema = table.schema
+    table_columns = set(table.column_names)
+    schema_columns = set(schema_fields.keys())
+
     # Check for missing columns
-    missing_cols = expected_columns - actual_columns
+    missing_cols = schema_columns - table_columns
     if missing_cols:
-        errors.append(f"Missing columns in DataFrame: {missing_cols}")
-    
-    # Check for unexpected columns
-    extra_cols = actual_columns - expected_columns
+        errors.append(f"Missing columns required by schema: {missing_cols}")
+
+    # Check for extra columns not in schema (optional strictness)
+    extra_cols = table_columns - schema_columns
     if extra_cols:
-        errors.append(f"Unexpected columns in DataFrame: {extra_cols}")
-    
-    # Check column types if specified
-    fields = schema.get("fields", {})
-    for col_name, col_def in fields.items():
-        if col_name in actual_columns:
-            expected_dtype = col_def.get("type")
-            if expected_dtype:
-                actual_dtype = str(df[col_name].dtype)
-                # Simple type mapping
-                type_map = {
-                    "integer": "int64",
-                    "number": "float64",
-                    "string": "object",
-                    "boolean": "bool"
-                }
-                expected_mapped = type_map.get(expected_dtype, expected_dtype)
-                if expected_mapped not in actual_dtype:
-                    errors.append(f"Column '{col_name}' has dtype '{actual_dtype}', expected '{expected_mapped}'")
-    
+        logger.warning(f"Extra columns found in data not in schema: {extra_cols}")
+
+    # Check data types for critical columns
+    for col_name, col_type in schema_fields.items():
+        if col_name in table_columns:
+            idx = table.column_names.index(col_name)
+            actual_type = table_schema.field(idx).type
+            # Simple type mapping check (pyarrow types vs schema string types)
+            # This is a simplified check; a robust one would map pyarrow types to schema types
+            expected_type_str = col_type.get("type", "")
+            
+            # Basic mapping for common types
+            type_map = {
+                "int64": ["int64"],
+                "float64": ["double", "float"],
+                "string": ["string"],
+                "bool": ["bool"]
+            }
+            
+            if expected_type_str in type_map:
+                if actual_type not in type_map[expected_type_str]:
+                    errors.append(
+                        f"Column '{col_name}' has type {actual_type}, expected {expected_type_str}"
+                    )
+            else:
+                logger.warning(f"Unknown expected type '{expected_type_str}' for '{col_name}'")
+
     return errors
 
-def detect_full_context_strings(df: pd.DataFrame) -> List[str]:
-    """Detect columns that might contain full semantic context strings."""
-    suspicious_columns = []
+
+def detect_full_context_strings(
+    table: pq.Table, 
+    threshold: int = MAX_STRING_LENGTH
+) -> Dict[str, List[Any]]:
+    """
+    Scan string columns for values exceeding a length threshold,
+    which likely indicates full semantic context leakage.
+    Returns a dict of column_name -> list of offending values (truncated).
+    """
+    violations = {}
     
-    for col in df.columns:
-        # Check column name for context indicators
-        if any(keyword in col.lower() for keyword in CONTEXT_KEYWORDS):
-            suspicious_columns.append(f"Column name '{col}' contains context keyword")
-            continue
-        
-        # Check if column is string type and has long values
-        if df[col].dtype == object:
-            # Sample some values to check length
-            sample = df[col].dropna().head(10)
-            if len(sample) > 0:
-                max_len = sample.str.len().max()
-                if max_len > MAX_STRING_LENGTH:
-                    suspicious_columns.append(
-                        f"Column '{col}' contains strings longer than {MAX_STRING_LENGTH} chars (max: {max_len})"
-                    )
+    for col_name in table.column_names:
+        col = table.column(col_name)
+        if col.type == "string":
+            offending_values = []
+            for i, val in enumerate(col):
+                if val is not None and len(val) > threshold:
+                    # Store a truncated version for the report to avoid huge logs
+                    offending_values.append(f"[{len(val)} chars] {val[:100]}...")
+            
+            if offending_values:
+                violations[col_name] = offending_values[:10]  # Limit report size
     
-    return suspicious_columns
+    return violations
+
 
 def generate_report(
-    schema_errors: List[str],
-    context_errors: List[str],
-    file_path: str,
-    row_count: int,
-    column_count: int
-) -> Dict[str, Any]:
-    """Generate the verification report."""
-    is_valid = len(schema_errors) == 0 and len(context_errors) == 0
-    
+    schema_path: Path,
+    data_path: Path,
+    output_path: Path
+) -> bool:
+    """
+    Main verification routine.
+    Returns True if verification passes, False otherwise.
+    Writes a JSON report to output_path.
+    """
     report = {
-        "task_id": "T017",
-        "file_path": file_path,
-        "row_count": row_count,
-        "column_count": column_count,
-        "is_valid": is_valid,
-        "schema_compliance": {
-            "passed": len(schema_errors) == 0,
-            "errors": schema_errors
-        },
-        "context_check": {
-            "passed": len(context_errors) == 0,
-            "errors": context_errors
-        },
-        "summary": "PASSED" if is_valid else "FAILED"
+        "schema_path": str(schema_path),
+        "data_path": str(data_path),
+        "passed": False,
+        "errors": [],
+        "warnings": [],
+        "full_context_violations": {}
     }
+
+    try:
+        # 1. Load Schema
+        logger.info(f"Loading schema from {schema_path}")
+        schema = load_schema(schema_path)
+
+        # 2. Load Data
+        logger.info(f"Loading data from {data_path}")
+        table = pq.read_table(data_path)
+        logger.info(f"Loaded {table.num_rows} rows, columns: {table.column_names}")
+
+        # 3. Validate Schema Compliance
+        schema_errors = validate_schema_compliance(table, schema)
+        if schema_errors:
+            report["errors"].extend(schema_errors)
+            logger.error(f"Schema validation failed: {schema_errors}")
+        else:
+            logger.info("Schema validation passed.")
+
+        # 4. Detect Full Context Strings
+        violations = detect_full_context_strings(table)
+        if violations:
+            report["full_context_violations"] = violations
+            report["errors"].append(
+                f"Detected full semantic context strings in columns: {list(violations.keys())}"
+            )
+            logger.error(f"Full context strings detected: {list(violations.keys())}")
+        else:
+            logger.info("No full semantic context strings detected.")
+
+        # 5. Check Critical Columns Presence (Specific to task T017/FR-001)
+        missing_critical = CRITICAL_COLUMNS - set(table.column_names)
+        if missing_critical:
+            report["errors"].append(
+                f"Critical columns missing: {missing_critical}"
+            )
+            logger.error(f"Missing critical columns: {missing_critical}")
+
+        # Determine Pass/Fail
+        if not report["errors"]:
+            report["passed"] = True
+            logger.info("Verification PASSED: No schema violations or full context strings.")
+        else:
+            report["passed"] = False
+            logger.error("Verification FAILED.")
+
+    except Exception as e:
+        logger.exception(f"Verification process failed with exception: {e}")
+        report["errors"].append(f"Critical error during verification: {str(e)}")
+
+    # Write Report
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(report, f, indent=2)
     
-    return report
+    logger.info(f"Verification report written to {output_path}")
+    return report["passed"]
+
 
 def main():
-    """Main verification function."""
-    logger.info(f"Starting verification for T017")
-    logger.info(f"Features file: {FEATURES_FILE}")
-    logger.info(f"Schema file: {SCHEMA_FILE}")
+    """Entry point for CLI execution."""
+    logging.basicConfig(level=logging.INFO)
     
-    try:
-        # Load schema
-        logger.info("Loading schema...")
-        schema = load_schema(SCHEMA_FILE)
-        
-        # Load parquet file
-        logger.info("Loading features file...")
-        if not os.path.exists(FEATURES_FILE):
-            raise FileNotFoundError(f"Features file not found: {FEATURES_FILE}")
-        
-        table = pq.read_table(FEATURES_FILE)
-        df = table.to_pandas()
-        
-        row_count = len(df)
-        column_count = len(df.columns)
-        logger.info(f"Loaded {row_count} rows and {column_count} columns")
-        
-        # Validate schema compliance
-        logger.info("Validating schema compliance...")
-        schema_errors = validate_schema_compliance(df, schema)
-        if schema_errors:
-            logger.warning(f"Schema validation errors: {schema_errors}")
-        else:
-            logger.info("Schema validation passed")
-        
-        # Check for full context strings
-        logger.info("Checking for full context strings...")
-        context_errors = detect_full_context_strings(df)
-        if context_errors:
-            logger.warning(f"Context check errors: {context_errors}")
-        else:
-            logger.info("Context check passed - no full context strings detected")
-        
-        # Generate report
-        report = generate_report(
-            schema_errors=schema_errors,
-            context_errors=context_errors,
-            file_path=str(FEATURES_FILE),
-            row_count=row_count,
-            column_count=column_count
-        )
-        
-        # Save report
-        OUTPUT_REPORT.parent.mkdir(parents=True, exist_ok=True)
-        with open(OUTPUT_REPORT, 'w') as f:
-            json.dump(report, f, indent=2)
-        
-        logger.info(f"Verification report saved to: {OUTPUT_REPORT}")
-        
-        # Exit with appropriate code
-        if report["is_valid"]:
-            logger.info("VERIFICATION PASSED")
-            return 0
-        else:
-            logger.error("VERIFICATION FAILED")
-            return 1
-            
-    except Exception as e:
-        logger.error(f"Verification failed with error: {str(e)}")
-        # Create error report
-        error_report = {
-            "task_id": "T017",
-            "is_valid": False,
-            "error": str(e),
-            "summary": "FAILED"
-        }
-        OUTPUT_REPORT.parent.mkdir(parents=True, exist_ok=True)
-        with open(OUTPUT_REPORT, 'w') as f:
-            json.dump(error_report, f, indent=2)
-        return 1
+    # Default paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent.parent
+    schema_path = project_root / "contracts" / "dataset.schema.yaml"
+    data_path = project_root / "data" / "processed" / "features.parquet"
+    output_path = project_root / "data" / "processed" / "verification_report.json"
+
+    # Allow override via CLI args
+    if len(sys.argv) >= 3:
+        schema_path = Path(sys.argv[1])
+        data_path = Path(sys.argv[2])
+    if len(sys.argv) >= 4:
+        output_path = Path(sys.argv[3])
+
+    success = generate_report(schema_path, data_path, output_path)
+    
+    # Exit with error code if verification failed
+    sys.exit(0 if success else 1)
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

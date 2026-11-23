@@ -7,4 +7,5 @@ biopython
 pyyaml
 memory-profiler
 python-dotenv
-scipy
+pytest
+matplotlib

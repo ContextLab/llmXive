@@ -1,0 +1,168 @@
+T000-BOOTSTRAP:
+  reason: "The `research.md` does not contain the exact \u201CSummary\u201D text from\
+    \ `spec.md` (the spec has no explicit Summary section) nor the exact \u201CTechnical\
+    \ Context\u201D text from `plan.md` (the file lacks a Technical Context section).\
+    \ Additionally, the state file uses `last_updated` instead of the required `updated_at`\
+    \ field, so the timestamp was not correctly updated. These missing/incorrect artifacts\
+    \ prevent the task from being considered complete."
+  task: 4566e24ecf9651e45664b1df443590bec6b344e7256b23e6c850877b53cf1098
+T000-VERIFY-SPEC:
+  reason: "The required script `code/utils/verify_spec.py` is missing; without this\
+    \ file the spec cannot be programmatically checked for the presence of the string\
+    \ `\"{1, 2, 3, 7, 14}\"` in FR\u2011005."
+  task: 83b9fee0ecfea1f6b8598aaff512720869cbcef3ef378a4255c2019bf3c07259
+T001:
+  reason: "The directory contains a `.project_init.json` file, but the provided evidence\
+    \ does not show its contents, so we cannot confirm it matches the required JSON\
+    \ (`{\"project_id\": \"PROJ-487\", \"branch\": \"001-news-volume-anxiety\", \"\
+    created\": \"2026-06-27\"}`). The task remains incomplete until the file\u2019\
+    s exact content is verified."
+  task: 4b9ad2a3677d4d2f64d861c839fc812b9fb1d78720347d4c50a628749ebfcba9
+T002:
+  task: 794772faac76e40e4df7536fe379ea0e38d86432d0ee7d452c8e5d2b13f61b5d
+T003:
+  task: c01a70bd3765914edab1ec82f9cc8d2efa0b9e9c83ed1b54aa3d61ce776ed483
+T004a:
+  reason: The project contains a hidden directory `.venv/` but no `venv/` directory
+    created by `python -m venv venv`, nor any logs or scripts showing that exact command
+    was run. The task specifically requires a `venv` folder at `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/`;
+    this artifact is missing.
+  task: 8a8af1e1d7c77370fa9043b6b0ff87e033d34f4df23168e6df91abb29efe5c05
+T004b:
+  task: 18910306dffc798a49b9f42f3914c299309d9f32f9d8656b922b1f24fc51860f
+T005a:
+  task: d32c3d0f349564ddf447380a29538c82ebad1df9efae74e01c2f581d7c5313f3
+T005b:
+  task: 4879e5ab7b94df07aaf013dea8acdc10d5fec317f166166980753b766d5da666
+T006:
+  task: f1579011319a838e59cfdafe1395a3ee948a17199c4a4ecad61c78a27bfbb4b6
+T007a:
+  task: cec709686b709858bc8b8c0db5de5da711a2a565f2d4f15ed4adec578a4ba351
+T007b:
+  task: 342578decce9c6497b1181999dcd58975087170ae49d323cda8dfe43a4a894ab
+T007c:
+  task: 3ecb720e1e17121ed6c374f3ecb4e0c6224cd119c779f436592e0607b5d5d478
+T008a:
+  task: e15c07f96f69d8f880e12af06ed2dc5cde91dd32d1a1ef21471625aa69915632
+T008b:
+  task: e409ba08c924d0800fec6c2af8dc9346a1ede6e39e5c477c1f063fe52e1b4e51
+T009:
+  task: 5ebe3f977cc49bc1ac0bc5cbe87f5677ac14bbc3a252f641f7b6ff80d4bbffde
+T010:
+  task: 3b18380e3cd3a302a5e68cfbadc6dfe3ea4dd078f2bbbf590f35f7142558fdf7
+T011:
+  task: 0b679c4192cc68029ed9a009b78a303597216d4c03e1f92085e089d0e2c63aab
+T012-STREAM:
+  task: d6eb0243ed4fa96af6939e6aee6c4213b7d476c47f0013023607ea45cb20f15a
+T012b:
+  task: 2e9d2430ffcd6a4fe26f74b5bae373264829a582c7219bbe4facde67281997ef
+T012c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/constants.py'
+  task: 7453602a619e5ce42c4800a35f95f196b5d6fddd0245d2b736e16217cfb9a2bf
+T013-STRICT:
+  task: 33120381c846bcd8c97bca0c3e7dcaad5276ff0bd2e9a6b0629d8303d78cb936
+T013b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/pilot_validation.py'
+  task: bd8314d0c9c8568e89ed8c74c5cd0b0216e077c1525ac33ad78a804ff01e0923
+T014:
+  task: fb8a3c8906d21c69d9a95b38d557c3be63e91f6fe846274cee9bd6650b13e09e
+T015-VALIDATE:
+  reason: 'declared artifact(s) missing/empty/invalid: code/tests/test_data_validation.py,
+    data/raw/gdelt_events_raw.csv, data/raw/google_trends.csv'
+  task: 297bd9159de2e65bd61e5b2786ec7dc64e0fbdbb1037114875cbf4da8017b4a8
+T015b-VALIDATE:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/keyword_stability.py,
+    data/raw/anxiety_trends.csv'
+  task: 25b5395d1f02d709f3e06a9720fcea59ac07a3a0b2603991112cfec8474713ec
+T015d:
+  task: c46195712c58977c9f2d246af645c4dee84dc8042fc953c6cb71115cdd3915f4
+T016:
+  task: 97c5c22585b6d9e626dc454a6ab361256d5806f507f7aa3d8be499fa1fdb22ed
+T017:
+  task: 56cf775494c8d8610fabb416f69bae9771187285dfd557f4078defbe067fba22
+T018-ALIGN:
+  task: 436bfcab0a4c41011451af49d0ac4a950dc1b7ce5900982dcd5209f80ecf33b1
+T019-CALL-ALIGN:
+  task: f4ef12a1edef8a74d070d0fb9631aad51b32cc7bc44339b89edf98dfd1b378f9
+T019-CALL-CHECKS:
+  task: 5e8b0fe369413d865a0bee43ca64bbdef6d999ace8353399876f03df41871135
+T019-CALL-NORM:
+  task: 341a1dcd97e9049339e3cb094b159ee810ec0be50be1d2206a61f8be2a67bd66
+T019-CALL-STAT:
+  task: 3e5f2025a37d12dbba9af745da304e39f24418660fc9636f4dfe6a95441571ad
+T019-FINAL-ORCH:
+  task: 8e8a482f44bd452ca075ec362f3742a1c06be64e724f42f32d2032d3eb10eca8
+T019-SAVE:
+  task: 1610cc879039ff57b96acb737ffece6db40f533b10331975cd3afec6fd79b0de
+T019-SEASONAL:
+  task: 4cfc78013f598b1531369525173f58831e842ce86a79fa6596d67afc49d29dc6
+T019-STL:
+  task: 7a8ba2201b787fe7985dec42472008d7693d2c5534d5b80e21cdbe293a67cfb7
+T019a:
+  task: 9058488435c3292ac828b75f33d4cabdcf7a012a8e13b22992b3c02a09073f8b
+T019b:
+  task: dc8a717823a482b1565094ade8e23882771e165268097b29f6ec464554da8be7
+T019c:
+  task: 1a7ded9f818f138e05f941c11c468a5b0ca0d757e07f690cd10c2843d47bdb23
+T019d:
+  task: 667e41340fc072431d3de910aa7c5db3f6484b339abe89cbde16cd33130d695f
+T019e:
+  task: f5ca85db4c1a08244ee3986a21b4f718ae76b90341d7d8f415535b877e129ba2
+T024:
+  task: 72b5cf69d30ced74704fe258311ccea8ffb3cba461db8008aa672436ee24a04c
+T025:
+  task: 507f80376903279e4df4dc98e78a4185bc44a8fbb4b821a347688164781676ac
+T026:
+  task: c710de63856af9f9da63ffc678b4bce2b09abd644debb297f61f01c7ab005bc3
+T027:
+  task: e53d867525894d1fc116be660e2292b9b65b148d9cd96ce092906fefc3e71ef5
+T027b:
+  task: 86b0f02dc2113fc964700ebfd399f5566bc55c2fb8a1f0798b0743678d339f11
+T028:
+  task: 91ddd18436c0b3e392923599687f7cc3cfe68f090f7ac333f0db1f8d62c1ba75
+T029a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/reports/statistical_validity_report.json'
+  task: 429b38762f0fb3ae6b7afb81ad868104ee812862c379548229ce2f0dfdfd9814
+T029b:
+  task: 1e669279e8f899e2c3571142cf93637c5df14793415ce677256751db92054c2b
+T029c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/tests/test_statistical_report.py,
+    data/reports/statistical_validity_report.json'
+  task: ab3dc041388b4815eb07d4f38706f44cef4c4f22540f4a9d0ca1e7ee937cbd9b
+T030-ASSEMBLE:
+  task: a9b9c278a0d92854e92aead9ab2fbddea8c092afc0fc7548045ed936f83481fd
+T030-PLOTS:
+  reason: 'declared artifact(s) missing/empty/invalid: data/reports/plots/'
+  task: 851710e335b8c3a6c640299c0d6cbc7da517ba3a1bf87fcc67c4fbfa2a5e4d72
+T030-TEXT:
+  reason: 'declared artifact(s) missing/empty/invalid: code/constants.py'
+  task: 2f6f5f38de0a6718eb540628c7a3fc609b4fceb2d2a031c2f32425a30f930846
+T030b:
+  task: 0d512ccedbe383bc4af0ff1d76e254f10f92b929f67e87b618f0442a2774dbba
+T031:
+  task: ecb8db9252405b12573f11f92a4b08e6cd53bae536e3b17e2fcc2e43db509e0a
+T031b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/profile_runtime.py'
+  task: 58e1f39d03194579caa7758c395b152967bd80a8fe019a8a8968c20c138038df
+T032:
+  task: 708c08a0f7042fd86b369444cf7024b7d3998c71a46252800cc7e7dda79d2337
+T033a:
+  task: 24c524e7e00ee78bcdc3079d2dabfabefea610db63b5e9cb9e4722b919cfd6ed
+T033b:
+  task: ed408c59ec5f825b6fdf426d178da3c36de914957aeb00abc9bf29ed47584d25
+T034:
+  task: 5b9b44599a4c20aec46e75c2f5d7cff83ac9e686cff0b1ffc4c04e55def0f282
+T035:
+  task: b81be6aea61d3179c9abf84f348d92b2710172b13ad84637c49565789dfd9cc5
+T037:
+  reason: 'Requested task execution failed; rerun successfully: code/utils/update_state.py
+    exit=1'
+  task: 9a58a46e1f9ee565bc9e30be8317ed176a4df5809290ef57f5753e9b0e09a1e0
+T040:
+  task: ef35758e3aa1654023f8f88e020c2bdefaf44d32915a8654aeb61d00983766eb
+T041:
+  task: a223b70c176a52117090eae60eecfb9532b60e11886e1ee8108d17e8e64f13b1
+T042:
+  task: 099aae6ea22617596f4f962f86a3880037dc60f59645da21f4e172c84cf02f15
+T043:
+  task: a02948f49f6b67803bca6c2ce097624ec2d335d5d70d375d029f38432e723674

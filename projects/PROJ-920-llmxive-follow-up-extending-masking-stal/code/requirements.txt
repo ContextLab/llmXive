@@ -1,0 +1,3 @@
+# Project‑wide Python dependencies.
+# Pillow is required for PNG metadata inspection in validate_regime_map.py.
+Pillow

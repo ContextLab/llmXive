@@ -1,0 +1,68 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SimulationRun
+description: Schema for a single simulation run configuration and metadata.
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Unique identifier (UUID) for the run."
+  config_id:
+    type: string
+    description: "Hash of the parameter configuration."
+  agent_type:
+    type: string
+    enum:
+      - "neural_baseline"
+      - "ca_eco_director"
+    description: "Type of agent used in the simulation."
+  parameters:
+    type: object
+    description: "Specific CA parameters (null for neural baseline)."
+    properties:
+      neighborhood_radius:
+        type: integer
+        minimum: 1
+      memory_depth:
+        type: integer
+        minimum: 1
+      non_linearity:
+        type: string
+        enum:
+          - "linear"
+          - "quadratic"
+          - "sigmoid"
+    required:
+      - neighborhood_radius
+      - memory_depth
+      - non_linearity
+  start_time:
+    type: string
+    format: date-time
+    description: "ISO 8601 start time."
+  end_time:
+    type: string
+    format: date-time
+    description: "ISO 8601 end time."
+  status:
+    type: string
+    enum:
+      - "completed"
+      - "timeout"
+      - "oom"
+      - "error"
+    description: "Final status of the run."
+  seed:
+    type: integer
+    description: "Random seed used for reproducibility."
+  noise_seed:
+    type: integer
+    description: "Specific noise seed for this run (for LMM random effect)."
+required:
+  - run_id
+  - config_id
+  - agent_type
+  - start_time
+  - status
+  - seed
+  - noise_seed
+additionalProperties: false

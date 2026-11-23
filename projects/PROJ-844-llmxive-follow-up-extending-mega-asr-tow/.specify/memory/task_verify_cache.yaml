@@ -1,0 +1,8 @@
+T015:
+  c: false
+  h: 3b3f25e69cfb20ad7188427367ea0000dd687a2510113d45b3641f46ab77486b
+  r: "The repository contains a `code/main.py` file, but it is truncated, lacks the\
+    \ full orchestration (including the required CLI arguments and the actual stress\u2011\
+    curve generation logic), and no `data/derived/stress_curves.parquet` file is present.\
+    \ The primary output artifact the task demands is missing, so the implementation\
+    \ does not satisfy the requirement."

@@ -1,0 +1,580 @@
+{
+  "fetched_at": "2026-08-12T00:48:38Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multimodal Models\"",
+      "target_n": 5
+    },
+    "duration_seconds": 59.147,
+    "ended_at": "2026-08-12T00:48:38Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "multimodal model blind spots evaluation"
+        ],
+        [
+          2,
+          "weaknesses in vision-language models"
+        ],
+        [
+          3,
+          "failure modes of multimodal AI systems"
+        ],
+        [
+          4,
+          "robustness benchmarks for VLMs"
+        ],
+        [
+          5,
+          "multimodal hallucination detection"
+        ],
+        [
+          6,
+          "cross-modal reasoning errors"
+        ],
+        [
+          7,
+          "evaluating multimodal model limitations"
+        ],
+        [
+          8,
+          "vision-language model safety gaps"
+        ],
+        [
+          9,
+          "adversarial robustness in multimodal learning"
+        ],
+        [
+          10,
+          "multimodal perception blind spots"
+        ],
+        [
+          11,
+          "limitations of large multimodal models"
+        ],
+        [
+          12,
+          "multimodal model generalization failures"
+        ],
+        [
+          13,
+          "VLM benchmarking for edge cases"
+        ],
+        [
+          14,
+          "multimodal alignment failures"
+        ],
+        [
+          15,
+          "zero-shot multimodal model weaknesses"
+        ],
+        [
+          16,
+          "multimodal reasoning gaps in AI"
+        ],
+        [
+          17,
+          "evaluating multimodal understanding deficits"
+        ],
+        [
+          18,
+          "multimodal model interpretability blind spots"
+        ],
+        [
+          19,
+          "multimodal model trustworthiness evaluation"
+        ],
+        [
+          20,
+          "multimodal AI safety and reliability testing"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multimodal Models\" computer science": 0,
+        "multimodal model blind spots evaluation": 4
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "multimodal model hallucination reasoning failure",
+      "Blind-Spots-Bench VQA robustness evaluation",
+      "vision-language alignment semantic gap",
+      "multimodal error detection anomaly benchmark",
+      "out-of-distribution generalization multimodal reasoning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2306.13394"
+      ]
+    },
+    "per_query_hit_count": {
+      "Blind-Spots-Bench VQA robustness evaluation": 3,
+      "llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multimodal Models\" computer science": 3,
+      "multimodal error detection anomaly benchmark": 3,
+      "multimodal model hallucination reasoning failure": 3,
+      "out-of-distribution generalization multimodal reasoning": 1,
+      "vision-language alignment semantic gap": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "1812.05356",
+          "rationale": "The paper is entirely off-domain, focusing on cosmological observables and redshift ranges in astrophysics, whereas the user's question concerns evaluating \"blind spots\" (failure modes) in multimodal Large Language Models (LLMs). The shared term \"blind spots\" is a homonym in this context, representing a distinct construct (degeneracy in parameter estimation vs. model capability gaps) with no measurable connection to the user's mechanism, domain, or variables.",
+          "title": "Constraining power of cosmological observables: blind redshift spots and optimal ranges"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-12T00:47:38Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"blind-spots-bench: evaluating blind spots in multimodal models\" computer science",
+      "raw": "llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multimodal Models\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multi', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-12T00:48:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multi', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-12T00:48:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multi', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-12T00:48:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multi', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-08-12T00:48:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reasoning lies at the heart of intelligence, shaping the ability to make decisions, draw conclusions, and generalize across domains. In artificial intelligence, as systems increasingly operate in open, uncertain, and multimodal environments, reasoning becomes essential for enabling robust and adaptive behavior. Large Multimodal Reasoning Models (LMRMs) have emerged as a promising paradigm, integrating modalities such as text, images, audio, and video to support complex reasoning capabilities and aiming to achieve comprehensive perception, precise understanding, and deep reasoning. As research advances, multimodal reasoning has rapidly evolved from modular, perception-driven pipelines to unified, language-centric frameworks that offer more coherent cross-modal understanding. While instruction tuning and reinforcement learning have improved model reasoning, significant challenges remain in omni-modal generalization, reasoning depth, and agentic behavior. To address these issues, we present a comprehensive and structured survey of multimodal reasoning research, organized around a four-stage developmental roadmap that reflects the field's shifting design philosophies and emerging capabilities. First, we review early efforts based on task-specific modules, where reasoning was implicitly embedded across stages of representation, alignment, and fusion. Next, we examine recent approaches that unify reasoning into multimodal LLMs, with advances such as Multimodal Chain-of-Thought (MCoT) and multimodal reinforcement learning enabling richer and more structured reasoning chains. Finally, drawing on empirical insights from challenging benchmarks and experimental cases of OpenAI O3 and O4-mini, we discuss the conceptual direction of native large multimodal reasoning models (N-LMRMs), which aim to support scalable, agentic, and adaptive reasoning and planning in complex, real-world environments.",
+          "claimed_authors": [
+            "Yunxin Li",
+            "Zhenyu Liu",
+            "Zitao Li",
+            "Xuanyu Zhang",
+            "Zhenran Xu",
+            "Xinyu Chen",
+            "Haoyuan Shi",
+            "Shenyuan Jiang",
+            "Xintong Wang",
+            "Jifang Wang",
+            "Shouzheng Huang",
+            "Xinping Zhao",
+            "Borui Jiang",
+            "Lanqing Hong",
+            "Longyue Wang",
+            "Zhuotao Tian",
+            "Baoxing Huai",
+            "Wenhan Luo",
+            "Weihua Luo",
+            "Zheng Zhang",
+            "Baotian Hu",
+            "Min Zhang"
+          ],
+          "claimed_title": "Perception, Reason, Think, and Plan: A Survey on Large Multimodal Reasoning Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.04921"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multi', candidate_title='Perception, Reason, Think, and Plan: A Survey on Large Multimodal Reasoning Models')",
+        "failed_at": "2026-08-12T00:48:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Despite rapid growth in multimodal large language models (MLLMs), their reasoning traces remain opaque: it is often unclear which modality drives a prediction, how conflicts are resolved, or when one stream dominates. In this paper, we introduce modality sabotage, a diagnostic failure mode in which a high-confidence unimodal error overrides other evidence and misleads the fused result. To analyze such dynamics, we propose a lightweight, model-agnostic evaluation layer that treats each modality as an agent, producing candidate labels and a brief self-assessment used for auditing. A simple fusion mechanism aggregates these outputs, exposing contributors (modalities supporting correct outcomes) and saboteurs (modalities that mislead). Applying our diagnostic layer in a case study on multimodal emotion recognition benchmarks with foundation models revealed systematic reliability profiles, providing insight into whether failures may arise from dataset artifacts or model limitations. More broadly, our framework offers a diagnostic scaffold for multimodal reasoning, supporting principled auditing of fusion dynamics and informing possible interventions.",
+          "claimed_authors": [
+            "Chenyu Zhang",
+            "Minsol Kim",
+            "Shohreh Ghorbani",
+            "Jingyao Wu",
+            "Rosalind Picard",
+            "Patricia Maes",
+            "Paul Pu Liang"
+          ],
+          "claimed_title": "When One Modality Sabotages the Others: A Diagnostic Lens on Multimodal Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.02794"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multi', candidate_title='When One Modality Sabotages the Others: A Diagnostic Lens on Multimodal Reasoning')",
+        "failed_at": "2026-08-12T00:48:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While Visual Question Answering (VQA) models continue to push the state-of-the-art forward, they largely remain black-boxes - failing to provide insight into how or why an answer is generated. In this ongoing work, we propose addressing this shortcoming by learning to generate counterfactual images for a VQA model - i.e. given a question-image pair, we wish to generate a new image such that i) the VQA model outputs a different answer, ii) the new image is minimally different from the original, and iii) the new image is realistic. Our hope is that providing such counterfactual examples allows users to investigate and understand the VQA model's internal mechanisms.",
+          "claimed_authors": [
+            "Jingjing Pan",
+            "Yash Goyal",
+            "Stefan Lee"
+          ],
+          "claimed_title": "Question-Conditioned Counterfactual Image Generation for VQA",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1911.06352"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multi', candidate_title='Question-Conditioned Counterfactual Image Generation for VQA')",
+        "failed_at": "2026-08-12T00:48:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large-scale pre-trained models (PTMs) show great zero-shot capabilities. In this paper, we study how to leverage them for zero-shot visual question answering (VQA). Our approach is motivated by a few observations. First, VQA questions often require multiple steps of reasoning, which is still a capability that most PTMs lack. Second, different steps in VQA reasoning chains require different skills such as object detection and relational reasoning, but a single PTM may not possess all these skills. Third, recent work on zero-shot VQA does not explicitly consider multi-step reasoning chains, which makes them less interpretable compared with a decomposition-based approach. We propose a modularized zero-shot network that explicitly decomposes questions into sub reasoning steps and is highly interpretable. We convert sub reasoning tasks to acceptable objectives of PTMs and assign tasks to proper PTMs without any adaptation. Our experiments on two VQA benchmarks under the zero-shot setting demonstrate the effectiveness of our method and better interpretability compared with several baselines.",
+          "claimed_authors": [
+            "Rui Cao",
+            "Jing Jiang"
+          ],
+          "claimed_title": "Modularized Zero-shot VQA with Pre-trained Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.17369"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multi', candidate_title='Modularized Zero-shot VQA with Pre-trained Models')",
+        "failed_at": "2026-08-12T00:48:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Medical Vision-Language Models (Med-VLMs) achieve strong expert-level performance, yet their ability to generate patient-accessible descriptions remains underexplored. With the 21st Century Cures Act now mandating immediate patient access to diagnostic imaging results, evaluating whether Med-VLMs can bridge this Expert-Lay Gap is both urgent and clinically consequential for patient education and shared decision-making. To this end, we introduce MedLayXPlain, the first large-scale multimodal benchmark and evaluation framework for Medical Lay Language Generation (MLLG). MedLayXPlain-122K provides 122,789 region-grounded samples across 8 imaging modalities from 12 publicly available source datasets, each comprising a medical image with paired expert and lay captions anchored in a three-level Unified Medical Language System (UMLS) ontology hierarchy spanning 7 semantic groups, 43 semantic types, and 2,411 medical concepts. Lay captions are constructed via Hierarchical Ontology-Verified Refinement (HOVER), a three-step pipeline combining patient-centric vocabulary mapping, LLM-based constrained rewriting, and cross-model visual verification to enforce semantic equivalence while preventing hallucination. We further introduce MedLayEval, a lightweight 3B evaluator distilled from a 27B verifier that scores expert-lay alignment across five clinically grounded attributes, addressing the poor correlation between standard NLG metrics and clinical judgment. Benchmarking 33 VLMs on MedLayXPlain-122K reveals a systematic Expert-Lay Gap: medical VLMs achieve strong expert captioning but suffer significant lay-register degradation, while general-purpose VLMs produce more accessible language yet lack clinical precision, confirming that neither current paradigm adequately serves patient-facing communication.",
+          "claimed_authors": [
+            "Han Jang",
+            "Junhyeok Lee",
+            "Songsoo Kim",
+            "Chae Young Lim",
+            "Hyeonjin Goh",
+            "Heeseong Eum",
+            "Kyu Sung Choi"
+          ],
+          "claimed_title": "MEDLAYXPLAIN: Benchmarking the Expert-Lay Gap in Medical Vision-Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.21194"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multi', candidate_title='MEDLAYXPLAIN: Benchmarking the Expert-Lay Gap in Medical Vision-Language Models')",
+        "failed_at": "2026-08-12T00:48:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The multimedia community has shown a significant interest in perceiving and representing the physical world with multimodal pretrained neural network models, and among them, the visual-language pertaining (VLP) is, currently, the most captivating topic. However, there have been few endeavors dedicated to the exploration of 1) whether essential linguistic knowledge (e.g., semantics and syntax) can be extracted during VLP, and 2) how such linguistic knowledge impact or enhance the multimodal alignment. In response, here we aim to elucidate the impact of comprehensive linguistic knowledge, including semantic expression and syntactic structure, on multimodal alignment. Specifically, we design and release the SNARE, the first large-scale multimodal alignment probing benchmark, to detect the vital linguistic components, e.g., lexical, semantic, and syntax knowledge, containing four tasks: Semantic structure, Negation logic, Attribute ownership, and Relationship composition. Based on our proposed probing benchmarks, our holistic analyses of five advanced VLP models illustrate that the VLP model: i) shows insensitivity towards complex syntax structures and relies on content words for sentence comprehension; ii) demonstrates limited comprehension of combinations between sentences and negations; iii) faces challenges in determining the presence of actions or spatial relationships within visual information and struggles with verifying the correctness of triple combinations. We make our benchmark and code available at \\url{https://github.com/WangFei-2019/SNARE/}.",
+          "claimed_authors": [
+            "Fei Wang",
+            "Liang Ding",
+            "Jun Rao",
+            "Ye Liu",
+            "Li Shen",
+            "Changxing Ding"
+          ],
+          "claimed_title": "Can Linguistic Knowledge Improve Multimodal Alignment in Vision-Language Pretraining?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2308.12898"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multi', candidate_title='Can Linguistic Knowledge Improve Multimodal Alignment in Vision-Language Pretraining?')",
+        "failed_at": "2026-08-12T00:48:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) have shown their potential in long-context understanding and mathematical reasoning. In this paper, we study the problem of using LLMs to detect tabular anomalies and show that pre-trained LLMs are zero-shot batch-level anomaly detectors. That is, without extra distribution-specific model fitting, they can discover hidden outliers in a batch of data, demonstrating their ability to identify low-density data regions. For LLMs that are not well aligned with anomaly detection and frequently output factual errors, we apply simple yet effective data-generating processes to simulate synthetic batch-level anomaly detection datasets and propose an end-to-end fine-tuning strategy to bring out the potential of LLMs in detecting real anomalies. Experiments on a large anomaly detection benchmark (ODDS) showcase i) GPT-4 has on-par performance with the state-of-the-art transductive learning-based anomaly detection methods and ii) the efficacy of our synthetic dataset and fine-tuning strategy in aligning LLMs to this task.",
+          "claimed_authors": [
+            "Aodong Li",
+            "Yunhan Zhao",
+            "Chen Qiu",
+            "Marius Kloft",
+            "Padhraic Smyth",
+            "Maja Rudolph",
+            "Stephan Mandt"
+          ],
+          "claimed_title": "Anomaly Detection of Tabular Data Using LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.16308"
+        },
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multi', candidate_title='Anomaly Detection of Tabular Data Using LLMs')",
+        "failed_at": "2026-08-12T00:48:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: AI-driven prediction algorithms have the potential to enhance emergency medicine by enabling rapid and accurate decision-making regarding patient status and potential deterioration. However, the integration of multimodal data, including raw waveform signals, remains underexplored in clinical decision support. Methods: We present a dataset and benchmarking protocol designed to advance multimodal decision support in emergency care. Our models utilize demographics, biometrics, vital signs, laboratory values, and electrocardiogram (ECG) waveforms as inputs to predict both discharge diagnoses and patient deterioration. Results: The diagnostic model achieves area under the receiver operating curve (AUROC) scores above 0.8 for 609 out of 1,428 conditions, covering both cardiac (e.g., myocardial infarction) and non-cardiac (e.g., renal disease, diabetes) diagnoses. The deterioration model attains AUROC scores above 0.8 for 14 out of 15 targets, accurately predicting critical events such as cardiac arrest, mechanical ventilation, ICU admission, and mortality. Conclusions: Our study highlights the positive impact of incorporating raw waveform data into decision support models, improving predictive performance. By introducing a unique, publicly available dataset and baseline models, we provide a foundation for measurable progress in AI-driven decision support for emergency care.",
+          "claimed_authors": [
+            "Juan Miguel Lopez Alcaraz",
+            "Hjalmar Bouma",
+            "Nils Strodthoff"
+          ],
+          "claimed_title": "Enhancing clinical decision support with physiological waveforms -- a multimodal benchmark in emergency care",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.17856"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multi', candidate_title='Enhancing clinical decision support with physiological waveforms -- a multimodal benchmark in emergency care')",
+        "failed_at": "2026-08-12T00:48:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video anomaly detection (VAD) is essential for enhancing safety and security by identifying unusual events across different environments. Existing VAD benchmarks, however, are primarily designed for general-purpose scenarios, neglecting the specific characteristics of smart home applications. To bridge this gap, we introduce SmartHome-Bench, the first comprehensive benchmark specially designed for evaluating VAD in smart home scenarios, focusing on the capabilities of multi-modal large language models (MLLMs). Our newly proposed benchmark consists of 1,203 videos recorded by smart home cameras, organized according to a novel anomaly taxonomy that includes seven categories, such as Wildlife, Senior Care, and Baby Monitoring. Each video is meticulously annotated with anomaly tags, detailed descriptions, and reasoning. We further investigate adaptation methods for MLLMs in VAD, assessing state-of-the-art closed-source and open-source models with various prompting techniques. Results reveal significant limitations in the current models' ability to detect video anomalies accurately. To address these limitations, we introduce the Taxonomy-Driven Reflective LLM Chain (TRLC), a new LLM chaining framework that achieves a notable 11.62% improvement in detection accuracy. The benchmark dataset and code are publicly available at https://github.com/Xinyi-0724/SmartHome-Bench-LLM.",
+          "claimed_authors": [
+            "Xinyi Zhao",
+            "Congjing Zhang",
+            "Pei Guo",
+            "Wei Li",
+            "Lin Chen",
+            "Chaoyue Zhao",
+            "Shuai Huang"
+          ],
+          "claimed_title": "SmartHome-Bench: A Comprehensive Benchmark for Video Anomaly Detection in Smart Homes Using Multi-Modal Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.12992"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multi', candidate_title='SmartHome-Bench: A Comprehensive Benchmark for Video Anomaly Detection in Smart Homes Using Multi-Modal Large Language Models')",
+        "failed_at": "2026-08-12T00:48:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose LogicVista, an evaluation benchmark that assesses the integrated logical reasoning capabilities of multimodal large language models (MLLMs) in Visual contexts. Recent advancements in MLLMs have demonstrated various fascinating abilities, from crafting poetry based on an image to performing mathematical reasoning. However, there is still a lack of systematic evaluation of MLLMs' proficiency in logical reasoning tasks, which are essential for activities like navigation and puzzle-solving. Thus we evaluate general logical cognition abilities across 5 logical reasoning tasks encompassing 9 different capabilities, using a sample of 448 multiple-choice questions. Each question is annotated with the correct answer and the human-written reasoning behind the selection, enabling both open-ended and multiple-choice evaluation. A total of 8 MLLMs are comprehensively evaluated using LogicVista. Code and Data Available at https://github.com/Yijia-Xiao/LogicVista.",
+          "claimed_authors": [
+            "Yijia Xiao",
+            "Edward Sun",
+            "Tianyu Liu",
+            "Wei Wang"
+          ],
+          "claimed_title": "LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.04973"
+        },
+        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"Blind-Spots-Bench: Evaluating Blind Spots in Multi', candidate_title='LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts')",
+        "failed_at": "2026-08-12T00:48:10Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Matteo Santelmo",
+            "Xiuying Wei",
+            "Israa Fakih",
+            "Felix Bauer",
+            "Juan Garcia Giraldo",
+            "Chengkun Li",
+            "Etienne Bamas",
+            "Emmanuel Abbé"
+          ],
+          "title": "Blind-Spots-Bench: Evaluating Blind Spots in Multimodal Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.08317",
+        "summary": "Modern AI models achieve strong performance on many established benchmarks, yet they still fail on tasks that humans find almost trivial, such as manipulating a string or drawing a dog with five legs. These examples suggest that existing benchmarks may under-measure persistent blind spots in current systems. We introduce $\\texttt{blind-spots-bench}$, a benchmark designed to expose such blind spots through tasks that appear simple for humans but remain challenging for modern AI. We collect raw questions from students in an AI course, clean and annotate them with structured reference solutions, and propose a task taxonomy tailored to the resulting dataset of 235 samples. We further develop an automated grading pipeline to evaluate a wide range of models, including open-weight and closed-source language, vision-language, and image-generation models. Our analysis on $\\texttt{blind-spots-bench}$ reveals that closed-source frontier models can substantially outperform open-weight models with even $\\approx10\\%$ gap, even when they attain comparable performance on existing benchmarks. A more fine-grained analysis shows that no single model dominates across all task types, and that some tasks remain challenging for all evaluated models. These results highlight the value of $\\texttt{blind-spots-bench}$ as a diagnostic stress test for identifying concrete weaknesses in current modern models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.08317",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-12T00:48:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Eugene Lee",
+            "Ting-Yu Chang",
+            "Jui-Huang Tsai",
+            "Jiajie Diao",
+            "Chen-Yi Lee"
+          ],
+          "title": "Hierarchical Pre-Training of Vision Encoders with Large Language Model",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.00086",
+        "summary": "The field of computer vision has experienced significant advancements through scalable vision encoders and multimodal pre-training frameworks. However, existing approaches often treat vision encoders and large language models (LLMs) as independent modules, limiting the integration of hierarchical visual features. In this work, we propose HIVE (Hierarchical Pre-Training of Vision Encoders), a novel framework that enhances vision-language alignment by introducing hierarchical cross-attention between the vision encoder and LLM. Unlike conventional methods that flatten image embeddings, HIVE enables structured feature fusion across multiple layers, improving gradient flow and representation learning. To optimize this interaction, we introduce a three-stage training strategy that progressively aligns the vision encoder with the LLM, ensuring stable optimization and effective multimodal fusion. Empirical evaluations demonstrate that HIVE achieves superior performance not only in image classification but also on various vision-language tasks, outperforming self-attention-based methods in benchmarks such as MME, GQA, OK-VQA, and ScienceQA. Our results highlight the benefits of hierarchical feature integration, paving the way for more efficient and expressive vision-language models.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.00086",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-12T00:48:10Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Saroj Basnet",
+            "Shafkat Farabi",
+            "Tharindu Ranasinghe",
+            "Diptesh Kanoji",
+            "Marcos Zampieri"
+          ],
+          "title": "Evaluating Open-Source Vision-Language Models for Multimodal Sarcasm Detection",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.11852",
+        "summary": "Recent advances in open-source vision-language models (VLMs) offer new opportunities for understanding complex and subjective multimodal phenomena such as sarcasm. In this work, we evaluate seven state-of-the-art VLMs - BLIP2, InstructBLIP, OpenFlamingo, LLaVA, PaliGemma, Gemma3, and Qwen-VL - on their ability to detect multimodal sarcasm using zero-, one-, and few-shot prompting. Furthermore, we evaluate the models' capabilities in generating explanations to sarcastic instances. We evaluate the capabilities of VLMs on three benchmark sarcasm datasets (Muse, MMSD2.0, and SarcNet). Our primary objectives are twofold: (1) to quantify each model's performance in detecting sarcastic image-caption pairs, and (2) to assess their ability to generate human-quality explanations that highlight the visual-textual incongruities driving sarcasm. Our results indicate that, while current models achieve moderate success in binary sarcasm detection, they are still not able to generate high-quality explanations without task-specific finetuning.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.11852",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-12T00:48:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Chaoyou Fu",
+            "Peixian Chen",
+            "Yunhang Shen",
+            "Yulei Qin",
+            "Mengdan Zhang",
+            "Xu Lin",
+            "Jinrui Yang",
+            "Xiawu Zheng",
+            "Ke Li",
+            "Xing Sun",
+            "Yunsheng Wu",
+            "Rongrong Ji",
+            "Caifeng Shan",
+            "Ran He"
+          ],
+          "title": "MME: A Comprehensive Evaluation Benchmark for Multimodal Large Language Models",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.13394",
+        "summary": "Multimodal Large Language Model (MLLM) relies on the powerful LLM to perform multimodal tasks, showing amazing emergent abilities in recent studies, such as writing poems based on an image. However, it is difficult for these case studies to fully reflect the performance of MLLM, lacking a comprehensive evaluation. In this paper, we fill in this blank, presenting the first comprehensive MLLM Evaluation benchmark MME. It measures both perception and cognition abilities on a total of 14 subtasks. In order to avoid data leakage that may arise from direct use of public datasets for evaluation, the annotations of instruction-answer pairs are all manually designed. The concise instruction design allows us to fairly compare MLLMs, instead of struggling in prompt engineering. Besides, with such an instruction, we can also easily carry out quantitative statistics. A total of 30 advanced MLLMs are comprehensively evaluated on our MME, which not only suggests that existing MLLMs still have a large room for improvement, but also reveals the potential directions for the subsequent model optimization. The data are released at the project page https://github.com/BradyFU/Awesome-Multimodal-Large-Language-Models/tree/Evaluation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.13394",
+          "http_status": 200,
+          "pdf_sample_score": 0.2154,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-12T00:48:18Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"blind-spots-bench: evaluating blind spots in multimodal models\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

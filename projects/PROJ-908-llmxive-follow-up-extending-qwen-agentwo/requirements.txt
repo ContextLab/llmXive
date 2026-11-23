@@ -1,14 +1,11 @@
-# Existing dependencies
-datasets
-scikit-learn
-prolog
-networkx
-pandas
-pytest
-requests
-numpy
-black
-ruff
-# Additional for testing
-pytest-randomly
-pytest-cov
+datasets>=2.14.0
+jsonschema>=4.19.0
+pyyaml>=6.0.1
+pytest>=7.4.0
+pytest-random-seed>=0.2.0
+ilpy>=0.1.0
+scipy>=1.11.0
+pdoc3>=0.10.0
+ruff>=0.1.0
+black>=23.0.0
+pytest-cov>=4.1.0

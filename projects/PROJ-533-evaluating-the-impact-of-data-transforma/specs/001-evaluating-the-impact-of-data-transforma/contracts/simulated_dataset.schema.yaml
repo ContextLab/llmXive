@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulated Dataset Schema"
+description: "Schema for generated simulated datasets."
+type: object
+properties:
+  sim_id:
+    type: string
+    description: "Unique ID."
+  source_dataset_id:
+    type: string
+    description: "Reference to real dataset used for shape estimation."
+  effect_size:
+    type: number
+    nullable: true
+    description: "True Cohen's d (null simulations have null)."
+  skewness:
+    type: number
+    description: "Skewness of the simulated predictor."
+  kurtosis:
+    type: number
+    description: "Kurtosis of the simulated predictor."
+  n_samples:
+    type: integer
+    minimum: 30
+    description: "Number of observations."
+  seed_used:
+    type: integer
+    description: "Random seed for reproducibility."
+required:
+  - sim_id
+  - source_dataset_id
+  - effect_size
+  - n_samples
+  - seed_used
+additionalProperties: false

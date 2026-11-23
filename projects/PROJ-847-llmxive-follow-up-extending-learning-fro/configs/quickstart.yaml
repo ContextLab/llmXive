@@ -1,0 +1,30 @@
+# Quickstart configuration for the density‑supervision study.
+seed: 42
+
+output_dirs:
+  - statistics
+  - figures
+  - summary
+  - checkpoints
+
+stages:
+  - data
+  - model
+  - fixed_baselines
+  - adaptive_runs
+  - analysis
+
+training:
+  rhos: [0.5]          # thin run uses a single rho
+  seeds: [42]          # single seed for reproducibility
+  max_epochs: 2        # very short run for quickstart
+  batch_size: 16
+  adaptive: false
+  timeout_seconds: 21600
+
+data:
+  gsm8k_split: test
+  streaming: true
+
+model:
+  model_id: "distilgpt2"

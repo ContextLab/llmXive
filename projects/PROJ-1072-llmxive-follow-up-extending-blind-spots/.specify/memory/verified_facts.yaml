@@ -1,0 +1,22 @@
+'|cell count expected fisher if less study test than use':
+  quote: With large samples, a chi-squared test (or better yet, a G-test) can be used
+    in this situation. However, the significance value it provides is only an approximation,
+    because the sampling distribution of the test statistic that is calculated is
+    only approximately equal to the theoretical chi-squared distribution. The approximation
+    is poor when sample sizes are small, or the data are very unequally distributed
+    among the cells of the table, resulting in the cell counts predicted on the null
+    hypothesis (the "expected values") being low. The usual rule for deciding whether
+    the chi-squared approximation is good enough is that the chi-squared test is not
+    suitable when the expected values in any of the cells of a contingency table are
+    below 5, or below 10 when there is only one degree of freedom (this rule is now
+    known to be overly conservative). In fact, for small, sparse, or unbalanced data,
+    the exact and asymptotic p-values can be quite different and may lead to opposite
+    conclusions concerning the hypothesis of interest. In contrast the Fisher exact
+    test is, as its name states, exact as long as the experimental procedure keeps
+    the row and column totals fixed, and it can therefore be used regardless of the
+    sample characteristics. It becomes difficult to calculate with large samples or
+    well-balanced tables, but fortunately these are exactly the conditions where the
+    chi-squared test is appropriate.
+  source_id: Fisher's exact test
+  url: https://en.wikipedia.org/wiki/Fisher's_exact_test
+  value: '5'

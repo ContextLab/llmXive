@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "amorphous-heat-conduction"
+version = "0.1.0"
+description = "Investigating the influence of network structure on heat conduction in amorphous solids"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "scikit-learn",
+    "ase",
+    "matplotlib",
+    "seaborn",
+    "networkx",
+    "pytest",
+    "pytest-cov",
+    "pytest-randomly",
+    "ruff",
+    "black"
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["src*", "tests*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = [
+    "--cov=src",
+    "--cov-report=term-missing",
+    "--cov-fail-under=70",
+    "--randomly-seed=42",
+    "-v"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']

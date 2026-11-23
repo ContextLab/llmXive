@@ -1,0 +1,144 @@
+T002a:
+  c: true
+  h: 58326a5b9f72eed2cac2b03d97d0360933f11b9e39dc86774b8b3c85c6c360b8
+  r: The evidence shows the `code/` directory exists and contains the required subdirectories
+    `code/data`, `code/models`, `code/metrics`, `code/inference`, `code/utils`, and
+    `code/tasks`. The directory listing from the collector confirms each path is present,
+    satisfying the `os.path.isdir` verification step.
+  sig: 2b8d91689216c90dc843ee76ab0232c6494e27d51c79af6bc3b9abea4e408dc3
+T002b:
+  c: false
+  h: 6272e12969bc9e87b7fdf4a6a4f8aa000054ebe0f1214c9b0f10f5dbfd30262c
+  r: The `data/` directory and its required subfolders (`raw`, `processed`, `metrics`,
+    `logs`, `models`) are present, but there is no artifact (script output, test log,
+    etc.) showing that `os.path.isdir` was actually run and confirmed for each path.
+    Provide evidence of the verification step (e.g., a test script and its successful
+    output).
+  sig: a25651763d86de6c13f63b4974d5f55fba1909ef96d462aa7610c9699d7a957a
+T002c:
+  c: true
+  h: 689aa884b69a1ed6ee0b42842c5a7d8d691a9516bceb7d0370a41160777d78f5
+  r: The `state/` directory is present in the project root (contains a `.gitkeep`
+    file), satisfying the requirement to create the directory.
+  sig: 18c430c6e9c21be160454a5d313b77f21095ff66ab656143e712b42a2c15dd4e
+T002d:
+  c: true
+  h: 17dfd04ce1002deeda9ebfc28b528b037022416403b96ca9762006f08aa87bd8
+  r: Checked that the `docs/` directory exists in the project root (contains .gitkeep
+    and markdown files), satisfying the requirement to create the directory.
+  sig: 1452969ed3e39dd643467aa207abf6133ebc09ccf9b3c4647d61d2f915bb9e6c
+T002e:
+  c: true
+  h: df201a8868b3683974e1b971ef34b163af205fc427dda424d255ac5361d5c527
+  r: "Checked the `contracts/` directory (listed by the collector with 10 entries\
+    \ and a valid SHA\u2011256 hash), confirming it exists as required."
+  sig: 0267ed0dbd75659d204a33fb2b6fef4e302f5c727b3c8298bf5a45b902b276a3
+T002f:
+  c: false
+  h: b83b7691f64486902ec5e538b8e76a35d527d3f1bf78b990c812e4b864f7c83b
+  r: The `tests/` directory and its three subdirectories are present, satisfying the
+    creation part, but there is no evidence (e.g., a script run, log output, or test
+    result) showing that `os.path.isdir` was actually executed to verify those paths
+    as required. Provide proof of the verification step.
+  sig: 446bc092ebdf5ab28ab081c1a35be5b5d9fe844da9fb5971d4f6c0946de44b66
+T008:
+  c: false
+  h: d2d7746c6b099115ef7ed361732e3dbccc675546303cf9253de1ee40c66caadb
+  r: The provided `code/utils/update_state_yaml.py` file is present but only a partial
+    implementation is shown (truncated) and there is no `state.yaml` file in the repository.
+    Without the full script logic and an actual state.yaml to update, the requirement
+    of updating the project's state file with artifact hashes is not demonstrably
+    satisfied. The missing state.yaml and incomplete script need to be provided/fixed.
+T009:
+  c: false
+  h: 6d19a92f6c34521acde68b3bd6fd7accf88c9321211b01b0b81e89fa031c022c
+  r: "The provided `validate_logs.py` is only partially shown and does not contain\
+    \ the logic that computes a checksum and writes it to `state.yaml`, nor does it\
+    \ modify any configuration file. Moreover, the required `state.yaml` file is absent\
+    \ from the repository, so the script cannot register the checksum as specified.\
+    \ The task\u2019s core requirements are therefore unmet."
+T012:
+  c: false
+  h: 135e986abe021a2b5f7f265d9ee302b4b057cdb94806165b777954e6bb649b28
+  r: "The required integration test file `tests/integration/test_data_extraction.py`\
+    \ does not exist in the repository, so the artifact is missing and the task\u2019\
+    s deliverable is not provided."
+T014b:
+  c: false
+  h: cf5695c9f56272fbd1dedf1f0f49d60672ed0b659d44048cbcc3490ac5bdee38
+  r: "The required `data/metrics/power_analysis_initial.json` file is missing, and\
+    \ the expected output `data/processed/sampled_dataset.parquet` does not exist.\
+    \ Moreover, the provided `code/data/preprocess.py` is truncated and shows no implementation\
+    \ of the stratified sampling logic or fallback to `config.DEFAULT_SAMPLE_SIZE`.\
+    \ The task\u2019s core functionality and output are therefore not present."
+T014f:
+  c: false
+  h: a5de59793bc7e7e9c63e4e187920ae47127f7aa0d8be7b224ec2c34d5bc79e51
+  r: "The script `code/data/log_event_counts.py` is present but truncated (ends with\
+    \ \u201Cexce\u201D and is not a complete, runnable file). Moreover, the required\
+    \ input `data/processed/filtered.parquet` and the expected output `data/logs/event_counts.log`\
+    \ are both missing, so the script cannot be executed to produce the required log\
+    \ file. The task\u2019s verification conditions are therefore not met."
+T019b:
+  c: false
+  h: 03afd4018e2c9081b5ddbdcbc5c2054ed63b2fb8ebe3357961556d17470f453c
+  r: The required input file `data/processed/sampled_dataset.parquet` does not exist,
+    and the expected output checkpoint `data/models/estimator_checkpoint_pending.pt`
+    is also missing, so the training loop was never run nor verified.
+T024b:
+  c: false
+  h: 7b91888fa9f7587a6cf5d247d12f8dab3ae17e3a7eeafa0f40697837ab479006
+  r: The required metric file `data/metrics/uncertainty_correlation.json`, the pending
+    checkpoint `data/models/estimator_checkpoint_pending.pt`, the final checkpoint,
+    and the failure log are all absent, and `state.yaml` has not been updated with
+    a `calibration_status` field. Consequently the verification, copy/rename, and
+    state update steps were never performed.
+T029:
+  c: false
+  h: a863c1945b2963591665a3ca772e11d8be674cfe91537856a6c4bad74c36867a
+  r: "The required integration test file `tests/integration/test_hybrid_simulation.py`\
+    \ does not exist in the repository, so the artifact is missing entirely. Without\
+    \ this test, the end\u2011to\u2011end simulation and metrics cannot be verified."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `docs/quickstart.md` or `docs/research.md` files were presented, and the evidence
+    does not show any documentation updates in the `docs/` directory. The required
+    artifacts are missing, so the task is not satisfied.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No extraction script, generated dataset, training script, model checkpoint,\
+    \ or validation results were provided. The required artifacts (CSV/Parquet dataset\
+    \ with the specified columns, training logs showing convergence and MSE improvement,\
+    \ and a saved model) are missing, so the task\u2019s requirements are not demonstrably\
+    \ met."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No extraction script, dataset file, training script, or model checkpoint was\
+    \ supplied; the claim lacks any concrete artifacts to verify that the required\
+    \ CSV/Parquet dataset and trained lightweight estimator were produced. Consequently\
+    \ the task\u2019s mandatory deliverables are missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing that `quickstart.md` was executed and validated is present\u2014\
+    there are no logs, output files, or reproducibility reports confirming the end\u2011\
+    to\u2011end run. The implementer provided only the feature specification, not\
+    \ the required validation evidence."
+T038b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No script, log, or report was provided showing that the links added in T038a
+    were checked for existence; the required verification artifact is missing. The
+    implementer must supply the verification script (or its output) that confirms
+    each referenced file exists.
+T089:
+  c: false
+  h: f9ad9d345b96d3dd452803ec4afc84a57fe59622df0901102ac3b835dc515d2d
+  r: "The `extract_turn_taking.py` file is present but its content is truncated (e.g.,\
+    \ unfinished `turn_stabilit` line) and lacks a CLI entry point that actually runs\
+    \ the wrapped logic and writes `data/processed/turn_taking_dataset.parquet`. Moreover,\
+    \ the required Parquet output file does not exist. The task\u2019s core requirement\u2014\
+    producing the dataset file with the correct schema\u2014is therefore unmet."

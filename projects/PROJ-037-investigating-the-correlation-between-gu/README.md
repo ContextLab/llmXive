@@ -1,18 +1,51 @@
-# PROJ-037: Investigating the Correlation Between Gut Microbiome Composition and Circadian Rhythm Disruption
+# PROJ-037: Gut Microbiome and Circadian Rhythm Investigation
 
-## Overview
-This project investigates the associational links between gut microbiome diversity/composition and circadian rhythm disruption markers.
+> **Disclaimer**: This project investigates **associational** links between gut microbiome composition and circadian rhythm disruption. No causal claims are made.
 
-## Data Sources
-- American Gut Project (AGP) 16S rRNA data
-- Open Humans sleep metadata
+## Quick Start
 
-## Structure
-- `data/raw/`: Original downloaded datasets
-- `data/processed/`: Cleaned and merged cohorts
-- `data/outputs/`: Analysis results and figures
-- `code/`: Implementation scripts
-- `tests/`: Unit and integration tests
+1. **Setup Environment**:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate
+ pip install -r requirements.txt
+ ```
+
+2. **Run Pipeline**:
+ ```bash
+ # Step 1: Ingest and clean data
+ python code/ingestion.py
+
+ # Step 2: Analyze diversity and correlations
+ python code/analysis.py
+
+ # Step 3: Validate results
+ python code/validation.py
+
+ # Step 4: Generate report
+ python code/report.py
+ ```
+
+3. **View Outputs**:
+ - `data/outputs/correlation_results.csv`
+ - `data/outputs/heatmap.png`
+ - `data/outputs/pcoa_sleep_quality.png`
+ - `data/outputs/validation_status.json`
+ - `data/outputs/sensitivity_report.csv`
+
+## Documentation
+
+- [Analysis Methodology](docs/analysis_methodology.md)
+- [Limitations and Mitigations](docs/limitations_and_mitigations.md)
+- [Full Project README](docs/README.md)
+
+## Key Features
+
+- **Real Data**: Uses American Gut Project and Open Humans data (no synthetic fallbacks).
+- **Associational Framing**: Explicitly avoids causal language (FR-008 compliant).
+- **Robust Validation**: Bootstrap resampling and sensitivity analysis.
+- **Performance Optimized**: Parallel processing for large datasets.
 
 ## License
-MIT
+
+[Insert License]

@@ -1,0 +1,72 @@
+T001:
+  task: 9fe0ad8fa04e88631d5af94ae8634e62420d52c7061f95eaae2e86840551f8e1
+T002:
+  task: 08b6ccdce353a9dfa5f5350601296b687fceeb431868a0674d2d102efc1641ea
+T003:
+  task: 696a2d3f1e0579b42c3ba7ae8cf966d856529f10529ddca5fc5f3288e4cc53f6
+T004:
+  task: 9f68d0d49b0eaafdafb169948cf31d7fbc03618f705159c3076d8640e38a3061
+T005:
+  task: 4578603fceed50e30216a281dd3825852f728e113cc78c8fefb967827f5aebbf
+T006:
+  task: e731b38f4abfb7b50296b62e28a0a4cf9037bde7d5d9ce8f57abac7a422cadd1
+T007:
+  task: 2a5eb6c68bb38a468471294748154a255007b7bb561d689349f81b7e0377aa45
+T008:
+  task: 602a814b13fbf0db673e2738eeb432d06d028e9fb4b0826e14610995bd2cc9f5
+T009:
+  task: b4e8553d5fb114fade5979d240c169b36d34c911aae243c1313b383c0fe275cb
+T010:
+  task: 2ef825904785eb2159002796c893f398c13490b06aedb8f2b1d5386c9f959433
+T011:
+  reason: 'Requested task execution failed; rerun successfully: code/validate_trajectories.py
+    exit=1'
+  task: 54527237004bc8284b7a497213cbe9191d5b44b99bf2eb2efea1ca63040a87af
+T012:
+  reason: 'Requested task execution failed; rerun successfully: code/validate_trajectories.py
+    exit=1'
+  task: dd6bb70d01cec27be4943db6807c8c2d6b3bd11c47d027630e4fae7780228fb8
+T013:
+  reason: "The current `tests/unit/test_density_isolation.py` (627 bytes, single function\
+    \ `test_composite_density_isolated`) does not match the execution log, which claims\
+    \ 10 tests in a `TestDensityIsolation` class (e.g., `test_density_independent_of_agent_output`,\
+    \ `test_no_global_state_dependency`) \u2014 so the recorded run corresponds to\
+    \ a different, since-replaced version of the file, and there is no evidence the\
+    \ current test was ever executed. Additionally, the current test only checks the\
+    \ 0.6/0.4 composite formula; it does not verify independence from agent-output\
+    \ data as the task requires. The implemen"
+  task: 40f2a9f145d67b33b5d0eda552d3c67b2c1fd68dea3915accbb780c374b512b1
+T014:
+  task: c8f7a354f35047c4c1502c8ef9a65eff72d695d986cab13cdbef9647d7d5da34
+T015:
+  task: f4dd87f6ed81b10367685301ff6a0f5b8d7be08dadbead6f4721203ecd847a0b
+T016:
+  task: 2a06d0360046bdfeca73b04a736d85b1e4feca7ce786ebb40120c2bc6d96686b
+T017:
+  task: 75a9b2fc11992aa004d32d7a789e279ec465f6671ec6cd0579ca524fdc6b8a6f
+T018:
+  task: aaec4fdfaed1024c7a39953389fe8cfb45020c1390eb207660e5e00fdf15189c
+T019:
+  task: 2a9a9b23ccfa0e06cf966cb08ce816c3ee030ab6bdaab5293e4e114db5e59b5a
+T020:
+  task: 7287244585228db050bced8830058f3e7917919c70ce620036aacebcc44cbab7
+T021:
+  task: fa931805a1c57a703a8cd8ddf7619cafc7d212a0595f8155c38475c11e9d0400
+T022:
+  task: dd37cf5a7989a13717e9157eadfa96218ed0693d2c2219eccdb25b58388c0247
+T023:
+  task: 95b160241b23b5f2ca9aaa2820b4cd757c0d6d6e207d99f3ae09c3b2107c87ef
+T024:
+  task: d7ab9a5ca544130e1957de2d1110a233fba550bb55469e18d353ed010e3ac838
+T025:
+  task: 7187ddcb340407815acff94e735aa257becda726bf6dbd9866e61a5e8595b055
+T026:
+  task: 35eb9da05aaa9ff3d2e090ecc64fa22ed063208f3fcad104e1e5f107f17d3ce6
+T027:
+  task: 5d4d4bbe70f3853c501750b0eae7a05a5de63b51e06ba4f7af1bc686bc41d730
+T028:
+  task: 00f605ac82a743d7494463b3e0d2945784df449a67a9678ae3060cdb53507ae9
+T031:
+  task: aeb71b8dd2e90295d9b03d5d0fab2dd8f92f652ac93ae74fce62d865cc7226a5
+T032:
+  task: 0ee9219cac299aeb9538d40d9e25845108b2393713f3b3587d03fe394bfe207b

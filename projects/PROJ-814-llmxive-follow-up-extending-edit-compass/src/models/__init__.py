@@ -1,9 +1,14 @@
 """
-Model definitions for the llmXive pipeline.
+Models package for llmXive project.
 
-This package contains Pydantic models and VLM wrappers used for
-scoring and analysis tasks.
+This package contains model definitions, wrappers, and utilities for
+machine learning models used in the pipeline (e.g., VLM wrappers,
+embedding models).
 """
-from .vlm import VLMWrapper
 
-__all__ = ["VLMWrapper"]
+# Placeholder for future model implementations
+# Currently, model loading logic is handled in services/scoring.py
+# and services/download.py. This package will house specialized
+# model classes as the project evolves.
+
+__all__ = []

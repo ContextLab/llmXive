@@ -1,53 +1,58 @@
-# Ruff configuration for PROJ-590
-# Enforces PEP 8, removes unused imports, and ensures consistent formatting rules
-
 [lint]
-# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`) rules
-select = ["E", "F", "I", "W", "UP"]
-ignore = []
-
-# Allow autofix for all enabled rules
-fixable = ["ALL"]
-unfixable = []
-
-# Exclude a few common directories
-exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
-    ".git",
-    ".git-rewrite",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".pytype",
-    ".ruff_cache",
-    ".svn",
-    ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
-    "build",
-    "dist",
-    "node_modules",
-    "venv",
+# Enable strict linting rules for the Cortical Column LLM project
+# Following project standards for scientific code quality
+select = [
+  "E",    # pycodestyle errors
+  "W",    # pycodestyle warnings
+  "F",    # Pyflakes
+  "I",    # isort
+  "B",    # flake8-bugbear
+  "C4",   # flake8-comprehensions
+  "UP",   # pyupgrade
+  "S",    # flake8-bandit (security)
+  "T20",  # flake8-print (no print statements)
+  "RUF",  # Ruff-specific rules
+  "NPY",  # NumPy-specific rules
 ]
 
-# Same as Black
-line-length = 88
+ignore = [
+  "E501",  # Line too long (handled by formatter)
+  "S101",  # Use of assert detected (assertions are allowed in tests)
+  "NPY002", # Replace legacy np.random.* call (using torch for ML)
+]
 
-# Allow unused variables in `__init__.py` to support exports
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-
+# Per-file ignores
 [lint.per-file-ignores]
-# Ignore import sorting in __init__.py files
-"__init__.py" = ["I001"]
+"tests/*" = [
+  "S101", # Allow assertions in tests
+  "T201", # Allow print in tests for debugging
+]
+"scripts/*" = [
+  "T201", # Allow print in scripts for logging
+]
+
+# Maximum line length (formatter handles this, but good to have as reference)
+line-length = 100
+
+# Target Python version
+target-version = "py311"
+
+[lint.isort]
+# Configuration for import sorting
+known-first-party = ["src", "scripts", "tests"]
+force-sort-within-sections = true
+case-sensitive = true
+lines-after-imports = 2
+
+[lint.flake8-bugbear]
+# Extend bugbear rules
+extend-immutable-calls = ["fastapi.Depends", "fastapi.params.Depends"]
 
 [format]
-# Quote style for strings (black compatible)
-quote-style = "double"
+# Use spaces for indentation
 indent-style = "space"
-skip-magic-trailing-comma = false
+quote-style = "double"
 line-ending = "auto"
+
+[lint.pydocstyle]
+convention = "google"

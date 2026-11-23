@@ -1,0 +1,11 @@
+# Existing dependencies
+pandas
+numpy
+scikit-learn
+matplotlib
+pyyaml
+requests
+scikit-learn-extra
+
+# Added for T005a (Citation Fetcher)
+# requests is already listed above, but ensuring it's present for the fetcher

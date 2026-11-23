@@ -1,43 +1,26 @@
-"""
-Writer module for storing validated character axis definitions.
-
-Implements T013: Create data/derived/axes.jsonl writer to store validated axis definitions.
-This module consumes validated axis data from the axis_generator and writes it to the
-derived data store in JSONL format.
-"""
-import json
 import hashlib
-import os
+import json
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Any, Dict, List, Optional
 
-from src.lib.state_tracker import log_experiment_state, update_run_status
+from src.lib.config import get_config
 from src.lib.utils import get_logger
 
 logger = get_logger(__name__)
 
-DERIVED_DATA_DIR = Path("data/derived")
-AXES_OUTPUT_FILE = DERIVED_DATA_DIR / "axes.jsonl"
-AXES_CHECKSUM_FILE = DERIVED_DATA_DIR / "axes.sha256"
 
-
-def ensure_derived_directory():
-    """Ensure the derived data directory exists."""
-    DERIVED_DATA_DIR.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured derived data directory exists: {DERIVED_DATA_DIR}")
+def ensure_derived_directory() -> Path:
+    """Ensure the data/derived directory exists."""
+    config = get_config()
+    derived_path = Path(config["data"]["derived"])
+    derived_path.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Ensured derived directory exists at {derived_path}")
+    return derived_path
 
 
 def compute_file_checksum(file_path: Path) -> str:
-    """
-    Compute SHA-256 checksum of a file.
-    
-    Args:
-        file_path: Path to the file to checksum.
-        
-    Returns:
-        Hexadecimal SHA-256 hash string.
-    """
+    """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
@@ -45,275 +28,180 @@ def compute_file_checksum(file_path: Path) -> str:
     return sha256_hash.hexdigest()
 
 
-def write_axes_to_jsonl(
-    axes: List[Dict[str, Any]],
-    output_path: Optional[Path] = None,
-    run_id: Optional[str] = None
-) -> Path:
+def write_axes_to_jsonl(axes: List[Dict[str, Any]], output_path: Optional[Path] = None) -> Path:
     """
-    Write validated axis definitions to a JSONL file.
-    
-    Each line in the output file is a complete JSON object representing a validated
-    axis entry (containing character, coarse, fine, validation metadata, etc.).
-    
+    Write a list of axis definitions to a JSONL file.
+
     Args:
-        axes: List of validated axis dictionaries to write.
-        output_path: Optional custom output path. Defaults to data/derived/axes.jsonl.
-        run_id: Optional run ID for state tracking.
-        
+        axes: List of dictionaries containing axis definitions.
+            Each dict should have structure matching the spec (Coarse/Fine objects).
+        output_path: Optional path to write the file. If None, uses default path.
+
     Returns:
         Path to the written file.
-        
-    Raises:
-        ValueError: If axes list is empty or contains invalid entries.
-        IOError: If file cannot be written.
     """
-    if not axes:
-        raise ValueError("Cannot write empty axes list to JSONL file.")
-    
-    output_path = output_path or AXES_OUTPUT_FILE
-    ensure_derived_directory()
-    
-    logger.info(f"Writing {len(axes)} axis definitions to {output_path}")
-    
+    if output_path is None:
+        derived_dir = ensure_derived_directory()
+        output_path = derived_dir / "axes.jsonl"
+    else:
+        # Ensure parent directory exists
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger.info(f"Writing {len(axes)} axes to {output_path}")
+
     with open(output_path, "w", encoding="utf-8") as f:
-        for idx, axis_entry in enumerate(axes):
-            if not isinstance(axis_entry, dict):
-                raise ValueError(f"Axis entry at index {idx} is not a dictionary: {type(axis_entry)}")
-            
-            # Ensure required metadata is present
-            if "timestamp" not in axis_entry:
-                axis_entry["timestamp"] = datetime.utcnow().isoformat() + "Z"
-            
-            if "version" not in axis_entry:
-                axis_entry["version"] = "1.0"
-            
-            # Serialize to JSON line
-            json_line = json.dumps(axis_entry, ensure_ascii=False, sort_keys=True)
-            f.write(json_line + "\n")
-    
-    logger.info(f"Successfully wrote {len(axes)} entries to {output_path}")
-    
-    # Compute and store checksum
+        for axis in axes:
+            # Validate structure before writing
+            if not isinstance(axis, dict):
+                raise ValueError(f"Invalid axis format: expected dict, got {type(axis)}")
+
+            # Ensure required fields exist if it's a Coarse or Fine definition
+            if "character" not in axis or "axis_name" not in axis or "description" not in axis:
+                logger.warning(f"Axis missing required fields: {axis.keys()}")
+
+            # Add metadata for tracking
+            axis_record = {"timestamp": datetime.now().isoformat(), "data": axis}
+            f.write(json.dumps(axis_record) + "\n")
+
+    logger.info(f"Successfully wrote axes to {output_path}")
+
+    # Compute and log checksum
     checksum = compute_file_checksum(output_path)
-    checksum_path = output_path.parent / f"{output_path.stem}.sha256"
-    with open(checksum_path, "w", encoding="utf-8") as f:
-        f.write(f"{checksum}  {output_path.name}\n")
-    logger.info(f"Computed and stored SHA-256 checksum: {checksum}")
-    
-    # Update state tracker if run_id provided
-    if run_id:
-        update_run_status(run_id, "axes_written", {
-            "file_path": str(output_path),
-            "entry_count": len(axes),
-            "checksum": checksum
-        })
-    
+    logger.info(f"Checksum for {output_path}: {checksum}")
+
     return output_path
 
 
-def read_axes_from_jsonl(input_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+def read_axes_from_jsonl(file_path: Path) -> List[Dict[str, Any]]:
     """
-    Read axis definitions from a JSONL file.
-    
+    Read axes from a JSONL file.
+
     Args:
-        input_path: Optional custom input path. Defaults to data/derived/axes.jsonl.
-        
+        file_path: Path to the JSONL file.
+
     Returns:
         List of axis dictionaries.
-        
-    Raises:
-        FileNotFoundError: If input file does not exist.
-        json.JSONDecodeError: If a line is not valid JSON.
     """
-    input_path = input_path or AXES_OUTPUT_FILE
-    
-    if not input_path.exists():
-        raise FileNotFoundError(f"Axes file not found: {input_path}")
-    
+    if not file_path.exists():
+        raise FileNotFoundError(f"Axes file not found: {file_path}")
+
     axes = []
-    with open(input_path, "r", encoding="utf-8") as f:
+    with open(file_path, "r", encoding="utf-8") as f:
         for line_num, line in enumerate(f, 1):
             line = line.strip()
             if not line:
                 continue
             try:
-                entry = json.loads(line)
-                axes.append(entry)
+                record = json.loads(line)
+                # Extract the actual axis data from the record
+                if "data" in record:
+                    axes.append(record["data"])
+                else:
+                    # Fallback: treat whole line as axis if no "data" key
+                    axes.append(record)
             except json.JSONDecodeError as e:
                 logger.error(f"Invalid JSON on line {line_num}: {e}")
                 raise
-    
-    logger.info(f"Read {len(axes)} axis entries from {input_path}")
+
+    logger.info(f"Read {len(axes)} axes from {file_path}")
     return axes
 
 
-def verify_axes_checksum(input_path: Optional[Path] = None) -> bool:
+def verify_axes_checksum(file_path: Path, expected_checksum: str) -> bool:
     """
-    Verify the integrity of the axes file using its stored checksum.
-    
+    Verify the checksum of an axes file.
+
     Args:
-        input_path: Optional custom input path. Defaults to data/derived/axes.jsonl.
-        
+        file_path: Path to the file to verify.
+        expected_checksum: Expected SHA-256 checksum.
+
     Returns:
         True if checksum matches, False otherwise.
-        
-    Raises:
-        FileNotFoundError: If file or checksum file does not exist.
     """
-    input_path = input_path or AXES_OUTPUT_FILE
-    checksum_path = input_path.parent / f"{input_path.stem}.sha256"
-    
-    if not input_path.exists():
-        raise FileNotFoundError(f"Axes file not found: {input_path}")
-    if not checksum_path.exists():
-        raise FileNotFoundError(f"Checksum file not found: {checksum_path}")
-    
-    # Read stored checksum
-    with open(checksum_path, "r", encoding="utf-8") as f:
-        stored_checksum_line = f.read().strip()
-    
-    # Parse stored checksum (format: "<hash>  <filename>")
-    stored_checksum = stored_checksum_line.split()[0]
-    
-    # Compute current checksum
-    current_checksum = compute_file_checksum(input_path)
-    
-    match = stored_checksum == current_checksum
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    actual_checksum = compute_file_checksum(file_path)
+    match = actual_checksum == expected_checksum
+
     if match:
-        logger.info(f"Checksum verification passed: {current_checksum}")
+        logger.info(f"Checksum verified for {file_path}")
     else:
-        logger.error(f"Checksum mismatch! Stored: {stored_checksum}, Current: {current_checksum}")
-    
+        logger.error(
+            f"Checksum mismatch for {file_path}. Expected: {expected_checksum}, Got: {actual_checksum}"
+        )
+
     return match
 
 
-def get_axes_summary(axes: List[Dict[str, Any]]) -> Dict[str, Any]:
+def get_axes_summary(file_path: Path) -> Dict[str, Any]:
     """
-    Generate a summary statistics dictionary for a list of axes.
-    
+    Generate a summary of axes in a file.
+
     Args:
-        axes: List of axis dictionaries.
-        
+        file_path: Path to the JSONL file.
+
     Returns:
-        Dictionary containing summary statistics.
+        Dictionary with summary statistics.
     """
-    if not axes:
-        return {"count": 0}
-    
+    axes = read_axes_from_jsonl(file_path)
+
+    coarse_count = 0
+    fine_count = 0
     characters = set()
-    coarse_types = set()
-    fine_types = set()
-    valid_count = 0
-    invalid_count = 0
-    
-    for entry in axes:
-        if "character" in entry:
-            characters.add(entry["character"])
-        if "coarse" in entry and isinstance(entry["coarse"], dict):
-            coarse_types.add(entry["coarse"].get("type", "unknown"))
-        if "fine" in entry and isinstance(entry["fine"], dict):
-            fine_types.add(entry["fine"].get("type", "unknown"))
-        
-        # Check validation status
-        validation = entry.get("validation", {})
-        if validation.get("passed", False):
-            valid_count += 1
-        else:
-            invalid_count += 1
-    
+
+    for axis in axes:
+        if "type" in axis:
+            if axis["type"] == "coarse":
+                coarse_count += 1
+            elif axis["type"] == "fine":
+                fine_count += 1
+
+        if "character" in axis:
+            characters.add(axis["character"])
+
     return {
-        "total_count": len(axes),
-        "unique_characters": len(characters),
-        "character_list": sorted(list(characters)),
-        "coarse_types": sorted(list(coarse_types)),
-        "fine_types": sorted(list(fine_types)),
-        "valid_count": valid_count,
-        "invalid_count": invalid_count
+        "total_axes": len(axes),
+        "coarse_count": coarse_count,
+        "fine_count": fine_count,
+        "unique_characters": list(characters),
+        "file_path": str(file_path),
+        "checksum": compute_file_checksum(file_path),
     }
 
 
 def main():
     """
-    CLI entry point for testing the axes writer.
-    
-    This function demonstrates writing sample validated axes to the JSONL file
-    and verifying the checksum.
+    CLI entry point for writing axes to JSONL.
+    This function is designed to be called by T011 (axis_generator) after validation.
     """
-    import sys
-    
-    # Sample validated axes data (in production, this comes from axis_generator)
+    config = get_config()
+    logger.info("Starting axes writer service")
+
+    # Example usage: This would typically be called with data from axis_generator
+    # For demonstration, we create a minimal valid structure
     sample_axes = [
         {
-            "character": "Hamlet",
-            "coarse": {
-                "type": "Tragic Hero",
-                "description": "A prince of Denmark who seeks revenge but is plagued by indecision and existential doubt.",
-                "dimensions": ["Indecision", "Melancholy", "Intellect"]
-            },
-            "fine": {
-                "type": "Moral Ambiguity",
-                "description": "Struggles between action and inaction, driven by conflicting moral imperatives.",
-                "source_segment": "Act 3, Scene 1 - To be or not to be soliloquy",
-                "dimensions": ["Hesitation", "Self-Loathing", "Philosophical Detachment"]
-            },
-            "validation": {
-                "lexical_overlap": 0.12,
-                "semantic_similarity": 0.65,
-                "passed": True
-            },
-            "metadata": {
-                "created_by": "researcher_01",
-                "notes": "Initial axis definition for Act 1 analysis"
-            }
+            "character": "Scrooge",
+            "type": "coarse",
+            "axis_name": "Greed vs Generosity",
+            "description": "The spectrum from selfish accumulation to selfless giving",
         },
         {
-            "character": "Lady Macbeth",
-            "coarse": {
-                "type": "Ambitious Antagonist",
-                "description": "A woman driven by unchecked ambition who manipulates her husband to seize power.",
-                "dimensions": ["Ambition", "Manipulation", "Guilt"]
-            },
-            "fine": {
-                "type": "Psychological Disintegration",
-                "description": "Progressive mental collapse following the murder of Duncan, manifesting as sleepwalking and hallucinations.",
-                "source_segment": "Act 5, Scene 1 - Sleepwalking scene",
-                "dimensions": ["Paranoia", "Obsessive Guilt", "Loss of Control"]
-            },
-            "validation": {
-                "lexical_overlap": 0.08,
-                "semantic_similarity": 0.58,
-                "passed": True
-            },
-            "metadata": {
-                "created_by": "researcher_01",
-                "notes": "Axis definition for psychological arc analysis"
-            }
-        }
+            "character": "Scrooge",
+            "type": "fine",
+            "axis_name": "Isolation vs Connection",
+            "description": "The tendency to withdraw from social bonds versus seek them",
+            "source_observation": "Observed in his rejection of Fred's invitation",
+        },
     ]
-    
-    try:
-        output_path = write_axes_to_jsonl(sample_axes, run_id="T013_demo")
-        print(f"Successfully wrote axes to: {output_path}")
-        
-        # Verify checksum
-        if verify_axes_checksum(output_path):
-            print("Checksum verification: PASSED")
-        else:
-            print("Checksum verification: FAILED")
-            sys.exit(1)
-        
-        # Print summary
-        summary = get_axes_summary(sample_axes)
-        print(f"\nAxes Summary:")
-        print(f"  Total entries: {summary['total_count']}")
-        print(f"  Unique characters: {summary['unique_characters']}")
-        print(f"  Characters: {', '.join(summary['character_list'])}")
-        print(f"  Valid: {summary['valid_count']}, Invalid: {summary['invalid_count']}")
-        
-    except Exception as e:
-        logger.error(f"Error writing axes: {e}")
-        sys.exit(1)
+
+    output_path = write_axes_to_jsonl(sample_axes)
+
+    summary = get_axes_summary(output_path)
+    logger.info(f"Axes summary: {json.dumps(summary, indent=2)}")
+
+    return output_path
 
 
 if __name__ == "__main__":

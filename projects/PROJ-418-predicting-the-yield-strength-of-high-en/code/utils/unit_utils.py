@@ -1,97 +1,105 @@
 """
-Unit normalization utilities for HEA yield strength data.
+code/utils/unit_utils.py
+------------------------
 
-Provides conversion functions to standardize yield strength values to MPa.
+Conversion utilities for yield‑strength units.  The module defines
+the public symbols required by the unit‑tests:
+
+  - SUPPORTED_UNITS: list of recognised unit strings (case‑insensitive)
+  - convert_yield_strength(value, source_unit, target_unit)
+  - normalize_to_mpa(value, source_unit)
+
+All conversions are performed via a simple factor‑to‑MPa mapping.
 """
-
-from typing import Union
-
 import numpy as np
+from typing import Union, List
 
-# Supported source units
-SUPPORTED_UNITS = {"MPa", "GPa", "Pa", "psi", "ksi"}
+# ----------------------------------------------------------------------
+# Public constants
+# ----------------------------------------------------------------------
+SUPPORTED_UNITS: List[str] = ["MPa", "GPa", "Pa", "psi", "ksi"]
 
-def convert_yield_strength(
-    value: Union[float, np.ndarray],
-    source_unit: str,
-    target_unit: str = "MPa",
-) -> Union[float, np.ndarray]:
+# Mapping from unit (lower‑cased) to a factor that converts the value
+# to MPa.
+_TO_MPA = {
+    "mpa": 1.0,
+    "gpa": 1000.0,
+    "pa": 1e-6,
+    "psi": 0.00689476,
+    "ksi": 6.89476,
+}
+
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _normalise_unit(unit: str) -> str:
     """
-    Convert yield strength values to a target unit (default: MPa).
-
-    Parameters
-    ----------
-    value : float or np.ndarray
-        The yield strength value(s) to convert.
-    source_unit : str
-        The unit of the input value. Must be one of SUPPORTED_UNITS.
-    target_unit : str
-        The desired output unit. Defaults to 'MPa'.
-
-    Returns
-    -------
-    float or np.ndarray
-        The converted value(s).
+    Normalise a unit string to lower‑case and validate it.
 
     Raises
     ------
     ValueError
-        If source_unit or target_unit is not supported.
+        If the unit is not in :data:`SUPPORTED_UNITS`.
     """
-    source_unit = source_unit.upper()
-    target_unit = target_unit.upper()
+    unit_lc = unit.strip().lower()
+    if unit_lc not in _TO_MPA:
+        raise ValueError(f"Unsupported unit: {unit!r}")
+    return unit_lc
 
-    if source_unit not in SUPPORTED_UNITS:
-        raise ValueError(
-            f"Unsupported source unit: {source_unit}. "
-            f"Supported units: {SUPPORTED_UNITS}"
-        )
-    if target_unit not in SUPPORTED_UNITS:
-        raise ValueError(
-            f"Unsupported target unit: {target_unit}. "
-            f"Supported units: {SUPPORTED_UNITS}"
-        )
-
-    # Conversion factors to MPa
-    to_mpa = {
-        "MPa": 1.0,
-        "GPa": 1000.0,
-        "Pa": 1e-6,
-        "psi": 0.00689476,
-        "ksi": 6.89476,
-    }
-
-    # Convert source to MPa, then MPa to target
-    value_in_mpa = np.asarray(value, dtype=float) * to_mpa[source_unit]
-
-    if target_unit == "MPa":
-        return value_in_mpa.item() if np.isscalar(value) else value_in_mpa
-
-    # Convert from MPa to target
-    from_mpa = {v: 1.0 / k for k, v in to_mpa.items()}
-    result = value_in_mpa * from_mpa[target_unit]
-
-    return result.item() if np.isscalar(value) else result
-
-def normalize_to_mpa(
-    value: Union[float, np.ndarray],
+def convert_yield_strength(
+    value: Union[float, int, np.ndarray],
     source_unit: str,
-) -> Union[float, np.ndarray]:
+    target_unit: str,
+) -> Union[float, int, np.ndarray]:
     """
-    Normalize a yield strength value to MPa.
+    Convert ``value`` from ``source_unit`` to ``target_unit``.
 
-    Convenience wrapper around convert_yield_strength with target_unit='MPa'.
+    The conversion is performed via MPa as an intermediate step:
+    ``value * factor(source) / factor(target)``.
 
     Parameters
     ----------
-    value : float or np.ndarray
-        The yield strength value(s) to convert.
-    source_unit : str
-        The unit of the input value.
+    value :
+        Numeric scalar or NumPy array.
+    source_unit, target_unit :
+        Unit strings; case‑insensitive.  Must be one of
+        ``SUPPORTED_UNITS``.
 
     Returns
     -------
-    float or np.ndarray
-        The value in MPa.
+    Same type as ``value`` (scalar or ``np.ndarray``) containing the
+    converted numbers.
+
+    Raises
+    ------
+    ValueError
+        If either unit is unsupported.
     """
-    return convert_yield_strength(value, source_unit, target_unit="MPa")
+    src = _normalise_unit(source_unit)
+    tgt = _normalise_unit(target_unit)
+
+    factor_src = _TO_MPA[src]
+    factor_tgt = _TO_MPA[tgt]
+
+    # Preserve the input type.
+    if isinstance(value, np.ndarray):
+        return (value * factor_src) / factor_tgt
+    else:
+        return (float(value) * factor_src) / factor_tgt
+
+def normalize_to_mpa(value: Union[float, int, np.ndarray], source_unit: str) -> Union[float, int, np.ndarray]:
+    """
+    Convenience wrapper that converts ``value`` to MPa.
+
+    Parameters
+    ----------
+    value :
+        Numeric scalar or NumPy array.
+    source_unit :
+        Unit string (case‑insensitive) from :data:`SUPPORTED_UNITS`.
+
+    Returns
+    -------
+    Converted value in MPa.
+    """
+    return convert_yield_strength(value, source_unit, "MPa")

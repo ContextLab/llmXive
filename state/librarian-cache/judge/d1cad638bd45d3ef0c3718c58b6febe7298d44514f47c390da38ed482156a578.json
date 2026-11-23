@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1402.0859",
+  "judged_at": "2026-09-06T18:56:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"video generation models are general-purpose vision learners\" computer science",
+  "rationale": "The paper focuses on \"Inverse Graphics\" and Bayesian inference for rendering engines using discriminative proposals, which is a distinct methodological problem from the user's question about extending video generation models as general-purpose vision learners. It does not measure the same mechanism (general-purpose representation learning from video), study the same empirical population (video generation models), or provide a foundational reference for the specific claim that video models are ge",
+  "relevant": false
+}

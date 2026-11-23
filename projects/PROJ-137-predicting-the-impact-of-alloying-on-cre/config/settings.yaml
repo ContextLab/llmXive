@@ -1,12 +1,37 @@
-random_seed: 42
+# Project Configuration
+project:
+  name: "predicting-impact-alloying-creep"
+  version: "1.0.0"
+
 paths:
-  data: "data/processed"
+  data_root: "data"
+  external_data: "data/external"
+  processed_data: "data/processed"
   models: "data/models"
-  outputs: "data/outputs"
   reports: "docs/reports"
-api_keys:
-  materials_project: "YOUR_MP_API_KEY_HERE"
-  nims: "YOUR_NIMS_API_KEY_HERE"
-cv_splits: 5
-cv_repeats: 3
-target: "log_rupture_time"
+  logs: "logs"
+
+data_sources:
+  nims:
+    enabled: true
+    url: "https://raw.githubusercontent.com/nims-materials/creep-dataset/main/data/creep_rupture.csv"
+    timeout: 30
+    retries: 5
+  materials_project:
+    api_key: "${MP_API_KEY}" # Set via environment variable
+    enabled: true
+
+random_seeds:
+  global: 42
+  train_test_split: 42
+  shap: 42
+
+model:
+  n_estimators: 100
+  max_depth: 5
+  learning_rate: 0.1
+
+validation:
+  schema_path: "contracts/dataset.schema.yaml"
+  physics_check: true
+  min_r2: 0.8

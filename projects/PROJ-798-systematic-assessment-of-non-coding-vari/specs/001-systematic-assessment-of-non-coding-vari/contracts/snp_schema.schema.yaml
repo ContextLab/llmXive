@@ -1,61 +1,33 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "SNP Filtered Schema"
-description: "Schema for filtered SNPs located within regulatory regions. Includes LD block and stratum IDs for stratified permutation testing."
-type: "object"
-properties:
-  snp_id:
-    type: "string"
-    description: "dbSNP rsID identifier."
-  chromosome:
-    type: "string"
-    pattern: "^[0-9XYMT]+$"
-    description: "Chromosome name (e.g., chr1)."
-  position:
-    type: "integer"
-    minimum: 1
-    description: "1-based genomic position."
-  ref_allele:
-    type: "string"
-    pattern: "^[ACGT]$"
-    description: "Reference allele."
-  alt_allele:
-    type: "string"
-    pattern: "^[ACGT]$"
-    description: "Alternate allele."
-  maf:
-    type: "number"
-    minimum: 0.01
-    maximum: 0.5
-    description: "Minor Allele Frequency."
-  quality_score:
-    type: "number"
-    minimum: 0
-    description: "Phred-scaled quality score."
-  regulatory_type:
-    type: "string"
-    enum:
-      - "promoter"
-      - "enhancer"
-    description: "Type of regulatory region."
-  overlap_region_id:
-    type: "string"
-    description: "ID of the overlapping regulatory region."
-  ld_block_id:
-    type: "string"
-    description: "Identifier for the Linkage Disequilibrium (LD) block this SNP belongs to. Used for stratified permutation to preserve local correlation structure."
-  stratum_id:
-    type: "string"
-    description: "Composite ID for GC-content and TSS-distance bin. Used for stratified permutation to control for genomic confounders."
+$schema: http://json-schema.org/draft-07/schema#
+title: FilteredSNP
+description: Schema for filtered SNPs in regulatory regions
+type: object
 required:
   - snp_id
-  - chromosome
-  - position
-  - ref_allele
-  - alt_allele
+  - chrom
+  - pos
+  - ref
+  - alt
   - maf
-  - quality_score
-  - regulatory_type
-  - overlap_region_id
-  - ld_block_id
-  - stratum_id
+properties:
+  snp_id:
+    type: string
+    description: dbSNP identifier (e.g., rs12345)
+  chrom:
+    type: string
+    description: Chromosome name (e.g., 1, X, MT)
+  pos:
+    type: integer
+    description: 1-based genomic position
+  ref:
+    type: string
+    description: Reference allele (single nucleotide: A, C, G, or T)
+  alt:
+    type: string
+    description: Alternate allele (single nucleotide: A, C, G, or T)
+  maf:
+    type: number
+    description: Minor allele frequency (0.0 to 1.0)
+    minimum: 0.0
+    maximum: 1.0
 additionalProperties: false

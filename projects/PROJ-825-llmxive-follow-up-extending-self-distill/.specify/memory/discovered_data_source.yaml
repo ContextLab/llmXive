@@ -1,0 +1,15 @@
+status: none
+intent: ALFWorld and WebShop environments dataset python package dataset
+required_fields:
+- episode_id
+- step_index
+- observation_text
+- action
+- reward
+- next_observation
+- student_token_entropy
+- retrieved_context_similarity
+- gating_score
+cache_key: b64bb964e4c3d73f0321dca8f6bce93acd9362a7f68b195ddb0c5d0b51cfe873
+searched_at: '2026-10-18T14:37:38.049535+00:00'
+retry_count: 1

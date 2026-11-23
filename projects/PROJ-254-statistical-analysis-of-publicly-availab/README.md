@@ -1,128 +1,135 @@
 # Statistical Analysis of Publicly Available Music Streaming Data for Genre Evolution
 
-This project implements an automated pipeline to analyze the evolution of music genres over time using the Million Playlist Dataset (MPD). It ingests playlist data, enriches it with metadata from MusicBrainz, trains Word2Vec embeddings to derive genre vectors, and performs statistical analysis on temporal similarity trends.
+This project implements a reproducible pipeline to analyze the evolution of music genres over time using the Million Playlist Dataset (MPD). It ingests playlist data, matches tracks to MusicBrainz metadata, trains a global Word2Vec model to derive yearly genre embeddings, computes temporal similarity trends, and performs statistical regression analysis.
 
 ## Installation
 
-### Prerequisites
-- Python 3.11 or higher
-- pip (Python package installer)
-- At least 8GB RAM (recommended 16GB for full dataset processing)
+Ensure you have Python 3.11+ installed. Clone the repository and install dependencies:
 
-### Setup
-1. Clone the repository:
- ```bash
- git clone <repository-url>
- cd PROJ-254-statistical-analysis-of-publicly-availab
- ```
+```bash
+pip install -r requirements.txt
+```
 
-2. Create a virtual environment and activate it:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
-4. (Optional) Install development tools for linting and formatting:
- ```bash
- pip install ruff black
- ```
+**Dependencies**:
+- `pandas`, `numpy`, `scikit-learn`, `statsmodels` (data processing & modeling)
+- `gensim` (Word2Vec training)
+- `matplotlib`, `plotly` (visualization)
+- `requests`, `pyarrow` (data fetching & storage)
+- `pydantic` (data validation)
+- `psutil` (memory monitoring)
+- `ruff`, `black` (linting & formatting)
 
 ## Usage
 
-The pipeline is executed in stages corresponding to the user stories. Ensure you have sufficient disk space and memory before running.
+The pipeline is designed to run sequentially through three main user stories. You can run the full pipeline or specific stages.
 
-### 1. Data Ingestion and Preprocessing (User Story 1)
-Downloads MPD data, fetches MusicBrainz metadata, and trains the global Word2Vec model.
+### Full Pipeline Execution
+
 ```bash
-python code/ingest.py
-python code/embeddings.py
+python -m src.code.run_quickstart_validation
 ```
-*Outputs*: `data/derived/metadata_mpd.parquet`, `yearly_embeddings/*.npy`
 
-### 2. Similarity Computation and Visualization (User Story 2)
-Computes pairwise cosine similarities between yearly genre vectors and generates plots.
-```bash
-python code/similarity.py
-python code/similarity_save.py
-python code/viz.py
-```
-*Outputs*: `data/derived/yearly_similarity.csv`, `figures/similarity_trend.png`, `figures/genre_similarity_heatmap.html`
+This script orchestrates the entire workflow:
+1. **Ingestion**: Downloads MPD parquet files, fetches MusicBrainz metadata, and joins data.
+2. **Embeddings**: Trains a global Word2Vec model and aggregates yearly genre embeddings.
+3. **Similarity**: Computes pairwise cosine similarities between yearly genre vectors.
+4. **Regression**: Fits a linear regression model to test trend significance and performs robustness checks.
 
-### 3. Statistical Regression and Robustness Checks (User Story 3)
-Fits a linear regression to test trend significance and calculates Cook's Distance for outliers.
-```bash
-python code/regression.py
-```
-*Outputs*: `data/derived/regression_results.json`, `data/derived/cooks_distance_report.csv`
+### Running Individual Stages
 
-### Full Pipeline
-To run the entire pipeline sequentially:
+If you wish to run specific stages (e.g., for debugging or incremental development):
+
 ```bash
-python code/ingest.py && python code/embeddings.py && python code/similarity.py && python code/similarity_save.py && python code/viz.py && python code/regression.py
+# Stage 1: Ingest and preprocess data
+python -c "from ingest import main; main()"
+
+# Stage 2: Train embeddings and aggregate yearly vectors
+python -c "from embeddings import main; main()"
+
+# Stage 3: Compute similarity and generate plots
+python -c "from similarity import main; main()"
+
+# Stage 4: Run regression analysis
+python -c "from regression import main; main()"
 ```
 
 ## Data Sources
 
-- **Million Playlist Dataset (MPD)**: The primary source of streaming data.
- - URL:
- - Format: Parquet files containing playlist tracks and metadata.
- - Note: This project uses the MPD directly; Last.fm data is waived per project plan.
+This project relies on **real, publicly available data**. No synthetic or fake data is used.
 
-- **MusicBrainz API**: Used to enrich track metadata (year, genre tags).
- - URL: https://musicbrainz.org/doc/XML_Web_Service
- - Rate limits are handled via exponential back-off in `code/ingest.py`.
+- **Million Playlist Dataset (MPD)**:
+ - Source: `https://mlp-datasets.s3.amazonaws.com/mpd_subset_100k.parquet`
+ - Description: A subset of the Spotify Million Playlist Dataset containing 100,000 playlists. [UNRESOLVED-CLAIM: c_b5386082 — status=not_enough_info]
+ - Usage: Used to extract track IDs, release years, and playlist sequences for Word2Vec training.
+ - Note: The Last.fm dataset mentioned in earlier design docs is **WAIVED** per the project plan; only MPD data is used.
+
+- **MusicBrainz API**:
+ - Source: `
+ - Usage: Fetched at runtime to retrieve genre metadata for tracks matched by ISRC or title.
+ - Fallback: Fuzzy matching is implemented if exact matches fail.
+
+**Data Storage**:
+- Raw data is stored in `data/raw/`.
+- Processed/derived data (e.g., metadata joins, embeddings, similarity matrices) is stored in `data/derived/`.
 
 ## Results Interpretation
 
-- **Yearly Genre Embeddings (`yearly_embeddings/*.npy`)**:
- - Numpy arrays representing the centroid vector of each genre for a specific year.
- - Dimensions: `[num_genres, 100]` (100-dimensional Word2Vec space).
- - Low-coverage years (fewer than 1,000 unique tracks) are flagged in logs but included with zero-filled genres where applicable.
+The pipeline generates several key artifacts that can be found in the `data/derived/` and `figures/` directories.
 
-- **Similarity Metrics (`data/derived/yearly_similarity.csv`)**:
- - `mean_off_diagonal_similarity`: Average cosine similarity between distinct genre vectors.
- - Higher values indicate genre convergence (less distinction between genres).
- - Lower values indicate genre divergence (more distinct genres).
- - `intra_genre_variance`: Variance within genre clusters over time.
+### 1. Yearly Genre Embeddings (`data/derived/yearly_embeddings/`)
+- **Format**: NumPy `.npy` files (one per year).
+- **Content**: Vector representations of genres for each year, derived by averaging track vectors (from Word2Vec) grouped by genre and year.
+- **Interpretation**: These vectors capture the semantic "position" of a genre in a high-dimensional space for a given year. Changes in these vectors over time indicate genre evolution.
+- **Low Coverage**: Years with fewer than 1,000 unique tracks are flagged in `data/derived/low_coverage_years.json` and excluded from regression analysis [UNRESOLVED-CLAIM: c_299f810e — status=not_enough_info] to ensure statistical robustness.
 
-- **Regression Results (`data/derived/regression_results.json`)**:
- - `slope`: Rate of change in genre similarity over time.
- - Positive slope: Genres are becoming more similar (homogenization).
- - Negative slope: Genres are becoming more distinct (fragmentation).
- - `p_value`: Statistical significance of the trend.
- - `ci_lower`, `ci_upper`: 95% Confidence Interval for the slope.
+### 2. Similarity Trends (`data/derived/yearly_similarity.csv`, `figures/similarity_trend.png`)
+- **Content**: A time series of mean off-diagonal similarity between genre vectors.
+- **Interpretation**:
+ - **Increasing Similarity**: Suggests genres are becoming more homogeneous or converging (e.g., pop influencing rock, rock influencing hip-hop).
+ - **Decreasing Similarity**: Suggests genres are diverging or fragmenting into more distinct sub-genres.
+ - **95% CI Bands**: Visualized in `similarity_trend.png` to indicate statistical confidence in the trend.
 
-- **Outlier Analysis (`data/derived/cooks_distance_report.csv`)**:
- - Identifies years that disproportionately influence the regression model.
- - High Cook's Distance values (> 1 or > 4/n) suggest potential anomalies or structural breaks in genre evolution.
+### 3. Regression Results (`data/derived/regression_results.json`, `data/derived/cooks_distance_report.csv`)
+- **Content**: Statistical test of the similarity trend (slope, p-value, confidence interval).
+- **Interpretation**:
+ - **Slope**: The rate of change in genre similarity per year.
+ - **P-value**: Indicates whether the observed trend is statistically significant (typically p < 0.05).
+ - **Cook's Distance**: Identifies outlier years that disproportionately influence the regression model. High values suggest those years may represent anomalous shifts in music culture.
+
+### 4. Sensitivity Report (`data/derived/sensitivity_report.csv`)
+- **Content**: Regression slopes and p-values computed under different filtering thresholds (years with small year-over-year similarity changes are excluded).
+- **Interpretation**: Demonstrates the robustness of the primary finding. If the trend remains significant across thresholds, the conclusion is more reliable.
 
 ## Project Structure
 
 ```
 .
-├── code/ # Source code modules
-│ ├── ingest.py # Data ingestion and enrichment
-│ ├── embeddings.py # Word2Vec training and aggregation
-│ ├── similarity.py # Cosine similarity calculation
-│ ├── viz.py # Visualization generation
-│ ├── regression.py # Statistical modeling
+├── code/
+│ ├── __init__.py
+│ ├── utils.py # Logging, deterministic seeding
 │ ├── models.py # Pydantic data schemas
-│ ├── utils.py # Logging and seeding utilities
-│ └──...
+│ ├── memory_utils.py # Memory monitoring & GC management
+│ ├── ingest.py # Data ingestion & matching
+│ ├── embeddings.py # Word2Vec training & aggregation
+│ ├── similarity.py # Cosine similarity calculation
+│ ├── viz.py # Plotting utilities
+│ ├── regression.py # Statistical modeling & robustness checks
+│ └── run_quickstart_validation.py # End-to-end orchestration
 ├── data/
-│ ├── raw/ # Downloaded raw data (MPD)
-│ └── derived/ # Processed data and intermediate results
-├── figures/ # Generated plots and visualizations
+│ ├── raw/ # Downloaded MPD parquet files
+│ └── derived/ # Processed data, embeddings, results
+├── figures/ # Generated plots (PNG, HTML)
 ├── tests/ # Unit and contract tests
-├── requirements.txt # Python dependencies
-└── README.md # This file
+├── requirements.txt
+└── README.md
 ```
+
+## Reproducibility
+
+- **Deterministic Seeding**: All random number generators (NumPy, Python `random`) are seeded at the start of execution to ensure reproducible results.
+- **Memory Management**: The pipeline monitors RAM usage and triggers garbage collection to stay within a 6GB limit [UNRESOLVED-CLAIM: c_d0376a88 — status=not_enough_info], preventing OOM errors on large datasets.
+- **Checksum Verification**: `data/raw/` files are verified against checksums to ensure data integrity.
 
 ## License
 
-This project is for research purposes. Please adhere to the usage policies of the Million Playlist Dataset and MusicBrainz.
+This project is for research purposes. Please refer to the original data sources (Spotify/MPD, MusicBrainz) for their respective usage licenses.

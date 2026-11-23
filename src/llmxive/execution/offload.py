@@ -263,7 +263,11 @@ if req.is_file():
     _sh([sys.executable, "-m", "pip", "install", "-q", "-r", str(req)])
 
 # 3. Run the quickstart run-book commands (code/ on PYTHONPATH, run from proj).
-env = {{**os.environ, "PYTHONPATH": str(code.resolve())}}
+# The project toolkit ships in the clone; the kernel image supplies the base packages.
+toolkit = CLONE / "src" / "llmxive" / "project_toolkit"
+env = {{**os.environ,
+       "PYTHONPATH": os.pathsep.join([str(code.resolve()), str(toolkit)]),
+       "LLMXIVE_PROJECT_ROOT": str(proj.resolve())}}
 failed = []
 for command in RUNBOOK:
     args = shlex.split(command)

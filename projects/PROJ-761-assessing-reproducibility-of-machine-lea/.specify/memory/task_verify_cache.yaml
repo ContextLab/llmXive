@@ -1,0 +1,75 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory tree (e.g., `data/raw`, `code`, `artifacts/logs`,\
+    \ etc.) is provided; the implementer did not supply any file\u2011system listing,\
+    \ script output, or screenshot confirming that the `mkdir -p \u2026` command was\
+    \ run. The task therefore lacks the mandatory artifact."
+T003:
+  c: false
+  h: 23bf389df195166bba9b909396c996c56169a061585ec266a8dbca9e700c6b6e
+  r: The required schema file `contracts/PaperManifest.schema.yaml` is absent, and
+    the provided `code/ingest.py` snippet does not show any actual validation against
+    a schema (the code is truncated and only warns if `jsonschema` is missing). Without
+    the schema and a working validator, the manifest cannot be validated as the task
+    demands.
+T003b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting/formatting configuration files or command\u2011line output are present,\
+    \ and there is no evidence that `ruff check .` and `black --check .` were executed\
+    \ with a zero exit code. The required artifacts to prove the task\u2019s success\
+    \ are missing."
+T018:
+  c: false
+  h: c131140011a504482334654d71cc7ef41de5d6e227fdf51a4ff44362d5d7755a
+  r: "The repository contains `code/main.py`, but the script does not include code\
+    \ that writes the aggregated list to `artifacts/reports/repro_results.json`, nor\
+    \ does it ensure the required fields (e.g., `max_metric_std`) are present. Moreover,\
+    \ the expected output file `reports/repro_results.json` is absent. The task\u2019\
+    s core deliverable\u2014producing the aggregated JSON report\u2014is therefore\
+    \ missing."
+T029:
+  c: false
+  h: 6a9b43d689649368ff7720c6addaae481ed31386720629d634248b3657ac5bb4
+  r: "The repository lacks the required `artifacts/reports/stat_summary.json` file,\
+    \ and the provided `code/stats.py` does not contain logic for computing heterogeneity\
+    \ (I\xB2) or a pooled effect size from mixed\u2011effects model results nor does\
+    \ it write those results to the specified JSON file. The script is truncated and\
+    \ focuses on paired t\u2011tests instead of the requested meta\u2011analysis output."
+T030b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/logs/failure_log.json` file was presented, and there is no evidence\
+    \ that such a JSON file exists or contains objects with the required keys (`paper_doi`,\
+    \ `failure_mode`, `details`). The implementer must create the file at the specified\
+    \ path and populate it with the correctly\u2011structured data."
+T034:
+  c: false
+  h: db2c9badb2669bbcdd9bc0e3d9eb6732359d038e160a2a2026f4935eecffbf9b
+  r: The required `artifacts/reports/stat_summary.json` file is absent, and the provided
+    `code/guidelines.py` contains only template definitions and no code that actually
+    reads or parses `stat_summary.json` (or a qualitative failure log). Consequently
+    the implementation does not fulfill the task of parsing those artifacts.
+T036:
+  c: false
+  h: c49bd04800651178518ce5147b3dec219c6178335371adff5d6937b92d9de0ca
+  r: "The repository contains `code/guidelines.py`, but it does not produce (or write)\
+    \ the required `artifacts/reports/reproducibility_checklist.md`, and that file\
+    \ is absent from the project. Consequently the checklist with \u22655 numbered\
+    \ items citing published guidelines and linking to failure modes is not present.\
+    \ The next implementer must add code that writes the markdown file (or provide\
+    \ the file) meeting the specified format."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or generated Markdown checklist was provided to demonstrate\
+    \ that logic ensuring checklist items are actionable has been added. The required\
+    \ artifact (e.g., updated guideline\u2011generation code or a sample actionable\
+    \ checklist) is missing, so the task is not verified as completed."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `docs/README.md` with installation instructions or `docs/quickstart.md`
+    with example usage were provided; the required documentation files are missing
+    from the evidence.

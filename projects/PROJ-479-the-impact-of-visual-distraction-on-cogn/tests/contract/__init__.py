@@ -1,3 +1,4 @@
 """
-Contract tests to verify data and analysis outputs match specifications.
+Contract tests package for llmXive research pipeline.
+These tests validate that generated artifacts conform to defined schemas.
 """

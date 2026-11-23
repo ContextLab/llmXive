@@ -3,49 +3,68 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-proj-251"
+name = "llmxive-gut-immune-correlation"
 version = "0.1.0"
 description = "Investigating the Correlation Between Gut Microbiome Composition and Immune Response to Influenza Vaccination"
 requires-python = ">=3.11"
 dependencies = [
-    "pandas",
-    "numpy",
-    "scipy",
-    "scikit-learn",
-    "pyyaml",
-    "requests",
-    "biom-format",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "scikit-learn>=1.2.0",
+    "pyyaml>=6.0",
+    "requests>=2.28.0",
+    "biom-format>=2.1.14",
+    "sra-tools",
     "qiime2",
     "dada2",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "jsonschema>=4.17.0",
+    "python-dotenv>=1.0.0",
+    "psutil>=5.9.0",
+    "statsmodels>=0.14.0",
+    "huggingface_hub>=0.14.0"
 ]
 
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-  | data
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.ruff]
-line-length = 88
+line-length = 100
 target-version = "py311"
-src = ["code", "tests"]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
 
-[tool.ruff.lint]
-select = ["E", "W", "F", "I", "C", "B"]
-ignore = ["E501"]
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
 
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"]
+[tool.setuptools.packages.find]
+where = ["code"]
+include = ["utils*"]

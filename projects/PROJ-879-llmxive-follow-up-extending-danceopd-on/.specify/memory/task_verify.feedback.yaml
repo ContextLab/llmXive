@@ -1,0 +1,100 @@
+T001a:
+  task: 5df9ca941b80253dad494e8b3e398ca34dba6c0dabb2c366808c77245dcad62d
+T001b:
+  reason: The listed scripts (`code/main.py`, `code/00_data_fetch.py`, `code/00_data_stream.py`,
+    `code/00_teacher_inference.py`, `code/01_train_trees.py`, `code/02_evaluate_fidelity.py`,
+    etc.) exist, but they contain full implementations rather than being empty starter
+    placeholders as the task required. Consequently the requirement to add *empty*
+    starter scripts is not satisfied.
+  task: cea8d2da80d8d943c73e6a630a7ad4ada1ac9466964025f7350c93dc86fe0d74
+T002:
+  reason: "Checked the `requirements.txt` file (122\u202Fbytes) which lists all required\
+    \ packages, but it only contains the generic `torch` entry and does not specify\
+    \ a CPU\u2011only build (e.g., `torch==X.Y.Z+cpu` or an explicit CPU\u2011only\
+    \ index). Without that specification the requirement is not satisfied. Adding\
+    \ a CPU\u2011only torch specification will complete the task."
+  task: ee5812bf8355710866e18d16994b05e2e9b6d23f2ab07035fe431ac82496ea4b
+T004:
+  task: 83462487f7a27fb9260cc472a37539101731c937826369e19bba84bc7b41c305
+T005:
+  reason: The file `code/utils/metrics.py` is present, but both `calculate_clip_score`
+    and `calculate_fid` contain full implementations instead of stubs that raise `NotImplementedError`
+    as the task required. The required placeholder behavior is missing.
+  task: 5b33004d60d21122ec88f5cb1132dc68c3997aacbe9a2c47498952777ddd78f8
+T005b:
+  reason: "The evidence contains only a high\u2011level project description and no\
+    \ code, tests, or documentation showing that the CLIP\u202FViT\u2011B/32 and `torch\u2011\
+    fidelity` stubs have been replaced with functioning CPU\u2011only implementations.\
+    \ Required implementation files (e.g., Python modules providing the CLIP model\
+    \ and fidelity metrics) and any execution or test logs are missing."
+  task: cca50cf862dfeff1e56c92c97740eaa2c211423ec0e9f19885ec6813415b962f
+T006:
+  reason: 'Requested task execution failed; rerun successfully: code/03_versioning.py
+    exit=1'
+  task: cf37267c0c9054e762a0e3260a974d8b9f85e198c5afb81483c0727b5c745be3
+T007:
+  task: aceef2e905ef7d3d33106a693b8d24909d04b8b03fe6110dd1c6636686f59f87
+T008:
+  task: 34cea7e4cb2468c30f5ef110b4e9d53f74781522fadae6cbe3de9fe49c4f6628
+T012b:
+  task: 0b7dd4e2fffde0611d84eeace50e1577091ff90c8480a9f93b5d104b92f5a07b
+T012c:
+  task: f1ee9956b7b4bebf715103a898569b35169671868f11e40338861021bdc71232
+T013a:
+  task: 6359a5f401f4446217533eadd25c657aa9e2b777c2c22cbf1a8c18a1ecd3e0c0
+T013c:
+  task: 7a31859e6efedb1786919830327943a63195bb66cc83129299fc3a503b28c10f
+T014:
+  task: b48af2e2865562f9ff9bd58eb37695cf162e303726d94c231f334b5d20a88d71
+T015:
+  task: 70800c9ac2f767f728861c07fd2f809096dc1fcf6ab624abe5ae5320df613b23
+T016:
+  task: e2e30bcbcf09ba79e9f12f3a4f4c9e6e4740d9d650a1d55488d436e81cca0226
+T020:
+  task: cd58e7641aa119fad43dbf70996e9bc425607c4f49f6011934624ef25b168ec2
+T021a:
+  task: 47967a21ccc58c5c0b87e1ba4ad7175143197db351a6b0dc2fafa72f374b7efd
+T021b:
+  task: 8b640c5187be8fc5b8b61c4da004a25d235e6fea63d28483f44a0854725c42fd
+T021c:
+  task: 7a0c1961402d514581408ad1366995feb1636d307091df7cc21d030d2d42439d
+T021d:
+  task: e8e1f885cf3c8e1e5b9bd3162ce209535063ee132d3dd8395a53e997ffe74755
+T028a:
+  task: 655a1c304aa78bf29f486d3bb67ccb03f91a48775ad1e30ec97251876e937b19
+T028b:
+  task: 0d1b23908d98812d00a083d11ba810ab9a93b35ddbad259ea4ce943ed88d5f9c
+T029a:
+  task: f43c7c94f6df7a25bc5b606c5dc491b3546c9a65934d82a30b885513ffd313cc
+T029b:
+  task: 518ec752b455828fea8a153a737dc1248e73bea90f87a08bb2a60cfa2bc88b62
+T029c:
+  task: b909f278e7b1624948ef2d4884dfadcc383ce772964efd0db7005cc5c68cdbb8
+T030a:
+  task: 811e3470539ea293f5f7369248cf6be0b731cbd0e8d590a1c21d16fcd40cdb74
+T030b:
+  task: 7ef845030f8335ec303866e738e6e3ed20da825706d0fbeaf8677e926306ed4e
+T030c:
+  task: 4175dd1ae649dd008505f9ed94f2164260e69011d9e8e1dd43ec4c0d28170f9f
+T030d:
+  task: 5083e72c0e0cd8355596dd7861bb7f0a1b20eff8940e776c97190acfec61d3fa
+T030e:
+  task: 9ff562b0b3e8a88bb656e9956e3f23157c9bfbc1388dd8942327d711c6892ea9
+T033a:
+  task: 0e9d3e245a06de79bb0db0955e7a3b0271fd7eacb5d8b73aadb9efe30fbd122c
+T033b:
+  task: b73896097cadc72a139c424504bf423b257c986bb06bad1d5df7f59cae23b386
+T037:
+  task: 275b80a434867ac89bb9e17387307af80fd5b339d7b0c45147f98e8ded54cf76
+T038:
+  task: 999d17ee14d5743ce60bbae25b4cf898aa58cb66846ddac8428a243d36a61249
+T039:
+  task: 996a1b36af0bd8d07cba54dca4caf012f76fdc85f1b992c3f61933ed9864830a
+T040:
+  task: 4720832c5f508db5a691a9f72046af07bd93edc25b954210f86c9fb18bf69ef1
+T041:
+  task: 5715329d702074ace9d73007edb96cff41a940de89d1fb685bde8b5c15608b57
+T042:
+  task: b0da25650c73b3385ea955b4efa5767e77ce8ec00ad9e065bb834df96a07dcfa
+T043:
+  task: 4807761a9fe5ed3ccfa8c10da603c29c1944b50a7fd83b27b74d12e11e78b2ee

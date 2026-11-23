@@ -1,0 +1,10 @@
+status: none
+intent: Prolific MTurk human AI agency experiment trust in automation scale dataset
+  python package dataset
+required_fields:
+- Condition ID
+- Adherence Rate
+- Trust Score
+cache_key: f5a83697d3c6ab44e33728c38076add949ed843ff2c2aeafcb3681ea4c6f5bad
+searched_at: '2026-10-09T22:19:43.256857+00:00'
+retry_count: 1

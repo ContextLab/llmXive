@@ -1,5 +1,10 @@
-schema_version: "1.0.0"
-created_at: "2024-01-15T10:30:00Z"
-updated_at: "2024-01-15T10:30:00Z"
-source_type: "SIMULATED"
-datasets: []
+source: SIMULATED
+generation_timestamp: '2023-10-27 12:00:00'
+note: Fallback to synthetic data due to inability to fetch real data
+snp_accessions: []
+metabolite_accessions: []
+sample_count: 150
+modality_types:
+  - snp
+  - metabolite
+last_updated: '2023-10-27 12:00:00'

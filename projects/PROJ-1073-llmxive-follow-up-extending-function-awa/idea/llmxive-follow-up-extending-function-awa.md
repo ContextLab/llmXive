@@ -5,27 +5,96 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Function-Aware Fill-in-the-Middle as Mid-Training for Coding Agent Fou"
 
-## Summary of the prior work
-The paper introduces Function-Aware Fill-in-the-Middle (FIM) as a mid-training objective for coding agent foundation models, leveraging the structural isomorphism between function call sites and the action-observation loops of agents. By masking functions based on program dependency graphs and complexity criteria in a decontaminated corpus, the authors demonstrate that this approach significantly boosts performance on agentic benchmarks (SWE-Bench) while mitigating capability erosion on non-agent tasks. The core finding is that injecting a function-call inductive bias via self-supervised mid-training generalizes across different base models and post-training pipelines, even when the corpus is limited to Python.
+**Field**: computer science
 
-## Proposed extension
-How does the "function-call inductive bias" acquired through Function-Aware FIM mid-training transfer to non-code domains with explicit state-transition dynamics, such as multi-turn database schema evolution or API-driven system configuration, when the model is restricted to a CPU-tractable, rule-based simulation environment? This question matters because it tests whether the structural isomorphism between code functions and tool calls is a universal reasoning prior that can be distilled into lightweight models without the computational overhead of large-scale GPU training, potentially enabling agentic capabilities on edge devices.
+## Research question
+
+Does the "function-call inductive bias" acquired through Function-Aware Fill-in-the-Middle (FIM) mid‑training on code generalize to non‑code domains with explicit state‑transition dynamics (e.g., database migrations and infrastructure‑as‑code)?
+
+## Motivation
+
+Understanding whether a coding‑specific inductive bias transfers to broader state‑transition tasks would reveal a universal reasoning prior that can be learned by small, CPU‑tractable models. If the bias is universal, efficient agents could be deployed on edge devices for DevOps, database administration, and infrastructure management without requiring GPU‑scale training.
+
+## Related work
+
+- [Structure-Aware Fill-in-the-Middle Pretraining for Code (2025)](https://arxiv.org/abs/2506.00204) — Shows that masking based on code dependency graphs improves code‑LLM performance, motivating a function‑aware variant of FIM.  
+- [Evaluation of LLMs on Syntax-Aware Code Fill-in-the-Middle Tasks (2024)](https://arxiv.org/abs/2403.04814) — Introduces a benchmark that isolates the benefit of syntax‑aware masking for code, providing a precedent for measuring the effect of specialized FIM objectives.  
+- [Memorization Dynamics of Fill-in-the-Middle Pretraining (2026)](https://arxiv.org/abs/2605.22981) — Analyzes how FIM influences model memorization, underscoring the need to study transfer effects beyond the original training domain.  
+- [Extending Fill-In-the-Middle with Instructions for Steerable Code Completion (2025)](https://arxiv.org/abs/2509.24637) — Explores instruction‑guided FIM, illustrating that FIM objectives can be adapted to new conditioning signals, a technique we will reuse for state‑transition masking.
+
+## Expected results
+
+The mid‑trained model is expected to achieve a statistically significant improvement of **15–20 % higher accuracy** in generating valid state‑transition actions on a held‑out non‑code evaluation set, compared to baselines trained with standard left‑to‑right or generic FIM objectives. Significance will be confirmed with a paired t‑test (α = 0.05) on the accuracy scores across 1,000 evaluation instances.
 
 ## Methodology sketch
-**Data:** Construct a synthetic, CPU-tractable dataset of 50,000 "state-transition traces" derived from open-source database migration scripts (e.g., Alembic, Flyway) and infrastructure-as-code files (e.g., Terraform), formatted as a sequence of `State A -> Action -> State B` tuples where the "Action" is masked. **Procedure:** Take a small, CPU-friendly pre-trained language model (e.g., a 1.5B parameter model or a distilled 3B model) and apply the Function-Aware FIM objective from the prior paper, but substitute the Python code corpus with the constructed state-transition traces; subsequently, evaluate the mid-trained model on a held-out set of complex configuration tasks using a deterministic, CPU-only simulator that checks for logical consistency in the generated state transitions. **Expected result:** The mid-trained model will demonstrate a statistically significant improvement (+15-20% accuracy) in generating valid state transitions compared to a baseline model trained with standard left-to-right or generic FIM objectives, confirming that the function-call inductive bias generalizes to abstract system dynamics and can be efficiently learned on CPU infrastructure.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data collection**:  
+  - Clone public GitHub repositories that contain Alembic/Flyway migration scripts and Terraform modules (`git clone https://github.com/...`).  
+  - Download the raw `.tf` and migration files via `wget` from the official Terraform Registry and Flyway documentation sites.  
+- **Trace construction**:  
+  - Parse each script to extract a triple **(State A, Action, State B)** where State A/B are JSON snapshots of the schema or infrastructure before/after the script, and Action is the migration command.  
+  - Retain 50 k high‑quality, conflict‑free triples after filtering for syntactic validity.  
+- **Dataset formatting**:  
+  - Serialize each triple as a linear text sequence: `<state_A> <MASK> <state_B>`.  
+  - Apply the Function‑Aware FIM mask to the **Action** token while preserving surrounding state context.  
+- **Model selection**:  
+  - Use the 1.5 B‑parameter “distil‑code‑llama” model from HuggingFace (`distil-code-llama-1.5b`) which fits within ~5 GB RAM on a CPU‑only runner.  
+- **Mid‑training**:  
+  - Implement the Function‑Aware FIM objective (dependency‑graph‑style masking) in PyTorch, running on the `cpu` device.  
+  - Train for 2 epochs over the 50 k examples with a batch size of 32, learning rate = 5e‑5, total wall‑clock < 4 h on the GitHub Actions runner.  
+- **Baseline construction**:  
+  - Train two control models on the same data: (a) standard left‑to‑right next‑token prediction, (b) generic random‑span FIM (no function‑aware masking).  
+- **Evaluation environment**:  
+  - Build a deterministic Python simulator that loads a candidate Action, applies it to State A, and checks whether the resulting State matches State B (using schema diff tools for DB migrations and `terraform plan` for IaC).  
+- **Statistical analysis**:  
+  - Compute accuracy = proportion of actions that result in exact state matches.  
+  - Perform a paired t‑test (or McNemar’s test if treating each instance as binary) between the Function‑Aware model and each baseline across the 1 000 held‑out triples.  
+- **Independence check**:  
+  - The simulator’s correctness logic and the ground‑truth State B are derived solely from the original migration scripts, never seen during training; thus the evaluation metric is independent of the model’s training inputs and masking strategy.
 
-- **Function-Aware Fill-in-the-Middle as Mid-Training for Coding Agent Foundation Models** — Yubo Wang, Jiarong Liang, Yuxuan Zhang, Xuye Liu, Cong Wei, Yuyu Zhang, Ping Nie, Wenhu Chen. https://arxiv.org/abs/2607.12463.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2607_12463,
-  title = {Function-Aware Fill-in-the-Middle as Mid-Training for Coding Agent Foundation Models},
-  author = {Yubo Wang and Jiarong Liang and Yuxuan Zhang and Xuye Liu and Cong Wei and Yuyu Zhang and Ping Nie and Wenhu Chen},
-  year = {2026},
-  eprint = {2607.12463},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2607.12463},
-  url = {https://arxiv.org/abs/2607.12463}
-}
-```
+- Reviewed existing ideas: None.
+- Closest match: N/A (this is the initial flesh‑out).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-10-19T15:23:59Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Function-Aware Fill-in-the-Middle as Mid-Training for Coding Agent Fou" computer science
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Function-Aware Fill-in-the-Middle as Mid-Training for Coding Agent Fou" computer science | 0 |
+| 1 | fill-in-the-middle pretraining for code | 5 |
+| 2 | function-aware code infilling | 0 |
+| 3 | mid-training objectives for large language models | 0 |
+| 4 | code infilling language models | 0 |
+| 5 | span corruption objectives for source code | 0 |
+| 6 | coding agent fine-tuning | 0 |
+| 7 | LLM software engineering training | 0 |
+| 8 | program repair pretraining | 0 |
+| 9 | masked span prediction code generation | 0 |
+| 10 | repository-level code completion | 0 |
+| 11 | causal language modeling versus infilling objectives | 0 |
+| 12 | code large language model pretraining strategies | 0 |
+| 13 | agentic coding benchmarks | 0 |
+| 14 | function-level code generation evaluation | 0 |
+| 15 | curriculum learning for code models | 0 |
+| 16 | denoising autoencoding source code | 0 |
+| 17 | next-token prediction alternatives for code LLMs | 0 |
+| 18 | code completion middle-of-file prediction | 0 |
+| 19 | instruction tuning for programming assistants | 0 |
+| 20 | transfer learning from code pretraining to downstream agents | 0 |
+
+### Verified citations
+
+1. **Structure-Aware Fill-in-the-Middle Pretraining for Code** (2025). Linyuan Gong, Alvin Cheung, Mostafa Elhoushi, Sida Wang. arXiv. [2506.00204](https://arxiv.org/abs/2506.00204). PDF-sampled: No.
+2. **Evaluation of LLMs on Syntax-Aware Code Fill-in-the-Middle Tasks** (2024). Linyuan Gong, Sida Wang, Mostafa Elhoushi, Alvin Cheung. arXiv. [2403.04814](https://arxiv.org/abs/2403.04814). PDF-sampled: No.
+3. **Memorization Dynamics of Fill-in-the-Middle Pretraining** (2026). Tobias von Arx, Tanguy Dieudonné. arXiv. [2605.22981](https://arxiv.org/abs/2605.22981). PDF-sampled: No.
+4. **Extending Fill-In-the-Middle with Instructions for Steerable Code Completion** (2025). Zhensu Sun, Chengran Yang, Chao Peng, Pengfei Gao, Xiaoning Du, et al.. arXiv. [2509.24637](https://arxiv.org/abs/2509.24637). PDF-sampled: No.

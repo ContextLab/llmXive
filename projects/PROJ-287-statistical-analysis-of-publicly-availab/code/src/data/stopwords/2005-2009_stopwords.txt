@@ -1,0 +1,6 @@
+# Window-specific stopwords for 2005-2009
+# Example: domain-specific terms common in mid-2000s abstracts
+analysis
+results
+discussion
+summary

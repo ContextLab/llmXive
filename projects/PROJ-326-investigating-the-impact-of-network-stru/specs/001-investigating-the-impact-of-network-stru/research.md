@@ -1,72 +1,92 @@
 # Research: Network Topology Energy Transfer in Spin Systems
 
-## Research Question
-How do specific topological metrics (clustering coefficient, average path length, degree distribution) correlate with the rate of energy diffusion in non-equilibrium spin systems?
+## Summary
+
+This research investigates how network topology (Erdős-Rényi, Scale-Free, Small-World) influences the rate of energy diffusion in a non-equilibrium spin system. We generate synthetic graphs using a **stratified generation strategy** to decouple topological metrics, simulate localized energy perturbations using a simplified Ising model, and statistically correlate topological metrics (clustering, path length) with diffusion rates using **Ridge Regression** and **Partial Correlation** to isolate independent effects.
 
 ## Dataset Strategy
-This project utilizes **synthetic data** generated algorithmically. No external datasets are downloaded.
 
-| Dataset Name | Source/Method | Verification Status | Usage |
-| :--- | :--- | :--- | :--- |
-| **Synthetic ER Graphs** | `networkx.generators.random_graphs.erdos_renyi` | Verified (Algorithmic) | Baseline random topology. |
-| **Synthetic SW Graphs** | `networkx.generators.random_graphs.watts_strogatz` | Verified (Algorithmic) | Small-world topology with controlled clustering. |
-| **Synthetic SF Graphs** | `networkx.generators.random_graphs.barabasi_albert_graph` | Verified (Algorithmic) | Scale-free topology. |
+**Data Source**: Synthetic Generation (No external download required).
+**Strategy**: All data is generated algorithmically using `networkx` and `numpy` on the CI runner. This ensures reproducibility, avoids access-gated data issues, and fits within the 14GB disk limit.
 
-**Constraint Check**: The spec requires controlled clustering coefficients for SW graphs. `networkx`'s `watts_strogatz` allows tuning `beta` (rewiring probability) to target clustering ranges (0.3–0.5). If the generated `beta` does not yield the exact target, the plan includes a retry loop (up to 10 attempts) or a rejection-sampling strategy to ensure the final batch meets SC-001 (≥90% success rate).
+**Stratified Generation for Coverage (SC-005)**:
+To ensure the sensitivity sweep (SC-005) has data at ≥5 distinct clustering coefficient cutoffs, we will not generate random graphs blindly. Instead, we will use a **stratified sampling** approach:
+- Define target clustering coefficient bins across a range of low to moderate values.
+- For each bin, generate a fixed number of graphs (e.g., 20 per bin) by iterating Watts-Strogatz `k` (neighbors) and `p` (rewiring) parameters until the target bin is hit.
+- This guarantees that `sensitivity_sweep.json` will have non-empty bins for all 5 thresholds, avoiding the "empty bin" failure mode.
 
-## Methodology & Statistical Rigor
+| Dataset Component | Source/Method | Verification |
+|-------------------|---------------|--------------|
+| **Network Graphs** | `networkx.generators.random_graphs` (Erdős-Rényi, Barabási-Albert, Watts-Strogatz) with **stratified sampling** by clustering coefficient. | Validated against target clustering/degree distribution in `test_generators.py`. |
+| **Spin States** | `numpy` arrays initialized with localized perturbation (seed node). | Checked for monotonic spatial variance increase. |
+| **Simulation Logs** | Generated in-memory, serialized to `data/analysis/simulation_results.json`. | Validated against `contracts/simulation_results.schema.yaml`. |
 
-### 1. Graph Generation (FR-001)
-*   **Algorithm**: Standard `networkx` implementations.
-*   **Validation**: For every generated graph, compute `clustering_coefficient` and `is_connected`.
-*   **Handling Mismatches**: If a graph fails connectivity, retry generation with a bounded number of attempts. If clustering deviates >5% from target, flag as `[CLUSTERING_DEVIATION]` but include in analysis with a covariate, unless the deviation is extreme (per Edge Cases).
-*   **Variable Fit**: The generated graphs *contain* the required variables (degree sequence, clustering, path length) by definition. No missing data issue.
-*   **Sample Size Strategy**: Target **150+ total graphs** (50 per class) to ensure sufficient power for both Regression (N=150) and ANOVA (N=50/group). If rejection sampling reduces the valid count below a sufficient threshold, the batch generation will automatically scale up to compensate.
+**Feasibility Note**: 
+- **CPU-First**: The Ising simulation uses vectorized `numpy` operations. No GPU is required.
+- **Memory**: A 500-node graph uses <1MB RAM for the adjacency matrix and state vectors. Even 100 simultaneous simulations fit easily within 7GB RAM.
+- **Time**: A moderate number of steps on a substantial number of nodes is estimated at a few minutes per graph on 2 vCPU. 100 graphs will take <6 hours.
+- **Dynamic Time Budget**: If the Pilot Variance Estimation (T002) indicates high variance and low power, the batch size will be increased up to the 6-hour limit. If the limit is reached before sufficient power, the report will explicitly state the "Achieved Power Limitation".
 
-### 2. Simulation (FR-002, FR-003)
-*   **Model**: **Glauber dynamics** with a localized energy source and no heat bath (microcanonical-like relaxation) to model non-equilibrium diffusion.
-    *   State: $S_i \in \{-1, +1\}$ (or energy density $E_i$).
-    *   Dynamics: Probabilistic spin flips weighted by local energy gradient (neighbor alignment). This ensures energy propagation rather than simple thermal equilibration.
-    *   Initialization: Localized perturbation at a seed node ($E_{seed}=1.0$, others $0.0$).
-*   **Metric Definition (Diffusion Rate)**:
-    *   **Problem**: In a closed system, spatial variance of energy ($Var(E_t)$) rises then falls (unimodal). A derivative over the full time course is ambiguous.
-    *   **Solution**: Define **Diffusion Rate** as the **linear regression slope of spatial variance over the Transient Phase** (first 20% of simulation steps, $t \in [0, 20]$). This captures the initial propagation speed before equilibration artifacts dominate.
- * **Alternative Metric**: **Time-to-Saturation** (time step to reach [deferred] of total network energy spread) to avoid fixed-step ceiling effects.
-*   **Stability**: Monitor max energy. If $E_{max} > \text{threshold}$ (indicating numerical blow-up), abort and log `[SIMULATION_DIVERGENCE]`.
-*   **Compute Feasibility**:
-    *   **CPU**: Pure `numpy` vectorized operations. No GPU.
-    *   **Memory**: 500 nodes $\times$ 100 steps $\approx$ 50k floats per run. Negligible for 7GB RAM.
-    *   **Time**: 100 steps on 500 nodes is estimated < 1 minute per graph on 2 CPU cores. 150+ graphs will complete well within 6 hours.
+## Statistical Rigor & Methodological Design
 
-### 3. Statistical Analysis (FR-005, FR-006)
-*   **Hypothesis**: Network metrics predict diffusion rates.
-*   **Tests**:
-    *   **ANOVA (Primary)**: Compare mean diffusion rates across topology classes (ER vs. SW vs. SF). With N=50/group, power is estimated >0.80 for medium effect sizes (f=0.25).
-    *   **Regression (Secondary)**: Correlate continuous metrics with diffusion rates.
-*   **Multicollinearity Handling**:
-    *   In Watts-Strogatz and Barabási-Albert, clustering and path length are functionally coupled.
-    *   **Strategy**: For regression, apply **Principal Component Analysis (PCA)** to topological metrics to create orthogonal predictors before regression. Alternatively, report **Variance Inflation Factors (VIF)** to diagnose instability and interpret coefficients cautiously.
-*   **Multiple Comparison Correction (FR-006)**:
-    *   Since multiple metrics are tested simultaneously, apply **Benjamini-Hochberg (BH)** procedure to control False Discovery Rate (FDR) at $\alpha=0.05$. Bonferroni available as an alternative.
-*   **Power Analysis (SC-003)**:
-    *   Target: Detect effect size $r \ge 0.3$.
-    *   Sample Size: With 150+ realizations, power is adequate for both ANOVA (50/group) and Regression (N=150). If power is insufficient, the plan will document the limitation (observational design) but proceed with the available data.
-*   **Causal Framing (ROC-001)**:
-    *   The design is **observational** (simulations are run on generated graphs, not randomly assigned in a physical experiment). All claims in the final report will be **associational** (e.g., "Clustering is associated with diffusion rate," not "Clustering causes...").
+### 1. Multiple-Comparison Correction (FR-006)
+- **Method**: Benjamini-Hochberg (BH) procedure for False Discovery Rate (FDR) control.
+- **Application**: Applied when testing correlations between diffusion rate and >1 topological metric (degree, clustering, path length).
+- **Fallback**: Bonferroni correction available if family-wise error rate (FWER) is strictly required.
+- **Implementation**: `scipy.stats.multipletests` with `method='fdr_bh'`.
 
-### 4. Sensitivity Analysis (FR-008, SC-005)
-*   **Method**: Sweep clustering coefficient cutoffs (multiple distinct thresholds) to test robustness of correlation findings.
-*   **Output**: Plot of Diffusion Rate vs. Cutoff Threshold.
+### 2. Sample Size & Power (SC-003)
+- **Target**: Detect effect size $r \ge 0.3$ at $\alpha = 0.05$ with 80% power.
+- **Calculation**: Based on standard power analysis for Pearson correlation.
+- **Plan**: 
+    - **Pilot Phase (T002)**: Run a small batch (N=20) to estimate variance within topology classes.
+    - **Dynamic Adjustment**: If pilot power < 0.8, increase batch size (up to 6h limit).
+    - **Limitation Reporting**: If the 6h limit prevents reaching the target sample size, the report will explicitly state the achieved power and the resulting limitation on detecting small effects.
+- **Limitation**: If the 6h limit prevents reaching the target sample size, the report will explicitly state the achieved power and the resulting limitation on detecting small effects.
 
-## Decision Log
+### 3. Causal Inference & Associational Framing (ROC-001)
+- **Design**: Observational simulation. Network topologies are generated, not randomly assigned to a "treatment" in a causal sense (topology is the independent variable, but not randomized in a clinical trial sense).
+- **Framing**: All claims will be framed as **associational** (e.g., "Higher clustering is associated with slower diffusion") rather than causal.
+- **Assumptions**: 
+    - No unmeasured confounders (synthetic data allows full control).
+    - Linearity (for linear regression) or appropriate non-linear model specification.
+- **Confounding Control**: We will use **stratified generation** to decouple metrics (e.g., high clustering with varying path length) and **Partial Correlation** to control for degree distribution, addressing the "confounding by topology class" issue.
 
-| Decision | Rationale |
-| :--- | :--- |
-| **Use `networkx` for generation** | Standard, CPU-efficient, reproducible. |
-| **Glauber Dynamics (Non-equilibrium)** | Models energy propagation via local gradients, distinct from simple thermal equilibration. |
-| **Transient Phase Metric (t=0-20)** | Avoids the unimodal ambiguity of full-time variance derivatives; isolates the diffusion speed. |
-| **PCA for Regression Predictors** | Addresses multicollinearity inherent in topological generators (clustering vs. path length). |
-| **Benjamini-Hochberg for correction** | Less conservative than Bonferroni, better for exploratory research with multiple metrics. |
-| **Associational Framing** | Adheres to ROC-001 and the observational nature of synthetic topology studies. |
-| **CPU-only Execution** | Mandatory for GitHub Actions free-tier (no GPU available). |
-| **Target N=150** | Ensures adequate power for ANOVA subgroups (50 each) while maintaining regression power. |
+### 4. Measurement Validity & Collinearity
+- **Metrics**: 
+    - **Clustering Coefficient**: Standard definition (transitivity).
+    - **Average Path Length**: Shortest path average (for connected components).
+    - **Degree Distribution**: Power-law exponent (for SF) or mean degree (for ER).
+- **Collinearity Handling**: 
+    - **VIF Check**: Calculate Variance Inflation Factor (VIF).
+    - **Resolution Strategy**: If VIF > 5, we will:
+        1. Report multicollinearity.
+        2. Perform **Ridge Regression** as a robustness check.
+        3. Perform **Partial Correlation** analysis to control for degree distribution and isolate the effect of clustering vs. path length.
+    - **Descriptive Statistics**: Prioritize descriptive statistics for highly correlated pairs, but do not stop there; use Ridge/Partial Correlation to attempt disentangling effects.
+- **Instrument Validation**: `networkx` implementations are standard and validated in literature.
+
+### 5. Robustness & Sensitivity (FR-008, SC-005)
+- **Sensitivity Sweep**: 
+    - Clustering coefficient thresholds will be swept over a range of distinct values.
+    - **Guaranteed Coverage**: The generation strategy ensures at least 20 graphs per bin to prevent empty bins.
+    - Output: `data/analysis/sensitivity_sweep.json`.
+- **Robustness Checks**: 
+    - **Divergence Detection**: If energy values exceed a substantial multiple of the initial excitation, the run is flagged `[SIMULATION_DIVERGENCE]` and excluded.
+    - **Connectivity**: Disconnected graphs are retried multiple times. If still disconnected, flagged `[CLUSTERING_DEVIATION]` or excluded.
+
+## Decision Rationale: CPU vs. GPU
+
+- **Choice**: **CPU-First**.
+- **Rationale**: 
+    - The Ising model is a simple spin-flip dynamics simulation. It does not require deep learning or massive parallelism.
+    - `numpy` vectorization on a 500-node graph is highly efficient on CPU.
+    - No CUDA kernels or transformer models are involved.
+    - **GPU Escape Hatch**: Not needed. If the simulation were scaled to 100k+ nodes, a GPU might be considered, but for the current scope (≤1000 nodes), CPU is sufficient and preferred for simplicity and cost (free-tier runner).
+
+## References
+
+- **NetworkX**: https://networkx.org/documentation/stable/
+- **Ising Model (Non-equilibrium)**: Standard statistical physics literature (e.g., Glauber dynamics).
+- **Small-World Networks**: Watts, D. J., & Strogatz, S. H. (1998). Collective dynamics of 'small-world' networks. *Nature*.
+- **Power Analysis**: Cohen, J. (1988). *Statistical Power Analysis for the Behavioral Sciences*.

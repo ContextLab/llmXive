@@ -37,5 +37,15 @@
     "ref.bib",
     "seu-icon-name.pdf",
     "seu-paisys.cls"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "c6af817df0beddc00d34dc5bd57672078813eb39b7d3022a4f9dffd3da8988c1",
+      "bytes": 2361451
+    },
+    "original.pdf": {
+      "sha256": "9c26795d85fc431283566eb343ffbd8c34d29c8df03e81c5419f17a7510a439c",
+      "bytes": 2315768
+    }
+  }
 }

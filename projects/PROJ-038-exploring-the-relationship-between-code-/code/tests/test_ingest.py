@@ -1,194 +1,117 @@
-"""
-Tests for the ingest module.
-
-These tests verify the core logic of the ingest module without
-requiring actual Defects4J installation.
-"""
 import pytest
 from pathlib import Path
 from unittest.mock import patch, MagicMock, Mock
 import sys
 import os
-
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
-
 from src.ingest import (
+    DataFetchError,
+    get_defects4j_path,
+    run_defects4j_command,
     list_available_projects,
     get_project_size,
-    select_dynamic_subset,
-    download_defects4j_subset,
+    get_current_memory_usage_bytes,
     validate_ram_limit,
-    DEFECTS4J_SIZE_LIMIT_GB
+    is_generated_or_non_java,
+    filter_java_files,
+    select_dynamic_subset,
+    download_defects4j_subset
 )
 
-
 class TestListAvailableProjects:
-    def test_list_available_projects_success(self):
+    @patch('src.ingest.run_defects4j_command')
+    def test_list_projects_success(self, mock_run_cmd):
         """Test successful listing of projects."""
-        with patch('src.ingest.run_defects4j_command') as mock_run:
-            mock_run.return_value = MagicMock(
-                returncode=0,
-                stdout="Lang (50 bugs)\nChart (25 bugs)\nClosure (10 bugs)"
-            )
-            
-            projects = list_available_projects()
-            
-            assert len(projects) == 3
-            assert "Lang" in projects
-            assert "Chart" in projects
-            assert "Closure" in projects
-
-    def test_list_available_projects_empty(self):
-        """Test handling of empty project list."""
-        with patch('src.ingest.run_defects4j_command') as mock_run:
-            mock_run.return_value = MagicMock(
-                returncode=0,
-                stdout=""
-            )
-            
-            projects = list_available_projects()
-            
-            assert len(projects) == 0
-
-    def test_list_available_projects_failure(self):
-        """Test handling of command failure."""
-        with patch('src.ingest.run_defects4j_command') as mock_run:
-            mock_run.return_value = MagicMock(
-                returncode=1,
-                stderr="Command failed"
-            )
-            
-            with pytest.raises(RuntimeError, match="Failed to list projects"):
-                list_available_projects()
-
+        mock_run_cmd.return_value = (
+            "Closure 1.0\nLang 2.0\nMath 3.0\n",
+            "",
+            0
+        )
+        
+        projects = list_available_projects()
+        
+        assert len(projects) >= 3
+        assert 'Closure' in projects
+        assert 'Lang' in projects
+        assert 'Math' in projects
+    
+    @patch('src.ingest.run_defects4j_command')
+    def test_list_projects_failure(self, mock_run_cmd):
+        """Test failure when Defects4J command fails."""
+        mock_run_cmd.return_value = ("", "Error: command failed", 1)
+        
+        with pytest.raises(DataFetchError):
+            list_available_projects()
 
 class TestSelectDynamicSubset:
-    def test_select_subset_within_limit(self):
-        """Test selection when all projects fit within limit."""
-        projects = ["Lang", "Chart", "Closure"]
+    def test_select_subset_basic(self):
+        """Test basic subset selection."""
+        projects = ['Closure', 'Lang', 'Math', 'Time', 'Codec']
         
-        with patch('src.ingest.get_project_size') as mock_size:
-            mock_size.side_effect = [100, 200, 300]  # Small sizes
-            with patch('src.ingest.validate_ram_limit') as mock_ram:
-                mock_ram.return_value = True
-                
-                selected = select_dynamic_subset(projects, Path("/tmp"))
-                
-                assert len(selected) == 3
-                assert selected == projects
-
-    def test_select_subset_exceeds_limit(self):
-        """Test selection stops when limit is reached."""
-        projects = ["Lang", "Chart", "Closure", "Time"]
+        selected = select_dynamic_subset(projects, target_files=500)
         
-        with patch('src.ingest.get_project_size') as mock_size:
-            # First two fit, third would exceed
-            mock_size.side_effect = [100, 200, 1000000000, 50]
-            with patch('src.ingest.validate_ram_limit') as mock_ram:
-                mock_ram.return_value = True
-                
-                selected = select_dynamic_subset(projects, Path("/tmp"))
-                
-                # Should only select first two
-                assert len(selected) == 2
-                assert selected == ["Lang", "Chart"]
-
-    def test_select_subset_ram_limit_reached(self):
-        """Test selection stops when RAM limit is reached."""
-        projects = ["Lang", "Chart"]
+        # Should select at least one project
+        assert len(selected) > 0
+        # Should be in alphabetical order
+        assert selected == sorted(selected)
+    
+    def test_select_subset_limit(self):
+        """Test subset selection with file limit."""
+        projects = ['Closure', 'Lang', 'Math', 'Time', 'Codec']
         
-        with patch('src.ingest.get_project_size') as mock_size:
-            mock_size.side_effect = [100, 200]
-            with patch('src.ingest.validate_ram_limit') as mock_ram:
-                # First check passes, second fails
-                mock_ram.side_effect = [True, False]
-                
-                selected = select_dynamic_subset(projects, Path("/tmp"))
-                
-                assert len(selected) == 1
-                assert selected == ["Lang"]
-
+        # Set a very low target to force early stopping
+        selected = select_dynamic_subset(projects, target_files=100)
+        
+        # Should select only a few projects
+        assert len(selected) <= 3
 
 class TestValidateRamLimit:
     @patch('src.ingest.get_memory_limit_bytes')
-    @patch('src.ingest.get_current_memory_usage_bytes')
-    def test_validate_ram_limit_success(self, mock_usage, mock_limit):
-        """Test successful RAM validation."""
-        mock_limit.return_value = 8 * 1024**3  # 8GB limit
-        mock_usage.return_value = 2 * 1024**3  # 2GB usage
+    def test_validate_within_limit(self, mock_get_limit):
+        """Test validation when within limit."""
+        mock_get_limit.return_value = 7 * 1024 * 1024 * 1024  # 7GB
         
-        assert validate_ram_limit(Path("/tmp")) is True
-
+        result = validate_ram_limit(5 * 1024 * 1024 * 1024)  # 5GB
+        
+        assert result is True
+    
     @patch('src.ingest.get_memory_limit_bytes')
-    @patch('src.ingest.get_current_memory_usage_bytes')
-    def test_validate_ram_limit_failure(self, mock_usage, mock_limit):
-        """Test failed RAM validation."""
-        mock_limit.return_value = 4 * 1024**3  # 4GB limit
-        mock_usage.return_value = 3.5 * 1024**3  # 3.5GB usage (90%)
+    def test_validate_exceeds_limit(self, mock_get_limit):
+        """Test validation when exceeding limit."""
+        mock_get_limit.return_value = 7 * 1024 * 1024 * 1024  # 7GB
         
-        assert validate_ram_limit(Path("/tmp")) is False
+        result = validate_ram_limit(6.5 * 1024 * 1024 * 1024)  # 6.5GB (85% threshold)
+        
+        assert result is False
 
 class TestDownloadDefects4jSubset:
-    def test_download_subset_success(self):
-        """Test successful download of subset."""
-        with patch('src.ingest.get_defects4j_path') as mock_path:
-            mock_path.return_value = Path("/fake/defects4j")
-            with patch('src.ingest.validate_defects4j_path') as mock_validate:
-                mock_validate.return_value = True
-                with patch('src.ingest.list_available_projects') as mock_list:
-                    mock_list.return_value = ["Lang", "Chart"]
-                    with patch('src.ingest.select_dynamic_subset') as mock_select:
-                        mock_select.return_value = ["Lang"]
-                        with patch('src.ingest.run_defects4j_command') as mock_run:
-                            mock_run.return_value = MagicMock(returncode=0)
-                            with patch('src.ingest.Path.mkdir'):
-                                with patch('src.ingest.Path.rglob') as mock_rglob:
-                                    mock_file = MagicMock()
-                                    mock_file.is_file.return_value = True
-                                    mock_file.stat.return_value.st_size = 100
-                                    mock_rglob.return_value = [mock_file]
-                                    
-                                    stats = download_defects4j_subset(
-                                        Path("/tmp/output"),
-                                        max_projects=1
-                                    )
-                                    
-                                    assert stats['total_projects'] == 1
-                                    assert stats['total_size_bytes'] == 100
-                                    assert len(stats['projects']) == 1
-
-    def test_download_subset_no_projects(self):
-        """Test handling of no available projects."""
-        with patch('src.ingest.get_defects4j_path') as mock_path:
-            mock_path.return_value = Path("/fake/defects4j")
-            with patch('src.ingest.validate_defects4j_path') as mock_validate:
-                mock_validate.return_value = True
-                with patch('src.ingest.list_available_projects') as mock_list:
-                    mock_list.return_value = []
-                    
-                    with pytest.raises(RuntimeError, match="No projects available"):
-                        download_defects4j_subset(Path("/tmp/output"))
-
-    def test_download_subset_exceeds_size_limit(self):
-        """Test handling of size limit exceeded."""
-        with patch('src.ingest.get_defects4j_path') as mock_path:
-            mock_path.return_value = Path("/fake/defects4j")
-            with patch('src.ingest.validate_defects4j_path') as mock_validate:
-                mock_validate.return_value = True
-                with patch('src.ingest.list_available_projects') as mock_list:
-                    mock_list.return_value = ["Lang"]
-                    with patch('src.ingest.select_dynamic_subset') as mock_select:
-                        mock_select.return_value = ["Lang"]
-                        with patch('src.ingest.run_defects4j_command') as mock_run:
-                            mock_run.return_value = MagicMock(returncode=0)
-                            with patch('src.ingest.Path.mkdir'):
-                                with patch('src.ingest.Path.rglob') as mock_rglob:
-                                    # Return a huge file to exceed limit
-                                    mock_file = MagicMock()
-                                    mock_file.is_file.return_value = True
-                                    mock_file.stat.return_value.st_size = 10**10  # 10GB
-                                    mock_rglob.return_value = [mock_file]
-                                    
-                                    with pytest.raises(RuntimeError, match="exceeds.*limit"):
-                                        download_defects4j_subset(Path("/tmp/output"))
+    @patch('src.ingest.run_defects4j_command')
+    @patch('src.ingest.filter_java_files')
+    def test_download_success(self, mock_filter, mock_run_cmd):
+        """Test successful download of projects."""
+        mock_run_cmd.return_value = ("Checkout successful", "", 0)
+        mock_filter.return_value = [Path('/tmp/test.java')]
+        
+        with patch('src.ingest.Path.exists', return_value=False):
+            with patch('src.ingest.Path.mkdir'):
+                stats = download_defects4j_subset(
+                    ['Closure'],
+                    Path('/tmp/output')
+                )
+        
+        assert stats['projects_downloaded'] == 1
+        assert stats['total_files'] >= 1
+    
+    @patch('src.ingest.run_defects4j_command')
+    def test_download_failure(self, mock_run_cmd):
+        """Test handling of download failure."""
+        mock_run_cmd.return_value = ("", "Checkout failed", 1)
+        
+        with patch('src.ingest.Path.exists', return_value=False):
+            with patch('src.ingest.Path.mkdir'):
+                stats = download_defects4j_subset(
+                    ['Closure'],
+                    Path('/tmp/output')
+                )
+        
+        assert stats['projects_downloaded'] == 0
+        assert len(stats['failed_projects']) == 1

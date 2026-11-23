@@ -1,0 +1,4 @@
+# Standalone Ruff configuration for legacy tooling compatibility
+# Primary configuration is in pyproject.toml, but this file ensures
+# `ruff check` works in environments that prefer .toml at root.
+extend = "pyproject.toml"

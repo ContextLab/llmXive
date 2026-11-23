@@ -1,75 +1,50 @@
 # Research: Asymptotic Behavior of Random Matrix Eigenvalues with Sparse Perturbations
 
-## Scientific Background
-
-The project investigates the **Bai-Yin / BBP (Baik-Ben Arous-Péché) phase transition** in the context of sparse perturbations. Classical random matrix theory (RMT) states that for a Wigner matrix $W_N$ (symmetric, entries $N(0, 1/N)$), the empirical spectral distribution (ESD) converges to the **Wigner Semicircle Law** with support $[-2, 2]$. When a deterministic finite-rank perturbation $P_N$ of spectral norm $\theta$ is added ($A_N = W_N + P_N$), the eigenvalues of $P_N$ that satisfy $|\theta| > 1$ emerge as **outliers** outside the bulk $[-2, 2]$, converging to $\lambda = \theta + 1/\theta$.
-
-The central research question is whether **sparsity** in $P_N$ alters this critical threshold $\theta_c = 1$. While dense perturbations strictly follow $\theta_c=1$, sparse structures (where non-zero entries are confined to a subset of indices) may exhibit different asymptotic behaviors, potentially shifting the threshold or altering the convergence rate of outliers.
+## Theoretical Background
+- **Wigner Semicircle Law**: For an \(N\times N\) symmetric matrix with i.i.d. entries of variance \(1/N\), the empirical spectral distribution converges to the semicircle with support \([-2,2]\); the edge is **2** (verified: arXiv:0812.2602, https://arxiv.org/abs/0812.2602).
+- **BBP Phase Transition**: A rank-\(k\) deterministic perturbation of spectral norm \(\theta\) produces outliers when \(\theta > 1\) (standard scaling); predicted outlier location \(\theta + 1/\theta\).
 
 ## Dataset Strategy
+| Role | Source | Access Method | Notes |
+|------|--------|---------------|-------|
+| Synthetic matrices | Generated in‑process (no external download) | `numpy.random.default_rng(seed)` | Reproducible; FR‑001. No verified external dataset is needed or used. |
+| Perturbation patterns | Deterministic construction | Custom Python functions | Structural fidelity per Constitution VII. |
+| Reference values | Semicircle edge = 2 | arXiv:0812.2602 (verified) | Hard‑coded constant for outlier detection. |
 
-Since the study relies on synthetic data with controlled parameters, no external dataset is used. The "dataset" is the collection of generated matrix instances and their computed eigenvalues.
-
-| Variable | Source | Description |
-| :--- | :--- | :--- |
-| `WignerMatrix` | Generated (`code/generators/wigner.py`) | Symmetric $N \times N$ matrix with $N(0, 1/N)$ entries (Dense). |
-| `PerturbationMatrix` | Generated (`code/generators/perturbation.py`) | Rank-$k$ deterministic matrix with specified sparsity pattern. |
-| `Eigenvalues` | Computed (`code/analysis/eigen_solver.py`) | Top 10 eigenvalues of $A_N = W_N + P_N$. |
-| `OutlierFlag` | Derived (`code/analysis/outlier_detect.py`) | Boolean: $\lambda > \text{empirical\_bulk\_edge} + \text{tol}$. |
-| `PerturbationNorm` | Input Parameter | $\theta \in [1.0, 3.0]$. |
-| `SparsityPattern` | Input Parameter | "diagonal", "block-sparse", "random-sparse". |
-| `SupportDensity` | Input Parameter | $p \in \{0.1, 0.2, 0.3\}$ for sensitivity analysis. |
-
-**Verification**: The dataset is self-contained. The "variables" are constructed directly from the mathematical definitions in the spec, ensuring the dataset contains exactly what is needed (predictors: $N, \theta, k, p, \text{pattern}$; outcome: outlier presence).
+No external datasets are required; all data are generated on the fly, satisfying compute‑feasibility constraints.
 
 ## Methodology
+1. **Matrix Generation (FR‑001)**: \(W_N\) with entries \(\mathcal N(0,1/N)\), seeded RNG recorded in `SimulationRun`.
+2. **Sparse Perturbation (FR‑002)**: rank \(k\in\{1,2,5\}\); patterns: diagonal, block‑sparse (block size 10), random‑sparse (density \(p\in[0.05,0.5]\)).  
+   *Random‑sparse construction*: first draw a random support of density \(p\); then place exactly \(k\) non‑zero entries (spikes) on distinct rows/columns **within that support**, scaling the resulting matrix to spectral norm \(\theta\). This guarantees rank‑\(k\) while respecting the prescribed sparsity density, keeping `k` and `p` independent structural variables. The spectral norm is verified after construction.
+3. **Eigenvalues (FR‑003, SC‑002, SC‑004)**: top‑10 via `eigsh(which='LA', tol=1e-10, maxiter=1000)`; wall‑clock time recorded.
+4. **Outlier detection (FR‑004)**: An eigenvalue \(\lambda\) is flagged as an outlier iff  
+   \[
+   \lambda > 2 + \tau(N),\qquad \tau(N)=\max\bigl(0.05,\;2\cdot N^{-2/3}\bigr).
+   \]  
+   The term \(2\cdot N^{-2/3}\) approximates twice the Tracy‑Widom fluctuation scale (≈0.032 at \(N=500\), ≈0.013 at \(N=2000\)); we also enforce a floor of 0.05 so that for all \(N\) the tolerance exceeds the typical bulk‑edge noise. This N‑dependent cutoff avoids mis‑classification especially at smaller \(N\).
+5. **Parameter sweep (FR‑005)**: \(\theta\) grid \([0.5,3.0]\) step 0.1 (raw run records retain **all** \(\theta\) values, including sub‑threshold \(\theta<1\)). All patterns and ranks are swept; repetitions are sized to the CPU budget (target 500 where the ≤6 h budget allows; fewer repetitions are recorded explicitly with `total_runs` and the power limitation noted).
+6. **Sparsity sensitivity (FR‑006)**: \(p\in\{0.05,0.1,0.2,0.3,0.4,0.5\}\) at fixed \(\theta=1.5\).
+7. **Finite‑size analysis**: \(N\in\{500,1000,1500,2000\}\) for representative configurations; quantify finite‑size shifts in bulk edge and outlier probability.
+8. **Aggregation and fit (FR‑007)**:  
+   - `aggregate_thresholds.py` reads the raw sweep Parquet, groups by configuration **excluding** any \(\theta_c\) fields, and writes `aggregated_thresholds.json` (no theta‑c fields).  
+   - `threshold_fit.py` reads the **raw** run records (including \(\theta<1\)), fits a sigmoid \(f(\theta)=1/(1+\exp[-a(\theta-\theta_c)])\) via maximum‑likelihood, and writes `threshold_fit.json` validated against `threshold_fit.schema.yaml`. Non‑convergent fits are recorded with `fit_status: "failed"` and `theta_c_estimate` / `theta_c_confidence` set to `null` rather than NaN.
+9. **Statistical Rigor**  
+   - **Multiple comparisons**: bootstrap CIs for \(\theta_c\) rather than raw p‑values across the \(\theta\)-grid.  
+   - **Power**: with \(R\) repetitions, SE of outlier probability ≤ \(0.5/\sqrt R\) (0.022 at \(R=500\)); if the compute budget forces fewer repetitions, the actual \(R\) is reported and the limitation acknowledged.  
+   - **Causal claims**: associational only (simulation study; FR‑007).  
+   - **Measurement validity**: standard Gaussian Wigner ensemble; perturbation norm enforced by explicit spectral scaling and verified.  
+   - **Collinearity**: \(k\), \(p\), \(\theta\), \(N\) are independent design factors; no regression coefficients interpreted as independent effects.
 
-### 1. Matrix Generation (FR-001, FR-002)
-- **Wigner Matrices**: Generated as $W_N = \frac{1}{\sqrt{N}} (X + X^T)/2$ where $X_{ij} \sim N(0, 1)$. **Crucially, $W_N$ is stored as a dense NumPy array.** It is never converted to sparse format, as this would destroy the Wigner ensemble properties.
-- **Perturbations**: Constructed to ensure **exact rank $k$**.
-  - **Diagonal**: $P_N = \text{diag}(v)$ where $v$ has $k$ non-zero entries.
-  - **Block-Sparse**: $P_N$ has a dense $k \times k$ block embedded in an $N \times N$ zero matrix.
-  - **Random Sparse**: A dense $k \times k$ core matrix $C$ (with spectral norm $\theta$) is generated. A binary support mask $M$ (size $N \times N$) is generated with density $p$. The perturbation is $P_N = M \odot (U C U^T)$ where $U$ is a random embedding, ensuring the rank remains $k$ while the support is sparse. The spectral norm is re-normalized to $\theta$ after masking to ensure precision.
-- **Constraint**: $k \in \{1, 2, 5\}$ (finite rank).
+## Decision / Rationale (Compute)
+- **CPU‑first**: ARPACK on dense symmetric matrices up to \(N=2000\) fits easily within modest RAM capacities. (a 2000×2000 float64 matrix is 32 MB); no GPU needed (SC‑002). No GPU escape hatch required.
+- **Budget control**: total work = (configs × repetitions) eigsh calls; the sweep driver caps repetitions so the full pipeline stays within the ≤6 h job limit, recording the achieved `total_runs` honestly.
 
-### 2. Eigenvalue Computation (FR-003, FR-010)
-- **Solver**: `scipy.sparse.linalg.eigsh` (ARPACK) with `which='LA'` (Largest Algebraic).
-- **Implementation**: Since $W_N$ is dense, the matrix $A_N$ is stored as a dense array. The solver is invoked via a `LinearOperator` or the dense interface to compute the top 10 eigenvalues. This avoids the overhead of converting a dense matrix to sparse (which would be nearly full anyway) while leveraging the iterative method's efficiency for extracting a small number of eigenvalues.
-- **Parameters**: `k=10`, `tol=1e-10`, `maxiter=10000`.
-- **Memory Safety**: For $N=2000$, the dense matrix requires $\approx 32$ MB. This is well within the 7 GB RAM limit. No sparse storage of $W_N$ is attempted.
+## Expected Deliverables
+- `data/processed/single_run_results.json`, `convergence_report.json`, `sweep_runs.parquet`, `sensitivity_results.parquet`, `finite_size_results.parquet`, `aggregated_thresholds.json`, `threshold_fit.json` — all schema‑valid and checksummed.
+- Passing contract tests (no skips) and reproducibility integration test (top eigenvalue within 1e‑6 of the stored reference, e.g. A representative value for the reference configuration.).
+- Figures: outlier probability vs \(\theta\); \(\theta_c\) vs density; finite‑size plots.
 
-### 3. Outlier Detection (FR-004)
-- **Threshold Definition**: An eigenvalue $\lambda$ is flagged as an outlier if $\lambda > \lambda_{\text{bulk}} + \epsilon$, where $\lambda_{\text{bulk}}$ is the **empirical bulk edge** (e.g., the 99th percentile of the computed spectrum) and $\epsilon = 0.05$.
-- **Rationale**: The theoretical edge (2.0) is used as a reference, but the empirical edge accounts for finite-size fluctuations (Tracy-Widom distribution). This avoids circular validation against the dense BBP theory.
-- **Reference Value**: The theoretical BBP location $\lambda_{\text{BBP}} = \theta + 1/\theta$ is recorded as a reference but **not** used as the boolean criterion for `is_outlier`. This allows the study to empirically determine if the threshold shifts without assuming the dense theory is correct.
-- **Ambiguity Handling**: If $\theta \approx 1$, the result is flagged as "boundary" with a confidence interval derived from the variance of the bulk edge.
+---
 
-### 4. Parameter Sweep (FR-005, FR-006)
-- **Grid**: $\theta \in \{1.0, 1.1, \dots, 3.0\}$, $N \in \{100, 500, 1000, 2000\}$.
-- **Iterations**: 100 Monte Carlo runs per configuration.
-- **Sensitivity**: Support density $p \in \{0.1, 0.2, 0.3\}$ swept for random sparse patterns.
-- **Metric**: Probability of outlier emergence $P(\text{outlier} | \theta, p)$.
-- **Analysis**: The empirical probability curve $P(\text{outlier}|\theta)$ is fitted with a sigmoid function to estimate the inflection point $\theta_c$ and its confidence interval, increasing statistical power over simple binary counts.
-
-## Statistical Rigor & Assumptions
-
-- **Multiple Comparisons**: Since we are testing multiple $\theta$ values, we report the full curve $P(\text{outlier}|\theta)$ and the estimated $\theta_c$ with confidence intervals. If binary thresholds are derived, we will apply a Bonferroni correction or False Discovery Rate (FDR) control.
-- **Power Analysis**: The sample size (100 runs) is a community standard, but the phase transition is sharp. To detect small shifts (e.g., 0.1) with high confidence, we employ **sigmoid curve fitting** on the probability data. This method leverages the shape of the transition to estimate $\theta_c$ more precisely than a simple count. A sensitivity analysis on sample size (e.g., 50 vs 200 runs) will be performed to quantify the power limitations.
-- **Causal Claims**: All findings are framed as **associational**. The "perturbation" is a controlled input, not a randomized treatment in a physical sense. We do not claim sparsity *causes* a shift, but rather that it is *associated* with a different threshold in the simulation.
-- **Collinearity**: The rank $k$ and norm $\theta$ are orthogonal inputs. However, the number of non-zeros in sparse patterns is correlated with the norm if not normalized; we explicitly normalize $P_N$ to have spectral norm $\theta$ regardless of sparsity.
-- **Measurement Validity**: The "outlier" definition relies on the empirical bulk edge to account for finite-size effects (Tracy-Widom fluctuations), ensuring robustness. The theoretical edge (2.0) is used only as a sanity check.
-
-## Compute Feasibility
-
-- **Memory**: $N=2000$ dense matrix $\approx 32$ MB. 7 GB RAM is sufficient for 100 runs of $N=2000$ sequentially.
-- **Time**: ARPACK for $N=2000$ takes $\approx 0.1-0.5$ seconds per run. [deferred] runs $\approx 1000-5000$ seconds ($\approx 0.3-1.4$ hours). Well within the 6-hour limit.
-- **No GPU**: All operations are CPU-bound and use standard `numpy`/`scipy` which are optimized for CPU.
-
-## Decision/Rationale
-
-- **Why Dense Storage?** Wigner matrices are dense by definition. Sparse storage would be mathematically incorrect. Memory is not a constraint for $N=2000$.
-- **Why LinearOperator?** Allows the use of iterative solvers on dense matrices without converting to sparse format, preserving the dense structure while maintaining efficiency.
-- **Why Sigmoid Fitting?** The phase transition is a step function. Fitting a sigmoid to the empirical probabilities provides a robust estimator for the inflection point ($\theta_c$) and its uncertainty, addressing the power limitations of simple binary counts.
-- **Why Synthetic Data?** Real-world matrices do not offer the precise control over rank and sparsity required to isolate the "sparsity effect" on the BBP threshold.
-- **Why 100 Iterations?** Balances statistical power with the 6-hour runtime constraint. The curve-fitting approach maximizes the information extracted from these runs.
 

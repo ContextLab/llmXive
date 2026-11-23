@@ -1,0 +1,3 @@
+# Source code directory for llmXive project
+# Contains all Python modules for the research pipeline
+# See individual files: config.py, data_loader.py, model.py, etc.

@@ -1,0 +1,125 @@
+{
+  "trace_id": "held_out_43_01824",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 10,
+  "tool_sequence": [
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_text",
+    "insert_text",
+    "update_layout",
+    "update_layout"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 32.0487,
+        "y": 41.6684,
+        "width": 14.7316,
+        "height": 2.2924
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 93.7529,
+        "y": 98.478,
+        "width": 83.3145,
+        "height": 36.9694
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 87.0723,
+        "y": 6.4495,
+        "width": 70.389,
+        "height": 6.1669
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 91.6297,
+        "y": 73.3498,
+        "width": 81.6627,
+        "height": 81.9705
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 6.478,
+        "y": 39.5421,
+        "width": 27.7887,
+        "height": 56.5506
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 4.2865,
+        "y": 32.3786,
+        "width": 86.9519,
+        "height": 97.2002
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 50.2151,
+        "y": 38.6799,
+        "length": 89.6355
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 19.8357,
+        "y": 28.9319,
+        "length": 76.0843
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 43.3715,
+        "padding": 1.3218
+      }
+    },
+    {
+      "step": 9,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 58.5606,
+        "padding": 48.8494
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.950271,
+    "tool_repetition_freq": 0.7,
+    "arg_semantic_variance": 1003.503636
+  },
+  "final_state": {
+    "dominant_tool": "insert_image",
+    "slide_element_count": 4,
+    "layout_hash": "43-1824-insert_image"
+  },
+  "variance_multiplier": 1.5
+}

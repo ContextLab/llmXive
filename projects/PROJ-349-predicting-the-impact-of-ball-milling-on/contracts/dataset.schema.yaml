@@ -1,96 +1,44 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Ball Milling Particle Size Distribution Dataset
-description: >
-  Schema for the aggregated and preprocessed dataset of ball milling experiments.
-  Includes material properties, milling parameters, and resulting particle size distribution metrics.
+$schema: "http://json-schema.org/draft-07/schema#"
 type: object
 required:
   - experiment_id
-  - source
+  - source_name
+  - source_id
   - material_type
-  - milling_speed_rpm
-  - milling_time_hours
+  - milling_speed
+  - milling_time
   - ball_to_powder_ratio
-  - ball_milling_medium
-  - d10_um
-  - d50_um
-  - d90_um
-  - youngs_modulus_gpa
-  - density_g_cm3
-  - process_duration_hours
+  - youngs_modulus
+  - density
+  - d10
+  - d50
+  - d90
+  - process_duration
 properties:
   experiment_id:
     type: string
-    description: Unique identifier for the experiment
-    minLength: 1
-
-  source:
+  source_name:
     type: string
-    description: Source of the data (e.g., Materials Project, NIST, arXiv)
-    enum:
-      - Materials Project
-      - NIST
-      - arXiv
-      - Unknown
-
+    enum: ["Materials Project", "NIST", "arXiv"]
+  source_id:
+    type: string
   material_type:
     type: string
-    description: Category of the material being milled
-    minLength: 1
-
-  milling_speed_rpm:
+  milling_speed:
     type: number
-    description: Rotational speed of the mill in RPM
-    minimum: 0
-
-  milling_time_hours:
+  milling_time:
     type: number
-    description: Duration of milling in hours
-    minimum: 0
-
   ball_to_powder_ratio:
     type: number
-    description: Ratio of ball mass to powder mass
-    minimum: 0
-
-  ball_milling_medium:
-    type: string
-    description: Material of the milling balls
-    minLength: 1
-
-  d10_um:
+  youngs_modulus:
     type: number
-    description: Particle size at 10% cumulative distribution (micrometers)
-    minimum: 0
-
-  d50_um:
+  density:
     type: number
-    description: Median particle size (micrometers)
-    minimum: 0
-
-  d90_um:
+  d10:
     type: number
-    description: Particle size at 90% cumulative distribution (micrometers)
-    minimum: 0
-
-  youngs_modulus_gpa:
+  d50:
     type: number
-    description: Young's modulus of the material in GPa
-    minimum: 0
-
-  density_g_cm3:
+  d90:
     type: number
-    description: Density of the material in g/cm³
-    minimum: 0
-
-  process_duration_hours:
+  process_duration:
     type: number
-    description: Total process duration in hours (derived or measured)
-    minimum: 0
-
-  notes:
-    type: string
-    description: Optional notes or flags about the data point
-    default: ""
-
-additionalProperties: false

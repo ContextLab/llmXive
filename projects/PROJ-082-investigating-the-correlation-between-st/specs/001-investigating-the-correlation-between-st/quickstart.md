@@ -3,8 +3,8 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip` or `conda`
 - Git
+- (Optional) A CSV file of extracted studies (`data/raw/studies.csv`) for real analysis.
 
 ## Installation
 
@@ -22,52 +22,62 @@
 
 3.  **Install dependencies**:
     ```bash
-    pip install -r code/requirements.txt
+    pip install -r requirements.txt
     ```
 
-## Usage
+## Running the Pipeline
 
-### 1. Prepare Input Data
+### Option A: Test with Mock Data (Recommended for CI/CD)
 
-Place your study data in `data/raw/studies.csv` with the following columns:
-- `author`, `year`, `tract_name`, `metric`, `r`, `n`, `qualitative_desc`
+This generates a synthetic dataset and runs the full analysis to verify the pipeline.
 
-*Note: If you do not have real data, use the provided synthetic data generator in `tests/data/synthetic_data.py`.*
-
-### 2. Run the Analysis
-
-Execute the main script:
 ```bash
-python code/main.py --input data/raw/studies.csv --output data/processed/results.json
+# Generate mock data (creates data/raw/mock_studies.csv)
+python code/data/generators.py --config default
+
+# Run the full pipeline using mock data
+python code/main.py --input data/raw/mock_studies.csv --output data/processed/meta_results.json
 ```
 
-### 3. Generate Visualizations
+**Expected Output**:
+- `data/processed/study_count.json` (N ≥ 10, mode: quantitative)
+- `data/processed/meta_results.json` (Pooled r, I², Egger's test)
+- `data/derived/plots/forest_plot.png`, `funnel_plot.png`
 
-The script automatically generates plots in `data/processed/plots/`:
-- `forest_plot.png`
-- `funnel_plot.png`
-- `correlation_plot.png`
+### Option B: Run with Real Data (Narrative Fallback)
 
-### 4. Verify Results
+If you have a real `studies.csv` with < 10 studies:
 
-Check the output JSON (`data/processed/results.json`) for:
-- `synthesis_mode`: "quantitative" or "narrative"
-- `pooled_r` (if quantitative)
-- `i_squared` (must have 2 decimal places)
-- `egger_skipped_reason` (if N < 10)
+1.  Place your file at `data/raw/studies.csv`.
+2.  Run the pipeline:
+    ```bash
+    python code/main.py --input data/raw/studies.csv --output data/processed/meta_results.json
+    ```
+3.  **Result**: The system will detect N < 10, skip quantitative analysis, and generate a `narrative_summary` in the output JSON.
 
-### 5. Run Tests
+### Option C: Run with Real Data (Quantitative)
+
+If you have a real `studies.csv` with ≥ 10 studies:
+1.  Ensure `studies.csv` is in `data/raw/`.
+2.  Run the pipeline as in Option B.
+3.  **Result**: Full meta-analysis, heterogeneity, and bias tests will be performed.
+
+## Verification
+
+Run the test suite to ensure all components work:
 
 ```bash
 pytest tests/ -v
 ```
 
+Key tests to pass:
+- `test_extraction`: Verifies FR-001.
+- `test_meta_analysis`: Verifies FR-002, FR-003, FR-005.
+- `test_bonferroni`: Verifies SC-004.
+- `test_narrative_fallback`: Verifies FR-006, SC-005.
+
 ## Troubleshooting
 
-- **Memory Error**: Ensure you are not loading a massive dataset. The pipeline is designed for <100 studies.
-- **Egger's Test Error**: If N < 10, the test is skipped automatically. Check `egger_skipped_reason`.
-- **PNG Size**: If PNGs exceed 5MB, reduce DPI in `visualization.py` (default is set to a moderate magnitude).
-
-## Output Format
-
-The final output is a JSON file containing the meta-analysis results and paths to the generated plots. All statistics are reproducible via the pinned random seeds in `code/utils.py`.
+- **Error: "Insufficient studies"**: This is expected if N < 10. The system has correctly pivoted to narrative mode.
+- **Error: "Convergence failed"**: The model will fallback to fixed-effects (if N ≥ 10) or narrative mode. Check logs in `data/derived/validation_report.json`.
+- **Missing `studies.csv`**: Use `code/data/generators.py` to create mock data for testing.

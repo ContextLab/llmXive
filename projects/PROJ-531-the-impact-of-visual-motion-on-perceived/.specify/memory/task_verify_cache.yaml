@@ -1,0 +1,103 @@
+T001:
+  c: true
+  h: cc313737e784073404b105bf753764ac67ec9bf44045092abb773f6856674f64
+  r: "Checked `docs/scope.md` (contains synthetic\u2011only policy, IRB placeholder\
+    \ reference, and feature\u2011branch citation) and `README.md` (mentions synthetic\u2011\
+    only fallback, links to scope, and cites the feature branch). Both files exist,\
+    \ are non\u2011empty, and `quickstart.md` links to the scope document as required."
+  sig: e95802eb0c8f03b373ca3a652facf30d3826b5b057c129a33bf6ac25d7bbd55e
+T001b:
+  c: true
+  h: fb22ca646f0aaebfd76a324664ba23afc7a221565c8f311e0402919e5a13d88f
+  r: "The `protocols/irb_approval.pdf` file is present (482\u202Fbytes, valid PDF\
+    \ with placeholder text) and `docs/scope.md` explicitly references it as the IRB\
+    \ approval placeholder. Both artifacts exist and meet the task\u2019s requirement\
+    \ for a documented (placeholder) IRB approval file."
+  sig: f0249a64890f52e8393450d606f093fa25388747a40ba38916afce0176bcf51f
+T002:
+  c: false
+  h: 08b97adc0933e278ad3edb0b5130a6031cbf328d7956c86bdbf8324958bcb9bd
+  r: The script never creates `data/raw/real_data.parquet` (the file is missing) and
+    the generated `download_status.json` contains an invalid `status` value (`"synthetic"`
+    instead of the required `"success"`, `"invalid"` or `"unavailable"`). Moreover,
+    the code only checks a placeholder OpenML Iris dataset, which lacks motion telemetry
+    and agency questionnaire data, so it does not fulfill the required dataset query/validation
+    steps. The task therefore fails to meet the specification.
+  sig: 96799f1e37f4f5591870e21fb9afc606126e6bd331437284725aa36f7765d892
+T003:
+  c: false
+  h: 7d92558062838b5926d1bb9764abdc9b4540e406fcea4a3eb9ea2318ee7d2a66
+  r: "The generated `data/raw/synthetic_data.csv` has the required columns and \u2265\
+    150 rows, but the `participant_id` values are simple \u201CP0000\u201D strings\
+    \ rather than UUIDs, violating the specification. Moreover, no evidence (e.g.,\
+    \ a script or reported correlation/p\u2011value) is provided to confirm that `user_response_trigger`\
+    \ is independent of `agency_score` (Pearson\u202Fr\u202F<\u202F0.05, permutation\u202F\
+    p\u202F>\u202F0.10). The implementation also does not check `instrument_valid`\
+    \ as required, and would skip generation when `status` is \u201Csynthetic\u201D\
+    . These issues must be fixed for the task to be considered complete."
+  sig: 7594a6e640fac1bb69c91acccfa5c3031ff531e2057d4b345b60ea44e6fc6748
+T003a:
+  c: false
+  h: 90ef59459e8d1f793f136b656ab9f434f999ba696557f948738c166d2414754c
+  r: 'The evidence does not show a `download_status.json` file at any path, nor any
+    content confirming that it contains `"use_synthetic": true` and `"status": "synthetic"`.
+    Without the file or its verified contents, the task requirement is not satisfied.'
+  sig: 9ea6bf59f4253615392403670ea71fd91658279d27efeaeb9f0541d0c4faef20
+T004:
+  c: false
+  h: b72a797770110034d0bf18f0a6a1d08bf3b2302b69aab2d85e3595d953215df9
+  r: "The `code/preprocess.py` script runs and produces a valid `analysis_ready.csv`\
+    \ with \u2265\u202F100 rows and the required columns, but the required `data/processed/preprocess_report.json`\
+    \ is not present in the listed artifacts, so the task\u2019s deliverable is incomplete."
+  sig: 60b81713088299355b42980f0401c533a401ded4e84a32881f7ed4f6487dc93c
+T012:
+  c: false
+  h: 748e34db654f86208819c500fed5f53ea06e453a0c2dd18d0e27d45d827ca8ba
+  r: "The repository contains a partially shown `code/download_data.py`, but the implementation\
+    \ is truncated and does not clearly write `data/raw/download_status.json` or handle\
+    \ the \u201Cinvalid\u201D exit case. Moreover, the required `data/raw/download_status.json`\
+    \ file is absent. The task\u2019s output artifact is missing and the script\u2019\
+    s behavior cannot be verified as meeting the specification."
+T013:
+  c: false
+  h: 2a8bb830ef8f642481014267cca5bc0136a748a7c634465b6796decd2c8f9567
+  r: "The repository lacks the required `data/raw/download_status.json` and the generated\
+    \ `data/raw/synthetic_data.csv`. Moreover, the provided `generate_synthetic_data.py`\
+    \ is truncated and does not show the creation of the `user_response_trigger` column,\
+    \ the correlation check (<\u202F0.05), or the CSV write step, so the implementation\
+    \ does not fully meet the task specifications."
+T016:
+  c: false
+  h: bbd786e1a1c1f6bf7f141047fa6903f0262f7b15e99f86bada7880d8fee5eeb7
+  r: The required input file `data/processed/cleaned_data.csv` is missing, so the
+    script could not read real data to compute N. The produced `modeling_config.json`
+    contains synthetic placeholder values and does not stem from the required dataset.
+    The task therefore is not genuinely completed.
+T016b:
+  c: false
+  h: 36b5c87d99232664086964dbfa19897b14f53777fa811b7e86b69acad15a737c
+  r: "The required artifact `data/processed/modeling_config.json` does not exist,\
+    \ so the code cannot read the `abort_flag` or enforce the N\u202F\u2265\u202F\
+    80 gate as specified. The missing file must be provided (or generated) for the\
+    \ task to be satisfied."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or result files were provided that demonstrate performing\
+    \ statistical significance tests on \u22653 features with Bonferroni or Benjamini\u2011\
+    Hochberg correction. The required artifact (e.g., a reproducible analysis script\
+    \ and corrected p\u2011values) is missing, so the task is not satisfied."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, metric outputs, or feature\u2011importance map artifacts\
+    \ were provided; the claim cannot be verified because the required R\xB2, RMSE\
+    \ values and the FR\u2011004/SC\u2011002 importance visualizations are missing.\
+    \ The implementer must supply the computed out\u2011of\u2011sample metrics and\
+    \ the stored feature\u2011importance maps."
+T033b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No document or detailed procedure for recruiting reviewers, distributing the\
+    \ T033 survey, collecting ratings, or running the aggregation script was provided.\
+    \ The required \u201CManual Review Execution Plan\u201D artifact is missing entirely."

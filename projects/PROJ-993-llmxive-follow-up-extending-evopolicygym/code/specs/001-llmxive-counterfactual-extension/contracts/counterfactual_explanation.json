@@ -1,0 +1,32 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CounterfactualExplanation",
+  "type": "object",
+  "properties": {
+    "violated_rule_id": {
+      "type": "string",
+      "description": "ID of the violated rule"
+    },
+    "explanation_text": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Natural language explanation"
+    },
+    "required_correction": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Required action to fix"
+    },
+    "confidence": {
+      "type": "number",
+      "minimum": 0.0,
+      "maximum": 1.0,
+      "description": "Confidence score"
+    },
+    "trajectory_id": {
+      "type": ["string", "null"],
+      "description": "Associated trajectory ID"
+    }
+  },
+  "required": ["violated_rule_id", "explanation_text", "required_correction", "confidence"]
+}

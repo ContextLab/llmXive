@@ -1,164 +1,92 @@
 # Implementation Plan: Predicting Molecular Ionization Energies with Graph Neural Networks
 
-**Branch**: `001-predicting-ionization-energies` | **Date**: 2026-07-05 | **Spec**: `specs/001-predicting-molecular-ionization-energies/spec.md`
+**Branch**: `001-predicting-ionization-energies` | **Date**: 2026-10-24 | **Spec**: `specs/001-predicting-molecular-ionization-energies/spec.md`
 
 ## Summary
-This plan implements a CPU-tractable Message-Passing Neural Network (MPNN) to predict molecular ionization energies using the QM9 dataset. The system converts SMILES strings to 2D graph representations via RDKit, enforces a scaffold-based split to test generalization, and performs ablation studies by retraining with zeroed bond features. The implementation strictly adheres to the multi-core CPU / 7GB RAM constraints of the GitHub Actions free tier. The target variable is explicitly defined as `-HOMO` (Highest Occupied Molecular Orbital energy), used as a proxy for Ionization Energy via Koopmans' theorem, with documented approximation errors.
+Implement a CPU‑only Message‑Passing Neural Network (MPNN) that predicts ionization energy for QM9 molecules using the proxy target `-HOMO` (Koopmans’ theorem). The pipeline validates the proxy against experimental values from the NIST WebBook, enforces a scaffold‑based split, conducts retraining‑based ablation studies, generates Integrated‑Gradients attribution maps, and compares performance to fingerprint‑based linear regression and DFTB baselines. All steps run within the GitHub Actions free‑tier limits (2 CPU cores, ≤ 7 GB RAM, ≤ 6 h per CI job).
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: PyTorch (CPU-only), PyTorch Geometric, RDKit, pandas, scikit-learn, numpy  
-**Storage**: Local filesystem (CSV/Parquet/Checkpoint)  
-**Testing**: pytest  
-**Target Platform**: Linux (GitHub Actions Runner)  
-**Project Type**: Data Science / Machine Learning Pipeline  
-**Performance Goals**: Training completion ≤ 6 hours; End-to-end pipeline ≤ 12 hours; Memory ≤ 6 GB peak RSS  
-**Constraints**: No GPU; No 3D coordinate generation for primary model; No large language models; Strict scaffold splitting  
-**Scale/Scope**: Minimum N=20,000 molecules (fixed for power); Batch size ≤ 64  
-
-> **Target Variable Validity Note**: The QM9 dataset does not contain a direct "ionization_energy" column. The study uses `-HOMO` (negative HOMO energy) as the target variable, approximating Ionization Energy via Koopmans' theorem (IE ≈ -HOMO). This is an approximation with known systematic errors (often > 1 eV) for organic molecules. The plan explicitly acknowledges this proxy nature. Phase 0 includes a validation step to document the correlation (R²) between -HOMO and experimental IE values from the NIST Webbook, and to quantify the systematic error margin. The dataset schema reflects this as a proxy variable.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `torch==2.3.0`, `torch-geometric==2.5.3`, `rdkit==2024.03.2`, `pandas`, `numpy`, `scikit-learn`, `psutil`, `datasets==2.18.0`, `qm9pack`, `requests`.  
+- **Constraints**: CPU‑only, batch size ≤ 64, peak RSS ≤ 7 GB, per‑job wall‑clock ≤ 6 h.  
+- **Scale/Scope**: Minimum training set of **20 000** molecules for the full model (derived from a priori power analysis). Ablation studies use a **10 000‑molecule** subset (fallback to **5 000** if power remains ≥ 0.8).  
 
 ## Constitution Check
-
-| Principle | Status | Implementation Action |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Compliant** | `random_seed` pinned in config; `requirements.txt` pins versions; dataset checksums recorded. |
-| **II. Verified Accuracy** | **Compliant** | Phase 0 includes a **Verified Accuracy Pre-Check** (Step 1) that validates the dataset URL and column existence *before* any training. The validated URL is `https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet`. All dataset URLs sourced from the "Verified datasets" block; citations validated against primary sources. |
-| **III. Data Hygiene** | **Compliant** | Raw data downloaded once; checksums computed; derived data (graphs) saved as new files; no in-place edits. |
-| **IV. Single Source of Truth** | **Compliant** | Evaluation metrics derived strictly from `code/evaluation.py` output; model architecture defined in `data-model.md` (not `plan.md`); no hand-typed numbers in paper. |
-| **V. Versioning Discipline** | **Compliant** | Artifacts hashed; `state.yaml` updated on change; content hashes tracked. |
-| **VI. Structure-Only Graph Fidelity** | **Compliant** | Model input restricted to 2D atom/bond features; 3D conformers used *only* for the DFTB baseline comparison (FR-006) or fallback AM1. |
-| **VII. Scaffold-Based Generalization** | **Compliant** | Split logic implemented using `scaffold_split` (80/10/10) ensuring disjoint chemical scaffolds between sets. |
+| Principle | Status | Action |
+|-----------|--------|--------|
+| I. Reproducibility | ✅ | Fixed seeds, `requirements.txt`, checksum logs. |
+| II. Verified Accuracy | ✅ | URL and column verification against primary sources (Phase 0). |
+| III. Data Hygiene | ✅ | Raw QM9 parquet immutable; transformations create new files with checksums. |
+| IV. Single Source of Truth | ✅ | Model architecture defined in `models/mpnn.py`; all contracts reference it. |
+| V. Versioning Discipline | ✅ | Artifact hashes stored; any change updates project state. |
+| VI. Structure‑Only Graph Fidelity | ✅ | Only 2D atom/bond features used; no 3D descriptors. |
+| VII. Scaffold‑Based Generalization | ✅ | Scaffold split implemented; MAE < 0.4 eV enforced as a pass/fail checkpoint. |
+| **FR‑024** (Construct‑Validity Gating) | ✅ | Gating step aborts training if proxy validation fails. |
+| **FR‑025** (CI Job Orchestration) | ✅ | Detailed CI job breakdown in Phase 10, each respecting the 6‑hour limit. |
+| **SC‑004** (Generalization Gap) | ✅ | Phase 8 computes Test‑Train MAE gap and enforces ≤ 0.05 eV. |
 
 ## Project Structure
-
-### Documentation (this feature)
 ```text
-specs/001-predicting-ionization-energies/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output (includes Model Architecture)
-├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
+specs/001-predicting-molecular-ionization-energies/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
     ├── dataset.schema.yaml
     ├── model_output.schema.yaml
     └── ablation_result.schema.yaml
-```
 
-### Source Code (repository root)
-```text
 code/
 ├── data/
-│   ├── download.py          # Fetches QM9 parquet
-│   ├── preprocess.py        # SMILES -> Graph (RDKit)
-│   └── split.py             # Scaffold split logic
+│   ├── download.py          # QM9 download via `qm9pack` + checksum
+│   ├── preprocess.py        # SMILES → RDKit Mol → PyG Data
+│   └── split.py             # Scaffold‑based 80/10/10 split + covariate balance
 ├── models/
-│   ├── mpnn.py              # CPU MPNN implementation (defined in data-model.md)
-│   └── baselines.py         # DFTB (via RDKit) & Linear Regression
+│   ├── mpnn.py              # CPU‑compatible 3‑layer GCN (FR‑003, FR‑021)
+│   └── baselines.py         # Fingerprint LR & DFTB (FR‑006, FR‑015, FR‑023)
 ├── experiments/
-│   ├── train.py             # Training loop with timeout
-│   ├── ablation.py          # Feature zeroing & retraining logic
-│   └── evaluate.py          # Metrics & Attribution
+│   ├── train.py             # Training loop with timeout & RAM guard (FR‑008, FR‑013)
+│   ├── ablation.py          # Retraining with zeroed bond features, 3 runs per config (FR‑005, FR‑017)
+│   └── evaluate.py          # Metrics, paired tests, attribution, OOD flag (FR‑007, FR‑011, FR‑019)
 ├── utils/
 │   ├── logger.py
-│   └── config.py            # Seeds, paths, hyperparams
-├── tests/
-│   ├── test_data.py
-│   ├── test_model.py
-│   └── test_split.py
+│   └── config.py            # Seeds, hyper‑parameters, paths
 └── requirements.txt
-
-data/
-├── raw/                     # Downloaded parquet files
-├── processed/               # Graph objects (pt/parquet)
-└── splits/                  # Train/val/test indices
 ```
 
-**Structure Decision**: Single `code/` directory with modular sub-packages. This minimizes overhead for the CPU runner and keeps the dependency graph simple for `pip install`.
+## Phase Plan (covers every FR / SC)
 
-## Complexity Tracking
+| Phase | Tasks | FR(s) Addressed | SC(s) Addressed |
+|-------|-------|-----------------|-----------------|
+| **0 – Research & Validation** | 1. Verify QM9 URL, NIST WebBook URL, and column schema against primary sources (Principle II). 2. Compute SHA‑256 checksums for QM9 and NIST files; abort on mismatch. 3. Download NIST WebBook CSV, match a **500‑molecule random subset**, compute $R^2$ **and** MAE (FR‑001, FR‑014, SC‑006). 4. **Construct‑Validity Gating** (FR‑024): abort if $R^2<0.9$ **or** MAE > 0.4 eV. 5. Perform a priori power analysis (α = 0.05, power ≥ 0.8) to detect ΔMAE = 0.1 eV with σ≈0.3 eV → required **N ≥ 20 000** (FR‑018). 6. Profile a 1 k‑molecule batch to confirm RAM ≤ 7 GB (FR‑013). 7. **Citation Verification** (FR‑026): programmatically ping all external URLs (QM9, NIST) and confirm titles overlap ≥ 0.7 with primary sources. | FR‑001, FR‑014, FR‑018, FR‑020, FR‑013, FR‑024, FR‑026, Principle II | SC‑006 |
+| **1 – Data Model & Contracts** | 1. Define `MoleculeGraph`, `IonizationEnergyTarget`, `AblationConfig`, `AttributionMap` (data‑model.md). 2. Create YAML contracts (`dataset.schema.yaml`, `model_output.schema.yaml`, `ablation_result.schema.yaml`). 3. Implement scaffold split (FR‑004) **and** post‑hoc covariate balance check (molecular weight, rotatable bonds); if imbalance > 10 % re‑split stratified by these properties. | FR‑002, FR‑004, FR‑021 | — |
+| **2 – Preprocessing** | 1. Load QM9 via `qm9pack` (verified source). 2. Verify checksum; abort on mismatch. 3. Extract SMILES & `homo`; convert AU → eV (`-homo * 27.2114`). 4. Convert SMILES → RDKit Mol → PyG `Data` (FR‑002). 5. Exclude molecules missing `homo` or unparsable SMILES; log counts; if >5 % → “Data Quality Warning” (FR‑012). | FR‑001, FR‑002, FR‑012 | SC‑001 |
+| **3 – Model Implementation** | 1. Implement CPU‑only 3‑layer GCN per `data-model.md` (FR‑003, FR‑021). 2. Record architecture in `models/mpnn.py` (single source of truth). 3. Optimizer: Adam lr = 0.001; loss: MSE. | FR‑003, FR‑021 | SC‑003 |
+| **4 – Training & Runtime Guard** | 1. Train on the **training split** (batch ≤ 64, early stopping patience = 10, max‑epochs = 200). 2. Monitor peak RSS via `psutil`; abort if > 7 GB (FR‑013). 3. Enforce **hard 6‑hour wall‑clock limit**; on timeout save checkpoint, flag reduced power (FR‑008). | FR‑003, FR‑008, FR‑013 | SC‑003, SC‑005 |
+| **5 – Baseline Construction** | 1. Compute ECFP4 (radius 2) → Ridge regression (baseline 1). 2. Run DFTB **on the same test subset** used for GNN evaluation; if full‑dataset DFTB runtime > 30 min, fall back to a **stratified 5 k‑molecule subset** that matches the test set’s distribution (molecular weight & scaffold). 3. Correlation of GNN vs. DFTB residuals (FR‑015, FR‑023) is computed **only on overlapping molecules** to avoid confounding. | FR‑006, FR‑015, FR‑023 | — |
+| **6 – Ablation Study (Retraining)** | 1. **Two CI sub‑jobs** (Job B‑1 & Job B‑2) each train **3** models per configuration (baseline and perturbed) for a total of **3 stochastic runs** per config (FR‑005, FR‑017). 2. Use a **10 000‑molecule** training subset by default; if runtime profiling predicts > 4 h per run, **re‑estimate power** for a **5 000‑molecule** subset (still ≥ 0.8 power). 3. Pair each baseline run with its perturbed counterpart **by sharing the same random seed**, ensuring a valid paired comparison. 4. Record MAE distribution for each run. 5. **Bootstrap** (1 000 samples) on per‑molecule absolute‑error differences for confidence intervals. 6. Perform a **paired t‑test** on the paired error differences; if Shapiro‑Wilk rejects normality, fall back to Wilcoxon signed‑rank test. Apply **Bonferroni correction** across all ablation configs (FR‑007). | FR‑005, FR‑007, FR‑017, FR‑018, FR‑020 | SC‑002, SC‑009 |
+| **7 – Attribution Generation** | 1. Compute **Integrated Gradients** for a **random subset of 1 000 test molecules** (stratified by scaffold) (FR‑011). 2. **Validation**: rather than Hammett σ, perform a **qualitative check** that high IG scores correspond to chemically intuitive features (e.g., hetero‑atoms, conjugated bonds) and report any major discrepancies (FR‑022). 3. Store results per `model_output.schema.yaml`. | FR‑011, FR‑022 | — |
+| **8 – Comprehensive Evaluation** | 1. Compute MAE, RMSE, $R^2$ on the **test set**. 2. **Pass/Fail**: if MAE ≥ 0.4 eV, record “Performance Failure” and halt further reporting (SC‑001). 3. Compare to fingerprint LR baseline (FR‑006). 4. Correlate absolute error with molecular weight & rotatable bonds (FR‑009, SC‑007). 5. Sensitivity sweep over thresholds {0.4,0.45,0.5,0.55,0.6} (FR‑010, SC‑008). 6. Flag OOD test molecules whose Bemis‑Murcko scaffold is unseen (FR‑019, SC‑011). 7. Compute Pearson ρ between GNN residuals and **DFTB** residuals on the overlapping subset; require |ρ| ≤ 0.2 (FR‑015, FR‑023, SC‑010). 8. **Generalization Gap**: calculate Test MAE – Train MAE; enforce ≤ 0.05 eV (SC‑004). | FR‑006‑FR‑023 | SC‑001‑SC‑012 |
+| **9 – Reporting & Reproducibility** | 1. Assemble `results/` folder (metrics CSV, attribution JSON, ablation JSON, OOD report). 2. Run the **full pipeline** on a fresh runner to verify reproducibility (Principle I). 3. Log all checksums, random seeds, runtime stats, and pass/fail flags. | — | All principles reinforced |
+| **10 – CI Job Orchestration (FR‑025)** | 1. **Job A – Data Ingestion & Validation** (Phase 0 + Phase 2). 2. **Job B – Main Model Training** (Phase 3 + Phase 4). 3. **Job C‑1 & C‑2 – Ablation Retraining** (Phase 6 split into two CI jobs, each ≤ 6 h). 4. **Job D – Baseline Construction & Evaluation** (Phase 5 + Phase 8). 5. **Job E – Attribution & Final Reporting** (Phase 7 + Phase 9). Each job respects the **6‑hour wall‑clock limit** and the **7 GB RAM ceiling**; checkpoints are persisted between jobs. | FR‑025 | — |
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Scaffold Split** | Required by Constitution Principle VII and Spec FR-004 to ensure true OOD generalization. | Random split would allow scaffold leakage, inflating metrics and failing the research question. |
-| **Ablation Study (Retraining)** | Required by Spec FR-005/US-2 to quantify feature importance. Inference-time noise measures robustness, not predictive contribution. Retraining with zeroed features measures true contribution. | Inference-time noise conflates robustness with feature importance; does not validate if the model *learned* the feature. |
-| **DFTB Baseline** | Required by Spec FR-006/US-3 to compare against semi-empirical physics methods. | Using only a linear baseline would not validate the GNN's ability to capture non-linear quantum effects. |
-| **Proxy Target (-HOMO)** | Required because QM9 lacks direct IE. Koopmans' theorem is the only scientific bridge available. | Dropping the study or using a different dataset would fail the research question; using a proxy is the only feasible path. |
+## Risk & Mitigation
+| Situation | Mitigation |
+|---|---|
+| Missing `homo` values | Phase 2 aborts with clear error (FR‑020). |
+| Proxy validation fails ($R^2 < 0.9$ or MAE > 0.4 eV) | Phase 0 aborts with “Construct Validity Failure” (FR‑024). |
+| Training exceeds 6 h | Checkpoint saved; subsequent jobs continue; report reduced power (FR‑008). |
+| DFTB runtime too long | Stratified 5 k subset ensures representative distribution (Phase 5). |
+| Ablation under‑powered | Power re‑estimation before fallback guarantees ≥ 0.8 power; abort otherwise. |
+| Attribution data missing | Skip qualitative validation if < 100 molecules; log limitation (Phase 7). |
+| >5 % molecules excluded | “Data Quality Warning” logged (FR‑012). |
+| Test molecule with unseen scaffold | Flag in OOD report, note potential higher error (FR‑019). |
+| Covariate imbalance after split | Post‑hoc balance check; re‑split stratified if needed (Phase 1). |
 
-## Phase Plan
-
-### Phase 0: Research & Data Verification
-*Addresses: FR-001, SC-001, Dataset Fit, Target Validity*
-1.  **Verified Accuracy Pre-Check**: Validate the QM9 dataset URL (`https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet`) and confirm the existence of the `HOMO` column. If missing, the project is **blocked immediately**. This satisfies Constitution Principle II before any implementation begins.
-2.  **Target Validity Validation**: Compute the R² correlation between `-HOMO` and experimental Ionization Energy values from the **NIST Webbook** (for a subset of molecules in QM9). Document the systematic error margin (e.g., "Koopmans' theorem introduces a bias of X eV"). This establishes the construct validity of the proxy.
-3.  **Resource Profiling**: Run a small batch (N=1000) of SMILES -> Graph conversion to measure peak RAM and time.
-4.  **Baseline Feasibility**: Verify `rdkit.Chem.DFTB` (or equivalent 3D conformer generation + energy calculation) is computable on CPU. If DFTB is too slow, the fallback is to use **AM1** (if available in RDKit) or a **Linear Regression** baseline with a clear note on the limitation. The validation logic for "2D sufficiency" will be adapted (see Phase 3).
-
-### Phase 1: Data Model & Contracts
-*Addresses: FR-002, FR-004, Data Hygiene, Single Source of Truth*
-1.  **Schema Definition**: Define `MoleculeGraph` schema (nodes: atom type, charge; edges: bond type, conjugation).
-2.  **Model Architecture Definition**: Define the exact MPNN architecture (Multi-layer GCN with a fixed-dimensional hidden layer.) in `data-model.md` to serve as the Single Source of Truth.
-3.  **Scaffold Split Implementation**: Implement `scaffold_split` using RDKit Murcko scaffolds. Ensure a balanced 1:1 ratio..
-4.  **Contract Generation**: Create YAML contracts for input data (noting proxy target), model output, and ablation results.
-
-### Phase 2: Implementation (MPNN & Training)
-*Addresses: FR-003, FR-008, SC-003, SC-005, Power Analysis*
-1.  **MPNN Architecture**: Implement the **3-layer GCN** defined in `data-model.md` using `torch_geometric`. Ensure all operations are CPU-compatible.
-2.  **Training Loop**: Implement with early stopping, gradient clipping, and a hard timeout of several hours.
-3.  **Memory Monitoring**: Integrate `psutil` to log Peak RSS. Abort if > 6 GB.
-4.  **Sample Size Enforcement**: **Strict Rule**: Training must use a minimum of **N=20,000 molecules**. If 20k exceeds the 6-hour limit even after reducing epochs/dimensions, the study is declared "underpowered" and the limitation documented; N is **NOT** reduced below [deferred].
-
-### Phase 3: Ablation & Evaluation
-*Addresses: FR-005, FR-006, FR-007, SC-002, SC-004, Scientific Soundness*
-1.  **Ablation Execution (Retraining)**:
-    -   Train **5 independent baseline models** (with full features) using different random seeds.
-    -   Train **5 independent ablation models** (with bond features zeroed out) using the same seeds.
-    -   For each seed pair, compute the per-molecule error vector (Baseline Error - Ablation Error).
-    -   Compare the mean of these error differences using a **paired t-test** (p < 0.05, Bonferroni corrected) across the 5 pairs.
-2.  **Baseline Comparison**:
-    -   Run DFTB (if feasible) or AM1/Linear Regression baseline.
-    -   **Fallback Logic**: If DFTB is infeasible, compare GNN residuals against experimental IE trends (if available) or use AM1 as a proxy for 3D physics to test "2D sufficiency".
-    -   **Validation Logic**: Analyze if GNN errors are uncorrelated with DFTB residuals (where 3D effects dominate) to validate the independence of the 2D signal.
-3.  **Attribution**: Compute gradient-based attribution (**Integrated Gradients**, as defined in `data-model.md` and `model_output.schema.yaml`) for test molecules.
-4.  **Chemical Validation**: Compare attribution scores against known chemical trends (e.g., correlation with **Hammett constants** for functional groups) to validate that the model learns chemically meaningful features, distinguishing model reliance from chemical reality.
-5.  **Error Analysis**: Correlate error with molecule size/flexibility.
-
-### Phase 4: Integration & Reporting
-*Addresses: SC-001, SC-003, Reproducibility*
-1.  **Pipeline Assembly**: Chain download -> preprocess -> train -> eval into a single script.
-2.  **Artifact Generation**: Produce final metrics table and attribution visualizations.
-3.  **Reproducibility Check**: Run full pipeline on a fresh environment to verify checksums and results match.
-
-## Statistical Rigor & Methodological Notes
-- **Multiple Comparisons**: Bonferroni correction applied when comparing >2 baselines or ablation conditions.
-- **Power Analysis**: Minimum N=20,000 molecules is fixed to ensure power > 0.8 for effect sizes > 0.05 eV. If this N is computationally infeasible, the study is declared underpowered, not arbitrarily reduced.
-- **Causal Claims**: No causal claims made. The study is observational/predictive. "Contribution" refers to predictive feature importance (measured via retraining).
-- **Collinearity**: Atom types and bond types are definitionally related. The model architecture (MPNN) handles this via message passing; however, independent effect claims for specific bond types will be framed as "predictive contribution" acknowledging inherent correlations.
-- **Statistical Test for Ablation**: The ablation study uses **5 paired runs** (baseline and perturbed) to generate 5 per-molecule error difference vectors. A **paired t-test** is performed on these vectors to determine if the perturbed model's errors are significantly higher.
-
-## Compute Feasibility Plan
-- **Hardware**: A modest computational configuration with a small number of vCPUs and moderate RAM capacity. (GitHub Actions Free).
-- **Strategy**:
-  - Use `torch` CPU backend (no CUDA).
-  - Batch size capped at a moderate range (dynamic adjustment based on Phase 0 profiling).
-  - **Sample Size**: Fixed minimum N=20,000 molecules. If 20k exceeds 6h:
-    1.  Reduce model complexity (hidden dims from a higher dimension to a lower dimension, layers from a higher count to a lower count).
-    2.  Reduce epochs (if early stopping allows).
-    3.  If still infeasible, declare study "underpowered" and document the trade-off. N is NOT reduced below [deferred].
-  - DFTB Baseline: If `rdkit`'s DFTB implementation is too slow, use **AM1** (if available) or a **Linear Regression** baseline with a clear note on the limitation. The validation logic for "2D sufficiency" will be adapted to compare against experimental trends or AM1 residuals.
-  - Precision: Float32 (default). No 16-bit mixed precision (CPU overhead often negates benefit).
-
-## Attribution Method Consistency
-- The attribution method (**Integrated Gradients**) is defined in `data-model.md` and `model_output.schema.yaml`. The implementation in `code/experiments/evaluate.py` will strictly follow these definitions.
-- The `AttributionMap` contract ensures consistency between the plan, data model, and output.
-
-## Assumptions
-- The QM9 dataset (`https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet`) contains all necessary variables (SMILES, `HOMO`) and is accessible without authentication.
-- The "ionization energy" in QM9 corresponds to the vertical ionization energy, approximated by `-HOMO` via Koopmans' theorem, with documented systematic error.
-- The 2D graph representation (atom/bond types) is sufficient to capture the majority of the predictive signal for ionization energy in small, rigid molecules, as hypothesized.
-- The PyTorch Geometric library and RDKit are available and compatible with the free-tier GitHub Actions runner environment (CPU-only).
-- The scaffold-based split successfully separates chemical space such that the test set represents a true out-of-distribution challenge for the model.
-- The 6-hour time limit is sufficient for training a small MPNN on a subset of QM9 (or the full set with aggressive batching) on a 2-core CPU.
-- No GPU acceleration is available or required; the model must converge using standard float32 precision on CPU.
-- The DFTB baseline comparison acknowledges the confounding variable of conformer generation quality when comparing 2D-derived 3D structures against 2D-only GNNs.
+## Compute Feasibility Decision
+- **CPU‑First**: All training uses `torch` on `device="cpu"`.  
+- **Batch Size**: Start at 64; if OOM, reduce stepwise (48 → 32 → 16).  
+- **Epochs**: Up to 200 with early stopping (patience = 10) **and** a hard cap of 100 epochs for ablation runs to guarantee completion within the 6‑hour job budget.  
+- **Memory Monitoring**: `psutil` logs peak RSS; abort if > 7 GB (FR‑013).  
+- **Timeout**: Hard 6‑hour wall‑clock limit per CI **job**; the pipeline is split into three separate jobs (Training, Ablation, Attribution) and the ablation job is further split into two sub‑jobs (Job B‑1, Job B‑2) to stay within limits.  

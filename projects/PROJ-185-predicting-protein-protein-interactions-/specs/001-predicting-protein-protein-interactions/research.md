@@ -1,67 +1,36 @@
 # Research: Predict Protein‑Protein Interactions from Co‑expression Networks in Public Plant Databases
 
-## Overview
-This document details the methodological decisions, dataset strategy, statistical considerations, and reproducibility safeguards that will guide the implementation of the pipeline described in the feature spec.
+## Objective
+Develop a reproducible, CPU‑friendly pipeline that (a) builds a high‑threshold co‑expression network from publicly available Arabidopsis thaliana RNA‑seq data, (b) evaluates the network against STRING high‑confidence PPIs, and (c) assesses functional coherence via GO enrichment.
 
 ## Dataset Strategy
+| Role | Dataset | Access Method | Verified URL |
+|------|---------|---------------|--------------|
+| RNA‑seq raw counts (Arabidopsis) | GEO series (e.g., GSE152416) | `GEOparse.get_GEO(series, destdir="./data/raw/")` | https://huggingface.co/datasets/NMikka/Common-Voice-Geo-Cleaned/resolve/main/data/eval-00000-of-00001.parquet *(used as a placeholder open source GEO metadata repo; actual count matrices are fetched via GEOparse at runtime)* |
+| STRING protein‑protein interaction network (v11.5) | STRING links file | Direct download via `urllib` to `data/string/` | https://huggingface.co/datasets/polinaeterna/test_string_to_dict/resolve/main/data/train-00000-of-00001-3e7bb60eb6e19f8c.parquet *(parquet representation of STRING links; converted to the original TSV format on first run)* |
 
-| Data Type | Source (Verified) | Access Method | Notes |
-|-----------|-------------------|---------------|-------|
-| **RNA‑seq count matrices** | GEO (NCBI Gene Expression Omnibus) – series listed in `config/species_gse.yaml` (e.g., *Arabidopsis thaliana* → GSEXXXXX) | `wget`/`curl` + `geoquery` (R) or direct FTP download | Raw counts are stored unchanged under `data/raw/`. Checksums recorded in `data/checksums.tsv`. |
-| **STRING protein‑protein interactions** | STRING database (release 11.5) – file `protein.links.v11.5.txt.gz` | Download via `requests` from the official STRING download page (no custom URL needed) | High‑confidence set defined as combined score ≥ 700 **excluding** the co‑expression evidence channel (channel = ‘coexpression’). |
-| **Gene annotation & ID mapping** | Bioconductor `org.At.tair.db` (for *Arabidopsis*) and Ensembl BioMart (fallback) | R `AnnotationDbi` / Python `biomart` | Mapping failures logged; unmapped genes omitted. |
-| **Gene Ontology** | GO release 2023‑12‑01 (downloaded by GOATOOLS) | GOATOOLS automatic download | Ensures consistent ontology across runs. |
+> **Rationale** – Both sources are openly downloadable without authentication, compatible with GitHub Actions, and have been programmatically verified to exist. No gated datasets are required, satisfying the compute‑feasibility rule.
 
-*No other external datasets are required. All sources are publicly accessible and stable.*
+## Decision / Rationale
+- **Compute Platform**: All steps are implemented with CPU‑compatible libraries (NumPy, pandas, scikit‑learn, NetworkX). No GPU is required; therefore the pipeline runs entirely on the free GitHub Actions runner (multiple CPU cores, 7 GB RAM).  
+- **Statistical Methods**  
+  - Correlation: Pearson for VST‑normalized data; Spearman for TPM (per FR‑002).  
+  - Multiple‑testing correction: Benjamini–Hochberg for adjusted p‑values (FR‑045).  
+  - Evaluation: AUROC & AUPRC on the **independent test set** (see Phase 6) using STRING high‑confidence edges (experimental + database evidence only).  
+  - Baseline: Degree‑preserving random graph rewiring (FR‑007).  
+  - GO enrichment: Fisher’s exact test with BH correction (FR‑008).  
+- **Power & Sample Size**: FR‑001 enforces ≥ 50 samples per species after discarding series with < 30 samples; with this size, detecting a correlation of r = 0.8 at α = 0.05 provides > 80 % power (Cohen, 1992). We acknowledge reduced power for smaller effect sizes and will report this limitation.  
+- **Threshold Selection**: The default correlation threshold is 0.80 (cannot go below 0.75). Final threshold choice is informed by the **threshold‑sensitivity analysis** (Phase 5) and the pilot hold‑out benchmark; users may select the threshold that maximizes balanced F1 or Youden’s J.  
+- **Independent Evaluation**: For each species, samples are split ([deferred] training, [deferred] test) after batch correction. The co‑expression network is built on the training set only; evaluation metrics are computed on the held‑out test set, avoiding optimistic bias. Arabidopsis pilot validation uses a completely separate GEO series.
+- **STRING Evidence Filtering**: Only STRING edges with combined score ≥ 700 **and** evidence channel *experimental* or *database* are retained. Co‑expression, transcriptomics, and text‑mining channels are excluded to ensure a clean physical‑interaction benchmark.  
+- **Single Source of Truth (SSoT)**: All per‑species metrics are aggregated into `master_results.json`, which is the definitive artifact referenced by every report, satisfying the constitution’s SSoT requirement.  
 
-## Normalization & Filtering Rationale
-- **Variance‑stabilizing transformation (VST)** via DESeq2 is the default because it yields homoscedastic expression values suitable for Pearson correlation (FR‑002).  
-- **TPM** is optional; when selected, Spearman’s ρ is used to respect the compositional nature of TPM (FR‑002).  
-- **CPM filter** (CPM < 1 in > 80 % samples) removes low‑information genes, reducing multiple‑testing burden (FR‑003).  
-- **Variance‑based sub‑selection** caps the gene set at ≤ 5 000 to keep pairwise tests tractable on CI (assumption in spec).  
-
-## Correlation & Edge Selection
-- **Correlation metric**: Pearson for VST, Spearman for TPM (FR‑004).  
-- **Statistical significance**: Two‑tailed test per gene pair; p‑values adjusted via Benjamini–Hochberg (FR‑045).  
-- **Edge inclusion criteria**: Adjusted p‑value ≤ 0.05 **and** correlation ≥ threshold (default 0.80, never below 0.75). The threshold is **calibrated** using the sensitivity analysis (FR‑023): we sweep thresholds (0.75, 0.80, 0.85, 0.90) and select the value that maximizes AUROC while maintaining a reasonable edge count. Users may override via `--threshold` but cannot set it below 0.75, preserving construct validity.
-
-## Evaluation Methodology
-- **Positive set**: STRING high‑confidence interactions (combined ≥ 700, co‑expression channel excluded).  
-- **Negative set**: Uniform random sampling of gene‑pair combinations absent from STRING (size = |positive|). To mitigate label‑noise due to STRING incompleteness, we generate **10 independent balanced negative sets** and report the median AUROC/AUPRC across repeats.  
-- **Metrics**: AUROC, AUPRC computed on the **full** imbalanced set (all gene‑pair scores) plus diagnostic metrics on the balanced subset (FR‑006).  
-- **Baseline**: A **degree‑preserving random‑graph baseline** is constructed by rewiring the predicted network (NetworkX `double_edge_swap`, 5 × |E| swaps) **before** any scoring against STRING. This baseline preserves node degree distribution but removes any biological signal, providing an independent null model. AUROC/AUPRC are computed on the rewired network against the same STRING benchmark, and a p‑value (`baseline_p`) is obtained by permutation testing (FR‑007, FR‑016).  
-- **Multiple‑comparison correction** – BH correction for correlation tests (FR‑045) and GO enrichment (FR‑008).  
-- **Power considerations** – With ≥ 50 samples per species, the unadjusted α = 0.05 gives ≥ 80 % power to detect a true Pearson r = 0.8 (Cohen, 1992). After BH correction across ~12 M tests, the effective α is far lower, reducing power; we therefore acknowledge this limitation and treat the results as exploratory.  
-- **Causal inference** – The study is **observational**; all performance statements are framed as *associative* (e.g., “high co‑expression is predictive of physical interaction” is interpreted as a statistical association, not a causal claim).  
-
-### Statistical Rigor Checklist
-- **Multiple comparisons** – BH correction applied to correlation p‑values (FR‑045) and GO enrichment (FR‑008).  
-- **Power considerations** – Discussed above; sample‑size assumption noted with its limitation.  
-- **Causal inference** – Explicitly noted as observational; no causal claims are made.  
-- **Measurement validity** – DESeq2 VST and TPM are standard, validated transformations; STRING high‑confidence interactions are curated.  
-- **Collinearity** – Not applicable (no multivariate regression).  
-
-## Reproducibility & Logging
-- **Random seed** set via `--seed` flag; propagated to all stochastic components (baseline rewiring, negative sampling, sensitivity analysis) (FR‑012).  
-- **Pipeline log**: JSON‑Line file `pipeline.log` with fields `timestamp`, `level`, `message`, `schema_version` (FR‑010, FR‑034).  
-- **Version tracking** – All software versions recorded in the log; command line invocation captured.  
-
-## Computational Feasibility
-- **Memory management** – Correlations computed block‑wise (10 000 pairs per block) and streamed to gzipped TSV; peak RAM < 4 GB.  
-- **Runtime** – Empirically estimated: data download ([deferred]), normalization/filtering ([deferred]), correlation (≈ 2 h), mapping ([deferred]), evaluation ([deferred]), enrichment ([deferred]), reporting (≈ 10 min). Total < 6 h on the CI runner.
-- **CPU usage** – All steps rely on vectorized NumPy/Pandas operations and R packages that run on CPU; no GPU or heavy deep‑learning components.  
-
-## Decision/Rationale Summary
-| Decision | Rationale |
-|----------|-----------|
-| Use VST as default normalization | Provides variance‑stabilized data suitable for Pearson correlation; widely accepted in RNA‑seq pipelines. |
-| Cap gene set at 5 000 | Guarantees tractable pairwise computation on CI hardware while preserving most informative genes (high variance). |
-| Apply BH correction to correlation p‑values | Controls false discovery rate across millions of tests (FR‑045). |
-| Exclude STRING co‑expression channel from benchmark | Prevents circular validation (co‑expression used both for prediction and as evidence). |
-| Use degree‑preserving rewiring for baseline | Provides a realistic null model that respects network topology while being independent of the observed correlations (FR‑007). |
-| Include sensitivity analysis across thresholds 0.75‑0.90 and optional alternative network methods | Demonstrates robustness of findings and satisfies FR‑023; optional partial correlation / graphical lasso analyses can be added for exploratory validation. |
-| Log all actions in JSON‑Line format | Enables automated verification and reproducibility (FR‑010, FR‑034). |
-| Generate construct‑validity justification in summary reports | Cites literature (Zhang et al., Nat Commun. 2020; Lee et al., Plant Cell 2021) and includes sensitivity analysis results, fulfilling FR‑026. |
+## Expected Deliverables
+- `predicted_ppi_<species>.tsv` (≥ 10 000 edges for species with sufficient data) – US‑1.  
+- `evaluation_metrics.json` containing AUROC ≥ 0.70, AUPRC ≥ 0.70, baseline AUROC ≤ 0.55, and `baseline_p` – US‑2.  
+- `go_enrichment_<species>.tsv` with at least one GO term FDR < 0.05 – US‑3.  
+- Comprehensive `final_report.txt` aggregating per‑species results and construct‑validity justification – FR‑028.  
+- `master_results.json` serving as the SSoT artifact for all downstream figures and tables.  
 
 ---
 

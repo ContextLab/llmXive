@@ -1,0 +1,9 @@
+shapely
+numpy
+scipy
+pandas
+pytest
+statsmodels
+datasets
+huggingface_hub
+pyyaml

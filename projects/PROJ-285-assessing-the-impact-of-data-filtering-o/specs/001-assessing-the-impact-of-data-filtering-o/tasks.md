@@ -55,15 +55,15 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 [P] Implement data ingestion for the **Strong Lens Finding Challenge (SLFC)** dataset (the verified proxy for DES) in `code/src/data_loader.py`. Extract `is_lens` labels from the SLFC dataset and save them to `data/raw/real_labels.csv` to serve as ground truth for purity calculation (FR-003). **Do NOT use this file for injection recovery.**
+- [X] T004 [P] Implement data ingestion for the **Strong Lens Finding Challenge (SLFC)** dataset (the verified proxy for DES) in `code/src/data_loader.py`. Extract `is_lens` labels from the SLFC dataset and save them to `data/raw/real_labels.csv` to serve as ground truth for purity calculation (FR-003). **Do NOT use this file for injection recovery.**
 - [ ] T006 [Depends on T004] Implement **Simulated Injection Generation** in `code/src/data_loader.py`. **Inject synthetic lens images** at random coordinates into the SLFC background to create a ground truth catalog. Save this to `data/raw/injection_ground_truth.csv` with columns `RA`, `Dec`, `injected_id`. This satisfies FR-008's requirement for an explicit *injection/recovery* simulation catalog. **This task is the sole producer of the injection catalog to avoid race conditions with T004.**
-- [ ] T005 [P] Implement chunked CSV/Parquet loader in `code/src/loader.py` to process the **SLFC dataset** without loading the full dataset into RAM (FR-001). MUST log peak memory usage to `data/processed/memory_profile.csv`. If usage exceeds **6GB** (per plan.md constraint), **log a warning but do not fail the build**, satisfying SC-005's measurement requirement.
+- [X] T005 [P] Implement chunked CSV/Parquet loader in `code/src/loader.py` to process the **SLFC dataset** without loading the full dataset into RAM (FR-001). MUST log peak memory usage to `data/processed/memory_profile.csv`. If usage exceeds **6GB** (per plan.md constraint), **log a warning but do not fail the build**, satisfying SC-005's measurement requirement.
 - [X] T007 [P] Create coordinate matching utility in `code/src/utils.py` to handle RA/Dec matching with ≤ 1.0 arcsec tolerance (FR-003, FR-008)
-- [~] T008 [P] Setup `pytest` configuration and unit test scaffolding in `tests/unit/` <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
+- [ ] T008 [P] Setup `pytest` configuration and unit test scaffolding in `tests/unit/` <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
  in "<unicode string>", line 2, column 13:
  contents: |
  ^) -->
-- [~] T009 [P] Implement basic error handling and logging infrastructure in `code/src/`
+- [ ] T009 [P] Implement basic error handling and logging infrastructure in `code/src/`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 

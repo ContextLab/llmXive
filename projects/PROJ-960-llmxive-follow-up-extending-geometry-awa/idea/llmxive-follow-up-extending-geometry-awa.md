@@ -5,37 +5,80 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Geometry-Aware Representation Denoising for Robust Multi-view 3D Recon"
 
-## Summary of the prior work
-The paper introduces Geometry-Aware Representation Denoising (GARD), a framework that applies diffusion-based restoration directly to the feature space of feed-forward 3D reconstruction models rather than raw pixels. By leveraging the geometry-aware nature of these internal representations, GARD simultaneously recovers robust 3D scene geometry and high-quality RGB images from degraded multi-view inputs. The method demonstrates that denoising in the latent feature space is more effective for preserving structural integrity than traditional pixel-level restoration techniques.
+**Field**: Computer Science (Computer Vision / 3D Reconstruction)
 
-## Proposed extension
-**Research Question:** Can the geometric priors learned by GARD be distilled into a lightweight, deterministic graph-based filter that achieves comparable robustness on degraded multi-view data without requiring the iterative inference of a diffusion model?
+## Research question
 
-This extension matters because GARD's reliance on diffusion sampling makes it computationally expensive and unsuitable for edge devices or CPU-only environments; a deterministic alternative would democratize robust 3D reconstruction for real-time applications on standard hardware while testing the hypothesis that the "geometry-awareness" is a structural property that can be captured by simpler mathematical operators rather than generative processes.
+What specific geometric structural properties of the feature manifold in multi-view 3D reconstruction are sufficient to ensure robustness against noise, and can these properties be captured by non-generative, deterministic operators without relying on the iterative sampling process?
+
+## Motivation
+
+Current state-of-the-art robust reconstruction methods rely on computationally intensive diffusion models to denoise feature spaces, creating a bottleneck for real-time or edge-deployment scenarios. This project investigates whether the "geometry-awareness" driving robustness is a static structural property of the latent manifold that can be isolated and enforced via simpler, deterministic graph-based filtering, thereby decoupling high-fidelity reconstruction from generative overhead.
+
+## Related work
+
+- [Can These Views Be One Scene? Evaluating Multiview 3D Consistency when 3D Foundation Models Hallucinate](https://arxiv.org/abs/2605.18754) — Highlights the fragility of consistency assumptions under degradation, underscoring the need for robust, non-generative consistency checks rather than relying on models that may hallucinate when views are sparse or noisy.
+- [Neural Radiance Fields Approach to Deep Multi-View Photometric Stereo](https://arxiv.org/abs/2110.05594) — Demonstrates how exploiting explicit image formation models can recover dense geometry, providing a theoretical basis for using deterministic structural priors over learned generative ones.
+- [Puzzles: Unbounded Video-Depth Augmentation for Scalable End-to-End 3D Reconstruction](https://arxiv.org/abs/2506.23863) — Shows that direct regression of pointmaps can bypass traditional geometric constraints, suggesting that alternative deterministic pathways for feature refinement are viable in modern pipelines.
+
+## Expected results
+
+We expect to identify a subset of geometric structural properties (e.g., specific Laplacian eigenmodes or curvature constraints) that, when enforced deterministically, recover 85-90% of the noise robustness achieved by diffusion baselines. Success will be confirmed if a lightweight graph filter maintains reconstruction accuracy (measured by Chamfer Distance) comparable to generative methods while reducing inference latency by two orders of magnitude on CPU hardware.
 
 ## Methodology sketch
-**Data:** Utilize the existing Depth Anything 3 (DA3) benchmark and the synthetic degradation pipeline from the GARD paper to create a test set of degraded multi-view image sequences.
 
-**Procedure:** 
-1. Extract the geometry-aware feature maps from a frozen GARD encoder on both clean and degraded inputs.
-2. Analyze the statistical correlations between feature perturbations and geometric errors to construct a lightweight, learnable graph Laplacian filter (or a simple attention-based graph smoothing operator) that operates solely on CPU.
-3. Train this deterministic filter using a mean-squared error loss against the clean feature representations, explicitly excluding any diffusion steps.
-4. Evaluate the filtered features by feeding them into the original GARD decoder and a standard 3D reconstruction head, measuring reconstruction accuracy (Chamfer Distance, F-score) and inference time on a single CPU core.
+- **Data Acquisition**: Download the Depth Anything 3 (DA3) benchmark dataset and synthetic degradation scripts from the GARD repository to generate a controlled test set of noisy multi-view sequences.
+- **Feature Extraction**: Freeze the GARD encoder to extract geometry-aware feature maps for both clean and degraded inputs, establishing the target manifold structure.
+- **Structural Analysis**: Compute spectral properties of the feature graph (Laplacian eigenvalues, curvature estimates) to identify which structural signatures correlate with robustness in the clean ground truth.
+- **Graph Construction**: Build a k-nearest neighbor graph where edge weights reflect feature similarity and geometric proximity, explicitly excluding stochastic components.
+- **Filter Design**: Implement a deterministic graph Laplacian filter parameterized to preserve the identified robust structural signatures while suppressing noise frequencies.
+- **Training & Optimization**: Optimize filter parameters on a CPU-only environment using mean-squared error against clean feature representations, ensuring no diffusion steps are involved.
+- **Evaluation**: Pass filtered features through the original GARD decoder and a standard 3D reconstruction head to compute Chamfer Distance and F-score against ground truth meshes.
+- **Performance Benchmarking**: Measure inference latency and peak memory usage on a single CPU core to quantify the efficiency gains over the diffusion baseline.
+- **Statistical Validation**: Perform a paired t-test on reconstruction errors across 50 degraded test scenes to determine if the performance gap between the deterministic and generative methods is statistically significant.
 
-**Expected Result:** We anticipate that the deterministic graph filter will recover approximately 85-90% of the geometric accuracy achieved by the full diffusion-based GARD framework while reducing inference time by two orders of magnitude, demonstrating that the core benefit of GARD stems from structural feature smoothing rather than generative complexity.
+## Duplicate-check
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Reviewed existing ideas: GARD baseline extension, Diffusion-free 3D denoising, Graph-based feature smoothing.
+- Closest match: None found in the immediate corpus; the specific focus on isolating *static geometric structural properties* via *deterministic operators* to replace *diffusion sampling* is novel.
+- Verdict: NOT a duplicate
 
-- **Geometry-Aware Representation Denoising for Robust Multi-view 3D Reconstruction** — Jin Hyeon Kim, Jaeeun Lee, Claire Kim, Kyoungjin Oh, Paul Hyunbin Cho, Jaewon Min, Yeji Choi, Jihye Park, Hyunhee Park, Minkyu Park, Seungryong Kim. https://arxiv.org/abs/2605.26230.
 
-```bibtex
-@article{orig_arxiv_2605_26230,
-  title = {Geometry-Aware Representation Denoising for Robust Multi-view 3D Reconstruction},
-  author = {Jin Hyeon Kim and Jaeeun Lee and Claire Kim and Kyoungjin Oh and Paul Hyunbin Cho and Jaewon Min and Yeji Choi and Jihye Park and Hyunhee Park and Minkyu Park and Seungryong Kim},
-  year = {2026},
-  eprint = {2605.26230},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2605.26230},
-  url = {https://arxiv.org/abs/2605.26230}
-}
-```
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-09-03T12:35:05Z
+**Outcome**: exhausted
+**Original term**: llmXive follow-up: extending "Geometry-Aware Representation Denoising for Robust Multi-view 3D Recon" computer science
+**Verified citation count**: 3
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Geometry-Aware Representation Denoising for Robust Multi-view 3D Recon" computer science | 0 |
+| 1 | geometry-aware deep learning for 3D reconstruction | 4 |
+| 2 | robust multi-view 3D reconstruction with noise reduction | 0 |
+| 3 | 3D point cloud denoising using geometric priors | 0 |
+| 4 | view-consistent 3D representation learning | 0 |
+| 5 | geometric regularization for neural 3D reconstruction | 0 |
+| 6 | multi-view stereo with learned denoising | 0 |
+| 7 | robustness in neural radiance fields (NeRF) | 0 |
+| 8 | 3D shape reconstruction from noisy multi-view images | 0 |
+| 9 | geometry-guided representation learning for vision | 0 |
+| 10 | noise-robust 3D scene reconstruction | 0 |
+| 11 | self-supervised 3D geometry learning | 0 |
+| 12 | multi-view consistency for 3D deep learning | 0 |
+| 13 | geometric deep learning for 3D perception | 0 |
+| 14 | denoising autoencoders for 3D point clouds | 0 |
+| 15 | robust multi-view geometry estimation | 0 |
+| 16 | 3D reconstruction under view noise and occlusion | 0 |
+| 17 | geometric constraints in neural 3D generation | 0 |
+| 18 | learning robust 3D representations from sparse views | 0 |
+| 19 | 3D scene reconstruction with geometric awareness | 0 |
+| 20 | noise-robust neural implicit surfaces | 0 |
+
+### Verified citations
+
+1. **Can These Views Be One Scene? Evaluating Multiview 3D Consistency when 3D Foundation Models Hallucinate** (2026). Soumava Paul, Prakhar Kaushik, Alan Yuille. arXiv. [2605.18754](https://arxiv.org/abs/2605.18754). PDF-sampled: No.
+2. **Neural Radiance Fields Approach to Deep Multi-View Photometric Stereo** (2021). Berk Kaya, Suryansh Kumar, Francesco Sarno, Vittorio Ferrari, Luc Van Gool. arXiv. [2110.05594](https://arxiv.org/abs/2110.05594). PDF-sampled: No.
+3. **Puzzles: Unbounded Video-Depth Augmentation for Scalable End-to-End 3D Reconstruction** (2025). Jiahao Ma, Lei Wang, Miaomiao liu, David Ahmedt-Aristizabal, Chuong Nguyen. arXiv. [2506.23863](https://arxiv.org/abs/2506.23863). PDF-sampled: No.

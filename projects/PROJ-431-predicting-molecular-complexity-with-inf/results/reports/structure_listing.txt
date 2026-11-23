@@ -1,0 +1,11 @@
+T001a project directory structure listing
+
+[DIR] data/raw
+[DIR] data/processed
+[DIR] results/models
+[DIR] results/reports
+[DIR] results/plots
+[DIR] code
+[DIR] tests
+[DIR] tests/unit
+[DIR] tests/integration

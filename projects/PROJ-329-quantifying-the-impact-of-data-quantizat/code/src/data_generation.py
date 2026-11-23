@@ -1,406 +1,476 @@
+"""
+Data generation module for gravitational wave pilot dataset.
+Handles waveform generation, quantization, and HDF5 serialization.
+"""
 import os
 import sys
 import logging
 import random
 import json
 from pathlib import Path
-from typing import Dict, List, Tuple, Any, Optional
-
+from typing import Dict, List, Tuple, Any, Optional, Union
 import numpy as np
 import h5py
+import hashlib
+from datetime import datetime
 
-# Import project utilities
-from .utils import quantize_fixed_fsr, calculate_snr, calculate_optimal_fsr
+# Local imports
+from .utils import get_quantization_levels, calculate_optimal_fsr, quantize_fixed_fsr, calculate_snr
 from .state_manager import calculate_file_hash, save_state_file, load_state_file
-from .error_handling import handle_noise_file_error, validate_noise_file
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
 # Constants
-BASE_DIR = Path(__file__).resolve().parent.parent
-DATA_PROCESSED_DIR = BASE_DIR / "data" / "processed"
-LOGS_DIR = BASE_DIR / "logs"
-STATE_FILE = BASE_DIR / "state.yaml"
+DEFAULT_SEED = 42
+DEFAULT_OUTPUT_DIR = Path("data/processed")
+DEFAULT_OUTPUT_FILENAME = "waveforms_pilot_{seed}.h5"
+MAX_FILE_SIZE_BYTES = 4 * 1024 * 1024 * 1024  # 4 GB
+MAX_RAM_GB = 7
+BATCH_SIZE = 50  # Signals per batch to fit memory
 
-# Ensure directories exist
-DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
+# Bit depths to test (including 1-bit edge case and standard precisions)
+BIT_DEPTHS = [1, 8, 10, 12, 14, 16]
+
+# SNR Bins for stratification
+SNR_BINS = [
+    (8, 14),
+    (14, 20),
+    (20, 30),
+    (30, 50)
+]
 
 def generate_bbh_waveform(
     mass1: float,
     mass2: float,
+    spin1: float,
+    spin2: float,
     distance: float,
-    sampling_rate: int = 4096,
+    sample_rate: int = 4096,
     duration: float = 2.0,
-    seed: Optional[int] = None
-) -> Tuple[np.ndarray, np.ndarray, float, float]:
+    rng: Optional[np.random.Generator] = None
+) -> Tuple[np.ndarray, float]:
     """
-    Generate a simplified BBH inspiral waveform (IMRPhenomPv2 approximation).
-    Returns: (time_array, h_plus, h_cross, injected_snr, chirp_mass)
+    Generate a simplified BBH waveform (IMRPhenomPv2 approximation).
     
-    NOTE: This is a physics-based simulation using analytical approximations
-    compatible with the project's requirement to generate real waveforms.
+    In a full implementation, this would use PyCBC or Bilby to generate 
+    the waveform. For this pilot, we use a chirp signal model that 
+    approximates the inspiral-merger-ringdown behavior.
+    
+    Args:
+        mass1: Primary mass in solar masses
+        mass2: Secondary mass in solar masses
+        spin1: Dimensionless spin of primary
+        spin2: Dimensionless spin of secondary
+        distance: Luminosity distance in Mpc
+        sample_rate: Sampling rate in Hz
+        duration: Duration in seconds
+        rng: Random number generator for reproducibility
+        
+    Returns:
+        Tuple of (waveform_array, snr)
     """
-    if seed is not None:
-        np.random.seed(seed)
-
-    # Physical constants
-    G = 6.67430e-11
-    c = 2.99792458e8
-    Msun = 1.98847e30
+    if rng is None:
+        rng = np.random.default_rng()
+        
+    t = np.linspace(0, duration, int(sample_rate * duration))
     
-    # Calculate chirp mass
-    m1 = mass1 * Msun
-    m2 = mass2 * Msun
-    M = m1 + m2
-    chirp_mass = (m1 * m2)**(3/5) / M**(1/5)
+    # Chirp mass calculation
+    M = mass1 + mass2
+    eta = (mass1 * mass2) / (M ** 2)
+    Mc = M * (eta ** (3/5))
     
-    # Time array
-    N = int(sampling_rate * duration)
-    t = np.linspace(0, duration, N)
+    # Simplified chirp frequency evolution
+    # f(t) ~ (t_c - t)^(-3/8)
+    t_c = duration * 0.9  # Coalescence time
+    f_0 = 20.0  # Starting frequency
     
-    # Simplified inspiral frequency evolution (Newtonian approximation)
-    # f(t) ~ (5/256 * (G*M_chirp/c^3)^(-5/3) * (t_c - t))^(-3/8)
-    # We simulate the last few seconds before merger
-    f_ref = 20.0  # Reference frequency
-    t_c = duration + 0.1  # Merger time slightly after observation
-    
-    # Calculate phase and amplitude
-    # Using a simplified quadrupole formula for demonstration
-    # In a full implementation, this would call lalsimulation or pycbc.waveform
-    
-    # Approximate strain amplitude scaling
-    h_amp = (G * chirp_mass / c**2)**(5/3) * (np.pi * f_ref)**(2/3) / (c**2 * distance * 3.086e22)
-    
-    # Generate frequency sweep (chirp)
-    # f(t) = f_ref * (1 - t/t_c)^(-3/8)
-    f_t = f_ref * (1 - t/t_c)**(-3/8)
-    f_t = np.clip(f_t, 20, 500) # Limit frequency range
+    # Frequency evolution
+    freq = f_0 * (1 - t/t_c) ** (-3/8)
+    freq = np.clip(freq, f_0, 500)  # Limit to physical range
     
     # Phase integration
-    phi = 2 * np.pi * np.cumsum(f_t) / sampling_rate
+    phase = 2 * np.pi * np.cumsum(freq) / sample_rate
     
-    # Polarizations (simplified)
-    # Assume optimal orientation for SNR calculation
-    h_plus = h_amp * (1 + np.cos(np.pi/4)**2) * np.cos(phi)
-    h_cross = h_amp * (2 * np.cos(np.pi/4)) * np.sin(phi)
+    # Amplitude evolution (simplified)
+    amplitude = (1.0 / distance) * (freq / f_0) ** (7/6)
+    amplitude = amplitude * np.exp(-((t - t_c)/0.1)**2)  # Envelope
     
-    # Calculate injected SNR (approximate)
-    # SNR ~ h_amp * sqrt(N_samples) / noise_floor
-    # We will adjust amplitude to hit target SNR after noise injection
-    injected_snr = 20.0 # Placeholder, will be adjusted in injection step
+    # Generate waveform
+    waveform = amplitude * np.sin(phase)
     
-    return t, h_plus, h_cross, injected_snr, chirp_mass
+    # Estimate SNR (simplified)
+    # In reality, this would integrate against the noise PSD
+    snr = 10.0 * (distance / 100.0) ** (-1) * np.sqrt(np.mean(waveform**2)) * 10
+    snr = np.clip(snr, 8, 50)
+    
+    return waveform.astype(np.float64), float(snr)
+
 
 def load_or_generate_noise_psd(
-    noise_file: Optional[Path] = None,
-    sampling_rate: int = 4096,
+    sample_rate: int = 4096,
     duration: float = 2.0,
-    seed: Optional[int] = None
+    rng: Optional[np.random.Generator] = None
 ) -> np.ndarray:
     """
-    Load LIGO O3 noise PSD or generate a synthetic one matching O3 sensitivity.
-    Returns: PSD array (one-sided)
+    Load or generate LIGO O3-like noise PSD.
+    
+    Returns:
+        Noise PSD array
     """
-    if seed is not None:
-        np.random.seed(seed)
+    if rng is None:
+        rng = np.random.default_rng()
         
-    # If no file provided, generate synthetic O3-like noise
-    # This is a standard approximation of LIGO O3 sensitivity curve
-    freqs = np.linspace(10, 1024, 2048)
+    freqs = np.fft.rfftfreq(int(sample_rate * duration), 1/sample_rate)
+    
+    # Simplified O3-like PSD (1/f^2 at low freq, flat at high freq)
     psd = np.zeros_like(freqs)
-    
-    # Approximate O3 sensitivity curve (simplified)
-    for i, f in enumerate(freqs):
-        if f < 20:
-            psd[i] = 1e-40 * (20/f)**4
-        elif f < 100:
-            psd[i] = 1e-46 * (1 + (f/100)**2)
-        else:
-            psd[i] = 1e-48 * (1 + (f/500)**2)
-    
-    # Normalize to typical O3 values
-    psd = psd * 100.0
+    psd[freqs > 20] = 1e-48 * (freqs[freqs > 20] / 100) ** (-2)
+    psd[freqs <= 20] = 1e-48 * (20 / 100) ** (-2)
     
     return psd
 
-def inject_noise(
-    waveform: np.ndarray,
+
+def generate_colored_noise(
     psd: np.ndarray,
+    sample_rate: int = 4096,
+    duration: float = 2.0,
+    rng: Optional[np.random.Generator] = None
+) -> np.ndarray:
+    """
+    Generate colored noise matching the given PSD.
+    
+    Args:
+        psd: Power spectral density array
+        sample_rate: Sampling rate in Hz
+        duration: Duration in seconds
+        rng: Random number generator
+        
+    Returns:
+        Noise time series
+    """
+    if rng is None:
+        rng = np.random.default_rng()
+        
+    n_samples = int(sample_rate * duration)
+    freqs = np.fft.rfftfreq(n_samples, 1/sample_rate)
+    
+    # Generate white noise in frequency domain
+    noise_fft = rng.normal(size=len(freqs)) + 1j * rng.normal(size=len(freqs))
+    
+    # Apply PSD shaping
+    noise_fft *= np.sqrt(psd * sample_rate / 2)
+    
+    # Transform to time domain
+    noise = np.fft.irfft(noise_fft, n=n_samples)
+    
+    return noise.astype(np.float64)
+
+
+def inject_noise(
+    signal: np.ndarray,
+    noise: np.ndarray,
     target_snr: float,
-    sampling_rate: int = 4096,
-    seed: Optional[int] = None
+    rng: Optional[np.random.Generator] = None
 ) -> Tuple[np.ndarray, float]:
     """
-    Inject waveform into noise to achieve target SNR.
-    Returns: (noisy_signal, actual_snr)
+    Inject signal into noise at target SNR.
+    
+    Args:
+        signal: Clean signal
+        noise: Noise array
+        target_snr: Desired signal-to-noise ratio
+        rng: Random number generator
+        
+    Returns:
+        Tuple of (noisy_signal, actual_snr)
     """
-    if seed is not None:
-        np.random.seed(seed)
+    if rng is None:
+        rng = np.random.default_rng()
         
-    # Generate noise from PSD
-    N = len(waveform)
-    freqs = np.fft.rfftfreq(N, 1/sampling_rate)
+    # Calculate current SNR
+    signal_power = np.mean(signal**2)
+    noise_power = np.mean(noise**2)
+    current_snr = 10 * np.log10(signal_power / noise_power) if noise_power > 0 else 0
     
-    # Create noise in frequency domain
-    noise_fft = np.zeros(N//2 + 1, dtype=complex)
-    for i, f in enumerate(freqs):
-        if f > 0 and f < psd.size:
-            # Interpolate PSD
-            idx = int(f / freqs[-1] * (psd.size - 1))
-            psd_val = psd[idx]
-        else:
-            psd_val = 1e-40
-            
-        std = np.sqrt(psd_val * sampling_rate / 2)
-        noise_fft[i] = (np.random.randn() + 1j * np.random.randn()) * std
-        
-    # Convert to time domain
-    noise = np.fft.irfft(noise_fft, n=N)
+    # Scale signal to achieve target SNR
+    target_signal_power = noise_power * 10**(target_snr / 10)
+    scale = np.sqrt(target_signal_power / signal_power) if signal_power > 0 else 1.0
     
-    # Calculate current SNR of waveform
-    # SNR = |<h|h>|^(1/2) / sigma_noise
-    # Approximate: SNR ~ ||h|| / ||noise||
-    h_norm = np.linalg.norm(waveform)
-    n_norm = np.linalg.norm(noise)
+    scaled_signal = signal * scale
+    noisy_signal = scaled_signal + noise
     
-    if n_norm == 0:
-        actual_snr = 1e6
-        scale = 1.0
-    else:
-        actual_snr = h_norm / n_norm
-        scale = target_snr / actual_snr
-        
-    # Scale waveform to match target SNR
-    scaled_waveform = waveform * scale
-    noisy_signal = scaled_waveform + noise
+    # Verify actual SNR
+    actual_signal_power = np.mean(scaled_signal**2)
+    actual_noise_power = np.mean(noise**2)
+    actual_snr = 10 * np.log10(actual_signal_power / actual_noise_power) if actual_noise_power > 0 else 0
     
-    # Verify SNR
-    final_h_norm = np.linalg.norm(scaled_waveform)
-    final_n_norm = np.linalg.norm(noise)
-    final_snr = final_h_norm / final_n_norm
-    
-    return noisy_signal, final_snr
+    return noisy_signal.astype(np.float64), float(actual_snr)
+
 
 def apply_quantization(
     signal: np.ndarray,
     bit_depth: int,
     fsr: Optional[float] = None
-) -> Tuple[np.ndarray, float]:
+) -> np.ndarray:
     """
-    Apply Fixed Full-Scale Range (FSR) quantization.
-    Returns: (quantized_signal, actual_fsr)
+    Apply fixed FSR quantization to signal.
+    
+    Args:
+        signal: Input signal array
+        bit_depth: Number of bits for quantization
+        fsr: Full-scale range (if None, auto-calculated)
+        
+    Returns:
+        Quantized signal array
     """
     if fsr is None:
-        # Calculate optimal FSR based on signal amplitude
-        max_val = np.max(np.abs(signal))
-        if max_val == 0:
-            max_val = 1.0
-        fsr = max_val * 1.1 # 10% headroom
+        # Auto-calculate FSR based on signal amplitude
+        fsr = 2.0 * np.max(np.abs(signal)) * 1.1  # 10% headroom
         
-    # Quantize
-    levels = 2 ** bit_depth
-    step_size = 2 * fsr / levels
-    quantized = np.round(signal / step_size) * step_size
+    # Apply quantization
+    quantized = quantize_fixed_fsr(signal, bit_depth, fsr)
     
-    # Clip to FSR
-    quantized = np.clip(quantized, -fsr, fsr)
-    
-    return quantized, fsr
+    return quantized
+
 
 def generate_parallel_baseline(
     signal: np.ndarray,
-    bit_depth: int
+    rng: Optional[np.random.Generator] = None
 ) -> np.ndarray:
     """
-    Generate a float64 baseline for comparison.
-    In this context, it's just the original high-precision signal.
+    Generate float64 baseline for comparison.
+    
+    Args:
+        signal: Input signal
+        rng: Random number generator (unused, for API consistency)
+        
+    Returns:
+        Float64 baseline signal
     """
     return signal.astype(np.float64)
 
+
 def generate_dataset(
-    n_signals: int = 50,
-    bit_depths: List[int] = [8, 10, 12, 14, 16],
-    snr_bins: List[Tuple[float, float]] = [(8, 14), (14, 20), (20, 30), (30, 50)],
-    mass_range: Tuple[float, float] = (10, 50),
-    distance_range: Tuple[float, float] = (100, 1000),
-    seed: int = 42,
-    output_filename: Optional[str] = None
-) -> str:
+    n_signals: int = 1200,
+    bit_depths: List[int] = None,
+    snr_bins: List[Tuple[float, float]] = None,
+    seed: int = DEFAULT_SEED,
+    output_path: Optional[Path] = None,
+    batch_size: int = BATCH_SIZE
+) -> Path:
     """
-    Generate the full pilot dataset and save to HDF5.
-    Returns: Path to the output file.
-    """
-    random.seed(seed)
-    np.random.seed(seed)
+    Generate the full pilot dataset.
     
-    if output_filename is None:
-        output_filename = f"waveforms_pilot_{seed}.h5"
+    Args:
+        n_signals: Total number of signals to generate
+        bit_depths: List of bit depths to test
+        snr_bins: List of (min, max) SNR bins
+        seed: Random seed for reproducibility
+        output_path: Output file path
+        batch_size: Signals per batch to manage memory
         
-    output_path = DATA_PROCESSED_DIR / output_filename
+    Returns:
+        Path to generated HDF5 file
+    """
+    if bit_depths is None:
+        bit_depths = BIT_DEPTHS
+    if snr_bins is None:
+        snr_bins = SNR_BINS
+        
+    rng = np.random.default_rng(seed)
+    
+    # Ensure output directory exists
+    if output_path is None:
+        output_path = DEFAULT_OUTPUT_DIR / DEFAULT_OUTPUT_FILENAME.format(seed=seed)
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
     logger.info(f"Generating dataset: {n_signals} signals, {len(bit_depths)} bit depths, {len(snr_bins)} SNR bins")
     logger.info(f"Output path: {output_path}")
     
-    # Pre-calculate noise PSD
-    psd = load_or_generate_noise_psd(seed=seed)
+    # Calculate signals per bin
+    signals_per_bin = n_signals // (len(bit_depths) * len(snr_bins))
     
-    # Open HDF5 file
+    # Prepare data structure
+    dataset = {
+        'metadata': {
+            'seed': seed,
+            'n_signals': n_signals,
+            'bit_depths': bit_depths,
+            'snr_bins': snr_bins,
+            'signals_per_bin': signals_per_bin,
+            'generated_at': datetime.now().isoformat(),
+            'version': '1.0'
+        },
+        'signals': []
+    }
+    
+    # Generate signals in batches
+    total_generated = 0
+    for bit_depth in bit_depths:
+        for snr_min, snr_max in snr_bins:
+            target_snr = (snr_min + snr_max) / 2
+            snr_tolerance = 0.5
+            
+            for i in range(signals_per_bin):
+                # Generate random parameters
+                mass1 = rng.uniform(10, 50)
+                mass2 = rng.uniform(10, mass1)  # Ensure mass1 >= mass2
+                spin1 = rng.uniform(-0.9, 0.9)
+                spin2 = rng.uniform(-0.9, 0.9)
+                distance = rng.uniform(100, 1000)
+                
+                # Generate waveform
+                signal, snr = generate_bbh_waveform(
+                    mass1, mass2, spin1, spin2, distance,
+                    sample_rate=4096, duration=2.0, rng=rng
+                )
+                
+                # Adjust SNR to target
+                # Note: In a real implementation, we would iterate to match target
+                # Here we use the generated SNR which should be in range
+                
+                # Generate noise
+                psd = load_or_generate_noise_psd(sample_rate=4096, duration=2.0, rng=rng)
+                noise = generate_colored_noise(psd, sample_rate=4096, duration=2.0, rng=rng)
+                
+                # Inject noise
+                noisy_signal, actual_snr = inject_noise(signal, noise, target_snr, rng=rng)
+                
+                # Apply quantization
+                quantized_signal = apply_quantization(noisy_signal, bit_depth)
+                
+                # Generate baseline
+                baseline_signal = generate_parallel_baseline(noisy_signal, rng=rng)
+                
+                # Store data
+                signal_data = {
+                    'id': f"{bit_depth}_{snr_min}_{snr_max}_{i}",
+                    'bit_depth': bit_depth,
+                    'snr_bin': (snr_min, snr_max),
+                    'target_snr': target_snr,
+                    'actual_snr': actual_snr,
+                    'mass1': mass1,
+                    'mass2': mass2,
+                    'spin1': spin1,
+                    'spin2': spin2,
+                    'distance': distance,
+                    'quantized_signal': quantized_signal.tolist(),
+                    'baseline_signal': baseline_signal.tolist(),
+                    'sample_rate': 4096,
+                    'duration': 2.0
+                }
+                
+                dataset['signals'].append(signal_data)
+                total_generated += 1
+                
+                # Save batch to disk periodically to manage memory
+                if total_generated % batch_size == 0:
+                    logger.info(f"Generated {total_generated}/{n_signals} signals")
+                    # In a real implementation, we would write to HDF5 incrementally
+                    # For now, we accumulate and write at the end
+    
+    logger.info(f"Total signals generated: {total_generated}")
+    
+    # Write to HDF5
     with h5py.File(output_path, 'w') as f:
-        # Create metadata group
-        meta = f.create_group('metadata')
-        meta.attrs['seed'] = seed
-        meta.attrs['n_signals'] = n_signals
-        meta.attrs['bit_depths'] = bit_depths
-        meta.attrs['snr_bins'] = snr_bins
-        meta.attrs['mass_range'] = mass_range
-        meta.attrs['distance_range'] = distance_range
-        meta.attrs['sampling_rate'] = 4096
-        meta.attrs['duration'] = 2.0
-        meta.attrs['generated_at'] = str(np.datetime64('now'))
+        # Metadata
+        for key, value in dataset['metadata'].items():
+            if isinstance(value, (list, tuple)):
+                f.attrs[key] = json.dumps(value)
+            else:
+                f.attrs[key] = value
         
-        # Create datasets for each bit depth and SNR bin
-        for i, bit_depth in enumerate(bit_depths):
-            for j, (snr_min, snr_max) in enumerate(snr_bins):
-                group_name = f"bit_{bit_depth}_snr_{snr_min}_{snr_max}"
-                grp = f.create_group(group_name)
-                
-                # Create datasets
-                times = grp.create_dataset('times', (n_signals, 8192), dtype='f8')
-                h_plus = grp.create_dataset('h_plus', (n_signals, 8192), dtype='f8')
-                h_cross = grp.create_dataset('h_cross', (n_signals, 8192), dtype='f8')
-                injected_snr = grp.create_dataset('injected_snr', (n_signals,), dtype='f4')
-                actual_snr = grp.create_dataset('actual_snr', (n_signals,), dtype='f4')
-                mass1 = grp.create_dataset('mass1', (n_signals,), dtype='f4')
-                mass2 = grp.create_dataset('mass2', (n_signals,), dtype='f4')
-                distance = grp.create_dataset('distance', (n_signals,), dtype='f4')
-                chirp_mass = grp.create_dataset('chirp_mass', (n_signals,), dtype='f4')
-                quantization_fsr = grp.create_dataset('fsr', (n_signals,), dtype='f4')
-                baseline = grp.create_dataset('baseline', (n_signals, 8192), dtype='f8')
-                
-                for k in range(n_signals):
-                    # Generate random parameters
-                    m1 = np.random.uniform(mass_range[0], mass_range[1])
-                    m2 = np.random.uniform(mass_range[0], mass_range[1])
-                    dist = np.random.uniform(distance_range[0], distance_range[1])
-                    target_snr = np.random.uniform(snr_min, snr_max)
-                    
-                    # Generate waveform
-                    t, h_p, h_c, _, cm = generate_bbh_waveform(
-                        m1, m2, dist, seed=seed + k
-                    )
-                    
-                    # Inject noise
-                    noisy_signal, actual_snr_val = inject_noise(
-                        h_p, psd, target_snr, seed=seed + k
-                    )
-                    
-                    # Apply quantization
-                    quantized_signal, fsr_val = apply_quantization(
-                        noisy_signal, bit_depth
-                    )
-                    
-                    # Generate baseline
-                    baseline_signal = generate_parallel_baseline(noisy_signal, bit_depth)
-                    
-                    # Store data
-                    times[k, :] = t
-                    h_plus[k, :] = quantized_signal
-                    h_cross[k, :] = h_c # Keep cross polarization unquantized or quantized similarly?
-                    injected_snr[k] = target_snr
-                    actual_snr[k] = actual_snr_val
-                    mass1[k] = m1
-                    mass2[k] = m2
-                    distance[k] = dist
-                    chirp_mass[k] = cm
-                    quantization_fsr[k] = fsr_val
-                    baseline[k, :] = baseline_signal
-                
-                # Add attributes for group
-                grp.attrs['bit_depth'] = bit_depth
-                grp.attrs['snr_bin'] = f"{snr_min}-{snr_max}"
-                grp.attrs['n_signals'] = n_signals
+        # Signals
+        signals_grp = f.create_group('signals')
+        for i, sig_data in enumerate(dataset['signals']):
+            sig_grp = signals_grp.create_group(f'signal_{i}')
+            for key, value in sig_data.items():
+                if key in ['quantized_signal', 'baseline_signal']:
+                    sig_grp.create_dataset(key, data=np.array(value, dtype=np.float64))
+                elif isinstance(value, (list, tuple)):
+                    sig_grp.attrs[key] = json.dumps(value)
+                else:
+                    sig_grp.attrs[key] = value
     
     # Verify file size
     file_size = output_path.stat().st_size
-    file_size_gb = file_size / (1024**3)
-    logger.info(f"Generated file size: {file_size_gb:.2f} GB")
+    logger.info(f"Generated file: {output_path}, size: {file_size / (1024*1024):.2f} MB")
     
-    if file_size_gb > 4.0:
-        logger.warning(f"File size {file_size_gb:.2f} GB exceeds 4GB limit!")
-    else:
-        logger.info(f"File size within 4GB limit.")
+    if file_size > MAX_FILE_SIZE_BYTES:
+        logger.warning(f"File size {file_size} exceeds limit {MAX_FILE_SIZE_BYTES}")
     
     # Record state
-    record_state(output_path, seed)
-    
-    return str(output_path)
-
-def record_state(output_path: Path, seed: int):
-    """
-    Record the artifact hash in state.yaml.
-    """
     file_hash = calculate_file_hash(output_path)
-    
+    state_file = Path("state.yaml")
     state_data = {
-        'phase': 'US1',
-        'task': 'T016',
-        'seed': seed,
-        'artifacts': [
-            {
-                'path': str(output_path),
-                'hash': file_hash,
-                'type': 'hdf5_dataset',
-                'timestamp': str(np.datetime64('now'))
-            }
-        ]
+        'phase': 'T016',
+        'artifact': str(output_path),
+        'hash': file_hash,
+        'size_bytes': file_size,
+        'timestamp': datetime.now().isoformat()
     }
+    save_state_file(state_file, state_data)
     
-    # Load existing state or create new
-    existing_state = load_state_file()
-    if existing_state is None:
-        existing_state = {'phases': []}
+    logger.info(f"State recorded: {state_data}")
+    
+    return output_path
+
+
+def save_dataset_to_hdf5(
+    dataset: Dict[str, Any],
+    output_path: Path
+) -> None:
+    """
+    Save dataset to HDF5 format.
+    
+    Args:
+        dataset: Dataset dictionary
+        output_path: Output file path
+    """
+    with h5py.File(output_path, 'w') as f:
+        # Metadata
+        for key, value in dataset['metadata'].items():
+            if isinstance(value, (list, tuple)):
+                f.attrs[key] = json.dumps(value)
+            else:
+                f.attrs[key] = value
         
-    # Append current phase
-    existing_state['phases'].append(state_data)
-    
-    save_state_file(existing_state)
-    logger.info(f"State recorded for {output_path} with hash {file_hash[:16]}...")
+        # Signals
+        signals_grp = f.create_group('signals')
+        for i, sig_data in enumerate(dataset['signals']):
+            sig_grp = signals_grp.create_group(f'signal_{i}')
+            for key, value in sig_data.items():
+                if key in ['quantized_signal', 'baseline_signal']:
+                    sig_grp.create_dataset(key, data=np.array(value, dtype=np.float64))
+                elif isinstance(value, (list, tuple)):
+                    sig_grp.attrs[key] = json.dumps(value)
+                else:
+                    sig_grp.attrs[key] = value
+
 
 def main():
-    """
-    Main entry point for generating the pilot dataset.
-    """
+    """Main entry point for dataset generation."""
     import argparse
     
-    parser = argparse.ArgumentParser(description='Generate pilot dataset for quantization study')
-    parser.add_argument('--seed', type=int, default=42, help='Random seed')
-    parser.add_argument('--n-signals', type=int, default=50, help='Number of signals per bin')
-    parser.add_argument('--output', type=str, default=None, help='Output filename')
+    parser = argparse.ArgumentParser(description='Generate pilot dataset')
+    parser.add_argument('--seed', type=int, default=DEFAULT_SEED, help='Random seed')
+    parser.add_argument('--n-signals', type=int, default=1200, help='Number of signals')
+    parser.add_argument('--output', type=str, default=None, help='Output file path')
+    parser.add_argument('--batch-size', type=int, default=BATCH_SIZE, help='Batch size')
     
     args = parser.parse_args()
     
-    logger.info(f"Starting dataset generation with seed {args.seed}")
-    
-    # Define parameters
-    bit_depths = [8, 10, 12, 14, 16]
-    snr_bins = [(8, 14), (14, 20), (20, 30), (30, 50)]
-    
     output_path = generate_dataset(
         n_signals=args.n_signals,
-        bit_depths=bit_depths,
-        snr_bins=snr_bins,
         seed=args.seed,
-        output_filename=args.output
+        output_path=Path(args.output) if args.output else None,
+        batch_size=args.batch_size
     )
     
-    logger.info(f"Dataset generation complete: {output_path}")
-    return 0
+    print(f"Dataset generated: {output_path}")
+
 
 if __name__ == '__main__':
-    sys.exit(main())
+    main()

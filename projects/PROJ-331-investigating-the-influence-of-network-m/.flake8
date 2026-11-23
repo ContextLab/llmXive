@@ -1,6 +1,19 @@
 [flake8]
-max-line-length = 100
-ignore = E203, E266, W503
-exclude = .git,__pycache__,build,dist
+max-line-length = 120
+extend-ignore = E203, W503
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .eggs,
+    *.egg-info,
+    data,
+    results,
+    state
 per-file-ignores =
-    */__init__.py:F401
+    # Allow unused imports in __init__.py if any
+    */__init__.py: F401
+    # Allow unused arguments in function definitions (common in callbacks/interfaces)
+    code/*.py: N806
+max-complexity = 15

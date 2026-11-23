@@ -1,0 +1,56 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "InteractionLog"
+type: object
+required:
+  - log_id
+  - session_id
+  - task_id
+  - timestamp_ms
+  - iteration
+  - mode
+  - payload
+  - response_image_path
+  - task_start_ms
+  - task_end_ms
+properties:
+  log_id:
+    type: string
+    description: "Unique identifier for the log entry."
+  session_id:
+    type: string
+    description: "Identifier of the participant session."
+  task_id:
+    type: string
+    description: "Identifier of the figure task."
+  timestamp_ms:
+    type: integer
+    description: "Epoch time when the edit was submitted."
+  iteration:
+    type: integer
+    minimum: 1
+    description: "1‑based iteration number for the edit attempt."
+  mode:
+    type: string
+    enum: ["structured", "chat"]
+    description: "Interface mode used for this edit (typed‑edit harness or natural‑language chat)."
+  payload:
+    type: string
+    description: "The edit command or natural‑language instruction submitted by the participant."
+  response_image_path:
+    type: string
+    description: "Path to the image generated in response to the edit."
+  task_start_ms:
+    type: integer
+    description: "Timestamp marking the start of the task."
+  task_end_ms:
+    type: integer
+    description: "Timestamp marking the end of the task."
+  status:
+    type: string
+    description: "Optional status flag (e.g., \"aborted\")."
+  subjective_load:
+    type: number
+    minimum: 0
+    maximum: 100
+    description: "NASA‑TLX score (0–100) reported by the participant after the task."
+additionalProperties: false

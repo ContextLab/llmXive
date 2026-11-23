@@ -1,101 +1,68 @@
 # Execution failures — fix these before the analysis can run
 
+## ⚠ REGRESSIONS — your last fix BROKE these (they passed before)
+
+These commands were NOT failing in the previous round and ARE failing now — your last edit broke previously-working code. REVERT or correct whatever change broke each one BEFORE touching anything else; do not trade one passing script for another (that oscillation is what burns the fix-round budget toward escalation):
+
+- `python code/analysis/visualize_features.py`
+- `python code/attribution.py`
+- `python code/data/preprocess_3d.py`
+- `python code/download_data.py`
+- `python code/stats.py`
+- `python code/train.py --seeds 0 1 2 3 4`
+
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 6 command(s) failed: python code/data/generate_processed_data.py (rc=1); python code/training/train_gnn.py (rc=1); python code/training/train_rf.py (rc=1); 1 declared deliverable(s) absent: data/processed/molecules_10k.parquet
+**Summary**: 4 run-book script(s) missing (plan/impl path mismatch): python code/download_data.py; python code/train.py --seeds 0 1 2 3 4; python code/attribution.py; 2 command(s) failed: python code/data/preprocess_3d.py (rc=1); python code/analysis/visualize_features.py (rc=1); 1 declared deliverable(s) absent: data/reports/excluded_molecules.csv
 
 ## Failing / missing run-book commands
 
-- python code/data/generate_processed_data.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/generate_processed_data.py", line 38, in <module>
-    import pandas as pd
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/__init__.py", line 22, in <module>
-    from pandas.compat import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/compat/__init__.py", line 27, in <module>
-    from pandas.compat.numpy import is_numpy_dev
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/compat/numpy/__init__.py", line 10, in <module>
-    _np_version = np.__version__
-                  ^^^^^^^^^^^^^^
-AttributeError: module 'numpy' has no attribute '__version__'
-- python code/training/train_gnn.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py", line 23, in <module>
-    import pandas as pd
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/__init__.py", line 22, in <module>
-    from pandas.compat import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/compat/__init__.py", line 27, in <module>
-    from pandas.compat.numpy import is_numpy_dev
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/compat/numpy/__init__.py", line 10, in <module>
-    _np_version = np.__version__
-                  ^^^^^^^^^^^^^^
-AttributeError: module 'numpy' has no attribute '__version__'
-- python code/training/train_rf.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py", line 28, in <module>
-    import pandas as pd
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/__init__.py", line 11, in <module>
-    __import__(_dependency)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/numpy/__init__.py", line 19, in <module>
-    _real_numpy_module = importlib.import_module('numpy_real')
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/importlib/__init__.py", line 126, in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/numpy_real.py", line 27, in <module>
-    __version__ = _real_numpy.__version__
-                  ^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: partially initialized module 'numpy' has no attribute '__version__' (most likely due to a circular import)
-- python code/analysis/generate_performance_plots.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_performance_plots.py", line 29, in <module>
-    import pandas as pd
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/pandas/__init__.py", line 11, in <module>
-    __import__(_dependency)
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/numpy/__init__.py", line 19, in <module>
-    _real_numpy_module = importlib.import_module('numpy_real')
-                         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/opt/hostedtoolcache/Python/3.11.15/x64/lib/python3.11/importlib/__init__.py", line 126, in import_module
-    return _bootstrap._gcd_import(name[level:], package, level)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/numpy_real.py", line 27, in <module>
-    __version__ = _real_numpy.__version__
-                  ^^^^^^^^^^^^^^^^^^^^^^^
-AttributeError: partially initialized module 'numpy' has no attribute '__version__' (most likely due to a circular import)
-- python code/analysis/generate_significance.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/generate_significance.py", line 18, in <module>
-    from scipy import stats
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/lib/python3.11/site-packages/scipy/__init__.py", line 44, in <module>
-    from numpy import __version__ as __numpy_version__
-ImportError: cannot import name '__version__' from 'numpy' (/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/numpy/__init__.py)
-- python code/generate_summary.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/generate_summary.py", line 162, in <module>
-    main()
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/generate_summary.py", line 153, in main
-    generate_summary(
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/generate_summary.py", line 66, in generate_summary
-    significance = load_csv_as_dicts(significance_path)
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/generate_summary.py", line 25, in load_csv_as_dicts
-    raise FileNotFoundError(f"CSV file not found: {csv_path}")
-FileNotFoundError: CSV file not found: results/significance.csv
+- python code/download_data.py -> rc=2 [script missing]
+    Error in sitecustomize; set PYTHONVERBOSE for traceback:
+ImportError: Real NumPy package not found in site‑packages.
+/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/download_data.py': [Errno 2] No such file or directory
+- python code/data/preprocess_3d.py -> rc=1
+    Error in sitecustomize; set PYTHONVERBOSE for traceback:
+ImportError: Real NumPy package not found in site‑packages.
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/preprocess_3d.py", line 3, in <module>
+    import numpy as np
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/numpy/__init__.py", line 17, in <module>
+    from ..numpy_real import *  # noqa: F403,F401
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^
+ImportError: attempted relative import beyond top-level package
+- python code/train.py --seeds 0 1 2 3 4 -> rc=2 [script missing]
+    Error in sitecustomize; set PYTHONVERBOSE for traceback:
+ImportError: Real NumPy package not found in site‑packages.
+/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/train.py': [Errno 2] No such file or directory
+- python code/attribution.py -> rc=2 [script missing]
+    Error in sitecustomize; set PYTHONVERBOSE for traceback:
+ImportError: Real NumPy package not found in site‑packages.
+/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/attribution.py': [Errno 2] No such file or directory
+- python code/analysis/visualize_features.py -> rc=1
+    Error in sitecustomize; set PYTHONVERBOSE for traceback:
+ImportError: Real NumPy package not found in site‑packages.
+Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/visualize_features.py", line 37, in <module>
+    from mpl_toolkits.mplot3d import Axes3D  # noqa: F401  (registers 3D projection)
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+ModuleNotFoundError: No module named 'mpl_toolkits'
+- python code/stats.py -> rc=2 [script missing]
+    Error in sitecustomize; set PYTHONVERBOSE for traceback:
+ImportError: Real NumPy package not found in site‑packages.
+/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-262-predicting-molecular-dipole-moments-with/code/stats.py': [Errno 2] No such file or directory
 
 ## Declared deliverables still missing
 
-- data/processed/molecules_10k.parquet
+- data/reports/excluded_molecules.csv
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/processed/molecules_10k.parquet` is declared but was NOT written. Scripts referencing it:
-    - `code/quickstart_validation.py` — NOT invoked by the run-book
-    - `code/data/generate_processed_data.py` — IS a run-book command
-    - `code/training/train_gnn.py` — IS a run-book command
-    - `code/training/train_rf.py` — IS a run-book command
-  Make ONE of these WRITE `data/processed/molecules_10k.parquet` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+- `data/reports/excluded_molecules.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/data/generate_processed_data.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/reports/excluded_molecules.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 
 ## ⚠ CROSS-SCRIPT DATA CONTRACT — make the PRODUCER write what consumers read
 

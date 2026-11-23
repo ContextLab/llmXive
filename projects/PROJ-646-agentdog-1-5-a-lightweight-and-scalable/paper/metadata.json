@@ -151,5 +151,15 @@
     "sections/related_work.tex",
     "sections/conclusion.tex",
     "sections/safety_taxonomy.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "c8cbc750c0e1b9a3bfb5e8ce4f0f01fe2f9850fc3515c717aa0369c1ed7bff5b",
+      "bytes": 5144164
+    },
+    "original.pdf": {
+      "sha256": "536122110be97191b31c4edbd0b46cdd768ae8625758d0a9f773edf4a7af4b5d",
+      "bytes": 5005419
+    }
+  }
 }

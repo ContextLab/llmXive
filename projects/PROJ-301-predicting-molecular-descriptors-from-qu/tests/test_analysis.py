@@ -139,3 +139,61 @@ def test_generate_final_report(tmp_path: Path):
         assert report_path.exists()
     finally:
         analysis.FINAL_REPORT_PATH = original_path
+
+def test_failure_boundary_logic_and_condition():
+    """
+    Verify that failure_boundary logic uses AND logic for REI >= 10% AND p < 0.0167.
+    
+    Requirements:
+    1. If REI >= 10% but p > 0.0167 -> Should NOT be a failure (hypothesis_passed = False)
+    2. If REI < 10% but p < 0.0167 -> Should NOT be a failure (hypothesis_passed = False)
+    3. If REI >= 10% AND p < 0.0167 -> Should be a failure (hypothesis_passed = True)
+    """
+    
+    # Case 1: High REI (>=10%) but insignificant p-value (>0.0167)
+    # REI = (1.0 - 0.9) / 0.9 = 0.111... (11.1%) >= 10%
+    # p_value = 0.05 > 0.0167
+    p_values_case1 = {"p_value": 0.05}
+    mae_2d_case1 = 1.0
+    mae_3d_case1 = 0.9
+    result_case1 = define_failure_boundary(p_values_case1, mae_2d_case1, mae_3d_case1)
+    
+    # Should fail the hypothesis (not a failure boundary)
+    assert len(result_case1) > 0
+    # Assuming the result structure contains a 'hypothesis_passed' or similar boolean
+    # The logic must ensure that if p > threshold, passed is False
+    # We check the specific logic by inspecting the result content or structure
+    # Since define_failure_boundary returns a list of dicts, we check the first item
+    first_item = result_case1[0]
+    # The REI is high, but p is high, so it should NOT be a "failure" in the scientific sense
+    # (i.e., we cannot conclude 2D is worse despite the magnitude)
+    assert first_item.get("hypothesis_passed") == False, \
+        "Case 1: REI >= 10% but p > 0.0167 should result in hypothesis_passed=False"
+
+    # Case 2: Low REI (<10%) but significant p-value (<0.0167)
+    # REI = (0.95 - 0.94) / 0.94 = 0.0106 (1.06%) < 10%
+    # p_value = 0.01 < 0.0167
+    p_values_case2 = {"p_value": 0.01}
+    mae_2d_case2 = 0.95
+    mae_3d_case2 = 0.94
+    result_case2 = define_failure_boundary(p_values_case2, mae_2d_case2, mae_3d_case2)
+    
+    assert len(result_case2) > 0
+    first_item_2 = result_case2[0]
+    # The p-value is low, but REI is small, so it should NOT be a "failure"
+    assert first_item_2.get("hypothesis_passed") == False, \
+        "Case 2: REI < 10% but p < 0.0167 should result in hypothesis_passed=False"
+
+    # Case 3: High REI (>=10%) AND significant p-value (<0.0167)
+    # REI = (1.2 - 1.0) / 1.0 = 0.2 (20%) >= 10%
+    # p_value = 0.001 < 0.0167
+    p_values_case3 = {"p_value": 0.001}
+    mae_2d_case3 = 1.2
+    mae_3d_case3 = 1.0
+    result_case3 = define_failure_boundary(p_values_case3, mae_2d_case3, mae_3d_case3)
+    
+    assert len(result_case3) > 0
+    first_item_3 = result_case3[0]
+    # Both conditions met, should be a "failure" (hypothesis passed)
+    assert first_item_3.get("hypothesis_passed") == True, \
+        "Case 3: REI >= 10% AND p < 0.0167 should result in hypothesis_passed=True"

@@ -1,85 +1,74 @@
-# Quickstart: The Impact of Text Message Tone on Perceived Emotional Support
+# Quickstart: Running the Text‑Tone Emotional Support Pipeline
 
-## 1. Prerequisites
+These instructions assume a fresh GitHub Actions runner (or a local Linux environment with ≥ 2 CPU cores and ≤ 7 GB RAM).
 
--   Python 3.11+
--   `git`
--   A terminal or command prompt.
-
-## 2. Setup
-
-1.  **Clone the repository** (or navigate to the project root):
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-385-the-impact-of-text-message-tone-on-perce
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: This installs `statsmodels`, `pandas`, `numpy`, `pytest`, and `pyyaml`.*
-
-## 3. Running the Pipeline
-
-The pipeline is executed in sequential steps.
-
-### Step 1: Generate Stimuli
-Generates the factorial design of text messages.
+## 1. Clone the repository & navigate
 ```bash
-python code/01_generate_stimuli.py
+git clone
+cd text-tone-emotional-support
 ```
-*Output*: `data/raw/stimuli.csv`
 
-### Step 2: Simulate Data Collection
-Simulates participant ratings based on the generated stimuli.
-*Note: This script supports a `--mode null` flag to test Type I error control.*
+## 2. Set up the Python environment
 ```bash
-python code/02_simulate_ratings.py
+python -m venv.venv
+source.venv/bin/activate
+pip install -r requirements.txt
 ```
-*Output*: `data/raw/ratings.csv`
 
-### Step 3: Clean Data
-Removes straight-lining participants and checks randomization.
+## 3. Verify data availability
 ```bash
-python code/03_clean_data.py
-```
-*Output*: `data/processed/clean_ratings.csv`
+# 1) Stimuli (generated automatically)
+python code/01_generate_stimuli.py # produces data/raw/stimuli.csv
 
-### Step 4: Primary Analysis
-Runs the Linear Mixed-Effects Model with full factorial decomposition.
+# 2) Real human ratings (must be placed here before proceeding)
+if [ ! -f data/raw/real_ratings.csv ]; then
+ echo "ERROR: data/raw/real_ratings.csv not found. Obtain the Prolific export and place it here."
+ exit 1
+fi
+python code/02_collect_real_data.py --mode verify
+```
+
+## 4. Run the full analysis pipeline
 ```bash
-python code/04_run_lmm.py
+# The script orchestrates all phases in the correct order.
+python code/run_pipeline.py
 ```
-*Output*: `data/processed/analysis_results.json` (contains primary interaction p-values).
+`run_pipeline.py` internally executes:
+1. `03_preprocess.py`
+2. `04_fit_lmm.py`
+3. (conditionally) `05_posthoc.py`
+4. `06_sensitivity.py`
+5. `07_generate_report.py`
 
-### Step 5: Sensitivity Analysis
-Tests robustness against different structural definitions of "Cue Intensity".
+All intermediate and final results appear under `data/results/`.
+
+## 5. Manifest verification (new)
 ```bash
-python code/05_sensitivity_analysis.py
+# Verify that the SHA‑256 hashes of all generated artifacts match the manifest.
+python utils/validate_manifest.py
 ```
-*Output*: `data/processed/sensitivity_report.csv`.
 
-## 4. Verification
-
-Run the test suite to ensure contract compliance:
+## 6. Inspect the report
 ```bash
-pytest tests/ -v
+less data/results/report.md
 ```
-This validates:
--   Stimuli match the factorial design.
--   Ratings conform to the schema (1-7 scale).
--   **Contract tests** validate all data against the YAML schemas (`stimulus.schema.yaml`, `rating.schema.yaml`, `analysis_result.schema.yaml`).
--   Analysis logic handles null hypotheses correctly.
+The report contains:
+- Fixed‑effect table (interaction β, Wald‑based p‑value) – SC‑001
+- Tukey‑adjusted pairwise comparisons – SC‑003
+- Sensitivity report --- the ... (continued)
 
-## 5. Troubleshooting
+## 7. Run contract‑based tests (CI‑style)
+```bash
+pytest -q tests/contract/
+```
+All tests must pass before committing any changes.
 
--   **Missing Data Files**: Ensure you run steps 1-3 in order. The analysis scripts require `data/processed/clean_ratings.csv`.
--   **Import Errors**: Verify you are in the `venv` and `requirements.txt` was installed.
--   **Memory Errors**: Unlikely given the small dataset size. If encountered, ensure no other heavy processes are running on the CI runner.
+## 8. (Optional) Benchmark runtime
+```bash
+python code/benchmark_runtime.py
+```
+The benchmark should stay within the allocated time limit; if it exceeds, consider reducing the number of **benchmark** iterations (the pipeline already uses a modest default).
+
+---
+
+**Note**: The pipeline **​**  ​   ​ ​  ​  ​  ​  **  **  the  ?  ?  ?  ** </ ? ? </ </ ? ... ** ** ** ** ** ** ** ** ** ** ** ** ** ** ** (?? ?? ??) 

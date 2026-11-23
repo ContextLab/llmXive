@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Matrix Schema"
+type: "object"
+properties:
+  mol_id:
+    type: "string"
+    description: "Unique molecule identifier"
+  features_2d:
+    type: "array"
+    items:
+      type: "number"
+    description: "Morgan fingerprint (2048 bits)"
+  features_3d:
+    type: "array"
+    items:
+      type: "number"
+    description: "SchNet node/edge features (flattened)"
+  target:
+    type: "number"
+    description: "Dipole magnitude (Debye)"
+  split:
+    type: "string"
+    enum:
+      - train
+      - val
+      - test
+    description: "Data split assignment"
+required:
+  - mol_id
+  - features_2d
+  - features_3d
+  - target
+  - split

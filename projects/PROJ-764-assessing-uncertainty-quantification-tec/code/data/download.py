@@ -1,93 +1,129 @@
-"""
-Download the OQMD Formation Energy dataset from HuggingFace.
-
-This script fetches the 'oqmd/formation-energy' dataset and saves it
-as a Parquet file in the data/raw directory.
-"""
-import os
-import sys
+import json
 import logging
+import time
 from pathlib import Path
+from hashlib import sha256
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
+# Import the verified datasets library; will raise if not installed.
+try:
+    from datasets import load_dataset, concatenate_datasets
+except ImportError as e:
+    raise ImportError(
+        "The 'datasets' package is required. Please install it via 'pip install datasets'."
+    ) from e
 
-def download_oqmd_dataset():
+# Use the shared logger from llmxive_toolkit if available; otherwise fall back to std lib.
+try:
+    from llmxive_toolkit import get_logger, paths
+    log = get_logger(__name__)
+    data_root = paths.data  # callable that creates paths inside the project
+except Exception:  # pragma: no cover
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s",
+    )
+    log = logging.getLogger(__name__)
+
+    def data_root(*subpaths):
+        """Fallback helper mimicking llmxive_toolkit.paths.data."""
+        p = Path("data", *subpaths)
+        p.parent.mkdir(parents=True, exist_ok=True)
+        return p
+
+def calculate_sha256(file_path: str) -> str:
+    """Calculate SHA‑256 hash of a file."""
+    h = sha256()
+    with open(file_path, "rb") as f:
+        for block in iter(lambda: f.read(8192), b""):
+            h.update(block)
+    return h.hexdigest()
+
+def download_oqmd_dataset(output_path: Path, max_retries: int = 3) -> None:
     """
-    Fetches the OQMD Formation Energy dataset via HuggingFace and saves it to disk.
-    
-    Raises:
-        ImportError: If the 'datasets' library is not installed.
-        Exception: If the download fails.
+    Download the OQMD subset from the verified Hugging Face source
+    and materialize it as a Parquet file.
+    Implements exponential‑backoff retry logic.
     """
-    try:
-        from datasets import load_dataset
-    except ImportError as e:
-        logger.error("The 'datasets' library is required. Install it via: pip install datasets")
-        raise e
+    dataset_name = "jablonkagroup/oqmd"
+    config_name = "raw_data"
 
-    output_dir = Path("data/raw")
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "oqmd.parquet"
+    attempt = 0
+    while attempt < max_retries:
+        try:
+            log.info(
+                f"Attempt {attempt + 1}/{max_retries}: loading {dataset_name} "
+                f"(config={config_name})..."
+            )
+            ds_dict = load_dataset(dataset_name, config_name, trust_remote_code=True)
 
-    logger.info(f"Starting download of 'oqmd/formation-energy' dataset...")
-    logger.info(f"Target path: {output_path}")
+            # Combine all splits into one Dataset
+            if isinstance(ds_dict, dict):
+                ds = concatenate_datasets(list(ds_dict.values()))
+            else:
+                ds = ds_dict
 
-    try:
-        # Load the dataset from HuggingFace
-        dataset = load_dataset("oqmd/formation-energy")
-        
-        # The dataset usually comes as a Dict[str, Dataset]. 
-        # We assume the first split (often 'train' or the only split) is the target.
-        # If the dataset has multiple splits, we concatenate them or pick the main one.
-        # Based on typical OQMD HF datasets, it often has a 'train' split.
-        
-        splits = list(dataset.keys())
-        if not splits:
-            raise ValueError("The loaded dataset has no splits.")
-        
-        # If there are multiple splits, we'll concatenate them to get the full raw data
-        if len(splits) > 1:
-            logger.info(f"Dataset has multiple splits: {splits}. Concatenating all.")
-            full_dataset = dataset[splits[0]]
-            for split in splits[1:]:
-                full_dataset = full_dataset.concatenate(dataset[split])
-        else:
-            full_dataset = dataset[splits[0]]
-            logger.info(f"Dataset has single split: {splits[0]}")
+            log.info(f"Dataset loaded successfully – {len(ds)} records.")
+            log.info(f"Writing dataset to {output_path} ...")
+            ds.to_parquet(str(output_path))
+            log.info("Dataset materialization complete.")
+            return
+        except Exception as exc:  # pragma: no cover
+            attempt += 1
+            if attempt < max_retries:
+                wait = 2 ** attempt
+                log.warning(
+                    f"Download failed (attempt {attempt}/{max_retries}): {exc}. "
+                    f"Retrying in {wait} seconds..."
+                )
+                time.sleep(wait)
+            else:
+                log.error(f"All download attempts failed: {exc}")
+                raise RuntimeError(
+                    f"Failed to download OQMD dataset after {max_retries} attempts."
+                ) from exc
 
-        # Convert to Pandas DataFrame for efficient Parquet writing
-        df = full_dataset.to_pandas()
-        
-        logger.info(f"Dataset loaded successfully. Shape: {df.shape}")
-        logger.info(f"Columns: {list(df.columns)}")
+def main() -> None:
+    """
+    Entry point for task T001a.
+    - Downloads the OQMD subset (if not present).
+    - Computes & stores a SHA‑256 checksum.
+    - On subsequent runs, verifies the checksum and aborts on mismatch.
+    """
+    # Resolve output locations
+    raw_dir = data_root("raw")
+    raw_dir.mkdir(parents=True, exist_ok=True)
 
-        # Save to Parquet
-        df.to_parquet(output_path, index=False)
-        
-        logger.info(f"Successfully saved raw data to {output_path}")
-        return True
+    parquet_path = raw_dir / "oqmd_subset.parquet"
+    checksum_path = data_root("checksums.json")
 
-    except Exception as e:
-        logger.error(f"Failed to download or save the dataset: {e}")
-        raise
+    # If the dataset already exists, verify its integrity.
+    if parquet_path.exists() and checksum_path.exists():
+        log.info(f"Found existing dataset at {parquet_path}. Verifying checksum...")
+        with open(checksum_path, "r") as f:
+            saved = json.load(f)
+        expected = saved.get("sha256")
+        actual = calculate_sha256(str(parquet_path))
+        if expected != actual:
+            raise RuntimeError(
+                f"Checksum mismatch for {parquet_path} – expected {expected}, got {actual}."
+            )
+        log.info("Checksum verification passed – existing dataset is valid.")
+        return
 
-def main():
-    """Entry point for the download script."""
-    success = download_oqmd_dataset()
-    if success:
-        logger.info("Download task completed successfully.")
-        sys.exit(0)
-    else:
-        logger.error("Download task failed.")
-        sys.exit(1)
+    # Otherwise, download the dataset.
+    log.info("Downloading OQMD subset...")
+    download_oqmd_dataset(parquet_path)
+
+    # Compute and persist checksum.
+    log.info("Computing SHA‑256 checksum for the downloaded file...")
+    current_hash = calculate_sha256(str(parquet_path))
+    checksum_record = {
+        "filename": parquet_path.name,
+        "sha256": current_hash,
+    }
+    with open(checksum_path, "w") as f:
+        json.dump(checksum_record, f, indent=2)
+    log.info(f"Checksum written to {checksum_path}: {current_hash}")
 
 if __name__ == "__main__":
     main()

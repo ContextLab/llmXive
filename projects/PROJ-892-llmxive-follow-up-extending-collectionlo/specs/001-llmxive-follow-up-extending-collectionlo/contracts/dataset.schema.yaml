@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GenerationResult"
+description: "Schema for the main results dataset (data/results.csv)"
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the generation run"
+  prompt:
+    type: "string"
+    description: "The text prompt used for generation"
+  effect_id:
+    type: "string"
+    description: "Identifier for the specific effect (e.g., oil_painting)"
+  quantization_level:
+    type: "string"
+    enum:
+      - "FP16"
+      - "INT8"
+      - "INT4"
+    description: "Quantization level of the adapter"
+  seed:
+    type: "integer"
+    description: "Random seed used for generation"
+  image_path:
+    type: "string"
+    description: "Relative path to the generated image"
+  clip_similarity:
+    type: "number"
+    description: "Cosine similarity between prompt and image embeddings"
+  lpips_distance:
+    type: "number"
+    description: "LPIPS distance to the FP16 baseline image"
+  cesr_raw:
+    type: "number"
+    description: "Cross-Effect Similarity Ratio (raw)"
+  cesr_baseline:
+    type: "number"
+    description: "Mean similarity to Distractor References"
+  cesr_normalized:
+    type: "number"
+    description: "Normalized CESR (cesr_raw - cesr_baseline)"
+  source_rank:
+    type: "integer"
+    description: "Intrinsic rank of the effect's source LoRA matrix"
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "skipped"
+      - "failed"
+    description: "Status of the generation attempt"
+  failure_reason:
+    type:
+      - "string"
+      - "null"
+    description: "Reason for failure if status is 'failed'"
+required:
+  - run_id
+  - prompt
+  - effect_id
+  - quantization_level
+  - seed
+  - image_path
+  - clip_similarity
+  - lpips_distance
+  - cesr_raw
+  - cesr_baseline
+  - cesr_normalized
+  - source_rank
+  - status
+additionalProperties: false

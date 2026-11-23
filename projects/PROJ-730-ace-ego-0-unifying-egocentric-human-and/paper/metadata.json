@@ -46,5 +46,15 @@
     "images/teaser.pdf",
     "main.bib",
     "main.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "8f1282450b7366c709737288fef17393310c612d0b1ca15d090a0246241c9098",
+      "bytes": 6812390
+    },
+    "original.pdf": {
+      "sha256": "a072e85857c536bfd691dd915f6bd8d8fc98ad5f421e1ac225a541ff46ff681f",
+      "bytes": 6768589
+    }
+  }
 }

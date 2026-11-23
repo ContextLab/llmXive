@@ -6,39 +6,100 @@ build-backend = "setuptools.build_meta"
 name = "predicting-plant-phenology"
 version = "0.1.0"
 description = "Predicting Plant Phenology from Satellite Imagery and Climate Data"
-requires-python = ">=3.11"
+readme = "README.md"
+requires-python = ">=3.9"
 dependencies = [
-    "pandas>=2.1.4",
-    "numpy>=1.26.2",
-    "xgboost>=2.0.2",
-    "lightgbm>=4.1.0",
-    "scikit-learn>=1.3.2",
-    "geopandas>=0.14.1",
-    "earthengine-api>=1.1.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "scikit-learn>=1.3.0",
+    "xgboost>=2.0.0",
+    "lightgbm>=4.0.0",
     "requests>=2.31.0",
-    "pyyaml>=6.0.1",
-    "pytest>=7.4.3",
-    "pytest-jsonschema>=0.1.0",
-    "ruff>=0.1.6",
-    "black>=23.11.0",
+    "pyyaml>=6.0",
+    "pytest>=7.4.0",
+    "pytest-jsonschema>=0.2.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
 ]
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["src*", "tests*", "scripts*"]
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest>=7.4.0",
+    "pytest-jsonschema>=0.2.0",
+]
 
 [tool.ruff]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "F403", # 'from module import *' used; unable to detect undefined names
+    "F405", # 'name' may be undefined, or defined from star imports
+]
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few files/directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data/",
+    "artifacts/",
+]
+
+# Same as Black.
 line-length = 88
-target-version = "py311"
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM"]
-ignore = ["E501", "W503"]
+target-version = "py39"
 
 [tool.black]
 line-length = 88
-target-version = ["py311"]
+target-version = ['py39']
 include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | node_modules
+    | venv
+    | data
+    | artifacts
+)/
+'''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]

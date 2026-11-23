@@ -1,0 +1,10 @@
+status: none
+intent: HumanEval dataset download via huggingface datasets python package
+required_fields:
+- Task ID
+- Prompt Template
+- Unit Test Code
+- Expected Output
+cache_key: 37ff9a3161b6f49a1bafcaf0600ae8babd8d7e902f993f36f426b935c19572a3
+searched_at: '2026-09-26T04:11:41.323808+00:00'
+retry_count: 1

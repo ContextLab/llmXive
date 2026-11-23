@@ -1,0 +1,60 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: RegressionModel
+description: Represents a fitted statistical regression model.
+type: object
+required:
+  - coefficients
+  - p_values
+  - r_squared
+  - residuals
+  - theoretical_bound_deviation
+properties:
+  model_id:
+    type: string
+    description: Unique identifier for the model.
+  model_type:
+    type: string
+    enum:
+      - MLR
+      - GAM
+    description: Type of regression model (Multiple Linear Regression or Generalized Additive Model).
+  formula:
+    type: string
+    description: Statistical formula used for the model.
+  coefficients:
+    type: object
+    description: Mapping of feature names to their coefficients.
+    additionalProperties:
+      type: number
+  p_values:
+    type: object
+    description: Mapping of feature names to their p-values.
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 1
+  r_squared:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: Coefficient of determination.
+  residuals:
+    type: array
+    items:
+      type: number
+    description: List of residual values.
+  theoretical_bound_deviation:
+    type: number
+    description: Deviation from the theoretical capacity bound.
+  aic:
+    type: number
+    description: Akaike Information Criterion.
+  bic:
+    type: number
+    description: Bayesian Information Criterion.
+  feature_names:
+    type: array
+    items:
+      type: string
+    description: List of feature names used in the model.
+additionalProperties: false

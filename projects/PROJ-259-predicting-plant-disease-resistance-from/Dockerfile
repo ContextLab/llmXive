@@ -44,12 +44,12 @@ WORKDIR /app
 # ---------------------------------------------------------------------------
 # Step 3: Copy and Install Python Dependencies
 # ---------------------------------------------------------------------------
-# We copy requirements.txt first to leverage Docker's layer caching.
-# If the requirements file hasn't changed, pip install will be skipped
-# in future builds, significantly speeding up the build process.
-COPY code/requirements.txt ./requirements.txt
+# Copy the project's top‑level requirements.txt (not the one inside code/)
+# to leverage Docker's layer caching. If the requirements file hasn't changed,
+# pip install will be skipped in future builds, speeding up the build process.
+COPY requirements.txt ./requirements.txt
 
-# Upgrade pip to latest version for security and compatibility, then install
+# Upgrade pip to the latest version for security and compatibility, then install
 # project dependencies. We use --no-cache-dir to keep the image size down.
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir -r requirements.txt
@@ -58,7 +58,7 @@ RUN pip install --no-cache-dir --upgrade pip && \
 # Step 4: Copy Project Source Code
 # ---------------------------------------------------------------------------
 # Copy the entire project structure into the container.
-# We exclude .git and other non-essential files via .dockerignore (assumed).
+# We rely on .dockerignore (if present) to exclude unnecessary files.
 COPY . .
 
 # ---------------------------------------------------------------------------
@@ -66,13 +66,18 @@ COPY . .
 # ---------------------------------------------------------------------------
 # Ensure that the output directories exist at runtime to prevent permission
 # or existence errors when the pipeline tries to write logs or results.
-RUN mkdir -p /app/data/raw /app/data/processed /app/artifacts/models \
-    /app/artifacts/reports /app/artifacts/figures /app/tests
+RUN mkdir -p /app/data/raw \
+    /app/data/processed \
+    /app/data/synthetic \
+    /app/artifacts/models \
+    /app/artifacts/reports \
+    /app/artifacts/figures \
+    /app/tests
 
 # ---------------------------------------------------------------------------
 # Step 6: Default Command
 # ---------------------------------------------------------------------------
 # By default, the container will run the main pipeline entry point.
 # Users can override this to run specific scripts or an interactive shell.
-# Example override: docker run <image> python code/data/download.py
+# Example override: docker run <image> python -m code.cli --demo
 CMD ["python", "code/main.py"]

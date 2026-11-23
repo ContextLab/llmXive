@@ -1,0 +1,14 @@
+status: none
+intent: ActivityNet Captions official download ActivityNet python package dataset
+required_fields:
+- video_id
+- original_video_id
+- aspect_ratio
+- width
+- height
+- start_timestamp
+- end_timestamp
+- caption
+cache_key: e69eca99bcef2807151110d23a6586715e473520cd3de29f78b0e8b06147da0f
+searched_at: '2026-08-12T07:45:42.619266+00:00'
+retry_count: 1

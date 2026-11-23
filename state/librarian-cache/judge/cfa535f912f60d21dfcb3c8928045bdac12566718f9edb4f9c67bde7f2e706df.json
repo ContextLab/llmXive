@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.19457",
+  "judged_at": "2026-08-03T16:27:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"long-horizon-terminal-bench: testing the limits of agents on long-hori\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same core construct (long-horizon agent performance and failure modes) and domain (long-horizon enterprise AI agents) referenced in the user's question, providing a canonical alternative evaluation framework (Four-Axis Decision Alignment) and empirical baseline (LongHorizon-Bench) for the specific research area the user is investigating.",
+  "relevant": true
+}

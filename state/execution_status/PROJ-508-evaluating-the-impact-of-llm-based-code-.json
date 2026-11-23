@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-508-evaluating-the-impact-of-llm-based-code-",
+  "ok": false,
+  "reason": "1 hollow-result signal(s) \u2014 the analysis ran but computed nothing: data/derived/master_dataset.csv: column(s) ai_noise_flag are EMPTY in every one of 5 rows \u2014 that measure was never recorded; every produced artifact is gitignored (data/derived/master_dataset.csv) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 1 command(s) failed: python code/analyze.py (rc=1); 3 declared deliverable(s) absent: data/derived/analysis_results.json; data/derived/sensitivity_analysis.json; data/manifest.json",
+  "artifacts": [
+    "data/derived/master_dataset.csv"
+  ],
+  "failures": [
+    "python code/analyze.py -> rc=1\n    2026-08-16 17:34:37,935 - INFO - Starting analysis pipeline\n2026-08-16 17:34:37,935 - ERROR - Analysis failed: 'derived_dir'"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-16T17:34:39Z"
+}

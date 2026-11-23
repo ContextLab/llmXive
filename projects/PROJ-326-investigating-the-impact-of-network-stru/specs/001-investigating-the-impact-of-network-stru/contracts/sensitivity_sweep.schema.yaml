@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: SensitivitySweep
+description: "Schema for data/analysis/sensitivity_sweep.json"
+type: object
+properties:
+  sweep_results:
+    type: array
+    items:
+      type: object
+      required:
+        - threshold_value
+        - diffusion_rate_mean
+        - diffusion_rate_std
+        - sample_size
+      properties:
+        threshold_value:
+          type: number
+          description: "Clustering coefficient threshold used."
+        diffusion_rate_mean:
+          type: number
+        diffusion_rate_std:
+          type: number
+        sample_size:
+          type: integer
+    description: "Results for each threshold."
+    minItems: 5
+  metadata:
+    type: object
+    properties:
+      thresholds_tested:
+        type: array
+        items:
+          type: number
+        description: "List of threshold values tested."
+        minItems: 5
+        uniqueItems: true
+      total_thresholds:
+        type: integer
+        minimum: 5
+        description: "Must be at least 5 per SC-005."
+required:
+  - sweep_results
+  - metadata
+additionalProperties: false

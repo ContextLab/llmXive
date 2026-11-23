@@ -1,0 +1,17 @@
+93a3f2894bbcbd00ab975b9cf796d7ea  ./annotation_hashes.txt
+83f123e56de4dc99fcc5fc6ff310b3cc  ./GCF_902810565.1_MethanocellaB1_assembly_report.txt
+36e706a10e7d956903df03d1f0a65842  ./GCF_902810565.1_MethanocellaB1_assembly_stats.txt
+34cd8fe5d385626e991212b126c04614  ./GCF_902810565.1_MethanocellaB1_cds_from_genomic.fna.gz
+48ed0ecdfb55b70b8db5fe0a858ea40d  ./GCF_902810565.1_MethanocellaB1_fcs_report.txt
+7f7a504c50eaac0c8a37135105abf152  ./GCF_902810565.1_MethanocellaB1_feature_count.txt
+1c2cce7b174099b9c9b64cf7c5284b31  ./GCF_902810565.1_MethanocellaB1_feature_table.txt.gz
+dbafa7e90ec96508b1f7f6c647b02864  ./GCF_902810565.1_MethanocellaB1_gene_ontology.gaf.gz
+f8216190e6c87692a5df773a0c3f805e  ./GCF_902810565.1_MethanocellaB1_genomic.fna.gz
+ae1cd85773f8b16b3cee2fa57fadc129  ./GCF_902810565.1_MethanocellaB1_genomic.gbff.gz
+8b99ba849ddb3c0b31cee2b9e0ee3c55  ./GCF_902810565.1_MethanocellaB1_genomic.gff.gz
+8683d2b9c420288dc62fb798b7c82b34  ./GCF_902810565.1_MethanocellaB1_genomic.gtf.gz
+63d62142c3cc9186228dd68e096fa838  ./GCF_902810565.1_MethanocellaB1_protein.faa.gz
+3ae3cfe66c8b610b554352003d635a5b  ./GCF_902810565.1_MethanocellaB1_protein.gpff.gz
+6f362e34b2ed9c49d0089b1a60ca4027  ./GCF_902810565.1_MethanocellaB1_rna_from_genomic.fna.gz
+2319db91c9d07f99341349e18a95794b  ./GCF_902810565.1_MethanocellaB1_translated_cds.faa.gz
+6967a47cdd0da11e8c8f4694e9052207  ./GCF_902810565.1_MethanocellaB1_wgsmaster.gbff.gz

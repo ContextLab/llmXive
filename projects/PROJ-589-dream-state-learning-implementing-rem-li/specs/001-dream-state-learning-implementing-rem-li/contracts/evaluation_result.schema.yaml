@@ -1,52 +1,52 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Evaluation Result Schema"
-description: "Schema for the output of a single evaluation run."
+title: "Evaluation Result"
+description: "Metrics from a single evaluation of a trained checkpoint."
 type: "object"
 properties:
   run_id:
     type: "string"
     format: "uuid"
-    description: "Unique identifier for the run."
+    description: "Unique identifier for the evaluation run."
   seed:
     type: "integer"
-    description: "Random seed used for this run."
+    description: "Random seed associated with the trained model."
   phase:
     type: "string"
     enum: ["wake_dream", "baseline"]
-    description: "Which training phase this result corresponds to."
+    description: "Training regime evaluated."
   dataset:
     type: "string"
-    description: "Name of the evaluation dataset."
+    description: "Name of the evaluation dataset (e.g., 'qnli')."
   accuracy:
     type: "number"
     minimum: 0.0
     maximum: 1.0
-    description: "Accuracy score on the held-out task."
+    description: "Accuracy on the few‑shot task."
   loss:
     type: "number"
-    description: "Final training loss."
+    description: "Final loss value."
   peak_memory_mb:
     type: "integer"
-    description: "Peak memory usage during training."
+    description: "Peak memory usage during evaluation (MB)."
   duration_seconds:
     type: "number"
-    description: "Total wall-clock time in seconds."
+    description: "Wall‑clock time for evaluation (seconds)."
   status:
     type: "string"
     enum: ["success", "oom_abort", "timeout_abort", "low_entropy_abort"]
-    description: "Status of the run."
+    description: "Evaluation outcome."
   reconstruction_difficulty_avg:
     type: "number"
-    description: "Average reconstruction difficulty (entropy) during training, for quality control."
+    description: "Mean entropy of generated samples during training (quality control)."
 required:
-  - run_id
-  - seed
-  - phase
-  - dataset
-  - accuracy
-  - loss
-  - peak_memory_mb
-  - duration_seconds
-  - status
-  - reconstruction_difficulty_avg
+  - "run_id"
+  - "seed"
+  - "phase"
+  - "dataset"
+  - "accuracy"
+  - "loss"
+  - "peak_memory_mb"
+  - "duration_seconds"
+  - "status"
+  - "reconstruction_difficulty_avg"
 additionalProperties: false

@@ -1,0 +1,84 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided showing that the `code/` and `tests/` directories actually\
+    \ exist at the repository root; without a directory listing or screenshots, we\
+    \ cannot confirm the required folders were created. The implementer must add proof\
+    \ (e.g., a file tree view) that both directories are present and non\u2011empty."
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the required directories (`data/raw/`, `data/derived/`,
+    `results/`, `contracts/`) actually exist in the repository; the claim is unsubstantiated.
+    The implementer must supply a directory listing or screenshots showing these folders
+    at the repository root.
+T004:
+  c: false
+  h: fc3ede15115afef8766f7947b6da236d787bc5d16154c8e4186d62f1ee764170
+  r: "The provided `code/download_data.py` is truncated and does not show the logic\
+    \ that (1) iterates over all entries in `verified_datasets.json`, (2) verifies\
+    \ each file\u2019s SHA\u2011256 checksum and raises `DataFetchError` on mismatch,\
+    \ (3) checks the fetched\u2011count specification and writes a JSON\u2011formatted\
+    \ warning to `data/derived/fetch_count.log`. Because these required behaviours\
+    \ are absent (or not visible) and the expected log file is missing, the task is\
+    \ not fully satisfied."
+T004b:
+  c: false
+  h: c283ef929987805313813252857eef964c402011854344ff2f332fb154cd78f6
+  r: The `code/config.yaml` does not contain any logic to read `data/derived/fetch_count.log`
+    or to set `simulation.datasets` based on the count, and the required `data/derived/fetch_count.log`
+    file is missing entirely. Both the adaptation logic and the dependent log file
+    are absent, so the task is not fulfilled.
+T008a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `contracts/simulation_schema.json` file was presented, and there is no evidence\
+    \ that a valid JSON schema defining p\u2011value distributions, error rates, and\
+    \ metadata exists. The required artifact is missing, so the task is not satisfied."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required JSON files (`results/[dataset]_[size]_baseline_null.json`
+    and `results/[dataset]_[size]_baseline_alt.json`) was provided; the claim lacks
+    any artifact showing that baseline results were saved with the correct naming
+    convention. The implementer must supply the actual result files in the specified
+    `results/` directory.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no evidence of any JSON files under the `results/` directory
+    (e.g., `results/iris_20_gaussian_null.json` and `results/iris_20_gaussian_alt.json`).
+    Without these distinct result files for each dataset, sample size, and augmentation
+    method, the task requirement is not satisfied. The implementer must generate and
+    commit the required JSON output files.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or result files were presented that compute or display\
+    \ the difference in Type\u202FI/II error rates between the baseline and each augmentation\
+    \ method. The required comparative\u2011analysis implementation and its output\
+    \ are missing, so the task is not satisfied."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or report implementing the threshold\u2011identification logic\
+    \ is present; the claim provides only a textual description of the requirement.\
+    \ The required artifact\u2014a functioning implementation that flags configurations\
+    \ with Type\u202FI error\u202F>\u202F0.10 and quantifies the impact relative to\
+    \ the baseline\u2014is missing."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `quickstart.md` file or updated content was provided; the claim that it now
+    contains instructions for running the full study cannot be verified. The required
+    documentation artifact is missing.
+T040:
+  c: false
+  h: 45449b390d6c3ff30adbaf63a4fcc1e38703a52ef338ce2c33289e009398a612
+  r: "The repository contains a `log_skipped_smote_configuration` helper that writes\
+    \ a Python\u2011dict string to `data/derived/skipped_configurations.log`, but\
+    \ the log file does not exist and there is no evidence that this function is invoked\
+    \ when SMOTE is skipped (the SMOTE logic is truncated). Moreover, the written\
+    \ entry is not valid JSON (uses Python\u2019s single\u2011quoted dict representation).\
+    \ The required edge\u2011case logging behavior and correct JSON format are therefore\
+    \ not satisfied."

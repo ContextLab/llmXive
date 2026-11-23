@@ -1,0 +1,978 @@
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: HuggingFaceH4/mmlu STEM subset is verified source for deterministic benchmarks
+  claim_id: c_3f5f1023
+  context: While spec.md FR-001 mentions 'IMO/IPhO', the verified source for high-difficulty
+    deterministic benchmarks in the plan is HuggingFaceH4/mmlu (STEM subset). This
+    dataset serves the requirement for deterministic, verifiable ground-truth answers.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HuggingFaceH4/mmlu_STEM_subset_is_verified_source_for_determ
+  kind: entity_fact
+  raw_text: The verified source for high-difficulty deterministic benchmarks in the
+    plan is HuggingFaceH4/mmlu (STEM subset).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:37:27Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: nvidia/OpenScience dataset source is NSF/ERC abstracts
+  claim_id: c_c1811b1c
+  context: 'Implement OpenSci-Reason dataset loader and curation in code/data/download.py
+    using datasets.load_dataset(''nvidia/OpenScience'', streaming=True). ... Note:
+    Source is nvidia/OpenScience (NSF/ERC abstracts).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Nvidia/OpenScience_dataset_source_is_NSF/ERC_abstracts
+  kind: entity_fact
+  raw_text: The source for the OpenSci-Reason dataset is nvidia/OpenScience (NSF/ERC
+    abstracts).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:37:59Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: allenai/SciLlama-8B-Instruct is primary proxy model for scientific reasoning
+  claim_id: c_63ad9c06
+  context: 'Requirement: Must be a model ''fine-tuned on a diverse set of general
+    scientific reasoning''. Primary Model: allenai/SciLlama-8B-Instruct (verified
+    HF repo for science-fine-tuned reasoning).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Allenai/SciLlama-8B-Instruct_is_primary_proxy_model_for_scie
+  kind: entity_fact
+  raw_text: The primary proxy model for scoring is allenai/SciLlama-8B-Instruct.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:38:22Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Llama-3-2B-Quantized fallback triggered when RAM less than 6.5GB
+  claim_id: c_364a128b
+  context: 'Fallback Logic: Use psutil to check available RAM before loading; if available
+    RAM < 6.5GB (safety margin for 7GB limit), switch to Llama-3-2B-Quantized and
+    log the fallback trigger.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Llama-3-2B-Quantized_fallback_triggered_when_RAM_less_than_6
+  kind: magnitude
+  raw_text: The fallback model for the proxy is Llama-3-2B-Quantized if available
+    RAM is less than 6.5GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:39:00Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Proxy model correlation must exceed 0.6 with 50 gold standard ratings
+  claim_id: c_ce0da3b2
+  context: 'Independent Test: Verify proxy model scores correlate >0.6 with the N=50
+    gold standard human-rated set.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proxy_model_correlation_must_exceed_0.6_with_50_gold_standar
+  kind: magnitude
+  raw_text: The proxy model validation requires a correlation greater than 0.6 with
+    the N=50 gold standard human-rated set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:39:56Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Power analysis targets power 0.8 and effect size 0.5
+  claim_id: c_0d9c4cd4
+  context: 'Logic: Calculate required N for power=0.8 and effect size=0.5. Verify
+    actual N >= required N.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis calculates required N for a power of 0.8 and an effect
+    size of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:40:28Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: OpenSci-Reason prompts require 3 distinct valid responses
+  claim_id: c_574f08bf
+  context: 'Critical Logic: For the OpenSci-Reason dataset, loop generation multiple
+    times per prompt. Check for distinctness (string similarity < 0.8); if fewer than
+    3 distinct valid responses are generated, flag the prompt as ''incomplete'' in
+    the output.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inference runner generates 3 distinct valid responses for OpenSci-Reason
+    prompts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:41:01Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Inference max_tokens limit is 2048
+  claim_id: c_909f01f0
+  context: Enforce max_tokens=2048 to prevent CI timeouts (FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inference runner enforces a max_tokens limit of 2048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:41:23Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Inference temperature is 0.7
+  claim_id: c_6811d160
+  context: Implement CPU-only inference runner with multi-sample generation in code/inference/runner.py
+    (batch_size=1, temperature=0.7).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inference runner uses a temperature of 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:41:46Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Low-confidence flag triggers at variance > 1.5 or entropy > 2.0
+  claim_id: c_82b28348
+  context: Implement low-confidence flagging (variance > 1.5 or entropy > 2.0) in
+    code/scoring/scorer.py
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low-confidence_flag_triggers_at_variance_%3E_1.5_or_entropy_%3E_
+  kind: magnitude
+  raw_text: The low-confidence flagging triggers when variance is greater than 1.5
+    or entropy is greater than 2.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:42:19Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: proxy model scores correlate greater than 0.6 with 50 gold standard human-rated
+    set
+  claim_id: c_212120a5
+  context: 'Goal: Score generated responses using a frozen, quantized LLM proxy (Llama-3-8B-INT4)
+    on Novelty, Feasibility, Consistency. Independent Test: Verify proxy model scores
+    correlate >0.6 with the N=50 gold standard human-rated set.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proxy_model_scores_correlate_greater_than_0.6_with_50_gold_s
+  kind: magnitude
+  raw_text: Verify the proxy model scores correlate >0.6 with the N=50 gold standard
+    human-rated set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:43:15Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: primary proxy model is allenai/SciLlama-8B-Instruct
+  claim_id: c_fcc821cb
+  context: 'Requirement: Must be a model ''fine-tuned on a diverse set of general
+    scientific reasoning''. Primary Model: `allenai/SciLlama-8B-Instruct` (verified
+    HF repo for science-fine-tuned reasoning).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_proxy_model_is_allenai/SciLlama-8B-Instruct
+  kind: entity_fact
+  raw_text: The primary model is `allenai/SciLlama-8B-Instruct` (verified HF repo
+    for science-fine-tuned reasoning).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:43:42Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: fallback to Llama-3-2B-Quantized if available RAM less than 6.5GB
+  claim_id: c_6560b3af
+  context: 'Fallback Logic: Use `psutil` to check available RAM before loading; if
+    available RAM < 6.5GB (safety margin for 7GB limit), switch to `Llama-3-2B-Quantized`
+    and log the fallback trigger.'
+  evidence:
+    candidates:
+    - - ''
+      - -2.0
+    - - ''
+      - -3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_Llama-3-2B-Quantized_if_available_RAM_less_than
+  kind: magnitude
+  raw_text: If available RAM < 6.5GB, switch to `Llama-3-2B-Quantized`.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-29T10:44:07Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: MMLU-STEM dataset source is HuggingFaceH4/mmlu STEM subset
+  claim_id: c_15367c86
+  context: '**Source**: Download `HuggingFaceH4/mmlu` (STEM subset). **Verification**:
+    Verify the dataset ID is valid and contains STEM problems.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MMLU-STEM_dataset_source_is_HuggingFaceH4/mmlu_STEM_subset
+  kind: entity_fact
+  raw_text: The dataset source for MMLU-STEM is `HuggingFaceH4/mmlu` (STEM subset).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:44:30Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: OpenSci-Reason dataset source is nvidia/OpenScience
+  claim_id: c_859ddf23
+  context: '**Implementation Detail**: Stream the dataset, apply the filter logic
+    (regex/keyword exclusion for factual Q&A), and sample a representative set of
+    items. Output to `code/data/processed/opensci_reason.jsonl`. **Note**: Source
+    is `nvidia/OpenScience` (NSF/ERC abstracts).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenSci-Reason_dataset_source_is_nvidia/OpenScience
+  kind: entity_fact
+  raw_text: The source for OpenSci-Reason is `nvidia/OpenScience` (NSF/ERC abstracts).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:45:10Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: calculate required N for power 0.8 and effect size 0.5
+  claim_id: c_1531efca
+  context: '**Logic**: Calculate required N for power=0.8 and effect size=0.5. Verify
+    actual N >= required N.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate required N for power=0.8 and effect size=0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:45:36Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: enforce max tokens 2048 to prevent CI timeouts
+  claim_id: c_3ebea636
+  context: Enforce `max_tokens=2048` to prevent CI timeouts (FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce `max_tokens=2048` to prevent CI timeouts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:45:51Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: check distinctness with string similarity less than 0.8
+  claim_id: c_d5bb51a2
+  context: Check for distinctness (string similarity < 0.8); if fewer than 3 distinct
+    valid responses are generated, flag the prompt as 'incomplete' in the output.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Check_distinctness_with_string_similarity_less_than_0.8
+  kind: magnitude
+  raw_text: Check for distinctness (string similarity < 0.8) for multiple generation
+    per prompt.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:46:17Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: flag prompt incomplete if fewer than 3 distinct valid responses generated
+  claim_id: c_a2bf91d1
+  context: Check for distinctness (string similarity < 0.8); if fewer than 3 distinct
+    valid responses are generated, flag the prompt as 'incomplete' in the output.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_prompt_incomplete_if_fewer_than_3_distinct_valid_respon
+  kind: magnitude
+  raw_text: Flag prompt as 'incomplete' if fewer than 3 distinct valid responses are
+    generated.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:47:10Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: flag low confidence if variance greater than 1.5 or entropy greater than
+    2.0
+  claim_id: c_4cd9f878
+  context: Implement low-confidence flagging (variance > 1.5 or entropy > 2.0) in
+    `code/scoring/scorer.py`
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_low_confidence_if_variance_greater_than_1.5_or_entropy
+  kind: magnitude
+  raw_text: Implement low-confidence flagging if variance > 1.5 or entropy > 2.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:47:28Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: proxy model scores correlate >0.6 with 50 gold standard human-rated set
+  claim_id: c_9f3ee912
+  context: 'Independent Test: Verify proxy model scores correlate >0.6 with the N=50
+    gold standard human-rated set.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify proxy model scores correlate >0.6 with the N=50 gold standard human-rated
+    set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:48:52Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: fallback to Llama-3-2B-Quantized if available RAM < 6.5GB
+  claim_id: c_a7db65d2
+  context: 'Fallback Logic: Use psutil to check available RAM before loading; if available
+    RAM < 6.5GB (safety margin for 7GB limit), switch to Llama-3-2B-Quantized and
+    log the fallback trigger.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use psutil to check available RAM before loading; if available RAM < 6.5GB
+    (safety margin for 7GB limit), switch to Llama-3-2B-Quantized
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:48:52Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: calculate required N for power=0.8 and effect size=0.5
+  claim_id: c_b1e140a9
+  context: 'Logic: Calculate required N for power=0.8 and effect size=0.5. Verify
+    actual N >= required N.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate required N for power=0.8 and effect size=0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:48:52Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: enforce max_tokens=2048 to prevent CI timeouts
+  claim_id: c_aa4a444c
+  context: Enforce max_tokens=2048 to prevent CI timeouts (FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce max_tokens=2048 to prevent CI timeouts
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:48:53Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: flag prompt as incomplete if fewer than 3 distinct valid responses generated
+  claim_id: c_f1c41497
+  context: Check for distinctness (string similarity < 0.8); if fewer than 3 distinct
+    valid responses are generated, flag the prompt as 'incomplete' in the output.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_prompt_as_incomplete_if_fewer_than_3_distinct_valid_res
+  kind: magnitude
+  raw_text: If fewer than 3 distinct valid responses are generated, flag the prompt
+    as incomplete
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:48:55Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: use temperature=0.7 for multi-sample generation
+  claim_id: c_d3c2666d
+  context: Implement CPU-only inference runner with multi-sample generation in code/inference/runner.py
+    (batch_size=1, temperature=0.7).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use temperature=0.7 for multi-sample generation
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:49:21Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: check for distinctness with string similarity < 0.8
+  claim_id: c_73b1ecee
+  context: Check for distinctness (string similarity < 0.8); if fewer than 3 distinct
+    valid responses are generated, flag the prompt as 'incomplete' in the output.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check for distinctness with string similarity < 0.8
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:49:21Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: low-confidence flagging for variance > 1.5 or entropy > 2.0
+  claim_id: c_78f3e9eb
+  context: Implement low-confidence flagging (variance > 1.5 or entropy > 2.0) in
+    code/scoring/scorer.py
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement low-confidence flagging for variance > 1.5 or entropy > 2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:49:21Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: source dataset is nvidia/OpenScience
+  claim_id: c_669483b2
+  context: 'Note: Source is nvidia/OpenScience (NSF/ERC abstracts).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Source_dataset_is_nvidia/OpenScience
+  kind: entity_fact
+  raw_text: Source dataset is nvidia/OpenScience (NSF/ERC abstracts)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:49:48Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: source dataset is HuggingFaceH4/mmlu
+  claim_id: c_3d29395c
+  context: 'Source: Download HuggingFaceH4/mmlu (STEM subset).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Source_dataset_is_HuggingFaceH4/mmlu
+  kind: entity_fact
+  raw_text: Source dataset is HuggingFaceH4/mmlu (STEM subset)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:50:11Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: primary model is allenai/SciLlama-8B-Instruct
+  claim_id: c_8f3f0d49
+  context: 'Primary Model: allenai/SciLlama-8B-Instruct (verified HF repo for science-fine-tuned
+    reasoning).'
+  evidence:
+    entailment_evidence: Primary model is allenai/SciLlama-8B-Instruct
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Primary_model_is_allenai/SciLlama-8B-Instruct
+  kind: entity_fact
+  raw_text: Primary Model is allenai/SciLlama-8B-Instruct
+  resolved_value: primary model is allenai/SciLlama-8B-Instruct
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T10:50:13Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: proxy model scores correlate greater than 0.6 with 50 gold standard human-rated
+    set
+  claim_id: c_bedfc55d
+  context: 'Independent Test: Verify proxy model scores correlate >0.6 with the N=50
+    gold standard human-rated set.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proxy_model_scores_correlate_greater_than_0.6_with_50_gold_s
+  kind: magnitude
+  raw_text: Verify proxy model scores correlate >0.6 with the N=50 gold standard human-rated
+    set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:51:10Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: switch to Llama-3-2B-Quantized if available RAM is less than 6.5 GB
+  claim_id: c_301c3e99
+  context: 'Fallback Logic: Use psutil to check available RAM before loading; if available
+    RAM < 6.5GB (safety margin for 7GB limit), switch to Llama-3-2B-Quantized and
+    log the fallback trigger.'
+  evidence:
+    candidates:
+    - - ''
+      - -2.0
+    - - ''
+      - -3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Switch_to_Llama-3-2B-Quantized_if_available_RAM_is_less_than
+  kind: magnitude
+  raw_text: Use psutil to check available RAM before loading; if available RAM < 6.5GB
+    (safety margin for 7GB limit), switch to Llama-3-2B-Quantized
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-29T10:51:46Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: calculate required N for power 0.8 and effect size 0.5
+  claim_id: c_6ac7a51d
+  context: 'Logic: Calculate required N for power=0.8 and effect size=0.5. Verify
+    actual N >= required N.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate required N for power=0.8 and effect size=0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:51:46Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: flag low confidence if variance is greater than 1.5 or entropy is greater
+    than 2.0
+  claim_id: c_3ed413ed
+  context: Implement low-confidence flagging (variance > 1.5 or entropy > 2.0) in
+    code/scoring/scorer.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_low_confidence_if_variance_is_greater_than_1.5_or_entro
+  kind: magnitude
+  raw_text: Implement low-confidence flagging (variance > 1.5 or entropy > 2.0)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:52:03Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Primary proxy model is allenai/SciLlama-8B-Instruct
+  claim_id: c_09b7d193
+  context: 'Primary Model: allenai/SciLlama-8B-Instruct (verified HF repo for science-fine-tuned
+    reasoning). Fallback Logic: Use psutil to check available RAM before loading;
+    if available RAM < 6.5GB (safety margin for 7GB limit), switch to Llama-3-2B-Quantized.'
+  evidence:
+    entailment_evidence: Primary proxy model is allenai/SciLlama-8B-Instruct
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Primary_proxy_model_is_allenai/SciLlama-8B-Instruct
+  kind: entity_fact
+  raw_text: The primary model for the proxy is allenai/SciLlama-8B-Instruct.
+  resolved_value: Primary proxy model is allenai/SciLlama-8B-Instruct
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T10:54:57Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Fallback proxy model is Llama-3-2B-Quantized
+  claim_id: c_a13b4d46
+  context: 'Primary Model: allenai/SciLlama-8B-Instruct (verified HF repo for science-fine-tuned
+    reasoning). Fallback Logic: Use psutil to check available RAM before loading;
+    if available RAM < 6.5GB (safety margin for 7GB limit), switch to Llama-3-2B-Quantized
+    and log the fallback trigger.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback model for the proxy is Llama-3-2B-Quantized.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:55:12Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Proxy model RAM fallback threshold is 6.5GB
+  claim_id: c_1d2d6b25
+  context: 'Fallback Logic: Use psutil to check available RAM before loading; if available
+    RAM < 6.5GB (safety margin for 7GB limit), switch to Llama-3-2B-Quantized and
+    log the fallback trigger.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proxy_model_RAM_fallback_threshold_is_6.5GB
+  kind: magnitude
+  raw_text: The proxy model fallback is triggered if available RAM is less than 6.5GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:56:01Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Deterministic benchmark dataset is HuggingFaceH4/mmlu STEM subset
+  claim_id: c_2b1c1fc9
+  context: 'Source: Download HuggingFaceH4/mmlu (STEM subset). Verification: Verify
+    the dataset ID is valid and contains STEM problems. Note: While spec.md FR-001
+    mentions IMO/IPhO, the verified source for high-difficulty deterministic benchmarks
+    in the plan is HuggingFaceH4/mmlu (STEM subset).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Deterministic_benchmark_dataset_is_HuggingFaceH4/mmlu_STEM_s
+  kind: entity_fact
+  raw_text: The deterministic benchmark dataset used is HuggingFaceH4/mmlu (STEM subset).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:56:22Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: OpenSci-Reason dataset source is nvidia/OpenScience
+  claim_id: c_7d502654
+  context: 'Implement OpenSci-Reason dataset loader and curation in code/data/download.py
+    using datasets.load_dataset(''nvidia/OpenScience'', streaming=True). Note: Source
+    is nvidia/OpenScience (NSF/ERC abstracts).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenSci-Reason_dataset_source_is_nvidia/OpenScience
+  kind: entity_fact
+  raw_text: The OpenSci-Reason dataset source is nvidia/OpenScience.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:56:23Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: MMLU-STEM dataset domain is deterministic
+  claim_id: c_1d029555
+  context: 'Output: code/data/processed/unified.jsonl (merges all, adds domain field:
+    ''deterministic'' for MMLU-STEM, ''ill-structured'' for OpenSci).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MMLU-STEM_dataset_domain_is_deterministic
+  kind: entity_fact
+  raw_text: The MMLU-STEM dataset domain is classified as deterministic.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:56:39Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: OpenSci-Reason dataset domain is ill-structured
+  claim_id: c_32f0d74f
+  context: 'Output: code/data/processed/unified.jsonl (merges all, adds domain field:
+    ''deterministic'' for MMLU-STEM, ''ill-structured'' for OpenSci).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenSci-Reason_dataset_domain_is_ill-structured
+  kind: entity_fact
+  raw_text: The OpenSci-Reason dataset domain is classified as ill-structured.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:56:56Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Inference max_tokens limit is 2048
+  claim_id: c_ce5bce8d
+  context: 'Enforce max_tokens=2048 to prevent CI timeouts (FR-006). Note: This task
+    directly implements FR-003 (3 candidates) and FR-006 (token limit).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inference runner enforces a max_tokens limit of 2048.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:56:57Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: OpenSci-Reason distinctness string similarity threshold is 0.8
+  claim_id: c_7da605a1
+  context: Check for distinctness (string similarity < 0.8); if fewer than 3 distinct
+    valid responses are generated, flag the prompt as 'incomplete' in the output.
+  evidence:
+    entailment_evidence: OpenSci-Reason distinctness string similarity threshold is
+      0
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/OpenSci-Reason_distinctness_string_similarity_threshold_is_0
+  kind: magnitude
+  raw_text: For the OpenSci-Reason dataset, the system checks for distinctness using
+    a string similarity threshold of less than 0.8.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-29T10:57:56Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: OpenSci-Reason requires 3 distinct valid responses per prompt
+  claim_id: c_54596709
+  context: Check for distinctness (string similarity < 0.8); if fewer than 3 distinct
+    valid responses are generated, flag the prompt as 'incomplete' in the output.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/OpenSci-Reason_requires_3_distinct_valid_responses_per_promp
+  kind: magnitude
+  raw_text: For the OpenSci-Reason dataset, the system requires at least 3 distinct
+    valid responses per prompt.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:58:26Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: MMLU-STEM generates 1 response per prompt
+  claim_id: c_4194f47c
+  context: For MMLU-STEM, generate 1 response. Enforce max_tokens=2048 to prevent
+    CI timeouts (FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For the MMLU-STEM dataset, the system generates exactly 1 response per
+    prompt.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:58:48Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Proxy model score correlation with gold standard must be >0.6
+  claim_id: c_e5c48d4e
+  context: 'Independent Test: Verify proxy model scores correlate >0.6 with the N=50
+    gold standard human-rated set.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proxy_model_score_correlation_with_gold_standard_must_be_%3E0.
+  kind: magnitude
+  raw_text: The independent test for User Story 2 requires the proxy model scores
+    to correlate greater than 0.6 with the gold standard human-rated set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:59:25Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Gold standard human-rated set size is 50
+  claim_id: c_c507ef36
+  context: 'Independent Test: Verify proxy model scores correlate >0.6 with the N=50
+    gold standard human-rated set.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The gold standard human-rated set for User Story 2 consists of N=50 responses.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:59:45Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Low-confidence variance threshold is 1.5
+  claim_id: c_78091e60
+  context: Implement low-confidence flagging (variance > 1.5 or entropy > 2.0) in
+    code/scoring/scorer.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low-confidence_variance_threshold_is_1.5
+  kind: magnitude
+  raw_text: The low-confidence flagging threshold for variance is greater than 1.5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T11:00:15Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Low-confidence entropy threshold is 2.0
+  claim_id: c_b92656ac
+  context: Implement low-confidence flagging (variance > 1.5 or entropy > 2.0) in
+    code/scoring/scorer.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Low-confidence_entropy_threshold_is_2.0
+  kind: magnitude
+  raw_text: The low-confidence flagging threshold for entropy is greater than 2.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T11:00:36Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Power analysis target power is 0.8
+  claim_id: c_9c25d1b8
+  context: 'Logic: Calculate required N for power=0.8 and effect size=0.5. Verify
+    actual N >= required N.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Indeed, although there are no formal standards for power, many researchers\
+        \ and funding bodies assess power using 0.80 (or 80%) as a standard for adequacy.\
+        \ This convention implies a four-to-one trade off between \u03B2-risk and\
+        \ \u03B1-risk, as the probability of a type II error \u03B2 is set as 1 -\
+        \ 0.8 = 0.2, while \u03B1, the probability of a type I error, is commonly\
+        \ set at 0.05. Some applications require much higher levels of power. Medical\
+        \ tests may be designed to minimise the number of false negatives (type II\
+        \ errors) produced by loosening the threshold of significance, raising the\
+        \ risk of obtaining a false positive (a type I error). The rationale is that\
+        \ it is better to tell a healthy patient \"we may have found something\u2014\
+        let's test further,\" than to tell a diseased patient \"all is well.\""
+      source_id: Power (statistics)
+      url: https://en.wikipedia.org/wiki/Power_(statistics)
+      value: '0.80'
+    filled: true
+  kind: numeric
+  raw_text: The power analysis calculation targets a power of 0.8.
+  resolved_value: '0.80'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T11:00:47Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Power analysis target effect size is 0.5
+  claim_id: c_199972ca
+  context: 'Logic: Calculate required N for power=0.8 and effect size=0.5. Verify
+    actual N >= required N.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis calculation targets an effect size of 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T11:01:19Z'
+- artifact_path: projects/PROJ-921-llmxive-follow-up-extending-achieving-go/specs/001-llmxive-follow-up-extending-achieving-go/tasks.md
+  attempts: 1
+  canonical: Power analysis uses actual curated dataset size
+  claim_id: c_a12568a8
+  context: 'Note: Input is the actual N from the curated dataset (from T012), not
+    a fixed 500.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The power analysis input is the actual curated dataset size, not a fixed
+    500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T11:01:40Z'

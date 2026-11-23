@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2103.14757",
+  "judged_at": "2026-07-30T18:39:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"blockpilot: instance-adaptive policy learning for diffusion-based spec\" linguistics",
+  "rationale": "The paper focuses on a specific application of NLP for generating multiple-choice questions from lesson materials, which is a distinct construct from the user's question regarding instance-adaptive policy learning for diffusion-based speech synthesis (implied by \"Spec\" and \"BlockPilot\"). It fails to address the core mechanisms (diffusion models, policy learning), the domain (speech/signal processing), or the specific variables of the user's research, falling under the rejection rule for distinct",
+  "relevant": false
+}

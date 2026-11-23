@@ -1,0 +1,32 @@
+- artifact_path: projects/PROJ-722-normalized-gaps-between-consecutive-squa/specs/001-normalized-gaps-between-consecutive-squa/tasks.md
+  attempts: 1
+  canonical: mean of normalized gaps equals 1.0
+  claim_id: c_655e0d51
+  context: Run sieve for N=10,000, verify count against known values, and confirm
+    mean of normalized gaps is 1.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean of normalized gaps is 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:04:20Z'
+- artifact_path: projects/PROJ-722-normalized-gaps-between-consecutive-squa/specs/001-normalized-gaps-between-consecutive-squa/tasks.md
+  attempts: 1
+  canonical: random thinning probability equals 6 over pi squared
+  claim_id: c_8b277202
+  context: 'Implement Random Thinning Control Generation: Implement def generate_random_thinning(N:
+    int, p: float) -> List[int] in code/control.py with p=6/pi^2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The probability p for random thinning is 6/pi^2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T08:05:45Z'

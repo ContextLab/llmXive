@@ -1,0 +1,88 @@
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `state/__init__.py` file was provided; the claim lacks any\
+    \ artifact showing the file\u2019s existence or its contents, so the required\
+    \ module has not been demonstrated. The implementer must add the `state/__init__.py`\
+    \ file (non\u2011empty) to the repository."
+T003b:
+  c: true
+  h: bb7754ad1bd4466cc1ec2f3963eb5762a5a4e2bf5f5707e6d78442228abff126
+  r: "The `code/.black.toml` file exists, is non\u2011empty, and contains a full Black\
+    \ configuration (line length, target version, include/exclude patterns, and formatting\
+    \ options), fulfilling the requirement to configure formatting in that location."
+T004c:
+  c: false
+  h: e1f61a7c23f0a0bc45df0638d5aec5ca55ec654ff25e161c8d4cd0fd137f8e26
+  r: The `code/config.py` file only defines dataclasses and does not contain any logic
+    to read, generate, or validate `data/processed/config.yaml`. Moreover, the required
+    `data/processed/config.yaml` file is absent, so the generator/loader behavior
+    described in the task is not implemented. The next implementer must add code that
+    (a) checks for the file, (b) creates it with the required schema and defaults
+    when missing, (c) loads its values into the `Config` class, and (d) raises `ValueError`
+    on malformed content.
+T008b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files, scripts, or documentation defining CI runner environment
+    variables for resource limits were provided. The only artifacts shown relate to
+    audio model compression and evaluation, not to the required CI runner setup. The
+    task therefore lacks the necessary artifact.
+T014b:
+  c: false
+  h: 11ae4b3063858669582c18cbefcbca287b33b2d006437e028d2463467d9fa658
+  r: "The `data/processed/subtle_cue_subset.parquet` file is absent, violating the\
+    \ required streaming input step. Moreover, `code/models/compress.py` does not\
+    \ contain a full knowledge\u2011distillation training loop, KD loss computation,\
+    \ or CSV saving logic, and the configuration module is truncated (no accessible\
+    \ `KD_ALPHA`/`KD_TEMP` constants). These missing pieces prevent the task from\
+    \ being genuinely fulfilled."
+T014c:
+  c: false
+  h: 11ae4b3063858669582c18cbefcbca287b33b2d006437e028d2463467d9fa658
+  r: The `compress.py` file never defines the KD training loop, never streams the
+    required Parquet dataset, never reads `KD_ALPHA`/`KD_TEMP` (the imported helper
+    functions are missing), and does not write `distillation_loss_curve_fp32.csv`.
+    Moreover, the required data file `data/processed/subtle_cue_subset.parquet` is
+    absent, and `code/config.py` is truncated and lacks the expected accessor functions.
+    These missing pieces prevent the task from being fulfilled.
+T021c:
+  c: false
+  h: 60d73e333b9c284d6c3312458f5ad8bcf3e20a279662fb8ad094c64b8827e5a1
+  r: "The provided `subtle_cue_builder.py` only contains logic for identifying subtle\
+    \ cues and lacks any implementation that defines or generates \u201CControl Set\u201D\
+    \ classes, maps them to dataset IDs, or writes `data/processed/class_config_control.yaml`\
+    \ (the file is missing). Consequently the core requirements of the task are not\
+    \ met."
+T029:
+  c: false
+  h: d98c2878caf681e408b6d921acdb4cbc6e6b9067bd0b4933bcf528b4258315a7
+  r: "The repository contains a partially\u2011implemented `robustness_curve.py` that\
+    \ loads the CSV and computes a correlation list, but the script never writes the\
+    \ results to `data/processed/correlation_data.json` (the file is missing) and\
+    \ the code is truncated before any output logic. Consequently the required JSON\
+    \ artifact is not produced, so the task is not fulfilled."
+T039a:
+  c: false
+  h: c90c54347faa0f05310b6e8df089017459c292929631fd44bf8af0f0f0f59e38
+  r: The required input file `data/processed/subtle_cue_subset.parquet` and the expected
+    output `data/processed/ablation_logits.parquet` are absent. Moreover, the provided
+    `code/analysis/ablation.py` is truncated, contains errors (e.g., `load_studen`),
+    and does not demonstrably load ablated models from T037/T038 or write logits to
+    the specified parquet file.
+T039b:
+  c: false
+  h: 4a7fc5adc6e701ee8b2eebcb269bc7ab4302c06f9f6bf9f0e3c306a55d6df42c
+  r: "The repository lacks the required `data/processed/ablation_metrics.csv` output\
+    \ file, and the provided `code/inference/metrics.py` is incomplete (truncated,\
+    \ missing logic to read `ablation_logits.parquet`, perform per\u2011configuration\
+    \ latency/RAM measurements on a 2\u2011core CPU, and write the CSV). These core\
+    \ requirements are not met."
+T049:
+  c: false
+  h: 08fba9ac932fd7bdd38c047e7252f220f724a430608d9717c78c21a6e4c90a8c
+  r: "The provided `runner.py` is truncated and does not contain the required batch\u2011\
+    size\u2011adjustment loop, RAM\u2011threshold checks, retry/skip logic, or code\
+    \ that writes the final batch size to `data/processed/inference_config.yaml`.\
+    \ Moreover, the `inference_config.yaml` file is missing entirely. The task\u2019\
+    s core requirements are therefore not satisfied."

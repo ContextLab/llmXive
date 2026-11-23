@@ -1,18 +1,18 @@
-T017:
+T013a:
   c: false
-  h: bd7a9b22b86c9a83a063b791ef86d4092377c00fed43e3fd046097c38a3919ec
-  r: "The repository contains a `reporter.py` file, but the implementation is truncated\
-    \ and does not show the JSON/Parquet writing logic, and the required output file\
-    \ `data/metrics/baseline_results.json` is absent. Without a generated baseline\
-    \ results file, the task\u2019s core requirement is not satisfied."
-T024:
+  h: 7ef88ad84643c596caace50ba16cd3f7c1214d09913f8ad769c8773f3ede1cc5
+  r: The `processor.py` implementation writes masks to `data/raw/processed` instead
+    of the required `data/raw/masks/`, and the unit test file `tests/unit/test_processor.py`
+    is absent, so the verification step cannot be executed.
+T020:
   c: false
-  h: f74ff4168383692aac0ab48f06f85aefb3946ba071d73037185ea5f92c09c371
-  r: "The repository lacks the required `data/metrics/flow_results.json` file, and\
-    \ the provided `code/analysis/reporter.py` is truncated and does not contain a\
-    \ complete implementation that writes a comparative report (JSON/Parquet) to that\
-    \ path. The necessary function to generate and output the flow\u2011method metrics\
-    \ is missing."
+  h: 269db5ccf11462009298ea2ba116b11acf76f17c5ec8149f9cbc4c914097bf16
+  r: "The repository lacks the required test `tests/unit/test_flow_coherence.py` (the\
+    \ file is missing), so the verification step cannot be run. Moreover, the provided\
+    \ `flow_coherence.py` is truncated and does not show the essential `cv2.remap`\
+    \ implementation on 512\xD7512 latent tensors, leaving it unclear whether the\
+    \ module meets the specification. The missing test and incomplete evidence mean\
+    \ the task is not genuinely completed."
 T025:
   c: false
   h: 89ff04cff3963f4afac40a2ca19512ee7840377826e739d8018a766aa60dcda4
@@ -20,3 +20,45 @@ T025:
     the repository, so the contract test for the AnalysisResult schema is missing.
     The task cannot be considered complete until this test file is created with appropriate
     content.
+T027a:
+  c: false
+  h: 4e21aa4a4613f77c63a3682a8d7e5bdb64784adff8a33def918bf419ea9721f8
+  r: "The `load_baseline_and_flow_metrics` function is present, but the required files\
+    \ `data/metrics/baseline_results.json` and `data/metrics/flow_results.json` do\
+    \ not exist, so the loader cannot actually return any in\u2011memory data. Moreover,\
+    \ the test suite only checks the error case (`test_load_baseline_flow_metrics_missing_file`)\
+    \ and does not contain a test that verifies successful loading of real metric\
+    \ files as the task\u2019s verification step requires. The missing JSON files\
+    \ (and corresponding successful\u2011load test) must be added for the task to\
+    \ be considered complete."
+T027b:
+  c: false
+  h: f25e6faa876170bb8554dbf7d85cf23a94b05e996447ae0627baca3fa859ff67
+  r: The code for merging exists, but the required input files (`data/metrics/baseline_results.json`,
+    `data/metrics/flow_results.json`) and the expected output file (`data/metrics/paired_metrics.json`)
+    are all missing, and the unit test file `tests/unit/test_stats_aggregator.py`
+    is absent, so the task cannot be verified as completed.
+T028:
+  c: false
+  h: fbdc23201772bfdd97cbea707873ed8a2ac47c6466994df2ffb24383ddf5d5e1
+  r: "The `compute_kolmogorov_smirnov_test` function in `code/analysis/stats.py` accepts\
+    \ a single `paired_data` argument, but the unit test calls it with two separate\
+    \ lists (`sample_baseline_records`, `sample_flow_records`). This signature mismatch\
+    \ will cause a TypeError, and the required output file `data/metrics/ks_test.json`\
+    \ does not exist. The implementation must be adjusted to match the test\u2019\
+    s API and actually write the JSON file."
+T030:
+  c: false
+  h: 6906a3010367a960bce288beeb7475d693db73372a2c34788f48511181ac0ee2
+  r: "The required output `data/metrics/sensitivity_analysis.json` does not exist,\
+    \ and the verification test `tests/unit/test_stats_sensitivity.py` is also missing.\
+    \ Consequently the sensitivity\u2011analysis script either was not implemented\
+    \ or cannot be exercised, so the task\u2019s requirements are not satisfied."
+T031a:
+  c: false
+  h: b909ed8a56e939eb507a95e485d95cdc57a51880706b5978836d25991d6aa301
+  r: The required `data/metrics/analysis_results.json` file is absent, and `code/analysis/reporter.py`
+    does not contain a function that creates this JSON with the keys `ks_test`, `pc_regression`,
+    and `sensitivity_analysis`. Consequently the unit test `test_json_summary_generation`
+    cannot succeed. The implementation must generate the analysis summary JSON with
+    the specified keys.

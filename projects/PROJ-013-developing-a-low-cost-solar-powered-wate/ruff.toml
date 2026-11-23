@@ -1,0 +1,59 @@
+# Ruff configuration for llmXive project
+# Task: T003 - Configure linting (ruff)
+
+# Exclude a few common directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+    "data",
+    "figures",
+]
+
+# Same as Black
+line-length = 88
+
+# Allow automatic formatting of certain rules
+target-version = "py311"
+
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C90",# mccabe
+    "UP", # pyupgrade
+    "N",  # pep8-naming
+]
+
+# Ignore specific rules if necessary (e.g., line too long handled by formatter)
+ignore = [
+    "E501", # line too long (handled by black)
+]
+
+[lint.per-file-ignores]
+# Ignore imports in __init__.py files
+"__init__.py" = ["F401"]
+
+[lint.isort]
+known-first-party = ["code"]
+force-sort-within-sections = true
+combine-as-imports = true

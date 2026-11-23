@@ -1,0 +1,20 @@
+{
+  "source_commit": "9e93570fcc8d66af5d0413868e970989f926be1d",
+  "project": "PROJ-549-exploring-the-distribution-of-smooth-num",
+  "scope": "two real production graph steps in isolated exact snapshot; not full acceptance",
+  "started_at": "2026-10-09T13:49:05.705510+00:00",
+  "steps": [
+    {
+      "before": "in_progress",
+      "after": "in_progress",
+      "seconds": 661.13
+    },
+    {
+      "before": "in_progress",
+      "after": "in_progress",
+      "seconds": 632.33
+    }
+  ],
+  "status": "completed_probe",
+  "ended_at": "2026-10-09T14:10:39.180340+00:00"
+}

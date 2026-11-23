@@ -1,77 +1,102 @@
-"""
-T002b: Create virtual environment and install requirements.
-
-This script automates the creation of a Python virtual environment in the project root
-and installs all dependencies listed in requirements.txt.
-
-Usage:
-    python code/setup_venv.py
-"""
 import os
 import subprocess
 import sys
 import shutil
 from pathlib import Path
 
-def run_command(cmd, cwd=None):
-    """Run a shell command and raise an error if it fails."""
-    print(f"Running: {' '.join(cmd)}")
+def run_command(command: list, cwd: Path = None) -> None:
+    """
+    Run a shell command and raise an exception if it fails.
+    
+    Args:
+        command: List of command arguments
+        cwd: Working directory for the command
+    """
     try:
-        subprocess.run(cmd, check=True, cwd=cwd)
-        print("Success.")
-        return True
+        result = subprocess.run(
+            command,
+            cwd=cwd,
+            check=True,
+            capture_output=True,
+            text=True
+        )
+        if result.stdout:
+            print(result.stdout)
+        if result.stderr:
+            print(result.stderr, file=sys.stderr)
     except subprocess.CalledProcessError as e:
-        print(f"Error executing command: {e}")
-        return False
+        raise RuntimeError(
+            f"Command failed with exit code {e.returncode}.\n"
+            f"STDOUT: {e.stdout}\n"
+            f"STDERR: {e.stderr}"
+        )
 
 def main():
-    # Determine project root (parent of 'code' directory)
-    script_dir = Path(__file__).resolve().parent
-    project_root = script_dir.parent
-
+    """
+    Create a virtual environment and install requirements.
+    
+    This script:
+    1. Creates a 'venv' directory in the project root
+    2. Activates the environment (conceptually) by using the venv's python
+    3. Installs dependencies from requirements.txt
+    
+    Note: This script is designed to be run from the project root.
+    """
+    # Determine project root (assuming script is in code/ or code/setup_venv.py)
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
+    
     venv_path = project_root / "venv"
     requirements_path = project_root / "requirements.txt"
-
+    
+    # Check if requirements.txt exists
     if not requirements_path.exists():
-        print(f"Error: {requirements_path} not found.")
-        sys.exit(1)
-
-    # Remove existing venv if present
+        raise FileNotFoundError(
+            f"requirements.txt not found at {requirements_path}. "
+            "Please create it with the required dependencies first."
+        )
+    
+    # Check if venv already exists
     if venv_path.exists():
-        print(f"Removing existing virtual environment at {venv_path}...")
-        shutil.rmtree(venv_path)
-
-    # Create virtual environment
-    print(f"Creating virtual environment at {venv_path}...")
-    if not run_command([sys.executable, "-m", "venv", str(venv_path)]):
-        print("Failed to create virtual environment.")
-        sys.exit(1)
-
-    # Determine the path to the pip executable inside the venv
-    if os.name == "nt":  # Windows
-        pip_executable = venv_path / "Scripts" / "pip.exe"
+        print(f"Virtual environment already exists at {venv_path}.")
+        print("Skipping creation. You may want to delete it manually and re-run if issues persist.")
+    else:
+        print(f"Creating virtual environment at {venv_path}...")
+        run_command([sys.executable, "-m", "venv", str(venv_path)])
+    
+    # Determine the python executable inside the venv
+    if sys.platform == "win32":
         python_executable = venv_path / "Scripts" / "python.exe"
-    else:  # Unix/Linux/macOS
-        pip_executable = venv_path / "bin" / "pip"
+        pip_executable = venv_path / "Scripts" / "pip.exe"
+    else:
         python_executable = venv_path / "bin" / "python"
-
-    if not pip_executable.exists():
-        print(f"Error: pip not found at {pip_executable}")
-        sys.exit(1)
-
-    # Upgrade pip first
+        pip_executable = venv_path / "bin" / "pip"
+    
+    if not python_executable.exists():
+        raise RuntimeError(
+            f"Python executable not found at {python_executable}. "
+            "Virtual environment creation may have failed."
+        )
+    
+    # Upgrade pip
     print("Upgrading pip...")
-    if not run_command([str(python_executable), "-m", "pip", "install", "--upgrade", "pip"]):
-        print("Warning: Failed to upgrade pip, proceeding with installation.")
-
+    run_command([str(python_executable), "-m", "pip", "install", "--upgrade", "pip"])
+    
     # Install requirements
     print(f"Installing requirements from {requirements_path}...")
-    if not run_command([str(pip_executable), "install", "-r", str(requirements_path)]):
-        print("Failed to install requirements.")
-        sys.exit(1)
-
-    print("Virtual environment setup complete.")
-    print(f"Activate the environment using: source venv/bin/activate (Unix) or venv\\Scripts\\activate (Windows)")
+    run_command([
+        str(pip_executable),
+        "install",
+        "-r",
+        str(requirements_path)
+    ])
+    
+    print(f"Virtual environment setup complete at {venv_path}.")
+    print("To activate manually, run:")
+    if sys.platform == "win32":
+        print(f"  {venv_path}\\Scripts\\activate")
+    else:
+        print(f"  source {venv_path}/bin/activate")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,17 @@
+status: none
+intent: download conflict dialogue dataset with emotion reactivity and cultural identity
+  annotations python package dataset
+required_fields:
+- trajectory_id
+- utterance_text
+- speaker_id
+- turn_number
+- emotional_reactivity_label
+- cultural_identity_label
+- conflict_intensity_score
+- scenario_id
+- timestamp
+- metadata
+cache_key: 21b7796759cc36de91bd0f173ee0bdb972e71903a03a5b921e7e34080d0e1d3c
+searched_at: '2026-10-13T06:56:53.431532+00:00'
+retry_count: 1

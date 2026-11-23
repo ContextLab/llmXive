@@ -1,0 +1,4 @@
+random_seed: 42
+data_path: data/raw
+output_path: data/outputs
+processed_path: data/processed

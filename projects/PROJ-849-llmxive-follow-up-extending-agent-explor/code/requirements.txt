@@ -1,0 +1,11 @@
+transformers>=4.30.0
+rank_bm25>=0.2.2
+scikit-learn>=1.0.0
+pandas>=1.0.0
+datasets>=2.14.0
+pyyaml>=6.0
+torch>=2.0.0
+scipy>=1.9.0
+numpy>=1.20.0
+ruff>=0.1.0
+black>=23.0.0

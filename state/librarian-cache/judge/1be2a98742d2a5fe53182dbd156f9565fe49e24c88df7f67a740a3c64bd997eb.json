@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1803.10916",
+  "judged_at": "2026-08-13T08:58:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting chemical reaction yields from spectroscopic data with attention mechanisms chemistry",
+  "rationale": "The paper applies attention mechanisms to keyword spotting in audio signals, which is an entirely different domain (speech processing) from the user's question (predicting chemical reaction yields from spectroscopic data). While both use \"attention mechanisms,\" the underlying data types, physical observables, and scientific constructs are distinct, failing the \"off-domain entirely\" rejection rule.",
+  "relevant": false
+}

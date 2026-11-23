@@ -1,0 +1,555 @@
+{
+  "fetched_at": "2026-10-05T06:50:17Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"The Topological Trouble With Transformers\"",
+      "target_n": 5
+    },
+    "duration_seconds": 56.318,
+    "ended_at": "2026-10-05T06:50:17Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "topological limitations of transformer architectures"
+        ],
+        [
+          2,
+          "topological data analysis of neural network representations"
+        ],
+        [
+          3,
+          "persistent homology in deep learning models"
+        ],
+        [
+          4,
+          "topological constraints in self-attention mechanisms"
+        ],
+        [
+          5,
+          "geometric deep learning and transformer expressivity"
+        ],
+        [
+          6,
+          "homological analysis of transformer attention maps"
+        ],
+        [
+          7,
+          "topological obstructions in sequence modeling"
+        ],
+        [
+          8,
+          "curvature and topology in transformer representation spaces"
+        ],
+        [
+          9,
+          "topological features of high-dimensional transformer embeddings"
+        ],
+        [
+          10,
+          "persistent homology applied to language model attention"
+        ],
+        [
+          11,
+          "topological complexity of transformer layers"
+        ],
+        [
+          12,
+          "algebraic topology in natural language processing models"
+        ],
+        [
+          13,
+          "topological bottlenecks in attention-based architectures"
+        ],
+        [
+          14,
+          "Betti numbers and transformer model capacity"
+        ],
+        [
+          15,
+          "topological structure of semantic manifolds in transformers"
+        ],
+        [
+          16,
+          "geometric topology of neural network loss landscapes"
+        ],
+        [
+          17,
+          "topological invariants in deep sequence models"
+        ],
+        [
+          18,
+          "limitations of attention mechanisms from a topological perspective"
+        ],
+        [
+          19,
+          "topological analysis of transformer generalization"
+        ],
+        [
+          20,
+          "persistent homology for understanding transformer failure modes"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"The Topological Trouble With Transformers\" computer science": 0,
+        "persistent homology in deep learning models": 5,
+        "topological data analysis of neural network representations": 3,
+        "topological limitations of transformer architectures": 1
+      },
+      "total_queries_issued": 3
+    },
+    "extracted_queries": [
+      "spectral bias attention mechanism expressivity",
+      "topological data analysis persistent homology transformer",
+      "graph neural networks homophily heterophily structural inductive bias",
+      "training dynamics generalization gap spectral radius",
+      "inductive bias manifold curvature rank collapse"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2211.07697"
+      ]
+    },
+    "per_query_hit_count": {
+      "graph neural networks homophily heterophily structural inductive bias": 3,
+      "inductive bias manifold curvature rank collapse": 3,
+      "llmXive follow-up: extending \"The Topological Trouble With Transformers\" computer science": 3,
+      "spectral bias attention mechanism expressivity": 3,
+      "topological data analysis persistent homology transformer": 3,
+      "training dynamics generalization gap spectral radius": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 8,
+      "rejections": [
+        {
+          "primary_pointer": "2601.03290",
+          "rationale": "The paper focuses on engineering optimizations (compression, quantization, pruning) for deploying transformers on edge devices, which is a distinct construct from the user's question regarding the \"topological trouble\" (likely referring to inductive biases, attention sparsity, or graph-theoretic limitations) of transformer architectures. While both involve transformers, the paper does not measure the same biological/physical/algorithmic mechanism, nor does it address the specific theoretical or ",
+          "title": "Lightweight Transformer Architectures for Edge Devices in Real-Time Applications"
+        },
+        {
+          "primary_pointer": "1609.04846",
+          "rationale": "The candidate paper discusses \"Random Neural Networks\" (RNNs) in the context of queuing theory and supervised learning, which is a distinct construct from the \"Transformers\" architecture and their \"topological\" properties (e.g., attention mechanisms, graph structures) central to the user's question. This falls under the rejection rule for distinct constructs sharing only homonym keywords (specifically the acronym \"RNN\" or the general term \"neural networks\") without addressing the specific mechan",
+          "title": "A Tutorial about Random Neural Networks in Supervised Learning"
+        },
+        {
+          "primary_pointer": "2502.01654",
+          "rationale": "The paper focuses on applying LSTM and transfer learning to air pollution prediction, which is an off-domain application unrelated to the user's question about the topological properties and structural limitations of Transformer architectures in computer science. While both involve neural networks, the paper does not address the specific mechanism (topology of Transformers), the domain (computer science theory), or the variables (topological trouble) central to the user's research question, fail",
+          "title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network"
+        },
+        {
+          "primary_pointer": "2306.11113",
+          "rationale": "The paper focuses on evidential deep learning and uncertainty quantification via belief theory, which is a distinct construct from the topological analysis of transformer architectures (e.g., attention head connectivity, graph properties of self-attention) implied by the user's reference to \"The Topological Trouble With Transformers.\" There is no overlap in the specific mechanism, variables, or empirical domain between studying topological constraints in transformers and improving evidential act",
+          "title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice"
+        },
+        {
+          "primary_pointer": "2105.04026",
+          "rationale": "The paper provides a broad overview of mathematical analysis in deep learning (generalization, optimization, depth) but does not address the specific topological mechanisms or \"topological trouble\" of transformers that the user's question targets. It fails to meet criteria (a) or (b) as it lacks the specific focus on transformer topology or the specific phenomena discussed in the referenced \"Topological Trouble With Transformers\" work, and it is not the foundational methodology paper (d) for tha",
+          "title": "The Modern Mathematics of Deep Learning"
+        },
+        {
+          "primary_pointer": "2301.00942",
+          "rationale": "The paper is a general educational resource on the broad connections between deep learning and computational physics, lacking any specific focus on the topological properties of transformers or the \"Topological Trouble\" phenomenon mentioned in the user's question. It fails to meet criteria (a) or (b) as it does not measure the specific mechanism (topological issues in transformers) or variables, and it is not a foundational methodology paper (d) for this specific sub-field, but rather a general ",
+          "title": "Deep Learning and Computational Physics (Lecture Notes)"
+        },
+        {
+          "primary_pointer": "2603.29261",
+          "rationale": "The paper focuses on retail economics and price elasticity modeling using deep learning, which is an entirely different domain from the user's question regarding the topological properties and architectural limitations of Transformer models in computer science. There is no overlap in the biological pathway, physical observable, algorithmic property, or empirical population, and the shared term \"deep neural\" refers to a generic model class rather than the specific \"topological trouble\" mechanism ",
+          "title": "Monodense Deep Neural Model for Determining Item Price Elasticity"
+        },
+        {
+          "primary_pointer": "1711.00146",
+          "rationale": "The paper focuses on multitask learning for efficiency in embedded systems, which is a distinct construct from the user's question regarding the topological properties and structural limitations of Transformer architectures. It does not measure the same mechanism, variables, or domain as the \"Topological Trouble With Transformers\" follow-up, nor does it serve as a foundational reference for Transformer topology.",
+          "title": "A multitask deep learning model for real-time deployment in embedded systems"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-10-05T06:49:21Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"the topological trouble with transformers\" computer science",
+      "raw": "llmXive follow-up: extending \"The Topological Trouble With Transformers\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The spectral behavior of the difference between the resolvents of two realizations $\\tilde A_1$ and $\\tilde A_2$ of a second-order strongly elliptic symmetric differential operator $A$, defined by different Robin conditions $νu=b_1γ_0u$ and $νu=b_2γ_0u$, can in the case where all coefficients are $C^\\infty$ be determined by use of a general result by the author in 1984 on singular Green operators. We here treat the problem for nonsmooth $b_i$. Using a Krein resolvent formula, we show that if $b_1$ and $b_2$ are in $L_\\infty$, the s-numbers $s_j$ of $(\\tilde A_1 -λ)^{-1}-(\\tilde A_2 -λ)^{-1}$ satisfy $s_j j^{3/(n-1)}\\le C$ for all $j$; this improves a recent result for $A=-Δ$ by Behrndt et al., that $\\sum_js_j ^p<\\infty$ for $p>(n-1)/3$. A sharper estimate is obtained when $b_1$ and $b_2$ are in $C^ε$ for some $ε>0$, with jumps at a smooth hypersurface, namely that $s_j j^{3/(n-1)}\\to c$ for $j\\to \\infty$, with a constant $c$ defined from the principal symbol of $A$ and $b_2-b_1$.\n  As an auxiliary result we show that the usual principal spectral asymptotic estimate for pseudodifferential operators of negative order on a closed manifold extends to products of pseudodifferential operators interspersed with piecewise continuous functions.",
+          "claimed_authors": [
+            "Gerd Grubb"
+          ],
+          "claimed_title": "Spectral asymptotics for Robin problems with a discontinuous coefficient",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1009.0997"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Spectral asymptotics for Robin problems with a discontinuous coefficient')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Consider an elliptic self-adjoint pseudodifferential operator $A$ acting on $m$-columns of half-densities on a closed manifold $M$, whose principal symbol is assumed to have simple eigenvalues. We show that the spectrum of $A$ decomposes, up to an error with superpolynomial decay, into $m$ distinct series, each associated with one of the eigenvalues of the principal symbol of $A$. These spectral results are then applied to the study of propagation of singularities in hyperbolic systems. The key technical ingredient is the use of the carefully devised pseudodifferential projections introduced in the first part of this work, which decompose $L^2(M)$ into almost-orthogonal almost-invariant subspaces under the action of both $A$ and the hyperbolic evolution.",
+          "claimed_authors": [
+            "Matteo Capoferri",
+            "Dmitri Vassiliev"
+          ],
+          "claimed_title": "Invariant subspaces of elliptic systems II: spectral theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.14334"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Invariant subspaces of elliptic systems II: spectral theory')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The deep image prior showed that a randomly initialized network with a suitable architecture can be trained to solve inverse imaging problems by simply optimizing it's parameters to reconstruct a single degraded image. However, it suffers from two practical limitations. First, it remains unclear how to control the prior beyond the choice of the network architecture. Second, training requires an oracle stopping criterion as during the optimization the performance degrades after reaching an optimum value. To address these challenges we introduce a frequency-band correspondence measure to characterize the spectral bias of the deep image prior, where low-frequency image signals are learned faster and better than high-frequency counterparts. Based on our observations, we propose techniques to prevent the eventual performance degradation and accelerate convergence. We introduce a Lipschitz-controlled convolution layer and a Gaussian-controlled upsampling layer as plug-in replacements for layers used in the deep architectures. The experiments show that with these changes the performance does not degrade during optimization, relieving us from the need for an oracle stopping criterion. We further outline a stopping criterion to avoid superfluous computation. Finally, we show that our approach obtains favorable results compared to current approaches across various denoising, deblocking, inpainting, super-resolution and detail enhancement tasks. Code is available at \\url{https://github.com/shizenglin/Measure-and-Control-Spectral-Bias}.",
+          "claimed_authors": [
+            "Zenglin Shi",
+            "Pascal Mettes",
+            "Subhransu Maji",
+            "Cees G. M. Snoek"
+          ],
+          "claimed_title": "On Measuring and Controlling the Spectral Bias of the Deep Image Prior",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.01125"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='On Measuring and Controlling the Spectral Bias of the Deep Image Prior')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Assume that a finite set of points is randomly sampled from a subspace of a metric space. Recent advances in computational topology have provided several approaches to recovering the geometric and topological properties of the underlying space. In this paper we take a statistical approach to this problem. We assume that the data is randomly sampled from an unknown probability distribution. We define two filtered complexes with which we can calculate the persistent homology of a probability distribution. Using statistical estimators for samples from certain families of distributions, we show that we can recover the persistent homology of the underlying distribution.",
+          "claimed_authors": [
+            "Peter Bubenik",
+            "Peter T. Kim"
+          ],
+          "claimed_title": "A statistical approach to persistent homology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "math/0607634"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='A statistical approach to persistent homology')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Feature extraction in noisy image datasets presents many challenges in model reliability. In this paper, we use the discrete Fourier transform in conjunction with persistent homology analysis to extract specific frequencies that correspond with certain topological features of an image. This method allows the image to be compressed and reformed while ensuring that meaningful data can be differentiated. Our experimental results show a level of compression comparable to that of using JPEG using six different metrics. The end goal of persistent homology-guided frequency filtration is its potential to improve performance in binary classification tasks (when augmenting a Convolutional Neural Network) compared to traditional feature extraction and compression methods. These findings highlight a useful end result: enhancing the reliability of image compression under noisy conditions.",
+          "claimed_authors": [
+            "Anil Chintapalli",
+            "Peter Tenholder",
+            "Henry Chen",
+            "Arjun Rao"
+          ],
+          "claimed_title": "Persistent Homology-Guided Frequency Filtering for Image Compression",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.07065"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Persistent Homology-Guided Frequency Filtering for Image Compression')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The combination of persistent homology and discrete Morse theory has proven very effective in visualizing and analyzing big and heterogeneous data. Indeed, topology provides computable and coarse summaries of data independently from specific coordinate systems and does so robustly to noise. Moreover, the geometric content of a discrete gradient vector field is very useful for visualization purposes. The specific case of multivariate data still demands for further investigations, on the one hand, for computational reasons, it is important to reduce the necessary amount of data to be processed. On the other hand, for analysis reasons, the multivariate case requires the detection and interpretation of the possible interdepedance among data components. To this end, in this paper we introduce and study a notion of perfectness for discrete gradient vector fields with respect to multi-parameter persistent homology, called relative-perfectness. As a natural generalization of usual perfectness in Morse theory for homology, relative-perfectness entails having the least number of critical cells relevant for multi-parameter persistence. As a first contribution, we support our definition of relative-perfectness by generalizing Morse inequalities to the filtration structure where homology groups involved are relative with respect to subsequent sublevel sets. In order to allow for an interpretation of critical cells in $2$-parameter persistence, our second contribution consists of two inequalities bounding Betti tables of persistence modules from above and below, via the number of critical cells. Our last result is the proof that existing algorithms based on local homotopy expansions allow for efficient computability over simplicial complexes up to dimension $2$.",
+          "claimed_authors": [
+            "Claudia Landi",
+            "Sara Scaramuccia"
+          ],
+          "claimed_title": "Relative-perfectness of discrete gradient vector fields and multi-parameter persistent homology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.05081"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Relative-perfectness of discrete gradient vector fields and multi-parameter persistent homology')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph Neural Networks (GNNs) extend basic Neural Networks (NNs) by using graph structures based on the relational inductive bias (homophily assumption). While GNNs have been commonly believed to outperform NNs in real-world tasks, recent work has identified a non-trivial set of datasets where their performance compared to NNs is not satisfactory. Heterophily has been considered the main cause of this empirical observation and numerous works have been put forward to address it. In this paper, we first revisit the widely used homophily metrics and point out that their consideration of only graph-label consistency is a shortcoming. Then, we study heterophily from the perspective of post-aggregation node similarity and define new homophily metrics, which are potentially advantageous compared to existing ones. Based on this investigation, we prove that some harmful cases of heterophily can be effectively addressed by local diversification operation. Then, we propose the Adaptive Channel Mixing (ACM), a framework to adaptively exploit aggregation, diversification and identity channels node-wisely to extract richer localized information for diverse node heterophily situations. ACM is more powerful than the commonly used uni-channel framework for node classification tasks on heterophilic graphs and is easy to be implemented in baseline GNN layers. When evaluated on 10 benchmark node classification tasks, ACM-augmented baselines consistently achieve significant performance gain, exceeding state-of-the-art GNNs on most tasks without incurring significant computational burden.",
+          "claimed_authors": [
+            "Sitao Luan",
+            "Chenqing Hua",
+            "Qincheng Lu",
+            "Jiaqi Zhu",
+            "Mingde Zhao",
+            "Shuyuan Zhang",
+            "Xiao-Wen Chang",
+            "Doina Precup"
+          ],
+          "claimed_title": "Revisiting Heterophily For Graph Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.07606"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Revisiting Heterophily For Graph Neural Networks')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Graph Neural Networks (GNNs) have achieved remarkable success in diverse real-world applications. Traditional GNNs are designed based on homophily, which leads to poor performance under heterophily scenarios. Current solutions deal with heterophily mainly by mixing high-order neighbors or passing signed messages. However, mixing high-order neighbors destroys the original graph structure and passing signed messages utilizes an inflexible message-passing mechanism, which is prone to producing unsatisfactory effects. To overcome the above problems, we propose a novel GNN model based on relation vector translation named Variational Relation Vector Graph Neural Network (VR-GNN). VR-GNN models relation generation and graph aggregation into an end-to-end model based on Variational Auto-Encoder. The encoder utilizes the structure, feature and label to generate a proper relation vector. The decoder achieves superior node representation by incorporating the relation translation into the message-passing framework. VR-GNN can fully capture the homophily and heterophily between nodes due to the great flexibility of relation translation in modeling neighbor relationships. We conduct extensive experiments on eight real-world datasets with different homophily-heterophily properties to verify the effectiveness of our model. The experimental results show that VR-GNN gains consistent and significant improvements against state-of-the-art GNN methods under heterophily, and competitive performance under homophily.",
+          "claimed_authors": [
+            "Fengzhao Shi",
+            "Ren Li",
+            "Yanan Cao",
+            "Yanmin Shang",
+            "Lanxue Zhang",
+            "Chuan Zhou",
+            "Jia Wu",
+            "Shirui Pan"
+          ],
+          "claimed_title": "VR-GNN: Variational Relation Vector Graph Neural Network for Modeling both Homophily and Heterophily",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.14523"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='VR-GNN: Variational Relation Vector Graph Neural Network for Modeling both Homophily and Heterophily')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove that the imaginary parts of scattering resonances for negatively curved asymptotically hyperbolic surfaces are uniformly bounded away from zero and provide a resolvent bound in the resulting resonance-free strip. This provides an essential spectral gap without the pressure condition. This is done by adapting the methods of [arXiv:1004.3361], [arXiv:1012.4391] and [arXiv:2201.08259] and answers a question posed in [arXiv:1504.06589].",
+          "claimed_authors": [
+            "Zhongkai Tao"
+          ],
+          "claimed_title": "Spectral gap for surfaces of infinite volume with negative curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.19550"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Spectral gap for surfaces of infinite volume with negative curvature')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this note we elaborate on the asymptotic behavior of the spectral gap of a class of discrete Schrödinger operators defined on a path graph in the limit of infinite volume. We confirm recent results and generalize them to a larger class of potentials using entirely different methods. Notably, we also resolve a conjecture previously proposed in this context. This then yields new insights into the rate at which the spectral gap tends to zero as the volume increases.",
+          "claimed_authors": [
+            "Matthias Hofmann",
+            "Joachim Kerner",
+            "Maximilian Pechmann"
+          ],
+          "claimed_title": "On the asymptotic behavior of the spectral gap for discrete Schrödinger operators",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.16353"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='On the asymptotic behavior of the spectral gap for discrete Schrödinger operators')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider a positive and power-bounded linear operator $T$ on $L^p$ over a finite measure space and prove that, if $TL^p \\subseteq L^q$ for some $q > p$, then the essential spectral radius of $T$ is strictly smaller than $1$. As a special case, we obtain a recent result of Miclo who proved this assertion for self-adjoint ergodic Markov operators in the case $p=2$ and thereby solved a long-open problem of Simon and Høegh-Krohn.\n  Our methods draw a connection between spectral theory and the geometry of Banach spaces: they rely on a result going back to Groh that encodes spectral gap properties via ultrapowers, and on the fact that an infinite dimensional $L^p$-space cannot by isomorphic to an $L^q$-space for $q \\not= p$.\n  We also prove a number of variations of our main result: (i) it follows from theorems of Lotz and Martínez that the condition $TL^p \\subseteq L^q$ can be replaced with the weaker assumption that $T$ maps the positive part of the $L^p$-unit ball into a uniformly $p$-integrable set; (ii) while it is known that the positivity assumption on $T$ cannot in general be omitted, we show that we can replace it with the assumption that $T$ is contractive both on $L^p$ and on $L^q$; (iii) we prove a version of the theorem which allows us, under appropriate circumstances, to also consider non-finite measures spaces; (iv) our result also has a uniform version: there exists an upper bound $c \\in [0,1)$ for the essential spectral radius of $T$, where $c$ depends on certain quantitative properties of $T$, $L^p$ and $L^q$.",
+          "claimed_authors": [
+            "Jochen Glück"
+          ],
+          "claimed_title": "Spectral gaps for hyperbounded operators",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.09422"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Spectral gaps for hyperbounded operators')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Here we survey the compactness and geometric stability conjectures formulated by the participants at the 2018 IAS Emerging Topics Workshop on {\\em Scalar Curvature and Convergence}. We have tried to survey all the progress towards these conjectures as well as related examples, although it is impossible to cover everything. We focus primarily on sequences of compact Riemannian manifolds with nonnegative scalar curvature and their limit spaces. Christina Sormani is grateful to have had the opportunity to write up our ideas and has done her best to credit everyone involved within the paper even though she is the only author listed above. In truth we are a team of over thirty people working together and apart on these deep questions and we welcome everyone who is interested in these conjectures to join us.",
+          "claimed_authors": [
+            "Christina Sormani",
+            "Participants at the IAS Emerging Topics Workshop on Scalar Curvature",
+            " Convergence"
+          ],
+          "claimed_title": "Conjectures on Convergence and Scalar Curvature",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.10093"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Conjectures on Convergence and Scalar Curvature')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bias in web search has been in the spotlight of bias detection research for quite a while. At the same time, little attention has been paid to query suggestions in this regard. Awareness of the problem of biased query suggestions has been raised. Likewise, there is a rising need for automatic bias detection approaches. This paper adds on the bias detection pipeline for bias detection in query suggestions of person-related search developed by Bonart et al. \\cite{Bonart_2019a}. The sparseness and lack of contextual metadata of query suggestions make them a difficult subject for bias detection. Furthermore, query suggestions are perceived very briefly and subliminally. To overcome these issues, perception-aware metrics are introduced. Consequently, the enhanced pipeline is able to better detect systematic topical bias in search engine query suggestions for person-related searches. The results of an analysis performed with the developed pipeline confirm this assumption. Due to the perception-aware bias detection metrics, findings produced by the pipeline can be assumed to reflect bias that users would discern.",
+          "claimed_authors": [
+            "Fabian Haak",
+            "Philipp Schaer"
+          ],
+          "claimed_title": "Perception-Aware Bias Detection for Query Suggestions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03730"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='Perception-Aware Bias Detection for Query Suggestions')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We compute the minimum-norm weights of a deep linear ResNet, and find that the inductive bias of this architecture lies between minimizing nuclear norm and rank. This implies that, with appropriate hyperparameters, deep nonlinear ResNets have an inductive bias towards minimizing bottleneck rank.",
+          "claimed_authors": [
+            "Enric Boix-Adsera"
+          ],
+          "claimed_title": "On the inductive bias of infinite-depth ResNets and the bottleneck rank",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.19149"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"The Topological Trouble With Transformers\" compute', candidate_title='On the inductive bias of infinite-depth ResNets and the bottleneck rank')",
+        "failed_at": "2026-10-05T06:49:48Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sarah McGuire",
+            "Shane Jackson",
+            "Tegan Emerson",
+            "Henry Kvinge"
+          ],
+          "title": "Do Neural Networks Trained with Topological Features Learn Different Internal Representations?",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2211.07697",
+        "summary": "There is a growing body of work that leverages features extracted via topological data analysis to train machine learning models. While this field, sometimes known as topological machine learning (TML), has seen some notable successes, an understanding of how the process of learning from topological features differs from the process of learning from raw data is still limited. In this work, we begin to address one component of this larger issue by asking whether a model trained with topological features learns internal representations of data that are fundamentally different than those learned by a model trained with the original raw data. To quantify ``different'', we exploit two popular metrics that can be used to measure the similarity of the hidden representations of data within neural networks, neural stitching and centered kernel alignment. From these we draw a range of conclusions about how training with topological features does and does not change the representations that a model learns. Perhaps unsurprisingly, we find that structurally, the hidden representations of models trained and evaluated on topological features differ substantially compared to those trained and evaluated on the corresponding raw data. On the other hand, our experiments show that in some cases, these representations can be reconciled (at least to the degree required to solve the corresponding task) using a simple affine transformation. We conjecture that this means that neural networks trained on raw data may extract some limited topological features in the process of making predictions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2211.07697",
+          "http_status": 200,
+          "pdf_sample_score": 0.2982,
+          "query_relevance_score": 0.8,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-05T06:49:59Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"the topological trouble with transformers\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,75 +1,43 @@
 import pandas as pd
-from unittest.mock import patch, MagicMock
 import pytest
-
-from code.data.merge_datasets import merge_datasets, count_cves_per_repo
+from data.merge_datasets import merge_datasets
 
 def test_url_matching():
-    """Mock NVD data, assert exact match logic works and ambiguous matches are ignored."""
-    # Create mock target list (GitHub metrics)
-    github_data = pd.DataFrame({
-        'url': ['https://github.com/org/repoA', 'https://github.com/org/repoB', 'https://github.com/org/repoC'],
-        'language': ['Python', 'JavaScript', 'Java'],
-        'unique_authors': [10, 5, 20],
-        'kloc': [100, 50, 200]
+    """
+    Test that exact URL matching works correctly and ambiguous matches are ignored.
+    Mock NVD data and target list, then assert exact match logic.
+    """
+    # Mock target list
+    target_list = pd.DataFrame({
+        'url': ['https://github.com/org/repo1', 'https://github.com/org/repo2', 'https://github.com/org/repo3'],
+        'primary_language': ['Python', 'JavaScript', 'Java'],
+        'unique_authors': [10, 20, 30],
+        'kloc': [1.5, 2.5, 3.5]
     })
 
-    # Create mock NVD data with exact and ambiguous matches
+    # Mock NVD CVE data (with exact and ambiguous matches)
     nvd_data = pd.DataFrame({
-        'cve_id': ['CVE-2023-001', 'CVE-2023-002', 'CVE-2023-003'],
-        'url': [
-            'https://github.com/org/repoA',  # Exact match
-            'https://github.com/org/repoAB', # Ambiguous (substring)
-            'https://github.com/org/repoD'   # No match in target
-        ],
-        'severity': ['HIGH', 'MEDIUM', 'LOW']
+        'url': ['https://github.com/org/repo1', 'https://github.com/org/repo11', 'https://github.com/org/repo2'],
+        'cve_count': [5, 3, 2]
     })
 
-    # Mock the loading functions
-    with patch('code.data.merge_datasets.load_target_list', return_value=github_data), \
-         patch('code.data.merge_datasets.load_nvd_cves', return_value=nvd_data):
-        
-        result = merge_datasets()
-        
-        # Verify exact match: repoA should have cve_count = 1
-        repoA_row = result[result['url'] == 'https://github.com/org/repoA']
-        assert len(repoA_row) == 1, "repoA should exist in result"
-        assert repoA_row.iloc[0]['cve_count'] == 1, "repoA should have exactly 1 CVE (exact match)"
-        
-        # Verify ambiguous match: repoB should have cve_count = 0 (no exact match)
-        repoB_row = result[result['url'] == 'https://github.com/org/repoB']
-        assert len(repoB_row) == 1, "repoB should exist in result"
-        assert repoB_row.iloc[0]['cve_count'] == 0, "repoB should have 0 CVEs (ambiguous match ignored)"
-        
-        # Verify no match: repoC should have cve_count = 0
-        repoC_row = result[result['url'] == 'https://github.com/org/repoC']
-        assert len(repoC_row) == 1, "repoC should exist in result"
-        assert repoC_row.iloc[0]['cve_count'] == 0, "repoC should have 0 CVEs"
+    # Expected result:
+    # - repo1: exact match -> cve_count = 5
+    # - repo2: exact match -> cve_count = 2
+    # - repo3: no match -> cve_count = 0
+    # - repo11: ambiguous (substring) -> should be ignored (not merged)
 
-def test_count_cves_per_repo_exact_matching():
-    """Test that count_cves_per_repo only counts exact URL matches."""
-    nvd_data = pd.DataFrame({
-        'cve_id': ['CVE-1', 'CVE-2', 'CVE-3'],
-        'url': [
-            'https://github.com/org/repo',
-            'https://github.com/org/repoX',  # Should not match
-            'https://github.com/org/repo'    # Exact match again
-        ]
-    })
-    
-    target_url = 'https://github.com/org/repo'
-    count = count_cves_per_repo(nvd_data, target_url)
-    
-    assert count == 2, f"Expected 2 exact matches, got {count}"
+    merged_df = merge_datasets(target_list, nvd_data)
 
-def test_count_cves_per_repo_no_match():
-    """Test that count_cves_per_repo returns 0 when no match exists."""
-    nvd_data = pd.DataFrame({
-        'cve_id': ['CVE-1'],
-        'url': ['https://github.com/org/other']
-    })
-    
-    target_url = 'https://github.com/org/repo'
-    count = count_cves_per_repo(nvd_data, target_url)
-    
-    assert count == 0, f"Expected 0 matches, got {count}"
+    # Assert exact matches are present
+    assert merged_df.loc[merged_df['url'] == 'https://github.com/org/repo1', 'cve_count'].values[0] == 5
+    assert merged_df.loc[merged_df['url'] == 'https://github.com/org/repo2', 'cve_count'].values[0] == 2
+
+    # Assert no match gets cve_count = 0
+    assert merged_df.loc[merged_df['url'] == 'https://github.com/org/repo3', 'cve_count'].values[0] == 0
+
+    # Assert ambiguous match (repo11) is not in the merged dataframe
+    assert 'https://github.com/org/repo11' not in merged_df['url'].values
+
+    # Assert the number of rows is the same as the target list (no new rows added)
+    assert len(merged_df) == len(target_list)

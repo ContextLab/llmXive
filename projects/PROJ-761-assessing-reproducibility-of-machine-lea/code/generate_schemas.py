@@ -1,298 +1,322 @@
-"""
-Generates JSON Schema files for the project contracts.
-This script validates the schema definitions and writes them to the contracts/ directory.
-"""
 import json
 import os
 import sys
-
-# Define the schemas directly to ensure they are self-contained and valid
-SCHEMAS = {
-    "PaperManifest.schema.json": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "$id": "https://llmxive.org/schemas/PaperManifest.json",
-        "title": "PaperManifest",
-        "description": "Schema for validating paper metadata and dataset references for reproducibility studies.",
-        "type": "object",
-        "required": ["doi", "repo_url", "dataset_name", "reported_metrics"],
-        "properties": {
-            "doi": {
-                "type": "string",
-                "description": "Digital Object Identifier of the paper.",
-                "pattern": "^10\\.[0-9]{4,}/[^\\s]+$"
-            },
-            "repo_url": {
-                "type": "string",
-                "format": "uri",
-                "description": "URL to the code repository."
-            },
-            "dataset_name": {
-                "type": "string",
-                "description": "Name of the dataset used in the study."
-            },
-            "dataset_url": {
-                "type": "string",
-                "format": "uri",
-                "description": "Direct URL to the dataset if available."
-            },
-            "supplementary_files": {
-                "type": "array",
-                "items": {
-                    "type": "string",
-                    "description": "Patterns or names of supplementary files to extract (e.g., '*_supp.csv')."
-                },
-                "minItems": 0
-            },
-            "reported_metrics": {
-                "type": "object",
-                "required": ["mae", "r2"],
-                "properties": {
-                    "mae": {
-                        "type": "number",
-                        "description": "Reported Mean Absolute Error."
-                    },
-                    "r2": {
-                        "type": "number",
-                        "description": "Reported R-squared value."
-                    },
-                    "spearman_rho": {
-                        "type": "number",
-                        "description": "Reported Spearman's rank correlation coefficient."
-                    },
-                    "n_replicates": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "description": "Number of experimental replicates (per reviewer feedback)."
-                    }
-                }
-            },
-            "model_params": {
-                "type": "integer",
-                "minimum": 0,
-                "description": "Number of parameters in the reported model."
-            },
-            "random_seed": {
-                "type": ["integer", "null"],
-                "description": "Reported random seed, or null if not specified."
-            },
-            "preprocessing_version": {
-                "type": "string",
-                "description": "Version of the preprocessing script used."
-            },
-            "library_versions": {
-                "type": "object",
-                "additionalProperties": {
-                    "type": "string"
-                },
-                "description": "Key versions of critical libraries (e.g., 'torch': '2.2.0')."
-            }
-        }
-    },
-    "ReproResult.schema.json": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "$id": "https://llmxive.org/schemas/ReproResult.json",
-        "title": "ReproResult",
-        "description": "Schema for the result of a reproducibility attempt for a single paper.",
-        "type": "object",
-        "required": ["doi", "status", "metrics"],
-        "properties": {
-            "doi": {
-                "type": "string",
-                "description": "DOI of the paper being reproduced."
-            },
-            "status": {
-                "type": "string",
-                "enum": ["success", "partial", "failed", "unavailable"],
-                "description": "Overall status of the reproduction attempt."
-            },
-            "failure_reason": {
-                "type": "string",
-                "description": "Detailed reason if status is failed or unavailable."
-            },
-            "metrics": {
-                "type": "object",
-                "required": ["mae", "r2"],
-                "properties": {
-                    "mae": {
-                        "type": "number",
-                        "description": "Reproduced Mean Absolute Error."
-                    },
-                    "r2": {
-                        "type": "number",
-                        "description": "Reproduced R-squared value."
-                    },
-                    "spearman_rho": {
-                        "type": "number",
-                        "description": "Reproduced Spearman's rank correlation."
-                    }
-                }
-            },
-            "deviations": {
-                "type": "object",
-                "properties": {
-                    "delta_mae": {
-                        "type": "number",
-                        "description": "Absolute difference between reproduced and reported MAE."
-                    },
-                    "delta_r2": {
-                        "type": "number",
-                        "description": "Absolute difference between reproduced and reported R2."
-                    },
-                    "delta_rho": {
-                        "type": "number",
-                        "description": "Absolute difference between reproduced and reported Spearman rho."
-                    }
-                }
-            },
-            "reproducibility_score": {
-                "type": "number",
-                "minimum": 0,
-                "maximum": 1,
-                "description": "Deviation Index S (FR-009)."
-            },
-            "model_substituted": {
-                "type": "boolean",
-                "description": "True if the original model was too large and a baseline was used."
-            },
-            "seed_used": {
-                "type": ["integer", "null"],
-                "description": "The seed actually used for the run."
-            },
-            "seed_sweep_std": {
-                "type": "object",
-                "description": "Standard deviations from seed sensitivity analysis (FR-010).",
-                "properties": {
-                    "mae_std": { "type": "number" },
-                    "r2_std": { "type": "number" },
-                    "rho_std": { "type": "number" },
-                    "max_metric_std": { "type": "number" }
-                }
-            },
-            "environment": {
-                "type": "object",
-                "properties": {
-                    "python_version": { "type": "string" },
-                    "os": { "type": "string" },
-                    "docker_hash": { "type": "string" }
-                }
-            }
-        }
-    },
-    "StatSummary.schema.json": {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "$id": "https://llmxive.org/schemas/StatSummary.json",
-        "title": "StatSummary",
-        "description": "Schema for aggregated statistical analysis across multiple reproducibility studies.",
-        "type": "object",
-        "required": ["n_papers", "paired_t_tests", "bland_altman_refs"],
-        "properties": {
-            "n_papers": {
-                "type": "integer",
-                "minimum": 0,
-                "description": "Total number of papers analyzed."
-            },
-            "n_successful": {
-                "type": "integer",
-                "minimum": 0,
-                "description": "Number of successful reproductions."
-            },
-            "paired_t_tests": {
-                "type": "object",
-                "description": "Results of paired t-tests between reported and reproduced metrics.",
-                "properties": {
-                    "mae": {
-                        "type": "object",
-                        "properties": {
-                            "t_statistic": { "type": "number" },
-                            "p_value": { "type": "number" },
-                            "p_value_corrected": { "type": "number" }
-                        }
-                    },
-                    "r2": {
-                        "type": "object",
-                        "properties": {
-                            "t_statistic": { "type": "number" },
-                            "p_value": { "type": "number" },
-                            "p_value_corrected": { "type": "number" }
-                        }
-                    },
-                    "spearman_rho": {
-                        "type": "object",
-                        "properties": {
-                            "t_statistic": { "type": "number" },
-                            "p_value": { "type": "number" },
-                            "p_value_corrected": { "type": "number" }
-                        }
-                    }
-                }
-            },
-            "mixed_effects_model": {
-                "type": "object",
-                "description": "Variance components from Linear Mixed-Effects Model.",
-                "properties": {
-                    "variance_paper_intercept": { "type": "number" },
-                    "variance_residual": { "type": "number" },
-                    "icc": { "type": "number" }
-                }
-            },
-            "heterogeneity": {
-                "type": "object",
-                "description": "I-squared and pooled effect size.",
-                "properties": {
-                    "i_squared": { "type": "number" },
-                    "pooled_effect": { "type": "number" }
-                }
-            },
-            "bland_altman_refs": {
-                "type": "array",
-                "items": { "type": "string" },
-                "description": "List of paths to generated Bland-Altman plot PNGs."
-            },
-            "failure_log_summary": {
-                "type": "array",
-                "items": {
-                    "type": "object",
-                    "properties": {
-                        "doi": { "type": "string" },
-                        "reason": { "type": "string" },
-                        "category": { "type": "string" }
-                    }
-                },
-                "description": "Summary of excluded papers and failure modes."
-            }
-        }
-    }
-}
+from pathlib import Path
 
 def main():
-    contracts_dir = "contracts"
-    
-    # Ensure directory exists
-    if not os.path.exists(contracts_dir):
-        os.makedirs(contracts_dir)
-        print(f"Created directory: {contracts_dir}")
+    """
+    Generates JSON Schema files for PaperManifest, ReproResult, and StatSummary.
+    These schemas are used by the ingest pipeline and result validators.
+    """
+    # Define the base directory for contracts
+    base_dir = Path(__file__).parent.parent
+    contracts_dir = base_dir / "contracts"
 
-    success = True
-    for filename, schema in SCHEMAS.items():
-        filepath = os.path.join(contracts_dir, filename)
-        try:
-            # Validate JSON structure by dumping and reloading
-            json.dumps(schema)
-            
-            with open(filepath, 'w', encoding='utf-8') as f:
-                json.dump(schema, f, indent=2)
-            
-            print(f"Generated: {filepath}")
-        except Exception as e:
-            print(f"Error generating {filepath}: {e}", file=sys.stderr)
-            success = False
+    # Ensure contracts directory exists
+    contracts_dir.mkdir(parents=True, exist_ok=True)
 
-    if success:
-        print("All schemas generated successfully.")
-        sys.exit(0)
-    else:
-        print("Failed to generate all schemas.", file=sys.stderr)
-        sys.exit(1)
+    # Define schemas as dictionaries (YAML content represented as strings for simplicity in generation)
+    # In a real scenario, we might use a library like jsonschema to validate, but here we write the files directly.
+    # The content below matches the YAML definitions required by the project.
+
+    schemas = {
+        "PaperManifest.schema.yaml": """
+$schema: http://json-schema.org/draft-07/schema#
+title: PaperManifest
+description: Schema for validating the paper manifest containing dataset references and reported metrics.
+type: object
+required:
+  - doi
+  - repo_url
+  - dataset_name
+  - reported_metrics
+properties:
+  doi:
+    type: string
+    description: Digital Object Identifier of the research paper.
+    pattern: "^10\\\\.[0-9]{4,}/[^\\\\s]*$"
+  repo_url:
+    type: string
+    description: URL to the code repository (e.g., GitHub).
+    format: uri
+  dataset_name:
+    type: string
+    description: Name of the dataset used in the study.
+  dataset_url:
+    type: string
+    description: Optional direct URL to the dataset file.
+    format: uri
+  supplementary_files:
+    type: array
+    description: List of supplementary file patterns to fetch.
+    items:
+      type: string
+  reported_metrics:
+    type: object
+    required:
+      - mae
+      - r2
+      - rho
+    properties:
+      mae:
+        type: number
+        description: Reported Mean Absolute Error.
+      r2:
+        type: number
+        description: Reported R-squared value.
+      rho:
+        type: number
+        description: Reported Spearman's rank correlation coefficient.
+      seed:
+        type: integer
+        description: Random seed used in the original study (optional).
+      model_parameters:
+        type: integer
+        description: Approximate number of model parameters.
+      notes:
+        type: string
+        description: Additional notes about the reported metrics.
+  reaction_conditions:
+    type: object
+    description: Optional metadata about reaction conditions (temperature, solvent, etc.).
+    properties:
+      temperature:
+        type: number
+        description: Temperature in Celsius.
+      solvent:
+        type: string
+        description: Solvent used.
+      catalyst_loading:
+        type: number
+        description: Catalyst loading percentage.
+  experimental_replicates:
+    type: integer
+    description: Number of experimental replicates performed.
+  yield_std_dev:
+    type: number
+    description: Standard deviation of reported yields if available.
+""",
+        "ReproResult.schema.yaml": """
+$schema: http://json-schema.org/draft-07/schema#
+title: ReproResult
+description: Schema for the reproducibility results of a single paper.
+type: object
+required:
+  - doi
+  - flags
+properties:
+  doi:
+    type: string
+    description: Digital Object Identifier of the paper.
+  mae:
+    type: number
+    nullable: true
+    description: Reproduced Mean Absolute Error.
+  r2:
+    type: number
+    nullable: true
+    description: Reproduced R-squared value.
+  rho:
+    type: number
+    nullable: true
+    description: Reproduced Spearman's rank correlation coefficient.
+  deviation_mae:
+    type: number
+    nullable: true
+    description: Deviation of reproduced MAE from reported MAE.
+  deviation_r2:
+    type: number
+    nullable: true
+    description: Deviation of reproduced R2 from reported R2.
+  deviation_rho:
+    type: number
+    nullable: true
+    description: Deviation of reproduced rho from reported rho.
+  score_s:
+    type: number
+    nullable: true
+    description: Reproducibility score S (1 - average relative deviation).
+  max_metric_std_dev:
+    type: number
+    nullable: true
+    description: Maximum standard deviation of metrics across seed sensitivity analysis.
+  flags:
+    type: array
+    description: List of flags indicating issues (e.g., 'Model Substitution', 'Data Unavailable').
+    items:
+      type: string
+  experimental_replicates:
+    type: integer
+    nullable: true
+    description: Number of experimental replicates found in the dataset.
+  reaction_conditions:
+    type: object
+    nullable: true
+    description: Extracted reaction conditions.
+    properties:
+      temperature:
+        type: number
+      solvent:
+        type: string
+      catalyst_loading:
+        type: number
+  yield_std_dev:
+    type: number
+    nullable: true
+    description: Standard deviation of yields across experimental replicates.
+  failure_mode:
+    type: string
+    nullable: true
+    description: Specific failure mode if the paper could not be reproduced.
+  details:
+    type: string
+    nullable: true
+    description: Detailed log of the reproduction attempt.
+""",
+        "StatSummary.schema.yaml": """
+$schema: http://json-schema.org/draft-07/schema#
+title: StatSummary
+description: Schema for the aggregated statistical summary of reproducibility across studies.
+type: object
+required:
+  - t_test_results
+  - mixed_effects_results
+  - heterogeneity
+properties:
+  t_test_results:
+    type: object
+    description: Results of paired t-tests for each metric.
+    properties:
+      mae:
+        type: object
+        properties:
+          statistic:
+            type: number
+          pvalue:
+            type: number
+          pvalue_corrected:
+            type: number
+      r2:
+        type: object
+        properties:
+          statistic:
+            type: number
+          pvalue:
+            type: number
+          pvalue_corrected:
+            type: number
+      rho:
+        type: object
+        properties:
+          statistic:
+            type: number
+          pvalue:
+            type: number
+          pvalue_corrected:
+            type: number
+  tost_results:
+    type: object
+    description: Results of Two One-Sided Tests for equivalence.
+    properties:
+      mae:
+        type: object
+        properties:
+          pvalue_lower:
+            type: number
+          pvalue_upper:
+            type: number
+          equivalent:
+            type: boolean
+      r2:
+        type: object
+        properties:
+          pvalue_lower:
+            type: number
+          pvalue_upper:
+            type: number
+          equivalent:
+            type: boolean
+      rho:
+        type: object
+        properties:
+          pvalue_lower:
+            type: number
+          pvalue_upper:
+            type: number
+          equivalent:
+            type: boolean
+  mixed_effects_results:
+    type: object
+    description: Results of the Linear Mixed-Effects Model.
+    properties:
+      fixed_effects_variance_explained:
+        type: number
+        description: R-squared of fixed effects.
+      random_effects_variance:
+        type: number
+        description: Variance of random intercepts.
+      residual_variance:
+        type: number
+        description: Residual variance.
+      fixed_effects_summary:
+        type: array
+        items:
+          type: object
+          properties:
+            term:
+              type: string
+            estimate:
+              type: number
+            std_err:
+              type: number
+            t_value:
+              type: number
+            p_value:
+              type: number
+  heterogeneity:
+    type: object
+    description: Heterogeneity statistics.
+    properties:
+      I2:
+        type: number
+        description: I-squared statistic.
+      pooled_effect_size:
+        type: number
+        description: Pooled effect size (mean absolute deviation).
+      confidence_interval:
+        type: array
+        items:
+          type: number
+        description: 95% confidence interval [lower, upper].
+  bland_altman_plots:
+    type: array
+    description: List of generated Bland-Altman plot filenames.
+    items:
+      type: string
+  failure_log_summary:
+    type: array
+    description: Summary of failures from the failure log.
+    items:
+      type: object
+      properties:
+        paper_doi:
+          type: string
+        failure_mode:
+          type: string
+        details:
+          type: string
+"""
+    }
+
+    for filename, content in schemas.items():
+        filepath = contracts_dir / filename
+        with open(filepath, "w", encoding="utf-8") as f:
+            # Clean up leading/trailing whitespace from the multiline string
+            f.write(content.strip() + "\n")
+        print(f"Generated schema: {filepath}")
+
+    print("Schema generation complete.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

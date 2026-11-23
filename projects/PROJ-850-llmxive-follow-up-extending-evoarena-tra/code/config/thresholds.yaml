@@ -1,0 +1,21 @@
+# Threshold Configuration for Conflict Detector Sensitivity Analysis
+# Used by T014a to define the range of thresholds for evaluation
+
+# FR-008 requires analysis across thresholds {0.7, 0.8, 0.9, 0.95} and a lower bound
+thresholds:
+  - 0.6
+  - 0.7
+  - 0.8
+  - 0.9
+  - 0.95
+
+# Description of the analysis:
+# This configuration defines the decision boundaries for the conflict detector.
+# Lower thresholds (e.g., 0.6) are more sensitive (higher recall, lower precision).
+# Higher thresholds (e.g., 0.95) are more conservative (higher precision, lower recall).
+# The output schema for data/processed/sensitivity_analysis_thresholds.csv is:
+#   - threshold (float): The decision boundary used
+#   - total_pairs (int): Number of synthetic pairs evaluated
+#   - detected_conflicts (int): Number of pairs flagged as conflicts
+#   - detection_rate (float): Ratio of detected conflicts to total pairs
+#   - mean_confidence (float): Average confidence score across all pairs

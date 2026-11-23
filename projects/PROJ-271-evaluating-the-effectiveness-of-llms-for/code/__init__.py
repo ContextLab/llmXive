@@ -1,19 +1,53 @@
 """
-Code analysis pipeline for evaluating LLM effectiveness on code smell detection.
-"""
-from .config import get_path, get_data_path, get_processed_path, get_results_path, setup_logging
-from .data_pipeline import load_sampled_functions, compute_radon_metrics, run_pylint_analysis, normalize_pylint_smells, process_functions, save_to_csv, validate_output, run_pipeline
-from .monitoring import get_ram_usage_mb, get_cpu_utilization, get_system_ram_usage_mb, get_system_cpu_utilization, capture_snapshot, track_inference_time, record_batch_metrics, save_metrics_to_file, get_peak_ram_for_batch
-from .semantic_analysis import load_embeddings_model, load_baseline_data, compute_embeddings, save_embeddings_to_csv, load_llama_model, run_llm_inference, run_semantic_analysis
-from .linting_config import run_flake8_check, run_black_format, run_all_checks
+llmXive Project Code Package.
 
-__all__ = [
-    'get_path', 'get_data_path', 'get_processed_path', 'get_results_path', 'setup_logging',
-    'load_sampled_functions', 'compute_radon_metrics', 'run_pylint_analysis', 'normalize_pylint_smells',
-    'process_functions', 'save_to_csv', 'validate_output', 'run_pipeline',
-    'get_ram_usage_mb', 'get_cpu_utilization', 'get_system_ram_usage_mb', 'get_system_cpu_utilization',
-    'capture_snapshot', 'track_inference_time', 'record_batch_metrics', 'save_metrics_to_file', 'get_peak_ram_for_batch',
-    'load_embeddings_model', 'load_baseline_data', 'compute_embeddings', 'save_embeddings_to_csv',
-    'load_llama_model', 'run_llm_inference', 'run_semantic_analysis',
-    'run_flake8_check', 'run_black_format', 'run_all_checks'
+This package initializer ensures that the required project directory
+layout exists as soon as the ``code`` package is imported. The expected
+layout is:
+
+- data/raw/
+- data/processed/
+- results/
+- tests/unit/
+- tests/contract/
+
+Creation is idempotent: importing the package repeatedly is safe.
+"""
+
+import logging
+from pathlib import Path
+
+logger = logging.getLogger(__name__)
+
+# Project root is the parent of the directory containing this file.
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+# Directories required by the project layout (T001a / T005).
+_REQUIRED_DIRS = [
+    PROJECT_ROOT / "data" / "raw",
+    PROJECT_ROOT / "data" / "processed",
+    PROJECT_ROOT / "results",
+    PROJECT_ROOT / "tests" / "unit",
+    PROJECT_ROOT / "tests" / "contract",
 ]
+
+
+def _initialize_package() -> None:
+    """Create the required project directories if they are missing.
+
+    Fails loudly (re-raises) if the filesystem cannot be written to,
+    so configuration problems surface early.
+    """
+    try:
+        for directory in _REQUIRED_DIRS:
+            directory.mkdir(parents=True, exist_ok=True)
+        logger.debug("Project directory layout verified/created.")
+    except Exception as exc:
+        logger.error("Failed to initialise project layout: %s", exc)
+        raise
+
+
+# Run initialisation at import time (idempotent).
+_initialize_package()
+
+__all__ = ["PROJECT_ROOT"]

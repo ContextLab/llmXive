@@ -57,3 +57,786 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-08T22:57:32Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Point-Biserial is standard approach for continuous metrics and binary
+    bug flags in software engineering literature
+  claim_id: c_612063d3
+  context: The Point-Biserial is the standard, rigorous approach for this specific
+    variable pairing in software engineering literature (e.g., Girard et al., 2013).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Point-Biserial is the standard, rigorous approach for the specific
+    variable pairing of continuous metrics and binary bug flags in software engineering
+    literature (e.g., Girard et al., 2013).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:43:09Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Paired Permutation Test is gold standard for comparing machine learning
+    models in software engineering research
+  claim_id: c_a1a3d422
+  context: "The Paired Permutation Test is the 'gold standard' for comparing machine\
+    \ learning models in software engineering research (e.g., Dem\u0161ar, 2006) because\
+    \ it is non-parametric and respects the paired nature of cross-validation experiments."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The Paired Permutation Test is the 'gold standard' for comparing machine\
+    \ learning models in software engineering research (e.g., Dem\u0161ar, 2006) because\
+    \ it is non-parametric and respects the paired nature of cross-validation experiments."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:43:22Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Point-Biserial correlation is standard for binary outcome regression
+    in bug prediction
+  claim_id: c_603e11e2
+  context: 'Point-Biserial: Standard for binary outcome regression/correlation in
+    bug prediction (e.g., Mende & Koschke, 2009).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Point-Biserial correlation is standard for binary outcome regression or
+    correlation in bug prediction (e.g., Mende & Koschke, 2009).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:43:33Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Spearman rank correlation is recommended by SE community for metric analysis
+    due to non-normal distributions
+  claim_id: c_a51328d0
+  context: 'Spearman: Recommended by the SE community for metric analysis due to non-normal
+    distributions (e.g., Kitchenham et al., 2015).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Spearman rank correlation is recommended by the SE community for metric
+    analysis due to non-normal distributions (e.g., Kitchenham et al., 2015).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:44:18Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Permutation tests are widely advocated over t-tests and McNemar's for
+    CV-based model comparison to avoid inflated Type I error rates
+  claim_id: c_86642b77
+  context: 'Permutation Tests: Widely advocated over t-tests and McNemar''s for CV-based
+    model comparison to avoid inflated Type I error rates (e.g., Garcia et al., 2015).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation tests are widely advocated over t-tests and McNemar's for
+    CV-based model comparison to avoid inflated Type I error rates (e.g., Garcia et
+    al., 2015).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:44:50Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Code complexity metrics in real-world Java projects typically exhibit
+    high skewness, outliers, and non-linearity
+  claim_id: c_9ad22f2e
+  context: 'Code complexity metrics (Cyclomatic Complexity, Halstead Volume) in real-world
+    Java projects typically exhibit: High Skewness: A large number of simple methods
+    and a long tail of complex methods. Outliers: Rare, extremely complex classes
+    that can distort linear means. Non-Linearity: The relationship between complexity
+    and bugs may be monotonic but not strictly linear.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_complexity_metrics_in_real-world_Java_projects_typicall
+  kind: entity_fact
+  raw_text: Code complexity metrics in real-world Java projects typically exhibit
+    high skewness, outliers, and non-linearity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:44:58Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: McNemar's test ignores magnitude of performance difference reducing performance
+    to binary counts
+  claim_id: c_477857fd
+  context: 'Limitation: It ignores the magnitude of the performance difference (e.g.,
+    ROC-AUC or F1 scores). It reduces performance to binary ''correct/incorrect''
+    counts, discarding the probabilistic information inherent in ROC-AUC.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/McNemar's_test_ignores_magnitude_of_performance_difference_r
+  kind: entity_fact
+  raw_text: McNemar's test ignores the magnitude of the performance difference, reducing
+    performance to binary 'correct/incorrect' counts.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T06:45:04Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Spearman rank correlation is standard in software engineering literature
+    for correlating metrics with bug proneness
+  claim_id: c_f717fb1c
+  context: It is robust to outliers and does not assume normality. Given the skewed
+    nature of code metrics, Spearman is the standard choice in software engineering
+    literature (e.g., *Memon et al., 2019*) for correlating metrics with bug proneness.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Spearman is the standard choice in software engineering literature (e.g.,
+    Memon et al., 2019) for correlating metrics with bug proneness.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:38:56Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: ROC-AUC difference calculated for 50 folds from 10 repeats and 5 folds
+  claim_id: c_3f49c8da
+  context: "1. Calculate the difference in ROC-AUC ($\\Delta$) for each of the 50\
+    \ folds (10 repeats \xD7 5 folds)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The study calculates the difference in ROC-AUC for each of the 50 folds\
+    \ (10 repeats \xD7 5 folds)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:39:38Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Permutation test uses 10000 permutations to build null distribution
+  claim_id: c_116990f9
+  context: 3. Randomly flip the signs of the observed differences many times (e.g.,
+    10,000 permutations) to build a null distribution of mean differences.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The procedure involves randomly flipping the signs of the observed differences
+    many times (e.g., 10,000 permutations) to build a null distribution of mean differences.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:40:33Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Memon et al 2019 supports use of Spearman for non-normal metrics
+  claim_id: c_8b6f66a4
+  context: '1. *Memon, Q. A., et al. (2019). ''Software Defect Prediction Using Machine
+    Learning: A Systematic Literature Review.''* (Supports use of Spearman for non-normal
+    metrics).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memon, Q. A., et al. (2019) support the use of Spearman for non-normal
+    metrics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:41:02Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Nadeau and Bengio 2003 supports use of permutation tests for paired model
+    comparisons
+  claim_id: c_f691fba2
+  context: 2. *Nadeau, C., & Bengio, Y. (2003). 'Inference for the Generalization
+    Error.'* (Supports use of permutation tests for paired model comparisons).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Nadeau, C., & Bengio, Y. (2003) support the use of permutation tests for
+    paired model comparisons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:41:32Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Kendall and Gibbons 1990 is foundational text for Spearman and Point-Biserial
+  claim_id: c_31cd909c
+  context: 3. *Kendall, M. G., & Gibbons, J. D. (1990). 'Rank Correlation Methods.'*
+    (Foundational text for Spearman/Point-Biserial).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Kendall_and_Gibbons_1990_is_foundational_text_for_Spearman_a
+  kind: entity_fact
+  raw_text: Kendall, M. G., & Gibbons, J. D. (1990) is a foundational text for Spearman
+    and Point-Biserial.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T03:41:56Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: software complexity metrics are typically heavily right-skewed and non-normal
+  claim_id: c_10ae26a6
+  context: 'Data Distribution: Software complexity metrics (Cyclomatic Complexity,
+    Halstead Volume) are typically heavily right-skewed and non-normal. Pearson correlation
+    assumes bivariate normality.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Software_complexity_metrics_are_typically_heavily_right-skew
+  kind: entity_fact
+  raw_text: Software complexity metrics (Cyclomatic Complexity, Halstead Volume) are
+    typically heavily right-skewed and non-normal.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T13:41:17Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: point-biserial correlation is a special case of pearson correlation for
+    one continuous and one dichotomous variable
+  claim_id: c_2c0357c3
+  context: 'Justification: The Point-Biserial correlation coefficient is a special
+    case of Pearson''s correlation specifically designed for one continuous variable
+    and one dichotomous variable. It is mathematically equivalent to Pearson in this
+    specific case but provides a more direct interpretation for binary targets (buggy
+    vs. clean).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Point-biserial_correlation_is_a_special_case_of_pearson_corr
+  kind: entity_fact
+  raw_text: The Point-Biserial correlation coefficient is a special case of Pearson's
+    correlation specifically designed for one continuous variable and one dichotomous
+    variable.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T13:41:57Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: mcnemar's test assesses the difference in proportions of binary outcomes
+  claim_id: c_8dc264c8
+  context: 'Justification: McNemar''s test assesses the difference in proportions
+    of binary outcomes. Here, we are comparing mean ROC-AUC scores (continuous) from
+    repeated cross-validation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mcnemar%27s_test_assesses_the_difference_in_proportions_of_bin
+  kind: entity_fact
+  raw_text: McNemar's test assesses the difference in proportions of binary outcomes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T13:42:31Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: paired permutation test is the non-parametric standard for comparing
+    two dependent distributions
+  claim_id: c_bbcbcbf1
+  context: 'Justification: A Paired Permutation Test (also known as a Randomization
+    Test) is the non-parametric standard for comparing two dependent distributions.
+    It tests the null hypothesis that the mean difference between paired observations
+    is zero by shuffling the labels of the differences.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paired_permutation_test_is_the_non-parametric_standard_for_c
+  kind: entity_fact
+  raw_text: A Paired Permutation Test is the non-parametric standard for comparing
+    two dependent distributions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T13:42:52Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: point-biserial, spearman, and paired permutation are standard approaches
+    in software engineering research for non-normal and binary data
+  claim_id: c_d73b5acf
+  context: The proposed methods (Point-Biserial, Spearman, Paired Permutation) are
+    the standard, accepted approaches in software engineering research for these specific
+    data characteristics (e.g., as seen in studies by Hall et al., 2012; Menzies et
+    al., 2007).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Point-biserial,_spearman,_and_paired_permutation_are_standar
+  kind: entity_fact
+  raw_text: The proposed methods (Point-Biserial, Spearman, Paired Permutation) are
+    the standard, accepted approaches in software engineering research for these specific
+    data characteristics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T13:43:22Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Code complexity metrics follow a heavy-tailed distribution according
+    to Ostrand et al., 2005
+  claim_id: c_406b9f9f
+  context: Section 2.2 Justification for Spearman Rank Correlation discusses distributional
+    violations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Empirical studies (e.g., Ostrand et al., 2005) consistently show that
+    code complexity metrics follow a heavy-tailed (long-tail) distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T13:56:52Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Point-Biserial correlation is the standard method in SE literature per
+    Menzies et al., 2007
+  claim_id: c_d763f438
+  context: Section 2.1 Justification for Point-Biserial Correlation discusses standard
+    practices.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Point-Biserial correlation is the standard in SE literature (e.g., Menzies
+    et al., 2007) for measuring relationships between continuous complexity metrics
+    and binary bug labels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T13:57:12Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Code complexity metrics have heavy-tailed distributions
+  claim_id: c_2258e1fc
+  context: '1. Non-Normality of Metrics: Code complexity metrics (CC, Halstead) are
+    notoriously skewed (heavy-tailed distributions).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Code_complexity_metrics_have_heavy-tailed_distributions
+  kind: entity_fact
+  raw_text: Code complexity metrics (CC, Halstead) are notoriously skewed (heavy-tailed
+    distributions).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T13:58:52Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Target variable is_buggy is binary
+  claim_id: c_c08974d3
+  context: '2. Binary Target Variable: The target variable `is_buggy` is binary (0
+    or 1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target variable `is_buggy` is binary (0 or 1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T13:59:21Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Point-Biserial Correlation standard practice for binary-continuous correlations
+  claim_id: c_944651a0
+  context: 'Point-Biserial: Standard practice in psychometrics and software engineering
+    research for binary-continuous correlations (e.g., Mishra et al., 2019).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Point-Biserial Correlation is standard practice in psychometrics and software
+    engineering research for binary-continuous correlations (e.g., Mishra et al.,
+    2019).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T14:00:04Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Spearman Rank Correlation recommended by Hall et al. 2012 for software
+    metrics analysis
+  claim_id: c_b65c83a4
+  context: 'Spearman: Recommended by Hall et al. (2012) for software metrics analysis
+    due to the heavy-tailed nature of the data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Spearman Rank Correlation is recommended by Hall et al. (2012) for software
+    metrics analysis due to the heavy-tailed nature of the data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T14:00:32Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: Permutation tests gold standard for hypothesis testing when parametric
+    assumptions cannot be met
+  claim_id: c_e1c0c76d
+  context: 'Permutation Tests: Good (2005) and Efron & Tibshirani (1993) establish
+    permutation tests as the gold standard for hypothesis testing when parametric
+    assumptions cannot be met, providing exact p-values under the null hypothesis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation tests are established by Good (2005) and Efron & Tibshirani
+    (1993) as the gold standard for hypothesis testing when parametric assumptions
+    cannot be met, providing exact p-values under the null hypothesis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-19T14:00:56Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: software metrics follow heavy-tailed right-skewed distribution approximated
+    by log-normal or pareto
+  claim_id: c_f543c8ec
+  context: Section 3.1. Nature of Code Complexity Metrics. Empirical studies in software
+    engineering (e.g., Hansen et al., 2015; Bassil, 2010) consistently demonstrate
+    that software metrics (Cyclomatic Complexity, Halstead Volume, LOC) follow a heavy-tailed,
+    right-skewed distribution (often approximated by Log-Normal or Pareto distributions).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Empirical studies in software engineering (e.g., Hansen et al., 2015;
+    Bassil, 2010) consistently demonstrate that software metrics (Cyclomatic Complexity,
+    Halstead Volume, LOC) follow a heavy-tailed, right-skewed distribution (often
+    approximated by Log-Normal or Pareto distributions).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:33:23Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: applying pearson r to non-normal data inflates type i error rates and
+    underestimates monotonic relationships
+  claim_id: c_9ee37085
+  context: "Section 3.1. Nature of Code Complexity Metrics. Violation: Applying Pearson\u2019\
+    s r to non-normal data inflates Type I error rates and underestimates the strength\
+    \ of monotonic relationships that are not strictly linear."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Applying_pearson_r_to_non-normal_data_inflates_type_i_error
+  kind: entity_fact
+  raw_text: "Applying Pearson\u2019s r to non-normal data inflates Type I error rates\
+    \ and underestimates the strength of monotonic relationships that are not strictly\
+    \ linear."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:35:15Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: target variable is_buggy is binary representing presence or absence of
+    bug
+  claim_id: c_6bbafc87
+  context: Section 3.2. Nature of the Target Variable (Bug Label). The target variable
+    is_buggy is binary (0 or 1), representing the presence or absence of a bug in
+    a specific file.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target variable is_buggy is binary (0 or 1), representing the presence
+    or absence of a bug in a specific file.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:37:34Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: point-biserial correlation is specific case of pearson r for continuous
+    and dichotomous variables
+  claim_id: c_2e33394c
+  context: "Section 4.1. Point-Biserial Correlation (vs. Pearson). Rationale: The\
+    \ Point-Biserial correlation (r_pb) is the specific case of Pearson\u2019s r where\
+    \ one variable is continuous and the other is dichotomous."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Point-biserial_correlation_is_specific_case_of_pearson_r_for
+  kind: entity_fact
+  raw_text: "The Point-Biserial correlation (r_pb) is the specific case of Pearson\u2019\
+    s r where one variable is continuous and the other is dichotomous."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:39:07Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: point-biserial correlation provides exact same mathematical value as
+    pearson r for continuous and dichotomous variables
+  claim_id: c_495a432c
+  context: 'Section 4.1. Point-Biserial Correlation (vs. Pearson). Advantage: It provides
+    the exact same mathematical value as Pearson''s r in this context but carries
+    the correct statistical interpretation and significance testing framework for
+    binary outcomes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Point-biserial_correlation_provides_exact_same_mathematical
+  kind: entity_fact
+  raw_text: The Point-Biserial correlation provides the exact same mathematical value
+    as Pearson's r when one variable is continuous and the other is dichotomous.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:40:40Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: mcnemar test designed to compare two classifiers on same dataset or pre-post
+    intervention binary states
+  claim_id: c_bc55aa3c
+  context: "Section 3.2. Nature of the Target Variable (Bug Label). McNemar's Mismatch:\
+    \ McNemar\u2019s test is designed to compare two classifiers on the same dataset\
+    \ (e.g., Model A vs. Model B predictions) or pre/post intervention binary states."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mcnemar_test_designed_to_compare_two_classifiers_on_same_dat
+  kind: entity_fact
+  raw_text: "McNemar\u2019s test is designed to compare two classifiers on the same\
+    \ dataset or pre/post intervention binary states."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:42:43Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/methodology_rationale.md
+  attempts: 1
+  canonical: mcnemar test not designed to measure correlation between continuous metric
+    and binary outcome
+  claim_id: c_d43f558c
+  context: Section 3.2. Nature of the Target Variable (Bug Label). It is not designed
+    to measure the correlation between a continuous metric (complexity) and a binary
+    outcome (bug presence).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mcnemar_test_not_designed_to_measure_correlation_between_con
+  kind: entity_fact
+  raw_text: "McNemar\u2019s test is not designed to measure the correlation between\
+    \ a continuous metric and a binary outcome."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T19:43:46Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  attempts: 1
+  canonical: Install openjdk-17-jdk version 17.0.9+1 and pmd-bin version 7.0.0
+  claim_id: c_4d6a8c01
+  context: Task T002c implements setup_cli.sh to install defects4j CLI tool and PMD
+    with exact system package versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Exact Command: apt-get update && apt-get install -y openjdk-17-jdk=17.0.9+1
+    pmd-bin=7.0.0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T17:43:33Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  attempts: 1
+  canonical: 'Pinned Python dependency versions: pandas 2.1.0, scikit-learn 1.3.0,
+    scipy 1.11.0, matplotlib 3.8.0, seaborn 0.13.0, tree-sitter 0.20.0, tree-sitter-java
+    0.20.0, pytest 7.4.0'
+  claim_id: c_3b2b8be2
+  context: Task T002a creates code/requirements.txt with specific pinned versions
+    for all required Python libraries.
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: pandas==2.1.0, scikit-learn==1.3.0, scipy==1.11.0, matplotlib==3.8.0,
+    seaborn==0.13.0, tree-sitter==0.20.0, tree-sitter-java==0.20.0, pytest==7.4.0
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T17:43:42Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  attempts: 1
+  canonical: Use javaparser-python version 3.x to compute Halstead Volume
+  claim_id: c_b866362a
+  context: Task T014c specifies using javaparser-python (v3.x) to parse Java AST for
+    metric extraction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/src/metrics/halstead.py using javaparser-python (v3.x)
+    to compute Halstead Volume.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T17:43:56Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  attempts: 1
+  canonical: Repeated 5-Fold Cross-Validation with 10 repeats and seed 42
+  claim_id: c_a4598ba3
+  context: Task T023 specifies the cross-validation strategy for training baseline
+    models in User Story 2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Logistic Regression and Random Forest with Repeated 5-Fold Cross-Validation
+    (10 repeats, seed=42)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T17:44:34Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  attempts: 1
+  canonical: Aggregate feature importance across 50 folds (10 repeats times 5 folds)
+  claim_id: c_3f8591b5
+  context: Task T029 specifies aggregating feature importance weights from the Random
+    Forest model trained with 10 repeats of 5-fold CV.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate the mean importance across all 50 folds (10 repeats * 5 folds)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T17:44:53Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if aggregate memory usage exceeds 7GB
+  claim_id: c_a3f3c1a8
+  context: Task T019 defines the global memory monitoring logic and failure threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Fail Condition: If logged aggregate memory > 7GB, raise MemoryLimitExceeded
+    and exit 1'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T17:44:54Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  attempts: 1
+  canonical: Pipeline execution timeout set to 6 hours
+  claim_id: c_c2cdc3de
+  context: Task T001e implements a time-limit enforcement wrapper for the entire pipeline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: timeout 6h wrapper that executes the entire pipeline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T17:45:36Z'
+- artifact_path: projects/PROJ-038-exploring-the-relationship-between-code-/specs/001-exploring-the-relationship-between-code/tasks.md
+  attempts: 1
+  canonical: Statistical significance threshold alpha set to 0.05
+  claim_id: c_ce262870
+  context: Task T031 specifies the threshold for the Paired Permutation Test comparing
+    ROC-AUC distributions.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts:
+      - channel: wikipedia
+        source_id: Statistical significance
+        url: https://en.wikipedia.org/wiki/Statistical_significance
+        value: 5%
+      quote: A possible result of the experiment that we consider here is 5 heads.
+        Let outcomes be considered unlikely with respect to an assumed distribution
+        if their probability is lower than a significance threshold of 0.05.
+      source_id: Statistical hypothesis test
+      url: https://en.wikipedia.org/wiki/Statistical_hypothesis_test
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: 'Threshold: alpha=0.05'
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-03T17:45:48Z'

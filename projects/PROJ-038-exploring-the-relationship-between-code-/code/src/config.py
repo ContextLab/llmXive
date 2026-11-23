@@ -5,6 +5,7 @@ Defines environment variables, fixed random seeds, and memory limits
 required for reproducible and resource-constrained execution.
 """
 import os
+import sys
 from pathlib import Path
 from typing import Optional
 
@@ -15,6 +16,9 @@ DEFECTS4J_PATH: str = os.environ.get("DEFECTS4J_PATH", "/opt/defects4j")
 
 # Path to the PMD CLI tool installation.
 PMD_PATH: str = os.environ.get("PMD_PATH", "/usr/bin/pmd")
+
+# Path to the Java compiler (javac) for Halstead analysis.
+JAVA_HOME: str = os.environ.get("JAVA_HOME", "/usr/lib/jvm/default-java")
 
 # --- Random Seeds ---
 # Fixed seed for reproducibility across the entire pipeline.
@@ -33,19 +37,20 @@ MAX_WORKERS: Optional[int] = None
 # --- Project Paths ---
 # Base directory for the project root (where code/, data/, etc. reside).
 # Resolves relative to the script location if run as a module, or current dir.
-PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent.parent
+# We assume the project root is the parent of the 'code' directory.
+_script_dir = Path(__file__).resolve().parent
+_code_dir = _script_dir.parent
+PROJECT_ROOT: Path = _code_dir.parent
+
+# Verify the structure exists to avoid silent failures in downstream scripts
 if not (PROJECT_ROOT / "code").exists():
-    # Fallback if running from a different context
+    # Fallback if running from a different context (e.g. tests run from root)
     PROJECT_ROOT = Path.cwd()
 
 # Data directories
 DATA_RAW_DIR: Path = PROJECT_ROOT / "code" / "data" / "raw"
 DATA_PROCESSED_DIR: Path = PROJECT_ROOT / "code" / "data" / "processed"
 DATA_RESULTS_DIR: Path = PROJECT_ROOT / "code" / "data" / "results"
-
-# Ensure directories exist (optional, can be moved to a setup task if preferred)
-# For config, we just define them, but ensuring they exist helps downstream scripts.
-# We do not force creation here to keep config pure, but we define the paths.
 
 # --- Validation Helpers ---
 def validate_defects4j_path() -> bool:
@@ -64,6 +69,7 @@ def get_memory_limit_bytes() -> int:
 __all__ = [
     "DEFECTS4J_PATH",
     "PMD_PATH",
+    "JAVA_HOME",
     "RANDOM_SEED",
     "MEMORY_LIMIT_GB",
     "MAX_WORKERS",

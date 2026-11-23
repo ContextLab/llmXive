@@ -1,118 +1,158 @@
 """
-Unit tests for cross-correlation logic in compute_metrics module.
+tests/unit/test_compute_metrics.py
 
-Tests the compute_max_abs_cross_correlation function using mocked time-series data.
+Unit tests for the intra-modal consistency metric calculation.
+Uses a deterministic mock timeseries file to avoid external dependencies
+while ensuring the logic runs against real numeric data.
 """
+
 import unittest
 import numpy as np
-import os
+import pandas as pd
 import sys
-from pathlib import Path
+import os
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
+# Add parent directory to path for imports if running from tests/
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from compute_metrics import compute_max_abs_cross_correlation, validate_feature_input
+from code.compute_metrics import (
+    compute_max_abs_cross_correlation,
+    compute_consistency_score,
+    process_interaction_features,
+    validate_feature_input
+)
+
+# Ensure fixture directory exists and contains the mock data
+FIXTURE_PATH = os.path.join(os.path.dirname(__file__), '..', 'fixtures', 'mock_timeseries.npy')
+if not os.path.exists(FIXTURE_PATH):
+    os.makedirs(os.path.dirname(FIXTURE_PATH), exist_ok=True)
+    # Generate deterministic mock data if missing
+    # Shape: (N_interactions, N_timepoints, 2_features)
+    # Features: [facial_valence, vocal_energy]
+    rng = np.random.default_rng(seed=42)
+    N = 10
+    T = 100
+    mock_data = rng.standard_normal((N, T, 2))
+    # Inject a known correlation in the first interaction
+    mock_data[0, :, 1] = mock_data[0, :, 0] * 0.8 + rng.standard_normal(T) * 0.1
+    np.save(FIXTURE_PATH, mock_data)
 
 class TestCrossCorrelation(unittest.TestCase):
-    """Test cases for cross-correlation metrics."""
+    
+    def test_perfect_correlation_zero_lag(self):
+        """Test with identical signals -> correlation should be 1.0"""
+        signal = np.linspace(0, 10, 100)
+        corr = compute_max_abs_cross_correlation(signal, signal, 10)
+        self.assertAlmostEqual(corr, 1.0, places=4)
+    
+    def test_perfect_negative_correlation(self):
+        """Test with inverted signals -> correlation should be 1.0 (abs)"""
+        signal_a = np.linspace(0, 10, 100)
+        signal_b = -signal_a
+        corr = compute_max_abs_cross_correlation(signal_a, signal_b, 10)
+        self.assertAlmostEqual(corr, 1.0, places=4)
+    
+    def test_lag_detection(self):
+        """Test that lag is detected correctly within window"""
+        signal_a = np.sin(np.linspace(0, 10*np.pi, 200))
+        signal_b = np.sin(np.linspace(0, 10*np.pi, 200) + np.pi/2) # 90 degree shift
+        
+        # With sufficient lag window, we should find high correlation
+        corr = compute_max_abs_cross_correlation(signal_a, signal_b, 50)
+        self.assertGreater(corr, 0.5)
+    
+    def test_short_signals(self):
+        """Test with signals too short for correlation"""
+        signal_a = np.array([1.0])
+        signal_b = np.array([1.0])
+        corr = compute_max_abs_cross_correlation(signal_a, signal_b, 5)
+        self.assertEqual(corr, 0.0)
+    
+    def test_zero_variance(self):
+        """Test with constant signals (zero variance)"""
+        signal_a = np.ones(100)
+        signal_b = np.ones(100)
+        corr = compute_max_abs_cross_correlation(signal_a, signal_b, 10)
+        self.assertEqual(corr, 0.0)
+
+class TestConsistencyScore(unittest.TestCase):
+    
+    def test_score_range(self):
+        """Test that consistency score is always in [0, 1]"""
+        signal_a = np.random.randn(100)
+        signal_b = np.random.randn(100)
+        
+        score = compute_consistency_score(signal_a, signal_b, 100, 2.0)
+        self.assertGreaterEqual(score, 0.0)
+        self.assertLessEqual(score, 1.0)
+
+class TestProcessInteractionFeatures(unittest.TestCase):
     
     def setUp(self):
-        """Set up test fixtures including mock time-series data."""
-        self.fixture_dir = Path(__file__).parent.parent / "fixtures"
-        self.fixture_dir.mkdir(exist_ok=True)
-        self.mock_file = self.fixture_dir / "mock_timeseries.npy"
-        
-        # Generate realistic mock time-series data if it doesn't exist
-        # This simulates facial (valence) and vocal (pitch) features over time
-        np.random.seed(42)  # Deterministic for reproducibility
-        n_points = 1000
-        t = np.linspace(0, 100, n_points)
-        
-        # Create correlated signals with a known lag
-        base_signal = np.sin(t / 5.0) + np.random.normal(0, 0.1, n_points)
-        # Vocal signal lags facial signal by 50 samples (approx 5 seconds at 10Hz)
-        vocal_signal = np.roll(base_signal, 50) + np.random.normal(0, 0.1, n_points)
-        
-        # Save to file for the test to load
-        np.save(self.mock_file, {
-            'facial': base_signal,
-            'vocal': vocal_signal,
-            'time': t
+        self.df = pd.DataFrame({
+            'interaction_id': ['int-1', 'int-1', 'int-2'],
+            'timestamp': [1.0, 2.0, 1.0],
+            'facial_valence': [0.5, 0.6, 0.1],
+            'vocal_energy': [0.4, 0.5, 0.2]
         })
     
-    def test_load_mock_data(self):
-        """Verify that mock time-series data can be loaded."""
-        self.assertTrue(self.mock_file.exists(), "Mock data file not found")
-        data = np.load(self.mock_file, allow_pickle=True).item()
-        self.assertIn('facial', data)
-        self.assertIn('vocal', data)
-        self.assertEqual(len(data['facial']), 1000)
-        self.assertEqual(len(data['vocal']), 1000)
+    def test_valid_interaction(self):
+        result = process_interaction_features(self.df, 'int-1')
+        self.assertIsNotNone(result)
+        self.assertEqual(result['interaction_id'], 'int-1')
+        self.assertIn('consistency_score', result)
     
-    def test_compute_max_abs_cross_correlation_known_lag(self):
-        """Test cross-correlation with known lagged signals."""
-        data = np.load(self.mock_file, allow_pickle=True).item()
-        facial = data['facial']
-        vocal = data['vocal']
-        
-        # Compute cross-correlation
-        max_corr, optimal_lag = compute_max_abs_cross_correlation(facial, vocal)
-        
-        # Verify correlation is high (signals are correlated)
-        self.assertGreater(max_corr, 0.8, "Correlation should be high for similar signals")
-        
-        # Verify optimal lag is near the injected lag (50 samples)
-        # Allow some tolerance due to noise
-        self.assertLess(abs(optimal_lag - 50), 10, "Optimal lag should be near 50 samples")
+    def test_missing_interaction(self):
+        result = process_interaction_features(self.df, 'int-999')
+        self.assertIsNone(result)
     
-    def test_compute_max_abs_cross_correlation_uncorrelated(self):
-        """Test cross-correlation with uncorrelated noise."""
-        np.random.seed(123)
-        signal_a = np.random.normal(0, 1, 500)
-        signal_b = np.random.normal(0, 1, 500)
+    def test_invalid_columns(self):
+        bad_df = pd.DataFrame({
+            'interaction_id': ['int-1'],
+            'timestamp': [1.0]
+        })
+        result = process_interaction_features(bad_df, 'int-1')
+        self.assertIsNone(result)
+
+    def test_mock_timeseries_loading(self):
+        """Test processing against the actual mock timeseries fixture."""
+        # Load the deterministic mock data
+        data = np.load(FIXTURE_PATH)
+        # Create a DataFrame from the first interaction (known correlation)
+        # data shape: (N, T, 2) -> (T, 2) for one interaction
+        ts = data[0] 
+        df = pd.DataFrame({
+            'interaction_id': ['int-mock'] * len(ts),
+            'timestamp': np.arange(len(ts)),
+            'facial_valence': ts[:, 0],
+            'vocal_energy': ts[:, 1]
+        })
         
-        max_corr, optimal_lag = compute_max_abs_cross_correlation(signal_a, signal_b)
-        
-        # Correlation should be low for uncorrelated noise
-        self.assertLess(abs(max_corr), 0.3, "Correlation should be low for uncorrelated signals")
+        result = process_interaction_features(df, 'int-mock')
+        self.assertIsNotNone(result)
+        self.assertEqual(result['interaction_id'], 'int-mock')
+        # We injected a strong correlation, so score should be > 0.5
+        self.assertGreater(result['consistency_score'], 0.5)
+
+class TestValidateFeatureInput(unittest.TestCase):
     
-    def test_compute_max_abs_cross_correlation_negative_lag(self):
-        """Test cross-correlation where signal B leads signal A."""
-        np.random.seed(456)
-        base = np.random.randn(500)
-        # Signal B leads by 30 samples
-        signal_a = np.roll(base, 30)
-        signal_b = base
-        
-        max_corr, optimal_lag = compute_max_abs_cross_correlation(signal_a, signal_b)
-        
-        # Optimal lag should be negative (B leads A)
-        self.assertLess(optimal_lag, 0, "Optimal lag should be negative when B leads A")
-        self.assertGreater(abs(max_corr), 0.5, "Correlation should be significant")
+    def test_valid_schema(self):
+        df = pd.DataFrame({
+            'interaction_id': ['1'],
+            'timestamp': [1.0],
+            'facial_valence': [0.5],
+            'vocal_energy': [0.5]
+        })
+        self.assertTrue(validate_feature_input(df))
     
-    def test_validate_feature_input_shapes(self):
-        """Test input validation for mismatched array lengths."""
-        np.random.seed(789)
-        short = np.random.randn(100)
-        long = np.random.randn(200)
-        
-        # This should raise a ValueError
-        with self.assertRaises(ValueError):
-            validate_feature_input(short, long)
-    
-    def test_validate_feature_input_valid(self):
-        """Test input validation for valid arrays."""
-        np.random.seed(999)
-        a = np.random.randn(100)
-        b = np.random.randn(100)
-        
-        # Should not raise
-        try:
-            validate_feature_input(a, b)
-        except Exception:
-            self.fail("validate_feature_input raised unexpectedly for valid input")
+    def test_missing_column(self):
+        df = pd.DataFrame({
+            'interaction_id': ['1'],
+            'timestamp': [1.0],
+            'facial_valence': [0.5]
+            # missing vocal_energy
+        })
+        self.assertFalse(validate_feature_input(df))
 
 if __name__ == '__main__':
     unittest.main()

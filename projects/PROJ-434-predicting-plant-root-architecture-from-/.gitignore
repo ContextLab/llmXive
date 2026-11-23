@@ -1,0 +1,94 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDEs and Editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+coverage.xml
+.tox/
+nosetests.xml
+
+# Logs
+data/logs/*.log
+*.log
+
+# Data Artifacts (Raw and Processed)
+data/raw/
+data/processed/
+data/interim/
+data/temp/
+
+# Model Artifacts
+artifacts/*.pkl
+artifacts/*.h5
+artifacts/*.onnx
+artifacts/*.json
+artifacts/*.csv
+
+# Figures
+figures/*.png
+figures/*.jpg
+figures/*.pdf
+figures/*.svg
+
+# Environment Files
+.env
+.env.local
+.env.*.local
+
+# OS Generated Files
+.DS_Store
+.DS_Store?
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Temporary Files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Jupyter Notebooks (optional - uncomment if not tracking)
+# .ipynb_checkpoints/
+
+# Specific Project Exclusions
+code/__pycache__/
+code/**/*.pyc
+code/**/*.pyo

@@ -1,11 +1,9 @@
 """
-T008b: Execute coordinate transformation validation and generate calibration report.
+Script to validate calibration parameters and generate a calibration report.
 
-This script:
-1. Loads calibration parameters (extrinsic matrix, rotation, translation) from config or defaults.
-2. Uses the CalibrationValidator from code/src/data/calibration.py to perform validation checks.
-3. Generates results/calibration_report.json with validation status and metrics.
-4. Blocks execution (exits with error) if validation fails or report is missing.
+This script performs coordinate transformation validation using the calibration
+logic from src.data.calibration and generates a JSON report at results/calibration_report.json.
+If validation fails, the script exits with a non-zero status to block downstream tasks.
 """
 import os
 import sys
@@ -13,84 +11,95 @@ import json
 import logging
 from pathlib import Path
 
-# Add src to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
 
-from data.calibration import (
-    ExtrinsicParams,
-    CalibrationReport,
-    CalibrationValidator,
-    create_calibration_validator,
-    validate_calibration
-)
-from utils.config import get_path, get_hyperparameter
+from src.data.calibration import create_calibration_validator, validate_calibration
+from src.utils.config import get_path, init_config
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 def main():
-    """Execute calibration validation and generate report."""
+    """
+    Main entry point for calibration validation.
+    
+    1. Initializes configuration
+    2. Creates a calibration validator
+    3. Runs validation
+    4. Generates and saves the calibration report
+    5. Exits with error code if validation fails
+    """
     logger.info("Starting calibration validation process...")
-
-    # Determine output path
-    results_dir = get_path("results")
-    results_dir.mkdir(parents=True, exist_ok=True)
-    report_path = results_dir / "calibration_report.json"
-
-    # Load or create calibration parameters
-    # In a real scenario, these would come from a calibration procedure or config file
-    # For now, we use the ExtrinsicParams dataclass to define expected parameters
+    
+    # Initialize configuration if not already done
     try:
-        # Attempt to load existing calibration if available
-        calibration_data_path = get_path("data") / "calibration_params.json"
-        if calibration_data_path.exists():
-            with open(calibration_data_path, 'r') as f:
-                raw_params = json.load(f)
-            extrinsic_params = ExtrinsicParams(**raw_params)
-            logger.info(f"Loaded calibration parameters from {calibration_data_path}")
-        else:
-            # Use default/identity parameters if no calibration file exists
-            # This represents a "fresh" calibration state
-            logger.warning("No calibration parameters found. Using default identity parameters.")
-            extrinsic_params = ExtrinsicParams()
+        init_config()
     except Exception as e:
-        logger.error(f"Failed to load calibration parameters: {e}")
-        # Create a failure report and exit
-        failure_report = CalibrationReport(
-            status="failed",
-            error_message=str(e),
-            validation_passed=False,
-            metrics={}
-        )
+        logger.error(f"Failed to initialize configuration: {e}")
+        sys.exit(1)
+    
+    # Get output path for the report
+    results_dir = get_path("results_dir")
+    report_path = results_dir / "calibration_report.json"
+    
+    # Ensure results directory exists
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Create calibration validator
+    try:
+        validator = create_calibration_validator()
+    except Exception as e:
+        logger.error(f"Failed to create calibration validator: {e}")
+        sys.exit(1)
+    
+    # Run validation
+    logger.info("Running calibration validation...")
+    try:
+        is_valid, report_data = validate_calibration(validator)
+    except Exception as e:
+        logger.error(f"Calibration validation failed with exception: {e}")
+        # Create a failure report
+        report_data = {
+            "status": "FAILED",
+            "error": str(e),
+            "is_valid": False,
+            "validation_details": {},
+            "timestamp": None
+        }
+        is_valid = False
+    
+    # Prepare the report
+    report = {
+        "status": "SUCCESS" if is_valid else "FAILED",
+        "is_valid": is_valid,
+        "validation_details": report_data.get("validation_details", {}),
+        "message": "Calibration validation passed" if is_valid else "Calibration validation failed",
+        "report_path": str(report_path)
+    }
+    
+    # Save the report to disk
+    try:
         with open(report_path, 'w') as f:
-            json.dump(asdict(failure_report), f, indent=2)
+            json.dump(report, f, indent=2)
+        logger.info(f"Calibration report saved to: {report_path}")
+    except Exception as e:
+        logger.error(f"Failed to save calibration report: {e}")
         sys.exit(1)
-
-    # Create validator
-    validator = create_calibration_validator(extrinsic_params)
-
-    # Perform validation
-    # The validate_calibration function performs the actual checks
-    # It returns a CalibrationReport object
-    report = validate_calibration(validator, extrinsic_params)
-
-    # Save report
-    with open(report_path, 'w') as f:
-        json.dump(asdict(report), f, indent=2)
-    logger.info(f"Calibration report saved to {report_path}")
-
-    # Check if validation passed
-    if not report.validation_passed:
-        logger.error("Calibration validation FAILED. Blocking execution.")
-        logger.error(f"Reason: {report.error_message or 'Validation metrics out of bounds'}")
+    
+    # Block if validation failed
+    if not is_valid:
+        logger.error("CALIBRATION VALIDATION FAILED - Blocking downstream tasks")
+        logger.error(f"Details: {report.get('message')}")
         sys.exit(1)
-
-    logger.info("Calibration validation PASSED. Execution allowed to continue.")
+    
+    logger.info("Calibration validation completed successfully.")
     return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

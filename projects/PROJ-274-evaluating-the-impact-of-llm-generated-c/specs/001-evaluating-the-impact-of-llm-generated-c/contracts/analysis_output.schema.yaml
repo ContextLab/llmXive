@@ -1,0 +1,85 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the final statistical analysis results."
+type: "object"
+properties:
+  analysis_metadata:
+    type: "object"
+    properties:
+      timestamp:
+        type: "string"
+        format: "date-time"
+      runtime_seconds:
+        type: "number"
+        description: "Wall-clock time of analysis."
+      peak_memory_mb:
+        type: "number"
+        description: "Peak memory usage in MB."
+      constraints_met:
+        type: "boolean"
+        description: "True if runtime <= 6h and memory <= 7GB."
+  assumption_checks:
+    type: "object"
+    properties:
+      normality:
+        type: "object"
+        properties:
+          test:
+            type: "string"
+          statistic:
+            type: "number"
+          p_value:
+            type: "number"
+          passed:
+            type: "boolean"
+      homogeneity:
+        type: "object"
+        properties:
+          test:
+            type: "string"
+          statistic:
+            type: "number"
+          p_value:
+            type: "number"
+          passed:
+            type: "boolean"
+  primary_test:
+    type: "object"
+    properties:
+      test_name:
+        type: "string"
+        description: "Name of the test used (e.g., Welch's ANOVA)."
+      statistic:
+        type: "number"
+      p_value:
+        type: "number"
+      significant:
+        type: "boolean"
+  post_hoc:
+    type: "object"
+    properties:
+      method:
+        type: "string"
+        description: "Correction method (e.g., Games-Howell)."
+      comparisons:
+        type: "array"
+        items:
+          type: "object"
+          properties:
+            group1:
+              type: "string"
+            group2:
+              type: "string"
+            p_value:
+              type: "number"
+            significant:
+              type: "boolean"
+  conclusion:
+    type: "string"
+    description: "Narrative conclusion regarding the null hypothesis."
+required:
+  - "analysis_metadata"
+  - "assumption_checks"
+  - "primary_test"
+  - "conclusion"
+additionalProperties: false

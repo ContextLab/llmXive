@@ -1,105 +1,59 @@
 $schema: http://json-schema.org/draft-07/schema#
-$id: https://llmxive.org/schemas/dataset.schema.yaml
 title: Microglial Morphology Dataset Schema
 description: |
-  Schema for the raw and processed input dataset used in the
-  investigation of microglial morphology in age-related cognitive decline.
-  Defines the expected structure for metadata and image references.
+  Schema for the raw and processed morphological metrics dataset.
+  Defines the structure for microglial cell measurements tagged by brain region
+  and pathology status.
+  This schema strictly adheres to FR-003, excluding 'fractal_dimension' and 'complexity_index'.
+  It defines the operational definition of morphological complexity as the vector of
+  [branch_points, total_length, soma_area, sholl_intersections].
 type: object
 required:
-  - version
-  - subjects
-  - images
+  - brain_region
+  - pathology_status
+  - morphological_metrics
+  - cognitive_score
 properties:
-  version:
+  brain_region:
     type: string
-    pattern: "^\\d+\\.\\d+\\.\\d+$"
-    description: Semantic version of the dataset schema.
-  metadata:
+    description: The anatomical region of the brain sample.
+    enum:
+      - Hippocampus
+      - Prefrontal Cortex
+  pathology_status:
+    type: string
+    description: The pathological classification of the subject.
+    enum:
+      - Normal
+      - Early AD
+  morphological_metrics:
     type: object
-    description: Global dataset metadata.
+    description: Quantitative metrics derived from image analysis.
+    required:
+      - branch_points
+      - total_length
+      - soma_area
+      - sholl_intersections
     properties:
-      created_at:
-        type: string
-        format: date-time
-      source:
-        type: string
-        description: Origin of the data (e.g., 'SyntheticGenerator', 'PublicRepository').
-      processing_pipeline:
-        type: string
-        description: Identifier for the pipeline version used.
-  subjects:
-    type: array
-    description: List of subject metadata.
-    items:
-      type: object
-      required:
-        - subject_id
-        - age
-        - cognitive_status
-        - brain_region
-      properties:
-        subject_id:
-          type: string
-          description: Unique identifier for the subject (e.g., 'SUBJ-001').
-        age:
-          type: integer
-          minimum: 0
-          description: Age of the subject in years.
-        cognitive_status:
-          type: string
-          enum:
-            - Control
-            - MCI
-            - Early AD
-            - Late AD
-            - Unknown
-          description: Cognitive classification of the subject.
-        amyloid_beta_load:
-          type: number
-          minimum: 0
-          description: Quantitative amyloid-beta load (optional, used for dynamic classification).
-        brain_region:
-          type: string
-          description: Specific brain region sampled (e.g., 'Hippocampus', 'Prefrontal Cortex').
-        metadata:
-          type: object
-          description: Additional subject-specific metadata.
-  images:
-    type: array
-    description: List of image entries linking to files and subjects.
-    items:
-      type: object
-      required:
-        - image_id
-        - subject_id
-        - file_path
-        - acquisition_date
-      properties:
-        image_id:
-          type: string
-          description: Unique identifier for the image (e.g., 'IMG-001-01').
-        subject_id:
-          type: string
-          description: Reference to the subject_id in the subjects list.
-        file_path:
-          type: string
-          description: Relative path to the image file (e.g., 'data/raw/images/IMG-001-01.tif').
-        acquisition_date:
-          type: string
-          format: date
-          description: Date the image was acquired.
-        microscope_model:
-          type: string
-          description: Model of the microscope used.
-        magnification:
-          type: number
-          description: Magnification level (e.g., 20.0, 40.0).
-        pixel_size_um:
-          type: number
-          minimum: 0
-          description: Physical size of a pixel in micrometers.
-        metadata:
-          type: object
-          description: Additional image-specific metadata.
+      branch_points:
+        type: integer
+        description: Count of branch points in the microglial skeleton.
+        minimum: 0
+      total_length:
+        type: number
+        description: Total length of the microglial processes in micrometers.
+        minimum: 0
+      soma_area:
+        type: number
+        description: Area of the microglial cell body in square micrometers.
+        minimum: 0
+      sholl_intersections:
+        type: integer
+        description: Number of intersections at a specific Sholl radius.
+        minimum: 0
+  cognitive_score:
+    type: number
+    description: Cognitive assessment score, specifically MWM latency in seconds.
+    minimum: 0
+    maximum: 300
 additionalProperties: false

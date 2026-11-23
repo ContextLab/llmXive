@@ -1,0 +1,49 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Textual Artifact
+description: Per-file extraction result from static analysis.
+type: object
+properties:
+  repo_id:
+    type: string
+    description: "Unique identifier (e.g., owner/repo)"
+  file_path:
+    type: string
+    description: "Relative path within the repository"
+  total_tokens:
+    type: integer
+    description: "Total number of tokens extracted"
+  bias_matches:
+    type: array
+    description: "List of tokens matching the demographic lexicon"
+    items:
+      type: object
+      properties:
+        token:
+          type: string
+        category:
+          type: string
+          enum: ["gender", "race", "stereotype", "other"]
+        count:
+          type: integer
+  vader_scores:
+    type: object
+    description: "VADER sentiment analysis results"
+    properties:
+      compound:
+        type: number
+        minimum: -1
+        maximum: 1
+      neg:
+        type: number
+      neu:
+        type: number
+      pos:
+        type: number
+  file_bias_score:
+    type: number
+    description: "Normalized bias score for this file"
+required:
+  - repo_id
+  - file_path
+  - file_bias_score
+additionalProperties: false

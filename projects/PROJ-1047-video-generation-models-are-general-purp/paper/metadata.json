@@ -61,5 +61,15 @@
     "main.tex",
     "preamble.tex",
     "splncs04.bst"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "28dc3af1223a10e0e7772d9eecfe697e1978e85c48110d0a7a605afbae6ece98",
+      "bytes": 18018549
+    },
+    "original.pdf": {
+      "sha256": "26bd3358e5d33da3f221c3dce11878af6635d478bc9d5986d5f7535542218dac",
+      "bytes": 17867194
+    }
+  }
 }

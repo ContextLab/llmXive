@@ -1,198 +1,254 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Checkpoint Schema
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Checkpoint Schema"
 description: |
-  Defines the structure, types, and constraints for saved model checkpoints
-  in the llmXive phase transition detection pipeline. This schema ensures
-  reproducibility and validity of model states saved during training.
+  JSON Schema defining the structure, types, and constraints for model checkpoint
+  files saved during VAE training. This schema ensures reproducibility and
+  metadata integrity as required by Constitution Principle II and FR-003.
 type: object
 required:
-  - checkpoint_id
-  - model_type
-  - model_config
-  - training_state
-  - performance_metrics
-  - data_checksums
-  - timestamp
-  - git_commit_hash
+  - metadata
+  - model_state_dict
+  - optimizer_state_dict
+  - training_stats
 additionalProperties: false
 properties:
-  checkpoint_id:
-    type: string
-    description: Unique identifier for this checkpoint (UUID or hash)
-    pattern: "^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$"
-  model_type:
-    type: string
-    description: Type of model architecture used
-    enum:
-      - VAE
-      - CNN
-      - Transformer
-    default: VAE
-  model_config:
+  metadata:
     type: object
-    description: Configuration parameters used to instantiate the model
+    description: "Metadata regarding the checkpoint creation and environment."
     required:
-      - input_shape
-      - latent_dim
-      - encoder_layers
-      - decoder_layers
-      - hidden_dim
-    additionalProperties: true
+      - version
+      - timestamp
+      - git_commit_hash
+      - random_seed
+      - model_architecture
+      - hyperparameters
+    additionalProperties: false
     properties:
-      input_shape:
-        type: array
-        description: Shape of input data (batch, channels, height, width)
-        items:
-          type: integer
-        minItems: 4
-        maxItems: 4
-      latent_dim:
+      version:
+        type: string
+        pattern: "^\\d+\\.\\d+\\.\\d+$"
+        description: "Semantic version of the checkpoint format."
+        const: "1.0.0"
+      timestamp:
+        type: string
+        format: date-time
+        description: "ISO 8601 timestamp of when the checkpoint was saved."
+      git_commit_hash:
+        type: string
+        pattern: "^[a-f0-9]{40}$"
+        description: "SHA-1 hash of the git commit used to generate this checkpoint."
+      random_seed:
         type: integer
-        description: Dimensionality of the latent space
-        minimum: 1
-        default: 10
-      encoder_layers:
-        type: array
-        description: List of encoder layer configurations
-        items:
-          type: object
-          additionalProperties: true
-      decoder_layers:
-        type: array
-        description: List of decoder layer configurations
-        items:
-          type: object
-          additionalProperties: true
-      hidden_dim:
-        type: integer
-        description: Hidden dimension size for intermediate layers
-        minimum: 1
-  training_state:
+        minimum: 0
+        description: "The global random seed used for reproducibility."
+      model_architecture:
+        type: object
+        description: "Configuration of the VAE architecture."
+        required:
+          - latent_dim
+          - encoder_layers
+          - decoder_layers
+          - input_channels
+        additionalProperties: false
+        properties:
+          latent_dim:
+            type: integer
+            minimum: 1
+            description: "Dimensionality of the latent space (FR-003 mandates 10)."
+            const: 10
+          encoder_layers:
+            type: array
+            minItems: 2
+            maxItems: 2
+            description: "Configuration of the two convolutional encoder layers."
+            items:
+              type: object
+              required:
+                - in_channels
+                - out_channels
+                - kernel_size
+                - stride
+                - padding
+              properties:
+                in_channels:
+                  type: integer
+                out_channels:
+                  type: integer
+                kernel_size:
+                  type: integer
+                stride:
+                  type: integer
+                padding:
+                  type: integer
+          decoder_layers:
+            type: array
+            minItems: 2
+            maxItems: 2
+            description: "Configuration of the two deconvolutional decoder layers."
+            items:
+              type: object
+              required:
+                - in_channels
+                - out_channels
+                - kernel_size
+                - stride
+                - padding
+              properties:
+                in_channels:
+                  type: integer
+                out_channels:
+                  type: integer
+                kernel_size:
+                  type: integer
+                stride:
+                  type: integer
+                padding:
+                  type: integer
+          input_channels:
+            type: integer
+            const: 3
+            description: "Number of input channels (3 spin components: x, y, z)."
+      hyperparameters:
+        type: object
+        description: "Training hyperparameters active at the time of saving."
+        required:
+          - learning_rate
+          - batch_size
+          - epochs_trained
+          - loss_weights
+        additionalProperties: false
+        properties:
+          learning_rate:
+            type: number
+            minimum: 0
+            exclusiveMinimum: true
+          batch_size:
+            type: integer
+            minimum: 1
+          epochs_trained:
+            type: integer
+            minimum: 1
+          loss_weights:
+            type: object
+            description: "Weights for MSE reconstruction and KL divergence."
+            required:
+              - beta
+            additionalProperties: false
+            properties:
+              beta:
+                type: number
+                minimum: 0
+                description: "Weight for the KL divergence term."
+
+  model_state_dict:
     type: object
-    description: Current state of the training process
+    description: |
+      The serialized state dictionary of the PyTorch VAE model.
+      In the JSON representation, this is a dictionary where keys are parameter names
+      and values are lists representing the flattened tensor data, along with shape info.
+      (Note: In actual binary .pt files, this is a raw pickle/tensor blob. This schema
+      describes the logical structure for validation if serialized to JSON or for
+      metadata extraction).
+    # For the purpose of this schema, we define the logical constraints on the keys
+    # that MUST exist in the state_dict.
+    propertyNames:
+      pattern: "^(encoder\\.|decoder\\.|mu|log_var|bias|weight|\\.\\d+\\.)"
+    minProperties: 10
+    description: "Must contain weights and biases for encoder, decoder, and latent layers."
+
+  optimizer_state_dict:
+    type: object
+    description: "The serialized state dictionary of the Adam optimizer."
+    propertyNames:
+      pattern: "^(state|param_groups|\\d+|step)"
+    minProperties: 1
+
+  training_stats:
+    type: object
+    description: "Statistics from the training run up to this checkpoint."
     required:
       - epoch
-      - global_step
-      - optimizer_state
-      - loss_history
+      - total_loss
+      - reconstruction_loss
+      - kl_loss
+      - learning_rate_current
     additionalProperties: false
     properties:
       epoch:
         type: integer
-        description: Current epoch number (0-indexed)
-        minimum: 0
-      global_step:
-        type: integer
-        description: Total number of training steps performed
-        minimum: 0
-      optimizer_state:
-        type: object
-        description: Serialized optimizer state dictionary
-        additionalProperties: true
-      loss_history:
-        type: array
-        description: List of loss values per epoch
-        items:
-          type: number
-        minItems: 1
-      learning_rate:
-        type: number
-        description: Current learning rate
-        minimum: 0
-        exclusiveMinimum: true
-  performance_metrics:
-    type: object
-    description: Key performance indicators at the time of saving
-    required:
-      - reconstruction_loss
-      - kl_divergence
-      - total_loss
-      - val_loss
-    additionalProperties: true
-    properties:
-      reconstruction_loss:
-        type: number
-        description: Mean reconstruction loss (MSE)
-        minimum: 0
-      kl_divergence:
-        type: number
-        description: Mean KL divergence term
-        minimum: 0
+        minimum: 1
       total_loss:
         type: number
-        description: Total VAE loss (reconstruction + KL)
-        minimum: 0
-      val_loss:
+      reconstruction_loss:
         type: number
-        description: Validation loss at this checkpoint
-        minimum: 0
-      best_val_loss:
+      kl_loss:
         type: number
-        description: Best validation loss achieved so far
+      learning_rate_current:
+        type: number
         minimum: 0
-      epoch_best_val:
+      early_stopping_patience_remaining:
         type: integer
-        description: Epoch number where best validation loss was achieved
         minimum: 0
-  data_checksums:
+        description: "Remaining patience steps if early stopping is active."
+
+  checksums:
     type: object
-    description: Checksums of data used for training to ensure reproducibility
+    description: "SHA-256 checksums for integrity verification of the binary blobs."
     required:
-      - raw_data_hash
-      - processed_data_hash
+      - model_state_dict_sha256
+      - optimizer_state_dict_sha256
     additionalProperties: false
     properties:
-      raw_data_hash:
+      model_state_dict_sha256:
         type: string
-        description: SHA-256 checksum of raw input data
         pattern: "^[a-f0-9]{64}$"
-      processed_data_hash:
+      optimizer_state_dict_sha256:
         type: string
-        description: SHA-256 checksum of processed input data
         pattern: "^[a-f0-9]{64}$"
-  timestamp:
-    type: string
-    description: ISO 8601 timestamp of when the checkpoint was saved
-    format: date-time
-  git_commit_hash:
-    type: string
-    description: Git commit hash of the code version used to generate this checkpoint
-    pattern: "^[a-f0-9]{40}$"
-  hardware_info:
-    type: object
-    description: Hardware information for reproducibility
-    additionalProperties: true
-    properties:
-      device:
-        type: string
-        description: Device used for training (e.g., cpu, cuda:0)
-      device_count:
-        type: integer
-        description: Number of devices used
-        minimum: 1
-      pytorch_version:
-        type: string
-        description: PyTorch version string
-      python_version:
-        type: string
-        description: Python version string
-  file_metadata:
-    type: object
-    description: Metadata about the checkpoint file itself
-    additionalProperties: false
-    properties:
-      file_size_bytes:
-        type: integer
-        description: Size of the checkpoint file in bytes
-        minimum: 0
-      file_path:
-        type: string
-        description: Relative path to the checkpoint file from project root
-      checksum_sha256:
-        type: string
-        description: SHA-256 checksum of the checkpoint file
-        pattern: "^[a-f0-9]{64}$"
-  notes:
-    type: string
-    description: Optional human-readable notes about this checkpoint
-    maxLength: 1000
+
+examples:
+  - metadata:
+      version: "1.0.0"
+      timestamp: "2023-10-27T10:00:00Z"
+      git_commit_hash: "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2"
+      random_seed: 42
+      model_architecture:
+        latent_dim: 10
+        encoder_layers:
+          - in_channels: 3
+            out_channels: 16
+            kernel_size: 4
+            stride: 2
+            padding: 1
+          - in_channels: 16
+            out_channels: 32
+            kernel_size: 4
+            stride: 2
+            padding: 1
+        decoder_layers:
+          - in_channels: 32
+            out_channels: 16
+            kernel_size: 4
+            stride: 2
+            padding: 1
+          - in_channels: 16
+            out_channels: 3
+            kernel_size: 4
+            stride: 2
+            padding: 1
+        input_channels: 3
+      hyperparameters:
+        learning_rate: 0.001
+        batch_size: 64
+        epochs_trained: 50
+        loss_weights:
+          beta: 0.5
+    training_stats:
+      epoch: 50
+      total_loss: 12.45
+      reconstruction_loss: 10.20
+      kl_loss: 2.25
+      learning_rate_current: 0.001
+    checksums:
+      model_state_dict_sha256: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      optimizer_state_dict_sha256: "d7a8fbb307d7809469ca9abcb0082e4f8d5651e46d3cdb762d02d0bf37c9e592"

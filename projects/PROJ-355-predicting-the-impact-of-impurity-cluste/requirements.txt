@@ -1,18 +1,10 @@
-# Core Scientific Libraries
-pymatgen==2024.1.1
-numpy==1.26.4
-pandas==2.2.1
-scipy==1.13.0
-
-# Machine Learning & Statistics
-scikit-learn==1.4.2
-statsmodels==0.14.1
-
-# Data Handling & Validation
-pyyaml==6.0.1
-requests==2.31.0
-
-# Development & Testing
-pytest==8.1.1
-ruff==0.3.4
-black==24.3.0
+datasets
+pymatgen
+ase
+scikit-learn
+statsmodels
+numpy
+pandas
+matplotlib
+pyyaml
+pytest

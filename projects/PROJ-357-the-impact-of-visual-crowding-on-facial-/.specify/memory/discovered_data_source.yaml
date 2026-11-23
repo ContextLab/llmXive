@@ -1,0 +1,11 @@
+status: none
+intent: download RAVDESS emotion video dataset from Zenodo as python package dataset
+required_fields:
+- Target face image
+- Emotion label
+- Actor ID
+- Gender
+- Age
+cache_key: 90670cea7af6af07b44bb23da8d51f9f2d0fd1d7c5996bf6e1da96c21e9e19fc
+searched_at: '2026-10-09T07:27:24.138434+00:00'
+retry_count: 1

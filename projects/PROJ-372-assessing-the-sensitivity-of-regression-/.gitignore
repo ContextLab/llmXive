@@ -1,0 +1,52 @@
+# Data directories - track structure but not contents
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+artifacts/*
+!artifacts/.gitkeep
+
+# Binary data formats (large files)
+*.parquet
+*.pkl
+*.pickle
+
+# Python cache and build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+.eggs/
+dist/
+build/
+*.so
+.Python
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment variables and secrets
+.env
+.env.local
+.env.*.local
+
+# Logs and temporary files
+*.log
+.cache/
+tmp/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# OS specific files
+.DS_Store
+Thumbs.db

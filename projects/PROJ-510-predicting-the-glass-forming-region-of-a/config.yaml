@@ -1,0 +1,46 @@
+# Configuration for glass-forming alloy prediction pipeline
+# This file centralizes hyperparameters and thresholds
+
+# Random state for reproducibility
+random_state: 42
+
+# Dataset configuration
+dataset:
+  name: "matsci/glass-forming-ability"
+  source_label: "matsci/glass-forming-ability"
+  chunk_size: 5000
+
+# Data validation thresholds
+validation:
+  min_samples: 500
+  target_samples: 1000
+
+# Model training parameters
+model:
+  n_estimators: 100
+  max_depth: 10
+  test_size: 0.2
+  n_splits: 5
+  shuffle: true
+
+# Sensitivity analysis thresholds
+sensitivity:
+  thresholds: [50, 100, 150]
+  stability_margin: 0.05
+
+# Permutation importance
+permutation:
+  n_permutations: 1000
+
+# File paths
+paths:
+  raw_data_dir: "data/raw"
+  processed_data_dir: "data/processed"
+  logs_dir: "data/logs"
+  models_dir: "data/models"
+
+# Core thermodynamic descriptors (must not be dropped)
+core_descriptors:
+  - "mixing_enthalpy"
+  - "atomic_size_mismatch"
+  - "electronegativity_variance"

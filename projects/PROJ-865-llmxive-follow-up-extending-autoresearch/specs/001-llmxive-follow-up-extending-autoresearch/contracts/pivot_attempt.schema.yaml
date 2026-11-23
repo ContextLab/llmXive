@@ -1,46 +1,55 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: PivotAttempt
-description: "Schema for a single execution attempt of a pivot action."
+title: Pivot Attempt Schema
+description: Schema for recording pivot attempt metrics and outcomes in the rule engine execution phase.
 type: object
+required:
+  - attempt_id
+  - task_id
+  - method
+  - steps_to_pivot
+  - is_censored
+  - success
+  - failure_category
+  - structural_feature
 properties:
   attempt_id:
     type: string
-    description: "Unique identifier for the attempt."
-    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
-  case_id:
+    description: Unique identifier for the attempt.
+  task_id:
     type: string
-    description: "Reference to the FailureCase."
-    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+    description: Reference to the task.
   method:
     type: string
-    description: "The method used for the pivot."
     enum:
       - "RuleEngine"
       - "Baseline"
-  time_to_pivot:
-    type: number
-    description: "Time taken to pivot in seconds."
-    minimum: 0.0
+    description: Method used for the pivot.
+  steps_to_pivot:
+    type: integer
+    description: Number of steps taken to pivot (capped at 50).
+    minimum: 0
+    maximum: 50
+  is_censored:
+    type: boolean
+    description: True if steps_to_pivot reached the cap (50).
   success:
     type: boolean
-    description: "Whether the pivot was successful."
-  error_type:
+    description: Whether the pivot attempt was successful.
+  failure_category:
     type: string
-    description: "Type of error if the pivot failed."
+    description: The type of failure if the pivot was unsuccessful.
     enum:
       - "Coverage Gap"
       - "Distillation Error"
       - "None"
-  timestamp:
+  structural_feature:
     type: string
-    description: "ISO 8601 timestamp of the attempt."
-    format: date-time
-required:
-  - attempt_id
-  - case_id
-  - method
-  - time_to_pivot
-  - success
-  - error_type
-  - timestamp
+    description: The root cause of the original failure (inherited from FailureCase).
+    enum:
+      - "Syntactic"
+      - "Logical"
+      - "Semantic"
+      - "Missing Context"
+      - "Unstructured"
+      - "None (Success)"
 additionalProperties: false

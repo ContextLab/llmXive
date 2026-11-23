@@ -1,0 +1,14 @@
+[
+  {
+    "repaired_at": "2026-10-25T17:42:46.557364+00:00",
+    "project": "PROJ-193-predicting-battery-degradation-from-publ",
+    "repairs": [
+      {
+        "dead_url": "https://data.nasa.gov/dataset/battery-cycling-data",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/nasa-impact/WxC-Bench/resolve/main/hurricane/hurricane_track/hurricanes_1980.csv",
+        "intent": "battery cycling NASA Ames Dataset Voltage, current, temperature time\u2011series; per\u2011cycle capacity; multiple protocols. OBTAINABLE \u2013 programmatic CSV download via datasets.load_dataset \"nasa_ames/battery_cycling\" or direct HTTP"
+      }
+    ]
+  }
+]

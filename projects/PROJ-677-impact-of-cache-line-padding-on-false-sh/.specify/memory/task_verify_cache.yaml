@@ -1,0 +1,89 @@
+T002:
+  c: false
+  h: c07050ad0e1f65d4590794482994789105fd73620520ee0d3fafef6904a99a3a
+  r: "The `requirements.txt` file is present and contains the required Python packages,\
+    \ but there is no C++17 build system file (neither a `Makefile` nor a `CMakeLists.txt`)\
+    \ in the specified directory, so the task\u2019s requirement to initialize a C++\
+    \ build system is not satisfied."
+T007a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `counter_packed.hpp` file was presented, nor any compilation test, `static_assert`,
+    or grep output showing `#pragma pack(1)`. The required source file and verification
+    evidence are missing, so the task is not satisfied.
+T007b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The repository does not contain a `projects/PROJ-677-impact-of-cache-line-padding-on-false-sharing/code/benchmark/counter_padded.hpp`\
+    \ file, nor any test source that includes it and performs the required `static_assert`.\
+    \ Without the header and compilation verification, the task\u2019s requirement\
+    \ is not satisfied."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `main.cpp` file was presented in `projects/PROJ-677-impact-of-cache-line-padding-on-false-sharing/code/benchmark/`,
+    nor any code snippet showing argument parsing for thread count and the packed/padded
+    configuration. Without the required source file, the task is not satisfied.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `build.sh` script was presented in the evidence, nor any file listing or content
+    showing that a script exists at `projects/PROJ-677-impact-of-cache-line-padding-on-false-sharing/code/scripts/`
+    and compiles `main.cpp`, `verify_layout.cpp`, and the headers with `-O3 -march=native`.
+    The required artifact is missing, so the task is not satisfied.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `main.cpp` file or diff showing added single\u2011threaded validation logic\
+    \ is provided; without the actual source code we cannot confirm that atomic increments\
+    \ are protected from compiler optimization as required. The implementer must supply\
+    \ the modified `main.cpp` (or a patch) containing the validation code."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a modified `build.sh` that redirects stdout/stderr to `build.log`,
+    nor any generated `build.log` or verification output (exit code checks, log content)
+    is provided. The required artifacts and test results are missing.
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `main.cpp` source, compiled binary, or runtime output was provided; thus\
+    \ we cannot verify that a multi\u2011threaded worker using `std::thread` and `std::atomic<long>`\
+    \ was implemented, that the loop runs exactly 10\u202F000\u202F000 iterations\
+    \ per thread, that `CounterPacked` objects are allocated contiguously with `sizeof(CounterPacked)\
+    \ < 64`, or that the program runs without segfaults. The required artifacts are\
+    \ missing."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `run_analysis.py` file (or its contents) was presented, so we
+    cannot confirm that raw CSVs are loaded and validated against Pydantic schemas
+    as required. The implementer must supply the actual script showing the loading
+    and validation logic.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a modified `run_analysis.py` or any aggregation logic was provided;
+    the claim lacks the required artifact (the script computing mean throughput and
+    standard deviation per thread count/configuration). The implementer must supply
+    the updated file with the correct calculations.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `run_analysis.py` file or code changes were provided, and there is no evidence\
+    \ of a two\u2011sample t\u2011test or Cohen\u2019s\u202Fd implementation or of\
+    \ p\u2011values being output for each thread\u2011count comparison. The required\
+    \ artifact is missing."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `run_analysis.py` file (or modified version) containing a Benjamini\u2011\
+    Hochberg FDR correction is provided, nor any evidence that the correction is applied\
+    \ to the p\u2011values from T032. The required artifact is missing, so the task\
+    \ is not satisfied."
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `validate_raw_data.py` script was presented in the evidence, nor any code
+    showing checks for NaNs, missing values, or schema compliance in the specified
+    directory. The required artifact is missing, so the task is not satisfied.

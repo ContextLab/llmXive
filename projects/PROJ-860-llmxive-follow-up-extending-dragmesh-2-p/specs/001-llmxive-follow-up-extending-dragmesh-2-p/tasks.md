@@ -1,250 +1,99 @@
 # Tasks: llmXive Follow-up: Virtual Tactile Zero-Shot Adaptation
 
-**Input**: Design documents from `/specs/001-virtual-tactile-adaptation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contracts in `specs/001-virtual-tactile-adaptation/contracts/`
+**Revision note**: Consolidated from the prior 60-task list into substantive research tasks. All FR-001–FR-011 and SC-001–SC-006 requirements are preserved. Removed platform-owned work (directory creation, `state/...` hash writes, CI configuration, citation-validation scaffolding) per stage-ownership rules. Object count corrected to **10** per FR-003 (the prior list's 25 conflicted with the spec). T030 documentation was rejected by verification and is retained as an unchecked redo.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+<!-- ID Mapping: Task IDs in this file (T001‑T030 plus added T014‑T025) are authoritative. Plan IDs (e.g., T015a) are superseded by the tasks below. -->
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+## Phase 0: Specification Amendments
 
-## Format: `[ID] [P?] [Story] Description`
+- [X] T017 [US1 US2] **Amendment Proposal** – Create `amendment_proposal.md` documenting the addition of a paired‑t‑test analysis (aligned with Constitution Principle VII) and version it. This fulfills the original plan’s Phase 0 task T000.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+## Phase 1: Setup and first end-to-end analysis
 
-## Path Conventions
+- [ ] T001 [US1 US2 US3] Establish the code layout and fetch the real DragMesh-2 data with fail‑loud semantics in `code/data_loader.py`. <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data_loader.py exit=1 -->
+  - Implement `load_dragmesh_manifest()` using `datasets.load_dataset` or `hf_hub_download` against the DragMesh‑2 dataset referenced in `plan.md`, writing the trajectory manifest to `data/raw/dragmesh_manifest.jsonl`. On any fetch failure the loader MUST raise (no synthetic/mock fallback).
+  - Set global seeds (`numpy`, `random`, `torch` if used) to 42 in `code/seed_config.py` for reproducibility (Constitution Principle I).
+  - Enforce CPU‑only: PyBullet `DIRECT` mode, `torch` CPU build; a unit test in `code/tests/test_cpu_only.py` scans `code/` for `torch.cuda` / `device="cuda"` and fails if found (FR-004).
+  - Document the runnable fetch command in `specs/001-virtual-tactile-adaptation/quickstart.md`.
+  - **Verification**: `python code/data_loader.py` produces a non‑empty `data/raw/dragmesh_manifest.jsonl` on the real source; the CPU‑only test passes.
 
-- **Project Root**: `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/`
-- **Source Code**: `code/` directory is nested inside the project root (e.g., `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/`)
-- **Tests**: `tests/` directory is nested inside the project root (e.g., `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/`)
-- **Data**: `data/` directory is nested inside the project root (e.g., `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/data/`)
-- **State**: `state/` directory is nested inside the project root (e.g., `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/state/`)
-- Paths shown below assume this nested project structure.
+- [ ] T016 [US1 US2 US3] **Requirements Pinning** – Create a `requirements.txt` at `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/requirements.txt` that pins exact versions of all Python dependencies used in the project (e.g., `pybullet==3.25.0`, `torch==2.2.0+cpu`, `numpy`, `pandas`, `scipy`, `statsmodels`, `psutil`, etc.). This satisfies Constitution Principle I.
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
+- [ ] T002 [US1 US2] Implement the `VirtualTactileEstimator` in `code/estimators/virtual_tactile.py`.
+  - Compute $k_{\text{norm}} = \frac{|\Delta \tau_{\text{hand}}|}{\max(|\Delta v_{\text{object}}|,\;\epsilon)\;N}$ each timestep (FR-001), using $\epsilon = 10^{-4}$.
+  - Apply a moving‑average filter (window = 5) to the torque derivative before computing the ratio (FR-006); clamp output to $[1\times10^{-4}, 10]$ (FR-007).
+  - **Verification**: Unit tests in `code/tests/test_estimator.py` will be executed **after** real simulation data is available (see T022). The estimator must emit a JSON object conforming to the amended `estimator_output.schema.yaml` (epsilon_clamped and is_valid are booleans, not const‑true).
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T003 [US1] Implement the `AdaptiveRewardScheduler` in `code/policies/adaptive_pica.py`.
+  - Map the percentile position of $k_{\text{norm}}$ within the **training‑distribution** (collected by T021) to reward multipliers: > 90th percentile ⇒ increase $r_{\text{detach}}$ by ≥ 20 %; < 10th percentile ⇒ decrease by ≥ 15 % (FR-002, FR‑011).
+  - **Verification**: `pytest code/tests/test_scheduler.py` passes.
 
-**Purpose**: Project initialization and basic structure
+- [ ] T021 [US1] **Training‑distribution Baseline Collection** – Run a short sweep on objects whose friction coefficients are sampled uniformly from 0.2–0.6 (the training range). Log $k_{\text{norm}}$ values to `data/results/training_baseline.csv`. These statistics will be used by the AdaptiveRewardScheduler to compute percentiles during adaptive runs.
 
-- [ ] T001 Create project structure per `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/` plan
-- [ ] T002 Initialize Python project with `pybullet`, `numpy`, `scipy`, `pandas`, `datasets`, `pytest`, `statsmodels` in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/requirements.txt`
-- [ ] T003 [P] Configure `pytest-timeout` (limit set to a duration appropriate for the longest expected test execution) and `pytest-mock` in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/pytest.ini`
+- [ ] T023 [US1 US3] **Environment Setup** – Implement `code/environment/drag_mesh_env.py`:
+  - PyBullet `DIRECT`‑mode physics engine for dexterous hand manipulation.
+  - Log per‑timestep `torque_hand`, `velocity_object`, and `normal_force` to `data/logs/simulation_run_<run_id>.csv`.
+  - **Crucially**, invoke `VirtualTactileEstimator` **online** each timestep to compute `k_norm` and feed it to the reward scheduler (addresses FR‑001 real‑time requirement).
 
----
+- [ ] T024 [US1] **Novel Object Generator** – Implement `code/environment/articulated_object_gen.py`:
+  - Generate **exactly 10** novel articulated objects with friction coefficients **≥ 0.8** or **≤ 0.1** (FR‑010, FR‑003).
+  - Write each manifest to `data/generated/novel_objects/<object_id>.json` conforming to `contracts/dataset.schema.yaml`.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T025 [US1] **Smoke Pipeline** – `code/main.py --mode smoke` runs a minimal end‑to‑end pass:
+  - Uses the environment (T023) and generator (T024) for **2** objects, executes three policies (`static`, `adaptive`, `ablation_random`) for a few episodes each.
+  - Writes trial rows to `data/results/sweep.csv` (conforms to `contracts/sweep_output.schema.yaml`).
+  - **Verification**: The command completes on CPU and produces real rows.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+## Phase 2: Complete the study and validate its evidence
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T005 [US1] **Full Policy Comparison** – `code/main.py --mode full` evaluates all 10 objects across all three policies, re‑using the same objects and initial conditions for each policy. The adaptive policy now receives live `k_norm` values from the estimator (via T023). **Before starting the full run, truncate or delete `data/results/sweep.csv` to ensure only full‑run trials are present.** Results are streamed to `data/results/sweep.csv` (append mode). Runtime and memory are logged for each trial.
 
-- [ ] T004 Setup CPU-only PyBullet physics environment in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/environment.py` (enforce `FR-004`, no CUDA)
-- [ ] T005 [P] Implement `VirtualTactileEstimator` class in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/estimator.py` with moving average filter (window=5) and epsilon clamping (FR-001, FR-006, FR-007)
-- [ ] T006 [P] Implement `AdaptiveRewardScheduler` class in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/scheduler.py` mapping $k_{est}$ to reward weights (FR-002)
-- [ ] T007 [P] Create `NovelObjectSet` generator class in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/generator.py` to produce a set of randomized articulated geometries (FR-003)
-- [ ] T007a [P] Execute `generator.py` to produce novel geometry files in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/data/generated/` (FR-003 execution)
-- [ ] T008a [P] Configure random seed fixation module in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/seed_config.py` (Constitution Principle I: Reproducibility; do not write to shared state until execution)
-- [ ] T008b [P] Implement `validate_citations.py` script in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/validate_citations.py` (Constitution Principle II: Verified Accuracy)
-- [ ] T009 Setup state tracking in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/state/projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p.yaml` for artifact hashes
-- [ ] T009a [P] Implement checksum verification logic for `data/raw` and `data/generated` directories (Constitution Principle III: Data Hygiene)
+- [ ] T006 [US2] **Correlation‑Validation Experiment** – `code/analysis/correlation_experiment.py`:
+  - Run ≥ 30 trials with known ground‑truth friction values spanning 0.0–2.5.
+  - Compute $k_{\text{norm}}$ using the online estimator.
+  - Perform **partial correlation** controlling for normal force `N`.
+  - Write `data/results/correlation_report.json` with `pearson_r`, `n_trials`, and a pass flag (`r ≥ 0.8`).
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T007 [US1] **Statistical Analyses** – `code/analysis/statistical_test.py`:
+  - Fit a GLMM (logit link) on `data/results/sweep.csv` with `policy_type` fixed effect and `object_id` random intercept; output `glmm_summary.json` (p‑value, odds ratio).
+  - Perform a paired‑t‑test on per‑object success rates (adaptive vs. static); output `t_test_summary.json`.
+  - Conduct a power analysis; if predicted power < 0.8, trigger **spec amendment** task T018 to formally relax FR‑003 (see below).
 
----
+- [ ] T008 [US1] **Reward‑Threshold Sensitivity** – `code/analysis/sensitivity.py`:
+  - Re‑evaluate adaptive policy under alternative percentile thresholds (80/20, 85/15) on the same dataset.
+  - Report results to `data/results/sensitivity_report.json` and select the most robust setting.
 
-## Phase 3: User Story 1 - Zero-Shot Adaptation to Unseen Damping (Priority: P1) 🎯 MVP
+- [ ] T009 [US3] **Resource & Correctness Checks** – Integration test `code/tests/test_cpu_pipeline.py`:
+  - Run the smoke pipeline, asserting wall‑clock time ≤ 6 h and **peak RSS memory ≤ 7 GB** (using `psutil`).
+  - Verify no CUDA imports via static code scan.
+  - **Verification**: `pytest code/tests/test_cpu_pipeline.py` passes.
 
-**Goal**: Implement the full adaptive policy loop that detects friction via $k_{est}$ and adjusts rewards, verifying >15% improvement over static baseline on novel high-friction objects.
+- [ ] T010 [US1 US2] **Result Summarization & PASS/FAIL Flag** – `code/analysis/make_figures.py`:
+  - Produce success‑rate tables, $k_{\text{norm}}$ vs. friction scatter plot, and sensitivity comparison figures under `figures/`.
+  - Write `data/logs/experiment_summary.json` containing:
+    - `adaptive_success_rate`, `static_success_rate`, `improvement_pct` (computed as `(adaptive‑static)*100`),
+    - `p_value` (GLMM), `t_test_p`, `correlation_r`,
+    - `conclusion` set to `"PASS"` **iff** both improvement thresholds (≥ 15 % for high‑friction, ≥ 10 % for low‑friction) from the acceptance scenarios are met **and** `p_value < 0.05` and `correlation_r ≥ 0.8`. This ties the flag to concrete, documented numbers rather than the deferred SC placeholders.
 
-**Independent Test**: Run adaptive vs static policies on a set of novel objects with randomized friction (low to moderate). Verify paired t-test p-value < 0.05 and success rate improvement >15% for high-friction cases.
+- [ ] T014 [US2] **Estimator Schema Amendment** – Edit `specs/001-virtual-tactile-adaptation/contracts/estimator_output.schema.yaml`:
+  - Change `epsilon_clamped` and `is_valid` from `const: true` to `"type": "boolean"` (no constant), allowing `false` where appropriate.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T018 [US1] **Spec Amendment for Object‑Count Escalation** – If the power analysis in T007 reports insufficient power, create `spec_amendment_object_count.md` that formally updates FR‑003 to allow up to 20 objects for the study, while preserving the original “exactly 10” as the default. This keeps the change traceable and complies with Constitution VII.
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+- [ ] T020 [US3] **Sweep Schema Path Alignment** – Edit `specs/001-virtual-tactile-adaptation/contracts/sweep_output.schema.yaml` description to reference `data/results/sweep.csv` (the actual file location).
 
-- [ ] T010 [P] [US1] Unit test for `AdaptiveRewardScheduler` logic in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_scheduler.py` (verify weight scaling logic)
-- [ ] T011 [P] [US1] Integration test for full pipeline (objects) in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/integration/test_pipeline.py` (verify success rate stats)
+- [ ] T022 [US2] **Estimator Real‑Trace Validation** – After running T025 (full pipeline), execute `code/tests/test_estimator_real.py` which loads `data/logs/simulation_run_*.csv` and verifies that the estimator outputs conform to the amended schema on real data.
 
-### Implementation for User Story 1
+## Phase 3: Reproducible results and paper handoff
 
-- [ ] T012 [P] [US1] Implement `train.py` loop integrating `VirtualTactileEstimator` and `AdaptiveRewardScheduler` in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py`
-- [ ] T012b [US1] Verify no CUDA operations occur in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py` and `evaluate.py` during execution (FR-004 verification)
-- [ ] T013 [US1] Implement `evaluate.py` to run inference on novel objects and log success rates in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/evaluate.py` (DEPENDS ON T012)
-- [ ] T014a [US1] Implement `aggregate.py` to collect and aggregate success rate data from evaluation logs into CSV format in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/aggregate.py`
-- [ ] T014 [US1] Implement `analysis.py` to perform paired t-test on aggregated data, calculate statistical power, and assert p < 0.05 and >15% improvement in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/analysis.py`
-- [ ] T015 [US1] Integrate novel object generation with evaluation loop in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/generator.py` (Ensure evaluation loop loads artifacts from `data/generated/` produced by T007a)
-- [ ] T016a [US1] Implement logging configuration in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/logging_config.py` with specific file paths and formats
-- [ ] T016b [US1] Add specific log statements for reward weight adjustments and $k_{est}$ values in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py`
-- [ ] T017 [US1] Verify `FR-001` formula implementation in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/estimator.py` (torque/velocity ratio)
+- [ ] T011 Write a concise methods/results account in `specs/001-virtual-tactile-adaptation/research.md`, linking every claim to concrete artifacts (`experiment_summary.json`, figures, statistical JSONs).
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T012 (REDO) Populate the documentation with actual content.
+  - Write non‑empty `docs/README.md` and `docs/CHANGELOG.md` (and the project root `README.md`) with Installation, Running the pipeline, Results, and Reproducibility sections, concrete CLI examples, and a list of expected output artifacts.
 
----
+- [ ] T013 Re‑run the documented workflow end‑to‑end from a clean state and record the exact commands, runtime, and handoff details in `specs/001-virtual-tactile-adaptation/quickstart.md`.
 
-## Phase 4: User Story 2 - Virtual Tactile Stiffness Estimation (Priority: P2)
+- [ ] T019 **Data‑Model Friction Constraint Alignment** – Amend `specs/001-virtual-tactile-adaptation/data-model.md` to change the friction constraint from “> 0.0” to “≥ 0.0”, matching FR‑010 and `dataset.schema.yaml`.
 
-**Goal**: Validate the $k_{est}$ estimator accuracy and stability under varying friction and noise conditions.
-
-**Independent Test**: Inject known friction values, record torque/velocity derivatives, and verify linear correlation between $k_{est}$ and ground-truth friction. Verify stability under noise (moving average) and stiction (epsilon clamp).
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T018 [P] [US2] Unit test for `VirtualTactileEstimator` division-by-zero protection in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_estimator.py`
-- [ ] T019 [P] [US2] Unit test for moving average filter smoothing in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_estimator.py`
-
-### Implementation for User Story 2
-
-- [ ] T020 [P] [US2] Implement stress test script for `VirtualTactileEstimator` with noise injection in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/stress_test.py`
-- [ ] T021 [US2] Implement validation script to correlate $k_{est}$ with ground-truth friction in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/validation.py`
-- [ ] T022 [US2] Integrate estimator validation into the main training loop in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py`
-- [ ] T023 [US2] Verify `FR-007` clamping logic (bounded range) in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/estimator.py`
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - CPU-Tractable Inference Pipeline (Priority: P3)
-
-**Goal**: Ensure the entire experiment (data gen, training, eval, analysis) runs within 6 hours and 7GB RAM on a CPU-only runner.
-
-**Independent Test**: Execute full pipeline on GitHub Actions free-tier runner with limited CPU and memory resources.. Measure wall-clock time and peak memory. Verify no CUDA errors.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T024 [P] [US3] CI workflow definition in `.github/workflows/test-cpu-pipeline.yml` (enforce a timeout period)
-- [ ] T025 [P] [US3] Implement memory profiling script in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/memory_profiler.py` to log peak RAM usage
-
-### Implementation for User Story 3
-
-- [ ] T026 [P] [US3] Optimize `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/generator.py` for low memory usage during geometry generation
-- [ ] T027 [US3] Optimize `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py` batch sizes and simulation steps to fit 6h limit
-- [ ] T028 [US3] Add `FR-004` enforcement checks (assert no CUDA) in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/environment.py`
-- [ ] T029 [US3] Run full end-to-end benchmark, log metrics to `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/data/results/`, and assert wall-clock time <= 6h and peak memory <= 7GB (SC-003, SC-004)
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T030 [P] Documentation updates in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/docs/` and `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/README.md`
-- [ ] T031 Code cleanup and refactoring of `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/estimator.py` and `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/scheduler.py`
-- [ ] T032 Performance optimization for simulation loop in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/environment.py`
-- [ ] T033 [P] Additional unit tests for edge cases (stiction, extreme friction) in `projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/`
-- [ ] T034 Run `quickstart.md` validation to ensure reproducibility
-- [ ] T035 Verify `validate_citations.py` passes against all data sources
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for AdaptiveRewardScheduler logic in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/unit/test_scheduler.py"
-Task: "Integration test for full pipeline (30 objects) in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/tests/integration/test_pipeline.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement train.py loop integrating VirtualTactileEstimator and AdaptiveRewardScheduler in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/train.py"
-Task: "Implement evaluate.py to run inference on novel objects and log success rates in projects/PROJ-860-llmxive-follow-up-extending-dragmesh-2-p/code/evaluate.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All tasks must run on CPU-only free-tier CI (CPU, 7GB RAM, 6h limit). No GPU, no 8-bit/4-bit quantization.
+- [ ] **T015 Coverage Mapping Document** – Create `docs/coverage_mapping.md` that enumerates the correspondence between plan task IDs (e.g., T015a, T020) and the current tasks IDs (T001‑T025). This document resolves the disjoint ID spaces and clarifies that tasks.md supersedes plan IDs for execution.

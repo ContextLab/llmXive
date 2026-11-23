@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-07T09:46:07.269523+00:00'
+issue_number: 1361
+project_id: PROJ-504-evaluating-the-impact-of-variable-select

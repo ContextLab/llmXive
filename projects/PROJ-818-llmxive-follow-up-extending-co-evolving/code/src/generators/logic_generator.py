@@ -1,176 +1,163 @@
 """
-Propositional Logic Proof Generator for Co-Evolving Policy Distillation.
-
-Generates valid propositional logic proofs from parameterized axioms using sympy.
+Propositional logic proof generator using sympy.
+Implements T011: Generate valid proofs from parameterized axioms.
 """
 import random
 import json
 import os
+import logging
 from typing import List, Dict, Any, Tuple, Optional
 from pathlib import Path
+from sympy import simplify_logic, symbols, Implies, And, Or, Not, Symbol
+from sympy.logic.boolalg import to_cnf
 
-from sympy import symbols, Implies, And, Or, Not, simplify_logic
-from sympy.logic.boolalg import to_cnf, to_dnf
-from sympy.abc import A, B, C, D
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 class LogicGenerationError(Exception):
-    """Raised when logic proof generation fails."""
+    """Custom exception for logic generation failures."""
     pass
 
 class LogicProofGenerator:
-    """
-    Generates valid propositional logic proofs with distinct rule sets.
-    """
-    
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    """Generates valid propositional logic proofs."""
+
+    def __init__(self, seed: Optional[int] = None):
+        if seed is not None:
+            random.seed(seed)
+        self.symbol_counter = 0
+        self.axiom_templates = [
+            # Modus Ponens: (A -> B), A |- B
+            lambda A, B: (Implies(A, B), A, B),
+            # Hypothetical Syllogism: (A -> B), (B -> C) |- (A -> C)
+            lambda A, B, C: (Implies(A, B), Implies(B, C), Implies(A, C)),
+            # Disjunctive Syllogism: (A v B), ~A |- B
+            lambda A, B: (Or(A, B), Not(A), B),
+            # Conjunction: A, B |- (A ^ B)
+            lambda A, B: (A, B, And(A, B)),
+        ]
+
+    def _new_symbol(self, prefix: str = "P") -> Symbol:
+        """Generate a new unique symbol."""
+        sym = Symbol(f"{prefix}{self.symbol_counter}")
+        self.symbol_counter += 1
+        return sym
+
+    def _reset_symbols(self):
+        """Reset symbol counter for reproducibility."""
+        self.symbol_counter = 0
+
+    def generate_proof(self, seed: Optional[int] = None) -> Dict[str, Any]:
         """
-        Initialize the logic proof generator.
-        
+        Generate a single valid logic proof.
+
         Args:
-            config: Configuration dictionary with generation parameters.
-        """
-        self.config = config or {}
-        self.seed = self.config.get('seed', 42)
-        random.seed(self.seed)
-    
-    def generate_proof(
-        self,
-        num_vars: int = 3,
-        min_depth: int = 2,
-        max_depth: int = 5,
-        seed: Optional[int] = None
-    ) -> Dict[str, Any]:
-        """
-        Generate a valid propositional logic proof.
-        
-        Args:
-            num_vars: Number of propositional variables.
-            min_depth: Minimum proof depth.
-            max_depth: Maximum proof depth.
-            seed: Random seed for reproducibility.
-            
+            seed: Optional seed for this specific generation.
+
         Returns:
-            Dictionary containing the proof instance.
+            Dictionary with proof details.
         """
         if seed is not None:
             random.seed(seed)
-        
-        # Generate variables
-        var_names = [chr(65 + i) for i in range(num_vars)]  # A, B, C, ...
-        vars_list = symbols(var_names[:num_vars])
-        
-        # Create random axioms
-        axioms = []
-        depth = random.randint(min_depth, max_depth)
-        
-        for i in range(depth):
-            if i == 0:
-                # First axiom is a simple implication
-                axioms.append(Implies(vars_list[0], vars_list[1]))
-            else:
-                # Subsequent axioms chain implications
-                idx1 = random.randint(0, len(vars_list) - 1)
-                idx2 = random.randint(0, len(vars_list) - 1)
-                while idx1 == idx2:
-                    idx2 = random.randint(0, len(vars_list) - 1)
-                axioms.append(Implies(vars_list[idx1], vars_list[idx2]))
-        
-        # Create conclusion that follows from axioms
-        # For simplicity, we create a chain and derive the final implication
-        conclusion = axioms[0]
-        for axiom in axioms[1:]:
-            # Combine implications
-            conclusion = Implies(And(*[a for a in axioms if a != axiom]), axiom.rhs)
-        
-        # Generate proof steps
-        proof_steps = []
-        current_state = axioms.copy()
-        
-        for i, axiom in enumerate(axioms):
-            proof_steps.append({
-                'step': i + 1,
-                'rule': 'axiom',
-                'statement': str(axiom),
-                'justification': f'Given axiom {i+1}'
-            })
-        
-        # Add derived steps
-        if len(axioms) > 1:
-            for i in range(1, len(axioms)):
-                prev = proof_steps[-1]['statement']
-                curr = str(axioms[i])
-                proof_steps.append({
-                    'step': len(proof_steps) + 1,
-                    'rule': 'modus_ponens',
-                    'statement': f'{prev} and {curr}',
-                    'justification': f'Modus ponens from steps {len(proof_steps)} and {i+1}'
-                })
-        
-        # Verify proof validity
-        premises = axioms
-        try:
-            implication = Implies(And(*premises), conclusion)
-            if simplify_logic(implication) != True:
-                # Try to find a valid conclusion
-                conclusion = axioms[-1].rhs
-                implication = Implies(And(*premises), conclusion)
-                if simplify_logic(implication) != True:
-                    raise LogicGenerationError("Could not generate valid proof")
-        except Exception as e:
-            raise LogicGenerationError(f"Proof verification failed: {e}")
-        
+        self._reset_symbols()
+
+        # Select a random axiom template
+        template = random.choice(self.axiom_templates)
+
+        # Determine number of symbols needed
+        num_symbols = template.__code__.co_argcount
+        sym_args = [self._new_symbol() for _ in range(num_symbols)]
+
+        # Generate premises and conclusion
+        premises_and_conclusion = template(*sym_args)
+        premises = premises_and_conclusion[:-1]
+        conclusion = premises_and_conclusion[-1]
+
+        # Verify validity (tautology check)
+        # Construct implication: (Premise1 ^ Premise2 ^ ...) -> Conclusion
+        if len(premises) == 1:
+            implication = Implies(premises[0], conclusion)
+        else:
+            premise_conjunction = And(*premises)
+            implication = Implies(premise_conjunction, conclusion)
+
+        # Simplify and check if tautology
+        simplified = simplify_logic(implication)
+        # In sympy, a tautology simplifies to True
+        is_valid = simplified is True or simplified == True
+
+        if not is_valid:
+            # Fallback: try to verify via CNF
+            cnf = to_cnf(implication)
+            # If CNF is a tautology, it should be True
+            is_valid = cnf is True or cnf == True
+
+        if not is_valid:
+            raise LogicGenerationError("Generated proof is not valid.")
+
         return {
-            'premises': [str(p) for p in premises],
-            'conclusion': str(conclusion),
-            'proof_steps': proof_steps,
-            'num_variables': num_vars,
-            'depth': depth,
-            'valid': True
+            "id": f"proof_{random.randint(10000, 99999)}",
+            "domain": "logic",
+            "rule_set_id": f"axiom_{template.__name__ if hasattr(template, '__name__') else 'template'}",
+            "premises": [str(p) for p in premises],
+            "conclusion": str(conclusion),
+            "implication": str(implication),
+            "is_valid": is_valid,
+            "seed": seed
         }
 
-    def generate_multiple_proofs(
-        self,
-        count: int,
-        seed_offset: int = 0
-    ) -> List[Dict[str, Any]]:
+    def generate_proofs(self, count: int, seed_start: int = 0) -> List[Dict[str, Any]]:
         """
-        Generate multiple proof instances.
-        
+        Generate multiple valid logic proofs.
+
         Args:
             count: Number of proofs to generate.
-            seed_offset: Offset for seed to ensure uniqueness.
-            
+            seed_start: Starting seed offset.
+
         Returns:
-            List of proof instances.
+            List of proof dictionaries.
         """
         proofs = []
+        max_retries = 3
+
         for i in range(count):
-            seed = self.seed + seed_offset + i
-            try:
-                proof = self.generate_proof(seed=seed)
-                proofs.append(proof)
-            except LogicGenerationError as e:
-                print(f"Warning: Failed to generate proof {i}: {e}")
+            seed = seed_start + i
+            attempts = 0
+            success = False
+
+            while attempts < max_retries and not success:
+                try:
+                    proof = self.generate_proof(seed=seed + attempts)
+                    proofs.append(proof)
+                    success = True
+                except LogicGenerationError as e:
+                    attempts += 1
+                    if attempts == max_retries:
+                        logger.warning(f"Retry limit reached for instance {i}: {e}")
+                    # Skip this instance if retries exhausted
+            if not success:
+                logger.warning(f"Skipping instance {i} after {max_retries} failed attempts.")
+
         return proofs
 
-
 def main():
-    """Main entry point for testing the logic generator."""
-    print("Testing Logic Proof Generator...")
-    
-    generator = LogicProofGenerator({'seed': 42})
-    
-    # Generate a single proof
-    proof = generator.generate_proof(num_vars=3, min_depth=2, max_depth=4)
-    print(f"Generated proof with {len(proof['proof_steps'])} steps")
-    print(f"Conclusion: {proof['conclusion']}")
-    
-    # Generate multiple proofs
-    proofs = generator.generate_multiple_proofs(count=5, seed_offset=100)
-    print(f"Generated {len(proofs)} proofs successfully")
-    
-    return proofs
+    """CLI entry point for logic generation."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Generate logic proofs")
+    parser.add_argument('--count', type=int, default=10, help='Number of proofs')
+    parser.add_argument('--seed', type=int, default=42, help='Random seed')
+    parser.add_argument('--output', type=str, default='data/generated_proofs.json', help='Output file')
+    args = parser.parse_args()
 
+    generator = LogicProofGenerator(seed=args.seed)
+    proofs = generator.generate_proofs(count=args.count, seed_start=args.seed)
+
+    # Ensure output directory exists
+    Path(args.output).parent.mkdir(parents=True, exist_ok=True)
+
+    with open(args.output, 'w', encoding='utf-8') as f:
+        json.dump(proofs, f, indent=2)
+
+    logger.info(f"Generated {len(proofs)} proofs to {args.output}")
 
 if __name__ == "__main__":
     main()

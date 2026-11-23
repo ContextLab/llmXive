@@ -1,0 +1,49 @@
+# Data directories - do not commit raw or processed data
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/reports/*
+!data/reports/.gitkeep
+data/figures/*
+!data/figures/.gitkeep
+
+# Pickle files (model artifacts and intermediate states)
+*.pkl
+*.pickle
+
+# Python cache and temp files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Logs
+*.log
+logs/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment and config (keep secrets out)
+.env
+.env.local
+.env.*.local
+
+# Jupyter notebooks with large outputs (optional, uncomment if needed)
+# *.ipynb_checkpoints
+
+# Temporary files
+tmp/
+temp/
+*.tmp

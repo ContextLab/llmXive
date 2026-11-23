@@ -50,5 +50,15 @@
     "tex/introduction.tex",
     "tex/method.tex",
     "tex/related_work.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "9e15c3bfdcf0e24892f333d6e9b9b9287a1c8810f2023527bd12968c963c64d3",
+      "bytes": 738173
+    },
+    "original.pdf": {
+      "sha256": "ec7b1a8c158e7256cbac7b4f06ca7a8c0158a5bfa06c22bac95b51a03dc100df",
+      "bytes": 683012
+    }
+  }
 }

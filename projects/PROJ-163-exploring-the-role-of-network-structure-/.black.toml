@@ -1,0 +1,7 @@
+# Black configuration is managed in pyproject.toml.
+# This file exists to ensure the tool recognizes the project if configured separately,
+# but standard practice is to use pyproject.toml.
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'

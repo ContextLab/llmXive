@@ -35,5 +35,15 @@
     "neurips_2025.bib",
     "neurips_2026.sty",
     "neurips_2026.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "553c72b6106ee502004427abc014236e729755cbf689c9a9fa433bfa3fb5ed42",
+      "bytes": 694728
+    },
+    "original.pdf": {
+      "sha256": "eb6bf314618546d5239a4c6234f4cd6473ac30453d1d96bd63d60742ef0ce2f6",
+      "bytes": 660339
+    }
+  }
 }

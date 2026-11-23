@@ -25,7 +25,7 @@ properties:
     description: "Calculated rate of change of spatial variance of energy density (slope over transient phase t=0-20)."
   time_to_saturation:
     type: "number"
- description: "Time step at which [deferred] of network energy spread is reached."
+    description: "Time step at which [deferred] of network energy spread is reached."
   convergence_status:
     type: "string"
     enum:

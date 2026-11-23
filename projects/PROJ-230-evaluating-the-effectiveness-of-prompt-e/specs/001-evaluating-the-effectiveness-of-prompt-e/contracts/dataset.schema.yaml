@@ -9,9 +9,6 @@ properties:
   python_source:
     type: string
     description: "Original Python code snippet."
-  expected_js_reference:
-    type: string
-    description: "Expected JavaScript code reference (if available)."
   source_dataset_id:
     type: string
     description: "Identifier of the source dataset."

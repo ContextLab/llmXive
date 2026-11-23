@@ -1,0 +1,17 @@
+{
+  "selected": [
+    "GENE_10",
+    "GENE_11",
+    "GENE_12",
+    "GENE_13",
+    "GENE_14",
+    "GENE_15",
+    "GENE_16",
+    "GENE_17",
+    "GENE_18",
+    "GENE_19"
+  ],
+  "count": 10,
+  "method": "intersection",
+  "fallback_reason": null
+}

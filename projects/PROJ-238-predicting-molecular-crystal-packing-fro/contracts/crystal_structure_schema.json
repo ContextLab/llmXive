@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "CrystalStructure",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "string"
+    },
+    "unit_cell": {
+      "type": "object"
+    },
+    "interaction_type": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "id",
+    "unit_cell",
+    "interaction_type"
+  ]
+}

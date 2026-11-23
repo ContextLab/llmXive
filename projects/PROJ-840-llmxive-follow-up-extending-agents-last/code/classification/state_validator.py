@@ -1,139 +1,130 @@
 import json
 import os
 import sys
+import math
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Tuple
 
-from utils.config import load_config
-from utils.seeds import verify_pairing
-
-# Constants
-GOLDEN_SUBSET_PATH = "data/raw/golden_subset.json"
-OUTPUT_REPORT_PATH = "data/processed/state_validation_report.json"
-ACCURACY_THRESHOLD = 0.95
-
-def load_golden_subset(path: str = GOLDEN_SUBSET_PATH) -> List[Dict[str, Any]]:
-    """Load the golden subset of traces with ground truth labels."""
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Golden subset not found at {path}. Run T015 first.")
-    
-    with open(path, 'r', encoding='utf-8') as f:
+def load_golden_subset(path: Path) -> List[Dict[str, Any]]:
+    if not path.exists():
+        raise FileNotFoundError(f"Golden subset file not found: {path}")
+    with open(path, 'r') as f:
         return json.load(f)
 
-def calculate_reconstruction_accuracy(
-    golden_data: List[Dict[str, Any]],
-    parsed_traces: Optional[List[Dict[str, Any]]] = None
-) -> float:
+def deep_compare_states(golden_trace: Dict[str, Any], reconstructed_trace: Dict[str, Any]) -> Tuple[bool, float]:
     """
-    Calculate reconstruction accuracy by comparing parsed trace states
-    against the ground truth in the golden subset.
-    
-    FR-009: Must calculate accuracy against data/raw/golden_subset.json.
+    Compares golden and reconstructed states to calculate accuracy.
     """
-    if not golden_data:
-        return 0.0
-
-    total_steps = 0
-    correct_steps = 0
-
-    # If parsed_traces are not provided, we assume the golden subset
-    # contains the expected state at each step and we are validating
-    # that the reconstruction logic (which would be applied to raw logs)
-    # matches this. For this gate, we simulate the validation by checking
-    # if the data structure is consistent and "reconstructable".
-    # 
-    # In a real pipeline, `parsed_traces` would come from the output of
-    # T010 (parser) applied to the raw logs associated with these traces.
-    # Since T010 and T013 are completed, we assume the logic exists.
-    # Here, we perform the check against the golden data itself to ensure
-    # the schema is valid and the "reconstruction" (identity in this test context)
-    # matches the ground truth.
+    golden_state = golden_trace.get('step_state', {})
+    reconstructed_state = reconstructed_trace.get('step_state', {})
     
-    for item in golden_data:
-        if 'step_state' not in item:
-            continue
-        
-        # In a full implementation, we would compare item['step_state'] 
-        # against a parsed state from a raw log. Here, we validate that
-        # the golden data is structured correctly and count it as "correct"
-        # if the schema is intact, simulating a perfect reconstruction
-        # for the purpose of the gate check on the provided golden set.
-        # 
-        # Note: If T013 produced a separate parsed file, we would load and compare here.
-        # Since T013 is marked complete, we assume the 'step_state' in golden_subset
-        # is the target. We verify the data exists.
-        total_steps += 1
-        # Simulate a successful validation of the structure
-        # In a real scenario: if parsed_state == ground_truth: correct_steps += 1
-        correct_steps += 1 
+    # Compare files
+    golden_files = {f['path']: f for f in golden_state.get('files', [])}
+    reconstructed_files = {f['path']: f for f in reconstructed_state.get('files', [])}
+    
+    file_matches = 0
+    total_files = len(golden_files)
+    
+    for path, golden_file in golden_files.items():
+        if path in reconstructed_files:
+            rec_file = reconstructed_files[path]
+            if (golden_file['content'] == rec_file['content'] and 
+                golden_file['deleted'] == rec_file['deleted']):
+                file_matches += 1
+    
+    file_accuracy = file_matches / total_files if total_files > 0 else 1.0
+    
+    # Compare variables
+    golden_vars = {v['name']: v for v in golden_state.get('variables', [])}
+    reconstructed_vars = {v['name']: v for v in reconstructed_state.get('variables', [])}
+    
+    var_matches = 0
+    total_vars = len(golden_vars)
+    
+    for name, golden_var in golden_vars.items():
+        if name in reconstructed_vars:
+            rec_var = reconstructed_vars[name]
+            if (golden_var['value'] == rec_var['value'] and 
+                golden_var['type'] == rec_var['type']):
+                var_matches += 1
+    
+    var_accuracy = var_matches / total_vars if total_vars > 0 else 1.0
+    
+    # Combined accuracy (weighted average)
+    combined_accuracy = (file_accuracy * 0.6 + var_accuracy * 0.4)
+    
+    is_accurate = combined_accuracy >= 0.95
+    
+    return is_accurate, combined_accuracy
 
-    if total_steps == 0:
+def calculate_reconstruction_accuracy(golden_traces: List[Dict[str, Any]], reconstructed_traces: List[Dict[str, Any]]) -> float:
+    """
+    Calculates the overall reconstruction accuracy across all traces.
+    """
+    if not golden_traces or not reconstructed_traces:
         return 0.0
     
-    return correct_steps / total_steps
+    golden_map = {t['trace_id']: t for t in golden_traces}
+    total_accuracy = 0.0
+    count = 0
+    
+    for trace in reconstructed_traces:
+        trace_id = trace.get('trace_id')
+        if trace_id in golden_map:
+            golden_trace = golden_map[trace_id]
+            _, accuracy = deep_compare_states(golden_trace, trace)
+            total_accuracy += accuracy
+            count += 1
+    
+    return total_accuracy / count if count > 0 else 0.0
 
 def main():
-    """
-    Execute State Reconstruction validation.
-    Gate: Halt pipeline if accuracy < 0.95.
-    """
-    config = load_config("code/utils/config_schema.yaml")
+    import argparse
     
-    # Ensure pairing is valid before proceeding (T004b requirement)
-    # We verify the pairing for the current run context if a task ID is available,
-    # otherwise we proceed with the file check.
-    try:
-        # Attempt to verify pairing if a task context exists, otherwise skip
-        # This satisfies the dependency on T004b
-        verify_pairing(task_id="T013b", seed_path="data/seeds/pairing_seed.json")
-    except FileNotFoundError:
-        # If pairing seed doesn't exist yet, we might be in early setup, 
-        # but T015 should have created the data. We proceed with caution.
-        print("Warning: Pairing seed not found. Proceeding with validation.")
-
-    print(f"Loading golden subset from {GOLDEN_SUBSET_PATH}...")
-    try:
-        golden_data = load_golden_subset()
-    except FileNotFoundError as e:
-        print(f"ERROR: {e}")
+    parser = argparse.ArgumentParser(description="Validate state reconstruction against golden subset")
+    parser.add_argument("--golden", type=str, default="data/raw/golden_fixture.json", help="Golden subset JSON (static fixture)")
+    parser.add_argument("--input", type=str, default="data/processed/classified_traces.json", help="Input reconstructed traces JSON")
+    parser.add_argument("--output", type=str, default="data/processed/reconstruction_accuracy.json", help="Output accuracy JSON")
+    
+    args = parser.parse_args()
+    golden_path = Path(args.golden)
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+    
+    if not golden_path.exists():
+        print(f"Error: Golden file not found: {golden_path}")
         sys.exit(1)
-
-    if not golden_data:
-        print("ERROR: Golden subset is empty.")
+    
+    if not input_path.exists():
+        print(f"Error: Input file not found: {input_path}")
         sys.exit(1)
-
-    print(f"Calculating reconstruction accuracy on {len(golden_data)} traces...")
-    accuracy = calculate_reconstruction_accuracy(golden_data)
     
-    print(f"Reconstruction Accuracy: {accuracy:.4f}")
+    golden_traces = load_golden_subset(golden_path)
     
-    # Prepare report
-    report = {
-        "task_id": "T013b",
+    with open(input_path, 'r') as f:
+        reconstructed_traces = json.load(f)
+    
+    accuracy = calculate_reconstruction_accuracy(golden_traces, reconstructed_traces)
+    
+    result = {
         "reconstruction_accuracy": accuracy,
-        "threshold": ACCURACY_THRESHOLD,
-        "status": "PASS" if accuracy >= ACCURACY_THRESHOLD else "FAIL",
-        "total_traces": len(golden_data),
-        "timestamp": "2023-10-27T10:00:00Z" # Placeholder, real impl would use datetime
+        "threshold": 0.95,
+        "passed": accuracy >= 0.95
     }
-
-    # Ensure output directory exists
-    output_dir = Path(OUTPUT_REPORT_PATH).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    with open(OUTPUT_REPORT_PATH, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2)
-
-    print(f"Report written to {OUTPUT_REPORT_PATH}")
-
-    # GATE LOGIC: Halt if accuracy < 0.95
-    if accuracy < ACCURACY_THRESHOLD:
-        print(f"CRITICAL: Reconstruction accuracy ({accuracy:.4f}) is below threshold ({ACCURACY_THRESHOLD}).")
-        print("HALTING PIPELINE.")
-        sys.exit(1)
     
-    print("Gate passed. Pipeline can proceed.")
-    return 0
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+    
+    print(f"Reconstruction accuracy: {accuracy:.4f}")
+    print(f"Threshold: 0.95")
+    print(f"Passed: {result['passed']}")
+    
+    if not result['passed']:
+        print("GATE FAILED: Reconstruction accuracy below 0.95 threshold.")
+        sys.exit(1)
+    else:
+        print("GATE PASSED: Reconstruction accuracy meets threshold.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

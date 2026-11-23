@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1902.11104",
+  "judged_at": "2026-07-31T13:16:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scaling mixture-of-experts video pretraining for embodied intelligence\" computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for Mixture-of-Experts (MoE) models applied to embodied intelligence tasks (robotic hand control), and criterion (b) by measuring the MoE mechanism on the same domain of embodied systems, even though it uses tensor-variate data rather than video pretraining.",
+  "relevant": true
+}

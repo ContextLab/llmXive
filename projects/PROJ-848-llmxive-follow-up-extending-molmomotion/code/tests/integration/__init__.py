@@ -1,0 +1,1 @@
+"""Integration tests for the MolmoMotion follow-up pipeline."""

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.06607",
+  "judged_at": "2026-09-02T21:20:42Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"tua-bench: a benchmark for general-purpose terminal-use agents\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it measures the same domain (LLM-based terminal/CLI agents) and evaluates the same underlying mechanism (agent behavior and task execution capabilities) as the user's question regarding the \"TUA-Bench\" benchmark, even though it focuses specifically on security risks rather than general-purpose utility. It provides essential related work on the evaluation of the specific class of systems (terminal-use agents) the user is investigating.",
+  "relevant": true
+}

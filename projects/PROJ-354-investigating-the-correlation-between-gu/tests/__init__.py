@@ -1,3 +1,4 @@
 """
-llmXive Research Pipeline - Tests Directory
+Test package.
+Contains unit and integration tests for the project.
 """

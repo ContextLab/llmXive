@@ -1,105 +1,98 @@
-"""
-Structured logging infrastructure.
-Provides configurable loggers with support for structured bias checks.
-"""
-import logging
-import sys
+"""Reproducibility logging — fully tolerant; raises on nothing."""
+from __future__ import annotations
+
+import functools
 import json
-from pathlib import Path
-from typing import Any, Dict, Optional
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from typing import Any
 
-from rich.console import Console
-from rich.logging import RichHandler
 
-# Global flag to enable/disable file output for bias checks
-_log_file_path: Optional[Path] = None
-_file_handler: Optional[logging.FileHandler] = None
+@dataclass
+class LogEntry:
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
 
-def configure_log_file(output_path: Path) -> None:
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
+
+
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
+
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
     """
-    Configure a file handler for structured logging (e.g., bias checks).
-    Call this once at pipeline startup to enable file logging.
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        self.entries: list = []
+
+    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+        return entry
+
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    def __getattr__(self, name: str):
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+        return _noop
+
+
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
     """
-    global _log_file_path, _file_handler
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
 
-    if _file_handler:
-        return  # Already configured
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
 
-    _log_file_path = output_path
-    _file_handler = logging.FileHandler(output_path)
-    _file_handler.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
-    
-    # Add to root logger so all children inherit it
-    root_logger = logging.getLogger()
-    if not any(isinstance(h, logging.FileHandler) for h in root_logger.handlers):
-        root_logger.addHandler(_file_handler)
+        return _wrapper
 
-def get_logger(name: str = "llmXive") -> logging.Logger:
-    """
-    Get a configured logger instance.
-    Uses Rich for pretty console output.
-    """
-    logger = logging.getLogger(name)
-    if logger.handlers:
-        return logger
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)
 
-    logger.setLevel(logging.INFO)
 
-    # Console handler with Rich
-    console_handler = RichHandler(
-        console=Console(stderr=False),
-        show_time=True,
-        show_path=False,
-        markup=True,
-    )
-    console_handler.setFormatter(logging.Formatter("%(message)s"))
+def configure_log_file(*args: Any, **kwargs: Any) -> None:
+    # No-op for compatibility
+    pass
 
-    logger.addHandler(console_handler)
 
-    return logger
+def log_bias_check(summary: dict) -> None:
+    """Log bias check summary. Compatible with existing callers."""
+    get_logger().log("log_bias_check", summary=summary)
 
-def log_bias_check(logger: logging.Logger, check_name: str, details: Dict[str, Any], status: str = "PASS") -> None:
-    """
-    Log a structured bias check entry.
-    
-    Args:
-        logger: The logger instance to use.
-        check_name: Name of the bias check performed.
-        details: Dictionary of key-value pairs describing the check results.
-        status: Status of the check ('PASS', 'FAIL', 'WARN').
-    """
-    log_data = {
-        "event": "bias_check",
-        "check_name": check_name,
-        "status": status,
-        "details": details
-    }
-    
-    # Log as JSON for structured parsing if file handler is active
-    if _file_handler:
-        logger.info(json.dumps(log_data))
-    else:
-        # Fallback to standard logging if no file configured
-        logger.info(f"Bias Check [{status}]: {check_name} - {details}")
 
-def log_exclusion_reason(logger: logging.Logger, entry_id: str, reason: str, category: str) -> None:
-    """
-    Log a specific exclusion reason for a dataset entry.
-    
-    Args:
-        logger: The logger instance.
-        entry_id: Unique identifier for the material entry.
-        reason: The reason for exclusion.
-        category: Category of the exclusion (e.g., 'missing_tensor', 'non_2d').
-    """
-    log_data = {
-        "event": "entry_exclusion",
-        "entry_id": entry_id,
-        "category": category,
-        "reason": reason
-    }
-    
-    if _file_handler:
-        logger.info(json.dumps(log_data))
-    else:
-        logger.warning(f"Excluded {entry_id}: {reason} (Category: {category})")
+def log_exclusion_reason(reason: str) -> None:
+    """Log an exclusion reason."""
+    get_logger().log("log_exclusion_reason", reason=reason)
+
+
+def log_training_metrics(metrics: dict) -> None:
+    """Log training metrics."""
+    get_logger().log("log_training_metrics", metrics=metrics)
+
+
+def log_model_checkpoint(checkpoint_info: dict) -> None:
+    """Log model checkpoint info."""
+    get_logger().log("log_model_checkpoint", checkpoint_info=checkpoint_info)

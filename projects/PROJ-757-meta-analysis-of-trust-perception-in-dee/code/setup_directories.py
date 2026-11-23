@@ -1,38 +1,43 @@
 """
-Task T005: Create required project directories.
+Project directory setup utility for the Meta-Analysis of Trust Perception in Deepfake Facial Stimuli.
 
-This script initializes the directory structure for the meta-analysis pipeline,
-creating folders for search results, screening data, harmonized data, and final results.
+This module ensures the existence of all required data and results directories
+as defined in the project structure plan.
 """
 import os
 from pathlib import Path
 
+
 def setup_directories():
-    """Create the required directory structure for the project."""
-    # Define relative paths based on project conventions
-    base_dir = Path(__file__).resolve().parent.parent
+    """
+    Create the required directory structure for the project.
     
-    directories = [
-        base_dir / "data" / "search_results",
-        base_dir / "data" / "screening",
-        base_dir / "data" / "harmonized",
-        base_dir / "results",
-        base_dir / "results" / "figures",
-        base_dir / "results" / "robustness",
-        base_dir / "state"
+    Creates the following directories relative to the project root:
+    - data/search_results/
+    - data/screening/
+    - data/harmonized/
+    - results/
+    
+    Returns:
+        Path: The project root path.
+    """
+    project_root = Path(__file__).resolve().parent.parent
+    
+    required_dirs = [
+        "data/search_results",
+        "data/screening",
+        "data/harmonized",
+        "results"
     ]
     
-    created_count = 0
-    for dir_path in directories:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {dir_path}")
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Ensured directory exists: {full_path}")
     
-    print(f"\nSetup complete. Created {created_count} new directories.")
-    return True
+    return project_root
+
 
 if __name__ == "__main__":
-    setup_directories()
+    root = setup_directories()
+    print(f"Project structure initialized at: {root}")

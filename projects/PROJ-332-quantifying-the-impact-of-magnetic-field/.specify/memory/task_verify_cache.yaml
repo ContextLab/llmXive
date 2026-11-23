@@ -1,0 +1,121 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or other evidence was provided showing that the required
+    folders (`code/`, `data/raw/`, `data/intermediate/`, `data/processed/`, `outputs/`,
+    `tests/`, `contracts/`, `.github/workflows/`) actually exist in the repository.
+    Without concrete proof of these directories, the task cannot be considered completed.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I could find no `.gitignore` file in the provided evidence, nor any excerpt\
+    \ or listing showing its contents. Without the actual file (or a non\u2011empty\
+    \ representation of it) the requirement to create a Python\u2011 and data\u2011\
+    artifact\u2011aware `.gitignore` is not satisfied. The next implementer should\
+    \ add a `.gitignore` file containing appropriate entries (e.g., `__pycache__/`,\
+    \ `*.pyc`, `*.pyo`, `*.pyd`, `env/`, `venv/`, `*.ipynb_checkpoints`, `data/`,\
+    \ `*.csv`, `*.h5`, etc.)."
+T003a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I could find no `.flake8` file in the provided artifacts, nor any content showing\
+    \ the required `max-line-length = 88` and `extend-ignore = E203, W503` settings.\
+    \ The task\u2019s deliverable is missing."
+T003b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration file (e.g., `pyproject.toml`, `black.toml`, or similar) or any
+    other artifact defining Black formatting rules is present in the provided evidence.
+    Without such a file, the requirement to configure Black cannot be verified as
+    fulfilled.
+T009:
+  c: false
+  h: c0ff7142e1900c60fd804c59be8f7d83c790e0fbc455e1a27e8c13fdda99e013
+  r: "The required artifact `tests/unit/test_retrieval.py` does not exist in the repository,\
+    \ so no unit test for MDSplus connection retry logic is present. The task\u2019\
+    s core deliverable is missing."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or dataset was supplied that retrieves `island_width` from MDSplus,
+    checks for raw EFIT data, sets the `needs_derivation` flag, or logs warnings as
+    required. Consequently the required output (intermediate dataset with the fields)
+    is missing.
+T014b:
+  c: false
+  h: b85fb277310e8c633fdd729aec7f143ba9ca071b67e96c8eff842ee38cf31b26
+  r: "The repository lacks the required `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml`\
+    \ files, so the validator cannot actually load or apply the schemas. Moreover,\
+    \ the provided `validator.py` is truncated and shows no integration with the parsed\
+    \ DataFrame from T007a or any post\u2011parsing validation hook. Both the necessary\
+    \ schema artifacts and the full validation implementation are missing."
+T016:
+  c: false
+  h: 1c2f15973e8d92069fe004450ad104d43d12ade676e804cd2f19eef3b2cfddb3
+  r: "The required output file `data/processed/unified_analysis.csv` does not exist,\
+    \ and the provided `code/data/preprocessing.py` is truncated and contains no logic\
+    \ that writes the unified dataset or creates the SHA\u2011256 checksum file. Consequently\
+    \ the task\u2019s core requirement (saving the dataset with exact columns and\
+    \ generating a checksum) is not satisfied."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output file implementing the global Spearman rank\
+    \ correlation between `island_width` and `tau_e` is present; the claim lacks any\
+    \ tangible artifact (e.g., a function, test, or generated plot) to verify the\
+    \ required calculation was performed. Consequently the task\u2019s core requirement\
+    \ is not demonstrated."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, module, or test files implementing a power analysis calculation\
+    \ are present, nor any logic that flags results with power\u202F<\u202F20% as\
+    \ \u201CInconclusive due to low power.\u201D The required artifact is missing,\
+    \ so the task is not satisfied."
+T031b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was presented showing a `README.md` file, nor any excerpt indicating
+    it contains a project overview and architecture description. Without the actual
+    updated README, the requirement cannot be verified as satisfied. The implementer
+    must provide the updated `README.md` content (or a link to it) that includes the
+    requested overview and architecture details.
+T032a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of an integration test run, no generated CSV file, logs, or CI artifacts\
+    \ are present; the required output confirming successful data retrieval for a\
+    \ known set of DIII\u2011D discharge IDs is missing."
+T032b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test code, synthetic dataset, or test output artifacts are present; the claim\
+    \ provides only the feature specification without any concrete integration\u2011\
+    test implementation or results, so the required \u201Canalysis integration test\
+    \ with synthetic data\u201D is missing."
+T033a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing the memory usage measurement in the CI environment is present\u2014\
+    there is no log, report, script output, or CI configuration demonstrating that\
+    \ the pipeline stays under 7\u202FGB. Consequently the requirement to verify the\
+    \ memory footprint is not satisfied."
+T033b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CI execution logs, timing reports, or test scripts are present to demonstrate\
+    \ that the pipeline runs in under 6\u202Fhours; the provided artifacts only cover\
+    \ data retrieval and analysis, not the required runtime verification. The task\
+    \ lacks the concrete evidence needed to confirm the execution\u2011time requirement."
+T034a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No docstrings were provided or shown for any of the modules under `code/data/`
+    or `code/analysis/`; the evidence does not contain the required documentation
+    artifacts, so the task is not satisfied.
+T034b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No files or excerpts from `code/viz/` or `code/utils/` were provided, and there
+    is no evidence that docstrings were added to every module in those directories.
+    The required documentation artifacts are missing.

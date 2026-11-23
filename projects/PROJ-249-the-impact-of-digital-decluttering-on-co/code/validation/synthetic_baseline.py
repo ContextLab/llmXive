@@ -16,6 +16,7 @@ INSTRUMENT LOGIC TESTING (US1). It does NOT replace real data collection (T019.1
 
 import os
 import csv
+import yaml
 from datetime import datetime, timedelta
 from pathlib import Path
 import numpy as np
@@ -23,21 +24,18 @@ import numpy as np
 # Import from project utils
 from utils.random_seed import set_global_seed, get_rng
 
-# Configuration
+# Configuration paths
+CONFIG_FILE = Path("code/config/synthetic_data_config.yaml")
 OUTPUT_DIR = Path("data/raw")
 OUTPUT_FILE = OUTPUT_DIR / "synthetic_baseline.csv"
-NUM_PARTICIPANTS = 20
-SEED = 42
 
-# Metric distributions (mean, std_dev)
-# Based on typical psychometric ranges
-# Keys must match the exact strings expected by downstream validators
-METRIC_CONFIG = {
-    "SART": {"mean": 10.0, "std": 3.0, "min": 0, "max": 50},
-    "Ospan": {"mean": 15.0, "std": 3.0, "min": 0, "max": 25},
-    "PSS-10": {"mean": 20.0, "std": 5.0, "min": 0, "max": 50},
-    "PANAS": {"mean": 30.0, "std": 5.0, "min": 10, "max": 50}
-}
+def load_config(config_path: Path) -> dict:
+    """Load configuration from YAML file."""
+    if not config_path.exists():
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+
+    with open(config_path, "r", encoding="utf-8") as f:
+        return yaml.safe_load(f)
 
 def generate_participant_id(index: int) -> str:
     """Generate a pseudonymous ID in P\\d{3} format."""
@@ -47,21 +45,22 @@ def clip_value(value: float, min_val: float, max_val: float) -> float:
     """Clip value to plausible range."""
     return max(min_val, min(max_val, value))
 
-def generate_synthetic_data(rng: np.random.Generator) -> list:
+def generate_synthetic_data(rng: np.random.Generator, config: dict) -> list:
     """Generate synthetic rows for all participants and metrics."""
     rows = []
     base_time = datetime(2023, 10, 1, 9, 0, 0)
+    num_participants = config.get("num_participants", 20)
 
-    for i in range(1, NUM_PARTICIPANTS + 1):
+    for i in range(1, num_participants + 1):
         pid = generate_participant_id(i)
         # Offset timestamp slightly per participant to ensure uniqueness
         timestamp = base_time + timedelta(hours=i)
 
-        for metric_name, config in METRIC_CONFIG.items():
+        for metric_name, metric_config in config["metrics"].items():
             # Generate value from normal distribution
-            val = rng.normal(config["mean"], config["std"])
+            val = rng.normal(metric_config["mean"], metric_config["std"])
             # Clip to valid range
-            val = clip_value(val, config["min"], config["max"])
+            val = clip_value(val, metric_config["min"], metric_config["max"])
             # Round to 2 decimal places
             val = round(val, 2)
 
@@ -86,11 +85,15 @@ def write_csv(rows: list, filepath: Path):
 
 def main():
     """Main entry point."""
-    print(f"Generating synthetic baseline data with seed {SEED}...")
-    set_global_seed(SEED)
+    # Load configuration
+    config = load_config(CONFIG_FILE)
+    seed = config.get("seed", 42)
+
+    print(f"Generating synthetic baseline data with seed {seed}...")
+    set_global_seed(seed)
     rng = get_rng()
 
-    data = generate_synthetic_data(rng)
+    data = generate_synthetic_data(rng, config)
     write_csv(data, OUTPUT_FILE)
 
     print(f"Successfully wrote {len(data)} records to {OUTPUT_FILE}")

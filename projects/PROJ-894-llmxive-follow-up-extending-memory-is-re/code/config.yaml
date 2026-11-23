@@ -1,0 +1,23 @@
+# Configuration for llmXive research pipeline
+noise:
+  injection_ratio: 0.1
+  seed: 42
+
+dataset:
+  name: "locomo/locomo"
+  split: "test"
+  config: "default"
+  trust_remote_code: true
+
+paths:
+  raw_data: "data/raw/locomo.jsonl"
+  intermediate_triples: "data/intermediate/triples_raw.jsonl"
+  clean_graphs: "data/intermediate/graphs_raw.json"
+  noisy_graphs: "data/processed/graphs/graph_noise_42.json"
+
+timeout:
+  default_seconds: 300
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

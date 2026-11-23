@@ -1,0 +1,52 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Topology Metrics Schema"
+description: "Schema for atomic topology metrics derived from MD trajectories."
+type: object
+properties:
+  simulation_box_id:
+    type: string
+    description: "Unique identifier for the simulation box."
+  rdf_cutoff_angstrom:
+    type: number
+    minimum: 0
+    description: "Distance cutoff used for bond definition (first minimum of RDF)."
+  mean_coordination:
+    type: number
+    minimum: 1
+    maximum: 6
+    description: "Average coordination number across all atoms."
+  bond_angle_variance:
+    type: number
+    minimum: 0
+    description: "Variance of bond angles in the network."
+  bottleneck_density:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Fraction of atoms with coordination < 3."
+  atomic_metrics:
+    type: array
+    items:
+      type: object
+      properties:
+        atom_id:
+          type: integer
+        coordination_number:
+          type: integer
+          minimum: 1
+          maximum: 6
+        bond_angle_variance:
+          type: number
+        is_bottleneck:
+          type: boolean
+      required:
+        - atom_id
+        - coordination_number
+        - is_bottleneck
+required:
+  - simulation_box_id
+  - rdf_cutoff_angstrom
+  - mean_coordination
+  - bond_angle_variance
+  - bottleneck_density
+  - atomic_metrics

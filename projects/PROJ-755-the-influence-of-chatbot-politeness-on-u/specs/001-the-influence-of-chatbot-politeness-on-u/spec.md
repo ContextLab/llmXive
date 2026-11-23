@@ -90,21 +90,21 @@ Researcher validates findings by re-running analysis with an alternative lexicon
 > measured against; defer specific empirical values (counts, dataset sizes,
 > measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: Total pipeline runtime is measured against the 6-hour GitHub Actions free-tier limit (See US-1, US-2, US-3)
-- **SC-002**: Memory footprint is measured against the 7 GB RAM constraint during peak processing (See US-1, US-2)
+- **SC-001**: Total pipeline runtime is measured against the GitHub Actions free-tier limit. (See US-1, US-2, US-3)
+- **SC-002**: Memory footprint is measured against the available RAM constraint during peak processing. (See US-1, US-2)
 - **SC-003**: Model convergence rate is measured against the requirement that ≥ 95% of fitted models converge without error (denominator: per sensitivity analysis run) (See US-2)
 - **SC-004**: Effect size consistency between primary and lexicon-based classifiers is measured against a correlation threshold of r ≥ 0.80 (unit: correlation of per-dialogue predicted quality scores) (See US-3)
 - **SC-005**: Statistical significance is measured against the p < 0.05 threshold after multiple-comparison correction (See US-2, US-3)
 
 ## Assumptions
 
-- Persona-Chat and EmpatheticDialogues datasets contain quality ratings (1-5 Likert scale) which serve as a valid proxy for 'trust' in conversational AI contexts, as supported by HCI literature.
+- Persona-Chat and EmpatheticDialogues datasets contain quality ratings (Likert scale) which serve as a valid proxy for 'trust' in conversational AI contexts, as supported by HCI literature.
 - The `jfiedler/politeness-bert` model is available and runs on CPU-only environments without CUDA dependencies.
 - Conversation length can be computed as word count or utterance count per dialogue.
 - User demographic metadata (age, gender) is present in ≥ 80% of dialogues to enable subgroup analysis.
 - The GitHub Actions free-tier runner (2 CPU, 7 GB RAM, 14 GB disk) is sufficient for the full pipeline within 6 hours.
 - Findings will be framed as associational (not causal) given the observational nature of the data (no random assignment).
 - Any decision thresholds (e.g., p < 0.05, r ≥ 0.80) are justified by community standards in psychology/statistics literature.
-- A sensitivity analysis will sweep the significance threshold over {0.01, 0.05, 0.10} and report how headline rates vary across it.
+- A sensitivity analysis will sweep the significance threshold over a range of standard values and report how headline rates vary across it..
 - Predictor collinearity between politeness and conversation length will be diagnosed (e.g., VIF < 5) to avoid spurious independent effects.
 - Subgroup analysis is conditional on sample size (n ≥ 30) to ensure statistical validity; if this condition is not met, the analysis is skipped and logged.

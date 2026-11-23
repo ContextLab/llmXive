@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "APF Estimate Schema"
+description: "Schema for Alpha Peak Frequency estimates"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Subject identifier"
+  dataset_id:
+    type: "string"
+    description: "Source dataset ID"
+  pipeline_id:
+    type: "string"
+    enum:
+      - "A"
+      - "B"
+    description: "Preprocessing pipeline used"
+  method_id:
+    type: "string"
+    enum:
+      - "psd"
+      - "autocorr"
+    description: "Estimation method used"
+  apf_value:
+    type: "number"
+    description: "Estimated APF in Hz (null if Indeterminate)"
+  status:
+    type: "string"
+    enum:
+      - "Valid"
+      - "Indeterminate"
+      - "Out-of-Band"
+    description: "Quality status of the estimate"
+  band_range:
+    type: "string"
+    description: "Frequency range used for search (e.g., '8-13')"
+  accuracy_error:
+    type: "number"
+    nullable: true
+    description: "Absolute error from synthetic ground truth (Hz), null if not applicable"
+required:
+  - subject_id
+  - dataset_id
+  - pipeline_id
+  - method_id
+  - status
+  - band_range

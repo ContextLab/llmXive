@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PhysicsScore"
+type: object
+required:
+  - video_id
+  - physics_score
+  - trajectory_continuity
+  - contact_conservation
+  - simulation_status
+  - passed_filter
+properties:
+  video_id:
+    type: string
+    description: "Unique identifier for the video sample."
+  physics_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Normalized physics consistency score (raw 0-100 scale divided by 100)."
+  trajectory_continuity:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Trajectory continuity sub-score (normalized 0-1)."
+  contact_conservation:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Contact conservation sub-score (normalized 0-1)."
+  simulation_status:
+    type: string
+    enum:
+      - "success"
+      - "crash"
+      - "timeout"
+    description: "Status of the PyBullet simulation for this video."
+  passed_filter:
+    type: boolean
+    description: "True if the normalized score >= 0.60 (60th percentile, raw score = 60 per 2506.09162)."
+additionalProperties: false

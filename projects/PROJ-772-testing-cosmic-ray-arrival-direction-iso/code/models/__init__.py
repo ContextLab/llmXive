@@ -1,1 +1,1 @@
-# Data models module
+# Models module initialization

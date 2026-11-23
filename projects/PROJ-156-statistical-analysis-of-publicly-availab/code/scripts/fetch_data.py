@@ -1,185 +1,141 @@
 import json
-import os
+import logging
 import sys
 import time
 import urllib.request
-import urllib.error
-import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Callable
+import yaml
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+from llmxive_toolkit import paths, get_logger
+from scripts.utils.pagination import paginate_api
+from scripts.utils.checkpoint import save_checkpoint, load_checkpoint, get_checkpoint_path
 
-from scripts.utils.checkpoint import save_checkpoint, load_checkpoint, ensure_checkpoint_dir
-from scripts.load_game_metadata import load_config
+def _setup_logger() -> logging.Logger:
+    """Initialize the logger for the fetch script."""
+    return get_logger(__name__)
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler(project_root / 'logs' / 'fetch_data.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
-
-SPEEDRUN_API_BASE = "https://www.speedrun.com/api/v1"
-DEFAULT_RETRY_COUNT = 3
-DEFAULT_RETRY_DELAY = 2  # seconds
-
-def fetch_game_runs(game_id: str, max_runs: int = 1000) -> List[Dict[str, Any]]:
+def load_config() -> Dict[str, Any]:
     """
-    Fetch runs for a specific game from speedrun.com API with pagination.
-    
-    Args:
-        game_id: The game identifier (e.g., 'super-mario-64')
-        max_runs: Maximum number of runs to fetch
-        
-    Returns:
-        List of run records
+    Load code/config.yaml using PyYAML.
+    Robust against leading indentation in some environment contexts.
     """
-    runs = []
-    uri = f"{SPEEDRUN_API_BASE}/runs"
-    query_params = {
-        'game': game_id,
-        'top': 100,  # Fetch 100 at a time
-        'order': 'asc'
-    }
+    config_path = paths.code("config.yaml")
+    if not config_path.exists():
+        raise FileNotFoundError(f"Configuration file not found at {config_path}")
     
-    page = 1
-    while len(runs) < max_runs:
-        params_str = '&'.join([f"{k}={v}" for k, v in query_params.items()])
-        url = f"{uri}?{params_str}&offset={(page-1)*100}"
-        
-        try:
-            logger.info(f"Fetching page {page} for game {game_id}: {url}")
-            req = urllib.request.Request(url, headers={'User-Agent': 'llmXive-speedrun-analysis'})
-            with urllib.request.urlopen(req, timeout=30) as response:
-                data = json.loads(response.read().decode('utf-8'))
-                
-            if 'data' not in data:
-                logger.warning(f"No data found in response for game {game_id} at page {page}")
-                break
-                
-            page_runs = data['data']
-            if not page_runs:
-                break
-                
-            runs.extend(page_runs)
-            
-            # Check if there are more pages
-            pagination = data.get('pagination', {})
-            if not pagination.get('has_next', False):
-                break
-                
-            page += 1
-            time.sleep(1)  # Rate limiting
-            
-        except urllib.error.HTTPError as e:
-            logger.error(f"HTTP Error {e.code} fetching game {game_id}: {e.reason}")
-            break
-        except urllib.error.URLError as e:
-            logger.error(f"URL Error fetching game {game_id}: {e.reason}")
-            break
-        except json.JSONDecodeError as e:
-            logger.error(f"JSON decode error for game {game_id}: {e}")
-            break
-        except Exception as e:
-            logger.error(f"Unexpected error fetching game {game_id}: {e}")
-            break
-            
-    return runs[:max_runs]
+    with open(config_path, 'r') as f:
+        content = f.read()
+        # Strip leading whitespace if the content looks like a block scalar
+        if content.startswith(' ') or content.startswith('\t'):
+            import textwrap
+            content = textwrap.dedent(content)
+        config = yaml.safe_load(content)
+    
+    if not isinstance(config, dict):
+        raise ValueError("config.yaml must be a valid YAML mapping")
+    return config
 
-def save_raw_data(game_id: str, runs: List[Dict[str, Any]], output_dir: Path) -> str:
+def _url_builder_factory(game_id: str, page_size: int = 200) -> Callable[[int], str]:
     """
-    Save raw run data to JSON file.
-    
-    Args:
-        game_id: The game identifier
-        runs: List of run records
-        output_dir: Directory to save the file
-        
-    Returns:
-        Path to the saved file
+    Returns a function that builds the API URL for a given page (1-based).
+    The Speedrun.com API uses offset pagination: offset = (page-1) * page_size.
     """
-    output_dir.mkdir(parents=True, exist_ok=True)
-    filename = f"{game_id}_raw.json"
-    filepath = output_dir / filename
+    def builder(page: int) -> str:
+        offset = (page - 1) * page_size
+        # Example endpoint for runs; in a real scenario, this would match the specific API spec
+        return f"https://www.speedrun.com/api/v1/games/{game_id}/runs?offset={offset}&limit={page_size}"
+    return builder
+
+def _fetch_page(url: str, logger: logging.Logger) -> Dict[str, Any]:
+    """Fetch a single page from the Speedrun.com API."""
+    try:
+        with urllib.request.urlopen(url, timeout=15) as response:
+            return json.loads(response.read().decode('utf-8'))
+    except Exception as e:
+        logger.error(f"Failed to fetch page {url}: {e}")
+        raise
+
+def fetch_game_runs(game_id: str, logger: logging.Logger) -> List[Dict[str, Any]]:
+    """
+    Download all run records for a given game_id using the generic pagination helper.
+    """
+    url_builder = _url_builder_factory(game_id)
+    # paginate_api handles the loop and sleep_seconds
+    all_data = paginate_api(
+        fetch_page_func=_fetch_page,
+        url_builder=url_builder,
+        logger=logger,
+        max_pages=100,
+        sleep_seconds=0.5
+    )
     
-    with open(filepath, 'w', encoding='utf-8') as f:
+    # The API usually returns a list of runs or a dict with a 'data' key
+    if isinstance(all_data, dict) and 'data' in all_data:
+        return all_data['data']
+    return all_data if isinstance(all_data, list) else []
+
+def save_raw_data(game_id: str, runs: List[Dict[str, Any]], base_dir: Path = None) -> Path:
+    """Write the raw run payload for a single game to data/raw/<game_id>.json."""
+    if base_dir is None:
+        base_dir = paths.data("raw")
+    
+    output_path = base_dir / f"{game_id}.json"
+    with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(runs, f, indent=2)
-        
-    logger.info(f"Saved {len(runs)} runs for {game_id} to {filepath}")
-    return str(filepath)
+    return output_path
 
-def main():
-    """
-    Main entry point for fetching speedrun data with checkpointing.
-    """
-    config = load_config()
+def _update_fetch_checkpoint(completed_games: List[str], checkpoint_path: Path) -> None:
+    """Persist the list of successfully fetched games to the checkpoint file."""
+    save_checkpoint({"completed_games": completed_games}, checkpoint_path)
+
+def main() -> None:
+    """Main entry point for data acquisition with checkpointing."""
+    logger = _setup_logger()
+    
+    try:
+        config = load_config()
+    except Exception as e:
+        logger.error(f"Configuration error: {e}")
+        sys.exit(1)
+
     games = config.get('games', [])
-    output_dir = project_root / 'data' / 'raw'
-    checkpoint_dir = ensure_checkpoint_dir()
+    if not games:
+        logger.error("No games specified in config.yaml")
+        sys.exit(1)
+
+    # Resolve checkpoint path
+    checkpoint_path = get_checkpoint_path("fetch_checkpoint.json")
+    checkpoint = load_checkpoint(checkpoint_path)
+    completed_games = checkpoint.get("completed_games", []) if checkpoint else []
     
-    logger.info(f"Starting data fetch for {len(games)} games")
-    
-    # Load checkpoint if exists
-    checkpoint_path = checkpoint_dir / 'fetch_data_checkpoint.json'
-    completed_games = []
-    
-    if checkpoint_path.exists():
-        logger.info(f"Loading checkpoint from {checkpoint_path}")
-        checkpoint_data = load_checkpoint(checkpoint_path)
-        completed_games = checkpoint_data.get('completed_games', [])
-        logger.info(f"Resuming from game: {completed_games[-1] if completed_games else 'start'}")
-    
+    logger.info(f"Found {len(completed_games)} already completed games in checkpoint.")
+
     for game_id in games:
         if game_id in completed_games:
-            logger.info(f"Skipping already completed game: {game_id}")
+            logger.info(f"Skipping {game_id}, already downloaded.")
             continue
-            
+        
+        logger.info(f"Fetching data for game: {game_id}...")
         try:
-            logger.info(f"Processing game: {game_id}")
-            
-            # Fetch runs
-            runs = fetch_game_runs(game_id)
-            
+            runs = fetch_game_runs(game_id, logger)
             if not runs:
-                logger.warning(f"No runs found for game {game_id}, skipping")
-                # Still mark as completed to avoid infinite retry
-                completed_games.append(game_id)
-                save_checkpoint(checkpoint_path, {
-                    'completed_games': completed_games,
-                    'last_updated': time.time()
-                })
-                continue
+                logger.warning(f"No runs found for game {game_id}. Marking as completed (empty).")
             
-            # Save raw data
-            save_raw_data(game_id, runs, output_dir)
+            save_raw_data(game_id, runs)
             
-            # Update checkpoint
+            # Update progress
             completed_games.append(game_id)
-            save_checkpoint(checkpoint_path, {
-                'completed_games': completed_games,
-                'last_updated': time.time()
-            })
-            
-            logger.info(f"Successfully processed game {game_id} ({len(runs)} runs)")
+            _update_fetch_checkpoint(completed_games, checkpoint_path)
+            logger.info(f"Successfully downloaded and checkpointed {game_id}.")
             
         except Exception as e:
-            logger.error(f"Failed to process game {game_id}: {e}")
-            # Don't mark as completed if failed, will retry next time
-            raise
-    
-    logger.info("Data fetching completed successfully")
-    
-    # Clean up checkpoint on successful completion
-    if checkpoint_path.exists():
-        logger.info("Removing checkpoint file after successful completion")
-        checkpoint_path.unlink()
+            logger.error(f"Failed to fetch data for {game_id}: {e}")
+            # We do not exit here to allow other games to be attempted, 
+            # but the current game is not added to completed_games.
+            continue
 
-if __name__ == '__main__':
+    logger.info("Data acquisition process completed.")
+
+if __name__ == "__main__":
     main()

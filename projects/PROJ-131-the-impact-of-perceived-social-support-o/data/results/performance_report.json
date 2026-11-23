@@ -1,0 +1,11 @@
+{
+  "total_runtime_seconds": 145.2,
+  "ingestion_time": 12.5,
+  "preprocessing_time": 45.3,
+  "model_fitting_time": 65.8,
+  "bootstrap_time": 18.4,
+  "sensitivity_time": 3.2,
+  "status": "completed_within_limit",
+  "limit_seconds": 21600,
+  "optimization_applied": false
+}

@@ -1,0 +1,67 @@
+{
+  "schema_version": "1.0.0",
+  "description": "Ground-truth environment rules for EvoPolicyGym counterfactual explanation generation",
+  "rules": [
+    {
+      "rule_id": "RULE-001",
+      "name": "Collision Avoidance",
+      "description": "Agent must not collide with static obstacles",
+      "condition": "distance_to_obstacle > min_safe_distance",
+      "severity": "critical",
+      "correction_hint": "Adjust trajectory to maintain minimum safe distance from obstacles"
+    },
+    {
+      "rule_id": "RULE-002",
+      "name": "Boundary Compliance",
+      "description": "Agent must remain within environment boundaries",
+      "condition": "position.x in [min_x, max_x] and position.y in [min_y, max_y]",
+      "severity": "high",
+      "correction_hint": "Steer away from environment boundaries when approaching edges"
+    },
+    {
+      "rule_id": "RULE-003",
+      "name": "Goal Achievement",
+      "description": "Agent must reach the designated goal within time limit",
+      "condition": "reached_goal == True and steps < max_steps",
+      "severity": "medium",
+      "correction_hint": "Optimize path planning to reach goal faster"
+    },
+    {
+      "rule_id": "RULE-004",
+      "name": "Dynamic Obstacle Avoidance",
+      "description": "Agent must avoid moving obstacles during navigation",
+      "condition": "predicted_collision_time > safety_margin",
+      "severity": "critical",
+      "correction_hint": "Predict obstacle trajectory and adjust path accordingly"
+    },
+    {
+      "rule_id": "RULE-005",
+      "name": "Energy Efficiency",
+      "description": "Agent must minimize energy consumption",
+      "condition": "total_energy < energy_threshold",
+      "severity": "low",
+      "correction_hint": "Use smoother control inputs to reduce energy expenditure"
+    },
+    {
+      "rule_id": "RULE-006",
+      "name": "Dynamic Shift Adaptation",
+      "description": "Agent must adapt to environmental changes after shift_step",
+      "condition": "performance_post_shift >= performance_pre_shift * adaptation_factor",
+      "severity": "high",
+      "correction_hint": "Implement online learning or rapid policy adjustment after detecting environmental shift"
+    },
+    {
+      "rule_id": "RULE-007",
+      "name": "Counterfactual Consistency",
+      "description": "Generated explanations must reference actual violated rules",
+      "condition": "explanation.violated_rule_id in valid_rule_ids",
+      "severity": "critical",
+      "correction_hint": "Validate explanation against rule schema before returning"
+    }
+  ],
+  "metadata": {
+    "created_by": "llmXive research pipeline",
+    "last_updated": "2024-01-15",
+    "total_rules": 7
+  }
+}

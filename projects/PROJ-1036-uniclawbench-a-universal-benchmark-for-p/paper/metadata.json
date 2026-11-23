@@ -53,5 +53,15 @@
     "Tables/5_benchmark_model_avg.tex",
     "Tables/1_benchmark_model.tex",
     "Tables/6_benchmark_framework_avg.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "b9a3d07edf81f33208e017981569089fa388c8e5aa4bceada80d9d0524b4781a",
+      "bytes": 2143625
+    },
+    "original.pdf": {
+      "sha256": "4a29ad6166889872d9100a0165ec005a8aab08470b76ddb658a0245c5203c8ea",
+      "bytes": 2044867
+    }
+  }
 }

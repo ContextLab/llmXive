@@ -1,0 +1,105 @@
+# Research Results: Extending "Memory is Reconstructed, Not Retrieved"
+
+**Generated:** {{ report.generated_at }}
+**Dataset:** LoCoMo Benchmark (Subset)
+**Analysis Version:** 1.0
+
+---
+
+## 1. Executive Summary
+
+This report presents the statistical analysis of the active reconstruction strategies
+(Full, Lazy, Greedy) on the LoCoMo benchmark. The analysis includes comparisons of
+accuracy, efficiency (nodes visited), and robustness against noisy memory graphs.
+
+**Key Findings:**
+{% if report.summary.key_finding %}
+- {{ report.summary.key_finding }}
+{% else %}
+- No key finding summary provided.
+{% endif %}
+
+---
+
+## 2. Statistical Significance Analysis
+
+### 2.1 Heuristic vs. Baseline Comparison (Clean Data)
+
+Comparison of **Full Traversal** (Baseline) against **Lazy** and **Greedy** strategies.
+
+| Strategy | Test Method | p-value | Test Statistic | 95% CI Lower | 95% CI Upper | Significant? |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+{% for comp in report.stats.clean_comparisons %}
+| {{ comp.strategy }} vs Baseline | {{ comp.test_method }} | {{ "%.4f"|format(comp.p_value) }} | {{ "%.4f"|format(comp.test_statistic) }} | {{ "%.4f"|format(comp.ci_lower) }} | {{ "%.4f"|format(comp.ci_upper) }} | {% if comp.p_value < 0.05 %}Yes{% else %}No{% endif %} |
+{% endfor %}
+
+### 2.2 Heuristic vs. Baseline Comparison (Noisy Data)
+
+Robustness check comparing strategies on synthetic noisy graphs.
+
+| Strategy | Test Method | p-value | Test Statistic | 95% CI Lower | 95% CI Upper | Significant? |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+{% for comp in report.stats.noisy_comparisons %}
+| {{ comp.strategy }} vs Baseline | {{ comp.test_method }} | {{ "%.4f"|format(comp.p_value) }} | {{ "%.4f"|format(comp.test_statistic) }} | {{ "%.4f"|format(comp.ci_lower) }} | {{ "%.4f"|format(comp.ci_upper) }} | {% if comp.p_value < 0.05 %}Yes{% else %}No{% endif %} |
+{% endfor %}
+
+---
+
+## 3. Correlation Analysis
+
+### 3.1 Nodes Visited vs. Reasoning Success
+
+**Metric:** Point-Biserial Correlation (r_pb)
+
+- **Correlation Coefficient:** {{ "%.4f"|format(report.correlation.coefficient) }}
+- **95% Confidence Interval:** [{{ "%.4f"|format(report.correlation.ci_lower) }}, {{ "%.4f"|format(report.correlation.ci_upper) }}]
+- **Interpretation:** {% if report.correlation.coefficient > 0.5 %}Strong positive correlation{% elif report.correlation.coefficient > 0.3 %}Moderate positive correlation{% else %}Weak or no correlation{% endif %} between the number of nodes visited and task success.
+
+---
+
+## 4. Threshold & Complexity Analysis
+
+### 4.1 Sensitivity Analysis (Lazy Strategy)
+
+Performance of the Lazy strategy across different evidence thresholds.
+
+| Threshold | Mean Accuracy | Mean Nodes Visited | Mean Latency (ms) |
+| :--- | :--- | :--- | :--- |
+{% for row in report.thresholds.sweep_results %}
+| {{ row.threshold }} | {{ "%.4f"|format(row.accuracy) }} | {{ row.nodes_visited }} | {{ "%.2f"|format(row.latency_ms) }} |
+{% endfor %}
+
+### 4.2 Inflection Point Identification
+
+Analysis of the complexity threshold where accuracy drops below 95% of the baseline.
+
+- **Baseline Accuracy:** {{ "%.4f"|format(report.thresholds.baseline_accuracy) }}
+- **Target Threshold (95%):** {{ "%.4f"|format(report.thresholds.target_accuracy) }}
+- **Identified Inflection Point:** {{ report.thresholds.inflection_point if report.thresholds.inflection_point else "None (No significant drop observed)" }}
+- **Statistical Significance:** {% if report.thresholds.is_significant %}Yes (p < 0.05){% else %}No{% endif %}
+
+---
+
+## 5. System Robustness
+
+### 5.1 Timeout Aggregation
+
+Overview of task execution status across all runs.
+
+| Run Type | Total Tasks | Completed | Timed Out | Degenerate | Unresolved |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+{% for run in report.robustness.timeout_stats %}
+| {{ run.run_type }} | {{ run.total }} | {{ run.completed }} | {{ run.timed_out }} | {{ run.degenerate }} | {{ run.unresolved }} |
+{% endfor %}
+
+---
+
+## 6. Power Analysis
+
+- **Minimum Detectable Effect Size (MDES):** {{ "%.4f"|format(report.power.mdes) }}
+- **Statistical Power:** {{ "%.4f"|format(report.power.power) }}
+- **Conclusion:** {% if report.power.power > 0.8 %}The study is sufficiently powered to detect the effect size of interest.{% else %}The study may be underpowered to detect small effect sizes.{% endif %}
+
+---
+
+*End of Report*

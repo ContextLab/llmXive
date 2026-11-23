@@ -1,0 +1,12 @@
+{
+  "fp_rate": 0.0042,
+  "total_samples": 100000,
+  "methodology": "Keyword match on CodeParrot Small (generic code)",
+  "keywords_checked": [
+    "copilot",
+    "llm",
+    "generated",
+    "ai",
+    "assistant"
+  ]
+}

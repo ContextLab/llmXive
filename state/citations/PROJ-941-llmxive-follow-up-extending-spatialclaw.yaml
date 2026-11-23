@@ -1,0 +1,22 @@
+- artifact_hash: 5c91dc251e60c7d337981440f290367f6b85014343194bb53eea6cf15e656b5f
+  artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Shapely &#8212; Shapely 2.1.2 documentation
+  kind: url
+  value: https://shapely.readthedocs.io/
+  verification_status: pending
+  verified_against_url: https://shapely.readthedocs.io/en/stable/
+  verified_at: '2026-08-02T13:44:52.628380Z'
+- artifact_hash: 5c91dc251e60c7d337981440f290367f6b85014343194bb53eea6cf15e656b5f
+  artifact_path: projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/specs/001-llmxive-follow-up-extending-spatialclaw/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: NumPy
+  kind: url
+  value: https://numpy.org/
+  verification_status: pending
+  verified_against_url: https://numpy.org/
+  verified_at: '2026-08-02T13:44:52.628380Z'

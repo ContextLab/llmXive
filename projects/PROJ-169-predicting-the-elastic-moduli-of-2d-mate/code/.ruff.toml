@@ -1,2 +1,18 @@
-# Standalone Ruff configuration (redundant if using pyproject.toml, but explicit for IDEs)
-extend = "pyproject.toml"
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort
+]
+ignore = []
+
+# Allow autofix for all enabled rules (if `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# A list of rule codes that are unused and can be ignored.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.isort]
+known-first-party = ["utils", "ingest", "model", "data_models", "analysis"]

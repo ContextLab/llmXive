@@ -1,0 +1,60 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalResults"
+description: "Schema for statistical test results (Permutation primary, ZINB secondary)."
+type: object
+properties:
+  test_type:
+    type: string
+    enum:
+      - "Permutation"
+      - "ZINB"
+    description: "Type of statistical test performed."
+  p_value:
+    type: number
+    description: "P-value from the test."
+  confidence_interval:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "95% confidence interval for the effect size."
+  effect_size:
+    type: number
+    description: "Effect size (e.g., Rank-Biserial)."
+  adjusted_p_value:
+    type: number
+    description: "P-value after multiple-comparison correction (FDR)."
+  convergence_status:
+    type: string
+    enum:
+      - "Converged"
+      - "Failed"
+    description: "Convergence status of the ZINB model (if applicable)."
+  category:
+    type: string
+    description: "Vulnerability category (e.g., 'SQLi', 'XSS') or 'Overall'."
+  sample_size_llm:
+    type: integer
+    description: "Number of LLM samples in the analysis."
+  sample_size_human:
+    type: integer
+    description: "Number of human samples in the analysis."
+  power:
+    type: number
+    description: "Post-hoc power."
+  underpowered:
+    type: boolean
+    description: "True if power < 0.80."
+required:
+  - test_type
+  - p_value
+  - confidence_interval
+  - effect_size
+  - adjusted_p_value
+  - convergence_status
+  - category
+  - sample_size_llm
+  - sample_size_human
+  - power
+  - underpowered

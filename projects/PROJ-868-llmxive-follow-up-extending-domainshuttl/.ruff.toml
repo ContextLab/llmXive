@@ -1,5 +1,23 @@
-# This file is a legacy alias for pyproject.toml settings.
-# The primary configuration is now in pyproject.toml under [tool.ruff].
-# Keep this file to ensure tools that look for .ruff.toml still function,
-# but they will defer to the pyproject.toml configuration if present.
-extend = "pyproject.toml"
+# Ruff configuration file
+line-length = 100
+target-version = "py310"
+
+[lint]
+select = [
+    "E", # pycodestyle errors
+    "W", # pycodestyle warnings
+    "F", # Pyflakes
+    "I", # isort
+    "C", # flake8-comprehensions
+    "B", # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

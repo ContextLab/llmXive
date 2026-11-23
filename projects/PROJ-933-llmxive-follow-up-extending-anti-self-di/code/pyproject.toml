@@ -1,0 +1,54 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up"
+version = "0.1.0"
+description = "Anti-Self-Distillation for Reasoning RL via Pointwise Mutual Information"
+requires-python = ">=3.11"
+dependencies = [
+    "torch",
+    "transformers",
+    "datasets",
+    "scikit-learn",
+    "nltk",
+    "sentence-transformers",
+    "pandas",
+    "numpy",
+    "matplotlib",
+    "pytest",
+    "pyyaml",
+    "scipy",
+    "psutil",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["data", "models", "analysis", "config", "setup_project", "setup_env"]
+known_third_party = ["torch", "transformers", "datasets", "numpy", "pandas", "pytest", "yaml", "scipy", "psutil"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_functions = "test_*"
+addopts = "-v --tb=short"

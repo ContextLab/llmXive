@@ -1,0 +1,27 @@
+[tool.black]
+line-length = 100
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | \.venv
+)/
+'''
+
+[tool.py]
+# Py configuration (optional, for future use if needed)
+# Currently using ruff and black as primary tools
+
+[tool.py]
+# Py configuration (optional, for future use if needed)
+# Currently using ruff and black as primary tools

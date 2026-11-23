@@ -1,0 +1,4 @@
+failure_class: PermanentBackendError
+filed_at: '2026-08-21T03:37:09.038932+00:00'
+issue_number: 1313
+project_id: PROJ-259-predicting-plant-disease-resistance-from

@@ -1,150 +1,79 @@
 # Execution failures — fix these before the analysis can run
 
-## ⛔ HOLLOW RESULTS — the analysis RAN but MEASURED NOTHING
+## ⛔ FABRICATED RESULTS — the analysis must MEASURE, not manufacture
 
-Every command exited 0 and the files were written — but the numbers in them are missing. A result that is `null`, `NaN`, an empty `[]`, a header-only CSV, or a column left blank in every row is NOT a measurement. Writing an empty result file is not 'done' — it is the same failure as fabrication, just quieter. You MUST:
+The gate detected that your reported numbers are NOT real measurements: they are drawn from `random.*`, forced by a tautological constant, or openly labelled simulated/placeholder because the real computation could not run. Producing files full of invented numbers is WORSE than failing — it is fabrication and will never be accepted. You MUST:
 
-1. Find WHY the value is missing. A `null`/`NaN` correlation almost always means the inputs were empty, misaligned, or the wrong column was read — fix the computation, do NOT paper over it with a default.
-2. Verify you loaded the REAL dataset the spec names. If the study is about behavioural confidence ratings, a stand-in dataset (a bundled sklearn toy set, a random frame) is NOT the data — it will produce exactly these null/NaN results.
-3. Make sure the key measure is actually POPULATED before you compute on it: if the column the study depends on is blank in every row, the extraction step is broken and that is the real bug.
-4. NEVER self-certify. A `{"status": "PASS"}` written by your own code proves nothing; the numbers must be there.
+1. DELETE every fabricated metric. Do NOT draw a reported value from `random.uniform`/`np.random.*`, hardcode it to match the paper's claim, or compute it from a tautological constant.
+2. Run a REAL, honestly scaled-down experiment that MEASURES the actual quantity on the CPU (e.g. time a real (small) computation, count real events, compute the real statistic over real or clearly-labelled sampled INPUT data). A small REAL result beats a big fake one.
+3. If the headline quantity genuinely NEEDS a GPU (it trains/runs a transformer, a diffusion model, CUDA kernels, 8-bit quantization), do NOT fake it and do NOT cripple it onto the CPU. KEEP the real GPU code (use `device="cuda"`, the real model, 8-bit if needed) but SCALE IT DOWN to fit ONE free Kaggle GPU (~16 GB VRAM, one ~9h kernel): a small/quantized model, a few-hundred-example subset, a handful of steps. The execution stage AUTO-DETECTS the GPU requirement (the CPU run fails with a CUDA error) and re-runs your SAME run-book on Kaggle's free GPU, producing a REAL (scaled) result — that is the correct path for a GPU experiment. Do NOT add a silent CPU fallback that would run a degenerate result locally (it would never offload). Never present a simulated number as a measurement.
 
-- data/processed/baseline_metrics.json: results file is EMPTY ({}) — the analysis produced no values
-- every produced artifact is gitignored (data/processed/baseline_metrics.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.
+- code/sensitivity.py: self-declared fabricated metric — “…lder         inc_rate = 0.1 # Placeholder                  results["fpr"].append({"k": k, "fpr"…”
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 1 hollow-result signal(s) — the analysis ran but computed nothing: data/processed/baseline_metrics.json: results file is EMPTY ({}) — the analysis produced no values; every produced artifact is gitignored (data/processed/baseline_metrics.json) — the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 2 declared deliverable(s) absent: data/processed/cleaned_metrics.json; data/processed/null_fpr_metrics.json
+**Summary**: 1 fabricated/simulated-result signal(s) — results are not real measurements: code/sensitivity.py: self-declared fabricated metric — “…lder         inc_rate = 0.1 # Placeholder                  results["fpr"].append({"k": k, "fpr"…”; 3 command(s) failed: python -m src.data_loader download_all (rc=1); python -m src.main run_all (rc=1); python -m pytest -m contract (rc=5); 4 declared deliverable(s) absent: data/processed/baseline_metrics.json; data/processed/cleaned_metrics.json; data/processed/comparison_report.json
 
 ## Failing / missing run-book commands
 
-- python code/main.py -> rc=1
-    Traceback (most recent call last):
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/main.py", line 14, in <module>
-    from utils import setup_logging, pin_random_seed
-ImportError: cannot import name 'pin_random_seed' from 'utils' (/home/runner/work/llmXive/llmXive/projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/code/utils.py)
+- python -m src.data_loader download_all -> rc=1
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-256-quantifying-the-impact-of-data-cleaning-/bin/python: Error while finding module specification for 'src.data_loader' (ModuleNotFoundError: No module named 'src')
+
+- python -m src.main run_all -> rc=1
+
+/home/runner/work/llmXive/llmXive/.llmxive-venvs/PROJ-256-quantifying-the-impact-of-data-cleaning-/bin/python: Error while finding module specification for 'src.main' (ModuleNotFoundError: No module named 'src')
+
+- python -m pytest -m contract -> rc=5
+============================= test session starts ==============================
+platform linux -- Python 3.11.17, pytest-8.2.0, pluggy-1.7.0
+rootdir: /home/runner/work/llmXive/llmXive
+configfile: pyproject.toml
+collected 0 items
+
+============================ no tests ran in 0.16s =============================
+
+
 
 ## Declared deliverables still missing
 
+- data/processed/baseline_metrics.json
 - data/processed/cleaned_metrics.json
+- data/processed/comparison_report.json
 - data/processed/null_fpr_metrics.json
-
-## ⚠ SHARED-MODULE CONTRACT — fix the DEFINITION, tolerant of ALL callers
-
-One or more failures are API-CONTRACT errors on a symbol YOUR OWN code defines and that MANY scripts call in DIFFERENT ways. Rewriting the definition to match one caller breaks the others — that is why this keeps failing. Fix the DEFINITION **once** so it is compatible with EVERY call site listed below: accept ``*args, **kwargs``, branch on what was actually passed, and NEVER raise on an unexpected call shape. For an auxiliary utility (e.g. logging), doing nothing on an unrecognized shape is fine. Do NOT edit the call sites — edit only the defining module.
-
-**CRITICAL — ADD, do not REPLACE.** Edit the defining module *in place*: ADD the missing methods/parameters and PRESERVE every function, method, and attribute that already exists. Do NOT rewrite the file from scratch and do NOT delete a definition to make room for another. Each round that deletes a previously-working symbol just moves the failure to that symbol next round — an infinite loop. The fix is cumulative: the module must satisfy ALL callers from ALL rounds simultaneously.
-
-**This list is CUMULATIVE across every fix round** — it includes contracts you may have ALREADY satisfied in an earlier round. Keep satisfying them while you fix the rest. Do NOT remove a method or parameter merely because it is absent from this round's traceback; if it is listed here, some script still depends on it.
-
-### `run_baseline_analysis` — defined in `code/analysis.py`; called 14 way(s):
-
-- code/t023_reanalyze_cleaned_variants.py: metrics = run_baseline_analysis(
-- code/t012_run_baseline_analysis.py: run_baseline_analysis()
-- code/reporting.py: baseline_metrics = run_baseline_analysis(dataframe=df)
-- code/reporting.py: cleaned_metrics = run_baseline_analysis(dataframe=cleaned_df)
-- code/t013_record_baseline_metrics.py: metrics = run_baseline_analysis(
-- code/analysis.py: 1. run_baseline_analysis(dataframe=df)
-- code/analysis.py: 2. run_baseline_analysis(dataframe=df, outcome='y', predictors=['x1','x2'])
-- code/analysis.py: 3. run_baseline_analysis(raw_dir='data/raw', output_file='data/processed/baseline_metrics.json')
-- code/analysis.py: 4. run_baseline_analysis('data/raw', 'data/processed/baseline_metrics.json')
-- code/analysis.py: 5. run_baseline_analysis(raw_dir, output_file, extra_kwargs_dict)
-- code/t033_outlier_threshold_sweep.py: raw_metrics = run_baseline_analysis(dataframe=df_raw, outcome=outcome_col, predictors=predictors)
-- code/t033_outlier_threshold_sweep.py: cleaned_metrics = run_baseline_analysis(dataframe=df_cleaned, outcome=outcome_col, predictors=predictors)
-- code/t033_outlier_threshold_sweep.py: null_metrics = run_baseline_analysis(dataframe=df_null_cleaned, outcome=outcome_col, predictors=predictors)
-- code/t032_permutation_null_fpr.py: metrics = run_baseline_analysis(
-
-Make `run_baseline_analysis` in `code/analysis.py` accept ALL of the above.
-
-### `setup_logging` — defined in `code/utils.py`; called 25 way(s):
-
-- code/t036_pvalue_shift_reporting.py: logger = setup_logging(log_level="INFO")
-- code/run_quickstart_validation.py: logger = setup_logging("INFO")
-- code/t037_ci_width_reporting.py: logger = setup_logging(log_level="INFO")
-- code/t022_save_cleaned_datasets.py: setup_logging("INFO")
-- code/t034_generate_forest_plot.py: logger = setup_logging(log_level="INFO")
-- code/t045_conditional_bootstrap_reduction.py: setup_logging("INFO")
-- code/t023_reanalyze_cleaned_variants.py: logger = setup_logging(log_level="INFO")
-- code/utils.py: - ``setup_logging()``                               – defaults to INFO level.
-- code/utils.py: - ``setup_logging("INFO")``                         – level only (positional).
-- code/utils.py: - ``setup_logging(log_level="DEBUG")``              – keyword level.
-- code/utils.py: - ``setup_logging(name="my_logger")``               – keyword name only.
-- code/utils.py: - ``setup_logging("my_logger", "WARNING")``        – name then level (positional).
-- code/utils.py: - ``setup_logging("my_logger", log_level="ERROR")`` – mixed positional/keyword.
-- code/t044_runtime_profiling.py: setup_logging()
-- code/cleanup_utils.py: setup_logging(log_level)
-- code/t035_generate_ci_heatmap.py: logger = setup_logging(log_level="INFO")
-- code/profiler.py: setup_logging()
-- code/reporting.py: logger = setup_logging(log_level="INFO")
-- code/reporting.py: logger = setup_logging("INFO")
-- code/t048_verify_checksums_and_state.py: logger = setup_logging("INFO")
-- code/t041_generate_final_report.py: logger = setup_logging(log_level="INFO")
-- code/main.py: logger = setup_logging(log_level="INFO")
-- code/data_loader.py: logger = setup_logging("INFO")
-- code/t013_record_baseline_metrics.py: 1. Initialise logging (accepts both ``setup_logging("INFO")`` and the
-- code/t013_record_baseline_metrics.py: keyword form ``setup_logging(log_level="INFO")``).
-
-Make `setup_logging` in `code/utils.py` accept ALL of the above.
-
-### class `Config` (in `code/config.py`) — accessed via method/attribute names this round: `get`
-
-`Config` is used like a logger: different scripts call DIFFERENT method names on it, and the set grows every round. Adding only the name(s) above will fail next round on the NEXT name. Make the class tolerant of ANY method name **without removing the ones it already has**, by either:
-  1. defining the full method set explicitly (keep existing methods like the ones already in `code/config.py` AND add the missing ones), or
-  2. adding a permissive fallback so unknown attributes resolve to a no-op callable, e.g.:
-
-     ```python
-     def __getattr__(self, name):
-         # any logger-style call (.info/.debug/.warning/.error/...) becomes a tolerant no-op
-         def _noop(*args, **kwargs):
-             return None
-         return _noop
-     ```
-
-Whichever you choose, every call site of `Config` across the codebase must stop raising `AttributeError`/`TypeError`.
-
-`Config.get` call sites (25):
-- code/t036_pvalue_shift_reporting.py: b_p = b.get("t_test", {}).get("p_value", 1)
-- code/t036_pvalue_shift_reporting.py: c_p = c.get("t_test", {}).get("p_value", 1)
-- code/t036_pvalue_shift_reporting.py: cleaned_path = Path(info.get("cleaned_metrics_path", ""))
-- code/t037_ci_width_reporting.py: b_ci = b.get("t_test", {}).get("ci", [0, 0])
-- code/t037_ci_width_reporting.py: c_ci = c.get("t_test", {}).get("ci", [0, 0])
-- code/t037_ci_width_reporting.py: cleaned_path = Path(info.get("cleaned_metrics_path", ""))
-- code/t022_save_cleaned_datasets.py: raw_dir = config.get("RAW_DATA_PATH", "data/raw")
-- code/t022_save_cleaned_datasets.py: processed_dir = config.get("PROCESSED_DATA_PATH", "data/processed")
-- code/t022_save_cleaned_datasets.py: df_clean = strat["func"](df, k=strat.get("k", 1.5))
-- code/t034_generate_forest_plot.py: b_p = b.get("t_test", {}).get("p_value", 1)
-- code/t034_generate_forest_plot.py: c_p = c.get("t_test", {}).get("p_value", 1)
-- code/t034_generate_forest_plot.py: cleaned_path = Path(info.get("cleaned_metrics_path", ""))
-- code/t045_conditional_bootstrap_reduction.py: size = data.get('dataset_size') or data.get('n_rows')
-- code/config.py: Scripts import ``get_config`` and use ``config.get(key, default)`` to obtain
-- code/utils.py: logger.setLevel(logging._nameToLevel.get(level, logging.INFO))
-- code/t044_runtime_profiling.py: total_duration = sum(item.get("duration_seconds", 0) for item in profiling_data)
-- code/t044_runtime_profiling.py: "name": item.get("function") or item.get("block"),
-- code/t044_runtime_profiling.py: "duration_seconds": item.get("duration_seconds"),
-- code/t044_runtime_profiling.py: "status": item.get("status")
-- code/t035_generate_ci_heatmap.py: b_ci = b.get("t_test", {}).get("ci", [0, 0])
-- code/t035_generate_ci_heatmap.py: c_ci = c.get("t_test", {}).get("ci", [0, 0])
-- code/t035_generate_ci_heatmap.py: cleaned_path = Path(info.get("cleaned_metrics_path", ""))
-- code/profiler.py: item.get("duration_seconds", 0) for item in _profile_data
-- code/profiler.py: "successful": sum(1 for item in _profile_data if item.get("status") == "success"),
-- code/profiler.py: "failed": sum(1 for item in _profile_data if item.get("status") == "failed"),
-- code/profiler.py: if item.get("duration_seconds", 0) > threshold_seconds
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
-- `data/processed/cleaned_metrics.json` is declared but was NOT written. Scripts referencing it:
-    - `code/t036_pvalue_shift_reporting.py` — NOT invoked by the run-book
-    - `code/run_quickstart_validation.py` — NOT invoked by the run-book
-    - `code/t037_ci_width_reporting.py` — NOT invoked by the run-book
-    - `code/t034_generate_forest_plot.py` — NOT invoked by the run-book
-    - `code/t023_reanalyze_cleaned_variants.py` — NOT invoked by the run-book
-    - `code/models.py` — NOT invoked by the run-book
-    - `code/t035_generate_ci_heatmap.py` — NOT invoked by the run-book
+- `data/processed/baseline_metrics.json` is declared but was NOT written. Scripts referencing it:
+    - `code/main.py` — NOT invoked by the run-book
     - `code/reporting.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/cleaned_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/scripts/generate_migration_plan.py` — NOT invoked by the run-book
+    - `code/scripts/quickstart_fix.py` — NOT invoked by the run-book
+    - `code/sensitivity.py` — NOT invoked by the run-book
+    - `code/validate_dataset_bins.py` — NOT invoked by the run-book
+    - `code/validation.py` — NOT invoked by the run-book
+    - `scripts/run_quickstart_validation.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/baseline_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/cleaned_metrics.json` is declared but was NOT written. Scripts referencing it:
+    - `code/reporting.py` — NOT invoked by the run-book
+    - `code/sensitivity.py` — NOT invoked by the run-book
+    - `code/validation.py` — NOT invoked by the run-book
+    - `scripts/run_quickstart_validation.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/cleaned_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+- `data/processed/comparison_report.json` is declared but was NOT written. Scripts referencing it:
+    - `code/reporting.py` — NOT invoked by the run-book
+    - `code/scripts/generate_migration_plan.py` — NOT invoked by the run-book
+    - `code/scripts/quickstart_fix.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/comparison_report.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/null_fpr_metrics.json` is declared but was NOT written. Scripts referencing it:
-    - `code/run_quickstart_validation.py` — NOT invoked by the run-book
-    - `code/t032_permutation_null_fpr.py` — NOT invoked by the run-book
-  Make ONE of these WRITE `data/processed/null_fpr_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
+    - `code/reporting.py` — NOT invoked by the run-book
+    - `code/sensitivity.py` — NOT invoked by the run-book
+    - `scripts/run_quickstart_validation.py` — NOT invoked by the run-book
+  Make ONE of these WRITE `data/processed/null_fpr_metrics.json` to that EXACT path. If its producing script is not a run-book command, ADD `python <source-path>.py` to quickstart.md so the run-book invokes it.
+## Platform-owned paths written inside the project
+
+A script in this project created `.github/`, `state/` inside the project directory. Those names belong to the platform, and a copy of them here is a SHADOW: the verifier resolves the paths a task names relative to this project, so it reads the shadow instead of canonical state and rejects work on the strength of a stale record.
+
+Write your outputs under `data/`, `figures/`, `code/` and `paper/`. Do not record artifact hashes, run state or project status yourself — the platform owns `state/` and derives hashes at verification time. Delete the directories listed above and drop whatever step created them.

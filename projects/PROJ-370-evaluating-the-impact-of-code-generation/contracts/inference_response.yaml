@@ -1,0 +1,31 @@
+# Schema for Inference Responses from the LLM
+type: object
+required:
+  - pr_id
+  - status
+  - raw_output
+properties:
+  pr_id:
+    type: integer
+    description: PR identifier
+  status:
+    type: string
+    enum: [success, timeout, error, empty]
+    description: Status of the inference request
+  raw_output:
+    type: string
+    description: Raw text output from the model
+  parsed_bugs:
+    type: array
+    items:
+      $ref: 'bug_detection.yaml#/properties'
+    description: Parsed bug detections if status is success
+  error_message:
+    type: string
+    description: Error details if status is error
+  latency_seconds:
+    type: number
+    description: Time taken for inference
+  tokens_used:
+    type: integer
+    description: Number of tokens generated

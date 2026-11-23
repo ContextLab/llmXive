@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Artifact Hashes Schema"
+description: "Schema for tracking integrity of data artifacts."
+type: "object"
+required:
+  - "version"
+  - "updated_at"
+  - "hashes"
+properties:
+  version:
+    type: "string"
+    description: "Schema version (e.g., '1.0.0')"
+  updated_at:
+    type: "string"
+    format: "date-time"
+    description: "Last update timestamp"
+  hashes:
+    type: "object"
+    additionalProperties:
+      type: "object"
+      required:
+        - "file_path"
+        - "sha256"
+      properties:
+        file_path:
+          type: "string"
+          description: "Relative path to the file"
+        sha256:
+          type: "string"
+          pattern: "^[a-f0-9]{64}$"
+          description: "SHA256 hash of the file content"
+additionalProperties: false

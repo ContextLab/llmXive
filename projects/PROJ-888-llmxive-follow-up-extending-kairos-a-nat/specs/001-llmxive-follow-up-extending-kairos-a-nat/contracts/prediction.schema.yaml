@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PredictionHorizon"
+type: "object"
+properties:
+  horizon_steps:
+    type: "integer"
+    enum: [100, 500, 1000]
+    description: "Number of future time steps predicted."
+  predicted_sequence:
+    type: "array"
+    items:
+      $ref: "#/definitions/DiscreteStateVector"
+    description: "Sequence of predicted states."
+  ground_truth_sequence:
+    type: "array"
+    items:
+      $ref: "#/definitions/DiscreteStateVector"
+    description: "Corresponding ground truth states."
+definitions:
+  DiscreteStateVector:
+    type: "object"
+    properties:
+      position:
+        type: "array"
+        items:
+          type: "integer"
+      velocity:
+        type: "array"
+        items:
+          type: "number"
+    required:
+      - "position"
+      - "velocity"
+required:
+  - "horizon_steps"
+  - "predicted_sequence"
+  - "ground_truth_sequence"
+additionalProperties: false

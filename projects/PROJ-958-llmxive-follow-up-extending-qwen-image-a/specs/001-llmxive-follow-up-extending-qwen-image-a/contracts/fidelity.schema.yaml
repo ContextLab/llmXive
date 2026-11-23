@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Fidelity Scores Schema"
+description: "Schema for fidelity delta calculations between baseline and hybrid methods"
+type: object
+properties:
+  prompt_id:
+    type: string
+    description: "Unique identifier for the prompt"
+  baseline_clip_score:
+    type: number
+    description: "CLIP similarity score for baseline (full agent) generation"
+  hybrid_clip_score:
+    type: number
+    description: "CLIP similarity score for hybrid (routed) generation"
+  fidelity_delta:
+    type: number
+    description: "Difference (hybrid - baseline)"
+  reference_description:
+    type: string
+    description: "Human-verified reference description for the image"
+required:
+  - prompt_id
+  - baseline_clip_score
+  - hybrid_clip_score
+  - fidelity_delta
+  - reference_description
+additionalProperties: false

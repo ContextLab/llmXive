@@ -31,5 +31,15 @@
     "neurips_2026.sty",
     "topological_trouble.bib",
     "topological_trouble.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "e8cd73203a6ef40aeeac5279875b7ea61b1c4dd1f090f605e165c4e384a20c49",
+      "bytes": 1397912
+    },
+    "original.pdf": {
+      "sha256": "f16fba9c5020f1bbce21eb676c9028ed74db5cc022690b929ca071f68a488348",
+      "bytes": 1358555
+    }
+  }
 }

@@ -1,0 +1,9 @@
+T020:
+  c: false
+  h: a412fb29950c40aa6624733031bb6d91b8dc9b7b3ab5bfdd74fa569eadbd00fa
+  r: "The `validation_deferred.md` report is correctly generated and the script runs\
+    \ without error, but `search_datasets.py` only attempts downloads from NAB and\
+    \ PhysioNet and never queries the UCI repository as required by the task (\u201C\
+    across UCI, NAB, and PhysioNet\u201D). Consequently the search does not fully\
+    \ satisfy the specification."
+  sig: ca01841b57eeb8094ca969ddc6b8fdd92bbfc175ff245b18bef9cfd45f3f7d4e

@@ -1,1 +1,3 @@
-"""State management directory initialization."""
+"""
+State management for versioning and reproducibility.
+"""

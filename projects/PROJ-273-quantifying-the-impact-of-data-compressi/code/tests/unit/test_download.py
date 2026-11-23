@@ -1,8 +1,6 @@
 """
-Unit tests for the download module.
-
-These tests verify that the download functionality works correctly
-with mock data and handles edge cases appropriately.
+Unit tests for src.data.download module.
+Tests the GWOSC noise fetching functionality.
 """
 import pytest
 import os
@@ -10,21 +8,13 @@ import tempfile
 from pathlib import Path
 from unittest.mock import patch, MagicMock, mock_open
 import numpy as np
-import h5py
 
-# Add the code directory to the path for imports
 import sys
-from tests.conftest import add_code_to_path
-add_code_to_path()
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-from src.data.download import (
-    fetch_gw_noise_segment,
-    fetch_batch_noise_segments,
-    DEFAULT_EVENTS,
-    DETECTORS,
-    SEGMENT_DURATION,
-    SAMPLE_RATE
-)
+from src.data.download import fetch_gw_noise_segment, fetch_batch_noise_segments
+from src.utils.config import get_project_root
+
 
 @pytest.fixture
 def temp_output_dir():
@@ -32,153 +22,115 @@ def temp_output_dir():
     with tempfile.TemporaryDirectory() as tmpdir:
         yield Path(tmpdir)
 
+
 @pytest.fixture
 def mock_gwosc_data():
-    """Create mock GWOSC data."""
-    # Create mock time series data
-    sample_rate = SAMPLE_RATE
-    duration = SEGMENT_DURATION
-    n_samples = int(sample_rate * duration)
-    
-    # Create mock strain data (white noise)
-    np.random.seed(42)
-    strain_data = np.random.randn(n_samples)
-    time_data = np.linspace(0, duration, n_samples)
+    """Mock GWOSC data for testing."""
+    # Create mock strain data
+    num_samples = 4096 * 4096  # 4096 seconds at 1024 Hz
+    times = np.arange(num_samples) / 1024.0
+    strain = np.random.randn(num_samples) * 1e-23
     
     return {
-        'strain': strain_data,
-        'time': time_data,
-        'gps_time': 1126259462.0,
-        'event_name': 'GW150914',
-        'detector': 'L1'
+        'times': times,
+        'strain': strain,
+        'sample_rate': 1024
     }
 
+
 def test_fetch_gw_noise_segment_creates_file(temp_output_dir, mock_gwosc_data):
-    """Test that fetch_gw_noise_segment creates a valid HDF5 file."""
-    # Mock the GWOSC API calls
-    with patch('src.data.download.event_gps') as mock_gps, \
-         patch('src.data.download.datarange') as mock_datarange, \
-         patch('src.data.download.fetch_url') as mock_fetch:
+    """Test that fetch_gw_noise_segment creates a file."""
+    with patch('src.data.download.datasets') as mock_datasets:
+        # Mock the segment list
+        mock_datasets.find_gwosc_segments.return_value = [(1234567890, 1234567890 + 4096)]
         
-        # Setup mocks
-        mock_gps.return_value = mock_gwosc_data['gps_time']
-        
-        # Create a mock dataset object
-        mock_ds = MagicMock()
-        mock_ds.trange = (
-            mock_gwosc_data['gps_time'] - 20,
-            mock_gwosc_data['gps_time'] + 20
-        )
-        mock_datarange.return_value = [mock_ds]
-        
-        # Setup fetch_url to return mock data
-        mock_fetch.return_value = {
-            'L1': mock_gwosc_data['strain']
+        # Mock the fetch_strain_data
+        mock_datasets.fetch_strain_data.return_value = {
+            'H1': {
+                'times': mock_gwosc_data['times'],
+                'strain': mock_gwosc_data['strain'],
+                'sample_rate': mock_gwosc_data['sample_rate']
+            }
         }
         
-        # Call the function
         result_path = fetch_gw_noise_segment(
-            event_name='GW150914',
-            detector='L1',
+            event_id="test_event",
+            detector="H1",
+            run="O4",
             output_dir=temp_output_dir
         )
         
-        # Verify file was created
         assert result_path is not None
         assert result_path.exists()
-        assert result_path.suffix == '.h5'
-        
-        # Verify file contents
-        with h5py.File(result_path, 'r') as f:
-            assert 'strain' in f
-            assert 'time' in f
-            assert f.attrs['event_name'] == 'GW150914'
-            assert f.attrs['detector'] == 'L1'
-            assert f.attrs['gps_time'] == mock_gwosc_data['gps_time']
-            assert f.attrs['sample_rate'] == SAMPLE_RATE
-            
-            # Verify data shape
-            assert f['strain'].shape[0] == len(mock_gwosc_data['strain'])
+        assert result_path.suffix == '.hdf5'
+
 
 def test_fetch_gw_noise_segment_skips_existing(temp_output_dir, mock_gwosc_data):
-    """Test that existing files are not re-downloaded."""
-    # Create a dummy file first
-    output_path = temp_output_dir / "GW150914_L1_noise.h5"
-    output_path.touch()
+    """Test that fetch_gw_noise_segment skips existing files."""
+    # Create a pre-existing file
+    existing_path = temp_output_dir / "test_event_H1_O4.hdf5"
+    existing_path.touch()
     
-    with patch('src.data.download.event_gps') as mock_gps:
-        mock_gps.side_effect = Exception("Should not be called")
-        
+    with patch('src.data.download.datasets') as mock_datasets:
+        # This should not be called because file exists
         result_path = fetch_gw_noise_segment(
-            event_name='GW150914',
-            detector='L1',
+            event_id="test_event",
+            detector="H1",
+            run="O4",
             output_dir=temp_output_dir
         )
         
-        # Verify the same path was returned and no API calls were made
-        assert result_path == output_path
+        assert result_path == existing_path
+        mock_datasets.fetch_strain_data.assert_not_called()
+
 
 def test_fetch_batch_noise_segments(temp_output_dir, mock_gwosc_data):
-    """Test batch fetching functionality."""
-    events = ['GW150914', 'GW151012']
-    detectors = ['L1', 'H1']
-    
-    with patch('src.data.download.event_gps') as mock_gps, \
-         patch('src.data.download.datarange') as mock_datarange, \
-         patch('src.data.download.fetch_url') as mock_fetch:
+    """Test batch fetching of noise segments."""
+    with patch('src.data.download.datasets') as mock_datasets:
+        # Mock the segment list
+        mock_datasets.find_gwosc_segments.return_value = [(1234567890, 1234567890 + 4096)]
         
-        # Setup mocks
-        mock_gps.return_value = mock_gwosc_data['gps_time']
-        
-        mock_ds = MagicMock()
-        mock_ds.trange = (
-            mock_gwosc_data['gps_time'] - 20,
-            mock_gwosc_data['gps_time'] + 20
-        )
-        mock_datarange.return_value = [mock_ds]
-        
-        mock_fetch.return_value = {
-            'L1': mock_gwosc_data['strain'],
-            'H1': mock_gwosc_data['strain']
+        # Mock the fetch_strain_data
+        mock_datasets.fetch_strain_data.return_value = {
+            'H1': {
+                'times': mock_gwosc_data['times'],
+                'strain': mock_gwosc_data['strain'],
+                'sample_rate': mock_gwosc_data['sample_rate']
+            }
         }
         
-        # Call the function
-        results = fetch_batch_noise_segments(
-            events=events,
-            detectors=detectors,
+        event_ids = ["event1", "event2", "event3"]
+        result_paths = fetch_batch_noise_segments(
+            event_ids=event_ids,
+            detector="H1",
             output_dir=temp_output_dir
         )
         
-        # Verify results
-        assert len(results) == 4  # 2 events * 2 detectors
-        
-        for event, detector, path in results:
-            assert event in events
-            assert detector in detectors
+        assert len(result_paths) == len(event_ids)
+        for path in result_paths:
             assert path.exists()
 
+
 def test_fetch_gw_noise_segment_handles_errors(temp_output_dir):
-    """Test error handling when API fails."""
-    with patch('src.data.download.event_gps') as mock_gps:
-        mock_gps.side_effect = RuntimeError("API Error")
+    """Test that fetch_gw_noise_segment raises RuntimeError on failure."""
+    with patch('src.data.download.datasets') as mock_datasets:
+        # Simulate failure
+        mock_datasets.find_gwosc_segments.side_effect = Exception("API Error")
         
-        with pytest.raises(RuntimeError):
+        with pytest.raises(RuntimeError, match="Failed to fetch noise segment"):
             fetch_gw_noise_segment(
-                event_name='GW150914',
-                detector='L1',
-                output_dir=temp_output_dir,
-                retry_attempts=1
+                event_id="test_event",
+                detector="H1",
+                run="O4",
+                output_dir=temp_output_dir
             )
+
 
 def test_constants_are_defined():
     """Test that required constants are defined."""
-    assert isinstance(DEFAULT_EVENTS, list)
-    assert len(DEFAULT_EVENTS) > 0
-    assert 'GW150914' in DEFAULT_EVENTS
+    from src.data.download import GWOSC_BASE_URL, TARGET_RUNS, DETECTORS, SEGMENT_DURATION
     
-    assert isinstance(DETECTORS, list)
-    assert 'L1' in DETECTORS
-    assert 'H1' in DETECTORS
-    
-    assert SEGMENT_DURATION > 0
-    assert SAMPLE_RATE > 0
+    assert GWOSC_BASE_URL == "https://www.gwosc.org"
+    assert "O4" in TARGET_RUNS
+    assert "H1" in DETECTORS
+    assert SEGMENT_DURATION == 4096

@@ -26,7 +26,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `plan.md`: directories `code/`, `data/raw/`, `data/processed/`, `tests/`, `artifacts/reports/`, `artifacts/figures/`, `state/`
-- [ ] T002 Initialize Python 3.10 project with pinned dependencies in `requirements.txt` using command `pip freeze > requirements.txt`. Include: pandas==2.0.3, scikit-learn==1.3.0, xgboost==1.7.6, statsmodels==0.14.0, requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3, pytest==7.4.0
+- [X] T002 Initialize Python 3.10 project with pinned dependencies in `requirements.txt` using command `pip freeze > requirements.txt`. Include: pandas==2.0.3, scikit-learn==1.3.0, xgboost==1.7.6, statsmodels==0.14.0, requests==2.31.0, pyyaml==6.0.1, numpy==1.24.3, pytest==7.4.0
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
@@ -43,9 +43,9 @@
  in "<unicode string>", line 2, column 13:
  contents: |
  ^) -->
-- [ ] T007 Create base data models in `code/data_models.py` (GameRecord, TeamMetrics, ModelResult)
+- [X] T007 Create base data models in `code/data_models.py` (GameRecord, TeamMetrics, ModelResult)
 - [X] T008 Configure error handling and logging infrastructure in `code/utils/logging.py`
-- [~] T009 Setup environment configuration management: create `.env.example` file with variables `DATA_PATH`, `RANDOM_SEED`, `CI_MODE`
+- [ ] T009 Setup environment configuration management: create `.env.example` file with variables `DATA_PATH`, `RANDOM_SEED`, `CI_MODE`
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -55,20 +55,20 @@
 
 **Goal**: Implement an automated pipeline that ingests raw data (Retrosheet/BR), handles missing sources with a synthetic fallback, engineers traditional/advanced metrics, and enforces strict temporal splits.
 
-**Independent Test**: The pipeline executes end-to-end on a fresh environment, producing a single CSV with no data leakage between 2000-2018 (train) and 2019-2022 (test), and validates completeness ≥ 95%.
+**Independent Test**: The pipeline executes end-to-end on a fresh environment, producing a single CSV with no data leakage between 2000-2018 (train) and 2019-2022 (test), and validates completeness ≥ 95%. [UNRESOLVED-CLAIM: c_5b506434 — status=not_enough_info]
 
 **Dependencies**: T013a/T013b depend on T012a. T014, T015, T016a depend on T013a/T013b.
 
 ### Implementation for User Story 1
 
-- [ ] T012a [US1] Implement `code/data_loader.py`: Fetch Retrosheet/BR data. Implement **Data Source Fallback Protocol**: detect 403/429/timeout -> trigger Synthetic Mode -> log status. Output `is_real_data` flag.
-- [ ] T012c [US1] Implement `code/data_loader.py`: **Synthetic Generator** logic mimicking MLB distributions (verified against public aggregates). Only executed if T012a triggers fallback.
+- [X] T012a [US1] Implement `code/data_loader.py`: Fetch Retrosheet/BR data. Implement **Data Source Fallback Protocol**: detect 403/429/timeout -> trigger Synthetic Mode -> log status. Output `is_real_data` flag.
+- [X] T012c [US1] Implement `code/data_loader.py`: **Synthetic Generator** logic mimicking MLB distributions (verified against public aggregates). Only executed if T012a triggers fallback.
 - [ ] T012b [US1] Implement logic to document 'Synthetic Fallback' status in `artifacts/reports/final_report.json` if Synthetic Mode is triggered, explicitly framing results as 'Validation-Only' to satisfy FR-001 real-data requirement distinction. **Depends on: T012a**
 - [X] T013a [US1] **Depends on: T012a**: Implement `code/feature_engineering.py`: Calculate **Traditional Metrics** (AVG, ERA) per game.
 - [X] T013b [US1] **Depends on: T012a**: Implement `code/feature_engineering.py`: Calculate **Advanced Metrics** (wOBA, BABIP, park-adjusted run expectancy) per game.
 - [X] T014 [US1] **Depends on: T013b**: Implement `code/feature_engineering.py` logic for handling missing advanced metrics (impute with league average for that year or exclude systemic missingness).
-- [X] T015 [US1] **Depends on: T013b**: Implement `code/feature_engineering.py` logic for temporal split: Train (≤2018), Test (-2022); handle 2020 pandemic season (exclude or down-weight).
-- [~] T016a [US1] **Depends on: T015**: Implement data completeness validation logic (≥95% required variables). **ENFORCEMENT**: RAISE ValueError if rate < 95% AND `is_real_data` is True. Flag 'Empirical Hypothesis Untested' if Synthetic Mode was used.
+- [X] T015 [US1] **Depends on: T013b**: Implement `code/feature_engineering.py` logic for temporal split: Train (≤2018), Test (-2022); handle 2020 pandemic season (exclude or down-weight). [UNRESOLVED-CLAIM: c_f899d0aa — status=not_enough_info]
+- [ ] T016a [US1] **Depends on: T015**: Implement data completeness validation logic (≥95% required variables). **ENFORCEMENT**: RAISE ValueError if rate < 95% AND `is_real_data` is True. Flag 'Empirical Hypothesis Untested' if Synthetic Mode was used.
 - [ ] T016b [US1] **Depends on: T016a**: Generate evidence artifact `artifacts/reports/data_completeness_report.json` containing the completeness rate and the 'Empirical Hypothesis Untested' flag if applicable (satisfies SC-005 measurability).
 - [ ] T017 [US1] **Depends on: T016b**: Add logging for data ingestion stats, synthetic fallback triggers, and imputation actions.
 - [ ] T018 [P] [US1] Write unit tests for wOBA/BABIP calculation formulas in `tests/test_feature_engineering.py`
@@ -86,7 +86,7 @@
 
 **Goal**: Train Logistic Regression, Random Forest, and Gradient Boosting models using time-series cross-validation and compare performance between traditional and advanced feature sets.
 
-**Independent Test**: The training script produces a JSON report with ROC-AUC, log-loss, and Brier scores for both feature sets across all three algorithms, including hyperparameter tuning results.
+**Independent Test**: The training script produces a JSON report with ROC-AUC, log-loss, and Brier scores for both feature sets across all three algorithms, including hyperparameter tuning results. [UNRESOLVED-CLAIM: c_88482242 — status=not_enough_info]
 
 **Dependencies**: T024 depends on T023a. T025-T028 depend on T024.
 
@@ -128,8 +128,8 @@
 ### Implementation for User Story 3
 
 - [ ] T032 [US3] **Depends on: Phase 4 Completion**: Implement `code/evaluation.py`: Perform **Diebold-Mariano test OR corrected resampled t-test** (specifically for time-series cross-validation) on cross-validated ROC-AUC scores. **FORBID** standard t-tests.
-- [ ] T033 [US3] **Depends on: T032**: Implement `code/evaluation.py`: Calculate p-values and determine significance at α = 0.05.
-- [ ] T034 [US3] **Depends on: T032**: Implement `code/evaluation.py`: Execute sensitivity analysis sweeping classification thresholds across the full valid range [0.0, 1.0] with a **step size of 0.01**.
+- [ ] T033 [US3] **Depends on: T032**: Implement `code/evaluation.py`: Calculate p-values and {{claim:c_567a57cc}} (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value).
+- [ ] T034 [US3] **Depends on: T032**: Implement `code/evaluation.py`: Execute sensitivity analysis sweeping classification thresholds across the full valid range [0.0, 1.0] with a **step size of 0.01 **.
 - [ ] T035a [US3] **Depends on: T032**: Define utility function/cost matrix as a concrete artifact `artifacts/config/cost_matrix.json`. Schema: `{"false_positive_cost": 1.0, "true_negative_value": 1.0, "false_negative_cost": 1.0, "true_positive_value": 1.0}`.
 - [ ] T035b [US3] **Depends on: T035a**: Implement `code/evaluation.py`: Use cost matrix from T035a to report variance in false-positive/false-negative rates (justifies the analysis).
 - [ ] T036 [US3] **Depends on: T035b**: Implement `code/evaluation.py`: Generate sensitivity analysis plot/table and save to `artifacts/figures/`.

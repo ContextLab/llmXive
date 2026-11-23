@@ -1,118 +1,71 @@
 """
-Structured logging utilities for environmental parameters.
+Structured logging utility module for the Photo-Fries rearrangement study.
+
+Provides centralized logging configuration and operation logging for
+reproducibility and audit trail purposes.
 """
 
-import json
 import logging
-import os
 import sys
-from datetime import datetime, timezone
 from typing import Any, Dict, Optional
 
-class EnvironmentalFormatter(logging.Formatter):
-    """Custom formatter for environmental parameter logs."""
 
-    def format(self, record):
-        log_data = {
-            "timestamp": datetime.now(timezone.utc).isoformat(),
-            "level": record.levelname,
-            "component": getattr(record, 'component', 'unknown'),
-            "action": getattr(record, 'action', 'unknown'),
-            "message": record.getMessage(),
-        }
-        
-        # Attach extra environmental fields if present
-        if hasattr(record, 'env_params'):
-            log_data['env_params'] = record.env_params
-        
-        return json.dumps(log_data)
-
-
-def setup_logging(log_level: str = "INFO", log_file: Optional[str] = None) -> logging.Logger:
+def setup_logging(level: str = "INFO") -> None:
     """
-    Setup logging configuration with environmental formatting.
-
-    Args:
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        log_file: Optional file path for log output
-
-    Returns:
-        Configured logger instance
-    """
-    logger = logging.getLogger('llmXive')
-    logger.setLevel(getattr(logging, log_level.upper()))
-
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setFormatter(EnvironmentalFormatter())
-    logger.addHandler(console_handler)
-
-    # File handler if specified
-    if log_file:
-        os.makedirs(os.path.dirname(log_file) or '.', exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(EnvironmentalFormatter())
-        logger.addHandler(file_handler)
-
-    return logger
-
-
-def log_environmental_params(
-    logger: logging.Logger,
-    temperature: Optional[float] = None,
-    humidity: Optional[float] = None,
-    dielectric_constant: Optional[float] = None,
-    solvent_name: Optional[str] = None,
-    **kwargs
-) -> None:
-    """
-    Log environmental parameters in a structured format.
-
-    Args:
-        logger: Logger instance to use
-        temperature: Temperature in Celsius
-        humidity: Relative humidity in percent
-        dielectric_constant: Dielectric constant of the solvent
-        solvent_name: Name of the solvent
-        **kwargs: Additional parameters to log
-    """
-    env_params = {}
-    if temperature is not None:
-        env_params['temperature_c'] = temperature
-    if humidity is not None:
-        env_params['humidity_percent'] = humidity
-    if dielectric_constant is not None:
-        env_params['dielectric_constant'] = dielectric_constant
-    if solvent_name is not None:
-        env_params['solvent_name'] = solvent_name
+    Configure structured logging for the project.
     
-    env_params.update(kwargs)
-
-    logger.info(
-        "Environmental parameters recorded",
-        extra={'env_params': env_params}
-    )
-
-
-def log_compliance_check(
-    component: str,
-    action: str,
-    details: str
-) -> None:
-    """
-    Log a compliance check event.
-
     Args:
-        component: The component performing the check
-        action: The action taken (e.g., 'fetch', 'validate', 'skip')
-        details: Detailed message about the compliance check
+        level: Logging level as string (DEBUG, INFO, WARNING, ERROR, CRITICAL).
     """
-    logger = logging.getLogger('llmXive')
-    logger.info(
-        f"Compliance check: {action}",
-        extra={
-            'component': component,
-            'action': action,
-            'details': details
-        }
+    numeric_level = getattr(logging, level.upper(), logging.INFO)
+    
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(numeric_level)
+    
+    # Remove existing handlers to avoid duplicates
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+    
+    # Create console handler with formatting
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setLevel(numeric_level)
+    
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
     )
+    handler.setFormatter(formatter)
+    
+    root_logger.addHandler(handler)
+
+
+def log_operation(operation: str, **kwargs) -> None:
+    """
+    Log a structured operation with metadata.
+    
+    Args:
+        operation: Name of the operation being logged.
+        **kwargs: Additional metadata to include in the log.
+    """
+    logger = logging.getLogger(__name__)
+    
+    # Build message with metadata
+    metadata_str = ", ".join(f"{k}={v}" for k, v in kwargs.items())
+    if metadata_str:
+        logger.info(f"OPERATION[{operation}]: {metadata_str}")
+    else:
+        logger.info(f"OPERATION[{operation}]")
+
+
+def log_environmental_params(**kwargs) -> None:
+    """
+    Log environmental parameters for a run.
+    
+    Args:
+        **kwargs: Environmental parameters (temperature, humidity, etc.).
+    """
+    logger = logging.getLogger(__name__)
+    
+    params_str = ", ".join(f"{k}={v}" for k, v in kwargs.items())
+    logger.info(f"ENVIRONMENT: {params_str}")

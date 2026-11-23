@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Manifest Schema"
+description: "Schema for data/manifests/data_manifest.json"
+type: object
+properties:
+  dataset_name:
+    type: string
+    description: "Name of the dataset (e.g., neurofusion/eeg-restingstate)"
+  source_url:
+    type: string
+    format: uri
+    description: "Verified URL from the project's verified datasets block"
+  checksum:
+    type: string
+    description: "SHA256 checksum of the downloaded file"
+  participant_count:
+    type: integer
+    minimum: 30
+    description: "Number of participants with paired data (Must be ≥ 30)"
+  variables:
+    type: array
+    items:
+      type: string
+    description: "List of available variables (e.g., ['eeg', 'fatigue', 'age'])"
+  status:
+    type: string
+    enum:
+      - "validated"
+      - "failed"
+    description: "Validation status"
+  error_message:
+    type: string
+    description: "Error message if status is 'failed'"
+required:
+  - dataset_name
+  - source_url
+  - checksum
+  - participant_count
+  - variables
+  - status
+additionalProperties: false

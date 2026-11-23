@@ -1,57 +1,305 @@
 # Data Model: Exploring the Correlation Between Musical Preference and Personality Traits
 
-## Entity Definitions
+## 1. Raw Dataset Schema (`dataset.schema.yaml`)
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Raw BFI‑2 Dataset"
+type: object
+required:
+  - user_id
+  - lastfm_username
+  - openness_score
+  - conscientiousness_score
+  - extraversion_score
+  - agreeableness_score
+  - neuroticism_score
+  - age
+  - gender
+  - country
+# `listening_history` is optional because a verified linked dataset may be unavailable.
+properties:
+  user_id:
+    type: string
+    description: "Hashed participant identifier."
+  lastfm_username:
+    type: string
+    description: "Username on Last.fm used for linking (present in raw BFI file)."
+  openness_score:
+    type: number
+    minimum: 0
+    maximum: 100
+  conscientiousness_score:
+    type: number
+    minimum: 0
+    maximum: 100
+  extraversion_score:
+    type: number
+    minimum: 0
+    maximum: 100
+  agreeableness_score:
+    type: number
+    minimum: 0
+    maximum: 100
+  neuroticism_score:
+    type: number
+    minimum: 0
+    maximum: 100
+  age:
+    type: integer
+    minimum: 0
+  gender:
+    type: string
+    enum: ["Male", "Female", "Other"]
+  country:
+    type: string
+  listening_history:
+    type: object
+    description: "Mapping from raw genre tag to total listening minutes for this user."
+    additionalProperties:
+      type: number
+      minimum: 0
+    # This field may be absent if the linked dataset cannot be obtained.
+```
 
-### 1. UserRecord
-Represents a single participant in the study.
-*   `user_id`: `string` (Unique identifier, hashed if PII was present)
-*   `openness_score`: `float` (0.0 - 5.0 or 1.0 - 7.0 scale)
-*   `conscientiousness_score`: `float`
-*   `extraversion_score`: `float`
-*   `agreeableness_score`: `float`
-*   `neuroticism_score`: `float`
-*   `age`: `integer`
-*   `gender`: `string` (Categorical: Male, Female, Other, Prefer not to say)
-*   `country`: `string` (ISO 3166-1 alpha-3 code or region name)
+## 2. Processed Dataset Schema (`processed_dataset.schema.yaml`)
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Dataset Schema"
+type: object
+required:
+  - user_id
+  - openness_score
+  - conscientiousness_score
+  - extraversion_score
+  - agreeableness_score
+  - neuroticism_score
+  - age
+  - gender_onehot
+  - country_onehot
+  - total_minutes
+# The following fields are required only when listening data is present.
+properties:
+  user_id:
+    type: string
+  openness_score:
+    type: number
+  conscientiousness_score:
+    type: number
+  extraversion_score:
+    type: number
+  agreeableness_score:
+    type: number
+  neuroticism_score:
+    type: number
+  age:
+    type: integer
+  gender_onehot:
+    type: object
+    additionalProperties:
+      type: integer
+      enum: [0,1]
+  country_onehot:
+    type: object
+    additionalProperties:
+      type: integer
+      enum: [0,1]
+  total_minutes:
+    type: number
+    minimum: 0
+    description: "Placeholder (NaN) if listening data unavailable; otherwise sum of minutes."
+  genre_proportions:
+    type: object
+    description: "Proportion of total listening minutes per standardized genre (if available)."
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 1
+  genre_ilr:
+    type: object
+    description: "ILR‑transformed compositional vector derived from `genre_proportions` (if available)."
+    additionalProperties:
+      type: number
+```
 
-### 2. GenrePreference
-Aggregated listening data per user per genre.
-*   `user_id`: `string` (FK to UserRecord)
-*   `genre_name`: `string` (One of: Rock, Pop, Hip-Hop, Classical, Electronic, Jazz, Folk, Country, Metal, Other)
-*   `listening_minutes`: `float` (Total minutes listened)
-*   `genre_score`: `float` (Normalized: `listening_minutes` / `total_user_minutes`)
+## 3. Correlation Results Schema (`correlation_results.schema.yaml`)
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Pearson Correlation Results Schema"
+type: array
+items:
+  type: object
+  required:
+    - trait
+    - genre
+    - pearson_r
+    - p_value
+    - adjusted_p_value
+    - is_significant
+    - cohens_d
+    - ci_lower
+    - ci_upper
+  properties:
+    trait:
+      type: string
+      enum:
+        - "openness"
+        - "conscientiousness"
+        - "extraversion"
+        - "agreeableness"
+        - "neuroticism"
+    genre:
+      type: string
+      enum:
+        - "Rock"
+        - "Pop"
+        - "Hip-Hop"
+        - "Classical"
+        - "Electronic"
+        - "Jazz"
+        - "Folk"
+        - "Country"
+        - "Metal"
+        - "Other"
+    pearson_r:
+      type: number
+      minimum: -1
+      maximum: 1
+    p_value:
+      type: number
+      minimum: 0
+      maximum: 1
+    adjusted_p_value:
+      type: number
+      minimum: 0
+      maximum: 1
+    is_significant:
+      type: boolean
+    cohens_d:
+      type: number
+    ci_lower:
+      type: number
+    ci_upper:
+      type: number
+```
 
-### 3. AnalysisResult
-Output of the statistical tests.
-*   `trait`: `string` (One of the 5 Big Five traits)
-*   `genre`: `string` (One of the 10 genres)
-*   `correlation_rho`: `float` (Spearman's rho)
-*   `p_value`: `float` (Raw p-value)
-*   `adjusted_p_value`: `float` (Benjamini-Hochberg corrected)
-*   `is_significant`: `boolean` (True if `adjusted_p_value` < 0.05)
-*   `effect_size_r`: `float` (Pearson's r approximation)
-*   `effect_size_fisher_z`: `float`
-*   `ci_low`: `float` (95% CI lower bound)
-*   `ci_high`: `float` (95% CI upper bound)
-*   `effect_size_threshold_met`: `boolean` (True if `abs(effect_size_r) > 0.3`, per SC-001)
-*   `beta_delta`: `float` (Change in regression coefficient when covariates are added, per SC-003)
+## 4. Regression Results Schema (`regression_results.schema.yaml`)
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ILR‑Based Multiple Regression Results"
+type: array
+items:
+  type: object
+  required:
+    - trait
+    - predictor
+    - coefficient
+    - std_error
+    - p_value
+    - adjusted_p_value
+    - is_significant
+  properties:
+    trait:
+      type: string
+      enum:
+        - "openness"
+        - "conscientiousness"
+        - "extraversion"
+        - "agreeableness"
+        - "neuroticism"
+    predictor:
+      type: string
+      description: "One of the ILR components, age, gender_onehot, or country_onehot."
+    coefficient:
+      type: number
+    std_error:
+      type: number
+    p_value:
+      type: number
+      minimum: 0
+      maximum: 1
+    adjusted_p_value:
+      type: number
+      minimum: 0
+      maximum: 1
+    is_significant:
+      type: boolean
+```
 
-## Data Flow
+## 5. Final Report Schema (`report.schema.yaml`)
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Final Results Report"
+type: object
+required:
+  - summary_statistics
+  - significant_findings
+  - limitations
+properties:
+  summary_statistics:
+    type: object
+    required:
+      - total_tests
+      - significant_tests
+      - required_sample_size
+      - actual_sample_size
+      - power_note
+    properties:
+      total_tests:
+        type: integer
+      significant_tests:
+        type: integer
+      required_sample_size:
+        type: integer
+      actual_sample_size:
+        type: integer
+      power_note:
+        type: string
+  significant_findings:
+    type: array
+    items:
+      $ref: "./correlation_results.schema.yaml#/items"
+  limitations:
+    type: string
+    description: "Narrative description of data or methodological constraints (e.g., missing real listening data)."
+```
 
-1.  **Raw Ingestion**: `raw_bfi.csv`, `raw_lastfm.csv` -> `data/raw/`
-2.  **Cleaning & Mapping**:
-    *   Apply Genre Lookup Table.
-    *   Impute/Filter missing demographics.
-    *   Aggregate `listening_minutes` by user/genre.
-    *   Output: `data/processed/merged_dataset.csv` (UserRecord + GenrePreference joined).
-3.  **Analysis**:
-    *   Input: `merged_dataset.csv`.
-    *   Process: Spearman Correlation, Linear Regression (with and without covariates), FDR Correction.
-    *   Output: `data/processed/analysis_results.csv`, `data/processed/correlation_heatmap.png`, `data/processed/results_report.csv`.
+## 6. Coefficient Deltas Schema (`results.schema.yaml`)
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Coefficient Deltas Schema"
+description: "Schema for results/coefficient_deltas.csv containing regression coefficient changes and validity status."
+type: object
+required:
+  - trait
+  - genre
+  - beta_baseline
+  - beta_full
+  - delta
+  - vif
+  - validity_status
+properties:
+  trait:
+    type: string
+    description: "Big Five trait name."
+  genre:
+    type: string
+    description: "Standardized genre name."
+  beta_baseline:
+    type: number
+    description: "Beta coefficient from baseline (trait‑only) model."
+  beta_full:
+    type: number
+    description: "Beta coefficient from full model (Trait + Covariates)."
+  delta:
+    type: number
+    description: "Difference beta_full - beta_baseline."
+  vif:
+    type: number
+    description: "Variance Inflation Factor for the full model."
+    minimum: 1
+  validity_status:
+    type: string
+    description: "Flag indicating whether delta exceeds 10 % change threshold (e.g., \"valid\"; \"exceeds_threshold\")."
+```
 
-## Constraints & Rules
-
-*   **Genre Mapping**: All raw genre tags MUST be mapped to the 10 canonical categories. No raw tags allowed in `merged_dataset.csv`.
-*   **Missing Data**: Rows with missing `user_id` are dropped. Rows with missing demographics are imputed or dropped (logged).
-*   **Zero Listening**: Users with 0 total listening minutes are excluded prior to normalization.
-*   **PII**: No raw names, emails, or exact locations. `user_id` is the only identifier.
+---  

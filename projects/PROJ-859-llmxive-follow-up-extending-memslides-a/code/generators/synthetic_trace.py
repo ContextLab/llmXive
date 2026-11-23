@@ -1,205 +1,255 @@
-"""
-Synthetic Trace Generator for MemSlides Benchmark.
-
-Implements User Story 1: Synthetic Trace Generation.
-Generates multi-turn revision sessions mimicking the MemSlides schema,
-recording tool-execution traces and resulting slide states.
-"""
 import json
 import uuid
 import random
 import math
+import os
+import sys
 from pathlib import Path
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Tuple, Optional
+from datetime import datetime
 
-from config import Config
-from generators.stats_logger import log_generation_stats
+# Import from existing API surface
+from config import get_config
 
+class DataGenerationError(Exception):
+    """Custom exception for data generation errors."""
+    pass
 
 class SyntheticTraceGenerator:
     """
-    Generates synthetic multi-turn revision sessions.
+    Generates synthetic multi-turn revision sessions (traces) for research.
+    Implements the Structural Diversity Strategy by accepting seed and distribution parameters.
     """
 
-    TOOLS = [
-        "create_slide", "add_text", "add_image", "format_text", 
-        "delete_element", "move_element", "change_color", "export_pdf"
-    ]
+    def __init__(self, seed: int, variance_multiplier: float = 1.0, tool_types: Optional[List[str]] = None):
+        self.seed = seed
+        self.variance_multiplier = variance_multiplier
+        self.tool_types = tool_types or ["edit", "format", "comment", "review", "revert"]
+        random.seed(self.seed)
+        self._log_entries: List[Dict[str, Any]] = []
 
-    def __init__(self, config: Config, seed: Optional[int] = None):
-        self.config = config
-        if seed is not None:
-            random.seed(seed)
-        self.stats_logger = None
+    def _generate_tool_sequence(self, min_length: int = 5, max_length: int = 20) -> List[str]:
+        """Generate a sequence of tool calls with potential repetition based on variance."""
+        length = random.randint(min_length, max_length)
+        # Introduce tool repetition based on variance multiplier
+        repetition_prob = 0.3 * self.variance_multiplier
+        sequence = []
+        for i in range(length):
+            if i > 0 and random.random() < repetition_prob:
+                # Repeat previous tool
+                sequence.append(sequence[-1])
+            else:
+                sequence.append(random.choice(self.tool_types))
+        return sequence
 
-    def _generate_tool_sequence(self, length: int) -> List[str]:
-        """Generate a random sequence of tool calls."""
-        return [random.choice(self.TOOLS) for _ in range(length)]
+    def _generate_arguments(self, tool: str, variance: float) -> Dict[str, Any]:
+        """Generate arguments for a tool call, introducing semantic variance."""
+        base_args = {
+            "edit": {"target": f"slide_{random.randint(1, 100)}", "content": f"Content version {random.randint(1, 50)}"},
+            "format": {"style": random.choice(["bold", "italic", "underline"]), "target": "text"},
+            "comment": {"text": f"Review note {random.randint(1, 1000)}", "author": f"user_{random.randint(1, 50)}"},
+            "review": {"status": random.choice(["approved", "pending", "rejected"])},
+            "revert": {"target": "slide", "version": random.randint(1, 10)}
+        }
+        
+        args = base_args.get(tool, {}).copy()
+        
+        # Introduce semantic variance in text content based on variance multiplier
+        if "text" in args or "content" in args:
+            key = "text" if "text" in args else "content"
+            # Add variance to text length/content
+            original_len = len(args[key])
+            variance_len = int(original_len * variance)
+            args[key] = args[key] + f" (v{random.randint(1, variance_len)})"
+        
+        return args
 
-    def _generate_args(self, tool: str) -> Dict[str, Any]:
-        """Generate arguments for a specific tool."""
-        if tool == "create_slide":
-            return {"title": f"Slide {random.randint(1, 100)}", "layout": random.choice(["title", "blank", "two_col"])}
-        elif tool == "add_text":
-            return {"content": f"Text block {random.randint(1000, 9999)}", "position": [random.randint(0, 100), random.randint(0, 100)]}
-        elif tool == "add_image":
-            return {"image_id": f"img_{uuid.uuid4().hex[:8]}", "alt_text": "Sample image"}
-        elif tool == "format_text":
-            return {"bold": random.choice([True, False]), "italic": random.choice([True, False])}
-        elif tool == "delete_element":
-            return {"element_id": f"el_{random.randint(1, 1000)}"}
-        elif tool == "move_element":
-            return {"element_id": f"el_{random.randint(1, 1000)}", "new_pos": [random.randint(0, 100), random.randint(0, 100)]}
-        elif tool == "change_color":
-            return {"element_id": f"el_{random.randint(1, 1000)}", "color": f"#{random.randint(0, 0xFFFFFF):06x}"}
-        else:
-            return {"status": "success"}
-
-    def _compute_entropy(self, sequence: List[str]) -> float:
-        """Compute Shannon entropy of the tool sequence."""
+    def _calculate_sequence_entropy(self, sequence: List[str]) -> float:
+        """Calculate Shannon entropy of the tool sequence."""
         if not sequence:
             return 0.0
         counts = {}
         for tool in sequence:
             counts[tool] = counts.get(tool, 0) + 1
+        
         entropy = 0.0
+        total = len(sequence)
         for count in counts.values():
-            p = count / len(sequence)
-            if p > 0:
-                entropy -= p * math.log2(p)
+            prob = count / total
+            if prob > 0:
+                entropy -= prob * math.log2(prob)
         return entropy
 
-    def _compute_arg_variance(self, args_list: List[Dict[str, Any]]) -> float:
-        """
-        Compute raw argument variance.
-        Since we don't have real embeddings in this generation phase,
-        we simulate variance based on the diversity of argument keys and values.
-        For the purpose of T017, we return a deterministic float based on content length.
-        """
+    def _calculate_tool_repetition_freq(self, sequence: List[str]) -> float:
+        """Calculate frequency of tool repetitions in the sequence."""
+        if len(sequence) < 2:
+            return 0.0
+        repetitions = sum(1 for i in range(1, len(sequence)) if sequence[i] == sequence[i-1])
+        return repetitions / (len(sequence) - 1)
+
+    def _calculate_arg_semantic_variance(self, args_list: List[Dict[str, Any]]) -> float:
+        """Calculate semantic variance across argument sets."""
         if not args_list:
             return 0.0
-        # Simple heuristic: variance increases with argument complexity
-        total_chars = sum(len(json.dumps(args)) for args in args_list)
-        return float(total_chars) / 1000.0
-
-    def generate_session(self, session_id: Optional[str] = None) -> Dict[str, Any]:
-        """Generate a single synthetic session."""
-        if session_id is None:
-            session_id = str(uuid.uuid4())
-
-        # Vary sequence length (3 to 20 tools)
-        length = random.randint(3, 20)
-        tool_sequence = self._generate_tool_sequence(length)
         
-        args_sequence = [self._generate_args(t) for t in tool_sequence]
+        # Simple variance proxy: count unique argument values across all keys
+        unique_values = set()
+        for args in args_list:
+            for v in args.values():
+                unique_values.add(str(v))
         
-        entropy = self._compute_entropy(tool_sequence)
-        arg_variance = self._compute_arg_variance(args_sequence)
+        # Normalize by total possible (approximate)
+        total_args = sum(len(a) for a in args_list)
+        if total_args == 0:
+            return 0.0
+        
+        # Variance proxy: ratio of unique values to total arguments
+        return len(unique_values) / total_args
 
-        # Handle edge cases as per T016
-        if length == 0:
-            entropy = 0.0  # Defined as 0 for empty sequence
-        if math.isnan(arg_variance):
-            arg_variance = 0.0  # Impute default
-
-        session = {
-            "session_id": session_id,
-            "exact_tool_sequence": tool_sequence,
-            "args_sequence": args_sequence,
-            "final_state": {
-                "slide_count": random.randint(1, 5),
-                "elements": len(tool_sequence),
-                "last_modified": "2023-10-27T10:00:00Z"
-            },
+    def generate_trace(self, trace_id: Optional[str] = None) -> Dict[str, Any]:
+        """Generate a single synthetic trace session."""
+        if trace_id is None:
+            trace_id = str(uuid.uuid4())
+        
+        # Generate tool sequence
+        min_len = 5
+        max_len = 20
+        # Apply variance to length distribution
+        if self.variance_multiplier > 1.0:
+            min_len = int(min_len * (1 + (self.variance_multiplier - 1) * 0.5))
+            max_len = int(max_len * self.variance_multiplier)
+        
+        tool_sequence = self._generate_tool_sequence(min_len, max_len)
+        
+        # Generate arguments for each tool
+        args_list = []
+        for tool in tool_sequence:
+            args = self._generate_arguments(tool, self.variance_multiplier)
+            args_list.append(args)
+        
+        # Calculate metrics for logging
+        seq_entropy = self._calculate_sequence_entropy(tool_sequence)
+        rep_freq = self._calculate_tool_repetition_freq(tool_sequence)
+        arg_var = self._calculate_arg_semantic_variance(args_list)
+        
+        # Construct final state (simplified representation)
+        final_state = {
+            "slide_count": random.randint(1, 20),
+            "last_edited": tool_sequence[-1] if tool_sequence else None,
+            "version": random.randint(1, 100)
+        }
+        
+        trace = {
+            "trace_id": trace_id,
+            "session_start": datetime.now().isoformat(),
+            "tool_sequence": tool_sequence,
+            "arguments": args_list,
+            "final_state": final_state,
             "metadata": {
-                "entropy": entropy,
-                "raw_arg_variance": arg_variance,
-                "tool_types_used": list(set(tool_sequence)),
-                "sequence_length": length
+                "seed": self.seed,
+                "variance_multiplier": self.variance_multiplier,
+                "generated_at": datetime.now().isoformat()
             }
         }
-
-        return session
-
-    def save_session(self, session: Dict[str, Any], output_dir: Optional[Path] = None):
-        """Save a session to a JSON file and log stats."""
-        if output_dir is None:
-            output_dir = Path(self.config.DATA_DIR) / "raw"
         
-        output_dir.mkdir(parents=True, exist_ok=True)
+        # Log for trace integrity
+        self._log_entries.append({
+            "trace_id": trace_id,
+            "tool_sequence": tool_sequence,
+            "sequence_entropy": seq_entropy,
+            "tool_repetition_freq": rep_freq,
+            "arg_semantic_variance": arg_var,
+            "timestamp": datetime.now().isoformat()
+        })
         
-        filename = f"session_{session['session_id']}.json"
-        file_path = output_dir / filename
-        
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(session, f, indent=2)
+        return trace
 
-        # Log stats for T017
-        stats = {
-            "tool_call_count": len(session["exact_tool_sequence"]),
-            "arg_variance": session["metadata"]["raw_arg_variance"],
-            "entropy": session["metadata"]["entropy"]
-        }
-        
-        log_generation_stats(
-            session_id=session["session_id"],
-            file_path=file_path,
-            stats=stats,
-            config=self.config
-        )
-
-        return file_path
-
+    def get_integrity_log(self) -> List[Dict[str, Any]]:
+        """Return the accumulated integrity log entries."""
+        return self._log_entries
 
 def generate_synthetic_traces(
-    num_sessions: int, 
-    seed: int = 42,
-    output_dir: Optional[Path] = None
-) -> List[Path]:
+    count: int,
+    output_dir: str,
+    seed: int,
+    variance_multiplier: float = 1.0,
+    tool_types: Optional[List[str]] = None,
+    log_path: Optional[str] = None
+) -> str:
     """
-    Generate a set of synthetic traces.
+    Generate multiple synthetic traces and save them to disk.
     
     Args:
-        num_sessions: Number of sessions to generate.
-        seed: Random seed for reproducibility.
-        output_dir: Directory to save files.
+        count: Number of traces to generate
+        output_dir: Directory to save trace JSON files
+        seed: Random seed for reproducibility
+        variance_multiplier: Multiplier for distribution perturbation
+        tool_types: List of tool types to use
+        log_path: Path to write trace integrity log
         
     Returns:
-        List of paths to generated files.
+        Path to the log file
     """
-    config = Config()
-    generator = SyntheticTraceGenerator(config, seed=seed)
+    config = get_config()
+    generator = SyntheticTraceGenerator(
+        seed=seed,
+        variance_multiplier=variance_multiplier,
+        tool_types=tool_types
+    )
     
-    paths = []
-    for _ in range(num_sessions):
-        session = generator.generate_session()
-        file_path = generator.save_session(session, output_dir)
-        paths.append(file_path)
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+    
+    # Ensure log directory exists
+    if log_path:
+        log_dir = Path(log_path).parent
+        log_dir.mkdir(parents=True, exist_ok=True)
+    
+    for i in range(count):
+        trace = generator.generate_trace()
+        file_path = output_path / f"{trace['trace_id']}.json"
+        with open(file_path, 'w') as f:
+            json.dump(trace, f, indent=2)
         
-    return paths
-
+        if i % 500 == 0 and i > 0:
+            print(f"Generated {i}/{count} traces...")
+    
+    # Write integrity log if path provided
+    if log_path:
+        log_entries = generator.get_integrity_log()
+        with open(log_path, 'w') as f:
+            for entry in log_entries:
+                f.write(json.dumps(entry) + '\n')
+        return str(log_path)
+    
+    return ""
 
 def main():
-    """Entry point for script execution."""
-    import sys
+    """Main entry point for generating training data (T001)."""
+    config = get_config()
     
-    # Default to 10 sessions if no argument provided
-    num_sessions = 10
-    if len(sys.argv) > 1:
-        try:
-            num_sessions = int(sys.argv[1])
-        except ValueError:
-            print(f"Invalid argument: {sys.argv[1]}. Using default {num_sessions}.")
+    # T001 Specific parameters
+    count = 5000
+    seed = config.TRAINING_SEED
+    variance_multiplier = 1.0  # Standard parameters for training
+    output_dir = config.TRAINING_DATA_PATH
+    log_path = config.TRACE_INTEGRITY_LOG_PATH
     
-    print(f"Generating {num_sessions} synthetic traces...")
-    paths = generate_synthetic_traces(num_sessions)
-    print(f"Generated {len(paths)} files in {paths[0].parent}")
+    print(f"Starting T001: Generating {count} training traces with seed={seed}...")
     
-    # Print summary from T017 logger
-    from generators.stats_logger import get_generation_summary
-    summary = get_generation_summary()
-    print(f"Generation Summary: {summary}")
-
+    try:
+        log_file = generate_synthetic_traces(
+            count=count,
+            output_dir=output_dir,
+            seed=seed,
+            variance_multiplier=variance_multiplier,
+            log_path=log_path
+        )
+        print(f"Successfully generated {count} traces to {output_dir}")
+        print(f"Integrity log written to {log_file}")
+    except Exception as e:
+        print(f"Error generating traces: {e}", file=sys.stderr)
+        raise DataGenerationError(f"Trace generation failed: {e}")
 
 if __name__ == "__main__":
     main()

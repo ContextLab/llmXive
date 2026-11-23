@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Result"
+description: "Aggregated outcome of a full training run."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run (e.g., UUID)."
+  seed:
+    type: "integer"
+    description: "Random seed used."
+  mode:
+    type: "string"
+    enum: ["wake_dream", "baseline", "sweep"]
+    description: "Training regime."
+  task:
+    type: "string"
+    description: "Evaluation task name (e.g., 'qnli')."
+  accuracy:
+    type: "number"
+    description: "Few‑shot accuracy on the evaluation set."
+    minimum: 0.0
+    maximum: 1.0
+  peak_memory_gb:
+    type: "number"
+    description: "Peak RSS memory usage in GB."
+    minimum: 0.0
+  wall_clock_seconds:
+    type: "number"
+    description: "Total wall‑clock duration in seconds."
+    minimum: 0.0
+  status:
+    type: "string"
+    enum: ["success", "oom_abort", "timeout"]
+    description: "Final run status."
+required:
+  - "run_id"
+  - "seed"
+  - "mode"
+  - "task"
+  - "accuracy"
+  - "peak_memory_gb"
+  - "wall_clock_seconds"
+  - "status"
+additionalProperties: false

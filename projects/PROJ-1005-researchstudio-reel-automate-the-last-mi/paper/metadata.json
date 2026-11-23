@@ -86,5 +86,15 @@
     "refs.bib",
     "tables",
     "tables/pipeline_breakdown.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "ad62d25d8b9e4621a9b9c6faf238b217512f1f846ae297139be27fddec39a2ce",
+      "bytes": 34565324
+    },
+    "original.pdf": {
+      "sha256": "158ea11d68ad1f629043aab5163c62e7a2fcca1e656c732f11e58199ebfc479a",
+      "bytes": 32984473
+    }
+  }
 }

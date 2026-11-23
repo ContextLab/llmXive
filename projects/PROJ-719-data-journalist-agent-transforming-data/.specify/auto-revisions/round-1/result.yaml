@@ -1,0 +1,248 @@
+project_id: PROJ-719-data-journalist-agent-transforming-data
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: 55649af5f462
+  text: The paper makes several strong claims regarding the verifiability and traceability
+    of its generated articles, but the evidence provided in the text and appendices
+    contains internal inconsistencies and overstatements that require correction.
+    First, the claim in Section 3.1 that the Analyst "runs actual code" to derive
+    findings is potentially misleading given the setup in Appendix 0_setup. The system
+    relies on Claude-code opus-4.7 via OpenRouter. The paper does not explicitly state
+    whether this co
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: 7dcfd333ef0d
+  text: "The paper presents a sophisticated conceptual framework for an automated\
+    \ data journalism agent, but from a code quality and reproducibility perspective,\
+    \ it is currently non-evaluable. The primary artifact\u2014the implementation\
+    \ of the multi-agent system\u2014is entirely absent. Reproducibility from Scratch:\
+    \ The paper describes a pipeline involving seven distinct agent roles (Detective,\
+    \ Analyst, Editor, Designer, Programmer, Auditor, Inspector) and their interactions.\
+    \ However, there is no code repository"
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: df4a1a7694ce
+  text: The paper's focus on "verifiable" and "evidence-grounded" journalism places
+    a heavy burden on data provenance and source stability, yet the manuscript lacks
+    critical details in these areas. First, the evaluation dataset (Table 1, tab/datasets.tex)
+    includes entries dated 2025 and 2026 (e.g., "Milano-Cortina 2026 Olympic Schedule",
+    "FIFA 2026 schedule"). The paper does not disclose the provenance or license of
+    these datasets. If these are synthetic or projected datasets, this must be explicitly
+    st
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: 50a6570bf210
+  text: The figures in this paper suffer from a critical disconnect between the claimed
+    multimodal, interactive nature of the system and the static, often illegible visual
+    representations provided. First, the qualitative comparison tables in appendix/2_visualization.tex
+    (e.g., tab:caseE1-opening, tab:caseP1-opening) are fundamentally misleading. The
+    paper argues that the agent produces "interactive" and "multimodal" stories, yet
+    the figures display static PNG screenshots of these outputs. For instance,
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: 0cc04fe50c43
+  text: The paper relies heavily on domain-specific jargon from both journalism and
+    AI engineering, which creates a barrier for the intended non-expert audience.
+    In the Abstract, terms like "Computer-use agent" and "Inspector" are introduced
+    as proper nouns without definition. A general reader needs to know immediately
+    that an "Inspector" is a tool that links claims to sources, and that a "Computer-use
+    agent" is an AI that navigates websites like a human. Section 1 introduces "angle
+    coverage" without de
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: 96bbc610d35d
+  text: The paper's logical consistency is compromised by three primary issues where
+    conclusions do not strictly follow from the presented premises or evidence. First,
+    the claim of "discovery" in Section 3.1 is unsupported. The authors state the
+    agent "autonomously discovers an original angle" on new datasets (e.g., the FIFA
+    2026 climate analysis). However, the evidence provided is purely qualitative descriptions
+    of the output. There is no mechanism described to distinguish between a genuine
+    novel insig
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: 6684554b9a18
+  text: The paper significantly overclaims regarding the nature of the agent's "discoveries"
+    and the validity of its "verifiability" metric. First, in Section 3.1 ("Discovery"),
+    the authors claim the agent "autonomously discovers an original angle." The provided
+    examples, such as the FIFA 2026 heat-risk analysis (Fig 3a), rely on fusing public
+    schedule data with existing FIFPRO heat-risk flags. This is a data integration
+    task, not a novel discovery. The paper fails to distinguish between synthesizing
+    kn
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: bde4bf3af6aa
+  text: 'The paper presents a multi-agent system for automated data journalism, raising
+    several safety and ethics concerns that require clarification before publication.
+    Human Subject Research Ethics: Section 4.1 describes a human study with 53 participants
+    recruited via Prolific. However, the manuscript lacks any mention of Institutional
+    Review Board (IRB) approval or ethical oversight. Standard practice for research
+    involving human participants requires explicit confirmation of IRB approval, details
+    on'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: 2bedcf34f5a9
+  text: The scientific evidence supporting the central claims of this paper is currently
+    insufficient to warrant acceptance. While the system architecture is well-described,
+    the evaluation methodology contains critical gaps regarding statistical validity,
+    metric definition, and the interpretation of results. First, the human evaluation
+    (Section 5, "Human studies as primary testbed") reports specific p-values (e.g.,
+    p<.001) and mean differences but fails to specify the statistical tests employed
+    or the e
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: c19b2f52c6c5
+  text: The statistical analysis in this paper suffers from a lack of rigor in hypothesis
+    testing, metric validation, and uncertainty quantification, which undermines the
+    reliability of the reported comparisons between the agent and human journalists.
+    First, the primary human evaluation (Section 5.1, Figure 5) reports mean scores
+    and p-values (e.g., $p < .001$) for differences between agent and human articles.
+    However, the manuscript fails to specify which statistical test was employed.
+    Given that the d
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: 0070a4a68219
+  text: In `tab/relatedworks.tex`, `\label{tab:comparison}` is placed after `\end{tabularx}`,
+    outside the `table` environment. Move it inside, immediately after `\caption`,
+    to fix `\ref{tab:comparison}`.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: 7d73e6b198dc
+  text: In `sec/3_discovery.tex`, `\subref` targets sub-figures nested inside a `tabular`.
+    Verify `subcaption` handles this nesting correctly; if references fail, move sub-figures
+    outside the table.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: 2dc3e7122eca
+  text: In `sec/5_experiments.tex`, `\label{sec:Inspector}` is under 'Analysis of
+    different roles'. Rename the section or move the label to match the 'Inspector'
+    content for better navigation.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: 8451ffe7ec69
+  text: In `appendix/2_visualization.tex`, `[H]` is used but `float` package is missing.
+    Add `\usepackage{float}` to `main.tex` or `preamble.tex` to prevent table floating
+    issues.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: 890016c1064a
+  text: Inconsistent tense and voice in the Abstract and Introduction. The Abstract
+    shifts between present ('Data tells stories') and past ('A high-quality news feature
+    routinely takes'). Standardize to present tense for general claims and method
+    descriptions. In Section 1, 'Companies such as... are already deploying' is present,
+    but 'a critical challenge... is the lack' is also present, yet the sentence structure
+    is clunky. Ensure consistent active voice where possible.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: 1d1e29176d44
+  text: Repetitive phrasing and redundancy in Section 1 (Introduction). The phrase
+    'end to end' appears three times in close proximity ('serve as journalists end
+    to end', 'building such an end to end agentic journalist system', 'auditable end
+    to end'). Vary the phrasing (e.g., 'comprehensive', 'holistic', 'full-stack')
+    to improve flow.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: a843be269393
+  text: Awkward sentence construction in Section 5 (Experiments). The sentence 'The
+    agent performs best in genres where analytical framing matters more than authorial
+    voice; in the most designer-curated genre, it merely matches human performance'
+    is grammatically correct but the semicolon usage creates a slightly disjointed
+    rhythm. Consider splitting into two sentences or using a conjunction for better
+    cohesion.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: 2506d96baa63
+  text: Inconsistent capitalization and formatting of the 'Inspector' term. It is
+    sometimes capitalized as a proper noun ('the Inspector') and sometimes lowercased
+    ('an inspector'). Given it is a specific component of the system, standardize
+    to 'Inspector' throughout the text for consistency.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+- id: 26df0e60b885
+  text: 'Minor grammatical error in Section 5: ''1 (2%) calling it a tie'' should
+    be ''1 (2%) calling it a tie'' (missing ''called'' or rephrased to ''1 (2%) rated
+    it a tie''). Also, ''p value'' in Figure 2 caption should be ''p-value'' or ''p
+    value'' consistently.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-719-data-journalist-agent-transforming-data/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 19 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-30T06:49:54.528586+00:00'

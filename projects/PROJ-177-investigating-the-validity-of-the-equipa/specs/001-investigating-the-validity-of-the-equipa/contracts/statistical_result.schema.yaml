@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalResult"
+description: "Schema for the outcome of hypothesis tests on energy distributions."
+type: "object"
+properties:
+  bin_id:
+    type: "string"
+    description: "Unique identifier for the frequency/material bin."
+  test_type:
+    type: "string"
+    enum:
+      - "KS"
+      - "ChiSq"
+      - "Ratio"
+    description: "Type of statistical test performed."
+  statistic_value:
+    type: "number"
+    description: "Value of the test statistic."
+  p_value_raw:
+    type: "number"
+    description: "Raw p-value before correction."
+  p_value_corrected:
+    type: "number"
+    description: "P-value after Permutation-based FDR correction."
+  is_significant:
+    type: "boolean"
+    description: "Whether the null hypothesis is rejected."
+  null_hypothesis:
+    type: "string"
+    description: "Description of the null hypothesis."
+  sample_size:
+    type: "integer"
+    description: "Number of samples used in the test."
+required:
+  - bin_id
+  - test_type
+  - statistic_value
+  - p_value_raw
+  - p_value_corrected
+  - is_significant
+  - null_hypothesis
+  - sample_size
+additionalProperties: false

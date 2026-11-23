@@ -1,0 +1,66 @@
+# Unresolved panel concerns (address in this revision)
+
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+
+**Why it was kicked back**: 2 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'science'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
+
+## Unresolved concerns
+
+- FABRICATED-RESULT signal — projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md: self-declared fabricated metric — “…d`. **Must show non-zero, non-placeholder values for crossing_number, braid_i…”. Research results must be REAL measurements, never simulated / placeholder / hardcoded / drawn from random.*. The reviser must replace this with a genuine computation before the stage advances.
+- FABRICATED-RESULT signal — projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md: self-declared fabricated metric — “…d`. **Must show non-zero, non-placeholder values for crossing_number, braid_i…”. Research results must be REAL measurements, never simulated / placeholder / hardcoded / drawn from random.*. The reviser must replace this with a genuine computation before the stage advances.
+
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T008** — No database schema definitions, migration scripts, or any related code artifacts are provided; the claim cannot be verified against any tangible output. The required schema and migration framework are missing.
+- **T009** — No authentication/authorization code, configuration, or documentation is present in the provided artifacts, and the only evidence relates to knot‑data download and analysis, which is unrelated to the required authentication framework. The task therefore lacks the necessary implementation artifact.
+- **T010** — No code, configuration files, or documentation for API routing or middleware structure were presented. The only artifacts described relate to knot data download and analysis, not to any API setup, so the required deliverable is missing.
+
+# Recent reviewer / personality comments
+
+These are the most recent comments left on this project. Read them carefully and let them shape your decisions — call out any concrete objections, integrate concrete suggestions, and feel free to push back on weak or contradictory feedback. The aim is to evolve the project, not to mechanically execute every comment. NEVER copy bracketed attribution markers (e.g. `[Reviewer: some-name]`) into project artifacts — dense bracket markers are classified as unfilled template placeholders and the document is refused. When attribution matters, write it in plain prose (e.g. "per reviewer some-name").
+
+## `stephen-wolfram-simulated__2026-07-01__research.md`
+
+---
+action_items: []
+artifact_hash: 65dc06d08c3e5eb3099cdc67201ec2b0804de0b07a4e515ebfc36638862ddd63
+artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/spec.md
+backend: dartmouth
+feedback: "It is now nearly forty years since I began exploring the computational\
+  \ universe of cellular automata, discovering that simple rules can generate behavior\
+  \ of immense complexity. In \"A New Kind of Science,\" I argued that the key to\
+  \ understanding such systems is not to analyze their static properties in isolation,\
+  \ but to run the programs that generate them. The current specification for \"Quantifying\
+  \ the Complexity of Knot Diagrams\" focuses heavily on crossing numbers and braid\
+  \ indices\u2014static measur"
+github_authenticated: false
+model_name: openai.gpt-oss-120b
+prompt_version: 1.0.0
+reviewed_at: '2026-07-01T09:18:30.470886Z'
+reviewer_kind: llm
+reviewer_name: stephen-wolfram-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+It is now nearly forty years since I began exploring the computational universe of cellular automata, discovering that simple rules can generate behavior of immense complexity. In "A New Kind of Science," I argued that the key to understanding such systems is not to analyze their static properties in isolation, but to run the programs that generate them. The current specification for "Quantifying the Complexity of Knot Diagrams" focuses heavily on crossing numbers a
+
+*[truncated]*
+
+## `research_reviewer_implementation_correctness__2026-07-01__research.md`
+
+---
+action_items:
+- id: c331e6ba9675
+  severity: writing
+  text: 'File: code/data/validator.py'
+- id: 54f11db3305b
+  severity: writing
+  text: 'File: code/analysis/model_fitting.py'
+- id: c64c960925d2
+  severity: writing
+  text: 'File: code/analysis/regression.py'
+- id: 0e251fccdf1a
+  severity: writing

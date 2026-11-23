@@ -1,47 +1,114 @@
+"""
+Module to initialize project directory structure.
+Implements Task T001: Create data/raw/, data/processed/, artifacts/, state/, code/, and tests/ directories.
+"""
 import os
 import sys
 from pathlib import Path
+import logging
+from typing import Optional
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def ensure_directories(root_dir: Optional[Path] = None) -> list:
+    """
+    Creates the required project directory structure relative to root_dir.
+    If root_dir is None, uses the current working directory.
+    
+    Args:
+        root_dir: Optional base path for the project. Defaults to cwd.
+        
+    Returns:
+        List of created Path objects.
+    """
+    if root_dir is None:
+        root_dir = Path.cwd()
+    
+    # Define required directories relative to root
+    required_dirs = [
+        "data/raw",
+        "data/processed",
+        "artifacts",
+        "state",
+        "code",
+        "tests"
+    ]
+    
+    created_paths = []
+    
+    for dir_name in required_dirs:
+        full_path = root_dir / dir_name
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {full_path}")
+            created_paths.append(full_path)
+        except OSError as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            raise e
+    
+    return created_paths
+
+def validate_paths(root_dir: Optional[Path] = None) -> bool:
+    """
+    Validates that all required directories exist.
+    
+    Args:
+        root_dir: Optional base path for the project. Defaults to cwd.
+        
+    Returns:
+        True if all directories exist, False otherwise.
+    """
+    if root_dir is None:
+        root_dir = Path.cwd()
+    
+    required_dirs = [
+        "data/raw",
+        "data/processed",
+        "artifacts",
+        "state",
+        "code",
+        "tests"
+    ]
+    
+    all_exist = True
+    for dir_name in required_dirs:
+        full_path = root_dir / dir_name
+        if not full_path.is_dir():
+            logger.error(f"Missing required directory: {full_path}")
+            all_exist = False
+        else:
+            logger.debug(f"Directory exists: {full_path}")
+    
+    return all_exist
 
 def main():
     """
-    Create the directory structure for the project.
-    Specifically creates 'code/' and 'tests/' directories
-    relative to the project root.
+    Main entry point to initialize the project structure.
     """
-    # Determine project root based on the task context provided in tasks.md
-    # The task specifies paths under 'projects/PROJ-712-predicting-individual-pain-sensitivity-f/'
-    project_root = Path(__file__).resolve().parent.parent / "projects" / "PROJ-712-predicting-individual-pain-sensitivity-f"
+    logger.info("Initializing project directory structure...")
     
-    if not project_root.exists():
-        # Fallback: if the script is run from a different context or the nested structure isn't fully set up yet,
-        # create relative to the script's parent if that seems more appropriate, 
-        # but strictly following the task description requires the specific project path.
-        # Given T001a and T001b created data/artifacts, we assume the project root exists or is the target.
-        # We will create the path relative to the script's parent if the specific project path doesn't exist yet,
-        # to ensure the task completes successfully in a fresh environment.
-        # However, the task explicitly names the path. Let's ensure we create the exact path requested.
-        pass
-
-    # Ensure the project root exists (create it if missing to allow subdirectory creation)
-    project_root.mkdir(parents=True, exist_ok=True)
-
-    # Define directories to create
-    dirs_to_create = [
-        project_root / "code",
-        project_root / "tests"
-    ]
-
-    created_count = 0
-    for dir_path in dirs_to_create:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
+    # Use current working directory as root
+    root_dir = Path.cwd()
+    logger.info(f"Using root directory: {root_dir}")
+    
+    try:
+        created = ensure_directories(root_dir)
+        logger.info(f"Successfully created {len(created)} directories.")
+        
+        if validate_paths(root_dir):
+            logger.info("Validation passed: All required directories exist.")
+            return 0
         else:
-            print(f"Directory already exists: {dir_path}")
-
-    print(f"Setup complete. {created_count} new directories created.")
-    return 0
+            logger.error("Validation failed: Some directories are missing.")
+            return 1
+    except Exception as e:
+        logger.error(f"Error during directory initialization: {e}")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

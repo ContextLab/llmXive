@@ -1,0 +1,30 @@
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+select = [
+    "E", "F", "W", "C90", "I", "N", "D", "UP", "YTT",
+    "BLE", "FBT", "B", "A", "COM", "C4", "DTZ",
+    "T10", "ISC", "ICN", "G", "PIE", "PYI", "PT",
+    "Q", "RET", "SLF", "SIM", "TID", "TCH", "ARG",
+    "ERA", "PD", "PGH", "PL", "TRY", "RUF"
+]
+ignore = ["E501"]
+exclude = ["__pycache__", "build", "dist", ".git", ".venv", "venv"]

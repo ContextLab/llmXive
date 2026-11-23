@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.25073",
+  "judged_at": "2026-08-13T12:29:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"geometry-aware representation denoising for robust multi-view 3d recon\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it directly addresses the core mechanism of \"Geometry-Aware Representation Denoising\" for \"Robust Multi-view 3D Reconstruction\" in the context of sparse views, which is the specific technical domain of the user's follow-up question. It serves as a canonical reference for the state-of-the-art in geometry-aware diffusion and denoising strategies for this exact application.",
+  "relevant": true
+}

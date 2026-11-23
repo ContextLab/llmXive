@@ -1,0 +1,78 @@
+T001:
+  c: true
+  h: 8cf60af55ebc5ebd078fe859a78c5374445c2e5f2d429af85ebd59e1e24f81cb
+  r: "The `data/raw/` directory is present (confirmed by the collector with a SHA\u2011\
+    256 hash and containing `dataset.csv`), and the setup script `code/create_raw_dir.py`\
+    \ ran successfully (exit code\u202F0) as shown in its log. Additionally, the pytest\
+    \ record `tests/test_create_raw_dir.py` passed, verifying that `ls data/raw` executes\
+    \ without error."
+  sig: aab5296798359831115b0015797f7f38808f89040df8ce8ff61b8c766fb1ce5b
+T002:
+  c: false
+  h: 3f7697152ff4cd8442da7ef2e2a38a7115b083d6879e2d403c421867160b1488
+  r: "Checked `code/ingestion/generate_synthetic.py` (uses fixed seed\u202F42, NUM_ROWS\u202F\
+    =\u202F500) and `data/raw/dataset.csv` (exists, test suite confirms 500 rows).\
+    \ However the ingestion\u2011schema validation test fails because the schema file\
+    \ cannot be loaded as JSON, so there is no evidence that the CSV actually validates\
+    \ against `contracts/ingestion_schema.schema.yaml`. The task requires successful\
+    \ validation, which is not demonstrated. Fix the schema loading (or file format)\
+    \ and ensure the CSV passes the JSON\u2011Schema check."
+  sig: 4ee5efb20ef72307eddf5b81d97f58c01ad896c0af317f1446afe758d595784c
+T004:
+  c: false
+  h: 5a3be071c80258d6025ed122123029fad8679a6ccbc1cfffe95b68621c9beb93
+  r: "The `code/ingestion/flag_source.py` script determines the source from a \u201C\
+    Dataset URL:\u201D line in `plan.md` instead of checking whether `fetch_real.py`\
+    \ succeeded, which does not meet the task\u2019s specification. Moreover, the\
+    \ pytest logs show that the expected `data/data_source_flag.json` file is not\
+    \ created in the test\u2019s temporary directory, causing two of three verification\
+    \ tests to fail. The existing `data/data_source_flag.json` contains only `\"synthetic\"\
+    ` and provides no evidence that the script can correctly write `\"real\"` when\
+    \ appropriate."
+  sig: 7264eda1b02ce9d05e68fe38cfae6effcc7d7371ee2ffe52b00b597b89a75aab
+T005:
+  c: false
+  h: 012927e4a42d513298083b7f1056c7535a04b5f02dc24612997ee21637e058b5
+  r: "Checked `code/ingestion/validate.py`, `data/processed/valid_record_count.txt`,\
+    \ and the execution logs. The script writes the count correctly, but the required\
+    \ `data/logs/ingestion.log` file is missing, the test suite fails because `validate.py`\u2019\
+    s `main()` uses `argparse` and aborts when pytest passes its own arguments, and\
+    \ the logging helper `log_missing_data_excluded` references `json` without importing\
+    \ it, so missing\u2011data tags would raise a `NameError`. These issues prevent\
+    \ the task\u2019s verification criteria from being satisfied."
+  sig: a817741ff99660307bb82ceef2b563fcabecf60aefd31270cfabf5e92444058b
+T006:
+  c: false
+  h: a5c410ad17d421f6d92e5abd189289df84b588d1087b3f25345851861ee110cd
+  r: "The `featurized_data.jsonl` file exists and is non\u2011empty, but its records\
+    \ do **not** conform to `contracts/dataset.schema.yaml`: the schema requires a\
+    \ `solvent_features` object with fields `viscosity` and `dielectric`, yet the\
+    \ produced JSON lines contain `dielectric_constant` instead of `dielectric`. Consequently\
+    \ a JSON\u2011Schema validation would fail. The memory profile file is present\
+    \ and its `peak_memory_mb` (765.01) satisfies the \u2264\u202F7000\u202FMB limit.\
+    \ Fix the featurization output to use the exact field names required by the schema\
+    \ (or adjust the schema) so that each line validates."
+  sig: 1fd99187a3fa01c86d37db6acfde36917eab56a5c2a6355c36f11777ff0b0736
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `ingest.py` file or code changes were presented, and there is no log output
+    or demonstration showing that records with missing data are excluded and logged
+    with the tag `[MISSING_DATA_EXCLUDED]`. Without concrete artifacts, the requirement
+    cannot be verified as satisfied.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code changes, log output, or test results were presented to demonstrate that
+    `ingest.py` now catches invalid SMILES, skips those entries, and records an `[ERROR_SMILES]`
+    message. Without the modified script or evidence of its behavior, the requirement
+    cannot be confirmed. The implementer must provide the updated `ingest.py` (or
+    a diff) and a sample run showing the error handling in action.
+T019:
+  c: true
+  h: 7ba2c1e14f638bc18f06eded49e759a359876f2856f8848cf2efeeb578931bcf
+  r: "Checked `code/ingestion/checksums.py`, the generated `data/checksums.txt` (contains\
+    \ a line for `data/raw/dataset.csv` with the correct SHA\u2011256 hash), and the\
+    \ successful test/run logs confirming the script read `data/raw/`, computed the\
+    \ hash, and wrote the manifest."
+  sig: 28fe4b325a98c777413ce371e48ce0908e9475c040f5c0f821d4d5b56c3378f0

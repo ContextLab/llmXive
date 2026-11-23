@@ -1,0 +1,553 @@
+{
+  "fetched_at": "2026-08-05T04:28:36Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Inference for Adaptive A\"",
+      "target_n": 5
+    },
+    "duration_seconds": 73.433,
+    "ended_at": "2026-08-05T04:28:36Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "lightweight detect-and-correct inference for LLMs"
+        ],
+        [
+          2,
+          "adaptive inference correction mechanisms"
+        ],
+        [
+          3,
+          "runtime error correction for large language models"
+        ],
+        [
+          4,
+          "LLM self-correction during inference"
+        ],
+        [
+          5,
+          "lightweight adaptive inference strategies"
+        ],
+        [
+          6,
+          "detect-and-fix inference pipelines"
+        ],
+        [
+          7,
+          "real-time LLM hallucination correction"
+        ],
+        [
+          8,
+          "inference-time adaptation for language models"
+        ],
+        [
+          9,
+          "efficient error detection in generative AI"
+        ],
+        [
+          10,
+          "dynamic inference correction for VLA models"
+        ],
+        [
+          11,
+          "lightweight model refinement at inference"
+        ],
+        [
+          12,
+          "adaptive decoding strategies for LLMs"
+        ],
+        [
+          13,
+          "inference-time consistency correction"
+        ],
+        [
+          14,
+          "automated error mitigation in LLM generation"
+        ],
+        [
+          15,
+          "resource-efficient inference correction"
+        ],
+        [
+          16,
+          "LLM output verification and correction"
+        ],
+        [
+          17,
+          "adaptive inference for vision-language-action models"
+        ],
+        [
+          18,
+          "on-the-fly error correction in neural inference"
+        ],
+        [
+          19,
+          "lightweight post-processing for LLM outputs"
+        ],
+        [
+          20,
+          "inference-time robustness in adaptive AI systems"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "adaptive inference correction mechanisms": 2,
+        "lightweight detect-and-correct inference for LLMs": 3,
+        "llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Inference for Adaptive A\" computer science": 0
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "inference-time correction adaptive prompting",
+      "VLA-Corrector lightweight detection mechanism",
+      "test-time adaptation self-correction LLM",
+      "reasoning error detection inference latency",
+      "distribution shift robustness LLM fine-tuning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2607.01804"
+      ]
+    },
+    "per_query_hit_count": {
+      "VLA-Corrector lightweight detection mechanism": 3,
+      "distribution shift robustness LLM fine-tuning": 3,
+      "inference-time correction adaptive prompting": 3,
+      "llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Inference for Adaptive A\" computer science": 3,
+      "reasoning error detection inference latency": 3,
+      "test-time adaptation self-correction LLM": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2306.14289",
+          "rationale": "The paper focuses on optimizing the Segment Anything Model (SAM) for mobile devices via knowledge distillation, which is a computer vision task distinct from the user's question regarding \"VLA-Corrector\" (Vision-Language-Action models) and adaptive inference correction mechanisms. While both involve \"lightweight\" models, the paper does not measure the same biological/algorithmic mechanism, share the same independent/dependent variables, or address the specific domain of VLA inference correction,",
+          "title": "Faster Segment Anything: Towards Lightweight SAM for Mobile Applications"
+        },
+        {
+          "primary_pointer": "1809.08860",
+          "rationale": "The paper focuses on adaptive fuzzy inference systems for energy prediction in buildings, which is an off-domain application distinct from the user's question regarding Large Language Models (LLMs) and Vision-Language Action (VLA) models. While both involve \"adaptive inference,\" the mechanisms (fuzzy logic vs. neural network correction), domains (building energy vs. generative AI), and variables are entirely different, failing to meet any inclusion criteria (a-f) and triggering the \"off-domain e",
+          "title": "A Comparative Study: Adaptive Fuzzy Inference Systems for Energy Prediction in Urban Buildings"
+        },
+        {
+          "primary_pointer": "2512.14523",
+          "rationale": "The paper addresses \"adaptive optics\" in the context of astronomical telescope systems (MORFEO/ELT), which is a distinct physical domain from \"adaptive inference\" or \"detect-and-correct\" mechanisms in Large Language Models (LLMs). This is a case of distinct constructs sharing only homonym keywords (\"adaptive\"), failing the requirement for a measurable connection to the user's mechanism, domain, or variables.",
+          "title": "Interfacing adaptive optics simulations with the optical model: a powerful tool for MORFEO"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-05T04:27:22Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"vla-corrector: lightweight detect-and-correct inference for adaptive a\" computer science",
+      "raw": "llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Inference for Adaptive A\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-05T04:27:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-05T04:27:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-05T04:27:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose an inference-time scaling approach for pretrained flow models. Recently, inference-time scaling has gained significant attention in LLMs and diffusion models, improving sample quality or better aligning outputs with user preferences by leveraging additional computation. For diffusion models, particle sampling has allowed more efficient scaling due to the stochasticity at intermediate denoising steps. On the contrary, while flow models have gained popularity as an alternative to diffusion models--offering faster generation and high-quality outputs in state-of-the-art image and video generative models--efficient inference-time scaling methods used for diffusion models cannot be directly applied due to their deterministic generative process. To enable efficient inference-time scaling for flow models, we propose three key ideas: 1) SDE-based generation, enabling particle sampling in flow models, 2) Interpolant conversion, broadening the search space and enhancing sample diversity, and 3) Rollover Budget Forcing (RBF), an adaptive allocation of computational resources across timesteps to maximize budget utilization. Our experiments show that SDE-based generation, particularly variance-preserving (VP) interpolant-based generation, improves the performance of particle sampling methods for inference-time scaling in flow models. Additionally, we demonstrate that RBF with VP-SDE achieves the best performance, outperforming all previous inference-time scaling approaches.",
+          "claimed_authors": [
+            "Jaihoon Kim",
+            "Taehoon Yoon",
+            "Jisung Hwang",
+            "Minhyuk Sung"
+          ],
+          "claimed_title": "Inference-Time Scaling for Flow Models via Stochastic Generation and Rollover Budget Forcing",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.19385"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='Inference-Time Scaling for Flow Models via Stochastic Generation and Rollover Budget Forcing')",
+        "failed_at": "2026-08-05T04:27:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce Meta Prompting (MP), a framework that emphasizes the formal structure of a task rather than content-specific worked examples. We give a categorical formalization in which a functor maps typed task transformations to typed prompt transformations. Functoriality encodes preservation of identities and composition, but it does not by itself guarantee semantic correctness. We extend MP to Recursive Meta Prompting (RMP), in which a proposer model generates candidate prompt edits, a validator enforces the edit schema, and an executor model uses the resulting prompt. We model the accumulation of valid edit scripts with the Writer monad and their application by a monoid action on prompts. This construction makes accumulated edits independent of parenthesization; it does not guarantee convergence or improved task accuracy. Empirically, a Qwen-72B base model guided by example-free meta-prompts attains 46.3% pass@1 on MATH and 83.5% accuracy on GSM8K. Separately, an MP-CR agent synthesizes a tool-executed Game of 24 solver; the original experiment reports 100% success on 1,362 instances, subject to exact re-verification from the corresponding input and per-instance outputs. The batch amortizes one LLM response across all puzzles, so its token accounting is not protocol-matched to per-instance few-shot or search-based methods.",
+          "claimed_authors": [
+            "Yifan Zhang",
+            "Yang Yuan",
+            "Andrew Chi-Chih Yao"
+          ],
+          "claimed_title": "Meta Prompting for AI Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.11482"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='Meta Prompting for AI Systems')",
+        "failed_at": "2026-08-05T04:27:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the framework of the MORFEO project, the Multi-Conjugated Adaptive Optics (MCAO) module for the European Extremely Large Telescope (ELT), we developed an integrated modeling tool to interface the optical model with the adaptive optics simulations, called ASSO (Adaptive opticS Simulation interfaced with Optical model). This tool is our asso nella manica (ace in the hole) to predict the performances of the AO relay, i.e., to estimate the wavefront error within the technical and scientific fields of view after AO correction. The tool is based on the IDL based simulator PyrAmid Simulator Software for Adaptive opTics Arcetri (PASSATA), on Zemax OpticStudio for the optical modelling, and on Matlab as interface software.",
+          "claimed_authors": [
+            "Giorgio Pariani",
+            "Guido Agapito",
+            "Demetrio Magrin",
+            "Matteo Munari",
+            "Lorenzo Busoni",
+            "Marco Riva",
+            "Andrea Di Rocco",
+            "Paolo Ciliegi"
+          ],
+          "claimed_title": "Interfacing adaptive optics simulations with the optical model: a powerful tool for MORFEO",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.14523"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='Interfacing adaptive optics simulations with the optical model: a powerful tool for MORFEO')",
+        "failed_at": "2026-08-05T04:27:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The optimal dimensional synthesis for planar mechanisms using differential evolution (DE) is demonstrated. Four examples are included: in the first case, the synthesis of a mechanism for hybrid-tasks, considering path generation, function generation, and motion generation, is carried out. The second and third cases pertain to path generation, with and without prescribed timing. Finally, the synthesis of an Ackerman mechanism is reported. Order defect problem is solved by manipulating individuals instead of penalizing or discretizing the search space for the parameters. A technique that consists in applying a transformation in order to satisfy the Grashof and crank conditions to generate an initial elitist population is introduced. As a result, the evolutionary algorithm increases its efficiency.",
+          "claimed_authors": [
+            "F. Penunuri",
+            "R. Peon-Escalante",
+            "C. Villanueva",
+            "D. Pech-Oy"
+          ],
+          "claimed_title": "Synthesis of Mechanism for single- and hybrid-tasks using Differential Evolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1102.2017"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='Synthesis of Mechanism for single- and hybrid-tasks using Differential Evolution')",
+        "failed_at": "2026-08-05T04:27:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The problem of path generation for the spherical 4R mechanism is solved using the Differential Evolution algorithm (DE). Formulas for the spherical geodesics are employed in order to obtain the parametric equation for the generated trajectory. Direct optimization of the objective function gives the solution to the path generation task without prescribed timing. Therefore, there is no need to separate this task into two stages to make the optimization. Moreover, the order defect problem can be solved without difficulty by means of manipulations of the individuals in the DE algorithm. Two examples of optimum synthesis showing the simplicity and effectiveness of this approach are included.",
+          "claimed_authors": [
+            "F. Penunuri",
+            "R. Peon-Escalante",
+            "C. Villanueva",
+            "Carlos A. Cruz-Villar"
+          ],
+          "claimed_title": "Synthesis of Spherical 4R Mechanism for Path Generation using Differential Evolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1112.2954"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='Synthesis of Spherical 4R Mechanism for Path Generation using Differential Evolution')",
+        "failed_at": "2026-08-05T04:27:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Models (LLMs) are widely believed to possess self-correction capabilities, yet recent studies suggest that intrinsic self-correction--where models correct their own outputs without external feedback--remains largely ineffective. In this work, we systematically decompose self-correction into three distinct sub-capabilities: error detection, error localization, and error correction. Through cross-model experiments on GSM8K-Complex (n=500 per model, 346 total errors) with three major LLMs, we uncover a striking Accuracy-Correction Paradox: weaker models (GPT-3.5, 66% accuracy) achieve 1.6x higher intrinsic correction rates than stronger models (DeepSeek, 94% accuracy)--26.8% vs 16.7%. We propose the Error Depth Hypothesis: stronger models make fewer but deeper errors that resist self-correction. Error detection rates vary dramatically across architectures (10% to 82%), yet detection capability does not predict correction success--Claude detects only 10% of errors but corrects 29% intrinsically. Surprisingly, providing error location hints hurts all models. Our findings challenge linear assumptions about model capability and self-improvement, with important implications for the design of self-refinement pipelines.",
+          "claimed_authors": [
+            "Yin Li"
+          ],
+          "claimed_title": "Decomposing LLM Self-Correction: The Accuracy-Correction Paradox and Error Depth Hypothesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2601.00828"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='Decomposing LLM Self-Correction: The Accuracy-Correction Paradox and Error Depth Hypothesis')",
+        "failed_at": "2026-08-05T04:27:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Real-world time series often exhibit a non-stationary nature, degrading the performance of pre-trained forecasting models. Test-Time Adaptation (TTA) addresses this by adjusting models during inference, but existing methods typically update the full model, increasing memory and compute costs. We propose PETSA, a parameter-efficient method that adapts forecasters at test time by only updating small calibration modules on the input and output. PETSA uses low-rank adapters and dynamic gating to adjust representations without retraining. To maintain accuracy despite limited adaptation capacity, we introduce a specialized loss combining three components: (1) a robust term, (2) a frequency-domain term to preserve periodicity, and (3) a patch-wise structural term for structural alignment. PETSA improves the adaptability of various forecasting backbones while requiring fewer parameters than baselines. Experimental results on benchmark datasets show that PETSA achieves competitive or better performance across all horizons. Our code is available at: https://github.com/BorealisAI/PETSA",
+          "claimed_authors": [
+            "Heitor R. Medeiros",
+            "Hossein Sharifi-Noghabi",
+            "Gabriel L. Oliveira",
+            "Saghar Irandoust"
+          ],
+          "claimed_title": "Accurate Parameter-Efficient Test-Time Adaptation for Time Series Forecasting",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.23424"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='Accurate Parameter-Efficient Test-Time Adaptation for Time Series Forecasting')",
+        "failed_at": "2026-08-05T04:27:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Machine learning methods strive to acquire a robust model during the training process that can effectively generalize to test samples, even in the presence of distribution shifts. However, these methods often suffer from performance degradation due to unknown test distributions. Test-time adaptation (TTA), an emerging paradigm, has the potential to adapt a pre-trained model to unlabeled data during testing, before making predictions. Recent progress in this paradigm has highlighted the significant benefits of using unlabeled data to train self-adapted models prior to inference. In this survey, we categorize TTA into several distinct groups based on the form of test data, namely, test-time domain adaptation, test-time batch adaptation, and online test-time adaptation. For each category, we provide a comprehensive taxonomy of advanced algorithms and discuss various learning scenarios. Furthermore, we analyze relevant applications of TTA and discuss open challenges and promising areas for future research. For a comprehensive list of TTA methods, kindly refer to \\url{https://github.com/tim-learn/awesome-test-time-adaptation}.",
+          "claimed_authors": [
+            "Jian Liang",
+            "Ran He",
+            "Tieniu Tan"
+          ],
+          "claimed_title": "A Comprehensive Survey on Test-Time Adaptation under Distribution Shifts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.15361"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='A Comprehensive Survey on Test-Time Adaptation under Distribution Shifts')",
+        "failed_at": "2026-08-05T04:27:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-08-05T04:27:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider the question of extending propositional logic to a logic of plausible reasoning, and posit four requirements that any such extension should satisfy. Each is a requirement that some property of classical propositional logic be preserved in the extended logic; as such, the requirements are simpler and less problematic than those used in Cox's Theorem and its variants. As with Cox's Theorem, our requirements imply that the extended logic must be isomorphic to (finite-set) probability theory. We also obtain specific numerical values for the probabilities, recovering the classical definition of probability as a theorem, with truth assignments that satisfy the premise playing the role of the \"possible cases.\"",
+          "claimed_authors": [
+            "Kevin S. Van Horn"
+          ],
+          "claimed_title": "From Propositional Logic to Plausible Reasoning: A Uniqueness Theorem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2017,
+          "primary_pointer": "1706.05261"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='From Propositional Logic to Plausible Reasoning: A Uniqueness Theorem')",
+        "failed_at": "2026-08-05T04:27:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Sound event localization and detection (SELD) is an emerging research topic that aims to unify the tasks of sound event detection and direction-of-arrival estimation. As a result, SELD inherits the challenges of both tasks, such as noise, reverberation, interference, polyphony, and non-stationarity of sound sources. Furthermore, SELD often faces an additional challenge of assigning correct correspondences between the detected sound classes and directions of arrival to multiple overlapping sound events. Previous studies have shown that unknown interferences in reverberant environments often cause major degradation in the performance of SELD systems. To further understand the challenges of the SELD task, we performed a detailed error analysis on two of our SELD systems, which both ranked second in the team category of DCASE SELD Challenge, one in 2020 and one in 2021. Experimental results indicate polyphony as the main challenge in SELD, due to the difficulty in detecting all sound events of interest. In addition, the SELD systems tend to make fewer errors for the polyphonic scenario that is dominant in the training set.",
+          "claimed_authors": [
+            "Thi Ngoc Tho Nguyen",
+            "Karn N. Watcharasupat",
+            "Zhen Jian Lee",
+            "Ngoc Khanh Nguyen",
+            "Douglas L. Jones",
+            "Woon Seng Gan"
+          ],
+          "claimed_title": "What Makes Sound Event Localization and Detection Difficult? Insights from Error Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.10469"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='What Makes Sound Event Localization and Detection Difficult? Insights from Error Analysis')",
+        "failed_at": "2026-08-05T04:27:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We consider the problem of certifying the robustness of deep neural networks against real-world distribution shifts. To do so, we bridge the gap between hand-crafted specifications and realistic deployment settings by proposing a novel neural-symbolic verification framework, in which we train a generative model to learn perturbations from data and define specifications with respect to the output of the learned model. A unique challenge arising from this setting is that existing verifiers cannot tightly approximate sigmoid activations, which are fundamental to many state-of-the-art generative models. To address this challenge, we propose a general meta-algorithm for handling sigmoid activations which leverages classical notions of counter-example-guided abstraction refinement. The key idea is to \"lazily\" refine the abstraction of sigmoid functions to exclude spurious counter-examples found in the previous abstraction, thus guaranteeing progress in the verification process while keeping the state-space small. Experiments on the MNIST and CIFAR-10 datasets show that our framework significantly outperforms existing methods on a range of challenging distribution shifts.",
+          "claimed_authors": [
+            "Haoze Wu",
+            "Teruhiro Tagomori",
+            "Alexander Robey",
+            "Fengjun Yang",
+            "Nikolai Matni",
+            "George Pappas",
+            "Hamed Hassani",
+            "Corina Pasareanu",
+            "Clark Barrett"
+          ],
+          "claimed_title": "Toward Certified Robustness Against Real-World Distribution Shifts",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2206.03669"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='Toward Certified Robustness Against Real-World Distribution Shifts')",
+        "failed_at": "2026-08-05T04:27:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Fine-tuning large language models (LLMs) on resource-constrained clients remains a challenging problem. Recent works have fused low-rank adaptation (LoRA) techniques with federated fine-tuning to mitigate challenges associated with client model sizes and data scarcity. Still, the heterogeneity of resources remains a critical bottleneck: while higher-rank modules generally enhance performance, varying client capabilities constrain LoRA's feasible rank range. Existing approaches attempting to resolve this issue either lack analytical justification or impose additional computational overhead, leaving a wide gap for efficient and theoretically-grounded solutions. To address these challenges, we propose federated sketching LoRA (FSLoRA), which leverages a sketching mechanism to enable clients to selectively update submatrices of global LoRA modules maintained by the server. By adjusting the sketching ratios, which determine the ranks of the submatrices on the clients, FSLoRA flexibly adapts to client-specific communication and computational constraints. We provide a rigorous convergence analysis of FSLoRA that characterizes how the sketching ratios affect the convergence rate. Through extensive experiments, we demonstrate that FSLoRA outperforms baselines and significantly improves training efficiency while preserving stable convergence.",
+          "claimed_authors": [
+            "Wenzhi Fang",
+            "Dong-Jun Han",
+            "Liangqi Yuan",
+            "Seyyedali Hosseinalipour",
+            "Christopher G. Brinton"
+          ],
+          "claimed_title": "Federated Sketching LoRA: A Flexible Framework for Heterogeneous Collaborative Fine-Tuning of LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2501.19389"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='Federated Sketching LoRA: A Flexible Framework for Heterogeneous Collaborative Fine-Tuning of LLMs')",
+        "failed_at": "2026-08-05T04:27:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) are increasingly used for topic modeling, outperforming classical topic models such as LDA. Commonly, pre-trained LLM encoders such as BERT are used out-of-the-box despite the fact that fine-tuning is known to improve LLMs considerably. The challenge lies in obtaining a suitable labeled dataset for fine-tuning. In this paper, we build on the recent idea of using bags of sentences as the elementary unit for computing topics. Based on this idea, we derive an approach called FT-Topic to perform unsupervised fine-tuning, relying primarily on two steps for constructing a training dataset in an automatic fashion. First, a heuristic method identifies pairs of sentence groups that are assumed to belong either to the same topic or to different topics. Second, we remove sentence pairs that are likely labeled incorrectly. The resulting dataset is then used to fine-tune an encoder LLM, which can be leveraged by any topic modeling approach that uses embeddings. In this work, we demonstrate its effectiveness by deriving a novel state-of-the-art topic modeling method called SenClu. The method achieves fast inference through an expectation-maximization algorithm and hard assignments of sentence groups to a single topic, while allowing users to encode prior knowledge about the topic-document distribution. Code is available at https://github.com/JohnTailor/FT-Topic",
+          "claimed_authors": [
+            "Johannes Schneider"
+          ],
+          "claimed_title": "Topic Modeling with Fine-tuning LLMs and Bag of Sentences",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.03099"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"VLA-Corrector: Lightweight Detect-and-Correct Infe', candidate_title='Topic Modeling with Fine-tuning LLMs and Bag of Sentences')",
+        "failed_at": "2026-08-05T04:27:57Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yi Pan",
+            "Miao Pan",
+            "Qi Lu",
+            "Jiaming Huang",
+            "Man Zhang",
+            "Siteng Huang",
+            "Xin Li",
+            "Jie Zhang",
+            "Yongliang Shen",
+            "Xuhong Zhang",
+            "Wenqi Zhang"
+          ],
+          "title": "VLA-Corrector: Lightweight Detect-and-Correct Inference for Adaptive Action Horizon",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2607.01804",
+        "summary": "Vision-Language-Action (VLA) foundation models have recently achieved strong progress in embodied intelligence. To reduce policy-call frequency while preserving temporal coherence, most generative policies adopt an action chunk mechanism, executing multiple future actions in an open-loop manner under a fixed action horizon. However, this \"predict-then-blindly-execute\" paradigm sacrifices closed-loop reactivity: in contact-rich physical interactions, even small local perturbations can rapidly amplify within the open-loop blind spot, leading to compounding errors and ultimately task failure. To address this limitation, we propose VLA-Corrector, a lightweight corrective inference framework for action-chunked VLA policies. Without modifying the backbone policy weights, VLA-Corrector introduces a lightweight Latent-space Vision Monitor (LVM) that continuously compares predicted and actual visual feature evolution, enabling online detection of visual dynamics deviations. Once persistent deviation is detected, the system triggers a truncation event, discards the remaining stale actions, and invokes corrective replanning via Online Gradient Guidance (OGG). The detect-and-correct mechanism of VLA-Corrector naturally induces an event-triggered adaptive action horizon: it preserves long-horizon execution when the current chunk remains reliable, and invokes short-horizon corrective replanning when execution begins to drift. In doing so, VLA-Corrector mitigates the trade-off imposed by static horizons between execution robustness and policy-call frequency. It can be integrated into different VLA models without further retraining the VLA backbone, interrupting compounding errors while preserving much of the efficiency benefit of action chunking and substantially improving robustness in long-horizon, contact-rich robotic manipulation tasks.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2607.01804",
+          "http_status": 200,
+          "pdf_sample_score": 0.3571,
+          "query_relevance_score": 0.5833,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-05T04:27:56Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Vikram Krishnamurthy"
+          ],
+          "title": "LLMs as High-Dimensional Nonlinear Autoregressive Models with Attention: Training, Alignment and Inference",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.00426",
+        "summary": "Large language models (LLMs) based on transformer architectures are typically described through collections of architectural components and training procedures, obscuring their underlying computational structure. This review article provides a concise mathematical reference for researchers seeking an explicit, equation-level description of LLM training, alignment, and generation. We formulate LLMs as high-dimensional nonlinear autoregressive models with attention-based dependencies. The framework encompasses pretraining via next-token prediction, alignment methods such as reinforcement learning from human feedback (RLHF), direct preference optimization (DPO), rejection sampling fine-tuning (RSFT), and reinforcement learning from verifiable rewards (RLVR), as well as autoregressive generation during inference. Self-attention emerges naturally as a repeated bilinear--softmax--linear composition, yielding highly expressive sequence models. This formulation enables principled analysis of alignment-induced behaviors (including sycophancy), inference-time phenomena (such as hallucination, in-context learning, chain-of-thought prompting, and retrieval-augmented generation), and extensions like continual learning, while serving as a concise reference for interpretation and further theoretical development.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.00426",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-05T04:28:01Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"vla-corrector: lightweight detect-and-correct inference for adaptive a\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,12 @@
+# Core dependencies for the amine reactivity project
+rdkit
+torch
+torch-geometric
+scikit-learn
+shap
+pandas
+datasets
+chembl_webresource_client
+mordred
+matplotlib  # added to satisfy interpretability script import
+# other pinned versions can be added as needed

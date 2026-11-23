@@ -1,13 +1,12 @@
 """
-T019: Flag samples where 'degenerate' prompt token delta < 100 tokens vs 'very complex'.
+Manual Review Flagger for Token Delta Analysis (Task T019a).
 
-This module implements the logic to identify prompt variants that fail to exhibit
-the expected token count separation between 'degenerate' and 'very_complex' complexity levels.
-According to the specification, if the delta is less than 100 tokens, the sample is flagged
-for manual review and appended to data/results/manual_review_queue.csv.
-
-This is a diagnostic check to ensure prompt generation logic is working as intended
-(i.e., degenerate prompts should be significantly longer/more redundant than very complex ones).
+Reads generated prompt variants from data/processed/prompt_variants.parquet.
+For each problem_id, compares 'degenerate' vs 'very_complex' variants.
+Flags samples where:
+  1. abs(token_delta) < 100
+  2. degenerate_token_count < very_complex_token_count
+Writes flagged samples to data/results/manual_review_queue.csv.
 """
 
 import os
@@ -15,145 +14,138 @@ import csv
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 import pandas as pd
-
 from config import Paths
-from data.storage import load_variants_from_parquet
-from models.data_models import ComplexityLabel
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 
-def calculate_token_delta(variants: List[Dict[str, Any]]) -> Optional[float]:
+def load_prompt_variants() -> pd.DataFrame:
+    """Load prompt variants from the processed parquet file."""
+    input_path = Paths.DATA_PROCESSED / "prompt_variants.parquet"
+    if not input_path.exists():
+        raise FileNotFoundError(
+            f"Input file not found: {input_path}. "
+            "Ensure T018 (storage) has been executed successfully."
+        )
+    logger.info(f"Loading prompt variants from {input_path}")
+    df = pd.read_parquet(input_path)
+    logger.info(f"Loaded {len(df)} prompt variants")
+    return df
+
+
+def calculate_token_delta(
+    degenerate_tokens: int, very_complex_tokens: int
+) -> int:
+    """Calculate absolute token delta between degenerate and very_complex variants."""
+    return abs(degenerate_tokens - very_complex_tokens)
+
+
+def flag_low_delta_samples(df: pd.DataFrame) -> List[Dict[str, Any]]:
     """
-    Calculate the token count difference between 'degenerate' and 'very_complex' variants.
+    Identify samples that fail the token delta criteria.
 
-    Args:
-        variants: List of prompt variant dictionaries containing 'complexity_label' and 'token_count'.
+    Criteria:
+      1. abs(token_delta) < 100
+      2. degenerate_token_count < very_complex_token_count
 
-    Returns:
-        The token delta (degenerate - very_complex) if both exist, otherwise None.
+    Returns a list of dictionaries for the manual review queue.
     """
-    degenerate_token_count = None
-    very_complex_token_count = None
-
-    for variant in variants:
-        label = variant.get('complexity_label')
-        token_count = variant.get('token_count')
-
-        if label == 'degenerate' and token_count is not None:
-            degenerate_token_count = token_count
-        elif label == 'very_complex' and token_count is not None:
-            very_complex_token_count = token_count
-
-    if degenerate_token_count is not None and very_complex_token_count is not None:
-        return degenerate_token_count - very_complex_token_count
-
-    return None
-
-
-def flag_low_delta_samples(
-    variants_df: pd.DataFrame,
-    threshold: float = 100.0,
-    output_path: Optional[Path] = None
-) -> pd.DataFrame:
-    """
-    Identify samples where the token delta between degenerate and very_complex is below threshold.
-
-    Args:
-        variants_df: DataFrame containing prompt variants with columns:
-            - problem_id
-            - complexity_label
-            - token_count
-        threshold: Minimum expected token difference (default 100).
-        output_path: Path to write the manual review CSV. Defaults to data/results/manual_review_queue.csv.
-
-    Returns:
-        DataFrame of flagged samples with columns: problem_id, degenerate_tokens, very_complex_tokens, delta.
-    """
-    if output_path is None:
-        output_path = Paths.RESULTS_DIR / "manual_review_queue.csv"
-
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Group by problem_id to compare variants
     flagged_samples = []
 
-    for problem_id, group in variants_df.groupby('problem_id'):
-        # Get token counts for specific complexity labels
-        degenerate_row = group[group['complexity_label'] == 'degenerate']
-        very_complex_row = group[group['complexity_label'] == 'very_complex']
+    # Group by problem_id
+    grouped = df.groupby("problem_id")
 
-        if degenerate_row.empty or very_complex_row.empty:
+    for problem_id, group in grouped:
+        # Filter for specific labels
+        degenerate_rows = group[group["variant_label"] == "degenerate"]
+        very_complex_rows = group[group["variant_label"] == "very_complex"]
+
+        if degenerate_rows.empty or very_complex_rows.empty:
+            logger.debug(f"Skipping {problem_id}: missing degenerate or very_complex variant")
             continue
 
-        degenerate_tokens = degenerate_row['token_count'].iloc[0]
-        very_complex_tokens = very_complex_row['token_count'].iloc[0]
-        delta = degenerate_tokens - very_complex_tokens
+        # Assume single row per label per problem (as per design)
+        deg_row = degenerate_rows.iloc[0]
+        vc_row = very_complex_rows.iloc[0]
 
-        # Flag if delta is below threshold
-        if delta < threshold:
-            flagged_samples.append({
-                'problem_id': problem_id,
-                'degenerate_token_count': degenerate_tokens,
-                'very_complex_token_count': very_complex_tokens,
-                'delta': delta,
-                'reason': 'Degenerate prompt token delta < 100 vs very complex'
-            })
+        deg_tokens = deg_row.get("token_count", 0)
+        vc_tokens = vc_row.get("token_count", 0)
 
-    flagged_df = pd.DataFrame(flagged_samples)
+        token_delta = calculate_token_delta(deg_tokens, vc_tokens)
 
-    # Write to CSV
-    if not flagged_df.empty:
-        # Check if file exists to determine append mode
-        file_exists = output_path.exists() and output_path.stat().st_size > 0
-        mode = 'a' if file_exists else 'w'
-        header = mode == 'w'
+        reasons = []
 
-        flagged_df.to_csv(
-            output_path,
-            mode=mode,
-            index=False,
-            header=header
-        )
+        # Check condition 1: Delta too low
+        if token_delta < 100:
+            reasons.append("token_delta_low")
 
-    return flagged_df
+        # Check condition 2: Degenerate under complex
+        if deg_tokens < vc_tokens:
+            reasons.append("degenerate_under_complex")
+
+        if reasons:
+            for reason in reasons:
+                flagged_samples.append({
+                    "problem_id": str(problem_id),
+                    "variant_label": "degenerate", # Flagging the degenerate variant's issue
+                    "token_delta": token_delta,
+                    "reason": reason
+                })
+            logger.warning(
+                f"Flagged problem {problem_id}: "
+                f"delta={token_delta}, deg={deg_tokens}, vc={vc_tokens}, reasons={reasons}"
+            )
+
+    return flagged_samples
 
 
-def main():
-    """
-    Main entry point for T019 implementation.
-    Loads generated variants, flags low-delta samples, and writes to manual review queue.
-    """
-    print("Starting T019: Manual Review Flagging for Low Token Delta")
+def write_manual_review_queue(flagged_samples: List[Dict[str, Any]]) -> None:
+    """Append flagged samples to the manual review queue CSV."""
+    output_path = Paths.DATA_RESULTS / "manual_review_queue.csv"
 
-    # Load variants from parquet
-    variants_path = Paths.PROCESSED_DIR / "prompt_variants.parquet"
-    if not variants_path.exists():
-        print(f"ERROR: Variants file not found at {variants_path}")
-        print("Please ensure T018 (storage) has been completed first.")
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Determine if file exists to handle headers correctly
+    file_exists = output_path.exists()
+
+    if not flagged_samples:
+        logger.info("No samples flagged for manual review.")
+        # If file doesn't exist, create it with headers
+        if not file_exists:
+            with open(output_path, "w", newline="") as f:
+                writer = csv.DictWriter(f, fieldnames=["problem_id", "variant_label", "token_delta", "reason"])
+                writer.writeheader()
         return
 
-    print(f"Loading variants from {variants_path}...")
-    variants_df = load_variants_from_parquet(variants_path)
+    fieldnames = ["problem_id", "variant_label", "token_delta", "reason"]
 
-    if variants_df is None or variants_df.empty:
-        print("WARNING: No variants found in the dataset.")
-        return
+    mode = "a" if file_exists else "w"
+    with open(output_path, mode, newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        if not file_exists:
+            writer.writeheader()
+        writer.writerows(flagged_samples)
 
-    print(f"Loaded {len(variants_df)} variants")
+    logger.info(f"Wrote {len(flagged_samples)} flagged samples to {output_path}")
 
-    # Perform flagging
-    output_path = Paths.RESULTS_DIR / "manual_review_queue.csv"
-    flagged_df = flag_low_delta_samples(variants_df, threshold=100.0, output_path=output_path)
 
-    if flagged_df.empty:
-        print(f"No samples flagged for manual review. All degenerate prompts have delta >= 100.")
-    else:
-        print(f"Flagged {len(flagged_df)} samples for manual review.")
-        print(f"Results written to: {output_path}")
-        print("\nFlagged samples summary:")
-        print(flagged_df[['problem_id', 'degenerate_token_count', 'very_complex_token_count', 'delta']].to_string())
+def main() -> None:
+    """Main entry point for the manual review flagger."""
+    logger.info("Starting manual review flagging (T019a)...")
 
-    return flagged_df
+    try:
+        df = load_prompt_variants()
+        flagged = flag_low_delta_samples(df)
+        write_manual_review_queue(flagged)
+        logger.info("Manual review flagging completed successfully.")
+    except FileNotFoundError as e:
+        logger.error(f"Data file missing: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Error during flagging: {e}", exc_info=True)
+        raise
 
 
 if __name__ == "__main__":

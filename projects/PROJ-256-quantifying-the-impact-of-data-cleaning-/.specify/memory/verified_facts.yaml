@@ -1,5 +1,5 @@
-869|5198f869 claim:
-  quote: 'P123: Elsevier'
-  source_id: Q15753935
-  url: https://www.wikidata.org/wiki/Q15753935
-  value: Elsevier
+0 02073 94|02073a94 check claim existence implementation script size t2020a:
+  quote: 'P856: https://verifythis.com'
+  source_id: Q126592664
+  url: https://www.wikidata.org/wiki/Q126592664
+  value: https://verifythis.com

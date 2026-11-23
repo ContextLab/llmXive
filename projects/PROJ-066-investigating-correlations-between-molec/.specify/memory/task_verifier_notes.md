@@ -1,0 +1,8 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T003b** — The evidence collector lists no artifacts on disk for this task — no configuration file (e.g., `.flake8`, `setup.cfg`, or `pyproject.toml` linting section) exists anywhere under the project root, so there is nothing containing the required max-line-length setting and E501 ignore rule. The implementer must actually create the linting configuration file in `projects/PROJ-066-investigating-correlations-between-molec`.
+- **T007** — the task writes platform-owned path(s) inside the project: `state/projects/PROJ-066-investigating-correlations-between-molec.yaml` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T009** — the task writes platform-owned path(s) inside the project: `state/projects/PROJ-066-investigating-correlations-between-molec.yaml` (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform owns state/ and derives artifact hashes at verification time. Re-scope the step to write only project-owned outputs.
+- **T010** — Requested task execution failed; rerun successfully: code/data/preprocess.py exit=1

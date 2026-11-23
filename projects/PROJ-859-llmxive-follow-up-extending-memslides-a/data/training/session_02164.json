@@ -1,0 +1,107 @@
+{
+  "trace_id": "training_42_02164",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "insert_chart",
+    "delete_element",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "resize_element",
+    "format_text",
+    "insert_chart"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 84.1132,
+        "y": 96.3759,
+        "width": 38.5658,
+        "height": 31.6005,
+        "data_points": 79.5708
+      }
+    },
+    {
+      "step": 1,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 17.8259
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 20.6301,
+        "saturation": 37.1775
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 98.2953,
+        "saturation": 5.6454
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 19.7904,
+        "saturation": 65.8292
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 42.556,
+        "saturation": 91.8797
+      }
+    },
+    {
+      "step": 6,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 16.8831,
+        "height": 95.8497
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 32.313,
+        "x": 59.218,
+        "y": 41.0511
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 15.0467,
+        "y": 81.1682,
+        "width": 93.0513,
+        "height": 58.4158,
+        "data_points": 33.7563
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.427061,
+    "tool_repetition_freq": 0.444444,
+    "arg_semantic_variance": 913.215602
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 10,
+    "layout_hash": "42-2164-apply_theme"
+  }
+}

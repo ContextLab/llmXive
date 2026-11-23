@@ -35,5 +35,15 @@
     "figures/leakage_bars.pdf",
     "figures/annotation_page_axis.jpeg",
     "figures/per_character_lift.pdf"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "1459c1d9471fe0d51783aba07f6ba39deaccfee22429426a23db6150ba85e911",
+      "bytes": 2668825
+    },
+    "original.pdf": {
+      "sha256": "8f8cdd0f120a8e1779e86c706d79a04acd567978ebee1eb67ee5117744c9f633",
+      "bytes": 2772355
+    }
+  }
 }

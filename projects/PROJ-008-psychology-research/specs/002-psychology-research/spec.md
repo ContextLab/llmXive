@@ -1,110 +1,106 @@
 # Feature Specification: Mindfulness Components and Delivery Formats in ASD Social Skills
 
-**Feature Branch**: `001-mindfulness-asd-social-skills`  
-**Created**: 2026-06-26  
-**Status**: Draft  
-**Input**: User description: "The Role of Mindfulness in Improving Social Skills Among Children with Autism"
+## User Stories
 
-## User Scenarios & Testing
+### US1: Data Collection and Cleaning Pipeline (P1) (See SC-001, SC-005)
+**As a** researcher,
+**I want** to collect study data from ClinicalTrials.gov, OSF, and PubMed-indexed full‑text articles,
+**so that** I can extract standardized variables for meta‑analysis.
 
-### User Story 1 - Data Collection and Cleaning Pipeline (Priority: P1)
+**Acceptance Criteria**:
+- [ ] Studies are retrieved from ClinicalTrials.gov, OSF, and PubMed only (Constitution Principle VI)
+- [ ] Inclusion criteria: age 6‑12, ASD diagnosis, social skill outcomes, **randomized controlled trial design** (RCT) (see scientific soundness‑1e8349cb)  
+  *Rationale*: Quasi‑experimental designs introduce selection bias; restricting to RCTs preserves causal validity while still allowing a moderator analysis for any accidental quasi‑experimental records.
+- [ ] Study design type (RCT vs. quasi‑experimental) is recorded as `design_type` and will be used as a moderator in meta‑analysis (FR-017)
+- [ ] Multi‑arm studies are combined using Cochrane’s recommended inverse‑variance weighting method (FR-018) **instead of proportional control splitting** (see FR-008 revision)
+- [ ] Output: `data/processed/cleaned_studies.csv` and `data/raw/excluded_studies.log`
+- [ ] DOI for each study is validated via Crossref API (FR-015)
+- [ ] Registry URLs are also validated for correctness (FR-032)
 
-The system MUST ingest raw study data from ClinicalTrials.gov, OSF, Semantic Scholar, arXiv, and OpenAlex, where data is retrieved via API queries or manual exports, validate it against the inclusion criteria (children aged 6-12 with ASD, explicit social skill outcomes), and extract standardized variables (intervention component, delivery format, outcome measure scores, sample size, follow-up duration, social skill domain) into a clean CSV.
+### US2: Effect Size Calculation and Meta‑Analysis (P2) (See SC-002, SC-006)
+**As a** researcher,
+**I want** to calculate Hedges' g effect sizes and perform random‑effects meta‑analysis,
+**so that** I can quantify intervention efficacy and heterogeneity.
 
-**Why this priority**: Without a reliable, validated dataset from diverse sources, no statistical analysis can be performed. This is the foundational step that determines the validity of all downstream results and addresses the risk of zero studies from primary registries.
+**Acceptance Criteria**:
+- [ ] Hedges' g calculated with small‑sample correction; when baseline means/SDs are available, compute change‑score g (FR-026); otherwise use post‑score g and note limitation (FR-033).
+- [ ] Random‑effects model uses REML estimator and Hartung–Knapp adjustment (FR-022)
+- [ ] Subgroup analysis for mindfulness components, delivery formats, social‑skill domains, and follow‑up duration (FR-016, FR-010, FR-011, FR-012)
+- [ ] Power analysis performed **for each subgroup** (α = 0.05, power = 0.80, expected g = 0.5) and documented (FR-019); reports required number of studies per subgroup.
+- [ ] If total number of studies N < 10, switch to descriptive synthesis (no meta‑regression)
 
-**Independent Test**: The pipeline can be tested by running it against a known set of 5 mock study records with predefined inclusion/exclusion flags and verifying that the output CSV contains exactly the expected 3 included records with correctly parsed numeric fields and categorical labels.
+### US3: Visualization and Publication‑Bias Assessment (P3) (See SC-003, SC-004)
+**As a** researcher,
+**I want** to generate forest plots and funnel plots,
+**so that** I can visualize results and assess publication bias.
 
-**Acceptance Scenarios**:
+**Acceptance Criteria**:
+- [ ] Forest plot shows study‑specific CIs and pooled effect diamond for all analyses
+- [ ] Funnel plot and Egger's test are generated **only if N ≥ 10** (FR-006)
+- [ ] Synthetic dataset fixture containing at least ten studies is available for testing the conditional branch (testability‑d6626563)
+- [ ] Final report includes all plots and narrative synthesis
 
-1. **Given** a CSV export from ClinicalTrials.gov containing 10 studies, **When** the pipeline processes the file, **Then** exactly 3 studies meeting the age (6-12) and diagnosis (ASD) criteria are retained, and the others are logged to `excluded_studies.log` with the specific reason (e.g., "Age > 12", "No social skill outcome").
-2. **Given** a study record with missing "follow-up duration" but valid baseline and post-intervention scores, **When** the pipeline processes the record, **Then** the record is retained with `follow_up_months` set to `null` and a warning is logged, allowing the meta-analysis to proceed using available data points.
-3. **Given** a study where the intervention description lists "breath awareness and body scan", **When** the pipeline processes the record, **Then** the intervention component is tagged as "combined" and the record is retained for subgroup analysis.
+## Functional Requirements
 
----
+- **FR-001**: Data collector must support ClinicalTrials.gov, OSF, and PubMed APIs (See US1)
+- **FR-002**: Rate‑limiting and exponential backoff for API calls
+- **FR-003**: Extract intervention components and delivery formats using regex patterns (See US2, FR-016)
+- **FR-004**: Calculate Hedges' g with small‑sample correction; retain `n_treatment` and `n_control` in output (FR-024)
+- **FR-005**: Random‑effects meta‑analysis with heterogeneity statistics using REML and Hartung–Knapp (FR-022)
+- **FR-006**: Generate forest plot for all analyses; generate funnel plot and Egger's test **only if N ≥ 10** (see US3)
+- **FR-007**: Validate data against schema contracts
+- **FR-008**: **Combine multi‑arm studies by applying Cochrane’s inverse‑variance weighting to merge treatment arms into a single contrast against a shared control.**  
+  *Algorithm*:  
+  1. Compute each arm’s effect size (Hedges’ g) and variance.  
+  2. Derive weights = 1/variance.  
+  3. Weighted‑average effect = Σ(w_i · g_i) / Σ w_i.  
+  4. Combined variance = 1 / Σ w_i.  
+  5. Output a single record with `n_treatment` = Σ n_treatment_i, `n_control` unchanged, and the combined effect/variance fields.  
+  **Unit‑test fixture**: `tests/fixtures/multi_arm_split.yaml` demonstrates input with two treatment arms (n=30, n=25) sharing a control (n=55) and the expected combined row.
+- **FR-009**: Abstract‑only text extraction fallback (no full‑text OCR); flag records where extraction relied solely on abstract for manual review (FR‑020)
+- **FR-010**: Extract social skill domains (communication, peer interaction, etc.) and store in `social_skill_domain` (See Data Model)
+- **FR-011**: Subgroup analysis by social skill domain
+- **FR-012**: Follow‑up duration subgroup analysis
+- **FR-013**: Effect size calculation from summary statistics (post‑score or change‑score as per FR‑026/FR‑033)
+- **FR-014**: Conditional logic: suppress meta‑regression if N < 10
+- **FR-015**: Validate DOI existence for each study via Crossref API (Constitution Principle II)
+- **FR-016**: Extract delivery_format (caregiver‑mediated vs. child‑led) and store in `delivery_format` (See Data Model)
+- **FR-017**: Record study design type (`design_type`) and use as moderator in meta‑analysis
+- **FR-018**: Combine multiple treatment arms using Cochrane’s inverse‑variance method (replaces proportional splitting)
+- **FR-019**: Perform **subgroup‑specific** power calculations (α = 0.05, power = 0.80, expected g = 0.5) and report required number of studies per subgroup (components, formats, skill domains, follow‑up)
+- **FR-020**: Flag studies where component/delivery‑format extraction relied on abstract‑only data for manual verification
+- **FR-021**: Extract risk‑of‑bias rating per Cochrane RoB2 and store in `rob_score`
+- **FR-022**: Use REML estimator for τ² and apply Hartung–Knapp adjustment
+- **FR-023**: If registry entries lack means/SDs, retrieve full‑text article via PubMed and extract required statistics
+- **FR-024**: EffectSize CSV must include columns `n_treatment` and `n_control`
+- **FR-025**: Update `contracts/cleaned_study.schema.yaml` to require `social_skill_domain`
+- **FR-027**: Update `contracts/cleaned_study.schema.yaml` to require `delivery_format`
+- **FR-028**: Exclude records flagged by FR‑020 from subgroup analyses unless manually verified; otherwise report sensitivity analysis with and without those records.
+- **FR-030**: Incorporate risk‑of‑bias (`rob_score`) as a weighting factor in meta‑analysis and provide a sensitivity analysis stratified by RoB2 categories.
+- **FR-031**: Supplement registry‑only data with PubMed‑indexed full‑text articles to obtain missing means/SDs; log source provenance for each extracted statistic.
+- **FR-032**: Validate both registry URLs and DOIs for correctness and existence (Crossref for DOIs, HTTP HEAD for URLs).
+- **FR-033**: When baseline (pre‑intervention) means/SDs are available, compute change‑score Hedges' g; otherwise compute post‑score g and annotate the effect size record with `baseline_used: false`.
 
-### User Story 2 - Effect Size Calculation and Meta-Analysis (Priority: P2)
+## Non‑Functional Requirements
 
-The system MUST calculate Hedges' *g* effect sizes for each included study using the extracted means, standard deviations, and sample sizes, then perform a random-effects meta-analysis to estimate the pooled effect size and conduct subgroup analyses (using Cochran's Q-test) comparing mindfulness components and delivery formats, with meta-regression only if N ≥ 10.
+- **SC-001**: Data collection reproducibility – CI pipeline must complete without error on a fresh GitHub Actions runner and produce identical SHA‑256 hashes for `cleaned_studies.csv` and `excluded_studies.log` across two independent runs (See US1)
+- **SC-002**: Effect‑size calculation correctness – Hedges' g values must match those produced by the metafor R package within a suitably small tolerance for a benchmark dataset of five studies. (See US2)
+- **SC-003**: Plot generation – Forest and funnel plot PNG files must be generated; their SHA‑256 checksums must match expected values for the synthetic dataset of ≥10 studies (See US3)
+- **SC-004**: Risk‑of‑bias extraction – `rob_score` column must be present for all studies and contain a valid RoB2 categorical value (low, some concerns, high) (See FR‑021)
+- **SC-005**: Reproducibility on fresh runner – CI pipeline must complete all steps without error and produce identical SHA‑256 hashes for all output artifacts on a fresh GitHub Actions runner (See US1)
+- **SC-006**: Power analysis reporting – Power analysis report must state the minimum number of studies required for each subgroup to achieve 80 % power at α = 0.05 (See FR‑019)
 
-**Why this priority**: This is the core analytical engine that answers the primary research question regarding which components and formats are most effective, while ensuring statistical validity by conditioning complex models on sample size.
+## Data Models
 
-**Independent Test**: The calculation module can be tested by providing a synthetic dataset of 3 studies with known means and standard deviations, verifying that the calculated Hedges' *g* matches the manual calculation within a tolerance of 0.001, and that the random-effects model produces a pooled estimate consistent with a standard reference implementation (e.g., `metafor` in R).
+- **Study**: `id`, `title`, `registry`, `population`, `intervention`, `control`, `outcomes`, `follow_up`, `social_skill_domain`, `delivery_format`, `design_type`, `rob_score`
+- **EffectSize**: `study_id`, `hedges_g`, `se`, `ci_lower`, `ci_upper`, `n_treatment`, `n_control`, `baseline_used`
+- **MetaAnalysisResult**: `pooled_g`, `se`, `ci`, `i2`, `q_statistic`, `p_value`, `n_studies`
 
-**Acceptance Scenarios**:
+## Schema Contracts
 
-1. **Given** a dataset of 5 studies with complete pre/post means and standard deviations, **When** the analysis runs, **Then** Hedges' *g* is calculated for each study, and the random-effects pooled effect size is reported with a 95% confidence interval.
-2. **Given** a dataset where studies are tagged by delivery format (caregiver-mediated vs. child-led), **When** the subgroup analysis runs, **Then** the output includes a Cochran's Q statistic and p-value comparing the effect sizes between the two formats.
-3. **Given** a dataset with heterogeneous effect sizes (I² > 50%), **When** the analysis runs, **Then** the heterogeneity statistics (Q, I², τ²) are calculated and reported, and the random-effects model is used instead of a fixed-effects model.
+- `contracts/cleaned_study.schema.yaml` (must require `social_skill_domain` and `delivery_format`; updated per FR‑025 & FR‑027)
+- `contracts/effect_size.schema.yaml`
 
----
+## Test Fixtures
 
-### User Story 3 - Visualization and Publication Bias Assessment (Priority: P3)
-
-The system MUST generate forest plots for the overall effect and subgroup analyses, and a funnel plot (if N ≥ 10) to assess publication bias, saving these as high-resolution PNG files and including them in the final report.
-
-**Why this priority**: Visualizations are essential for interpreting the meta-analysis results and assessing the robustness of the findings against publication bias, which is critical for the validity of the review, while avoiding invalid tests on small samples.
-
-**Independent Test**: The visualization module can be tested by running it on a small dataset and verifying that the forest plot correctly displays the study-specific effect sizes and confidence intervals, and that the funnel plot is suppressed if N < 10.
-
-**Acceptance Scenarios**:
-
-1. **Given** a dataset of 10 studies with calculated effect sizes, **When** the forest plot is generated, **Then** the plot displays each study's effect size with its 95% CI, the pooled effect size diamond, and a clear legend distinguishing between mindfulness components.
-2. **Given** a dataset with potential publication bias (missing small studies with negative effects) and N ≥ 10, **When** the funnel plot is generated, **Then** the plot visually shows asymmetry, and Egger's test reports a significant p-value (< 0.10).
-3. **Given** a dataset with N < 10, **When** the report is generated, **Then** the funnel plot and Egger's test are suppressed, and a warning is included in the final report.
-
----
-
-### Edge Cases
-
-- What happens when a study reports only p-values or confidence intervals instead of means and standard deviations? The system MUST attempt to reconstruct the necessary statistics or exclude the study with a detailed log entry explaining the reconstruction failure.
-- How does the system handle studies with multiple intervention arms (e.g., both breath awareness and body scan tested separately)? The system MUST either split the control group proportionally or select the most relevant arm based on predefined rules, documenting the choice in the analysis log.
-- What happens if the number of included studies is less than 10? The system MUST still perform the meta-analysis but suppress the funnel plot and Egger's test, as these are unreliable with small sample sizes, and issue a warning in the final report. If N < 10, subgroup analyses (Cochran's Q) are also suppressed in favor of descriptive statistics and narrative synthesis.
-
-## Requirements
-
-### Functional Requirements
-
-- **FR-001**: System MUST query ClinicalTrials.gov (endpoint: /study/v2), OSF (API v2), Semantic Scholar, arXiv, and OpenAlex APIs for completed trials involving "mindfulness" and "autism" or "ASD" published between 2015–2024, with rate-limit handling (max 10 requests/sec, exponential backoff), and return a list of study identifiers (See US-1).
-- **FR-002**: System MUST parse study metadata and extract inclusion criteria (age 6-12, ASD diagnosis, social skill outcome measures) to filter the candidate studies, mapping 'age' to 'enrollment_age_min/max' fields and 'ASD diagnosis' to 'conditions' field containing 'Autism Spectrum Disorder' or 'ASD' (See US-1).
-- **FR-003**: System MUST extract numeric data (means, standard deviations, sample sizes) and categorical variables (intervention component, delivery format, follow-up duration, social skill domain) from the included studies, using regex patterns for 'breath', 'body scan', 'loving-kindness' and keywords 'caregiver', 'parent', 'child-led', 'self-directed' for classification (See US-1).
-- **FR-004**: System MUST calculate Hedges' *g* effect sizes for each study using the extracted means, standard deviations, and sample sizes, correcting for small sample bias (See US-2).
-- **FR-005**: System MUST perform a random-effects meta-analysis to estimate the pooled effect size and conduct subgroup analyses using Cochran's Q-test comparing mindfulness components (breath, body scan, loving-kindness) and delivery formats (caregiver-mediated vs. child-led), with meta-regression only if N ≥ 10; studies with missing subgroup tags are excluded from that specific subgroup analysis (See US-2).
-- **FR-006**: System MUST generate forest plots for the overall effect and subgroup analyses, and a funnel plot to assess publication bias (unless N < 10), saving them as PNG files (See US-3).
-- **FR-007**: System MUST log all excluded studies with specific reasons (e.g., age range, missing outcome measure) and all data extraction decisions in a structured log file (See US-1).
-- **FR-008**: System MUST handle studies with multiple intervention arms by either splitting the control group proportionally or selecting the most relevant arm, and document the approach in the analysis log (See US-2).
-- **FR-009**: System MUST attempt data reconstruction from full-text PDFs if registry data is incomplete, using OCR and text extraction tools (See US-1).
-- **FR-010**: System MUST extract and categorize social skill domains (peer interaction, emotional recognition, reciprocal communication) from study descriptions using keyword matching (See US-2).
-- **FR-011**: System MUST perform subgroup analysis by social skill domain (peer interaction, emotional recognition, reciprocal communication) if N ≥ 10, using Cochran's Q-test (See US-2).
-- **FR-012**: System MUST perform a subgroup analysis comparing effect sizes at '3-month follow-up' versus other timepoints if data is available (See US-2).
-- **FR-013**: System MUST use Hedges' *g* (standardized mean difference) for all effect size calculations to handle different scales, and exclude studies where scales are incomparable and cannot be standardized (See US-2).
-- **FR-014**: If N < 10, the system MUST perform descriptive statistics and narrative synthesis instead of subgroup analyses and meta-regression, and report this limitation (See US-2).
-
-### Key Entities
-
-- **Study**: Represents a single clinical trial record, containing attributes: `study_id`, `title`, `population_age_range`, `diagnosis`, `intervention_components`, `delivery_format`, `outcome_measure`, `sample_size`, `pre_mean`, `pre_sd`, `post_mean`, `post_sd`, `follow_upDuration`, `social_skill_domain`.
-- **EffectSize**: Represents the calculated effect size for a study, containing attributes: `study_id`, `hedges_g`, `standard_error`, `confidence_interval_lower`, `confidence_interval_upper`.
-- **MetaAnalysisResult**: Represents the aggregated results, containing attributes: `pooled_effect_size`, `confidence_interval`, `heterogeneity_I2`, `heterogeneity_tau2`, `subgroup_effects` (dict of component/format to effect size).
-
-## Success Criteria
-
-### Measurable Outcomes
-
-> Planning docs state *what* will be measured and the *source/reference* it is
-> measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
-
-- **SC-001**: The number of included studies is measured against the inclusion criteria (age 6-12, ASD, social skill outcomes) and the total number of candidate studies retrieved from ClinicalTrials.gov, OSF, Semantic Scholar, arXiv, and OpenAlex (defined as the count after initial keyword filtering but before full-text review) (See US-1).
-- **SC-002**: The precision of Hedges' *g* calculation is measured against a manual calculation or a standard reference implementation (e.g., `metafor` in R) for a synthetic dataset (See US-2).
-- **SC-003**: The heterogeneity of effect sizes is measured using the I² statistic and reported in the final analysis, with a threshold of I² > 50% triggering the use of a random-effects model (as defined in Edge Cases) (See US-2).
-- **SC-004**: The publication bias is assessed using a funnel plot and Egger's test (if applicable, i.e., if N ≥ 10), with asymmetry or a significant p-value (< 0.10) indicating potential bias (See US-3).
-- **SC-005**: The reproducibility of the analysis is measured by the ability to re-run the entire pipeline on the same dataset and produce identical results (within floating-point tolerance) (See US-2).
-
-## Assumptions
-
-- The ClinicalTrials.gov, OSF, Semantic Scholar, arXiv, and OpenAlex APIs provide sufficient metadata and outcome data for the included studies, or the data can be reconstructed from the published abstracts or full texts if available in open access.
-- The social skill outcome measures used in the included studies are sufficiently comparable to allow for meta-analysis using Hedges' *g* (standardized mean difference), or the system will exclude studies with incomparable scales.
-- The number of included studies may be less than 10; if so, subgroup analyses and meta-regressions are suppressed in favor of descriptive statistics and narrative synthesis, and the fallback APIs do not guarantee N ≥ 10.
-- The analysis will be performed on a CPU-only environment (GitHub Actions free-tier runner) with ≤ 7 GB RAM and ≤ 6 hours runtime, so all methods must be computationally tractable within these constraints.
-- The intervention components (breath awareness, body scan, loving-kindness) and delivery formats (caregiver-mediated, child-led) can be reliably categorized from the study descriptions, with any ambiguous cases documented and handled as "combined" or excluded.
-- The effect sizes will be calculated using the pre-post design, and if only post-intervention data is available, the system will use the post-intervention means and standard deviations with the control group as a reference, acknowledging the limitation in the report.
+- `tests/fixtures/multi_arm_split.yaml` – YAML file describing a synthetic multi‑arm study with two treatment arms and a shared control; expected combined record after applying FR‑008 algorithm. Used by the unit‑test suite to verify correct arm‑combination logic.

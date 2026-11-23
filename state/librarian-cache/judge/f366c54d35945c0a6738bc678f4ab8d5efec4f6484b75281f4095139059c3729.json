@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1802.00625",
+  "judged_at": "2026-08-09T06:25:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"minwm: a full-stack open-source framework for real-time interactive vi\" computer science",
+  "rationale": "The paper focuses on real-time sensor data analytics in industrial bulk materials handling and cyber-physical systems (CPS), which is an off-domain application compared to the user's question about extending a specific open-source framework for Large Language Models (LLMs) and interactive vision. While both involve \"real-time\" systems, the paper addresses physical sensor fusion and inverse physics problems, lacking any measurable connection to the LLM architecture, the \"minWM\" framework, or the ",
+  "relevant": false
+}

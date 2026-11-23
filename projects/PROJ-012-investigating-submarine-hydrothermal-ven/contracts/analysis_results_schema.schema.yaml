@@ -1,0 +1,68 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Results Schema
+description: Schema for diversity metrics and statistical analysis results.
+type: object
+required:
+  - sample_id
+  - metric_type
+  - value
+properties:
+  sample_id:
+    type: string
+    description: Reference to the Sample entity.
+    pattern: "^[A-Z0-9-]+$"
+  metric_type:
+    type: string
+    enum:
+      - shannon
+      - simpson
+      - observed_otus
+      - bray_curtis
+      - unweighted_unifrac
+      - weighted_unifrac
+    description: Type of diversity metric.
+  value:
+    type: number
+    description: Calculated metric value.
+  rarefaction_depth:
+    type: integer
+    description: Sequencing depth used for rarefaction.
+    minimum: 1
+  transformed_value:
+    type: number
+    description: Value after CLR or log transformation.
+  model_estimate:
+    type: number
+    description: Coefficient from LME/Regression.
+  model_se:
+    type: number
+    description: Standard error of the estimate.
+  model_p_value:
+    type: number
+    description: P-value from statistical test.
+  model_type:
+    type: string
+    enum:
+      - lme
+      - linear
+      - spearman
+      - permanova
+      - dbRDA
+    description: Type of statistical model used.
+  dispersion_flag:
+    type: string
+    enum:
+      - ok
+      - confounded
+    description: Flag for PERMANOVA dispersion issues.
+  variance_explained:
+    type: number
+    description: Variance explained by a factor in dbRDA.
+  source:
+    type: string
+    enum:
+      - pH
+      - temp
+      - residual
+    description: Source of variance in dbRDA.
+additionalProperties: false

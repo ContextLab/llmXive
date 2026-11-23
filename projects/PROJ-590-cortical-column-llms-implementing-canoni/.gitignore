@@ -1,0 +1,12 @@
+# Exclude all generated data files, but keep configuration, results, and logs
+data/*
+!data/configs/
+!data/results/
+!data/logs/
+
+# Python cache and compiled files
+__pycache__/
+*.pyc
+
+# Log files
+*.log

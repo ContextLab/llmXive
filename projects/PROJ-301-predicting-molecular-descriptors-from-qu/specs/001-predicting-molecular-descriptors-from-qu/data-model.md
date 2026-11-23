@@ -1,62 +1,68 @@
-# Data Model: Predicting Molecular Descriptors
+# Data Model: Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine Learning
 
 ## Overview
 
-This document defines the data structures, schemas, and storage formats used throughout the pipeline. All data is stored in efficient, columnar formats (Parquet, NumPy) to minimize I/O overhead and memory footprint.
+This document defines the data schemas, storage formats, and relationships for the molecular descriptor prediction pipeline. All data is stored in local files under `data/` and `artifacts/`, with strict versioning and checksums.
 
-## Entities
+## Entities & Relationships
 
-### 1. Molecule
-Represents a single chemical entity with its associated properties and identifiers.
+### 1. Molecule (Raw)
+The atomic unit of the dataset. Contains the raw 3D coordinates and DFT labels.
+- **Source**: QM9 Parquet (HuggingFace)
+- **Attributes**:
+  - `molecule_id`: Unique identifier (string).
+  - `smiles`: Canonical SMILES string (string).
+  - `xyz`: 3D coordinates (list of floats, shape `[N_atoms, 3]`).
+  - `mu`: Dipole moment (float, Debye).
+  - `homo`: HOMO energy (float, eV).
+  - `lumo`: LUMO energy (float, eV).
+  - `valid`: Boolean flag indicating if geometry and labels are present.
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `molecule_id` | `str` | Unique identifier (e.g., QM9 index or hash) | Dataset |
-| `smiles` | `str` | Canonical SMILES string | Dataset |
-| `mu` | `float` | Dipole moment (Debye) | Dataset (DFT) |
-| `homo` | `float` | HOMO energy (eV) | Dataset (DFT) |
-| `lumo` | `float` | LUMO energy (eV) | Dataset (DFT) |
-| `geometry` | `dict` | Dictionary of atomic symbols and 3D coordinates | Dataset (XYZ) |
+### 2. FeatureSet (Derived)
+The input matrix for machine learning models.
+- **Source**: `extract_features.py`
+- **Attributes**:
+  - `molecule_id`: Foreign key to Molecule.
+  - `features_2d`: Binary vector (array, shape `[2048]`).
+  - `features_3d`: Graph representation (stored as adjacency list + node/edge feature arrays, or flattened if feasible).
+  - `labels`: Dictionary `{mu, homo, lumo}`.
 
-### 2. FeatureSet
-Represents the input matrix for a specific model type.
+### 3. ModelResult (Artifact)
+The output of the training phase.
+- **Source**: `train_models.py`
+- **Attributes**:
+  - `model_type`: "2D" or "3D".
+  - `hyperparameters`: JSON object of used params.
+  - `cv_metrics`: List of fold results (MAE, RMSE per fold).
+  - `model_path`: Path to `.pkl` file.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `molecule_id` | `str` | Foreign key to Molecule |
-| `features` | `ndarray` | Flattened feature vector (2D: 2048 bits; 3D: variable length graph) |
-| `feature_type` | `str` | Enum: `"2D_morgan"`, `"3D_graph"` |
-
-### 3. ModelResult
-Stores the output of the training and evaluation process.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `model_id` | `str` | Unique identifier (e.g., `RF_2D_dipole`) |
-| `feature_type` | `str` | `"2D_morgan"` or `"3D_graph"` |
-| `target` | `str` | Target property (`mu`, `homo`, `lumo`) |
-| `fold_metrics` | `list` | List of dicts: `{"fold": int, "mae": float, "rmse": float}` |
-| `mean_mae` | `float` | Average MAE across folds |
-| `std_mae` | `float` | Standard deviation of MAE (Stability metric) |
-| `model_path` | `str` | Relative path to `.pkl` file |
+### 4. AnalysisReport (Artifact)
+The final comparative results.
+- **Source**: `analyze_results.py`
+- **Attributes**:
+  - `descriptor`: "mu", "homo", or "lumo".
+  - `mae_2d`, `mae_3d`: Mean Absolute Errors.
+  - `reli`: Relative Error Increase.
+  - `p_value`: Result of paired t-test.
+  - `failure_boundary`: Boolean (True if REI ≥ 10% or p < 0.0167).
 
 ## Storage Formats
 
-- **Raw Data**: Parquet (compressed, columnar).
-- **Processed Features**: NumPy (`.npy`) for dense matrices (2D) and Pickle (`.pkl`) for complex graph structures (3D).
-- **Metrics**: JSON for structured metadata, CSV for tabular summaries.
-- **Plots**: PNG (high resolution, 300 DPI).
+| Entity | Format | Location | Description |
+| :--- | :--- | :--- | :--- |
+| **Raw Data** | Parquet | `data/raw/qm9_full.parquet` (streamed) | Original QM9 dataset. |
+| **Subset Data** | Parquet | `data/raw/qm9_subset.parquet` | Sampled molecules fitting memory constraints. |
+| **Features** | NumPy (`.npy`) | `data/processed/features_2d.npy`, `features_3d.npy` | Pre-processed feature matrices. |
+| **Labels** | NumPy (`.npy`) | `data/processed/labels.npy` | Target vectors. |
+| **Models** | Pickle (`.pkl`) | `artifacts/models/` | Trained Random Forest objects. |
+| **Metrics** | JSON | `artifacts/metrics/cv_metrics.json` | Cross-validation results. |
+| **Analysis** | JSON | `artifacts/metrics/analysis_report.json` | Final REI and statistical test results. |
+| **Plots** | PNG | `artifacts/plots/` | Parity plots and error distributions. |
 
 ## Data Flow
 
-1. **Ingestion**: Raw QM9 Parquet -> `data/raw/qm9_subset.parquet`.
-2. **Extraction**:
-   - 2D: `data/processed/2d_features.npy` (Shape: [N, 2048]).
-   - 3D: `data/processed/3d_graphs.pkl` (List of graph dicts).
-   - Labels: `data/processed/labels.npy` (Shape: [N, 3]).
-3. **Training**:
-   - Models: `artifacts/models/*.pkl`.
-   - Metrics: `artifacts/metrics/cv_results.json`.
-4. **Analysis**:
-   - Comparisons: `artifacts/metrics/comparison_table.csv`.
-   - Plots: `artifacts/plots/parity_*.png`.
+1. **Download**: Stream QM9 from HF to `data/raw/`.
+2. **Sample**: Apply stratified random sampling (binary search for max N) to create `qm9_subset.parquet`.
+3. **Extract**: Generate 2D fingerprints and 3D graph features. Save to `.npy`.
+4. **Train**: Load `.npy` and `.pkl` models. Save metrics to JSON.
+5. **Analyze**: Load metrics, compute REI, run t-tests, generate plots. Save final report.

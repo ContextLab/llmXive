@@ -1,97 +1,153 @@
 # Implementation Plan: Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions
 
-**Branch**: `001-sentiment-drift` | **Date**: 2024-05-21 | **Spec**: `spec.md`
+**Branch**: `001-sentiment-drift` | **Date**: 2026-10-21 | **Spec**: [spec.md]  
 **Input**: Feature specification from `/specs/001-sentiment-drift/spec.md`
 
 ## Summary
-
-This feature implements a reproducible statistical analysis pipeline to investigate the lead/lag relationship between social media sentiment (GDELT) and macroeconomic indicators (GDP, Unemployment) during historical recessions. 
-
-**Critical Methodological Correction**: The spec mandates both "quarterly frequency" (FR-001, FR-002) and "4-week block length" for Moving Block Bootstrap (FR-006). These are mathematically incompatible (a 4-week block is less than one quarter). To satisfy the spec's validation constraint (4-week block) while maintaining statistical validity, the **entire analysis frequency is shifted to Monthly**. This allows the 4-week (approx. 1 month) block length to be valid. The plan explicitly documents this override of the spec's quarterly requirement as a necessary condition for the validation step to function.
-
-The approach involves ingesting time-series data from verified sources, aligning them to a **monthly** frequency, testing for stationarity (ADF), and conducting Granger causality tests via VAR/VECM models using three distinct sentiment variables (Positive, Negative, Neutral). The pipeline includes robust validation via Moving Block Bootstrap (MBB) with a block length of **1 month** (satisfying the 4-week requirement), sensitivity analysis on data masking, and visualization with NBER recession shading. All analysis is constrained to run on CPU-only CI (limited cores, limited RAM) using sampled data where necessary.
+Create a reproducible, end‑to‑end analytical pipeline that (1) ingests quarterly macro‑economic indicators and daily social‑media sentiment scores, (2) aligns both to a common quarterly frequency with documented interpolation, (3) performs stationarity testing, lag selection, VAR/VECM fitting, and Granger causality analysis, (4) validates results via rolling‑origin forecasts, Moving Block Bootstrap, and sensitivity checks, (5) visualizes temporal relationships with NBER recession shading, and (6) exports all artifacts in a single Jupyter notebook. All steps run on the CPU‑only GitHub Actions free‑tier runner.
 
 ## Technical Context
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**  
+  ```text
+  pandas==2.2.*
+  numpy==2.0.*
+  statsmodels==0.14.*
+  scikit-learn==1.5.*
+  matplotlib==3.9.*
+  seaborn==0.13.*
+  datasets==2.20.*          # HuggingFace dataset loader
+  fredapi==0.5.*            # FRED API wrapper
+  pykalman==0.9.*           # Kalman‑Smoother imputation
+  ruptures==1.1.*           # PELT change‑point detection
+  python-dotenv==1.0.*
+  ```
+- **Compute**: CPU‑only (2 cores, ≤7 GB RAM, ≤6 h). All statistical methods are CPU‑friendly; no GPU is required.  
+- **Storage**: CSV/Parquet under `data/`.  
+- **Testing**: `pytest==8.2.*` + JSON‑schema validation (see `contracts/`).  
 
-**Language/Version**: Python 3.10  
-**Primary Dependencies**: `pandas`, `numpy`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`, `requests`, `datasets` (HuggingFace), `fredapi`, `pygdelt`  
-**Storage**: Local `data/` directory (CSV/Parquet), `code/` (Jupyter Notebooks, Scripts)  
-**Testing**: `pytest` (unit tests for data alignment, model output schema validation), `jupyter` (notebook execution validation)  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM, No GPU)  
-**Project Type**: Statistical Analysis Pipeline / Research Notebook  
-**Performance Goals**: Complete full pipeline (ingest → model → bootstrap → viz) within 6 hours on free-tier runner.  
-**Constraints**: No GPU; memory usage <7GB; dataset must be sampled to **100k rows** (see `research.md`) if raw size exceeds RAM; no new constraints added beyond spec.  
-**Scale/Scope**: Historical time-series (late 20th century–2024), **monthly frequency**, ~400 data points per series.
+## Data Availability Note
+The verified datasets block now **includes** open, programmatically downloadable sources for all required inputs:
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+| Data Type | Source URL | Loader |
+|-----------|------------|--------|
+| GDP (quarterly) | https://fred.stlouisfed.org/series/GDP | `fredapi` |
+| Unemployment Rate (quarterly) | https://fred.stlouisfed.org/series/UNRATE | `fredapi` |
+| Consumer Confidence Index (quarterly) | https://fred.stlouisfed.org/series/CSCICP03 | `fredapi` |
+| Placeholder Sentiment (open) | https://huggingface.co/datasets/allenai/tweet_sentiment | `datasets.load_dataset` (HuggingFace) |
+
+Only URLs from this table may be referenced in the implementation to satisfy Constitution Principle II. The placeholder sentiment dataset is **not** historically specific; therefore a manual validation step (Phase 2) is required to assess construct validity. Researchers may replace it with a more appropriate, verified dataset if available; otherwise the pipeline aborts with a clear error (see FR‑015).
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research.*
-
-| Principle | Check Status | Evidence/Action Plan |
-|-----------|--------------|----------------------|
-| **I. Reproducibility** | PASS | Plan mandates pinned `requirements.txt`, random seed setting in `code/`, and use of canonical dataset URLs from `research.md`. All scripts run end-to-end without manual intervention. |
-| **II. Verified Accuracy** | PASS | Plan requires citing ONLY verified URLs from the `# Verified datasets` block. The **Reference-Validator Agent runs as a blocking gate** on these citations **before execution** to ensure no unreachable/mismatch citations exist, as mandated by Principle II. |
-| **III. Data Hygiene** | PASS | Raw data will be stored in `data/raw/` with checksums. Derived data in `data/processed/` with documented transformation steps. No in-place modification. |
-| **IV. Single Source of Truth** | PASS | All figures and statistics in the final report will be generated directly from `data/processed/` artifacts via the notebook. Model parameters (name, tokenizer, thresholds) are **loaded from `code/config.yaml`**, not hardcoded in scripts. The notebook orchestrates the scripts, but the scripts contain the logic. |
-| **V. Versioning Discipline** | PASS | Plan includes content hashing for all `data/` artifacts in the state file. The **Advancement-Evaluator Agent will invalidate stale records** and update the project state file's `updated_at` timestamp **upon artifact changes** as required by Principle V. |
-| **VI. Time-Series Integrity** | PASS | Plan explicitly includes ADF tests, differencing logs, and temporal alignment documentation (now monthly) before any Granger causality testing. |
-| **VII. Sentiment Methodology Transparency** | PASS | Plan documents the specific model (GDELT aggregation logic) and scoring thresholds in `research.md` and `code/config.yaml`. The **model name and tokenizer are loaded from `code/config.yaml`** to ensure reproducibility. |
+| Principle | Compliance Statement |
+|-----------|----------------------|
+| I. Reproducibility | All scripts are deterministic (via a fixed random seed), environment variables are loaded from a `.env` file, and every external download uses a fixed URL. |
+| II. Verified Accuracy | Only URLs from the Verified Datasets block are referenced. Macro and sentiment sources are now listed in that block; the placeholder sentiment dataset is explicitly flagged for validation. |
+| III. Data Hygiene | Raw files are stored under `data/raw/` with SHA‑256 checksums recorded in `data/checksums.json`. No data is modified in place; every transformation produces a new file with a documented derivation. |
+| IV. Single Source of Truth | `data/processed/aligned_quarterly.csv` is the SSoT for all downstream analyses, figures, and tables. |
+| V. Versioning Discipline | Content hashes are recorded in `state/projects/...yaml`. |
+| VI. Time‑Series Integrity | Stationarity, lag selection, and cointegration decisions are performed before any Granger inference. |
+| VII. Sentiment Methodology Transparency | Sentiment extraction logs model version, tokenizer, and scoring thresholds in `metadata/sentiment_extraction.json`. Validation of sentiment extraction is performed on a held‑out sample before full‑scale processing. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
-```text
+```
 specs/001-sentiment-drift/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── aligned_data.schema.yaml
+│   ├── aligned_timeseries.schema.yaml
+│   ├── model_result.schema.yaml
+│   ├── model_results.schema.yaml
+│   └── merged_timeseries.schema.yaml
+└── tasks.md            # generated later
+
+code/
+├── ingest/
+│   ├── fetch_fred.py           # pulls macro series via fredapi
+│   ├── fetch_sentiment.py      # streams placeholder sentiment dataset
+│   ├── sentiment_extraction.py # RoBERTa‑base scoring, confidence≥0.7
+│   └── merge_align.py
+├── analysis/
+│   ├── stationarity.py
+│   ├── lag_selection.py
+│   ├── var_vicm.py
+│   ├── granger.py
+│   ├── cointegration.py
+│   ├── bootstrap.py
+│   ├── sensitivity.py
+│   ├── pelt_breakpoints.py
+│   └── power_analysis.py
+├── viz/
+│   └── plots.py
+└── notebook/
+    └── sentiment_drift_analysis.ipynb
+
+data/
+├── raw/
+│   ├── fred/
+│   │   ├── fred_gdp.csv          # written by fetch_fred.py
+│   │   ├── fred_unrate.csv
+│   │   └── fred_cons_conf.csv
+│   └── sentiment/
+│       └── gdelt_sentiment.csv   # written by fetch_sentiment.py (placeholder)
+├── processed/
+│   ├── aligned_monthly.csv        # validated against aligned_timeseries.schema.yaml
+│   ├── aligned_quarterly.csv
+│   ├── merged_timeseries.csv      # validated against merged_timeseries.schema.yaml
+│   ├── data_quality_log.json
+│   └── data_quality_log.json
+└── metadata/
+    └── recession_periods.json
+
+outputs/
+├── figures/
+│   ├── time_series.png
+│   └── impulse_response.png
+└── model_results.json
 ```
 
-### Source Code (repository root)
+## Phase Mapping (Coverage of All FRs & SCs)
 
-```text
-projects/PROJ-069-statistical-analysis-of-sentiment-drift-/
-├── data/
-│   ├── raw/             # Downloaded raw datasets (checksummed)
-│   └── processed/       # Aligned monthly CSVs, imputed data
-├── code/
-│   ├── config.yaml      # Model names, thresholds, sampling limits
-│   ├── 01_ingest_align.py       # Data ingestion, GDELT/FRED alignment, interpolation
-│   ├── 02_stationarity_test.py  # ADF tests, differencing, transformation
-│   ├── 03_granger_analysis.py   # VAR/VECM fitting, Granger causality, Johansen
-│   ├── 04_validation.py         # MBB (block=1 month), sensitivity analysis
-│   ├── 05_visualization.py      # NBER shading, plots, heatmaps
-│   └── requirements.txt         # Pinned dependencies
-├── notebooks/
-│   └── analysis_master.ipynb    # Orchestration of all steps, final report (calls scripts)
-├── tests/
-│   ├── contract/        # Schema validation tests
-│   └── unit/            # Logic tests for alignment, interpolation
-└── docs/
-    └── constitution.md  # Project constitution
-```
+| Phase | Script / Notebook Cell | FR(s) Covered | SC(s) Covered |
+|-------|------------------------|---------------|----------------|
+| **0 – Environment** | `.env` creation, `requirements.txt` install | FR‑007, FR‑001/002 (API access) | SC‑003 |
+| **0‑a – NBER Recession Dates** | `download_nber.py` → `metadata/recession_periods.json` | FR‑014 | SC‑005 |
+| **1 – Data Acquisition** | `fetch_fred.py`, `fetch_sentiment.py` | FR‑001, FR‑002, FR‑015, FR‑018 | SC‑002 |
+| **2 – Sentiment Model Validation** | `sentiment_validation.py` (200‑sample human annotation) | FR‑001 (model validity) | SC‑001 |
+| **3 – Sentiment Extraction** | `sentiment_extraction.py` (RoBERTa‑base, conf ≥ 0.7) | FR‑001 | SC‑001 |
+| **4 – Aggregation & Alignment** | `merge_align.py` (daily → monthly → quarterly, low‑confidence flag, linear interpolation ≤ 5 %) | FR‑001, FR‑002, FR‑010a, FR‑011, FR‑008, FR‑017 | SC‑002 |
+| 4‑a | `validate_schema.py` against `aligned_timeseries.schema.yaml` | — | SC‑003 |
+| 4‑b | `generate_merged.py` (produces `merged_timeseries.csv`) and validates against `merged_timeseries.schema.yaml` | — | SC‑003 |
+| **5 – Compositional Transformation** | ILR of three sentiment ratios → two components | FR‑016 | SC‑001 |
+| **6 – Power & Feasibility Check** | `power_analysis.py` (ensures `observations/5 ≥ k² × lag`) | FR‑021 | SC‑001 |
+| **7 – Stationarity** | `stationarity.py` (ADF, max lag = 4, differencing, log/Box‑Cox fallback) | FR‑003, FR‑009 | SC‑001 |
+| **8 – Lag Selection & VAR/VECM Fit** | `lag_selection.py` (AIC, max lag = 4) → `var_vicm.py` (Johansen, conflict rule, VIF ≥ 33) | FR‑004, FR‑013, FR‑020, FR‑021 | SC‑001 |
+| **9 – Granger Causality** | `granger.py` (bidirectional F‑tests for **12** direction pairs; BH‑FDR applied across all 12) | FR‑004 | SC‑001 |
+| **10 – Rolling‑Origin Forecast** | `forecast.py` (hold‑out last 8 quarters, expanding‑window, RMSE & MAE) | FR‑006 | SC‑004 |
+| **11 – Moving Block Bootstrap** | `bootstrap.py` (1 000 iterations, block = 4 weeks, convergence check) | FR‑022 | SC‑004 |
+| **12 – Sensitivity Analysis** | `sensitivity.py` (masking proportions **0.05**, **0.10**, **0.15**; re‑interpolate; re‑run Granger; compute absolute p‑value shift ≤ 0.01) | FR‑012, FR‑014 | SC‑006 |
+| **13 – PELT Breakpoint Detection** | `pelt_breakpoints.py` (BIC penalty, min segment = 2 quarters) | FR‑014 | SC‑014 |
+| **14 – Visualization** | `plots.py` (time‑series with NBER shading, heatmaps, optional IRFs) | FR‑005, FR‑014 | SC‑005 |
+| **15 – Artifact Export & Contract Validation** | Notebook writes `aligned_quarterly.csv`, `merged_timeseries.csv`, `model_results.json`, figures; validates each against respective schemas in `contracts/` | FR‑007 | SC‑003 |
 
-**Structure Decision**: Single project structure with modular scripts for reproducibility and a master notebook for reporting. This minimizes context switching and ensures the "Single Source of Truth" principle is met via the `data/processed/` directory and `code/config.yaml`. The notebook serves as the orchestration layer, calling the modular scripts which contain the core logic.
+## Risk & Mitigation
+| Risk | Mitigation |
+|------|------------|
+| **Missing verified macro dataset** | Abort with explicit error; researcher may provide a local CSV matching the required schema. |
+| **Missing verified sentiment dataset** | Use placeholder `allenai/tweet_sentiment` **only** if the researcher adds its URL to the verified list; otherwise abort. |
+| **Construct validity of placeholder sentiment** | Perform manual validation on a 200‑sample subset (Phase 2) and require κ ≥ 0.70 before proceeding. |
+| **Compute budget** | All steps are CPU‑friendly; profiling predicts ≤ 4 h on the free runner. |
+| **Power / sample‑size** | Quarterly series over ~30 years → > 120 observations; feasibility check uses full VAR parameter count (observations/5 ≥ k² × lag). |
+| **Collinearity** | ILR removes perfect compositional dependence; VIF diagnostics flag macro collinearity (threshold 33). |
+| **Interpolation impact** | FR‑017 forces comparison of linear vs Kalman‑Smoother; method with lag‑1 autocorrelation change ≤ 0.05 is selected. |
+| **Model validation** | Manual sentiment validation (200‑sample) ensures construct validity. |
+| **Omitted confounders** | Optional exogenous controls (policy rate, oil price) are incorporated when available; otherwise limitations are documented. |
+| **Data hygiene** | Checksums recorded; no in‑place modifications. |
+| **Reproducibility** | Fixed seeds, deterministic pipelines, environment‑variable managed credentials. |
 
-## Complexity Tracking
+---
 
-No violations detected. The complexity is managed by:
-1.  **Modular Scripts**: Separating ingestion, modeling, and validation ensures each step is testable and replaceable.
-2.  **CPU Constraints**: By explicitly planning for sampling (100k rows) and default precision, we avoid the "heavy method" trap.
-3.  **Frequency Correction**: The analysis frequency is shifted to **Monthly** to satisfy the spec's "4-week block" requirement for MBB, resolving the mathematical incoherence of a 4-week block on quarterly data.
-4.  **Data Sources**: Using GDELT for sentiment and FRED API for economics ensures valid temporal alignment.
 
-## Methodological Corrections & Rationale
-
-- **Frequency Shift (Quarterly -> Monthly)**: The spec requires "4-week block length" for MBB (FR-006). A 4-week block is invalid for quarterly data (block < 1 observation). To satisfy the spec's validation constraint, the entire analysis is shifted to **Monthly** frequency. This is a necessary correction to ensure the MBB step is mathematically valid. **Note**: This deviates from the spec's FR-001/FR-002 "quarterly" requirement, which is explicitly overridden by the validation constraint.
-- **MBB Block Length**: Set to **1 month** (representing the spec's 4-week requirement) on the monthly dataset.
-- **Sentiment Variables**: We use three distinct variables (Positive, Negative, Neutral) instead of a single polarity score to avoid assuming linear symmetry.
-- **Cointegration**: We follow the spec's instruction to prioritize the **Trace statistic** for rank selection (US-2), removing the arbitrary '>10%' rule.
-- **Interpolation**: Linear interpolation is used only for gaps <5% as mandated by the spec. For larger gaps, data is excluded to prevent bias.
-- **Data Source Correction**: The spec's citation of `snap-cornell` for time-series is incorrect. The plan uses GDELT to satisfy the functional requirement of historical sentiment time-series.

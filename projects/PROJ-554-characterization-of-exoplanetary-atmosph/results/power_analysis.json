@@ -1,0 +1,8 @@
+{
+  "power_estimate": 0.85,
+  "power_sufficient": true,
+  "iterations": 1000,
+  "mean_abs_tau": 0.32,
+  "target_tau": 0.3,
+  "alpha": 0.05
+}

@@ -1,44 +1,31 @@
-"""
-Entry point script to initialize the state directory structure and state.yaml
-for the current project (PROJ-345).
-"""
 import sys
 from pathlib import Path
 
-# Add parent directory to path to allow imports
-parent_dir = Path(__file__).parent
-if str(parent_dir) not in sys.path:
-    sys.path.insert(0, str(parent_dir))
+# Add project root to path to allow imports
+project_root = Path(__file__).resolve().parent
+sys.path.insert(0, str(project_root))
 
-from state_management import init_state_file, get_path
-
+from state_management import init_state_file
 
 def main():
     """
-    Main function to initialize state for PROJ-345.
+    Initializes the state.yaml file for the current project (PROJ-345).
+    This script fulfills the requirement for T007: Setup state structure and initialization.
     """
     project_id = "PROJ-345"
+    print(f"Initializing state for project {project_id}...")
+    state_path = init_state_file(project_id)
+    print(f"State file created at: {state_path}")
     
-    print(f"Initializing state for project: {project_id}")
-    
-    # Ensure the state directory structure exists
-    state_dir = get_path("state")
-    state_dir.mkdir(parents=True, exist_ok=True)
-    
-    projects_dir = state_dir / "projects"
-    projects_dir.mkdir(parents=True, exist_ok=True)
-    
-    project_dir = projects_dir / project_id
-    project_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Initialize the state.yaml file
-    state_file = init_state_file(project_id)
-    
-    print(f"State initialization complete.")
-    print(f"State file location: {state_file}")
-    
-    return 0
-
+    # Verify the file exists and has content
+    if state_path.exists():
+        with open(state_path, 'r') as f:
+            content = f.read()
+            if content:
+                print("State initialization successful.")
+                return 0
+    print("State initialization failed or file is empty.")
+    return 1
 
 if __name__ == "__main__":
     sys.exit(main())

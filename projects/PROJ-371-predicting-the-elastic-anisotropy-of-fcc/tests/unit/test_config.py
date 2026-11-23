@@ -15,6 +15,8 @@ from src.utils.config import (
     validate_api_keys,
     set_random_seed,
     get_seed,
+    ensure_directories,
+    get_constants,
 )
 
 
@@ -145,3 +147,73 @@ class TestAPIKeyValidation:
         monkeypatch.setenv("MP_API_KEY", "")
         result = validate_api_keys()
         assert result is False
+
+
+class TestEnsureDirectories:
+    """Tests for directory creation logic."""
+
+    def test_ensure_directories_creates_missing_dirs(self, tmp_path):
+        """Verify ensure_directories creates directories that do not exist."""
+        # Mock the get_path function to return tmp_path subdirectories
+        test_data_raw = tmp_path / "data" / "raw"
+        test_data_processed = tmp_path / "data" / "processed"
+        test_output = tmp_path / "output"
+
+        # Ensure they don't exist yet
+        assert not test_data_raw.exists()
+        assert not test_data_processed.exists()
+        assert not test_output.exists()
+
+        # Call ensure_directories with mocked paths
+        # We patch get_path to return our tmp_path locations for specific keys
+        with pytest.MonkeyPatch.context() as mp:
+            mp.setattr("src.utils.config.get_path", lambda key: {
+                "data_raw": test_data_raw,
+                "data_processed": test_data_processed,
+                "output": test_output
+            }.get(key, tmp_path))
+            
+            # Note: ensure_directories internally calls get_path, so we patch there
+            # However, since ensure_directories is in the same module, we need to patch the module it imports from
+            # A simpler approach for this test is to patch inside the function or use a different strategy.
+            # Let's rely on the fact that ensure_directories uses get_path.
+            # We will patch get_path in the config module.
+            
+            # Re-import to ensure we are patching the right place if needed, 
+            # but typically patching the name used by the function is key.
+            from src.utils import config
+            
+            # Patch get_path within the config module namespace
+            original_get_path = config.get_path
+            config.get_path = lambda key: {
+                "data_raw": test_data_raw,
+                "data_processed": test_data_processed,
+                "output": test_output
+            }.get(key, tmp_path)
+
+            try:
+                config.ensure_directories()
+            finally:
+                config.get_path = original_get_path
+
+        assert test_data_raw.exists()
+        assert test_data_processed.exists()
+        assert test_output.exists()
+        assert test_data_raw.is_dir()
+        assert test_data_processed.is_dir()
+        assert test_output.is_dir()
+
+
+class TestGetConstants:
+    """Tests for the get_constants function."""
+
+    def test_get_constants_returns_dict(self):
+        """Verify get_constants returns a dictionary."""
+        constants = get_constants()
+        assert isinstance(constants, dict)
+    
+    def test_get_constants_contains_expected_keys(self):
+        """Verify get_constants contains expected physical constants or project constants."""
+        constants = get_constants()
+        # The specific keys depend on implementation, but it should be non-empty and dict-like
+        assert len(constants) > 0

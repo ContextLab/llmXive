@@ -3,59 +3,47 @@ import sys
 from pathlib import Path
 from config import ensure_directories, load_config
 
-def setup_logging(log_file: str = "outputs/analysis.log", level: int = logging.INFO) -> logging.Logger:
+logger = logging.getLogger(__name__)
+
+def _log_step(message: str) -> None:
+    """Helper to log steps with consistent formatting."""
+    logger.info(f"LOGCFG: {message}")
+
+def setup_logging(log_file: str = "outputs/analysis.log") -> None:
     """
-    Configure the project logging infrastructure.
-    
-    Sets up a logger that writes to both the console and a file.
-    Ensures the output directory exists before creating the log file.
-    
-    Args:
-        log_file: Relative path to the log file from project root.
-        level: Logging level (e.g., logging.INFO, logging.DEBUG).
-    
-    Returns:
-        The configured root logger.
+    Configure logging to both console and file.
     """
-    # Ensure the output directory exists
+    _log_step(f"Setting up logging to {log_file}")
+    
     ensure_directories()
     
-    # Get the project root (assuming this file is in code/, so root is parent)
-    project_root = Path(__file__).resolve().parent.parent
-    log_path = project_root / log_file
-    
-    # Create the log directory if it doesn't exist
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Configure the root logger
-    logger = logging.getLogger()
-    logger.setLevel(level)
-    
-    # Clear existing handlers to avoid duplicates on re-runs
-    if logger.handlers:
-        logger.handlers.clear()
-    
-    # Create formatters
-    file_formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    console_formatter = logging.Formatter(
-        '%(levelname)s: %(message)s'
+    # Create formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
     # File handler
-    file_handler = logging.FileHandler(log_path, mode='a', encoding='utf-8')
-    file_handler.setLevel(level)
-    file_handler.setFormatter(file_formatter)
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
     
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    console_handler.setFormatter(console_formatter)
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
     
-    # Add handlers to the logger
-    logger.addHandler(file_handler)
-    logger.addHandler(console_handler)
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(logging.INFO)
+    root_logger.addHandler(file_handler)
+    root_logger.addHandler(console_handler)
     
-    return logger
+    _log_step("Logging configured successfully")
+
+def main() -> None:
+    """Main entry point for logging config script."""
+    setup_logging()
+    logger.info("Logging setup completed")
+
+if __name__ == "__main__":
+    main()

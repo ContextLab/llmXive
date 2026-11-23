@@ -1,282 +1,241 @@
-"""
-Validation logic for data independence, source verification, and convergence checks.
-
-This module defines the logic for validating atomic configurations against:
-- FR-006: Source Independence (verifying data comes from independent MD simulations)
-- FR-007: Convergence Checks (verifying system size meets thermodynamic limit requirements)
-- Constitution Principle VI: Data Independence and Convergence
-
-NOTE: This task (T007) is a DEFINITION ONLY task. It implements the validation logic
-but does NOT execute it. Execution is deferred to Phase 3 (T007-exec) when real data
-is available in data/raw/.
-"""
 import json
 import logging
 from dataclasses import dataclass, asdict, field
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any, Set
-
+import networkx as nx
 from models.atomic_config import AtomicConfiguration
-from config.env_config import get_config, ConfigError
 from logging_config import get_logger
+from config.env_config import get_processed_dir
 
-# Minimum system size for thermodynamic limit (from FR-007)
-MIN_SYSTEM_SIZE_ATOMS = 1000
+logger = get_logger(__name__)
 
 @dataclass
 class ValidationResult:
-    """Result of validating a single configuration."""
     config_id: str
     is_valid: bool
-    source_independent: bool
-    size_sufficient: bool
-    convergence_verified: bool
-    reasons: List[str] = field(default_factory=list)
-
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
+    reason: Optional[str] = None
+    flags: Dict[str, str] = field(default_factory=dict)
+    warnings: List[str] = field(default_factory=list)
 
 @dataclass
 class ValidationReport:
-    """Aggregated validation report for multiple configurations."""
     validated_configs: List[str] = field(default_factory=list)
     excluded_configs: List[str] = field(default_factory=list)
-    reasons: Dict[str, str] = field(default_factory=dict)
-    total_processed: int = 0
-    total_valid: int = 0
-    total_excluded: int = 0
-    
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
+    convergence_flags: Dict[str, str] = field(default_factory=dict)
+    component_warnings: List[Dict[str, Any]] = field(default_factory=list)
 
-def validate_source_independence(config: AtomicConfiguration, source_metadata: Optional[Dict[str, Any]] = None) -> Tuple[bool, List[str]]:
+def validate_graph_connectivity(graph: nx.Graph, config_id: str) -> Tuple[bool, List[str]]:
     """
-    Validate that the configuration source is independent.
-    
-    Checks:
-    - Metadata explicitly states the simulation method (MD, DFT-MD, etc.)
-    - Source is not a reuse of the target property (thermal conductivity) from the same simulation
-    - Source method is documented
+    Validates that the graph derived from an atomic configuration is connected.
     
     Args:
-        config: Atomic configuration to validate
-        source_metadata: Optional metadata dictionary from the data source
+        graph: The networkx graph representing atomic bonds.
+        config_id: The identifier for the configuration.
         
     Returns:
-        Tuple of (is_independent, list of reason strings)
+        Tuple of (is_connected, list_of_warnings)
     """
-    reasons = []
-    is_independent = True
+    warnings = []
+    is_connected = nx.is_connected(graph)
     
-    # Check if metadata exists
-    if source_metadata is None:
-        # If no metadata provided, we cannot verify independence
-        # This is a critical failure for FR-006
-        is_independent = False
-        reasons.append("No source metadata available to verify independence")
-        return is_independent, reasons
-    
-    # Check for explicit method declaration
-    method = source_metadata.get('simulation_method')
-    if not method:
-        is_independent = False
-        reasons.append("Simulation method not specified in metadata")
-    elif method.lower() not in ['molecular_dynamics', 'md', 'ab_initio_md', 'dft_md', 'nve', 'nvt', 'npt']:
-        is_independent = False
-        reasons.append(f"Unknown or invalid simulation method: {method}")
-    
-    # Check for target property contamination
-    # If the source claims to have calculated thermal conductivity using the same simulation,
-    # it might not be independent for our analysis if we are validating that calculation
-  # However, for this project, we assume the target k values are from a separate calculation
-  # or experimental validation. We check for explicit "independent" flag if available.
-    independence_flag = source_metadata.get('is_independent_source')
-    if independence_flag is False:
-        is_independent = False
-        reasons.append("Source explicitly marked as dependent/non-independent")
-    
-    # Check for provenance chain
-    provenance = source_metadata.get('provenance')
-    if not provenance:
-        # Not a hard failure, but a warning
-        reasons.append("Provenance chain not documented")
-    
-    return is_independent, reasons
+    if not is_connected:
+        num_components = nx.number_connected_components(graph)
+        component_sizes = sorted([len(c) for c in nx.connected_components(graph)], reverse=True)
+        
+        warning_msg = (
+            f"Configuration {config_id} has {num_components} disconnected components. "
+            f"Largest component size: {component_sizes[0]}, "
+            f"Smallest component size: {component_sizes[-1]}. "
+            f"Total nodes: {graph.number_of_nodes()}."
+        )
+        warnings.append(warning_msg)
+        logger.warning(warning_msg)
+        
+        # Log details about the components for debugging
+        logger.debug(f"Component sizes for {config_id}: {component_sizes}")
+        
+    return is_connected, warnings
 
-def validate_system_size(config: AtomicConfiguration) -> Tuple[bool, List[str]]:
+def validate_configuration(config: AtomicConfiguration, graph: nx.Graph) -> ValidationResult:
     """
-    Validate that the system size meets the thermodynamic limit requirement.
-    
-    FR-007: Systems must have >= 1000 atoms to be considered converged.
+    Performs validation checks on a single configuration and its graph.
     
     Args:
-        config: Atomic configuration to validate
+        config: The atomic configuration object.
+        graph: The graph representation of the configuration.
         
     Returns:
-        Tuple of (is_sufficient, list of reason strings)
+        ValidationResult object containing validation status and details.
     """
-    reasons = []
-    is_sufficient = True
-    num_atoms = len(config.positions)
+    result = ValidationResult(config_id=config.id, is_valid=True)
     
-    if num_atoms < MIN_SYSTEM_SIZE_ATOMS:
-        is_sufficient = False
-        reasons.append(f"Size < {MIN_SYSTEM_SIZE_ATOMS} atoms (found: {num_atoms})")
-    else:
-        reasons.append(f"Size sufficient ({num_atoms} atoms >= {MIN_SYSTEM_SIZE_ATOMS})")
+    # Check system size (>= 1000 atoms)
+    if len(config.coordinates) < 1000:
+        result.flags["size"] = "P preliminary - Unverified Convergence"
+        # We retain it for descriptive stats but flag it
+        result.warnings.append(
+            f"Configuration {config.id} has {len(config.coordinates)} atoms (< 1000). "
+            "Flagged as preliminary."
+        )
     
-    return is_sufficient, reasons
-
-def validate_convergence(config: AtomicConfiguration, metadata: Optional[Dict[str, Any]] = None) -> Tuple[bool, List[str]]:
-    """
-    Validate convergence to thermodynamic limit.
+    # Check graph connectivity (US-1, Scenario 3)
+    is_connected, connectivity_warnings = validate_graph_connectivity(graph, config.id)
+    result.warnings.extend(connectivity_warnings)
     
-    Checks:
-    - System size is sufficient (delegates to validate_system_size)
-    - Metadata explicitly states convergence status if available
-    - Temperature and pressure conditions are stable (if metadata available)
+    if not is_connected:
+        result.is_valid = False
+        result.reason = "Disconnected components detected"
+        result.flags["connectivity"] = "DISCONNECTED"
     
-    Args:
-        config: Atomic configuration to validate
-        metadata: Optional metadata with convergence info
-        
-    Returns:
-        Tuple of (is_converged, list of reason strings)
-    """
-    reasons = []
-    is_converged = True
-    
-    # First check system size
-    size_sufficient, size_reasons = validate_system_size(config)
-    reasons.extend(size_reasons)
-    if not size_sufficient:
-        is_converged = False
-        return is_converged, reasons
-    
-    # Check metadata for explicit convergence flags
-    if metadata:
-        converged_flag = metadata.get('is_converged')
-        if converged_flag is False:
-            is_converged = False
-            reasons.append("Metadata explicitly marks system as not converged")
-        
-        # Check for thermodynamic limit statement
-        limit_statement = metadata.get('thermodynamic_limit_achieved')
-        if limit_statement is False:
-            is_converged = False
-            reasons.append("Metadata indicates thermodynamic limit not achieved")
-    
-    # If no metadata, we rely on size check alone
-    # Small systems (< 1000) are already filtered above
-    
-    return is_converged, reasons
-
-def validate_configuration(config: AtomicConfiguration, metadata: Optional[Dict[str, Any]] = None) -> ValidationResult:
-    """
-    Run all validation checks on a single configuration.
-    
-    Args:
-        config: Atomic configuration to validate
-        metadata: Optional source metadata
-        
-    Returns:
-        ValidationResult object
-    """
-    reasons = []
-    
-    # Check source independence
-    source_independent, source_reasons = validate_source_independence(config, metadata)
-    reasons.extend(source_reasons)
-    
-    # Check convergence (includes size check)
-    convergence_ok, conv_reasons = validate_convergence(config, metadata)
-    reasons.extend(conv_reasons)
-    
-    # Determine overall validity
-    is_valid = source_independent and convergence_ok
-    
-    return ValidationResult(
-        config_id=config.id,
-        is_valid=is_valid,
-        source_independent=source_independent,
-        size_sufficient=convergence_ok,  # Convergence check includes size
-        convergence_verified=convergence_ok,
-        reasons=reasons
-    )
+    return result
 
 def run_validation_on_configs(
-    configs: List[AtomicConfiguration],
-    metadata_map: Optional[Dict[str, Dict[str, Any]]] = None
+    configs: List[AtomicConfiguration], 
+    graphs: Dict[str, nx.Graph]
 ) -> ValidationReport:
     """
-    Run validation on a list of configurations.
+    Runs validation on a list of configurations using their corresponding graphs.
     
     Args:
-        configs: List of atomic configurations to validate
-        metadata_map: Optional mapping of config_id -> metadata dict
+        configs: List of AtomicConfiguration objects.
+        graphs: Dictionary mapping config_id to networkx Graph.
         
     Returns:
-        ValidationReport with aggregated results
+        ValidationReport containing aggregated results.
     """
     report = ValidationReport()
-    report.total_processed = len(configs)
     
     for config in configs:
-        metadata = None
-        if metadata_map and config.id in metadata_map:
-            metadata = metadata_map[config.id]
+        if config.id not in graphs:
+            logger.error(f"Graph not found for config {config.id}, skipping validation.")
+            report.excluded_configs.append(config.id)
+            continue
         
-        result = validate_configuration(config, metadata)
+        graph = graphs[config.id]
+        result = validate_configuration(config, graph)
         
         if result.is_valid:
             report.validated_configs.append(config.id)
-            report.total_valid += 1
+            # Merge flags
+            report.convergence_flags[config.id] = result.flags.get("size", "OK")
         else:
+            # If disconnected, we might still want to flag it but exclude from main analysis
+            # depending on strictness. For now, we exclude disconnected ones from 'validated'.
             report.excluded_configs.append(config.id)
-            report.total_excluded += 1
-            # Join reasons into a single string for the report
-            report.reasons[config.id] = "; ".join(result.reasons)
+            report.convergence_flags[config.id] = result.reason
+        
+        # Record warnings specifically about components
+        if result.flags.get("connectivity") == "DISCONNECTED":
+            report.component_warnings.append({
+                "config_id": config.id,
+                "message": result.reason,
+                "details": result.warnings
+            })
     
     return report
 
-def save_validation_report(report: ValidationReport, output_path: Path) -> None:
+def save_validation_report(report: ValidationReport, output_path: Optional[Path] = None) -> Path:
     """
-    Save the validation report to a JSON file.
+    Saves the validation report to a JSON file.
     
     Args:
-        report: ValidationReport to save
-        output_path: Path to output JSON file
+        report: The ValidationReport object to save.
+        output_path: Optional path to save the report. Defaults to data/processed/validation_report.json.
+        
+    Returns:
+        Path to the saved file.
     """
-    # Ensure parent directory exists
+    if output_path is None:
+        processed_dir = get_processed_dir()
+        output_path = processed_dir / "validation_report.json"
+    
+    # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(output_path, 'w') as f:
-        json.dump(report.to_dict(), f, indent=2)
+    data = {
+        "validated_configs": report.validated_configs,
+        "excluded_configs": report.excluded_configs,
+        "convergence_flags": report.convergence_flags,
+        "component_warnings": report.component_warnings
+    }
     
-    logging.info(f"Validation report saved to {output_path}")
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(data, f, indent=2)
+    
+    logger.info(f"Validation report saved to {output_path}")
+    return output_path
+
+def load_validation_report(file_path: Path) -> ValidationReport:
+    """
+    Loads a validation report from a JSON file.
+    
+    Args:
+        file_path: Path to the JSON file.
+        
+    Returns:
+        ValidationReport object.
+    """
+    with open(file_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    
+    return ValidationReport(
+        validated_configs=data.get("validated_configs", []),
+        excluded_configs=data.get("excluded_configs", []),
+        convergence_flags=data.get("convergence_flags", {}),
+        component_warnings=data.get("component_warnings", [])
+    )
 
 def check_validation_logic() -> bool:
     """
-    Internal check to ensure validation logic is defined and importable.
-    Used for testing the definition without running on real data.
+    Basic sanity check that the validation logic functions are callable.
     
     Returns:
-        True if all functions are defined and callable
+        True if logic is intact, False otherwise.
     """
     try:
-        # Check all required functions exist and are callable
-        assert callable(validate_source_independence)
-        assert callable(validate_system_size)
-        assert callable(validate_convergence)
-        assert callable(validate_configuration)
-        assert callable(run_validation_on_configs)
-        assert callable(save_validation_report)
+        # Mock test data
+        from models.atomic_config import AtomicConfiguration
+        import numpy as np
         
-        # Check dataclasses are defined
-        assert ValidationResult is not None
-        assert ValidationReport is not None
+        # Create a small mock config
+        mock_coords = np.random.rand(100, 3)
+        mock_config = AtomicConfiguration(
+            id="test_001",
+            element="Si",
+            coordinates=mock_coords,
+            box=np.eye(3) * 10
+        )
         
+        # Create a disconnected graph
+        G = nx.Graph()
+        G.add_nodes_from(range(100))
+        G.add_edges_from([(i, i+1) for i in range(0, 50)]) # First component
+        G.add_edges_from([(i, i+1) for i in range(51, 99)]) # Second component
+        # Node 50 is isolated or part of a gap
+        
+        is_conn, warns = validate_graph_connectivity(G, "test_001")
+        if is_conn:
+            logger.error("Mock disconnected graph was incorrectly identified as connected.")
+            return False
+            
         return True
     except Exception as e:
-        logging.error(f"Validation logic check failed: {e}")
+        logger.error(f"Validation logic check failed: {e}")
         return False
+
+def main():
+    """
+    Main entry point for running validation if executed as a script.
+    This function assumes configs and graphs are already loaded or passed via arguments.
+    For now, it serves as a placeholder for the execution flow.
+    """
+    logger.info("Validation module loaded. Use run_validation_on_configs with data.")
+    if not check_validation_logic():
+        logger.error("Validation logic check failed.")
+        return 1
+    return 0
+
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())

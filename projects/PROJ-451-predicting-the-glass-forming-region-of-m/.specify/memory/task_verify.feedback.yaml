@@ -1,0 +1,156 @@
+T001a:
+  reason: The provided `setup.sh` does not contain the exact required command `mkdir
+    -p projects/PROJ-451-predicting-the-glass-forming-region-of-m/{code,data,tests,docs,notebooks}`
+    (it uses separate `mkdir -p` calls) and the `touch` commands are prefixed with
+    `${PROJECT_ROOT}` instead of the plain `touch data/raw/.gitkeep data/processed/.gitkeep`.
+    Consequently the script does not meet the stipulated content requirements.
+  task: dc89d1351e68b6008b02d1e0a77f65f11ad1a45a7d5e72a18c97f506f79c2c44
+T001c:
+  reason: "The provided `requirements.txt` exists but lists version ranges (e.g.,\
+    \ `pandas>=2.0.0`) instead of exact, pinned versions, and there is no evidence\
+    \ that `pip install -r requirements.txt` was run followed by `pip freeze > requirements.txt`.\
+    \ Hence the task\u2019s verification condition is not met."
+  task: 5b014e6861ade02e5097faa68ecc8a3bfb700b6060e26ea2afa10b7020cc59fa
+T002a:
+  reason: The `.ruff.toml` file exists and correctly defines `line-length = 88`, `target-version
+    = "py311"`, and ignores `E501`, but there is no provided evidence (e.g., command
+    output or logs) showing that `ruff check` was executed and completed without configuration
+    errors. Provide a run of `ruff check` (or its output) to verify the config is
+    valid.
+  task: a759533bf0687d5025f9e6969e26b21ae5d615a4d50ca63ae9f398cee0b24253
+T002b:
+  reason: Checked the `pyproject.toml` file, which does contain the required `[tool.black]`
+    section with `line-length = 88` and `target-version = ['py311']`. However, there
+    is no provided evidence (e.g., command output or logs) showing that `black --check`
+    was run and completed without configuration errors. This verification step is
+    missing.
+  task: 9a3199120fac18064f53a9a8f7c8f9ea164e8ef1068fe12ecfad4b241a93ab49
+T002c:
+  reason: The `.pre-commit-config.yaml` file exists and contains the required ruff
+    and black hooks, and a verification script reports the config is valid, but there
+    is no concrete evidence that `pre-commit install` and `pre-commit run --all-files`
+    were actually executed and succeeded. Execution logs or command output confirming
+    those two commands passed are required.
+  task: d10ef80ae63158da8f64cd501b0d03bb35507a9799b49338d0e1c2a11bf47f41
+T003:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/deduped_compositions.csv'
+  task: c9933077eea85dcc54a6911dc7d35ff5f2bb35e8846bb7f4000e65bbd4d155da
+T004:
+  reason: "Checked `data/provenance.json` (1239\u202Fbytes). The file defines sources,\
+    \ checksums, etc., but it does **not** contain the required `row_metadata` object\
+    \ that maps row indices to source tags (e.g., `\"row_0\": \"Science Advances\"\
+    `). Adding this field (and populating it) is needed to satisfy the task specification."
+  task: 6bedbbe578ad3d1fc4bb683fefc1ad95ef2b8847640cf530b06c7ebdb35fb01c
+T006:
+  task: 6a0b1cbb3849e13de49419b427d5d214bbd6361bea9cb759250c0ce6a3d0350d
+T007:
+  task: 934ff30ffed1fe7f8d38a1389de1c9bffc912119faa417185a02dfd368040ce8
+T008:
+  task: 06d7b64df88721f8f98b3569e7ca8f290520ff27c6a1450d8d1ac214027c176f
+T009:
+  task: f25c87f817c98d0f5034544ee81ad8c5edb665745924dfe8d85ebaeb0207d0e7
+T010a:
+  task: 31b1f9df0556fe2ada5d3db3bd3588386153613a2ed3ce9c5d0201d923251377
+T010b:
+  task: 146f3f3c3d51d38e2eec97f2766927923e8a47a6927ddaa9ddaf323a3297a5d8
+T010c:
+  task: 56f1f21e4eb88ad87c2e018dcdd1b944ea99862f01b1041ef01aeab9a73914c5
+T010d:
+  task: 742df98e34e7a242dce700efdbc80dc888f8c5cf20c797976192d4b62bb4741c
+T011:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/synthetic_fallback.csv'
+  task: 0afd7ebe9d2894301fcdd0c8a90554320ad9e2960cafc2b2815fce08c20a3b47
+T012:
+  task: 201d70fb32ed8065268162ba01738cfad512127def7473f24e0f95fe819ddcde
+T013:
+  task: 85d0400aaa806d84ac7b0aeb52a9e52d77696c849c49626ca3367b0329519031
+T013b:
+  task: 06e073281af66a909397c310f3e30e50a8be9100a3cd32fb2d8d01309686d307
+T014:
+  task: 49fee7bd050c67c96f4eb1069f969bd27f5c28c138b7010e505b477016ab8891
+T014a-1:
+  task: 724f435d1226bce9a45e4c6f175d03495e2f3e458073c3efc79972b5791df211
+T014a-2:
+  task: ee94987d21f7d983f258d71b57b1c908babdac933ad71f1617f5662d7758f965
+T014a-3:
+  task: 96181c1573f45c9bcd0d24d252377148878fab77a9e75582e0693f1479b9de18
+T015:
+  task: 1a2a249532e02b6ace63ace36280570becd700db3a96a59ae416f13bf439d3fe
+T016:
+  task: f5051511745293e00eb9c085f643bcdb888becee39313bcf7a5b02de85a0d226
+T017a:
+  task: 8b911e5994a0d0c0d4e771c762cae1b60a8146ad918e6940d78583e8a7568fa1
+T017b:
+  task: 34c89cda8716312569779caf740fe584911731e77f070fba47b8f7bd15167b56
+T019:
+  task: b588c2fa2e4fb16ffccde1a67cec34d408013cecd52137dda1e549d24958501d
+T020-1:
+  task: 3a1606dde43a2301eaeb2782825b30009e36c9423e15c68af45d3bb2f68f1be7
+T020-2:
+  task: e05818a90f4c00efcd847634375e2f5a988e75ebc11f0168675794950e9d6b83
+T020-3:
+  task: ac8dd164b5e689886df89572251d69c247182e880313c478cab4a3d72b83b424
+T021:
+  task: 70324974b71ecabadd1d17fd5b1f6cecc982a0f0286da3ad1ddd96eae52bc49a
+T022:
+  task: 8eaa9dbd0aa1877ed7ea7492f4f2dca458df1186ee61983761f3d68710523a3a
+T023:
+  task: b28e8088d9fd3f16666ee6d7f83a839436290f8d1a819530134959a746cebae0
+T024:
+  task: d6e85761ba07f536ece3afab15a555dbab57931c4bba639b4eb697bb488598ad
+T025a:
+  task: 26a7a2e3a1971a8419948406d3c10aa4443e5c667af2afe918c13fdb0dfe5141
+T025b:
+  task: ae1747de12dd6c235b5fd1e7f1be6875b1c783192a8e713c98516af4d2091af8
+T025c:
+  task: 348fa94779e1903106a4dbb409c2f9ff863ba9d7b0d2b5a4c00ad026b315e6fd
+T026:
+  task: a11cece1b7f03f497c3acef5ca6d4abfa37f9cbf0e095ec15589c57983b0986b
+T027:
+  task: 4d6aac47fa49fde9ff630cf7d7aee76c624e624a70ff032fbc2c5502a134e965
+T029:
+  task: 3b50dd3dc978018ebcf7607cb00b1186d0c0ed319df29694782be4e0adc8abe1
+T029a:
+  task: 4762cc18af1d106e88881e7a6f390ab3f021c781e07d241283de1aca7e575e6c
+T030:
+  task: fbce416937b7fd3c5ef5e568572244e251c3e693dc04c8d7d76825db3403fd9f
+T031:
+  task: e1df06107cda44c315d40246cfd73d768f960b7b3f988fb243f2c10083c384d7
+T031a:
+  task: 3e4079ad33b49b44c5de07be69247ac403307a7e24df0d7aca6c4f66115b3b98
+T032:
+  task: df96a05afbd1c699e5a1c937a35dffb6b41672764b83145df0a649607def5afc
+T033:
+  task: 129104061e0e8556e520f8f288c0fc4172518524e71e07ad5280de9458252c24
+T034:
+  task: 0b99c1d306381dae0ff73063c0f095b85fb7dd2d44705c7ad7f668378f400fbf
+T035:
+  task: b5e825ebd54e30b19f32a15e8dc4a0d147ea7759aa674f5876cbec8ad5365d2d
+T036:
+  task: 8dac1ce2021399e9e989fa282922681f3c260ec03ab6920cc1a8112074b1e76e
+T037:
+  task: 839065e0b5d42d0383d91d5103d5a613a190255c82bb98142a65366ac436645a
+T038:
+  task: 8ab9ec270df78f29c10a22b0c185c5f7d544a52ed3fbc4c0b38633f4ffba4e22
+T039:
+  task: b4697904f16b242d8601d0d1a39ae0ca21398804c4797a3ad18bfe4a1877e11b
+T040:
+  task: b7618b1e2e0523558d1b635b431504bfc097cd5b78c0f3099fe5c9bef4d8cdb5
+T041:
+  task: 342b0319c442ffda29a8f1eec96f8e85a70f5e84c086845c12c3fb429bc2df6f
+T042:
+  task: 4b2bcd510f0cd22b987f87e08acb8a36c8586b18b99e4ae3fffb9145e58facdd
+T043:
+  task: a2f4180fa3edafe6e0ae617060a363c292feb4c3890387a7fcbadd2dd86cbea6
+T044:
+  task: bc7a9ec653202390599127602524807b69d3a7f8c407d5d2c963ce59ec3af190
+T045:
+  task: d802df85fa30385841b7e4f96397a5197b02776b6e90ca262e362b74b5417d21
+T046:
+  task: b682baa006117b80d78bf3ab04fd5e641448b8a935d4e24daa69ade38c43d6cc
+T047:
+  task: bd93c50ffe04205e65711e443a7aaf6ebecc8662c7cfde8cea79b49797635686
+T048:
+  task: 5e316acf3d6d199c23ff9b3965f23000231c8d70ce94468bf49c8cf39d565850
+T049:
+  task: 2b7afd58abfcbc558dc9b069910e042cc668493b53a7419dad098c51c92db0a9

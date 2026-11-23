@@ -1,0 +1,33 @@
+- artifact_hash: 080ec2f3fba2239d202b05cec872e7fce6f3559d57824974f9d369385419b01b
+  artifact_path: projects/PROJ-944-llmxive-follow-up-extending-geneb-why-ge/specs/001-llmxive-follow-up-extending-geneb-why-ge/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: Hugging Face
+  fetched_title: problems.csv
+  kind: url
+  value: https://huggingface.co/datasets/openai/genebench-pro-public-package/resolve/main/problems.csv
+  verification_status: mismatch
+  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/openai/genebench-pro-public-package/eb75a3c0996b3cedcc9af685bad02fd166848fa2/problems.csv?%2Fdatasets%2Fopenai%2Fgenebench-pro-public-package%2Fresolve%2Fmain%2Fproblems.csv=&etag=%22ab322f411132e15041ce8739d69a948c82754329%22
+  verified_at: '2026-08-22T20:22:52.449851Z'
+- artifact_hash: 080ec2f3fba2239d202b05cec872e7fce6f3559d57824974f9d369385419b01b
+  artifact_path: projects/PROJ-944-llmxive-follow-up-extending-geneb-why-ge/specs/001-llmxive-follow-up-extending-geneb-why-ge/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: Hugging Face
+  fetched_title: "openai/genebench-pro-public-package \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/openai/genebench-pro-public-package
+  verification_status: verified
+  verified_against_url: https://huggingface.co/datasets/openai/genebench-pro-public-package
+  verified_at: '2026-08-22T20:22:52.449851Z'
+- artifact_hash: 94e77ee765f5fc5f10753d95e23525a5ef1521d9af1f18e236d35bae73ee9883
+  artifact_path: projects/PROJ-944-llmxive-follow-up-extending-geneb-why-ge/specs/001-llmxive-follow-up-extending-geneb-why-ge/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/llmxive.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/llmxive
+  verified_at: '2026-08-22T20:22:54.347880Z'

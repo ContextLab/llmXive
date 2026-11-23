@@ -1,169 +1,143 @@
+"""
+Iterative Harmonic Synthesis Gap Filling Algorithm.
+
+Implements an iterative synthesis approach to fill gaps.
+Integrates with the NaN Guard (T043) to ensure data integrity.
+"""
 import numpy as np
 import healpy as hp
 import logging
 import time
 from pathlib import Path
 from typing import Tuple, Optional, Dict, Any
-import json
-import os
 
-from code.config import DATA_DERIVED_DIR, DATA_RESULTS_DIR, LOGS_DIR
-from code.data_io import save_metadata
+from gap_filling.NaN_guard import scan_for_nans, apply_nan_guard_wrapper
+from gap_filling.failure_handler import log_convergence_failure, record_excluded_realization
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 def iterative_harmonic_synthesis(
-    map_data: np.ndarray,
+    input_map: np.ndarray,
     mask: np.ndarray,
     n_iter: int = 20,
-    tol: float = 1e-4,
-    damping: float = 0.5
-) -> Tuple[np.ndarray, Dict[str, Any]]:
+    tolerance: float = 1e-4
+) -> np.ndarray:
     """
-    Iterative Harmonic Synthesis for gap filling.
+    Performs iterative harmonic synthesis to fill gaps.
     
-    This method iteratively fills gaps by transforming to harmonic space,
-    applying a constraint, and transforming back.
+    This method iteratively:
+    1. Fills gaps with current estimate.
+    2. Transforms to harmonic space.
+    3. Transforms back.
+    4. Replaces gap values with the synthesized values.
+    5. Checks convergence.
     
     Args:
-        map_data: Observed map.
-        mask: Boolean mask (True = valid data).
+        input_map: Input map with gaps (NaNs).
+        mask: Boolean mask (True=valid, False=gap).
         n_iter: Maximum iterations.
-        tol: Convergence tolerance.
-        damping: Damping factor for stability (0 < damping <= 1).
-        
+        tolerance: Convergence tolerance.
+    
     Returns:
-        Tuple of (filled_map, stats_dict).
+        Filled map.
     """
-    nside = hp.get_nside(map_data)
-    valid_mask = mask.astype(bool)
-    invalid_mask = ~valid_mask
+    nside = hp.get_nside(input_map)
+    lmax = 3 * nside - 1
     
-    filled_map = map_data.copy()
-    # Initialize gaps with zeros or mean of valid data
-    if np.any(invalid_mask):
-        filled_map[invalid_mask] = np.mean(filled_map[valid_mask])
-        
-    prev_diff = np.inf
-    converged = False
-    final_iter = 0
+    # Initialize
+    current_map = input_map.copy()
+    nan_mask = np.isnan(current_map)
+    current_map[nan_mask] = 0.0 # Zero fill initially
     
-    l_max = 2 * nside - 1
+    prev_map = current_map.copy()
     
     for i in range(n_iter):
-        # Transform to harmonic space
-        alm = hp.map2alm(filled_map, lmax=l_max)
+        # Transform to alm
+        alm = hp.map2alm(current_map, lmax=lmax, use_weights=True)
         
-        # Transform back to pixel space
-        reconstructed = hp.alm2map(alm, nside)
+        # Transform back
+        synthesized = hp.alm2map(alm, nside, lmax=lmax)
         
-        # Update only the gap regions with a damping factor
-        # new_value = old_value + damping * (reconstructed - old_value) in gaps
-        diff = reconstructed - filled_map
-        filled_map[invalid_mask] += damping * diff[invalid_mask]
+        # Update only the gap regions
+        # We take the synthesized value where mask is False (gap)
+        # We keep the original value where mask is True
+        current_map = np.where(mask, current_map, synthesized)
         
         # Check convergence in the gap region
-        gap_diff = np.abs(diff[invalid_mask])
-        max_diff = np.max(gap_diff) if len(gap_diff) > 0 else 0.0
+        diff = np.abs(current_map[~mask] - prev_map[~mask])
+        max_diff = np.max(diff)
         
-        final_iter = i + 1
-        if max_diff < tol:
-            converged = True
+        if max_diff < tolerance:
+            logger.debug(f"Converged at iteration {i} with diff {max_diff}")
             break
-            
-        prev_diff = max_diff
         
-    stats = {
-        "algorithm": "iterative_synthesis",
-        "converged": converged,
-        "iterations": final_iter,
-        "final_error": float(prev_diff),
-        "tolerance": tol,
-        "damping": damping
-    }
+        prev_map = current_map.copy()
     
-    if not converged:
-        logger.warning(f"Iterative synthesis did not converge after {n_iter} iterations. Final error: {prev_diff:.4e}")
-        
-    return filled_map, stats
+    return current_map
 
 def apply_iterative_filling(
-    map_path: str,
-    mask_path: str,
-    output_path: str,
-    metadata_path: str,
-    n_iter: int = 50,
-    tol: float = 1e-5,
-    damping: float = 0.5
-) -> bool:
+    input_map: np.ndarray,
+    mask: np.ndarray,
+    realization_id: str,
+    algo_name: str = "iterative_synthesis",
+    n_iter: int = 20
+) -> np.ndarray:
     """
-    Wrapper to load map, apply iterative synthesis, and save results.
+    Wrapper for Iterative Synthesis with NaN Guarding.
+    
+    Args:
+        input_map: Input map.
+        mask: Valid pixel mask.
+        realization_id: ID for logging.
+        algo_name: Algorithm name.
+        n_iter: Number of iterations.
     
     Returns:
-        True if successful, False if convergence failed.
+        Filled map.
+    
+    Raises:
+        NaNPropagationError: If output contains NaNs.
     """
+    logger.info(f"Applying Iterative Synthesis for {realization_id}")
     start_time = time.time()
     
-    logger.info(f"Loading map from {map_path}")
-    map_data = hp.read_map(map_path, field=0)
-    
-    logger.info(f"Loading mask from {mask_path}")
-    mask_data = hp.read_map(mask_path, field=0)
-    
-    filled_map, stats = iterative_harmonic_synthesis(
-        map_data, mask_data, n_iter=n_iter, tol=tol, damping=damping
-    )
-    
-    exec_time = time.time() - start_time
-    
-    # Save filled map
-    hp.write_map(output_path, filled_map, overwrite=True)
-    logger.info(f"Filled map saved to {output_path}")
-    
-    # Record metadata
-    metadata = {
-        "algo_name": "iterative_harmonic_synthesis",
-        "algo_version": "1.0.0",
-        "exec_time_sec": exec_time,
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "convergence": {
-            "converged": stats["converged"],
-            "iterations": stats["iterations"],
-            "final_error": stats["final_error"],
-            "tolerance": tol,
-            "max_iterations": n_iter,
-            "damping": damping
-        },
-        "input_map": map_path,
-        "input_mask": mask_path,
-        "output_map": output_path
-    }
-    
-    os.makedirs(os.path.dirname(metadata_path), exist_ok=True)
-    with open(metadata_path, 'w') as f:
-        json.dump(metadata, f, indent=2)
+    try:
+        filled_map = iterative_harmonic_synthesis(input_map, mask, n_iter=n_iter)
         
-    logger.info(f"Metadata saved to {metadata_path}")
-    
-    # FR-008: Handle convergence failure
-    if not stats["converged"]:
-        logger.error(f"Convergence failure detected for {map_path} (Iterative Synthesis). Gap config recorded in metadata. Excluding from analysis.")
-        return False
+        # T043: Explicit NaN check
+        scan_for_nans(filled_map, realization_id, algo_name)
         
-    # Check for NaNs
-    if np.any(np.isnan(filled_map)) or np.any(np.isinf(filled_map)):
-        logger.error(f"Iterative synthesis produced NaN/Inf values for {map_path}. Excluding from analysis.")
-        return False
+        exec_time = time.time() - start_time
+        logger.info(f"Iterative synthesis completed for {realization_id} in {exec_time:.2f}s")
         
-    return True
+        return filled_map
+        
+    except NaNPropagationError:
+        raise
+    except Exception as e:
+        logger.error(f"Iterative synthesis failed for {realization_id}: {e}")
+        log_convergence_failure(realization_id, algo_name, str(e))
+        raise
 
 def main():
     """
-    Entry point for standalone execution.
+    Minimal execution test for Iterative Synthesis.
     """
-    logger.info("Iterative Synthesis Module - Main Entry")
-    print("Iterative Synthesis module loaded. Ready for pipeline integration.")
+    logging.basicConfig(level=logging.INFO)
+    
+    nside = 16
+    npix = hp.nside2npix(nside)
+    test_map = np.random.randn(npix)
+    
+    mask = np.ones(npix, dtype=bool)
+    mask[0:10] = False
+    test_map[0:10] = np.nan
+    
+    try:
+        result = apply_iterative_filling(test_map, mask, "test_003", "iterative_synthesis", n_iter=10)
+        print(f"Success: Map filled. Shape: {result.shape}, Has NaNs: {np.any(np.isnan(result))}")
+    except Exception as e:
+        print(f"Failed: {e}")
 
 if __name__ == "__main__":
     main()

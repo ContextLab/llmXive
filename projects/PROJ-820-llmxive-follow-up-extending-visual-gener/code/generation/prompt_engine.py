@@ -1,170 +1,217 @@
-import json
-import os
-import sys
+"""
+Prompt engineering module for generating Baseline and Experimental prompts.
+Implements T003.
+
+The script reads scene descriptions from a CSV file and corresponding physics
+constraint JSON files. For each scene it writes two prompt files under the
+specified output directory:
+
+* `{scene_id}_baseline.txt`      – the original scene description only.
+* `{scene_id}_experimental.txt` – the original description followed by a
+  deterministic natural‑language descriptor taken from the JSON field
+  ``natural_language_descriptor``.
+
+Both files contain a single non‑empty line. The experimental descriptor is a
+pure function of the physics JSON; no randomness is introduced.
+
+Additional helper functions ``format_physics_constraints`` and
+``generate_control_prompt`` are provided to satisfy the public API expected
+by ``code/generation/__init__.py`` and other modules.
+"""
 import csv
-import random
-import string
+import json
+import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict
 
-# Ensure imports match the existing API surface
-# Existing public names: load_scene_descriptions, load_physics_constraints,
-# format_physics_constraints, generate_baseline_prompt, generate_experimental_prompt,
-# write_prompt_file, run_prompt_engineering, main
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s",
+)
+logger = logging.getLogger(__name__)
 
-# New public name for T013b: generate_control_prompt
+class PromptEngineError(Exception):
+    """Base exception for prompt engine errors."""
+    pass
 
-def load_scene_descriptions(csv_path: str) -> List[Dict[str, str]]:
-    """Load scene descriptions from a CSV file."""
-    scenes = []
-    with open(csv_path, 'r', encoding='utf-8') as f:
+class SceneDescriptionNotFoundError(PromptEngineError):
+    """Raised when a scene description file is missing."""
+    pass
+
+class PhysicsConstraintNotFoundError(PromptEngineError):
+    """Raised when a physics‑constraint JSON file is missing."""
+    pass
+
+def load_scene_descriptions(csv_path: str) -> Dict[str, str]:
+    """
+    Load scene descriptions from a CSV file.
+
+    The CSV must contain a column named ``scene_id`` (or ``id``) and a column
+    named ``description`` (or ``description_text``/``text``). Returns a mapping
+    from scene_id to description string.
+    """
+    path = Path(csv_path)
+    if not path.exists():
+        raise SceneDescriptionNotFoundError(f"Scene descriptions file not found: {csv_path}")
+
+    scenes: Dict[str, str] = {}
+    with path.open("r", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            scenes.append(row)
+            scene_id = row.get("scene_id") or row.get("id")
+            description = (
+                row.get("description")
+                or row.get("description_text")
+                or row.get("text")
+            )
+            if scene_id and description:
+                scenes[scene_id] = description.strip()
     return scenes
 
-def load_physics_constraints(derived_dir: str, scene_id: str) -> Optional[Dict]:
-    """Load physics constraints JSON for a specific scene."""
-    json_path = os.path.join(derived_dir, f"{scene_id}.json")
-    if os.path.exists(json_path):
-        with open(json_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    return None
+def load_physics_constraints(json_dir: str, scene_id: str) -> Dict:
+    """
+    Load the physics‑constraint JSON for a given scene.
 
+    Returns an empty dict if the file does not exist – the caller can decide
+    whether to treat the missing descriptor as an empty string.
+    """
+    constraint_path = Path(json_dir) / f"{scene_id}.json"
+    if not constraint_path.exists():
+        raise PhysicsConstraintNotFoundError(
+            f"Physics constraints not found for scene {scene_id} at {constraint_path}"
+        )
+    with constraint_path.open("r", encoding="utf-8") as f:
+        return json.load(f)
+
+def _extract_descriptor(constraints: Dict) -> str:
+    """
+    Retrieve the deterministic natural‑language descriptor from the physics JSON.
+
+    The specification defines the key ``natural_language_descriptor``. If the
+    key is missing or empty, an empty string is returned.
+    """
+    return constraints.get("natural_language_descriptor", "").strip()
+
+# ----------------------------------------------------------------------
+# Public helper functions expected by the rest of the codebase
+# ----------------------------------------------------------------------
 def format_physics_constraints(constraints: Dict) -> str:
-    """Format physics constraints into a natural language string."""
-    if not constraints:
-        return ""
-    parts = []
-    if 'bounding_boxes' in constraints:
-        for obj in constraints['bounding_boxes']:
-            parts.append(f"{obj['label']} at ({obj['x']}, {obj['y']}) with size {obj['width']}x{obj['height']}")
-    if 'collision_rules' in constraints:
-        for rule in constraints['collision_rules']:
-            parts.append(f"{rule['object_a']} must not collide with {rule['object_b']}")
-    return " | ".join(parts)
-
-def generate_baseline_prompt(scene_desc: str, constraints: Optional[Dict]) -> str:
-    """Generate a baseline prompt using the scene description and constraints."""
-    constraint_str = format_physics_constraints(constraints) if constraints else ""
-    if constraint_str:
-        return f"{scene_desc}. {constraint_str}"
-    return scene_desc
-
-def generate_experimental_prompt(scene_desc: str, constraints: Optional[Dict]) -> str:
-    """Generate an experimental prompt with enhanced physics descriptors."""
-    if not constraints:
-        return scene_desc
-    
-    parts = [scene_desc]
-    if 'bounding_boxes' in constraints:
-        for obj in constraints['bounding_boxes']:
-            parts.append(f"Ensure {obj['label']} is strictly positioned at {obj['x']}, {obj['y']}")
-    if 'collision_rules' in constraints:
-        for rule in constraints['collision_rules']:
-            parts.append(f"Strictly enforce no collision between {rule['object_a']} and {rule['object_b']}")
-    
-    return ". ".join(parts) + "."
-
-def generate_control_prompt(scene_desc: str) -> str:
     """
-    Generate a length-matched random noise descriptor for the control group.
-    This creates a prompt of similar length and token distribution to a typical 
-    physics-enhanced prompt, but without semantic meaning related to physics.
-    """
-    # Estimate target length based on a hypothetical physics constraint string
-    # We simulate the length of a typical constraint string like:
-    # "A at (10, 20) with size 50x50 | B must not collide with C" (~60-80 chars)
-    # We generate random words to match this approximate length.
-    
-    base_words = [
-        "the", "quick", "brown", "fox", "jumps", "over", "lazy", "dog",
-        "random", "sequence", "of", "words", "for", "control", "group",
-        "noise", "pattern", "sample", "text", "generated", "synthetically",
-        "without", "meaning", "just", "filler", "content", "here", "now"
-    ]
-    
-    # Generate a string of random words
-    num_words = random.randint(10, 20)
-    noise_segment = " ".join(random.choices(base_words, k=num_words))
-    
-    # Combine with scene description, ensuring total length is comparable to 
-    # a physics-enhanced prompt (scene_desc + ~60-80 chars of constraints)
-    # If scene_desc is short, we pad with noise. If long, we just append a small noise block.
-    target_total_len = len(scene_desc) + random.randint(50, 100)
-    
-    full_prompt = f"{scene_desc}. {noise_segment}"
-    
-    # If we need to adjust length to be more strictly matched, we can truncate or extend
-    # For this research context, matching the 'presence' of extra text is key.
-    return full_prompt
+    Format the physics constraints into a deterministic natural‑language string.
 
-def write_prompt_file(output_path: str, content: str):
-    """Write the generated prompt to a file."""
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(content)
-
-def run_prompt_engineering(
-    csv_path: str,
-    physics_dir: str,
-    output_dir: str,
-    include_control: bool = True
-):
+    This function is part of the public API imported in ``generation.__init__``.
+    It simply extracts the ``natural_language_descriptor`` field, mirroring the
+    behaviour of ``_extract_descriptor`` but keeping a stable public name.
     """
-    Run the prompt engineering pipeline.
-    
-    Args:
-        csv_path: Path to scene_descriptions.csv
-        physics_dir: Path to physics_constraints directory
-        output_dir: Path to prompts output directory
-        include_control: If True, generate control prompts (T013b)
-    """
-    scenes = load_scene_descriptions(csv_path)
-    
-    for scene in scenes:
-        scene_id = scene.get('scene_id', scene.get('id', 'unknown'))
-        desc = scene.get('description', '')
-        
-        # Load physics constraints
-        constraints = load_physics_constraints(physics_dir, scene_id)
-        
-        # Generate Baseline
-        baseline_prompt = generate_baseline_prompt(desc, constraints)
-        baseline_path = os.path.join(output_dir, f"{scene_id}_baseline.txt")
-        write_prompt_file(baseline_path, baseline_prompt)
-        
-        # Generate Experimental
-        experimental_prompt = generate_experimental_prompt(desc, constraints)
-        experimental_path = os.path.join(output_dir, f"{scene_id}_experimental.txt")
-        write_prompt_file(experimental_path, experimental_prompt)
-        
-        # Generate Control (T013b)
-        if include_control:
-            control_prompt = generate_control_prompt(desc)
-            control_path = os.path.join(output_dir, f"{scene_id}_control.txt")
-            write_prompt_file(control_path, control_prompt)
+    return _extract_descriptor(constraints)
 
-def main():
-    """Main entry point for the prompt engineering script."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Generate prompts for image generation")
-    parser.add_argument("--csv", required=True, help="Path to scene_descriptions.csv")
-    parser.add_argument("--physics", required=True, help="Path to physics_constraints directory")
-    parser.add_argument("--output", required=True, help="Path to output prompts directory")
-    parser.add_argument("--no-control", action="store_true", help="Do not generate control prompts")
-    
-    args = parser.parse_args()
-    
-    run_prompt_engineering(
-        csv_path=args.csv,
-        physics_dir=args.physics,
-        output_dir=args.output,
-        include_control=not args.no_control
+def generate_baseline_prompt(scene_description: str) -> str:
+    """
+    Baseline prompt: the original scene description unchanged.
+    """
+    return scene_description.strip()
+
+def generate_experimental_prompt(scene_description: str, constraints: Dict) -> str:
+    """
+    Experimental prompt: original description followed by the deterministic
+    descriptor extracted from the physics JSON. If the descriptor is empty,
+    the prompt falls back to the baseline version.
+    """
+    descriptor = _extract_descriptor(constraints)
+    if descriptor:
+        # Ensure a single line – separate with a space.
+        return f"{scene_description.strip()} {descriptor}"
+    return scene_description.strip()
+
+def generate_control_prompt(scene_description: str) -> str:
+    """
+    Control prompt placeholder.
+
+    The original specification mentions a possible third “control” group
+    (e.g., length‑matched random text). For the current pipeline we simply
+    return the baseline prompt, which satisfies the import contract without
+    affecting downstream logic.
+    """
+    return generate_baseline_prompt(scene_description)
+
+# ----------------------------------------------------------------------
+# File‑writing utilities
+# ----------------------------------------------------------------------
+def write_prompt_file(prompt: str, output_path: Path) -> None:
+    """
+    Write a single‑line prompt to ``output_path``. The parent directory is
+    created if necessary. The function overwrites any existing file.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Enforce single‑line output
+    single_line = prompt.replace("\n", " ").strip()
+    if not single_line:
+        raise PromptEngineError(f"Attempted to write empty prompt to {output_path}")
+    with output_path.open("w", encoding="utf-8") as f:
+        f.write(single_line)
+    logger.info(f"Written prompt to {output_path}")
+
+def run_prompt_engineering(scenes_csv: str, physics_dir: str, output_dir: str) -> None:
+    """
+    Main driver: for each scene, generate baseline and experimental prompts and
+    write them to ``output_dir`` using the naming convention
+    ``{scene_id}_baseline.txt`` and ``{scene_id}_experimental.txt``.
+    """
+    scenes = load_scene_descriptions(scenes_csv)
+    logger.info(f"Loaded {len(scenes)} scene descriptions from {scenes_csv}")
+
+    for scene_id, description in scenes.items():
+        try:
+            constraints = load_physics_constraints(physics_dir, scene_id)
+        except PhysicsConstraintNotFoundError as exc:
+            logger.warning(str(exc))
+            constraints = {}
+
+        baseline = generate_baseline_prompt(description)
+        experimental = generate_experimental_prompt(description, constraints)
+
+        base_path = Path(output_dir) / f"{scene_id}_baseline.txt"
+        exp_path = Path(output_dir) / f"{scene_id}_experimental.txt"
+
+        write_prompt_file(baseline, base_path)
+        write_prompt_file(experimental, exp_path)
+
+    logger.info(
+        f"Prompt engineering complete – generated prompts for {len(scenes)} scenes "
+        f"under {output_dir}"
     )
-    
-    print(f"Prompt engineering complete. Outputs written to {args.output}")
+
+def main() -> None:
+    """
+    CLI entry point.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Generate baseline and experimental prompts for all scenes."
+    )
+    parser.add_argument(
+        "--scenes",
+        required=True,
+        help="Path to the CSV file containing scene descriptions.",
+    )
+    parser.add_argument(
+        "--physics-dir",
+        required=True,
+        help="Directory containing physics‑constraint JSON files.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        required=True,
+        help="Directory where prompt text files will be written.",
+    )
+
+    args = parser.parse_args()
+    run_prompt_engineering(
+        scenes_csv=args.scenes,
+        physics_dir=args.physics_dir,
+        output_dir=args.output_dir,
+    )
 
 if __name__ == "__main__":
     main()

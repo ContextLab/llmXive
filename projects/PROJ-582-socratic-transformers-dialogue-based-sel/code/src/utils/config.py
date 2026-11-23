@@ -1,180 +1,139 @@
 """
-Environment configuration management for random seeds and model paths.
+Environment configuration management for Socratic Transformers project.
 
-This module provides a centralized configuration class to manage:
-- Random seeds for reproducibility across numpy, torch, and random modules.
-- Model paths for base models and LoRA adapters.
-- Hyperparameters and environment-specific settings.
-
-It adheres to the project's constraint of CPU-only execution and low-bit
-quantization where applicable.
+This module defines all critical configuration constants, model paths,
+and hyperparameters required for the research pipeline.
 """
 
 import os
 import random
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, Dict, Any
-
+from typing import Optional, Dict, Any, List
 import numpy as np
 
-try:
-    import torch
-    TORCH_AVAILABLE = True
-except ImportError:
-    TORCH_AVAILABLE = False
+# Project Root Paths
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+_DATA_RAW = _PROJECT_ROOT / "data" / "raw"
+_DATA_PROCESSED = _PROJECT_ROOT / "data" / "processed"
+_DATA_RESULTS = _PROJECT_ROOT / "data" / "results"
+_STATE_DIR = _PROJECT_ROOT / "state"
 
+# Model IDs (HuggingFace)
+# Using a small, CPU-friendly base model for the student
+BASE_MODEL_ID: str = "distilbert/distilgpt2"
+
+# Using a small, frozen model for the critic/adversarial component
+# Phi-2 or similar small model is suitable for logical contradiction detection
+CRITIC_MODEL_ID: str = "microsoft/phi-2"
+
+# Data Paths
+# Path to the question bank (downloaded datasets)
+QUESTION_BANK_PATH: str = str(_DATA_RAW)
+
+# Prompt Templates
+# Adversarial prompt template for generating critiques
+ADVERSARIAL_PROMPT_TEMPLATE: str = (
+    "You are a critical Socratic tutor. Your goal is to identify logical "
+    "contradictions, unsupported assumptions, or high-probability errors in "
+    "the following answer. Output ONLY the critique, do not offer a corrected "
+    "answer. Focus on the reasoning steps.\n\n"
+    "Answer to critique: {answer}\n\n"
+    "Critique:"
+)
+
+# Hyperparameters
+# Threshold for semantic similarity rejection (0.0 to 1.0)
+# If similarity(critique_error_span, candidate_answer) > threshold, reject candidate
+SELECTION_THRESHOLD: float = 0.65
+
+# Generation Parameters
+GENERATION_TEMPERATURE: float = 0.7
+MAX_RETRIES: int = 5
+CANDIDATE_COUNT: int = 5
+
+# Random Seed for reproducibility
+RANDOM_SEED: int = 42
 
 @dataclass
 class SocraticConfig:
-    """
-    Centralized configuration container for the Socratic Transformers project.
+    """Dataclass holding the full runtime configuration."""
+    base_model_id: str = BASE_MODEL_ID
+    critic_model_id: str = CRITIC_MODEL_ID
+    question_bank_path: str = QUESTION_BANK_PATH
+    adversarial_prompt_template: str = ADVERSARIAL_PROMPT_TEMPLATE
+    selection_threshold: float = SELECTION_THRESHOLD
+    generation_temperature: float = GENERATION_TEMPERATURE
+    max_retries: int = MAX_RETRIES
+    candidate_count: int = CANDIDATE_COUNT
+    random_seed: int = RANDOM_SEED
+    data_raw: Path = field(default_factory=lambda: _DATA_RAW)
+    data_processed: Path = field(default_factory=lambda: _DATA_PROCESSED)
+    data_results: Path = field(default_factory=lambda: _DATA_RESULTS)
+    state_dir: Path = field(default_factory=lambda: _STATE_DIR)
 
-    Attributes:
-        seed (int): Global random seed for reproducibility.
-        project_root (Path): Absolute path to the project root.
-        data_dir (Path): Path to the data directory.
-        model_name (str): HuggingFace model identifier for the base model.
-        model_path (Optional[Path]): Local path to a downloaded model (if not using HF hub).
-        lora_adapter_path (Optional[Path]): Path to LoRA weights.
-        max_seq_length (int): Maximum sequence length for input processing.
-        batch_size (int): Training batch size (constrained to <= 2 for CPU).
-        gradient_accumulation_steps (int): Steps for gradient accumulation.
-        quantization_bits (int): Bits for quantization (4 for CPU efficiency).
-        device (str): Target device ('cpu' or 'cuda').
-        output_dir (Path): Directory for logs, checkpoints, and results.
-    """
-
-    seed: int = 42
-    project_root: Path = field(default_factory=lambda: Path(__file__).resolve().parents[3])
-    
-    # Data paths
-    data_dir: Path = field(default_factory=lambda: Path("data"))
-    
-    # Model configuration
-    model_name: str = "microsoft/phi-1.5"  # Default to 1.5B for CPU constraints
-    model_path: Optional[Path] = None
-    lora_adapter_path: Optional[Path] = None
-    
-    # Training hyperparameters
-    max_seq_length: int = 512
-    batch_size: int = 2
-    gradient_accumulation_steps: int = 4
-    quantization_bits: int = 4  # 4-bit quantization for memory efficiency
-    
-    # Environment
-    device: str = "cpu"
-    output_dir: Path = field(default_factory=lambda: Path("data/results"))
-    
-    # Logging
-    log_level: str = "INFO"
-    log_file: Optional[Path] = None
-
-    def __post_init__(self):
-        """Resolve relative paths to absolute paths based on project root."""
-        if not self.project_root.is_absolute():
-            self.project_root = self.project_root.resolve()
-        
-        self.data_dir = self.project_root / self.data_dir
-        self.output_dir = self.project_root / self.output_dir
-        
-        if self.model_path and not self.model_path.is_absolute():
-            self.model_path = self.project_root / self.model_path
-        
-        if self.lora_adapter_path and not self.lora_adapter_path.is_absolute():
-            self.lora_adapter_path = self.project_root / self.lora_adapter_path
-
-        if self.log_file and not self.log_file.is_absolute():
-            self.log_file = self.project_root / self.log_file
-
-    def set_seed(self):
-        """
-        Set random seeds for reproducibility across all relevant libraries.
-        
-        This ensures that experiments are deterministic given the same seed.
-        """
-        random.seed(self.seed)
-        np.random.seed(self.seed)
-        
-        if TORCH_AVAILABLE:
-            torch.manual_seed(self.seed)
-            if self.device == "cuda":
-                torch.cuda.manual_seed_all(self.seed)
-                torch.backends.cudnn.deterministic = True
-                torch.backends.cudnn.benchmark = False
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert configuration to a dictionary for logging or serialization."""
-        return {
-            "seed": self.seed,
-            "model_name": self.model_name,
-            "model_path": str(self.model_path) if self.model_path else None,
-            "max_seq_length": self.max_seq_length,
-            "batch_size": self.batch_size,
-            "gradient_accumulation_steps": self.gradient_accumulation_steps,
-            "quantization_bits": self.quantization_bits,
-            "device": self.device,
-            "data_dir": str(self.data_dir),
-            "output_dir": str(self.output_dir),
-        }
-
-
-def load_config_from_env() -> SocraticConfig:
-    """
-    Load configuration from environment variables with sensible defaults.
-    
-    Environment variables:
-        SROCATIC_SEED: Random seed (default: 42)
-        SROCATIC_MODEL_NAME: HuggingFace model name (default: microsoft/phi-1.5)
-        SROCATIC_MAX_SEQ_LENGTH: Max sequence length (default: 512)
-        SROCATIC_BATCH_SIZE: Batch size (default: 2)
-        SROCATIC_DEVICE: Device to use (default: cpu)
-    """
-    seed = int(os.getenv("SROCATIC_SEED", 42))
-    model_name = os.getenv("SROCATIC_MODEL_NAME", "microsoft/phi-1.5")
-    max_seq_length = int(os.getenv("SROCATIC_MAX_SEQ_LENGTH", 512))
-    batch_size = int(os.getenv("SROCATIC_BATCH_SIZE", 2))
-    device = os.getenv("SROCATIC_DEVICE", "cpu")
-    
-    # Ensure batch size constraint for CPU
-    if device == "cpu" and batch_size > 2:
-        print(f"Warning: Batch size {batch_size} reduced to 2 for CPU execution.")
-        batch_size = 2
-
-    return SocraticConfig(
-        seed=seed,
-        model_name=model_name,
-        max_seq_length=max_seq_length,
-        batch_size=batch_size,
-        device=device
-    )
-
-
-# Global config instance for easy access
+# Global configuration instance
 _global_config: Optional[SocraticConfig] = None
 
-
 def get_config() -> SocraticConfig:
-    """
-    Get the global configuration instance, initializing it if necessary.
-    
-    Returns:
-        SocraticConfig: The global configuration object.
-    """
+    """Returns the global configuration, initializing it if necessary."""
     global _global_config
     if _global_config is None:
-        _global_config = load_config_from_env()
-        _global_config.set_seed()
+        _global_config = SocraticConfig()
     return _global_config
 
-
-def set_global_config(config: SocraticConfig):
-    """
-    Set the global configuration instance explicitly.
-    
-    Args:
-        config: The configuration object to set as global.
-    """
+def set_global_config(config: SocraticConfig) -> None:
+    """Sets the global configuration instance."""
     global _global_config
     _global_config = config
-    _global_config.set_seed()
+
+def load_config_from_env() -> SocraticConfig:
+    """Loads configuration from environment variables if present, otherwise uses defaults."""
+    global _global_config
+    if _global_config is None:
+        _global_config = SocraticConfig()
+    
+    # Override with environment variables if set
+    if os.getenv("BASE_MODEL_ID"):
+        _global_config.base_model_id = os.getenv("BASE_MODEL_ID")
+    if os.getenv("CRITIC_MODEL_ID"):
+        _global_config.critic_model_id = os.getenv("CRITIC_MODEL_ID")
+    if os.getenv("QUESTION_BANK_PATH"):
+        _global_config.question_bank_path = os.getenv("QUESTION_BANK_PATH")
+    if os.getenv("SELECTION_THRESHOLD"):
+        _global_config.selection_threshold = float(os.getenv("SELECTION_THRESHOLD"))
+    if os.getenv("RANDOM_SEED"):
+        _global_config.random_seed = int(os.getenv("RANDOM_SEED"))
+    
+    return _global_config
+
+def set_seed(seed: int) -> None:
+    """Sets the random seed for reproducibility across libraries."""
+    random.seed(seed)
+    np.random.seed(seed)
+    try:
+        import torch
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+    except ImportError:
+        pass
+
+def init_project() -> None:
+    """Initializes the project directory structure based on config."""
+    config = get_config()
+    config.data_raw.mkdir(parents=True, exist_ok=True)
+    config.data_processed.mkdir(parents=True, exist_ok=True)
+    config.data_results.mkdir(parents=True, exist_ok=True)
+    config.state_dir.mkdir(parents=True, exist_ok=True)
+
+def main():
+    """Main entry point for testing configuration."""
+    config = load_config_from_env()
+    print(f"Base Model: {config.base_model_id}")
+    print(f"Critic Model: {config.critic_model_id}")
+    print(f"Selection Threshold: {config.selection_threshold}")
+    print(f"Data Raw: {config.data_raw}")
+
+if __name__ == "__main__":
+    main()

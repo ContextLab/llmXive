@@ -1,4 +1,4 @@
-'|alpha level significance statistical test':
+'|alpha level significance statistical test use':
   quote: "The error that a practising statistician would consider the more important\
     \ to avoid (which is a subjective judgment) is called the error of the first kind.\
     \ The first demand of the mathematical theory is to deduce such test criteria\
@@ -8,3 +8,8 @@
   source_id: P-value
   url: https://en.wikipedia.org/wiki/P-value
   value: '0.05'
+'|dataset row target':
+  quote: '500'
+  source_id: '2506.09162'
+  url: https://arxiv.org/abs/2506.09162
+  value: '500'

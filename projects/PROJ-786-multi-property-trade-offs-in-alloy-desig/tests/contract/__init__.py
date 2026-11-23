@@ -1,1 +1,1 @@
-"""Contract tests for data and model schemas."""
+# Contract tests package initialization

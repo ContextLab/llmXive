@@ -1,310 +1,258 @@
 """
-Data Augmentation Module for Small Sample Statistical Power Study.
+Data augmentation module.
 
-Implements Gaussian noise injection, SMOTE, and Random Oversampling using
-imbalanced-learn. Ensures CPU-only execution and handles zero-variance samples.
+This module provides functions for data augmentation techniques including
+Gaussian noise injection, SMOTE, and Random Oversampling.
 """
 
 import os
 import logging
+from typing import Tuple, Optional, List, Dict, Union
+from pathlib import Path
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from typing import Tuple, Optional, List, Dict, Union
-
-from sklearn.utils import check_random_state
 from imblearn.over_sampling import SMOTE, RandomOverSampler
 from imblearn.utils import check_neighbors_object
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def _detect_target_column(df: pd.DataFrame) -> str:
+
+def log_skipped_smote_configuration(
+    dataset: str,
+    size: int,
+    reason: str,
+    log_path: str
+) -> None:
     """
-    Detect the target column using the priority: 'target' -> 'class' -> 'label' -> last column.
-    
+    Log a skipped SMOTE configuration.
+
+    Args:
+        dataset: Name of the dataset.
+        size: Sample size.
+        reason: Reason for skipping.
+        log_path: Path to the log file.
+    """
+    entry = {
+        "dataset": dataset,
+        "size": size,
+        "reason": reason,
+        "timestamp": "2024-01-01T00:00:00"
+    }
+
+    log_data: List[Dict[str, Any]] = []
+    if os.path.exists(log_path):
+        try:
+            with open(log_path, "r") as f:
+                log_data = json.load(f)
+        except json.JSONDecodeError:
+            log_data = []
+
+    log_data.append(entry)
+
+    with open(log_path, "w") as f:
+        json.dump(log_data, f, indent=2)
+
+    logger.warning(f"Skipped SMOTE: {dataset}, N={size}, reason: {reason}")
+
+
+def detect_zero_variance_columns(df: pd.DataFrame) -> List[str]:
+    """
+    Detect columns with zero variance.
+
     Args:
         df: Input DataFrame.
-        
-    Returns:
-        Name of the target column.
-    """
-    priority = ['target', 'class', 'label']
-    for col in priority:
-        if col in df.columns:
-            return col
-    # Default to last column
-    return df.columns[-1]
 
-def _check_zero_variance(X: np.ndarray) -> List[int]:
-    """
-    Identify columns with zero variance (constant values).
-    
-    Args:
-        X: Feature array (n_samples, n_features).
-        
     Returns:
-        List of column indices with zero variance.
+        List of column names with zero variance.
     """
-    if X.shape[0] == 0:
-        return list(range(X.shape[1]))
-    
     zero_var_cols = []
-    for i in range(X.shape[1]):
-        if np.var(X[:, i]) == 0:
-            zero_var_cols.append(i)
+    for col in df.select_dtypes(include=[np.number]).columns:
+        if df[col].var() == 0:
+            zero_var_cols.append(col)
     return zero_var_cols
 
-def inject_gaussian_noise(
-    X: np.ndarray,
-    y: np.ndarray,
-    noise_std: float = 0.1,
-    random_state: Optional[Union[int, np.random.RandomState]] = None
-) -> Tuple[np.ndarray, np.ndarray]:
+
+def exclude_zero_variance_samples(df: pd.DataFrame) -> Tuple[pd.DataFrame, bool]:
     """
-    Inject Gaussian noise into the feature matrix.
-    
+    Exclude samples that result in zero variance.
+
     Args:
-        X: Feature array (n_samples, n_features).
-        y: Target array (n_samples,).
-        noise_std: Standard deviation of the Gaussian noise.
-        random_state: Random seed or RandomState instance.
-        
+        df: Input DataFrame.
+
     Returns:
-        Tuple of (noisy_X, y).
+        Tuple of (cleaned DataFrame, was_excluded).
     """
-    rng = check_random_state(random_state)
-    noise = rng.normal(0, noise_std, size=X.shape)
-    noisy_X = X + noise
-    return noisy_X, y
+    zero_var_cols = detect_zero_variance_columns(df)
+    if zero_var_cols:
+        logger.warning(f"Excluding zero variance columns: {zero_var_cols}")
+        df = df.drop(columns=zero_var_cols)
+        return df, True
+    return df, False
+
+
+def inject_gaussian_noise(
+    df: pd.DataFrame,
+    std: float = 0.01,
+    random_state: int = 42
+) -> pd.DataFrame:
+    """
+    Inject Gaussian noise into numeric columns.
+
+    Args:
+        df: Input DataFrame.
+        std: Standard deviation of the noise.
+        random_state: Random seed.
+
+    Returns:
+        DataFrame with injected noise.
+    """
+    df_copy = df.copy()
+    numeric_cols = df_copy.select_dtypes(include=[np.number]).columns
+
+    np.random.seed(random_state)
+    for col in numeric_cols:
+        noise = np.random.normal(0, std, size=len(df_copy))
+        df_copy[col] = df_copy[col] + noise
+
+    return df_copy
+
 
 def apply_smote(
-    X: np.ndarray,
-    y: np.ndarray,
-    random_state: Optional[Union[int, np.random.RandomState]] = None,
-    k_neighbors: int = 5,
-    n_jobs: int = 1
-) -> Tuple[np.ndarray, np.ndarray]:
+    df: pd.DataFrame,
+    target_col: str,
+    random_state: int = 42,
+    log_path: Optional[str] = None
+) -> Optional[pd.DataFrame]:
     """
-    Apply SMOTE (Synthetic Minority Over-sampling Technique).
-    
-    Ensures CPU-only execution (n_jobs=1) and handles edge cases where
-    minority class samples are insufficient.
-    
+    Apply SMOTE augmentation.
+
     Args:
-        X: Feature array (n_samples, n_features).
-        y: Target array (n_samples,).
-        random_state: Random seed or RandomState instance.
-        k_neighbors: Number of nearest neighbors to use for synthesis.
-        n_jobs: Number of CPU jobs (forced to 1 for CPU-only constraint).
-        
+        df: Input DataFrame.
+        target_col: Name of the target column.
+        random_state: Random seed.
+        log_path: Path to log file for skipped configurations.
+
     Returns:
-        Tuple of (resampled_X, resampled_y).
-        
-    Raises:
-        ValueError: If minority class has fewer than 2 samples or if
-                   k_neighbors is larger than minority class size.
+        Augmented DataFrame, or None if skipped.
     """
-    rng = check_random_state(random_state)
-    
-    # Check for zero variance features before SMOTE
-    zero_var_cols = _check_zero_variance(X)
-    if len(zero_var_cols) > 0:
-        logger.warning(f"Removing {len(zero_var_cols)} zero-variance features before SMOTE: {zero_var_cols}")
-        X_clean = np.delete(X, zero_var_cols, axis=1)
-    else:
-        X_clean = X
-    
-    # Validate minimum sample counts per class
-    unique, counts = np.unique(y, return_counts=True)
-    min_count = min(counts)
-    if min_count < 2:
-        raise ValueError(
-            f"SMOTE requires at least 2 samples per class. "
-            f"Found minimum class count: {min_count}"
-        )
-    
-    # Adjust k_neighbors if necessary
-    effective_k = min(k_neighbors, min_count - 1)
-    if effective_k < 1:
-        raise ValueError(
-            f"Cannot apply SMOTE with k_neighbors={k_neighbors} given "
-            f"minimum class size {min_count}. Need at least 2 samples."
-        )
-    
+    if len(df) < 5:
+        if log_path:
+            log_skipped_smote_configuration(
+                "unknown",
+                len(df),
+                "N < 5",
+                log_path
+            )
+        return None
+
+    X = df.drop(columns=[target_col])
+    y = df[target_col]
+
+    # Check for extreme imbalance
+    counts = y.value_counts()
+    if len(counts) < 2:
+        return df
+
+    min_count = counts.min()
+    if min_count < 5:
+        if log_path:
+            log_skipped_smote_configuration(
+                "unknown",
+                len(df),
+                "Extreme imbalance (min class < 5)",
+                log_path
+            )
+        return None
+
     try:
-        smote = SMOTE(
-            k_neighbors=effective_k,
-            random_state=rng,
-            n_jobs=1  # Force CPU-only
-        )
-        resampled_X, resampled_y = smote.fit_resample(X_clean, y)
-        
-        # If we removed zero-variance columns, we need to handle the output shape
-        # SMOTE preserves the feature dimensions of the input it received
-        return resampled_X, resampled_y
-        
+        smote = SMOTE(random_state=random_state, k_neighbors=min(5, min_count - 1))
+        X_res, y_res = smote.fit_resample(X, y)
+
+        result = pd.DataFrame(X_res, columns=X.columns)
+        result[target_col] = y_res
+
+        # Check for zero variance
+        result, _ = exclude_zero_variance_samples(result)
+
+        return result
+
     except Exception as e:
         logger.error(f"SMOTE failed: {str(e)}")
-        raise
+        if log_path:
+            log_skipped_smote_configuration(
+                "unknown",
+                len(df),
+                f"SMOTE error: {str(e)}",
+                log_path
+            )
+        return None
+
 
 def apply_random_oversampling(
-    X: np.ndarray,
-    y: np.ndarray,
-    random_state: Optional[Union[int, np.random.RandomState]] = None,
-    sampling_strategy: str = 'auto'
-) -> Tuple[np.ndarray, np.ndarray]:
+    df: pd.DataFrame,
+    target_col: str,
+    random_state: int = 42
+) -> pd.DataFrame:
     """
-    Apply Random Oversampling to balance the dataset.
-    
+    Apply random oversampling.
+
     Args:
-        X: Feature array (n_samples, n_features).
-        y: Target array (n_samples,).
-        random_state: Random seed or RandomState instance.
-        sampling_strategy: Strategy for resampling ('auto', 'not minority', or float).
-        
+        df: Input DataFrame.
+        target_col: Name of the target column.
+        random_state: Random seed.
+
     Returns:
-        Tuple of (resampled_X, resampled_y).
+        Oversampled DataFrame.
     """
-    rng = check_random_state(random_state)
-    
-    # Check for zero variance features
-    zero_var_cols = _check_zero_variance(X)
-    if len(zero_var_cols) > 0:
-        logger.warning(f"Removing {len(zero_var_cols)} zero-variance features before Random Oversampling: {zero_var_cols}")
-        X_clean = np.delete(X, zero_var_cols, axis=1)
-    else:
-        X_clean = X
-    
-    try:
-        ros = RandomOverSampler(
-            sampling_strategy=sampling_strategy,
-            random_state=rng
-        )
-        resampled_X, resampled_y = ros.fit_resample(X_clean, y)
-        return resampled_X, resampled_y
-        
-    except Exception as e:
-        logger.error(f"Random Oversampling failed: {str(e)}")
-        raise
+    X = df.drop(columns=[target_col])
+    y = df[target_col]
+
+    ros = RandomOverSampler(random_state=random_state)
+    X_res, y_res = ros.fit_resample(X, y)
+
+    result = pd.DataFrame(X_res, columns=X.columns)
+    result[target_col] = y_res
+
+    return result
+
 
 def augment_dataset(
     df: pd.DataFrame,
     method: str,
-    noise_std: float = 0.1,
-    k_neighbors: int = 5,
-    random_state: Optional[Union[int, np.random.RandomState]] = None
-) -> Tuple[pd.DataFrame, str]:
+    target_col: str,
+    std: float = 0.01,
+    random_state: int = 42,
+    log_path: Optional[str] = None
+) -> Optional[pd.DataFrame]:
     """
-    Apply a specified augmentation method to a dataset.
-    
+    Augment a dataset using the specified method.
+
     Args:
         df: Input DataFrame.
-        method: One of 'gaussian_noise', 'smote', 'random_oversampling'.
-        noise_std: Standard deviation for Gaussian noise.
-        k_neighbors: Number of neighbors for SMOTE.
+        method: Augmentation method ('gaussian', 'smote', 'random_oversample').
+        target_col: Name of the target column.
+        std: Standard deviation for Gaussian noise.
         random_state: Random seed.
-        
+        log_path: Path to log file for skipped configurations.
+
     Returns:
-        Tuple of (augmented_df, method_name).
-        
-    Raises:
-        ValueError: If method is unknown or augmentation fails.
+        Augmented DataFrame, or None if skipped.
     """
-    target_col = _detect_target_column(df)
-    y = df[target_col].values
-    X = df.drop(columns=[target_col]).values
-    
-    if method == 'gaussian_noise':
-        X_aug, y_aug = inject_gaussian_noise(X, y, noise_std=noise_std, random_state=random_state)
-        # Reconstruct DataFrame
-        feature_cols = [c for c in df.columns if c != target_col]
-        aug_df = pd.DataFrame(X_aug, columns=feature_cols)
-        aug_df[target_col] = y_aug
-        return aug_df, method
-        
+    if method == 'gaussian':
+        return inject_gaussian_noise(df, std=std, random_state=random_state)
     elif method == 'smote':
-        X_aug, y_aug = apply_smote(X, y, random_state=random_state, k_neighbors=k_neighbors)
-        feature_cols = [c for c in df.columns if c != target_col]
-        # Ensure we have the right number of feature columns
-        if X_aug.shape[1] != len(feature_cols):
-            # This can happen if zero-variance columns were removed
-            # We'll use the first N columns of the original feature list
-            used_features = feature_cols[:X_aug.shape[1]]
-            aug_df = pd.DataFrame(X_aug, columns=used_features)
-            aug_df[target_col] = y_aug
-        else:
-            aug_df = pd.DataFrame(X_aug, columns=feature_cols)
-            aug_df[target_col] = y_aug
-        return aug_df, method
-        
-    elif method == 'random_oversampling':
-        X_aug, y_aug = apply_random_oversampling(X, y, random_state=random_state)
-        feature_cols = [c for c in df.columns if c != target_col]
-        if X_aug.shape[1] != len(feature_cols):
-            used_features = feature_cols[:X_aug.shape[1]]
-            aug_df = pd.DataFrame(X_aug, columns=used_features)
-            aug_df[target_col] = y_aug
-        else:
-            aug_df = pd.DataFrame(X_aug, columns=feature_cols)
-            aug_df[target_col] = y_aug
-        return aug_df, method
-        
+        return apply_smote(df, target_col, random_state=random_state, log_path=log_path)
+    elif method == 'random_oversample':
+        return apply_random_oversampling(df, target_col, random_state=random_state)
     else:
         raise ValueError(f"Unknown augmentation method: {method}")
 
-def main():
-    """
-    Demonstration of augmentation functions with real data.
-    This script expects preprocessed data from T005 (subsample.py) to exist.
-    """
-    # Define paths
-    base_dir = Path(__file__).parent.parent
-    data_dir = base_dir / 'data' / 'derived'
-    
-    if not data_dir.exists():
-        logger.error(f"Data directory not found: {data_dir}")
-        return
-    
-    # Find a sample dataset to demonstrate augmentation
-    sample_files = list(data_dir.glob('*.csv'))
-    if not sample_files:
-        logger.warning("No CSV files found in data/derived/. Skipping demonstration.")
-        return
-    
-    sample_file = sample_files[0]
-    logger.info(f"Loading sample dataset: {sample_file}")
-    
-    df = pd.read_csv(sample_file)
-    logger.info(f"Loaded dataset with {len(df)} samples, {len(df.columns)} columns")
-    
-    # Demonstrate each augmentation method
-    methods = ['gaussian_noise', 'smote', 'random_oversampling']
-    
-    for method in methods:
-        try:
-            logger.info(f"Applying {method}...")
-            aug_df, applied_method = augment_dataset(
-                df, 
-                method=method, 
-                random_state=42
-            )
-            logger.info(f"  Original shape: {df.shape} -> Augmented shape: {aug_df.shape}")
-            logger.info(f"  Target distribution:\n{aug_df['target' if 'target' in aug_df.columns else 'class' if 'class' in aug_df.columns else 'label' if 'label' in aug_df.columns else aug_df.columns[-1]].value_counts()}")
-            
-            # Save augmented dataset
-            output_path = data_dir / f"{sample_file.stem}_{applied_method}.csv"
-            aug_df.to_csv(output_path, index=False)
-            logger.info(f"  Saved to: {output_path}")
-            
-        except Exception as e:
-            logger.error(f"  Failed to apply {method}: {str(e)}")
-            
-    logger.info("Augmentation demonstration complete.")
 
-if __name__ == '__main__':
+def main() -> None:
+    """Main entry point for augmentation."""
+    logger.info("Augment module loaded successfully")
+
+
+if __name__ == "__main__":
     main()

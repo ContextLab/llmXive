@@ -1,315 +1,273 @@
-"""
-Analysis module for computing correlations, VIF, training models,
-and performing cross-validation.
-"""
-
 import os
 import json
 import logging
 import csv
 import pickle
 import random
+import math
+import sys
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-import numpy as np
 import pandas as pd
+import numpy as np
 from scipy import stats
-from statsmodels.stats.outliers_influence import variance_inflation_factor
-from sklearn.linear_model import LinearRegression
-from sklearn.model_selection import StratifiedKFold, cross_val_score
-from sklearn.metrics import mean_squared_error, r2_score
-from sklearn.preprocessing import StandardScaler
 
-# Constants
-RESULTS_DIR = Path("results")
-MODELS_DIR = Path("models")
-DATA_PROCESSED_DIR = Path("data/processed")
-METRICS_CSV_PATH = DATA_PROCESSED_DIR / "metrics.csv"
-FILTERED_FEATURES_CSV_PATH = DATA_PROCESSED_DIR / "filtered_features.csv"
-CORRELATIONS_JSON_PATH = RESULTS_DIR / "correlations.json"
-MODEL_PERFORMANCE_JSON_PATH = RESULTS_DIR / "model_performance.json"
-POWER_ANALYSIS_LOG_PATH = RESULTS_DIR / "power_analysis.log"
-THERMAL_PREDICTOR_PATH = MODELS_DIR / "thermal_predictor.pkl"
-VIF_THRESHOLD = 5.0
-R2_THRESHOLD = 0.30
+# Add project root to path for imports if running as script
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
+from config import Config, initialize_environment
 
-def setup_analysis_logger() -> logging.Logger:
-    """Set up and return the analysis logger."""
+def setup_analysis_logger():
     logger = logging.getLogger("analysis")
     logger.setLevel(logging.INFO)
-
     if not logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
         handler.setFormatter(formatter)
         logger.addHandler(handler)
-
     return logger
 
-
 def load_metrics_csv() -> pd.DataFrame:
-    """Load the metrics CSV file."""
-    if not METRICS_CSV_PATH.exists():
-        raise FileNotFoundError(f"Metrics file not found: {METRICS_CSV_PATH}")
-    return pd.read_csv(METRICS_CSV_PATH)
-
-
-def get_network_metrics(df: pd.DataFrame) -> List[str]:
-    """Return list of network metric columns."""
-    metric_cols = [
-        "avg_degree",
-        "avg_shortest_path_length",
-        "clustering_coefficient",
-        "density"
-    ]
-    return [col for col in metric_cols if col in df.columns]
-
-
-def get_thermal_conductivity_col(df: pd.DataFrame) -> Optional[str]:
-    """Return the thermal conductivity column name."""
-    thermal_cols = [col for col in df.columns if "thermal_conductivity" in col.lower()]
-    if not thermal_cols:
-        return None
-    return thermal_cols[0]
-
-
-def calculate_vif(df: pd.DataFrame, features: List[str]) -> Dict[str, float]:
-    """Calculate VIF for each feature."""
-    vif_data = {}
-    for feature in features:
-        try:
-            vif = variance_inflation_factor(df[features].values, features.index(feature))
-            vif_data[feature] = vif
-        except Exception as e:
-            vif_data[feature] = float('nan')
-    return vif_data
-
-
-def log_vif_results(vif_data: Dict[str, float], logger: logging.Logger) -> None:
-    """Log VIF results to power_analysis.log."""
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    with open(POWER_ANALYSIS_LOG_PATH, "a") as f:
-        f.write("\n--- VIF Analysis ---\n")
-        for feature, vif in vif_data.items():
-            status = "INCLUDED" if vif < VIF_THRESHOLD else "EXCLUDED"
-            f.write(f"{feature}: VIF={vif:.4f} [{status}]\n")
-
-
-def generate_filtered_features_csv(df: pd.DataFrame, features: List[str], vif_data: Dict[str, float], logger: logging.Logger) -> pd.DataFrame:
-    """Generate filtered_features.csv with only features having VIF < threshold."""
-    filtered_features = [f for f in features if vif_data.get(f, float('nan')) < VIF_THRESHOLD]
-    logger.info(f"Filtered features: {filtered_features}")
+    """Load metrics from data/processed/metrics.csv or transformed version if available."""
+    path = Path("data/processed/metrics.csv")
+    transformed_path = Path("data/processed/metrics_transformed.csv")
     
-    # Log excluded features
-    excluded = [f for f in features if f not in filtered_features]
-    for f in excluded:
-        logger.warning(f"Excluded feature '{f}' (VIF={vif_data.get(f, float('nan')):.4f} >= {VIF_THRESHOLD})")
+    if transformed_path.exists():
+        logging.getLogger("analysis").info("Using transformed metrics file.")
+        return pd.read_csv(transformed_path)
     
-    # Create filtered dataframe
-    thermal_col = get_thermal_conductivity_col(df)
-    if thermal_col:
-        filtered_df = df[filtered_features + [thermal_col]].copy()
+    if not path.exists():
+        raise FileNotFoundError(f"Metrics file not found: {path}")
+    
+    return pd.read_csv(path)
+
+def calculate_vif(df: pd.DataFrame, features: List[str]) -> pd.Series:
+    """Calculate Variance Inflation Factor for each feature."""
+    from statsmodels.stats.outliers_influence import variance_inflation_factor
+    
+    # Add constant for intercept
+    X = df[features].copy()
+    X = X.dropna() # VIF requires no NaNs
+    if len(X) < len(features) + 1:
+        raise ValueError("Not enough data points to calculate VIF.")
+    
+    vif_data = []
+    for i, col in enumerate(features):
+        if col in X.columns:
+            vif = variance_inflation_factor(X.values, i)
+            vif_data.append({"feature": col, "vif": vif})
+    
+    return pd.Series([d["vif"] for d in vif_data], index=[d["feature"] for d in vif_data])
+
+def log_vif_results(vif_series: pd.Series, logger: logging.Logger):
+    """Log VIF values."""
+    logger.info("VIF Results:")
+    for feature, vif in vif_series.items():
+        logger.info(f"  {feature}: {vif:.2f}")
+
+def verify_vif_scope(df: pd.DataFrame, logger: logging.Logger):
+    """Verify that physical descriptors are included in the feature set for VIF calculation."""
+    required_physical = ["unit_cell_volume", "total_atom_count", "mean_atomic_mass"]
+    missing = [col for col in required_physical if col not in df.columns]
+    if missing:
+        logger.warning(f"Missing physical descriptors for VIF scope: {missing}")
     else:
-        filtered_df = df[filtered_features].copy()
+        logger.info("Physical descriptors present for VIF scope verification.")
+
+def filter_features(df: pd.DataFrame, vif_threshold: float = 5.0, logger: Optional[logging.Logger] = None) -> pd.DataFrame:
+    """Filter features based on VIF threshold and save to filtered_features.csv."""
+    if logger is None:
+        logger = setup_analysis_logger()
     
-    filtered_df.to_csv(FILTERED_FEATURES_CSV_PATH, index=False)
-    logger.info(f"Saved filtered features to {FILTERED_FEATURES_CSV_PATH}")
+    feature_cols = [
+        "average_degree", "average_path_length", "clustering_coefficient",
+        "unit_cell_volume", "total_atom_count", "mean_atomic_mass"
+    ]
+    
+    # Ensure columns exist
+    available_features = [c for c in feature_cols if c in df.columns]
+    if not available_features:
+        raise ValueError("No feature columns found for VIF calculation.")
+    
+    # Calculate VIF
+    vif_series = calculate_vif(df, available_features)
+    log_vif_results(vif_series, logger)
+    
+    # Filter
+    low_vif_features = vif_series[vif_series < vif_threshold].index.tolist()
+    
+    # Keep target and material_id
+    cols_to_keep = ["material_id", "thermal_conductivity_scalar"] + low_vif_features
+    cols_to_keep = [c for c in cols_to_keep if c in df.columns]
+    
+    filtered_df = df[cols_to_keep].dropna()
+    
+    output_path = Path("data/processed/filtered_features.csv")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    filtered_df.to_csv(output_path, index=False)
+    
+    logger.info(f"Filtered features saved to {output_path} with columns: {list(filtered_df.columns)}")
     return filtered_df
 
-
-def train_linear_model(X: np.ndarray, y: np.ndarray, logger: logging.Logger) -> LinearRegression:
-    """Train a linear regression model."""
-    model = LinearRegression()
-    model.fit(X, y)
-    logger.info("Linear regression model trained.")
-    return model
-
-
-def run_stratified_cross_validation(
-    df: pd.DataFrame, 
-    features: List[str], 
-    thermal_col: str, 
-    logger: logging.Logger
-) -> Tuple[List[float], List[float], Dict[str, Any]]:
-    """
-    Perform 5-fold stratified cross-validation.
-    Bins thermal conductivity into 5 quantile strata.
-    Returns R² scores, RMSE scores, and interpretation.
-    """
-    y = df[thermal_col].values
-    X = df[features].values
-
-    # Handle NaNs in X or y
-    mask = ~np.isnan(X).any(axis=1) & ~np.isnan(y)
-    X_clean = X[mask]
-    y_clean = y[mask]
-
-    if len(y_clean) < 5:
-        logger.warning("Insufficient data for cross-validation.")
-        return [], [], {"r2_interpretation": "Insufficient data."}
-
-    # Bin thermal conductivity into 5 quantile strata
-    try:
-        strata = pd.qcut(y_clean, q=5, labels=False, duplicates='drop')
-    except ValueError:
-        # Fallback to uniform bins if qcut fails
-        strata = pd.cut(y_clean, bins=5, labels=False)
-
-    skf = StratifiedKFold(n_splits=5, shuffle=True, random_state=42)
+def compute_correlations(df: pd.DataFrame, logger: logging.Logger):
+    """Compute Pearson and Spearman correlations."""
+    network_metrics = ["average_degree", "average_path_length", "clustering_coefficient"]
+    target = "thermal_conductivity_scalar"
     
-    r2_scores = []
-    rmse_scores = []
-
-    for train_idx, test_idx in skf.split(X_clean, strata):
-        X_train, X_test = X_clean[train_idx], X_clean[test_idx]
-        y_train, y_test = y_clean[train_idx], y_clean[test_idx]
-
-        # Scale features
-        scaler = StandardScaler()
-        X_train_scaled = scaler.fit_transform(X_train)
-        X_test_scaled = scaler.transform(X_test)
-
-        model = LinearRegression()
-        model.fit(X_train_scaled, y_train)
-
-        y_pred = model.predict(X_test_scaled)
-        r2 = r2_score(y_test, y_pred)
-        rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-
-        r2_scores.append(r2)
-        rmse_scores.append(rmse)
-
-    mean_r2 = np.mean(r2_scores)
-    std_r2 = np.std(r2_scores)
-    mean_rmse = np.mean(rmse_scores)
-    std_rmse = np.std(rmse_scores)
-
-    interpretation = ""
-    if mean_r2 < R2_THRESHOLD:
-        interpretation = "Weak predictive power (R² < 0.30), consistent with null hypothesis."
-        logger.warning(interpretation)
-
-    cv_results = {
-        "r2_scores": r2_scores,
-        "rmse_scores": rmse_scores,
-        "mean_r2": mean_r2,
-        "std_r2": std_r2,
-        "mean_rmse": mean_rmse,
-        "std_rmse": std_rmse,
-        "r2_interpretation": interpretation if interpretation else None
-    }
-
-    return r2_scores, rmse_scores, cv_results
-
-
-def main() -> None:
-    """Main entry point for analysis."""
-    logger = setup_analysis_logger()
-    logger.info("Starting analysis...")
-
-    # Load metrics
-    df = load_metrics_csv()
-    logger.info(f"Loaded {len(df)} records from {METRICS_CSV_PATH}")
-
-    # Get columns
-    network_metrics = get_network_metrics(df)
-    thermal_col = get_thermal_conductivity_col(df)
-
-    if not thermal_col:
-        logger.error("Thermal conductivity column not found.")
-        raise ValueError("Thermal conductivity column not found in metrics.csv")
-
-    # 1. Compute Correlations
-    logger.info("Computing correlations...")
-    correlations = {}
+    results = []
+    
     for metric in network_metrics:
-        if metric in df.columns:
-            pearson_r, pearson_p = stats.pearsonr(df[metric], df[thermal_col])
-            spearman_r, spearman_p = stats.spearmanr(df[metric], df[thermal_col])
-            correlations[metric] = {
-                "pearson": {"r": pearson_r, "p": pearson_p},
-                "spearman": {"r": spearman_r, "p": spearman_p}
-            }
-
-    # Bonferroni correction
-    n_tests = len(network_metrics)
-    alpha = 0.05
-    corrected_alpha = alpha / n_tests
-    logger.info(f"Bonferroni-corrected alpha: {corrected_alpha}")
-
-    correlations["bonferroni"] = {
-        "alpha": alpha,
-        "n_tests": n_tests,
-        "corrected_alpha": corrected_alpha
-    }
-
-    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-    with open(CORRELATIONS_JSON_PATH, "w") as f:
-        json.dump(correlations, f, indent=2)
-    logger.info(f"Saved correlations to {CORRELATIONS_JSON_PATH}")
-
-    # 2. VIF Calculation and Filtering
-    logger.info("Calculating VIF...")
-    vif_data = calculate_vif(df, network_metrics)
-    log_vif_results(vif_data, logger)
+        if metric not in df.columns or target not in df.columns:
+            continue
+        
+        # Drop NaNs
+        valid_data = df[[metric, target]].dropna()
+        if len(valid_data) < 3:
+            continue
+        
+        x = valid_data[metric]
+        y = valid_data[target]
+        
+        pearson_corr, pearson_p = stats.pearsonr(x, y)
+        spearman_corr, spearman_p = stats.spearmanr(x, y)
+        
+        results.append({
+            "metric": metric,
+            "pearson_r": pearson_corr,
+            "pearson_p": pearson_p,
+            "spearman_rho": spearman_corr,
+            "spearman_p": spearman_p
+        })
     
-    filtered_df = generate_filtered_features_csv(df, network_metrics, vif_data, logger)
-    filtered_features = [f for f in network_metrics if vif_data.get(f, float('nan')) < VIF_THRESHOLD]
+    return results
 
-    if not filtered_features:
-        logger.warning("No features passed VIF filter. Cannot train model.")
-        return
-
-    # 3. Train Model
-    logger.info("Training linear regression model...")
-    X = filtered_df[filtered_features].values
-    y = filtered_df[thermal_col].values
-
-    # Handle NaNs
-      # Remove rows with NaNs
-    mask = ~np.isnan(X).any(axis=1) & ~np.isnan(y)
-    X_clean = X[mask]
-    y_clean = y[mask]
-
-    if len(y_clean) == 0:
-        logger.error("No valid data after NaN removal.")
-        return
-
-    model = train_linear_model(X_clean, y_clean, logger)
+def calculate_bonferroni_pvalues(results: List[Dict], nominal_alpha: float = 0.05) -> List[Dict]:
+    """Apply Bonferroni correction to p-values."""
+    n_tests = len(results) * 2 # Pearson and Spearman for each metric
+    if n_tests == 0:
+        return results
     
-    MODELS_DIR.mkdir(parents=True, exist_ok=True)
-    with open(THERMAL_PREDICTOR_PATH, "wb") as f:
-        pickle.dump(model, f)
-    logger.info(f"Model saved to {THERMAL_PREDICTOR_PATH}")
-
-    # 4. Cross-Validation
-    logger.info("Running stratified cross-validation...")
-    r2_scores, rmse_scores, cv_results = run_stratified_cross_validation(
-        filtered_df, filtered_features, thermal_col, logger
-    )
-
-    # Save model performance
-    performance = {
-        "r2_scores": cv_results["r2_scores"],
-        "rmse_scores": cv_results["rmse_scores"],
-        "mean_r2": cv_results["mean_r2"],
-        "std_r2": cv_results["std_r2"],
-        "mean_rmse": cv_results["mean_rmse"],
-        "std_rmse": cv_results["std_rmse"]
-    }
+    adjusted_alpha = nominal_alpha / n_tests
     
-    if cv_results.get("r2_interpretation"):
-        performance["r2_interpretation"] = cv_results["r2_interpretation"]
+    for res in results:
+        res["bonferroni_pearson_p"] = min(res["pearson_p"] * n_tests, 1.0)
+        res["bonferroni_spearman_p"] = min(res["spearman_p"] * n_tests, 1.0)
+        res["bonferroni_alpha"] = adjusted_alpha
+    
+    return results
 
-    with open(MODEL_PERFORMANCE_JSON_PATH, "w") as f:
-        json.dump(performance, f, indent=2)
-    logger.info(f"Saved model performance to {MODEL_PERFORMANCE_JSON_PATH}")
+def save_correlations(results: List[Dict], logger: logging.Logger):
+    """Save correlation results to results/correlations.json."""
+    output_path = Path("results/correlations.json")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Saved correlations to {output_path}")
 
-    logger.info("Analysis complete.")
+def update_state_artifact_hash():
+    """Update state file with artifact hash (placeholder for now)."""
+    pass
 
+def log_sample_size_warning(df: pd.DataFrame, logger: logging.Logger):
+    """Log warning if sample size < 50."""
+    n = len(df)
+    if n < 50:
+        logger.warning(f"Sample size is small: {n} (< 50). Results may not be robust.")
+    else:
+        logger.info(f"Sample size: {n} (>= 50).")
+
+def log_final_count(df: pd.DataFrame, logger: logging.Logger):
+    """Log final count of materials."""
+    logger.info(f"Final material count: {len(df)}")
+
+def perform_normality_test(df: pd.DataFrame, logger: logging.Logger) -> pd.DataFrame:
+    """Perform Shapiro-Wilk test and apply log-transform if non-normal."""
+    target_col = "thermal_conductivity_scalar"
+    metric_cols = ["average_degree", "average_path_length", "clustering_coefficient"]
+    
+    if target_col not in df.columns:
+        logger.warning(f"Target column {target_col} not found. Skipping normality test.")
+        return df
+    
+    # Check normality
+    non_normal_cols = []
+    
+    # Test target
+    valid_target = df[target_col].dropna()
+    if len(valid_target) >= 3:
+        stat, p = stats.shapiro(valid_target)
+        if p < 0.05:
+            non_normal_cols.append(target_col)
+            logger.info(f"Target {target_col} is non-normal (p={p:.4f}). Applying log-transform.")
+    
+    # Test metrics
+    for col in metric_cols:
+        if col in df.columns:
+            valid_col = df[col].dropna()
+            if len(valid_col) >= 3:
+                stat, p = stats.shapiro(valid_col)
+                if p < 0.05:
+                    non_normal_cols.append(col)
+                    logger.info(f"Metric {col} is non-normal (p={p:.4f}). Applying log-transform.")
+    
+    if non_normal_cols:
+        df_transformed = df.copy()
+        for col in non_normal_cols:
+            # Avoid log(0) or log(negative) by adding small epsilon if needed
+            if df_transformed[col].min() <= 0:
+                epsilon = 1e-6
+                df_transformed[col] = np.log(df_transformed[col] + epsilon)
+            else:
+                df_transformed[col] = np.log(df_transformed[col])
+        
+        output_path = Path("data/processed/metrics_transformed.csv")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        df_transformed.to_csv(output_path, index=False)
+        logger.info(f"Saved transformed metrics to {output_path}")
+        return df_transformed
+    
+    logger.info("All tested columns appear normal. No transformation needed.")
+    return df
+
+def main():
+    logger = setup_analysis_logger()
+    initialize_environment()
+    
+    try:
+        # 1. Load Metrics
+        df = load_metrics_csv()
+        log_final_count(df, logger)
+        log_sample_size_warning(df, logger)
+        
+        # 2. Perform Normality Test (T031)
+        df = perform_normality_test(df, logger)
+        
+        # 3. Calculate VIF and Filter Features (T020a, T020b)
+        verify_vif_scope(df, logger)
+        filter_features(df, logger=logger)
+        
+        # 4. Compute Correlations (T016a)
+        corr_results = compute_correlations(df, logger)
+        
+        # 5. Bonferroni Correction (T017)
+        corr_results = calculate_bonferroni_pvalues(corr_results)
+        
+        # 6. Save Correlations (T016b)
+        save_correlations(corr_results, logger)
+        
+        logger.info("Analysis pipeline completed successfully.")
+        return 0
+        
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        return 1
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-038-exploring-the-relationship-between-code-",
+  "ok": false,
+  "reason": "quickstart.md contains no runnable `python` commands",
+  "artifacts": [],
+  "failures": [],
+  "fix_rounds": 8,
+  "model_tier": 0,
+  "total_attempts": 8,
+  "replan_rounds": 0,
+  "failure_class": "unknown",
+  "evidence": [],
+  "updated_at": "2026-09-08T15:45:49Z"
+}

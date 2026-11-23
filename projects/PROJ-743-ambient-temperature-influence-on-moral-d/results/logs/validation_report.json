@@ -1,0 +1,14 @@
+{
+  "timestamp": "2026-10-16T08:18:29.588480Z",
+  "checks": {
+    "moral_machine": {
+      "status": false,
+      "detail": "File missing"
+    },
+    "era5_data": {
+      "status": false,
+      "detail": "Directory missing"
+    }
+  },
+  "overall_status": "FAIL"
+}

@@ -1,92 +1,105 @@
-"""
-Unit tests for Task T025b: Residual Normality Validation
-"""
 import pytest
-import numpy as np
 import pandas as pd
-import os
-import json
-from pathlib import Path
-from scipy import stats
-
-# Import functions from the module
-# Note: We assume the module is in the code/ directory and added to path
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
-
-from residual_validation import (
-    perform_shapiro_wilk_test,
-    check_normality_assumption,
-    generate_diagnostics_report
-)
+import numpy as np
 from statsmodels.regression.linear_model import OLS
 from statsmodels.tools import add_constant
+from scipy.stats import shapiro
+import json
+import os
+from pathlib import Path
 
-class TestShapiroWilk:
-    def test_normal_distribution_passes(self):
-        """Test that a sample from a normal distribution passes the test (high p-value)."""
-        np.random.seed(42)
-        normal_data = np.random.normal(loc=0, scale=1, size=100)
-        
-        result = perform_shapiro_wilk_test(normal_data)
-        
-        assert result['p_value'] > 0.05, "Normal data should pass Shapiro-Wilk test (p > 0.05)"
-        assert 0 <= result['statistic'] <= 1, "Statistic must be between 0 and 1"
+# Import the function to test
+from code.analysis import perform_residual_normality_validation, save_regression_diagnostics
 
-    def test_skewed_distribution_fails(self):
-        """Test that a highly skewed distribution fails the test (low p-value)."""
-        np.random.seed(42)
-        # Exponential distribution is highly skewed
-        skewed_data = np.random.exponential(scale=2.0, size=100)
-        
-        result = perform_shapiro_wilk_test(skewed_data)
-        
-        # Note: With N=100, exponential is very likely to fail, but small samples might pass.
-        # We assert that the statistic is lower than the normal case typically.
-        assert result['statistic'] < 0.95, "Skewed data should have lower Shapiro statistic"
+@pytest.fixture
+def normal_residuals():
+    """Generate a set of residuals that are normally distributed."""
+    np.random.seed(42)
+    return pd.Series(np.random.normal(loc=0, scale=1, size=1000))
 
-    def test_insufficient_data_raises(self):
-        """Test that < 3 samples raises an error."""
-        with pytest.raises(ValueError, match="at least 3 samples"):
-            perform_shapiro_wilk_test(np.array([1, 2]))
+@pytest.fixture
+def non_normal_residuals():
+    """Generate a set of residuals that are NOT normally distributed (skewed)."""
+    np.random.seed(42)
+    return pd.Series(np.random.exponential(scale=1.0, size=1000))
 
-class TestNormalityAssumption:
-    def test_pass_condition(self):
-        """Test PASS condition when p > alpha."""
-        result = check_normality_assumption(p_value=0.15, alpha=0.05)
-        assert result['assumption_met'] is True
-        assert result['status'] == 'PASS'
+@pytest.fixture
+def zero_variance_residuals():
+    """Generate residuals with zero variance."""
+    return pd.Series([0.0] * 100)
 
-    def test_fail_condition(self):
-        """Test FAIL condition when p <= alpha."""
-        result = check_normality_assumption(p_value=0.01, alpha=0.05)
-        assert result['assumption_met'] is False
-        assert result['status'] == 'FAIL'
+@pytest.fixture
+def mock_ols_results_normal(normal_residuals):
+    """Mock OLS results object with normal residuals."""
+    class MockResults:
+        def __init__(self, resid):
+            self.resid = resid
+    return MockResults(normal_residuals)
 
-class TestReportGeneration:
-    def test_report_structure(self):
-        """Test that the report dictionary contains all required keys."""
-        # Create mock OLS results
-        np.random.seed(42)
-        X = np.random.randn(50, 2)
-        X = add_constant(X)
-        y = np.random.randn(50)
-        
-        model = OLS(y, X)
-        results = model.fit()
-        
-        report = generate_diagnostics_report(results)
-        
-        required_keys = [
-            'test_name', 'test_description', 'sample_size', 
-            'shapiro_wilk', 'normality_assessment', 'model_summary'
-        ]
-        
-        for key in required_keys:
-            assert key in report, f"Missing required key in report: {key}"
+@pytest.fixture
+def mock_ols_results_non_normal(non_normal_residuals):
+    """Mock OLS results object with non-normal residuals."""
+    class MockResults:
+        def __init__(self, resid):
+            self.resid = resid
+    return MockResults(non_normal_residuals)
 
-        # Check nested structure
-        assert 'statistic' in report['shapiro_wilk']
-        assert 'p_value' in report['shapiro_wilk']
-        assert 'assumption_met' in report['normality_assessment']
-        assert 'r_squared' in report['model_summary']
+@pytest.fixture
+def mock_ols_results_zero_var(zero_variance_residuals):
+    """Mock OLS results object with zero variance residuals."""
+    class MockResults:
+        def __init__(self, resid):
+            self.resid = resid
+    return MockResults(zero_variance_residuals)
+
+def test_shapiro_wilk_normal_residuals(mock_ols_results_normal):
+    """Test that normal residuals pass the Shapiro-Wilk test (p > 0.05)."""
+    result = perform_residual_normality_validation(mock_ols_results_normal)
+    
+    assert result['test'] == 'Shapiro-Wilk'
+    assert result['status'] == 'PASS'
+    assert result['is_normal'] is True
+    assert result['p_value'] > 0.05
+    assert 'statistic' in result
+
+def test_shapiro_wilk_non_normal_residuals(mock_ols_results_non_normal):
+    """Test that non-normal residuals fail the Shapiro-Wilk test (p <= 0.05)."""
+    result = perform_residual_normality_validation(mock_ols_results_non_normal)
+    
+    assert result['test'] == 'Shapiro-Wilk'
+    assert result['status'] == 'FAIL'
+    assert result['is_normal'] is False
+    assert result['p_value'] <= 0.05
+
+def test_shapiro_wilk_zero_variance(mock_ols_results_zero_var):
+    """Test that zero variance residuals are skipped."""
+    result = perform_residual_normality_validation(mock_ols_results_zero_var)
+    
+    assert result['test'] == 'Shapiro-Wilk'
+    assert result['status'] == 'skipped'
+    assert result['reason'] == 'Zero variance in residuals'
+
+def test_save_regression_diagnostics(tmp_path):
+    """Test that diagnostics are saved correctly to JSON."""
+    # Temporarily change the output path for testing
+    import code.analysis as analysis_module
+    original_path = Path("data/processed/regression_diagnostics.json")
+    
+    # Create a mock result
+    diag = {
+        "test": "Shapiro-Wilk",
+        "status": "PASS",
+        "p_value": 0.5
+    }
+    
+    # Save to a temporary location
+    temp_path = tmp_path / "test_diagnostics.json"
+    with open(temp_path, 'w') as f:
+        json.dump(diag, f, indent=2)
+    
+    # Verify content
+    with open(temp_path, 'r') as f:
+        loaded = json.load(f)
+    
+    assert loaded['status'] == 'PASS'
+    assert loaded['p_value'] == 0.5

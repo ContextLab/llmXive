@@ -1,0 +1,25 @@
+============================================================
+BONFERRONI CORRECTION VERIFICATION REPORT
+============================================================
+
+Number of Comparisons (m): 3
+Source File: results/analysis/final_statistical_report.md
+Output File: results/analysis/bonferroni_verification.txt
+
+Comparison: OCCLUSION
+  Status: PASS
+  Details: Corrected p-value matches: 0.096000
+----------------------------------------
+Comparison: DEPTH
+  Status: PASS
+  Details: Corrected p-value matches: 0.120000
+----------------------------------------
+Comparison: RELATIVE
+  Status: PASS
+  Details: Corrected p-value matches: 0.045000
+----------------------------------------
+
+============================================================
+OVERALL STATUS: PASSED
+The Bonferroni correction was applied correctly in the statistical report.
+============================================================

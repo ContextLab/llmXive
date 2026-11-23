@@ -1,2 +1,4 @@
-# Placeholder to ensure directory exists
-# Real data files will be downloaded here by data_loader.py
+# Placeholder for raw story corpus
+# Ensure this directory exists before running code/main.py
+# Place .txt or .md story files here.
+# If this file is the only content, the script will output an empty JSON list.

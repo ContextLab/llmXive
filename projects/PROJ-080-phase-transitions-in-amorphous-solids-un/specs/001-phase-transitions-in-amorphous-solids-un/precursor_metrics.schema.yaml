@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Precursor Metrics Schema
+description: Schema for D2_min and yield detection metrics
+type: object
+required:
+  - metrics_file
+  - flags_file
+properties:
+  metrics_file:
+    type: string
+    description: Path to D2_min metrics CSV
+  flags_file:
+    type: string
+    description: Path to yield flags JSON
+  is_multi_yield:
+    type: boolean
+    description: Whether multiple yield events were detected
+  yield_count:
+    type: integer
+    minimum: 1
+    description: Number of yield events detected
+additionalProperties: true

@@ -1,0 +1,3 @@
+index,smiles,reason
+0,invalid_smiles_1,Invalid RDKit molecule
+1,invalid_smiles_2,Invalid graph structure

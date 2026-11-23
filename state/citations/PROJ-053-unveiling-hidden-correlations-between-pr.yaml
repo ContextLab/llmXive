@@ -1,33 +1,56 @@
-- artifact_hash: 6cf7a25967d17662d0bdcd069f16c4efb5d35a57dca30aa99c66c432b6695550
+- artifact_hash: 1d5f19195837dd129124c54fb4e2e31fd95f8ffe59763c20b5b1d4edf45dd58c
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/docs/paper.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Additive batch electrospinning patterning of tethered gelatin hydrogel
+    fibres with swelling-induced fibre curling
+  kind: doi
+  value: 10.1016/j.addma.2020.101456
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1016/j.addma.2020.101456
+  verified_at: '2026-09-04T13:32:37.249584Z'
+- artifact_hash: 915f63443aa4d874350c10ba8db0e7c6c95780443f0bb0664c4eff666dd2e556
   artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/research.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://zenodo.org/records/10000000`
+  verification_status: mismatch
+  verified_against_url: https://zenodo.org/records/10000000
+  verified_at: '2026-10-07T19:22:04.726276Z'
+- artifact_hash: 915f63443aa4d874350c10ba8db0e7c6c95780443f0bb0664c4eff666dd2e556
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/research.md
+  cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: "gproud/Cutout_Men_Standing \xB7 Datasets at Hugging Face"
   kind: url
   value: https://huggingface.co/datasets/gproud/Cutout_Men_Standing/...`
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://huggingface.co/datasets/gproud/Cutout_Men_Standing
-  verified_at: '2026-07-14T00:30:32.253913Z'
-- artifact_hash: 6cf7a25967d17662d0bdcd069f16c4efb5d35a57dca30aa99c66c432b6695550
-  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/research.md
-  cite_id: c-002
-  cited_authors: []
-  cited_title: null
-  fetched_title: "udayl/UCI_HAR \xB7 Datasets at Hugging Face"
-  kind: url
-  value: https://huggingface.co/datasets/udayl/UCI_HAR/...`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/datasets/udayl/UCI_HAR
-  verified_at: '2026-07-14T00:30:32.253913Z'
-- artifact_hash: 6cf7a25967d17662d0bdcd069f16c4efb5d35a57dca30aa99c66c432b6695550
+  verified_at: '2026-10-07T19:22:04.726276Z'
+- artifact_hash: 915f63443aa4d874350c10ba8db0e7c6c95780443f0bb0664c4eff666dd2e556
   artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/research.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: AdityaMayukhSom (Aditya Mayukh Som)
+  fetched_title: "RBFMorph/Digipad-dataset \xB7 Datasets at Hugging Face"
   kind: url
-  value: https://huggingface.co/datasets/AdityaMayukhSom/...`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/AdityaMayukhSom/datasets
-  verified_at: '2026-07-14T00:30:32.253913Z'
+  value: https://huggingface.co/datasets/RBFMorph/Digipad-dataset/...`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/RBFMorph/Digipad-dataset
+  verified_at: '2026-10-07T19:22:04.726276Z'
+- artifact_hash: 915f63443aa4d874350c10ba8db0e7c6c95780443f0bb0664c4eff666dd2e556
+  artifact_path: projects/PROJ-053-unveiling-hidden-correlations-between-pr/specs/001-unveiling-hidden-correlations-between-pr/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: doi
+  value: 10.5281/zenodo.XXXXX
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.5281/zenodo.XXXXX
+  verified_at: '2026-10-07T19:22:04.726276Z'

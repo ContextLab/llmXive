@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2312.11562",
+  "judged_at": "2026-07-25T01:21:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"spatialbench: is your spatial foundation model an all-round player?\" computer science",
+  "rationale": "The paper is a general survey on reasoning with foundation models and does not address the specific domain of \"spatial\" capabilities, benchmarks, or the evaluation of \"Spatial Foundation Models\" required by the user's question. While it covers the broad category of foundation models, it lacks the specific mechanism (spatial reasoning) or empirical population (spatial benchmarks) necessary to satisfy the inclusion criteria for a literature review on this specific topic.",
+  "relevant": false
+}

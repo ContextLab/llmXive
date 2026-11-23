@@ -26,11 +26,11 @@ properties:
         - component_value
         - variance_explained
   muller_lyer_score:
-    type: "number"
-    description: "Susceptibility score for Müller-Lyer illusion."
+    type: ["number", "null"]
+    description: "Susceptibility score for Müller-Lyer illusion (may be null if missing)."
   ponzo_score:
-    type: "number"
-    description: "Susceptibility score for Ponzo illusion."
+    type: ["number", "null"]
+    description: "Susceptibility score for Ponzo illusion (may be null if missing)."
   mean_fd:
     type: "number"
     description: "Mean Framewise Displacement. Used for quality control."
@@ -38,7 +38,5 @@ properties:
 required:
   - subject_id
   - components
-  - muller_lyer_score
-  - ponzo_score
   - mean_fd
 additionalProperties: false

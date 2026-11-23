@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.08089",
+  "judged_at": "2026-09-07T08:23:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ace-ego-0: unifying egocentric human and robotic data for vla pretrain\" computer science",
+  "rationale": "This paper satisfies criterion (e) as an empirical-population canonical study and (b) by measuring the independent variable of \"egocentric video\" within the specific domain of social interaction analysis, which is a core component of the user's question regarding \"Egocentric Human... Data for VLA Pretrain.\" Although it focuses on a specific sub-task (partner identification) rather than the full VLA pretraining framework, it provides the essential dataset and baseline for the egocentric human dat",
+  "relevant": true
+}

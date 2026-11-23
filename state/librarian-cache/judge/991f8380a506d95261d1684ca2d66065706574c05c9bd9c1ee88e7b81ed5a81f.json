@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2406.04339",
+  "judged_at": "2026-08-01T12:43:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dual latent memory in vision-language-action models for robotic manipu\" computer science",
+  "rationale": "This paper belongs in the literature review because it addresses the same domain (Vision-Language-Action models for robotic manipulation) and investigates the same core mechanism of extending model capabilities (reasoning and action execution), satisfying criteria (a) and (b) by providing a canonical alternative approach (Mamba/SSM) to the user's focus on \"Dual Latent Memory.\"",
+  "relevant": true
+}

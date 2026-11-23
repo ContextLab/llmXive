@@ -1,3 +1,3 @@
 """
-Data processing package initialization.
+Package marker for the ``code.data`` sub‑module.
 """

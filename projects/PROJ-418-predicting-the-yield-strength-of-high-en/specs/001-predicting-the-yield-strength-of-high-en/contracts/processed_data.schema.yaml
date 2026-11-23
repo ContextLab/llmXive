@@ -1,0 +1,19 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed Descriptor Matrix"
+type: object
+required:
+  - descriptors
+  - target
+properties:
+  descriptors:
+    type: array
+    description: "2‑D array (samples × features) of numeric descriptor values."
+    items:
+      type: array
+      items:
+        type: number
+  target:
+    type: array
+    description: "Yield strength values aligned with descriptor rows."
+    items:
+      type: number

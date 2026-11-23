@@ -1,1 +1,3 @@
-# Models package
+"""
+models subpackage initializer.
+"""

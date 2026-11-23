@@ -1,0 +1,6 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001-struct-src** — The `projects/PROJ-849-llmxive-follow-up-extending-agent-explor/code/src/models/` package lacks the required `__init__.py` file (marked MISSING), and there is no evidence that `__init__.py` exists in the other subdirectories (`services/`, `lib/`, `cli/`). The task’s critical requirement of creating these init files to make each subdirectory a valid Python package is therefore not met.
+- **T011** — The provided `tests/unit/test_retrieval.py` contains a `test_zero_retrieval_edge_case` that calls a non‑existent `retrieve_tools` method and only asserts an empty list, not that a zero‑vector embedding and a score of 1.0 are returned. The required behavior (zero vector and score = 1.0) is not tested, and the service implementation does not expose the needed API. The task’s unit test is therefore missing or incorrect.

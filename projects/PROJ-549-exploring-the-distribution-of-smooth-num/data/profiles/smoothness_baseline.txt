@@ -1,0 +1,22 @@
+Warning: This is a placeholder file. The actual profiling report will be generated
+when `code/profile_smoothness.py` is executed with the real `data/primes_1e9.csv`
+file. This file exists to satisfy the artifact path requirement.
+
+To generate the real profile:
+1. Ensure `data/primes_1e9.csv` exists (from T012/T013).
+2. Run: python code/profile_smoothness.py
+3. The output will be written to `data/profiles/smoothness_baseline.txt`.
+
+The actual output will contain cProfile statistics including:
+- ncalls: number of calls
+- tottime: total time spent in the function
+- percall: time per call
+- cumtime: cumulative time
+- filename:lineno: location of the function
+- function: function name
+
+Example format (from a real run):
+ncalls  tottime  percall  cumtime  percall filename:lineno(function)
+   1    0.001    0.001    0.005    0.005 smoothness.py:20(count_smooth_in_interval)
+  50    0.000    0.000    0.002    0.000 smoothness.py:10(is_y_smooth)
+   1    0.000    0.000    0.005    0.000 {built-in method builtins.next}

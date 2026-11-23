@@ -1,0 +1,119 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Linear Mixed Model Results"
+description: "Schema for the JSON output of the LMM analysis, including sensitivity runs."
+type: object
+properties:
+  model_formula:
+    type: string
+    description: "Exact formula used for the LMM (e.g., 'prosocial_intent_score ~ thread_type + thread_length + user_tenure + (1|subreddit) + (1|user_id)') or includes `thread_type` when available."
+  convergence_status:
+    type: string
+    enum:
+      - "converged"
+      - "failed"
+      - "warning"
+    description: "Overall convergence flag for the primary fit."
+  sample_size:
+    type: integer
+    minimum: 1
+    description: "Number of observations used in the model."
+  fixed_effects:
+    type: object
+    description: "Estimates for each fixed effect."
+    properties:
+      thread_type:
+        type: object
+        properties:
+          estimate:
+            type: number
+          std_error:
+            type: number
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+        required:
+          - estimate
+          - std_error
+          - p_value
+      thread_length:
+        type: object
+        properties:
+          estimate:
+            type: number
+          std_error:
+            type: number
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+        required:
+          - estimate
+          - std_error
+          - p_value
+      user_tenure:
+        type: object
+        properties:
+          estimate:
+            type: number
+          std_error:
+            type: number
+          p_value:
+            type: number
+            minimum: 0
+            maximum: 1
+        required:
+          - estimate
+          - std_error
+          - p_value
+    required:
+      - thread_type
+      - thread_length
+      - user_tenure
+  random_effects:
+    type: object
+    properties:
+      subreddit_variance:
+        type: number
+        minimum: 0
+      user_id_variance:
+        type: number
+        minimum: 0
+    required:
+      - subreddit_variance
+      - user_id_variance
+  sensitivity_analysis:
+    type: array
+    description: "Results for each optimizer tolerance."
+    items:
+      type: object
+      properties:
+        tolerance:
+          type: number
+          description: "Optimizer tolerance used (e.g., 1e-4)."
+        convergence_status:
+          type: string
+          enum:
+            - "converged"
+            - "failed"
+            - "warning"
+        p_value_thread_type:
+          type: number
+          minimum: 0
+          maximum: 1
+      required:
+        - tolerance
+        - convergence_status
+        - p_value_thread_type
+  success:
+    type: boolean
+    description: "True if primary model converged and p_value_thread_type < 0.05 (associational significance)."
+required:
+  - model_formula
+  - convergence_status
+  - sample_size
+  - fixed_effects
+  - random_effects
+  - sensitivity_analysis
+  - success
+additionalProperties: false

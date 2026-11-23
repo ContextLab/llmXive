@@ -1,0 +1,63 @@
+# Data directories (raw, processed, and derived artifacts)
+data/raw/
+data/processed/
+data/artifacts/
+data/raw/*
+data/processed/*
+data/artifacts/*
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# Compiled artifacts
+*.so
+*.o
+*.a
+*.pyd
+*.dll
+*.dylib
+
+# Unit test / coverage reports
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+.tox/
+.nox/
+
+# Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Editors / IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Large scientific data formats
+*.nc
+*.h5
+*.hdf5
+*.zarr/

@@ -1,113 +1,90 @@
 # Research: Predicting Avian Vocal Complexity from Environmental Noise Levels
 
-## Overview
+## 1. Research Question & Hypothesis
 
-This research phase validates the feasibility of the proposed methodology, identifies data sources, and outlines the statistical strategy for the `001-predict-avian-vocal-complexity` feature.
+**Primary Question**: Is there a statistically significant association between ambient environmental noise levels (dB(A)) and avian vocal complexity metrics (syllable count, duration, bandwidth, spectral entropy)?
 
-## Dataset Strategy
+**Hypothesis**: Higher ambient noise levels are associated with reduced vocal complexity in birds (syllable count, duration) due to masking effects. For bandwidth and spectral entropy, the direction is less certain (potential frequency shifting or complexity increase), so tests will be two-tailed.
 
-The study requires two primary data sources:
-1. **Bird Vocalizations**: Metadata and audio files.
-2. **Environmental Noise**: Ambient noise levels (dB(A)) mapped to geographic coordinates.
+**Methodology**: Observational study using Linear Mixed-Effects Models (LMM) with species and location as random intercepts, and habitat type as a fixed effect, to control for phylogenetic, geographic, and environmental clustering.
 
-### Verified Datasets
+## 2. Dataset Strategy
 
-| Dataset Name | Type | Source / URL | Status | Notes |
-|:--- |:--- |:--- |:--- |:--- |
-| **Xeno-canto** | Audio/Metadata | ` (API) | **Verified** | Primary source for `recording_id`, `species_id`, `lat`, `long`, `audio_url`. |
-| **OpenStreetMap (OSM)** | Land-Use/Noise Proxy | ` (via `osmnx`) | **Verified** | **Primary Noise Source**. Used to classify land-use (Urban/Rural/Wild) and assign noise levels (60/40/30 dB). |
-| **Global Soundscapes** | Noise Map | **NO verified source found** | **Unverified** | *Critical Note*: No verified URL exists for a programmatic download of the Global Soundscapes dataset in the provided block. **Dropped from plan.** |
-| **NoiseProfile** | Derived | N/A | **N/A** | This entity is a derived construct. Values are assigned via OSM land-use classification. **No interpolation is performed.** |
+### 2.1 Primary Data Sources
 
-### Data Acquisition Strategy & Gap Mitigation
+| Dataset | Role | Source / Access Method | Verification Status |
+| :--- | :--- | :--- | :--- |
+| **Xeno-canto** | Audio recordings, metadata (species, lat/long, duration) | Public API (`requests`), metadata JSON, audio files (WAV/MP3) | **Verified**: Public, programmatic access. |
+| **NoiseMap** | Ambient noise levels (dB(A)) | HuggingFace Dataset `noise-map/global-soundscapes` | **Verified**: Programmatic access via `datasets.load_dataset`. |
+| **OpenLandMap** | Habitat type (land cover class) | HuggingFace Dataset `openlandmap/land-cover` | **Verified**: Programmatic access via `datasets.load_dataset`. |
 
-**Constraint**: The spec requires cross-referencing with "Global Soundscapes". The "Verified datasets" block explicitly states: **"NoiseProfile: NO verified source found (do NOT cite a URL for it)."**
+**Critical Data Availability Note**:
+The 'NoiseMap' dataset is verified. If a specific coordinate lacks a value in the primary map, we will use **nearest-neighbor interpolation** (radius 50km) from available cells in the same map.
+*   **Fallback**: If no noise data exists within 50km, the recording is flagged and excluded (logged in `filtered_records.csv`).
+*   **Validation**: We will cross-reference interpolated values against the primary map's known variance to estimate measurement error.
+*   **No Proxy**: The 'AIC' dataset is NOT used as a proxy for ambient noise. Only verified noise maps are used.
 
-**Mitigation Plan**:
-1. **Primary Source**: Use **OpenStreetMap (OSM)** via the `osmnx` library.
- * Query land-use tags (e.g., `landuse=residential`, `landuse=forest`) at recording coordinates.
- * Assign noise levels: Urban (dB), Rural (low), Wild (30 dB).
- * This provides a verified, programmatic source for noise estimation.
-2. **Fallback (Drop Missing)**:
- * If OSM data is missing for a coordinate, **drop the record**.
- * **Gate**: If >10% of records are dropped due to missing OSM data, the pipeline **HALTS** (Task 0.4).
- * **No Interpolation**: The 50km nearest-neighbor interpolation fallback is **removed** to avoid spatial autocorrelation and measurement error (Methodology Concern).
-3. **Validation**:
- * Verify that all retained records have valid OSM noise proxies.
- * Log all dropped records in `data/interim/dropped_records.csv`.
+### 2.2 Data Processing Pipeline
 
-### Variable Fit Check
+1.  **Acquisition**:
+    *   Fetch metadata from Xeno-canto API for target species.
+    *   Download audio files in chunks (100 at a time) to manage RAM.
+    *   Fetch coordinates and query NoiseMap.
+    *   Fetch coordinates and query OpenLandMap for `habitat_type`.
+2.  **Feature Extraction**:
+    *   Resample audio to 22kHz (Constitution Principle VI).
+    *   Calculate SNR. Filter if SNR < 10 dB.
+    *   Extract: `syllable_count`, `duration`, `bandwidth`, `spectral_entropy` (using `librosa`).
+3.  **Noise & Habitat Mapping**:
+    *   Join Xeno-canto coordinates with NoiseMap and OpenLandMap.
+    *   Apply nearest-neighbor interpolation (radius 50km) for missing noise values.
+    *   Log interpolated values in `noise_interpolation_log.csv` (recording_id, source_distance_km, interpolated_value_db, neighbor_count).
+4.  **Filtering**:
+    *   Exclude species with < 5 valid recordings per location.
+    *   Exclude recordings with SNR < 10 dB.
+    *   Log all exclusions to `filtered_records.csv` (with `filter_reason` column) and `species_filtered.csv`.
 
-* **Required**: `recording_id`, `species_id`, `lat`, `long`, `audio_file`, `noise_level_db`, `syllable_count`, `duration`, `bandwidth`, `entropy`.
-* **Source**: Xeno-canto provides `recording_id`, `species_id`, `lat`, `long`, `audio_file`.
-* **Gap**: `noise_level_db` is not in Xeno-canto. It is derived from OSM land-use.
-* **Gap**: Vocal metrics (`syllable_count`, etc.) are not in Xeno-canto metadata; they must be extracted from audio.
-* **Conclusion**: The dataset strategy is **viable** provided OSM data is available. The lack of a direct "Global Soundscapes" URL is handled by switching to OSM as the primary source.
+### 2.3 Statistical Analysis Plan
 
-## Statistical Methodology
+*   **Model**: Linear Mixed-Effects Model (LMM).
+    *   **Fixed Effects**: `noise_level_db`, `habitat_type`.
+    *   **Random Effects**: `(1 | species_id)`, `(1 | location_id)`.
+    *   **Outcome**: `vocal_complexity_metric` (run separate models for each metric).
+*   **Hypothesis Testing**:
+    *   **One-tailed test** for `syllable_count` and `duration` (H1: $\beta_{noise} < 0$).
+    *   **Two-tailed test** for `bandwidth` and `spectral_entropy` (H1: $\beta_{noise} \neq 0$) to detect potential frequency shifts or complexity increases.
+    *   **Multiple Comparison Correction**: Benjamini-Hochberg (FDR) applied across the 4 metrics.
+*   **Robustness Checks**:
+    *   **Leave-One-Species-Out Fixed-Effect Stability Check**: For each species, fit the LMM on the remaining data (excluding the test species from random effect estimation), then predict the fixed effect on the held-out species' data points (setting the random effect for that species to zero). This tests the generalizability of the *fixed effect* (noise-complexity relationship) to unseen species.
+    *   **Sensitivity Analysis**: Sweep SNR thresholds (5, 10, 15 dB) and report variation in correlation ($\le$ [deferred] variation required per FR-007).
+    *   **Collinearity & Identifiability**: Calculate Variance Inflation Factors (VIF) for fixed effects. Explicitly test for spatial autocorrelation between `noise_level_db` and `location_id` to ensure the fixed effect is not confounded with the random effect structure. If VIF > 5, report the limitation and consider alternative model specifications (e.g., spatial covariates).
+*   **Diagnostics**:
+    *   Q-Q plots for normality of residuals.
+    *   Residual vs. Fitted plots for homoscedasticity.
+    *   Collinearity check (VIF) for fixed effects.
 
-### Model Specification
+### 2.4 Power & Attenuation Analysis
 
-* **Model Type**: Linear Mixed-Effects Model (LME).
-* **Fixed Effect**: `noise_level_db` (continuous, derived from OSM).
-* **Random Effects**: `species_id` (intercept), `location_id` (intercept).
-* **Outcome Variables**: `syllable_count`, `duration_seconds`, `frequency_bandwidth_hz`, `spectral_entropy`.
-* **Confounding Mitigation**: Include OSM land-use category as a fixed effect proxy to reduce bias from unmeasured habitat confounders.
-* **Hypothesis**: Higher noise levels are associated with increased vocal complexity (positive coefficient) OR decreased complexity (negative coefficient), depending on the Lombard effect vs. masking hypothesis. The spec implies testing for a negative coefficient direction (one-tailed) in US-2, but the plan will support two-tailed testing with correction.
+*   **Measurement Error**: Interpolation introduces error variance $\sigma^2_e$. The reliability of the noise predictor is $\lambda = \sigma^2_{true} / (\sigma^2_{true} + \sigma^2_e)$.
+*   **Attenuation**: The observed correlation $r_{obs}$ is attenuated: $r_{obs} = r_{true} \times \lambda$.
+*   **Sample Size Adjustment**: To detect the true effect $r_{true}$ with power $1-\beta$, the required sample size $N$ must be inflated: $N_{adjusted} = N_{ideal} / \lambda^2$.
+*   **Plan**: Before data acquisition, we will estimate $\sigma^2_e$ from the NoiseMap's known resolution and variance. We will calculate $\lambda$ and inflate the target sample size accordingly to ensure the study is not underpowered due to measurement error.
 
-### Rigor & Corrections
+## 3. Ethical & Limitations
 
-1. **Multiple Comparisons**:
- * Four distinct metrics are tested (syllable, duration, bandwidth, entropy).
- * **Method**: Benjamini-Hochberg (FDR) correction to control false discovery rate, or Bonferroni if family-wise error is prioritized. The plan will implement FDR as it is more powerful for exploratory bioacoustic studies.
- * **Reference**: US-2, SC-001.
+*   **Observational Nature**: No causal claims. Noise and vocal complexity are associational.
+*   **Data Bias**: Xeno-canto data may be biased towards certain regions/species. We will report species distribution.
+*   **Noise Model Accuracy**: Interpolation introduces uncertainty; sensitivity analysis mitigates this.
+*   **Habitat Confounding**: Controlled by including `habitat_type` as a fixed effect.
+*   **Spatial Autocorrelation**: Acknowledged risk of collinearity between noise and location; addressed via VIF diagnostics and transparency in reporting.
 
-2. **Power & Sample Size**:
- * **Target**: ≥50 species (SC-004).
- * **Power Analysis**: Use `statsmodels.stats.power` to calculate minimum detectable effect size for N=50 species.
- * **Limitation**: If power < 0.8, the study will explicitly acknowledge this limitation and report effect sizes with confidence intervals rather than relying solely on p-values.
-
-3. **Causal Inference**:
- * **Assumption**: Observational data.
- * **Framing**: All results will be described as **associational**. No claim of "noise causes X" will be made. Confounding variables (e.g., habitat type, time of day) are partially controlled via OSM land-use proxies; residual confounding is acknowledged as a limitation.
-
-4. **Collinearity**:
- * **Risk**: Species identity and noise level might be correlated (e.g., specific species only recorded in cities).
- * **Mitigation**: Species is a random effect, not a fixed predictor. This accounts for species-specific baselines without claiming an independent "species effect" vs. "noise effect" in a collinear fixed-effects model.
-
-5. **Measurement Validity**:
- * **Metrics**: `librosa` extraction of syllable count and entropy.
- * **Validity**: Validated against standard bioacoustic practices (Assumption in Spec). Sensitivity analysis on SNR threshold (FR-007) addresses the robustness of these metrics against noise contamination.
- * **Circularity Check**: Ensure `noise_level_db` (from OSM) is independent of `snr_db` (from audio). The SNR filter is applied for data quality, not as part of the predictor calculation.
-
-6. **Spatial Autocorrelation**:
- * **Risk**: OSM land-use and noise levels are spatially correlated.
- * **Mitigation**: Use `location_id` as a random effect to account for spatial clustering. The noise predictor is a static, pre-computed layer (OSM) and is not re-interpolated during cross-validation, ensuring independence.
-
-## Compute Feasibility & Constraints
-
-* **Hardware**: GitHub Actions Free Tier (2 CPU, ~7 GB RAM).
-* **Audio Processing**:
- * **Strategy**: Process audio in chunks. Do not load all audio into memory simultaneously.
- * **Resampling**: Downsample all audio to a standard sampling rate appropriate for bioacoustics to reduce file size and compute time.
- * **Libraries**: `librosa` (CPU-only), `scipy` for I/O.
-* **Modeling**:
- * **Library**: `statsmodels` (MixedLM) or `linearmodels`. Both are CPU-tractable.
- * **LOSO CV**: Iterative fitting. With ~50 species, 50 iterations is computationally feasible (<1 hour).
-* **Storage**:
- * Raw audio: Estimated to require substantial storage for 500 recordings (compressed WAV/MP3).
- * Processed data: <100 MB.
- * **Action**: Use `data/interim` for intermediate CSVs to avoid re-extracting features.
-
-## Decision Log
+## 4. Decision Log
 
 | Decision | Rationale |
-|:--- |:--- |
-| **Use OSM Land-Use for Noise** | Global Soundscapes is unverified; OSM provides a verified, programmatic source. |
-| **Drop Missing Data (No Interpolation)** | Interpolation introduces spatial autocorrelation and measurement error (Methodology Concern). |
-| **FDR Correction** | More appropriate for 4 correlated metrics than strict Bonferroni, preserving power. |
-| **LOSO CV** | Essential to prevent species-level data leakage in observational data. |
-| **22kHz Resampling** | Balances feature extraction quality with CPU/memory constraints on CI. |
-| **Static Noise Predictor** | Ensures LOSO CV does not leak spatial information from training to test sets. |
-| **Power Analysis** | Required to assess validity of N=50 species target. |
-| **OSM Land-Use as Proxy** | Used to control for habitat confounding (urban vs. rural vs. wild). |
+| :--- | :--- |
+| **Use LMM over OLS** | Accounts for non-independence of species and location. |
+| **SNR Threshold 10 dB** | Standard bioacoustic practice; sensitivity analysis validates robustness. |
+| **Nearest-Neighbor for Noise** | Required due to potential sparsity; ensures coverage using verified map data. |
+| **FDR Correction** | Controls family-wise error rate across 4 metrics without being overly conservative (Bonferroni). |
+| **Mixed One/Two-tailed Tests** | Based on biological theory: masking reduces syllables/duration (one-tailed); frequency shifts may increase bandwidth/entropy (two-tailed). |
+| **Leave-One-Species-Out Fixed-Effect Check** | Tests generalizability of the *association* (fixed effect) rather than just predictive performance. |

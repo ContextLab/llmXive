@@ -1,0 +1,10 @@
+status: none
+intent: Zenodo experimental barrier dataset HOMO SMILES reference python package dataset
+required_fields:
+- reaction_id
+- barrier_energy_kcal_mol
+- smiles
+- temperature_K
+cache_key: b7de2486f435215693ee1bae10e762ecacc88460d292a3e7313ea08e455ca4cb
+searched_at: '2026-10-18T15:20:33.784708+00:00'
+retry_count: 1

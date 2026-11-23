@@ -1,0 +1,14 @@
+# Configuration template for Predicting Plant Root Architecture
+# Copy this file to config.yaml and modify as needed.
+
+DATA_PATH: "data"
+RAW_DATA_PATH: "data/raw"
+PROCESSED_PATH: "data/processed"
+ARTIFACTS_PATH: "artifacts"
+LOGS_PATH: "artifacts/logs"
+LOG_PATH: "artifacts/logs/pipeline.log"
+LOG_LEVEL: "INFO"
+MODEL_PATH: "artifacts/models"
+PLOTS_PATH: "artifacts/reports/plots"
+REPORTS_PATH: "artifacts/reports"
+SEED: 42

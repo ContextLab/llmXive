@@ -1,0 +1,23 @@
+regime: 1M
+approved: true
+token_target: 1000000
+model_params:
+  embed_dim: 256
+  num_heads: 4
+  num_layers: 4
+  vocab_size: 50257
+  max_seq_length: 512
+  learning_rate: 0.0003
+  batch_size: 16
+  num_epochs: 10
+  dropout: 0.1
+  weight_decay: 0.01
+  warmup_steps: 100
+constraints:
+  max_ram_gb: 6.0
+  max_time_hours: 6
+  device: cpu
+metadata:
+  generated_by: generate_config.py
+  plan_reference: Phase 0: Feasibility Gate
+  analysis_basis: 1M tokens, 6h limit

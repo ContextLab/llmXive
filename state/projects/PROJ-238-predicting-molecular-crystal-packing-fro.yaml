@@ -6,7 +6,7 @@ failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-238-predicting-molecular-crystal-packing-fro
-last_run_id: 905c6146-7545-4a2c-a6fc-13668789d2d1
+last_run_id: 7f72bf96-c761-45ef-acd9-99b62e9d881a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-238-predicting-molecular-crystal-packing-fro/specs/001-predicting-molecular-crystal-packing-fro
 title: Predicting Molecular Crystal Packing from Structural Descriptors
-updated_at: '2026-07-02T05:52:16.390828Z'
+updated_at: '2026-09-21T00:47:21.568534Z'

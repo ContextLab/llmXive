@@ -13,7 +13,7 @@ This project implements a CPU-tractable regression pipeline to predict Vickers h
 **Primary Dependencies**: `pandas`, `scikit-learn`, `xgboost`, `shap`, `numpy`, `matplotlib`, `pyyaml`, `requests`, `compositional` (for CLR transforms), `pdfplumber` (for literature scraping)  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `models`)  
 **Testing**: `pytest` (unit tests for data validation, integration tests for pipeline execution)  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier: CPU, 7GB RAM)  
 **Project Type**: computational-research-pipeline  
 **Performance Goals**: <6 hours total runtime, <7GB RAM peak, <14GB disk usage  
 **Constraints**: No GPU/CUDA; no deep learning; datasets limited to <5 elements per alloy; all metrics must be bootstrapped.  
@@ -23,7 +23,7 @@ This project implements a CPU-tractable regression pipeline to predict Vickers h
 
 ### Sensitivity Analysis (FR-009)
 The plan explicitly implements a sensitivity analysis sweeping R² thresholds across a range of moderate to high values.
-- **Implementation**: For each threshold `T` in the set, calculate the fraction of 1000 bootstrap samples where the model's R² > `T`.
+- **Implementation**: For each threshold `T` in the set, calculate the fraction of a sufficient number of bootstrap samples where the model's R² > `T`.
 - **Reporting**: This fraction is reported in `data/processed/sensitivity_analysis.yaml` and visualized in `data/outputs/sensitivity_plot.png`.
 - **Success Criterion (SC-005)**: The metric is the "fraction of bootstrap samples exceeding each threshold", directly mapping to SC-005.
 

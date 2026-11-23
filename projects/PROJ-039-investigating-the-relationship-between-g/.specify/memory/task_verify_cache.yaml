@@ -1,0 +1,56 @@
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `artifacts/checksums.txt` file or corresponding checksum utility code is presented;
+    the claim provides no evidence that SHA256 checksums were generated for the files
+    in `data/`. The required artifact is missing, so the task is not satisfied.
+T011b:
+  c: false
+  h: 433ddc54698537f3beba25064ff68f458404d71f86b9d9d03ae94ed094198525
+  r: "The required artifact `tests/integration/test_strata_exit.py` does not exist\
+    \ in the repository, so no integration test verifying the <5 strata exit condition\
+    \ (exit code\u202F1 and error log) is present. The task therefore remains unfinished."
+T013:
+  c: false
+  h: 3560162d7d8f8a0c631ca38a5949dbc7f39e21e47ca5926902c4a70749750f90
+  r: "The repository contains a `code/preprocess_eeg.py` script, but the required\
+    \ output file `data/processed/eeg_features.csv` is absent, indicating the script\
+    \ either was not run or does not produce the expected CSV. Without this artifact,\
+    \ the task\u2019s core requirement (producing the processed EEG features file)\
+    \ is unmet."
+T019:
+  c: false
+  h: 4fa6c8d4f9e4b4269ab1d7bac965de511668d12dc1a45a446bfc6c4ca4a0cd3c
+  r: "The required artifact `tests/unit/test_statistics.py` does not exist in the\
+    \ repository, so no unit test for the FDR correction (Benjamini\u2011Hochberg\
+    \ logic) is present. The task therefore remains unfinished."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/analysis_results.json` file containing VIF values (or group\u2011\
+    separation statistics for Path\u202FB) is present, and no evidence of the required\
+    \ calculations is provided. The implementer has not supplied the mandated output,\
+    \ so the task remains unfinished."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output files were supplied that implement permutation\
+    \ testing or generate a null distribution as required. The claim lacks any tangible\
+    \ artifact (e.g., a Python module, Jupyter notebook, or result CSV/figure) demonstrating\
+    \ the 1000\u2011iteration permutation test on the stratum\u2011level data. The\
+    \ implementer must provide the actual implementation and its generated null\u2011\
+    distribution output."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No result JSON files or reports were presented, and therefore there is no evidence
+    that the required disclaimer string was injected into any artifacts. The implementer
+    must provide the actual JSON and report files showing the exact phrase present
+    in each.
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/analysis_results.json` file was presented; thus there is no evidence\
+    \ of correlation coefficients, test statistics, p\u2011values, q\u2011values,\
+    \ VIF values, or permutation flags. The required JSON output is missing, so the\
+    \ task is not satisfied."

@@ -1,0 +1,10 @@
+opencv-python
+librosa
+scikit-learn
+xgboost
+psutil
+statsmodels
+pandas
+numpy
+pytest
+pyyaml

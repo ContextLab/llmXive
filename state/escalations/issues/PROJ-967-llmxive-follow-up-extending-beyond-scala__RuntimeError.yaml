@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-27T17:18:14.858454+00:00'
+issue_number: 1425
+project_id: PROJ-967-llmxive-follow-up-extending-beyond-scala

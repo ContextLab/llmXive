@@ -1,0 +1,134 @@
+T001.1:
+  task: 251a79a49a053db8473fed8b26bb47efaf277ca02f27d23db6a25f3df6fb61a3
+T001.2:
+  task: b68ca23181a9708bb9936d0e48e3c57dce0436fc920b8f3fa0408adb8b989cbb
+T001.3:
+  task: 1c09c9e800b1d4d231e7b0697403bb1d33075deec6209f4b572a0a073042ba6a
+T001.4:
+  task: f511422dfb4b113840cc8ae9bd75a402cc496d666004da2009459f7f312f2088
+T002:
+  task: 240ad750e8d5b8caf3911ff894fb3549844b5f7d4cc578200e36f2ef1b5a934d
+T003:
+  reason: "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml`\
+    \ with Black settings, or a pre\u2011commit hook) are present, nor any script/instructions\
+    \ showing flake8 and black have been installed and integrated into the project.\
+    \ These artifacts are required to satisfy the \u201Cconfigure linting (flake8)\
+    \ and formatting (black) tools\u201D task."
+  task: c489551519fa750d0841c75b7b40f58723ac45225304743a321d7815ffa4a667
+T004:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/cod_sample_ids.txt'
+  task: 9b8b20efddbe6b77be5641b52178e9e9161727d198b485172cc5bc4bcf477140
+T004.1:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/cod_sample_ids.txt,
+    data/raw/csd_sample_ids.txt'
+  task: 4c98c63831ba7520f481fc1e4b9cd0ef488a103fe3e55d20408f5201cef4cea3
+T005:
+  reason: "No `utils/descriptors.py` file or `compute_descriptors` implementation\
+    \ was provided, and there is no evidence (code, tests, or output) showing that\
+    \ the function returns the required descriptor dictionary or that it yields a\
+    \ benzene volume between 50\u202F\xC5\xB3 and 150\u202F\xC5\xB3. The required\
+    \ artifact is missing."
+  task: b29a23941ced961e77b167d9318a0a707e3234a55ff10e818fc94a0b4de17d00
+T006:
+  task: b32fade1892ff0d5e5fb78bda89a539f03a1b1afa6662de43492781028361027
+T007:
+  task: e0ec10dfb7ecaedfd0ec76fc8edd905b28e72d24f41cdaa8a81cf33d7df52468
+T008:
+  task: e94a15444d429c80164770e923ab91c7745eb719a00ff8e0da56c8c1cf6ab633
+T009:
+  task: 980c842c61029fe69ea87bd9fe53e978429128436ac661a4bb61f25c46e76337
+T010:
+  task: 2686b821a5ae7bbcc264ccf175b82a0a7b3faa470b804c1f9ede6c3ae06e99bc
+T011:
+  task: 5fd6ca56a1638775ae45183615506b5694b3cbdefd8db0f4419ac319875f3b99
+T012:
+  task: b24995b118372be26feae1db1a9b67f4aba52ba915befe5c612957cd70d0b877
+T012.1:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/coordinate_validation.log'
+  task: 43fedd2c293c9bc19f5d361b3b85e8153dfc30c56dfdeb4956e6d18753ea8274
+T013:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/hydrogen_addition.log'
+  task: 8399091c5759129f933a674016098f44b6ebb0ab9f7e95ea5e474e617a1975ae
+T014:
+  task: b52cff03fe367e63152a0d26b38cc73e1ae54ca093eaffaec09af8cad6652906
+T015:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/filter_log.txt'
+  task: 8e6323919f68450342084f87e8c29f1be14295cda05f7c8cdd45c4830edf0ff0
+T016:
+  reason: 'declared artifact(s) missing/empty/invalid: data/descriptors/raw_descriptors.csv,
+    data/processed/missing_target.log'
+  task: abc834ad609cc9d11216493c21a590a3e062ca79cc50125f70591405146ba8fd
+T017.1:
+  task: de38699be0af07f85f6ef42176d92946471bceaa3c9532d69d647851a20ce6d9
+T017.2:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/train.csv, data/processed/val.csv,
+    data/processed/test.csv'
+  task: 9d5b7b047d0d3ffffa970d0facf56bd9fc7d15204cc6fc770c59fdbf48de62d8
+T017.3:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/split_validation.log'
+  task: 1410bb99eea62a8c66c5d6e20b3e8e18bbc0e393590f1a4ad29aa57631e44347
+T017.4:
+  task: 8d00ce37d3e1c13842b92a9dbfab004cac3f4b9599f1dd0369cb78c673c800e7
+T018:
+  task: 64772566a02e35f2e8ad5e14c082663323d908723ca36a5939c2c586a68c2346
+T020:
+  task: 2fca856bd2b1b86c0bcbdf965ee35368986bede3c3ca8db7640139c9b396e590
+T021:
+  task: 2b8132dd1e278cbc2932cd48ad161d658dd2aad81bfcad880118fdae7bce6be7
+T022:
+  task: 7c03993cc4fb1edc55a37e545677d0ca6854e6cdfd491c3df69b3603e1b43945
+T023:
+  task: 7a4d3512d1fcd8a547d336b766ba41bda23ad394829ea1fc929c8ffdaa222437
+T024:
+  task: d834cde0094f70632d0220b0868b4412f8c593c7f8d3eebd1afd53306ab944d6
+T025:
+  task: 40bba1f9bb5fd5a4a3c8435fbfff8372575e33ec9892a5fa84207aa56c25293f
+T026:
+  task: f5b6512f5286b4270d6ecb6d332c504701afab1a3f14e35c8d57006b3f9b2750
+T027:
+  task: 63becb78b61ad36f7ea50382115458107fe3dfd1855701d9e6b1e449affc7dd7
+T028.1:
+  task: e8f5b7cf332bdc2602105e2d31cd0e4762bef287787cb7eb465112d3a562659d
+T028.2:
+  task: f0388d235a31b6617ddc28acf7046f90d3973b387a31d9178e464a97d26ce658
+T028.3:
+  task: dbd52248fd82e42ce31a22a04893621808ace22b36d4396773dd57e8e5ea3ba7
+T029:
+  task: 3c4150df52ad36e5849c6aee967bf3b446cec0ed35a220378fcf90ac84f5cfed
+T030:
+  task: 6e32ecf8cb473ca5b5a69cf3337d37241e0ccddece83b3404d619085a504cf8a
+T031:
+  task: a179c48e96e98731d095358d323152a5976069d61e3db313af6d8d1e5caf1e70
+T032:
+  task: 972827c2fc4117f2c71208daa71e676f68d0e8c31087a82ab41e77ce7c87b301
+T033:
+  reason: 'declared artifact(s) missing/empty/invalid: results/feature_importance.png'
+  task: a361456e2900363da73434e31deda2f38bb44bd96dd30b9c4649ca00fd194a3b
+T034:
+  task: 4acbc7eed118282b8f8f6427257194c80a70764c6af9f6a402d7be9dfc973c95
+T035.1:
+  reason: 'declared artifact(s) missing/empty/invalid: data/interactions/raw_interactions.csv'
+  task: 64f33d54c6ef7ca338624286680f8febaba07856537f06e92b98cae5dbe3f38d
+T035.2:
+  reason: 'declared artifact(s) missing/empty/invalid: data/interactions/interaction_classification.csv,
+    data/interactions/'
+  task: 7144860bc7364dc8a2059eaabc2ee6e16026dbf80ca2ca61c5d51873aafbaa73
+T035.3:
+  reason: 'declared artifact(s) missing/empty/invalid: results/interaction_classification.md'
+  task: 62e7bca846775f277590feb24b3f5204c4fac99a1d12c1c3e7f5e413c9c1add9
+T036:
+  task: fa4491e3d0bdbeba73013ccfe79283f357077a6d7c2ab873a03353145b4f9968
+T037:
+  task: 05bcdad3309abbd137fb1855703c66807b3928fc8d9aa0af9cec29ab75e6de55
+T038:
+  task: 818eb52be85ea8dcb5f9b7abc12e7b78baef5e6426e7686e37149d1330fc33ee
+T039:
+  task: c8c7f2a35f3bed5c9a28e23994e8c2d22ab05d2893692994e56dd139317ff5bb
+T040:
+  task: bc5bad436f20df825afaa1c383c4b77f5a3b951193f56ff03e84de535e1e0711
+T041:
+  task: a8d56d6bd689f6e72f349a6ae2d621cc8afc6a498770c6b8899de945521277f6
+T042:
+  task: f109d9576b857a441c8287040d1d8e9f124165d19b401577cfe2175b1dc5e4f7
+T043:
+  task: 74cb9461d4ccc72d42e737b539e228b6ca88523d4f162b05687417fe1b0bf438

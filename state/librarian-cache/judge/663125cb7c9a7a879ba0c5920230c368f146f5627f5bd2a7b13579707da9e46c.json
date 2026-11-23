@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2003.03845",
+  "judged_at": "2026-08-29T00:55:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"datacomp-vlm: improved open datasets for vision-language models\" computer science",
+  "rationale": "The paper focuses on software engineering methodologies for building web interfaces for curated databases using cross-tier programming languages, which is entirely off-domain from the user's question regarding Vision-Language Models (VLMs) and open dataset construction. It shares no measurable connection to the mechanisms, variables, or empirical settings of LLM training data or VLM performance, failing all inclusion criteria (a-f) and triggering the \"off-domain entirely\" rejection rule.",
+  "relevant": false
+}

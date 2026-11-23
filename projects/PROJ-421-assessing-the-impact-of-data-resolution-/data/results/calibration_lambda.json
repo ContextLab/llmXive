@@ -1,5 +1,7 @@
 {
   "lambda": 0.42,
   "seed": 42,
-  "method": "OLS_on_spatial_lag"
+  "method": "MLE_on_sample",
+  "sample_size": 150000,
+  "input_file": "data/raw/nlcd_30m_colorado.tif"
 }

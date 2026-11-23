@@ -61,5 +61,15 @@
     "tab/main_exp.tex",
     "tab/related_work.tex",
     "tab/token_consume.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "b2d243fbcfa6786acd2f1d54f52776ba54ef4e736409c1a83c72c3aed3d12483",
+      "bytes": 3301695
+    },
+    "original.pdf": {
+      "sha256": "cf501782769204615fb0333bf7e84bd07a773012b59e31b2bfa8f97133448462",
+      "bytes": 3278470
+    }
+  }
 }

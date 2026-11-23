@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1901.06610",
+  "judged_at": "2026-10-16T15:31:06Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting material strength from microstructure images with convolutional neural networks materials science",
+  "rationale": "The paper applies CNNs to document (text) classification, not to microstructure images or material strength prediction — it is off-domain entirely, sharing only the generic \"convolutional neural networks\" keyword with no connection to materials science, microstructure, or mechanical properties.",
+  "relevant": false
+}

@@ -1,0 +1,26 @@
+# Flake8 configuration (legacy compatibility, primarily for CI tools that prefer it)
+# Note: Ruff is the primary linter; this file ensures compatibility with tools expecting flake8
+
+[flake8]
+max-line-length = 88
+extend-ignore = E501, F403, SIM105
+exclude =
+    .git,
+    __pycache__,
+    *.pyc,
+    data/,
+    models/,
+    docs/,
+    venv,
+    .venv,
+    build,
+    dist,
+    .eggs,
+    *.egg-info
+per-file-ignores =
+    code/__init__.py:F401,F403
+    code/models/__init__.py:F401
+    code/utils/__init__.py:F401
+    code/data/__init__.py:F401
+import-order-style = pep8
+application-import-names = config,data,models,utils

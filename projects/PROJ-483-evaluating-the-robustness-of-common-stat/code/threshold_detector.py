@@ -1,3 +1,9 @@
+"""
+Threshold Detection Module for US2 (T023).
+
+Implements logic to identify the specific dependency strength (r) at which
+the Type I error rate first exceeds a nominal alpha threshold (default 0.10).
+"""
 import os
 import json
 import pandas as pd
@@ -6,126 +12,129 @@ from typing import List, Dict, Tuple, Optional, Any
 from pathlib import Path
 
 def find_threshold_exceedance(
-    results_df: pd.DataFrame,
+    aggregated_df: pd.DataFrame,
     alpha_threshold: float = 0.10,
-    dependency_col: str = "dependency_strength",
-    error_rate_col: str = "observed_type1_error"
+    r_column: str = 'dependency_strength',
+    error_column: str = 'type1_error_rate',
+    test_type_col: str = 'test_type',
+    structure_col: str = 'dependency_structure'
 ) -> pd.DataFrame:
     """
-    Identifies the specific dependency strength (r) where the observed error rate
-    first exceeds the given alpha threshold for each test/structure combination.
-
-    This implements T023: Threshold detection logic to report specific r where
-    error rate exceeds alpha=0.10.
+    Analyzes aggregated simulation results to find the first r where error rate > alpha.
 
     Args:
-        results_df: DataFrame containing aggregated simulation results.
-            Expected columns: dependency_strength, observed_type1_error,
-            test_type, dependency_structure (or similar grouping keys).
-        alpha_threshold: The alpha level to check against (default 0.10).
-        dependency_col: Column name for dependency strength (r).
-        error_rate_col: Column name for observed error rate.
+        aggregated_df: DataFrame containing columns for dependency strength,
+                       error rates, test type, and structure.
+        alpha_threshold: The nominal alpha level to exceed (default 0.10).
+        r_column: Name of the column containing dependency strength (r).
+        error_column: Name of the column containing observed Type I error rate.
+        test_type_col: Name of the column identifying the statistical test.
+        structure_col: Name of the column identifying the dependency structure.
 
     Returns:
-        A DataFrame with columns:
-            - test_type
-            - dependency_structure
-            - threshold_r: The r value where error rate first > alpha_threshold.
-            - error_rate_at_threshold: The error rate at that r.
-            - status: "exceeded" if found, "never_exceeded" if max error < threshold.
+        A DataFrame containing the specific (r, test_type, structure) combinations
+        where the error rate first exceeds the threshold.
     """
-    if results_df.empty:
-        return pd.DataFrame(columns=["test_type", "dependency_structure", "threshold_r", "error_rate_at_threshold", "status"])
+    if aggregated_df.empty:
+        raise ValueError("Input DataFrame is empty. Cannot detect thresholds.")
 
-    # Ensure numeric types
-    results_df = results_df.copy()
-    results_df[dependency_col] = pd.to_numeric(results_df[dependency_col], errors='coerce')
-    results_df[error_rate_col] = pd.to_numeric(results_df[error_rate_col], errors='coerce')
+    # Ensure numeric types for calculation
+    df = aggregated_df.copy()
+    df[r_column] = pd.to_numeric(df[r_column], errors='coerce')
+    df[error_column] = pd.to_numeric(df[error_column], errors='coerce')
 
-    # Drop rows with invalid numeric data
-    clean_df = results_df.dropna(subset=[dependency_col, error_rate_col])
+    # Sort by r to ensure we find the "first" exceedance
+    df = df.sort_values(by=[test_type_col, structure_col, r_column])
 
-    if clean_df.empty:
-        return pd.DataFrame(columns=["test_type", "dependency_structure", "threshold_r", "error_rate_at_threshold", "status"])
+    results = []
 
-    # Group by test type and dependency structure to find thresholds per condition
-    # Assuming standard grouping keys based on T021/T022 context
-    group_cols = ["test_type", "dependency_structure"]
-    
-    # Handle cases where grouping columns might have different names or be missing
-    # Fallback to available columns if expected ones aren't present
-    available_group_cols = [c for c in group_cols if c in clean_df.columns]
-    
-    if not available_group_cols:
-        # If no grouping columns, treat the whole dataset as one group
-        clean_df = clean_df.assign(test_type="all", dependency_structure="all")
-        available_group_cols = ["test_type", "dependency_structure"]
+    # Group by test type and structure to find the crossing point for each combination
+    groups = df.groupby([test_type_col, structure_col])
 
-    results_list = []
+    for (test_type, structure), group in groups:
+        # Filter out NaNs if any
+        valid_group = group.dropna(subset=[r_column, error_column])
+        if valid_group.empty:
+            continue
 
-    for name, group in clean_df.groupby(available_group_cols):
-        # Sort by dependency strength ascending
-        sorted_group = group.sort_values(by=dependency_col)
-        
-        # Find first row where error rate > threshold
-        exceeded_rows = sorted_group[sorted_group[error_rate_col] > alpha_threshold]
-        
-        if not exceeded_rows.empty:
-            first_exceedance = exceeded_rows.iloc[0]
-            results_list.append({
-                "test_type": first_exceedance["test_type"],
-                "dependency_structure": first_exceedance["dependency_structure"],
-                "threshold_r": float(first_exceedance[dependency_col]),
-                "error_rate_at_threshold": float(first_exceedance[error_rate_col]),
-                "status": "exceeded"
+        # Sort by r ascending
+        valid_group = valid_group.sort_values(r_column)
+
+        # Find the first row where error rate > threshold
+        exceedance_mask = valid_group[error_column] > alpha_threshold
+
+        if exceedance_mask.any():
+            first_exceedance = valid_group[exceedance_mask].iloc[0]
+            results.append({
+                'test_type': test_type,
+                'dependency_structure': structure,
+                'threshold_r': first_exceedance[r_column],
+                'observed_error_rate': first_exceedance[error_column],
+                'alpha_threshold': alpha_threshold,
+                'exceeded': True
             })
         else:
-            # Check if max error rate is below threshold
-            max_error = sorted_group[error_rate_col].max()
-            results_list.append({
-                "test_type": name[0] if len(name) == 1 else name, # Handle tuple keys
-                "dependency_structure": name[1] if len(name) > 1 else "all",
-                "threshold_r": None,
-                "error_rate_at_threshold": max_error,
-                "status": "never_exceeded"
+            # If never exceeded, record the max r and max error observed
+            max_row = valid_group.iloc[-1]
+            results.append({
+                'test_type': test_type,
+                'dependency_structure': structure,
+                'threshold_r': None,
+                'observed_error_rate': max_row[error_column],
+                'alpha_threshold': alpha_threshold,
+                'exceeded': False
             })
 
-    return pd.DataFrame(results_list)
+    return pd.DataFrame(results)
+
 
 def main():
     """
     Main entry point to run threshold detection on aggregated results.
-    Reads from results/aggregated.csv and outputs to results/threshold_report.json.
+    
+    Reads from results/aggregated.csv (produced by T013/T021) and writes
+    results/threshold_detection_report.json.
     """
-    # Paths
-    input_path = Path("results/aggregated.csv")
-    output_path = Path("results/threshold_report.json")
-    
-    if not input_path.exists():
-        print(f"Error: Input file {input_path} not found. Run T013/T021 first.")
-        return
+    # Define paths relative to project root
+    project_root = Path(__file__).parent.parent
+    input_path = project_root / 'results' / 'aggregated.csv'
+    output_path = project_root / 'results' / 'threshold_detection_report.json'
 
-    # Load data
-    df = pd.read_csv(input_path)
-    
-    # Run detection
-    threshold_results = find_threshold_exceedance(df, alpha_threshold=0.10)
-    
-    # Save results
+    # Ensure results directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    if not input_path.exists():
+        raise FileNotFoundError(
+            f"Input file not found: {input_path}. "
+            "Please run T013/T021 to generate results/aggregated.csv first."
+        )
+
+    print(f"Loading aggregated results from {input_path}...")
+    df = pd.read_csv(input_path)
+
+    print(f"Running threshold detection (alpha=0.10)...")
+    try:
+        threshold_results = find_threshold_exceedance(df)
+    except Exception as e:
+        raise RuntimeError(f"Threshold detection failed: {e}")
+
+    # Save results
+    print(f"Saving threshold detection report to {output_path}...")
     
-    # Convert to JSON serializable format
-    report = {
-        "analysis_timestamp": str(pd.Timestamp.now()),
-        "alpha_threshold": 0.10,
-        "thresholds": threshold_results.to_dict(orient="records")
-    }
+    # Convert DataFrame to list of dicts for JSON serialization
+    # Handle None values in threshold_r by converting to null in JSON
+    report_data = threshold_results.to_dict(orient='records')
     
     with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-        
-    print(f"Threshold detection complete. Report saved to {output_path}")
-    print(f"Found {len(threshold_results[threshold_results['status'] == 'exceeded'])} cases where error rate exceeded 0.10.")
+        json.dump(report_data, f, indent=2)
 
-if __name__ == "__main__":
+    print(f"Threshold detection complete. Found {len(threshold_results)} test/structure combinations.")
+    exceeded_count = threshold_results['exceeded'].sum()
+    print(f"  - Combinations exceeding alpha=0.10: {exceeded_count}")
+    print(f"  - Combinations not exceeding alpha=0.10: {len(threshold_results) - exceeded_count}")
+
+    return report_data
+
+
+if __name__ == '__main__':
     main()

@@ -1,137 +1,108 @@
-# llmXive Benchmark Suite: Quick Start Guide
+# llmXive GateMem Benchmark - Quick Start Guide
 
-This guide provides instructions to set up and run the full GateMem benchmark suite,
-evaluating the Gatekeeper pipeline against baselines for Access Control, Utility,
-Forgetting, and Computational Cost.
+This guide provides step-by-step instructions for setting up the environment, fetching the real dataset, and running the initial evaluation pipeline for the GateMem benchmark extension.
 
 ## Prerequisites
 
 - Python 3.11 or higher
-- pip package manager
-- Sufficient disk space for model weights (~2GB) and dataset cache [UNRESOLVED-CLAIM: c_e6bb596d — status=not_enough_info]
+- pip (Python package manager)
+- Git
+- Minimum 14 GB disk space (for streaming the full dataset)
+- Minimum 7 GB RAM (for processing)
 
 ## 1. Environment Setup
 
-Clone the repository and install dependencies:
-
+### Clone the Repository
 ```bash
-# Install core dependencies
+git clone <repository-url>
+cd llmxive-follow-up-extending-gatemem-benc
+```
+
+### Create Virtual Environment
+```bash
+python -m venv venv
+source venv/bin/activate # On Windows: venv\Scripts\activate
+```
+
+### Install Dependencies
+Install the pinned dependencies from `requirements.txt` to ensure reproducibility:
+```bash
 pip install -r requirements.txt
-
-# (Optional) Install development tools for linting and testing
-pip install ruff black pytest
 ```
 
-## 2. Data Preparation
-
-The pipeline automatically fetches the GateMem dataset from HuggingFace on first run [UNRESOLVED-CLAIM: c_dbb4dd14 — status=not_enough_info].
-If you prefer to download manually:
-
+### Verify Installation
+Run the following to ensure all critical packages are available:
 ```bash
-# The dataset will be cached automatically in ~/.cache/huggingface [UNRESOLVED-CLAIM: c_025c1606 — status=not_enough_info]
-# Or run the data loader script explicitly:
-python -m code.utils.data_loader
+python -c "import datasets; import transformers; import statsmodels; import torch; print('Dependencies verified.')"
 ```
 
-Ensure the `data/raw/` directory exists and contains the dataset files if running offline.
+## 2. Dataset Download
 
-## 3. Running the Full Benchmark Suite
+This project uses the **GateMem** dataset hosted on Hugging Face. The data loader is configured to **stream** the dataset to avoid memory issues and will **fail loudly** if the real source is unreachable (no synthetic fallbacks).
 
-Execute the complete evaluation pipeline to run Gatekeeper and Baseline comparisons
-across all domains (medical, office, education, household).
-
+### Fetch the Dataset
+Run the data loader script to download and validate the dataset:
 ```bash
-# Run the full evaluation suite
-python -m code.cli.run_evaluation --all
+python code/utils/data_loader.py --fetch
 ```
 
-### Specific Domain Execution
+This will:
+1. Stream the `gatekeeper/gatemem` dataset (config='default', split='test').
+2. Compute and store the SHA256 checksum in `state/artifact_hashes.yaml`.
+3. Validate the episode structure against `contracts/dataset.schema.yaml`.
 
-To run the benchmark on specific domains only:
+**Note:** If the network is unavailable or the dataset is missing, the script will exit with code 1 and log "Critical: Real Data Fetch Failed".
 
+## 3. Running the Evaluation
+
+The pipeline supports running the Gatekeeper evaluation against baselines on specific domains.
+
+### Run Access Control Evaluation (User Story 1)
+Evaluate on the "medical" and "office" domains:
 ```bash
-# User Story 1: Access Control (Medical & Office domains)
-python -m code.cli.run_evaluation --domain medical,office --metrics access_control
-
-# User Story 2: Utility & Forgetting (Education & Household domains)
-python -m code.cli.run_evaluation --domain education,household --metrics utility,forgetting
-
-# User Story 3: Performance Profiling (All domains)
-python -m code.cli.run_evaluation --all --profile
+python code/cli/run_evaluation.py --domains medical,office --mode access_control
 ```
 
-## 4. Output Artifacts
-
-Upon successful completion, the following files will be generated:
-
-- `data/processed/access_control_results.json`: Unauthorized exposure rates
-- `data/processed/utility_results.json`: Task success rates and forgetting compliance
-- `data/processed/performance_results.json`: Latency and memory usage metrics
-- `data/samples/failure_cases.json`: Stratified sample of failure cases (50 cases) [UNRESOLVED-CLAIM: c_20cb2e68 — status=not_enough_info]
-- `data/results/final_benchmark_report.md`: Comprehensive summary with statistical analysis
-
-## 5. Statistical Analysis
-
-The pipeline performs statistical comparisons between Gatekeeper and Baseline methods:
-- **Primary Method**: Linear Mixed Models (LMM) with formula `score ~ method + (1|Domain)`
-- **Fallback**: Paired t-test or Wilcoxon signed-rank test if LMM fails (singular matrix)
-- **Domain-Stratified Analysis**: Separate tests per domain when global model is not feasible
-
-Results are included in `final_benchmark_report.md` with test statistics, degrees of freedom,
-p-values, and effect sizes.
-
-## 6. Verification and Testing
-
-Run the contract and integration tests to verify outputs:
-
+### Run Full Benchmark Suite
+To execute all user stories (Access Control, Utility, Forgetting, Cost Profiling):
 ```bash
-# Run all tests
-pytest tests/ -v
+python code/cli/run_evaluation.py --domains medical,office,education,household --mode full
+```
 
-# Run specific contract tests
+### Output Artifacts
+Results are saved to the `data/processed/` directory:
+- `access_control_results.json`
+- `utility_results.json`
+- `forgetting_results.json`
+- `performance_results.json`
+- `combined_metrics.json`
+
+## 4. Testing
+
+Run the unit tests to verify the setup:
+```bash
+pytest tests/unit/ -v
+```
+
+Run contract tests to ensure schema compliance:
+```bash
 pytest tests/contract/ -v
 ```
 
-## 7. Troubleshooting
-
-### Memory Errors
-If you encounter out-of-memory errors:
-- Ensure you are using the CPU-only configuration (no CUDA)
-- Reduce batch size in configuration files
-- Clear HuggingFace cache: `rm -rf ~/.cache/huggingface`
-
-### Missing Data
-If data files are missing:
+Specifically verify the documentation exists:
 ```bash
-python -m code.utils.data_loader --fetch
+pytest tests/unit/test_docs.py::test_quickstart_exists
 ```
 
-### Statistical Analysis Failures
-If LMM fitting fails, the pipeline automatically falls back to paired tests.
-Check `logs/stats_analysis.log` for details on fallback triggers.
+## Troubleshooting
 
-## 8. Configuration
+- **Dataset Fetch Failed**: Ensure your internet connection is active and you have access to Hugging Face. Check `logs/data_loader.log` for specific errors.
+- **Memory Errors**: The pipeline uses streaming. If you encounter OOM errors, ensure you are not loading the entire dataset into memory at once in custom scripts.
+- **CUDA Errors**: The code enforces CPU execution (`device='cpu'`). If you see CUDA errors, verify your environment variables or ensure `torch` is not attempting to use a GPU.
+- **Missing Dependencies**: Re-run `pip install -r requirements.txt` to ensure all packages are installed.
 
-Advanced configuration can be adjusted in `config/pipeline.yaml`:
-- Model paths and parameters
-- Threshold settings for access control
-- Statistical test parameters
-- Profiling intervals
+## Next Steps
 
-## 9. Reporting
-
-To regenerate the final report from existing results:
-
-```bash
-python -m code.cli.run_evaluation --generate-report
-```
-
-This will re-process `data/processed/*.json` files and output an updated
-`data/results/final_benchmark_report.md`.
-
-## 10. Next Steps
-
-- Review `final_benchmark_report.md` for key findings
-- Analyze `failure_cases.json` for edge case insights
-- Extend the benchmark with custom domains or metrics
-- Contribute improvements to the Gatekeeper pipeline
+- Review `specs/001-llmxive-follow-up-extending-gatemem-benc/spec.md` for detailed feature requirements.
+- Implement User Story 2 (Utility/Forgetting) if not yet completed.
+- Review the generated `data/results/final_benchmark_report.md` after a full run.

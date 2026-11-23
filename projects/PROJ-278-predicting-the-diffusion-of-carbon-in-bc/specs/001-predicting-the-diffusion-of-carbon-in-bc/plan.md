@@ -91,7 +91,7 @@ projects/PROJ-278-predicting-the-diffusion-of-carbon-in-bc/
 6.  **Output**: Save `dataset_cleaned.csv` and validate against `contracts/dataset.schema.yaml`.
 
 ### Phase 2: Model Training & Evaluation
-1.  **Split**: If $N \ge 30$, use 80/20 split. If $N < 30$, switch to Leave-One-Out Cross-Validation (LOOCV) and emit `PowerWarning`.
+1.  **Split**: If $N$ is sufficiently large, use 80/20 split. If $N < 30$, switch to Leave-One-Out Cross-Validation (LOOCV) and emit `PowerWarning`.
 2.  **Train**: Train Random Forest, XGBoost, and Elastic Net models with a constrained grid search (a limited set of combinations).
 3.  **Evaluate**: Calculate $R^2$, RMSE, MAE on the test set (or LOOCV average).
 4.  **Permutation Test (FR-005)**: Perform a permutation test with a sufficient number of iterations to ensure robust statistical inference. comparing the best ML model against a linear baseline (Elastic Net) to generate a p-value.

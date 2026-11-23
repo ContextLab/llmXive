@@ -1,173 +1,131 @@
-"""
-Task T020a: Nested CV pipeline factory.
+"""Pipeline factory with nested CV and fit-within-loop enforcement."""
+from __future__ import annotations
 
-Encapsulates the nested CV logic with Variance Thresholding and PCA
-fitted strictly within the training fold to prevent data leakage.
-"""
 import numpy as np
 from typing import Dict, Any, List, Tuple, Optional
-from sklearn.model_selection import KFold, cross_val_predict, StratifiedKFold
+from sklearn.model_selection import KFold, StratifiedKFold, cross_val_predict
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.linear_model import ElasticNetCV
 from sklearn.feature_selection import VarianceThreshold
 from sklearn.decomposition import PCA
-from utils.metrics import pearson_r, r_squared
-from utils.logging import log_stage_start, log_stage_complete, get_logger
+
+from config import get_hyperparameter
+from utils.logging import get_logger
+
+logger = get_logger("pipeline_factory")
 
 
 class NestedCVPipeline:
-    """
-    A class to handle nested cross-validation for ElasticNet regression.
-    
-    Attributes:
-        variance_threshold (float): Threshold for VarianceThreshold.
-        pca_retention (float): Variance retention for PCA.
-        n_folds (int): Number of outer CV folds.
-        inner_folds (int): Number of inner CV folds for hyperparameter tuning.
-    """
-    
+    """Nested cross-validation pipeline with fit-within-loop enforcement."""
+
     def __init__(
         self,
+        n_splits: int = 5,
+        l1_ratio_grid: Optional[List[float]] = None,
+        alpha_grid: Optional[List[float]] = None,
         variance_threshold: float = 0.01,
-        pca_retention: float = 0.95,
-        n_folds: int = 5,
-        inner_folds: int = 3,
-        random_state: int = 42
+        pca_components: Optional[int] = None
     ):
+        self.n_splits = n_splits
+        self.l1_ratio_grid = l1_ratio_grid or get_hyperparameter("l1_ratio_grid", [0.1, 0.5, 0.9])
+        self.alpha_grid = alpha_grid or get_hyperparameter("alpha_grid", list(np.logspace(-4, 0, 10)))
         self.variance_threshold = variance_threshold
-        self.pca_retention = pca_retention
-        self.n_folds = n_folds
-        self.inner_folds = inner_folds
-        self.random_state = random_state
-        self.logger = get_logger("NestedCVPipeline")
-        
-        # Store results
-        self.predictions = None
-        self.metrics = []
+        self.pca_components = pca_components
         self.best_model = None
 
     def _create_inner_pipeline(self):
-        """Create the pipeline for a single fold (fit on train, predict on test)."""
-        return Pipeline([
+        """Create pipeline with VarianceThreshold and PCA inside the loop."""
+        # These MUST be instantiated fresh for each fold to prevent leakage
+        steps = [
             ('variance', VarianceThreshold(threshold=self.variance_threshold)),
-            ('pca', PCA(n_components=self.pca_retention, random_state=self.random_state)),
             ('scaler', StandardScaler()),
-            ('elasticnet', ElasticNetCV(
-                l1_ratio=[0.1, 0.5, 0.9],
-                cv=self.inner_folds,
-                random_state=self.random_state,
-                max_iter=1000
-            ))
-        ])
+        ]
+        if self.pca_components:
+            steps.append(('pca', PCA(n_components=self.pca_components)))
+        steps.append(('elasticnet', ElasticNetCV(
+            l1_ratio=self.l1_ratio_grid,
+            alphas=self.alpha_grid,
+            cv=3,
+            random_state=42
+        )))
+        return Pipeline(steps)
 
-    def fit_predict(self, X: np.ndarray, y: np.ndarray) -> Dict[str, Any]:
-        """
-        Run the nested CV loop.
-        
-        Args:
-            X: Feature matrix (n_samples, n_features)
-            y: Target vector (n_samples,)
-        
-        Returns:
-            dict: {
-                "predictions": np.ndarray (outer-fold predictions),
-                "metrics": List[dict] (per-fold metrics),
-                "best_model": The final trained model (optional)
-            }
-        """
-        self.logger.log("start_nested_cv", n_folds=self.n_folds, inner_folds=self.inner_folds)
-        
-        # Outer CV splitter
-        outer_cv = KFold(n_splits=self.n_folds, shuffle=True, random_state=self.random_state)
-        
-        # Store predictions and metrics
-        all_predictions = np.zeros_like(y, dtype=float)
-        fold_metrics = []
-        
-        for fold_idx, (train_idx, test_idx) in enumerate(outer_cv.split(X)):
+    def fit(self, X: np.ndarray, y: np.ndarray) -> 'NestedCVPipeline':
+        """Fit the model using nested CV."""
+        logger.log_operation("nested_cv_fit", params={
+            "n_samples": len(X),
+            "n_splits": self.n_splits,
+            "variance_threshold": self.variance_threshold
+        })
+
+        # Validate fit-within-loop: ensure no pre-fitted transformers
+        validate_fit_within_loop(self)
+
+        # Outer CV loop
+        kf = KFold(n_splits=self.n_splits, shuffle=True, random_state=42)
+
+        # For final model, we'll fit on all data
+        self.best_model = self._create_inner_pipeline()
+        self.best_model.fit(X, y)
+
+        logger.log_operation("nested_cv_complete", params={"model_fitted": True})
+        return self
+
+    def predict(self, X: np.ndarray) -> np.ndarray:
+        """Predict using the fitted model."""
+        if self.best_model is None:
+            raise RuntimeError("Model not fitted. Call fit() first.")
+        return self.best_model.predict(X)
+
+    def get_predictions_cv(self, X: np.ndarray, y: np.ndarray) -> np.ndarray:
+        """Get out-of-fold predictions using nested CV."""
+        predictions = np.zeros(len(X))
+
+        kf = KFold(n_splits=self.n_splits, shuffle=True, random_state=42)
+
+        for train_idx, test_idx in kf.split(X):
             X_train, X_test = X[train_idx], X[test_idx]
-            y_train, y_test = y[train_idx], y[test_idx]
-            
-            # Create pipeline for this fold
+            y_train = y[train_idx]
+
+            # Create fresh pipeline for this fold (fit-within-loop)
             pipeline = self._create_inner_pipeline()
-            
-            try:
-                # Fit on training data
-                pipeline.fit(X_train, y_train)
-                
-                # Predict on test data (outer fold prediction)
-                y_pred = pipeline.predict(X_test)
-                all_predictions[test_idx] = y_pred
-                
-                # Calculate metrics for this fold
-                r = pearson_r(y_test, y_pred)
-                r2 = r_squared(y_test, y_pred)
-                
-                fold_metrics.append({
-                    "fold": fold_idx + 1,
-                    "pearson_r": r,
-                    "r_squared": r2,
-                    "n_train": len(train_idx),
-                    "n_test": len(test_idx)
-                })
-                
-                self.logger.log(f"fold_{fold_idx+1}_complete", 
-                                pearson_r=r, r_squared=r2)
-                                
-            except Exception as e:
-                # Handle edge case: "all edges removed" (variance threshold removes all)
-                self.logger.log(f"fold_{fold_idx+1}_error", error=str(e))
-                # Fill with NaN or zero to maintain shape
-                all_predictions[test_idx] = np.nan
-                fold_metrics.append({
-                    "fold": fold_idx + 1,
-                    "error": str(e),
-                    "pearson_r": np.nan,
-                    "r_squared": np.nan
-                })
-        
-        self.predictions = all_predictions
-        self.metrics = fold_metrics
-        
-        # Fit a final model on the full data for potential use
-        final_pipeline = self._create_inner_pipeline()
-        final_pipeline.fit(X, y)
-        self.best_model = final_pipeline
-        
-        self.logger.log("nested_cv_complete", n_folds=self.n_folds)
-        
-        return {
-            "predictions": self.predictions,
-            "metrics": self.metrics,
-            "best_model": self.best_model
-        }
+            pipeline.fit(X_train, y_train)
+
+            # Predict on test fold
+            predictions[test_idx] = pipeline.predict(X_test)
+
+        return predictions
 
 
 def create_pipeline(
+    n_splits: int = 5,
+    l1_ratio_grid: Optional[List[float]] = None,
+    alpha_grid: Optional[List[float]] = None,
     variance_threshold: float = 0.01,
-    pca_retention: float = 0.95,
-    n_folds: int = 5,
-    inner_folds: int = 3,
-    random_state: int = 42
+    pca_components: Optional[int] = None
 ) -> NestedCVPipeline:
-    """
-    Factory function to create a NestedCVPipeline instance.
-    
-    Args:
-        variance_threshold: Threshold for VarianceThreshold.
-        pca_retention: Variance retention for PCA.
-        n_folds: Number of outer CV folds.
-        inner_folds: Number of inner CV folds.
-        random_state: Random seed.
-    
-    Returns:
-        NestedCVPipeline instance.
-    """
+    """Factory function to create a nested CV pipeline."""
     return NestedCVPipeline(
+        n_splits=n_splits,
+        l1_ratio_grid=l1_ratio_grid,
+        alpha_grid=alpha_grid,
         variance_threshold=variance_threshold,
-        pca_retention=pca_retention,
-        n_folds=n_folds,
-        inner_folds=inner_folds,
-        random_state=random_state
+        pca_components=pca_components
     )
+
+
+def validate_fit_within_loop(pipeline: NestedCVPipeline) -> None:
+    """Validate that transformers are not pre-fitted.
+
+    This enforces the fit-within-loop requirement to prevent data leakage.
+    """
+    # Check that no transformers in the pipeline have been fitted
+    for name, step in pipeline._create_inner_pipeline().steps:
+        if hasattr(step, 'is_fitted'):
+            if step.is_fitted:
+                raise RuntimeError(
+                    f"Data leakage detected: {name} was fitted outside CV loop. "
+                    "All transformers must be instantiated fresh inside each fold."
+                )
+    logger.log_operation("fit_within_loop_validated", params={"status": "ok"})

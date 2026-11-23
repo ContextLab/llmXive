@@ -1,0 +1,103 @@
+T001:
+  task: 8fc614bd7fca8ce0b5e9d38ed3dcfb5b82199844914988489ea3383dae4ba4e3
+T002:
+  reason: "The `code/requirements.txt` exists and contains the right packages (CPU-only\
+    \ torch via index-url, scikit-learn, datasets, mujoco, pybullet), but nothing\
+    \ is pinned \u2014 no version specifiers at all \u2014 contradicting the task's\
+    \ explicit \"pinned\" requirement. Additionally, there is no execution evidence\
+    \ that `pip install -r code/requirements.txt` and `pip check` were run and succeeded."
+  task: a9020d87e0d147f52d05f0a9ac0f9543d50886dfb3b691eb7f1bcf6041ba2e7c
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/verify_linting.sh
+    exit=1'
+  task: ae684f4eb5c4cd776270a2907fdaa909fef8e5d3c6fa4382c109dbec984e6bf6
+T004:
+  task: 30fbc5523dc40fabd0105914778cbfbbde3e3b658cfb9ab610406f74d2d06548
+T005:
+  task: 2f2b5766ce56cce02d8fdd153fac4aa2237d866f6f0b6045b325016805509e13
+T006:
+  task: 89be8f591d449713055471dfed3e7a7edb0eceac58094c0de39a16baea6874c8
+T007:
+  task: c6596ea3ca22dafd025ff4de1f7d7a2da4dc3e8f5595e1bbaf1fbd720330e11b
+T008:
+  task: d7b89f4548d3c73360b6dde7fc35620ecfc66f90fbd0897b8bd1754e580252d6
+T009:
+  task: 5c6ea9729869600fb526ec0a4f7c0e9b4b741b891442465686a8fb487c6d32de
+T010:
+  task: 8ff4830ff37901276f07da53a205c16d021112dcc4c5a17da41830b983e543e6
+T011:
+  reason: 'The script cannot run: `save_subset_to_csv` uses `csv.DictWriter` but `csv`
+    is never imported; `main()` calls `get_config()` (which returns a dict with lowercase
+    keys) yet accesses `config.OPTICAL_FLOW_THRESHOLD`, `config.PROCESSED_DIR`, and
+    `config.RAW_DIR` as attributes, which would raise `AttributeError`; and `utils/audit_logger.py`
+    does `from config import LOGS_DIR`, a name that does not exist in `code/config.py`,
+    so the import fails immediately. Additionally, `microsoft/orca` is a text/instruction
+    dataset with no video clips or `optical_flow_magnitude` metadata, so the "real
+    URL" fetch wo'
+  task: 634859cd304a23d24e556836da09f17124fac96e6ddb274b991179235cdb9099
+T012:
+  task: 536d78ce666822c264083f8eee90f9d28d26f2d2ac4b7d18d5509a3f01ec1802
+T012b:
+  task: 7cdad5aa000a18312dddcdfc07e5d0acb96a992bf30bca2d39dec4a1b7ac533f
+T013:
+  task: e967c990285af1817c4837c6f7a45dcab5ad6cf605d790210c9e5cee4231bda0
+T014:
+  task: e25f90e68ff83392ce234671cca86a4a6934396f28c7d253c63c552903a89f81
+T015:
+  task: 86ac9928d4cc8fab98e534e93a21b8190b814e6b59a992eb00bc98b6fa9f00b9
+T016:
+  task: 38a5c741c2bcc3cdcaf3742d2184fcdc28021948a6f8f5081560cf685f7c50dc
+T017:
+  task: 57bbce7aed111788778eb1b26ad6c41497200e66b261016a5c764dccdd7bdf4d
+T018:
+  task: 02d91b3b2562190ef992b2d4cc262e7115e5d050858dd5b39744dc6d6e135c95
+T019:
+  task: 299c0f7dc18587ea4815d5be9f813048b97d8f6b5be931cea9d9ceb12fd5f452
+T020a:
+  task: 10c2d870abeb62a207fc9403df323369996305d26f7511907418877dc573ca12
+T020b-impl:
+  task: ee046401967e39c241e17e5fc9221130ef3b39eacd8e1bfa30faf226bf296294
+T021:
+  task: 0faa64f35bc6581b7260eb5f2ed3ddcc4d31d4dd415ca3d0cba4a730bcf495a7
+T022-impl:
+  task: b353d73c67e71f1d5b24820d2f03f58de910ec52cebd750277f13318c366d105
+T022b:
+  task: d4d234829db2ed465efd424a3154553702b87b91e8c48d14eb11f4ae9131f68f
+T023:
+  task: 599ea044f6b3ae5788f5bb82c66e083ca10d3ea86234c359a7652a4efde7face
+T024:
+  task: 1d8940ff0fc05d59548b64d2ec630a4b63e418d9551a23a25a5bc78e2526aba6
+T025:
+  task: e3dfda75a19db373d554e87a56b63a090c5a9f5e7a8fd4af611f4b8d0f63902f
+T026a:
+  task: 8810ed3dd4d3cbfc0ec1d4936aac5218020d7a046d3856b7de9f93bb7414b557
+T026a-impl:
+  task: c1a3105279b04d86a9003dd46796ab3ba129742e0cccbef2a8814fbf14974973
+T028:
+  task: ee9f6033fa83e1c0be4850c919d06b6c40a84f87fc5d7d566d98b4ffd31eb1b3
+T029:
+  task: 76c70e62172cac4784f61c49b1dbf478c69289fef7f45b43b19e10f878fd510e
+T030:
+  task: 26ea5138dba5e58fcfc0ef72961370140f4ec254806ce762ec3e64ca616e8793
+T031:
+  task: 53bde6e7c7e27aa27c6ddc983d92bf95be20629dff2eb9d1a5d680a429770981
+T032:
+  task: f175ed8c732903319aa19a4afc388abacfc517227987ec4ab9503131809557cc
+T033:
+  task: 6b721c3bea4bc75b6ca91878b55fde5a8373de9927786abcd7f388e8303f6802
+T034:
+  task: 5e92665f2b494ffb1b73ccd3b0458209a5d74fa92d134269dac09ea1e899e6d0
+T036:
+  task: b36b9238c2a840f27f087cd53d3a31c1d38bb3bb79571d2e90be22f8c35751b1
+T037b:
+  task: 5487238d7e0d537c80cc3349b37310e4297b9d7e7b9ff4011c25851f451c9103
+T038a:
+  task: 3ca9ee02d9f014137fa0ae8c1a5bdfb6a4e6e9d59b11d10137ff841e2d29f7ce
+T039:
+  task: 965cdced7790c792e98a76bf8375f7bbd55f58edf99d1295336ca21b0330fba8
+T040:
+  task: 5a382701f86876d3dac4986f8170db3f92c86b4dd72642d1d9ee21ccfb3f0da6
+T042:
+  task: cbdb44f820dde74e451b41eeaf650c60d06f93c000a5d53ff4475e424922be07
+T045:
+  task: 7673994aa2375791d7b2d4b6c5f3058a3b086879c0f842d2363861c1a1d252d4

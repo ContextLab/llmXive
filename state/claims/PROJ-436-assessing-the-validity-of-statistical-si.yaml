@@ -1,0 +1,17 @@
+- artifact_path: projects/PROJ-436-assessing-the-validity-of-statistical-si/README.md
+  attempts: 1
+  canonical: FDR correction applied across 72 experimental conditions
+  claim_id: c_acad42a7
+  context: Binary outcomes use Wilcoxon/Logistic tests; continuous use t-tests. FDR
+    correction is applied across all 72 experimental conditions. Synthetic covariates
+    for MAR are validated for r=0.3 correlation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: FDR correction is applied across all 72 experimental conditions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T17:55:17Z'

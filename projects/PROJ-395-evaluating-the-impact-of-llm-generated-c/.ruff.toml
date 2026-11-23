@@ -1,0 +1,34 @@
+# Ruff configuration for the project
+# See https://beta.ruff.rs/docs/configuration/ for options
+[tool.ruff]
+# Target Python version
+target-version = "py311"
+# Maximum line length
+line-length = 88
+# Enable selected rule sets
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "W",   # pycodestyle warnings
+    "C90", # mccabe complexity
+    "I",   # import sorting
+    "N",   # naming conventions
+]
+# Files / directories to exclude from linting
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    "venv",
+    "env",
+]
+
+# Formatting options (handled by Ruff's formatter)
+[tool.ruff.format]
+# Use double quotes consistently
+quote-style = "double"
+# Indent with spaces (not tabs)
+indent-style = "space"
+# Ensure trailing commas where appropriate
+trailing-comma = true

@@ -55,5 +55,15 @@
     "tabs/main_tab.tex",
     "tabs/olmo_tab.tex",
     "tabs/ood_tab.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "2aaedae8ba87d366aad79b2738ae3657c4d8dd57090839e424c4857b2d0c45b2",
+      "bytes": 3049400
+    },
+    "original.pdf": {
+      "sha256": "df631660a9ea5ed3275f37102b9d0f589b5b5772aeea95614430735d2554c2b2",
+      "bytes": 3008305
+    }
+  }
 }

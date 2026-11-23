@@ -1,77 +1,88 @@
-# Quickstart: llmXive Follow-up: Semantic Divergence Diagnostic for Agentic Reasoning
+# Quickstart: llmXive Follow-up: Semantic Divergence Diagnostic
 
-## Prerequisites
+## 1. Prerequisites
 
-- Python 3.11+
-- Internet access for HuggingFace Hub downloads
-- At least **7 GB** of free RAM
-- Sufficient free disk space
+- Python 3.11+
+- `datasets` library
+- `sentence-transformers` (CPU wheels)
+- `rank_bm25`
+- `scikit-learn`
+- `pandas`
+- `pyyaml`
 
-## Installation
+## 2. Installation
 
-1. **Clone the repository** and `cd` into the project root.  
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate   # Windows: venv\Scripts\activate
-   ```
-3. **Install pinned dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *The `requirements.txt` pins `torch` to a CPU‑only wheel and all other libraries to stable releases.*
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-849-llmxive-follow-up-extending-agent-explor
+    ```
 
-## Required Supplemental Files
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-| File | Description | Checksum File |
-|------|-------------|---------------|
-| `data/external/tool_mapping.csv` | `problem_id` → list of ground‑truth tool IDs. | `tool_mapping_checksum.txt` |
-| `data/external/tool_descriptions.csv` | `tool_id`, `description` for BM25 indexing. | `tool_descriptions_checksum.txt` |
-| `data/external/rl_failure_rates.csv` | `problem_id`, `failure_rate` (independent RL outcome). | `rl_failure_rates_checksum.txt` |
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-**Simulation Mode**: If any of these files are **missing**, the system will automatically generate **synthetic** data:
+4.  **Install ruff and black** (for linting):
+    ```bash
+    pip install ruff black
+    ```
 
-- **Tool Mapping** – deterministic assignment based on problem difficulty (see `research.md`).  
-- **Tool Descriptions** – a synthetic corpus of domain‑relevant tools with templated descriptions.  
-- **RL Failure Rates** – `failure_rate = 0.5 * difficulty + 0.5 * Uniform(0,1)` using a fixed seed.  
+## 3. Data Preparation
 
-All generated files are written with SHA‑256 checksums recorded in the project state file.
+1.  **Download MathVista**:
+    The system automatically downloads the dataset on first run. Ensure you have sufficient free disk space.
 
-## Running the Pipeline
+2.  **Create Tool Mappings**:
+    Ensure `data/tool_mappings/mathvista_tool_map.json` exists. If not, create a minimal version:
+    ```json
+    {
+      "problem_id_1": ["calculator", "search_engine"],
+      "problem_id_2": ["image_cropper", "text_summarizer"]
+    }
+    ```
+
+3.  **Cache AXPO Outcomes** (Optional):
+    If you have cached results from the AXPO agent, place them in `data/cache/axpo_simulated_outcomes.jsonl`. If missing, the system will use a heuristic fallback.
+
+## 4. Running the Diagnostic
+
+Run the main pipeline:
 
 ```bash
-python src/cli/main.py \
-  --dataset "AI4Math/MathVista" \
-  --subset "test" \
-  --max-records a sufficient number to ensure comprehensive coverage without exceeding computational limits. \
-  --seed 42 \
-  --output-dir data/processed
+python -m src.cli.run_diagnostic
 ```
 
-Flags:
+**Expected Output**:
+- Logs showing dataset loading, embedding, and scoring.
+- A summary report printed to stdout:
+  ```
+  Total Records: A substantial corpus of records was selected for analysis.
+  Mean Divergence Score: Moderate levels of divergence are expected.
+  Pearson Correlation: -0.32 (p < 0.05)
+  Logistic Regression AUC-ROC: The model is expected to achieve a moderate level of discriminative performance.
+  ```
+- Output files in `data/processed/`.
 
-- `--max-records` caps the number of problem instances (enforces RAM limit).  
-- `--seed` fixes all random operations (sampling, synthetic generation, Logistic Regression, train‑test split).  
-- `--output-dir` is where all JSON outputs and checksum files are written.
+## 5. Troubleshooting
 
-The script performs:
+- **Memory Error**: The system automatically downsamples to a manageable number of records. Check logs for `MemoryLimitExceededError` -> `Downsampling` message.
+- **Timeout**: If the job exceeds 5 hours, it will abort with `TimeoutExceededError`.
+- **Missing Tool Mapping**: Ensure `data/tool_mappings/mathvista_tool_map.json` exists and contains valid JSON.
+- **No Thinking Traces**: The system will skip records without thinking prefixes. Check the log for `Skipping record: missing_thinking_prefix`.
 
-1. Dataset download & checksum validation (with streaming fallback for large files).  
-2. BM25 index creation from `tool_descriptions.csv` (or synthetic generation).  
-3. DistilBERT embedding of thinking prefixes and tool texts.  
-4. Divergence score calculation.  
-5. Pearson correlation with the RL failure rates (or synthetic).  
-6. **K‑Means** clustering for risk‑group labeling **(training split only)**.  
-7. Logistic regression training & test‑set evaluation (using divergence score only).  
-8. Generation of `divergence_scores.json`, `analysis_results.json`, and `checksums.txt`.
+## 6. Verification
 
-## Reproducibility
+Run the test suite:
 
-Rerun the exact command with the same `--seed` to obtain identical results. After each run, `scripts/update_state_hashes.py` records SHA‑256 hashes of all outputs in `state/projects/PROJ-849-llmxive-follow-up-extending-agent-explor.yaml`.
+```bash
+pytest tests/
+```
 
-## Troubleshooting
-
-- **MemoryError** → The system automatically switches to streaming mode. If it fails, reduce `--max-records` (e.g., to 200).  
-- **Missing checksum** → Create a checksum file with `sha256sum <file> > <file>_checksum.txt`.  
-- **Timeout** → The CI runner enforces a hard time limit; the pipeline is designed to finish well within this bound.  
-- **Simulation Mode Active** → Check the output logs for “Simulation Mode: Synthetic data generated”. This indicates that user‑provided data was missing and synthetic fallbacks were used.
+Ensure all tests pass, especially `test_metrics.py` and `test_pipeline.py`.

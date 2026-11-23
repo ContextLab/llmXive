@@ -1,204 +1,280 @@
-"""
-Download logic for OpenNeuro dataset ds000030.
-Handles URL validation, checksum verification, and dataset downloading.
-"""
 import os
 import hashlib
 import requests
 from urllib.parse import urljoin
 import logging
 import time
+import json
 from pathlib import Path
-from typing import Optional
+import sys
 
+# Add parent directory to path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# OpenNeuro dataset base configuration
-OPENNEURO_BASE_URL = "https://openneuro.org"
-DATASET_ID = "ds000030"
+# Constants
+OPENNEURO_BASE_URL = "https://openneuro.org/datasets"
+DATA_DIR = Path(__file__).parent.parent.parent / "data"
+RAW_DIR = DATA_DIR / "raw"
+METADATA_DIR = DATA_DIR / "metadata"
 
-def download_url_exists(url: str) -> bool:
-    """
-    Checks if a given URL returns a 200 OK status.
-    
-    Args:
-        url: The URL to check.
-        
-    Returns:
-        True if the URL is accessible (200 OK), False otherwise.
-    """
-    try:
-        logger.info(f"Checking URL existence: {url}")
-        # OpenNeuro might redirect, so allow redirects
-        response = requests.head(url, allow_redirects=True, timeout=30)
-        if response.status_code == 200:
-            logger.info(f"URL exists: {url}")
-            return True
-        else:
-            logger.warning(f"URL returned status {response.status_code}: {url}")
-            return False
-    except requests.RequestException as e:
-        logger.error(f"Failed to check URL {url}: {e}")
-        return False
+# Ensure directories exist
+RAW_DIR.mkdir(parents=True, exist_ok=True)
+METADATA_DIR.mkdir(parents=True, exist_ok=True)
 
-def get_dataset_download_url(dataset_id: str = DATASET_ID) -> Optional[str]:
-    """
-    Constructs or retrieves the download URL for a specific OpenNeuro dataset.
-    OpenNeuro datasets are typically hosted on S3 via a public bucket or a specific CDN.
-    The standard pattern for the full dataset zip (if available) or the s3 bucket link.
-    Since direct ZIP downloads aren't always the primary interface, we return the 
-    canonical dataset page URL or the S3 bucket URL which is the source of truth.
-    
-    For the purpose of this pipeline, we return the S3 bucket URL which contains the raw data.
-    OpenNeuro ds000030 is hosted at: s3://openneuro.org/ds000030
-    We construct the https link to the bucket directory.
-    """
-    # OpenNeuro datasets are accessible via their S3 bucket
-    s3_bucket_url = f"https://openneuro.s3.amazonaws.com/{dataset_id}"
-    
-    # Verify this URL works
-    if download_url_exists(s3_bucket_url):
-        return s3_bucket_url
-    
-    # Fallback to the web interface if S3 link check fails (though S3 is standard)
-    web_url = urljoin(OPENNEURO_BASE_URL, f"/datasets/{dataset_id}")
-    if download_url_exists(web_url):
-        return web_url
-        
-    return None
-
-def verify_checksum(file_path: str, expected_hash: str) -> bool:
-    """
-    Verifies the SHA-256 checksum of a file against an expected hash.
-    
-    Args:
-        file_path: Path to the file to verify.
-        expected_hash: The expected SHA-256 hex string.
-        
-    Returns:
-        True if the checksum matches, False otherwise.
-    """
-    if not os.path.exists(file_path):
-        logger.error(f"File not found for checksum verification: {file_path}")
-        return False
-    
-    try:
-        sha256_hash = hashlib.sha256()
-        with open(file_path, "rb") as f:
-            # Read in chunks to handle large files
-            for chunk in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(chunk)
-        
-        computed_hash = sha256_hash.hexdigest()
-        
-        if computed_hash.lower() == expected_hash.lower():
-            logger.info(f"Checksum verified for {file_path}")
-            return True
-        else:
-            logger.error(f"Checksum mismatch for {file_path}. Expected: {expected_hash}, Got: {computed_hash}")
-            return False
-    except Exception as e:
-        logger.error(f"Error computing checksum for {file_path}: {e}")
-        return False
-
-def download_dataset(dataset_id: str = DATASET_ID, output_dir: str = "data/raw", force: bool = False) -> bool:
-    """
-    Downloads the OpenNeuro dataset.
-    Note: OpenNeuro datasets are large. This function attempts to download the 
-    dataset structure. For the specific ds000030, we might need to use the 
-    `openneuro-cli` or download specific subjects. 
-    For this implementation, we simulate the download logic or attempt to fetch
-    a representative file if a full dataset download is not feasible in a script.
-    
-    However, per the task requirement to use REAL data, we attempt to fetch the 
-    dataset manifest or a small subset if the full dataset is too large for a 
-    simple script execution, but we structure it to handle the full download 
-    if the environment supports it.
-    
-    Given the constraints of a single script task without external CLI tools,
-    we will implement a robust downloader that can handle the S3 bucket listing
-    and download files, or at least verify the connection and structure.
-    
-    For the sake of this task implementation, we will download the dataset 
-    description or a small sample file to verify connectivity, but the 
-    production pipeline would likely use `aws s3 sync` or similar.
-    """
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    
-    base_url = get_dataset_download_url(dataset_id)
-    if not base_url:
-        logger.error(f"Could not find download URL for {dataset_id}")
-        return False
-    
-    logger.info(f"Starting download for {dataset_id} from {base_url}")
-    
-    # Since OpenNeuro data is on S3, we try to download a specific file to verify.
-    # In a real production environment, we would sync the whole bucket.
-    # Here we download the dataset_description.json to prove connectivity.
-    try:
-        # OpenNeuro S3 structure usually has dataset_description.json at root
-        file_to_download = "dataset_description.json"
-        download_url = f"{base_url}/{file_to_download}"
-        
-        if not download_url_exists(download_url):
-            logger.warning(f"Could not access {download_url}, trying alternative path...")
-            # Sometimes the bucket is private and we need the public CDN
-            download_url = f"https://openneuro.org/datasets/{dataset_id}/versions/1.0.0/download"
-            # This might trigger a redirect to a zip or require specific headers.
-            # If we can't get a direct file, we log success of URL existence but note limitation.
-            if download_url_exists(download_url):
-                logger.info(f"Dataset URL exists: {download_url}. Full download requires CLI or specific tooling.")
-                return True # URL exists, which satisfies the validation part
-        
-        # Attempt to download the small file
-        response = requests.get(download_url, stream=True, timeout=60)
-        if response.status_code == 200:
-            local_file = output_path / file_to_download
-            with open(local_file, 'wb') as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    f.write(chunk)
-            logger.info(f"Successfully downloaded {file_to_download}")
-            return True
-        else:
-            logger.error(f"Failed to download {file_to_download}: {response.status_code}")
-            return False
-            
-    except Exception as e:
-        logger.error(f"Error during download process: {e}")
-        return False
-
-def process_metadata_and_exclude_subjects(metadata_file: str, exclusion_log: str = "data/metadata/exclusion_log.txt"):
-    """
-    Placeholder for processing metadata to exclude subjects based on diagnostic labels.
-    """
+class DataFetchError(Exception):
+    """Exception raised when data fetch fails."""
     pass
 
-def main():
+def download_url_exists(dataset_id: str) -> bool:
     """
-    Main entry point for testing the download module.
-    """
-    logging.basicConfig(level=logging.INFO)
+    Check if the dataset URL exists on OpenNeuro.
     
-    # Test URL existence
-    url = get_dataset_download_url(DATASET_ID)
-    if url:
-        exists = download_url_exists(url)
-        print(f"URL {url} exists: {exists}")
-    else:
-        print("Could not retrieve download URL.")
+    Args:
+        dataset_id: The OpenNeuro dataset identifier (e.g., 'ds000030')
         
-    # Test checksum logic
-    # We create a dummy file for testing
-    with tempfile.NamedTemporaryFile(delete=False) as tmp:
-        tmp.write(b"test")
-        tmp_path = tmp.name
+    Returns:
+        True if the dataset exists, False otherwise
+    """
+    url = f"{OPENNEURO_BASE_URL}/{dataset_id}"
+    try:
+        response = requests.head(url, timeout=10)
+        return response.status_code == 200
+    except requests.RequestException as e:
+        logger.warning(f"Could not check URL existence for {dataset_id}: {e}")
+        return False
+
+def get_dataset_download_url(dataset_id: str) -> str:
+    """
+    Get the download URL for an OpenNeuro dataset.
     
-    expected = hashlib.sha256(b"test").hexdigest()
-    print(f"Checksum test (True): {verify_checksum(tmp_path, expected)}")
-    print(f"Checksum test (False): {verify_checksum(tmp_path, 'wronghash')}")
+    Args:
+        dataset_id: The OpenNeuro dataset identifier
+        
+    Returns:
+        The download URL string
+    """
+    # OpenNeuro download URL pattern
+    return f"https://s3.amazonaws.com/openneuro.org/{dataset_id}.tar.gz"
+
+def verify_checksum(file_path: str, expected_checksum: str) -> bool:
+    """
+    Verify the SHA256 checksum of a downloaded file.
     
-    os.unlink(tmp_path)
+    Args:
+        file_path: Path to the downloaded file
+        expected_checksum: Expected SHA256 checksum string
+        
+    Returns:
+        True if checksum matches, False otherwise
+    """
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        actual_checksum = sha256_hash.hexdigest()
+        return actual_checksum == expected_checksum
+    except Exception as e:
+        logger.error(f"Error verifying checksum for {file_path}: {e}")
+        return False
+
+def download_dataset(dataset_id: str, output_dir: Path = None):
+    """
+    Download an OpenNeuro dataset.
+    
+    Args:
+        dataset_id: The OpenNeuro dataset identifier
+        output_dir: Directory to save the downloaded file (default: data/raw)
+        
+    Raises:
+        DataFetchError: If download fails
+    """
+    if output_dir is None:
+        output_dir = RAW_DIR
+    
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    download_url = get_dataset_download_url(dataset_id)
+    output_file = output_dir / f"{dataset_id}.tar.gz"
+    
+    logger.info(f"Downloading dataset {dataset_id} from {download_url}")
+    
+    try:
+        response = requests.get(download_url, stream=True, timeout=300)
+        response.raise_for_status()
+        
+        total_size = int(response.headers.get('content-length', 0))
+        downloaded = 0
+        
+        with open(output_file, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                if chunk:
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    if total_size > 0:
+                        progress = (downloaded / total_size) * 100
+                        logger.info(f"Download progress: {progress:.1f}%")
+        
+        logger.info(f"Download completed: {output_file}")
+        return output_file
+      
+    except requests.RequestException as e:
+        raise DataFetchError(f"Failed to download dataset {dataset_id}: {e}")
+    except Exception as e:
+        raise DataFetchError(f"Error during download of {dataset_id}: {e}")
+
+def process_metadata_and_exclude_subjects(dataset_dir: Path):
+    """
+    Process dataset metadata and exclude subjects based on diagnostic labels.
+    
+    Args:
+        dataset_dir: Path to the extracted dataset directory
+        
+    Returns:
+        List of excluded subject IDs
+    """
+    excluded_subjects = []
+    exclusion_log_path = METADATA_DIR / "exclusion_log.txt"
+    
+    # Look for participants.tsv or similar metadata file
+    participants_file = dataset_dir / "participants.tsv"
+    if not participants_file.exists():
+        # Try other common names
+        for name in ["participants.csv", "participants.json", "metadata.json"]:
+            alt_file = dataset_dir / name
+            if alt_file.exists():
+                participants_file = alt_file
+                break
+    
+    if not participants_file.exists():
+        logger.warning(f"Participants file not found in {dataset_dir}")
+        return excluded_subjects
+    
+    try:
+        import pandas as pd
+        df = pd.read_csv(participants_file, sep='\t')
+        
+        # Look for diagnosis column
+        diagnosis_col = None
+        for col in df.columns:
+            if 'diagnosis' in col.lower() or 'group' in col.lower() or 'label' in col.lower():
+                diagnosis_col = col
+                break
+        
+        if diagnosis_col is None:
+            logger.warning("No diagnosis column found in participants file")
+            return excluded_subjects
+        
+        # Process each subject
+        with open(exclusion_log_path, 'w') as log_file:
+            log_file.write(f"Exclusion Log - {time.strftime('%Y-%m-%d %H:%M:%S')}\n")
+            log_file.write("=" * 50 + "\n\n")
+        
+            for idx, row in df.iterrows():
+                subject_id = row.get('participant_id', f'sub-{idx}')
+                if pd.isna(row.get(diagnosis_col)):
+                    excluded_subjects.append(subject_id)
+                    log_file.write(f"[{subject_id}] Excluded: Missing diagnostic label\n")
+                    logger.info(f"Excluded {subject_id}: Missing diagnostic label")
+        
+        logger.info(f"Processed metadata: {len(excluded_subjects)} subjects excluded")
+        return excluded_subjects
+      
+    except Exception as e:
+        logger.error(f"Error processing metadata: {e}")
+        return excluded_subjects
+
+def check_motion_parameters_exist(dataset_dir: Path) -> bool:
+    """
+    Check if motion parameters exist in the dataset metadata.
+    
+    Args:
+        dataset_dir: Path to the dataset directory
+        
+    Returns:
+        True if motion parameters are found, False otherwise
+    """
+    # Look for common motion parameter files
+    motion_file_patterns = [
+        "*confounds*.tsv",
+        "*motion*.txt",
+        "*motion*.csv",
+        "*regressors*.txt",
+        "task-*_desc-confounds_timeseries.tsv"
+    ]
+    
+    # Search in dataset directory and subdirectories
+    for root, dirs, files in os.walk(dataset_dir):
+        for pattern in motion_file_patterns:
+            import glob
+            matches = glob.glob(os.path.join(root, pattern))
+            if matches:
+                logger.info(f"Found motion parameters: {matches[0]}")
+                return True
+    
+    logger.info("No motion parameters found in dataset")
+    return False
+
+def save_motion_params_check_result(motion_available: bool):
+    """
+    Save the result of motion parameters check to a JSON file.
+    
+    Args:
+        motion_available: Boolean indicating if motion parameters were found
+    """
+    output_file = METADATA_DIR / "motion_params_available.json"
+    
+    result = {
+        "motion_params_available": motion_available
+    }
+    
+    with open(output_file, 'w') as f:
+        json.dump(result, f, indent=2)
+    
+    logger.info(f"Saved motion parameters check result to {output_file}")
+
+def run_motion_params_check_pipeline():
+    """
+    Run the motion parameters check pipeline.
+    
+    This function:
+    1. Checks for the presence of motion parameters in the dataset
+    2. Saves the result to data/metadata/motion_params_available.json
+    """
+    logger.info("Starting motion parameters check pipeline")
+    
+    # Look for the dataset directory
+    dataset_dirs = [d for d in RAW_DIR.iterdir() if d.is_dir() and d.name.startswith("ds")]
+    
+    if not dataset_dirs:
+        logger.warning("No dataset directory found. Assuming motion parameters not available.")
+        save_motion_params_check_result(False)
+        return False
+    
+    # Check the first dataset found
+    dataset_dir = dataset_dirs[0]
+    motion_available = check_motion_parameters_exist(dataset_dir)
+    save_motion_params_check_result(motion_available)
+    
+    return motion_available
+
+def main():
+    """Main entry point for the script."""
+    try:
+        # Example usage: check motion parameters
+        motion_available = run_motion_params_check_pipeline()
+        logger.info(f"Motion parameters check complete: {motion_available}")
+        return 0
+    except Exception as e:
+        logger.error(f"Motion parameters check failed: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

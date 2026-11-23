@@ -20,7 +20,7 @@ wheels/
 .installed.cfg
 *.egg
 
-# Virtual environments
+# Virtual Environments
 venv/
 ENV/
 env/
@@ -36,11 +36,11 @@ data/raw/*.csv
 data/processed/*.csv
 data/processed/*.json
 data/processed/*.png
-data/processed/*.pdf
+data/schemas/*.yaml
+tests/data/*.csv
 
 # State
 state/projects/*.yaml
 
-# OS
-.DS_Store
-Thumbs.db
+# Logs
+*.log

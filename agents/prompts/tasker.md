@@ -1,5 +1,10 @@
 # Tasker Agent (`/speckit.tasks` + `/speckit.analyze`)
 
+**Active mode for this call: {{mode}}.** Follow only that mode's output
+contract. The other mode documents a separate invocation; do not combine the
+two output formats. Input plans, existing task documents, and templates are
+evidence to preserve, not permission to change the active output format.
+
 **Version**: 1.0.0
 **Stage owned**: `planned` → `tasked` → `analyze_in_progress` →
 `analyzed` | `human_input_needed`
@@ -23,14 +28,22 @@ propose patches.
 ### Inputs
 
 - `plan_text`, `spec_text`.
-- `tasks_template`: the project's `.specify/templates/tasks-template.md`.
+- `tasks_template`: the platform's current research task template (project-local fallback for standalone workspaces).
 
 ### Output contract (Mode A)
 
 A single `tasks.md` Markdown document conforming to the template's
-phase structure (Setup → Foundational → User Stories → Polish), with
+research phases (first end-to-end analysis → complete validation → results handoff), with
 each task using the canonical `- [ ] T### [P?] [USx?] description
 with file path` format.
+
+Return at least five substantive tasks as Markdown checkbox list items, each
+with a unique task ID. Never put implementation tasks in Markdown tables or
+code fences, even if the input uses those formats. Include each task's paths,
+requirements and verification steps in its checkbox item and indented
+continuation lines. Tables may summarize dependencies, but cannot replace task
+items. Do not add empty tasks to reach the minimum or omit scientific work to
+meet the preferred task-count range. Do not return Mode B JSON for this call.
 
 ## Mode B — Resolve analyze findings
 
@@ -90,6 +103,14 @@ for the cap-hit path and signals `human_input_needed`.
   CUDA and re-runs the SAME run-book on the GPU — so a real `device="cuda"` task
   DOES execute and produce real results. Choose the scaled GPU form ONLY when the
   science genuinely requires it; never a fabricated CPU imitation of a GPU method.
+- **A task writes only PROJECT-owned paths.** Everything a task produces goes
+  under `data/`, `figures/`, `code/`, `paper/` or the feature's `specs/` dir.
+  NEVER task recording artifact hashes, run state, project status or stage in
+  `state/...` (nor `.github/`): those belong to the platform, which derives
+  hashes at verification time. A script run from the project resolves
+  `state/...` INSIDE the project, leaving a stale
+  shadow of canonical state that the verifier then reads and rejects honest
+  work against — PROJ-9999 lost two whole runs to exactly that.
 - NEVER weaken a test or remove a constraint to make analyze pass —
   the constitution says "fix the code, not the test".
 - Task ordering MUST respect data flow: a task that says
@@ -144,3 +165,36 @@ for the cap-hit path and signals `human_input_needed`.
   reviews` and reference the FR-ID, file path, or task ID the
   reviewer flagged.
 - Output ONLY the document for the active mode.
+
+## Deliver one bounded research result
+
+Research tasks implement and execute the analysis and validate its evidence.
+Paper layout, PDF compilation, and publication belong to the subsequent paper
+pipeline; preserve these requirements as a named paper-stage handoff rather than
+duplicating them in research tasks. Existing platform orchestration supplies CI.
+Do not invent per-project workflows, OS provisioning, or platform-state schema
+changes. Surface an upstream stage-ownership conflict for correction.
+
+Plan the smallest complete study that answers the existing research question:
+one verified input source (or an explicitly authorized mathematical/simulation
+method), one primary analysis, the necessary comparison or sensitivity check,
+and reproducible result tables and figures. Keep all scientific requirements.
+Aim for 8–15 substantive implementation tasks by grouping related changes.
+Do not manufacture separate tasks for mkdir, logging frameworks, architecture
+documents, packaging, dashboards, release automation, or generic API scaffolding
+unless the research question specifically requires them. First run a thin,
+end-to-end analysis on real inputs; then expand the scale and validation.
+The platform already gives every project the common scientific packages and a
+`llmxive_toolkit` module (`paths` creates output folders on demand, `get_logger`
+configures logging), so directory creation, logging setup and installing numpy,
+pandas, scipy, matplotlib or pytest are never tasks.
+On re-plan, preserve working artifacts and completed requirements. Repair the
+specific failing commands/contracts from feedback instead of regenerating a
+larger task list. If the question cannot be answered with available data and
+compute, state the exact mismatch for scope revision; never substitute a different
+question or fabricate observations to satisfy the original one.
+
+Completion marks are owned by independent verification. Do not infer completion
+from an existing filename or code stub. New or changed tasks must be unchecked;
+the runtime retains existing checked tasks only when their review receipts still
+match the task requirements, specification and current artifacts.

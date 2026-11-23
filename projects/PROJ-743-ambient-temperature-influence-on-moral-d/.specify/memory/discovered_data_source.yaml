@@ -1,0 +1,13 @@
+status: none
+intent: download Moral Machine dataset and ERA5 hourly temperature reanalysis python
+  package dataset
+required_fields:
+- response_id
+- latitude
+- longitude
+- timestamp
+- scenario
+- temperature
+cache_key: 245571b16ce5abc1f640ba93dab566007d5ba8a455fea662264dfd068f96e34e
+searched_at: '2026-10-25T04:44:12.511781+00:00'
+retry_count: 1

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2411.15497",
+  "judged_at": "2026-08-17T09:36:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the impact of code generation models on code vulnerability density computer science",
+  "rationale": "The paper focuses on generating synthetic data for remote sensing object detection to improve detection accuracy (mAP), which is an off-domain application of generative models compared to the user's question about code generation models and software vulnerability density. It does not measure code vulnerabilities, code generation mechanisms, or the specific domain of software security, failing all inclusion criteria (a-f) and triggering the \"off-domain entirely\" rejection rule.",
+  "relevant": false
+}

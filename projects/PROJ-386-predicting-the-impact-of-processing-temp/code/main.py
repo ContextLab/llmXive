@@ -1,10 +1,6 @@
 """
-Main orchestration entry point for the llmXive pipeline.
-
-Responsibilities:
-1. Verify runner environment (OS, CPU count, no GPU).
-2. Enforce a hard timeout (GITHUB_ACTIONS_TIMEOUT) using signal.alarm.
-3. Execute the pipeline stages sequentially.
+Orchestration entry point for the llmXive automated science pipeline.
+Implements hard timeout enforcement and runner verification.
 """
 import os
 import sys
@@ -12,134 +8,193 @@ import signal
 import argparse
 import logging
 import time
-from datetime import timedelta
-
-# Import config for paths and timeout settings
-from config import GITHUB_ACTIONS_TIMEOUT, DATA_RAW_PATH, DATA_PROCESSED_PATH, ARTIFACTS_PATH
+from pathlib import Path
+from typing import Optional
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stderr)
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Timeout handler
+# Global timeout flag
+timeout_occurred = False
+
 def timeout_handler(signum, frame):
-    raise TimeoutError(f"Pipeline execution exceeded the hard limit of {GITHUB_ACTIONS_TIMEOUT} seconds.")
+    """Signal handler for timeout enforcement."""
+    global timeout_occurred
+    timeout_occurred = True
+    logger.error("Hard timeout triggered. Aborting pipeline execution.")
+    # Raise an exception to break out of any long-running loops
+    raise TimeoutError("Pipeline execution exceeded the hard timeout limit.")
 
 def verify_runner_environment():
     """
-    Verifies the execution environment matches requirements:
-    - OS: Linux (ubuntu-latest)
-    - GPU: None
-    - CPU: Count available
+    Verify the runner environment matches expected constraints.
+    Checks for ubuntu-latest, no GPU, and CPU count.
     """
     logger.info("Verifying runner environment...")
     
-    # Check OS
+    # Check OS (GitHub Actions ubuntu-latest runs on Linux)
     if sys.platform != 'linux':
-        logger.warning(f"Running on non-Linux platform: {sys.platform}. Expected 'linux' (ubuntu-latest).")
-        # Not a hard fail, but a warning for CI context
+        logger.warning(f"Running on non-Linux platform: {sys.platform}. Expected Linux.")
     
-    # Check GPU availability (basic check)
+    # Check for GPU availability (we expect CPU-only)
     try:
         import torch
         if torch.cuda.is_available():
-            logger.warning("GPU detected. Running on CPU as per project constraints.")
+            logger.warning("GPU detected. Pipeline is configured for CPU-only execution.")
+            # Note: We don't abort, just warn, as the pipeline should still work on CPU
         else:
-            logger.info("No GPU detected. Running on CPU.")
+            logger.info("No GPU detected. Running in CPU-only mode as expected.")
     except ImportError:
-        logger.info("PyTorch not installed. Skipping GPU check.")
+        logger.info("PyTorch not installed. Assuming CPU-only environment.")
     
-    # CPU Count
+    # Check CPU count
     cpu_count = os.cpu_count()
-    logger.info(f"Detected CPU count: {cpu_count}")
+    logger.info(f"Detected {cpu_count} CPU cores.")
     
-    if cpu_count < 2:
-        logger.warning("Low CPU count detected. Performance may be impacted.")
+    # Verify GitHub Actions environment variables if present
+    if 'GITHUB_ACTIONS' in os.environ and os.environ['GITHUB_ACTIONS'] == 'true':
+        logger.info("Running in GitHub Actions environment.")
+        runner_os = os.environ.get('RUNNER_OS', 'Unknown')
+        logger.info(f"Runner OS: {runner_os}")
+        
+        # Verify it's ubuntu-latest (usually implies Ubuntu 22.04 or similar)
+        if runner_os != 'Linux':
+            logger.warning(f"Expected Linux runner, got {runner_os}")
     
+    logger.info("Runner environment verification complete.")
     return True
 
-def run_pipeline():
+def run_pipeline(args):
     """
-    Executes the pipeline stages.
-    Currently a placeholder for the actual pipeline logic which will be
-    populated by subsequent tasks (T012, T020, T030, etc.).
+    Execute the full pipeline with timeout enforcement.
     """
-    logger.info("Starting pipeline execution...")
+    global timeout_occurred
     
-    # Stage 1: Data Ingestion (T012-T016)
-    # This will be implemented by T013. For now, we check if the script exists.
-    ingestion_script = os.path.join(os.path.dirname(__file__), 'data', 'ingestion.py')
-    if os.path.exists(ingestion_script):
-        logger.info("Data ingestion module found. Executing...")
-        # In a real scenario, we would import and run the function here
-        # from data.ingestion import run_ingestion
-        # run_ingestion()
-        logger.info("Data ingestion stage complete (simulated).")
+    # Set up signal handler for timeout
+    if args.timeout > 0:
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(args.timeout)
+        logger.info(f"Hard timeout set to {args.timeout} seconds.")
     else:
-        logger.info("Data ingestion module not yet implemented. Skipping.")
-
-    # Stage 2: Preprocessing (T020-T023)
-    preprocessing_script = os.path.join(os.path.dirname(__file__), 'data', 'preprocessing.py')
-    if os.path.exists(preprocessing_script):
-        logger.info("Preprocessing module found. Executing...")
-        # from data.preprocessing import run_preprocessing
-        # run_preprocessing()
-        logger.info("Preprocessing stage complete (simulated).")
-    else:
-        logger.info("Preprocessing module not yet implemented. Skipping.")
-
-    # Stage 3: Baseline Modeling (T024-T026)
-    baseline_script = os.path.join(os.path.dirname(__file__), 'modeling', 'baseline.py')
-    if os.path.exists(baseline_script):
-        logger.info("Baseline modeling module found. Executing...")
-        # from modeling.baseline import run_baseline
-        # run_baseline()
-        logger.info("Baseline modeling stage complete (simulated).")
-    else:
-        logger.info("Baseline modeling module not yet implemented. Skipping.")
-
-    # Stage 4: RF Modeling & Analysis (T030-T036)
-    rf_script = os.path.join(os.path.dirname(__file__), 'modeling', 'rf_model.py')
-    if os.path.exists(rf_script):
-        logger.info("Random Forest modeling module found. Executing...")
-        # from modeling.rf_model import run_rf
-        # run_rf()
-        logger.info("RF modeling stage complete (simulated).")
-    else:
-        logger.info("Random Forest modeling module not yet implemented. Skipping.")
-
-    logger.info("Pipeline execution finished successfully.")
+        logger.warning("No timeout set. Pipeline will run indefinitely.")
+    
+    start_time = time.time()
+    
+    try:
+        logger.info("Starting pipeline execution...")
+        
+        # 1. Verify Runner Environment
+        verify_runner_environment()
+        
+        # 2. Ingestion Pipeline (Data Download & Validation)
+        logger.info("Step 1: Ingestion Pipeline")
+        from data.ingestion import run_pipeline as run_ingestion_pipeline
+        run_ingestion_pipeline(args.urls, args.output, args.stats)
+        
+        if timeout_occurred:
+            raise TimeoutError("Timeout during ingestion pipeline.")
+        
+        # 3. Preprocessing Pipeline
+        logger.info("Step 2: Preprocessing Pipeline")
+        from data.preprocessing import run_preprocessing_pipeline
+        # Assuming processed data output is handled internally by the pipeline
+        run_preprocessing_pipeline(
+            input_path=args.output if args.output else 'data/raw/ingested_data.csv',
+            output_path='data/processed/processed_data.csv'
+        )
+        
+        if timeout_occurred:
+            raise TimeoutError("Timeout during preprocessing pipeline.")
+        
+        # 4. Baseline Modeling
+        logger.info("Step 3: Baseline Modeling")
+        from modeling.baseline import run_baseline_pipeline
+        run_baseline_pipeline(
+            data_path='data/processed/processed_data.csv',
+            output_path='data/artifacts/baseline_model.pkl'
+        )
+        
+        if timeout_occurred:
+            raise TimeoutError("Timeout during baseline modeling.")
+        
+        # 5. Random Forest Modeling
+        logger.info("Step 4: Random Forest Modeling")
+        from modeling.rf_model import run_rf_pipeline
+        run_rf_pipeline(
+            data_path='data/processed/processed_data.csv',
+            baseline_model_path='data/artifacts/baseline_model.pkl',
+            output_path='data/artifacts/rf_model.pkl'
+        )
+        
+        if timeout_occurred:
+            raise TimeoutError("Timeout during RF modeling.")
+        
+        # 6. Analysis & Reporting
+        logger.info("Step 5: Analysis & Reporting")
+        from analysis.reporting import run_reporting_pipeline
+        run_reporting_pipeline(
+            data_path='data/processed/processed_data.csv',
+            baseline_model_path='data/artifacts/baseline_model.pkl',
+            rf_model_path='data/artifacts/rf_model.pkl',
+            output_dir='data/artifacts'
+        )
+        
+        if timeout_occurred:
+            raise TimeoutError("Timeout during reporting pipeline.")
+        
+        end_time = time.time()
+        duration = end_time - start_time
+        logger.info(f"Pipeline completed successfully in {duration:.2f} seconds.")
+        
+    except TimeoutError as e:
+        logger.error(f"Pipeline failed due to timeout: {e}")
+        # Write timeout status
+        timeout_status = {
+            "status": "aborted",
+            "reason": str(e),
+            "elapsed_time": time.time() - start_time
+        }
+        with open('data/artifacts/timeout_status.json', 'w') as f:
+            import json
+            json.dump(timeout_status, f, indent=2)
+        raise
+    except Exception as e:
+        logger.error(f"Pipeline failed with error: {e}")
+        raise
+    finally:
+        # Cancel the alarm if it was set
+        if args.timeout > 0:
+            signal.alarm(0)
 
 def main():
-    parser = argparse.ArgumentParser(description="Orchestration entry point for llmXive pipeline.")
-    parser.add_argument('--timeout', type=int, default=GITHUB_ACTIONS_TIMEOUT,
-                        help=f"Timeout in seconds (default: {GITHUB_ACTIONS_TIMEOUT})")
-    args = parser.parse_args()
-
-    # Set the hard timeout
-    signal.signal(signal.SIGALRM, timeout_handler)
-    signal.alarm(args.timeout)
+    """Main entry point."""
+    parser = argparse.ArgumentParser(description='Orchestration entry point for the science pipeline.')
+    parser.add_argument('--urls', type=str, nargs='+', 
+                      default=['https://archive.ics.uci.edu/ml/machine-learning-databases/00470/Aluminum_Alloy_Data.csv'],
+                      help='URLs to download data from.')
+    parser.add_argument('--output', type=str, default='data/raw/ingested_data.csv',
+                      help='Output path for ingested data.')
+    parser.add_argument('--stats', action='store_true',
+                      help='Generate streaming statistics.')
+    parser.add_argument('--sample-size', type=int, default=None,
+                      help='Sample size for testing (optional).')
+    parser.add_argument('--timeout', type=int, default=0,
+                      help='Hard timeout in seconds (0 = no timeout).')
     
-    logger.info(f"Hard timeout set to {args.timeout} seconds ({timedelta(seconds=args.timeout)}).")
-
+    args = parser.parse_args()
+    
+    # Set global seed if specified in config
     try:
-        verify_runner_environment()
-        run_pipeline()
-    except TimeoutError as e:
-        logger.error(f"CRITICAL: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Pipeline failed with unexpected error: {e}")
-        sys.exit(1)
-    finally:
-        # Cancel the alarm
-        signal.alarm(0)
+        from config import set_global_seed
+        set_global_seed(42)
+    except ImportError:
+        logger.warning("Config module not found. Skipping seed setting.")
+    
+    run_pipeline(args)
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

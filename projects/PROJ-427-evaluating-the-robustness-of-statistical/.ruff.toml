@@ -1,6 +1,28 @@
-# Ruff configuration
-line-length = 88
+# RUFF configuration
+#
+# This configuration enables a set of linting rules that enforce code quality
+# and style consistency across the project. Adjust the settings as needed
+# for your development workflow.
+#
+# For more details, see https://beta.ruff.rs/docs/configuration/
+[tool.ruff]
+# Select the default rule sets to enable. E = pycodestyle errors,
+# F = pyflakes, W = pycodestyle warnings, C90 = McCabe complexity.
 select = ["E", "F", "W", "C90"]
-ignore = []
-exclude = ["__init__.py", "setup.py"]
-target-version = "py38"
+# Exclude generated or binary directories from linting.
+exclude = [
+    "__pycache__",
+    "data",
+    "results",
+    "state",
+    "docs",
+    ".git",
+    "venv",
+    "env",
+]
+# Maximum line length.
+line-length = 88
+# Target Python version for parsing.
+target-version = "py311"
+# Enable automatic fixes for certain rules when `ruff --fix` is used.
+fix = true

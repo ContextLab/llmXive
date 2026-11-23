@@ -1,245 +1,392 @@
 """
-Annotation module for mapping significant SNPs to genes and GO terms.
+SNP Annotation Module for Honeybee GWAS Study.
 
-This module implements FR-008: Map significant SNPs to genes using Ensembl Bees API
-and query Gene Ontology (GO) terms for functional annotation.
+Maps significant SNPs to genes using Ensembl Bees API v104 and queries GO terms.
+Follows Ensembl Bees API v104 documentation and Gene Ontology Consortium standards.
 """
+
 import os
 import sys
 import argparse
 import time
+import json
+import requests
 from pathlib import Path
 import pandas as pd
-import requests
-from typing import List, Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
 # Constants
-ENSEMBL_BEES_URL = "https://bees.ensembl.org"
-ENSEMBL_REST_URL = "https://rest.ensembl.org"
-ANNOTATED_OUTPUT_PATH = "data/processed/annotated_snps.tsv"
-MIN_Q_VALUE = 0.05
+ENSMBL_BASE_URL = "https://bees.ensembl.org"
+ENSMBL_VERSION = "v104"
+TIMEOUT_SECONDS = 30
+RETRY_ATTEMPTS = 3
+RETRY_DELAY_SECONDS = 2
+
+# Output paths
+ANNOTATION_OUTPUT = "data/processed/annotation_results.tsv"
+ANNOTATION_ERRORS_LOG = "data/processed/annotation_errors.log"
+
+def create_session_with_retries() -> requests.Session:
+    """Create a requests session with retry logic for API calls."""
+    session = requests.Session()
+    # Set headers for Ensembl API
+    session.headers.update({
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'User-Agent': 'llmXive-GWAS-Pipeline/1.0'
+    })
+    return session
 
 def load_gwas_results(input_path: str) -> pd.DataFrame:
     """
     Load GWAS results and filter for significant SNPs.
     
     Args:
-        input_path: Path to the GWAS results TSV file (typically data/processed/gwas_results_fdr.tsv)
+        input_path: Path to the FDR-corrected GWAS results file.
         
     Returns:
-        DataFrame containing only significant SNPs (q-value < 0.05)
+        DataFrame containing only significant SNPs (q_value < 0.05).
     """
     if not os.path.exists(input_path):
         raise FileNotFoundError(f"GWAS results file not found: {input_path}")
-    
+        
     df = pd.read_csv(input_path, sep='\t')
     
-    # Ensure q-value column exists
-    if 'q_value' not in df.columns:
-        # Try alternative column names
-        q_cols = [c for c in df.columns if 'q' in c.lower() or 'fdr' in c.lower()]
-        if q_cols:
-            df.rename(columns={q_cols[0]: 'q_value'}, inplace=True)
-        else:
-            raise ValueError("No q-value column found in GWAS results")
+    # Validate required columns
+    required_cols = ['snp_id', 'q_value', 'significant']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in GWAS results: {missing_cols}")
+        
+    # Filter for significant SNPs only
+    significant_snps = df[df['significant'] == True].copy()
     
-    # Filter significant SNPs
-    significant_df = df[df['q_value'] < MIN_Q_VALUE].copy()
-    
-    if significant_df.empty:
-        print(f"Warning: No significant SNPs found with q-value < {MIN_Q_VALUE}")
-        # Return empty DF with expected columns to avoid downstream errors
-        significant_df = pd.DataFrame(columns=['rs_id', 'gene_symbol', 'go_terms', 'pathway'])
-    
-    return significant_df
+    if significant_snps.empty:
+        print("WARNING: No significant SNPs found in the input file.")
+        # Return empty DF with expected schema to allow downstream to handle gracefully
+        return pd.DataFrame(columns=['snp_id', 'gene_symbol', 'distance', 'go_terms'])
+        
+    print(f"Loaded {len(significant_snps)} significant SNPs for annotation.")
+    return significant_snps
 
-def fetch_gene_info_from_ensembl(snp_id: str, species: str = "apis_mellifera") -> Dict:
+def fetch_gene_info_from_ensembl(snp_id: str, session: requests.Session) -> Optional[Dict[str, Any]]:
     """
-    Fetch gene information for a SNP using Ensembl REST API.
+    Fetch gene information for a specific SNP from Ensembl Bees API.
     
     Args:
-        snp_id: The SNP identifier (rs_id)
-        species: Species name for Ensembl (default: apis_mellifera)
+        snp_id: The SNP identifier (rs_id).
+        session: Requests session for API calls.
         
     Returns:
-        Dictionary containing gene symbol, coordinates, and associated GO terms
+        Dictionary containing gene information or None if not found.
     """
-    headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    }
-    
-    # First, get variant location
-    variant_url = f"{ENSEMBL_REST_URL}/variation/{species}/{snp_id}"
+    endpoint = f"{ENSMBL_BASE_URL}/api/{ENSMBL_VERSION}/overlap/region/Honeybee:{snp_id}"
+    params = {'feature': 'gene', 'feature': 'transcript'}
     
     try:
-        response = requests.get(variant_url, headers=headers, timeout=10)
-        response.raise_for_status()
-        variant_data = response.json()
+        response = session.get(endpoint, params=params, timeout=TIMEOUT_SECONDS)
+        
+        if response.status_code == 404:
+            return None
+        elif response.status_code != 200:
+            raise RuntimeError(f"API error for {snp_id}: HTTP {response.status_code}")
+            
+        data = response.json()
+        
+        if not data or len(data) == 0:
+            return None
+            
+        return data
+        
+    except requests.exceptions.Timeout:
+        raise TimeoutError(f"Timeout fetching data for {snp_id}")
     except requests.exceptions.RequestException as e:
-        print(f"Error fetching variant info for {snp_id}: {e}")
-        return {'gene_symbol': 'Unknown', 'go_terms': [], 'pathway': 'Unknown'}
+        raise ConnectionError(f"Request failed for {snp_id}: {str(e)}")
+
+def fetch_closest_gene(snp_id: str, session: requests.Session, chrom: str, pos: int) -> Tuple[str, float]:
+    """
+    Fetch the closest gene to a SNP if direct overlap is not found.
     
-    # Extract location and surrounding genes
-    location = variant_data.get('location', '')
-    chrom = None
-    pos = None
-    
-    if location:
-        parts = location.split(':')
-        if len(parts) >= 2:
-            chrom = parts[0]
-            pos = int(parts[1].split('-')[0])
-    
-    if not chrom or not pos:
-        return {'gene_symbol': 'Unknown', 'go_terms': [], 'pathway': 'Unknown'}
-    
-    # Get overlapping genes
-    genes_url = f"{ENSEMBL_REST_URL}/overlap/region/{species}/{chrom}:{pos}-{pos}"
-    genes_url += "?feature=gene;content_type=application/json"
-    
+    Args:
+        snp_id: The SNP identifier.
+        session: Requests session.
+        chrom: Chromosome number.
+        pos: Position on chromosome.
+        
+    Returns:
+        Tuple of (gene_symbol, distance) or ('INTERGENIC', -1.0) if no gene found.
+    """
+    # Try to find overlapping features first
     try:
-        response = requests.get(genes_url, headers=headers, timeout=10)
-        response.raise_for_status()
-        overlap_data = response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Error fetching gene overlap for {snp_id}: {e}")
-        return {'gene_symbol': 'Unknown', 'go_terms': [], 'pathway': 'Unknown'}
+        data = fetch_gene_info_from_ensembl(snp_id, session)
+        if data and len(data) > 0:
+            # Select gene with shortest distance if multiple found
+            genes = []
+            for feature in data:
+                if feature.get('feature_type') == 'gene':
+                    gene_symbol = feature.get('external_name', 'UNKNOWN')
+                    gene_start = feature.get('start', 0)
+                    gene_end = feature.get('end', 0)
+                    
+                    # Calculate distance
+                    if pos < gene_start:
+                        dist = gene_start - pos
+                    elif pos > gene_end:
+                        dist = pos - gene_end
+                    else:
+                        dist = 0.0
+                        
+                    genes.append({'symbol': gene_symbol, 'distance': dist})
+            
+            if genes:
+                # Sort by distance and pick the closest
+                genes.sort(key=lambda x: x['distance'])
+                closest = genes[0]
+                return closest['symbol'], closest['distance']
+                
+    except Exception as e:
+        # Log but continue to intergenic handling
+        pass
+        
+    # If no gene found via overlap, try region-based search
+    try:
+        # Search a window around the SNP
+        window = 50000  # 50kb window
+        region_endpoint = f"{ENSMBL_BASE_URL}/api/{ENSMBL_VERSION}/overlap/region/Honeybee:{chrom}-{pos-window}-{pos+window}"
+        params = {'feature': 'gene'}
+        
+        response = session.get(region_endpoint, params=params, timeout=TIMEOUT_SECONDS)
+        
+        if response.status_code == 200 and response.json():
+            genes = []
+            for feature in response.json():
+                if feature.get('feature_type') == 'gene':
+                    gene_symbol = feature.get('external_name', 'UNKNOWN')
+                    gene_start = feature.get('start', 0)
+                    gene_end = feature.get('end', 0)
+                    
+                    if pos < gene_start:
+                        dist = gene_start - pos
+                    elif pos > gene_end:
+                        dist = pos - gene_end
+                    else:
+                        dist = 0.0
+                        
+                    genes.append({'symbol': gene_symbol, 'distance': dist})
+            
+            if genes:
+                genes.sort(key=lambda x: x['distance'])
+                closest = genes[0]
+                return closest['symbol'], closest['distance']
+                
+    except Exception:
+        pass
+        
+    return 'INTERGENIC', -1.0
+
+def fetch_go_terms(gene_symbol: str, session: requests.Session) -> List[str]:
+    """
+    Fetch Gene Ontology terms for a given gene symbol.
     
-    gene_symbol = 'Unknown'
-    gene_id = None
+    Args:
+        gene_symbol: The gene symbol.
+        session: Requests session.
+        
+    Returns:
+        List of GO term IDs.
+    """
+    if gene_symbol == 'INTERGENIC' or gene_symbol == 'UNKNOWN':
+        return []
+        
+    try:
+        # Search for the gene to get its ID
+        search_endpoint = f"{ENSMBL_BASE_URL}/api/{ENSMBL_VERSION}/lookup/symbol/Honeybee:{gene_symbol}"
+        
+        response = session.get(search_endpoint, timeout=TIMEOUT_SECONDS)
+        
+        if response.status_code != 200:
+            return []
+            
+        gene_data = response.json()
+        gene_id = gene_data.get('id')
+        
+        if not gene_id:
+            return []
+            
+        # Fetch GO terms for the gene
+        go_endpoint = f"{ENSMBL_BASE_URL}/api/{ENSMBL_VERSION}/ontology/{gene_id}"
+        
+        response = session.get(go_endpoint, timeout=TIMEOUT_SECONDS)
+        
+        if response.status_code == 200:
+            go_data = response.json()
+            go_terms = []
+            
+            if 'ontology' in go_data:
+                for term in go_data['ontology']:
+                    go_terms.append(term.get('accession', ''))
+                    
+            return list(set(go_terms))  # Remove duplicates
+            
+        return []
+        
+    except Exception:
+        return []
+
+def annotate_snps(significant_snps: pd.DataFrame, session: requests.Session) -> pd.DataFrame:
+    """
+    Annotate significant SNPs with gene information and GO terms.
     
-    if overlap_data:
-        gene_symbol = overlap_data[0].get('external_name', 'Unknown')
-        gene_id = overlap_data[0].get('id')
+    Args:
+        significant_snps: DataFrame of significant SNPs.
+        session: Requests session for API calls.
+        
+    Returns:
+        DataFrame with annotation results.
+    """
+    results = []
+    error_log = []
     
-    # Fetch GO terms if we have a gene ID
-    go_terms = []
-    pathway = 'Unknown'
+    total = len(significant_snps)
+    print(f"Starting annotation for {total} SNPs...")
     
-    if gene_id and gene_id != 'Unknown':
-        # Get GO terms for this gene
-        go_url = f"{ENSEMBL_REST_URL}/ontology/{species}/gene/{gene_id}"
-        go_url += "?content_type=application/json"
+    for idx, row in significant_snps.iterrows():
+        snp_id = row['snp_id']
+        chrom = str(row.get('chrom', '1'))
+        pos = int(row.get('pos', 0))
         
         try:
-            response = requests.get(go_url, headers=headers, timeout=10)
-            if response.status_code == 200:
-                go_data = response.json()
-                if 'ontology' in go_data:
-                    go_terms = [term.get('term', '') for term in go_data['ontology'] if term.get('term')]
-                    # Extract pathway if available
-                    for term in go_data['ontology']:
-                        if 'pathway' in term.get('term', '').lower():
-                            pathway = term.get('term', 'Unknown')
-                            break
-        except requests.exceptions.RequestException as e:
-            print(f"Error fetching GO terms for gene {gene_id}: {e}")
+            # Attempt to fetch gene info
+            gene_symbol, distance = fetch_closest_gene(snp_id, session, chrom, pos)
+            
+            # If gene found, fetch GO terms
+            go_terms = []
+            if gene_symbol != 'INTERGENIC':
+                go_terms = fetch_go_terms(gene_symbol, session)
+                
+            results.append({
+                'snp_id': snp_id,
+                'gene_symbol': gene_symbol,
+                'distance': distance,
+                'go_terms': ';'.join(go_terms) if go_terms else ''
+            })
+            
+            # Progress update every 10%
+            if (idx + 1) % max(1, total // 10) == 0:
+                print(f"  Processed {idx + 1}/{total} SNPs...")
+                
+        except Exception as e:
+            # Log error and mark as UNAVAILABLE
+            error_msg = f"{time.strftime('%Y-%m-%d %H:%M:%S')} | {snp_id} | {str(e)}"
+            error_log.append(error_msg)
+            
+            results.append({
+                'snp_id': snp_id,
+                'gene_symbol': 'UNAVAILABLE',
+                'distance': -1.0,
+                'go_terms': ''
+            })
+            
+            print(f"  ERROR: Failed to annotate {snp_id}: {str(e)}")
     
-    return {
-        'gene_symbol': gene_symbol,
-        'go_terms': ';'.join(go_terms) if go_terms else 'No GO terms found',
-        'pathway': pathway
-    }
+    # Write error log
+    if error_log:
+        with open(ANNOTATION_ERRORS_LOG, 'w') as f:
+            f.write('\n'.join(error_log))
+        print(f"Logged {len(error_log)} errors to {ANNOTATION_ERRORS_LOG}")
+        
+    return pd.DataFrame(results)
 
-def annotate_snps(snp_list: List[str]) -> List[Dict]:
+def write_annotated_output(annotation_df: pd.DataFrame, output_path: str):
     """
-    Annotate a list of SNPs with gene and GO term information.
+    Write annotated results to TSV file.
     
     Args:
-        snp_list: List of SNP identifiers (rs_ids)
-        
-    Returns:
-        List of dictionaries containing annotation data
+        annotation_df: DataFrame with annotation results.
+        output_path: Path to output file.
     """
-    annotations = []
-    
-    print(f"Starting annotation for {len(snp_list)} SNPs...")
-    
-    for i, snp_id in enumerate(snp_list):
-        if i % 10 == 0:
-            print(f"Progress: {i}/{len(snp_list)} SNPs processed")
-        
-        # Rate limiting to avoid API throttling
-        if i > 0 and i % 5 == 0:
-            time.sleep(1)
-        
-        info = fetch_gene_info_from_ensembl(snp_id)
-        annotations.append({
-            'rs_id': snp_id,
-            'gene_symbol': info['gene_symbol'],
-            'go_terms': info['go_terms'],
-            'pathway': info['pathway']
-        })
-    
-    return annotations
-
-def write_annotated_output(annotations: List[Dict], output_path: str) -> None:
-    """
-    Write annotated SNP data to TSV file.
-    
-    Args:
-        annotations: List of annotation dictionaries
-        output_path: Path for the output TSV file
-    """
-    if not annotations:
-        print("No annotations to write.")
-        # Create empty file with headers
-        df = pd.DataFrame(columns=['rs_id', 'gene_symbol', 'go_terms', 'pathway'])
-    else:
-        df = pd.DataFrame(annotations)
-    
     # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    df.to_csv(output_path, sep='\t', index=False)
-    print(f"Annotated SNPs written to {output_path}")
+    # Validate schema
+    required_cols = ['snp_id', 'gene_symbol', 'distance', 'go_terms']
+    for col in required_cols:
+        if col not in annotation_df.columns:
+            annotation_df[col] = ''
+            
+    # Write to TSV
+    annotation_df.to_csv(output_path, sep='\t', index=False)
+    print(f"Annotation results written to {output_path}")
+    print(f"Total annotated SNPs: {len(annotation_df)}")
+    
+    # Summary statistics
+    intergenic_count = len(annotation_df[annotation_df['gene_symbol'] == 'INTERGENIC'])
+    unavailable_count = len(annotation_df[annotation_df['gene_symbol'] == 'UNAVAILABLE'])
+    gene_mapped = len(annotation_df) - intergenic_count - unavailable_count
+    
+    print(f"  - Gene mapped: {gene_mapped}")
+    print(f"  - Intergenic: {intergenic_count}")
+    print(f"  - Unavailable: {unavailable_count}")
 
 def main():
-    """Main entry point for SNP annotation pipeline."""
+    """Main entry point for SNP annotation."""
     parser = argparse.ArgumentParser(
-        description="Annotate significant SNPs with gene and GO term information"
+        description="Annotate significant GWAS SNPs using Ensembl Bees API v104"
     )
     parser.add_argument(
         '--input',
         type=str,
         default='data/processed/gwas_results_fdr.tsv',
-        help='Path to GWAS results file with q-values'
+        help='Path to FDR-corrected GWAS results file'
     )
     parser.add_argument(
         '--output',
         type=str,
-        default=ANNOTATED_OUTPUT_PATH,
-        help='Path for annotated output TSV'
+        default=ANNOTATION_OUTPUT,
+        help='Path to output annotation results'
+    )
+    parser.add_argument(
+        '--immune-snp-list',
+        type=str,
+        default='data/interim/immune_pathway_snps.txt',
+        help='Path to immune pathway SNP list (for reference only)'
     )
     
     args = parser.parse_args()
     
-    try:
-        # Load and filter significant SNPs
-        gwas_df = load_gwas_results(args.input)
+    # Verify input file exists
+    if not os.path.exists(args.input):
+        print(f"ERROR: Input file not found: {args.input}")
+        sys.exit(1)
         
-        if gwas_df.empty:
-            print("No significant SNPs to annotate. Creating empty output file.")
-            write_annotated_output([], args.output)
+    # Create session with retries
+    session = create_session_with_retries()
+    
+    try:
+        # Load significant SNPs
+        print("Loading GWAS results...")
+        significant_snps = load_gwas_results(args.input)
+        
+        if significant_snps.empty:
+            print("No significant SNPs to annotate. Creating empty output.")
+            empty_df = pd.DataFrame(columns=['snp_id', 'gene_symbol', 'distance', 'go_terms'])
+            write_annotated_output(empty_df, args.output)
             return
         
-        # Extract SNP IDs
-        snp_ids = gwas_df['rs_id'].tolist()
-        
         # Annotate SNPs
-        annotations = annotate_snps(snp_ids)
+        print("Fetching gene information from Ensembl Bees API...")
+        annotated_df = annotate_snps(significant_snps, session)
         
-        # Write output
-        write_annotated_output(annotations, args.output)
+        # Write results
+        write_annotated_output(annotated_df, args.output)
         
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
-        sys.exit(1)
+        print("Annotation complete.")
+        
     except Exception as e:
-        print(f"Unexpected error during annotation: {e}")
+        print(f"ERROR: Annotation failed: {str(e)}")
+        # Log to error file even on crash
+        with open(ANNOTATION_ERRORS_LOG, 'a') as f:
+            f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')} | CRITICAL | {str(e)}\n")
         sys.exit(1)
 
 if __name__ == "__main__":

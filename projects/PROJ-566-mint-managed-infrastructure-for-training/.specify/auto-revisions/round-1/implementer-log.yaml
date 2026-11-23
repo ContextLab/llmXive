@@ -1,0 +1,42 @@
+schema_version: '1'
+round_number: 1
+project_id: PROJ-566-mint-managed-infrastructure-for-training
+revision_spec_path: specs/auto-revisions/PROJ-566-mint-managed-infrastructure-for-training/round-1
+implementer_agent: llmXive-implementer-v1.0
+agent_version: 1.0.0
+model_name: openai.gpt-oss-120b
+backend: dartmouth
+canonical_identity: llmXive-implementer-v1.0 (openai.gpt-oss-120b on dartmouth, 2026-06-16)
+started_at: '2026-06-16T16:36:10.960220Z'
+ended_at: '2026-06-16T16:36:24.511870Z'
+duration_s: 13.55165
+exit_reason: all-tasks-processed
+total_tasks: 1
+tasks_done: 0
+tasks_compile_failed: 0
+tasks_file_not_found: 0
+tasks_skipped: 1
+tasks_needs_external_data: 0
+final_compile_attempted: false
+final_compile_succeeded: false
+final_compile_pdf_sha256: null
+final_compile_pdf_bytes: null
+author_added: false
+author_entry: null
+task_outcomes:
+- task_id: '001'
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00000]** (severity: writing):
+    Rendering-audit defect (section_number_gap): {"kind": "section_number_gap", "evidence":
+    "expected section 8, saw section 2025", "class": "unsupported_construct", "recommendation":
+    "check for stray \\setcounter or \\section* in source", "page": 3'
+  edit_kind: search_and_replace
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "{\n  \"kind\": \"search_and_replace\",\n  \"file\": \"\
+    paper/source/main-llmxive.tex\",\n  \"search\": \"\\\\setcounter{section}{2024}\"\
+    ,\n  \"replace\": \"\"\n}"
+  duration_s: 13.548764421999977
+  error_reason: 'no-match: search string not found'

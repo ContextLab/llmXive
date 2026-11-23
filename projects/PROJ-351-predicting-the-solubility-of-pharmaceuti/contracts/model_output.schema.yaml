@@ -1,0 +1,42 @@
+# Schema for Model Output Artifacts
+# Used by code/utils/validate_artifacts.py to verify pipeline outputs
+
+type: object
+required:
+  - artifacts
+  - status
+  - errors
+properties:
+  status:
+    type: string
+    enum:
+      - PASS
+      - FAIL
+    description: Overall validation status
+  artifacts:
+    type: array
+    description: List of individual artifact validation results
+    items:
+      type: object
+      required:
+        - path
+        - status
+      properties:
+        path:
+          type: string
+          description: Relative path to the artifact
+        status:
+          type: string
+          enum:
+            - PASS
+            - FAIL
+          description: Validation status for this specific artifact
+        error_code:
+          type: ["string", "null"]
+          description: Error code if status is FAIL, null if PASS
+  errors:
+    type: array
+    description: List of general validation errors encountered
+    items:
+      type: string
+additionalProperties: false

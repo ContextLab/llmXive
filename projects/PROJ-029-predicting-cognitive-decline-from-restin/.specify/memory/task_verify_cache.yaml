@@ -1,0 +1,97 @@
+T001a:
+  c: true
+  h: 5425f02d56fcfbd8dd03d1ba2e7fd2b0ec13906339796ca9020133552c9a45c0
+  r: The evidence shows a `code/` directory present at the repository root (39 entries)
+    and a successful execution log of `create_code_dir.py` confirming its creation.
+  sig: 7faa8487997867ac6dd11ae4ef97b121a13da05949a50007cb508fd1a818cfa1
+T001b:
+  c: false
+  h: 74fffad6f6b626a6bea4b77121a76467f3d09061349d7f34d599120161fee1e7
+  r: "The evidence shows a `tests/` directory (7 entries) exists, but it is located\
+    \ under the project subdirectory `projects/PROJ-029-predicting-cognitive-decline-from-restin/`,\
+    \ not at the repository\u2019s top\u2011level root as the task requires. A repository\u2011\
+    root `tests/` folder is missing."
+  sig: 6ed41838bf5b96a47b01f28d2c858a1f41fcc63224129e5fa0b411bc8b3f9b76
+T001c:
+  c: true
+  h: 0743eab2be80ed0cde242ab35095fb4e07ac79e4410fb68312b208d904cdcc1e
+  r: "The evidence shows a `docs/` directory at the repository root containing `index.md`\
+    \ and `quickstart.md` (sha256\u202F16850d4f\u2026). This satisfies the sole requirement\
+    \ of creating the `docs/` directory."
+  sig: f8d5db3bf1786cb4c5234ff2c23e016cae0b50356e9ea59cb23c71f05b3865f6
+T002a:
+  c: false
+  h: 1989d0801f6930d6199b6aed8f0971104d5f4a8a6865b7a66d0fc381ba8c0e5e
+  r: "The evidence shows a `data/raw/` directory exists, but it resides inside the\
+    \ project folder `projects/PROJ-029-predicting-cognitive-decline-from-restin/`,\
+    \ not at the repository root as the task requires. A top\u2011level `data/raw/`\
+    \ directory is missing."
+  sig: 85ddb776c81e0cb99e15b69f5badab99bd3c8f2828a209487a4c85a76062b20b
+T002b:
+  c: true
+  h: d29d8e8a02d3e40095c7a0be1c2fc5f26f8ef26421aa93bb8754a3eaf1d3498b
+  r: "The evidence shows a `data/processed/` directory (containing a `.gitkeep` file)\
+    \ exists at the repository root, fulfilling the task\u2019s sole requirement to\
+    \ create that directory."
+  sig: 1e03181bebfb14139760f73583b029088958fd9724aca122ea20de8a7bf68e85
+T002c:
+  c: true
+  h: 0ef193e21979cedae11b40ff240b29d23ef3a4a5f51eb9e0d84f7d7fa65b5871
+  r: "The evidence shows a non\u2011empty `data/artifacts/` directory (9 entries)\
+    \ present at the repository root, satisfying the requirement to create that directory."
+  sig: 525901f01844beb1255f7cf08f733e70f296c7d9a09645d4ea0a8b08c1d3d924
+T003a:
+  c: false
+  h: fca16b34fff6ad518ebc7973dae3c00a2bd59940a3e7147b6a1bf999bcac3cee
+  r: "The evidence shows a `tests/unit/` directory with many test files, but it resides\
+    \ under the project subdirectory (`projects/PROJ-029-predicting-cognitive-decline-from-restin/tests/unit/`)\
+    \ rather than at the repository root as required. The task\u2019s requirement\
+    \ to create the directory at the repository root is not met."
+  sig: df6b23b5bd6b2c27c2512e10bbf23b2fe619d15e8333f17e2bd26f4a8430cc53
+T017a:
+  c: false
+  h: ba95e905208ed9b5d76e0510f1a447e829b58516cf3217196eb8fe05ae0b51f0
+  r: "The repository contains `code/01_download_and_filter.py`, but the script does\
+    \ not actually produce the required output files \u2013 `data/processed/eligible_subjects.csv`\
+    \ and `data/processed/excluded_subjects.log` are missing. Moreover, the code contains\
+    \ placeholder comments about simulating downloads and does not implement the full\
+    \ filtering, logging, or exit\u2011code logic required by the task. The missing\
+    \ artifacts must be generated for the task to be considered complete."
+T018:
+  c: false
+  h: 0f7cb0f1734a91619158d10b498f6d7ebb0dfdc3f2fae4a4170d8f3cba720825
+  r: "The `code/02_preprocess_and_parcellate.py` file is present but truncated, so\
+    \ it does not demonstrably perform motion correction, MNI152 normalization, AAL\
+    \ atlas application, or connectivity matrix computation. Moreover, the required\
+    \ input file `data/processed/eligible_subjects.csv` is missing, preventing the\
+    \ script from loading subject IDs. The task\u2019s core functionality and required\
+    \ data are therefore not satisfied."
+T019:
+  c: true
+  h: a8743582937cc33e07bf9325bf09a5eff8e45436f98e897d7218fa38289e4cc9
+  r: "The repository contains a non\u2011empty `code/03_compute_graph_metrics.py`\
+    \ implementing the required streaming processing, psutil RAM monitoring, error\
+    \ logging, and defined exit codes, and it references the expected output files\
+    \ (`graph_metrics.csv`, `processed_subjects.csv`, `excluded_subjects.log`). No\
+    \ placeholder or stub code is present. The missing data files are inputs for runtime\
+    \ execution, not required artifacts for the implementation task."
+T024:
+  c: false
+  h: 31d53fe7a6ba24cea67ea7fd9f057136d545030d078ab9b4fbdf0fe4b6af7d19
+  r: The repository contains `code/05_evaluate_model.py`, but the script is incomplete
+    (e.g., placeholder functions, truncated logic) and does not produce the required
+    `data/processed/performance_report.json` file, which is missing entirely. The
+    JSON output with the specified schema is therefore not present.
+T029:
+  c: false
+  h: ebdfb2dbae7a903c9bb409bea4baa09f213f8fef796acfd5da802a6a38c3e061
+  r: "The provided `code/06_permutation_test.py` does not import the training logic\
+    \ from `code/04_train_model.py` and the required output file `data/processed/permutation_results.json`\
+    \ is missing, so the task\u2019s specifications are not satisfied."
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No integration test code, configuration, or execution output is provided; the\
+    \ claim lacks any artifact (e.g., a test script, CI log, or result file) demonstrating\
+    \ that a mini\u2011subset permutation pipeline was actually run and passed. The\
+    \ required evidence is missing, so the task is not satisfied."

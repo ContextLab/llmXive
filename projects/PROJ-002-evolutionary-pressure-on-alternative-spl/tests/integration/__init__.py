@@ -1,3 +1,1 @@
-"""
-Integration tests for workflow components.
-"""
+"""Integration tests for PROJ-002."""

@@ -1,98 +1,115 @@
-import os
+"""
+Unit tests for Kp index ingestion functionality.
+"""
 import pytest
-import json
+import pandas as pd
 from unittest.mock import patch, MagicMock
-from code.ingest import fetch_kp_indices, validate_kp_schema, write_kp_data
+import os
+import sys
 
-@pytest.fixture
-def mock_kp_response():
-    """Mock response data for Kp indices."""
-    return [
-        {
-            "time_tag": "2023-01-01 00:00:00",
-            "kp_index": 2.33,
-            "ap_index": 7,
-            "date": "2023-01-01",
-            "time": "00:00"
-        },
-        {
-            "time_tag": "2023-01-01 03:00:00",
-            "kp_index": 1.67,
-            "ap_index": 4,
-            "date": "2023-01-01",
-            "time": "03:00"
-        }
-    ]
+# Add code directory to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-@patch('code.ingest.requests.get')
-def test_fetch_kp_indices_success(mock_get, mock_kp_response):
-    """Test successful fetch of Kp indices."""
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_response.json.return_value = mock_kp_response
-    mock_get.return_value = mock_response
+from ingest import fetch_kp_indices_http, write_kp_data, validate_kp_schema, DataFetchError
 
-    result = fetch_kp_indices()
+class TestKpIngestion:
+    """Tests for Kp index ingestion."""
 
-    assert len(result) == 2
-    assert result[0]['kp_index'] == 2.33
-    mock_get.assert_called_once()
+    def test_validate_kp_schema_valid(self):
+        """Test validation passes for valid schema."""
+        df = pd.DataFrame({
+            'time': pd.to_datetime(['2023-01-01 00:00:00', '2023-01-01 03:00:00']),
+            'kp': [2.0, 3.0]
+        })
+        # Should not raise
+        validate_kp_schema(df)
 
-@patch('code.ingest.requests.get')
-def test_fetch_kp_indices_empty_list(mock_get):
-    """Test fetch with empty list response."""
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_response.json.return_value = []
-    mock_get.return_value = mock_response
+    def test_validate_kp_schema_missing_column(self):
+        """Test validation fails for missing column."""
+        df = pd.DataFrame({
+            'time': pd.to_datetime(['2023-01-01 00:00:00']),
+            'value': [2.0]
+        })
+        with pytest.raises(ValueError, match="missing required columns"):
+            validate_kp_schema(df)
 
-    result = fetch_kp_indices()
-    assert result == []
+    def test_validate_kp_schema_empty(self):
+        """Test validation fails for empty dataframe."""
+        df = pd.DataFrame({'time': pd.to_datetime([]), 'kp': []})
+        with pytest.raises(ValueError, match="Kp data is empty"):
+            validate_kp_schema(df)
 
-@patch('code.ingest.requests.get')
-def test_fetch_kp_indices_request_error(mock_get):
-    """Test fetch handles network errors."""
-    mock_get.side_effect = Exception("Network error")
+    @patch('ingest.requests.get')
+    def test_fetch_kp_indices_http_success(self, mock_get):
+        """Test successful fetch of Kp indices."""
+        # Mock HTML response
+        mock_html = """
+        <html>
+        <body>
+        <table>
+            <tr><th>Date</th><th>00Z</th><th>03Z</th><th>06Z</th><th>09Z</th><th>12Z</th><th>15Z</th><th>18Z</th><th>21Z</th></tr>
+            <tr><td>2023-01-01</td><td>2</td><td>2+</td><td>3</td><td>3-</td><td>3+</td><td>4</td><td>4-</td><td>4+</td></tr>
+            <tr><td>2023-01-02</td><td>5</td><td>5+</td><td>6</td><td>6-</td><td>6+</td><td>7</td><td>7-</td><td>7+</td></tr>
+        </table>
+        </body>
+        </html>
+        """
+        mock_response = MagicMock()
+        mock_response.text = mock_html
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
 
-    with pytest.raises(RuntimeError):
-        fetch_kp_indices()
+        df = fetch_kp_indices_http()
+        
+        assert not df.empty
+        assert 'time' in df.columns
+        assert 'kp' in df.columns
+        assert len(df) == 16  # 2 days * 8 hours
+        assert pd.api.types.is_datetime64_any_dtype(df['time'])
 
-def test_validate_kp_schema_valid(mock_kp_response):
-    """Test validation of valid Kp data."""
-    assert validate_kp_schema(mock_kp_response) is True
+    @patch('ingest.requests.get')
+    def test_fetch_kp_indices_http_no_table(self, mock_get):
+        """Test fetch fails when no table found."""
+        mock_html = "<html><body>No table here</body></html>"
+        mock_response = MagicMock()
+        mock_response.text = mock_html
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
 
-def test_validate_kp_schema_missing_field(mock_kp_response):
-    """Test validation fails with missing required field."""
-    invalid_data = [mock_kp_response[0].copy()]
-    del invalid_data[0]['kp_index']
-    
-    assert validate_kp_schema(invalid_data) is False
+        with pytest.raises(DataFetchError, match="No tables found"):
+            fetch_kp_indices_http()
 
-def test_validate_kp_schema_empty_list():
-    """Test validation fails with empty data."""
-    assert validate_kp_schema([]) is False
+    @patch('ingest.requests.get')
+    def test_fetch_kp_indices_http_no_rows(self, mock_get):
+        """Test fetch fails when no data rows found."""
+        mock_html = """
+        <html>
+        <body>
+        <table>
+            <tr><th>Date</th><th>00Z</th></tr>
+        </table>
+        </body>
+        </html>
+        """
+        mock_response = MagicMock()
+        mock_response.text = mock_html
+        mock_response.raise_for_status = MagicMock()
+        mock_get.return_value = mock_response
 
-def test_validate_kp_schema_invalid_type(mock_kp_response):
-    """Test validation fails with invalid types."""
-    invalid_data = [mock_kp_response[0].copy()]
-    invalid_data[0]['kp_index'] = "not_a_number"
-    
-    assert validate_kp_schema(invalid_data) is False
+        with pytest.raises(DataFetchError, match="No Kp data rows"):
+            fetch_kp_indices_http()
 
-@patch('code.ingest.ensure_directories')
-@patch('code.ingest.open', new_callable=MagicMock)
-def test_write_kp_data(mock_open, mock_ensure, mock_kp_response, tmp_path):
-    """Test writing Kp data to CSV."""
-    # Setup mock file
-    mock_file = MagicMock()
-    mock_open.return_value.__enter__.return_value = mock_file
-
-    output_path = str(tmp_path / "kp_indices.csv")
-    write_kp_data(mock_kp_response, output_path)
-
-    # Verify file operations
-    mock_open.assert_called_once()
-    # Check that writeheader and writerow were called
-    writer = mock_open.return_value.__enter__.return_value
-    assert writer.writeheader.called
-    assert writer.writerow.called
+    def test_write_kp_data(self, tmp_path):
+        """Test writing Kp data to CSV."""
+        df = pd.DataFrame({
+            'time': pd.to_datetime(['2023-01-01 00:00:00', '2023-01-01 03:00:00']),
+            'kp': [2.0, 3.0]
+        })
+        output_path = str(tmp_path / "kp_test.csv")
+        write_kp_data(df, output_path)
+        
+        assert os.path.exists(output_path)
+        loaded_df = pd.read_csv(output_path)
+        assert len(loaded_df) == 2
+        assert 'time' in loaded_df.columns
+        assert 'kp' in loaded_df.columns

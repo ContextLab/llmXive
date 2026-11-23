@@ -1,59 +1,56 @@
 # Data Model: The Influence of Simulated Social Validation on Neural Responses to Novel Information
 
-## 1. Entity Definitions
+## Overview
+This document defines the data structures, schemas, and flow for the project. All data artifacts must adhere to the schemas defined in `contracts/` to ensure reproducibility (Constitution Principle I) and data hygiene (Principle III).
 
-### 1.1 EEGDataset
-Represents a candidate public EEG study.
-- `dataset_id`: Unique identifier (e.g., "ds000117").
-- `task_description`: String describing the task.
-- `feedback_type`: Enum: `simulated`, `real`, `mixed`, `unknown`.
-- `anxiety_measure`: String (e.g., "LSAS", "SPIN", "None").
-- `file_urls`: List of strings (verified URLs).
-- `status`: Enum: `eligible`, `partial_eeg`, `partial_anxiety`, `ineligible`.
+## Entity Definitions
 
-### 1.2 PreprocessedEpoch
+### 1. EEGDataset
+Represents a candidate dataset from OpenNeuro/PhysioNet.
+- **Attributes**:
+  - `dataset_id` (str): Unique identifier (e.g., "ds00XXXX").
+  - `task_description` (str): Description of the task.
+  - `feedback_type` (str): "simulated", "real", "mixed", or "unknown".
+  - `anxiety_measure` (str): Name of scale (e.g., "LSAS", "SPIN") or "none".
+  - `file_urls` (list[str]): List of verified download URLs.
+  - `status` (str): "eligible", "sim-only", "real-only", "partial", "none".
+
+### 2. PreprocessedEpoch
 Represents a single trial after filtering and ICA.
-- `subject_id`: String (participant ID).
-- `condition`: Enum: `simulated`, `real`.
-- `epoch_data`: Array of floats (time-series data, optional for storage, usually stored in binary `.fif` or `.mat`).
-- `rejected`: Boolean (True if artifact rejection threshold exceeded).
+- **Attributes**:
+  - `subject_id` (str): Participant ID.
+  - `condition` (str): "simulated" or "real".
+  - `epoch_data` (array[float]): Time-series data (channels x timepoints).
+  - `rejected` (bool): True if artifact threshold exceeded.
 
-### 1.3 P300Measure
-Derived metrics for each trial/subject/condition.
-- `subject_id`: String.
-- `condition`: Enum: `simulated`, `real`.
-- `p300_amplitude`: Float (µV).
-- `p300_latency`: Float (ms).
-- `num_trials`: Integer (count of valid trials).
-- `rejection_threshold`: Float (µV) used for this row.
-- `qc_passed`: Boolean (True if trial count ≥30 and amplitude in 2-15 µV range).
+### 3. P300Measure
+The primary outcome variable derived from epochs.
+- **Attributes**:
+  - `subject_id` (str): Participant ID.
+  - `condition` (str): "simulated" or "real".
+  - `p300_amplitude` (float): Peak voltage in µV (250-550ms at Pz/CPz).
+  - `p300_latency` (float): Time to peak in ms.
+  - `trial_count` (int): Number of valid trials used.
 
-### 1.4 StatisticalModel
-Results of the mixed-effects regression (Primary Path) or Negative Finding (Fallback Path).
-- `model_id`: String (timestamp/hash).
-- `path_type`: Enum: `primary_lmm`, `negative_finding`.
-- `fixed_effects`: Dictionary (term: estimate). (Only if `primary_lmm`)
-- `random_effects`: Dictionary (term: variance). (Only if `primary_lmm`)
-- `adjusted_pvalues`: Dictionary (term: p-value). (Only if `primary_lmm`)
-- `bayes_factors`: Dictionary (term: BF). (Only if `primary_lmm`)
-- `effect_sizes`: Dictionary (term: Cohen's d). (Only if `primary_lmm`)
-- `threshold_used`: Float (µV). (Only if `primary_lmm`)
-- `negative_finding_notes`: String (Used in Negative Finding Path to describe the data gap).
+### 4. StatisticalModel
+Results of the LMM analysis.
+- **Attributes**:
+  - `fixed_effects` (dict): Estimates for intercept, validation_type, anxiety, interaction.
+  - `random_effects` (dict): Variance components.
+  - `adjusted_pvalues` (dict): Holm-Bonferroni corrected p-values.
+  - `effect_sizes` (dict): Cohen's d for each effect.
+  - `convergence` (bool): Model convergence status.
 
-## 2. Data Flow
+## Data Flow
 
-1.  **Raw Data**: Downloaded from verified URLs -> `data/raw/`.
-2.  **Preprocessing**: `search.py` -> `preprocess.py` -> `data/processed/epochs/`.
-3.  **Extraction**: `preprocess.py` -> `data/processed/p300_measures.csv`.
-4.  **Analysis**: `analyze.py` reads `p300_measures.csv` -> `data/results/model_results.json`.
-    - If **Primary Path**: LMM results + Bayes Factors.
-    - If **Negative Finding Path**: Negative Finding Report data.
-5.  **Reporting**: `report.py` reads `model_results.json` -> `data/results/report.pdf`.
+1. **Ingestion**: `code/search.py` -> `data/raw/dataset_catalog.csv` (from verified URLs).
+2. **Validation**: `code/search.py` checks `anxiety_measure` and `feedback_type`. If no match -> `Negative Finding Report`.
+3. **Preprocessing**: `code/preprocess.py` reads raw EEG -> `data/processed/p300_metrics.csv`.
+4. **Analysis**: `code/analyze.py` reads metrics -> `data/results/model_summary.csv`, `data/results/sensitivity_sweep.csv`.
+5. **Reporting**: `code/report.py` generates PDF/HTML from `data/results/`.
 
-## 3. Constraints
+## Constraints & Hygiene
 
-- **No PII**: Subject IDs are anonymized.
-- **Checksums**: All files in `data/raw` must have a corresponding `.sha256` file.
-- **Immutability**: Raw data is never modified. Derivations are new files.
-- **QC Gate**: `qc_passed` must be True for inclusion in Primary Path analysis.
-- **Negative Finding**: If `path_type` is `negative_finding`, all statistical fields are null/empty, and `negative_finding_notes` is populated.
+- **Checksums**: All files in `data/raw` and `data/processed` must have a corresponding `.sha256` file.
+- **PII**: No participant names or IDs that can be traced to real individuals. Use anonymized `subject_id`.
+- **Immutability**: Raw data is never overwritten. All processing creates new files in `data/processed`.

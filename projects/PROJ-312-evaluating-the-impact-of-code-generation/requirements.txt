@@ -5,4 +5,5 @@ matplotlib
 pyyaml
 tqdm
 statsmodels
-pytest
+jsonschema
+numpy

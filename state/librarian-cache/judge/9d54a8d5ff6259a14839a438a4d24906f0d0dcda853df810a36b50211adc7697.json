@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2111.03575",
+  "judged_at": "2026-08-02T12:54:43Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting bacterial antibiotic resistance from public genomic databases biology",
+  "rationale": "This paper satisfies criterion (b) as it measures the dependent variable (antimicrobial resistance prediction) on the same biological domain (bacterial pathogens and antibiotics), even though it utilizes clinical predictors rather than genomic sequences. It serves as a relevant empirical baseline and methodological reference for the broader task of predicting bacterial antibiotic resistance, which is the core subject of the user's question.",
+  "relevant": true
+}

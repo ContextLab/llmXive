@@ -1,0 +1,74 @@
+- artifact_path: projects/PROJ-969-llmxive-follow-up-extending-perception-o/quickstart.md
+  attempts: 1
+  canonical: loader streams real mmbench/ocean validation split
+  claim_id: c_8ae19955
+  context: This streams the real `mmbench/ocean` validation split (datasets.load_dataset(...));
+    if the `datasets` library cannot be imported on the runner, the loader streams
+    the SAME real dataset through the official Hugging Face datasets-server HTTP API.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The loader streams the real `mmbench/ocean` validation split (`datasets.load_dataset('mmbench/ocean',
+    split='validation', streaming=True)`).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T07:21:53Z'
+- artifact_path: projects/PROJ-969-llmxive-follow-up-extending-perception-o/quickstart.md
+  attempts: 1
+  canonical: loader processes all records, validates against schema, writes artifacts
+  claim_id: c_00f76bc7
+  context: 'It iterates ALL records, normalizes them, validates every record against
+    specs/.../video_metadata.schema.yaml, and writes: `data/raw/video_metadata.jsonl`,
+    `data/raw/checksums.json`, `data/raw/dataset_stats.json`.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The loader iterates all records, normalizes them, validates every record
+    against the schema, and writes metadata, checksums, and dataset statistics files.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T07:21:53Z'
+- artifact_path: projects/PROJ-969-llmxive-follow-up-extending-perception-o/quickstart.md
+  attempts: 1
+  canonical: loader raises on any fetch parse schema failure with no fallback
+  claim_id: c_39dff0ae
+  context: "The loader fails loudly (raises) on any fetch/parse/schema failure \u2014\
+    \ there is NO synthetic or mock fallback."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The loader fails loudly (raises) on any fetch/parse/schema failure and
+    provides no synthetic or mock fallback.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T07:21:54Z'
+- artifact_path: projects/PROJ-969-llmxive-follow-up-extending-perception-o/quickstart.md
+  attempts: 1
+  canonical: test_load_dataset verifies schema conformance, record-count agreement,
+    checksum integrity, and fetch failure raising
+  claim_id: c_e63d2a63
+  context: "Step 2 \u2014 Validate the loader (T001 tests) runs `pytest code/tests/test_load_dataset.py`\
+    \ which verifies schema conformance of every written record, record-count agreement\
+    \ with `dataset_stats.json`, checksum integrity, and that a forced fetch failure\
+    \ raises."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: '`pytest code/tests/test_load_dataset.py` verifies schema conformance
+    of every written record, record-count agreement with `dataset_stats.json`, checksum
+    integrity, and that a forced fetch failure raises.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T07:21:54Z'

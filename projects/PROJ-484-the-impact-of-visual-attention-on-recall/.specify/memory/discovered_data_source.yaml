@@ -1,0 +1,15 @@
+status: none
+intent: OpenNeuro ds001435 RSVP eye tracking dataset IAPS NimStim stimulus database
+  STAI scores python package dataset
+required_fields:
+- participant_id
+- trial_id
+- stimulus_id
+- fixation_duration
+- fixation_count
+- valence_label
+- recall_accuracy
+- stai_score
+cache_key: 0fc9c07110abc129aaeb9a0729256cbc36e9fdcf8b7770116fc6716874d6ff60
+searched_at: '2026-10-09T13:25:04.461895+00:00'
+retry_count: 1

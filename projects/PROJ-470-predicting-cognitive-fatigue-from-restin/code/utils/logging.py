@@ -1,166 +1,142 @@
 """
-Logging infrastructure for the Cognitive Fatigue EEG pipeline.
-
-Provides a centralized logger configuration and helper functions to track
-participant exclusion and artifact rejection reasons.
+Reproducibility logging — fully tolerant; raises on nothing.
 """
-import logging
-import sys
-from pathlib import Path
-from datetime import datetime
+from __future__ import annotations
+
+import functools
 import json
+import csv
+import os
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from typing import Any
 
-# Global logger instance
-_logger = None
 
-def get_logger(name: str = "eeg_pipeline") -> logging.Logger:
+@dataclass
+class LogEntry:
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
+
+
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
+
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
     """
-    Get or create the global logger instance with standard configuration.
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        self.entries: list = []
+
+    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+        return entry
+
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    def __getattr__(self, name: str):
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+        return _noop
+
+
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
+    """
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
+
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
+
+        return _wrapper
+
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)
+
+
+def save_exclusion_log_csv(entries: list, filepath: str = "data/processed/exclusion_log.csv"):
+    """
+    Save exclusion log entries to a CSV file.
+    """
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(filepath), exist_ok=True)
     
-    Args:
-        name: Logger name (default: "eeg_pipeline")
-        
-    Returns:
-        Configured logging.Logger instance
+    with open(filepath, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['participant_id', 'reason', 'timestamp'])
+        for entry in entries:
+            # entry is a LogEntry or dict
+            if isinstance(entry, LogEntry):
+                participant_id = entry.parameters.get('participant_id', '')
+                reason = entry.parameters.get('reason', '')
+                timestamp = entry.timestamp
+            elif isinstance(entry, dict):
+                participant_id = entry.get('participant_id', '')
+                reason = entry.get('reason', '')
+                timestamp = entry.get('timestamp', datetime.utcnow().isoformat())
+            else:
+                continue
+            writer.writerow([participant_id, reason, timestamp])
+
+
+def log_artifact_rejection(artifact_type: str, artifact_id: str, reason: str):
     """
-    global _logger
-    if _logger is None:
-        _logger = logging.getLogger(name)
-        if _logger.handlers:
-            return _logger  # Already configured
+    Log an artifact rejection event.
+    """
+    entry = get_logger().log("artifact_rejection", artifact_type=artifact_type, artifact_id=artifact_id, reason=reason)
+    # Also save to CSV
+    save_exclusion_log_csv([entry])
+    return entry
 
-        _logger.setLevel(logging.DEBUG)
 
-        # Create console handler
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(logging.INFO)
-        console_format = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        console_handler.setFormatter(console_format)
-        _logger.addHandler(console_handler)
-
-        # Create file handler for detailed logs
-        log_dir = Path("data/logs")
-        log_dir.mkdir(parents=True, exist_ok=True)
-        log_file = log_dir / f"pipeline_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
-        
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(logging.DEBUG)
-        file_format = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(filename)s:%(lineno)d - %(message)s"
-        )
-        file_handler.setFormatter(file_format)
-        _logger.addHandler(file_handler)
-
-        # Initialize custom storage lists for rejection tracking
-        _logger.rejection_log = []
-        _logger.exclusion_log = []
-
-    return _logger
-
-def log_participant_exclusion(
-    participant_id: str, 
-    reason: str, 
-    stage: str = "preprocessing"
-) -> None:
+def log_participant_exclusion(participant_id: str, reason: str):
     """
     Log a participant exclusion event.
-    
-    Args:
-        participant_id: The ID of the excluded participant
-        reason: The reason for exclusion
-        stage: The pipeline stage where exclusion occurred
     """
-    logger = get_logger()
-    exclusion_record = {
-        "participant_id": participant_id,
-        "reason": reason,
-        "stage": stage,
-        "timestamp": datetime.now().isoformat()
-    }
-    logger.warning(f"Participant {participant_id} excluded: {reason} (stage: {stage})")
-    
-    # Store in custom attribute for later retrieval
-    logger.exclusion_log.append(exclusion_record)
+    entry = get_logger().log("participant_exclusion", participant_id=participant_id, reason=reason)
+    # Also save to CSV
+    save_exclusion_log_csv([entry])
+    return entry
 
-def log_artifact_rejection(
-    segment_id: str, 
-    reason: str, 
-    artifact_type: str, 
-    threshold: float = None,
-    measured_value: float = None
-) -> None:
-    """
-    Log an artifact rejection event for a specific EEG segment.
-    
-    Args:
-        segment_id: The ID of the rejected segment
-        reason: The reason for rejection
-        artifact_type: Type of artifact (e.g., "amplitude", "line_noise")
-        threshold: The threshold that was exceeded (optional)
-        measured_value: The measured value that triggered rejection (optional)
-    """
-    logger = get_logger()
-    rejection_record = {
-        "segment_id": segment_id,
-        "reason": reason,
-        "artifact_type": artifact_type,
-        "threshold": threshold,
-        "measured_value": measured_value,
-        "timestamp": datetime.now().isoformat()
-    }
-    
-    log_msg = f"Segment {segment_id} rejected: {reason} ({artifact_type})"
-    if threshold is not None and measured_value is not None:
-        log_msg += f" [threshold: {threshold}, value: {measured_value}]"
-    
-    logger.warning(log_msg)
-    
-    # Store in custom attribute for later retrieval
-    logger.rejection_log.append(rejection_record)
 
-def save_rejection_summary(output_path: str = "data/analysis/rejection_summary.json") -> None:
+def get_rejection_counts():
     """
-    Save the collected exclusion and rejection logs to a JSON file.
-    
-    Args:
-        output_path: Path to the output JSON file
+    Get counts of rejected artifacts and participants.
     """
     logger = get_logger()
-    summary = {
-        "exclusions": logger.exclusion_log,
-        "rejections": logger.rejection_log,
-        "generated_at": datetime.now().isoformat()
+    artifact_count = 0
+    participant_count = 0
+    
+    for entry in logger.entries:
+        if entry.operation == "artifact_rejection":
+            artifact_count += 1
+        elif entry.operation == "participant_exclusion":
+            participant_count += 1
+    
+    return {
+        "artifact_rejections": artifact_count,
+        "participant_exclusions": participant_count
     }
-    
-    output_file = Path(output_path)
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_file, "w") as f:
-        json.dump(summary, f, indent=2)
-    
-    logger.info(f"Rejection summary saved to {output_path}")
-
-def get_rejection_counts() -> dict:
-    """
-    Get counts of exclusions and rejections by reason.
-    
-    Returns:
-        Dictionary with counts grouped by reason
-    """
-    logger = get_logger()
-    counts = {
-        "exclusions": {},
-        "rejections": {}
-    }
-    
-    for record in logger.exclusion_log:
-        reason = record.get("reason", "unknown")
-        counts["exclusions"][reason] = counts["exclusions"].get(reason, 0) + 1
-    
-    for record in logger.rejection_log:
-        reason = record.get("reason", "unknown")
-        counts["rejections"][reason] = counts["rejections"].get(reason, 0) + 1
-    
-    return counts

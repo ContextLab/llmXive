@@ -5,198 +5,177 @@ from pathlib import Path
 from typing import Dict, Any, List, Tuple, Optional
 
 import matplotlib
-matplotlib.use('Agg')  # Non-interactive backend for headless execution
+matplotlib.use('Agg')  # Non-interactive backend for script execution
 import matplotlib.pyplot as plt
 import numpy as np
 
+# Import logging utilities from the project's utils module
 from utils.logging import get_logger, log_with_context
 
 logger = get_logger(__name__)
 
-
-def load_convergence_results(path: str) -> Dict[str, Any]:
-    """Load convergence analysis results from JSON file."""
-    full_path = Path(path)
-    if not full_path.exists():
-        raise FileNotFoundError(f"Convergence results not found at {path}")
-    
-    with open(full_path, 'r') as f:
-        return json.load(f)
+# Constants for file paths relative to project root
+DATA_PROCESSED_DIR = Path("data/processed")
+BASELINE_LOGS_FILE = DATA_PROCESSED_DIR / "baseline_logs.json"
+EXPERIMENTAL_LOGS_FILE = DATA_PROCESSED_DIR / "experimental_logs.json"
+OUTPUT_PLOT_FILE = DATA_PROCESSED_DIR / "success_rate_vs_steps.png"
 
 
-def extract_plot_data(results: Dict[str, Any]) -> Tuple[List[float], List[float], List[float], List[float]]:
+def load_convergence_results() -> Tuple[Optional[Dict[str, Any]], Optional[Dict[str, Any]]]:
     """
-    Extract step and success rate data for both baseline and experimental runs.
-    
-    Returns:
-        Tuple of (baseline_steps, baseline_rates, experimental_steps, experimental_rates)
+    Load baseline and experimental logs from data/processed.
+    Returns a tuple (baseline_data, experimental_data).
+    If a file is missing or invalid, returns None for that entry.
     """
-    baseline_steps = []
-    baseline_rates = []
-    experimental_steps = []
-    experimental_rates = []
+    baseline_data = None
+    experimental_data = None
 
-    # Extract baseline (Static Random) data
-    if 'baseline' in results and 'runs' in results['baseline']:
-        for run in results['baseline']['runs']:
-            steps = run.get('steps_to_target', 0)
-            success_rate = run.get('final_success_rate', 0.0)
-            baseline_steps.append(steps)
-            baseline_rates.append(success_rate)
+    if BASELINE_LOGS_FILE.exists():
+        try:
+            with open(BASELINE_LOGS_FILE, 'r', encoding='utf-8') as f:
+                baseline_data = json.load(f)
+            logger.info(f"Loaded baseline logs from {BASELINE_LOGS_FILE}")
+        except (json.JSONDecodeError, IOError) as e:
+            logger.error(f"Failed to parse baseline logs: {e}")
+    else:
+        logger.warning(f"Baseline logs file not found: {BASELINE_LOGS_FILE}")
 
-    # Extract experimental (State-Guided) data
-    if 'experimental' in results and 'runs' in results['experimental']:
-        for run in results['experimental']['runs']:
-            steps = run.get('steps_to_target', 0)
-            success_rate = run.get('final_success_rate', 0.0)
-            experimental_steps.append(steps)
-            experimental_rates.append(success_rate)
+    if EXPERIMENTAL_LOGS_FILE.exists():
+        try:
+            with open(EXPERIMENTAL_LOGS_FILE, 'r', encoding='utf-8') as f:
+                experimental_data = json.load(f)
+            logger.info(f"Loaded experimental logs from {EXPERIMENTAL_LOGS_FILE}")
+        except (json.JSONDecodeError, IOError) as e:
+            logger.error(f"Failed to parse experimental logs: {e}")
+    else:
+        logger.warning(f"Experimental logs file not found: {EXPERIMENTAL_LOGS_FILE}")
 
-    return baseline_steps, baseline_rates, experimental_steps, experimental_rates
+    return baseline_data, experimental_data
+
+
+def extract_plot_data(run_logs: Dict[str, Any], run_name: str) -> List[Tuple[int, float]]:
+    """
+    Extract (steps, success_rate) pairs from a run log dictionary.
+    Expects run_logs to have a structure like:
+    {
+      "runs": [
+        {"steps": 100, "success_rate": 0.5},
+        ...
+      ]
+    }
+    or potentially a flattened list if the structure varies.
+    Returns a sorted list of (steps, success_rate) tuples.
+    """
+    data_points = []
+
+    if not run_logs:
+        return data_points
+
+    # Handle potential list of runs directly
+    runs = run_logs.get("runs", run_logs if isinstance(run_logs, list) else [])
+
+    if not isinstance(runs, list):
+        logger.warning(f"Unexpected log structure for {run_name}: expected 'runs' list or list root.")
+        return data_points
+
+    for entry in runs:
+        if isinstance(entry, dict):
+            steps = entry.get("steps")
+            success_rate = entry.get("success_rate")
+
+            if steps is not None and success_rate is not None:
+                try:
+                    data_points.append((int(steps), float(success_rate)))
+                except (ValueError, TypeError):
+                    logger.warning(f"Invalid numeric data in entry: {entry}")
+            else:
+                # Try to find keys that might be slightly different
+                steps = entry.get("step") or entry.get("total_steps")
+                success_rate = entry.get("success_rate") or entry.get("success_rate_avg")
+                if steps is not None and success_rate is not None:
+                     data_points.append((int(steps), float(success_rate)))
+
+    # Sort by steps to ensure the plot line is continuous
+    data_points.sort(key=lambda x: x[0])
+    return data_points
 
 
 def create_success_rate_vs_steps_plot(
-    baseline_steps: List[float],
-    baseline_rates: List[float],
-    experimental_steps: List[float],
-    experimental_rates: List[float],
-    output_path: str,
-    title: str = "Success Rate vs. Steps to Target"
-) -> str:
+    baseline_points: List[Tuple[int, float]],
+    experimental_points: List[Tuple[int, float]],
+    output_path: Path
+) -> bool:
     """
-    Create a scatter plot comparing Success Rate vs. Steps for Baseline and Experimental runs.
-    
-    Args:
-        baseline_steps: Steps to target for baseline runs
-        baseline_rates: Success rates for baseline runs
-        experimental_steps: Steps to target for experimental runs
-        experimental_rates: Success rates for experimental runs
-        output_path: Path to save the plot
-        title: Plot title
-    
-    Returns:
-        Path to the saved plot file
+    Create and save the 'Success Rate vs. Steps' plot.
+    Returns True if successful, False otherwise.
     """
-    fig, ax = plt.subplots(figsize=(10, 7))
+    if not baseline_points and not experimental_points:
+        logger.error("No data points available to plot.")
+        return False
 
-    # Plot baseline data
-    if baseline_steps and baseline_rates:
-        ax.scatter(
-            baseline_steps, 
-            baseline_rates, 
-            color='gray', 
-            alpha=0.6, 
-            edgecolors='black', 
-            s=100, 
-            label='Static Random Baseline'
-        )
-        # Add trend line for baseline
-        if len(baseline_steps) > 1:
-            z = np.polyfit(baseline_steps, baseline_rates, 1)
-            p = np.poly1d(z)
-            x_line = np.linspace(min(baseline_steps), max(baseline_steps), 100)
-            ax.plot(x_line, p(x_line), 'g--', alpha=0.5, linewidth=1, label='Baseline Trend')
+    plt.figure(figsize=(10, 6))
 
-    # Plot experimental data
-    if experimental_steps and experimental_rates:
-        ax.scatter(
-            experimental_steps, 
-            experimental_rates, 
-            color='blue', 
-            alpha=0.7, 
-            edgecolors='darkblue', 
-            s=100, 
-            label='State-Guided Experimental'
-        )
-        # Add trend line for experimental
-        if len(experimental_steps) > 1:
-            z = np.polyfit(experimental_steps, experimental_rates, 1)
-            p = np.poly1d(z)
-            x_line = np.linspace(min(experimental_steps), max(experimental_steps), 100)
-            ax.plot(x_line, p(x_line), 'r--', alpha=0.5, linewidth=1, label='Experimental Trend')
+    if baseline_points:
+        steps, rates = zip(*baseline_points)
+        plt.plot(steps, rates, marker='o', linestyle='-', color='blue', label='Static Random (Baseline)')
 
-    # Configuration
-    ax.set_xlabel('Steps to Target', fontsize=12)
-    ax.set_ylabel('Final Success Rate', fontsize=12)
-    ax.set_title(title, fontsize=14, fontweight='bold')
-    ax.legend(loc='best')
-    ax.grid(True, linestyle='--', alpha=0.7)
-    
-    # Set axis limits with padding
-    if baseline_steps or experimental_steps:
-      all_steps = baseline_steps + experimental_steps
-      min_step = min(all_steps) if all_steps else 0
-      max_step = max(all_steps) if all_steps else 100
-      ax.set_xlim(left=0, right=max_step * 1.1)
-      
-    if baseline_rates or experimental_rates:
-      all_rates = baseline_rates + experimental_rates
-      min_rate = min(all_rates) if all_rates else 0
-      max_rate = max(all_rates) if all_rates else 1
-      ax.set_ylim(bottom=0, top=max(1.0, max_rate * 1.1))
+    if experimental_points:
+        steps, rates = zip(*experimental_points)
+        plt.plot(steps, rates, marker='s', linestyle='--', color='red', label='State-Guided (Experimental)')
 
-    # Save plot
+    plt.title('Success Rate vs. Training Steps')
+    plt.xlabel('Steps')
+    plt.ylabel('Success Rate')
+    plt.legend()
+    plt.grid(True, which='both', linestyle='--', alpha=0.7)
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    plt.close(fig)
 
-    logger.info(f"Plot saved to {output_path}")
-    return output_path
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    try:
+        plt.savefig(output_path)
+        logger.info(f"Plot saved successfully to {output_path}")
+        plt.close()
+        return True
+    except Exception as e:
+        logger.error(f"Failed to save plot: {e}")
+        plt.close()
+        return False
 
 
-def generate_convergence_plot(
-    results_path: str = "data/processed/convergence_results.json",
-    output_path: str = "data/processed/success_rate_vs_steps.png"
-) -> str:
+def generate_convergence_plot() -> bool:
     """
-    Main function to generate the Success Rate vs. Steps plot from convergence results.
-    
-    Args:
-        results_path: Path to the convergence results JSON file
-        output_path: Path where the plot will be saved
-    
-    Returns:
-        Path to the generated plot file
+    Main orchestration function for generating the convergence plot.
+    Loads logs, extracts data, and saves the plot to data/processed/.
     """
-    logger.info(f"Loading convergence results from {results_path}")
-    results = load_convergence_results(results_path)
-    
-    logger.info("Extracting plot data")
-    baseline_steps, baseline_rates, experimental_steps, experimental_rates = extract_plot_data(results)
-    
-    logger.info(f"Baseline runs: {len(baseline_steps)}, Experimental runs: {len(experimental_steps)}")
-    
-    if not baseline_steps and not experimental_steps:
-        raise ValueError("No data found in convergence results to generate plot.")
-    
-    logger.info(f"Generating plot and saving to {output_path}")
-    create_success_rate_vs_steps_plot(
-        baseline_steps, 
-        baseline_rates, 
-        experimental_steps, 
-        experimental_rates, 
-        output_path
+    logger.info("Starting convergence plot generation.")
+
+    baseline_data, experimental_data = load_convergence_results()
+
+    baseline_points = extract_plot_data(baseline_data, "Baseline")
+    experimental_points = extract_plot_data(experimental_data, "Experimental")
+
+    success = create_success_rate_vs_steps_plot(
+        baseline_points,
+        experimental_points,
+        OUTPUT_PLOT_FILE
     )
-    
-    return output_path
+
+    if success:
+        logger.info("Convergence plot generation completed successfully.")
+    else:
+        logger.error("Convergence plot generation failed due to missing data or save error.")
+
+    return success
 
 
 def main():
-    """Entry point for script execution."""
-    # Define paths relative to project root
-    project_root = Path(__file__).resolve().parents[2]
-    results_path = project_root / "data" / "processed" / "convergence_results.json"
-    output_path = project_root / "data" / "processed" / "success_rate_vs_steps.png"
-    
-    try:
-        result_path = generate_convergence_plot(
-            results_path=str(results_path),
-            output_path=str(output_path)
-        )
-        print(f"Successfully generated plot: {result_path}")
-    except Exception as e:
-        logger.error(f"Failed to generate plot: {e}", exc_info=True)
-        sys.exit(1)
+    """Entry point for the script."""
+    # Ensure we are running from the project root context if needed,
+    # though paths are relative to project root as per spec.
+    success = generate_convergence_plot()
+    sys.exit(0 if success else 1)
 
 
 if __name__ == "__main__":

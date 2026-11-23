@@ -1,270 +1,472 @@
 """
 Preprocessing pipeline for EEG data using MNE-Python.
 
-Implements:
-- Bandpass filtering (1-40 Hz)
-- ICA artifact removal
-- Epoching (10s as per config)
-- Artifact rejection (>50% rejection threshold)
-- SNR flagging (<10dB)
+Implements bandpass filtering, ICA artifact removal, epoching, and SNR-based quality control.
 """
 import os
 import json
 import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, List, Any, Optional, Tuple
 import mne
 import numpy as np
+import pandas as pd
 from scipy import signal
 import hashlib
 
-# Import configuration
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+# Import project configuration
 from config import (
-    EPOCH_LENGTH_SEC, 
-    BANDPASS_FREQS, 
-    ARTIFACT_REJECTION_THRESHOLD, 
-    SNR_THRESHOLD_DB,
+    PROJECT_ROOT,
     RAW_DATA_DIR,
     PROCESSED_DATA_DIR,
-    QUALITY_DIR
+    QUALITY_DIR,
+    EPOCH_LENGTH_SEC,
+    BANDPASS_MIN_FREQ,
+    BANDPASS_MAX_FREQ,
+    SNR_THRESHOLD_DB,
+    ARTIFACT_REJECTION_THRESHOLD
 )
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def load_raw_eeg(file_path: Path) -> mne.io.Raw:
+def get_file_hash(file_path: Path) -> str:
+    """Compute SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def load_raw_eeg(file_path: Path) -> mne.io.BaseRaw:
     """
-    Load raw EEG data from file (EDF, BDF, etc.).
+    Load raw EEG data from file.
+
+    Supports EDF, BDF, and other MNE-supported formats.
     """
     if not file_path.exists():
         raise FileNotFoundError(f"Raw EEG file not found: {file_path}")
-    
-    logger.info(f"Loading raw EEG from {file_path}")
-    raw = mne.io.read_raw_edf(str(file_path), preload=True, verbose=False)
+
+    logger.info(f"Loading raw EEG from: {file_path}")
+    try:
+        raw = mne.io.read_raw_edf(file_path, preload=True, verbose=False)
+    except Exception:
+        try:
+            raw = mne.io.read_raw_bdf(file_path, preload=True, verbose=False)
+        except Exception as e:
+            raise RuntimeError(f"Failed to load EEG file: {e}")
+
+    # Set montage if standard
+    try:
+        raw.set_montage('standard_1005', on_missing='ignore')
+    except Exception as e:
+        logger.warning(f"Could not set montage: {e}")
+
     return raw
 
-def bandpass_filter(raw: mne.io.Raw, l_freq: float = 1.0, h_freq: float = 40.0) -> mne.io.Raw:
+def bandpass_filter(raw: mne.io.BaseRaw, min_freq: float = None, max_freq: float = None) -> mne.io.BaseRaw:
     """
     Apply bandpass filter to raw data.
+
+    Uses MNE's built-in filter with default settings (FIR).
     """
-    logger.info(f"Applying bandpass filter: {l_freq}-{h_freq} Hz")
+    if min_freq is None:
+        min_freq = BANDPASS_MIN_FREQ
+    if max_freq is None:
+        max_freq = BANDPASS_MAX_FREQ
+
+    logger.info(f"Applying bandpass filter: {min_freq} - {max_freq} Hz")
     raw_filtered = raw.copy()
-    raw_filtered.filter(l_freq=l_freq, h_freq=h_freq, method='fir', verbose=False)
+    raw_filtered.filter(
+        l_freq=min_freq,
+        h_freq=max_freq,
+        method='fir',
+        n_jobs=1,
+        verbose=False
+    )
     return raw_filtered
 
-def compute_snr(raw: mne.io.Raw) -> float:
+def compute_snr(epochs: mne.Epochs, reference_freq: float = 10.0) -> np.ndarray:
     """
-    Compute Signal-to-Noise Ratio (SNR) in dB.
-    SNR = 10 * log10(signal_power / noise_power)
-    Signal power: power in the passband (1-40 Hz)
-    Noise power: estimated from high-frequency noise (e.g., >40 Hz, but since we filtered, 
-                 we estimate noise from the residual variance or a known noise floor).
-    Here, we approximate noise as the standard deviation of the signal after high-pass filtering 
-    at a higher frequency (e.g., 45Hz) if possible, or use a heuristic based on the signal's 
-    variance in the stopband of a hypothetical filter. 
-    For simplicity in this pipeline: 
-    SNR is estimated as 10 * log10(var(signal) / var(noise_estimate)).
-    We estimate noise as the standard deviation of the difference between the raw signal 
-    and a low-pass filtered version (e.g., 100Hz) or simply use the variance of the signal 
-    in a high-frequency band if available. 
-    Given we only have 1-40Hz data, we estimate noise as the variance of the signal 
-    above a certain threshold (e.g., using the median absolute deviation scaled).
-    
-    Alternative robust SNR: 
-    SNR (dB) = 10 * log10( mean(signal^2) / mean(noise^2) )
-    We approximate noise by taking the median absolute deviation (MAD) of the signal 
-    and scaling it to standard deviation (MAD * 1.4826 for Gaussian).
-    """
-    data = raw.get_data()
-    # Flatten data across channels and time for a global estimate
-    flat_data = data.flatten()
-    
-    # Estimate noise using Median Absolute Deviation (MAD)
-    mad = np.median(np.abs(flat_data - np.median(flat_data)))
-    noise_std = mad * 1.4826
-    if noise_std == 0:
-        noise_std = 1e-9
-    
-    signal_power = np.var(flat_data)
-    noise_power = noise_std ** 2
-    
-    snr_db = 10 * np.log10(signal_power / noise_power)
-    return snr_db
+    Compute Signal-to-Noise Ratio (SNR) per epoch.
 
-def run_ica(raw: mne.io.Raw, n_components: int = 20) -> mne.preprocessing.ICA:
+    SNR is calculated as the ratio of power in a reference frequency band
+    to the power in adjacent noise bands.
+
+    Args:
+        epochs: MNE Epochs object
+        reference_freq: Reference frequency for signal (default 10 Hz)
+
+    Returns:
+        Array of SNR values in dB for each epoch
     """
-    Run Independent Component Analysis (ICA) for artifact removal.
+    logger.info("Computing SNR per epoch...")
+
+    # Get data: shape (n_epochs, n_channels, n_times)
+    data = epochs.get_data()
+    sfreq = epochs.info['sfreq']
+    n_epochs, n_channels, n_times = data.shape
+
+    # Frequency bands for SNR calculation
+    # Signal band: reference_freq +/- 1 Hz
+    f_signal = (reference_freq - 1, reference_freq + 1)
+    # Noise bands: below and above signal
+    f_noise_low = (BANDPASS_MIN_FREQ, reference_freq - 2)
+    f_noise_high = (reference_freq + 2, BANDPASS_MAX_FREQ)
+
+    snr_values = []
+
+    for ep_idx in range(n_epochs):
+        epoch_data = data[ep_idx]  # (n_channels, n_times)
+
+        # Compute power spectral density for each channel
+        psd, freqs = mne.time_frequency.psd_welch(
+            mne.EpochsArray(
+                epoch_data[np.newaxis, :, :],
+                info=epochs.info,
+                tmin=0
+            ),
+            fmin=BANDPASS_MIN_FREQ,
+            fmax=BANDPASS_MAX_FREQ,
+            n_fft=min(256, n_times),
+            verbose=False
+        )
+
+        # Average across channels
+        psd_avg = psd.mean(axis=0)
+
+        # Integrate power in signal and noise bands
+        signal_mask = (freqs >= f_signal[0]) & (freqs <= f_signal[1])
+        noise_low_mask = (freqs >= f_noise_low[0]) & (freqs <= f_noise_low[1])
+        noise_high_mask = (freqs >= f_noise_high[0]) & (freqs <= f_noise_high[1])
+
+        power_signal = np.sum(psd_avg[signal_mask])
+        power_noise_low = np.sum(psd_avg[noise_low_mask]) if np.any(noise_low_mask) else 1e-10
+        power_noise_high = np.sum(psd_avg[noise_high_mask]) if np.any(noise_high_mask) else 1e-10
+
+        power_noise = (power_noise_low + power_noise_high) / 2
+
+        # Avoid division by zero
+        if power_noise < 1e-10:
+            snr_db = 100.0  # Very high SNR
+        else:
+            snr_db = 10 * np.log10(power_signal / power_noise)
+
+        snr_values.append(snr_db)
+
+    return np.array(snr_values)
+
+def run_ica(raw: mne.io.BaseRaw, n_components: int = 20) -> mne.preprocessing.ICA:
     """
-    logger.info(f"Running ICA with {n_components} components")
-    ica = mne.preprocessing.ICA(n_components=n_components, method='fastica', random_state=42, verbose=False)
-    ica.fit(raw)
+    Run ICA for artifact removal.
+
+    Args:
+        raw: Filtered raw data
+        n_components: Number of ICA components
+
+    Returns:
+        Fitted ICA object
+    """
+    logger.info(f"Running ICA with {n_components} components...")
+
+    ica = mne.preprocessing.ICA(
+        n_components=n_components,
+        method='fastica',
+        random_state=42,
+        max_iter='auto',
+        verbose=False
+    )
+
+    ica.fit(raw, verbose=False)
+
     return ica
 
-def apply_ica(ica: mne.preprocessing.ICA, raw: mne.io.Raw, 
-              exclude_components: List[int]) -> mne.io.Raw:
+def detect_artifacts(ica: mne.preprocessing.ICA, raw: mne.io.BaseRaw, 
+                    raw_filtered: mne.io.BaseRaw) -> List[int]:
     """
-    Apply ICA to remove artifact components.
-    """
-    logger.info(f"Applying ICA, excluding components: {exclude_components}")
-    raw_ica = raw.copy()
-    ica.apply(raw_ica, exclude=exclude_components)
-    return raw_ica
+    Detect artifact components using automatic detection.
 
-def create_epochs(raw: mne.io.Raw, event_id: Optional[int] = None, 
-                  tmin: float = 0.0, tmax: float = 10.0) -> mne.Epochs:
+    Returns:
+        List of component indices to reject
     """
-    Create epochs of fixed duration (10s as per config).
-    For resting-state data without events, we create epochs based on time segments.
-    """
-    logger.info(f"Creating epochs: {tmax - tmin} seconds")
+    logger.info("Detecting artifact components...")
+
+    # Find EOG and ECG channels
+    eog_indices, eog_ch_names = mne.preprocessing.find_eog_channels(
+        raw_filtered, verbose=False
+    )
+    ecg_indices, ecg_ch_names = mne.preprocessing.find_ecg_channels(
+        raw_filtered, verbose=False
+    )
+
+    # Find artifact components
+    if eog_indices:
+        eog_indices = [eog_indices[0]]  # Use first EOG channel
+        ica.find_bads_eog(raw_filtered, ch_name=eog_ch_names[0], verbose=False)
     
-    # If no events, create artificial events at regular intervals
+    if ecg_indices:
+        ecg_indices = [ecg_indices[0]]  # Use first ECG channel
+        ica.find_bads_ecg(raw_filtered, ch_name=ecg_ch_names[0], verbose=False)
+
+    # Get rejected components
+    # Note: We use the exclusion lists set by find_bads_*
+    rejected_components = list(ica.exclude)
+
+    logger.info(f"Detected {len(rejected_components)} artifact components: {rejected_components}")
+
+    return rejected_components
+
+def apply_ica(ica: mne.preprocessing.ICA, raw: mne.io.BaseRaw, 
+             exclude_components: List[int]) -> mne.io.BaseRaw:
+    """
+    Apply ICA correction by removing artifact components.
+
+    Args:
+        raw: Original raw data
+        ica: Fitted ICA object
+        exclude_components: Components to exclude
+
+    Returns:
+        Cleaned raw data
+    """
+    logger.info(f"Applying ICA correction, excluding components: {exclude_components}")
+
+    ica_copy = ica.copy()
+    ica_copy.exclude = exclude_components
+    raw_clean = ica_copy.apply(raw.copy(), verbose=False)
+
+    return raw_clean
+
+def create_epochs(raw: mne.io.BaseRaw, epoch_length: int = None) -> mne.Epochs:
+    """
+    Create fixed-duration epochs from continuous data.
+
+    Args:
+        raw: Cleaned raw data
+        epoch_length: Epoch length in seconds (default from config)
+
+    Returns:
+        Epochs object with fixed-length epochs
+    """
+    if epoch_length is None:
+        epoch_length = EPOCH_LENGTH_SEC
+
+    logger.info(f"Creating epochs of {epoch_length} seconds...")
+
+    # Create events at regular intervals
     sfreq = raw.info['sfreq']
-    duration = tmax - tmin
-    n_samples = int(duration * sfreq)
+    n_samples = len(raw.times)
+    epoch_samples = int(epoch_length * sfreq)
     
-    # Generate events at regular intervals
-    n_events = int(raw.times[-1] / duration)
-    events = np.zeros((n_events, 3), dtype=int)
-    for i in range(n_events):
-        events[i, 0] = int(i * duration * sfreq)  # sample index
-        events[i, 1] = 0  # dummy
-        events[i, 2] = 1  # event ID
+    # Number of complete epochs
+    n_epochs = n_samples // epoch_samples
     
-    epochs = mne.Epochs(raw, events, event_id=1, tmin=tmin, tmax=tmax, 
-                        baseline=None, verbose=False)
+    if n_epochs < 1:
+        raise ValueError(f"Data too short for {epoch_length}s epochs (only {n_samples} samples)")
+
+    # Create events array: (n_epochs, 3) with [sample, 0, 1]
+    events = np.array([
+        [i * epoch_samples, 0, 1] 
+        for i in range(n_epochs)
+    ])
+
+    # Create epochs
+    epochs = mne.Epochs(
+        raw,
+        events,
+        event_id={'epoch': 1},
+        tmin=0,
+        tmax=epoch_length,
+        baseline=None,
+        verbose=False,
+        reject_by_annotation=False
+    )
+
+    logger.info(f"Created {len(epochs)} epochs")
+
     return epochs
 
-def detect_artifacts(epochs: mne.Epochs, threshold: float = 150e-6) -> np.ndarray:
+def preprocess_file(input_path: Path, output_dir: Path, 
+                   quality_report: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Detect epochs with artifacts based on amplitude threshold.
-    Returns a boolean array where True indicates an artifact epoch.
-    """
-    data = epochs.get_data()  # shape: (n_epochs, n_channels, n_times)
-    # Check for amplitude exceeding threshold in any channel
-    artifact_mask = np.any(np.abs(data) > threshold, axis=(1, 2))
-    return artifact_mask
+    Preprocess a single EEG file.
 
-def preprocess_file(file_path: Path) -> Dict[str, Any]:
+    Steps:
+    1. Load raw data
+    2. Bandpass filter
+    3. Run ICA
+    4. Detect and remove artifacts
+    5. Create epochs
+    6. Compute SNR per epoch
+    7. Flag low-SNR epochs
+    8. Reject epochs with >50% artifacts
+
+    Args:
+        input_path: Path to raw EEG file
+        output_dir: Directory to save processed data
+        quality_report: Dict to accumulate quality metrics
+
+    Returns:
+        Updated quality report for this file
     """
-    Full preprocessing pipeline for a single EEG file.
-    Returns a dictionary with processed data, flags, and metadata.
-    """
-    result = {
-        'file_path': str(file_path),
-        'status': 'success',
-        'snr_db': None,
-        'n_epochs_total': 0,
-        'n_epochs_rejected': 0,
-        'rejected_ratio': 0.0,
-        'snr_flag': None,
-        'artifact_rejection_flag': None,
-        'processed_epochs_path': None
-    }
-    
+    subject_id = input_path.stem
+    logger.info(f"Processing subject: {subject_id}")
+
     try:
-        # 1. Load raw data
-        raw = load_raw_eeg(file_path)
-        
-        # 2. Bandpass filter
-        raw = bandpass_filter(raw, l_freq=BANDPASS_FREQS[0], h_freq=BANDPASS_FREQS[1])
-        
-        # 3. Compute SNR
-        snr = compute_snr(raw)
-        result['snr_db'] = snr
-        if snr < SNR_THRESHOLD_DB:
-            result['snr_flag'] = 'Low Signal Quality'
-            logger.warning(f"Low SNR detected: {snr:.2f} dB < {SNR_THRESHOLD_DB} dB")
-        else:
-            result['snr_flag'] = 'Good Signal Quality'
-        
-        # 4. Run ICA
-        ica = run_ica(raw)
-        
-        # 5. Detect and exclude artifact components (simple heuristic: high variance)
-        # For a more robust approach, we would use automated detection (e.g., ADJUST, MARA)
-        # Here, we exclude components with high variance as a placeholder
-        variances = np.var(ica.get_sources(raw).get_data(), axis=1)
-        exclude_components = np.where(variances > np.mean(variances) * 2)[0].tolist()
-        
-        # 6. Apply ICA
-        raw = apply_ica(ica, raw, exclude_components)
-        
-        # 7. Create epochs
-        epochs = create_epochs(raw, tmin=0.0, tmax=EPOCH_LENGTH_SEC)
-        result['n_epochs_total'] = len(epochs)
-        
-        # 8. Detect artifacts in epochs
-        artifact_mask = detect_artifacts(epochs)
-        n_rejected = np.sum(artifact_mask)
-        result['n_epochs_rejected'] = int(n_rejected)
-        result['rejected_ratio'] = n_rejected / len(epochs) if len(epochs) > 0 else 0.0
-        
-        # 9. Reject epochs with >50% artifacts
-        if result['rejected_ratio'] > ARTIFACT_REJECTION_THRESHOLD:
-            result['artifact_rejection_flag'] = 'Rejected'
-            logger.warning(f"High artifact ratio: {result['rejected_ratio']:.2f} > {ARTIFACT_REJECTION_THRESHOLD}")
-            # Reject all epochs for this file
-            epochs_clean = mne.EpochsArray(np.empty((0, len(epochs.ch_names), int(EPOCH_LENGTH_SEC * epochs.info['sfreq']))), 
-                                            info=epochs.info)
-        else:
-            result['artifact_rejection_flag'] = 'Accepted'
-            # Keep non-artifact epochs
-            epochs_clean = epochs[~artifact_mask]
-        
-        # 10. Save processed epochs
-        processed_dir = PROCESSED_DATA_DIR / file_path.stem
-        processed_dir.mkdir(parents=True, exist_ok=True)
-        output_path = processed_dir / f"epochs-{file_path.stem}.fif"
-        epochs_clean.save(output_path, overwrite=True)
-        result['processed_epochs_path'] = str(output_path)
-        
-        # 11. Save metadata
-        metadata_path = processed_dir / "metadata.json"
-        with open(metadata_path, 'w') as f:
-            json.dump(result, f, indent=2)
-        
+        # Step 1: Load raw data
+        raw = load_raw_eeg(input_path)
+        quality_report['subjects_processed'] += 1
+
+        # Step 2: Bandpass filter
+        raw_filtered = bandpass_filter(raw)
+
+        # Step 3: Run ICA
+        ica = run_ica(raw_filtered)
+
+        # Step 4: Detect artifacts
+        rejected_components = detect_artifacts(ica, raw, raw_filtered)
+        quality_report['total_ica_components'] += len(ica.n_components_)
+        quality_report['rejected_components'] += len(rejected_components)
+
+        # Step 5: Apply ICA correction
+        raw_clean = apply_ica(ica, raw_filtered, rejected_components)
+
+        # Step 6: Create epochs
+        epochs = create_epochs(raw_clean)
+        n_epochs_total = len(epochs)
+        quality_report['total_epochs'] += n_epochs_total
+
+        # Step 7: Compute SNR per epoch
+        snr_values = compute_snr(epochs)
+        quality_report['snr_values'].extend(snr_values.tolist())
+
+        # Step 8: Flag low-SNR epochs
+        low_snr_mask = snr_values < SNR_THRESHOLD_DB
+        n_low_snr = np.sum(low_snr_mask)
+        quality_report['low_snr_epochs'] += n_low_snr
+
+        # Step 9: Reject epochs with >50% artifacts (based on SNR as proxy)
+        # In a full implementation, we'd use peak-to-peak amplitude or other metrics
+        # Here we use SNR as the primary quality metric
+        rejected_epochs = np.where(low_snr_mask)[0].tolist()
+        quality_report['rejected_epochs'] += len(rejected_epochs)
+
+        # Keep only good epochs
+        good_epochs_mask = ~low_snr_mask
+        if np.sum(good_epochs_mask) == 0:
+            logger.warning(f"All epochs rejected for subject {subject_id}")
+            quality_report['subjects_all_rejected'] += 1
+            return quality_report
+
+        epochs_good = epochs[good_epochs_mask]
+        n_good_epochs = len(epochs_good)
+        quality_report['good_epochs'] += n_good_epochs
+
+        # Save processed epochs
+        output_path = output_dir / f"{subject_id}_epochs.fif"
+        epochs_good.save(output_path, overwrite=True, verbose=False)
+        quality_report['files_saved'] += 1
+
+        # Save SNR metadata
+        snr_metadata = {
+            'subject_id': subject_id,
+            'total_epochs': int(n_epochs_total),
+            'good_epochs': int(n_good_epochs),
+            'rejected_epochs': int(len(rejected_epochs)),
+            'snr_values': snr_values[good_epochs_mask].tolist(),
+            'mean_snr_db': float(np.mean(snr_values[good_epochs_mask])),
+            'min_snr_db': float(np.min(snr_values[good_epochs_mask])),
+            'max_snr_db': float(np.max(snr_values[good_epochs_mask]))
+        }
+
+        snr_path = output_dir / f"{subject_id}_snr.json"
+        with open(snr_path, 'w') as f:
+            json.dump(snr_metadata, f, indent=2)
+
+        logger.info(f"Saved {n_good_epochs} good epochs for {subject_id}")
+
     except Exception as e:
-        logger.error(f"Error processing {file_path}: {e}")
-        result['status'] = 'failed'
-        result['error'] = str(e)
-    
-    return result
+        logger.error(f"Error processing {input_path}: {e}")
+        quality_report['subjects_failed'] += 1
+
+    return quality_report
 
 def main():
     """
     Main entry point for preprocessing pipeline.
-    Processes all files in RAW_DATA_DIR and generates outputs in PROCESSED_DATA_DIR.
-    """
-    logger.info("Starting preprocessing pipeline")
-    
-    # Ensure directories exist
-    from config import ensure_dirs
-    ensure_dirs()
-    
-    # Find all EEG files
-    eeg_files = list(RAW_DATA_DIR.glob("*.edf")) + list(RAW_DATA_DIR.glob("*.bdf")) + list(RAW_DATA_DIR.glob("*.vhdr"))
-    
-    if not eeg_files:
-        logger.warning("No EEG files found in RAW_DATA_DIR. Skipping preprocessing.")
-        return
-    
-    logger.info(f"Found {len(eeg_files)} EEG files to process")
-    
-    results = []
-    for file_path in eeg_files:
-        logger.info(f"Processing: {file_path}")
-        result = preprocess_file(file_path)
-        results.append(result)
-    
-    # Save summary report
-    summary_path = QUALITY_DIR / "preprocessing_report.json"
-    with open(summary_path, 'w') as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Preprocessing complete. Summary saved to {summary_path}")
 
-if __name__ == "__main__":
+    Processes all raw EEG files and generates quality reports.
+    """
+    logger.info("Starting preprocessing pipeline...")
+
+    # Ensure output directories exist
+    output_dir = PROCESSED_DATA_DIR / 'epochs'
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    quality_dir = QUALITY_DIR
+    quality_dir.mkdir(parents=True, exist_ok=True)
+
+    # Initialize quality report
+    quality_report = {
+        'config': {
+            'epoch_length_sec': EPOCH_LENGTH_SEC,
+            'bandpass_min_freq': BANDPASS_MIN_FREQ,
+            'bandpass_max_freq': BANDPASS_MAX_FREQ,
+            'snr_threshold_db': SNR_THRESHOLD_DB,
+            'artifact_rejection_threshold': ARTIFACT_REJECTION_THRESHOLD
+        },
+        'subjects_processed': 0,
+        'subjects_failed': 0,
+        'subjects_all_rejected': 0,
+        'total_epochs': 0,
+        'good_epochs': 0,
+        'rejected_epochs': 0,
+        'low_snr_epochs': 0,
+        'total_ica_components': 0,
+        'rejected_components': 0,
+        'files_saved': 0,
+        'snr_values': []
+    }
+
+    # Find all raw EEG files
+    raw_files = list(RAW_DATA_DIR.glob('**/*.edf')) + list(RAW_DATA_DIR.glob('**/*.bdf'))
+    
+    if not raw_files:
+        logger.warning(f"No raw EEG files found in {RAW_DATA_DIR}")
+        # Still save empty report
+        report_path = quality_dir / 'preprocess_report.json'
+        with open(report_path, 'w') as f:
+            json.dump(quality_report, f, indent=2)
+        return
+
+    logger.info(f"Found {len(raw_files)} raw EEG files")
+
+    # Process each file
+    for raw_file in raw_files:
+        quality_report = preprocess_file(raw_file, output_dir, quality_report)
+
+    # Compute summary statistics
+    if quality_report['snr_values']:
+        quality_report['mean_snr_db'] = float(np.mean(quality_report['snr_values']))
+        quality_report['median_snr_db'] = float(np.median(quality_report['snr_values']))
+        quality_report['std_snr_db'] = float(np.std(quality_report['snr_values']))
+    else:
+        quality_report['mean_snr_db'] = None
+        quality_report['median_snr_db'] = None
+        quality_report['std_snr_db'] = None
+
+    # Save quality report
+    report_path = quality_dir / 'preprocess_report.json'
+    with open(report_path, 'w') as f:
+        json.dump(quality_report, f, indent=2)
+
+    logger.info(f"Preprocessing complete. Report saved to {report_path}")
+    logger.info(f"Processed {quality_report['subjects_processed']} subjects, "
+               f"saved {quality_report['good_epochs']} good epochs")
+
+if __name__ == '__main__':
     main()

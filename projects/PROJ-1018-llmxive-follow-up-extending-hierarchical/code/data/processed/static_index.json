@@ -1,0 +1,14 @@
+{
+  "metadata": {
+    "k": 50,
+    "seed": 42,
+    "n_clusters": 50,
+    "n_samples": 0,
+    "centroid_dim": 100,
+    "pca_components_shape": null,
+    "version": "1.0",
+    "generated_by": "llmXive-static-distillation"
+  },
+  "centroids": [],
+  "chunk_to_cluster": {}
+}

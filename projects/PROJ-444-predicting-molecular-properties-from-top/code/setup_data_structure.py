@@ -1,80 +1,34 @@
-"""
-Task T004: Setup data directory structure and state tracking.
-
-Creates the following directories:
-- data/raw/
-- data/processed/
-- data/logs/
-- state/
-
-Initializes state tracking files:
-- state/pipeline_state.json (empty state object)
-- .gitkeep files in data directories to ensure they are tracked by git.
-"""
+"""Utility module for project setup and data structure management."""
 import os
 import json
 from pathlib import Path
+from typing import List
 
-# Define project root relative to this script's location
-# Assuming script is in code/, project root is one level up
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+def ensure_directory(dir_path: str) -> None:
+    """Ensure a directory exists, creating it if necessary.
+    
+    Args:
+        dir_path: Path to the directory to ensure exists.
+    """
+    if dir_path:  # Only create if path is not empty
+        os.makedirs(dir_path, exist_ok=True)
 
-# Directory structure to create
-DIRECTORIES = [
-    "data/raw",
-    "data/processed",
-    "data/logs",
-    "state",
-    "figures"
-]
-
-# Files to initialize
-INIT_FILES = {
-    "state/pipeline_state.json": {},
-    "data/raw/.gitkeep": "",
-    "data/processed/.gitkeep": "",
-    "data/logs/.gitkeep": "",
-    "state/.gitkeep": "",
-    "figures/.gitkeep": ""
-}
-
-def ensure_directory(path: Path) -> None:
-    """Create directory if it doesn't exist."""
-    if not path.exists():
-        path.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {path}")
-    else:
-        print(f"Directory already exists: {path}")
-
-def initialize_file(path: Path, content) -> None:
-    """Write content to file if it doesn't exist."""
-    if not path.exists():
-        with open(path, 'w') as f:
-            if isinstance(content, dict):
-                json.dump(content, f, indent=2)
-            else:
-                f.write(str(content))
-        print(f"Initialized file: {path}")
-    else:
-        print(f"File already exists: {path}")
+def initialize_file(file_path: str, content: str = "") -> None:
+    """Initialize a file with optional content.
+    
+    Args:
+        file_path: Path to the file to initialize.
+        content: Optional content to write to the file.
+    """
+    ensure_directory(os.path.dirname(file_path))
+    with open(file_path, 'w', encoding='utf-8') as f:
+        f.write(content)
 
 def main():
-    """Main entry point for T004."""
-    print(f"Project Root: {PROJECT_ROOT}")
-    
-    # Create directories
-    for dir_path in DIRECTORIES:
-        full_path = PROJECT_ROOT / dir_path
-        ensure_directory(full_path)
-    
-    # Initialize files
-    for file_path_str, content in INIT_FILES.items():
-        full_path = PROJECT_ROOT / file_path_str
-        # Ensure parent directory exists before writing file
-        ensure_directory(full_path.parent)
-        initialize_file(full_path, content)
-    
-    print("Data structure and state tracking setup complete.")
+    """Main entry point for data structure initialization."""
+    # This is a placeholder for future initialization logic
+    print("Data structure initialization module loaded.")
+    print("Use ensure_directory() and initialize_file() for setup tasks.")
 
 if __name__ == "__main__":
     main()

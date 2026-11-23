@@ -1,157 +1,158 @@
 # Implementation Plan: Quantization Robustness of Multi-Effect LoRA Adapters
 
-**Branch**: `001-lora-quantization-robustness` | **Date**: 2026-07-14 | **Spec**: `specs/001-lora-quantization-robustness/spec.md`
-**Input**: Feature specification from `/specs/001-lora-quantization-robustness/spec.md`
+**Branch**: `001-lora-quantization-robustness` | **Date**: 2026-07-12 | **Spec**: `specs/001-llmxive-follow-up-extending-collectionlo/spec.md`
+**Input**: Feature specification from `specs/001-llmxive-follow-up-extending-collectionlo/spec.md`
 
 ## Summary
 
-This feature implements a rigorous experimental pipeline to evaluate the robustness of the `CollectionLoRA` adapter (which combines multiple distinct visual effects via Asymmetric Orthogonal Prompting) under post-training quantization. The study compares FP (baseline), low-bit, and lower-bit quantized weights on a CPU-only GitHub Actions runner. The primary metrics are concept adherence (Cosine Similarity between CLIP prompt/image embeddings), pixel fidelity (LPIPS), and concept bleeding (Cross-Effect Similarity Ratio). The statistical analysis utilizes a Bayesian Hierarchical Model (BHM) to handle the small sample size (N=10 prompts, treated as random effect groups) and high variance of generative data. The model structure explicitly defines **images nested within prompts** (30 total observations, 10 groups) to correctly estimate variance components. The study specifically tests the hypothesis that low-rank effect subspaces are the primary failure point for INT4 quantization, with a correlation analysis between subspace rank and bleeding magnitude (N=10 effects), which is treated as exploratory due to sample size constraints.
+This project evaluates the robustness of "CollectionLoRA" (a synthesized multi-effect LoRA adapter) against post-training quantization (INT8, INT4). The primary requirement is to measure concept adherence (via CLIP cosine similarity) and pixel fidelity (via LPIPS) degradation when quantizing weights without re-distillation. The technical approach involves **synthesizing** a valid multi-effect adapter from verified single-effect LoRAs (or procedural generation if none are found), performing zero-shot quantization on a CPU-only runner, and analyzing the results using Bayesian hierarchical models. 
+
+**Key Methodological Update**: The correlation analysis between subspace rank and bleeding is now **descriptive/exploratory** only, as N=5 effects is insufficient for statistical significance. The primary inference focuses on the quantization effect (N=50). The CESR metric is **normalized** against a distractor baseline to isolate bleeding from general fidelity loss.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies** (pinned in `code/requirements.txt`):
+**Language/Version**: Python 3.10  
+**Primary Dependencies**: `torch` (CPU-only quantization), `diffusers`, `transformers`, `scipy` (SVD), `pymc` (Bayesian analysis), `lpips`, `clip` (or `open-clip`), `datasets` (for prompt management).  
+**Storage**: Local file system (`data/`, `state/`); no external DB.  
+**Testing**: `pytest` (unit), `pytest-cov` (coverage), custom integration tests for quantization integrity.  
+**Target Platform**: GitHub Actions `ubuntu-latest` (CPU-first, 2 cores, ~7-16GB RAM).  
+**Project Type**: Research Pipeline / CLI Tool.  
+**Performance Goals**: Complete generation and analysis within ≤6 hours; memory usage <14GB.  
+**Constraints**: Must run on CPU without CUDA; must handle OOM (Exit 137) gracefully; must synthesize adapter if public source fails.  
+**Scale/Scope**: A set of distinct prompts × multiple quantization levels (FP, INT, INT4) × 5 seeds (a set of images); Multiple distinct effects in the adapter.
 
-```
-torch==2.2.2+cpu
-diffusers==0.26.3
-transformers==4.40.1
-scikit-learn==1.5.0
-pymc==5.12.0
-lpips==0.1.4
-numpy==1.26.4
-pandas==2.2.2
-pyyaml==6.0.1
-tqdm==4.66.2
-```
-
-*All packages are CPU‑only wheels.*
-
-**Storage**: `data/`, `state/`, `results/` on the runner’s filesystem.  
-**Testing**: `pytest` unit tests, contract validation against YAML schemas in `contracts/`.  
-**Target Platform**: GitHub Actions `ubuntu-latest` (Free Tier: 2 vCPU, ~7 GB RAM, 14 GB disk, no GPU).  
-**Performance Goals**: Total wall‑clock ≤ 4 h (15 generations × [deferred] each) with peak RAM ≤ 6 GB.
-**Statistical Rigor**: Pooled Bayesian Linear Model (P-BLM) with weakly informative priors; posterior‑width check (≤ 0.2) per FR‑014; Bayesian correlation analysis for rank vs. bleeding; multiple‑comparison handled via joint posterior; no reliance on p‑values.
+> **Note on Dataset/Model Availability**: The `stabilityai/collection-lora` repository does not exist. The plan **explicitly implements** a Synthetic Adapter Construction phase (Phase 0) using verified single-effect LoRAs or procedural generation to satisfy FR-001 and FR-010.
 
 ## Constitution Check
 
-| Principle | Status | Resolution / Action Required |
-|-----------|--------|------------------------------|
-| I. Reproducibility | PASS | Fixed seeds, `requirements.txt`, full pipeline runnable. |
-| II. Verified Accuracy | PASS | All external citations are verified; base model and adapter IDs are listed (see § 2). |
-| III. Data Hygiene | PASS | SHA‑256 hashes recorded; immutable raw data. |
-| IV. Single Source of Truth | PASS | All metrics trace to rows in `data/analysis_results.json`. |
-| V. Versioning Discipline | PASS | `state/artifact_hashes.yaml` updated after each artifact write. |
-| VI. Quantization Noise Isolation | PASS | Strict `torch.ao.quantization`; missing backend → skip with log. |
-| VII. Low‑Rank Subspace Fidelity | **CONFLICT → AMENDED** | **T_AMEND_001**: PR + Sync Impact Report to replace ANOVA with P-BLM. |
-| VIII. Compute Feasibility | PASS | Memory‑mapped loading, batch = 1, total ≤ 4 h. |
+| Principle | Compliance Status | Evidence / Plan Element |
+|-----------|-------------------|-------------------------|
+| **I. Reproducibility** | **Compliant** | `code/` contains pinned `requirements.txt`; random seeds defined in `code/config.yaml`; data fetched via programmatic loaders or procedural generation. |
+| **II. Verified Accuracy** | **Compliant** | All citations (CLIP, LPIPS, Bayesian methods) reference standard literature; dataset URLs are specific, verified HuggingFace IDs or procedural. |
+| **III. Data Hygiene** | **Compliant** | `state/` YAML records SHA-256 hashes for all weights, images, and results; raw data is never modified in place. |
+| **IV. Single Source of Truth** | **Compliant** | `data/results.csv` is the sole source for statistical claims; figures in the paper will be generated directly from this CSV. |
+| **V. Versioning Discipline** | **Compliant** | **Every** artifact (images, CSVs, JSONs, weights) carries a content hash recorded in `state/artifacts.yaml`. |
+| **VI. Quantization Noise Isolation** | **Compliant** | Zero-shot quantization via `torch.ao.quantization` (no fine-tuning); comparison against FP16 baseline isolates noise. |
+| **VII. Low-Rank Subspace Fidelity** | **Compliant** | SVD rank computed on **pre-merge** source matrices (independent of merge logic); correlation is descriptive (N=5 effects) with explicit 'Underpowered' flagging. |
 
 ## Project Structure
 
-```
-specs/001-lora-quantization-robustness/
-├── plan.md
-├── research.md
-├── data-model.md
-├── quickstart.md
-├── contracts/
-│   ├── analysis_metric.schema.yaml
-│   ├── analysis_schema.schema.yaml
-│   ├── generation_result.schema.yaml
-│   └── quantization_results.schema.yaml
-└── tasks.md
+### Documentation (this feature)
 
+```text
+specs/001-llmxive-follow-up-extending-collectionlo/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+└── contracts/           # Phase 1 output
+    ├── dataset.schema.yaml
+    ├── analysis_results.schema.yaml
+    ├── generation_result.schema.yaml
+    └── state.schema.yaml
+```
+
+### Source Code (repository root)
+
+```text
 code/
-├── config.yaml                # deterministic prompt‑effect mapping
-├── requirements.txt
-├── models/
-│   ├── loader.py              # CPU‑only, mmap loading
-│   ├── quantizer.py           # torch.ao.quantization wrapper
-│   └── rank_analyzer.py       # SVD rank computation
-├── generation/
-│   ├── pipeline.py            # generation loop (FP16 & quantized)
-│   └── metrics.py             # CLIP, style‑classifier, LPIPS, CESR
-├── analysis/
-│   ├── pooled_bayesian_model.py  # PyMC P-BLM implementation
-│   └── correlation.py         # Bayesian correlation for rank vs. bleeding
-└── utils/
-    ├── checksums.py           # SHA‑256 hashing
-    └── errors.py              # OOM detection & graceful skip
+├── __init__.py
+├── config.yaml          # Prompts, seeds, paths
+├── data_loader.py       # Model loading, SVD, quantization, merging
+├── generator.py         # Image generation loop
+├── metrics.py           # CLIP, LPIPS, CESR (Normalized) calculation
+├── statistical_analysis.py # Bayesian modeling
+├── main.py              # Orchestration
+└── utils.py             # Hashing, error handling
 
 data/
-├── prompts.txt                # 5 prompts, each mapped to a distinct effect
-├── subspace_ranks.json        # persisted after T005
-├── reference_images/          # BaselineFP16 (with LoRA) + LoRA-Free refs
-├── generated_images/          # FP16, INT8, INT4 outputs
-└── analysis_results.json
+├── models/              # Downloaded/synthesized adapters
+├── generated/           # Output images
+├── references/          # FP16 Reference Images & Distractor Images
+├── results.csv          # Aggregated metrics
+└── subspace_ranks.json  # SVD results (source ranks)
 
 state/
-└── artifact_hashes.yaml
+└── artifacts.yaml       # Hashes and timestamps
+
+tests/
+├── unit/
+├── integration/
+└── contract/
 ```
+
+**Structure Decision**: A single `code/` directory containing modular scripts is chosen to minimize overhead and ensure all steps run sequentially on the CPU runner. The `data/` directory is strictly for artifacts; `state/` tracks provenance.
 
 ## Phases & Tasks
 
-### Phase 0 – Project Setup & Governance
-- **T_AMEND_001** – Create a PR titled “Amend Constitution: replace ANOVA with Pooled Bayesian Linear Model” and attach a Sync Impact Report.
-  - *Deliverable*: Generate the full text of the PR description and Sync Impact Report in `docs/amendment_report.md`. **Execute the amendment by updating `specs/.../spec.md` to reflect the new statistical method before proceeding to T003.**
-  - *Content*: "Principle VII mandates ANOVA, but N=5 prompts makes ANOVA invalid. We propose replacing it with a Pooled Bayesian Linear Model (P-BLM) which treats 'Effect' as a fixed factor and pools residual variance across all cells, enabling inference with N=1 per cell. This aligns with FR-006's requirement for a robust statistical method."
-- **T002** – Amend Spec Assumption 1: Update `specs/001-lora-quantization-robustness/spec.md` to reflect the 7GB RAM constraint of the free-tier runner (replacing the 16GB assumption).
-- **T002b** – Amend Spec Assumption 6: Update `specs/001-lora-quantization-robustness/spec.md` to remove the 'fallback' requirement for `torch.ao.quantization`, aligning with the Plan's strict isolation policy.
+### Phase 0: Adapter Synthesis & Verification
+*Goal: Construct a valid multi-effect adapter and compute intrinsic source ranks.*
 
-### Phase 1 – Foundational (Prerequisite for all later phases)
-| Task | Description |
-|------|-------------|
-| **T001** | Create `code/config.yaml` with deterministic mapping of 5 prompts to 5 distinct effects. Pin a fixed random seed to ensure reproducibility. Reference `data/prompts.txt` for the actual prompt list. |
-| **T001b** | **Verify Adapter ID**: Check if the adapter ID in `config.yaml` matches a verified source in the 'Verified datasets' block. If not, halt with error. |
-| **T003** | Load base model (`stabilityai/stable-diffusion-1-5`) and CollectionLoRA adapter (`user/collectionlora-multi-teacher-onp`) using `models/loader.py` with `torch.load(..., mmap=True)`. |
-| **T004** | **Compute LoRA subspace ranks**: `rank_analyzer.py` runs SVD on each effect’s weight matrix with tolerance `1e-5`. |
-| **T005** | **Persist rank checksum**: Write results atomically to `data/subspace_ranks.json` in format `{ "effect_id": {"rank": int, "tolerance": float} }`. Generate SHA‑256 of file and record in `state/artifact_hashes.yaml`. |
-| **T006** | **Benchmark & RAM Guard**: Run a single inference step to measure CPU time and verify RAM usage ≤ 6 GB. If benchmarks fail, abort with clear log. |
-| **T007** | Create base entity dataclasses in `code/models/entities.py` referencing `data-model.md` for field definitions of `EffectAdapter`, `ReferenceImage`, etc. |
+- **T001: Load & Verify Source LoRAs**
+  - Load a set of verified single-effect LoRAs. (e.g., `lykon/dreamshaper-lora`, `cagliostrolab/animagine-xl`, etc.) OR generate procedural low-rank matrices if none are available.
+  - **Compatibility Check (T001b)**: Verify all sources share the same base model architecture and rank. If incompatible, fallback to procedural generation.
+  - **SVD Rank (T001c)**: Compute SVD rank on each **pre-merge** source matrix with tolerance `1e-5`. Record as `SourceRank` (independent of merge).
+  - **Output**: `data/subspace_ranks.json` (source ranks), `data/models/source_loras/`.
 
-### Phase 2 – Baseline Generation
-| Task | Description |
-|------|-------------|
-| **T008** | Generate **two sets** of reference images: <br>1. `data/reference_images/baseline_fp16/`: 5 images using FP16 LoRA adapter (one per effect). <br>2. `data/reference_images/lora_free/`: 5 images using base model *without* LoRA. |
-| **T009** | Extract CLIP embeddings for all baseline and reference images; also compute **style‑classifier scores** (pre‑trained WikiArt classifier). Save to `data/embeddings/`. |
-| **T009b** | **Validate Style Classifier**: Run the style classifier on a hold-out set of WikiArt images to verify accuracy > 80%. Log validation score. |
-| **T010** | Record SHA‑256 hashes for all baseline/reference images in `state/artifact_hashes.yaml`. |
+- **T002: Merge into CollectionLoRA**
+  - Apply **Weighted Linear Addition with Orthogonal Projection (WLA-OP)** to merge source matrices into a single adapter.
+  - **Protocol**: Project each source matrix onto an orthogonal basis before addition to minimize cross-talk.
+  - **Output**: `data/models/collection_lora.safetensors`.
 
-### Phase 3 – Quantization & Generation
-| Task | Description |
-|------|-------------|
-| **T011** | Apply **post‑training quantization** to the LoRA weights: generate INT8 and INT4 versions via `models/quantizer.py` using `torch.ao.quantization`. If `torch.ao` cannot be imported, log “Quantization Backend Unavailable – skipping INT8/INT4” and **skip** that level (no fallback). |
-| **T012** | For each quantized adapter (INT8, INT4), generate images for the 5 effect‑prompt pairs. **Use 20 inference steps** for quantized levels to meet time limits. Store in `data/generated_images/int8/` and `int4/`. |
-| **T013** | Compute metrics for every generated image: <br>• **cosine similarity** (prompt ↔ image CLIP). <br>• **LPIPS** (vs. FP16 baseline). <br>• **CESR**: Calculate the **maximum** cosine similarity to the `data/reference_images/lora_free/` images of **all other effects** (exclude target effect). <br>• **style_classifier_score**. <br>• Write a row to `data/generation_results.csv` (validated by `generation_result.schema.yaml`). |
-| **T014** | Detect `MemoryError` (exit 137); on capture, log “Quantization Failure – INT8/INT4 skipped due to OOM” and continue with remaining levels. |
-| **T015** | Update `state/artifact_hashes.yaml` with hashes of all new images and metric files. |
-| **T016** | **Runtime Watchdog**: If total runtime > 3.5h, reduce inference steps for remaining quantized levels to 10. Log the degradation. |
+### Phase 1: Generation & Metric Calculation
+*Goal: Generate images and compute normalized metrics.*
 
-### Phase 4 – Statistical Analysis
-| Task | Description |
-|------|-------------|
-| **T017** | **Pooled Bayesian Model** (`analysis/pooled_bayesian_model.py`):<br>• Outcome: cosine similarity (and LPIPS) per image.<br>• Fixed effects: quantization level, effect ID.<br>• Priors: Normal(0, 0.5) for offsets; Half‑Cauchy for **shared** residual variance (sigma).<br>• No random effects (N=5 is too small for random effects). |
-| **T018** | **Posterior width check** (FR‑014): compute [deferred] HDI width for each quantization effect; flag “Underpowered” if > 0.2. |
-| **T019** | **Correlation analysis** (`analysis/correlation.py`): Bayesian linear regression of **CESR delta** (quantized − FP16) vs. **subspace rank** (from `data/subspace_ranks.json`). Report posterior mean, [deferred] HDI, and significance flag. |
-| **T020** | Consolidate all statistical outputs into `data/analysis_results.json` adhering to `analysis_schema.schema.yaml`. |
-| **T021** | Record hashes of `analysis_results.json` in `state/artifact_hashes.yaml`. |
+- **T003: Generate Baseline (FP16)**
+  - Generate a set of images (multiple prompts × multiple seeds) using an FP16 adapter.
+  - **Output**: `data/generated/baseline/`, `data/references/baseline_embeddings.json`.
 
-### Phase 5 – Reporting
-| Task | Description |
-|------|-------------|
-| **T022** | Generate `data/report.md` summarising:<br>• Prompt‑effect mapping.<br>• Metric tables (mean cosine, LPIPS, CESR, style score).<br>• P-BLM posterior summaries and width flags.<br>• Rank‑bleeding correlation results.<br>• Any “Underpowered” or “Quantization Failure” flags.<br>*Source*: Extract 'Posterior Means' from `data/analysis_results.json.bayesian_model.quantization_effects` and 'Correlation' from `data/analysis_results.json.correlation_analysis`. |
-| **T023** | Run contract validation (`contract` tests) against all YAML schemas. |
-| **T024** | Clean up temporary files, ensure all artifacts are committed, and update `state/artifact_hashes.yaml` timestamps. |
+- **T004: Generate Distractor References (T012)**
+  - Generate 10 images using the **same** FP16 adapter but with **unrelated** prompts (Distractors) to establish a random semantic distance floor.
+  - **Output**: `data/references/distractor_embeddings.json`.
+
+- **T005: Generate Quantized Outputs (INT8, INT4)**
+  - Apply `torch.ao.quantization` to create INT8 and INT4 adapters.
+  - Generate multiple images for each level.
+  - **Model Integrity Check (T015)**: If LPIPS > 0.8 or Similarity < 0.1, flag as 'CatastrophicCollapse' and skip. If `torch.ao.quantization` fails, flag as 'BackendUnavailable' and skip.
+  - **Output**: `data/generated/int8/`, `data/generated/int4/`, `data/results/quantized_metrics.csv`.
+
+- **T006: Compute Normalized CESR (T013)**
+  - Calculate `CESR_raw` (similarity to other effect references).
+  - Calculate `CESR_baseline` (mean similarity to Distractor References from T004).
+  - Compute `CESR_normalized = CESR_raw - CESR_baseline`.
+  - **Output**: `data/results.csv` (includes `cesr_baseline`, `cesr_normalized`).
+
+### Phase 2: Statistical Analysis
+*Goal: Perform Bayesian analysis and descriptive correlation.*
+
+- **T007: Bayesian Hierarchical Model**
+  - Model `similarity_score` ~ Normal(μ, σ) with `μ` ~ Effect(quantization_level).
+  - Test for significant differences in adherence across levels.
+  - **Output**: `data/analysis_results.json` (quantization effects).
+
+- **T008: Descriptive Correlation (T021)**
+  - Aggregate `CESR_normalized` to the **effect level** (mean per effect).
+  - Correlate aggregated bleeding with `SourceRank` (from T001).
+  - **Note**: N=5 effects is **underpowered** for significance. This is a **descriptive** trend analysis.
+  - **Output**: `data/analysis_results.json` (correlation coefficient, CI).
+
+- **T009: Power & Stability Check (T022)**
+  - Calculate ESS for correlation coefficient.
+  - **Flag**: If ESS < 200 (expected for N=5), set `status` = 'Underpowered'.
+  - **Output**: `data/analysis_results.json` (power_flag).
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected |
-|-----------|------------|------------------------------|
-| **Constitution Amendment** | Conflict between FR‑006 (BHM/FELM) and Principle VII (ANOVA). | Ignoring the conflict would breach governance. |
-| **Prompt‑Effect One‑to‑One** | BHM/FELM instability with N = 5 prompts. | Keeping many prompts would cause non-identifiable posteriors. |
-| **Independent Reference Images** | Circular CESR validation. | Using LoRA-Free references for CESR is valid per FR-011. |
-| **Early Rank Persistence** | Rank data loss if pipeline crashes before analysis. | Computing rank later risks missing data for correlation. |
-| **Strict Quantization** | Principle VI demands noise isolation. | Fallback to non‑`torch.ao` would violate isolation. |
-| **Style‑Classifier Metric** | CLIP does not capture stylistic fidelity. | Relying solely on CLIP would be a category error. |
-| **Effect Count Limitation** | Compute budget ≤ 6 h. | Generating all effects for all prompts exceeds budget. |
-| **Reduced Steps** | CPU performance limits. | A high number of steps per image exceeds 6h limit; 20 steps for quantized levels is acceptable trade-off. |
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| **Synthetic Adapter Construction** | Public `stabilityai/collection-lora` does not exist. | Using a single-effect LoRA would fail FR-007 (correlation across effects) and FR-011 (CESR). Merging 5 verified open LoRAs or procedural generation is the only way to satisfy the multi-effect requirement. |
+| **Bayesian Hierarchical Model** | N=10 prompts is too small for ANOVA. | Frequentist ANOVA would lack power; Bayesian approach with informative priors (FR-012) allows valid inference with small N. |
+| **CPU-First Quantization** | No GPU available on free-tier runner. | Running on a local GPU is not reproducible by CI; `torch.ao.quantization` on CPU is the only reproducible path. |
+| **Normalized CESR** | Raw CESR confounds bleeding with general fidelity loss. | Distractor baseline (T004) isolates specific cross-effect interference. |
+| **Descriptive Correlation** | N=5 effects is statistically insufficient for significance. | Acknowledging the 'Underpowered' flag (T009) is more honest than forcing a false significance test. |
+
+## Execution Order & Resource Constraints
+
+- **Sequential Dependencies**:
+  - T001 (Load/SVD) → T002 (Merge) → T003 (Baseline) → T004 (Distractors) → T005 (Quantization).
+  - **Critical Note for T005 (Quantization)**: T005 **must** execute after T001c and T002 are complete. The quantization process (`torch.ao.quantization`) requires the merged adapter to be fully loaded and the SVD ranks to be computed. Attempting to run T005 before T002 may result in OOM errors or invalid weight matrices. The `[Foundational]` tag on T005 does not imply parallel execution with T002; it implies T005 is a foundational step for the *analysis*, but it is **sequentially dependent** on Phase 0 completion.

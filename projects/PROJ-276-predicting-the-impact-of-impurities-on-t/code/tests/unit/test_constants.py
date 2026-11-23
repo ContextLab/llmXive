@@ -3,96 +3,106 @@ Unit tests for the constants module.
 """
 
 import pytest
+import math
 from code.src.utils import constants
 
 
 class TestAtomicWeights:
-    def test_magnesium_weight_exists(self):
-        """Verify Mg atomic weight is defined."""
-        assert "Mg" in constants.ATOMIC_WEIGHTS
-        assert constants.ATOMIC_WEIGHTS["Mg"] > 0
-    
-    def test_boron_weight_exists(self):
-        """Verify B atomic weight is defined."""
-        assert "B" in constants.ATOMIC_WEIGHTS
-        assert constants.ATOMIC_WEIGHTS["B"] > 0
-    
-    def test_molecular_weight_calculation(self):
-        """Verify MgB2 molecular weight calculation."""
-        expected = constants.ATOMIC_WEIGHTS["Mg"] + 2 * constants.ATOMIC_WEIGHTS["B"]
-        assert abs(constants.MAGNESIUM_BORIDE_MOLECULAR_WEIGHT - expected) < 1e-6
-    
-    def test_all_weights_positive(self):
-        """Verify all atomic weights are positive."""
-        for element, weight in constants.ATOMIC_WEIGHTS.items():
-            assert weight > 0, f"Atomic weight for {element} should be positive"
+    """Tests for atomic weight retrieval."""
+
+    def test_get_mg_weight(self):
+        """Test retrieving Magnesium atomic weight."""
+        weight = constants.get_atomic_weight("Mg")
+        assert isinstance(weight, float)
+        assert 24.0 < weight < 25.0
+
+    def test_get_b_weight(self):
+        """Test retrieving Boron atomic weight."""
+        weight = constants.get_atomic_weight("B")
+        assert isinstance(weight, float)
+        assert 10.0 < weight < 11.0
+
+    def test_get_c_weight(self):
+        """Test retrieving Carbon atomic weight."""
+        weight = constants.get_atomic_weight("C")
+        assert isinstance(weight, float)
+        assert 12.0 < weight < 12.1
+
+    def test_get_unknown_element(self):
+        """Test that KeyError is raised for unknown element."""
+        with pytest.raises(KeyError):
+            constants.get_atomic_weight("Xx")
+
+    def test_case_sensitivity(self):
+        """Test that element lookup is case-sensitive."""
+        with pytest.raises(KeyError):
+            constants.get_atomic_weight("mg")  # lowercase should fail
 
 class TestUnitConversions:
-    def test_kelvin_to_celsius(self):
-        """Verify Kelvin to Celsius conversion factor."""
+    """Tests for unit conversion constants."""
+
+    def test_kelvin_to_celsius_constant(self):
+        """Test Kelvin to Celsius conversion factor."""
         assert constants.KELVIN_TO_CELSIUS == 273.15
-    
-    def test_celsius_to_kelvin(self):
-        """Verify Celsius to Kelvin conversion factor."""
+
+    def test_celsius_to_kelvin_constant(self):
+        """Test Celsius to Kelvin conversion factor."""
         assert constants.CELSIUS_TO_KELVIN == 273.15
-    
+
     def test_gpa_to_pa(self):
-        """Verify GPa to Pa conversion factor."""
+        """Test GPa to Pa conversion factor."""
         assert constants.GPA_TO_PA == 1e9
-    
+
     def test_pa_to_gpa(self):
-        """Verify Pa to GPa conversion factor."""
+        """Test Pa to GPa conversion factor."""
         assert constants.PA_TO_GPA == 1e-9
-    
+
     def test_gpa_to_bar(self):
-        """Verify GPa to bar conversion factor."""
+        """Test GPa to bar conversion factor."""
         assert constants.GPA_TO_BAR == 10000
-    
+
     def test_bar_to_gpa(self):
-        """Verify bar to GPa conversion factor."""
+        """Test bar to GPa conversion factor."""
         assert constants.BAR_TO_GPA == 1e-4
 
 class TestVIFThresholds:
-    def test_vif_threshold_low(self):
-        """Verify low VIF threshold value."""
-        assert constants.VIF_THRESHOLD_LOW == 5.0
-    
-    def test_vif_threshold_high(self):
-        """Verify high VIF threshold value."""
-        assert constants.VIF_THRESHOLD_HIGH == 10.0
-    
-    def test_default_vif_threshold(self):
-        """Verify default VIF threshold matches low threshold."""
-        assert constants.VIF_THRESHOLD == constants.VIF_THRESHOLD_LOW
-    
-    def test_vif_threshold_positive(self):
-        """Verify VIF thresholds are positive."""
-        assert constants.VIF_THRESHOLD_LOW > 0
-        assert constants.VIF_THRESHOLD_HIGH > 0
-        assert constants.VIF_THRESHOLD > 0
+    """Tests for VIF threshold constants."""
+
+    def test_vif_threshold_value(self):
+        """Test that VIF threshold is set to 5.0."""
+        assert constants.VIF_THRESHOLD == 5.0
+
+    def test_vif_threshold_type(self):
+        """Test that VIF threshold is a float."""
+        assert isinstance(constants.VIF_THRESHOLD, float)
 
 class TestDataProcessingConstants:
-    def test_min_samples_per_impurity(self):
-        """Verify minimum samples per impurity constant."""
-        assert constants.MIN_SAMPLES_PER_IMPURITY >= 1
-    
-    def test_max_missing_value_pct(self):
-        """Verify max missing value percentage constant."""
-        assert 0 <= constants.MAX_MISSING_VALUE_PCT <= 1
-    
-    def test_default_random_seed(self):
-        """Verify default random seed constant."""
-        assert constants.DEFAULT_RANDOM_SEED >= 0
+    """Tests for data processing constants."""
+
+    def test_null_value(self):
+        """Test null value constant."""
+        assert constants.NULL_VALUE is None
+
+    def test_missing_indicator(self):
+        """Test missing indicator value."""
+        assert constants.MISSING_INDICATOR == -9999.0
 
 class TestConstantsIntegrity:
-    def test_mg_formula(self):
-        """Verify MgB2 formula string."""
-        assert constants.MAGNESIUM_BORIDE_FORMULA == "MgB2"
-    
-    def test_mg_weight_consistency(self):
-        """Verify Mg weight consistency between dict and constant."""
-        assert constants.MAGNESIUM_ATOMIC_WEIGHT == constants.ATOMIC_WEIGHTS["Mg"]
-    
-    def test_b_weight_consistency(self):
-        """Verify B weight consistency between dict and constant."""
-        assert constants.BORON_ATOMIC_WEIGHT == constants.ATOMIC_WEIGHTS["B"]
+    """Tests for overall constants module integrity."""
+
+    def test_all_elements_have_weights(self):
+        """Verify all elements in dictionary have valid weights."""
+        for element, weight in constants.ATOMIC_WEIGHTS.items():
+            assert isinstance(element, str)
+            assert len(element) <= 2
+            assert isinstance(weight, (int, float))
+            assert weight > 0
+
+    def test_conversion_factors_are_positive(self):
+        """Verify all conversion factors are positive."""
+        assert constants.KELVIN_TO_CELSIUS > 0
+        assert constants.CELSIUS_TO_KELVIN > 0
+        assert constants.GPA_TO_PA > 0
+        assert constants.PA_TO_GPA > 0
+        assert constants.GPA_TO_BAR > 0
+        assert constants.BAR_TO_GPA > 0

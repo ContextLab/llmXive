@@ -2,13 +2,8 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001a** — No evidence of the listed directories (`code/`, `code/synthetic`, `code/metrics`, etc.) is provided; without a manifest, screenshot, or file‑tree showing these folders, we cannot confirm they were actually created. The implementer must supply concrete proof that the required project structure exists.
-- **T001b** — No `.gitignore` file was presented; the evidence does not include the required file listing the specified exclusions, so the task’s deliverable is missing.
-- **T001c** — No README.md file was presented; the required artifact is missing, so the task of initializing a README with project overview and quickstart instructions has not been fulfilled.
-- **T003** — The implementer provided only the scientific feature specification and no linting/formatting configuration artifacts (e.g., `pyproject.toml` with Black and Ruff settings, a `.flake8` file, or documentation of tool integration). Consequently, the required linting and formatting setup is missing.
-- **T006** — The repository contains `code/synthetic/generator.py`, but the shown code is truncated and provides no function that writes ground‑truth ellipticity/asymmetry to a JSON file. Moreover, the required `data/synthetic/gt_metadata.json` does not exist at all. Hence the task’s core requirement—saving exact ground‑truth values to a JSON metadata file—is not fulfilled.
-- **T008** — No `tests/unit/` directory, test files, or pytest configuration (e.g., `pytest.ini` or `conftest.py`) are present in the provided evidence, so the required test structure and setup have not been delivered.
-- **T009** — declared artifact(s) missing/empty/invalid: data/validation/validation_manifest.json
-- **T015** — declared artifact(s) missing/empty/invalid: code/main.py, data/synthetic/gt_metadata.json
-- **T022** — declared artifact(s) missing/empty/invalid: code/main.py, data/synthetic/gt_metadata.json
-- **T024** — declared artifact(s) missing/empty/invalid: data/processed/saturation_sweep.csv
+- **T001a4** — The unit test `test_create_logs_dir` failed because the expected `logs/` directory was not found at the project root, even though `create_logs_dir.py` printed a success message. The script’s behavior does not actually create the required `logs/` directory in the correct location, so the task’s requirement is not satisfied.
+- **T001b** — Checked for a `.gitignore` file at the project root; the evidence list shows directories (`data/`, etc.) but no `.gitignore` artifact and no content confirming the required exclusion patterns. The required file is missing or does not contain the specified entries.
+- **T046a** — Requested task execution failed; rerun successfully: code/main.py exit=1
+- **T006a** — The generator script `code/synthetic/generator.py` exists and looks functional, but the required output — 50 FITS files matching `data/synthetic/synth_*.fits` — does not exist on disk (collector: "NO MATCHING FILE exists"), so there is no evidence the generator was ever run or that headers contain `TRUE_ELLIP`/`TRUE_ASYM`. The implementer must execute the generator (e.g. `python code/synthetic/generator.py` from the project root) to produce the 50 FITS files (and ideally the `gt_metadata.json` manifest).
+- **T006b** — Requested task execution failed; rerun successfully: code/main.py exit=1

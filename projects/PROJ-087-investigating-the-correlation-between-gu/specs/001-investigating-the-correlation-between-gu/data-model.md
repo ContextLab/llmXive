@@ -2,63 +2,91 @@
 
 ## Overview
 
-This document defines the data models, schemas, and relationships for the gut microbiome and sleep quality analysis pipeline. It ensures data integrity and consistency throughout the pipeline.
-
-**Note**: The data model is conditional on the availability of the source dataset. If the source dataset lacks required fields, the pipeline will halt.
+This document defines the data structures for the microbiome-sleep correlation pipeline. It covers the input schema (if data were available), the intermediate processed schema, and the output schema for both "Happy Path" and "Blocked Path" scenarios.
 
 ## Entities
 
-### MicrobiomeSample
+### 1. MicrobiomeSample (Input/Intermediate)
 
-Represents a single participant's gut flora data and associated metadata.
+Represents a single participant's data.
 
-| Attribute | Type | Description | Constraints |
-|-----------|------|-------------|-------------|
-| `sample_id` | string | Unique identifier for the sample | Primary Key, Not Null |
-| `age` | integer | Participant age | >= 0, **Conditional on source** |
-| `bmi` | float | Body Mass Index | >= 0, Not Null for multivariate analysis, **Conditional on source** |
-| `antibiotic_use_last_3m` | boolean | Antibiotic use in last 3 months | Not Null, **Conditional on source** |
-| `sleep_efficiency` | float | Sleep efficiency (%) | 0.0 - 100.0, Not Null, **Conditional on source** |
-| `sleep_duration_hours` | float | Sleep duration (hours) | > 0.0, Not Null, **Conditional on source** |
-| `shannon_diversity` | float | Shannon index | >= 0.0 |
-| `simpson_diversity` | float | Simpson index | 0.0 - 1.0 |
-| `observed_otus` | integer | Observed OTUs count | >= 0 |
+| Field | Type | Description | Required |
+| :--- | :--- | :--- | :--- |
+| `sample_id` | string | Unique identifier for the sample | Yes |
+| `otu_counts` | object | Dictionary of OTU ID -> count | Yes |
+| `age` | integer | Age of participant | No |
+| `bmi` | float | Body Mass Index | No |
+| `antibiotic_use_last_3m` | boolean | True if antibiotics used in last 3 months | **Yes** |
+| `sleep_efficiency` | float | Percentage (0-100) | **Yes** |
+| `sleep_duration_hours` | float | Total hours slept | **Yes** |
+| `sleep_latency` | float | Time to fall asleep (minutes) | No |
 
-**Validation Note**: If the source dataset does not contain `sleep_efficiency`, `sleep_duration_hours`, or `antibiotic_use_last_3m`, the pipeline must halt with a clear error message indicating the missing fields. These fields are not optional for the analysis as specified.
+### 2. AlphaDiversityResult
 
-### CorrelationResult
+Computed diversity indices for a sample.
 
-Represents the statistical output of a single correlation test.
+| Field | Type | Description | Required |
+| :--- | :--- | :--- | :--- |
+| `sample_id` | string | Link to sample | Yes |
+| `shannon` | float | Shannon diversity index | Yes |
+| `simpson` | float | Simpson diversity index | Yes |
+| `observed_otus` | float | Count of observed OTUs | Yes |
 
-| Attribute | Type | Description | Constraints |
-|-----------|------|-------------|-------------|
-| `diversity_metric` | string | Name of the diversity metric (e.g., "shannon") | Not Null |
-| `sleep_metric` | string | Name of the sleep metric (e.g., "efficiency") | Not Null |
-| `r_value` | float | Spearman correlation coefficient | -1.0 - 1.0 |
-| `p_value` | float | Raw p-value | 0.0 - 1.0 |
-| `q_value` | float | Benjamini-Hochberg adjusted p-value | 0.0 - 1.0 |
-| `is_significant` | boolean | True if q_value < 0.05 | Not Null |
-| `is_moderate` | boolean | True if |r_value| > 0.3 | Not Null |
+### 3. CorrelationResult
 
-## Data Flow
+Statistical output of a single test.
 
-1.  **Raw Data**: Downloaded from AGP (OTU tables + metadata). **If not found, halt.**
-2.  **Feasibility Check**: Verify presence of required columns (`sleep_efficiency`, `sleep_duration_hours`, `antibiotic_use_last_3m`). **If missing, halt.**
-3.  **Filtered Data**: Samples with antibiotic use or missing sleep data are removed.
-4.  **Enriched Data**: Alpha-diversity indices are computed (with rarefaction) and added to the filtered dataset.
-5.  **Analysis Output**: Correlation results are generated and stored.
-6.  **Visualization Output**: Plots are generated from significant results.
+| Field | Type | Description | Required |
+| :--- | :--- | :--- | :--- |
+| `diversity_metric` | string | Name of diversity metric (e.g., "shannon") | Yes |
+| `sleep_metric` | string | Name of sleep metric (e.g., "efficiency") | Yes |
+| `r_value` | float | Spearman correlation coefficient | Yes |
+| `p_value` | float | Raw p-value | Yes |
+| `q_value` | float | Benjamini-Hochberg adjusted p-value | Yes |
+| `is_significant` | boolean | True if q_value < 0.05 | Yes |
+| `is_moderate` | boolean | True if |r| > 0.3 | Yes |
 
-## Storage Format
+### 4. FeasibilityReport (Blocked State)
 
-- **Raw Data**: Parquet or CSV (preserved unchanged).
-- **Filtered/Enriched Data**: CSV (analysis-ready).
-- **Correlation Results**: JSON or CSV.
-- **Plots**: PNG.
+Structure for "Feasibility Report" (generated when data is unavailable).
 
-## Validation Rules
+| Field | Type | Description | Required |
+| :--- | :--- | :--- | :--- |
+| `status` | string | Value: "blocked" | Yes |
+| `reason` | string | Explanation (e.g., "No verified URL for AGP") | Yes |
+| `timestamp` | string | ISO 8601 timestamp (static, derived from plan.md) | Yes |
+| `measurement_status` | string | Value: "unmeasurable" | Yes |
+| `diversity_computation_status` | string | Value: "blocked" | Yes |
+| `correlation_analysis_status` | string | Value: "blocked" | Yes |
+| `visualization_status` | string | Value: "blocked" | Yes |
+| `exclusion_rates_status` | string | Value: "unmeasurable" | Yes |
+| `correlation_metrics_status` | string | Value: "unmeasurable" | Yes |
 
-- All numeric fields must be within valid ranges.
-- No missing values in critical fields (`sleep_efficiency`, `sleep_duration_hours`, `antibiotic_use_last_3m`) **if the source provides them**. If the source lacks these fields, the pipeline halts.
-- Diversity indices must be non-negative.
-- Correlation coefficients must be between -1 and 1.
+## File Schemas
+
+### Input: `data/raw/agp_otu.tsv` (Expected)
+- **Format**: TSV
+- **Columns**: `SampleID`, `OTU_1`, `OTU_2`, ... (OTU counts), `antibiotic_use_last_3m`, `sleep_efficiency`, `sleep_duration_hours`.
+- **Note**: This file is **NOT** available in the current `# Verified datasets` block.
+
+### Output: `data/processed/feasibility_report.json` (Blocked)
+- **Format**: JSON
+- **Content**:
+  ```json
+  {
+    "status": "blocked",
+    "reason": "No verified URL for American Gut Project with sleep metadata",
+    "timestamp": "2026-06-26T00:00:00Z",
+    "measurement_status": "unmeasurable",
+    "diversity_computation_status": "blocked",
+    "correlation_analysis_status": "blocked",
+    "visualization_status": "blocked",
+    "exclusion_rates_status": "unmeasurable",
+    "correlation_metrics_status": "unmeasurable"
+  }
+  ```
+  *Note: The timestamp is static (derived from plan.md) to ensure deterministic hashing.*
+
+### Output: `outputs/reports/feasibility_report.md`
+- **Format**: Markdown
+- **Content**: A human-readable report stating the analysis was not performed due to data unavailability, citing the specific missing variables and the lack of a verified URL.

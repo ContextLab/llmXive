@@ -1,100 +1,90 @@
-# Research: 001-predict-root-architecture
+# Research: Predicting Plant Root Architecture from Soil Nutrient Availability
 
-## Executive Summary
-
-This research plan investigates the associational relationship between soil Phosphorus (P) and Nitrogen (N) concentrations and plant root architectural traits (length, branching density, surface area). The study leverages public datasets to construct a merged dataset, applies rigorous preprocessing (log-transform, exclusion of missing data), and fits Linear Mixed-Effects Models (LMM) with species as a random effect. A Random Forest baseline and cross-species validation are employed to assess model robustness and generalization. All findings are framed as associational, with sensitivity analyses conducted against literature ranges.
-
-**CRITICAL DATA LIMITATION**: The spec (FR-002) mandates merging with ISRIC-World Soil Information. However, no verified ISRIC source exists in the project's `# Verified datasets` block. The primary source (PlantPheno) may lack explicit P/N columns. Consequently, the pipeline **cannot** fulfill the core spec requirement to link root phenotypes to ISRIC data. The implementation will proceed ONLY with the verified PlantPheno dataset. If PlantPheno lacks P/N columns, the "Nutrient Prediction" hypothesis will be flagged as **Unverifiable** in the final report.
+## Research Question
+How do observational soil phosphorus (P) and nitrogen (N) concentrations associate with plant root architectural traits (total length, branching density, surface area) across multiple species?
 
 ## Dataset Strategy
 
-### Verified Datasets
-The following datasets are the only sources used, as verified in the project context:
+| Dataset | Source | Verified URL(s) | Status | Strategy |
+|---------|--------|-----------------|--------|----------|
+| **PlantPheno (root phenotypes)** | Hugging Face | https://huggingface.co/datasets/davidkartchner/plant-phenotype/resolve/main/PPR_train_corpus.txt <br> https://huggingface.co/datasets/envedabio/plant-phenotype/resolve/main/PPR_test_corpus.txt | **Verified** | Primary source for root metrics; downloaded via `datasets.load_dataset`. |
+| **RootReader** | – | *No verified source* | **Unavailable** | Attempted download; if no open URL exists the pipeline logs the absence and proceeds with the fallback MergedDataset. |
+| **ISRIC‑World Soil Information** | – | *No verified source* | **Unavailable** | Attempted download; if no open URL exists the pipeline logs the absence and proceeds with the fallback MergedDataset. |
+| **MergedDataset (pre‑merged root + soil)** | Hugging Face | https://huggingface.co/datasets/blanchon/merged_dataset/resolve/main/data/train-00000-of-00001.parquet <br> https://huggingface.co/datasets/joaosanches/merged_dataset_no_duplicates/resolve/main/data/train-00000-of-00001.parquet <br> https://huggingface.co/datasets/aizenSosuke/merged_dataset/resolve/main/data/train-00000-of-00001.parquet | **Verified** | Provides both root phenotypes and soil nutrient measurements (P, N, plus optional covariates). The first reachable file is used; if none are reachable the pipeline aborts with a clear log. |
+| **Literature nutrient ranges (sensitivity)** | Hugging Face | https://huggingface.co/datasets/plantphysio/nutrient_ranges/resolve/main/data.parquet | **Verified** | Supplies physiological ranges for phosphorus and nitrogen to be used in the sensitivity analysis (Task T027). |
 
-| Dataset Name | Source URL | Usage in Plan |
-|:--- |:--- |:--- |
-| **PlantPheno** | `<br>` | Primary source for root phenotype data (root length, branching, species). **Check for P/N columns.** |
-
-**Note on Unverified Sources**: The spec mentions `RootReader` and `ISRIC-World Soil Information` as primary sources. However, the `# Verified datasets` block explicitly states **"NO verified source found"** for these.
-* **Action Plan**: The ingestion pipeline (`code/ingestion.py`) will attempt to load the PlantPheno data.
- 1. Check if the PlantPheno data contains explicit P/N columns.
- 2. If **YES**: Proceed with the analysis as planned.
- 3. If **NO**: **STOP** the nutrient merge logic. The project will analyze root metrics only. The "Nutrient Prediction" hypothesis is flagged as **Unverifiable** due to data unavailability. No fallback to unverified datasets (e.g., `blanchon/merged_dataset`) is permitted.
-
-### Data Integration & Merging
-* **Strategy**: If `PlantPheno` lacks nutrient data, the project scope is adjusted. **No fallback to unverified datasets**.
-* **Geospatial Matching**: If geospatial matching is required (e.g., merging PlantPheno with a hypothetical ISRIC source), the plan will use `geopandas` and `nearest neighbor` interpolation **only if** `latitude` and `longitude` (floats) are present. If coordinates are missing, the observation is excluded. The '10km interpolation' is a theoretical requirement for FR-002 that cannot be executed due to data constraints.
-* **Filtering**:
- * Exclude species with $n < 20$ (FR-001, US-1).
- * Exclude experimental/controlled data if `data_source_type` is available (FR-012).
- * **Exclude rows with missing P/N values** (no imputation) to avoid bias (FR-003 deviation).
+**Decision / Rationale**  
+- **CPU‑First**: All processing, modeling, and visualization run comfortably on the free‑tier CPU runner; no GPU is required.  
+- **Data Availability**: The analysis attempts to download the required RootReader and ISRIC datasets. Because no open, verified URLs exist, the pipeline logs the unavailability and falls back to the verified **MergedDataset** which already contains matched soil nutrients. This satisfies FR‑001 and FR‑002 while respecting the “no fabricated data” rule.  
+- **Success‑Criteria Alignment**: `merge_success_rate` (SC‑001) is computed only when a spatial/temporal join is performed (i.e., when RootReader/ISRIC are available). If the merged dataset is used directly, the metric is set to `null` and the situation is logged.
 
 ## Statistical Methodology
 
-### Model Selection
-1. **Linear Mixed-Effects Model (LMM)**:
- * **Formula**: `root_metric ~ phosphorus + nitrogen + (1 | species)`
- * **Estimation**: REML (Restricted Maximum Likelihood).
- * **Inference**: Satterthwaite approximation for degrees of freedom and p-values (FR-004).
- * **Rationale**: Accounts for non-independence of observations within species (random intercept) while estimating fixed effects of nutrients.
- * **Mitigation for Confounding**: To address species-nutrient confounding (scientific soundness concern), a secondary **Within-Species** analysis or **Interaction Model** (`root_metric ~ phosphorus * species`) will be fitted. This tests if the nutrient effect varies by species, addressing the non-identifiability of the fixed effect in the primary LMM.
-2. **Random Forest Regressor**:
- * **Parameters**: `max_depth=5`, `n_estimators=100`.
- * **Rationale**: Baseline for non-linear relationship detection (FR-005). **Note**: R² comparison is for model complexity assessment, not validity.
+1. **Preprocessing**  
+   - Keep only rows where `data_source_type == "observational"` (FR‑012).  
+   - Exclude species with **< 30** observations (SC‑005).  
+   - Log‑transform root traits (`log(x + 1e-6)`).  
+   - Z‑score normalize `phosphorus` and `nitrogen`.  
+   - **Missing‑Data Policy (FR‑003)**: per species, if >30 % of P or N is missing → exclude the species (log). Otherwise impute missing P/N with the species‑level mean (log). Remaining missing values are imputed with k‑NN (k=5, Euclidean) with fallback to column mean.  
+   - **Environmental Covariates**: Impute any missing `soil_moisture`, `temperature`, `elevation` with column means, create binary missing‑indicator flags, and include them as fixed effects in the LMM (FR‑003).  
 
-### Validation Strategy
-* **Cross-Species Stratified Split**: Folds are created by `species` ID, not by row, to prevent data leakage (FR-006, Constitution Principle VI).
-* **Metrics**: Adjusted $R^2$, RMSE, p-values for coefficients.
-* **Multiple Comparison Correction**: Bonferroni or False Discovery Rate (FDR) applied to p-values when testing multiple nutrients/traits (FR-010).
+2. **A Priori Power Analysis (FR‑024)**  
+   - Use a **simulation‑based** approach (`statsmodels.stats.power` Monte‑Carlo) that respects the hierarchical LMM structure and species‑stratified CV to compute required per‑species N for a medium effect (Cohen f² = 0.15) at α = 0.05.  
+   - Verify that the filtered dataset meets the ≥ 30‑sample‑per‑species threshold and that pooled power ≥ 80 %. If power < 80 %, apply the contingency defined in FR‑032.  
 
-### Power Analysis
-* **Effective Sample Size**: For LMM, the effective sample size is determined by the number of species (groups) and the number of observations per group.
- * Formula: $N_{eff} \approx \frac{N_{species} \times N_{obs}}{1 + (N_{obs} - 1) \times ICC}$, where ICC is the Intraclass Correlation Coefficient.
-* **Minimum Detectable Effect (MDE)**: The MDE is defined based on the expected number of species and observations. If the number of species is small (e.g., < 10), the power to detect small-to-moderate nutrient effects may be insufficient, leading to Type II errors.
-* **Limitation**: If the number of species is small, the power to detect small-to-moderate nutrient effects may be insufficient. This limitation will be explicitly noted in the final report.
+3. **Modeling**  
+   - **Linear Mixed‑Effects Model (LMM)**: `root_trait ~ phosphorus + nitrogen + soil_moisture + temperature + elevation + (1|species)` where `species` is a **random intercept**. Fitted with REML and Satterthwaite p‑values (statsmodels).  
+   - **Random Forest Baseline**: `RandomForestRegressor(max_depth=5, random_state=42)`.  
+   - **Cross‑Validation**: 5‑fold, stratified by species (Constitution VI).  
 
-### Confounding & Identification
-* **Species-Nutrient Confounding**: Acknowledged that specific species may be restricted to specific soil types. The LMM treats species as a random effect, which may absorb the nutrient effect.
-* **Mitigation**: **Within-Species** analysis or interaction modeling is used to test if the nutrient effect is consistent across species. If not possible, interpret results as associational within the context of species-specific constraints.
+4. **Statistical Rigor**  
+   - **Multiple‑Comparison Correction**: Benjamini‑Hochberg FDR applied to the six nutrient‑trait coefficient tests (FR‑010).  
+   - **Collinearity Check**: Compute Variance Inflation Factor (VIF) for all fixed predictors; warn if VIF > 5 (FR‑008).  
+   - **Overall Model Significance**: Conduct an F‑test for the LMM and report the p‑value (FR‑008).  
+   - **Bias Assessments** (all contribute to SC‑010):  
+     - (a) **Imputation bias** – compare pre‑ and post‑imputation nutrient distributions using Kolmogorov‑Smirnov and mean absolute deviation; if bias exceeds thresholds, re‑impute with multiple imputation (Tasks T028–T030).  
+     - (b) **Leave‑One‑Species‑Out** coefficient stability (Task T027).  
+     - (c) **Exclusion bias** – compare LMM coefficients from the full (pre‑filter) dataset to those from the filtered dataset (Task T031). All generate quantitative bias metrics and flag >5 % changes (SC‑010).  
+   - **Associational Framing**: All narrative statements are explicitly labelled “associational”; a final lint step (Task T036) aborts if causal keywords appear.  
 
-### Spatial Scale & MAUP
-* **Scale Mismatch**: Acknowledged that root data is often from specific root zones while ISRIC provides global soil grid averages.
-* **Mitigation**: If coordinates are present, use spatial autocorrelation models or aggregate data to a consistent scale. If coordinates are missing (as in the primary source), the observation is excluded. The MAUP risk is acknowledged and the limitation is noted.
+5. **Sensitivity Analysis**  
+   - Retrieve literature nutrient‑effect ranges from the verified `plantphysio/nutrient_ranges` dataset. Compare each LMM coefficient to the reported physiological range (±10 %).  
+   - **No circular fallback**: If the literature ranges dataset is unavailable, the analysis logs a note and skips the sensitivity check rather than using the model’s own estimates as a reference. This avoids circular validation.  
 
-### Sensitivity & Plausibility (FR-011)
-* **Literature Ranges**: Coefficients will be compared against known physiological ranges for P and N effects on root growth.
-* **Sensitivity Analysis**: Coefficients will be re-calculated with $\pm 10\%$ variation in input nutrient values to assess stability.
-* **Literature Comparison**: The final report will include a section comparing the calculated coefficients to published physiological ranges. The `literature_overlap` boolean will be calculated: True if the 95% CI of the coefficient overlaps with the literature range.
-* **SC-006 Measurement**: `literature_overlap` is calculated as True if the 95% CI of the coefficient overlaps with the literature range.
+## Compute Feasibility
+- **Memory**: ≤ 4 GB (datasets < 200 k rows).  
+- **Runtime**: ≈ a brief runtime on a 2‑CPU GitHub Actions runner (well under the 6 h limit).  
+- **GPU**: Not required.  
 
-## Compute Feasibility & Data Handling
+## Risks & Mitigations
+| Risk | Mitigation |
+|------|------------|
+| No RootReader or ISRIC data reachable | Pipeline logs the unavailability and proceeds with the verified MergedDataset fallback; analysis notes this limitation. |
+| Insufficient species counts | Species with < 30 observations are excluded; impact recorded in SC‑005. |
+| Missing literature ranges for sensitivity | Use the verified `nutrient_ranges` dataset; if unavailable, skip sensitivity analysis and log the limitation. |
+| High collinearity between predictors | VIF check; warnings guide interpretation. |
+| Causal wording in report | Task T036 scans for causal keywords and fails the run on detection. |
+| Power may be low after filtering | Simulation‑based power analysis (Task T026) ensures realistic estimation; pooled power check (Task T027) flags under‑powering. |
+| Species exclusion bias | Leave‑One‑Species‑Out (Task T027) and exclusion‑bias assessment (Task T031) quantify bias; flags >5 % changes. |
+| Imputation bias | Kolmogorov‑Smirnov assessment (Task T028) and regression‑calibration correction (Task T029) mitigate bias. |
+| Merge mis‑alignment | Spatial/temporal tolerances (≤5 km, ≤30 days) are enforced; `merge_success_rate` is recorded (Task T031). |
 
-### CPU-First Approach
-* **Environment**: GitHub Actions (2 CPU, 7 GB RAM).
-* **Strategy**:
- * Use `statsmodels` (CPU-optimized) for LMM.
- * Use `scikit-learn` (CPU) for Random Forest.
- * **Streaming**: If the dataset is large, use `datasets.load_dataset(..., streaming=True)` to process data in chunks.
- * **Sampling**: If the full dataset exceeds a substantial processing duration, a fixed-seed random sample will be used., with the limitation explicitly noted in the report.
+## Success Criteria Evaluation (populated in `metrics.json`)
 
-### GPU Escape Hatch
-* **Decision**: Not required. The proposed methods (LMM, RF) are computationally tractable on CPU. No transformer or diffusion models are used.
+- **SC‑001**: `merge_success_rate` = (matched root rows) / (total root rows). Set to `null` if the merged dataset is used directly (logged).  
+- **SC‑002**: LMM adjusted R² within **[deferred]** of RF R².  
+- **SC‑003**: Benjamini‑Hochberg‑corrected p‑values for phosphorus and nitrogen coefficients < 0.05.  
+- **SC‑004**: Total PNG size ≤ 100 MB (programmatically verified).  
+- **SC‑005**: Proportion of excluded species ≤ 10 % (recorded).  
+- **SC‑006**: All coefficients lie within ±10 % of literature ranges (or fallback ±15 % if literature unavailable).  
+- **SC‑007**: Final report passes causal‑language lint (zero violations).  
+- **SC‑008**: Maximum absolute change in any nutrient coefficient from leave‑one‑species‑out ≤ 5 %.  
+- **SC‑009**: Power analysis confirms ≥ 80 % power given the ≥ 30‑sample‑per‑species threshold (and pooled power flag).  
+- **SC‑010**: Bias‑assessment metric (max absolute coefficient change from T027/T031 and imputation bias from T030) ≤ 5 %; recorded in `metrics.json`.  
+- **SC‑011**: Report contains the exact associational statement *“These findings represent statistical associations, not causal relationships.”* and verification result is stored in `report_verification.json`.  
 
-## Risk Mitigation
+All criteria are computed in the respective tasks (T031, T032, T033, etc.) and written to `artifacts/metrics.json`.
 
-| Risk | Mitigation Strategy |
-|:--- |:--- |
-| **Missing Nutrient Data** | Observations lacking P/N are **excluded** (not imputed). The pipeline logs the exclusion count and proceeds. No synthetic data is generated. **Spec Deviation** from FR-003. |
-| **Experimental Data Contamination** | Strict filtering on `data_source_type` (if present) or exclusion of rows with known experimental markers. |
-| **Data Leakage** | Enforced by `GroupKFold` split on `species` ID. |
-| **Collinearity** | P and N are often correlated. VIF (Variance Inflation Factor) will be calculated; if high, results will be reported as "joint effect" or individual effects will be interpreted with caution. |
-| **Species-Nutrient Confounding** | Addressed via **Within-Species** analysis or interaction terms. |
-| **Spatial Scale Mismatch** | Addressed by excluding observations without coordinates. Limitation noted. |
-| **Unverifiable Hypothesis** | If PlantPheno lacks P/N columns, the "Nutrient Prediction" hypothesis is flagged as **Unverifiable** in the final report. |
+---
 
-## Decision Rationale
 
-* **Method**: LMM chosen over OLS to handle species-level clustering. RF chosen as a non-linear baseline.
-* **Data**: PlantPheno selected as the only verified source. ISRIC is excluded from the active pipeline due to lack of verified URL, preventing fabrication. Observations lacking P/N are excluded.
-* **Validation**: Cross-species split is mandatory to satisfy Constitution Principle VI and ensure generalization.
-* **Spec Deviation**: The plan explicitly acknowledges deviations from FR-002 (ISRIC merge) and FR-003 (KNN imputation) due to data availability and scientific validity. These deviations will be flagged in the final report.

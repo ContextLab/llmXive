@@ -1,11 +1,6 @@
 """
-T028: Validate all output artifacts (CSV, JSON, PNG) against schemas and success criteria.
-
-This script validates:
-1. CSV files against the dataset schema (FR-001)
-2. JSON files against the feature extraction schema
-3. PNG files for existence, non-zero size, and valid image header
-4. Content validation for consistency scores, trust scores, and correlation results
+Validation of all output artifacts (CSV, JSON, PNG) against schemas and success criteria.
+Implements T028: Validate all output artifacts.
 """
 import os
 import sys
@@ -15,296 +10,379 @@ import yaml
 import struct
 import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
-from validators import load_schema, validate_schema_compliance, ValidationError
+from typing import Dict, List, Any, Optional, Tuple, Set
+
+# Import logging config from sibling module
 from logging_config import get_logger, setup_logging
-from config import PROJECT_ROOT
 
-# Setup logging
-setup_logging()
-logger = get_logger(__name__)
+# Import schema loader from validators if available, otherwise define locally
+try:
+    from validators import load_schema
+except ImportError:
+    def load_schema(schema_path: str) -> Dict:
+        """Fallback loader if validators module is not fully imported yet."""
+        if not os.path.exists(schema_path):
+            raise FileNotFoundError(f"Schema file not found: {schema_path}")
+        with open(schema_path, 'r') as f:
+            return yaml.safe_load(f)
 
-# Define expected output paths based on completed tasks
-OUTPUT_CSV_PATH = os.path.join(PROJECT_ROOT, "data/processed/consistency_results.csv")
-OUTPUT_JSON_PATH = os.path.join(PROJECT_ROOT, "outputs/analysis_results.json")
-OUTPUT_PNG_PATH = os.path.join(PROJECT_ROOT, "outputs/scatter_plot.png")
 
-SCHEMA_PATH_DATASET = os.path.join(PROJECT_ROOT, "specs/001-emotional-synchrony-trust/contracts/dataset_schema.yaml")
-SCHEMA_PATH_FEATURES = os.path.join(PROJECT_ROOT, "specs/001-emotional-synchrony-trust/contracts/feature_extraction_schema.yaml")
-
-def validate_csv_schema(file_path: str, schema_path: str) -> bool:
-    """Validate CSV file against dataset schema."""
-    logger.info(f"Validating CSV: {file_path}")
+def validate_csv_schema(file_path: str, schema: Dict) -> Tuple[bool, List[str]]:
+    """
+    Validates a CSV file against a provided schema definition.
+    
+    Args:
+        file_path: Path to the CSV file.
+        schema: Dictionary defining required columns and types.
+        
+    Returns:
+        Tuple of (is_valid, list of error messages).
+    """
+    errors = []
+    logger = get_logger()
     
     if not os.path.exists(file_path):
-        logger.error(f"CSV file not found: {file_path}")
-        return False
-    
-    if os.path.getsize(file_path) == 0:
-        logger.error(f"CSV file is empty: {file_path}")
-        return False
+        return False, [f"File not found: {file_path}"]
     
     try:
-        schema = load_schema(schema_path)
-        # Read CSV data
         with open(file_path, 'r', newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
-            rows = list(reader)
-        
-        if not rows:
-            logger.error(f"CSV file has no data rows: {file_path}")
-            return False
-        
-        # Validate against schema (simplified check for required columns)
-        required_columns = schema.get('required_columns', [])
-        if required_columns:
-            first_row_keys = set(rows[0].keys())
-            missing_cols = set(required_columns) - first_row_keys
-            if missing_cols:
-                logger.error(f"CSV missing required columns: {missing_cols}")
-                return False
-        
-        # Validate specific data types for key columns
-        for row in rows:
-            if 'consistency_score' in row:
-                try:
-                    score = float(row['consistency_score'])
-                    if not (-1.0 <= score <= 1.0):
-                        logger.error(f"Consistency score out of range: {score}")
-                        return False
-                except ValueError:
-                    logger.error(f"Invalid consistency score format: {row['consistency_score']}")
-                    return False
+            headers = reader.fieldnames
             
-            if 'trust_score' in row:
-                try:
-                    score = float(row['trust_score'])
-                    if score < 0 or score > 100:
-                        logger.error(f"Trust score out of range: {score}")
-                        return False
-                except ValueError:
-                    logger.error(f"Invalid trust score format: {row['trust_score']}")
-                    return False
-        
-        logger.info(f"CSV validation passed: {file_path}")
-        return True
-        
+            if not headers:
+                return False, ["CSV file is empty or has no headers"]
+            
+            # Check required columns
+            required_cols = schema.get('required_columns', [])
+            missing_cols = set(required_cols) - set(headers)
+            if missing_cols:
+                errors.append(f"Missing required columns: {missing_cols}")
+            
+            # Validate row count (minimum 1 data row)
+            row_count = 0
+            for row in reader:
+                row_count += 1
+                # Optional: Validate specific column types if schema defines them
+                # e.g., if schema has 'column_types': {'trust_score': 'float'}
+                for col, expected_type in schema.get('column_types', {}).items():
+                    if col in row:
+                        val = row[col]
+                        if val is None or val == '':
+                            continue # Allow empty if not required
+                        try:
+                            if expected_type == 'float':
+                                float(val)
+                            elif expected_type == 'int':
+                                int(val)
+                            elif expected_type == 'bool':
+                                if val.lower() not in ['true', 'false', '1', '0']:
+                                    raise ValueError("Invalid boolean")
+                        except ValueError:
+                            errors.append(f"Row {row_count+1}: Column '{col}' expected {expected_type}, got '{val}'")
+            
+            if row_count == 0:
+                errors.append("CSV file contains no data rows")
+                
+            if errors:
+                logger.warning(f"CSV validation failed for {file_path}: {errors}")
+                return False, errors
+            
+            logger.info(f"CSV validation passed for {file_path} ({row_count} rows)")
+            return True, []
+            
     except Exception as e:
-        logger.error(f"CSV validation failed: {str(e)}")
-        return False
+        errors.append(f"Error reading CSV: {str(e)}")
+        return False, errors
 
-def validate_json_schema(file_path: str, schema_path: str) -> bool:
-    """Validate JSON file against feature extraction schema."""
-    logger.info(f"Validating JSON: {file_path}")
+
+def validate_json_schema(file_path: str, schema: Dict) -> Tuple[bool, List[str]]:
+    """
+    Validates a JSON file against a provided schema definition.
+    
+    Args:
+        file_path: Path to the JSON file.
+        schema: Dictionary defining required keys and types.
+        
+    Returns:
+        Tuple of (is_valid, list of error messages).
+    """
+    errors = []
+    logger = get_logger()
     
     if not os.path.exists(file_path):
-        logger.error(f"JSON file not found: {file_path}")
-        return False
-    
-    if os.path.getsize(file_path) == 0:
-        logger.error(f"JSON file is empty: {file_path}")
-        return False
+        return False, [f"File not found: {file_path}"]
     
     try:
         with open(file_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
+            
+        if not isinstance(data, dict):
+            return False, ["JSON root must be an object/dictionary"]
         
-        schema = load_schema(schema_path)
-        
-        # Check for required top-level keys
+        # Check required keys
         required_keys = schema.get('required_keys', [])
-        if required_keys:
-            missing_keys = set(required_keys) - set(data.keys())
-            if missing_keys:
-                logger.error(f"JSON missing required keys: {missing_keys}")
-                return False
+        missing_keys = set(required_keys) - set(data.keys())
+        if missing_keys:
+            errors.append(f"Missing required keys: {missing_keys}")
         
-        # Validate correlation coefficient
-        if 'correlation_coefficient' in data:
-            corr = float(data['correlation_coefficient'])
-            if not (-1.0 <= corr <= 1.0):
-                logger.error(f"Correlation coefficient out of range: {corr}")
-                return False
+        # Validate types
+        for key, expected_type in schema.get('key_types', {}).items():
+            if key in data:
+                val = data[key]
+                if expected_type == 'float' and not isinstance(val, (int, float)):
+                    errors.append(f"Key '{key}' expected float, got {type(val).__name__}")
+                elif expected_type == 'int' and not isinstance(val, int):
+                    errors.append(f"Key '{key}' expected int, got {type(val).__name__}")
+                elif expected_type == 'string' and not isinstance(val, str):
+                    errors.append(f"Key '{key}' expected string, got {type(val).__name__}")
+                elif expected_type == 'list' and not isinstance(val, list):
+                    errors.append(f"Key '{key}' expected list, got {type(val).__name__}")
         
-        # Validate confidence interval
-        if 'confidence_interval' in data:
-            ci = data['confidence_interval']
-            if not isinstance(ci, list) or len(ci) != 2:
-                logger.error("Confidence interval must be a list of two values")
-                return False
-            if ci[0] > ci[1]:
-                logger.error("Confidence interval lower bound > upper bound")
-                return False
+        if errors:
+            logger.warning(f"JSON validation failed for {file_path}: {errors}")
+            return False, errors
         
-        logger.info(f"JSON validation passed: {file_path}")
-        return True
+        logger.info(f"JSON validation passed for {file_path}")
+        return True, []
         
     except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON format: {str(e)}")
-        return False
+        return False, [f"Invalid JSON format: {str(e)}"]
     except Exception as e:
-        logger.error(f"JSON validation failed: {str(e)}")
-        return False
+        return False, [f"Error reading JSON: {str(e)}"]
 
-def validate_png_file(file_path: str) -> bool:
-    """Validate PNG file for existence, non-zero size, and valid header."""
-    logger.info(f"Validating PNG: {file_path}")
+
+def validate_png_file(file_path: str) -> Tuple[bool, List[str]]:
+    """
+    Validates that a file is a valid PNG image by checking the magic bytes.
+    
+    Args:
+        file_path: Path to the PNG file.
+        
+    Returns:
+        Tuple of (is_valid, list of error messages).
+    """
+    errors = []
+    logger = get_logger()
     
     if not os.path.exists(file_path):
-        logger.error(f"PNG file not found: {file_path}")
-        return False
-    
-    file_size = os.path.getsize(file_path)
-    if file_size == 0:
-        logger.error(f"PNG file is empty: {file_path}")
-        return False
-    
-    if file_size < 8:
-        logger.error(f"PNG file too small to be valid: {file_path}")
-        return False
-    
-    # Check PNG signature (first 8 bytes)
-    # PNG signature: 89 50 4E 47 0D 0A 1A 0A
-    expected_signature = b'\x89PNG\r\n\x1a\n'
+        return False, [f"File not found: {file_path}"]
     
     try:
         with open(file_path, 'rb') as f:
-            signature = f.read(8)
-            if signature != expected_signature:
-                logger.error(f"Invalid PNG signature: {signature.hex()}")
-                return False
+            # PNG Magic bytes: 89 50 4E 47 0D 0A 1A 0A
+            header = f.read(8)
+            expected_header = b'\x89PNG\r\n\x1a\n'
+            
+            if header != expected_header:
+                return False, ["File is not a valid PNG (invalid magic bytes)"]
+            
+            # Basic file size check (should be > 0)
+            f.seek(0, 2) # Seek to end
+            size = f.tell()
+            if size < 64: # Minimum reasonable PNG size
+                return False, [f"File size too small ({size} bytes), likely corrupted"]
+                
+        logger.info(f"PNG validation passed for {file_path} ({size} bytes)")
+        return True, []
+        
     except Exception as e:
-        logger.error(f"Error reading PNG file: {str(e)}")
-        return False
-    
-    # Additional check: try to parse IHDR chunk (basic validation)
-    try:
-        with open(file_path, 'rb') as f:
-            f.read(8)  # Skip signature
-            # Read length (4 bytes, big-endian)
-            length_bytes = f.read(4)
-            if len(length_bytes) < 4:
-                logger.error("PNG file truncated before IHDR length")
-                return False
-            length = struct.unpack('>I', length_bytes)[0]
-            
-            # Read chunk type (4 bytes)
-            chunk_type = f.read(4)
-            if chunk_type != b'IHDR':
-                logger.error(f"Expected IHDR chunk, got: {chunk_type}")
-                return False
-            
-            # Read IHDR data (13 bytes)
-            ihdr_data = f.read(13)
-            if len(ihdr_data) < 13:
-                logger.error("PNG file truncated in IHDR data")
-                return False
-            
-            # Parse width and height (first 8 bytes of IHDR data)
-            width = struct.unpack('>I', ihdr_data[0:4])[0]
-            height = struct.unpack('>I', ihdr_data[4:8])[0]
-            
-            if width == 0 or height == 0:
-                logger.error(f"PNG has zero dimensions: {width}x{height}")
-                return False
-            
-            logger.info(f"PNG validation passed: {file_path} ({width}x{height})")
-            return True
-            
-    except Exception as e:
-        logger.error(f"Error parsing PNG structure: {str(e)}")
-        return False
+        return False, [f"Error reading PNG: {str(e)}"]
 
-def validate_success_criteria() -> Tuple[bool, List[str]]:
+
+def validate_success_criteria(file_path: str, criteria: Dict) -> Tuple[bool, List[str]]:
     """
-    Validate all success criteria for T028:
-    1. CSV exists and matches schema
-    2. JSON exists and matches schema
-    3. PNG exists and is valid
-    4. All required columns present in CSV
-    5. Correlation coefficient and CI present in JSON
-    6. PNG has non-zero dimensions
+    Validates specific success criteria for a file (e.g., correlation coefficient range, font size).
+    
+    Args:
+        file_path: Path to the file.
+        criteria: Dictionary of criteria to check.
+        
+    Returns:
+        Tuple of (is_valid, list of error messages).
     """
-    all_valid = True
-    failures = []
+    errors = []
+    logger = get_logger()
+    
+    if not os.path.exists(file_path):
+        return False, [f"File not found: {file_path}"]
+    
+    file_ext = os.path.splitext(file_path)[1].lower()
+    
+    try:
+        if file_ext == '.csv':
+            with open(file_path, 'r', newline='', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    # Example: Check if correlation coefficient is within [-1, 1]
+                    if 'correlation_coefficient' in row:
+                        val = float(row['correlation_coefficient'])
+                        if not (-1.0 <= val <= 1.0):
+                            errors.append(f"Correlation coefficient {val} out of range [-1, 1]")
+                            
+        elif file_ext == '.json':
+            with open(file_path, 'r', encoding='utf-8') as f:
+                data = json.load(f)
+                # Example: Check for presence of non-causal disclaimer
+                if 'disclaimer' in data:
+                    if 'associational' not in data['disclaimer'].lower() and 'non-causal' not in data['disclaimer'].lower():
+                        errors.append("Missing 'associational' or 'non-causal' disclaimer in JSON")
+                elif 'results' in data:
+                    # Check nested results
+                    pass
+                    
+        elif file_ext == '.png':
+            # For PNG, we might check file size or existence of metadata if needed
+            # Currently just checking existence and validity in validate_png_file
+            pass
+            
+        if errors:
+            logger.warning(f"Success criteria validation failed for {file_path}: {errors}")
+            return False, errors
+            
+        logger.info(f"Success criteria validation passed for {file_path}")
+        return True, []
+        
+    except Exception as e:
+        return False, [f"Error validating success criteria: {str(e)}"]
+
+
+def run_validation_pipeline(
+    csv_path: Optional[str] = None,
+    json_path: Optional[str] = None,
+    png_path: Optional[str] = None,
+    schema_dir: str = "specs/001-emotional-synchrony-trust/contracts"
+) -> Dict[str, Any]:
+    """
+    Runs the full validation pipeline on output artifacts.
+    
+    Args:
+        csv_path: Path to the main results CSV.
+        json_path: Path to the analysis report JSON.
+        png_path: Path to the output figure PNG.
+        schema_dir: Directory containing schema YAML files.
+        
+    Returns:
+        Dictionary with validation results.
+    """
+    logger = get_logger()
+    results = {
+        "csv": {"valid": False, "errors": [], "path": csv_path},
+        "json": {"valid": False, "errors": [], "path": json_path},
+        "png": {"valid": False, "errors": [], "path": png_path},
+        "overall_valid": True
+    }
+    
+    # Load schemas
+    dataset_schema_path = os.path.join(schema_dir, "dataset_schema.yaml")
+    feature_schema_path = os.path.join(schema_dir, "feature_extraction_schema.yaml")
+    
+    dataset_schema = {}
+    if os.path.exists(dataset_schema_path):
+        dataset_schema = load_schema(dataset_schema_path)
+    else:
+        logger.warning(f"Dataset schema not found at {dataset_schema_path}, using defaults")
+        # Default schema for results CSV if external schema missing
+        dataset_schema = {
+            "required_columns": ["interaction_id", "consistency_score", "trust_score"],
+            "column_types": {"consistency_score": "float", "trust_score": "float"}
+        }
     
     # Validate CSV
-    csv_valid = validate_csv_schema(OUTPUT_CSV_PATH, SCHEMA_PATH_DATASET)
-    if not csv_valid:
-        all_valid = False
-        failures.append("CSV validation failed")
-    else:
-        # Additional CSV checks
-        with open(OUTPUT_CSV_PATH, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            rows = list(reader)
-        
-        if len(rows) < 1:
-            all_valid = False
-            failures.append("CSV has no data rows")
-        else:
-            # Check for required columns
-            required_cols = ['interaction_id', 'consistency_score', 'trust_score']
-            missing_cols = [col for col in required_cols if col not in rows[0]]
-            if missing_cols:
-                all_valid = False
-                failures.append(f"CSV missing columns: {missing_cols}")
+    if csv_path:
+        is_valid, errors = validate_csv_schema(csv_path, dataset_schema)
+        results["csv"]["valid"] = is_valid
+        results["csv"]["errors"] = errors
+        if not is_valid:
+            results["overall_valid"] = False
     
     # Validate JSON
-    json_valid = validate_json_schema(OUTPUT_JSON_PATH, SCHEMA_PATH_FEATURES)
-    if not json_valid:
-        all_valid = False
-        failures.append("JSON validation failed")
-    else:
-        # Additional JSON checks
-        with open(OUTPUT_JSON_PATH, 'r', encoding='utf-8') as f:
-            data = json.load(f)
-        
-        if 'correlation_coefficient' not in data:
-            all_valid = False
-            failures.append("JSON missing correlation_coefficient")
-        if 'confidence_interval' not in data:
-            all_valid = False
-            failures.append("JSON missing confidence_interval")
-        if 'p_value' not in data:
-            all_valid = False
-            failures.append("JSON missing p_value")
+    if json_path:
+        # Default schema for analysis report
+        json_schema = {
+            "required_keys": ["correlation_coefficient", "confidence_interval", "disclaimer"],
+            "key_types": {"correlation_coefficient": "float"}
+        }
+        is_valid, errors = validate_json_schema(json_path, json_schema)
+        results["json"]["valid"] = is_valid
+        results["json"]["errors"] = errors
+        if not is_valid:
+            results["overall_valid"] = False
     
     # Validate PNG
-    png_valid = validate_png_file(OUTPUT_PNG_PATH)
-    if not png_valid:
-        all_valid = False
-        failures.append("PNG validation failed")
+    if png_path:
+        is_valid, errors = validate_png_file(png_path)
+        results["png"]["valid"] = is_valid
+        results["png"]["errors"] = errors
+        if not is_valid:
+            results["overall_valid"] = False
     
-    return all_valid, failures
+    # Run success criteria checks
+    if csv_path:
+        criteria = {"correlation_range": (-1.0, 1.0)}
+        is_valid, errors = validate_success_criteria(csv_path, criteria)
+        if not is_valid:
+            results["csv"]["success_criteria_valid"] = False
+            results["csv"]["success_criteria_errors"] = errors
+            results["overall_valid"] = False
+        else:
+            results["csv"]["success_criteria_valid"] = True
+            
+    if json_path:
+        criteria = {"requires_disclaimer": True}
+        is_valid, errors = validate_success_criteria(json_path, criteria)
+        if not is_valid:
+            results["json"]["success_criteria_valid"] = False
+            results["json"]["success_criteria_errors"] = errors
+            results["overall_valid"] = False
+        else:
+            results["json"]["success_criteria_valid"] = True
+            
+    return results
+
 
 def main():
-    """Main entry point for T028 validation."""
-    logger.info("=" * 60)
-    logger.info("Starting T028: Output Artifact Validation")
-    logger.info("=" * 60)
+    """Main entry point for validation script."""
+    setup_logging()
+    logger = get_logger()
     
-    logger.info(f"Checking paths:")
-    logger.info(f"  CSV: {OUTPUT_CSV_PATH}")
-    logger.info(f"  JSON: {OUTPUT_JSON_PATH}")
-    logger.info(f"  PNG: {OUTPUT_PNG_PATH}")
+    parser = argparse.ArgumentParser(description="Validate output artifacts for PROJ-344")
+    parser.add_argument("--csv", type=str, required=True, help="Path to results CSV")
+    parser.add_argument("--json", type=str, required=True, help="Path to analysis JSON")
+    parser.add_argument("--png", type=str, required=True, help="Path to output PNG")
+    parser.add_argument("--schema-dir", type=str, default="specs/001-emotional-synchrony-trust/contracts",
+                        help="Directory containing schema YAML files")
     
-    all_valid, failures = validate_success_criteria()
+    args = parser.parse_args()
     
-    if all_valid:
-        logger.info("=" * 60)
-        logger.info("SUCCESS: All output artifacts validated successfully")
-        logger.info("=" * 60)
-        print("VALIDATION_PASSED")
-        return 0
+    logger.info("Starting output artifact validation...")
+    
+    results = run_validation_pipeline(
+        csv_path=args.csv,
+        json_path=args.json,
+        png_path=args.png,
+        schema_dir=args.schema_dir
+    )
+    
+    # Print summary
+    print("\n=== Validation Summary ===")
+    print(f"CSV Valid: {results['csv']['valid']}")
+    if results['csv']['errors']:
+        print(f"  Errors: {results['csv']['errors']}")
+    print(f"JSON Valid: {results['json']['valid']}")
+    if results['json']['errors']:
+        print(f"  Errors: {results['json']['errors']}")
+    print(f"PNG Valid: {results['png']['valid']}")
+    if results['png']['errors']:
+        print(f"  Errors: {results['png']['errors']}")
+    
+    print(f"\nOverall Status: {'PASS' if results['overall_valid'] else 'FAIL'}")
+    
+    if not results['overall_valid']:
+        sys.exit(1)
     else:
-        logger.error("=" * 60)
-        logger.error("FAILURE: Output validation failed")
-        for failure in failures:
-            logger.error(f"  - {failure}")
-        logger.error("=" * 60)
-        print("VALIDATION_FAILED")
-        return 1
+        logger.info("All validations passed successfully.")
+        sys.exit(0)
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

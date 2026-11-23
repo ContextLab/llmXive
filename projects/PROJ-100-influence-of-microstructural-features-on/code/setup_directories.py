@@ -1,32 +1,47 @@
+"""
+Setup script for creating project directory structure.
+Creates required directories for code, data, results, and plots.
+"""
 import os
 import sys
+from typing import List
 
-def ensure_directories():
+# Define the directory structure relative to project root
+REQUIRED_DIRS: List[str] = [
+    "code",
+    "data",
+    "data/raw",
+    "data/processed",
+    "results",
+    "results/plots",
+    "tests",
+    "tests/unit",
+    "tests/integration",
+    "specs",
+    "figures"
+]
+
+def ensure_directories() -> None:
     """
-    Create the necessary directory structure for the project artifacts.
-    Creates 'results/' and 'results/plots/' if they do not exist.
-    
-    Returns:
-        bool: True if directories were created or already existed, False on error.
+    Create all required directories if they do not already exist.
+    Prints status to stdout for verification.
     """
-    directories = [
-        "results",
-        "results/plots"
-    ]
+    created_count = 0
+    for dir_path in REQUIRED_DIRS:
+        if not os.path.exists(dir_path):
+            os.makedirs(dir_path, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {dir_path}")
     
-    for dir_path in directories:
-        try:
-            if not os.path.exists(dir_path):
-                os.makedirs(dir_path, exist_ok=True)
-                print(f"Created directory: {dir_path}")
-            else:
-                print(f"Directory already exists: {dir_path}")
-        except OSError as e:
-            print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
-            return False
-    
-    return True
+    print(f"\nDirectory setup complete. Created {created_count} new directories.")
+
+def main() -> None:
+    """Entry point for the setup script."""
+    print("Starting directory initialization...")
+    ensure_directories()
+    print("Initialization finished.")
 
 if __name__ == "__main__":
-    success = ensure_directories()
-    sys.exit(0 if success else 1)
+    main()

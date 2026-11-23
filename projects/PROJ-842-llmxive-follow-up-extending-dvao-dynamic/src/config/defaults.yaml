@@ -1,0 +1,66 @@
+# DVAO: Dynamic Variance-adaptive Advantage Optimization for Multi-reward
+# Default Configuration File
+# Generated for Project: llmXive follow-up: extending DVAO
+
+# Experiment Sweep Parameters
+# N: Number of objectives to optimize simultaneously
+# Must include 5, 10, 20, 50 as per requirements
+n_objectives:
+  values: [5, 10, 20, 50]
+  description: "Number of reward functions/objectives in the MDP"
+
+# k: Window size ratios for the Moving-Window Heuristic
+# Defined as a ratio of the rollout group size (e.g., if group size is 100, k=0.1 -> window=10)
+# Sweep parameters for sensitivity analysis
+k_window_ratios:
+  values: [0.01, 0.05, 0.1]
+  description: "Ratio of window size to rollout group size"
+
+# Random Seeds for reproducibility
+# Using a range of seeds to ensure statistical robustness
+seeds:
+  values: [42, 123, 456, 789, 1024]
+  description: "Random seeds for environment and algorithm initialization"
+
+# Noise Correlation Parameter (ρ)
+# Controls the correlation between noise vectors across objectives
+# 0: Independent noise (i.i.d.)
+# 0.2: Low correlation
+# 0.5: Moderate correlation
+noise_correlation:
+  rho_values: [0.0, 0.2, 0.5]
+  description: "Correlation coefficient (ρ) for noise across objectives"
+
+# Memory and Compute Constraints
+# Enforced by runner.py
+constraints:
+  max_memory_gb: 7.0
+  cpu_cores: 2
+  omp_threads: 2
+
+# Heuristic Configuration
+heuristic:
+  # Default window size if not sweeping
+  default_k_ratio: 0.1
+  # Full batch comparison flag
+  compare_full_batch: true
+
+# MDP Generation Defaults
+mdp:
+  state_space_size: 100
+  action_space_size: 5
+  horizon: 50
+  # Distribution types for reward generation
+  reward_distributions:
+    - linear
+    - sparse
+    - non_convex
+    - heavy_tailed
+
+# Output Paths
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  logs: "logs"
+  figures: "figures"
+  models: "models"

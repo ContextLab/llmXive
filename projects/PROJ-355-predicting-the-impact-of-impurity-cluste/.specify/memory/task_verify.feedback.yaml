@@ -1,0 +1,35 @@
+T001:
+  reason: "The evidence includes the unit test that checks the .gitignore, but the\
+    \ repository snapshot does not contain a `.gitignore` file (or its contents) for\
+    \ verification. Without the actual file showing the required four lines, the task\u2019\
+    s core requirement cannot be confirmed."
+  task: 5e995dcddf7b2007dcd34aca13ab2a1e40050ea65f744e7ea7dfad8a601d62c2
+T002:
+  task: ff762e2d63a6837ba5ebca8cd7f90926f7dc4104ebed7236a71d268c1c333f44
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/download.py exit=1'
+  task: 6cc75ad7bd512d34000d2a67d289155fa07a6e6c6d0f7b6fa0ab1ebf3b7af857
+T004:
+  task: 3dedd3f0dbc35a32b3dfdda0e5999183221c4c9deda3eabc2fe46a0efad2fafc
+T005:
+  task: f58a7b8fd91fcd096874ef4f605523f16ff664eb3a0cc4ebdb9c8a56b86d446a
+T006:
+  task: 2eef06ecf69139a13f39d3c9d649558d28c9c5139a8076990f063be4a60c7434
+T007:
+  task: f2d1d3e5f515f9d767126d52506ba005f466ed3a017313ecc2152036718979b8
+T008:
+  task: 35eb8e52e872f11e225265b3dff67f3fa7c2d7c725e31b3825973210f3e6179f
+T009:
+  task: 9b72059ac478b4a17e7e0c7c14dcb59e3a8c90f0bf7153993a6b0df251f9d96b
+T010:
+  task: ef92a28c6c256101c2015a8e2cba7d8377b0ff2f7c74013b562790f8f7e01a43
+T011:
+  task: b723339c5990949fb09a6154ab91cd8ea5a54624efbfbc56838f05026a0e5dd4
+T012:
+  task: 342dd46d4969c9c27de6ef710870f3a250d392ce5659c8b6a14c1d342cc6f976
+T013:
+  reason: 'Requested task execution failed; rerun successfully: code/download_mp.py
+    exit=1'
+  task: 3b97cd9a073e7821c74e3e80cd8c857380de34d7fec7d7f27b7c8ac528fec10b
+T014:
+  task: 686b2e00234a009583e271af6c528a8244d0399ecda6f60c6c8fdfb07fd19289

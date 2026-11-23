@@ -1,5 +1,5 @@
 """
-Utility functions for parsing and data handling.
+Utility functions for JSON file operations in the parser module.
 """
 import json
 from typing import List, Dict, Any
@@ -7,19 +7,42 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def load_json_file(filepath: str) -> Dict:
-    """Loads a JSON file."""
+def load_json_file(path: str) -> Dict[str, Any]:
+    """
+    Load a JSON file.
+    
+    Args:
+        path: Path to the JSON file.
+        
+    Returns:
+        Parsed JSON content as a dictionary.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
+    """
     try:
-        with open(filepath, 'r') as f:
+        with open(path, 'r', encoding='utf-8') as f:
             return json.load(f)
     except FileNotFoundError:
-        logger.error(f"File not found: {filepath}")
-        return {}
-    except json.JSONDecodeError:
-        logger.error(f"Invalid JSON in file: {filepath}")
-        return {}
+        logger.error(f"File not found: {path}")
+        raise
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in {path}: {e}")
+        raise
 
-def save_json_file(filepath: str, data: Dict):
-    """Saves data to a JSON file."""
-    with open(filepath, 'w') as f:
-        json.dump(data, f, indent=2)
+def save_json_file(data: Dict[str, Any], path: str) -> None:
+    """
+    Save a dictionary to a JSON file.
+    
+    Args:
+        data: Dictionary to save.
+        path: Path to the output file.
+    """
+    try:
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2, ensure_ascii=False)
+        logger.info(f"Saved JSON to {path}")
+    except Exception as e:
+        logger.error(f"Failed to save JSON to {path}: {e}")
+        raise

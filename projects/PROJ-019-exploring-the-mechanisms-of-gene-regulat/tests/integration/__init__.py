@@ -1,1 +1,3 @@
-"""Integration tests for component interactions and pipelines."""
+"""
+Integration tests for multi-module workflows.
+"""

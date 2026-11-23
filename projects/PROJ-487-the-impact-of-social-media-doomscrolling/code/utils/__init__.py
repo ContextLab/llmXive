@@ -1,3 +1,3 @@
 """
-Utility functions and shared infrastructure.
+Utility functions and shared components.
 """

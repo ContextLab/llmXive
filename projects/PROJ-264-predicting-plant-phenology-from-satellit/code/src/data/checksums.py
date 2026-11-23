@@ -1,266 +1,304 @@
 """
-Checksum management for data directories.
+Checksum utilities for data integrity verification.
 
-This module provides functions to compute, store, and verify checksums
-for files in data/raw/ and data/processed/ directories to ensure data
-integrity and provenance tracking.
+This module provides functions to compute, save, load, and verify
+file and directory checksums (SHA-256) for the project's data directories.
 """
-
 import os
 import hashlib
 import json
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 from datetime import datetime
+import logging
 
-from src.lib.utils import compute_file_hash, ensure_dir
-from src.config import get_config
+from src.lib.utils import setup_logging
 
+# Initialize logger
+logger = setup_logging(__name__)
 
-CHECKSUM_FILE_NAME = ".checksums.json"
+# Default checksum file name
+CHECKSUM_FILE = "checksums.json"
 
+# Patterns to exclude from checksum calculation
+EXCLUDE_PATTERNS = {
+    ".gitkeep",
+    ".DS_Store",
+    "checksums.json",
+    ".pyc",
+    "__pycache__"
+}
 
-def _get_checksum_file_path(data_dir: Path) -> Path:
-    """Return the path to the checksums file for a given data directory."""
-    return data_dir / CHECKSUM_FILE_NAME
-
-
-def compute_directory_checksums(data_dir: Path) -> Dict[str, Dict[str, Any]]:
+def compute_file_checksum(file_path: Path, algorithm: str = "sha256") -> str:
     """
-    Compute SHA-256 checksums for all files in a directory recursively.
-
+    Compute the checksum of a single file.
+    
     Args:
-        data_dir: Path to the data directory (e.g., data/raw or data/processed).
-
+        file_path: Path to the file
+        algorithm: Hash algorithm to use (default: sha256)
+        
     Returns:
-        A dictionary mapping relative file paths to their metadata:
-        {
-            "relative/path/file.csv": {
-                "sha256": "abc123...",
-                "size_bytes": 12345,
-                "timestamp": "2023-10-27T10:00:00"
-            },
-            ...
-        }
+        Hexadecimal checksum string
+        
+    Raises:
+        FileNotFoundError: If the file does not exist
+        IOError: If the file cannot be read
     """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    hash_func = hashlib.new(algorithm)
+    
+    with open(file_path, 'rb') as f:
+        # Read in chunks to handle large files
+        for chunk in iter(lambda: f.read(8192), b""):
+            hash_func.update(chunk)
+    
+    return hash_func.hexdigest()
+
+def compute_directory_checksums(
+    directory: Path,
+    algorithm: str = "sha256",
+    exclude_patterns: Optional[set] = None
+) -> Dict[str, str]:
+    """
+    Compute checksums for all files in a directory recursively.
+    
+    Args:
+        directory: Path to the directory
+        algorithm: Hash algorithm to use
+        exclude_patterns: Set of filename patterns to exclude
+        
+    Returns:
+        Dictionary mapping relative file paths to their checksums
+    """
+    if exclude_patterns is None:
+        exclude_patterns = EXCLUDE_PATTERNS
+        
+    if not directory.exists():
+        raise FileNotFoundError(f"Directory not found: {directory}")
+        
+    if not directory.is_dir():
+        raise NotADirectoryError(f"Not a directory: {directory}")
+    
     checksums = {}
-    data_dir = Path(data_dir).resolve()
-
-    if not data_dir.exists():
-        return checksums
-
-    for file_path in data_dir.rglob("*"):
-        if file_path.is_file():
-            # Skip the checksum file itself
-            if file_path.name == CHECKSUM_FILE_NAME:
+    exclude_patterns = set(exclude_patterns)
+    
+    for root, _, files in os.walk(directory):
+        root_path = Path(root)
+        for filename in files:
+            # Skip excluded patterns
+            if any(filename.endswith(pattern) or pattern in filename 
+                   for pattern in exclude_patterns):
                 continue
-
+                
+            file_path = root_path / filename
+            rel_path = file_path.relative_to(directory)
+            
             try:
-                rel_path = str(file_path.relative_to(data_dir))
-                sha256_hash = compute_file_hash(file_path)
-                stat_info = file_path.stat()
-
-                checksums[rel_path] = {
-                    "sha256": sha256_hash,
-                    "size_bytes": stat_info.st_size,
-                    "timestamp": datetime.fromtimestamp(stat_info.st_mtime).isoformat()
-                }
-            except Exception as e:
-                # Log error but continue processing other files
-                print(f"Warning: Could not compute checksum for {file_path}: {e}")
-
+                checksum = compute_file_checksum(file_path, algorithm)
+                checksums[str(rel_path)] = checksum
+            except (FileNotFoundError, IOError) as e:
+                logger.warning(f"Could not compute checksum for {file_path}: {e}")
+    
     return checksums
 
-
-def save_checksums(checksums: Dict[str, Dict[str, Any]], data_dir: Path) -> Path:
+def save_checksums(checksums: Dict[str, str], output_path: Path) -> None:
     """
-    Save checksums to a JSON file in the specified data directory.
-
+    Save checksums to a JSON file.
+    
     Args:
-        checksums: Dictionary of checksums to save.
-        data_dir: Path to the data directory.
-
-    Returns:
-        Path to the saved checksum file.
+        checksums: Dictionary of checksums to save
+        output_path: Path to the output JSON file
     """
-    checksum_file = _get_checksum_file_path(data_dir)
-    ensure_dir(checksum_file.parent)
-
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     metadata = {
-        "generated_at": datetime.now().isoformat(),
-        "data_dir": str(data_dir.resolve()),
-        "file_count": len(checksums),
+        "created_at": datetime.utcnow().isoformat(),
+        "algorithm": "sha256",
         "checksums": checksums
     }
-
-    with open(checksum_file, "w", encoding="utf-8") as f:
+    
+    with open(output_path, 'w') as f:
         json.dump(metadata, f, indent=2)
+    
+    logger.info(f"Saved checksums to {output_path}")
 
-    return checksum_file
-
-
-def load_checksums(data_dir: Path) -> Optional[Dict[str, Dict[str, Any]]]:
+def load_checksums(checksum_path: Path) -> Dict[str, str]:
     """
-    Load checksums from the JSON file in the specified data directory.
-
+    Load checksums from a JSON file.
+    
     Args:
-        data_dir: Path to the data directory.
-
+        checksum_path: Path to the checksum JSON file
+        
     Returns:
-        Dictionary of checksums or None if file doesn't exist.
+        Dictionary of checksums
+        
+    Raises:
+        FileNotFoundError: If the checksum file does not exist
+        json.JSONDecodeError: If the file is not valid JSON
     """
-    checksum_file = _get_checksum_file_path(data_dir)
-
-    if not checksum_file.exists():
-        return None
-
-    with open(checksum_file, "r", encoding="utf-8") as f:
+    if not checksum_path.exists():
+        raise FileNotFoundError(f"Checksum file not found: {checksum_path}")
+    
+    with open(checksum_path, 'r') as f:
         data = json.load(f)
+    
+    return data.get("checksums", {})
 
-    return data.get("checksums")
-
-
-def verify_checksums(data_dir: Path) -> Dict[str, bool]:
+def verify_checksums(
+    directory: Path,
+    stored_checksums: Dict[str, str],
+    exclude_patterns: Optional[set] = None
+) -> Dict[str, bool]:
     """
-    Verify current file checksums against stored values.
-
+    Verify files against stored checksums.
+    
     Args:
-        data_dir: Path to the data directory.
-
+        directory: Directory containing the files to verify
+        stored_checksums: Dictionary of expected checksums
+        exclude_patterns: Patterns to exclude from verification
+        
     Returns:
-        Dictionary mapping file paths to verification status (True = valid).
+        Dictionary mapping file paths to verification status (True = valid)
     """
-    stored_checksums = load_checksums(data_dir)
-
-    if stored_checksums is None:
-        return {}
-
-    current_checksums = compute_directory_checksums(data_dir)
     results = {}
-
-    for rel_path, stored_info in stored_checksums.items():
-        if rel_path not in current_checksums:
-            results[rel_path] = False  # File missing
+    
+    # Check all stored files
+    for rel_path, expected_checksum in stored_checksums.items():
+        file_path = directory / rel_path
+        
+        if not file_path.exists():
+            results[rel_path] = False
+            logger.error(f"Missing file: {rel_path}")
             continue
-
-        current_hash = current_checksums[rel_path]["sha256"]
-        stored_hash = stored_info["sha256"]
-
-        results[rel_path] = (current_hash == stored_hash)
-
+        
+        try:
+            actual_checksum = compute_file_checksum(file_path)
+            is_valid = actual_checksum == expected_checksum
+            results[rel_path] = is_valid
+            
+            if not is_valid:
+                logger.error(f"Checksum mismatch for {rel_path}")
+        except Exception as e:
+            results[rel_path] = False
+            logger.error(f"Error verifying {rel_path}: {e}")
+    
     return results
 
-
-def generate_checksums_for_directories() -> Dict[str, Path]:
+def generate_checksums_for_directories(
+    directories: List[Path],
+    output_dir: Optional[Path] = None
+) -> Dict[str, Dict[str, str]]:
     """
-    Generate and save checksums for all configured data directories.
-
+    Generate checksums for multiple directories and save them.
+    
+    Args:
+        directories: List of directories to checksum
+        output_dir: Directory to save checksum files (default: same as input dirs)
+        
     Returns:
-        Dictionary mapping directory names to their checksum file paths.
+        Dictionary mapping directory paths to their checksums
     """
-    config = get_config()
-    results = {}
+    if output_dir is None:
+        output_dir = Path(".")
+        
+    all_checksums = {}
+    
+    for directory in directories:
+        if not directory.exists():
+            logger.warning(f"Skipping non-existent directory: {directory}")
+            continue
+        
+        logger.info(f"Generating checksums for {directory}")
+        checksums = compute_directory_checksums(directory)
+        
+        # Save checksums
+        checksum_file = output_dir / directory.name / CHECKSUM_FILE
+        save_checksums(checksums, checksum_file)
+        
+        all_checksums[str(directory)] = checksums
+    
+    return all_checksums
 
-    # Process raw data directory
-    raw_dir = config.data_raw_path
-    if raw_dir.exists():
-        checksums = compute_directory_checksums(raw_dir)
-        checksum_file = save_checksums(checksums, raw_dir)
-        results["raw"] = checksum_file
-        print(f"Generated checksums for {raw_dir}: {len(checksums)} files")
-    else:
-        print(f"Warning: Raw data directory does not exist: {raw_dir}")
-
-    # Process processed data directory
-    processed_dir = config.data_processed_path
-    if processed_dir.exists():
-        checksums = compute_directory_checksums(processed_dir)
-        checksum_file = save_checksums(checksums, processed_dir)
-        results["processed"] = checksum_file
-        print(f"Generated checksums for {processed_dir}: {len(checksums)} files")
-    else:
-        print(f"Warning: Processed data directory does not exist: {processed_dir}")
-
-    return results
-
-
-def verify_all_checksums() -> bool:
+def verify_all_checksums(
+    directories: List[Path],
+    checksum_dir: Optional[Path] = None
+) -> bool:
     """
-    Verify checksums for all data directories and return overall status.
-
+    Verify all files in directories against their stored checksums.
+    
+    Args:
+        directories: List of directories to verify
+        checksum_dir: Directory containing checksum files (default: same as input dirs)
+        
     Returns:
-        True if all checksums verify successfully, False otherwise.
+        True if all checksums are valid, False otherwise
     """
-    config = get_config()
+    if checksum_dir is None:
+        checksum_dir = Path(".")
+        
     all_valid = True
-
-    for dir_name, dir_path in [("raw", config.data_raw_path), ("processed", config.data_processed_path)]:
-        if not dir_path.exists():
-            print(f"Skipping verification for {dir_name}: directory does not exist")
+    
+    for directory in directories:
+        if not directory.exists():
+            logger.warning(f"Directory not found, skipping: {directory}")
             continue
-
-        results = verify_checksums(dir_path)
-        if not results:
-            print(f"No checksums found for {dir_name}")
+        
+        checksum_file = checksum_dir / directory.name / CHECKSUM_FILE
+        
+        if not checksum_file.exists():
+            logger.warning(f"No checksum file found for {directory}")
             continue
-
-        invalid_files = [f for f, valid in results.items() if not valid]
-        if invalid_files:
-            print(f"Verification FAILED for {dir_name}: {len(invalid_files)} files invalid")
-            for f in invalid_files[:5]:  # Show first 5
-                print(f"  - {f}")
+        
+        logger.info(f"Verifying checksums for {directory}")
+        
+        try:
+            stored_checksums = load_checksums(checksum_file)
+            results = verify_checksums(directory, stored_checksums)
+            
+            if not all(results.values()):
+                all_valid = False
+                failed = [k for k, v in results.items() if not v]
+                logger.error(f"Verification failed for {len(failed)} files in {directory}")
+            else:
+                logger.info(f"All {len(results)} files in {directory} verified successfully")
+                
+        except Exception as e:
+            logger.error(f"Error verifying {directory}: {e}")
             all_valid = False
-        else:
-            print(f"Verification PASSED for {dir_name}: {len(results)} files valid")
-
+    
     return all_valid
 
-
-def main():
-    """Main entry point for checksum generation and verification."""
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="Manage checksums for data directories"
-    )
-    parser.add_argument(
-        "--generate",
-        action="store_true",
-        help="Generate and save checksums for all data directories"
-    )
-    parser.add_argument(
-        "--verify",
-        action="store_true",
-        help="Verify checksums for all data directories"
-    )
-    parser.add_argument(
-        "--all",
-        action="store_true",
-        help="Generate and verify checksums"
-    )
-
-    args = parser.parse_args()
-
-    if not any([args.generate, args.verify, args.all]):
-        # Default to generate if no action specified
-        args.generate = True
-
-    if args.generate or args.all:
-        print("=== Generating Checksums ===")
-        results = generate_checksums_for_directories()
-        for dir_name, file_path in results.items():
-            print(f"  {dir_name}: {file_path}")
-
-    if args.verify or args.all:
-        print("\n=== Verifying Checksums ===")
-        success = verify_all_checksums()
-        if not success:
-            print("\nWarning: Some checksums failed verification!")
-            return 1
-
-    print("\nDone.")
-    return 0
-
+def main() -> int:
+    """
+    Main entry point for the checksum script.
+    
+    Usage:
+        python -m src.data.checksums generate <dir1> [dir2 ...]
+        python -m src.data.checksums verify <dir1> [dir2 ...]
+        
+    Returns:
+        0 on success, 1 on failure
+    """
+    import sys
+    
+    if len(sys.argv) < 3:
+        print("Usage: python -m src.data.checksums <generate|verify> <dir1> [dir2 ...]")
+        return 1
+    
+    command = sys.argv[1]
+    dirs = [Path(d) for d in sys.argv[2:]]
+    
+    if command == "generate":
+        generate_checksums_for_directories(dirs)
+        return 0
+    elif command == "verify":
+        success = verify_all_checksums(dirs)
+        return 0 if success else 1
+    else:
+        print(f"Unknown command: {command}")
+        return 1
 
 if __name__ == "__main__":
-    exit(main())
+    sys.exit(main())

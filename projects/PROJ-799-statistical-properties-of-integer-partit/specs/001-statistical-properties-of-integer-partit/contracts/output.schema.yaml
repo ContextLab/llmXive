@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RegressionResultsSchema"
+description: "Schema for the model_results.json output containing regression statistics."
+type: "object"
+properties:
+  coefficients:
+    type: "object"
+    description: "Map of predictor names to regression coefficients."
+    additionalProperties:
+      type: "number"
+  intercept:
+    type: "number"
+    description: "Intercept term of the regression model."
+  r_squared:
+    type: "number"
+    description: "R-squared value of the model."
+    minimum: 0
+    maximum: 1
+  p_values:
+    type: "object"
+    description: "Map of predictor names to raw p-values."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  fdr_corrected_p_values:
+    type: "object"
+    description: "Map of predictor names to Benjamini-Hochberg corrected p-values."
+    additionalProperties:
+      type: "number"
+      minimum: 0
+      maximum: 1
+  mse_cv:
+    type: "number"
+    description: "Mean Squared Error from 10-fold cross-validation."
+    minimum: 0
+required:
+  - coefficients
+  - intercept
+  - r_squared
+  - p_values
+  - fdr_corrected_p_values
+  - mse_cv
+additionalProperties: false

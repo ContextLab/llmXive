@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.26481",
+  "judged_at": "2026-08-24T09:39:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"4d human-scene reconstruction from low-overlap captures\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the same core mechanism (4D human-scene reconstruction) and domain (dynamic scene reconstruction from sparse/low-overlap camera inputs) as the user's question, serving as a direct methodological follow-up or alternative approach to the cited \"4D Human-Scene Reconstruction from Low-Overlap Captures\" work.",
+  "relevant": true
+}

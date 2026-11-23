@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+description: "Schema for statistical test results and model outputs."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    description: "Type of statistical test performed (e.g., 'Kruskal-Wallis', 'LME')."
+  predictor:
+    type: "string"
+    description: "The predictor variable analyzed."
+  p_value:
+    type: "number"
+    description: "Raw p-value from the test."
+  adjusted_p_value:
+    type: ["number", "null"]
+    description: "Holm-Bonferroni adjusted p-value if applicable."
+  effect_size:
+    type: ["number", "null"]
+    description: "Calculated effect size (e.g., epsilon-squared)."
+  ci_lower:
+    type: ["number", "null"]
+    description: "Lower bound of the 95% confidence interval."
+  ci_upper:
+    type: ["number", "null"]
+    description: "Upper bound of the 95% confidence interval."
+  convergence_status:
+    type: "string"
+    enum:
+      - "Success"
+      - "Failed"
+    description: "Convergence status of the model fitting."
+  note:
+    type: "string"
+    description: "Additional notes, including 'associational' or 'correlational' qualifiers."
+required:
+  - test_type
+  - predictor
+  - p_value
+  - convergence_status
+  - note
+additionalProperties: false

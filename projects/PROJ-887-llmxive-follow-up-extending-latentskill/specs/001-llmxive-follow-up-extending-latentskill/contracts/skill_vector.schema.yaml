@@ -1,0 +1,33 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Skill Vector Index Schema"
+description: "Schema for data/processed/skill_index.npz metadata validation"
+type: "object"
+properties:
+  vectors:
+    type: "array"
+    description: "Flattened, normalized LoRA vectors"
+    items:
+      type: "number"
+      format: "float32"
+    minItems: 1
+  task_ids:
+    type: "array"
+    description: "Unique identifiers for each skill"
+    items:
+      type: "string"
+    minItems: 1
+  descriptions:
+    type: "array"
+    description: "Original task text descriptions"
+    items:
+      type: "string"
+    minItems: 1
+  metadata:
+    type: "string"
+    description: "Serialized JSON string containing base model version, rank, etc."
+required:
+  - vectors
+  - task_ids
+  - descriptions
+  - metadata
+additionalProperties: false

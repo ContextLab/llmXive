@@ -1,0 +1,627 @@
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: GSM8K and bigbench_lite datasets are publicly downloadable from HuggingFace
+    without authentication
+  claim_id: c_babea111
+  context: Section on required environment variables states that no authentication
+    is needed for the datasets used by the pipeline.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: All datasets used by the pipeline (GSM8K, bigbench_lite) are publicly
+    downloadable from HuggingFace without authentication.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-14T08:38:49Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: command prints 'Pipeline initialized' on success
+  claim_id: c_6f8ae36c
+  context: Run the whole pipeline with the quickstart configuration; on success the
+    command prints `Pipeline initialized`, creates the `outputs/` directory tree,
+    writes `outputs/run_config.json` with the effective configuration.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: On success the command prints `Pipeline initialized`
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T11:08:04Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: command creates 'outputs/' directory tree on success
+  claim_id: c_d79ff5f0
+  context: Run the whole pipeline with the quickstart configuration; on success the
+    command prints `Pipeline initialized`, creates the `outputs/` directory tree,
+    writes `outputs/run_config.json` with the effective configuration.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: On success the command creates the `outputs/` directory tree
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T11:08:04Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: global seed is set to 42 in config file
+  claim_id: c_f0ccc91c
+  context: 'The global seed is set in the config file (`seed: 42` in `configs/quickstart.yaml`)
+    and can be overridden per invocation with `--seed`.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'The global seed is set in the config file (`seed: 42` in `configs/quickstart.yaml`)'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T11:08:04Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: datasets GSM8K and bigbench_lite are publicly downloadable from HuggingFace
+    without authentication
+  claim_id: c_dedb319e
+  context: All datasets used by the pipeline (GSM8K, bigbench_lite) are publicly downloadable
+    from HuggingFace without authentication.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: All datasets used by the pipeline (GSM8K, bigbench_lite) are publicly
+    downloadable from HuggingFace without authentication
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-14T11:08:36Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: platform runner provides numpy, pandas, scipy, matplotlib, scikit-learn,
+    statsmodels, seaborn, pytest, PyYAML, requests, jsonschema, and psutil
+  claim_id: c_92e533f2
+  context: The platform runner already provides `numpy`, `pandas`, `scipy`, `matplotlib`,
+    `scikit-learn`, `statsmodels`, `seaborn`, `pytest`, `PyYAML`, `requests`, `jsonschema`,
+    and `psutil`.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: PyYAML
+      source_id: Q107380446
+      url: https://www.wikidata.org/wiki/Q107380446
+      value: PyYAML
+    filled: true
+  kind: entity_fact
+  raw_text: The platform runner already provides `numpy`, `pandas`, `scipy`, `matplotlib`,
+    `scikit-learn`, `statsmodels`, `seaborn`, `pytest`, `PyYAML`, `requests`, `jsonschema`,
+    and `psutil`
+  resolved_value: PyYAML
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-14T11:08:49Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: seed is recorded in outputs/run_config.json for reproducibility
+  claim_id: c_e921ebb3
+  context: The seed is recorded in `outputs/run_config.json` for reproducibility.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The seed is recorded in `outputs/run_config.json` for reproducibility
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T11:08:49Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: PyYAML has Wikidata ID Q107380446
+  claim_id: c_aa02a9f3
+  context: The platform runner already provides numpy, pandas, scipy, matplotlib,
+    scikit-learn, statsmodels, seaborn, pytest, PyYAML (Wikidata Q107380446, https://www.wikidata.org/wiki/Q107380446),
+    requests, jsonschema, and psutil.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q10852208
+        url: https://www.wikidata.org/wiki/Q10852208
+        value: PyYAML
+      quote: 'P1547: Q107380446'
+      source_id: Q107381173
+      url: https://www.wikidata.org/wiki/Q107381173
+      value: Q107380446
+    filled: true
+  kind: entity_fact
+  raw_text: The platform runner already provides PyYAML (Wikidata Q107380446, https://www.wikidata.org/wiki/Q107380446)
+  resolved_value: Q107380446
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-14T13:09:14Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline prints 'Pipeline initialized' on success
+  claim_id: c_28bd2609
+  context: On success the command prints `Pipeline initialized`, creates the `outputs/`
+    directory tree, writes `outputs/run_config.json` with the effective configuration,
+    and executes the stages listed in the config.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: On success the command prints `Pipeline initialized`
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T13:09:14Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline creates outputs directory tree
+  claim_id: c_9d62fe20
+  context: On success the command prints `Pipeline initialized`, creates the `outputs/`
+    directory tree, writes `outputs/run_config.json` with the effective configuration,
+    and executes the stages listed in the config.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: creates the `outputs/` directory tree
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T13:09:14Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: GSM8K and bigbench_lite are publicly downloadable from HuggingFace without
+    authentication
+  claim_id: c_56cd4b78
+  context: All datasets used by the pipeline (GSM8K, bigbench_lite) are publicly downloadable
+    from HuggingFace without authentication.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: All datasets used by the pipeline (GSM8K, bigbench_lite) are publicly
+    downloadable from HuggingFace without authentication.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-14T13:09:47Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: seed is recorded in outputs/run_config.json
+  claim_id: c_edec4965
+  context: The seed is recorded in `outputs/run_config.json` for reproducibility.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The seed is recorded in `outputs/run_config.json` for reproducibility.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-14T13:09:47Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: thin run uses seed 42 and retaining ratio 0.5
+  claim_id: c_e65f4782
+  context: "The thin run uses a single seed (42) and a single retaining ratio (0.5)\
+    \ as defined in `configs/quickstart.yaml`. It completes within the 6\u2011hour\
+    \ wall\u2011clock limit on a standard CPU\u2011only runner."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The thin run uses a single seed (42) and a single retaining ratio (0.5)
+    as defined in `configs/quickstart.yaml`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T21:13:07Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline completes within 6 hour wall-clock limit
+  claim_id: c_9b538e67
+  context: "The thin run uses a single seed (42) and a single retaining ratio (0.5)\
+    \ as defined in `configs/quickstart.yaml`. It completes within the 6\u2011hour\
+    \ wall\u2011clock limit on a standard CPU\u2011only runner."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "It completes within the 6\u2011hour wall\u2011clock limit on a standard\
+    \ CPU\u2011only runner."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T21:13:07Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline prints 'Pipeline initialized' on success
+  claim_id: c_ed4af84f
+  context: "On success the command prints `Pipeline initialized`, creates the `outputs/`\
+    \ directory tree, writes `outputs/run_config.json` with the effective configuration,\
+    \ and runs a single fixed\u2011density baseline..."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: On success the command prints `Pipeline initialized`
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T00:18:28Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline creates the outputs directory tree
+  claim_id: c_d001ceda
+  context: "On success the command prints `Pipeline initialized`, creates the `outputs/`\
+    \ directory tree, writes `outputs/run_config.json` with the effective configuration,\
+    \ and runs a single fixed\u2011density baseline..."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: creates the `outputs/` directory tree
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T00:18:28Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline runs a single fixed-density baseline with density 0.5 and seed
+    42 on a small GSM8K test sample
+  claim_id: c_0b29a3fd
+  context: "On success the command prints `Pipeline initialized`, creates the `outputs/`\
+    \ directory tree, writes `outputs/run_config.json` with the effective configuration,\
+    \ and runs a single fixed\u2011density baseline (\u03C1\u202F=\u202F0.5, seed\u202F\
+    =\u202F42) on a small sample of GSM8K test data."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "runs a single fixed\u2011density baseline (\u03C1\u202F=\u202F0.5, seed\u202F\
+    =\u202F42) on a small sample of GSM8K test data"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T00:18:28Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: command prints Pipeline initialized
+  claim_id: c_52396f5a
+  context: "On success the command prints `Pipeline initialized`, creates the `outputs/`\
+    \ directory tree, writes `outputs/run_config.json` with the effective configuration,\
+    \ and runs a single fixed\u2011density baseline on a tiny placeholder dataset."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: On success the command prints `Pipeline initialized`
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T11:09:29Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: creates outputs directory tree
+  claim_id: c_cc00153f
+  context: "On success the command prints `Pipeline initialized`, creates the `outputs/`\
+    \ directory tree, writes `outputs/run_config.json` with the effective configuration,\
+    \ and runs a single fixed\u2011density baseline on a tiny placeholder dataset."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: creates the `outputs/` directory tree
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T11:09:29Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: expected wall-clock time under a minute
+  claim_id: c_f09cbbd7
+  context: "On success the command prints `Pipeline initialized`, creates the `outputs/`\
+    \ directory tree, writes `outputs/run_config.json` with the effective configuration,\
+    \ and runs a single fixed\u2011density baseline on a tiny placeholder dataset.\
+    \ Expected wall\u2011clock time is under a minute on a standard CPU\u2011only\
+    \ runner."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Expected wall\u2011clock time is under a minute on a standard CPU\u2011\
+    only runner."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T11:09:29Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: "all stages respect 6\u2011hour runtime limit"
+  claim_id: c_35e79a28
+  context: "All stages respect the 6\u2011hour runtime limit and write their outputs\
+    \ to the locations declared in the configuration."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All stages respect the 6\u2011hour runtime limit"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T11:09:29Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: fixed-density baselines for five retaining ratios and five seeds
+  claim_id: c_6d2694e9
+  context: "This runs the complete suite: Data placeholder creation; Model download\
+    \ (`distilgpt2`); Fixed\u2011density baselines for five retaining ratios and five\
+    \ seeds; (Adaptive and analysis stages are placeholders for later tasks)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Fixed\u2011density baselines for five retaining ratios and five seeds"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T11:09:29Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline prints 'Pipeline initialized' on success
+  claim_id: c_000cea5d
+  context: On success the command prints Pipeline initialized, creates the outputs
+    directory tree, writes outputs/run_config.json with the effective configuration,
+    and creates an empty data/results folder (required by the verification).
+  evidence:
+    artifact_sha256: 6d3deb433cebb8a3c27f0686e3bea07845d287ae0420ddbeab30d93a27f54f5d
+    note: no relevant passages
+    quote: ''
+    result_artifacts:
+    - path: outputs/control_shuffle.json
+      sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+    - path: outputs/fixed_baselines.json
+      sha256: a463d6b78bc20211e88bb7a5198a39401eb75da664a557174d47ed6da610dd81
+    - path: outputs/adaptive_run.json
+      sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+  kind: result
+  raw_text: On success the command prints Pipeline initialized
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: 6d3deb433cebb8a3c27f0686e3bea07845d287ae0420ddbeab30d93a27f54f5d
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T18:21:37Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: pipeline creates outputs directory tree
+  claim_id: c_768416f3
+  context: On success the command prints Pipeline initialized, creates the outputs
+    directory tree, writes outputs/run_config.json with the effective configuration,
+    and creates an empty data/results folder (required by the verification).
+  evidence:
+    artifact_sha256: 6d3deb433cebb8a3c27f0686e3bea07845d287ae0420ddbeab30d93a27f54f5d
+    note: Passages list output directories but do not state that anything creates
+      the outputs directory tree.
+    quote: ''
+    result_artifacts:
+    - path: outputs/control_shuffle.json
+      sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+    - path: outputs/fixed_baselines.json
+      sha256: a463d6b78bc20211e88bb7a5198a39401eb75da664a557174d47ed6da610dd81
+    - path: outputs/adaptive_run.json
+      sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+  kind: result
+  raw_text: creates the outputs directory tree
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: 6d3deb433cebb8a3c27f0686e3bea07845d287ae0420ddbeab30d93a27f54f5d
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T18:21:40Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: all stages respect 6-hour runtime limit
+  claim_id: c_21285ba0
+  context: "All stages respect the 6\u2011hour runtime limit and write their outputs\
+    \ to the locations declared in the configuration."
+  evidence:
+    artifact_sha256: 6d3deb433cebb8a3c27f0686e3bea07845d287ae0420ddbeab30d93a27f54f5d
+    note: no relevant passages
+    quote: ''
+    result_artifacts:
+    - path: outputs/control_shuffle.json
+      sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+    - path: outputs/fixed_baselines.json
+      sha256: a463d6b78bc20211e88bb7a5198a39401eb75da664a557174d47ed6da610dd81
+    - path: outputs/adaptive_run.json
+      sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+  kind: result
+  raw_text: "All stages respect the 6\u2011hour runtime limit"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: 6d3deb433cebb8a3c27f0686e3bea07845d287ae0420ddbeab30d93a27f54f5d
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-20T18:21:40Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: Thin run wall-clock time under 10 minutes
+  claim_id: c_0dcf45e9
+  context: python -m code.run_experiments --config configs/quickstart.yaml. Expected
+    wall-clock time is under 10 minutes depending on the model download speed.
+  evidence:
+    artifact_sha256: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+    note: no relevant passages
+    quote: ''
+    result_artifacts:
+    - path: outputs/control_shuffle.json
+      sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+    - path: outputs/adaptive_run.json
+      sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+  kind: result
+  raw_text: Expected wall-clock time is under 10 minutes depending on the model download
+    speed.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-21T16:10:45Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: Quick-start run wall-clock time under 10 minutes
+  claim_id: c_9f6876f2
+  context: "python -m code.run_experiments --config configs/quickstart.yaml. Expected\
+    \ wall\u2011clock time is under 10 minutes depending on the model download speed."
+  evidence:
+    artifact_sha256: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+    note: no relevant passages
+    quote: ''
+    result_artifacts:
+    - path: outputs/control_shuffle.json
+      sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+    - path: outputs/adaptive_run.json
+      sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+  kind: result
+  raw_text: "Expected wall\u2011clock time is under 10 minutes depending on the model\
+    \ download speed."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T14:12:21Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: Full experiment suite execution time within 6-hour limit
+  claim_id: c_48570260
+  context: "This runs the complete suite: data loading, model initialization, and\
+    \ the full grid of fixed-density baseline runs (5 ratios x 5 seeds). The full\
+    \ suite is expected to take several hours but remains well within the 6\u2011\
+    hour per\u2011job limit."
+  evidence:
+    artifact_sha256: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+    note: The provided passages contain placeholder text and do not mention job limits
+      or execution time.
+    quote: ''
+    result_artifacts:
+    - path: outputs/control_shuffle.json
+      sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+    - path: outputs/adaptive_run.json
+      sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+  kind: result
+  raw_text: "The full suite is expected to take several hours but remains well within\
+    \ the 6\u2011hour per\u2011job limit."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T14:12:25Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: Thin run wall-clock time is under 10 minutes
+  claim_id: c_7721cf28
+  context: "Thin (quick\u2011start) run... Expected wall\u2011clock time is under\
+    \ 10 minutes depending on the model download speed."
+  evidence:
+    artifact_sha256: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+    note: no relevant passages
+    quote: ''
+    result_artifacts:
+    - path: outputs/control_shuffle.json
+      sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+    - path: outputs/adaptive_run.json
+      sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+  kind: result
+  raw_text: "Expected wall\u2011clock time is under 10 minutes depending on the model\
+    \ download speed."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T07:18:14Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: Thin run wall-clock time is under 10 minutes
+  claim_id: c_7b8bc76e
+  context: "On success the command prints Pipeline initialized, creates the outputs/\
+    \ directory tree, writes outputs/run_config.json with the effective configuration,\
+    \ and creates the data/results/ folder. Expected wall\u2011clock time is under\
+    \ 10 minutes depending on the model download speed."
+  evidence:
+    artifact_sha256: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+    note: no relevant passages
+    quote: ''
+    result_artifacts:
+    - path: outputs/control_shuffle.json
+      sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+    - path: outputs/adaptive_run.json
+      sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+  kind: result
+  raw_text: "Expected wall\u2011clock time is under 10 minutes depending on the model\
+    \ download speed."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T18:21:16Z'
+- artifact_path: projects/PROJ-847-llmxive-follow-up-extending-learning-fro/docs/quickstart.md
+  attempts: 1
+  canonical: Thin run generates one baseline result
+  claim_id: c_34079641
+  context: "Expected wall\u2011clock time is under 10 minutes depending on the model\
+    \ download speed. This run generates a single baseline result for $\rho=0.5$,\
+    \ seed 42."
+  evidence:
+    artifact_sha256: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+    note: The provided passage does not mention rho, seed 42, or baseline results.
+    quote: ''
+    result_artifacts:
+    - path: outputs/control_shuffle.json
+      sha256: c9d915cdbff407f5e040aa3b8b6d6ea08f4533ffe2f3e209578aa4ec182a1c65
+    - path: outputs/adaptive_run.json
+      sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+  kind: result
+  raw_text: "This run generates a single baseline result for $\rho=0.5$, seed 42."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: 992e2f4202ba4c88b2fc5a65bd40dabb3cf356038d574ca462bd78f4cdc2184c
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-23T18:21:20Z'

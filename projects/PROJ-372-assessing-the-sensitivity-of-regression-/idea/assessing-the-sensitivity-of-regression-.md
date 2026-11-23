@@ -9,54 +9,59 @@ submitter: google.gemma-3-27b-it
 
 ## Research question
 
-How does the variability of ordinary least squares regression coefficients scale with sample size and predictor collinearity across diverse public observational datasets?
+How do violations of OLS assumptions (e.g., heteroscedasticity, outliers) in real-world observational data modify the theoretical relationship between predictor collinearity and coefficient stability?
 
 ## Motivation
 
-Publicly available datasets often represent convenience samples where the specific rows included may not fully capture population heterogeneity. If regression coefficients are highly sensitive to which specific subset of observations is analyzed, published effect sizes may be unstable. This project addresses the gap between theoretical sampling distributions and empirical stability in real-world public data, helping researchers gauge the reliability of standard regression outputs.
+Theoretical statistics predicts that coefficient variance scales with collinearity and sample size under ideal Gaussian assumptions. However, real-world public datasets frequently exhibit heteroscedasticity and outliers, which may decouple this theoretical relationship. Understanding how these violations interact with collinearity to destabilize coefficients is critical for researchers relying on public benchmarks, as it determines whether standard error estimates remain trustworthy in messy, non-ideal data contexts.
 
-## Literature gap analysis
+## Related work
 
-### What we searched
-
-We queried Semantic Scholar and arXiv for terms including "regression coefficient stability," "dataset subset selection sensitivity," "OLS sampling variability," and "data subset selection statistical inference." The search returned results focused primarily on machine learning data efficiency or feature selection rather than observational data sensitivity.
-
-### What is known
-
-- [A Weighted K-Center Algorithm for Data Subset Selection (2023)](http://arxiv.org/abs/2312.10602v1) — Establishes methods for selecting data subsets to reduce annotation costs in deep learning, focusing on efficiency rather than statistical stability of coefficients.
-- [On best subset regression (2011)](http://arxiv.org/abs/1112.0918v2) — Discusses variable selection (subset of features) via $\ell_0$-norm constraints, which is distinct from subset selection of observations (data points).
-- [Structured penalized regression for drug sensitivity prediction (2019)](http://arxiv.org/abs/1902.04996v3) — Applies penalized regression to a specific oncology domain without addressing general coefficient sensitivity to data sampling.
-
-### What is NOT known
-
-There is no systematic empirical quantification of how ordinary least squares (OLS) coefficient variance behaves across random observation subsets in general-purpose public datasets. Specifically, no published work has mapped the relationship between dataset collinearity metrics and the empirical stability of coefficients under row-wise subsampling.
-
-### Why this gap matters
-
-Researchers relying on public benchmarks need to know if a reported coefficient is robust or an artifact of a specific sample configuration. Filling this gap provides a practical heuristic for assessing the reliability of regression findings in data-limited or convenience-sampled contexts.
-
-### How this project addresses the gap
-
-This project will execute a simulation study across multiple UCI datasets, systematically varying subset sizes and measuring coefficient variance. By correlating this variance with dataset-level metrics (e.g., condition number), we produce the first empirical map of sensitivity drivers in standard regression contexts.
+- [Towards Practical Robustness Auditing for Linear Regression (2023)](https://arxiv.org/abs/2307.16315) — Directly addresses the existence of small data subsets that can reverse coefficient signs, providing a methodological precedent for auditing stability against subset selection.
+- [Minimax experimental design: Bridging the gap between statistical and worst-case approaches to least squares regression (2019)](https://arxiv.org/abs/1902.00995) — Explores worst-case subset selection in linear models, offering a theoretical bound on stability that this project can test empirically against real-world assumption violations.
+- [When Is the First Spurious Variable Selected by Sequential Regression Procedures? (2017)](https://arxiv.org/abs/1708.03046) — Investigates selection instability in low-correlation settings, serving as a counter-point to understand how high collinearity combined with assumption violations might exacerbate spurious selection.
+- [Markov Neighborhood Regression for High-Dimensional Inference (2020)](https://arxiv.org/abs/2010.08864) — Focuses on high-dimensional inference and confidence intervals, highlighting the gap in current literature regarding low-dimensional OLS stability under assumption violations in general observational data.
 
 ## Expected results
 
-We expect to find that coefficient variability decreases non-linearly with sample size, but remains high in datasets with high predictor collinearity regardless of subset size. Evidence will be confirmed by a significant negative correlation between sample size and coefficient standard deviation across the dataset corpus.
+We expect to find that while collinearity theoretically drives instability, the presence of heteroscedasticity or outliers in real datasets amplifies this effect non-linearly, causing coefficient variance to exceed theoretical predictions even at moderate sample sizes. Evidence will be confirmed if the residual variance of coefficient estimates across subsets correlates significantly with the magnitude of assumption violations (e.g., Breusch-Pagan test statistics) rather than just the condition number.
 
 ## Methodology sketch
 
-- Download 10 structured numerical datasets from the UCI Machine Learning Repository using `wget` (e.g., `https://archive.ics.uci.edu/ml/datasets.php`).
-- Preprocess each dataset to remove missing values and standardize predictors using `scikit-learn`.
-- For each dataset, compute the condition number of the design matrix as a measure of collinearity.
-- Generate 100 random subsets of observations for each target sample size (10%, 25%, 50%, 75%, 100% of original N).
-- Fit an OLS regression model on each subset using `statsmodels` and record the estimated coefficients.
-- Calculate the standard deviation of each coefficient across the 100 subsets to quantify sensitivity.
-- Perform a linear regression analysis to test the relationship between dataset condition number and mean coefficient variability.
-- Visualize results using `matplotlib` to show sensitivity curves across different datasets.
-- Verify all computations complete within 6 hours on a single CPU core by limiting bootstrap iterations to 100 per dataset.
+- Download 10 diverse numerical datasets from the UCI Machine Learning Repository and HuggingFace Datasets (e.g., `https://huggingface.co/datasets/uci_ml`) containing known heteroscedasticity or outliers.
+- Preprocess data by standardizing predictors and explicitly tagging datasets by their violation severity (e.g., using the Breusch-Pagan test for heteroscedasticity and Cook's distance for outliers).
+- Compute the condition number of the design matrix for each dataset to quantify predictor collinearity.
+- Generate 200 random observation subsets per dataset across 5 sample sizes (10% to 100% of N) to simulate subset selection variability.
+- Fit OLS models on each subset using `statsmodels` and record the coefficient estimates and standard errors.
+- Calculate the empirical standard deviation of coefficients across subsets to measure actual stability.
+- Perform a multiple regression analysis where the outcome is empirical coefficient variance, and predictors are condition number, violation severity metrics, and their interaction terms.
+- Verify that the validation target (empirical variance across subsets) is independent of the predictor variables (collinearity and violation metrics) derived from the full dataset, ensuring no circularity.
+- Visualize the interaction effects to demonstrate how assumption violations modify the collinearity-stability curve.
+- Ensure all steps execute within 6 hours on a 2-core CPU by limiting bootstrap iterations and dataset sizes to manageable subsets.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: None provided in context.
-- Closest match: Standard bootstrap tutorials (distinct focus on stability mapping vs. CI estimation).
+- Closest match: Standard bootstrap tutorials (distinct focus on mapping assumption violation interactions vs. generic CI estimation).
 - Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-16T18:42:30Z
+**Outcome**: exhausted
+**Original term**: Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection statistics
+**Verified citation count**: 4
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Assessing the Sensitivity of Regression Coefficients to Dataset Subset Selection statistics | 4 |
+
+### Verified citations
+
+1. **Minimax experimental design: Bridging the gap between statistical and worst-case approaches to least squares regression** (2019). Michał Dereziński, Kenneth L. Clarkson, Michael W. Mahoney, Manfred K. Warmuth. arXiv. [1902.00995](https://arxiv.org/abs/1902.00995). PDF-sampled: No.
+2. **Towards Practical Robustness Auditing for Linear Regression** (2023). Daniel Freund, Samuel B. Hopkins. arXiv. [2307.16315](https://arxiv.org/abs/2307.16315). PDF-sampled: No.
+3. **Markov Neighborhood Regression for High-Dimensional Inference** (2020). Faming Liang, Jingnan Xue, Bochao Jia. arXiv. [2010.08864](https://arxiv.org/abs/2010.08864). PDF-sampled: No.
+4. **When Is the First Spurious Variable Selected by Sequential Regression Procedures?** (2017). Weijie J. Su. arXiv. [1708.03046](https://arxiv.org/abs/1708.03046). PDF-sampled: No.

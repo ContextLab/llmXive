@@ -1,49 +1,46 @@
 import os
 from pathlib import Path
+from config import get_config
+from code.utils.logger import get_pipeline_logger
+from code.utils.error_handling import handle_error, ConfigError
 
 def create_project_structure():
     """
-    Create the directory structure defined in T001.
-    This function is idempotent (safe to run multiple times).
+    Create the necessary directory structure for the code modules.
+    Specifically creates: code/data, code/models, code/utils
     """
-    # Define directories relative to project root
-    directories = [
-        "code/data",
-        "code/models",
-        "code/utils",
-        "tests/unit",
-        "tests/integration",
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "specs/001-phase-change-predictive-power/contracts",
-        "logs"
-    ]
-
-    print("Creating project directory structure...")
-    for dir_path in directories:
-        path = Path(dir_path)
-        path.mkdir(parents=True, exist_ok=True)
-        print(f"  ✓ Created: {path}")
+    config = get_config()
+    logger = get_pipeline_logger()
     
-    # Create __init__.py files in Python packages
-    python_packages = [
-        "code",
-        "code/data",
-        "code/models",
-        "code/utils",
-        "tests",
-        "tests/unit",
-        "tests/integration"
+    # Base project root is assumed to be the current working directory or defined in config
+    # We construct paths relative to the project root
+    project_root = Path.cwd()
+    
+    # Define the directories to create based on the task requirement
+    code_dirs = [
+        project_root / "code" / "data",
+        project_root / "code" / "models",
+        project_root / "code" / "utils"
     ]
     
-    for pkg in python_packages:
-        init_file = Path(pkg) / "__init__.py"
-        if not init_file.exists():
-            init_file.touch()
-            print(f"  ✓ Created: {init_file}")
+    created_count = 0
+    for dir_path in code_dirs:
+        try:
+            if not dir_path.exists():
+                dir_path.mkdir(parents=True, exist_ok=True)
+                logger.info(f"Created directory: {dir_path}")
+                created_count += 1
+            else:
+                logger.debug(f"Directory already exists: {dir_path}")
+        except Exception as e:
+            handle_error(ConfigError, f"Failed to create directory {dir_path}: {str(e)}", logger)
+    
+    logger.info(f"Project structure setup complete. Created {created_count} new directories.")
+    return True
 
-    print("\nProject structure initialization complete.")
+def main():
+    """Entry point for script execution."""
+    create_project_structure()
 
 if __name__ == "__main__":
-    create_project_structure()
+    main()

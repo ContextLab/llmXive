@@ -1,0 +1,59 @@
+[project]
+name = "proj-012-submarine-hydrothermal-vent"
+version = "0.1.0"
+description = "Submarine hydrothermal vent microbial communities as indicators of ocean acidification"
+requires-python = ">=3.11"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "data",
+    "state",
+    "results",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line length handled by black / formatter
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code"]
+
+[tool.ruff.format]
+quote-style = "double"
+indent-style = "space"
+
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+include = '\.pyi?$'
+extend-exclude = '''(
+    /(
+        \.git
+        | \.venv
+        | venv
+        | __pycache__
+        | data
+        | state
+        | results
+    )/
+)'''
+
+[tool.isort]
+profile = "black"
+line_length = 100
+known_first_party = ["code"]

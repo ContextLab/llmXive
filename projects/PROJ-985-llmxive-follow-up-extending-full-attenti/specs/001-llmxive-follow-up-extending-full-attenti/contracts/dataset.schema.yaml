@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TokenUnit Dataset Schema"
+description: "Schema for the merged dataset containing static features and RTPurbo ground truth labels."
+type: object
+properties:
+  sequence_id:
+    type: string
+    description: "Unique identifier for the source document."
+  token_index:
+    type: integer
+    description: "Position of the token within the sequence."
+    minimum: 0
+  text:
+    type: string
+    description: "The token text."
+  position:
+    type: number
+    description: "Normalized position (0.0 to 1.0)."
+    minimum: 0.0
+    maximum: 1.0
+  entropy:
+    type: number
+    description: "Shannon entropy of the token distribution."
+    minimum: 0.0
+  pos_tag:
+    type: string
+    description: "Part-of-Speech tag (e.g., 'NOUN', 'VERB')."
+  local_perplexity:
+    type: number
+    description: "Local semantic density metric (computed via KenLM)."
+    minimum: 0.0
+  is_rtpurbo_selected:
+    type: boolean
+    description: "Ground truth: selected by RTPurbo."
+  predicted_retrieval:
+    type: boolean
+    description: "Prediction by the static heuristic."
+  target_model:
+    type: string
+    description: "Model used for evaluation (e.g., 'Llama-3-8B', 'Gemma-2-9B')."
+required:
+  - sequence_id
+  - token_index
+  - text
+  - position
+  - entropy
+  - pos_tag
+  - is_rtpurbo_selected
+  - predicted_retrieval
+  - target_model
+additionalProperties: false

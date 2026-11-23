@@ -1,11 +1,11 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Threshold Results Schema"
-description: "Schema for the statistical analysis results regarding the reasoning cliff."
+description: "Schema for the JSON output of threshold detection, including permutation test and LRT results."
 type: "object"
 properties:
   primary_threshold:
-    type: "integer"
-    description: "The identified threshold knot (e.g., 3 hops) where the cliff occurs."
+    type: ["integer", "null"]
+    description: "Selected knot (hop count) where the reasoning cliff is identified; null if none."
   results:
     type: "array"
     items:
@@ -13,36 +13,46 @@ properties:
       properties:
         knot:
           type: "integer"
-          description: "The threshold knot tested."
+          description: "Candidate knot position (hop count)."
         p_value:
-          type: "number"
-          description: "P-value from the permutation test."
+          type: ["number", "null"]
+          minimum: 0.0
+          maximum: 1.0
+          description: "Bonferroni‑adjusted p‑value for the LRT at this knot."
         effect_size:
-          type: "number"
-          description: "Magnitude of the accuracy drop at the threshold."
+          type: ["number", "null"]
+          description: "Estimated effect size of the accuracy drop at this knot."
         cliff_magnitude:
-          type: "number"
-          description: "Absolute accuracy drop between bin k and k+1."
+          type: ["number", "null"]
+          description: "Magnitude of the accuracy cliff (difference in predicted accuracy before vs. after the knot)."
         is_significant:
           type: "boolean"
-          description: "Whether the result is significant after permutation correction."
+          description: "Whether this knot passes the significance threshold."
       required:
         - knot
         - p_value
         - effect_size
         - cliff_magnitude
         - is_significant
+  robustness_status:
+    type: "string"
+    enum: ["PASS", "FAIL"]
+    description: "Overall robustness result across binning schemes."
   bias_flag:
     type: "boolean"
-    description: "True if disconnection rates correlate with hop count, indicating potential bias."
+    description: "True if disconnection rates correlate with hop count indicating potential bias."
   disconnection_rates:
     type: "object"
-    description: "Rates of disconnected/mapping_failure records per hop bin."
-    additionalProperties:
-      type: "number"
+    patternProperties:
+      "^[0-9]+\\+?$":
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+        description: "Proportion of questions with no correct answer per hop bin."
+    additionalProperties: false
 required:
   - primary_threshold
   - results
+  - robustness_status
   - bias_flag
   - disconnection_rates
-additionalProperties: false

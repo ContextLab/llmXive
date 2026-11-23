@@ -1,0 +1,19 @@
+status: none
+intent: download OpenNeuro navigation EEG ds0001171 and HuggingFace seizure EEG python
+  package dataset
+required_fields:
+- subject_id
+- session_id
+- run_id
+- eeg_signal
+- sampling_rate
+- channel_names
+- event_markers
+- condition_label
+- epoch_start
+- epoch_end
+- navigation_condition
+- landmark_cue
+cache_key: 6707a818e4fbf96f66aab52e6fe44642a80232b388c05e636e4c1f8ec80e3b78
+searched_at: '2026-10-06T00:39:17.059726+00:00'
+retry_count: 1

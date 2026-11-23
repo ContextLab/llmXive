@@ -1,0 +1,144 @@
+T001a:
+  task: 64262a37882ed22e9c9ee3db6efede209b3902c275d0d8bd6e0673cc8e89de66
+T001b:
+  reason: Checked the project root `projects/PROJ-333-predicting-coral-resilience-to-thermal-s`
+    for a `.gitignore` file; the listed artifacts only include `data/raw/` and `data/processed/`
+    directories and their contents, with no `.gitignore` present. The required file
+    is missing, so the task is not satisfied.
+  task: d28fe8a54de2448e5d14e9bc91f9d7466b440a48d1e632e09c9da25beecc3e45
+T002:
+  reason: The `requirements.txt` file is present, but it lists the required packages
+    without version pins (e.g., `biopython` instead of `biopython==X.Y.Z`). The task
+    explicitly demanded *pinned* dependencies, which is not satisfied.
+  task: 36b1e2c79a590519bae38e2f3e813a601918578cd1a4646c21ea4eaa1729a9d4
+T003a:
+  reason: The evidence contains no `.flake8` file (or any file showing its contents)
+    in the project root, so we cannot verify that a configuration with `max-line-length=88`
+    and `ignore=E203,W503` was created. The required artifact is missing.
+  task: 6390f87311bbae3a0f20b07025782af33e4e4cb410cf8c8c8c204e6d3ef8d6a2
+T003b:
+  task: 418f360a5d6a6f8edd75a330f1d465cd89bc1ddbf819b3ca55dd569f44dbe776
+T004a:
+  reason: "The `code/config.py` file exists and defines the required constants, but\
+    \ the comment for `MIN_COUNT_THRESHOLD` does not match the mandated wording. It\
+    \ lacks the exact phrase \u201C# MIN_COUNT_THRESHOLD=10 is a temporary placeholder.\
+    \ Research phase MUST update this value via T020b before final analysis.\u201D\
+    , so the task\u2019s specification is not fully satisfied."
+  task: 0143010438c52fbe4e716e9984c8078eaa7defd34f88c3b28f79d4185f135a38
+T004b:
+  task: 5532a2c9d223f4be1c4e784cc112ec560c9a5f58febb18a34ace1aa09a81dadb
+T004c:
+  task: 6d9b6da650ec7f52aedf6d20cbf120a8ab7cc6c61239b41b8cce53bf0c232323
+T005:
+  task: 7b75f2af318afff09d12c97e202f7d0ddc4d3e4aef5eb26d0f1315781ed6675b
+T006:
+  task: c747c790160aadbbe372d1019f45c4d1ecd04287fed6075eaf657c2fdb5bcf1b
+T007:
+  task: 244d40d8556566e8c50e638c751c85d24a2c00cabfcc687c50389d98993c98cd
+T008:
+  task: 7afaa9a7a79bd753a2c5c16258f3c8ed2a599c333ec0c3326da746f473374dd5
+T009:
+  task: dcceba25d9f03d2b11b89515e81419446440020cc1c4d5ce936d1440290aba4b
+T009b:
+  reason: 'declared artifact(s) missing/empty/invalid: specs/001-coral-resilience-prediction/technical-design/threshold_strategy.md'
+  task: 1ba76ad153ee1d3b1bfc0df9e05d689d2f6704ef54a7818083795ed3c55849dd
+T011:
+  task: d677df6d1336a09353e1e2c60b99e1b8115b8daeed44aabecc919399dde6e4c5
+T012:
+  task: ffd00316e218ce365fcd1e253f8a704c9685153430131a5776b320e7e5679042
+T013:
+  task: c30144f54a363c22a97782a957085f02d39a9ff2952fd8a1ad1995fc9e940ae8
+T014:
+  task: fb45dfcdf4241714985f6babf57154854fe61502e8bf459dea0aee014c298993
+T014b:
+  task: 732ceeed6342f0ee03dcf3ce11fd91190486ccceec93a996daa0efbdd5f8e473
+T015:
+  task: bc9687198144a188b4df8fc33b12dafba99df8aeabf049a3a55ae90b6d62fca6
+T016:
+  task: ecc66da585a1f10943c648e5037d7259ac3ec7589c916ad716bba122abc911c3
+T017:
+  task: 820e38ba406adf1e1a4ac0cb058d84fb697695d4e2a5778ed51b69f910462a41
+T018:
+  task: 1173d863a28fee18c1249e2ddd2a0cbe6bffcf67caecdd998083e17a4815ef2d
+T019:
+  task: a8aefd57a4c26a65b9ea26f6e55c7d9266f3999c630fd0cb8cef101f09e7515e
+T019b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/quant.py, data/processed/count_matrix.csv'
+  task: bf2477f7507fbb6fd1e23f84dda2f72e2dc215f323e34399117bed79f22bb5c3
+T020:
+  reason: 'declared artifact(s) missing/empty/invalid: code/quant.py, data/processed/filter_log.md'
+  task: dc7a16d2666464933ebc2e893ba4a5ccb179918d2800e2e299eca85623443928
+T020b:
+  task: 15f83e18592f9aaa90b9ec5ce59cc3ad47f15177509642e7125c2555db8129c5
+T021:
+  task: f14efa607b3bbadc42a214289ae632c9e3b20afed14ec9f566a8510195d1a2b4
+T022:
+  task: 77c3295b0972ace91ee8eaa7d6b45e70197e5f571ea035ec5ccba59d299c07a3
+T023:
+  task: a8cff51c465ad14149a91069d3acf25133bf6b652177c50a8f1376f56beebece
+T023b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/batch_detection.R, data/processed/count_matrix.csv,
+    data/raw/srr_list.json, data/processed/dge_design_config.json, data/processed/batch_detection_log.md'
+  task: 1e6cea4fbf4757a829e8b39a50586d223a2519ba507779dd144f88a249531d17
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: code/dge_analysis.R, data/processed/count_matrix.csv,
+    data/processed/dge_design_config.json'
+  task: 2e1dcade5d970b406ef618dff37e7282651a2ede9174284ac6afd619d9f3676d
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: code/dge_analysis.R, data/processed/dds.rds'
+  task: 53e74bf1dbbf16b32e48e88062e1f148b6d91590847e6a4f461a8212ce79f4e6
+T026:
+  reason: 'declared artifact(s) missing/empty/invalid: code/dge_analysis.R, data/processed/dge_results.csv'
+  task: ba1407eb8b2f09d20b9f9130aeb7a25d7e567080eeb0483031a1ba8876761d2c
+T027:
+  reason: 'declared artifact(s) missing/empty/invalid: code/dge_analysis.R, results/report.md'
+  task: 7a85049d00525cad3fc19ae61a0c07878b058debab33dc9873ca4d9d64dc6e1a
+T028a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/null_expectation.json'
+  task: 8ad57059afe00a4f619500b771a4bb64c005ae788b0231542a4eb05ecbd15470
+T028b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/pvalue_distribution.png,
+    data/processed/validation_report.md'
+  task: df3e67a7807dcf3e6b247c6d46feaa736235fdcc2ad72a737a95e1f3632a3198
+T028c:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/sc002_metrics.json'
+  task: 75476dc7ad120eeb683440c54bfc636eb0ab5b5f95e1e87c3c79033c0335e291
+T028d:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/fdr_assertion.json'
+  task: 524b406472e375cdf1695a2bf7288905bb79a4afba7f9e1a6a3b2433f9bffb10
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/dge_results.csv'
+  task: 5e6930e784cd573b0658ee6a3bd0c74dcdd4ed9393c9a900a387ed21ccc45065
+T030:
+  task: 93e8e7da4b0fa490c2df4b3b67f7501b25bcdd61d64ba0753020d9a33eb3031f
+T031:
+  task: 7a989cab79cbc46bae65c7c634d7399efb1c35bedcd4976128c23031783db354
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: code/viz.py, data/processed/volcano_plot.png'
+  task: 53cf52f420a809145c5ee9d8e694cc98e77664376190268fbcdec6ba30f3d8df
+T033:
+  reason: 'declared artifact(s) missing/empty/invalid: code/gene_mapping.py, data/processed/mapped_gene_ids.txt'
+  task: 25aa0937263887be19bb009247f48c1e8ce4d4ca9840bfc9bc31cb4a77b6ae02
+T034:
+  reason: 'declared artifact(s) missing/empty/invalid: code/enrichment.py, data/processed/enrichment_raw.json'
+  task: 3479fd42ba5b99ef0ef614fbba1cd6fc7d5a0d1f26194deef7acba7fba0efb80
+T035:
+  reason: 'declared artifact(s) missing/empty/invalid: code/enrichment.py, data/processed/enrichment_report.md'
+  task: d9e6ac69ba62363e3e0605b1d196a999a21dbd1faa844c404a3fa9736b15bad1
+T035c:
+  reason: 'declared artifact(s) missing/empty/invalid: results/report.md'
+  task: cdfee548a42e89e4cec3eee5df2f09c9c01d8e60e911a558ddd3f04e855a0fe9
+T036:
+  task: 30e89a476d25ad15db11fb5c76ff7b8d0676276b68289e0e980aefbd2c7d729a
+T037:
+  task: 2387d1d093f629e8b1c2aa9a81cccef4b999bd17bc16ab76d6a38d04c3df92aa
+T038:
+  task: 1dd423d20d2c8fdbdf248fdebbc21fcc668b6633b1f7ff0714ff34ff560301b8
+T039:
+  task: 45bebac233671637252c9d57a30b4145b14447088025362227a01dab94f53377
+T040:
+  task: e3d3f5189d59776a25f472ec52688abe3327a9e24dfecd803212db490cfd7ab4
+T041:
+  task: fde32f256069b048b1bd50b02a07685fb466ed9de535bccc56bb74fb97cce4cb
+T042:
+  task: b3805c3fc46426e4fb5fb14ab59ddb89a262512946513689da6245188ff19f5d

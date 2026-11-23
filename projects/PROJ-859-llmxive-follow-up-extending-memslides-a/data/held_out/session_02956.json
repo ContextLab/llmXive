@@ -1,0 +1,209 @@
+{
+  "trace_id": "held_out_43_02956",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 19,
+  "tool_sequence": [
+    "update_layout",
+    "update_layout",
+    "format_text",
+    "format_text",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "format_text",
+    "apply_theme",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 98.697,
+        "padding": 51.1489
+      }
+    },
+    {
+      "step": 1,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 49.0738,
+        "padding": 44.4083
+      }
+    },
+    {
+      "step": 2,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 45.9256,
+        "x": 91.4202,
+        "y": 62.9332
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 5.5741,
+        "x": 59.4235,
+        "y": 8.2264
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 0.3529,
+        "y": 19.9156,
+        "width": 35.9754,
+        "height": 41.5567
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 12.9182,
+        "y": 46.3551,
+        "width": 83.1967,
+        "height": 97.4698
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 33.8278,
+        "y": 73.1773,
+        "width": 57.8549,
+        "height": 0.3509
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 19.0975,
+        "saturation": 93.4544
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 98.369,
+        "saturation": 81.493
+      }
+    },
+    {
+      "step": 9,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 60.2102,
+        "saturation": 9.3206
+      }
+    },
+    {
+      "step": 10,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 56.1057,
+        "saturation": 91.3363
+      }
+    },
+    {
+      "step": 11,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 1.7233,
+        "saturation": 78.2853
+      }
+    },
+    {
+      "step": 12,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 7.5948,
+        "y": 1.6694,
+        "width": 35.7357,
+        "height": 6.123
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 89.1464,
+        "y": 70.7185,
+        "width": 37.8716,
+        "height": 30.4227
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 57.3825,
+        "y": 98.3027,
+        "width": 67.1375,
+        "height": 68.1934
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 72.4994,
+        "y": 60.9655,
+        "width": 99.8994,
+        "height": 94.4263
+      }
+    },
+    {
+      "step": 16,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 70.9305,
+        "x": 49.108,
+        "y": 12.1375
+      }
+    },
+    {
+      "step": 17,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 52.9285,
+        "saturation": 25.8399
+      }
+    },
+    {
+      "step": 18,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 39.8473,
+        "saturation": 10.1942
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.264182,
+    "tool_repetition_freq": 0.789474,
+    "arg_semantic_variance": 975.1413
+  },
+  "final_state": {
+    "dominant_tool": "insert_chart",
+    "slide_element_count": 9,
+    "layout_hash": "43-2956-insert_chart"
+  },
+  "variance_multiplier": 1.5
+}

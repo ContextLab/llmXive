@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Run Metadata Schema"
+description: "Schema for the metadata of a single simulation run."
+type: "object"
+properties:
+  seed:
+    type: "integer"
+    description: "Random seed used for the run"
+  variant:
+    type: "string"
+    enum:
+      - "static"
+      - "cap"
+    description: "Simulation variant (static baseline or CAP)"
+  task_id:
+    type: "string"
+    description: "Identifier for the task"
+  epsilon:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Pruning threshold (default 0.1)"
+  num_candidates:
+    type: "integer"
+    minimum: 1
+    description: "Total number of negative candidates"
+  num_cycles:
+    type: "integer"
+    minimum: 1
+    maximum: 50
+    description: "Number of training cycles"
+  aucc:
+    type: "number"
+    description: "Area Under the Convergence Curve"
+  final_accuracy:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Final accuracy on held-out test data"
+  avg_prompt_length_mid:
+    type: "number"
+    description: "Average number of candidates in prompt during cycles 20-40"
+  prompt_length_variance:
+    type: "number"
+    description: "Variance of prompt length across cycles"
+  edge_cases_triggered:
+    type: "integer"
+    minimum: 0
+    description: "Count of times fallback was used (e.g., empty prompt)"
+required:
+  - seed
+  - variant
+  - task_id
+  - epsilon
+  - num_candidates
+  - num_cycles
+  - aucc
+  - final_accuracy
+  - avg_prompt_length_mid
+  - prompt_length_variance
+  - edge_cases_triggered
+additionalProperties: false

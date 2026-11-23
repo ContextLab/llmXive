@@ -1,0 +1,35 @@
+{
+  "data": {
+    "gsm8k_split": "test",
+    "streaming": true
+  },
+  "model": {
+    "model_id": "distilgpt2"
+  },
+  "output_dirs": [
+    "statistics",
+    "figures",
+    "summary",
+    "checkpoints"
+  ],
+  "seed": 42,
+  "stages": [
+    "data",
+    "model",
+    "fixed_baselines",
+    "adaptive_runs",
+    "analysis"
+  ],
+  "training": {
+    "adaptive": false,
+    "batch_size": 16,
+    "max_epochs": 2,
+    "rhos": [
+      0.5
+    ],
+    "seeds": [
+      42
+    ],
+    "timeout_seconds": 21600
+  }
+}

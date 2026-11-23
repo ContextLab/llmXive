@@ -1,0 +1,107 @@
+T001:
+  c: true
+  h: 3d794b03239ef916716850617286a0b7a7f360ab3f86c61b1189de1fd8693090
+  r: "The evidence shows that the project root contains both a populated `code/` directory\
+    \ (21 entries) and a populated `tests/` directory (15 entries), as confirmed by\
+    \ the directory listing in `code/.tasks/T001.code_ensure_structure.py.log`. This\
+    \ satisfies the task\u2019s sole requirement of creating the `code/` and `tests/`\
+    \ directory structure."
+  sig: bc7c3e98215de5a95958829e543ee31c6c0e3effe4ecf1bceae6369fa171259f
+T002:
+  c: true
+  h: 6d6d38712b727973021630f4bd2f078eab02de9bd11186a467dad957c7e38208
+  r: "The evidence shows that the five required directories (`data/raw/`, `data/processed/`,\
+    \ `data/results/`, `data/logs/`, `contracts/`) exist in the project root, each\
+    \ containing a `.gitkeep` placeholder file, and the execution log from `setup_directories.py`\
+    \ confirms they were successfully created. This satisfies the task\u2019s requirement\
+    \ to establish the specified project directory structure."
+  sig: 4b2a5bab0f4583ebf29fce6c8744628e476234f47408345df757b59038a25093
+T003:
+  c: true
+  h: af82254cdd4f68751a6f307133663e05bc44874b72e64bc89505feddcb8a5cc3
+  r: "The `code/__init__.py` file exists at the expected location (`code/__init__.py`),\
+    \ is non\u2011empty (48\u202Fbytes) and contains a module docstring, satisfying\
+    \ the requirement to create the package initializer."
+  sig: eee069bfc66fbf3ab0fabacd1064416a4b37e91048135424cc231041dd7b6592
+T004:
+  c: false
+  h: f97bd445107d615d99dbf59a591c6a0d58bbf6e541529b21302fb6888fbba89f
+  r: "The `requirements.txt` file is present, but it lists the required packages without\
+    \ any version pins (e.g., `requests` instead of `requests==X.Y.Z`) and adds unrelated\
+    \ tooling entries, violating the task\u2019s explicit demand for a pinned\u2011\
+    version requirements file."
+  sig: 1035668b4c5a2b186d89c0d25fc1512fcca07d8a2b77cc696418999ba9cfc178
+T005:
+  c: false
+  h: c59c06ba51042cdff8bafdca7b57dec68842ce3419337e13dda7a953991d9472
+  r: "The only artifact provided is the `requirements.txt` file; there is no evidence\
+    \ of a created virtual environment (e.g., a `venv/` directory, activation scripts,\
+    \ or a `pyproject.toml`/`Pipfile.lock`) nor any proof that the listed dependencies\
+    \ were installed (e.g., `pip freeze` output, installation logs, or a test import\
+    \ script). The task\u2019s core requirement\u2014creating a virtual environment\
+    \ and installing the dependencies\u2014is therefore unmet."
+  sig: 5c5981740a4d75e479ae79d5fdc38fd457a868869acf600be3654a29672a1f56
+T006:
+  c: true
+  h: 9338f6424d8ea3af7b6282b3711b68a04f0453f94d3d744e8b8295baf7822517
+  r: "Checked the `contracts/dataset.schema.yaml` file (3634\u202Fbytes) which defines\
+    \ a JSON\u2011Schema with the required fields `star_id`, `flare_count`, `radius`,\
+    \ `mass`, `semi_major_axis`, `density`, and `age` (all with appropriate types\
+    \ and constraints) and references `data/processed/merged_filtered.csv`. The presence\
+    \ of additional optional properties does not violate the task, which only required\
+    \ the schema for the listed columns. The missing CSV is not part of this task\u2019\
+    s deliverable."
+  sig: 9c9d316c6a00728342ced1ef750779badd52e045808018f21854a22fa46f71ff
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided no linting or formatting configuration artifacts (e.g.,\
+    \ .flake8, .pylintrc, pyproject.toml for black) and the only material shown relates\
+    \ to an unrelated astrophysics data\u2011processing feature. Consequently, the\
+    \ required linting/formatting setup is missing."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or test files were provided that implement the required validation
+    logic to prevent NaN values in derived columns, nor any evidence (e.g., unit tests,
+    logs, or documentation) showing the logic works for valid inputs. The task therefore
+    lacks the necessary artifact to confirm completion.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation was presented that adds console output logic\
+    \ to print a significance statement based on a p\u2011value\u202F<\u202F0.05 and\
+    \ the sign of \u03C1. The required artifact is missing, so the task is not satisfied."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., report, script, or documentation) was provided that shows\
+    \ analysis outputs being explicitly labeled as \u201Cassociational\u201D only.\
+    \ Without such evidence, the requirement cannot be verified as met."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md content was provided; without seeing the file we cannot confirm
+    that execution instructions and dependency installation steps were added. The
+    required artifact is missing from the evidence.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No ingestion script, output CSV, flux\u2011calculation module, or integration\u2011\
+    test results were provided; the claim lacks any concrete artifacts to verify that\
+    \ the full pipeline (Ingest \u2192 Physics \u2192 Analysis \u2192 Visualization)\
+    \ was executed and produced the required data and visualizations. The required\
+    \ code, data files, and test outputs are missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No timing measurements, benchmark logs, or performance reports are present to\
+    \ demonstrate that the processing completes within 60\u202Fseconds on the specified\
+    \ target hardware (SC\u2011004). Consequently, the required artifact proving the\
+    \ performance requirement is missing."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No pytest output, log, or report is present, and no indication that a test suite\
+    \ was executed or that any tests passed. The required artifact\u2014a proof that\
+    \ the pytest suite ran and met the deferred pass\u2011rate criteria\u2014is missing."

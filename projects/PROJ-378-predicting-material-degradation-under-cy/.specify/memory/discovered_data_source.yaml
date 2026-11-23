@@ -1,0 +1,16 @@
+status: none
+intent: download material fatigue dataset composition stress amplitude frequency R-ratio
+  remaining useful life python package dataset
+required_fields:
+- elemental_percentages
+- heat_treatment
+- stress_amplitude
+- frequency
+- R_ratio
+- remaining_useful_life
+- stiffness_loss
+- sample_id
+- test_temperature
+cache_key: 1d6a02c0c018503e978f10d161fdaacca1f970e11b5dc96eeeb3dc564f4aef0f
+searched_at: '2026-08-28T14:19:51.635433+00:00'
+retry_count: 1

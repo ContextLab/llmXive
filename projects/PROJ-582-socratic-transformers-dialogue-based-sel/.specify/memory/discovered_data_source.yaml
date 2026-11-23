@@ -1,0 +1,14 @@
+status: none
+intent: HuggingFace datasets SQuAD Natural Questions CoQA QuAC SocraticQA Self-Refine
+  python package dataset
+required_fields:
+- question
+- answer
+- critique
+- revised_answer
+- context
+- source_dataset
+- dialogue_id
+cache_key: 7031c61f94a291ee73b2e782867ce3ebfa09b3c5c518b1c22167170a99ce111b
+searched_at: '2026-10-31T02:13:13.039040+00:00'
+retry_count: 1

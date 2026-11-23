@@ -1,0 +1,24 @@
+T001:
+  c: false
+  h: 92fbc8a495687bf025b3992671267047625f2e88c00fc81cc5c3d38ecfd03e49
+  r: The evidence shows that `data/raw/`, `data/processed/`, and `logs/` directories
+    are missing (they are reported as MISSING), so the required project layout is
+    not fully created.
+  sig: 4d6c3a56405122c83d6219fea1fcb66feda0341502b4c2d6d73e6bdf34fc93f9
+T003:
+  c: true
+  h: fd1af32cca1889039b2b6dbca07bf9d1857180d4b1b7e735ea6f862d0b85d996
+  r: "The `code/seed.py` file exists, sets deterministic seeds for `random`, `numpy`,\
+    \ and optionally `torch`, and writes its SHA\u2011256 hash to `code/seed_hash.txt`,\
+    \ which contains the matching hash. The accompanying pytest log shows all seed\u2011\
+    related tests (hash match, fixed constant, deterministic import, and first\u2011\
+    line import) passed."
+  sig: f6bcf850e418ce0785fc8a6c966f82e16bd387a05c8e825d193fe7bca18c36d0
+T008:
+  c: false
+  h: af53fd992ccd8583b2bbd5496ed5f793c3dcaf57059b417111cfc77ac461caf6
+  r: "The repository contains a `synthetic_data.py` that can generate a DataFrame,\
+    \ but it never writes the data to `data/processed/synthetic_data.csv` (the file\
+    \ is missing) and the required `contracts/dataset.schema.yaml` is also absent,\
+    \ so the column\u2011name compliance cannot be verified. The task\u2019s core\
+    \ output (the saved CSV matching the schema) is not present."

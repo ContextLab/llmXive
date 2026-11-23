@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.07878",
+  "judged_at": "2026-07-21T10:39:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating neural signatures of predictive processing in visual illusions neuroscience",
+  "rationale": "The paper focuses on the clinical classification of pathological brain states (seizures) using deep learning, which is a distinct construct from the user's question regarding the neural mechanisms of predictive processing in visual illusions. While both involve EEG and neuroscience, the paper does not measure the specific biological pathway, causal mechanism, or empirical population (visual illusion perception) required by the user's research question, falling under the \"Distinct construct\" reje",
+  "relevant": false
+}

@@ -1,0 +1,13 @@
+artifacts: {}
+checksums:
+  raw_data: {}
+metadata:
+  linked_metadata_verification:
+    linked_percentage: 0.95
+    linked_trials: 95
+    meets_threshold: true
+    threshold: 0.95
+    total_trials: 100
+    status: PASS
+  project_id: PROJ-345
+  version: 1.0

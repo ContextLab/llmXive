@@ -2,15 +2,28 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001a** — No evidence of the required `projects/PROJ-496-the-influence-of-simulated-social-valida/code/` directory (or any files within it) was provided; the implementer did not supply the requested directory structure.
-- **T001b** — No directory listing or proof that `projects/PROJ-496-the-influence-of-simulated-social-valida/data/` was created is provided; the claim lacks any tangible artifact confirming the required folder structure exists.
-- **T001c** — No evidence of the required `projects/PROJ-496-the-influence-of-simulated-social-valida/tests/` directory (or any files within it) is provided; the claim is unsupported by any artifact listing or content. The implementer must create and show the actual directory structure.
-- **T001d** — No evidence of the required `projects/PROJ-496-the-influence-of-simulated-social-valida/docs/` directory (or any files within it) was provided; the claim lacks any artifact to verify that the directory structure was actually created.
-- **T003** — declared artifact(s) missing/empty/invalid: github/workflows/lint.yml
-- **T007** — declared artifact(s) missing/empty/invalid: schema.yaml
-- **T004** — No directory structure or `.gitkeep` files are presented in the provided evidence; without visible `data/raw`, `data/processed`, and `data/results` folders (each containing a `.gitkeep`), the requirement cannot be confirmed as satisfied. The implementer must add the actual directory tree and placeholder files as proof.
-- **T014** — No code, script, or in‑memory data structures were provided that implement the required categorization logic or produce the six named lists. Without such artifacts we cannot confirm that the “Eligible”, “Sim‑Only”, “Real‑Only”, “Partial‑EEG”, “Partial‑Anxiety”, and “None” categories are actually generated. The implementer must supply the implementation (e.g., a Python module or notebook) and evidence (e.g., printed lists or unit‑test output) showing the categories populated as specified.
-- **T015** — declared artifact(s) missing/empty/invalid: data/results/negative_finding_report_v1.pdf
-- **T016b** — No PDF or HTML “Negative Finding Report” was supplied; there is no file containing the required summary, list of “None” status datasets, and data‑gap statement, nor any indication that it was generated conditionally on T015’s output. The task’s core artifact is therefore missing.
-- **T016c** — No PDF or HTML “Negative Finding Report” was supplied; the required document listing the identified “Sim‑Only” and “Real‑Only” dataset IDs, titles, and URLs is absent, so the task’s content and format requirements are not met. The implementer must provide the actual report file with the specified details.
-- **T017** — No code, script, or log file implementing the required error‑handling (logging missing anxiety‑measure dataset IDs, categorizing them per T014, and aborting per T015) is present; the claim cannot be verified against any concrete artifact. The task therefore lacks the necessary implementation artifact.
+- **T001** — The top‑level `projects/PROJ-496-the-influence-of-simulated-social-valida/` directory exists, but there is no evidence that `.gitkeep` files were created inside `code/`, `tests/`, `docs/`, `data/raw/`, `data/processed/`, and `data/results/` as required by the task. These files are missing or not shown.
+- **T002a** — The `requirements.txt` file is present, but it uses “>=” version specifiers instead of exact pinned versions (e.g., `mne==1.5.0`). The task explicitly required pinned versions for all listed packages, which is not satisfied.
+- **T003** — The provided `.github/workflows/lint.yml` does not match the required specification: it has a different workflow name, uses branch‑filtered triggers, different action versions, Python 3.10 instead of 3.11, installs extra tools, and runs flake8/black with different arguments (different line length, extra options, different paths). Consequently the task’s exact linting configuration is not fulfilled.
+- **T007** — Both required schema files (`eeg_dataset.schema.yaml` and `p300_measure.schema.yaml`) are reported as missing from the `specs/main-feature-sim-social-validation/contracts/` directory, so the task’s deliverables are not present.
+- **T004** — The provided `data/` directory contains a top‑level `.gitkeep` but does not include the required `.gitkeep` files inside the `raw`, `processed`, and `results` subfolders, so the exact directory‑structure verification fails.
+- **T014** — declared artifact(s) missing/empty/invalid: data/results/categorization_log.json
+- **T012b** — declared artifact(s) missing/empty/invalid: data/results/categorization_log.json
+- **T015** — declared artifact(s) missing/empty/invalid: data/results/categorization_log.json
+- **T057** — declared artifact(s) missing/empty/invalid: code/utils.py
+- **T024** — declared artifact(s) missing/empty/invalid: data/processed/epochs_raw.fif
+- **T025** — declared artifact(s) missing/empty/invalid: data/processed/p300_measures.csv
+- **T026** — declared artifact(s) missing/empty/invalid: data/results/qc_failures.log
+- **T027** — declared artifact(s) missing/empty/invalid: data/processed/p300_measures.csv
+- **T028a** — declared artifact(s) missing/empty/invalid: data/results/qc_failures.log
+- **T051** — Requested task execution failed; rerun successfully: code/analyze.py exit=1
+- **T031** — declared artifact(s) missing/empty/invalid: data/results/model_summary.csv
+- **T033b** — declared artifact(s) missing/empty/invalid: data/results/model_summary.csv
+- **T061** — declared artifact(s) missing/empty/invalid: data/results/threshold_justification.md
+- **T044** — declared artifact(s) missing/empty/invalid: data/results/sensitivity_comparison.csv
+- **T062** — declared artifact(s) missing/empty/invalid: data/results/sensitivity_comparison.csv
+- **T037** — declared artifact(s) missing/empty/invalid: data/results/report.html, data/results/report.pdf
+- **T055** — declared artifact(s) missing/empty/invalid: tests/unit/
+- **T064** — declared artifact(s) missing/empty/invalid: docs/reproducibility_checklist.md
+- **T067** — declared artifact(s) missing/empty/invalid: data/results/sample_size_justification.md
+- **T068** — declared artifact(s) missing/empty/invalid: docs/NEGATIVE_FINDING_PROTOCOL.md

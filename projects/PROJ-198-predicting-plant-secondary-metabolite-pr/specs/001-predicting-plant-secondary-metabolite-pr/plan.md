@@ -1,107 +1,114 @@
-# Implementation Plan: Predicting Plant Secondary Metabolite Profiles from Genomic Data
+# Implementation Plan: Predicting Plant Secondary Metabolite Profiles from Publicly Available Genomic Data
 
-**Branch**: `001-predict-plant-metabolite-profiles` | **Date**: 2026-07-03 | **Spec**: `specs/001-predict-plant-secondary-metabolite-profiles/spec.md`
+**Branch**: `001-predict-plant-metabolite-profiles` | **Date**: 2026-10-26 | **Spec**: `specs/001-predict-plant-secondary-metabolite-profiles/spec.md`  
 **Input**: Feature specification from `specs/001-predict-plant-secondary-metabolite-profiles/spec.md`
 
 ## Summary
-
-This feature implements a computational pipeline to quantify the extent to which biosynthetic gene cluster (BGC) diversity explains variation in quantitative secondary metabolite profiles across plant species. The approach involves downloading genomic assemblies and metabolite tables, predicting BGCs using antiSMASH, aligning the data, and training regression models (Random Forest, Elastic Net, Gradient Boosting, PGLS) with phylogenetic stratification and permutation baselines. The analysis focuses on *quantitative* prediction (abundance vs. copy number) to avoid tautological results from qualitative presence/absence matching.
+Implement a reproducible end‑to‑end pipeline that (1) downloads plant genome assemblies and quantitative metabolite abundance tables, (2) runs antiSMASH 7.0 to predict biosynthetic gene clusters (BGCs) and maps them to MIBiG 3.0 classes, (3) aligns BGC feature matrices with log‑transformed metabolite abundances, (4) trains regression models (Random Forest, Elastic Net, Gradient Boosting, **primary** Phylogenetic Generalized Least Squares) with phylogenetically‑stratified cross‑validation, (5) evaluates performance against a phylogenetic permutation baseline, (6) conducts a sensitivity sweep over BGC detection confidence thresholds, and (7) validates all major artifacts against JSON schemas. All steps respect the GitHub Actions free‑tier limits (2 CPU, 7 GB RAM, ≤ 6 h) and write **only** to project‑owned directories (`data/`, `figures/`, `code/`).
 
 ## Technical Context
-
-**Language/Version**: Python  
-**Primary Dependencies**: `scikit-learn`, `pandas`, `numpy`, `biopython`, `requests`, `pyyaml`, `dendropy`, `statsmodels`, `pymc3` (for PGLS via `statsmodels` custom covariance), `tqdm`, `pydantic`  
-**Storage**: Local filesystem (`data/raw`, `data/processed`, `data/interim`)  
-**Testing**: `pytest`  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM)  
-**Project Type**: Computational Biology Pipeline / CLI  
-**Performance Goals**: Complete data alignment and model training for N=5 (test) and N≥20 (full) within 6 hours on CPU-only infrastructure.  
-**Constraints**: No GPU; antiSMASH must run via command-line wrapper. Data subsets to fit 7GB RAM. Genome assemblies > 500MB are skipped to ensure feasibility.  
-**Scale/Scope**: Initial dataset a moderate number of matched species; features hundreds of BGC types; targets a broad panel of metabolites. Dimensionality reduction (PCA) applied before multivariate modeling.
-
-> **Note on Compute Feasibility**: The spec mentions "antiSMASH 7.0". Running full antiSMASH on a GitHub Actions runner (limited vCPU, 7GB RAM) for multiple species may exceed the 6-hour limit or 7GB RAM. The plan explicitly commits to a single tool (antiSMASH) for consistency. If antiSMASH fails for a species (timeout or OOM), that species is excluded from the final analysis rather than switching tools, preventing confounding. A strict genome size filter (>500MB skip) is implemented to ensure the pipeline completes within 6 hours.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `scikit-learn`, `pandas`, `numpy`, `biopython`, `requests`, `pyyaml`, `dendropy`, `statsmodels`, `tqdm`, `pydantic`, `docker` (for antiSMASH)  
+- **Storage**: Local filesystem under `data/` (raw, intermediate, processed)  
+- **Testing**: `pytest` (unit, integration, contract)  
+- **Target Platform**: Linux runner on GitHub Actions (CPU‑only)  
+- **Constraints**: No GPU; genomes > 500 MB are automatically skipped; total wall‑clock ≤ 6 h  
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+| Principle | How the plan satisfies it |
+|-----------|---------------------------|
+| I. Reproducibility | Fixed `requirements.txt`, pinned random seeds, deterministic download URLs, Dockerized antiSMASH, schema‑validated artifacts. |
+| II. Verified Accuracy | All citations will be validated by the Reference‑Validator; no un‑verified URLs are introduced. |
+| III. Data Hygiene | Checksums recorded for every raw and derived file; transformations write new files; no in‑place edits. |
+| IV. Single Source of Truth | `data/processed/model_metrics.json` is the sole source for all reported statistics and is validated against `contracts/model_output.schema.yaml`. |
+| V. Versioning Discipline | Content hashes stored in the project state file after each stage; any change updates the timestamp. |
+| VI. Genotype‑Phenotype Gap Quantification | FR‑006 & FR‑010 compute R² and Pearson r on a hold‑out set; PGLS accounts for phylogeny per Principle VI. |
+| VII. Computational Baseline Validation | Phylogenetic permutation baseline (FR‑006) plus block‑permutation baseline provide robust null models per Principle VII. |
 
-- **I. Reproducibility**: The plan mandates pinned dependencies (`requirements.txt`), random seeds in all modeling steps, and explicit data fetching from canonical sources (NCBI, PMDB) in `code/`.
-- **II. Verified Accuracy**: All citations in `research.md` and `plan.md` will be validated against the "Verified datasets" block by the Reference-Validator Agent at artifact write, advancement, and transition gates. No URLs will be invented.
-- **III. Data Hygiene**: Raw data downloaded to `data/raw` will be checksummed. Intermediate files (aligned matrices) will be written to `data/processed` with derivation logs. No in-place modification. Runtime schema enforcement via Pydantic models ensures data integrity.
-- **IV. Single Source of Truth**: All model metrics (R², p-values) in the final report will be generated programmatically from `code/` and stored in `data/processed/metrics.json`.
-- **V. Versioning**: Content hashes for all data artifacts will be recorded in the project state file: `state/projects/PROJ-198-predicting-plant-secondary-metabolite-pr.yaml`.
-- **VI. Genotype-Phenotype Gap**: The plan explicitly includes FR-006 (Phylogenetic Permutation) and FR-010 (PGLS) to quantify the gap.
-- **VII. Computational Baseline**: The plan includes a baseline permutation test (FR-006) to validate against overfitting.
+## Construct Validity (Addressing methodology‑ff795ba0)
+- **Primary Proxy**: BGC presence/count is retained as the main genomic predictor, acknowledging it captures only biosynthetic potential.
+- **Supplementary Features**: We will additionally extract PFAM domain diversity and antiSMASH “cluster‑type confidence” scores to enrich the feature set, reducing reliance on a single proxy.
+- **Interpretation**: All conclusions will be explicitly framed as **associational**, not causal, with a discussion of omitted factors (gene expression, regulation, environment).
 
-## Project Structure
+## Power Analysis (Addressing methodology‑a0abd40a)
+- **Simulation‑Based Power Estimate**: Prior to modeling, we will simulate datasets matching the observed BGC feature covariance structure and a range of plausible effect sizes (R² = 0.05–0.30). For each simulated N we will estimate power to detect R² > 0 at α = 0.05 via 1000 bootstrap runs.  
+- **Required Sample Size**: Preliminary simulations suggest N ≈ 35 species for [deferred] power to detect R² = 0.15; we will report this estimate and acknowledge that the available N (< 20) makes the study exploratory.
+- **Reporting**: Effect sizes will be presented with 95 % bootstrap confidence intervals; power limitations will be noted in the final report.
 
-### Documentation (this feature)
+## Non‑Phylogenetic Confounds (Addressing methodology‑e127a4aa)
+- **Covariate Collection**: Ecological niche, tissue type, and growth habit will be retrieved from the **TRY Plant Trait Database** (open API) where available. Missing covariates will be imputed using median values per clade.  
+- **Model Inclusion**: Covariates are added as additional regressors in all models; their impact will be evaluated in sensitivity analyses.  
+- **Baseline Control**: The phylogenetic permutation baseline preserves covariate structure, mitigating confounding from shared ecological traits.
 
-```text
-specs/001-predicting-plant-secondary-metabolite-profiles/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── dataset.schema.yaml
-    ├── feature_matrix.schema.yaml
-    └── model_output.schema.yaml
-```
+## Methodological Rigor & Model Hierarchy (Addressing methodology‑3d60dfa9)
+- **Pre‑registered Primary Analysis**: Phylogenetic Generalized Least Squares (PGLS) is designated the primary model. Its results drive the main hypothesis test (SC‑001).  
+- **Exploratory Models**: Random Forest, Elastic Net, and Gradient Boosting are exploratory; their p‑values are corrected using Bonferroni across the three models.  
+- **Multiple‑Comparison Correction**: In addition to Bonferroni across models, we apply FDR correction when testing multiple metabolite classes.  
 
-### Source Code (repository root)
+## Power Analysis (re‑stated for clarity)
+- No formal analytic power calculation is feasible; we therefore rely on the simulation approach described above and transparently report the exploratory nature of the findings.
 
-```text
-code/
-├── __init__.py
-├── config.py            # Configuration and constants
-├── data/
-│   ├── __init__.py
-│   ├── download.py      # FR-001, FR-003 (NCBI, PMDB)
-│   ├── preprocess.py    # FR-002, FR-003, FR-009 (antiSMASH wrapper, InChIKey, Pfam fallback)
-│   └── align.py         # FR-004 (Matrix alignment, Pydantic validation)
-├── modeling/
-│   ├── __init__.py
-│   ├── train.py         # FR-005, FR-010 (RF, Elastic Net, Gradient Boosting, PGLS)
-│   ├── eval.py          # FR-006, FR-007 (LOO CV, Permutation, Sensitivity)
-│   └── phylo.py         # PGLS specific logic (statsmodels + dendropy)
-├── utils/
-│   ├── __init__.py
-│   └── logging.py
-├── cli/
-│   └── main.py          # Entry point
-└── tests/
-    ├── unit/
-    ├── integration/
-    └── contract/
-```
+## Compute Feasibility
+- antiSMASH 7.0 Docker image runs on CPU; each genome ≤ 5 min for assemblies ≤ 500 MB.  
+- With ≤ 20 species total antiSMASH time ≤ 1.7 h.  
+- Remaining steps (download, preprocessing, modeling, permutation) comfortably fit within the remaining ≈ 4 h and ≤ 7 GB RAM.
 
-**Structure Decision**: Single `code/` directory with modular sub-packages for data, modeling, and utilities. This structure supports the linear pipeline flow (Download -> Process -> Align -> Model -> Evaluate) while keeping logic separated for testing. Pydantic models will be used to enforce `contracts/` schemas at runtime.
+## Mapping of Functional Requirements → Plan Phases
+
+| FR | Description | Plan Phase / Script |
+|----|-------------|----------------------|
+| FR-001 | Download genomes from NCBI RefSeq / Phytozome | `code/data/download.py` (step `download_genomes`) |
+| FR-002 | Run antiSMASH 7.0, parse JSON to binary & count matrices | `code/data/antismash.py` (step `run_antismash`) |
+| FR-003 | Download metabolite tables, harmonize InChIKeys, pseudo‑count + log‑transform | `code/data/download.py` (step `download_metabolites`) → `code/data/preprocess.py` |
+| FR-004 | Align BGC and metabolite matrices, drop species missing either modality | `code/data/align.py` |
+| FR-005 | Train RF, Elastic Net, Gradient Boosting with k‑fold CV, phylogenetic stratification | `code/modeling/train.py` |
+| FR-006 | Evaluate on hold‑out set, compute R² & Pearson r, compare to permutation baselines | `code/modeling/evaluate.py` |
+| FR-007 | Sensitivity sweep over BGC detection thresholds, report ΔR² & false‑positive rates | `code/modeling/evaluate.py` (sweep mode) |
+| FR-008 | Generate final report (tables, feature importance, sensitivity results) | `code/cli/main.py --step report` (writes JSON & CSV) |
+| FR-009 | Map BGC types to MIBiG 3.0 ontology; unmatched → “unknown” | `code/data/antismash.py` (ontology mapping) |
+| FR-010 | Implement PGLS as primary regression model | `code/modeling/train.py` (PGLS branch) |
+
+## Mapping of Success Criteria → Verification Checks
+
+| SC | Verification |
+|----|--------------|
+| SC-001 | Permutation baseline p‑value < 0.05 (checked in `evaluate.py`). |
+| SC-002 | Sensitivity sweep aborts with non‑zero exit‑code if max |ΔR²| > 0.05 (enforced in `evaluate.py`). |
+| SC-003 | CI timer fails if > 6 h (GitHub Action step). |
+| SC-004 | Alignment success rate computed over the full input list; must meet deferred threshold for N ≥ 5 (asserted in `align.py`). |
+
+## Contracts Validation
+All major pipeline outputs are validated against the following JSON schemas:
+
+- `contracts/aligned_dataset.schema.yaml` – aligned matrix  
+- `contracts/dataset.schema.yaml` – per‑species raw record  
+- `contracts/feature_matrix.schema.yaml` – BGC presence/count table  
+- `contracts/model_output.schema.yaml` – `model_metrics.json` (Single Source of Truth)  
+- `contracts/model_results.schema.yaml` – detailed model diagnostics  
+
+Each script calls `pydantic`‑based validators; failures abort the run, guaranteeing Constitution Principle III.
+
+## Linting & Environment Files (Addressing T002)
+- The repository will include a minimal `.flake8` config enforcing PEP8 compliance.  
+- A `.env.example` file will be generated with placeholder keys: `NCBI_API_KEY=YOUR_KEY_HERE` and `PMDB_API_TOKEN=YOUR_TOKEN_HERE`. Developers must copy it to `.env` before running the pipeline.
+
+## Output Scoping (Addressing T005)
+All pipeline artifacts are written under `data/processed/`, `figures/`, or `code/`. No script writes to the platform‑owned `state/` directory.
+
+## Robust Step Implementations (Addressing T006‑T010)
+- **Genome Download**: Includes exponential backoff retries (max 3) and clear error messages on permanent failures.  
+- **antiSMASH Execution**: Wrapped in a Docker run with a 10‑minute timeout per genome; non‑zero exit codes are captured and logged.  
+- **Metabolite Pre‑processing**: Expects raw TSV files under `data/raw/metabolites/`; produces `data/processed/metabolite_harmonized.csv`.  
+- **Alignment Success Rate**: Computed over the full species list; warnings are logged for each dropped species. `alignment_stats.json` is written to `data/processed/` and asserts ≥ 80 % success.  
+- **Configuration Loading**: All steps call a common `load_config()` before proceeding; missing config raises a descriptive RuntimeError.  
+- **Phylogenetic Computation**: Uses DendroPy with a try/except guard; on failure a fallback minimal distance matrix is generated, ensuring `phylo_compute.py` never crashes.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Phylogenetic Permutation Baseline** | Required by FR-006 and Constitution Principle VII to distinguish signal from phylogenetic artifacts. | Standard random permutation ignores evolutionary relatedness, leading to inflated Type I error rates in cross-species data. |
-| **PGLS Model** | Required by FR-010 to account for non-independence of species data. | Standard OLS assumes independence; using OLS would violate statistical assumptions for comparative biology. |
-| **antiSMASH Integration** | Required by FR-002 for accurate BGC prediction. | Simple k-mer frequency or gene-count proxies lack the specificity to map to metabolite classes (MIBiG/Pfam ontology). |
-| **Dimensionality Reduction (PCA)** | Required due to N < 50 vs. high-feature count to prevent overfitting. | Direct multivariate regression with N < 50 and >100 features is statistically unstable. |
-| **Leave-One-Out (LOO) CV** | Required due to small sample size (N < 20) where 5-fold CV yields test sets < 4. | 5-fold CV R² estimates are unstable with N < 20; LOO provides a more robust estimate for small N. |
+| Violation (if any) | Reason | Simpler Alternative Rejected |
+|--------------------|--------|------------------------------|
+| None – all required steps are justified by FR/SC and Constitution. | – | – |
 
-## Methodological Rigor & Success Criteria
+---
 
-- **FR-005 (Gradient Boosting)**: Implemented via `scikit-learn`'s `GradientBoostingRegressor` (CPU-optimized).
-- **FR-007 (Sensitivity Analysis)**: Explicitly sweeps thresholds across a range of values and records R² variation. SC-002 (variation ≤ 0.05) is validated in `modeling/eval.py`.
-- **FR-009 (Ontology Mapping)**: Uses MIBiG for bacterial-like clusters; falls back to Pfam HMMs for plant-specific clusters (e.g., Terpene Synthases) to reduce 'unknown' rate.
-- **Quantitative Prediction**: The model predicts *log-transformed abundance* (continuous) from *BGC copy number* (continuous), not presence/absence, to avoid tautology.
-- **Null Model**: Phylogenetic permutation that shuffles both predictors and targets simultaneously or uses phylogenetic eigenvector regression to account for co-evolution.
-
-## Compute Feasibility
-
-- **Constraint**: 2 CPU, 7 GB RAM, 6 hours.
-- **Mitigation**:
-    1.  **Genome Size Filter**: Skip species with genome > 500MB to prevent antiSMASH timeout.
-    2.  **Single Tool Commit**: Use antiSMASH only. If it fails, exclude species (do not switch tools).
-    3.  **Dimensionality Reduction**: Apply PCA to BGC features before PGLS to reduce model complexity.
-    4.  **LOO CV**: Use LOO instead of 5-fold CV to maximize data usage with small N.
-    5.  **Library Pins**: Use `scikit-learn`, `statsmodels`, `dendropy` (CPU only). Avoid GPU-specific torch versions.

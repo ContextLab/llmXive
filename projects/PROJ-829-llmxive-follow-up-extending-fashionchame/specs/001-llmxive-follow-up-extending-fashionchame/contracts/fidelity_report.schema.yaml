@@ -1,0 +1,118 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Fidelity Report Schema"
+description: "Schema for the aggregated fidelity scores and statistical results."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      dataset_name:
+        type: "string"
+        description: "Name of the dataset used (e.g., DeepFashion2)."
+      model_version:
+        type: "string"
+        description: "Version of the FashionChameleon model."
+      timestamp:
+        type: "string"
+        format: "date-time"
+        description: "ISO8601 timestamp of the run."
+      total_clips:
+        type: "integer"
+        description: "Total number of clips processed."
+      power_status:
+        type: "string"
+        enum:
+          - "PASSED"
+          - "UNDERPOWERED"
+        description: "Status of the power analysis (PASSED if N>=30 per class, UNDERPOWERED otherwise)."
+    required:
+      - dataset_name
+      - model_version
+      - timestamp
+      - total_clips
+      - power_status
+  feature_class_scores:
+    type: "object"
+    description: "Fidelity scores broken down by feature class."
+    additionalProperties:
+      type: "object"
+      properties:
+        color_class:
+          type: "string"
+          description: "The feature class name (e.g., COLOR, PATTERN)."
+        lpips_mean:
+          type: "number"
+          description: "Mean LPIPS score for this class."
+        ssim_mean:
+          type: "number"
+          description: "Mean SSIM score for this class."
+        sample_count:
+          type: "integer"
+          description: "Number of samples in this class."
+      required:
+        - color_class
+        - lpips_mean
+        - ssim_mean
+        - sample_count
+  statistical_analysis:
+    type: "object"
+    description: "Results of the ANOVA and sensitivity analysis."
+    properties:
+      anova_p_value:
+        type: "number"
+        description: "P-value from the One-Way ANOVA test."
+      bonferroni_corrected_p:
+        type: "number"
+        description: "Bonferroni corrected p-value."
+      significance_threshold:
+        type: "number"
+        description: "Threshold used (e.g., 0.05)."
+      is_significant:
+        type: "boolean"
+        description: "Whether the difference is statistically significant."
+      motion_control_stability:
+        type: "object"
+        description: "Stability of fidelity scores across motion strata."
+        properties:
+          low_motion_lpips:
+            type: "number"
+          high_motion_lpips:
+            type: "number"
+          variance:
+            type: "number"
+        required:
+          - low_motion_lpips
+          - high_motion_lpips
+          - variance
+    required:
+      - anova_p_value
+      - bonferroni_corrected_p
+      - significance_threshold
+      - is_significant
+      - motion_control_stability
+  latency_metrics:
+    type: "object"
+    properties:
+      mean_latency_ms:
+        type: "number"
+        description: "Average inference latency per frame."
+      max_latency_ms:
+        type: "number"
+        description: "Maximum observed latency."
+      threshold_ms:
+        type: "number"
+        description: "The real-time threshold (e.g., 50)."
+      passes_threshold:
+        type: "boolean"
+        description: "True if mean latency <= threshold."
+    required:
+      - mean_latency_ms
+      - max_latency_ms
+      - threshold_ms
+      - passes_threshold
+required:
+  - metadata
+  - feature_class_scores
+  - statistical_analysis
+  - latency_metrics
+additionalProperties: false

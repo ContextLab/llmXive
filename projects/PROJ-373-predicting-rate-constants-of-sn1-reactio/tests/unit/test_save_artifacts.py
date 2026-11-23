@@ -2,78 +2,94 @@ import os
 import sys
 import json
 import tempfile
-import torch
+import shutil
 from pathlib import Path
 import pytest
+import yaml
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Add parent to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from models.save_artifacts import save_best_model, save_metrics, load_best_training_result
-from models.mpnn import MPNN, MPNNConfig
+from models.save_artifacts import (
+    load_best_training_result,
+    load_schema,
+    validate_metrics_against_schema,
+    save_best_model,
+    save_metrics,
+    main
+)
 
-class TestSaveArtifacts:
-    @pytest.fixture
-    def temp_dirs(self):
-        with tempfile.TemporaryDirectory() as tmpdir:
-            model_dir = Path(tmpdir) / "models"
-            metrics_dir = Path(tmpdir) / "metrics"
-            results_dir = Path(tmpdir) / "results"
-            model_dir.mkdir()
-            metrics_dir.mkdir()
-            results_dir.mkdir()
-            yield model_dir, metrics_dir, results_dir
+@pytest.fixture
+def temp_dirs():
+    temp_dir = tempfile.mkdtemp()
+    yield Path(temp_dir)
+    shutil.rmtree(temp_dir)
 
-    def test_save_best_model_torch(self, temp_dirs):
-        model_dir, _, _ = temp_dirs
-        model = MPNN(input_dim=10, hidden_dim=32, output_dim=1, num_layers=2)
-        path = save_best_model(model, model_dir, "test_model.pt")
-        
-        assert path.exists()
-        # Verify it's a valid torch file
-        state = torch.load(path, map_location='cpu')
-        assert 'encoder.weight' in state or len(list(state.keys())) > 0
-
-    def test_save_metrics(self, temp_dirs):
-        _, metrics_dir, _ = temp_dirs
-        metrics = {
-            "r2": 0.85,
-            "mae": 0.12,
-            "test_r2": 0.82,
-            "test_mae": 0.15
-        }
-        path = save_metrics(metrics, metrics_dir, "test_metrics.json")
-        
-        assert path.exists()
-        with open(path, 'r') as f:
-            loaded = json.load(f)
-        assert loaded["r2"] == 0.85
-        assert loaded["mae"] == 0.12
-
-    def test_load_best_training_result_missing(self, temp_dirs):
-        _, _, results_dir = temp_dirs
-        with pytest.raises(FileNotFoundError):
-            load_best_training_result(results_dir)
-
-    def test_load_best_training_result_success(self, temp_dirs):
-        _, _, results_dir = temp_dirs
-        best_data = {
-            "model_id": "test-1",
-            "val_r2": 0.9,
-            "val_mae": 0.05,
-            "config": {
-                "input_dim": 10,
-                "hidden_dim": 32,
-                "output_dim": 1,
-                "num_layers": 2,
-                "dropout": 0.1
+@pytest.fixture
+def sample_schema():
+    return {
+        "required": ["model_id", "hyperparameters", "metrics", "weights_path"],
+        "properties": {
+            "metrics": {
+                "required": ["r2", "mae"]
             }
         }
-        
-        result_file = results_dir / "best_result.json"
-        with open(result_file, 'w') as f:
-            json.dump(best_data, f)
-        
-        loaded = load_best_training_result(results_dir)
-        assert loaded["val_r2"] == 0.9
-        assert loaded["config"]["hidden_dim"] == 32
+    }
+
+@pytest.fixture
+def sample_metrics():
+    return {
+        "model_id": "test-model-1",
+        "hyperparameters": {"lr": 0.01, "layers": 2},
+        "metrics": {"r2": 0.85, "mae": 0.12},
+        "weights_path": "path/to/model.pt"
+    }
+
+def test_validate_metrics_success(sample_metrics, sample_schema):
+    assert validate_metrics_against_schema(sample_metrics, sample_schema) is True
+
+def test_validate_metrics_missing_key(sample_schema):
+    bad_metrics = {
+        "model_id": "test",
+        "hyperparameters": {},
+        # missing metrics
+        "weights_path": "path"
+    }
+    assert validate_metrics_against_schema(bad_metrics, sample_schema) is False
+
+def test_validate_metrics_missing_nested_key(sample_schema):
+    bad_metrics = {
+        "model_id": "test",
+        "hyperparameters": {},
+        "metrics": {"r2": 0.8}, # missing mae
+        "weights_path": "path"
+    }
+    assert validate_metrics_against_schema(bad_metrics, sample_schema) is False
+
+def test_save_metrics(temp_dirs):
+    metrics = {
+        "model_id": "test",
+        "hyperparameters": {},
+        "metrics": {"r2": 0.9, "mae": 0.1},
+        "weights_path": "path"
+    }
+    output_path = temp_dirs / "metrics.json"
+    save_metrics(metrics, output_path)
+    
+    assert output_path.exists()
+    with open(output_path, 'r') as f:
+        loaded = json.load(f)
+    assert loaded == metrics
+
+def test_load_schema(temp_dirs):
+    schema_path = temp_dirs / "schema.yaml"
+    schema_data = {"test": "value"}
+    with open(schema_path, 'w') as f:
+        yaml.dump(schema_data, f)
+    
+    loaded = load_schema(schema_path)
+    assert loaded == schema_data
+
+def test_load_schema_not_found():
+    with pytest.raises(FileNotFoundError):
+        load_schema(Path("/nonexistent/schema.yaml"))

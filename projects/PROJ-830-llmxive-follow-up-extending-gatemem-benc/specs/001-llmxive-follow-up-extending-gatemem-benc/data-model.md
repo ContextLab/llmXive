@@ -1,152 +1,55 @@
 # Data Model: llmXive follow-up: extending "GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memo"
 
-## Overview
+## 1. Entity Definitions
 
-This document defines the data structures used throughout the GateMem benchmarking pipeline. It covers the raw input format, the processed episode representation, and the final results schema. All data is stored in JSON/JSONL or CSV formats to ensure compatibility with the CPU-only Python stack.
+### Episode
+| Field | Type | Description |
+|---|---|---|
+| `episode_id` | string | Unique identifier. |
+| `domain` | enum (`medical`, `office`, `education`, `household`) | Context domain. |
+| `user_role` | string | Role of the user (e.g., doctor, admin). |
+| `intent` | string | Classified intent (`query`, `deletion`, `extraction`, `other`). |
+| `query` | string | User query text. |
+| `memory_state` | string | Retrieved or full memory context. |
+| `leak_target` | boolean | Ground‑truth: *True* = allowed, *False* = should be blocked. |
+| `deletion_request` | boolean | Whether a deletion request is present. |
+| `deletion_log` | array[string] | History of deletion actions (if applicable). |
+| `ground_truth_success` | boolean | Human‑annotated task success label. |
+| `ground_truth_deletion` | boolean | Ground truth indicating successful deletion compliance. |
+| `ground_truth_answer` | string | Human‑annotated correct answer for utility calculation. |
+| `ground_truth_leak` | boolean | Ground truth label indicating if a leak occurred in this episode. |
 
-## Raw Data Schema
+### EvaluationResult
+| Field | Type | Description |
+|---|---|---|
+| `episode_id` | string | Reference to the input episode. |
+| `pipeline_type` | enum (`gatekeeper`, `retrieval_only`, `long_context`) | Pipeline executed. |
+| `allowed` | boolean | Whether the query passed the gate. |
+| `generated_response` | string (optional) | LLM output (empty if blocked). |
+| `task_success` | boolean | Success vs. ground truth. |
+| `latency_ms` | number ≥ 0 | Wall‑clock inference time. |
+| `peak_ram_mb` | number ≥ 0 | Peak RAM usage. |
 
-The raw data is downloaded from the verified HuggingFace source as a JSONL file. Each line represents a single episode.
+### MetricAggregation (per pipeline & domain)
+| Field | Type | Description |
+|---|---|---|
+| `pipeline_type` | enum (`gatekeeper`, `retrieval_only`, `long_context`) | |
+| `domain` | enum (`medical`, `office`, `education`, `household`) | |
+| `access_control_score` | float ∈ [0, 1] | Unauthorized exposure rate. |
+| `utility_score` | float ∈ [0, 1] | Task success rate. |
+| `conditional_utility` | float ∈ [0, 1] | Utility among queries allowed by the gate. |
+| `forgetting_score` | float ∈ [0, 1] | Deletion compliance rate. |
+| `avg_latency_ms` | float ≥ 0 | Mean inference latency. |
+| `avg_peak_ram_mb` | float ≥ 0 | Mean peak RAM. |
+| `total_episodes` | integer ≥ 0 | Number of episodes aggregated. |
 
-**Source**: `data/raw/gatemem_education.jsonl` (and other domains)
-**Format**: JSON Lines
+## 2. Data Flow
+1. **Ingestion** – `utils/data_loader.py` streams GateMem JSONL → `data/raw/`.  
+2. **Validation** – Each record validated against `gatemem_episode.schema.yaml`.  
+3. **Processing** – `gatekeeper/pipeline.py` & `baselines/*.py` produce `EvaluationResult` objects written to `data/processed/<pipeline>_results.jsonl`.  
+4. **Aggregation** – `metrics/*` compute per‑episode scores; write `data/processed/unified_metrics.json` (list of objects containing `episode_id`, `domain`, and the three core scores).  
+5. **Statistical Analysis** – `stats/comparison.py` reads `unified_metrics.json`, fits GLMM or fallback tests, and writes `data/processed/statistical_results.json`.  
+6. **Failure‑Case Sampling** – `cli/run_evaluation.py` filters `unified_metrics.json` for false positives/negatives, stratifies by `domain`, and outputs `data/samples/failure_cases.json`.  
 
-```yaml
-fields:
-  - name: episode_id
-    type: string
-    description: Unique identifier for the episode.
-  - name: domain
-    type: string
-    description: Domain of the episode (e.g., medical, office, education, household).
-  - name: user_query
-    type: string
-    description: The user's input query.
-  - name: memory_context
-    type: string
-    description: The retrieved or full memory context provided to the LLM.
-  - name: leak_target
-    type: string
-    description: The specific sensitive information targeted for leakage.
-  - name: role
-    type: string
-    description: The user's role in the context.
-  - name: deletion_request
-    type: boolean
-    description: Indicates if this episode contains a deletion request.
-  - name: deletion_log
-    type: string
-    description: The log of deletion actions (if applicable).
-  - name: ground_truth_answer
-    type: string
-    description: The human-annotated correct answer for utility calculation.
-  - name: ground_truth_leak
-    type: boolean
-    description: Ground truth label indicating if a leak occurred in this episode (human-annotated).
-  - name: ground_truth_deletion
-    type: boolean
-    description: Ground truth label indicating if deletion was successfully performed.
-```
+---
 
-## Processed Data Schema (Internal)
-
-After parsing and validation, episodes are stored in a normalized format for processing. Ambiguous or malformed entries are flagged and excluded from the main analysis dataset.
-
-**Location**: `data/processed/episodes_cleaned.jsonl`
-
-```yaml
-fields:
-  - name: episode_id
-    type: string
-  - name: domain
-    type: string
-  - name: intent_label
-    type: string
-    description: Predicted intent by DistilBERT (e.g., "leak", "valid", "delete").
-  - name: rule_decision
-    type: string
-    description: Decision from the rule engine ("allow", "deny").
-  - name: final_decision
-    type: string
-    description: Combined decision (Gatekeeper + Rule).
-  - name: llm_response
-    type: string
-    description: The actual response generated by the LLM (if allowed).
-  - name: is_leak
-    type: boolean
-    description: Calculated: Did the response contain the leak_target?
-  - name: is_valid_query
-    type: boolean
-    description: Calculated: Does the response match the ground_truth_answer?
-  - name: is_deletion_honored
-    type: boolean
-    description: Calculated: Did the response confirm deletion as per ground_truth?
-  - name: latency_ms
-    type: number
-    description: Wall-clock time for this episode.
-  - name: peak_ram_mb
-    type: number
-    description: Peak RAM usage during this episode.
-  - name: status
-    type: string
-    description: "success", "validation_error", "timeout", "error".
-  - name: is_allowed
-    type: boolean
-    description: Whether the Gatekeeper allowed the query to the LLM.
-  - name: is_fp
-    type: boolean
-    description: True if allowed=false but ground_truth indicates it was a valid query (False Positive).
-  - name: is_fn
-    type: boolean
-    description: True if allowed=true but ground_truth indicates it was a leak (False Negative).
-```
-
-## Results Schema
-
-The aggregated results are stored in a JSON file for reporting and statistical analysis.
-
-**Location**: `data/processed/results_summary.json`
-
-```yaml
-fields:
-  - name: configuration
-    type: string
-    description: "gatekeeper", "baseline_retrieval", "baseline_long_context".
-  - name: domain
-    type: string
-  - name: total_episodes
-    type: integer
-  - name: access_control_score
-    type: number
-    description: Rate of unauthorized exposure.
-  - name: conditional_utility_score
-    type: number
-    description: Task success rate among allowed queries (Conditional Utility).
-  - name: overall_success_rate
-    type: number
-    description: Overall task success rate (including False Positives).
-  - name: forgetting_score
-    type: number
-    description: Deletion compliance rate.
-  - name: mean_latency_ms
-    type: number
-  - name: mean_peak_ram_mb
-    type: number
-  - name: cost_per_success
-    type: number
-    description: Total time divided by number of successful tasks.
-  - name: statistical_significance
-    type: object
-    properties:
-      - p_value
-      - confidence_interval
-      - test_method (e.g., "LMM", "Wilcoxon")
-```
-
-## Data Flow
-
-1.  **Download**: `data/raw/*.jsonl` (Raw GateMem).
-2.  **Parse & Validate**: Script filters out ambiguous `leak-target` entries; outputs `data/processed/episodes_cleaned.jsonl`.
-3.  **Execution**: Pipeline runs for each configuration, appending results to `data/processed/eval_results.jsonl`.
-4.  **Aggregation**: `stats.py` computes metrics (Access Control, Conditional Utility, Overall Success, Forgetting) and runs LMM (with fallback to Wilcoxon/Kruskal-Wallis if needed); outputs `data/processed/results_summary.json`.
-5.  **Sampling**: `cli/run_evaluation.py` extracts 50 failure cases to `data/samples/failure_cases.json`.

@@ -1,1 +1,7 @@
-{"SIMULATED_MODE": false}
+{
+  "SIMULATED_MODE": true,
+  "analysis_mode": "single_halide_prediction",
+  "comparative_analysis_aborted": true,
+  "host_count": 2,
+  "threshold": 50
+}

@@ -12,7 +12,7 @@ This feature implements a reproducible, CPU-tractable pipeline to compare two mo
 **Primary Dependencies**: `rdkit`, `scikit-learn`, `pandas`, `numpy`, `pyyaml`, `requests`, `pytest`  
 **Storage**: Local CSV/Parquet files in `data/` (raw), `data/processed/` (features), `models/` (artifacts)  
 **Testing**: `pytest` (unit tests for feature extraction, integration tests for pipeline execution)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7 GB RAM)  
 **Project Type**: CLI/Data Science Pipeline  
 **Performance Goals**: Full pipeline execution < 4 hours on CPU-only runner; memory footprint < 6 GB.  
 **Constraints**: No GPU usage; no large language model inference; strict adherence to dataset variable fit (only use datasets containing SMILES and binary labels); no multiple-comparison correction (single hypothesis test).  
@@ -109,7 +109,7 @@ projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/
 1.  **Cross-Validation**: k-fold stratified CV, repeated multiple times (total folds).
 2.  **Rule-Based Model**: Calculate risk score (sum of weights).
     *   **ROC-AUC**: Sweep threshold over the **entire continuous range** of scores (0 to K) to generate the ROC curve.
-    *   **F1/Recall**: Calculate at discrete thresholds (low, 0.5, 0.7) for error analysis.
+    *   **F1/Recall**: Calculate at discrete thresholds (low, medium, high) for error analysis.
 3.  **Logistic Regression**: Train with L regularization.
     *   **ROC-AUC**: Sweep threshold over [0, 1].
     *   **F1/Recall**: Calculate at discrete thresholds.

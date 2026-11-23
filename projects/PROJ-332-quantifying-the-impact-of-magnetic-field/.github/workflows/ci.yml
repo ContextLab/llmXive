@@ -1,0 +1,19 @@
+name: CI Pipeline
+on: [push, pull_request]
+jobs:
+  run-analysis:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    fail-on-error: true
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install dependencies
+        run: pip install -r code/requirements.txt
+      - name: Run Pipeline
+        run: python code/main.py
+        env:
+          DIII_D_DISCHARGES: "123456,123457,123458,123459,123460,123461,123462,123463,123464,123465"

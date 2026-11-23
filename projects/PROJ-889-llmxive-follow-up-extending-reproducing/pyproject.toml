@@ -1,0 +1,29 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-research"
+version = "0.1.0"
+description = "Automated science pipeline for detecting reward hacking in rubric-based RL"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scipy",
+    "requests",
+    "pyyaml",
+    "jsonschema",
+    "pytest",
+    "ruff",
+    "black",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+skip-magic-trailing-comma = true
+
+[tool.setuptools.packages.find]
+where = ["code"]

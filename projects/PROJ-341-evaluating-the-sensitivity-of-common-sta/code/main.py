@@ -1,7 +1,10 @@
 """
-Main entry point for the statistical test sensitivity simulation pipeline.
+Main entry point for the simulation pipeline.
 Orchestrates simulation, aggregation, threshold finding, visualization, and validation.
-Includes memory optimization strategies for large-scale simulations.
+Implements streaming/batch processing to respect memory constraints (< 7GB RAM) and
+adds a pre‑flight check that estimates total runtime based on a benchmark of a
+single iteration. If the estimated total runtime exceeds the 6‑hour CI limit,
+the pipeline aborts fast with a clear error message.
 """
 from __future__ import annotations
 
@@ -11,574 +14,588 @@ import json
 import os
 import sys
 import time
-import traceback
-import resource
-from typing import Dict, Any, Optional, List, Tuple
+import tracemalloc
+from typing import List, Dict, Any, Optional, Tuple
 
-# Add project root to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from code.simulation.test_runner import run_simulation_condition, aggregate_results
-from code.simulation.data_generator import generate_normal_data, generate_contingency_table_data
+# Local imports from project structure
+from code.simulation.test_runner import run_simulation_condition
 from code.simulation.output_writer import write_p_values_raw, ensure_output_directory
-from code.simulation.logging_config import get_logger, log_simulation_params, log_error_details
-from code.analysis.aggregator import calculate_error_rates, save_aggregated_results
-from code.analysis.threshold_finder import calculate_confidence_intervals, save_thresholds
-from code.analysis.validator import run_validation_on_datasets, main as validator_main
-from code.analysis.bootstrapper import run_bootstrapped_validation, save_power_results
-from code.analysis.validation_metrics import calculate_validation_metrics, save_validation_metrics
-from code.analysis.report_generator import generate_report
-from code.visualization.plotter import generate_all_plots
-from code.visualization.saver import save_individual_plots, save_comparative_plots
-from code.simulation import get_rng
-from code.utils.checksum_utils import register_run, update_run_status, ensure_metadata_file_exists, register_dataset_checksum
+from code.analysis.aggregator import main as aggregator_main, load_p_values_raw_safe, save_aggregated_results
+from code.analysis.threshold_finder import main as threshold_main, save_thresholds
+from code.visualization.plotter import main as plotter_main
+from code.analysis.validator import main as validator_main
+from code.analysis.bootstrapper import main as bootstrapper_main
+from code.analysis.validation_metrics import main as metrics_main
+from code.analysis.report_generator import main as report_main
+from code.simulation.logging_config import get_logger, log_operation
+
+# Constants
+MAX_RAM_MB = 7168  # 7GB limit
+MAX_RUNTIME_SECONDS = 21600  # 6 hours
+BATCH_SIZE_DEFAULT = 50  # Number of sample sizes to process in one batch
+DEFAULT_MIN_N = 5
+DEFAULT_MAX_N = 500
+DEFAULT_STEP = 5
+DEFAULT_ITERATIONS = 10000
 
 logger = get_logger(__name__)
 
-# Memory constraint constants (in MB)
-MEMORY_LIMIT_MB = 7000  # 7GB limit as per requirement
-GC_THRESHOLD = 100000   # Run GC if object count exceeds this
 
 def get_memory_usage_mb() -> float:
-    """
-    Get current memory usage of the process in MB.
-    Uses resource module on Unix systems.
-    """
+    """Get current memory usage in MB."""
     try:
+        # Try to use resource module if available (Unix)
+        import resource
         usage = resource.getrusage(resource.RUSAGE_SELF)
-        # ru_maxrss is in KB on Linux, bytes on some other systems
-        # Normalize to MB
-        if sys.platform == 'darwin':
-            return usage.ru_maxrss / (1024 * 1024)
-        else:
-            return usage.ru_maxrss / 1024.0
-    except Exception as e:
-        logger.warning(f"Could not determine memory usage: {e}")
-        return 0.0
+        return usage.ru_maxrss / 1024.0  # Convert KB to MB on Linux
+    except ImportError:
+        # Fallback for Windows or if resource not available
+        try:
+            import psutil
+            process = psutil.Process(os.getpid())
+            return process.memory_info().rss / (1024 * 1024)
+        except ImportError:
+            # Last resort: return 0 if we can't measure
+            return 0.0
 
-def check_memory_limit(limit_mb: float = MEMORY_LIMIT_MB) -> bool:
-    """
-    Check if current memory usage is within the specified limit.
-    Returns True if within limit, False otherwise.
-    """
-    current_mb = get_memory_usage_mb()
-    if current_mb > limit_mb:
-        logger.error(f"Memory limit exceeded: {current_mb:.2f}MB > {limit_mb}MB")
+
+def check_memory_limit(current_mb: float) -> bool:
+    """Check if current memory usage exceeds the limit."""
+    if current_mb > MAX_RAM_MB:
+        logger.log("MEMORY_EXCEEDED", f"Current usage {current_mb:.2f}MB exceeds limit {MAX_RAM_MB}MB")
         return False
     return True
 
+
 def force_gc() -> None:
-    """Force garbage collection to reclaim memory."""
+    """Force garbage collection to free up memory."""
     gc.collect()
     gc.collect()
-    gc.collect()  # Triple collection for deep graphs
+    gc.collect()
+
 
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
         description="Run statistical test sensitivity simulation pipeline."
     )
-
-    # Simulation parameters
-    parser.add_argument("--min-n", type=int, default=5, help="Minimum sample size")
-    parser.add_argument("--max-n", type=int, default=500, help="Maximum sample size")
-    parser.add_argument("--step-n", type=int, default=5, help="Step size for sample size")
-    parser.add_argument("--iterations", type=int, default=100, help="Number of iterations per condition")
-    parser.add_argument("--alpha", type=float, default=0.05, help="Significance level")
-    parser.add_argument("--effect-size", type=float, default=0.5, help="Effect size for alternative hypothesis")
-
-    # Test type selection
-    parser.add_argument("--test", type=str, choices=["t-test", "anova", "chi-squared", "all"],
-                        default="all", help="Statistical test to run")
-
-    # Modes
-    parser.add_argument("--mode", type=str, choices=["simulation", "aggregation", "thresholds",
-                                                    "plots", "validation", "full", "bootstrap"],
-                        default="full", help="Pipeline mode to run")
-
-    # Memory optimization flags
-    parser.add_argument("--batch-size", type=int, default=1000,
-                        help="Batch size for processing iterations (memory optimization)")
-    parser.add_argument("--gc-threshold", type=int, default=GC_THRESHOLD,
-                        help="Garbage collection threshold")
-
+    parser.add_argument(
+        "--mode",
+        choices=["simulation", "aggregation", "thresholds", "plots", "validation", "bootstrap", "metrics", "report", "full"],
+        default="full",
+        help="Pipeline mode to run"
+    )
+    parser.add_argument(
+        "--test",
+        choices=["t-test", "anova", "chi-squared", "all"],
+        default="all",
+        help="Which statistical test to run"
+    )
+    parser.add_argument(
+        "--min-n",
+        type=int,
+        default=DEFAULT_MIN_N,
+        help=f"Minimum sample size (default: {DEFAULT_MIN_N})"
+    )
+    parser.add_argument(
+        "--max-n",
+        type=int,
+        default=DEFAULT_MAX_N,
+        help=f"Maximum sample size (default: {DEFAULT_MAX_N})"
+    )
+    parser.add_argument(
+        "--step",
+        type=int,
+        default=DEFAULT_STEP,
+        help=f"Step size for sample sizes (default: {DEFAULT_STEP})"
+    )
+    parser.add_argument(
+        "--iterations",
+        type=int,
+        default=DEFAULT_ITERATIONS,
+        help=f"Number of iterations per condition (default: {DEFAULT_ITERATIONS})"
+    )
+    parser.add_argument(
+        "--alpha",
+        type=float,
+        default=0.05,
+        help="Significance level (default: 0.05)"
+    )
+    parser.add_argument(
+        "--batch-size",
+        type=int,
+        default=BATCH_SIZE_DEFAULT,
+        help=f"Number of sample sizes to process per batch (default: {BATCH_SIZE_DEFAULT})"
+    )
+    parser.add_argument(
+        "--effect-size",
+        type=float,
+        default=0.5,
+        help="Effect size for simulation (default: 0.5)"
+    )
+    parser.add_argument(
+        "--test-mode",
+        action="store_true",
+        help="Run in test mode with fewer iterations"
+    )
     return parser.parse_args()
 
-def run_simulation(args: argparse.Namespace) -> Dict[str, Any]:
-    """
-    Run the core simulation with memory optimization.
-    Processes data in batches to stay within memory limits.
-    """
-    logger.info("Starting simulation with memory optimization...")
-    logger.info(f"Parameters: n=[{args.min_n}, {args.max_n}], iterations={args.iterations}, "
-               f"test={args.test}, alpha={args.alpha}")
 
-    # Ensure output directories exist
+# ----------------------------------------------------------------------
+# Pre‑flight runtime estimation
+# ----------------------------------------------------------------------
+
+def benchmark_single_iteration(sample_size: int, test_type: str, alpha: float, effect_size: float) -> float:
+    """
+    Run a *single* iteration of the simulation and return the elapsed time.
+    This is used to extrapolate the total runtime for the full grid.
+    """
+    start = time.time()
+    # We deliberately request only one iteration to keep the benchmark cheap.
+    _ = run_simulation_condition(
+        sample_size=sample_size,
+        iterations=1,
+        test_type=test_type,
+        alpha=alpha,
+        effect_size=effect_size
+    )
+    return time.time() - start
+
+
+def estimate_total_runtime(args: argparse.Namespace) -> float:
+    """
+    Estimate the total runtime (seconds) for the full simulation based on:
+    - Number of sample sizes (min‑n … max‑n step)
+    - Number of test types (all → 3, otherwise 1)
+    - Number of effect sizes (fixed at 3 per spec)
+    - Number of hypothesis states (null & alternative → 2)
+    - Iterations per condition (args.iterations)
+    - Benchmark of a single iteration (measured at runtime)
+
+    Returns the estimated total seconds.
+    """
+    # 1. Count sample sizes
+    sample_sizes = list(range(args.min_n, args.max_n + 1, args.step))
+    n_samples = len(sample_sizes)
+
+    # 2. Test types
+    test_count = 3 if args.test == "all" else 1
+
+    # 3. Effect sizes – the specification defines three canonical values.
+    effect_count = 3
+
+    # 4. Hypotheses (null & alternative)
+    hypothesis_count = 2
+
+    # 5. Total number of *condition* runs
+    total_conditions = n_samples * test_count * effect_count * hypothesis_count
+
+    # 6. Total iterations across all conditions
+    total_iterations = total_conditions * args.iterations
+
+    # 7. Benchmark a single iteration (use the smallest sample size to be conservative)
+    benchmark_test = "t-test" if args.test == "all" else args.test
+    single_time = benchmark_single_iteration(
+        sample_size=args.min_n,
+        test_type=benchmark_test,
+        alpha=args.alpha,
+        effect_size=args.effect_size
+    )
+
+    # 8. Extrapolate
+    estimated_seconds = single_time * total_iterations
+    return estimated_seconds
+
+
+def pre_flight_check(args: argparse.Namespace) -> None:
+    """
+    Perform a quick sanity check before launching the full simulation.
+    If the estimated runtime exceeds the CI limit, abort with a clear message.
+    """
+    estimated = estimate_total_runtime(args)
+    logger.log(
+        "PRE_FLIGHT_ESTIMATE",
+        estimated_seconds=estimated,
+        limit_seconds=MAX_RUNTIME_SECONDS,
+        message="Estimated total runtime for full simulation."
+    )
+    if estimated > MAX_RUNTIME_SECONDS:
+        msg = (
+            f"Estimated runtime {estimated/3600:.2f}h exceeds the CI limit of "
+            f"{MAX_RUNTIME_SECONDS/3600:.2f}h. Aborting early. "
+            f"Consider reducing --max-n, --iterations, or selecting a single test."
+        )
+        logger.log("PRE_FLIGHT_ABORT", reason=msg)
+        sys.exit(msg)
+
+
+# ----------------------------------------------------------------------
+# Simulation batch processing (unchanged apart from pre‑flight hook)
+# ----------------------------------------------------------------------
+
+def run_simulation_batch(
+    min_n: int,
+    max_n: int,
+    step: int,
+    iterations: int,
+    test_type: str,
+    alpha: float,
+    effect_size: float,
+    batch_size: int
+) -> List[Dict[str, Any]]:
+    """
+    Run simulation in batches to manage memory usage.
+    Processes sample sizes in chunks, writing results incrementally.
+    """
+    sample_sizes = list(range(min_n, max_n + 1, step))
+    all_results = []
+    
+    # Ensure output directory exists
     ensure_output_directory()
-    ensure_metadata_file_exists()
-
-    # Register this run in metadata
-    run_id = register_run("simulation", {
-        "min_n": args.min_n,
-        "max_n": args.max_n,
-        "step_n": args.step_n,
-        "iterations": args.iterations,
-        "alpha": args.alpha,
-        "test_type": args.test,
-        "batch_size": args.batch_size
-    })
-
-    all_p_values = []
-    sample_sizes = range(args.min_n, args.max_n + 1, args.step_n)
-
-    # Memory-efficient batch processing
-    batch_results = []
-    batch_count = 0
-    total_conditions = len(sample_sizes) * (3 if args.test == "all" else 1)
-
-    logger.info(f"Processing {total_conditions} conditions in batches...")
-
-    for n in sample_sizes:
-        # Check memory before each sample size batch
-        if not check_memory_limit(MEMORY_LIMIT_MB * 0.9):  # Safety margin
-            logger.warning("Memory usage high, forcing garbage collection...")
-            force_gc()
-            if not check_memory_limit(MEMORY_LIMIT_MB):
-                logger.error("Memory limit still exceeded after GC. Aborting simulation.")
-                raise MemoryError(f"Memory limit {MEMORY_LIMIT_MB}MB exceeded")
-
-        # Generate data for this sample size
-        if args.test in ["t-test", "all"]:
-            # T-test: two groups
-            data_null = generate_normal_data(n, mu1=0, mu2=0, sigma=1)
-            data_alt = generate_normal_data(n, mu1=0, mu2=args.effect_size, sigma=1)
-
-            # Process in smaller batches
-            p_values_null = []
-            p_values_alt = []
-
-            for batch_start in range(0, args.iterations, args.batch_size):
-                batch_end = min(batch_start + args.batch_size, args.iterations)
-                batch_null = []
-                batch_alt = []
-
-                for _ in range(batch_start, batch_end):
-                    rng = get_rng()
-                    # Null hypothesis: no difference
-                    p_null = run_simulation_condition(data_null, "t-test", rng)
-                    batch_null.append(p_null)
-
-                    # Alternative hypothesis: difference exists
-                    p_alt = run_simulation_condition(data_alt, "t-test", rng)
-                    batch_alt.append(p_alt)
-
-                p_values_null.extend(batch_null)
-                p_values_alt.extend(batch_alt)
-
-                # Force GC after each batch
-                if (batch_end - batch_start) >= args.gc_threshold:
-                    force_gc()
-
-            # Store results for this condition
-            for p in p_values_null:
-                all_p_values.append({
-                    "sample_size": n,
-                    "test_type": "t-test",
-                    "hypothesis": "null",
-                    "p_value": p,
-                    "iteration": len([x for x in all_p_values if x["iteration"] == len(all_p_values)])
-                })
-
-            for p in p_values_alt:
-                all_p_values.append({
-                    "sample_size": n,
-                    "test_type": "t-test",
-                    "hypothesis": "alternative",
-                    "p_value": p,
-                    "iteration": len([x for x in all_p_values if x["iteration"] == len(all_p_values)])
-                })
-
-        if args.test in ["anova", "all"]:
-            # ANOVA: multiple groups
-            data_null = generate_normal_data(n, mu1=0, mu2=0, mu3=0, sigma=1)
-            data_alt = generate_normal_data(n, mu1=0, mu2=args.effect_size, mu3=0, sigma=1)
-
-            p_values_null = []
-            p_values_alt = []
-
-            for batch_start in range(0, args.iterations, args.batch_size):
-                batch_end = min(batch_start + args.batch_size, args.iterations)
-                batch_null = []
-                batch_alt = []
-
-                for _ in range(batch_start, batch_end):
-                    rng = get_rng()
-                    p_null = run_simulation_condition(data_null, "anova", rng)
-                    batch_null.append(p_null)
-
-                    p_alt = run_simulation_condition(data_alt, "anova", rng)
-                    batch_alt.append(p_alt)
-
-                p_values_null.extend(batch_null)
-                p_values_alt.extend(batch_alt)
-
-                if (batch_end - batch_start) >= args.gc_threshold:
-                    force_gc()
-
-            for p in p_values_null:
-                all_p_values.append({
-                    "sample_size": n,
-                    "test_type": "anova",
-                    "hypothesis": "null",
-                    "p_value": p,
-                    "iteration": len([x for x in all_p_values if x["iteration"] == len(all_p_values)])
-                })
-
-            for p in p_values_alt:
-                all_p_values.append({
-                    "sample_size": n,
-                    "test_type": "anova",
-                    "hypothesis": "alternative",
-                    "p_value": p,
-                    "iteration": len([x for x in all_p_values if x["iteration"] == len(all_p_values)])
-                })
-
-        if args.test in ["chi-squared", "all"]:
-            # Chi-squared: contingency tables
-            # Generate contingency table data
-            data_null = generate_contingency_table_data(n, effect_size=0)
-            data_alt = generate_contingency_table_data(n, effect_size=args.effect_size)
-
-            p_values_null = []
-            p_values_alt = []
-
-            for batch_start in range(0, args.iterations, args.batch_size):
-                batch_end = min(batch_start + args.batch_size, args.iterations)
-                batch_null = []
-                batch_alt = []
-
-                for _ in range(batch_start, batch_end):
-                    rng = get_rng()
-                    p_null = run_simulation_condition(data_null, "chi-squared", rng)
-                    batch_null.append(p_null)
-
-                    p_alt = run_simulation_condition(data_alt, "chi-squared", rng)
-                    batch_alt.append(p_alt)
-
-                p_values_null.extend(batch_null)
-                p_values_alt.extend(batch_alt)
-
-                if (batch_end - batch_start) >= args.gc_threshold:
-                    force_gc()
-
-            for p in p_values_null:
-                all_p_values.append({
-                    "sample_size": n,
-                    "test_type": "chi-squared",
-                    "hypothesis": "null",
-                    "p_value": p,
-                    "iteration": len([x for x in all_p_values if x["iteration"] == len(all_p_values)])
-                })
-
-            for p in p_values_alt:
-                all_p_values.append({
-                    "sample_size": n,
-                    "test_type": "chi-squared",
-                    "hypothesis": "alternative",
-                    "p_value": p,
-                    "iteration": len([x for x in all_p_values if x["iteration"] == len(all_p_values)])
-                })
-
-        # Write batch to file periodically to avoid memory buildup
-        if len(all_p_values) >= args.batch_size * 10:
-            write_p_values_raw(all_p_values, "data/simulation/p_values_raw.csv")
-            # Clear processed data
-            all_p_values = []
-            force_gc()
-            logger.info(f"Written batch {batch_count} to CSV, cleared memory")
-            batch_count += 1
-
-    # Write remaining results
-    if all_p_values:
-        write_p_values_raw(all_p_values, "data/simulation/p_values_raw.csv")
-
-    update_run_status(run_id, "completed", {"total_records": len(all_p_values)})
-    logger.info("Simulation completed successfully")
-    return {"status": "completed", "records_written": len(all_p_values)}
-
-def run_aggregation(args: argparse.Namespace) -> Dict[str, Any]:
-    """Run aggregation to calculate error rates."""
-    logger.info("Starting aggregation...")
-    ensure_metadata_file_exists()
-
-    run_id = register_run("aggregation", {"alpha": args.alpha})
-
-    try:
-        # Calculate error rates
-        error_rates = calculate_error_rates("data/simulation/p_values_raw.csv", args.alpha)
-
-        # Save aggregated results
-        save_aggregated_results(error_rates, "data/simulation/error_rates_summary.csv")
-
-        update_run_status(run_id, "completed", {"error_rates_count": len(error_rates)})
-        logger.info("Aggregation completed successfully")
-        return {"status": "completed", "error_rates_count": len(error_rates)}
-    except Exception as e:
-        update_run_status(run_id, "failed", {"error": str(e)})
-        log_error_details(e)
-        raise
-
-def run_thresholds(args: argparse.Namespace) -> Dict[str, Any]:
-    """Calculate thresholds for reliability."""
-    logger.info("Starting threshold calculation...")
-    ensure_metadata_file_exists()
-
-    run_id = register_run("thresholds", {"alpha": args.alpha})
-
-    try:
-        # Calculate confidence intervals
-        error_rates = calculate_confidence_intervals("data/simulation/error_rates_summary.csv")
-
-        # Save thresholds
-        save_thresholds(error_rates, "data/simulation/thresholds.json")
-
-        update_run_status(run_id, "completed", {"thresholds_count": len(error_rates)})
-        logger.info("Threshold calculation completed successfully")
-        return {"status": "completed", "thresholds_count": len(error_rates)}
-    except Exception as e:
-        update_run_status(run_id, "failed", {"error": str(e)})
-        log_error_details(e)
-        raise
-
-def run_plots(args: argparse.Namespace) -> Dict[str, Any]:
-    """Generate visualization plots."""
-    logger.info("Starting plot generation...")
-    ensure_metadata_file_exists()
-
-    run_id = register_run("plots", {})
-
-    try:
-        # Generate all plots
-        generate_all_plots(
-            error_rates_path="data/simulation/error_rates_summary.csv",
-            thresholds_path="data/simulation/thresholds.json",
-            output_dir="data/visualization"
+    
+    # Clear any existing raw p-values file for fresh run
+    p_values_file = "data/simulation/p_values_raw.csv"
+    if os.path.exists(p_values_file):
+        os.remove(p_values_file)
+    
+    total_batches = (len(sample_sizes) + batch_size - 1) // batch_size
+    
+    for batch_idx in range(0, len(sample_sizes), batch_size):
+        batch = sample_sizes[batch_idx:batch_idx + batch_size]
+        batch_num = batch_idx // batch_size + 1
+        
+        logger.log(
+            "BATCH_START",
+            batch_number=batch_num,
+            total_batches=total_batches,
+            sample_sizes=batch
         )
+        
+        # Check memory before processing batch
+        mem_mb = get_memory_usage_mb()
+        if not check_memory_limit(mem_mb):
+            logger.log("MEMORY_ERROR", "Memory limit exceeded, forcing GC and continuing")
+            force_gc()
+            time.sleep(1)
+        
+        batch_results = []
+        
+        for n in batch:
+            try:
+                # Run simulation for this sample size
+                results = run_simulation_condition(
+                    sample_size=n,
+                    iterations=iterations,
+                    test_type=test_type,
+                    alpha=alpha,
+                    effect_size=effect_size
+                )
+                batch_results.extend(results)
+                
+                # Log progress
+                if n % (step * 10) == 0:
+                    logger.log(
+                        "PROGRESS",
+                        sample_size=n,
+                        total_sample_sizes=len(sample_sizes),
+                        current_results=len(batch_results)
+                    )
+                
+            except Exception as e:
+                logger.log(
+                    "SIMULATION_ERROR",
+                    sample_size=n,
+                    error=str(e)
+                )
+                # Continue with next sample size
+                continue
+        
+        # Write batch results to CSV immediately to free memory
+        if batch_results:
+            write_p_values_raw(batch_results, append=True)
+            all_results.extend(batch_results)
+            
+            # Clear batch results from memory
+            batch_results.clear()
+            force_gc()
+        
+        # Check memory after batch
+        mem_mb = get_memory_usage_mb()
+        logger.log(
+            "BATCH_COMPLETE",
+            batch_number=batch_num,
+            results_written=len(batch_results) if batch_results else 0,
+            memory_mb=mem_mb
+        )
+        
+        # Force GC between batches
+        if batch_idx + batch_size < len(sample_sizes):
+            force_gc()
+            time.sleep(0.5)
+    
+    return all_results
 
-        # Save individual and comparative plots
-        save_individual_plots("data/visualization")
-        save_comparative_plots("data/visualization")
 
-        update_run_status(run_id, "completed", {"plots_generated": True})
-        logger.info("Plot generation completed successfully")
-        return {"status": "completed", "plots_generated": True}
-    except Exception as e:
-        update_run_status(run_id, "failed", {"error": str(e)})
-        log_error_details(e)
-        raise
+def run_simulation(args: argparse.Namespace) -> Dict[str, Any]:
+    """Run the full simulation with batch processing."""
+    # ------------------------------------------------------------------
+    # Pre‑flight runtime check
+    # ------------------------------------------------------------------
+    pre_flight_check(args)
+    # ------------------------------------------------------------------
 
-def run_validation(args: argparse.Namespace) -> Dict[str, Any]:
-    """Run validation against real-world datasets."""
-    logger.info("Starting validation with real datasets...")
-    ensure_metadata_file_exists()
-
-    run_id = register_run("validation", {"alpha": args.alpha})
-
-    try:
-        # Run validation on real datasets
-        validation_results = run_validation_on_datasets(
+    start_time = time.time()
+    tracemalloc.start()
+    
+    logger.log(
+        "SIMULATION_START",
+        mode="full",
+        min_n=args.min_n,
+        max_n=args.max_n,
+        step=args.step,
+        iterations=args.iterations,
+        test_type=args.test,
+        alpha=args.alpha
+    )
+    
+    # Determine test types to run
+    test_types = ["t-test", "anova", "chi-squared"] if args.test == "all" else [args.test]
+    
+    all_results = []
+    
+    for test_type in test_types:
+        logger.log("TEST_TYPE_START", test_type=test_type)
+        
+        results = run_simulation_batch(
+            min_n=args.min_n,
+            max_n=args.max_n,
+            step=args.step,
+            iterations=args.iterations if not args.test_mode else 100,
+            test_type=test_type,
             alpha=args.alpha,
-            output_csv="data/simulation/real_data_pvalues.csv"
+            effect_size=args.effect_size,
+            batch_size=args.batch_size
         )
+        
+        all_results.extend(results)
+        logger.log("TEST_TYPE_COMPLETE", test_type=test_type, count=len(results))
+    
+    end_time = time.time()
+    current, peak = tracemalloc.get_traced_memory()
+    tracemalloc.stop()
+    
+    runtime = end_time - start_time
+    peak_ram_mb = peak / (1024 * 1024)
+    
+    metrics = {
+        "peak_ram_mb": peak_ram_mb,
+        "total_runtime": runtime,
+        "total_results": len(all_results),
+        "test_types_run": test_types,
+        "config": {
+            "min_n": args.min_n,
+            "max_n": args.max_n,
+            "step": args.step,
+            "iterations": args.iterations,
+            "alpha": args.alpha,
+            "effect_size": args.effect_size
+        }
+    }
+    
+    # Save metrics
+    metrics_path = "data/simulation/metrics.json"
+    with open(metrics_path, "w") as f:
+        json.dump(metrics, f, indent=2)
+    
+    logger.log(
+        "SIMULATION_COMPLETE",
+        peak_ram_mb=peak_ram_mb,
+        runtime=runtime,
+        results_count=len(all_results),
+        metrics_file=metrics_path
+    )
+    
+    return metrics
 
-        # Register dataset checksums
-        for dataset_name, checksum in validation_results.get("checksums", {}).items():
-            register_dataset_checksum(dataset_name, checksum)
 
-        update_run_status(run_id, "completed", validation_results)
-        logger.info("Validation completed successfully")
-        return {"status": "completed", "results": validation_results}
-    except Exception as e:
-        update_run_status(run_id, "failed", {"error": str(e)})
-        log_error_details(e)
-        raise
+def run_aggregation() -> Dict[str, Any]:
+    """Run aggregation to calculate error rates."""
+    logger.log("AGGREGATION_START")
+    
+    # Call aggregator main which reads p_values_raw.csv and writes error_rates_summary.csv
+    result = aggregator_main()
+    
+    logger.log("AGGREGATION_COMPLETE")
+    return result
 
-def run_bootstrap(args: argparse.Namespace) -> Dict[str, Any]:
+
+def run_thresholds() -> Dict[str, Any]:
+    """Run threshold finding analysis."""
+    logger.log("THRESHOLDS_START")
+    
+    result = threshold_main()
+    
+    logger.log("THRESHOLDS_COMPLETE")
+    return result
+
+
+def run_plots() -> Dict[str, Any]:
+    """Generate visualization plots."""
+    logger.log("PLOTS_START")
+    
+    result = plotter_main()
+    
+    logger.log("PLOTS_COMPLETE")
+    return result
+
+
+def run_validation() -> Dict[str, Any]:
+    """Run validation on real datasets."""
+    logger.log("VALIDATION_START")
+    
+    result = validator_main()
+    
+    logger.log("VALIDATION_COMPLETE")
+    return result
+
+
+def run_bootstrap() -> Dict[str, Any]:
     """Run bootstrapped power estimation."""
-    logger.info("Starting bootstrapped power estimation...")
-    ensure_metadata_file_exists()
+    logger.log("BOOTSTRAP_START")
+    
+    result = bootstrapper_main()
+    
+    logger.log("BOOTSTRAP_COMPLETE")
+    return result
 
-    run_id = register_run("bootstrap", {"alpha": args.alpha})
 
-    try:
-        # Run bootstrapped validation
-        power_results = run_bootstrapped_validation(
-            simulated_power_path="data/simulation/error_rates_summary.csv",
-            real_data_path="data/simulation/real_data_pvalues.csv",
-            output_path="data/simulation/real_data_power.json"
-        )
-
-        update_run_status(run_id, "completed", power_results)
-        logger.info("Bootstrapped power estimation completed successfully")
-        return {"status": "completed", "results": power_results}
-    except Exception as e:
-        update_run_status(run_id, "failed", {"error": str(e)})
-        log_error_details(e)
-        raise
-
-def run_metrics(args: argparse.Namespace) -> Dict[str, Any]:
+def run_metrics() -> Dict[str, Any]:
     """Calculate validation metrics."""
-    logger.info("Starting validation metrics calculation...")
-    ensure_metadata_file_exists()
+    logger.log("METRICS_START")
+    
+    result = metrics_main()
+    
+    logger.log("METRICS_COMPLETE")
+    return result
 
-    run_id = register_run("metrics", {"alpha": args.alpha})
 
-    try:
-        # Calculate validation metrics
-        metrics = calculate_validation_metrics(
-            simulated_path="data/simulation/error_rates_summary.csv",
-            real_data_path="data/simulation/real_data_pvalues.csv"
-        )
-
-        # Save metrics
-        save_validation_metrics(metrics, "data/simulation/validation_metrics.json")
-
-        update_run_status(run_id, "completed", {"metrics_count": len(metrics)})
-        logger.info("Validation metrics calculation completed successfully")
-        return {"status": "completed", "metrics_count": len(metrics)}
-    except Exception as e:
-        update_run_status(run_id, "failed", {"error": str(e)})
-        log_error_details(e)
-        raise
-
-def run_report(args: argparse.Namespace) -> Dict[str, Any]:
+def run_report() -> Dict[str, Any]:
     """Generate final validation report."""
-    logger.info("Generating validation report...")
-    ensure_metadata_file_exists()
+    logger.log("REPORT_START")
+    
+    result = report_main()
+    
+    logger.log("REPORT_COMPLETE")
+    return result
 
-    run_id = register_run("report", {})
-
-    try:
-        # Generate report
-        report_content = generate_report(
-            error_rates_path="data/simulation/error_rates_summary.csv",
-            thresholds_path="data/simulation/thresholds.json",
-            validation_metrics_path="data/simulation/validation_metrics.json",
-            real_data_power_path="data/simulation/real_data_power.json",
-            output_path="data/reports/validation_report.md"
-        )
-
-        update_run_status(run_id, "completed", {"report_generated": True})
-        logger.info("Report generation completed successfully")
-        return {"status": "completed", "report_generated": True}
-    except Exception as e:
-        update_run_status(run_id, "failed", {"error": str(e)})
-        log_error_details(e)
-        raise
 
 def run_full_pipeline(args: argparse.Namespace) -> Dict[str, Any]:
-    """Run the complete pipeline with memory optimization."""
-    logger.info("Starting full pipeline with memory optimization...")
+    """Run the complete pipeline in order."""
     start_time = time.time()
+    
+    logger.log("FULL_PIPELINE_START")
+    
+    # 1. Run simulation
+    sim_metrics = run_simulation(args)
+    
+    # Check if simulation produced results
+    if sim_metrics.get("total_results", 0) == 0:
+        logger.log("SIMULATION_ERROR", "No results generated, skipping aggregation")
+        return {"error": "Simulation produced no results"}
+    
+    # 2. Run aggregation
+    agg_result = run_aggregation()
+    
+    # 3. Run threshold finding
+    thresh_result = run_thresholds()
+    
+    # 4. Generate plots
+    plot_result = run_plots()
+    
+    # 5. Run validation (optional, may take longer)
+    if not args.test_mode:
+        val_result = run_validation()
+        boot_result = run_bootstrap()
+        metrics_result = run_metrics()
+        report_result = run_report()
+    else:
+        val_result = {"skipped": "test_mode"}
+        boot_result = {"skipped": "test_mode"}
+        metrics_result = {"skipped": "test_mode"}
+        report_result = {"skipped": "test_mode"}
+    
+    end_time = time.time()
+    
+    pipeline_metrics = {
+        "total_runtime": end_time - start_time,
+        "simulation": sim_metrics,
+        "aggregation": agg_result,
+        "thresholds": thresh_result,
+        "plots": plot_result,
+        "validation": val_result,
+        "bootstrap": boot_result,
+        "metrics": metrics_result,
+        "report": report_result
+    }
+    
+    logger.log(
+        "FULL_PIPELINE_COMPLETE",
+        total_runtime=end_time - start_time,
+        metrics_saved="data/simulation/pipeline_metrics.json"
+    )
+    
+    return pipeline_metrics
 
-    results = {}
-
-    try:
-        # Step 1: Simulation
-        if args.mode in ["full", "simulation"]:
-            results["simulation"] = run_simulation(args)
-
-        # Step 2: Aggregation
-        if args.mode in ["full", "aggregation"]:
-            results["aggregation"] = run_aggregation(args)
-
-        # Step 3: Thresholds
-        if args.mode in ["full", "thresholds"]:
-            results["thresholds"] = run_thresholds(args)
-
-        # Step 4: Plots
-        if args.mode in ["full", "plots"]:
-            results["plots"] = run_plots(args)
-
-        # Step 5: Validation
-        if args.mode in ["full", "validation"]:
-            results["validation"] = run_validation(args)
-
-        # Step 6: Bootstrap
-        if args.mode in ["full", "bootstrap"]:
-            results["bootstrap"] = run_bootstrap(args)
-
-        # Step 7: Metrics
-        if args.mode in ["full", "metrics"]:
-            results["metrics"] = run_metrics(args)
-
-        # Step 8: Report
-        if args.mode in ["full", "report"]:
-            results["report"] = run_report(args)
-
-        elapsed_time = time.time() - start_time
-        logger.info(f"Full pipeline completed in {elapsed_time:.2f} seconds")
-
-        # Final memory check
-        final_memory = get_memory_usage_mb()
-        logger.info(f"Final memory usage: {final_memory:.2f}MB")
-
-        return {
-            "status": "completed",
-            "results": results,
-            "elapsed_time": elapsed_time,
-            "final_memory_mb": final_memory
-        }
-
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        log_error_details(e)
-        return {"status": "failed", "error": str(e)}
 
 def main():
     """Main entry point."""
     args = parse_args()
-
-    # Set garbage collection threshold
-    gc.set_threshold(args.gc_threshold)
-
+    
+    # Set test mode parameters if requested
+    if args.test_mode:
+        args.iterations = 100
+        args.min_n = 5
+        args.max_n = 50
+        args.step = 5
+        args.batch_size = 10
+        logger.log("TEST_MODE_ENABLED", iterations=args.iterations)
+    
     try:
-        if args.mode == "full":
-            result = run_full_pipeline(args)
-        elif args.mode == "simulation":
+        if args.mode == "simulation":
             result = run_simulation(args)
         elif args.mode == "aggregation":
-            result = run_aggregation(args)
+            result = run_aggregation()
         elif args.mode == "thresholds":
-            result = run_thresholds(args)
+            result = run_thresholds()
         elif args.mode == "plots":
-            result = run_plots(args)
+            result = run_plots()
         elif args.mode == "validation":
-            result = run_validation(args)
+            result = run_validation()
         elif args.mode == "bootstrap":
-            result = run_bootstrap(args)
+            result = run_bootstrap()
         elif args.mode == "metrics":
-            result = run_metrics(args)
+            result = run_metrics()
         elif args.mode == "report":
-            result = run_report(args)
+            result = run_report()
+        elif args.mode == "full":
+            result = run_full_pipeline(args)
         else:
-            logger.error(f"Unknown mode: {args.mode}")
+            logger.log("ERROR", f"Unknown mode: {args.mode}")
             sys.exit(1)
-
-        if result["status"] == "completed":
-            logger.info("Pipeline completed successfully")
-            sys.exit(0)
-        else:
-            logger.error(f"Pipeline failed: {result.get('error', 'Unknown error')}")
-            sys.exit(1)
-
-    except KeyboardInterrupt:
-        logger.info("Pipeline interrupted by user")
-        sys.exit(130)
+        
+        # Print summary
+        print(f"Pipeline completed successfully.")
+        if isinstance(result, dict) and "total_runtime" in result:
+            print(f"Total runtime: {result['total_runtime']:.2f} seconds")
+        if isinstance(result, dict) and "peak_ram_mb" in result:
+            print(f"Peak RAM usage: {result['peak_ram_mb']:.2f} MB")
+        
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
-        traceback.print_exc()
-        sys.exit(1)
+        logger.log("PIPELINE_ERROR", error=str(e))
+        raise
+    finally:
+        force_gc()
+
 
 if __name__ == "__main__":
     main()

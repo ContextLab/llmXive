@@ -1,119 +1,101 @@
 # Research: Predicting the Solubility of Pharmaceutical Compounds in Water Using Graph Neural Networks
 
-## 1. Problem Definition & Hypothesis
+## 1. Domain Context & Problem Statement
 
-**Problem**: Predict aqueous solubility (logS) of pharmaceutical compounds.
-**Hypothesis**: Graph Neural Networks (GNNs), specifically Message Passing Neural Networks (MPNN), will capture topological and electronic features of molecules better than fixed descriptors (Morgan fingerprints) used in Random Forest baselines, resulting in a statistically significant reduction in RMSE.
-**Null Hypothesis**: There is no statistically significant difference in prediction error between the MPNN and Random Forest models on the ESOL dataset.
+Predicting the aqueous solubility (logS) of drug-like molecules is a critical step in early-stage drug discovery. Solubility affects bioavailability and pharmacokinetics. Traditional methods rely on quantitative structure-property relationship (QSPR) models using hand-crafted molecular descriptors (e.g., Morgan fingerprints). Graph Neural Networks (GNNs), specifically Message Passing Neural Networks (MPNNs), offer a potential advantage by learning representations directly from the molecular graph topology, potentially capturing complex non-linear interactions without manual feature engineering.
+
+**Research Question**: Does an MPNN trained on molecular graphs significantly outperform a Random Forest baseline using Morgan fingerprints in predicting logS on the ESOL dataset, considering statistical significance and computational constraints?
 
 ## 2. Dataset Strategy
 
-The ESOL (Delaney) dataset is the canonical source for this task. It contains a substantial collection of molecules with experimental logS values and SMILES strings.
+The study utilizes the **ESOL (Estimated SOLubility)** dataset, also known as the Delaney dataset.
 
-| Dataset Name | Source URL (Verified) | Usage | Validation Status |
-|--------------|-----------------------|-------|-------------------|
-| ESOL (MoleculeNet) | ` | Primary training/evaluation data. Contains `smiles` and `logS`. | **Verified**: URL accessible; format CSV; contains required columns. |
-| SMILES Sample | ` | Optional: Sanity check for RDKit parsing robustness. | **Verified**: URL accessible. |
+### 2.1 Primary Dataset: ESOL (Delaney)
 
-**Data Fit Confirmation**:
-- **Required Variables**: `smiles` (input), `logS` (target).
-- **Dataset Content**: The ESOL dataset explicitly provides `smiles` and `logS`.
-- **Missing Variables**: None. The spec assumes no additional variables (pH, temperature) are needed.
-- **Conclusion**: The ESOL dataset is a perfect fit for the defined analysis.
+- **Description**: A curated dataset of drug-like molecules with experimentally measured aqueous solubility (logS) and SMILES strings.
+- **Source**: MoleculeNet / DeepChem.
+- **Verified URLs**:
+ - Primary: `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv`
+ - Mirror: `
+- **Variables**:
+ - `smiles`: Canonical SMILES string.
+ - `measured log solubility in mols per litre`: Target variable (logS).
+ - `ESOL predicted log solubility...`: Baseline prediction (not used for training, for reference only).
+ - Other physicochemical descriptors (MW, H-bond donors, etc.) are present but not used for the GNN input (graph-only) or RF input (fingerprints only), ensuring a fair comparison of representation learning.
+- **Data Integrity**: The dataset is known to contain a small number of invalid SMILES. The plan explicitly includes a cleaning step to exclude these before splitting.
+
+### 2.2 Dataset Fit Verification
+
+- **Required Variables**: SMILES (for graph construction), logS (target).
+- **Availability**: Both variables are present in the verified source.
+- **No Mismatch**: The dataset contains the exact variables needed. No external data (e.g., pH, temperature) is required as the dataset standardizes conditions.
+
+### 2.3 Data Loading Strategy
+
+- **Method**: Direct HTTP download using `pandas.read_csv`.
+- **Validation**: Checksum verification (MD5/SHA256) against known values if available, or at least column presence check.
+- **Preprocessing**:
+ 1. Load CSV.
+ 2. Filter rows where `smiles` is empty or `logS` is NaN.
+ 3. Validate SMILES using `rdkit.Chem.MolFromSmiles`.
+ 4. Log count of invalid SMILES.
+ 5. Exclude invalid rows.
+ 6. Proceed with clean dataset.
 
 ## 3. Methodology
 
-### 3.1 Data Preprocessing & Splitting
+### 3.1 Baseline: Random Forest with Morgan Fingerprints
 
-1. **Download**: Fetch CSV from the verified HuggingFace URL.
-2. **Cleaning**:
- - Parse SMILES using `rdkit.Chem.MolFromSmiles`.
- - Exclude rows where `MolFromSmiles` returns `None` (invalid syntax).
- - Exclude rows where `logS` is `NaN`.
- - **Log**: Record count of excluded rows (Constitution Principle VI).
-3. **Scaffold-Based Splitting (Critical)**:
- - **Strategy**: Replace random/quantile splitting with a **Murcko Scaffold Split**.
- - **Method**: Extract the Bemis-Murcko scaffold for each molecule using RDKit.
- - **Allocation**: Group molecules by scaffold. Assign scaffolds to Train/Val/Test sets using a standard split ratio to ensure that no scaffold appears in both training and test sets.
- - **Rationale**: This prevents "data leakage" where the model memorizes similar structures rather than learning generalizable chemical rules. It ensures the test set represents a true generalization challenge.
- - **Constraint**: If a scaffold is too large, it may force an imbalance; we will enforce a minimum scaffold count threshold and log any exclusions.
+- **Rationale**: RF is a robust, non-parametric model that performs well with tabular data and is the standard baseline in chemoinformatics. Morgan fingerprints (ECFP) are a well-established representation of molecular structure.
+- **Implementation**:
+ - **Fingerprint**: Radius=2, 2048 bits.
+ - **Model**: `RandomForestRegressor` from `scikit-learn`.
+ - **Hyperparameters**: `n_estimators=500`, `max_depth=None`, `random_state=42`.
+ - **Validation**: **Stratified 5-Fold Cross-Validation** (Outer Loop).
 
-### 3.2 Feature Engineering
+### 3.2 Proposed Model: Message Passing Neural Network (MPNN)
 
-1. **Baseline (Random Forest)**:
- - Convert SMILES to Morgan Fingerprints (radius=2, 2048 bits) using `rdkit.Chem.AllChem.GetMorganFingerprintAsBitVect`.
- - Input: Binary vector.
-2. **GNN (MPNN) - Raw Graph**:
- - Convert SMILES to `rdkit.Chem.rdchem.Mol`.
- - Extract atom features: Atomic number, hybridization, formal charge, aromaticity.
- - Extract bond features: Bond type, conjugation, stereochemistry.
- - Convert to `torch_geometric.data.Data` object.
-3. **GNN (MPNN) - Fixed Features (Ablation)**:
- - **Purpose**: To isolate the contribution of "message passing" from "feature representation."
- - **Method**: Use the same Morgan Fingerprints (radius=2, 2048 bits) as the *node features* for the GNN, rather than raw atomic properties.
- - **Rationale**: If the "Raw Graph" GNN outperforms the "Fixed Features" GNN, the improvement is due to message passing. If they are equal, the baseline RF might be sufficient, or the GNN isn't learning topology.
+- **Rationale**: MPNNs (Gilmer et al., 2017) generalize convolution to graphs, allowing the model to learn local and global structural features directly from atomic and bond types.
+- **Architecture**:
+ - **Node Features**: Atomic number, degree, formal charge, hybridization, aromaticity.
+ - **Edge Features**: Bond type, conjugation, stereochemistry.
+ - **Layers**: 2-3 Message Passing layers (e.g., GraphConv or GAT).
+ - **Readout**: Global mean pooling followed by a fully connected layer.
+- **Constraints**:
+ - **CPU-Only**: No CUDA. Optimized for minimal vCPU and RAM resources.
+ - **Simplified**: Reduced hidden dimensions and batch size to fit memory and time.
+ - **Validation**: **Stratified 5-Fold Cross-Validation** (Outer Loop) with early stopping (patience=10) on Inner Validation.
 
-### 3.3 Model Architectures
+### 3.3 Statistical Evaluation
 
-1. **Random Forest**:
- - Library: `scikit-learn`.
- - Hyperparameters: `n_estimators=100`, `max_depth=None`, `random_state=42`.
- - **Rationale**: Standard baseline, fast on CPU, robust to noise.
-2. **Message Passing Neural Network (MPNN) - Raw Graph**:
- - Library: `torch_geometric`.
- - Architecture: Multiple Message Passing layers (GCNConv), 128 hidden units, ReLU activation.
- - **Constraint**: Must run on CPU (`device='cpu'`). No CUDA calls.
- - **Rationale**: Simplified architecture to ensure convergence within 6 hours on 2 vCPU.
-3. **Message Passing Neural Network (MPNN) - Fixed Features**:
- - Architecture: Same as above, but input node features are the 2048-bit Morgan fingerprint vectors (possibly projected to 128 dimensions via a linear layer to reduce input size).
- - **Rationale**: Controls for feature quality vs. architecture.
+- **Metric**: RMSE (Root Mean Squared Error) and R² (Coefficient of Determination).
+- **Significance Test**: **Nadeau's Corrected Resampled t-test** on absolute errors (|pred - true|) between RF and GNN.
+ - **Null Hypothesis**: Mean difference in absolute errors is zero.
+ - **Alpha**: 0.05.
+ - **Rationale**: This test corrects for the correlation of errors when models are evaluated on the same folds in Cross-Validation, preventing inflated Type I error rates.
+- **Power Analysis**: Post-hoc calculation of statistical power given the sample size and observed effect size.
+- **Interpretability**: Attention weights (if GAT) or node importance ranking for 5 sample molecules.
 
-### 3.4 Statistical Analysis & Validation
+## 4. Decision Rationale
 
-1. **Metrics**: RMSE, R-squared for all models.
-2. **Validation Strategy**:
- - **Primary**: **Scaffold Split** (80/10/10) to ensure independence of test data.
- - **Secondary**: **5x2 Cross-Validation** (stratified by scaffold) to estimate variance, but final significance testing uses the held-out test set to avoid overfitting the CV folds.
-3. **Significance Test (Cluster-Robust)**:
- - **Problem**: Standard t-tests assume independent errors. In chemistry, errors are correlated within structural clusters (scaffolds).
- - **Solution**: **Scaffold-Aware Permutation Test**.
- - Calculate the observed difference in RMSE (or MAE) between GNN and RF on the test set.
- - Permute the *labels* (logS values) **within** each scaffold cluster in the test set to generate a null distribution of error differences.
- - Compute the p-value as the proportion of permuted differences that are as extreme as the observed difference.
- - **Rationale**: This respects the dependency structure of the data and provides a valid p-value even when errors are not independent.
- - **Normality Check**: Perform Shapiro-Wilk test on error differences. If non-normal, report Wilcoxon signed-rank p-value as a secondary robustness check.
-4. **Power Analysis (A Priori & Exploratory)**:
- - **Constraint Acknowledgement**: With N ≈ 112, the study is underpowered to detect small effect sizes (Cohen's d < 0.4).
- - **Strategy**: Instead of a misleading post-hoc power calculation, we will perform a **simulation-based Minimum Detectable Effect Size (MDES)** analysis.
- - Simulate 1000 datasets of size N=112 with known effect sizes.
- - Determine the effect size required to achieve 80% power at alpha=0.05 given the observed variance.
- - **Reporting**: If the result is non-significant, we will explicitly state: "The study was exploratory; the minimum detectable effect size was X. We cannot rule out small improvements."
+| Decision | Rationale |
+|----------|-----------|
+| **Nested Cross-Validation** | Required to prevent data leakage. The Outer Loop provides the test set; the Inner Loop handles tuning. This ensures the final evaluation is unbiased. |
+| **Stratified 5-Fold CV** | Ensures that each fold has a representative distribution of logS values, preventing unstable model training due to distribution shifts in small datasets. |
+| **Nadeau's Corrected t-test** | Necessary to account for the dependence of errors when comparing two models on the same dataset via Cross-Validation. Standard t-test is invalid here. |
+| **CPU-Only GNN** | Ensures reproducibility on free-tier CI runners. The dataset is small enough that a simplified MPNN can converge without GPU acceleration. |
+| **Morgan Fingerprints** | Standard baseline in the field. Provides a strong, interpretable benchmark. |
+| **Post-hoc Power Analysis** | Required to assess the reliability of the significance test, especially if the effect size is small. |
 
-## 4. Compute Feasibility & Constraints
+## 5. Limitations
 
-- **Hardware**: GitHub Actions Free Tier (limited CPU, 7GB RAM, 14GB Disk, No GPU).
-- **Time Budget**: ≤ 6 hours.
-- **Mitigation Strategies**:
- - **Dataset Size**: ESOL is small. No sampling required.
- - **Model Size**: MPNN limited to -3 layers and 128 hidden units.
- - **Library Pins**: Explicitly pin `torch` to a CPU-only wheel version.
- - **Early Stopping**: Prevents wasted compute on non-converging models.
+- **Dataset Size**: [deferred] molecules is small for deep learning. Overfitting is a risk, mitigated by 5-Fold CV and early stopping.
+- **CPU Constraints**: The GNN architecture must be simplified, which may limit its ability to capture complex patterns compared to a full-scale GPU model.
+- **Generalizability**: Results are specific to the ESOL dataset. Performance on other solubility datasets or diverse chemical spaces may differ.
+- **Interpretability**: Attention weights are post-hoc and may not always reflect true causal mechanisms.
 
-## 5. Risks & Mitigations
+## 6. Ethical Considerations
 
-| Risk | Impact | Mitigation |
-|------|--------|------------|
-| **GNN Fails to Converge** | High (No results) | Early stopping; fallback to reporting baseline only if GNN loss diverges; log error. |
-| **Memory Overflow** | High (Job Kill) | Process data in chunks if needed; limit batch size to 1 (since dataset is small); monitor RAM. |
-| **SMILES Parsing Errors** | Medium (Data Loss) | Log and exclude; if >5% loss, flag data quality issue. |
-| **Baseline > GNN** | Low (Negative Result) | Report honestly; interpret as "fixed descriptors sufficient for this small dataset." |
-| **Low Statistical Power** | Medium (Inconclusive) | Report MDES; acknowledge limitation; do not claim "no difference" if p > 0.05. |
-| **Scaffold Imbalance** | Medium (Data Skew) | If a single scaffold dominates, report distribution; ensure test set has at least 5 distinct scaffolds. |
-
-## 6. Decision Rationale
-
-- **Why CPU-only?** The spec and CI constraints mandate free-tier execution. GPU methods are infeasible.
-- **Why Scaffold Split?** Random splits in cheminformatics often leak structural information, inflating performance. Scaffold splits are the gold standard for generalization testing.
-- **Why Permutation Test?** Standard t-tests fail when errors are correlated (structural clusters). Permutation tests respect the data structure.
-- **Why Ablation Study (GNN-FP)?** To distinguish whether the GNN is learning *topology* or just memorizing *features* provided by the fingerprint.
-- **Why Simulation-based Power?** With N=112, standard power calculations are unstable. Simulation provides a realistic estimate of what the study can detect.
+- **Reproducibility**: All code and data sources are open and verifiable.
+- **Bias**: The ESOL dataset is curated and may not represent the full diversity of chemical space.
+- **Transparency**: Statistical limitations (power, small sample size) will be explicitly reported.

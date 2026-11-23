@@ -32,6 +32,7 @@ from typing import TYPE_CHECKING, Any
 
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage
+from llmxive.state.revision_paths import project_control_dir
 from llmxive.tools.summarize import summarize
 
 from ..types import Concern, ConcernResponse
@@ -176,7 +177,7 @@ class _AbstractPlanReviser:
         self._summarize_cache_dir = (
             Path(summarize_cache_dir)
             if summarize_cache_dir is not None
-            else self._repo_root / ".llmxive" / "summarize_cache"
+            else project_control_dir(self._repo_root, project_id) / "summarize_cache"
         )
 
     # --- public API ---------------------------------------------------------
@@ -255,7 +256,7 @@ class _AbstractPlanReviser:
             repo_root=self._repo_root,
             concerns=concerns,
             first_pass=run_pass_with_artifact_retry(
-                _run_pass, reviser_name=type(self).__name__,
+                _run_pass, reviser_name=type(self).__name__, reviser=self,
             ),
             redo=_run_pass,
             stage_label="plan",  # spec 020 FR-001: planning → references-only + strip/smooth

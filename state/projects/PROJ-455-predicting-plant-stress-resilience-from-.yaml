@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-455-predicting-plant-stress-resilience-from-
-last_run_id: 2095079d-48ee-499b-b44d-97f454012465
+last_run_id: af2301d8-d9db-44c3-a990-ec969fb7892d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-455-predicting-plant-stress-resilience-from-/specs/001-predicting-plant-stress-resilience-from
 title: Predicting Plant Stress Resilience from Publicly Available Metabolomic Data
-updated_at: '2026-07-04T10:40:12.230899Z'
+updated_at: '2026-09-29T04:06:53.467557Z'

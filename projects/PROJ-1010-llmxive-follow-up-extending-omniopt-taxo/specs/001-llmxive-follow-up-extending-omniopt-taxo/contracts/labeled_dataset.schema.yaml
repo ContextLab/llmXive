@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LabeledDataset"
+description: "Schema for the merged dataset of spectral features and optimizer labels."
+type: "array"
+items:
+  type: "object"
+  properties:
+    row_id:
+      type: "integer"
+      description: "Auto-incremented index."
+    features:
+      type: "object"
+      description: "Embedded SpectralFeatureVector (minus model_id)."
+      properties:
+        dataset:
+          type: "string"
+        step_count:
+          type: "integer"
+        probe_optimizer:
+          type: "string"
+        spectral_radius:
+          type: "number"
+        condition_number:
+          type: "number"
+        spectral_entropy:
+          type: "number"
+        num_eigenvalues:
+          type: "integer"
+        extraction_time_sec:
+          type: "number"
+      required:
+        - dataset
+        - step_count
+        - probe_optimizer
+        - spectral_radius
+        - condition_number
+        - spectral_entropy
+        - num_eigenvalues
+        - extraction_time_sec
+    label:
+      type: "string"
+      description: "The best optimizer family."
+      enum:
+        - "Adam"
+        - "SGD"
+        - "Lion"
+        - "Adagrad"
+        - "RMSprop"
+    ground_truth_optimizer:
+      type: "string"
+      description: "The optimizer used to generate the ground truth label."
+      enum:
+        - "Adam"
+        - "SGD"
+        - "Lion"
+        - "Adagrad"
+        - "RMSprop"
+    split:
+      type: "string"
+      description: "Data split."
+      enum:
+        - "train"
+  required:
+    - row_id
+    - features
+    - label
+    - ground_truth_optimizer
+    - split
+  additionalProperties: false

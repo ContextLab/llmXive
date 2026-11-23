@@ -1,3 +1,22 @@
-# Extends pyproject.toml but allows for project-specific overrides if needed.
-# Currently, we rely on the configuration in pyproject.toml.
-extend = "pyproject.toml"
+# Ruff configuration for PROJ-512
+# Target Python 3.11
+target-version = "py311"
+
+# Line length configuration
+line-length = 100
+
+# Select rules: E (Error), F (Pyflakes), W (Warning), I (isort)
+select = ["E", "F", "W", "I"]
+
+# Ignore specific rules if necessary (none currently)
+ignore = []
+
+# Exclude directories
+exclude = [
+    ".git",
+    ".tox",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info",
+]

@@ -1,0 +1,3012 @@
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: list of most abundant metallic elements includes Al Ca Fe Mg Ti Na K
+    Zn Si Zr Cu Ni Cr Mn V Sn Pb Ag Au Pd Pt Mo W Nb Ta Hf Y La Ce Sc
+  claim_id: c_873fa18e
+  context: Define and save the list of the most abundant metallic elements to data/config/elements.yaml
+    and code/config/elements.py (Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr,
+    Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/List_of_most_abundant_metallic_elements_includes_Al_Ca_Fe_Mg
+  kind: magnitude
+  raw_text: The list of the most abundant metallic elements includes Al, Ca, Fe, Mg,
+    Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta,
+    Hf, Y, La, Ce, and Sc.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T19:33:58Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Si Na and K may not form stable metallic glasses in all ternary systems
+  claim_id: c_84f8fcd6
+  context: 'Verification: Add a comment in the file noting that Si, Na, and K are
+    included per spec assumption but may not form stable metallic glasses in all ternary
+    systems.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Si_Na_and_K_may_not_form_stable_metallic_glasses_in_all_tern
+  kind: entity_fact
+  raw_text: Si, Na, and K are included in the list of abundant metallic elements per
+    spec assumption but may not form stable metallic glasses in all ternary systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T19:36:00Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Recent Experimental GFA dataset location on HuggingFace is GFA-D/pilot_flags
+  claim_id: c_960405c5
+  context: Implement code/data/download.py to fetch Dataset (Recent Experimental GFA)
+    from HuggingFace (https://huggingface.co/datasets/GFA-D/pilot_flags).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Recent_Experimental_GFA_dataset_location_on_HuggingFace_is_G
+  kind: entity_fact
+  raw_text: The dataset 'Recent Experimental GFA' is hosted on HuggingFace at the
+    path GFA-D/pilot_flags.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T19:36:22Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: raw dataset file saved to data/raw/gfa_dataset.csv
+  claim_id: c_28c4d67f
+  context: 'Output: Save the raw file to data/raw/gfa_dataset.csv.'
+  evidence:
+    entailment_evidence: Raw dataset file saved to data/raw/gfa dataset.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Raw_dataset_file_saved_to_data/raw/gfa_dataset.csv
+  kind: entity_fact
+  raw_text: The raw dataset file is saved to data/raw/gfa_dataset.csv.
+  resolved_value: raw dataset file saved to data/raw/gfa_dataset.csv
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T19:36:25Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: dataset contains composition and log10_Rc columns
+  claim_id: c_58ebfa69
+  context: 'Schema Verification: Immediately after download, verify the CSV contains
+    composition and log10_Rc (or Rc) columns.'
+  evidence:
+    entailment_evidence: Dataset contains composition and log10 Rc columns
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_composition_and_log10_Rc_columns
+  kind: entity_fact
+  raw_text: The dataset contains composition and log10_Rc (or Rc) columns.
+  resolved_value: dataset contains composition and log10_Rc columns
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T19:36:27Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: schema for output/candidates.csv columns composition predicted_log10_Rc
+    ci_lower ci_upper risk_score final_score novelty_status
+  claim_id: c_60baea3e
+  context: 'Create contracts/candidates_csv.schema.yaml defining the schema for output/candidates.csv
+    (columns: composition, predicted_log10_Rc, ci_lower, ci_upper, risk_score, final_score,
+    novelty_status)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schema_for_output/candidates.csv_columns_composition_predict
+  kind: entity_fact
+  raw_text: 'The schema for output/candidates.csv includes columns: composition, predicted_log10_Rc,
+    ci_lower, ci_upper, risk_score, final_score, and novelty_status.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T19:36:43Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: schema for output/verification_requests.json fields composition predicted_log10_Rc
+    confidence_interval novelty_status status
+  claim_id: c_2e4fb25a
+  context: 'Create contracts/verification.schema.yaml defining the schema for output/verification_requests.json
+    (fields: composition, predicted_log10_Rc, confidence_interval, novelty_status,
+    status)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schema_for_output/verification_requests.json_fields_composit
+  kind: entity_fact
+  raw_text: 'The schema for output/verification_requests.json includes fields: composition,
+    predicted_log10_Rc, confidence_interval, novelty_status, and status.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T19:36:58Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: output features CSV columns composition log10_Rc atomic_radius_mean electronegativity_mean
+    VEC_avg size_mismatch
+  claim_id: c_f1157a2f
+  context: 'Output: data/processed/features.csv matching the schema in contracts/data_schema.yaml
+    (columns: composition, log10_Rc, atomic_radius_mean, electronegativity_mean, VEC_avg,
+    size_mismatch, etc. as defined in contract).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_features_CSV_columns_composition_log10_Rc_atomic_radi
+  kind: entity_fact
+  raw_text: 'The output features CSV includes columns: composition, log10_Rc, atomic_radius_mean,
+    electronegativity_mean, VEC_avg, and size_mismatch.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T19:37:21Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Domain of Applicability penalty for high extrapolation risk is 1.0
+  claim_id: c_09cbf8eb
+  context: If a candidate is outside the convex hull, set high_extrapolation_risk
+    to true and apply the +1.0 penalty.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Domain of Applicability penalty applied for high extrapolation risk
+    is +1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T19:37:46Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: fallback absolute cutoff for predicted_log10_Rc is 4.0
+  claim_id: c_ae31c706
+  context: ONLY if the dataset range is unknown (percentile calculation fails), apply
+    the absolute cutoff < 4.0.
+  evidence:
+    entailment_evidence: Fallback absolute cutoff for predicted log10 Rc is 4.0
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Fallback_absolute_cutoff_for_predicted_log10_Rc_is_4.0
+  kind: magnitude
+  raw_text: The fallback absolute cutoff for filtering candidates is a predicted_log10_Rc
+    value less than 4.0.
+  resolved_value: fallback absolute cutoff for predicted_log10_Rc is 4.0
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-19T19:37:49Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: confidence interval calculation uses 10 bootstrapped Random Forest models
+  claim_id: c_cf6ec056
+  context: Save each model as state/bootstrapped_models/ensemble_{i}.pkl (i=0..9).
+    Predict on candidates; calculate confidence intervals (lower and upper percentiles)
+    from the variance of these 10 predictions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The confidence interval calculation uses 10 bootstrapped Random Forest
+    models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T19:38:13Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: pipeline total runtime on CPU-only runner is less than 6 hours
+  claim_id: c_6e3cd9ed
+  context: Profile the pipeline and optimize bottlenecks to ensure total runtime <
+    6 hours on CPU-only runner
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_total_runtime_on_CPU-only_runner_is_less_than_6_hou
+  kind: magnitude
+  raw_text: The pipeline total runtime on a CPU-only runner is optimized to be less
+    than 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T19:39:06Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'list of 29 abundant metallic elements: Al, Ca, Fe, Mg, Ti, Na, K, Zn,
+    Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce,
+    Sc'
+  claim_id: c_3b250421
+  context: T008b Define and save the list of the most abundant metallic elements to
+    data/config/elements.yaml and code/config/elements.py (Al, Ca, Fe, Mg, Ti, Na,
+    K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y,
+    La, Ce, Sc).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/List_of_29_abundant_metallic_elements:_Al,_Ca,_Fe,_Mg,_Ti,_N
+  kind: magnitude
+  raw_text: The list of most abundant metallic elements includes Al, Ca, Fe, Mg, Ti,
+    Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf,
+    Y, La, Ce, Sc.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T19:42:38Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset URL for Recent Experimental GFA is https://huggingface.co/datasets/GFA-D/pilot_flags
+  claim_id: c_a286d321
+  context: Implement code/data/download.py to fetch Dataset (Recent Experimental GFA)
+    from HuggingFace (https://huggingface.co/datasets/GFA-D/pilot_flags).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_for_Recent_Experimental_GFA_is_https://huggingfa
+  kind: entity_fact
+  raw_text: The dataset is located at https://huggingface.co/datasets/GFA-D/pilot_flags.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T19:44:13Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Pipeline total runtime < 6 hours on CPU-only runner
+  claim_id: c_bd0fbbd5
+  context: Profile the pipeline and optimize bottlenecks to ensure total runtime <
+    6 hours on CPU-only runner (Performance optimization).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_total_runtime_%3C_6_hours_on_CPU-only_runner
+  kind: magnitude
+  raw_text: The pipeline must have a total runtime of less than 6 hours on a CPU-only
+    runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-19T19:44:53Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset URL for GFA-D2 pilot flags is fixed at https://huggingface.co/datasets/GFA-D2/pilot_flags
+  claim_id: c_7fa97539
+  context: 'Configure environment configuration management for random seeds in code/config/env.py.
+    Note: The dataset URL is a fixed constant per spec assumptions...'
+  evidence:
+    entailment_evidence: Dataset URL for GFA-D2 pilot flags is fixed at https://huggi
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_for_GFA-D2_pilot_flags_is_fixed_at_https://huggi
+  kind: entity_fact
+  raw_text: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D2/pilot_flags)
+    and is NOT stored in this config file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-23T15:08:28Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'List of most abundant metallic elements: Al, Ca, Fe, Mg, Ti, Na, K,
+    Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La,
+    Ce, Sc'
+  claim_id: c_08ef476a
+  context: Define and save the list of the most abundant metallic elements to data/config/elements.yaml
+    and code/config/elements.py...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/List_of_most_abundant_metallic_elements:_Al,_Ca,_Fe,_Mg,_Ti,
+  kind: magnitude
+  raw_text: The list of the most abundant metallic elements includes Al, Ca, Fe, Mg,
+    Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta,
+    Hf, Y, La, Ce, Sc.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:08:52Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Si, Na, and K may not form stable metallic glasses in all ternary systems
+  claim_id: c_a67ef778
+  context: Add a comment in the file noting that Si, Na, and K are included per spec
+    assumption but may not form stable metallic glasses in all ternary systems.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Si,_Na,_and_K_may_not_form_stable_metallic_glasses_in_all_te
+  kind: entity_fact
+  raw_text: Si, Na, and K are included per spec assumption but may not form stable
+    metallic glasses in all ternary systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:10:31Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset URL is https://huggingface.co/datasets/GFA-D2/pilot_flags
+  claim_id: c_fef66b2d
+  context: Implement code/data/download.py to fetch Dataset (Recent Experimental GFA)
+    from HuggingFace (https://huggingface.co/datasets/GFA-D2/pilot_flags).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_is_https://huggingface.co/datasets/GFA-D2/pilot
+  kind: entity_fact
+  raw_text: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D2/pilot_flags).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:10:48Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'Download retry logic: 3 attempts with 5s exponential backoff'
+  claim_id: c_1c279418
+  context: 'Requirements: Use huggingface_hub.hf_hub_download (preferred) or requests
+    with explicit retry logic (3 attempts, 5s exponential backoff).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation uses explicit retry logic (3 attempts, 5s exponential
+    backoff).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:11:05Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'High extrapolation risk threshold: 95th percentile of chi-squared distribution'
+  claim_id: c_4cd847eb
+  context: 'Threshold: Flag as ''high_extrapolation_risk'' if the candidate is outside
+    the Convex Hull OR if the Mahalanobis distance exceeds the 95th percentile of
+    the chi-squared distribution (df = num_pca_components).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/High_extrapolation_risk_threshold:_95th_percentile_of_chi-sq
+  kind: entity_fact
+  raw_text: The implementation bins residuals by feature-space quantiles and flags
+    as 'high_extrapolation_risk' if the Mahalanobis distance exceeds the 95th percentile
+    of the chi-squared distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:11:28Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'Candidate retention threshold: 10th percentile of log10_Rc distribution'
+  claim_id: c_2587f453
+  context: 'Step 1: Calculate the 10th percentile of the log10_Rc distribution in
+    the training data (from T017/T021). Step 2: If the 10th percentile can be calculated,
+    retain candidates with predicted_log10_Rc < 10th percentile.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Candidate_retention_threshold:_10th_percentile_of_log10_Rc_d
+  kind: entity_fact
+  raw_text: The implementation retains candidates with predicted_log10_Rc < 10th percentile
+    of the training data distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:11:42Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'Ensemble size: 10 bootstrapped Random Forest models'
+  claim_id: c_2b784c3e
+  context: Train 10 models on resampled subsets (bootstrapping with replacement) of
+    the training data using these fixed hyperparameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation trains 10 bootstrapped Random Forest models on resampled
+    subsets of the training data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:12:35Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'Extrapolation risk penalty: +1.0 to log10(Rc)'
+  claim_id: c_3801640b
+  context: Apply +1.0 penalty to log10(Rc) for candidates where high_extrapolation_risk
+    is true before ranking (FR-009).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation applies a +1.0 penalty to log10(Rc) for candidates
+    where high_extrapolation_risk is true.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:13:05Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: "Elemental fraction normalization tolerance: 1.0 \xB1 0.01"
+  claim_id: c_aedc6f87
+  context: "Implement code/data/ingest.py to parse CSV, normalize elemental fractions\
+    \ to sum to 1.0 \xB1 0.01, and log warnings for unknown elements."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The implementation normalizes elemental fractions to sum to 1.0 \xB1\
+    \ 0.01."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:13:10Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'Pipeline runtime constraint: < 6 hours on CPU-only runner'
+  claim_id: c_1a69ccc2
+  context: Profile the pipeline and optimize bottlenecks to ensure total runtime <
+    6 hours on CPU-only runner.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_constraint:_%3C_6_hours_on_CPU-only_runner
+  kind: magnitude
+  raw_text: The implementation ensures total runtime is less than 6 hours on a CPU-only
+    runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:13:13Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset URL fixed to https://huggingface.co/datasets/GFA-D2/pilot_flags
+  claim_id: c_f3f4653e
+  context: 'Configure environment configuration management for random seeds in code/config/env.py.
+    Note: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D2/pilot_flags)
+    and is NOT stored in this config file. (Spec Assumptions)'
+  evidence:
+    entailment_evidence: Dataset URL fixed to https://huggingface.co/datasets/GFA-D2/
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_fixed_to_https://huggingface.co/datasets/GFA-D2/
+  kind: entity_fact
+  raw_text: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D2/pilot_flags)
+    and is NOT stored in this config file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-23T15:20:29Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Si, Na, and K may not form stable metallic glasses in all ternary systems
+  claim_id: c_2160b486
+  context: Add a comment in the file noting that Si, Na, and K are included per spec
+    assumption but may not form stable metallic glasses in all ternary systems. (FR-005)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Si,_Na,_and_K_may_not_form_stable_metallic_glasses_in_all_te
+  kind: entity_fact
+  raw_text: Si, Na, and K are included per spec assumption but may not form stable
+    metallic glasses in all ternary systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:21:06Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset fetch requires 3 retry attempts with 5s exponential backoff
+  claim_id: c_42739338
+  context: 'Requirements: Use huggingface_hub.hf_hub_download (preferred) or requests
+    with explicit retry logic (3 attempts, 5s exponential backoff).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation requires explicit retry logic with 3 attempts and 5s
+    exponential backoff for dataset fetching.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:21:23Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Elemental fractions normalized to 1.0 with 0.01 tolerance
+  claim_id: c_983ff47f
+  context: "Implement code/data/ingest.py to parse CSV, normalize elemental fractions\
+    \ to sum to 1.0 \xB1 0.01, and log warnings for unknown elements (US-1, FR-001)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation requires a threshold of 0.01 for normalizing elemental
+    fractions to sum to 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:21:41Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Hyperparameter grid size limited to 30
+  claim_id: c_6b6d3b15
+  context: "Implement code/models/train.py to train RandomForestRegressor and GradientBoostingRegressor\
+    \ with hyperparameter grids \u226430"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hyperparameter_grid_size_limited_to_30
+  kind: magnitude
+  raw_text: The implementation requires a hyperparameter grid size of less than or
+    equal to 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:22:36Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: High extrapolation risk flagged if Mahalanobis distance exceeds 95th
+    percentile of chi-squared distribution
+  claim_id: c_d1b23479
+  context: Flag as high_extrapolation_risk if the candidate is outside the Convex
+    Hull OR if the Mahalanobis distance exceeds the 95th percentile of the chi-squared
+    distribution (df = num_pca_components).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/High_extrapolation_risk_flagged_if_Mahalanobis_distance_exce
+  kind: entity_fact
+  raw_text: The implementation requires flagging candidates as high extrapolation
+    risk if the Mahalanobis distance exceeds the 95th percentile of the chi-squared
+    distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:22:58Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Apply +1.0 penalty to log10(Rc) for high extrapolation risk
+  claim_id: c_293f813e
+  context: Apply +1.0 penalty to log10(Rc) for candidates where high_extrapolation_risk
+    is true before ranking (FR-009)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation applies a +1.0 penalty to log10(Rc) for candidates
+    with high extrapolation risk.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:23:16Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fallback absolute cutoff of 4.0 for log10(Rc) if 10th percentile unavailable
+  claim_id: c_117a4951
+  context: 'Fallback: If the percentile cannot be calculated (e.g., insufficient data),
+    use the absolute cutoff of 4.0 as specified in FR-006.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation uses an absolute cutoff of 4.0 for predicted log10(Rc)
+    if the 10th percentile cannot be calculated.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:23:33Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Train 10 bootstrapped Random Forest models for confidence intervals
+  claim_id: c_897ae9ee
+  context: Train 10 models on resampled subsets (bootstrapping with replacement) of
+    the training data using these fixed hyperparameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation trains 10 bootstrapped Random Forest models to calculate
+    confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:23:52Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime constraint of 6 hours on CPU-only runner
+  claim_id: c_0adc4fa9
+  context: Profile the pipeline and optimize bottlenecks to ensure total runtime <
+    6 hours on CPU-only runner.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_pipeline_runtime_constraint_of_6_hours_on_CPU-only_run
+  kind: magnitude
+  raw_text: The implementation requires a total runtime of less than 6 hours on a
+    CPU-only runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:24:35Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset URL is https://huggingface.co/datasets/GFA-D2/pilot_flags
+  claim_id: c_becd1826
+  context: 'Note: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D2/pilot_flags)
+    and is NOT stored in this config file.'
+  evidence:
+    entailment_evidence: Dataset URL is https://huggingface.co/datasets/GFA-D2/pilot
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_is_https://huggingface.co/datasets/GFA-D2/pilot
+  kind: entity_fact
+  raw_text: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D2/pilot_flags)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-23T15:26:48Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 2
+  canonical: 'List of 29 abundant metallic elements: Al, Ca, Fe, Mg, Ti, Na, K, Zn,
+    Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce,
+    Sc'
+  claim_id: c_aee735c0
+  context: Define and save the list of the most abundant metallic elements to data/config/elements.yaml
+    and code/config/elements.py (Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr,
+    Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/List_of_29_abundant_metallic_elements:_Al,_Ca,_Fe,_Mg,_Ti,_N
+  kind: magnitude
+  raw_text: The list of the most abundant metallic elements includes Al, Ca, Fe, Mg,
+    Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta,
+    Hf, Y, La, Ce, Sc.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:26:50Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Project uses Python 3.11
+  claim_id: c_920c5ebe
+  context: Initialize Python 3.11 project with requirements.txt (pymatgen, scikit-learn,
+    pandas, numpy, shap, statsmodels, scipy)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:27:11Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'Dataset download retry logic: 3 attempts, 5s exponential backoff'
+  claim_id: c_981f980e
+  context: Use huggingface_hub.hf_hub_download (preferred) or requests with explicit
+    retry logic (3 attempts, 5s exponential backoff).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The retry logic for downloading the dataset uses 3 attempts with 5s exponential
+    backoff
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:27:31Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Model hyperparameter grids limited to 30
+  claim_id: c_e9d36a70
+  context: "Implement code/models/train.py to train RandomForestRegressor and GradientBoostingRegressor\
+    \ with hyperparameter grids \u226430"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hyperparameter grids for Random Forest and Gradient Boosting models
+    are limited to 30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:27:48Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: DoA Mahalanobis distance threshold is 95th percentile of chi-squared
+    distribution
+  claim_id: c_714fd477
+  context: Flag as "high_extrapolation_risk" if the candidate is outside the Convex
+    Hull OR if the Mahalanobis distance exceeds the 95th percentile of the chi-squared
+    distribution (df = num_pca_components).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DoA_Mahalanobis_distance_threshold_is_95th_percentile_of_chi
+  kind: entity_fact
+  raw_text: The Domain of Applicability threshold flags candidates as high_extrapolation_risk
+    if the Mahalanobis distance exceeds the 95th percentile of the chi-squared distribution
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:28:17Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fallback log10_Rc cutoff is 4.0
+  claim_id: c_e6d4a726
+  context: 'Fallback: If the percentile cannot be calculated (e.g., insufficient data),
+    use the absolute cutoff of 4.0 as specified in FR-006.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback absolute cutoff for log10_Rc is 4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:28:39Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Ensemble of 10 bootstrapped Random Forest models
+  claim_id: c_942d1ff1
+  context: Train 10 models on resampled subsets (bootstrapping with replacement) of
+    the training data using these fixed hyperparameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ensemble of bootstrapped Random Forest models consists of 10 models
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:28:58Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'Pipeline runtime constraint: less than 6 hours on CPU-only runner'
+  claim_id: c_84b85547
+  context: Profile the pipeline and optimize bottlenecks to ensure total runtime <
+    6 hours on CPU-only runner.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_constraint:_less_than_6_hours_on_CPU-only_r
+  kind: magnitude
+  raw_text: The total runtime constraint for the pipeline is less than 6 hours on
+    a CPU-only runner
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:29:29Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'High extrapolation risk penalty: +1.0 to log10(Rc)'
+  claim_id: c_8f7916ce
+  context: Apply +1.0 penalty to log10(Rc) for candidates where high_extrapolation_risk
+    is true before ranking
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The penalty applied to log10(Rc) for high extrapolation risk is +1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:29:44Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: "Elemental fractions normalized to sum 1.0 \xB1 0.01"
+  claim_id: c_6003452b
+  context: "Implement code/data/ingest.py to parse CSV, normalize elemental fractions\
+    \ to sum to 1.0 \xB1 0.01"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The elemental fractions are normalized to sum to 1.0 \xB1 0.01"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T15:29:59Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset URL fixed at https://huggingface.co/datasets/GFA-D/pilot_flags
+  claim_id: c_b81bb895
+  context: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D/pilot_flags)
+    and is NOT stored in this config file.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_fixed_at_https://huggingface.co/datasets/GFA-D/p
+  kind: entity_fact
+  raw_text: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D/pilot_flags).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:25:11Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: List of 29 abundant metallic elements defined in spec
+  claim_id: c_bccba2ed
+  context: Define and save the list of the most abundant metallic elements to data/config/elements.yaml
+    and code/config/elements.py (Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr,
+    Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/List_of_29_abundant_metallic_elements_defined_in_spec
+  kind: magnitude
+  raw_text: The most abundant metallic elements list includes Al, Ca, Fe, Mg, Ti,
+    Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf,
+    Y, La, Ce, Sc.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:25:38Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Chi-squared threshold calculated as high quantile
+  claim_id: c_a746dcc5
+  context: Calculate the threshold as a high quantile of the chi-squared distribution
+    with degrees of freedom equal to the number of PCA components.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi-squared_threshold_calculated_as_high_quantile
+  kind: entity_fact
+  raw_text: The threshold for the chi-squared distribution is calculated as a high
+    quantile.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:26:03Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Confidence intervals derived from 2.5th and 97.5th percentiles of 10
+    bootstrapped predictions
+  claim_id: c_53d56fad
+  context: Predict on candidates; calculate confidence intervals (2.5th and 97.5th
+    percentiles) from the sorted list of 10 predictions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The confidence intervals are calculated using the 2.5th and 97.5th percentiles
+    from the sorted list of 10 predictions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:26:19Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fixed penalty of 1.0 applied for high extrapolation risk
+  claim_id: c_2765059b
+  context: If a candidate is flagged as high risk, add a fixed value of 1.0 to its
+    predicted log10(Rc) to calculate the final_score.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fixed_penalty_of_1.0_applied_for_high_extrapolation_risk
+  kind: entity_fact
+  raw_text: The penalty for high extrapolation risk is a fixed value of 1.0 added
+    to the predicted log10(Rc).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:26:41Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Absolute cutoff of 4.0 used if percentile undefined
+  claim_id: c_acabaa6d
+  context: If the dataset is empty or the percentile is mathematically undefined,
+    use the absolute cutoff of 4.0 as specified in FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The absolute cutoff for log10(Rc) is 4.0 if the dataset is empty or the
+    percentile is mathematically undefined.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:26:55Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime constraint of 6 hours on CPU-only runner
+  claim_id: c_78df0163
+  context: Profile the pipeline and optimize bottlenecks to ensure total runtime <=
+    6 hours on CPU-only runner.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runtime_constraint_of_6_hours_on_CPU-only_runner
+  kind: magnitude
+  raw_text: The total runtime of the pipeline must be less than or equal to 6 hours
+    on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:27:36Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Hyperparameter grids limited to 30 combinations
+  claim_id: c_91ab5bae
+  context: "Implement code/models/train.py to train RandomForestRegressor and GradientBoostingRegressor\
+    \ with hyperparameter grids \u226430."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hyperparameter grids for RandomForestRegressor and GradientBoostingRegressor
+    are limited to 30 or fewer combinations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:27:50Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Elemental fractions normalized to 1.0 with tolerance 0.01
+  claim_id: c_e25b8f6f
+  context: "Implement code/data/ingest.py to parse CSV, normalize elemental fractions\
+    \ to sum to 1.0 \xB1 0.01, and log warnings for unknown elements."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Elemental fractions are normalized to sum to 1.0 \xB1 0.01."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:28:16Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset URL for GFA-D/pilot_flags is https://huggingface.co/datasets/GFA-D/pilot_flags
+  claim_id: c_e9581132
+  context: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D/pilot_flags)
+    and is NOT stored in this config file.
+  evidence:
+    entailment_evidence: Dataset URL for GFA-D/pilot flags is https://huggingface.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_for_GFA-D/pilot_flags_is_https://huggingface.co/
+  kind: entity_fact
+  raw_text: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D/pilot_flags).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-26T09:31:27Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Most abundant metallic elements list contains Al, Ca, Fe, Mg, Ti, Na,
+    K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y,
+    La, Ce, Sc
+  claim_id: c_ad7f207f
+  context: Define and save the list of the most abundant metallic elements to data/config/elements.yaml
+    and code/config/elements.py (Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr,
+    Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Most_abundant_metallic_elements_list_contains_Al,_Ca,_Fe,_Mg
+  kind: magnitude
+  raw_text: The list of the most abundant metallic elements includes Al, Ca, Fe, Mg,
+    Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta,
+    Hf, Y, La, Ce, Sc.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:31:29Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Si, Na, and K may not form stable metallic glasses in all ternary systems
+    despite being included in the element list
+  claim_id: c_6935e53d
+  context: Add a comment in the file noting that Si, Na, and K are included per spec
+    assumption but may not form stable metallic glasses in all ternary systems.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Si,_Na,_and_K_may_not_form_stable_metallic_glasses_in_all_te
+  kind: entity_fact
+  raw_text: Si, Na, and K are included per spec assumption but may not form stable
+    metallic glasses in all ternary systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:33:13Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Output CSV contains up to 10 rows
+  claim_id: c_aa6a52b8
+  context: Can be fully tested by running the screening script and verifying that
+    the output CSV contains up to 10 rows, sorted by predicted $log_{10}(R_c)$, with
+    confidence intervals and novelty status fields.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output CSV contains up to 10 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:33:28Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Penalty for high extrapolation risk is +1.0
+  claim_id: c_ab91d863
+  context: Ensure output/candidates.csv contains the final_score column and that the
+    penalty is strictly +1.0 for flagged items.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The penalty is strictly +1.0 for flagged items.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:33:50Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Absolute cutoff of 4.0 used if dataset empty or percentile undefined
+  claim_id: c_74ceecb7
+  context: If the dataset is empty or the percentile is mathematically undefined,
+    use the absolute cutoff of 4.0 as specified in FR-006.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The absolute cutoff of 4.0 is used if the dataset is empty or the percentile
+    is mathematically undefined.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:34:05Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Candidates retained if predicted_log10_Rc is less than 10th percentile
+  claim_id: c_f9a23d3b
+  context: Retain candidates with predicted_log10_Rc < 10th percentile (or < 4.0 if
+    fallback triggered).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Candidates_retained_if_predicted_log10_Rc_is_less_than_10th
+  kind: magnitude
+  raw_text: Candidates are retained with predicted_log10_Rc < 10th percentile.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:34:39Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Bootstrapped ensemble consists of 10 models
+  claim_id: c_33077a80
+  context: Train multiple separate models on resampled subsets (bootstrapping with
+    replacement) of the transformed training data. Save each model as state/bootstrapped_models/ensemble_{i}.pkl
+    (i=0..9).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ensemble consists of 10 models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:34:59Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Confidence intervals use 2.5th and 97.5th percentiles
+  claim_id: c_43b915e8
+  context: Predict on candidates; calculate confidence intervals (2.5th and 97.5th
+    percentiles) from the sorted list of 10 predictions.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "x1 (2.5%),F\u22121"
+      source_id: '1012.6033'
+      url: https://arxiv.org/abs/1012.6033
+      value: 2.5%
+    filled: true
+  kind: numeric
+  raw_text: Confidence intervals are calculated using the 2.5th and 97.5th percentiles.
+  resolved_value: 2.5%
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T09:35:15Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Total runtime must be less than or equal to 6 hours on CPU-only runner
+  claim_id: c_4e2a5ab2
+  context: Profile the pipeline and optimize bottlenecks to ensure total runtime <=
+    6 hours on CPU-only runner.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_must_be_less_than_or_equal_to_6_hours_on_CPU-o
+  kind: magnitude
+  raw_text: The total runtime must be <= 6 hours on a CPU-only runner.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T09:36:03Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: List of 30 most abundant metallic elements includes Al, Ca, Fe, Mg, Ti,
+    Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf,
+    Y, La, Ce, Sc
+  claim_id: c_851ff3a5
+  context: Define and save the list of the most abundant metallic elements to data/config/elements.yaml
+    and code/config/elements.py (Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr,
+    Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/List_of_30_most_abundant_metallic_elements_includes_Al,_Ca,
+  kind: magnitude
+  raw_text: The list of the most abundant metallic elements includes Al, Ca, Fe, Mg,
+    Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta,
+    Hf, Y, La, Ce, Sc.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T01:59:14Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Si, Na, and K included for combinatorial completeness may not form stable
+    metallic glasses in all ternary systems
+  claim_id: c_265dc2e1
+  context: Add a comment in the file noting that Si, Na, and K are included per spec
+    assumption (for combinatorial completeness) but may not form stable metallic glasses
+    in all ternary systems.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Si,_Na,_and_K_included_for_combinatorial_completeness_may_no
+  kind: entity_fact
+  raw_text: Si, Na, and K are included per spec assumption for combinatorial completeness
+    but may not form stable metallic glasses in all ternary systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:00:47Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Output CSV contains up to 10 rows
+  claim_id: c_780e2f58
+  context: Can be fully tested by running the screening script and verifying that
+    the output CSV contains up to 10 rows, sorted by predicted log10(Rc)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output CSV for candidates must contain up to 10 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:01:50Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fixed +1.0 penalty applied to log10(Rc) for high extrapolation risk
+  claim_id: c_55995b51
+  context: If a candidate is flagged as high risk, add a fixed value of +1.0 to its
+    predicted log10(Rc) to calculate the final_score.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fixed_+1.0_penalty_applied_to_log10(Rc)_for_high_extrapolati
+  kind: entity_fact
+  raw_text: The penalty applied to log10(Rc) for high extrapolation risk candidates
+    is a fixed value of +1.0.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:02:18Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Absolute cutoff of 4.0 used if dataset empty or percentile undefined
+  claim_id: c_af1431cd
+  context: 'Fallback ONLY: If the dataset is empty or the percentile is mathematically
+    undefined, use the absolute cutoff of 4.0 as specified in FR-006.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The absolute cutoff for filtering candidates is 4.0 if the dataset is
+    empty or the percentile is mathematically undefined.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:02:37Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Bootstrapped ensemble consists of 10 models
+  claim_id: c_f5ad94c8
+  context: 'Train multiple separate models on resampled subsets (bootstrapping with
+    replacement) of the transformed training data. Verification: Confirm 10 models
+    are trained without error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrapped ensemble consists of 10 models trained on resampled subsets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:03:00Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Memory usage below 7GB for ternary combination generation from 30 elements
+  claim_id: c_1f0929fc
+  context: 'Verification: Confirm that memory usage remains below 7GB during the generation
+    and prediction of all unique ternary combinations from the 30-element list.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory usage must remain below 7GB during the generation and prediction
+    of all unique ternary combinations from the 30-element list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:03:33Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Combinatorial generation step has 6-hour runtime constraint
+  claim_id: c_4453a735
+  context: Verify the runtime of the combinatorial generation step against the 6-hour
+    constraint in output/profiling_report.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The combinatorial generation step has a 6-hour runtime constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:03:55Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Hyperparameter grids limited to 30 combinations
+  claim_id: c_a95a5130
+  context: "Implement code/models/train.py to train RandomForestRegressor and GradientBoostingRegressor\
+    \ with hyperparameter grids \u226430..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The hyperparameter grids for Random Forest and Gradient Boosting models
+    are limited to 30 or fewer combinations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:04:13Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: PCA model retains sufficient variance or fixed components for Domain
+    of Applicability
+  claim_id: c_67e82976
+  context: Fit a PCA model on the scaled training data, retaining sufficient variance
+    (e.g., a high threshold or fixed components).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PCA_model_retains_sufficient_variance_or_fixed_components_fo
+  kind: entity_fact
+  raw_text: The PCA model retains sufficient variance or a fixed number of components
+    for Domain of Applicability.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:04:46Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset URL is https://huggingface.co/datasets/GFA-D/pilot_flags
+  claim_id: c_07c7e0d0
+  context: Task T008a notes that the dataset URL is a fixed constant per spec assumptions.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_is_https://huggingface.co/datasets/GFA-D/pilot_f
+  kind: entity_fact
+  raw_text: The dataset URL is a fixed constant per spec assumptions (`https://huggingface.co/datasets/GFA-D/pilot_flags`)
+    and is NOT stored in this config file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:05:47Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset URL is https://huggingface.co/datasets/GFA-D2/pilot_flags
+  claim_id: c_39cfb05d
+  context: Task T012 specifies fetching the Dataset (Recent Experimental GFA) from
+    HuggingFace at this URL.
+  evidence:
+    entailment_evidence: Dataset URL is https://huggingface.co/datasets/GFA-D2/pilot
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_is_https://huggingface.co/datasets/GFA-D2/pilot
+  kind: entity_fact
+  raw_text: The dataset URL is a fixed constant per spec assumptions (`https://huggingface.co/datasets/GFA-D2/pilot_flags`).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-21T02:06:06Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'List of 30 abundant metallic elements: Al, Ca, Fe, Mg, Ti, Na, K, Zn,
+    Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce,
+    Sc'
+  claim_id: c_ba2e3f7e
+  context: Task T008b defines and saves the list of the most abundant metallic elements
+    to data/config/elements.yaml.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/List_of_30_abundant_metallic_elements:_Al,_Ca,_Fe,_Mg,_Ti,_N
+  kind: magnitude
+  raw_text: The list of the most abundant metallic elements includes Al, Ca, Fe, Mg,
+    Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta,
+    Hf, Y, La, Ce, Sc.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:06:08Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Si, Na, and K included for combinatorial completeness despite potential
+    instability in ternary systems
+  claim_id: c_6c1769d1
+  context: Task T008b notes that Si, Na, and K are included per spec assumption but
+    may not form stable metallic glasses.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Si,_Na,_and_K_included_for_combinatorial_completeness_despit
+  kind: entity_fact
+  raw_text: Si, Na, and K are included in the element list per spec assumption for
+    combinatorial completeness but may not form stable metallic glasses in all ternary
+    systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:07:52Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset download requires configurable retry logic with exponential backoff
+  claim_id: c_1223aa3f
+  context: Task T012 outlines requirements for the download script, including retry
+    logic.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_download_requires_configurable_retry_logic_with_expo
+  kind: entity_fact
+  raw_text: The script must use explicit retry logic with a configurable number of
+    attempts and exponential backoff for dataset download.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:08:15Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: "Elemental fractions normalized to sum 1.0 \xB1 0.01"
+  claim_id: c_08387c14
+  context: Task T013 implements parsing CSV and normalizing elemental fractions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Elemental fractions must be normalized to sum to 1.0 \xB1 0.01."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:08:39Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Hyperparameter grids <= 30 for model training
+  claim_id: c_921f8040
+  context: "Task T020 specifies training models with hyperparameter grids \u226430."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hyperparameter_grids_%3C=_30_for_model_training
+  kind: magnitude
+  raw_text: Hyperparameter grids for model training must be less than or equal to
+    30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:09:00Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fixed +1.0 penalty applied for high extrapolation risk
+  claim_id: c_ee943b0b
+  context: Task T033 applies a fixed value of +1.0 to predicted log10(Rc) for candidates
+    flagged as high risk.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fixed_+1.0_penalty_applied_for_high_extrapolation_risk
+  kind: entity_fact
+  raw_text: The penalty for high extrapolation risk is a fixed value of +1.0 added
+    to the predicted log10(Rc).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:09:22Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fallback cutoff value is 4.0 for candidate filtering
+  claim_id: c_a604acb6
+  context: Task T034 specifies using an absolute cutoff of 4.0 as a fallback if the
+    percentile is undefined.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback absolute cutoff for filtering candidates is 4.0 if the dataset
+    is empty or the percentile is undefined.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:09:37Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Bootstrapped ensemble contains 10 models
+  claim_id: c_723ddd0d
+  context: Task T035b requires saving exactly 10 .pkl files for the bootstrapped models.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrapped ensemble consists of exactly 10 models.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:09:57Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Memory usage limit is 7GB for ternary combination generation and prediction
+  claim_id: c_92e9ad13
+  context: Task T050 specifies verifying that memory usage remains below 7GB during
+    the process.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory usage must remain below 7GB during the generation and prediction
+    of all unique ternary combinations from the 30-element list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:09:57Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Combinatorial generation step runtime constraint is 6 hours
+  claim_id: c_86b94c73
+  context: Task T043f mentions verifying the runtime against the 6-hour constraint.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime of the combinatorial generation step is constrained to 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-21T02:10:13Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset URL is https://huggingface.co/datasets/GFA-D/pilot_flags
+  claim_id: c_2fa1d40e
+  context: 'T008a [P] Configure environment configuration management for random seeds
+    in code/config/env.py. Note: The dataset URL is a fixed constant per spec assumptions
+    (https://huggingface.co/datasets/GFA-D/pilot_flags) and is NOT stored in this
+    config file. (Spec Assumptions)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_is_https://huggingface.co/datasets/GFA-D/pilot_f
+  kind: entity_fact
+  raw_text: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D/pilot_flags)
+    and is NOT stored in this config file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:59:43Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'Abundant metallic elements list: Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si,
+    Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc'
+  claim_id: c_ee60f12f
+  context: T008b [P] Define and save the list of the most abundant metallic elements
+    to data/config/elements.yaml and code/config/elements.py (Al, Ca, Fe, Mg, Ti,
+    Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf,
+    Y, La, Ce, Sc).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abundant_metallic_elements_list:_Al,_Ca,_Fe,_Mg,_Ti,_Na,_K,
+  kind: magnitude
+  raw_text: The list of the most abundant metallic elements includes Al, Ca, Fe, Mg,
+    Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta,
+    Hf, Y, La, Ce, Sc.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:00:17Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Si, Na, K included for combinatorial completeness despite potential instability
+    in ternary systems
+  claim_id: c_46362041
+  context: 'T008b [P] Define and save the list of the most abundant metallic elements...
+    Verification: Add a comment in the file noting that Si, Na, and K are included
+    per spec assumption (for combinatorial completeness) but may not form stable metallic
+    glasses in all ternary systems. (FR-005)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Si,_Na,_K_included_for_combinatorial_completeness_despite_po
+  kind: entity_fact
+  raw_text: Si, Na, and K are included per spec assumption (for combinatorial completeness)
+    but may not form stable metallic glasses in all ternary systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:01:51Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset URL is https://huggingface.co/datasets/GFA-D2/pilot_flags
+  claim_id: c_839f210e
+  context: T012 [US1] Implement code/data/download.py to fetch Dataset (Recent Experimental
+    GFA) from HuggingFace (https://huggingface.co/datasets/GFA-D2/pilot_flags).
+  evidence:
+    entailment_evidence: Dataset URL is https://huggingface.co/datasets/GFA-D2/pilot
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_is_https://huggingface.co/datasets/GFA-D2/pilot
+  kind: entity_fact
+  raw_text: The dataset URL is https://huggingface.co/datasets/GFA-D2/pilot_flags.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-24T04:02:10Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'Dataset columns: composition, log10_Rc (or Rc)'
+  claim_id: c_a5ed93f2
+  context: 'T012 [US1] Implement code/data/download.py... 2. Schema Verification:
+    Immediately after download, verify the CSV contains composition and log10_Rc (or
+    Rc) columns.'
+  evidence:
+    entailment_evidence: 'Dataset columns: composition, log10 Rc (or Rc)'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Dataset_columns:_composition,_log10_Rc_(or_Rc)
+  kind: entity_fact
+  raw_text: The dataset must contain 'composition' and 'log10_Rc' (or 'Rc') columns.
+  resolved_value: 'Dataset columns: composition, log10_Rc (or Rc)'
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T04:02:12Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: "Elemental fractions normalized to sum 1.0 \xB1 0.01"
+  claim_id: c_24e24a95
+  context: "T013 [US1] Implement code/data/ingest.py to parse CSV, normalize elemental\
+    \ fractions to sum to 1.0 \xB1 0.01, and log warnings for unknown elements (US-1,\
+    \ FR-001)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Elemental fractions must be normalized to sum to 1.0 \xB1 0.01."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:02:36Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Ternary compositions have 3 unique element pairs
+  claim_id: c_7a789445
+  context: 'T015 [US1] ... Logic: Iterate through all unique element pairs in a row
+    (e.g., for ternary A-B-C, calculate for A-B, A-C, B-C)... Verification: Ensure
+    the feature dimensionality matches the number of unique pairs in the composition
+    (3 for ternary). (FR-002b)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: For ternary compositions, the pairwise size mismatch descriptor calculation
+    produces 3 unique pairs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:02:59Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: "Hyperparameter grids \u226430"
+  claim_id: c_9d2dc8ac
+  context: "T020 [US2] Implement code/models/train.py to train RandomForestRegressor\
+    \ and GradientBoostingRegressor with hyperparameter grids \u226430; output: best_model.pkl..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Hyperparameter grids for model training must be \u226430."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:02:59Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: DoA threshold is high quantile of chi-squared distribution (df = PCA
+    components)
+  claim_id: c_e56babb3
+  context: 'T032a [US3] ... 5. Determine Threshold: Calculate the threshold as a high
+    quantile of the chi-squared distribution with degrees of freedom equal to the
+    number of PCA components.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DoA_threshold_is_high_quantile_of_chi-squared_distribution_(
+  kind: entity_fact
+  raw_text: The Domain of Applicability threshold is calculated as a high quantile
+    of the chi-squared distribution with degrees of freedom equal to the number of
+    PCA components.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:03:29Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fixed +1.0 penalty applied for high extrapolation risk
+  claim_id: c_8068c065
+  context: 'T033 [US3] ... Logic: If a candidate is flagged as high risk, add a fixed
+    value of +1.0 to its predicted log10(Rc) to calculate the final_score.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A fixed value of +1.0 is added to the predicted log10(Rc) for candidates
+    flagged as high_extrapolation_risk.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:03:47Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'Filter: predicted_log10_Rc < 10th percentile of training data'
+  claim_id: c_a428e115
+  context: 'T034 [US3] ... Primary Rule: Retain candidates with predicted_log10_Rc
+    < 10th percentile of the training data distribution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Filter:_predicted_log10_Rc_%3C_10th_percentile_of_training_dat
+  kind: entity_fact
+  raw_text: The primary filtering rule retains candidates with predicted_log10_Rc
+    < 10th percentile of the training data distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:04:12Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'Fallback filter cutoff: 4.0'
+  claim_id: c_3b37fa49
+  context: 'T034 [US3] ... Fallback ONLY: If the dataset is empty or the percentile
+    is mathematically undefined, use the absolute cutoff of 4.0 as specified in FR-006.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the dataset is empty or the percentile is mathematically undefined,
+    the absolute cutoff of 4.0 is used for filtering.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:04:31Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 10 bootstrapped ensemble models trained
+  claim_id: c_9db9f289
+  context: 'T035a [US3] ... Verification: Confirm 10 models are trained without error.
+    (FR-003, FR-007)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ten bootstrapped ensemble models are trained to calculate confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:04:31Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'Combinatorial generation runtime constraint: 6 hours'
+  claim_id: c_69c42abf
+  context: T043f [P] ... Verify the runtime of the combinatorial generation step against
+    the 6-hour constraint in output/profiling_report.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime of the combinatorial generation step is constrained to 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:04:49Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 'Memory usage constraint: < 7GB for 30-element ternary combinations'
+  claim_id: c_75d030fe
+  context: 'T050 [P] ... Verification: Confirm that memory usage remains below 7GB
+    during the generation and prediction of all unique ternary combinations from the
+    30-element list. (SC-004, Plan Phase 3 Step 1)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory usage must remain below 7GB during the generation and prediction
+    of all unique ternary combinations from the 30-element list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:05:19Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 30 most abundant metallic elements defined
+  claim_id: c_8d7099ea
+  context: T008b [P] ... (Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V,
+    Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/30_most_abundant_metallic_elements_defined
+  kind: magnitude
+  raw_text: The list of most abundant metallic elements contains 30 elements.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:05:40Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset URL is fixed at https://huggingface.co/datasets/GFA-D/pilot_flags
+  claim_id: c_3a37fd3b
+  context: T007b and T008a configuration tasks for environment variables.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_is_fixed_at_https://huggingface.co/datasets/GFA-
+  kind: entity_fact
+  raw_text: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D/pilot_flags)
+    and is NOT stored in this config file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:06:13Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: List of 30 abundant metallic elements includes Al, Ca, Fe, Mg, Ti, Na,
+    K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y,
+    La, Ce, Sc
+  claim_id: c_e5f06902
+  context: T008b task defining the list of elements for combinatorial completeness.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/List_of_30_abundant_metallic_elements_includes_Al,_Ca,_Fe,_M
+  kind: magnitude
+  raw_text: The list of the most abundant metallic elements includes Al, Ca, Fe, Mg,
+    Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta,
+    Hf, Y, La, Ce, Sc.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:06:15Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Si, Na, and K may not form stable metallic glasses in all ternary systems
+  claim_id: c_69aa3622
+  context: Verification note in T008b regarding specific elements in the list.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Si,_Na,_and_K_may_not_form_stable_metallic_glasses_in_all_te
+  kind: entity_fact
+  raw_text: Si, Na, and K are included per spec assumption (for combinatorial completeness)
+    but may not form stable metallic glasses in all ternary systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:06:17Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fixed +1.0 penalty applied to log10(Rc) for high extrapolation risk
+  claim_id: c_df215bf8
+  context: T033 task logic for calculating final_score based on high_extrapolation_risk.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fixed_+1.0_penalty_applied_to_log10(Rc)_for_high_extrapolati
+  kind: entity_fact
+  raw_text: The penalty applied to log10(Rc) for candidates flagged as high extrapolation
+    risk is a fixed value of +1.0.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:06:34Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fallback cutoff value for candidate filtering is 4.0
+  claim_id: c_aa8cbabe
+  context: T034 task logic for filtering candidates below the 10th percentile.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback absolute cutoff for filtering candidates is 4.0 if the dataset
+    is empty or the percentile is undefined.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:06:50Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Ensemble consists of 10 bootstrapped models
+  claim_id: c_6980256d
+  context: T035a and T035b tasks for training and saving the ensemble.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrapped ensemble consists of 10 separate models trained on resampled
+    subsets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:07:08Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Memory usage limit is 7GB for ternary combination generation
+  claim_id: c_9ef79cc6
+  context: T050 verification requirement for handling combinatorial explosion.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory usage must remain below 7GB during the generation and prediction
+    of all unique ternary combinations from the 30-element list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:07:09Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Combinatorial generation step runtime constraint is 6 hours
+  claim_id: c_6aa8619b
+  context: T043f task verifying runtime metrics against the constraint.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime of the combinatorial generation step is constrained to 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T04:07:09Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 2
+  canonical: Dataset URL is fixed to https://huggingface.co/datasets/GFA-D/pilot_flags
+  claim_id: c_c83ab5c2
+  context: 'Configure environment configuration management for random seeds in code/config/env.py.
+    Note: The dataset URL is a fixed constant per spec assumptions...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_is_fixed_to_https://huggingface.co/datasets/GFA-
+  kind: entity_fact
+  raw_text: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D/pilot_flags)
+    and is NOT stored in this config file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:05:57Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: List of 30 abundant metallic elements includes Al, Ca, Fe, Mg, Ti, Na,
+    K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y,
+    La, Ce, Sc
+  claim_id: c_7181f3c8
+  context: Define and save the list of the most abundant metallic elements to data/config/elements.yaml
+    and code/config/elements.py (Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr,
+    Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/List_of_30_abundant_metallic_elements_includes_Al,_Ca,_Fe,_M
+  kind: magnitude
+  raw_text: The list of the most abundant metallic elements includes Al, Ca, Fe, Mg,
+    Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta,
+    Hf, Y, La, Ce, Sc.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:06:29Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: NIST International Alloy Database is open access
+  claim_id: c_8abbae76
+  context: Implement code/utils/literature_scraper.py to fetch and populate data/known_alloys.csv
+    from the NIST International Alloy Database (verified open access...)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_International_Alloy_Database_is_open_access
+  kind: entity_fact
+  raw_text: The NIST International Alloy Database is verified as open access.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:06:56Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fixed +1.0 penalty applied to log10(Rc) for high extrapolation risk candidates
+  claim_id: c_596e30af
+  context: 'Apply penalty to log10(Rc) for candidates where high_extrapolation_risk
+    is true. Logic: If a candidate is flagged as high risk, add a fixed value of +1.0
+    to its predicted log10(Rc)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fixed_+1.0_penalty_applied_to_log10(Rc)_for_high_extrapolati
+  kind: entity_fact
+  raw_text: The penalty term for high extrapolation risk candidates is a fixed value
+    of +1.0 added to their log10(Rc).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:07:22Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Bootstrapped ensemble consists of 10 models
+  claim_id: c_78a44a31
+  context: 'Train bootstrapped ensemble models. Deliverable: state/bootstrapped_models/ensemble_{i}.pkl
+    (i=0..9). Verification: Confirm 10 models are trained...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrapped ensemble consists of 10 separate models trained on resampled
+    subsets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:07:47Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Memory usage constraint is 7GB for ternary combination generation from
+    30 elements
+  claim_id: c_d6789eac
+  context: 'Refactor code/models/predict.py::generate_ternary_combinations to use
+    a generator function... Verification: Confirm that memory usage remains below
+    7GB during the generation and prediction of all unique ternary combinations from
+    the 30-element list.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory usage must remain below 7GB during the generation and prediction
+    of all unique ternary combinations from the 30-element list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:08:26Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Combinatorial generation runtime constraint is 6 hours
+  claim_id: c_76e8f379
+  context: Verify the runtime of the combinatorial generation step against the 6-hour
+    constraint in output/profiling_report.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime of the combinatorial generation step is constrained to 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:08:44Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Candidate filtering uses 10th percentile of training data distribution
+  claim_id: c_a9535d86
+  context: 'Implement filtering logic: Primary Rule: Retain candidates with predicted_log10_Rc
+    < 10th percentile of the training data distribution.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Candidate_filtering_uses_10th_percentile_of_training_data_di
+  kind: entity_fact
+  raw_text: The filtering logic retains candidates with predicted_log10_Rc below the
+    10th percentile of the training data distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:09:11Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fallback candidate filtering cutoff is 4.0
+  claim_id: c_5f87311a
+  context: 'Fallback ONLY: If the dataset is empty or the percentile is mathematically
+    undefined, use a predefined absolute cutoff as specified in Plan.md Phase 3 Step
+    4... log the calculated threshold (percentile or 4.0)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback absolute cutoff for candidate filtering is 4.0 if the percentile
+    is undefined.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:09:42Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset URL is https://huggingface.co/datasets/GFA-D/pilot_flags
+  claim_id: c_1f69bfac
+  context: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D/pilot_flags)
+    and is NOT stored in this config file.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_is_https://huggingface.co/datasets/GFA-D/pilot_f
+  kind: entity_fact
+  raw_text: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D/pilot_flags).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:13:51Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 2
+  canonical: List of abundant metallic elements includes Al, Ca, Fe, Mg, Ti, Na, K,
+    Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La,
+    Ce, Sc
+  claim_id: c_757226ea
+  context: Define and save the list of the most abundant metallic elements to data/config/elements.yaml
+    and code/config/elements.py (Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr,
+    Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/List_of_abundant_metallic_elements_includes_Al,_Ca,_Fe,_Mg,
+  kind: magnitude
+  raw_text: The list of the most abundant metallic elements is Al, Ca, Fe, Mg, Ti,
+    Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf,
+    Y, La, Ce, Sc.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:14:30Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Si, Na, K included for combinatorial completeness but may not form stable
+    metallic glasses in all ternary systems
+  claim_id: c_4d28a739
+  context: Add a comment in the file noting that Si, Na, and K are included per spec
+    assumption (for combinatorial completeness) but may not form stable metallic glasses
+    in all ternary systems.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Si,_Na,_K_included_for_combinatorial_completeness_but_may_no
+  kind: entity_fact
+  raw_text: Si, Na, and K are included in the element list per spec assumption for
+    combinatorial completeness but may not form stable metallic glasses in all ternary
+    systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:16:03Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Known Alloys List queries Materials Project API via pymatgen.ext.matproj.MPRester
+  claim_id: c_772d72ec
+  context: 'Primary Logic: Use pymatgen.ext.matproj.MPRester with MPRester(api_key)
+    (api_key from env) to query the Materials Project API for known alloy compositions.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Known_Alloys_List_queries_Materials_Project_API_via_pymatgen
+  kind: entity_fact
+  raw_text: The primary logic for the Known Alloys List queries the Materials Project
+    API using pymatgen.ext.matproj.MPRester.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:16:25Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fallback source for Known Alloys List is NIST International Alloy Database
+  claim_id: c_e55f2958
+  context: If external queries fail or the source is unavailable, execute T008d to
+    populate data/known_alloys.csv from literature, then use this local file... fetch
+    known alloy compositions from the NIST open dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_source_for_Known_Alloys_List_is_NIST_International
+  kind: entity_fact
+  raw_text: The fallback source for the Known Alloys List is the NIST International
+    Alloy Database.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:16:44Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset fetched from https://huggingface.co/datasets/GFA-D2/pilot_flags
+  claim_id: c_44b53816
+  context: Implement code/data/download.py to fetch Dataset (Recent Experimental GFA)
+    from HuggingFace (https://huggingface.co/datasets/GFA-D2/pilot_flags).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_fetched_from_https://huggingface.co/datasets/GFA-D2/
+  kind: entity_fact
+  raw_text: The dataset is fetched from HuggingFace at https://huggingface.co/datasets/GFA-D2/pilot_flags.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:17:04Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Pipeline raises RuntimeError 'Data fetch failed after retries' on download
+    failure
+  claim_id: c_dad905e9
+  context: 'If columns are missing, types mismatch, or download fails after retries,
+    the script MUST raise a RuntimeError with the message ''Data fetch failed after
+    retries: [error details]. Pipeline halted.'' and halt execution immediately.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_raises_RuntimeError_'Data_fetch_failed_after_retrie
+  kind: entity_fact
+  raw_text: 'The pipeline must raise a RuntimeError with the message ''Data fetch
+    failed after retries: [error details]. Pipeline halted.'' if the download fails
+    after retries.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:17:38Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Elemental fractions normalized to sum to 1.0 plus or minus 0.01
+  claim_id: c_6c1d6993
+  context: "Implement code/data/ingest.py to parse CSV, normalize elemental fractions\
+    \ to sum to 1.0 \xB1 0.01, and log warnings for unknown elements."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Elemental fractions are normalized to sum to 1.0 \xB1 0.01."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:18:01Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Model selection uses hyperparameter grids less than or equal to 30
+  claim_id: c_3fea5b19
+  context: "Implement code/models/train.py to train RandomForestRegressor and GradientBoostingRegressor\
+    \ with hyperparameter grids \u226430."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_selection_uses_hyperparameter_grids_less_than_or_equal
+  kind: magnitude
+  raw_text: The model selection uses hyperparameter grids with a size of 30 or fewer.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:18:56Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fixed +1.0 penalty added to predicted log10(Rc) for high risk candidates
+  claim_id: c_157e33ba
+  context: If a candidate is flagged as high risk, add a fixed value of +1.0 to its
+    predicted log10(Rc) to calculate the final_score.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A fixed penalty value of +1.0 is added to the predicted log10(Rc) for
+    candidates flagged as high extrapolation risk.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:19:16Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Candidates retained if predicted_log10_Rc below 10th percentile of training
+    data
+  claim_id: c_b9dbcaa6
+  context: 'Primary Rule: Retain candidates with predicted_log10_Rc < 10th percentile
+    of the training data distribution.'
+  evidence:
+    entailment_evidence: Candidates retained if predicted log10 Rc below 10th percent
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Candidates_retained_if_predicted_log10_Rc_below_10th_percent
+  kind: entity_fact
+  raw_text: The filtering logic retains candidates with predicted_log10_Rc below the
+    10th percentile of the training data distribution.
+  resolved_value: Candidates retained if predicted_log10_Rc below 10th percentile
+    of training data
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-01T22:19:18Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Absolute cutoff of 4.0 used if 10th percentile undefined
+  claim_id: c_4802bdbd
+  context: 'Fallback ONLY: If the dataset is empty or the percentile is mathematically
+    undefined, use a predefined absolute cutoff as specified in Plan.md Phase 3 Step
+    4... log the calculated threshold (percentile or 4.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A predefined absolute cutoff of 4.0 is used if the 10th percentile is
+    mathematically undefined.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:19:36Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Bootstrapped ensemble consists of 10 models
+  claim_id: c_65d54209
+  context: 'Train multiple separate models on resampled subsets (bootstrapping with
+    replacement)... Deliverable: state/bootstrapped_models/ensemble_{i}.pkl (i=0..9).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrapped ensemble consists of 10 models trained on resampled subsets.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:20:00Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: DoA uses convex hull in PCA-reduced space
+  claim_id: c_e58a0903
+  context: Compute the convex hull of the training data points in the reduced PCA
+    space using scipy.spatial.ConvexHull.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DoA_uses_convex_hull_in_PCA-reduced_space
+  kind: entity_fact
+  raw_text: The Domain of Applicability (DoA) uses a convex hull computed in PCA-reduced
+    space.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:20:30Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Mahalanobis threshold is high quantile of chi-squared distribution with
+    degrees of freedom equal to PCA components
+  claim_id: c_d5a90d7f
+  context: Calculate the threshold as a high quantile of the chi-squared distribution
+    with degrees of freedom equal to the number of PCA components.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mahalanobis_threshold_is_high_quantile_of_chi-squared_distri
+  kind: entity_fact
+  raw_text: The Mahalanobis distance threshold is calculated as a high quantile of
+    the chi-squared distribution with degrees of freedom equal to the number of PCA
+    components.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:21:01Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Memory usage below 7GB for 30-element ternary combinations
+  claim_id: c_eaa959aa
+  context: Verify that memory usage remains below 7GB during the generation and prediction
+    of all unique ternary combinations from the 30-element list.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory usage must remain below 7GB during the generation and prediction
+    of all unique ternary combinations from the 30-element list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:21:02Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Verification requests file contains top 10 candidates
+  claim_id: c_4bca4882
+  context: Add a final validation step to ensure the verification_requests.json file
+    contains exactly the top 10 candidates (or fewer if the threshold is not met).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output file verification_requests.json must contain exactly the top
+    10 candidates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-01T22:21:42Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 0
+  canonical: Filtering threshold set to 10th percentile of training data
+  claim_id: c_6d1e2764
+  context: 'Implement filtering logic: Primary Rule: Retain candidates with predicted_log10_Rc
+    < 10th percentile of the training data distribution.'
+  evidence:
+    entailment_evidence: Candidates retained if predicted log10 Rc below 10th percent
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Candidates_retained_if_predicted_log10_Rc_below_10th_percent
+  kind: entity_fact
+  raw_text: The filtering logic retains candidates with predicted_log10_Rc below the
+    10th percentile of the training data distribution
+  resolved_value: Candidates retained if predicted_log10_Rc below 10th percentile
+    of training data
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-06T22:10:08Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset URL fixed constant for GFA pilot flags
+  claim_id: c_b41b9a72
+  context: 'Configure environment configuration management for random seeds in code/config/env.py.
+    Note: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D/pilot_flags)
+    and is NOT stored in this config file.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_fixed_constant_for_GFA_pilot_flags
+  kind: entity_fact
+  raw_text: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D/pilot_flags)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:10:43Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: List of 30 most abundant metallic elements for alloying study
+  claim_id: c_96f053b1
+  context: Define and save the list of the most abundant metallic elements to data/config/elements.yaml
+    and code/config/elements.py (Al, Ca, Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr,
+    Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta, Hf, Y, La, Ce, Sc).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/List_of_30_most_abundant_metallic_elements_for_alloying_stud
+  kind: magnitude
+  raw_text: The list of the most abundant metallic elements includes Al, Ca, Fe, Mg,
+    Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta,
+    Hf, Y, La, Ce, Sc
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:11:19Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: NIST International Alloy Database verified open access
+  claim_id: c_0d693658
+  context: 'Implement code/utils/literature_scraper.py to fetch and populate data/known_alloys.csv
+    from the NIST International Alloy Database (verified open access: ) if the primary
+    API query fails.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_International_Alloy_Database_verified_open_access
+  kind: entity_fact
+  raw_text: The NIST International Alloy Database is a verified open access source
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:11:45Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fixed +1.0 penalty for high extrapolation risk in log10(Rc)
+  claim_id: c_96765944
+  context: 'Apply penalty to log10(Rc) for candidates where high_extrapolation_risk
+    is true. Logic: If a candidate is flagged as high risk, add a fixed value of +1.0
+    to its predicted log10(Rc) to calculate the final_score.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fixed_+1.0_penalty_for_high_extrapolation_risk_in_log10(Rc)
+  kind: entity_fact
+  raw_text: The penalty term for high extrapolation risk is a fixed value of +1.0
+    added to predicted log10(Rc)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:12:10Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fallback absolute cutoff of 4.0 for filtering
+  claim_id: c_0fd929b3
+  context: 'Fallback ONLY: If the dataset is empty or the percentile is mathematically
+    undefined, use a predefined absolute cutoff as specified in Plan.md Phase 3 Step
+    4... Log the calculated threshold (percentile or 4.0) to state/threshold.json'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fallback absolute cutoff for filtering is 4.0 if the 10th percentile
+    is undefined
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:12:43Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Bootstrapped ensemble of 10 models
+  claim_id: c_5b307734
+  context: 'Train multiple separate models on resampled subsets (bootstrapping with
+    replacement) of the original scaled training data... Deliverable: state/bootstrapped_models/ensemble_{i}.pkl
+    (i=0..9).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrapped ensemble consists of 10 separate models trained on resampled
+    subsets
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:13:11Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Memory usage constraint of 7GB for ternary combination generation
+  claim_id: c_5168e908
+  context: 'Verification: Confirm that memory usage remains below 7GB during the generation
+    and prediction of all unique ternary combinations from the 30-element list.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must ensure memory usage remains below 7GB during the generation
+    and prediction of all unique ternary combinations from the 30-element list
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:13:33Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: 6-hour runtime constraint for combinatorial generation
+  claim_id: c_97244180
+  context: Verify the runtime of the combinatorial generation step against the 6-hour
+    constraint in output/profiling_report.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The combinatorial generation step has a 6-hour runtime constraint
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:13:58Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Output limited to top 10 candidates in verification_requests.json
+  claim_id: c_ac5e17e5
+  context: Add a final validation step to ensure the verification_requests.json file
+    contains exactly the top 10 candidates (or fewer if the threshold is not met).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output verification_requests.json must contain exactly the top 10
+    candidates (or fewer if the threshold is not met)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:14:32Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: DoA threshold based on chi-squared distribution quantile
+  claim_id: c_c90264fa
+  context: 'Determine Threshold: Calculate the threshold as a high quantile of the
+    chi-squared distribution with degrees of freedom equal to the number of PCA components.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/DoA_threshold_based_on_chi-squared_distribution_quantile
+  kind: entity_fact
+  raw_text: The domain of applicability uses a Mahalanobis distance threshold calculated
+    as a high quantile of the chi-squared distribution
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:15:08Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Materials Project API queried via pymatgen MPRester
+  claim_id: c_62b4524d
+  context: 'Primary Query: Attempt to query the Materials Project API using pymatgen.ext.matproj.MPRester
+    with the API key from env.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_API_queried_via_pymatgen_MPRester
+  kind: entity_fact
+  raw_text: The materials project API is queried using pymatgen.ext.matproj.MPRester
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:15:39Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 0
+  canonical: Candidates filtered if predicted_log10_Rc is below 10th percentile of
+    training data
+  claim_id: c_50f50295
+  context: T034 implements filtering logic based on the 10th percentile of the training
+    data.
+  evidence:
+    entailment_evidence: Candidates retained if predicted log10 Rc below 10th percent
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Candidates_retained_if_predicted_log10_Rc_below_10th_percent
+  kind: entity_fact
+  raw_text: The filtering logic retains candidates with predicted_log10_Rc below the
+    10th percentile of the training data distribution.
+  resolved_value: Candidates retained if predicted_log10_Rc below 10th percentile
+    of training data
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-06T22:17:40Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset URL is https://huggingface.co/datasets/GFA-D/pilot_flags
+  claim_id: c_678fd59e
+  context: T008b and T008a define environment configuration management, noting the
+    dataset URL is a fixed constant.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_is_https://huggingface.co/datasets/GFA-D/pilot_f
+  kind: entity_fact
+  raw_text: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D/pilot_flags)
+    and is NOT stored in this config file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:18:10Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Dataset URL is https://huggingface.co/datasets/GFA-D2/pilot_flags
+  claim_id: c_2735d212
+  context: T012 implements data download from HuggingFace with URL https://huggingface.co/datasets/GFA-D2/pilot_flags.
+  evidence:
+    entailment_evidence: Dataset URL is https://huggingface.co/datasets/GFA-D2/pilot
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Dataset_URL_is_https://huggingface.co/datasets/GFA-D2/pilot
+  kind: entity_fact
+  raw_text: The dataset URL is a fixed constant per spec assumptions (https://huggingface.co/datasets/GFA-D2/pilot_flags).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-06T22:18:12Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Abundant metallic elements list contains 30 elements including Al, Ca,
+    Fe, Mg, Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo,
+    W, Nb, Ta, Hf, Y, La, Ce, Sc
+  claim_id: c_3480919d
+  context: T008b defines and saves the list of the most abundant metallic elements
+    to data/config/elements.yaml.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abundant_metallic_elements_list_contains_30_elements_includi
+  kind: magnitude
+  raw_text: The list of the most abundant metallic elements includes Al, Ca, Fe, Mg,
+    Ti, Na, K, Zn, Si, Zr, Cu, Ni, Cr, Mn, V, Sn, Pb, Ag, Au, Pd, Pt, Mo, W, Nb, Ta,
+    Hf, Y, La, Ce, Sc.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:18:15Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Si, Na, and K included for combinatorial completeness despite potential
+    instability in some ternary systems
+  claim_id: c_96b7739f
+  context: Verification note in T008b regarding the inclusion of Si, Na, and K.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Si,_Na,_and_K_included_for_combinatorial_completeness_despit
+  kind: entity_fact
+  raw_text: Si, Na, and K are included in the abundant elements list per spec assumption
+    for combinatorial completeness but may not form stable metallic glasses in all
+    ternary systems.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:18:36Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: NIST International Alloy Database is open access
+  claim_id: c_e2951d02
+  context: T008d implements fetching known alloy compositions from the NIST open dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_International_Alloy_Database_is_open_access
+  kind: entity_fact
+  raw_text: The NIST International Alloy Database is a verified open access source
+    for known alloy compositions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:19:10Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fixed +1.0 penalty applied to log10(Rc) for high extrapolation risk
+  claim_id: c_82a9e808
+  context: T033 applies a fixed value of +1.0 to predicted log10(Rc) for candidates
+    flagged as high risk.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fixed_+1.0_penalty_applied_to_log10(Rc)_for_high_extrapolati
+  kind: entity_fact
+  raw_text: The penalty term added to log10(Rc) for candidates with high extrapolation
+    risk is a fixed value of +1.0.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:19:34Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Fallback cutoff of 4.0 used if 10th percentile is undefined
+  claim_id: c_79ba3f3f
+  context: T034 specifies a fallback to a predefined absolute cutoff of 4.0 if the
+    percentile is mathematically undefined.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the 10th percentile is undefined or the dataset is empty, a predefined
+    absolute cutoff of 4.0 is used.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:19:57Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Bootstrapped ensemble contains 10 models
+  claim_id: c_8134ffac
+  context: T035a and T035b describe training and saving 10 separate models in the
+    ensemble.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrapped ensemble consists of 10 separate models trained on resampled
+    subsets of the original scaled training data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:20:29Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Memory usage constraint is below 7GB for ternary combination generation
+  claim_id: c_0d1e92f6
+  context: T050 sets a verification constraint for memory usage during combinatorial
+    generation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Memory usage must remain below 7GB during the generation and prediction
+    of all unique ternary combinations from the 30-element list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:20:55Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Combinatorial generation runtime constraint is 6 hours
+  claim_id: c_02a4eb19
+  context: T043f verifies the runtime of the combinatorial generation step against
+    the 6-hour constraint.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The runtime of the combinatorial generation step must not exceed 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:21:22Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Verification requests file contains top 10 candidates
+  claim_id: c_b5384726
+  context: T058 adds a validation step to ensure the file contains exactly the top
+    10 candidates.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The output verification_requests.json file must contain exactly the top
+    10 candidates (or fewer if the threshold is not met).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:21:57Z'
+- artifact_path: projects/PROJ-124-quantifying-the-effect-of-alloying-eleme/specs/001-quantifying-the-effect-of-alloying-eleme/tasks.md
+  attempts: 1
+  canonical: Elemental fractions must sum to 1.0 within tolerance of 0.01
+  claim_id: c_2dc8a3b8
+  context: "T013 implements parsing and normalizing elemental fractions to sum to\
+    \ 1.0 \xB1 0.01."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Normalization of elemental fractions requires a sum of 1.0 \xB1 0.01."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T22:22:21Z'

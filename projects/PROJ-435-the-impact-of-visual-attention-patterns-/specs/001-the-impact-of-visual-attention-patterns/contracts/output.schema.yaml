@@ -1,0 +1,108 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Output Schema"
+description: "Schema for the mixed-effects regression output."
+type: "object"
+properties:
+  model_summary:
+    type: "object"
+    properties:
+      coefficients:
+        type: "object"
+        description: "Fixed effects coefficients."
+      random_effects:
+        type: "object"
+        description: "Random effects variances."
+      p_values:
+        type: "object"
+        description: "P-values for fixed effects."
+      confidence_intervals:
+        type: "object"
+        description: "95% confidence intervals for fixed effects."
+    required:
+      - coefficients
+      - random_effects
+      - p_values
+      - confidence_intervals
+  interaction_term:
+    type: "object"
+    properties:
+      name:
+        type: "string"
+        description: "Name of the interaction term (fixation × valence × cognitive reflection)."
+      coefficient:
+        type: "number"
+      p_value:
+        type: "number"
+      is_significant:
+        type: "boolean"
+        description: "Significance after Holm-Bonferroni correction."
+    required:
+      - name
+      - coefficient
+      - p_value
+      - is_significant
+  robustness:
+    type: "array"
+    description: "Results from robustness sweep (50ms, 100ms, 150ms)."
+    items:
+      type: "object"
+      properties:
+        threshold_ms:
+          type: "integer"
+        interaction_p_value:
+          type: "number"
+        is_significant:
+          type: "boolean"
+      required:
+        - threshold_ms
+        - interaction_p_value
+        - is_significant
+  family_wise_error_rate:
+    type: "number"
+    description: "Measured family-wise error rate after correction."
+  alpha_threshold:
+    type: "number"
+    description: "Alpha threshold used for correction (e.g., 0.05)."
+  lexicon_switch_log:
+    type: "object"
+    description: "Log of lexicon switch events."
+    properties:
+      switched:
+        type: "boolean"
+        description: "Whether the switch from NRC to VADER occurred."
+      reason:
+        type: "string"
+        description: "Reason for the switch (e.g., 'NRC coverage < 50%')."
+    required:
+      - switched
+  data_quality_summary:
+    type: "object"
+    description: "Summary of data quality metrics."
+    properties:
+      total_participants:
+        type: "integer"
+      excluded_participants:
+        type: "integer"
+      exclusion_reason:
+        type: "string"
+    required:
+      - total_participants
+      - excluded_participants
+      - exclusion_reason
+  runtime_seconds:
+    type: "number"
+    description: "Total wall-clock runtime in seconds."
+  causal_framing_statement:
+    type: "string"
+    description: "Statement framing the findings as causal or associational."
+required:
+  - model_summary
+  - interaction_term
+  - robustness
+  - family_wise_error_rate
+  - alpha_threshold
+  - lexicon_switch_log
+  - data_quality_summary
+  - runtime_seconds
+  - causal_framing_statement
+additionalProperties: false

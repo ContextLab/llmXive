@@ -1,0 +1,12 @@
+status: none
+intent: WebVid-10M dataset download Python package or direct link python package dataset
+required_fields:
+- video_id
+- video_url
+- title
+- duration_seconds
+- subject_category
+- timestamp
+cache_key: a3d762b8715b09607677706c4c2509cdffe0190c97f52de6b6c26fb2828dee86
+searched_at: '2026-09-17T22:00:21.109635+00:00'
+retry_count: 1

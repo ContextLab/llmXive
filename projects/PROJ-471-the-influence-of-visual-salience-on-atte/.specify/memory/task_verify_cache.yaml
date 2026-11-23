@@ -1,0 +1,37 @@
+T001:
+  c: true
+  h: 6207e32ad0b3b014a1954225f713d9e92bb7939b67380fef238b6cc995ca7156
+  r: "Checked `code/bootstrap.py` which parses `--root`, patches `llmxive_toolkit.paths.root`,\
+    \ creates the required directory tree under the patched root, writes the pinned\
+    \ `requirements.txt`, and generates `quickstart.md` with the correct command.\
+    \ The unit test `tests/test_bootstrap.py` runs the script with a temporary root,\
+    \ verifies all expected directories/files exist, and confirms the requirements\
+    \ and quickstart contents, and it would pass (return code\u202F0)."
+  sig: 8fe6c45ba714d715e0e280cc67d1deabff60cfb3a72bfbd8eb6a14536f3e62ca
+T004:
+  c: true
+  h: eec87f172b513cfd998b0e52a5186ec39602d3819ff11c42977c65704ea06955
+  r: Checked `code/eye_tracking/segment_roi.py` for lazy imports, mask handling, provenance,
+    metadata, and error abort behavior, and verified that `tests/test_roi_segmentation.py`
+    aligns with these expectations. All required artifacts exist and meet the specification.
+  sig: a3e0b9a3521a8fb06445099daf778af222278995347306ea36c05bc72f5ca5f9
+T005:
+  c: true
+  h: bf2f6a99151aab4d364d75dcc1711d84e4d915dff45b20c13be1348441c2014c
+  r: Checked `code/eye_tracking/parse_fixations.py` for required parsing, ROI assignment,
+    metric computation, CSV output and warning logging, and verified that `tests/test_fixation_extraction.py`
+    exercises the script with a temporary dataset and asserts the correct columns,
+    row counts, and metric values. The implementation satisfies all task specifications.
+  sig: 463ffbe3926232d9aa46ee27b7203d705870776289104e13e2b89a7d1a260a4b
+T006:
+  c: false
+  h: 3696d4507586a9dd5e0737f10e13a0b237cb1c2f370bd12650597926288d4d11
+  r: "The `code/analysis/feature_gen.py` script exists, but the required output file\
+    \ `data/interim/low_level_features.json` is missing, and the provided test suite\
+    \ fails during setup because `get_paths()` does not expose a `raw_data` attribute\
+    \ or a callable `raw` as the test expects. Moreover, the script\u2019s scene\u2011\
+    complexity step unconditionally imports Detectron2, which is not guaranteed to\
+    \ be installed in the test environment, causing a runtime error before any JSON\
+    \ can be written. The implementation must (1) expose the raw\u2011data location\
+    \ in a way the test can discover, (2) handle missing Detectron2 "
+  sig: febd861718870636cedbd3decf8d80015c8650784aa749c1f82840eee3e3ffae

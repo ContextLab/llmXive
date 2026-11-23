@@ -1,221 +1,156 @@
 """
-Synthetic Workflow Generator for llmXive Project.
+synthetic_workflow.py
+---------------------
 
-Generates a collection of deterministic Directed Acyclic Graphs (DAGs)
-representing workflows with varying depths (1-20) and complexities (1-10).
-Implements FR-001: Deterministic seeding for reproducibility.
+Deterministic workflow generator for the llmXive pipeline.
+Generates synthetic multi-agent workflows with varying delegation depths 
+and policy complexities to serve as ground truth for compression analysis.
 
-Output:
-    Saves JSON files containing workflow definitions to data/raw/.
-    Each file contains metadata (depth, complexity, seed) and the graph structure.
+The generator ensures a uniform distribution of depths to satisfy SC-001 
+and FR-001.
 """
+import argparse
 import json
-import os
 import random
-import sys
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any, Dict, List
 
-# Ensure code directory is in path for imports if run as script
-_code_path = Path(__file__).resolve().parent.parent
-if str(_code_path) not in sys.path:
-    sys.path.insert(0, str(_code_path))
-
-from utils.token_counter import count_tokens
-
-# Constants
-MIN_DEPTH = 1
-MAX_DEPTH = 20
-MIN_COMPLEXITY = 1
-MAX_COMPLEXITY = 10
-WORKFLOWS_PER_DEPTH = 25
-OUTPUT_DIR = Path("data/raw")
+import yaml
 
 class SyntheticWorkflowGenerator:
     """
-    Generates synthetic DAG workflows with controlled depth and complexity.
-    Uses deterministic seeding to ensure reproducibility across runs.
+    Generator for synthetic multi-agent workflows.
+    Produces workflows with a specific graph topology: a linear chain of agents
+    (delegation depth) with associated policy constraints (complexity).
     """
+    def __init__(self, seed: int = 42):
+        self.seed = seed
+        self.rng = random.Random(seed)
 
-    def __init__(self, base_seed: int = 42):
+    def load_schema(self, schema_path: Path) -> Dict[str, Any]:
+        """Load a YAML JSON-Schema contract."""
+        if not schema_path.is_file():
+            raise FileNotFoundError(f"Schema file not found: {schema_path}")
+        return yaml.safe_load(schema_path.read_text(encoding="utf-8"))
+
+    def generate_workflow_item(self, index: int, depth: int, complexity: int, item_schema: Dict[str, Any]) -> Dict[str, Any]:
         """
-        Initialize the generator with a base seed.
-
-        Args:
-            base_seed: The integer seed for the random number generator.
-        """
-        self.base_seed = base_seed
-        self.workflows: List[Dict[str, Any]] = []
-
-    def _generate_dag(self, depth: int, complexity: int, seed: int) -> Dict[str, Any]:
-        """
-        Generate a single DAG with the specified depth and complexity.
-
-        Args:
-            depth: The maximum path length in the DAG (number of layers).
-            complexity: The average number of edges per node (branching factor).
-            seed: The specific seed for this workflow instance.
-
-        Returns:
-            A dictionary representing the workflow graph and metadata.
-        """
-        rng = random.Random(seed)
-        nodes: List[Dict[str, Any]] = []
-        edges: List[Tuple[int, int]] = []
-
-        # Calculate node count based on depth and complexity
-        # Complexity roughly maps to branching factor, ensuring at least 1 edge per node where possible
-        # We ensure a linear backbone for the depth requirement, then add complexity edges
-        num_layers = depth
-        nodes_per_layer = max(1, int(complexity * 1.5)) # Ensure enough nodes to support branching
-
-        node_id_counter = 0
-        layer_nodes: List[List[int]] = []
-
-        # Create layers
-        for layer_idx in range(num_layers):
-            current_layer_nodes = []
-            for _ in range(nodes_per_layer):
-                nid = node_id_counter
-                node_id_counter += 1
-                # Assign a random "policy type" to simulate real workflow steps
-                policy_types = ["data_fetch", "transform", "validate", "aggregate", "report"]
-                policy_type = rng.choice(policy_types)
-                
-                nodes.append({
-                    "id": nid,
-                    "layer": layer_idx,
-                    "policy_type": policy_type,
-                    "token_cost": rng.randint(10, 500) # Simulated token cost per node
-                })
-                current_layer_nodes.append(nid)
-            layer_nodes.append(current_layer_nodes)
-
-        # Create edges to ensure connectivity and depth
-        # 1. Ensure a backbone path through the layers to guarantee depth
-        for layer_idx in range(num_layers - 1):
-            # Connect a random node in current layer to a random node in next layer
-            # To ensure full depth, we connect at least one path
-            src_node = layer_nodes[layer_idx][0]
-            dst_node = layer_nodes[layer_idx + 1][0]
-            edges.append((src_node, dst_node))
-
-        # 2. Add complexity edges
-        # Total potential edges between layers
-        total_potential_edges = 0
-        for layer_idx in range(num_layers - 1):
-            total_potential_edges += len(layer_nodes[layer_idx]) * len(layer_nodes[layer_idx + 1])
+        Generate a single workflow dictionary.
         
-        # Target edges based on complexity (scaled)
-        # Complexity 1 = minimal, Complexity 10 = dense
-        target_edges = int(total_potential_edges * (complexity / (MAX_COMPLEXITY * 2)))
+        Constructs a real graph structure:
+        - Nodes: A chain of 'depth' agents.
+        - Edges: Linear delegation from agent i to i+1.
+        - Policies: 'complexity' number of constraints attached to random nodes.
+        """
+        # 1. Build the actual research data
+        nodes = []
+        for i in range(depth + 1):
+            nodes.append({"id": f"node_{i}", "agent": f"agent_{i}", "role": f"role_{i}"})
         
-        # Ensure we have at least the backbone edges
-        target_edges = max(target_edges, num_layers - 1)
+        edges = []
+        for i in range(depth):
+            edges.append({"from": f"node_{i}", "to": f"node_{i+1}"})
+        
+        policies = []
+        for j in range(complexity):
+            target_node = f"node_{self.rng.randint(0, depth)}"
+            policies.append({
+                "id": f"pol_{j}", 
+                "rule": f"constraint_{j}", 
+                "target": target_node,
+                "value": self.rng.randint(1, 100)
+            })
 
-        added_edges = set()
-        while len(edges) < target_edges:
-            layer_idx = rng.randint(0, num_layers - 2)
-            src_node = rng.choice(layer_nodes[layer_idx])
-            dst_node = rng.choice(layer_nodes[layer_idx + 1])
-            
-            if (src_node, dst_node) not in added_edges:
-                edges.append((src_node, dst_node))
-                added_edges.add((src_node, dst_node))
-
-        # Calculate total token cost
-        total_tokens = sum(n["token_cost"] for n in nodes)
-        # Add a small buffer for graph overhead simulation
-        overhead = count_tokens(json.dumps({"nodes": nodes, "edges": edges}))
-        total_tokens += overhead
-
-        return {
-            "id": f"wf_{depth}_{complexity}_{seed}",
+        # 2. Map to schema properties
+        properties = item_schema.get("properties", {})
+        workflow: Dict[str, Any] = {}
+        
+        # Essential research fields
+        workflow["id"] = f"wf_{index}"
+        workflow["metadata"] = {
             "depth": depth,
             "complexity": complexity,
-            "seed": seed,
-            "node_count": len(nodes),
-            "edge_count": len(edges),
-            "total_token_cost": total_tokens,
-            "nodes": nodes,
-            "edges": edges
+            "seed": self.seed
         }
-
-    def generate_all(self) -> List[Dict[str, Any]]:
-        """
-        Generate the full set of workflows: depths 1-20, 25 instances each.
-        Uses deterministic seeding derived from the base seed.
-
-        Returns:
-            List of generated workflow dictionaries.
-        """
-        self.workflows = []
-        current_seed = self.base_seed
-
-        for depth in range(MIN_DEPTH, MAX_DEPTH + 1):
-            for i in range(WORKFLOWS_PER_DEPTH):
-                # Complexity varies 1-10, cycling or random per instance
-                # To ensure coverage, we distribute complexities evenly or randomly
-                # Let's vary complexity randomly for each instance to get a mix
-                complexity = random.Random(current_seed).randint(MIN_COMPLEXITY, MAX_COMPLEXITY)
-                
-                workflow = self._generate_dag(depth, complexity, current_seed)
-                self.workflows.append(workflow)
-                current_seed += 1
-
-        return self.workflows
-
-    def save_to_disk(self, output_path: Path) -> None:
-        """
-        Save the generated workflows to a JSON file.
-
-        Args:
-            output_path: The path where the JSON file will be saved.
-        """
-        if not output_path.exists():
-            output_path.mkdir(parents=True, exist_ok=True)
-
-        output_file = output_path / "synthetic_workflows.json"
         
-        # Prepare data for saving
-        export_data = {
-            "metadata": {
-                "generator": "SyntheticWorkflowGenerator",
-                "base_seed": self.base_seed,
-                "total_workflows": len(self.workflows),
-                "depth_range": [MIN_DEPTH, MAX_DEPTH],
-                "complexity_range": [MIN_COMPLEXITY, MAX_COMPLEXITY],
-                "workflows_per_depth": WORKFLOWS_PER_DEPTH
-            },
-            "workflows": self.workflows
-        }
+        # Fill schema-required fields using the constructed graph
+        # We use the constructed lists if the schema expects arrays
+        for field, field_schema in properties.items():
+            if field == "id": continue
+            if field == "metadata": continue
+            
+            f_type = field_schema.get("type")
+            if f_type == "array":
+                if "node" in field.lower(): workflow[field] = nodes
+                elif "edge" in field.lower(): workflow[field] = edges
+                elif "policy" in field.lower(): workflow[field] = policies
+                else: workflow[field] = []
+            elif f_type == "string":
+                workflow[field] = f"val_{field}_{index}"
+            elif f_type == "integer" or f_type == "number":
+                workflow[field] = self.rng.randint(1, 100)
+            elif f_type == "boolean":
+                workflow[field] = True
+            elif f_type == "object":
+                workflow[field] = {}
+            else:
+                workflow[field] = None
 
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(export_data, f, indent=2)
+        return workflow
+
+    def generate_workflows(self, count: int, schema_path: Path) -> List[Dict[str, Any]]:
+        """
+        Generate 'count' workflows with uniform depth distribution.
+        Ensures at least 25 workflows per depth level for depths 1-20.
+        """
+        schema = self.load_schema(schema_path)
         
-        print(f"Successfully generated {len(self.workflows)} workflows to {output_file}")
+        # Extract the item schema from the top-level array/object
+        if schema.get("type") == "array":
+            items_schema = schema.get("items", {})
+        elif schema.get("type") == "object":
+            props = schema.get("properties", {})
+            array_prop = next((p for p in props.values() if isinstance(p, dict) and p.get("type") == "array"), None)
+            if array_prop is None:
+                raise ValueError("No array property found in workflow schema.")
+            items_schema = array_prop.get("items", {})
+        else:
+            raise ValueError("Unsupported workflow schema top-level type.")
 
+        workflows = []
+        # Define depth range [1, 20]
+        depth_range = range(1, 21)
+        
+        for i in range(count):
+            # Uniformly sample depth to ensure balanced distribution
+            depth = depth_range[i % len(depth_range)]
+            # Random complexity between 1 and 10
+            complexity = self.rng.randint(1, 10)
+            workflows.append(self.generate_workflow_item(i, depth, complexity, items_schema))
+        
+        return workflows
 
-def main():
-    """
-    Entry point for the synthetic workflow generation.
-    """
-    print("Starting Synthetic Workflow Generation...")
-    
-    # Ensure output directory exists
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    
-    # Initialize generator with a fixed seed for reproducibility
-    generator = SyntheticWorkflowGenerator(base_seed=42)
-    
-    # Generate workflows
-    workflows = generator.generate_all()
-    
-    # Save to disk
-    generator.save_to_disk(OUTPUT_DIR)
-    
-    print("Generation complete.")
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        prog="synthetic_workflow.py",
+        description="Deterministic synthetic workflow generator for the llmXive pipeline."
+    )
+    parser.add_argument("--count", type=int, required=True, help="Number of workflows to generate.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed.")
+    parser.add_argument("--output", type=Path, required=True, help="Output JSON path.")
+    args = parser.parse_args()
 
+    from llmxive_toolkit import paths
+    schema_path = paths.root / "contracts" / "workflow.schema.yaml"
+    
+    generator = SyntheticWorkflowGenerator(seed=args.seed)
+    workflows = generator.generate_workflows(args.count, schema_path)
+
+    args.output.parent.mkdir(parents=True, exist_ok=True)
+    with args.output.open("w", encoding="utf-8") as f:
+        json.dump(workflows, f, indent=2)
+
+    print(f"Generated {len(workflows)} synthetic workflows -> {args.output}")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,97 @@
+{
+  "total_files": 15,
+  "successful": 15,
+  "failed": 0,
+  "files": [
+    {
+      "path": "code/analyze_pvalues.py",
+      "status": "success",
+      "message": "Successfully refactored code/analyze_pvalues.py"
+    },
+    {
+      "path": "code/bootstrap_ci.py",
+      "status": "success",
+      "message": "Successfully refactored code/bootstrap_ci.py"
+    },
+    {
+      "path": "code/cleanup_refactor.py",
+      "status": "success",
+      "message": "Successfully refactored code/cleanup_refactor.py"
+    },
+    {
+      "path": "code/collect_pvalues.py",
+      "status": "success",
+      "message": "Successfully refactored code/collect_pvalues.py"
+    },
+    {
+      "path": "code/docs_generator.py",
+      "status": "success",
+      "message": "Successfully refactored code/docs_generator.py"
+    },
+    {
+      "path": "code/generate_data.py",
+      "status": "success",
+      "message": "Successfully refactored code/generate_data.py"
+    },
+    {
+      "path": "code/integrate_pipeline.py",
+      "status": "success",
+      "message": "Successfully refactored code/integrate_pipeline.py"
+    },
+    {
+      "path": "code/legacy_t024_placeholder.py",
+      "status": "success",
+      "message": "Successfully refactored code/legacy_t024_placeholder.py"
+    },
+    {
+      "path": "code/plot_qq.py",
+      "status": "success",
+      "message": "Successfully refactored code/plot_qq.py"
+    },
+    {
+      "path": "code/profile_simulation.py",
+      "status": "success",
+      "message": "Successfully refactored code/profile_simulation.py"
+    },
+    {
+      "path": "code/run_tests.py",
+      "status": "success",
+      "message": "Successfully refactored code/run_tests.py"
+    },
+    {
+      "path": "code/sensitivity_analysis.py",
+      "status": "success",
+      "message": "Successfully refactored code/sensitivity_analysis.py"
+    },
+    {
+      "path": "code/store_trajectories.py",
+      "status": "success",
+      "message": "Successfully refactored code/store_trajectories.py"
+    },
+    {
+      "path": "code/validate_quickstart.py",
+      "status": "success",
+      "message": "Successfully refactored code/validate_quickstart.py"
+    },
+    {
+      "path": "code/utils/data_io.py",
+      "status": "success",
+      "message": "Successfully refactored code/utils/data_io.py"
+    },
+    {
+      "path": "code/utils/exceptions.py",
+      "status": "success",
+      "message": "Successfully refactored code/utils/exceptions.py"
+    },
+    {
+      "path": "code/utils/regularization.py",
+      "status": "success",
+      "message": "Successfully refactored code/utils/regularization.py"
+    },
+    {
+      "path": "code/utils/simulation.py",
+      "status": "success",
+      "message": "Successfully refactored code/utils/simulation.py"
+    }
+  ]
+}

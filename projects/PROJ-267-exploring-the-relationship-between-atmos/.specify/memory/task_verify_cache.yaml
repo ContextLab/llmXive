@@ -1,0 +1,126 @@
+T001:
+  c: true
+  h: bfdec7a3dba08827cab54663e0ace4e24dbc3dc1d2b16cbaa7ece6660f12ff24
+  r: The evidence shows that the directory `projects/PROJ-267-exploring-the-relationship-between-atmos/`
+    exists in the repository (22 entries listed). This satisfies the sole requirement
+    of creating the project root directory.
+  sig: 5856450bb107ca11689f8ffbf31db242e27d3d7f17e5197ee99517ceba38a4a3
+T002:
+  c: true
+  h: 15461d3bf86fe656123ab184887de4893f9cc8224f501b9071990e22d965b6d0
+  r: "The evidence shows that the directory `projects/PROJ-267-exploring-the-relationship-between-atmos/code/`\
+    \ exists (35 entries, confirmed by its SHA\u2011256 hash). This fulfills the task\u2019\
+    s sole requirement of creating the specified code directory."
+  sig: 425e4d583b5aba85e1411ca2ce5343810479e63e8f459f791515ce7acf7bd139
+T003:
+  c: true
+  h: c1e58fc6573d147c75f054ca3dd48cae96e3785fe6421a64a1f4bd32228b5363
+  r: "The evidence shows that `projects/PROJ-267-exploring-the-relationship-between-atmos/data/raw/`\
+    \ exists (directory with .gitkeep, subfolders, and a log file), satisfying the\
+    \ task\u2019s sole requirement to create that directory."
+  sig: a5391b89581eb75ecd957af6b7c8147383641391eba4c77f110ed7e277c104ac
+T004:
+  c: true
+  h: c97e8fd4e0ce7eb776002b27b0815fb831cdd951b0f22627142b5d4e143f7a60
+  r: "The evidence shows that the directory `projects/PROJ-267-exploring-the-relationship-between-atmos/data/processed/`\
+    \ exists in the repository (empty but present), satisfying the task\u2019s sole\
+    \ requirement to create that directory."
+  sig: 2cd2946f8601b502da568befe48e8cc3ac569ed4c5b010a75cadaa3c05e78ef8
+T005:
+  c: true
+  h: 7d11c2408459601ba12d05229a1e4b9abb26b99b0e2ce6dc2c5d508343a32a1e
+  r: "The evidence shows that the `projects/PROJ-267-exploring-the-relationship-between-atmos/tests/`\
+    \ directory exists (8 entries, including `__init__.py`, test files, and subfolders),\
+    \ satisfying the task\u2019s sole requirement to create that directory."
+  sig: dda4019b39223e5e3344a16e6ac40b78c9138b995b65a2d911863311acdc2599
+T007:
+  c: false
+  h: 84b66e274ad56d8c9d52cd5093c3767bf9c306912be7fc7b74bda014d8c5f1fc
+  r: "The `pyproject.toml` file is present with full content, but the required `.flake8`\
+    \ file, while listed, has no shown contents or size to confirm it is non\u2011\
+    empty; without evidence that it contains a linting configuration, the task\u2019\
+    s requirement is not fully satisfied."
+  sig: 9aaf88bd99e14f672cc61b1dfc8582a58451abdb8bd434013646599014767ef0
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `projects/PROJ-267-exploring-the-relationship-between-atmos/data-model.md`\
+    \ file is provided, and there is no content showing the required entity definitions\
+    \ (AR Event, Gravity Anomaly, Correlation Result). The task\u2019s core artifact\
+    \ is missing, so the requirement is not satisfied."
+T011a:
+  c: false
+  h: 89e09a942c73c713bf88bd0fb90793708bb5e812f17a4cd864853310473a7440
+  r: "The `config/urls.yaml` file required for the script to locate the verified URLs\
+    \ does not exist, and the provided `01_fetch_coefficients.py` script is truncated\
+    \ (it ends mid\u2011statement and never writes the fetched data). The `coeffs/degree1.yaml`\
+    \ and `coeffs/c20.yaml` files contain static placeholder values rather than data\
+    \ fetched by the script. The task\u2019s core requirements are therefore unmet."
+T012:
+  c: false
+  h: f6f93db0c424b69b2e0a6ba25c5114fc75330fee1a00a1d4fd0cbc933767ce80
+  r: The required YAML file `projects/PROJ-267-exploring-the-relationship-between-atmos/state/projects/PROJ-267-exploring-the-relationship-between-atmos.yaml`
+    does not exist, so the project metadata and `artifact_hashes` map have not been
+    created. The task therefore remains unfinished.
+T015:
+  c: false
+  h: 7130d65c6c94166a423e462087e9c6aa09a446af2992bc4dadb2d5b79264e921
+  r: "The script is present but the required `config/urls.yaml` file is missing, and\
+    \ the shown code is truncated\u2014there is no implementation for saving the downloaded\
+    \ files to `data/raw/grace-fo/target/` or recording SHA\u2011256 checksums. Both\
+    \ the configuration file and the full data\u2011saving logic are needed to satisfy\
+    \ the task."
+T015b:
+  c: false
+  h: 52c511d5140f28cf1a7d43f2b679d438fa7e2b76b2bc92ec6582ebc2ae09323f
+  r: "The script file exists but the required `config/urls.yaml` is missing, so the\
+    \ script cannot read a verified URL. Moreover, the visible portion of the script\
+    \ does not show logging of dataset version/release date, saving of files to `data/raw/grace-fo/control/`,\
+    \ or recording of SHA\u2011256 checksums, and the truncated code leaves it unclear\
+    \ whether those steps are implemented. The task\u2019s essential artifacts and\
+    \ behavior are therefore not present."
+T016:
+  c: false
+  h: c4fb63c7abfacaaeab49f9f73b578a21d2d43412d9c3a94806a2e79b0f4e4fad
+  r: "The required `config/urls.yaml` file is missing, so the script cannot read the\
+    \ verified URL, and the provided script does not demonstrate logging the dataset\
+    \ version/release date, applying the target\u2011region filter, or writing raw\
+    \ files with accompanying checksums. These core requirements are absent, so the\
+    \ task is not genuinely completed."
+T017a:
+  c: false
+  h: 4cdea079a07319e090f02b9c3b76faf43d97b220f7b1cb6cf85cb6e7b4132845
+  r: "The provided `code/02_preprocessing_grace.py` stops mid\u2011implementation\
+    \ (the `apply_degree_1_correction` function is only a stub and the rest of the\
+    \ required steps\u2014C20 replacement, Gaussian smoothing, monthly aggregation,\
+    \ and writing the processed CSVs\u2014are not present). Moreover, the expected\
+    \ output files `data/processed/grace_preprocessed_target.csv` and `...control.csv`\
+    \ are absent. The script therefore does not fulfill the full preprocessing requirements."
+T017c:
+  c: false
+  h: 0fb166fa57bf0eab933c6e53633fbea4015ca11c4609dcce7c9ada691aad6df9
+  r: The provided `02_preprocessing_merge.py` reads only two generic processed CSVs
+    (not the required target/control files), never adds a `region` column, and does
+    not perform jsonschema validation. Moreover, the expected output `data/processed/merged_monthly.csv`
+    and the schema file `contracts/dataset.schema.yaml` are absent. The script therefore
+    does not satisfy the task specifications.
+T018:
+  c: false
+  h: d765aac01dedead4cf6467b993c671c3ea1b48f737143938e748f3eda118d057
+  r: The provided `test_dataset_schema.py` exists, but it references `contracts/dataset.schema.yaml`,
+    which is missing from the repository, so the test cannot actually load and validate
+    the schema as required. The missing schema file must be added for the contract
+    test to be functional.
+T023:
+  c: false
+  h: 9af5be030ff161cd3b4612f09fee574403bfaa9e6d61bb0823bb82f4c15a9d05
+  r: "The provided test file exists, but the required schema file `contracts/output.schema.yaml`\
+    \ is missing, so the test cannot actually validate `correlation_results.csv` as\
+    \ specified. Without the schema, the contract test is non\u2011functional."
+T040:
+  c: false
+  h: 65d2d027664fec275bd5d4562dec4adf81bd160b66824d7ada657ed61bfda9e3
+  r: The required input `data/processed/merged_monthly.csv` and `docs/runtime_profile.md`
+    are missing, and the generated `docs/runtime_report.md` contains placeholder values
+    (zero duration, zero CPU/memory) with a note to run the script later. No real
+    runtime or resource measurements were provided.

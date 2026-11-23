@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1512.07839",
+  "judged_at": "2026-08-19T09:26:41Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "astrocyte-inspired meta-learning: glial modulation of neural networks neuroscience",
+  "rationale": "The paper focuses on implementing Bayes filters and probabilistic population codes for stimulus estimation in neural circuits, which does not address the user's specific question regarding astrocyte (glial) modulation or meta-learning mechanisms. While both fall under computational neuroscience, the paper lacks the specific biological construct (astrocytes/glia) and the algorithmic property (meta-learning) required by the user's query, failing to meet the criteria for same-mechanism evidence or ",
+  "relevant": false
+}

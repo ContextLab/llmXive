@@ -1,225 +1,169 @@
 """
-Orchestrator for the llmXive Foundation Protocol pipeline.
+code/main.py
+------------
 
-This script generates synthetic workflows using the SyntheticWorkflowGenerator,
-validates them with the OraclePolicyEngine, executes them with the FullContextEngine,
-and saves the raw workflow data to data/raw/.
+Orchestrator for the llmXive follow-up project (feature
+001-policy-compression-tradeoff).
+
+Implements the full pipeline in one command:
+    generate -> execute (full and compressed) -> analyze
 
 Usage:
-    python code/main.py --num-workflows 500 --output-dir data/raw/
+    python code/main.py --generate --compress --analyze
 """
 
 import argparse
 import json
 import os
+import subprocess
 import sys
-import random
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any, Dict, List, Optional
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
+import jsonschema
+import yaml
 
-from generators.synthetic_workflow import SyntheticWorkflowGenerator
-from engines.oracle_policy import OraclePolicyEngine
-from engines.full_context import FullContextEngine
+from llmxive_toolkit import paths
 
+ROOT = paths.root
+CODE_DIR = ROOT / "code"
+CONTRACTS_DIR = ROOT / "contracts"
 
-def ensure_directories(output_dir: str) -> None:
-    """Ensure the output directory exists."""
-    path = Path(output_dir)
-    path.mkdir(parents=True, exist_ok=True)
-    
-    # Ensure subdirectories exist as per project structure
-    (path / "workflows").mkdir(exist_ok=True)
-    (path / "logs").mkdir(exist_ok=True)
-    
+DATA_RAW = ROOT / "data" / "raw"
+DATA_PROC = ROOT / "data" / "processed"
+DATA_RESULTS = ROOT / "data" / "results"
 
-def generate_workflows(
-    num_workflows: int,
-    output_dir: str,
-    seed: int = 42
-) -> List[str]:
-    """
-    Generate synthetic workflows and save them to disk.
-    
-    Args:
-        num_workflows: Number of workflows to generate
-        output_dir: Directory to save workflow files
-        seed: Random seed for reproducibility
-        
-    Returns:
-        List of paths to generated workflow files
-    """
-    ensure_directories(output_dir)
-    generator = SyntheticWorkflowGenerator(seed=seed)
-    workflows_dir = Path(output_dir) / "workflows"
-    
-    generated_files = []
-    
-    print(f"Generating {num_workflows} synthetic workflows...")
-    
-    for i in range(num_workflows):
-        workflow = generator.generate()
-        filename = f"workflow_{i:04d}.json"
-        filepath = workflows_dir / filename
-        
-        with open(filepath, 'w') as f:
-            json.dump(workflow, f, indent=2)
-        
-        generated_files.append(str(filepath))
-        
-        if (i + 1) % 100 == 0:
-            print(f"  Generated {i + 1}/{num_workflows} workflows")
-    
-    print(f"Successfully generated {len(generated_files)} workflows.")
-    return generated_files
+WORKFLOWS_PATH = DATA_RAW / "workflows.json"
+FULL_LOGS_PATH = DATA_PROC / "full_context_logs.json"
+COMPRESSED_LOGS_PATH = DATA_PROC / "compressed_context_logs.json"
+TRADEOFF_CSV_PATH = DATA_RESULTS / "tradeoff_curve.csv"
+THRESHOLD_REPORT_PATH = DATA_RESULTS / "threshold_report.json"
 
+WORKFLOW_SCHEMA = CONTRACTS_DIR / "workflow.schema.yaml"
+EXECUTION_LOG_SCHEMA = CONTRACTS_DIR / "execution_log.schema.yaml"
 
-def validate_with_oracle(workflow_paths: List[str], output_dir: str) -> None:
-    """
-    Validate workflows using the Oracle Policy Engine.
-    
-    Args:
-        workflow_paths: List of paths to workflow files
-        output_dir: Directory to save validation logs
-    """
-    oracle = OraclePolicyEngine()
-    logs_dir = Path(output_dir) / "logs"
-    
-    print("Validating workflows with Oracle Policy Engine...")
-    
-    for i, path in enumerate(workflow_paths):
-        with open(path, 'r') as f:
-            workflow = json.load(f)
-        
-        # Validate the workflow
-        is_valid, violations = oracle.validate(workflow)
-        
-        # Create a validation log
-        log_entry = {
-            "workflow_id": workflow.get("id", Path(path).stem),
-            "is_valid": is_valid,
-            "violations": violations,
-            "validation_count": len(violations)
-        }
-        
-        log_filename = f"validation_{Path(path).stem}.json"
-        log_path = logs_dir / log_filename
-        
-        with open(log_path, 'w') as f:
-            json.dump(log_entry, f, indent=2)
-        
-        if (i + 1) % 100 == 0:
-            print(f"  Validated {i + 1}/{len(workflow_paths)} workflows")
-    
-    print(f"Validation complete. Logs saved to {logs_dir}")
+DEFAULT_SEED = 42
+DEFAULT_N_WORKFLOWS = 500
+DEFAULT_DEPTHS = [1, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20]
 
+_ARRAY_PROP_HINTS = ("workflows", "logs", "executions", "records", "results")
 
-def execute_full_context(workflow_paths: List[str], output_dir: str) -> None:
-    """
-    Execute workflows using the Full Context Engine.
-    
-    Args:
-        workflow_paths: List of paths to workflow files
-        output_dir: Directory to save execution logs
-    """
-    engine = FullContextEngine()
-    logs_dir = Path(output_dir) / "logs"
-    
-    print("Executing workflows with Full Context Engine...")
-    
-    for i, path in enumerate(workflow_paths):
-        with open(path, 'r') as f:
-            workflow = json.load(f)
-        
-        # Execute the workflow
-        result = engine.execute(workflow)
-        
-        # Save execution log
-        log_filename = f"execution_{Path(path).stem}.json"
-        log_path = logs_dir / log_filename
-        
-        with open(log_path, 'w') as f:
-            json.dump(result, f, indent=2)
-        
-        if (i + 1) % 100 == 0:
-            print(f"  Executed {i + 1}/{len(workflow_paths)} workflows")
-    
-    print(f"Execution complete. Logs saved to {logs_dir}")
+def _fail(message: str) -> None:
+    print(f"ERROR [main]: {message}", file=sys.stderr, flush=True)
+    sys.exit(1)
 
+def _run_command(cmd: List[object], description: str) -> None:
+    cmd_strs = [str(c) for c in cmd]
+    print(f"[main] {description}: {' '.join(cmd_strs)}", flush=True)
+    result = subprocess.run(cmd_strs, cwd=str(ROOT))
+    if result.returncode != 0:
+        _fail(f"{description} failed with exit code {result.returncode}")
 
-def main():
-    """Main entry point for the orchestrator."""
-    parser = argparse.ArgumentParser(
-        description="llmXive Foundation Protocol Orchestrator"
-    )
-    parser.add_argument(
-        "--num-workflows",
-        type=int,
-        default=100,
-        help="Number of synthetic workflows to generate (default: 100)"
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="data/raw",
-        help="Output directory for generated data (default: data/raw)"
-    )
-    parser.add_argument(
-        "--seed",
-        type=int,
-        default=42,
-        help="Random seed for reproducibility (default: 42)"
-    )
-    parser.add_argument(
-        "--validate",
-        action="store_true",
-        help="Run Oracle validation on generated workflows"
-    )
-    parser.add_argument(
-        "--execute",
-        action="store_true",
-        help="Run Full Context execution on generated workflows"
-    )
-    
-    args = parser.parse_args()
-    
-    # Ensure output directory is absolute path
-    output_dir = str(Path(args.output_dir).resolve())
-    
-    print("=" * 60)
-    print("llmXive Foundation Protocol Orchestrator")
-    print("=" * 60)
-    print(f"Output directory: {output_dir}")
-    print(f"Number of workflows: {args.num_workflows}")
-    print(f"Random seed: {args.seed}")
-    print(f"Validation: {'enabled' if args.validate else 'disabled'}")
-    print(f"Execution: {'enabled' if args.execute else 'disabled'}")
-    print("=" * 60)
-    
-    # Step 1: Generate workflows
-    workflow_paths = generate_workflows(
-        num_workflows=args.num_workflows,
-        output_dir=output_dir,
-        seed=args.seed
-    )
-    
-    # Step 2: Validate with Oracle (if requested)
-    if args.validate:
-        validate_with_oracle(workflow_paths, output_dir)
-    
-    # Step 3: Execute with Full Context (if requested)
-    if args.execute:
-        execute_full_context(workflow_paths, output_dir)
-    
-    print("=" * 60)
-    print("Orchestration complete!")
-    print(f"Workflows saved to: {output_dir}/workflows")
-    if args.validate or args.execute:
-        print(f"Logs saved to: {output_dir}/logs")
-    print("=" * 60)
+def _require_file(path: Path, description: str) -> None:
+    if not path.is_file():
+        _fail(f"{description} did not produce output file at {path}")
+    if path.stat().st_size == 0:
+        _fail(f"{description} produced an EMPTY output file at {path}")
+
+def _load_schema(schema_path: Path, description: str) -> Dict[str, Any]:
+    if not schema_path.is_file():
+        _fail(f"schema contract {schema_path} is missing for {description}")
+    try:
+        return yaml.safe_load(schema_path.read_text(encoding="utf-8"))
+    except yaml.YAMLError as exc:
+        _fail(f"could not parse schema {schema_path}: {exc}")
+
+def _adapt_schema_to_instance(schema: Dict[str, Any], data: Any, description: str) -> Dict[str, Any]:
+    if not (isinstance(data, list) and schema.get("type") == "object"):
+        return schema
+    props = schema.get("properties") or {}
+    chosen = None
+    for hint in _ARRAY_PROP_HINTS:
+        prop = props.get(hint)
+        if isinstance(prop, dict) and prop.get("type") == "array":
+            chosen = hint
+            break
+    if chosen is None:
+        for name, prop in props.items():
+            if isinstance(prop, dict) and prop.get("type") == "array":
+                chosen = name
+                break
+    if chosen is None:
+        _fail(f"contract for {description} is object-typed but exposes no array property")
+    prop = props[chosen]
+    adapted = {"type": "array", "items": prop.get("items", {})}
+    for key in ("minItems", "maxItems", "uniqueItems"):
+        if key in prop: adapted[key] = prop[key]
+    return adapted
+
+def validate_against_schema(data_path: Path, schema_path: Path, description: str) -> None:
+    schema = _load_schema(schema_path, description)
+    try:
+        with open(data_path, "r", encoding="utf-8") as fh:
+            data = json.load(fh)
+    except (OSError, json.JSONDecodeError) as exc:
+        _fail(f"could not read/parse {data_path}: {exc}")
+    schema = _adapt_schema_to_instance(schema, data, description)
+    try:
+        jsonschema.validate(instance=data, schema=schema)
+    except jsonschema.ValidationError as exc:
+        _fail(f"schema validation FAILED for {description}: {exc.message}")
+    print(f"[main] schema validation PASSED for {description}", flush=True)
+
+def step_generate(args: argparse.Namespace) -> None:
+    DATA_RAW.mkdir(parents=True, exist_ok=True)
+    generator_script = CODE_DIR / "generators" / "synthetic_workflow.py"
+    _run_command([sys.executable, generator_script, "--count", str(args.n_workflows), "--seed", str(args.seed), "--output", WORKFLOWS_PATH], "Workflow generation")
+    _require_file(WORKFLOWS_PATH, "Workflow generation")
+    validate_against_schema(WORKFLOWS_PATH, WORKFLOW_SCHEMA, "generated workflows")
+
+def step_compress(args: argparse.Namespace) -> None:
+    DATA_PROC.mkdir(parents=True, exist_ok=True)
+    full_engine = CODE_DIR / "engines" / "full_context.py"
+    _run_command([sys.executable, full_engine, "--workflow", WORKFLOWS_PATH, "--output", FULL_LOGS_PATH], "Full-context execution")
+    _require_file(FULL_LOGS_PATH, "Full-context execution")
+    validate_against_schema(FULL_LOGS_PATH, EXECUTION_LOG_SCHEMA, "full-context logs")
+
+    compressed_engine = CODE_DIR / "engines" / "compressed_context.py"
+    depth_tokens = [str(d) for d in args.depths]
+    _run_command([sys.executable, compressed_engine, "--workflow", WORKFLOWS_PATH, "--depths", *depth_tokens, "--output", COMPRESSED_LOGS_PATH], "Compressed-context execution")
+    _require_file(COMPRESSED_LOGS_PATH, "Compressed-context execution")
+    validate_against_schema(COMPRESSED_LOGS_PATH, EXECUTION_LOG_SCHEMA, "compressed-context logs")
+
+def step_analyze() -> None:
+    DATA_RESULTS.mkdir(parents=True, exist_ok=True)
+    if str(CODE_DIR) not in sys.path:
+        sys.path.insert(0, str(CODE_DIR))
+    try:
+        from analysis.tradeoff_model import main as run_analysis_pipeline
+        run_analysis_pipeline()
+    except ImportError as exc:
+        _fail(f"could not import the analysis pipeline: {exc}")
+    _require_file(TRADEOFF_CSV_PATH, "Analysis - CSV")
+    _require_file(THRESHOLD_REPORT_PATH, "Analysis - Threshold JSON")
+
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="python code/main.py")
+    parser.add_argument("--generate", action="store_true")
+    parser.add_argument("--compress", action="store_true")
+    parser.add_argument("--analyze", action="store_true")
+    parser.add_argument("--n-workflows", type=int, default=DEFAULT_N_WORKFLOWS)
+    parser.add_argument("--seed", type=int, default=DEFAULT_SEED)
+    parser.add_argument("--depths", type=int, nargs="+", default=DEFAULT_DEPTHS)
+    return parser
+
+def main(argv: Optional[List[str]] = None) -> int:
+    os.chdir(ROOT)
+    parser = build_parser()
+    args = parser.parse_args(argv)
+    if not any([args.generate, args.compress, args.analyze]):
+        parser.print_help()
+        return 0
+    if args.generate: step_generate(args)
+    if args.compress: step_compress(args)
+    if args.analyze: step_analyze()
+    print("[main] Pipeline finished successfully.", flush=True)
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

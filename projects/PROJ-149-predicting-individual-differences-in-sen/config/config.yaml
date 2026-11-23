@@ -1,0 +1,30 @@
+# Configuration for EEG Sensory Speed Prediction Pipeline
+# This file defines paths, filter parameters, and frequency bands.
+
+# Project Paths
+paths:
+  raw_data: data/raw
+  interim_data: data/interin
+  processed_data: data/processed
+  figures: figures
+  config: config
+
+# EEG Filtering Parameters
+filter_params:
+  bandpass_low: 1.0
+  bandpass_high: 40.0
+  notch_freq: 50.0
+  variance_threshold_sd: 3.0
+  ica_components: 20
+
+# Frequency Band Definitions (Hz)
+band_freqs:
+  delta: [1.0, 4.0]
+  theta: [4.0, 8.0]
+  alpha: [8.0, 13.0]
+  low_beta: [13.0, 20.0]
+  high_beta: [20.0, 30.0]
+  gamma: [30.0, 40.0]
+
+# Random Seed
+seed: 42

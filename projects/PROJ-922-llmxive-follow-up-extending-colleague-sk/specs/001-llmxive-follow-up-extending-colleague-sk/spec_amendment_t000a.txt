@@ -1,0 +1,16 @@
+# Spec Amendment Text Block for Insertion (Task T000a)
+
+## Amendment 1: Functional Requirement FR-006
+**Original Text**: "The system must perform statistical analysis using a Linear Mixed-Effects Model (LMM)..."
+**Replacement Text**: "The system must perform statistical analysis using a Generalized Linear Mixed Model (GLMM) to handle mixed outcomes (binary/continuous)."
+**Rationale**: The original LMM assumption is insufficient for binary outcomes (Heuristic Adherence, Hallucination Rate) and continuous outcomes (Style Consistency). GLMM provides the necessary link functions (logit for binary, identity for continuous) to model these mixed data types within a unified framework, ensuring statistical validity for the proposed study design.
+
+## Amendment 2: Assumptions and Constraints (Scale)
+**Original Text**: "The study is conducted on a scale of 50 profiles × 200 tasks."
+**Replacement Text**: "The study is conducted on a reduced scale of 10 profiles × 50 tasks (500 combinations × 3 conditions = 1,500 runs)."
+**Rationale**: The full matrix (50 profiles × 200 tasks) exceeds the runtime and RAM constraints of the free-tier CPU-only runner (Constitution IV). The reduced scale of 10 profiles and 50 tasks is statistically powered to detect a moderate effect size (Cohen's d) with sufficient random-effect levels (10 profiles, 50 tasks) while ensuring GLMM convergence within CI limits.
+
+## Amendment 3: Statistical Analysis Plan
+**Original Text**: "Model: Linear Mixed-Effects Model (LMM)."
+**Replacement Text**: "Model: Generalized Linear Mixed Model (GLMM). Formula: metric ~ condition + (1 | profile_id) + (1 | task_id). Fixed Effects: Condition (Monolithic, Separated, Generic). Random Effects: Profile ID, Task ID. Outcomes: Heuristic Adherence (Binomial, Logit link), Hallucination Rate (Binomial, Logit link), Style Consistency (Gaussian, Identity link)."
+**Rationale**: Aligns the analysis plan with the amended FR-006 and the reduced scale assumption, ensuring the statistical method matches the data types and computational constraints.

@@ -1,254 +1,183 @@
+---
+description: "Task list for Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases"
+---
+
 # Tasks: Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases
 
-**Input**: Design documents from `/specs/001-predicting-molecular-reactivity/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001a [P] Create data directories: `data/raw`, `data/processed`, `data/assets`
-- [ ] T001b [P] Create code and artifact directories: `code`, `artifacts`, `tests`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `torch`, `rdkit`, `scikit-learn`, `pandas`, `datasets`, `networkx`, `psutil`)
-- [ ] T003 [P] Configure linting (flake8/ruff) and formatting (black) tools
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contracts, and the research question.  
+**Goal**: Deliver a reproducible, CPU‑first end‑to‑end pipeline that (1) downloads and preprocesses QM9, (2) trains two lightweight GNNs and a Random‑Forest baseline, (3) performs feature‑attribution and external validation, and (4) archives all artifacts for hand‑off.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0 – Project Setup & Infrastructure
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T001 [P] **Create core directories**  
+  `data/raw`, `data/processed`, `data/assets`, `code`, `artifacts`, `tests` (add a `.gitkeep` in each).  
+  **Verification**: `git ls-files` shows the directories and a `.gitkeep` file inside each.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T002 [P] **Add linting configuration and run checks**   <!-- FAILED-IN-EXECUTION: code/run_lint_checks.py exit=1 -->
+  - Create a `.flake8` file at the repository root with a basic configuration (e.g., `max-line-length = 88`).  
+  - Ensure `requirements.txt` pins all required packages, `pyproject.toml` contains Black configuration, and `ruff.toml` contains ruff settings.  
+  - Execute `ruff check . --output-format=json > artifacts/ruff_report.json` **and** `black --check . > artifacts/black_report.txt`. Both commands must exit with status 0.  
+  **Verification**:  
+  1. `.flake8` exists at the repository root.  
+  2. `artifacts/ruff_report.json` contains zero violations.  
+  3. `artifacts/black_report.txt` reports “All done! ✨” with no formatting differences.
 
-- [ ] T004 [P] Implement `code/utils/loaders.py` with robust retry logic (exponential backoff) for dataset downloads; **MUST** implement orchestration logic to exit with a clear error code and log the specific failure reason after retries are exhausted, as required by spec Edge Cases.
-- [ ] T005 [P] Implement `code/utils/graph_utils.py` for molecular graph construction (SMILES → Node/Edge features)
-- [X] T006 [P] Implement `code/utils/metrics.py` for MSE, MAE, Pearson R, **paired t-test (PRIMARY per FR-006)**, and **Wilcoxon signed-rank test (SENSITIVITY)**. **CRITICAL**: Both statistical tests must be implemented to satisfy T025/T025c consumers.
-- [X] T007 [P] Create base configuration management (`code/config.py`) for random seeds and device settings (`device='cpu'`)
-- [~] T008 [P] Setup logging infrastructure to write structured logs to `artifacts/logs/` and `artifacts/metrics.json`
-- [ ] T009a [P] [FR-008] Download the curated reference set of known reactive substructures from verified source to `data/raw/reference_substructures_raw.csv` (distinct output file).
-- [ ] T009b [P] Verify checksum (SHA-256) of `data/raw/reference_substructures_raw.csv` against the source manifest.
-- [ ] T009c [P] Ingest verified data into `data/assets/reference_substructures.csv` with schema validation.
-- [ ] T009d [P] [FR-009] Download the external kinetic dataset (≥20 molecules) from verified source to `data/raw/kinetic_dataset_raw.csv` (distinct output file).
-- [ ] T009e [P] Verify checksum (SHA-256) of `data/raw/kinetic_dataset_raw.csv` against the source manifest.
-- [ ] T009f [P] Ingest verified data into `data/assets/kinetic_dataset.csv` with schema validation.
-- [ ] T009g [P] Implement **curation logic** for both reference sets: Verify source literature matches "known reactive" criteria (for T009a/c) and "experimental reaction rates" criteria (for T009d/f) before final ingestion. Log validation results to `artifacts/curation_validation.log`.
+- [ ] T003 [P] **Define empty checksum manifest**  
+  - Create `data/raw/checksums.json` containing exactly an empty JSON array: `[]`.  
+  - No entries are added at this stage; the file must validate against `contracts/checksums.schema.yaml` (fields `file_path` and `sha256`).  
+  **Verification**: JSON‑schema validation passes and the file’s content is `[]`.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T004 [US1] **Download QM9 subset & record its checksum**  
+  Stream the QM9 dataset (≈100 k molecules) via `torch_geometric.datasets.QM9` to `data/raw/qm9_subset.parquet`. Compute its SHA‑256 hash and **append** an entry to `data/raw/checksums.json` with fields `file_path: "data/raw/qm9_subset.parquet"` and `sha256`.  
+  **Verification**: `data/raw/qm9_subset.parquet` exists, is non‑empty, the hash entry matches the computed value, and schema validation succeeds.
 
----
+- [ ] T005 [US1] **Curate reference substructures CSV & record its checksum**  
+  - Place the curated reference substructures (50 rows, columns `smiles,source_doi,description`) at `data/raw/reference_substructures_raw.csv`.  
+  - Compute its SHA‑256 hash and **add** a corresponding entry to `data/raw/checksums.json` (`file_path: "data/raw/reference_substructures_raw.csv"`).  
+  **Verification**: CSV exists with required columns, checksum entry is present, and `checksums.json` validates against the schema.
 
-## Phase 3: User Story 1 - CPU-Feasible Data Ingestion and Preprocessing (Priority: P1) 🎯 MVP
+- [ ] T006 [US1] **Curate kinetic dataset CSV & record its checksum**  
+  - Place the external kinetic dataset (≥20 molecules, columns `smiles,reaction_rate,reaction_type,source_doi`) at `data/raw/kinetic_dataset_raw.csv`.  
+  - Compute its SHA‑256 hash and **append** an entry to `data/raw/checksums.json`.  
+  **Verification**: CSV exists with required columns, checksum entry is present, and schema validation passes.
 
-**Goal**: Download QM9 subset and preprocess into graph structures using only CPU resources, ensuring memory safety.
+- [ ] T007 [P] **Validator script & run**  
+  Implement `code/utils/validator.py` that reads `checksums.json`, recomputes SHA‑256 for each listed file, and writes a pass/fail report to `artifacts/validation_report.json`. Run it as a CI step.  
+  **Verification**: `artifacts/validation_report.json` reports “all files verified”.
 
-**Independent Test**: The pipeline can be fully tested by executing the data download and preprocessing script on a CPU-only runner and verifying that the output graph objects are correctly formed and fit within memory limits.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T010 [P] [US1] Unit test for SMILES parsing and exclusion logic in `tests/unit/test_parsing.py`
-- [ ] T011 [P] [US1] Integration test for full download → preprocess flow in `tests/integration/test_data_pipeline.py`
-
-### Implementation for User Story 1
-
-- [ ] T012 [US1] Implement `code/01_download_data.py` to fetch QM9 subset (via `datasets.load_dataset` or verified URL) with error handling and retry logic
-- [ ] T013 [US1] Implement the preprocessing script to convert SMILES to graphs using RDKit (Node: atomic number, hybridization, formal charge; Edge: bond type, conjugation)
-- [ ] T014a [US1] **Implement runtime detection mechanism**: Add memory profiler hook using `psutil` within `code/02_preprocess_graphs.py`. **Condition**: `if psutil.virtual_memory().percent > 80` (approx 4GB limit) triggers the sampling logic.
-- [ ] T014b [US1] **Implement subset sampling strategy**: Add logic in `code/02_preprocess_graphs.py` that reduces batch size or molecule count when triggered by T014a's hook, logging the adjustment to `artifacts/memory_adjustments.log`.
-- [ ] T015 [US1] Implement Murcko scaffold splitting logic (standard train-test split) in `code/02_preprocess_graphs.py`
-- [ ] T016 [US1] Serialize preprocessed graphs to `data/processed/` (`.parquet` or `.pkl`) with derivation logs
-- [ ] T017 [US1] Add validation to ensure excluded invalid SMILES count is < 0.1% and **generate structured artifact** `artifacts/exclusion_report.json` containing the specific count and percentage.
-- [ ] T017a [US1] **Explicit Artifact Generation**: Implement logic in `code/02_preprocess_graphs.py` to write the `exclusion_report.json` file to `artifacts/` upon completion, ensuring the report is a persisted artifact containing `total_molecules`, `excluded_count`, `exclusion_percentage`, and `timestamp`, strictly satisfying the "report" requirement of FR-001 and Edge Cases.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T018 [P] **Pin random seeds & verify deterministic execution**  
+  Create `code/config.py` that sets fixed seeds for Python `random`, NumPy, and PyTorch (`torch.manual_seed`). Add a small sanity script that generates a reproducible random tensor and writes its value to `artifacts/seed_check.txt`. Verify that re‑running the script produces the same value.  
+  **Verification**: `artifacts/seed_check.txt` contains the same number on consecutive runs.
 
 ---
 
-## Phase 4: User Story 2 - Lightweight Model Training and Baseline Comparison (Priority: P2)
+## Phase 1 – Data Acquisition & Integrity (Preprocessing)
 
-**Goal**: Train lightweight Spectral GNN, Heterophily-aware GNN, and Random Forest baseline; compare performance.
+- [ ] T008 [US1] **Preprocess QM9 to graph objects**  
+  `code/data/preprocess.py` streams `qm9_subset.parquet`, converts each SMILES to a `torch_geometric.data.Data` object using RDKit (node features: atomic number, hybridization, formal charge, num_neighbors; edge features: bond type, conjugation, in_ring).  
+  - Generates `artifacts/exclusion_report.json` (invalid SMILES < 0.1 % of total).  
+  - Generates `artifacts/memory_adjustment.log` (any batch‑size reductions when RAM > 4 GB).  
+  - Outputs `data/processed/graphs_intermediate.pt`.  
+  **Verification**: Files exist, exclusion count < 0.1 %, and the intermediate file loads with `torch.load`.
 
-**Independent Test**: The training and evaluation loop can be tested independently by running the training script for a fixed number of epochs and verifying that both models converge and produce metric logs.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T018 [P] [US2] Unit test for model architecture initialization (CPU mode) in `tests/unit/test_models.py`
-- [ ] T019 [P] [US2] Integration test for training loop convergence in `tests/integration/test_training.py`
-
-### Implementation for User Story 2
-
-- [ ] T020 [US2] Implement lightweight Spectral GNN architecture in `code/models/spectral_gnn.py` (CPU-only, no CUDA)
-- [ ] T021 [US2] Implement Heterophily-aware GNN architecture in `code/models/hetero_gnn.py` (based on VR-GNN principles, CPU-only)
-- [ ] T022 [US2] Implement Random Forest baseline using Morgan fingerprints in `code/models/random_forest_baseline.py`
-- [ ] T023 [US2] Implement `code/train_models.py` to train all three models for a sufficient number of epochs (with early stopping) targeting the prediction of DFT-derived properties.
-- [ ] T024 [US2] Implement `code/04_evaluate.py` to generate predictions and compute MSE, MAE, Pearson R for all models
-- [ ] T025 [US2] Implement `code/utils/metrics.py` function for **paired t-test** (PRIMARY per FR-006) to statistically compare GNN vs. RF errors on prediction residuals.
-- [ ] T025c [US2] Implement `code/utils/metrics.py` function for **Wilcoxon signed-rank test** (SENSITIVITY) to statistically compare GNN vs. RF errors.
-- [ ] T026 [US2] Log all model weights and metrics to `artifacts/` and `artifacts/metrics.json`
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T009 [US1] **Murcko scaffold split & final graph serialization**  
+  `code/data/split.py` loads `graphs_intermediate.pt`, performs Murcko scaffold splitting (80 % train + val, 20 % test), writes split index tensors to `data/processed/splits/train_indices.pt`, `val_indices.pt`, `test_indices.pt`, and creates the final dataset `data/processed/graphs.pt` that conforms to `contracts/dataset.schema.yaml`.  
+  **Verification**: All four files exist; loading `graphs.pt` yields graph objects each with a valid `split` field; schema validation passes.
 
 ---
 
-## Phase 5: User Story 3 - Feature Attribution and Interpretability Analysis (Priority: P3)
+## Phase 2 – Model Implementation & Training
 
-**Goal**: Identify structural/electronic features contributing to predictions and validate against curated references.
+- [ ] T010 [US2] **Model definitions**  
+  Add three modules under `code/models/`:  
+  - `spectral_gnn.py` (lightweight spectral GNN, CPU‑only).  
+  - `hetero_gnn.py` (heterophily‑aware GNN based on VR‑GNN, CPU‑only).  
+  - `rf_baseline.py` (Random Forest on Morgan fingerprints).  
+  Each module exports a `train` function and a `predict` function.  
+  **Verification**: Files import without error (`python -c "import code.models.spectral_gnn"` etc.).
 
-**Independent Test**: The attribution analysis can be tested by running the GNNExplainer on a subset of molecules and verifying valid importance scores against the curated reference set.
+- [ ] T027 [US2] **Shared hyper‑parameter grid search**  
+  Perform a **grid search** over learning rate ∈ {1e‑3,5e‑4} and hidden dimension ∈ {64,128} using 5‑fold cross‑validation on the training split. Select the best configuration (based on validation MAE) and write the chosen values to `code/config.py` so that all three models use identical hyper‑parameters and comparable training budgets.  
+  **Verification**: `code/config.py` contains `LEARNING_RATE` and `HIDDEN_DIM` fields matching the selected best config; a log `artifacts/hyperparam_search.log` records the search results.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T011‑a [US2] **Train Spectral GNN**  
+  `code/train/train_spectral.py` loads `graphs.pt`, trains the Spectral GNN with early stopping (patience = 5), monitors RAM (reduces batch size if > 4 GB), and saves best weights to `artifacts/models/best_spectral_gnn.pt`.  
+  **Verification**: Checkpoint file exists and training log records early‑stopping event.
 
-- [ ] T027 [P] [US3] Unit test for attribution score calculation in `tests/unit/test_attribution.py`
-- [ ] T028 [P] [US3] Contract test for attribution output schema in `tests/contract/test_attribution_schema.py`
+- [ ] T011‑b [US2] **Train Heterophily‑aware GNN**  
+  `code/train/train_hetero.py` performs analogous training for the heterophily‑aware model, saving to `artifacts/models/best_hetero_gnn.pt`.  
+  **Verification**: Checkpoint file exists and early‑stopping log present.
 
-### Implementation for User Story 3
+- [ ] T011‑c [US2] **Train Random Forest baseline**  
+  `code/train/train_rf.py` computes Morgan fingerprints (radius 2, nBits = 2048) from the training split, trains a Random Forest with early stopping on validation MAE, and saves the model to `artifacts/models/best_rf.pkl`.  
+  **Verification**: Model file exists and validation MAE improvement log is present.
 
-- [ ] T029 [US3] Implement `code/05_attribution.py` using GNNExplainer or gradient-based methods to generate importance scores
-- [ ] T030 [US3] Load curated reference set of known reactive substructures from `data/assets/reference_substructures.csv` (produced by T009c)
-- [ ] T031 [US3] Implement logic to aggregate importance scores across the dataset and rank the most significant structural/electronic features.
-- [ ] T032a [US3] **Define and produce filtered kinetic dataset**: Create `data/assets/reaction_type_lookup.csv` defining reaction types where HOMO-LUMO gap is a dominant predictor (e.g., nucleophilic attacks). Load `data/assets/kinetic_dataset.csv` (produced by T009f) and filter using the lookup table. Save result to `data/processed/kinetic_filtered.csv` and log the filtering criteria to `artifacts/mechanistic_consistency_log.json`.
-- [ ] T033 [US3] Load the filtered kinetic dataset from `data/processed/kinetic_filtered.csv` (produced by T032a); validate correlation between predicted gap and experimental rates only on this filtered subset. **MUST** document the application of the mechanistic consistency check in the output report.
-- [ ] T034 [US3] Generate attribution maps and validation reports in `artifacts/`
+- [ ] T011‑d [US2] **Generate predictions for test set**  
+  `code/train/predict_test.py` loads the three trained models, runs inference on the test split, and writes `artifacts/predictions.json` conforming to `contracts/model-output.schema.yaml`.  
+  **Verification**: Prediction file exists and schema validation passes.
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T011‑e [US2] **Compute evaluation metrics**  
+  `code/eval/compute_metrics.py` reads `artifacts/predictions.json`, calculates MSE, MAE, and Pearson R for each model, and writes `artifacts/metrics.json` (conforms to `contracts/metrics.schema.yaml`).  
+  **Verification**: Metrics file exists and schema validation passes.
 
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T035 [P] Documentation updates in `docs/` (include `quickstart.md` with run instructions)
-- [ ] T036 Code cleanup and refactoring to ensure type hints and docstrings are complete
-- [ ] T037 Performance optimization: Verify end-to-end runtime ≤ 6 hours and memory ≤ 4 GB on CI
-- [ ] T038 [P] Additional unit tests for edge cases (invalid SMILES, download failures) in `tests/unit/`
-- [ ] T039 Run `quickstart.md` validation to ensure all artifacts are reproducible
-- [ ] T040 Verify `state/` YAML is updated with SHA-256 hashes of final artifacts
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 (requires preprocessed data)
-- **User Story 3 (P3)**: Depends on US2 (requires trained models)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T011‑f [US2] **Run statistical tests**  
+  `code/eval/run_stats.py` performs a paired t‑test (GNN vs RF) and a Fisher‑Z test on Pearson R, applies Bonferroni correction (α = 0.05), and appends the results to `artifacts/metrics.json` under `statistical_tests`.  
+  **Verification**: Statistical test entries are present with `p_value`, `is_significant`, and `alpha_adjusted` fields.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 3 – Interpretability & External Validation
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for SMILES parsing and exclusion logic in tests/unit/test_parsing.py"
-Task: "Integration test for full download → preprocess flow in tests/integration/test_data_pipeline.py"
+- [ ] T012 [US3] **Feature attribution & alignment scoring**  
+  `code/interpret/attribution_and_alignment.py` runs GNNExplainer on a random 100‑molecule subset of the test set, outputs `artifacts/attribution_maps.json` (conforms to `contracts/attribution.schema.yaml`).  
+  - Compares top‑5 substructures per molecule to `data/raw/reference_substructures_raw.csv`, computes:  
+    * `alignment_score` (mean‑max Tanimoto similarity),  
+    * `recall_at_k`,  
+    * `null_model_score`.  
+  - Writes `artifacts/alignment_score.json` and asserts `alignment_score ≥ 0.7`.  
+  **Verification**: Files exist, schema validation passes, and the alignment threshold is met.
 
-# Launch all models for User Story 1 together:
-Task: "Implement code/01_download_data.py to fetch QM9 subset..."
-Task: "Implement code/02_preprocess_graphs.py to convert SMILES to graphs..."
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2 (waiting for data)
- - Developer C: User Story 3 (waiting for models)
-3. Stories complete and integrate independently
+- [ ] T013 [US3] **Kinetic‑dataset proxy validation**  
+  `code/interpret/kinetic_validation.py` loads `data/raw/kinetic_dataset_raw.csv` and test‑set predictions from `artifacts/predictions.json`, computes Pearson correlation between predicted HOMO‑LUMO gaps and experimental reaction rates, and writes `artifacts/kinetic_correlation_report.json`.  
+  - Fails with a clear error if the kinetic set contains < 20 entries.  
+  **Verification**: Report file exists, contains a `correlation` field, and the script exits successfully only when entry count ≥ 20.
 
 ---
 
-## Notes
+## Phase 4 – Archiving, Consistency & Resource Monitoring
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- [ ] T014 [P] **Archive all research artifacts**  
+  `code/utils/archive.py` creates `artifacts/final_archive.tar.gz` containing every file in `artifacts/` (models, metrics, predictions, attribution, alignment, proxy validation, statistical tests, checksum reports). It also writes `artifacts/archive_checksums.json` with SHA‑256 hashes of each archived file.  
+  **Verification**: Archive extracts correctly and all listed hashes match.
+
+- [ ] T015 [P] **Single‑Source‑of‑Truth (SSoT) validation**  
+  `code/utils/ssot.py` reads all contracts under `specs/.../contracts/`, validates that each artifact (`metrics.json`, `predictions.json`, `attribution_maps.json`, etc.) conforms to its JSON schema, and produces `artifacts/ssot_report.json` indicating overall PASS/FAIL.  
+  **Verification**: Report exists and reports “PASS”.
+
+- [ ] T016 [P] **Runtime & memory monitoring**  
+  Wrap the full pipeline (from T004 through T015) with a timing utility (`code/utils/timer.py`) that records start/end timestamps and peak resident memory (using `psutil`).  
+  - Write `artifacts/runtime_report.json` containing `total_seconds` (assert ≤ 21600).  
+  - Write `artifacts/memory_report.json` containing `peak_mb` (assert ≤ 4096).  
+  **Verification**: Both JSON files exist and the recorded values satisfy the limits.
+
+- [ ] T017 [P] **Unit & integration test suite**  
+  Populate `tests/unit/` with tests for each module (model init, preprocessing, split, validator, attribution) and `tests/integration/` with an end‑to‑end test that runs the full workflow on a tiny sample (first 100 molecules).  
+  - Run `pytest --cov > artifacts/coverage_report.txt` and require coverage ≥ 80 % and no failures.  
+  **Verification**: Test suite executes, `artifacts/coverage_report.txt` exists with coverage ≥ 80 %, and CI passes.
+
+---
+
+## Dependency & Execution Order Summary
+
+| Task   | Depends On |
+|--------|------------|
+| T001   | – |
+| T002   | T001 |
+| T003   | T001 |
+| T004   | T003 |
+| T005   | T003 |
+| T006   | T003 |
+| T007   | T004‑T006 |
+| T008   | T004, T007 |
+| T009   | T008 |
+| T010   | – |
+| T018   | T002 |
+| T027   | T010, T009 |
+| T011‑a | T009, T010, T027 |
+| T011‑b | T009, T010, T027 |
+| T011‑c | T009, T010, T027 |
+| T011‑d | T011‑a, T011‑b, T011‑c |
+| T011‑e | T011‑d |
+| T011‑f | T011‑e |
+| T012   | T011‑f |
+| T013   | T011‑f |
+| T014   | T012‑T013 |
+| T015   | T014 |
+| T016   | T014‑T015 |
+| T017   | T015 |
+
+--- 
+
+*End of `tasks.md`.* 

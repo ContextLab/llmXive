@@ -1,61 +1,64 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "LiveCodeBench Dataset Schema"
-description: "Schema for the raw LiveCodeBench dataset loaded from HuggingFace."
+$schema: http://json-schema.org/draft-07/schema#
+title: "EvaluationTask Schema"
+description: "Schema for a single evaluation task in the Multi-LCB study."
 type: object
+required:
+  - id
+  - problem_statement
+  - target_language
+  - difficulty
+  - topic
+  - python_solution
+  - test_cases
+  - blind_fail_count
+  - selected
 properties:
-  task_id:
+  id:
     type: string
     description: "Unique identifier for the task."
   problem_statement:
     type: string
-    description: "The problem description text."
-  difficulty:
-    type: string
-    enum:
-      - Easy
-      - Medium
-      - Hard
-    description: "Difficulty level of the task."
-  topic:
-    type: string
-    description: "Algorithmic topic (e.g., DP, Graphs)."
-  python_solution:
-    type: string
-    description: "Ground-truth Python solution."
+    description: "Text of the problem description."
   target_language:
     type: string
-    description: "The target language for the experiment (e.g., Rust, Kotlin)."
-  target_solution:
+    description: "Target language for code generation (e.g., 'rust', 'kotlin')."
+    enum:
+      - "rust"
+      - "kotlin"
+      - "go"
+      - "python"
+  difficulty:
     type: string
-    description: "Ground-truth solution in the target language (optional)."
+    description: "Difficulty level of the task."
+    enum:
+      - "Easy"
+      - "Medium"
+      - "Hard"
+  topic:
+    type: string
+    description: "Algorithmic topic of the task."
+  python_solution:
+    type: string
+    description: "Ground-truth Python solution code."
   test_cases:
     type: array
     description: "List of test cases (input, expected_output)."
     items:
       type: object
+      required:
+        - input
+        - expected_output
       properties:
         input:
           type: string
         expected_output:
           type: string
-      required:
-        - input
-        - expected_output
-  invariant_tests:
-    type: array
-    description: "Subset of test cases used for invariant checking (edge cases)."
-    items:
-      type: object
-      properties:
-        input:
-          type: string
-        expected_output:
-          type: string
-      required:
-        - input
-        - expected_output
-required:
-  - task_id
-  - problem_statement
-  - python_solution
-  - test_cases
+  blind_fail_count:
+    type: integer
+    minimum: 0
+    maximum: 3
+    description: "Number of times the blind run failed (0-3)."
+  selected:
+    type: boolean
+    description: "True if the task passed the stochasticity filter."
+additionalProperties: false

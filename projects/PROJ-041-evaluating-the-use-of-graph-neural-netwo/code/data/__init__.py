@@ -1,2 +1,1 @@
-# code/data package
-# Contains modules for data ingestion, preprocessing, and splitting.
+"""Data acquisition and preprocessing scripts."""

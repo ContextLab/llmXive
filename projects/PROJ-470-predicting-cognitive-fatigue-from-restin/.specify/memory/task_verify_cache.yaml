@@ -1,23 +1,62 @@
-T014:
+T001:
   c: false
-  h: 450a9b9809d51304ba87dad884f104f512be838570fd42d80c42efc8a5dbcbda
-  r: The `code/features.py` file is incomplete (the `calculate_lzc` function ends
-    abruptly and the script is truncated), and the required output file `data/processed/lzc_metrics.csv`
-    does not exist. Both the implementation and the expected CSV artifact are missing,
-    so the task is not satisfied.
-T015:
+  h: c090ed0c0cd6b4fa6de1afa972eac7121521c1a1c456b8a418d53b57619521ae
+  r: "The required directories are present, but the verification test `tests/unit/test_setup.py`\
+    \ that should confirm the structure is missing, so the task\u2019s stated verification\
+    \ step is not satisfied."
+  sig: ef5effe5b313563fa99ccde9fbe053090e0fd57c820f6de8743466c888f8dcf7
+T006:
   c: false
-  h: 7e1589574656a8920f9e8a8b04f256df5f2fce3be363a301efca9b29d6291643
-  r: "The repository contains a partially shown `code/features.py` that focuses on\
-    \ Lempel\u2011Ziv complexity and is truncated (the implementation ends abruptly\
-    \ and never defines permutation entropy calculation or any CSV output). Moreover,\
-    \ the required output file `data/processed/pe_metrics.csv` is missing entirely.\
-    \ Hence the task of computing permutation entropy per channel and writing the\
-    \ results to the specified CSV has not been fulfilled."
-T027:
+  h: 564ebc9cedad23a0e1609502879aafe8552f9536995795c65d312c7cbf2b8743
+  r: "The repository contains `code/utils/logging.py` and a unit\u2011test file, but\
+    \ the logging functions never write to `data/processed/exclusion_log.csv` (the\
+    \ file is missing and `save_rejection_summary` is truncated/unfinished). Moreover,\
+    \ required helpers like `get_rejection_counts` are not defined, so the provided\
+    \ tests would fail. The task\u2019s core requirement\u2014creating a CSV log with\
+    \ the specified columns\u2014is not satisfied."
+T009:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of any new test files in `tests/unit/` was provided; the implementer\u2019\
-    s claim is unsupported and the required edge\u2011case unit tests (missing data,\
-    \ artifact rejection, analysis mode failures) are not present. The artifact is\
-    \ missing."
+  h: 6cbcd6cb76b67b3480116e1d4930b0a3562299b057fc3b3fb388b5c903d991c4
+  r: "The provided `code/download.py` is truncated and does not contain the full download,\
+    \ participant\u2011count, variable\u2011validation, or atomic manifest\u2011writing\
+    \ logic required by the task. Moreover, the expected output file `data/raw/download_manifest.json`\
+    \ is absent. The script therefore fails to meet the specified functional and output\
+    \ requirements."
+T016:
+  c: false
+  h: 9e77616cb005e9b655dcb85ad02668aa530523c36d65766c60fe652b55809bf9
+  r: "The required output file `data/analysis/complexity_metrics.csv` is missing,\
+    \ and the provided `code/features.py` is truncated (e.g., the `write_metrics_to_csv`\
+    \ function is incomplete and there is no processing loop to read the full dataset\
+    \ and generate the CSV). The task\u2019s core deliverable is therefore not present."
+T018:
+  c: true
+  h: 6331a8ecfb5079f390ae994090c8c46c4a732f07e745cb94e17f9ac904a24748
+  r: "The `code/analysis.py` file contains a non\u2011empty `validate_inputs()` function\
+    \ that checks the three required paths, prints a detailed error with missing and\
+    \ available files, and exits with status\u202F1 when any are absent, exactly as\
+    \ the task specified."
+T021:
+  c: false
+  h: b818ce7ce4c4147cb408ef2856b80b9d1e10a7a53d1b56ece7f5a75dd4aabbbc
+  r: "The repository lacks the required input files (`data/analysis/vif_valid_predictors.json`\
+    \ and `data/analysis/complexity_metrics.csv`) and does not produce the expected\
+    \ output `data/analysis/ancova_results.csv`. Moreover, the provided `code/analysis.py`\
+    \ is incomplete (truncated) and does not contain the full ANCOVA implementation\
+    \ or the exit\u2011with\u2011code\u20111 behavior required when predictors are\
+    \ invalid."
+T023:
+  c: false
+  h: c298234d782ea951fb05e72bb6d8b547139f9b405b5c6ce0c84e800a6fd5f601
+  r: "The provided `tests/unit/test_analysis.py` contains only Benjamini\u2011Hochberg\
+    \ tests and does not define a `test_vif_check` that verifies VIF calculation or\
+    \ warning logging. Additionally, the required output file `data/analysis/vif_report.csv`\
+    \ is absent. Both the test and the CSV report need to be added to satisfy the\
+    \ task."
+T028:
+  c: false
+  h: f7f608f4823cb6c02412ca266fc36c068642435f88797cdd09947162aa7daf0a
+  r: "The required artifact `data/analysis/resource_usage.json` is missing, so the\
+    \ verification step cannot be performed and the runtime constraint cannot be confirmed.\
+    \ The implementer must generate this file with a `total_runtime_hours` field \u2264\
+    \u202F6.0."

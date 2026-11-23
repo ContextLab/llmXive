@@ -1,44 +1,70 @@
 """
-Global configuration settings for the llmXive pipeline.
+Global configuration and paths for the llmXive pipeline.
 """
 import os
+import random
 from pathlib import Path
+from typing import List
 
 # Project Root
-ROOT_DIR = Path(__file__).parent.parent
-CODE_DIR = ROOT_DIR / "code"
-DATA_DIR = ROOT_DIR / "data"
-TESTS_DIR = ROOT_DIR / "tests"
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-# Data Subdirectories
-RAW_DATA_DIR = DATA_DIR / "raw"
-PROCESSED_DATA_DIR = DATA_DIR / "processed"
+# Directory Definitions
+DATA_DIR = PROJECT_ROOT / "data"
+CODE_DIR = PROJECT_ROOT / "code"
+TESTS_DIR = PROJECT_ROOT / "tests"
 ARTIFACTS_DIR = DATA_DIR / "artifacts"
+PROCESSED_DIR = DATA_DIR / "processed"
+RAW_DIR = DATA_DIR / "raw"
 FIGURES_DIR = DATA_DIR / "figures"
+LOGS_DIR = DATA_DIR / "logs"
+STATE_DIR = PROJECT_ROOT / "state" / "projects"
 
-# Random Seed for reproducibility
+# Configuration Dictionary
+CONFIG = {
+    "random_seed": 42,
+    "sensitivity_seeds": [42, 123, 456, 789, 101112],
+    "device": "cpu",
+    "batch_size": 8,
+    "max_workers": 4,
+}
+
+# Random Seeds for Reproducibility
 RANDOM_SEED = 42
-
-# Memory Limits (MB)
-MEMORY_LIMIT_MB = 7000  # 7GB limit as per constraints
-
-# Model Settings
-DEFAULT_BATCH_SIZE = 32
-MAX_BATCH_SIZE = 64
-DEVICE = "cpu"  # Force CPU for CI compatibility
-
-# Embedding Settings
-CLIP_MODEL_NAME = "clip/ViT-B/32"
-SBERT_MODEL_NAME = "sentence-transformers/all-MiniLM-L6-v2"
-
-# Paths for specific artifacts
-EMBEDDINGS_OUTPUT_PATH = PROCESSED_DATA_DIR / "embeddings_{run_id}.parquet"
-METADATA_STATS_OUTPUT_PATH = PROCESSED_DATA_DIR / "metadata_stats_summary.csv"
-SENSITIVITY_AGGREGATED_PATH = ARTIFACTS_DIR / "frozen_baseline_aggregated_{run_id}.json"
-CONDITIONED_METRICS_PATH = ARTIFACTS_DIR / "metrics_conditioned_{run_id}.json"
-CORRELATION_REPORT_PATH = ARTIFACTS_DIR / "correlation_report_{run_id}.json"
+# Explicitly pinned set of sensitivity seeds to assess initialization variability
+SENSITIVITY_SEEDS: List[int] = [42, 123, 456, 789, 101112]
 
 def ensure_directories():
-    """Ensure all required data directories exist."""
-    for directory in [RAW_DATA_DIR, PROCESSED_DATA_DIR, ARTIFACTS_DIR, FIGURES_DIR]:
-        directory.mkdir(parents=True, exist_ok=True)
+    """Ensure all required directories exist."""
+    for d in [DATA_DIR, CODE_DIR, TESTS_DIR, ARTIFACTS_DIR, PROCESSED_DIR, RAW_DIR, FIGURES_DIR, LOGS_DIR, STATE_DIR]:
+        d.mkdir(parents=True, exist_ok=True)
+
+def get_data_path(filename: str) -> Path:
+    """Get full path for a file in data/raw."""
+    return RAW_DIR / filename
+
+def get_processed_path(filename: str) -> Path:
+    """Get full path for a file in data/processed."""
+    return PROCESSED_DIR / filename
+
+def get_artifact_path(filename: str) -> Path:
+    """Get full path for a file in data/artifacts."""
+    return ARTIFACTS_DIR / filename
+
+def set_seed(seed: int = RANDOM_SEED):
+    """Set random seeds for reproducibility."""
+    random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    try:
+        import numpy as np
+        np.random.seed(seed)
+    except ImportError:
+        pass
+    try:
+        import torch
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(seed)
+            torch.cuda.manual_seed_all(seed)
+    except ImportError:
+        pass

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.04382",
+  "judged_at": "2026-07-23T04:13:40Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"researchstudio-idea: an evidence-grounded research-ideation skill suit\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same mechanism (LLM-based research ideation support) and operates on the same domain (computer science research tools) as the user's question, serving as a canonical prior work for the \"ResearchStudio-Idea\" system.",
+  "relevant": true
+}

@@ -1,70 +1,65 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Molecular Packing Dataset Schema"
+title: "Full Feature Matrix Schema"
 type: "object"
 properties:
   cod_id:
     type: "string"
-    description: "Unique identifier from COD"
+    description: "Unique identifier from the Crystallography Open Database."
   smiles:
     type: "string"
-    description: "Canonical SMILES string"
+    description: "Canonical SMILES string representing the molecular topology."
   smiles_source:
     type: "string"
-    enum: ["extracted", "generated"]
-    description: "Origin of the SMILES string"
+    enum:
+      - "extracted"
+      - "generated"
+    description: "Indicates whether the SMILES was found in metadata or generated from 3D geometry."
   unit_cell_volume:
     type: "number"
-    description: "Unit cell volume in Angstroms cubed"
-  n_atoms:
-    type: "integer"
-    minimum: 1
-    description: "Number of non-hydrogen atoms"
-  sum_vdw_volume:
+    description: "Unit cell volume in cubic Angstroms."
+  pc_raw:
     type: "number"
-    description: "Sum of atomic van der Waals volumes"
-  packing_coefficient:
+    description: "Raw Packing Coefficient (Primary Target)."
+  radius_of_gyration:
     type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Raw packing coefficient"
-  cape:
-    type: "number"
-    description: "Composition-Adjusted Packing Efficiency"
-  radius_gyration:
-    type: "number"
-    description: "Radius of gyration in Angstroms"
+    description: "Radius of gyration in Angstroms."
   asphericity:
     type: "number"
-    description: "Asphericity parameter (0 to 1)"
-  moments_inertia:
-    type: "array"
-    items:
-      type: "number"
-    minItems: 3
-    maxItems: 3
-    description: "Principal moments of inertia"
+    description: "Asphericity descriptor (0 to 1)."
+  principal_moments:
+    type: "string"
+    description: "JSON string containing the three principal moments of inertia."
   lattice_system:
     type: "string"
-    description: "Crystal lattice system"
+    description: "Crystal lattice system (e.g., monoclinic, orthorhombic)."
   temperature_K:
-    type: "number"
-    description: "Measurement temperature in Kelvin"
+    type:
+      - "number"
+      - "null"
+    description: "Measurement temperature in Kelvin, or null if missing."
   has_solvent:
     type: "boolean"
-    description: "Presence of solvent molecules"
+    description: "True if solvent molecules are present in the crystal structure."
+  atom_count:
+    type: "integer"
+    description: "Number of non-hydrogen atoms. (Excluded from primary regression)."
+  atom_type_counts:
+    type: "string"
+    description: "JSON string of atom type counts (e.g., {\"C\": 10, \"O\": 2}). (Excluded from primary regression)."
+  fingerprint_vector:
+    type: "string"
+    description: "Space-separated string of float values representing the SMILES transformer embedding."
 required:
   - cod_id
   - smiles
   - smiles_source
   - unit_cell_volume
-  - n_atoms
-  - sum_vdw_volume
-  - packing_coefficient
-  - cape
-  - radius_gyration
+  - pc_raw
+  - radius_of_gyration
   - asphericity
-  - moments_inertia
+  - principal_moments
   - lattice_system
-  - temperature_K
   - has_solvent
-additionalProperties: false
+  - atom_count
+  - atom_type_counts
+  - fingerprint_vector

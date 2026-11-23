@@ -1,3 +1,2 @@
-# State directory placeholder
-# This directory will contain:
-# - artifact_hashes.yaml: Tracking file for SHA256 checksums
+# This directory is reserved for project state files (e.g., citations.yaml, artifact_hashes.yaml).
+# Created by task T001b.

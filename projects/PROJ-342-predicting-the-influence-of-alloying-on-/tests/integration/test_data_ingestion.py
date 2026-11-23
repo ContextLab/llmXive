@@ -1,205 +1,219 @@
 """
-Integration test for Zenodo DOI reachability and data retention (US1).
+Integration test for Zenodo DOI reachability and data retention.
 
 This test verifies:
-1. The primary Zenodo DOI (10.5281/zenodo.10043838) is reachable and returns valid JSON.
-2. The fallback DOI (10.5281/zenodo.11023456) is reachable if the primary fails.
-3. The dataset contains at least one record with valid Tg and composition fields.
-4. The data retention rate is > 0% after cleaning (simulated check).
+1. The primary Zenodo DOI (10.5281/zenodo.10043838) is reachable.
+2. The fallback DOI (10.5281/zenodo.11023456) is reachable if primary fails.
+3. The data loading pipeline successfully retrieves records with non-null Tg and composition.
+4. The retention rate is calculated and logged.
+5. The cleaned data is written to disk.
 
-Note: This test requires network access. If the DOIs are unreachable, the test
-will fail loudly with a clear error message.
+This test MUST fail loudly if the real data source is unreachable.
 """
-
+import os
 import json
-import time
+import logging
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Dict, Any, Tuple
 
 import pytest
-import requests
-from requests.exceptions import RequestException, Timeout
+import pandas as pd
 
-# Import the config to get DOIs
-from config.config import get_config
+# Import the actual implementation from the project code
+from code.ingest import fetch_from_zenodo, load_and_validate_data, clean_data
+from code.config.config import get_config
 
-# Constants
-ZENODO_API_BASE = "https://zenodo.org/api/records"
-TIMEOUT_SECONDS = 30
-MIN_ROWS_REQUIRED = 1
-MIN_RETENTION_RATE = 0.0
+# Configure logging for the test run
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Primary and Fallback DOIs from tasks.md
+# Constants from tasks.md
 PRIMARY_DOI = "10.5281/zenodo.10043838"
 FALLBACK_DOI = "10.5281/zenodo.11023456"
+OUTPUT_PATH = Path("data/processed/cleaned_mg.csv")
+STATS_PATH = Path("data/ingestion_stats.json")
+
+# Ensure data directories exist
+OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+STATS_PATH.parent.mkdir(parents=True, exist_ok=True)
 
 
-def _fetch_record_metadata(doi: str) -> Optional[Dict[str, Any]]:
-    """
-    Fetch metadata for a Zenodo record by DOI.
+class TestZenodoIngestion:
+    """Integration tests for Zenodo data ingestion."""
 
-    Args:
-        doi: The DOI string (e.g., '10.5281/zenodo.10043838')
+    def test_primary_doi_reachability(self):
+        """Test that the primary Zenodo DOI is reachable and returns a record."""
+        logger.info(f"Testing reachability of primary DOI: {PRIMARY_DOI}")
+        
+        try:
+            record = fetch_from_zenodo(PRIMARY_DOI)
+            assert record is not None, "Primary DOI fetch returned None"
+            assert "files" in record, "Primary DOI record missing 'files' key"
+            assert len(record["files"]) > 0, "Primary DOI record has no files"
+            logger.info(f"Primary DOI reachable. Found {len(record['files'])} files.")
+        except Exception as e:
+            pytest.fail(f"Primary DOI {PRIMARY_DOI} is unreachable: {str(e)}")
 
-    Returns:
-        The JSON metadata dict if successful, None otherwise.
-    """
-    # Zenodo API requires the DOI to be URL-encoded or passed as a query param
-    # The standard endpoint for searching by DOI is:
-    # https://zenodo.org/api/records?q=doi:<DOI>
-    url = f"{ZENODO_API_BASE}/q/doi:{doi}"
+    def test_fallback_doi_reachability_if_primary_fails(self):
+        """Test fallback DOI if primary fails (skipped if primary succeeds)."""
+        try:
+            fetch_from_zenodo(PRIMARY_DOI)
+            logger.info("Primary DOI succeeded, skipping fallback test.")
+            return
+        except Exception:
+            logger.info("Primary DOI failed, testing fallback DOI.")
+            try:
+                record = fetch_from_zenodo(FALLBACK_DOI)
+                assert record is not None, "Fallback DOI fetch returned None"
+                assert "files" in record, "Fallback DOI record missing 'files' key"
+                logger.info(f"Fallback DOI reachable. Found {len(record['files'])} files.")
+            except Exception as e:
+                pytest.fail(f"Both primary and fallback DOIs are unreachable: {str(e)}")
 
-    try:
-        response = requests.get(url, timeout=TIMEOUT_SECONDS)
-        response.raise_for_status()
-        data = response.json()
+    def test_data_loading_and_validation(self):
+        """Test that data can be loaded and validated from the real Zenodo source."""
+        logger.info("Testing data loading and validation from Zenodo.")
+        
+        # Determine which DOI works
+        doi_to_use = None
+        for doi in [PRIMARY_DOI, FALLBACK_DOI]:
+            try:
+                fetch_from_zenodo(doi)
+                doi_to_use = doi
+                break
+            except Exception:
+                continue
 
-        if "hits" in data and "hits" in data["hits"]:
-            hits = data["hits"]["hits"]
-            if hits:
-                return hits[0]["metadata"]
-        return None
-    except (RequestException, Timeout, json.JSONDecodeError) as e:
-        pytest.fail(f"Failed to fetch metadata for DOI {doi}: {e}")
+        if not doi_to_use:
+            pytest.fail("No reachable DOI found for data loading test.")
 
+        logger.info(f"Using DOI: {doi_to_use} for data loading.")
+        record = fetch_from_zenodo(doi_to_use)
+        
+        # The ingest module expects a specific file name or structure.
+        # We assume the first file in the record is the dataset.
+        file_info = record["files"][0]
+        file_url = file_info["links"]["self"]
+        
+        # Load and validate
+        df = load_and_validate_data(file_url)
+        
+        assert df is not None, "Data loading returned None"
+        assert isinstance(df, pd.DataFrame), "Loaded data is not a DataFrame"
+        assert df.shape[0] > 0, "Loaded DataFrame is empty"
+        
+        # Check for required columns (Tg and composition)
+        # The schema might vary, but Tg is critical.
+        # Assuming 'Tg' or 'T_g' exists based on domain context.
+        tg_cols = [c for c in df.columns if 'Tg' in c or 'T_g' in c]
+        if not tg_cols:
+            # Fallback check for common variations
+            tg_cols = [c for c in df.columns if 'temperature' in c.lower()]
+        
+        assert len(tg_cols) > 0, f"Could not find Tg column in {df.columns}"
+        
+        logger.info(f"Data loaded successfully: {df.shape}")
+        return df
 
-def _fetch_dataset_files(doi: str) -> List[str]:
-    """
-    Fetch the list of file download URLs for a Zenodo record.
+    def test_data_cleaning_and_retention(self):
+        """Test the cleaning logic and retention rate calculation."""
+        logger.info("Testing data cleaning and retention.")
+        
+        # Re-load data for this test
+        doi_to_use = None
+        for doi in [PRIMARY_DOI, FALLBACK_DOI]:
+            try:
+                fetch_from_zenodo(doi)
+                doi_to_use = doi
+                break
+            except Exception:
+                continue
 
-    Args:
-        doi: The DOI string.
+        if not doi_to_use:
+            pytest.fail("No reachable DOI found for cleaning test.")
 
-    Returns:
-        A list of file URLs.
-    """
-    url = f"{ZENODO_API_BASE}/q/doi:{doi}"
+        record = fetch_from_zenodo(doi_to_use)
+        file_url = record["files"][0]["links"]["self"]
+        
+        raw_df = load_and_validate_data(file_url)
+        initial_count = len(raw_df)
+        assert initial_count > 0, "Raw data is empty"
+        
+        # Clean data
+        cleaned_df = clean_data(raw_df)
+        final_count = len(cleaned_df)
+        
+        assert final_count > 0, "Cleaned data is empty - all records dropped?"
+        assert final_count <= initial_count, "Cleaned data count exceeds raw data count"
+        
+        retention_rate = final_count / initial_count
+        logger.info(f"Retention rate: {retention_rate:.2%} ({final_count}/{initial_count})")
+        
+        assert retention_rate > 0.0, "Retention rate is zero"
+        
+        # Verify no null Tg in cleaned data
+        tg_cols = [c for c in cleaned_df.columns if 'Tg' in c or 'T_g' in c]
+        if tg_cols:
+            tg_col = tg_cols[0]
+            assert cleaned_df[tg_col].isnull().sum() == 0, "Cleaned data contains null Tg values"
+        
+        # Verify composition columns (assuming 'Composition' or similar)
+        comp_cols = [c for c in cleaned_df.columns if 'Composition' in c or 'composition' in c]
+        if comp_cols:
+            comp_col = comp_cols[0]
+            # Check for empty strings or nulls
+            null_comp = cleaned_df[comp_col].isnull().sum()
+            empty_comp = (cleaned_df[comp_col].astype(str) == "").sum()
+            assert null_comp == 0 and empty_comp == 0, "Cleaned data contains missing composition"
 
-    try:
-        response = requests.get(url, timeout=TIMEOUT_SECONDS)
-        response.raise_for_status()
-        data = response.json()
+    def test_end_to_end_ingestion_and_output(self):
+        """Full integration test: fetch, clean, save, and verify stats."""
+        logger.info("Running end-to-end ingestion test.")
+        
+        # Determine working DOI
+        doi_to_use = None
+        for doi in [PRIMARY_DOI, FALLBACK_DOI]:
+            try:
+                fetch_from_zenodo(doi)
+                doi_to_use = doi
+                break
+            except Exception:
+                continue
 
-        if "hits" in data and "hits" in data["hits"]:
-            hits = data["hits"]["hits"]
-            if hits:
-                files = hits[0].get("files", [])
-                # In Zenodo API v2, files might be under 'files' or 'metadata.files'
-                # depending on the record structure. We look for 'files' in the hit.
-                # If it's a list of dicts with 'links' -> 'self', we extract those.
-                # However, for simplicity in this test, we just check if the record
-                # has files associated.
-                # A more robust check:
-                record = hits[0]
-                # Zenodo v2 API returns 'files' as a list of objects with 'links'
-                if "files" in record:
-                    return [f["links"]["self"] for f in record["files"] if "links" in f and "self" in f["links"]]
-                # Fallback for older structures or different API versions
-                if "metadata" in record and "files" in record["metadata"]:
-                    return [f.get("links", {}).get("self") for f in record["metadata"]["files"]]
-        return []
-    except (RequestException, Timeout, json.JSONDecodeError) as e:
-        pytest.fail(f"Failed to fetch files for DOI {doi}: {e}")
+        if not doi_to_use:
+            pytest.fail("No reachable DOI found for end-to-end test.")
 
-
-def _simulate_data_loading_and_cleaning(doi: str) -> Tuple[int, int, float]:
-    """
-    Simulate the ingestion and cleaning process for the given DOI.
-    This function does NOT download the full dataset to save time/bandwidth.
-    Instead, it verifies the DOI is valid and has files, then simulates
-    the retention logic based on the assumption that the real loader would work.
-
-    In a full integration test, we would:
-    1. Download a small sample or the full file.
-    2. Run the actual cleaning logic from code/ingest.py.
-    3. Count rows.
-
-    Here, we verify the DOI is valid and has files, and assume the cleaning
-    logic would retain some data if the file exists and is not empty.
-    """
-    metadata = _fetch_record_metadata(doi)
-    if not metadata:
-        pytest.fail(f"DOI {doi} returned no metadata.")
-
-    file_urls = _fetch_dataset_files(doi)
-    if not file_urls:
-        pytest.fail(f"DOI {doi} has no downloadable files.")
-
-    # Simulate: If we have files, we assume the loader would find rows.
-    # We can't easily verify row counts without downloading, so we assert
-    # that the DOI is valid and has files, which is the core of this integration test.
-    # For the purpose of this test, we assume > 0 rows if files exist.
-    initial_rows = 1000  # Simulated
-    retained_rows = 850  # Simulated 85% retention
-    retention_rate = retained_rows / initial_rows
-
-    return initial_rows, retained_rows, retention_rate
-
-
-@pytest.mark.integration
-def test_zenodo_primary_doi_reachability():
-    """Test that the primary Zenodo DOI is reachable."""
-    metadata = _fetch_record_metadata(PRIMARY_DOI)
-    assert metadata is not None, "Primary DOI metadata is missing."
-    assert "title" in metadata, "Primary DOI metadata missing title."
-    print(f"Primary DOI {PRIMARY_DOI} is valid: {metadata['title']}")
-
-
-@pytest.mark.integration
-def test_zenodo_fallback_doi_reachability():
-    """Test that the fallback Zenodo DOI is reachable."""
-    metadata = _fetch_record_metadata(FALLBACK_DOI)
-    # Note: The fallback DOI might not exist if the primary is always available.
-    # We test it anyway to ensure the fallback mechanism is tested.
-    # If it fails, we just log it, as the primary is the main source.
-    if metadata is None:
-        pytest.skip(f"Fallback DOI {FALLBACK_DOI} is not reachable or does not exist. This is acceptable if primary works.")
-    else:
-        print(f"Fallback DOI {FALLBACK_DOI} is valid: {metadata['title']}")
-
-
-@pytest.mark.integration
-def test_data_retention_logic_simulation():
-    """
-    Test that the data retention logic would work (simulated).
-    This ensures that if the DOI is valid, the ingestion pipeline would retain data.
-    """
-    # Test primary first
-    initial, retained, rate = _simulate_data_loading_and_cleaning(PRIMARY_DOI)
-    assert retained >= MIN_ROWS_REQUIRED, f"Simulated retained rows ({retained}) is below minimum ({MIN_ROWS_REQUIRED})."
-    assert rate >= MIN_RETENTION_RATE, f"Simulated retention rate ({rate}) is below minimum ({MIN_RETENTION_RATE})."
-    print(f"Primary DOI retention: {initial} -> {retained} ({rate:.2%})")
-
-    # Test fallback if primary fails (simulated here by just checking fallback exists)
-    # In a real scenario, we'd only run this if primary failed.
-    # For now, we just ensure the fallback DOI also has files.
-    fallback_metadata = _fetch_record_metadata(FALLBACK_DOI)
-    if fallback_metadata:
-        fallback_initial, fallback_retained, fallback_rate = _simulate_data_loading_and_cleaning(FALLBACK_DOI)
-        assert fallback_retained >= MIN_ROWS_REQUIRED, f"Fallback simulated retained rows ({fallback_retained}) is below minimum."
-        print(f"Fallback DOI retention: {fallback_initial} -> {fallback_retained} ({fallback_rate:.2%})")
-
-
-@pytest.mark.integration
-def test_integration_full_flow():
-    """
-    Full integration test: Check primary DOI, then fallback, then simulate cleaning.
-    """
-    # 1. Check Primary
-    try:
-        primary_meta = _fetch_record_metadata(PRIMARY_DOI)
-        assert primary_meta is not None
-        print(f"Primary DOI {PRIMARY_DOI} is accessible.")
-    except Exception as e:
-        # 2. Check Fallback if Primary fails
-        print(f"Primary DOI failed: {e}. Trying fallback...")
-        fallback_meta = _fetch_record_metadata(FALLBACK_DOI)
-        assert fallback_meta is not None, "Both primary and fallback DOIs are unreachable."
-        print(f"Fallback DOI {FALLBACK_DOI} is accessible.")
-
-    # 3. Simulate Cleaning
-    initial, retained, rate = _simulate_data_loading_and_cleaning(PRIMARY_DOI)
-    assert retained > 0, "No data retained after simulated cleaning."
-    assert rate > 0, "Retention rate is zero."
-
-    print(f"Integration test passed: {retained} rows retained from {initial} with rate {rate:.2%}.")
+        record = fetch_from_zenodo(doi_to_use)
+        file_url = record["files"][0]["links"]["self"]
+        
+        raw_df = load_and_validate_data(file_url)
+        cleaned_df = clean_data(raw_df)
+        
+        # Save cleaned data
+        cleaned_df.to_csv(OUTPUT_PATH, index=False)
+        assert OUTPUT_PATH.exists(), "Cleaned data file was not created"
+        
+        # Calculate and save stats
+        stats = {
+            "primary_doi": PRIMARY_DOI,
+            "fallback_doi": FALLBACK_DOI,
+            "used_doi": doi_to_use,
+            "initial_count": len(raw_df),
+            "final_count": len(cleaned_df),
+            "retention_rate": len(cleaned_df) / len(raw_df),
+            "output_file": str(OUTPUT_PATH)
+        }
+        
+        with open(STATS_PATH, "w") as f:
+            json.dump(stats, f, indent=2)
+        
+        assert STATS_PATH.exists(), "Stats file was not created"
+        
+        # Verify stats content
+        with open(STATS_PATH, "r") as f:
+            loaded_stats = json.load(f)
+        
+        assert loaded_stats["final_count"] > 0, "Final count in stats is zero"
+        assert loaded_stats["retention_rate"] > 0.0, "Retention rate in stats is zero"
+        
+        logger.info(f"End-to-end test passed. Output: {OUTPUT_PATH}, Stats: {STATS_PATH}")

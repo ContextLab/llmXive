@@ -1,2 +1,1 @@
-# This directory stores cleaned, standardized, and feature-engineered data.
-# Intermediate datasets and final training-ready CSVs are stored here.
+.gitkeep

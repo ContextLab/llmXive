@@ -1,7 +1,63 @@
-T040:
+T001b:
+  c: false
+  h: 0edcad2c22b75ab6403ddacd21d6aab000d007613b7b0f78223db8c5c21beaed
+  r: The `data/raw/`, `data/processed/`, and `data/logs/` directories each contain
+    a `.gitkeep` file as required, but `data/config/` lacks a `.gitkeep` (it only
+    contains YAML files). Add a `.gitkeep` file to `data/config/` to satisfy the task.
+  sig: f473da85dbd051fb0d40036af759b62adb84538886cf9df2df1a4a6ed39543e0
+T002:
+  c: false
+  h: e1a8641ba336a07965d32720de39d69c6430276fecdb001635c79e86a2039fc5
+  r: Checked `requirements.txt` (found pymc>=5.0.0, missing exact `pymc==5.12.0` and
+    missing `torch`) and no `CHANGELOG.md` was present in the evidence. The file does
+    not meet the exact version and package list required, and the required changelog
+    documenting the PyMC5 deviation is absent.
+  sig: 0e9740e1350501d3e03bc7f6f85f96aee4d55e5d5df37bc40f26baa9808a2218
+T003:
+  c: false
+  h: a5f2aee57a1c7ae61ea4534f3cd5ff8b81cae1ecb3783f477cd930807425254a
+  r: I inspected the project root (`projects/PROJ-134-the-cognitive-mechanisms-underlying-intu`)
+    for linting/formatting configuration artifacts (e.g., `pyproject.toml` with `[tool.black]`
+    or `[tool.ruff]`, a `.flake8` file, or dedicated `ruff.toml`/`black.toml`). No
+    such files or sections were present, so the required ruff/flake8 and black setup
+    is missing. Adding the appropriate configuration files and ensuring they are committed
+    will satisfy the task.
+  sig: 5007097f726595d5950d1bb0c3090eed56d05fa153b2d0d46082eda9d8462902
+T005:
+  c: true
+  h: 1c119eaae487e271acea958832c03fc9a57bc4be1af3b3c5e21ac79ba77aa204
+  r: "Checked the `code/config.py` file (2851\u202Fbytes) which defines project paths,\
+    \ `init_random_seeds`, and includes the constant `N_CONFIG = 100` as required.\
+    \ The file is present, non\u2011empty, and implements the requested functionality."
+  sig: ad277dded04e92d234745870cbedee6d3bafa0f3a70a8a4d6fe3b97eb86ba243
+T006a:
+  c: false
+  h: 5d686f45c193f210ef66c4f22bc1a33dcc5ef8fa913c3cc7eff9c21af32ad913
+  r: "The file `code/utils/hashing.py` exists and defines `calculate_checksum`, but\
+    \ there is no provided evidence that the required verification command was actually\
+    \ run and produced a valid SHA\u2011256 hash. Execution output or test logs confirming\
+    \ the function works as specified are missing."
+  sig: 85f28e280f71dd93040e2a71408a1a6d8b2be7c275f0f193189a49b7c0c5d4ba
+T007b:
+  c: true
+  h: 693862a85746d75cfece10048f46d6446ea985decaccddf62f8ace07998dfe2e
+  r: "Checked the artifact `data/config/gervais_norms.yaml` (295\u202Fbytes) which\
+    \ contains YAML entries for each MFQ foundation (Care, Fairness, Loyalty, Authority,\
+    \ Purity, Total) with `mean` and `std` fields, matching the task\u2019s deliverable\
+    \ and verification criteria."
+  sig: d8c507d729c3233da6b52b36c9d947269b5585fd3a6280d4228bf3dc6d4f907a
+T079:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: The implementer provided only a feature specification and user stories; there
-    is no evidence of running a `quickstart.md` validation, nor any checksum files
-    or logs confirming that all artifacts have been checksummed. The required validation
-    and checksum verification artifacts are missing.
+  r: "No concrete artifact (code, notebook, results, or documentation) showing the\
+    \ sensitivity\u2011analysis sweep over the required thresholds {2,\u202F10,\u202F\
+    20} is provided; the claim that it was merged into T027c\u2011Sensitivity\u2011\
+    Analysis cannot be verified from the available evidence. The implementer must\
+    \ supply the actual implementation or output demonstrating the correct sweep."
+T090:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required file `specs/001-the-cognitive-mechanisms-underlying-intu/spec_amendment_FR006.md`
+    is provided, nor any content showing the three mandated sections. The implementer
+    must create the file with the "Deviations", "Justification", and "Approval" sections
+    as specified.

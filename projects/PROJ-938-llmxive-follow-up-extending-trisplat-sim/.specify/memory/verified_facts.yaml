@@ -1,0 +1,6 @@
+'|deterministic sampling seed strategy use':
+  quote: 'Figure 1: Self-training pipeline and seed rules (schematic). Each generation
+    continues 4,200'
+  source_id: '2609.11149'
+  url: https://arxiv.org/abs/2609.11149
+  value: '42'

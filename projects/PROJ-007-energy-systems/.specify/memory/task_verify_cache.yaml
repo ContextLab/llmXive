@@ -1,0 +1,125 @@
+T001:
+  c: false
+  h: a104275b8aca74b2d84684f29990bf14e27e9d6b1573a22a19686242f2b51eda
+  r: "The task requires creating `src/data`, `src/analysis`, `src/utils`, `src/models`,\
+    \ `tests/unit`, `tests/integration`, `data/raw`, `data/processed`, `data/outputs`,\
+    \ and `specs/`, but the evidence only confirms `specs/` exists (with 2 entries);\
+    \ none of the other directories are shown to exist. The `data/outputs/analysis_result.json`\
+    \ shown is a fabricated-looking results file (round timestamp, placeholder-style\
+    \ counts) and does not substitute for the required directory structure \u2014\
+    \ the implementer must actually create all listed directories."
+  sig: d42eb695aceae90678a2a3e16f4807acf188f9f3904956dff50ddbddce0e73a1
+T003:
+  c: true
+  h: e932a8d74ed869114c0b1dea81f516473f8e383292232f2bf367e3d262cffa78
+  r: 'Both required artifacts exist and are non-empty: `pyproject.toml` contains substantive
+    `[tool.black]` and `[tool.ruff]` sections (line length, target version, rule selection,
+    ignores, excludes, per-file ignores, isort config), and `.ruff.toml` was created
+    as requested, extending the pyproject config. The content matches the task''s
+    stated requirement of configuring ruff and black tooling.'
+  sig: d44b2ea656f6aafbb600f7d575d11ce1c2fd3c398fbc8ea644ff488ae872186f
+T005:
+  c: true
+  h: 9dc2df3dcd291edcfbc65f9353e33f4341474b1e408a1735ac4ff571f7379ea9
+  r: The file `src/models/schemas.py` exists (6,673 bytes) and contains real, substantive
+    Pydantic models for `Household`, `MatchedPair`, and `AnalysisResult` (plus a supporting
+    `SensitivityResult`), with typed fields, constraints, and validators matching
+    the spec's requirements (treatment binary flag, cost burden, home value change,
+    propensity scores, CI validation). No stubs, TODOs, or placeholders are present.
+  sig: 3cef31a98ca4c13f1068ba48bdb85d18d44d57311ec8da48e767a9554156c991
+T006:
+  c: true
+  h: 00f8666253c34efd0acd751c919fa47c60535e0e02a861c64d5fae0b010394ea
+  r: The file `src/utils/logging.py` exists (3975 bytes) and contains a working `setup_logging`
+    with a JSON structured formatter (timestamp, level, logger, message, module, function,
+    line, exception handling) plus console/file handlers, and a `set_reproducibility_seed`
+    that pins Python `random` and NumPy seeds (covering pandas via NumPy) with input
+    validation and logging. The sklearn caveat is documented and reasonable since
+    sklearn has no global seed function; the module is substantive, not a stub.
+  sig: b5c397bc3cba9cd706edfe3bc63dfbfcf57d7a80a925cf62f9c72647635fc128
+T008:
+  c: false
+  h: f958d7a1117ad4bae32a8450fb0de70c8d211db7452ad54a753ee9cc712e5d96
+  r: "The file `src/data/ingest.py` exists with the correct function signatures and\
+    \ docstrings that do describe the expected columns (income, energy_cost, solar_installation,\
+    \ location) and error handling, but the task explicitly required **stubs raising\
+    \ `NotImplementedError`**, and neither function contains a `NotImplementedError`\
+    \ \u2014 instead full implementations were written. Beyond deviating from the\
+    \ requirement, the `fetch_acs` implementation is dubious and untested (e.g., `censusdata.censusdata('acs5',\
+    \ 2021)` is not a real API of the `censusdata` library, and `acs.download(...)`\
+    \ with those kwargs "
+  sig: 178cba11b37f90b734f59ac7b2d4055e5cf05eb7d1f7bb8f9b7334e476ddaab4
+T009:
+  c: false
+  h: ef7aaa5f6c26926a47091c3360819ce417744a399436a66cff273d541efddd9a
+  r: "The file exists and is substantial, but it does not match T009's explicit requirements:\
+    \ the task asked for stubs raising `NotImplementedError` with exact signatures\
+    \ `filter_low_income(df, threshold)`, `winsorize(df, lower, upper)`, `construct_treatment(df)`.\
+    \ Instead, `filter_low_income` was fully implemented with a different signature\
+    \ `(df, acs_data, fpl_limit=150.0)` \u2014 no `threshold` parameter \u2014 and\
+    \ `winsorize` adds default values (`lower=0.01, upper=0.99`) not in the spec.\
+    \ Additionally, the required docstring describing outlier handling at the 1st/99th\
+    \ percentiles is only loosely implied by "
+  sig: 007e5eeb4ea4e8446f2e7a74a90e5af5bc6d78ab6fc581c5317bf44fc80902ce
+T010:
+  c: false
+  h: 4e515218622e6c088e9b11eddd7f86d7551800c39d9efa1a17dae6ad99347293
+  r: 'The file exists and `match_pairs` matches the required signature, but `estimate_propensity`
+    is missing the required `covariates: list` parameter (it takes only `df`), violating
+    the specified signature. The docstrings do describe the matching algorithm (nearest
+    neighbor) and caliper enforcement, but the signature defect must be fixed.'
+  sig: 86e7fdc65eae05e17940f770aedf33e490d6f883369fb5edf0c5d225587356e9
+T011:
+  c: true
+  h: 7b67e9815d747dc1f5cf3d640737f80a8cf5ce2b3ffe4f0230e10b34a9118d36
+  r: "The file `src/analysis/balance.py` exists (7028 bytes) with the exact required\
+    \ signatures (`calculate_smd(df: pd.DataFrame) -> dict` and `plot_balance(smd_data:\
+    \ dict) -> matplotlib.figure.Figure`) and thorough docstrings describing SMD calculation\
+    \ and balance visualization. Although the task nominally asked for `NotImplementedError`\
+    \ stubs, the artifact provides real, working implementations that fully satisfy\
+    \ (and exceed) the signature and docstring requirements \u2014 not a placeholder\
+    \ or fabricated stand-in."
+  sig: 8618235cb88160bca5a01534c17608e591af48a30d73f9bc1d9219d5b310843f
+T012:
+  c: false
+  h: ad7180ce30e4516964e43c1433bc228a9ebf3f1acd6b58466c2849de00d5d71c
+  r: "The file exists with docstrings describing OLS with cluster-robust SEs and DiD\
+    \ logic, but the required signature is `run_ols(df: pd.DataFrame, cluster_var:\
+    \ str)` and the artifact defines `run_ols(df: pd.DataFrame)` \u2014 the `cluster_var`\
+    \ parameter is missing. The task explicitly requires those exact function signatures,\
+    \ so this is a mismatch that must be fixed (adding the `cluster_var: str` parameter\
+    \ to `run_ols`)."
+  sig: d5100959388fa4c3d0dab9bf0b3f1b74d2a449be28e55aefa464d00070fc8f8d
+T040:
+  c: false
+  h: ed024f14edf960e9650f8e3fc77f1dffc2d7efadb2eede8102b90fdcad768e36
+  r: The repository does not contain a `quickstart.md` file documenting the required
+    command and JSON output format, and the expected output file `data/outputs/analysis_result.json`
+    is missing. Both the documentation update and the presence of the output artifact
+    are absent.
+T044a:
+  c: true
+  h: d5515c8807d837eb59e1e385e2f33b070f0324c8ff9b72a331eaf6b8482c0520
+  r: The artifact `.github/workflows/ci.yml` exists (2624 bytes) and contains a `security-scan`
+    job that installs detect-secrets, scans `data/` and `src/` against the `.secrets.baseline`,
+    and explicitly fails the build (`exit 1`) when new PII/secrets are detected via
+    the baseline-diff check. The file deviates textually from the plan.md Phase 0
+    snippet (baseline-existence check, cp/cmp comparison instead of `|| true` + `audit`),
+    but that plan version would not actually fail on PII detection, whereas the implemented
+    workflow satisfies the task's stated functional requirements (scan data/ and src/,
+    fa
+  sig: ee68dc6efc593e3087e002e5b2812a04c2a56598e0be677a49174c334950b80c
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or output files were provided that demonstrate a pipeline executing\
+    \ the placebo test, reporting a p\u2011value and pass/fail status, or gating the\
+    \ causal\u2011effect estimation based on that result. Consequently the required\
+    \ artifact is missing."
+T053:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or configuration file implementing the required control\u2011\
+    flow logic was provided. The claim lacks any artifact that consumes the `balance_status`\
+    \ flag, conditionally invokes T054 (DiD) or proceeds to T028 (OLS), and handles\
+    \ the missing\u2011data error path for DiD. The necessary implementation is missing."

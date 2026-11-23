@@ -1,18 +1,29 @@
-T023a:
+T001:
   c: false
-  h: 4d144170e3a2912be88370722868c227879617f0089eebc7ba2a5462fa5ae489
-  r: "The `stat_utils.py` file only contains a basic ANOVA helper and a Holm\u2011\
-    Bonferroni function; it does not produce the required `data/processed/metrics_summary.csv`,\
-    \ the effect\u2011size calculation is truncated, and there is no logic that runs\
-    \ the analysis for the three specific metrics (completion time, error count, SUS)\
-    \ or writes their F\u2011statistic, p\u2011value, adjusted p\u2011value, and effect\
-    \ size to the CSV. The deliverable is therefore missing."
-T029b:
+  h: 8e33e4916b9987c7f08d9ba18221265bc512e60ba3c6f070be8114a7c41d0013
+  r: "The `requirements.txt` file exists and lists the correct pinned packages, and\
+    \ `quickstart.md` documents both required commands with the exact relative paths.\
+    \ However, there is no evidence that `pip install -r requirements.txt` actually\
+    \ succeeds (no install logs or test run), and the referenced `code/app.py` file\
+    \ is missing, so the documented Streamlit command cannot be run. Provide a successful\
+    \ pip\u2011install execution record and add the missing `code/app.py` (or adjust\
+    \ the command) to satisfy the task."
+  sig: 4e22431d9f63be44b6c59dc941165b5f4972a3572c783c4302a49c12b60d0874
+T002:
   c: false
-  h: 4eba9d84606ceb3840866909f0855a3e66bda95a735f7aefd338eec1af48a82f
-  r: "The `data/processed/notebook_execution_log.txt` exists but reports \u201CPASS\u201D\
-    \ while the required `data/processed/metrics_summary.csv` is missing, and no plot\
-    \ files are present. This means the validation script could not have succeeded,\
-    \ and the notebook\u2019s end\u2011to\u2011end execution (producing the CSV and\
-    \ plots) is not demonstrated. The task therefore fails to meet the verification\
-    \ criteria."
+  h: 69a587fd8a783e3424ca9195fb99575fa0aa34a1ad61499d334bdfb787f90f9a
+  r: "The validator imports a relaxed schema at `specs/001-improving-accessibility-and-usability-of/contracts/session_relaxed.schema.yaml`,\
+    \ but this file is missing, causing an import\u2011time `FileNotFoundError` and\
+    \ preventing the data loader (and its tests) from running. Add the required schema\
+    \ file (or correct the path) so that `validator.validate_session` can load it\
+    \ and the tests can execute."
+  sig: c2aa6c9a0a892a30aca2416e02c866c7af23f4542aa6888b469ac9647f1b02ec
+T004:
+  c: false
+  h: 950922452a2cd4aa3dd9c41445b5e613c438864978ed0c74bd948822a3fa3bd5
+  r: "The `code/analysis/data_cleaner.py` file exists and implements the required\
+    \ functions, but the pipeline\u2019s output file `data/processed/metrics_summary.csv`\
+    \ is missing, the accompanying `metrics.schema.yaml` is absent, and the integration\
+    \ test `tests/integration/test_cleaning.py` does not exist, so the task\u2019\
+    s verification criteria are not met."
+  sig: 2d83f663b1df142680170c09e691fdb31499706b966f6df6b0f6773347779774

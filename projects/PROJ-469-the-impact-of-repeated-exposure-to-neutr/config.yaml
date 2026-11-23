@@ -1,0 +1,24 @@
+# Configuration for Political News Exposure Study
+# Values can be overridden by .env file
+
+paths:
+  data_raw: data/raw
+  data_processed: data/processed
+  results: results
+  logs: logs
+
+defaults:
+  analysis_seed: 42
+  alpha_level: 0.05
+  bootstrap_count: 1000
+
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+schema_validation:
+  strict_mode: true
+  required_columns:
+    - IAT_D_score
+    - political_ideology
+    - news_exposure_freq

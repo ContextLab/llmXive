@@ -1,45 +1,41 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: FidelityResult
-description: |
-  Represents the outcome of the identity fidelity validation.
-  Tracks the minimum dimension required to pass the fidelity threshold
-  for a specific subject across different style domains.
+description: >-
+  Represents a single data point in the fidelity curve, measuring the
+  similarity between a generated video (from a compressed vector) and the
+  original subject reference, across a specific style domain.
 type: object
 required:
   - subject_id
-  - min_dimension
-  - fidelity_threshold
-  - style_domain
-  - clip_scores
+  - dimension
+  - style
+  - clip_score
+  - timestamp
 properties:
   subject_id:
     type: string
-    description: Reference to the subject
-  min_dimension:
+    description: Unique identifier for the subject being evaluated.
+    pattern: "^[a-zA-Z0-9_-]+$"
+  dimension:
     type: integer
-    description: The smallest dimensionality where CLIP score >= fidelity_threshold
-    enum: [16, 32, 64, 128, 256, -1]
-    note: -1 indicates no dimension passed the threshold
-  fidelity_threshold:
+    description: The dimensionality of the compressed vector used for generation.
+    minimum: 1
+  style:
+    type: string
+    description: The style domain used for video generation.
+    enum:
+      - Anime
+      - Photorealistic
+      - Sketch
+  clip_score:
     type: number
-    description: The threshold value used for this check (from config)
-  style_domain:
+    description: >-
+      CLIP Image Similarity score between the generated video frames and
+      the reference image.
+    minimum: -1.0
+    maximum: 1.0
+  timestamp:
     type: string
-    description: The style domain used for generation (e.g., 'Anime', 'Photorealistic', 'Sketch')
-    enum: ['Anime', 'Photorealistic', 'Sketch']
-  clip_scores:
-    type: object
-    description: Map of dimension -> CLIP similarity score
-    additionalProperties:
-      type: number
-      minimum: 0.0
-      maximum: 1.0
-  generated_video_path:
-    type: string
-    description: Path to the generated video if available
-    pattern: "^data/results/.*\\.mp4$"
-  status:
-    type: string
-    description: Status of the validation run
-    enum: ['success', 'timeout', 'failed', 'no_pass']
+    description: ISO 8601 formatted timestamp of when the result was generated.
+    format: date-time
 additionalProperties: false

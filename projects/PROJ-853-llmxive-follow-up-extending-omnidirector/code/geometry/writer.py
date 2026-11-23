@@ -1,108 +1,159 @@
+"""
+Writer module for geometry outputs.
+Handles serialization of poses and reconstructed boxes to JSON.
+"""
 import os
 import json
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-
 import numpy as np
+
+from config import get_path
 
 logger = logging.getLogger(__name__)
 
-
-def serialize_ndarray(arr: Optional[np.ndarray]) -> Any:
+def serialize_ndarray(obj: Any) -> Any:
     """
-    Serializes a numpy array to a JSON-compatible list.
-    Handles None and empty arrays gracefully.
+    Custom JSON encoder hook for numpy arrays.
+    Converts numpy arrays to lists for JSON serialization.
     """
-    if arr is None:
-        return None
-    if isinstance(arr, np.ndarray):
-        return arr.tolist()
-    # Fallback for scalar or list
-    return arr
-
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, (np.int64, np.int32)):
+        return int(obj)
+    elif isinstance(obj, (np.float64, np.float32)):
+        return float(obj)
+    raise TypeError(f"Object of type {type(obj)} is not JSON serializable")
 
 def write_poses_and_boxes(
-    poses: List[Dict[str, Any]],
-    boxes: List[Dict[str, Any]],
-    output_path: str,
-) -> None:
+    poses_data: List[Dict[str, Any]],
+    boxes_data: List[Dict[str, Any]],
+    output_path: Optional[Path] = None
+) -> Path:
     """
-    Writes pose estimates and reconstructed boxes to a single JSON file.
+    Combines pose estimates and reconstructed box dimensions into a single
+    JSON structure and writes it to disk.
 
     Args:
-        poses: List of dictionaries containing camera pose data (R, t, sequence_id, frame_id).
-        boxes: List of dictionaries containing reconstructed box data (dimensions, sequence_id).
-        output_path: Path to the output JSON file.
+        poses_data: List of dictionaries containing pose estimates (R, t, etc.)
+        boxes_data: List of dictionaries containing reconstructed box dimensions
+        output_path: Optional path to write the file. If None, uses config default.
 
-    The output structure is:
-    {
-        "metadata": { "version": "1.0", "count_poses": int, "count_boxes": int },
-        "poses": [ ... ],
-        "boxes": [ ... ]
-    }
+    Returns:
+        Path to the written file.
     """
-    output_path_obj = Path(output_path)
-    output_path_obj.parent.mkdir(parents=True, exist_ok=True)
+    if output_path is None:
+        output_path = get_path("poses_estimated_json")
 
-    # Ensure arrays are serialized correctly
-    serialized_poses = []
-    for p in poses:
-        rec = p.copy()
-        if 'R_matrix' in rec:
-            rec['R_matrix'] = serialize_ndarray(rec['R_matrix'])
-        if 't_vector' in rec:
-            rec['t_vector'] = serialize_ndarray(rec['t_vector'])
-        if 'rotation_vec' in rec:
-            rec['rotation_vec'] = serialize_ndarray(rec['rotation_vec'])
-        if 'translation_vec' in rec:
-            rec['translation_vec'] = serialize_ndarray(rec['translation_vec'])
-        serialized_poses.append(rec)
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    serialized_boxes = []
-    for b in boxes:
-        rec = b.copy()
-        if 'dimensions' in rec:
-            rec['dimensions'] = serialize_ndarray(rec['dimensions'])
-        serialized_boxes.append(rec)
+    logger.info(f"Writing {len(poses_data)} pose estimates and {len(boxes_data)} box reconstructions to {output_path}")
 
-    output_data = {
-        "metadata": {
-            "version": "1.0",
-            "count_poses": len(serialized_poses),
-            "count_boxes": len(serialized_boxes)
+    # Structure the output: a list of records, each containing both pose and box info
+    # We assume poses_data and boxes_data are ordered by the same sequence_id/frame_id
+    # or we merge them by sequence_id if available.
+    # For robustness, we'll create a unified list where each entry corresponds to a frame.
+    
+    final_records = []
+    
+    # If lengths differ, we take the minimum and log a warning, or try to merge by ID.
+    # Based on typical pipeline flow, these should be aligned lists of processed frames.
+    min_len = min(len(poses_data), len(boxes_data))
+    
+    if len(poses_data) != len(boxes_data):
+        logger.warning(f"Mismatch in number of poses ({len(poses_data)}) and boxes ({len(boxes_data)}). "
+                       f"Writing first {min_len} pairs. Ensure processing order is consistent.")
+
+    for i in range(min_len):
+        record = {}
+        # Add pose data
+        record.update(poses_data[i])
+        # Add box data
+        if i < len(boxes_data):
+            record.update(boxes_data[i])
+        final_records.append(record)
+
+    try:
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(final_records, f, indent=2, default=serialize_ndarray)
+        logger.info(f"Successfully wrote {len(final_records)} records to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to write JSON to {output_path}: {e}")
+        raise
+
+    return output_path
+
+def main():
+    """
+    Entry point for testing the writer module directly.
+    Generates sample data to verify serialization works.
+    """
+    import sys
+    import tempfile
+    
+    # Setup logging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    # Create sample data matching expected schema from T017/T018
+    sample_poses = [
+        {
+            "sequence_id": "seq_001",
+            "frame_id": 1,
+            "R_matrix": np.eye(3),
+            "t_vector": np.array([0.0, 0.0, 0.0]),
+            "success": True,
+            "error": 0.0
         },
-        "poses": serialized_poses,
-        "boxes": serialized_boxes
-    }
+        {
+            "sequence_id": "seq_001",
+            "frame_id": 2,
+            "R_matrix": np.eye(3) * 0.98, # Simulated rotation
+            "t_vector": np.array([0.1, 0.0, 0.0]),
+            "success": True,
+            "error": 0.05
+        }
+    ]
 
-    with open(output_path_obj, 'w', encoding='utf-8') as f:
-        json.dump(output_data, f, indent=2)
+    sample_boxes = [
+        {
+            "sequence_id": "seq_001",
+            "frame_id": 1,
+            "width": 1.0,
+            "height": 1.0,
+            "depth": 1.0,
+            "volume": 1.0
+        },
+        {
+            "sequence_id": "seq_001",
+            "frame_id": 2,
+            "width": 1.0,
+            "height": 1.0,
+            "depth": 1.0,
+            "volume": 1.0
+        }
+    ]
 
-    logger.info(f"Wrote {len(serialized_poses)} poses and {len(serialized_boxes)} boxes to {output_path}")
+    # Use a temporary file for testing
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as tmp:
+        tmp_path = Path(tmp.name)
 
-
-def main() -> None:
-    """
-    Entry point for writing poses and boxes.
-    Expects environment variables or default paths for input data if not passed via args.
-    For T019, this is primarily a utility called by the solver pipeline,
-    but provided here for standalone execution if needed.
-    """
-    # Default paths based on project structure
-    poses = []
-    boxes = []
-    
-    # In a real pipeline, these would be populated by solver.py or reconstruction.py
-    # For this artifact implementation, we define the writer logic.
-    # If run standalone, it writes an empty structure or raises if no data provided.
-    
-    # Example usage logic (commented out to prevent errors if run without data source):
-    # output_path = get_path("processed_poses_json") 
-    # write_poses_and_boxes(poses, boxes, output_path)
-    
-    logger.info("Writer module loaded. Call write_poses_and_boxes with data.")
-
+    try:
+        output_file = write_poses_and_boxes(sample_poses, sample_boxes, output_path=tmp_path)
+        
+        # Verify the file was written and can be read back
+        with open(output_file, 'r') as f:
+            data = json.load(f)
+        
+        assert len(data) == 2, "Expected 2 records"
+        assert "R_matrix" in data[0], "Expected R_matrix in record"
+        assert "width" in data[0], "Expected width in record"
+        
+        print(f"Verification passed. Output written to: {output_file}")
+    finally:
+        if tmp_path.exists():
+            tmp_path.unlink()
 
 if __name__ == "__main__":
     main()

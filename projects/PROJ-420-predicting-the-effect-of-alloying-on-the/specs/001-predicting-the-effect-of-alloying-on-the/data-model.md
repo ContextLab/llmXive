@@ -1,76 +1,74 @@
 # Data Model: Predicting the Effect of Alloying on the Poisson's Ratio of Aluminum Alloys
 
-## Overview
+## Entity Definitions
 
-This document defines the data structures and transformations used in the project. It ensures consistency between the raw data extraction, the modeling pipeline, and the final output.
+### AlloyRecord
+| Field | Type | Description |
+|-------|------|-------------|
+| `material_id` | string | Unique identifier from the source database. |
+| `formula` | string | Chemical formula (e.g., “Al95Cu5”). |
+| `elemental_composition` | object | Map of element symbols to atomic fractions (Cu, Mg, Si, Zn, Mn, Al). |
+| `poissons_ratio` | number (0 – 0.5) | Dimensionless target variable. |
+| `youngs_modulus_gpa` | number (> 0) | Young’s modulus in GPa (unit‑normalized). |
+| `poisson_source` | string (enum) | Source of Poisson’s ratio measurement; allowed values: `"ultrasonic"`, `"direct_measurement"`, `"laser_ultrasonics"`. |
+| `measurement_method` | string (enum) | One of `"Ultrasonic"`, `"Resonant Ultrasound Spectroscopy"`, `"Static Tensile"`, `"Other"`. |
+| `source` | string (enum) | `"Materials Project"` or `"NIST MDR"`. |
+| `is_alloy` | boolean | `True` if the composition represents a continuous solid solution. |
+| `is_independent_measurement` | boolean | `True` if `poisson_source` is in the allowed set (FR‑009). |
+| `alloy_series` | string | Derived alloy series (e.g., 2xxx, 6xxx). |
 
-## Entities
+### ModelMetrics
+| Field | Type | Description |
+|-------|------|-------------|
+| `cv_mae` | number | Mean Absolute Error from cross‑validation (5‑fold or LOOCV). |
+| `test_mae` | number | MAE on the held‑out test set. |
+| `n_samples` | integer | Total number of alloy records after filtering. |
+| `train_size` | integer | Number of training samples. |
+| `test_size` | integer | Number of test samples. |
+| `cv_method` | string | `"5-fold"` or `"LOOCV"`. |
 
-### 1. AlloyRecord (Raw & Processed)
+### CollinearityDiagnostic
+| Field | Type | Description |
+|-------|------|-------------|
+| `Cu_vif` | number | VIF for Copper atomic fraction. |
+| `Mg_vif` | number | VIF for Magnesium atomic fraction. |
+| `Si_vif` | number | VIF for Silicon atomic fraction. |
+| `Zn_vif` | number | VIF for Zinc atomic fraction. |
+| `Mn_vif` | number | VIF for Manganese atomic fraction. |
+| `max_vif` | number | Maximum VIF among the five predictors. |
+| `is_flagged` | boolean | `True` if `max_vif > 5`. |
+| `note` | string | Explanation that VIF is computed on raw fractions. |
 
-Represents a single aluminum alloy entry.
-
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `alloy_id` | string | Unique identifier from source. | Non-null, unique. |
-| `source` | string | "Materials Project" or "NIST". | Non-null. |
-| `poissons_ratio` | float | Poisson's ratio. | Non-null, > 0, < 1. |
-| `youngs_modulus_gpa` | float | Young's modulus in GPa. | Non-null, > 0. |
-| `fraction_cu` | float | Atomic fraction of Copper. | ≥ 0, ≤ 1. |
-| `fraction_mg` | float | Atomic fraction of Magnesium. | ≥ 0, ≤ 1. |
-| `fraction_si` | float | Atomic fraction of Silicon. | ≥ 0, ≤ 1. |
-| `fraction_zn` | float | Atomic fraction of Zinc. | ≥ 0, ≤ 1. |
-| `fraction_mn` | float | Atomic fraction of Manganese. | ≥ 0, ≤ 1. |
-| `fraction_al` | float | Calculated atomic fraction of Aluminum. | `1.0 - sum(other fractions)`. |
-| `sum_major_elements` | float | Sum of Cu, Mg, Si, Zn, Mn fractions. | Must be ≥ 0.95 (else excluded). |
-| `measurement_method` | string | Method used to measure Poisson's ratio. | Must be "ultrasonic" or "experimental" (else excluded). |
-| `is_independent_measurement` | boolean | Flag for Poisson's ratio independence. | Must be True (else excluded/flagged). |
-
-### 2. ILRFeatureVector
-
-The transformed feature set used for modeling.
-
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `alloy_id` | string | Reference to source. | Non-null. |
-| `ilr_1` ... `ilr_4` | float | Isometric Log-Ratio transformed coordinates. | Real numbers. |
-| *Note*: ILR transforms D components into D-1 coordinates. Here D=5 (Cu, Mg, Si, Zn, Mn), so 4 coordinates. |
-
-### 3. ModelMetrics
-
-Output metrics from the modeling phase.
-
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `cv_mae` | float | Mean Absolute Error from 5-fold CV. | ≥ 0. |
-| `test_mae` | float | Mean Absolute Error on held-out test set. | ≥ 0. |
-| `model_type` | string | "Random Forest". | Constant. |
-| `random_seed` | integer | Seed used for reproducibility. | Pinned. |
-
-### 4. CollinearityDiagnostic
-
-Diagnostic output for raw composition collinearity.
-
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `element` | string | Element name (Cu, Mg, Si, Zn, Mn). | Non-null. |
-| `vif_score` | float | Variance Inflation Factor. | ≥ 1.0. |
-| `is_flagged` | boolean | True if VIF > 5. | **Clarification**: Indicates "High collinearity in raw space (expected)", not a model failure. |
-
-## Transformations
-
-1.  **Normalization**: Convert all elastic constants to GPa.
-2.  **Filtering**: Remove rows where `sum_major_elements` < 0.95 or missing required fields.
-3.  **Independence Filter**: Remove rows where `measurement_method` is not "ultrasonic" or "experimental".
-4.  **ILR Transformation**:
-    - Input: Vector $x = [x_1, x_2, x_3, x_4, x_5]$ (atomic fractions).
-    - Method: Apply sequential binary partition or standard basis to compute ILR coordinates.
-    - Output: Vector $z = [z_1, z_2, z_3, z_4]$.
-5.  **Back-transformation for Importance**: Map feature importance from $z$ space to $x$ space using a perturbation-based sensitivity analysis (shuffling original components and measuring impact on ILR-transformed predictions).
+### FeatureImportance
+| Field | Type | Description |
+|-------|------|-------------|
+| `Cu_importance` | number | Back‑transformed importance contribution of Copper (exploratory). |
+| `Mg_importance` | number | Back‑transformed importance contribution of Magnesium (exploratory). |
+| `Si_importance` | number | Back‑transformed importance contribution of Silicon (exploratory). |
+| `Zn_importance` | number | Back‑transformed importance contribution of Zinc (exploratory). |
+| `Mn_importance` | number | Back‑transformed importance contribution of Manganese (exploratory). |
+| `permutation_importance` | object | Permutation importance scores for each element (primary). |
+| `ranked_elements` | array[string] | Elements ordered from highest to lowest importance (based on permutation importance). |
 
 ## Data Flow
+1. **Raw**: `data/raw/mp_raw.json` (downloaded via `matminer`).  
+2. **Clean**: `data/processed/alloys_clean.parquet` – filtered, unit‑normalized, Al balance added, `is_alloy` and `is_independent_measurement` flags set, and `poisson_source` verified.  
+3. **Transformed**: `data/processed/alloys_ilr.parquet` – ILR coordinates appended; VIF computed on raw fractions and stored separately.  
+4. **Results**: `results/model_metrics.json`, `results/feature_importance.json`, `results/collinearity_diagnostic.json`, `results/final_report.md`.
 
-1.  `data/raw` (JSON/CSV) -> `data_extraction.py` -> `data/processed/alloy_records.parquet`
-2.  `alloy_records.parquet` -> `data_cleaning.py` -> `data/processed/cleaned_records.parquet`
-3.  `cleaned_records.parquet` -> `modeling.py` -> `data/processed/ilr_features.parquet` + `models/random_forest.joblib`
-4.  `models/random_forest.joblib` + `cleaned_records.parquet` -> `analysis.py` -> `data/processed/metrics.json`, `data/processed/diagnostics.json`
+## Constraints & Validation Rules
+- **Composition Sum**: `Cu + Mg + Si + Zn + Mn + Al = 1.0 ± 1e‑6`.  
+- **Major‑Element Sum**: `Cu + Mg + Si + Zn + Mn ≥ 0.95`; otherwise the record is excluded (FR‑003).  
+- **Unit Consistency**: `youngs_modulus_gpa` must be in GPa; any MPa entry is converted (divide by 1000).  
+- **Independence**: `poisson_source` must be one of `ultrasonic`, `direct_measurement`, `laser_ultrasonics`; records missing this field or with other values are excluded and counted in `exclusion_log.txt` (FR‑009).  
+- **VIF**: Calculated on raw fractions only; values > 5 flagged.  
+- **Data Hygiene**: Every file has a SHA‑256 checksum recorded in `data/checksums.json`.  
+
+## Formula Parsing & Conversion (FR‑010)
+1. Parse `formula` with `chemparse` → element counts.  
+2. Compute total atom count; atomic fraction = count / total.  
+3. For target elements (Cu, Mg, Si, Zn, Mn) store fractions; compute Al balance as `1 – Σ(target fractions)`.  
+4. Non‑target elements are included in the total count but omitted from the 5‑element vector.  
+
+---
+

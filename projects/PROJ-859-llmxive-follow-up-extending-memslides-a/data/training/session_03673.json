@@ -1,0 +1,73 @@
+{
+  "trace_id": "training_42_03673",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 5,
+  "tool_sequence": [
+    "resize_element",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 4.4324,
+        "height": 8.7656
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 19.8467,
+        "y": 80.0938,
+        "width": 12.1363,
+        "height": 96.6823
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 4.2706,
+        "y": 70.5864,
+        "width": 85.0305,
+        "height": 81.6702
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 12.3709,
+        "y": 53.7574,
+        "width": 62.3554,
+        "height": 12.0748
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 65.1188,
+        "y": 67.1132,
+        "width": 29.6931,
+        "height": 87.3125
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.500402,
+    "tool_repetition_freq": 0.6,
+    "arg_semantic_variance": 1065.306945
+  },
+  "final_state": {
+    "dominant_tool": "insert_image",
+    "slide_element_count": 4,
+    "layout_hash": "42-3673-insert_image"
+  }
+}

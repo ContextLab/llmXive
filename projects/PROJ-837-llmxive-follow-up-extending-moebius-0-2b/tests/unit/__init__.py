@@ -1,3 +1,1 @@
-"""
-Unit tests.
-"""
+# unit tests package

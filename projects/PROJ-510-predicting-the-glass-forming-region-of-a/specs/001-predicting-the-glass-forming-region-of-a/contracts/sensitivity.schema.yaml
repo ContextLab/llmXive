@@ -1,0 +1,28 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Sensitivity Report"
+type: object
+required:
+  - thresholds
+  - f1_scores
+  - stability_status
+properties:
+  thresholds:
+    type: array
+    items:
+      type: integer
+    minItems: 3
+    maxItems: 3
+    const: [50, 100, 150]
+    description: "CCR thresholds evaluated (K/s)."
+  f1_scores:
+    type: array
+    items:
+      type: number
+    minItems: 3
+    maxItems: 3
+    description: "F1-score for each threshold."
+  stability_status:
+    type: string
+    enum: ["PASS", "FAIL"]
+    description: "PASS if F1 variance is within acceptable limits."
+additionalProperties: false

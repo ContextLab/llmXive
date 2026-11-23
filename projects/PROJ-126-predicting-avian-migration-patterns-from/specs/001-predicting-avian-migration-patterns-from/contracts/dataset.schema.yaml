@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GridCellObservation"
+description: "Schema for the aggregated spatiotemporal grid cell data."
+type: "object"
+properties:
+  grid_cell_id:
+    type: "string"
+    description: "Unique identifier for the grid cell (e.g., '45.5_-122.5')."
+  year:
+    type: "integer"
+    minimum: 2015
+    maximum: 2023
+  week_number:
+    type: "integer"
+    minimum: 1
+    maximum: 52
+  total_observations:
+    type: "integer"
+    minimum: 0
+  first_arrival_date:
+    type:
+      - "string"
+      - "null"
+    description: "ISO 8601 date string or null if threshold not met."
+    format: "date"
+  mean_temp_lag_1:
+    type:
+      - "number"
+      - "null"
+    description: "Mean temperature 1 week prior."
+  mean_temp_lag_2:
+    type:
+      - "number"
+      - "null"
+    description: "Mean temperature 2 weeks prior."
+  mean_ndvi_lag_1:
+    type:
+      - "number"
+      - "null"
+    description: "Mean NDVI 1 week prior."
+  mean_ndvi_lag_2:
+    type:
+      - "number"
+      - "null"
+    description: "Mean NDVI 2 weeks prior."
+  data_quality_flag:
+    type: "string"
+    enum:
+      - "valid"
+      - "insufficient_data"
+      - "missing_env"
+required:
+  - grid_cell_id
+  - year
+  - week_number
+  - total_observations
+  - data_quality_flag

@@ -1,77 +1,66 @@
-# Quickstart: Bird Migration and Climate Analysis
+# Quickstart: Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change
 
 ## Prerequisites
-
-- Python 3.11+  
-- Git  
-- At least **10 GB** free disk space (for raw data, synthetic generation, and processing).  
+- Python 3.11 or later
+- `git`
+- Access to a GitHub Actions runner **or** a local Linux/macOS machine with ≥ 7 GB RAM
 
 ## Installation
-
 ```bash
-# 1. Clone the repository (or navigate to the project root)
-git clone <repository-url>
-cd <repo-root>
+# Clone the repository
+git clone https://github.com/your-org/PROJ-132-statistical-analysis-of-publicly-availab.git
+cd PROJ-132-statistical-analysis-of-publicly-availab
 
-# 2. Create a virtual environment
+# Create a virtual environment
 python -m venv venv
 source venv/bin/activate   # Windows: venv\Scripts\activate
 
-# 3. Install dependencies (pinned versions)
+# Install pinned dependencies
 pip install -r requirements.txt
 ```
 
-## Running the Pipeline
+## Configuration
+Edit `src/config.py` if you wish to change defaults:
+- `RANDOM_SEED` – reproducibility seed (default = 42)  
+- `DATA_DIR` – root data folder (`data/` by default)  
+- `GRID_RESOLUTION` – spatial resolution (fixed at 0.5° per constitution)  
+- `MIN_OBSERVATIONS` – threshold for sufficient data (default = 5)
 
-The pipeline supports two mutually exclusive modes:
-
-### 1. Synthetic‑Data Mode (default, CI testing)
-
+## Running the Full Pipeline
 ```bash
-python -m src.cli.run_pipeline --mode synthetic --seed 42
+python src/cli/run_pipeline.py
 ```
+The script executes the following stages in order:
+1. **Validation & download** – **streams** eBird and PRISM datasets directly from the verified URLs; **no full raw files are persisted**, keeping disk usage well below the allocated storage limit.  
+2. **Preprocessing** → `data/processed/phenology_climate.csv`.  
+3. **GAMM fitting** → `data/output/gamm_results.csv`.  
+4. **Trajectory & bootstrap** → `data/output/trajectory.json`.  
+5. **Reporting** → `data/output/pipeline_report.json` plus figures under `data/output/figures/`.
 
-- Generates `data/raw/synthetic_ebird.csv` and `data/raw/synthetic_climate.parquet` that conform to `contracts/dataset.schema.yaml`.  
-- Executes the full preprocessing → modeling → permutation testing → trajectory analysis workflow.  
-- **No scientific conclusions** are drawn; this run only validates that the code works and that all contract tests pass.
+### Expected Outputs
+| File | Description |
+|------|-------------|
+| `data/processed/phenology_climate.csv` | Grid‑aligned phenology, effort covariates, and climate variables. |
+| `data/output/gamm_results.csv` | Coefficients, p‑values, convergence status, Moran’s I, GP flag, temporal AR(1) indicator. |
+| `data/output/trajectory.json` | Weekly centroids, shift vectors, block‑permutation p‑value, block‑bootstrap 95 % CI. |
+| `data/output/pipeline_report.json` | Runtime, success‑criterion metrics (SC‑001 – SC‑005). |
+| `data/output/figures/*.png` | Visualizations for the manuscript (phenology vs. temperature, route maps, residual diagnostics). |
 
-### 2. Real‑Data Mode (scientific analysis)
-
+## Testing
 ```bash
-python -m src.cli.run_pipeline --mode real
+pytest tests/ -v
 ```
-
-- **Requires** the official eBird Basic Dataset (2020‑2024) at `data/raw/ebird/ebird_2020_2024.csv` and NOAA/PRISM climate data at `data/raw/climate/prism_2020_2024.parquet`.  
-- The pipeline will abort with a clear error if either file is missing.  
-- When present, the full analysis (preprocessing, Unified Spatial Model fitting, full 10,000‑shuffle permutation tests, route‑shift analysis) is executed and results are written to `data/processed/`.
-
-## Validation
-
-- **Contract tests**:  
-
-```bash
-pytest tests/contract/test_schemas.py
-```
-
-- **CI runtime check** (GitHub Actions free tier):  
-
-```bash
-# In .github/workflows/ci.yml the job `validate_quickstart` runs:
-pytest tests/integration/test_quickstart.py
-```
-
-  The job asserts total runtime < 4 h and that all contract tests succeed.
-
-## Expected Output Files
-
-- `data/processed/phenology_metrics.csv` – aggregated phenology with `sample_weight`.  
-- `data/processed/model_results.parquet` – GAMM coefficients, p‑values, convergence flags, GP metadata.  
-- `data/processed/trajectory_shifts.parquet` – route‑shift statistics and 95 % confidence intervals.  
-- `logs/pipeline.log` – detailed execution log (including any “insufficient data” markings, convergence warnings, Moran’s I diagnostics, and early‑stop flags).
+Unit tests cover data streaming, phenology calculation, effort weighting, model‑result schema validation, and block‑permutation correctness.
 
 ## Troubleshooting
+- **Out‑of‑Memory** – The pipeline uses streaming; if OOM still occurs, reduce `MIN_OBSERVATIONS` or limit the species list in `src/config.py`.  
+- **Lock Stale** – If `data/.pipeline.lock` persists after a crash, delete it manually: `rm data/.pipeline.lock`.  
+- **Dataset Download Failure** – Verify that the URLs listed in `research.md` are reachable; the pipeline will abort with a clear error message if a checksum mismatch occurs.  
+- **GPU Offload** – If the block‑bootstrap exceeds the CPU time budget, the runner will automatically re‑run that step on a Kaggle GPU. No manual intervention required.
 
-- **MemoryError**: Ensure at least 6 GB RAM is available; the pipeline uses chunked I/O.  
-- **Convergence Warning**: Some species may fail to converge; they are logged and skipped.  
-- **Missing Real Data**: If you intend to run real‑data mode, place the required files under `data/raw/ebird/` and `data/raw/climate/`. The pipeline will automatically detect them.  
-- **Synthetic vs Real Mode Confusion**: The `--mode` flag is required; omitting it defaults to `synthetic`.  
+---
+
+
+
+## 8. Reproducibility Note
+All steps are fully deterministic, use the same public URLs, and **do not write any raw eBird or PRISM files to disk**; only derived, version‑controlled artifacts are stored. This guarantees that the analysis can be reproduced on any fresh CI runner or local environment.

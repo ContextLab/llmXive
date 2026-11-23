@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2111.06318",
+  "judged_at": "2026-08-03T16:27:55Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"long-horizon-terminal-bench: testing the limits of agents on long-hori\" computer science",
+  "rationale": "The paper focuses on multi-agent reinforcement learning for autonomous vehicle lane-changing, which is a distinct domain (robotics/traffic control) from the user's question regarding LLM agent benchmarks and long-horizon testing. It shares no measurable connection to the specific mechanism (LLM reasoning limits), variables (terminal benchmarks), or empirical population (LLM agents) required by the user's query, failing all inclusion criteria (a-f) and falling under the \"off-domain entirely\" reje",
+  "relevant": false
+}

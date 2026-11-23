@@ -1,0 +1,16 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Benchmark Tradeoff Schema
+description: Schema for latency vs. fidelity trade-off CSV
+type: object
+properties:
+  view_count:
+    type: integer
+  latency:
+    type: number
+  chamfer_distance:
+    type: number
+  psnr:
+    type: number
+  baseline_latency:
+    type: number
+required: [view_count, latency, chamfer_distance, psnr, baseline_latency]

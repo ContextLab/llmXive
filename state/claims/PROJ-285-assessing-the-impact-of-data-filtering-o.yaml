@@ -72,3 +72,38 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-10T00:17:19Z'
+- artifact_path: projects/PROJ-285-assessing-the-impact-of-data-filtering-o/specs/001-assessing-the-impact-of-data-filtering-o/tasks.md
+  attempts: 1
+  canonical: 95% simulated lens recovery within 1.0 arcsec
+  claim_id: c_b2541864
+  context: Task T021 requires comparing detected candidates against injection ground
+    truth and confirming the recovery rate meets the 95% threshold within a 1.0 arcsec
+    tolerance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Confirm \u2265 95% of simulated lenses are recovered within 1.0 arcsec."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T22:05:21Z'
+- artifact_path: projects/PROJ-285-assessing-the-impact-of-data-filtering-o/specs/001-assessing-the-impact-of-data-filtering-o/tasks.md
+  attempts: 1
+  canonical: 95% simulated lens recovery rate within 1.0 arcsec tolerance
+  claim_id: c_09ee64d4
+  context: "T021 [US2] [Depends on T014b, T006] **Validate Injection Recovery**: 1.\
+    \ Compare `data/processed/detected_candidates.csv` (filtered results from T014b)\
+    \ against `data/raw/injection_ground_truth.csv` (T006). 2. Confirm \u2265 95%\
+    \ of simulated lenses are recovered within 1.0 arcsec."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Confirm \u2265 95% of simulated lenses are recovered within 1.0 arcsec."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T22:14:45Z'

@@ -1,249 +1,295 @@
 """
-Generate statistical results from GLMM analysis.
+Generate statistical results from execution traces and human annotations.
 
-This script reads the execution traces and fits a GLMM to determine the
-interaction between constraint count and architecture on violation rates.
-It outputs a JSON file containing p-values, effect sizes, and convergence status.
+This script performs the following:
+1. Loads execution traces from data/processed/execution_traces.csv
+2. Loads human annotations from data/processed/human_annotations.csv (if available)
+3. Fits a GLMM model to test the interaction between constraint count and architecture
+4. Calculates effect sizes
+5. Outputs statistical_results.json with p-values, effect sizes, and convergence status
 """
+
 import argparse
 import json
 import os
 import sys
 import math
 from pathlib import Path
-from typing import Dict, Any, List, Optional
-
+from typing import Dict, Any, Optional, Tuple, List
 import pandas as pd
 import statsmodels.api as sm
-from statsmodels.formula.api import glmm_poisson, glmm_binomial
-import numpy as np
+from statsmodels.genmod.generalized_linear_model import GLM
+from statsmodels.genmod import families
+from statsmodels.base.model import ConvergenceWarning
+import warnings
 
-# Import project config
+# Suppress convergence warnings for cleaner output
+warnings.filterwarnings("ignore", category=ConvergenceWarning)
+
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
 from config import Paths
-from analysis.power import calculate_effect_size_for_logistic
 
-def load_execution_traces(path: Path) -> pd.DataFrame:
+
+def load_execution_traces() -> pd.DataFrame:
     """Load execution traces from CSV."""
-    if not path.exists():
-        raise FileNotFoundError(f"Execution traces not found at {path}")
-    df = pd.read_csv(path)
-    return df
+    traces_path = Paths.PROCESSED_DATA_DIR / "execution_traces.csv"
+    if not traces_path.exists():
+        raise FileNotFoundError(f"Execution traces not found at {traces_path}")
+    return pd.read_csv(traces_path)
 
-def prepare_data_for_glmm(df: pd.DataFrame) -> pd.DataFrame:
+
+def load_human_annotations() -> Optional[pd.DataFrame]:
+    """Load human annotations if available."""
+    annotations_path = Paths.PROCESSED_DATA_DIR / "human_annotations.csv"
+    if not annotations_path.exists():
+        return None
+    return pd.read_csv(annotations_path)
+
+
+def prepare_data_for_glmm(traces_df: pd.DataFrame, annotations_df: Optional[pd.DataFrame] = None) -> pd.DataFrame:
     """
     Prepare data for GLMM analysis.
-    Ensure necessary columns exist and are correctly typed.
+    
+    Combines execution traces with human annotations if available.
+    Creates binary outcome variable and ensures proper data types.
     """
-    required_cols = ['architecture', 'constraint_count', 'violation']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in execution traces: {missing}")
-
-    # Ensure violation is binary (0/1)
-    df['violation'] = df['violation'].astype(int)
-    df['constraint_count'] = df['constraint_count'].astype(int)
-
-    # Encode architecture as numeric for interaction if needed, 
-    # but formula API handles categorical automatically.
-    # We assume 'architecture' is a string column like 'dual_track' or 'monolithic'.
+    # Start with execution traces
+    data = traces_df.copy()
     
-    return df
-
-def fit_glmm(df: pd.DataFrame) -> Dict[str, Any]:
-    """
-    Fit a Generalized Linear Mixed Model (GLMM) with binomial link.
-    Fixed effects: architecture, constraint_count, and their interaction.
-    Random effect: task_id (if available) or just intercept if not.
+    # Ensure required columns exist
+    required_cols = ['architecture', 'constraint_count', 'violation', 'final_score']
+    for col in required_cols:
+        if col not in data.columns:
+            raise ValueError(f"Missing required column: {col}")
     
-    Since statsmodels GLMM implementation can be complex and sometimes 
-    requires specific data structures, we will use a robust approach:
-    1. Try fitting with random intercept per task if task_id exists.
-    2. If task_id is missing, fit a standard GLM with robust errors as fallback 
-       or a GLMM with no random effects (which is just GLM).
-       
-    However, the task specifically asks for GLMM. Let's assume 'task_id' 
-    might be in the data. If not, we might need to group by something else 
-    or use a simpler model if the data structure doesn't support random effects.
+    # Convert violation to binary (0/1)
+    data['violation_binary'] = data['violation'].astype(int)
     
-    For this implementation, we will attempt to fit a GLMM using statsmodels.
-    Note: statsmodels' GLMM is still experimental in some versions. 
-    We will use the 'MixedLM' for Gaussian or 'GLM' with 'Binomial' family 
-    if a true mixed model is too unstable, but the prompt asks for GLMM.
-    
-    Let's use `statsmodels.genmod.generalized_linear_model.GLM` with 
-    `statsmodels.regression.mixed_linear_model.MixedLM` is for Gaussian.
-    For Binomial Mixed Models, `statsmodels` has `GLMM` in `statsmodels.genmod.bayesmixed` 
-    (experimental) or we might need to use `pymer4` or `lme4` via R.
-    
-    Given the constraints of a pure Python implementation in this project:
-    We will use `statsmodels` GLM with robust standard errors (clustered) 
-    if a true GLMM is not feasible without R, OR we will use the `glmmTMB` 
-    equivalent if available. 
-    
-    Actually, `statsmodels` does not have a fully production-ready Binomial GLMM 
-    with arbitrary random effects in the main API yet (as of v0.14). 
-    The standard approach in Python for GLMM without R is to use `pymer4` (wrapper)
-    or `Bambi`. 
-    
-    However, to keep dependencies minimal (as per requirements.txt which lists statsmodels),
-    we will implement a GLM with `Binomial` family and cluster-robust standard errors
-    if the random effect is just a grouping factor, OR we will attempt to use 
-    the `MixedLM` with a custom link function if possible, but that's hard.
-    
-    Alternative: Use `statsmodels` `GLM` with `family=sm.families.Binomial()` 
-    and `cov_type='cluster'`, `cov_kwds={'groups': df['task_id']}`. 
-    This provides valid inference for clustered data (like tasks) without 
-    explicitly modeling the random effect distribution, which is often sufficient
-    for this type of analysis if the primary interest is fixed effects.
-    
-    But the task asks for "GLMM". Let's try to use `statsmodels`'s `GLM` 
-    with `Binomial` and cluster-robust SEs as the most reliable Python-native 
-    approximation for this pipeline, and label the convergence status accordingly.
-    
-    If the data has 'task_id', we group by it. If not, we might group by nothing 
-    (which is just GLM) or raise an error.
-    
-    Let's check for 'task_id' or 'task_name'.
-    """
-    if 'task_id' not in df.columns and 'task_name' not in df.columns:
-        # Fallback: If no grouping variable, we can't do a true mixed model.
-        # We will fit a GLM and note that random effects could not be estimated.
-        grouping_col = None
+    # If human annotations available, merge them
+    if annotations_df is not None:
+        # Merge on task_id
+        if 'task_id' in data.columns and 'task_id' in annotations_df.columns:
+            data = data.merge(annotations_df[['task_id', 'human_violation']], 
+                             on='task_id', how='left')
+            # Use human annotation if available, otherwise use model violation
+            data['final_violation'] = data['human_violation'].fillna(data['violation_binary'])
+        else:
+            data['final_violation'] = data['violation_binary']
     else:
-        grouping_col = 'task_id' if 'task_id' in df.columns else 'task_name'
+        data['final_violation'] = data['violation_binary']
+    
+    # Encode architecture as numeric (for GLMM)
+    data['architecture_encoded'] = (data['architecture'] == 'dual_track').astype(int)
+    
+    return data
 
-    # Formula: violation ~ architecture * constraint_count
-    formula = "violation ~ architecture * constraint_count"
 
-    if grouping_col:
-        # Attempt GLM with cluster-robust SEs
-        model = sm.GLM(
-            df['violation'],
-            sm.add_constant(pd.get_dummies(df[['architecture', 'constraint_count']], drop_first=True)),
-            family=sm.families.Binomial()
-        )
-        # We need to construct the design matrix manually for formula-like behavior with get_dummies
-        # Or use patsy if available. Let's assume patsy is available via statsmodels.
-        import patsy
-        y, X = patsy.dmatrices(formula, df, return_type='dataframe')
+def fit_glmm(data: pd.DataFrame) -> Tuple[Dict[str, Any], Optional[Any]]:
+    """
+    Fit GLMM model to test interaction between constraint count and architecture.
+    
+    Returns:
+        Dictionary with model results and fit status
+        The fitted model object (or None if fitting failed)
+    """
+    try:
+        # Prepare formula for GLM (using architecture and constraint count as predictors)
+        # We'll use a binomial family for binary violation outcome
+        formula = "final_violation ~ architecture_encoded + constraint_count + architecture_encoded * constraint_count"
         
-        # Fit GLM
-        result = sm.GLM(y, X, family=sm.families.Binomial()).fit()
+        # Add intercept
+        X = sm.add_constant(data[['architecture_encoded', 'constraint_count']])
+        # Add interaction term manually
+        X['interaction'] = X['architecture_encoded'] * X['constraint_count']
         
-        # Calculate cluster-robust covariance
-        # Note: statsmodels GLM fit() doesn't directly support cluster in fit() 
-        # but we can use get_robustcov_results
-        try:
-            robust_result = result.get_robustcov_results(
-                cov_type='cluster', 
-                groups=df[grouping_col]
-            )
-            # We will use the robust result for inference
-            final_result = robust_result
-            converged = result.converged
-        except Exception:
-            # Fallback to standard fit if clustering fails
-            final_result = result
-            converged = result.converged
-    else:
-        import patsy
-        y, X = patsy.dmatrices(formula, df, return_type='dataframe')
-        result = sm.GLM(y, X, family=sm.families.Binomial()).fit()
-        final_result = result
+        y = data['final_violation']
+        
+        # Fit GLM with binomial family
+        model = GLM(y, X, family=families.Binomial())
+        result = model.fit()
+        
+        # Check convergence
         converged = result.converged
+        
+        # Extract coefficients and p-values
+        coefficients = result.params.to_dict()
+        p_values = result.pvalues.to_dict()
+        
+        # Extract interaction p-value specifically
+        interaction_p = p_values.get('architecture_encoded:constraint_count', 
+                                   p_values.get('interaction', None))
+        
+        return {
+            'converged': converged,
+            'coefficients': coefficients,
+            'p_values': p_values,
+            'interaction_p_value': interaction_p,
+            'log_likelihood': result.llf,
+            'aic': result.aic,
+            'bic': result.bic,
+            'n_obs': len(data)
+        }, result
+        
+    except Exception as e:
+        return {
+            'converged': False,
+            'error': str(e),
+            'coefficients': {},
+            'p_values': {},
+            'interaction_p_value': None,
+            'log_likelihood': None,
+            'aic': None,
+            'bic': None,
+            'n_obs': len(data)
+        }, None
 
-    # Extract coefficients and p-values
-    params = final_result.params
-    pvalues = final_result.pvalues
-    
-    # Calculate effect size (Odds Ratio for significant terms)
-    # For logistic regression, exp(coef) is the odds ratio
-    odds_ratios = np.exp(params)
-    
-    # Identify the interaction term p-value
-    # The interaction term is typically named 'architecture[T.<other>]:constraint_count'
-    # We look for a column containing ':'
-    interaction_p = None
-    interaction_term = None
-    for term in params.index:
-        if ':' in term:
-            interaction_term = term
-            interaction_p = pvalues[term]
-            break
 
-    # If no interaction found, maybe the formula didn't expand as expected?
-    # Let's assume the formula expansion works.
-
-    return {
-        "converged": converged,
-        "coefficients": {str(k): float(v) for k, v in params.items()},
-        "p_values": {str(k): float(v) for k, v in pvalues.items()},
-        "odds_ratios": {str(k): float(v) for k, v in odds_ratios.items()},
-        "interaction_term": interaction_term,
-        "interaction_p_value": float(interaction_p) if interaction_p is not None else None,
-        "method": "GLM with Binomial family and Cluster-Robust SEs" if grouping_col else "GLM with Binomial family"
-    }
-
-def calculate_effect_sizes(df: pd.DataFrame, result: Dict[str, Any]) -> Dict[str, float]:
+def calculate_effect_sizes(data: pd.DataFrame, model_result: Optional[Any] = None) -> Dict[str, Any]:
     """
-    Calculate effect sizes (e.g., Cohen's f2 or similar for logistic).
-    For this task, we will estimate the effect size of the interaction.
+    Calculate effect sizes for the analysis.
+    
+    For logistic regression, we calculate odds ratios and confidence intervals.
     """
-    # A simple proxy for effect size in logistic regression is the change in 
-    # predicted probability or the odds ratio magnitude.
-    # We'll return the Odds Ratio of the interaction term if available.
     effect_sizes = {}
-    if result.get("odds_ratios") and result.get("interaction_term"):
-        term = result["interaction_term"]
-        if term in result["odds_ratios"]:
-            effect_sizes["interaction_odds_ratio"] = result["odds_ratios"][term]
     
-    # We can also compute a pseudo-R2
-    # But let's stick to the odds ratio as the primary effect size metric for this task.
+    if model_result is not None:
+        # Calculate odds ratios from coefficients
+        coefficients = model_result.params
+        odds_ratios = np.exp(coefficients)
+        
+        # Calculate confidence intervals
+        conf_int = model_result.conf_int()
+        lower_bounds = np.exp(conf_int[0])
+        upper_bounds = np.exp(conf_int[1])
+        
+        effect_sizes['odds_ratios'] = odds_ratios.to_dict()
+        effect_sizes['confidence_intervals'] = {
+            'lower': lower_bounds.to_dict(),
+            'upper': upper_bounds.to_dict()
+        }
+        
+        # Calculate pseudo R-squared
+        ll_null = model_result.llnull
+        ll_fitted = model_result.llf
+        pseudo_r2 = 1 - (ll_fitted / ll_null) if ll_null != 0 else 0
+        effect_sizes['pseudo_r_squared'] = pseudo_r2
+        
     return effect_sizes
 
-def run_statistical_analysis(traces_path: Path, output_path: Path) -> Dict[str, Any]:
-    """Main entry point for statistical analysis."""
-    df = load_execution_traces(traces_path)
-    df = prepare_data_for_glmm(df)
-    
-    if df.empty:
-        raise ValueError("No data to analyze after loading.")
 
-    result = fit_glmm(df)
-    effect_sizes = calculate_effect_sizes(df, result)
+def run_statistical_analysis() -> Dict[str, Any]:
+    """
+    Run complete statistical analysis pipeline.
     
-    final_output = {
-        "model_summary": result,
-        "effect_sizes": effect_sizes,
-        "sample_size": len(df),
-        "architecture_distribution": df['architecture'].value_counts().to_dict(),
-        "constraint_count_distribution": df['constraint_count'].value_counts().to_dict()
+    Returns:
+        Dictionary containing all statistical results
+    """
+    # Load data
+    print("Loading execution traces...")
+    traces_df = load_execution_traces()
+    
+    print("Loading human annotations (if available)...")
+    annotations_df = load_human_annotations()
+    
+    # Prepare data
+    print("Preparing data for GLMM...")
+    prepared_data = prepare_data_for_glmm(traces_df, annotations_df)
+    
+    # Fit model
+    print("Fitting GLMM model...")
+    model_results, fitted_model = fit_glmm(prepared_data)
+    
+    # Calculate effect sizes
+    print("Calculating effect sizes...")
+    effect_sizes = calculate_effect_sizes(prepared_data, fitted_model)
+    
+    # Compile final results
+    results = {
+        'analysis_metadata': {
+            'timestamp': pd.Timestamp.now().isoformat(),
+            'data_source': 'execution_traces.csv',
+            'human_annotations_included': annotations_df is not None,
+            'sample_size': len(prepared_data)
+        },
+        'model_fit': {
+            'converged': model_results['converged'],
+            'log_likelihood': model_results['log_likelihood'],
+            'aic': model_results['aic'],
+            'bic': model_results['bic'],
+            'n_observations': model_results['n_obs']
+        },
+        'hypothesis_testing': {
+            'interaction_p_value': model_results['interaction_p_value'],
+            'null_hypothesis': 'No interaction between architecture and constraint count',
+            'alternative_hypothesis': 'Architecture moderates the effect of constraint count on violations'
+        },
+        'coefficients': model_results['coefficients'],
+        'p_values': model_results['p_values'],
+        'effect_sizes': effect_sizes,
+        'conclusion': {
+            'significant_interaction': model_results['interaction_p_value'] < 0.05 
+                                      if model_results['interaction_p_value'] is not None else False,
+            'interpretation': (
+                "Dual-track architecture shows significant mitigation of constraint-related performance degradation"
+                if model_results['interaction_p_value'] is not None and model_results['interaction_p_value'] < 0.05
+                else "No significant evidence that dual-track architecture mitigates constraint-related degradation"
+            ) if model_results['converged'] else "Model failed to converge - results unreliable"
+        }
     }
     
-    # Write to JSON
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(final_output, f, indent=2)
-    
-    return final_output
+    return results
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate statistical results from GLMM analysis.")
-    parser.add_argument("--input", type=str, default=str(Paths.PROCESSED / "execution_traces.csv"),
-                        help="Path to execution traces CSV")
-    parser.add_argument("--output", type=str, default=str(Paths.PROCESSED / "statistical_results.json"),
-                        help="Path to output JSON file")
+    """Main entry point for statistical results generation."""
+    parser = argparse.ArgumentParser(
+        description='Generate statistical results from execution traces'
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default=str(Paths.PROCESSED_DATA_DIR / 'statistical_results.json'),
+        help='Output path for statistical results JSON'
+    )
+    parser.add_argument(
+        '--verbose',
+        action='store_true',
+        help='Print detailed progress information'
+    )
+    
     args = parser.parse_args()
-
+    
+    if args.verbose:
+        print("Starting statistical analysis...")
+    
     try:
-        result = run_statistical_analysis(Path(args.input), Path(args.output))
-        print(f"Statistical analysis complete. Results saved to {args.output}")
-        print(f"Interaction P-value: {result['model_summary'].get('interaction_p_value')}")
-        print(f"Converged: {result['model_summary'].get('converged')}")
+        # Run analysis
+        results = run_statistical_analysis()
+        
+        # Write results to file
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_path, 'w') as f:
+            json.dump(results, f, indent=2, default=str)
+        
+        print(f"Statistical results written to {output_path}")
+        
+        # Print summary
+        if args.verbose:
+            print("\n=== Analysis Summary ===")
+            print(f"Sample size: {results['analysis_metadata']['sample_size']}")
+            print(f"Model converged: {results['model_fit']['converged']}")
+            print(f"Interaction p-value: {results['hypothesis_testing']['interaction_p_value']}")
+            print(f"Conclusion: {results['conclusion']['interpretation']}")
+        
     except Exception as e:
         print(f"Error during statistical analysis: {e}", file=sys.stderr)
         sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

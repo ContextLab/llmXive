@@ -1,15 +1,19 @@
 status: none
-intent: AgentDoG 1.5 safety taxonomy dataset download huggingface python package dataset
+intent: download safety category log dataset centroids HuggingFace redteam-logs GitHub
+  issues human annotations python package dataset
 required_fields:
 - log_id
-- prompt_text
-- response_text
-- agent_name_or_id
-- timestamp
-- category_id
-- category_name
-- category_definition
-- category_example_prompts
-cache_key: 4b9fb00821b2d05967f82d1d92a5bc67cff1e45dfe864ff5e97eb75120aa14a0
-searched_at: '2026-07-16T06:34:14.731422+00:00'
+- log_text
+- safety_category
+- component
+- strategy
+- source
+- embedding_vector
+- centroid_label
+- human_annotation
+- annotator_id
+- gold_standard_label
+- novel_attack_flag
+cache_key: 59adf540e092bcd8ca575d3aefa273a6fa83ae7e2a38f9125e23b66139040ed4
+searched_at: '2026-11-08T09:07:24.589220+00:00'
 retry_count: 1

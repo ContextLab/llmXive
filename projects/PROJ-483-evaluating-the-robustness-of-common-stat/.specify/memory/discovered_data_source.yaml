@@ -1,0 +1,8 @@
+status: none
+intent: UCI Machine Learning Repository Iris dataset OpenML python package dataset
+required_fields:
+- continuous_feature
+- categorical_label
+cache_key: 5723cc0f06f365e0a674879a47fde0915e01c595990a19145635ec725be70323
+searched_at: '2026-10-11T22:21:59.249289+00:00'
+retry_count: 1

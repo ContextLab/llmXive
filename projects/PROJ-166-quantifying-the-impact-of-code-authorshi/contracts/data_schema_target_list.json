@@ -1,0 +1,37 @@
+{
+  "description": "Schema for the target repository list fetched from GitHub API.",
+  "source": "GitHub Search API",
+  "output_file": "data/raw/target_list.csv",
+  "columns": [
+    {
+      "name": "url",
+      "type": "string",
+      "description": "Full HTTPS URL of the GitHub repository (e.g., https://github.com/user/repo).",
+      "nullable": false,
+      "unique": true
+    },
+    {
+      "name": "primary_language",
+      "type": "string",
+      "description": "Primary programming language of the repository.",
+      "nullable": false
+    },
+    {
+      "name": "stars",
+      "type": "integer",
+      "description": "Number of stars the repository has received.",
+      "nullable": false,
+      "min_value": 0
+    },
+    {
+      "name": "age",
+      "type": "string",
+      "description": "ISO 8601 formatted date string of the repository creation date.",
+      "nullable": false
+    }
+  ],
+  "constraints": {
+    "min_rows": 500,
+    "filter_criteria": "Stars > 1000, Created >= 2015-01-01, Languages in [JavaScript, Python, Java, C++]"
+  }
+}

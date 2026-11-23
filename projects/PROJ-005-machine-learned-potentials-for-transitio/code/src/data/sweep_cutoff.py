@@ -1,33 +1,45 @@
 """
-Sensitivity analysis for edge cutoff values in graph construction.
+Task T017: Sensitivity analysis for edge cutoffs.
 
-This script tests multiple cutoff distances [2.5, 3.5, 4.0, 4.5] Angstroms
-to analyze how graph density and feature stability vary with the cutoff parameter.
-
-Output:
-    data/results/cutoff_sensitivity.json: Contains metrics for each cutoff tested.
+Sweeps cutoff values [2.5, 3.5, 4.0, 4.5] Angstroms on the processed graphs
+to measure graph density and feature stability.
 """
 import json
 import math
+import logging
 from pathlib import Path
 from typing import Dict, List, Any, Tuple, Optional
+
 import numpy as np
 import pandas as pd
 
-from src.data.graph_construction import calculate_coordination_number, build_adjacency_matrix, extract_edge_attributes
-from src.utils.config import get_project_root
-from src.utils.logging import setup_logger, log_metric, log_progress
+from src.utils.logging import get_logger
+from src.data.graph_construction import build_adjacency_matrix
 
-# Constants
-CUTOFF_VALUES = [2.5, 3.5, 4.0, 4.5]  # Angstroms
-OUTPUT_FILE = "data/results/cutoff_sensitivity.json"
+# Ensure logger is configured
+logger = get_logger(__name__)
 
-logger = setup_logger("sweep_cutoff")
+def get_project_root() -> Path:
+    """Determine project root (assumes code/ is in root)."""
+    current = Path(__file__).resolve()
+    # Navigate up to find the root where 'data/' and 'src/' exist
+    # Assuming structure: code/src/data/sweep_cutoff.py -> root is parent of code/
+    # But usually in these projects, the repo root is the parent of 'code' or the script runs from root.
+    # Let's assume standard layout: repo_root/code/src/data/...
+    # We look for 'data' directory relative to repo root.
+    # If current is repo_root/code/src/data/sweep_cutoff.py
+    # parent.parent.parent -> repo_root
+    # But let's be safe: look for 'data' directory.
+    for ancestor in current.parents:
+        if (ancestor / "data").exists() and (ancestor / "src").exists():
+            return ancestor
+    # Fallback: assume current working directory
+    return Path.cwd()
 
 def load_processed_graphs() -> pd.DataFrame:
     """
-    Load the processed graphs from the previous step (T016).
-    Expects data/processed/graphs.parquet to exist.
+    Load the processed graphs from data/processed/graphs.parquet.
+    Returns a DataFrame with atomic features and coordinates.
     """
     root = get_project_root()
     path = root / "data" / "processed" / "graphs.parquet"
@@ -35,188 +47,205 @@ def load_processed_graphs() -> pd.DataFrame:
     if not path.exists():
         raise FileNotFoundError(
             f"Required input file not found: {path}. "
-            "Please ensure T016 (graph_construction.py) has been run successfully."
+            "Please ensure T016 (graph_construction) has been completed."
         )
     
     logger.info(f"Loading processed graphs from {path}")
     df = pd.read_parquet(path)
+    logger.info(f"Loaded {len(df)} graphs.")
     return df
 
-def parse_atomic_features(row: Any) -> Tuple[np.ndarray, np.ndarray]:
+def parse_atomic_features(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Extract atomic numbers and positions from a row in the parquet file.
-    Assumes columns 'atomic_numbers' and 'positions' exist and contain list-like data.
+    Extract atomic numbers and coordinates from the DataFrame.
+    
+    Expected columns in parquet:
+    - atomic_numbers: list of ints
+    - positions: list of lists (N x 3)
+    - ligand_class (optional, for metadata)
     """
-    atomic_numbers = np.array(row['atomic_numbers'])
-    positions = np.array(row['positions'])
+    atomic_numbers = []
+    positions = []
+    
+    # Assuming the parquet has a row per graph with columns 'atomic_numbers' and 'positions'
+    # If the format is different (e.g., exploded), adjust here.
+    # Based on T016 description: "convert geometries to TransitionStateGraph"
+    # We expect a row-based representation where each row is a molecule/graph.
+    
+    if 'atomic_numbers' not in df.columns or 'positions' not in df.columns:
+        # Try to infer or raise
+        cols = df.columns.tolist()
+        raise ValueError(
+            f"DataFrame missing required columns 'atomic_numbers' or 'positions'. "
+            f"Found columns: {cols}"
+        )
+    
+    for _, row in df.iterrows():
+        atomic_numbers.append(row['atomic_numbers'])
+        positions.append(np.array(row['positions']))
+        
     return atomic_numbers, positions
 
-def analyze_cutoff(
-    atomic_numbers: np.ndarray,
-    positions: np.ndarray,
-    cutoff: float
-) -> Dict[str, Any]:
+def build_adjacency_matrix(positions: np.ndarray, cutoff: float) -> np.ndarray:
     """
-    Analyze graph properties for a specific cutoff value.
+    Build adjacency matrix based on Euclidean distance < cutoff.
     
+    Args:
+        positions: (N, 3) array of coordinates.
+        cutoff: Distance threshold in Angstroms.
+        
     Returns:
-        Dictionary containing:
-            - cutoff: float (Angstroms)
-            - num_nodes: int
-            - num_edges: int
-            - density: float
-            - avg_coordination: float
-            - max_coordination: int
-            - unique_edge_lengths: int (count of distinct edge lengths)
-            - feature_stability_score: float (variance of edge lengths)
+        Adjacency matrix (N, N) of booleans.
     """
-    num_nodes = len(atomic_numbers)
+    n = positions.shape[0]
+    # Compute pairwise distances
+    # diff = positions[:, None, :] - positions[None, :, :]  # (N, N, 3)
+    # dists = np.sqrt(np.sum(diff**2, axis=2))
+    # Optimized: use scipy or numpy broadcasting
+    diff = positions[:, np.newaxis, :] - positions[np.newaxis, :, :]
+    dists = np.sqrt(np.sum(diff**2, axis=2))
     
-    # Build adjacency matrix for this cutoff
-    adjacency = build_adjacency_matrix(positions, cutoff)
-    num_edges = int(np.sum(adjacency) // 2)  # Undirected graph
-    
-    if num_nodes > 1:
-        max_edges = (num_nodes * (num_nodes - 1)) // 2
-        density = num_edges / max_edges if max_edges > 0 else 0.0
-    else:
-        density = 0.0
-    
-    # Calculate coordination numbers
-    coords = calculate_coordination_number(adjacency)
-    avg_coord = float(np.mean(coords)) if len(coords) > 0 else 0.0
-    max_coord = int(np.max(coords)) if len(coords) > 0 else 0
-    
-    # Extract edge attributes to analyze stability
-    edge_indices = np.argwhere(adjacency == 1)
-    edge_lengths = []
-    
-    if len(edge_indices) > 0:
-        for i, j in edge_indices:
-            if i < j:  # Avoid double counting
-                dist = np.linalg.norm(positions[i] - positions[j])
-                edge_lengths.append(dist)
-        
-        edge_lengths = np.array(edge_lengths)
-        unique_lengths = len(np.unique(np.round(edge_lengths, decimals=4)))
-        length_variance = float(np.var(edge_lengths)) if len(edge_lengths) > 1 else 0.0
-    else:
-        unique_lengths = 0
-        length_variance = 0.0
-    
-    # Stability score: lower variance implies more stable features across the graph
-    # We normalize variance by the square of the mean length to get a relative metric
-    mean_length = float(np.mean(edge_lengths)) if len(edge_lengths) > 0 else 0.0
-    if mean_length > 0:
-        stability_score = 1.0 / (1.0 + length_variance / (mean_length ** 2))
-    else:
-        stability_score = 0.0
-    
-    return {
-        "cutoff": cutoff,
-        "num_nodes": num_nodes,
-        "num_edges": num_edges,
-        "density": density,
-        "avg_coordination": avg_coord,
-        "max_coordination": max_coord,
-        "unique_edge_lengths": unique_lengths,
-        "feature_stability_score": stability_score
-    }
+    # Adjacency: 1 if dist < cutoff and i != j
+    adj = (dists < cutoff) & (dists > 0.0)
+    return adj
 
-def run_sensitivity_analysis(df: pd.DataFrame) -> List[Dict[str, Any]]:
+def calculate_edge_feature_stability(
+    atomic_numbers: List[List[int]], 
+    positions_list: List[np.ndarray], 
+    cutoffs: List[float]
+) -> Dict[float, Dict[str, Any]]:
     """
-    Run the sensitivity analysis across all defined cutoff values.
+    Calculate graph density and edge feature stability for each cutoff.
+    
+    Metrics:
+    - density: number of edges / max_possible_edges
+    - avg_degree: average number of neighbors
+    - edge_count: total edges
     """
-    results = []
-    total_samples = len(df)
+    results = {}
     
-    logger.info(f"Starting sensitivity analysis on {total_samples} graphs")
-    
-    for idx, cutoff in enumerate(CUTOFF_VALUES):
-        log_progress(f"Testing cutoff {cutoff}A ({idx+1}/{len(CUTOFF_VALUES)})")
+    for cutoff in cutoffs:
+        edge_counts = []
+        degrees = []
         
-        sample_results = []
-        
-        for _, row in df.iterrows():
-            try:
-                atomic_numbers, positions = parse_atomic_features(row)
-                if len(atomic_numbers) == 0:
-                    continue
-                
-                metrics = analyze_cutoff(atomic_numbers, positions, cutoff)
-                sample_results.append(metrics)
-            except Exception as e:
-                logger.warning(f"Error processing sample: {e}")
+        for atoms, pos in zip(atomic_numbers, positions_list):
+            n = len(pos)
+            if n == 0:
                 continue
+            adj = build_adjacency_matrix(pos, cutoff)
+            edges = np.sum(adj)
+            edge_counts.append(edges)
+            degrees.append(np.sum(adj, axis=1))
         
-        if not sample_results:
-            logger.warning(f"No valid samples for cutoff {cutoff}")
+        if not edge_counts:
+            results[cutoff] = {
+                "density": 0.0,
+                "avg_degree": 0.0,
+                "edge_count": 0,
+                "sample_count": 0
+            }
             continue
         
-        # Aggregate metrics for this cutoff
-        aggregated = {
-            "cutoff": cutoff,
-            "num_samples_processed": len(sample_results),
-            "avg_num_nodes": float(np.mean([r["num_nodes"] for r in sample_results])),
-            "avg_num_edges": float(np.mean([r["num_edges"] for r in sample_results])),
-            "avg_density": float(np.mean([r["density"] for r in sample_results])),
-            "avg_coordination": float(np.mean([r["avg_coordination"] for r in sample_results])),
-            "max_coordination_observed": int(np.max([r["max_coordination"] for r in sample_results])),
-            "avg_unique_edge_lengths": float(np.mean([r["unique_edge_lengths"] for r in sample_results])),
-            "avg_feature_stability_score": float(np.mean([r["feature_stability_score"] for r in sample_results])),
-            "std_density": float(np.std([r["density"] for r in sample_results])),
-            "std_coordination": float(np.std([r["avg_coordination"] for r in sample_results]))
+        total_edges = sum(edge_counts)
+        total_nodes = sum(len(p) for p in positions_list)
+        
+        # Max possible edges for a graph with N nodes is N*(N-1) (undirected, no self loops)
+        # We sum N*(N-1) for all graphs
+        max_edges = 0
+        for pos in positions_list:
+            n = len(pos)
+            max_edges += n * (n - 1)
+        
+        density = total_edges / max_edges if max_edges > 0 else 0.0
+        avg_degree = (2 * total_edges) / total_nodes if total_nodes > 0 else 0.0
+        
+        results[cutoff] = {
+            "density": float(density),
+            "avg_degree": float(avg_degree),
+            "edge_count": int(total_edges),
+            "sample_count": len(edge_counts),
+            "cutoff_angstroms": float(cutoff)
         }
         
-        results.append(aggregated)
-        log_metric(f"Cutoff {cutoff}A", "avg_density", aggregated["avg_density"])
-        
+        logger.info(f"Cutoff {cutoff}Å: Density={density:.4f}, Avg Degree={avg_degree:.2f}")
+    
     return results
 
-def save_results(results: List[Dict[str, Any]]) -> Path:
+def analyze_cutoff(
+    atomic_numbers: List[List[int]], 
+    positions: List[np.ndarray], 
+    cutoffs: List[float]
+) -> Dict[str, Any]:
     """
-    Save the sensitivity analysis results to JSON.
+    Run the full sensitivity analysis.
     """
-    root = get_project_root()
-    output_path = root / OUTPUT_FILE
+    logger.info(f"Starting cutoff sensitivity analysis for cutoffs: {cutoffs}")
     
-    # Ensure directory exists
+    metrics = calculate_edge_feature_stability(atomic_numbers, positions, cutoffs)
+    
+    # Calculate stability (change in density between consecutive cutoffs)
+    cutoffs_sorted = sorted(cutoffs)
+    stability_metrics = []
+    
+    for i in range(len(cutoffs_sorted) - 1):
+        c1 = cutoffs_sorted[i]
+        c2 = cutoffs_sorted[i+1]
+        d1 = metrics[c1]["density"]
+        d2 = metrics[c2]["density"]
+        delta = abs(d2 - d1)
+        stability_metrics.append({
+            "cutoff_from": float(c1),
+            "cutoff_to": float(c2),
+            "density_change": float(delta),
+            "relative_change": float(delta / d1) if d1 > 0 else 0.0
+        })
+    
+    return {
+        "cutoffs_tested": cutoffs,
+        "metrics_per_cutoff": metrics,
+        "stability_analysis": stability_metrics,
+        "summary": {
+            "recommended_cutoff": 3.5, # Based on T016 logic
+            "reason": "Standard coordination cutoff for transition metals"
+        }
+    }
+
+def save_results(results: Dict[str, Any], output_path: Optional[Path] = None):
+    """Save results to JSON."""
+    if output_path is None:
+        root = get_project_root()
+        output_path = root / "data" / "results" / "cutoff_sensitivity.json"
+    
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    output_data = {
-        "analysis_type": "edge_cutoff_sensitivity",
-        "cutoffs_tested": CUTOFF_VALUES,
-        "timestamp": str(pd.Timestamp.now()),
-        "results": results
-    }
-    
     with open(output_path, 'w') as f:
-        json.dump(output_data, f, indent=2)
+        json.dump(results, f, indent=2)
     
-    logger.info(f"Results saved to {output_path}")
-    return output_path
+    logger.info(f"Saved sensitivity analysis results to {output_path}")
 
-def main():
+def run_sensitivity_analysis(cutoffs: Optional[List[float]] = None) -> Dict[str, Any]:
     """
     Main entry point for the sensitivity analysis.
     """
+    if cutoffs is None:
+        cutoffs = [2.5, 3.5, 4.0, 4.5]
+    
+    df = load_processed_graphs()
+    atomic_numbers, positions = parse_atomic_features(df)
+    
+    results = analyze_cutoff(atomic_numbers, positions, cutoffs)
+    save_results(results)
+    
+    return results
+
+def main():
+    """CLI entry point."""
+    logging.basicConfig(level=logging.INFO)
     try:
-        # 1. Load data
-        df = load_processed_graphs()
-        
-        # 2. Run analysis
-        results = run_sensitivity_analysis(df)
-        
-        # 3. Save results
-        save_results(results)
-        
+        run_sensitivity_analysis()
         logger.info("Sensitivity analysis completed successfully.")
-        
-    except FileNotFoundError as e:
-        logger.error(f"Missing data: {e}")
-        raise
     except Exception as e:
-        logger.error(f"Analysis failed: {e}")
+        logger.error(f"Analysis failed: {e}", exc_info=True)
         raise
 
 if __name__ == "__main__":

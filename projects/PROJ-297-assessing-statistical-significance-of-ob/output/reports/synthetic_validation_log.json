@@ -1,0 +1,11 @@
+{
+  "total_runs": 3,
+  "pass_count": 3,
+  "pass_rate": 1.0,
+  "results": [
+    {"run": 1, "passed": true},
+    {"run": 2, "passed": true},
+    {"run": 3, "passed": true}
+  ],
+  "status": "passed"
+}

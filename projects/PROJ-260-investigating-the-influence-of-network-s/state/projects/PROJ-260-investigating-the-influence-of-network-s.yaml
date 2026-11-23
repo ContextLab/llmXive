@@ -1,0 +1,29 @@
+project: PROJ-260-investigating-the-influence-of-network-s
+hashes:
+  data/metadata/dataset_registry.json: e8ea31ef3fff3600496d5079a207165b2db1acf3e9af73a1c9526b99223223f2
+  data/metadata/.gitkeep: 1377da98439ff79b09ab2a2e76251148c388d62594baaa3fe234ba1c4aa21275
+  data/raw/.gitkeep: e9f6a4ff4a7460e6c7395979f65c82bfc1e1bce76a4b5b72945f3e442a8d72d7
+  data/derived/.gitkeep: 215da2e11db55af7103fd300fdf69777772867ffcb6ce6166e97b6a513e2a5ed
+  data/derived/topology/.gitkeep: f2c2659c4673c25e3d6ccee2a91ca404d17a6e50ff6e4420b0d54ca98a50af2f
+  data/derived/vdos/.gitkeep: 74bcd62002b86f670f37de993607acbe39eb31a41e4b61a899eae2b1bd196d54
+  data/derived/reference/.gitkeep: 7c87929e1ce1377271bdeda4d8b3a26f3453dd1fdca64debe00e24f64743ca2b
+  data/derived/correlation/.gitkeep: 22b1877e1c7562d4e57a53877518fe1c405bef3273ae0d8bb830e0911e3f1b3f
+  src/__init__.py: 6345c9f40f7c5d716757119066997bf5cf3adb2251d7384b0069d4a9fc5ded50
+  src/lib/utils.py: 3183ef0593ba284ff31efb108b2412b7e41dccecac19cd2110723aea4703c21a
+  src/lib/__pycache__/utils.cpython-311.pyc: 7dcfc7b82b221445c9d1e61eacf2faa4929c11064c55b2c083a59b97b5e54dde
+  src/__pycache__/__init__.cpython-311.pyc: 439f046188875aacc6c4a39257c1c0a7812bf9c4b3db8520b38fd53fd2029a58
+  src/services/topology_extractor.py: 048986d7e73919b4bbadda5e7b78d7fe07ceae909fc106403782bce7fc6238c3
+  src/services/registry_generator.py: ade39052b18b56660373d793699c78d8dfd192ae89b17b7bf9752077d56498c6
+  src/services/data_loader.py: 0fb475d3c2bb6f80e0df243b0edd7aad910ce92c475e7ca831311f8c1a0a4d98
+  src/services/registry_validator.py: 57c921363e4eb307751a15dceac62cb0d925920807cee8ae7349636c007684b5
+  src/services/__init__.py: c2d5f4c48c1d19258b0bf34d3e5ff207e3db3cec36bfa6d8c40e26749b847c81
+  src/models/bond_network.py: 4713d603d17c204ad8b9cafb4d3b691972393cba0c61c0430fa18d7985ed0615
+  src/models/vibrational_spectrum.py: 4e9b382a3ec987f25ebbc5b08593468264cc0d09786553d3c73f3e8311979737
+  src/models/simulation_box.py: eba8310213b97e59fc38502b28c918043cd99a777677adbb819d9721f396c7f5
+  src/models/__init__.py: 98be4a20a506045c4ffc92745c7f6a4ae716501750fd494433cf6291d7476755
+  src/cli/main.py: a7dcfe337f427953ec7f97e709fafdaa5f3a45a0185544a07fdb105f99aca3e6
+  src/cli/__init__.py: d419aa4d559c2bd0251a573b61a336edd5789ce1ac4e2ba47b93bdf8eef4037b
+  src/cli/__pycache__/__init__.cpython-311.pyc: 76f3af7d07853a946b7aea34cfd80edeb384d07ca53170f14d878343b9b0cb66
+  src/cli/__pycache__/main.cpython-311.pyc: 8691ac9e201434fdc973bb6506760fb32b89a9c5d83d35df898e9e77c0919b59
+  outputs/reports/.gitkeep: aa9c009c5e49f46feb8afc6ac6dca9e925f0d7533fb3dbe0d800160e61e50d6a
+  outputs/figures/.gitkeep: bff7bf27daa4fe5233c5081ed5b44b9e22f90f044712004c28950ca94cc853ec

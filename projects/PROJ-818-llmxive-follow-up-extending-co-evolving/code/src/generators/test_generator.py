@@ -1,389 +1,262 @@
 """
 Test Instance Generator for Co-Evolving Policy Distillation.
 
-Generates held-out test instances for propositional logic proofs and grid-world
-navigation tasks using distinct seeds to ensure strict separation from training data.
+Generates held-out test instances for both logic proofs and grid-world tasks.
+Uses a disjoint seed range from the training set to ensure strict separation
+(FR-004).
 """
+
 import random
 import json
 import os
 import sys
+import logging
 from typing import List, Dict, Any, Tuple, Optional
 from pathlib import Path
 
-# Add project root to path for imports if running as script
-if "code" in str(Path(__file__).resolve().parents[0]):
-    sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-else:
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-
-from sympy import symbols, Implies, And, Or, Not, simplify_logic
-from sympy.logic.boolalg import to_cnf
-import networkx as nx
-
+# Import existing generators
 from src.generators.logic_generator import LogicProofGenerator
 from src.generators.grid_generator import GridWorldGenerator
-from src.utils.config import get_default_config, Config
+from src.utils.config import Config
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 class TestGenerationError(Exception):
-    """Raised when test instance generation fails."""
+    """Exception raised when test instance generation fails."""
     pass
 
 class TestInstanceGenerator:
     """
-    Generates held-out test instances for validation and baseline measurement.
-    
-    Ensures strict separation from training data by using distinct seeds
-    and verifying no overlap with training sets.
+    Generates held-out test instances using a disjoint seed range.
     """
-    
-    def __init__(self, config: Optional[Config] = None, output_dir: Optional[str] = None):
+
+    def __init__(self, config: Optional[Config] = None):
         """
-        Initialize the test generator.
-        
+        Initialize the generator.
+
         Args:
-            config: Configuration object with seed and generation parameters.
-            output_dir: Directory to write test instances to (default: data/).
+            config: Configuration object. If None, loads default config.
         """
-        self.config = config or get_default_config()
-        self.output_dir = Path(output_dir) if output_dir else Path("data")
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Initialize generators with distinct seed offset for test data
-        # Test seeds are offset by 10000 to ensure separation from training
-        self.test_seed_base = self.config.get("seed", 42) + 10000
+        self.config = config or Config()
         self.logic_generator = LogicProofGenerator(self.config)
         self.grid_generator = GridWorldGenerator(self.config)
         
-        # Track generated instances to ensure uniqueness
-        self.generated_proofs: List[Dict] = []
-        self.generated_grids: List[Dict] = []
+        # Define disjoint seed range for test instances
+        # Training starts at TRAIN_SEED_START, Test starts at TEST_SEED_START
+        self.test_seed_start = self.config.TEST_SEED_START
+        self.num_test_instances = self.config.NUM_TEST_INSTANCES
+        
+        logger.info(f"Initialized TestInstanceGenerator with seed range: {self.test_seed_start} to {self.test_seed_start + self.num_test_instances}")
 
-    def _generate_proof_instance(self, seed: int) -> Dict[str, Any]:
+    def _generate_logic_test_instances(self, count: int) -> List[Dict[str, Any]]:
         """
-        Generate a single propositional logic proof instance.
-        
-        Args:
-            seed: Random seed for reproducible generation.
-            
-        Returns:
-            Dictionary containing the proof instance data.
-        """
-        random.seed(seed)
-        
-        # Generate a valid proof with a specific rule set
-        # Use a different axiom set than training to ensure held-out nature
-        axioms = [
-            Implies(symbols('A'), symbols('B')),
-            Implies(symbols('B'), symbols('C')),
-            Implies(symbols('C'), symbols('D')),
-        ]
-        
-        # Create a new random seed for the actual proof generation
-        proof_seed = random.randint(0, 2**31 - 1)
-        
-        try:
-            proof_data = self.logic_generator.generate_proof(
-                num_vars=4,
-                min_depth=2,
-                max_depth=4,
-                seed=proof_seed
-            )
-            
-            # Verify the proof is valid
-            if not self._verify_proof(proof_data):
-                raise TestGenerationError("Generated proof failed verification")
-            
-            proof_data['instance_id'] = f"test_proof_{seed}"
-            proof_data['source'] = 'held_out_test'
-            proof_data['seed'] = seed
-            
-            return proof_data
-            
-        except Exception as e:
-            raise TestGenerationError(f"Failed to generate proof instance: {e}")
+        Generate a specified number of logic proof test instances.
 
-    def _generate_grid_instance(self, seed: int) -> Dict[str, Any]:
-        """
-        Generate a single grid-world navigation instance.
-        
         Args:
-            seed: Random seed for reproducible generation.
-            
-        Returns:
-            Dictionary containing the grid instance data.
-        """
-        random.seed(seed)
-        
-        # Generate a solvable grid with distinct rules
-        grid_seed = random.randint(0, 2**31 - 1)
-        
-        try:
-            grid_data = self.grid_generator.generate_grid(
-                size=5,
-                num_obstacles=3,
-                num_goals=1,
-                rule_set=["avoid_red", "diagonal_paths"],
-                seed=grid_seed
-            )
-            
-            # Verify the grid is solvable
-            if not self._verify_grid_solvability(grid_data):
-                raise TestGenerationError("Generated grid is not solvable")
-            
-            grid_data['instance_id'] = f"test_grid_{seed}"
-            grid_data['source'] = 'held_out_test'
-            grid_data['seed'] = seed
-            
-            return grid_data
-            
-        except Exception as e:
-            raise TestGenerationError(f"Failed to generate grid instance: {e}")
+            count: Number of instances to generate.
 
-    def _verify_proof(self, proof_data: Dict[str, Any]) -> bool:
-        """
-        Verify that a proof instance is valid.
-        
-        Args:
-            proof_data: The proof instance to verify.
-            
         Returns:
-            True if the proof is valid, False otherwise.
+            List of test instance dictionaries.
         """
-        try:
-            # Check required fields
-            required_fields = ['premises', 'conclusion', 'proof_steps']
-            if not all(field in proof_data for field in required_fields):
-                return False
-            
-            # Verify logical validity using sympy
-            premises = proof_data['premises']
-            conclusion = proof_data['conclusion']
-            
-            # Convert to sympy expressions
-            if isinstance(premises, str):
-                premises_expr = eval(premises)  # Safe in controlled context
-            else:
-                premises_expr = premises
-                
-            if isinstance(conclusion, str):
-                conclusion_expr = eval(conclusion)
-            else:
-                conclusion_expr = conclusion
-            
-            # Check if premises imply conclusion
-            implication = Implies(And(*premises_expr) if isinstance(premises_expr, list) else premises_expr, conclusion_expr)
-            return simplify_logic(implication) == True
-            
-        except Exception:
-            return False
+        instances = []
+        seeds_used = []
 
-    def _verify_grid_solvability(self, grid_data: Dict[str, Any]) -> bool:
-        """
-        Verify that a grid instance is solvable.
-        
-        Args:
-            grid_data: The grid instance to verify.
-            
-        Returns:
-            True if the grid is solvable, False otherwise.
-        """
-        try:
-            # Reconstruct the grid graph
-            grid = grid_data['grid']
-            start = grid_data['start']
-            goal = grid_data['goal']
-            obstacles = grid_data.get('obstacles', [])
-            
-            # Create graph
-            G = nx.grid_2d_graph(len(grid), len(grid[0]))
-            
-            # Remove obstacles
-            for obs in obstacles:
-                if obs in G.nodes():
-                    G.remove_node(obs)
-            
-            # Check if path exists
+        for i in range(count):
+            seed = self.test_seed_start + i
+            seeds_used.append(seed)
+            instance_id = f"logic_test_{seed}"
+
             try:
-                path = nx.shortest_path(G, source=tuple(start), target=tuple(goal))
-                return len(path) > 0
-            except nx.NetworkXNoPath:
-                return False
+                # Generate a single instance with the specific seed
+                # The generator handles the retry logic internally
+                instance = self.logic_generator.generate_single_instance(
+                    seed=seed,
+                    rule_set_id=f"rule_set_logic_{seed % 5}"  # Distribute across rule sets
+                )
                 
-        except Exception:
-            return False
+                if instance:
+                    test_instance = {
+                        "id": instance_id,
+                        "domain": "logic",
+                        "rule_set_id": instance.get("rule_set_id", f"rule_set_logic_{seed % 5}"),
+                        "instance_data": {
+                            "problem": instance.get("problem", ""),
+                            "solution": instance.get("solution", "")
+                        }
+                    }
+                    instances.append(test_instance)
+                    logger.debug(f"Generated logic test instance: {instance_id}")
+                else:
+                    logger.warning(f"Failed to generate logic test instance for seed {seed} after retries. Skipping.")
 
-    def generate_test_instances(
-        self,
-        num_proofs: int = 50,
-        num_grids: int = 50,
-        max_retries: int = 10
-    ) -> Dict[str, List[Dict]]:
+            except Exception as e:
+                logger.error(f"Error generating logic test instance {instance_id}: {e}")
+                # Continue with next instance rather than failing the whole batch
+
+        logger.info(f"Generated {len(instances)} logic test instances from seeds {seeds_used}")
+        return instances
+
+    def _generate_grid_test_instances(self, count: int) -> List[Dict[str, Any]]:
         """
-        Generate a complete set of held-out test instances.
-        
+        Generate a specified number of grid-world test instances.
+
         Args:
-            num_proofs: Number of logic proof instances to generate.
-            num_grids: Number of grid-world instances to generate.
-            max_retries: Maximum retry attempts for failed generations.
-            
-        Returns:
-            Dictionary containing lists of proof and grid test instances.
-        """
-        test_data = {
-            'metadata': {
-                'total_proofs': num_proofs,
-                'total_grids': num_grids,
-                'seed_base': self.test_seed_base,
-                'generated_by': 'TestInstanceGenerator',
-                'purpose': 'held_out_validation'
-            },
-            'proofs': [],
-            'grids': []
-        }
-        
-        # Generate proof instances
-        print(f"Generating {num_proofs} held-out logic proof instances...")
-        for i in range(num_proofs):
-            seed = self.test_seed_base + i
-            retries = 0
-            success = False
-            
-            while retries < max_retries and not success:
-                try:
-                    proof_instance = self._generate_proof_instance(seed)
-                    test_data['proofs'].append(proof_instance)
-                    self.generated_proofs.append(proof_instance)
-                    success = True
-                    print(f"  Generated proof {i+1}/{num_proofs} (seed: {seed})")
-                except TestGenerationError as e:
-                    retries += 1
-                    if retries >= max_retries:
-                        print(f"  Warning: Failed to generate proof {i+1} after {max_retries} retries: {e}")
-                    
-            if not success:
-                print(f"  Skipping proof {i+1} due to generation failures")
-        
-        # Generate grid instances
-        print(f"Generating {num_grids} held-out grid-world instances...")
-        for i in range(num_grids):
-            seed = self.test_seed_base + num_proofs + i
-            retries = 0
-            success = False
-            
-            while retries < max_retries and not success:
-                try:
-                    grid_instance = self._generate_grid_instance(seed)
-                    test_data['grids'].append(grid_instance)
-                    self.generated_grids.append(grid_instance)
-                    success = True
-                    print(f"  Generated grid {i+1}/{num_grids} (seed: {seed})")
-                except TestGenerationError as e:
-                    retries += 1
-                    if retries >= max_retries:
-                        print(f"  Warning: Failed to generate grid {i+1} after {max_retries} retries: {e}")
-                    
-            if not success:
-                print(f"  Skipping grid {i+1} due to generation failures")
-        
-        return test_data
+            count: Number of instances to generate.
 
-    def save_test_instances(self, test_data: Dict[str, Any], filename: str = "test_instances.json") -> str:
+        Returns:
+            List of test instance dictionaries.
+        """
+        instances = []
+        seeds_used = []
+
+        for i in range(count):
+            seed = self.test_seed_start + count + i  # Offset to ensure disjoint seeds even within test set
+            seeds_used.append(seed)
+            instance_id = f"grid_test_{seed}"
+
+            try:
+                # Generate a single instance with the specific seed
+                instance = self.grid_generator.generate_single_instance(
+                    seed=seed,
+                    rule_set_id=f"rule_set_grid_{seed % 4}"  # Distribute across rule sets
+                )
+                
+                if instance:
+                    test_instance = {
+                        "id": instance_id,
+                        "domain": "grid",
+                        "rule_set_id": instance.get("rule_set_id", f"rule_set_grid_{seed % 4}"),
+                        "instance_data": {
+                            "problem": instance.get("problem", ""),
+                            "solution": instance.get("solution", "")
+                        }
+                    }
+                    instances.append(test_instance)
+                    logger.debug(f"Generated grid test instance: {instance_id}")
+                else:
+                    logger.warning(f"Failed to generate grid test instance for seed {seed} after retries. Skipping.")
+
+            except Exception as e:
+                logger.error(f"Error generating grid test instance {instance_id}: {e}")
+                # Continue with next instance rather than failing the whole batch
+
+        logger.info(f"Generated {len(instances)} grid test instances from seeds {seeds_used}")
+        return instances
+
+    def generate_all_test_instances(self) -> List[Dict[str, Any]]:
+        """
+        Generate all held-out test instances (both logic and grid).
+
+        Returns:
+            List of all test instance dictionaries.
+        """
+        logger.info("Starting test instance generation...")
+        
+        # Calculate split: half logic, half grid (or use config if specified)
+        logic_count = self.num_test_instances // 2
+        grid_count = self.num_test_instances - logic_count
+
+        logger.info(f"Generating {logic_count} logic and {grid_count} grid test instances")
+
+        logic_instances = self._generate_logic_test_instances(logic_count)
+        grid_instances = self._generate_grid_test_instances(grid_count)
+
+        all_instances = logic_instances + grid_instances
+        
+        logger.info(f"Successfully generated {len(all_instances)} total test instances")
+        return all_instances
+
+    def save_test_instances(self, output_path: str, instances: List[Dict[str, Any]]) -> None:
         """
         Save test instances to a JSON file.
-        
-        Args:
-            test_data: Dictionary containing test instances.
-            filename: Name of the output file.
-            
-        Returns:
-            Path to the saved file.
-        """
-        output_path = self.output_dir / filename
-        
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(test_data, f, indent=2, default=str)
-        
-        print(f"Test instances saved to: {output_path}")
-        return str(output_path)
 
-    def validate_separation(self, training_data_path: Optional[str] = None) -> bool:
-        """
-        Validate that test instances are strictly separate from training data.
-        
         Args:
-            training_data_path: Path to training data file for comparison.
-            
-        Returns:
-            True if separation is verified, False otherwise.
+            output_path: Path to the output JSON file.
+            instances: List of test instance dictionaries.
         """
-        if not training_data_path:
-            print("No training data path provided, skipping separation validation")
-            return True
-        
-        try:
-            with open(training_data_path, 'r', encoding='utf-8') as f:
-                training_data = json.load(f)
-            
-            # Extract test instance IDs
-            test_proof_ids = {p['instance_id'] for p in self.generated_proofs}
-            test_grid_ids = {g['instance_id'] for g in self.generated_grids}
-            
-            # Extract training instance IDs
-            train_proof_ids = {p['instance_id'] for p in training_data.get('proofs', [])}
-            train_grid_ids = {g['instance_id'] for g in training_data.get('grids', [])}
-            
-            # Check for overlap
-            proof_overlap = test_proof_ids & train_proof_ids
-            grid_overlap = test_grid_ids & train_grid_ids
-            
-            if proof_overlap or grid_overlap:
-                print(f"ERROR: Found overlapping instances!")
-                print(f"  Proof overlaps: {proof_overlap}")
-                print(f"  Grid overlaps: {grid_overlap}")
-                return False
-            
-            print("✓ Test instances are strictly separate from training data")
-            return True
-            
-        except Exception as e:
-            print(f"Warning: Could not validate separation: {e}")
-            return True  # Don't fail if we can't read training data
+        path = Path(output_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
 
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(instances, f, indent=2)
+
+        logger.info(f"Saved {len(instances)} test instances to {output_path}")
+
+    def run(self, output_path: str = "data/test_instances.json") -> List[Dict[str, Any]]:
+        """
+        Main entry point to generate and save test instances.
+
+        Args:
+            output_path: Path to save the output JSON file.
+
+        Returns:
+            List of generated test instances.
+        """
+        logger.info(f"Running test generation pipeline, output: {output_path}")
+        
+        instances = self.generate_all_test_instances()
+        
+        if not instances:
+            logger.error("No test instances were generated. This may indicate a failure in the generators.")
+            # We do not raise here to allow the pipeline to continue if partial data is acceptable,
+            # but the validation step (T015a) should catch this.
+        
+        self.save_test_instances(output_path, instances)
+        
+        return instances
 
 def main():
-    """Main entry point for generating test instances."""
-    print("Starting held-out test instance generation...")
-    
-    # Load configuration
-    config = get_default_config()
-    config['seed'] = config.get('seed', 42)
-    
-    # Initialize generator
-    generator = TestInstanceGenerator(config=config, output_dir="data")
-    
-    # Generate test instances
-    test_data = generator.generate_test_instances(
-        num_proofs=config.get('test_proofs_count', 50),
-        num_grids=config.get('test_grids_count', 50),
-        max_retries=10
-    )
-    
-    # Save to file
-    output_path = generator.save_test_instances(test_data, "test_instances.json")
-    
-    # Validate separation (optional, requires training data)
-    # generator.validate_separation("data/training_instances.json")
-    
-    # Summary
-    print("\n=== Test Instance Generation Summary ===")
-    print(f"Total proof instances: {len(test_data['proofs'])}")
-    print(f"Total grid instances: {len(test_data['grids'])}")
-    print(f"Output file: {output_path}")
-    print("Test instances are ready for held-out evaluation.")
-    
-    return test_data
+    """CLI entry point for test instance generation."""
+    import argparse
 
+    parser = argparse.ArgumentParser(description="Generate held-out test instances")
+    parser.add_argument(
+        "--output", 
+        type=str, 
+        default="data/test_instances.json",
+        help="Output path for test instances JSON"
+    )
+    parser.add_argument(
+        "--count",
+        type=int,
+        default=None,
+        help="Override the number of test instances to generate (uses config default if not set)"
+    )
+    parser.add_argument(
+        "--seed-start",
+        type=int,
+        default=None,
+        help="Override the starting seed for test instances"
+    )
+
+    args = parser.parse_args()
+
+    try:
+        config = Config()
+        
+        # Apply CLI overrides
+        if args.count is not None:
+            config.NUM_TEST_INSTANCES = args.count
+        if args.seed_start is not None:
+            config.TEST_SEED_START = args.seed_start
+
+        generator = TestInstanceGenerator(config)
+        generator.run(output_path=args.output)
+        
+        logger.info("Test instance generation completed successfully.")
+        return 0
+
+    except TestGenerationError as e:
+        logger.error(f"Test generation failed: {e}")
+        return 1
+    except Exception as e:
+        logger.exception(f"Unexpected error during test generation: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

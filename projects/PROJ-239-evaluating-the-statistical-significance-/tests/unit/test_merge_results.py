@@ -1,112 +1,170 @@
 """
-Unit tests for the merge_results script logic.
+Unit tests for merge_results.py
 """
-import pytest
-import pandas as pd
-import numpy as np
 import os
 import sys
 import tempfile
+import pandas as pd
+import numpy as np
+import pytest
+from pathlib import Path
 
-# Add parent directory to path to allow imports from code/
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..', 'code'))
+# Add project root to path
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from scripts.merge_results import (
+from code.scripts.merge_results import (
     load_results,
     prepare_baseline_for_aggregation,
     prepare_robust_for_aggregation,
     compute_error_rates_and_ci
 )
 
-def test_load_results_missing_file():
-    """Test that load_results raises FileNotFoundError for missing file."""
+@pytest.fixture
+def temp_baseline_csv():
+    """Create a temporary baseline results CSV file."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        f.write("iteration,icc,alpha,p_value,rejected\n")
+        f.write("1,0.1,0.05,0.03,True\n")
+        f.write("2,0.1,0.05,0.07,False\n")
+        f.write("3,0.1,0.05,0.02,True\n")
+        f.write("4,0.2,0.05,0.01,True\n")
+        f.write("5,0.2,0.05,0.04,True\n")
+        return f.name
+
+@pytest.fixture
+def temp_robust_csv():
+    """Create a temporary robust results CSV file."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        f.write("iteration,icc,method,p_value,rejected\n")
+        f.write("1,0.1,ClusterRobust,0.08,False\n")
+        f.write("2,0.1,ClusterRobust,0.12,False\n")
+        f.write("3,0.1,ClusterRobust,0.06,False\n")
+        f.write("4,0.2,ClusterRobust,0.05,False\n")
+        f.write("5,0.2,ClusterRobust,0.09,False\n")
+        f.write("6,0.1,Permutation,0.07,False\n")
+        f.write("7,0.1,Permutation,0.11,False\n")
+        f.write("8,0.1,Permutation,0.04,False\n")
+        return f.name
+
+@pytest.fixture
+def temp_empty_csv():
+    """Create a temporary empty CSV file."""
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+        f.write("")
+        return f.name
+
+def test_load_results_success(temp_baseline_csv, temp_robust_csv):
+    """Test successful loading of results files."""
+    baseline_df, robust_df = load_results(temp_baseline_csv, temp_robust_csv)
+    
+    assert isinstance(baseline_df, pd.DataFrame)
+    assert isinstance(robust_df, pd.DataFrame)
+    assert len(baseline_df) == 5
+    assert len(robust_df) == 8
+    
+    # Cleanup
+    os.unlink(temp_baseline_csv)
+    os.unlink(temp_robust_csv)
+
+def test_load_results_missing_baseline(temp_robust_csv):
+    """Test error when baseline file is missing."""
     with pytest.raises(FileNotFoundError):
-        load_results('nonexistent_file.csv')
+        load_results("nonexistent.csv", temp_robust_csv)
 
-def test_load_results_empty_file(tmp_path):
-    """Test that load_results raises ValueError for empty file."""
-    empty_file = tmp_path / "empty.csv"
-    empty_file.write_text("")
+def test_load_results_missing_robust(temp_baseline_csv):
+    """Test error when robust file is missing."""
+    with pytest.raises(FileNotFoundError):
+        load_results(temp_baseline_csv, "nonexistent.csv")
+
+def test_load_results_empty_file(temp_empty_csv, temp_robust_csv):
+    """Test error when baseline file is empty."""
     with pytest.raises(ValueError):
-        load_results(str(empty_file))
+        load_results(temp_empty_csv, temp_robust_csv)
+    
+    os.unlink(temp_empty_csv)
 
-def test_load_results_valid(tmp_path):
-    """Test loading a valid results file."""
-    valid_file = tmp_path / "valid.csv"
-    valid_file.write_text("iteration,icc,p_value,rejected\n0,0.1,0.03,True\n1,0.1,0.06,False\n")
-    df = load_results(str(valid_file))
-    assert len(df) == 2
-    assert 'p_value' in df.columns
-    assert 'icc' in df.columns
+def test_prepare_baseline_for_aggregation(temp_baseline_csv):
+    """Test baseline preparation logic."""
+    df = pd.read_csv(temp_baseline_csv)
+    prepared = prepare_baseline_for_aggregation(df)
+    
+    assert 'ICC' in prepared.columns
+    assert 'Alpha' in prepared.columns
+    assert 'Method' in prepared.columns
+    assert 'rejected' in prepared.columns
+    assert all(prepared['Method'] == 'Naive')
+    
+    os.unlink(temp_baseline_csv)
 
-def test_prepare_baseline_for_aggregation():
-    """Test that baseline prep adds 'method' column."""
-    df = pd.DataFrame({
-        'iteration': [0, 1],
-        'icc': [0.1, 0.1],
-        'p_value': [0.03, 0.06],
-        'rejected': [True, False]
-    })
-    result = prepare_baseline_for_aggregation(df)
-    assert 'method' in result.columns
-    assert all(result['method'] == 'naive')
+def test_prepare_robust_for_aggregation(temp_robust_csv):
+    """Test robust preparation logic."""
+    df = pd.read_csv(temp_robust_csv)
+    prepared = prepare_robust_for_aggregation(df)
+    
+    assert 'ICC' in prepared.columns
+    assert 'Alpha' in prepared.columns
+    assert 'Method' in prepared.columns
+    assert 'rejected' in prepared.columns
+    assert all(prepared['Method'].isin(['ClusterRobust', 'Permutation']))
+    
+    os.unlink(temp_robust_csv)
 
-def test_prepare_robust_for_aggregation():
-    """Test that robust prep handles boolean conversion."""
-    df = pd.DataFrame({
-        'iteration': [0, 1],
-        'icc': [0.1, 0.1],
-        'method': ['robust', 'robust'],
-        'p_value': [0.03, 0.06],
-        'rejected': ['True', 'False']  # String representation
-    })
-    result = prepare_robust_for_aggregation(df)
-    assert result['rejected'].dtype == bool
-    assert result['rejected'].iloc[0] == True
-    assert result['rejected'].iloc[1] == False
-
-def test_compute_error_rates_and_ci():
+def test_compute_error_rates_and_ci(temp_baseline_csv, temp_robust_csv):
     """Test error rate and CI computation."""
-    # Create synthetic data where we know the expected outcome
-    # 10 iterations, ICC=0.1, Method=naive
-    # 5 rejections at alpha=0.05 -> error rate = 0.5
+    baseline_df = pd.read_csv(temp_baseline_csv)
+    robust_df = pd.read_csv(temp_robust_csv)
+    
+    baseline_prepared = prepare_baseline_for_aggregation(baseline_df)
+    robust_prepared = prepare_robust_for_aggregation(robust_df)
+    
+    combined = pd.concat([baseline_prepared, robust_prepared], ignore_index=True)
+    result = compute_error_rates_and_ci(combined)
+    
+    assert len(result) > 0
+    assert set(result.columns) == {'ICC', 'Alpha', 'Method', 'Empirical_Error_Rate', 'CI_Lower', 'CI_Upper'}
+    
+    # Check that error rates are between 0 and 1
+    assert all(result['Empirical_Error_Rate'] >= 0)
+    assert all(result['Empirical_Error_Rate'] <= 1)
+    
+    # Check that CIs are between 0 and 1
+    assert all(result['CI_Lower'] >= 0)
+    assert all(result['CI_Upper'] <= 1)
+    assert all(result['CI_Lower'] <= result['CI_Upper'])
+    
+    os.unlink(temp_baseline_csv)
+    os.unlink(temp_robust_csv)
+
+def test_compute_error_rates_and_ci_with_zero_rejections():
+    """Test CI computation when there are zero rejections."""
     df = pd.DataFrame({
-        'icc': [0.1] * 10,
-        'method': ['naive'] * 10,
-        'p_value': [0.04] * 5 + [0.06] * 5,  # 5 < 0.05, 5 >= 0.05
-        'rejected': [True] * 5 + [False] * 5
+        'ICC': [0.1, 0.1, 0.1],
+        'Alpha': [0.05, 0.05, 0.05],
+        'Method': ['Test', 'Test', 'Test'],
+        'rejected': [False, False, False]
     })
+    
+    result = compute_error_rates_and_ci(df)
+    
+    assert len(result) == 1
+    assert result['Empirical_Error_Rate'].iloc[0] == 0.0
+    assert result['CI_Lower'].iloc[0] == 0.0
+    assert result['CI_Upper'].iloc[0] > 0.0  # Upper bound should be > 0 for n>0
 
-    alpha_levels = [0.05]
-    result_df = compute_error_rates_and_ci(df, alpha_levels)
-
-    assert len(result_df) == 1
-    row = result_df.iloc[0]
-    assert row['ICC'] == 0.1
-    assert row['Alpha'] == 0.05
-    assert row['Method'] == 'naive'
-    assert row['Empirical_Error_Rate'] == 0.5
-    # CI should be non-zero and less than 1
-    assert 0.0 < row['CI_Lower'] < row['CI_Upper'] < 1.0
-
-def test_compute_error_rates_multiple_alphas():
-    """Test computation across multiple alpha levels."""
+def test_compute_error_rates_and_ci_with_all_rejections():
+    """Test CI computation when all observations are rejections."""
     df = pd.DataFrame({
-        'icc': [0.1] * 10,
-        'method': ['naive'] * 10,
-        'p_value': [0.01, 0.02, 0.04, 0.06, 0.08, 0.09, 0.10, 0.20, 0.50, 0.90],
-        'rejected': [True, True, True, False, False, False, False, False, False, False]
+        'ICC': [0.1, 0.1, 0.1],
+        'Alpha': [0.05, 0.05, 0.05],
+        'Method': ['Test', 'Test', 'Test'],
+        'rejected': [True, True, True]
     })
-
-    alpha_levels = [0.05, 0.10]
-    result_df = compute_error_rates_and_ci(df, alpha_levels)
-
-    assert len(result_df) == 2
-
-    # Check alpha=0.05 (3 rejections: 0.01, 0.02, 0.04)
-    row_05 = result_df[result_df['Alpha'] == 0.05].iloc[0]
-    assert row_05['Empirical_Error_Rate'] == 0.3
-
-    # Check alpha=0.10 (6 rejections: 0.01, 0.02, 0.04, 0.06, 0.08, 0.09)
-    row_10 = result_df[result_df['Alpha'] == 0.10].iloc[0]
-    assert row_10['Empirical_Error_Rate'] == 0.6
+    
+    result = compute_error_rates_and_ci(df)
+    
+    assert len(result) == 1
+    assert result['Empirical_Error_Rate'].iloc[0] == 1.0
+    assert result['CI_Upper'].iloc[0] == 1.0
+    assert result['CI_Lower'].iloc[0] < 1.0  # Lower bound should be < 1 for n>0

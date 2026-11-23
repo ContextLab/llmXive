@@ -1,0 +1,16 @@
+type: object
+properties:
+  molecule_id:
+    type: integer
+  true_logS:
+    type: number
+  pred_logS:
+    type: number
+  absolute_error:
+    type: number
+    minimum: 0.0
+required:
+  - molecule_id
+  - true_logS
+  - pred_logS
+  - absolute_error

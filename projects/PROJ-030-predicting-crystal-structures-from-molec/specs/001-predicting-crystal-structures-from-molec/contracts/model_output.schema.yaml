@@ -1,0 +1,60 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ModelMetrics
+description: Schema for model evaluation results.
+type: object
+properties:
+  model_type:
+    type: string
+    enum:
+      - "RandomForest"
+      - "GradientBoosting"
+      - "Ridge"
+    description: "Type of model used"
+  task:
+    type: string
+    enum:
+      - "space_group_classification"
+      - "lattice_volume_regression"
+    description: "Task performed by the model"
+  accuracy:
+    type: number
+    description: "Accuracy (for classification)"
+    minimum: 0
+    maximum: 1
+  macro_f1:
+    type: number
+    description: "Macro-averaged F1 score (for classification)"
+    minimum: 0
+    maximum: 1
+  top_k_accuracy:
+    type: number
+    description: "Top-K Accuracy (K=5) for classification"
+    minimum: 0
+    maximum: 1
+  prediction_entropy:
+    type: number
+    description: "Average entropy of prediction for polymorphic cases"
+    minimum: 0
+  r_squared:
+    type: number
+    description: "R-squared (for regression)"
+  mae:
+    type: number
+    description: "Mean Absolute Error (for regression)"
+    minimum: 0
+  baseline_accuracy:
+    type: number
+    description: "Accuracy of majority-class baseline"
+    minimum: 0
+    maximum: 1
+  baseline_r2_mw:
+    type: number
+    description: "R-squared of Molecular Weight baseline for volume"
+  run_id:
+    type: string
+    description: "Unique hash of the run configuration"
+required:
+  - model_type
+  - task
+  - run_id
+additionalProperties: false

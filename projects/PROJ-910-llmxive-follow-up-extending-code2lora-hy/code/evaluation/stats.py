@@ -1,16 +1,17 @@
 """
-Statistical analysis module for comparing AST-based vs Neural adapter performance.
+Statistical analysis module for llmXive project.
 
-CRITICAL NOTE ON TEST SELECTION (T000 Resolution):
-------------------------------------------------------------------
-The project Plan.md originally specified a 'Paired t-test'.
-However, the Feature Specification SC-005 explicitly mandates the
-'Wilcoxon signed-rank test' as the primary method for this comparison.
-This implementation prioritizes the Spec (SC-005) over the Plan.
-We use Wilcoxon signed-rank test by default.
-------------------------------------------------------------------
+This module implements statistical tests to compare adapter performance.
+Per Spec SC-005 and Plan amendment (T000), the PRIMARY method is the
+Wilcoxon signed-rank test. The paired t-test is retained only for
+reference/comparison purposes but is NOT the default.
+
+PLAN AMENDMENT (T000):
+- Original Plan.md stated 'Paired t-test'.
+- Spec SC-005 mandates 'Wilcoxon signed-rank test'.
+- Plan.md has been updated to reflect Wilcoxon as the primary method.
+- This implementation follows the amended Plan and Spec SC-005.
 """
-
 import json
 import csv
 import os
@@ -18,224 +19,223 @@ from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
 
 from scipy import stats
-import numpy as np
 
 
-def load_scores_from_csv(file_path: str) -> List[float]:
+def load_scores_from_csv(filepath: str) -> List[float]:
     """
-    Loads exact-match scores from a CSV file.
-    Expected CSV format: task_id, score (or similar, we look for a numeric column).
+    Load exact-match scores from a CSV file.
+
+    Args:
+        filepath: Path to the CSV file (e.g., 'data/results/ast_scores.csv')
+
+    Returns:
+        List of float scores (exact_match column)
+
+    Raises:
+        FileNotFoundError: If the file does not exist
+        ValueError: If the CSV is empty or lacks the required column
     """
-    scores = []
-    path = Path(file_path)
+    path = Path(filepath)
     if not path.exists():
-        raise FileNotFoundError(f"Score file not found: {file_path}")
+        raise FileNotFoundError(f"Scores file not found: {filepath}")
 
+    scores = []
     with open(path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        # Determine which column contains the score (usually 'score' or 'exact_match')
-        # We assume the CSV has a column named 'score' based on T021/T024 context.
-        score_key = None
-        if 'score' in reader.fieldnames:
-            score_key = 'score'
-        elif 'exact_match' in reader.fieldnames:
-            score_key = 'exact_match'
-        else:
-            # Fallback: take the second column if 'score' not found
-            if reader.fieldnames and len(reader.fieldnames) > 1:
-                score_key = reader.fieldnames[1]
-            else:
-                raise ValueError(f"Could not identify score column in {file_path}. Headers: {reader.fieldnames}")
+        if 'exact_match' not in reader.fieldnames:
+            raise ValueError(f"CSV must contain 'exact_match' column. Found: {reader.fieldnames}")
 
         for row in reader:
-            val = row.get(score_key)
-            if val is not None:
-                try:
-                    scores.append(float(val))
-                except ValueError:
-                    continue # Skip non-numeric values
+            try:
+                score = float(row['exact_match'])
+                scores.append(score)
+            except (ValueError, TypeError):
+                # Skip rows with invalid scores
+                continue
 
-    if len(scores) == 0:
-        raise ValueError(f"No valid scores found in {file_path}")
+    if not scores:
+        raise ValueError(f"No valid scores found in {filepath}")
 
     return scores
 
 
-def run_wilcoxon_test(
-    ast_scores: List[float],
-    neural_scores: List[float]
-) -> Dict[str, Any]:
+def run_wilcoxon_test(group_a: List[float], group_b: List[float]) -> Dict[str, Any]:
     """
-    Performs the Wilcoxon signed-rank test as mandated by SC-005.
-    
+    Perform Wilcoxon signed-rank test (PRIMARY method per SC-005).
+
+    This is a non-parametric test for paired data, suitable when
+    the assumption of normality is not met.
+
     Args:
-        ast_scores: List of scores from the AST-based adapter.
-        neural_scores: List of scores from the neural baseline adapter.
-    
+        group_a: List of scores from method A (e.g., AST-based)
+        group_b: List of scores from method B (e.g., Neural baseline)
+
     Returns:
         Dictionary containing:
-            - 'p_value': float
-            - 'statistic': float
-            - 'test_used': 'wilcoxon'
-            - 'n_samples': int (number of paired samples)
-    """
-    if len(ast_scores) != len(neural_scores):
-        raise ValueError(
-            f"Score lists must be of equal length. "
-            f"AST: {len(ast_scores)}, Neural: {len(neural_scores)}"
-        )
-    
-    if len(ast_scores) < 2:
-        raise ValueError("Need at least 2 samples to perform statistical test.")
+            - statistic: Wilcoxon test statistic
+            - p_value: Two-sided p-value
+            - test_used: "wilcoxon"
 
-    # Convert to numpy arrays for easier handling
-    arr_ast = np.array(ast_scores)
-    arr_neural = np.array(neural_scores)
-
-    # Perform Wilcoxon signed-rank test
-    # alternative='two-sided' is default
-    statistic, p_value = stats.wilcoxon(arr_ast, arr_neural)
-
-    return {
-        "p_value": float(p_value),
-        "statistic": float(statistic),
-        "test_used": "wilcoxon",
-        "n_samples": len(ast_scores)
-    }
-
-
-def run_ttest_paired(
-    ast_scores: List[float],
-    neural_scores: List[float]
-) -> Dict[str, Any]:
-    """
-    Fallback: Paired t-test.
-    Note: Per T000 and SC-005, this is secondary and only used if Wilcoxon
-    is deemed inappropriate (though Wilcoxon is generally preferred for non-normal data).
-    """
-    if len(ast_scores) != len(neural_scores):
-        raise ValueError("Score lists must be of equal length.")
-    
-    if len(ast_scores) < 2:
-        raise ValueError("Need at least 2 samples.")
-
-    statistic, p_value = stats.ttest_rel(ast_scores, neural_scores)
-
-    return {
-        "p_value": float(p_value),
-        "statistic": float(statistic),
-        "test_used": "paired_t_test",
-        "n_samples": len(ast_scores)
-    }
-
-
-def compare_adapters(
-    ast_scores_path: str,
-    neural_scores_path: str,
-    output_path: str
-) -> Dict[str, Any]:
-    """
-    Main entry point for comparing two adapter score CSVs.
-    
-    1. Loads scores from both files.
-    2. Runs Wilcoxon signed-rank test (primary, per SC-005).
-    3. Outputs results to JSON.
-    
-    Args:
-        ast_scores_path: Path to CSV with AST adapter scores.
-        neural_scores_path: Path to CSV with Neural adapter scores.
-        output_path: Path where the result JSON will be saved.
-    
-    Returns:
-        The result dictionary.
-    """
-    ast_scores = load_scores_from_csv(ast_scores_path)
-    neural_scores = load_scores_from_csv(neural_scores_path)
-
-    # Primary test: Wilcoxon (as per SC-005 and T000 override)
-    # We do not need to check normality first because Wilcoxon is the 
-    # non-parametric alternative specifically chosen for this study.
-    result = run_wilcoxon_test(ast_scores, neural_scores)
-
-    # Ensure output directory exists
-    out_path = Path(output_path)
-    out_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Save to JSON
-    with open(out_path, 'w', encoding='utf-8') as f:
-        json.dump(result, f, indent=2)
-
-    return result
-
-
-def verify_significance(
-    ast_scores_path: str,
-    neural_scores_path: str,
-    threshold: float = 0.05
-) -> bool:
-    """
-    Verification step: Asserts that the p-value is less than the threshold
-    for the given data. Used for testing or validation.
-    
-    Args:
-        ast_scores_path: Path to AST scores CSV.
-        neural_scores_path: Path to Neural scores CSV.
-        threshold: P-value threshold (default 0.05).
-    
-    Returns:
-        True if p_value < threshold, False otherwise.
-    
     Raises:
-        AssertionError if the condition is not met (for testing purposes).
+        ValueError: If lists are empty or have different lengths
+    """
+    if len(group_a) == 0 or len(group_b) == 0:
+        raise ValueError("Input lists cannot be empty")
+
+    if len(group_a) != len(group_b):
+        raise ValueError(f"Lists must have equal length: {len(group_a)} vs {len(group_b)}")
+
+    # Wilcoxon signed-rank test
+    statistic, p_value = stats.wilcoxon(group_a, group_b)
+
+    return {
+        "statistic": float(statistic),
+        "p_value": float(p_value),
+        "test_used": "wilcoxon"
+    }
+
+
+def run_ttest_paired(group_a: List[float], group_b: List[float]) -> Dict[str, Any]:
+    """
+    Perform paired t-test (REFERENCE ONLY - NOT PRIMARY).
+
+    This is retained for comparison purposes but is NOT the default
+    method as per Spec SC-005 and Plan amendment (T000).
+
+    Args:
+        group_a: List of scores from method A
+        group_b: List of scores from method B
+
+    Returns:
+        Dictionary containing:
+            - statistic: t-statistic
+            - p_value: Two-sided p-value
+            - test_used: "ttest_paired"
+    """
+    if len(group_a) == 0 or len(group_b) == 0:
+        raise ValueError("Input lists cannot be empty")
+
+    if len(group_a) != len(group_b):
+        raise ValueError(f"Lists must have equal length: {len(group_a)} vs {len(group_b)}")
+
+    statistic, p_value = stats.ttest_rel(group_a, group_b)
+
+    return {
+        "statistic": float(statistic),
+        "p_value": float(p_value),
+        "test_used": "ttest_paired"
+    }
+
+
+def compare_adapters(ast_scores_path: str, neural_scores_path: str,
+                     use_wilcoxon: bool = True) -> Dict[str, Any]:
+    """
+    Compare two adapter performance results using statistical testing.
+
+    Per Spec SC-005 and Plan amendment (T000), the default test is
+    Wilcoxon signed-rank (use_wilcoxon=True).
+
+    Args:
+        ast_scores_path: Path to AST adapter scores CSV
+        neural_scores_path: Path to Neural baseline scores CSV
+        use_wilcoxon: If True (default), use Wilcoxon; else use t-test
+
+    Returns:
+        Dictionary containing:
+            - test_used: Name of the test performed
+            - statistic: Test statistic
+            - p_value: P-value
+            - significant: True if p_value < 0.05
+            - ast_mean: Mean of AST scores
+            - neural_mean: Mean of Neural scores
+            - delta: Neural mean - AST mean
     """
     ast_scores = load_scores_from_csv(ast_scores_path)
     neural_scores = load_scores_from_csv(neural_scores_path)
-    
-    result = run_wilcoxon_test(ast_scores, neural_scores)
-    
-    is_significant = result['p_value'] < threshold
-    
-    if not is_significant:
-        # In a real run, we might just return False. 
-        # For a verification step in tests, we raise to fail fast.
-        raise AssertionError(
-            f"Verification failed: p-value ({result['p_value']:.4f}) "
-            f"is not less than threshold ({threshold})."
-        )
-    
-    return True
+
+    if use_wilcoxon:
+        result = run_wilcoxon_test(ast_scores, neural_scores)
+    else:
+        result = run_ttest_paired(ast_scores, neural_scores)
+
+    ast_mean = sum(ast_scores) / len(ast_scores)
+    neural_mean = sum(neural_scores) / len(neural_scores)
+    delta = neural_mean - ast_mean
+
+    return {
+        **result,
+        "significant": result["p_value"] < 0.05,
+        "ast_mean": float(ast_mean),
+        "neural_mean": float(neural_mean),
+        "delta": float(delta)
+    }
+
+
+def verify_significance(p_value: float, threshold: float = 0.05) -> bool:
+    """
+    Verify if a p-value indicates statistical significance.
+
+    Args:
+        p_value: The p-value to check
+        threshold: Significance threshold (default 0.05)
+
+    Returns:
+        True if p_value < threshold
+    """
+    return p_value < threshold
 
 
 def main():
     """
-    CLI entry point for running the statistical comparison.
-    Usage: python -m code.evaluation.stats --ast <path> --neural <path> --out <path>
+    Main entry point for statistical comparison.
+
+    Usage:
+        python -m code.evaluation.stats --ast data/results/ast_scores.csv \
+                                        --neural data/results/neural_scores.csv \
+                                        --output data/results/stats.json
     """
     import argparse
 
-    parser = argparse.ArgumentParser(description="Compare adapter performance stats")
+    parser = argparse.ArgumentParser(description="Statistical comparison of adapter performance")
     parser.add_argument("--ast", required=True, help="Path to AST scores CSV")
     parser.add_argument("--neural", required=True, help="Path to Neural scores CSV")
-    parser.add_argument("--out", required=True, help="Path to output JSON")
-    
+    parser.add_argument("--output", required=True, help="Path to output JSON")
+    parser.add_argument("--use-ttest", action="store_true",
+                        help="Use t-test instead of Wilcoxon (default: Wilcoxon per SC-005)")
     args = parser.parse_args()
-    
-    print(f"Loading scores from {args.ast} and {args.neural}...")
+
     try:
-        result = compare_adapters(args.ast, args.neural, args.out)
-        print(f"Analysis complete. Test used: {result['test_used']}")
-        print(f"Statistic: {result['statistic']}, P-value: {result['p_value']}")
-        print(f"Results saved to {args.out}")
-        
-        if result['p_value'] < 0.05:
-            print("Result: Statistically significant difference detected (p < 0.05).")
-        else:
-            print("Result: No statistically significant difference detected (p >= 0.05).")
-            
+        result = compare_adapters(
+            args.ast,
+            args.neural,
+            use_wilcoxon=not args.use_ttest
+        )
+
+        # Write results to JSON
+        output_path = Path(args.output)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(result, f, indent=2)
+
+        print(f"Results written to {args.output}")
+        print(f"Test used: {result['test_used']}")
+        print(f"P-value: {result['p_value']:.6f}")
+        print(f"Significant (p < 0.05): {result['significant']}")
+
+    except FileNotFoundError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
+    except ValueError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)
     except Exception as e:
-        print(f"Error during analysis: {e}")
-        raise
+        print(f"UNEXPECTED ERROR: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
 
 if __name__ == "__main__":
+    import sys
     main()

@@ -1,0 +1,24 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Configuration Schema"
+description: "Schema for the pipeline configuration (loaded from .env)."
+type: object
+properties:
+  HF_TOKEN:
+    type: string
+    description: "Hugging Face API token for dataset download."
+    pattern: "^hf_"
+  DATASET_NAME:
+    type: string
+    description: "Name of the dataset to download (e.g., YCAI3/HCI_P2)."
+  RANDOM_SEED:
+    type: integer
+    description: "Random seed for reproducibility."
+    default: 42
+  MIN_SUBGROUP_SIZE:
+    type: integer
+    description: "Minimum sample size for subgroup analysis."
+    default: 30
+required:
+  - HF_TOKEN
+  - DATASET_NAME
+additionalProperties: false

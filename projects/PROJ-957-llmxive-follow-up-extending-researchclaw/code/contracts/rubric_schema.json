@@ -1,0 +1,32 @@
+{
+  "rubrics": {
+    "Protocol Alignment": {
+      "criteria": [
+        {
+          "key": "protocol_step_1",
+          "weight": 0.4
+        },
+        {
+          "key": "protocol_step_2",
+          "weight": 0.6
+        }
+      ]
+    },
+    "Scientific Core": {
+      "criteria": [
+        {
+          "key": "hypothesis_clarity",
+          "weight": 0.5
+        },
+        {
+          "key": "methodology_soundness",
+          "weight": 0.5
+        }
+      ]
+    }
+  },
+  "threshold_high": 40,
+  "threshold_low": 10,
+  "feature_extraction_method": "regex_match",
+  "constraint_keywords": []
+}

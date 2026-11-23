@@ -1,198 +1,249 @@
+"""
+Analysis pipeline for cognitive fatigue prediction.
+Orchestrates delta calculation, correlation analysis, and reporting.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import logging
 import os
 import sys
-import json
-import yaml
-import pandas as pd
-import numpy as np
 from pathlib import Path
-import logging
+
+import pandas as pd
 from utils.logging import get_logger
 
-def load_config(config_path="code/config.yaml"):
-    with open(config_path, 'r') as f:
-        return yaml.safe_load(f)
+# Configure basic logging if not already configured
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    stream=sys.stdout,
+)
 
-def validate_metadata(metadata):
-    """
-    Check for required columns in metadata to determine analysis mode.
-    Returns: 'paired', 'cross-sectional', or None (failure).
-    """
-    required_paired = ['pre_fatigue', 'post_fatigue', 'pre_eeg_id', 'post_eeg_id']
-    
-    # Check for paired data
-    if all(col in metadata.columns for col in required_paired):
-        return 'paired'
-    
-    # Check for cross-sectional data (baseline only)
-    if 'pre_fatigue' in metadata.columns and 'pre_eeg_id' in metadata.columns:
-        return 'cross-sectional'
-    
-    return None
+logger = logging.getLogger(__name__)
 
-def run_benjamini_hochberg(p_values, alpha=0.05):
-    """
-    Apply Benjamini-Hochberg correction for multiple comparisons.
-    """
-    p_values = np.array(p_values)
-    n = len(p_values)
-    if n == 0:
-        return np.array([]), np.array([])
-        
-    sorted_indices = np.argsort(p_values)
-    sorted_p = p_values[sorted_indices]
-    
-    ranks = np.arange(1, n + 1)
-    threshold = (ranks / n) * alpha
-    
-    # Find the largest k such that p(k) <= threshold(k)
-    valid = sorted_p <= threshold
-    if not np.any(valid):
-        return sorted_p, np.zeros(n, dtype=bool)
-    
-    k = np.max(np.where(valid)[0])
-    significant = np.zeros(n, dtype=bool)
-    significant[sorted_indices[:k+1]] = True
-    
-    return sorted_p, significant
+# Required paths for validation
+REQUIRED_FILES = {
+    "cleaned_eeg_dir": "data/processed/cleaned_eeg/",
+    "complexity_metrics": "data/analysis/complexity_metrics.csv",
+    "fatigue_scores": "data/processed/fatigue_scores.csv",
+}
 
-def run_correlation_analysis(lzc_df, pe_df, metadata, config, logger, mode):
-    """
-    Run correlation analysis based on the determined mode (paired or cross-sectional).
-    """
-    results = []
-    method = config['analysis'].get('correlation_method', 'spearman')
-    alpha = config['analysis'].get('alpha', 0.05)
-    
-    if mode == 'paired':
-        logger.info("Running paired analysis: Delta Complexity vs Delta Fatigue")
-        # Calculate deltas
-        # Assuming metadata has pre/post fatigue and pre/post eeg_ids
-        # We need to join lzc/pe metrics with metadata to get the IDs
-        
-        # Merge logic would go here in a full implementation
-        # For now, we simulate the structure required by the task
-        # In a real scenario, we would:
-        # 1. Join lzc_df with metadata on pre_eeg_id and post_eeg_id
-        # 2. Calculate delta_lzc = post_lzc - pre_lzc
-        # 3. Calculate delta_fatigue = post_fatigue - pre_fatigue
-        # 4. Correlate delta_lzc with delta_fatigue per channel
-        
-        # Placeholder for real logic:
-        channels = lzc_df['channel'].unique() if 'channel' in lzc_df.columns else ['Fp1', 'Fp2']
-        
-        for channel in channels:
-            # Simulate calculation (real implementation would use joined data)
-            # We need to ensure we have data to correlate
-            # Since we are fixing the pipeline, we assume metadata exists and is valid
-            # as per the validation step.
-            
-            # Mock correlation values for structure demonstration
-            # In real code: corr, p_val = scipy.stats.spearmanr(delta_lzc, delta_fatigue)
-            corr = 0.0
-            p_val = 1.0
-            
-            results.append({
-                'channel': channel,
-                'mode': 'paired',
-                'correlation': corr,
-                'p_value': p_val,
-                'significant': False
-            })
+# Output paths for T019
+DELTA_OUTPUT_PATH = "data/analysis/delta_scores.csv"
 
-    elif mode == 'cross-sectional':
-        logger.info("Running cross-sectional analysis: Baseline Complexity vs Baseline Fatigue")
-        # Logic: Correlate baseline complexity (pre) with baseline fatigue (pre)
-        channels = lzc_df['channel'].unique() if 'channel' in lzc_df.columns else ['Fp1', 'Fp2']
-        
-        for channel in channels:
-            # Mock correlation values
-            corr = 0.0
-            p_val = 1.0
-            
-            results.append({
-                'channel': channel,
-                'mode': 'cross-sectional',
-                'correlation': corr,
-                'p_value': p_val,
-                'significant': False
-            })
-    
-    return results
+
+def validate_inputs() -> bool:
+    """
+    Check for existence of all required processed data files.
+    The system MUST fail if these files are missing, as no analysis can proceed.
+    """
+    logger.info("Starting input validation for analysis pipeline.")
+    missing_files = []
+    available_files = []
+
+    for key, path in REQUIRED_FILES.items():
+        if not os.path.exists(path):
+            missing_files.append(f"{key}: {path}")
+        else:
+            available_files.append(path)
+
+    if missing_files:
+        error_msg = (
+            "CRITICAL: Required data files are missing. Analysis cannot proceed.\n"
+            f"Missing files:\n"
+            + "\n".join([f"  - {f}" for f in missing_files])
+            + "\n\n"
+            f"Available files:\n"
+            + "\n".join([f"  - {f}" for f in available_files])
+        )
+        logger.error(error_msg)
+        print(error_msg, file=sys.stderr)
+        sys.exit(1)
+
+    logger.info("All required input files found.")
+    return True
+
+
+def load_config(config_path: str = "code/config.yaml") -> dict:
+    """Load configuration from YAML file."""
+    import yaml
+
+    try:
+        with open(config_path, "r") as f:
+            return yaml.safe_load(f)
+    except FileNotFoundError:
+        logger.warning(f"Config file not found at {config_path}, using defaults.")
+        return {}
+
+
+def calculate_deltas() -> pd.DataFrame:
+    """
+    Compute delta scores (Post - Pre) for both complexity and fatigue.
+    """
+    logger.info("Loading complexity metrics and fatigue scores for delta calculation.")
+    try:
+        complexity_df = pd.read_csv("data/analysis/complexity_metrics.csv")
+    except Exception as e:
+        logger.error(f"Failed to load complexity metrics: {e}")
+        sys.exit(1)
+
+    try:
+        fatigue_df = pd.read_csv("data/processed/fatigue_scores.csv")
+    except Exception as e:
+        logger.error(f"Failed to load fatigue scores: {e}")
+        sys.exit(1)
+
+    required_complexity_cols = ["participant_id", "segment_id", "lzc_value", "pe_value"]
+    missing_complexity_cols = [
+        col for col in required_complexity_cols if col not in complexity_df.columns
+    ]
+    if missing_complexity_cols:
+        logger.error(f"Missing columns in complexity metrics: {missing_complexity_cols}")
+        sys.exit(1)
+
+    required_fatigue_cols = ["participant_id", "timepoint", "fatigue_score"]
+    missing_fatigue_cols = [
+        col for col in required_fatigue_cols if col not in fatigue_df.columns
+    ]
+    if missing_fatigue_cols:
+        logger.error(f"Missing columns in fatigue scores: {missing_fatigue_cols}")
+        sys.exit(1)
+
+    # Identify participants with both pre and post fatigue scores
+    common_participants = set(complexity_df["participant_id"]).intersection(
+        set(fatigue_df["participant_id"])
+    )
+    participants_with_full_pairs = []
+    for pid in common_participants:
+        times = set(
+            fatigue_df[
+                (fatigue_df["participant_id"] == pid) & (fatigue_df["timepoint"].isin(["pre", "post"]))
+            ]["timepoint"]
+        )
+        if "pre" in times and "post" in times:
+            participants_with_full_pairs.append(pid)
+
+    if not participants_with_full_pairs:
+        logger.error("No participants with both pre and post fatigue scores found.")
+        print("Paired data missing")
+        sys.exit(1)
+
+    # Filter to those participants
+    complexity_df = complexity_df[complexity_df["participant_id"].isin(participants_with_full_pairs)]
+    fatigue_df = fatigue_df[fatigue_df["participant_id"].isin(participants_with_full_pairs)]
+
+    # Compute fatigue delta
+    fatigue_pre = fatigue_df[fatigue_df["timepoint"] == "pre"][["participant_id", "fatigue_score"]].copy()
+    fatigue_pre.columns = ["participant_id", "fatigue_pre"]
+    fatigue_post = fatigue_df[fatigue_df["timepoint"] == "post"][["participant_id", "fatigue_score"]].copy()
+    fatigue_post.columns = ["participant_id", "fatigue_post"]
+    fatigue_delta = pd.merge(fatigue_pre, fatigue_post, on="participant_id", how="inner")
+    fatigue_delta["fatigue_delta"] = fatigue_delta["fatigue_post"] - fatigue_delta["fatigue_pre"]
+
+    # Infer timepoint from segment_id (fallback logic retained from original implementation)
+    def infer_timepoint(seg_id):
+        seg_str = str(seg_id).lower()
+        if "pre" in seg_str:
+            return "pre"
+        if "post" in seg_str:
+            return "post"
+        return None
+
+    complexity_df["inferred_timepoint"] = complexity_df["segment_id"].apply(infer_timepoint)
+
+    if complexity_df["inferred_timepoint"].isna().all():
+        logger.warning("Could not infer timepoints from segment_id. Using ordering fallback.")
+        # Assign pre/post based on ordering per participant
+        def assign_timepoints(group):
+            if len(group) >= 2:
+                group = group.sort_values("segment_id")
+                half = len(group) // 2
+                group.iloc[:half, group.columns.get_loc("inferred_timepoint")] = "pre"
+                group.iloc[half:, group.columns.get_loc("inferred_timepoint")] = "post"
+            elif len(group) == 1:
+                group.iloc[0, group.columns.get_loc("inferred_timepoint")] = "pre"
+            return group
+
+        complexity_df = complexity_df.groupby("participant_id", group_keys=False).apply(assign_timepoints)
+
+    # Compute mean complexity per participant, channel and timepoint
+    pre = (
+        complexity_df[complexity_df["inferred_timepoint"] == "pre"]
+        .groupby(["participant_id", "channel"])
+        .agg(lzc_pre=("lzc_value", "mean"), pe_pre=("pe_value", "mean"))
+        .reset_index()
+    )
+    post = (
+        complexity_df[complexity_df["inferred_timepoint"] == "post"]
+        .groupby(["participant_id", "channel"])
+        .agg(lzc_post=("lzc_value", "mean"), pe_post=("pe_value", "mean"))
+        .reset_index()
+    )
+    delta = pd.merge(pre, post, on=["participant_id", "channel"], how="inner")
+    delta["lzc_delta"] = delta["lzc_post"] - delta["lzc_pre"]
+    delta["pe_delta"] = delta["pe_post"] - delta["pe_pre"]
+
+    # Merge with fatigue delta
+    delta_df = pd.merge(delta, fatigue_delta, on="participant_id", how="inner")
+    delta_df = delta_df[
+        [
+            "participant_id",
+            "channel",
+            "lzc_pre",
+            "lzc_post",
+            "lzc_delta",
+            "pe_pre",
+            "pe_post",
+            "pe_delta",
+            "fatigue_pre",
+            "fatigue_post",
+            "fatigue_delta",
+        ]
+    ]
+
+    return delta_df
+
 
 def main():
-    config = load_config()
-    logger = get_logger("analysis", config)
+    """Main entry point for the analysis pipeline."""
+    parser = argparse.ArgumentParser(description="Cognitive Fatigue Analysis Pipeline")
+    parser.add_argument(
+        "--validate-only",
+        action="store_true",
+        help="Run only input validation and exit",
+    )
+    args = parser.parse_args()
+
     logger.info("Starting analysis pipeline.")
-    
-    # Check for input files
-    lzc_file = Path("data/processed/lzc_metrics.csv")
-    pe_file = Path("data/processed/pe_metrics.csv")
-    
-    if not lzc_file.exists() or not pe_file.exists():
-        logger.error("Complexity metrics file not found.")
-        report = {"status": "failed", "reason": "Missing input files: lzc_metrics.csv or pe_metrics.csv"}
-        with open("data/analysis/validation_report.json", 'w') as f:
-            json.dump(report, f, indent=2)
+
+    # Validate required inputs
+    validate_inputs()
+
+    if args.validate_only:
+        logger.info("Validation passed. Exiting as requested.")
+        return 0
+
+    logger.info("Validation passed. Proceeding to delta calculation.")
+    try:
+        delta_df = calculate_deltas()
+    except Exception as e:
+        logger.error(f"Failed to calculate deltas: {e}")
+        print("Paired data missing")
         sys.exit(1)
-    
-    lzc_df = pd.read_csv(lzc_file)
-    pe_df = pd.read_csv(pe_file)
-    
-    # Try to load metadata
-    metadata_path = Path("data/processed/metadata.csv")
-    if not metadata_path.exists():
-        logger.error("Metadata file not found. Cannot determine analysis mode.")
-        report = {"status": "failed", "reason": "Metadata file not found at data/processed/metadata.csv"}
-        with open("data/analysis/validation_report.json", 'w') as f:
-            json.dump(report, f, indent=2)
+
+    # Write delta scores
+    try:
+        delta_df.to_csv(DELTA_OUTPUT_PATH, index=False)
+        logger.info(f"Delta scores written to {DELTA_OUTPUT_PATH}")
+    except Exception as e:
+        logger.error(f"Failed to write delta scores: {e}")
         sys.exit(1)
-        
-    metadata = pd.read_csv(metadata_path)
-    
-    # Validate metadata and determine mode (Task T018 core logic)
-    mode = validate_metadata(metadata)
-    
-    if mode is None:
-        logger.error("Invalid metadata: Missing required columns for both paired and cross-sectional analysis.")
-        missing_cols = []
-        required_paired = ['pre_fatigue', 'post_fatigue', 'pre_eeg_id', 'post_eeg_id']
-        required_cross = ['pre_fatigue', 'pre_eeg_id']
-        
-        for col in required_paired:
-            if col not in metadata.columns:
-                missing_cols.append(col)
-        
-        report = {
-            "status": "failed",
-            "reason": f"Missing columns for analysis. Required for paired: {required_paired}, for cross-sectional: {required_cross}. Missing: {missing_cols}",
-            "available_columns": list(metadata.columns)
-        }
-        with open("data/analysis/validation_report.json", 'w') as f:
-            json.dump(report, f, indent=2)
-        sys.exit(1)
-    
-    logger.info(f"Analysis mode determined: {mode}")
-    
-    # Run correlation analysis
-    results = run_correlation_analysis(lzc_df, pe_df, metadata, config, logger, mode)
-    
-    if not results:
-        logger.warning("No results generated from correlation analysis.")
-        # Write empty result file but do not fail if mode was valid
-        pd.DataFrame(columns=['channel', 'mode', 'correlation', 'p_value', 'significant']).to_csv(
-            "data/analysis/correlation_results.csv", index=False
-        )
-    else:
-        # Apply Benjamini-Hochberg correction
-        p_values = [r['p_value'] for r in results]
-        _, significant = run_benjamini_hochberg(p_values, alpha=config['analysis'].get('alpha', 0.05))
-        
-        for i, res in enumerate(results):
-            res['significant'] = significant[i]
-        
-        # Save results
-        pd.DataFrame(results).to_csv("data/analysis/correlation_results.csv", index=False)
-        logger.info("Correlation analysis complete. Results saved to data/analysis/correlation_results.csv")
+
+    logger.info("Delta calculation completed successfully.")
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,0 +1,402 @@
+project_id: PROJ-668-https-arxiv-org-abs-2606-05622
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: 9cc818aebad4
+  text: 'Resolve GPT-5 vs GPT-5-Nano accuracy inconsistency: Abstract/text claim 67.75%
+    for GPT-5, but Table 1 shows GPT-5-Nano at 42.35%. Table 2 shows GPT-5 at 67.75%.
+    Clarify model naming and ensure consistency across tables.'
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: e09483b7907d
+  text: 'Verify citation completeness: Many cited works (e.g., PlanBench, PrefEval,
+    costbench, ReflAct) are missing from the provided bibliography snippet. Ensure
+    all in-text citations have corresponding bib entries.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: c22fbccc42b5
+  text: "Clarify variation vs confidence interval: Text states 'variation \u2264 3%'\
+    \ but Table 2 shows 95% CI \xB15.23% for GPT-5. Explain if these measure different\
+    \ quantities (run-to-run vs statistical CI)."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 6460a32e66e0
+  text: 'Provide correlation data: Claims of accuracy correlation with ATWC (0.898)
+    and ATUC (0.919) are stated but not shown in tables. Include correlation coefficients
+    in results table or appendix.'
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 15cd18142381
+  text: 'Report early termination rate: Claim ''17.91% of queries terminate early''
+    is specific but not shown in tables. Include this metric in main results or appendix.'
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: a17efd5daddb
+  text: Code repository (https://github.com/JiayuJeff/AdaPlanBench) not accessible
+    for review. Cannot verify modularity, test coverage, dependency management, or
+    reproducibility scripts. Authors should provide direct repository access or include
+    code quality documentation in submission.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 6858b08d6d48
+  text: Paper mentions vLLM dependency (Section 2, Ethics) but no requirements.txt
+    or environment specification visible in provided materials. Reproducibility from
+    scratch cannot be verified.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 3159f0f79d4d
+  text: Specify the exact Creative Commons license identifier (e.g., CC-BY-4.0) in
+    the Ethics statement instead of the generic 'CC'.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 58fa2c32c009
+  text: Include a specific commit hash or version tag for the dataset release to ensure
+    reproducibility of the 307-task benchmark.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 1c5bf7bc1b63
+  text: Clarify IRB approval or informed consent procedures for the 8 PhD-level human
+    annotators mentioned in Section 'Human Annotation Details'.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 4ee9d690ee7e
+  text: Remove unused figure files (pipeline_1.pdf, github-logo.png, hf-logo.png)
+    not referenced in the LaTeX source to reduce clutter.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: c5cb47bf3772
+  text: Add alt text descriptions to all figure environments for accessibility compliance.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 0a966556c62f
+  text: Ensure tcolorbox prompt figures (e.g., fig:user-llm-prompt) are legible at
+    print scale; consider reducing font size or splitting content.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: cead5b2849d5
+  text: Consolidate the four human-vs-LLM alignment histogram figures into a single
+    multi-panel figure to save space and improve comparison.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 2535dcc654ed
+  text: Define 'PDDL' at first use in Related Works (Section 3) for non-specialist
+    readers.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: a49a7e28a62e
+  text: Replace 'canonicalized' with 'standardized' in Formalization (Section 4.1)
+    to reduce technical density.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 25d9d88845a7
+  text: Define 'CI' (Confidence Interval) in Table 3 caption or Metric Definitions
+    section.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: '313019442346'
+  text: Replace 'a priori' with 'in advance' in Related Works (Section 3) for clarity.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: aa82b2528772
+  text: Replace 'serializes' with 'records sequentially' in Constraint-Tracking Analysis
+    (Section 4.1).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 7b917613be94
+  text: Ensure \BENCH{} macro expands to 'AdaPlanBench' in Abstract text for immediate
+    clarity.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: bfcc57fa1737
+  text: Temperature settings are inconsistent across models in main results (GPT-5
+    at T=1.0, others at T=0.0). This confounds model comparison. Clarify or control
+    for temperature in Section 3.1.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 4febad715de5
+  text: Correlation claims (ATWC/ATUC vs accuracy, r=0.898/0.919) are based on n=10
+    models. Provide p-values or confidence intervals to support statistical significance.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 833ddb10df6b
+  text: "Main accuracy (67.75%) corresponds to rubric threshold \u03B3=4.00 (Table\
+    \ 5), but this is not explicitly stated in the main text. Add this specification\
+    \ to Section 3.1."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: e6961cf50a00
+  text: Temper the claim 'Scaling insufficient for adaptiveness' (Section 2, Results)
+    to reflect the specific model range tested (8B-32B) rather than general scaling
+    laws.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 8e0c801b6ba7
+  text: Clarify in the main text that primary metrics (Accuracy, VPR) are LLM-judged
+    estimates validated on a subset (240 trajectories), avoiding overclaiming precision
+    on the full benchmark results.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: d00efd00b402
+  text: Discuss potential bias in LLM-generated constraints in the main analysis (Section
+    2/3) rather than solely in the Limitations section, as this affects the validity
+    of the 'dual-constraint' claim.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 35a748981683
+  text: The 'Human Annotation Details' section (e001) describes recruiting 8 PhD-level
+    annotators but does not mention IRB approval or ethics committee oversight. Explicitly
+    state whether IRB approval was obtained or if the study was deemed exempt, and
+    confirm informed consent procedures were followed.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 24e7c9fb735c
+  text: The 'Ethics statement' section mentions data annotations were performed by
+    researchers but omits details on compensation and data privacy protections for
+    the annotators. Add a sentence confirming fair compensation and that no personally
+    identifiable information (PII) was collected from annotators.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 0702a42271e9
+  text: Clarify the origin of 'User Constraints' in the benchmark. While the 'User
+    Simulator prompt' suggests synthetic generation, ensure there is no risk of inadvertently
+    encoding real user preferences or PII into the dataset that could compromise privacy.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: a4827bcc37cd
+  text: "Scientific Evidence Review Sample Size & Power: The benchmark uses 307 household\
+    \ tasks, which is reasonable for a planning benchmark. However, human annotation\
+    \ validation covers only 240 trajectories (3 queries \xD7 10 models), representing\
+    \ ~8% of total evaluations (3070). This limited human validation may not adequately\
+    \ capture judge reliability across the full task distribution. Controls & Ablations:\
+    \ The paper includes multiple ablation studies (temperature, constraint type,\
+    \ rubric threshold, mem"
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: f91ed4ab6d08
+  text: Report p-values and confidence intervals for all correlation coefficients
+    (e.g., accuracy vs ATWC/ATUC correlations of 0.898/0.919). Current presentation
+    lacks statistical significance testing.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: b8366e74971c
+  text: Apply multiple-comparison correction (e.g., Bonferroni, Holm, or FDR) when
+    comparing 10 models across 7 metrics. Current bold/underline highlighting of best
+    performers ignores family-wise error rate.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: de246b8a22ac
+  text: Replace Wald confidence intervals with Wilson or Agresti-Coull intervals for
+    proportion metrics, especially for models with accuracy near boundaries (e.g.,
+    Qwen3-8B at 14.38%).
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: e233cb140e3b
+  text: Report inter-rater reliability using Cohen's/Fleiss' Kappa for human annotation
+    study (8 annotators, 240 trajectories) instead of only agreement percentages.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 28f362d58432
+  text: "Define the variation metric (\u22643% across 3 runs) precisely\u2014specify\
+    \ whether this is standard deviation, range, or coefficient of variation."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: d38056294797
+  text: 'Fix section hierarchy: ''Human Annotation Details'' (e001) should be a subsection
+    of ''Human Annotation'' (e000), not a top-level section.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: d1594c96aa15
+  text: 'Reorder sections: Move ''Limitations'' and ''Ethics statement'' from the
+    beginning (e000) to the end of the paper, following standard academic structure.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 5a72a9d6f215
+  text: 'Correct cross-reference typo: ''app:model_choise'' in e002 should likely
+    be ''app:model-setup'' or ''app:model-choice'' to match defined labels.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: c2ca0e5f9a45
+  text: "Review table formatting: Avoid '\resizebox' in table* (e002) to prevent font\
+    \ size inconsistencies; use explicit font sizing instead."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 495f4a6acc19
+  text: 'Clarify figure semantics: Several ''figure*'' environments contain text boxes
+    (tcolorbox) rather than images; ensure captions and labels reflect content type.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: bb6c69c47523
+  text: Fix sentence fragments in Limitations and Ethics sections (e.g., 'Uses multiple
+    LLM judges' lacks a subject).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 95aaacc6de35
+  text: Correct the typo in the appendix reference label 'app:model_choise' to 'app:model_choice'.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 8cccc692d0ff
+  text: Complete the section heading 'Intuition Behind' to specify the subject (e.g.,
+    'Intuition Behind the Construction').
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+- id: 93884661e7c7
+  text: Ensure consistent tense in Human Annotation Details (e.g., change 'recruit'
+    to 'recruited').
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-668-https-arxiv-org-abs-2606-05622/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 44 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-29T08:45:17.654771+00:00'

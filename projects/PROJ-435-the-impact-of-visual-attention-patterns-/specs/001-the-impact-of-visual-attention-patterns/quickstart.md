@@ -1,84 +1,85 @@
 # Quickstart: The Impact of Visual Attention Patterns on Susceptibility to Misleading Headlines
 
 ## Prerequisites
+
 - Python 3.11+
 - Git
-- ~2 GB disk space (for synthetic data and dependencies)
+- Access to Hugging Face datasets (no authentication required for public datasets)
 
 ## Installation
 
-1.  **Clone the repository** (or navigate to the project directory):
-    ```bash
-    cd projects/PROJ-435-the-impact-of-visual-attention-patterns-
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repository-url>
+   cd projects/PROJ-435-the-impact-of-visual-attention-patterns-
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins versions for `pandas`, `statsmodels`, `scikit-learn`, `datasets`, `pyyaml`.*
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
 ## Running the Pipeline
 
-The pipeline is executed sequentially. Ensure you are in the project root.
+The pipeline is executed via the `code/cli/run_pipeline.py` script.
 
-### Step 1: Data Ingestion & Preprocessing
-Generates synthetic data (or loads verified ROI data) and applies I-VT fixation detection.
+1. **Download and preprocess data**:
+   ```bash
+   python code/cli/run_pipeline.py --stage preprocess
+   ```
+   This step:
+   - Fetches data from Hugging Face.
+   - Applies I-VT fixation detection.
+   - Filters participants with >20% data loss.
+   - Maps ROIs.
+   - Outputs `data/derived/preprocessed_gaze.csv`.
+
+2. **Calculate valence**:
+   ```bash
+   python code/cli/run_pipeline.py --stage valence
+   ```
+   This step:
+   - Calculates emotional valence using NRC (fallback to VADER if coverage < 50% for ALL headlines).
+   - Logs switches to `output/runtime.log`.
+   - Outputs `data/derived/valence_scores.csv`.
+
+3. **Merge and analyze**:
+   ```bash
+   python code/cli/run_pipeline.py --stage analyze
+   ```
+   This step:
+   - Merges datasets.
+   - Runs mixed-effects regression.
+   - Applies Holm-Bonferroni correction.
+   - Outputs `data/processed/regression_results.json`.
+
+4. **Robustness check**:
+   ```bash
+   python code/cli/run_pipeline.py --stage robustness
+   ```
+   This step:
+   - Sweeps fixation duration cutoffs (50ms, 100ms, 150ms).
+   - Outputs `data/processed/robustness_results.json`.
+
+## Testing
+
+Run the test suite to verify the pipeline:
 ```bash
-python code/01_preprocessing.py
+pytest tests/
 ```
-*Output: `data/processed/cleaned_fixations.csv`*
-
-### Step 2: Valence Calculation
-Calculates emotional valence for headlines using NRC/VADER.
-```bash
-python code/02_valence_calculation.py
-```
-*Output: `data/processed/valence_scores.csv`*
-
-### Step 3: Data Merge
-Merges gaze, valence, and participant data.
-```bash
-python code/03_data_merge.py
-```
-*Output: `data/processed/analysis_dataset.csv`*
-
-### Step 4: Regression Analysis
-Runs the mixed-effects model with the three-way interaction.
-```bash
-python code/04_regression_analysis.py
-```
-*Output: `output/regression_results.csv`*
-
-### Step 5: Robustness Analysis
-Runs sensitivity checks for fixation thresholds (50/100/150ms).
-```bash
-python code/05_robustness_analysis.py
-```
-*Output: `output/robustness_summary.csv`*
-
-### Step 6: Visualization
-Generates plots for the paper.
-```bash
-python code/06_visualization.py
-```
-*Output: `output/figures/`*
-
-## Verification
-To verify the pipeline:
-1.  Check that `output/regression_results.csv` contains a column `p_value_interaction_3way`.
-2.  Check that `output/robustness_summary.csv` contains rows for thresholds 50, 100, and 150.
-3.  Run the unit tests:
-    ```bash
-    pytest tests/unit/
-    ```
+This includes:
+- Unit tests for preprocessing and valence calculation.
+- Integration tests for the full pipeline.
+- Contract validation tests against `contracts/` schemas.
 
 ## Troubleshooting
-- **Memory Error**: The pipeline is designed for ~7GB RAM. If running on a smaller machine, reduce the synthetic sample size in `01_preprocessing.py`.
-- **Lexicon Error**: If NRC coverage is low, the script automatically switches to VADER and logs a warning.
+
+- **Data Fetching Errors**: Ensure you have internet access and that the Hugging Face URLs are correct.
+- **Memory Errors**: If the dataset is too large, the pipeline will automatically sample a subset. Check `output/runtime.log` for sampling details.
+- **Valence Switch**: If NRC coverage is low, the pipeline will switch to VADER. Check `output/runtime.log` for the switch log.

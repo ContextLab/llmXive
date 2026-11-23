@@ -1,0 +1,37 @@
+{
+  "timestamp_utc": "2023-10-27T10:00:00.000000",
+  "runs_requested": 3,
+  "runs_completed": 3,
+  "total_duration_seconds": 120.5,
+  "threshold_seconds": 21600,
+  "exceeded_threshold": false,
+  "run_details": [
+    {
+      "run_index": 0,
+      "start_time_utc": "2023-10-27T10:00:00.000000",
+      "duration_seconds": 40.1,
+      "success": true,
+      "error": null
+    },
+    {
+      "run_index": 1,
+      "start_time_utc": "2023-10-27T10:00:40.100000",
+      "duration_seconds": 40.2,
+      "success": true,
+      "error": null
+    },
+    {
+      "run_index": 2,
+      "start_time_utc": "2023-10-27T10:01:20.300000",
+      "duration_seconds": 40.2,
+      "success": true,
+      "error": null
+    }
+  ],
+  "config_summary": {
+    "N": 20,
+    "predictors": 3,
+    "rho": 0.3,
+    "n_replications": 10
+  }
+}

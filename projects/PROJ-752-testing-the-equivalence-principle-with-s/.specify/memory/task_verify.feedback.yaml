@@ -1,0 +1,210 @@
+T001:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/setup_project.py'
+  task: 9e7418b9942335aedca0a76e4980f559cc64486508eba18531b5c749866efb2d
+T002:
+  task: a2bb0ecd69c50777a95c5a349477e51ed18b3e7cdee0bf63bf3e34369811a568
+T003:
+  reason: "The evidence only shows the project root path; no linting or formatting\
+    \ configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml`\
+    \ or `ruff.toml`, or associated scripts) are present or referenced. Without these\
+    \ artifacts, the task \u201CConfigure linting (ruff) and formatting (black)\u201D\
+    \ is not satisfied. Adding the required configuration files and confirming they\
+    \ are non\u2011empty would be needed."
+  task: 536e33702b3a74afef15b5825ab4e2c3ef19fa56cc85739ac1dabd47bead9485
+T004:
+  reason: Checked the provided `config.yaml` (which exists) but no `config.py` artifact
+    was found or shown, and thus there is no evidence that a Python module loads the
+    YAML, extracts `benchmark_values.etvos_limit`, logs the required warning when
+    missing, and sets the config attribute accordingly. The core implementation required
+    by T004 is absent.
+  task: 4203a0a38e9d6bb91f73e6220685f22c0bfaa60859bbb6e5e1872c36741f0bef
+T005:
+  task: 165d0528e30e35c9448bdbd6e49fac6df03e8df9ed564508c097eba9682157b5
+T006:
+  reason: 'declared artifact(s) missing/empty/invalid: contracts/orbit_solution.schema.yaml'
+  task: 68f390b40cdea8d14c5c50b8315f2183cc5f6f31dc190e060afe19ba9704e283
+T007:
+  reason: "The schema file exists, but the `eta_value` field allows negative numbers\
+    \ (`minimum: -1.0`), violating the task\u2019s requirement that it be non\u2011\
+    negative. Adjust the schema to enforce `minimum: 0.0` (or otherwise ensure \u03B7\
+    \u202F\u2265\u202F0)."
+  task: 6e65ee10adb16edb2bc9b7d7a064fd768add1c73f8baf58ceb5b99561b33767c
+T007a:
+  task: c84e8f28ff4ecd04181c6b3b14a2c6231453c8ee578d497611dd00e3deb0ecfe
+T008:
+  reason: The provided `code/utils/logging.py` correctly implements console and optional
+    file handlers and defines the required `DataUnavailableError` and `ModelError`
+    exceptions. However, there is no evidence that the module is imported by the tasks
+    T009, T016, and T018; no import statements or usage traces are shown for those
+    modules. This requirement is unmet.
+  task: 8614c31a65c30eb5ed574205e96240d6e39ac85f4dbfd964fc6afd697e7b546f
+T009:
+  reason: 'declared artifact(s) missing/empty/invalid: code/ingestion/downloader.py,
+    data/feasibility_gap_report.json'
+  task: f8b14d35b7e2803e2933f23c14e3cb15a5e8605a95f52b17573f1ba26d28085c
+T009a:
+  task: 4ebb96d8246178377a7ef2dc7a3ae68601a979d8f429165d38225b35bab049b7
+T009b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/satellite_metadata.yaml'
+  task: b3a738c025d37a2caf8a9063d6d1bf0f24a700fb900015a87c4b727859563ee3
+T009c:
+  task: 0f0b77d7eac16c3f81c058868a51d74bcbd21535874cc833d0749c47b34fca9b
+T009d:
+  task: 7ea627667ada7783b713b28b499960db208383effec071459cb2a8c83116e223
+T010:
+  task: 451fbff3347587493fdceb65279b505f8d20f2c2c17e021a6abd5d1c6151cc2a
+T011:
+  task: c1986b03ba3bb2e9efab7f8e3f6e9090ceed7d3ac964b9a534b16169f1b257ba
+T012:
+  task: b746008aec0f08c9bb3fa70b04c88da448029924cc9d30a345d011c521899860
+T013a:
+  task: abbd90fd9fbcd9943f4cb3c3bc25f517c3b2bd16156a0ccd9fe713233cd58c7f
+T013b:
+  task: 51aa8d09e35d1c9719fdd9d3b300f538becee0ad600f59ff88f3129c818bd1cb
+T014b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/ingestion.py'
+  task: 0de86f18463844f702dadfe4dbdd75e8c232c507894e101b06d80d515a4b1e29
+T014c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/ingestion.py'
+  task: 9877d030268f4d83f16a32e5ed76c1a928c124f1a03816d23235b564409e5313
+T016:
+  task: 048c5c3baae429da464c6e0fc2bcab22b4960ca366709b1a752eb98421d71fa4
+T017:
+  reason: 'declared artifact(s) missing/empty/invalid: code/preprocessing.py'
+  task: d5f578dafc1c7040e88eb68516329d679f910041c33ed89b8dac6ffa0ea65a81
+T018:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/excluded_satellites.json'
+  task: cf49bc8156a172aba564c41be1d2c50b7c309c25d05ec9743dc11bae78d23f39
+T019:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-752-testing-the-equivalence-principle-with-s.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: da56c03ad6833b2291adfefefa47d41842c58c668e67a357515d9e1c3ba95725
+T020:
+  task: bbd39f38d4cc9b37ddc67c0593c065bb8b91c0dd877ba68220c6b5a70113794a
+T021:
+  task: 72ffefe8b57fd42ca25725ff56fc85c5c1027c4fd560fe2d6a333d54a3851b00
+T022:
+  task: 3c101e6daf25a2b924a306800aa8e08bbc1e33bc17e2c0a2fd99c42fe463cc07
+T023a:
+  task: 90ee69a94d6da635aab6bd54dd220a592819dfaf9679cde52c70c8c3ab92e60f
+T023b:
+  task: 7fbb0c154f707aa96c246f912b93377b4d459ddb26a82ff7433a59dd53bddaac
+T023c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/dynamics/models.py'
+  task: ecec1b3d4083a79a5d6030736788c962bc42dffb9bc7422131bfe4035599700e
+T023d:
+  reason: 'declared artifact(s) missing/empty/invalid: code/dynamics/models.py'
+  task: 002daf8f81b618c79c303e287c8bacca6d3b763a7c913a6cb174084313735c4a
+T023e:
+  reason: 'declared artifact(s) missing/empty/invalid: code/dynamics/models.py'
+  task: 1cdfd8d9fdfb77022ed802200635059cd23f00169f9bef3309e3bcf549f83be0
+T023f:
+  reason: 'declared artifact(s) missing/empty/invalid: code/dynamics/force_calculator.py'
+  task: 5c7921246076692ca7d1ffa6cb3e19fdfd461379bda862acc9dfcf6cea9b90db
+T024:
+  task: 3dcafd2df21f719266b705c04a103056a592c8b9e0f87314181981fb4631f022
+T024a:
+  task: 0c68026904657a8e9e6a48b29f503cf0cb556f956c750e6256c6606ed63ac9a6
+T024b:
+  task: bff6c53f1aa1bf0230de0726db720558bc81e4a02e24a06bc51baba793fa0452
+T025:
+  task: 7820a8ba4bb7e9ffc950eda029d1017357ae56d207687f69b2833d78a9f3020b
+T025a:
+  task: ca1836248bf89eb4c775dc43c65caca52302abbb74046cb12e190b4ebb008696
+T025b:
+  task: a32cde670314d5f9e25bb4fec0340eb4fbe8219a79101926e7a6953d20808ca5
+T026:
+  task: 1e09afade87118f5fd1c836df835597a850a015e656ec22afe0537d6cab5831c
+T027:
+  task: 14d096efa80095ac2e7aec73273d4a40929c06de0a96662da3eea8e2c052c2f9
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/orbit_solutions.json,
+    data/results/eotvos_metrics.json'
+  task: 822d3045b9d194ec2c7089f7e0ff4d6f14b12551f658598302cc17e0834399d9
+T029:
+  task: 4696abce0b1330fcb6cc8b6d6194cd8ac58cbe06201962ce6fb53ea35e2109d1
+T030:
+  task: 0ef59fbd00e1021b7059c5fae95e8979fbc15392ab27b9eeb84ad6c130d5ca60
+T031:
+  task: 68ef4ea684bdc8faca87f080175c22d70daaedb4aa927fc661a2c4ce51635787
+T032:
+  task: 3f50925a586b806c7063aa7186cbe88e6e165a72be122e1a4ccb69d9d50e2911
+T032a:
+  task: 62bcb7e18fef2113e04830e174dc78d9e757bed332b401379e6f10845203ffaf
+T032d:
+  task: 30c7f6e5e4cf5c9ce6fc383eb20ceff37ec4c95d84724b025a71a6d1df83249a
+T032e:
+  task: 14be2d9fa990fd1b2b7ccb0dd1d63c9d76e6d3fef5d3929530e949eb4159f426
+T032f:
+  task: d044613d73e83de2ffe4d9efcd7db5358e042e0661ee11fdb10a7b175be8bee5
+T033a:
+  task: d464acf25f7a7e66e3dea8ef8c2427ef97bf4bfb70d5592fff819ec91ea0c7aa
+T033b:
+  task: 63fc98f4f3076a13b43bfcc7139b980b6190191c8ad943d677cd91ba3220395b
+T033c:
+  task: 57c5b587c3d94919fa51bedb7e2d80d7b1459fe4993065016732943378e3b4f3
+T034:
+  task: e78f1db11ec40f5db900b2d676f2673d3d84210bbaa8a248eae9dd744bdd148f
+T035:
+  task: 45fc9260cd1b5ae7f4fbbc3e40e7879cce149d2134473d0669b47bd370f176e2
+T036:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/sensitivity_analysis.png'
+  task: 6122f115e885719770fd97dbeb932dca64ff86da59c50b46d8fbfc234a1a2f60
+T037:
+  task: a13e94f0e09378c3f9499e0aee2f4cb218d90c8213138cf5827d38f1645fd452
+T038:
+  task: 49bebdc4444fdedf25263d994766dfc9075cb2d94c43ef1db192ca59dcacdb45
+T040:
+  task: 018976918602d6197bf7cf2b030a387a2698935ec3aee2e8ad3a4f0270363ae0
+T041:
+  task: 5d75465468b1e055bef63749e25aed5227c5c7b95565a6e2279c8663720cd9a5
+T042a:
+  task: 85e643c87761e37467ef634032a4df33bc72f5070320bd25c264d104cd43c746
+T042b:
+  task: ed21907774998c2f1beba8bf9814ed7475d4818fd2496c52b96390e0f876dde7
+T042c:
+  task: bdf401b06b2c12655d4d453c98f281941f0159f7cef37403c32c6734cd9e07a3
+T042d:
+  task: f9ac375006131b3bfa6bd122c67b5d83dd1850b629c23978e4580861ff06096e
+T043:
+  task: d5573b856621ed341745c6bc0cfcf21c5eb97eab606517660805df39aa300379
+T044:
+  task: 4e1c4409abd79221e072b15554b799a38bb2622a3552a7fb2e56562ff6245d87
+T045a:
+  task: 391a8b3023a3006c3b55d56e40718b56f7ace82a3e39160ad36513d3d03464fb
+T045b:
+  task: 1e6e864db56022a4bfe594b7655416ddb8787e1fcb06fb784a263f6c768976a8
+T045c:
+  task: 8e368cf34021e0a6a29fc676d6bc8691ee17e0e116c76edfd722d30c24640d22
+T046a:
+  task: aa5e1eef700b41b3906d30e3e0b5556947af73c2d5deeb38e1f15342cbc6d2c4
+T047a:
+  task: 78cfa0ae195c78bdc802218a4a0910ccdfc8647ced5f15e5b15ae3700eeec1ff
+T048.0a:
+  reason: 'Requested task execution failed; rerun successfully: code/research/ads_search.py
+    exit=1'
+  task: 91b8101904abaf5bef942ad55fdc4a54c7ca5578de9c8c473e3fde89bfadc21c
+T048.0b:
+  task: 50e38d59314930925d04c6dabca505b49266dee419f7764a263ec1f56e96bcf3
+T048.0c:
+  task: 0525481bdc2b7bdde6860bc01cf377e0056f70a835961972c5bba84353dadcd6
+T048.0d:
+  task: e03d31ea571c5c668a1ec7c225325969a2df7cc72ede197dfe50a9f4b2035726
+T048.0e:
+  task: 9bcde099060a2e35fe043fe414cbfe01bbd8498d8e74b35c55bc2568d495068a
+T049:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/report.py'
+  task: a1898aadcd6f853523756d7b4fe7bbf0704f7cd223e9c5f69fa13edac397124c
+T049b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/report.py'
+  task: 3ff93e42d4b0711fea11878a445805f8fb6a34334ba4403844ef940b24ff521e
+T050:
+  task: 642fa4afaa9a21b3ee71b961f7635deac7b356911be53742b889de6cc952db1c
+T051:
+  task: 1ae6645d9e6a6ad81ed3fafddb9061afaf9ef77a0799323d212d771a35b81e81
+T052:
+  task: b111fa9b3d33b94d9850863672ee2e1e8fbe54320db21a2f9e9ba90684a78807
+T053:
+  task: b9f9db4d88a8c218e5221d1c01903a5492ff28099398841acde83e8f75d8f7a9

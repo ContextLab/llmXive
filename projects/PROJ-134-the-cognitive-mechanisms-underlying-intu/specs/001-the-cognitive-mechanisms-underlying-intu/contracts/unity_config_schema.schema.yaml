@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Unity Blend Shape Configuration Schema"
+description: "Schema for the Unity blend shape parameters defining salience levels."
+type: "object"
+properties:
+  salience_levels:
+    type: "object"
+    description: "Mapping of salience levels to blend shape parameters."
+    properties:
+      low:
+        type: "object"
+        description: "Parameters for low salience."
+        properties:
+          blend_shape_0:
+            type: "number"
+            description: "Blend shape 0 value (0-100)."
+          blend_shape_1:
+            type: "number"
+            description: "Blend shape 1 value (0-100)."
+        required:
+          - blend_shape_0
+          - blend_shape_1
+      high:
+        type: "object"
+        description: "Parameters for high salience."
+        properties:
+          blend_shape_0:
+            type: "number"
+            description: "Blend shape 0 value (0-100)."
+          blend_shape_1:
+            type: "number"
+            description: "Blend shape 1 value (0-100)."
+        required:
+          - blend_shape_0
+          - blend_shape_1
+    required:
+      - low
+      - high
+required:
+  - salience_levels
+additionalProperties: false

@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "FeatureVector"
+description: "Schema for extracted code features"
+type: "object"
+properties:
+  snippet_id:
+    type: "string"
+    description: "Unique identifier for the code snippet"
+  ast_depth:
+    type: "integer"
+    minimum: 0
+    description: "Maximum depth of the Abstract Syntax Tree"
+  node_count:
+    type: "integer"
+    minimum: 0
+    description: "Total number of nodes in the AST"
+  cyclomatic_complexity:
+    type: "number"
+    minimum: 0.0
+    description: "Cyclomatic complexity score"
+  taint_api_count:
+    type: "integer"
+    minimum: 0
+    description: "Frequency of known taint-source APIs"
+  sanitization_present:
+    type: "boolean"
+    description: "Whether known sanitization functions are present"
+  embedding_similarity_score:
+    type: "number"
+    minimum: -1.0
+    maximum: 1.0
+    description: "Cosine similarity to known vulnerable patterns (Optional/Exploratory)"
+    nullable: true
+  parse_error:
+    type: "boolean"
+    description: "True if parsing failed"
+required:
+  - snippet_id
+  - ast_depth
+  - node_count
+  - cyclomatic_complexity
+  - taint_api_count
+  - sanitization_present
+  - parse_error
+additionalProperties: false

@@ -1,92 +1,107 @@
-"""Multiple testing correction module implementing Benjamini-Yekutieli procedure.
-
-This module provides functions to control the False Discovery Rate (FDR)
-under arbitrary dependence structures using the Benjamini-Yekutieli method.
-"""
+import logging
 import numpy as np
 from typing import List, Tuple, Dict, Any
 
-def benjamini_yekutieli(p_values: np.ndarray, alpha: float = 0.05) -> Tuple[np.ndarray, np.ndarray]:
-    """Apply the Benjamini-Yekutieli procedure to a list of p-values.
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-    The BY procedure controls the FDR under arbitrary dependence of test statistics.
-    It is more conservative than the BH procedure but robust to dependence.
-
-    Args:
-        p_values: Array of p-values to correct.
-        alpha: Significance level (default 0.05).
-
-    Returns:
-        Tuple containing:
-            - q_values: Adjusted q-values (FDR-corrected p-values).
-            - is_significant: Boolean array indicating which hypotheses are significant.
+def benjamini_yekutieli(p_values: List[float]) -> List[float]:
     """
-    n = len(p_values)
-    if n == 0:
-        return np.array([]), np.array([], dtype=bool)
+    Apply the Benjamini-Yekutieli procedure for FDR control.
+    Returns adjusted p-values (q-values).
+    """
+    if not p_values:
+        return []
+    
+    # Input validation
+    p_arr = np.array(p_values)
+    if np.any(p_arr < 0) or np.any(p_arr > 1):
+        raise ValueError("P-values must be in [0, 1]")
+    if np.any(np.isnan(p_arr)):
+        raise ValueError("P-values cannot contain NaN")
+    
+    n = len(p_arr)
+    c_n = np.sum(1.0 / np.arange(1, n + 1))
+    
+    # Sort p-values
+    sorted_indices = np.argsort(p_arr)
+    sorted_p = p_arr[sorted_indices]
+    
+    # Calculate q-values
+    q = np.zeros(n)
+    for i in range(n):
+        q[i] = sorted_p[i] * n * c_n / (i + 1)
+    
+    # Ensure monotonicity (from largest to smallest)
+    for i in range(n - 2, -1, -1):
+        q[i] = min(q[i], q[i + 1])
+    
+    # Clip to [0, 1]
+    q = np.clip(q, 0, 1)
+    
+    # Round to 4 decimal places
+    q = np.round(q, 4)
+    
+    # Restore original order
+    result = np.zeros(n)
+    result[sorted_indices] = q
+    
+    return result.tolist()
 
-    # Sort p-values and keep track of original indices
-    sorted_indices = np.argsort(p_values)
-    sorted_p = p_values[sorted_indices]
-
-    # Calculate the harmonic series sum for BY correction
-    # c(m) = sum_{j=1}^{m} 1/j
-    harmonic_sum = np.sum(1.0 / np.arange(1, n + 1))
-
-    # Calculate critical values for BY
-    critical_values = (np.arange(1, n + 1) / n) * (alpha / harmonic_sum)
-
-    # Find the largest k such that p_(k) <= critical_value_(k)
-    # We iterate from largest to smallest to find the threshold
-    significant_mask = sorted_p <= critical_values
-
-    if not np.any(significant_mask):
-        # No significant results
-        q_values = np.ones(n)
-        is_significant = np.zeros(n, dtype=bool)
-    else:
-        # Find the largest index where condition holds
-        k = np.max(np.where(significant_mask)[0])
-        threshold = critical_values[k]
-
-        # Calculate q-values (step-up procedure)
-        q_values = np.ones(n)
-        for i in range(n - 1, -1, -1):
-            q_values[i] = min((n / (i + 1)) * sorted_p[i], q_values[i] if i < n - 1 else 1.0)
-            # Ensure monotonicity
-            if i < n - 1:
-                q_values[i] = min(q_values[i], q_values[i + 1])
-
-        # Assign q-values back to original order
-        final_q_values = np.zeros(n)
-        final_q_values[sorted_indices] = q_values
-
-        # Determine significance
-        is_significant = final_q_values <= alpha
-
-    return final_q_values, is_significant
-
+def benjamini_hochberg(p_values: List[float]) -> List[float]:
+    """
+    Apply the Benjamini-Hochberg procedure for FDR control.
+    Returns adjusted p-values (q-values).
+    """
+    if not p_values:
+        return []
+    
+    p_arr = np.array(p_values)
+    n = len(p_arr)
+    
+    sorted_indices = np.argsort(p_arr)
+    sorted_p = p_arr[sorted_indices]
+    
+    q = np.zeros(n)
+    for i in range(n):
+        q[i] = sorted_p[i] * n / (i + 1)
+    
+    for i in range(n - 2, -1, -1):
+        q[i] = min(q[i], q[i + 1])
+    
+    q = np.clip(q, 0, 1)
+    q = np.round(q, 4)
+    
+    result = np.zeros(n)
+    result[sorted_indices] = q
+    
+    return result.tolist()
 
 def apply_correction_to_results(
-    results: List[Dict[str, Any]], alpha: float = 0.05
+    results: List[Dict[str, Any]], 
+    method: str = 'benjamini_yekutieli'
 ) -> List[Dict[str, Any]]:
-    """Apply BY correction to a list of result dictionaries.
-
-    Args:
-        results: List of dictionaries containing 'p_value' keys.
-        alpha: Significance level.
-
-    Returns:
-        Updated list of dictionaries with 'q_value' and 'is_significant' keys added.
     """
-    if not results:
-        return results
-
-    p_values = np.array([r["p_value"] for r in results])
-    q_values, is_significant = benjamini_yekutieli(p_values, alpha)
-
-    for i, result in enumerate(results):
-        result["q_value"] = q_values[i]
-        result["is_significant"] = bool(is_significant[i])
-
+    Apply correction to a list of result dictionaries containing p-values.
+    """
+    p_values = [r['p_value'] for r in results]
+    
+    if method == 'benjamini_yekutieli':
+        q_values = benjamini_yekutieli(p_values)
+    elif method == 'benjamini_hochberg':
+        q_values = benjamini_hochberg(p_values)
+    else:
+        raise ValueError(f"Unknown method: {method}")
+    
+    for i, r in enumerate(results):
+        r['q_value'] = q_values[i]
+        r['significant'] = r['q_value'] < 0.05
+    
     return results
+
+def main():
+    """Main entry point for correction module (for testing)."""
+    pass
+
+if __name__ == "__main__":
+    pass

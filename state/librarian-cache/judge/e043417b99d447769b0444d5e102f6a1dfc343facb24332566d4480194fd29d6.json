@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1003.4886",
+  "judged_at": "2026-08-10T06:41:59Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the impact of network proximity on epidemic spreading in scale-free networks physics",
+  "rationale": "The paper focuses on \"small-world\" network topology applied to geophysical diffusion in porous rocks, which is a distinct construct from the user's specific focus on \"scale-free\" networks and \"epidemic spreading.\" While both involve network theory, the paper does not measure the same mechanism (epidemic dynamics vs. pollutant transport), the same network class (scale-free vs. small-world), or the same domain (epidemiology vs. geophysics), failing to meet the inclusion criteria for a literature r",
+  "relevant": false
+}

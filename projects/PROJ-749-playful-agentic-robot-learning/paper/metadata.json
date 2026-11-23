@@ -72,5 +72,15 @@
     "sections/supp/5_additional_ablation.tex",
     "sections/supp/6_skills.tex",
     "sections/supp/7_prompts.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "3707e0ee8170a5ac529b229c53af458769637e94b7fb6b60129fdaa09101ea42",
+      "bytes": 6726008
+    },
+    "original.pdf": {
+      "sha256": "e5f6133ca4fdbadb6714a8eb86dd6a3307850e8f18801dbfafeee4f0e1aa1ff9",
+      "bytes": 6898403
+    }
+  }
 }

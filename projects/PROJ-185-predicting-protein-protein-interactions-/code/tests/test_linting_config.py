@@ -1,34 +1,44 @@
-"""Tests to verify linting and formatting configuration compliance."""
 import subprocess
 import os
 import sys
+import pytest
+from pathlib import Path
 
-def test_ruff_check_passes():
-    """Ensure ruff check passes on the codebase."""
-    code_root = os.path.join(os.path.dirname(__file__), "..")
+@pytest.fixture
+def project_root():
+    return Path(__file__).parent.parent
+
+def test_ruff_check_passes(project_root):
+    """Verify that ruff check passes on the project codebase."""
+    ruff_path = project_root / ".ruff.toml"
+    assert ruff_path.exists(), ".ruff.toml configuration file missing"
+
+    # Run ruff check against the src and tests directories
     result = subprocess.run(
-        ["ruff", "check", code_root],
+        [sys.executable, "-m", "ruff", "check", "src", "tests", "--config", str(ruff_path)],
+        cwd=project_root,
         capture_output=True,
-        text=True,
-        cwd=os.path.dirname(__file__)
+        text=True
     )
-    # If ruff is not installed, skip or fail depending on env
-    if result.returncode == 0:
-        return
-    # Allow failure if ruff isn't installed in CI environment
-    if "ruff: command not found" in result.stderr:
-        pytest.skip("ruff not installed")
+
+    # We expect success (exit code 0) if no linting errors are found
+    # If ruff is not installed, we skip this specific check but ensure the config exists
+    if result.returncode == 127 or "No module named 'ruff'" in result.stderr:
+        pytest.skip("ruff not installed in environment, skipping lint check execution")
+
     assert result.returncode == 0, f"Ruff check failed:\n{result.stdout}\n{result.stderr}"
 
-def test_black_check_passes():
-    """Ensure black check passes on the codebase."""
-    code_root = os.path.join(os.path.dirname(__file__), "..")
+def test_black_check_passes(project_root):
+    """Verify that black check passes on the project codebase."""
+    # Run black --check against the src and tests directories
     result = subprocess.run(
-        ["black", "--check", code_root],
+        [sys.executable, "-m", "black", "--check", "--config", str(project_root / "pyproject.toml"), "src", "tests"],
+        cwd=project_root,
         capture_output=True,
-        text=True,
-        cwd=os.path.dirname(__file__)
+        text=True
     )
-    if "black: command not found" in result.stderr:
-        pytest.skip("black not installed")
+
+    if result.returncode == 127 or "No module named 'black'" in result.stderr:
+        pytest.skip("black not installed in environment, skipping format check execution")
+
     assert result.returncode == 0, f"Black check failed:\n{result.stdout}\n{result.stderr}"

@@ -1,0 +1,9 @@
+Validating schema: contracts/output.schema.yaml
+--------------------------------------------------
+Schema loaded successfully.
+yamllint passed.
+yamllint: PASSED
+Structure validation: PASSED
+No sample data provided for validation. Schema structure check only.
+JSON Schema validity: PASSED
+Final Status: VALIDATION SUCCESSFUL

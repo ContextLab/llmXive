@@ -1,60 +1,52 @@
 $schema: "http://json-schema.org/draft-07/schema#"
+title: "Test Result Schema"
+description: "Schema for statistical test results."
 type: object
 properties:
   result_id:
     type: string
-    description: "Unique identifier for the test result"
-  dataset_id:
+    description: "Unique ID."
+  transformation_id:
     type: string
-    description: "Foreign key to the dataset"
-  method:
-    type: string
-    enum:
-      - "Box-Cox"
-      - "Yeo-Johnson"
-      - "rank-based"
-    description: "Transformation method used"
+    description: "Reference to Transformation."
   test_type:
     type: string
     enum:
-      - "t-test"
-      - "ANOVA"
-      - "Mann-Whitney U"
-    description: "Statistical test performed"
-  p_value:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: "P-value from the statistical test"
-  significant:
-    type: boolean
-    description: "Whether p < α (default 0.05)"
+      - "t_test"
+      - "anova"
+    description: "Type of statistical test."
   condition:
     type: string
     enum:
       - "null"
       - "alternative"
-    description: "Simulation condition (null for Type I error, alternative for power)"
+    description: "Condition of the test."
   effect_size:
     type: number
     nullable: true
-    description: "Cohen's d (only for simulated data)"
+    description: "Known effect size (for simulated data)."
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "P-value from test."
+  is_significant:
+    type: boolean
+    description: "Whether p_value < alpha."
+  seed_used:
+    type: integer
+    description: "Random seed for this run."
   iteration:
     type: integer
     minimum: 1
-    maximum: 1000
-    description: "Simulation iteration number"
-  seed:
-    type: integer
-    description: "Random seed used (fixed at 42)"
+    description: "Iteration number."
 required:
   - result_id
-  - dataset_id
-  - method
+  - transformation_id
   - test_type
-  - p_value
-  - significant
   - condition
+  - p_value
+  - is_significant
+  - seed_used
   - iteration
-  - seed
 additionalProperties: false

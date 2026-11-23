@@ -1,0 +1,215 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: Extracted Microstate Features Schema
+description: >
+  Schema defining the 30 features extracted per participant as per FR-002.
+  Features are aggregated into a single CSV file.
+type: object
+required:
+  - columns
+  - data
+properties:
+  columns:
+    type: array
+    description: >
+      Ordered list of 30 feature columns.
+      Order: 4 Mean Durations, 4 Occurrence Rates, 16 Transition Probabilities, 6 Spectral Power Features.
+    items:
+      type: string
+    minItems: 30
+    maxItems: 30
+    uniqueItems: true
+    contains:
+      type: string
+      pattern: "^duration_"
+  data:
+    type: array
+    description: Rows of participant data.
+    items:
+      type: object
+      required:
+        - subject_id
+        - duration_A
+        - duration_B
+        - duration_C
+        - duration_D
+        - occurrence_A
+        - occurrence_B
+        - occurrence_C
+        - occurrence_D
+        - trans_AA
+        - trans_AB
+        - trans_AC
+        - trans_AD
+        - trans_BA
+        - trans_BB
+        - trans_BC
+        - trans_BD
+        - trans_CA
+        - trans_CB
+        - trans_CC
+        - trans_CD
+        - trans_DA
+        - trans_DB
+        - trans_DC
+        - trans_DD
+        - power_delta
+        - power_theta
+        - power_alpha
+        - power_beta
+        - power_low_gamma
+        - power_high_gamma
+      properties:
+        subject_id:
+          type: string
+          pattern: "^sub-[0-9]+$"
+          description: Unique participant identifier.
+        # Mean Durations (4)
+        duration_A:
+          type: number
+          minimum: 0
+          description: Mean duration of Microstate Class A (ms).
+        duration_B:
+          type: number
+          minimum: 0
+          description: Mean duration of Microstate Class B (ms).
+        duration_C:
+          type: number
+          minimum: 0
+          description: Mean duration of Microstate Class C (ms).
+        duration_D:
+          type: number
+          minimum: 0
+          description: Mean duration of Microstate Class D (ms).
+        # Occurrence Rates (4)
+        occurrence_A:
+          type: number
+          minimum: 0
+          description: Occurrence rate of Class A (Hz).
+        occurrence_B:
+          type: number
+          minimum: 0
+          description: Occurrence rate of Class B (Hz).
+        occurrence_C:
+          type: number
+          minimum: 0
+          description: Occurrence rate of Class C (Hz).
+        occurrence_D:
+          type: number
+          minimum: 0
+          description: Occurrence rate of Class D (Hz).
+        # Transition Probabilities (16)
+        trans_AA:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability of transition A->A.
+        trans_AB:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability of transition A->B.
+        trans_AC:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability of transition A->C.
+        trans_AD:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability of transition A->D.
+        trans_BA:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability of transition B->A.
+        trans_BB:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability of transition B->B.
+        trans_BC:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability of transition B->C.
+        trans_BD:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability of transition B->D.
+        trans_CA:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability of transition C->A.
+        trans_CB:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability of transition C->B.
+        trans_CC:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability of transition C->C.
+        trans_CD:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability of transition C->D.
+        trans_DA:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability of transition D->A.
+        trans_DB:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability of transition D->B.
+        trans_DC:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability of transition D->C.
+        trans_DD:
+          type: number
+          minimum: 0
+          maximum: 1
+          description: Probability of transition D->D.
+        # Spectral Power Features (6)
+        power_delta:
+          type: number
+          minimum: 0
+          description: Average power in Delta band (1-4 Hz).
+        power_theta:
+          type: number
+          minimum: 0
+          description: Average power in Theta band (4-8 Hz).
+        power_alpha:
+          type: number
+          minimum: 0
+          description: Average power in Alpha band (8-13 Hz).
+        power_beta:
+          type: number
+          minimum: 0
+          description: Average power in Beta band (13-30 Hz).
+        power_low_gamma:
+          type: number
+          minimum: 0
+          description: Average power in Low Gamma band (30-45 Hz).
+        power_high_gamma:
+          type: number
+          minimum: 0
+          description: Average power in High Gamma band (45-60 Hz).
+  target_label:
+    type: string
+    description: Name of the target column if included in the same file (e.g., heat_pain_threshold).
+    enum: ["heat_pain_threshold"]
+additionalProperties: false
+x-feature-count: 30
+x-constraint: "No NaN values allowed"
+x-constraint: "Column order must be strictly followed"

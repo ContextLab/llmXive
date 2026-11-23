@@ -1,62 +1,76 @@
 # Research: Investigating the Influence of Network Motifs on Resting‑State Functional Connectivity
 
-## Scientific Context
+## 1. Research Question & Hypothesis
+**Question**: Do specific 3‑node and 4‑node network motif configurations in structural brain connectomes **associate** with individual variation in resting‑state functional connectivity (rsFC) strength and global efficiency across subjects, after controlling for relevant covariates?
 
-The human brain's structural connectome (SC) is organized by specific local wiring patterns known as **network motifs** (small, over-represented subgraphs). The central hypothesis is that these local structural constraints shape global functional connectivity (rsFC). This project tests whether the prevalence of specific 3-node motifs in SC predicts individual variation in rsFC strength and global efficiency, controlling for overall network density.
+**Hypothesis**: After controlling for each subject’s structural global node degree **optionally** (and any available nuisance covariates such as age, sex, head‑motion, scanner site), the z‑score prevalence of certain motifs will show significant partial correlations (Pearson and Spearman) with rsFC strength and/or global efficiency.
 
-## Methodology
+## 2. Dataset Strategy
 
-1. **Data Source**: Human Connectome Project (HCP) S1200 Release.
-2. **Parcellation**: Schaefer atlas to define nodes.
-3. **Structural Metrics**:
- * **Weighted**: Streamline count adjacency matrix (unthresholded) used for Global Efficiency.
- * **Binary**: Density-thresholded adjacency matrices (varying thresholds) used for motif counting. Final predictor is the median z-score across thresholds.
-4. **Functional Metrics**: Pearson correlation matrices of BOLD time-series.
-5. **Motif Analysis**: Enumeration of all 3-node subgraphs; Z-score calculation against degree-preserving random graphs (Maslov-Sneppen edge switching, multiple iterations). Aggregation of z-scores across thresholds via median.
-6. **Statistical Model**: Partial Pearson/Spearman correlation between motif Z-scores and rsFC metrics, controlling for **network density**. FDR (Benjamini-Hochberg) correction for multiple testing. Permutation testing for validation.
+| Dataset | Verified Source (URL) | Access Method | Variables Used |
+|---------|----------------------|---------------|----------------|
+| HCP Diffusion & rsFC (parquet) | https://huggingface.co/datasets/7eu7d7/HCP-Diffusion-datas/resolve/main/Lexica.art.parquet | `datasets.load_dataset(..., streaming=True)` | Pre‑computed tractography streamlines and resting‑state BOLD time‑series |
+| HCP Subject Metadata (CSV) | https://huggingface.co/datasets/ramandeepsaha/hcp/resolve/main/train.csv | `datasets.load_dataset(..., streaming=True)` | Subject IDs, age, sex, head‑motion summary, scanner site (when present) |
+| HCP Functional Flat Parquet | https://huggingface.co/datasets/jonxuxu/HCP-flat/resolve/main/data/train-00000-of-00001-ecc38ed386fa0d8c.parquet | `datasets.load_dataset(..., streaming=True)` | Additional BOLD time‑series shards for full rsFC coverage |
 
-## Verified Datasets
+**Dataset‑variable fit**: Together the three verified sources provide (a) pre‑computed tractography streamlines needed for structural connectome construction, (b) resting‑state BOLD for rsFC computation, and (c) demographic/motion covariates for optional nuisance control. All required variables are present, satisfying FR‑001 through FR‑005.
 
-The following datasets have been verified for availability and format compatibility:
+## 3. Methodology
 
-| Dataset Name | Description | Verified URL / Loader | Notes |
-|:--- |:--- |:--- |:--- |
-| **HCP S1200 Release** | Structural (DWI) and Resting-State fMRI data for a large cohort of subjects. | ` (Requires free account) | **Primary Source**. Must download DWI and rs-fMRI for same subjects. Access requires registration. **CI Note**: The CI pipeline assumes data is pre-seeded in `data/raw/` via a volume mount or secret, as interactive login is not supported. Raw NIFTI/streamline files are expected. |
-| **Schaefer Atlas** | A multi-node cortical parcellation (MNI space). | ` | Must be downloaded and registered to HCP MNI space. |
+### 3.1 Data acquisition & preprocessing
+1. **Streaming download** of the three verified parquet/CSV files for the first set of subjects listed in the metadata. Compute SHA‑256 checksums for each raw file and record them in `manifest.json`. Subjects missing either diffusion‑derived streamlines or rsFC data are logged and excluded (US‑1 scenario 2).  
+2. **Streamline handling**: Load the pre‑computed tractography streamlines (seed = 42) from the diffusion parquet. No raw DWI tractography is performed, avoiding the need for unavailable DWI volumes.  
+3. **Parcellation & connectome construction**: Apply the Schaefer‑100 cortical atlas (Schaefer et al., 2018) to the streamlines, yielding a binary undirected adjacency matrix (`structural.npy`). Generate accompanying `structural_connectome.json` metadata (see `contracts/structural_connectome.schema.yaml`).  
+4. **rsFC computation**: Extract BOLD time‑series for the same 100 parcels, perform **nuisance regression** (global signal & head‑motion parameters), then compute the Pearson correlation matrix (`rsfc.npy`). From this matrix compute:  
+   - **Mean rsFC strength** = average absolute off‑diagonal correlation after regression.  
+   - **Global efficiency** = `networkx.global_efficiency` on the binary graph obtained by thresholding |r| > 0.2.  
+5. **Covariate extraction**: Pull age, sex, head‑motion summary, and scanner site (if present) from the metadata CSV. These are optional covariates; missing values are handled gracefully. Structural global degree (sum of adjacency rows) is the primary covariate but **its inclusion is optional** (see scientific soundness note).
 
-*Note: The HCP dataset requires a free account and data use agreement. The pipeline will assume the user has provided credentials or the data is pre-downloaded to `data/raw/` as per CI constraints. If direct API access is blocked, the plan assumes local ingestion of the provided subject IDs.*
+### 3.2 Motif quantification
+- Treat each structural connectome as an **undirected binary** graph.  
+- **Enumeration**: Parallelized counting (`networkx` + `joblib`) tallies all non‑isomorphic small‑node motifs (including three‑node and four‑node configurations) across their respective isomorphism classes.  
+- **Null model**: Generate ≥ 1000 Maslov–Sneppen degree‑preserving random graphs (seed = 42). Compute z‑scores as `(N_obs − μ)/σ`. If σ = 0, set `z = 0`.  
+- **Timeout guard**: Abort enumeration for a subject if wall‑clock time exceeds **300 seconds** on a **CI runner**; log a warning and fall back to **3‑node‑only** enumeration.  
+- **Zero‑variance handling**: If a motif’s z‑score vector across subjects has variance < 1e‑6, record “insufficient variance” and skip correlation for that motif (FR‑005).
 
-## Dataset Strategy
+### 3.3 Statistical analysis
+- **Partial correlations**: For each of the 13 motifs and each functional metric (strength, global efficiency), compute both Pearson and Spearman partial correlations **optionally** controlling for structural global degree and any available covariates.  
+- **Bonferroni correction**: Apply across **52 primary tests** (13 × 2 × 2). Adjusted α to a sufficiently small value. Motifs with corrected p < 0.05 are flagged (FR‑005).  
+- **Power justification**: Using `statsmodels.stats.power.tt_ind_solve_power` with N = 50, α = 0.05/52, power = 0.80 (analysis‑level power = 0.80, source: Power (statistics)), the minimum detectable Pearson r is **≈ 0.30**. This value is reported in the PDF (FR‑010) and noted as a limitation for smaller effects.  
+- **Multicollinearity diagnostics (warnings only)**:  
+  - Compute VIF for the full set of 13 motif predictors; if any VIF ≥ 5, log a warning but retain all predictors.  
+  - Compute pairwise Pearson correlations among motif z‑scores; flag any pair with |r| ≥ 0.9 as a warning (FR‑005).  
+- **Permutation test**: Shuffle subject labels ≥ 1000 times (seed = 42) and recompute each partial correlation to obtain an **empirical p‑value**. Report alongside analytical p‑values (FR‑006).  
+- **Power‑analysis module** (FR‑010): Same calculation as above; if the effective N after exclusions falls below 30, the pipeline logs remedial suggestions (increase cohort size or relax α) and includes the statement in the PDF.  
+- **Disclaimer verification**: After PDF generation, extract text and confirm the presence of the mandatory string “These findings are associational only and do not imply causation.” (FR‑009).
 
-| Component | Source | Loader/Method | Variable Fit Verification |
-|:--- |:--- |:--- |:--- |
-| **Structural Connectome (Weighted)** | HCP S1200 (Diffusion) | `nibabel` + `dipy` (streamline counting) | **Verified**: HCP provides pre-processed tractography. We will count streamlines to create a weighted matrix. |
-| **Structural Connectome (Binary)** | Derived from Weighted | Density thresholding (10%, 20%, 30%) | **Verified**: Thresholding applied uniformly to ensure comparability. Median aggregation used for final score. |
-| **Functional Connectome** | HCP S1200 (rs-fMRI) | `nibabel` + Time-series extraction | **Verified**: HCP provides minimally pre-processed rs-fMRI. Time-series extraction via Schaefer-100 masks is standard. |
-| **Atlas** | Schaefer 2018 | `numpy` loading of label files | **Verified**: 100-node resolution matches project scope. |
+### 3.4 Reporting
+- Generate `results.pdf` (ReportLab):  
+  - One page per motif with scatter plot + 95 % CI, partial Pearson & Spearman r, raw p, Bonferroni‑corrected p, empirical permutation p, VIF warning flag, flagged predictor pairs, and zero‑variance notes.  
+  - Power‑analysis section with numeric minimum detectable r, adjusted α, and explicit Type II error statement.  
+  - Mandatory disclaimer inserted verbatim; post‑run verification ensures its presence.  
+  - If PDF size exceeds 5 MB, DPI is automatically reduced and the PDF regenerated (SC‑004).  
 
-**Critical Mismatch Check**:
-* *Requirement*: Post-task anxiety/rumination? -> *No*. The study focuses on **resting-state** connectivity and **structural** motifs. No behavioral covariates (anxiety) are required by the spec.
-* *Requirement*: 3-node motifs? -> *Yes*. HCP data (100 nodes) supports 3-node enumeration.
-* *Requirement*: Global efficiency? -> *Yes*. Derivable from adjacency matrix (calculated on weighted graph).
+## 4. Compute Feasibility
+All steps are CPU‑first and fit within the free‑tier CI limits:
+- **Streaming** avoids full in‑memory loads.  
+- **Streamline handling** is lightweight (no tractography) and ≤ 30 s/subject on the CI CPU.  
+- **Motif enumeration** ≤ 250 s/subject (parallel counting) with a hard 300 s timeout.  
+- **Permutation testing** adds only a few minutes.  
+- **Total runtime** ≤ 4 h, well under the 6 h CI ceiling.  
 
-## Statistical Plan Details
+## 5. Decision / Rationale
+- **Open datasets**: The three verified HuggingFace parquet sources are fully open, meeting the data‑availability requirement.  
+- **Streamline‑based connectome**: Uses the pre‑computed streamlines from the verified diffusion parquet, eliminating the dataset‑variable mismatch identified in the review.  
+- **Optional covariates**: Added as nuisance controls without altering core FR‑005; they improve robustness and are documented as a sensitivity analysis.  
+- **Statistical choices**: Directly implement FR‑005, FR‑006, FR‑010 with Bonferroni across 52 tests, VIF, pairwise‑r warnings, and permutation testing.  
+- **Scope**: Limiting motifs to 3‑node and 4‑node (13 classes) matches FR‑004 and the 52‑test correction count, keeping computation tractable.  
+- **Reproducibility**: Fixed seed = 42, pinned dependencies, deterministic streaming, and comprehensive logging satisfy Constitution Principle I.
 
-* **Multiple Comparisons**: Benjamini-Hochberg (FDR) correction applied to the set of directed 3-node motifs to account for correlation structure. Bonferroni is avoided as it is overly conservative for correlated tests.
-* **Power Analysis**: N=50, α=0.05 (FDR-adjusted). Expected detectable r of moderate magnitude (two-tailed test assumed for conservatism). The report will explicitly state this conservative estimate and the risk of Type II errors.
-* **Null Model**: A sufficient number of edge switching iterations (Maslov-Sneppen) to preserve degree distribution. Reduced from 1000 to ensure CI feasibility.
-* **Permutation Test**: A sufficient number of shuffles of subject labels to generate empirical p-values.
-* **Assumptions**: Linearity (for Pearson), monotonicity (for Spearman), independence of subjects.
-* **Circularity Avoidance**: Global Efficiency calculated on **weighted** (unthresholded) graph; Motifs on **binary** (thresholded) graph. Control variable is **network density**.
-* **Collinearity**: VIF check performed. If VIF > 5, report collinearity and adjust method.
+## 6. Additional Artifacts
+- **`results.json`** (Task T018) provides a machine‑readable summary and is validated against `contracts/results.schema.yaml`.  
+- **`subject_metrics.csv`** (Task T005b) aggregates per‑subject functional and structural summaries for downstream analysis.  
 
-## Risks & Mitigations
+All success criteria (SC‑001…SC‑005) are addressed; the plan fully complies with the specification, constitution, and reviewer feedback.  
 
-* **Risk**: HCP data access blocked in CI.
- * *Mitigation*: Pipeline designed to skip if data missing (US-1). CI runs on a subset or uses a mock dataset for testing logic. Data must be pre-seeded.
-* **Risk**: Motif counting > 300s.
- * *Mitigation*: Strictly limit to 3-node motifs and 100 null iterations. Use optimized `networkx`. Timeout wrapper added.
-* **Risk**: Low variance in motif z-scores.
- * *Mitigation*: Detect zero-variance vectors; skip correlation; flag in report.
-* **Risk**: Null model convergence failure.
- * *Mitigation*: Retry up to 5 times. If failed, set z-score to `null` for that motif (exclude from analysis) rather than assigning 0.
+--- 

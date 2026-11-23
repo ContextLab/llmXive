@@ -1,53 +1,55 @@
-"""
-Unit tests for the download module.
-"""
+import json
+import os
+from pathlib import Path
 
-import pandas as pd
-from unittest.mock import patch, MagicMock
 import pytest
 
-from download import fetch_occurrences, add_metadata_columns, TARGET_SPECIES
+# Import the download main function directly
+from code.download import main as download_main
+from code.manifest_manager import load_manifest
 
-def test_add_metadata_columns():
-    """Test that metadata columns are correctly added."""
-    df = pd.DataFrame({"col1": [1, 2], "col2": [3, 4]})
-    result = add_metadata_columns(df)
+@pytest.mark.timeout(300)
+def test_download_climate_historical(tmp_path, monkeypatch):
+    """
+    Run the download script in a mode that only fetches the historical
+    WorldClim bioclimatic rasters. Verify that the expected number of
+    raster files are written and that manifest entries are created.
+    """
+    # Use a temporary data directory to avoid polluting the real project data
+    # The config module reads DATA_DIR from the project root; we monkeypatch it
+    # to point to the temporary directory for this test run.
+    from code import config
 
-    assert "source_identifier" in result.columns
-    assert "download_timestamp" in result.columns
-    assert "original_dataset_name" in result.columns
+    monkeypatch.setattr(config, "DATA_DIR", tmp_path, raising=False)
 
-    # Check values
-    assert all(result["source_identifier"] == "GBIF")
-    assert all(result["original_dataset_name"] == "GBIF Occurrence Download")
-    assert len(result["download_timestamp"].unique()) == 1  # All same timestamp
+    # Run the download script with arguments to only download historical rasters
+    # The script parses sys.argv; we simulate the CLI call by providing the args.
+    import sys
 
-@patch("download.requests.get")
-def test_fetch_occurrences_mock(mock_get):
-    """Test fetch_occurrences with mocked API response."""
-    # Mock response structure
-    mock_response = MagicMock()
-    mock_response.json.return_value = {
-        "results": [
-            {"decimalLatitude": 40.0, "decimalLongitude": -75.0, "scientificName": "TestSpecies"},
-            {"decimalLatitude": 41.0, "decimalLongitude": -76.0, "scientificName": "TestSpecies"}
-        ],
-        "endOfRecords": True
-    }
-    mock_get.return_value = mock_response
+    test_argv = ["download.py", "--climate", "historical"]
+    monkeypatch.setattr(sys, "argv", test_argv)
 
-    records = fetch_occurrences("TestSpecies", 1970, 2000, limit=10)
+    # Execute the download workflow
+    download_main()
 
-    assert len(records) == 2
-    assert records[0]["decimalLatitude"] == 40.0
-    mock_get.assert_called_once()
-    params = mock_get.call_args[1]["params"]
-    assert params["scientificName"] == "TestSpecies"
-    assert params["year"] == "1970,2000"
-    assert params["limit"] == 300  # MAX_RESULTS_PER_REQUEST
-    assert params["hasCoordinate"] == "true"
+    # Verify that the historical climate directory exists and contains 19 .tif files
+    climate_dir = tmp_path / "raw" / "climate_historical"
+    assert climate_dir.is_dir(), "Historical climate directory was not created"
+    tif_files = list(climate_dir.glob("*.tif"))
+    assert len(tif_files) == 19, f"Expected 19 raster files, found {len(tif_files)}"
 
-def test_target_species_list():
-    """Verify that target species list is not empty and contains strings."""
-    assert len(TARGET_SPECIES) > 0
-    assert all(isinstance(s, str) for s in TARGET_SPECIES)
+    # Load the manifest and check that an entry for the collection exists
+    manifest = load_manifest()
+    datasets = manifest.get("datasets", {})
+    # The collection entry is recorded with the directory path as the key
+    collection_key = str(climate_dir)
+    # Because the manifest records the relative path, we look for any entry whose
+    # file_path starts with the climate directory.
+    matching = [
+        v for v in datasets.values()
+        if v.get("file_path", "").startswith("data/raw/climate_historical")
+    ]
+    assert matching, "No manifest entry found for the historical climate collection"
+
+    # Clean up: the temporary directory will be removed automatically by pytest
+    # (no explicit cleanup needed)

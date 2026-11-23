@@ -3,12 +3,12 @@
   "stage": "planned",
   "class": "emitter_context",
   "fingerprint": "tasker_zero_tasks",
-  "consecutive_count": 1,
+  "consecutive_count": 0,
   "first_seen": "2026-06-29T16:50:52.616802+00:00",
-  "last_seen": "2026-06-29T16:50:52.616802+00:00",
+  "last_seen": "2026-07-17T04:22:10.488873+00:00",
   "retry_after": null,
   "last_error": "Tasker produced only 0 task IDs (need >= 5; total chars: 11382). Re-running on next cycle.",
   "evidence": "Tasker produced only 0 task IDs (need >= 5; total chars: 11382). Re-running on next cycle.",
   "remediation": "The emitter produced insufficient output (unresolved markers / no seed draft / zero tasks). Supply the missing inputs/context and re-run; do not blindly re-emit the same empty artifact.",
-  "status": "rerouted"
+  "status": "cleared"
 }

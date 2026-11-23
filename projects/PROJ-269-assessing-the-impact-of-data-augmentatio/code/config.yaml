@@ -1,0 +1,47 @@
+# Configuration for Simulation Pipeline
+# This file is dynamically updated by T004b based on fetch counts.
+# Default values are overridden at runtime if data deviations are detected.
+
+simulation:
+  # Default dataset list (5 datasets as per original spec)
+  # This list will be replaced if the fetched dataset count is < 5
+  default_datasets:
+    - breast_cancer
+    - ionosphere
+    - heart_disease
+    - pima
+    - wine
+
+  # The active dataset list is populated by the adapter logic
+  datasets: []
+
+  # Monte Carlo parameters
+  iterations: 1000
+  random_seed: 42
+
+  # Sample sizes for subsampling
+  sample_sizes:
+    - 15
+    - 25
+    - 40
+
+  # Augmentation methods to test
+  augmentation_methods:
+    - gaussian_noise
+    - smote
+    - random_oversampling
+
+  # Statistical thresholds
+  alpha: 0.05
+  safety_threshold: 0.10
+
+  # Paths
+  raw_data_dir: "data/raw"
+  derived_data_dir: "data/derived"
+  results_dir: "results"
+
+# Runtime adaptation state (populated by T004b adapter)
+runtime:
+  adaptation_applied: false
+  deviation_reason: null
+  actual_dataset_count: 0

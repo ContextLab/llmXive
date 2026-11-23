@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Manifest Schema"
+description: "Schema for data/dependency_manifest.yaml defining simulation configurations."
+type: object
+properties:
+  configurations:
+    type: array
+    items:
+      type: object
+      required:
+        - dataset_id
+        - test_type
+        - dependency
+        - n_replications
+        - seed
+      properties:
+        dataset_id:
+          type: string
+          description: "Identifier for the dataset (e.g., 'uci_census_income')."
+        test_type:
+          type: string
+          enum:
+            - t_test
+            - anova
+            - chi_squared
+          description: "The statistical test to perform."
+        dependency:
+          type: object
+          required:
+            - type
+            - strength
+          properties:
+            type:
+              type: string
+              enum:
+                - ar1
+                - cluster_effect
+              description: "Type of dependency to inject."
+            strength:
+              type: number
+              minimum: 0
+              maximum: 1
+              description: "Strength parameter (e.g., correlation rho or block size ratio)."
+            block_size:
+              type: integer
+              minimum: 1
+              description: "Block size for cluster effect (optional)."
+        n_replications:
+          type: integer
+          minimum: 1000
+          description: "Number of Monte Carlo replications."
+        seed:
+          type: integer
+          description: "Random seed for reproducibility."
+required:
+  - configurations
+additionalProperties: false

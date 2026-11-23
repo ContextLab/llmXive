@@ -1,5 +1,52 @@
-# This file is a symlink target for ruff if the project uses a flat config,
-# but pyproject.toml is the primary source of truth for this project.
-# Keeping this file to satisfy explicit tool checks that look for .ruff.toml
-# or to allow overriding specific settings without editing pyproject.toml.
-extend = "pyproject.toml"
+[lint]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "I", "N", "W", "B", "C4", "SIM", "UP"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# A list of rule codes that are ignored by default.
+# This is useful for disabling specific rules that are not relevant to the project.
+# Example: "E501" for line length (handled by Black)
+
+# Exclude a few specific directories.
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".git-rewrite",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Same as `--force-exclude`.
+force-exclude = true
+
+# Per-file-ignores.
+per-file-ignores = {}
+
+# Line length (handled by Black, but Ruff needs a value).
+line-length = 88
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.pyflakes]
+allowed-globals = []

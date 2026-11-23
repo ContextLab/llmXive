@@ -1,0 +1,12 @@
+{
+  "PROJECT_ROOT": ".",
+  "DATA_RAW_DIR": "data/raw",
+  "DATA_PROCESSED_DIR": "data/processed",
+  "DATA_RESULTS_DIR": "data/results",
+  "DATA_VALIDATION_DIR": "data/validation",
+  "DATA_LEXICONS_DIR": "data/lexicons",
+  "CONFIG_DIR": "config",
+  "LOGS_DIR": "logs",
+  "DEBUG_MODE": false,
+  "LOG_LEVEL": "INFO"
+}

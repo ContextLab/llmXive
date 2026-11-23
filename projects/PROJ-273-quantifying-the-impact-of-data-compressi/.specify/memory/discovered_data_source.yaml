@@ -1,0 +1,18 @@
+status: none
+intent: GWOSC CBC injection campaign LAL-format LIGO Algorithm Library LVK open data
+  python package dataset
+required_fields:
+- strain_time_series
+- detector_name
+- event_timestamp
+- true_mass1
+- true_mass2
+- true_distance
+- true_spin1_magnitude
+- true_spin2_magnitude
+- true_spin1_tilt_angle
+- true_spin2_tilt_angle
+- parameter_estimate_posteriors
+cache_key: 36aeaa36df6d1744d532223a02ea44b09c274ed31ecab40f99fb24940dea3bd8
+searched_at: '2026-10-09T07:40:10.705716+00:00'
+retry_count: 1

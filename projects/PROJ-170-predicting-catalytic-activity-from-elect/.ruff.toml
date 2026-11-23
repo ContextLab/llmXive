@@ -1,0 +1,29 @@
+# Ruff Configuration for llmXive Project
+# Rules: E (pycodestyle), F (Pyflakes), W (pycodestyle warnings), I (isort)
+
+line-length = 100
+target-version = "py311"
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "F",  # Pyflakes
+    "W",  # pycodestyle warnings
+    "I",  # isort
+]
+
+ignore = []
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[lint.isort]
+known-first-party = ["code", "tests"]
+force-single-line = false
+lines-after-imports = 2
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

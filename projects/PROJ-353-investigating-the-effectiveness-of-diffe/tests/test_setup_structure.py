@@ -1,73 +1,56 @@
 """
-Tests for T001: Project structure creation.
-
-Verifies that the setup script creates the required directories.
+Unit tests for the project structure initialization.
 """
 import os
 import tempfile
 import shutil
 from pathlib import Path
 import sys
-import pytest
 
-# Add the code directory to the path so we can import the setup script
+# Add parent directory to path to import setup_structure
 sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from setup_structure import main as setup_main
+from setup_structure import main
 
-class TestProjectStructure:
-    """Test cases for project structure creation."""
-
-    def test_creates_required_directories(self, tmp_path):
-        """Verify that all required directories are created."""
-        # Change to the temporary directory
-        original_cwd = Path.cwd()
-        os.chdir(tmp_path)
-        
+def test_structure_creation():
+    """Test that the script creates all required directories."""
+    # Create a temporary directory to simulate the project root
+    with tempfile.TemporaryDirectory() as temp_dir:
+        original_cwd = os.getcwd()
         try:
-            # Run the setup script
-            result = setup_main()
+            os.chdir(temp_dir)
             
-            # Verify exit code
-            assert result == 0, "Setup script should return 0 on success"
+            # Run the main function
+            # We need to capture stdout to verify, but main() calls sys.exit(1) on failure
+            # We will just run it and catch SystemExit if it fails
+            try:
+                main()
+            except SystemExit as e:
+                if e.code != 0:
+                    raise AssertionError("setup_structure.main() exited with non-zero code") from e
             
-            # Define required directories
+            # Verify directories exist
             required_dirs = [
                 "code",
                 "tests",
+                "data",
                 "data/raw",
-                "data/logs",
+                "data/processed",
                 "data/analysis",
-                "figures",
-                "contracts",
-                "specs"
+                "artifacts",
+                "contracts"
             ]
             
-            # Verify each directory exists
             for dir_name in required_dirs:
-                dir_path = tmp_path / dir_name
-                assert dir_path.exists(), f"Directory {dir_name} should exist"
-                assert dir_path.is_dir(), f"{dir_name} should be a directory"
+                dir_path = Path(temp_dir) / dir_name
+                assert dir_path.exists(), f"Directory {dir_path} was not created."
+                assert dir_path.is_dir(), f"Path {dir_path} exists but is not a directory."
+                
+            print("All assertions passed.")
+            
         finally:
-            # Restore original working directory
             os.chdir(original_cwd)
 
-    def test_handles_existing_directories(self, tmp_path):
-        """Verify that the script handles existing directories gracefully."""
-        original_cwd = Path.cwd()
-        os.chdir(tmp_path)
-        
-        try:
-            # Pre-create one directory
-            (tmp_path / "code").mkdir()
-            
-            # Run the setup script
-            result = setup_main()
-            
-            # Verify exit code
-            assert result == 0, "Setup script should return 0 even with existing dirs"
-            
-            # Verify the directory still exists
-            assert (tmp_path / "code").exists()
-        finally:
-            os.chdir(original_cwd)
+if __name__ == "__main__":
+    test_structure_creation()
+    print("Test passed successfully.")

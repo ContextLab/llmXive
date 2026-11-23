@@ -1,0 +1,24 @@
+# This file is a legacy fallback; prefer pyproject.toml configuration.
+# However, some CI tools prefer a dedicated .ruff.toml.
+# It mirrors the settings in pyproject.toml for consistency.
+
+line-length = 88
+indent-width = 4
+target-version = "py39"
+
+[lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+]
+ignore = [
+    "E501",
+    "B008",
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"]

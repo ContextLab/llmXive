@@ -1,0 +1,16 @@
+19b2b651c7f99ccf8133902819ad8037  ./annotation_hashes.txt
+35e4edc0487272a730195812564c3c41  ./GCF_000691865.1_MethMaris1.0_assembly_report.txt
+df3735d8a7d6f631d623190a55961098  ./GCF_000691865.1_MethMaris1.0_assembly_stats.txt
+966b004fe69c224bfe3ac1b4a0c4d6bd  ./GCF_000691865.1_MethMaris1.0_cds_from_genomic.fna.gz
+6694e113a6db962055bf08d7fb37dbc7  ./GCF_000691865.1_MethMaris1.0_fcs_report.txt
+83559e16e37414924059765013b260af  ./GCF_000691865.1_MethMaris1.0_feature_count.txt
+34bf585af225596f1b292020dccb8015  ./GCF_000691865.1_MethMaris1.0_feature_table.txt.gz
+d636b918605ec15e9be3fd07e90f1764  ./GCF_000691865.1_MethMaris1.0_genomic.fna.gz
+5a4fa1d5039fd4b843d2c5f20810ee0f  ./GCF_000691865.1_MethMaris1.0_genomic.gbff.gz
+acfbcfa6ab6687406540b2070ece92b6  ./GCF_000691865.1_MethMaris1.0_genomic.gff.gz
+3e4435ccfb32d1db55a76af23349e1fe  ./GCF_000691865.1_MethMaris1.0_genomic.gtf.gz
+a13157339fd85a9986cbeddaed2c5884  ./GCF_000691865.1_MethMaris1.0_protein.faa.gz
+6927c153134f3799983bd79641f0da80  ./GCF_000691865.1_MethMaris1.0_protein.gpff.gz
+7a7f9b1d539ed54918c77806b5867996  ./GCF_000691865.1_MethMaris1.0_rna_from_genomic.fna.gz
+ed380e7a119e6b999cca3146306363f7  ./GCF_000691865.1_MethMaris1.0_translated_cds.faa.gz
+e4b28ff660642ad3471164c83a58ef10  ./GCF_000691865.1_MethMaris1.0_wgsmaster.gbff.gz

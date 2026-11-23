@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "NarrativeSummary"
+description: "Schema for the narrative synthesis fallback output."
+type: "object"
+properties:
+  study_count:
+    type: "integer"
+    description: "Total eligible studies."
+    minimum: 0
+  themes:
+    type: "array"
+    items:
+      type: "string"
+    description: "Extracted qualitative themes (e.g., 'Arcuate Fasciculus', 'Self-report measures')."
+  summary_text:
+    type: "string"
+    description: "Narrative description of findings or absence of evidence."
+  pivot_reason:
+    type: "string"
+    description: "Reason for pivot."
+    const: "N < 10"
+  null_result_flag:
+    type: "boolean"
+    description: "True if study_count is 0."
+required:
+  - study_count
+  - summary_text
+  - pivot_reason
+additionalProperties: false

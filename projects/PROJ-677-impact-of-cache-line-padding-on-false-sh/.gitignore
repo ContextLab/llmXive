@@ -1,58 +1,32 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
+# Object files and archives
+*.o
+*.a
 *.so
-.Python
+*.log
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Data directories (raw and processed)
+data/raw/*
+data/processed/*
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+
+# Build artifacts
 build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
+cmake-build-*/
+*.out
+*.exe
 
-# Virtual Environments
-venv/
-ENV/
-env/
-.venv/
-
-# IDE
-.idea/
+# Editor and IDE
 .vscode/
+.idea/
 *.swp
 *.swo
 *~
 
-# OS
+# OS specific
 .DS_Store
 Thumbs.db
-
-# Project specific
-state/
-data/raw/
-data/processed/
-figures/
-*.log
-results/
-.benchmarks/
-
-# C++ Build
-CMakeCache.txt
-CMakeFiles/
-cmake_install.cmake
-Makefile
-*.o
-*.a
-*.so
-*.out
-benchmark_executable

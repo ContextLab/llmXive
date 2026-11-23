@@ -1,0 +1,10 @@
+0|pytest:
+  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+  source_id: pi
+  url: https://en.wikipedia.org/wiki/Pi
+  value: '3.141592653589793'
+2|all l6 minilm v2:
+  quote: embedding (i.e., all-MiniLM-L6-v2) in an
+  source_id: '2607.07974'
+  url: https://arxiv.org/abs/2607.07974
+  value: all-MiniLM-L6-v2

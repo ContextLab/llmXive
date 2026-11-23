@@ -1,0 +1,35 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Batch Results Schema
+description: Schema for batch experiment JSON logs
+type: object
+properties:
+  scene_id:
+    type: string
+  view_count:
+    type: integer
+    minimum: 2
+    maximum: 5
+  status:
+    type: string
+    enum: [success, skipped, failed]
+  chamfer_distance:
+    type: number
+    nullable: true
+  psnr:
+    type: number
+    nullable: true
+  latency:
+    type: number
+    minimum: 0
+  error_flag:
+    type: string
+    nullable: true
+  timestamp:
+    type: string
+    format: date-time
+required:
+  - scene_id
+  - view_count
+  - status
+  - latency
+  - timestamp

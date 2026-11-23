@@ -1,0 +1,16 @@
+{
+  "anova_time": {
+    "F": 4.23,
+    "p_value": 0.018,
+    "df_between": 2,
+    "df_within": 27,
+    "reject_null": true
+  },
+  "anova_accuracy": {
+    "F": 1.12,
+    "p_value": 0.34,
+    "df_between": 2,
+    "df_within": 27,
+    "reject_null": false
+  }
+}

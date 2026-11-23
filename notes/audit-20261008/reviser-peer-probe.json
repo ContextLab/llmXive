@@ -1,0 +1,11 @@
+{
+  "scope": "Read-only free-peer response-format probe of the captured full-project revision prompt; no scientific writes or acceptance",
+  "source_sha256": "ac8cd21e66011cafb2f5e36e17790e52d172824adf48e2b69ad36c2b6a6dff05",
+  "model": "google.gemma-4-31B-it",
+  "response_chars": 16587,
+  "begin_blocks": 1,
+  "end_blocks": 1,
+  "valid_task_artifact": true,
+  "concern_responses": 15,
+  "seconds": 129.619
+}

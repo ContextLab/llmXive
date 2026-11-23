@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-predict-stiffness"
+version = "0.1.0"
+description = "Predicting material stiffness from microstructure images using CNNs"
+requires-python = ">=3.9"
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.ruff]
+# Enable rules: E (pycodestyle), F (Pyflakes), W (Warning), I (isort), N (pep8-naming)
+select = ["E", "F", "W", "I", "N"]
+line-length = 88
+target-version = "py39"
+ignore = []
+
+# Per-file ignores if necessary (none currently)
+# exclude = []
+
+[tool.ruff.per-file-ignores]
+# Allow unused imports in __init__.py for package exposure
+"code/**/__init__.py" = ["F401"]
+"tests/**/__init__.py" = ["F401"]

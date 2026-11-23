@@ -7,185 +7,134 @@ from typing import Dict, Any, Tuple, Optional
 
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error
-import joblib
+from sklearn.model_selection import cross_val_score
 
-# Project-relative imports handling
-try:
-    from config import load_paths
-    from utils.logging import get_logger
-except ImportError:
-    # Fallback for direct execution if path setup is missing
-    import sys
-    from pathlib import Path
-    sys.path.insert(0, str(Path(__file__).parent))
-    from config import load_paths
-    from utils.logging import get_logger
+from config import load_paths
+from utils.logging import get_logger
+from evaluate import perform_stratified_split
 
-def load_data() -> pd.DataFrame:
-    """
-    Loads the processed dataset with computed descriptors.
-    Returns the DataFrame containing features and target.
-    """
-    paths = load_paths()
-    input_path = paths["data_processed"] / "computed_descriptors.csv"
-    
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input data file not found: {input_path}")
-    
-    df = pd.read_csv(input_path)
-    logger = get_logger()
-    logger.info(f"Loaded dataset with shape: {df.shape}")
-    return df
+logger = get_logger(__name__)
 
-def perform_stratified_split(df: pd.DataFrame, test_size: float = 0.2, random_state: int = 42) -> Tuple[pd.DataFrame, pd.DataFrame]:
-    """
-    Performs an 80/20 stratified split by 'Crystal System' to ensure structural diversity.
-    Returns (train_df, val_df).
-    """
-    logger = get_logger()
+def load_data(data_path: Path) -> pd.DataFrame:
+    """Load processed dataset.
     
-    if "Crystal System" not in df.columns:
-        raise ValueError("Column 'Crystal System' not found in dataset for stratification.")
-    
-    # Handle potential NaNs in stratification column
-    if df["Crystal System"].isna().any():
-        logger.warning("NaNs found in 'Crystal System', dropping those rows for split.")
-        df = df.dropna(subset=["Crystal System"])
+    Args:
+        data_path: Path to CSV file.
+        
+    Returns:
+        Loaded DataFrame.
+    """
+    return pd.read_csv(data_path)
 
-    train_df, val_df = train_test_split(
-        df, 
-        test_size=test_size, 
-        stratify=df["Crystal System"], 
+def load_models(model_path: Path) -> Dict[str, Any]:
+    """Load existing models if any.
+    
+    Args:
+        model_path: Path to model directory.
+        
+    Returns:
+        Dictionary of models.
+    """
+    return {}
+
+def train_models(
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    n_estimators_rf: int = 200,
+    max_depth: int = 20,
+    random_state: int = 42
+) -> Tuple[Any, Any]:
+    """Train Random Forest and Gradient Boosting models.
+    
+    Args:
+        X_train: Training features.
+        y_train: Training targets.
+        n_estimators_rf: Number of trees for RF.
+        max_depth: Max depth for RF.
+        random_state: Random seed.
+        
+    Returns:
+        Tuple of (rf_model, gb_model).
+    """
+    rf = RandomForestRegressor(
+        n_estimators=n_estimators_rf,
+        max_depth=max_depth,
         random_state=random_state
     )
+    rf.fit(X_train, y_train)
     
-    logger.info(f"Split complete. Train: {len(train_df)}, Val: {len(val_df)}")
-    return train_df, val_df
-
-def train_models(train_df: pd.DataFrame, target_col: str = "formation_energy_per_atom") -> Tuple[Dict[str, Any], Dict[str, Any]]:
-    """
-    Trains Random Forest and Gradient Boosting Regressors on the training split.
-    
-    Random Forest: n_estimators=200, max_depth=20
-    Gradient Boosting: n_estimators=100
-    
-    Returns a tuple of (models_dict, metrics_dict).
-    """
-    logger = get_logger()
-    
-    # Define feature columns (exclude target and non-feature metadata)
-    exclude_cols = ["formation_energy_per_atom", "Crystal System", "formula", "material_id"]
-    feature_cols = [col for col in train_df.columns if col not in exclude_cols]
-    
-    if not feature_cols:
-        raise ValueError("No feature columns found after excluding target and metadata.")
-    
-    X = train_df[feature_cols]
-    y = train_df[target_col]
-    
-    logger.info(f"Training on {len(feature_cols)} features: {feature_cols}")
-    
-    # 1. Train Random Forest
-    logger.info("Training Random Forest Regressor...")
-    rf_model = RandomForestRegressor(
-        n_estimators=200, 
-        max_depth=20, 
-        n_jobs=-1, 
-        random_state=42
-    )
-    rf_model.fit(X, y)
-    
-    # 2. Train Gradient Boosting (Task T022)
-    logger.info("Training Gradient Boosting Regressor...")
-    gb_model = GradientBoostingRegressor(
+    gb = GradientBoostingRegressor(
         n_estimators=100,
-        random_state=42,
-        learning_rate=0.1,
-        max_depth=5,
-        subsample=0.8
+        random_state=random_state
     )
-    gb_model.fit(X, y)
+    gb.fit(X_train, y_train)
     
-    models = {
-        "random_forest": rf_model,
-        "gradient_boosting": gb_model
-    }
-    
-    # Return models and empty metrics placeholder (metrics calculated in evaluate.py)
-    # The task specifically asks to train, but we return the structure needed for saving
-    return models, {}
+    return rf, gb
 
-def save_artifacts(models: Dict[str, Any], metrics: Dict[str, Any], val_df: pd.DataFrame = None):
+def save_artifacts(
+    rf_model: Any,
+    gb_model: Any,
+    output_path: Path
+) -> None:
+    """Save trained models to disk.
+    
+    Args:
+        rf_model: Random Forest model.
+        gb_model: Gradient Boosting model.
+        output_path: Output directory.
     """
-    Saves trained models to data/evaluation/trained_models.pkl
-    and initializes the metrics structure in data/evaluation/model_metrics.json.
-    """
+    import pickle
+    
+    rf_path = output_path / "model_rf.pkl"
+    gb_path = output_path / "model_gb.pkl"
+    
+    with open(rf_path, "wb") as f:
+        pickle.dump(rf_model, f)
+    with open(gb_path, "wb") as f:
+        pickle.dump(gb_model, f)
+    
+    logger.info(f"Models saved to {output_path}")
+
+def main() -> None:
+    """Main entry point for training."""
     paths = load_paths()
-    models_dir = paths["data_evaluation"]
-    models_dir.mkdir(parents=True, exist_ok=True)
     
-    model_path = models_dir / "trained_models.pkl"
-    metrics_path = models_dir / "model_metrics.json"
+    # Load data
+    data_path = paths["data_processed"] / "computed_descriptors.csv"
+    df = load_data(data_path)
     
-    logger = get_logger()
+    # Prepare features and target
+    feature_cols = [c for c in df.columns if c not in ["composition", "formation_energy"]]
+    X = df[feature_cols]
+    y = df["formation_energy"]
     
-    # Save models
-    joblib.dump(models, model_path)
-    logger.info(f"Saved models to {model_path}")
+    # Stratified split
+    train_df, test_df = perform_stratified_split(df)
+    X_train, y_train = train_df[feature_cols], train_df["formation_energy"]
+    X_test, y_test = test_df[feature_cols], test_df["formation_energy"]
     
-    # Initialize/Update metrics file
-    # If metrics are passed (e.g., from a combined run), save them. 
-    # Otherwise, create the structure if it doesn't exist.
-    if metrics:
-        with open(metrics_path, 'w') as f:
-            json.dump(metrics, f, indent=2)
-        logger.info(f"Saved metrics to {metrics_path}")
-    else:
-        # Create a placeholder structure indicating models are trained but not yet evaluated
-        placeholder_metrics = {
-            "random_forest": {"status": "trained", "metrics_pending": True},
-            "gradient_boosting": {"status": "trained", "metrics_pending": True},
-            "split_info": {
-                "stratified_by": "Crystal System",
-                "test_size": 0.2
-            }
-        }
-        with open(metrics_path, 'w') as f:
-            json.dump(placeholder_metrics, f, indent=2)
-        logger.info(f"Initialized metrics placeholder at {metrics_path}")
-
-def main():
-    """
-    Main entry point for the training pipeline.
-    1. Load data
-    2. Stratified split
-    3. Train RF and GB models
-    4. Save artifacts
-    """
-    logger = get_logger()
-    logger.info("Starting training pipeline...")
+    # Train models
+    logger.info("Training Random Forest")
+    logger.info("Training Gradient Boosting")
+    rf_model, gb_model = train_models(X_train, y_train)
     
-    try:
-        # Load data
-        df = load_data()
-        
-        # Split
-        train_df, val_df = perform_stratified_split(df)
-        
-        # Train models
-        models, metrics = train_models(train_df)
-        
-        # Save artifacts
-        save_artifacts(models, metrics, val_df)
-        
-        logger.info("Training pipeline completed successfully.")
-        
-    except Exception as e:
-        logger.error(f"Training pipeline failed: {e}", exc_info=True)
-        raise
+    # Save artifacts
+    output_path = paths["data_evaluation"]
+    output_path.mkdir(parents=True, exist_ok=True)
+    save_artifacts(rf_model, gb_model, output_path)
+    
+    # Cross-validation scores
+    cv_scores = cross_val_score(rf_model, X_train, y_train, cv=5, scoring="r2")
+    cv_results = {
+        "mean_r2": float(cv_scores.mean()),
+        "std_r2": float(cv_scores.std())
+    }
+    cv_path = output_path / "cv_scores.json"
+    with open(cv_path, "w") as f:
+        json.dump(cv_results, f, indent=2)
+    
+    logger.info(f"Training complete. CV R2: {cv_scores.mean():.4f} (+/- {cv_scores.std():.4f})")
 
 if __name__ == "__main__":
     main()

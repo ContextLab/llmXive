@@ -1,150 +1,220 @@
-"""
-Setup script for linting and formatting tools.
-
-This script generates configuration files for flake8 and black
-to ensure consistent code style across the project.
-"""
 import os
 import sys
 from pathlib import Path
+import logging
+import subprocess
+
+# Add parent directory to path to allow imports if running as script
+parent_dir = Path(__file__).parent.parent
+if str(parent_dir) not in sys.path:
+    sys.path.insert(0, str(parent_dir))
+
+from utils.logging import get_logger
+
+logger = get_logger(__name__)
 
 def create_gitignore_entry():
-    """Ensure .gitignore includes necessary linting artifacts."""
-    gitignore_path = Path(".gitignore")
-    if not gitignore_path.exists():
-        gitignore_path.touch()
+    """Add Python linting patterns to .gitignore if not present."""
+    project_root = Path(__file__).parent.parent
+    gitignore_path = project_root / ".gitignore"
     
-    content = gitignore_path.read_text()
-    entries = [
-        "\n# Linting and Formatting\n",
-        ".mypy_cache/\n",
-        "__pycache__/\n",
-        "*.pyc\n",
-        ".coverage\n",
-        "htmlcov/\n",
-        ".tox/\n",
+    patterns = [
+        "__pycache__/",
+        "*.py[cod]",
+        "*$py.class",
+        ".coverage",
+        ".pytest_cache/",
+        ".mypy_cache/",
+        ".ruff_cache/",
+        ".eggs/",
+        "*.egg-info/",
+        ".venv/",
+        "venv/",
+        "env/",
+        ".env",
     ]
     
-    needs_update = False
-    for entry in entries:
-        if entry.strip() not in content:
-            needs_update = True
-            content += entry
+    existing_patterns = set()
+    if gitignore_path.exists():
+        with open(gitignore_path, 'r') as f:
+            existing_patterns = {line.strip() for line in f if line.strip() and not line.startswith('#')}
     
-    if needs_update:
-        gitignore_path.write_text(content)
-        print("Updated .gitignore with linting artifacts.")
+    new_patterns = [p for p in patterns if p not in existing_patterns]
+    
+    if new_patterns:
+        with open(gitignore_path, 'a') as f:
+            f.write("\n# Linting and formatting artifacts\n")
+            for pattern in new_patterns:
+                f.write(f"{pattern}\n")
+        logger.info(f"Added {len(new_patterns)} new patterns to .gitignore")
     else:
-        print(".gitignore already contains linting artifacts.")
+        logger.info(".gitignore already contains all necessary linting patterns")
 
 def create_flake8_config():
-    """Create .flake8 configuration file."""
-    config_path = Path(".flake8")
+    """Create a .flake8 configuration file."""
+    project_root = Path(__file__).parent.parent
+    config_path = project_root / ".flake8"
     
     config_content = """[flake8]
 max-line-length = 88
-extend-ignore = E203, W503
 exclude = 
     .git,
     __pycache__,
+    .venv,
+    venv,
     build,
     dist,
-    .eggs,
     *.egg-info,
-    venv,
-    .venv,
-    .tox
+    data/raw,
+    data/processed,
+    data/reports,
+    .pytest_cache,
+    .mypy_cache,
+extend-ignore = E203, E501
+max-complexity = 10
 per-file-ignores =
-    # Allow unused imports in __init__.py
-    code/__init__.py:F401
-    # Allow unused imports in tests
-    tests/*:F401
+    # Allow longer lines in test files for fixtures
+    tests/*: E501
+    # Allow imports in __init__ files
+    */__init__.py: F401
 """
     
-    config_path.write_text(config_content)
-    print("Created .flake8 configuration.")
+    with open(config_path, 'w') as f:
+        f.write(config_content)
+    
+    logger.info(f"Created {config_path} with flake8 configuration")
 
 def create_black_config():
-    """Create pyproject.toml [tool.black] section if missing."""
-    pyproject_path = Path("pyproject.toml")
+    """Create a pyproject.toml file with Black configuration if it doesn't exist, or update it."""
+    project_root = Path(__file__).parent.parent
+    config_path = project_root / "pyproject.toml"
     
     black_section = """
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py38', 'py39', 'py310', 'py311']
 include = '\\.pyi?$'
 exclude = '''
 /(
-    \\.git
-  | \\.mypy_cache
-  | \\.tox
+    \.git
+  | \.venv
   | venv
-  | .venv
+  | __pycache__
   | build
   | dist
-  | \\.eggs
-  | \\.egg-info
+  | \.egg-info
+  | data/raw
+  | data/processed
+  | data/reports
+  | \.pytest_cache
+  | \.mypy_cache
 )/
 '''
 """
     
-    if pyproject_path.exists():
-        content = pyproject_path.read_text()
-        if "[tool.black]" not in content:
-            content += black_section
-            pyproject_path.write_text(content)
-            print("Added [tool.black] section to pyproject.toml.")
-        else:
-            print("[tool.black] section already exists in pyproject.toml.")
+    if not config_path.exists():
+        with open(config_path, 'w') as f:
+            f.write("[build-system]\nrequires = [\"setuptools>=42\"]\nbuild-backend = \"setuptools.build_meta\"\n")
+            f.write(black_section)
+        logger.info(f"Created {config_path} with Black configuration")
     else:
-        pyproject_path.write_text(f"[project]\nname = \"llmXive-doombscrolling\"\nversion = \"0.1.0\"\n" + black_section)
-        print("Created pyproject.toml with [tool.black] section.")
+        # Check if [tool.black] section exists
+        with open(config_path, 'r') as f:
+            content = f.read()
+        
+        if '[tool.black]' in content:
+            logger.info(f"{config_path} already contains [tool.black] section. Skipping update.")
+        else:
+            with open(config_path, 'a') as f:
+                f.write(black_section)
+            logger.info(f"Added Black configuration to {config_path}")
 
 def create_isort_config():
-    """Create isort configuration in pyproject.toml."""
-    pyproject_path = Path("pyproject.toml")
+    """Create a pyproject.toml file with isort configuration if not present."""
+    project_root = Path(__file__).parent.parent
+    config_path = project_root / "pyproject.toml"
     
     isort_section = """
 [tool.isort]
 profile = "black"
 line_length = 88
-known_first_party = ["code", "tests"]
-skip = [".git", "__pycache__", "build", "dist", ".eggs", ".egg-info", "venv", ".venv", ".tox"]
+skip = [
+    ".git",
+    ".venv",
+    "venv",
+    "__pycache__",
+    "build",
+    "dist",
+    "*.egg-info",
+    "data/raw",
+    "data/processed",
+    "data/reports",
+    ".pytest_cache",
+    ".mypy_cache",
+]
 """
     
-    if pyproject_path.exists():
-        content = pyproject_path.read_text()
-        if "[tool.isort]" not in content:
-            content += isort_section
-            pyproject_path.write_text(content)
-            print("Added [tool.isort] section to pyproject.toml.")
-        else:
-            print("[tool.isort] section already exists in pyproject.toml.")
+    if not config_path.exists():
+        with open(config_path, 'w') as f:
+            f.write("[build-system]\nrequires = [\"setuptools>=42\"]\nbuild-backend = \"setuptools.build_meta\"\n")
+            f.write(isort_section)
+        logger.info(f"Created {config_path} with isort configuration")
     else:
-        # If pyproject.toml doesn't exist, create it
-        pyproject_path.write_text(f"[project]\nname = \"llmXive-doombscrolling\"\nversion = \"0.1.0\"\n" + isort_section)
-        print("Created pyproject.toml with [tool.isort] section.")
+        with open(config_path, 'r') as f:
+            content = f.read()
+        
+        if '[tool.isort]' in content:
+            logger.info(f"{config_path} already contains [tool.isort] section. Skipping update.")
+        else:
+            with open(config_path, 'a') as f:
+                f.write(isort_section)
+            logger.info(f"Added isort configuration to {config_path}")
+
+def install_linting_tools():
+    """Install linting and formatting tools if not already installed."""
+    tools = [
+        "flake8",
+        "black",
+        "isort",
+        "pre-commit",
+    ]
+    
+    logger.info("Checking and installing linting tools...")
+    for tool in tools:
+        try:
+            subprocess.run([sys.executable, "-m", "pip", "install", "-q", tool], check=True)
+            logger.info(f"Successfully ensured {tool} is installed")
+        except subprocess.CalledProcessError:
+            logger.warning(f"Failed to install {tool}. Please install manually.")
 
 def main():
-    """Main entry point for setup script."""
-    print("Setting up linting and formatting tools...")
+    """Main entry point for linting setup."""
+    logger.info("Starting linting and formatting configuration setup...")
     
     try:
         create_gitignore_entry()
         create_flake8_config()
         create_black_config()
         create_isort_config()
+        install_linting_tools()
         
-        print("\nLinting and formatting configuration complete!")
-        print("\nTo run linting:")
-        print("  flake8 code/ tests/")
-        print("\nTo run formatting:")
-        print("  black code/ tests/")
-        print("  isort code/ tests/")
+        logger.info("Linting and formatting configuration setup completed successfully.")
+        print("\nLinting tools configured:")
+        print("  - .flake8: Flake8 linter configuration")
+        print("  - pyproject.toml: Black and isort configuration")
+        print("  - .gitignore: Updated with linting artifacts")
+        print("\nTo run linters:")
+        print("  flake8 code/")
+        print("  black code/")
+        print("  isort code/")
+        print("\nTo run pre-commit hooks (if installed):")
+        print("  pre-commit install")
+        print("  pre-commit run --all-files")
         
+        return 0
     except Exception as e:
-        print(f"Error during setup: {e}", file=sys.stderr)
-        sys.exit(1)
+        logger.error(f"Error during linting setup: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

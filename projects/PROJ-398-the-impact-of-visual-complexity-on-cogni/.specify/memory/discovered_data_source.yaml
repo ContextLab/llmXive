@@ -1,0 +1,18 @@
+status: none
+intent: download meeting background images with visual complexity scores, COCO and
+  Open Images annotations python package dataset
+required_fields:
+- image_id
+- image_path
+- image_width
+- image_height
+- entropy
+- color_variance
+- object_detection_count
+- object_category_counts
+- human_complexity_score
+- participant_id
+- familiarity_score
+cache_key: 54ae80f2b4e76aafea5bac553ba0fb742e37ffa054c04f8d9760bb0c1935b023
+searched_at: '2026-10-16T16:13:14.633436+00:00'
+retry_count: 1

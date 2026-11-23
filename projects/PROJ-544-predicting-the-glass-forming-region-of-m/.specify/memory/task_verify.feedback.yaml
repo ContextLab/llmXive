@@ -1,0 +1,113 @@
+T001a:
+  reason: "The `code/` directory and a `README.md` file are present, but the content\
+    \ of the README was not provided, so we cannot confirm it actually describes the\
+    \ directory\u2019s purpose as required. Provide the README text (or a screenshot)\
+    \ showing the purpose description."
+  task: f6f920f13d698593745f19f07f9b90600b907ebd40f793e25d0b8ca124438a5c
+T001b:
+  task: 88b9508e2357fe73100a25f46913b8b336f7ded8f82efff232b6040faaca4dbf
+T001c:
+  reason: The provided artifact list shows all required directories except `logs/`,
+    which is absent. Creation of the `logs/` directory is required to satisfy task
+    T001c.
+  task: 4688451fd0483448517ef7e75bc067087f2c49d81d4d8e410d11b8466051b848
+T002:
+  reason: "The provided `requirements.txt` only contains an unpinned `pytest>=8.3.0`\
+    \ entry and lacks all required packages (scikit\u2011learn, pandas, numpy, shap,\
+    \ pymatgen, dscribe, pyyaml, imbalanced\u2011learn) with the specified version\
+    \ pins. No evidence of a Python\u202F3.11 virtual environment (`.venv`) being\
+    \ created is present. The task requirements are therefore not met."
+  task: 63f161aea28ef0669a8fc65588698cd6a552ad343496df09a2da84c9630969e7
+T003:
+  reason: "The repository contains a correctly populated `.pre-commit-config.yaml`\
+    \ with Black and Ruff hooks, but there is no artifact or log showing that the\
+    \ `pre-commit` package was installed or that `pre-commit install` was executed\
+    \ (e.g., no `pre-commit` executable, lockfile, or hook script in `.git/hooks`).\
+    \ This missing evidence means the task\u2019s requirement is not fully satisfied."
+  task: be5b1d88bc06f2a9788a2f2a7892929fe98311659a7764e66413ab084a2ad800
+T004:
+  reason: "The `contracts/` directory contains the three required `.schema.json` files,\
+    \ but no evidence of their contents is provided; without seeing that each file\
+    \ contains a valid, non\u2011placeholder JSON\u2011Schema definition for the respective\
+    \ data model, we cannot confirm the task\u2019s requirement is met. The implementer\
+    \ must supply the actual schema files (or excerpts) showing proper JSON\u2011\
+    Schema structure."
+  task: 5cda43125a8f609a5664813d323ff3b0ab239516c65ec7e0b9512b0e7db44473
+T005:
+  task: 6660e774fc5018a4d35d95145ed4c886321fa9d82443cea11da14ceb4ffeea44
+T006:
+  task: eb33e6e89947c6922823613d8a86aa21c7d9c34dbe98fe4a6dcf8afcfd2d8b22
+T007:
+  task: 7ba1433fac2c057f0e1bd5733cc8c8c982db89eda46e0d8ca08ef00994f2926b
+T008:
+  task: 1d03791e841db120e3fd2e144cffebc53d1491b3065547cf2c350d104b9911cd
+T009:
+  task: 287bb73a39d859e20a2677fe22807d6be3d2e1102c4e1b32aceb4dc18942f400
+T010:
+  task: 1baec24bc0e1d0d2335985247d07f5e18304adba2cdf35949137afa119283013
+T011:
+  task: 9c5dc5d94a62d82e85d93659634395efbdf74ba1137d84f44f87b627de408c36
+T012:
+  task: 9e2d9b7aef57f827be5790116b17ed8000c86dc39b2bbac59440d93b035a6fd0
+T013:
+  task: 0cba6aba3ac2e76602e80fdece02b9ef4c31fede5c83491ca2b4b7227ab865f9
+T014:
+  task: 076d7b16b3ebb7a8f1c4cd6fe5dab82d0d78ba33a47c692059d387f556a943c3
+T015:
+  task: a16a8ea30197b49f9e13b5521aed008aa9605f60267aa4ccf4aa8a59c10392f3
+T016:
+  task: c1d8f4e296bf7c87b8191d7b4cfb4c8b9d33c1c04d1822d9bf997cc3389179ab
+T017:
+  task: ae5456ebb3d08515539e44b4c5741558222b8b0d48572c1f9184ab65366b688d
+T018:
+  task: eda0b86e5a50e0bef7c4d6e82347c57b1f29f8ae1bb681d8f45fdbc2938e6d06
+T019:
+  task: c0c4a7c9fc168af108283aeba4392f7d52ef20d9a478a715cc9f7e74ee99a0e2
+T020:
+  task: 5920a0d93f00b9e96cc73cf69c7ca7d9e2a3551079c794f90a242193504d800d
+T021:
+  task: 6967f5626ed4660b524d6d133f03b7fa20bdd3f918dec55e08d6aed4216b6198
+T023:
+  task: ea130dcf8ebb0cfa7c8f8bb4710ec7cc2ef6471297389a8646f793eb6f60b45f
+T024:
+  task: c0827c549225cac144bf50229131097971fb1560b5c062c80cecb7a7bfaacac4
+T025:
+  task: 4992f08f06a2d0ec7c203bbe8fc4755862f684f47efb5cd724127122920e50f3
+T026:
+  task: 33d08213c4d99e3499a374ee57ce829469d2afde4987a2e049cd7ec4414c4caf
+T027:
+  task: dc73f6d7c60755b4e055bb145b92c3e843b96553e64f291543018b0fc3ccc555
+T030:
+  task: 5fcc77fdf714ca01f748a73086e627e3e2b15bc453848f5636088724601b296d
+T031:
+  task: 45f6c1f034373695708b419f45ce866b16f0db172e4d9705541cdb611bb96edb
+T032a:
+  task: e74ac94f6213493579aa3159d575c21a9c85cee576afcd87716a2b6d037f08a2
+T032b:
+  task: 04784eac88411ca784acc67d62c83e3655352bce7c8e8d3c1d716b1ba82779d0
+T033:
+  task: ef1eff270df6774de8a5eb388bf03edabb71531c80d757bfcfc139139ec71681
+T034:
+  reason: 'Requested task execution failed; rerun successfully: scripts/validate_quickstart.py
+    exit=-1 (TIMEOUT)'
+  task: eb40982ce9d423b5a176b7818858c989c19e8dc470e9a4fa144368103cd4f89b
+T035:
+  task: bd61590d051861914de54e8953d458097e46430f27eefd88281043ac4906aa37
+T036a:
+  task: 8b8ec93e0204d2c3be113385668e4a18e6c5d7d63d5c48ed73e252bf8f176fac
+T036b:
+  task: bca39905b8341474f466ac9b58318679514bd4679b1cdb4bea71e189f97b02cd
+T037:
+  task: 66f98d25e5a17a4294bc95d166ede3365b30d34a54970e095a622a7843ea4468
+T038:
+  task: fff682a73f24d2cd4d97688ff558525adbde07bd505571895f34ae8c7233753e
+T039:
+  task: 5f3e838dd0c7b19792c73e2c71e555a11b05145947a136713aba3a59917a7421
+T040a:
+  task: 082e1f431145d8f4b996e85f329bc42c6fb3f03bee24018726a0edd089a32dcf
+T040b:
+  task: 5addfdd790ad4b9e0ccb9db02eed083b40f4f927875fb88a33578a926275766a
+T041:
+  task: 305c3124ab2c982d254d79e85735490c10dc5cef58f2a1907709b17791f7bfeb
+T042:
+  task: 6ae49884641cfad4e69e5283ac4e571c3c177b766e40a4503894127cadbb0fc0

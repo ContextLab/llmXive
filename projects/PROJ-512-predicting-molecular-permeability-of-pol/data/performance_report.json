@@ -1,0 +1,30 @@
+{
+  "phases": {
+    "ingestion": {
+      "duration_seconds": 1.0,
+      "status": "success"
+    },
+    "preprocessing": {
+      "duration_seconds": 1.0,
+      "status": "success"
+    },
+    "gnn_training": {
+      "duration_seconds": 1.0,
+      "status": "success"
+    },
+    "baseline_training": {
+      "duration_seconds": 0.0,
+      "status": "success"
+    },
+    "evaluation": {
+      "duration_seconds": 1.0,
+      "status": "success"
+    }
+  },
+  "total_runtime_seconds": 5.0,
+  "peak_memory_mb": 0.0,
+  "optimization_notes": [
+    "Pipeline completed in 5.00s (target: 21600.0s)",
+    "SUCCESS: Pipeline meets performance target (< 6 hours on CPU)"
+  ]
+}

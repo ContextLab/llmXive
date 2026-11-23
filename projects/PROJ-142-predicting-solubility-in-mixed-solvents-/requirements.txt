@@ -1,0 +1,12 @@
+# Existing dependencies
+numpy
+pandas
+scikit-learn
+xgboost
+rdkit
+pyyaml
+psutil
+requests
+seaborn
+matplotlib
+shap

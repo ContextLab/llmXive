@@ -1,70 +1,100 @@
-# Quickstart: Trace Compressibility Analysis
+# Quickstart: llmXive Follow-up: Trace Compressibility Analysis
 
 ## Prerequisites
+
 - Python 3.11+
-- pip / venv
+- `pip` or `poetry`
+- Access to a Linux environment (GitHub Actions runner or local Linux machine)
 
 ## Installation
 
-1. **Clone and Setup**:
+1. **Clone the repository** and navigate to the project directory.
    ```bash
+   git clone <repo-url>
    cd projects/PROJ-859-llmxive-follow-up-extending-memslides-a
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r code/requirements.txt
    ```
 
-2. **Verify Dependencies**:
+2. **Install dependencies**.
    ```bash
-   python -c "import sklearn; import pandas; print('Dependencies OK')"
+   pip install -r requirements.txt
+   # OR if using poetry
+   poetry install
+   ```
+
+   *Note*: `requirements.txt` will be located at `code/requirements.txt`.
+
+3. **Verify environment**.
+   ```bash
+   python -c "import sklearn; import pandas; import statsmodels; print('Environment OK')"
    ```
 
 ## Running the Pipeline
 
-### Step 1: Generate Synthetic Data
-Generate the synthetic dataset of multi-turn revision sessions.
-```bash
-python code/main.py --task generate --output data/raw/traces.jsonl --seed 42
-```
-*Output*: `data/raw/traces.jsonl` containing [deferred] sessions. Includes `exact_tool_sequence` and `raw_arg_variance`.
+The pipeline is executed via the main entry point `code/main.py`.
 
-### Step 2: Extract Structural Metrics
-Compute entropy, repetition, and variance for each trace.
+### 1. Generate Synthetic Data
+Generates [deferred] multi-turn revision sessions (Training and Held-Out sets).
 ```bash
-python code/main.py --task extract --input data/raw/traces.jsonl --output data/processed/metrics.csv
-```
-*Output*: `data/processed/metrics.csv`.
-
-### Step 3: Per-Trace Rule Induction & Compressibility
-Induce rules for each trace and calculate compressibility scores.
-```bash
-python code/main.py --task induce --input data/processed/metrics.csv --output data/processed/compressibility_analysis.jsonl
-```
-*Output*: `data/processed/compressibility_analysis.jsonl` containing per-trace compressibility scores.
-
-### Step 4: Benchmark Agents (Global)
-Run baseline and compressed agents (using global rule set) on held-out test set.
-```bash
-python code/main.py --task benchmark --model data/processed/global_model.pkl --output data/processed/benchmark_results.json
-```
-*Output*: `data/processed/benchmark_results.json`.
-
-### Step 5: Statistical Analysis
-Correlate metrics with Fidelity Loss and Compressibility Score.
-```bash
-python code/main.py --task analyze --input data/processed/compressibility_analysis.jsonl --output data/processed/statistical_analysis.json
-```
-*Output*: `data/processed/statistical_analysis.json`.
-
-## Validation
-
-Run contract tests to ensure data integrity. Contracts are located at `projects/PROJ-859-llmxive-follow-up-extending-memslides-a/contracts/`.
-```bash
-pytest tests/contract/
+python code/main.py --task generate --output data/raw/traces --seed 42 --count [deferred]
 ```
 
-## Reproducibility
-To reproduce the exact results:
-1. Ensure `code/config.py` has the same `RANDOM_SEED` (default 42).
-2. Run the full pipeline in order.
-3. Verify checksums in `state/projects/PROJ-859-llmxive-follow-up-extending-memslides-a.yaml`.
+### 2. Validate Trace Integrity
+Verifies `data/raw/logs/trace_integrity.log` exists and is valid.
+```bash
+python code/main.py --task validate_integrity --input data/raw/traces
+```
+
+### 3. Extract Metrics
+Computes structural metrics for all generated traces.
+```bash
+python code/main.py --task extract --input data/raw/traces --output data/processed/metrics.csv
+```
+
+### 4. Train Rule Induction Model
+Trains the Decision Tree model on the Training Set.
+```bash
+python code/main.py --task train --input data/processed/metrics.csv --split training --output data/processed/rules/model.json
+```
+
+### 5. Benchmark Agents
+Runs the baseline and compressed agents on the Held-Out Set.
+```bash
+python code/main.py --task benchmark --rules data/processed/rules/model.json --test-set data/held_out/ --output data/processed/results/summary.json
+```
+
+### 6. Run Correlation Analysis
+Performs Multiple Linear Regression on the Held-Out Set results.
+```bash
+python code/main.py --task analyze --input data/processed/results/summary.json --metrics data/processed/metrics.csv --output data/processed/statistical_analysis_results.json
+```
+
+### 7. Run Sensitivity Analysis
+Sweeps the compression threshold.
+```bash
+python code/main.py --task sensitivity --rules data/processed/rules/model.json --output data/processed/sensitivity_report.json
+```
+
+### 8. Feasibility Gate
+Measures runtime and memory usage.
+```bash
+python code/main.py --task feasibility --output data/processed/feasibility_report.json
+```
+
+### 9. Generate Final Report
+Executes the fully implemented `code/evaluation/final_report_generator.py` to compile all artifacts into `data/processed/final_report.md`.
+```bash
+python code/main.py --task report --input data/processed/ --output data/processed/final_report.md
+```
+
+## Testing
+
+Run the unit and integration tests to verify the implementation.
+```bash
+pytest tests/
+```
+
+## Troubleshooting
+
+- **Memory Error**: If the dataset is too large, reduce `--count` in the generation step or enable streaming in `generator.py`.
+- **Missing Data**: Ensure `data/raw/traces/` exists before running `extract`.
+- **Schema Validation**: If `final_report_generator.py` fails, check that all intermediate files match the schemas in `contracts/`.

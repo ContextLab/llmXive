@@ -1,0 +1,98 @@
+T001:
+  reason: "The evidence only confirms the existence of the project root `projects/PROJ-040-robustness-of-statistical-tests-to-data-`;\
+    \ it does not show that the required sub\u2011directories (`code/data`, `code/utils`,\
+    \ `code/viz`, `tests`, `data/raw`, `data/processed`, `data/results`, `docs`) were\
+    \ actually created. These directories must be present (and non\u2011empty where\
+    \ appropriate) to satisfy the task."
+  task: 88c60f814e45cce3037cedd8a63ee2e5b11344701e76bc8895da0b3e9c94d6c4
+T002:
+  task: b20e573e7c192c74c9b36bbd5393faf1ccea3612d3b1acad6504822dbb129249
+T003:
+  task: 865108d9f5159e733aadaf0ec67f8c9be79f5e6b9010449649f56fb0109097aa
+T004:
+  task: 6ce4b29492f88da5a2da0c0d04d24822291d48fde59e9ebe3d02a7f60d5bfcb3
+T005:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/projects/PROJ-040-robustness-of-statistical-tests-to-data-.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 9be41cc60fa9caa2e1c810f349c21e9eb7612007b5fda6ca881c1d961ce9ae8d
+T006:
+  reason: The collector shows `code/viz/` is missing, while all other required directories
+    exist. The task demands the full directory structure, so the absent `code/viz/`
+    directory makes the implementation incomplete.
+  task: 8310200a334463613e9ba5bc72ae3e2ebf00480ba83f3de1e4ad9469baa49c6f
+T007:
+  task: 9112b926df6e698e241705c351abc3208d497510762cf9c7f2554920ed6fdcc6
+T008:
+  task: ef02a1173028bd3d264ac278a69ad0c1954c80ada7d2c3fee015a14324f417d5
+T008.0:
+  task: 84dd195f54cb5abf48541eeec3cc25336413cf9f94b978e12e980408361ce4c1
+T008.0.1:
+  task: 58152f836ae34eae2165c2bd764633c36dd3e62733f784f5d74bddc66eeda71b
+T008.1:
+  task: d8356bb38b11816a6b4a911b6440abc7b7ebf36ad0e4d76c388202ff439294b7
+T008.2:
+  task: 66ee9a578537512810a6fcf1643bf0a07e995d0e214fb5c6acf0ae7b1ad7a964
+T008.3:
+  task: 0dca7dddfc3c0d45fb134ddceecdf5fe68efdfed00ecb75d0169fc4defe62249
+T008.3.1:
+  task: 7549c05eb52807d3e2277b4b228cfdf08e67878aa908da2c611c90ea1e720001
+T009:
+  task: 3a4c1148e97d163f7ddacfee8b688b175b96d5e70f9bed848d191155b073fb04
+T010:
+  task: ec74f407621c40f3e99f6affe6f63d653bf875ca292893f2c77c34883ffc13ea
+T011:
+  task: 00a3419a90fe8c2cd33e984b8bc9bf5b5d695597b5a73d1cfab4834fc729fbee
+T012:
+  task: d307fb4804f1bb0895285c4079e98093e12864f996e787b0f3930d46e5907dc4
+T013:
+  task: dcb18f919eca0c88b39f7fde6154c70c48c17a1f10c08a9bc71ed98b1d921424
+T014:
+  task: ce90be946d6371713724ff4f77df02be0ce68f8c94502520d807d202870529c5
+T015:
+  task: 310d40a7e1948ef068b20af3c65987e9449be323b4b3807787a3605edca88d6b
+T016:
+  task: 3a7a62b840bee7d31a8a4d7916691bd639c1cdbe90902b4f0a264cb0e0bfc7f5
+T017:
+  task: 5d04e2f4d95c137931565eaad0635ef079b163f68a3dcb4e9b3cbedec244a53a
+T018:
+  task: 6e2d02f7d37545921fbb3965cb2cf764fbbc1d911acf822302d58f61398e392b
+T019:
+  task: a2f14caec1355570a18771863dd050496cf7916774150cb137f14cadfa2c571d
+T019.1:
+  task: b380480ca1077fac17d0a2fbd076796358c82adc755bd2840ecf5289cbf6566a
+T020:
+  task: e6570f219800a250a39a6dbe1a4fafb601da625e718c1c5c15908fa319ca9c4f
+T021:
+  task: b801f1e6f279ad59b5aef624fd963f97435ed604625115fca9aadc44936e1269
+T022:
+  task: d09323acdea2641f53a4c7241738f2f12d9a55566113d9e3b45d571d4f824123
+T023:
+  task: 3b6f0d53193d23aa39342812fd262c28a952385cf1324fcffcfaba8b1c7f4af9
+T024:
+  task: 1ec6a6e626c38621bb5c28e719160b10124dea8ed87401ef40dd2c8d2bf430f9
+T025:
+  task: c7f14194616cca9721ec9d203c4d44267c71ad6c94403efeb29fe38d5a965cb6
+T026:
+  task: 38cc414efc0abaf58f0726d05bd1ca929aa6fa5ecf0abe889e586f1d8ba857d1
+T027:
+  task: 7718e73f6487a19f4563959cd16caab9479fbe124f8837350e5bdb00a9db27f9
+T028:
+  task: b581851342b3fe8a82547b2b5d92b13636eb1ff8d615a232180df96390dfe2b4
+T029:
+  task: e4709c9c544049cf013c323ae4b8b4724c8a02e842ba1db37bbce882684a5554
+T030:
+  task: 9fc23e7f9346acfe7dc13a3d80e3bf1d2d18ec94630cc66d67bc0f8b39d20161
+T031:
+  task: 140e9b2b9a63df1c507de4c0184ff43a5ed7b7dd1a5815470f9ec132e6928194
+T032:
+  task: 9ad09fc5800ff6a837f793602d7e83f2688e000bdd653635317fd70a77be3619
+T033:
+  task: 1bbc796aaaed740ea0d3e0ba4cb072e44a5a9d7bbfbae4dbe385e4d3fd423aea
+T034:
+  task: a8844e2e48fefda79af5e6f7105ff7f5de325f69ab158f103ddb634968ff6b5f
+T035:
+  task: 86d5460068eb220f40ee52522f681c23949b4461f183ed794543e2b8639edbb5
+T036:
+  task: 0938338af7fdc761f006b918d914f01dbe9162b30e0abc54a61d97548da6a7f5

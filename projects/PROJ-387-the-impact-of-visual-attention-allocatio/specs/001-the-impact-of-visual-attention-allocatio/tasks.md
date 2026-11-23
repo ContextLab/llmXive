@@ -58,8 +58,8 @@
 - [X] T004 Setup random seed configuration and global logging in `code/utils/config.py` and `code/utils/logger.py`. **Deliverable**: `config.py` exports `RANDOM_SEED=42`.
 - [X] T005 [P] Create base directory structure for `data/raw/`, `data/processed/`, `data/eye-tracking/`, `data/valence/`, `output/plots/`, `output/results/`. **Verification**: `ls -R data/` shows all dirs.
 - [X] T006 [P] Implement data checksumming utility in `code/utils/data_integrity.py` (Constitution III). **Deliverable**: Function `compute_checksum(file_path)` returns MD5 hash.
-- [X] T007 Create data model classes for `EyeTrackingRecord`, `RecallScore`, `AnalysisResult` in `code/models/data_models.py`. **Deliverable**: Pydantic models with validated fields.
-- [X] T008 Setup environment variable management for paths and thresholds in `code/utils/config.py`. **Deliverable**: `config.py` loads `.env` for `DATA_PATH`, `OUTPUT_PATH`.
+- [~] T007 Create data model classes for `EyeTrackingRecord`, `RecallScore`, `AnalysisResult` in `code/models/data_models.py`. **Deliverable**: Pydantic models with validated fields.
+- [~] T008 Setup environment variable management for paths and thresholds in `code/utils/config.py`. **Deliverable**: `config.py` loads `.env` for `DATA_PATH`, `OUTPUT_PATH`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -75,17 +75,17 @@
 
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Create `load_data.py` in `code/ingestion/` to load CSV/EDF files without GPU (FR-001). **Deliverable**: Script loads data, returns DataFrame. **Exit**: 0 on success, 1 on file not found.
-- [X] T013 [US1] Implement `validate_data.py` in `code/ingestion/` to check for fixation duration, saccade amplitude, **gaze distribution**, **recall accuracy**, valence label (FR-002). **Deliverable**: Validates column existence, logs missing columns.
-- [ ] T014 [US1] Add data quality checks for ≤5% track loss and calibrated eye-tracker status in `code/ingestion/validate_data.py` (Constitution VI). **Deliverable**: Writes `data/eye-tracking/quality_report.md`. **Action**: **HALT** (exit 1) if track loss > 5% or uncalibrated.
-- [ ] T015 [US1] Implement valence annotation validation for standardized rating scale and storage in `data/valence/` in `code/ingestion/validate_data.py` (Constitution VII). **Constraint**: Use human-rated metadata only; if unavailable, halt with `DATA_BLOCKER` per `plan.md`. **Deliverable**: Writes `valence_categories_count` to `data/eye-tracking/quality_report.md`.
-- [ ] T016 [US1] Add logic to halt processing and log error if dataset is incompatible (missing variables). **Deliverable**: Exit code 1, log `DATA_BLOCKER: Missing required variables`.
+- [~] T012 [P] [US1] Create `load_data.py` in `code/ingestion/` to load CSV/EDF files without GPU (FR-001). **Deliverable**: Script loads data, returns DataFrame. **Exit**: 0 on success, 1 on file not found.
+- [~] T013 [US1] Implement `validate_data.py` in `code/ingestion/` to check for fixation duration, saccade amplitude, **gaze distribution**, **recall accuracy**, valence label (FR-002). **Deliverable**: Validates column existence, logs missing columns.
+- [~] T014 [US1] Add data quality checks for ≤5% track loss and calibrated eye-tracker status in `code/ingestion/validate_data.py` (Constitution VI). **Deliverable**: Writes `data/eye-tracking/quality_report.md`. **Action**: **HALT** (exit 1) if track loss > 5% or uncalibrated.
+- [~] T015 [US1] Implement valence annotation validation for standardized rating scale and storage in `data/valence/` in `code/ingestion/validate_data.py` (Constitution VII). **Constraint**: Use human-rated metadata only; if unavailable, halt with `DATA_BLOCKER` per `plan.md`. **Deliverable**: Writes `valence_categories_count` to `data/eye-tracking/quality_report.md`.
+- [ ] T016 [US1] Add logic to halt processing and log error if dataset is incompatible (missing variables). **Deliverable**: Exit code 1, log `DATA_BLOCKER: Missing required variables`. <!-- FAILED-IN-EXECUTION: code/ingestion/validate_data.py exit=1 -->
 - [ ] T017 [US1] Add logging for data ingestion success rate and quality metrics (SC-001). **Deliverable**: If count of available public datasets == 0, log `DATA_BLOCKER: No verified datasets found` and exit 1. Do NOT calculate percentage. If count > 0, log `Ingestion Success Rate: X%`.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US1] Contract test for schema validation in `tests/contract/test_data_schema.py::test_schema_validates_required_columns`.
-- [X] T019 [P] [US1] Integration test for data loading failure on missing columns in `tests/integration/test_ingestion_failures.py::test_missing_columns_halts`.
+- [~] T018 [P] [US1] Contract test for schema validation in `tests/contract/test_data_schema.py::test_schema_validates_required_columns`.
+- [~] T019 [P] [US1] Integration test for data loading failure on missing columns in `tests/integration/test_ingestion_failures.py::test_missing_columns_halts`.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently. **Note: If no verified dataset exists, this task will halt execution as per plan.md.**
 
@@ -103,18 +103,18 @@
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] **CONDITIONAL: SKIP IF US1 HALTS** Create `lmm_model.py` in `code/analysis/` to compute LMM using `statsmodels` mixedlm (FR-003). **Deliverable**: `output/results/lmm_summary.csv` with columns `metric`, `valence`, `coef`, `p_raw`.
-- [~] T021 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Implement logic to model attention metrics vs. recall accuracy for each valence category (multiple metrics × multiple categories). **Deliverable**: Loop over combinations, store results.
+- [ ] T020 [P] [US2] **CONDITIONAL: SKIP IF US1 HALTS** Create `lmm_model.py` in `code/analysis/` to compute LMM using `statsmodels` mixedlm (FR-003). **Deliverable**: `output/results/lmm_summary.csv` with columns `metric`, `valence`, `coef`, `p_raw`. <!-- FAILED: unspecified -->
+- [ ] T021 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Implement logic to model attention metrics vs. recall accuracy for each valence category (multiple metrics × multiple categories). **Deliverable**: Loop over combinations, store results. <!-- FAILED: unspecified -->
 - [ ] T022 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Create `correction.py` in `code/analysis/` to apply Bonferroni correction across all 9 metric-category combinations (FR-004). **Deliverable**: `output/results/correction_results.json` with `p_corrected`.
-- [~] T023 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Implement sensitivity analysis in `code/analysis/sensitivity.py` to sweep p-values across {0.01, 0.05, 0.1} and report rate variations (FR-006). **Deliverable**: `output/results/sensitivity_analysis.json`. **Note**: Do NOT use learning rates; this is a statistical threshold sweep.
-- [~] T024 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Add explicit "associational" labeling to all output results to prohibit causal language (FR-005). **Deliverable**: Append `association_label: "associational"` to all result objects.
-- [~] T025 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Add error handling for missing recall scores per participant-passages (Edge Case). **Deliverable**: Log warning, skip missing rows, continue.
-- [~] T026 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Implement memory-efficient data loading (chunking/sampling) to ensure <7 GB RAM usage (SC-004). **Deliverable**: Use `pd.read_csv(chunksize=...)` or `sample(n=...)`.
+- [ ] T023 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Implement sensitivity analysis in `code/analysis/sensitivity.py` to sweep p-values across {0.01, 0.05, 0.1} and report rate variations (FR-006). **Deliverable**: `output/results/sensitivity_analysis.json`. **Note**: Do NOT use learning rates; this is a statistical threshold sweep.
+- [ ] T024 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Add explicit "associational" labeling to all output results to prohibit causal language (FR-005). **Deliverable**: Append `association_label: "associational"` to all result objects.
+- [ ] T025 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Add error handling for missing recall scores per participant-passages (Edge Case). **Deliverable**: Log warning, skip missing rows, continue.
+- [ ] T026 [US2] **CONDITIONAL: SKIP IF US1 HALTS** Implement memory-efficient data loading (chunking/sampling) to ensure <7 GB RAM usage (SC-004). **Deliverable**: Use `pd.read_csv(chunksize=...)` or `sample(n=...)`.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T032 [P] [US2] Contract test for LMM output schema in `tests/contract/test_lmm_output.py::test_lmm_output_schema`.
-- [X] T033 [P] [US2] Integration test for associational labeling in `tests/integration/test_associational_labeling.py::test_associational_labeling_present`.
+- [~] T032 [P] [US2] Contract test for LMM output schema in `tests/contract/test_lmm_output.py::test_lmm_output_schema`.
+- [~] T033 [P] [US2] Integration test for associational labeling in `tests/integration/test_associational_labeling.py::test_associational_labeling_present`.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (provided valid data exists).
 
@@ -132,17 +132,17 @@
 
 ### Implementation for User Story 3
 
-- [~] T039 [P] [US3] **CONDITIONAL: SKIP IF US1/US2 HALT** Create `visualize.py` in `code/reporting/` using `matplotlib`/`seaborn`. **Deliverable**: Script generates plots.
-- [~] T040 [US3] **CONDITIONAL: SKIP IF US1/US2 HALT** Implement scatter plots of Attention Metric vs. Recall Accuracy for each valence category (FR-007). **Deliverable**: `output/plots/scatter_{valence}.png` for each valence.
-- [~] T041 [US3] **CONDITIONAL: SKIP IF US1/US2 HALT** Implement distribution histograms for each attention metric by valence category (FR-007). **Deliverable**: `output/plots/hist_{metric}_{valence}.png`.
-- [~] T042 [US3] **CONDITIONAL: SKIP IF US1/US2 HALT** Ensure all plots have labeled axes and are saved to `output/plots/` (SC-005). **Deliverable**: Axes labeled "Attention Metric", "Recall Accuracy".
+- [ ] T039 [P] [US3] **CONDITIONAL: SKIP IF US1/US2 HALT** Create `visualize.py` in `code/reporting/` using `matplotlib`/`seaborn`. **Deliverable**: Script generates plots.
+- [ ] T040 [US3] **CONDITIONAL: SKIP IF US1/US2 HALT** Implement scatter plots of Attention Metric vs. Recall Accuracy for each valence category (FR-007). **Deliverable**: `output/plots/scatter_{valence}.png` for each valence.
+- [ ] T041 [US3] **CONDITIONAL: SKIP IF US1/US2 HALT** Implement distribution histograms for each attention metric by valence category (FR-007). **Deliverable**: `output/plots/hist_{metric}_{valence}.png`.
+- [ ] T042 [US3] **CONDITIONAL: SKIP IF US1/US2 HALT** Ensure all plots have labeled axes and are saved to `output/plots/` (SC-005). **Deliverable**: Axes labeled "Attention Metric", "Recall Accuracy".
 - [ ] T043 [US3] **CONDITIONAL: SKIP IF US1/US2 HALT** Create `generate_report.py` in `code/reporting/` to compile LMM coefficients, corrected p-values, and associational disclaimer (FR-005). **Deliverable**: `output/results/final_report.md`.
-- [X] T044 [US3] **CONDITIONAL: SKIP IF US1/US2 HALT** Add logic to verify plot completeness. **Deliverable**: Read `valence_categories_count` from `data/eye-tracking/quality_report.md` (generated by T015) to determine `expected_count`. Assert `len(glob('output/plots/*.png')) >= expected_count * 2`.
+- [~] T044 [US3] **CONDITIONAL: SKIP IF US1/US2 HALT** Add logic to verify plot completeness. **Deliverable**: Read `valence_categories_count` from `data/eye-tracking/quality_report.md` (generated by T015) to determine `expected_count`. Assert `len(glob('output/plots/*.png')) >= expected_count * 2`.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T034 [P] [US3] Contract test for plot file existence and labels in `tests/contract/test_visualization.py::test_plot_files_exist_and_labeled`.
-- [X] T035 [P] [US3] Integration test for report generation completeness in `tests/integration/test_report.py::test_report_completeness`.
+- [~] T034 [P] [US3] Contract test for plot file existence and labels in `tests/contract/test_visualization.py::test_plot_files_exist_and_labeled`.
+- [~] T035 [P] [US3] Integration test for report generation completeness in `tests/integration/test_report.py::test_report_completeness`.
 
 **Checkpoint**: All user stories should now be independently functional.
 
@@ -152,14 +152,14 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T045 [P] Documentation updates in `docs/` including data acquisition limitations.
+- [ ] T045 [P] Documentation updates in `docs/` including data acquisition limitations.
 - [~] T046 Code cleanup and refactoring for memory efficiency.
 - [~] T047 Performance optimization to ensure total pipeline <6h runtime (FR-008).
 - [~] T048 [P] Additional unit tests for edge cases (missing data, sensitivity analysis stability) in `tests/unit/`. <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
-  in "<unicode string>", line 2, column 13:
-        contents: |
-                ^) -->
-- [ ] T049 Run `quickstart.md` validation and verify data gap documentation.
+ in "<unicode string>", line 2, column 13:
+ contents: |
+ ^) -->
+- [~] T049 Run `quickstart.md` validation and verify data gap documentation. <!-- FAILED: unspecified -->
 
 ---
 

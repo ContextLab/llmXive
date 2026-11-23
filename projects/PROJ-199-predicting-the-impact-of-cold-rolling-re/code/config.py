@@ -1,72 +1,104 @@
 """
-Project Configuration Module.
+Configuration management for the EBSD data pipeline.
 
-Manages environment variables, seed management, and critical parameters
-such as cold-rolling reduction levels.
+This module provides centralized configuration loading from environment variables
+and configuration files, with strict validation and error handling.
 """
 import os
 from typing import List, Optional
 from pathlib import Path
 
 class ConfigurationError(Exception):
-    """Raised when configuration is invalid or missing required fields."""
+    """Custom exception for configuration-related errors."""
     pass
 
-# Project Paths
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-CODE_DIR = PROJECT_ROOT / "code"
 
-# Seeds
-DEFAULT_SEED = 42
-
-def get_reductions() -> List[int]:
+def get_reductions() -> List[float]:
     """
-    Retrieves the list of cold-rolling reduction percentages.
-    Reads from environment variable REDUCTION_LEVELS or defaults to a standard set.
+    Get the list of cold-rolling reduction levels from configuration.
+    
+    Reduction levels are read from the REDUCTION_LEVELS environment variable
+    as a comma-separated list of floats.
     
     Returns:
-        List of integers representing reduction percentages (e.g., [30, 50, 70])
+        List of reduction levels (e.g., [0.1, 0.2, 0.3, 0.5])
         
     Raises:
-        ConfigurationError: If the environment variable is set but invalid.
+        ConfigurationError: If REDUCTION_LEVELS is not set or is empty
     """
-    env_val = os.getenv("REDUCTION_LEVELS")
+    reduction_str = os.environ.get('REDUCTION_LEVELS')
     
-    if env_val:
-        try:
-            # Expect format: "30,50,70" or "[30, 50, 70]"
-            clean_val = env_val.strip("[]")
-            reductions = [int(x.strip()) for x in clean_val.split(",")]
-            if not reductions:
-                raise ConfigurationError("REDUCTION_LEVELS is empty.")
-            if any(r < 0 or r > 99 for r in reductions):
-                raise ConfigurationError("Reduction levels must be between 0 and 99.")
-            return reductions
-        except ValueError:
-            raise ConfigurationError(f"Invalid REDUCTION_LEVELS format: '{env_val}'. Expected comma-separated integers.")
-    else:
-        # Default fallback if not set.
-        # Per T011b/T012 spec: "if values are missing, raise a ConfigurationError immediately"
-        # However, to allow the pipeline to run in a standard dev environment without 
-        # manual env setup, we provide a sensible default ONLY if the env var is completely absent.
-        # If the spec demands strict fail-fast on missing env vars, remove this default.
-        # Given the task description "Reduction levels MUST be read from code/config.py; 
-        # if values are missing, raise a ConfigurationError immediately", 
-        # we interpret "missing" as "not found in the config source".
-        # We will treat the default as the config source if env is unset.
-        # BUT, to be safe and compliant with "fail loudly", we will require the env var 
-        # OR a hardcoded default in this file for the fallback path.
-        
-        # Let's define a standard set for the project if not overridden.
-        # If the strict requirement is "must be defined by user", we would raise here.
-        # Assuming standard defaults are acceptable for the "missing" case in a dev environment:
-        default_reductions = [30, 50, 70]
-        return default_reductions
+    if not reduction_str:
+        raise ConfigurationError(
+            "REDUCTION_LEVELS environment variable is not set. "
+            "Please set it to a comma-separated list of reduction levels (e.g., '0.1,0.2,0.3')."
+        )
+    
+    try:
+        reductions = [float(x.strip()) for x in reduction_str.split(',') if x.strip()]
+    except ValueError as e:
+        raise ConfigurationError(
+            f"Invalid format for REDUCTION_LEVELS: {reduction_str}. "
+            f"Expected comma-separated floats. Error: {e}"
+        )
+    
+    if not reductions:
+        raise ConfigurationError(
+            "REDUCTION_LEVELS is empty after parsing. "
+            "Please provide at least one valid reduction level."
+        )
+    
+    return reductions
+
 
 def get_seed() -> int:
-    """Retrieves the random seed from environment or defaults."""
+    """
+    Get the random seed for reproducible experiments.
+    
+    Returns:
+        Random seed as an integer. Defaults to 42 if not set.
+    """
+    seed_str = os.environ.get('RANDOM_SEED', '42')
     try:
-        return int(os.getenv("RANDOM_SEED", DEFAULT_SEED))
+        return int(seed_str)
     except ValueError:
-        return DEFAULT_SEED
+        raise ConfigurationError(
+            f"Invalid RANDOM_SEED value: {seed_str}. Expected an integer."
+        )
+
+
+def get_data_path() -> Path:
+    """
+    Get the base path for data directories.
+    
+    Returns:
+        Path to the data directory. Defaults to 'data' in current working directory.
+    """
+    data_path_str = os.environ.get('DATA_PATH', 'data')
+    return Path(data_path_str).resolve()
+
+
+def get_log_level() -> int:
+    """
+    Get the logging level from configuration.
+    
+    Returns:
+        Logging level constant (e.g., logging.INFO, logging.DEBUG).
+    """
+    log_level_str = os.environ.get('LOG_LEVEL', 'INFO').upper()
+    
+    level_map = {
+        'DEBUG': 10,
+        'INFO': 20,
+        'WARNING': 30,
+        'ERROR': 40,
+        'CRITICAL': 50
+    }
+    
+    if log_level_str not in level_map:
+        raise ConfigurationError(
+            f"Invalid LOG_LEVEL: {log_level_str}. "
+            f"Must be one of: {list(level_map.keys())}"
+        )
+    
+    return level_map[log_level_str]

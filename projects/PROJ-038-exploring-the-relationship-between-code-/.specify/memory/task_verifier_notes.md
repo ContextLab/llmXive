@@ -2,6 +2,16 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T000a [S] Generate `methodology_rationale.md` artifact to document the conflict between Constitution Principle VI (Pearson/McNemar) and the Spec's required methods (Point-Biserial/Spearman/Paired Permutation), providing the scientific justification for the deviation as per the plan's 'Pending Amendment Request'. This task is a prerequisite for all statistical tasks and must be completed before Phase 2.** — No `methodology_rationale.md` file or any equivalent documentation was presented. The claim lacks the required artifact that explains the conflict between Constitution Principle VI and the specification’s methods, so the task is not satisfied.
-- **T001a [P] Create project directory structure: `code/`, `code/src/`, `code/tests/`, `code/data/raw/`, `code/data/processed/`, `code/data/results/`, `specs/001-code-complexity-bug-prediction/`.** — No evidence of the required directory tree (`code/`, `code/src/`, `code/tests/`, `code/data/raw/`, `code/data/processed/`, `code/data/results/`, `specs/001-code-complexity-bug-prediction/`) was provided; without visible folders or a manifest, we cannot confirm the structure was created. The implementer must supply a listing or screenshot showing these directories exist and are non‑empty where appropriate.
-- **T001c [P] Initialize Python 3.11 virtual environment. <!-- FAILED: unspecified -->** — No virtual environment setup files (e.g., `pyproject.toml`, `requirements.txt`, `venv/` directory, or activation scripts) are present, and the implementer provided no evidence that a Python 3.11 venv was created. The required artifact is missing, so the task is not satisfied.
+- **T000b** — declared artifact(s) missing/empty/invalid: code/scripts/wait_for_ratification.sh
+- **T013a** — declared artifact(s) missing/empty/invalid: code/data/selected_projects.txt
+- **T017** — declared artifact(s) missing/empty/invalid: code/data/processed/features_raw.csv
+- **T029b** — declared artifact(s) missing/empty/invalid: code/data/results/validation_report.md, code/data/results/single_best_metric.txt
+- **T032** — declared artifact(s) missing/empty/invalid: code/data/results/feature_importance_ranking.json
+- **T033c** — declared artifact(s) missing/empty/invalid: code/results/final_report.md
+- **T033d** — declared artifact(s) missing/empty/invalid: code/results/final_report.md
+- **T033e** — declared artifact(s) missing/empty/invalid: code/results/final_report.md
+- **T033f** — declared artifact(s) missing/empty/invalid: code/results/final_report.md
+- **T033g** — declared artifact(s) missing/empty/invalid: code/results/final_report.md
+- **T034** — declared artifact(s) missing/empty/invalid: code/src/viz.py, code/results/roc_auc_comparison.png
+- **T028** — declared artifact(s) missing/empty/invalid: code/tests/test_viz.py
+- **T039** — declared artifact(s) missing/empty/invalid: code/tests/unit/

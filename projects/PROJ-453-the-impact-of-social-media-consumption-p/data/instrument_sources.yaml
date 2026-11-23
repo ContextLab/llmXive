@@ -1,0 +1,11 @@
+dataset_id: nrc/addhealth_wave4
+source_url: https://huggingface.co/datasets/nrc/addhealth_wave4
+timestamp: "2023-10-02T12:00:00"
+instruments:
+  - name: "Social Media Switching Frequency"
+    citation: "AddHealth Wave IV Survey Instrument"
+    variable: "self_reported_switching_frequency"
+  - name: "Cognitive Flexibility Score"
+    citation: "WCST Adaptation for Survey"
+    variable: "cognitive_flexibility_score"
+notes: "Placeholder for actual instrument documentation."

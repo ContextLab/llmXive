@@ -1,59 +1,66 @@
+import os
+import sys
+import json
+import tempfile
 import pandas as pd
-import numpy as np
 import pytest
+
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+
 from preprocess import detect_outcome_type
 
-def test_detect_outcome_type_binary():
-    """Test detection of binary outcome variable."""
-    data = {
-        "risk_taking_score": [0, 1, 0, 1, 1, 0, 1, 0]
-    }
-    df = pd.DataFrame(data)
-    result = detect_outcome_type(df, "risk_taking_score")
-    assert result == "binary", f"Expected 'binary', got '{result}'"
+def test_detect_binary_outcome():
+    """Test detection of binary outcome type."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, "input.csv")
+        output_path = os.path.join(tmpdir, "outcome.json")
+        
+        # Create binary data (2 unique values)
+        df = pd.DataFrame({
+            'risk_taking_score': [0, 1, 0, 1, 1, 0],
+            'participant_id': [1, 2, 3, 4, 5, 6]
+        })
+        df.to_csv(input_path, index=False)
+        
+        detect_outcome_type(input_path, output_path)
+        
+        with open(output_path, 'r') as f:
+            result = json.load(f)
+        
+        assert result['type'] == 'binary'
 
-def test_detect_outcome_type_binary_1_2():
-    """Test detection of binary outcome variable with values 1 and 2."""
-    data = {
-        "risk_taking_score": [1, 2, 1, 2, 2, 1, 2, 1]
-    }
-    df = pd.DataFrame(data)
-    result = detect_outcome_type(df, "risk_taking_score")
-    assert result == "binary", f"Expected 'binary', got '{result}'"
+def test_detect_continuous_outcome():
+    """Test detection of continuous outcome type."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, "input.csv")
+        output_path = os.path.join(tmpdir, "outcome.json")
+        
+        # Create continuous data (15 unique values)
+        df = pd.DataFrame({
+            'risk_taking_score': list(range(15)),
+            'participant_id': list(range(15))
+        })
+        df.to_csv(input_path, index=False)
+        
+        detect_outcome_type(input_path, output_path)
+        
+        with open(output_path, 'r') as f:
+            result = json.load(f)
+        
+        assert result['type'] == 'continuous'
 
-def test_detect_outcome_type_continuous():
-    """Test detection of continuous outcome variable."""
-    data = {
-        "risk_taking_score": [1.5, 2.3, 4.1, 3.8, 2.9, 5.0, 1.2, 4.5]
-    }
-    df = pd.DataFrame(data)
-    result = detect_outcome_type(df, "risk_taking_score")
-    assert result == "continuous", f"Expected 'continuous', got '{result}'"
-
-def test_detect_outcome_type_continuous_integers():
-    """Test detection of continuous outcome variable with many integer levels."""
-    data = {
-        "risk_taking_score": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
-    }
-    df = pd.DataFrame(data)
-    result = detect_outcome_type(df, "risk_taking_score")
-    assert result == "continuous", f"Expected 'continuous', got '{result}'"
-
-def test_detect_outcome_type_missing_column():
-    """Test that ValueError is raised if column is missing."""
-    data = {
-        "other_col": [1, 2, 3]
-    }
-    df = pd.DataFrame(data)
-    with pytest.raises(ValueError):
-        detect_outcome_type(df, "missing_col")
-
-def test_detect_outcome_type_single_value():
-    """Test behavior with only one unique value."""
-    data = {
-        "risk_taking_score": [5, 5, 5, 5]
-    }
-    df = pd.DataFrame(data)
-    result = detect_outcome_type(df, "risk_taking_score")
-    # Should default to continuous
-    assert result == "continuous", f"Expected 'continuous', got '{result}'"
+def test_missing_column():
+    """Test that missing column raises error."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        input_path = os.path.join(tmpdir, "input.csv")
+        output_path = os.path.join(tmpdir, "outcome.json")
+        
+        # Create data without required column
+        df = pd.DataFrame({
+            'other_col': [1, 2, 3]
+        })
+        df.to_csv(input_path, index=False)
+        
+        with pytest.raises(ValueError, match="Column 'risk_taking_score' not found"):
+            detect_outcome_type(input_path, output_path)

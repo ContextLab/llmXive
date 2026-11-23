@@ -1,53 +1,31 @@
 # Data Model: The Impact of Aggregate Negative News Publication Volume on Anticipatory Anxiety
 
-## 1. Entity Definitions
+## Entity Definitions
 
 ### TimeSeriesRecord
 Represents a single day's aggregated value for a specific metric.
-
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `date` | `date` | Calendar date (YYYY-MM-DD) | Unique, non-null |
-| `value` | `float` | Aggregated metric value (news volume or search index) | Non-negative |
-| `source` | `string` | Data source identifier | Enum: ["gdelt", "google_trends"] |
+*   `date`: `YYYY-MM-DD` (String) - The date of the record.
+*   `value`: `float` - The aggregated metric value (EventCount or Search Volume).
+*   `source`: `string` - Identifier for the data source (e.g., "GDELT", "GoogleTrends").
+*   `is_zero_event`: `boolean` - True if the value is explicitly 0 (valid zero), False if interpolated.
 
 ### AnalysisResult
 Represents the output of a statistical test.
+*   `metric`: `string` - Name of the test (e.g., "Pearson", "Granger").
+*   `coefficient`: `float` - The calculated coefficient (r or F-stat).
+*   `p_value`: `float` - The p-value of the test.
+*   `lag`: `integer` - The lag window used (for Granger).
+*   `significance_flag`: `boolean` - True if p < alpha (corrected).
+*   `stationarity_status`: `string` - "stationary" or "non_stationary".
 
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `metric` | `string` | Test type (e.g., "pearson", "granger", "ecm") | Non-null |
-| `coefficient` | `float` | Test statistic value | Non-null |
-| `p_value` | `float` | P-value of the test | 0 ≤ p ≤ 1 |
-| `lag` | `integer` | Lag window used (for Granger/ECM) | ≥ 1 |
-| `significance_flag` | `boolean` | True if p < 0.05 (no Bonferroni) | Non-null |
-| `stationarity_status` | `string` | Result of ADF test | Enum: ["stationary", "non-stationary"] |
-| `cointegration_status` | `string` | Result of Engle-Granger test | Enum: ["cointegrated", "not_cointegrated", "not_applicable"] |
+## Data Flow
 
-## 2. Data Flow Diagram
+1.  **Raw Ingestion**: `fetch_gdelt.py` and `fetch_trends.py` generate `data/raw/news_volume.csv` and `data/raw/anxiety_trends.csv`.
+2.  **Preprocessing**: `preprocess_data.py` aligns timestamps, handles missing values, tests stationarity, and outputs `data/processed/aligned_timeseries.csv`.
+3.  **Analysis**: `run_analysis.py` consumes the processed file and generates `data/reports/analysis_results.json` and `data/reports/plots/`.
 
-```
-[Raw Data] 
-   ↓ (Fetch via API)
-[Raw CSVs] (gdelt_events.csv, google_trends.csv)
-   ↓ (Preprocessing: Alignment, Forward Fill, Cointegration/ECM or Differencing)
-[Processed CSV] (aligned_timeseries.csv)
-   ↓ (Statistical Analysis: Correlation, Granger (AIC/BIC), Sensitivity)
-[Analysis Results] (JSON/CSV)
-   ↓ (Report Generation)
-[Final Report] (PDF/HTML)
-```
+## Schema Contracts
 
-## 3. Schema Validation
-
-All data files must conform to the schemas defined in `contracts/`.
-
-- **Input Schemas**: `dataset.schema.yaml` for raw and processed data.
-- **Output Schemas**: `output.schema.yaml` for analysis results and report metadata.
-- **Implementation**: The `pyyaml` library is used in `preprocess.py` and `analyze.py` to validate data against these schemas at runtime.
-
-## 4. Data Hygiene Rules
-
-- **Checksums**: Every file in `data/raw/` and `data/processed/` must have a checksum recorded in the project state file.
-- **Immutability**: Raw data files are never modified; derivations create new files.
-- **PII**: No personally identifying information is stored or processed.
+The data model is enforced by the following schemas:
+*   `contracts/dataset.schema.yaml`: Validates the structure of the aligned time-series data.
+*   `contracts/output.schema.yaml`: Validates the structure of the analysis results.

@@ -1,2 +1,2 @@
-# This file ensures the data/splits directory is tracked by git
-.
+# This directory stores dynamic train/test split indices
+# Do not commit actual data files, only .gitkeep to preserve directory structure

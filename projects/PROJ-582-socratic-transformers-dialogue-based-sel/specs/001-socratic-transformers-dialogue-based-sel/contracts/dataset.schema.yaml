@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Socratic Transformer Dataset Schema"
+type: "object"
+description: "Schema for generated dialogue tuples (Selection and Ablation conditions)."
+required:
+  - "question"
+  - "initial_answer"
+  - "critique"
+  - "revised_answer"
+  - "condition"
+properties:
+  question:
+    type: "string"
+    description: "The original math problem from GSM8K."
+  initial_answer:
+    type: "string"
+    description: "The model's initial reasoning and answer."
+  critique:
+    type: "string"
+    description: "The adversarial critique identifying errors (Selection) or a neutral placeholder (Ablation)."
+  revised_answer:
+    type: "string"
+    description: "The model's revised reasoning and answer after critique."
+  condition:
+    type: "string"
+    enum:
+      - "selection"
+      - "ablation"
+      - "static"
+    description: "The experimental condition for this tuple."
+  quality_score:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Score from the quality gate (optional for static)."
+additionalProperties: false

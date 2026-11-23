@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Collapse Points"
+type: object
+required:
+  - clip_id
+  - model_name
+  - snr_db
+  - rt60_s
+  - collapse_intensity
+  - early_collapse_flag
+  - inflection_step
+  - universal_collapse_intensity
+  - metadata
+additionalProperties: false
+properties:
+  clip_id:
+    type: string
+    description: "Identifier of the audio clip."
+  model_name:
+    type: string
+    description: "ASR model."
+  snr_db:
+    type: number
+    description: "SNR at collapse."
+  rt60_s:
+    type: number
+    description: "RT60 at collapse."
+  collapse_intensity:
+    type: string
+    description: "Step identifier (e.g., \"step_23\") or \"None\"/\"Max Tested\"."
+  early_collapse_flag:
+    type: boolean
+    description: "True if max negative derivative occurs before CCM crossing."
+  inflection_step:
+    type: integer
+    description: "Index of the maximum‑negative‑derivative step."
+  universal_collapse_intensity:
+    type: string
+    description: "Step where absolute SSS ≤ 0.5 (FR‑036)."
+  metadata:
+    type: object
+    description: "Baseline metrics."
+    required:
+      - baseline_sss
+      - baseline_wer
+    properties:
+      baseline_sss:
+        type: number
+        description: "Baseline Semantic Similarity Score."
+      baseline_wer:
+        type: number
+        description: "Baseline Word Error Rate."

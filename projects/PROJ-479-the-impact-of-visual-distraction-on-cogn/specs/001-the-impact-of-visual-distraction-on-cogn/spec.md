@@ -65,7 +65,7 @@ The system MUST conduct bootstrap resampling and alternative complexity metric s
 
 **Acceptance Scenarios**:
 
-1. **Given** primary analysis results, **When** bootstrap resampling is performed, **Then** 95% confidence intervals are computed for correlation coefficients
+1. **Given** primary analysis results, **When** bootstrap resampling is performed, **Then** Confidence intervals are computed for correlation coefficients
 2. **Given** primary complexity metrics, **When** alternative binning strategies (quartiles, deciles) and algorithm parameters are applied, **Then** the sign of the correlation remains consistent and the magnitude of Pearson r-value changes by less than 0.1
 
 ---
@@ -114,7 +114,7 @@ The system MUST conduct bootstrap resampling and alternative complexity metric s
 - **SC-005**: Threshold justification is measured against the requirement that the p<0.05 significance threshold is explicitly justified as a community-standard convention, and a summary table of exact p-values and Holm-Bonferroni adjusted p-values is generated (See US-4)
 - **SC-006**: Measurement validity is measured against the requirement that visual complexity metrics use validated computer vision methods (OpenCV edge detection, standard color entropy formulas) with citable documentation (See US-2)
 - **SC-007**: Predictor collinearity is measured against the requirement that VIF scores are computed and reported; if VIF ≥5 for any predictor, the system MUST use PCA components as predictors and document the variance explained (See US-2)
-- **SC-008**: Compute feasibility is measured against the requirement that total analysis runtime ≤6 hours on GitHub Actions free-tier runner (limited CPU cores, ~7 GB RAM, no GPU) (See US-1)
+- **SC-008**: Compute feasibility is measured against the requirement that total analysis runtime ≤6 hours on GitHub Actions free-tier runner (limited CPU cores, constrained RAM, no GPU) (See US-1)
 
 ## Assumptions
 

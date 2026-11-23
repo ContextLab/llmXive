@@ -1,66 +1,82 @@
-# Quickstart: Evaluating the Correlation Between Compositional Features
+# Quickstart: Evaluating the Correlation Between Compositional Features and Predicted Formation Energy in Inorganic Materials
 
 ## Prerequisites
 
-- Python 3.10+
-- Git
-- Access to the Materials Project Zenodo mirror (DOI: 10.5281/zenodo.4053859).
+- Python 3.11+
+- `pip` or `conda`
+- Access to the MP-2020 dataset (via `MPDS_API_KEY` environment variable or local cache)
 
 ## Installation
 
-1. **Clone and Setup Environment**
+1. **Clone the repository** and navigate to the project directory.
+2. **Create a virtual environment**:
    ```bash
-   cd projects/PROJ-509-evaluating-the-correlation-between-compo/code
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. **Install dependencies**:
+   ```bash
    pip install -r requirements.txt
    ```
-
-2. **Verify Dependencies**
-   ```bash
-   python -c "import pymatgen; import sklearn; print('OK')"
-   ```
+   *Note: `requirements.txt` is located at `projects/PROJ-509-evaluating-the-correlation-between-compo/code/requirements.txt`.*
 
 ## Running the Pipeline
 
-### Step 1: Ingest Data
-Download, filter, and sample (if necessary) the MP-2020.12.1 dataset.
+The pipeline is executed via `code/main.py`.
+
 ```bash
-python ingest.py
-# Output: data/processed/compounds_clean.csv
-# Note: If >60k rows, a stratified sample to 50k is taken.
+cd code
+python main.py
 ```
 
-### Step 2: Compute Descriptors
-Calculate mean/variance of elemental properties.
-```bash
-python descriptors.py
-# Output: data/processed/compounds_descriptors.csv
-```
+### Steps Executed
+1. **Ingestion**: Downloads/loads MP-2020 dataset (via MPDS API or local cache), filters inorganic compounds, checksums data, and verifies version.
+2. **Feature Engineering**: Computes mean/variance descriptors for 5 elemental properties and derives `chemical_family`.
+3. **Model Training**: Trains Random Forest and Gradient Boosting models (80/20 split by Chemical Family).
+4. **Evaluation**: Calculates R², MAE, RMSE; computes overfitting ratio; saves models and metrics.
+5. **Analysis**: Computes feature importance (Conditional Permutation, SHAP), VIF, and generates ALE plots.
+6. **Logging**: Records execution time, statistical tests, and ALE metrics to `data/evaluation/model_metrics.json` and related JSON files.
 
-### Step 3: Train & Evaluate
-Train RF and GB models, compute metrics, and run null model baseline.
-```bash
-python train.py
-python evaluate.py
-# Output: data/evaluation/model_metrics.json (SSoT)
-```
+## Output Artifacts
 
-### Step 4: Analyze & Plot
-Extract feature importance (with VIF check) and generate PDPs.
-```bash
-python importance.py
-python plots.py
-# Output: data/evaluation/pdp_data.json, figures/
-```
+After successful execution, the following files will be generated in `data/evaluation/`:
 
-## Validation
+- `model_rf.pkl`: Trained Random Forest model.
+- `model_gb.pkl`: Trained Gradient Boosting model.
+- `model_metrics.json`: Performance metrics (R², MAE, RMSE, execution time, overfitting_ratio).
+- `feature_ranking.json`: Ranked list of descriptors by importance.
+- `permutation_importance.json`: Permutation importance scores and correlation `r`.
+- `vif_scores.json`: Variance Inflation Factor scores for all features.
+- `ale_metrics.json`: Non-linearity scores for top 3 features.
+- `statistical_tests.json`: P-values and CIs for model comparison.
+- `ale_*.png`: Accumulated Local Effects plots for the top 3 features.
 
-Run the contract tests to ensure data integrity:
-```bash
-pytest tests/contract/
-```
+## Verification
+
+To verify the results:
+
+1. **Check Metrics**:
+   ```bash
+   cat data/evaluation/model_metrics.json
+   ```
+   Ensure `val_r2` > 0.0 and `execution_time` < 6 hours.
+
+2. **Check Feature Ranking**:
+   ```bash
+   cat data/evaluation/feature_ranking.json
+   ```
+   Ensure top 5 features are listed.
+
+3. **Check ALE Plots**:
+   Verify `data/evaluation/ale_*.png` files exist and are non-empty. Check `ale_metrics.json` for non-linearity scores > 0.5.
+
+4. **Run Tests**:
+   ```bash
+   pytest tests/
+   ```
 
 ## Troubleshooting
 
-- **Memory Error**: The script automatically samples data if RAM > 6GB. Check logs for "Sampling enabled".
-- **Zenodo Unreachable**: Check network or verify the Zenodo URL in `config.yaml`.
-- **Missing Properties**: Rare elements may lack data. Check `data/logs/excluded_rows.log`.
+- **Dataset Download Failed**: Ensure `MPDS_API_KEY` is set in environment variables, or that `data/raw/mp-2020.csv` exists and is checksummed.
+- **Memory Error**: The dataset is small. If this occurs, check for memory leaks or incorrect data loading.
+- **Overfitting Flag**: If `overfitting_ratio` is high, review the stratification strategy or model hyperparameters.

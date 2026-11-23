@@ -1,0 +1,14 @@
+status: none
+intent: Polymer Genome database and NIST WebBook polymer Tg dataset download python
+  package dataset
+required_fields:
+- polymer_id
+- smiles
+- tg
+- polymer_type
+- elemental_mass_fractions
+- functional_group_counts
+- molecular_weight_average
+cache_key: 6538ecda99e0b9af2abdee1c3620e671e026f3b1bed95eb1fe51df2dfa8961c1
+searched_at: '2026-11-03T13:21:51.363462+00:00'
+retry_count: 1

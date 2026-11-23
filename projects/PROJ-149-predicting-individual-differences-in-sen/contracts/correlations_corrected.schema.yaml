@@ -1,0 +1,46 @@
+# Schema for data/processed/correlations_corrected.csv (T021)
+file: correlations_corrected.csv
+format: csv
+description: Bonferroni-corrected correlation results between EEG band power and reaction time.
+
+columns:
+  - name: band
+    type: string
+    description: Name of the frequency band (e.g., 'alpha', 'beta').
+    constraints:
+      - not_null: true
+      - in_list: ['delta', 'theta', 'alpha', 'low_beta', 'high_beta', 'gamma']
+  
+  - name: r_value
+    type: float
+    description: Pearson correlation coefficient.
+    constraints:
+      - not_null: true
+      - range: [-1.0, 1.0]
+  
+  - name: p_value
+    type: float
+    description: Raw p-value from the correlation test.
+    constraints:
+      - not_null: true
+      - range: [0.0, 1.0]
+  
+  - name: n
+    type: integer
+    description: Number of participants used in the correlation.
+    constraints:
+      - not_null: true
+      - min: 1
+  
+  - name: bonferroni_p_value
+    type: float
+    description: P-value after Bonferroni correction (p * 6, capped at 1.0).
+    constraints:
+      - not_null: true
+      - range: [0.0, 1.0]
+  
+  - name: is_significant
+    type: boolean
+    description: True if bonferroni_p_value < 0.0083 (0.05/6).
+    constraints:
+      - not_null: true

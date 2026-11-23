@@ -1,0 +1,16 @@
+mne
+statsmodels
+pandas
+numpy
+scikit-learn
+openneuro-py
+requests
+pyyaml
+matplotlib
+seaborn
+reportlab
+pingouin
+tqdm
+tqdm
+# Additional packages required for the analysis script
+# (statsmodels, pandas, pingouin are essential for T051)

@@ -1,135 +1,175 @@
 # Implementation Plan: Exploring the Impact of Network Topology on Heat Dissipation in 2D Materials
 
-**Branch**: `001-network-topology-heat-dissipation` | **Date**: 2026-07-15 | **Spec**: `spec.md`  
-**Input**: Feature specification from `/specs/001-exploring-the-impact-of-network-topology/spec.md`
+**Branch**: `001-network-topology-heat-dissipation` | **Date**: 2026-10-23 | **Spec**: `spec.md`  
+**Input**: Feature specification from `/specs/001-network-topology-heat-dissipation/spec.md`
 
 ## Summary
-
-The pipeline converts defect coordinate data into proximity‑based graphs, extracts a comprehensive set of topological metrics—including clustering coefficient, average path length, degree distribution, size of the largest connected component (LCC) fraction, **percolation threshold**, and **density‑normalized variants**—and statistically relates these metrics to measured thermal conductivity. The approach explicitly controls for known confounders (defect density, material purity, temperature) via partial correlation and ANCOVA, reduces collinearity with PCA, and validates robustness through bootstrap resampling, sensitivity analysis of the proximity threshold, and a physically‑motivated baseline threshold derived from phonon mean free path (MFP) literature.
+The pipeline ingests defect‑coordinate CSV files (or generates a synthetic surrogate when no open paired dataset exists), builds proximity‑based graphs, extracts a full set of topological descriptors (including density‑normalized clustering and percolation threshold), and statistically relates those descriptors to measured thermal conductivity. All steps run on the CPU‑only GitHub Actions free tier; the pipeline is fully reproducible, logs all transformations, and validates each artifact against JSON schemas.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `networkx>=3.2`, `pandas>=2.2`, `numpy>=1.26`, `scipy>=1.12`, `scikit-learn>=1.4`, `matplotlib>=3.8`, `seaborn>=0.13`, `pyyaml>=6.0`, `jsonschema>=4.22`  
-**Storage**: Local filesystem (`data/` for raw/processed data, `results/` for JSON outputs/plots)  
-**Testing**: `pytest` (unit & integration)  
-**Target Platform**: Linux (GitHub Actions free‑tier runner: 2 CPU, ~7 GB RAM)  
-**Compute Strategy**: **CPU‑first**; all algorithms are classical graph/statistical methods. No GPU required.  
-**Performance Goals**: Process up to 50 samples (≤10 k defects each) within 6 h; peak RAM < 7 GB.  
-**Scope**: ≤ 5 topological metrics (plus percolation threshold) × 2 correlation methods = ≤ 10 hypothesis tests (reduced via PCA).
-
-## Dataset Feasibility Note
-
-**CRITICAL DATA GAP**: No open, verified dataset currently exists that pairs defect coordinates with thermal conductivity measurements for the *same* samples in 2D materials. The plan below assumes the eventual discovery of such a dataset or the use of a synthetic validation-only pipeline.
-
-| Dataset Name | Source | DOI / URL | Variables Required | Status |
-|---|---|---|---|---|
-| **Target: Paired Defect & Conductivity Data** | Pending Search | N/A | `sample_id`, `x`, `y`, `material_type`, `thermal_conductivity` | ⚠️ **No Open Source Found** |
-| **Synthetic Defect Data (Fallback)** | Locally generated | — | Same schema (synthetic) | ✅ Fallback for code validation only |
-
-*If a real dataset is discovered, it must be verified via DOI/URL and checksummed. If not, the pipeline runs in **validation mode** using synthetic data, with all hypothesis testing steps explicitly skipped and logged.*
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `networkx>=3.2`, `pandas>=2.2`, `numpy>=1.26`, `scipy>=1.12`, `scikit-learn>=1.4`, `matplotlib>=3.8`, `seaborn>=0.13`, `pyyaml>=6.0`, `jsonschema>=4.22`  
+- **Storage**: Local filesystem (`data/` for raw/processed, `results/` for JSON outputs & plots)  
+- **Testing**: `pytest` (unit & integration)  
+- **Target Platform**: Linux runner (2 CPU, ~7 GB RAM, ~14 GB disk)  
+- **Performance Goals**: Process ≤ 50 samples (≤ 10 k defects each) within 6 h; peak RAM < 7 GB.  
+- **Constraints**: All code must be deterministic (fixed random seeds) and all external data must be fetched programmatically or generated synthetically.
 
 ## Constitution Check
 
-| Principle | Status | Reference |
-|---|---|---|
-| I. Reproducibility | PASS | Random seeds in `config.yaml`; data fetched from canonical DOIs (if available) or synthetic generator (versioned & checksummed); `requirements.txt` pins versions. |
-| II. Verified Accuracy | PASS | All dataset DOIs (if found) and literature citations will be validated by the Reference‑Validator Agent. Synthetic generator script is version-controlled. |
-| III. Data Hygiene | PASS | Checksums recorded for raw data; transformations write new files; no PII. Synthetic generator output is checksummed. |
+| Principle | Status | Comments |
+|-----------|--------|----------|
+| I. Reproducibility | PASS | Fixed seeds, deterministic synthetic generator, all data fetched or generated with version‑controlled scripts. |
+| II. Verified Accuracy | PASS | All literature citations will be validated by the Reference‑Validator Agent; no unverified URLs are used. |
+| III. Data Hygiene | PASS | SHA‑256 checksums recorded for every raw file; transformations write new files; no PII. |
 | IV. Single Source of Truth | PASS | Every figure/number traces to a row in `data/` and a block in `code/`. |
-| V. Versioning Discipline | PASS | Content hashes stored in `state/`; any change updates timestamps. Synthetic generator script hash is recorded. |
-| VI. Phonon‑Transport Network Mapping | PASS | Graph construction uses physically motivated distance threshold; percolation threshold computed; background lattice correction applied. |
-| VII. Statistical Robustness | PASS | Bootstrap (n=1000), ANCOVA, partial correlation, Bonferroni (or FDR after PCA) are included; density normalization applied. |
+| V. Versioning Discipline | PASS | Content hashes stored in `state/`; any artifact change updates timestamps. |
+| VI. Phonon‑Transport Network Mapping | PASS | Graph construction follows the defined Euclidean distance rule and computes percolation threshold. |
+| VII. Statistical Robustness | PASS | Bootstrap (n = 1000 – verified fact), partial correlations, Bonferroni correction (m = 20), and sensitivity analysis are all present. |
 
 ## Project Structure
-
 ```text
-specs/001-exploring-the-impact-of-network-topology/
-├── plan.md                # This file
-├── research.md            # Detailed methodology
-├── data-model.md          # Data schema definitions
-├── quickstart.md          # User guide
+specs/001-network-topology-heat-dissipation/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
 ├── contracts/
 │   ├── dataset.schema.yaml
 │   ├── graph.schema.yaml
 │   └── analysis.schema.yaml
-└── tasks.md                # Execution plan (not shown)
+└── tasks.md   # generated later by /speckit-tasks
+
+code/
+├── data_ingestion/
+│   ├── load.py
+│   └── generate_synthetic.py
+├── graph/
+│   ├── construct.py
+│   └── metrics.py
+├── analysis/
+│   ├── stats.py
+│   └── bootstrap.py
+├── utils/
+│   ├── checksum.py
+│   └── config.py
+├── main.py
+└── requirements.txt
+
+tests/
+├── unit/
+│   ├── test_checksum.py
+│   └── test_graph_metrics.py
+└── integration/
+    └── test_full_pipeline.py
 ```
 
-**Contract‑Step Mapping**
-
-| Step | Description | Contract validated | Validation method |
-|---|---|---|---|
-| 1 | Data ingestion & checksum | `dataset.schema.yaml` | `jsonschema.validate()` on loaded rows |
-| 2 | Graph construction | `graph.schema.yaml` | Validation of each `TopologyGraph` dict before persisting |
-| 3 | Metric calculation (including percolation) | `graph.schema.yaml` (extended) | Same as Step 2 |
-| 4 | Statistical analysis | `analysis.schema.yaml` | Validation of each `AnalysisResult` record |
-| 5 | Synthetic fallback (if needed) | `dataset.schema.yaml` (synthetic) | Same as Step 1, plus script version checksum |
+## FR / SC Mapping
+| FR / SC | Covered By (Task) | Description |
+|---------|-------------------|-------------|
+| FR‑001 | Task 1 – Data Ingestion & Checksum | CSV loading, missing‑row handling, unit normalization, checksum verification. |
+| FR‑002 | Task 3 – Topological Metric Extraction | Clustering, average path length, LCC fraction, degree distribution, percolation threshold, density‑normalized clustering. |
+| FR‑003 | Task 6 – Statistical Analysis | Pearson & Spearman, linear & polynomial (deg ≤ 3) regression, optional GP for exploration. |
+| FR‑004 | Task 6 – Bootstrap | 1 000 resamples → 95 % CI (bootstrap resample = 1 000 – verified fact). |
+| FR‑005 | Task 6 – Multiple‑Comparison | Bonferroni correction always uses the full family size **m = 20** (raw p × 20), regardless of retained PCs (SC‑003). |
+| FR‑006 | Task 3 – Graph Handling | Path metrics computed on LCC; `is_connected` flag set. |
+| FR‑007 | Task 7 – Output Generation | Structured JSON + scatter plots per `analysis.schema.yaml`. |
+| FR‑008 | Task 2 – Threshold Determination | Fixed 2.5 nm baseline or statistical‑override mode using lattice constants. |
+| FR‑009 | Task 6 – Sensitivity Analysis | Runs at **1.0×, 1.5×, 2.0×, 2.5×** baseline; SD ≤ 0.05 required (SC‑005). |
+| FR‑010 | Task 3 – Zero‑Defect Handling | Assigns null metrics, flags `zero_defects`, logs warning. |
+| FR‑011 | Task 4 – Correlation Filtering | Excludes samples with missing conductivity, logs count of exclusions. |
+| FR‑012 | Task 3 – Fully‑Connected Detection | Computes true average path length = 1.0, flags `fully_connected`. |
+| FR‑013 | Task 6 – Partial Correlation | Controls for defect density **and material_type** via residual‑on‑residual method; reports raw & adjusted coefficients. |
+| FR‑014 | Task 6 – Power Analysis | Calculates power for r ≥ 0.3, α = 0.05; frames results as exploratory when power < 0.8. |
+| SC‑001 | Task 6 – Hypothesis Testing | p < 0.05 vs. null after Bonferroni (m = 20). |
+| SC‑002 | Task 6 – Bootstrap CI Width | 95 % CI recorded; width used as stability metric. |
+| SC‑003 | Task 6 – Family‑wise Error Control | Adjusted p‑values equal raw × 20 (fixed family size). |
+| SC‑004 | Task 0 – Compute Feasibility | Benchmarks show ≤ 4 h runtime, RAM < 5 GB on free runner. |
+| SC‑005 | Task 6 – Sensitivity Stability | SD of primary correlation across four thresholds ≤ 0.05. |
+| SC‑006 | Task 3 – Percolation Verification | Bisection converges within 0.01 nm; LCC fraction crosses 0.5 at computed threshold. |
+| SC‑007 | Task 6 – Model Selection | 5‑fold CV MSE selects degree (1 ≤ deg ≤ 3) minimizing error. |
+| SC‑008 | Task 6 – Density‑Adjusted Correlation | Residual‑on‑residual method; adjusted p‑values reported. |
+| SC‑009 | Task 6 – Power Analysis Verification | Power computed for r ≥ 0.3, α = 0.05; recommendation issued if power < 0.8. |
 
 ## Detailed Pipeline Steps
 
-### 1. Data Ingestion (FR‑001, FR‑009)
+### 0. Compute Feasibility & Resource Planning
+- Run a benchmark on a fresh GitHub Actions runner with synthetic data (multiple samples × 10 k defects). Expected runtime ≈ a few h; peak RAM ≈ 4.5 GB.
 
-* Load CSV/Parquet from the target dataset (if available) using `pandas.read_csv` with `chunksize` for streaming.  
-* Verify required columns; rows with missing `x` or `y` are dropped and logged (FR‑001, scenario 2).  
-* Compute per‑sample **average nearest‑neighbor distance**; if `statistical_override` flag is true, set `threshold = multiplier * avg_nn_dist`; otherwise use the **physically grounded baseline** `threshold = 2.0 nm` (see justification below).  
-* Record dataset checksum (SHA‑256) in `state/`. If no real data is found, generate synthetic data via `code/data_ingestion/generate_synthetic.py` (seeded, versioned, checksummed).
+### 1. Data Ingestion & Checksum (FR‑001, FR‑008, III)
+1. Attempt programmatic download of any **open** paired dataset.  
+2. Verify SHA‑256 checksum; store in `state/`.  
+3. If no open dataset exists, invoke `generate_synthetic.py` (Task 5) and set `config.validation_mode = true`.  
+4. Drop rows with missing `x`/`y`, log warning with `row_number` and `sample_id`.
 
-### 2. Graph Construction (FR‑001, FR‑009, VI)
+### 2. Threshold Determination (FR‑008)
+- **Default baseline** `threshold = 2.5 nm` (physically motivated; see DOI 10.1103/PhysRevB.95.115420).  
+- If `statistical_override = true`, compute `threshold = multiplier × lattice_constant(material_type)` (lookup table: graphene 0.246 nm, MoS₂ 0.316 nm, default 0.250 nm).  
 
-* Edge creation uses Euclidean distance ≤ `threshold`.  
-* **Physical justification**: 2.0 nm is chosen as a baseline based on phonon MFP studies (DOI: 10.1103/PhysRevB.95.115420), but the threshold is treated as a hyperparameter for sensitivity analysis.  
-* Store material‑specific lattice constants from a lookup table; when `statistical_override` is active, the threshold is scaled accordingly (FR‑009, scenario 3).  
-* Output a `networkx.Graph` and immediately serialize to a JSON‑compatible dict that conforms to `graph.schema.yaml`. Validation via `jsonschema.validate()` ensures contract compliance.
+### 3. Graph Construction (FR‑001, VI)
+- Build a `networkx.Graph` using `scipy.spatial.cKDTree` for O(N log N) neighbor search.  
+- Edge added when Euclidean distance ≤ `threshold`.  
+- Serialize to JSON‑compatible dict validated against `graph.schema.yaml`.
 
-### 3. Topological Metric Calculation (FR‑002, FR‑006, FR‑010, percolation)
-
-* Compute:
-  * Global clustering coefficient (density‑normalized: `C_norm = C / ρ`, where `ρ = N / A`).  
-  * Average path length on the **Largest Connected Component (LCC)**; if the graph is disconnected, report `average_path_length = NaN` and flag `is_connected = false`.  
-  * **Percolation threshold**: estimate the critical distance `d_c` at which the The LCC fraction exceeds a substantial threshold. using a binary search over distance scaling (adds a physically meaningful metric required by Constitution VI).  
-  * LCC fraction, degree distribution, and **size of LCC**.  
-* **Background lattice correction**: total thermal resistance is modeled as  
-  \[
-  \frac{1}{R_{\text{total}}} = \frac{1}{R_{\text{defect}}( \text{metrics})} + \frac{1}{R_{\text{lattice}}}
-  \]  
-  where `R_lattice` is a constant derived from pristine graphene literature (DOI: 10.1103/PhysRevB.93.045417). This correction is applied before correlation with conductivity to account for transport through the pristine lattice.  
-* All metric dicts are validated against `graph.schema.yaml`.
-
-### 4. Statistical Analysis (FR‑003, FR‑004, FR‑005, FR‑010)
-
-* **Confounder adjustment**:  
-  * Compute **partial correlations** controlling for defect density, material purity (categorical), and temperature (if present).  
-  * Fit **ANCOVA** models with the same covariates to test metric effects on conductivity.  
-* **Collinearity handling**: perform **PCA** on the set of (clustering, path length, LCC fraction, percolation threshold, degree‑distribution descriptors). Retain components explaining ≥ 95 % variance (typically 2–3 PCs). Hypothesis tests are performed on these PCs, reducing the multiple‑testing burden.  
-* **Correlation tests**: Pearson & Spearman on each retained component; also linear and polynomial regression (degree 2) plus a Gaussian Process regressor for non‑linear trends.  
-* **Bootstrap**: 1 000 resamples of the sample set; compute 95 % confidence intervals for every coefficient.  
-* **Multiple‑comparison correction**: Bonferroni applied to the reduced set of PCs; if > 5 PCs are retained, switch to Benjamini‑Hochberg FDR to preserve power.  
-* **Sensitivity analysis**: repeat the full statistical pipeline for thresholds `1.5×`, `2.0×`, `2.5×` the baseline 2.0 nm and record the standard deviation of the primary correlation coefficient (target ≤ 0.05 per SC‑005).  
-* **Synthetic Data Limitation**: If synthetic data is used, skip all hypothesis testing steps and log a warning that no scientific conclusions are drawn.  
-* Results are stored as `AnalysisResult` JSON objects and validated against `analysis.schema.yaml`.
+### 4. Topological Metric Extraction (FR‑002, FR‑006, FR‑010, FR‑012, VI)
+- Compute: global clustering coefficient, **density‑normalized clustering** (`C/ρ`), average path length on the LCC (NaN if disconnected), LCC fraction, percolation threshold (binary search over [0.5 nm, 10 nm] tolerance 0.01 nm), degree‑distribution histogram.  
+- Flag metadata: `disconnected`, `zero_defects`, `fully_connected` as appropriate.
 
 ### 5. Synthetic Data Fallback (Methodological Safeguard)
+- `generate_synthetic.py` creates a CSV matching the `DefectSample` schema, seeded (`--seed 42`).  
+- When `validation_mode = true`, steps 6‑8 (statistical analysis) are **skipped**; a log entry notes “validation‑only mode – no scientific conclusions”.  
 
-* `code/data_ingestion/generate_synthetic.py` is version‑controlled (git SHA) and invoked with `--seed 42`.  
-* The generated CSV is checksummed; checksum recorded in `state/`.  
-* Synthetic data is **only** used to verify that ingestion, graph building, and metric calculation run without error. All hypothesis‑testing steps are **skipped** when synthetic data is active, and a clear log entry notes that no scientific conclusions are drawn.
+### 6. Statistical Analysis (FR‑003, FR‑004, FR‑005, FR‑011, FR‑013, FR‑014, VII)
 
-### 6. Compute Feasibility
+1. **Power Analysis & Exploratory Framing** – Detecting a moderate correlation (r ≈ 0.3) with α = 0.05, power = 0.8 requires **≈ 84 samples**. With ≤ 50 samples, power ≈ 0.5; therefore the study is **exploratory**. We report effect sizes, 95 % bootstrap confidence intervals, and optionally permutation‑test p‑values rather than claiming definitive significance.
 
-* **CPU‑first**: KD‑tree neighbor search (`scipy.spatial.cKDTree`) reduces graph construction to O(N log N).  
-* **Memory**: Streaming ingestion and on‑the‑fly metric computation keep peak RAM < 5 GB.  
-* **Time**: Benchmarks on the free runner estimate ≤ 4 h for 50 samples (including 1 000 bootstrap iterations).  
+2. **Missing Conductivity** – Exclude rows where `thermal_conductivity` is null; log exclusion count (FR‑011).  
+
+3. **Confounder Adjustment** – Partial correlation controls for **defect density** **and material_type** (treated as a dummy variable). ANCOVA models also include these covariates.  
+
+4. **Collinearity Mitigation** – Perform PCA on the full metric set; retain components explaining ≥ 95 % variance (typically 2–3 PCs).  
+
+5. **Correlation & Regression** –  
+   - Pearson & Spearman on each retained PC.  
+   - Linear, quadratic, and Gaussian Process regressors (CPU‑friendly) fitted.  
+
+6. **Bootstrap** – 1 000 resamples (bootstrap resample = 1 000 – verified fact) → 95 % CI for each coefficient.  
+
+7. **Multiple‑Comparison** – **Bonferroni** correction always uses the full family size **m = 20** (raw p × 20), regardless of the number of retained PCs (SC‑003).  
+
+8. **Partial Correlation** – Residual‑on‑residual method controlling for defect density **and material_type**; report raw and adjusted coefficients (FR‑013).  
+
+9. **Sensitivity Analysis (FR‑009, SC‑005)** – Re‑run the *entire* pipeline for four thresholds:  
+   - **Baseline (1.0×)**: 2.5 nm  
+   - **1.5×**: 3.75 nm  
+   - **2.0×**: 5.0 nm  
+   - **2.5×**: 6.25 nm  
+   Compute the standard deviation of the primary correlation coefficient across these runs; must be ≤ 0.05 to satisfy SC‑005.  
+
+### 7. Output Generation (FR‑007)
+- Write `results/analysis_results.json` conforming to `analysis.schema.yaml`.  
+- Save scatter plots `results/plots/metric_vs_conductivity_<metric>.png` with regression lines.  
+- Log all steps to `logs/pipeline.log`.
+
+### 8. Logging & Provenance
+- Structured logs include timestamps, artifact hashes, and any flags.  
+- All artifacts’ SHA‑256 stored in `state/` for reproducibility (Principles I & III).
 
 ## Decision / Rationale Summary
-
 | Decision | Rationale |
 |---|---|
-| **CPU‑first** | All steps are classical algorithms; no GPU needed. |
-| **Physical threshold (2 nm)** | Directly derived from peer‑reviewed phonon MFP study (DOI: 10.1103/PhysRevB.95.115420), but treated as a baseline for sensitivity analysis. |
-| **Confounder control** | Partial correlation & ANCOVA prevent spurious associations from defect density, purity, temperature. |
-| **Dimensionality reduction** | PCA eliminates collinearity, preserving statistical power while satisfying SC‑003. |
-| **Synthetic fallback** | Guarantees pipeline runs even if real data is temporarily unavailable, without fabricating scientific results; script versioned and checksummed. |
-| **Background lattice model** | Series‑parallel resistance formula ensures path‑length metric reflects realistic heat transport. |
-| **Percolation threshold** | Added to satisfy Constitution VI and enrich the topology‑property link. |
-| **Density normalization** | Metrics are normalized by defect density to decouple topology from simple density effects. |
+| **CPU‑first implementation** | All algorithms have faithful CPU versions; no GPU needed. |
+| **Baseline 2.5 nm threshold** | Aligns with FR‑008 and phonon mean‑free‑path literature (DOI 10.1103/PhysRevB.95.115420). |
+| **Synthetic fallback** | Guarantees end‑to‑end execution without manual steps; avoids fabricating data. |
+| **Partial correlation & ANCOVA with material type** | Controls for known confounder (material) and defect density, reducing bias. |
+| **PCA before testing** | Removes collinearity, satisfies SC‑003 while still using full m = 20 for Bonferroni. |
+| **Bootstrap n=1000** | Matches verified fact; provides robust confidence intervals. |
+| **Sensitivity multipliers `[1.0, 1.5, 2.0, 2.5]`** | Exactly fulfills SC‑005’s requirement. |
+| **Percolation threshold metric** | Required by Constitution VI; adds a physically meaningful descriptor. |
+| **Density‑normalized clustering** | Captures topology beyond simple density effects; included in the schema. |
+| **Power analysis inclusion** | Documents the sample‑size limitation and frames conclusions as exploratory. |
+| **Exploratory framing for low power** | Avoids over‑interpretation given limited N; reports effect sizes and optional permutation tests. |
+
+---
+
+

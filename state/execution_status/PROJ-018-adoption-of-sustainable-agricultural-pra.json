@@ -1,21 +1,20 @@
 {
   "project_id": "PROJ-018-adoption-of-sustainable-agricultural-pra",
   "ok": false,
-  "reason": "20 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\" Synthetic Data Generator (T005)  This s\u2026\u201d; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\"     Produce a single synthetic respondent record.      The field names ar\u2026\u201d; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\"     Build a full synthetic dataset with ``n`` respondents.\u2026\u201d; 6 command(s) failed: python code/01_download_data.py --synthetic (rc=1); python code/02_clean_data.py (rc=1); python code/03_engineer_features.py (rc=1)",
+  "reason": "19 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\"Synthetic data generator for the agricu\u2026\u201d; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"description\": \"Synthetic fallback dataset for agricultural survey\"\u2026\u201d; code/00_generate_synthetic_data.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026er(         description=\"Generate synthetic agricultural survey data\u2026\u201d; 5 command(s) failed: python code/01_download_data.py --synthetic (rc=1); python code/03_engineer_features.py (rc=1); python code/04_model_analysis.py (rc=1); 1 declared deliverable(s) absent: data/processed/cleaned_data.csv",
   "artifacts": [],
   "failures": [
-    "python code/01_download_data.py --synthetic -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/01_download_data.py\", line 21, in <module>\n    @log_operation(\"download_real_data\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
-    "python code/02_clean_data.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py\", line 30, in <module>\n    @log_operation(\"load_config\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
-    "python code/03_engineer_features.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py\", line 28, in <module>\n    @log_operation(\"load_cleaned_data\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
-    "python code/04_model_analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py\", line 27, in <module>\n    from .config import (\nImportError: attempted relative import with no known parent package",
-    "python code/05_generate_report.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/05_generate_report.py\", line 38, in <module>\n    @log_operation(\"load_cleaned_data\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
-    "python code/02_clean_data.py --input data/raw/survey_data.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/02_clean_data.py\", line 30, in <module>\n    @log_operation(\"load_config\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable"
+    "python code/01_download_data.py --synthetic -> rc=1\n    File \"/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/01_download_data.py\", line 56\n    Very small synthetic generator \u2013 only used when real data cannot be fetched.\n                                   ^\nSyntaxError: invalid character '\u2013' (U+2013)",
+    "python code/03_engineer_features.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/03_engineer_features.py\", line 36, in <module>\n    @log_operation(\"load_cleaned_data\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
+    "python code/04_model_analysis.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/04_model_analysis.py\", line 22, in <module>\n    from evalues import evalue\nModuleNotFoundError: No module named 'evalues'",
+    "python code/05_generate_report.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-018-adoption-of-sustainable-agricultural-pra/code/05_generate_report.py\", line 37, in <module>\n    @log_operation(\"load_cleaned_data\")\n     ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nTypeError: 'LogEntry' object is not callable",
+    "python code/02_clean_data.py --input data/raw/survey_data.csv -> rc=2\n    usage: 02_clean_data.py [-h] [--synthetic]\n02_clean_data.py: error: unrecognized arguments: --input data/raw/survey_data.csv"
   ],
-  "fix_rounds": 3,
+  "fix_rounds": 4,
   "model_tier": 1,
-  "updated_at": "2026-07-14T18:08:26Z",
-  "total_attempts": 14,
+  "total_attempts": 15,
   "replan_rounds": 0,
   "failure_class": "fabrication",
-  "evidence": []
+  "evidence": [],
+  "updated_at": "2026-10-05T06:51:16Z"
 }

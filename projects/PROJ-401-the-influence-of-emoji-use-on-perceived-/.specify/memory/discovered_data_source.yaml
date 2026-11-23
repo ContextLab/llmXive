@@ -1,0 +1,12 @@
+status: none
+intent: OpenML SMS Spam Collection CMU Arctic CMU Text Message Corpus emoji intensity
+  dataset python package dataset
+required_fields:
+- text
+- emoji_presence
+- emoji_count
+- emoji_unicode_category
+- intensity_score
+cache_key: ef6e25e4e1aea547b323b4b7c0b137e41bd589759dbceee69706a2604ff3ec6a
+searched_at: '2026-08-18T08:55:55.826921+00:00'
+retry_count: 1

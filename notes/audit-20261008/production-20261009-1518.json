@@ -1,0 +1,18 @@
+{
+  "observed_at": "2026-10-09T15:17:44.834253+00:00",
+  "source_commit": "c36adea5eaad766e918a48503f6fad282b94d47c",
+  "projects": 1095,
+  "stages": {
+    "analyzed": 14,
+    "clarified": 91,
+    "flesh_out_complete": 65,
+    "flesh_out_in_progress": 19,
+    "in_progress": 455,
+    "planned": 102,
+    "project_initialized": 6,
+    "reviewed_preprint": 227,
+    "specified": 59,
+    "tasked": 50,
+    "validated": 7
+  }
+}

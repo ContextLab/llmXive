@@ -1,6 +1,12 @@
 status: none
-intent: download UCI Machine Learning Repository OpenML Small Datasets HAR Shopper
-  text classification python package dataset
+intent: download UCI Wine Quality OpenML Malawi booklets HW4_CLASSIFICATION_mnar python
+  package dataset
 required_fields:
-- text
-- label
+- feature_columns
+- target_column
+- missingness_type
+- dataset_size
+- source_url
+cache_key: 4a2d5efaf5fb9771010b2736d14ce06c3c146f02de03fc56d0b4441f29f0c13f
+searched_at: '2026-11-04T12:25:08.410611+00:00'
+retry_count: 1

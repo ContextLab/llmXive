@@ -1,42 +1,38 @@
-# Contributing Guidelines
+# Contributing
+
+## How to Contribute
+
+1. **Fork the Repository**: Create your own fork.
+2. **Create a Branch**: `git checkout -b feature/your-feature`.
+3. **Make Changes**: Implement your feature or fix.
+4. **Write Tests**: Ensure your changes are covered by tests.
+5. **Run Tests**: `pytest tests/` to verify everything passes.
+6. **Submit a Pull Request**: Describe your changes clearly.
 
 ## Code Style
 
-- **Formatting**: The project uses `black` for Python formatting. Run `black code/` before committing.
-- **Linting**: `flake8` is configured in `code/.flake8`. Ensure no linting errors.
-- **Type Hints**: Use type hints for all function arguments and return values.
-
-## Testing
-
-- **Unit Tests**: Place in `tests/unit/`. Tests should be isolated and fast.
-- **Integration Tests**: Place in `tests/integration/`. Tests should verify end-to-end flows.
-- **Red-Green-Refactor**: Write tests that fail initially, then implement the code to pass them.
-
-## Adding New Kernels
-
-1. Implement the C++ kernel in `code/kernels/<kernel_name>.cpp`.
-2. Ensure the kernel accepts input tensors via command-line arguments or stdin.
-3. Register the kernel in `code/benchmarks/compile_runner.py`.
-4. Add corresponding analysis logic in `code/analysis/stability_check.py`.
-
-## Adding New Optimization Flags
-
-1. Update the flag list in `code/benchmarks/config.py`.
-2. Ensure the flag is compatible with the C++ standard (C++17).
-3. Update documentation in `docs/CONFIGURATION.md`.
-
-## Reporting Issues
-
-When reporting issues, include:
-- Compiler version (`g++ --version`)
-- Python version
-- Full error traceback
-- Configuration used (flags, dimensions)
+- **Python**: Follow PEP 8, use Black for formatting.
+- **C++**: Follow C++17 standards, use consistent indentation.
+- **Documentation**: Update relevant docs for any new features.
 
 ## Commit Messages
 
-Use the following format:
-`[TASK-ID] [TYPE] Short description`
+Use clear, descriptive commit messages:
+- `feat: add new compiler flag support`
+- `fix: resolve memory pressure issue`
+- `docs: update configuration guide`
 
-Example:
-`[T035] [DOCS] Update architecture documentation`
+## Reporting Issues
+
+- **Bug Reports**: Include steps to reproduce, expected vs actual behavior.
+- **Feature Requests**: Describe the use case and benefit.
+
+## Code Review
+
+- All contributions require review.
+- Address feedback promptly.
+- Keep changes focused and modular.
+
+## License
+
+By contributing, you agree that your contributions will be licensed under the project's license.

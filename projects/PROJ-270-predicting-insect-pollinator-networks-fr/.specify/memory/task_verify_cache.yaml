@@ -1,0 +1,126 @@
+T001a:
+  c: true
+  h: 8c354f84713dc4813ddbffbcc9087088e326bc61d9aa0d374f1a3b0e376d273b
+  r: The required directories (`code/`, `code/utils/`, `code/contracts/`, `data/raw/`,
+    `data/processed/`, `tests/`, `docs/`, `results/`) are present in the repository,
+    and `tests/test_setup.py` contains the `test_directory_structure` that asserts
+    their existence. The execution log `code/.tasks/T001a.code_setup_dirs.py.log`
+    shows the setup script successfully verified the same directory structure.
+T001b:
+  c: false
+  h: df4b4c635516b7cb6877ecac56de31b89838c103f8321b98684203cf96fc97c4
+  r: The three required `__init__.py` files are present in `code/`, `tests/`, and
+    `code/utils/`, but there is no evidence showing that they are empty as the task
+    demands. Content of these files must be inspected and confirmed to contain no
+    code or statements.
+T002:
+  c: true
+  h: 7420fca2ff69d0b65ad73deac24dfd392b2a401df42a8c493baa51ce8e9d7558
+  r: The file `code/requirements.txt` exists (210 bytes) and contains all eight required
+    dependencies (scikit-learn, pandas, numpy, networkx, requests, tqdm, pyyaml, datasets),
+    plus two extra auto-added packages (jinja2, jsonschema, matplotlib) which don't
+    conflict with the requirement.
+T003:
+  c: true
+  h: 4f4b036de30770c0aed6ec9fc2ff53b1350c5a60fb2fa41165ba20324364837b
+  r: "All three config files exist at `code/.ruff.toml`, `code/.black.toml`, and `code/.mypy.ini`\
+    \ with non-empty, valid standard configurations (ruff lint/format rules, black\
+    \ line-length/target-version, mypy strictness options). The version-verification\
+    \ step (`ruff --version`, etc.) has no execution evidence shown, but the substantive\
+    \ deliverables \u2014 the config files \u2014 are present and correct."
+T004:
+  c: true
+  h: 190359b228c9f60969f893b97db0c22e33b95091108d40401a20802bf55c6d6c
+  r: "Checked `code/utils/io_utils.py`, which defines checksum computation/verification\
+    \ functions and an `ensure_directory_structure` routine that creates the required\
+    \ `data/raw/` and `data/processed/` folders (both present). The module is fully\
+    \ implemented and non\u2011empty, satisfying the task\u2019s specifications."
+T005:
+  c: true
+  h: a278ca039b942004d61e739a1b438a5aff2cc89c916ad63c83458a7770b7301b
+  r: 'The artifact `code/utils/citation_validator.py` exists (6492 bytes) and contains
+    a full, non-stub implementation of the reference validation wrapper: `validate_citations`
+    invoking the Reference-Validator Agent via subprocess with strict/non-strict modes,
+    `validate_directory` for batch validation, and `run_pre_commit_hook` for staged-file
+    checking with proper exit codes and error handling. The code matches the task''s
+    stated requirement for a programmatic wrapper around the pre-commit hook.'
+T006:
+  c: true
+  h: e781c38ec9e6a8d9e473e0c50d81bb6f9005e04780e5bb10b3a826ef59328dff
+  r: "Checked `code/config.py`, which defines `load_env_vars()` to capture environment\
+    \ variables and `set_global_seed()` to set seeds for `random` and `numpy`, plus\
+    \ a `Config` class exposing these settings. The file is present, non\u2011empty,\
+    \ and implements the required base configuration management."
+T007:
+  c: true
+  h: 35c32572a12fcc67a5c7dffab48c2535d98c27c32814cf98685472841d8636bf
+  r: "Checked `code/utils/logger.py`, which defines `LogEntry` with a `to_json` method\
+    \ for JSON serialization, a tolerant `ReproducibleLogger`, and helper functions\
+    \ (`get_logger`, `log_operation`, `setup_logging`) that together provide a structured\
+    \ JSON\u2011capable logging infrastructure as required."
+T008:
+  c: true
+  h: a6df628c473f6e1c0b1e730e51630e5ab6141abfcc71e9fc7496fd76018a4ca8
+  r: "Checked the two required schema files: `code/contracts/dataset.schema.yaml`\
+    \ (934\u202Fbytes) defines columns, constraints, and metadata; `code/contracts/output.schema.yaml`\
+    \ (403\u202Fbytes) lists required fields and field types. Both files exist, are\
+    \ non\u2011empty, and contain concrete schema and validation specifications."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log output was provided that implements the required validation\
+    \ of the ecosystem count from T012, nor a warning when the count is below 8. Without\
+    \ an artifact demonstrating this logic, the task\u2019s requirement is not satisfied."
+T022:
+  c: false
+  h: 378eb4dc0c987c6f80ac71c10b4e3b17ce8219f79862423fd4666943d5d8b5b5
+  r: The repository contains the `code/contracts/dataset.schema.yaml` file, but there
+    is no accompanying validation code (e.g., a script or function that loads an output
+    dataset and checks it against this schema). The claimed addition of validation
+    logic is not present, and the missing `schema.yaml` further indicates incomplete
+    work. The next implementer must add the actual validation implementation and ensure
+    it is invoked where appropriate.
+T031:
+  c: false
+  h: 1b53d06ea3ac3e1c6dcdc5a25d68367ccd173158682785ce43684c15d7df810b
+  r: "The repository contains a partially shown `code/model_training.py` that does\
+    \ not include any code to serialize and save a trained model, and the expected\
+    \ output file `data/processed/model.pkl` is absent. Without model\u2011saving\
+    \ logic and the resulting pickle file, the task requirement is not met."
+T040:
+  c: false
+  h: 32a9e0e2ed59d8e3879d615d582e7ac8efa7166cd386b69af584291e8fe24fd6
+  r: "The provided `code/validation.py` does not contain an implementation of `run_permutation_test()`\
+    \ (the file is truncated before any such function appears). Additionally, the\
+    \ required `results/report.md` file is missing entirely, so the condition about\
+    \ logging \u201Capproximate\u201D cannot be verified. Both required artifacts\
+    \ are absent, so the task is not satisfied."
+T041a:
+  c: false
+  h: 1b8ca9e9180768fc6e0bd59b4a256abe998952691cf6799e2b4fa88619c150b9
+  r: The repository does not contain the required `plot_network_discrepancies()` function
+    in `code/visualization.py` (the shown excerpt ends before any such implementation)
+    and the expected plot file `results/plots/observed_vs_predicted.png` is absent.
+    Both the code artifact and the output file are missing, so the task is not satisfied.
+T042a:
+  c: false
+  h: 6737c1de234bee3c15543261ccdb2c6aa18abffe8f9d48b0b1edc466d02987d5
+  r: "The repository contains a partially\u2011shown implementation of `plot_pr_curves()`\
+    \ in `code/visualization.py`, but the file ends abruptly (truncated) and there\
+    \ is no `results/plots/pr_curve.png` on disk. Since the required output file does\
+    \ not exist, the task\u2019s acceptance criterion is not met."
+T042b:
+  c: false
+  h: 43fd0631429bb5cc0e6b6772db9bc6846ca8bc50dc4351ab72c27522307518e4
+  r: The provided `visualization.py` excerpt shows only `load_predictions` and `plot_pr_curves`;
+    there is no `plot_roc_curves()` implementation visible, and the required output
+    file `results/plots/roc_curve.png` is absent. Both the function and the expected
+    plot file are missing, so the task is not satisfied.
+T045b:
+  c: false
+  h: 4cbad799f9c0660600d7abff7e6c82721b8c9a073e2c140357c1a49d248337bf
+  r: "The `code/reporting.py` file ends abruptly (e.g., `raise V`) and does not contain\
+    \ a complete implementation of `compile_report_content()`. Moreover, the required\
+    \ output file `results/report.md` is missing entirely, so the function cannot\
+    \ have written the expected markdown or asserted the presence of \u201CTrait Gap:\
+    \ X\u201D. The task is therefore not satisfied."

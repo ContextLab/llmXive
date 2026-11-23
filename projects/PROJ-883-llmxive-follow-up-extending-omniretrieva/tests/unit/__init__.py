@@ -1,1 +1,1 @@
-# Unit tests package
+# Ensure pytest discovers the unit tests package.

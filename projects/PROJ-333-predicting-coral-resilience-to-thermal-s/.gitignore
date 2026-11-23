@@ -1,0 +1,29 @@
+# Byte-compiled / optimized files
+__pycache__/
+*.pyc
+*.py[cod]
+*$py.class
+
+# Raw sequencing data (large, re-downloadable from NCBI SRA)
+data/raw/*.fastq.gz
+data/raw/PRJNA321023/*.fastq.gz
+
+# Processed R binary objects (large, regenerable)
+data/processed/*.rds
+
+# Environments and caches
+venv/
+.venv/
+env/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/

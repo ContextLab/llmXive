@@ -626,3 +626,1426 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-04T01:25:00Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: deduplication logic and source retention
+  claim_id: c_b388585d
+  context: T010 [P] [US1] Write unit test for utils/dedup.py in tests/unit/test_dedup.py
+    (verify deduplication logic and source retention).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Deduplication_logic_and_source_retention
+  kind: entity_fact
+  raw_text: verify deduplication logic and source retention
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:59:13Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: enforce 10000 compositions limit
+  claim_id: c_5064b89c
+  context: "T015 [US1] Implement dataset capping logic in utils/io.py to enforce \u2264\
+    10,000 compositions limit per FR-007 using stratified random sampling by alloy\
+    \ system."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "enforce \u226410,000 compositions limit"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:59:14Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: ensure 95% descriptor completeness
+  claim_id: c_c7747675
+  context: "T017 [US1] Add validation checks to ensure \u226595% descriptor completeness\
+    \ and drop compositions with missing elemental properties"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "ensure \u226595% descriptor completeness"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T18:59:14Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: "Atomic Size Mismatch (\u03B4) is an atomic descriptor"
+  claim_id: c_591db315
+  context: "Create `features/descriptors.py` to compute a set of atomic descriptors:\
+    \ Atomic Radius, Electronegativity, Valence Electron Concentration, Atomic Size\
+    \ Mismatch (\u03B4)..."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Atomic_Size_Mismatch_(%CE%B4)_is_an_atomic_descriptor
+  kind: entity_fact
+  raw_text: "Atomic Size Mismatch (\u03B4) is a computed atomic descriptor."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:05:08Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: "Mixing Enthalpy (\u0394Hmix) is an atomic descriptor"
+  claim_id: c_26b3fc3e
+  context: "...Atomic Size Mismatch (\u03B4), Mixing Enthalpy (\u0394Hmix), Atomic\
+    \ Size Difference..."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mixing_Enthalpy_(%CE%94Hmix)_is_an_atomic_descriptor
+  kind: entity_fact
+  raw_text: "Mixing Enthalpy (\u0394Hmix) is a computed atomic descriptor."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:05:34Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Miedema's Heat of Formation is an atomic descriptor
+  claim_id: c_7035f12e
+  context: '...Valence Electron Size Mismatch, Electron-Atom Ratio, Miedema''s Heat
+    of Formation, and Atomic Packing Factor.'
+  evidence:
+    entailment_evidence: Miedema's Heat of Formation is an atomic descriptor
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Miedema's_Heat_of_Formation_is_an_atomic_descriptor
+  kind: entity_fact
+  raw_text: Miedema's Heat of Formation is a computed atomic descriptor.
+  resolved_value: Miedema's Heat of Formation is an atomic descriptor
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-27T19:05:35Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Atomic Packing Factor is an atomic descriptor
+  claim_id: c_ac53a9e2
+  context: '...Miedema''s Heat of Formation, and Atomic Packing Factor.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Atomic_Packing_Factor_is_an_atomic_descriptor
+  kind: entity_fact
+  raw_text: Atomic Packing Factor is a computed atomic descriptor.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-27T19:05:57Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: speckit-tasks command replaces sample tasks based on spec, plan, data-model,
+    and contracts
+  claim_id: c_224946cc
+  context: 'IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes
+    only. The /speckit-tasks command MUST replace these with actual tasks...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Speckit-tasks_command_replaces_sample_tasks_based_on_spec,_p
+  kind: entity_fact
+  raw_text: 'The /speckit-tasks command MUST replace these with actual tasks based
+    on: User stories from spec.md (with their priorities P1, P2, P3...), Feature requirements
+    from plan.md, Entities from data-model.md, Endpoints from contracts/'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T07:12:20Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: deduplication of compositions by unique chemical formula using normalized
+    atomic fractions
+  claim_id: c_60fd6324
+  context: Implement `utils/dedup.py` for deduplicating compositions by unique chemical
+    formula (normalized atomic fractions), {{claim:c_6a2d6a3c}} (Wikidata Q19881044,
+    https://www.wikidata.org/wiki/Q19881044)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Deduplication_of_compositions_by_unique_chemical_formula_usi
+  kind: entity_fact
+  raw_text: deduplicating compositions by unique chemical formula (normalized atomic
+    fractions)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-30T07:21:12Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 2
+  canonical: Wikidata Q19881044
+  claim_id: c_a08f7f27
+  context: Implement utils/dedup.py for deduplicating compositions by unique chemical
+    formula (normalized atomic fractions), {{claim:c_6a2d6a3c}} (Wikidata Q19881044,
+    https://www.wikidata.org/wiki/Q19881044)
+  evidence:
+    entailment_evidence: 'Look for Wikidata Q19881044 on one of Wikipedia''s sister
+      projects : ... Wikidata (linked database)'
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q19881044
+  kind: entity_fact
+  raw_text: Wikidata Q19881044
+  resolved_value: Wikidata Q19881044
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T09:31:59Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 2
+  canonical: output dataset contains 1000 alloy compositions with 10 computed descriptors
+  claim_id: c_48c7a230
+  context: "Independent Test: Verify output dataset contains \u22651000 alloy compositions\
+    \ with \u226510 computed descriptors, and descriptor values fall within physically\
+    \ reasonable ranges"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify output dataset contains \u22651000 alloy compositions with \u2265\
+    10 computed descriptors"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T09:38:13Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: atomic size mismatch falls within non-negative range
+  claim_id: c_f4dd2c78
+  context: "descriptor values fall within physically reasonable ranges (e.g., atomic\
+    \ size mismatch \u2208 [non-negative, ])"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Atomic_size_mismatch_falls_within_non-negative_range
+  kind: entity_fact
+  raw_text: "atomic size mismatch \u2208 [non-negative, )"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T09:38:59Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: dataset capped at 10000 compositions
+  claim_id: c_4103d627
+  context: "Implement dataset capping logic in utils/io.py to enforce \u226410,000\
+    \ compositions limit per FR-007 using stratified random sampling by alloy system"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "enforce \u226410,000 compositions limit"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T09:38:59Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: validation ensures 95 percent descriptor completeness
+  claim_id: c_a40b72e9
+  context: "Add validation checks to ensure \u226595% descriptor completeness and\
+    \ drop compositions with missing elemental properties"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "add validation checks to ensure \u226595% descriptor completeness"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T09:38:59Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: 80/20 stratified train/test split logic applied
+  claim_id: c_1ca567d0
+  context: Apply /20 stratified train/test split logic in models/train.py (stratify
+    by alloy system) to satisfy FR-003
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: apply /20 stratified train/test split logic
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T09:39:36Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: SHAP plots generated for top-ranked descriptors
+  claim_id: c_1e1ab77d
+  context: 'Independent Test: Verify SHAP plots are generated for the top-ranked descriptors
+    and permutation importance scores are non-negative and sum to unity'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SHAP_plots_generated_for_top-ranked_descriptors
+  kind: entity_fact
+  raw_text: verify SHAP plots are generated for the top-ranked descriptors
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T09:40:21Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: permutation importance scores non-negative and sum to unity
+  claim_id: c_8bd65f87
+  context: 'Independent Test: Verify SHAP plots are generated for the top-ranked descriptors
+    and permutation importance scores are non-negative and sum to unity'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_importance_scores_non-negative_and_sum_to_unity
+  kind: entity_fact
+  raw_text: permutation importance scores are non-negative and sum to unity
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T09:41:01Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: 10 descriptors computed and verified
+  claim_id: c_f042a138
+  context: 'Critical Constraint: All 10 descriptors must be computed and verified
+    (T012, T009)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All 10 descriptors must be computed and verified
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T09:41:50Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: examples include test tasks
+  claim_id: c_0ffdfd80
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Examples_include_test_tasks
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:45:36Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: fetch data from Zenodo DOI 10.1126/sciadv.aaq1566
+  claim_id: c_9478a918
+  context: 'Implement data ingestion script scripts/ingest.py to fetch from Zenodo
+    DOI 10.1126/sciadv.aaq1566 (file: alloy_data.csv) and Materials Project API (v3,
+    API Key via env, fields: composition, phase, elemental properties).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: fetch from Zenodo DOI 10.1126/sciadv.aaq1566
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:45:40Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: use Materials Project API version 3
+  claim_id: c_9a46e194
+  context: 'Implement data ingestion script scripts/ingest.py to fetch from Zenodo
+    DOI 10.1126/sciadv.aaq1566 (file: alloy_data.csv) and Materials Project API (v3,
+    API Key via env, fields: composition, phase, elemental properties).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Materials Project API (v3)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:46:29Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: system calculates balanced accuracy, precision, recall, F1-score and
+    executes paired t-test to report p-values
+  claim_id: c_27e0c499
+  context: 'Independent Test: Verify system calculates balanced accuracy, precision,
+    recall, F1-score for all models, and executes paired t-test to report p-values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_calculates_balanced_accuracy,_precision,_recall,_F1-s
+  kind: entity_fact
+  raw_text: Verify system calculates balanced accuracy, precision, recall, F1-score
+    for all models, and executes paired t-test to report p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:47:31Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: implement paired t-test using scipy.stats.ttest_rel to compare RF/XGBoost
+    vs. baseline reporting p-values
+  claim_id: c_1d7f5d76
+  context: 'Implement paired t-test (using scipy.stats.ttest_rel) to compare RF/XGBoost
+    vs. baseline, reporting p-values. Input: Fold-level scores from T027 (or T024).
+    Output: Append p-values to data/results/model_performance_metrics.json.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Implement_paired_t-test_using_scipy.stats.ttest_rel_to_compa
+  kind: entity_fact
+  raw_text: Implement paired t-test (using scipy.stats.ttest_rel) to compare RF/XGBoost
+    vs. baseline, reporting p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:48:28Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: generate SHAP summary plot using matplotlib and seaborn saving to data/results/shap_summary.png
+  claim_id: c_19f46207
+  context: Generate SHAP summary plot for top descriptors using matplotlib/seaborn
+    and save to data/results/shap_summary.png
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_SHAP_summary_plot_using_matplotlib_and_seaborn_savi
+  kind: entity_fact
+  raw_text: Generate SHAP summary plot for top descriptors using matplotlib/seaborn
+    and save to data/results/shap_summary.png
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:49:07Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: verify SHAP plots generated for top-ranked descriptors and permutation
+    importance scores are non-negative and sum to unity
+  claim_id: c_82fd9044
+  context: 'Independent Test: Verify SHAP plots are generated for the top-ranked descriptors
+    and permutation importance scores are non-negative and sum to unity.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_SHAP_plots_generated_for_top-ranked_descriptors_and_p
+  kind: entity_fact
+  raw_text: Verify SHAP plots are generated for the top-ranked descriptors and permutation
+    importance scores are non-negative and sum to unity.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T13:49:55Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: primary data source Zenodo DOI 10.1126/sciadv.aaq1566
+  claim_id: c_66528c4a
+  context: 'Implement data ingestion script scripts/ingest_zenodo.py to fetch from
+    Zenodo DOI 10.1126/sciadv.aaq1566 (file: alloy_data.csv).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: 'The primary data source is Zenodo DOI 10.1126/sciadv.aaq1566 (file: alloy_data.csv).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:14:19Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: dataset contains at least 1000 alloy compositions
+  claim_id: c_4f338376
+  context: "Independent Test: verify output dataset contains \u22651000 alloy compositions\
+    \ with \u226510 computed descriptors."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_at_least_1000_alloy_compositions
+  kind: magnitude
+  raw_text: The dataset must contain at least 1000 alloy compositions.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:14:43Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: dataset contains at least 10 computed descriptors
+  claim_id: c_c8c437c2
+  context: "Independent Test: verify output dataset contains \u22651000 alloy compositions\
+    \ with \u226510 computed descriptors."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_at_least_10_computed_descriptors
+  kind: magnitude
+  raw_text: The dataset must contain at least 10 computed descriptors.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:15:42Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: dataset capped at 10000 compositions
+  claim_id: c_65bc5592
+  context: "Implement dataset capping logic in scripts/ingest.py to enforce \u2264\
+    10,000 compositions limit per FR-007."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset must be capped at a limit of 10,000 compositions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:18:33Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: 95% of compositions have all required properties
+  claim_id: c_7e46a1b2
+  context: "Validate completeness: Ensure \u226595% of compositions have all required\
+    \ properties."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/95%25_of_compositions_have_all_required_properties
+  kind: magnitude
+  raw_text: At least 95% of compositions must have all required properties.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:19:14Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: 95% descriptor completeness required
+  claim_id: c_d119f8d0
+  context: "Validate completeness and drop final missing rows: Ensure \u226595% descriptor\
+    \ completeness and drop compositions with missing elemental properties."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/95%25_descriptor_completeness_required
+  kind: magnitude
+  raw_text: At least 95% descriptor completeness is required before dropping final
+    missing rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:20:00Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: simple split used if less than 50 samples per alloy system
+  claim_id: c_cbdd44dd
+  context: 'Stratification Logic: Use ''alloy_system'' column... Fallback: If <50
+    samples per system, use simple split.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simple_split_used_if_less_than_50_samples_per_alloy_system
+  kind: magnitude
+  raw_text: If fewer than 50 samples exist per alloy system, a simple split is used
+    instead of stratification.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:21:07Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: default train/test split ratio 80/20
+  claim_id: c_cc103760
+  context: Add logic to apply stratified train/test split in models/train.py... Default
+    split ratio 80/20 if not configured.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default train/test split ratio is 80/20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:21:42Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: default stability threshold 0.05 for balanced accuracy std dev
+  claim_id: c_08e0150a
+  context: Calculate cross-validation standard deviation of balanced accuracy, compare
+    against a predefined threshold (defined in utils/config.py, default 0.05).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default stability threshold for cross-validation standard deviation
+    of balanced accuracy is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:22:10Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: '5 mandatory descriptors: Atomic Radius, Electronegativity, Valence Electron
+    Concentration, Atomic Size Mismatch, Mixing Enthalpy'
+  claim_id: c_57256a07
+  context: "MANDATORY: Atomic Radius, Electronegativity, Valence Electron Concentration,\
+    \ Atomic Size Mismatch (\u03B4), Mixing Enthalpy (\u0394Hmix)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The dataset must contain 5 mandatory descriptors: Atomic Radius, Electronegativity,
+    Valence Electron Concentration, Atomic Size Mismatch, and Mixing Enthalpy.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:22:30Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Test tasks included in examples
+  claim_id: c_aa1836d8
+  context: 'Tests: The examples below include test tasks. Tests are OPTIONAL - only
+    include them if explicitly requested in the feature specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Test_tasks_included_in_examples
+  kind: entity_fact
+  raw_text: The examples below include test tasks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:28:03Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Tasks grouped by user story for independent implementation
+  claim_id: c_c6628f3b
+  context: 'Organization: Tasks are grouped by user story to enable independent implementation
+    and testing of each story.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_grouped_by_user_story_for_independent_implementation
+  kind: entity_fact
+  raw_text: Tasks are grouped by user story to enable independent implementation and
+    testing of each story.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:28:53Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Primary DOI source 10.1126/sciadv.aaq1566
+  claim_id: c_048e77d7
+  context: 'Implement data ingestion script scripts/ingest_zenodo.py to fetch from
+    Zenodo DOI 10.1126/sciadv.aaq1566 (file: alloy_data.csv).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: The primary DOI source is 10.1126/sciadv.aaq1566.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:28:54Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Materials Project API version v3
+  claim_id: c_d8cae225
+  context: 'Implement data ingestion script scripts/ingest_mp.py to fetch from Materials
+    Project API (v3, API Key via env, fields: composition, phase, elemental properties).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Materials_Project_API_version_v3
+  kind: entity_fact
+  raw_text: The Materials Project API version used is v3.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:29:22Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Default train/test split ratio 80/20
+  claim_id: c_890b9c16
+  context: 'Add logic to apply stratified train/test split in models/train.py (stratify
+    by alloy system) to satisfy FR-003. Logic: Default split ratio 80/20 if not configured.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default split ratio for train/test is 80/20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T17:29:22Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: atomic size mismatch constrained to non-negative range
+  claim_id: c_02c3d4bc
+  context: "Independent Test: verify output dataset contains \u22651000 alloy compositions\
+    \ with \u226510 computed descriptors, and descriptor values fall within physically\
+    \ reasonable ranges (e.g. The atomic size mismatch is constrained to a non-negative\
+    \ range., electronegativity difference \u2208 [non-negative, moderate])."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Atomic_size_mismatch_constrained_to_non-negative_range
+  kind: entity_fact
+  raw_text: The atomic size mismatch is constrained to a non-negative range.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:30:42Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: dataset must contain at least 1000 alloy compositions
+  claim_id: c_2b618730
+  context: "Independent Test: verify output dataset contains \u22651000 alloy compositions\
+    \ with \u226510 computed descriptors, and descriptor values fall within physically\
+    \ reasonable ranges."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_must_contain_at_least_1000_alloy_compositions
+  kind: magnitude
+  raw_text: "The dataset must contain \u22651000 alloy compositions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:31:07Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: dataset must contain at least 10 computed descriptors
+  claim_id: c_290a3f26
+  context: "Independent Test: verify output dataset contains \u22651000 alloy compositions\
+    \ with \u226510 computed descriptors, and descriptor values fall within physically\
+    \ reasonable ranges."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_must_contain_at_least_10_computed_descriptors
+  kind: magnitude
+  raw_text: "The dataset must contain \u226510 computed descriptors."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:31:35Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: primary data source is Science Advances
+  claim_id: c_b39f6263
+  context: Retain records from primary source (Science Advances) if duplicates exist
+    (FR-010).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_data_source_is_Science_Advances
+  kind: entity_fact
+  raw_text: The primary data source is Science Advances.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:32:12Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: primary data source is Zenodo DOI 10.1126/sciadv.aaq1566
+  claim_id: c_6c724558
+  context: 'Implement data ingestion script scripts/ingest_zenodo.py to fetch from
+    Zenodo DOI 10.1126/sciadv.aaq1566 (file: alloy_data.csv).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: The primary data source is Zenodo DOI 10.1126/sciadv.aaq1566.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:32:15Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: dataset capped at 10000 compositions
+  claim_id: c_d901da16
+  context: "Implement dataset capping logic in scripts/ingest.py to enforce \u2264\
+    10,000 compositions limit per FR-007 using stratified random sampling by alloy_system."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The dataset must be capped at \u226410,000 compositions."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:32:15Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: label completeness threshold is 98 percent
+  claim_id: c_2324d367
+  context: "Output: data/processed/label_completeness_report.json containing total_rows,\
+    \ valid_label_count, completeness_percentage, and threshold_met (boolean, true\
+    \ if \u226598%)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The label completeness threshold is \u226598%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:32:16Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: 95 percent of compositions must have all required properties
+  claim_id: c_41b8bd6b
+  context: "Validate completeness: Ensure \u226595% of compositions have all required\
+    \ properties. Required Properties: atomic_radius, electronegativity, vec, size_mismatch,\
+    \ electronegativity_diff, mixing_enthalpy."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/95_percent_of_compositions_must_have_all_required_properties
+  kind: magnitude
+  raw_text: At least 95% of compositions must have all required properties.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:32:52Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: dataset must contain at least 1000 compositions after filtering
+  claim_id: c_5620df3b
+  context: "Verify dataset size meets minimum threshold: Check that the dataset contains\
+    \ \u22651000 compositions after filtering and capping."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_must_contain_at_least_1000_compositions_after_filter
+  kind: magnitude
+  raw_text: "The dataset must contain \u22651000 compositions after filtering and\
+    \ capping."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:35:36Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: stratum with less than 50 samples uses simple random sampling
+  claim_id: c_cd8741e9
+  context: 'Fallback: If a stratum has <50 samples, log a warning and use simple random
+    sampling for that stratum.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stratum_with_less_than_50_samples_uses_simple_random_samplin
+  kind: magnitude
+  raw_text: If a stratum has <50 samples, simple random sampling is used for that
+    stratum.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:36:34Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: Nadeau and Bengio 2003 corrected t-test formula used
+  claim_id: c_9e699e99
+  context: 'Implement Nadeau & Bengio corrected t-test logic for multiple hypothesis
+    testing per plan.md summary in utils/stats.py. Reference: Nadeau & Bengio (2003),
+    Section 3.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Nadeau & Bengio (2003) corrected t-test formula is used for multiple
+    hypothesis testing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:36:53Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: default CV stability threshold is 0.05
+  claim_id: c_28ff63b4
+  context: Calculate cross-validation standard deviation of balanced accuracy, compare
+    against CV_STABILITY_THRESHOLD (from utils/config.py, default 0.05), and log the
+    threshold_value used and the pass_fail_status in the output JSON.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default CV stability threshold is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:37:21Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: default label drop threshold is 0.05
+  claim_id: c_cc73d766
+  context: 'Constants: Define LABEL_DROP_THRESHOLD (float, default 0.05), CV_STABILITY_THRESHOLD
+    (float, default 0.05), and MIN_DATASET_SIZE (int, default 1000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default label drop threshold is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:37:41Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: minimum dataset size is 1000
+  claim_id: c_a6f132d4
+  context: 'Constants: Define LABEL_DROP_THRESHOLD (float, default 0.05), CV_STABILITY_THRESHOLD
+    (float, default 0.05), and MIN_DATASET_SIZE (int, default 1000).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum dataset size is 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:38:00Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: CompletenessThresholdError raised if drop rate exceeds 5 percent
+  claim_id: c_631c9026
+  context: 'Constraint: If drop rate exceeds LABEL_DROP_THRESHOLD (from utils/config.py),
+    raise a CompletenessThresholdError and halt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the drop rate exceeds 5%, a CompletenessThresholdError is raised.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:38:00Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: dataset contains at least 1000 alloy compositions with at least 10 computed
+    descriptors
+  claim_id: c_138cf7c0
+  context: "Independent Test: verify output dataset contains \u22651000 alloy compositions\
+    \ with \u226510 computed descriptors, and descriptor values fall within physically\
+    \ reasonable ranges."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_at_least_1000_alloy_compositions_with_at_le
+  kind: magnitude
+  raw_text: "The dataset must contain \u22651000 alloy compositions with \u226510\
+    \ computed descriptors."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:40:09Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: dataset contains at least 10 computed descriptors
+  claim_id: c_e1b591bf
+  context: "Independent Test: verify output dataset contains \u22651000 alloy compositions\
+    \ with \u226510 computed descriptors, and descriptor values fall within physically\
+    \ reasonable ranges."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_contains_at_least_10_computed_descriptors
+  kind: magnitude
+  raw_text: The dataset must contain at least 10 computed descriptors.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:40:36Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: dataset capped at 10000 compositions
+  claim_id: c_9b61108c
+  context: "Implement dataset capping logic in scripts/ingest.py to enforce \u2264\
+    10,000 compositions limit per FR-007 using stratified random sampling by 'alloy_system'."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The dataset is capped at a limit of \u226410,000 compositions."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:40:36Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: data ingestion script raises DataFetchError if DOI unavailable
+  claim_id: c_8ff457b0
+  context: 'Constraint: If the primary DOI source is unavailable (network error, HTTP
+    status codes indicating failure, timeout), the script MUST raise a DataFetchError
+    with a clear message.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_script_raises_DataFetchError_if_DOI_unavailab
+  kind: entity_fact
+  raw_text: The data ingestion script must raise a DataFetchError if the primary DOI
+    source is unavailable.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:41:00Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: at least 95% of compositions have all required properties
+  claim_id: c_f158220a
+  context: "Validate completeness: Ensure \u226595% of compositions have all required\
+    \ properties. Required Properties: 'atomic_radius', 'electronegativity', 'vec',\
+    \ 'size_mismatch', 'electronegativity_diff', 'mixing_enthalpy'."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_95%25_of_compositions_have_all_required_properties
+  kind: magnitude
+  raw_text: "The system must ensure \u226595% of compositions have all required properties."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:41:39Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: label completeness at least 98%
+  claim_id: c_a6fcc9cf
+  context: "Calculate the percentage of remaining compositions with valid labels.\
+    \ Output: data/processed/label_completeness_report.json containing ... threshold_met\
+    \ (boolean, true if \u226598%)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Label_completeness_at_least_98%25
+  kind: magnitude
+  raw_text: "The system must ensure \u226598% label completeness."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:42:05Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: raise CompletenessThresholdError if drop rate exceeds 5%
+  claim_id: c_78a7eb8b
+  context: 'Constraint: If drop rate exceeds LABEL_DROP_THRESHOLD (from utils/config.py),
+    raise a CompletenessThresholdError and halt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must raise a CompletenessThresholdError if the drop rate exceeds
+    5%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:42:05Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: raise CompletenessThresholdError if drop rate exceeds 0.05
+  claim_id: c_3672c8dd
+  context: 'Define LABEL_DROP_THRESHOLD (float, default 0.05) ... Constraint: If drop
+    rate exceeds LABEL_DROP_THRESHOLD (from utils/config.py), raise a CompletenessThresholdError
+    and halt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must raise a CompletenessThresholdError if the drop rate exceeds
+    0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:42:27Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: raise ConfigValidationError if CV_STABILITY_THRESHOLD missing
+  claim_id: c_25cce30d
+  context: 'Define CV_STABILITY_THRESHOLD (float, default 0.05) ... Validation: Raise
+    ConfigValidationError if keys are missing or empty.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raise_ConfigValidationError_if_CV_STABILITY_THRESHOLD_missin
+  kind: entity_fact
+  raw_text: The system must raise a ConfigValidationError if CV_STABILITY_THRESHOLD
+    is missing or empty.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:42:47Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: raise ConfigValidationError if LABEL_DROP_THRESHOLD missing
+  claim_id: c_b27f3153
+  context: 'Define LABEL_DROP_THRESHOLD (float, default 0.05) ... Validation: Raise
+    ConfigValidationError if keys are missing or empty.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raise_ConfigValidationError_if_LABEL_DROP_THRESHOLD_missing
+  kind: entity_fact
+  raw_text: The system must raise a ConfigValidationError if LABEL_DROP_THRESHOLD
+    is missing or empty.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:43:28Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: raise ConfigValidationError if MIN_DATASET_SIZE missing
+  claim_id: c_4f961cfb
+  context: 'Define MIN_DATASET_SIZE (int, default 1000) ... Validation: Raise ConfigValidationError
+    if keys are missing or empty.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raise_ConfigValidationError_if_MIN_DATASET_SIZE_missing
+  kind: entity_fact
+  raw_text: The system must raise a ConfigValidationError if MIN_DATASET_SIZE is missing
+    or empty.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:43:49Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: trigger synthetic data generation if dataset contains fewer than 1000
+    compositions
+  claim_id: c_94695791
+  context: "Handle size insufficiency: If count < 1000, automatically trigger the\
+    \ synthetic fallback (T011) to generate additional data until the count \u2265\
+    \ 1000."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Trigger_synthetic_data_generation_if_dataset_contains_fewer
+  kind: magnitude
+  raw_text: The system must trigger synthetic data generation if the dataset contains
+    fewer than 1000 compositions.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:44:29Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: use Nadeau & Bengio 2003 corrected t-test for multiple hypothesis testing
+  claim_id: c_d52bd592
+  context: 'Implement Nadeau & Bengio corrected t-test logic for multiple hypothesis
+    testing per plan.md summary in utils/stats.py. Reference: Nadeau & Bengio (2003),
+    Section 3.2.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must use the Nadeau & Bengio (2003) corrected t-test for multiple
+    hypothesis testing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:45:05Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: apply Bonferroni correction for multiple hypothesis testing
+  claim_id: c_9f7a36e1
+  context: Implement Bonferroni correction logic for multiple hypothesis testing per
+    FR-008 in utils/stats.py.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Bonferroni correction
+      source_id: Q385989
+      url: https://www.wikidata.org/wiki/Q385989
+      value: Bonferroni correction
+    filled: true
+  kind: entity_fact
+  raw_text: The system must apply Bonferroni correction for multiple hypothesis testing.
+  resolved_value: Bonferroni correction
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T18:45:17Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: use standard majority-minority stratified split ratio if not configured
+  claim_id: c_b648340c
+  context: Default split ratio set to a standard majority-minority configuration if
+    not configured.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_standard_majority-minority_stratified_split_ratio_if_not
+  kind: entity_fact
+  raw_text: The system must use a stratified split ratio set to a standard majority-minority
+    configuration if not configured.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:45:45Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: use simple random sampling if stratum has fewer than 50 samples
+  claim_id: c_0a0c7a7c
+  context: 'Fallback: If a stratum has <50 samples, log a warning and use simple random
+    sampling for that stratum.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_simple_random_sampling_if_stratum_has_fewer_than_50_samp
+  kind: magnitude
+  raw_text: The system must use a fallback of simple random sampling if a stratum
+    has fewer than 50 samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:46:26Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: use simple random split if fewer than 50 samples per alloy system
+  claim_id: c_9377353d
+  context: 'Fallback: If <50 samples per system, use simple split.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_simple_random_split_if_fewer_than_50_samples_per_alloy_s
+  kind: magnitude
+  raw_text: The system must use a fallback of simple random split if fewer than 50
+    samples exist per alloy system.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:46:59Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: enforce device cpu in all model initializations
+  claim_id: c_fa07d0ba
+  context: Ensure models/train.py enforces device='cpu' explicitly in all model initializations
+    (RF, XGBoost, LR) to prevent accidental GPU usage and ensure compatibility with
+    the 2-core CPU runner constraint.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Enforce_device_cpu_in_all_model_initializations
+  kind: entity_fact
+  raw_text: The system must enforce device='cpu' explicitly in all model initializations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:47:20Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: ensure compatibility with 2-core CPU runner constraint
+  claim_id: c_58c242f4
+  context: Ensure models/train.py enforces device='cpu' explicitly in all model initializations
+    (RF, XGBoost, LR) to prevent accidental GPU usage and ensure compatibility with
+    the 2-core CPU runner constraint.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must ensure compatibility with the 2-core CPU runner constraint.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:47:39Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: retain records from Science Advances if duplicates exist
+  claim_id: c_ec8d83ae
+  context: Retain records from primary source (Science Advances) if duplicates exist
+    (FR-010).
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Science Advances
+      source_id: Q56209642
+      url: https://www.wikidata.org/wiki/Q56209642
+      value: Science Advances
+    filled: true
+  kind: entity_fact
+  raw_text: The system must retain records from the primary source (Science Advances)
+    if duplicates exist.
+  resolved_value: Science Advances
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T18:47:52Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: retain records from Science Advances first during capping
+  claim_id: c_600b25ac
+  context: 'Priority: Retain records from primary source (Science Advances) first
+    (FR-010).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Retain_records_from_Science_Advances_first_during_capping
+  kind: entity_fact
+  raw_text: The system must retain records from the primary source (Science Advances)
+    first during capping.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:48:37Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: fetch data from Zenodo DOI 10.1126/sciadv.aaq1566
+  claim_id: c_a22d4377
+  context: 'Implement data ingestion script scripts/ingest_zenodo.py to fetch from
+    Zenodo DOI 10.1126/sciadv.aaq1566 (file: alloy_data.csv).'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's abstract (full text unavailable)
+  kind: citation
+  raw_text: The system must fetch data from Zenodo DOI 10.1126/sciadv.aaq1566.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:48:40Z'
+- artifact_path: projects/PROJ-451-predicting-the-glass-forming-region-of-m/specs/001-predicting-the-glass-forming-region-of-m/tasks.md
+  attempts: 1
+  canonical: fetch data from Materials Project API
+  claim_id: c_573d1ea8
+  context: 'Implement data ingestion script scripts/ingest_mp.py to fetch from Materials
+    Project API (current version, API Key via env, fields: composition, phase, elemental
+    properties).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_data_from_Materials_Project_API
+  kind: entity_fact
+  raw_text: The system must fetch data from the Materials Project API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:49:14Z'

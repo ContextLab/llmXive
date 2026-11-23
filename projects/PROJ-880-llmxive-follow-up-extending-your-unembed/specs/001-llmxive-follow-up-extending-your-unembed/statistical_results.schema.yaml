@@ -1,0 +1,17 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Statistical Results
+description: "Schema for statistical test results (US3)"
+type: object
+required:
+  - bootstrap_iterations
+  - convergence_status
+  - p_value
+properties:
+  bootstrap_iterations:
+    type: integer
+  convergence_status:
+    type: string
+    enum: ["CONVERGED", "MAX_ITERATIONS", "RUNNING"]
+  p_value:
+    type: number
+additionalProperties: false

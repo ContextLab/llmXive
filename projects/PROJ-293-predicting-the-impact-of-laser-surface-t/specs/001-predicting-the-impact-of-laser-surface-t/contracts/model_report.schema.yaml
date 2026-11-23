@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Report Schema"
+type: "object"
+properties:
+  best_model_type:
+    type: "string"
+    description: "Type of the best performing model"
+  r2_test:
+    type: "number"
+    description: "R-squared score on the test set"
+  mae_test:
+    type: "number"
+    description: "Mean Absolute Error on the test set"
+  rmse_test:
+    type: "number"
+    description: "Root Mean Squared Error on the test set"
+  loo_r2:
+    type: ["number", "null"]
+    description: "R-squared from Leave-One-Material-Class-Out CV"
+  loo_ratio:
+    type: ["number", "null"]
+    description: "Ratio of loo_r2 to r2_test"
+  transferability_failure_flag:
+    type: "boolean"
+    description: "True if loo_ratio < 0.8"
+  fallback_active:
+    type: "boolean"
+    description: "True if K-Fold was used instead of LOMO"
+  study_scope:
+    type: "string"
+    enum:
+      - "full_study"
+      - "pilot_study"
+    description: "Scope of the study based on record count"
+  power_insufficiency_warning:
+    type: "boolean"
+    description: "True if power analysis < 0.8"
+  data_source_limitation_warning:
+    type: "boolean"
+    description: "True if fewer than 3 distinct sources found"
+  vif_reduced_features:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of features removed due to VIF > 5"
+  significant_features:
+    type: "array"
+    items:
+      type: "string"
+    description: "Features with p < 0.05 from permutation test"
+  no_significant_features_flag:
+    type: "boolean"
+    description: "True if no features met p < 0.05"
+required:
+  - best_model_type
+  - r2_test
+  - mae_test
+  - rmse_test
+  - study_scope
+  - transferability_failure_flag
+  - fallback_active
+  - power_insufficiency_warning
+  - data_source_limitation_warning
+  - vif_reduced_features
+  - significant_features
+  - no_significant_features_flag

@@ -1,25 +1,17 @@
 """
-Unit tests for error handling infrastructure.
+Unit tests for code/data/error_handling.py
 """
-import numpy as np
+import os
 import json
 import tempfile
 from pathlib import Path
-from datetime import datetime
+from unittest.mock import patch, MagicMock
+import pandas as pd
+import numpy as np
 
 import pytest
 
-# Mock config for testing
-import sys
-from unittest.mock import patch, MagicMock
-
-# Create a mock config module
-mock_config = MagicMock()
-mock_config.DATA_DIR = tempfile.mkdtemp()
-mock_config.MOTION_THRESHOLD_MM = 0.5
-
-sys.modules['code.config'] = mock_config
-
+# Import the module under test
 from code.data.error_handling import (
     calculate_motion_metrics,
     check_motion_artifacts,
@@ -28,189 +20,162 @@ from code.data.error_handling import (
     get_error_summary,
     clear_error_log
 )
+import code.config as config
 
 
 class TestCalculateMotionMetrics:
-    def test_empty_arrays(self):
-        """Test with empty displacement/rotation arrays."""
-        displacement = np.array([]).reshape(0, 3)
-        rotation = np.array([]).reshape(0, 3)
+    def test_calculate_fd_from_trans_rot(self, tmp_path):
+        """Test FD calculation from translation/rotation columns."""
+        # Create a mock confounds file
+        confounds_file = tmp_path / "sub-01_desc-confounds_regressors.tsv"
+        
+        # Generate synthetic motion data
+        n_timepoints = 100
+        data = {
+            'trans_x': np.random.randn(n_timepoints) * 0.1,
+            'trans_y': np.random.randn(n_timepoints) * 0.1,
+            'trans_z': np.random.randn(n_timepoints) * 0.1,
+            'rot_x': np.random.randn(n_timepoints) * 0.01,
+            'rot_y': np.random.randn(n_timepoints) * 0.01,
+            'rot_z': np.random.randn(n_timepoints) * 0.01,
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(confounds_file, sep='\t', index=False)
 
-        metrics = calculate_motion_metrics(displacement, rotation)
+        metrics = calculate_motion_metrics("sub-01", tmp_path)
 
-        assert metrics["mean_displacement"] == 0.0
-        assert metrics["max_displacement"] == 0.0
-        assert metrics["mean_rotation_mm"] == 0.0
-        assert metrics["max_rotation_mm"] == 0.0
-        assert len(metrics["framewise_displacement"]) == 0
+        assert 'mean_fd' in metrics
+        assert 'max_fd' in metrics
+        assert 'mean_dvars' in metrics
+        assert metrics['mean_fd'] >= 0
+        assert metrics['max_fd'] >= metrics['mean_fd']
 
-    def test_single_volume(self):
-        """Test with single volume (no FD calculation possible)."""
-        displacement = np.array([[1.0, 0.5, 0.2]])
-        rotation = np.array([[0.01, 0.02, 0.015]])
+    def test_calculate_fd_from_existing_column(self, tmp_path):
+        """Test FD calculation when 'framewise_displacement' column exists."""
+        confounds_file = tmp_path / "sub-01_desc-confounds_regressors.tsv"
+        
+        n_timepoints = 50
+        data = {
+            'framewise_displacement': np.abs(np.random.randn(n_timepoints) * 0.2),
+            'dvars': np.abs(np.random.randn(n_timepoints) * 0.5),
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(confounds_file, sep='\t', index=False)
 
-        metrics = calculate_motion_metrics(displacement, rotation, voxel_size=3.0)
+        metrics = calculate_motion_metrics("sub-01", tmp_path)
 
-        assert metrics["mean_displacement"] == pytest.approx(np.sqrt(1.0**2 + 0.5**2 + 0.2**2))
-        assert metrics["mean_rotation_mm"] > 0.0
-        # FD requires at least 2 volumes, so should be empty
-        assert len(metrics["framewise_displacement"]) == 0
+        assert metrics['mean_fd'] > 0
+        assert metrics['mean_dvars'] > 0
 
-    def test_multiple_volumes(self):
-        """Test with multiple volumes to verify FD calculation."""
-        displacement = np.array([
-            [0.0, 0.0, 0.0],
-            [1.0, 0.0, 0.0],
-            [0.0, 1.0, 0.0]
-        ])
-        rotation = np.array([
-            [0.0, 0.0, 0.0],
-            [0.01, 0.0, 0.0],
-            [0.0, 0.01, 0.0]
-        ])
-
-        metrics = calculate_motion_metrics(displacement, rotation, voxel_size=3.0)
-
-        assert len(metrics["framewise_displacement"]) == 2  # N-1 for N volumes
-        assert metrics["mean_displacement"] > 0.0
-        assert metrics["max_displacement"] > 0.0
+    def test_missing_confounds_file(self, tmp_path):
+        """Test that FileNotFoundError is raised if file is missing."""
+        with pytest.raises(FileNotFoundError):
+            calculate_motion_metrics("sub-01", tmp_path)
 
 
 class TestCheckMotionArtifacts:
-    def test_below_threshold(self):
-        """Test subject with motion below threshold."""
-        displacement = np.array([[0.1, 0.1, 0.1]] * 100)
-        rotation = np.array([[0.001, 0.001, 0.001]] * 100)
+    def test_pass_motion_check(self):
+        """Test that low motion passes the check."""
+        metrics = {
+            'mean_fd': 0.1,
+            'pct_high_fd': 5.0
+        }
+        assert check_motion_artifacts(metrics, threshold_mm=0.5) is False
 
-        result = check_motion_artifacts(displacement, rotation, threshold_mm=0.5)
+    def test_fail_mean_fd(self):
+        """Test that high mean FD fails the check."""
+        metrics = {
+            'mean_fd': 0.6,
+            'pct_high_fd': 5.0
+        }
+        assert check_motion_artifacts(metrics, threshold_mm=0.5) is True
 
-        assert result["is_rejected"] is False
-        assert result["reason"] is None
-
-    def test_mean_fd_exceeds_threshold(self):
-        """Test subject rejected due to high mean FD."""
-        displacement = np.array([[0.6, 0.0, 0.0]] * 100)
-        rotation = np.array([[0.0, 0.0, 0.0]] * 100)
-
-        result = check_motion_artifacts(displacement, rotation, threshold_mm=0.5)
-
-        assert result["is_rejected"] is True
-        assert "Mean FD" in result["reason"]
-
-    def test_max_fd_exceeds_3x_threshold(self):
-        """Test subject rejected due to extreme single-frame motion."""
-        displacement = np.zeros((100, 3))
-        displacement[50] = [2.0, 0.0, 0.0]  # Spike at frame 50
-        rotation = np.zeros((100, 3))
-
-        result = check_motion_artifacts(displacement, rotation, threshold_mm=0.5)
-
-        assert result["is_rejected"] is True
-        assert "Maximum FD" in result["reason"]
-
-    def test_high_motion_ratio(self):
-        """Test subject rejected due to high proportion of motion frames."""
-        displacement = np.array([[0.6, 0.0, 0.0]] * 50 + [[0.1, 0.0, 0.0]] * 50)
-        rotation = np.zeros((100, 3))
-
-        result = check_motion_artifacts(displacement, rotation, threshold_mm=0.5)
-
-        assert result["is_rejected"] is True
-        assert "High motion ratio" in result["reason"]
+    def test_fail_pct_high_fd(self):
+        """Test that high percentage of high motion fails the check."""
+        metrics = {
+            'mean_fd': 0.2,
+            'pct_high_fd': 25.0
+        }
+        assert check_motion_artifacts(metrics, threshold_mm=0.5) is True
 
 
 class TestLogError:
-    def test_log_error_creates_entry(self):
-        """Test that logging an error creates a valid JSON entry."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            mock_config.DATA_DIR = tmpdir
-            clear_error_log()  # Ensure clean state
+    def test_log_error_creates_file(self, tmp_path, monkeypatch):
+        """Test that log_error creates the file and writes JSON."""
+        # Monkeypatch config.DATA_DIR to use tmp_path
+        monkeypatch.setattr(config, 'DATA_DIR', str(tmp_path))
 
-            log_error(
-                subject_id="sub-001",
-                error_code="MOTION_ARTIFACT",
-                error_message="Excessive motion detected",
-                motion_mm=1.2
-            )
+        log_error("sub-01", "MOTION_ARTIFACT", "High motion detected", motion_mm=0.8)
 
-            errors = get_error_summary()
-            assert len(errors) == 1
+        log_file = tmp_path / "errors.log"
+        assert log_file.exists()
 
-            entry = errors[0]
-            assert entry["subject_id"] == "sub-001"
-            assert entry["error_code"] == "MOTION_ARTIFACT"
-            assert entry["motion_mm"] == 1.2
-            assert "timestamp" in entry
-            assert "error_message" in entry
+        with open(log_file, 'r') as f:
+            line = f.readline()
+            entry = json.loads(line)
+            
+        assert entry['subject_id'] == "sub-01"
+        assert entry['error_code'] == "MOTION_ARTIFACT"
+        assert entry['motion_mm'] == 0.8
+        assert 'timestamp' in entry
 
-    def test_log_error_with_additional_data(self):
-        """Test logging with additional context data."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            mock_config.DATA_DIR = tmpdir
-            clear_error_log()
+    def test_log_error_appends(self, tmp_path, monkeypatch):
+        """Test that log_error appends to existing log."""
+        monkeypatch.setattr(config, 'DATA_DIR', str(tmp_path))
 
-            log_error(
-                subject_id="sub-002",
-                error_code="PREPROCESSING_FAILED",
-                error_message="fMRIPrep failed",
-                additional_data={"return_code": 1, "command": "fmriprep ..."},
-                motion_mm=0.0
-            )
+        log_error("sub-01", "ERR1", "Msg1")
+        log_error("sub-02", "ERR2", "Msg2")
 
-            errors = get_error_summary()
-            assert len(errors) == 1
-            assert errors[0]["return_code"] == 1
-            assert errors[0]["command"] == "fmriprep ..."
+        log_file = tmp_path / "errors.log"
+        with open(log_file, 'r') as f:
+            lines = f.readlines()
+        
+        assert len(lines) == 2
 
 
 class TestHandleSubjectError:
-    def test_handle_and_skip(self):
-        """Test that handle_subject_error logs and skips by default."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            mock_config.DATA_DIR = tmpdir
-            clear_error_log()
+    def test_handle_subject_error_raises(self, tmp_path, monkeypatch):
+        """Test that handle_subject_error logs and raises RuntimeError."""
+        monkeypatch.setattr(config, 'DATA_DIR', str(tmp_path))
 
-            motion_metrics = {"mean_displacement": 1.5}
-            skipped = handle_subject_error(
-                subject_id="sub-003",
-                error_code="MOTION_ARTIFACT",
-                error_message="Motion too high",
-                motion_metrics=motion_metrics,
-                skip=True
-            )
+        with pytest.raises(RuntimeError) as exc_info:
+            handle_subject_error("sub-01", "MOTION", "Too much head movement", motion_mm=0.9)
 
-            assert skipped is True
-            errors = get_error_summary()
-            assert len(errors) == 1
-            assert errors[0]["subject_id"] == "sub-003"
+        assert "sub-01" in str(exc_info.value)
+        assert "MOTION" in str(exc_info.value)
 
-    def test_handle_no_skip(self):
-        """Test that handle_subject_error logs but doesn't skip when skip=False."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            mock_config.DATA_DIR = tmpdir
-            clear_error_log()
 
-            skipped = handle_subject_error(
-                subject_id="sub-004",
-                error_code="WARNING",
-                error_message="Minor issue, continuing",
-                skip=False
-            )
+class TestGetErrorSummary:
+    def test_get_error_summary(self, tmp_path, monkeypatch):
+        """Test summary generation."""
+        monkeypatch.setattr(config, 'DATA_DIR', str(tmp_path))
 
-            assert skipped is False
-            errors = get_error_summary()
-            assert len(errors) == 1
+        log_error("sub-01", "MOTION", "High FD")
+        log_error("sub-02", "MOTION", "High FD")
+        log_error("sub-03", "FILE_NOT_FOUND", "Missing file")
+
+        summary = get_error_summary()
+
+        assert summary['total_errors'] == 3
+        assert summary['by_code']['MOTION'] == 2
+        assert summary['by_code']['FILE_NOT_FOUND'] == 1
+
+    def test_empty_log(self, tmp_path, monkeypatch):
+        """Test summary with no log file."""
+        monkeypatch.setattr(config, 'DATA_DIR', str(tmp_path))
+        
+        summary = get_error_summary()
+        assert summary['total_errors'] == 0
+        assert summary['by_code'] == {}
 
 
 class TestClearErrorLog:
-    def test_clear_removes_file(self):
-        """Test that clear_error_log removes the log file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            mock_config.DATA_DIR = tmpdir
-            clear_error_log()
+    def test_clear_error_log(self, tmp_path, monkeypatch):
+        """Test clearing the log file."""
+        monkeypatch.setattr(config, 'DATA_DIR', str(tmp_path))
 
-            log_error("sub-001", "TEST", "Test error")
-            assert Path(mock_config.DATA_DIR, "errors.log").exists()
+        log_error("sub-01", "MOTION", "High FD")
+        assert (tmp_path / "errors.log").exists()
 
-            clear_error_log()
-            assert not Path(mock_config.DATA_DIR, "errors.log").exists()
+        clear_error_log()
+        assert not (tmp_path / "errors.log").exists()

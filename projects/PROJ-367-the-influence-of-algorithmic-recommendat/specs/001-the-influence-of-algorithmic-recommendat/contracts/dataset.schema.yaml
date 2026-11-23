@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "UserSession Raw Dataset Schema"
+description: "Schema for the raw dataset after mapping to required fields."
+type: object
+properties:
+  user_id:
+    type: string
+    description: "Unique identifier for the learner."
+  session_id:
+    type: string
+    description: "Unique identifier for the session."
+  recommended_items:
+    type: array
+    items:
+      type: string
+    description: "List of category tokens representing algorithmic recommendations (raw column)."
+  enrolled_items:
+    type: array
+    items:
+      type: string
+    description: "List of category tokens representing actual enrollments (raw column)."
+required:
+  - user_id
+  - session_id
+  - recommended_items
+  - enrolled_items
+additionalProperties: false
+

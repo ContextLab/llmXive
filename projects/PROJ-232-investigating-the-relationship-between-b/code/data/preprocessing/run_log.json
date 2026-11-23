@@ -1,0 +1,15 @@
+{
+  "preprocessing": {
+    "motion_exclusion": {
+      "threshold_mm": 0.5,
+      "included_count": 1,
+      "excluded_count": 1,
+      "excluded_subject_ids": [
+        "02"
+      ],
+      "included_subject_ids": [
+        "01"
+      ]
+    }
+  }
+}

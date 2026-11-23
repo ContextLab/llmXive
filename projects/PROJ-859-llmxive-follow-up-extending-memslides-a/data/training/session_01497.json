@@ -1,0 +1,214 @@
+{
+  "trace_id": "training_42_01497",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "insert_text",
+    "update_layout",
+    "insert_text",
+    "apply_theme",
+    "update_layout",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "format_text",
+    "format_text",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "update_layout",
+    "insert_image",
+    "resize_element",
+    "resize_element",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 26.2127,
+        "y": 54.2381,
+        "length": 19.0579
+      }
+    },
+    {
+      "step": 1,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 66.7371,
+        "padding": 58.8988
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 18.1517,
+        "y": 83.6164,
+        "length": 40.8551
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 89.8646,
+        "saturation": 98.7546
+      }
+    },
+    {
+      "step": 4,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 22.7076,
+        "padding": 49.3415
+      }
+    },
+    {
+      "step": 5,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 66.4695
+      }
+    },
+    {
+      "step": 6,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 63.8593
+      }
+    },
+    {
+      "step": 7,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 85.5221
+      }
+    },
+    {
+      "step": 8,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 40.6199
+      }
+    },
+    {
+      "step": 9,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 8.2261,
+        "x": 20.3541,
+        "y": 82.3409
+      }
+    },
+    {
+      "step": 10,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 95.783,
+        "x": 74.5447,
+        "y": 37.0901
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 46.9164,
+        "y": 42.2144,
+        "width": 53.9966,
+        "height": 93.6878,
+        "data_points": 15.4167
+      }
+    },
+    {
+      "step": 12,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 5.4359,
+        "y": 74.0028,
+        "width": 8.878,
+        "height": 83.9857,
+        "data_points": 26.5678
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 78.7891,
+        "y": 98.7415,
+        "width": 85.9737,
+        "height": 58.22,
+        "data_points": 74.2308
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 98.0619,
+        "y": 2.0522,
+        "width": 25.683,
+        "height": 55.0914,
+        "data_points": 82.1936
+      }
+    },
+    {
+      "step": 15,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 60.7951,
+        "padding": 19.2145
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 78.7914,
+        "y": 8.7433,
+        "width": 80.1098,
+        "height": 40.0166
+      }
+    },
+    {
+      "step": 17,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 30.8644,
+        "height": 83.3546
+      }
+    },
+    {
+      "step": 18,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 94.6443,
+        "height": 16.5063
+      }
+    },
+    {
+      "step": 19,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 75.4982,
+        "height": 82.2176
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.973001,
+    "tool_repetition_freq": 0.6,
+    "arg_semantic_variance": 872.97027
+  },
+  "final_state": {
+    "dominant_tool": "delete_element",
+    "slide_element_count": 24,
+    "layout_hash": "42-1497-delete_element"
+  }
+}

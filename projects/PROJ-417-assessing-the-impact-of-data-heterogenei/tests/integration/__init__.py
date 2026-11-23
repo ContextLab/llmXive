@@ -1,1 +1,1 @@
-# Integration tests placeholder
+# Package marker for integration tests

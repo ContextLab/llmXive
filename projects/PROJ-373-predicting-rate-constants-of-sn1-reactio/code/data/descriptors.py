@@ -1,106 +1,178 @@
 import os
 import sys
+import argparse
+import logging
+import csv
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-import pandas as pd
-import numpy as np
 
-# Ensure imports work
+# Ensure imports work relative to project root
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from config import ensure_dirs
+from config import ensure_dirs, DataConfig
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
-def compute_gasteiger_charges(smiles: str) -> List[float]:
-    """
-    Compute Gasteiger partial charges.
-    """
+def compute_gasteiger_charges(smiles: str):
+    """Compute Gasteiger partial charges using RDKit."""
     try:
         from rdkit import Chem
-        from rdkit.Chem import rdPartialCharges
         
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
-            return []
+            return None, "invalid_smiles"
         
-        # Compute Gasteiger charges
-        rdPartialCharges.ComputeGasteigerCharges(mol)
+        # Initialize charges
+        # ComputeGasteigerCharges modifies the molecule in place
+        Chem.ComputeGasteigerCharges(mol)
+        
         charges = []
         for atom in mol.GetAtoms():
-            charge = atom.GetDoubleProp('_GasteigerCharge')
-            charges.append(charge)
-        return charges
+            try:
+                charge = atom.GetDoubleProp('_GasteigerCharge')
+                # Handle NaN/None gracefully
+                if charge != charge:  # NaN check
+                    charges.append(0.0)
+                else:
+                    charges.append(charge)
+            except Exception:
+                charges.append(0.0)
+        
+        return charges, None
     except Exception as e:
-        logger.warning(f"Error computing Gasteiger charges for {smiles}: {e}")
-        return []
+        logger.warning(f"Failed to compute Gasteiger charges for {smiles}: {e}")
+        return None, "descriptor_failure"
 
-def compute_topological_indices(smiles: str) -> List[float]:
-    """
-    Compute topological indices (e.g., Wiener index, Zagreb index).
-    """
+def compute_topological_indices(smiles: str):
+    """Compute topological indices using RDKit."""
     try:
         from rdkit import Chem
         from rdkit.Chem import Descriptors
         
         mol = Chem.MolFromSmiles(smiles)
         if mol is None:
-            return []
+            return None, "invalid_smiles"
         
-        # Example indices
-        indices = [
-            Descriptors.WienerIndex(mol),
-            Descriptors.ZagrebIndex(mol),
-            Descriptors.BertzCT(mol)
-        ]
-        return indices
+        # Compute topological indices
+        indices = {
+            'mol_wt': Descriptors.MolWt(mol),
+            'logp': Descriptors.MolLogP(mol),
+            'num_h_donors': Descriptors.NumHDonors(mol),
+            'num_h_acceptors': Descriptors.NumHAcceptors(mol),
+            'num_rotatable_bonds': Descriptors.NumRotatableBonds(mol),
+            'tpsa': Descriptors.TPSA(mol),
+        }
+        
+        return indices, None
     except Exception as e:
-        logger.warning(f"Error computing topological indices for {smiles}: {e}")
-        return []
+        logger.warning(f"Failed to compute topological indices for {smiles}: {e}")
+        return None, "descriptor_failure"
 
-def process_single_row(row: Dict) -> Dict:
-    """
-    Process a single row to add descriptors.
-    """
-    smiles = row['smiles']
-    charges = compute_gasteiger_charges(smiles)
-    indices = compute_topological_indices(smiles)
+def process_single_row(row: Dict[str, Any]):
+    """Process a single row and compute descriptors."""
+    smiles = row.get('smiles', '')
+    if not smiles:
+        return None, "missing_smiles"
     
-    row['gasteiger_charges'] = charges
-    row['topological_indices'] = indices
-    return row
+    # Compute Gasteiger charges
+    charges, error = compute_gasteiger_charges(smiles)
+    if error:
+        return None, error
+    
+    # Compute topological indices
+    indices, error = compute_topological_indices(smiles)
+    if error:
+        return None, error
+    
+    # Combine results
+    # Flatten charges into columns: gasteiger_charge_0, gasteiger_charge_1, ...
+    charge_cols = {}
+    for i, charge in enumerate(charges):
+        charge_cols[f'gasteiger_charge_{i}'] = charge
+    
+    result = {
+        'smiles': smiles,
+        **charge_cols,
+        **indices
+    }
+    
+    return result, None
 
-def compute_descriptors_for_dataset(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Compute descriptors for the entire dataset.
-    """
-    logger.info("Computing descriptors for dataset")
-    # Apply processing
-    # Note: In a real scenario, we might use parallel processing
-    processed_rows = []
+def ensure_exclusion_log_header(exclusion_log_path: str):
+    """Ensure the exclusion log has the correct header."""
+    if not os.path.exists(exclusion_log_path):
+        ensure_dirs()
+        with open(exclusion_log_path, 'w', newline='') as f:
+            writer = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
+            writer.writerow(['row_index', 'reason', 'original_smiles'])
+        logger.info(f"Initialized exclusion log at {exclusion_log_path}")
+
+def append_to_exclusion_log(exclusion_log_path: str, row_index: int, reason: str, smiles: str):
+    """Append a single exclusion entry to the log."""
+    ensure_exclusion_log_header(exclusion_log_path)
+    with open(exclusion_log_path, 'a', newline='') as f:
+        writer = csv.writer(f, quoting=csv.QUOTE_MINIMAL)
+        writer.writerow([row_index, reason, smiles])
+
+def compute_descriptors_for_dataset(input_path: str, output_path: str, exclusion_log_path: str):
+    """Compute descriptors for entire dataset."""
+    import pandas as pd
+    
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+    
+    # Guard Clause: Check exclusion log exists (T011d requirement)
+    if not os.path.exists(exclusion_log_path):
+        raise FileNotFoundError(f"Exclusion log missing: {exclusion_log_path}. T011d must run first.")
+    
+    df = pd.read_csv(input_path)
+    logger.info(f"Loaded {len(df)} rows from {input_path}")
+    
+    results = []
+    
+    # Ensure exclusion log header exists before processing
+    ensure_exclusion_log_header(exclusion_log_path)
+    
     for idx, row in df.iterrows():
-        processed_rows.append(process_single_row(row.to_dict()))
+        result, error = process_single_row(row.to_dict())
+        if error:
+            # Append directly to exclusion log
+            append_to_exclusion_log(
+                exclusion_log_path, 
+                idx, 
+                error, 
+                row.get('smiles', '')
+            )
+            logger.warning(f"Row {idx} failed: {error}")
+        else:
+            results.append(result)
     
-    return pd.DataFrame(processed_rows)
+    # Save results
+    if results:
+        result_df = pd.DataFrame(results)
+        # Ensure output directory exists
+        ensure_dirs()
+        result_df.to_csv(output_path, index=False)
+        logger.info(f"Saved {len(results)} rows to {output_path}")
+    else:
+        logger.warning("No valid results to save.")
 
 def main():
-    parser = argparse.ArgumentParser(description="Compute descriptors for SN1 data")
-    parser.add_argument("--input", type=str, default="data/processed/cleaned_sn1.csv")
-    parser.add_argument("--output", type=str, default="data/processed/cleaned_sn1_descriptors.csv")
+    parser = argparse.ArgumentParser(description="Compute molecular descriptors")
+    parser.add_argument("--input", type=str, default="data/processed/cleaned_intermediate.csv", help="Input file path")
+    parser.add_argument("--output", type=str, default="data/processed/descriptors.csv", help="Output file path")
+    parser.add_argument("--exclusion-log", type=str, default="data/processed/exclusion_raw.log", help="Exclusion log path")
     args = parser.parse_args()
 
     ensure_dirs()
     
-    df = pd.read_csv(args.input)
-    df_with_desc = compute_descriptors_for_dataset(df)
-    
-    # Convert lists to strings for CSV
-    df_with_desc['gasteiger_charges'] = df_with_desc['gasteiger_charges'].apply(lambda x: ','.join(map(str, x)))
-    df_with_desc['topological_indices'] = df_with_desc['topological_indices'].apply(lambda x: ','.join(map(str, x)))
-    
-    df_with_desc.to_csv(args.output, index=False)
-    logger.info(f"Descriptors saved to {args.output}")
+    try:
+        compute_descriptors_for_dataset(args.input, args.output, args.exclusion_log)
+        logger.info("Descriptor computation completed successfully")
+    except Exception as e:
+        logger.error(f"Descriptor computation failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

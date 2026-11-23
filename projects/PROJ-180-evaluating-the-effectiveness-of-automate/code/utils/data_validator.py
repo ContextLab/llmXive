@@ -1,9 +1,6 @@
 """
-Data directory structure and checksum validation logic.
-
-This module ensures the integrity of raw and processed data directories
-by creating necessary structure and validating file checksums against
-stored manifests.
+Data validation utilities for the llmXive project.
+Provides functions to ensure data directory structure and validate checksums.
 """
 import os
 import json
@@ -16,148 +13,142 @@ from utils.hasher import hash_file, generate_manifest, verify_manifest
 
 logger = logging.getLogger(__name__)
 
+DATA_RAW_DIR = get_data_raw_dir()
+DATA_PROCESSED_DIR = get_data_processed_dir()
+MANIFEST_RAW = DATA_RAW_DIR / ".manifest.json"
+MANIFEST_PROCESSED = DATA_PROCESSED_DIR / ".manifest.json"
 
-def ensure_data_structure() -> Dict[str, Path]:
+
+def ensure_data_structure() -> bool:
     """
-    Ensures the required data directory structure exists.
-    
-    Creates:
-      - data/raw/
-      - data/processed/
-      - data/raw/.checksums/
-      - data/processed/.checksums/
-    
+    Ensure that the required data directory structure exists.
+    Creates directories if they are missing.
+
     Returns:
-        Dict mapping directory names to their Path objects.
+        bool: True if structure is valid (created or existing), False on error.
     """
-    raw_dir = get_data_raw_dir()
-    processed_dir = get_data_processed_dir()
-    
-    dirs = {
-        'raw': raw_dir,
-        'processed': processed_dir,
-        'raw_checksums': raw_dir / '.checksums',
-        'processed_checksums': processed_dir / '.checksums'
-    }
-    
-    for name, path in dirs.items():
-        if not path.exists():
-            path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Created directory: {path}")
-        else:
-            logger.debug(f"Directory already exists: {path}")
-    
-    return dirs
+    try:
+        DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+        DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+        
+        # Initialize empty manifests if they don't exist
+        if not MANIFEST_RAW.exists():
+            generate_manifest(DATA_RAW_DIR, MANIFEST_RAW)
+            logger.info(f"Initialized manifest for raw data at {MANIFEST_RAW}")
+        
+        if not MANIFEST_PROCESSED.exists():
+            generate_manifest(DATA_PROCESSED_DIR, MANIFEST_PROCESSED)
+            logger.info(f"Initialized manifest for processed data at {MANIFEST_PROCESSED}")
+        
+        return True
+    except Exception as e:
+        logger.error(f"Failed to ensure data structure: {e}")
+        return False
 
 
 def validate_raw_data() -> Tuple[bool, List[str]]:
     """
-    Validates checksums of all files in data/raw/ against stored manifest.
-    
+    Validate the integrity of raw data files against the manifest.
+
     Returns:
-        Tuple of (is_valid, list_of_invalid_files)
+        Tuple[bool, List[str]]: (is_valid, list_of_failed_files)
     """
-    raw_dir = get_data_raw_dir()
-    checksums_dir = raw_dir / '.checksums'
-    manifest_path = checksums_dir / 'manifest.json'
-    
-    if not manifest_path.exists():
-        logger.warning(f"No manifest found at {manifest_path}. Generating one.")
-        return generate_manifest(raw_dir, checksums_dir), []
-    
-    is_valid, invalid_files = verify_manifest(manifest_path)
-    
-    if not is_valid:
-        logger.error(f"Checksum validation failed for {len(invalid_files)} files in data/raw/")
-    else:
-        logger.info("All files in data/raw/ passed checksum validation.")
-    
-    return is_valid, invalid_files
+    if not MANIFEST_RAW.exists():
+        logger.warning("Raw data manifest not found. Running initial scan...")
+        if not generate_manifest(DATA_RAW_DIR, MANIFEST_RAW):
+            return False, ["Failed to generate initial manifest"]
+        return True, []
+
+    try:
+        is_valid, failed_files = verify_manifest(MANIFEST_RAW)
+        if not is_valid:
+            logger.error(f"Raw data validation failed for {len(failed_files)} files")
+        else:
+            logger.info("Raw data validation passed")
+        return is_valid, failed_files
+    except Exception as e:
+        logger.error(f"Error validating raw data: {e}")
+        return False, [str(e)]
 
 
 def validate_processed_data() -> Tuple[bool, List[str]]:
     """
-    Validates checksums of all files in data/processed/ against stored manifest.
-    
+    Validate the integrity of processed data files against the manifest.
+
     Returns:
-        Tuple of (is_valid, list_of_invalid_files)
+        Tuple[bool, List[str]]: (is_valid, list_of_failed_files)
     """
-    processed_dir = get_data_processed_dir()
-    checksums_dir = processed_dir / '.checksums'
-    manifest_path = checksums_dir / 'manifest.json'
-    
-    if not manifest_path.exists():
-        logger.warning(f"No manifest found at {manifest_path}. Generating one.")
-        return generate_manifest(processed_dir, checksums_dir), []
-    
-    is_valid, invalid_files = verify_manifest(manifest_path)
-    
-    if not is_valid:
-        logger.error(f"Checksum validation failed for {len(invalid_files)} files in data/processed/")
-    else:
-        logger.info("All files in data/processed/ passed checksum validation.")
-    
-    return is_valid, invalid_files
+    if not MANIFEST_PROCESSED.exists():
+        logger.warning("Processed data manifest not found. Running initial scan...")
+        if not generate_manifest(DATA_PROCESSED_DIR, MANIFEST_PROCESSED):
+            return False, ["Failed to generate initial manifest"]
+        return True, []
+
+    try:
+        is_valid, failed_files = verify_manifest(MANIFEST_PROCESSED)
+        if not is_valid:
+            logger.error(f"Processed data validation failed for {len(failed_files)} files")
+        else:
+            logger.info("Processed data validation passed")
+        return is_valid, failed_files
+    except Exception as e:
+        logger.error(f"Error validating processed data: {e}")
+        return False, [str(e)]
 
 
-def refresh_manifests() -> Dict[str, str]:
+def refresh_manifests() -> bool:
     """
-    Regenerates checksum manifests for both raw and processed data.
-    
+    Regenerate manifests for both raw and processed data directories.
+    This should be called after new data is added or modified.
+
     Returns:
-        Dict with status messages for each directory.
+        bool: True if both manifests were successfully refreshed, False otherwise.
     """
-    dirs = ensure_data_structure()
-    results = {}
+    success_raw = generate_manifest(DATA_RAW_DIR, MANIFEST_RAW)
+    success_processed = generate_manifest(DATA_PROCESSED_DIR, MANIFEST_PROCESSED)
     
-    # Refresh raw
-    raw_manifest_path = dirs['raw_checksums'] / 'manifest.json'
-    generate_manifest(dirs['raw'], dirs['raw_checksums'])
-    results['raw'] = f"Manifest updated at {raw_manifest_path}"
-    
-    # Refresh processed
-    processed_manifest_path = dirs['processed_checksums'] / 'manifest.json'
-    generate_manifest(dirs['processed'], dirs['processed_checksums'])
-    results['processed'] = f"Manifest updated at {processed_manifest_path}"
-    
-    return results
+    if success_raw:
+        logger.info(f"Refreshed manifest for raw data: {MANIFEST_RAW}")
+    if success_processed:
+        logger.info(f"Refreshed manifest for processed data: {MANIFEST_PROCESSED}")
+        
+    return success_raw and success_processed
 
 
 def main():
     """
-    CLI entry point for data validation and structure setup.
+    Main entry point for running validation checks from the command line.
     """
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     
-    logger.info("Starting data directory structure and checksum validation...")
+    logger.info("Starting data validation...")
     
-    # Ensure structure
-    dirs = ensure_data_structure()
-    logger.info(f"Data structure ready: raw={dirs['raw']}, processed={dirs['processed']}")
+    # Ensure structure exists
+    if not ensure_data_structure():
+        logger.error("Failed to ensure data structure")
+        return 1
     
-    # Validate
-    raw_valid, raw_invalid = validate_raw_data()
-    proc_valid, proc_invalid = validate_processed_data()
+    # Validate raw data
+    raw_valid, raw_failures = validate_raw_data()
+    if not raw_valid:
+        logger.warning(f"Raw data validation issues: {raw_failures}")
     
-    # Report
-    print("\n=== Data Validation Report ===")
-    print(f"Raw Data Valid: {raw_valid}")
-    if raw_invalid:
-        print(f"  Invalid files: {raw_invalid}")
-    print(f"Processed Data Valid: {proc_valid}")
-    if proc_invalid:
-        print(f"  Invalid files: {proc_invalid}")
+    # Validate processed data
+    processed_valid, processed_failures = validate_processed_data()
+    if not processed_valid:
+        logger.warning(f"Processed data validation issues: {processed_failures}")
     
-    if not raw_valid or not proc_valid:
-        print("\nChecksum mismatches detected. Running refresh...")
-        refresh_manifests()
-        print("Manifests refreshed.")
-    else:
-        print("\nAll data integrity checks passed.")
+    # Refresh manifests
+    if not refresh_manifests():
+        logger.error("Failed to refresh manifests")
+        return 1
+    
+    logger.info("Data validation completed successfully")
+    return 0
 
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    exit(main())

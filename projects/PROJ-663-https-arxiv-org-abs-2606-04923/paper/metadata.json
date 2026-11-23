@@ -51,5 +51,15 @@
     "latex/acl.sty",
     "latex/acl_natbib.bst",
     "latex/custom.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "3fc652c1a52e22c2ee5da964b095a208e41bcf4dd526734c1151dc96c852d8aa",
+      "bytes": 4089148
+    },
+    "original.pdf": {
+      "sha256": "03957e64a2a9d1ad158518b7772547f2e248640ff5ee44699a5d3e54e70dac13",
+      "bytes": 4049106
+    }
+  }
 }

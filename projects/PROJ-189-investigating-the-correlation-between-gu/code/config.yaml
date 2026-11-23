@@ -1,0 +1,15 @@
+# Configuration for Predictive Modeling (US3)
+random_seed: 42
+n_splits_outer: 5
+n_splits_inner: 3
+vif_threshold: 5.0
+
+# Hyperparameter Grid for GridSearchCV
+n_estimators_grid: [50, 100, 200]
+max_depth_grid: [None, 5, 10, 20]
+min_samples_split_grid: [2, 5, 10]
+min_samples_leaf_grid: [1, 2, 4]
+
+# Resource limits
+max_memory_gb: 7
+max_runtime_hours: 6

@@ -13,7 +13,7 @@ This project implements a Graph Neural Network (GNN) to predict the maximum exci
 **Primary Dependencies**: `rdkit`, `torch` (CPU version), `torch-geometric` (CPU compatible), `pandas`, `scikit-learn`, `numpy`, `pyyaml`  
 **Storage**: Local filesystem (CSV/Parquet artifacts under `data/`)  
 **Testing**: `pytest` (unit tests for data parsing, integration tests for pipeline flow)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: limited vCPU, 7GB RAM, no GPU)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: limited vCPU, limited RAM, no GPU)  
 **Project Type**: Data Science / Machine Learning Pipeline  
 **Performance Goals**: Complete end-to-end training and evaluation within 6 hours; MAE < 30 nm on test set (if experimental data available).  
 **Constraints**: No GPU usage; memory footprint < 7GB; no external API calls during runtime (datasets pre-fetched or cached); strict scaffold splitting.  
@@ -143,11 +143,11 @@ If the dataset contains **only computed** $\lambda_{max}$ values:
 
 ## Compute Feasibility Strategy
 
-- **Hardware Target**: GitHub Actions Free Tier (limited CPU resources, 7GB RAM, 6h limit).
+- **Hardware Target**: GitHub Actions Free Tier (limited CPU resources, constrained RAM, 6h limit).
 - **Memory Management**:
   - Data loading uses `pandas` with `dtype` optimization.
   - Sampling strategy ensures test set n≥50 while fitting in RAM.
-  - Batch size tuned (e.g., or 64).
+  - Batch size tuned (e.g., to an appropriate magnitude).
 - **Time Management**:
   - Training epochs limited to a moderate range with early stopping.
   - Model size strictly capped at <1M parameters.

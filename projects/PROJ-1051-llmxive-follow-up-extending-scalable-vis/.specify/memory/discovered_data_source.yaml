@@ -1,0 +1,15 @@
+status: none
+intent: DocBank scientific PDF layout annotations MixSub-LLaMA-3.2 python package
+  dataset
+required_fields:
+- document_id
+- page_number
+- text_content
+- element_type
+- bounding_box
+- image_path
+- label_overlap
+- cpu_score
+cache_key: ad0b6ad9388840f272588e4e0b3c0dff9e1530517f5f9dcca34b6b2515e0da0b
+searched_at: '2026-10-22T08:09:16.813202+00:00'
+retry_count: 1

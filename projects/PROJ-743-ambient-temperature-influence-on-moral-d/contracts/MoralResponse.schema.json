@@ -1,0 +1,15 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MoralResponse",
+  "type": "object",
+  "properties": {
+    "participant_id": { "type": "string" },
+    "latitude": { "type": "number" },
+    "longitude": { "type": "number" },
+    "timestamp": { "type": "string", "format": "date-time" },
+    "response_time": { "type": "number" },
+    "country": { "type": "string" },
+    "dilemma_id": { "type": "string" }
+  },
+  "required": ["participant_id", "latitude", "longitude", "timestamp", "response_time", "country", "dilemma_id"]
+}

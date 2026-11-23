@@ -61,5 +61,15 @@
     "neurips_2026.sty",
     "radar.pdf",
     "references.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "d556d329deb81b8235f1c0c072e000cf0908df220a128733f7c13660c7726b60",
+      "bytes": 11116243
+    },
+    "original.pdf": {
+      "sha256": "cb9157c85e096e4e4fbb41c67c6f36a64c98d15cff4c0f00b82623bd3fff83e3",
+      "bytes": 9981040
+    }
+  }
 }

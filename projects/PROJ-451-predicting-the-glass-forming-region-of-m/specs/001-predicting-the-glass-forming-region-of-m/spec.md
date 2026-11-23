@@ -13,7 +13,7 @@ The research pipeline MUST load alloy composition data from the designated sourc
 
 **Why this priority**: Without validated input data and correctly computed descriptors, no downstream analysis is possible. This is the foundational step that enables all subsequent modeling work.
 
-**Independent Test**: Can be fully tested by verifying that the output dataset contains ≥1000 alloy compositions with ≥10 computed descriptors per composition, and that descriptor values fall within physically reasonable ranges (e.g., atomic size mismatch ∈ [, 1], electronegativity difference ∈ [, 3]).
+**Independent Test**: Can be fully tested by verifying that the output dataset contains ≥1000 alloy compositions with ≥10 computed descriptors per composition, and that descriptor values fall within physically reasonable ranges (e.g., atomic size mismatch ∈ [, ], electronegativity difference ∈ [, ]).
 
 **Acceptance Scenarios**:
 
@@ -49,7 +49,7 @@ The research pipeline MUST extract permutation importance scores for all descrip
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained Random Forest model on ≥500 compositions, **When** permutation importance is computed, **Then** the system reports the top 3 descriptors and their contribution percentages.
+1. **Given** a trained Random Forest model on ≥500 compositions, **When** permutation importance is computed, **Then** the system reports the top descriptors and their contribution percentages.
 2. **Given** the trained model, **When** SHAP values are computed for a held-out test composition, **Then** the SHAP summary plot displays at least 10 compositions with non-overlapping feature value distributions.
 
 ---

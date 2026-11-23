@@ -31,25 +31,17 @@ env/
 *.swp
 *.swo
 
-# Data (keep raw, exclude large processed files if needed)
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-
-# Results and figures
-results/*
-!results/.gitkeep
-figures/*
-!figures/.gitkeep
+# Data and Results (generated)
+data/raw/
+data/processed/
+results/
+figures/
+state/
 
 # Logs
 *.log
+logs/
 
 # OS
 .DS_Store
 Thumbs.db
-
-# Local configuration
-.env
-.local_config.yaml

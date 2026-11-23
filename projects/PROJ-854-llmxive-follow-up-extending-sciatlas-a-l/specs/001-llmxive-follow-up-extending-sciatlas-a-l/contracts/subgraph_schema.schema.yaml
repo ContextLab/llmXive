@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Subgraph with Clusters Schema"
+description: "Schema for data/processed/subgraph_with_clusters.parquet"
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the node (e.g., OpenAlex ID)"
+  primary_cluster:
+    type: "integer"
+    description: "Cluster ID assigned by Louvain algorithm"
+  bridging_coefficient:
+    type: "number"
+    description: "Ratio of inter-cluster edges to total degree. Range [0.0, 1.0]"
+    minimum: 0.0
+    maximum: 1.0
+  degree:
+    type: "integer"
+    description: "Total number of edges connected to the node"
+required:
+  - id
+  - primary_cluster
+  - bridging_coefficient
+  - degree
+additionalProperties: false

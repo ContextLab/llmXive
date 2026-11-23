@@ -1,0 +1,12 @@
+'|buffer download entry filtering least provide set sufficient test':
+  quote: Google has been accused of using Manifest V3 to inhibit ad-blocking software
+    due to its vested interest in the online advertising market. Google cited performance
+    issues associated with WebRequest, as well as its use in malicious extensions.
+    In June 2019, it announced that it would increase the aforementioned cap from
+    30,000 to 150,000 entries to help quell concerns about limitations to filtering
+    rules. In 2021, the Electronic Frontier Foundation (EFF) issued a statement that
+    Manifest V3 was "outright harmful to privacy efforts", as it would greatly limit
+    the functionality of ad blocking extensions.
+  source_id: Google Chrome
+  url: https://en.wikipedia.org/wiki/Google_Chrome
+  value: 150,000

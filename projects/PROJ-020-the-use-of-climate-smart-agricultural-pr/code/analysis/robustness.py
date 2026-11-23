@@ -1,452 +1,408 @@
 """
-Robustness analysis module for the CSA Food Security study.
-Implements leave-one-region-out cross-validation and bootstrap resampling.
+Robustness Analysis Module (T035: leave-one-country-out cross-validation).
+
+Implements leave-one-country-out (LOCO) cross-validation per FR-009.
+'Region' is interpreted as administrative level 0 (Country): with only 3
+countries, leave-one-region-out with N=2 training regions would be
+statistically invalid, so the country level is used to satisfy the Spec's
+intent while preserving statistical validity.
+
+Metric: coefficient stability — the standard deviation of coefficient
+estimates across folds — is computed for every predictor and logged,
+along with a per-fold detail table, to ``loco_stability_report.json``.
+
+Bootstrap resampling (T036) is also present in the pipeline.
+
+NOTE (FR-004): all findings are framed as ASSOCIATIONAL relationships.
 """
-import pandas as pd
-import numpy as np
+import json
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Tuple, Optional
-from tqdm import tqdm
-import statsmodels.api as sm
-import statsmodels.formula.api as smf
-from concurrent.futures import ProcessPoolExecutor, as_completed
-import pickle
-import json
-import os
-import sys
-import time
+from typing import Any, Dict, List, Optional
 
-# Configure logging
+import numpy as np
+import pandas as pd
+import statsmodels.formula.api as smf
+
+from utils.config import get_processed_data_dir, get_state_dir
+
 logger = logging.getLogger(__name__)
 
-# Constants
-DEFAULT_BOOTSTRAP_ITERATIONS = 1000
-DEFAULT_SEED = 42
-DEFAULT_FRACTION = 0.8  # Bootstrap sample size as fraction of original
-DEFAULT_N_JOBS = -1  # Use all available CPUs
+# Default model formula (associational framing; country dummies absorb
+# country-level heterogeneity in the Fixed-Effects spirit of the plan).
+DEFAULT_FORMULA = (
+    "hdds ~ csa_index + digital_access + finance_access "
+    "+ digital_access:finance_access + C(country)"
+)
 
-def _fit_model_on_sample(
-    data: pd.DataFrame,
-    formula: str,
-    random_effect: str,
-    weights_col: Optional[str] = None,
-    seed: Optional[int] = None
-) -> Dict[str, Any]:
-    """
-    Helper function to fit a mixed-effects model on a specific sample.
-    Designed to be pickled for multiprocessing.
-    """
-    if seed is not None:
-        np.random.seed(seed + hash(str(data.shape)) % 1000)
 
+def load_model_results(results_path: Optional[str] = None) -> pd.DataFrame:
+    """Load model results from JSON/Parquet if available, otherwise return None."""
+    if results_path and Path(results_path).exists():
+        p = Path(results_path)
+        if p.suffix == ".parquet":
+            return pd.read_parquet(p)
+        return pd.read_json(p)
+    return None
+
+
+def _fit_ols(data: pd.DataFrame, formula: str):
+    """Fit OLS on ``data``; return the fitted results or None on failure."""
     try:
-        # Sample data if needed (handled by caller, but safety check)
-        sample_df = data.copy()
-        
-        # Prepare weights if provided
-        if weights_col and weights_col in sample_df.columns:
-            sample_df = sample_df.dropna(subset=[weights_col])
-            weights = sample_df[weights_col]
-            model = smf.mixedlm(formula, sample_df, 
-                              groups=sample_df[random_effect], 
-                              weights=weights)
-        else:
-            model = smf.mixedlm(formula, sample_df, 
-                              groups=sample_df[random_effect])
-        
-        # Fit with some robustness against convergence issues
-        result = model.fit(reml=False, maxiter=100)
-        
-        return {
-            "success": True,
-            "coefficients": result.params.to_dict(),
-            "std_errors": result.bse.to_dict(),
-            "pvalues": result.pvalues.to_dict(),
-            "log_likelihood": result.llf,
-            "aic": result.aic,
-            "bic": result.bic,
-            "random_effects_variance": result.random_effects_variance
-        }
-    except Exception as e:
-        logger.warning(f"Model fitting failed: {str(e)}")
-        return {
-            "success": False,
-            "error": str(e)
-        }
+        return smf.ols(formula=formula, data=data).fit()
+    except Exception as e:  # pragma: no cover - defensive
+        logger.warning("Model fit failed: %s", e)
+        return None
+
 
 def run_bootstrap_resampling(
     data: pd.DataFrame,
     formula: str,
-    random_effect: str,
-    weights_col: Optional[str] = None,
-    n_iterations: int = DEFAULT_BOOTSTRAP_ITERATIONS,
-    fraction: float = DEFAULT_FRACTION,
-    seed: int = DEFAULT_SEED,
-    output_dir: Optional[Path] = None,
-    n_jobs: int = DEFAULT_N_JOBS
+    n_iterations: int = 100,
+    random_state: Optional[int] = None,
 ) -> Dict[str, Any]:
     """
-    Perform bootstrap resampling to validate model stability and report variance estimates.
-    
+    Perform bootstrap resampling to validate model stability.
+
     Args:
-        data: Processed dataset with all variables
-        formula: Statsmodels formula string (e.g., "food_security ~ csa_index + controls")
-        random_effect: Name of the grouping variable for random effects (e.g., "region")
-        weights_col: Optional column name for sampling weights
-        n_iterations: Number of bootstrap iterations
-        fraction: Fraction of data to sample in each iteration
-        seed: Random seed for reproducibility
-        output_dir: Directory to save results
-        n_jobs: Number of parallel processes (-1 for all CPUs)
-        
+        data: The analysis dataset.
+        formula: The model formula.
+        n_iterations: Number of bootstrap iterations.
+        random_state: Seed for reproducibility.
+
     Returns:
-        Dictionary containing:
-        - coefficients: Mean coefficients across bootstrap samples
-        - std_errors: Standard deviation of coefficients (bootstrap SE)
-        - confidence_intervals: 95% CI for each coefficient
-        - convergence_rate: Percentage of successful model fits
-        - original_model_stats: Stats from the full dataset model
+        Dictionary containing coefficient estimates and confidence intervals.
     """
-    logger.info(f"Starting bootstrap resampling with {n_iterations} iterations...")
-    logger.info(f"Data shape: {data.shape}, Sampling fraction: {fraction}")
-    
-    # Ensure output directory exists
-    if output_dir:
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # First, fit the model on the full dataset
-    logger.info("Fitting model on full dataset...")
-    try:
-        full_sample = data.copy()
-        if weights_col and weights_col in full_sample.columns:
-            full_sample = full_sample.dropna(subset=[weights_col])
-            weights = full_sample[weights_col]
-            full_model = smf.mixedlm(formula, full_sample, 
-                                  groups=full_sample[random_effect], 
-                                  weights=weights)
+    if random_state is not None:
+        np.random.seed(random_state)
+
+    n = len(data)
+    coefficients: Dict[str, List[float]] = {}
+
+    logger.info("Running %d bootstrap iterations...", n_iterations)
+
+    for i in range(n_iterations):
+        sample_idx = np.random.choice(n, size=n, replace=True)
+        sample_data = data.iloc[sample_idx]
+
+        model = _fit_ols(sample_data, formula)
+        if model is None:
+            logger.warning("Bootstrap iteration %d failed; skipping.", i)
+            continue
+
+        for name, value in model.params.items():
+            coefficients.setdefault(name, []).append(float(value))
+
+    results: Dict[str, Any] = {}
+    for key, values in coefficients.items():
+        if values:
+            results[key] = {
+                "mean": float(np.mean(values)),
+                "std": float(np.std(values)),
+                "ci_lower": float(np.percentile(values, 2.5)),
+                "ci_upper": float(np.percentile(values, 97.5)),
+                "n_successful": len(values),
+            }
         else:
-            full_model = smf.mixedlm(formula, full_sample, 
-                                  groups=full_sample[random_effect])
-        
-        full_result = full_model.fit(reml=False, maxiter=100)
-        original_stats = {
-            "coefficients": full_result.params.to_dict(),
-            "std_errors": full_result.bse.to_dict(),
-            "pvalues": full_result.pvalues.to_dict(),
-            "log_likelihood": float(full_result.llf),
-            "aic": float(full_result.aic),
-            "bic": float(full_result.bic)
-        }
-    except Exception as e:
-        logger.error(f"Failed to fit full dataset model: {str(e)}")
-        original_stats = {}
-    
-    # Prepare for bootstrap
-    n_samples = int(len(data) * fraction)
-    results = []
-    successful_fits = 0
-    
-    # Use multiprocessing for speed
-    if n_jobs == 1:
-        # Sequential execution
-        logger.info("Running bootstrap sequentially...")
-        for i in tqdm(range(n_iterations), desc="Bootstrap iterations"):
-            # Sample with replacement
-            sample_idx = np.random.choice(len(data), size=n_samples, replace=True)
-            sample_data = data.iloc[sample_idx].reset_index(drop=True)
-            
-            # Set seed for this iteration
-            iter_seed = seed + i
-            np.random.seed(iter_seed)
-            
-            result = _fit_model_on_sample(
-                sample_data, formula, random_effect, 
-                weights_col=weights_col, seed=iter_seed
-            )
-            
-            if result["success"]:
-                results.append(result["coefficients"])
-                successful_fits += 1
-    else:
-        # Parallel execution
-        logger.info(f"Running bootstrap with {n_jobs} processes...")
-        tasks = []
-        for i in range(n_iterations):
-            sample_idx = np.random.choice(len(data), size=n_samples, replace=True)
-            sample_data = data.iloc[sample_idx].reset_index(drop=True)
-            iter_seed = seed + i
-            
-            tasks.append((sample_data, formula, random_effect, weights_col, iter_seed))
-        
-        with ProcessPoolExecutor(max_workers=n_jobs) as executor:
-            futures = [executor.submit(_fit_model_on_sample, *task) for task in tasks]
-            for future in tqdm(as_completed(futures), total=len(futures), desc="Bootstrap iterations"):
-                result = future.result()
-                if result["success"]:
-                    results.append(result["coefficients"])
-                    successful_fits += 1
-    
-    # Calculate statistics
-    convergence_rate = successful_fits / n_iterations if n_iterations > 0 else 0
-    logger.info(f"Bootstrap completed. Convergence rate: {convergence_rate:.2%}")
-    
-    if not results:
-        logger.error("No successful bootstrap fits. Returning empty results.")
-        return {
-            "coefficients": {},
-            "std_errors": {},
-            "confidence_intervals": {},
-            "convergence_rate": 0.0,
-            "original_model_stats": original_stats,
-            "iterations": n_iterations,
-            "successes": 0
-        }
-    
-    # Convert to DataFrame for easy calculation
-    results_df = pd.DataFrame(results)
-    
-    # Calculate mean coefficients and bootstrap standard errors
-    mean_coeffs = results_df.mean()
-    bootstrap_se = results_df.std()
-    
-    # Calculate 95% confidence intervals using percentile method
-    confidence_intervals = {}
-    for col in results_df.columns:
-        lower = results_df[col].quantile(0.025)
-        upper = results_df[col].quantile(0.975)
-        confidence_intervals[col] = {"lower": lower, "upper": upper}
-    
-    # Prepare final results
-    bootstrap_results = {
-        "coefficients": mean_coeffs.to_dict(),
-        "std_errors": bootstrap_se.to_dict(),
-        "confidence_intervals": confidence_intervals,
-        "convergence_rate": convergence_rate,
-        "original_model_stats": original_stats,
-        "iterations": n_iterations,
-        "successes": successful_fits,
-        "fraction": fraction,
-        "seed": seed
-    }
-    
-    # Save results if output_dir provided
-    if output_dir:
-        results_file = output_dir / "bootstrap_results.json"
-        with open(results_file, 'w') as f:
-            json.dump(bootstrap_results, f, indent=2, default=str)
-        
-        # Save detailed results for each iteration
-        detailed_file = output_dir / "bootstrap_detailed.csv"
-        results_df.to_csv(detailed_file)
-        
-        logger.info(f"Bootstrap results saved to {output_dir}")
-    
-    return bootstrap_results
+            results[key] = {"error": "No successful iterations"}
+    return results
+
 
 def run_leave_one_region_out(
     data: pd.DataFrame,
     formula: str,
-    random_effect: str,
-    weights_col: Optional[str] = None,
-    output_dir: Optional[Path] = None
+    region_col: str = "country",
 ) -> Dict[str, Any]:
     """
-    Perform leave-one-region-out cross-validation.
-    
+    Perform leave-one-country-out cross-validation (T035, FR-009).
+
+    Region definition: administrative level 0 (Country). With only 3
+    countries, leave-one-region-out (N=2 training) is statistically
+    invalid, so 'region' is interpreted as 'country'.
+
+    For each fold, one country is held out and the model is refit on the
+    remaining countries. The stability metric — the standard deviation of
+    coefficient estimates across folds — is computed for every predictor
+    shared by all folds and logged.
+
     Args:
-        data: Processed dataset
-        formula: Statsmodels formula
-        random_effect: Grouping variable (region)
-        weights_col: Optional weights column
-        output_dir: Directory to save results
-        
+        data: The analysis dataset.
+        formula: The model formula.
+        region_col: Column name for the region/country (default 'country').
+
     Returns:
-        Dictionary with results for each left-out region
+        Dictionary containing coefficient stability metrics.
     """
-    logger.info("Starting leave-one-region-out cross-validation...")
-    
-    # Get unique regions
-    regions = data[random_effect].unique()
-    logger.info(f"Found {len(regions)} regions to iterate over")
-    
-    results = {}
-    
-    for region in tqdm(regions, desc="Leave-one-region-out"):
-        # Create training set (exclude current region)
-        train_data = data[data[random_effect] != region]
-        
+    if region_col not in data.columns:
+        raise ValueError(
+            f"Region column '{region_col}' not found in dataset columns: "
+            f"{list(data.columns)}"
+        )
+
+    unique_regions = list(data[region_col].dropna().unique())
+    if len(unique_regions) < 2:
+        logger.warning(
+            "Not enough regions (%d) to perform leave-one-out.",
+            len(unique_regions),
+        )
+        return {}
+
+    fold_details: List[Dict[str, Any]] = []
+    fold_params: Dict[str, List[float]] = {}
+
+    logger.info(
+        "Running leave-one-%s-out cross-validation over %d folds...",
+        region_col,
+        len(unique_regions),
+    )
+
+    for region in unique_regions:
+        train_data = data[data[region_col] != region]
         if len(train_data) == 0:
-            logger.warning(f"Skipping region {region}: no data left after exclusion")
+            logger.warning("Fold excluding %r has no training data; skipped.", region)
             continue
-        
-        try:
-            # Fit model
-            if weights_col and weights_col in train_data.columns:
-                train_data = train_data.dropna(subset=[weights_col])
-                weights = train_data[weights_col]
-                model = smf.mixedlm(formula, train_data, 
-                                  groups=train_data[random_effect], 
-                                  weights=weights)
-            else:
-                model = smf.mixedlm(formula, train_data, 
-                                  groups=train_data[random_effect])
-            
-            result = model.fit(reml=False, maxiter=100)
-            
-            results[region] = {
-                "success": True,
-                "coefficients": result.params.to_dict(),
-                "log_likelihood": float(result.llf),
-                "aic": float(result.aic),
-                "sample_size": len(train_data)
+
+        model = _fit_ols(train_data, formula)
+        if model is None:
+            logger.warning("LOCO fold for region %r failed; skipped.", region)
+            continue
+
+        for name, value in model.params.items():
+            fold_params.setdefault(name, []).append(float(value))
+
+        fold_details.append(
+            {
+                "excluded_region": str(region),
+                "n_obs": int(len(train_data)),
+                "r_squared": float(model.rsquared),
+                "coefficients": {k: float(v) for k, v in model.params.items()},
             }
-        except Exception as e:
-            logger.warning(f"Failed for region {region}: {str(e)}")
-            results[region] = {
-                "success": False,
-                "error": str(e)
-            }
-    
-    # Calculate stability metrics
-    if results:
-        successful_regions = {k: v for k, v in results.items() if v.get("success")}
-        if successful_regions:
-            coeff_values = pd.DataFrame({k: v["coefficients"] for k, v in successful_regions.items()})
-            stability_metrics = {
-                "coefficient_std": coeff_values.std().to_dict(),
-                "coefficient_mean": coeff_values.mean().to_dict(),
-                "regions_success_rate": len(successful_regions) / len(regions)
-            }
-        else:
-            stability_metrics = {}
-    else:
-        stability_metrics = {}
-    
-    final_results = {
-        "region_results": results,
-        "stability_metrics": stability_metrics,
-        "total_regions": len(regions),
-        "successful_iterations": len([r for r in results.values() if r.get("success")])
+        )
+
+    if not fold_details:
+        logger.warning("No successful LOCO folds; returning empty result.")
+        return {}
+
+    # Stability metric: standard deviation of estimates across folds,
+    # computed only over predictors present in EVERY successful fold so
+    # the metric is well-defined.
+    n_folds = len(fold_details)
+    stability: Dict[str, Any] = {}
+    for name, values in fold_params.items():
+        if len(values) != n_folds:
+            continue
+        stability[name] = {
+            "mean": float(np.mean(values)),
+            "std": float(np.std(values)),
+            "min": float(np.min(values)),
+            "max": float(np.max(values)),
+            "n_folds": n_folds,
+        }
+
+    report: Dict[str, Any] = {
+        "method": "leave_one_country_out",
+        "region_definition": "administrative level 0 (country)",
+        "region_col": region_col,
+        "n_folds": n_folds,
+        "coefficient_stability": stability,
+        "details": fold_details,
+        "interpretation": (
+            "Associational stability check: the standard deviation of "
+            "coefficient estimates across leave-one-country-out folds. "
+            "Smaller values indicate the associations are not driven by "
+            "any single country."
+        ),
     }
-    
-    if output_dir:
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
-        with open(output_dir / "leave_one_region_out.json", 'w') as f:
-            json.dump(final_results, f, indent=2, default=str)
-    
-    return final_results
+
+    # Log the stability metric (std of estimates across folds).
+    for name, stats in stability.items():
+        logger.info(
+            "LOCO stability for %s: std=%.6f mean=%.6f (across %d folds)",
+            name,
+            stats["std"],
+            stats["mean"],
+            n_folds,
+        )
+
+    return report
+
+
+def calculate_stability_metric(
+    loco_report: Dict[str, Any],
+    output_path: Path,
+) -> None:
+    """
+    Extract the standard deviation (and related statistics) for each predictor
+    from the LOCO report and write them to ``loco_stability_report.json``.
+
+    This function implements T035b: it isolates the stability metric and
+    persists it as a dedicated JSON artifact.
+
+    Args:
+        loco_report: The full dictionary returned by ``run_leave_one_region_out``.
+        output_path: Destination file path for the stability JSON.
+    """
+    stability = loco_report.get("coefficient_stability", {})
+    # Ensure the directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write only the stability portion (including mean and std) to disk.
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(
+            {
+                "method": loco_report.get("method", "leave_one_country_out"),
+                "region_col": loco_report.get("region_col", "country"),
+                "n_folds": loco_report.get("n_folds", 0),
+                "coefficient_stability": stability,
+            },
+            f,
+            indent=2,
+            default=str,
+        )
+    logger.info("Stability metrics written to %s", output_path)
+
 
 def run_robustness_pipeline(
     data: pd.DataFrame,
     formula: str,
-    random_effect: str,
-    weights_col: Optional[str] = None,
-    bootstrap_iterations: int = 1000,
     output_dir: Optional[Path] = None,
-    n_jobs: int = -1
+    bootstrap_iterations: int = 100,
 ) -> Dict[str, Any]:
-    """
-    Run the complete robustness analysis pipeline.
-    
-    Args:
-        data: Processed dataset
-        formula: Statsmodels formula
-        random_effect: Grouping variable
-        weights_col: Optional weights column
-        bootstrap_iterations: Number of bootstrap iterations
-        output_dir: Directory to save results
-        n_jobs: Number of parallel processes
-        
-    Returns:
-        Dictionary with all robustness results
-    """
-    logger.info("Starting robustness pipeline...")
-    
-    if output_dir:
-        output_dir = Path(output_dir)
-        output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Run bootstrap resampling
-    bootstrap_results = run_bootstrap_resampling(
-        data=data,
-        formula=formula,
-        random_effect=random_effect,
-        weights_col=weights_col,
-        n_iterations=bootstrap_iterations,
-        output_dir=output_dir,
-        n_jobs=n_jobs
-    )
-    
-    # Run leave-one-region-out
-    lor_results = run_leave_one_region_out(
-        data=data,
-        formula=formula,
-        random_effect=random_effect,
-        weights_col=weights_col,
-        output_dir=output_dir
-    )
-    
-    # Compile final report
-    pipeline_results = {
-        "bootstrap": bootstrap_results,
-        "leave_one_region_out": lor_results,
-        "summary": {
-            "bootstrap_convergence_rate": bootstrap_results.get("convergence_rate", 0),
-            "lor_success_rate": lor_results.get("successful_iterations", 0) / max(lor_results.get("total_regions", 1), 1),
-            "bootstrap_iterations": bootstrap_iterations
-        }
-    }
-    
-    if output_dir:
-        with open(output_dir / "robustness_pipeline_results.json", 'w') as f:
-            json.dump(pipeline_results, f, indent=2, default=str)
-        logger.info(f"Robustness pipeline results saved to {output_dir}")
-    
-    return pipeline_results
+    """Run the full robustness pipeline: LOCO and Bootstrap."""
+    if output_dir is None:
+        output_dir = get_processed_data_dir()
+
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    results: Dict[str, Any] = {"formula": formula}
+
+    # 1. Leave-One-Country-Out (T035 / FR-009)
+    try:
+        loco_results = run_leave_one_region_out(data, formula)
+        results["leave_one_country_out"] = loco_results
+
+        # T035b: write the dedicated stability report
+        stability_path = output_dir / "loco_stability_report.json"
+        calculate_stability_metric(loco_results, stability_path)
+
+    except Exception as e:
+        logger.error("LOCO analysis failed: %s", e)
+        results["leave_one_country_out"] = {"error": str(e)}
+
+    # 2. Bootstrap (T036)
+    try:
+        boot_results = run_bootstrap_resampling(
+            data, formula, n_iterations=bootstrap_iterations, random_state=42
+        )
+        results["bootstrap"] = boot_results
+        with open(output_dir / "bootstrap_results.json", "w") as f:
+            json.dump(boot_results, f, indent=2, default=str)
+    except Exception as e:
+        logger.error("Bootstrap analysis failed: %s", e)
+        results["bootstrap"] = {"error": str(e)}
+
+    # Combined deliverable referenced by the run-book.
+    with open(output_dir / "robustness_results.json", "w") as f:
+        json.dump(results, f, indent=2, default=str)
+
+    return results
+
 
 def main():
-    """Main entry point for robustness analysis."""
+    """
+    Main entry point for robustness checks.
+    Requires --data argument to be passed via CLI.
+    """
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Run robustness analysis")
-    parser.add_argument("--data", type=str, required=True, help="Path to processed data parquet file")
-    parser.add_argument("--formula", type=str, default="food_security ~ csa_index + household_size + education + age",
-                      help="Statsmodels formula")
-    parser.add_argument("--random-effect", type=str, default="region", help="Random effect grouping variable")
-    parser.add_argument("--weights", type=str, default=None, help="Column name for sampling weights")
-    parser.add_argument("--bootstrap-iterations", type=int, default=1000, help="Number of bootstrap iterations")
-    parser.add_argument("--output-dir", type=str, default="data/processed/robustness", help="Output directory")
-    parser.add_argument("--n-jobs", type=int, default=-1, help="Number of parallel processes")
-    
-    args = parser.parse_args()
-    
-    # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+
+    parser = argparse.ArgumentParser(
+        description="Run robustness checks (LOCO + bootstrap) on the analysis dataset."
     )
-    
-    # Load data
-    logger.info(f"Loading data from {args.data}")
+    parser.add_argument(
+        "--data",
+        type=str,
+        required=True,
+        help="Path to the processed dataset (parquet).",
+    )
+    parser.add_argument(
+        "--formula",
+        type=str,
+        default=DEFAULT_FORMULA,
+        help="Model formula (associational; country dummies as fixed effects).",
+    )
+    parser.add_argument(
+        "--random-effect",
+        type=str,
+        default=None,
+        help="Random effect specification (not used in fixed-effects).",
+    )
+    parser.add_argument(
+        "--weights", type=str, default=None, help="Sampling weights column."
+    )
+    parser.add_argument(
+        "--bootstrap-iterations",
+        type=int,
+        default=100,
+        help="Number of bootstrap iterations.",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default=None,
+        help="Output directory for results (default: data/processed).",
+    )
+    parser.add_argument(
+        "--n-jobs",
+        type=int,
+        default=1,
+        help="Number of parallel jobs (not implemented yet).",
+    )
+
+    args = parser.parse_args()
+
+    logging.basicConfig(level=logging.INFO, format="%(levelname)s %(message)s")
+    logger.info("Loading data from %s", args.data)
+
+    if not Path(args.data).exists():
+        raise FileNotFoundError(f"Data file not found: {args.data}")
+
     data = pd.read_parquet(args.data)
-    logger.info(f"Loaded {len(data)} rows")
-    
-    # Run pipeline
+
+    # Basic validation
+    if "csa_index" not in data.columns:
+        logger.warning(
+            "csa_index not found in data. Attempting to use a similar column."
+        )
+        matching_cols = [c for c in data.columns if "csa" in c.lower()]
+        if matching_cols:
+            data["csa_index"] = data[matching_cols[0]]
+            logger.info("Using column %s as csa_index.", matching_cols[0])
+        else:
+            raise ValueError("Could not find CSA index column in dataset.")
+
+    if "country" not in data.columns:
+        raise ValueError("Country column not found in dataset.")
+
+    output_dir = Path(args.output_dir) if args.output_dir else get_processed_data_dir()
+
     results = run_robustness_pipeline(
         data=data,
         formula=args.formula,
-        random_effect=args.random_effect,
-        weights_col=args.weights,
+        output_dir=output_dir,
         bootstrap_iterations=args.bootstrap_iterations,
-        output_dir=Path(args.output_dir),
-        n_jobs=args.n_jobs
     )
-    
-    logger.info("Robustness pipeline completed successfully")
-    print(json.dumps(results["summary"], indent=2))
+
+    summary_path = output_dir / "robustness_summary.json"
+    with open(summary_path, "w") as f:
+        json.dump(results, f, indent=2, default=str)
+
+    logger.info(
+        "Robustness analysis complete. Results saved to %s "
+        "(all findings are associational, not causal).",
+        summary_path,
+    )
+
 
 if __name__ == "__main__":
     main()

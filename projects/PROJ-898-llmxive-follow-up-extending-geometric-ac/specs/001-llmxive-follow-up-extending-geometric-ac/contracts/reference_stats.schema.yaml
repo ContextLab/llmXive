@@ -1,0 +1,32 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Reference Stats Schema"
+description: "Schema for the reference distribution statistics (Phase 1.4)."
+type: object
+properties:
+  mean:
+    type: array
+    items:
+      type: number
+    description: "Mean of latent vectors from training set (or prior)"
+  covariance:
+    type: array
+    items:
+      type: array
+      items:
+        type: number
+    description: "Covariance matrix of latent vectors"
+  sample_size:
+    type: integer
+    description: "Number of samples used to compute stats"
+  topology_list:
+    type: array
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+        parameters:
+          type: object
+      required: ["id", "parameters"]
+    description: "Discrete list of training topologies for overlap check."
+required: ["mean", "covariance", "sample_size", "topology_list"]

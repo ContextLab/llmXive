@@ -1,0 +1,78 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Data files (large files, should be in git-lfs or ignored)
+data/raw/*.zip
+data/raw/*.csv
+data/processed/*.parquet
+data/processed/*.csv
+data/meddra_soc_mapping.csv
+
+# Output files
+output/*.csv
+output/*.json
+output/*.md
+output/temporal_profiles/*.png
+output/*.log
+
+# Logs
+logs/*.log
+
+# Test coverage
+.coverage
+htmlcov/
+.pytest_cache/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets and credentials
+.env
+*.pem
+*.key
+
+# Temporary files
+*.tmp
+*.bak
+*.swp
+*~
+
+# Ruff/Black cache
+.ruff_cache/
+.mypy_cache/

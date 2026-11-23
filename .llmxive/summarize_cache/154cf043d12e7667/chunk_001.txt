@@ -1,0 +1,97 @@
+|-----------|------------|-------------------------------------|
+| Mixed‑Effects Models on millions of participants | Infeasible on 2 CPU/7 GB CI; leads to memory overflow | OLS with clustered SEs provides valid inference with far lower memory use. |
+| ERA5 full‑year download without indexing | Naïve join is O(N × M) and would exceed time limits | KD‑Tree + chunked processing reduces complexity to O(N log M). |
+| Dilemma ID fixed effect collinearity | Absorbs all variance of static dilemma attributes, making complexity unidentifiable | Dropping dilemma ID avoids perfect collinearity while still controlling for choice type. |
+| No joint test for temperature non‑linearity | Linear‑only LRT could miss inverted‑U effects | Wald test and model‑comparison (AIC/BIC) capture joint significance. |
+| No explicit path for exclusion logs | SC‑001 cannot be verified | Defined `results/logs/exclusion_log.csv` with required columns. |
+| No match log for successful matches | Violates Constitution Principle VI | Added `results/logs/match_log.csv` with station ID and timestamp. |
+| No temperature extreme filter | FR‑002 unmet | Implemented ‑30 °C – 50 °C filter. |
+| No source verification step | FR‑014 unmet | Added checksum and resolution checks before ingestion. |
+| Indoor/outdoor confound not addressed | FR‑012 unmet | Added proxy stratification and limitation reporting. |
+| Lack of joint significance testing for temperature | FR‑013 unmet | Added Wald test and model‑comparison step. |
+| No sampling strategy for random effects | FR‑003 scalability issue | Added participant sampling and OLS‑clustered alternative. |
+
+
+## projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/research.md
+
+# Research: Ambient Temperature Influence on Moral Decision Speed
+
+## Research Question
+
+Does ambient temperature influence the speed of moral decision‑making? Specifically, does higher ambient temperature correlate with faster (or slower) response times in the Moral Machine dataset, after controlling for participant ID, cultural region, dilemma complexity, time‑of‑day, and choice type?
+
+## Background & Literature Review
+
+The relationship between environmental factors and cognitive performance is well‑documented. High temperatures can increase physiological arousal, potentially triggering System 1 (intuitive) processing over System 2 (deliberative) processing, which may lead to faster but less deliberative decisions. Conversely, extreme heat can induce cognitive fatigue, slowing response times. The Yerkes‑Dodson law suggests a potential inverted‑U relationship, justifying the inclusion of both linear and quadratic temperature terms.
+
+## Dataset Strategy
+
+### Primary Dataset: Moral Machine
+* **Verified Source**: `https://huggingface.co/datasets/moral-machine/moral-machine` (validated by Reference‑Validator).
+* **Variables**: `response_time_ms`, `latitude`, `longitude`, `timestamp`, `participant_id`, `dilemma_id`, `choice`, `country`, plus any available demographic aggregates.
+
+### Secondary Dataset: ERA5 Reanalysis
+* **Verified Source**: Accessed via the Copernicus Climate Data Store API (`). This API provides **hourly 2‑meter temperature** for the full period of the study, matching the Moral Machine collection window.
+* **Variables**: `temperature_2m` (Kelvin → Celsius), `latitude`, `longitude`, `time`.
+
+### Matching Strategy
+1. Load ERA5 grid points into a **KD‑Tree** for fast nearest‑neighbor queries.
+2. Process Moral Machine records in **1‑million‑row chunks** to stay < 5 GB RAM.
+3. For each record, find the nearest ERA5 grid point within **100 km**.
+ * If distance > 100 km → flag “distance > 100km” and exclude.
+4. Align timestamps to the nearest hour; if the temporal gap > 2 h, attempt linear interpolation (allowed only for gaps ≤ 2 h). Larger gaps trigger “ERA5 coverage gap” exclusion.
+5. Record **station_id**, **matched timestamp**, and **distance_km** for every successful match in `results/logs/match_log.csv`.
+
+### Dataset Variable Fit Check
+* **Outcome**: `response_time_ms` (must be 100 ms – 10 000 ms).
+* **Predictor**: `temperature_celsius`.
+* **Covariates**: `participant_id` (random), `cultural_region` (random), `dilemma_complexity` (static), `time_of_day` (hour), `choice_type` (fixed).
+* **Potential Gaps**: Individual‑level age/gender may be missing; if unavailable, the model excludes these covariates and notes reduced power. Indoor/outdoor status is not directly observable; a proxy (urban/rural classification) will be used in robustness checks (FR‑012).
+* **Dilemma Complexity Definition**: Derived strictly from static attributes (number of lives, species type) to avoid circularity with response time.
+
+## Statistical Methodology
+
+### Primary Model (Scalable Approach)
+* **Outcome**: `log(response_time_ms)`.
+* **Fixed Effects**: `temperature_celsius`, `temperature_squared`, `dilemma_complexity`, `time_of_day`, `choice_type`.
+* **Clustered SEs**: Standard errors clustered by `cultural_region` on aggregated participant-level means.
+* **Alternative**: On a sampled subset (≤ 10 k participants) fit a full Linear Mixed‑Effects Model with random intercepts for `cultural_region` only (participant random effects omitted for scalability).
+* **Fallback**: If log‑transformation leaves heavy tails, fit a GLMM with Gamma family and log link.
+
+### Hypothesis Testing
+* **Joint Significance**: Perform a **Wald test** on `temperature_celsius` and `temperature_squared` jointly to test for non-linearity.
+* **Model Comparison**: Compare the full model to a null model (no temperature terms) using a **Likelihood‑Ratio Test (LRT)**.
+* **Multiple Comparisons**: Apply **Bonferroni correction** across the set of robustness models (raw hourly, 3‑hour moving average, distance thresholds).
+
+### Robustness & Sensitivity Analyses
+1. **Temperature Metric**: Compare results using raw hourly temperature vs. 3‑hour moving average.
+2. **Distance Threshold Sensitivity**: Re‑run the primary model after excluding records with `distance_km` > 25 km and > 50 km; report coefficient stability.
+3. **Outlier Threshold Sweep**: Vary temperature outlier cutoff (±3σ, ±4σ, ±5σ) and observe changes in the temperature coefficient.
+4. **Indoor/Outdoor Proxy**: Stratify by urban/rural classification derived from population density; if unavailable, report limitation and quantify potential noise via bootstrap.
+5. **Non‑Linearity**: Fit quadratic and spline (e.g., cubic spline with a suitable number of knots) models; compute **AIC**, **BIC**, and store a JSON comparison (`results/robustness/nonlinearity_comparison.json`).
+
+### Diagnostic Checks
+* **Residual Normality**: Anderson‑Darling test on a random [deferred] sample of residuals; require p > 0.05.
+* **Homoscedasticity**: Plot residuals vs. fitted values; save PNGs.
+
+## Compute Feasibility Plan
+* **Memory**: Chunked processing and KD‑Tree indexing keep peak RAM within manageable limits..
+* **CPU**: All libraries are CPU‑only; total runtime estimated ≤ 5 h on the free‑tier runner.
+* **Sampling**: If the full dataset exceeds memory, the pipeline automatically samples up to 200 k rows, preserving the distribution of geographic regions and temperature.
+
+## Limitations
+* **Observational Design**: No causal inference; results are correlational.
+* **Indoor/Outdoor Confound**: Proxy may not fully capture micro‑climate; robustness checks quantify its impact.
+* **Demographic Coverage**: Missing individual age/gender reduces explanatory power; analyses will note this.
+* **Temporal Alignment**: ERA5 provides hourly grid estimates; any remaining mismatch is mitigated by interpolation (≤ 2 h) and distance filtering.
+
+
+## projects/PROJ-743-ambient-temperature-influence-on-moral-d/specs/001-ambient-temperature-influence-on-moral-d/data-model.md
+
+# Data Model: Ambient Temperature Influence on Moral Decision Speed
+
+## Entity Relationship Diagram (Conceptual)
+
+```mermaid
+erDiagram
+ MORAL_RESPONSE ||--o{ TEMPERATURE_RECORD: "matched_by"

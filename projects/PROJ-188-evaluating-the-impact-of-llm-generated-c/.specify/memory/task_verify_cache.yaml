@@ -1,0 +1,66 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact showing the existence of the required root directory `projects/PROJ-188-evaluating-the-impact-of-llm-generated-c/`
+    is provided; without a directory listing or confirmation, we cannot verify that
+    the implementer actually created it. The task remains unverified.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that a `code/` subdirectory actually exists in the project
+    repository; the claim is unsupported and the required artifact is missing.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact showing a `data/` subdirectory was provided; the evidence list is
+    empty, so we cannot confirm that the required directory was actually created.
+    The implementer must add proof (e.g., a directory listing or a file inside `data/`).
+T001d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the required subdirectories `data/raw/`, `data/intermediate/`,
+    and `data/processed/` actually exist; the claim is unsubstantiated. The implementer
+    must show the directory structure (e.g., a file listing or screenshots) to confirm
+    they were created.
+T001e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that `code/__init__.py` and `tests/__init__.py` exist,
+    nor that they are empty. The implementer must add these two empty files in the
+    respective directories.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `ruff.toml`, `pyproject.toml`
+    with Black settings, or related setup scripts) are present in the provided evidence,
+    so the requirement to configure ruff and Black has not been demonstrated. The
+    task lacks any tangible artifact showing that these tools are installed, configured,
+    or integrated into the project.
+T013c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No validation script or code file is present to verify that the `complexity`\
+    \ label maps correctly to the `complexity_score` ranges before saving. The required\
+    \ artifact (a script implementing this validation logic) is missing, so the task\u2019\
+    s requirement is not satisfied."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging implementation or configuration files were provided, and there is
+    no evidence (e.g., code changes, log excerpts, test results) showing that skipped
+    snippets or fallback triggers are now being logged. The required artifact is missing,
+    so the task is not satisfied.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or data files implementing the condition rendering logic
+    (survey UI, random assignment to the three conditions, display of code/explanations,
+    and logging of answers with timestamps) were provided. The required artifact is
+    missing, so the task is not satisfied.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or documentation implementing a post\u2011hoc Tukey\
+    \ HSD test (or showing adjusted p\u2011values for pairwise condition comparisons)\
+    \ was provided. The evidence consists only of the task description; there is no\
+    \ artifact to verify that the required statistical analysis was actually implemented."

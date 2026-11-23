@@ -1,0 +1,6 @@
+'|10km based configurable configure default join km parameter radius resolution worldclim':
+  quote: 'WorldClim 2: new 1-km spatial resolution climate surfaces for global land
+    areas'
+  source_id: Q56210311
+  url: https://www.wikidata.org/wiki/Q56210311
+  value: '1'

@@ -4,38 +4,49 @@ import logging
 from pathlib import Path
 import pandas as pd
 import numpy as np
+
 from code.logging_config import get_logger
-from code.analysis.correlations import run_pca_on_metrics, load_metrics_data
+from code.analysis.correlations import run_pca_on_metrics, save_pca_outputs
 
 logger = get_logger(__name__)
 
-def main() -> None:
+def main():
     """
-    Runner script for T023a to ensure execution from command line.
-    Executes PCA on aggregated metrics and writes outputs to disk.
+    Runner for PCA analysis (T023a).
+    Reads: data/analysis/aggregated_metrics.csv
+    Outputs: data/analysis/pca_loadings.csv, data/analysis/factor_scores.csv
     """
-    logger.log("pca_runner_start", operation="PCA Runner")
-    
-    input_file = "data/processed/aggregated_metrics.csv"
-    if not Path(input_file).exists():
-        logger.log("pca_runner_failed", reason=f"Input file {input_file} not found. "
-                 "Run T021/T022 first to generate aggregated metrics.")
-        raise FileNotFoundError(f"Input file {input_file} not found.")
+    input_path = Path("data/analysis/aggregated_metrics.csv")
+    loadings_path = Path("data/analysis/pca_loadings.csv")
+    scores_path = Path("data/analysis/factor_scores.csv")
 
-    try:
-        df = load_metrics_data(input_file)
-        logger.log("pca_runner_loaded", subjects=len(df))
-        
-        # Execute PCA
-        loadings, scores = run_pca_on_metrics(df)
-        
-        logger.log("pca_runner_success", 
-                   output_loadings="data/analysis/pca_loadings.csv",
-                   output_scores="data/analysis/factor_scores.csv")
-        
-    except Exception as e:
-        logger.log("pca_runner_error", error=str(e))
-        raise
+    if not input_path.exists():
+        logger.log("pca_runner", status="failed", reason=f"Input {input_path} not found. Run T022 first.")
+        sys.exit(1)
+
+    logger.log("pca_runner", status="starting", input=str(input_path))
+
+    # Load data
+    df = pd.read_csv(input_path)
+    
+    # Select numeric columns for PCA
+    # Assuming columns: modularity, global_efficiency, participation_coef, within_module_degree
+    metric_cols = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
+    available_cols = [c for c in metric_cols if c in df.columns]
+    
+    if len(available_cols) < 2:
+        logger.log("pca_runner", status="failed", reason="Not enough metrics for PCA")
+        sys.exit(1)
+
+    X = df[available_cols].values
+    
+    # Run PCA
+    loadings, scores = run_pca_on_metrics(X, n_components=2)
+    
+    # Save outputs
+    save_pca_outputs(loadings, scores, available_cols, loadings_path, scores_path)
+    
+    logger.log("pca_runner", status="success", loadings=str(loadings_path), scores=str(scores_path))
 
 if __name__ == "__main__":
     main()

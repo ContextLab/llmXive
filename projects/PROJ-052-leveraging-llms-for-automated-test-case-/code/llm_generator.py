@@ -1,183 +1,179 @@
+"""
+LLM-based test code generation module.
+Uses llama-cpp-python for CPU-optimized inference.
+"""
 import os
 import logging
 import traceback
-from typing import Optional, Dict, Any, List
+import time
+import subprocess
+import tempfile
+from typing import Optional, List
 from pathlib import Path
 
-# Import shared configuration
-from config import get_model_path, get_timeout_inference, ensure_directories
+from config import get_model_path, get_timeout_inference, get_sample_limit
+from utils.retry import execute_with_retry
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-# Global model instance to avoid reloading
-_model_instance = None
-_context = None
+class MemoryExceededError(Exception):
+    """Raised when model loading exceeds memory limits."""
+    pass
 
-def load_model() -> Any:
+def load_model(
+    model_path: Optional[str] = None,
+    n_ctx: int = 2048,
+    n_threads: int = 4
+):
     """
-    Load the LLM model with Q4_K_M quantization and enforce 7GB RAM constraint.
+    Load the LLM model.
     
-    This implementation satisfies FR-002 by:
-    1. Explicitly requesting Q4_K_M quantization format (via llama-cpp-python defaults or explicit param).
-    2. Enforcing a hard memory limit check before loading.
-    3. Using CPU-only inference (no GPU).
-    4. Setting n_gpu_layers=0 to ensure CPU execution.
-    
+    Args:
+        model_path: Path to the model file.
+        n_ctx: Context size.
+        n_threads: Number of threads.
+        
     Returns:
-        The loaded llama_cpp.Llama model instance.
-    
-    Raises:
-        MemoryError: If available RAM is insufficient for the 7GB constraint.
-        FileNotFoundError: If the model file is not found at the configured path.
-        ImportError: If llama-cpp-python is not installed.
+        Loaded model object.
     """
-    global _model_instance, _context
-
-    if _model_instance is not None:
-        logger.info("Model already loaded, returning cached instance.")
-        return _model_instance
-
-    try:
-        import psutil
-        available_memory_gb = psutil.virtual_memory().available / (1024 ** 3)
-        logger.info(f"System available memory: {available_memory_gb:.2f} GB")
-        
-        # FR-002 Constraint: 7GB RAM limit
-        if available_memory_gb < 7.0:
-            raise MemoryError(
-                f"Insufficient memory for model loading. "
-                f"Available: {available_memory_gb:.2f} GB, Required: >= 7.0 GB."
-            )
-        
-        model_path = get_model_path()
-        if not model_path or not os.path.exists(model_path):
-            # Fallback for testing if path not set in env, but task requires real logic
-            # In a real run, get_model_path() must return a valid path.
-            # We raise a clear error if the path is missing to prevent silent failure.
-            raise FileNotFoundError(f"Model path not configured or file missing: {model_path}")
-
-        logger.info(f"Loading model from {model_path} with Q4_K_M quantization (default for .gguf)...")
-        
-        from llama_cpp import Llama
-
-        # Load with specific constraints:
-        # - n_ctx: Context window size (adjust based on model, default 2048 is safe for small models)
-        # - n_batch: Batch size for prompt processing
-        # - n_threads: CPU threads
-        # - n_gpu_layers: 0 to force CPU (ensures no GPU memory usage)
-        # - verbose: False to reduce log noise
-        # - model_path: The path to the .gguf file (assumed Q4_K_M quantized)
-        
-        # Note: llama-cpp-python loads the quantization format defined in the .gguf file.
-        # We ensure the file path points to a Q4_K_M file. If the file is not Q4_K_M,
-        # the user must download the correct variant. The code enforces the RAM check
-        # assuming the Q4_K_M size (~3.8GB for Phi-2) plus overhead fits in 7GB.
-        
-        _model_instance = Llama(
-            model_path=model_path,
-            n_ctx=2048,
-            n_batch=512,
-            n_threads=4,
-            n_gpu_layers=0,  # Force CPU
-            verbose=False,
-            # Explicitly ensure we are not using flash attention or other GPU features
-            use_mmap=True,
-            use_mlock=False
+    from llama_cpp import Llama
+    import psutil
+    
+    path = model_path or get_model_path()
+    
+    # Check memory before loading
+    mem = psutil.virtual_memory()
+    if mem.available < 7 * 1024 * 1024 * 1024:  # 7GB
+        raise MemoryExceededError(f"Insufficient memory available: {mem.available / (1024**3):.2f}GB")
+    
+    def _load():
+        return Llama(
+            model_path=path,
+            n_ctx=n_ctx,
+            n_threads=n_threads,
+            n_gpu_layers=0  # CPU only
         )
-        
-        logger.info("Model loaded successfully.")
-        return _model_instance
-
-    except ImportError:
-        logger.error("llama-cpp-python is not installed. Please install it to use LLM generation.")
-        raise
-    except MemoryError as e:
-        logger.error(f"Memory constraint violation: {e}")
-        raise
+    
+    try:
+        return execute_with_retry(
+            _load,
+            max_retries=3,
+            base_delay=5.0,
+            timeout=120.0,
+            exception_types=(MemoryError, OSError)
+        )
     except Exception as e:
         logger.error(f"Failed to load model: {e}")
-        logger.error(traceback.format_exc())
         raise
 
-def generate_test_code(prompt: str, max_tokens: int = 512, seed: int = 42) -> str:
+def generate_from_prompt(
+    model,
+    prompt: str,
+    max_tokens: int = 1024,
+    temperature: float = 0.0,
+    seed: int = 42
+) -> str:
     """
-    Generate test code from a prompt using the loaded model.
+    Generate text from a prompt.
     
     Args:
-        prompt: The bug description or requirement prompt.
+        model: The loaded LLM model.
+        prompt: Input prompt.
         max_tokens: Maximum tokens to generate.
-        seed: Random seed for deterministic output.
-    
+        temperature: Sampling temperature.
+        seed: Random seed.
+        
     Returns:
-        Generated test code string.
+        Generated text.
     """
-    model = load_model()
-    timeout = get_timeout_inference()
+    def _generate():
+        output = model(
+            prompt,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            seed=seed,
+            stop=["</test>", "```"]
+        )
+        return output['choices'][0]['text']
     
-    # Deterministic settings as per FR-001
-    output = model(
-        prompt,
-        max_tokens=max_tokens,
-        temperature=0.0,
-        seed=seed,
-        stop=["\n\n", "```"] # Basic stop sequences
-    )
-    
-    return output['choices'][0]['text'].strip()
+    try:
+        return execute_with_retry(
+            _generate,
+            max_retries=3,
+            base_delay=2.0,
+            timeout=get_timeout_inference(),
+            exception_types=(Exception,)
+        )
+    except Exception as e:
+        logger.error(f"Generation failed: {e}")
+        raise
 
-def validate_syntax_java(code: str, output_dir: Optional[str] = None) -> bool:
+def generate_test_code(
+    bug_description: str,
+    model: Optional = None
+) -> str:
     """
-    Validate Java syntax of generated code.
-    
-    Note: This is a placeholder for the actual javac implementation.
-    In a full pipeline, this would write to a temp file and run `javac`.
-    For this task, we return True if the code looks like Java (contains class definition).
+    Generate test code from a bug description.
     
     Args:
-        code: The generated Java code string.
-        output_dir: Directory to write the file for compilation check.
-    
+        bug_description: The bug description.
+        model: Optional pre-loaded model.
+        
     Returns:
-        True if syntax appears valid, False otherwise.
+        Generated Java test code.
     """
-    # Basic heuristic check since we might not have javac in this specific test scope
-    # In the full pipeline (T017), this will use subprocess.run(['javac', ...])
-    if "class" not in code:
-        logger.warning("Generated code does not contain 'class' keyword.")
-        return False
-    if "public" not in code and "private" not in code and "protected" not in code:
-        logger.warning("Generated code lacks access modifiers.")
-        return False
+    if model is None:
+        model = load_model()
     
-    return True
-
-def generate_from_prompt(prompt: str) -> Dict[str, Any]:
+    prompt = f"""
+    Generate a JUnit 4 test class for the following bug description:
+    {bug_description}
+    
+    Ensure the test is syntactically valid Java.
+    Include at least one @Test method.
     """
-    High-level function to generate a test case from a prompt.
+    
+    return generate_from_prompt(model, prompt)
+
+def validate_syntax_java(code: str, output_path: Path) -> bool:
+    """
+    Validate Java syntax by attempting compilation.
     
     Args:
-        prompt: The input prompt.
-    
+        code: Java source code.
+        output_path: Path to write the temporary file.
+        
     Returns:
-        Dictionary containing generated code, success status, and metadata.
+        True if syntax is valid.
     """
     try:
-        generated_code = generate_test_code(prompt)
-        is_valid = validate_syntax_java(generated_code)
+        with tempfile.NamedTemporaryFile(suffix='.java', delete=False, dir=output_path.parent) as f:
+            f.write(code.encode('utf-8'))
+            temp_file = Path(f.name)
         
-        return {
-            "success": is_valid,
-            "code": generated_code,
-            "error": None
-        }
+        cmd = ['javac', '-Xlint:none', str(temp_file)]
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            timeout=10
+        )
+        
+        os.unlink(temp_file)
+        
+        if result.returncode == 0:
+            return True
+        else:
+            logger.warning(f"Syntax validation failed: {result.stderr}")
+            return False
+            
     except Exception as e:
-        return {
-            "success": False,
-            "code": None,
-            "error": str(e)
-        }
+        logger.error(f"Validation error: {e}")
+        return False
+
+def main():
+    """Main entry point for LLM generator module."""
+    logger.info("LLM generator module loaded.")
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Drift Score and Resource Log Schema"
+description: "Combined schema for drift scores and resource usage metrics."
+type: object
+properties:
+  sequence_id:
+    type: string
+    description: "Reference to the input sequence."
+  mode:
+    type: string
+    enum:
+      - baseline
+      - hybrid
+    description: "Whether the sequence was generated with or without correction."
+  drift_score:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Scalar metric of semantic drift (0 = perfect alignment)."
+  permanence_violations:
+    type: integer
+    description: "Count of objects visually present but logically dead."
+  phantom_objects:
+    type: integer
+    description: "Count of objects visually present but not in symbolic log."
+  peak_ram_mb:
+    type: number
+    description: "Peak RAM usage in MB during generation."
+  wall_clock_seconds:
+    type: number
+    description: "Total execution time in seconds."
+  validation_status:
+    type: string
+    enum:
+      - valid
+      - invalid
+      - inconclusive
+    description: "Status of the Ground Truth Validation (FR-007)."
+  stationarity_check_method:
+    type: string
+    description: "Method used for stationarity check (e.g., 'Variance Check')."
+  stationarity_p_value:
+    type: number
+    description: "P-value from the stationarity check (Shapiro-Wilk)."
+  shapiro_p_value:
+    type: number
+    description: "P-value from the Shapiro-Wilk test."
+  shapiro_stationary:
+    type: boolean
+    description: "True if Shapiro-Wilk test indicates normality."
+required:
+  - sequence_id
+  - mode
+  - drift_score
+  - permanence_violations
+  - phantom_objects
+  - peak_ram_mb
+  - wall_clock_seconds
+  - stationarity_check_method
+  - stationarity_p_value
+  - shapiro_p_value
+  - shapiro_stationary

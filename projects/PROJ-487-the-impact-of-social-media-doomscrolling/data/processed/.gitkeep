@@ -1,0 +1,2 @@
+# This file ensures the data/processed directory is tracked by version control.
+# Processed and aligned time-series data will be placed here.

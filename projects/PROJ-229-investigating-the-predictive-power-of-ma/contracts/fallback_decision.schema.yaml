@@ -1,0 +1,12 @@
+# Schema for fallback decision JSON used when primary target selection cannot be made.
+type: object
+properties:
+  fallback_used:
+    type: boolean
+    description: Indicator that a fallback path was taken.
+  reason:
+    type: string
+    description: Human‑readable explanation for why the fallback was triggered.
+required:
+  - fallback_used
+additionalProperties: false

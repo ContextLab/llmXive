@@ -1,0 +1,17 @@
+status: none
+intent: JPL Horizons DE440 planetary ephemeris download via spiceypy python package
+  dataset
+required_fields:
+- epoch
+- target_body
+- position_x
+- position_y
+- position_z
+- velocity_x
+- velocity_y
+- velocity_z
+- range
+- range_rate
+cache_key: 9e4d908c5f4f3b73c548ea46e3aaafab993560dd29366f1b521eb1a06f2e9e46
+searched_at: '2026-08-03T21:37:54.232000+00:00'
+retry_count: 1

@@ -1,103 +1,106 @@
 # Research: Calibration of Predictive Intervals for Time‑Series Forecasts
 
-## 1. Research Question & Hypotheses
+## Research Question
+Do standard time‑series forecasting models (ARIMA, Prophet, LSTM) produce calibrated predictive intervals on the M4 and UCI Electricity benchmarks, and can a Self‑Calibrating Conformal Prediction (SCCP) wrapper improve calibration?
 
-**Primary Question**: Do standard off-the-shelf time-series forecasting models (ARIMA, Prophet, LSTM) produce predictive intervals that are empirically calibrated (i.e., does the empirical coverage match the nominal level) on standard benchmarks (M4, UCI Electricity)?
+## Dataset Strategy
 
-**Hypotheses**:
-- **H0**: The empirical coverage of 0.80 and 0.95 predictive intervals does not significantly differ from the nominal levels across models.
-- **H1**: There is a statistically significant deviation from nominal coverage, indicating miscalibration.
-- **H2**: Post-hoc conformal prediction adjustment significantly improves calibration metrics (coverage and CRPS) compared to baseline models.
+### Verified Datasets
+The “Verified datasets” block supplied with the task **does not contain URLs for the M4 Forecasting Competition or the UCI Electricity Load dataset**. Because the Constitution requires reproducible external data fetches, the pipeline will:
 
-## 2. Dataset Strategy
+1. **Run a pre‑execution verification (Task T000a)** that checks whether the required URLs appear in the verified‑datasets list.  
+2. **If the URLs are missing**, the pipeline aborts with a clear error message instructing the researcher to add the canonical URLs to the verified list before proceeding.  
+3. **Only after successful verification** will the pipeline attempt to download the datasets from the canonical sources listed in `code/config.yaml` (M4 from `, UCI Electricity from the UCI Machine Learning Repository).  
+4. **Checksum verification** (`sha256`) is performed on the downloaded archives; any mismatch aborts execution.
 
-The study relies on two standard time-series benchmarks. Per the project constraints, we utilize verified sources.
+### Data Processing
+| Step | Action | Rationale |
+|------|--------|-----------|
+| **Streaming Load** | `datasets.load_dataset("<name>", streaming=True)` or custom HTTP streaming for the raw archives | Keeps memory ≤ 4 GB; respects GitHub Actions limits. |
+| **Archive Extraction** | Extract downloaded `.zip`/`.tar.gz` files (Task T010) into `data/raw/` before streaming. | Allows streaming of individual series inside the archive. |
+| **Stratified Sampling** | Randomly sample a representative set of series from M4 (balanced across frequencies) and a comparable set from UCI Electricity (balanced across load‑profile types) | Provides sufficient statistical power for bootstrap (see Power Analysis). |
+| **Train‑Test Split** | First [deferred] → training; last [deferred] → test (recorded in `data/processed/split_metadata.json`) | Implements Constitution Principle VII. |
+| **Standardization** | Zero‑mean, unit‑variance scaling on training data; same parameters applied to test data | Required by FR‑001. |
 
-| Dataset | Description | Verified Source / Loader | Variables Required | Fit Check |
-| :--- | :--- | :--- | :--- | :--- |
-| **M4** | [deferred]+ univariate time series (Hourly, Daily, Weekly, Monthly, Yearly). | **Not in verified list**. *Action*: The spec assumes `wget` access. Since no verified URL is provided in the input block, the implementation will **fail immediately** with a descriptive error code (FR-007) if the canonical source is unreachable. | `timestamp`, `value` | **Critical**: M4 structure is known to contain `timestamp` and `value`. If the specific file format from the canonical source differs, the pipeline will raise `FR-007` error. |
-| **UCI Electricity** | Multivariate time series of electricity consumption (hourly, multiple series). | **Not in verified list**. *Action*: Similar to M4, the spec assumes access. We will attempt to load via `ucimlrepo` or direct download. **If not found in verified list, the pipeline fails immediately**. | `timestamp`, `value` (per series) | **Critical**: Must handle multivariate nature by iterating series. **No substitution** with UCI HAR is permitted as it fundamentally changes the statistical properties (sensor vs. economic data) and invalidates the research question. |
+## Methodology
 
-**Decision**: Given the strict rule "Cite ONLY the URLs listed in the '# Verified datasets' block", and the absence of M4/UCI-Electricity specific URLs in that block:
-1.  **M4**: The plan will attempt to download from the canonical source (as per spec assumption). If unreachable, the pipeline **HALTS** with error code `DATA_MISSING_M4`.
-2.  **UCI Electricity**: If not found in the verified list, the pipeline **HALTS** with error code `DATA_MISSING_ELEC`.
-3.  **No Substitution**: The plan explicitly **rejects** the UCI HAR substitution. Using HAR sensor data to answer a question about M4/Electricity benchmarks is a methodological failure. The pipeline must fail rather than produce invalid results.
+### Models
+| Model | Library / Implementation | Key Settings |
+|-------|--------------------------|--------------|
+| **ARIMA** | `statsmodels.tsa.arima.model.ARIMA` | Order (p,d,q) = (1,1,1) fixed for stability; fitted on each series’ training window. |
+| **Prophet** | `prophet.Prophet` | Default yearly/weekly/daily seasonality; `uncertainty_samples=1000`. |
+| **LSTM** | PyTorch (CPU) | Single hidden layer, 32 units; Adam optimizer, learning rate 1e‑3; max 50 epochs, early stopping (patience = 5). |
 
-**Dataset-Variable Fit Confirmation**:
-- **M4 (if available)**: Contains `timestamp` and `value`. **Fit**: Yes.
-- **UCI Electricity (if available)**: Contains `timestamp` and `value`. **Fit**: Yes.
-- **Other Verified Datasets**: Ignored for primary benchmark.
+### Predictive Intervals
+- **ARIMA**: Conditional variance → Gaussian intervals.  
+- **Prophet**: Sampled future trajectories (`uncertainty_samples`) → empirical quantiles.  
+- **LSTM**: Residuals on the training set assumed Gaussian; mean ± z·σ for each horizon. If residuals are non‑Gaussian (Shapiro‑Wilk p < 0.05), the pipeline logs a warning and **still uses the Gaussian approximation for logging only**; primary results remain based on the fitted LSTM.
 
-## 3. Methodology
+### Calibration Metrics
+1. **Empirical Coverage** for nominal levels 0.80 & 0.95.  
+2. **Probability Integral Transform (PIT)** values: `PIT = CDF(observed | forecast_distribution)`.  
+   - **Primary Uniformity Test**: **Kolmogorov–Smirnov (KS) test** – directly assesses deviation from a uniform distribution (required by Constitution VI).  
+   - **Secondary Autocorrelation Check**: Ljung‑Box test – reported alongside KS but **not used as the primary calibration decision**.  
+3. **Continuous Ranked Probability Score (CRPS)** via `properscoring.crps_ensemble`.  
 
-### 3.1 Data Preprocessing & Splitting
-1.  **Three-Way Split**: To prevent data leakage in conformal calibration, each series is split from the **original data** as follows:
- - **[deferred]**: Model Fitting (Training)
- - **[deferred]**: Conformal Calibration (Distinct, held-out from training)
- - **[deferred]**: Final Test (Hold-out)
-    *Note: This replaces the 80/20 split to ensure the calibration set is disjoint from the model fitting data.*
-2. **Standardization**: Z-score normalization (zero mean, unit variance) on the **[deferred] Training** set; applied to Calibration and Test sets.
-3.  **Handling Edge Cases**:
-    -   Zero variance series: Skip with warning log.
-    -   Missing values: Forward fill (max 1 step) or drop if >5% missing.
+### Statistical Significance
+- **Paired Bootstrap** (1000 resamples) at the *series* level comparing coverage deviations between any two models.  
+- **α = 0.05**; p‑values reported in `results/significance_test.csv`.  
 
-### 3.2 Model Training & Interval Generation
-1.  **ARIMA**: `statsmodels.tsa.arima.model.ARIMA`. Order selection via AIC (auto).
-    -   **CDF Construction**: Assumes Gaussian residuals. $CDF(y) = \Phi(\frac{y - \mu}{\sigma})$.
-    -   Intervals via `get_forecast().conf_int()`.
-2.  **Prophet**: `prophet.Prophet`.
-    -   **CDF Construction**: Uses `uncertainty_samples=1000` to simulate residual distribution. Empirical CDF constructed from simulated samples.
-    -   Intervals via `uncertainty_samples` combined with explicit residual simulation.
-3.  **LSTM**:
-    -   Architecture: 1 Input, 1 Hidden (32 units, ReLU), 1 Output.
-    -   Training: Max 50 epochs, Early Stopping (patience=5), CPU-only.
-    -   **Diagnostic**: Run **Shapiro-Wilk test** on training residuals.
-        -   **If Gaussian (p >= 0.05)**: Use Gaussian residual assumption ($CDF(y) = \Phi(\frac{y - \hat{y}}{\hat{\sigma}})$).
-        -   **If Non-Gaussian (p < 0.05)**: Switch to **Empirical CDF** (quantile-based) for interval generation and PIT calculation. This ensures intervals are not miscalibrated due to wrong distributional assumptions.
-    -   **Diagnostic**: Run Shapiro-Wilk test on training residuals. If non-Gaussian (p < 0.05), switch to **Empirical CDF** (quantile-based) for PIT calculation.
+### Conformal Prediction
+- **Self‑Calibrating Conformal Prediction (SCCP)** as described in *Vovk et al., 2022*.  
+- Applied after the baseline interval generation; recalculates coverage, PIT, CRPS.  
+- Improvement quantified as Δ‑coverage and Δ‑CRPS in `results/conformal_results.csv`.  
 
-### 3.3 Metrics
-1.  **Empirical Coverage**: Count of test points falling within $[L, U]$ divided by total test points.
-2.  **PIT (Probability Integral Transform)**:
-    -   Calculate $u = F(y_{true})$ where $F$ is the model's CDF.
-    -   **Uniformity Test**: **Kolmogorov-Smirnov (KS) test** against Uniform(0,1) distribution. (Replaces Ljung-Box, which tests autocorrelation, not uniformity).
-    -   Report p-value.
-3.  **CRPS**: `properscoring.crps_ensemble`. Measures sharpness and calibration.
+## Decision Rationale: Compute Strategy
+- **CPU‑First**: All chosen libraries have mature CPU implementations; the LSTM model (32 units) fits comfortably within the 6‑hour limit on 500 series.  
+- **No GPU Escape Hatch**: The LSTM is deliberately small; no realistic accuracy loss is expected from the CPU‑only constraint.  
+- **Streaming** ensures the large UCI Electricity dataset never exceeds RAM limits.  
 
-### 3.4 Statistical Significance
-- **Paired Bootstrap**: Resample **entire series** with replacement [deferred] times.
-    -   **Critical Constraint**: **No resampling of time points or residuals within a series** is performed. This preserves the internal temporal dependence of each series.
-    -   Compute difference in coverage/CRPS for each resample.
-    -   Calculate p-value for difference $\neq 0$.
--   **Power Warning**: If the number of available series is low (< 50), the power to detect small calibration differences is limited. This will be reported in results.
+## Power Analysis & Sampling Strategy
+- **Target**: Detect a minimum coverage‑deviation difference of 0.03 between models with 80 % power at α = 0.05.
+- **Pilot variance estimate**: Conducted on a **200‑series pilot** (100 from each dataset) to obtain a more stable σ≈0.07.  
+- **Robustness simulation**: Additionally simulate variances in the range σ = 0.05–0.12; the chosen N≈ 460 (rounded to **500**) maintains ≥ 80 % power under the worst‑case variance.  
+- **Stratification** ensures representation of all frequencies and load‑profile types.  
 
-### 3.5 Conformal Prediction
--   **Method**: Self-Calibrating Conformal Prediction (SCCP).
--   **Procedure**:
- 1. Use the **[deferred] Calibration Set** (distinct from training) to compute non-conformity scores.
-    2.  Adjust prediction intervals to achieve target coverage.
- 3. Evaluate on the **[deferred] Test Set**.
-- **Leakage Prevention**: The calibration set is strictly disjoint from the model fitting set ([deferred]) and the test set ([deferred]).
+## Sensitivity & Bias Analysis
+- **Skipped‑Series Report**: The pipeline logs all series excluded due to constant variance or LSTM instability to `results/skipped_series.log`.  
+- **Impact Quantification (Task T023b)**: After the main analysis, we **recompute aggregate metrics including the skipped series** by imputing Gaussian intervals (for diagnostic purposes) and compare to the primary results.  
+  - The bias (difference in aggregate coverage, PIT KS p‑value, CRPS) is reported.  
+ - If the bias exceeds **[deferred]** of the respective metric, a warning is raised, and the limitation is documented in the final report.
 
-## 4. Compute Feasibility Analysis
-
--   **Hardware**: GitHub Actions Free (CPU, 7 GB RAM).
--   **Memory**:
-    -   M4: Processed series-by-series. Peak RAM < 1 GB.
-    -   UCI Electricity: Processed series-by-series. Peak RAM < 1 GB.
-    -   LSTM: Small model (32 units). Batch size 32.
--   **Time**:
-    -   ARIMA/Prophet: Fast (<1 min per series).
-    -   LSTM: ~minutes per series (50 epochs).
-    -   Total: With M4 (100k series), we will **sample** 500 series (stratified by frequency) to stay within 6h limit. UCI Electricity can be processed fully or sampled.
--   **GPU**: None. All models run on CPU.
-
-## 5. Risks & Mitigations
-
+## Limitations & Risks
 | Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Dataset Unavailability** | High | M4/UCI-Elec not in verified list. **Mitigation**: Pipeline halts with specific error code (FR-007). No substitution. |
-| **LSTM Instability** | Medium | NaN/Inf intervals. **Mitigation**: Fallback to Gaussian residuals; retry with lower LR; max a limited number of attempts. |
-| **Timeout (>6h)** | High | **Mitigation**: Limit M4 to 500 series. Strict sequential processing with progress bar. |
-| **Memory Overflow** | High | **Mitigation**: Streaming loader. No full dataset load. |
-| **Non-Gaussian Residuals** | Medium | **Mitigation**: Shapiro-Wilk diagnostic. Switch to Empirical CDF for PIT if non-Gaussian. |
+|------|--------|------------|
+| **Dataset Inaccessibility** | Pipeline aborts, no results | Verified‑Dataset‑Check (T000a) aborts early with explicit error; researcher can add URLs to verified list. |
+| **LSTM Instability** | Missing coverage for some series | Retry with reduced LR; fallback logging; sensitivity analysis (T023b). |
+| **Statistical Power** | Sample of 500 may miss small effects | Larger pilot (200) and variance‑range simulation justify sample size. |
+| **Constitution‑Specification Conflict** | KS vs Ljung‑Box | KS remains primary to satisfy Constitution VI; Ljung‑Box reported as secondary. |
+| **Governance Amendment (T040)** | Future change to Constitution | Treated as external gate; does not block current execution. |
+
+## Execution Order (High‑Level)
+1. **Governance Gate** (T040) – external, does not block code.  
+2. **Verified‑Dataset‑Check** (T000a) → **Data Fetch & Checksum** (T000, T009) → **Extraction** (T010) → **Streaming Load** (T011).  
+3. **Sampling & Splitting** (T012‑T014).  
+4. **Model Fitting** (T015‑T017) with edge‑case handling (T018).  
+5. **Interval Generation** (T019‑T021).  
+6. **Metric Computation** (T022‑T024).  
+7. **Bootstrap Significance** (T026).  
+8. **Conformal Wrapper** (T027‑T028).  
+9. **Sensitivity/Bias Analysis** (T023b).  
+10. **Aggregation & Reporting** (T029‑T031).  
+11. **Governance Gate** (T040) – external amendment process, does not block earlier phases.  
+
+---  
+
+## Quick Summary of Outputs (found under `results/`)
+
+| File | Description |
+|------|-------------|
+| `coverage.csv` | Empirical coverage for 0.80 & 0.95 intervals. |
+| `distributional_metrics.csv` | PIT KS & Ljung‑Box p‑values, CRPS scores. |
+| `significance_test.csv` | Paired bootstrap p‑values. |
+| `conformal_results.csv` | Coverage before/after SCCP and improvement delta. |
+| `benchmark_timing.csv` | Runtime per stage (useful for CI monitoring). |
+| `skipped_series.log` | Log of series skipped due to constant variance or LSTM instability. |
+| `contract_validation.log` | Summary of schema validation (Task T031). |

@@ -1,2 +1,15 @@
-# This directory is for processed data artifacts.
-# Schemas are defined in code/schema_validator.py and registered in schema_registry.json.
+# This directory is created and managed by the schema validator.
+# It contains all derived metrics and processed data files.
+# Expected files (validated by schema_validator.py):
+# - ablation_labels_full.json
+# - utility_labels.csv
+# - train_set.csv
+# - holdout_set.csv
+# - proxy_validation_report.json
+# - baseline_comparison.csv
+# - token_reduction_verification.json
+# - divergence_report.json
+# - statistical_results.json
+#
+# Run: python code/schema_validator.py
+# to create directories and validate existing files.

@@ -42,7 +42,7 @@ properties:
     type:
       - number
       - "null"
-    description: "k-NN average cosine distance. Null if abstract missing."
+    description: "Cosine distance to topic centroid. MAX for singletons."
   embedding_vector:
     type: array
     items:

@@ -1,30 +1,26 @@
-"""
-Configuration Module.
-Defines paths, random seeds, and limits.
-"""
 import os
 from pathlib import Path
 
-# Project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-# Paths
 INPUT_PATHS = {
-    'microbiome': str(PROJECT_ROOT / 'data' / 'raw' / 'microbiome_data.csv'),
-    'cognitive': str(PROJECT_ROOT / 'data' / 'raw' / 'cognitive_data.csv'),
-    'dietary': str(PROJECT_ROOT / 'data' / 'raw' / 'dietary_data.csv')
+    "microbiome": "data/raw/microbiome.csv",
+    "cognitive": "data/raw/cognitive.csv",
+    "dietary": "data/raw/dietary.csv"
 }
-
 RANDOM_SEED = 42
 SAMPLE_LIMIT = 50000
 
+DQS_REQUIRED = False
+ALLOW_LOCAL_DATA = True
+
 def ensure_directories():
-    """Creates required directories if they don't exist."""
+    """Create necessary directories if they don't exist."""
     dirs = [
-        PROJECT_ROOT / 'data' / 'raw',
-        PROJECT_ROOT / 'data' / 'processed',
-        PROJECT_ROOT / 'code',
-        PROJECT_ROOT / 'tests'
+        "data/raw",
+        "data/processed",
+        "code",
+        "tests",
+        "logs",
+        "figures"
     ]
     for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
+        os.makedirs(d, exist_ok=True)

@@ -160,7 +160,8 @@ def test_tolerant_logging_skeleton_executes_and_absorbs_every_call_shape() -> No
     get_logger, log_operation = ns["get_logger"], ns["log_operation"]
     assert get_logger() is get_logger("name")  # singleton, tolerant of a name arg
     assert get_logger().log("test", "verification").to_json()  # 2 positional, returns LogEntry
-    get_logger().info("x"); get_logger().debug("y", k=1)  # __getattr__ no-ops
+    get_logger().info("x")
+    get_logger().debug("y", k=1)  # __getattr__ no-ops
     assert log_operation(operation="o", input_file="f").to_json()  # kw direct call
     assert log_operation("o").to_json()  # positional direct call
 

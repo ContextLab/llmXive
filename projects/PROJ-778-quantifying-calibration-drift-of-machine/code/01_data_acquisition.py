@@ -1,330 +1,305 @@
-"""
-Data Acquisition Module for Calibration Drift Study.
-
-This module handles the downloading of yearly snapshots for UCI Adult and Credit Card
-Default datasets, and implements schema alignment logic to ensure feature consistency
-across time periods.
-"""
 import os
 import json
 import logging
 import pandas as pd
 from pathlib import Path
 from typing import List, Dict, Tuple, Optional, Set
-import requests
-from io import StringIO
+import sys
+
+# Add project root to path for imports if running as script
+if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parent.parent
+    if str(project_root) not in sys.path:
+        sys.path.insert(0, str(project_root))
+
 from utils.config import get_path, ensure_directories, get_config_dict
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-# Constants for feature intersection threshold
-MIN_FEATURE_INTERSECTION_THRESHOLD = 0.90
-
-def load_dataset_from_url(url: str) -> pd.DataFrame:
+def get_yearly_urls(dataset_name: str) -> Dict[str, str]:
     """
-    Load a dataset from a URL (CSV format).
+    Returns a dictionary mapping year (int) to download URL for the specified dataset.
+    Implements FR-001: Primary targets are UCI Adult (1994-2022) and Credit Card Default (2005-2021).
+    Since direct URLs for yearly snapshots are not publicly stable without a specific mirror,
+    this function assumes the data has been pre-downloaded or uses a known stable mirror structure.
+    For this implementation, we expect data to be present in data/raw/<dataset_name>/year.csv
+    or download from a specific known repository structure if available.
     
-    Args:
-        url: URL to the CSV file.
-        
-    Returns:
-        DataFrame containing the dataset.
+    NOTE: In a real production environment, these URLs would point to a versioned data lake.
+    For this pipeline, we assume the data acquisition step (T013) has populated data/raw/
+    with yearly CSVs named 'income_<year>.csv' for Adult and 'credit_<year>.csv' for Credit.
     """
-    try:
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
-        df = pd.read_csv(StringIO(response.text))
-        return df
-    except requests.RequestException as e:
-        logger.error(f"Failed to download dataset from {url}: {e}")
-        raise
-    except pd.errors.EmptyDataError:
-        logger.error(f"Dataset at {url} is empty.")
-        raise
-
-def get_yearly_urls(dataset_name: str) -> Dict[int, str]:
-    """
-    Get mapping of years to dataset URLs.
+    # Placeholder for actual URL logic. 
+    # In a real scenario, this would fetch from a specific API or bucket.
+    # We assume the data is already present in data/raw/ as per T013.
+    # This function structure supports T013's requirement to "Download yearly snapshots".
+    # If T013 downloads to data/raw/, we assume the filenames here.
     
-    For this implementation, we use publicly available mirrors or proxies.
-    In a real production environment, these would be updated to point to
-    the actual yearly snapshots.
+    if dataset_name == "adult":
+        # Years 1994-2022
+        # Assuming T013 has downloaded these to data/raw/adult/income_<year>.csv
+        # or we construct a URL if we had a mirror.
+        # Since we cannot guarantee a live mirror for 1994-2022 without a specific provider,
+        # we assume the data is present in the local cache from T013.
+        # If T013 failed to download, this would be handled by the gate.
+        return {year: f"data/raw/adult/income_{year}.csv" for year in range(1994, 2023)}
     
-    Args:
-        dataset_name: Name of the dataset ('adult' or 'credit').
-        
-    Returns:
-        Dictionary mapping year to URL.
-    """
-    if dataset_name == 'adult':
-        # UCI Adult dataset - using a representative snapshot
-        # Note: In a real implementation, we would fetch actual yearly snapshots
-        # For now, we use the standard UCI Adult dataset as a placeholder
-        # and simulate yearly variations by splitting if multiple files exist.
-        # Since true yearly snapshots aren't publicly available via simple URLs,
-        # we will attempt to load the main dataset and treat it as the base year.
-        # A robust implementation would require access to IPUMS or similar.
-        return {
-            1994: "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data"
-        }
-    elif dataset_name == 'credit':
-        # Credit Card Default dataset
-        return {
-            2005: "https://archive.ics.uci.edu/ml/machine-learning-databases/00350/default%20of%20credit%20card%20clients.xls"
-        }
+    elif dataset_name == "credit":
+        # Years 2005-2021
+        return {year: f"data/raw/credit/credit_{year}.csv" for year in range(2005, 2022)}
+    
     else:
         raise ValueError(f"Unknown dataset: {dataset_name}")
 
-def align_features(
-    train_df: pd.DataFrame,
-    test_dfs: Dict[int, pd.DataFrame],
-    original_features: List[str],
-    threshold: float = MIN_FEATURE_INTERSECTION_THRESHOLD
-) -> Tuple[List[str], Dict[int, pd.DataFrame]]:
+def load_dataset_from_url(path_or_url: str) -> pd.DataFrame:
     """
-    Intersect feature columns between training and test snapshots.
-    
-    Implements FR-008: Schema Alignment.
+    Loads a dataset from a local path or URL.
+    Handles local file paths directly for this implementation as per T013 assumption.
+    """
+    logger.info(f"Loading dataset from: {path_or_url}")
+    try:
+        # If it's a local file
+        if os.path.exists(path_or_url):
+            df = pd.read_csv(path_or_url)
+        else:
+            # Fallback to URL reading if it's a web link
+            # Note: pd.read_csv handles URLs, but might need headers
+            df = pd.read_csv(path_or_url)
+        
+        logger.info(f"Loaded {len(df)} rows, {len(df.columns)} columns")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to load dataset from {path_or_url}: {e}")
+        raise
+
+def align_features(train_df: pd.DataFrame, test_df: pd.DataFrame, feature_threshold: float = 0.9) -> Tuple[pd.DataFrame, pd.DataFrame, List[str]]:
+    """
+    Implements FR-008: Intersect feature columns between training and test snapshots.
     
     Args:
-        train_df: Training DataFrame.
-        test_dfs: Dictionary mapping year to test DataFrame.
-        original_features: List of original feature names from the contract.
-        threshold: Minimum fraction of original features required in the intersection.
-        
+        train_df: DataFrame for the training split (earliest year).
+        test_df: DataFrame for the test split (later year).
+        feature_threshold: Minimum fraction of original features required to proceed (default 0.9).
+    
     Returns:
-        Tuple of (aligned_features, aligned_test_dfs).
-        
+        Tuple of (aligned_train_df, aligned_test_df, list_of_aligned_features)
+    
     Raises:
-        ValueError: If the intersection is less than the threshold.
+        ValueError: If the intersection of features is less than the threshold.
     """
-    # Determine features present in the training set
     train_features = set(train_df.columns)
+    test_features = set(test_df.columns)
     
-    # Determine features present in ALL test sets
-    if not test_dfs:
-        logger.warning("No test datasets provided for alignment.")
-        aligned_features = list(train_features.intersection(set(original_features)))
-        return aligned_features, test_dfs
-        
-    test_features = set(test_dfs[next(iter(test_dfs))].columns)
-    for year, df in test_dfs.items():
-        if year == next(iter(test_dfs)):
-            continue
-        test_features = test_features.intersection(set(df.columns))
+    # Identify target column (usually 'income' or 'class') to exclude from alignment check
+    # Assuming 'income' for Adult and 'default.payment.next.month' or similar for Credit
+    # We will exclude any column that looks like a target variable from the feature set
+    potential_targets = {'income', 'class', 'default.payment.next.month', 'target'}
+    train_features -= potential_targets
+    test_features -= potential_targets
     
-    # Calculate intersection of training and test features
     common_features = train_features.intersection(test_features)
     
-    # Filter to only include features that were in the original contract
-    # This ensures we don't accidentally include unexpected columns
-    final_common = common_features.intersection(set(original_features))
+    logger.info(f"Train features: {len(train_features)}, Test features: {len(test_features)}")
+    logger.info(f"Common features: {len(common_features)}")
     
-    # Calculate coverage of original features
-    original_set = set(original_features)
-    if not original_set:
-        logger.warning("Original features list is empty. Using all common features.")
-        aligned_features = sorted(list(final_common))
-    else:
-        coverage = len(final_common) / len(original_set)
-        logger.info(f"Feature intersection coverage: {coverage:.2%} "
-                    f"({len(final_common)}/{len(original_set)} features)")
-        
-        if coverage < threshold:
-            error_msg = (
-                f"Feature intersection coverage ({coverage:.2%}) is below "
-                f"threshold ({threshold:.2%}). Aborting alignment. "
-                f"Missing features: {original_set - final_common}"
-            )
-            logger.error(error_msg)
-            raise ValueError(error_msg)
-        
-        aligned_features = sorted(list(final_common))
+    # Calculate overlap percentage relative to the training set (original features)
+    overlap_ratio = len(common_features) / len(train_features) if len(train_features) > 0 else 0.0
     
-    # Align DataFrames
-    aligned_train = train_df[aligned_features]
-    aligned_test_dfs = {}
-    for year, df in test_dfs.items():
-        aligned_test_dfs[year] = df[aligned_features]
+    if overlap_ratio < feature_threshold:
+        error_msg = (
+            f"Feature alignment failed. Overlap ratio {overlap_ratio:.2%} is below threshold {feature_threshold:.0%}. "
+            f"Train features: {len(train_features)}, Test features: {len(test_features)}, Common: {len(common_features)}. "
+            f"Missing in test: {train_features - common_features}. "
+            f"Extra in test: {test_features - train_features}."
+        )
+        logger.error(error_msg)
+        raise ValueError(error_msg)
     
-    return aligned_features, aligned_test_dfs
+    # Sort features for consistency
+    aligned_feature_list = sorted(list(common_features))
+    
+    # Select only the common features
+    aligned_train_df = train_df[aligned_feature_list]
+    aligned_test_df = test_df[aligned_feature_list]
+    
+    logger.info(f"Aligned feature list saved with {len(aligned_feature_list)} features.")
+    return aligned_train_df, aligned_test_df, aligned_feature_list
 
-def save_aligned_features(
-    aligned_features: List[str],
-    output_path: str
-) -> None:
+def save_aligned_features(aligned_features: List[str], output_path: str) -> None:
     """
-    Save the list of aligned features to a JSON file.
+    Saves the list of aligned features to a JSON file.
     
     Args:
         aligned_features: List of feature names.
         output_path: Path to the output JSON file.
     """
     output_file = Path(output_path)
-    ensure_directories([output_file])
+    ensure_directories(output_file)
     
-    with open(output_file, 'w', encoding='utf-8') as f:
+    with open(output_file, 'w') as f:
         json.dump(aligned_features, f, indent=2)
     
-    logger.info(f"Aligned features saved to {output_path}")
+    logger.info(f"Saved aligned features to {output_path}")
 
-def acquire_and_align_data(
-    dataset_name: str,
-    config: Optional[Dict] = None
-) -> Tuple[pd.DataFrame, Dict[int, pd.DataFrame], List[str]]:
+def acquire_and_align_data(dataset_name: str, base_year: int = None) -> Dict[str, Dict[str, pd.DataFrame]]:
     """
-    Main entry point for data acquisition and schema alignment.
+    Acquires data for the specified dataset and aligns features across all years.
+    Uses the earliest year as the reference for feature selection.
     
     Args:
-        dataset_name: Name of the dataset to acquire.
-        config: Optional configuration dictionary.
-        
+        dataset_name: Name of the dataset ('adult' or 'credit').
+        base_year: Optional base year to use as reference. If None, uses the earliest available year.
+    
     Returns:
-        Tuple of (aligned_train_df, aligned_test_dfs, aligned_features).
+        Dictionary mapping year to a dict containing 'train' (reference) and 'test' (aligned) dataframes.
+        Note: For US1, we train on the earliest year and test on subsequent years.
     """
-    if config is None:
-        config = get_config_dict()
-    
-    # Get original features from contract
-    contract_path = get_path("contracts/dataset_schema.yaml")
-    # We assume the contract defines the expected columns
-    # For now, we hardcode the expected columns based on T004
-    if dataset_name == 'adult':
-        original_features = [
-            'age', 'workclass', 'education', 'occupation', 'relationship',
-            'race', 'sex', 'capital-gain', 'capital-loss', 'hours-per-week',
-            'native-country'
-        ]
-    elif dataset_name == 'credit':
-        # Credit card dataset has different features
-        original_features = [
-            'limit_bal', 'sex', 'education', 'marriage', 'age',
-            'pay_0', 'pay_2', 'pay_3', 'pay_4', 'pay_5', 'pay_6',
-            'bill_amt1', 'bill_amt2', 'bill_amt3', 'bill_amt4', 'bill_amt5', 'bill_amt6',
-            'pay_amt1', 'pay_amt2', 'pay_amt3', 'pay_amt4', 'pay_amt5', 'pay_amt6'
-        ]
-    else:
-        raise ValueError(f"Unknown dataset: {dataset_name}")
-    
-    logger.info(f"Acquiring data for {dataset_name} with {len(original_features)} original features")
-    
-    # Get URLs
     urls = get_yearly_urls(dataset_name)
-    if not urls:
-        raise ValueError(f"No URLs found for dataset {dataset_name}")
+    years = sorted(urls.keys())
     
-    # Load datasets
-    # Note: In a real scenario, we would have multiple years.
-    # For this implementation, we simulate having multiple years by using the same data
-    # or by downloading multiple files if available.
-    # Since true yearly snapshots aren't available via simple public URLs,
-    # we will use the base dataset and treat it as the training set.
-    # Test sets would be simulated or loaded from additional files if they existed.
+    if not years:
+        raise ValueError(f"No data found for dataset {dataset_name}")
     
-    train_url = list(urls.values())[0]
-    train_df = load_dataset_from_url(train_url)
+    if base_year is None:
+        base_year = years[0]
     
-    # For demonstration, we'll create a "test" set from the same source
-    # In a real implementation, we would load different years
-    test_dfs = {}
-    if len(urls) > 1:
-        for year, url in urls.items():
-            if year != list(urls.keys())[0]:
-                test_dfs[year] = load_dataset_from_url(url)
-    else:
-        # If only one year is available, we can't truly test alignment across years
-        # We'll log a warning and use the same data for testing
-        logger.warning(f"Only one year of data available for {dataset_name}. "
-                       f"Using same data for test set. Schema alignment will pass trivially.")
-        # Split the data into train/test for demonstration purposes
-        # In reality, this should be actual yearly data
-        split_idx = int(len(train_df) * 0.8)
-        train_df = train_df.iloc[:split_idx]
-        test_dfs[2000] = train_df.iloc[split_idx:] # Placeholder year
+    if base_year not in urls:
+        raise ValueError(f"Base year {base_year} not found in available years for {dataset_name}")
     
-    # Perform schema alignment
-    aligned_features, aligned_test_dfs = align_features(
-        train_df, test_dfs, original_features
-    )
+    logger.info(f"Using {base_year} as the reference year for feature alignment.")
     
-    return train_df, aligned_test_dfs, aligned_features
-
-def run_acquisition_pipeline(
-    dataset_names: List[str],
-    output_dir: Optional[str] = None
-) -> None:
-    """
-    Run the full data acquisition and alignment pipeline.
+    # Load reference (base year) data
+    reference_path = urls[base_year]
+    reference_df = load_dataset_from_url(reference_path)
     
-    Args:
-        dataset_names: List of dataset names to acquire.
-        output_dir: Directory to save processed data.
-    """
-    if output_dir is None:
-        output_dir = get_path("data/processed")
+    # Load and align all other years
+    aligned_data = {base_year: {"train": reference_df, "test": reference_df}} # Base year is both train and test for itself? No, usually train on base, test on others.
+    # Actually, for US1: "train fixed models on earliest snapshot". 
+    # So we need the reference features from the earliest snapshot.
+    # Then we align all subsequent years to those features.
     
-    ensure_directories([output_dir])
+    # Let's separate the logic: 
+    # 1. Load reference features from base_year.
+    # 2. For all years (including base_year?), align to reference.
+    #    - For base_year, it's the same.
+    #    - For others, we align.
     
-    config = get_config_dict()
+    # We will return a structure: { year: {"aligned_df": df} }
+    # The training model will use the base_year aligned_df.
+    # The evaluation will use other years' aligned_dfs.
     
-    for dataset_name in dataset_names:
-        logger.info(f"Processing dataset: {dataset_name}")
+    result = {}
+    
+    # First pass: Determine common features using the base year and at least one other year if available
+    # Or simply use base year features as the "universe" and filter others.
+    # FR-008 says "Intersect feature columns between training and test snapshots".
+    # This implies a pairwise or global intersection. 
+    # Given the pipeline nature, we fix the feature set to the intersection of ALL available years
+    # OR we fix it to the training set (base year) and drop columns from test sets that don't match.
+    # The task says "Intersect ... between training and test". 
+    # Let's implement: Global intersection of all available years to ensure consistency across the whole timeline.
+    
+    all_dfs = {}
+    for year in years:
+        path = urls[year]
+        df = load_dataset_from_url(path)
+        all_dfs[year] = df
+    
+    # Determine global intersection of features (excluding targets)
+    potential_targets = {'income', 'class', 'default.payment.next.month', 'target'}
+    feature_sets = []
+    for year, df in all_dfs.items():
+        feats = set(df.columns) - potential_targets
+        feature_sets.append(feats)
+    
+    global_common = set.intersection(*feature_sets) if feature_sets else set()
+    
+    # Check threshold against the base year (training set)
+    base_features = set(all_dfs[base_year].columns) - potential_targets
+    overlap_ratio = len(global_common) / len(base_features) if len(base_features) > 0 else 0.0
+    
+    if overlap_ratio < 0.9:
+        error_msg = (
+            f"Global feature alignment failed. Overlap ratio {overlap_ratio:.2%} is below threshold 90% "
+            f"relative to base year {base_year}. "
+            f"Base features: {len(base_features)}, Global Common: {len(global_common)}."
+        )
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+    
+    aligned_features_list = sorted(list(global_common))
+    
+    # Align all years
+    for year, df in all_dfs.items():
+        # Select only common features
+        # Ensure target column is preserved if it exists in the original df but not in features
+        # We assume the target is NOT in the feature list
+        target_col = None
+        for t in potential_targets:
+            if t in df.columns:
+                target_col = t
+                break
         
-        try:
-            train_df, test_dfs, aligned_features = acquire_and_align_data(
-                dataset_name, config
-            )
-            
-            # Save aligned features
-            features_path = Path(output_dir) / "aligned_features.json"
-            save_aligned_features(aligned_features, str(features_path))
-            
-            # Save train and test data
-            train_path = Path(output_dir) / f"{dataset_name}_train.csv"
-            train_df.to_csv(train_path, index=False)
-            logger.info(f"Training data saved to {train_path}")
-            
-            for year, test_df in test_dfs.items():
-                test_path = Path(output_dir) / f"{dataset_name}_test_{year}.csv"
-                test_df.to_csv(test_path, index=False)
-                logger.info(f"Test data for {year} saved to {test_path}")
-                
-        except ValueError as e:
-            logger.error(f"Schema alignment failed for {dataset_name}: {e}")
-            raise
-        except Exception as e:
-            logger.error(f"Failed to process {dataset_name}: {e}")
-            raise
+        cols_to_keep = aligned_features_list
+        if target_col:
+            cols_to_keep.append(target_col)
+        
+        # Reorder columns to match original or just keep features + target
+        # For simplicity, we keep features then target
+        aligned_df = df[cols_to_keep]
+        result[year] = {"aligned_df": aligned_df}
+    
+    return result
+
+def run_acquisition_pipeline(dataset_name: str, output_dir: str = "data/processed") -> None:
+    """
+    Main entry point for the data acquisition and alignment pipeline.
+    Downloads (assumed done by T013), aligns features, and saves the aligned feature list.
+    """
+    logger.info(f"Starting acquisition pipeline for dataset: {dataset_name}")
+    
+    # Ensure output directories exist
+    ensure_directories(Path(output_dir))
+    ensure_directories(Path("data/raw")) # Ensure raw dir exists for loading
+    
+    try:
+        aligned_data = acquire_and_align_data(dataset_name)
+        
+        if not aligned_data:
+            raise ValueError("No data acquired or aligned.")
+        
+        # Save aligned feature list
+        feature_list_path = os.path.join(output_dir, "aligned_features.json")
+        # Get features from the first available year (they are all aligned)
+        first_year = next(iter(aligned_data))
+        # Extract features (excluding target)
+        df_sample = aligned_data[first_year]["aligned_df"]
+        potential_targets = {'income', 'class', 'default.payment.next.month', 'target'}
+        features = [col for col in df_sample.columns if col not in potential_targets]
+        
+        save_aligned_features(features, feature_list_path)
+        
+        # Save the aligned yearly splits to data/processed/
+        # Format: data/processed/{dataset_name}_{year}.csv
+        for year, data in aligned_data.items():
+            out_path = os.path.join(output_dir, f"{dataset_name}_{year}.csv")
+            data["aligned_df"].to_csv(out_path, index=False)
+            logger.info(f"Saved aligned data for year {year} to {out_path}")
+        
+        logger.info("Acquisition pipeline completed successfully.")
+        
+    except Exception as e:
+        logger.critical(f"Acquisition pipeline failed: {e}")
+        raise
 
 def main():
-    """Main entry point for the script."""
-    parser = argparse.ArgumentParser(
-        description="Data Acquisition and Schema Alignment for Calibration Drift Study"
-    )
-    parser.add_argument(
-        "--datasets",
-        nargs="+",
-        default=["adult", "credit"],
-        help="Datasets to process (default: adult credit)"
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default=None,
-        help="Output directory for processed data"
-    )
-    
+    parser = argparse.ArgumentParser(description="Data Acquisition and Alignment Pipeline")
+    parser.add_argument("--dataset", type=str, required=True, choices=["adult", "credit"], help="Dataset name")
+    parser.add_argument("--output-dir", type=str, default="data/processed", help="Output directory for processed data")
     args = parser.parse_args()
     
-    run_acquisition_pipeline(
-        dataset_names=args.datasets,
-        output_dir=args.output_dir
-    )
+    run_acquisition_pipeline(args.dataset, args.output_dir)
 
 if __name__ == "__main__":
     main()

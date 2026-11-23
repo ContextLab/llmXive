@@ -1,84 +1,88 @@
 # Research: Quantization Robustness of Multi-Effect LoRA Adapters
 
-## Research Question
+## 1. Problem Statement & Hypothesis
 
-Does post‑training quantization (INT8, INT4) of a multi‑effect LoRA adapter (CollectionLoRA) induce significant **concept bleeding**—measured by Cross‑Effect Similarity Ratio (CESR)—and is this degradation correlated with the **effective rank** of each effect’s subspace?
+**Problem**: Multi-Effect LoRA adapters (CollectionLoRA) combine multiple style/textural effects into a single weight matrix. It is hypothesized that post-training quantization (INT4/INT8) will disproportionately degrade low-rank subspaces, causing "concept bleeding" (interference between effects) and fidelity loss.
 
-## Methodology
+**Hypothesis**: 
+1. Quantization noise (INT4) will cause a statistically significant drop in CLIP cosine similarity compared to FP16.
+2. The magnitude of this drop (concept bleeding) will be **negatively correlated** with the **intrinsic source rank** of the specific LoRA subspace (lower rank = higher vulnerability).
+   - *Note*: This correlation is **descriptive/exploratory** due to N=5 effects.
+3. INT8 will show minimal degradation, while INT4 will show significant degradation.
 
-### 1. Experimental Design
+## 2. Dataset & Model Strategy
 
-| Variable | Levels |
-|----------|--------|
-| **Quantization** | FP16 (baseline), INT8, INT4 |
-| **Effect** | 5 distinct effects (e.g., *oil painting*, *cyberpunk*, *watercolor*, *sketch*, *pixel art*) |
-| **Prompt** | A set of deterministic prompts, each uniquely paired with one effect. (one‑to‑one mapping) – see `data/prompts.txt`. |
+### 2.1 Primary Data Source (Models)
+The project requires a "CollectionLoRA" adapter containing ≥5 distinct effects.
+- **Primary Strategy**: Synthesize a CollectionLoRA adapter by merging 5 verified, single-effect LoRA adapters from HuggingFace.
+  - **Verified Sources for Synthesis** (Specific IDs):
+    1. `lykon/dreamshaper-lora` (Style: Dreamshaper)
+    2. `cagliostrolab/animagine-xl` (Style: Anime)
+    3. `Kiloo/realistic-vision-v5` (Style: Realism)
+    4. `stablediffusionapi/anything-v45` (Style: Anime/General)
+    5. `prompthero/openjourney-v4` (Style: Midjourney-like)
+  - **Fallback Strategy**: If any of the above are unavailable or incompatible (different base models), generate 5 **procedural low-rank matrices** with random weights to serve as the effects. This ensures the experiment is always feasible.
+- **Base Model**: `stabilityai/stable-diffusion-2-1-base` (or `1.5` if VRAM constraints dictate).
+- **Compatibility Check**: Before merging, verify all sources share the same base model architecture and rank.
 
-*The one‑to‑one mapping eliminates the need to model prompts as random effects, stabilising the Pooled Bayesian Linear Model (P-BLM) with only 5 data points per quantization level.*
+### 2.2 Prompts & References
+- **Prompts**: A fixed list of 10 diverse prompts (texture, lighting, style, object) defined in `code/config.yaml` (FR-009).
+- **Reference Images**: Generated using the FP16 adapter.
+- **Distractor References**: Generated using **unrelated** prompts to validate CESR specificity (Plan T004).
 
-### 2. Dataset Strategy
+### 2.3 Verified Datasets
+*Note: The "Verified datasets" block in the input refers to LLM evaluation logs, which are not usable here. The plan relies on the **verified single-effect LoRA repositories** listed above and the **base model** as the primary data sources. No external image dataset is required; images are generated in-situ.*
 
-| Component | Source |
-|-----------|--------|
-| **Base Model** | `stabilityai/stable-diffusion-1-5` (HuggingFace) |
-| **CollectionLoRA Adapter** | `user/collectionlora-multi-teacher-onp` (HuggingFace model ID). *Note: This adapter ID is a placeholder and must be verified against the 'Verified datasets' block before execution. If no verified ID exists, the pipeline halts.* |
-| **Prompts** | Fixed list in `data/prompts.txt`. |
-| **Reference Images (for CESR)** | **LoRA-FreeReferenceImages**: Generated **without** the LoRA adapter for all effects. These serve as the ground truth for measuring 'bleeding' (convergence to other LoRA effects). This breaks the circularity of comparing quantized outputs to LoRA-generated references. |
+## 3. Methodology
 
-All assets are fetched programmatically on each CI run, guaranteeing reproducibility (Constitution Principle I).
+### 3.1 Quantization (Zero-Shot)
+- **Method**: `torch.ao.quantization` with `qconfig` for dynamic quantization on linear layers (LoRA weights).
+- **Levels**: FP16 (Baseline), INT8, INT4.
+- **Constraint**: Must run on CPU. If `torch.ao.quantization` fails to produce valid INT4 weights (e.g., due to backend limitations), the system logs "Backend Unavailable" and **skips** INT4 for that run (FR-002, Edge Cases).
+- **Integrity Check**: After generation, if LPIPS > 0.8 or Similarity < 0.1, flag as "CatastrophicCollapse" and exclude from analysis (Plan T015).
 
-### 3. Metric Suite
+### 3.2 Metrics
+1. **Concept Adherence**: Cosine similarity between CLIP text embedding (prompt) and CLIP image embedding.
+2. **Pixel Fidelity**: LPIPS distance between Quantized Image and FP16 Baseline Image.
+3. **Concept Bleeding (Normalized CESR)**:
+   - `CESR_raw`: Cosine similarity between Quantized Image embedding and **FP16 Reference Images** of *other* effects.
+   - `CESR_baseline`: Mean similarity between Quantized Image embedding and **Distractor Reference Images** (unrelated prompts).
+   - `CESR_normalized = CESR_raw - CESR_baseline`.
+   - *Rationale*: This normalizes for general semantic drift (e.g., if the image becomes generic, it scores high on all effect references). The delta isolates specific cross-effect interference.
 
-| Metric | Description | Implementation |
-|--------|-------------|----------------|
-| **Cosine Similarity (CLIP)** | Prompt‑text embedding vs. generated‑image embedding (semantic adherence). | `metrics.py` uses `transformers` CLIP model. |
-| **Style‑Classifier Score** | Probability that the image belongs to the intended style (trained on WikiArt). | Lightweight CNN (`torchvision` ResNet‑18) fine‑tuned on style labels; runs on CPU. **Validated on a hold-out set before use.** |
-| **LPIPS** | Perceptual distance between quantized image and its FP16 counterpart (pixel‑space fidelity). | `lpips` library (CPU mode). |
-| **CESR (Max)** | For a quantized image, compute the **maximum** cosine similarity to the `LoRA-FreeReferenceImages` of the **other four** effects (excluding the target). This measures the worst-case bleeding (convergence to the nearest competing effect). | Implemented in `metrics.py`. |
-| **Delta Metrics** | Differences (quantized − FP16) for each of the above scores. | Simple arithmetic after metric extraction. |
+### 3.3 Statistical Analysis
+- **Model**: Bayesian Hierarchical Model (PyMC).
+- **Variables**:
+  - `similarity_score` ~ Normal(μ, σ)
+  - `μ` ~ Effect(quantization_level)
+- **Correlation (Descriptive)**:
+  - Aggregate `CESR_normalized` to the **effect level** (mean per effect).
+  - Correlate aggregated bleeding with `SourceRank` (intrinsic rank from pre-merge matrices).
+  - **Power Limitation**: N=5 effects is **insufficient** for statistical significance (ESS will be < 200). This is a **descriptive trend analysis**, not a hypothesis test.
+  - **Flag**: Explicitly set `status` = 'Underpowered' in results.
+- **Power Analysis**:
+  - Check posterior width (≤0.2) for quantization effects.
+  - Check ESS for correlation coefficient.
+  - Flag "Underpowered" if criteria not met (FR-014).
 
-### 4. Statistical Analysis Plan
+## 4. Compute Feasibility & Escape Hatches
 
-1. **Pooled Bayesian Linear Model (P-BLM)**  
-   *Outcome*: cosine similarity (and LPIPS) per image.  
-   *Fixed effects*: quantization level (FP16, INT8, INT4), effect ID.  
-   *Pooled Variance*: The model assumes a **shared residual variance (sigma)** across all effects and quantization levels. This pooling allows estimation of quantization effects despite N=1 per cell (A series of observations will be conducted.).  
-   Priors are weakly informative (Normal (0, 0.5) for quantization offsets; Half‑Cauchy for shared residual variance). Posterior samples are drawn with NUTS.  
+- **CPU-First**:
+  - SD2.x on CPU: ~4-6GB RAM per generation. A total of multiple images will be collected.
+  - Quantization: `torch.ao.quantization` on CPU is supported but slow.
+  - Bayesian Analysis: PyMC on CPU for N=50 is trivial.
+  - **Verdict**: Feasible within 6 hours.
+- **No GPU Escape Hatch**:
+  - The plan **does not** offload to Kaggle or any external GPU.
+  - If CPU quantization fails, the level is skipped and flagged. This preserves reproducibility on the target platform.
 
-2. **Posterior Width Check (FR‑014)** – Compute the [deferred] HDI width for each quantization effect; flag “Underpowered” if width > 0.2.
+## 5. Risk Mitigation
 
-3. **Correlation Analysis** – Bayesian linear regression of **CESR delta** (quantized − FP16) against **subspace rank** (from `data/subspace_ranks.json`). Report posterior mean, [deferred] HDI, and a significance flag (HDI does not cross zero).
-
-4. **Multiple‑Comparison Handling** – Joint posterior inference inherently adjusts for multiple parameters; we also report the Bayesian False Discovery Rate where applicable.
-
-All statistical code resides in `analysis/` and adheres to the reproducibility requirements (Constitution Principle I).
-
-### 5. Compute Feasibility & Constraints
-
-- **Images**: 5 effects × 3 quantization levels = 15 generations.
-- **Runtime**: ~ mins per image on CPU (SD 1.5, A reduced number of steps for quantized models, 50 for FP16) → **≈ 3.5 h total**.
-- **Memory**: Model loading uses `torch.load(..., mmap=True)`; peak RAM ≤ 6 GB.
-- **Hardware**: GitHub Actions free tier (2 CPU, ~7 GB RAM). No GPU or CUDA.
-
-If a `MemoryError` (exit 137) occurs during quantized generation, the pipeline logs a “Quantization Failure” flag and continues with remaining levels.
-
-### 6. Edge‑Case Handling
-
-| Situation | Handling |
-|-----------|----------|
-| `torch.ao.quantization` unavailable | Log “Quantization Backend Unavailable – skipping INT8/INT4” and **skip** those levels (no fallback). |
-| OOM (`MemoryError`) during generation | Catch, log “Quantization Failure – level X skipped”, and proceed. |
-| Zero delta (identical embeddings) | Record delta = 0.0; variance calculations use a small epsilon to avoid division-by-zero. |
-| Missing adapter URL in verified block | Load via `from_pretrained`; flag in the report that the adapter source is not verified. |
-| Runtime > 3.5h | Reduce inference steps for quantized levels to 10 (graceful degradation). |
-
-## Expected Results
-
-- **SC‑001**: Baseline cosine similarity scores (FP16) for each effect‑prompt pair.  
-- **SC‑002**: LPIPS and style‑classifier deltas for INT8/INT4 vs. FP16.  
-- **SC‑003**: Posterior probability that INT8/INT4 quantization reduces cosine similarity (target > 0.95).  
-- **SC‑004**: Posterior correlation coefficient between subspace rank and CESR delta; credible interval not crossing zero indicates a significant relationship.  
-- **SC‑005**: Total pipeline runtime ≤ 6 h (expected ≈ 3.5 h).  
-- **SC‑006**: CESR values for each quantized image compared to LoRA-FreeReferenceImages.
-
-All results will be stored in `data/analysis_results.json` and validated against the provided schemas.
+- **Risk**: Public CollectionLoRA adapter missing.
+  - **Mitigation**: Synthetic construction from 5 verified single-effect LoRAs or procedural generation (Plan Section 2.1).
+- **Risk**: OOM on CPU (Exit 137).
+  - **Mitigation**: `try/except` block catching `MemoryError`; log "MemoryLimitExceeded"; skip quantization level (FR-008).
+- **Risk**: Quantization collapses the model (LPIPS > 0.8).
+  - **Mitigation**: "Model Integrity Check" after generation; if LPIPS > 0.8 or similarity < 0.1, log "Quantization Failure: Catastrophic Collapse" and exclude from analysis (Plan Section 5).
+- **Risk**: Low statistical power (N=5 effects for correlation).
+  - **Mitigation**: Explicitly label correlation as **descriptive/exploratory**; flag `status` = 'Underpowered' (FR-014).

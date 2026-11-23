@@ -1,0 +1,8 @@
+{
+  "status": "NIST Juliet unavailable; using BigVul as sanctioned substitution.",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "fallback_reason": "HTTP 404",
+  "primary_source": "NIST Juliet",
+  "substitute_source": "BigVul",
+  "languages_affected": ["C", "C++"]
+}

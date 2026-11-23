@@ -1,0 +1,99 @@
+backend: dartmouth
+feedback: 'We shall now consider the architectural implications of the proposed ''Memory
+  Palaces'' framework. The authors posit that explicit spatial organization of episodic
+  memories will enhance recall accuracy. While the analogy to human cognitive mapping
+  is compelling, the specification lacks a rigorous definition of the mapping function
+  between the ''spatial coordinates'' and the transformer''s attention mechanism.
+
+
+  In the EDVAC report, I emphasized that the distinction between the *order* (the
+  program) an'
+github_authenticated: false
+model_name: openai.gpt-oss-120b
+prompt_version: 1.0.0
+reviewed_at: '2026-07-03T16:37:10.901613Z'
+reviewer_kind: llm
+reviewer_name: john-von-neumann-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+We shall now consider the architectural implications of the proposed 'Memory Palaces' framework. The authors posit that explicit spatial organization of episodic memories will enhance recall accuracy. While the analogy to human cognitive mapping is compelling, the specification lacks a rigorous definition of the mapping function between the 'spatial coordinates' and the transformer's attention mechanism.
+
+In the EDVAC report, I emphasized that the distinction between the *order* (the p
+
+*[truncated]*
+
+## `john-von-neumann-simulated__2026-06-27__research.md`
+
+---
+action_items: []
+artifact_hash: 7adc153888107f629840a6bf8a7a2c2b7d7a2e0f0ee1eef92433218d6c01cb09
+artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/spec.md
+backend: dartmouth
+feedback: "The proposal invokes 'spatial reasoning for enhanced episodic recall' using\
+  \ memory palace architectures. I must ask: what is the measurable cost of spatial\
+  \ indexing versus the baseline attention mechanism? In my 1945 EDVAC report, we\
+  \ established that the stored-program concept requires a clear distinction between\
+  \ address and content \u2014 the physical location of a datum versus its logical\
+  \ interpretation.\n\nThe spec states that 'explicit spatial organization' improves\
+  \ recall, but does not specify the"
+github_authenticated: false
+model_name: openai.gpt-oss-120b
+prompt_version: 1.0.0
+reviewed_at: '2026-06-27T17:52:25.232869Z'
+reviewer_kind: llm
+reviewer_name: john-von-neumann-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+The proposal invokes 'spatial reasoning for enhanced episodic recall' using memory palace architectures. I must ask: what is the measurable cost of spatial indexing versus the baseline attention mechanism? In my 1945 EDVAC report, we established that the stored-program concept requires a clear distinction between address and content — the physical location of a datum versus its logical interpretation.
+
+The spec states that 'explicit spatial organization' improves rec
+
+*[truncated]*
+
+## `eric-kandel-simulated__2026-07-03__research.md`
+
+---
+action_items: []
+artifact_hash: 1846e270a753ef82d01a06538bc0754b1ab0623084cdfcf56b431dc1a7d33106
+artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/spec.md
+backend: dartmouth
+feedback: 'The concept of a "Memory Palace" has long captivated the imagination, from
+  the ancient Greeks to the modern cognitive scientist. However, as we move from the
+  psychology of mnemonics to the engineering of artificial systems, we must be precise
+  about what we mean by "storage." The current specification describes the spatial
+  organization as a static retrieval index, a fixed grid where episodic traces are
+  deposited. This raises a critical question: does the system account for the biological
+  reality '
+github_authenticated: false
+model_name: openai.gpt-oss-120b
+prompt_version: 1.0.0
+reviewed_at: '2026-07-03T10:59:28.508664Z'
+reviewer_kind: llm
+reviewer_name: eric-kandel-simulated
+score: 0.0
+verdict: minor_revision
+---
+
+The concept of a "Memory Palace" has long captivated the imagination, from the ancient Greeks to the modern cognitive scientist. However, as we move from the psychology of mnemonics to the engineering of artificial systems, we must be precise about what we mean by "storage." The current specification describes the spatial organization as a static retrieval index, a fixed grid where episodic traces are deposited. This raises a critical question: does the system account for the biological reality t
+
+*[truncated]*
+
+## `eric-kandel-simulated__2026-06-27__research.md`
+
+---
+action_items: []
+artifact_hash: 7adc153888107f629840a6bf8a7a2c2b7d7a2e0f0ee1eef92433218d6c01cb09
+artifact_path: projects/PROJ-596-memory-palaces-in-llms-spatial-reasoning/specs/001-memory-palaces-in-llms-spatial-reasoning/spec.md
+backend: dartmouth
+feedback: "When I first began working with Aplysia, we were struck by how a simple\
+  \ behavior\u2014the gill-withdrawal reflex\u2014could be altered by experience.\
+  \ This raised the question: where is the memory stored? We found it in the synapse.\
+  \ Your proposal invokes the \"Memory Palace,\" a technique that relies on spatial\
+  \ organization, much like the place cells in the hippocampus that I and others have\
+  \ studied. However, in Section 2, you describe episodic recall as a function of\
+  \ \"spatial reasoning\" without addressing t"
+github_authenticated: false

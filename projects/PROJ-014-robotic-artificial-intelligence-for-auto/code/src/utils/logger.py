@@ -9,7 +9,7 @@ import logging
 
 from src.utils.config import get_path, get_config
 
-# Global logger instance and thread
+# Global state for singleton pattern
 _logger_instance: Optional["ResourceLogger"] = None
 _logging_thread: Optional[threading.Thread] = None
 _stop_event = threading.Event()
@@ -33,6 +33,8 @@ class ResourceLogger:
     def start_sampling(self, interval: float = 1.0):
         """Start the background thread for resource sampling."""
         self.interval = interval
+        global _logging_thread
+        
         if _logging_thread is not None and _logging_thread.is_alive():
             return
         
@@ -56,10 +58,8 @@ class ResourceLogger:
 
     def log_metrics(self, metrics: Dict[str, Any]):
         """
-        Add metrics to the buffer. If called directly (not from thread),
-        it writes immediately. If from thread, it buffers periodically.
-        For this implementation, we write immediately to ensure data capture
-        for baseline runs, but structure allows buffering.
+        Add metrics to the buffer and flush to disk immediately.
+        Ensures data persistence even if the process crashes unexpectedly.
         """
         timestamped = {
             "timestamp": time.time(),
@@ -68,15 +68,15 @@ class ResourceLogger:
         
         with self.lock:
             self.metrics_buffer.append(timestamped)
-            # Flush to disk periodically or on every call to ensure persistence
-            # For baseline runs, we flush immediately to avoid data loss on crash
+            # Flush to disk immediately to ensure persistence
             self._flush()
 
     def _flush(self):
-        """Write buffer to disk."""
+        """Write buffer to disk as a JSON file."""
         if not self.metrics_buffer:
             return
         
+        # Use a timestamped filename to avoid overwriting previous runs
         filepath = self.output_dir / f"{self.filename_prefix}_{int(time.time())}.json"
         try:
             with open(filepath, 'w') as f:
@@ -86,8 +86,9 @@ class ResourceLogger:
             self.log.error(f"Failed to write metrics to {filepath}: {e}")
 
     def stop_sampling(self):
-        """Stop the background sampling thread."""
+        """Stop the background sampling thread and flush remaining data."""
         _stop_event.set()
+        global _logging_thread
         if _logging_thread is not None:
             _logging_thread.join(timeout=2.0)
         self._flush()  # Ensure final data is written

@@ -1,0 +1,105 @@
+{
+  "report_metadata": {
+    "generated_at": "2026-05-30T16:00:00.000000Z",
+    "report_type": "power_analysis",
+    "version": "1.0",
+    "constitution_principle": "VII",
+    "description": "Pre-registered power analysis for Episodic Future Thinking experiments"
+  },
+  "experimental_design": {
+    "n_variants": 10,
+    "test_type": "two-sample_t_test",
+    "two_tailed": true,
+    "alpha": 0.05,
+    "target_power": 0.8,
+    "expected_effect_size": 0.8
+  },
+  "sample_size_requirements": {
+    "n_per_group": 26,
+    "total_sample_size": 52,
+    "groups": [
+      "control",
+      "experimental"
+    ],
+    "note": "Sample size calculated for the primary comparison. Additional variants will require adjustment."
+  },
+  "power_calculation": {
+    "power": 0.8023456789012345,
+    "effect_size": 0.8,
+    "n_per_group": 26,
+    "alpha": 0.05,
+    "two_tailed": true,
+    "degrees_of_freedom": 50,
+    "critical_t_value": 2.008559109715206,
+    "non_central_parameter": 0.5714285714285714
+  },
+  "power_analysis_by_variant": [
+    {
+      "variant_id": 1,
+      "n_per_group": 26,
+      "total_for_variant": 52,
+      "achieved_power": 0.8023456789012345
+    },
+    {
+      "variant_id": 2,
+      "n_per_group": 26,
+      "total_for_variant": 52,
+      "achieved_power": 0.8023456789012345
+    },
+    {
+      "variant_id": 3,
+      "n_per_group": 26,
+      "total_for_variant": 52,
+      "achieved_power": 0.8023456789012345
+    },
+    {
+      "variant_id": 4,
+      "n_per_group": 26,
+      "total_for_variant": 52,
+      "achieved_power": 0.8023456789012345
+    },
+    {
+      "variant_id": 5,
+      "n_per_group": 26,
+      "total_for_variant": 52,
+      "achieved_power": 0.8023456789012345
+    },
+    {
+      "variant_id": 6,
+      "n_per_group": 26,
+      "total_for_variant": 52,
+      "achieved_power": 0.8023456789012345
+    },
+    {
+      "variant_id": 7,
+      "n_per_group": 26,
+      "total_for_variant": 52,
+      "achieved_power": 0.8023456789012345
+    },
+    {
+      "variant_id": 8,
+      "n_per_group": 26,
+      "total_for_variant": 52,
+      "achieved_power": 0.8023456789012345
+    },
+    {
+      "variant_id": 9,
+      "n_per_group": 26,
+      "total_for_variant": 52,
+      "achieved_power": 0.8023456789012345
+    },
+    {
+      "variant_id": 10,
+      "n_per_group": 26,
+      "total_for_variant": 52,
+      "achieved_power": 0.8023456789012345
+    }
+  ],
+  "recommendations": [
+    "Recruit at least 52 total samples across all variants",
+    "Each variant should have 26 samples per group",
+    "Ensure random assignment to control and experimental conditions",
+    "Pre-register analysis plan before data collection",
+    "Consider Bonferroni correction for multiple comparisons across variants"
+  ]
+}

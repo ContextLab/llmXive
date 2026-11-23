@@ -1,0 +1,52 @@
+T002b:
+  c: false
+  h: 543732997c6a7ddde92df3e41b6aae77e1eafc445c157501fc94a0a8c122ac75
+  r: "The required `projects/PROJ-402-the-impact-of-interoceptive-awareness-on/code/requirements.txt`\
+    \ file does not exist, and no `venv` directory is present, so dependencies could\
+    \ not be installed as specified. The task\u2019s primary artifact is missing."
+T002d:
+  c: false
+  h: 3ad69e70dc1ffba4427b08c5fc2ea74e9a1bacc16747f930c280007ff7db479c
+  r: "The repository lacks the required `contracts/dataset.schema.yaml` file, so the\
+    \ validator cannot load the pre\u2011existing schema. Moreover, the provided `schema_validator.py`\
+    \ is truncated and does not clearly show the required return object `{valid, errors,\
+    \ checksum, behavioral_found}`, the specific phase\u2011vs\u2011behavioral task\
+    \ logic, or the exit\u2011code handling and checksum logging mandated by the task.\
+    \ Both the missing schema file and the incomplete implementation need to be added/fixed."
+T002e:
+  c: false
+  h: 5eb5d5d1d7415e50b8092013ab41db1ed52c0f341d3a1ca3c0f4d49b63f3c868
+  r: The required file at `projects/PROJ-402-the-impact-of-interoceptive-awareness-on/code/requirements.txt`
+    does not exist; only a similarly named file at a different location is present.
+    The task demands the file at the specific project path, so the implementation
+    is incomplete.
+T007:
+  c: false
+  h: 1f2f3677069dfd670811f6d36716ce97fa03e3a23e5d025a8414310fe750a531
+  r: "The provided `code/05_update_state.py` is truncated and ends mid\u2011definition\
+    \ (`def compute_artifact_hashes(base_dir: P`), so the core logic for scanning\
+    \ `data/` and `results/`, computing hashes, and writing them to the YAML state\
+    \ file is absent. Additionally, the required state file `state/projects/001-impact-of-interoceptive-awareness.yaml`\
+    \ does not exist, indicating the script has not successfully created or updated\
+    \ it. The task therefore remains unfinished."
+T008:
+  c: false
+  h: 35f3965eb50465ad5ea859fbcf76a30fc2e311ff0879c588f5a8d0f27cfa6b4b
+  r: "The required `conftest.py` file, which should contain the pytest configuration\
+    \ for random seed pinning, is missing from the repository. Without this file the\
+    \ test environment cannot enforce deterministic behavior, so the task\u2019s core\
+    \ requirement is not satisfied."
+T010:
+  c: false
+  h: 3baed5528433f397cee5685b576ca14d614269a3c431ec96fcbc5e2bfffe1267
+  r: "The required artifact `data/raw/wesad/WESAD.zip` is missing, so the download\
+    \ step was not performed and the script\u2019s error\u2011handling behavior cannot\
+    \ be verified. The task\u2019s core requirement (having the ZIP file at the specified\
+    \ path) is not satisfied."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing signal cleaning with the `hrv-analysis`\
+    \ library and the specified <5% valid\u2011beat artifact rejection threshold was\
+    \ provided. Consequently, the required artifact is missing, so the task is not\
+    \ satisfied."

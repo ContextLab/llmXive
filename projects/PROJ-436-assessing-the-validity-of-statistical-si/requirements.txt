@@ -1,0 +1,12 @@
+# Project requirements
+pandas
+numpy
+scipy
+scikit-learn
+statsmodels
+matplotlib
+seaborn
+pytest
+PyYAML
+requests
+# The huggingface datasets library is not needed because we download via direct HTTPS URLs.

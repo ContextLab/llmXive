@@ -1,1 +1,2 @@
-# This directory holds processed/intermediate data.
+# This directory stores processed, analysis-ready datasets.
+# Do not commit actual data files here.

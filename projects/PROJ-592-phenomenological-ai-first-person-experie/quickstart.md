@@ -1,178 +1,117 @@
-# Phenomenological AI: First-Person Experience Modeling - Quick Start
+# Phenomenological AI: First-Person Experience Modeling - Quickstart
 
-This guide provides instructions for setting up the environment and running the pipeline.
+This guide provides instructions for running the Phenomenological AI pipeline locally or on a CI runner.
 
-## Environment Setup
+## Prerequisites
 
-### Prerequisites
+- Python 3.10+
+- `llama-cpp-python` (for model inference)
+- `datasets` (for control corpus)
+- `pandas`, `numpy`, `scipy` (for analysis)
 
-- Python 3.9+
-- pip (package manager)
-- Access to a CPU-only environment (GPU is not required for the primary CI pipeline)
-
-### Installation
-
-1. Clone the repository and navigate to the project root:
- ```bash
- git clone <repository-url>
- cd PROJ-592-phenomenological-ai-first-person-experie
- ```
-
-2. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
- **Note**: The primary CI pipeline uses `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF` (4-bit quantized) via `llama-cpp-python`. This model is optimized for CPU execution.
-
-3. Verify the installation:
- ```bash
- python -c "import llama_cpp; print(llama_cpp.__version__)"
- ```
-
-## CLI Usage
-
-The main entry point for the pipeline is `code/main.py`. It supports several modes of operation via the `--task` argument.
-
-### Available Tasks
-
-- `generate`: Generate phenomenological reports using TinyLlama and four prompting strategies.
-- `generate_control`: Generate control samples from the arxiv_nlp dataset.
-- `analyze`: Compute consistency, stability, and marker metrics on generated reports.
-- `stats`: Perform statistical analysis (ANOVA/Kruskal-Wallis) on validity scores.
-- `validate_human`: Prepare data for human validation (requires `code/validation/rubric.md`).
-- `sensitivity-kappa`: Analyze robustness of conclusions across kappa thresholds.
-- `archive`: Package all artifacts for reproducibility.
-- `full`: Run the entire pipeline from generation to archiving.
-
-### Basic Commands
-
-#### 1. Generation Mode
-
-Generate the corpus of phenomenological reports:
-
+Install dependencies:
 ```bash
-python code/main.py --task generate --config code/config.py
+pip install -r requirements.txt
 ```
 
-This will:
-- Load 20 base prompts from `data/prompts/base_prompts.json`.
-- Apply 4 prompting strategies (Direct, Hypothetical, Comparative, Role-play).
-- Generate ~80 samples per strategy per prompt (totaling a substantial dataset).
-- Save outputs to `data/raw/`.
+## Project Structure
 
-#### 2. Control Corpus Mode
+- `code/`: Source code for generation, analysis, and validation
+- `data/`: Raw and processed data
+- `specs/`: Feature specifications and contracts
+- `tests/`: Unit and integration tests
 
-Generate control samples for discriminant validity:
+## Configuration
 
-```bash
-python code/main.py --task generate_control --config code/config.py
+Create a `config.yaml` file in the project root with the following parameters:
+
+```yaml
+model_path: "models/phi-2.Q4_K_M.gguf"
+output_dir: "data/processed"
+num_samples: 100
+strategies:
+ - Direct
+ - Hypothetical
+ - Comparative
+ - Role-play
 ```
 
-This will:
-- Load samples from `datasets.load_dataset("arxiv_nlp")`.
-- Save control samples to `data/raw/control_corpus.json`.
+## Usage
 
-#### 3. Analysis Mode
+The pipeline is orchestrated via `code/main.py`. Below are the primary modes of operation.
 
-Compute validity metrics (Consistency, Stability, Markers):
+### 1. Generation Mode
 
-```bash
-python code/main.py --task analyze --config code/config.py
-```
-
-This will:
-- Load generated reports from `data/raw/`.
-- Compute metrics using `code/analysis/consistency.py`, `code/analysis/stability.py`, and `code/analysis/markers.py`.
-- Save results to `data/processed/validity_scores.csv`.
-
-#### 4. Statistical Analysis Mode
-
-Run statistical tests on validity scores:
+Generate phenomenological reports using the specified model and prompting strategies.
 
 ```bash
-python code/main.py --task stats --config code/config.py
+python code/main.py --mode generation --config config.yaml
 ```
 
-This will:
-- Load `data/processed/validity_scores.csv`.
-- Perform Shapiro-Wilk and Levene tests.
-- Run ANOVA + FDR + Tukey (if assumptions hold) or Kruskal-Wallis (if violated).
-- Save statistical results to `data/processed/statistical_results.json`.
+To limit the number of samples for testing:
+```bash
+python code/main.py --mode generation --limit 10 --config config.yaml
+```
 
-#### 5. Human Validation Mode
+### 2. Analysis Mode
 
-Prepare data for human rating:
+Compute phenomenological metrics (consistency, stability, marker presence) on generated reports.
 
 ```bash
-python code/main.py --task validate_human --config code/config.py
+python code/main.py --mode analysis --config config.yaml
 ```
 
-This will:
-- Load generated reports.
-- Apply the validation rubric from `code/validation/rubric.md`.
-- Save anonymized ratings to `data/qualitative/`.
+This will produce `data/processed/validity_scores.csv` and `data/processed/stats_report.json`.
 
-#### 6. Sensitivity Analysis (Kappa)
+### 3. Validation Mode
 
-Analyze robustness of conclusions:
+Prepare samples for human rating and compute inter-rater reliability.
 
 ```bash
-python code/main.py --task sensitivity-kappa --config code/config.py
+python code/main.py --mode validate --config config.yaml
 ```
 
-#### 7. Archiving
+This will produce `data/qualitative/sampling_list.csv` and `data/qualitative/ratings.csv` (if rated).
 
-Package all artifacts for reproducibility:
+### 4. Full Pipeline
+
+Run the entire pipeline from generation to validation.
 
 ```bash
-python code/main.py --task archive --config code/config.py
+python code/main.py --mode full --config config.yaml
 ```
 
-This will:
-- Collect prompts, seeds, scripts, and anonymized ratings.
-- Create a reproducible archive in `data/archive/`.
+## Local Reproduction (Optional)
 
-#### 8. Full Pipeline
-
-Run the entire pipeline end-to-end:
+For users with local hardware (>=16GB RAM), you can run the Phi-2 checkpoint using the local runner:
 
 ```bash
-python code/main.py --task full_pipeline --config code/config.py
+python code/generation/runner_local.py --test
 ```
 
-This executes: Generation → Control → Analysis → Stats → Validation → Archive.
+This generates a minimal sample set and writes it to `data/raw/local_generation_test.json`.
 
-## Output Artifacts
+## Verification
 
-After a successful run, the following artifacts will be generated:
+After running the pipeline, verify the outputs:
 
-- `data/raw/*.json`: Generated phenomenological reports and control samples.
-- `data/processed/validity_scores.csv`: Aggregated validity metrics (Consistency, Stability, Markers).
-- `data/processed/statistical_results.json`: Statistical test outputs (ANOVA, Kruskal-Wallis, etc.).
-- `data/qualitative/*.csv`: Anonymized human rating sheets.
-- `data/archive/*.tar.gz`: Reproducibility archive containing all artifacts.
+```bash
+# Check generation output
+ls -la data/raw/generation_batch_*.json
+
+# Check analysis output
+ls -la data/processed/validity_scores.csv data/processed/stats_report.json
+
+# Check validation output
+ls -la data/qualitative/sampling_list.csv
+```
 
 ## Troubleshooting
 
-### CUDA Errors
+- **Model Loading Errors**: Ensure the GGUF model file is downloaded and placed at the path specified in `config.yaml`.
+- **CUDA Errors**: If using a GPU, ensure `llama-cpp-python` is installed with CUDA support.
+- **Dataset Errors**: If the control corpus dataset is unreachable, check your internet connection or switch to a mirrored dataset.
 
-If you encounter CUDA errors, ensure you are using the CPU-only version of `llama-cpp-python` and that no GPU drivers are interfering. The primary CI pipeline is designed to run on CPU only.
+## License
 
-### Missing Dependencies
-
-If you encounter import errors, verify that all dependencies in `requirements.txt` are installed:
-
-```bash
-pip install -r requirements.txt --upgrade
-```
-
-### Timeout Errors
-
-If generation tasks timeout, you can increase the timeout limit in `code/config.py` (look for `TIMEOUT_SECONDS`).
-
-## Next Steps
-
-- Review the `specs/` directory for detailed feature requirements.
-- Read `research.md` for the theoretical background.
-- Examine `data-model.md` for schema definitions.
+This project is licensed under the MIT License.

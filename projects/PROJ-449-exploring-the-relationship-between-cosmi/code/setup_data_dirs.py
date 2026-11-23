@@ -1,30 +1,22 @@
 """
-Script to explicitly initialize the data directory structure.
-This serves as the executable entry point for T006.
+Setup script to create the required directory structure for the project.
 """
 import sys
 from pathlib import Path
 
-# Ensure project root is in path
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+# Add project root to path
+PROJECT_ROOT = Path(__file__).parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from code.data import ensure_data_structure, RAW_DIR, PROCESSED_DIR, CHECKSUMS_FILE
 
 def main():
-    print("Initializing data directory structure...")
+    """Create the required directory structure."""
     ensure_data_structure()
-    
-    print(f"Created: {RAW_DIR}")
-    print(f"Created: {PROCESSED_DIR}")
-    print(f"Created: {CHECKSUMS_FILE}")
-    
-    # Verify creation
-    if RAW_DIR.exists() and PROCESSED_DIR.exists() and CHECKSUMS_FILE.exists():
-        print("SUCCESS: Data structure initialized correctly.")
-        return 0
-    else:
-        print("ERROR: Failed to create all required directories/files.")
-        return 1
+    print(f"Data directories created:")
+    print(f"  - {RAW_DIR}")
+    print(f"  - {PROCESSED_DIR}")
+    print(f"  - {CHECKSUMS_FILE}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

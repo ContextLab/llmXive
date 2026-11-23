@@ -1,176 +1,234 @@
 """
-Checksum utilities for data hygiene (FR-009, Constitution III).
+Checksum utility module for data hygiene (FR-009, Constitution Principle III).
 
-Provides functions to compute and verify SHA-256 checksums for data artifacts
-to ensure data integrity throughout the pipeline.
+Provides functions to compute SHA-256 checksums for files and directories,
+save/load checksum manifests, and verify data integrity.
 """
 import hashlib
 import json
 import os
 from pathlib import Path
-from typing import Dict, Optional, List
+from typing import Dict, Optional, List, Tuple
+import logging
+
+# Configure logger
+logger = logging.getLogger(__name__)
+
+BLOCK_SIZE = 65536  # 64KB blocks for efficient file reading
 
 
-def compute_file_sha256(file_path: str, chunk_size: int = 8192) -> str:
+def compute_file_sha256(file_path: Path) -> str:
     """
-    Compute the SHA-256 checksum of a file.
-
-    Reads the file in chunks to handle large files without excessive memory usage.
-
+    Compute the SHA-256 checksum of a single file.
+    
     Args:
-        file_path: Path to the file to hash.
-        chunk_size: Size of chunks to read (default 8KB).
-
+        file_path: Path to the file to checksum.
+        
     Returns:
         Hexadecimal string of the SHA-256 hash.
-
+        
     Raises:
         FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
+        PermissionError: If the file cannot be read.
     """
-    sha256_hash = hashlib.sha256()
-    path = Path(file_path)
-
-    if not path.exists():
+    if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
-
-    if not path.is_file():
-        raise IOError(f"Path is not a file: {file_path}")
-
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(chunk_size), b""):
-            sha256_hash.update(chunk)
-
+    
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(BLOCK_SIZE), b""):
+            sha256_hash.update(byte_block)
+    
     return sha256_hash.hexdigest()
 
 
 def compute_directory_checksums(
-    directory_path: str, extensions: Optional[List[str]] = None
+    directory_path: Path,
+    recursive: bool = True,
+    extensions: Optional[List[str]] = None
 ) -> Dict[str, str]:
     """
-    Compute checksums for all files in a directory.
-
+    Compute SHA-256 checksums for all files in a directory.
+    
     Args:
-        directory_path: Path to the directory to scan.
+        directory_path: Path to the directory.
+        recursive: If True, traverse subdirectories.
         extensions: Optional list of file extensions to include (e.g., ['.csv', '.json']).
-                   If None, all files are included.
-
+                    If None, all files are included.
+                    
     Returns:
         Dictionary mapping relative file paths to their SHA-256 checksums.
+        
+    Raises:
+        NotADirectoryError: If the path is not a directory.
     """
+    if not directory_path.is_dir():
+        raise NotADirectoryError(f"Path is not a directory: {directory_path}")
+    
     checksums = {}
-    base_path = Path(directory_path)
-
-    if not base_path.exists() or not base_path.is_dir():
-        raise NotADirectoryError(f"Directory not found: {directory_path}")
-
-    for file_path in base_path.rglob("*"):
+    
+    if recursive:
+        iterator = directory_path.rglob('*')
+    else:
+        iterator = directory_path.glob('*')
+    
+    for file_path in iterator:
         if file_path.is_file():
-            if extensions is None or file_path.suffix.lower() in extensions:
-                rel_path = str(file_path.relative_to(base_path))
-                checksums[rel_path] = compute_file_sha256(str(file_path))
-
+            # Filter by extension if specified
+            if extensions is not None:
+                if file_path.suffix not in extensions:
+                    continue
+            
+            # Skip hidden files
+            if file_path.name.startswith('.'):
+                continue
+                
+            try:
+                relative_path = file_path.relative_to(directory_path)
+                checksum = compute_file_sha256(file_path)
+                checksums[str(relative_path)] = checksum
+            except PermissionError as e:
+                logger.warning(f"Permission denied reading file: {file_path}")
+                logger.debug(f"Error details: {e}")
+            except Exception as e:
+                logger.error(f"Error processing file {file_path}: {e}")
+    
     return checksums
 
 
 def save_checksum_manifest(
-    checksums: Dict[str, str], output_path: str
+    checksums: Dict[str, str],
+    manifest_path: Path,
+    source_directory: Optional[Path] = None
 ) -> None:
     """
     Save checksums to a JSON manifest file.
-
+    
     Args:
-        checksums: Dictionary of file paths to checksums.
-        output_path: Path where the manifest JSON file will be written.
+        checksums: Dictionary of relative paths to checksums.
+        manifest_path: Path where the manifest will be saved.
+        source_directory: Optional source directory path to include in metadata.
     """
-    path = Path(output_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    manifest = {
+    manifest_data = {
         "version": "1.0",
         "algorithm": "sha256",
+        "source_directory": str(source_directory) if source_directory else None,
         "checksums": checksums
     }
+    
+    # Ensure parent directory exists
+    manifest_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(manifest_path, 'w', encoding='utf-8') as f:
+        json.dump(manifest_data, f, indent=2)
+    
+    logger.info(f"Checksum manifest saved to {manifest_path}")
 
-    with open(path, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2)
 
-
-def load_checksum_manifest(manifest_path: str) -> Dict[str, str]:
+def load_checksum_manifest(manifest_path: Path) -> Tuple[Dict[str, str], Optional[Path]]:
     """
     Load checksums from a JSON manifest file.
-
+    
     Args:
-        manifest_path: Path to the manifest JSON file.
-
+        manifest_path: Path to the manifest file.
+        
     Returns:
-        Dictionary of file paths to checksums.
-
+        Tuple of (checksums dictionary, source_directory path or None).
+        
     Raises:
-        FileNotFoundError: If the manifest file does not exist.
-        ValueError: If the manifest format is invalid.
+        FileNotFoundError: If the manifest does not exist.
+        json.JSONDecodeError: If the manifest is invalid JSON.
     """
-    path = Path(manifest_path)
-
-    if not path.exists():
-        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
-
-    with open(path, "r", encoding="utf-8") as f:
-        data = json.load(f)
-
-    if "checksums" not in data:
-        raise ValueError("Invalid manifest format: missing 'checksums' key")
-
-    return data["checksums"]
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
+    
+    with open(manifest_path, 'r', encoding='utf-8') as f:
+        manifest_data = json.load(f)
+    
+    checksums = manifest_data.get("checksums", {})
+    source_dir_str = manifest_data.get("source_directory")
+    source_directory = Path(source_dir_str) if source_dir_str else None
+    
+    return checksums, source_directory
 
 
 def verify_checksums(
-    directory_path: str, manifest_path: str
-) -> Dict[str, bool]:
+    manifest_path: Path,
+    base_directory: Optional[Path] = None
+) -> Tuple[bool, List[str], List[str]]:
     """
-    Verify current file checksums against a manifest.
-
+    Verify files against a checksum manifest.
+    
     Args:
-        directory_path: Base directory where files are located.
-        manifest_path: Path to the checksum manifest JSON file.
-
+        manifest_path: Path to the manifest file.
+        base_directory: Directory to verify files against. If None, uses the
+                        source_directory from the manifest or the manifest's parent.
+                        
     Returns:
-        Dictionary mapping relative file paths to verification status (True/False).
+        Tuple of (all_valid, passed_files, failed_files).
+        all_valid: True if all files match their checksums.
+        passed_files: List of files that passed verification.
+        failed_files: List of files that failed verification or are missing.
     """
-    manifest_checksums = load_checksum_manifest(manifest_path)
-    results = {}
-    base_path = Path(directory_path)
-
-    for rel_path, expected_hash in manifest_checksums.items():
-        full_path = base_path / rel_path
-
-        if not full_path.exists():
-            results[rel_path] = False
+    checksums, manifest_source_dir = load_checksum_manifest(manifest_path)
+    
+    if base_directory is None:
+        if manifest_source_dir:
+            base_directory = manifest_source_dir
+        else:
+            base_directory = manifest_path.parent
+    
+    passed = []
+    failed = []
+    all_valid = True
+    
+    for relative_path_str, expected_checksum in checksums.items():
+        file_path = base_directory / relative_path_str
+        
+        if not file_path.exists():
+            failed.append(f"MISSING: {relative_path_str}")
+            all_valid = False
+            logger.warning(f"File missing during verification: {file_path}")
             continue
-
+        
         try:
-            actual_hash = compute_file_sha256(str(full_path))
-            results[rel_path] = (actual_hash == expected_hash)
-        except Exception:
-            results[rel_path] = False
-
-    return results
+            actual_checksum = compute_file_sha256(file_path)
+            if actual_checksum == expected_checksum:
+                passed.append(relative_path_str)
+            else:
+                failed.append(f"MISMATCH: {relative_path_str}")
+                all_valid = False
+                logger.error(f"Checksum mismatch for {file_path}")
+                logger.error(f"  Expected: {expected_checksum}")
+                logger.error(f"  Actual:   {actual_checksum}")
+        except Exception as e:
+            failed.append(f"ERROR: {relative_path_str} ({str(e)})")
+            all_valid = False
+            logger.error(f"Error verifying {file_path}: {e}")
+    
+    return all_valid, passed, failed
 
 
 def generate_and_save_manifest(
-    directory_path: str, output_path: str, extensions: Optional[List[str]] = None
+    directory_path: Path,
+    manifest_path: Path,
+    recursive: bool = True,
+    extensions: Optional[List[str]] = None
 ) -> Dict[str, str]:
     """
-    Compute checksums for a directory and save them to a manifest.
-
+    Generate checksums for a directory and save to a manifest.
+    
     Args:
-        directory_path: Base directory to scan.
-        output_path: Path where the manifest will be saved.
+        directory_path: Directory to checksum.
+        manifest_path: Path to save the manifest.
+        recursive: Whether to traverse subdirectories.
         extensions: Optional list of file extensions to include.
-
+                    
     Returns:
-        Dictionary of computed checksums.
+        The generated checksums dictionary.
     """
-    checksums = compute_directory_checksums(directory_path, extensions)
-    save_checksum_manifest(checksums, output_path)
+    logger.info(f"Generating checksum manifest for {directory_path}")
+    checksums = compute_directory_checksums(directory_path, recursive, extensions)
+    save_checksum_manifest(checksums, manifest_path, directory_path)
+    logger.info(f"Generated {len(checksums)} checksums")
     return checksums

@@ -11,5 +11,8 @@ exclude =
 per-file-ignores =
     # Allow unused imports in __init__.py for public API exposure
     */__init__.py: F401
-    # Allow unused arguments in tests
-    tests/*: ARG001, ANN001, ANN201
+    # Allow unused arguments in model validators and test fixtures
+    code/data/models.py: ARG001
+    tests/unit/*.py: ARG001, F811
+    tests/integration/*.py: ARG001
+max-complexity = 12

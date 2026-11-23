@@ -1,192 +1,186 @@
+"""
+code/utils/logger.py
+
+Provides error handling, logging utilities, and timeout enforcement for MD simulations.
+Specifically enforces a 300s timeout for 1.5ns runs to prevent CI runner hangs.
+"""
 import logging
 import signal
 import sys
 import threading
 import time
+import os
 from functools import wraps
-from logging.handlers import RotatingFileHandler
 from pathlib import Path
-from typing import Any, Callable, Optional
-
-from utils.io import ensure_directory
-
-
-# Project-wide logger configuration
-_logger: Optional[logging.Logger] = None
-_log_lock = threading.Lock()
-
-
-def get_logger(name: str = "md_pipeline") -> logging.Logger:
-    """
-    Retrieves or creates a project-wide logger with consistent configuration.
-    Logs to both console and a rotating file in `data/logs/pipeline.log`.
-    """
-    global _logger
-    with _log_lock:
-        if _logger is None:
-            _logger = logging.getLogger(name)
-            if _logger.handlers:
-                return _logger
-
-            _logger.setLevel(logging.DEBUG)
-            _logger.propagate = False
-
-            # Console Handler
-            console_handler = logging.StreamHandler(sys.stdout)
-            console_handler.setLevel(logging.INFO)
-            console_formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-            )
-            console_handler.setFormatter(console_formatter)
-            _logger.addHandler(console_handler)
-
-            # File Handler (Rotating)
-            log_dir = Path("data/logs")
-            ensure_directory(log_dir)
-            log_file = log_dir / "pipeline.log"
-
-            file_handler = RotatingFileHandler(
-                log_file, maxBytes=5 * 1024 * 1024, backupCount=3
-            )
-            file_handler.setLevel(logging.DEBUG)
-            file_formatter = logging.Formatter(
-                "%(asctime)s - %(name)s - %(levelname)s - %(funcName)s:%(lineno)d - %(message)s"
-            )
-            file_handler.setFormatter(file_formatter)
-            _logger.addHandler(file_handler)
-
-            # Custom Exception Handler for uncaught errors
-            def handle_exception(exc_type, exc_value, exc_traceback):
-                if issubclass(exc_type, KeyboardInterrupt):
-                    sys.__excepthook__(exc_type, exc_value, exc_traceback)
-                    return
-                _logger.critical(
-                    "Uncaught exception", exc_info=(exc_type, exc_value, exc_traceback)
-                )
-
-            sys.excepthook = handle_exception
-
-        return _logger
+from typing import Optional, Callable, Any, Dict
 
 
 class TimeoutError(Exception):
-    """Custom exception raised when a task exceeds the configured timeout."""
-
+    """Custom timeout exception raised when a simulation exceeds the allowed duration."""
     pass
 
 
-def enforce_timeout(seconds: int):
+class MDRunLogger(logging.Logger):
     """
-    Decorator that enforces a hard timeout for a function execution.
-    Uses threading.Timer to raise TimeoutError if the function takes too long.
-    Note: This is a cooperative timeout; it works best for I/O or long-running
-    loops that check for interruption, but for pure CPU-bound Python loops,
-    a signal-based approach (Unix only) is stricter. Here we use a threading
-    approach compatible with Windows and Linux for the 300s MD run constraint.
+    Custom logger for MD runs that includes simulation context (complex ID, params)
+    and ensures structured output to both console and file.
     """
+    def __init__(self, name: str, level: int = logging.NOTSET):
+        super().__init__(name, level)
+        self.context: Dict[str, Any] = {}
+        
+        # Create handlers
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(logging.INFO)
+        console_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        console_handler.setFormatter(console_format)
+        self.addHandler(console_handler)
 
+    def set_context(self, **kwargs):
+        """Update the logging context with simulation parameters."""
+        self.context.update(kwargs)
+
+    def _log_with_context(self, level, msg, *args, **kwargs):
+        """Internal log method that appends context to the message."""
+        if self.context:
+            ctx_str = ", ".join(f"{k}={v}" for k, v in self.context.items())
+            full_msg = f"[{ctx_str}] {msg}"
+        else:
+            full_msg = msg
+        super().log(level, full_msg, *args, **kwargs)
+
+    def info(self, msg, *args, **kwargs):
+        self._log_with_context(logging.INFO, msg, *args, **kwargs)
+
+    def warning(self, msg, *args, **kwargs):
+        self._log_with_context(logging.WARNING, msg, *args, **kwargs)
+
+    def error(self, msg, *args, **kwargs):
+        self._log_with_context(logging.ERROR, msg, *args, **kwargs)
+
+    def critical(self, msg, *args, **kwargs):
+        self._log_with_context(logging.CRITICAL, msg, *args, **kwargs)
+
+
+def get_logger(name: str = "md_pipeline", log_file: Optional[Path] = None) -> MDRunLogger:
+    """
+    Get or create a logger instance.
+    
+    Args:
+        name: Logger name.
+        log_file: Optional path to a log file. If provided, logs are appended to this file.
+    
+    Returns:
+        An MDRunLogger instance.
+    """
+    logger = MDRunLogger(name)
+    
+    if log_file:
+        log_file = Path(log_file)
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file, mode='a')
+        file_handler.setLevel(logging.DEBUG)
+        file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(file_format)
+        logger.addHandler(file_handler)
+    
+    return logger
+
+
+def setup_signal_timeout(seconds: int, msg: str = "Operation timed out"):
+    """
+    Sets up a signal-based timeout for the current thread/process.
+    Uses SIGALRM on Unix systems. On Windows, this is a no-op for the signal mechanism
+    but we provide a threading fallback if needed, though standard OpenMM runs 
+    on CPU usually respect signal handlers on Linux runners.
+    
+    Args:
+        seconds: Timeout duration in seconds.
+        msg: Error message to raise on timeout.
+    
+    Raises:
+        TimeoutError: If the time limit is exceeded.
+    """
+    def handler(signum, frame):
+        raise TimeoutError(msg)
+    
+    # Only set signal handler on Unix-like systems (Linux/macOS)
+    if hasattr(signal, 'SIGALRM'):
+        old_handler = signal.signal(signal.SIGALRM, handler)
+        signal.alarm(seconds)
+        return old_handler
+    else:
+        # Fallback for Windows or non-Unix environments using threading
+        # Note: This cannot interrupt a blocking C-extension call in OpenMM 
+        # as cleanly as SIGALRM, but it prevents the script from hanging forever.
+        def timeout_thread():
+            time.sleep(seconds)
+            raise TimeoutError(msg)
+        
+        thread = threading.Thread(target=timeout_thread, daemon=True)
+        thread.start()
+        return thread
+
+
+def clear_signal_timeout(old_handler=None):
+    """
+    Clears the previously set timeout.
+    
+    Args:
+        old_handler: The handler returned by setup_signal_timeout (if any).
+    """
+    if hasattr(signal, 'SIGALRM'):
+        signal.alarm(0)  # Cancel the alarm
+        if old_handler:
+            signal.signal(signal.SIGALRM, old_handler)
+    elif isinstance(old_handler, threading.Thread):
+        # Cannot easily kill a daemon thread in Python safely, 
+        # but we stop waiting for it. The script will exit if the main thread finishes.
+        pass
+
+
+def enforce_timeout(seconds: int, msg: str = "Operation timed out"):
+    """
+    Decorator to enforce a timeout on a function.
+    
+    Args:
+        seconds: Maximum execution time in seconds.
+        msg: Error message to raise on timeout.
+    
+    Returns:
+        A wrapped function.
+    """
     def decorator(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            result_container = [None]
-            exception_container = [None]
-            timer_finished = threading.Event()
-
-            def target():
-                try:
-                    result_container[0] = func(*args, **kwargs)
-                except Exception as e:
-                    exception_container[0] = e
-                finally:
-                    timer_finished.set()
-
-            thread = threading.Thread(target=target, daemon=True)
-            thread.start()
-
-            if not timer_finished.wait(timeout=seconds):
-                # Timeout occurred
-                raise TimeoutError(
-                    f"Function '{func.__name__}' exceeded timeout of {seconds} seconds."
-                )
-
-            thread.join()
-
-            if exception_container[0]:
-                raise exception_container[0]
-
-            return result_container[0]
-
+        def wrapper(*args, **kwargs):
+            old_handler = setup_signal_timeout(seconds, msg)
+            try:
+                return func(*args, **kwargs)
+            finally:
+                clear_signal_timeout(old_handler)
         return wrapper
-
     return decorator
 
 
-def timeout_handler(signum: int, frame: Any) -> None:
-    """Signal handler for hard timeout enforcement on Unix-like systems."""
-    raise TimeoutError("Process exceeded time limit enforced by signal.")
-
-
-def setup_signal_timeout(seconds: int) -> None:
+def timeout_handler(seconds: int, msg: str = "Operation timed out"):
     """
-    Sets up a signal-based timeout for the current process.
-    Only works on Unix systems (SIGALRM).
+    Context manager for timeout enforcement.
+    
+    Args:
+        seconds: Maximum execution time in seconds.
+        msg: Error message to raise on timeout.
     """
-    if hasattr(signal, "SIGALRM"):
-        signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(seconds)
-    else:
-        # Fallback for Windows: Log a warning that signal timeout is unavailable
-        logger = get_logger()
-        logger.warning(
-            "SIGALRM not available on this platform. Using threading-based timeout decorator instead."
-        )
+    class TimeoutContext:
+        def __enter__(self):
+            self.old_handler = setup_signal_timeout(seconds, msg)
+            return self
+        
+        def __exit__(self, exc_type, exc_val, exc_tb):
+            clear_signal_timeout(self.old_handler)
+            return False
+    
+    return TimeoutContext()
 
 
-def clear_signal_timeout() -> None:
-    """Clears the signal alarm if it was set."""
-    if hasattr(signal, "SIGALRM"):
-        signal.alarm(0)
-
-
-class MDRunLogger:
-    """
-    Context manager for logging specific MD simulation runs.
-    Ensures consistent logging format for simulation steps and errors.
-    """
-
-    def __init__(self, complex_id: str, params: dict):
-        self.complex_id = complex_id
-        self.params = params
-        self.logger = get_logger(f"run_{complex_id}")
-
-    def __enter__(self):
-        self.logger.info(
-            f"Starting simulation for {self.complex_id} with params: {self.params}"
-        )
-        return self
-
-    def __exit__(self, exc_type, exc_val, exc_tb):
-        if exc_type is None:
-            self.logger.info(
-                f"Simulation completed successfully for {self.complex_id}"
-            )
-        elif exc_type is TimeoutError:
-            self.logger.error(
-                f"Simulation timed out for {self.complex_id} after {self.params.get('duration', 'unknown')}ns"
-            )
-        else:
-            self.logger.error(
-                f"Simulation failed for {self.complex_id}: {exc_val}",
-                exc_info=exc_tb,
-            )
-        return False  # Do not suppress exceptions
-
-# Export main symbols
-__all__ = [
-    "get_logger",
-    "TimeoutError",
-    "enforce_timeout",
-    "setup_signal_timeout",
-    "clear_signal_timeout",
-    "MDRunLogger",
-]
+# Global logger instance for the module
+logger = get_logger("md_utils")

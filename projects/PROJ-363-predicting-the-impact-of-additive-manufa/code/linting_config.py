@@ -1,107 +1,181 @@
-"""
-Linting and Formatting Configuration for PROJ-363.
-
-This module provides helper functions to validate project code against
-the configured Ruff (linting) and Black (formatting) standards.
-It is designed to be run as a script or imported into CI pipelines.
-
-Usage:
-    python code/linting_config.py check
-    python code/linting_config.py fix
-"""
-
 import subprocess
 import sys
 import os
 from pathlib import Path
+import logging
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def run_command(cmd: list[str], description: str) -> bool:
+def run_command(command: list, description: str) -> bool:
     """
-    Execute a shell command and return True if successful.
-
+    Execute a shell command and log the result.
+    
     Args:
-        cmd: List of command arguments.
-        description: Human-readable description of the action.
-
+        command: List of command arguments
+        description: Description of what the command does
+        
     Returns:
-        True if the command exits with code 0, False otherwise.
+        True if command succeeded, False otherwise
     """
-    print(f"Running: {description}...")
+    logger.info(f"Running: {description}")
+    logger.debug(f"Command: {' '.join(command)}")
+    
     try:
         result = subprocess.run(
-            cmd,
-            check=True,
-            capture_output=False,
-            text=True
+            command,
+            capture_output=True,
+            text=True,
+            check=True
         )
-        return result.returncode == 0
+        if result.stdout:
+            logger.debug(f"Output: {result.stdout}")
+        logger.info(f"Success: {description}")
+        return True
     except subprocess.CalledProcessError as e:
-        print(f"Error running {description}: {e}")
+        logger.error(f"Failed: {description}")
+        logger.error(f"Error: {e.stderr}")
         return False
-    except FileNotFoundError:
-        print(f"Error: Command not found. Please ensure {' '.join(cmd[:2])} is installed.")
+    except Exception as e:
+        logger.error(f"Unexpected error running {description}: {str(e)}")
         return False
-
 
 def check_linting() -> bool:
-    """Run Ruff to check for linting errors."""
-    # Using ruff check instead of the deprecated 'ruff'
-    cmd = [sys.executable, "-m", "ruff", "check", "code/", "tests/", "."]
-    return run_command(cmd, "Linting check (Ruff)")
-
+    """
+    Check code for linting issues using ruff.
+    
+    Returns:
+        True if no linting issues found, False otherwise
+    """
+    logger.info("Checking linting with ruff...")
+    
+    # Check if ruff is installed
+    if not run_command([sys.executable, "-m", "ruff", "--version"], "Checking ruff availability"):
+        logger.error("Ruff is not installed. Please install it with: pip install ruff")
+        return False
+    
+    # Run ruff check on the code directory
+    code_dir = Path("code")
+    if not code_dir.exists():
+        logger.warning("Code directory does not exist. Skipping linting check.")
+        return True
+    
+    return run_command(
+        [sys.executable, "-m", "ruff", "check", str(code_dir)],
+        "Linting check with ruff"
+    )
 
 def check_formatting() -> bool:
-    """Run Black to check for formatting issues."""
-    cmd = [sys.executable, "-m", "black", "--check", "code/", "tests/"]
-    return run_command(cmd, "Formatting check (Black)")
-
+    """
+    Check code formatting using black.
+    
+    Returns:
+        True if formatting is correct, False otherwise
+    """
+    logger.info("Checking formatting with black...")
+    
+    # Check if black is installed
+    if not run_command([sys.executable, "-m", "black", "--version"], "Checking black availability"):
+        logger.error("Black is not installed. Please install it with: pip install black")
+        return False
+    
+    # Run black check on the code directory
+    code_dir = Path("code")
+    if not code_dir.exists():
+        logger.warning("Code directory does not exist. Skipping formatting check.")
+        return True
+    
+    return run_command(
+        [sys.executable, "-m", "black", "--check", str(code_dir)],
+        "Formatting check with black"
+    )
 
 def fix_linting() -> bool:
-    """Run Ruff to automatically fix linting errors."""
-    # Using ruff check --fix
-    cmd = [sys.executable, "-m", "ruff", "check", "--fix", "code/", "tests/", "."]
-    return run_command(cmd, "Linting fix (Ruff)")
-
+    """
+    Fix linting issues using ruff.
+    
+    Returns:
+        True if issues were fixed or no issues found, False otherwise
+    """
+    logger.info("Fixing linting issues with ruff...")
+    
+    # Check if ruff is installed
+    if not run_command([sys.executable, "-m", "ruff", "--version"], "Checking ruff availability"):
+        logger.error("Ruff is not installed. Please install it with: pip install ruff")
+        return False
+    
+    # Run ruff check --fix on the code directory
+    code_dir = Path("code")
+    if not code_dir.exists():
+        logger.warning("Code directory does not exist. Skipping linting fix.")
+        return True
+    
+    return run_command(
+        [sys.executable, "-m", "ruff", "check", "--fix", str(code_dir)],
+        "Fixing linting issues with ruff"
+    )
 
 def fix_formatting() -> bool:
-    """Run Black to automatically format code."""
-    cmd = [sys.executable, "-m", "black", "code/", "tests/"]
-    return run_command(cmd, "Formatting fix (Black)")
-
+    """
+    Fix formatting issues using black.
+    
+    Returns:
+        True if issues were fixed or no issues found, False otherwise
+    """
+    logger.info("Fixing formatting issues with black...")
+    
+    # Check if black is installed
+    if not run_command([sys.executable, "-m", "black", "--version"], "Checking black availability"):
+        logger.error("Black is not installed. Please install it with: pip install black")
+        return False
+    
+    # Run black on the code directory
+    code_dir = Path("code")
+    if not code_dir.exists():
+        logger.warning("Code directory does not exist. Skipping formatting fix.")
+        return True
+    
+    return run_command(
+        [sys.executable, "-m", "black", str(code_dir)],
+        "Fixing formatting issues with black"
+    )
 
 def main():
-    """Main entry point for the script."""
-    if len(sys.argv) < 2:
-        print("Usage: python code/linting_config.py [check|fix]")
-        sys.exit(1)
-
-    action = sys.argv[1].lower()
-    success = True
-
-    if action == "check":
-        print("Checking code quality and formatting...")
-        if not check_linting():
-            success = False
-        if not check_formatting():
-            success = False
-    elif action == "fix":
-        print("Fixing code quality and formatting...")
-        if not fix_linting():
-            success = False
-        if not fix_formatting():
-            success = False
+    """
+    Main function to run linting and formatting checks and fixes.
+    """
+    logger.info("=" * 60)
+    logger.info("Starting Linting and Formatting Configuration")
+    logger.info("=" * 60)
+    
+    # Check current state
+    lint_ok = check_linting()
+    format_ok = check_formatting()
+    
+    if lint_ok and format_ok:
+        logger.info("All checks passed! Code is properly linted and formatted.")
+        return 0
+    
+    logger.warning("Some checks failed. Attempting to fix...")
+    
+    # Try to fix issues
+    fix_linting()
+    fix_formatting()
+    
+    # Re-check after fixes
+    lint_ok = check_linting()
+    format_ok = check_formatting()
+    
+    if lint_ok and format_ok:
+        logger.info("All issues have been fixed successfully!")
+        return 0
     else:
-        print(f"Unknown action: {action}. Use 'check' or 'fix'.")
-        sys.exit(1)
-
-    if success:
-        print("\nAll checks passed or fixes applied successfully.")
-        sys.exit(0)
-    else:
-        print("\nSome checks failed or fixes could not be applied.")
-        sys.exit(1)
-
+        logger.error("Some issues could not be fixed automatically. Please review the errors above.")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

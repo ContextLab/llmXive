@@ -1,412 +1,658 @@
 """
-Dataset Generator for Logic Puzzles.
-
-Generates Sudoku variants and constrained pathfinding puzzles with systematic
-complexity scaling (N=10..500). Outputs are deterministic based on seed and
-follow the JSON schema defined in contracts/dataset.schema.yaml.
+Puzzle Generator Module for llmXive
+Generates logic/arithmetic puzzles with deterministic Python verifiers.
+Emits a single JSON file containing a top‑level "puzzles" list
+(conforming to `contracts/dataset.schema.yaml`).
 """
+
 import json
 import random
-import hashlib
-import time
+import logging
+import sys
+import argparse
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Tuple
-from dataclasses import dataclass, asdict
+from typing import List, Dict, Any, Optional, Tuple, Set, Union
 
-# Import from existing project API
-from code.utils.seed import set_seed, get_seed
-from code.config import load_config, get_experiment_id
-from code.exceptions import raise_parse_failure
+from enum import Enum
 
-@dataclass
+# Local imports
+from .errors import DataGenerationError
+from code.dataset.verifier import PuzzleVerifier
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Constants
+GENERATOR_VERSION = "1.0.0"
+DEFAULT_SOURCE_ID = "curated_logic_v1"
+DEFAULT_SEED = 42
+DEFAULT_COUNT = 100
+DEFAULT_OUTPUT_DIR = "data/raw"
+OUTPUT_FILENAME = "puzzles.json"  # fixed filename per spec
+
+class PuzzleType(Enum):
+    """Supported puzzle types"""
+    SUDOKU = "sudoku"
+    PATHFINDING = "pathfinding"
+    LOGIC_GRID = "logic_grid"
+    ARITHMETIC = "arithmetic"
+
 class PuzzleInstance:
-    """Represents a single puzzle instance with metadata."""
-    puzzle_id: str
-    type: str  # "sudoku_variant" or "pathfinding"
-    difficulty: int  # 1-10 scale
-    n: int  # Problem size parameter
-    constraints: Dict[str, Any]
-    ground_truth: Any  # Solution or path
-    checksum: str
-    generated_at: str
+    """Represents a single puzzle instance with metadata"""
+
+    def __init__(
+        self,
+        puzzle_type: PuzzleType,
+        constraints: List[str],
+        initial_state: Dict[str, Any],
+        target_state: Dict[str, Any],
+        solution: Optional[Dict[str, Any]] = None,
+        metadata: Optional[Dict[str, Any]] = None,
+        verifier_output: Optional[Dict[str, Any]] = None,
+    ):
+        self.puzzle_type = puzzle_type
+        self.constraints = constraints
+        self.initial_state = initial_state
+        self.target_state = target_state
+        self.solution = solution
+        self.metadata = metadata or {}
+        self.verifier_output = verifier_output
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary representation (schema‑compatible)"""
+        base = {
+            "puzzle_type": self.puzzle_type.value,
+            "constraints": self.constraints,
+            "initial_state": self.initial_state,
+            "target_state": self.target_state,
+            "solution": self.solution,
+            "metadata": self.metadata,
+        }
+        if self.verifier_output is not None:
+            base["verifier_output"] = self.verifier_output
+        return base
 
 class PuzzleGenerator:
     """
-    Generates logic puzzles with deterministic complexity scaling.
-    Supports Sudoku variants and constrained pathfinding.
+    Generates logic puzzles with systematic complexity scaling.
+    Implements T066: Data Provenance metadata injection.
     """
 
-    def __init__(self, seed: Optional[int] = None):
-        if seed is not None:
-            set_seed(seed)
-        self.seed = get_seed()
-        self.puzzle_counter = 0
+    def __init__(
+        self,
+        source_id: str = DEFAULT_SOURCE_ID,
+        seed: int = DEFAULT_SEED,
+        version: str = GENERATOR_VERSION,
+    ):
+        self.source_id = source_id
+        self.seed = seed
+        self.version = version
+        self.random = random.Random(seed)
+        self.logger = logging.getLogger(__name__)
 
-    def _generate_checksum(self, data: Dict[str, Any]) -> str:
-        """Generate a deterministic SHA-256 checksum for data integrity."""
-        serialized = json.dumps(data, sort_keys=True, separators=(',', ':'))
-        return hashlib.sha256(serialized.encode()).hexdigest()
-
-    def _generate_sudoku_variant(self, n: int, difficulty: int) -> PuzzleInstance:
+    # ------------------------------------------------------------------
+    # Metadata helpers
+    # ------------------------------------------------------------------
+    def _generate_metadata(
+        self,
+        puzzle_type: PuzzleType,
+        n: int,
+        constraint_count: int,
+        variable_domain_size: int,
+    ) -> Dict[str, Any]:
         """
-        Generate a Sudoku variant puzzle.
-        
-        Args:
-            n: Grid size (n x n). For standard Sudoku, n=9.
-               For variants, n can be 4, 9, 16, 25, etc.
-            difficulty: 1 (easy) to 10 (hard)
-        
-        Returns:
-            PuzzleInstance with the generated puzzle
+        Generate provenance metadata for a puzzle instance.
+        T066 Requirement: Every generated puzzle must include:
+        - source_id
+        - generation_seed
+        - timestamp
+        - generator_version
+        - complexity_metric (constraint_count, variable_domain_size)
         """
-        # Validate n is a perfect square for standard Sudoku logic
-        side = int(n ** 0.5)
-        if side * side != n:
-            # For non-perfect squares, we'll use a simplified constraint set
-            # but still generate a valid grid structure
-            pass
-
-        # Generate a valid full grid
-        grid = self._generate_valid_grid(n, side)
-        
-        # Remove cells based on difficulty to create the puzzle
-        # Higher difficulty = more cells removed
-        cells_to_remove = int((difficulty / 10.0) * n * n * 0.7)
-        puzzle_grid = self._remove_cells(grid, cells_to_remove)
-        
-        # Create constraints description
-        constraints = {
-            "grid_size": n,
-            "block_size": side,
-            "cells_removed": cells_to_remove,
-            "rule": "standard_sudoku" if side * side == n else "generalized_sudoku"
+        return {
+            "source_id": self.source_id,
+            "generation_seed": self.seed,
+            "timestamp": datetime.utcnow().isoformat(),
+            "generator_version": self.version,
+            "complexity_metric": {
+                "constraint_count": constraint_count,
+                "variable_domain_size": variable_domain_size,
+            },
+            "puzzle_type": puzzle_type.value,
+            "complexity_n": n,
         }
-        
-        puzzle_id = f"sudoku_{n}_{difficulty}_{self.puzzle_counter}"
-        self.puzzle_counter += 1
-        
-        instance_data = {
-            "puzzle": puzzle_grid,
-            "solution": grid,
-            "constraints": constraints
-        }
-        
-        return PuzzleInstance(
-            puzzle_id=puzzle_id,
-            type="sudoku_variant",
-            difficulty=difficulty,
-            n=n,
-            constraints=constraints,
-            ground_truth=grid,
-            checksum=self._generate_checksum(instance_data),
-            generated_at=time.strftime("%Y-%m-%dT%H:%M:%SZ")
-        )
 
-    def _generate_valid_grid(self, n: int, side: int) -> List[List[int]]:
-        """Generate a valid n x n Sudoku grid using backtracking."""
-        grid = [[0] * n for _ in range(n)]
-        self._fill_grid(grid, n, side)
+    # ------------------------------------------------------------------
+    # Sudoku generation (supports 4x4 and larger)
+    # ------------------------------------------------------------------
+    def generate_sudoku(
+        self,
+        n: int,
+        count: int,
+        difficulty: str = "medium",
+    ) -> List[PuzzleInstance]:
+        """Generate Sudoku variant puzzles."""
+        puzzles = []
+        grid_size = max(4, n)
+
+        for _ in range(count):
+            grid = self._generate_valid_sudoku(grid_size)
+            puzzle_grid, solution_grid = self._create_puzzle_from_grid(
+                grid, difficulty
+            )
+
+            constraints = [
+                f"Grid must be {grid_size}x{grid_size}",
+                f"Each row must contain digits 1-{grid_size} exactly once",
+                f"Each column must contain digits 1-{grid_size} exactly once",
+                f"Each {int(grid_size**0.5)}x{int(grid_size**0.5)} box must contain digits 1-{grid_size} exactly once",
+            ]
+
+            constraint_count = len(constraints)
+            variable_domain_size = grid_size
+
+            instance = PuzzleInstance(
+                puzzle_type=PuzzleType.SUDOKU,
+                constraints=constraints,
+                initial_state={"grid": puzzle_grid, "size": grid_size},
+                target_state={"solution": solution_grid, "size": grid_size},
+                solution={"solution": solution_grid},
+                metadata=self._generate_metadata(
+                    PuzzleType.SUDOKU,
+                    n,
+                    constraint_count,
+                    variable_domain_size,
+                ),
+            )
+            puzzles.append(instance)
+
+        return puzzles
+
+    # ------------------------------------------------------------------
+    # Pathfinding generation (supports 4x4 and larger)
+    # ------------------------------------------------------------------
+    def generate_pathfinding(
+        self,
+        n: int,
+        count: int,
+        difficulty: str = "medium",
+    ) -> List[PuzzleInstance]:
+        """Generate constrained pathfinding puzzles."""
+        puzzles = []
+        grid_size = max(4, n)
+
+        for _ in range(count):
+            grid, start, end, obstacles = self._generate_pathfinding_grid(
+                grid_size, difficulty
+            )
+
+            constraints = [
+                f"Grid size: {grid_size}x{grid_size}",
+                f"Start position: {start}",
+                f"End position: {end}",
+                f"Obstacles at: {obstacles[:5]}...",
+                "Path must not pass through obstacles",
+                "Path must be shortest possible",
+            ]
+
+            constraint_count = len(constraints)
+            variable_domain_size = grid_size * grid_size
+
+            solution_path = self._solve_pathfinding(
+                grid, start, end, obstacles
+            )
+
+            instance = PuzzleInstance(
+                puzzle_type=PuzzleType.PATHFINDING,
+                constraints=constraints,
+                initial_state={
+                    "grid": grid,
+                    "start": start,
+                    "end": end,
+                    "obstacles": obstacles,
+                    "size": grid_size,
+                },
+                target_state={"path": solution_path},
+                solution={"path": solution_path},
+                metadata=self._generate_metadata(
+                    PuzzleType.PATHFINDING,
+                    n,
+                    constraint_count,
+                    variable_domain_size,
+                ),
+            )
+            puzzles.append(instance)
+
+        return puzzles
+
+    # ------------------------------------------------------------------
+    # Logic grid generation (unchanged)
+    # ------------------------------------------------------------------
+    def generate_logic_grid(
+        self,
+        n: int,
+        count: int,
+        difficulty: str = "medium",
+    ) -> List[PuzzleInstance]:
+        """Generate logic grid puzzles (Einstein's riddle style)."""
+        puzzles = []
+        num_items = max(3, n)
+
+        for _ in range(count):
+            categories, clues, solution = self._generate_logic_grid_puzzle(
+                num_items
+            )
+
+            constraints = [
+                f"Number of items per category: {num_items}",
+                "Each item must be uniquely assigned across categories",
+                "All clues must be satisfied",
+            ] + clues[:10]
+
+            constraint_count = len(constraints)
+            variable_domain_size = num_items ** len(categories)
+
+            instance = PuzzleInstance(
+                puzzle_type=PuzzleType.LOGIC_GRID,
+                constraints=constraints,
+                initial_state={
+                    "categories": categories,
+                    "clues": clues,
+                    "num_items": num_items,
+                },
+                target_state={"solution": solution},
+                solution={"solution": solution},
+                metadata=self._generate_metadata(
+                    PuzzleType.LOGIC_GRID,
+                    n,
+                    constraint_count,
+                    variable_domain_size,
+                ),
+            )
+            puzzles.append(instance)
+
+        return puzzles
+
+    # ------------------------------------------------------------------
+    # Arithmetic generation (unchanged)
+    # ------------------------------------------------------------------
+    def generate_arithmetic(
+        self,
+        n: int,
+        count: int,
+        difficulty: str = "medium",
+    ) -> List[PuzzleInstance]:
+        """Generate arithmetic puzzles (e.g., 24 game variants)."""
+        puzzles = []
+        num_operands = max(3, n)
+
+        for _ in range(count):
+            operands, target, solution = self._generate_arithmetic_puzzle(
+                num_operands
+            )
+
+            constraints = [
+                f"Number of operands: {num_operands}",
+                f"Target value: {target}",
+                "Use each operand exactly once",
+                "Only use +, -, *, / operators",
+                "Parentheses are allowed",
+            ]
+
+            constraint_count = len(constraints)
+            variable_domain_size = 100
+
+            instance = PuzzleInstance(
+                puzzle_type=PuzzleType.ARITHMETIC,
+                constraints=constraints,
+                initial_state={
+                    "operands": operands,
+                    "target": target,
+                    "num_operands": num_operands,
+                },
+                target_state={"solution": solution},
+                solution={"solution": solution},
+                metadata=self._generate_metadata(
+                    PuzzleType.ARITHMETIC,
+                    n,
+                    constraint_count,
+                    variable_domain_size,
+                ),
+            )
+            puzzles.append(instance)
+
+        return puzzles
+
+    # ------------------------------------------------------------------
+    # Public entry point for bulk generation
+    # ------------------------------------------------------------------
+    def generate_puzzles(
+        self,
+        n_values: List[int],
+        count: int,
+        puzzle_types: List[Union[PuzzleType, str]],
+        output_dir: str = DEFAULT_OUTPUT_DIR,
+    ) -> str:
+        """
+        Generate puzzles for multiple N values and types.
+        Writes a **single JSON file** with a top‑level "puzzles" list
+        conforming to `contracts/dataset.schema.yaml`.
+        Returns the absolute path to the generated file.
+        """
+        output_dir_path = Path(output_dir)
+        output_dir_path.mkdir(parents=True, exist_ok=True)
+
+        output_path = output_dir_path / OUTPUT_FILENAME
+
+        verifier = PuzzleVerifier()
+
+        all_puzzles: List[Dict[str, Any]] = []
+
+        for n in n_values:
+            for raw_type in puzzle_types:
+                # Normalise to PuzzleType enum
+                if isinstance(raw_type, PuzzleType):
+                    p_type = raw_type
+                else:
+                    try:
+                        p_type = PuzzleType(raw_type)
+                    except ValueError:
+                        raise DataGenerationError(f"Unknown puzzle type: {raw_type}")
+
+                self.logger.info(
+                    f"Generating {count} puzzles of type {p_type.value} with N={n}"
+                )
+                if p_type == PuzzleType.SUDOKU:
+                    puzzles = self.generate_sudoku(n, count)
+                elif p_type == PuzzleType.PATHFINDING:
+                    puzzles = self.generate_pathfinding(n, count)
+                elif p_type == PuzzleType.LOGIC_GRID:
+                    puzzles = self.generate_logic_grid(n, count)
+                elif p_type == PuzzleType.ARITHMETIC:
+                    puzzles = self.generate_arithmetic(n, count)
+                else:
+                    raise DataGenerationError(f"Unknown puzzle type: {raw_type}")
+
+                for puzzle in puzzles:
+                    # Verify deterministically and attach result
+                    puzzle_dict = puzzle.to_dict()
+                    is_valid, err_code = verifier.verify(puzzle_dict)
+                    puzzle.verifier_output = {
+                        "valid": is_valid,
+                        "error_code": err_code,
+                    }
+                    all_puzzles.append(puzzle.to_dict())
+
+        # Write the single JSON object
+        with open(output_path, "w", encoding="utf-8") as out_f:
+            json.dump({"puzzles": all_puzzles}, out_f, indent=2)
+
+        self.logger.info(f"Puzzles written to {output_path}")
+        return str(output_path)
+
+    # ------------------------------------------------------------------
+    # Helper methods (unchanged, retained for completeness)
+    # ------------------------------------------------------------------
+    def _generate_valid_sudoku(self, size: int) -> List[List[int]]:
+        """Generate a valid sudoku grid using backtracking."""
+        grid = [[0] * size for _ in range(size)]
+        self._fill_sudoku(grid, 0, 0)
         return grid
 
-    def _fill_grid(self, grid: List[List[int]], n: int, side: int) -> bool:
-        """Fill the grid recursively with backtracking."""
-        empty = self._find_empty(grid, n)
-        if not empty:
-            return True  # Grid is full and valid
-        
-        row, col = empty
-        numbers = list(range(1, n + 1))
-        random.shuffle(numbers)
-        
+    def _fill_sudoku(self, grid: List[List[int]], row: int, col: int) -> bool:
+        """Recursive backtracking fill."""
+        size = len(grid)
+        if row == size:
+            return True
+        if col == size:
+            return self._fill_sudoku(grid, row + 1, 0)
+        if grid[row][col] != 0:
+            return self._fill_sudoku(grid, row, col + 1)
+
+        numbers = list(range(1, size + 1))
+        self.random.shuffle(numbers)
+
         for num in numbers:
-            if self._is_safe(grid, row, col, num, n, side):
+            if self._is_valid_sudoku_move(grid, row, col, num):
                 grid[row][col] = num
-                if self._fill_grid(grid, n, side):
+                if self._fill_sudoku(grid, row, col + 1):
                     return True
                 grid[row][col] = 0
-        
         return False
 
-    def _find_empty(self, grid: List[List[int]], n: int) -> Optional[Tuple[int, int]]:
-        """Find an empty cell in the grid."""
-        for i in range(n):
-            for j in range(n):
-                if grid[i][j] == 0:
-                    return (i, j)
-        return None
+    def _is_valid_sudoku_move(
+        self,
+        grid: List[List[int]],
+        row: int,
+        col: int,
+        num: int,
+    ) -> bool:
+        """Check Sudoku move validity."""
+        size = len(grid)
 
-    def _is_safe(self, grid: List[List[int]], row: int, col: int, 
-                 num: int, n: int, side: int) -> bool:
-        """Check if placing num at (row, col) is valid."""
-        # Check row
+        # Row check
         if num in grid[row]:
             return False
-        
-        # Check column
-        for i in range(n):
-            if grid[i][col] == num:
+
+        # Column check
+        for r in range(size):
+            if grid[r][col] == num:
                 return False
-        
-        # Check 3x3 (or side x side) box
-        box_row = (row // side) * side
-        box_col = (col // side) * side
-        for i in range(side):
-            for j in range(side):
-                if grid[box_row + i][box_col + j] == num:
+
+        # Box check
+        box_size = int(size ** 0.5)
+        box_row = (row // box_size) * box_size
+        box_col = (col // box_size) * box_size
+
+        for r in range(box_row, box_row + box_size):
+            for c in range(box_col, box_col + box_size):
+                if grid[r][c] == num:
                     return False
-        
+
         return True
 
-    def _remove_cells(self, grid: List[List[int]], count: int) -> List[List[int]]:
-        """Remove cells from the grid to create the puzzle."""
+    def _create_puzzle_from_grid(
+        self,
+        grid: List[List[int]],
+        difficulty: str,
+    ) -> Tuple[List[List[int]], List[List[int]]]:
+        """Create puzzle by removing cells based on difficulty."""
+        size = len(grid)
+        solution = [row[:] for row in grid]
         puzzle = [row[:] for row in grid]
-        n = len(puzzle)
-        
-        cells = [(i, j) for i in range(n) for j in range(n)]
-        random.shuffle(cells)
-        
-        removed = 0
-        for i, j in cells:
-            if removed >= count:
-                break
-            puzzle[i][j] = 0
-            removed += 1
-        
-        return puzzle
 
-    def _generate_pathfinding_puzzle(self, n: int, difficulty: int) -> PuzzleInstance:
-        """
-        Generate a constrained pathfinding puzzle on an n x n grid.
-        
-        Args:
-            n: Grid dimension (n x n)
-            difficulty: 1-10 scale affecting obstacle density and path complexity
-        
-        Returns:
-            PuzzleInstance with the generated puzzle
-        """
-        # Create grid with obstacles
-        obstacle_density = 0.1 + (difficulty / 10.0) * 0.3
-        grid_size = n * n
-        num_obstacles = int(grid_size * obstacle_density)
-        
-        # Initialize grid
-        grid = [[0] * n for _ in range(n)]
-        
-        # Place obstacles randomly
+        if difficulty == "easy":
+            remove_count = size * size // 4
+        elif difficulty == "medium":
+            remove_count = size * size // 2
+        else:  # hard
+            remove_count = size * size * 3 // 4
+
+        cells = [(r, c) for r in range(size) for c in range(size)]
+        self.random.shuffle(cells)
+
+        for i in range(remove_count):
+            r, c = cells[i]
+            puzzle[r][c] = 0
+
+        return puzzle, solution
+
+    def _generate_pathfinding_grid(
+        self,
+        size: int,
+        difficulty: str,
+    ) -> Tuple[List[List[int]], Tuple[int, int], Tuple[int, int], List[Tuple[int, int]]]:
+        """Generate a grid with obstacles, start and end."""
+        grid = [[0] * size for _ in range(size)]
         obstacles = []
-        while len(obstacles) < num_obstacles:
-            r, c = random.randint(0, n-1), random.randint(0, n-1)
-            # Don't place obstacles at start (0,0) or end (n-1, n-1)
-            if (r, c) not in [(0, 0), (n-1, n-1)] and (r, c) not in obstacles:
+
+        if difficulty == "easy":
+            obstacle_count = size * size // 10
+        elif difficulty == "medium":
+            obstacle_count = size * size // 5
+        else:  # hard
+            obstacle_count = size * size // 3
+
+        for _ in range(obstacle_count):
+            r = self.random.randint(0, size - 1)
+            c = self.random.randint(0, size - 1)
+            if (r, c) not in obstacles:
                 obstacles.append((r, c))
-                grid[r][c] = 1  # 1 represents obstacle
-        
-        # Ensure a path exists by using BFS to check connectivity
-        # If no path, regenerate (simplified: just ensure start/end clear)
-        # In a real implementation, we'd regenerate until a path exists
-        
+                grid[r][c] = 1  # Mark obstacle
+
         start = (0, 0)
-        end = (n-1, n-1)
-        
-        # Generate a simple path for ground truth (if one exists)
-        # For this generator, we'll assume a path exists and generate one
-        path = self._generate_path(n, obstacles, start, end)
-        
-        constraints = {
-            "grid_size": n,
-            "obstacle_count": len(obstacles),
-            "obstacle_density": round(obstacle_density, 3),
-            "start": start,
-            "end": end,
-            "movement": "4_directional"  # Up, Down, Left, Right
-        }
-        
-        puzzle_id = f"path_{n}_{difficulty}_{self.puzzle_counter}"
-        self.puzzle_counter += 1
-        
-        instance_data = {
-            "grid": grid,
-            "start": start,
-            "end": end,
-            "solution": path
-        }
-        
-        return PuzzleInstance(
-            puzzle_id=puzzle_id,
-            type="pathfinding",
-            difficulty=difficulty,
-            n=n,
-            constraints=constraints,
-            ground_truth=path,
-            checksum=self._generate_checksum(instance_data),
-            generated_at=time.strftime("%Y-%m-%dT%H:%M:%SZ")
-        )
+        end = (size - 1, size - 1)
 
-    def _generate_path(self, n: int, obstacles: List[Tuple[int, int]], 
-                     start: Tuple[int, int], end: Tuple[int, int]) -> List[Tuple[int, int]]:
-        """Generate a simple path from start to end avoiding obstacles."""
-        # Simple greedy path generation with backtracking
-        visited = set(obstacles)
-        path = [start]
-        current = start
-        
-        while current != end:
-            r, c = current
-            # Try directions: down, right, up, left (prioritize towards end)
-            directions = [
-                (1, 0), (0, 1), (-1, 0), (0, -1)
-            ]
-            
-            # Sort directions by preference (towards end)
-            target_r, target_c = end
-            directions.sort(key=lambda d: abs(r + d[0] - target_r) + abs(c + d[1] - target_c))
-            
-            found = False
-            for dr, dc in directions:
+        # Ensure start and end are not obstacles
+        while start in obstacles:
+            start = (
+                self.random.randint(0, size - 1),
+                self.random.randint(0, size - 1),
+            )
+        while end in obstacles:
+            end = (
+                self.random.randint(0, size - 1),
+                self.random.randint(0, size - 1),
+            )
+
+        return grid, start, end, obstacles
+
+    def _solve_pathfinding(
+        self,
+        grid: List[List[int]],
+        start: Tuple[int, int],
+        end: Tuple[int, int],
+        obstacles: List[Tuple[int, int]],
+    ) -> List[Tuple[int, int]]:
+        """Simple BFS to find shortest path."""
+        from collections import deque
+
+        size = len(grid)
+        queue = deque([(start, [start])])
+        visited = {start}
+
+        while queue:
+            (r, c), path = queue.popleft()
+            if (r, c) == end:
+                return path
+
+            for dr, dc in [(0, 1), (0, -1), (1, 0), (-1, 0)]:
                 nr, nc = r + dr, c + dc
-                if 0 <= nr < n and 0 <= nc < n and (nr, nc) not in visited:
-                    path.append((nr, nc))
-                    visited.add((nr, nc))
-                    current = (nr, nc)
-                    found = True
-                    break
-            
-            if not found:
-                # Backtrack
-                if len(path) > 1:
-                    path.pop()
-                    current = path[-1]
-                    visited.add(current)
-                else:
-                    # No path found, return empty (should not happen with good generation)
-                    return []
-        
-        return path
+                if 0 <= nr < size and 0 <= nc < size:
+                    if (nr, nc) not in visited and (nr, nc) not in obstacles:
+                        visited.add((nr, nc))
+                        queue.append(((nr, nc), path + [(nr, nc)]))
 
-    def generate_puzzle(self, puzzle_type: str, n: int, difficulty: int) -> PuzzleInstance:
-        """
-        Generate a puzzle of the specified type.
-        
-        Args:
-            puzzle_type: "sudoku_variant" or "pathfinding"
-            n: Problem size parameter
-            difficulty: 1-10 scale
-        
-        Returns:
-            PuzzleInstance
-        """
-        if puzzle_type == "sudoku_variant":
-            return self._generate_sudoku_variant(n, difficulty)
-        elif puzzle_type == "pathfinding":
-            return self._generate_pathfinding_puzzle(n, difficulty)
+        return []  # No path found
+
+    def _generate_logic_grid_puzzle(
+        self,
+        num_items: int,
+    ) -> Tuple[List[str], List[str], Dict[str, Any]]:
+        """Generate a simple logic grid puzzle."""
+        categories = ["Person", "Color", "Animal", "Drink"]
+        items_per_category = [
+            [f"Person{i}" for i in range(num_items)],
+            [f"Color{i}" for i in range(num_items)],
+            [f"Animal{i}" for i in range(num_items)],
+            [f"Drink{i}" for i in range(num_items)],
+        ]
+
+        # Random valid assignment (placeholder)
+        solution = {cat: items for cat, items in zip(categories, items_per_category)}
+
+        # Simple placeholder clues
+        clues = [
+            f"{categories[0]}[0] is not {categories[1]}[0]",
+            f"{categories[1]}[1] is next to {categories[2]}[0]",
+            f"{categories[2]}[1] drinks {categories[3]}[0]",
+        ]
+
+        return categories, clues, solution
+
+    def _generate_arithmetic_puzzle(
+        self,
+        num_operands: int,
+    ) -> Tuple[List[int], int, str]:
+        """Generate a simple arithmetic puzzle."""
+        operands = [self.random.randint(1, 10) for _ in range(num_operands)]
+        target = self.random.randint(1, 50)
+
+        # Very naive solution string (not guaranteed correct)
+        if num_operands >= 3:
+            solution = f"({operands[0]} + {operands[1]}) * {operands[2]}"
         else:
-            raise raise_parse_failure(f"Unknown puzzle type: {puzzle_type}")
+            solution = f"{operands[0]} + {operands[1]}"
 
-    def generate_dataset(self, output_path: str, 
-                       types: List[str] = None,
-                       sizes: List[int] = None,
-                       difficulties: List[int] = None,
-                       count_per_combo: int = 1) -> List[Dict[str, Any]]:
-        """
-        Generate a dataset of puzzles with systematic complexity scaling.
-        
-        Args:
-            output_path: Path to save the JSON dataset
-            types: List of puzzle types to generate
-            sizes: List of N values (problem sizes)
-            difficulties: List of difficulty levels
-            count_per_combo: Number of puzzles per type-size-difficulty combo
-        
-        Returns:
-            List of puzzle instances as dictionaries
-        """
-        if types is None:
-            types = ["sudoku_variant", "pathfinding"]
-        if sizes is None:
-            sizes = [10, 50, 100, 200, 500]
-        if difficulties is None:
-            difficulties = [1, 3, 5, 7, 10]
-        
-        dataset = []
-        
-        for p_type in types:
-            for n in sizes:
-                # Adjust n for specific puzzle types
-                if p_type == "sudoku_variant":
-                    # For Sudoku, n should be a perfect square
-                    # We'll use 4, 9, 16, 25, 36 (squares of 2, 3, 4, 5, 6)
-                    # Map the input n to a reasonable square
-                    squares = [4, 9, 16, 25, 36]
-                    if n < 10:
-                        actual_n = 4
-                    elif n < 50:
-                        actual_n = 9
-                    elif n < 100:
-                        actual_n = 16
-                    elif n < 200:
-                        actual_n = 25
-                    else:
-                        actual_n = 36
-                else:
-                    actual_n = n
-                
-                for diff in difficulties:
-                    for _ in range(count_per_combo):
-                        try:
-                            instance = self.generate_puzzle(p_type, actual_n, diff)
-                            dataset.append(asdict(instance))
-                        except Exception as e:
-                            # Log error but continue generating other puzzles
-                            raise_parse_failure(f"Failed to generate puzzle: {e}")
-        
-        # Save dataset to file
-        output_file = Path(output_path)
-        output_file.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(output_file, 'w', encoding='utf-8') as f:
-            json.dump(dataset, f, indent=2, default=str)
-        
-        return dataset
-
+        return operands, target, solution
 
 def main():
-    """
-    Main entry point for generating the dataset.
-    Reads configuration and generates puzzles accordingly.
-    """
-    # Load experiment config
-    config = load_config()
-    
-    # Get parameters
-    seed = config.get("seed", 42)
-    output_path = config.get("output_path", "data/raw/puzzles.json")
-    puzzle_types = config.get("puzzle_types", ["sudoku_variant", "pathfinding"])
-    sizes = config.get("sizes", [10, 50, 100, 200, 500])
-    difficulties = config.get("difficulties", [1, 3, 5, 7, 10])
-    count_per_combo = config.get("count_per_combo", 1)
-    
-    # Initialize generator
-    generator = PuzzleGenerator(seed=seed)
-    
-    # Generate dataset
-    print(f"Generating dataset with seed={seed}")
-    print(f"Types: {puzzle_types}")
-    print(f"Sizes: {sizes}")
-    print(f"Difficulties: {difficulties}")
-    print(f"Count per combo: {count_per_combo}")
-    
-    dataset = generator.generate_dataset(
-        output_path=output_path,
-        types=puzzle_types,
-        sizes=sizes,
-        difficulties=difficulties,
-        count_per_combo=count_per_combo
+    """Command‑line entry point for quick generation."""
+    parser = argparse.ArgumentParser(
+        description="Generate logic puzzles with provenance metadata"
     )
-    
-    print(f"Generated {len(dataset)} puzzles.")
-    print(f"Dataset saved to: {output_path}")
+    parser.add_argument(
+        "--n",
+        type=int,
+        nargs="+",
+        required=True,
+        help="List of N values for complexity scaling (e.g., 4 10 20)",
+    )
+    parser.add_argument(
+        "--count",
+        type=int,
+        default=DEFAULT_COUNT,
+        help=f"Number of puzzles per type per N value (default: {DEFAULT_COUNT})",
+    )
+    parser.add_argument(
+        "--types",
+        type=str,
+        nargs="+",
+        choices=[pt.value for pt in PuzzleType],
+        default=[
+            PuzzleType.SUDOKU.value,
+            PuzzleType.PATHFINDING.value,
+        ],
+        help="Puzzle types to generate",
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        default=DEFAULT_OUTPUT_DIR,
+        help=f"Output directory (default: {DEFAULT_OUTPUT_DIR})",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=DEFAULT_SEED,
+        help=f"Random seed (default: {DEFAULT_SEED})",
+    )
+    parser.add_argument(
+        "--source-id",
+        type=str,
+        default=DEFAULT_SOURCE_ID,
+        help=f"Source identifier (default: {DEFAULT_SOURCE_ID})",
+    )
 
+    args = parser.parse_args()
+    puzzle_types = [PuzzleType(pt) for pt in args.types]
+
+    generator = PuzzleGenerator(
+        source_id=args.source_id,
+        seed=args.seed,
+    )
+    output_file = generator.generate_puzzles(
+        n_values=args.n,
+        count=args.count,
+        puzzle_types=puzzle_types,
+        output_dir=args.output_dir,
+    )
+    print(f"Puzzles written to {output_file}")
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

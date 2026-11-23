@@ -1,188 +1,160 @@
 """
-Merge genomic and VOC data with strict filtering rules.
-
-This module implements the merge logic for User Story 1, including:
-- Loading stage 1 data (normalized transcript + VOC data)
-- Filtering samples with <3 biological replicates per condition
-- Filtering samples missing critical environmental metadata
-- Performing exact sample ID matching join
-
-Dependencies:
-- code/01_ingest.py (for data format compatibility)
-- code/utils/validation.py (for replicate checks)
+Module: 02_merge.py
+Task: T015a, T015b, T017a, T017b
+Description: Merges genomic and environmental data, filters replicates, and validates.
+Outputs: data/processed/merged_dataset.csv, data/results/data_validation_report.json
 """
 import os
 import sys
+import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import List, Optional
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root / "code"))
+# Ensure project root is in path for imports if running as script
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.append(str(PROJECT_ROOT))
 
-from utils.validation import check_replicates
+# Constants
+INPUT_GENE_PATH = PROJECT_ROOT / "data" / "processed" / "gene_expression_normalized.csv"
+INPUT_ENV_PATH = PROJECT_ROOT / "data" / "processed" / "environmental_data_cleaned.csv"
+OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "merged_dataset.csv"
+REPORT_PATH = PROJECT_ROOT / "data" / "results" / "data_validation_report.json"
 
+def ensure_dirs():
+    """Ensure output directories exist."""
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    REPORT_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-def load_stage1_data(input_path: str) -> pd.DataFrame:
+def load_stage1_data():
+    """Load data produced by the ingestion stage."""
+    if not INPUT_GENE_PATH.exists():
+        raise FileNotFoundError(f"Gene expression file not found: {INPUT_GENE_PATH}")
+    if not INPUT_ENV_PATH.exists():
+        raise FileNotFoundError(f"Environmental data file not found: {INPUT_ENV_PATH}")
+    
+    gene_df = pd.read_csv(INPUT_GENE_PATH)
+    env_df = pd.read_csv(INPUT_ENV_PATH)
+    return gene_df, env_df
+
+def filter_environmental(df):
     """
-    Load stage 1 data (normalized transcript + VOC data).
-    
-    Args:
-        input_path: Path to the stage 1 CSV file
-    
-    Returns:
-        DataFrame with normalized transcript and VOC data
+    T015b: Exclude samples where ANY of the following are missing:
+    'temperature', 'light intensity', OR 'CO2 level'.
     """
-    if not os.path.exists(input_path):
-        raise FileNotFoundError(f"Stage 1 data file not found: {input_path}")
+    critical_cols = ['temperature', 'light intensity', 'CO2 level']
+    missing_mask = df[critical_cols].isnull().any(axis=1)
+    excluded_count = missing_mask.sum()
     
-    df = pd.read_csv(input_path)
-    
-    # Validate required columns
-    required_cols = ['sample_id', 'condition_id']
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns: {missing_cols}")
-    
-    return df
+    if excluded_count > 0:
+        print(f"Excluding {excluded_count} samples due to missing critical environmental metadata.")
+    return df[~missing_mask], excluded_count
 
-
-def filter_replicates(df: pd.DataFrame, min_replicates: int = 3) -> pd.DataFrame:
+def filter_replicates(df):
     """
-    Filter out conditions with fewer than min_replicates samples.
-    
-    Args:
-        df: Input DataFrame with 'condition_id' column
-        min_replicates: Minimum number of replicates required per condition
-    
-    Returns:
-        Filtered DataFrame with only conditions meeting the replicate requirement
+    T015a: Filter out experimental conditions with <3 biological replicates.
+    Logic: Group by 'experiment_id' (or similar unique ID) and count.
     """
-    if 'condition_id' not in df.columns:
-        raise ValueError("DataFrame must contain 'condition_id' column")
-    
-    # Count replicates per condition
-    condition_counts = df.groupby('condition_id').size()
-    
-    # Identify conditions with sufficient replicates
-    valid_conditions = condition_counts[condition_counts >= min_replicates].index.tolist()
-    
-    # Filter DataFrame
-    filtered_df = df[df['condition_id'].isin(valid_conditions)].copy()
-    
-    return filtered_df
+    # Assuming 'experiment_id' is the column defining the condition
+    # If not present, we might group by a combination of metadata, but 'experiment_id' is standard.
+    id_col = 'experiment_id'
+    if id_col not in df.columns:
+        # Fallback: assume all data is one condition if no ID (unlikely) or use sample_id
+        print(f"Warning: Column '{id_col}' not found. Skipping replicate filter.")
+        return df, 0
 
+    counts = df[id_col].value_counts()
+    valid_ids = counts[counts >= 3].index
+    excluded_count = len(counts[counts < 3])
+    
+    if excluded_count > 0:
+        print(f"Excluding {excluded_count} samples due to insufficient biological replicates (<3).")
+    
+    return df[df[id_col].isin(valid_ids)], excluded_count
 
-def filter_environmental_metadata(df: pd.DataFrame) -> pd.DataFrame:
+def merge_dataframes(gene_df, env_df):
     """
-    Filter out samples missing critical environmental metadata.
-    
-    Critical fields: 'temperature', 'light_intensity'
-    
-    Args:
-        df: Input DataFrame with environmental columns
-    
-    Returns:
-        Filtered DataFrame with no missing values in critical fields
+    Merge genomic and environmental data by exact sample pairing.
+    Assuming 'sample_id' is the common key.
     """
-    critical_fields = ['temperature', 'light_intensity']
+    common_key = 'sample_id'
+    if common_key not in gene_df.columns or common_key not in env_df.columns:
+        raise ValueError(f"Common key '{common_key}' not found in both datasets.")
     
-    # Check which critical fields exist
-    existing_critical = [field for field in critical_fields if field in df.columns]
-    
-    if not existing_critical:
-        raise ValueError(f"No critical environmental fields found. Expected at least one of: {critical_fields}")
-    
-    # Filter out rows with missing values in any critical field
-    filtered_df = df.dropna(subset=existing_critical).copy()
-    
-    return filtered_df
+    # Inner join to ensure exact pairing
+    merged = pd.merge(gene_df, env_df, on=common_key, how='inner')
+    print(f"Merged dataset shape: {merged.shape}")
+    return merged
 
-
-def merge_dataframes(
-    genomic_df: pd.DataFrame, 
-    voc_df: pd.DataFrame, 
-    key_column: str = 'sample_id'
-) -> pd.DataFrame:
+def validate_numeric_columns(df):
     """
-    Merge genomic and VOC data on exact sample ID match.
-    
-    Args:
-        genomic_df: DataFrame with genomic data
-        voc_df: DataFrame with VOC data
-        key_column: Column name to join on (default: 'sample_id')
-    
-    Returns:
-        Merged DataFrame with only exact matches
+    T017a: Validate types and ensure no non-numeric entries in numeric columns.
     """
-    # Perform inner join on sample_id
-    merged_df = pd.merge(
-        genomic_df,
-        voc_df,
-        on=key_column,
-        how='inner'
-    )
+    # Identify numeric columns (excluding sample_id and experiment_id)
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
     
-    return merged_df
+    issues = []
+    for col in numeric_cols:
+        if df[col].isnull().any():
+            # Check if NaNs are acceptable (handled by imputation earlier, but check for residuals)
+            # For this stage, we report them but don't crash if they exist, as imputation might be pending
+            issues.append(f"Column '{col}' has {df[col].isnull().sum()} missing values.")
+    
+    return issues
 
-
-def main(
-    stage1_input: Optional[str] = None,
-    output_path: Optional[str] = None,
-    min_replicates: int = 3
-) -> pd.DataFrame:
+def generate_validation_report(df, excluded_env, excluded_rep, validation_issues):
     """
-    Main merge pipeline function.
-    
-    This function orchestrates the full merge process:
-    1. Load stage 1 data
-    2. Filter by replicate count
-    3. Filter by environmental metadata completeness
-    4. Output the merged dataset
-    
-    Args:
-        stage1_input: Path to stage 1 CSV file. If None, uses default path.
-        output_path: Path for output CSV. If None, uses default path.
-        min_replicates: Minimum replicates required per condition
-    
-    Returns:
-        Final merged DataFrame
+    T017b: Generate data_validation_report.json.
     """
-    # Set default paths if not provided
-    if stage1_input is None:
-        stage1_input = str(Path(__file__).parent.parent / "data" / "processed" / "stage1_normalized.csv")
+    report = {
+        "total_samples": len(df),
+        "excluded_samples": excluded_env + excluded_rep,
+        "missing_values_imputed": 0, # Count would come from imputation step if tracked here
+        "validation_status": "passed" if not validation_issues else "warnings",
+        "validation_issues": validation_issues,
+        "timestamp": str(pd.Timestamp.now())
+    }
     
-    if output_path is None:
-        output_path = str(Path(__file__).parent.parent / "data" / "processed" / "merged_dataset.csv")
+    with open(REPORT_PATH, 'w') as f:
+        json.dump(report, f, indent=2)
     
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Step 1: Load stage 1 data
-    print(f"Loading stage 1 data from {stage1_input}...")
-    data = load_stage1_data(stage1_input)
-    print(f"  Loaded {len(data)} samples")
-    
-    # Step 2: Filter by replicate count
-    print(f"Filtering for conditions with >= {min_replicates} replicates...")
-    filtered_data = filter_replicates(data, min_replicates=min_replicates)
-    print(f"  Retained {len(filtered_data)} samples after replicate filtering")
-    
-    # Step 3: Filter by environmental metadata
-    print("Filtering for complete environmental metadata...")
-    final_data = filter_environmental_metadata(filtered_data)
-    print(f"  Retained {len(final_data)} samples after environmental filtering")
-    
-    # Step 4: Save output
-    final_data.to_csv(output_path, index=False)
-    print(f"Saved merged dataset to {output_path}")
-    
-    return final_data
+    return report
 
+def main():
+    """Main execution function."""
+    ensure_dirs()
+    
+    try:
+        print("Loading stage 1 data...")
+        gene_df, env_df = load_stage1_data()
+        
+        print("Filtering environmental metadata...")
+        env_df, excluded_env = filter_environmental(env_df)
+        
+        print("Filtering replicates...")
+        env_df, excluded_rep = filter_replicates(env_df)
+        
+        print("Merging data...")
+        merged_df = merge_dataframes(gene_df, env_df)
+        
+        print("Validating numeric columns...")
+        issues = validate_numeric_columns(merged_df)
+        
+        print("Generating validation report...")
+        report = generate_validation_report(merged_df, excluded_env, excluded_rep, issues)
+        
+        print(f"Saving merged dataset to {OUTPUT_PATH}...")
+        merged_df.to_csv(OUTPUT_PATH, index=False)
+        
+        print("Merge and validation completed successfully.")
+        print(f"Report saved to {REPORT_PATH}")
+        
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Unexpected error: {e}")
+        raise
 
 if __name__ == "__main__":
-    # Example usage
     main()

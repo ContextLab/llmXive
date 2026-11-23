@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2101.10065",
+  "judged_at": "2026-07-26T07:30:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of laser surface texturing on wear resistance materials science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the fundamental mechanisms of wear resistance (specifically fretting wear and glaze layer formation) in a cobalt-based alloy, which is a core domain of materials science relevant to the user's question. Although it does not explicitly mention \"laser surface texturing,\" it provides the essential empirical baseline and mechanistic understanding of wear behavior in the target material class that any study on texturing effects would need t",
+  "relevant": true
+}

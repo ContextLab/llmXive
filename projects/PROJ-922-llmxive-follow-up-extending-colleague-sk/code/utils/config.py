@@ -1,174 +1,90 @@
-"""
-Configuration management for llmXive project.
-Handles global seed pinning, path management, and environment configuration.
-"""
 import os
 import random
 from pathlib import Path
 from typing import Optional
-
 import numpy as np
-import torch
 
-# Global project root
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+# Configuration Constants
+# Derived from T000a (Spec Amendment) and T000b (Application)
+GLMM_AUTHORIZED = True
 
-# Configuration constants
+# SC-002: Non-Inferiority Margin for Style Consistency
+# Defined as a small, predefined absolute percentage point threshold (5%).
+# Used in hypothesis verification and statistical analysis (T028, T032, T042).
+NON_INFERIORITY_MARGIN = 0.05  # 5 percentage points as per SC-002
+
+# Project Paths
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+CODE_DIR = PROJECT_ROOT / "code"
+DATA_DIR = PROJECT_ROOT / "data"
+TESTS_DIR = PROJECT_ROOT / "tests"
+STATE_DIR = PROJECT_ROOT / "state"
+FIGURES_DIR = PROJECT_ROOT / "data" / "processed" / "figures"
+
+# Global Seed
 GLOBAL_SEED = 42
-DEFAULT_TIMEOUT = 3600  # 1 hour default timeout
-MAX_CPU_MEMORY_GB = 14  # Default memory limit for CPU runs
 
-def set_global_seed(seed: Optional[int] = None) -> None:
-    """
-    Set global random seeds for reproducibility.
-    
-    Args:
-        seed: Random seed value. Defaults to GLOBAL_SEED if None.
-    """
-    if seed is None:
-        seed = GLOBAL_SEED
-    
+def set_global_seed(seed: int = GLOBAL_SEED) -> None:
+    """Set global seeds for reproducibility."""
     random.seed(seed)
     np.random.seed(seed)
-    torch.manual_seed(seed)
-    
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
-    
-    # For deterministic behavior (may impact performance)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
 def get_project_root() -> Path:
-    """Return the absolute path to the project root."""
-    return _PROJECT_ROOT
+    return PROJECT_ROOT
 
-def get_data_dir(subdir: Optional[str] = None) -> Path:
-    """
-    Get path to data directory.
-    
-    Args:
-        subdir: Optional subdirectory (e.g., 'raw', 'interim', 'processed')
-    
-    Returns:
-        Path object pointing to the requested data directory.
-    """
-    data_root = _PROJECT_ROOT / "data"
-    if subdir:
-        return data_root / subdir
-    return data_root
+def get_code_dir() -> Path:
+    return CODE_DIR
 
-def get_code_dir(subdir: Optional[str] = None) -> Path:
-    """
-    Get path to code directory.
-    
-    Args:
-        subdir: Optional subdirectory (e.g., 'utils', 'inference', 'scripts')
-    
-    Returns:
-        Path object pointing to the requested code directory.
-    """
-    code_root = _PROJECT_ROOT / "code"
-    if subdir:
-        return code_root / subdir
-    return code_root
+def get_data_dir() -> Path:
+    return DATA_DIR
 
-def get_tests_dir(subdir: Optional[str] = None) -> Path:
-    """
-    Get path to tests directory.
-    
-    Args:
-        subdir: Optional subdirectory (e.g., 'unit', 'integration')
-    
-    Returns:
-        Path object pointing to the requested tests directory.
-    """
-    tests_root = _PROJECT_ROOT / "tests"
-    if subdir:
-        return tests_root / subdir
-    return tests_root
+def get_tests_dir() -> Path:
+    return TESTS_DIR
 
-def get_state_dir(project_id: str, subdir: Optional[str] = None) -> Path:
-    """
-    Get path to state directory for a specific project.
-    
-    Args:
-        project_id: Project identifier (e.g., 'PROJ-922')
-        subdir: Optional subdirectory within the project state folder.
-    
-    Returns:
-        Path object pointing to the requested state directory.
-    """
-    state_root = _PROJECT_ROOT / "state" / "projects" / project_id
-    if subdir:
-        return state_root / subdir
-    return state_root
+def get_state_dir() -> Path:
+    return STATE_DIR
 
 def get_figures_dir() -> Path:
-    """Get path to figures directory for output plots."""
-    return get_data_dir() / "figures"
+    return FIGURES_DIR
 
 def ensure_dir(path: Path) -> None:
-    """
-    Ensure a directory exists, creating it if necessary.
-    
-    Args:
-        path: Path object to ensure exists.
-    """
+    """Ensure directory exists."""
     path.mkdir(parents=True, exist_ok=True)
 
-def get_config_from_env(key: str, default: Optional[str] = None) -> str:
-    """
-    Retrieve a configuration value from environment variables.
-    
-    Args:
-        key: Environment variable name.
-        default: Default value if key is not found.
-    
-    Returns:
-        The environment variable value or default.
-    
-    Raises:
-        KeyError: If key is not found and no default is provided.
-    """
-    value = os.getenv(key)
-    if value is None:
-        if default is None:
-            raise KeyError(f"Environment variable '{key}' is not set")
-        return default
-    return value
+def get_config_from_env() -> dict:
+    """Load configuration from environment variables."""
+    return {
+        "model_path": os.getenv("MODEL_PATH", "default_model"),
+        "device": os.getenv("DEVICE", "cpu"),
+    }
 
 def get_device() -> str:
-    """
-    Determine the device to use (cpu or cuda).
-    
-    Returns:
-        String 'cuda' if available, otherwise 'cpu'.
-    """
-    if torch.cuda.is_available():
-        return "cuda"
-    return "cpu"
+    """Get device from config or env."""
+    # Local import to avoid breaking CPU-only runners if torch is not installed
+    try:
+        import torch
+        env_device = os.getenv("DEVICE", "cpu")
+        if env_device == "cuda" and not torch.cuda.is_available():
+            return "cpu"
+        return env_device
+    except ImportError:
+        return "cpu"
 
 def get_model_cache_dir() -> Path:
-    """Get the directory for caching downloaded models."""
-    cache_dir = get_data_dir() / "models_cache"
-    ensure_dir(cache_dir)
-    return cache_dir
+    return get_data_dir() / "models" / "cache"
 
-def get_output_path(filename: str, subdir: Optional[str] = None) -> Path:
-    """
-    Construct a full output path in the data directory.
-    
-    Args:
-        filename: Name of the output file.
-        subdir: Optional subdirectory (e.g., 'interim', 'processed').
-    
-    Returns:
-        Full Path object for the output file.
-    """
-    base_dir = get_data_dir(subdir) if subdir else get_data_dir()
-    ensure_dir(base_dir)
-    return base_dir / filename
+def get_output_path(filename: str) -> Path:
+    """Get full path for an output file."""
+    return DATA_DIR / "processed" / filename
 
-# Initialize seeds on module import for immediate reproducibility
-set_global_seed(GLOBAL_SEED)
+# Ensure torch is imported only if needed for device checks, 
+# but avoid hard dependency if not running on GPU.
+# Note: torch import moved to local scope in functions that need it to avoid 
+# breaking CPU-only runners if torch is not installed yet.
+def check_torch_availability() -> bool:
+    try:
+        import torch
+        return torch.cuda.is_available()
+    except ImportError:
+        return False

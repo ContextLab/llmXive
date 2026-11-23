@@ -1,109 +1,140 @@
-"""
-Logging infrastructure for the llmXive neural oscillations pipeline.
+"""Logging infrastructure for the PROJ-164 pipeline (Task T008).
 
-Configures dual output (stdout + file), log rotation to prevent disk overflow,
-and captures warnings, mode switches, and resource usage.
-
-FR-008 Compliance:
-- Captures warnings, mode switches, and resource usage.
-- Outputs to stdout and logs/pipeline.log.
-- Configures log rotation (size-based) to prevent disk overflow.
+Provides:
+- ``setup_logging``: idempotent configuration of stdout + rotating file
+  logging to ``logs/pipeline.log`` (RotatingFileHandler, 5 MB per file,
+  3 backups) to prevent disk overflow.
+- ``get_logger``: return a named logger under the configured root.
+- ``log_mode_switch``: structured logging of pipeline mode switches
+  (Primary / Data Insufficient / Underpowered).
+- ``log_resource_usage``: periodic CPU / memory usage capture (NFR-001).
 """
+
+from __future__ import annotations
+
 import logging
 import os
 import sys
-from pathlib import Path
+from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
+from pathlib import Path
+from typing import Optional
 
-# Project root path (assumed to be the parent of 'code')
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-LOGS_DIR = PROJECT_ROOT / "logs"
-LOG_FILE = LOGS_DIR / "pipeline.log"
+import psutil
 
-# Ensure logs directory exists
-LOGS_DIR.mkdir(parents=True, exist_ok=True)
+LOGGER_NAME = "proj164"
+DEFAULT_LOG_FILE = "pipeline.log"
+MAX_BYTES = 5 * 1024 * 1024  # 5 MB per log file
+BACKUP_COUNT = 3             # pipeline.log + 3 rotated backups
 
-# Constants for log rotation
-# Max size: 10MB per file, keep 5 backups to stay well under disk limits
-MAX_BYTES = 10 * 1024 * 1024
-BACKUP_COUNT = 5
+LOG_FORMAT = "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
 
-# Custom log levels for specific pipeline events
-# Mode switches (e.g., Data Insufficient, Underpowered)
-logging.addLevelName(logging.INFO + 5, "MODE_SWITCH")
-logging.INFO_MODE_SWITCH = logging.INFO + 5
-
-# Resource usage warnings (memory, CPU, runtime)
-logging.addLevelName(logging.WARNING + 5, "RESOURCE_USAGE")
-logging.RESOURCE_USAGE = logging.WARNING + 5
+_configured = False
 
 
-def get_logger(name: str = "pipeline") -> logging.Logger:
+def _default_log_dir() -> Path:
+    """Return the project ``logs/`` directory, creating it if needed."""
+    try:
+        from llmxive_toolkit import paths
+
+        return paths.path("logs").parent / "logs"
+    except Exception:
+        # Fallback: locate logs/ relative to this file (code/utils/).
+        root = Path(__file__).resolve().parents[1]
+        logs = root / "logs"
+        logs.mkdir(parents=True, exist_ok=True)
+        return logs
+
+
+def setup_logging(
+    log_file: Optional[str] = None,
+    level: int = logging.INFO,
+    max_bytes: int = MAX_BYTES,
+    backup_count: int = BACKUP_COUNT,
+) -> logging.Logger:
+    """Configure stdout + rotating-file logging (idempotent).
+
+    Args:
+        log_file: Path to the log file. Defaults to ``logs/pipeline.log``
+            in the project root. A parent directory is created if needed.
+        level: Logging level for handlers.
+        max_bytes: Rotation size threshold for the file handler.
+        backup_count: Number of rotated backups to keep.
+
+    Returns:
+        The configured root logger for the pipeline.
     """
-    Retrieves or creates a logger configured for the pipeline.
-    
-    Returns a logger with:
-    - StreamHandler for stdout (WARNING and above for clean output, INFO for debug)
-    - RotatingFileHandler for logs/pipeline.log (INFO and above)
-    - Custom format including timestamp, level, and message.
-    """
-    logger = logging.getLogger(name)
-    
-    # Prevent adding handlers if already configured (e.g., in tests)
-    if logger.handlers:
+    global _configured
+
+    if log_file is None:
+        log_path = _default_log_dir() / DEFAULT_LOG_FILE
+    else:
+        log_path = Path(log_file)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger = logging.getLogger(LOGGER_NAME)
+    logger.setLevel(level)
+    logger.propagate = False
+
+    if _configured:
         return logger
-    
-    logger.setLevel(logging.DEBUG)
-    
-    # Formatter
-    formatter = logging.Formatter(
-        fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
-    
-    # Console Handler (stdout)
-    # We set level to INFO to capture warnings and mode switches in stdout as well,
-    # but keep it clean. If specific debug info is needed, it goes to file.
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(formatter)
-    
-    # File Handler (Rotating)
-    # This handles the rotation requirement to prevent disk overflow.
+
+    formatter = logging.Formatter(LOG_FORMAT)
+
     file_handler = RotatingFileHandler(
-        LOG_FILE,
-        maxBytes=MAX_BYTES,
-        backupCount=BACKUP_COUNT,
-        encoding="utf-8"
+        log_path, maxBytes=max_bytes, backupCount=backup_count, encoding="utf-8"
     )
-    file_handler.setLevel(logging.DEBUG)
+    file_handler.setLevel(level)
     file_handler.setFormatter(formatter)
-    
-    logger.addHandler(console_handler)
     logger.addHandler(file_handler)
-    
+
+    stream_handler = logging.StreamHandler(stream=sys.stdout)
+    stream_handler.setLevel(level)
+    stream_handler.setFormatter(formatter)
+    logger.addHandler(stream_handler)
+
+    _configured = True
+    logger.info("Logging initialized: file=%s (rotation: %d bytes, %d backups)",
+                log_path, max_bytes, backup_count)
     return logger
 
 
-def log_mode_switch(logger: logging.Logger, mode: str, reason: str) -> None:
+def get_logger(name: str, log_file: Optional[str] = None) -> logging.Logger:
+    """Return a named child logger of the pipeline root logger.
+
+    Configures logging on first use so callers do not need to call
+    ``setup_logging`` explicitly.
     """
-    Logs a mode switch event (e.g., switching to Data Insufficient mode).
-    Uses a custom log level for easy filtering.
-    """
-    logger.log(logging.INFO_MODE_SWITCH, f"MODE SWITCH: {mode} | Reason: {reason}")
+    setup_logging(log_file=log_file)
+    if not name.startswith(LOGGER_NAME):
+        name = f"{LOGGER_NAME}.{name}"
+    return logging.getLogger(name)
 
 
-def log_resource_usage(logger: logging.Logger, resource_type: str, value: str, threshold: str = None) -> None:
-    """
-    Logs resource usage metrics (RAM, CPU, Runtime).
-    If a threshold is provided and value exceeds it, logs as WARNING.
-    """
-    msg = f"RESOURCE USAGE: {resource_type} = {value}"
-    if threshold and float(value.replace(',', '').replace('GB', '').replace('MB', '').replace('%', '')) > float(threshold.replace(',', '').replace('GB', '').replace('MB', '').replace('%', '')):
-        logger.warning(msg)
-    else:
-        logger.log(logging.RESOURCE_USAGE, msg)
+def log_mode_switch(logger: logging.Logger, old_mode: str, new_mode: str,
+                    reason: str = "") -> None:
+    """Log a pipeline mode switch (FR-001 / FR-008 evidence trail)."""
+    logger.warning("MODE SWITCH: '%s' -> '%s' | reason: %s",
+                   old_mode, new_mode, reason or "unspecified")
 
 
-# Initialize a default logger instance for immediate use if imported
-logger = get_logger()
+def log_resource_usage(logger: logging.Logger, context: str = "") -> None:
+    """Log current process and system resource usage (NFR-001)."""
+    process = psutil.Process(os.getpid())
+    mem = process.memory_info().rss / (1024 ** 2)
+    sys_mem = psutil.virtual_memory()
+    logger.info(
+        "RESOURCE USAGE%s | pid=%d | cpu_percent=%.1f%% | rss_mb=%.1f | "
+        "system_mem_used_mb=%.1f | system_mem_percent=%.1f%%",
+        f" [{context}]" if context else "",
+        process.pid,
+        process.cpu_percent(interval=0.1),
+        mem,
+        sys_mem.used / (1024 ** 2),
+        sys_mem.percent,
+    )
+
+
+def utc_timestamp() -> str:
+    """Return an ISO-8601 UTC timestamp string."""
+    return datetime.now(timezone.utc).isoformat()

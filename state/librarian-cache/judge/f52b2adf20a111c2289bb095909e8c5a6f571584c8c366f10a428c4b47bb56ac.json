@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2502.03009",
+  "judged_at": "2026-08-26T06:53:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scaling the horizon, not the parameters: reaching trillion-parameter p\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) by investigating the scaling laws and performance mechanisms of Mixture-of-Experts (MoE) models, which is the core architectural mechanism referenced in the user's question about \"Scaling the Horizon, Not the Parameters.\" Although the user's query includes a specific linguistics angle, the paper provides the essential empirical baseline and scaling behavior for the MoE architecture itself, which is a necessary component for any literature review on exten",
+  "relevant": true
+}

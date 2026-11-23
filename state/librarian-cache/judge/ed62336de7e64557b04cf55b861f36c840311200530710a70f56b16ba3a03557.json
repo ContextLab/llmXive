@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.23327",
+  "judged_at": "2026-10-24T08:24:31Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available bird migration patterns and climate change statistics",
+  "rationale": "The paper studies deep‑learning models for tree phenology under climate change, not bird migration patterns; it measures plant phenological timing rather than avian migration data, so it lacks the relevant independent or dependent variables and mechanism for the user's question.",
+  "relevant": false
+}

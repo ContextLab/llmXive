@@ -32,7 +32,7 @@ The researcher MUST be able to train regression models (Random Forest, Gradient 
 
 **Acceptance Scenarios**:
 
-1. **Given** the preprocessed dataset split into 80/20 train/test sets using a random seed, **When** the training script runs, **Then** it completes within 1 hour on a standard CPU environment without GPU acceleration.
+1. **Given** the preprocessed dataset split into train/test sets using a random seed, **When** the training script runs, **Then** it completes within 1 hour on a standard CPU environment without GPU acceleration.
 2. **Given** a trained model, **When** evaluated on the held-out test set, **Then** the system outputs performance metrics (R², MAE, RMSE) for all three model types.
 
 ---
@@ -66,7 +66,7 @@ The researcher MUST be able to verify that predictions adhere to physical bounds
 - **FR-002**: System MUST compute compositional descriptors (atomic radius variance, electronegativity variance, valence electron concentration) using standard periodic table values (See US-1).
 - **FR-003**: System MUST execute all model training and inference using CPU-only resources (no GPU/CUDA) to ensure compatibility with free-tier CI runners (See US-2).
 - **FR-004**: System MUST enforce associational framing in all output reports, explicitly stating that findings reflect correlations, not causal mechanisms (See US-3).
-- **FR-005**: System MUST perform a sensitivity analysis on the outlier removal threshold, sweeping values ∈ {2.5, 3.0, 3.5} standard deviations and reporting the variance in R² (See US-3). This analysis is essential to verify that the model's performance is not an artifact of a specific outlier removal cutoff, addressing the robustness requirement implied by the methodology.
+- **FR-005**: System MUST perform a sensitivity analysis on the outlier removal threshold, sweeping values of standard deviations and reporting the variance in R² (See US-3). This analysis is essential to verify that the model's performance is not an artifact of a specific outlier removal cutoff, addressing the robustness requirement implied by the methodology.
 
 ### Key Entities
 
@@ -95,4 +95,4 @@ The researcher MUST be able to verify that predictions adhere to physical bounds
 - The data is observational; therefore, all statistical inferences regarding composition and anisotropy are framed as associational, not causal.
 - The definition of "single-phase FCC" is consistent across both Materials Project and AFLOWlib metadata tags.
 - The project goal is explicitly defined as "DFT-to-DFT prediction" (meta-modeling), where validation is against DFT database values. These values are not experimental ground truth, and experimental validation is out of scope for this phase.
-- Given the small dataset size (~100 entries), stratifying train/test splits by element type is statistically invalid and prone to extrapolation errors; therefore, a random 80/20 split is used. The goal is interpolation within the composition space.
+- Given the limited dataset size, stratifying train/test splits by element type is statistically invalid and prone to extrapolation errors; therefore, a random train/test split is used. The goal is interpolation within the composition space.

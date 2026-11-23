@@ -1,0 +1,43 @@
+Exclusion Report - Mitochondrial Aging Correlation Study
+Generated: 2026-06-12
+
+=== Summary ===
+Total samples in processed dataset: 2504
+Samples excluded due to missing age: 0
+Samples excluded due to failed haplogroup assignment: 12
+Samples retained for burden-only analysis: 2492
+Samples retained for haplogroup-specific analysis: 2492
+
+=== Exclusion Details ===
+
+1. Missing Age Exclusion (T007A Gate)
+   - Samples with missing age: 0
+   - Action: No exclusions (all samples have age data)
+   - Retention status: All samples retained for all analyses
+
+2. Haplogroup Assignment Failure (T017)
+   - Total haplogroup assignments attempted: 2504
+   - Successful assignments: 2492 (99.52%)
+   - Failed assignments: 12 (0.48%)
+   - Action: Exclude from haplogroup-specific analysis only
+   - Retention status: 12 samples retained for burden-only analysis if age present
+
+=== Retention Status ===
+
+For Burden-Only Analysis (age required):
+- Retained: 2504 samples
+- Excluded: 0 samples
+
+For Haplogroup-Specific Analysis (age + haplogroup required):
+- Retained: 2492 samples
+- Excluded: 12 samples (failed haplogroup assignment)
+
+=== Verification ===
+- Phase 0 (T007A) PASSED: Age column present in metadata
+- Haplogroup success rate: 99.52% (>= 90% threshold)
+- Exclusion logic applied correctly per plan.md requirements
+
+=== Notes ===
+- All exclusions are conditional: samples with missing age are excluded from ALL analyses
+- Samples with failed haplogroup assignment are excluded ONLY from haplogroup-specific analyses
+- This conditional retention maximizes data utility while maintaining analytical integrity

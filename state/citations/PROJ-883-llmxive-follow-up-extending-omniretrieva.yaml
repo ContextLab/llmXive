@@ -1,4 +1,26 @@
-- artifact_hash: 2c17e696c50a10e812f9b11d97e03d3dc93563c8d8eb80b8c1b04b1676d7443b
+- artifact_hash: f7c3a327fb3da86776c82287e09c0c63fccef09b4a64b091252cfa6f4e98c968
+  artifact_path: projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/specs/001-llmxive-follow-up-extending-omniretrieva/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: test-00000-of-00001.parquet
+  kind: url
+  value: https://huggingface.co/datasets/microsoft/ms_marco/resolve/main/v1.1/test-00000-of-00001.parquet
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f181ecb/1d02d44e23587b55bde24a4b5b38fa1443c115692e41a553bf9320ef23946b55?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&xip=IFQ16iPVUh4&X-Xet-Cas-Uid=public&user_id=public&Expires=1792647992&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgxZWNiLzFkMDJkNDRlMjM1ODdiNTViZGUyNGE0YjViMzhmYTE0NDNjMTE1NjkyZTQxYTU1M2JmOTMyMGVmMjM5NDZiNTVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnhpcD1JRlExNmlQVlVoNCZYLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyNjQ3OTkyfX19XX0_&Signature=MEYCIQDTpViD1S1Ge6X20v-Ke9Gd0zJyMNu1v7ILvCU6Va0MaAIhAPcklQOmL1upb5WeX3amODHc0VYwpEbz9viZbZZWRxjW&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-22T04:46:32.163476Z'
+- artifact_hash: f7c3a327fb3da86776c82287e09c0c63fccef09b4a64b091252cfa6f4e98c968
+  artifact_path: projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/specs/001-llmxive-follow-up-extending-omniretrieva/plan.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/allenai/dbpedia-2023-triples/resolve/main/dbpedia_triples.parquet
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/allenai/dbpedia-2023-triples/resolve/main/dbpedia_triples.parquet
+  verified_at: '2026-10-22T04:46:32.163476Z'
+- artifact_hash: 4f54e9cc4c916202cf0cb7fecf4df9986c9284e3decec0bf4d72e58f9619e703
   artifact_path: projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/specs/001-llmxive-follow-up-extending-omniretrieva/research.md
   cite_id: c-001
   cited_authors: []
@@ -6,28 +28,28 @@
   fetched_title: test-00000-of-00001.parquet
   kind: url
   value: https://huggingface.co/datasets/microsoft/ms_marco/resolve/main/v1.1/test-00000-of-00001.parquet
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f181ecb/1d02d44e23587b55bde24a4b5b38fa1443c115692e41a553bf9320ef23946b55?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783854495&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgxZWNiLzFkMDJkNDRlMjM1ODdiNTViZGUyNGE0YjViMzhmYTE0NDNjMTE1NjkyZTQxYTU1M2JmOTMyMGVmMjM5NDZiNTVcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM4NTQ0OTV9fX1dfQ__&Signature=MEUCIQDAaVEstfTJV%7EAGdkTCk5%7EUFLG8FdEuqj5uJWLTP3WGQQIgVeSrsSDdDS1988wksBhs8HaUYdjj2cbVLTgIDwA6HSw_&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-12T10:08:15.014038Z'
-- artifact_hash: 2c17e696c50a10e812f9b11d97e03d3dc93563c8d8eb80b8c1b04b1676d7443b
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/621ffdd236468d709f181ecb/1d02d44e23587b55bde24a4b5b38fa1443c115692e41a553bf9320ef23946b55?X-Xet-Cas-Uid=public&xip=IFQ16iPVUh4&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&Expires=1792648011&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjIxZmZkZDIzNjQ2OGQ3MDlmMTgxZWNiLzFkMDJkNDRlMjM1ODdiNTViZGUyNGE0YjViMzhmYTE0NDNjMTE1NjkyZTQxYTU1M2JmOTMyMGVmMjM5NDZiNTVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ4aXA9SUZRMTZpUFZVaDQmcmVzcG9uc2UtY29udGVudC1kaXNwb3NpdGlvbj1pbmxpbmUlM0IrZmlsZW5hbWUlMkElM0RVVEYtOCUyNyUyN3Rlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUzQitmaWxlbmFtZSUzRCUyMnRlc3QtMDAwMDAtb2YtMDAwMDEucGFycXVldCUyMiUzQiZ1c2VyX2lkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkyNjQ4MDExfX19XX0_&Signature=MEUCID5H73TLgOSMK9n0KUJ87gH5zeBrr3S1UdLS62gWfqlYAiEAyPNcPu%7EeBqNg%7EETV-e%7EiFB338cbvLRkqfPtY6aZFWaw_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-22T04:46:51.361728Z'
+- artifact_hash: 4f54e9cc4c916202cf0cb7fecf4df9986c9284e3decec0bf4d72e58f9619e703
   artifact_path: projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/specs/001-llmxive-follow-up-extending-omniretrieva/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/dbpedia/dbpedia_14
+  value: https://huggingface.co/datasets/allenai/dbpedia-2023-triples/resolve/main/dbpedia_triples.parquet
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/dbpedia/dbpedia_14
-  verified_at: '2026-07-12T10:08:15.014038Z'
-- artifact_hash: 2c17e696c50a10e812f9b11d97e03d3dc93563c8d8eb80b8c1b04b1676d7443b
-  artifact_path: projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/specs/001-llmxive-follow-up-extending-omniretrieva/research.md
-  cite_id: c-003
+  verified_against_url: https://huggingface.co/datasets/allenai/dbpedia-2023-triples/resolve/main/dbpedia_triples.parquet
+  verified_at: '2026-10-22T04:46:51.361728Z'
+- artifact_hash: 37e48cef75f9f8a23c766c29dbcf3d00885bdee26bb68f8421555fd0aae383cf
+  artifact_path: projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/specs/001-llmxive-follow-up-extending-omniretrieva/tasks.md
+  cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Spider (Spider Tea )
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/spider
-  verification_status: verified
-  verified_against_url: https://huggingface.co/Spider/datasets
-  verified_at: '2026-07-12T10:08:15.014038Z'
+  value: https://huggingface.co/datasets/allenai/dbpedia-2023-triples/resolve/main/dbpedia_triples.parquet`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/allenai/dbpedia-2023-triples/resolve/main/dbpedia_triples.parquet
+  verified_at: '2026-10-24T23:15:18.096498Z'

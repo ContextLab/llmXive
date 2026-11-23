@@ -1,41 +1,80 @@
+"""
+Directory initialization utilities.
+"""
 import os
 import sys
 from pathlib import Path
 import logging
 from utils.logging_config import get_logger
 
-def initialize_directories(base_path: Path, dir_structure: list) -> bool:
+# Project root
+project_root = Path(__file__).resolve().parent.parent
+
+# Define required directories
+REQUIRED_DIRS = [
+    "data/raw",
+    "data/processed",
+    "data/figures",
+    "logs",
+    "code/ingest",
+    "code/analysis",
+    "code/theory",
+    "code/validation",
+    "code/utils",
+    "code/models",
+    "tests/unit",
+    "tests/contract",
+    "tests/integration"
+]
+
+logger = get_logger(__name__)
+
+
+def initialize_directories() -> None:
     """
-    Initialize a list of directories relative to base_path.
+    Create all required directories if they do not exist.
+    """
+    for dir_path in REQUIRED_DIRS:
+        full_path = project_root / dir_path
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.debug(f"Directory ensured: {full_path}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            raise
+
+
+def get_data_dir(subdir: Optional[str] = None) -> Path:
+    """
+    Get the path to the data directory.
     
     Args:
-        base_path: The root path where directories should be created.
-        dir_structure: List of relative directory paths to create.
+        subdir: Optional subdirectory within data/.
         
     Returns:
-        True if all directories were created successfully, False otherwise.
+        Path: The full path to the data directory.
     """
-    logger = get_logger("utils.setup_dirs")
-    all_success = True
+    data_dir = project_root / "data"
+    if subdir:
+        return data_dir / subdir
+    return data_dir
 
-    for rel_dir in dir_structure:
-        target_path = base_path / rel_dir
-        try:
-            if not target_path.exists():
-                target_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {target_path}")
-            else:
-                logger.debug(f"Directory already exists: {target_path}")
-            
-            # Basic verification
-            if not target_path.is_dir():
-                logger.error(f"Path exists but is not a directory: {target_path}")
-                all_success = False
-        except PermissionError:
-            logger.error(f"Permission denied creating directory: {target_path}")
-            all_success = False
-        except Exception as e:
-            logger.error(f"Error creating directory {target_path}: {e}")
-            all_success = False
+
+def get_raw_data_dir() -> Path:
+    """
+    Get the path to the raw data directory.
     
-    return all_success
+    Returns:
+        Path: The full path to data/raw.
+    """
+    return get_data_dir("raw")
+
+
+def get_processed_data_dir() -> Path:
+    """
+    Get the path to the processed data directory.
+    
+    Returns:
+        Path: The full path to data/processed.
+    """
+    return get_data_dir("processed")

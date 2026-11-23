@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HRV Metrics Output Schema"
+description: "Schema for the derived HRV metrics CSV file"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique subject identifier"
+  phase:
+    type: "string"
+    description: "Experimental phase (e.g., 'baseline', 'stress')"
+  RMSSD:
+    type: "number"
+    description: "Root mean square of successive differences (ms)"
+  SDNN:
+    type: "number"
+    description: "Standard deviation of NN intervals (ms)"
+  quality_flag:
+    type: "string"
+    description: "Data quality indicator (e.g., 'valid', 'noisy')"
+  task_label:
+    type: "string"
+    description: "BIDS task label associated with the phase"
+required:
+  - "subject_id"
+  - "phase"
+  - "RMSSD"
+  - "SDNN"
+  - "quality_flag"
+additionalProperties: false

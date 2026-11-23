@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BaselineManifest"
+description: "Schema for the pre-computed baseline manifest used for logging (NOT divergence thresholding)."
+type: object
+properties:
+  model_id:
+    type: string
+    description: "HuggingFace model identifier."
+  seed:
+    type: integer
+    description: "Random seed used for the baseline run."
+  mean_reward_baseline:
+    type: number
+    description: "Mean reward of the first 50 steps of the synchronous run."
+  mean_gradient_norm_baseline:
+    type: number
+    description: "Mean gradient norm of the first 50 steps of the synchronous run."
+  variance_reward_baseline:
+    type: number
+    description: "Variance of reward in the first 50 steps."
+  variance_gradient_norm_baseline:
+    type: number
+    description: "Variance of gradient norm in the first 50 steps."
+  stability_status:
+    type: string
+    enum:
+      - "STABLE"
+      - "UNSTABLE"
+    description: "Stability status of the baseline run. All statuses are recorded."
+  generated_at:
+    type: string
+    format: date-time
+    description: "Timestamp when the manifest was generated."
+  checksum:
+    type: string
+    description: "SHA-256 checksum of the source run log."
+required:
+  - model_id
+  - seed
+  - mean_reward_baseline
+  - mean_gradient_norm_baseline
+  - variance_reward_baseline
+  - variance_gradient_norm_baseline
+  - stability_status
+  - generated_at
+  - checksum
+additionalProperties: false

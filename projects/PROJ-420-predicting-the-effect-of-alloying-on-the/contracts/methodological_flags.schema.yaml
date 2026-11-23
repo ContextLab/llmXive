@@ -1,0 +1,18 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Methodological Flags Schema
+description: Schema for results/methodological_flags.json
+type: object
+properties:
+  mae_flag:
+    type: boolean
+    description: Flag indicating if the cross-validation MAE exceeds the 0.05 threshold.
+  cv_mae:
+    type: number
+    description: The mean absolute error from cross-validation.
+  narrative_limitation:
+    type: string
+    description: A narrative string explaining the limitation if mae_flag is True.
+required:
+  - mae_flag
+  - cv_mae
+additionalProperties: true

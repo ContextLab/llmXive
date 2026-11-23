@@ -1,115 +1,158 @@
 """
-Main entry point for the research pipeline.
-
-This script initializes the logging infrastructure and runs the core pipeline steps.
-It serves as the integration point for data loading, preprocessing, modeling, and robustness checks.
+Main orchestration script for the Political News Exposure Analysis Pipeline.
+Executes all stages: Data Fetch -> Preprocessing -> Primary Model -> Robustness -> Reporting.
+Includes a "dry-run" schema validation step to ensure column mapping logic works.
 """
-
 import sys
+import os
 from pathlib import Path
-
-# Ensure code directory is in path for imports
-code_dir = Path(__file__).parent
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+import logging
+from typing import List
 
 from logging_config import setup_logging, get_logger
 from config import ensure_dirs
-from data_loader import load_project_implicit_data
-from preprocessing import load_data, impute_mice, derive_variables
-from models import fit_primary_model, save_model_results
-from robustness import run_all_robustness_checks, save_robustness_results
-from binary_model import run_binary_model_pipeline
+from config_manager import get_config, get_data_raw_path, get_data_processed_path, get_results_path
 
-def main():
+# Import pipeline functions
+from data_fetcher import fetch_project_implicit_political_data
+from preprocessing import run_preprocessing_pipeline
+from models import run_primary_analysis, run_covariate_analysis
+from robustness import run_robustness_pipeline
+from binary_model import run_binary_model_pipeline
+from aggregate_robustness import run_aggregation_pipeline
+from aggregate_summary import run_summary_aggregation_pipeline
+from reporting import run_reporting_pipeline
+from power import run_power_pipeline
+from validate_results import run_validation
+from data_loader import load_project_implicit_data, check_required_columns
+
+logger = get_logger(__name__)
+
+# Required columns for the analysis based on contract/schema
+REQUIRED_COLUMNS: List[str] = [
+    "IAT_D_score",
+    "political_ideology",
+    "news_exposure_freq",
+    "age",
+    "gender",
+    "education"
+]
+
+def validate_schema_dry_run(data_path: Path) -> None:
     """
-    Execute the main research pipeline.
+    Performs a 'dry-run' validation of the data schema.
+    Loads the first several rows (or entire file if small) to ensure
+    column mapping logic works and required columns are present.
     
-    Steps:
-    1. Configure logging.
-    2. Ensure required directories exist.
-    3. Load data.
-    4. Preprocess (impute, derive).
-    5. Fit primary model.
-    6. Run binary model (US2 prerequisite).
-    7. Run all robustness checks (bootstrap, alpha sweep, covariates).
-    8. Save all results.
+    Raises:
+        ValueError: If required columns are missing or schema validation fails.
     """
-    # 1. Setup Logging
-    setup_logging()
-    logger = get_logger(__name__)
-    
-    logger.info("Starting the political news exposure impact analysis pipeline.")
+    logger.info(f"Performing schema dry-run on: {data_path}")
     
     try:
-        # 2. Ensure directories
-        ensure_dirs(["logs", "data/raw", "data/processed", "results"])
-        logger.info("Directory structure verified.")
+        # Load a sample to validate schema without processing full dataset if large
+        # We load the first 1000 rows to verify structure, or fewer if file is small
+        df_sample = load_project_implicit_data(data_path, nrows=1000)
         
-        # 3. Load Data
-        logger.info("Attempting to load Project Implicit data...")
-        raw_df = load_project_implicit_data()
+        if df_sample.empty:
+            raise ValueError("Data file is empty; cannot validate schema.")
         
-        if raw_df is None or raw_df.empty:
-            logger.error("Data loading returned empty or None. Stopping.")
-            return
+        logger.info(f"Loaded sample with {len(df_sample)} rows for validation.")
         
-        logger.info(f"Data loaded successfully. Shape: {raw_df.shape}")
+        # Check required columns
+        missing_cols = check_required_columns(df_sample, REQUIRED_COLUMNS)
+        if missing_cols:
+            error_msg = f"Schema validation failed. Missing required columns: {missing_cols}"
+            logger.error(error_msg)
+            raise ValueError(error_msg)
         
-        # 4. Preprocessing
-        logger.info("Starting preprocessing (imputation and derivation)...")
-        processed_df = load_data(raw_df)
-        processed_df = impute_mice(processed_df)
-        processed_df = derive_variables(processed_df)
-        logger.info("Preprocessing complete.")
+        logger.info("Schema dry-run passed. All required columns present.")
         
-        # 5. Primary Model Fitting
-        logger.info("Fitting primary linear regression model...")
-        model_results = fit_primary_model(processed_df)
-        
-        if model_results:
-            logger.info("Primary model fitting successful.")
-            save_model_results(model_results)
-            logger.info(f"Interaction term coefficient: {model_results.get('interaction_coef', 'N/A')}")
-            logger.info(f"Interaction term p-value: {model_results.get('interaction_pval', 'N/A')}")
-        else:
-            logger.error("Primary model fitting failed to return results.")
-            return
-
-        # 6. Binary Model (US2 Prerequisite - T024b)
-        logger.info("Running binary ideology model...")
-        binary_results = run_binary_model_pipeline(processed_df)
-        if binary_results:
-            logger.info("Binary model completed.")
-        else:
-            logger.warning("Binary model returned no results.")
-
-        # 7. Robustness Checks (US2 - T021, T022, T023 integration)
-        logger.info("Starting robustness checks (Bootstrap, Alpha Sweep, Covariates)...")
-        robustness_results = run_all_robustness_checks(processed_df)
-        
-        if robustness_results:
-            logger.info("Robustness checks completed.")
-            save_robustness_results(robustness_results)
-            
-            # Log key robustness metrics
-            if 'bootstrap' in robustness_results:
-                logger.info(f"Bootstrap CI for interaction: {robustness_results['bootstrap'].get('ci_95', 'N/A')}")
-            if 'alpha_sweep' in robustness_results:
-                logger.info(f"Alpha sweep results saved to results/alpha_sweep.csv")
-            if 'covariate_adjustment' in robustness_results:
-                logger.info(f"Covariate adjustment coefficient: {robustness_results['covariate_adjustment'].get('interaction_coef', 'N/A')}")
-        else:
-            logger.warning("Robustness checks returned no results.")
-            
-    except ValueError as e:
-        logger.critical(f"Data or configuration error: {e}")
-        raise
     except Exception as e:
-        logger.exception(f"An unexpected error occurred during the pipeline: {e}")
+        logger.error(f"Schema dry-run failed: {e}", exc_info=True)
         raise
-    
-    logger.info("Pipeline execution finished successfully.")
+
+def main():
+    """Execute the full analysis pipeline."""
+    setup_logging()
+    logger.info("="*60)
+    logger.info("Starting Political News Exposure Analysis Pipeline")
+    logger.info("="*60)
+
+    try:
+        # 1. Setup Directories
+        logger.info("Step 1: Ensuring directories...")
+        ensure_dirs()
+
+        # 2. Data Fetch (T038)
+        logger.info("Step 2: Fetching/Validating Data...")
+        # This function handles fetching or validating local files
+        # It raises an error if no data is found
+        data_path = fetch_project_implicit_political_data()
+        logger.info(f"Data source validated at: {data_path}")
+
+        # 3. **NEW**: Schema Dry-Run (T041)
+        logger.info("Step 3: Performing Schema Dry-Run...")
+        validate_schema_dry_run(data_path)
+        logger.info("Schema dry-run successful.")
+
+        # 4. Preprocessing (T013, T014, T016)
+        logger.info("Step 4: Preprocessing and Imputation...")
+        imputed_data_path = run_preprocessing_pipeline()
+        logger.info(f"Imputed data saved to: {imputed_data_path}")
+
+        # 5. Primary Model (T015)
+        logger.info("Step 5: Running Primary Analysis...")
+        run_primary_analysis()
+        logger.info("Primary model fitted and saved.")
+
+        # 6. Covariate Model (T023)
+        logger.info("Step 6: Running Covariate Analysis...")
+        run_covariate_analysis()
+        logger.info("Covariate model fitted and saved.")
+
+        # 7. Binary Model (T024b)
+        logger.info("Step 7: Running Binary Model Analysis...")
+        run_binary_model_pipeline()
+        logger.info("Binary model fitted and saved.")
+
+        # 8. Robustness Checks (T021a, T022, T021c)
+        logger.info("Step 8: Running Robustness Checks (Bootstrap & Alpha Sweep)...")
+        run_robustness_pipeline()
+        logger.info("Robustness checks complete.")
+
+        # 9. Aggregate Robustness (T025 Integration)
+        logger.info("Step 9: Aggregating Robustness Metrics...")
+        run_aggregation_pipeline()
+        logger.info("Robustness aggregation complete.")
+
+        # 10. Power Analysis (T017b)
+        logger.info("Step 10: Running Retrospective Power Analysis...")
+        run_power_pipeline()
+        logger.info("Power analysis complete.")
+
+        # 11. Summary Aggregation (T029)
+        logger.info("Step 11: Aggregating Summary Tables...")
+        run_summary_aggregation_pipeline()
+        logger.info("Summary aggregation complete.")
+
+        # 12. Reporting (T028b, T030, T031)
+        logger.info("Step 12: Generating Report...")
+        run_reporting_pipeline()
+        logger.info("Report generation complete.")
+
+        # 13. Validation (T032)
+        logger.info("Step 13: Validating Results...")
+        run_validation()
+        logger.info("Validation complete.")
+
+        logger.info("="*60)
+        logger.info("Pipeline completed successfully!")
+        logger.info("="*60)
+
+    except Exception as e:
+        logger.error(f"Pipeline failed with error: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

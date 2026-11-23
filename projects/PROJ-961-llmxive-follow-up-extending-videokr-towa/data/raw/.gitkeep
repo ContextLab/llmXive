@@ -1,0 +1,4 @@
+# This directory is reserved for raw, unprocessed data artifacts.
+# Do not modify or delete files here without explicit version control.
+# Data integrity is maintained via checksums and versioning scripts.
+.gitkeep

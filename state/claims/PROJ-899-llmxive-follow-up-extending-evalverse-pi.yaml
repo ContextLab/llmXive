@@ -1,0 +1,2312 @@
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/code/README_DOWNLOAD.md
+  attempts: 1
+  canonical: EvalVerse dataset size is approximately 7GB
+  claim_id: c_53d40fed
+  context: Ensure you have sufficient disk space (dataset is ~7GB)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/EvalVerse_dataset_size_is_approximately_7GB
+  kind: entity_fact
+  raw_text: The dataset is ~7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:18:50Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/code/README_DOWNLOAD.md
+  attempts: 1
+  canonical: EvalVerse dataset obtained from Zenodo
+  claim_id: c_0ec92b9f
+  context: 'The EvalVerse dataset is obtained from Zenodo: Record ID: 13130186'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/EvalVerse_dataset_obtained_from_Zenodo
+  kind: entity_fact
+  raw_text: The EvalVerse dataset is obtained from Zenodo.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:19:09Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/code/README_DOWNLOAD.md
+  attempts: 1
+  canonical: Zenodo Record ID 13130186 for EvalVerse dataset
+  claim_id: c_7c131ad1
+  context: 'The EvalVerse dataset is obtained from Zenodo: Record ID: 13130186'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Zenodo Record ID is 13130186.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:19:37Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: pipeline processes 10000 clips in less than 6 hours
+  claim_id: c_95078e78
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_processes_10000_clips_in_less_than_6_hours
+  kind: magnitude
+  raw_text: The system processes 10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:25:47Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: correlate VLM proxy scores against human expert scores on subset of 30
+  claim_id: c_7089b46d
+  context: "Implement preliminary validation (FR-009) in src/models/evaluate.py to\
+    \ correlate VLM proxy scores against human expert scores on n \u2265 30 subset."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system correlates VLM proxy scores against human expert scores on\
+    \ n \u2265 30 subset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:26:11Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: flag dimensions as VLM-required if lower 95% confidence interval is less
+    than 0.70
+  claim_id: c_af12a5d9
+  context: "Goal: Determine which technical sub-dimensions are 'feature-sufficient'\
+    \ (r \u2265 0.85) vs 'VLM-required' (lower 95% CI < 0.70) using low-level features\
+    \ against human expert scores."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_dimensions_as_VLM-required_if_lower_95%25_confidence_inte
+  kind: magnitude
+  raw_text: Dimensions are flagged as VLM-required if lower 95% CI < 0.70.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:26:36Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: exclude samples if error count divided by total count is greater than
+    0.05
+  claim_id: c_3297154e
+  context: 'Constraint: If error_count/total_count > 0.05, EXCLUDE those samples from
+    the final correlation calculation (log exclusion count) and continue (do NOT halt
+    pipeline).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_samples_if_error_count_divided_by_total_count_is_gre
+  kind: magnitude
+  raw_text: The error rate threshold for excluding samples is 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:27:05Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: exit validation gate with code 1 if VLM proxy correlation r is less than
+    0.70 and human scores are missing
+  claim_id: c_2bc325d9
+  context: 'Constraint: Exit with code 1 ONLY if (1) human scores are missing, OR
+    (2) VLM proxy correlation r < 0.70 AND human scores are missing.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exit_validation_gate_with_code_1_if_VLM_proxy_correlation_r
+  kind: magnitude
+  raw_text: The validation gate exits with code 1 if VLM proxy correlation r < 0.70
+    and human scores are missing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:28:07Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: threshold sweep includes thresholds 0.80, 0.85, and 0.90
+  claim_id: c_fa1b8e73
+  context: 'Constraint: The sweep MUST include the specific set of thresholds: {0.80,
+    0.85, 0.90}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The threshold sweep includes the specific set of thresholds: 0.80, 0.85,
+    0.90.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:28:29Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: exit feasibility gate with code 1 if peak memory is greater than 7GB
+  claim_id: c_38cc0939
+  context: 'Constraint: If peak_memory > 7GB OR projected_total_hours (from T024)
+    > 6.0, exit with code 1 and flag ''non-viable''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exit_feasibility_gate_with_code_1_if_peak_memory_is_greater
+  kind: magnitude
+  raw_text: The feasibility gate exits with code 1 if peak memory > 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:28:45Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: exit feasibility gate with code 1 if projected total hours is greater
+    than 6.0
+  claim_id: c_f79416ad
+  context: 'Constraint: If peak_memory > 7GB OR projected_total_hours (from T024)
+    > 6.0, exit with code 1 and flag ''non-viable''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exit_feasibility_gate_with_code_1_if_projected_total_hours_i
+  kind: magnitude
+  raw_text: The feasibility gate exits with code 1 if projected total hours > 6.0.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T07:29:08Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/IMPLEMENTATION_SUMMARY.md
+  attempts: 1
+  canonical: Pipeline runs within 7GB RAM and projects under 6 hours for 10k clips
+  claim_id: c_40cad1c0
+  context: 'Validation Results: US2: Pipeline confirmed to run within 7GB RAM and
+    project < 6 hours for 10k clips.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pipeline confirmed to run within 7GB RAM and project < 6 hours for 10k
+    clips.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T22:06:02Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline runs on multi-core CPU within 7GB RAM and processes 10000 clips
+    in under 6 hours
+  claim_id: c_3c55e5d0
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the pipeline runs on a multi-core CPU within 7GB RAM and processes
+    10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:49:28Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline processes 10000 clips in under 6 hours
+  claim_id: c_a24a454e
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the pipeline runs on a multi-core CPU within 7GB RAM and processes
+    10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:49:28Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline processes 10000 clips
+  claim_id: c_7af4b97d
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the pipeline runs on a multi-core CPU within 7GB RAM and processes
+    10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:49:28Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: 'Definition of error: missing columns, null scores, or schema mismatch'
+  claim_id: c_5f7cef6e
+  context: 'Definition of Error: A row is an error if it has missing required columns,
+    null scores, or schema mismatch.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Definition_of_error:_missing_columns,_null_scores,_or_schema
+  kind: entity_fact
+  raw_text: A row is an error if it has missing required columns, null scores, or
+    schema mismatch.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:50:26Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if VLM proxy correlation is less than 0.70
+  claim_id: c_acab8af7
+  context: 'Constraint: Exit with code 1 if VLM proxy correlation r < 0.70 (mandatory
+    halt).'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Exit with code 1 if VLM proxy correlation r < 0.70 (mandatory halt).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T02:50:26Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Preliminary validation correlates VLM proxy scores against human expert
+    scores on subset of at least 30
+  claim_id: c_73bc9076
+  context: "Implement preliminary validation (FR-009) in src/models/evaluate.py to\
+    \ correlate VLM proxy scores against human expert scores on n \u2265 30 subset."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Preliminary_validation_correlates_VLM_proxy_scores_against_h
+  kind: magnitude
+  raw_text: "Perform preliminary validation to correlate VLM proxy scores against\
+    \ human expert scores on n \u2265 30 subset."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:52:08Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Scaling validation requires R-squared greater than 0.95
+  claim_id: c_80468f49
+  context: 'Constraint: Verify linearity (R^2 > 0.95). Exit with code 1 if linearity
+    assumption fails.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Scaling_validation_requires_R-squared_greater_than_0.95
+  kind: magnitude
+  raw_text: Verify linearity (R^2 > 0.95). Exit with code 1 if linearity assumption
+    fails.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:53:37Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds are 0.80, 0.85, and 0.90
+  claim_id: c_58aa6bc1
+  context: 'Schema: [dimension, threshold, status]. Thresholds: {0.80, 0.85, 0.90}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Thresholds: {0.80, 0.85, 0.90}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:54:10Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds include 0.85
+  claim_id: c_fbd30615
+  context: 'Schema: [dimension, threshold, status]. Thresholds: {0.80, 0.85, 0.90}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Thresholds: {0.80, 0.85, 0.90}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:54:10Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds include 0.90
+  claim_id: c_024aec13
+  context: 'Schema: [dimension, threshold, status]. Thresholds: {0.80, 0.85, 0.90}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Thresholds: {0.80, 0.85, 0.90}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:54:10Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Formula for projected total hours calculation
+  claim_id: c_7dcef7a0
+  context: 'Formula: projected_total_hours = (mean_time_per_clip_sec * 10000) / 3600,
+    rounded to 2 decimal places.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: projected_total_hours = (mean_time_per_clip_sec * 10000) / 3600, rounded
+    to 2 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:54:45Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline runs on multi-core CPU within 7GB RAM processing 10000 clips
+    in under 6 hours
+  claim_id: c_4ea5b791
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the pipeline runs on a multi-core CPU within 7GB RAM and processes
+    10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:57:40Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: System re-runs classification logic with varied thresholds and reports
+    stability/flip rates
+  claim_id: c_63792bbf
+  context: 'Independent Test: The system re-runs classification logic with varied
+    thresholds and reports stability/flip rates.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_re-runs_classification_logic_with_varied_thresholds_a
+  kind: entity_fact
+  raw_text: The system re-runs classification logic with varied thresholds and reports
+    stability/flip rates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T02:58:23Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline runs on multi-core CPU within 7GB RAM and processes 10k clips
+    in less than 6 hours
+  claim_id: c_8e34ec39
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runs_on_multi-core_CPU_within_7GB_RAM_and_processes
+  kind: magnitude
+  raw_text: Verify the pipeline runs on a multi-core CPU within 7GB RAM and processes
+    10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T03:00:21Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline halts if error rate exceeds 0.05
+  claim_id: c_4ce5e776
+  context: 'Constraint: If error_count/total_count > 0.05 on the sample, EXIT with
+    code 1 (HALT). This task MUST complete before T012 and T013.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If error_count/total_count > 0.05 on the sample, EXIT with code 1 (HALT).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T03:00:21Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 2
+  canonical: Mean predictor error exceeds best model error for at least 80% of dimensions
+  claim_id: c_19408e13
+  context: 'Validation Logic: Identify the BEST performing model from T015 (lowest
+    RMSE on validation set). Assert that mean_predictor_error > best_model_error for
+    at least 80% of dimensions.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mean_predictor_error_exceeds_best_model_error_for_at_least_8
+  kind: magnitude
+  raw_text: Assert that mean_predictor_error > best_model_error for at least 80% of
+    dimensions.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T03:00:24Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Linearity verified with R-squared greater than 0.95 via OLS regression
+  claim_id: c_4f6d75cd
+  context: 'Method: Perform Ordinary Least Squares (OLS) regression on clip_index
+    vs cpu_time_sec from T023b data. Output: state/scaling_validation.json. Constraint:
+    Verify linearity (R^2 > 0.95).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linearity_verified_with_R-squared_greater_than_0.95_via_OLS
+  kind: magnitude
+  raw_text: 'Perform Ordinary Least Squares (OLS) regression on clip_index vs cpu_time_sec
+    from T023b data. Constraint: Verify linearity (R^2 > 0.95).'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T03:01:14Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Projected total hours calculated as (mean time per clip in seconds times
+    10000) divided by 3600
+  claim_id: c_267a7055
+  context: 'Output: data/timing_profile.csv. Schema: [mean_time_per_clip_sec, projected_total_hours].
+    Formula: projected_total_hours = (mean_time_per_clip_sec * 10000) / 3600, rounded
+    to 2 decimal places.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Formula: projected_total_hours = (mean_time_per_clip_sec * 10000) / 3600,
+    rounded to 2 decimal places.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T03:01:41Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds set to 0.80, 0.85, and 0.90
+  claim_id: c_2f4eb3ee
+  context: 'Output: data/sensitivity_sweep_raw.csv. Schema: [dimension, threshold,
+    status]. Thresholds: {0.80, 0.85, 0.90}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Thresholds: {0.80, 0.85, 0.90}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T03:01:41Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Flip rate calculated as count of status changes across thresholds divided
+    by number of thresholds minus one
+  claim_id: c_b2d0b1db
+  context: 'Output 2: data/sensitivity_flip_rate.csv. Schema for Output 2: [dimension,
+    flip_rate]. Formula: flip_rate = count(status_changes_across_thresholds) / (N_thresholds
+    - 1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Formula: flip_rate = count(status_changes_across_thresholds) / (N_thresholds
+    - 1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T03:02:03Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline executed on representative subset of clips
+  claim_id: c_4e923833
+  context: 'The research question is to evaluate the end-to-end functionality of the
+    correlation pipeline. The method involves executing the pipeline on a representative
+    subset of clips. (Reference: Smith et al.,) in tests/integration/test_us1_pipeline.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_executed_on_representative_subset_of_clips
+  kind: entity_fact
+  raw_text: The method involves executing the pipeline on a representative subset
+    of clips.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:35:54Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Integration tests executed with batch sizes representative of high-throughput
+    scenarios
+  claim_id: c_de874182
+  context: 'The research question remains: Do the system''s timing constraints hold
+    under significant load? The method involves executing integration tests with batch
+    sizes representative of high-throughput scenarios, as described in [Author, Year]
+    (DOI: xx.xxxx/xxxxx). in tests/integration/test_us2_timing.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Integration_tests_executed_with_batch_sizes_representative_o
+  kind: entity_fact
+  raw_text: The method involves executing integration tests with batch sizes representative
+    of high-throughput scenarios, as described in [Author, Year].
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:36:26Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Flip rate calculated as ratio of status changes to number of intervals
+  claim_id: c_d0332402
+  context: 'Output 2: data/sensitivity_flip_rate.csv. Schema for Output 2: [dimension,
+    flip_rate]. Formula: The flip rate is calculated as the ratio of the count of
+    status changes across thresholds to the number of intervals between those thresholds.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flip_rate_calculated_as_ratio_of_status_changes_to_number_of
+  kind: entity_fact
+  raw_text: The flip rate is calculated as the ratio of the count of status changes
+    across thresholds to the number of intervals between those thresholds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:36:55Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: system timing constraints hold under significant load
+  claim_id: c_613d62f2
+  context: 'The research question remains: Do the system''s timing constraints hold
+    under significant load? The method involves executing integration tests with batch
+    sizes representative of high-throughput scenarios, as described in [Author, Year]
+    (DOI: xx.xxxx/xxxxx). in tests/integration/test_us2_timing.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_timing_constraints_hold_under_significant_load
+  kind: entity_fact
+  raw_text: 'The research question remains: Do the system''s timing constraints hold
+    under significant load?'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:39:35Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: execute integration tests with high-throughput batch sizes
+  claim_id: c_23f83e0a
+  context: 'The research question remains: Do the system''s timing constraints hold
+    under significant load? The method involves executing integration tests with batch
+    sizes representative of high-throughput scenarios, as described in [Author, Year]
+    (DOI: xx.xxxx/xxxxx). in tests/integration/test_us2_timing.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execute_integration_tests_with_high-throughput_batch_sizes
+  kind: entity_fact
+  raw_text: The method involves executing integration tests with batch sizes representative
+    of high-throughput scenarios.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:39:57Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Research question evaluates end-to-end functionality of correlation pipeline
+  claim_id: c_5a7461af
+  context: 'The research question is to evaluate the end-to-end functionality of the
+    correlation pipeline. The method involves executing the pipeline on a representative
+    subset of clips. (Reference: Smith et al.,) in tests/integration/test_us1_pipeline.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_evaluates_end-to-end_functionality_of_corr
+  kind: entity_fact
+  raw_text: The research question is to evaluate the end-to-end functionality of the
+    correlation pipeline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:47:13Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Research question investigates if timing constraints hold under significant
+    load
+  claim_id: c_df8a837f
+  context: 'The research question remains: Do the system''s timing constraints hold
+    under significant load? The method involves executing integration tests with batch
+    sizes representative of high-throughput scenarios, as described in [Author, Year]
+    (DOI: xx.xxxx/xxxxx) in tests/integration/test_us2_timing.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question_investigates_if_timing_constraints_hold_un
+  kind: entity_fact
+  raw_text: 'The research question remains: Do the system''s timing constraints hold
+    under significant load?'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:47:15Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 2
+  canonical: evaluate end-to-end functionality of correlation pipeline
+  claim_id: c_bb5e4e9d
+  context: 'The research question is to evaluate the end-to-end functionality of the
+    correlation pipeline. The method involves executing the pipeline on a representative
+    subset of clips. (Reference: Smith et al.,) in tests/integration/test_us1_pipeline.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluate_end-to-end_functionality_of_correlation_pipeline
+  kind: entity_fact
+  raw_text: The research question is to evaluate the end-to-end functionality of the
+    correlation pipeline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:49:25Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: verify system timing constraints under significant load
+  claim_id: c_cb77e8aa
+  context: 'The research question remains: Do the system''s timing constraints hold
+    under significant load? The method involves executing integration tests with batch
+    sizes representative of high-throughput scenarios, as described in [Author, Year]
+    (DOI: xx.xxxx/xxxxx) in tests/integration/test_us2_timing.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_system_timing_constraints_under_significant_load
+  kind: entity_fact
+  raw_text: 'The research question remains: Do the system''s timing constraints hold
+    under significant load?'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:49:26Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: system outputs ranked list of dimensions with correlation coefficients
+    and 95% CIs
+  claim_id: c_4aa4093e
+  context: 'Independent Test: The system extracts features, trains models, and outputs
+    a ranked list of dimensions with correlation coefficients and confidence intervals.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system extracts features, trains models, and outputs a ranked list
+    of dimensions with correlation coefficients and confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:56:24Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: system logs peak memory and time per clip on representative subset
+  claim_id: c_86c782aa
+  context: 'Independent Test: The system executes the full pipeline on a representative
+    subset and logs peak memory and time per clip.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_logs_peak_memory_and_time_per_clip_on_representative
+  kind: entity_fact
+  raw_text: The system executes the full pipeline on a representative subset and logs
+    peak memory and time per clip.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:56:40Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: integration tests use batch sizes representative of high-throughput scenarios
+    per Author, Year
+  claim_id: c_29a2f5c5
+  context: 'The research question remains: Do the system''s timing constraints hold
+    under significant load? The method involves executing integration tests with batch
+    sizes representative of high-throughput scenarios, as described in [Author, Year]
+    (DOI: xx.xxxx/xxxxx). in tests/integration/test_us2_timing.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Integration_tests_use_batch_sizes_representative_of_high-thr
+  kind: entity_fact
+  raw_text: 'The method involves executing integration tests with batch sizes representative
+    of high-throughput scenarios, as described in [Author, Year] (DOI: xx.xxxx/xxxxx).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-23T12:56:42Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: 10000 clips processed in under 6 hours
+  claim_id: c_5a97f494
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must process 10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:04:03Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline runs within 7GB RAM on multi-core CPU
+  claim_id: c_5882f708
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runs_within_7GB_RAM_on_multi-core_CPU
+  kind: entity_fact
+  raw_text: The pipeline must run on a multi-core CPU within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:04:32Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: VLM required threshold is lower 95% CI < 0.70
+  claim_id: c_e8c06771
+  context: "Goal: Determine which technical sub-dimensions are 'feature-sufficient'\
+    \ (r \u2265 0.85) vs 'VLM-required' (lower 95% CI < 0.70) using low-level features\
+    \ against human expert scores."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dimensions are flagged as 'VLM-required' if the lower 95% CI is < 0.70.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:04:32Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: VLM proxy sanity check Pearson correlation >= 0.5
+  claim_id: c_0683385d
+  context: "CRITICAL: Must validate that Pearson correlation between VLM proxy and\
+    \ human scores is \u2265 0.5 on the subset; if not, EXIT with code 1. Rationale:\
+    \ This 0.5 threshold is a 'Sanity Check' to ensure the VLM proxy is not random\
+    \ noise before investing in feature extraction."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The sanity check requires Pearson correlation between VLM proxy and human\
+    \ scores to be \u2265 0.5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:04:33Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Error rate gate halts if ratio > 0.05
+  claim_id: c_b193722f
+  context: 'Constraint: If error_count/total_count > 0.05 on the sample, EXIT with
+    code 1 (HALT).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Error_rate_gate_halts_if_ratio_%3E_0.05
+  kind: magnitude
+  raw_text: The error rate gate halts if the error count divided by total count is
+    greater than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:05:22Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Bootstrapping uses 1000 resamples for 95% CIs
+  claim_id: c_5820ac93
+  context: 'Implementation Details: Use `bootstrap_resamples=1000` with stratified
+    sampling to calculate 95% confidence intervals for both Pearson and Spearman correlations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrapping for 95% CIs uses 1000 resamples with stratified sampling.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:05:22Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Permutation correction uses 10000 permutations
+  claim_id: c_43997be3
+  context: 'Parameter: `n_permutations=10000`. Output: `data/permutation_results.csv`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation-based multiple-comparison correction uses 10000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:05:39Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Threshold sweep tests 0.80, 0.85, 0.90
+  claim_id: c_520295b3
+  context: 'Thresholds: `{0.80, 0.85, 0.90}`. Status Logic: `feature-sufficient` if
+    `r >= threshold` else `VLM-required`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold sweep logic tests thresholds at 0.80, 0.85, and 0.90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:06:23Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Timing constraints test references DOI xx.xxxx/xxxxx
+  claim_id: c_cbf8f07b
+  context: 'The method involves executing integration tests with batch sizes representative
+    of high-throughput scenarios, as described in [Author, Year] (DOI: xx.xxxx/xxxxx).
+    in `tests/integration/test_us2_timing.py`'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Timing_constraints_test_references_DOI_xx.xxxx/xxxxx
+  kind: entity_fact
+  raw_text: 'The integration test for timing constraints references a method described
+    by [Author, Year] with DOI: xx.xxxx/xxxxx.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:06:48Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Spectral centroid extraction uses n_bins=128
+  claim_id: c_2f54cb25
+  context: 'Implementation Details: Use `librosa.feature.spectral_centroid` with `n_bins=128`
+    and `librosa.feature.zero_crossing_rate`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The feature extraction uses `librosa.feature.spectral_centroid` with `n_bins=128`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:07:00Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Batch processing uses batch size 100
+  claim_id: c_6d3a29b9
+  context: 'Implementation Details: Use `batch_size=100`, aggregate mean/median/max
+    timing stats.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch processing logic uses a batch size of 100 clips.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:07:20Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: 'Error definition: missing required columns, null scores, or schema mismatch'
+  claim_id: c_39ccfd06
+  context: '**Definition of Error**: A row is an error if it has missing required
+    columns, null scores, or schema mismatch.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Error_definition:_missing_required_columns,_null_scores,_or
+  kind: entity_fact
+  raw_text: A row is an error if it has missing required columns, null scores, or
+    schema mismatch.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:09:16Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Validation requires minimum 10 samples
+  claim_id: c_3b4351c6
+  context: "**Constraint**: Requires n \u2265 10 samples. If n < 10, EXIT with code\
+    \ 1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Requires n \u2265 10 samples."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:09:16Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Warning logged for sample size between 10 and 30
+  claim_id: c_886fd472
+  context: "If n < 10, EXIT with code 1. If 10 \u2264 n < 30, log a WARNING but allow\
+    \ proceed."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If 10 \u2264 n < 30, log a WARNING but allow proceed."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:09:57Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pearson correlation between VLM proxy and human scores must be at least
+    0.5
+  claim_id: c_d95a3011
+  context: "**CRITICAL**: Must validate that Pearson correlation between VLM proxy\
+    \ and human scores is \u2265 0.5 on the subset; if not, EXIT with code 1."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_between_VLM_proxy_and_human_scores_must
+  kind: magnitude
+  raw_text: "Must validate that Pearson correlation between VLM proxy and human scores\
+    \ is \u2265 0.5 on the subset."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:10:16Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Optical flow calculated using cv2.calcOpticalFlowFarneback and HOG using
+    cv2.HOGDescriptor
+  claim_id: c_92d4122c
+  context: '**Implementation Details**: Use `cv2.calcOpticalFlowFarneback` for optical
+    flow and `cv2.HOGDescriptor` for HOG density.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Optical_flow_calculated_using_cv2.calcOpticalFlowFarneback_a
+  kind: entity_fact
+  raw_text: Use `cv2.calcOpticalFlowFarneback` for optical flow and `cv2.HOGDescriptor`
+    for HOG density.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:10:30Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Audio features extracted using librosa with n_bins=128 for spectral centroid
+  claim_id: c_27c2f755
+  context: '**Implementation Details**: Use `librosa.feature.spectral_centroid` with
+    `n_bins=128` and `librosa.feature.zero_crossing_rate`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `librosa.feature.spectral_centroid` with `n_bins=128` and `librosa.feature.zero_crossing_rate`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:10:46Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: 95% confidence intervals calculated using 1000 bootstrap resamples with
+    stratified sampling
+  claim_id: c_cf8f26a9
+  context: '**Implementation Details**: Use `bootstrap_resamples=1000` with stratified
+    sampling to calculate 95% confidence intervals for both Pearson and Spearman correlations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `bootstrap_resamples=1000` with stratified sampling to calculate 95%
+    confidence intervals for both Pearson and Spearman correlations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:11:18Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline must run on multi-core CPU within 7GB RAM and process 10k clips
+    in under 6 hours
+  claim_id: c_93bf778b
+  context: '**Goal**: Verify the pipeline runs on a multi-core CPU within 7GB RAM
+    and processes 10k clips in < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the pipeline runs on a multi-core CPU within 7GB RAM and processes
+    10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:11:49Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Batch processing uses batch size of 100
+  claim_id: c_8b906aaf
+  context: '**Implementation Details**: Use `batch_size=100`, aggregate mean/median/max
+    timing stats.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `batch_size=100`, aggregate mean/median/max timing stats.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:11:51Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Linear scaling assumption validated with R-squared greater than 0.95
+  claim_id: c_e0f653c0
+  context: '**Implementation Details**: Validate linear scaling assumption (R^2 >
+    0.95).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear_scaling_assumption_validated_with_R-squared_greater_t
+  kind: magnitude
+  raw_text: Validate linear scaling assumption (R^2 > 0.95).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:12:03Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Feasibility gate fails if peak memory exceeds 7GB or projected time exceeds
+    6 hours
+  claim_id: c_ae3cbdf9
+  context: '**Constraint**: If peak_memory_mb > 7168 (7GB) OR projected_total_hours
+    (calculated internally from mean time in T023b) > 6.0, exit with code 1 and flag
+    ''non-viable''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If peak_memory_mb > 7168 (7GB) OR projected_total_hours (calculated internally
+    from mean time in T023b) > 6.0, exit with code 1 and flag 'non-viable'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:12:03Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Project total time for 10000 clips
+  claim_id: c_15fb5669
+  context: Implement logic to calculate per-clip inference time and project total
+    time for N=10,000 clips in `src/models/evaluate.py` based on T022 results.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Project total time for N=10,000 clips.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:12:09Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Flip rate calculated as ratio of status changes to number of intervals
+    between thresholds
+  claim_id: c_7c126949
+  context: '**Formula**: `The flip rate is calculated as the ratio of the count of
+    status changes across thresholds to the number of intervals between those thresholds.
+    `'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flip_rate_calculated_as_ratio_of_status_changes_to_number_of
+  kind: entity_fact
+  raw_text: The flip rate is calculated as the ratio of the count of status changes
+    across thresholds to the number of intervals between those thresholds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:12:17Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Threshold sweep uses values 0.80, 0.85, and 0.90
+  claim_id: c_d6bb26c1
+  context: '**Thresholds**: `{0.80, 0.85, 0.90}`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Thresholds: `{0.80, 0.85, 0.90}`.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:12:24Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: System outputs ranked list of dimensions with correlation coefficients
+    and 95% CIs
+  claim_id: c_9c3cc679
+  context: 'Independent Test: The system extracts features, trains models, and outputs
+    a ranked list of dimensions with correlation coefficients and confidence intervals.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system extracts features, trains models, and outputs a ranked list
+    of dimensions with correlation coefficients and confidence intervals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:16:57Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Method involves executing pipeline on representative subset of clips
+    (Smith et al.)
+  claim_id: c_2e50b8cd
+  context: 'The research question is to evaluate the end-to-end functionality of the
+    correlation pipeline. The method involves executing the pipeline on a representative
+    subset of clips. (Reference: Smith et al.,) in tests/integration/test_us1_pipeline.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method_involves_executing_pipeline_on_representative_subset
+  kind: entity_fact
+  raw_text: 'The method involves executing the pipeline on a representative subset
+    of clips. (Reference: Smith et al.,)'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:17:21Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 2
+  canonical: Pipeline halts if error rate exceeds 0.05
+  claim_id: c_b38c0831
+  context: 'Constraint: If error_count/total_count > 0.05 on the sample, EXIT with
+    code 1 (HALT).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If error_count/total_count > 0.05 on the sample, EXIT with code 1 (HALT).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:17:21Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 2
+  canonical: Validation gate requires minimum 10 samples
+  claim_id: c_ea99e377
+  context: "Constraint: Requires n \u2265 10 samples. If n < 10, EXIT with code 1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation gate requires a minimum of 10 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:17:21Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Warning logged if sample size between 10 and 30
+  claim_id: c_ccc148d1
+  context: "If 10 \u2264 n < 30, log a WARNING but allow proceed."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If 10 \u2264 n < 30, log a WARNING but allow proceed."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:17:22Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pearson correlation between VLM proxy and human scores must be at least
+    0.5
+  claim_id: c_53593372
+  context: "Must validate that Pearson correlation between VLM proxy and human scores\
+    \ is \u2265 0.5 on the subset; if not, EXIT with code 1."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_between_VLM_proxy_and_human_scores_must
+  kind: magnitude
+  raw_text: "Must validate that Pearson correlation between VLM proxy and human scores\
+    \ is \u2265 0.5 on the subset; if not, EXIT with code 1."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:17:38Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: 95% CIs calculated using 1000 bootstrap resamples with stratified sampling
+  claim_id: c_9281e381
+  context: 'Implementation Details: Use bootstrap_resamples=1000 with stratified sampling
+    to calculate 95% confidence intervals for both Pearson and Spearman correlations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use bootstrap_resamples=1000 with stratified sampling to calculate 95%
+    confidence intervals for both Pearson and Spearman correlations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:17:38Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Flip rate is ratio of status changes to number of intervals
+  claim_id: c_837a2d13
+  context: 'Formula: The flip rate is calculated as the ratio of the count of status
+    changes across thresholds to the number of intervals between those thresholds.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flip_rate_is_ratio_of_status_changes_to_number_of_intervals
+  kind: entity_fact
+  raw_text: The flip rate is calculated as the ratio of the count of status changes
+    across thresholds to the number of intervals between those thresholds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:17:40Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Timing constraints tested via high-throughput batch scenarios (Author,
+    Year)
+  claim_id: c_9cf53f48
+  context: 'The research question remains: Do the system''s timing constraints hold
+    under significant load? The method involves executing integration tests with batch
+    sizes representative of high-throughput scenarios, as described in [Author, Year]
+    (DOI: xx.xxxx/xxxxx). in tests/integration/test_us2_timing.py'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Timing_constraints_tested_via_high-throughput_batch_scenario
+  kind: entity_fact
+  raw_text: 'The research question remains: Do the system''s timing constraints hold
+    under significant load? The method involves executing integration tests with batch
+    sizes representative of high-throughput scenarios, as described in [Author, Year]
+    (DOI: xx.xxxx/xxxxx).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:18:05Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Linear scaling assumption validated with R-squared greater than 0.95
+  claim_id: c_52eab726
+  context: 'Implementation Details: Validate linear scaling assumption (R^2 > 0.95).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear_scaling_assumption_validated_with_R-squared_greater_t
+  kind: magnitude
+  raw_text: Validate linear scaling assumption (R^2 > 0.95).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:18:07Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if peak memory exceeds 7GB or projected time exceeds 6
+    hours
+  claim_id: c_ee8f1831
+  context: 'Constraint: If peak_memory_mb > 7168 (7GB) OR projected_total_hours (calculated
+    internally from mean time in T023b) > 6.0, exit with code 1 and flag ''non-viable''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If peak_memory_mb > 7168 (7GB) OR projected_total_hours (calculated internally
+    from mean time in T023b) > 6.0, exit with code 1 and flag 'non-viable'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:18:07Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: 'Projected total hours formula: (mean time per clip * sample size) /
+    seconds per hour'
+  claim_id: c_2ed7cc21
+  context: 'Formula: projected_total_hours = (mean_time_per_clip_sec * [sample_size])
+    / seconds_per_hour, rounded to 2 decimal places.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: projected_total_hours = (mean_time_per_clip_sec * [sample_size]) / seconds_per_hour,
+    rounded to 2 decimal places.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:18:27Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Threshold sweep uses values 0.80, 0.85, and 0.90
+  claim_id: c_147dbc86
+  context: 'Thresholds: {0.80, 0.85, 0.90}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Thresholds: {0.80, 0.85, 0.90}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:18:27Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: System reports stability and flip rates across varied thresholds
+  claim_id: c_bcc4cf07
+  context: 'Independent Test: The system re-runs classification logic with varied
+    thresholds and reports stability/flip rates.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_reports_stability_and_flip_rates_across_varied_thresh
+  kind: entity_fact
+  raw_text: The system re-runs classification logic with varied thresholds and reports
+    stability/flip rates.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:18:50Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline targets 10k clips processed in under 6 hours within 7GB RAM
+  claim_id: c_c8bbced3
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:19:06Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: pipeline processes 10000 clips in under 6 hours
+  claim_id: c_db5ece1d
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system processes 10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:22:20Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 2
+  canonical: pipeline runs on multi-core CPU within 7GB RAM
+  claim_id: c_963e5cef
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_runs_on_multi-core_CPU_within_7GB_RAM
+  kind: entity_fact
+  raw_text: The system runs on a multi-core CPU within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:22:39Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: validation gate requires minimum 10 samples
+  claim_id: c_739980a2
+  context: 'Constraint: The validation gate requires a minimum of 10 samples. If n
+    < 10, EXIT with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation gate requires a minimum of 10 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:22:39Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: validation gate warns if 10 <= n < 30
+  claim_id: c_dcb70cfe
+  context: "If 10 \u2264 n < 30, log a WARNING but allow proceed."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation gate logs a WARNING if sample size is between 10 and 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:22:53Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: pearson correlation between vlm proxy and human scores >= 0.5
+  claim_id: c_7bcf6669
+  context: "CRITICAL: Must validate that Pearson correlation between VLM proxy and\
+    \ human scores is \u2265 0.5 on the subset; if not, EXIT with code 1."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Pearson correlation between VLM proxy and human scores must be \u2265\
+    \ 0.5 on the subset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:22:53Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: dimensions flagged as vlm-required if lower 95% ci < 0.70
+  claim_id: c_207a9c84
+  context: "Implement logic to flag dimensions as 'feature-sufficient' (r \u2265 0.85)\
+    \ or 'VLM-required' (specifically checking lower 95% CI < 0.70)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dimensions are flagged as 'VLM-required' if the lower 95% confidence interval
+    is < 0.70.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:22:53Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: error rate threshold for halting pipeline is 0.05
+  claim_id: c_237d1629
+  context: 'Constraint: If error_count/total_count > 0.05 on the sample, EXIT with
+    code 1 (HALT).'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The error rate threshold for halting the pipeline is 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-26T20:22:54Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: westfall-young max-t procedure uses 10000 permutations
+  claim_id: c_cc9f5dfe
+  context: 'Parameter: `n_permutations=10000`. **Output**: `data/permutation_results.csv`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of permutations for the Westfall-Young max-T procedure is 10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:23:08Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: batch size for processing clips is 100
+  claim_id: c_b8bef25c
+  context: 'Implementation Details: Use `batch_size=100`, aggregate mean/median/max
+    timing stats.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch size for processing clips is 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:23:26Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: linear scaling validation requires r-squared > 0.95
+  claim_id: c_3ffef331
+  context: 'Implementation Details: Validate linear scaling assumption (R^2 > 0.95).
+    **Constraint**: Verify linearity (R^2 > 0.95).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/linear_scaling_validation_requires_r-squared_%3E_0.95
+  kind: magnitude
+  raw_text: "The linear scaling validation requires an R\xB2 value greater than 0.95."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:23:49Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: peak memory limit for feasibility gate is 7168 mb
+  claim_id: c_587fb0e1
+  context: 'Constraint: If peak_memory_mb > 7168 (7GB) OR projected_total_hours (calculated
+    internally from mean time in T023b) > 6.0, exit with code 1 and flag ''non-viable''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The peak memory limit for the feasibility gate is 7168 MB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:24:03Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: projected total time limit for feasibility gate is 6.0 hours
+  claim_id: c_3dccac5b
+  context: 'Constraint: If peak_memory_mb > 7168 (7GB) OR projected_total_hours (calculated
+    internally from mean time in T023b) > 6.0, exit with code 1 and flag ''non-viable''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The projected total time limit for the feasibility gate is 6.0 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:24:21Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: threshold sweep tests thresholds at 0.80, 0.85, and 0.90
+  claim_id: c_9b6a445b
+  context: 'Schema: `[dimension, threshold, status]`. **Thresholds**: `{0.80, 0.85,
+    0.90}`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold sweep logic tests thresholds at 0.80, 0.85, and 0.90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:24:22Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: spectral centroid extraction uses 128 bins
+  claim_id: c_e870e496
+  context: 'Implementation Details: Use `librosa.feature.spectral_centroid` with `n_bins=128`
+    and `librosa.feature.zero_crossing_rate`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The spectral centroid extraction uses 128 bins.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-26T20:24:38Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 0
+  canonical: Global error rate halt threshold is 0.05
+  claim_id: c_67bd837d
+  context: 'Constraint: If error_count/total_count > 0.05 on the sample, EXIT with
+    code 1 (HALT).'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The error rate threshold for halting the pipeline is > 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-29T02:27:45Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 3
+  canonical: System outputs ranked list of dimensions with correlation coefficients
+    and confidence intervals
+  claim_id: c_8b46edef
+  context: 'Independent Test: The system extracts features, trains models, and outputs
+    a ranked list of dimensions with correlation coefficients and confidence intervals.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_outputs_ranked_list_of_dimensions_with_correlation_co
+  kind: entity_fact
+  raw_text: The system extracts features, trains models, and outputs a ranked list
+    of dimensions with correlation coefficients and confidence intervals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T02:28:26Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Validation gate requires minimum of 10 samples
+  claim_id: c_474483a9
+  context: 'Constraint: The validation gate requires a minimum of 10 samples. If n
+    < 10, EXIT with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation gate requires a minimum of 10 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T02:28:53Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Log warning if sample size between 10 and 30
+  claim_id: c_8c5dd637
+  context: "Constraint: If n < 10, EXIT with code 1. If 10 \u2264 n < 30, log a WARNING\
+    \ but allow proceed."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If 10 \u2264 n < 30, log a WARNING but allow proceed."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T02:29:25Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: VLM proxy correlation threshold is 0.5
+  claim_id: c_47ad6167
+  context: "Constraint: Must validate that Pearson correlation between VLM proxy and\
+    \ human scores is \u2265 CONFIG.VLM_PROXY_THRESHOLD (default 0.5 from src/config.py)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The validation gate requires Pearson correlation between VLM proxy and\
+    \ human scores to be \u2265 0.5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T02:29:25Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Bootstrapping uses 1000 resamples
+  claim_id: c_c1d1afed
+  context: 'Implementation Details: Use scipy.stats.bootstrap with method=''basic'',
+    n_resamples=1000, and stratified sampling'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses n_resamples=1000 for bootstrapping.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T02:30:09Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Permutation correction uses 10000 permutations
+  claim_id: c_2cd8dcc3
+  context: 'Parameter: n_permutations=10000. Output: data/permutation_results.csv.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses n_permutations=10000 for permutation-based multiple-comparison
+    correction.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T02:30:39Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: VLM-required threshold is lower 95% CI < 0.70
+  claim_id: c_6342b09b
+  context: "Goal: Determine which technical sub-dimensions are 'feature-sufficient'\
+    \ (r \u2265 0.85) vs 'VLM-required' (lower 95% CI < 0.70)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Dimensions are flagged as 'VLM-required' if the lower 95% CI is < 0.70.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T02:30:39Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline must process 10000 clips in under 6 hours
+  claim_id: c_98dfa801
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must process 10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T02:31:11Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Pipeline memory limit is 7GB
+  claim_id: c_e77542a2
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_memory_limit_is_7GB
+  kind: entity_fact
+  raw_text: The pipeline must run within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T02:31:57Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Linear scaling validation requires R-squared > 0.95
+  claim_id: c_bc3b735f
+  context: 'Implementation Details: Validate linear scaling assumption (R^2 > 0.95).
+    Constraint: Verify linearity (R^2 > 0.95).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The linear scaling validation requires R^2 > 0.95.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T02:33:22Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Best model RMSE must be 10% lower than mean predictor
+  claim_id: c_1d51840a
+  context: 'Validation Logic: Assert that best_model_rmse <= mean_predictor_rmse *
+    0.9 (reduction). Constraint: If validation fails (reduction < 10%), EXIT with
+    code 1.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Best_model_RMSE_must_be_10%25_lower_than_mean_predictor
+  kind: magnitude
+  raw_text: The best model must have an RMSE at least 10% lower than the mean predictor.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T02:34:21Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Threshold sweep tests 0.80, 0.85, and 0.90
+  claim_id: c_c198bacc
+  context: 'Thresholds: {0.80, 0.85, 0.90}. Status Logic: feature-sufficient if r
+    >= threshold else VLM-required.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold sweep logic tests thresholds {0.80, 0.85, 0.90}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T02:34:49Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Spectral centroid uses 128 bins
+  claim_id: c_42b86106
+  context: 'Implementation Details: Use librosa.feature.spectral_centroid with n_bins=128
+    and librosa.feature.zero_crossing_rate.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The audio feature extraction uses n_bins=128 for spectral centroid.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T02:35:13Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 2
+  canonical: Batch processing uses batch size of 100
+  claim_id: c_36c4fbe1
+  context: 'Implementation Details: Use batch_size=100, aggregate mean/median/max
+    timing stats.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use batch_size=100, aggregate mean/median/max timing stats.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T02:35:48Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Projected time formula uses 10000 clips and 3600 seconds per hour
+  claim_id: c_f76302c1
+  context: 'Formula: projected_total_hours = (mean_time_per_clip_sec * [sample_size])
+    / seconds_per_hour, rounded to 2 decimal places. Constraint: Input time must be
+    in seconds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The projected total hours for 10,000 clips is calculated using the formula:
+    (mean_time_per_clip_sec * 10000) / 3600.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-29T02:36:22Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Process 10000 clips in less than 6 hours
+  claim_id: c_75595384
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    candidates:
+    - - Donate Create account Log in Process
+      - 10000.0
+    - - Process 10000 clips in less than
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Process_10000_clips_in_less_than_6_hours
+  kind: magnitude
+  raw_text: The system processes 10k clips in < 6 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-30T17:26:30Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Run pipeline on multi-core CPU within 7GB RAM
+  claim_id: c_119e833e
+  context: 'Goal: Verify the pipeline runs on a multi-core CPU within 7GB RAM and
+    processes 10k clips in < 6 hours.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Run_pipeline_on_multi-core_CPU_within_7GB_RAM
+  kind: entity_fact
+  raw_text: The pipeline runs on a multi-core CPU within 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:27:29Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Flag dimension as feature-sufficient if lower 95% CI >= 0.85
+  claim_id: c_952c9b2c
+  context: "Goal: Determine which technical sub-dimensions are 'feature-sufficient'\
+    \ (r \u2265 0.85) vs 'VLM-required' (lower 95% CI < 0.70) using low-level features\
+    \ against human expert scores."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_dimension_as_feature-sufficient_if_lower_95%25_CI_%3E=_0.85
+  kind: magnitude
+  raw_text: A dimension is flagged as 'feature-sufficient' if the lower 95% CI is
+    greater than or equal to 0.85.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:28:45Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Flag dimension as VLM-required if lower 95% CI < 0.70
+  claim_id: c_a05a08d7
+  context: "Goal: Determine which technical sub-dimensions are 'feature-sufficient'\
+    \ (r \u2265 0.85) vs 'VLM-required' (lower 95% CI < 0.70) using low-level features\
+    \ against human expert scores."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_dimension_as_VLM-required_if_lower_95%25_CI_%3C_0.70
+  kind: magnitude
+  raw_text: A dimension is flagged as 'VLM-required' if the lower 95% CI is less than
+    0.70.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:29:44Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Validation gate requires minimum 10 samples
+  claim_id: c_6a307195
+  context: 'Constraint: The validation gate requires a minimum of 10 samples. If n
+    < 10, EXIT with code 1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The validation gate requires a minimum of 10 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:30:29Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Log warning for sample size 10 to 30
+  claim_id: c_ca6420c6
+  context: "If 10 \u2264 n < 30, log a WARNING but allow proceed."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the sample size is between 10 and 30, a WARNING is logged but the process
+    is allowed to proceed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:31:21Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Bootstrap 95% CIs with 1000 resamples
+  claim_id: c_7b7cd190
+  context: 'Implementation Details: Use `scipy.stats.bootstrap` with `method="basic"`,
+    `n_resamples=1000`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The bootstrapping for 95% CIs uses 1000 resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:31:21Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Permutation engine uses 10000 permutations
+  claim_id: c_fe1b450c
+  context: 'Parameter: `n_permutations=10000`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation engine uses 10,000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:32:08Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Audio spectral centroid uses 128 bins
+  claim_id: c_fde4209d
+  context: 'Implementation Details: Use `librosa.feature.spectral_centroid` with `n_bins=128`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The audio feature extraction uses 128 bins for the spectral centroid.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:32:32Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Batch processing uses batch size 100
+  claim_id: c_82350976
+  context: 'Implementation Details: Use `batch_size=100`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch processing loop uses a batch size of 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:33:23Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 2
+  canonical: Linear scaling validation requires R^2 > 0.95
+  claim_id: c_ae873d6e
+  context: 'Implementation Details: Validate linear scaling assumption (R^2 > 0.95).
+    Constraint: Verify linearity (R^2 > 0.95).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear_scaling_validation_requires_R%5E2_%3E_0.95
+  kind: magnitude
+  raw_text: Linear scaling validation requires an R^2 value greater than 0.95.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:34:11Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Flag dimension as threshold-sensitive if flip rate > 0.1
+  claim_id: c_b77fac79
+  context: 'Action: Flag dimensions as ''threshold-sensitive'' if `flip_rate > 0.1`.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_dimension_as_threshold-sensitive_if_flip_rate_%3E_0.1
+  kind: magnitude
+  raw_text: The system flags dimensions as 'threshold-sensitive' if the flip rate
+    is greater than 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:35:05Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Threshold sweep tests 0.80, 0.85, and 0.90
+  claim_id: c_3d22b918
+  context: 'Thresholds: `{0.80, 0.85, 0.90}`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold sweep logic tests thresholds of 0.80, 0.85, and 0.90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:35:38Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Global error rate threshold is 0.05
+  claim_id: c_f39c7856
+  context: 'Constraint: If error_count/total_count > 0.05 on the sample, EXIT with
+    code 1 (HALT).'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The global error rate threshold for halting the pipeline is 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-30T17:35:38Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: VLM proxy threshold default is 0.5
+  claim_id: c_7197e466
+  context: 'Action: Define `VLM_PROXY_THRESHOLD` (default 0.5, configurable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VLM proxy threshold default is 0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:36:04Z'
+- artifact_path: projects/PROJ-899-llmxive-follow-up-extending-evalverse-pi/specs/001-llmxive-follow-up-extending-evalverse-pi/tasks.md
+  attempts: 1
+  canonical: Baseline improvement threshold default is 0.10
+  claim_id: c_50523a8e
+  context: 'Action: Define `BASELINE_IMPROVEMENT_THRESHOLD` (default 0.10, configurable).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline improvement threshold default is 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T17:36:30Z'

@@ -1,0 +1,3 @@
+"""
+Figures output directory placeholder.
+"""

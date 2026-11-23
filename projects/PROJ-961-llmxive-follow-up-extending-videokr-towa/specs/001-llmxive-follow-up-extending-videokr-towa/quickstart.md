@@ -1,89 +1,93 @@
-# Quickstart: llmXive follow-up: extending "VideoKR: Towards Knowledge-Intensive Video Understandin"
+# Quickstart: Video Reasoning Threshold Analysis
 
 ## Prerequisites
 
-*   Python 3.10+
-*   Git
-*   Access to the VideoKR-SFT dataset (see `research.md` for source details).
-*   Adequate RAM is available (for CI or local run).
+- Python 3.10+  
+- Git  
+- No external data download required beyond the official VideoKR‑SFT release (downloaded automatically).
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-961-llmxive-follow-up-extending-videokr-towa
-    ```
+```bash
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-961-llmxive-follow-up-extending-videokr-towa
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
+# Install pinned dependencies
+pip install -r requirements.txt
+```
 
-## Data Setup
-
-1.  **Download the dataset**:
-    Place the `VideoKR-SFT` dataset files and the `knowledge_graph` file in `data/raw/`.
-    *Note: If the dataset is not available via the verified URL, you must manually download it from the official VideoKR repository and place it here.*
-
-2.  **Verify checksums** (if provided):
-    ```bash
-    python code/ingest/checksum.py
-    ```
-
-## Running the Pipeline
-
-The entire analysis can be run via the main orchestrator script:
+## Running the Full Pipeline
 
 ```bash
 python code/main.py
 ```
 
-This script performs:
-1.  **Ingestion**: Loads raw data, performs entity linking, and annotates with `chain_length`.
-2.  **Sampling**: Executes the two-stage pilot/oversampling strategy.
-3.  **Stratification**: Calculates accuracy per hop count.
-4.  **Threshold Detection**: Runs the Permutation Test for change-point detection.
-5.  **Sensitivity Analysis**: Sweeps thresholds and checks for disconnection bias.
-6.  **Reporting**: Generates `data/processed/threshold_results.json` and plots in `data/processed/plots/`.
+The orchestrator executes the following ordered steps:
 
-## Manual Execution (Step-by-Step)
+1. **Data Download** – pulls the official **VideoKR‑SFT** dataset and its **ground‑truth knowledge graph** via `code/ingest/download_videokr.py` and `code/ingest/download_kg.py`. If either download fails or the files are missing, the pipeline aborts with a clear error message (no TVQA or ConceptNet fallback).  
+2. **Annotation** – deterministic entity linking, hop counting, and covariate extraction (`annotate_graph.py`).  
+3. **Linking Validation** – aborts if linking accuracy < 95 % (`annotation_coverage.json`).  
+4. **Power Analysis** – computes minimum per‑bin sample size (`power_analysis.json`).  
+5. **Sampling & Binning** – ensures each hop‑bin meets *n* ≥ 100 and creates `chain_bins.csv`.  
+6. **Stratified Accuracy** – generates `accuracy_binned.png` and CSV summary.  
+7. **Threshold Detection** – permutation change‑point test (10,000 permutations) + LRT (`threshold_results.json`).  
+8. **Sensitivity Analysis** – three explicit binning schemes with covariate adjustment (`sensitivity_analysis.json`).  
+9. **Predictive Model LRT** – baseline & extended logistic regressions, covariate‑adjusted LRT (`confound_adjusted_lrt.json`), and injection of `predicted_correctness` (`model_lrt_results.json`).  
+10. **Runtime & Memory Logging** – writes `runtime_log.json` and `memory_log.json`.  
 
-If you wish to run steps individually:
+All artifacts appear under `data/processed/`.
 
-1.  **Annotate Graph**:
-    ```bash
-    python code/ingest/annotate_graph.py
-    ```
-    *Output*: `data/processed/annotated_questions.csv`
+## Step‑by‑Step Execution (optional)
 
-2.  **Run Analysis**:
-    ```bash
-    python code/analysis/detect_threshold.py
-    python code/analysis/sensitivity.py
-    ```
-    *Output*: `data/processed/threshold_results.json`, plots.
+```bash
+# 1. Download VideoKR‑SFT and its KG
+python code/ingest/download_videokr.py
+python code/ingest/download_kg.py
+
+# 2. Annotation
+python code/ingest/annotate_graph.py
+
+# 3. Power analysis
+python code/analysis/power_analysis.py
+
+# 4. Stratified accuracy
+python code/analysis/stratify_accuracy.py
+
+# 5. Threshold detection
+python code/analysis/detect_threshold.py
+
+# 6. Sensitivity analysis
+python code/analysis/sensitivity.py
+
+# 7. Predictive model LRT
+python code/analysis/model_lrt.py
+```
 
 ## Verification
 
-To verify the annotation logic:
+Run the test suites to ensure reproducibility:
+
 ```bash
-pytest tests/unit/test_graph_utils.py
+pytest tests/unit/
+pytest tests/integration/
 ```
 
-To verify the full pipeline (requires dataset):
-```bash
-pytest tests/integration/test_pipeline.py
-```
+All tests must pass; failures indicate a breach of Constitution I (reproducibility) or other constraints.
 
 ## Troubleshooting
 
-*   **Data Missing**: If the script fails with `E_DATA_MISSING`, check `data/raw/` for the required files. The pipeline does not auto-download from unverified sources.
-*   **OOM Error**: If you encounter Out Of Memory errors, the two-stage sampling should handle it. If not, reduce `SAMPLE_SIZE` in `code/utils/config.py`.
-*   **Entity Linking Failures**: If a high rate of `mapping_failure` is reported, check the graph schema and question text alignment.
+| Symptom | Likely Cause | Remedy |
+|---------|--------------|--------|
+| `FileNotFoundError` for VideoKR‑SFT files | Dataset not downloaded or corrupted | Re‑run `download_videokr.py`; check `dataset_verification.json`. |
+| `AssertionError` in `test_entity_linker` | Linking accuracy below 95 % | Review `entity_linker.py` logs; improve exact‑match coverage or adjust fuzzy threshold. |
+| `RuntimeError: MemoryError` | Dataset size exceeds CI limits | Enable streaming mode in `download_videokr.py` or process a smaller random seed sample. |
+| Permutation test exceeds CI time | `NUM_PERMUTATIONS` set too high | Verify `config.py` sets `NUM_PERMUTATIONS = 10000`; reduce only if CI runtime limit is breached (adjust with caution). |
+| `runtime_log.json` shows `limit_exceeded: true` | Unexpected bottleneck | Inspect `runtime_log.json` to locate stage; consider reducing sample size or permutations. |
+| `annotation_coverage.json` reports linking accuracy < 95 % | KG mismatch or poor entity coverage | Regenerate KG subset limited to entities present in VideoKR‑SFT; re‑run annotation. |
+| `threshold_results.json` missing `disconnection_rates` | Step omitted | Ensure `detect_threshold.py` computes and writes them. |
+| `confound_adjusted_lrt.json` missing | Output not generated | Verify `model_lrt.py` writes the file after covariate‑adjusted analysis. |

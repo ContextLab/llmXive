@@ -1,0 +1,1 @@
+| **6. Stratum Summaries** (`code.analysis.summarise_strata`) | Aggregate per‑stratum `count`, compute **stratum_TV** defined as the absolute deviation `|f_i‑1/(p‑1)|` (not a TV contribution), and `contribution = count × stratum_TV` (a mass‑weighted deviation proxy). | FR‑005, SC‑003 |

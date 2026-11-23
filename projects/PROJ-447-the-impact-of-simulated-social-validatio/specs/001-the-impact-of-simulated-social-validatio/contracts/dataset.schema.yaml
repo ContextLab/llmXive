@@ -1,0 +1,71 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Synthetic Dataset Schema"
+description: "Schema for the validated dataset containing engagement metrics and psychometric scores."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Unique identifier for the participant."
+  age:
+    type: "integer"
+    minimum: 13
+    maximum: 19
+    description: "Age of the participant in years."
+  gender:
+    type: "string"
+    enum: ["Male", "Female", "Non-binary", "Prefer not to say"]
+    description: "Gender identity of the participant."
+  offline_relationship_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of close offline relationships."
+  intrinsic_trait_score:
+    type: "number"
+    description: "Standardized intrinsic trait score (e.g., neuroticism)."
+  likes_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of likes received on social media."
+  comment_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of comments received."
+  comment_sentiment_score:
+    type: "number"
+    minimum: -1.0
+    maximum: 1.0
+    description: "Sentiment score of comments (derived or simulated)."
+  engagement_timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of social media engagement."
+  rses_score:
+    type: "integer"
+    minimum: 0
+    maximum: 30
+    description: "Raw score on the Rosenberg Self-Esteem Scale."
+  body_image_score:
+    type: "number"
+    description: "Standardized body image score."
+  perceived_validation_score:
+    type: "number"
+    description: "Latent construct derived from engagement metrics."
+  assessment_timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of psychometric assessment (must be after engagement_timestamp)."
+required:
+  - participant_id
+  - age
+  - gender
+  - offline_relationship_count
+  - intrinsic_trait_score
+  - likes_count
+  - comment_count
+  - comment_sentiment_score
+  - engagement_timestamp
+  - rses_score
+  - body_image_score
+  - perceived_validation_score
+  - assessment_timestamp
+additionalProperties: false

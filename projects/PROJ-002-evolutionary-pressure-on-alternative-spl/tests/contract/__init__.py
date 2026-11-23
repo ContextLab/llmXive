@@ -1,3 +1,1 @@
-"""
-Contract tests for API boundaries.
-"""
+"""Contract tests for PROJ-002."""

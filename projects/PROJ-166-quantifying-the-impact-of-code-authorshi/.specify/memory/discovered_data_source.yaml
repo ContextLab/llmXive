@@ -1,0 +1,18 @@
+status: none
+intent: download official NIST NVD JSON feed as python package dataset
+required_fields:
+- repository_url
+- repository_name
+- repository_description
+- repository_primary_language
+- repository_stars
+- repository_forks
+- repository_created_at
+- repository_updated_at
+- cve_id
+- cve_description
+- cve_published_date
+- cve_last_modified_date
+cache_key: f186aad47a1e391f701323ffe26c1bb5ab4d4fb25b84e44d32f677e739441fed
+searched_at: '2026-09-03T06:15:34.907066+00:00'
+retry_count: 1

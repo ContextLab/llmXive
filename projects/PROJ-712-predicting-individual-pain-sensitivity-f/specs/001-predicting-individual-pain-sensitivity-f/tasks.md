@@ -1,252 +1,157 @@
-# Tasks: Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates
+# Tasks: Predicting Individual Pain Sensitivity from Resting‑State EEG Microstates  
 
-**Input**: Design documents from `/specs/001-pain-sensitivity-microstates/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001a [P] Create directory `projects/PROJ-712-predicting-individual-pain-sensitivity-f/data/raw/` and `data/processed/`
-- [ ] T001b [P] Create directory `projects/PROJ-712-predicting-individual-pain-sensitivity-f/artifacts/` and `state/`
-- [ ] T001c [P] Create directory `projects/PROJ-712-predicting-individual-pain-sensitivity-f/code/` and `tests/`
-- [ ] T002 Initialize Python 3.11 project [UNRESOLVED-CLAIM: c_d59ac8aa — status=not_enough_info] with `requirements.txt` (pinning `mne`, `scikit-learn`, `numpy`, `pandas`, `scipy`, `statsmodels`, `joblib`, `pyyaml`)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `pyproject.toml`
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contracts, and the existing code base.  
+**Goal**: Deliver a reproducible end‑to‑end pipeline that (1) ingests the OpenNeuro **ds003542** dataset, (2) extracts the 30 microstate‑derived features per participant, (3) trains an Elastic‑Net regression model with nested 5‑fold cross‑validation, (4) performs the required statistical validation (permutation test, bootstrap CI, FDR, VIF, sensitivity sweeps), and (5) produces the final diagnostics report and documentation. All functional requirements **FR‑001 – FR‑007** and success criteria **SC‑001 – SC‑005** must be satisfied and verifiable by the CI tests.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0 – Project scaffolding (must be complete before any scientific work)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T001 [P0] Create the required project‑owned directory hierarchy via `scripts/create_dirs.sh`; then **run** the integration test `tests/integration/test_structure.py` and capture its JUnit log as `artifacts/test_structure.xml`.  
+  **Paths**: `scripts/create_dirs.sh`, `data/raw/`, `data/processed/`, `artifacts/`, `code/`, `tests/`, `artifacts/test_structure.xml`.  
+  **Verification**:  
+  * Script exits with code 0 and creates the six directories.  
+  * `pytest -q tests/integration/test_structure.py --junitxml=artifacts/test_structure.xml` succeeds (exit 0) and the XML contains passing results for all assertions.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T002 [P0] Initialise a Python 3.11 project and add a pinned `requirements.txt` containing at least `mne>=1.6`, `scikit-learn>=1.4`, `numpy>=1.26`, `pandas>=2.2`, `scipy>=1.12`, `statsmodels>=0.14`, `joblib>=1.4`, `pyyaml>=6.0`, `datasets>=2.16`, `pytest>=8.0`.  
+  **Path**: `requirements.txt`.  
+  **Verification**: CI runs `pip install -r requirements.txt`; a unit test `tests/unit/test_requirements.py` checks that each package appears with a version specifier and that the install command returns exit 0.
 
-- [ ] T004 Implement `code/utils.py` with seed pinning, logging setup, and `record_artifact_hash()` for Constitution Principle V
-- [ ] T005 [P] Create `scripts/pre-run-validation.sh` to invoke `code/utils.py --validate-citations` (Constitution Principle II: Verified Accuracy)
-- [ ] T007 Create `contracts/dataset.schema.yaml` and `contracts/features.schema.yaml` based on `plan.md` entities
-- [ ] T008 Implement `code/data_loader.py` with `DataChunk` logic using `numpy.memmap` to handle limited RAM constraints. Ensure final aggregation logic guarantees a fixed, manageable number of features. The research question remains: How can we optimize feature aggregation for robust model performance? {{claim:c_e84afa19}}
-- [ ] T009 Setup `code/config.py` for environment variables and path management
+- [ ] T003 [P0] Configure linting (`ruff`) and formatting (`black`) via `pyproject.toml`.  
+  **Path**: `pyproject.toml`.  
+  **Verification**: CI runs `ruff check .` and `black --check .`; both must return exit 0. `tests/unit/test_lint.py` asserts that the commands succeeded.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T004 [P0] Implement `code/utils.py` with deterministic seed pinning (`np.random.seed(42)`, `random.seed(42)`), a lightweight logger that writes timestamped entries to `artifacts/log.txt`, and a helper `record_artifact_hash(filepath)` that returns the SHA‑256 hash of the file.  
+  **Path**: `code/utils.py`.  
+  **Verification**: `tests/unit/test_utils.py` checks that two identical files yield identical hashes, that the logger creates `artifacts/log.txt` with a timestamp, and that the seed‑pinning function returns the expected values.
 
----
+- [ ] T005 [P0] Add `scripts/pre-run-validation.sh` that executes `python -m code.utils --validate-citations`. The script must exit non‑zero if any required citation is missing.  
+  **Path**: `scripts/pre-run-validation.sh`.  
+  **Verification**: CI runs the script; a failing citation aborts the pipeline (exit ≠ 0). `tests/unit/test_citation_guard.py` asserts the correct exit code for both passing and failing cases.
 
-## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+- [ ] T006 [P0] Implement `code/data_loader.py` with a `DataChunk` class that streams OpenNeuro **ds003542** EEG files via `mne.io.read_raw_*` with `preload=False` (or `numpy.memmap`). The loader must yield chunk objects so that peak RAM stays ≤ 6 GB.  
+  **Path**: `code/data_loader.py`.  
+  **Verification**: `tests/integration/test_data_loader.py` asserts that processing the full dataset never exceeds 6 GB of resident memory (checked with `psutil.Process().memory_info().rss`) and that each chunk reports correct `participant_id` and `status`.
 
-**Goal**: Ingest OpenNeuro ds003392, preprocess EEG (re-reference, filter, ICA), and extract microstate features per participant.
-
-**Independent Test**: The pipeline can be executed end-to-end on a sample of participants; the output must be a CSV file containing a fixed set of features per participant and heat-pain threshold labels, with no NaN values.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
-
-- [ ] T010 [US1] Write unit test `test_ica_artifact_removal` in `tests/unit/test_preprocessing.py` that asserts `ica.n_components_ > 0` and `ica.fit()` completes without error on a dummy MNE Epochs object.
-- [ ] T011 [US1] Write integration test `test_full_preprocessing_pipeline` in `tests/integration/test_pipeline.py` that asserts `len(output_df.columns) == 30` and `output_df.isna().sum().sum() == 0 ` after running the pipeline on 5 dummy participants.
-
-### Implementation for User Story 1
-
-- [ ] T012 [US1] Implement `code/preprocessing.py` function to fetch OpenNeuro dataset **ds003392** (using `mne.datasets` or direct URL) and save to `data/raw/`
-- [ ] T013 [US1] Implement EEG preprocessing in `code/preprocessing.py`: re-reference to average mastoids, band-pass filter (low-frequency cutoff), and ICA for ocular/muscle removal
-- [ ] T014 [US1] Implement participant exclusion logic in `code/preprocessing.py`: exclude if < 4 minutes valid data remains, log warning
-- [ ] T015 [US1] Implement microstate segmentation in `code/preprocessing.py` to extract canonical maps (A, B, C, D)
-- [ ] T016 [US1] Implement feature extraction in `code/preprocessing.py`: calculate mean durations, occurrence rates, transition probabilities, and spectral power features with defined bands: delta (low-frequency range), theta, alpha, beta, low-gamma, and high-gamma.
-- [ ] T017 [US1] Implement `code/main.py` step to aggregate features into `data/processed/feature_matrix.csv` with EXACTLY 30 columns. Add explicit assertion: `assert len(df.columns) == 30 ` before saving to prevent silent data corruption.
-- [ ] T018 [US1] Add validation in `code/preprocessing.py` to ensure heat-pain threshold labels are present and consistent units (°C)
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T007 [P0] Create `code/config.py` exposing constants such as `RAW_DIR`, `PROCESSED_DIR`, `ARTIFACTS_DIR`, and `EXPECTED_FEATURE_COLUMNS` (the ordered list of the 30 microstate feature names).  
+  **Path**: `code/config.py`.  
+  **Verification**: `tests/unit/test_config.py` checks that `len(EXPECTED_FEATURE_COLUMNS) == 30` and that every name matches an entry in `contracts/features.schema.yaml`.
 
 ---
 
-## Phase 4: User Story 2 - Predictive Model Training and Validation (Priority: P2)
+## Phase 1 – Data ingestion, preprocessing, and feature‑matrix validation (User Story 1, P1)
 
-**Goal**: Train Elastic Net with nested 5-fold CV, perform a permutation test *within* the nested loop as per FR-004, and report Pearson r with bootstrap CI.
+- [ ] T008 [P1] Implement the full preprocessing pipeline in `code/preprocessing.py` and produce a validated feature matrix `data/processed/feature_matrix.csv`. Steps include:  
+  1. Stream raw EEG via the `DataChunk` loader.  
+  2. Re‑reference to average mastoids.  
+  3. Apply a zero‑phase FIR band‑pass filter (1–40 Hz).  
+  4. Perform FastICA and automatically discard components correlated with EOG or with high kurtosis.  
+  5. Exclude participants with **< 4 min** of clean data after ICA (log a warning via the project logger).  
+  6. Segment the cleaned data into the canonical four microstate maps (A‑D) and extract the exact 30 features (4 mean durations, 4 occurrence rates, 16 transition probabilities, 6 spectral‑power bands).  
+  7. Assemble a per‑participant row and write `data/processed/feature_matrix.csv` (columns = `participant_id`, `heat_pain_threshold`, optional covariates, plus the 30 feature columns).  
+  **Paths**: `code/preprocessing.py`, `data/processed/feature_matrix.csv`.  
+  **Verification**:  
+  * `tests/unit/test_preprocessing.py` loads a synthetic EEG file, runs the feature‑extraction routine, and asserts that the returned `pandas.DataFrame` has exactly 30 feature columns, no NaNs, and correct column names.  
+  * `tests/integration/test_full_preprocess.py` runs the pipeline on a 5‑participant real subset and checks that `feature_matrix.csv` exists, the header matches `config.EXPECTED_FEATURE_COLUMNS`, and `df.isna().sum().sum() == 0`.
 
-**Independent Test**: Running the training script produces a cross-validated Pearson r, a bootstrap confidence interval, and an empirical p-value from the nested permutation test.
+- [ ] T009 [P1] Add schema‑validation for the generated CSV.  
+  1. Create `tests/unit/test_feature_matrix_schema.py` that validates each row of `data/processed/feature_matrix.csv` against `contracts/dataset.schema.yaml` using the `jsonschema` library.  
+  2. Ensure the CI runs this test and records its JUnit log as `artifacts/test_feature_matrix_schema.xml`.  
+  **Paths**: `tests/unit/test_feature_matrix_schema.py`, `artifacts/test_feature_matrix_schema.xml`.  
+  **Verification**: The test must exit with code 0; any schema violation causes CI failure.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T019 [P] [US2] Unit test for nested CV loop structure in `tests/unit/test_modeling.py`
-- [ ] T020 [P] [US2] Integration test for nested permutation test logic in `tests/integration/test_permutation.py`
-
-### Implementation for User Story 2
-
-- [ ] T021 [US2] Implement `code/modeling.py` function for Elastic Net (α=0.5) with nested 5-fold cross-validation [UNRESOLVED-CLAIM: c_f59f34fc — status=not_enough_info]
-- [ ] T022 [US2] Implement **nested** permutation test in `code/modeling.py`: shuffle labels **independently within each outer fold iteration** ([deferred] iterations total) to generate null distribution, ensuring valid null hypothesis per FR-004. Use random seed = `global_seed + fold_index` for reproducibility.
-- [ ] T023 [US2] Implement bootstrap resampling (≥200 iterations) to calculate a confidence interval for Pearson r [UNRESOLVED-CLAIM: c_949f08e6 — status=not_enough_info]
-- [ ] T024 [US2] Implement calculation of empirical p-value comparing observed r against null distribution from nested permutations
-- [ ] T025 [US2] Implement convergence check in `code/modeling.py`: if Elastic Net fails to converge, increase `max_iter` to [deferred]; if still failing, raise explicit error
-- [ ] T026 [US2] Implement `code/main.py` step to train model, generate `artifacts/model_result.json` (r, p-value, MAE, CI), log execution time, and verify total time < 6 hours (GitHub Actions free-tier limit per SC-005).
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Rigor and Sensitivity Analysis (Priority: P3)
-
-**Goal**: Perform FDR correction on **permutation importance** scores, VIF diagnostics, and dual sensitivity analysis (median-split + regularization sweep).
-
-**Independent Test**: The report includes adjusted p-values for permutation importance, VIF flags for predictors > 33, and sensitivity plots showing effect size stability across threshold sweeps.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T027 [P] [US3] Unit test for FDR correction logic on permutation scores in `tests/unit/test_diagnostics.py`
-- [ ] T028 [P] [US3] Unit test for VIF calculation in `tests/unit/test_diagnostics.py`
-
-### Implementation for User Story 3
-
-- [ ] T029 [US3] Implement `code/diagnostics.py` function to calculate **permutation importance scores** for all 30 features (shuffling each feature individually)
-- [ ] T030 [US3] Implement FDR correction in `code/diagnostics.py`: apply Benjamini-Hochberg to the **p-values derived from permutation importance** (T029). *Note: Spec FR-005 requests coefficient p-values, but Elastic Netcoefficients lack valid p-values; permutation importance p-values are the statistically correct alternative.*
-- [ ] T031 [US3] Implement VIF calculation in `code/diagnostics.py` using `statsmodels`; {{claim:c_2decf651}} (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917) but do NOT exclude them or re-run the model
-- [ ] T032 [US3] Implement median-split sensitivity analysis in `code/diagnostics.py`: {{claim:c_1fe6ad0a}}. *Implementation detail: Split participants based on predicted values (not raw labels) to create pseudo-groups; calculate Cohen's d as the effect size.*
-- [ ] T033 [US3] Implement regularization sensitivity analysis in `code/diagnostics.py`: sweep α (from a lower bound to the upper limit of the parameter space) and report R-squared stability
-- [ ] T034 [US3] Generate `artifacts/diagnostics_report.md` containing FDR table, VIF flags, and sensitivity analysis plots/tables
-- [ ] T035 [US3] Update `code/main.py` to orchestrate diagnostics, record all artifact hashes, and verify total execution time < 6 hours.
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T016 [P1] Add schema‑validation for individual microstate feature objects.  
+  1. Create `tests/unit/test_microstate_feature_schema.py` that validates each `MicrostateFeature` JSON object against `contracts/features.schema.yaml`.  
+  2. Run this test in CI and capture its JUnit log as `artifacts/test_microstate_feature_schema.xml`.  
+  **Paths**: `tests/unit/test_microstate_feature_schema.py`, `artifacts/test_microstate_feature_schema.xml`.  
+  **Verification**: Test exits 0; violations fail CI.
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 2 – Model training, nested CV, permutation test, bootstrap CI, and empirical p‑value (User Story 2, P2)
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] T010 [P2] Implement the complete modeling workflow in `code/modeling.py` and orchestrate it from `code/main.py`. The workflow must:  
+  1. Train an Elastic Net regression (`α = 0.5`) with nested 5‑fold cross‑validation; inner CV tunes `l1_ratio`.  
+  2. Provide a function `global_permutation_test` (see T011) that shuffles `heat_pain_threshold` **once per outer‑CV iteration**, runs the same nested CV for **1 000** permutations, and returns the null‑distribution of mean Pearson r.  
+  3. Compute a bootstrap confidence interval (`bootstrap_ci`) with **200** resamples of the outer‑fold r values.  
+  4. Compute the empirical p‑value (`compute_empirical_pvalue`) as the proportion of permuted r ≥ observed r.  
+  5. Write `artifacts/model_result.json` containing `pearson_r`, `mae`, `p_value`, `ci_lower`, `ci_upper`, `n_permutations`, `n_bootstrap`.  
+  6. Write `artifacts/bootstrap_ci.json` with keys `ci_lower` and `ci_upper`.  
+  **Paths**: `code/modeling.py`, `code/main.py`, `artifacts/model_result.json`, `artifacts/bootstrap_ci.json`.  
+  **Verification**:  
+  * `tests/unit/test_modeling_cv.py` runs `train_nested_cv` on a small synthetic dataset, asserts that `α` is 0.5, that required keys are present, and that outputs are floats.  
+  * `tests/integration/test_permutation.py` runs `global_permutation_test` on a modest synthetic dataset, asserts the returned array length is 1 000, and that a `max_permutations=5` guard works for a quick sanity check.  
+  * `tests/unit/test_bootstrap.py` verifies that `bootstrap_ci` returns numeric bounds (both non‑null) and that `artifacts/bootstrap_ci.json` contains those numbers.  
+  * `tests/unit/test_pvalue.py` supplies a synthetic null distribution, calls `compute_empirical_pvalue`, and asserts `0 ≤ p_value ≤ 1` and that `model_result.json` contains the same `p_value`.
 
-- [ ] T036a [P] Update `README.md` with installation instructions and usage examples
-- [ ] T036b [P] Create `docs/api.md` with function signatures for `code/` modules
-- [ ] T036c [P] Create `docs/analysis.md` explaining the statistical methodology (nested permutation, FDR on importance, dual sensitivity)
-- [ ] T037a [P] Extract validation logic into separate module `code/validation.py`
-- [ ] T037b [P] Remove dead code and unused imports in `code/`
-- [ ] T038a [P] Profile pipeline to identify performance bottlenecks
-- [ ] T038b [P] Implement caching for feature extraction to optimize runtime
-- [ ] T039 [P] Additional unit tests in `tests/unit/`
-- [ ] T040 Run `scripts/pre-run-validation.sh` to verify citations and project state
-- [ ] T041 Final validation: Ensure `data/processed/feature_matrix.csv` has exactly 30 columns, no NaNs, and `artifacts/` contains all required reports.
+- [ ] T011 [P2] Expose the exact symbol required by the specification. In `code/modeling.py` add:  
 
----
+  ```python
+  def global_permutation_test(*args, **kwargs):
+      return run_global_permutation_test(*args, **kwargs)
+  ```  
 
-## Dependencies & Execution Order
+  **Path**: `code/modeling.py`.  
+  **Verification**: `tests/unit/test_global_permutation_alias.py` imports `global_permutation_test` and checks that its output matches `run_global_permutation_test` for a deterministic small input.
 
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 feature matrix
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model results
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T017 [P2] Implement Elastic Net convergence fallback (FR‑003 edge case).  
+  1. In the training routine, set `max_iter=1000`; if convergence fails, automatically increase to `max_iter=5000` and retry.  
+  2. If it still fails, raise a clear `RuntimeError` with message “Elastic Net failed to converge after max iterations”.  
+  3. Add unit test `tests/unit/test_elastic_net_fallback.py` that forces non‑convergence (e.g., by providing ill‑conditioned data) and verifies the fallback logic and error raising.  
+  **Paths**: `code/modeling.py` (fallback implementation), `tests/unit/test_elastic_net_fallback.py`.  
+  **Verification**: Test passes and CI records its JUnit log as `artifacts/test_elastic_net_fallback.xml`.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 3 – Statistical diagnostics & sensitivity analyses (User Story 3, P3)
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Write unit test test_ica_artifact_removal in tests/unit/test_preprocessing.py"
-Task: "Write integration test test_full_preprocessing_pipeline in tests/integration/test_pipeline.py"
+- [ ] T012 [P3] Implement a comprehensive diagnostics module in `code/diagnostics.py` that generates all required reports and artifacts:  
+  1. Permutation importance for each of the 30 predictors (10 repeats per predictor, average drop in Pearson r).  
+  2. Coefficient‑wise Wald p‑values and apply **Benjamini‑Hochberg FDR** correction.  
+  3. Variance Inflation Factors for the full predictor set using `statsmodels.stats.outliers_influence.variance_inflation_factor`.  
+  4. Median‑split sensitivity sweep for cutoffs `{median‑0.1, median‑0.05, median, median+0.05, median+0.1}` (°C) – compute Cohen’s d for the top‑5 predictive features and write `artifacts/median_sensitivity.csv`.  
+  5. Elastic‑Net `α`‑sweep (`α ∈ {0.0, 0.05, …, 1.0}` – 21 values) with inner CV, record outer‑fold R², and write `artifacts/alpha_sweep.csv`.  
+  6. Write `artifacts/diagnostics.csv` with columns  
+     `feature_name, coefficient, importance_score, p_value_raw, p_value_fdr, vif, is_significant, is_collinear`.  
+  7. Compile `artifacts/diagnostics_report.md` containing:  
+     * Table of FDR‑adjusted coefficient p‑values (highlighting any < 0.05).  
+     * Table of VIF values with a “⚠️” flag for any > 10.  
+     * The median‑split Cohen’s d table.  
+     * The α‑sweep R² curve (markdown table).  
+     * Explicit statement of the top predictive feature’s FDR‑adjusted p‑value.  
+  **Paths**: `code/diagnostics.py`, `artifacts/diagnostics.csv`, `artifacts/median_sensitivity.csv`, `artifacts/alpha_sweep.csv`, `artifacts/diagnostics_report.md`.  
+  **Verification**:  
+  * `tests/unit/test_diagnostics.py` creates a synthetic design matrix with a known collinear column, runs the diagnostics, and asserts that `diagnostics.csv` has 30 rows, at least one `p_value_fdr < 0.05` when appropriate, and that the collinear column is flagged (`vif > 10`).  
+  * `tests/unit/test_median_sensitivity.py` checks that `median_sensitivity.csv` has five rows and numeric Cohen’s d values.  
+  * `tests/unit/test_alpha_sweep.py` ensures `alpha_sweep.csv` has 21 rows and numeric R² entries.  
+  * `tests/integration/test_diagnostics_report.py` runs the full diagnostics on a reduced dataset, asserts that `diagnostics_report.md` contains the three required sections and highlights at least one significant feature.
 
-# Launch all models for User Story 1 together:
-Task: "Implement EEG preprocessing in code/preprocessing.py"
-Task: "Implement microstate segmentation in code/preprocessing.py"
-```
+- [ ] T013 [P3] Add a unit test for the empirical‑p‑value function.  
+  **Path**: `tests/unit/test_pvalue.py`.  
+  **Verification**: The test imports `compute_empirical_pvalue`, feeds a synthetic null distribution (e.g., 1 000 values drawn from a normal centered at 0), and asserts that the returned `p_value` lies in `[0,1]` and that `artifacts/model_result.json` contains the field `p_value` with the same numeric value.
 
----
+- [ ] T014 [P3] Add a unit test for the bootstrap confidence‑interval function and ensure the generated artifact contains real numbers.  
+  **Path**: `tests/unit/test_bootstrap.py`.  
+  **Verification**: The test runs `bootstrap_ci` on a small set of r values, asserts that the returned dictionary has keys `ci_lower` and `ci_upper` with non‑null floats, and checks that `artifacts/bootstrap_ci.json` stores those exact numbers (matching the function output).
 
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
+- [ ] T018 [P3] Record total pipeline execution time and enforce the 6‑hour limit.  
+  1. In `code/utils.py` add `start_timer()` and `stop_timer()` that write elapsed seconds to `artifacts/runtime_log.json`.  
+  2. Create `tests/unit/test_runtime_limit.py` that runs a lightweight end‑to‑end demo (using the `--sample 5` flag) and asserts the recorded runtime ≤ 21600 seconds.  
+  **Paths**: `code/utils.py`, `tests/unit/test_runtime_limit.py`, `artifacts/runtime_log.json`.  
+  **Verification**: CI executes the test; failure if runtime exceeds the limit.
 
 ---
 
-## Notes
+## Phase 4 – Documentation, demonstration, and artifact bookkeeping (User Story 4, P4)
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- [ ] T015 [P4] Finalise project documentation and produce a reproducible end‑to‑end demonstration:  
+  1. Write `quickstart.md` with step‑by‑step usage instructions, referencing the CLI command for a small subset (`python -m code.main --sample 5`).  
+  2. Write a concise `README.md` that lists the required Python version (≥ 3.11), installation steps (`pip install -r requirements.txt`), a minimal command‑line example, and the main output locations (`data/processed/feature_matrix.csv`, `artifacts/model_result.json`, `artifacts/diagnostics_report.md`).  
+  3. Execute an **end‑to‑end demo** on the provided 5‑participant real subset (`data/raw/sample/`) via `python -m code.main --sample 5`. The run must produce:  
+     * `data/processed/feature_matrix.csv` (30 feature columns, no NaNs).  
+     * `artifacts/model_result.json` (containing `pearson_r`, `mae`, `p_value`, CI).  
+     * `artifacts/diagnostics_report.md`.  
+  4. Record SHA‑256 hashes of all major artifacts (`feature_matrix.csv`, `model_result.json`, `diagnostics_report.md`, `bootstrap_ci.json`) in a project‑owned file `artifacts/artifact_hashes.yaml`.  
+  5. Verify the hash‑recording step with `tests/unit/test_hash_recording.py`, which reads the YAML file, confirms entries for each artifact, and checks that the stored hash matches the actual file content.  
+  **Paths**: `quickstart.md`, `README.md`, `artifacts/artifact_hashes.yaml`, `artifacts/demo_end_to_end.log`.  
+  **Verification**: CI runs the demo, asserts the three output files exist and are non‑empty, checks that `model_result.json["p_value"]` is a number between 0 and 1, runs `tests/unit/test_hash_recording.py`, and passes `markdownlint` on `quickstart.md` and `README.md`.

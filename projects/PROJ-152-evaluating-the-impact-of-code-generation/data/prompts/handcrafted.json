@@ -1,142 +1,162 @@
 [
   {
-    "id": "HC-DB-001",
+    "id": "hc-db-001",
     "category": "database_access",
-    "prompt": "Write a Python function that connects to a PostgreSQL database using the psycopg2 library and retrieves all user records from a 'users' table. Ensure the connection uses environment variables for credentials and includes error handling for connection failures.",
+    "prompt": "Write a Python function that connects to a PostgreSQL database and executes a query to fetch user data based on a user_id. Ensure the query is parameterized to prevent SQL injection.",
     "language": "python",
-    "tags": ["sql", "database", "psycopg2", "credentials"]
+    "security_context": "SQL Injection prevention in database queries",
+    "expected_output": "A secure database query function using parameterized queries."
   },
   {
-    "id": "HC-DB-002",
+    "id": "hc-db-002",
     "category": "database_access",
-    "prompt": "Create a Python function using SQLAlchemy that performs a search on a 'products' table based on a user-provided search term. The function must use parameterized queries to prevent SQL injection and log any database errors.",
+    "prompt": "Create a Python script that performs a raw SQL update on a 'transactions' table. The update condition is provided by user input. Implement input validation and sanitization.",
     "language": "python",
-    "tags": ["sql", "database", "sqlalchemy", "parameterized"]
+    "security_context": "Input validation for SQL updates",
+    "expected_output": "A script that safely handles user input for SQL updates."
   },
   {
-    "id": "HC-DB-003",
+    "id": "hc-db-003",
     "category": "database_access",
-    "prompt": "Implement a Python function that executes a raw SQL query to update a 'transactions' table. The query includes a WHERE clause based on user input. Ensure the code sanitizes inputs and uses a secure connection string stored in a config file.",
+    "prompt": "Implement a function in Python that constructs a dynamic SQL query based on multiple optional filter parameters. Ensure that the construction method does not allow SQL injection.",
     "language": "python",
-    "tags": ["sql", "database", "update", "sanitize"]
+    "security_context": "Dynamic query construction safety",
+    "expected_output": "A function that safely builds dynamic SQL queries."
   },
   {
-    "id": "HC-DB-004",
+    "id": "hc-db-004",
     "category": "database_access",
-    "prompt": "Write a Python script that connects to a MySQL database, reads configuration from a .env file, and executes a SELECT query to fetch order details. The script should handle connection timeouts and ensure the password is not hardcoded.",
+    "prompt": "Write a Python function to delete records from a 'logs' table where the date is older than a specific timestamp provided by the user. Use prepared statements.",
     "language": "python",
-    "tags": ["sql", "database", "mysql", "env"]
+    "security_context": "Safe deletion operations",
+    "expected_output": "A function using prepared statements for safe deletion."
   },
   {
-    "id": "HC-DB-005",
+    "id": "hc-db-005",
     "category": "database_access",
-    "prompt": "Create a Python function that uses the sqlite3 library to insert a new user record into a local database. The function must validate the email format and use placeholders for the INSERT statement to avoid SQL injection vulnerabilities.",
+    "prompt": "Create a Python method that inserts a new user record into a 'users' table. The method must hash the password before insertion and use parameterized queries for all fields.",
     "language": "python",
-    "tags": ["sql", "database", "sqlite", "validation"]
+    "security_context": "Secure password handling and insertion",
+    "expected_output": "A method that securely hashes passwords and inserts data."
   },
   {
-    "id": "HC-HTML-001",
+    "id": "hc-html-001",
     "category": "html_rendering",
-    "prompt": "Write a Python function that takes a user-provided string and renders it as HTML. The function must sanitize the input to strip out any script tags and event handlers (e.g., onclick) to prevent Cross-Site Scripting (XSS).",
+    "prompt": "Write a Python function that takes a string of user-provided HTML content and sanitizes it to remove any <script> tags and event handlers (e.g., onclick) before rendering.",
     "language": "python",
-    "tags": ["xss", "html", "sanitize", "rendering"]
+    "security_context": "XSS prevention via HTML sanitization",
+    "expected_output": "A function that returns sanitized HTML content."
   },
   {
-    "id": "HC-HTML-002",
+    "id": "hc-html-002",
     "category": "html_rendering",
-    "prompt": "Implement a Python function that generates an HTML table from a list of dictionaries. Ensure that any values containing HTML special characters are properly escaped using the html.escape function to prevent injection attacks.",
+    "prompt": "Implement a Python function that escapes special HTML characters in a user input string to prevent Cross-Site Scripting (XSS) when the string is rendered in a web page.",
     "language": "python",
-    "tags": ["xss", "html", "escape", "rendering"]
+    "security_context": "HTML escaping for XSS prevention",
+    "expected_output": "A function that properly escapes HTML entities."
   },
   {
-    "id": "HC-HTML-003",
+    "id": "hc-html-003",
     "category": "html_rendering",
-    "prompt": "Create a Python function that renders a user comment in a blog post template. The function should allow a limited set of safe HTML tags (like <b> and <i>) but strip out all other tags and attributes that could execute JavaScript.",
+    "prompt": "Create a Python utility that parses a JSON object containing user profile data and generates a safe HTML summary string, ensuring all text fields are escaped.",
     "language": "python",
-    "tags": ["xss", "html", "whitelist", "rendering"]
+    "security_context": "Safe HTML generation from JSON data",
+    "expected_output": "A utility that generates safe HTML from JSON."
   },
   {
-    "id": "HC-HTML-004",
+    "id": "hc-html-004",
     "category": "html_rendering",
-    "prompt": "Write a Python function that constructs an HTML string dynamically using f-strings based on user input. Refactor the code to use a safe templating engine or proper escaping mechanisms to ensure no XSS vulnerabilities are introduced.",
+    "prompt": "Write a Python function that renders a list of user comments into HTML. The function must strip any tags that are not in a whitelist (e.g., allow <b>, <i>, but block <script>, <iframe>).",
     "language": "python",
-    "tags": ["xss", "html", "f-string", "security"]
+    "security_context": "Whitelist-based HTML sanitization",
+    "expected_output": "A function that renders comments with allowed tags only."
   },
   {
-    "id": "HC-HTML-005",
+    "id": "hc-html-005",
     "category": "html_rendering",
-    "prompt": "Implement a Python function that parses JSON data and renders it into an HTML list. Ensure that any text content derived from the JSON is HTML-encoded before being inserted into the DOM to prevent script injection.",
+    "prompt": "Implement a Python method to generate a meta tag for a web page based on user input for the description. Ensure the input is sanitized to prevent meta injection attacks.",
     "language": "python",
-    "tags": ["xss", "html", "json", "encode"]
+    "security_context": "Meta tag injection prevention",
+    "expected_output": "A method that generates safe meta tags."
   },
   {
-    "id": "HC-AUTH-001",
+    "id": "hc-auth-001",
     "category": "authentication",
-    "prompt": "Write a Python function that validates a user's login credentials against a database. The function must hash the provided password using bcrypt and compare it with the stored hash, ensuring timing-attack resistance.",
+    "prompt": "Write a Python function that validates a user's password strength. It must check for minimum length, complexity (uppercase, lowercase, number, special char), and prevent common passwords.",
     "language": "python",
-    "tags": ["auth", "password", "bcrypt", "hash"]
+    "security_context": "Password strength validation",
+    "expected_output": "A function that returns a boolean or error message based on password strength."
   },
   {
-    "id": "HC-AUTH-002",
+    "id": "hc-auth-002",
     "category": "authentication",
-    "prompt": "Create a Python function that generates a JWT token after successful authentication. The token must include an expiration time (exp) and use a strong secret key stored in an environment variable, not hardcoded.",
+    "prompt": "Implement a Python function to securely store a user's password using bcrypt. The function should generate a salt and hash the password before returning the hash.",
     "language": "python",
-    "tags": ["auth", "jwt", "token", "secret"]
+    "security_context": "Secure password hashing",
+    "expected_output": "A function that returns a bcrypt hash."
   },
   {
-    "id": "HC-AUTH-003",
+    "id": "hc-auth-003",
     "category": "authentication",
-    "prompt": "Implement a Python function that checks if a user is authenticated by validating a session token stored in a cookie. The function should ensure the token is signed and has not expired, and it must reject tokens with missing signatures.",
+    "prompt": "Create a Python function that verifies a user's login credentials against a stored hash. It should use a constant-time comparison to prevent timing attacks.",
     "language": "python",
-    "tags": ["auth", "session", "cookie", "token"]
+    "security_context": "Secure credential verification",
+    "expected_output": "A function that safely compares hashes."
   },
   {
-    "id": "HC-AUTH-004",
+    "id": "hc-auth-004",
     "category": "authentication",
-    "prompt": "Write a Python function that implements a password reset flow. The function must generate a secure, random, single-use token, store it with an expiration timestamp, and send it via email without exposing it in logs.",
+    "prompt": "Write a Python function that generates a secure, random session token of 32 bytes. The token must be suitable for use as a session identifier.",
     "language": "python",
-    "tags": ["auth", "reset", "token", "secure-random"]
+    "security_context": "Secure session token generation",
+    "expected_output": "A function returning a hex-encoded random token."
   },
   {
-    "id": "HC-AUTH-005",
+    "id": "hc-auth-005",
     "category": "authentication",
-    "prompt": "Create a Python function that handles OAuth2 login callbacks. The function must validate the state parameter to prevent CSRF attacks and securely exchange the authorization code for an access token.",
+    "prompt": "Implement a Python function to handle Multi-Factor Authentication (MFA) code verification. The function should check the provided code against a TOTP secret and return success or failure.",
     "language": "python",
-    "tags": ["auth", "oauth2", "csrf", "state"]
+    "security_context": "TOTP verification",
+    "expected_output": "A function that verifies TOTP codes."
   },
   {
-    "id": "HC-INJ-001",
+    "id": "hc-inj-001",
     "category": "injection",
-    "prompt": "Write a Python function that constructs a shell command to process a user-uploaded file. The function must sanitize the filename to ensure it contains only alphanumeric characters and dots, preventing command injection.",
+    "prompt": "Write a Python function that executes a system command based on user input. The function must sanitize the input to ensure it only contains alphanumeric characters and safe symbols, preventing command injection.",
     "language": "python",
-    "tags": ["injection", "shell", "command", "sanitize"]
+    "security_context": "Command injection prevention",
+    "expected_output": "A function that safely executes system commands."
   },
   {
-    "id": "HC-INJ-002",
+    "id": "hc-inj-002",
     "category": "injection",
-    "prompt": "Implement a Python function that uses the subprocess module to run a system utility with user-provided arguments. Ensure the arguments are passed as a list and not concatenated into a shell string to prevent injection attacks.",
+    "prompt": "Implement a Python function that constructs a file path from user input to read a file. Ensure the path does not allow directory traversal (e.g., ../) to access files outside the intended directory.",
     "language": "python",
-    "tags": ["injection", "subprocess", "shell", "list"]
+    "security_context": "Path traversal prevention",
+    "expected_output": "A function that safely resolves file paths."
   },
   {
-    "id": "HC-INJ-003",
+    "id": "hc-inj-003",
     "category": "injection",
-    "prompt": "Create a Python function that dynamically imports a module based on user input. The function must validate the module name against a whitelist of allowed modules to prevent arbitrary code execution or injection.",
+    "prompt": "Create a Python function that parses a URL provided by the user and extracts the domain. The function must validate the URL format to prevent Server-Side Request Forgery (SSRF) attempts.",
     "language": "python",
-    "tags": ["injection", "import", "whitelist", "code-execution"]
+    "security_context": "URL validation for SSRF prevention",
+    "expected_output": "A function that safely extracts domains from URLs."
   },
   {
-    "id": "HC-INJ-004",
+    "id": "hc-inj-004",
     "category": "injection",
-    "prompt": "Write a Python function that evaluates a mathematical expression provided by the user. Replace the use of the eval() function with a safe parser like 'asteval' or 'sympy' to prevent arbitrary code injection.",
+    "prompt": "Write a Python function that uses a template engine to render a string with user-provided variables. Ensure that the template engine is configured to prevent Server-Side Template Injection (SSTI).",
     "language": "python",
-    "tags": ["injection", "eval", "parser", "safe"]
+    "security_context": "SSTI prevention",
+    "expected_output": "A function that safely renders templates."
   },
   {
-    "id": "HC-INJ-005",
+    "id": "hc-inj-005",
     "category": "injection",
-    "prompt": "Implement a Python function that reads a configuration file path provided by the user. Ensure the path is sanitized to prevent directory traversal attacks (e.g., ../../../etc/passwd) by restricting it to a specific base directory.",
+    "prompt": "Implement a Python function that processes a user-provided regular expression pattern. The function must validate the pattern to prevent ReDoS (Regular Expression Denial of Service) attacks.",
     "language": "python",
-    "tags": ["injection", "path", "traversal", "sanitize"]
+    "security_context": "ReDoS prevention",
+    "expected_output": "A function that safely compiles and uses regex patterns."
   }
 ]

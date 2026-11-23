@@ -1,12 +1,17 @@
+"""
+Run LLM inference on CodeXGLUE prompts using GPT-2-medium on CPU.
+Wraps execution with CodeCarbon EmissionsTracker to measure energy and CO2.
+Implements robust error handling to skip failed prompts and continue processing.
+"""
 import json
 import logging
 import os
 import sys
 import time
 from pathlib import Path
+from typing import List, Dict, Any, Optional
 
 import torch
-from datasets import load_dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from codecarbon import EmissionsTracker
 
@@ -19,258 +24,291 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-MODEL_NAME = "gpt2-medium"
-DATA_DIR = Path("data/raw")
-OUTPUT_DIR = Path("data/processed")
-DATASET_NAME = "codexglue_code_to_text-python"
+MODEL_ID = "openai-community/gpt2-medium"
+DEVICE = "cpu"
+MAX_NEW_TOKENS = 128
+DATASET_PATH = Path("data/raw/codexglue_sample.json")
+OUTPUT_PATH = Path("data/processed/llm_inference_results.json")
 
-def load_dataset(dataset_name: str, split: str = "train") -> list:
-    """
-    Load the CodeXGLUE Python code-generation dataset.
-    Returns a list of dictionaries with 'prompt' and 'id' keys.
-    """
-    logger.info(f"Loading dataset: {dataset_name} (split: {split})")
-    try:
-        ds = load_dataset(dataset_name, split=split)
-        # Limit to a manageable sample for this run if needed, 
-        # but T004/T005 handles the initial download verification.
-        # We assume T004 has already saved the data or we load directly.
-        # For this task, we load fresh from HF as per T004 logic usually implied,
-        # or load from local if T004 saved it. The task T012 focuses on tracking.
-        # Assuming direct load for simplicity as T004 ensures availability.
-        
-        prompts = []
-        for item in ds:
-            # CodeXGLUE structure: 'source' is the prompt, 'target' is the solution
-            prompts.append({
-                "prompt_id": item.get("source", "")[:50], # Use source as ID or hash
-                "prompt": item["source"],
-                "expected_solution": item.get("target", "")
-            })
-        
-        logger.info(f"Loaded {len(prompts)} prompts.")
-        return prompts
-    except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
-        raise
+def load_dataset(path: Path) -> List[Dict[str, Any]]:
+    """Load the sampled CodeXGLUE dataset from JSON."""
+    if not path.exists():
+        raise FileNotFoundError(f"Dataset file not found: {path}")
+    with open(path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+    logger.info(f"Loaded {len(data)} prompts from {path}")
+    return data
 
-def load_model(model_name: str):
-    """
-    Load GPT-2-medium on CPU as required.
-    """
-    logger.info(f"Loading model: {model_name} on CPU...")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForCausalLM.from_pretrained(model_name)
+def load_model(model_id: str, device: str) -> tuple:
+    """Load the specified model and tokenizer on the given device."""
+    logger.info(f"Loading model {model_id} on {device}...")
+    tokenizer = AutoTokenizer.from_pretrained(model_id)
+    # Explicitly enforce float32 precision as per requirements
+    model = AutoModelForCausalLM.from_pretrained(
+        model_id,
+        torch_dtype=torch.float32,
+        low_cpu_mem_usage=True
+    )
+    model.to(device)
     model.eval()
-    model.to("cpu") # Explicitly force CPU
     logger.info("Model loaded successfully.")
-    return tokenizer, model
+    return model, tokenizer
 
-def generate_code(model, tokenizer, prompt: str, max_length: int = 200) -> str:
+def count_loc(code_string: str) -> int:
     """
-    Generate code for a given prompt.
-    """
-    inputs = tokenizer(prompt, return_tensors="pt")
-    inputs = {k: v.to("cpu") for k, v in inputs.items()}
+    Count non-empty, non-comment lines in a code string.
     
+    Args:
+        code_string: The generated code as a string.
+        
+    Returns:
+        Integer count of lines of code.
+    """
+    if not code_string or not code_string.strip():
+        return 0
+    
+    lines = code_string.strip().split('\n')
+    # Filter out empty lines and lines that are only whitespace
+    non_empty_lines = [line for line in lines if line.strip()]
+    return len(non_empty_lines)
+
+def generate_code(
+    model,
+    tokenizer,
+    prompt: str,
+    max_new_tokens: int = MAX_NEW_TOKENS,
+    device: str = DEVICE
+) -> str:
+    """Generate code completion for a given prompt."""
+    inputs = tokenizer(prompt, return_tensors="pt").to(device)
     with torch.no_grad():
         outputs = model.generate(
             **inputs,
-            max_length=max_length,
-            do_sample=True,
-            temperature=0.7,
-            top_k=50,
-            top_p=0.95,
-            num_return_sequences=1,
+            max_new_tokens=max_new_tokens,
+            do_sample=False,
             pad_token_id=tokenizer.eos_token_id
         )
-    
-    generated_ids = outputs[0][inputs["input_ids"].shape[1]:]
-    generated_text = tokenizer.decode(generated_ids, skip_special_tokens=True)
-    return generated_text
+    # Decode and strip the prompt from the output
+    full_output = tokenizer.decode(outputs[0], skip_special_tokens=True)
+    generated_code = full_output[len(prompt):]
+    return generated_code
 
-def run_inference_with_tracking(prompts: list, model, tokenizer, output_path: Path):
+def count_loc(code_string: str) -> int:
+    """Count non-empty lines in the generated code."""
+    if not code_string:
+        return 0
+    lines = code_string.split('\n')
+    # Count lines that contain at least one non-whitespace character
+    return sum(1 for line in lines if line.strip())
+
+def run_inference_with_tracking(
+    prompts: List[Dict[str, Any]],
+    model,
+    tokenizer,
+    device: str = DEVICE
+) -> List[Dict[str, Any]]:
     """
-    Wrap the inference loop with EmissionsTracker to measure energy and carbon.
+    Run inference loop with CodeCarbon tracking.
+    Returns a list of result dictionaries.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
     results = []
+    # Initialize tracker for CPU
+    # Note: We wrap the whole process to capture the energy of the batch
+    # However, to satisfy the requirement of "skip energy tracking for invalid code",
+    # we must be careful. The prompt says: "MUST skip energy tracking for any code that fails the syntax validation".
+    # Since CodeCarbon tracks global energy, we cannot easily "skip" energy for a specific item inside the loop
+    # without stopping/starting the tracker.
+    # Strategy: We run the tracker for the whole batch. We validate code *before* adding to results.
+    # If a prompt fails validation, we still consume energy for that run, but we simply do not add
+    # the invalid result to the final output list (or mark it as invalid).
+    # The requirement "skip energy tracking" likely means "do not count the emission of this specific item towards the final report".
+    # Given the physics of the tracker, we track the whole process but filter results.
     
-    # Configure tracker for CPU
-    # We use a custom context to ensure it tracks the specific loop
     tracker = EmissionsTracker(
-        project_name="llm-carbon-footprint",
-        output_dir=str(OUTPUT_DIR),
-        measure_power_secs=5,
-        # Force CPU tracking if auto-detection is ambiguous, though default handles CPU
-        allow_unsafe_cpu=True 
+        project_name="llmXive-inference",
+        output_dir="data/outputs",
+        logging_level=20  # WARNING to reduce noise
     )
     
     try:
         tracker.start()
         
-        logger.info("Starting inference loop with emissions tracking...")
-        for i, item in enumerate(prompts):
-            prompt_id = item["prompt_id"]
-            prompt_text = item["prompt"]
+        for item in prompts:
+            prompt_id = item.get("prompt_id")
+            prompt_text = item.get("prompt", "")
             
-            logger.info(f"Processing prompt {i+1}/{len(prompts)}: {prompt_id[:20]}...")
+            if not prompt_text:
+                logger.warning(f"Skipping prompt {prompt_id}: empty prompt text")
+                continue
+
+            logger.info(f"Processing prompt {prompt_id}")
             
+            # Generate code
+            generated_code = generate_code(model, tokenizer, prompt_text, device=device)
+            
+            # Validate syntax BEFORE recording
+            is_valid = True
             try:
-                generated_code = generate_code(model, tokenizer, prompt_text)
-                
-                # Calculate LOC immediately
-                loc_count = len(generated_code.strip().splitlines()) if generated_code.strip() else 0
-                
+                compile(generated_code, '<string>', 'exec')
+            except SyntaxError:
+                is_valid = False
+                logger.warning(f"Syntax validation failed for prompt {prompt_id}. Skipping emission record.")
+            
+            # Only add to results if valid
+            if is_valid:
+                loc = count_loc(generated_code)
                 result = {
                     "prompt_id": prompt_id,
-                    "model_used": MODEL_NAME,
+                    "model_used": MODEL_ID,
                     "generated_code": generated_code,
-                    "loc_count": loc_count,
-                    "status": "success"
+                    "is_valid_code": True,
+                    "loc_count": loc
+                    # Energy and CO2 will be filled after tracker stops
                 }
                 results.append(result)
-                
-            except Exception as e:
-                logger.warning(f"Failed to generate for {prompt_id}: {e}. Skipping.")
-                results.append({
-                    "prompt_id": prompt_id,
-                    "model_used": MODEL_NAME,
-                    "generated_code": "",
-                    "loc_count": 0,
-                    "status": "failed",
-                    "error": str(e)
-                })
+            else:
+                # Do not add invalid code to results
+                continue
         
         # Stop tracker to get final metrics
-        emissions = tracker.stop()
+        tracker.stop()
         
-        # The tracker aggregates energy over the whole run. 
-        # We need to attribute this to the results. 
-        # For this task, we record the total run metrics in a separate file 
-        # or append to the first result if strictly one run. 
-        # However, the task asks for output containing energy_kWh and co2_kg per result?
-        # Usually, CodeCarbon gives total project energy. 
-        # We will write the total metrics to a summary file and append the total to every record 
-        # OR (better) we assume the task implies the total run energy is the cost of the batch.
-        # Let's create a summary record and attach the total batch energy to all valid results.
-        
-        total_energy_kwh = emissions
-        total_co2_kg = emissions  # CodeCarbon returns CO2 in kg by default in stop()
-        
-        # Actually, EmissionsTracker.stop() returns the total CO2 in kg.
-        # We need to access the energy separately if needed, but usually co2 is the key metric.
-        # Let's check the tracker object for energy if available, otherwise assume co2 is the main output.
-        # The API returns total CO2. Energy is often internal. 
-        # We will store the CO2 value. For energy, we might need to access the tracker's internal state 
-        # or calculate it. Let's assume the task wants the total run energy/CO2 associated with the batch.
-        
-        # Re-checking CodeCarbon API: tracker.stop() returns CO2 (kg).
-        # We need energy (kWh). We can access tracker._tracker._energy_kWh if needed, 
-        # but it's internal. 
-        # Let's assume the task accepts the CO2 value and we derive energy or just report CO2.
-        # The task description says: "output the generated code string... and energy_kWh, co2_kg".
-        # We will try to get energy from the tracker's final state.
-        
-        # Accessing internal state for energy (common workaround in research scripts if not exposed)
-        # A safer way is to log it. But we need to write it.
-        # Let's assume the 'emissions' variable holds CO2. 
-        # We will try to get energy from the tracker object if possible.
-        
-        # For the purpose of this implementation, we will assume the total run energy 
-        # is the sum of energy for all prompts. We will attach this total to the results file 
-        # as a metadata field or duplicate it. 
-        # Given the constraint "output... containing... energy_kWh, co2_kg", we will add these fields.
-        
-        # Since CodeCarbon tracks the whole process, we attribute the total run cost to the batch.
-        # We will write a summary JSON for the run and also update the results list with these totals.
-        
-        final_co2 = tracker._emissions
-        # Energy is not directly returned by stop(), but we can try to access the logger or internal
-        # However, to be robust, we will just use the CO2 value and note that energy is proportional.
-        # Wait, the task explicitly asks for energy_kWh.
-        # Let's try to access the tracker's internal energy accumulator.
-        # In recent codecarbon versions, `tracker._tracker._energy_kWh` might be accessible.
-        # Or we can just assume 1 kWh = X kg CO2 based on the region factor if we know it.
-        # But we want the measured energy.
-        
-        # Let's assume the tracker object has a method or property. 
-        # If not, we might have to skip energy or estimate. 
-        # However, the task says "Wrap inference loop... with EmissionsTracker".
-        # We will assume the tracker provides the data.
-        
-        # Fallback: If we cannot get energy, we will set it to 0 and log a warning, 
-        # but the task says "never a stub".
-        # Let's try to get it.
-        try:
-            # Accessing the internal energy accumulator (implementation detail)
-            total_energy = tracker._tracker._energy_kWh
-        except AttributeError:
-            # If internal access fails, we might need to rely on CO2 and a standard factor, 
-            # but that's not "measured". 
-            # Let's assume the environment provides it or we use the CO2 value and note it.
-            # Actually, CodeCarbon 2.x returns a dict or object? 
-            # Let's assume `tracker.stop()` returns the CO2 value (float).
-            # We will set energy to a placeholder 0.0 if we can't get it, but log it.
-            # However, the task requires real data. 
-            # We will assume the tracker has the data.
-            total_energy = 0.0 
-            logger.warning("Could not extract energy_kWh directly from tracker. Setting to 0.0.")
-
-        # Update results with total run metrics
-        # Since the tracker covers the whole batch, we assign the total run energy/CO2 to the file.
-        # We will create a separate summary file or add to the first entry?
-        # The task says: "Generate data/processed/llm_inference_results.json containing..."
-        # It implies the list of results.
-        # We will add the total run metrics to every record for now, or just the total.
-        # A better approach: The task asks for "energy_kWh" and "co2_kg" in the result JSON.
-        # We will add them to each record, representing the cost of that specific prompt?
-        # No, CodeCarbon measures the whole run. 
-        # We will assume the prompt cost is proportional to time, but we don't have per-prompt time easily.
-        # We will just record the total batch cost in the file, perhaps as a top-level key or in each row.
-        # Let's put it in each row for simplicity as "total_run_energy_kWh" and "total_run_co2_kg".
-        
-        for res in results:
-            if res["status"] == "success":
-                res["energy_kWh"] = total_energy
-                res["co2_kg"] = final_co2
-            else:
-                res["energy_kWh"] = 0.0
-                res["co2_kg"] = 0.0
-
-        # Save results
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(results, f, indent=2)
-        
-        logger.info(f"Results saved to {output_path}")
-        logger.info(f"Total Run Energy: {total_energy} kWh, Total Run CO2: {final_co2} kg")
+        # Retrieve the final emissions (this is the total for the batch)
+        # We need to distribute this or just record the total per run.
+        # The task asks for a record per prompt. 
+        # Standard practice in these pipelines when tracking a batch: 
+        # Either track individually (slow) or attribute total to the batch.
+        # Given the constraint "skip energy tracking for invalid code", 
+        # and the fact that we tracked the whole batch, we will attribute 
+        # the total batch energy to the valid prompts proportionally or just record the batch total 
+        # in a metadata field? 
+        # Re-reading T010: "MUST skip energy tracking for any code that fails...".
+        # This implies the energy measurement should ideally be per-prompt to be fair.
+        # Let's refactor to track per-prompt to strictly satisfy "skip energy tracking".
         
     except Exception as e:
-        logger.error(f"Tracking error: {e}")
-        if tracker:
+        logger.error(f"Error during inference tracking: {e}")
+        if 'tracker' in locals():
             try:
                 tracker.stop()
             except:
                 pass
-        raise
+        raise e
+
+    # RE-IMPLEMENTATION OF LOOP FOR PER-PROMPT TRACKING TO SATISFY CONSTRAINT
+    final_results = []
+    # We need to re-run or structure differently. 
+    # Since we already generated code in the loop above, we can't easily re-run without overhead.
+    # However, to be strictly correct per "skip energy tracking", we must wrap each valid generation.
+    # Let's implement the loop correctly from scratch below.
+    pass
+
+def run_inference_with_tracking_corrected(
+    prompts: List[Dict[str, Any]],
+    model,
+    tokenizer,
+    device: str = DEVICE
+) -> List[Dict[str, Any]]:
+    """
+    Corrected loop: Tracks energy per prompt to allow skipping invalid ones.
+    """
+    results = []
+    
+    for item in prompts:
+        prompt_id = item.get("prompt_id")
+        prompt_text = item.get("prompt", "")
+        
+        if not prompt_text:
+            logger.warning(f"Skipping prompt {prompt_id}: empty prompt text")
+            continue
+
+        logger.info(f"Processing prompt {prompt_id}")
+        
+        # Start tracker for this specific prompt
+        tracker = EmissionsTracker(
+            project_name="llmXive-inference",
+            output_dir="data/outputs",
+            logging_level=30  # ERROR only
+        )
+        
+        try:
+            tracker.start()
+            
+            # Generate code
+            generated_code = generate_code(model, tokenizer, prompt_text, device=device)
+            
+            # Validate syntax
+            is_valid = True
+            try:
+                compile(generated_code, '<string>', 'exec')
+            except SyntaxError:
+                is_valid = False
+                logger.warning(f"Syntax validation failed for prompt {prompt_id}. Skipping emission record.")
+            
+            if is_valid:
+                tracker.stop()
+                
+                # Get emissions
+                emissions = tracker.final_emissions
+                energy_kwh = emissions.get('energy', 0.0)
+                co2_kg = emissions.get('carbon', 0.0)
+                
+                loc = count_loc(generated_code)
+                
+                result = {
+                    "prompt_id": prompt_id,
+                    "model_used": MODEL_ID,
+                    "energy_kWh": float(energy_kwh),
+                    "co2_kg": float(co2_kg),
+                    "generated_code": generated_code,
+                    "is_valid_code": True,
+                    "loc_count": loc
+                }
+                results.append(result)
+            else:
+                # Stop tracker but do not record result
+                try:
+                    tracker.stop()
+                except:
+                    pass
+                continue
+                
+        except Exception as e:
+            logger.error(f"Error processing prompt {prompt_id}: {e}")
+            try:
+                tracker.stop()
+            except:
+                pass
+            continue
+
+    return results
+
+def save_results(results: List[Dict[str, Any]], output_path: Path):
+    """Save results to JSON file."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Saved {len(results)} results to {output_path}")
 
 def main():
-    """
-    Main entry point for T012.
-    """
-    # Ensure output directory exists
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    """Main entry point."""
+    logger.info("Starting LLM Inference Pipeline...")
     
-    # Load data
-    prompts = load_dataset(DATASET_NAME)
+    if not DATASET_PATH.exists():
+        logger.error(f"Dataset not found at {DATASET_PATH}. Run download_data.py first.")
+        sys.exit(1)
+
+    prompts = load_dataset(DATASET_PATH)
+    model, tokenizer = load_model(MODEL_ID, DEVICE)
     
-    # Load model
-    tokenizer, model = load_model(MODEL_NAME)
+    results = run_inference_with_tracking_corrected(prompts, model, tokenizer, DEVICE)
     
-    # Run inference with tracking
-    output_file = OUTPUT_DIR / "llm_inference_results.json"
-    run_inference_with_tracking(prompts, model, tokenizer, output_file)
+    if not results:
+        logger.warning("No valid results generated.")
+    else:
+        save_results(results, OUTPUT_PATH)
+        
+    logger.info("Pipeline completed.")
 
 if __name__ == "__main__":
     main()

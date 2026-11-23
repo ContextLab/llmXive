@@ -1,0 +1,22 @@
+[
+  {
+    "rank": 1,
+    "feature": "bond_angle_variance",
+    "mean_abs_shap": 0.52
+  },
+  {
+    "rank": 2,
+    "feature": "coordination_numbers",
+    "mean_abs_shap": 0.41
+  },
+  {
+    "rank": 3,
+    "feature": "rdf_peak_pos",
+    "mean_abs_shap": 0.30
+  },
+  {
+    "rank": 4,
+    "feature": "rdf_peak_width",
+    "mean_abs_shap": 0.18
+  }
+]

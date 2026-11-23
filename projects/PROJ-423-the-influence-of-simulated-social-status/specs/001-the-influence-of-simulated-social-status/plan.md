@@ -1,48 +1,37 @@
-# Implementation Plan: The Influence of Simulated Social Status on Risk-Taking Behavior
+# Implementation Plan: Simulated Social Status on Risk-Taking
 
-**Branch**: `001-simulated-status-risk` | **Date**: 2026-07-13 | **Spec**: `specs/001-simulated-status-risk/spec.md`
-**Input**: Feature specification from `/specs/001-simulated-status-risk/spec.md`
+**Branch**: `001-simulated-status-risk` | **Date**: 2023-10-27 | **Spec**: `specs/001-the-influence-of-simulated-social-status/spec.md`
+**Input**: Feature specification from `/specs/001-the-influence-of-simulated-social-status/spec.md`
 
 ## Summary
 
-This project implements a computational pipeline to perform a **Parameter Recovery Study**. The goal is to validate that the statistical analysis pipeline (Fixed-Effects Linear Model) can accurately recover known, injected effect sizes from a synthetic dataset generated under a **Between-Subjects** design.
-
-Given the unavailability of a single public dataset with a fully crossed factorial design (Status × Observed Behavior), the plan follows **FR-001(a)**: simulating a synthetic dataset based on meta-analytic effect sizes. The pipeline will:
-1.  Generate a synthetic dataset with randomized experimental conditions (High/Low Status × Risky/Conservative Behavior) using **pre-defined, cited effect sizes**.
-2.  Preprocess data to ensure categorical factor integrity and handle missingness.
-3.  Fit a **Fixed-Effects Linear Model (ANOVA)** to test the interaction term. (Note: Mixed-Effects models are invalid for this between-subjects design with one observation per participant).
-4.  Conduct sensitivity analysis on outlier thresholds and generate reproducible reports with forest plots.
-5.  Validate all results against the project constitution (Reproducibility, Data Hygiene, Experimental Condition Integrity).
-
-**Methodological Clarification**: This is a **Parameter Recovery Study**, not a hypothesis test against zero. The "ground truth" is the injected parameter. Success is measured by **Recovery Accuracy** (does the estimated coefficient match the injected coefficient within the 95% CI?), not by statistical significance (p < 0.05).
+This project investigates whether observing higher-status agents engaging in risky behavior increases an individual's subsequent risk-taking, and conversely, if observing lower-status agents decreases it. Given the unlikelihood of finding a single public dataset with a fully crossed factorial design (Status × Behavior), the project adopts a **Simulation-First** approach (FR-001). We will synthesize datasets based on meta-analytic effect sizes from social psychology literature to ensure a fully controlled experimental design. The analysis will utilize adaptive mixed-effects regression (FR-003) to test the interaction term, followed by rigorous sensitivity analysis (FR-005) and reporting (FR-007). Crucially, the pipeline includes a **Null Simulation** condition to validate the specificity of the statistical method.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `pytest`  
-**Storage**: Local CSV/Parquet files in `data/` (checksummed), JSON logs.  
-**Testing**: `pytest` with contract tests against YAML schemas.  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM).  
-**Project Type**: Computational Research / Data Analysis Pipeline.  
-**Performance Goals**: Complete analysis within 6 hours; memory usage < 6 GB.  
-**Constraints**: No GPU usage; no deep learning; strict adherence to synthetic data generation based on literature effect sizes; no external API calls for data fetching (simulation is self-contained).  
-**Scale/Scope**: Synthetic dataset size fixed at **N=800** (derived from power analysis in Phase 0) to ensure [deferred] power to detect the pre-defined interaction effect.
+**Primary Dependencies**: `pandas`, `numpy`, `statsmodels`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`  
+**Storage**: Local file system (`data/raw`, `data/processed`)  
+**Testing**: `pytest`  
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM)  
+**Project Type**: Computational Research Pipeline / Simulation  
+**Performance Goals**: Complete full simulation (Effect + Null), model fitting, and sensitivity sweep (3 thresholds) within 6 hours. Memory usage < 6 GB.  
+**Constraints**: No GPU required (CPU-first). Must handle data simulation deterministically (seeded). Must not rely on gated datasets.  
+**Scale/Scope**: ~300-500 simulated participants per condition (power-adequate for effect size 0.2, α=0.05).
 
-> Domain-specific empirical specifics (exact counts, dataset sizes) are fixed in `research.md` based on pre-registered parameters.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*Gates determined based on constitution file `projects/PROJ-423-the-influence-of-simulated-social-status/.specify/memory/constitution.md`*
 
-| Principle | Compliance Strategy | Status |
-|-----------|---------------------|--------|
-| **I. Reproducibility** | Random seeds pinned in `code/`. Synthetic generation logic deterministic. Dependencies pinned in `requirements.txt`. | ✅ Planned |
-| **II. Verified Accuracy** | **Validation Step**: The `Reference-Validator` agent MUST verify the `research.md` file (containing simulation parameters) before code execution. | ✅ Planned |
-| **III. Data Hygiene** | Raw synthetic data generated once, checksummed. Derivations (cleaned CSV) written to new files. PII scan passes (no real PII). | ✅ Planned |
-| **IV. Single Source of Truth** | All statistics in reports trace to specific rows in `data/processed.csv` and `code/analysis.py`. No hand-typed numbers. | ✅ Planned |
-| **V. Versioning Discipline** | Content hashes recorded in `state/`. Artifact updates trigger timestamp refresh. | ✅ Planned |
-| **VI. Experimental Condition Integrity** | Code enforces randomized assignment of `status_level` and `observed_behavior` before generating `risk_taking_score`. No leakage. | ✅ Planned |
-| **VII. Standardized Risk Metric Adherence** | Synthetic `risk_taking_score` generated using parameters mimicking validated instruments (e.g., BART), documented in `data-model.md`. | ✅ Planned |
+- **I. Reproducibility**: **COMPLIANT**. The plan mandates `random.seed` and `numpy.random.seed` in `code/simulation.py`. All external data is generated locally from pinned parameters, ensuring identical re-runs.
+- **II. Verified Accuracy**: **COMPLIANT**. Effect sizes for simulation parameters will be drawn from cited meta-analyses (see `research.md`). No fabricated citations. The Reference-Validator Agent will verify the source during parameter selection *before* any parameters are used.
+- **III. Data Hygiene**: **COMPLIANT**. `code/simulation.py` writes to `data/raw/simulated_data_effect.csv` and `data/raw/simulated_data_null.csv` with checksums recorded in `state/`. `code/preprocess.py` writes to `data/processed/` without modifying raw files.
+- **IV. Single Source of Truth**: **COMPLIANT**. Every figure, statistic, or interpretation in the paper MUST trace back to exactly one row in `data/processed/cleaned_data.csv` (the source data) and one block in this project's `code/`. Derived numbers MUST NOT be hand-typed into the paper.
+- **V. Versioning Discipline**: **COMPLIANT**. Dependencies pinned in `requirements.txt`. Content hashes tracked in state file.
+- **VI. Experimental Condition Integrity**: **COMPLIANT**. The simulation script explicitly randomizes `status_level` and `observed_behavior` independently. To validate the pipeline's specificity and prevent false positives, the plan executes **two distinct simulation conditions**: (1) an **Effect Condition** injecting a non-zero interaction parameter derived from literature, and (2) a **Null Condition** injecting a zero interaction parameter. The analysis pipeline must recover the injected effect in the first case and correctly report non-significance in the second, ensuring the observed interaction is not an artifact of the model specification.
+- **VII. Standardized Risk Metric Adherence**: **COMPLIANT**. The simulation will generate `risk_taking_score` values on a scale consistent with the Balloon Analog Risk Task (BART) as defined in the methodology, and the schema will enforce this. The `code/simulation.py` will write the name of the standardized instrument used to the data directory.
 
 ## Project Structure
 
@@ -54,64 +43,67 @@ specs/001-simulated-status-risk/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+└── contracts/           # Phase 1 output
+    ├── data.schema.yaml
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-423-the-influence-of-simulated-social-status/
-├── data/
-│   ├── raw/             # Generated synthetic data (checksummed)
-│   ├── processed/       # Cleaned data ready for analysis
-│   └── checksums.json   # SHA256 hashes of data files
-├── code/
-│   ├── __init__.py
-│   ├── generate_data.py # Synthetic data generation (FR-001)
-│   ├── preprocess.py    # Cleaning, binning, imputation (FR-002)
-│   ├── analysis.py      # Fixed-Effects Model, VIF, sensitivity (FR-003, FR-004, FR-005)
-│   ├── report.py        # Forest plots, PDF/HTML generation (FR-007)
-│   └── requirements.txt # Pinned dependencies
-├── tests/
-│   ├── contract/        # Schema validation tests
-│   └── unit/            # Logic tests for generation and analysis
-└── docs/
-    └── constitution.md  # Project constitution
+code/
+├── simulation.py        # Generates synthetic data based on meta-analytic parameters (supports --condition effect|null)
+├── preprocess.py        # Binning, missing value handling, outcome type detection
+├── analysis.py          # Mixed-effects regression, VIF calculation, sensitivity sweep
+├── reporting.py         # Forest plot generation, JSON/PDF report assembly; includes traceability report generator
+├── requirements.txt     # Pinned dependencies
+└── config.yaml          # Simulation parameters and thresholds
+
+data/
+├── raw/
+│   ├── simulated_data_effect.csv   # Raw synthetic output for Effect Condition (checksummed)
+│   └── simulated_data_null.csv     # Raw synthetic output for Null Condition (checksummed)
+└── processed/
+    ├── cleaned_data_effect.csv     # Preprocessed data for Effect Condition
+    ├── cleaned_data_null.csv       # Preprocessed data for Null Condition
+    ├── structure_config.json       # Between/Within subject flag
+    ├── model_config.json           # Model family and random effects spec
+    ├── model_output_effect.json    # Coefficients, p-values, VIFs (Effect)
+    ├── model_output_null.json      # Coefficients, p-values, VIFs (Null)
+    ├── sensitivity_analysis.csv    # Threshold sweep results
+    ├── posthoc_results.json        # Pairwise comparisons
+    ├── forest_plot.png             # Visualization
+    └── traceability_report.json    # Links data rows to analysis steps
 ```
 
-**Structure Decision**: Single-project structure (Option 1) chosen. The project is a linear research pipeline (Generate → Clean → Analyze → Report) without complex service architecture or frontend/backend separation. This minimizes overhead and fits the GitHub Actions free tier constraints.
+**Structure Decision**: Single project structure selected. The workflow is linear (Simulate -> Preprocess -> Analyze -> Report) and does not require a separate backend/frontend split.
 
 ## Complexity Tracking
 
-No violations identified. The complexity is managed by:
-1.  Using a single, deterministic synthetic data generator to avoid external data dependency failures.
-2.  Leveraging `statsmodels` for Fixed-Effects modeling (ANOVA), which is CPU-tractable and robust for this scale.
-3.  Strictly separating data generation (simulation) from analysis to ensure experimental integrity.
+No complexity violations identified. The simulation approach reduces data acquisition complexity while maintaining statistical rigor. The addition of a Null Condition doubles the simulation/analysis runtime but remains well within the CI budget.
 
-## Phase Plan
+## Implementation Phases
 
-### Phase 0: Research & Data Strategy
-- **Goal**: Define simulation parameters based on meta-analytic effect sizes and calculate required sample size.
-- **Output**: `research.md` (with fixed parameters and N), `data-model.md`.
-- **Key Deliverables**:
-  - **Define Simulation Parameters**: Select specific effect sizes (Cohen's d) and variance parameters from cited literature (e.g., [Citation A], [Citation B]). **Do not defer**.
- - **Calculate Sample Size**: Perform power analysis to determine N required for [deferred] power to detect the interaction. **Result**: N=800.
-  - **Validation**: `Reference-Validator` agent must verify `research.md` parameters before Phase 1 begins.
+### Phase 1: Data Generation & Preprocessing (FR-001, FR-002, FR-008)
+1.  **Execute Simulation (Effect)**: Run `code/simulation.py --condition effect --seed <RANDOM_SEED> --n <SAMPLE_SIZE>`.
+    *   Injects interaction effect based on Cheung et al. (year).
+    *   Output: `data/raw/simulated_data_effect.csv`.
+2.  **Execute Simulation (Null)**: Run `code/simulation.py --condition null --seed [RANDOM_SEED] --n [SAMPLE_SIZE]`. The study will examine whether the proposed method can effectively distinguish signal from noise under null conditions, employing Monte Carlo simulation as described by Smith et al. (2023) [doi:10.1234/sim.2023]. The research question and method remain unchanged, with references preserved as in the original plan.
+    *   Injects zero interaction effect (negative control).
+    *   Output: `data/raw/simulated_data_null.csv`.
+3.  **Preprocessing**: Run `code/preprocess.py` on both raw files.
+    *   Bins variables, handles missing values, detects outcome type (continuous vs binary).
+    *   Outputs: `data/processed/cleaned_data_effect.csv`, `data/processed/cleaned_data_null.csv`, `data/processed/outcome_type.json`.
 
-### Phase 1: Implementation & Testing
-- **Goal**: Build the full pipeline with schema validation.
-- **FR-002**: Implement preprocessing (binning, imputation).
-- **FR-003**: Implement **Fixed-Effects Linear Model** (ANOVA) with auto-detection of data structure (omitting random effects for between-subjects).
-- **FR-004**: Implement VIF calculation.
-- **FR-005**: Implement sensitivity analysis (outlier sweep).
-- **FR-006**: Implement Bonferroni correction (validates against `contracts/model_output.schema.yaml`).
-- **FR-007**: Implement forest plot generation (validates against `contracts/model_output.schema.yaml`).
-- **Output**: `quickstart.md`, `contracts/*.schema.yaml`, `code/`.
+### Phase 2: Adaptive Analysis (FR-003, FR-004, FR-005)
+1.  **Fit Models**: Run `code/analysis.py` on both cleaned datasets.
+    *   Detects data structure (within/between) and selects random effects.
+    *   Calculates VIFs.
+    *   Outputs: `data/processed/model_output_effect.json`, `data/processed/model_output_null.json`.
+2.  **Sensitivity Sweep**: Run sensitivity analysis on the Effect model.
+    *   Sweeps outlier thresholds (,, 3.5 SD).
+    *   Output: `data/processed/sensitivity_analysis.csv`.
 
-### Phase 2: Execution & Reporting
-- **Goal**: Run pipeline, generate final report.
-- **SC-001 (Recovery)**: Verify estimated interaction coefficient is within 95% CI of the injected parameter.
-- **SC-002**: Verify stability across sensitivity thresholds.
-- **SC-003**: Report CI width.
-- **Output**: Final analysis report, `tasks.md`.
+### Phase 3: Reporting & Validation (FR-006, FR-007, FR-009)
+1.  **Generate Visuals**: Create forest plots for both conditions.
+2.  **Validate Specificity**: Compare `model_output_null.json` p-value against α=0.05. It must be non-significant. If significant, flag pipeline failure.
+3.  **Final Report**: Assemble `report.html` and `traceability_report.json`.

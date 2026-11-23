@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HEA Descriptor Table"
+description: "Row‑wise deterministic descriptors for each alloy composition."
+type: object
+properties:
+  composition:
+    type: string
+    description: "Alloy composition formula (e.g., 'CoCrFeMnNi')."
+  mixing_entropy:
+    type: number
+    description: "Configurational mixing entropy (J mol⁻¹ K⁻¹)."
+  atomic_size_mismatch:
+    type: number
+    description: "δ, atomic size mismatch (dimensionless)."
+  electronegativity_variance:
+    type: number
+    description: "Δχ, variance of Pauling electronegativities."
+  vec:
+    type: number
+    description: "Valence electron concentration (electrons per atom)."
+  tm_variance:
+    type: number
+    description: "Variance of melting temperatures of constituent elements."
+required:
+  - composition
+  - mixing_entropy
+  - atomic_size_mismatch
+  - electronegativity_variance
+  - vec
+  - tm_variance
+additionalProperties: false

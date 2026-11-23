@@ -1,0 +1,8 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T002** — The `code/requirements.txt` file is present, but it lists version ranges (e.g., `pandas>=2.0.0`) rather than pinned exact versions, and there is no evidence that `pip install -r code/requirements.txt` was run successfully. The task requires pinned versions and verification of a conflict‑free install.
+- **T003** — The `ruff.toml` and `pyproject.toml` files are present, but there is no provided evidence (e.g., command output, logs, or test results) showing that `ruff check.` and `black --check.` actually run and return zero exit codes. Without this verification, the task’s requirement is not satisfied.
+- **T099** — The provided `code/run_pipeline.py` only defines `--mode` choices “real” and “benchmark” and lacks any `--mode mock` handling or a `--generate-report` option, so it cannot produce the required exit‑code 1 with the specified error message. Consequently the contract test `tests/contract/test_cli_guard.py` would fail. The CLI must be extended to accept `--mode mock` together with `--generate-report` and enforce the guard clause.
+- **T099c** — The `plan.md` and `README.md` files contain “≤ 6 h” (using the abbreviation “h”) but do not include the exact phrase “≤ 6 hours” that `code/check_performance_phrase.py` searches for. Consequently the verification script would report a failure, so the required documentation update is not satisfied.

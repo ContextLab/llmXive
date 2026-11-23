@@ -1,0 +1,6 @@
+{
+  "dataset_id": "ds001234",
+  "url": "https://openneuro.org/datasets/ds001234",
+  "search_query": "subject-type:human AND modality:neurophysiology AND task:reward",
+  "verified": true
+}

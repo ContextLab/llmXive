@@ -1,140 +1,102 @@
-"""
-Unit tests for T014: Stimuli Manifest Generation.
-"""
-import json
 import os
-import sys
+import json
 import tempfile
-from pathlib import Path
 import pytest
+from pathlib import Path
+import sys
 
 # Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from utils.stimuli_manifest import extract_metadata_from_filename, load_error_log, generate_manifest
-from config import ensure_directories
 
-class TestMetadataExtraction:
-    def test_valid_filename(self):
-        filename = "happy_flankers5_eccentricity10.png"
+class TestExtractMetadata:
+    def test_valid_filename_strict(self):
+        filename = "stimulus_angry_flankers_5_eccentricity_10.5.png"
+        expected = {
+            "emotion": "angry",
+            "flanker_count": 5,
+            "eccentricity": 10.5
+        }
+        result = extract_metadata_from_filename(filename)
+        assert result == expected
+
+    def test_valid_filename_variations(self):
+        # Test with 'flanker' singular
+        filename = "stimulus_happy_flanker_3_eccentricity_5.0.png"
         result = extract_metadata_from_filename(filename)
         assert result is not None
         assert result['emotion'] == 'happy'
-        assert result['flanker_count'] == 5
-        assert result['eccentricity'] == 10.0
-        assert result['filename'] == filename
-
-    def test_valid_filename_float_eccentricity(self):
-        filename = "sad_flankers3_eccentricity12.5.png"
-        result = extract_metadata_from_filename(filename)
-        assert result is not None
-        assert result['emotion'] == 'sad'
         assert result['flanker_count'] == 3
-        assert result['eccentricity'] == 12.5
+        
+        # Test with float eccentricity
+        filename = "stimulus_neutral_flankers_12_eccentricity_15.75.png"
+        result = extract_metadata_from_filename(filename)
+        assert result['eccentricity'] == 15.75
 
     def test_invalid_filename(self):
-        filename = "random_image.jpg"
+        filename = "random_image_001.png"
         result = extract_metadata_from_filename(filename)
         assert result is None
 
-    def test_missing_extension(self):
-        filename = "angry_flankers2_eccentricity8"
-        result = extract_metadata_from_filename(filename)
-        assert result is None
-
-class TestErrorLogParsing:
-    def test_parse_log_line(self, tmp_path):
-        log_content = "WARNING: Overlap detected | File: overlap_test.png | Reason: Flankers overlap with target"
-        log_file = tmp_path / "generation_errors.log"
-        log_file.write_text(log_content)
-        
-        # Temporarily override the global path for testing
-        import utils.stimuli_manifest as sm
-        original_path = sm.ERRORS_LOG
-        sm.ERRORS_LOG = log_file
+class TestLoadErrorLog:
+    def test_empty_log(self):
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.log', delete=False) as f:
+            f.write("")
+            temp_path = Path(f.name)
         
         try:
-            result = load_error_log()
-            assert "overlap_test.png" in result
-            assert "Flankers overlap with target" in result["overlap_test.png"]
+            result = load_error_log(temp_path)
+            assert result == []
         finally:
-            sm.ERRORS_LOG = original_path
+            os.unlink(temp_path)
 
-class TestManifestGeneration:
-    def test_manifest_structure(self, tmp_path):
-        # Setup temporary directories
-        stimuli_dir = tmp_path / "data" / "interim" / "stimuli"
-        stimuli_dir.mkdir(parents=True)
-        
-        # Create dummy images
-        (stimuli_dir / "happy_flankers5_eccentricity10.png").touch()
-        (stimuli_dir / "sad_flankers3_eccentricity12.png").touch()
-        
-        # Create dummy error log
-        error_log = tmp_path / "data" / "interim" / "generation_errors.log"
-        error_log.write_text("WARNING: Overlap | File: bad.png | Reason: Overlap")
-        
-        # Temporarily override paths
-        import utils.stimuli_manifest as sm
-        original_stimuli = sm.STIMULI_DIR
-        original_log = sm.ERRORS_LOG
-        original_manifest = sm.MANIFEST_PATH
-        
-        sm.STIMULI_DIR = stimuli_dir
-        sm.ERRORS_LOG = error_log
-        sm.MANIFEST_PATH = tmp_path / "manifest.json"
+    def test_valid_json_log(self):
+        log_data = [
+            {"filename": "bad_1.png", "reason": "overlap"},
+            {"filename": "bad_2.png", "reason": "missing_frame"}
+        ]
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.log', delete=False) as f:
+            for entry in log_data:
+                f.write(json.dumps(entry) + "\n")
+            temp_path = Path(f.name)
         
         try:
-            manifest = generate_manifest()
+            result = load_error_log(temp_path)
+            assert len(result) == 2
+            assert result[0]['filename'] == 'bad_1.png'
+        finally:
+            os.unlink(temp_path)
+
+class TestGenerateManifest:
+    def test_full_generation(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            stimuli_dir = Path(tmpdir) / "stimuli"
+            stimuli_dir.mkdir()
             
-            assert "metadata" in manifest
-            assert "stimuli" in manifest
-            assert len(manifest["stimuli"]) == 2 # 2 valid images
+            # Create dummy images
+            (stimuli_dir / "stimulus_angry_flankers_5_eccentricity_10.0.png").touch()
+            (stimuli_dir / "stimulus_happy_flankers_3_eccentricity_5.0.png").touch()
+            
+            # Create error log
+            error_log_path = Path(tmpdir) / "errors.log"
+            with open(error_log_path, 'w') as f:
+                f.write(json.dumps({"filename": "stimulus_angry_flankers_5_eccentricity_10.0.png", "reason": "overlap"}) + "\n")
+            
+            output_path = Path(tmpdir) / "manifest.json"
+            
+            manifest = generate_manifest(stimuli_dir, error_log_path, output_path)
+            
+            assert output_path.exists()
+            assert manifest['total_stimuli'] == 2
             
             # Check entries
-            filenames = [e["file_path"].split('/')[-1] for e in manifest["stimuli"]]
-            assert "happy_flankers5_eccentricity10.png" in filenames
-            assert "sad_flankers3_eccentricity12.png" in filenames
-            
-            # Check metadata extraction
-            happy_entry = next(e for e in manifest["stimuli"] if "happy" in e["file_path"])
-            assert happy_entry["status"] == "generated"
-            assert happy_entry["emotion"] == "happy"
-            assert happy_entry["flanker_count"] == 5
-            assert happy_entry["eccentricity"] == 10.0
-            
-        finally:
-            sm.STIMULI_DIR = original_stimuli
-            sm.ERRORS_LOG = original_log
-            sm.MANIFEST_PATH = original_manifest
+            entries = {e['filename']: e for e in manifest['entries']}
+            assert 'stimulus_angry_flankers_5_eccentricity_10.0.png' in entries
+            assert entries['stimulus_angry_flankers_5_eccentricity_10.0.png']['status'] == 'excluded'
+            assert entries['stimulus_happy_flankers_3_eccentricity_5.0.png']['status'] == 'generated'
 
-    def test_excluded_items_in_manifest(self, tmp_path):
-        # Setup
-        stimuli_dir = tmp_path / "data" / "interim" / "stimuli"
-        stimuli_dir.mkdir(parents=True)
-        
-        # No images created, but log says one was excluded
-        error_log = tmp_path / "data" / "interim" / "generation_errors.log"
-        error_log.write_text("WARNING: Overlap | File: excluded.png | Reason: Overlap")
-        
-        import utils.stimuli_manifest as sm
-        original_stimuli = sm.STIMULI_DIR
-        original_log = sm.ERRORS_LOG
-        original_manifest = sm.MANIFEST_PATH
-        
-        sm.STIMULI_DIR = stimuli_dir
-        sm.ERRORS_LOG = error_log
-        sm.MANIFEST_PATH = tmp_path / "manifest.json"
-        
-        try:
-            manifest = generate_manifest()
-            
-            # Should have 1 entry for the excluded item
-            assert len(manifest["stimuli"]) == 1
-            entry = manifest["stimuli"][0]
-            assert entry["status"] == "excluded"
-            assert "exclusion_reason" in entry
-        finally:
-            sm.STIMULI_DIR = original_stimuli
-            sm.ERRORS_LOG = original_log
-            sm.MANIFEST_PATH = original_manifest
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

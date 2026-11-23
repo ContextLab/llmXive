@@ -1,0 +1,151 @@
+T001:
+  c: true
+  h: 8656cad3824f42da870e157611fc2774d1d8837dde9a2b3b1c64cbbec8b699bc
+  r: Checked `code/scripts/setup_directories.py` execution log, which confirms that
+    all required directories (`code/scripts`, `code/data/raw`, `code/data/processed`,
+    `code/data/splits`, `code/models`, `code/tests`, `code/reports`, `code/utils`)
+    exist and each contains a `.gitkeep` file.
+  sig: bf7b290bbf8debf2929246c138ef37c4b68396b10a42fde73cab66cc8a7796d0
+T002:
+  c: true
+  h: e0841373e930f8756d1d49fe119f229f12549e05fc95021cfc8dcd1b18340cb7
+  r: "Checked `code/requirements.txt` (247\u202Fbytes) which contains pinned `==`\
+    \ versions for all required packages (`datasets`, `transformers`, `scikit-learn`,\
+    \ `pandas`, `numpy`, `pytest`, `pyyaml`). The file exists and meets the specification."
+  sig: 07e71ef2d745d5ab6ab425187613ab845de829ab18c8ec4d471098223aa499a6
+T003:
+  c: false
+  h: f45983ab8a9d39e5264e9ff4b7099d76bcef1ad790e0db4ead85330fda2e81e6
+  r: The evidence contains no `code/.gitignore` file at all, let alone one with the
+    required exact content. The implementer must add the missing `code/.gitignore`
+    file with the specified lines.
+  sig: 6879058e8d376b48cb1b8666a3e11146711519e66292246aea4638128fc4d27e
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file content was provided; without evidence that the file exists
+    and lists `data/`, `models/`, `__pycache__/`, and `*.pyc`, the requirement cannot
+    be confirmed. The implementer must add the `.gitignore` file containing those
+    exclusion patterns.
+T005:
+  c: true
+  h: 2e4ea6ebd9094f465962b011a4e7e8accf4d288bbeb74086c284b726062ad94c
+  r: "Checked `code/utils/logger.py` (3281\u202Fbytes) which defines a logger, functions\
+    \ to report current memory usage via\u202Fpsutil, and a `track_execution_time`\
+    \ context manager that records start/end times, peak memory via\u202Ftracemalloc,\
+    \ and logs these metrics to both console and a file. This fulfills the requirement\
+    \ to set up logging infrastructure that tracks memory usage and execution time."
+  sig: cf4a5a0c8d82d29bd6ed33e85b254b5432741ae42f8951366aeceb70e2c4409c
+T006:
+  c: true
+  h: 8962c0db42db5b6413e2c01b46753498e72b9f4ef69f1c031ba640d662d9bba3
+  r: "The `code/config.py` file (5787\u202Fbytes) is present and implements a full\
+    \ configuration system, including a default seed, a `set_seed` function that sets\
+    \ reproducible seeds for `random`, `numpy`, and `torch`, and a `get_path` utility\
+    \ that resolves configured directory paths to absolute `Path` objects. These features\
+    \ directly satisfy the task\u2019s requirement to manage seeds and paths."
+  sig: e527e842860a50d94af44eec213e41100ffd693bff8cc763547ae7c4e424fc5b
+T007:
+  c: false
+  h: ad8316f0b007544dd08f1f183f2a50395e418e3f45c60cac637239f69abd7645
+  r: "The provided `code/tests/test_transform.py` exists, but its core test `test_composite_rule_violated`\
+    \ calls `apply_composite_rule(actions, text, schema)` and expects a string label,\
+    \ while the actual `apply_composite_rule` in `code/scripts/transform.py` takes\
+    \ numeric and boolean arguments and returns a bool. This mismatch means the test\
+    \ cannot verify that \u201CL2 norm\u202F>\u202F0.5 AND text keyword match \u2192\
+    \u202F'constraint_violated'\u201D as required. The unit test must be corrected\
+    \ to use the proper function signature and check for the expected label."
+  sig: 0551272ab28246f93d83d424aaf61e19a12093badf189e032b3883428fc9845d
+T009:
+  c: false
+  h: 73bf15f8a504d56257a019d8d2677b18a0db0725d40171f288813fea36b6f168
+  r: "The provided `code/scripts/download.py` is present but the shown code is truncated\
+    \ and never writes any records to `code/data/raw/bridge_samples.jsonl`. Moreover,\
+    \ the expected output file `bridge_samples.jsonl` does not exist on disk. The\
+    \ task\u2019s core requirement\u2014to save the filtered streaming data to that\
+    \ JSONL file\u2014is therefore unmet."
+T010:
+  c: false
+  h: 3b7daa33626a3bda7d19380fbe41fa2fa22f82634943427b49353a6277a0a15e
+  r: "The `transform.py` script is incomplete (truncated before the processing loop\
+    \ and file\u2011write logic) and the required output file `code/data/processed/unified_dataset.jsonl`\
+    \ does not exist, so the task\u2019s verification condition (file exists with\
+    \ >0 rows) is not met."
+T011a:
+  c: false
+  h: c2427754eed129ed27952b93ae5e9808dd800c28ec83d0d2a0d1b659da0d7157
+  r: "The provided `train.py` is incomplete (truncated) and never creates or writes\
+    \ to `code/logs/memory_profile.log` (the file is missing). Consequently the required\
+    \ memory\u2011monitoring behavior and the full training implementation are not\
+    \ demonstrably present, so the task is not satisfied."
+T011b:
+  c: false
+  h: 9587dd016ee0001735a3b95a5b3354cad36ae6fca85a12dbfff8c8e9dca12af5
+  r: The required files `code/models/proxy_hard/model.pt` and `code/logs/memory_profile.log`
+    are both reported as missing, so the verification task has not been satisfied.
+    The implementer must ensure these artifacts are created and present after T011a
+    runs.
+T012:
+  c: false
+  h: b2a1f059bf932a9e436f88fc963a93e37c9d93f1a9cf0cd0462ebc914c1276c7
+  r: "The provided `train.py` is truncated and does not contain the full training\
+    \ loop, memory\u2011monitoring logic, or code that saves the model to `code/models/proxy_hard/model.pt`.\
+    \ Moreover, the expected output files (`model.pt` and `memory_profile.log`) are\
+    \ absent from the repository."
+T016b:
+  c: false
+  h: f73c1b8d638b7fa9223c5720ec1856f7674a5e43494971dbc6bf493dd211ead5
+  r: The repository lacks the required `code/data/results/raw_predictions.jsonl` file,
+    and the shown `evaluate.py` script is incomplete (truncated) and does not demonstrate
+    the full loading, splitting, inference, metric calculations, or writing of the
+    detailed prediction records demanded by the task. The implementer must generate
+    the predictions file and ensure the script fully implements all specified steps.
+T016c:
+  c: false
+  h: aa112ca99420277bd496078816c36a051f034b582811e1fcb7d34decf817d820
+  r: The repository lacks the required `code/data/results/raw_predictions.jsonl` and
+    the resulting `gap_metrics.json` files, and the shown portion of `evaluate.py`
+    does not contain the logic to compute `AUC_Symbolic`, `AUC_Physics`, calculate
+    their difference, or write the `generalization_gap` to `gap_metrics.json`. These
+    essential artifacts and functionality are missing.
+T016d:
+  c: false
+  h: efac4bdfdf1455d092ed66dc3854bd544575a4b0ebc5efad9e911f61aee83e63
+  r: "The provided `evaluate.py` stops after a partially\u2011implemented `calculate_metrics_from_predictions`\
+    \ function and never shows the Shapiro\u2011Wilk test, conditional t\u2011test/Wilcoxon,\
+    \ bootstrap confidence interval, or writing of `comparative_analysis.json`. Moreover,\
+    \ the required output file `code/data/results/comparative_analysis.json` does\
+    \ not exist. The task\u2019s statistical analysis and result\u2011generation steps\
+    \ are therefore missing."
+T016e:
+  c: false
+  h: 2d509fd33a19d9a8101e7238c110be98dec789629eeb54ab37271ff4e0e59914
+  r: "The `extract_errors.py` script is truncated (the `save_misclassified` function\
+    \ ends with an incomplete `for` loop) and therefore cannot write the misclassified\
+    \ samples. Moreover, the required input file `code/data/results/raw_predictions.jsonl`\
+    \ and the expected output file `code/data/processed/misclassified_samples.jsonl`\
+    \ are both missing. The task\u2019s core functionality is not present."
+T017:
+  c: false
+  h: 6fc855219413f0edb98ec9994b1336bba132134640b022610174e3f821a2833d
+  r: The provided `code/scripts/evaluate.py` is only partially shown (truncated after
+    the start of `load_unified_dataset`) and does not demonstrate the required logic
+    for dataset splitting, inference, metric calculation, statistical testing, or
+    writing the `comparative_analysis.json` and `raw_predictions.jsonl` files. Moreover,
+    the expected output files are absent from the repository. The implementation must
+    be completed to include all specified steps and generate the required result files.
+T018:
+  c: false
+  h: 47d47d59d7c39e5ed6c927cc65ed31b8e7cf855cd5c238a816a3b9b40acb740a
+  r: "The script `code/scripts/analyze_errors.py` exists, but the required input file\
+    \ `code/data/processed/misclassified_samples.jsonl` is missing, and the categorization\
+    \ heuristics use \u201CLogical Complexity\u201D instead of the specified \u201C\
+    Action Noise\u201D failure mode. The artifact therefore does not fully meet the\
+    \ task requirements."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `specs/001-llmxive-follow-up-extending-cosmos-3-omn/research.md` file
+    is present in the provided evidence, so the required justification and schema
+    adaptation notes are missing. The task cannot be considered completed until the
+    specified markdown file is created/modified with the requested content.

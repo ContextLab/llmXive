@@ -1,0 +1,12 @@
+status: none
+intent: download InstructPix2Pix image editing prompts with human feasibility scores
+  python package dataset
+required_fields:
+- prompt_id
+- prompt_text
+- instruction_type
+- human_feasibility_score
+- image_id
+cache_key: bdf9b09105f5c9c274ddf6280a6abe91c1339c0fe5cb69f3b8b7263267e66c51
+searched_at: '2026-10-25T06:41:09.382426+00:00'
+retry_count: 1

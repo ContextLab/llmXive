@@ -1,0 +1,10 @@
+# Project state file for PROJ-049
+#
+# This file is automatically updated by various pipeline steps.
+#
+# The key ``required_sample_size`` records the minimum number of participants
+# needed to detect the target effect size with the prescribed power.
+#
+# Additional keys (artifact hashes, timestamps, etc.) will be added by later
+# tasks.
+required_sample_size: null

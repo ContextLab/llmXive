@@ -1,0 +1,50 @@
+# Ruff configuration for llmXive project
+# Extending Wan-Streamer v0.1
+
+[lint]
+# Enable specific rule sets
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # Pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "UP",   # pyupgrade
+    "ARG",  # flake8-unused-arguments
+    "SIM",  # flake8-simplify
+    "TCH",  # flake8-type-checking
+    "RUF",  # Ruff-specific rules
+]
+
+# Ignore specific rules that are too strict for research code
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in research)
+    "ARG002", # Unused method arguments (sometimes needed for interface compliance)
+]
+
+# Allow unused variables in notebooks and for specific patterns
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[lint.isort]
+known-first-party = ["data", "models", "utils", "tasks", "inference", "evaluation", "tests"]
+force-sort-within-sections = true
+lines-after-imports = 2
+
+[lint.per-file-ignores]
+# Allow more flexibility in test files
+"tests/**/*.py" = ["ARG", "S101"]
+# Allow more flexibility in setup scripts
+"code/setup*.py" = ["T201"]
+
+[format]
+# Use double quotes (consistent with Black)
+quote-style = "double"
+# Use spaces for indentation
+indent-style = "space"
+# Line length matches Black default
+line-length = 88
+
+[lint.pydocstyle]
+convention = "numpy"

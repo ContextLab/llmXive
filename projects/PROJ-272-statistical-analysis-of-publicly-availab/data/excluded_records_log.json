@@ -1,0 +1,17 @@
+[
+  {
+    "participant_id": "P002",
+    "reason_code": "TXT_TOO_SHORT",
+    "reason_detail": "Text length 1 words < 50"
+  },
+  {
+    "participant_id": "P003",
+    "reason_code": "LBL_MISSING",
+    "reason_detail": "Could not parse cognitive status from headers"
+  },
+  {
+    "participant_id": "P006",
+    "reason_code": "TXT_TOO_SHORT",
+    "reason_detail": "Text length 2 words < 50"
+  }
+]

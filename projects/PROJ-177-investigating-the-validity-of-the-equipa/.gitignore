@@ -1,79 +1,27 @@
 # Byte-compiled / optimized / DLL files
+*.pyc
+*.pyo
+*.pyd
 __pycache__/
-*.py[cod]
-*$py.class
-
-# C extensions
-*.so
-
-# Distribution / packaging
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
 *.egg-info/
-.installed.cfg
-*.egg
+.eggs/
 
-# PyInstaller
-*.manifest
-*.spec
+# Data directories (excluded from version control)
+data/
+artifacts/
+logs/
 
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis/
-.pytest_cache/
-
-# Translations
-*.mo
-*.pot
-
-# Environments
-.env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
-
-# IDE
-.idea/
+# IDE / Editor
 .vscode/
+.idea/
 *.swp
 *.swo
 
-# Project specific
-data/raw/*
-!data/raw/.gitkeep
-data/derived/*
-!data/derived/.gitkeep
-artifacts/*
-!artifacts/.gitkeep
-state/*
-!state/.gitkeep
-figures/*
-!figures/.gitkeep
+# OS
+.DS_Store
+Thumbs.db
 
-# Logs
-*.log
+# Environment
+.env
+venv/
+.venv/

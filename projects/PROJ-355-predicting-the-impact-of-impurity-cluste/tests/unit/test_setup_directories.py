@@ -1,66 +1,72 @@
 import os
-import tempfile
-from pathlib import Path
 import pytest
+from pathlib import Path
+import sys
 
-# We need to import the function. Since the task requires running from the project root,
-# and the artifact is at code/setup_directories.py, we simulate the import context.
-# In a real run, we would add code/ to sys.path or run from the correct directory.
-# For this test, we will mock the logic or test the file creation directly if imported.
+# Add code directory to path for imports
+code_dir = Path(__file__).parent.parent.parent / "code"
+sys.path.insert(0, str(code_dir))
 
-# However, to strictly follow the "no stub" rule and ensure the code works:
-# We will test the logic by creating a temporary directory and verifying the structure.
+from setup_project import ensure_directory, create_gitkeep
+from setup_directories import setup_data_and_results_directories
 
-def test_setup_directories_creates_structure():
-    """
-    Verify that setup_directories creates the expected directory structure.
-    This test uses a temporary directory to avoid cluttering the workspace.
-    """
-    import sys
-    import importlib.util
+@pytest.fixture
+def temp_project_root(tmp_path):
+    """Create a temporary project root for testing."""
+    return tmp_path
 
-    # Load the module dynamically to test it in isolation
-    spec = importlib.util.spec_from_file_location("setup_directories", "code/setup_directories.py")
-    module = importlib.util.module_from_spec(spec)
+def test_setup_data_directories_creates_folders(temp_project_root):
+    """Test that setup_data_and_results_directories creates the required folders."""
+    results = setup_data_and_results_directories(temp_project_root)
     
-    # We need to mock the base_path logic for testing in a temp dir
-    # Since the function uses a hardcoded relative path "projects/...",
-    # we will patch the function or run it in a temp directory.
+    # Check that we got results for all 3 directories
+    assert len(results) == 3
     
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_path = Path(tmpdir)
-        os.chdir(tmp_path)
-        
-        # Execute the setup logic manually here to avoid path issues in the module
-        # This ensures we verify the actual file system changes.
-        project_root = tmp_path / "projects" / "PROJ-355-predicting-the-impact-of-impurity-cluste"
-        
-        # Replicate the logic from setup_directories.py for testing
-        subdirs = [
-            "code",
-            "data/raw",
-            "data/processed",
-            "results",
-            "tests/unit",
-            "tests/integration"
-        ]
-        
-        for subdir in subdirs:
-            full_path = project_root / subdir
-            full_path.mkdir(parents=True, exist_ok=True)
-            (full_path / ".gitkeep").touch(exist_ok=True)
-        
-        # Assertions
-        assert project_root.exists(), "Project root directory was not created."
-        
-        for subdir in subdirs:
-            full_path = project_root / subdir
-            assert full_path.exists(), f"Directory {full_path} was not created."
-            gitkeep = full_path / ".gitkeep"
-            assert gitkeep.exists(), f".gitkeep not found in {full_path}"
+    # Check specific paths exist
+    paths = [r[0] for r in results]
+    assert temp_project_root / "data" / "raw" in paths
+    assert temp_project_root / "data" / "processed" in paths
+    assert temp_project_root / "results" in paths
+    
+    # Check status is not failed
+    for path, status in results:
+        assert status != "failed", f"Failed to create {path}"
 
-        print("Directory structure verification passed.")
+def test_gitkeep_files_created(temp_project_root):
+    """Test that .gitkeep files are created in the new directories."""
+    setup_data_and_results_directories(temp_project_root)
+    
+    gitkeep_paths = [
+        temp_project_root / "data" / "raw" / ".gitkeep",
+        temp_project_root / "data" / "processed" / ".gitkeep",
+        temp_project_root / "results" / ".gitkeep",
+    ]
+    
+    for gitkeep_path in gitkeep_paths:
+        assert gitkeep_path.exists(), f".gitkeep missing at {gitkeep_path}"
+        assert gitkeep_path.is_file(), f"{gitkeep_path} is not a file"
 
-if __name__ == "__main__":
-    test_setup_directories_creates_structure()
-    print("Test passed.")
+def test_ensure_directory_creates_parent_directories(temp_project_root):
+    """Test that ensure_directory creates parent directories if they don't exist."""
+    deep_path = temp_project_root / "data" / "raw" / "subdir"
+    success = ensure_directory(deep_path)
+    
+    assert success
+    assert deep_path.exists()
+    assert deep_path.is_dir()
+
+def test_create_gitkeep_on_existing_directory(temp_project_root):
+    """Test that create_gitkeep works when directory already exists."""
+    # Create directory first
+    test_dir = temp_project_root / "test_dir"
+    test_dir.mkdir()
+    
+    gitkeep_path = test_dir / ".gitkeep"
+    created = create_gitkeep(gitkeep_path)
+    
+    assert created
+    assert gitkeep_path.exists()
+    
+    # Create again (idempotent)
+    created_again = create_gitkeep(gitkeep_path)
+    assert created_again  # Should return True even if file exists (idempotent behavior)

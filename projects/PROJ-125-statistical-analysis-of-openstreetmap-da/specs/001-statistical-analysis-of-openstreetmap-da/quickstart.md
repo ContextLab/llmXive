@@ -2,69 +2,68 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- `pip` or `conda`
-- Access to the internet (for Overpass API and AWS data)
+- Python 3.11 or newer
+- Git
+- Internet access to the verified OpenStreetMap extract source (e.g., Geofabrik)  
+- An LST GeoTIFF inventory satisfying the FR‑002 contract **once the spec amendment is in place**.
+
+> **LST note (temporary deviation)**: FR‑002’s USGS EarthExplorer route cannot be run unattended on the CI runner, and no verified open LST URL currently exists in the project's verified‑datasets block. **Until a spec amendment authorises a programmatically downloadable LST product or a local checksummed asset, users must manually place the required GeoTIFFs under `data/raw/lst/` and register them in `data/raw/manifest.json` with SHA‑256 checksums.** This manual step is a **temporary deviation** from Constitution Principle I; the steady‑state workflow will automatically fetch LST from the approved source once the amendment is approved.
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: `requirements.txt` pins versions for `osmnx`, `geopandas`, `rasterio`, `pysal`, `statsmodels`.*
+```bash
+git clone <repo-url>
+cd projects/PROJ-125-statistical-analysis-of-openstreetmap-da
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r code/requirements.txt
+```
 
 ## Configuration
 
-Edit `code/config.py` to define:
-- `CITIES`: List of cities to analyze (e.g., `["New York", "Chicago"]`).
-- `CRS`: Target projection (default: EPSG:3857).
-- `RESOLUTION`: Default 30.
+`code/config.py`:
+
+```python
+RANDOM_SEED   = 42
+MAX_MEMORY_GB = 6          # hard abort (exit code 99)
+DEGRADE_GB    = 5          # OLS_DEGRADED fallback
+MAX_SAMPLES   = 500_000    # max cells after spatial block sampling
+MAX_BLOCKS    = 250        # tuned so peak RSS stays below 6 GB
+CITY_LIST = [
+    "New York", "Los Angeles", "Chicago", "Houston", "Phoenix",
+    "Philadelphia", "San Antonio", "San Diego", "Dallas", "San Jose",
+]
+```
 
 ## Running the Pipeline
 
-### 1. Ingest and Align Data
-Download OSM data and Landsat thermal rasters, then align them to 30m.
 ```bash
-python code/main.py --step ingest --city "New York"
+# 1. Download OSM data (checksums recorded)
+python code/main.py --task download --city "New York"
+
+# 2. Run the full analysis
+python code/main.py --task run --city "New York"
+
+# 3. Quality assurance (lint + tests)
+python code/main.py --task lint
+python code/main.py --task test
 ```
-*Output*: `data/processed/new_york_aligned.tif`
 
-### 2. Exploratory Data Analysis (EDA)
-Calculate Moran's I and correlation matrices.
-```bash
-python code/main.py --step eda --input data/processed/new_york_aligned.tif
-```
-*Output*: `data/results/eda_report.json`, `data/results/moran_i.png`
+## Inspecting Results
 
-### 3. Spatial Modeling
-Fit OLS, GWR, and SAR models with spatial cross-validation.
-```bash
-python code/main.py --step model --input data/processed/new_york_aligned.tif --cv-folds 5
-```
-*Output*: `data/results/model_metrics.csv`, `data/results/model_coefficients.json`
+- **Metrics**: `data/results/metrics.csv` (includes `correction_method = "permutation-FDR"`, `memory_status`, `memory_peak_gb`)  
+- **Model outputs**: `data/results/models/*.json` (validated against `contracts/model_output.schema.yaml`)  
+- **Plots**: `data/results/plots/` (bandwidth sweep / OLS stability)  
+- **QA artifacts**: `data/results/qa/lint_report.txt`, `data/results/qa/test_report.txt`  
+- **Report**: `data/results/reports/report_<city>.md`
 
-### 4. Sensitivity Analysis
-Run GWR bandwidth sweep.
-```bash
-python code/main.py --step sensitivity --input data/processed/new_york_aligned.tif --bandwidths 100,200,500,1000
-```
-*Output*: `data/results/sensitivity_analysis.csv`
+## Quickstart Validation
 
-## Verification
-
-- Check `data/results/model_metrics.csv` for RMSE and R² values.
-- Verify `data/results/eda_report.json` contains a non-zero Moran's I.
-- Ensure no `ERROR` logs regarding resolution mismatch or cloud cover thresholds.
+The quickstart is validated by running the `download`, `run`, `lint`, and `test` commands end‑to‑end on a fresh environment. The resulting logs are saved under `data/results/qa/quickstart_validation.txt`.
 
 ## Troubleshooting
 
-- **Memory Error**: Reduce the study area or enable subsampling in `config.py`.
-- **Overpass API Timeout**: Increase `TIMEOUT` in `config.py` or retry.
-- **Cloud Cover**: If the single date has >20% cloud, the pipeline will attempt to fetch a composite (ensure `MULTI_DATE` is enabled).
+- **`DATA_GAP` error**: no LST rasters registered — see the LST note above.  
+- **`model_type: OLS_DEGRADED`**: Peak RAM usage exceeded a substantial threshold; OLS‑only results with clustered SE, Moran’s I, and a bias warning were produced.  
+- **Exit code 99**: peak RAM exceeded 6 GB (SC‑005) — reduce `MAX_BLOCKS` or city extent.  
+

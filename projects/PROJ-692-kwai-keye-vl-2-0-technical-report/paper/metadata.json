@@ -102,5 +102,15 @@
     "colm2024_conference.tex",
     "fancyhdr.sty",
     "natbib.sty"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "4aa16faa040879f3fcdba65e463e4522bf3c128aa1e1b8b11e65d9fe3ac61034",
+      "bytes": 29197503
+    },
+    "original.pdf": {
+      "sha256": "f3d5de428d4e1bc55248fafe3454e74e80699071ecd1bd1421c52df481b26851",
+      "bytes": 29155395
+    }
+  }
 }

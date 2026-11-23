@@ -1,152 +1,74 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Evaluation Metrics Schema
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Schema for Fracture Toughness Prediction Models"
 description: >
-  Schema defining the structure for model evaluation results, including
-  performance metrics, statistical tests, and confidence intervals.
-  Used to validate outputs from training and evaluation pipelines.
+  Contract defining the structure of evaluation results for models predicting
+  fracture toughness (K_IC) from microstructure images. This schema ensures
+  consistent reporting of model performance metrics across different architectures.
 type: object
 required:
-  - experiment_metadata
-  - model_performance
-  - statistical_significance
+  - model_type
+  - r_squared
+  - mean_absolute_error
+  - root_mean_squared_error
 properties:
-  experiment_metadata:
+  model_type:
+    type: string
+    description: "Type of model architecture used for evaluation"
+    enum:
+      - cnn
+      - linear
+      - random_forest
+  r_squared:
+    type: number
+    description: "Coefficient of determination (R²) measuring the proportion of variance explained by the model"
+    minimum: -Infinity
+  mean_absolute_error:
+    type: number
+    description: "Mean Absolute Error (MAE) in units of K_IC (MPa√m)"
+    minimum: 0
+  root_mean_squared_error:
+    type: number
+    description: "Root Mean Squared Error (RMSE) in units of K_IC (MPa√m)"
+    minimum: 0
+  dataset_split:
+    type: string
+    description: "The dataset split used for this evaluation (train, val, or test)"
+    enum:
+      - train
+      - val
+      - test
+  sample_size:
+    type: integer
+    description: "Number of samples used in this evaluation"
+    minimum: 1
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp when the evaluation was performed"
+  seeds_used:
+    type: array
+    items:
+      type: integer
+    description: "List of random seeds used for this evaluation run"
+  wilcoxon_p_value:
+    type: number
+    description: "P-value from Wilcoxon signed-rank test comparing against baseline (if applicable)"
+    minimum: 0
+    maximum: 1
+  mae_distribution:
     type: object
-    required:
-      - experiment_id
-      - timestamp
-      - seed
-      - model_architecture
-      - dataset_version
+    description: "Distribution of MAE values across multiple independent runs (for statistical testing)"
     properties:
-      experiment_id:
-        type: string
-        description: Unique identifier for the experiment run
-      timestamp:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of evaluation
-      seed:
-        type: integer
-        description: Random seed used for reproducibility
-      model_architecture:
-        type: string
-        description: Name or description of the model architecture
-      dataset_version:
-        type: string
-        description: Version of the dataset used
-      split_info:
-        type: object
-        properties:
-          train_size:
-            type: integer
-            minimum: 0
-          val_size:
-            type: integer
-            minimum: 0
-          test_size:
-            type: integer
-            minimum: 0
-          stratification:
-            type: string
-            description: Description of stratification method used
-  model_performance:
-    type: object
-    required:
-      - r_squared
-      - mae
-      - rmse
-    properties:
-      r_squared:
-        type: number
-        description: Coefficient of determination (R²)
-        minimum: -1
-      mae:
-        type: number
-        description: Mean Absolute Error
-        minimum: 0
-      rmse:
-        type: number
-        description: Root Mean Squared Error
-        minimum: 0
-      confidence_intervals:
-        type: object
-        description: Bootstrap confidence intervals for metrics
-        properties:
-          r_squared_ci:
-            type: array
-            items:
-              type: number
-            minItems: 2
-            maxItems: 2
-            description: [lower, upper] 95% CI for R²
-          mae_ci:
-            type: array
-            items:
-              type: number
-            minItems: 2
-            maxItems: 2
-            description: [lower, upper] 95% CI for MAE
-          rmse_ci:
-            type: array
-            items:
-              type: number
-            minItems: 2
-            maxItems: 2
-            description: [lower, upper] 95% CI for RMSE
-        required:
-          - r_squared_ci
-          - mae_ci
-          - rmse_ci
-  statistical_significance:
-    type: object
-    description: Results of statistical tests comparing models
-    properties:
-      permutation_test:
-        type: object
-        required:
-          - p_value
-          - n_permutations
-          - null_distribution_mean
-        properties:
-          p_value:
-            type: number
-            minimum: 0
-            maximum: 1
-            description: P-value from permutation test
-          n_permutations:
-            type: integer
-            minimum: 1
-            description: Number of permutations performed
-          null_distribution_mean:
-            type: number
-            description: Mean of the null distribution
-          observed_statistic:
-            type: number
-            description: Observed test statistic
-      comparison_baseline:
-        type: string
-        description: Name of the baseline model being compared
-  feature_attribution:
-    type: object
-    description: Optional attribution analysis results
-    properties:
-      method:
-        type: string
-        description: Attribution method used (e.g., Grad-CAM)
-      stability_metrics:
-        type: object
-        properties:
-          mean_iou:
-            type: number
-            minimum: 0
-            maximum: 1
-            description: Mean Intersection over Union across augmentations
-          iou_std:
-            type: number
-            minimum: 0
-            description: Standard deviation of IoU
-          threshold_passed:
-            type: boolean
-            description: Whether mean IoU > 0.5 threshold
+      cnn:
+        type: array
+        items:
+          type: number
+      linear:
+        type: array
+        items:
+          type: number
+      random_forest:
+        type: array
+        items:
+          type: number
 additionalProperties: false

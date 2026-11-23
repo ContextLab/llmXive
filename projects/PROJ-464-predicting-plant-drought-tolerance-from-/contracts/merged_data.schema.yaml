@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Merged Data Schema
+description: Schema for the merged RSA‑physiology dataset.
+type: object
+required:
+  - species_id
+  - depth
+  - branching_density
+  - surface_area
+  - stomatal_conductance
+  - photosynthetic_rate
+properties:
+  species_id:
+    type: string
+  depth:
+    type: number
+    minimum: 0
+  branching_density:
+    type: number
+    minimum: 0
+  surface_area:
+    type: number
+    minimum: 0
+  stomatal_conductance:
+    type: number
+  photosynthetic_rate:
+    type: number
+  survival_rate:
+    type: [number, "null"]
+  biomass_stress:
+    type: [number, "null"]
+  drought_tolerance_index:
+    type: [number, "null"]
+additionalProperties: false

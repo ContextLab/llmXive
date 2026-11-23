@@ -1,2 +1,3 @@
-# Data package for llmXive project
-# Contains raw and processed data artifacts
+# Data package for llmXive research pipeline
+# Contains raw and processed datasets for code review analysis
+pass

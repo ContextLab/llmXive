@@ -1,1 +1,2 @@
-"""Utilities package."""
+# Placeholder for utils directory
+pass

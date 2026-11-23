@@ -1,0 +1,16 @@
+status: none
+intent: BridgeData V2 video clips HuggingFace dataset and VideoMoE DiT-MoE model weights
+  python package dataset
+required_fields:
+- clip_id
+- video_url
+- duration_seconds
+- frame_rate
+- resolution
+- robot_task_label
+- physical_scenario
+- timestamp_start
+- timestamp_end
+cache_key: 2f2d527fed0a4f0818837c886a59ea4f3bc93d90637961fb904f724c0f491bf8
+searched_at: '2026-09-18T20:31:30.382008+00:00'
+retry_count: 1

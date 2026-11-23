@@ -271,7 +271,7 @@
       "- **Submitter:** " + who,
       "",
       "---",
-      "*Submitted via the llmXive dashboard. The submission-intake agent will triage this to the appropriate pipeline step within the hour.*",
+      "*Submitted via the llmXive dashboard. Scheduled submission intake will triage this to the appropriate pipeline step.*",
     ];
     const title = "Feedback: " + (target_id || "general") + (target_stage ? " (" + target_stage + ")" : "");
     return ghFetch("/repos/" + OWNER + "/" + REPO + "/issues", {
@@ -321,7 +321,7 @@
         "- **Submitter:** " + who,
         "",
         "---",
-        "*Submitted via the llmXive dashboard. The submission-intake agent will file this and create/link a project within the hour.*",
+        "*Submitted via the llmXive dashboard. Scheduled submission intake will file this and create/link a project.*",
       ];
       return ghFetch("/repos/" + OWNER + "/" + REPO + "/issues", {
         method: "POST",
@@ -341,7 +341,7 @@
       "- **Submitter:** " + who,
       "",
       "---",
-      "*Submitted via the llmXive dashboard. The submission-intake agent will file this and create/link a project within the hour.*",
+      "*Submitted via the llmXive dashboard. Scheduled submission intake will file this and create/link a project.*",
     ];
     return ghFetch("/repos/" + OWNER + "/" + REPO + "/issues", {
       method: "POST",

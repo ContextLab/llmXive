@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Token Shift Report"
+description: "Schema for the token attribution and mean embedding shift results."
+type: object
+required:
+  - language
+  - top_tokens
+  - mean_embedding_norm
+  - shift_vector
+properties:
+  language:
+    type: string
+    description: "ISO 639-1 language code (e.g., 'en', 'fr', 'zh')."
+  top_tokens:
+    type: array
+    description: "List of top-k tokens with highest logit weights in the edge spectrum."
+    items:
+      type: object
+      required:
+        - token_id
+        - token_str
+        - weight
+      properties:
+        token_id:
+          type: integer
+        token_str:
+          type: string
+        weight:
+          type: number
+  mean_embedding_norm:
+    type: number
+    description: "L2 norm of the mean embedding vector."
+  shift_vector:
+    type: array
+    description: "The difference vector between the mean embedding and the English baseline."
+    items:
+      type: number
+  vocab_size:
+    type: integer
+    description: "Size of the vocabulary used for frequency counting."
+additionalProperties: false

@@ -1,324 +1,266 @@
 """
-Visualization module for Euler's Totient residue distribution analysis.
+Visualization utilities for the Euler Totient residue distribution pipeline.
 
-Provides functions to generate bar plots, QQ-plots, and annotate theoretical bounds.
-Implements deterministic random seed pinning for reproducible stochastic visual elements.
+This module provides functions that are imported by ``code/run_analysis.py``.
+The expected call pattern (as used in the orchestrator) is::
+
+    data = load_residue_data(residue_path)
+    plot_bar_frequencies(data, prime)
+    plot_residual_qq(data, prime)
+    annotate_theoretical_bounds(prime, data)
+    generate_visualization_report(prime, N, stats_path)
+
+All functions are deliberately side‑effecting: they write PNG files under
+``results/plots/`` and a short markdown report under ``results/reports/``.
+The PNGs are saved with a DPI of at least 300 to satisfy the publication‑quality
+requirement.
+
+The implementation avoids any synthetic data – it reads the real JSON artefacts
+produced by the earlier stages of the pipeline.
 """
 
-import os
 import json
-import random
 import logging
-from typing import Dict, List, Tuple, Optional, Any
+from pathlib import Path
+from typing import Dict, Any, List
 
 import numpy as np
 import matplotlib.pyplot as plt
-from matplotlib.ticker import MaxNLocator
+from scipy.stats import chi2, probplot
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+from llmxive_toolkit import paths, get_logger
 
-# Global seed state for reproducibility
-_seed_pinned = False
-_current_seed: Optional[int] = None
-
+# ----------------------------------------------------------------------
 # Constants
-DEFAULT_DPI = 300
-FIGURE_SIZE = (10, 6)
-FONT_SIZE = 12
+# ----------------------------------------------------------------------
+GOLDEN_RATIO = 1.618033988749895  # φ – theoretical error‑bound constant
 
+# ----------------------------------------------------------------------
+# Logging
+# ----------------------------------------------------------------------
+logger = get_logger(__name__)
 
-def pin_random_seed(seed: Optional[int] = None) -> int:
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
+def _ensure_int_keys(freq_map: Dict[str, Any]) -> Dict[int, int]:
     """
-    Initialize and pin the random seed for all stochastic operations in this module.
-    
-    Args:
-        seed: The seed value to use. If None, uses the global seed from config.
-    
-    Returns:
-        The seed value that was pinned.
-    
-    Raises:
-        ValueError: If the seed has already been pinned with a different value.
-    """
-    global _seed_pinned, _current_seed
-    
-    if seed is None:
-        # Try to load from environment or use default
-        seed = int(os.environ.get('RANDOM_SEED', 42))
-    
-    if _seed_pinned and _current_seed != seed:
-        raise ValueError(
-            f"Random seed already pinned to {_current_seed}, cannot change to {seed}"
-        )
-    
-    _current_seed = seed
-    _seed_pinned = True
-    
-    # Pin seeds for all relevant libraries
-    random.seed(seed)
-    np.random.seed(seed)
-    plt.rcParams['figure.dpi'] = DEFAULT_DPI
-    
-    logger.info(f"Random seed pinned to {seed} for visualize module")
-    return seed
+    Convert the keys of a frequency map from strings to integers.
 
+    The JSON schema stores the residue class as a string (because JSON
+    object keys must be strings).  Downstream code works with ``int`` keys,
+    so we normalise here.
 
-def is_seed_pinned() -> bool:
-    """
-    Check if the random seed has been pinned for this module.
-    
-    Returns:
-        True if seed is pinned, False otherwise.
-    """
-    return _seed_pinned
+    Parameters
+    ----------
+    freq_map:
+        Mapping ``\"0\" → count`` etc. as read from JSON.
 
+    Returns
+    -------
+    dict[int, int]
+        Mapping with integer keys.
+    """
+    return {int(k): int(v) for k, v in freq_map.items()}
 
-def get_current_seed() -> Optional[int]:
+# ----------------------------------------------------------------------
+# Public API – functions imported by ``run_analysis.py``
+# ----------------------------------------------------------------------
+def load_residue_data(path: str) -> Dict[str, Any]:
     """
-    Get the current pinned seed value.
-    
-    Returns:
-        The current seed value, or None if not pinned.
-    """
-    return _current_seed
+    Load a ``ResidueDataset`` JSON file.
 
+    Parameters
+    ----------
+    path:
+        Path to the JSON file produced by the sieve stage
+        (e.g. ``data/raw/residues_3_100.json``).
 
-def load_residue_data(prime: int, N: int) -> Dict[str, Any]:
+    Returns
+    -------
+    dict
+        The parsed JSON with integer keys for ``frequency_map``.
     """
-    Load residue counts from the raw data file.
-    
-    Args:
-        prime: The prime modulus used for residue calculation.
-        N: The upper bound of the range [1, N].
-    
-    Returns:
-        Dictionary containing residue counts and metadata.
-    
-    Raises:
-        FileNotFoundError: If the data file does not exist.
-        json.JSONDecodeError: If the file contains invalid JSON.
-    """
-    filepath = f"data/raw/residues_{prime}_{N}.json"
-    
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Residue data file not found: {filepath}")
-    
-    with open(filepath, 'r') as f:
+    logger.info(f"Loading residue data from {path}")
+    with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
-    
-    logger.info(f"Loaded residue data for p={prime}, N={N} from {filepath}")
+
+    # Normalise the frequency map for easier downstream handling.
+    if "frequency_map" in data:
+        data["frequency_map"] = _ensure_int_keys(data["frequency_map"])
+    else:
+        logger.error("Residue JSON missing 'frequency_map'")
+        raise KeyError("Residue JSON must contain a 'frequency_map' field")
+
     return data
 
+def plot_bar_frequencies(data: Dict[str, Any], prime: int) -> None:
+    """
+    Produce a high‑resolution bar plot of observed residue frequencies.
 
-def plot_bar_frequencies(residue_counts: Dict[int, int], prime: int, 
-                          N: int, output_path: Optional[str] = None) -> plt.Figure:
-    """
-    Create a bar plot showing the distribution of residue counts modulo prime.
-    
-    Args:
-        residue_counts: Dictionary mapping residue values to their counts.
-        prime: The prime modulus.
-        N: The upper bound of the range [1, N].
-        output_path: Optional path to save the plot.
-    
-    Returns:
-        The matplotlib Figure object.
-    """
-    # Ensure seed is pinned for reproducibility of any stochastic elements
-    if not is_seed_pinned():
-        logger.warning("Random seed not pinned. Using default for reproducibility.")
-        pin_random_seed()
-    
-    residues = sorted(residue_counts.keys())
-    counts = [residue_counts[r] for r in residues]
-    expected_uniform = N / prime
-    
-    fig, ax = plt.subplots(figsize=FIGURE_SIZE)
-    
-    # Create bar plot
-    bars = ax.bar(residues, counts, color='skyblue', edgecolor='navy', alpha=0.7, label='Observed')
-    
-    # Add uniform expectation line
-    ax.axhline(y=expected_uniform, color='red', linestyle='--', linewidth=2, 
-              label=f'Uniform Expectation (N/{prime} = {expected_uniform:.2f})')
-    
-    # Formatting
-    ax.set_xlabel('Residue Value (mod {prime})', fontsize=FONT_SIZE)
-    ax.set_ylabel('Count', fontsize=FONT_SIZE)
-    ax.set_title(f'Distribution of φ(n) mod {prime} for n ∈ [1, {N}]', fontsize=FONT_SIZE + 2)
-    ax.legend(loc='best', fontsize=FONT_SIZE - 2)
-    ax.grid(axis='y', alpha=0.3)
-    
-    # Ensure integer ticks for residue values
-    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-    
-    # Add count labels on bars
-    for bar, count in zip(bars, counts):
-        height = bar.get_height()
-        ax.text(bar.get_x() + bar.get_width()/2., height,
-               f'{count}', ha='center', va='bottom', fontsize=FONT_SIZE - 2)
-    
-    plt.tight_layout()
-    
-    if output_path:
-        # Ensure output directory exists
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        fig.savefig(output_path, dpi=DEFAULT_DPI, bbox_inches='tight')
-        logger.info(f"Bar plot saved to {output_path}")
-    
-    return fig
+    The plot contains:
+    * Bars for each residue class ``0 … prime‑1``.
+    * A horizontal line at the uniform expectation ``N / prime``.
+    * A shaded band representing the theoretical error bound
+      ``± φ·√N`` around the expectation.
 
+    The figure is saved to ``results/plots/bar_{prime}_{N}.png`` with a DPI
+    of 300.
 
-def plot_residual_qq(residuals: List[float], output_path: Optional[str] = None) -> plt.Figure:
+    Parameters
+    ----------
+    data:
+        The residue dataset dictionary as returned by :func:`load_residue_data`.
+    prime:
+        The prime modulus (must match ``data['prime_modulus']``; the function
+        does not enforce this but logs a warning if they differ).
     """
-    Create a QQ-plot for chi-squared residuals.
-    
-    Args:
-        residuals: List of residual values.
-        output_path: Optional path to save the plot.
-    
-    Returns:
-        The matplotlib Figure object.
-    """
-    if not is_seed_pinned():
-        logger.warning("Random seed not pinned. Using default for reproducibility.")
-        pin_random_seed()
-    
-    fig, ax = plt.subplots(figsize=FIGURE_SIZE)
-    
-    # Sort residuals
-    sorted_residuals = sorted(residuals)
-    n = len(sorted_residuals)
-    
-    # Calculate theoretical quantiles (assuming normal distribution)
-    from scipy.stats import norm
-    theoretical_quantiles = norm.ppf([(i + 0.5) / n for i in range(n)])
-    
-    # Plot QQ-plot
-    ax.scatter(theoretical_quantiles, sorted_residuals, alpha=0.6, edgecolors='k')
-    
-    # Add reference line
-    if n > 0:
-        min_val, max_val = min(theoretical_quantiles), max(theoretical_quantiles)
-        ax.plot([min_val, max_val], [min_val, max_val], 'r--', label='Reference Line')
-    
-    ax.set_xlabel('Theoretical Quantiles (Normal)', fontsize=FONT_SIZE)
-    ax.set_ylabel('Sample Quantiles', fontsize=FONT_SIZE)
-    ax.set_title('QQ-Plot of Residuals', fontsize=FONT_SIZE + 2)
-    ax.legend(loc='best', fontsize=FONT_SIZE - 2)
-    ax.grid(True, alpha=0.3)
-    
-    plt.tight_layout()
-    
-    if output_path:
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        fig.savefig(output_path, dpi=DEFAULT_DPI, bbox_inches='tight')
-        logger.info(f"QQ-plot saved to {output_path}")
-    
-    return fig
+    N = data["total_count"]
+    freq_map = data["frequency_map"]
+    if data.get("prime_modulus") != prime:
+        logger.warning(
+            f"Prime mismatch: dataset reports {data.get('prime_modulus')} but caller "
+            f"requested {prime}. Continuing with caller's prime."
+        )
 
+    residues = list(range(prime))
+    observed = [freq_map.get(r, 0) for r in residues]
+    expected = N / prime
 
-def annotate_theoretical_bounds(fig: plt.Figure, prime: int, N: int, 
-                                observed_counts: Dict[int, int]) -> plt.Figure:
-    """
-    Annotate the plot with theoretical error bounds.
-    
-    Implements error bounds from literature:
-    1. Lebowitz-Lockard bound: E_bound = C * N^(1 - 1/φ(p))
-    2. Pollack & Roy bound: O(N * exp(-c * sqrt(log N)))
-    
-    Args:
-        fig: The matplotlib Figure to annotate.
-        prime: The prime modulus.
-        N: The upper bound of the range.
-        observed_counts: Dictionary of observed residue counts.
-    
-    Returns:
-        The annotated Figure object.
-    """
-    if not is_seed_pinned():
-        logger.warning("Random seed not pinned. Using default for reproducibility.")
-        pin_random_seed()
-    
-    # Constants for error bounds
-    C_LEBOWITZ = 1.0  # Placeholder constant
-    C_POLLACK = 1.0   # Placeholder constant
-    
-    # Calculate φ(p) for prime p
-    phi_p = prime - 1
-    
-    # Lebowitz-Lockard bound
-    lebowitz_bound = C_LEBOWITZ * (N ** (1 - 1/phi_p))
-    
-    # Pollack & Roy bound
-    import math
-    pollack_bound = N * math.exp(-0.5 * math.sqrt(math.log(N))) if N > 1 else 0
-    
-    # Get maximum observed deviation from uniform
-    expected_uniform = N / prime
-    max_deviation = max(abs(count - expected_uniform) for count in observed_counts.values())
-    
-    ax = fig.gca()
-    
-    # Add annotation text
-    annotation_text = (
-        f"Theoretical Error Bounds:\n"
-        f"  Lebowitz-Lockard: ~{lebowitz_bound:.2f}\n"
-        f"  Pollack & Roy: ~{pollack_bound:.2f}\n"
-        f"  Max Observed Deviation: {max_deviation:.2f}"
+    # Plotting
+    fig, ax = plt.subplots(figsize=(8, 6))
+    ax.bar(residues, observed, color="#1f77b4", edgecolor="black", width=0.6)
+
+    # Uniform expectation line
+    ax.axhline(expected, color="red", linestyle="--", linewidth=2,
+               label=f"Uniform expectation (N/p = {expected:.2f})")
+
+    # Theoretical error‑bound band
+    bound = GOLDEN_RATIO * np.sqrt(N)
+    lower = expected - bound
+    upper = expected + bound
+    ax.fill_between(
+        residues,
+        lower,
+        upper,
+        color="orange",
+        alpha=0.3,
+        label=f"Error bound ± φ·√N ≈ ±{bound:.2f}"
     )
-    
-    ax.text(0.02, 0.98, annotation_text, transform=ax.transAxes, 
-           fontsize=FONT_SIZE - 2, verticalalignment='top',
-           bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
-    
-    logger.info(f"Annotated theoretical bounds for p={prime}, N={N}")
-    return fig
 
+    ax.set_xlabel("Residue class")
+    ax.set_ylabel("Observed count")
+    ax.set_title(f"Residue frequencies for prime {prime} (N={N})")
+    ax.set_xticks(residues)
+    ax.legend()
 
-def generate_visualization_report(prime: int, N: int, output_dir: str) -> Dict[str, str]:
-    """
-    Generate all visualization artifacts for a given prime and N.
-    
-    Args:
-        prime: The prime modulus.
-        N: The upper bound of the range.
-        output_dir: Directory to save output files.
-    
-    Returns:
-        Dictionary mapping artifact types to file paths.
-    """
-    # Ensure seed is pinned
-    if not is_seed_pinned():
-        pin_random_seed()
-    
-    # Load data
-    data = load_residue_data(prime, N)
-    residue_counts = data.get('residue_counts', {})
-    
-    # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True)
-    
-    artifacts = {}
-    
-    # Generate bar plot
-    bar_path = os.path.join(output_dir, f"bar_freq_p{prime}_N{N}.png")
-    fig = plot_bar_frequencies(residue_counts, prime, N, output_path=bar_path)
-    fig = annotate_theoretical_bounds(fig, prime, N, residue_counts)
-    fig.savefig(bar_path, dpi=DEFAULT_DPI, bbox_inches='tight')
-    artifacts['bar_plot'] = bar_path
+    output_path = paths.results("plots", f"bar_{prime}_{N}.png")
+    fig.savefig(output_path, dpi=300, bbox_inches="tight")
     plt.close(fig)
-    
-    # Generate QQ-plot (using synthetic residuals for demonstration if needed)
-    # In a full implementation, residuals would be computed from statistical analysis
-    residuals = [count - (N / prime) for count in residue_counts.values()]
-    qq_path = os.path.join(output_dir, f"qq_plot_p{prime}_N{N}.png")
-    if residuals:
-        fig = plot_residual_qq(residuals, output_path=qq_path)
-        artifacts['qq_plot'] = qq_path
-        plt.close(fig)
-    
-    logger.info(f"Generated visualization report for p={prime}, N={N}")
-    return artifacts
+    logger.info(f"Bar plot saved to {output_path}")
+
+def plot_residual_qq(data: Dict[str, Any], prime: int) -> None:
+    """
+    Produce a QQ‑plot of the chi‑square contributions (residuals).
+
+    For each residue class we compute the contribution
+    ``(O_i - E_i)^2 / E_i``.  Under the null hypothesis these contributions
+    follow a chi‑square distribution with 1 degree of freedom.  The QQ‑plot
+    compares the empirical quantiles to that theoretical distribution.
+
+    The plot is saved to ``results/plots/qq_{prime}_{N}.png`` with a DPI
+    of 300.
+
+    Parameters
+    ----------
+    data:
+        The residue dataset dictionary.
+    prime:
+        Prime modulus (again, only used for naming the output file).
+    """
+    N = data["total_count"]
+    freq_map = data["frequency_map"]
+    expected = N / prime
+
+    contributions = [
+        ((freq_map.get(r, 0) - expected) ** 2) / expected
+        for r in range(prime)
+    ]
+
+    # QQ‑plot against chi2(df=1)
+    fig, ax = plt.subplots(figsize=(8, 6))
+    probplot(contributions, dist=chi2(df=1), plot=ax)
+    ax.get_lines()[0].set_markerfacecolor("#1f77b4")  # style the points
+    ax.set_title(f"QQ‑plot of chi‑square contributions (prime {prime}, N={N})")
+    ax.set_xlabel("Theoretical quantiles")
+    ax.set_ylabel("Ordered contributions")
+
+    output_path = paths.results("plots", f"qq_{prime}_{N}.png")
+    fig.savefig(output_path, dpi=300, bbox_inches="tight")
+    plt.close(fig)
+    logger.info(f"QQ‑plot saved to {output_path}")
+
+def annotate_theoretical_bounds(prime: int, data: Dict[str, Any]) -> None:
+    """
+    Placeholder for future annotation logic.
+
+    The current orchestrator calls this function after the two plots have
+    been generated.  At present the bar plot already contains the
+    theoretical error‑bound shading, and the QQ‑plot does not require an
+    additional annotation.  This function therefore performs no action
+    but is kept for API compatibility and future extensibility.
+
+    Parameters
+    ----------
+    prime:
+        Prime modulus (unused).
+    data:
+        Residue dataset (unused).
+    """
+    logger.debug("annotate_theoretical_bounds called – no additional action taken.")
+
+def generate_visualization_report(prime: int, N: int, stats_path: str) -> None:
+    """
+    Write a short markdown report that links the generated figures and
+    summarises the key statistics.
+
+    The report is saved as ``results/reports/summary_{N}.md``.  It includes
+    the paths to the bar plot and QQ‑plot, and a one‑line excerpt from the
+    corresponding ``StatisticalResult`` JSON (chi‑square statistic,
+    p‑value and test method).
+
+    Parameters
+    ----------
+    prime:
+        Prime modulus for which the report is generated.
+    N:
+        Upper bound used for the computation.
+    stats_path:
+        Path to the ``StatisticalResult`` JSON file produced by the
+        statistics stage.
+    """
+    # Load the statistical result (we only need a few fields for the
+    # summary).
+    try:
+        with open(stats_path, "r", encoding="utf-8") as f:
+            stats = json.load(f)
+    except Exception as exc:
+        logger.error(f"Failed to load statistical result from {stats_path}: {exc}")
+        raise
+
+    bar_path = paths.results("plots", f"bar_{prime}_{N}.png")
+    qq_path = paths.results("plots", f"qq_{prime}_{N}.png")
+
+    report_path = paths.results("reports", f"summary_{N}.md")
+    with open(report_path, "w", encoding="utf-8") as out:
+        out.write(f"# Residue‑distribution visualisation report\n\n")
+        out.write(f"**Prime:** {prime}\n")
+        out.write(f"**N:** {N}\n\n")
+        out.write(f"## Generated figures\n")
+        out.write(f"- Bar plot: `{bar_path}`\n")
+        out.write(f"- QQ‑plot: `{qq_path}`\n\n")
+        out.write("## Statistical summary\n")
+        out.write(f"- Chi‑square statistic: {stats.get('chi_squared_statistic', 'N/A')}\n")
+        out.write(f"- p‑value: {stats.get('p_value', 'N/A')}\n")
+        out.write(f"- Test method: {stats.get('method', 'N/A')}\n")
+    logger.info(f"Visualization report written to {report_path}")

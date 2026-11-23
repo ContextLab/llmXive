@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Regression Output Schema"
+description: "Schema for the regression results output."
+type: object
+properties:
+  model_name:
+    type: string
+    description: "Name of the model (Yield_Stability or Food_Security)."
+  coefficient_CSA:
+    type: number
+    description: "Coefficient for the CSA_Index predictor."
+  p_value_CSA:
+    type: number
+    description: "P-value for the CSA_Index coefficient."
+  robust_se_CSA:
+    type: number
+    description: "Robust Standard Error for CSA_Index."
+  vif_scores:
+    type: object
+    description: "Variance Inflation Factors for all predictors."
+    additionalProperties:
+      type: number
+  n_observations:
+    type: integer
+    description: "Number of observations used."
+  r_squared:
+    type: number
+    description: "R-squared value of the model."
+  bonferroni_sig:
+    type: boolean
+    description: "True if p-value < 0.0167 (Bonferroni adjusted)."
+required:
+  - model_name
+  - coefficient_CSA
+  - p_value_CSA
+  - robust_se_CSA
+  - vif_scores
+  - n_observations
+  - r_squared
+  - bonferroni_sig
+additionalProperties: false

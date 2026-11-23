@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EmissionRecord Schema"
+description: "Schema for a single emission record containing energy and LOC data."
+type: "object"
+properties:
+  record_id:
+    type: "string"
+    description: "Unique identifier for the record."
+  prompt_id:
+    type: "string"
+    description: "Reference to the prompt ID."
+  model_used:
+    type: "string"
+    description: "Model identifier (e.g., 'gpt2-medium')."
+  energy_kWh:
+    type: "number"
+    description: "Energy consumed in kilowatt-hours."
+    minimum: 0
+  co2_kg:
+    type: "number"
+    description: "CO2 emissions in kilograms."
+    minimum: 0
+  loc_count:
+    type: "integer"
+    description: "Number of lines of code generated."
+    minimum: 1
+  co2_per_loc:
+    type: "number"
+    description: "CO2 emissions per line of code."
+    minimum: 0
+required:
+  - "record_id"
+  - "prompt_id"
+  - "model_used"
+  - "energy_kWh"
+  - "co2_kg"
+  - "loc_count"
+  - "co2_per_loc"
+additionalProperties: false

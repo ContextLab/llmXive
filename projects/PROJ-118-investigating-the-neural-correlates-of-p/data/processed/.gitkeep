@@ -1,2 +1,2 @@
-# This directory contains preprocessed EEG data (epochs, cleaned files).
-# Do not commit large binary files.
+# This file ensures the data/processed directory exists in the repository.
+# Processed artifacts will be stored here.

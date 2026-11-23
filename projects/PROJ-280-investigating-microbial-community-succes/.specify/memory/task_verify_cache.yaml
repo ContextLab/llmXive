@@ -1,0 +1,88 @@
+T003a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.flake8` file content or path is provided in the evidence, so we cannot confirm
+    that a configuration file exists in the repository root with the required settings
+    (`max-line-length=100`, `ignore=E203,W503`, `exclude=venv,build`). The implementer
+    must supply the actual file.
+T006:
+  c: true
+  h: 84f64b3f4071b62a2fff17487e8f77f5e1b3523579249a2c9f1ee7c586380000
+  r: 'The `code/utils.py` file contains a full implementation of `get_logger(name:
+    str)` that creates the required `data/processed/audit_trail.log` file, uses the
+    specified log format, and configures both a `FileHandler` and a `StreamHandler`
+    with default INFO level. The absence of the log file itself is expected until
+    the logger is used.'
+T012:
+  c: false
+  h: 7eb3e0a033cd65ea2bccdb7597c81f113c1f1496eb92fd1b46e8fdea46bdd0ee
+  r: "The required output file `data/processed/metadata_with_rates.csv` does not exist,\
+    \ and the provided `code/02_preprocess.py` is truncated before any logic that\
+    \ writes this CSV or logs excluded\u2011sample counts. Consequently the task\u2019\
+    s core deliverable is missing."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or output feature tables were provided for the depth\u2011\
+    sensitivity sweep; the claim lacks any tangible artifact (e.g., subsampling scripts,\
+    \ generated tables at 2\u202Fk, 5\u202Fk, 10\u202Fk reads) to verify that the\
+    \ task was performed. The required outputs are missing."
+T020:
+  c: false
+  h: 1a82ad41879153bb5ddfd6e8f03b55df3532f12f03ebc55c09951d235c93c3a0
+  r: "The required output files `data/processed/sample_pool_validation.json`, `power_analysis_report.json`,\
+    \ and `sample_size_validation.json` are absent, and the provided snippet of `code/03_diversity.py`\
+    \ does not demonstrate the implementation of the power\u2011analysis logic, file\
+    \ writing, or the termination behavior mandated by the task."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or report files were presented that implement the requested\
+    \ logic for flagging R\xB2\u202F<\u202F0.1 effect sizes as \u201Cstatistically\
+    \ significant but ecologically weak.\u201D Without an artifact (e.g., updated\
+    \ analysis script, template change, or example output) the requirement is not\
+    \ satisfied. The next implementer must add and provide the actual implementation\
+    \ and a sample report demonstrating the new annotation."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or result files were provided that compute network modularity\
+    \ for early and mature stages, nor any calculation of the signed \u0394modularity.\
+    \ The required artifact (e.g., a script and its output showing modularity values\
+    \ and their difference) is missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated README or quickstart.md files were provided in the `docs/` directory,
+    nor any evidence that documentation was modified. The required documentation artifacts
+    are missing, so the task is not satisfied.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No new test files or code snippets were provided in `tests/unit/` that cover
+    edge cases such as empty datasets or missing metadata, so the required additional
+    unit tests are missing. The implementer must add concrete test cases for these
+    scenarios and ensure they are present in the repository.
+T043:
+  c: false
+  h: 7803539f739655addab4a82b4f75ec3398f51b663dd40c7ca43e695b3e493e4e
+  r: "The `01_retrieve_data.py` still contains a `try/except` block and does not call\
+    \ `sys.exit(1)` nor write a clear error entry to `data/processed/audit_trail.json`\
+    \ (the audit\u2011trail logging code is truncated and the file is missing). `02_preprocess.py`\
+    \ retains fallback logic (e.g., assuming all samples are constructed wetlands\
+    \ when a column is absent) instead of aborting on missing required data. Consequently\
+    \ the strict failure protocol is not fully implemented."
+T045#1:
+  c: false
+  h: ab0f3296fd4d3c734e81eb55825506a84d3ad1cceb98ee05e0b1f2ed5c6f1307
+  r: "The `code/03_diversity.py` file does not contain any PERMANOVA logic (it ends\
+    \ abruptly with a typo and no pairwise testing), and the required output file\
+    \ `data/processed/permanova_pairwise_matrix.json` is absent. The task\u2019s core\
+    \ functionality and output are therefore missing."
+T046#1:
+  c: false
+  h: c592f40450b53335a34807da6d43e93a9969a453b76dcb98ac10c094a0fa8502
+  r: "The required output file `data/processed/correlation_vif_flags.json` does not\
+    \ exist, and the provided snippet of `code/05_correlation.py` does not show any\
+    \ VIF calculation, flagging, or reporting logic. Without this JSON and explicit\
+    \ report of excluded taxa, the task\u2019s requirements are not met."

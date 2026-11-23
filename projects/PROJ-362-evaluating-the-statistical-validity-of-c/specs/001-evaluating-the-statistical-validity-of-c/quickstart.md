@@ -3,47 +3,61 @@
 ## Prerequisites
 
 - Python 3.10+
-- 7GB+ RAM available
-- Internet access (for dataset download)
+- Git
+- 7 GB RAM, 2 CPU cores (GitHub Actions free-tier compatible)
 
 ## Installation
 
-1. **Clone and Setup**:
+1. Clone the repository:
    ```bash
    git clone <repo-url>
-   cd projects/PROJ-362-evaluating-the-statistical-validity-of-c/code/
-   pip install -r requirements.txt
+   cd llmXive/projects/PROJ-362-evaluating-the-statistical-validity-of-c
    ```
 
-2. **Verify Environment**:
+2. Install dependencies:
    ```bash
-   python -c "import numpy, pandas, scipy, datasets; print('CPU-only environment ready')"
+   pip install -r code/requirements.txt
    ```
 
-## Execution
+## Running the Analysis
 
-Run the full analysis pipeline:
-
+### Full Run (with subsampling fallback)
 ```bash
-python main.py
+python code/main.py --collection trec-robust04 --permutations 1000
 ```
 
-**Flags (Optional)**:
-- `--subsample 100`: Force subsampling to 100 queries (useful for testing).
-- `--max-permutations 1000`: Limit permutation count for speed.
-- `--skip-download`: Assume data is already in `data/raw/`.
+### Specific Dataset
+```bash
+python code/main.py --collection trec-web-2009 --permutations 1000
+```
 
-## Output Artifacts
+### Arguments
+- `--collection`: TREC dataset name (e.g., `trec-robust04`, `trec-web-2009`).
+- `--permutations`: Number of permutations per query (default: 1000).
+- `--seed`: Random seed for reproducibility (default: 42).
+- `--max-queries`: Maximum queries to process (default: all, with subsampling trigger).
 
-Upon completion, the following files will be generated in `results/`:
+## Output
 
-- `p_values.csv`: Raw and corrected p-values, observed scores, MDES, and power for all queries.
-- `mdes_summary.csv`: Minimum Detectable Effect Size estimates (noise sigma and metric delta).
-- `plots/ndcg_density.png`: Density plot of observed vs. null NDCG with MDES annotation.
-- `plots/map_density.png`: Density plot of observed vs. null MAP with MDES annotation.
+Results are saved to `results/`:
+- `null_distributions/`: CSV files with null scores.
+- `p_values.csv`: Raw and corrected p-values.
+- `mdes_results.csv`: Minimum Detectable Effect Size.
+- `alpha_sweep.csv`: Sensitivity analysis.
+- `results_summary.csv`: Final summary table including a "Statistical Interpretation" note.
+- `plots/`: Density plots (PNG).
+
+**Statistical Interpretation**: The `results_summary.csv` and any generated report will include an explicit note: *"These findings represent statistical association between the metric score and relevance judgments. They do not imply causal algorithmic improvement."* (Satisfies FR-008).
+
+## Verification
+
+1. Checksums in `state/projects/PROJ-362-evaluating-the-statistical-validity-of-c.yaml` match raw data.
+2. All CSVs have required headers (see `contracts/`).
+3. `subsample_log.csv` exists if subsampling occurred, recording dropped queries and reasons (Satisfies FR-011).
+4. Plots generated in `results/plots/`.
 
 ## Troubleshooting
 
-- **Memory Error**: If the script fails due to memory, reduce `--subsample` or `--max-permutations`.
-- **Network Error**: The system automatically retries up to 3 times. If it fails, check internet connectivity.
-- **Missing Data**: Ensure `data/raw/` contains the downloaded qrels. Re-run with `--force-download`.
+- **Memory Error**: System automatically triggers subsampling (n=100). Check `data/processed/subsample_log.csv` for dropped queries.
+- **Download Failure**: Retries up to 3 times. If persistent, check network.
+- **Timeout**: If runtime > 5 hours, subsampling is forced.

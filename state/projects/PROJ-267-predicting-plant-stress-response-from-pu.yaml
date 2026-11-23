@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-267-predicting-plant-stress-response-from-pu
-last_run_id: 47f09c99-edbf-4a01-8565-987afa45a583
+last_run_id: be974964-0d9e-4963-9c81-acbea7ba45cd
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-267-predicting-plant-stress-response-from-pu/specs/001-predicting-plant-stress-response-from-pu
 title: Predicting Plant Stress Response from Publicly Available Proteomic Data
-updated_at: '2026-07-09T00:36:09.509729Z'
+updated_at: '2026-10-26T10:43:22.883494Z'

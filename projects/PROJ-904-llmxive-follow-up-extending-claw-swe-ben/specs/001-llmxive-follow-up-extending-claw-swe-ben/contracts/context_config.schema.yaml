@@ -1,0 +1,69 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: ContextConfiguration Schema
+description: >-
+  JSON Schema for the ContextConfiguration entity.
+  Matches the dataclass structure in code/models/context_config.py.
+type: object
+properties:
+  strategy_type:
+    type: string
+    enum:
+      - baseline
+      - tfidf
+      - diff_aware
+      - semantic_summarization
+    description: The context processing strategy used.
+  max_tokens:
+    type: integer
+    minimum: 1
+    description: Maximum number of tokens allowed in the context.
+  temperature:
+    type: number
+    minimum: 0.0
+    maximum: 2.0
+    description: Sampling temperature.
+  top_p:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Nucleus sampling parameter.
+  top_k:
+    type: integer
+    minimum: 1
+    description: Top-k sampling parameter.
+  context_snippets:
+    type: array
+    items:
+      type: object
+      properties:
+        file_path:
+          type: string
+        start_line:
+          type: integer
+        end_line:
+          type: integer
+        content:
+          type: string
+        relevance_score:
+          type: number
+      required:
+        - file_path
+        - start_line
+        - end_line
+        - content
+    description: List of selected context snippets.
+  truncation_method:
+    type: string
+    enum:
+      - first_n
+      - last_n
+      - relevance_sorted
+    description: How context was truncated if it exceeded limits.
+  metadata:
+    type: object
+    description: Additional configuration metadata.
+    additionalProperties: true
+required:
+  - strategy_type
+  - max_tokens
+additionalProperties: false

@@ -1,163 +1,236 @@
-"""
-Unit tests for the provenance tracking module.
-
-Tests checksum generation, recording, and verification functionality.
-"""
 import os
 import tempfile
 from pathlib import Path
 import pytest
 import yaml
+import hashlib
 
-# Import the module under test
+# Add the code directory to the path to allow imports
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
 from utils.provenance import (
-    ensure_state_directory,
-    get_provenance_state_file,
     compute_file_checksum,
-    load_existing_state,
-    save_state,
     record_artifact,
     verify_artifact,
-    list_artifacts
+    list_artifacts,
+    get_provenance_state_file,
+    load_existing_state,
+    save_state,
+    ensure_state_directory
 )
+from utils.config import get_paths
+
 
 @pytest.fixture
-def temp_state_dir(tmp_path):
-    """Create a temporary state directory for testing."""
-    # Monkey-patch the state directory for testing
-    import utils.provenance as prov_module
-    original_state_dir = prov_module.STATE_DIR
-    prov_module.STATE_DIR = tmp_path / "state" / "projects"
-    yield tmp_path
-    # Restore original
-    prov_module.STATE_DIR = original_state_dir
+def temp_test_file(tmp_path):
+    """Create a temporary file with known content for testing."""
+    test_file = tmp_path / "test_data.csv"
+    content = "col1,col2\n1,2\n3,4\n"
+    test_file.write_text(content)
+    return test_file
+
 
 @pytest.fixture
-def temp_artifact(tmp_path):
-    """Create a temporary artifact file for testing."""
-    artifact_path = tmp_path / "test_artifact.txt"
-    artifact_path.write_text("test content for provenance verification")
-    return artifact_path
+def temp_project_root(tmp_path):
+    """Set up a temporary project structure for testing."""
+    # Create necessary directories
+    (tmp_path / "state" / "projects").mkdir(parents=True, exist_ok=True)
+    (tmp_path / "data").mkdir(exist_ok=True)
+    return tmp_path
 
-def test_ensure_state_directory(temp_state_dir):
-    """Test that the state directory is created if it doesn't exist."""
-    result = ensure_state_directory()
-    assert result.exists()
-    assert result.is_dir()
 
-def test_get_provenance_state_file(temp_state_dir):
-    """Test that the state file path is correctly generated."""
-    result = get_provenance_state_file()
-    assert result.parent.exists()
-    assert result.name.endswith(".yaml")
+def test_compute_file_checksum(tmp_path):
+    """Test that checksum is computed correctly."""
+    test_file = tmp_path / "checksum_test.txt"
+    content = "Hello, World!"
+    test_file.write_text(content)
+    
+    checksum = compute_file_checksum(test_file)
+    
+    # Verify against Python's hashlib directly
+    expected = hashlib.sha256(content.encode()).hexdigest()
+    assert checksum == expected
 
-def test_compute_file_checksum(temp_artifact):
-    """Test checksum computation for a file."""
-    checksum = compute_file_checksum(temp_artifact)
-    assert len(checksum) == 64  # SHA256 produces 64 hex characters
-    assert all(c in "0123456789abcdef" for c in checksum)
 
-def test_compute_file_checksum_nonexistent():
-    """Test that FileNotFoundError is raised for nonexistent files."""
+def test_compute_file_checksum_empty_file(tmp_path):
+    """Test that empty file raises ValueError."""
+    test_file = tmp_path / "empty.txt"
+    test_file.touch()
+    
+    with pytest.raises(ValueError):
+        compute_file_checksum(test_file)
+
+
+def test_compute_file_checksum_nonexistent(tmp_path):
+    """Test that nonexistent file raises FileNotFoundError."""
+    test_file = tmp_path / "nonexistent.txt"
+    
     with pytest.raises(FileNotFoundError):
-        compute_file_checksum(Path("nonexistent_file.txt"))
+        compute_file_checksum(test_file)
 
-def test_load_existing_state_new(temp_state_dir):
-    """Test loading state when no state file exists."""
-    state = load_existing_state()
-    assert "project_id" in state
-    assert "created_at" in state
-    assert "artifacts" in state
-    assert isinstance(state["artifacts"], dict)
 
-def test_save_state(temp_state_dir):
-    """Test saving state to disk."""
-    test_state = {
-        "project_id": "TEST-001",
-        "created_at": "2023-01-01T00:00:00",
-        "artifacts": {"test": {"path": "test.txt"}}
-    }
-    save_state(test_state)
+def test_record_artifact(tmp_path, temp_test_file):
+    """Test that artifact is recorded with correct checksum."""
+    # Mock the project root to use our temp directory
+    original_get_paths = get_paths
     
-    state_file = get_provenance_state_file()
-    assert state_file.exists()
+    def mock_get_paths():
+        return {
+            "project_root": tmp_path,
+            "data_dir": tmp_path / "data",
+            "code_dir": tmp_path / "code",
+            "tests_dir": tmp_path / "tests"
+        }
     
-    with open(state_file, "r") as f:
-        loaded_state = yaml.safe_load(f)
-        
-    assert loaded_state == test_state
-
-def test_record_artifact(temp_state_dir, temp_artifact):
-    """Test recording an artifact to the state file."""
-    # Record the artifact
-    record = record_artifact(
-        temp_artifact,
-        artifact_type="test",
-        description="Test artifact"
-    )
+    # Patch get_paths
+    import utils.provenance
+    utils.provenance.get_paths = mock_get_paths
     
-    # Verify the record structure
-    assert "path" in record
-    assert "type" in record
-    assert "checksum" in record
-    assert "recorded_at" in record
-    assert record["type"] == "test"
-    assert record["description"] == "Test artifact"
-    
-    # Verify the state file was updated
-    state = load_existing_state()
-    assert str(temp_artifact) in state["artifacts"]
-
-def test_record_artifact_nonexistent():
-    """Test that FileNotFoundError is raised for nonexistent artifacts."""
-    with pytest.raises(FileNotFoundError):
+    try:
+        # Record the artifact
         record_artifact(
-            Path("nonexistent.txt"),
-            artifact_type="test"
+            temp_test_file,
+            description="Test artifact for provenance",
+            artifact_type="test_data",
+            generated_by="test_provenance.py"
         )
+        
+        # Verify the state file was created
+        state_file = get_provenance_state_file()
+        assert state_file.exists()
+        
+        # Load and verify content
+        state = load_existing_state(state_file)
+        assert len(state["artifacts"]) == 1
+        
+        entry = state["artifacts"][0]
+        assert entry["path"] == str(temp_test_file.resolve())
+        assert entry["description"] == "Test artifact for provenance"
+        assert entry["type"] == "test_data"
+        assert "checksum" in entry
+        assert entry["algorithm"] == "sha256"
+    finally:
+        # Restore original function
+        utils.provenance.get_paths = original_get_paths
 
-def test_verify_artifact_success(temp_state_dir, temp_artifact):
-    """Test successful artifact verification."""
-    # Record the artifact first
-    record_artifact(temp_artifact, artifact_type="test")
+
+def test_verify_artifact_success(tmp_path, temp_test_file):
+    """Test that verification passes for unchanged file."""
+    original_get_paths = get_paths
     
-    # Verify it
-    assert verify_artifact(temp_artifact) is True
-
-def test_verify_artifact_failure(temp_state_dir, temp_artifact):
-    """Test artifact verification after modification."""
-    # Record the artifact
-    record_artifact(temp_artifact, artifact_type="test")
+    def mock_get_paths():
+        return {
+            "project_root": tmp_path,
+            "data_dir": tmp_path / "data",
+            "code_dir": tmp_path / "code",
+            "tests_dir": tmp_path / "tests"
+        }
     
-    # Modify the artifact
-    temp_artifact.write_text("modified content")
+    import utils.provenance
+    utils.provenance.get_paths = mock_get_paths
     
-    # Verify should fail
-    assert verify_artifact(temp_artifact) is False
+    try:
+        # Record the artifact
+        record_artifact(temp_test_file, "Test artifact")
+        
+        # Verify should return True
+        assert verify_artifact(temp_test_file) is True
+    finally:
+        utils.provenance.get_paths = original_get_paths
 
-def test_verify_artifact_unrecorded(temp_state_dir, temp_artifact):
-    """Test verification of an unrecorded artifact."""
-    assert verify_artifact(temp_artifact) is False
 
-def test_list_artifacts(temp_state_dir, temp_artifact):
+def test_verify_artifact_failure(tmp_path, temp_test_file):
+    """Test that verification fails for modified file."""
+    original_get_paths = get_paths
+    
+    def mock_get_paths():
+        return {
+            "project_root": tmp_path,
+            "data_dir": tmp_path / "data",
+            "code_dir": tmp_path / "code",
+            "tests_dir": tmp_path / "tests"
+        }
+    
+    import utils.provenance
+    utils.provenance.get_paths = mock_get_paths
+    
+    try:
+        # Record the artifact
+        record_artifact(temp_test_file, "Test artifact")
+        
+        # Modify the file
+        temp_test_file.write_text("Modified content")
+        
+        # Verify should return False
+        assert verify_artifact(temp_test_file) is False
+    finally:
+        utils.provenance.get_paths = original_get_paths
+
+
+def test_list_artifacts(tmp_path, temp_test_file):
     """Test listing artifacts."""
-    # Record multiple artifacts
-    record_artifact(temp_artifact, artifact_type="data")
+    original_get_paths = get_paths
     
-    # Create another artifact
-    temp_artifact2 = temp_artifact.parent / "test2.txt"
-    temp_artifact2.write_text("test content 2")
-    record_artifact(temp_artifact2, artifact_type="model")
+    def mock_get_paths():
+        return {
+            "project_root": tmp_path,
+            "data_dir": tmp_path / "data",
+            "code_dir": tmp_path / "code",
+            "tests_dir": tmp_path / "tests"
+        }
     
-    # List all artifacts
-    all_artifacts = list_artifacts()
-    assert len(all_artifacts) == 2
+    import utils.provenance
+    utils.provenance.get_paths = mock_get_paths
     
-    # Filter by type
-    data_artifacts = list_artifacts(artifact_type="data")
-    assert len(data_artifacts) == 1
-    assert data_artifacts[0]["type"] == "data"
+    try:
+        # Record an artifact
+        record_artifact(temp_test_file, "Test artifact")
+        
+        # List artifacts
+        artifacts = list_artifacts()
+        
+        assert len(artifacts) == 1
+        assert artifacts[0]["description"] == "Test artifact"
+    finally:
+        utils.provenance.get_paths = original_get_paths
+
+
+def test_record_multiple_artifacts(tmp_path):
+    """Test recording multiple artifacts."""
+    original_get_paths = get_paths
     
-    model_artifacts = list_artifacts(artifact_type="model")
-    assert len(model_artifacts) == 1
-    assert model_artifacts[0]["type"] == "model"
+    def mock_get_paths():
+        return {
+            "project_root": tmp_path,
+            "data_dir": tmp_path / "data",
+            "code_dir": tmp_path / "code",
+            "tests_dir": tmp_path / "tests"
+        }
+    
+    import utils.provenance
+    utils.provenance.get_paths = mock_get_paths
+    
+    try:
+        # Create two test files
+        file1 = tmp_path / "data" / "file1.csv"
+        file1.parent.mkdir(exist_ok=True)
+        file1.write_text("data1")
+        
+        file2 = tmp_path / "data" / "file2.csv"
+        file2.write_text("data2")
+        
+        # Record both
+        record_artifact(file1, "First artifact")
+        record_artifact(file2, "Second artifact")
+        
+        # List should show both
+        artifacts = list_artifacts()
+        assert len(artifacts) == 2
+        
+        # Verify both exist in state
+        paths = [a["path"] for a in artifacts]
+        assert str(file1.resolve()) in paths
+        assert str(file2.resolve()) in paths
+    finally:
+        utils.provenance.get_paths = original_get_paths

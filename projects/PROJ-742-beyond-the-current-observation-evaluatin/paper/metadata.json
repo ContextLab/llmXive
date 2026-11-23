@@ -72,5 +72,15 @@
     "tables/rq3_visual_pattern_combined.tex",
     "tables/rq4_external_memory.tex",
     "template.cls"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "c3c28892adc66d21d07a42cdda6f7d0df9e861f944c4e5fcb4ded5aab7d7e52c",
+      "bytes": 11281004
+    },
+    "original.pdf": {
+      "sha256": "005a2a73b33ea9c1b6e89c55367b43db40bfc3fae52b9a57bfe7c13d7ceb56af",
+      "bytes": 11228763
+    }
+  }
 }

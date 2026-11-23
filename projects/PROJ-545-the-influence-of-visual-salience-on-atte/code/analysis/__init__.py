@@ -1,3 +1,3 @@
 """
-Analysis and comparison modules.
+Analysis, comparison, and diagnostics modules.
 """

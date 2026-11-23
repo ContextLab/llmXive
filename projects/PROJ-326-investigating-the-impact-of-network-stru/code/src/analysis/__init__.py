@@ -1,3 +1,2 @@
-"""
-Analysis package.
-"""
+# Analysis package initialization
+pass

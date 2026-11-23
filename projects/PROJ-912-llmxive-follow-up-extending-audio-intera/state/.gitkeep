@@ -1,0 +1,2 @@
+# This file ensures the state directory exists in version control.
+# Runtime state and intermediate checkpoints will be stored here.

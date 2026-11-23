@@ -1,0 +1,83 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for statistical results and visualization metadata"
+type: "object"
+properties:
+  correlation_analysis:
+    type: "object"
+    properties:
+      metric_type:
+        type: "string"
+        enum: ["degree", "betweenness", "eigenvector"]
+      rho:
+        type: "number"
+      p_value_uncorrected:
+        type: "number"
+      p_value_permutation:
+        type: "number"
+        description: "Family-wise error corrected p-value"
+      confidence_interval:
+        type: "array"
+        items:
+          type: "number"
+        minItems: 2
+        maxItems: 2
+      n_nodes:
+        type: "integer"
+        const: 400
+      n_permutations:
+        type: "integer"
+        const: 1000
+      power_status:
+        type: "string"
+        enum: ["Preliminary", "Inconclusive", "Adequate", "Null/Weak"]
+        description: "Power analysis result"
+      null_model_type:
+        type: "string"
+        enum: ["subject-level", "spatial-null", "unknown"]
+        description: "Type of null model used"
+    required: ["metric_type", "rho", "p_value_uncorrected", "p_value_permutation", "confidence_interval", "n_nodes", "n_permutations", "power_status", "null_model_type"]
+  sensitivity_analysis:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        threshold_density:
+          type: "number"
+        rho:
+          type: "number"
+      required: ["threshold_density", "rho"]
+  sensitivity_metrics:
+    type: "object"
+    properties:
+      stability_index:
+        type: "number"
+        description: "Standard deviation of rho across thresholds"
+      auc:
+        type: "number"
+        description: "Area Under the Curve of rho-threshold plot"
+    required: ["stability_index", "auc"]
+  collinearity:
+    type: "object"
+    properties:
+      vif_degree:
+        type: "number"
+      vif_betweenness:
+        type: "number"
+      vif_eigenvector:
+        type: "number"
+    required: ["vif_degree", "vif_betweenness", "vif_eigenvector"]
+  execution:
+    type: "object"
+    properties:
+      subjects_processed:
+        type: "integer"
+      subjects_skipped:
+        type: "integer"
+      runtime_seconds:
+        type: "number"
+      data_source:
+        type: "string"
+        enum: ["HCP", "OpenNeuro", "Synthetic"]
+    required: ["subjects_processed", "subjects_skipped", "runtime_seconds", "data_source"]
+required: ["correlation_analysis", "sensitivity_analysis", "sensitivity_metrics", "collinearity", "execution"]

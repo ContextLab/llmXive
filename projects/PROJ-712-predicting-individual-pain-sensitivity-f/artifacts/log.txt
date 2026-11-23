@@ -1,0 +1,37 @@
+2026-10-12 21:41:51,295 - test_logger - INFO - utils unit test log entry
+2026-10-12 21:49:16,473 - __main__ - ERROR - Missing required citations:
+2026-10-12 21:49:16,473 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-12 21:49:16,473 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-12 23:17:20,826 - __main__ - ERROR - Missing required citations:
+2026-10-12 23:17:20,826 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-12 23:17:20,826 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-13 00:23:00,639 - __main__ - ERROR - Missing required citations:
+2026-10-13 00:23:00,640 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-13 00:23:00,640 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-13 00:25:33,770 - __main__ - ERROR - Missing required citations:
+2026-10-13 00:25:33,770 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-13 00:25:33,770 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-13 01:33:44,071 - __main__ - ERROR - Missing required citations:
+2026-10-13 01:33:44,071 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-13 01:33:44,072 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-13 02:22:58,158 - __main__ - ERROR - Missing required citations:
+2026-10-13 02:22:58,158 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-13 02:22:58,158 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-13 03:23:59,985 - __main__ - ERROR - Missing required citations:
+2026-10-13 03:23:59,985 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-13 03:23:59,985 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-13 05:19:09,720 - __main__ - ERROR - Missing required citations:
+2026-10-13 05:19:09,720 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-13 05:19:09,720 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-13 08:16:28,445 - __main__ - ERROR - Missing required citations:
+2026-10-13 08:16:28,446 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-13 08:16:28,446 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-13 14:19:42,390 - __main__ - ERROR - Missing required citations:
+2026-10-13 14:19:42,391 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-13 14:19:42,391 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-14 03:19:08,051 - __main__ - ERROR - Missing required citations:
+2026-10-14 03:19:08,052 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-14 03:19:08,052 - __main__ - ERROR -   - doi:10.5678/example2
+2026-10-23 06:24:19,261 - __main__ - ERROR - Missing required citations:
+2026-10-23 06:24:19,261 - __main__ - ERROR -   - doi:10.1234/example1
+2026-10-23 06:24:19,261 - __main__ - ERROR -   - doi:10.5678/example2

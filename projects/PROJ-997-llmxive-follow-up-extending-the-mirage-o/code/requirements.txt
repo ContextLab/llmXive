@@ -1,0 +1,2 @@
+fastparquet>=0.8.0
+# Existing dependencies are provided by the platform; only fastparquet is added for Parquet I/O without pyarrow.

@@ -1,0 +1,193 @@
+- **FR‑014**: Distal CREs require `motif_score` < 1e‑4 **or** `hi_c_score` > 100 reads; otherwise CRE is excluded from modeling.
+- **FR‑015**: `weight` = `log(motif_score+1)` **or** `log(hi_c_score+1)` (chosen per CRE) and applied multiplicatively to `delta_peak_signal`.
+- **FR‑016**: All textual output (PDF, tables) includes the disclaimer “results are associational, not causal”.
+- **FR‑017**: `bias_analysis_<stress>.csv` contains full vs filtered β₁ comparison.
+- **SC‑005**: `summit_match_<stress>.txt` reports percentage of top‑10 CREs where `|summit_position - bigwig_max_signal_position| ≤ 5 bp`.
+
+## 5. File Formats
+
+- **CSV/TSV** for all tabular intermediates (e.g., `GLS input table`, `GLS results CSV`).
+- **BED** for genomic intervals (`CRE_merged.bed`, `null_regions.bed`).
+- **bigWig** for coverage tracks (`tracks/<stress>_CRE_signal.bw`).
+- **PDF** for final report (`results/Statistical_summary.pdf`).
+- **JSON** for manifest (`manifest.json`).
+
+All files are written under `data/` or `results/` with clear naming conventions enabling traceability. ===END_ARTIFACT===
+
+===BEGIN_ARTIFACT projects/PROJ-153-decoding-regulatory-element-contribution/specs/001-decoding-regulatory-element-contribution/quickstart.md===
+# Quickstart: Decoding Regulatory Element Contributions to Phenotypic Plasticity in Yeast
+
+## Prerequisites
+
+- **OS**: Linux (Ubuntu 22.04 or later)
+- **Memory**: ≥ 7 GB RAM (recommended 8 GB)
+- **Disk**: ≥ 14 GB free space
+- **Tools**: `git`, `conda` (or `mamba`), `R ≥ 4.3`, `Python ≥ 3.11`
+- **Data Manifest**: a YAML file (`manifest.yaml`) that lists **verified** URLs and MD5 checksums for every required dataset:
+ - ChIP‑seq FASTQ for each TF‑condition pair (Hsf1, Msn2, Msn4, Hog1 × control + 3 stresses)
+ - ATAC‑seq FASTQ (optional, multiple runs allowed)
+ - Stress‑specific eQTL summary (must contain `log2fc_heat`, `log2fc_osmotic`, `log2fc_oxidative`)
+ - Hi‑C contact map (e.g., GEO GSE123789)
+
+> **No placeholder accession numbers** (e.g., `GSE####`) are accepted. The pipeline will abort if any entry in `manifest.yaml` cannot be downloaded or fails checksum verification.
+
+## Installation
+
+```bash
+git clone
+cd yeast-cre-analysis
+conda env create -f code/environment.yml
+conda activate yeast-cre-analysis
+pip install -r code/requirements.txt
+```
+
+Verify tool versions:
+
+```bash
+fastp --version
+bowtie2 --version
+macs2 --version
+R --version
+```
+
+## Data Setup
+
+1. **Prepare a manifest** (example `manifest.yaml` included in the repo) that lists each dataset with fields:
+ ```yaml
+ chipseq:
+ - tf: Hsf1
+ condition: heat_shock
+ run_id: SRR123456
+ url: ftp.ncbi.nlm.nih.gov/...
+ md5: abcdef123456...
+ eqtl:
+ url:
+ md5: 987654fedcba...
+ hic:
+ url:
+ md5: 112233445566...
+ atac:
+ - run_id: SRR654321
+ url:...
+ md5: a1b2c3d4...
+ ```
+2. Place `manifest.yaml` at the project root.
+
+## Running the Pipeline
+
+```bash
+bash code/run_pipeline.sh manifest.yaml
+```
+
+The master script executes the phases in the exact order required (data download → preprocessing → peak calling → validation → modeling → reporting). If any required dataset is missing or fails checksum, the pipeline stops with an informative error.
+
+### Individual Steps (optional)
+
+- **Download only**: `bash code/01_download_data.sh manifest.yaml`
+- **Peak calling only**: `bash code/03_call_peaks.sh`
+- **GLS fitting only**: `Rscript code/06_fit_gls.R`
+
+## Expected Outputs
+
+- `results/CRE_ranked_heatshock.md`, `CRE_ranked_osmotic.md`, `CRE_ranked_oxidative.md`
+- `results/Statistical_summary.pdf`
+- `tracks/heatshock_CRE_signal.bw`, `tracks/osmotic_CRE_signal.bw`, `tracks/oxidative_CRE_signal.bw`
+- `manifest.json` (traceability manifest linking every output to its inputs)
+
+## Troubleshooting
+
+| Symptom | Likely Cause | Fix |
+|---------|--------------|-----|
+| **Fatal: missing ChIP‑seq run** | Entry absent or URL unreachable in `manifest.yaml` | Add the missing run or correct the URL. |
+| **Fatal: eQTL missing stress column** | eQTL file lacks one of the three fold‑change columns | Provide a stress‑specific eQTL dataset (e.g., GEO GSE123456). |
+| **No peaks survive FDR < 0.01** | Stringent threshold; data may be noisy | The pipeline will automatically report counts for 0.05 and 0.10 thresholds; you may relax the primary threshold to 0.05 if biologically justified. |
+| **VIF > 5 for many CREs** | High TF co‑binding | Collinear CREs are excluded from GLS per FR‑012; they remain in the report for transparency. |
+| **ATAC step skipped** | No ATAC‑seq accession listed | The pipeline logs `ATAC_MANDATORY_SKIP` and proceeds; this is acceptable. |
+| **MemoryError** | Very large intermediate files | The pipeline streams BAMs and filters eQTL to matched genes; ensure you have ≤ 7 GB RAM available. |
+| **Permutation takes >6 h** | Unexpected runtime | The permutation implementation uses block‑permutation and optimized R code; if still slow, consider reducing the number of genes (pipeline will warn). |
+
+## Next Steps
+
+- Use the ranked CRE tables to design CRISPRi/a experiments.
+- Cross‑reference top CREs with literature‑curated stress‑response pathways.
+- Extend the pipeline to additional stresses or yeast strains by updating `manifest.yaml`. ===END_ARTIFACT===
+
+===BEGIN_ARTIFACT projects/PROJ-153-decoding-regulatory-element-contribution/specs/001-decoding-regulatory-element-contribution/contracts/cre_schema.schema.yaml===
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CRE Analysis Output Schema"
+description: "Schema for ranked CRE tables and intermediate data files"
+type: object
+properties:
+ cre_id:
+ type: string
+ description: "Unique identifier for the CRE (e.g., CRE_chr1_12345_12500)"
+ chrom:
+ type: string
+ description: "Chromosome name (e.g., chrI)"
+ start:
+ type: integer
+ description: "Genomic start coordinate (0-based)"
+ end:
+ type: integer
+ description: "Genomic end coordinate (0-based)"
+ tf_binding:
+ type: array
+ items:
+ type: string
+ description: "List of TFs binding to this CRE"
+ context:
+ type: string
+ enum:
+ - "promoter"
+ - "distal"
+ description: "Genomic context: promoter (≤500 bp) or distal (>500 bp)"
+ gene_id:
+ type: string
+ description: "Associated gene ORF"
+ log2fc:
+ type: number
+ description: "Stress-specific expression fold-change (log2 scale)"
+ peak_signal:
+ type: number
+ description: "Normalized RPKM per condition"
+ motif_score:
+ type: number
+ description: "PWM p-value or log-transformed score (post-hoc weight source)"
+ beta1:
+ type: number
+ description: "Fixed effect estimate from linear mixed model (GLS)"
+ p_value:
+ type: number
+ description: "Raw p-value from likelihood-ratio test"
+ q_value:
+ type: number
+ description: "Benjamini-Hochberg adjusted p-value"
+ validation_score:
+ type: number
+ description: "Motif p-value or Hi-C contact frequency"
+ is_collinear:
+ type: boolean
+ description: "True if VIF > 5"
+ is_significant:
+ type: boolean
+ description: "True if q-value ≤ 0.05"
+ weight:
+ type: number
+ description: "Observation weight = log(motif_score + 1) or log(hi_c_score + 1)"
+ validated_by_atac:
+ type: boolean
+ description: "True if CRE was validated by ATAC-seq; False if ATAC data was missing (ATAC_MANDATORY_SKIP)."
+required:
+ - cre_id
+ - chrom
+ - start
+ - end
+ - tf_binding
+ - context
+ - gene_id
+ - log2fc
+ - beta1
+ - p_value
+ - q_value
+ - is_significant
+additionalProperties: false

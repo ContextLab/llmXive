@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.20106",
+  "judged_at": "2026-10-21T19:11:24Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "virtual reality exposure therapy for anxiety: a meta-analysis psychology",
+  "rationale": "This paper concerns VR fidelity and realism perception of digital twins, not Virtual Reality Exposure Therapy for anxiety — it shares only the \"exposure\" and \"VR\" keywords while studying a distinct construct (perception of replica quality, not therapeutic exposure for anxiety treatment). It is off-domain from the clinical psychology question.",
+  "relevant": false
+}

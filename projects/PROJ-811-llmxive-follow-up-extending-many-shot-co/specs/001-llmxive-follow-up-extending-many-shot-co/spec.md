@@ -45,7 +45,7 @@
 
 **Why this priority**: This delivers the final empirical evidence. The analysis must be robust enough to run within the 6-hour free-tier limit while maintaining statistical validity (controlling for multiplicity and power).
 
-**Independent Test**: The system can run inference on a sample of 64-shot prompts using `llama.cpp` (CPU mode), collect accuracy metrics, aggregate them by seed, and output a statistical report confirming whether the interaction term in the ANOVA (performed on mean accuracy per seed) is significant (p < 0.05) or not.
+**Independent Test**: The system can run inference on a sample of prompts using `llama.cpp` (CPU mode), collect accuracy metrics, aggregate them by seed, and output a statistical report confirming whether the interaction term in the ANOVA (performed on mean accuracy per seed) is significant (p < 0.05) or not.
 
 **Acceptance Scenarios**:
 
@@ -60,7 +60,7 @@
 - **What happens when** a CoT trace contains ambiguous logical steps that cannot be uniquely mapped to a DAG node?
   - *System handles*: The parser defaults to a "sequential chain" assumption (linear dependency) and flags the example for manual review in the log, excluding it from the "Logical Ascending" sort if the ambiguity exceeds a substantial threshold of the total steps.
 - **How does the system handle** a model crashing or timing out during inference on a specific prompt?
-  - *System handles*: The runner retries the specific prompt up to 2 times with a 30-second backoff. If it fails again, the trial is marked as "failed," excluded from the accuracy calculation for that seed/strategy, and the total sample size is adjusted in the statistical report.
+  - *System handles*: The runner retries the specific prompt up to 2 times with a -second backoff. If it fails again, the trial is marked as "failed," excluded from the accuracy calculation for that seed/strategy, and the total sample size is adjusted in the statistical report.
 - **What happens when** the dataset lacks sufficient variance in logical depth (e.g., all examples have depth 1)?
   - *System handles*: The system detects zero variance in the "Logical Difficulty Score" distribution and halts the run, reporting a "Data Insufficiency" error, as the "Logical Ascending" strategy would be indistinguishable from a random shuffle.
 
@@ -89,9 +89,9 @@
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values to the implementation phase.
 
-- **SC-001**: The variance of accuracy across 10 random seeds for the "Logical Ascending" strategy is measured against the variance of the "Logical Random" strategy for non-reasoning models to determine stability improvement (≥ 15% reduction in variance, p < 0.10 via Levene's test) (See US-003).
-- **SC-002**: The interaction p-value from the two-way ANOVA (Model Type × Ordering Strategy) is measured against the alpha level of 0.05 (adjusted for multiplicity) to determine if the alignment hypothesis is supported (See US-003).
-- **SC-003**: The total execution time for the full inference and analysis pipeline is measured against the 6-hour free-tier runner limit to ensure compute feasibility (See US-003).
+- **SC-001**: The variance of accuracy across multiple random seeds for the "Logical Ascending" strategy is measured against the variance of the "Logical Random" strategy for non-reasoning models to determine stability improvement (≥ 15% reduction in variance, p < 0.10 via Levene's test) (See US-003).
+- **SC-002**: The interaction p-value from the two-way ANOVA (Model Type × Ordering Strategy) is measured against the alpha level set to a conventional threshold (adjusted for multiplicity) to determine if the alignment hypothesis is supported (See US-003).
+- **SC-003**: The total execution time for the full inference and analysis pipeline is measured against the -hour free-tier runner limit to ensure compute feasibility (See US-003).
 - **SC-004**: The proportion of CoT traces successfully parsed into valid DAGs is measured against the total number of traces in the dataset to verify data quality and parser robustness (See US-001).
 - **SC-005**: The accuracy difference between "Logical Ascending" and "Original CDS" for non-reasoning models is measured against the accuracy difference for reasoning models to validate the differential effect hypothesis (p-value < 0.05 Bonferroni-adjusted AND partial eta-squared ≥ 0.06) (See US-003).
 

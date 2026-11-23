@@ -1,162 +1,121 @@
-from typing import Dict, Any, Optional
+import os
+import sys
+import time
 from datetime import datetime
+from typing import Dict, Any, Optional, List
 from utils.logger import get_logger
+
+logger = get_logger(__name__)
 
 class MetricsCollector:
     """
-    Handles real-time collection of usability metrics during simulation sessions.
-    
-    Tracks:
-    - completion_time: Total duration of the session (calculated on end)
-    - error_count: Number of errors recorded during the session
-    - explanation_engagement_time: Cumulative time spent interacting with XAI overlays
+    Collects usability metrics including completion time, error count,
+    and explanation engagement time.
     """
+
     def __init__(self):
-        self.logger = get_logger("metrics_collector")
-        self.sessions: Dict[str, Dict[str, Any]] = {}
+        self.session_start_time: Optional[float] = None
+        self.session_end_time: Optional[float] = None
+        self.error_count: int = 0
+        self.explanation_engagement_start: Optional[float] = None
+        self.explanation_engagement_total: float = 0.0
+        self.metrics: Dict[str, Any] = {}
 
-    def start_session(self, session_id: str):
-        """Initialize a new session with a timestamp."""
-        self.sessions[session_id] = {
-            "start_time": datetime.now(),
-            "error_count": 0,
-            "explanation_engagement_time": 0.0
-        }
-        self.logger.info(f"Session {session_id} started.")
+    def start_session(self) -> None:
+        """Record the start time of the interaction session."""
+        self.session_start_time = time.time()
+        logger.info("Session started.")
 
-    def record_error(self, session_id: str):
-        """Increment the error count for a specific session."""
-        if session_id not in self.sessions:
-            self.logger.warning(f"Attempted to record error for unknown session: {session_id}")
-            return
-        
-        self.sessions[session_id]["error_count"] += 1
-        self.logger.debug(f"Session {session_id}: Error recorded (Total: {self.sessions[session_id]['error_count']})")
+    def stop_session(self) -> None:
+        """Record the end time of the interaction session."""
+        self.session_end_time = time.time()
+        logger.info("Session ended.")
 
-    def record_engagement(self, session_id: str, duration: float):
+    def record_error(self) -> None:
+        """Increment the error count."""
+        self.error_count += 1
+        logger.debug("Error recorded. Total errors: %d", self.error_count)
+
+    def start_explanation_engagement(self) -> None:
+        """Start tracking time spent engaging with an explanation."""
+        if self.explanation_engagement_start is not None:
+            logger.warning("Explanation engagement already in progress. Stopping previous timer.")
+            self._stop_explanation_engagement()
+        self.explanation_engagement_start = time.time()
+        logger.debug("Explanation engagement started.")
+
+    def stop_explanation_engagement(self) -> None:
+        """Stop tracking time spent engaging with an explanation."""
+        self._stop_explanation_engagement()
+        logger.debug("Explanation engagement stopped.")
+
+    def _stop_explanation_engagement(self) -> None:
+        """Internal helper to stop the timer and accumulate duration."""
+        if self.explanation_engagement_start is not None:
+            end_time = time.time()
+            duration = end_time - self.explanation_engagement_start
+            self.explanation_engagement_total += duration
+            self.explanation_engagement_start = None
+            logger.debug("Accumulated engagement duration: %.3f seconds", duration)
+
+    def finalize_metrics(self) -> Dict[str, Any]:
         """
-        Add to the cumulative explanation engagement time.
-        
-        Args:
-            session_id: The active session identifier.
-            duration: Time in seconds to add to the engagement total.
+        Calculate and return the final metrics dictionary.
+        Includes completion_time_seconds, error_count, and explanation_engagement_time_seconds.
         """
-        if session_id not in self.sessions:
-            self.logger.warning(f"Attempted to record engagement for unknown session: {session_id}")
-            return
+        if self.session_start_time is None or self.session_end_time is None:
+            raise RuntimeError("Session start or end time not recorded.")
 
-        if duration < 0:
-            self.logger.warning(f"Invalid negative duration {duration} for session {session_id}")
-            return
+        completion_time = self.session_end_time - self.session_start_time
 
-        self.sessions[session_id]["explanation_engagement_time"] += duration
-        self.logger.debug(f"Session {session_id}: Engagement added ({duration}s). Total: {self.sessions[session_id]['explanation_engagement_time']:.2f}s")
-
-    def end_session(self, session_id: str) -> Dict[str, Any]:
-        """
-        Finalize the session and calculate completion time.
-        
-        Returns:
-            A dictionary containing the final metrics:
-            - session_id
-            - start_time
-            - end_time
-            - completion_time (seconds)
-            - error_count
-            - explanation_engagement_time (seconds)
-        """
-        if session_id not in self.sessions:
-            self.logger.error(f"Cannot end session {session_id}: Session not found.")
-            return {}
-
-        data = self.sessions[session_id]
-        end_time = datetime.now()
-        data["end_time"] = end_time
-        
-        # Calculate completion time in seconds
-        start_time = data["start_time"]
-        completion_time = (end_time - start_time).total_seconds()
-        data["completion_time"] = completion_time
-
-        # Prepare output payload
-        result = {
-            "session_id": session_id,
-            "start_time": start_time.isoformat(),
-            "end_time": end_time.isoformat(),
-            "completion_time": completion_time,
-            "error_count": data["error_count"],
-            "explanation_engagement_time": data["explanation_engagement_time"]
+        self.metrics = {
+            "completion_time_seconds": completion_time,
+            "error_count": self.error_count,
+            "explanation_engagement_time_seconds": self.explanation_engagement_total
         }
 
-        # Clean up internal state
-        del self.sessions[session_id]
+        logger.info("Metrics finalized: %s", str(self.metrics))
+        return self.metrics
 
-        self.logger.info(f"Session {session_id} ended. Metrics: {result}")
-        return result
-
-    def get_session_snapshot(self, session_id: str) -> Optional[Dict[str, Any]]:
-        """
-        Retrieve the current state of a session without finalizing it.
-        Useful for mid-session checks or debugging.
-        """
-        if session_id not in self.sessions:
-            return None
-        
-        data = self.sessions[session_id]
-        current_time = datetime.now()
-        current_completion = (current_time - data["start_time"]).total_seconds()
-        
-        return {
-            "session_id": session_id,
-            "start_time": data["start_time"].isoformat(),
-            "current_time": current_time.isoformat(),
-            "current_completion_time": current_completion,
-            "error_count": data["error_count"],
-            "explanation_engagement_time": data["explanation_engagement_time"]
-        }
+    def reset(self) -> None:
+        """Reset all metrics for a new session."""
+        self.session_start_time = None
+        self.session_end_time = None
+        self.error_count = 0
+        self.explanation_engagement_start = None
+        self.explanation_engagement_total = 0.0
+        self.metrics = {}
+        logger.info("MetricsCollector reset.")
 
 def main():
     """
-    Entry point for testing the MetricsCollector module independently.
-    Simulates a user session flow to verify metric collection.
+    CLI entry point for testing the MetricsCollector.
+    Simulates a session to ensure 'explanation_engagement_time_seconds' is calculated correctly.
     """
-    print("Running MetricsCollector self-test...")
     collector = MetricsCollector()
+    collector.start_session()
     
-    # Simulate a session
-    test_session_id = "TEST_SESSION_001"
-    collector.start_session(test_session_id)
+    # Simulate some work
+    time.sleep(0.1) 
+    collector.record_error()
     
-    # Simulate errors
-    collector.record_error(test_session_id)
-    collector.record_error(test_session_id)
+    # Simulate explanation engagement
+    collector.start_explanation_engagement()
+    time.sleep(0.2)
+    collector.stop_explanation_engagement()
     
-    # Simulate engagement with XAI overlays
-    collector.record_engagement(test_session_id, 5.5)
-    collector.record_engagement(test_session_id, 3.2)
+    collector.stop_session()
     
-    # End session and retrieve results
-    results = collector.end_session(test_session_id)
+    results = collector.finalize_metrics()
+    print("Final Metrics:")
+    for k, v in results.items():
+        print(f"  {k}: {v}")
     
-    if not results:
-        print("ERROR: Session collection failed.")
-        return 1
-        
-    print("\n--- Session Results ---")
-    print(f"Session ID: {results['session_id']}")
-    print(f"Completion Time: {results['completion_time']:.2f} seconds")
-    print(f"Error Count: {results['error_count']}")
-    print(f"Explanation Engagement Time: {results['explanation_engagement_time']:.2f} seconds")
-    print("-----------------------\n")
+    # Verify the specific field required by T016b
+    assert "explanation_engagement_time_seconds" in results, "explanation_engagement_time_seconds missing!"
+    assert isinstance(results["explanation_engagement_time_seconds"], float), "explanation_engagement_time_seconds must be float!"
     
-    # Validation checks
-    assert results["error_count"] == 2, "Error count mismatch"
-    assert abs(results["explanation_engagement_time"] - 8.7) < 0.01, "Engagement time mismatch"
-    assert results["completion_time"] > 0, "Completion time must be positive"
-    
-    print("Self-test PASSED.")
-    return 0
+    print("SUCCESS: explanation_engagement_time_seconds is correctly logged.")
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

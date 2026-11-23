@@ -1,5 +1,6 @@
 """
-Syntax validation utilities for Python and Java files.
+Syntax validation utilities for code files.
+Supports Python (ast) and Java (javac subprocess) integrity checks.
 """
 
 import ast
@@ -8,127 +9,158 @@ import subprocess
 import tempfile
 import os
 from pathlib import Path
-from typing import Tuple, Optional
+from typing import Optional, Dict, Any
 
-logger = logging.getLogger(__name__)
+from utils.logger import get_logger
+logger = get_logger(__name__)
 
-def get_language_from_extension(file_path: Path) -> Optional[str]:
-    """Determine language based on file extension."""
-    ext = file_path.suffix.lower()
+def get_language_from_extension(file_path: str) -> Optional[str]:
+    """
+    Determine language from file extension.
+    
+    Args:
+        file_path: Path to the file
+    
+    Returns:
+        Language name ('python', 'java', etc.) or None
+    """
+    ext = Path(file_path).suffix.lower()
     if ext == '.py':
         return 'python'
-    elif ext in ['.java', '.jav']:
+    elif ext == '.java':
         return 'java'
     return None
 
-def validate_python_syntax(file_path: Path) -> Tuple[bool, Optional[str]]:
+def validate_python_syntax(code: str) -> bool:
     """
-    Validate Python syntax using the ast module.
+    Validate Python syntax using the built-in ast module.
+    
+    Args:
+        code: Python code string
     
     Returns:
-        Tuple of (is_valid, error_message)
+        True if valid, False otherwise
     """
-    if not file_path.exists():
-        return False, f"File not found: {file_path}"
-    
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            source = f.read()
-        ast.parse(source)
-        return True, None
+        ast.parse(code)
+        return True
     except SyntaxError as e:
-        return False, f"SyntaxError: {e.msg} at line {e.lineno}"
-    except Exception as e:
-        return False, f"Unexpected error: {str(e)}"
+        logger.debug(f"Python syntax error: {e}")
+        return False
 
-def validate_java_syntax(file_path: Path) -> Tuple[bool, Optional[str]]:
+def validate_java_syntax(file_path: Path) -> bool:
     """
-    Validate Java syntax by attempting to compile it with javac.
+    Validate Java syntax using javac (if available).
+    
+    Args:
+        file_path: Path to Java file
     
     Returns:
-        Tuple of (is_valid, error_message)
+        True if valid, False otherwise.
+        Returns False if javac is not found or file has syntax errors.
     """
-    if not file_path.exists():
-        return False, f"File not found: {file_path}"
-    
-    # Check for javac availability
     try:
-        subprocess.run(['javac', '-version'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
-    except (subprocess.CalledProcessError, FileNotFoundError):
-        return False, "javac not found in PATH. Java compiler required for validation."
-    
-    # Create a temporary directory for compilation
-    with tempfile.TemporaryDirectory() as tmpdir:
-        tmp_file = Path(tmpdir) / file_path.name
-        
-        try:
-            # Copy file to temp location
-            with open(file_path, 'r', encoding='utf-8') as src:
-                content = src.read()
-            with open(tmp_file, 'w', encoding='utf-8') as dst:
-                dst.write(content)
+        # Ensure file exists
+        if not file_path.exists():
+            logger.error(f"Java file not found: {file_path}")
+            return False
+
+        # Create a temporary directory for compilation
+        with tempfile.TemporaryDirectory() as tmpdir:
+            temp_dir = Path(tmpdir)
+            # Copy file to temp directory to avoid modifying original
+            temp_file = temp_dir / file_path.name
+            temp_file.write_text(file_path.read_text())
             
-            # Attempt compilation
+            # Run javac
+            # We use -Xlint:none to suppress warnings and focus on errors
+            # We use -proc:none to skip annotation processing for speed
             result = subprocess.run(
-                ['javac', '-Xlint:none', '-d', tmpdir, str(tmp_file)],
+                ["javac", "-Xlint:none", "-proc:none", "-d", str(temp_dir), str(temp_file)],
                 capture_output=True,
-                text=True,
-                timeout=10
+                timeout=30
             )
             
-            if result.returncode == 0:
-                return True, None
-            else:
-                # Extract relevant error message
-                error_msg = result.stderr.split('\n')[0] if result.stderr else "Compilation failed"
-                return False, f"Java compilation error: {error_msg}"
-                
-        except subprocess.TimeoutExpired:
-            return False, "Compilation timed out"
-        except Exception as e:
-            return False, f"Unexpected error: {str(e)}"
+            if result.returncode != 0:
+                logger.debug(f"Java compilation failed for {file_path}: {result.stderr.decode()}")
+                return False
+            
+            return True
+    except subprocess.TimeoutExpired:
+        logger.warning(f"Java validation timed out for {file_path}")
+        return False
+    except FileNotFoundError:
+        logger.warning("javac not found in PATH; skipping Java validation")
+        # If javac is missing, we cannot validate, so we return False to indicate
+        # the check could not be performed successfully (fail loud).
+        return False
+    except Exception as e:
+        logger.error(f"Unexpected error during Java validation for {file_path}: {e}")
+        return False
 
-def validate_file_syntax(file_path: Path) -> Tuple[bool, Optional[str]]:
+def validate_file_syntax(file_path: Path) -> bool:
     """
-    Validate syntax based on file extension.
+    Validate syntax of a file based on its extension.
+    
+    Args:
+        file_path: Path to the file
     
     Returns:
-        Tuple of (is_valid, error_message)
+        True if valid, False otherwise.
     """
-    language = get_language_from_extension(file_path)
+    if not file_path.exists():
+        logger.error(f"File does not exist: {file_path}")
+        return False
+
+    language = get_language_from_extension(str(file_path))
     
     if language == 'python':
-        return validate_python_syntax(file_path)
+        try:
+            code = file_path.read_text()
+            return validate_python_syntax(code)
+        except UnicodeDecodeError as e:
+            logger.error(f"Could not read file as text: {file_path} ({e})")
+            return False
     elif language == 'java':
         return validate_java_syntax(file_path)
     else:
-        return False, f"Unsupported language for file: {file_path}"
+        logger.warning(f"Unknown language for {file_path}, skipping validation")
+        # For unknown types, we assume valid to avoid blocking non-code files,
+        # but log the event.
+        return True
 
-def validate_directory(directory: Path) -> Tuple[int, int, List[str]]:
+def validate_directory(dir_path: Path) -> Dict[str, Any]:
     """
     Validate all Python and Java files in a directory recursively.
     
+    Args:
+        dir_path: Path to directory
+    
     Returns:
-        Tuple of (valid_count, invalid_count, list_of_errors)
+        Dict with validation results:
+            - total: total number of files checked
+            - valid: count of valid files
+            - invalid: count of invalid files
+            - errors: list of paths to invalid files
     """
-    if not directory.exists():
-        raise FileNotFoundError(f"Directory not found: {directory}")
+    results: Dict[str, Any] = {
+        "total": 0,
+        "valid": 0,
+        "invalid": 0,
+        "errors": []
+    }
     
-    valid_count = 0
-    invalid_count = 0
-    errors = []
+    if not dir_path.exists() or not dir_path.is_dir():
+        logger.error(f"Directory does not exist: {dir_path}")
+        return results
     
-    # Extensions to check
-    extensions = {'.py', '.java', '.jav'}
-    
-    for file_path in directory.rglob('*'):
-        if file_path.is_file() and file_path.suffix.lower() in extensions:
-            is_valid, error_msg = validate_file_syntax(file_path)
-            if is_valid:
-                valid_count += 1
+    for file_path in dir_path.rglob('*'):
+        if file_path.is_file() and file_path.suffix in ['.py', '.java']:
+            results["total"] += 1
+            if validate_file_syntax(file_path):
+                results["valid"] += 1
             else:
-                invalid_count += 1
-                errors.append(f"{file_path.relative_to(directory)}: {error_msg}")
+                results["invalid"] += 1
+                results["errors"].append(str(file_path))
     
-    logger.info(f"Validated {directory}: {valid_count} valid, {invalid_count} invalid")
-    return valid_count, invalid_count, errors
+    return results

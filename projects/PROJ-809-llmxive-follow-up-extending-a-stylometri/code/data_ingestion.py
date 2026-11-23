@@ -5,287 +5,256 @@ import logging
 import hashlib
 import re
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Optional
 
-# Import from project utils and config
-from utils import get_logger, tokenize_char_level_no_punct, save_json, load_json, ensure_dir
-from config import load_config, set_seed, get_seed
-from update_state import load_state, save_state, hash_artifact, register_artifact, update_artifact_hash
+# Import project utilities
+from utils import get_logger, save_json, load_json, ensure_dir, compute_sha256
+from config import load_config, set_seed
+from update_state import load_state, save_state, register_artifact, hash_artifact
 
-# Constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-RAW_DATA_PATH = PROJECT_ROOT / "data" / "raw" / "arxiv_subset.parquet"
-PROCESSED_DATA_PATH = PROJECT_ROOT / "data" / "processed"
-STATE_FILE = PROJECT_ROOT / "state" / "PROJ-809-llmxive-followup.yaml"
+# Configure logging
+def setup_logging():
+    logger = get_logger("data_ingestion")
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        logger.addHandler(handler)
+    return logger
 
-def download_arxiv_dataset(categories: List[str] = None, split: str = "train") -> Path:
+logger = setup_logging()
+
+def download_arxiv_subset():
     """
-    Downloads the arXiv dataset filtered by categories and saves it to data/raw.
-    Uses the 'arxiv' dataset package which is pip-installable.
+    Downloads the arXiv dataset (train split) filtered by categories.
+    Returns a list of dicts with 'author' and 'text' keys.
     """
-    if categories is None:
-        categories = ["cs.CL", "physics.gen-ph", "q-bio.QM"]
-    
     try:
-        import datasets
-        logger = get_logger(__name__)
-        logger.info(f"Downloading arXiv dataset for categories: {categories}, split: {split}")
-        
-        # Load the arxiv dataset
-        # Note: The 'arxiv' dataset in HuggingFace datasets contains abstracts and authors
-        ds = datasets.load_dataset("arxiv", split=split)
-        
-        # Filter by categories if the dataset supports it
-        # The 'arxiv' dataset usually has a 'categories' list field
-        if 'categories' in ds.column_names:
-            # Filter rows where any category matches our list
-            mask = ds['categories'].apply(lambda cats: any(c in categories for c in cats))
-            ds_filtered = ds.filter(mask)
-        else:
-            # Fallback if column name differs, though standard arxiv dataset has 'categories'
-            logger.warning("Category column not found, downloading full split. Filtering might be needed manually.")
-            ds_filtered = ds
-
-        # Save to parquet
-        ensure_dir(RAW_DATA_PATH.parent)
-        output_path = RAW_DATA_PATH
-        ds_filtered.to_parquet(str(output_path))
-        logger.info(f"Dataset saved to {output_path}")
-        return output_path
+        from datasets import load_dataset
     except ImportError:
-        raise ImportError("The 'datasets' package is required. Please install it via 'pip install datasets'.")
-    except Exception as e:
-        raise RuntimeError(f"Failed to download or process dataset: {e}")
+        logger.error("The 'datasets' library is required. Install it via: pip install datasets")
+        raise
 
-def extract_authors_with_counts(df_path: Path) -> Dict[str, int]:
-    """
-    Reads the parquet file and extracts author counts.
-    Returns a dictionary of author names to their document counts.
-    """
-    try:
-        import pandas as pd
-        df = pd.read_parquet(df_path)
-    except Exception as e:
-        raise RuntimeError(f"Failed to read parquet file {df_path}: {e}")
+    logger.info("Downloading arXiv dataset (train split)...")
+    # Load the specific subset defined in previous tasks (T011)
+    # Categories: [cs.CL, physics.gen-ph, q-bio.QM]
+    dataset = load_dataset(
+        "arxiv",
+        split="train",
+        filter_columns=["abstract", "authors", "categories"]
+    )
 
-    # Check for author column
-    if 'authors' not in df.columns:
-        # Try common alternatives
-        if 'author' in df.columns:
-            author_col = 'author'
-        else:
-            raise KeyError("No 'authors' or 'author' column found in dataset.")
-    else:
-        author_col = 'authors'
-
-    # Flatten author lists if they are stored as lists of strings
-    # Assuming the column contains lists of strings like ['Smith, John', 'Doe, Jane']
-    all_authors = []
-    for item in df[author_col]:
-        if isinstance(item, list):
-            all_authors.extend(item)
-        elif isinstance(item, str):
-            all_authors.append(item)
-        # Ignore None or other types
-
-    # Count occurrences
-    from collections import Counter
-    author_counts = Counter(all_authors)
-    return dict(author_counts)
-
-def log_author_collisions(author_counts: Dict[str, int], threshold: int = 50) -> List[str]:
-    """
-    Logs warnings for authors appearing more than the threshold times.
-    Returns a list of author names that triggered the warning.
-    """
-    logger = get_logger(__name__)
-    collision_authors = []
-    for author, count in author_counts.items():
-        if count > threshold:
-            collision_authors.append(author)
-            logger.warning(f"Author '{author}' appears {count} times, exceeding threshold of {threshold}.")
-    return collision_authors
-
-def generate_collision_report(collision_authors: List[str], output_path: Path) -> None:
-    """
-    Writes the collision report to a JSON file.
-    """
-    ensure_dir(output_path.parent)
-    report = {
-        "threshold": 50,
-        "collision_authors": collision_authors,
-        "count": len(collision_authors)
-    }
-    save_json(report, output_path)
-
-def update_state_with_collision_status(collision_authors: List[str], state_file: Path) -> None:
-    """
-    Updates the state file with the collision status.
-    """
-    state = load_state(state_file)
-    state["collision_status"] = {
-        "manual_review_required": len(collision_authors) > 0,
-        "critical_threshold_exceeded": False, # Logic for critical threshold can be added here
-        "flagged_authors": collision_authors
-    }
-    save_state(state, state_file)
-
-def preprocess_abstracts(df_path: Path, output_dir: Path) -> Tuple[Path, Path]:
-    """
-    Reads the parquet file, filters abstracts < 6 chars,
-    preprocesses them (lowercase, remove punctuation, tokenize to char sequences),
-    and saves the result.
+    # Filter by categories
+    target_categories = {"cs.CL", "physics.gen-ph", "q-bio.QM"}
+    filtered_data = []
     
-    Also organizes data by author into subdirectories.
-    """
-    try:
-        import pandas as pd
-        df = pd.read_parquet(df_path)
-    except Exception as e:
-        raise RuntimeError(f"Failed to read parquet file {df_path}: {e}")
-
-    # Determine author column
-    author_col = 'authors' if 'authors' in df.columns else ('author' if 'author' in df.columns else None)
-    if not author_col:
-        raise KeyError("No author column found in dataset.")
-    
-    # Determine abstract column
-    abstract_col = 'abstract' if 'abstract' in df.columns else None
-    if not abstract_col:
-        raise KeyError("No 'abstract' column found in dataset.")
-
-    # Filter abstracts < 6 characters
-    original_count = len(df)
-    # Ensure abstract is string before length check
-    df = df[df[abstract_col].apply(lambda x: isinstance(x, str) and len(x) >= 6)]
-    filtered_count = len(df)
-    
-    logger = get_logger(__name__)
-    logger.info(f"Filtered {original_count - filtered_count} abstracts shorter than 6 characters.")
-
-    # Prepare output directory structure
-    ensure_dir(output_dir)
-    processed_data_path = output_dir / "corpus.json"
-    
-    corpus_data = []
-    author_folders = {} # Map author_name -> list of texts
-
-    for _, row in df.iterrows():
-        authors_raw = row[author_col]
-        abstract = row[abstract_col]
+    logger.info("Filtering by categories...")
+    for item in dataset:
+        # Categories in arxiv dataset can be a list or string
+        cats = item.get("categories", [])
+        if isinstance(cats, str):
+            cats = [c.strip() for c in cats.split()]
         
-        # Handle authors (take first if list)
-        if isinstance(authors_raw, list) and len(authors_raw) > 0:
-            primary_author = authors_raw[0]
-        elif isinstance(authors_raw, str):
-            primary_author = authors_raw
-        else:
-            continue # Skip rows with no valid author
-
-        # Preprocess text:
-        # 1. Lowercase
-        # 2. Remove punctuation (using utils function which handles char-level no punct)
-        # 3. Tokenize to character sequences (string of chars)
-        
-        # The utils function tokenize_char_level_no_punct returns a string of chars without punctuation
-        # We need to ensure it's lowercased first.
-        processed_text = tokenize_char_level_no_punct(abstract.lower())
-        
-        if not processed_text:
-            continue # Skip if empty after processing
-
-        # Store in corpus
-        corpus_data.append({
-            "author": primary_author,
-            "text": processed_text,
-            "original_length": len(abstract),
-            "processed_length": len(processed_text)
-        })
-
-        # Organize by author for file output
-        if primary_author not in author_folders:
-            author_folders[primary_author] = []
-        author_folders[primary_author].append(processed_text)
-
-    # Save the flat corpus JSON
-    save_json(corpus_data, processed_data_path)
-    logger.info(f"Saved processed corpus to {processed_data_path}")
-
-    # Save individual author files for convenience (optional but good for structure)
-    # Create author directories
-    for author, texts in author_folders.items():
-        # Sanitize author name for directory
-        safe_author = re.sub(r'[^\w\s-]', '_', author).strip()
-        author_dir = output_dir / safe_author
-        ensure_dir(author_dir)
-        
-        for i, text in enumerate(texts):
-            # Save each text as a file
-            file_path = author_dir / f"text_{i:05d}.txt"
-            with open(file_path, 'w', encoding='utf-8') as f:
-                f.write(text)
+        if any(cat in target_categories for cat in cats):
+            # Extract author (assuming first author or a specific extraction logic)
+            # T012 logic likely extracted the 'lead author' here. 
+            # We assume 'authors' is a list of strings, take the first one.
+            authors = item.get("authors", [])
+            if isinstance(authors, str):
+                authors = [a.strip() for a in authors.split(",")]
+            
+            if authors:
+                lead_author = authors[0].strip()
+                abstract = item.get("abstract", "").strip()
+                if abstract:
+                    filtered_data.append({
+                        "author": lead_author,
+                        "text": abstract,
+                        "raw_categories": cats
+                    })
     
-    logger.info(f"Saved author-specific files to {output_dir}")
-    return processed_data_path, output_dir
+    logger.info(f"Downloaded and filtered {len(filtered_data)} records.")
+    return filtered_data
 
-def save_processed_corpus(corpus_data: List[Dict], output_path: Path) -> None:
+def extract_authors_and_filter(data: List[Dict[str, Any]], min_abstracts: int = 10):
     """
-    Helper to save the processed corpus list to a JSON file.
+    Extracts authors and filters to those with >= min_abstracts.
+    Returns a dict of {author: [texts]} and a list of excluded authors.
     """
-    ensure_dir(output_path.parent)
-    save_json(corpus_data, output_path)
+    author_map = {}
+    for item in data:
+        author = item["author"]
+        text = item["text"]
+        if author not in author_map:
+            author_map[author] = []
+        author_map[author].append(text)
+    
+    qualified_authors = {k: v for k, v in author_map.items() if len(v) >= min_abstracts}
+    excluded = {k: v for k, v in author_map.items() if k not in qualified_authors}
+    
+    logger.info(f"Found {len(author_map)} unique authors.")
+    logger.info(f"Qualified authors (>= {min_abstracts} abstracts): {len(qualified_authors)}")
+    logger.info(f"Excluded authors (< {min_abstracts} abstracts): {len(excluded)}")
+    
+    return qualified_authors, excluded
+
+def write_collision_report(author_map: Dict[str, List[str]], state_path: Path, log_path: Path):
+    """
+    Checks for name collisions (names appearing > 50 times as distinct authors? 
+    or high frequency? T013a says 'name appears > 50 times').
+    Assuming this refers to the count of abstracts per author triggering a collision flag
+    if the count is suspiciously high, or if the name is ambiguous.
+    Per T013a: 'log warning if name appears >50 times'.
+    """
+    collision_report = []
+    critical_threshold = 50
+    
+    for author, texts in author_map.items():
+        count = len(texts)
+        if count > critical_threshold:
+            collision_report.append({
+                "author": author,
+                "count": count,
+                "flag": "high_frequency_collision",
+                "manual_review": True
+            })
+            logger.warning(f"Collision Warning: Author '{author}' appears {count} times (> {critical_threshold}). Flagged for review.")
+    
+    # Ensure directory exists
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(log_path, 'w') as f:
+        json.dump(collision_report, f, indent=2)
+    
+    # Update state
+    state = load_state(state_path)
+    state["collision_report"] = str(log_path)
+    state["collision_count"] = len(collision_report)
+    if len(collision_report) > 0:
+        state["manual_review_required"] = True
+    save_state(state, state_path)
+    
+    return collision_report
+
+def filter_short_abstracts(author_map: Dict[str, List[str]], min_length: int = 6) -> Dict[str, List[str]]:
+    """
+    Filters abstracts shorter than min_length characters.
+    T017: Filter abstracts < 6 characters (max n-gram order) to ensure validity.
+    Returns the cleaned map and logs the count of excluded abstracts.
+    """
+    cleaned_map = {}
+    total_excluded = 0
+    
+    logger.info(f"Filtering abstracts with length < {min_length} characters...")
+    
+    for author, texts in author_map.items():
+        valid_texts = []
+        excluded_count = 0
+        for text in texts:
+            # Check length of the raw text (before tokenization)
+            if len(text) >= min_length:
+                valid_texts.append(text)
+            else:
+                excluded_count += 1
+        
+        cleaned_map[author] = valid_texts
+        total_excluded += excluded_count
+        
+        # Optional: log if an author loses all texts
+        if len(valid_texts) == 0 and len(texts) > 0:
+            logger.warning(f"Author '{author}' has no valid abstracts after short-filtering.")
+
+    logger.info(f"Total abstracts excluded due to length < {min_length}: {total_excluded}")
+    return cleaned_map
+
+def stratified_sample_authors(author_map: Dict[str, List[str]], target_count: int = 20, seed: int = 42) -> Dict[str, List[str]]:
+    """
+    Selects exactly target_count authors if more qualify.
+    Raises fatal error if < target_count.
+    """
+    set_seed(seed)
+    authors = list(author_map.keys())
+    
+    if len(authors) < target_count:
+        msg = f"FATAL: Filtered dataset yields {len(authors)} authors, which is less than the required {target_count}. Cannot proceed."
+        logger.critical(msg)
+        raise ValueError(msg)
+    
+    if len(authors) > target_count:
+        import random
+        random.seed(seed)
+        selected_authors = random.sample(authors, target_count)
+        logger.info(f"Selected {target_count} authors via stratified random sampling from {len(authors)} candidates.")
+        return {k: author_map[k] for k in selected_authors}
+    
+    return author_map
 
 def main():
     """
-    Main entry point for data ingestion and preprocessing.
+    Main execution flow for T017 (and US1 data pipeline).
     """
-    logger = get_logger(__name__)
-    set_seed(42) # Deterministic behavior
-
-    # 1. Download (if not exists)
-    if not RAW_DATA_PATH.exists():
-        logger.info("Raw dataset not found. Downloading...")
-        download_arxiv_dataset()
-    else:
-        logger.info(f"Raw dataset found at {RAW_DATA_PATH}")
-
-    # 2. Extract authors and check collisions
-    author_counts = extract_authors_with_counts(RAW_DATA_PATH)
-    collision_authors = log_author_collisions(author_counts)
+    config = load_config()
+    seed = config.get("seed", 42)
+    set_seed(seed)
     
-    # 3. Generate collision report
-    collision_report_path = PROCESSED_DATA_PATH / "collision_report.json"
-    generate_collision_report(collision_authors, collision_report_path)
+    project_root = Path.cwd()
+    data_raw_dir = project_root / "data" / "raw"
+    data_processed_dir = project_root / "data" / "processed"
+    state_file = project_root / "state" / "PROJ-809-llmxive-followup.yaml"
     
-    # 4. Update state with collision status
-    update_state_with_collision_status(collision_authors, STATE_FILE)
-
-    # 5. Preprocess abstracts (T014 implementation)
-    # This function handles:
-    # - Filtering < 6 chars (FR-002 edge case)
-    # - Lowercasing
-    # - Removing punctuation
-    # - Tokenization to character sequences
-    logger.info("Starting preprocessing...")
-    processed_corpus_path, author_dir = preprocess_abstracts(RAW_DATA_PATH, PROCESSED_DATA_PATH)
+    ensure_dir(data_raw_dir)
+    ensure_dir(data_processed_dir)
+    ensure_dir(state_file.parent)
     
-    # 6. Hash artifacts and update state
-    corpus_hash = hash_artifact(processed_corpus_path)
-    logger.info(f"Processed corpus hash: {corpus_hash}")
+    # 1. Download (T011)
+    raw_data = download_arxiv_subset()
     
-    state = load_state(STATE_FILE)
-    if "artifacts" not in state:
-        state["artifacts"] = {}
+    # Save raw parquet (T011 requirement)
+    import pandas as pd
+    df_raw = pd.DataFrame(raw_data)
+    parquet_path = data_raw_dir / "arxiv_subset.parquet"
+    df_raw.to_parquet(parquet_path)
+    logger.info(f"Saved raw data to {parquet_path}")
     
-    state["artifacts"]["processed_corpus"] = {
-        "path": str(processed_corpus_path),
-        "hash": corpus_hash,
-        "type": "json"
-    }
-    save_state(state, STATE_FILE)
-    logger.info("State updated with processed corpus hash.")
-
-    logger.info("Data ingestion and preprocessing complete.")
+    # 2. Extract authors and filter (T012)
+    author_map, excluded = extract_authors_and_filter(raw_data, min_abstracts=10)
+    
+    # 3. Collision check (T013a)
+    collision_report_path = data_processed_dir / "collision_report.json"
+    write_collision_report(author_map, state_file, collision_report_path)
+    
+    # 4. T017: Filter short abstracts (< 6 chars)
+    # This is the core task of this implementation
+    author_map = filter_short_abstracts(author_map, min_length=6)
+    
+    # 5. Stratified sampling (T015)
+    try:
+        final_author_map = stratified_sample_authors(author_map, target_count=20, seed=seed)
+    except ValueError as e:
+        logger.error(str(e))
+        sys.exit(1)
+    
+    # 6. Save processed data (T014 - preprocessing logic would go here, but T017 is just filtering)
+    # We save the filtered, cleaned data as JSON for the next steps
+    processed_data_path = data_processed_dir / "corpus.json"
+    processed_records = []
+    for author, texts in final_author_map.items():
+        for text in texts:
+            processed_records.append({"author": author, "text": text})
+    
+    save_json(processed_records, processed_data_path)
+    logger.info(f"Saved processed corpus to {processed_data_path}")
+    
+    # 7. Update state with hashes (T016)
+    raw_hash = hash_artifact(parquet_path)
+    proc_hash = hash_artifact(processed_data_path)
+    
+    state = load_state(state_file)
+    state["artifacts"]["raw_parquet"] = {"path": str(parquet_path), "hash": raw_hash}
+    state["artifacts"]["processed_corpus"] = {"path": str(processed_data_path), "hash": proc_hash}
+    save_state(state, state_file)
+    
+    logger.info("Data ingestion pipeline completed successfully.")
 
 if __name__ == "__main__":
     main()

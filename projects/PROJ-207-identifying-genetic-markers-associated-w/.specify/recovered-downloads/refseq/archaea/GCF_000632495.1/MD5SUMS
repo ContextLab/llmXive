@@ -1,0 +1,17 @@
+6d3c68d920472bbf8aaa66b3e6b9c09a  ./annotation_hashes.txt
+91527fad9465fc5d691a232439d498bb  ./GCF_000632495.1_AciCop1.0_assembly_report.txt
+9e5697a2c0ed0649b8fc8a4cefeeb23a  ./GCF_000632495.1_AciCop1.0_assembly_stats.txt
+000f3443a2405497237ae9dd3da9a2fa  ./GCF_000632495.1_AciCop1.0_cds_from_genomic.fna.gz
+7351c36908e4fdca3c510213e9e81b4c  ./GCF_000632495.1_AciCop1.0_fcs_report.txt
+987b4ad69b0211d2d631fa98fd9cb752  ./GCF_000632495.1_AciCop1.0_feature_count.txt
+1b7d0daa789bdeb4ef1b216b35a17c54  ./GCF_000632495.1_AciCop1.0_feature_table.txt.gz
+b995103f18391eaed7ae470ef5c0b5de  ./GCF_000632495.1_AciCop1.0_gene_ontology.gaf.gz
+c2cf895e073e8b471a2076eb73e9576b  ./GCF_000632495.1_AciCop1.0_genomic.fna.gz
+052a8d6abf727ef04d8bf3ac27e30f80  ./GCF_000632495.1_AciCop1.0_genomic.gbff.gz
+19a1631f8c90078185cbf3949bd32a1f  ./GCF_000632495.1_AciCop1.0_genomic.gff.gz
+db0d6909d55ec7c86a7c8acb875cd9d1  ./GCF_000632495.1_AciCop1.0_genomic.gtf.gz
+d6ac26955437ae2cbdc16ff659f0e627  ./GCF_000632495.1_AciCop1.0_protein.faa.gz
+da7abb8292384c0656b4664c5f485fff  ./GCF_000632495.1_AciCop1.0_protein.gpff.gz
+8fa17b2f8509b43e568aa2b6598823e2  ./GCF_000632495.1_AciCop1.0_rna_from_genomic.fna.gz
+593eea946518e57cecd2ef8d6b907859  ./GCF_000632495.1_AciCop1.0_translated_cds.faa.gz
+97ce4727c8cad4b830a4e3b124ed1fd4  ./GCF_000632495.1_AciCop1.0_wgsmaster.gbff.gz

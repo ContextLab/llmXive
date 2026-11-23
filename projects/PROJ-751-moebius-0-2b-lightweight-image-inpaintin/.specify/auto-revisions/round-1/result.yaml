@@ -1,0 +1,571 @@
+project_id: PROJ-751-moebius-0-2b-lightweight-image-inpaintin
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: 227614792a75
+  text: Remove all leftover TODO and review comments (e.g., TODO REVIEW, TODO FINAL)
+    from the LaTeX source to avoid confusion and ensure a clean final version.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 2dd22c7412e8
+  text: Avoid redefining standard color names (red, green, blue) in preamble; use
+    uniquely named colors to prevent clashes with packages that rely on the original
+    definitions.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: d26157a9e5eb
+  text: Consolidate duplicate package imports (e.g., pifont is loaded twice) and eliminate
+    unused packages to improve dependency hygiene.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 0615a76fdc25
+  text: Provide a reproducibility package (e.g., a Makefile or build script) that
+    lists all required LaTeX packages and their versions, and documents the steps
+    to compile the paper from source.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: a5e14e9e8c11
+  text: "Ensure that all external resources (figures, tables) are referenced with\
+    \ relative paths that match the repository layout, and verify that the files exist\
+    \ to prevent missing\u2011file errors during compilation."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: b11b67d6a887
+  text: "Consider moving large tables and figure definitions into separate, well\u2011\
+    named subfiles and include them via \\input or \\include; this improves modularity\
+    \ and readability of the main manuscript."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 9f9670e4cd00
+  text: "Add an explicit data availability and licensing statement for all external\
+    \ datasets used (Places2, CelebA\u2011HQ, FFHQ, LVIS, DeepFakeFace), including\
+    \ version numbers and source URLs."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: dbfcc7173339
+  text: "Provide a public code repository (e.g., GitHub) for Moebius with a clear\
+    \ open\u2011source license, and reference the exact commit/tag used for the reported\
+    \ experiments."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 435af6447f4b
+  text: Document the provenance and version of the teacher model (PixelHacker) and
+    any other pretrained components (VAE, LCG embeddings), including links to the
+    exact releases.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: a9989b2878b5
+  text: Archive all external URLs (project page, dataset links, pretrained model links)
+    using a service like archive.org or provide DOIs to mitigate link rot.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 946a986c3acf
+  text: Specify the data preprocessing pipeline (mask generation, train/val splits)
+    in a reproducible schema (e.g., JSON/YAML) and include it as supplementary material.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 131ce7ae6f5c
+  text: "Provide a legend or clearer annotation for Figure\u202F1 (overall pipeline)\
+    \ and Figure\u202F2 (L\u03BB\u202FMI block) so that each colored component is\
+    \ explicitly identified; this helps readers interpret the schematic without referring\
+    \ back to the text."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 5fb382ce8e5c
+  text: "In Figure\u202F4 (representation alignment heatmaps) include a color bar\
+    \ and specify the colormap used; ensure the colormap is color\u2011blind\u2011\
+    friendly (e.g., viridis) to avoid ambiguity in intensity interpretation."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: ae3692f4d789
+  text: "Increase the line thickness and font size of any axis labels or tick marks\
+    \ in quantitative plots (e.g., Figure\u202F6 user\u2011study bar chart) to guarantee\
+    \ legibility when printed at typical conference sizes."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 3ce6a3bcebf4
+  text: "Consider adding unit annotations (e.g., \u201Cms/step\u201D on the latency\
+    \ axis) directly on the axis labels of plots that report performance metrics to\
+    \ avoid any possible confusion."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 3a6c9309a621
+  text: Verify that all figures are referenced in the main text in the order they
+    appear and that each figure caption fully explains the visual content without
+    requiring the reader to infer missing details.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: ddf1ccef1e5f
+  text: "Define all acronyms on first use (e.g., GLA, DWConv, FFN, LCG, KD, LPIPS,\
+    \ FID, LDM, VAE, CFG, BF16, E\u2011LatentLPIPS, MuON, L40S, RTX\u202F3090, SDXL,\
+    \ SD3.5, SD3)."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: e4540cc6658e
+  text: "Replace vague buzzwords such as \u201C10B\u2011level\u201D, \u201Cindustrial\
+    \ foundation models\u201D, \u201Ctask\u2011specific specialist\u201D, and \u201C\
+    representation bottleneck\u201D with concrete, quantitative descriptions or simpler\
+    \ language."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 8e7ae12feb80
+  text: "Simplify overly technical block names like \u201CLocal\u2011$\\lambda$ Mix\
+    \ Interaction ($L\\lambda MI$) block\u201D and \u201CLocal\u2011$\\lambda$\u201D\
+    /\u201CInteractive\u2011$\\lambda$ modules\u201D by providing plain\u2011English\
+    \ equivalents or brief parenthetical explanations."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: e64a195968ce
+  text: "Avoid redundant jargon when describing the same concept (e.g., repeatedly\
+    \ using \u201Clatent diffusion backbone\u201D, \u201Clatent diffusion framework\u201D\
+    , \u201Clatent diffusion U\u2011Net\u201D). Consolidate to a single term after\
+    \ first definition."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: a9142e10498f
+  text: "Explain domain\u2011specific terms such as \u201Ccross\u2011attention equivalents\u201D\
+    , \u201Cself\u2011attention equivalents\u201D, and \u201Cgradient\u2011based losses\u201D\
+    \ in lay terms or with a short definition."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: d8ea140665b2
+  text: "Remove or rephrase marketing\u2011style phrases like \u201Chighly efficient\
+    \ lightweight specialist\u201D, \u201Coptimal synergy\u201D, and \u201Cextreme\
+    \ compression\u201D to improve readability for non\u2011specialists."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 651d6f4d6a86
+  text: Provide a brief glossary or footnote for specialized symbols (e.g., $\lambda$,
+    $\mathbf{E}_{\text{LCG}}$, $\mathbf{Q}^l$, $\mathbf{K}^l$, $\mathbf{V}^l$) to
+    aid readers unfamiliar with the notation.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: e79d0be50852
+  text: "Clarify hardware references (e.g., \u201CL40S GPU\u201D, \u201CRTX\u202F\
+    3090\u201D) by stating they are NVIDIA GPUs and why they were chosen, rather than\
+    \ assuming reader familiarity."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 373788c22984
+  text: "Replace the term \u201Cadaptive multi\u2011granularity distillation\u201D\
+    \ with a simpler description such as \u201Ca dynamic knowledge\u2011distillation\
+    \ method that balances several loss terms\u201D."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: d8aa5c69cd84
+  text: "Avoid using the word \u201Csynergy\u201D repeatedly; substitute with \u201C\
+    combined effect\u201D or \u201Cinteraction\u201D where appropriate."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 0eeaf7af483a
+  text: "Clarify the fairness of speed\u2011up claims: the paper compares Moebius\
+    \ (20 sampling steps) with industrial models that use 50/28 steps. Explicitly\
+    \ state whether total inference time is computed using the same number of steps\
+    \ or justify why the step count difference does not affect the comparison."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: af73ce37e670
+  text: "Resolve the contradictory statements about Gated Linear Attention (GLA):\
+    \ earlier sections treat GLA as capable of cross\u2011attention (GLA\u2011CA),\
+    \ while later it is claimed that GLA inherently cannot perform cross\u2011attention.\
+    \ Provide a consistent description of GLA\u2019s capabilities or correct the claim."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: ea8b72cbe906
+  text: "Provide a more rigorous justification for the adaptive gradient\u2011norm\
+    \ weighting in the multi\u2011granularity distillation. Include a brief theoretical\
+    \ or empirical analysis showing that this weighting scheme stabilizes training\
+    \ and improves performance over static weighting."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: d447c6060180
+  text: "Clarify that the reported >15\xD7 total inference speed\u2011up is obtained\
+    \ by using fewer sampling steps (20) than the industrial baselines (50/28). Provide\
+    \ a fair comparison using the same number of steps or report a step\u2011normalized\
+    \ speed\u2011up."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 7725ccc1d014
+  text: "Temper the claim that Moebius \u201Crivals or even surpasses\u201D 10B\u2011\
+    level models. In several benchmarks (e.g., Places2 Test FID) FLUX.1\u2011Fill\u2011\
+    Dev achieves lower FID, and the LPIPS trade\u2011off is not consistently better.\
+    \ Re\u2011phrase to reflect that Moebius attains comparable quality on certain\
+    \ metrics while being more efficient."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: c1d56420d36a
+  text: "Add a discussion of the limitations observed in the failure\u2011case analysis\
+    \ (tiny background details) and quantify how often these occur relative to the\
+    \ overall test set."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: ebedcf382e48
+  text: "Provide statistical significance testing (e.g., confidence intervals) for\
+    \ the reported FID/LPIPS improvements to substantiate the claim of \u201Csuperior\u201D\
+    \ performance."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 35d467449f37
+  text: "Explicitly state that the parameter count comparison (0.22\u202FB vs 11.9\u202F\
+    B) does not account for differences in model architecture, training data, or inference\
+    \ hyper\u2011parameters, to avoid overstating the efficiency gap."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: a88439f12ef9
+  text: "Add a dedicated Ethics & Safety discussion section that addresses potential\
+    \ dual\u2011use risks of image inpainting (e.g., deep\u2011fake generation, malicious\
+    \ object removal, misinformation) and outlines mitigation strategies such as watermarking,\
+    \ usage policies, and model access controls."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: b4c56a9f7659
+  text: "Provide explicit statements about the provenance and consent for the training\
+    \ datasets (Places2, CelebA\u2011HQ, FFHQ), confirming that all images were used\
+    \ in accordance with the datasets\u2019 licenses and privacy requirements."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 172deace5b15
+  text: "Include a data\u2011privacy impact assessment describing how the model handles\
+    \ personally identifiable information (PII) in the training data and any safeguards\
+    \ (e.g., filtering, anonymization) to prevent inadvertent leakage of private content."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: db5b5d9c705b
+  text: "Discuss responsible deployment guidelines, including recommended user authentication,\
+    \ rate\u2011limiting, and monitoring to deter abusive use (e.g., non\u2011consensual\
+    \ image manipulation)."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 7ad3095a4eb7
+  text: "Report variance (e.g., standard deviation) and confidence intervals for all\
+    \ quantitative metrics (FID, LPIPS, user\u2011study percentages) across multiple\
+    \ random seeds to enable statistical significance assessment."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 05477426e536
+  text: "Apply appropriate statistical tests (e.g., paired t\u2011test, Wilcoxon signed\u2011\
+    rank) when comparing Moebius against baselines and correct for multiple comparisons\
+    \ (e.g., Bonferroni or Holm) to substantiate claims of superiority."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 0d9e3d7191eb
+  text: Provide details on random seed initialization, data shuffling, and any nondeterministic
+    operations (e.g., GPU kernels) to ensure full reproducibility of training and
+    evaluation.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: d1e8d03bdd6b
+  text: "Clarify the stability of the adaptive gradient\u2011based loss weighting\
+    \ (e.g., handling of near\u2011zero gradient norms, sensitivity analysis) and\
+    \ include ablation of the weighting scheme with statistical reporting."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 9a5b03c373d4
+  text: "Include a power analysis or sample\u2011size justification for the user study\
+    \ to demonstrate that the reported preference percentages are statistically reliable."
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 8ce22c7aac6a
+  text: "Move the \\keywords command out of the abstract environment (currently lines\u202F\
+    31\u201134) to follow LNCS style."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: baf938a03b07
+  text: "Remove or resolve the numerous \\vspace{-0.5em} adjustments before sections\
+    \ (e.g., lines\u202F84,\u202F115,\u202F138) \u2013 they are hacky and can cause\
+    \ inconsistent spacing."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: c559ef63b140
+  text: 'Fix invalid LaTeX labels that contain spaces, such as \label{tab: abla_distill},
+    \label{tab: abla_CFG}, and \label{tab: abla_ood} (see tables/abla/abla_ood.tex,
+    tables/abla/abla4_CFG_horizon_2.tex, and tables/fine_grained_ablation_DoubleColumn.tex).'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 5a175af7c54a
+  text: "Eliminate leftover TODO comments and review\u2011only macros (e.g., lines\u202F\
+    9\u201113,\u202F20\u201123) before the camera\u2011ready version."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: fffb64d29b92
+  text: "Avoid redefining standard color names (red, green, blue) in preamble.tex\
+    \ \u2013 they clash with xcolor defaults and may affect other packages."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: c6749241ed91
+  text: "Consider removing the manual suppression of hyperref warnings (\\makeatletter\\\
+    def\\Hy@Warning#1{}\\makeatother) \u2013 it hides useful diagnostics."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: f8777b4a13af
+  text: "Check the placement of wrapfigure and wraptable environments (lines\u202F\
+    274\u2011285,\u202F332\u2011350) \u2013 negative \\vspace may cause overlapping\
+    \ with surrounding text."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 5f18465409ae
+  text: Ensure all figure captions are placed immediately after \includegraphics and
+    before \label, and that they start with a capital letter and no leading spaces.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: a6b542ec480d
+  text: Verify that all tables use consistent column specifications; the custom >{\hspace{2pt}}c<{\hspace{2pt}}
+    syntax can lead to misaligned columns on different compilers.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: ad2a657d444f
+  text: Sentences in the abstract and introduction are excessively long and contain
+    multiple commas, making them hard to follow. Break them into shorter, clearer
+    sentences.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 9fe66a5553a2
+  text: "Inconsistent use of hyphens and en\u2011dashes (e.g., \"10B-level\", \"0.2B\"\
+    , \"$L\\lambda MI$\") leads to visual clutter. Standardize terminology and formatting."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 58861f7b13d5
+  text: "The term \"Local\u2011$\\lambda$\" and similar symbols are introduced without\
+    \ a clear definition before first use, causing confusion for readers unfamiliar\
+    \ with the notation."
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: f55a94b031d2
+  text: Frequent use of informal abbreviations such as "ie", "eg", "etc" inside sentences
+    without proper punctuation; replace with proper Latin forms or rephrase.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 148864ed9362
+  text: The paper mixes past and present tense inconsistently (e.g., "We propose Moebius,
+    a highly efficient lightweight inpainting framework" vs. "We systematically reconstruct
+    the diffusion backbone"). Choose a consistent narrative tense.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 23fd67890889
+  text: Figure and table captions are overly verbose and sometimes repeat information
+    already in the main text. Shorten captions to essential description.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 2502020227f6
+  text: The bibliography includes placeholder entries (e.g., Anonymous24) that are
+    irrelevant to the current manuscript; remove or replace them.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: 47021622c895
+  text: The LaTeX source contains commented TODO notes and unused packages (e.g.,
+    axessibility, marvosym) that should be cleaned up before final submission.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+- id: e144ac2b1e4d
+  text: In the method section, the notation "$\mathbf{X}^l$ shaped as $B\times H'\times
+    W'\times C$" is dense; consider adding a brief explanatory sentence for readers
+    less familiar with tensor shapes.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-751-moebius-0-2b-lightweight-image-inpaintin/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 61 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-25T00:16:40.138637+00:00'

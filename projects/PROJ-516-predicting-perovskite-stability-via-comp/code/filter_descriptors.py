@@ -1,136 +1,156 @@
 """
-T015: Filter descriptor dataset to exclude entries with >= 2 missing values.
+Filter descriptors based on missing values.
 
-This script reads the processed descriptors CSV, counts missing values per row,
-excludes entries with 2 or more missing descriptor values, and logs the exclusion
-counts to the project log.
+This module implements T015a: Exclude entries with ≥ 2 missing descriptor values
+and log exclusion counts.
+
+It reads from data/processed/descriptors_vif_filtered.csv and writes to
+data/processed/descriptors_final_filtered.csv.
 """
 import logging
 import sys
 from pathlib import Path
-from typing import Tuple
+from typing import Tuple, Set
 
 import pandas as pd
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
+    format="%(asctime)s - %(levelname)s - %(message)s",
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler(Path(__file__).parent.parent / 'logs' / 'pipeline.log', mode='a')
+        logging.FileHandler("data/processed/exclusion_log.csv", mode="w")
     ]
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-INPUT_PATH = Path(__file__).parent.parent / 'data' / 'processed' / 'descriptors.csv'
-OUTPUT_PATH = Path(__file__).parent.parent / 'data' / 'processed' / 'descriptors_cleaned.csv'
-MISSING_THRESHOLD = 2  # Exclude entries with >= 2 missing values
+# Define paths
+INPUT_PATH = Path("data/processed/descriptors_vif_filtered.csv")
+OUTPUT_PATH = Path("data/processed/descriptors_final_filtered.csv")
+EXCLUSION_LOG_PATH = Path("data/processed/exclusion_log.csv")
+EXCLUSION_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-def load_descriptors(input_path: Path) -> pd.DataFrame:
-    """Load the descriptors CSV file."""
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    logger.info(f"Loading descriptors from {input_path}")
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows")
+# Descriptor columns to check for missing values.
+# These are the compositional fingerprint features.
+DESCRIPTOR_COLUMNS = [
+    "atomic_fraction_A",
+    "atomic_fraction_B",
+    "atomic_fraction_X",
+    "weighted_ionic_radius",
+    "weighted_electronegativity",
+    "weighted_formation_enthalpy",
+    "first_ionization_energy",
+    "variance_ionic_radius",
+    "variance_electronegativity"
+]
+
+def load_descriptors() -> pd.DataFrame:
+    """Load the VIF-filtered descriptors dataset."""
+    if not INPUT_PATH.exists():
+        raise FileNotFoundError(
+            f"Input file {INPUT_PATH} not found. "
+            "Ensure T016d (VIF filtering) has completed successfully."
+        )
+    df = pd.read_csv(INPUT_PATH)
+    logger.info(f"Loaded {len(df)} rows from {INPUT_PATH}")
     return df
 
-def count_missing_values(df: pd.DataFrame, exclude_columns: list = None) -> pd.Series:
+def count_missing_values(df: pd.DataFrame, columns: Set[str]) -> pd.Series:
+    """Count missing values per row for the specified columns."""
+    return df[list(columns)].isna().sum(axis=1)
+
+def filter_entries(df: pd.DataFrame, threshold: int = 2) -> Tuple[pd.DataFrame, int]:
     """
-    Count missing values per row, excluding specified columns.
-    
+    Filter out entries with >= threshold missing descriptor values.
+
     Args:
         df: Input DataFrame
-        exclude_columns: List of column names to exclude from missing value count
-                       (e.g., 'formula', 'T_d', 'source_id')
-    
-    Returns:
-        Series with missing value counts per row
-    """
-    if exclude_columns is None:
-        exclude_columns = ['formula', 'T_d', 'source_id', 'T_d_uncertainty']
-    
-    # Select only numeric/descriptor columns
-    descriptor_cols = [col for col in df.columns if col not in exclude_columns]
-    
-    if not descriptor_cols:
-        logger.warning("No descriptor columns found to check for missing values")
-        return pd.Series([0] * len(df))
-    
-    return df[descriptor_cols].isna().sum(axis=1)
+        threshold: Number of missing values that triggers exclusion (default 2)
 
-def filter_entries(df: pd.DataFrame, threshold: int) -> Tuple[pd.DataFrame, int, int]:
-    """
-    Filter entries based on missing value count.
-    
-    Args:
-        df: Input DataFrame
-        threshold: Exclude entries with >= threshold missing values
-    
     Returns:
-        Tuple of (filtered DataFrame, original count, excluded count)
+        Tuple of (filtered DataFrame, count of excluded rows)
     """
-    missing_counts = count_missing_values(df)
-    
-    # Filter: keep rows with missing counts < threshold
-    mask = missing_counts < threshold
-    filtered_df = df[mask].reset_index(drop=True)
-    
-    original_count = len(df)
-    excluded_count = original_count - len(filtered_df)
-    
-    logger.info(f"Missing value analysis:")
-    logger.info(f"  - Original rows: {original_count}")
-    logger.info(f"  - Rows with < {threshold} missing values: {len(filtered_df)}")
-    logger.info(f"  - Rows excluded (>= {threshold} missing values): {excluded_count}")
-    
-    # Log distribution of missing values
-    if excluded_count > 0:
-        missing_dist = missing_counts.value_counts().sort_index()
-        logger.info("Missing value distribution (excluded rows):")
-        for count, freq in missing_dist[missing_dist.index >= threshold].items():
-            logger.info(f"  - {count} missing values: {freq} rows")
-    
-    return filtered_df, original_count, excluded_count
+    # Ensure we only check columns that exist in the dataframe
+    available_descriptors = [col for col in DESCRIPTOR_COLUMNS if col in df.columns]
+    if not available_descriptors:
+        logger.warning("No descriptor columns found in the dataset.")
+        return df, 0
 
-def save_filtered_data(df: pd.DataFrame, output_path: Path):
-    """Save the filtered DataFrame to CSV."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    missing_counts = count_missing_values(df, set(available_descriptors))
+    excluded_mask = missing_counts >= threshold
+    excluded_count = excluded_mask.sum()
+
+    filtered_df = df[~excluded_mask].copy()
+
+    logger.info(f"Excluding {excluded_count} rows with >= {threshold} missing descriptor values.")
+    return filtered_df, excluded_count
+
+def save_filtered_data(df: pd.DataFrame, output_path: Path) -> None:
+    """Save the filtered dataset to CSV."""
     df.to_csv(output_path, index=False)
-    logger.info(f"Saved filtered data to {output_path}")
+    logger.info(f"Saved {len(df)} rows to {output_path}")
 
-def main():
-    """Main execution function."""
+def log_exclusion_counts(excluded_count: int, total_rows: int, features_count: int) -> None:
+    """
+    Log exclusion counts to the exclusion log file.
+
+    This includes the count of excluded rows and the verification threshold check.
+    """
+    # Log to the exclusion log file (which we opened as a file handler)
+    logger.info(f"Total rows before filtering: {total_rows}")
+    logger.info(f"Rows excluded: {excluded_count}")
+    logger.info(f"Rows remaining: {total_rows - excluded_count}")
+    logger.info(f"Number of features after VIF filtering: {features_count}")
+
+    # Check the threshold condition: n >= 10 * features
+    remaining_rows = total_rows - excluded_count
+    min_required_rows = 10 * features_count
+
+    if remaining_rows < min_required_rows:
+        logger.warning(
+            f"WARNING: Remaining rows ({remaining_rows}) is less than "
+            f"10x features ({min_required_rows}). Model training may be unreliable."
+        )
+    else:
+        logger.info(
+            f"Verification passed: {remaining_rows} >= {min_required_rows} (10x features)."
+        )
+
+def main() -> None:
+    """Main entry point for T015a."""
     try:
-        # Ensure logs directory exists
-        logs_dir = Path(__file__).parent.parent / 'logs'
-        logs_dir.mkdir(parents=True, exist_ok=True)
-        
         # Load data
-        df = load_descriptors(INPUT_PATH)
-        
+        df = load_descriptors()
+        total_rows = len(df)
+
+        # Count features after VIF filtering (excluding non-descriptor columns)
+        # We assume the first few columns are metadata (formula, T_d, etc.)
+        # and the rest are descriptors.
+        descriptor_cols_in_df = [col for col in DESCRIPTOR_COLUMNS if col in df.columns]
+        features_count = len(descriptor_cols_in_df)
+
+        if features_count == 0:
+            logger.error("No descriptor columns found. Cannot proceed with filtering.")
+            sys.exit(1)
+
         # Filter entries
-        filtered_df, original_count, excluded_count = filter_entries(df, MISSING_THRESHOLD)
-        
-        # Save results
+        filtered_df, excluded_count = filter_entries(df, threshold=2)
+
+        # Log exclusion counts
+        log_exclusion_counts(excluded_count, total_rows, features_count)
+
+        # Save filtered data
         save_filtered_data(filtered_df, OUTPUT_PATH)
-        
-        # Summary
-        logger.info("=" * 50)
-        logger.info("T015 EXECUTION COMPLETE")
-        logger.info(f"  Input:  {INPUT_PATH} ({original_count} rows)")
-        logger.info(f"  Output: {OUTPUT_PATH} ({len(filtered_df)} rows)")
-        logger.info(f"  Excluded: {excluded_count} rows (>= {MISSING_THRESHOLD} missing values)")
-        logger.info("=" * 50)
-        
-        return 0
-        
+
+        logger.info("T015a completed successfully.")
+
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Execution failed: {str(e)}", exc_info=True)
-        return 1
+        logger.error(f"Unexpected error during filtering: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

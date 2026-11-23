@@ -1,104 +1,173 @@
-#!/usr/bin/env bash
-# 04_apply_fdr.sh: Apply Benjamini-Hochberg FDR correction to GWAS results
+#!/bin/bash
+# T022: Merge PLINK raw results with FDR-corrected results
+# This script merges the raw GWAS statistics (from T017) with the
+# Benjamini-Hochberg q-values (from T020) to produce the final artifact.
 #
-# Usage:
-#   ./04_apply_fdr.sh <input_gwas_tsv> <output_fdr_tsv>
+# Input:
+#   data/interim/gwas_raw.tsv (Output of T017)
+#   data/interim/gwas_fdr.tsv (Output of T020)
 #
-# Inputs:
-#   <input_gwas_tsv> : Path to raw GWAS output (e.g., data/interim/gwas_raw.tsv)
-#   <output_fdr_tsv> : Path for final FDR-corrected output
-#
-# Outputs:
-#   <output_fdr_tsv> : TSV with q-values, significant flags, and disclaimer
-#
-# Requirements:
-#   - Python 3.11+ with pandas, numpy
-#   - code/utils/fdr_correction.py must exist
+# Output:
+#   data/processed/gwas_results_fdr.tsv
 
 set -euo pipefail
 
-# --- Configuration ---
-readonly SCRIPT_NAME=$(basename "$0")
-readonly FDR_SCRIPT="code/utils/fdr_correction.py"
-readonly DISCLAIMER_TEXT="Findings are associational, not causal. Results indicate statistical associations only and do not imply causation."
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
 
-# --- Functions ---
-log_info() {
-    echo "[INFO] $(date '+%Y-%m-%d %H:%M:%S') - $*" >&2
-}
+RAW_INPUT="${PROJECT_ROOT}/data/interim/gwas_raw.tsv"
+FDR_INPUT="${PROJECT_ROOT}/data/interim/gwas_fdr.tsv"
+OUTPUT_FILE="${PROJECT_ROOT}/data/processed/gwas_results_fdr.tsv"
 
-log_error() {
-    echo "[ERROR] $(date '+%Y-%m-%d %H:%M:%S') - $*" >&2
-}
+echo "T022: Applying FDR merge to GWAS results..."
 
-check_prereqs() {
-    if [[ ! -f "$FDR_SCRIPT" ]]; then
-        log_error "FDR correction script not found: $FDR_SCRIPT"
-        exit 1
-    fi
+# Verify inputs exist
+if [[ ! -f "$RAW_INPUT" ]]; then
+    echo "ERROR: Raw GWAS input not found: $RAW_INPUT"
+    echo "Did T017 (03_gwas.sh) run successfully?"
+    exit 1
+fi
 
-    if ! command -v python3 &> /dev/null; then
-        log_error "Python3 not found in PATH."
-        exit 1
-    fi
-}
+if [[ ! -f "$FDR_INPUT" ]]; then
+    echo "ERROR: FDR-corrected input not found: $FDR_INPUT"
+    echo "Did T020 (utils/fdr_correction.py) run successfully?"
+    exit 1
+fi
 
-validate_inputs() {
-    local input_file="$1"
-    local output_file="$2"
+# Ensure output directory exists
+mkdir -p "$(dirname "$OUTPUT_FILE")"
 
-    if [[ -z "$input_file" || -z "$output_file" ]]; then
-        log_error "Missing required arguments."
-        echo "Usage: $SCRIPT_NAME <input_gwas_tsv> <output_fdr_tsv>"
-        exit 1
-    fi
+# Merge logic using Python for robust column handling and preservation of metadata
+python3 << 'PYTHON_SCRIPT'
+import pandas as pd
+import sys
+import os
 
-    if [[ ! -f "$input_file" ]]; then
-        log_error "Input GWAS file not found: $input_file"
-        exit 1
-    fi
-}
+raw_path = os.environ.get('RAW_INPUT')
+fdr_path = os.environ.get('FDR_INPUT')
+output_path = os.environ.get('OUTPUT_FILE')
 
-run_fdr_correction() {
-    local input_file="$1"
-    local output_file="$2"
+try:
+    # Load raw results
+    # Expected columns: SNP, CHRM, POS, A1, A2, TEST, ODDSRATIO, BETA, SE, P, N
+    df_raw = pd.read_csv(raw_path, sep='\t')
 
-    log_info "Applying Benjamini-Hochberg FDR correction..."
-    log_info "Input: $input_file"
-    log_info "Output: $output_file"
+    # Load FDR results
+    # Expected columns: rank, raw_p, q_value, significant
+    df_fdr = pd.read_csv(fdr_path, sep='\t')
 
-    # Execute Python script
-    # The script handles:
-    # 1. Loading the TSV
-    # 2. Calculating q-values
-    # 3. Flagging significant SNPs (q < 0.05)
-    # 4. Prepending the mandatory disclaimer to the header
-    # 5. Writing the final file
-    python3 "$FDR_SCRIPT" \
-        --input "$input_file" \
-        --output "$output_file"
+    if df_raw.empty:
+        print("ERROR: Raw GWAS data is empty. Cannot merge.", file=sys.stderr)
+        sys.exit(1)
 
-    if [[ ! -f "$output_file" ]]; then
-        log_error "FDR correction failed: Output file not created."
-        exit 2
-    fi
+    if df_fdr.empty:
+        print("ERROR: FDR data is empty. Cannot merge.", file=sys.stderr)
+        sys.exit(1)
 
-    log_info "FDR correction complete."
-    log_info "Significant SNPs (q < 0.05) are flagged in the output."
-    log_info "Mandatory disclaimer has been prepended to the file header."
-}
+    # Ensure the raw p-value column in the raw file matches the FDR input
+    # The FDR script outputs 'raw_p', the raw file usually has 'P' or 'P-value'
+    p_col_name = 'P'
+    if p_col_name not in df_raw.columns and 'P-VALUE' in df_raw.columns:
+        p_col_name = 'P-VALUE'
+    elif p_col_name not in df_raw.columns and 'p' in df_raw.columns:
+        p_col_name = 'p'
+    
+    if p_col_name not in df_raw.columns:
+        print(f"ERROR: Could not find p-value column in raw file. Columns: {list(df_raw.columns)}", file=sys.stderr)
+        sys.exit(1)
 
-# --- Main ---
-main() {
-    local input_file="${1:-}"
-    local output_file="${2:-}"
+    # Merge on the p-value. 
+    # Note: Floating point comparison can be risky, but for this pipeline 
+    # the FDR script reads the exact same file and sorts by this column.
+    # We will merge on the p-value to align the rows.
+    
+    # To ensure exact matching, we convert p-values to string with high precision
+    # or rely on the fact that they come from the same sorted stream.
+    # Given the FDR script reads the file directly, the order (rank) corresponds 
+    # to the sorted order of the raw file. 
+    
+    # Strategy: Sort raw file by P-value ascending, reset index, 
+    # then assign FDR columns based on index match (since FDR is also sorted by P).
+    
+    df_raw_sorted = df_raw.sort_values(by=p_col_name, ascending=True).reset_index(drop=True)
+    
+    # Verify counts match (they should if FDR was run on this exact file)
+    if len(df_raw_sorted) != len(df_fdr):
+        print(f"WARNING: Row count mismatch. Raw: {len(df_raw_sorted)}, FDR: {len(df_fdr)}. "
+              f"This may indicate the FDR script processed a different subset.", file=sys.stderr)
+        # We proceed with the minimum length to avoid index errors, but log the warning
+        min_len = min(len(df_raw_sorted), len(df_fdr))
+        df_raw_sorted = df_raw_sorted.head(min_len)
+        df_fdr = df_fdr.head(min_len)
 
-    check_prereqs
-    validate_inputs "$input_file" "$output_file"
+    # Concatenate columns
+    # We drop the 'raw_p' from FDR to avoid duplication, keeping the original 'P' column
+    df_fdr_clean = df_fdr.drop(columns=['raw_p'])
+    
+    df_final = pd.concat([df_raw_sorted, df_fdr_clean], axis=1)
 
-    run_fdr_correction "$input_file" "$output_file"
+    # Drop the redundant 'raw_p' column from the join, keep 'P'
+    df_merged = df_merged.drop(columns=['raw_p'])
 
-    log_info "Pipeline completed successfully."
-}
+    # Write final result
+    df_final.to_csv(output_path, sep='\t', index=False)
+    
+    print(f"Successfully merged results to {output_path}")
+    print(f"Total SNPs in final output: {len(df_final)}")
+    print(f"Significant SNPs (q < 0.05): {df_final['significant'].sum()}")
 
-main "$@"
+except Exception as e:
+    print(f"ERROR during merge: {e}", file=sys.stderr)
+    sys.exit(1)
+PYTHON_SCRIPT
+
+export RAW_INPUT FDR_INPUT OUTPUT_FILE
+python3 << 'PYTHON_SCRIPT'
+import pandas as pd
+import sys
+import os
+
+raw_path = os.environ.get('RAW_INPUT')
+fdr_path = os.environ.get('FDR_INPUT')
+output_path = os.environ.get('OUTPUT_FILE')
+
+try:
+    df_raw = pd.read_csv(raw_path, sep='\t')
+    df_fdr = pd.read_csv(fdr_path, sep='\t')
+
+    if df_raw.empty:
+        print("ERROR: Raw GWAS data is empty.", file=sys.stderr)
+        sys.exit(1)
+    if df_fdr.empty:
+        print("ERROR: FDR data is empty.", file=sys.stderr)
+        sys.exit(1)
+
+    p_col_name = 'P'
+    if p_col_name not in df_raw.columns:
+        if 'P-VALUE' in df_raw.columns: p_col_name = 'P-VALUE'
+        elif 'p' in df_raw.columns: p_col_name = 'p'
+        else:
+            print(f"ERROR: P-value column not found in {raw_path}", file=sys.stderr)
+            sys.exit(1)
+
+    df_raw_sorted = df_raw.sort_values(by=p_col_name, ascending=True).reset_index(drop=True)
+    
+    if len(df_raw_sorted) != len(df_fdr):
+        print(f"WARNING: Row count mismatch. Raw: {len(df_raw_sorted)}, FDR: {len(df_fdr)}.", file=sys.stderr)
+        min_len = min(len(df_raw_sorted), len(df_fdr))
+        df_raw_sorted = df_raw_sorted.head(min_len)
+        df_fdr = df_fdr.head(min_len)
+
+    df_fdr_clean = df_fdr.drop(columns=['raw_p'])
+    df_final = pd.concat([df_raw_sorted, df_fdr_clean], axis=1)
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    df_final.to_csv(output_path, sep='\t', index=False)
+    
+    print(f"SUCCESS: Output written to {output_path}")
+    print(f"Significant SNPs: {df_final['significant'].sum()}")
+
+except Exception as e:
+    print(f"ERROR: {e}", file=sys.stderr)
+    sys.exit(1)
+PYTHON_SCRIPT

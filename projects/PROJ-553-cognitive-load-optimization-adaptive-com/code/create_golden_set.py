@@ -1,157 +1,161 @@
-"""
-create_golden_set.py
-
-Implements the 'create' clause of FR-001 by generating a synthetic expert-labeled
-dataset (Golden Set) based on a defined rubric when external data is missing.
-
-This script generates synthetic interaction features (latency, errors, hints, pauses)
-and maps them to 'expert_load_score' (0-100) using a deterministic rubric.
-The output is saved to `data/processed/golden_set.csv`.
-
-Rubric Logic (Simulated Expert Judgment):
-1. Base Score: 50.0
-2. Latency Factor: High latency (> 20s) adds +15, Low latency (< 5s) subtracts -10.
-3. Error Factor: Each error adds +10 (max +30).
-4. Hint Factor: Each hint request adds +5 (max +20).
-5. Pause Factor: Long pauses (> 10s) add +5 per pause (max +15).
-6. Clamp: Final score bounded to [0, 100].
-
-This synthetic set is intended for model training and validation (US1) when
-external expert-labeled data is unavailable, acknowledging the limitation
-described in T006c.
-"""
 import os
 import sys
 import random
 from pathlib import Path
 from typing import List, Dict, Any
-
 import pandas as pd
 import numpy as np
 
-# Ensure the code directory is in the path if running as a script
-# but rely on the project structure for imports if part of a package
-# We use relative imports logic handled by the runner or explicit path setup
-if __name__ == "__main__":
-    # Add parent to path for local execution if needed
-    sys.path.insert(0, str(Path(__file__).parent.parent))
+# Seed for reproducibility
+RANDOM_SEED = 42
+MIN_ROWS = 50
 
-# Configuration
-N_SAMPLES = 100  # Generate 100 rows to satisfy >= 50 requirement
-SEED = 42
-OUTPUT_PATH = "data/processed/golden_set.csv"
-
-def generate_synthetic_interactions(n: int, seed: int) -> pd.DataFrame:
+def generate_synthetic_interactions(n_rows: int = MIN_ROWS) -> pd.DataFrame:
     """
-    Generates synthetic interaction features based on realistic distributions.
+    Generates a synthetic set of student interactions to serve as a placeholder
+    for the Golden Set if external expert-labeled data is unavailable.
+    
+    The data simulates realistic behavioral proxies (latency, errors, hints)
+    that are typically correlated with cognitive load.
+    
+    Columns:
+      - interaction_id: Unique identifier
+      - skill_id: Simulated skill category
+      - response_latency: Time taken to answer (seconds)
+      - is_correct: Binary correctness
+      - hint_count: Number of hints requested
+      - attempt_count: Number of attempts before success/fail
     """
-    random.seed(seed)
-    np.random.seed(seed)
-
-    data = {
-        "session_id": [f"syn_sess_{i:04d}" for i in range(n)],
-        "item_id": [f"item_{random.randint(1, 50)}" for _ in range(n)],
-        # Latency in seconds: Log-normal distribution to simulate skewed human response times
-        "latency_sec": np.random.lognormal(mean=2.5, sigma=1.0, size=n),
-        # Errors: Poisson distribution (mostly 0, some 1, few 2+)
-        "error_count": np.random.poisson(lam=0.8, size=n),
-        # Hints: Poisson distribution
-        "hint_count": np.random.poisson(lam=1.2, size=n),
-        # Pauses > 2s: Poisson distribution
-        "pause_count": np.random.poisson(lam=1.5, size=n),
-        # Correctness: Binary, correlated with errors (simplified)
-        "is_correct": [1 if e == 0 and random.random() > 0.2 else 0 for e in np.random.poisson(lam=0.5, size=n)]
-    }
-
-    df = pd.DataFrame(data)
-
-    # Ensure non-negative and reasonable bounds for simulation
-    df["latency_sec"] = df["latency_sec"].clip(lower=0.5, upper=60.0)
-    df["error_count"] = df["error_count"].clip(lower=0, upper=5)
-    df["hint_count"] = df["hint_count"].clip(lower=0, upper=10)
-    df["pause_count"] = df["pause_count"].clip(lower=0, upper=15)
-
+    random.seed(RANDOM_SEED)
+    np.random.seed(RANDOM_SEED)
+    
+    interaction_ids = [f"synth_{i:05d}" for i in range(n_rows)]
+    
+    # Simulate skills
+    skills = ["skill_01", "skill_02", "skill_03", "skill_04", "skill_05"]
+    skill_ids = [random.choice(skills) for _ in range(n_rows)]
+    
+    # Simulate response latency (log-normal distribution to mimic real data)
+    # Mean ~ 15s, std dev ~ 10s, clipped to reasonable bounds
+    latencies = np.random.lognormal(mean=2.5, sigma=0.8, size=n_rows)
+    latencies = np.clip(latencies, 1.0, 120.0) # 1s to 2 mins
+    
+    # Simulate correctness (biased towards success, but with difficulty variance)
+    # Probability of success varies by "difficulty" (simulated via skill)
+    probs = [0.9 if s == "skill_01" else 0.7 if s == "skill_02" else 0.5 for s in skill_ids]
+    is_correct = [random.random() < p for p in probs]
+    
+    # Simulate hint counts (Poisson distribution)
+    # Higher hints for harder skills
+    hint_rates = [2.0 if s == "skill_03" else 1.0 if s == "skill_02" else 0.5 for s in skill_ids]
+    hint_counts = [int(np.random.poisson(lam=rate)) for rate in hint_rates]
+    hint_counts = np.clip(hint_counts, 0, 10)
+    
+    # Simulate attempt counts
+    attempt_counts = [1 + int(np.random.geometric(p=0.8 if c else 0.3)) for c in is_correct]
+    attempt_counts = np.clip(attempt_counts, 1, 10)
+    
+    df = pd.DataFrame({
+        "interaction_id": interaction_ids,
+        "skill_id": skill_ids,
+        "response_latency": latencies,
+        "is_correct": is_correct,
+        "hint_count": hint_counts,
+        "attempt_count": attempt_counts
+    })
+    
     return df
 
-def apply_expert_rubric(df: pd.DataFrame) -> pd.Series:
+def apply_expert_rubric(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Applies a deterministic rubric to map interaction features to an
-    'expert_load_score' (0-100). This simulates an expert's judgment
-    based on observable behavioral proxies.
-
-    Rubric:
-    - Base: 50
-    - Latency: >20s (+15), <5s (-10), else 0
-    - Errors: +10 per error (max +30)
-    - Hints: +5 per hint (max +20)
-    - Pauses: +5 per pause (max +15)
+    Applies a heuristic rubric to derive a synthetic 'expert_load_score' (0-100).
+    
+    This function simulates how an expert might label interactions based on
+    behavioral proxies:
+    - High latency -> Higher load
+    - More hints -> Higher load
+    - More attempts -> Higher load
+    - Incorrect answer -> Higher load
+    
+    The formula is a weighted sum normalized to 0-100.
     """
-    scores = np.full(len(df), 50.0, dtype=float)
-
-    # Latency contribution
-    high_latency_mask = df["latency_sec"] > 20.0
-    low_latency_mask = df["latency_sec"] < 5.0
-    scores[high_latency_mask] += 15.0
-    scores[low_latency_mask] -= 10.0
-
-    # Error contribution (capped)
-    error_contribution = df["error_count"] * 10.0
-    error_contribution = error_contribution.clip(upper=30.0)
-    scores += error_contribution
-
-    # Hint contribution (capped)
-    hint_contribution = df["hint_count"] * 5.0
-    hint_contribution = hint_contribution.clip(upper=20.0)
-    scores += hint_contribution
-
-    # Pause contribution (capped)
-    pause_contribution = df["pause_count"] * 5.0
-    pause_contribution = pause_contribution.clip(upper=15.0)
-    scores += pause_contribution
-
-    # Clamp final score to [0, 100]
-    return scores.clip(0.0, 100.0)
+    # Normalize features to 0-1 scale roughly
+    # Latency: 0-60s mapped to 0-0.5
+    lat_norm = df['response_latency'].clip(0, 60) / 60.0 * 0.5
+    
+    # Hints: 0-5 mapped to 0-0.2
+    hint_norm = df['hint_count'].clip(0, 5) / 5.0 * 0.2
+    
+    # Attempts: 1-5 mapped to 0-0.15
+    att_norm = df['attempt_count'].clip(1, 5) / 5.0 * 0.15
+    
+    # Correctness: 0 (correct) -> 0, 1 (incorrect) -> 0.15
+    err_norm = (~df['is_correct']).astype(int) * 0.15
+    
+    # Combine
+    load_score = (lat_norm + hint_norm + att_norm + err_norm) * 100
+    
+    # Clip to 0-100
+    load_score = load_score.clip(0, 100)
+    
+    # Add a small amount of random noise to simulate human variability
+    noise = np.random.normal(0, 2, len(df))
+    load_score = load_score + noise
+    load_score = load_score.clip(0, 100)
+    
+    df['expert_load_score'] = load_score.round(2)
+    
+    return df
 
 def main():
     """
-    Main entry point to generate the synthetic Golden Set.
+    Main entry point for T007b.
+    Checks for existing golden set. If missing/invalid, generates synthetic.
     """
-    print(f"[create_golden_set] Starting generation of synthetic Golden Set...")
-    print(f"[create_golden_set] Target: {OUTPUT_PATH}")
-
-    # Ensure output directory exists
-    output_dir = Path(OUTPUT_PATH).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    # Check if file already exists
-    if Path(OUTPUT_PATH).exists():
-        print(f"[create_golden_set] Warning: {OUTPUT_PATH} already exists. Overwriting.")
-
+    output_path = Path("data/processed/golden_set.csv")
+    
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Check if file exists and is valid
+    if output_path.exists():
+        try:
+            df = pd.read_csv(output_path)
+            if 'expert_load_score' in df.columns and len(df) >= MIN_ROWS:
+                # Validate range
+                if df['expert_load_score'].between(0, 100).all():
+                    print(f"Found valid Golden Set at {output_path} ({len(df)} rows).")
+                    print("Skipping generation.")
+                    return
+            else:
+                print(f"Found {output_path} but it is invalid (missing score or < {MIN_ROWS} rows). Regenerating.")
+        except Exception as e:
+            print(f"Error reading {output_path}: {e}. Regenerating.")
+    
+    print("Generating synthetic Golden Set...")
+    
     # Generate data
-    print(f"[create_golden_set] Generating {N_SAMPLES} synthetic interactions...")
-    df_interactions = generate_synthetic_interactions(N_SAMPLES, SEED)
-
+    df_raw = generate_synthetic_interactions(n_rows=MIN_ROWS)
+    
     # Apply rubric
-    print(f"[create_golden_set] Applying expert rubric to generate load scores...")
-    df_interactions["expert_load_score"] = apply_expert_rubric(df_interactions)
-
-    # Round scores to 2 decimal places
-    df_interactions["expert_load_score"] = df_interactions["expert_load_score"].round(2)
-
-    # Save to CSV
-    df_interactions.to_csv(OUTPUT_PATH, index=False)
-
-    # Verify output
-    if Path(OUTPUT_PATH).exists():
-        stats = df_interactions.describe()
-        print(f"[create_golden_set] SUCCESS: Golden Set created at {OUTPUT_PATH}")
-        print(f"[create_golden_set] Rows: {len(df_interactions)}")
-        print(f"[create_golden_set] Score Range: [{df_interactions['expert_load_score'].min():.2f}, {df_interactions['expert_load_score'].max():.2f}]")
-        print(f"[create_golden_set] Score Mean: {df_interactions['expert_load_score'].mean():.2f}")
-        return 0
-    else:
-        print(f"[create_golden_set] ERROR: Failed to write file to {OUTPUT_PATH}")
-        return 1
+    df_labeled = apply_expert_rubric(df_raw)
+    
+    # Select final columns
+    final_cols = [
+        "interaction_id", 
+        "skill_id", 
+        "response_latency", 
+        "is_correct", 
+        "hint_count", 
+        "attempt_count", 
+        "expert_load_score"
+    ]
+    df_final = df_labeled[final_cols]
+    
+    # Save
+    df_final.to_csv(output_path, index=False)
+    print(f"Successfully saved synthetic Golden Set to {output_path}")
+    print(f"Rows: {len(df_final)}, Score range: [{df_final['expert_load_score'].min():.2f}, {df_final['expert_load_score'].max():.2f}]")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

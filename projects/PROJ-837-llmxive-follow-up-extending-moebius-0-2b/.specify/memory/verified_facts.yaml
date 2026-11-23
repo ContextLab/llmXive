@@ -1,5 +1,5 @@
-'|exist file row verify':
-  quote: 'P1051: 12500'
-  source_id: Q47604
-  url: https://www.wikidata.org/wiki/Q47604
-  value: '12500'
+'|2b framework image inpainting lightweight moebius parameter':
+  quote: "of the parameters (0.22B vs. 11.9B) while delivering a>15\xD7acceleration"
+  source_id: '2606.19195'
+  url: https://arxiv.org/abs/2606.19195
+  value: 0.22B

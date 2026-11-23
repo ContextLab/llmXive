@@ -15,6 +15,7 @@ project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root / "code"))
 
 from utils.config import get_project_root
+from utils.data_models import StatResult
 
 def test_permutation_test_interface_exists():
     """Test that the permutation test function exists and has the correct signature."""
@@ -53,7 +54,8 @@ def test_bonferroni_correction():
     
     assert len(corrected) == len(p_values)
     assert all(0.0 <= p <= 1.0 for p in corrected)
-    assert corrected[0] == min(0.01 * 4, 1.0)  # 4 smells
+    # 4 smell types tested, so multiplier is 4
+    assert corrected[0] == min(0.01 * 4, 1.0)
     assert corrected[1] == min(0.02 * 4, 1.0)
 
 def test_confidence_interval():

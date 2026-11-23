@@ -1,0 +1,60 @@
+T005:
+  c: false
+  h: 14cebd5db107ad5de0ed5cf50500a1d80d78ceaff3bbd84498ad76dd0339cb2a
+  r: The repository contains `code/generators/synthetic_data.py`, but the required
+    output file `data/raw/synthetic_arabidopsis_v1.csv` is not present, so the implementation
+    does not actually produce the canonical synthetic dataset (and thus cannot be
+    verified against the schema). The missing CSV (and any checksum) must be generated
+    for the task to be complete.
+T005b:
+  c: false
+  h: 1b855bfb63028560a6e89ab2b2c6560c109554f76b06f8a4ecead54a93518388
+  r: "The repository lacks the required `data/reference/real_world_schema.json` file,\
+    \ and `code/generators/synthetic_data.py` contains only data generation code without\
+    \ any schema\u2011validation logic that loads and compares against a reference\
+    \ schema. Both the validation implementation and the reference schema are missing,\
+    \ so the task is not satisfied."
+T012:
+  c: false
+  h: 511ac795a57260cfc60e41e12ca2dc24bf57021fcf745564865e8555ae187bd2
+  r: The `code/01_ingest.py` script contains only placeholder search functions, never
+    calls `code/generators/synthetic_data.py`, and does not create the required `data/raw/query_log.json`
+    (the file is missing). Consequently it does not perform real queries nor automatically
+    generate synthetic data when fewer than 50 paired samples are found.
+T016a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or generated dataset showing the aggregation of gene\
+    \ expression into pathway\u2011level features is provided. There is no evidence\
+    \ of columns named `tps_family_X_mean`, nor of a conditional check that the aggregation\
+    \ runs only when the raw feature count exceeds 100. The required artifact is missing,\
+    \ so the task is not satisfied."
+T017a:
+  c: false
+  h: bd070707d989428b3750cbee4759f4ad593af88277498df8827800928c682301
+  r: "The repository contains `code/02_merge.py`, but the file is truncated and does\
+    \ not show any implemented validation logic that enforces column types or generates\
+    \ a JSON validation report. Moreover, the required output artifacts `data/processed/merged_dataset.csv`\
+    \ and `data/results/data_validation_report.json` are absent from the project directory.\
+    \ The task\u2019s core deliverables are therefore missing."
+T036:
+  c: false
+  h: 273b7a134f895487f28cefd10ccc04a160dfa614a8d804b6d555564a9856dc72
+  r: "The required `data/results/perf_metrics.json` file does not exist, so no peak\
+    \ RAM usage was recorded, and the memory profiling requirement is unmet. The implementer\
+    \ must run `memory_profiler` on the full pipeline and create the JSON file with\
+    \ the measured peak RAM (ensuring it is below 6\u202FGB)."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of any files under `tests/unit/` was provided, and there is no listing
+    or content showing additional unit tests that cover the specified edge cases (missing
+    data, datasets with fewer than 50 samples). The required test artifacts are therefore
+    missing.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `quickstart.md` validation run (e.g., execution logs, reproduced\
+    \ outputs, or a reproducibility report) is present; the implementer provided no\
+    \ artifacts demonstrating that the end\u2011to\u2011end pipeline was executed\
+    \ and validated. The required validation output is missing."

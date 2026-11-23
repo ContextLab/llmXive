@@ -1,271 +1,139 @@
 """
-Unit tests for code/data/models.py
+Unit tests for data models (T007).
 """
 import pytest
 import numpy as np
+import pandas as pd
 from pathlib import Path
-import tempfile
+import sys
 import os
 
-from code.data.models import Subject, ConnectivityMatrix, ValidationError, create_subject_from_dict
+# Add code to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
 
+from data.models import Subject, ConnectivityMatrix, ValidationError
+from utils.schema_validator import load_schema, validate_record
 
-class TestSubject:
-    """Tests for the Subject data model."""
-    
-    def test_valid_subject_creation(self):
-        """Test creation of a valid Subject instance."""
-        subject = Subject(
-            subject_id="ABC-1234",
-            group="musician",
-            years_of_training=5.5,
-            age=16.0,
-            sex="M",
-            motion_score=0.12,
-            ses_score=0.75
-        )
-        
-        assert subject.subject_id == "ABC-1234"
-        assert subject.group == "musician"
-        assert subject.years_of_training == 5.5
-        assert subject.age == 16.0
-        assert subject.sex == "M"
-        assert subject.motion_score == 0.12
-        assert subject.ses_score == 0.75
-        assert subject._validated is True
-    
-    def test_invalid_subject_id_format(self):
-        """Test that invalid subject_id raises ValidationError."""
-        with pytest.raises(ValidationError):
-            Subject(
-                subject_id="invalid",
-                group="musician",
-                years_of_training=5.0,
-                age=16.0,
-                sex="M",
-                motion_score=0.1,
-                ses_score=0.5
-            )
-    
-    def test_invalid_group(self):
-        """Test that invalid group raises ValidationError."""
-        with pytest.raises(ValidationError):
-            Subject(
-                subject_id="ABC-1234",
-                group="invalid_group",
-                years_of_training=5.0,
-                age=16.0,
-                sex="M",
-                motion_score=0.1,
-                ses_score=0.5
-            )
-    
-    def test_invalid_sex(self):
-        """Test that invalid sex raises ValidationError."""
-        with pytest.raises(ValidationError):
-            Subject(
-                subject_id="ABC-1234",
-                group="musician",
-                years_of_training=5.0,
-                age=16.0,
-                sex="X",
-                motion_score=0.1,
-                ses_score=0.5
-            )
-    
-    def test_age_out_of_range(self):
-        """Test that age out of range raises ValidationError."""
-        with pytest.raises(ValidationError):
-            Subject(
-                subject_id="ABC-1234",
-                group="musician",
-                years_of_training=5.0,
-                age=30.0,  # Out of range
-                sex="M",
-                motion_score=0.1,
-                ses_score=0.5
-            )
-    
-    def test_negative_training_years(self):
-        """Test that negative training years raises ValidationError."""
-        with pytest.raises(ValidationError):
-            Subject(
-                subject_id="ABC-1234",
-                group="musician",
-                years_of_training=-1.0,
-                age=16.0,
-                sex="M",
-                motion_score=0.1,
-                ses_score=0.5
-            )
-    
-    def test_ses_score_out_of_range(self):
-        """Test that SES score out of range raises ValidationError."""
-        with pytest.raises(ValidationError):
-            Subject(
-                subject_id="ABC-1234",
-                group="musician",
-                years_of_training=5.0,
-                age=16.0,
-                sex="M",
-                motion_score=0.1,
-                ses_score=1.5  # Out of range
-            )
-    
-    def test_to_dict(self):
-        """Test conversion to dictionary."""
-        subject = Subject(
-            subject_id="XYZ-5678",
-            group="non_musician",
-            years_of_training=0.0,
-            age=14.5,
-            sex="F",
-            motion_score=0.25,
-            ses_score=0.4
-        )
-        
-        data = subject.to_dict()
-        
-        assert data["subject_id"] == "XYZ-5678"
-        assert data["group"] == "non_musician"
-        assert data["years_of_training"] == 0.0
-        assert data["age"] == 14.5
-        assert data["sex"] == "F"
-        assert data["motion_score"] == 0.25
-        assert data["ses_score"] == 0.4
-    
-    def test_create_subject_from_dict(self):
-        """Test factory function for creating Subject from dict."""
-        data = {
-            "subject_id": "DEF-9999",
-            "group": "musician",
-            "years_of_training": 10.0,
-            "age": 18.0,
-            "sex": "F",
-            "motion_score": 0.15,
-            "ses_score": 0.8
-        }
-        
-        subject = create_subject_from_dict(data)
-        
-        assert isinstance(subject, Subject)
-        assert subject.subject_id == "DEF-9999"
-        assert subject.group == "musician"
-        assert subject.years_of_training == 10.0
-    
-    def test_create_subject_from_dict_missing_keys(self):
-        """Test that missing keys raise KeyError."""
-        data = {
-            "subject_id": "DEF-9999",
-            "group": "musician",
-            # Missing other required keys
-        }
-        
-        with pytest.raises(KeyError):
-            create_subject_from_dict(data)
+@pytest.fixture
+def valid_subject_data():
+    return {
+        'subject_id': 'SUBJ001',
+        'group': 'musician',
+        'years_of_training': 5.5,
+        'age': 16.0,
+        'sex': 'M',
+        'motion_score': 0.5,
+        'ses_score': 7.0
+    }
 
-class TestConnectivityMatrix:
-    """Tests for the ConnectivityMatrix data model."""
-    
-    def test_valid_matrix_creation(self):
-        """Test creation of a valid ConnectivityMatrix."""
-        matrix = np.array([
-            [1.0, 0.5, 0.3],
-            [0.5, 1.0, 0.6],
-            [0.3, 0.6, 1.0]
-        ])
-        
-        conn = ConnectivityMatrix(
-            subject_id="ABC-1234",
-            matrix=matrix,
-            atlas="AAL",
-            roi_labels=["ROI1", "ROI2", "ROI3"]
-        )
-        
-        assert conn.subject_id == "ABC-1234"
-        assert conn.atlas == "AAL"
-        assert conn.roi_labels == ["ROI1", "ROI2", "ROI3"]
-    
-    def test_non_square_matrix_raises_error(self):
-        """Test that non-square matrix raises ValueError."""
-        matrix = np.array([
-            [1.0, 0.5],
-            [0.5, 1.0],
-            [0.3, 0.6]
-        ])
-        
-        with pytest.raises(ValueError):
-            ConnectivityMatrix(
-                subject_id="ABC-1234",
-                matrix=matrix
-            )
-    
-    def test_non_symmetric_matrix_raises_error(self):
-        """Test that non-symmetric matrix raises ValueError."""
-        matrix = np.array([
-            [1.0, 0.5, 0.3],
-            [0.6, 1.0, 0.4],
-            [0.3, 0.6, 1.0]
-        ])
-        
-        with pytest.raises(ValueError):
-            ConnectivityMatrix(
-                subject_id="ABC-1234",
-                matrix=matrix
-            )
-    
-    def test_roi_labels_length_mismatch(self):
-        """Test that mismatched ROI labels raise ValueError."""
-        matrix = np.array([
-            [1.0, 0.5],
-            [0.5, 1.0]
-        ])
-        
-        with pytest.raises(ValueError):
-            ConnectivityMatrix(
-                subject_id="ABC-1234",
-                matrix=matrix,
-                roi_labels=["ROI1", "ROI2", "ROI3"]  # Too many
-            )
-    
-    def test_get_edge_list(self):
-        """Test conversion to edge list."""
-        matrix = np.array([
-            [1.0, 0.5, 0.3],
-            [0.5, 1.0, 0.6],
-            [0.3, 0.6, 1.0]
-        ])
-        
-        conn = ConnectivityMatrix(
-            subject_id="ABC-1234",
-            matrix=matrix,
-            roi_labels=["A", "B", "C"]
-        )
-        
-        edges = conn.get_edge_list()
-        
-        assert len(edges) == 3
-        assert edges[0]["roi_i"] == "A"
-        assert edges[0]["roi_j"] == "B"
-        assert edges[0]["strength"] == 0.5
-        assert edges[1]["roi_i"] == "A"
-        assert edges[1]["roi_j"] == "C"
-        assert edges[2]["roi_i"] == "B"
-        assert edges[2]["roi_j"] == "C"
-    
-    def test_default_roi_labels(self):
-        """Test that default ROI labels are generated if not provided."""
-        matrix = np.array([
-            [1.0, 0.5],
-            [0.5, 1.0]
-        ])
-        
-        conn = ConnectivityMatrix(
-            subject_id="ABC-1234",
-            matrix=matrix
-        )
-        
-        edges = conn.get_edge_list()
-        
-        assert edges[0]["roi_i"] == "ROI_0"
-        assert edges[0]["roi_j"] == "ROI_1"
+@pytest.fixture
+def schema_path():
+    return Path(__file__).parent.parent.parent / 'contracts' / 'subject.schema.yaml'
+
+def test_subject_creation_valid(valid_subject_data):
+    """Test creating a valid Subject."""
+    sub = Subject(**valid_subject_data)
+    assert sub.subject_id == 'SUBJ001'
+    assert sub.group == 'musician'
+    assert sub.years_of_training == 5.5
+    assert sub.age == 16.0
+    assert sub.sex == 'M'
+    assert sub.motion_score == 0.5
+    assert sub.ses_score == 7.0
+
+def test_subject_invalid_group(valid_subject_data):
+    """Test that invalid group raises ValidationError."""
+    valid_subject_data['group'] = 'invalid_group'
+    with pytest.raises(ValidationError, match="Invalid group"):
+        Subject(**valid_subject_data)
+
+def test_subject_negative_years(valid_subject_data):
+    """Test that negative years_of_training raises ValidationError."""
+    valid_subject_data['years_of_training'] = -1.0
+    with pytest.raises(ValidationError, match="years_of_training cannot be negative"):
+        Subject(**valid_subject_data)
+
+def test_subject_age_out_of_range(valid_subject_data):
+    """Test that age > 120 raises ValidationError."""
+    valid_subject_data['age'] = 150.0
+    with pytest.raises(ValidationError, match="Invalid age"):
+        Subject(**valid_subject_data)
+
+def test_subject_to_dict(valid_subject_data):
+    """Test conversion to dictionary."""
+    sub = Subject(**valid_subject_data)
+    result = sub.to_dict()
+    assert result['subject_id'] == 'SUBJ001'
+    assert result['group'] == 'musician'
+    assert result['years_of_training'] == 5.5
+
+def test_subject_from_dict(valid_subject_data):
+    """Test creation from dictionary."""
+    sub = Subject.from_dict(valid_subject_data)
+    assert sub.subject_id == 'SUBJ001'
+    assert sub.group == 'musician'
+
+def test_connectivity_matrix_valid():
+    """Test creating a valid ConnectivityMatrix."""
+    matrix = np.eye(5) * 0.5
+    conn = ConnectivityMatrix(subject_id='SUBJ001', matrix=matrix)
+    assert conn.subject_id == 'SUBJ001'
+    assert conn.n_rois == 5
+    assert conn.atlas == "Schaefer"
+
+def test_connectivity_matrix_not_square():
+    """Test that non-square matrix raises ValidationError."""
+    matrix = np.array([[0.5, 0.5], [0.5, 0.5], [0.5, 0.5]])
+    with pytest.raises(ValidationError, match="matrix must be square"):
+        ConnectivityMatrix(subject_id='SUBJ001', matrix=matrix)
+
+def test_connectivity_matrix_clipping():
+    """Test that values outside [-1, 1] are clipped."""
+    matrix = np.array([[1.5, -1.5], [-1.5, 1.5]])
+    conn = ConnectivityMatrix(subject_id='SUBJ001', matrix=matrix)
+    assert np.all(conn.matrix >= -1.0)
+    assert np.all(conn.matrix <= 1.0)
+    assert conn.matrix[0, 0] == 1.0
+
+def test_schema_validation_valid(valid_subject_data, schema_path):
+    """Test that valid data passes schema validation."""
+    schema = load_schema(schema_path)
+    assert validate_record(valid_subject_data, schema) is True
+
+def test_schema_validation_invalid_group(valid_subject_data, schema_path):
+    """Test that invalid group fails schema validation."""
+    valid_subject_data['group'] = 'invalid'
+    schema = load_schema(schema_path)
+    assert validate_record(valid_subject_data, schema) is False
+
+def test_create_subjects_from_dataframe():
+    """Test creating subjects from a DataFrame."""
+    data = {
+        'subject_id': ['SUB1', 'SUB2'],
+        'group': ['musician', 'non_musician'],
+        'years_of_training': [2.0, 0.0],
+        'age': [15.0, 16.0],
+        'sex': ['M', 'F'],
+        'motion_score': [0.1, 0.2],
+        'ses_score': [5.0, 6.0]
+    }
+    df = pd.DataFrame(data)
+    subjects = create_subjects_from_dataframe(df)
+    assert len(subjects) == 2
+    assert subjects[0].subject_id == 'SUB1'
+    assert subjects[1].group == 'non_musician'
+
+def test_create_subjects_from_dataframe_invalid():
+    """Test that invalid rows in DataFrame raise ValidationError."""
+    data = {
+        'subject_id': ['SUB1', 'SUB2'],
+        'group': ['musician', 'invalid_group'],
+        'years_of_training': [2.0, 0.0],
+        'age': [15.0, 16.0],
+        'sex': ['M', 'F'],
+        'motion_score': [0.1, 0.2],
+        'ses_score': [5.0, 6.0]
+    }
+    df = pd.DataFrame(data)
+    with pytest.raises(ValidationError):
+        create_subjects_from_dataframe(df)

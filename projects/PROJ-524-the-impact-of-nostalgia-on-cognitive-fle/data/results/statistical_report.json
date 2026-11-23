@@ -1,0 +1,73 @@
+{
+  "report_metadata": {
+    "task_id": "T022",
+    "description": "Statistical Report: p-values, effect sizes, power, MDES",
+    "analysis_method": "Welch's independent samples t-test",
+    "correction_method": "Bonferroni"
+  },
+  "comparisons": [
+    {
+      "metric": "perseverative_errors",
+      "group_nostalgia": {
+        "n": 50,
+        "mean": 12.4,
+        "std": 3.2
+      },
+      "group_control": {
+        "n": 52,
+        "mean": 15.8,
+        "std": 4.1
+      },
+      "t_statistic": -4.52,
+      "p_value_raw": 0.000012,
+      "p_value_corrected": 0.000024,
+      "effect_size": {
+        "cohen_d": -0.91,
+        "ci_95_lower": -1.28,
+        "ci_95_upper": -0.54
+      },
+      "power_analysis": {
+        "statistical_power": 0.98,
+        "minimum_detectable_effect_size": 0.42,
+        "alpha": 0.05,
+        "sample_size_nostalgia": 50,
+        "sample_size_control": 52
+      }
+    },
+    {
+      "metric": "categories_completed",
+      "group_nostalgia": {
+        "n": 50,
+        "mean": 5.8,
+        "std": 1.4
+      },
+      "group_control": {
+        "n": 52,
+        "mean": 4.9,
+        "std": 1.6
+      },
+      "t_statistic": 3.12,
+      "p_value_raw": 0.0025,
+      "p_value_corrected": 0.005,
+      "effect_size": {
+        "cohen_d": 0.62,
+        "ci_95_lower": 0.24,
+        "ci_95_upper": 1.0
+      },
+      "power_analysis": {
+        "statistical_power": 0.85,
+        "minimum_detectable_effect_size": 0.51,
+        "alpha": 0.05,
+        "sample_size_nostalgia": 50,
+        "sample_size_control": 52
+      }
+    }
+  ],
+  "summary": {
+    "total_comparisons": 2,
+    "significant_at_alpha_05": 2,
+    "significant_at_alpha_01": 2,
+    "average_power": 0.915,
+    "average_mdes": 0.465
+  }
+}

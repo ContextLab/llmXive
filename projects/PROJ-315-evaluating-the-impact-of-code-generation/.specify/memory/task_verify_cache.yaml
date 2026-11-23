@@ -1,0 +1,187 @@
+T001:
+  c: true
+  h: b3f20939fa2f9c12b72bf8e44cd870fdff4ad63a1ab62e6771eeff71a08b74ac
+  r: Checked that the project root contains the required `code/`, `data/`, `docs/`,
+    and `tests/` directories, each present and populated with files (e.g., `code/`
+    has multiple entries, `data/` has `__init__.py`, `docs/` has `__init__.py` and
+    a `reports/` subfolder, `tests/` has subfolders and test files).
+  sig: 48f753f104c208aee24257c8e2a558b34539bdc9ab82e86fe89afa0cf7b055c3
+T002:
+  c: true
+  h: 33ebbf0222c854610e458a9a430b905a3fb7db0e8704c15a2a595d8864ab88d8
+  r: "The `code/utils/config.py` file exists (4401\u202Fbytes) and defines a `load_config()`\
+    \ that returns a dictionary of all environment variables, and a `set_seed(seed=42)`\
+    \ that sets the seeds for `random`, `numpy` (and thus pandas) as required."
+  sig: a0d0db3ee7dbe68d6770cd3df1788aa1477a32b544bfd25a2996ae69e7163c18
+T003:
+  c: true
+  h: 60a63d5179d0faacb975c6a85c8660db4f039e682958492774dcbc8da1ce47bb
+  r: "The `pyproject.toml` file (1580\u202Fbytes) includes `[tool.ruff]` and `[tool.black]`\
+    \ sections with typical configuration options, and the `dev` optional dependencies\
+    \ list both `ruff` and `black`. This demonstrates that linting and formatting\
+    \ tools are properly configured as required."
+  sig: 6b25bccd54a291c07fe8bc1e26607de62b177c63a1b8134b43e83e8ab6463093
+T004:
+  c: true
+  h: 886cc4bd2a21b386ddcd946e912532ff83f915bdaad2bd32c938ada59ecd2643
+  r: "Checked the resolved artifact `code/utils/hash_artifacts.py` (8151\u202Fbytes)\
+    \ which defines functions to locate artifact files, compute their SHA\u2011256\
+    \ hashes, output JSON checksum files, and verify them via a CLI, fulfilling the\
+    \ requirement to compute checksums for data and stats artifacts under Constitution\
+    \ Principle\u202FV."
+  sig: dd1efc14485c55f6acfd5cc35d016daf8c72d57a0d8b5c24d61038e7478bedf6
+T005:
+  c: true
+  h: 3b6638d282d3a26708ee0b98c59ae5bdf3c348ff2fdb0630bcb9c7676dfdbe38
+  r: "The collector shows `code/data/__init__.py` (1450\u202Fbytes) and `code/labeling/__init__.py`\
+    \ (125\u202Fbytes) present at the expected locations with valid Python package\
+    \ initializers. Both files exist and are non\u2011empty, satisfying the task\u2019\
+    s requirement to create the package structures."
+  sig: 3abd48f888cab43b837e8d7863154a81061a9d404c57cc9b19cf2b32fc830aad
+T006:
+  c: true
+  h: e37d99ec44b8d83a92bbfef35a13e468bb89ed9a124187737579574301a1bb77
+  r: "The artifact `contracts/dataset.schema.yaml` exists (5.8\u202FKB) and its YAML\
+    \ schema lists the required properties `code_diff`, `review_comments`, `merge_timestamp`,\
+    \ and `project_metadata` as mandated. The file contains a full definition, not\
+    \ a stub or placeholder."
+  sig: 450c8ca872e10e161fa65e7edb3567ffcadc664403f94cfa3d3f4c6a7d32f4ae
+T007:
+  c: false
+  h: 684e7572fba2e0569befb3fe4359e6022db7e6d4f49388a2a2e633bd65299202
+  r: "The `code/utils/logger.py` file is present and implements a basic logger and\
+    \ a `log_power_insufficiency` helper, but it does not provide any function or\
+    \ mechanism for reporting \u201CData Completeness\u201D errors as required by\
+    \ the task. Adding a dedicated data\u2011completeness logging helper (or otherwise\
+    \ handling that case) is needed to satisfy the full specification."
+  sig: a7206e8f08bac088de8e316ea6bdd68efeae51e94e8d5724c99cfe239a0db305
+T008:
+  c: true
+  h: 4e7a8a2b79b5573e01b121f31e02e1a6a47a9d66eb482b5cb51359d323c8ee1c
+  r: "Checked `contracts/output.schema.yaml` \u2013 it exists, is non\u2011empty,\
+    \ and defines JSON schemas with the exact required keys for Mann\u2011Whitney\
+    \ U results, VIF diagnostics, power analysis, and error reports."
+  sig: 5368c8317ed119cb54c8bb5fc143041dbddedc45f1342cefc8f4c8143c60401b
+T009:
+  c: true
+  h: 1cbb248f2699ff8a14c08e16bb3e6aa2cbdf5262215c4eac771dbb390636a8a2
+  r: "Checked `tests/unit/test_classify.py` (11512\u202Fbytes) which contains `TestClassifyPR.test_classify_as_llm_generated`\
+    \ confirming a message with \u22652 keyword matches is classified as LLM, and\
+    \ `TestClassifyPR.test_classify_as_not_llm_generated` confirming a single\u2011\
+    keyword message is classified as Human. The required unit tests are present and\
+    \ correctly implemented."
+  sig: def8b4452d4a8902fd23e2d4a01f4718ce7980b7544265f87c8726ab9e21a5b1
+T010:
+  c: true
+  h: f37b1b90436e1ba045af539e137ee172a25f085f937a414721aa7451a1f5ebca
+  r: "The integration test file `tests/integration/test_data_completeness.py` exists\
+    \ and contains assertions that a `ValueError` with the phrase \u201CData Completeness\
+    \ Error\u201D is raised when mock data yields 90\u202F% completeness, and that\
+    \ no exception is raised at 95\u202F% completeness. The implementation in `code/data/preprocess.py`\u2019\
+    s `validate_completeness` and `run_data_completeness_check` functions produce\
+    \ the required error message, satisfying the task\u2019s requirement."
+  sig: 41eeb4403814edd82e6ba19c048ccc55f551b858af0148ce1bd3f584322d87b4
+T011:
+  c: true
+  h: 8cabf298cbc7ccdaa751c5fd28353ff201fcd9af6e44a16dabe1bb44d884f2f7
+  r: "Checked `tests/integration/test_power_check.py` (8247\u202Fbytes) \u2013 it\
+    \ defines integration tests that create mock datasets with <\u202F500 samples\
+    \ in a group, invoke a check that raises `ValueError` whose message includes \u201C\
+    Power Insufficiency Error\u201D, and asserts this behavior, fulfilling the task\u2019\
+    s requirement."
+  sig: e27f8f4c3e476a9b185d04ff1b3a819283a74d8d9a56f7422529091be81398c7
+T012:
+  c: false
+  h: 1bc7321eaa23186cfb8a6798a08c821abed6ad120c45678e68831092d280eace
+  r: "The provided `code/data/fetch.py` calls `load_dataset` without the required\
+    \ `batch_size=1000` argument and then materialises the entire streaming dataset\
+    \ into a list/DataFrame, which defeats the memory\u2011efficient chunked streaming\
+    \ requirement. It also does not implement chunked processing of the full dataset\
+    \ as specified. The task\u2019s core requirement is therefore not satisfied."
+  sig: 9857edfc386fbe35838b9ad5bcc070c19400c5c162f50853684bb184822c121c
+T014a:
+  c: false
+  h: 113245956a2da9666000931d900d7892328a0277ffd5873ddef59f7bc59bb461
+  r: The `code/data/preprocess.py` file does not contain a `load_and_extract()` function
+    implementing the required loading, extraction of diffs, comments, timestamps,
+    and project metadata, nor does it write `data/raw/raw_prs.parquet`. Additionally,
+    the expected parquet file is missing. These core artifacts must be added for the
+    task to be considered complete.
+  sig: 04aff1b17bfc3ded094c249036aaeb731f3da2f79ad7cd50b21395082da9f0a0
+T014b:
+  c: false
+  h: fd5763d957e3a4200f9d80d9eb713a6fb2aa0189eb31f5f45cbd9e07bd7a19d3
+  r: "The `validate_completeness` function exists and correctly checks \u226595% completeness\
+    \ and raises a `ValueError` containing \u201CData Completeness Error\u201D. However,\
+    \ the task also requires that a completeness report be written to `docs/reports/completeness_report.json`,\
+    \ and this file is missing and no code in `preprocess.py` creates it. The output\
+    \ artifact is therefore not produced."
+  sig: 6ece2dcfa9f7583bb3dce5f2346d827d9cf47ef52b0c4eac8e47e9c574a12555
+T014c:
+  c: false
+  h: c6b9ef033640d98f89b0f8e59ded0666026bc46513576e9bdf0274b2653e34a7
+  r: The `code/data/preprocess.py` file does not contain a `compute_basic_stats()`
+    function, nor does it generate or write the required `data/processed/basic_stats.json`
+    file. Both the function implementation and its expected output are missing.
+  sig: f2e02b205456d538225e1fdf2cc35aaa13c9bd3289da80e82727cf6b3b15964f
+T014d:
+  c: false
+  h: 20ffab80d7e756ba4e782ec0b68bc61adf84d8bdca9adabf294b95c4cd2d2346
+  r: "The file `code/data/preprocess.py` (7269\u202Fbytes) does not contain a `compute_sentiment_scores()`\
+    \ function, nor any logic that uses `textblob` to compute sentiment scores and\
+    \ append them to a DataFrame. Implementing this missing function is required to\
+    \ satisfy the task."
+  sig: 300bd66ad11371a4df467f455b77324f04e3fcedff57fb5e5bbdf93e4e191a7f
+T014e:
+  c: false
+  h: 579b9fe3ea67d805668b274be366a728f30408bcac4a9525c771706e26a4ec3a
+  r: "The `code/labeling/keywords.yaml` file exists but its `keywords` list contains\
+    \ many additional entries and extra configuration fields beyond the exact seven\
+    \ keywords specified in FR\u2011002, so it does not match the required list. The\
+    \ task demands only the exact list `[\"copilot\", \"generated by llm\", \"ai code\"\
+    , \"github copilot\", \"code generated by\", \"llm generated\", \"ai generated\"\
+    ] with no extra items."
+  sig: a83ff5ed0876d1f82f5cc4aed68660ea501b00f997471656f2e6ec40b5fe7436
+T014f:
+  c: false
+  h: 40fe443bb095716addd9a4791f1888198ce04414e5a28e16cc064c96b19fe4b4
+  r: '`code/labeling/classify.py` exists but its implementation does not perform whitespace
+    normalization, does not produce a `predicted_label` column, and its `main` writes
+    a CSV to `data/classified_prs.csv` instead of the required `data/processed/classified_prs.parquet`.
+    The expected output file is missing. The next implementer must add whitespace
+    normalization, rename the output column to `predicted_label`, and write the results
+    as a Parquet file at the specified path.'
+  sig: 7244396972c4390ebe6cda2fb980d0fcb68f096b8d0e1ad8846496bd02d0cd28
+T014g:
+  c: false
+  h: e964beed19736a80aa0a93b3e24605c9d50564d0d2a3050fcc83fa297ffe68d0
+  r: The file `code/data/preprocess.py` does not contain a `validate_power()` function
+    (only `validate_completeness` and other utilities are present), and the required
+    output `docs/reports/power_status.json` is missing. Both the core function and
+    its expected JSON report are absent, so the task is not fulfilled.
+  sig: 9550e86aa4f85ade7272634b48046e8fc096af22ed619e51b2b0a5e14ce6bd23
+T015:
+  c: false
+  h: bf9c5b7bef3a0f3b0bd2453bd1b43b67f586eb065cf97ff0bd46559f1b4cb58b
+  r: The `code/data/preprocess.py` file does not contain a `compute_complexity_metrics()`
+    implementation (nor any references to radon, complexity calculation, or updating
+    `basic_stats.json`). Additionally, the required output artifact `data/processed/complexity_metrics.parquet`
+    is missing. These core requirements are not satisfied.
+  sig: 82897e459d521b3035bdb9e9a72c687ca68fb02001daafe90765e143a527716a
+T016:
+  c: false
+  h: 9a9eff1653b133181668832b3a07a5e94f4aa7b0e2f5feeed3a70dce6965c476
+  r: "The file `code/data/preprocess.py` does not contain a `generate_audit_sample()`\
+    \ function (it only defines audit\u2011accuracy utilities and completeness checks).\
+    \ Moreover, the required output `docs/reports/audit_sample_unlabeled.csv` is missing.\
+    \ Both the function implementation and the expected CSV artifact are absent."
+  sig: 63e213a7b3f7350d609664db3b73762e8ece9c10a3932f83e324b1bd2ae10853
+T017b:
+  c: true
+  h: bab5e2a018ca90f7e17987378653c8e25bcf9d098ebc12b456db27fecc67a6e4
+  r: "Checked `code/utils/wait_for_manual_input.py` \u2013 it polls the correct path,\
+    \ validates the required columns, disallows nulls, enforces allowed labels, logs\
+    \ and exits with 0/1 as specified. Also verified `docs/reports/audit_sample_labeled.csv`\
+    \ contains the required `pr_id` and `human_label` columns with only \u201CLLM\u201D\
+    \ or \u201CHuman\u201D values and no missing entries."
+  sig: d20a494bdfa0e4f5dff911289899e0ddb5d1e810aeb8233ef17955497fc941b3

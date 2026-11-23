@@ -1,0 +1,11 @@
+sample_id,otu_1,otu_2,otu_3,antibiotic_use_last_3m,sleep_efficiency,sleep_duration_hours
+S001,10,5,2,False,0.85,7.5
+S002,12,3,1,False,0.90,8.0
+S003,8,4,3,False,0.82,7.2
+S004,15,2,4,False,0.88,7.8
+S005,9,6,2,False,0.79,6.9
+S006,11,5,1,False,0.92,8.2
+S007,7,3,2,False,0.86,7.6
+S008,14,4,3,False,0.81,7.4
+S009,10,2,1,False,0.89,7.9
+S010,13,5,2,False,0.84,7.7

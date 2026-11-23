@@ -1,0 +1,274 @@
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/quickstart.md
+  attempts: 1
+  canonical: pipeline downloads defect dataset automatically
+  claim_id: c_be90c46f
+  context: Option A (automatic) description states that the pipeline will download
+    the defect dataset automatically.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The pipeline will download the defect dataset automatically.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T21:11:57Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/quickstart.md
+  attempts: 1
+  canonical: pipeline run prints completion message upon success
+  claim_id: c_34d91041
+  context: Running the full pipeline with python -m src.pipeline.run will execute
+    the workflow and, if successful, print "Pipeline completed successfully".
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The command will execute the end\u2011to\u2011end workflow and, upon\
+    \ successful completion, print: 'Pipeline completed successfully'."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T21:11:57Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/quickstart.md
+  attempts: 1
+  canonical: all tests pass confirming CSV and JSON match schemas
+  claim_id: c_6429c918
+  context: The Validate Contracts step runs pytest -q and expects all tests to pass,
+    confirming schema compliance.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All tests should pass, confirming that the CSV and JSON artefacts match
+    their schemas.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T21:11:57Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/quickstart.md
+  attempts: 1
+  canonical: quickstart guide ensures reproducible workflow for new researcher
+  claim_id: c_bf906d40
+  context: "The guide claims to satisfy requirement FR\u2011010, which guarantees\
+    \ reproducibility of the entire workflow."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The Quickstart guide satisfies FR\u2011010, ensuring the entire workflow\
+    \ can be reproduced by a new researcher."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T21:11:57Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/quickstart.md
+  attempts: 1
+  canonical: pipeline run prints 'Pipeline completed successfully'
+  claim_id: c_b022f120
+  context: "Run the Full Pipeline ... The command will execute the end\u2011to\u2011\
+    end workflow and, upon successful completion, print: 'Pipeline completed successfully'."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The command will execute the end\u2011to\u2011end workflow and, upon\
+    \ successful completion, print: 'Pipeline completed successfully'"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T22:13:05Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/quickstart.md
+  attempts: 1
+  canonical: all tests pass confirming CSV and JSON artifacts match schemas
+  claim_id: c_47525942
+  context: Validate Contracts ... All tests should pass, confirming that the CSV and
+    JSON artefacts match their schemas.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All tests should pass, confirming that the CSV and JSON artefacts match
+    their schemas.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T22:13:05Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/quickstart.md
+  attempts: 1
+  canonical: quickstart guide ensures reproducibility of entire workflow
+  claim_id: c_0abf5c83
+  context: "The Quickstart guide satisfies FR\u2011010, ensuring the entire workflow\
+    \ can be reproduced by a new researcher."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The Quickstart guide satisfies FR\u2011010, ensuring the entire workflow\
+    \ can be reproduced by a new researcher."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-18T22:13:05Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/code/quickstart.md
+  attempts: 1
+  canonical: pipeline prints 'Pipeline completed successfully' upon successful completion
+  claim_id: c_a9cef0e4
+  context: Running `python -m src.pipeline.run` executes the full workflow and is
+    expected to print a success message.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The command will execute the end\u2011to\u2011end workflow (download,\
+    \ checksum, featurization, descriptor\u2011gap check, validation, train/test split,\
+    \ 5\u2011fold GroupKFold cross\u2011validation, evaluation, and figures) and,\
+    \ upon successful completion, print: 'Pipeline completed successfully'"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T12:47:17Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/code/quickstart.md
+  attempts: 1
+  canonical: all tests pass confirming CSV and JSON artefacts match their schemas
+  claim_id: c_088600f4
+  context: Running `pytest -q` validates contracts and should result in all tests
+    passing.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All tests should pass, confirming that the CSV and JSON artefacts match
+    their schemas.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T12:47:17Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/code/quickstart.md
+  attempts: 1
+  canonical: 12 compositional descriptors computed via pymatgen
+  claim_id: c_00eaf5ae
+  context: 'The command executes the end-to-end workflow: ... 2. Featurization: Computes
+    12 compositional descriptors via `pymatgen`.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Computes 12 compositional descriptors via `pymatgen`
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:10:58Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/paper/methods_results.md
+  attempts: 1
+  canonical: defect formation energy data obtained from Materials Project API
+  claim_id: c_f87a83e3
+  context: "The defect formation energy data were obtained from the Materials Project\
+    \ API using the mp\u2011api package (version as installed in the environment)."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "The defect formation energy data were obtained from the Materials Project\
+    \ API using the mp\u2011api package."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-22T18:35:07Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/paper/methods_results.md
+  attempts: 1
+  canonical: "perovskite compositions with oxygen\u2011vacancy defects retrieved and\
+    \ stored in materials_defects.csv"
+  claim_id: c_4686bce1
+  context: "The query retrieved perovskite compositions with oxygen\u2011vacancy defects\
+    \ and stored the raw records in data/raw/materials_defects.csv."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The query retrieved perovskite compositions with oxygen\u2011vacancy\
+    \ defects and stored the raw records in data/raw/materials_defects.csv."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:35:07Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/paper/methods_results.md
+  attempts: 1
+  canonical: "SHA\u2011256 checksum of raw file recorded"
+  claim_id: c_fa2acca1
+  context: "The SHA\u2011256 checksum of the raw file is recorded in data/checksums/raw_defects.sha256."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The SHA\u2011256 checksum of the raw file is recorded in data/checksums/raw_defects.sha256."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:35:07Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/paper/methods_results.md
+  attempts: 1
+  canonical: twelve compositional descriptors computed per composition
+  claim_id: c_5c12d6f3
+  context: For each composition the pipeline computed twelve compositional descriptors
+    (four per site) using pymatgen.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: For each composition the pipeline computed twelve compositional descriptors
+    (four per site) using pymatgen.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:35:07Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/paper/methods_results.md
+  attempts: 1
+  canonical: fallback augmentation added three structural descriptors
+  claim_id: c_ce9aac2f
+  context: 'If the baseline models failed to meet the performance thresholds, a fallback
+    augmentation added three structural descriptors (computed with pymatgen): coordination_number,
+    average_bond_length, crystal_symmetry.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: If the baseline models failed to meet the performance thresholds, a fallback
+    augmentation added three structural descriptors (coordination_number, average_bond_length,
+    crystal_symmetry).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:35:07Z'
+- artifact_path: projects/PROJ-542-predicting-defect-formation-energies-in-/paper/methods_results.md
+  attempts: 1
+  canonical: fallback_needed flag true, structural descriptors added and model retrained
+  claim_id: c_8b7eb16d
+  context: 'The pipeline sets a flag fallback_needed in performance.json. The current
+    run indicates: { "fallback_needed": true } Accordingly, the augmented feature
+    set was used for the final results.'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'The current run indicates fallback_needed: true, meaning structural descriptors
+    were added and the model was retrained.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T18:35:07Z'

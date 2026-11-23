@@ -1,0 +1,61 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+title: "Trajectory Schema"
+description: "Schema for RNA velocity and pseudotime trajectory artifacts."
+properties:
+  dataset_id:
+    type: "string"
+    description: "Identifier of the source dataset."
+  pseudotime_path:
+    type: "string"
+    description: "Path to the file containing per‑cell pseudotime values."
+  velocity_graph_path:
+    type: "string"
+    description: "Path to the velocity graph (e.g., .h5ad)."
+  alignment_status:
+    type: "string"
+    enum: ["success", "failed", "partial"]
+    description: "Result of the Markov‑chain alignment step (retried with higher regularization up to 2 times)."
+  runtime_seconds:
+    type: "number"
+    description: "Wall‑clock runtime of the velocity step (SC‑001)."
+  peak_memory_mb:
+    type: "number"
+    description: "Peak memory usage in MB logged via psutil (SC‑001)."
+  fork_points:
+    type: "array"
+    description: "List of fork‑point objects identified in this trajectory."
+    items:
+      type: "object"
+      properties:
+        branch_id:
+          type: "string"
+        divergence_score:
+          type: "number"
+        null_mean:
+          type: "number"
+        null_std:
+          type: "number"
+        p_value:
+          type: "number"
+          minimum: 0
+          maximum: 1
+        confidence:
+          type: "string"
+          enum: ["high", "low"]
+      required:
+        - branch_id
+        - divergence_score
+        - null_mean
+        - null_std
+        - p_value
+        - confidence
+      additionalProperties: false
+required:
+  - dataset_id
+  - pseudotime_path
+  - velocity_graph_path
+  - alignment_status
+  - runtime_seconds
+  - peak_memory_mb
+additionalProperties: false

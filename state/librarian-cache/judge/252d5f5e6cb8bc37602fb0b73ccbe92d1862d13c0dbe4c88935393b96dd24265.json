@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.06961",
+  "judged_at": "2026-07-20T10:13:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the validity of statistical significance in randomized controlled trials with missing data statistics",
+  "rationale": "This paper satisfies criteria (a) and (b) by investigating the mechanism of how nonignorable (informative) missing data introduces bias into statistical estimates and proposing methods for valid statistical inference, which directly addresses the user's core concern about the validity of statistical significance under missing data conditions, even though the specific domain is off-policy evaluation rather than general RCTs.",
+  "relevant": true
+}

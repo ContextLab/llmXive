@@ -1,0 +1,11 @@
+T104:
+  c: false
+  h: 840735d72e412cf08d4dd81d3c4c351bda8ca7ae0f89bca6fd03a3070e1d1160
+  r: "The script `code/03_model/verify_results.py` exists and runs (exit\u202F0) and\
+    \ writes `data/processed/verification_summary.json`, but the required input artifacts\
+    \ `data/models/metrics.json`, `data/processed/feature_ranking.csv`, and `data/processed/class_to_genes.json`\
+    \ are all missing. Consequently the verification cannot perform the AUC\u2011\
+    ROC, mechanism\u2011blind, and top\u201110 ranking checks, and the summary records\
+    \ errors and an overall failure. These files must be provided with valid content\
+    \ for the task to be satisfied."
+  sig: 52ccf12e5e2925d5eb4245c0a9f21f746a6a60c21237694af55aca9a6c2b61be

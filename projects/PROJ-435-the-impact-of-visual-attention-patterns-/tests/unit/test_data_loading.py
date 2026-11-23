@@ -1,162 +1,70 @@
-"""
-Unit tests for data_loading module.
-"""
-
 import pytest
 import pandas as pd
-from unittest.mock import patch, MagicMock
-import sys
+import numpy as np
+import hashlib
+import json
 from pathlib import Path
+from unittest.mock import patch, MagicMock, mock_open
 
-# Add the code directory to the path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
+# Import from the project's utility module
+from code.utils.data_loading import compute_sha256, verify_checksum, validate_eye_tracking_schema
 
-from utils.data_loading import (
-    load_dundee_eye_tracking,
-    load_boston_eye_tracking,
-    fetch_eye_tracking_data,
-    validate_eye_tracking_schema
-)
+def test_compute_sha256():
+    # Test SHA256 computation for a string
+    data = b"Hello, World!"
+    expected_hash = hashlib.sha256(data).hexdigest()
+    actual_hash = compute_sha256(data)
+    assert actual_hash == expected_hash
 
+def test_compute_sha256_file(tmp_path):
+    # Test SHA256 computation for a file
+    test_file = tmp_path / "test.txt"
+    test_content = b"Test content for hashing"
+    test_file.write_bytes(test_content)
+    
+    expected_hash = hashlib.sha256(test_content).hexdigest()
+    actual_hash = compute_sha256(test_file.read_bytes())
+    assert actual_hash == expected_hash
 
-class TestValidateEyeTrackingSchema:
-    """Tests for schema validation."""
+def test_verify_checksum_match(tmp_path):
+    # Test checksum verification with matching hashes
+    test_file = tmp_path / "test.txt"
+    test_content = b"Content to verify"
+    test_file.write_bytes(test_content)
+    
+    computed_hash = compute_sha256(test_content)
+    assert verify_checksum(test_content, computed_hash) is True
 
-    def test_valid_schema(self):
-        """Test that a DataFrame with required columns passes validation."""
-        df = pd.DataFrame({
-            'participant_id': [1, 2],
-            'trial_id': [101, 102],
-            'timestamp': [0.0, 10.0],
-            'x': [100.0, 200.0],
-            'y': [150.0, 250.0]
-        })
-        assert validate_eye_tracking_schema(df) is True
+def test_verify_checksum_mismatch(tmp_path):
+    # Test checksum verification with mismatched hashes
+    test_content = b"Content to verify"
+    wrong_hash = "0" * 64  # Invalid hash
+    
+    assert verify_checksum(test_content, wrong_hash) is False
 
-    def test_missing_columns(self):
-        """Test that a DataFrame with missing columns fails validation."""
-        df = pd.DataFrame({
-            'participant_id': [1, 2],
-            'trial_id': [101, 102],
-            'timestamp': [0.0, 10.0]
-            # Missing 'x' and 'y'
-        })
-        assert validate_eye_tracking_schema(df) is False
+def test_validate_eye_tracking_schema_valid():
+    # Test schema validation with valid columns
+    df = pd.DataFrame({
+        'headline_text': ['Headline 1', 'Headline 2'],
+        'belief_rating': [5, 4],
+        'cognitive_reflection_score': [2, 1],
+        'fixation_duration': [100, 150]
+    })
+    
+    required_columns = ['headline_text', 'belief_rating', 'cognitive_reflection_score', 'fixation_duration']
+    is_valid, missing = validate_eye_tracking_schema(df, required_columns)
+    assert is_valid is True
+    assert len(missing) == 0
 
-    def test_extra_columns(self):
-        """Test that a DataFrame with extra columns still passes validation."""
-        df = pd.DataFrame({
-            'participant_id': [1, 2],
-            'trial_id': [101, 102],
-            'timestamp': [0.0, 10.0],
-            'x': [100.0, 200.0],
-            'y': [150.0, 250.0],
-            'extra_column': ['a', 'b']
-        })
-        assert validate_eye_tracking_schema(df) is True
-
-
-class TestFetchEyeTrackingData:
-    """Tests for the fetch_eye_tracking_data function."""
-
-    @patch('utils.data_loading.load_dundee_eye_tracking')
-    def test_fetch_dundee(self, mock_load):
-        """Test fetching Dundee data."""
-        mock_df = pd.DataFrame({'participant_id': [1]})
-        mock_load.return_value = mock_df
-
-        result = fetch_eye_tracking_data(source="dundee")
-
-        mock_load.assert_called_once_with(split="train", streaming=False, revision=None)
-        assert result.equals(mock_df)
-
-    @patch('utils.data_loading.load_boston_eye_tracking')
-    def test_fetch_boston(self, mock_load):
-        """Test fetching Boston data."""
-        mock_df = pd.DataFrame({'participant_id': [1]})
-        mock_load.return_value = mock_df
-
-        result = fetch_eye_tracking_data(source="boston")
-
-        mock_load.assert_called_once_with(split="train", streaming=False, revision=None)
-        assert result.equals(mock_df)
-
-    def test_fetch_unknown_source(self):
-        """Test that fetching from an unknown source raises ValueError."""
-        with pytest.raises(ValueError, match="Unknown eye-tracking source"):
-            fetch_eye_tracking_data(source="unknown")
-
-    @patch('utils.data_loading.load_dundee_eye_tracking')
-    def test_fetch_with_custom_params(self, mock_load):
-        """Test fetching with custom parameters."""
-        mock_df = pd.DataFrame({'participant_id': [1]})
-        mock_load.return_value = mock_df
-
-        result = fetch_eye_tracking_data(
-            source="dundee",
-            split="test",
-            streaming=True,
-            revision="v1.0.0"
-        )
-
-        mock_load.assert_called_once_with(split="test", streaming=True, revision="v1.0.0")
-        assert result.equals(mock_df)
-
-
-class TestLoadDundeeEyeTracking:
-    """Tests for load_dundee_eye_tracking."""
-
-    @patch('utils.data_loading.load_dataset')
-    def test_load_dundee_success(self, mock_load_dataset):
-        """Test successful loading of Dundee dataset."""
-        # Mock the dataset object
-        mock_ds = MagicMock()
-        mock_ds.to_pandas.return_value = pd.DataFrame({'participant_id': [1]})
-        mock_load_dataset.return_value = mock_ds
-
-        result = load_dundee_eye_tracking()
-
-        mock_load_dataset.assert_called_once_with(
-            "nab/dundee_eye_tracking_corpus",
-            split="train",
-            streaming=False,
-            revision=None
-        )
-        assert isinstance(result, pd.DataFrame)
-
-    @patch('utils.data_loading.load_dataset')
-    def test_load_dundee_failure(self, mock_load_dataset):
-        """Test that failure to load raises RuntimeError."""
-        mock_load_dataset.side_effect = Exception("Dataset not found")
-
-        with pytest.raises(RuntimeError, match="Failed to load verified eye-tracking data"):
-            load_dundee_eye_tracking()
-
-
-class TestLoadBostonEyeTracking:
-    """Tests for load_boston_eye_tracking."""
-
-    @patch('utils.data_loading.load_dataset')
-    def test_load_boston_success(self, mock_load_dataset):
-        """Test successful loading of Boston dataset."""
-        mock_ds = MagicMock()
-        mock_ds.to_pandas.return_value = pd.DataFrame({'participant_id': [1]})
-        mock_load_dataset.return_value = mock_ds
-
-        result = load_boston_eye_tracking()
-
-        mock_load_dataset.assert_called_once_with(
-            "nab/boston_university_eye_tracking",
-            split="train",
-            streaming=False,
-            revision=None
-        )
-        assert isinstance(result, pd.DataFrame)
-
-    @patch('utils.data_loading.load_dataset')
-    def test_load_boston_failure(self, mock_load_dataset):
-        """Test that failure to load raises RuntimeError."""
-        mock_load_dataset.side_effect = Exception("Dataset not found")
-
-        with pytest.raises(RuntimeError, match="Failed to load verified eye-tracking data"):
-            load_boston_eye_tracking()
+def test_validate_eye_tracking_schema_missing_columns():
+    # Test schema validation with missing columns
+    df = pd.DataFrame({
+        'headline_text': ['Headline 1', 'Headline 2'],
+        'belief_rating': [5, 4]
+    })
+    
+    required_columns = ['headline_text', 'belief_rating', 'cognitive_reflection_score', 'fixation_duration']
+    is_valid, missing = validate_eye_tracking_schema(df, required_columns)
+    assert is_valid is False
+    assert 'cognitive_reflection_score' in missing
+    assert 'fixation_duration' in missing

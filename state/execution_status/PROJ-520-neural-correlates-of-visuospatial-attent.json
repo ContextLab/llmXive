@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-520-neural-correlates-of-visuospatial-attent",
+  "ok": false,
+  "reason": "5 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/main.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ntegrityError(f\"Detected synthetic data source: {source_url}\")\u2026\u201d; code/verify_metadata.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026.error(f\"Found potential synthetic data indicators: {found_indic\u2026\u201d; code/verify_metadata_task.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026integrity and absence of synthetic data.  This script verifies t\u2026\u201d; 4 command(s) failed: python code/main.py --task download (rc=1); python code/main.py --task preprocess (rc=1); python code/main.py --task features (rc=1); 4 declared deliverable(s) absent: data/processed/feature_metadata.json; data/processed/features_matrix.csv; data/processed/metadata.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --task download -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/main.py\", line 13, in <module>\n    from config import get_paths, get_config, set_random_seed\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/config.py\", line 2, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'",
+    "python code/main.py --task preprocess -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/main.py\", line 13, in <module>\n    from config import get_paths, get_config, set_random_seed\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/config.py\", line 2, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'",
+    "python code/main.py --task features -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/main.py\", line 13, in <module>\n    from config import get_paths, get_config, set_random_seed\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/config.py\", line 2, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'",
+    "python code/main.py --task classify -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/main.py\", line 13, in <module>\n    from config import get_paths, get_config, set_random_seed\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-520-neural-correlates-of-visuospatial-attent/code/config.py\", line 2, in <module>\n    import yaml\nModuleNotFoundError: No module named 'yaml'"
+  ],
+  "fix_rounds": 3,
+  "model_tier": 0,
+  "total_attempts": 3,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-10-06T00:38:26Z"
+}

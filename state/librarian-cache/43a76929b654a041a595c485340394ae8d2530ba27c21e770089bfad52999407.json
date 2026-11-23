@@ -1,0 +1,668 @@
+{
+  "fetched_at": "2026-08-10T12:47:10Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Estimating Causal Effects with Doubly Robust Methods on Observational Data",
+      "target_n": 5
+    },
+    "duration_seconds": 109.847,
+    "ended_at": "2026-08-10T12:47:10Z",
+    "expansion": null,
+    "extracted_queries": [
+      "inverse propensity weighting outcome regression",
+      "doubly robust estimators observational studies",
+      "propensity score matching augmentation",
+      "mean squared error bias variance tradeoff",
+      "unconfoundedness selection bias identification"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 2,
+      "sampled_count": 2,
+      "sampled_pointers": [
+        "2305.02185",
+        "2112.00807"
+      ]
+    },
+    "per_query_hit_count": {
+      "Estimating Causal Effects with Doubly Robust Methods on Observational Data statistics": 3,
+      "doubly robust estimators observational studies": 3,
+      "inverse propensity weighting outcome regression": 3,
+      "mean squared error bias variance tradeoff": 3,
+      "propensity score matching augmentation": 3,
+      "unconfoundedness selection bias identification": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "2107.07967",
+          "rationale": "The paper focuses on selection bias and principal stratification in cluster randomized trials, which is a distinct methodological problem from the user's query about \"doubly robust methods\" for observational data; it does not measure the same mechanism, establish a baseline for doubly robust estimation, or serve as a foundational reference for that specific technique.",
+          "title": "Clarifying Selection Bias in Cluster Randomized Trials: Estimands and Estimation"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-10T12:45:20Z",
+    "term_input": {
+      "normalized": "estimating causal effects with doubly robust methods on observational data statistics",
+      "raw": "Estimating Causal Effects with Doubly Robust Methods on Observational Data statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We study distributed stochastic gradient descent (SGD) in the master-worker architecture under Byzantine attacks. We consider the heterogeneous data model, where different workers may have different local datasets, and we do not make any probabilistic assumptions on data generation. At the core of our algorithm, we use the polynomial-time outlier-filtering procedure for robust mean estimation proposed by Steinhardt et al. (ITCS 2018) to filter-out corrupt gradients. In order to be able to apply their filtering procedure in our {\\em heterogeneous} data setting where workers compute {\\em stochastic} gradients, we derive a new matrix concentration result, which may be of independent interest.\n  We provide convergence analyses for smooth strongly-convex and non-convex objectives. We derive our results under the bounded variance assumption on local stochastic gradients and a {\\em deterministic} condition on datasets, namely, gradient dissimilarity; and for both these quantities, we provide concrete bounds in the statistical heterogeneous data model. We give a trade-off between the mini-batch size for stochastic gradients and the approximation error. Our algorithm can tolerate up to $\\frac{1}{4}$ fraction Byzantine workers. It can find approximate optimal parameters in the strongly-convex setting exponentially fast and reach to an approximate stationary point in the non-convex setting with a linear speed, thus, matching the convergence rates of vanilla SGD in the Byzantine-free setting.\n  We also propose and analyze a Byzantine-resilient SGD algorithm with gradient compression, where workers send $k$ random coordinates of their gradients. Under mild conditions, we show a $\\frac{d}{k}$-factor saving in communication bits as well as decoding complexity over our compression-free algorithm without affecting its convergence rate (order-wise) and the approximation error.",
+          "claimed_authors": [
+            "Deepesh Data",
+            "Suhas Diggavi"
+          ],
+          "claimed_title": "Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2005.07866"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Estimating Causal Effects with Doubly Robust Methods on Observational Data stati', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
+        "failed_at": "2026-08-10T12:46:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Outcome prediction is crucial for head and neck cancer patients as it can provide prognostic information for early treatment planning. Radiomics methods have been widely used for outcome prediction from medical images. However, these methods are limited by their reliance on intractable manual segmentation of tumor regions. Recently, deep learning methods have been proposed to perform end-to-end outcome prediction so as to remove the reliance on manual segmentation. Unfortunately, without segmentation masks, these methods will take the whole image as input, such that makes them difficult to focus on tumor regions and potentially unable to fully leverage the prognostic information within the tumor regions. In this study, we propose a radiomics-enhanced deep multi-task framework for outcome prediction from PET/CT images, in the context of HEad and neCK TumOR segmentation and outcome prediction challenge (HECKTOR 2022). In our framework, our novelty is to incorporate radiomics as an enhancement to our recently proposed Deep Multi-task Survival model (DeepMTS). The DeepMTS jointly learns to predict the survival risk scores of patients and the segmentation masks of tumor regions. Radiomics features are extracted from the predicted tumor regions and combined with the predicted survival risk scores for final outcome prediction, through which the prognostic information in tumor regions can be further leveraged. Our method achieved a C-index of 0.681 on the testing set, placing the 2nd on the leaderboard with only 0.00068 lower in C-index than the 1st place.",
+          "claimed_authors": [
+            "Mingyuan Meng",
+            "Lei Bi",
+            "Dagan Feng",
+            "Jinman Kim"
+          ],
+          "claimed_title": "Radiomics-enhanced Deep Multi-task Learning for Outcome Prediction in Head and Neck Cancer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.05409"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Estimating Causal Effects with Doubly Robust Methods on Observational Data stati', candidate_title='Radiomics-enhanced Deep Multi-task Learning for Outcome Prediction in Head and Neck Cancer')",
+        "failed_at": "2026-08-10T12:46:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We conduct molecular dynamics simulations of a bidisperse Kob-Andersen (KA) glass former, modified to add in additional polydispersity. The original KA system is known to exhibit dynamical heterogeneity. Prior work defined propensity, the mean motion of a particle averaged over simulations reconstructing the initial positions of all particles but with randomized velocities. The existence of propensity shows that structure and dynamics are connected. In this paper, we study systems which mimic problems that would be encountered in measuring propensity in a colloidal glass former, where particles are polydisperse (they have slight size variations). We mimic polydispersity by altering the bidisperse KA system into a quartet consisting of particles both slightly larger and slightly smaller than the parent particles in the original bidisperse system. We then introduce errors into the reconstruction of the initial positions that mimic mistakes one might make in a colloidal experiment. The mistakes degrade the propensity measurement, in some cases nearly completely; one no longer has an isoconfigurational ensemble in any useful sense. Our results show that a polydisperse sample is suitable for propensity measurements provided one avoids reconstruction mistakes.",
+          "claimed_authors": [
+            "Cordell J. Donofrio",
+            "Eric R. Weeks"
+          ],
+          "claimed_title": "Neglecting polydispersity degrades propensity measurements in supercooled liquids",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2012.09025"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Estimating Causal Effects with Doubly Robust Methods on Observational Data stati', candidate_title='Neglecting polydispersity degrades propensity measurements in supercooled liquids')",
+        "failed_at": "2026-08-10T12:46:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We define the star transform as a generalization of the broken ray transform introduced by us in previous work. The advantages of using the star transform include the possibility to reconstruct the absorption and the scattering coefficients of the medium separately and simultaneously (from the same data) and the possibility to utilize scattered radiation which, in the case of the conventional X-ray tomography, is discarded. In this paper, we derive the star transform from physical principles, discuss its mathematical properties and analyze numerical stability of inversion. In particular, it is shown that stable inversion of the star transform can be obtained only for configurations involving odd number of rays. Several computationally-efficient inversion algorithms are derived and tested numerically.",
+          "claimed_authors": [
+            "Fan Zhao",
+            "John C. Schotland",
+            "Vadim A. Markel"
+          ],
+          "claimed_title": "Inversion of the star transform",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1401.7655"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Estimating Causal Effects with Doubly Robust Methods on Observational Data stati', candidate_title='Inversion of the star transform')",
+        "failed_at": "2026-08-10T12:46:38Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "About forty years ago, in a now--seminal contribution, Rosenbaum & Rubin (1983) introduced a critical characterization of the propensity score as a central quantity for drawing causal inferences in observational study settings. In the decades since, much progress has been made across several research fronts in causal inference, notably including the re-weighting and matching paradigms. Focusing on the former and specifically on its intersection with machine learning and semiparametric efficiency theory, we re-examine the role of the propensity score in modern methodological developments. As Rosenbaum & Rubin (1983)'s contribution spurred a focus on the balancing property of the propensity score, we re-examine the degree to which and how this property plays a role in the development of asymptotically efficient estimators of causal effects; moreover, we discuss a connection between the balancing property and efficient estimation in the form of score equations and propose a score test for evaluating whether an estimator achieves balance.",
+          "claimed_authors": [
+            "Nima S. Hejazi",
+            "Mark J. van der Laan"
+          ],
+          "claimed_title": "Revisiting the propensity score's central role: Towards bridging balance and efficiency in the era of causal machine learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.08065"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Estimating Causal Effects with Doubly Robust Methods on Observational Data stati', candidate_title=\"Revisiting the propensity score's central role: Towards bridging balance and efficiency in the era of causal machine learning\")",
+        "failed_at": "2026-08-10T12:46:39Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Subclassification estimators are one of the methods used to estimate causal effects of interest using the propensity score. This method is more stable compared to other weighting methods, such as inverse probability weighting estimators, in terms of the variance of the estimators. In subclassification estimators, the number of strata is traditionally set at five, and this number is not typically chosen based on data information. Even when the number of strata is selected, the uncertainty from the selection process is often not properly accounted for. In this study, we propose a novel Bayesian-based subclassification estimator that can assess the uncertainty in the number of strata, rather than selecting a single optimal number, using a Bayesian paradigm. To achieve this, we apply a general Bayesian procedure that does not rely on a likelihood function. This procedure allows us to avoid making strong assumptions about the outcome model, maintaining the same flexibility as traditional causal inference methods. With the proposed Bayesian procedure, it is expected that uncertainties from the design phase can be appropriately reflected in the analysis phase, which is sometimes overlooked in non-Bayesian contexts.",
+          "claimed_authors": [
+            "Shunichiro Orihara",
+            "Tomotaka Momozaki"
+          ],
+          "claimed_title": "Bayesian-based Propensity Score Subclassification Estimator",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2410.15102"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Estimating Causal Effects with Doubly Robust Methods on Observational Data stati', candidate_title='Bayesian-based Propensity Score Subclassification Estimator')",
+        "failed_at": "2026-08-10T12:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Propensity score matching is a tool for causal inference in non-randomized studies that allows for conditioning on large sets of covariates. The use of propensity scores in the social sciences is currently experiencing a tremendous increase; however it is far from a commonly used tool. One impediment towards a more wide-spread use of propensity score methods is the reliance on specialized software, because many social scientists still use SPSS as their main analysis tool. The current paper presents an implementation of various propensity score matching methods in SPSS. Specifically the presented SPSS custom dialog allows researchers to specify propensity score methods using the familiar point-and-click interface. The software allows estimation of the propensity score using logistic regression and specifying nearest-neighbor matching with many options, e.g., calipers, region of common support, matching with and without replacement, and matching one to many units. Detailed balance statistics and graphs are produced by the program.",
+          "claimed_authors": [
+            "Felix Thoemmes"
+          ],
+          "claimed_title": "Propensity score matching in SPSS",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1201.6385"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Estimating Causal Effects with Doubly Robust Methods on Observational Data stati', candidate_title='Propensity score matching in SPSS')",
+        "failed_at": "2026-08-10T12:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dynamic optimization of mean and variance in Markov decision processes (MDPs) is a long-standing challenge caused by the failure of dynamic programming. In this paper, we propose a new approach to find the globally optimal policy for combined metrics of steady-state mean and variance in an infinite-horizon undiscounted MDP. By introducing the concepts of pseudo mean and pseudo variance, we convert the original problem to a bilevel MDP problem, where the inner one is a standard MDP optimizing pseudo mean-variance and the outer one is a single parameter selection problem optimizing pseudo mean. We use the sensitivity analysis of MDPs to derive the properties of this bilevel problem. By solving inner standard MDPs for pseudo mean-variance optimization, we can identify worse policy spaces dominated by optimal policies of the pseudo problems. We propose an optimization algorithm which can find the globally optimal policy by repeatedly removing worse policy spaces. The convergence and complexity of the algorithm are studied. Another policy dominance property is also proposed to further improve the algorithm efficiency. Numerical experiments demonstrate the performance and efficiency of our algorithms. To the best of our knowledge, our algorithm is the first that efficiently finds the globally optimal policy of mean-variance optimization in MDPs. These results are also valid for solely minimizing the variance metrics in MDPs.",
+          "claimed_authors": [
+            "Li Xia",
+            "Shuai Ma"
+          ],
+          "claimed_title": "Global Algorithms for Mean-Variance Optimization in Markov Decision Processes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.13710"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Estimating Causal Effects with Doubly Robust Methods on Observational Data stati', candidate_title='Global Algorithms for Mean-Variance Optimization in Markov Decision Processes')",
+        "failed_at": "2026-08-10T12:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper builds upon the work of Pfau (2013), which generalized the bias variance tradeoff to any Bregman divergence loss function. Pfau (2013) showed that for Bregman divergences, the bias and variances are defined with respect to a central label, defined as the mean of the label variable, and a central prediction, of a more complex form. We show that, similarly to the label, the central prediction can be interpreted as the mean of a random variable, where the mean operates in a dual space defined by the loss function itself. Viewing the bias-variance tradeoff through operations taken in dual space, we subsequently derive several results of interest. In particular, (a) the variance terms satisfy a generalized law of total variance; (b) if a source of randomness cannot be controlled, its contribution to the bias and variance has a closed form; (c) there exist natural ensembling operations in the label and prediction spaces which reduce the variance and do not affect the bias.",
+          "claimed_authors": [
+            "Ben Adlam",
+            "Neha Gupta",
+            "Zelda Mariet",
+            "Jamie Smith"
+          ],
+          "claimed_title": "Understanding the bias-variance tradeoff of Bregman divergences",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.04167"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Estimating Causal Effects with Doubly Robust Methods on Observational Data stati', candidate_title='Understanding the bias-variance tradeoff of Bregman divergences')",
+        "failed_at": "2026-08-10T12:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The bias-variance tradeoff tells us that as model complexity increases, bias falls and variances increases, leading to a U-shaped test error curve. However, recent empirical results with over-parameterized neural networks are marked by a striking absence of the classic U-shaped test error curve: test error keeps decreasing in wider networks. This suggests that there might not be a bias-variance tradeoff in neural networks with respect to network width, unlike was originally claimed by, e.g., Geman et al. (1992). Motivated by the shaky evidence used to support this claim in neural networks, we measure bias and variance in the modern setting. We find that both bias and variance can decrease as the number of parameters grows. To better understand this, we introduce a new decomposition of the variance to disentangle the effects of optimization and data sampling. We also provide theoretical analysis in a simplified setting that is consistent with our empirical findings.",
+          "claimed_authors": [
+            "Brady Neal",
+            "Sarthak Mittal",
+            "Aristide Baratin",
+            "Vinayak Tantia",
+            "Matthew Scicluna",
+            "Simon Lacoste-Julien",
+            "Ioannis Mitliagkas"
+          ],
+          "claimed_title": "A Modern Take on the Bias-Variance Tradeoff in Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.08591"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Estimating Causal Effects with Doubly Robust Methods on Observational Data stati', candidate_title='A Modern Take on the Bias-Variance Tradeoff in Neural Networks')",
+        "failed_at": "2026-08-10T12:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bias in web search has been in the spotlight of bias detection research for quite a while. At the same time, little attention has been paid to query suggestions in this regard. Awareness of the problem of biased query suggestions has been raised. Likewise, there is a rising need for automatic bias detection approaches. This paper adds on the bias detection pipeline for bias detection in query suggestions of person-related search developed by Bonart et al. \\cite{Bonart_2019a}. The sparseness and lack of contextual metadata of query suggestions make them a difficult subject for bias detection. Furthermore, query suggestions are perceived very briefly and subliminally. To overcome these issues, perception-aware metrics are introduced. Consequently, the enhanced pipeline is able to better detect systematic topical bias in search engine query suggestions for person-related searches. The results of an analysis performed with the developed pipeline confirm this assumption. Due to the perception-aware bias detection metrics, findings produced by the pipeline can be assumed to reflect bias that users would discern.",
+          "claimed_authors": [
+            "Fabian Haak",
+            "Philipp Schaer"
+          ],
+          "claimed_title": "Perception-Aware Bias Detection for Query Suggestions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03730"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Estimating Causal Effects with Doubly Robust Methods on Observational Data stati', candidate_title='Perception-Aware Bias Detection for Query Suggestions')",
+        "failed_at": "2026-08-10T12:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We observe an instance of gender-induced bias in a downstream application, despite the absence of explicit gender words in the test cases. We provide a test set, SoWinoBias, for the purpose of measuring such latent gender bias in coreference resolution systems. We evaluate the performance of current debiasing methods on the SoWinoBias test set, especially in reference to the method's design and altered embedding space properties. See https://github.com/hillarydawkins/SoWinoBias.",
+          "claimed_authors": [
+            "Hillary Dawkins"
+          ],
+          "claimed_title": "Second Order WinoBias (SoWinoBias) Test Set for Latent Gender Bias Detection in Coreference Resolution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2109.14047"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Estimating Causal Effects with Doubly Robust Methods on Observational Data stati', candidate_title='Second Order WinoBias (SoWinoBias) Test Set for Latent Gender Bias Detection in Coreference Resolution')",
+        "failed_at": "2026-08-10T12:46:40Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This paper develops doubly robust estimators for direct (DATT) and spillover (SATT) average treatment effects on the treated in network-based difference-in-differences (DiD) designs. Unlike standard DiD methods, the proposed approach explicitly accommodates treatment spillovers and high-dimensional network confounding arising from complex inter-unit dependencies. Identification relies on a conditional parallel-trends assumption that holds after adjusting for high-dimensional network confounders. The estimators are consistent and asymptotically normal as the network size increases, and we use graph neural networks (GNNs) to estimate nuisance functions. Simulation studies and an empirical application to U.S. county-level mask mandates and their impact on COVID-19 transmission demonstrate favorable finite-sample performance, addressing limitations of conventional DiD methods that ignore network interference.",
+          "claimed_authors": [
+            "Kuan Sun",
+            "Zhiguo Xiao"
+          ],
+          "claimed_title": "Difference-in-Differences Under Network Interference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.24259"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Estimating Causal Effects with Doubly Robust Methods on Observational Data stati', candidate_title='Difference-in-Differences Under Network Interference')",
+        "failed_at": "2026-08-10T12:46:41Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "The difference-in-differences (DID) method identifies the average treatment effects on the treated (ATT) under mainly the so-called parallel trends (PT) assumption. The most common and widely used approach to justify the PT assumption is the pre-treatment period examination. If a null hypothesis of the same trend in the outcome means for both treatment and control groups in the pre-treatment periods is rejected, researchers believe less in PT and the DID results. This paper develops a robust generalized DID method that utilizes all the information available not only from the pre-treatment periods but also from multiple data sources. Our approach interprets PT in a different way using a notion of selection bias, which enables us to generalize the standard DID estimand by defining an information set that may contain multiple pre-treatment periods or other baseline covariates. Our main assumption states that the selection bias in the post-treatment period lies within the convex hull of all selection biases in the pre-treatment periods. We provide a sufficient condition for this assumption to hold. Based on the baseline information set we construct, we provide an identified set for the ATT that always contains the true ATT under our identifying assumption, and also the standard DID estimand. We extend our proposed approach to multiple treatment periods DID settings. We propose a flexible and easy way to implement the method. Finally, we illustrate our methodology through some numerical and empirical examples.",
+          "claimed_authors": [
+            "Kyunghoon Ban",
+            "Désiré Kédagni"
+          ],
+          "claimed_title": "Robust Difference-in-differences Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.06710"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Estimating Causal Effects with Doubly Robust Methods on Observational Data stati', candidate_title='Robust Difference-in-differences Models')",
+        "failed_at": "2026-08-10T12:46:41Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Arne Henningsen",
+            "Guy Low",
+            "David Wuepper",
+            "Tobias Dalhaus",
+            "Hugo Storm",
+            "Dagim Belay",
+            "Stefan Hirsch"
+          ],
+          "title": "Estimating Causal Effects with Observational Data: Guidelines for Agricultural and Applied Economists",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.02310",
+        "summary": "Most research questions in agricultural and applied economics are of a causal nature, i.e., how one or more variables (e.g., policies, prices, the weather) affect one or more other variables (e.g., income, crop yields, pollution). Only some of these research questions can be studied experimentally. Most empirical studies in agricultural and applied economics thus rely on observational data. However, estimating causal effects with observational data requires appropriate research designs and a transparent discussion of all identifying assumptions, together with empirical evidence to assess the probability that they hold. This paper provides an overview of various approaches that are frequently used in agricultural and applied economics to estimate causal effects with observational data. It then provides advice and guidelines for agricultural and applied economists who are intending to estimate causal effects with observational data, e.g., how to assess and discuss the chosen identification strategies in their publications.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.02310",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T12:46:37Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sibo Xiao"
+          ],
+          "title": "Doubly Robust Estimation of Causal Effects in Strategic Equilibrium Systems",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.15555",
+        "summary": "We introduce the Strategic Doubly Robust (SDR) estimator, a novel framework that integrates strategic equilibrium modeling with doubly robust estimation for causal inference in strategic environments. SDR addresses endogenous treatment assignment arising from strategic agent behavior, maintaining double robustness while incorporating strategic considerations. Theoretical analysis confirms SDR's consistency and asymptotic normality under strategic unconfoundedness. Empirical evaluations demonstrate SDR's superior performance over baseline methods, achieving 7.6\\%-29.3\\% bias reduction across varying strategic strengths and maintaining robust scalability with agent populations. The framework provides a principled approach for reliable causal inference when agents respond strategically to interventions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.15555",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T12:46:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shaun R Seaman",
+            "Tommy Nyberg",
+            "Anne M Presanis"
+          ],
+          "title": "Doubly robust integration of nonprobability and probability survey data",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.05859",
+        "summary": "Doubly robust estimators for estimating the population mean (or prevalence) of an outcome have been proposed for integrating outcome and covariate data from a nonprobability sample with covariate data from a probability survey. These estimators combine inverse probability weighting estimation with mass imputation. However, the question of how to combine these doubly robust estimators with a Horvitz-Thompson or Hajek estimator that uses only outcome data from the probability survey has received only limited attention. In this paper, we first review previously proposed doubly robust estimators that use outcome data from only the nonprobability sample. We extend these estimators to enable estimation of domain (subpopulation) means (or prevalences), possibly using data from individuals outside the domain to improve estimation when the domain is small. We then consider how to combine this doubly robust estimator with a Horvitz-Thompson or Hajek estimator that uses only the probability survey data. We describe efficient combined estimators, and provide formulae for their repeated-sampling variances and for estimators of these variances. We also investigate the asymptotic relative efficiencies of the combined estimators compared to their two component estimators, and carry out a simulation study to assess their relative efficiencies in finite samples. These relative efficiencies depend on the ratio of the variances of the two component estimators and on how predictive the covariates are of the outcome.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.05859",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T12:46:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Fan Li",
+            "Fan Li"
+          ],
+          "title": "Double-Robust Estimation in Difference-in-Differences with an Application to Traffic Safety Evaluation",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1901.02152",
+        "summary": "Difference-in-differences (DID) is a widely used approach for drawing causal inference from observational panel data. Two common estimation strategies for DID are outcome regression and propensity score weighting. In this paper, motivated by a real application in traffic safety research, we propose a new double-robust DID estimator that hybridizes regression and propensity score weighting. We particularly focus on the case of discrete outcomes. We show that the proposed double-robust estimator possesses the desirable large-sample robustness property. We conduct a simulation study to examine its finite-sample performance and compare with alternative methods. Our empirical results from a Pennsylvania Department of Transportation data suggest that rumble strips are marginally effective in reducing vehicle crashes.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1901.02152",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T12:46:38Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shunichiro Orihara"
+          ],
+          "title": "Robust Estimating Method for Propensity Score Models and its Application to Some Causal Estimands: A review and proposal",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2206.05640",
+        "summary": "In observational study, the propensity score has the central role to estimate causal effects. Since the propensity score is usually unknown, estimating by appropriate procedures is an indispensable step. A point to note that a causal effect estimator might have some bias if a propensity score model was misspecified; valid model construction is important. To overcome the problem, a variety of interesting methods has been proposed. In this paper, we review four methods: using ordinary logistic regression approach; CBPS proposed by Imai and Ratkovic; boosted CART proposed by McCaffrey and colleagues; a semiparametric strategy proposed by Liu and colleagues. Also, we propose the novel robust two step strategy: estimating each candidate model in the first step and integrating them in the second step. We confirm the performance of these methods through simulation examples by estimating the ATE and ATO proposed by Li and colleagues. From the results of the simulation examples, the boosted CART and CBPS with higher-order balancing condition have good properties; both the estimate of the ATE and ATO has the small variance and the absolute value of bias. The boosted CART and CBPS are useful for a variety of estimands and estimating procedures.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2206.05640",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T12:46:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Lan Wen",
+            "Julia Marcus",
+            "Jessica Young"
+          ],
+          "title": "Intervention treatment distributions that depend on the observed treatment process and model double robustness in causal survival analysis",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2112.00807",
+        "summary": "The generalized g-formula can be used to estimate the probability of survival under a sustained treatment strategy. When treatment strategies are deterministic, estimators derived from the so-called efficient influence function (EIF) for the g-formula will be doubly robust to model misspecification. In recent years, several practical applications have motivated estimation of the g-formula under non-deterministic treatment strategies where treatment assignment at each time point depends on the observed treatment process. In this case, EIF-based estimators may or may not be doubly robust. In this paper, we provide sufficient conditions to ensure existence of doubly robust estimators for intervention treatment distributions that depend on the observed treatment process for point treatment interventions, and give a class of intervention treatment distributions dependent on the observed treatment process that guarantee model doubly and multiply robust estimators in longitudinal settings. Motivated by an application to pre-exposure prophylaxis (PrEP) initiation studies, we propose a new treatment intervention dependent on the observed treatment process. We show there exist 1) estimators that are doubly and multiply robust to model misspecification, and 2) estimators that when used with machine learning algorithms can attain fast convergence rates for our proposed intervention. Theoretical results are confirmed via simulation studies.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2112.00807",
+          "http_status": 200,
+          "pdf_sample_score": 0.3006,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T12:46:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Byunghee Lee",
+            "Hye Yeon Sin",
+            "Joonsung Kang"
+          ],
+          "title": "Predictive Causal Inference via Spatio-Temporal Modeling and Penalized Empirical Likelihood",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2507.08896",
+        "summary": "This study introduces an integrated framework for predictive causal inference designed to overcome limitations inherent in conventional single model approaches. Specifically, we combine a Hidden Markov Model (HMM) for spatial health state estimation with a Multi Task and Multi Graph Convolutional Network (MTGCN) for capturing temporal outcome trajectories. The framework asymmetrically treats temporal and spatial information regarding them as endogenous variables in the outcome regression, and exogenous variables in the propensity score model, thereby expanding the standard doubly robust treatment effect estimation to jointly enhance bias correction and predictive accuracy. To demonstrate its utility, we focus on clinical domains such as cancer, dementia, and Parkinson disease, where treatment effects are challenging to observe directly. Simulation studies are conducted to emulate latent disease dynamics and evaluate the model performance under varying conditions. Overall, the proposed framework advances predictive causal inference by structurally adapting to spatiotemporal complexities common in biomedical data.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2507.08896",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T12:46:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yiyi Huo",
+            "Yingying Fan",
+            "Fang Han"
+          ],
+          "title": "On the adaptation of causal forests to manifold data",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2311.16486",
+        "summary": "Researchers often hold the belief that random forests are \"the cure to the world's ills\" (Bickel, 2010). But how exactly do they achieve this? Focused on the recently introduced causal forests (Athey and Imbens, 2016; Wager and Athey, 2018), this manuscript aims to contribute to an ongoing research trend towards answering this question, proving that causal forests can adapt to the unknown covariate manifold structure. In particular, our analysis shows that a causal forest estimator can achieve the optimal rate of convergence for estimating the conditional average treatment effect, with the covariate dimension automatically replaced by the manifold dimension. These findings align with analogous observations in the realm of deep learning and resonate with the insights presented in Peter Bickel's 2004 Rietz lecture.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2311.16486",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T12:46:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zihan Zhang",
+            "Lianyan Fu",
+            "Dehui Wang"
+          ],
+          "title": "Difference-in-Differences using Double Negative Controls and Graph Neural Networks for Unmeasured Network Confounding",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.00603",
+        "summary": "Estimating causal effects from observational network data faces dual challenges of network interference and unmeasured confounding. To address this, we propose a general Difference-in-Differences framework that integrates double negative controls (DNC) and graph neural networks (GNNs). Based on the modified parallel trends assumption and DNC, semiparametric identification of direct and indirect causal effects is established. We then propose doubly robust estimators. Specifically, an approach combining GNNs with the generalized method of moments is developed to estimate the functions of high-dimensional covariates and network structure. Furthermore, we derive the estimator's asymptotic normality under the $ψ$-network dependence and approximate neighborhood interference. Simulations show the finite-sample performance of our estimators. Finally, we apply our method to analyze the impact of China's green credit policy on corporate green innovation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2601.00603",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.8571,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T12:46:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ruonan Xu"
+          ],
+          "title": "Difference-in-Differences with Interference",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.12003",
+        "summary": "In many scenarios, such as the evaluation of place-based policies, potential outcomes are not only dependent upon the unit's own treatment but also its neighbors' treatment. Despite this, \"difference-in-differences\" (DID) type estimators typically ignore such interference among neighbors. I show in this paper that the canonical DID estimators generally fail to identify interesting causal effects in the presence of neighborhood interference. To incorporate interference structure into DID estimation, I propose doubly robust estimators for the direct average treatment effect on the treated as well as the average spillover effects under a modified parallel trends assumption. I later relax common restrictions in the literature, such as immediate neighborhood interference and correctly specified spillover functions. Moreover, robust inference is discussed based on the asymptotic distribution of the proposed estimators.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2306.12003",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T12:46:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Joonsung Kang"
+          ],
+          "title": "Robust Causal Directionality Inference in Quantum Inference under MNAR Observation and High-Dimensional Noise",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.19746",
+        "summary": "In quantum mechanics, observation actively shapes the system, paralleling the statistical notion of Missing Not At Random (MNAR). This study introduces a unified framework for \\textbf{robust causal directionality inference} in quantum engineering, determining whether relations are system$\\to$observation, observation$\\to$system, or bidirectional.\n  The method integrates CVAE-based latent constraints, MNAR-aware selection models, GEE-stabilized regression, penalized empirical likelihood, and Bayesian optimization. It jointly addresses quantum and classical noise while uncovering causal directionality, with theoretical guarantees for double robustness, perturbation stability, and oracle inequalities.\n  Simulation and real-data analyses (TCGA gene expression, proteomics) show that the proposed MNAR-stabilized CVAE+GEE+AIPW+PEL framework achieves lower bias and variance, near-nominal coverage, and superior quantum-specific diagnostics. This establishes robust causal directionality inference as a key methodological advance for reliable quantum engineering.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2512.19746",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T12:46:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jingyue Huang",
+            "Changbao Wu",
+            "Leilei Zeng"
+          ],
+          "title": "Sample Empirical Likelihood Methods for Causal Inference",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2403.16283",
+        "summary": "Causal inference is crucial for understanding the true impact of interventions, policies, or actions, enabling informed decision-making and providing insights into the underlying mechanisms that shape our world. In this paper, we establish a framework for the estimation and inference of average treatment effects using a two-sample empirical likelihood function. Two different approaches to incorporating propensity scores are developed. The first approach introduces propensity scores calibrated constraints in addition to the standard model-calibration constraints; the second approach uses the propensity scores to form weighted versions of the model-calibration constraints. The resulting estimators from both approaches are doubly robust. The limiting distributions of the two sample empirical likelihood ratio statistics are derived, facilitating the construction of confidence intervals and hypothesis tests for the average treatment effect. Bootstrap methods for constructing sample empirical likelihood ratio confidence intervals are also discussed for both approaches. Finite sample performances of the methods are investigated through simulation studies.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2403.16283",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5714,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T12:46:41Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shunsuke Imai",
+            "Lei Qin",
+            "Takahide Yanagi"
+          ],
+          "title": "Doubly Robust Uniform Confidence Bands for Group-Time Conditional Average Treatment Effects in Difference-in-Differences",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2305.02185",
+        "summary": "We consider a panel data analysis to examine the heterogeneity in treatment effects with respect to groups, periods, and a pre-treatment covariate of interest in the staggered difference-in-differences setting of Callaway and Sant'Anna (2021). Under standard identification conditions, a doubly robust estimand conditional on the covariate identifies the group-time conditional average treatment effect given the covariate. Focusing on the case of a continuous covariate, we propose a three-step estimation procedure based on nonparametric local polynomial regressions and parametric estimation methods. Using uniformly valid distributional approximation results for empirical processes and weighted/multiplier bootstrapping, we develop doubly robust inference methods to construct uniform confidence bands for the group-time conditional average treatment effect function and a variety of useful summary parameters. The accompanying R package didhetero allows for easy implementation of our methods.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "theoremsearch",
+          "final_url": "https://arxiv.org/abs/2305.02185",
+          "http_status": 200,
+          "pdf_sample_score": 0.2203,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-10T12:46:41Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "estimating causal effects with doubly robust methods on observational data statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

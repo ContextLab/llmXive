@@ -19,6 +19,7 @@ PROJECT_ROOT = Path(__file__).parent.parent
 if str(PROJECT_ROOT) not in sys.path:
     sys.path.insert(0, str(PROJECT_ROOT))
 
+
 # Configure logging for tests to avoid silent failures in I/O
 # We use a file handler or a stream handler depending on verbosity
 @pytest.fixture(autouse=True)
@@ -30,11 +31,12 @@ def setup_test_logging(caplog):
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        handlers=[caplog.handler]
+        handlers=[caplog.handler],
     )
     yield
     # Reset logger state if necessary
     logging.getLogger().handlers.clear()
+
 
 @pytest.fixture
 def temp_data_dir() -> Generator[Path, None, None]:
@@ -50,10 +52,12 @@ def temp_data_dir() -> Generator[Path, None, None]:
         (tmp_path / "figures").mkdir(parents=True, exist_ok=True)
         yield tmp_path
 
+
 @pytest.fixture
 def project_root() -> Path:
     """Return the project root path."""
     return PROJECT_ROOT
+
 
 @pytest.fixture
 def test_config_path() -> Path:

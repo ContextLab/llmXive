@@ -8274,22 +8274,6 @@
   updated_at: '2026-07-14T06:14:40Z'
 - artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
   attempts: 1
-  canonical: Fixed-component GMMs implemented with k values 3, 5, and 10
-  claim_id: c_0d11b740
-  context: T031 [P] [US2] Create code/src/baselines/gmm_fixed.py implementing fixed-component
-    GMMs (k=3, 5, 10) for reconstruction error
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement fixed-component GMMs (k=3, 5, 10) for reconstruction error
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-14T06:15:03Z'
-- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
-  attempts: 1
   canonical: assert SNR > 1 in simulation logs
   claim_id: c_cb437e89
   context: 'Phase 0: Ground Truth Simulation task T018 requires generating simulation
@@ -19353,3 +19337,3794 @@
   source_type: external
   status: verified
   updated_at: '2026-07-14T18:03:18Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 0
+  canonical: arXiv 1905.08726
+  claim_id: c_916f851e
+  context: Implement code/src/evaluation/threshold_sweep.py to Implement code/src/evaluation/threshold_sweep.py
+    to sweep cutoffs over a representative set of significance thresholds including
+    0.05 (1905.08726, https://arxiv.org/abs/1905.08726) on normalized reconstruction
+    error...
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 1905.08726, https://arxiv.org/abs/1905.08726
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T04:45:50Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: ADVI and MCMC posterior mean alpha deviation must not exceed 10%
+  claim_id: c_12c7d2f3
+  context: 'T026 [US1] Implement MCMC (NUTS) robustness check on a specific set of
+    windows selected by ground-truth injection timestamps (Equal numbers of pre-anomaly
+    and anomaly samples, plus a larger set of transition samples) to validate dot{alpha}
+    is not an ADVI artifact (FR-018). Deliverable: Generate data/processed/results/mcmc_validation.csv.
+    Constraint: FAIL if deviation in posterior mean alpha between ADVI and MCMC exceeds
+    10%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/processed/results/mcmc_validation.csv. Constraint: FAIL
+    if deviation in posterior mean alpha between ADVI and MCMC exceeds 10%.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:46:28Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Sensitivity report CSV must contain threshold, fp_rate, fn_rate, and
+    instability_flag columns
+  claim_id: c_31c7c820
+  context: 'T041 [US3] Implement code/src/evaluation/threshold_sweep.py to Implement
+    code/src/evaluation/threshold_sweep.py to sweep cutoffs over a representative
+    set of significance thresholds including 0.05 (1905.08726, https://arxiv.org/abs/1905.08726)
+    on normalized reconstruction error on normalized reconstruction error (FR-007).
+    Deliverable: Generate data/processed/results/sensitivity_report.csv with columns:
+    threshold, fp_rate, fn_rate, instability_flag.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_report_CSV_must_contain_threshold,_fp_rate,_fn_r
+  kind: entity_fact
+  raw_text: 'Generate data/processed/results/sensitivity_report.csv with columns:
+    threshold, fp_rate, fn_rate, instability_flag.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:47:13Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: UCI datasets must have at least 1000 observations each
+  claim_id: c_fe6e2358
+  context: T097 [Compliance] Verify all UCI datasets present with checksums in state
+    file; generate data/sample_size_report.md confirming Verify all UCI datasets present
+    with checksums in state file; generate data/sample_size_report.md confirming >=1000
+    observations each (or Deferred report if applicable) (or Deferred report if applicable)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/UCI_datasets_must_have_at_least_1000_observations_each
+  kind: magnitude
+  raw_text: Generate data/sample_size_report.md confirming >=1000 observations each
+    (or Deferred report if applicable).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:47:58Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Reference to Theorem DB 1210.4347 (arXiv:1210.4347)
+  claim_id: c_16aa1b4c
+  context: 'Create `code/src/models/dpgmm.py` implementing stick-breaking DP-GMM using
+    PyMC 4 and ADVI variational inference. Constraint: {{claim:c_fdab4b27}} (Theorem
+    DB: 1210.4347, https://arxiv.org/abs/1210.4347) AND a hierarchical time-varying
+    prior...'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:49:51Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Reference to arXiv 1905.08726 regarding significance thresholds
+  claim_id: c_0d56ffca
+  context: Implement `code/src/evaluation/threshold_sweep.py` to Implement `code/src/evaluation/threshold_sweep.py`
+    to sweep cutoffs over a representative set of significance thresholds including
+    0.05 (1905.08726, https://arxiv.org/abs/1905.08726) on normalized reconstruction
+    error on normalized reconstruction error (FR-007).
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: sweep cutoffs over a representative set of significance thresholds including
+    0.05 (1905.08726, https://arxiv.org/abs/1905.08726) on normalized reconstruction
+    error
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:50:55Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: UCI datasets must have at least 1000 observations
+  claim_id: c_cec4cfa9
+  context: "[X] T097 [Compliance] Verify all UCI datasets present with checksums in\
+    \ state file; generate `data/sample_size_report.md` confirming Verify all UCI\
+    \ datasets present with checksums in state file; generate `data/sample_size_report.md`\
+    \ confirming \u22651000 observations each (or Deferred report if applicable) (or\
+    \ Deferred report if applicable)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/UCI_datasets_must_have_at_least_1000_observations
+  kind: magnitude
+  raw_text: "generate `data/sample_size_report.md` confirming \u22651000 observations\
+    \ each"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:50:59Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 0
+  canonical: Theorem DB 1210.4347 referenced for stick-breaking DP-GMM
+  claim_id: c_ca90254a
+  context: 'Create code/src/models/dpgmm.py implementing stick-breaking DP-GMM using
+    PyMC 4 and ADVI variational inference. Constraint: {{claim:c_fdab4b27}} (Theorem
+    DB: 1210.4347, https://arxiv.org/abs/1210.4347) AND a hierarchical time-varying
+    prior...'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T04:51:49Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 0
+  canonical: ArXiv ID 2109.05633 referenced for dataset size validation
+  claim_id: c_bc7697b6
+  context: T053 [Data] 2109.05633, https://arxiv.org/abs/2109.05633; reject dataset
+    if insufficient size (FR-001).
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 2109.05633, https://arxiv.org/abs/2109.05633
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-25T04:51:53Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Significance threshold 0.05 referenced with arXiv ID 1905.08726
+  claim_id: c_8c727c94
+  context: Implement code/src/evaluation/threshold_sweep.py to Implement code/src/evaluation/threshold_sweep.py
+    to sweep cutoffs over a representative set of significance thresholds including
+    0.05 (1905.08726, https://arxiv.org/abs/1905.08726) on normalized reconstruction
+    error...
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: sweep cutoffs over a representative set of significance thresholds including
+    0.05 (1905.08726, https://arxiv.org/abs/1905.08726)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:52:08Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: track posterior mean alpha and pi and compute first derivative alpha
+    dot at each window step
+  claim_id: c_4065dbb6
+  context: T023 [US1] Implement logic to track posterior mean $\alpha$ and $\pi$ at
+    each window step and compute first derivative $\dot{\alpha}$
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Track_posterior_mean_alpha_and_pi_and_compute_first_derivati
+  kind: entity_fact
+  raw_text: "Implement logic to track posterior mean \u03B1 and \u03C0 at each window\
+    \ step and compute first derivative \u03B1\u0307"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:53:33Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling for p-values and confidence intervals when anomaly
+    count less than 10
+  claim_id: c_5df8c2b6
+  context: T025 [US1] Implement bootstrap resampling procedure for p-values and confidence
+    intervals when anomaly count <10 (FR-011, FR-012)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_for_p-values_and_confidence_intervals_w
+  kind: magnitude
+  raw_text: Implement bootstrap resampling procedure for p-values and confidence intervals
+    when anomaly count <10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:54:00Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: generate mcmc validation csv file
+  claim_id: c_111cc493
+  context: 'T026 [US1] Implement MCMC (NUTS) robustness check... **Deliverable**:
+    Generate `data/processed/results/mcmc_validation.csv`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_mcmc_validation_csv_file
+  kind: entity_fact
+  raw_text: Generate data/processed/results/mcmc_validation.csv
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:54:27Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: fail if deviation in posterior mean alpha between advi and mcmc exceeds
+    10 percent
+  claim_id: c_7bcf33c3
+  context: 'T026 [US1]... **Constraint**: FAIL if deviation in posterior mean $\alpha$
+    between ADVI and MCMC exceeds 10%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Fail if deviation in posterior mean \u03B1 between ADVI and MCMC exceeds\
+    \ 10%"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:54:29Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: generate sensitivity report csv with threshold fp_rate fn_rate and instability_flag
+    columns
+  claim_id: c_33b5a058
+  context: 'T041 [US3]... **Deliverable**: Generate `data/processed/results/sensitivity_report.csv`
+    with columns: `threshold`, `fp_rate`, `fn_rate`, `instability_flag`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_sensitivity_report_csv_with_threshold_fp_rate_fn_ra
+  kind: entity_fact
+  raw_text: 'Generate data/processed/results/sensitivity_report.csv with columns:
+    threshold, fp_rate, fn_rate, instability_flag'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:54:33Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: generate splits manifest json with train_indices val_indices test_indices
+    split_ratios and seed keys
+  claim_id: c_cebb12f0
+  context: 'T042 [US3]... **Deliverable**: Generate `data/processed/results/splits_manifest.json`
+    containing keys: `train_indices`, `val_indices`, `test_indices`, `split_ratios`,
+    `seed`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_splits_manifest_json_with_train_indices_val_indices
+  kind: entity_fact
+  raw_text: 'Generate data/processed/results/splits_manifest.json containing keys:
+    train_indices, val_indices, test_indices, split_ratios, seed'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:54:56Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: generate simulation validation csv with snr metrics
+  claim_id: c_1e5817f9
+  context: T089 [Report] Generate `data/processed/results/simulation_validation.csv`
+    with SNR metrics from Phase 0 (FR-020)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/processed/results/simulation_validation.csv with SNR metrics
+    from Phase 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:55:13Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: generate posterior trajectory csv with alpha dot and weight variance
+    trajectories
+  claim_id: c_7971d25e
+  context: T090 [Report] Generate `data/processed/results/posterior_trajectory.csv`
+    with $\dot{\alpha}$ and weight variance trajectories
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_posterior_trajectory_csv_with_alpha_dot_and_weight
+  kind: entity_fact
+  raw_text: "Generate data/processed/results/posterior_trajectory.csv with \u03B1\u0307\
+    \ and weight variance trajectories"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:55:34Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: generate statistical report csv with ks tests wilcoxon tests and bootstrap
+    p-values
+  claim_id: c_1f7241c7
+  context: T091 [Report] Generate `data/processed/results/statistical_report.csv`
+    with KS tests, Wilcoxon tests, bootstrap p-values
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_statistical_report_csv_with_ks_tests_wilcoxon_tests
+  kind: entity_fact
+  raw_text: Generate data/processed/results/statistical_report.csv with KS tests,
+    Wilcoxon tests, bootstrap p-values
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:55:58Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: verify uci datasets and generate sample size report confirming 1000 observations
+    each
+  claim_id: c_3bf613f9
+  context: "T097 [Compliance] Verify all UCI datasets present with checksums in state\
+    \ file; generate `data/sample_size_report.md` confirming Verify all UCI datasets\
+    \ present with checksums in state file; generate `data/sample_size_report.md`\
+    \ confirming \u22651000 observations each"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify all UCI datasets present with checksums in state file; generate\
+    \ data/sample_size_report.md confirming \u22651000 observations each"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-25T04:56:00Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 0
+  canonical: arxiv.org/abs/1905.08726
+  claim_id: c_79fa71bd
+  context: Implement code/src/evaluation/threshold_sweep.py to Implement code/src/evaluation/threshold_sweep.py
+    to sweep cutoffs over a representative set of significance thresholds including
+    0.05 (1905.08726, https://arxiv.org/abs/1905.08726) on normalized reconstruction
+    error on normalized reconstruction error (FR-007).
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 1905.08726, https://arxiv.org/abs/1905.08726
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T10:21:18Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 0
+  canonical: Reference to Theorem DB 1210.4347 at arXiv
+  claim_id: c_f82f01e3
+  context: 'Implement stick-breaking DP-GMM using PyMC 4 and ADVI variational inference.
+    Constraint: {{claim:c_fdab4b27}} (Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347)
+    AND a hierarchical time-varying prior...'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T10:22:40Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 0
+  canonical: Reference to arXiv paper 1905.08726
+  claim_id: c_d3ec21a8
+  context: Implement threshold_sweep.py to sweep cutoffs over a representative set
+    of significance thresholds including 0.05 (1905.08726, https://arxiv.org/abs/1905.08726)
+    on normalized reconstruction error...
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 1905.08726, https://arxiv.org/abs/1905.08726
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T10:22:44Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 0
+  canonical: Reference to arXiv paper 2109.05633
+  claim_id: c_deb5029e
+  context: 2109.05633, https://arxiv.org/abs/2109.05633; reject dataset if insufficient
+    size (FR-001).
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 2109.05633, https://arxiv.org/abs/2109.05633
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T10:22:47Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 0
+  canonical: Paper 1905.08726 from arXiv:1905.08726
+  claim_id: c_cd3eaf50
+  context: Implement code/src/evaluation/threshold_sweep.py to sweep cutoffs over
+    a representative set of significance thresholds including 0.05 (1905.08726, https://arxiv.org/abs/1905.08726)
+    on normalized reconstruction error
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 1905.08726, https://arxiv.org/abs/1905.08726
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-26T10:24:42Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Theorem 1210.4347 from arXiv:1210.4347
+  claim_id: c_44c038e4
+  context: 'Create code/src/models/dpgmm.py implementing stick-breaking DP-GMM using
+    PyMC 4 and ADVI variational inference. Constraint: {{claim:c_fdab4b27}} (Theorem
+    DB: 1210.4347, https://arxiv.org/abs/1210.4347) AND a hierarchical time-varying
+    prior'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: citation
+  raw_text: 'Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:25:09Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate sensitivity_report.csv with columns threshold, fp_rate, fn_rate,
+    instability_flag
+  claim_id: c_87fab08e
+  context: 'Implement code/src/evaluation/threshold_sweep.py... Deliverable: Generate
+    data/processed/results/sensitivity_report.csv with columns: threshold, fp_rate,
+    fn_rate, instability_flag.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_sensitivity_report.csv_with_columns_threshold,_fp_r
+  kind: entity_fact
+  raw_text: 'Generate data/processed/results/sensitivity_report.csv with columns:
+    threshold, fp_rate, fn_rate, instability_flag'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:25:31Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate mcmc_validation.csv
+  claim_id: c_b3263655
+  context: 'Implement MCMC (NUTS) robustness check... Deliverable: Generate data/processed/results/mcmc_validation.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_mcmc_validation.csv
+  kind: entity_fact
+  raw_text: Generate data/processed/results/mcmc_validation.csv
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:25:50Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate simulation_snr.csv and assert SNR > 1
+  claim_id: c_2cb7d860
+  context: 'Create code/src/simulation/ground_truth.py implementing simulation study...
+    Deliverable: Generate data/processed/results/simulation_snr.csv and assert SNR
+    > 1 in logs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/processed/results/simulation_snr.csv and assert SNR > 1
+    in logs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:25:54Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate splits_manifest.json with keys train_indices, val_indices, test_indices,
+    split_ratios, seed
+  claim_id: c_34fe41a2
+  context: 'Implement code/src/evaluation/data_splitter.py... Deliverable: Generate
+    data/processed/results/splits_manifest.json containing keys: train_indices, val_indices,
+    test_indices, split_ratios, seed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_splits_manifest.json_with_keys_train_indices,_val_i
+  kind: entity_fact
+  raw_text: 'Generate data/processed/results/splits_manifest.json containing keys:
+    train_indices, val_indices, test_indices, split_ratios, seed'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:26:20Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Verify UCI datasets have >=1000 observations each
+  claim_id: c_a7c7b65f
+  context: Run find data/raw/ -type f -name '*.csv' and verify only Electricity, Traffic
+    present... generate data/sample_size_report.md confirming >=1000 observations
+    each
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify all UCI datasets present with checksums in state file; generate
+    data/sample_size_report.md confirming >=1000 observations each
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T10:26:34Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 0
+  canonical: Theorem DB 1210.4347 arXiv 1210.4347
+  claim_id: c_188efdda
+  context: 'Create code/src/models/dpgmm.py implementing stick-breaking DP-GMM using
+    PyMC 4 and ADVI variational inference. Constraint: {{claim:c_fdab4b27}} (Theorem
+    DB: 1210.4347, https://arxiv.org/abs/1210.4347) AND a hierarchical time-varying
+    prior'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T00:31:01Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: sweep cutoffs over significance thresholds including 0.05 arXiv 1905.08726
+  claim_id: c_3825a8ef
+  context: Implement code/src/evaluation/threshold_sweep.py to Implement code/src/evaluation/threshold_sweep.py
+    to sweep cutoffs over a representative set of significance thresholds including
+    0.05 (1905.08726, https://arxiv.org/abs/1905.08726) on normalized reconstruction
+    error
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: sweep cutoffs over a representative set of significance thresholds including
+    0.05 (1905.08726, https://arxiv.org/abs/1905.08726)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T00:31:45Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: arXiv 2109.05633 reject dataset if insufficient size
+  claim_id: c_173789df
+  context: Create code/src/data/download_datasets.py fetching verified NAB/PhysioNet
+    subsets or UCI Electricity Load Diagrams and Traffic via ucimlrepo or verified
+    URLs. 2109.05633, https://arxiv.org/abs/2109.05633; reject dataset if insufficient
+    size (FR-001).
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 2109.05633, https://arxiv.org/abs/2109.05633; reject dataset if insufficient
+    size
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T00:32:06Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 0
+  canonical: Citation of arXiv paper 1210.4347 for hierarchical time-varying prior
+  claim_id: c_92916d86
+  context: 'Phase 3: User Story 1 - T020. Implementation constraint for DP-GMM.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T20:59:07Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: SNR threshold > 1 required for pipeline continuation in ground truth
+    simulation
+  claim_id: c_abebe737
+  context: 'Phase 0: Ground Truth Simulation (FR-020, FR-021, FR-022). T018 task implementation
+    details.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/processed/results/simulation_snr.csv. Checkpoint: If SNR
+    > 1, proceed. If SNR <= 1, raise SystemExit(1) and write data/processed/results/snr_fail.lock
+    to halt the pipeline immediately'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T20:59:26Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling triggered when anomaly count is less than 10
+  claim_id: c_12aa0ac9
+  context: 'Phase 3: User Story 1 - T025. Implementation of bootstrap fallback logic.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_triggered_when_anomaly_count_is_less_th
+  kind: magnitude
+  raw_text: Implement bootstrap resampling procedure for p-values and confidence intervals
+    when anomaly count <10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T20:59:57Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'ADVI exclusion criteria: ELBO delta greater than 0.01 for 10 iterations
+    within 500'
+  claim_id: c_9283a0ce
+  context: 'Phase 3: User Story 1 - T024. Exclusion logic for non-convergent runs.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ADVI_exclusion_criteria:_ELBO_delta_greater_than_0.01_for_10
+  kind: magnitude
+  raw_text: Exclude non-convergent ADVI runs if ELBO delta > 0.01 for 10 iterations
+    within 500 iterations
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:00:34Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: ADVI and MCMC dot-alpha correlation must be at least 0.9
+  claim_id: c_ba59cf3f
+  context: 'Phase 3: User Story 1 - T026. MCMC robustness check pass criterion.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ADVI_and_MCMC_dot-alpha_correlation_must_be_at_least_0.9
+  kind: magnitude
+  raw_text: Correlation between ADVI and MCMC dot-alpha must be >= 0.9
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:00:59Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'Sliding window parameters: length 30, stride 1'
+  claim_id: c_98c38eac
+  context: 'Phase 3: User Story 1 - T021. Windowing implementation constraints.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sliding window extraction with length=30 and stride=1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:01:34Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Fixed GMM components tested at k values 3, 5, and 10
+  claim_id: c_fb74a5e7
+  context: 'Phase 4: User Story 2 - T031. Baseline GMM implementation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement fixed-component GMMs with k=3, 5, 10 for reconstruction error
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:02:18Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Threshold sensitivity sweep using significance levels 0.05, 0.01, and
+    0.1
+  claim_id: c_b37e75d2
+  context: 'Phase 5: User Story 3 - T041. Threshold calibration deliverable.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep cutoffs over significance thresholds 0.05, 0.01, 0.1 on normalized
+    reconstruction error
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:02:45Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Dataset size requirement minimum 1000 rows
+  claim_id: c_99b86641
+  context: 'Phase 7: Data Acquisition - T053a. Dataset size check logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If rows < 1000, raise ValueError('Dataset size insufficient (<1000 rows)')
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:02:48Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Configuration file size limit 2048 bytes
+  claim_id: c_7b93a03a
+  context: 'Phase 8: Configuration and Filesystem Hygiene - T062. Config size verification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify code/config.yaml size <2048 bytes using os.path.getsize()
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:02:51Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'Resource limits: peak RAM 7 GB, runtime 6 hours'
+  claim_id: c_86fb401c
+  context: 'Phase 6: User Story 4 - T049. Resource validation logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Measure peak RAM (rss) and total runtime. Failure: If rss > 7 * 1024
+    * 1024 * 1024 OR runtime > 6 * 3600, raise RuntimeError'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:02:53Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Test coverage requirement 80 percent
+  claim_id: c_4f5c8a69
+  context: 'Phase 9.5: External Verification - T109. Coverage verification constraint.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must achieve >=80% line coverage
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:02:56Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity report CSV columns: threshold, fp_rate, fn_rate, instability_flag'
+  claim_id: c_96849ca4
+  context: 'Phase 5: User Story 3 - T041. Deliverable specification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_report_CSV_columns:_threshold,_fp_rate,_fn_rate,
+  kind: entity_fact
+  raw_text: 'Generate data/processed/results/sensitivity_report.csv with columns:
+    threshold, fp_rate, fn_rate, instability_flag'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:03:23Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: MCMC validation CSV generation with deviation metrics
+  claim_id: c_022645fe
+  context: 'Phase 3: User Story 1 - T026. Deliverable for MCMC robustness check.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MCMC_validation_CSV_generation_with_deviation_metrics
+  kind: entity_fact
+  raw_text: Generate data/processed/results/mcmc_validation.csv with deviation metrics
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:03:52Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Sample size report confirming minimum 1000 observations per dataset
+  claim_id: c_dd04e47f
+  context: 'Phase 9: Reporting and Compliance - T097. Sample size verification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/sample_size_report.md confirming >=1000 observations each
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:04:44Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate simulation_snr.csv with SNR metrics
+  claim_id: c_bdb40583
+  context: 'T018: Create code/src/simulation/ground_truth.py implementing simulation
+    study to verify $\dot{\alpha}$ SNR under null hypothesis (FR-020). Deliverable:
+    Generate data/processed/results/simulation_snr.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_simulation_snr.csv_with_SNR_metrics
+  kind: entity_fact
+  raw_text: Generate data/processed/results/simulation_snr.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:06:58Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Proceed if SNR is greater than 1
+  claim_id: c_bf4446a8
+  context: 'T018: Checkpoint: If SNR > 1, proceed. If SNR <= 1, raise SystemExit(1)
+    and write data/processed/results/snr_fail.lock to halt the pipeline immediately
+    (per US1 Acceptance Scenario 2).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proceed_if_SNR_is_greater_than_1
+  kind: magnitude
+  raw_text: If SNR > 1, proceed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:07:25Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Halt pipeline with SystemExit(1) if SNR is less than or equal to 1
+  claim_id: c_d3abdd11
+  context: 'T018: Checkpoint: If SNR > 1, proceed. If SNR <= 1, raise SystemExit(1)
+    and write data/processed/results/snr_fail.lock to halt the pipeline immediately
+    (per US1 Acceptance Scenario 2).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_pipeline_with_SystemExit(1)_if_SNR_is_less_than_or_equa
+  kind: magnitude
+  raw_text: If SNR <= 1, raise SystemExit(1) and write data/processed/results/snr_fail.lock
+    to halt the pipeline immediately.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:07:45Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Window size is 30 for stability
+  claim_id: c_23b86c28
+  context: 'T021: Implement code/src/data/windowing.py for sliding window extraction
+    (length=30, stride=1) with normalization. Constraint: Window size MUST be 30 as
+    per Plan Technical Context for stability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Window size MUST be 30 as per Plan Technical Context for stability.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:08:09Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Exclude non-convergent ADVI runs if ELBO delta exceeds 0.01 for 10 iterations
+    within 500 iterations
+  claim_id: c_043cf97b
+  context: 'T024: Implement exclusion logic for non-convergent ADVI runs (Exclude
+    non-convergent ADVI runs if ELBO delta > 0.01 for 10 iterations within 500 iterations.)
+    per FR-009'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude non-convergent ADVI runs if ELBO delta > 0.01 for 10 iterations
+    within 500 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:08:12Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate mcmc_validation.csv with deviation metrics
+  claim_id: c_841df76b
+  context: 'T026: Implement MCMC (NUTS) robustness check... Deliverable: Generate
+    data/processed/results/mcmc_validation.csv with deviation metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_mcmc_validation.csv_with_deviation_metrics
+  kind: entity_fact
+  raw_text: Generate data/processed/results/mcmc_validation.csv with deviation metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:08:16Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Correlation between ADVI and MCMC alpha dot must be at least 0.9
+  claim_id: c_7d8324e0
+  context: 'T026: Constraint: Pass criterion: Correlation between ADVI and MCMC $\dot{\alpha}$
+    must be >= 0.9. If < 0.9, log warning and flag as ''Unvalidated Signal''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_between_ADVI_and_MCMC_alpha_dot_must_be_at_least
+  kind: magnitude
+  raw_text: Correlation between ADVI and MCMC $\dot{\alpha}$ must be >= 0.9.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:08:20Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Implement fixed-component GMMs with k values 3, 5, and 10
+  claim_id: c_5de6de37
+  context: 'T031: Create code/src/baselines/gmm_fixed.py implementing fixed-component
+    GMMs (k=3, 5, 10) for reconstruction error'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement fixed-component GMMs (k=3, 5, 10) for reconstruction error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:08:48Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Sweep cutoffs over significance thresholds 0.05, 0.01, and 0.1
+  claim_id: c_ce664e2b
+  context: 'T041: Implement code/src/evaluation/threshold_sweep.py to sweep cutoffs
+    over significance thresholds 0.05, 0.01, 0.1 on normalized reconstruction error
+    (FR-007).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep cutoffs over significance thresholds 0.05, 0.01, 0.1 on normalized
+    reconstruction error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:08:51Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate sensitivity_report.csv with threshold, fp_rate, fn_rate, instability_flag
+    columns
+  claim_id: c_4dc3ed42
+  context: 'T041: Deliverable: Generate data/processed/results/sensitivity_report.csv
+    with columns: threshold, fp_rate, fn_rate, instability_flag.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_sensitivity_report.csv_with_threshold,_fp_rate,_fn
+  kind: entity_fact
+  raw_text: 'Generate data/processed/results/sensitivity_report.csv with columns:
+    threshold, fp_rate, fn_rate, instability_flag.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:08:55Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Raise ValueError if dataset rows are less than 1000
+  claim_id: c_66637af6
+  context: "T053a: Logic: If rows < 1000, raise ValueError('Dataset size insufficient\
+    \ (<1000 rows)') (FR-001). Deliverable: Generate data/sample_size_report.md confirming\
+    \ \u22651000 observations."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_ValueError_if_dataset_rows_are_less_than_1000
+  kind: magnitude
+  raw_text: If rows < 1000, raise ValueError('Dataset size insufficient (<1000 rows)').
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:09:34Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate sample_size_report.md confirming at least 1000 observations
+  claim_id: c_db48b8dd
+  context: "T053a: Deliverable: Generate data/sample_size_report.md confirming \u2265\
+    1000 observations."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_sample_size_report.md_confirming_at_least_1000_obse
+  kind: magnitude
+  raw_text: "Generate data/sample_size_report.md confirming \u22651000 observations."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:10:15Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Validate pipeline runs within 2 CPU, 7 GB RAM, and 6 hours constraints
+  claim_id: c_dc7e6c2b
+  context: "Phase 6 Goal: validate pipeline runs within GitHub Actions free-tier constraints\
+    \ (\u22642 CPU, 7 GB RAM, 6 hours)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate pipeline runs within GitHub Actions free-tier constraints (\u2264\
+    2 CPU, 7 GB RAM, 6 hours)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:10:18Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Raise RuntimeError if RSS exceeds 7 GB or runtime exceeds 6 hours
+  claim_id: c_833b954a
+  context: 'T049: Logic: Measure peak RAM (rss) and total runtime. Failure: If rss
+    > 7 * 1024 * 1024 * 1024 OR runtime > 6 * 3600, raise RuntimeError(''Resource
+    limit exceeded'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If rss > 7 * 1024 * 1024 * 1024 OR runtime > 6 * 3600, raise RuntimeError('Resource
+    limit exceeded').
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:10:21Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate resource_validation_report.md with peak RAM and runtime metrics
+  claim_id: c_d8437366
+  context: 'T049: Deliverable: Generate data/processed/results/resource_validation_report.md
+    with peak RAM and runtime metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_resource_validation_report.md_with_peak_RAM_and_run
+  kind: entity_fact
+  raw_text: Generate data/processed/results/resource_validation_report.md with peak
+    RAM and runtime metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:10:52Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Verify config.yaml size is less than 2048 bytes
+  claim_id: c_17edab76
+  context: 'T062: Verify projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/config.yaml
+    size <2048 bytes using os.path.getsize(); fail if exceeded (FR-009).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_config.yaml_size_is_less_than_2048_bytes
+  kind: magnitude
+  raw_text: Verify code/config.yaml size <2048 bytes using os.path.getsize(); fail
+    if exceeded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:11:07Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Achieve at least 80% line coverage
+  claim_id: c_e2a678c0
+  context: "T109: Constraint: Must achieve \u226580% line coverage."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Achieve_at_least_80%25_line_coverage
+  kind: magnitude
+  raw_text: "Must achieve \u226580% line coverage."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:11:34Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Config output must be less than 2048 bytes
+  claim_id: c_4fde07b9
+  context: 'T107: Constraint: Output must be <2048.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Config_output_must_be_less_than_2048_bytes
+  kind: magnitude
+  raw_text: Output must be <2048 bytes.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:12:01Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Achieve at least 80% line coverage for remediation
+  claim_id: c_e247bcfd
+  context: "T114: Constraint: Must achieve \u226580% line coverage. If failed, identify\
+    \ missing tests and create them before proceeding."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Achieve_at_least_80%25_line_coverage_for_remediation
+  kind: magnitude
+  raw_text: "Must achieve \u226580% line coverage."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:12:06Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: All datasets must have at least 1000 observations
+  claim_id: c_5251c399
+  context: "T116: Constraint: All datasets must have \u22651000 observations."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/All_datasets_must_have_at_least_1000_observations
+  kind: magnitude
+  raw_text: "All datasets must have \u22651000 observations."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T21:12:51Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'Simulation SNR checkpoint: proceed if > 1, halt if <= 1'
+  claim_id: c_10b870b4
+  context: T018 [P] [US1] Create code/src/simulation/ground_truth.py implementing
+    simulation study to verify dot-alpha SNR under null hypothesis (FR-020).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/processed/results/simulation_snr.csv. Checkpoint: If SNR
+    > 1, proceed. If SNR <= 1, raise SystemExit(1) and write data/processed/results/snr_fail.lock'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:19:14Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'ADVI-MCMC correlation validation threshold: >= 0.9'
+  claim_id: c_5c56624d
+  context: T026 [US1] Implement MCMC (NUTS) robustness check on a specific set of
+    windows selected by ground-truth injection timestamps to validate dot-alpha is
+    not an ADVI artifact (FR-018).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/processed/results/mcmc_validation.csv with deviation metrics.
+    Pass criterion: Correlation between ADVI and MCMC dot-alpha must be >= 0.9'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:19:45Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'ADVI exclusion logic: ELBO delta > 0.01 for 10 iterations within 500
+    iterations'
+  claim_id: c_96f5f007
+  context: T024 [US1] Implement exclusion logic for non-convergent ADVI runs per FR-009
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude non-convergent ADVI runs if ELBO delta > 0.01 for 10 iterations
+    within 500 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:19:49Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling triggered when anomaly count < 10
+  claim_id: c_3a6f9792
+  context: T025 [US1] Implement bootstrap resampling procedure for p-values and confidence
+    intervals when anomaly count <10 (FR-011, FR-012)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resampling procedure for p-values and confidence intervals when
+    anomaly count <10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:19:53Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'Sliding window parameters: length 30, stride 1'
+  claim_id: c_610a79eb
+  context: T021 [US1] Implement code/src/data/windowing.py for sliding window extraction
+    (length=30, stride=1) with normalization.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sliding window extraction with length=30, stride=1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:20:41Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 2
+  canonical: Fixed-component GMMs implemented with k values 3, 5, and 10
+  claim_id: c_0d11b740
+  context: T031 [P] [US2] Create code/src/baselines/gmm_fixed.py implementing fixed-component
+    GMMs (k=3, 5, 10) for reconstruction error
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement fixed-component GMMs (k=3, 5, 10) for reconstruction error
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:21:18Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'Threshold sensitivity sweep values: 0.05, 0.01, 0.1'
+  claim_id: c_3391287e
+  context: T041 [US3] Implement code/src/evaluation/threshold_sweep.py to sweep cutoffs
+    over significance thresholds 0.05, 0.01, 0.1 on normalized reconstruction error
+    (FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep cutoffs over significance thresholds 0.05, 0.01, 0.1 on normalized
+    reconstruction error
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:21:44Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'GitHub Actions free-tier constraints: 2 CPU, 7 GB RAM, 6 hours'
+  claim_id: c_bd8fa61b
+  context: 'Phase 6: User Story 4 - Resource Constraint Validation and CPU Feasibility
+    (Priority: P3) Goal: validate pipeline runs within GitHub Actions free-tier constraints'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Validate pipeline runs within GitHub Actions free-tier constraints (<=2
+    CPU, 7 GB RAM, 6 hours)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:22:23Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'Resource limit failure: RAM > 7 GB or runtime > 6 hours'
+  claim_id: c_443349c9
+  context: 'T049 [US4] Implement code/src/services/anomaly_detector.py resource validation
+    logic: Logic: Measure peak RAM (rss) and total runtime. Failure: If rss > 7 *
+    1024 * 1024 * 1024 OR runtime > 6 * 3600, raise RuntimeError.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If rss > 7 * 1024 * 1024 * 1024 OR runtime > 6 * 3600, raise RuntimeError
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:22:27Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'Dataset size minimum requirement: 1000 rows'
+  claim_id: c_051690b3
+  context: 'T053a [Data] Conditional on T052 success: Implement code/src/utils/check_dataset_size.py
+    to count rows in fetched datasets. Logic: If rows < 1000, raise ValueError.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If rows < 1000, raise ValueError (Dataset size insufficient)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:22:31Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'Config file size limit: < 2048 bytes'
+  claim_id: c_b3f40ed0
+  context: T062 [Config] Verify projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/config.yaml
+    size <2048 bytes using os.path.getsize(); fail if exceeded (FR-009).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify code/config.yaml size <2048 bytes using os.path.getsize()
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:22:35Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'Test coverage requirement: >= 80%'
+  claim_id: c_b4e1439a
+  context: 'T109 [Test] Coverage Verification: Run pytest --cov=code/src --cov-report=term-missing
+    and capture output in code/tests/test_report.md. Constraint: Must achieve >=80%
+    line coverage.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must achieve >=80% line coverage
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:22:38Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'Config migration output size limit: < 2048 bytes'
+  claim_id: c_43be2d95
+  context: 'T110 [Config] Physical Migration 2: Execute python code/src/utils/migrate_config.py
+    --force to forcibly move ALL derived statistics from code/config.yaml to state
+    file. Verification: Run stat -c%s code/config.yaml and capture output in code/tests/config_compliance_report.md.
+    Constraint: Output MUST be <2048 bytes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Output MUST be <2048 bytes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:22:42Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Simulation study SNR threshold determines pipeline continuation or halt
+  claim_id: c_7964f8bd
+  context: 'T018 [P] [US1] Create code/src/simulation/ground_truth.py implementing
+    simulation study to verify $\dot{\alpha}$ SNR under null hypothesis (FR-020).
+    Deliverable: Generate data/processed/results/simulation_snr.csv. Checkpoint: If
+    SNR > 1, proceed. If SNR <= 1, raise SystemExit(1) and write data/processed/results/snr_fail.lock
+    to halt the pipeline immediately (per US1 Acceptance Scenario 2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/processed/results/simulation_snr.csv. Checkpoint: If SNR
+    > 1, proceed. If SNR <= 1, raise SystemExit(1) and write data/processed/results/snr_fail.lock
+    to halt the pipeline immediately.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:25:56Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'ADVI convergence exclusion criteria: ELBO delta > 0.01 for 10 iterations
+    within 500 iterations'
+  claim_id: c_0caa7258
+  context: T024 [US1] Implement exclusion logic for non-convergent ADVI runs (Exclude
+    non-convergent ADVI runs if ELBO delta > 0.01 for 10 iterations within 500 iterations.)
+    per FR-009
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement exclusion logic for non-convergent ADVI runs if ELBO delta >
+    0.01 for 10 iterations within 500 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:26:01Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Validation correlation threshold between ADVI and MCMC alpha derivative
+    is 0.9
+  claim_id: c_4cb22525
+  context: 'T026 [US1] Implement MCMC (NUTS) robustness check... Deliverable: Generate
+    data/processed/results/mcmc_validation.csv with deviation metrics. Constraint:
+    Pass criterion: Correlation between ADVI and MCMC $\dot{\alpha}$ must be >= 0.9.
+    If < 0.9, log warning and flag as ''Unvalidated Signal''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pass criterion: Correlation between ADVI and MCMC $\dot{\alpha}$ must
+    be >= 0.9. If < 0.9, log warning and flag as ''Unvalidated Signal''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:32:33Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling triggered when anomaly count is less than 10
+  claim_id: c_15b596db
+  context: T025 [US1] Implement bootstrap resampling procedure for p-values and confidence
+    intervals when anomaly count <10 (FR-011, FR-012)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_triggered_when_anomaly_count_is_less_th
+  kind: magnitude
+  raw_text: Implement bootstrap resampling procedure for p-values and confidence intervals
+    when anomaly count <10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:49:48Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Fixed-component GMMs implemented with k values of 3, 5, and 10
+  claim_id: c_ad6734d5
+  context: T031 [P] [US2] Create code/src/baselines/gmm_fixed.py implementing fixed-component
+    GMMs (k=3, 5, 10) for reconstruction error
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement fixed-component GMMs (k=3, 5, 10) for reconstruction error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:49:52Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Threshold sensitivity sweep performed at significance levels 0.05, 0.01,
+    and 0.1
+  claim_id: c_8989b658
+  context: T041 [US3] Implement code/src/evaluation/threshold_sweep.py to sweep cutoffs
+    over significance thresholds 0.05, 0.01, 0.1 on normalized reconstruction error
+    (FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep cutoffs over significance thresholds 0.05, 0.01, 0.1 on normalized
+    reconstruction error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:49:56Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Resource limit exceeded error raised if RSS exceeds 7 GB or runtime exceeds
+    6 hours
+  claim_id: c_4a21cce1
+  context: 'T049 [US4] Implement code/src/services/anomaly_detector.py resource validation
+    logic: Logic: Measure peak RAM (rss) and total runtime. Failure: If rss > 7 *
+    1024 * 1024 * 1024 OR runtime > 6 * 3600, raise RuntimeError(''Resource limit
+    exceeded'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If rss > 7 * 1024 * 1024 * 1024 OR runtime > 6 * 3600, raise RuntimeError('Resource
+    limit exceeded').
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:50:00Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Dataset size validation fails if row count is less than 1000
+  claim_id: c_0c007120
+  context: 'T053a [Data] Conditional on T052 success: Implement code/src/utils/check_dataset_size.py
+    to count rows in fetched datasets. Logic: If rows < 1000, raise ValueError(''Dataset
+    size insufficient (<1000 rows)'') (FR-001).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_validation_fails_if_row_count_is_less_than_1000
+  kind: magnitude
+  raw_text: If rows < 1000, raise ValueError('Dataset size insufficient (<1000 rows)').
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:50:44Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Configuration file size must be less than 2048 bytes
+  claim_id: c_cf2ca2a6
+  context: T062 [Config] Verify projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/config.yaml
+    size <2048 bytes using os.path.getsize(); fail if exceeded (FR-009).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Configuration_file_size_must_be_less_than_2048_bytes
+  kind: magnitude
+  raw_text: Verify code/config.yaml size <2048 bytes using os.path.getsize(); fail
+    if exceeded.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:51:01Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Test coverage requirement is at least 80 percent line coverage
+  claim_id: c_56037c7b
+  context: "T109 [Test] Coverage Verification: Run pytest --cov=code/src --cov-report=term-missing\
+    \ and capture output in code/tests/test_report.md. Constraint: Must achieve \u2265\
+    80% line coverage."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Test_coverage_requirement_is_at_least_80_percent_line_covera
+  kind: magnitude
+  raw_text: "Must achieve \u226580% line coverage."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:51:30Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Pytest execution configured with 80 percent coverage failure threshold
+  claim_id: c_01eb47ce
+  context: "T114 [Test] Coverage Verification 2: Execute pytest --cov=code/src --cov-report=term-missing\
+    \ --cov-fail-under=80 and capture full output in code/tests/test_report.md. Constraint:\
+    \ Must achieve \u226580% line coverage."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute pytest --cov=code/src --cov-report=term-missing --cov-fail-under=80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:51:58Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Config migration verification requires output size less than 2048 bytes
+  claim_id: c_5886b9a5
+  context: 'T110 [Config] Physical Migration 2: Execute python code/src/utils/migrate_config.py
+    --force... Verification: Run stat -c%s code/config.yaml and capture output in
+    code/tests/config_compliance_report.md. Constraint: Output MUST be <2048 bytes.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Config_migration_verification_requires_output_size_less_than
+  kind: magnitude
+  raw_text: 'Constraint: Output MUST be <2048 bytes.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:52:29Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Sample size verification requires all datasets to contain at least 1000
+    observations
+  claim_id: c_c865fd09
+  context: "T116 [Data] Sample Size Verification: Execute python code/src/utils/check_dataset_size.py\
+    \ to count rows in electricity.csv, traffic.csv, synthetic_control.csv. Verification:\
+    \ Capture output in data/sample_size_report.md. Constraint: All datasets must\
+    \ have \u22651000 observations."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sample_size_verification_requires_all_datasets_to_contain_at
+  kind: magnitude
+  raw_text: "Constraint: All datasets must have \u22651000 observations."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:53:17Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Sliding window size fixed at 30 for stability
+  claim_id: c_24ed17ec
+  context: 'T021 [US1] Implement code/src/data/windowing.py for sliding window extraction
+    (length=30, stride=1) with normalization. Order: Must be completed before T019
+    and T020. Constraint: Window size MUST be 30 as per Plan Technical Context for
+    stability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Constraint: Window size MUST be 30 as per Plan Technical Context for
+    stability.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T04:53:45Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 0
+  canonical: Reference to Theorem DB 1210.4347 and arXiv link 1210.4347 for DP-GMM
+  claim_id: c_afbb4beb
+  context: 'Phase 3: User Story 1 - T020 task description regarding hierarchical time-varying
+    prior constraint.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T15:25:01Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Simulation study SNR threshold for pipeline continuation is greater than
+    1
+  claim_id: c_a8f749b5
+  context: 'Phase 0: Ground Truth Simulation (FR-020, FR-021, FR-022) - T018 task
+    description regarding simulation study validation.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_study_SNR_threshold_for_pipeline_continuation_is
+  kind: magnitude
+  raw_text: 'Generate data/processed/results/simulation_snr.csv. Checkpoint: If SNR
+    > 1, proceed. If SNR <= 1, raise SystemExit(1) and write data/processed/results/snr_fail.lock
+    to halt the pipeline immediately.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:25:39Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'ADVI convergence exclusion criteria: ELBO delta greater than 0.01 for
+    10 iterations within 500 iterations'
+  claim_id: c_b1f024f5
+  context: 'Phase 3: User Story 1 - T024 task description regarding ADVI convergence
+    check.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ADVI_convergence_exclusion_criteria:_ELBO_delta_greater_than
+  kind: magnitude
+  raw_text: Implement logic to exclude non-convergent ADVI runs if ELBO delta > 0.01
+    for 10 iterations within 500 iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:26:03Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Correlation threshold between ADVI and MCMC alpha derivative is 0.9
+  claim_id: c_3e65899d
+  context: 'Phase 3: User Story 1 - T026 task description regarding MCMC robustness
+    check and validation criterion.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pass criterion: Correlation between ADVI and MCMC dot-alpha must be >=
+    0.9.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:26:29Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling triggered when anomaly count is less than 10
+  claim_id: c_72473d69
+  context: 'Phase 3: User Story 1 - T025 task description regarding bootstrap fallback
+    logic.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_triggered_when_anomaly_count_is_less_th
+  kind: magnitude
+  raw_text: Implement bootstrap resampling procedure for p-values and confidence intervals
+    when anomaly count <10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:27:03Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'Sliding window parameters: length 30, stride 1'
+  claim_id: c_12df8576
+  context: 'Phase 3: User Story 1 - T021 task description regarding windowing implementation
+    constraints.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sliding window extraction with length=30, stride=1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:27:36Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Fixed GMM component counts are 3, 5, and 10
+  claim_id: c_970d863c
+  context: 'Phase 4: User Story 2 - T031 task description regarding baseline GMM implementation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement fixed-component GMMs with k=3, 5, 10 for reconstruction error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:28:07Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Threshold sweep significance levels are 0.05, 0.01, and 0.1
+  claim_id: c_60086396
+  context: 'Phase 5: User Story 3 - T041 task description regarding threshold sensitivity
+    analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep cutoffs over significance thresholds 0.05, 0.01, 0.1 on normalized
+    reconstruction error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:28:27Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'GitHub Actions free-tier resource constraints: 2 CPU, 7 GB RAM, 6 hours
+    runtime'
+  claim_id: c_d4f3ac7c
+  context: 'Phase 6: User Story 4 - Goal description regarding resource constraint
+    validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate pipeline runs within GitHub Actions free-tier constraints (\u2264\
+    2 CPU, 7 GB RAM, 6 hours)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:28:31Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Runtime error raised if RAM exceeds 7 GB or runtime exceeds 6 hours
+  claim_id: c_18f3c371
+  context: 'Phase 6: User Story 4 - T049 task description regarding resource validation
+    logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If rss > 7 * 1024 * 1024 * 1024 OR runtime > 6 * 3600, raise RuntimeError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:28:35Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Dataset size minimum requirement is 1000 rows
+  claim_id: c_83abed42
+  context: 'Phase 7: Data Acquisition - T053a task description regarding dataset size
+    check.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If rows < 1000, raise ValueError (Dataset size insufficient).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:28:38Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Configuration file size limit is 2048 bytes
+  claim_id: c_9a54b492
+  context: 'Phase 8: Configuration and Filesystem Hygiene - T062 task description
+    regarding config size verification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify code/config.yaml size <2048 bytes using os.path.getsize().
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:28:42Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Test coverage requirement is 80 percent line coverage
+  claim_id: c_f3f5642c
+  context: 'Phase 9.5: External Verification - T109 task description regarding coverage
+    verification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Must achieve \u226580% line coverage."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:28:46Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Pytest coverage failure threshold is 80 percent
+  claim_id: c_13aaca6e
+  context: 'Phase 10: Critical Remediation - T114 task description regarding coverage
+    verification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute pytest --cov-fail-under=80.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:29:06Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Minimum observation count per dataset is 1000
+  claim_id: c_8b62e7a4
+  context: 'Phase 10: Critical Remediation - T116 task description regarding sample
+    size verification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All datasets must have \u22651000 observations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:29:09Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Sensitivity report CSV columns are threshold, fp_rate, fn_rate, instability_flag
+  claim_id: c_7f4474d5
+  context: 'Phase 5: User Story 3 - T041 task description regarding deliverable format.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_report_CSV_columns_are_threshold,_fp_rate,_fn_ra
+  kind: entity_fact
+  raw_text: 'Generate data/processed/results/sensitivity_report.csv with columns:
+    threshold, fp_rate, fn_rate, instability_flag.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:29:33Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: MCMC validation CSV contains deviation metrics
+  claim_id: c_9cb1d225
+  context: 'Phase 3: User Story 1 - T026 task description regarding deliverable format.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MCMC_validation_CSV_contains_deviation_metrics
+  kind: entity_fact
+  raw_text: Generate data/processed/results/mcmc_validation.csv with deviation metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:30:01Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Sample size report confirms minimum 1000 observations
+  claim_id: c_5178052e
+  context: 'Phase 7: Data Acquisition - T053a task description regarding deliverable.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate data/sample_size_report.md confirming \u22651000 observations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:30:05Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: DP-GMM implementation uses PyMC 4 and ADVI
+  claim_id: c_1bb22f89
+  context: 'Phase 3: User Story 1 - T020 task description regarding model implementation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement stick-breaking DP-GMM using PyMC 4 and ADVI variational inference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:30:20Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Checksums utility records and verifies data artifacts in state file
+  claim_id: c_b75f65f3
+  context: 'Phase 2: Foundational - T011 task description regarding utility implementation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Checksums_utility_records_and_verifies_data_artifacts_in_sta
+  kind: entity_fact
+  raw_text: Create code/src/utils/checksums.py for recording and verifying data artifacts
+    in state file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:30:35Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Data dictionary documents UCI Electricity and Traffic datasets
+  claim_id: c_f831933c
+  context: 'Phase 2: Foundational - T012 task description regarding data documentation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_dictionary_documents_UCI_Electricity_and_Traffic_datase
+  kind: entity_fact
+  raw_text: Create data/data-dictionary.md documenting UCI dataset sources, licenses,
+    and access dates (Electricity, Traffic).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:30:57Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: SNR check threshold 1 for pipeline continuation or halt
+  claim_id: c_e0c9ef40
+  context: 'Phase 0: Ground Truth Simulation task T018 implementing simulation study
+    to verify dot-alpha SNR under null hypothesis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/processed/results/simulation_snr.csv. Checkpoint: If SNR
+    > 1, proceed. If SNR <= 1, raise SystemExit(1) and write data/processed/results/snr_fail.lock
+    to halt the pipeline immediately.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:34:31Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: ADVI convergence exclusion criteria ELBO delta 0.01 for 10 iterations
+    within 500
+  claim_id: c_fb3cdcb9
+  context: 'Phase 3: User Story 1 task T024 implementing exclusion logic for non-convergent
+    ADVI runs per FR-009.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude non-convergent ADVI runs if ELBO delta > 0.01 for 10 iterations
+    within 500 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:34:35Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling triggered when anomaly count less than 10
+  claim_id: c_f04101d8
+  context: 'Phase 3: User Story 1 task T025 implementing bootstrap resampling procedure
+    per FR-011, FR-012.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_triggered_when_anomaly_count_less_than
+  kind: magnitude
+  raw_text: Implement bootstrap resampling procedure for p-values and confidence intervals
+    when anomaly count <10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:34:41Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: ADVI MCMC correlation threshold 0.9 for validation
+  claim_id: c_4b288cf0
+  context: 'Phase 3: User Story 1 task T026 implementing MCMC robustness check to
+    validate dot-alpha is not an ADVI artifact.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pass criterion: Correlation between ADVI and MCMC dot-alpha must be >=
+    0.9. If < 0.9, log warning and flag as ''Unvalidated Signal''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:35:04Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Sliding window length 30 and stride 1
+  claim_id: c_ae8dd97c
+  context: 'Phase 3: User Story 1 task T021 implementing sliding window extraction
+    with constraint that window size MUST be 30.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sliding window extraction with length=30 and stride=1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:35:07Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Fixed GMM components k=3, 5, 10
+  claim_id: c_4c3c98da
+  context: 'Phase 4: User Story 2 task T031 creating code/src/baselines/gmm_fixed.py
+    implementing fixed-component GMMs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement fixed-component GMMs with k=3, 5, 10 for reconstruction error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:35:11Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Threshold sweep values 0.05, 0.01, 0.1
+  claim_id: c_5703b247
+  context: 'Phase 5: User Story 3 task T041 implementing threshold sensitivity analysis
+    sweep.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep cutoffs over significance thresholds 0.05, 0.01, 0.1 on normalized
+    reconstruction error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:35:15Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Dataset size minimum 1000 rows
+  claim_id: c_43b252a4
+  context: 'Phase 7: Data Acquisition task T053a implementing dataset size check with
+    logic to raise error if rows < 1000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If rows < 1000, raise ValueError('Dataset size insufficient (<1000 rows)').
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:35:19Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: GitHub Actions free tier constraints 2 CPU, 7 GB RAM, 6 hours
+  claim_id: c_e341b9c6
+  context: 'Phase 6: User Story 4 goal to validate pipeline runs within GitHub Actions
+    free-tier constraints.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate pipeline runs within GitHub Actions free-tier constraints (\u2264\
+    2 CPU, 7 GB RAM, 6 hours)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:35:22Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Resource limit exceeded if RSS greater than 7 GB or runtime greater than
+    6 hours
+  claim_id: c_941e2ed4
+  context: 'Phase 6: User Story 4 task T049 implementing resource validation logic
+    for anomaly detector.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Resource_limit_exceeded_if_RSS_greater_than_7_GB_or_runtime
+  kind: magnitude
+  raw_text: If rss > 7 * 1024 * 1024 * 1024 OR runtime > 6 * 3600, raise RuntimeError('Resource
+    limit exceeded').
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:35:38Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Config file size limit 2048 bytes
+  claim_id: c_c4d51078
+  context: 'Phase 8: Configuration and Filesystem Hygiene task T062 verifying config.yaml
+    size constraint.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify code/config.yaml size <2048 bytes using os.path.getsize(); fail
+    if exceeded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:35:42Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Test coverage requirement 80 percent
+  claim_id: c_ec09632b
+  context: 'Phase 9.5: External Verification task T109 running pytest with coverage
+    report constraint.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Must achieve \u226580% line coverage in test coverage verification."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:35:46Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: MCMC validation output file mcmc_validation.csv
+  claim_id: c_7192e6b6
+  context: 'Phase 3: User Story 1 task T026 deliverable for MCMC robustness check.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/MCMC_validation_output_file_mcmc_validation.csv
+  kind: entity_fact
+  raw_text: Generate data/processed/results/mcmc_validation.csv with deviation metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:35:50Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Sensitivity report output file with threshold fp_rate fn_rate instability_flag
+    columns
+  claim_id: c_d0e4e91d
+  context: 'Phase 5: User Story 3 task T041 deliverable for threshold sweep.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_report_output_file_with_threshold_fp_rate_fn_rat
+  kind: entity_fact
+  raw_text: 'Generate data/processed/results/sensitivity_report.csv with columns:
+    threshold, fp_rate, fn_rate, instability_flag.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:35:55Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Splits manifest JSON keys train_indices val_indices test_indices split_ratios
+    seed
+  claim_id: c_088e335b
+  context: 'Phase 5: User Story 3 task T042 deliverable for data splitting.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Splits_manifest_JSON_keys_train_indices_val_indices_test_ind
+  kind: entity_fact
+  raw_text: 'Generate data/processed/results/splits_manifest.json containing keys:
+    train_indices, val_indices, test_indices, split_ratios, seed.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:36:14Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Sample size report confirming 1000 observations
+  claim_id: c_a16fb5b2
+  context: 'Phase 7: Data Acquisition task T053a deliverable confirming dataset size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Generate data/sample_size_report.md confirming \u22651000 observations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:36:18Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Resource validation report with peak RAM and runtime metrics
+  claim_id: c_2ad0d113
+  context: 'Phase 6: User Story 4 task T049 deliverable for resource validation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Resource_validation_report_with_peak_RAM_and_runtime_metrics
+  kind: entity_fact
+  raw_text: Generate data/processed/results/resource_validation_report.md with peak
+    RAM and runtime metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:36:38Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Simulation validation CSV with SNR metrics
+  claim_id: c_67232aac
+  context: 'Phase 9: Reporting and Compliance task T089 deliverable.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/processed/results/simulation_validation.csv with SNR metrics
+    from Phase 0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:36:57Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Posterior trajectory CSV with dot-alpha and weight variance
+  claim_id: c_83bcbf1b
+  context: 'Phase 9: Reporting and Compliance task T090 deliverable.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Posterior_trajectory_CSV_with_dot-alpha_and_weight_variance
+  kind: entity_fact
+  raw_text: Generate data/processed/results/posterior_trajectory.csv with dot-alpha
+    and weight variance trajectories.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:37:16Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Statistical report CSV with KS tests Wilcoxon tests bootstrap p-values
+  claim_id: c_08627075
+  context: 'Phase 9: Reporting and Compliance task T091 deliverable.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_report_CSV_with_KS_tests_Wilcoxon_tests_bootstra
+  kind: entity_fact
+  raw_text: Generate data/processed/results/statistical_report.csv with KS tests,
+    Wilcoxon tests, bootstrap p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:37:34Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Sensitivity report markdown with threshold sweep results and instability
+    flags
+  claim_id: c_2b790667
+  context: 'Phase 9: Reporting and Compliance task T092 deliverable.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_report_markdown_with_threshold_sweep_results_and
+  kind: entity_fact
+  raw_text: Generate data/processed/results/sensitivity_report.md with threshold sweep
+    results and instability flags.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:37:55Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: State YAML file with artifact hashes and dataset checksums
+  claim_id: c_54d71aa1
+  context: 'Phase 9: Reporting and Compliance task T094 deliverable.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml
+    with all artifact hashes and dataset checksums.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:38:08Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Final compliance report summarizing Phase 9.5 and Phase 10 results
+  claim_id: c_be61eba2
+  context: 'Phase 10: Critical Remediation task T118 deliverable.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/processed/results/final_compliance_report.md summarizing
+    all Phase 9.5 and Phase 10 verification results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:38:27Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Search keywords for real-world datasets NAB PhysioNet regime shift
+  claim_id: c_3455b584
+  context: 'Phase 7: Data Acquisition task T052b executing mandatory search procedure.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Search_keywords_for_real-world_datasets_NAB_PhysioNet_regime
+  kind: entity_fact
+  raw_text: 'Search Keywords: ''NAB anomaly detection ground truth'', ''PhysioNet
+    MIT-BIH arrhythmia ground truth'', ''regime shift time series''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:38:47Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Dataset sources NAB PhysioNet UCI
+  claim_id: c_84e4206b
+  context: 'Phase 7: Data Acquisition task T052b listing search sources.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_sources_NAB_PhysioNet_UCI
+  kind: entity_fact
+  raw_text: 'Sources: NAB, PhysioNet (Primary), UCI (Fallback).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:39:12Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Window size constraint 30 for stability
+  claim_id: c_ed140a4e
+  context: 'Phase 3: User Story 1 task T021 constraint on sliding window length.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Constraint: Window size MUST be 30 as per Plan Technical Context for
+    stability.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:39:33Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Exclude synthetic datasets from real-world fetch
+  claim_id: c_4c959b44
+  context: 'Phase 7: Data Acquisition task T052 constraint on dataset fetching.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_synthetic_datasets_from_real-world_fetch
+  kind: entity_fact
+  raw_text: 'Constraint: Do NOT fetch synthetic datasets (e.g., Synthetic Control
+    Chart) as ''real-world''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:40:06Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Threshold selection on validation set application on test set
+  claim_id: c_23a3bbca
+  context: 'Phase 5: User Story 3 task T042 constraint on data splitting and threshold
+    application.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Threshold_selection_on_validation_set_application_on_test_se
+  kind: entity_fact
+  raw_text: 'Constraint: Select threshold on validation set, apply to held-out test
+    set.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:40:25Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Bonferroni correction only for threshold-swept outcomes
+  claim_id: c_cccfc903
+  context: 'Phase 5: User Story 3 task T043 constraint on Bonferroni correction application.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bonferroni_correction_only_for_threshold-swept_outcomes
+  kind: entity_fact
+  raw_text: 'Constraint: Do NOT apply generically; only when threshold-swept outcomes
+    are used.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:41:01Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Physical cleanup command must return empty output
+  claim_id: c_f325a472
+  context: 'Phase 9.5: External Verification task T104 verification constraint for
+    PEMS-SF file removal.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Physical_cleanup_command_must_return_empty_output
+  kind: entity_fact
+  raw_text: 'Constraint: Command must return empty output. Assert: output.strip()
+    == ''''.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:41:22Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Config file size output must be less than 2048 bytes
+  claim_id: c_96de40c2
+  context: 'Phase 9.5: External Verification task T107 verification constraint for
+    config migration.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Config_file_size_output_must_be_less_than_2048_bytes
+  kind: magnitude
+  raw_text: 'Constraint: Output must be <2048.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:41:43Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: All datasets minimum 1000 observations
+  claim_id: c_f729dd92
+  context: 'Phase 10: Critical Remediation task T116 verification constraint for sample
+    size.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Constraint: All datasets must have \u22651000 observations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:41:46Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: All checksums must match with no mismatches
+  claim_id: c_5e0ec3f5
+  context: 'Phase 10: Critical Remediation task T117 verification constraint for checksum
+    verification.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_checksums_must_match_with_no_mismatches
+  kind: entity_fact
+  raw_text: 'Constraint: All checksums must match; no mismatches allowed.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:42:08Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Project advancement to analyzed stage conditional on final acceptance
+  claim_id: c_450f7187
+  context: 'Phase 10: Critical Remediation task T119 verification constraint for final
+    acceptance.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_advancement_to_analyzed_stage_conditional_on_final_a
+  kind: entity_fact
+  raw_text: 'Constraint: Project cannot advance to ''analyzed'' stage until this passes.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:42:30Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: No Python files or subdirectories at code root
+  claim_id: c_45c9b86b
+  context: 'Phase 10: Critical Remediation task T113 verification constraint for source
+    relocation.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_Python_files_or_subdirectories_at_code_root
+  kind: entity_fact
+  raw_text: 'Constraint: No .py files or subdirectories at code/ root level.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:42:52Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Only processed results directory should exist
+  claim_id: c_a907dcab
+  context: 'Phase 10: Critical Remediation task T112 verification constraint for results
+    directory migration.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Only_processed_results_directory_should_exist
+  kind: entity_fact
+  raw_text: 'Constraint: Only ''processed/results'' should appear; no standalone ''results''
+    directory.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:43:11Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: No raw directory and no pems files
+  claim_id: c_0160c11f
+  context: 'Phase 10: Critical Remediation task T111 verification constraint for data
+    cleanup.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/No_raw_directory_and_no_pems_files
+  kind: entity_fact
+  raw_text: 'Constraint: ''raw/'' directory must not exist; no ''pems'' files must
+    exist.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:43:30Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Config schema validation must exit 0 with validation passed
+  claim_id: c_35cc90db
+  context: 'Phase 10: Critical Remediation task T115 verification constraint for schema
+    validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Constraint: Must exit 0 with ''Validation passed''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:43:49Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Config migration output must be less than 2048 bytes
+  claim_id: c_6ae2de8c
+  context: 'Phase 10: Critical Remediation task T110 verification constraint for forced
+    config migration.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Config_migration_output_must_be_less_than_2048_bytes
+  kind: magnitude
+  raw_text: 'Constraint: Output MUST be <2048 bytes.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:44:14Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Verification outputs must be captured in report files
+  claim_id: c_ecd17291
+  context: Notes section listing critical requirements for verification outputs.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verification_outputs_must_be_captured_in_report_files
+  kind: entity_fact
+  raw_text: 'Constraint: All verification outputs (ls, find, stat, grep) MUST be captured
+    in report files.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T15:44:50Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: simulation SNR threshold > 1 to proceed or halt pipeline
+  claim_id: c_a5a3373a
+  context: 'Phase 0: Ground Truth Simulation task T018 implementing simulation study
+    to verify dot-alpha SNR under null hypothesis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/processed/results/simulation_snr.csv. Checkpoint: If SNR
+    > 1, proceed. If SNR <= 1, raise SystemExit(1) and write data/processed/results/snr_fail.lock
+    to halt the pipeline immediately'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T07:22:49Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: bootstrap resampling triggered when anomaly count is less than 10
+  claim_id: c_1561c64a
+  context: 'Phase 2.5: Test First, task T017 unit test for bootstrap resampling logic.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_triggered_when_anomaly_count_is_less_th
+  kind: magnitude
+  raw_text: Implement bootstrap resampling logic when anomaly count < 10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T07:23:50Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: sliding window size fixed at 30
+  claim_id: c_131ee4d4
+  context: 'Phase 3: User Story 1, task T021 implementing sliding window extraction
+    with length=30, stride=1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Window size MUST be 30
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T07:24:29Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'ADVI non-convergence exclusion criteria: ELBO delta > 0.01 for 10 iterations
+    within 500 iterations'
+  claim_id: c_60720660
+  context: 'Phase 3: User Story 1, task T024 implementing exclusion logic for non-convergent
+    ADVI runs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude non-convergent ADVI runs if ELBO delta > 0.01 for 10 iterations
+    within 500 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T07:24:34Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: correlation between ADVI and MCMC derivative must be at least 0.9
+  claim_id: c_737ad491
+  context: 'Phase 3: User Story 1, task T026 MCMC robustness check with pass criterion
+    for correlation.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_between_ADVI_and_MCMC_derivative_must_be_at_leas
+  kind: magnitude
+  raw_text: Correlation between ADVI and MCMC dot-alpha must be >= 0.9
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T07:25:21Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: fixed-component GMMs implemented with k values of 3, 5, and 10
+  claim_id: c_f04c5dbb
+  context: 'Phase 4: User Story 2, task T031 creating fixed-component GMMs for reconstruction
+    error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement fixed-component GMMs with k=3, 5, 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T07:26:10Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: threshold sensitivity sweep over significance levels 0.05, 0.01, and
+    0.1
+  claim_id: c_263ecec0
+  context: 'Phase 5: User Story 3, task T041 implementing threshold sensitivity analysis.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep cutoffs over significance thresholds 0.05, 0.01, 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T07:26:40Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'pipeline resource constraints: 2 CPU, 7 GB RAM, 6 hours runtime'
+  claim_id: c_5b4600a0
+  context: 'Phase 6: User Story 4 goal to validate pipeline runs within GitHub Actions
+    free-tier constraints.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pipeline runs within GitHub Actions free-tier constraints (<= 2 CPU, 7
+    GB RAM, 6 hours)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T07:27:13Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'resource failure condition: RSS exceeds 7 GB or runtime exceeds 6 hours'
+  claim_id: c_b22cbddf
+  context: 'Phase 6: User Story 4, task T049 implementing resource validation logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If rss > 7 * 1024 * 1024 * 1024 OR runtime > 6 * 3600, raise RuntimeError
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T07:27:17Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: dataset size validation requires at least 1000 rows
+  claim_id: c_2cc659ad
+  context: 'Phase 7: Data Acquisition, task T053a implementing dataset size check.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_validation_requires_at_least_1000_rows
+  kind: magnitude
+  raw_text: If rows < 1000, raise ValueError
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T07:28:05Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: configuration file size must be less than 2048 bytes
+  claim_id: c_e558d60d
+  context: 'Phase 8: Configuration and Filesystem Hygiene, task T062 verifying config
+    size.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Configuration_file_size_must_be_less_than_2048_bytes
+  kind: magnitude
+  raw_text: Verify config.yaml size < 2048 bytes
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T07:28:51Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: test coverage requirement of at least 80 percent
+  claim_id: c_e2f5d59d
+  context: 'Phase 9.5: External Verification, task T109 coverage verification constraint.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Test_coverage_requirement_of_at_least_80_percent
+  kind: magnitude
+  raw_text: Must achieve >= 80% line coverage
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T07:29:26Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: pytest coverage failure threshold set to 80
+  claim_id: c_c9f79823
+  context: 'Phase 10: Critical Remediation, task T114 coverage verification command.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute pytest --cov-fail-under=80
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T07:30:04Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 0
+  canonical: Theorem DB reference 1210.4347
+  claim_id: c_6a651d43
+  context: 'Create `code/src/models/dpgmm.py` implementing stick-breaking DP-GMM using
+    PyMC 4 and ADVI variational inference. **Constraint**: (Theorem DB: 1210.4347,
+    https://arxiv.org/abs/1210.4347) AND a hierarchical time-varying prior ($\alpha_t
+    \sim \text{Normal}(\alpha_{t-1}, \sigma)$) to ensure nonparametric behavior and
+    local signal validity (FR-002).'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-22T07:25:59Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate MCMC validation CSV with deviation metrics
+  claim_id: c_1495dc87
+  context: 'Implement MCMC (NUTS) robustness check on a specific set of windows selected
+    by ground-truth injection timestamps (Equal numbers of pre-anomaly and anomaly
+    samples, plus a larger set of transition samples) to validate $\dot{\alpha}$ is
+    not an ADVI artifact (FR-018). **Deliverable**: Generate `data/processed/results/mcmc_validation.csv`
+    with deviation metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_MCMC_validation_CSV_with_deviation_metrics
+  kind: entity_fact
+  raw_text: Generate data/processed/results/mcmc_validation.csv with deviation metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T07:26:46Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Correlation between ADVI and MCMC alpha derivative must be at least 0.9
+  claim_id: c_2cdc89ff
+  context: 'Implement MCMC (NUTS) robustness check on a specific set of windows selected
+    by ground-truth injection timestamps (Equal numbers of pre-anomaly and anomaly
+    samples, plus a larger set of transition samples) to validate $\dot{\alpha}$ is
+    not an ADVI artifact (FR-018). **Deliverable**: Generate `data/processed/results/mcmc_validation.csv`
+    with deviation metrics. **Constraint**: **Pass criterion**: Correlation between
+    ADVI and MCMC $\dot{\alpha}$ must be >= 0.9. If < 0.9, log warning and flag as
+    ''Unvalidated Signal''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_between_ADVI_and_MCMC_alpha_derivative_must_be_a
+  kind: magnitude
+  raw_text: 'Pass criterion: Correlation between ADVI and MCMC $\dot{\alpha}$ must
+    be >= 0.9.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T07:27:45Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate sensitivity report CSV with threshold, fp_rate, fn_rate, and
+    instability_flag columns
+  claim_id: c_7f60fa7c
+  context: 'Implement `code/src/evaluation/threshold_sweep.py` to sweep cutoffs over
+    significance thresholds 0.05, 0.01, 0.1 on normalized reconstruction error (FR-007).
+    **Deliverable**: Generate `data/processed/results/sensitivity_report.csv` with
+    columns: `threshold`, `fp_rate`, `fn_rate`, `instability_flag`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_sensitivity_report_CSV_with_threshold,_fp_rate,_fn
+  kind: entity_fact
+  raw_text: 'Generate data/processed/results/sensitivity_report.csv with columns:
+    threshold, fp_rate, fn_rate, instability_flag.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T07:28:30Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate splits manifest JSON with train_indices, val_indices, test_indices,
+    split_ratios, and seed keys
+  claim_id: c_fc0b9040
+  context: 'Implement `code/src/evaluation/data_splitter.py` to split data into train/validation/test
+    sets using a time-series aware split with a majority allocation to the training
+    set. **Constraint**: Select threshold on validation set, apply to held-out test
+    set (FR-019). **Deliverable**: Generate `data/processed/results/splits_manifest.json`
+    containing keys: `train_indices`, `val_indices`, `test_indices`, `split_ratios`,
+    `seed`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_splits_manifest_JSON_with_train_indices,_val_indice
+  kind: entity_fact
+  raw_text: 'Generate data/processed/results/splits_manifest.json containing keys:
+    train_indices, val_indices, test_indices, split_ratios, seed.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T07:29:17Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate sample size report confirming at least 1000 observations
+  claim_id: c_d9978f94
+  context: "Implement `code/src/utils/check_dataset_size.py` to count rows in fetched\
+    \ datasets. **Logic**: If `rows < 1000`, **raise `ValueError('Dataset size insufficient\
+    \ (<1000 rows)')`** (FR-001). **Deliverable**: Generate `data/sample_size_report.md`\
+    \ confirming \u22651000 observations."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_sample_size_report_confirming_at_least_1000_observa
+  kind: magnitude
+  raw_text: "Generate data/sample_size_report.md confirming \u22651000 observations."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T07:30:31Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Raise RuntimeError if peak RAM exceeds 7 GB or runtime exceeds 6 hours
+  claim_id: c_7946e790
+  context: 'Implement `code/src/services/anomaly_detector.py` resource validation
+    logic: **Logic**: Measure peak RAM (`rss`) and total runtime. **Failure**: If
+    `rss > 7 * 1024 * 1024 * 1024` OR `runtime > 6 * 3600`, **raise `RuntimeError(''Resource
+    limit exceeded'')`**. **Deliverable**: Generate `data/processed/results/resource_validation_report.md`
+    with peak RAM and runtime metrics.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If rss > 7 * 1024 * 1024 * 1024 OR runtime > 6 * 3600, raise RuntimeError('Resource
+    limit exceeded').
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T07:30:36Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate resource validation report with peak RAM and runtime metrics
+  claim_id: c_ca9f5ff4
+  context: 'Implement `code/src/services/anomaly_detector.py` resource validation
+    logic: **Logic**: Measure peak RAM (`rss`) and total runtime. **Failure**: If
+    `rss > 7 * 1024 * 1024 * 1024` OR `runtime > 6 * 3600`, **raise `RuntimeError(''Resource
+    limit exceeded'')`**. **Deliverable**: Generate `data/processed/results/resource_validation_report.md`
+    with peak RAM and runtime metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_resource_validation_report_with_peak_RAM_and_runtim
+  kind: entity_fact
+  raw_text: Generate data/processed/results/resource_validation_report.md with peak
+    RAM and runtime metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T07:31:28Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate validation deferred report with search_query, result_count,
+    status, and reason fields
+  claim_id: c_008a1e56
+  context: 'Execute mandatory search procedure for real-world datasets with labeled
+    regime shifts (FR-017). **Search Keywords**: ''NAB anomaly detection ground truth'',
+    ''PhysioNet MIT-BIH arrhythmia ground truth'', ''regime shift time series''. **Sources**:
+    NAB, PhysioNet (Primary), UCI (Fallback). **Deliverable**: If no verified source
+    is found, generate `data/processed/results/validation_deferred.md` with exact
+    fields: `search_query`, `result_count`, `status: DEFERRED`, `reason: FR-017b`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/processed/results/validation_deferred.md with exact fields:
+    search_query, result_count, status: DEFERRED, reason: FR-017b.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T07:32:24Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate posterior trajectory CSV with alpha derivative and weight variance
+    trajectories
+  claim_id: c_44b51ba9
+  context: Generate `data/processed/results/posterior_trajectory.csv` with $\dot{\alpha}$
+    and weight variance trajectories
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_posterior_trajectory_CSV_with_alpha_derivative_and
+  kind: entity_fact
+  raw_text: Generate data/processed/results/posterior_trajectory.csv with $\dot{\alpha}$
+    and weight variance trajectories.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T07:33:23Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate statistical report CSV with KS tests, Wilcoxon tests, and bootstrap
+    p-values
+  claim_id: c_e162c1d4
+  context: Generate `data/processed/results/statistical_report.csv` with KS tests,
+    Wilcoxon tests, bootstrap p-values
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_statistical_report_CSV_with_KS_tests,_Wilcoxon_test
+  kind: entity_fact
+  raw_text: Generate data/processed/results/statistical_report.csv with KS tests,
+    Wilcoxon tests, bootstrap p-values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T07:34:20Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate sensitivity report markdown with threshold sweep results and
+    instability flags
+  claim_id: c_6fbf3854
+  context: Generate `data/processed/results/sensitivity_report.md` with threshold
+    sweep results and instability flags
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_sensitivity_report_markdown_with_threshold_sweep_re
+  kind: entity_fact
+  raw_text: Generate data/processed/results/sensitivity_report.md with threshold sweep
+    results and instability flags.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T07:35:35Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate final report with methodology, results, fallback status, and
+    deferred note
+  claim_id: c_aea02f9e
+  context: Generate `data/processed/results/final_report.md` including methodology,
+    results, fallback status, and 'Deferred by Design' note if real-world data search
+    fails (FR-017b)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/processed/results/final_report.md including methodology,
+    results, fallback status, and 'Deferred by Design' note if real-world data search
+    fails (FR-017b).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T07:36:22Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Must achieve at least 80 percent line coverage
+  claim_id: c_abee5eac
+  context: "Run `pytest --cov=code/src --cov-report=term-missing` and capture output\
+    \ in `code/tests/test_report.md`. **Constraint**: Must achieve \u226580% line\
+    \ coverage. <!-- FAILED: unspecified -->"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Must_achieve_at_least_80_percent_line_coverage
+  kind: magnitude
+  raw_text: "Must achieve \u226580% line coverage."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T07:37:22Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Config file size must be less than 2048 bytes
+  claim_id: c_67c05ed2
+  context: 'Execute `code/src/utils/migrate_config.py` to move all derived statistics
+    from `code/config.yaml` to `state/projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete.yaml`.
+    **Verification**: Run `stat -c%s code/config.yaml` and capture output in `code/tests/config_compliance_report.md`.
+    **Constraint**: Output must be <2048.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Config_file_size_must_be_less_than_2048_bytes
+  kind: magnitude
+  raw_text: Output must be <2048.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T07:38:40Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: All datasets must have at least 1000 observations
+  claim_id: c_b0e4ff83
+  context: "Execute `python code/src/utils/check_dataset_size.py` to count rows in\
+    \ `electricity.csv`, `traffic.csv`, `synthetic_control.csv`. **Verification**:\
+    \ Capture output in `data/sample_size_report.md`. **Constraint**: All datasets\
+    \ must have \u22651000 observations."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/All_datasets_must_have_at_least_1000_observations
+  kind: magnitude
+  raw_text: "All datasets must have \u22651000 observations."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T07:40:14Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate final compliance report summarizing Phase 9.5 and Phase 10 verification
+    results
+  claim_id: c_88cf5773
+  context: Generate `data/processed/results/final_compliance_report.md` summarizing
+    all Phase 9.5 and Phase 10 verification results, including shell command outputs,
+    file sizes, and pass/fail status for each requirement.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/processed/results/final_compliance_report.md summarizing
+    all Phase 9.5 and Phase 10 verification results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-22T07:41:11Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 0
+  canonical: Cite arXiv paper 1210.4347 for stick-breaking DP-GMM
+  claim_id: c_f4d48b37
+  context: 'Create code/src/models/dpgmm.py implementing stick-breaking DP-GMM using
+    PyMC 4 and ADVI variational inference. Constraint: (Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347)
+    AND a hierarchical time-varying prior...'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Theorem DB: 1210.4347, https://arxiv.org/abs/1210.4347'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-10T11:45:38Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate simulation_snr.csv with SNR metrics
+  claim_id: c_b7c052fa
+  context: 'Create code/src/simulation/ground_truth.py implementing simulation study
+    to verify dot{alpha} SNR under null hypothesis (FR-020). Deliverable: Generate
+    data/processed/results/simulation_snr.csv.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_simulation_snr.csv_with_SNR_metrics
+  kind: entity_fact
+  raw_text: Generate data/processed/results/simulation_snr.csv.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:46:56Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: SNR threshold for pipeline continuation is 1
+  claim_id: c_ec33d6d0
+  context: 'Checkpoint: If SNR > 1, proceed. If SNR <= 1, raise SystemExit(1) and
+    write data/processed/results/snr_fail.lock to halt the pipeline immediately (per
+    US1 Acceptance Scenario 2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If SNR > 1, proceed. If SNR <= 1, raise SystemExit(1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:47:47Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate mcmc_validation.csv with MCMC validation metrics
+  claim_id: c_4d6ffd67
+  context: 'Implement MCMC (NUTS) robustness check... Deliverable: Generate data/processed/results/mcmc_validation.csv
+    with deviation metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_mcmc_validation.csv_with_MCMC_validation_metrics
+  kind: entity_fact
+  raw_text: Generate data/processed/results/mcmc_validation.csv with deviation metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:48:18Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: ADVI and MCMC dot{alpha} correlation threshold is 0.9
+  claim_id: c_8fe4d175
+  context: 'Constraint: Pass criterion: Correlation between ADVI and MCMC dot{alpha}
+    must be >= 0.9. If < 0.9, log warning and flag as ''Unvalidated Signal''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Correlation between ADVI and MCMC dot{alpha} must be >= 0.9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:48:47Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate sensitivity_report.csv with specified columns
+  claim_id: c_714353bf
+  context: 'Implement code/src/evaluation/threshold_sweep.py to sweep cutoffs... Deliverable:
+    Generate data/processed/results/sensitivity_report.csv with columns: threshold,
+    fp_rate, fn_rate, instability_flag.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_sensitivity_report.csv_with_specified_columns
+  kind: entity_fact
+  raw_text: 'Generate data/processed/results/sensitivity_report.csv with columns:
+    threshold, fp_rate, fn_rate, instability_flag.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:49:13Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate splits_manifest.json with specified keys
+  claim_id: c_ab0ff025
+  context: 'Implement code/src/data/data_splitter.py... Deliverable: Generate data/processed/results/splits_manifest.json
+    containing keys: train_indices, val_indices, test_indices, split_ratios, seed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_splits_manifest.json_with_specified_keys
+  kind: entity_fact
+  raw_text: 'Generate data/processed/results/splits_manifest.json containing keys:
+    train_indices, val_indices, test_indices, split_ratios, seed.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:49:42Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Resource limits are 7 GB RAM and 6 hours runtime
+  claim_id: c_427ae66a
+  context: 'Logic: Measure peak RAM (rss) and total runtime. Failure: If rss > 7 *
+    1024 * 1024 * 1024 OR runtime > 6 * 3600, raise RuntimeError(''Resource limit
+    exceeded'').'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If rss > 7 * 1024 * 1024 * 1024 OR runtime > 6 * 3600, raise RuntimeError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:49:46Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Dataset minimum row count is 1000
+  claim_id: c_6e2466eb
+  context: 'Logic: If rows < 1000, raise ValueError(''Dataset size insufficient (<1000
+    rows)'') (FR-001).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If rows < 1000, raise ValueError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:49:50Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Generate sample_size_report.md confirming 1000 observations
+  claim_id: c_04b750e5
+  context: 'Deliverable: Generate data/sample_size_report.md confirming >= 1000 observations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate data/sample_size_report.md confirming >= 1000 observations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:50:37Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Test coverage requirement is 80%
+  claim_id: c_687f02d6
+  context: 'Constraint: Must achieve >= 80% line coverage.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must achieve >= 80% line coverage.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:50:41Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Simulation SNR threshold of 1 for pipeline continuation
+  claim_id: c_42cbd33f
+  context: 'Task T018 implements simulation study to verify SNR under null hypothesis.
+    Deliverable: Generate data/processed/results/simulation_snr.csv. Checkpoint: If
+    SNR > 1, proceed. If SNR <= 1, raise SystemExit(1) and write data/processed/results/snr_fail.lock
+    to halt the pipeline immediately (per US1 Acceptance Scenario 2).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/processed/results/simulation_snr.csv. Checkpoint: If SNR
+    > 1, proceed. If SNR <= 1, raise SystemExit(1) and write data/processed/results/snr_fail.lock
+    to halt the pipeline immediately'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:53:23Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'ADVI convergence exclusion criteria: ELBO delta 0.01 for 10 iterations
+    within 500'
+  claim_id: c_cede4f68
+  context: Task T024 Implement exclusion logic for non-convergent ADVI runs (Exclude
+    non-convergent ADVI runs if ELBO delta > 0.01 for 10 iterations within 500 iterations.)
+    per FR-009
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude non-convergent ADVI runs if ELBO delta > 0.01 for 10 iterations
+    within 500 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:53:27Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: ADVI and MCMC dot-alpha correlation threshold of 0.9
+  claim_id: c_d45dd7f1
+  context: 'Task T026 Implement MCMC (NUTS) robustness check... Deliverable: Generate
+    data/processed/results/mcmc_validation.csv with deviation metrics. Constraint:
+    Pass criterion: Correlation between ADVI and MCMC dot-alpha must be >= 0.9. If
+    < 0.9, log warning and flag as Unvalidated Signal.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pass criterion: Correlation between ADVI and MCMC dot-alpha must be >=
+    0.9'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:53:59Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Bootstrap resampling triggered when anomaly count is less than 10
+  claim_id: c_9b5caf08
+  context: Task T025 Implement bootstrap resampling procedure for p-values and confidence
+    intervals when anomaly count <10 (FR-011, FR-012)
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_triggered_when_anomaly_count_is_less_th
+  kind: magnitude
+  raw_text: Implement bootstrap resampling procedure for p-values and confidence intervals
+    when anomaly count <10
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:54:34Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Sliding window length of 30 and stride of 1
+  claim_id: c_e81fc592
+  context: 'Task T021 Implement code/src/data/windowing.py for sliding window extraction
+    (length=30, stride=1) with normalization. Constraint: Window size MUST be 30 as
+    per Plan Technical Context for stability.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement sliding window extraction with length=30 and stride=1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:55:31Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Fixed-component GMMs with k values of 3, 5, and 10
+  claim_id: c_1aa742f6
+  context: Task T031 Create code/src/baselines/gmm_fixed.py implementing fixed-component
+    GMMs (k=3, 5, 10) for reconstruction error
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement fixed-component GMMs with k=3, 5, 10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:56:15Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Threshold sweep values of 0.05, 0.01, and 0.1
+  claim_id: c_ef66df7a
+  context: Task T041 Implement code/src/evaluation/threshold_sweep.py to sweep cutoffs
+    over significance thresholds 0.05, 0.01, 0.1 on normalized reconstruction error
+    (FR-007).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep cutoffs over significance thresholds 0.05, 0.01, 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:57:14Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Dataset size requirement of at least 1000 rows
+  claim_id: c_f61e171a
+  context: 'Task T053a Implement code/src/utils/check_dataset_size.py to count rows
+    in fetched datasets. Logic: If rows < 1000, raise ValueError(Dataset size insufficient
+    (<1000 rows)) (FR-001).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_requirement_of_at_least_1000_rows
+  kind: magnitude
+  raw_text: If rows < 1000, raise ValueError(Dataset size insufficient (<1000 rows))
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:58:09Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Config file size limit of 2048 bytes
+  claim_id: c_0d60398b
+  context: Task T062 Verify projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/code/config.yaml
+    size <2048 bytes using os.path.getsize(); fail if exceeded (FR-009).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify code/config.yaml size <2048 bytes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:58:13Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: 'Resource limits: 7 GB RAM and 6 hours runtime'
+  claim_id: c_b92abf28
+  context: 'Task T049 Implement code/src/services/anomaly_detector.py resource validation
+    logic: Logic: Measure peak RAM (rss) and total runtime. Failure: If rss > 7 *
+    1024 * 1024 * 1024 OR runtime > 6 * 3600, raise RuntimeError(Resource limit exceeded).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If rss > 7 * 1024 * 1024 * 1024 OR runtime > 6 * 3600, raise RuntimeError(Resource
+    limit exceeded)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:58:17Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Test coverage requirement of 80 percent
+  claim_id: c_cb9f9d63
+  context: 'Task T109 Coverage Verification: Run pytest --cov=code/src --cov-report=term-missing
+    and capture output in code/tests/test_report.md. Constraint: Must achieve >=80%
+    line coverage.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must achieve >=80% line coverage
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:58:20Z'
+- artifact_path: projects/PROJ-024-bayesian-nonparametrics-for-anomaly-dete/specs/001-bayesian-nonparametrics-for-anomaly-dete/tasks.md
+  attempts: 1
+  canonical: Dataset observation count requirement of 1000
+  claim_id: c_2aecd055
+  context: 'Task T116 Sample Size Verification: Execute python code/src/utils/check_dataset_size.py
+    to count rows in electricity.csv, traffic.csv, synthetic_control.csv. Verification:
+    Capture output in data/sample_size_report.md. Constraint: All datasets must have
+    >=1000 observations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All datasets must have >=1000 observations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-10T11:58:54Z'

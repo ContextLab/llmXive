@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-05T13:14:06.178968+00:00'
+issue_number: 1350
+project_id: PROJ-506-predicting-material-stiffness-from-micro

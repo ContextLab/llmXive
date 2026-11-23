@@ -1,134 +1,110 @@
-# Quickstart Guide: Atmospheric River Gravity Correlation
-
-This guide provides instructions for installing dependencies, obtaining data sources, running the analysis pipeline, and verifying expected outputs for the **Atmospheric River Gravity Correlation** project.
-
-## Prerequisites
-
-- Python 3.11 or higher
-- pip (Python package installer)
-- Git (for cloning the repository)
-- Internet connection (to fetch external datasets)
+# Atmospheric River Gravity Correlation - Quickstart Guide
 
 ## Installation
 
-1. **Navigate to the project root:**
+1. Clone the repository and navigate to the project directory:
  ```bash
  cd projects/PROJ-267-exploring-the-relationship-between-atmos
  ```
 
-2. **Create and activate a virtual environment (recommended):**
+2. Create a virtual environment and activate it:
  ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
+ python -m venv.venv
+ source.venv/bin/activate # On Windows:.venv\Scripts\activate
  ```
 
-3. **Install dependencies:**
+3. Install dependencies:
  ```bash
  pip install -r code/requirements.txt
  ```
- *Dependencies include: pandas, numpy, scipy, statsmodels, requests, matplotlib, seaborn, pyyaml, flake8.*
-
-4. **Verify citation integrity (Required before Phase 0):**
- Run the citation verification script to ensure all external references are valid and reachable per Constitution Principle II.
- ```bash
- python code/00_verify_citations.py
- ```
- *This script will exit with a non-zero status code if any URL is unreachable or if title-token overlap is below 0.7.*
 
 ## Data Sources
 
-The pipeline requires two primary external datasets. These are fetched automatically by the ingestion script, but manual inspection is available.
+This project uses two primary data sources:
 
-1. **GRACE-FO Mascon Solutions:**
- - **Source:** NASA JPL RL06 GRACE-FO Mascon Solutions
- - **Access:** Fetched via `requests` from the official NASA PO.DAAC API or direct FTP mirror.
- - **Local Storage:** `data/raw/grace-fo/`
- - **Format:** NetCDF/CSV (processed to monthly averages)
+- **GRACE-FO Mascon Solutions**: NASA's GRACE Follow-On mission data for gravitational potential anomalies.
+ - URL: Configured in `config/urls.yaml` (PO.DAAC CMR search API)
+ - Format: NetCDF files, processed to monthly CSVs
 
-2. **NOAA CPC Atmospheric River Catalog:**
- - **Source:** NOAA Climate Prediction Center (CPC)
- - **Access:** Fetched via HTTP from the NOAA CPC data archive.
- - **Local Storage:** `data/raw/noaa-ar/`
- - **Format:** CSV (Integrated Water Vapor Transport and AR event metadata)
+- **NOAA CPC Atmospheric River Catalog**: NOAA's catalog of atmospheric river events.
+ - URL: Configured in `config/urls.yaml` (NOAA ERDDAP endpoint)
+ - Format: CSV/JSON, aggregated to monthly intensity metrics
+
+**Note**: Ensure `config/urls.yaml` is populated with valid URLs before running the pipeline.
 
 ## Running the Pipeline
 
-Execute the scripts in the following order to reproduce the analysis.
+Execute the full analysis pipeline in order:
 
-### Step 1: Data Ingestion
-Fetches raw data from external sources and saves to `data/raw/`.
 ```bash
-python code/01_data_ingestion.py
-```
-*Expected Output:* Raw data files in `data/raw/grace-fo/` and `data/raw/noaa-ar/` with accompanying checksums.
+# 1. Verify citations and URLs
+python code/00_verify_citations.py
 
-### Step 2: Preprocessing
-Applies GRACE-FO corrections (degree-1, C20), Gaussian smoothing, and monthly aggregation.
-```bash
-python code/02_preprocessing.py
-```
-*Expected Output:* Preprocessed CSVs in `data/processed/` (intermediate files).
+# 2. Ingest raw data
+python code/01_data_ingestion_grace.py
+python code/01_data_ingestion_noaa.py
 
-### Step 3: Merge Output
-Merges GRACE-FO and NOAA AR data into a single time-series.
-```bash
-python code/03_merge_output.py
-```
-*Expected Output:* `data/processed/merged_monthly.csv`
+# 3. Preprocess data
+python code/02_preprocessing_grace.py
+python code/02_preprocessing_noaa.py
 
-### Step 4: Correlation Analysis
-Computes Pearson correlations with lag windows, bootstrap resampling, and autocorrelation correction.
-```bash
-python code/04_correlation.py
-python code/05_bootstrap_correction.py
-```
-*Expected Output:* Correlation metrics and bootstrap confidence intervals printed to console and saved to `data/processed/correlation_results.json`.
+# 4. Merge and validate datasets
+python code/02_preprocessing_merge.py
 
-### Step 5: Control Validation
-Compares target region correlations against control regions and validates signal against noise floor.
-```bash
-python code/06_control_validation.py
-```
-*Expected Output:* Validation report in `data/processed/control_validation_results.json`.
+# 5. Run correlation analysis
+python code/03_correlation_analysis.py
 
-### Step 6: Visualization & Reporting
-Generates diagnostic plots and the final sensitivity report.
-```bash
-python code/07_visualization_timeseries.py
-python code/08_visualization_scatter.py
-python code/09_visualization_spatial.py
-python code/10_sensitivity_report.py
+# 6. Generate visualizations
+python code/06_visualization_timeseries.py
+python code/07_visualization_scatter.py
+python code/08_visualization_spatial.py
+
+# 7. Generate sensitivity and bias reports
+python code/09_sensitivity_report.py
+python code/10_temporal_bias_analysis.py
+
+# 8. Validate frame of reference documentation
+python code/11_validate_frame_of_reference.py
 ```
-*Expected Output:*
-- `output/timeseries_overlay.png`
-- `output/scatter_regression.png`
-- `output/spatial_anomaly_map.png`
-- `docs/sensitivity_report.md`
 
 ## Expected Outputs
 
-Upon successful completion of the pipeline, the following artifacts should exist:
+After successful execution, the following artifacts will be generated:
 
-| Path | Description |
-|:--- |:--- |
-| `data/processed/merged_monthly.csv` | Merged dataset with ≥90% completeness, no NaN in primary columns. |
-| `data/processed/correlation_results.json` | Correlation coefficients, p-values, and bootstrap CIs. |
-| `data/processed/control_validation_results.json` | Control region comparison and noise floor validation. |
-| `output/timeseries_overlay.png` | Time-series overlay of AR intensity and gravity anomalies. |
-| `output/scatter_regression.png` | Scatter plot with regression line and confidence bands. |
-| `output/spatial_anomaly_map.png` | Spatial distribution of gravity anomalies. |
-| `docs/sensitivity_report.md` | Sensitivity analysis and causal language compliance check. |
+### Data Artifacts
+- `data/processed/merged_monthly.csv`: Merged time-series of AR intensity and gravity anomalies.
+- `data/processed/correlation_results.csv`: Statistical correlation results with lags, p-values, and confidence intervals.
 
-## Troubleshooting
+### Visualization Artifacts
+- `output/timeseries_overlay.png`: Time-series overlay of AR intensity and gravity anomalies.
+- `output/scatter_regression.png`: Scatter plot with regression line.
+- `output/spatial_anomaly_map.png`: Spatial map of gravity anomalies (if spatial data available).
 
-- **Network Errors:** Ensure internet connectivity is available for `01_data_ingestion.py`.
-- **Missing Data:** If `merged_monthly.csv` has <90% rows, check `logs/preprocessing.log` for skipped months.
-- **Citation Failures:** If `00_verify_citations.py` fails, update the `specs/citations.yaml` file with corrected URLs.
+### Reports
+- `output/sensitivity_report.md`: Sensitivity analysis of correlation thresholds.
+- `output/temporal_bias_analysis.md`: Analysis of temporal aggregation bias.
+- `docs/runtime_report.md`: Pipeline runtime and resource usage metrics.
 
 ## Validation
 
-To validate the entire pipeline end-to-end:
+Run the completeness verification script to ensure all deliverables are present:
+
 ```bash
-python code/10_sensitivity_report.py --validate
-pytest tests/contract/test_output_schema.py
+python code/verify_completeness.py --threshold 0.90
 ```
+
+This script checks for:
+- Existence and non-emptiness of all required CSV and plot files.
+- Minimum row counts and absence of critical NaN values in data files.
+- Presence of required documentation sections.
+
+## Troubleshooting
+
+- **Missing Data Files**: Ensure `data/raw/` contains downloaded files. Re-run ingestion scripts if needed.
+- **Schema Validation Errors**: Check `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` for format requirements.
+- **Citation Verification Failure**: Update `config/urls.yaml` with correct, reachable URLs.
+- **Runtime Errors**: Check `logs/` directory for detailed error traces.
+
+## License
+
+This project is provided for research purposes. Data usage must comply with the respective data source licenses (NASA/NOAA).

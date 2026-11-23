@@ -152,6 +152,37 @@ def test_declare_missing_imports_adds_thirdparty_skips_stdlib_and_local(tmp_path
     assert _declare_missing_imports(proj, failures) == []
 
 
+def test_missing_imports_reuses_root_manifest_for_src_layout(tmp_path: Path) -> None:
+    from llmxive.execution.stage import _declare_missing_imports
+
+    (tmp_path / "src" / "local_package").mkdir(parents=True)
+    (tmp_path / "src" / "analysis.py").write_text("import pandas\nimport local_package\n")
+    (tmp_path / "requirements.txt").write_text("numpy\n")
+    assert _declare_missing_imports(tmp_path, []) == ["pandas"]
+    assert "pandas" in (tmp_path / "requirements.txt").read_text()
+    assert "local_package" not in (tmp_path / "requirements.txt").read_text()
+    assert not (tmp_path / "code" / "requirements.txt").exists()
+
+
+def test_src_module_failure_reopens_owner_and_preserves_repair_path(tmp_path: Path) -> None:
+    from llmxive.execution.stage import _deliverable_repair_feedback, _reopen_failing_tasks
+
+    proj = _bootstrap_project(tmp_path, "PROJ-src", "- [X] T001 Write `src/analysis.py`.\n")
+    (proj / "src").mkdir()
+    (proj / "src/analysis.py").write_text("# writes data/counts.csv\n")
+    res = AnalysisRunResult(
+        ok=False,
+        commands=[RunCommandResult("python -m src.analysis", False, 1, 0.1, False, "ValueError")],
+        declared_missing=["data/counts.csv"],
+        reason="analysis failed",
+    )
+    assert _reopen_failing_tasks(proj, res) >= 1
+    assert "- [ ] T001" in (proj / "specs/001-x/tasks.md").read_text()
+    feedback = _deliverable_repair_feedback(proj, res)
+    assert "src/analysis.py" in feedback
+    assert "IS a run-book command" in feedback
+
+
 def test_data_artifact_ground_truth_surfaces_real_csv_headers(tmp_path) -> None:
     """The DATA-contract block must surface what the producer actually wrote (real
     CSV header) against what the failing consumer requires, so the auto-fix loop

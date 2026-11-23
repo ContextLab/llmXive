@@ -1,150 +1,125 @@
 """
-Unit tests for exclusion logic (T014).
+Unit tests for the exclusion logic module.
 """
-import pytest
 import pandas as pd
-import numpy as np
+import pytest
 from pathlib import Path
 import tempfile
 import os
 
-from data.exclusion import (
-    calculate_reliability_metrics,
-    apply_exclusion_logic,
-    RELIABILITY_THRESHOLD
-)
+# Import the functions to test
+from data.exclusion import calculate_reliability_metrics, apply_exclusion_logic, RELIABILITY_THRESHOLD
 
-class TestCalculateReliabilityMetrics:
-    def test_high_reliability(self):
-        """Test sample with 10% points filtered (90% kept)."""
-        result = calculate_reliability_metrics(1000, 900, "sample_001")
-        assert result['is_low_reliability'] is False
-        assert result['reliability_status'] == 'acceptable'
-        assert result['points_remaining_ratio'] == 0.9
-        assert result['points_filtered_ratio'] == 0.1
-    
-    def test_low_reliability(self):
-        """Test sample with 60% points filtered (40% kept)."""
-        result = calculate_reliability_metrics(1000, 400, "sample_002")
-        assert result['is_low_reliability'] is True
-        assert result['reliability_status'] == 'low_reliability'
-        assert result['points_remaining_ratio'] == 0.4
-        assert result['points_filtered_ratio'] == 0.6
-    
-    def test_exact_threshold_boundary(self):
-        """Test sample exactly at 50% threshold."""
-        # >50% is excluded. So 50% exactly is kept.
-        result = calculate_reliability_metrics(1000, 500, "sample_003")
-        assert result['is_low_reliability'] is False
-        assert result['reliability_status'] == 'acceptable'
-    
-    def test_just_over_threshold(self):
-        """Test sample just over 50% threshold."""
-        result = calculate_reliability_metrics(1000, 499, "sample_004")
-        assert result['is_low_reliability'] is True
-        assert result['reliability_status'] == 'low_reliability'
-    
-    def test_empty_original(self):
-        """Test sample with 0 original points."""
-        result = calculate_reliability_metrics(0, 0, "sample_005")
-        assert result['is_low_reliability'] is True
-        assert result['points_remaining_ratio'] == 0.0
+@pytest.fixture
+def sample_data():
+    """Create a mock DataFrame simulating EBSD data with filtering info."""
+    data = {
+        'sample_id': ['S1', 'S1', 'S1', 'S2', 'S2', 'S3', 'S3', 'S3', 'S3'],
+        'x': [1.0, 1.1, 1.2, 2.0, 2.1, 3.0, 3.1, 3.2, 3.3],
+        'y': [1.0, 1.1, 1.2, 2.0, 2.1, 3.0, 3.1, 3.2, 3.3],
+        'is_filtered': [False, False, True, True, True, False, False, False, False],
+        # Simulate pre-calculated counts if needed, otherwise function derives them
+        'original_point_count': [3, 3, 3, 2, 2, 4, 4, 4, 4],
+        'filtered_point_count': [1, 1, 1, 2, 2, 0, 0, 0, 0]
+    }
+    return pd.DataFrame(data)
 
-class TestApplyExclusionLogic:
-    def setup_method(self):
-        """Setup temporary directory and test data."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.input_path = Path(self.temp_dir) / "filtered.parquet"
-        self.output_path = Path(self.temp_dir) / "cleaned.parquet"
-        self.metadata_path = Path(self.temp_dir) / "exclusion_meta.csv"
-        
-        # Create test data
-        data = {
-            'sample_id': ['s1', 's1', 's1', 's2', 's2', 's2', 's3', 's3'],
-            'original_point_count': [100, 100, 100, 1000, 1000, 1000, 100, 100], # 100, 1000, 100
-            'orientation_x': [0.1, 0.2, 0.3, 0.1, 0.2, 0.3, 0.1, 0.2],
-            'orientation_y': [0.1, 0.2, 0.3, 0.1, 0.2, 0.3, 0.1, 0.2],
-            'orientation_z': [0.1, 0.2, 0.3, 0.1, 0.2, 0.3, 0.1, 0.2],
-            'confidence': [0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9, 0.9]
-        }
-        df = pd.DataFrame(data)
-        # s1: 3 points kept, original 100 -> 3% kept (97% filtered) -> EXCLUDE
-        # s2: 3 points kept, original 1000 -> 0.3% kept (99.7% filtered) -> EXCLUDE
-        # s3: 2 points kept, original 100 -> 2% kept (98% filtered) -> EXCLUDE
-        
-        # Let's adjust to have one keepable sample
-        # s4: 90 points kept, original 100 -> 90% kept -> KEEP
-        data['sample_id'] = ['s1', 's1', 's1', 's2', 's2', 's2', 's3', 's3', 's4'] * 10
-        data['original_point_count'] = [100] * 30 + [1000] * 30 + [100] * 20 + [100] * 10
-        # Wait, simpler construction:
-        
-        rows = []
-        # Sample s1: 10 original, 1 kept -> 10% kept -> EXCLUDE
-        for i in range(10):
-            rows.append({'sample_id': 's1', 'original_point_count': 10, 'val': i})
-        # Remove 9 rows later? No, this is the *filtered* data.
-        # The input to T014 is the *result* of filtering.
-        # So if s1 had 10 original, and 1 kept, the input has 1 row for s1.
-        
-        # s1: 1 row, original=10 -> 10% kept -> EXCLUDE
-        rows.append({'sample_id': 's1', 'original_point_count': 10, 'val': 1})
-        
-        # s2: 100 rows, original=100 -> 100% kept -> KEEP
-        for i in range(100):
-            rows.append({'sample_id': 's2', 'original_point_count': 100, 'val': i})
-        
-        # s3: 40 rows, original=100 -> 40% kept -> EXCLUDE
-        for i in range(40):
-            rows.append({'sample_id': 's3', 'original_point_count': 100, 'val': i})
-        
-        df = pd.DataFrame(rows)
-        df.to_parquet(self.input_path)
+def test_calculate_reliability_metrics_basic(sample_data):
+    """Test that reliability metrics are calculated correctly."""
+    df = sample_data.copy()
     
-    def test_exclusion_logic(self):
-        """Test that low reliability samples are excluded."""
-        summary = apply_exclusion_logic(
-            self.input_path, 
-            self.output_path, 
-            self.metadata_path
-        )
-        
-        # Load output
-        df_out = pd.read_parquet(self.output_path)
-        
-        # s1 (10% kept) and s3 (40% kept) should be excluded
-        # s2 (100% kept) should be kept
-        assert 's1' not in df_out['sample_id'].values
-        assert 's3' not in df_out['sample_id'].values
-        assert 's2' in df_out['sample_id'].values
-        
-        # Check summary
-        assert summary['excluded_samples'] == 2
-        assert summary['kept_samples'] == 1
-        assert summary['total_samples'] == 3
-        
-        # Check metadata file
-        assert self.metadata_path.exists()
-        meta = pd.read_csv(self.metadata_path)
-        assert len(meta) == 2
-        assert set(meta['sample_id']) == {'s1', 's3'}
+    # Remove pre-calculated counts to force derivation
+    df = df.drop(columns=['original_point_count', 'filtered_point_count'])
     
-    def test_missing_original_count(self):
-        """Test error when original_point_count is missing."""
-        # Create data without original_point_count
-        df = pd.DataFrame({'sample_id': ['s1'], 'val': [1]})
-        bad_path = Path(self.temp_dir) / "bad.parquet"
-        df.to_parquet(bad_path)
-        
-        with pytest.raises(ValueError, match="missing 'original_point_count'"):
-            apply_exclusion_logic(bad_path, self.output_path)
+    result = calculate_reliability_metrics(df)
     
-    def test_empty_input(self):
-        """Test handling of empty input file."""
-        empty_df = pd.DataFrame()
-        empty_path = Path(self.temp_dir) / "empty.parquet"
-        empty_df.to_parquet(empty_path)
+    # Check that new columns exist
+    assert 'reliability_ratio' in result.columns
+    assert 'is_low_reliability' in result.columns
+    assert 'status' in result.columns
+
+    # Verify specific values
+    # S1: 1 filtered / 3 total = 0.333 -> Valid
+    # S2: 2 filtered / 2 total = 1.0 -> Low Reliability
+    # S3: 0 filtered / 4 total = 0.0 -> Valid
+    
+    s1_data = result[result['sample_id'] == 'S1']
+    assert s1_data['is_low_reliability'].iloc[0] == False
+    assert s1_data['status'].iloc[0] == 'valid'
+    assert abs(s1_data['reliability_ratio'].iloc[0] - 1/3) < 0.01
+
+    s2_data = result[result['sample_id'] == 'S2']
+    assert s2_data['is_low_reliability'].iloc[0] == True
+    assert s2_data['status'].iloc[0] == 'low_reliability'
+    assert s2_data['reliability_ratio'].iloc[0] == 1.0
+
+    s3_data = result[result['sample_id'] == 'S3']
+    assert s3_data['is_low_reliability'].iloc[0] == False
+    assert s3_data['status'].iloc[0] == 'valid'
+    assert s3_data['reliability_ratio'].iloc[0] == 0.0
+
+def test_apply_exclusion_logic_removes_low_reliability(sample_data):
+    """Test that apply_exclusion_logic removes samples with >50% filtered points."""
+    df = sample_data.copy()
+    df = df.drop(columns=['original_point_count', 'filtered_point_count'])
+    df_with_metrics = calculate_reliability_metrics(df)
+    
+    clean_df = apply_exclusion_logic(df_with_metrics)
+    
+    # S2 should be removed
+    assert 'S2' not in clean_df['sample_id'].unique()
+    
+    # S1 and S3 should remain
+    assert 'S1' in clean_df['sample_id'].unique()
+    assert 'S3' in clean_df['sample_id'].unique()
+
+    # Check row counts
+    assert len(clean_df) == 3 + 4  # S1 (3 rows) + S3 (4 rows)
+
+def test_apply_exclusion_logic_with_output_path(sample_data):
+    """Test that exclusion report is written correctly."""
+    df = sample_data.copy()
+    df = df.drop(columns=['original_point_count', 'filtered_point_count'])
+    df_with_metrics = calculate_reliability_metrics(df)
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        report_path = Path(tmpdir) / "report.csv"
+        clean_df = apply_exclusion_logic(df_with_metrics, output_path=report_path)
         
-        summary = apply_exclusion_logic(empty_path, self.output_path)
-        assert summary['total_samples'] == 0
-        assert summary['excluded_samples'] == 0
-        assert self.output_path.exists()
+        assert report_path.exists()
+        
+        report_df = pd.read_csv(report_path)
+        assert 'status' in report_df.columns
+        assert 'excluded' in report_df['status'].values
+        assert 'valid' in report_df['status'].values
+
+def test_threshold_boundary():
+    """Test the exact 50% threshold behavior."""
+    # Create data where exactly 50% is filtered
+    # 2 points, 1 filtered -> 0.5 ratio -> Should be VALID (since > 0.5 is excluded)
+    data = {
+        'sample_id': ['A', 'A'],
+        'x': [1, 2],
+        'y': [1, 2],
+        'is_filtered': [True, False],
+    }
+    df = pd.DataFrame(data)
+    
+    result = calculate_reliability_metrics(df)
+    assert result['is_low_reliability'].iloc[0] == False
+    assert result['status'].iloc[0] == 'valid'
+
+    # Create data where 51% is filtered (e.g., 100 points, 51 filtered)
+    # We simulate this with counts
+    data2 = {
+        'sample_id': ['B', 'B', 'B'], # 3 rows to represent 100 points? No, let's use explicit counts
+        'x': [1, 2, 3],
+        'y': [1, 2, 3],
+        'is_filtered': [True, True, False],
+        'original_point_count': [3, 3, 3],
+        'filtered_point_count': [2, 2, 2] # 2/3 = 0.66 > 0.5
+    }
+    df2 = pd.DataFrame(data2)
+    result2 = calculate_reliability_metrics(df2)
+    assert result2['is_low_reliability'].iloc[0] == True
+    assert result2['status'].iloc[0] == 'low_reliability'

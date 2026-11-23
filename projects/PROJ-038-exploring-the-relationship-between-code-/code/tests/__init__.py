@@ -1,3 +1,4 @@
+# Test package
 """
-Test package for the code complexity and bug prediction research pipeline.
+Test suite for the llmXive Code Complexity Analysis pipeline.
 """

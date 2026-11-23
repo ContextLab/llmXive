@@ -14,24 +14,19 @@ from pathlib import Path
 import pytest
 
 from llmxive.agents import personality as p
+from tests.personality_fixture import make_repo
 
 
 @pytest.fixture
 def repo(tmp_path: Path) -> Path:
-    """Minimal repo with one valid persona + pre-set rotation pointer at
-    'prior-slug' so we can detect HOLD vs ADVANCE."""
-    FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "personality"
-    r = tmp_path / "repo"
-    r.mkdir()
-    (r / "agents" / "prompts" / "personalities").mkdir(parents=True)
-    (r / "agents" / "prompts" / "personalities" / "kahneman.md").write_text(
-        (FIXTURES / "kahneman.md").read_text(encoding="utf-8"),
-        encoding="utf-8",
-    )
-    (r / "agents" / "prompts" / "personality.md").write_text(
-        "# Umbrella\nReturn JSON.\n", encoding="utf-8")
-    (r / "state" / "projects").mkdir(parents=True)
-    # Pre-set the rotation pointer.
+    """A substantive repo with one persona + the pointer pre-set at 'prior-slug'.
+
+    It used to have no project at all. A turn now selects its target BEFORE
+    calling a model, so a repo with nothing substantive to read abstains and
+    these error paths become unreachable — the test would pass for the wrong
+    reason. The shared builder supplies a real artifact.
+    """
+    r = make_repo(tmp_path)
     p.write_rotation_state(
         p.RotationState(
             last_used="prior-slug",
@@ -66,7 +61,7 @@ class TestTickHoldsPointerOnFailure:
         # Monkeypatch the LLM call to raise a rate-limit-shaped error.
         def fake_call(*a, **kw):
             raise RuntimeError("HTTP 429: rate limit hit")
-        monkeypatch.setattr(p, "_call_llm_for_persona", fake_call)
+        monkeypatch.setattr(p, "_grounded_call", fake_call)
         entry = p.tick(repo)
         assert entry["outcome"] == p.OUTCOME_RATE_LIMITED
         # Pointer HELD at the prior slug per FR-017.
@@ -76,7 +71,7 @@ class TestTickHoldsPointerOnFailure:
     def test_timeout_holds_pointer(self, repo: Path, monkeypatch) -> None:
         def fake_call(*a, **kw):
             raise TimeoutError("LLM call exceeded budget")
-        monkeypatch.setattr(p, "_call_llm_for_persona", fake_call)
+        monkeypatch.setattr(p, "_grounded_call", fake_call)
         entry = p.tick(repo)
         assert entry["outcome"] == p.OUTCOME_TIMEOUT
         state = p.load_rotation_state(repo / p.ROTATION_PATH)
@@ -85,7 +80,7 @@ class TestTickHoldsPointerOnFailure:
     def test_model_error_holds_pointer(self, repo: Path, monkeypatch) -> None:
         def fake_call(*a, **kw):
             raise ConnectionError("ECONNREFUSED: backend down")
-        monkeypatch.setattr(p, "_call_llm_for_persona", fake_call)
+        monkeypatch.setattr(p, "_grounded_call", fake_call)
         entry = p.tick(repo)
         assert entry["outcome"] == p.OUTCOME_MODEL_ERROR
         state = p.load_rotation_state(repo / p.ROTATION_PATH)

@@ -1,201 +1,499 @@
 """
-Molecular descriptor calculation module using RDKit.
-
-Calculates molecular weight, polar surface area, polarizability,
-H-bond counts, van der Waals volume, and kinetic diameter.
+Descriptor calculation and management module for adsorption isotherm prediction.
+Implements calculation of molecular descriptors and management of missing data logs.
 """
+import os
+import sys
+import math
+import json
+import hashlib
 import logging
-from typing import Dict, Any, Optional, List, Union
+from pathlib import Path
+from typing import Dict, Any, Optional, List, Tuple, Union
 
-import numpy as np
 import pandas as pd
+import numpy as np
 from rdkit import Chem
-from rdkit.Chem import Descriptors, rdMolDescriptors, rdDetermineBonds
+from rdkit.Chem import Descriptors, rdMolDescriptors, rdchem
 from rdkit import RDLogger
 
-# Suppress RDKit warnings for cleaner logs
+# Disable RDKit warnings for cleaner logs
 RDLogger.DisableLog('rdApp.*')
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
+class MissingConsensusDescriptorError(Exception):
+    """Custom exception for missing descriptor calculations."""
+    pass
 
-def calculate_descriptors(smiles: str) -> Dict[str, float]:
+def ensure_directories(base_path: str = "data") -> None:
+    """Ensure required directories exist."""
+    dirs = [
+        os.path.join(base_path, "processed"),
+        os.path.join(base_path, "validation"),
+        os.path.join(base_path, "results")
+    ]
+    for d in dirs:
+        Path(d).mkdir(parents=True, exist_ok=True)
+
+def log_missing_entry(log_file: str, entry: Dict[str, Any]) -> None:
+    """Append a missing entry to a JSON log file."""
+    ensure_directories()
+    log_path = Path(log_file)
+    
+    # Load existing entries if file exists
+    entries = []
+    if log_path.exists():
+        try:
+            with open(log_path, 'r') as f:
+                entries = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            entries = []
+    
+    entries.append(entry)
+    
+    with open(log_path, 'w') as f:
+        json.dump(entries, f, indent=2)
+
+def calculate_kinetic_diameter(mol: Union[str, Chem.Mol]) -> float:
     """
-    Calculate a comprehensive set of molecular descriptors for a given SMILES string.
-
-    This function computes:
-    - Molecular Weight (MW)
-    - Polar Surface Area (TPSA)
-    - Polarizability (approximated via molar refractivity)
-    - H-bond Donor Count
-    - H-bond Acceptor Count
-    - van der Waals Volume (approximated via MolVolume)
-    - Kinetic Diameter (estimated via critical volume correlation)
-
+    Calculate kinetic diameter using RDKit.
+    
     Args:
-        smiles (str): The SMILES string representing the molecule.
-
+        mol: RDKit Mol object or SMILES string.
+        
     Returns:
-        Dict[str, float]: A dictionary of calculated descriptors.
-                        Returns a dict with NaN values if parsing fails.
+        Kinetic diameter in Angstroms.
+        
+    Raises:
+        MissingConsensusDescriptorError: If calculation fails.
     """
-    default_result = {
-        "molecular_weight": np.nan,
-        "polar_surface_area": np.nan,
-        "polarizability": np.nan,
-        "h_bond_donors": np.nan,
-        "h_bond_acceptors": np.nan,
-        "vdw_volume": np.nan,
-        "kinetic_diameter": np.nan
-    }
-
-    if not smiles or not isinstance(smiles, str):
-        logger.warning(f"Invalid SMILES input: {smiles}")
-        return default_result
-
     try:
-        mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            logger.warning(f"RDKit failed to parse SMILES: {smiles}")
-            return default_result
-
-        # Ensure hydrogens are added for accurate volume/diameter calculations
-        mol = Chem.AddHs(mol)
-
-        # 1. Molecular Weight
-        mw = Descriptors.MolWt(mol)
-
-        # 2. Polar Surface Area (TPSA)
+        if isinstance(mol, str):
+            mol = Chem.MolFromSmiles(mol)
+            if mol is None:
+                raise ValueError("Invalid SMILES string")
+        
+        # Calculate Topological Polar Surface Area (TPSA)
         tpsa = Descriptors.TPSA(mol)
-
-        # 3. Polarizability (approximated via Molar Refractivity)
-        # RDKit's CalcMolMR returns molar refractivity.
-        # Polarizability (alpha) in Angstrom^3 is roughly MR / 2.267 (Clausius-Mossotti)
-        # However, in QSAR contexts, MR is often used directly as a proxy for polarizability/volume.
-        # We will calculate MR and store it as 'polarizability' proxy as per common QSAR practice
-        # when explicit polarizability tensors are not available.
-        mr = rdMolDescriptors.CalcMolMR(mol)
         
-        # 4. H-Bond Counts
-        hbd = rdMolDescriptors.CalcNumHBD(mol)
-        hba = rdMolDescriptors.CalcNumHBA(mol)
-
-        # 5. Van der Waals Volume
-        # rdMolDescriptors.CalcMolVolume returns the van der Waals volume in Angstrom^3
-        vdw_vol = rdMolDescriptors.CalcMolVolume(mol)
-
-        # 6. Kinetic Diameter
-        # Kinetic diameter is not a direct RDKit descriptor.
-        # It is often estimated from the critical volume or molecular volume.
-        # A common approximation for small molecules: d_kinetic ~ (6 * V_mol / pi)^(1/3) * 0.95
-        # where V_mol is the molecular volume.
-        # We use the calculated vdw_vol as V_mol.
-        # Note: This is an estimation. Real kinetic diameter depends on orientation.
-        if vdw_vol > 0:
-            # Calculate effective spherical diameter from volume
-            # V = 4/3 * pi * r^3  => r = (3V / 4pi)^(1/3)
-            # d = 2r
-            effective_radius = (3 * vdw_vol / (4 * np.pi)) ** (1/3)
-            effective_diameter = 2 * effective_radius
-            
-            # Apply a scaling factor often used to convert vdW volume to kinetic diameter
-            # The factor 0.95 is empirical for many organic molecules to account for shape
-            # and the difference between static vdW surface and dynamic collision cross-section.
-            kinetic_diam = effective_diameter * 0.95
-        else:
-            kinetic_diam = np.nan
-
-        return {
-            "molecular_weight": float(mw),
-            "polar_surface_area": float(tpsa),
-            "polarizability": float(mr),
-            "h_bond_donors": float(hbd),
-            "h_bond_acceptors": float(hba),
-            "vdw_volume": float(vdw_vol),
-            "kinetic_diameter": float(kinetic_diam)
-        }
-
+        # Estimate kinetic diameter using the formula: d = sqrt(4 * TPSA / PI)
+        # This is an approximation based on the relationship between polar surface area and molecular size
+        kinetic_diameter = math.sqrt(4 * tpsa / math.pi)
+        
+        return float(kinetic_diameter)
     except Exception as e:
-        logger.error(f"Error calculating descriptors for {smiles}: {e}")
-        return default_result
+        raise MissingConsensusDescriptorError(f"Failed to calculate kinetic diameter: {str(e)}")
 
-
-def calculate_descriptors_batch(df: pd.DataFrame, 
-                                smiles_col: str = "smiles",
-                                output_cols: Optional[List[str]] = None) -> pd.DataFrame:
+def calculate_lj_epsilon(df: pd.DataFrame, index: int) -> float:
     """
-    Calculate descriptors for a batch of molecules in a DataFrame.
-
+    Calculate Lennard-Jones energy parameter.
+    
     Args:
-        df (pd.DataFrame): Input DataFrame containing SMILES strings.
-        smiles_col (str): Name of the column containing SMILES strings.
-        output_cols (Optional[List[str]]): Specific columns to calculate. 
-                                           If None, calculates all defined descriptors.
-
+        df: DataFrame containing critical pressure and volume.
+        index: Row index to process.
+        
     Returns:
-        pd.DataFrame: The original DataFrame with new descriptor columns appended.
+        LJ epsilon parameter in Kelvin.
+        
+    Raises:
+        MissingConsensusDescriptorError: If required data is missing.
     """
-    if output_cols is None:
-        output_cols = [
-            "molecular_weight", 
-            "polar_surface_area", 
-            "polarizability", 
-            "h_bond_donors", 
-            "h_bond_acceptors", 
-            "vdw_volume", 
-            "kinetic_diameter"
-        ]
+    try:
+        row = df.iloc[index]
+        
+        # Extract critical pressure (Pc) and critical volume (Vc)
+        # Assuming columns exist after imputation
+        if 'critical_pressure' not in row or 'critical_volume' not in row:
+            raise MissingConsensusDescriptorError("Missing critical_pressure or critical_volume")
+        
+        pc = row['critical_pressure']
+        vc = row['critical_volume']
+        
+        if pd.isna(pc) or pd.isna(vc):
+            raise MissingConsensusDescriptorError("NaN values in critical_pressure or critical_volume")
+        
+        # Gas constant in appropriate units
+        R = 8.314  # J/(mol*K)
+        
+        # Estimate Tc using Tc = 1.5 * (Pc * Vc / R)
+        # Note: Units need to be consistent. Assuming Pc in Pa, Vc in m3/mol
+        # If units are different, conversion factors would be needed
+        tc = 1.5 * (pc * vc / R)
+        
+        # Calculate epsilon = 0.75 * Tc
+        epsilon = 0.75 * tc
+        
+        return float(epsilon)
+    except Exception as e:
+        raise MissingConsensusDescriptorError(f"Failed to calculate LJ epsilon: {str(e)}")
 
-    # Initialize new columns with NaN
-    for col in output_cols:
-        df[col] = np.nan
+def calculate_quadrupole_moment(mol: Union[str, Chem.Mol], coordinates: Optional[np.ndarray] = None) -> float:
+    """
+    Calculate quadrupole moment using psi4.
+    
+    Args:
+        mol: RDKit Mol object or SMILES string.
+        coordinates: Optional 3D coordinates array.
+        
+    Returns:
+        Quadrupole moment component (Qxx).
+        
+    Raises:
+        MissingConsensusDescriptorError: If calculation fails.
+    """
+    try:
+        # This is a placeholder for psi4 calculation
+        # In a real implementation, psi4 would be called here
+        # For now, we return a placeholder value or raise an error
+        # since psi4 is not available in all environments
+        
+        # If coordinates are provided, we could attempt a calculation
+        if coordinates is not None:
+            # Placeholder: In real implementation, call psi4
+            # For now, raise error indicating psi4 is required
+            raise MissingConsensusDescriptorError("psi4 calculation not implemented in this environment")
+        
+        # If no coordinates, try to embed 3D structure
+        if isinstance(mol, str):
+            mol = Chem.MolFromSmiles(mol)
+            if mol is None:
+                raise ValueError("Invalid SMILES string")
+        
+        # Generate 3D coordinates if not provided
+        if coordinates is None:
+            mol_3d = Chem.AddHs(mol)
+            if not rdchem.EmbedMolecule(mol_3d):
+                raise MissingConsensusDescriptorError("Failed to generate 3D coordinates")
+            coordinates = np.array(mol_3d.GetConformer().GetPositions())
+        
+        # Placeholder for psi4 calculation
+        # In real implementation:
+        # import psi4
+        # psi4.set_options({'basis': 'def2-svp', 'scf_type': 'df'})
+        # energy, wfn = psi4.energy('b3lyp', return_wfn=True)
+        # quadrupole = wfn.properties()['quadrupole_moment']
+        # return quadrupole[0, 0]
+        
+        raise MissingConsensusDescriptorError("psi4 calculation not available")
+        
+    except Exception as e:
+        raise MissingConsensusDescriptorError(f"Failed to calculate quadrupole moment: {str(e)}")
 
-    # Process row by row
-    results = []
+def calculate_polarizability(mol: Union[str, Chem.Mol]) -> float:
+    """
+    Calculate polarizability using RDKit.
+    
+    Args:
+        mol: RDKit Mol object or SMILES string.
+        
+    Returns:
+        Polarizability in cubic Angstroms.
+        
+    Raises:
+        MissingConsensusDescriptorError: If calculation fails.
+    """
+    try:
+        if isinstance(mol, str):
+            mol = Chem.MolFromSmiles(mol)
+            if mol is None:
+                raise ValueError("Invalid SMILES string")
+        
+        # Use RDKit's polarizability descriptor
+        # This is an approximation based on molecular volume
+        polarizability = Descriptors.Polarizability(mol)
+        
+        return float(polarizability)
+    except Exception as e:
+        raise MissingConsensusDescriptorError(f"Failed to calculate polarizability: {str(e)}")
+
+def calculate_vdw_volume(mol: Union[str, Chem.Mol]) -> float:
+    """
+    Calculate van der Waals volume using RDKit.
+    
+    Args:
+        mol: RDKit Mol object or SMILES string.
+        
+    Returns:
+        VdW volume in cubic Angstroms.
+        
+    Raises:
+        MissingConsensusDescriptorError: If calculation fails.
+    """
+    try:
+        if isinstance(mol, str):
+            mol = Chem.MolFromSmiles(mol)
+            if mol is None:
+                raise ValueError("Invalid SMILES string")
+        
+        # Calculate VdW volume using RDKit
+        vdw_volume = rdMolDescriptors.CalcCrippenDescriptors(mol)[1]  # Crippen's VdW volume
+        
+        return float(vdw_volume)
+    except Exception as e:
+        raise MissingConsensusDescriptorError(f"Failed to calculate VdW volume: {str(e)}")
+
+def generate_descriptor_hash(descriptor_values: Tuple[float, ...]) -> str:
+    """
+    Generate a hash of descriptor values.
+    
+    Args:
+        descriptor_values: Tuple of descriptor values.
+        
+    Returns:
+        SHA256 hash string.
+    """
+    # Convert to string and hash
+    values_str = str(sorted(descriptor_values))
+    return hashlib.sha256(values_str.encode()).hexdigest()
+
+def calculate_descriptors_batch(df: pd.DataFrame, log_dir: str = "data/validation") -> pd.DataFrame:
+    """
+    Calculate all descriptors for a batch of molecules.
+    
+    Args:
+        df: DataFrame with molecular data.
+        log_dir: Directory for logging missing descriptors.
+        
+    Returns:
+        DataFrame with calculated descriptors.
+    """
+    ensure_directories()
+    
+    # Initialize descriptor columns
+    df['kinetic_diameter'] = np.nan
+    df['lj_epsilon'] = np.nan
+    df['quadrupole_moment'] = np.nan
+    df['polarizability'] = np.nan
+    df['vdw_volume'] = np.nan
+    
+    # Log files for missing descriptors
+    kinetic_log = os.path.join(log_dir, "missing_descriptors_kinetic.json")
+    lj_log = os.path.join(log_dir, "missing_descriptors_lj.json")
+    quadrupole_log = os.path.join(log_dir, "missing_descriptors_quadrupole.json")
+    
     for idx, row in df.iterrows():
-        smiles = row[smiles_col]
-        desc = calculate_descriptors(smiles)
+        try:
+            # Calculate kinetic diameter
+            if 'smiles' in row:
+                try:
+                    mol = Chem.MolFromSmiles(row['smiles'])
+                    if mol:
+                        df.at[idx, 'kinetic_diameter'] = calculate_kinetic_diameter(mol)
+                    else:
+                        log_missing_entry(kinetic_log, {
+                            'index': idx,
+                            'reason': 'invalid_smiles',
+                            'smiles': row['smiles']
+                        })
+                except Exception as e:
+                    log_missing_entry(kinetic_log, {
+                        'index': idx,
+                        'reason': str(e),
+                        'smiles': row.get('smiles', 'N/A')
+                    })
+        except Exception as e:
+            logger.warning(f"Error calculating kinetic diameter for index {idx}: {e}")
         
-        # Filter results to only requested columns
-        row_results = {col: desc.get(col, np.nan) for col in output_cols}
-        results.append(row_results)
+        # Calculate LJ epsilon
+        try:
+            df.at[idx, 'lj_epsilon'] = calculate_lj_epsilon(df, idx)
+        except Exception as e:
+            log_missing_entry(lj_log, {
+                'index': idx,
+                'reason': str(e)
+            })
         
-        if idx % 100 == 0:
-            logger.info(f"Processed {idx}/{len(df)} molecules")
-
-    # Create a DataFrame from results and concat
-    desc_df = pd.DataFrame(results, index=df.index)
-    df = pd.concat([df, desc_df], axis=1)
-
+        # Calculate quadrupole moment
+        try:
+            if 'smiles' in row:
+                try:
+                    mol = Chem.MolFromSmiles(row['smiles'])
+                    if mol:
+                        coords = row.get('coordinates', None)
+                        if isinstance(coords, str):
+                            coords = eval(coords)  # Safe eval for numpy arrays
+                        df.at[idx, 'quadrupole_moment'] = calculate_quadrupole_moment(mol, coords)
+                    else:
+                        log_missing_entry(quadrupole_log, {
+                            'index': idx,
+                            'reason': 'invalid_smiles',
+                            'smiles': row['smiles']
+                        })
+                except Exception as e:
+                    log_missing_entry(quadrupole_log, {
+                        'index': idx,
+                        'reason': str(e),
+                        'smiles': row.get('smiles', 'N/A')
+                    })
+        except Exception as e:
+            logger.warning(f"Error calculating quadrupole moment for index {idx}: {e}")
+        
+        # Calculate polarizability
+        try:
+            if 'smiles' in row:
+                try:
+                    mol = Chem.MolFromSmiles(row['smiles'])
+                    if mol:
+                        df.at[idx, 'polarizability'] = calculate_polarizability(mol)
+                    else:
+                        log_missing_entry(kinetic_log, {
+                            'index': idx,
+                            'reason': 'invalid_smiles',
+                            'smiles': row['smiles']
+                        })
+                except Exception as e:
+                    log_missing_entry(kinetic_log, {
+                        'index': idx,
+                        'reason': str(e),
+                        'smiles': row.get('smiles', 'N/A')
+                    })
+        except Exception as e:
+            logger.warning(f"Error calculating polarizability for index {idx}: {e}")
+        
+        # Calculate VdW volume
+        try:
+            if 'smiles' in row:
+                try:
+                    mol = Chem.MolFromSmiles(row['smiles'])
+                    if mol:
+                        df.at[idx, 'vdw_volume'] = calculate_vdw_volume(mol)
+                    else:
+                        log_missing_entry(kinetic_log, {
+                            'index': idx,
+                            'reason': 'invalid_smiles',
+                            'smiles': row['smiles']
+                        })
+                except Exception as e:
+                    log_missing_entry(kinetic_log, {
+                        'index': idx,
+                        'reason': str(e),
+                        'smiles': row.get('smiles', 'N/A')
+                    })
+        except Exception as e:
+            logger.warning(f"Error calculating VdW volume for index {idx}: {e}")
+    
     return df
 
-
-def main():
+def cache_descriptors(df: pd.DataFrame, cache_path: str = "data/processed/descriptors_cache.parquet") -> None:
     """
-    Entry point for testing the descriptor calculation.
-    Reads a sample CSV (if exists) or runs a demo.
-    """
-    logger.info("Running descriptor calculation module self-test.")
+    Cache calculated descriptors to a parquet file.
     
-    # Demo molecules
-    demo_smiles = [
-        "C",          # Methane
-        "CCO",        # Ethanol
-        "c1ccccc1",   # Benzene
-        "CC(=O)O",    # Acetic Acid
-        "N#C"         # Cyanide (invalid for some, but valid SMILES)
+    Args:
+        df: DataFrame with calculated descriptors.
+        cache_path: Path to save cache.
+    """
+    ensure_directories()
+    df.to_parquet(cache_path, index=False)
+    logger.info(f"Descriptors cached to {cache_path}")
+
+def load_cached_descriptors(cache_path: str = "data/processed/descriptors_cache.parquet") -> pd.DataFrame:
+    """
+    Load cached descriptors from a parquet file.
+    
+    Args:
+        cache_path: Path to load cache from.
+        
+    Returns:
+        DataFrame with cached descriptors.
+    """
+    if os.path.exists(cache_path):
+        return pd.read_parquet(cache_path)
+    else:
+        raise FileNotFoundError(f"Cache file not found: {cache_path}")
+
+def merge_descriptor_logs(base_path: str = "data/validation", output_path: str = "data/validation/missing_descriptors_report.json") -> Dict[str, Any]:
+    """
+    Merge individual descriptor logs into a single report.
+    
+    Args:
+        base_path: Base directory for log files.
+        output_path: Path for the merged report.
+        
+    Returns:
+        Dictionary containing the merged report.
+    """
+    ensure_directories()
+    
+    log_files = [
+        os.path.join(base_path, "missing_descriptors_kinetic.json"),
+        os.path.join(base_path, "missing_descriptors_lj.json"),
+        os.path.join(base_path, "missing_descriptors_quadrupole.json")
     ]
     
-    demo_df = pd.DataFrame({"smiles": demo_smiles})
+    merged_report = {
+        "kinetic_diameter_failures": [],
+        "lj_epsilon_failures": [],
+        "quadrupole_moment_failures": [],
+        "total_failures": 0,
+        "summary": {}
+    }
     
-    logger.info(f"Calculating descriptors for {len(demo_df)} demo molecules...")
-    result_df = calculate_descriptors_batch(demo_df)
+    # Load and merge kinetic diameter failures
+    kinetic_path = log_files[0]
+    if os.path.exists(kinetic_path):
+        try:
+            with open(kinetic_path, 'r') as f:
+                merged_report["kinetic_diameter_failures"] = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            merged_report["kinetic_diameter_failures"] = []
     
-    print(result_df[["smiles", "molecular_weight", "kinetic_diameter", "polarizability"]].to_string())
+    # Load and merge LJ epsilon failures
+    lj_path = log_files[1]
+    if os.path.exists(lj_path):
+        try:
+            with open(lj_path, 'r') as f:
+                merged_report["lj_epsilon_failures"] = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            merged_report["lj_epsilon_failures"] = []
     
-    logger.info("Descriptor calculation module test completed.")
+    # Load and merge quadrupole moment failures
+    quadrupole_path = log_files[2]
+    if os.path.exists(quadrupole_path):
+        try:
+            with open(quadrupole_path, 'r') as f:
+                merged_report["quadrupole_moment_failures"] = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            merged_report["quadrupole_moment_failures"] = []
+    
+    # Calculate summary statistics
+    merged_report["total_failures"] = (
+        len(merged_report["kinetic_diameter_failures"]) +
+        len(merged_report["lj_epsilon_failures"]) +
+        len(merged_report["quadrupole_moment_failures"])
+    )
+    
+    merged_report["summary"] = {
+        "kinetic_diameter_failures": len(merged_report["kinetic_diameter_failures"]),
+        "lj_epsilon_failures": len(merged_report["lj_epsilon_failures"]),
+        "quadrupole_moment_failures": len(merged_report["quadrupole_moment_failures"]),
+        "total_failures": merged_report["total_failures"]
+    }
+    
+    # Write merged report
+    with open(output_path, 'w') as f:
+        json.dump(merged_report, f, indent=2)
+    
+    logger.info(f"Merged descriptor logs saved to {output_path}")
+    return merged_report
 
+def main():
+    """Main entry point for descriptor calculation and logging."""
+    logger.info("Starting descriptor calculation and logging pipeline")
+    
+    # Example usage:
+    # 1. Load data
+    # 2. Calculate descriptors
+    # 3. Merge logs
+    
+    # This would typically be called from the main orchestrator
+    # with actual data paths and parameters
+    pass
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
     main()

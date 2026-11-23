@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.16015",
+  "judged_at": "2026-07-22T01:08:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ideas have genomes: benchmarking scientific lineage reasoning and line\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it proposes a formal architecture for \"scientific lineage reasoning\" and \"claim propagation\" using graph-based methods, which directly addresses the core mechanism of the user's question regarding \"Scientific Lineage Reasoning\" and the \"Ideas Have Genomes\" concept, even though it focuses on the epistemological framework rather than the specific benchmarking dataset.",
+  "relevant": true
+}

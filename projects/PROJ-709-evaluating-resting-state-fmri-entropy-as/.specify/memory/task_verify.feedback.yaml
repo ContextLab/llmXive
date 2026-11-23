@@ -1,0 +1,190 @@
+T001:
+  reason: The required `code/logs/` directory is missing (collector reports "MISSING
+    (file does not exist)"). All other required directories (`code/`, `data/raw/`,
+    `data/processed/`, `data/derived/`, `tests/`, `docs/`) exist with `.gitkeep` files,
+    and `code/__init__.py` is a non-empty module docstring, but the task explicitly
+    lists `code/logs/` among the directories to create, so it must be added (e.g.,
+    `mkdir -p code/logs` with a `.gitkeep`).
+  task: f2a0a01c399e3e55ca353c9725579492ca50880567dec35bad4510d429bde1cd
+T002a:
+  task: 62e58370236db94fb3ccbed0987fc7a4795b27eba994f85441700496aa667e20
+T002b:
+  reason: "The task requires an actual virtual environment at `code/.venv` plus execution\
+    \ evidence of `code/.venv/bin/python --version` showing >=3.11, but the evidence\
+    \ collector reports no artifacts on disk for this task \u2014 no `code/.venv`\
+    \ directory, interpreter, or version-check output was provided. The implementer\
+    \ must actually create the venv (e.g., `python3.11 -m venv code/.venv`) and run\
+    \ the version command, capturing its output as evidence."
+  task: 0a4150e5e6bd11370bc444c9bfc533dbee59789e1cdf66a68f1264c6dd422aec
+T003a:
+  reason: "`code/requirements.txt` exists with properly pinned versions, but `code/.env.example`\
+    \ is MISSING \u2014 the task explicitly requires it to contain `CUDA_VISIBLE_DEVICES=`.\
+    \ The implementer must create `code/.env.example` with that line to complete the\
+    \ task."
+  task: f319a79b711c34d382db24258d6b87328151712aecc66cbe648884c76b2482e5
+T004:
+  reason: '`code/config.py` exists but defines `dataset_id = "ds000030"` instead of
+    the required `"ds000305"` (failing the task''s own verification assertion), omits
+    `SAMPLE_SIZE_N = 50` entirely, and contains no logic asserting the loaded dataset
+    has at least 50 valid subjects (no `RuntimeError` on fewer). The implementer must
+    fix the dataset ID, add the sample-size constant, and add the subject-count validation.'
+  task: b767e8e5cd64db47e24bdaacb9d3c9b03120f42876247c55ef594b073e3b125d
+T005a:
+  reason: "The required `data/raw/checksums.sha256` is MISSING and no NIfTI files\
+    \ were downloaded to `data/raw/` (only `.gitkeep` and a log). The loader also\
+    \ deviates from the task: it uses `nilearn.datasets.fetch_openneuro_dataset` instead\
+    \ of the required `datasets.load_dataset(\"openneuro/ds000305\", split=\"train\"\
+    , streaming=True)`, and there is no evidence it was ever run \u2014 `valid_subjects.csv`\
+    \ is an empty placeholder with only comments."
+  task: 73b75b48c336a6dcbfb1a0b848b223901d31bf1a30431f1ee269bd1c3286efe9
+T005b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/checksums.sha256'
+  task: c023f8702762151e0d685e3ee928b1bce5cb2c21b0c1dc0d55a3822f7f09e53b
+T005c:
+  task: e2143ba11646792d6e0b4af6c0434a6da84f0a344157a1d7e6f73cef660e8e99
+T005d:
+  task: 8bee01043656d59faa54978a9312b028770b3fa7e79535ce5493ff724c1a51d1
+T005e:
+  task: dd07c66300bf88b39e50a8f624f1de267fa12d29bfddd699cca6fb37670a893b
+T007:
+  task: 37f3abfd258b089801352aec3284ac469136478ea59eefa4bed238fe1bfcd063
+T008:
+  task: ad65046b875909c5068373dc903088c3ac728cb8014fcbef964e8b3e586aae89
+T010:
+  task: 3dc96367d9a29ee3173dc5d715b2c07ab1c2dbf7364829f1aa0799fac6167a46
+T011:
+  task: a1a3b09a2f123133488a0a90c34bb7f5b292c5397fec4e8e77e0ba5f2d501d20
+T012:
+  task: f60d88f2d96ad01be2137a5f6a1d06dd9747621679c3480e2f0bc59434494fb6
+T013a:
+  task: a87fc4a634cfde217888a213ff33e3bf9bb552833a8c85d58893413bb6d45e79
+T013b:
+  task: 5dda61bb338a37048099f4058b68caf4e575685b3d09e1bb2c682ad6786a771a
+T013c:
+  task: 36f41753e4a0a96650d8cdd288536d97dc17f4611063cb1a69af1ea9688700fa
+T013d:
+  task: 7cf04fd46f96992abe5553ea4c32291ba3b8895a5aef024b71623d3b64b3d2d5
+T014:
+  task: 10fbaf5a31f2c202a32d1053eca79026d62e5921920269cac3d9b69ff5a92832
+T015a:
+  task: 139d559e58fb0728054f955fe5fef62e6e3eed18ed4404d171e13b4701c060eb
+T015c:
+  task: fa171f19088c7735d7c8e91ede5af899eb8bc554fd3d2ff3e18f41f59428d51d
+T015d:
+  task: 2a743d4300b0fc8437ae0e190d9773b9c1b08a73cb0fcbfed5029b906f002e83
+T018:
+  task: d276d0ce3cf1a50b157d12c4e6b96f15240c6fd226ccff1522f140c058a87513
+T020:
+  task: 58abff884c8b14492611f700dacfe79c46caa1b75500467268082fba4bbc86a0
+T021:
+  task: 4c0e445b2c479e0237ad34055b8718f87b20b5f214697bcd6babe7a992bab734
+T022a:
+  task: 9faba8674269386244e95ca2916edb5f36738141da820ed00cfd158b7de65bac
+T022b:
+  task: f566147e925d6aa79bd0a8846ddc8f4a6b0713dda6cc40212e01746ead42e688
+T022c:
+  task: ba97be6a589966f3378488a36ec0746bece947191596ff13c72b652eea87bbab
+T023a:
+  task: 13d1da6b082ad99ef4c1828b52aae5b50796309464fef6ada63827d99dcfd899
+T023b:
+  task: e9b3c22ba6c2a653b31851a905f70d01e4c18e39f453a354ab4539109aefcd17
+T024a:
+  task: a8f20b2be1398dd5b8094361a4881d93a80e53e2d0bdb2f31d28374cc7059042
+T024b:
+  task: 58103efeaeca6415dfc71865f486a719acd202cf5d44dfb4891b46f4eb5f366f
+T024c:
+  task: 92b4ff40c72e62d1d9b517bca5c15f765fd1f8d00226e37053388422c6eb6120
+T024d:
+  task: dbce914bfa62c86e9ffa950d3768a0081dcdfd7bf8cd3c0e53da72567f1166d9
+T025:
+  task: b02d48efeaf5137df9f2d8db61586e2846fc740d59d8720aab6884ebed3ffe00
+T026:
+  task: cbf97991d59f21aff97928bc0268e1db8bbc52e777f741a1391b4d63d9b23468
+T027:
+  task: 7750d3d3f986947d0f5b46d6900324fa5f14f425dedb849d59bfa49b13ecd46c
+T028:
+  task: 71cd305cdb4bd685634e071e8904882ced842894c46a7af965210d196a95e296
+T030:
+  task: 863ce3f19b82583ba966e98f9371a8f4c21dc98ea3e2137702c8208d2fc6bdd4
+T031:
+  task: af077786b68a9ba6a9986b81733930fed6e927a1a6228b705b4c4f8a1ae0cdd2
+T032a:
+  task: 51bd2e45678c3a856ea08c91aba094f0a1594ef92eeafb1338f7c27afd4c37a8
+T032b:
+  task: 3e4396ca3f35fb6ac24dce9a0eed5dcebd4c1b3eadba541edf98f5927afd9296
+T033:
+  task: 43221f25893ff490f6145fda52ff36f0368dd841aeab00b0066b53ce273d3bf4
+T034:
+  task: 9106cee111a60282e4184b32bb18270f39850748ac0e205293f274310e525fb0
+T035:
+  task: b12d377f5b2a70483d9d64ec23cd9d0396f26fc931f227d8f43a37a0c908d82b
+T036a:
+  task: b690bba7f21e1a315b204c838575e50f75e8768c0c53d981bd7a61b3443f9abf
+T036b:
+  task: 4428cb175eb0096ec6d5cf8bc9a2c16ce67945c3b036e5f042aef95458680003
+T037:
+  task: 0f557a856539c6f553eed802bde0f5fec0cf65e61fc9746e7a63eb9538e9f182
+T038a:
+  task: a8fc852df754ec99bb70cd227b2610a6c2aca0e0563d7872dd936051f0aecffa
+T039a:
+  task: 0454b98291fdc7331181b8a8ff80b3d85fcfbd871d9f72ca0d59f59dfdab109d
+T039b:
+  task: b21a7bd4040495d7d32d1890b51d0fad17de7c84a3db5888fab5a3bb7d5f9f9e
+T040:
+  task: 45290ab77eead1e39d7ce6577157d7bddc1d6e8d7141e3d354d72bb65b262a04
+T041:
+  task: 5407844561694fc715f969628cb73ff2a822f68a7f015ffe3bb050f1f02f3cf4
+T042a:
+  task: 9e81679026b4bdb93c2fd3788f4b94c47782f867454efc26e350a9e11c5589e1
+T042b:
+  task: 58cbaf03db7e413351af0cb48e909db017da06a7cca2e96ffd7e4401cb26c8d9
+T043a:
+  task: f11dfc640bf174af4ee4cb3f9acd9814e03cd4d32f1aec84799622670839eafa
+T043b:
+  task: 22d4719e7ef0c83887478aee09b2acbffbdb44df5565516a7b052b8cae910fc5
+T043c:
+  task: d7e81010b13b701fd6e618ed1f377077a1a7f583b7ac85ffd32503000b8118c8
+T043d:
+  task: b2cd4c1c99379ee86a686837085726ec2414acf597cdcc51309f524d2c2ef0df
+T043e:
+  task: 0b50e8abc08815bd70beb21ffbeb7ad232563c8039c582e29711978a5e78bd54
+T043f:
+  task: e1a70db283d503144a8bcbf0826b6f761a6b4492d84bc99448464d27a460049b
+T043g:
+  task: d420b602271584779d6de6a9df5c30cfc524018221538101adc4da40eaaad7ec
+T044a:
+  task: 2740f6c635ea5e667476f36cb715725cea2cfde39462f2fa714f25d0f79cd8bd
+T044b:
+  task: dcb52411c9fc0c26b506174ddf0712bd938e25546a61520d7f20bcf104d9b135
+T044c:
+  task: 6cb7378f5439498fe5363fd86f1e778286552062709051d1a88bacaca9aee98c
+T045a:
+  task: 0b8de12414f897ede031b19679a93d6d07976a45b3d5a253150ebd934b662da7
+T045b:
+  task: e84b0310b2d6eb0ad34871c8c93f969aaa6dcf727d442b967fea22494ddce489
+T047:
+  task: de1f72c9e490f0a658f731635a93311e326f8da604b6dac90c6f465a30377b3c
+T048:
+  task: 3000d00410c6e16c97886ea43cb705bc7c17e7ae804df3ffd374563f4661d05a
+T049:
+  task: 90715c94c90b9e0d8cf4af4dc7742d144803c28ef214cbe8ef636cfb95a71aff
+T050:
+  task: 09aa39333894fabe24b93dae74a6839564aa6610e840b8e567d4a7ebef618189
+T051:
+  task: a703720a501161b1242ba5ab7e869b9adecbdbad1edc30dbbc3ff537852b0e75
+T053:
+  task: ebfaf9b2e5d0729a61e2c1b1562c57538e28a6d3b5954d17ca8e0deda1ffcc7f
+T054:
+  task: 1fe5bbacf247564ac8c63ab49c61369ff2810bc83f1f7d979b43bdf3fdd880ba
+T055:
+  task: b556963089e337359225203082a4a6b0a3c8373d1be21f6f50d41d01635abaa8
+T056:
+  task: 4552f41308bc359a7a7238511cc902889882a30f0c7ec70b8601d389877453d1
+T057:
+  task: 6a75095ed7f5fc56e93e74e22588d542107847e0fe9a84a51e6874e1b99b803f
+T058:
+  task: f9cae9b89e95fdca372a920b8c3b9f3913b8e7d9e48b930b490fb937c37f5de1
+T059:
+  task: 717e504f4be8c0d880fc193fe31ce21e825c199a8f2e1bb862b1302195e628c4
+T060:
+  task: 7bd21aa494244fa2da9054aa07dad5a62bccc1695560053b736dcbd221d96273

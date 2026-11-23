@@ -1,1 +1,2 @@
-# This directory contains schema definitions and data contracts.
+# This directory stores schema definitions and data contracts.
+# Files: dataset_schema.yaml, metric_record_schema.yaml

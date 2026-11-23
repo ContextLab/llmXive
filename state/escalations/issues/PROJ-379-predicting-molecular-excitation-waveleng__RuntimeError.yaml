@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-08-27T20:04:10.328612+00:00'
+issue_number: 1321
+project_id: PROJ-379-predicting-molecular-excitation-waveleng

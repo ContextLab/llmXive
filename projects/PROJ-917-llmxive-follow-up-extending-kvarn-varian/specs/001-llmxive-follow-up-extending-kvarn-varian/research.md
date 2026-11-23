@@ -2,92 +2,87 @@
 
 ## Problem Statement
 
-The KVarN method mitigates error accumulation in KV-cache quantization by using an iterative Sinkhorn optimization step to compute optimal variance-normalization scaling factors for each attention block. While effective, this iterative step introduces significant latency in long-horizon autoregressive generation. This research investigates whether the mapping from input attention statistics (mean, variance, skewness, kurtosis) to these optimal scaling factors is learnable via a static prior (a lightweight 2-layer MLP), thereby eliminating the iterative optimization step without sacrificing accuracy.
-
-Crucially, this research addresses the **long-horizon dynamics** of error accumulation. Unlike previous static analyses, we model the temporal evolution of attention statistics and the feedback loop of quantization noise to ensure the static prior is robust to distribution shifts [deferred]+ steps.
-
-## Dataset Strategy
-
-Since KVarN is a novel method without a pre-existing public dataset of "optimal scaling factors," and the spec requires generating ground truth via the Sinkhorn optimizer, the dataset strategy is **synthetic trajectory generation** augmented by **real-world proxy validation**.
-
-### 1. Synthetic Attention Trajectories (Primary Training Data)
-Instead of generating [deferred] independent static matrices, we generate [deferred] **trajectories** (sequences of [deferred] steps).
-- **Generation Method**: `code/data_generation/synthetic_attention.py` (Trajectory Mode).
-- **Dynamics**: Each trajectory simulates a sequence of attention matrices where variance, sparsity, and higher-order moments (skewness, kurtosis) evolve according to a controlled **drift model**. This drift model mimics the accumulation of quantization noise and the changing attention patterns in autoregressive generation.
-- **Ground Truth**: For each step in the trajectory, the "ground truth" scaling factor is computed using a **Sequential Sinkhorn Solver**. This solver maintains a cumulative error state from previous steps, ensuring the ground truth reflects the true long-horizon optimization problem, not just an independent step.
-- **Verification**: Verified by checking that the variance drift matches the theoretical noise accumulation model and that the Sequential Sinkhorn solver converges within the step limit.
-
-### 2. Non-Triviality Regimes
-To ensure the MLP learns more than the closed-form baseline ($s = 1/\sigma^2$), we explicitly generate "Hard Regimes":
-- **High-Order Moment Regimes**: Matrices with controlled skewness and kurtosis (via mixture distributions) where the optimal scaling factor is known to deviate from the variance-only prediction.
-- **Verification**: We verify that in these regimes, the closed-form baseline error is significantly higher than the Sinkhorn ground truth, creating a learnable signal for the MLP.
-
-### 3. Real-World Proxy (Validation Data)
-To address the "sim-to-sim" domain shift risk:
-- **Source**: We will extract attention matrices from a small, public, pre-trained transformer (e.g., `distilbert-base-uncased` or a small LLM) on a fixed dataset (e.g., WikiText-2).
-- **Usage**: The trained MLP will be evaluated on these real-world attention maps to test generalization beyond synthetic distributions.
-- **Verification**: Verified by checking the distribution of moments against the synthetic training data to quantify the domain shift.
-
-**Note on External Datasets**: The "Verified datasets" block provided no URL for KVarN. The MLP, MSE, and other listed datasets are irrelevant to this specific research task (synthetic attention matrices). Therefore, **no external dataset URLs are cited**. The entire dataset is generated procedurally within the project, with the exception of the Real-World Proxy which uses a standard public model.
+The KVarN method uses an iterative Sinkhorn optimization step to compute variance-normalization scaling factors for KV-cache quantization, which mitigates error accumulation in long-horizon autoregressive generation. This research investigates whether the mapping from input attention statistics (mean, variance) to these optimal scaling factors is learnable via a static prior (a lightweight MLP). The core question is: *To what extent can a static prior approximate the iterative Sinkhorn solution, and what are the trade-offs between accuracy (accumulated KL-divergence) and latency (per-token time) in a [deferred]-step generation scenario?*
 
 ## Methodology
 
-### 1. Data Generation: Dynamic Trajectories (FR-001)
-- **Input**: Configuration for attention matrix dimensions (128x128), drift parameters, and non-triviality regimes.
+### 1. Data Generation (US-1, FR-001)
+- **Source**: Synthetic generation. No external dataset is used.
 - **Process**:
- 1. **Trajectory Generation**: Generate a substantial set of sequences of [deferred] steps. At each step $t$, the attention matrix $A_t$ is derived from $A_{t-1}$ plus a noise term that simulates quantization error accumulation.
-  2. **Moment Extraction**: Compute mean ($\mu_t$), variance ($\sigma^2_t$), skewness ($\gamma_t$), and kurtosis ($\kappa_t$) for each step.
-  3. **Sequential Ground Truth**: Run a **Sequential Sinkhorn Solver** to derive the optimal scaling factor $s^*_t$. This solver updates its internal state based on the quantization error from step $t-1$, modeling the feedback loop.
-  4. **Edge Cases**: Apply epsilon floor ($\epsilon = 10^{-6}$) to $\sigma^2_t$. Flag/Skip trajectories where the Sequential Sinkhorn fails to converge.
-- **Output**: A Parquet/CSV file containing sequences of $[\mu_t, \sigma^2_t, \gamma_t, \kappa_t, s^*_t]$ tuples.
+  - Generate 10,000 synthetic attention matrices (128x128).
+  - Parameters: Controlled sparsity (0.1, 0.5, 0.9), outlier magnitudes (1x, 5x, 10x), and variance levels (high, low).
+  - **Ground Truth**: Compute optimal scaling factors using the KVarN Sinkhorn optimizer for each matrix.
+  - **Output**: JSONL file containing `attention_matrix_moments` (mean, variance) and `optimal_scaling_factor`.
+- **Feasibility**: [deferred] matrices of 128x128 fit comfortably in ~7 GB RAM (each matrix of moderate size in float32, total substantial raw data, plus overhead for moments and labels).
+- **Construct Validity**: For the specific objective of **variance normalization** in KVarN, the optimal scaling factor is theoretically a function of the first two moments (mean and variance) alone. The Sinkhorn solver in KVarN targets variance matching; thus, higher-order moments (skewness, kurtosis) or spatial structure (outlier locations) are redundant for this specific constraint. This justifies the 2-feature input and avoids model under-specification.
 
-### 2. Model Training (FR-002, FR-009)
-- **Model**: 2-layer Multi-Layer Perceptron (MLP).
-  - **Input**: $[\mu_t, \sigma^2_t, \gamma_t, \kappa_t]$ (4 features, to capture non-trivial dependencies).
-  - **Hidden layers**: 2 layers with ReLU activation.
-  - **Output**: Predicted scaling factor $\hat{s}_t$.
+### 2. Model Training (US-2, FR-002)
+- **Model**: 2-layer MLP (Input: 2 features [mean, variance] -> Hidden: a hidden layer -> Output: a single feature [scaling factor]).
+- **Theoretical Justification**: For the specific objective of **variance normalization** in KVarN, the optimal scaling factor is theoretically a function of the first two moments (mean and variance) alone. The Sinkhorn solver in KVarN targets variance matching; thus, higher-order moments (skewness, kurtosis) or spatial structure (outlier locations) are redundant for this specific constraint. This justifies the 2-feature input and avoids model under-specification.
 - **Training**:
-  - **Loss**: Mean Squared Error (MSE) between $\hat{s}_t$ and $s^*_t$ across the entire trajectory.
-  - **Optimizer**: Adam.
-  - **Hardware**: CPU-only.
-- **Baselines**:
-  - **Closed-form**: $s_{closed} = 1 / \sigma^2_t$.
-  - **Comparison**: MLP MSE vs. Closed-form MSE (FR-009). We specifically analyze performance in the "High-Order Moment Regimes" to verify the MLP captures non-trivial relationships.
+  - Loss: Mean Squared Error (MSE).
+  - Optimizer: Adam.
+  - Epochs: A sufficient number of training iterations will be determined during the implementation phase to ensure model convergence.
+  - Split: A standard majority-minority train-test split.
+- **Baseline**: Closed-form `s = 1/variance` (FR-009).
+- **Success Metric**: Test MSE < 2x baseline MSE (SC-006).
 
-### 3. Simulation & Evaluation (FR-003, FR-004, FR-005, FR-006, FR-007, FR-008, FR-010)
-- **Setup**: Simulate an autoregressive decoding loop for [deferred] steps.
-- **Methods**:
- 1. **KVarN Baseline (Sequential)**: Use the Sequential Sinkhorn optimizer at each step, maintaining cumulative error state.
- 2. **Static Prior**: Use the trained MLP to predict $s_t$ at each step.
- 3. **Closed-form**: Use $s_t = 1/\sigma^2_t$ at each step.
-- **Metrics**:
-  - **Accumulated KL-Divergence**: Sum of KL-divergence between quantized and full-precision distributions at each step (FR-004).
-  - **Latency**: Wall-clock time per token (FR-005).
-  - **Statistical Significance**: Paired t-test on final accumulated KL-divergence across 30 independent runs (FR-006).
-  - **Sensitivity Analysis**: Sweep $\epsilon \in \{10^{-8}, 10^{-6}, 10^{-4}\}$ and report error rate variation (FR-007).
-  - **Theoretical Lower Bound**: Compute theoretical KL-divergence lower bound based on an **analytical quantization noise model** (independent of Sinkhorn, derived from $\sigma^2_{quant} = \Delta^2/12$) to provide an external ground truth (FR-008).
-  - **Real-World Proxy**: Evaluate the Static Prior on attention maps from a public pre-trained model to test generalization (see Dataset Strategy).
+### 3. Simulation & Evaluation (US-3, FR-003-006)
+- **Simulation**: A multi-step autoregressive loop.
+  - **Baseline**: Iterative Sinkhorn at each step.
+  - **Proposed**: Static prior (MLP) at each step.
+- **Quantization Scheme**: **Uniform INT8 Quantization** with symmetric range centered on the mean.
+  - This defines the specific mechanism to induce quantization error.
+- **Metric**: **Accumulated KL-divergence** between the full-precision distribution and the quantized distribution at each step.
+  - The KL-divergence is calculated based on the analytical noise model of the defined quantization scheme, ensuring the metric is well-defined and causally linked to the scaling factor.
+- **Statistical Validation**:
+  - 30 independent runs (n=30) to ensure statistical power (Source: arXiv:1509.09174).
+  - Paired t-test on final accumulated KL-divergence (p < 0.05) (FR-006, SC-004).
 
-## Statistical Rigor & Feasibility
+### 4. Theoretical Validation (FR-008, SC-002)
+- **Theoretical Lower Bound**: Calculate the analytical lower bound of KL-divergence based on the uniform quantization noise model.
+  - This bound represents the minimum possible error for the given quantization scheme, serving as an **independent ground truth**.
+  - **Calculation**: Derived from the minimum possible error for the given quantization scheme (Uniform INT8), based on the variance of the quantization noise (step size squared divided by a constant factor).
+- **Two-Tier Validation**:
+  - **Tier 1**: Compare static prior vs. KVarN baseline (standard comparison).
+  - **Tier 2**: Compare both methods against the **Theoretical Lower Bound**.
+  - This breaks the circular validation loop by validating the static prior against an independent physical bound, not just the KVarN solver's internal consistency.
 
-- **Multiple Comparisons**: The simulation compares three methods (KVarN, Static Prior, Closed-form). A Bonferroni correction or similar adjustment will be applied if multiple hypothesis tests are performed on the same data to control family-wise error rate.
-- **Sample Size / Power**: The plan specifies 30 independent runs (n=30) for the t-test. This is a standard minimum for robust statistical inference in computational experiments. Power analysis is deferred to the implementation phase if initial variance estimates suggest low power.
-- **Causal Inference**: This is a controlled simulation (synthetic data), not an observational study. Causal claims are limited to the causal effect of the method (Static Prior vs. KVarN) on the outcome (KL-divergence/Latency) within the simulation environment.
-- **Collinearity**: Input features (mean, variance, skewness, kurtosis) are distinct statistical moments. However, if the distribution of attention matrices implies a deterministic relationship between mean and variance in certain regimes, the plan will report this descriptive relationship rather than claiming independent effects.
-- **Compute Feasibility**:
- - **Memory**: [deferred] trajectories (128x128 float32) $\approx 640$ MB (if stored as sequences) or streamed. The Sequential Sinkhorn solver is iterative but operates on single matrices. MLP training is trivial. Simulation of a moderate number of steps is memory-light. Total RAM usage will remain within acceptable system limits.
- - **Time**: [deferred] Sequential Sinkhorn solves (CPU) + Multiple epochs MLP training
+### 5. Robustness & Sensitivity (FR-007)
+- **Sensitivity Analysis**: Sweep epsilon floor values across a range of small magnitudes. and measure impact on accumulated KL-divergence.
+- **Edge Case Handling**:
+  - Near-zero variance: Apply epsilon floor before normalization.
+  - Outliers: Ensure MLP generalizes or falls back to KVarN (graceful degradation).
 
-The research question remains: How does the number of training epochs affect the convergence and performance of the MLP model?
-The method remains: We will train a Multi-Layer Perceptron (MLP) using a standard backpropagation algorithm, varying the number of epochs to evaluate learning curves.
-References remain: [Citation preserved as in original source] + 30 runs of [deferred] steps. The Sequential Sinkhorn step is the bottleneck. Optimized NumPy/SciPy implementation is required. If the 6-hour limit is tight, the number of simulation steps or runs may be reduced (documented in `research.md` decision log).
+## Dataset Strategy
 
-## Decision Log (Deferred)
+| Dataset Name | Source/URL | Access Method | Justification |
+|--------------|------------|---------------|---------------|
+| **Synthetic Attention Matrices** | N/A (Generated) | `code/data_generation/synthetic_matrix_generator.py` | No external dataset exists for "optimal KVarN scaling factors." Synthetic generation allows controlled experimentation with sparsity, outliers, and variance levels required to test the learning hypothesis. |
+| **KVarN Sinkhorn Solver** | N/A (NO verified source) | `code/data_generation/sinkhorn_solver.py` | The KVarN algorithm is implemented from the methodology described in the parent project. No external dataset URL is available or needed for the solver itself. |
 
-| Decision | Rationale |
-| :--- | :--- |
-| **Sequential Sinkhorn Implementation** | Will use `scipy.optimize` with a cumulative error state. If convergence is too slow, a fixed iteration limit will be enforced. |
-| **MLP Architecture** | 2-layer MLP with 64 units per layer (default). Will be adjusted if training loss does not converge. |
-| **Simulation Steps** | Target a substantial number of steps. If runtime exceeds 6h, will reduce to 500 steps and extrapolate, or reduce n=30 to n=10 (with power analysis note). |
-| **Epsilon Floor** | The specific value is set to 1e-6 as a standard numerical stability constant. Sensitivity analysis (FR-007) will determine the optimal value and robustness range. |
-| **Real-World Proxy Model** | Will use a small, publicly available model (e.g., `distilbert-base-uncased` or a small LLM) to extract attention maps for validation. |
+> **Note**: The "Verified datasets" block indicates "KVarN: NO verified source found." This project relies on **synthetic data generation** and **algorithmic implementation** of the KVarN Sinkhorn step, not an external dataset download. This is the only feasible approach given the lack of a public dataset for "optimal scaling factors."
+
+## Theoretical Background & Citations
+
+- **KVarN Methodology**: The variance-normalization and Sinkhorn optimization steps are derived from the KVarN paper (parent project). The implementation will follow the described algorithm.
+- **Statistical Power (n=30)**: The requirement for 30 independent runs is based on standard statistical power analysis for paired t-tests in computational experiments, as referenced in arXiv:1509.09174 (Source: "batch generate independent must run runner simulation = 30").
+- **KL-Divergence in Quantization**: The use of KL-divergence to measure quantization error is standard in quantization literature (e.g., QAT, AWQ). The specific analytical noise model for Uniform INT8 is derived from standard quantization theory.
+
+## Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| **Sinkhorn Solver Non-Convergence** | Data generation fails; missing labels. | Implement retry logic with max iterations; skip/flag non-convergent matrices; verify convergence rate in `research.md`. |
+| **MLP Overfitting** | Poor generalization to unseen attention matrices. | Use early stopping; monitor train/test gap; keep model simple (2-layer MLP). |
+| **Accumulated Error Divergence** | Static prior fails in long-horizon simulation. | Implement fallback to KVarN if error exceeds threshold; analyze error accumulation patterns. |
+| **CPU Time Limit Exceeded** | A large number of runs of extended steps exceed the 6h CI limit. | Profile single run; optimize vectorized operations; if needed, reduce step count (e.g., 500 steps) and note power limitation. |
+| **Circular Validation** | Study only proves MLP mimics Sinkhorn. | **Tier 2 Validation**: Compare against independent Theoretical Lower Bound (FR-008). |
+
+## Decision Rationale
+
+- **CPU-First**: The entire pipeline (synthetic generation, MLP training, 1,000-step simulation) is designed to run on CPU. The Sinkhorn solver and MLP are lightweight; no GPU is required. This aligns with the GitHub Actions free-tier constraints.
+- **Synthetic Data**: Since no external dataset provides "optimal KVarN scaling factors," synthetic generation is the only viable path. This allows full control over input distributions (sparsity, outliers) to stress-test the static prior.
+- **Statistical Rigor**: The n=30 runs and paired t-test ensure that observed differences in accumulated KL-divergence are statistically significant, not due to random variance.
+- **Construct Validity**: The use of mean and variance as inputs is theoretically justified by the variance-matching objective of KVarN, ensuring the learning task is not trivial or under-specified.
+- **Independent Ground Truth**: The inclusion of a Theoretical Lower Bound (FR-008) ensures the study validates against a physical ground truth, avoiding circular validation.

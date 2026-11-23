@@ -8,3 +8,5 @@ numpy>=1.24.0
 pyyaml>=6.0.1
 astor>=0.8.1
 tqdm>=4.66.0
+cliff_delta_analysis  # auto-added: imported by run-book but missing from venv
+torch  # auto-added: imported by run-book but missing from venv

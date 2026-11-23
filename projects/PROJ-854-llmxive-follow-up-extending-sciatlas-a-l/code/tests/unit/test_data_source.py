@@ -1,18 +1,30 @@
 import pytest
 import pyalex
 from pyalex import Works
+from src.lib import config
+
+SAMPLE_WORK_ID = "2741809807"
 
 def test_openalex_reachable():
     """
-    Verify the OpenAlex API endpoint is reachable and pyalex can fetch a sample record.
+    Verify that the OpenAlex API is reachable.
     """
     try:
-        # Fetch a single known work or a sample
-        # Using a filter to get a specific work if we know an ID, or just sample
-        # We'll try to fetch a sample of 1 work
-        works = list(Works().sample(1))
-        
-        assert len(works) == 1
-        assert works[0].id is not None
+        # Perform a simple count query
+        count = Works().filter(openalex="W2741809807").count()
+        assert count >= 0, "Count should be non-negative"
     except Exception as e:
-        pytest.fail(f"OpenAlex API is unreachable or failed to fetch sample: {e}")
+        pytest.fail(f"OpenAlex API unreachable: {e}")
+
+def test_pyalex_basic_query():
+    """
+    Verify that pyalex can perform a basic search query.
+    """
+    try:
+        # Query for a specific work ID using filter
+        result = list(Works().filter(openalex=f"W{SAMPLE_WORK_ID}"))
+        
+        assert len(result) == 1, "Sample query did not return exactly 1 result"
+        assert result[0]["id"].endswith(SAMPLE_WORK_ID), "Sampled work ID mismatch"
+    except Exception as e:
+        pytest.fail(f"pyalex basic query failed: {e}")

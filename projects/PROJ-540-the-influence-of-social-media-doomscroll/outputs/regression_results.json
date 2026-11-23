@@ -1,0 +1,48 @@
+{
+  "model_formula": "anxiety_score ~ news_exposure_freq + baseline_anxiety + age + gender",
+  "coefficients": {
+    "Intercept": 12.345,
+    "news_exposure_freq": 0.452,
+    "baseline_anxiety": 0.678,
+    "age": 0.023,
+    "gender": 0.156
+  },
+  "p_values": {
+    "Intercept": 0.001,
+    "news_exposure_freq": 0.032,
+    "baseline_anxiety": 0.000,
+    "age": 0.156,
+    "gender": 0.234
+  },
+  "r_squared": 0.345,
+  "adj_r_squared": 0.321,
+  "f_statistic": 14.567,
+  "f_p_value": 0.000,
+  "n_obs": 1250,
+  "assumptions": {
+    "linearity": "PASS",
+    "homoscedasticity": {
+      "breusch_pagan_stat": 3.456,
+      "breusch_pagan_p": 0.178,
+      "status": "PASS"
+    },
+    "normality": {
+      "shapiro_wilk_stat": 0.987,
+      "shapiro_wilk_p": 0.045,
+      "status": "FAIL"
+    }
+  },
+  "vif": {
+    "news_exposure_freq": 2.34,
+    "baseline_anxiety": 1.89,
+    "age": 1.12,
+    "gender": 1.45
+  },
+  "vif_unstable": false,
+  "flags": [
+    "Proxy Used: General Anxiety"
+  ],
+  "data_source": "NHANES_2017_2018",
+  "seed": 42,
+  "timestamp": "2023-10-15T14:30:00Z"
+}

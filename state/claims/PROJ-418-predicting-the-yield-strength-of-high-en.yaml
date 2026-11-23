@@ -1,0 +1,1706 @@
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: linear_regression model R2 0.45 MAE 120.5 MPa RMSE 145.2 MPa
+  claim_id: c_42b3dcf9
+  context: Section 2 Model Performance Metrics table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The linear_regression model achieved an R\xB2 of 0.45, an MAE of 120.5\
+    \ MPa, and an RMSE of 145.2 MPa."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:29:54Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: random_forest model R2 0.72 MAE 85.3 MPa RMSE 105.8 MPa
+  claim_id: c_94df253b
+  context: Section 2 Model Performance Metrics table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The random_forest model achieved an R\xB2 of 0.72, an MAE of 85.3 MPa,\
+    \ and an RMSE of 105.8 MPa."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:30:22Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: gradient_boosting model R2 0.75 MAE 80.1 MPa RMSE 101.2 MPa
+  claim_id: c_d8468de7
+  context: Section 2 Model Performance Metrics table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The gradient_boosting model achieved an R\xB2 of 0.75, an MAE of 80.1\
+    \ MPa, and an RMSE of 101.2 MPa."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:30:40Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: delta descriptor VIF 2.15
+  claim_id: c_257be6f8
+  context: Section 3 Variance Inflation Factors (VIF) table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Variance Inflation Factor (VIF) for the delta descriptor is 2.15.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:30:52Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: delta_chi descriptor VIF 1.85
+  claim_id: c_382ab28b
+  context: Section 3 Variance Inflation Factors (VIF) table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Variance Inflation Factor (VIF) for the delta_chi descriptor is 1.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:31:06Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: vec descriptor VIF 3.40
+  claim_id: c_126bd359
+  context: Section 3 Variance Inflation Factors (VIF) table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Variance Inflation Factor (VIF) for the vec descriptor is 3.40.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:31:19Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: mixing_entropy descriptor VIF 1.20
+  claim_id: c_51d91ed3
+  context: Section 3 Variance Inflation Factors (VIF) table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Variance Inflation Factor (VIF) for the mixing_entropy descriptor
+    is 1.20.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:31:29Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: melting_temp_var descriptor VIF 2.90
+  claim_id: c_841a22d5
+  context: Section 3 Variance Inflation Factors (VIF) table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Variance Inflation Factor (VIF) for the melting_temp_var descriptor
+    is 2.90.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:31:39Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: vec descriptor permutation score 0.15 p-value 0.001
+  claim_id: c_aa416f6b
+  context: Section 4 Permutation Importance Analysis table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The vec descriptor had a permutation score of 0.15 and a p-value of 0.001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:31:50Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: delta_chi descriptor permutation score 0.12 p-value 0.005
+  claim_id: c_a075deb2
+  context: Section 4 Permutation Importance Analysis table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The delta_chi descriptor had a permutation score of 0.12 and a p-value
+    of 0.005.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:32:05Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: delta descriptor permutation score 0.08 p-value 0.045
+  claim_id: c_37e18447
+  context: Section 4 Permutation Importance Analysis table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The delta descriptor had a permutation score of 0.08 and a p-value of
+    0.045.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:32:23Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: mixing_entropy descriptor permutation score 0.05 p-value 0.120
+  claim_id: c_e72dc7b3
+  context: Section 4 Permutation Importance Analysis table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mixing_entropy descriptor had a permutation score of 0.05 and a p-value
+    of 0.120.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:32:37Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: melting_temp_var descriptor permutation score 0.03 p-value 0.250
+  claim_id: c_9c61db7c
+  context: Section 4 Permutation Importance Analysis table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The melting_temp_var descriptor had a permutation score of 0.03 and a
+    p-value of 0.250.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:32:48Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Bonferroni Corrected Alpha 0.01
+  claim_id: c_c846fa30
+  context: Section 4 Multiple Comparison Correction
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni Corrected Alpha was 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:32:59Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Benjamini-Hochberg Corrected Alpha 0.025
+  claim_id: c_4e398d3a
+  context: Section 4 Multiple Comparison Correction
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Benjamini-Hochberg Corrected Alpha was 0.025.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:33:14Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: random_forest mean R2 0.72 95% CI 0.68 to 0.76
+  claim_id: c_6b1dc4b6
+  context: Section 5 Model Performance Stability table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The random_forest model had a mean R\xB2 of 0.72 with a 95% confidence\
+    \ interval between 0.68 and 0.76."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:33:32Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: gradient_boosting mean R2 0.75 95% CI 0.71 to 0.79
+  claim_id: c_1791a0f0
+  context: Section 5 Model Performance Stability table
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The gradient_boosting model had a mean R\xB2 of 0.75 with a 95% confidence\
+    \ interval between 0.71 and 0.79."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-20T19:33:50Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: alpha 0.01 2 significant descriptors best model R2 0.75
+  claim_id: c_2b00fd94
+  context: Section 6 Sensitivity Analysis table
+  evidence:
+    candidates:
+    - - R2
+      - 0.75
+    - - Alpha
+      - 0.01
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Alpha_0.01_2_significant_descriptors_best_model_R2_0.75
+  kind: magnitude
+  raw_text: "At an alpha threshold of 0.01, 2 descriptors were significant with a\
+    \ best model R\xB2 of 0.75."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-20T19:34:38Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: alpha 0.05 3 significant descriptors best model R2 0.75
+  claim_id: c_e2d68863
+  context: Section 6 Sensitivity Analysis table
+  evidence:
+    candidates:
+    - - R2
+      - 0.75
+    - - Alpha
+      - 0.05
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Alpha_0.05_3_significant_descriptors_best_model_R2_0.75
+  kind: magnitude
+  raw_text: "At an alpha threshold of 0.05, 3 descriptors were significant with a\
+    \ best model R\xB2 of 0.75."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-20T19:35:23Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: alpha 0.10 3 significant descriptors best model R2 0.75
+  claim_id: c_5c99a362
+  context: Section 6 Sensitivity Analysis table
+  evidence:
+    candidates:
+    - - R2
+      - 0.75
+    - - Alpha
+      - 0.1
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Alpha_0.10_3_significant_descriptors_best_model_R2_0.75
+  kind: magnitude
+  raw_text: "At an alpha threshold of 0.10, 3 descriptors were significant with a\
+    \ best model R\xB2 of 0.75."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-20T19:35:25Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: training script runtime less than or equal to 3 hours on CPU
+  claim_id: c_baeceb05
+  context: "Phase 4: Model Training and Predictive Performance Evaluation \u2013 Independent\
+    \ Test requires the training script to complete within three hours on a CPU."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_script_runtime_less_than_or_equal_to_3_hours_on_CPU
+  kind: magnitude
+  raw_text: "Execute training script; verify runtime \u2264 3 hours on CPU."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:10:28Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: total pipeline runtime must not exceed 21600 seconds (6 hours)
+  claim_id: c_3c2d5884
+  context: 'Phase 4: Total pipeline runtime tracker must write output/pipeline_runtime.json
+    and assert failure if runtime exceeds 21600 seconds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If total_runtime_seconds > 21600, raise an AssertionError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:10:28Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: permutation importance must run 1000 permutations
+  claim_id: c_17642f52
+  context: "Phase 5a and Phase 5 updates specify that a large number of permutations,\
+    \ concretely 1000, must be performed for all permutation\u2011importance tests."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "implementation must always run 1000 permutations for permutation\u2011\
+    importance testing."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:11:11Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/plan.md
+  attempts: 1
+  canonical: fixed count of 1000 permutations for permutation importance tests
+  claim_id: c_7270e2e2
+  context: "The previously contemplated adaptive permutation\u2011count logic has\
+    \ been removed, and all permutation\u2011importance evaluations will now use a\
+    \ fixed count of 1,000 permutations regardless of the number of samples."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All permutation\u2011importance evaluations will now use a fixed count\
+    \ of 1,000 permutations regardless of the number of samples."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:54:39Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/plan.md
+  attempts: 1
+  canonical: figures include disclaimer associational analysis only no causal inference
+  claim_id: c_f203b1d5
+  context: "All generated figures will have the disclaimer \u201CAssociational analysis\
+    \ only; no causal inference\u201D injected via utils.plot_utils.inject_disclaimer."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Figures_include_disclaimer_associational_analysis_only_no_ca
+  kind: entity_fact
+  raw_text: "All generated figures will have the disclaimer \u2018Associational analysis\
+    \ only; no causal inference\u2019 injected via utils.plot_utils.inject_disclaimer."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:55:40Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/plan.md
+  attempts: 1
+  canonical: final report includes disclaimer associational analysis only no causal
+    inference
+  claim_id: c_1c7ff240
+  context: The final markdown report (output/report.md) will include the same disclaimer
+    through utils.report_utils.inject_disclaimer.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_report_includes_disclaimer_associational_analysis_only
+  kind: entity_fact
+  raw_text: The final markdown report will include the same disclaimer through utils.report_utils.inject_disclaimer.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:56:27Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: figures include disclaimer 'Associational analysis only; no causal inference'
+  claim_id: c_015ae064
+  context: T029a implements plot disclaimer injector in code/utils/plot_utils.py to
+    append 'Associational analysis only; no causal inference' to all generated matplotlib/seaborn
+    figures.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Figures_include_disclaimer_%27Associational_analysis_only;_no
+  kind: entity_fact
+  raw_text: All generated matplotlib/seaborn figures must have the disclaimer 'Associational
+    analysis only; no causal inference' appended.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:58:00Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: report includes disclaimer 'Associational analysis only; no causal inference'
+  claim_id: c_56683e72
+  context: 'T028 creates statistical report generator and includes an explicit verification
+    step: assert mandatory disclaimer string ''Associational analysis only; no causal
+    inference'' exists in the generated output/report.md.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_includes_disclaimer_%27Associational_analysis_only;_no
+  kind: entity_fact
+  raw_text: The generated report (output/report.md) must contain the mandatory disclaimer
+    string 'Associational analysis only; no causal inference'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T01:58:51Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: plot disclaimer injector appends 'Associational analysis only; no causal
+    inference' to all generated figures
+  claim_id: c_f89a6b10
+  context: Task T029a defines the plot disclaimer injector that appends the mandatory
+    disclaimer to all generated matplotlib/seaborn figures.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plot_disclaimer_injector_appends_%27Associational_analysis_onl
+  kind: entity_fact
+  raw_text: Implement plot disclaimer injector in `code/utils/plot_utils.py` to append
+    'Associational analysis only; no causal inference' to all generated matplotlib/seaborn
+    figures.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:22:32Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: normalize_to_mpa converts GPa to MPa by multiplying by 1000
+  claim_id: c_718b1b20
+  context: Task T006 implements a unit normalization utility that handles conversion
+    from GPa to MPa.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The unit normalization utility `normalize_to_mpa(value, unit)` converts
+    GPa to MPa by multiplying by 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:23:04Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: stability_check.sh runs pipeline three times with fixed seeds and shuffled
+    splits
+  claim_id: c_5e1b890d
+  context: Task T109 specifies a stability verification script that runs the pipeline
+    three times.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stability_check.sh_runs_pipeline_three_times_with_fixed_seed
+  kind: entity_fact
+  raw_text: The script `scripts/stability_check.sh` executes the full pipeline three
+    times with fixed seeds and shuffled splits.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:23:28Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: plot disclaimer injector appends 'Associational analysis only; no causal
+    inference' to all generated figures
+  claim_id: c_e8bdbef6
+  context: Implemented in code/utils/plot_utils.py (task T029a) to automatically add
+    a disclaimer to every figure.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plot_disclaimer_injector_appends_%27Associational_analysis_onl
+  kind: entity_fact
+  raw_text: The plot disclaimer injector appends 'Associational analysis only; no
+    causal inference' to all generated matplotlib/seaborn figures.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:24:17Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: unit normalization utility converts GPa to MPa, assumes MPa if missing,
+    raises ValueError on invalid unit
+  claim_id: c_e6e5ea78
+  context: "Implemented in code/utils/unit_utils.py (task T006) as a reusable function\
+    \ for yield\u2011strength conversion."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The unit normalization utility normalize_to_mpa(value, unit) converts
+    GPa to MPa by multiplying by 1000, assumes MPa if the unit column is missing,
+    and raises ValueError for an invalid unit string.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:24:44Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: VIF computation flags descriptors with VIF > 5
+  claim_id: c_f083b217
+  context: "Task T023 computes variance inflation factors for all descriptors and\
+    \ records any VIF\u202F>\u202F5 in output/vif_results.json."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_computation_flags_descriptors_with_VIF_%3E_5
+  kind: magnitude
+  raw_text: The VIF computation flags any descriptor with VIF greater than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:25:18Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: SHA256 checksum computed for raw dataset and recorded in state file
+  claim_id: c_e59868c5
+  context: Task T060 generates the checksum for the raw HEA composition CSV and stores
+    it under the artifact_hashes map.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SHA256_checksum_computed_for_raw_dataset_and_recorded_in_sta
+  kind: entity_fact
+  raw_text: SHA256 checksums are computed for the raw dataset file data/raw/heas_raw.csv
+    and recorded in the project state file.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:25:38Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/README.md
+  attempts: 1
+  canonical: script raises FileNotFoundError with message 'data/raw/heas_raw.csv not
+    found. Please provide the dataset file at the specified location before running
+    the pipeline.'
+  claim_id: c_a062b44f
+  context: The data downloader (code/data/download.py) validates the presence of this
+    file before any processing begins. If the file cannot be found, the script raises
+    a FileNotFoundError with the following exact message.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Script_raises_FileNotFoundError_with_message_%27data/raw/heas
+  kind: entity_fact
+  raw_text: 'If the file cannot be found, the script raises a FileNotFoundError with
+    the following exact message: FileNotFoundError: data/raw/heas_raw.csv not found.
+    Please provide the dataset file at the specified location before running the pipeline.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:26:45Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: plot disclaimer adds 'Associational analysis only; no causal inference'
+  claim_id: c_47dd87c1
+  context: Implemented in code/utils/plot_utils.py as task T029a, which injects a
+    mandatory disclaimer into figure metadata.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Plot_disclaimer_adds_%27Associational_analysis_only;_no_causal
+  kind: entity_fact
+  raw_text: The plot disclaimer injector appends the string 'Associational analysis
+    only; no causal inference' to all generated matplotlib/seaborn figures.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:59:34Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: report disclaimer adds mandatory disclaimer
+  claim_id: c_706f11c7
+  context: Implemented in code/utils/report_utils.py as task T029b, ensuring every
+    generated report includes the required disclaimer.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Report_disclaimer_adds_mandatory_disclaimer
+  kind: entity_fact
+  raw_text: The report disclaimer injector appends the mandatory disclaimer to report
+    markdown text.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T16:59:53Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: 1000 permutations per descriptor in permutation importance
+  claim_id: c_f4b4e760
+  context: "Task T044 specifies a fixed count of 1\u202F000 permutations for each\
+    \ descriptor when computing permutation importance for the Random Forest model."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Permutation importance computation enforces exactly 1\u202F000 permutations\
+    \ per descriptor."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:00:17Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: "bootstrap resampling uses \u22651000 resamples"
+  claim_id: c_5c5b0f01
+  context: "Task T026 states that bootstrap resampling (\u2265 1\u202F000 resamples)\
+    \ is performed for the best tree\u2011based model and the remediated linear model\
+    \ to compute 95\u202F% confidence intervals."
+  evidence:
+    entailment_evidence: "Bootstrap resampling uses \u22651000 resamples"
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resampling_uses_%E2%89%A51000_resamples
+  kind: magnitude
+  raw_text: "Bootstrap resampling uses at least 1\u202F000 resamples for confidence\
+    \ intervals of model metrics."
+  resolved_value: "bootstrap resampling uses \u22651000 resamples"
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-07T17:00:19Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: VIF flag threshold >5
+  claim_id: c_cd5eca53
+  context: Task T023 computes VIF for all descriptors and flags any VIF > 5 before
+    model training.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_flag_threshold_%3E5
+  kind: magnitude
+  raw_text: VIF analysis flags any variance inflation factor greater than 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-07T17:00:52Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Primary dataset contains 850 total samples
+  claim_id: c_9d2e27a5
+  context: 'Primary Dataset (Zenodo 1040153) - Total samples: 850'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total samples: 850'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:35:18Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Primary dataset contains 720 single-phase samples
+  claim_id: c_27900f64
+  context: 'Primary Dataset (Zenodo 1040153) - Single-phase samples: 720'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Single-phase samples: 720'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:36:16Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Primary dataset contains 680 room temperature samples
+  claim_id: c_b407d3f6
+  context: 'Primary Dataset (Zenodo 1040153) - Room temperature samples: 680'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Room temperature samples: 680'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:36:51Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Primary dataset contains 650 final processed samples
+  claim_id: c_af20a9b0
+  context: 'Primary Dataset (Zenodo 1040153) - Final processed samples: 650'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Final processed samples: 650'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:37:20Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Primary dataset yield strength range is 200 to 800 MPa
+  claim_id: c_e613b256
+  context: 'Primary Dataset (Zenodo 1040153) - Yield strength range: 200-800 MPa'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Yield strength range: 200-800 MPa'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:38:26Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Primary dataset mean yield strength is 450 MPa
+  claim_id: c_048bc27e
+  context: 'Primary Dataset (Zenodo 1040153) - Mean yield strength: 450 MPa'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Mean yield strength: 450 MPa'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:38:58Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: External validation dataset contains 50 total samples
+  claim_id: c_4eb1a836
+  context: 'External Validation Dataset (Zenodo 1040154) - Total samples: 50'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Total samples: 50'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:38:58Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: External validation dataset contains 45 single-phase samples
+  claim_id: c_87cdc692
+  context: 'External Validation Dataset (Zenodo 1040154) - Single-phase samples: 45'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Single-phase samples: 45'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:38:59Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: External validation dataset yield strength range is 250 to 750 MPa
+  claim_id: c_d70b76c4
+  context: 'External Validation Dataset (Zenodo 1040154) - Yield strength range: 250-750
+    MPa'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Yield strength range: 250-750 MPa'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:39:47Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Random Forest model Mean Absolute Error is 45.3 MPa
+  claim_id: c_5cf78252
+  context: 'Random Forest Model - MAE: 45.3 MPa'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'MAE: 45.3 MPa'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:40:28Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Random Forest model Root Mean Square Error is 62.1 MPa
+  claim_id: c_6ed816b1
+  context: 'Random Forest Model - RMSE: 62.1 MPa'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'RMSE: 62.1 MPa'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:40:55Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Linear Regression model Mean Absolute Error is 52.8 MPa
+  claim_id: c_1681b25a
+  context: 'Linear Regression Model - MAE: 52.8 MPa'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'MAE: 52.8 MPa'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:40:55Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Linear Regression model Root Mean Square Error is 71.4 MPa
+  claim_id: c_c60e5b95
+  context: 'Linear Regression Model - RMSE: 71.4 MPa'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'RMSE: 71.4 MPa'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:40:55Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Random Forest model shows 0.07 R-squared improvement over Linear Regression
+  claim_id: c_72fd10dc
+  context: "Best Model Selection - R\xB2 improvement: +0.07"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "R\xB2 improvement: +0.07"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:42:14Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Random Forest model shows 0.07 Pearson r improvement over Linear Regression
+  claim_id: c_c915b549
+  context: 'Best Model Selection - Pearson r improvement: +0.07'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Pearson r improvement: +0.07'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:43:15Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Stability assessment performed over 3 runs
+  claim_id: c_3fb858c0
+  context: 'Stability Assessment - Number of runs: 3'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Number of runs: 3'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:43:44Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Stability assessment used seeds 42, 43, and 44
+  claim_id: c_fda61ddd
+  context: 'Stability Assessment - Seeds: 42, 43, 44'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Seeds: 42, 43, 44'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:44:16Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Stability assessment maximum rank difference was 0
+  claim_id: c_0389d627
+  context: 'Stability Assessment - Maximum rank difference: 0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Maximum rank difference: 0'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:44:47Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: External validation Mean Absolute Error is 48.2 MPa
+  claim_id: c_e371183c
+  context: 'External Validation - Metrics - MAE: 48.2 MPa'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'MAE: 48.2 MPa'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:44:47Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: External validation Root Mean Square Error is 65.7 MPa
+  claim_id: c_3a763c75
+  context: 'External Validation - Metrics - RMSE: 65.7 MPa'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'RMSE: 65.7 MPa'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:44:47Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Power analysis sample size is 650
+  claim_id: c_53766901
+  context: 'Power Analysis - Results - Sample size: 650'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample size: 650'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:45:29Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Power analysis achieved power of 0.95
+  claim_id: c_054236e5
+  context: 'Power Analysis - Results - Achieved power: 0.95'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Achieved power: 0.95'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:46:17Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/output/report.md
+  attempts: 1
+  canonical: Yield strength measurements conducted at 25 degrees Celsius plus or minus
+    2 degrees
+  claim_id: c_bebee781
+  context: "Measurement Protocols - Primary Dataset - Room temperature (25\xB0C \xB1\
+    \ 2\xB0C)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Room temperature (25\xB0C \xB1 2\xB0C)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:46:51Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: elemental property loader loads from MaterialsProject/elemental_properties
+    dataset
+  claim_id: c_116998b4
+  context: Task T011 describes loading elemental properties from a verified Hugging
+    Face dataset for descriptor calculation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Elemental_property_loader_loads_from_MaterialsProject/elemen
+  kind: entity_fact
+  raw_text: Implement elemental property loader in code/data/descriptors.py loading
+    from the verified Hugging Face dataset https://huggingface.co/datasets/MaterialsProject/elemental_properties.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:48:25Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: external validation dataset available at Zenodo DOI 10.5281/zenodo.1040154
+  claim_id: c_5d88a561
+  context: Task T141 specifies downloading the external validation dataset from a
+    Zenodo DOI for validation.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Implement explicit download of the external validation dataset from the
+    verified Zenodo URL with DOI 10.5281/zenodo.1040154.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:48:28Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: elemental properties loaded from Hugging Face dataset MaterialsProject/elemental_properties
+  claim_id: c_ee66bc7a
+  context: "T142 [FR\u2011002] Implement deterministic loading of elemental properties\
+    \ from the verified Hugging Face dataset `MaterialsProject/elemental_properties`\
+    \ using `datasets.load_dataset`, ensuring no fallback to synthetic data if the\
+    \ fetch fails."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Elemental_properties_loaded_from_Hugging_Face_dataset_Materi
+  kind: entity_fact
+  raw_text: Implement deterministic loading of elemental properties from the verified
+    Hugging Face dataset https://huggingface.co/datasets/MaterialsProject/elemental_properties
+    using datasets.load_dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:49:14Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: external validation dataset available at Zenodo DOI 10.5281/zenodo.1040154
+  claim_id: c_2a8d772c
+  context: T129 [US2] Download external validation dataset from Zenodo DOI `10.5281/zenodo.1040154`
+    (from T141) and save to `data/external/validation.csv`.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Download external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:49:17Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: achieved power must be at least 0.80
+  claim_id: c_6b285497
+  context: "Perform power analysis based on `output/data_status.json` and `data/processed/hea_descriptors.csv`;\
+    \ calculate the achieved power to detect R\xB2 \u2265 0.6 and abort if achieved\
+    \ power < 0.80."
+  evidence:
+    entailment_evidence: Achieved power must be at least 0.80
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Achieved_power_must_be_at_least_0.80
+  kind: magnitude
+  raw_text: Abort if achieved power < 0.80.
+  resolved_value: achieved power must be at least 0.80
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-27T10:50:02Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: flag descriptors with VIF greater than 5
+  claim_id: c_0f5bfaa9
+  context: Compute VIF for all descriptors before any model training and write `output/vif_results.json`.
+    Flag any VIF > 5.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_descriptors_with_VIF_greater_than_5
+  kind: magnitude
+  raw_text: Flag any VIF > 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:50:45Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: use exactly 1000 permutations per descriptor for permutation importance
+  claim_id: c_01f0eeaf
+  context: "Compute permutation importance for each descriptor on the held\u2011out\
+    \ test set using exactly 1000 permutations per feature; write raw results to `output/permutation_raw.json`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement permutation importance for each descriptor on the held\u2011\
+    out test set using exactly 1000 permutations per feature."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:51:15Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: "best model R\xB2 must be at least 0.6"
+  claim_id: c_baecc371
+  context: "T021_verify_sc001 verifies that the R\xB2 for the best model \u2265\u202F\
+    0.6; abort if not."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Best_model_R%C2%B2_must_be_at_least_0.6
+  kind: magnitude
+  raw_text: "Verify that the R\xB2 for the best model \u2265\u202F0.6; abort if not."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:52:09Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: best model absolute Pearson r must be at least 0.5
+  claim_id: c_087ed8f2
+  context: "T021_verify_sc002 verifies that the absolute Pearson r for the best model\
+    \ \u2265\u202F0.5; abort if not."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Best_model_absolute_Pearson_r_must_be_at_least_0.5
+  kind: magnitude
+  raw_text: "Verify that the absolute Pearson r for the best model \u2265\u202F0.5;\
+    \ abort if not."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:53:22Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: "external validation fails if R\xB2 below 0.6, |r| below 0.5, or p-value\
+    \ 0.05 or higher"
+  claim_id: c_4ac7b70c
+  context: "T132 enforces external validation success criteria: abort if R\xB2 < 0.6,\
+    \ |r| < 0.5, or p\u2011value \u2265 0.05."
+  evidence:
+    entailment_evidence: "External validation fails if R\xB2 below 0.6, r below 0.5,\
+      \ or p"
+    entailment_status: not_found
+    object: below 0.5, or p-value 0.05 or higher
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/External_validation_fails_if_R%C2%B2_below_0.6,_r_below_0.5,_or_p
+    source_value: "https://en.wikipedia.org/wiki/external_validation_fails_if_R\xB2\
+      _below_0.6,_r_below_0.5,_or_p"
+    subject: "external validation fails if R\xB2 below 0.6,"
+  kind: relational
+  raw_text: "abort if R\xB2 < 0.6, |r| < 0.5, or p\u2011value \u2265 0.05."
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:54:47Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: execute pipeline three times with different random seeds
+  claim_id: c_b76e6d89
+  context: "T144 implements the stability assessment script to run the full training\
+    \ and evaluation pipeline three independent times with distinct random seeds (e.g.,\
+    \ 42, 43, 44), recording the top\u20115 feature rankings for each run."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: run the full training and evaluation pipeline three independent times
+    with distinct random seeds (e.g., 42, 43, 44).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:55:24Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: maximum rank difference across runs must be at most 1
+  claim_id: c_5f2e85bd
+  context: "T069b implements script that reads `output/stability_rankings.json` and\
+    \ asserts rank\u2011difference \u2264 1 across runs."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Maximum_rank_difference_across_runs_must_be_at_most_1
+  kind: magnitude
+  raw_text: "assert rank\u2011difference \u2264 1 across runs."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:56:13Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: pipeline total runtime must be at most 7200 seconds
+  claim_id: c_de9276ab
+  context: "T120 verifies that `output/pipeline_runtime.json` reports a status of\
+    \ 'pass' (total time \u2264 7200s)."
+  evidence:
+    entailment_evidence: Pipeline total runtime must be at most 7200 seconds
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Pipeline_total_runtime_must_be_at_most_7200_seconds
+  kind: magnitude
+  raw_text: "Verify that `output/pipeline_runtime.json` reports a status of 'pass'\
+    \ (total time \u2264 7200s)."
+  resolved_value: pipeline total runtime must be at most 7200 seconds
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-27T10:56:15Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: external validation dataset available at Zenodo DOI 10.5281/zenodo.1040154
+  claim_id: c_9d12fa71
+  context: T129 downloads external validation dataset from Zenodo DOI `10.5281/zenodo.1040154`
+    and saves to `data/external/validation.csv`.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Download external validation dataset from Zenodo DOI 10.5281/zenodo.1040154.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:56:18Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: elemental property loader loads from MaterialsProject/elemental_properties
+    Hugging Face dataset
+  claim_id: c_bbc73ff3
+  context: T011 [US1] Implement elemental property loader in `code/data/descriptors.py`
+    loading from the verified Hugging Face dataset `https://huggingface.co/datasets/MaterialsProject/elemental_properties`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Elemental_property_loader_loads_from_MaterialsProject/elemen
+  kind: entity_fact
+  raw_text: Implement elemental property loader in `code/data/descriptors.py` loading
+    from the verified Hugging Face dataset `https://huggingface.co/datasets/MaterialsProject/elemental_properties`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:56:39Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: external validation dataset downloaded from Zenodo DOI 10.5281/zenodo.1040154
+  claim_id: c_c7fe51e7
+  context: T129 [US2] Download external validation dataset from Zenodo DOI `10.5281/zenodo.1040154`
+    (from T141) and save to `data/external/validation.csv`.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Download external validation dataset from Zenodo DOI `10.5281/zenodo.1040154`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T10:56:42Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: external validation dataset available at Zenodo DOI 10.5281/zenodo.1040154
+  claim_id: c_16c3bb40
+  context: T129 [US2] Download external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+    (from T141) and save to data/external/validation.csv.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Download external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+    and save to data/external/validation.csv.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:13:02Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+  claim_id: c_5375b393
+  context: T129 [US2] Download external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+    (from T141) and save to data/external/validation.csv.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Download external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+    and save to data/external/validation.csv
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:13:50Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: external validation dataset DOI 10.5281/zenodo.1040154
+  claim_id: c_2388e16b
+  context: T129 [US2] Download external validation dataset from Zenodo DOI `10.5281/zenodo.1040154`
+    and save to `data/external/validation.csv`.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Download external validation dataset from Zenodo DOI `10.5281/zenodo.1040154`
+    and save to `data/external/validation.csv`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:14:20Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: elemental properties dataset MaterialsProject/elemental_properties on
+    Hugging Face
+  claim_id: c_5cc29f8d
+  context: "T142 [FR\u2011002] Implement deterministic loading of elemental properties\
+    \ from the verified Hugging Face dataset `MaterialsProject/elemental_properties`\
+    \ using `datasets.load_dataset`."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Elemental_properties_dataset_MaterialsProject/elemental_prop
+  kind: entity_fact
+  raw_text: Implement deterministic loading of elemental properties from the verified
+    Hugging Face dataset `MaterialsProject/elemental_properties` using `datasets.load_dataset`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:14:44Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: external validation dataset located at Zenodo DOI 10.5281/zenodo.1040154
+  claim_id: c_1970be45
+  context: T129 [US2] Download external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+    (from T141) and save to data/external/validation.csv.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:15:31Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: elemental properties loaded from Hugging Face dataset MaterialsProject/elemental_properties
+  claim_id: c_f9fdbc98
+  context: T011 [US1] Implement elemental property loader in code/data/descriptors.py
+    loading from the verified Hugging Face dataset https://huggingface.co/datasets/MaterialsProject/elemental_properties.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Elemental_properties_loaded_from_Hugging_Face_dataset_Materi
+  kind: entity_fact
+  raw_text: elemental property dataset loaded from Hugging Face dataset MaterialsProject/elemental_properties
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:15:57Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: external validation dataset from Zenodo DOI 10.5281/zenodo.1040154
+  claim_id: c_170b40f5
+  context: T129 [US2] Download external validation dataset from Zenodo DOI `10.5281/zenodo.1040154`
+    (from T141) and save to `data/external/validation.csv`.
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Download external validation dataset from Zenodo DOI `10.5281/zenodo.1040154`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:16:25Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: external validation dataset downloaded from Zenodo DOI 10.5281/zenodo.1040154
+  claim_id: c_a451e00a
+  context: "Phase 3: User Story 1 \u2013 Data Acquisition & Descriptor Engineering,\
+    \ Task T129"
+  evidence:
+    ok: false
+    reason: cited source unreadable (resolved but no open-access full text); cannot
+      substantiate
+  kind: citation
+  raw_text: Download external validation dataset from Zenodo DOI 10.5281/zenodo.1040154.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:49:25Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: k-fold cross-validation performed on training set
+  claim_id: c_5b38245e
+  context: "Phase 4: User Story 2 \u2013 Model Training & Predictive Performance Evaluation,\
+    \ Task T019"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/K-fold_cross-validation_performed_on_training_set
+  kind: entity_fact
+  raw_text: Perform k-fold cross-validation on the training set to estimate out-of-fold
+    performance and support hyperparameter tuning.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:56:08Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: Random RF trained with n_estimators=500, random_state=42, n_jobs=2 after
+    5-fold CV grid search
+  claim_id: c_1f9d50f6
+  context: "Phase 4: User Story 2 \u2013 Model Training & Predictive Performance Evaluation,\
+    \ Task T018"
+  evidence:
+    candidates:
+    - - ''
+      - 500.0
+    - - ''
+      - 42.0
+    - - ''
+      - 3.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Random_RF_trained_with_n_estimators%3D500,_random_state%3D42,_n
+  kind: magnitude
+  raw_text: 'Implement Random RF trainer with grid search over max_features: [''sqrt'',
+    5, 10, 20] and min_samples_leaf: [1, 5, 10] evaluated via 5-fold CV, selecting
+    best model and training final RF with n_estimators=500, random_state=42, n_jobs=2.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-02T22:56:39Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: two-tailed p-value for Pearson correlation computed using 1000 bootstrap
+    resamples
+  claim_id: c_27b8427e
+  context: "Phase 4: User Story 2 \u2013 Model Training & Predictive Performance Evaluation,\
+    \ Task T020b"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Explicitly compute the two-tailed p-value for the Pearson correlation
+    coefficient on the held-out test set using bootstrap resampling with 1000 resamples
+    and record it in output/metrics.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:57:19Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: 'external validation success criteria: R2 >= 0.6, |r| >= 0.5, p-value
+    < 0.05'
+  claim_id: c_e259e76e
+  context: "Phase 4: User Story 2 \u2013 Model Training & Predictive Performance Evaluation,\
+    \ Task T132"
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: '>= 0.5, p-value < 0.05'
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/external_validation_success_criteria:_R2_%3E=_0.6,_r_%3E=_0.5,_p
+    source_value: https://en.wikipedia.org/wiki/external_validation_success_criteria:_R2_>=_0.6,_r_>=_0.5,_p
+    subject: 'external validation success criteria: R2 >= 0.6,'
+  kind: relational
+  raw_text: "Enforce external validation success criteria: abort if R\xB2 < 0.6, |r|\
+    \ < 0.5, or p-value \u2265 0.05."
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:58:25Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: stability assessment script ran pipeline three independent times with
+    seeds 111, 222, 333
+  claim_id: c_6e75b690
+  context: "Phase 4: User Story 2 \u2013 Model Training & Predictive Performance Evaluation,\
+    \ Task T144"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement the stability assessment script to run the full training-evaluation
+    pipeline three independent times with distinct random seeds [111, 222, 333], recording
+    the top-ranked feature rankings for each run in output/stability_rankings.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:59:16Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: maximum rank difference <= 1 for top-5 features across three runs
+  claim_id: c_42a5ec38
+  context: "Phase 5: User Story 3 \u2013 Stability Assessment, Task T119s_verify"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that output/stability_rankings.json shows maximum rank difference\
+    \ \u2264 1 for the top-5 features across the three runs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:59:16Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: quickstart validation report contains status, steps_executed, errors,
+    and timestamp
+  claim_id: c_f3742cde
+  context: 'Phase 6: Cross-Cutting Concerns, Task T036'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Quickstart_validation_report_contains_status,_steps_executed
+  kind: entity_fact
+  raw_text: 'Verify that the quickstart.md validation captures steps executed and
+    reports a status in output/quickstart_validation_report.json containing { ''status'':
+    ''success|failure'', ''steps_executed'': int, ''errors'': [], ''timestamp'': str
+    }.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T22:59:40Z'
+- artifact_path: projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/tasks.md
+  attempts: 1
+  canonical: report.md includes R2, |r|, p-value, permutation importance with corrected
+    p-values, and bootstrap CI
+  claim_id: c_2ed4c612
+  context: 'Phase 9: Final Integration & Gate Pass, Task T118'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: ', p-value, permutation importance with corrected p-values, and bootstrap
+      CI'
+    relation: r
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Report.md_includes_R2,_r_,_p-value,_permutation_importance_w
+    source_value: https://en.wikipedia.org/wiki/report.md_includes_R2,_r_,_p-value,_permutation_importance_w
+    subject: report.md includes R2,
+  kind: relational
+  raw_text: "Verify that the generated report.md includes model performance metrics\
+    \ (R\xB2, |r|, p-value), permutation importance with corrected p-values, and bootstrap\
+    \ CI."
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:00:17Z'

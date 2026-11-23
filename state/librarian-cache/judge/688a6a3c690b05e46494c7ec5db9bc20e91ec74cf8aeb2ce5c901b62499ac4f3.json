@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.14140",
+  "judged_at": "2026-08-24T18:37:06Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ideas have genomes: benchmarking scientific lineage reasoning and line\" computer science",
+  "rationale": "The candidate paper focuses on \"long-horizon chain-of-thought reasoning\" and planning over extended token sequences, which is a distinct construct from the user's question about \"scientific lineage reasoning\" and \"genomes\" (the tracing of idea evolution and citation history). While both involve reasoning in computer science, the paper does not measure the specific mechanism of lineage tracking, nor does it address the variables of scientific genealogy or the \"Ideas Have Genomes\" framework, faili",
+  "relevant": false
+}

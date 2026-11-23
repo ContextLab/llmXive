@@ -1,0 +1,36 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "Analysis Report"
+description: "Schema for the statistical analysis results"
+type: object
+properties:
+  metric_type:
+    type: string
+    enum:
+      - "Pearson"
+      - "Spearman"
+      - "Logistic"
+      - "Fisher_Z"
+    description: "Type of statistical test"
+  value:
+    type: number
+    description: "Correlation coefficient or regression coefficient"
+  p_value:
+    type: number
+    description: "P-value of the test"
+  confidence_interval:
+    type: array
+    items:
+      type: number
+    description: "95% Confidence Interval [lower, upper]"
+  sample_size:
+    type: integer
+    description: "Number of samples used"
+  decision:
+    type: string
+    description: "Reject or Fail to Reject null hypothesis"
+required:
+  - metric_type
+  - value
+  - p_value
+  - sample_size
+additionalProperties: false

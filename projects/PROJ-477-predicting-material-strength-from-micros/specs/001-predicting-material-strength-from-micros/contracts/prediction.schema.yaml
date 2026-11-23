@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Prediction Result Schema"
+description: "Schema for the output CSV file containing model predictions and confidence intervals."
+type: "object"
+properties:
+  predictions:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        image_id:
+          type: "string"
+          description: "Unique identifier for the image."
+        specimen_id:
+          type: "string"
+          description: "Unique identifier for the parent specimen."
+        predicted_strength:
+          type: "number"
+          description: "Predicted yield strength in MPa."
+        ci_lower:
+          type: "number"
+          description: "Lower bound of the 95% confidence interval."
+        ci_upper:
+          type: "number"
+          description: "Upper bound of the 95% confidence interval."
+        uncertainty_score:
+          type: "number"
+          description: "Standard deviation of MC Dropout samples."
+        grad_cam_path:
+          type: "string"
+          description: "Relative path to the Grad-CAM heatmap image."
+      required:
+        - image_id
+        - specimen_id
+        - predicted_strength
+        - ci_lower
+        - ci_upper
+        - uncertainty_score
+required:
+  - predictions

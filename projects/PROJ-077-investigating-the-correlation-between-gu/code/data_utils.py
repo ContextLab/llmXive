@@ -1,41 +1,53 @@
-"""
-Data Utilities Module.
-Helper functions for loading and validating data.
-"""
 import pandas as pd
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Iterator, Union
 import os
+import itertools
+from config import SAMPLE_LIMIT
+from logging_config import get_logger, log_warning
 
-def load_csv_with_dtypes(file_path: str, chunksize: Optional[int] = None) -> Union[pd.DataFrame, Iterator[pd.DataFrame]]:
+logger = get_logger("data_utils")
+
+def load_csv_streaming(path: str, limit: int = SAMPLE_LIMIT) -> pd.DataFrame:
     """
-    Loads a CSV file. If chunksize is provided, returns an iterator.
-    Otherwise, loads the whole file.
-    """
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"File not found: {file_path}")
+    Load a CSV file in streaming mode, limiting the number of rows.
     
-    if chunksize:
-        return pd.read_csv(file_path, chunksize=chunksize)
-    else:
-        return pd.read_csv(file_path)
+    Args:
+        path: Path to the CSV file.
+        limit: Maximum number of rows to load.
+        
+    Returns:
+        pd.DataFrame: Loaded data (limited to `limit` rows).
+    """
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"File not found: {path}")
+        
+    # Use chunked reading for large files
+    chunks = []
+    total_rows = 0
+    
+    for chunk in pd.read_csv(path, chunksize=10000):
+        chunks.append(chunk)
+        total_rows += len(chunk)
+        if total_rows >= limit:
+            break
+            
+    df = pd.concat(chunks, ignore_index=True)
+    
+    # Enforce limit strictly
+    if len(df) > limit:
+        df = df.iloc[:limit]
+        log_warning(f"Stream contained more than {limit} rows. Truncated to {limit}.")
+        
+    return df
 
-def get_chunk_paths(base_path: str, pattern: str = "*.csv") -> List[str]:
-    """Returns a list of chunk file paths."""
-    path = Path(base_path)
-    return [str(f) for f in path.glob(pattern)]
-
-def get_file_info(file_path: str) -> Dict[str, Any]:
-    """Returns basic info about a file."""
-    if not os.path.exists(file_path):
-        return {}
-    size = os.path.getsize(file_path)
-    return {'path': file_path, 'size_bytes': size}
-
-def validate_csv_structure(file_path: str, required_columns: List[str]) -> bool:
-    """Checks if a CSV has required columns."""
-    try:
-        df = pd.read_csv(file_path, nrows=0)
-        return all(col in df.columns for col in required_columns)
-    except Exception:
-        return False
+def load_chunked(path: str, chunk_size: int = 10000) -> Iterator[pd.DataFrame]:
+    """
+    Loads a CSV in chunks. Raises FileNotFoundError if path does not exist.
+    Yields pandas DataFrames.
+    """
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"File not found: {path}")
+        
+    for chunk in pd.read_csv(path, chunksize=chunk_size):
+        yield chunk

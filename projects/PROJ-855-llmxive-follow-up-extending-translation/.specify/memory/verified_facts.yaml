@@ -1,0 +1,5 @@
+'|10m encoder parameter train transformer':
+  quote: Stage Output size PyramidTNT-Ti PyramidTNT-S PyramidTNT-M PyramidTNT-B
+  source_id: '2201.00978'
+  url: https://arxiv.org/abs/2201.00978
+  value: PyramidTNT-Ti

@@ -1,0 +1,89 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided only narrative user stories and no tangible file system
+    artifacts. There is no evidence that the required directories (`code/`, `tests/`,
+    `data/raw/`, `data/processed/`, `data/logs/`, `results/`, `state/`) exist or contain
+    any files, so the core task of creating the project directory structure is unmet.
+    The next implementer should create these folders (and optionally add placeholder
+    files) in the repository.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting configuration files (e.g., `.flake8`, `pyproject.toml` with Black\
+    \ settings, or a pre\u2011commit hook) were presented, nor any evidence that flake8/black\
+    \ have been set up and integrated into the project. Without these artifacts the\
+    \ requirement to \u201CConfigure linting (flake8/black) and formatting tools\u201D\
+    \ is not satisfied."
+T008:
+  c: false
+  h: f33c331b9b908b4507725b3317515635783bb3ed9f5cf10f9bc6e4d1b90b86a4
+  r: The repository lacks a `load_subject_list` implementation in `code/download.py`
+    (the shown code does not define it) and the required output file `data/processed/subject_list_manifest.json`
+    is absent. Both the function behavior and the manifest file are missing, so the
+    task is not satisfied.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `specs/feature/motif-rsfc/data-model.md` file (or any content thereof) was\
+    \ presented. The required markdown defining data entities, relationships, and\
+    \ file formats is missing, so the task\u2019s deliverable is not satisfied."
+T012:
+  c: false
+  h: 1e569817eb954940c02456d83dbce0165aba6124525bdc2c5f7aa2d412821319
+  r: "The required integration test file `tests/integration/test_pipeline.py` does\
+    \ not exist, and the expected log file `data/logs/pipeline.log` is also missing,\
+    \ so no evidence that the pipeline was run or that the required assertions were\
+    \ checked. The task\u2019s deliverables are absent."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `quickstart.md` file is presented in the provided evidence, and thus we cannot\
+    \ confirm that a step\u2011by\u2011step guide (installation, configuration, execution\
+    \ command, expected outputs) exists. The required deliverable is missing."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `README.md` file was presented in the provided artifacts, and therefore there\
+    \ is no evidence that the required project overview, installation instructions,\
+    \ usage guide, dependency list, quick\u2011start steps, or contribution guide\
+    \ have been created. The implementer must add a non\u2011empty `README.md` at\
+    \ the repository root containing all specified sections."
+T026:
+  c: false
+  h: eb3b4845d1953fc1b5b0d8a8f1ea1116e2d481f6b13e0ad204121ffc7fdec278
+  r: "The provided `code/motifs.py` is incomplete (truncated) and contains motif\u2011\
+    counting logic rather than the required aggregation of median z\u2011scores and\
+    \ creation of `data/processed/motif_profiles.json`. Moreover, the expected output\
+    \ file `data/processed/motif_profiles.json` does not exist. The task\u2019s core\
+    \ requirement is therefore not satisfied."
+T030a:
+  c: false
+  h: d89b59d0c6e2c01a32ec31979d0c4298cda49d64b00f8a0c99ec13bdd91fc7ba
+  r: "The repository contains a partially shown `code/stats.py` but the required `check_vif_and_select_method`\
+    \ function is not present (or not fully implemented) and the expected output file\
+    \ `data/processed/quality_flags.json` is missing. Consequently the task\u2019\
+    s specifications are not satisfied."
+T032c:
+  c: false
+  h: cd19ea14e8abfb9c4090a5fdc5dd41c7bdd674e291bf0cad813ce2668dd411a5
+  r: "The provided `code/stats.py` does not contain any logic that iterates over significant\
+    \ motifs from T032a, invoke T032b, or write a `results/permutation_results.json`\
+    \ file; it is unrelated code about loading metrics and VIF checks and is truncated.\
+    \ Moreover, the required output file `results/permutation_results.json` is missing\
+    \ from the repository. The task\u2019s core requirement is therefore not satisfied."
+T035b:
+  c: false
+  h: 546c22827f6ae4aa21fb6e177fd74767fbc8c7632253cc13afb300e9d2076119
+  r: "The `code/report.py` file is truncated (ends mid\u2011line) and does not contain\
+    \ a complete implementation that would actually generate a PDF. Moreover, the\
+    \ required input `results/permutation_results.json` is missing, causing the script\
+    \ to raise a `FileNotFoundError`. Both the script and one of its required data\
+    \ files need to be provided and completed."
+T049:
+  c: false
+  h: 84a9dbf584554a8e6186194b59ef631a84f4b4c622614fbd265b002c3058f958
+  r: "The `scripts/verify_hcp_access.sh` script is present and appears functional,\
+    \ but the required `data/raw/.access_verified` flag file does not exist, so the\
+    \ task\u2019s core output is missing. The implementer must ensure the flag file\
+    \ is created (e.g., by running the script successfully) and committed."

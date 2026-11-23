@@ -1,30 +1,48 @@
-T001:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (code/, data/raw, data/processed, tests/)
-    is provided; the implementer did not supply any artifact showing that the project
-    structure was created.
-T003:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g.,\u202F`.ruff.toml`, `.flake8`,\
-    \ `pyproject.toml` with Black settings, or a pre\u2011commit hook) were provided\
-    \ or referenced, so the required artifact for configuring ruff/flake8 and Black\
-    \ does not exist. The task therefore remains unfinished."
 T004:
   c: false
-  h: 3153fda1c7ef49d3ffca0ee29e75ef98b13d3c82744947a9ab003505f320312f
-  r: "The provided `code/data_ingestion.py` loads data via the `gss` package rather\
-    \ than a configurable URL fetcher, never writes the DataFrame to `data/raw/gss_2018_subset.csv`,\
-    \ and the required CSV output file is absent. Consequently the task\u2019s core\
-    \ requirements are not met."
+  h: 9fcc79b524d175c1800b0876559b523ad9289937554f0c8022350717468b28b0
+  r: "The repository lacks the required `data/raw/gss_2018_subset.csv` file and the\
+    \ manifest does not record any checksum for it. Moreover, the provided `loader.py`\
+    \ excerpt never shows a `fetch_survey_data()` implementation (the file is truncated\
+    \ before such a function could appear), so the core fetching, caching, column\u2011\
+    checking, abort logic, variable\u2011selection, and sub\u2011setting behavior\
+    \ are not demonstrably present. The task is therefore not fulfilled."
+T004b:
+  c: false
+  h: d03af8a557ca5e74d3483717951385b0ce762e28b7aec1febf90ff78de52da84
+  r: The required `data/raw/gss_2018_subset.csv` file does not exist, and `state/manifest.yaml`
+    contains no entry for `gss_2018_subset.csv`, so the download, checksum, and manifest
+    recording steps were not performed.
 T005:
   c: false
-  h: 2d2394b8d7f24e8d58a6bb06c1252ac73bde4488d5bfbc4eb2a46db5f308c0c7
-  r: The provided `code/synthetic_generator.py` is truncated (metadata dict incomplete,
-    no CSV write, no return of required fields) and the required output file `data/processed/synthetic_mar_v1.csv`
-    does not exist. Additionally, the referenced schema file `contracts/dataset.schema.yaml`
-    is missing, so the generated dataset cannot be validated against it.
+  h: cd3dc6e880325f2d14edebe44e3f67c318f4edf81ac8d94fd3b52959199b5e6d
+  r: "The provided `code/data/synthetic.py` is truncated (ends mid\u2011line) and\
+    \ does not show a complete CLI, the MAR missingness logic, or the file\u2011writing\
+    \ steps required. Moreover, the required schema file `contracts/dataset.schema.yaml`\
+    \ is absent, so the generator cannot be validated against the contract. The task\u2019\
+    s essential outputs (CSV and metadata JSON) and schema compliance are therefore\
+    \ not demonstrated."
+T005b:
+  c: false
+  h: 36dae2c003766833ded0e655e26f207ef36be3cb30c343f66e836709098abcf9
+  r: The required files `data/processed/synthetic_mar_v1.csv` and `data/processed/synthetic_mar_v1_meta.json`
+    are absent, and `state/manifest.yaml` contains no entry (or checksum) for `synthetic_mar_v1.csv`.
+    Consequently the generator was not executed for the MAR mechanism and the verification
+    step cannot succeed.
+T005c:
+  c: false
+  h: 89955e13b4df01287bd69ec2e9d14fa61ebc42febabbeeb19bf13b7a23bfe886
+  r: "The repository contains `code/data/synthetic.py`, but the file is truncated\
+    \ and does not show a `generate_synthetic_data_mcar()` function. Moreover, the\
+    \ required output files `data/processed/synthetic_mcar_v1.csv` and `data/processed/synthetic_mcar_v1_meta.json`\
+    \ are absent. Implement the MCAR\u2011specific generator and produce the two output\
+    \ files to satisfy the task."
+T005d:
+  c: false
+  h: db7eada5959b5e908b7963984c5eed67652e0d3013a92ee65e0cd401914d8713
+  r: The required files `data/processed/synthetic_mcar_v1.csv` and `data/processed/synthetic_mcar_v1_meta.json`
+    do not exist, and the manifest contains placeholder checksums rather than real
+    ones, so the generator output was not actually produced or verified.
 T007:
   c: false
   h: 96491d4791e9f7209093734f7285318b4d0eae48350da0d42da199f73f1ba205
@@ -34,3 +52,32 @@ T007:
     \ script cannot update a non\u2011existent manifest. The task\u2019s core requirement\u2014\
     updating `state/manifest.yaml` with an `artifact_hashes` key\u2014is therefore\
     \ not fulfilled."
+T009c:
+  c: false
+  h: 9088db8c66705e858f64f77b523e77a0e39bf6dc1fe8e5735a71440bc4f6365c
+  r: "The repository contains a `design.py` with a jackknife function, but the required\
+    \ cleaned dataset (`data/processed/gss_2018_subset_clean.csv`) is absent, and\
+    \ the expected output file (`data/processed/jackknife_variance.json`) was not\
+    \ generated. Without the input data and resulting JSON, the task\u2019s requirement\
+    \ is not satisfied."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided showing that error handling for\
+    \ PSU\u202F=\u202F1 clusters was added, nor any evidence of warnings or exclusion\
+    \ logic integrated into T009b/T015. The required implementation artifact is missing."
+T021:
+  c: false
+  h: 221fe55a17e111cb1c987d1ec2b2d0b96920aaffd00c4f3ea18a12fef4a94d5e
+  r: "The repository lacks the required `data/processed/psu1_warnings.json` file,\
+    \ and `code/main.py` does not contain an implementation of `write_psu1_warnings()`\
+    \ (it only imports it). Consequently the task\u2019s output and schema requirements\
+    \ are not satisfied."
+T025a:
+  c: false
+  h: 01106db1476930eacb3818cf9b7853bf469e92691d068834c974a3e9fb49b99c
+  r: The `run_mice_chains` function is truncated and not fully implemented, and the
+    required metadata files (`synthetic_mar_v1_meta.json` and `synthetic_mcar_v1_meta.json`)
+    are missing, so the code cannot consume the missingness mechanism or log it as
+    required. Both the function implementation and the dependent input files need
+    to be provided.

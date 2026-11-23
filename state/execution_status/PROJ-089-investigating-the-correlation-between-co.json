@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-089-investigating-the-correlation-between-co",
+  "ok": false,
+  "reason": "6 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data_extraction.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026real repos).     - NEVER generates synthetic/random data.     - NEVER\u2026\u201d; code/data_extraction.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026ting pipeline to prevent synthetic data fabrication.\")      logg\u2026\u201d; code/data_extraction.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026rting to prevent partial/synthetic data.\"         logger.error(e\u2026\u201d; 4 command(s) failed: python code/main.py --full (rc=1); python code/main.py --mock (rc=1); python code/data_extraction.py --repos data/raw/repos_metadata.csv (rc=1); 1 declared deliverable(s) absent: data/raw/repos_metadata.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --full -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-089-investigating-the-correlation-between-co/code/main.py\", line 14, in <module>\n    from data_extraction import run_data_extraction_wrapper\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-089-investigating-the-correlation-between-co/code/data_extraction.py\", line 13, in <module>\n    import psutil\nModuleNotFoundError: No module named 'psutil'",
+    "python code/main.py --mock -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-089-investigating-the-correlation-between-co/code/main.py\", line 14, in <module>\n    from data_extraction import run_data_extraction_wrapper\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-089-investigating-the-correlation-between-co/code/data_extraction.py\", line 13, in <module>\n    import psutil\nModuleNotFoundError: No module named 'psutil'",
+    "python code/data_extraction.py --repos data/raw/repos_metadata.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-089-investigating-the-correlation-between-co/code/data_extraction.py\", line 13, in <module>\n    import psutil\nModuleNotFoundError: No module named 'psutil'",
+    "python code/analysis.py -> rc=1\n    pipeline\nINFO:__main__:Starting Sensitivity Analysis Aggregation (T022)\nERROR:__main__:Analysis pipeline failed: 'paths'\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-089-investigating-the-correlation-between-co/code/analysis.py\", line 220, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-089-investigating-the-correlation-between-co/code/analysis.py\", line 217, in main\n    run_analysis()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-089-investigating-the-correlation-between-"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-10-06T01:45:09Z"
+}

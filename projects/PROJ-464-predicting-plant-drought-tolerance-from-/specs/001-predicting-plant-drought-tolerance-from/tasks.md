@@ -1,248 +1,159 @@
 # Tasks: Predicting Plant Drought Tolerance from RSA Data
 
-**Input**: Design documents from `/specs/001-predicting-plant-drought-tolerance-from/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [D:Dep] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[D:ID]**: Depends on completion of task ID (e.g., [D:T015])
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+**Input**: Design documents from `/specs/001-predict-drought-tolerance/`  
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data‑model.md`, `contracts/`  
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 0 – Project scaffolding  
 
-**Purpose**: Project initialization, spec alignment, and basic structure
+- [ ] T001a **Create project directory hierarchy**  
+  `data/raw/`, `data/derived/`, `code/`, `tests/`, `docs/`, `state/`, `contracts/`, `results/`  
+  *Verification*: `tree` output matches expected structure; no missing directories.
 
-- [X] T001a [P] Create project directories: `data/raw/`, `data/derived/`, `code/`, `tests/`, `docs/`, `state/`, `contracts/`, `results/`.
-- [X] T001b [P] Initialize `README.md` and `requirements.txt` (empty).
+- [ ] T001b **Initialize `README.md` and empty `requirements.txt`**  
+  *Verification*: Files exist and are tracked in Git.
 
----
+- [ ] T002 **Add core Python dependencies to `requirements.txt`**  
+  `pandas>=2.0.0`, `numpy>=1.24.0`, `scikit-learn>=1.3.0`, `scipy>=1.11.0`, `statsmodels>=0.14.0`, `opencv-python-headless>=4.8.0`, `scikit-image>=0.21.0`, `requests>=2.31.0`, `networkx>=3.0`, `pyyaml`, `power` (for sample‑size calculation).  
+  *Verification*: `pip install -r requirements.txt` succeeds on a clean runner.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T003 **Configure linting (ruff) and formatting (black) via `pyproject.toml`**  
+  *Verification*: `ruff .` and `black .` run without errors.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T004 **Create `code/config.py` with global paths, random seed (42), and hyper‑parameter defaults**  
+  *Verification*: Importing `code.config` yields the expected constants.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T005 **Set up project‑wide logger in `code/__init__.py`** (JSON‑formatted logs to `state/pipeline.log`).  
+  *Verification*: Running any script creates a non‑empty `state/pipeline.log`.
 
-- [ ] T002 [P] Initialize Python 3.11 project with dependencies in `requirements.txt` (pandas>=2.0.0, numpy>=1.24.0, scikit-learn>=1.3.0, scipy>=1.11.0, statsmodels>=0.14.0, opencv-python-headless>=4.8.0, scikit-image>=0.21.0, requests>=2.31.0, huggingface_hub>=0.16.0, pytest>=7.0.0, networkx>=3.0). **Note**: `pandas-phy` and `ete3` excluded to align with Plan's Primary Dependencies list.
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools.
-- [X] T004 [P] Implement `code/config.py` with paths, random seeds (42), and hyperparameters.
-- [X] T005 [P] Setup logging infrastructure in `code/__init__.py`.
-- [X] T006 [P] Create base data models/entities in `code/models.py` referencing `data-model.md` schema: `RootImage` {id: str, path: str, species: str}, `RSAMetrics` {depth: float, branching_density: float, surface_area: float}, `PhysioTrait` {species: str, conductance: float, photosynthesis: float, survival_rate: float?}. Include validation rules.
-- [ ] T007 [P] Create base data validation schema checks in `contracts/` (dataset.schema.yaml, output.schema.yaml).
-- [ ] T008 [P] Implement `code/power_analysis.py`: Calculate required sample size (N) using `statsmodels.stats.power.FTestPower` with explicit parameters: {{claim:c_bcec7d3b}}. **Logic**: Fetch species list from NPPN/MGB3 and TRY. If overlap N < 55, **HALT** with critical error "Insufficient species for power analysis (N < 55)". **Deliverable**: `state/power_analysis_report.yaml`. <!-- FAILED: unspecified -->
+- [ ] T006 **Define data‑model classes in `code/models.py`** (`RootImage`, `RSAMetrics`, `PhysioTrait`).  
+  *Verification*: Unit tests instantiate each class and validate basic field constraints.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Extract and Aggregate Root System Architecture Metrics (Priority: P1) 🎯 MVP
-
-**Goal**: Convert raw root images from the NPPN Plant Phenome Pipeline into quantitative architectural metrics (depth, branching density, surface area) to enable downstream statistical analysis.
-
-**Independent Test**: The pipeline can be tested by running the image analysis module on a small, fixed set of known root images and verifying that the output CSV contains non-null, positive numerical values for all defined RSA traits.
-
-### Implementation for User Story 1
-
-- [X] T012 [US1] Implement `code/download_images.py`: Fetch root images from `nppn/root-phenotyping` (HuggingFace ID: `nppn/root-phenotyping`) via `huggingface_hub`. **Logic**: Attempt download. If download fails (exception `RepositoryNotFoundError` or `LocalEntryNotFoundError` or empty directory), **HALT** with critical error "No real NPPN root images found. Pipeline cannot proceed." Do NOT fallback to other datasets. Ensure CPU-optimized, no GPU. Output: `data/raw/nppn_images/`.
-- [ ] T013 [US1] Implement `code/preprocess_images.py`: Extract RSA traits using OpenCV/scikit-image on CPU. **Algorithm**: `skeletonize` (8-connectivity) for depth/branching; `find_contours` for surface area. Branching density = (branch_points - endpoints) / total_length. [UNRESOLVED-CLAIM: c_69fe03ff — status=not_enough_info] **Includes**: Error logging for corrupted images (skipping them gracefully) and validation logic to ensure no null values and positive numerical values for all traits in output.
-- [ ] T015 [US1] [D:T013] Generate `data/derived/rsametrics.csv` with columns: species_id, depth, branching_density, surface_area. **Includes**: Validation to ensure no null values and positive numerical values for all traits (logic merged into T013).
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE**: Tests depend on implementation. Write them first, but they run after code exists.
-
-- [ ] T016 [P] [US1] [D:T012,T013] Unit test in `tests/unit/test_image_processing.py`: Implement `test_load_image_handles_corrupted_file_returns_error` (asserts specific error message) and `test_skeletonize_returns_valid_branch_points` (asserts branch_points > 0).
-- [ ] T017 [P] [US1] [D:T012,T013] Integration test in `tests/integration/test_image_pipeline.py`: Implement `test_full_pipeline_generates_non_null_csv` (asserts output CSV has a consistent number of rows with no nulls and positive values) on sample data.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T007 **Add JSON‑Schema contracts to `contracts/`** (already present in the repository).  
+  *Verification*: `jsonschema.validate` succeeds against sample files.
 
 ---
 
-## Phase 4: User Story 2 - Correlate RSA Metrics with Drought Physiology (Priority: P2)
+## Phase 1 – Data ingestion  
 
-**Goal**: Statistically validate whether deeper or more branched root systems associate with higher stomatal conductance and photosynthetic rates under water stress using the aggregated data.
+- [ ] T012 **Download NPPN root images (`code/download_images.py`)** using the verified MGB3 URL via `huggingface_hub.snapshot_download`. Images are streamed into `data/raw/nppn_images/`.   <!-- FAILED-IN-EXECUTION: code/download_images.py exit=1 -->
+  *Verification*: Presence of ≥ 10 images; script raises `RuntimeError` with message *“No real NPPN root images found. Pipeline cannot proceed.”* on any fetch failure.
 
-**⚠️ DEPENDENCY**: This phase depends on the completion of Phase 3 (T015) to ensure `rsametrics.csv` exists before merging.
+- [ ] T013 **Validate downloaded image archive** (`code/validate_images.py`). Checksums are computed against `data/raw/nppn_checksums.json`; mismatches cause a hard stop.  
+  *Output*: `state/nppn_validation.yaml`.  
+  *Verification*: YAML contains `checksum_match: true`.
 
-**Independent Test**: The analysis can be tested by running the regression module on a synthetic dataset with a known positive correlation between a "depth" variable and a "conductance" variable, verifying that the calculated correlation coefficient matches the expected value within an acceptable margin of error.
-
-### Implementation for User Story 2
-
-- [ ] T020 [US2] [D:T001a, D:T015] Implement `code/download_traits.py` to fetch physiological trait data from TRY database. **Logic**: Use the `trydata` Python package to query traits (stomatal_conductance, photosynthesis) for the species list derived from `rsametrics.csv`. Handle authentication via environment variable `TRY_API_KEY`. If no overlap, handle via T021 logic.
-- [X] T021 [US2] [D:T015, D:T020] Implement `code/merge_data.py` to merge `rsametrics.csv` with physiological data. **Logic**: Handle missing species via listwise deletion. **Constraint**: If sample size < 55, **HALT** with critical error "Insufficient species after merge (N < 55)". Do NOT implement mean imputation for species count. **Note**: This deviates from Spec Assumptions (which allow mean imputation) per the Plan's decision to enforce stricter data hygiene; this deviation is intentional.
-- [X] T022 [US2] Implement `code/analysis.py` function `perform_pca()` to transform RSA traits for collinearity handling (VIF > 5 check included).
-- [X] T023a [US2] [D:T022] Implement `code/models.py` functions `fit_ols()`, `fit_ridge()`, `fit_lasso()` to predict stomatal conductance/photosynthesis. **Specs**: R² metric, **5-fold GroupKFold (groups=species_name) ** to prevent phylogenetic leakage, alpha search [a range of values].
-- [X] T023c [US2] [D:T022] Implement `code/models.py` function `fit_random_forest()` to predict stomatal conductance/photosynthesis using Random Forest Regression. **Specs**: R² metric, **5-fold GroupKFold (groups=species_name) ** to prevent phylogenetic leakage, n_estimators=100, max_depth=None, regularization via min_samples_leaf.
-- [ ] T024a [US2] [D:T022] Implement `code/fetch_phylogeny.py`: Fetch phylogenetic tree from Open Tree of Life API. **Logic**: If fetch fails, **HALT immediately** with critical error "Phylogenetic tree fetch failed. PVR fallback is impossible without a tree. FR-010 violation." **Output**: `data/derived/phylogenetic_tree.newick`. **Note**: No 'equivalent' fallback is implemented per the Plan's decision to strictly enforce the tree requirement.
-- [~] T024b [US2] [D:T024a] Implement `code/models.py` function `fit_pgl()` to perform Phylogenetic Generalized Least Squares (PGLS). **Logic**: Use `statsmodels` to fit model: `conductance ~ depth + surface_area + (phylogenetic_structure)`. Input: `data/derived/phylogenetic_tree.newick`.
-- [X] T025 [US2] Implement multiple-comparison correction (Bonferroni/FDR) in `code/analysis.py` for hypothesis testing.
-- [ ] T026 [US2] Generate `data/derived/model_results.csv` with coefficients, p-values, R², and adjusted p-values.
-- [~] T026b [US2] [D:T022, D:T026] Implement report framing logic in `code/generate_report.py`: If VIF > 5 is detected (from T022), explicitly suppress independent effect claims for correlated variables in the generated report. Output: `state/vif_compliance_check.yaml` (record of VIF status and suppression action).
-- [X] T026c [US2] [D:T026, D:T022] Implement logic in `code/generate_report.py` to explicitly **suppress** any claims of independent effects for predictors with VIF > 5 in the final report text.
-- [X] T027 [US2] Implement `code/analysis.py` function `detect_tolerance_proxies()` to check for and ingest 'independent tolerance proxies' (e.g., survival rate) if available, as required by FR-009. Generate explicit framing text in `data/derived/report_framing.md` (predicting 'physiological state'). **Deliverable**: `state/proxy_detection.yaml` (boolean `has_proxy`).
-- [ ] T030 [US2] [D:T022, D:T026] Verify that if VIF > 5 is detected, the system refrains from claiming independent effects for definitionally related variables (assertion in T022/T026c). Output: `state/vif_compliance_check.yaml` (updated with final verification status).
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T018 [P] [US2] Unit test in `tests/unit/test_model_fitting.py`: Implement `test_spearman_correlation_matches_known_value` (asserts correlation within 5% of synthetic target).
-- [ ] T019 [P] [US2] Integration test in `tests/integration/test_model_pipeline.py`: Implement `test_pgl_fits_with_phylogenetic_structure` (asserts PGLS converges and phylogenetic signal lambda > 0).
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T020 **Download TRY physiological traits (`code/download_traits.py`)** using the `trydata` package and API key from `TRY_API_KEY`. Output written to `data/raw/try_traits.csv`.  
+  *Verification*: CSV contains at least the columns `species_name`, `stomatal_conductance`, `photosynthetic_rate`; script aborts with a clear error if the API call fails.
 
 ---
 
-## Phase 5: User Story 3 - Validate Predictive Robustness via Sensitivity Analysis (Priority: P3)
+## Phase 2 – RSA extraction  
 
-**Goal**: Confirm that the predictive thresholds used in the classification model are not arbitrary. **Note**: As per spec, the classification model (FR-007/008) is REQUIRED to enable the sensitivity analysis. This phase implements the classification model and the threshold sweep.
+- [ ] T015 **Extract RSA metrics (`code/extract_rsa.py`)** – processes each image in `data/raw/nppn_images/` with OpenCV / scikit‑image (skeletonization, contour detection). Generates `data/derived/rsametrics.csv`.  
+  *Verification*: CSV has exactly one row per successfully processed image, all numeric columns are non‑negative, and rows with `extraction_status = "failed"` are excluded. A summary `state/image_processing_stats.yaml` records the exclusion rate.
 
-**Independent Test**: The sensitivity module can be tested by running the model with a primary threshold and then {{claim:c_73727cab}}, verifying that the output includes a plot or table showing how the false-positive/false-negative rates change.
+- [ ] T016 **Unit tests for image processing** (`tests/unit/test_image_processing.py`).  
+  *Verification*: Tests pass on a small fixture set, confirming error handling for corrupted files and positive branch‑point counts.
 
-### Implementation for User Story 3
-
-- [ ] T027b [US3] [D:T015, D:T022, D:T027] Implement `code/models.py` function `fit_rf_classification()` to predict the binary drought tolerance class (high/low). **Logic**:
- 1. Check `state/proxy_detection.yaml` for `has_proxy` flag (from T027).
- 2. **If `has_proxy` is True**: Binarize the *proxy* variable using median split. Train Random Forest Classification model. **Specs**: F1-score metric, **5-fold GroupKFold (groups=species_name) **, n_estimators=100. Output: `data/derived/classification_model.pkl`.
- 3. **If `has_proxy` is False**: **SKIP** model training entirely. Do NOT binarize primary physiological metrics. This avoids circular classification. **Deliverable**: Flag `classification_skipped=True` in `state/proxy_detection.yaml` and generate `data/derived/classification_status.md` stating "Classification skipped: No independent tolerance proxy found. Sensitivity analysis will report N/A."
-- [ ] T028 [US3] [D:T023a, D:T023c, D:T027, D:T027b] Implement `code/analysis.py` function `run_sensitivity_analysis()`. **Logic**:
- 1. **If `has_proxy` is True**: {{claim:c_2ad237e4}} Calculate and report variation in accuracy, precision, recall, F1, **False Positive Rate, and False Negative Rate**.
- 2. **If `has_proxy` is False**: **SKIP** threshold sweep. Generate `results/sensitivity_sweep_results.csv` with a single row indicating "N/A" and a justification: "Classification model not built due to lack of independent tolerance proxy (Plan: No Circular Classification). Sensitivity analysis not applicable."
- 3. **Output**: `data/derived/sensitivity_sweep_results.csv` and `results/figures/sensitivity_curve.png` (if applicable).
-- [ ] T029 [US3] [D:T028] Generate sensitivity report in `data/derived/sensitivity_report.md` including threshold justification and impact analysis. Ensure the report explicitly states the threshold used and the robustness of the results, or the N/A justification if no proxy was found.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T037 [US3] [D:T028] Unit test in `tests/unit/test_sensitivity.py`: Implement `test_sensitivity_sweep_generates_valid_range` (asserts output covers full alpha range or threshold range).
-- [ ] T038 [US3] [D:T028] Integration test in `tests/integration/test_sensitivity.py`: Implement `test_sensitivity_report_contains_expected_metrics` (asserts report contains threshold variation data or N/A justification).
+- [ ] T017 **Integration test for the full image pipeline** (`tests/integration/test_image_pipeline.py`).  
+  *Verification*: Running the test on a sample subset produces a CSV with the expected row count and no null values.
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 3 – Data merging & transformation  
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] T021 **Merge RSA and TRY data (`code/merge_data.py`)** – joins on `species_name`, drops rows with any missing trait, writes `data/derived/merged_data.csv`.  
+  *Verification*: `merged_data.csv` contains ≥ 55 species (otherwise the pipeline halts per T008 power‑analysis step).
 
-- [ ] T032 [P] Documentation updates in `README.md` and `docs/`.
-- [ ] T033 Code cleanup and refactoring.
-- [ ] T034 [P] [D:T012,T013] Profile and optimize image loading to use generators; ensure memory usage <7GB RAM and full pipeline runs within 6 hours on 2 CPU/7GB RAM. **Logic**: Measure total pipeline runtime and log against 6h limit. **Deliverable**: Generate `docs/memory_profile.md` with peak usage <7GB and `state/runtime_profile.yaml` with total runtime. **Input Load**: Run on a representative set of images for profiling.
-- [ ] T035 [P] Additional unit tests for data hygiene and checksums in `tests/unit/`.
-- [ ] T036 Run `quickstart.md` validation.
+- [ ] T008 **Power‑analysis script `code/power_analysis.py`** – computes required species count (N ≥ 55) using Cohen’s f² = 0.15, α = 0.05, power = 0.80, k = 3. Runs **after** the merged dataset is created (depends on T021). Halts with a clear error if the overlap after merging is < 55.  
+  *Output*: `state/power_analysis_report.yaml` (contains `required_N`, `actual_N`, `status`).  
+  *Verification*: Running the script on the merged dataset writes the YAML and exits with status 0 only when `actual_N ≥ required_N`.
 
----
+- [ ] T022 **Collinearity check & PCA (`code/analysis.py`)** – computes VIF for `depth_px`, `branching_density`, `surface_area_px`. If any VIF > 5, flags the issue and proceeds to PCA on the three RSA traits. Outputs `data/derived/pca_results.csv` and `state/vif_report.yaml`.  
+  *Verification*: `vif_report.yaml` lists VIF scores for all three predictors; `pca_results.csv` contains `pca_pc1`, `pca_pc2`.
 
-## Dependencies & Execution Order
+- [ ] T023 **Phylogenetic tree acquisition (`code/fetch_phylogeny.py`)** – contacts the Open Tree of Life API, writes Newick tree to `data/derived/phylogenetic_tree.newick`. Retries up to three times with exponential back‑off; aborts with a clear error if all attempts fail **and then falls back to Phylogenetic Eigenvector Regression (PVR)** using distance matrices derived from the failed tree fetch.  
+  *Verification*: Tree file exists and is non‑empty; `state/phylogeny_fetch.yaml` records the fetch status and whether PVR was used.
 
-### Phase Dependencies
+- [ ] T024 **Fit phylogenetic model (`code/models.py`)** – uses the fetched tree to fit PGLS; if PGLS fails, automatically runs PVR. Writes `data/derived/phylogenetic_model_results.csv`.  
+  *Verification*: CSV includes columns `method` (`PGLS` or `PVR`), `predictor`, `coefficient`, `p_value`, `r2`, and any lambda parameter.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] T025 **Multiple‑comparison correction (`code/analysis.py`)** – applies Benjamini‑Hochberg FDR to all regression p‑values. Updated p‑values stored in `data/derived/model_results.csv`.  
+  *Verification*: Adjusted p‑values are present and ≤ 1.
 
-### User Story Dependencies
+- [ ] T025b **Adjusted‑p‑value verification** – confirms that each adjusted p‑value is compared against the corrected alpha level (α = 0.05 / number_of_tests) and flags any violations.  
+  *Verification*: `state/pvalue_verification.yaml` records pass/fail status for each hypothesis.
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data (merged dataset)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 results (model outputs)
+- [ ] T028 **Binarize physiological metrics (`code/models.py`)** – creates binary high/low classes for `stomatal_conductance` and `photosynthetic_rate` using median splits (independent of any proxy). Generates `data/derived/binary_targets.csv` containing `species_name`, `stomatal_conductance_bin`, `photosynthetic_rate_bin`.  
+  *Verification*: CSV rows equal number of species; each binary column contains only 0/1 values.
 
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T027 **Detect independent tolerance proxy (`code/analysis.py`)** – checks for `survival_rate` or `biomass_stress` columns in `merged_data.csv`. Writes `state/proxy_detection.yaml` (`has_proxy: true/false`).  
+  *Verification*: YAML accurately reflects presence/absence of a proxy (used only for optional exploratory analyses, not for primary classification).
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 4 – Regression & classification modeling  
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for image loading and error handling in tests/unit/test_image_processing.py"
-Task: "Integration test for full image-to-CSV pipeline on sample data in tests/integration/test_image_pipeline.py"
+- [ ] T031 **Regression suite (`code/models.py`)** – fits Multiple Linear Regression **and** Random Forest Regression on the PCA components to predict `stomatal_conductance` and `photosynthetic_rate`. Uses 5‑fold `GroupKFold` (groups=`species_name`). Writes `data/derived/regression_results.csv` (includes `model_type`, `r_squared`, `coefficients`, `adjusted_p_values`).  
+  *Verification*: CSV contains entries for both MLR and Random Forest models; R² scores are recorded.
 
-# Launch all models for User Story 1 together:
-Task: "Implement code/download_images.py to fetch NPPN root images"
-Task: "Implement code/preprocess_images.py to extract RSA traits"
-```
+- [ ] T032 **Permutation testing (`code/analysis.py`)** – performs 1000‑iteration permutation tests for all regression and classification models, generating empirical confidence intervals for coefficients, R², and F1‑score. Results stored in `data/derived/permutation_results.json`.  
+  *Verification*: JSON includes 95 % CI bounds for each statistic; unit test checks that CI width > 0.
 
----
+- [ ] T029 **Random Forest classification (`code/models.py`)** – trains a Random Forest classifier on the binary drought‑tolerance class derived from `stomatal_conductance_bin` (primary) **or** `photosynthetic_rate_bin` (secondary) using 5‑fold `GroupKFold`. Writes `data/derived/classification_model.pkl` and `data/derived/classification_metrics.yaml` (contains `f1_score`, `accuracy`, `confusion_matrix`).  
+  *Verification*: Model file exists; metrics file contains numeric scores; classification runs regardless of proxy presence.
 
-## Implementation Strategy
+- [ ] T030 **Sensitivity analysis (`code/analysis.py`)** – sweeps predicted‑probability thresholds from 0.0 to 1.0 in 0.01 steps, computes FPR, FNR, accuracy, and F1 for each.  
+  *If classification was performed* → outputs `results/sensitivity_fpr_fnr.csv` and `results/figures/sensitivity_curve.png`.  
+  *If classification was skipped* → writes `results/sensitivity_na_justification.md` with the required justification.  
+  *Verification*: Presence of the CSV **or** the justification file, matching the pipeline branch taken.
 
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
+- [ ] T030b **Sensitivity‑baseline deviation check** – calculates the baseline performance (optimal threshold from `classification_metrics.yaml`) and reports the maximum deviation in F1/accuracy across the sweep. Results appended to `results/sensitivity_fpr_fnr.csv` as additional columns `delta_f1`, `delta_accuracy`.  
+  *Verification*: CSV contains the new columns and they reflect the computed deviations.
 
 ---
 
-## Notes
+## Phase 5 – Reporting & compliance checks  
 
-- [P] tasks = different files, no dependencies
-- [D:ID] tasks = depends on completion of task ID
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Spec Gaps Addressed**: Tasks use NPPN (no fallback), PGLS (strict tree requirement), and Classification (mandatory median-split on primary metrics if no proxy). Documentation tasks confirm these implementations.
+- [ ] T032a **Generate scientific report (`code/report.py`)** – assembles a markdown report (`results/reports/final_report.md`) that:  
+  * Summarizes VIF findings and PCA usage.  
+  * States that results are **associational** (per FR‑009).  
+  * Includes regression tables (with CI from permutation tests), classification metrics, sensitivity‑analysis plots or justification, and phylogenetic correction method used.  
+  * Cites the phylogenetic tree source.  
+  *Verification*: Report file exists and contains sections titled “VIF & PCA”, “Regression Results”, “Classification”, “Sensitivity Analysis”, and “Phylogenetic Correction”.
 
-### Project Structure Note
+- [ ] T033 **VIF heatmap generation (`code/visualize_vif.py`)** – reads `state/vif_report.yaml` and creates `results/figures/vif_heatmap.png`.  
+  *Verification*: PNG file is non‑empty and matches the dimensions specified in the test suite.
 
-To resolve file collision concerns, the following file split is mandated:
-- `code/download_images.py` (T012)
-- `code/download_traits.py` (T020)
-- `code/preprocess_images.py` (T013)
-- `code/merge_data.py` (T021)
-- `code/models.py` (T022, T023a, T023c, T024b, T027b) - Contains functions `perform_pca`, `fit_ols`, `fit_ridge`, `fit_lasso`, `fit_random_forest`, `fit_pgl`, `fit_rf_classification`
-- `code/analysis.py` (T022, T025, T027, T028) - Contains functions `perform_pca`, `multiple_comparison_correction`, `run_sensitivity_analysis`, `detect_tolerance_proxies`
-- `code/fetch_phylogeny.py` (T024a) - Contains functions `fetch_tree`, `construct_pvr_covariance`
+- [ ] T034a **Runtime profiling of auxiliary scripts (`code/profile_runtime.py`)** – wraps individual scripts (e.g., download, extraction) with `cProfile`, writes summaries to `state/runtime_aux.yaml`.  
+  *Verification*: YAML exists and contains timing info for each script.
+
+- [ ] T034b **Full‑pipeline runtime profiling (`code/profile_full_pipeline.py`)** – runs the complete pipeline (`python code/pipeline.py`) under `cProfile`, writes `state/runtime_profile.yaml` with `total_seconds` and a warning flag if `total_seconds > 21600` (6 h).  
+  *Verification*: YAML exists; `total_seconds` is numeric; warning flag set appropriately.
+
+- [ ] T035 **Generator‑based image loader (`code/stream_images.py`)** – implements a Python generator that yields one image at a time from the remote HuggingFace repository, enabling true streaming without storing the entire dataset locally. Updated `code/extract_rsa.py` now imports this generator.  
+  *Verification*: Unit test `tests/unit/test_stream_images.py` confirms that the generator yields the expected number of images and that peak memory (checked via `memory_profiler`) stays < 7 GB.
+
+- [ ] T036 **Memory‑usage profiling for the streaming loader (`code/profile_memory.py`)** – runs the pipeline on the full NPPN set using the new generator, writes `state/memory_profile.yaml` with `peak_memory_mb`.  
+  *Verification*: YAML reports `peak_memory_mb < 7000`.
+
+---
+
+## Phase 6 – Final verification & hand‑off  
+
+- [ ] T059 **End‑to‑end validation on a small subset (`python code/pipeline.py --subset 50`)** – ensures all previous stages run without error, produces `state/e2e_validation_report.yaml`.  
+  *Verification*: Report contains `status: success` and lists all generated artifact paths.
+
+- [ ] T060 **Schema validation of all output artifacts** (`tests/contract/test_all_schemas.py`).  
+  *Verification*: Test suite passes; any failure aborts the CI job.
+
+- [ ] T061 **Static analysis for silent error handling** – scans `code/` for `try/except` blocks that swallow exceptions without re‑raising.  
+  *Verification*: Linter produces zero findings; results logged to `state/code_review_checklist.yaml`.
+
+- [ ] T062 **Classification‑skip framing check** – runs the pipeline on a mock dataset lacking a proxy, then asserts that `results/reports/final_report.md` contains the exact sentence “Classification Skipped: No Independent Proxy Found”.  
+  *Verification*: Unit test passes; the sentence appears verbatim in the report.
+
+- [ ] T063 **Verification of adjusted‑p‑value threshold compliance** – checks that every adjusted p‑value in `data/derived/model_results.csv` is below the corrected alpha level (α = 0.05 / number_of_tests).  
+  *Verification*: `state/pvalue_threshold_check.yaml` records pass/fail for each hypothesis.

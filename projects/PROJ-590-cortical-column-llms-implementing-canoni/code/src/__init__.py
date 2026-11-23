@@ -1,1 +1,3 @@
-# Code package for cortical column LLMs
+"""
+src package initializer.
+"""

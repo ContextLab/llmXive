@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-12T18:36:41Z",
+  "fetched_at": "2026-08-05T22:28:51Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,104 +9,104 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnes\"",
       "target_n": 5
     },
-    "duration_seconds": 42.578,
-    "ended_at": "2026-07-12T18:36:41Z",
+    "duration_seconds": 43.565,
+    "ended_at": "2026-08-05T22:28:51Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "OpenClaw-style agent benchmarking"
+          "OpenClaw agent framework benchmarking"
         ],
         [
           2,
-          "Software engineering agent evaluation frameworks"
+          "Software engineering agent evaluation metrics"
         ],
         [
           3,
-          "Automated software maintenance agent benchmarks"
+          "Automated software repair benchmark suites"
         ],
         [
           4,
-          "LLM-based software engineering task suites"
+          "LLM-based software development agents"
         ],
         [
           5,
-          "Open-source agent harness for code repair"
+          "Agent harness for code generation tasks"
         ],
         [
           6,
-          "Benchmarking autonomous software developers"
+          "SWE-Bench agent performance evaluation"
         ],
         [
           7,
-          "Code generation agent performance evaluation"
+          "Open-source coding agent benchmarks"
         ],
         [
           8,
-          "Software engineering task automation metrics"
+          "Large language model software engineering tasks"
         ],
         [
           9,
-          "Agent-driven code base modification benchmarks"
+          "Autonomous software maintenance agents"
         ],
         [
           10,
-          "Reproducible agent evaluation for software tasks"
+          "Agent-driven codebase modification evaluation"
         ],
         [
           11,
-          "Large language model software engineering agents"
+          "Software engineering LLM benchmark extensions"
         ],
         [
           12,
-          "Automated bug fixing agent assessment"
+          "Code generation agent reliability testing"
         ],
         [
           13,
-          "Software development lifecycle agent benchmarks"
+          "OpenClaw-style autonomous coding systems"
         ],
         [
           14,
-          "Evaluating autonomous code refactoring agents"
+          "Agent harness architectures for software tasks"
         ],
         [
           15,
-          "Agent frameworks for software repository management"
+          "Evaluating LLMs on software engineering benchmarks"
         ],
         [
           16,
-          "Software engineering problem solving with LLMs"
+          "Software bug fixing agent benchmarks"
         ],
         [
           17,
-          "Benchmarking AI agents on real-world code tasks"
+          "AI agents for software development lifecycle"
         ],
         [
           18,
-          "Open-source LLM agent architectures for software"
-        ],
-        [
-          19,
           "Comparative analysis of software engineering agents"
         ],
         [
+          19,
+          "Agent-based software testing frameworks"
+        ],
+        [
           20,
-          "Metrics for autonomous code generation and repair"
+          "Next-generation software engineering agent evaluations"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "OpenClaw-style agent benchmarking": 2,
+        "OpenClaw agent framework benchmarking": 5,
         "llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnes\" computer science": 0
       },
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "agent benchmark software engineering LLM task",
-      "SWE-bench OpenClaw autonomous agent evaluation",
-      "software maintenance codebase repair agent",
-      "agent trajectory success rate code generation",
-      "tool-use reliability software agent benchmarking"
+      "software engineering agent benchmark evaluation",
+      "SWE-Bench multi-step task completion",
+      "LLM agent tool use API invocation",
+      "agent trajectory success rate metrics",
+      "agentic workflow reproducibility verification"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -115,7 +115,7 @@
       "invoked": true,
       "verdict": false
     },
-    "outcome": "exhausted",
+    "outcome": "success_after_expansion",
     "pdf_sample": {
       "sample_size_target": 1,
       "sampled_count": 1,
@@ -124,12 +124,12 @@
       ]
     },
     "per_query_hit_count": {
-      "SWE-bench OpenClaw autonomous agent evaluation": 3,
-      "agent benchmark software engineering LLM task": 3,
-      "agent trajectory success rate code generation": 3,
+      "LLM agent tool use API invocation": 3,
+      "SWE-Bench multi-step task completion": 3,
+      "agent trajectory success rate metrics": 3,
+      "agentic workflow reproducibility verification": 3,
       "llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnes\" computer science": 3,
-      "software maintenance codebase repair agent": 3,
-      "tool-use reliability software agent benchmarking": 2
+      "software engineering agent benchmark evaluation": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -138,7 +138,7 @@
       "rejections": []
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-12T18:35:58Z",
+    "started_at": "2026-08-05T22:28:07Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"claw-swe-bench: a benchmark for evaluating openclaw-style agent harnes\" computer science",
       "raw": "llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnes\" computer science"
@@ -157,7 +157,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-12T18:36:26Z",
+        "failed_at": "2026-08-05T22:28:34Z",
         "reason": "query_irrelevant"
       },
       {
@@ -176,7 +176,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-12T18:36:26Z",
+        "failed_at": "2026-08-05T22:28:34Z",
         "reason": "query_irrelevant"
       },
       {
@@ -194,7 +194,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-12T18:36:26Z",
+        "failed_at": "2026-08-05T22:28:34Z",
         "reason": "query_irrelevant"
       },
       {
@@ -211,25 +211,25 @@
           "primary_pointer": "2406.04710"
         },
         "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Morescient GAI for Software Engineering (Extended Version)')",
-        "failed_at": "2026-07-12T18:36:26Z",
+        "failed_at": "2026-08-05T22:28:34Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Large language models (LLMs) have rapidly gained popularity and are being embedded into professional applications due to their capabilities in generating human-like content. However, unquestioned reliance on their outputs and recommendations can be problematic as LLMs can reinforce societal biases and stereotypes. This study investigates how LLMs, specifically OpenAI's GPT-4 and Microsoft Copilot, can reinforce gender and racial stereotypes within the software engineering (SE) profession through both textual and graphical outputs. We used each LLM to generate 300 profiles, consisting of 100 gender-based and 50 gender-neutral profiles, for a recruitment scenario in SE roles. Recommendations were generated for each profile and evaluated against the job requirements for four distinct SE positions. Each LLM was asked to select the top 5 candidates and subsequently the best candidate for each role. Each LLM was also asked to generate images for the top 5 candidates, providing a dataset for analysing potential biases in both text-based selections and visual representations. Our analysis reveals that both models preferred male and Caucasian profiles, particularly for senior roles, and favoured images featuring traits such as lighter skin tones, slimmer body types, and younger appearances. These findings highlight underlying societal biases influence the outputs of LLMs, contributing to narrow, exclusionary stereotypes that can further limit diversity and perpetuate inequities in the SE field. As LLMs are increasingly adopted within SE research and professional practices, awareness of these biases is crucial to prevent the reinforcement of discriminatory norms and to ensure that AI tools are leveraged to promote an inclusive and equitable engineering culture rather than hinder it.",
+          "claimed_abstract": "Context: Citations are a key measure of scientific performance in most fields, including software engineering. However, there is limited research that studies which characteristics of articles' metadata (title, abstract, keywords, and author list) are driving citations in this field. Objective: In this study, we propose a simple theoretical model for how citations come to be with respect to article metadata, we hypothesize theoretical linkages between metadata characteristics and citations of articles, and we empirically test these hypotheses. Method: We use multiple regression analyses to examine a data set comprising the titles, abstracts, keywords, and authors of 16,131 software engineering articles published between 1990 and 2020 in 20 highly influential software engineering venues. Results: We find that number of authors, number of keywords, number of question marks and dividers in the title, number of acronyms, abstract length, abstract propositional idea density, and corresponding authors in the core Anglosphere are significantly related to citations. Conclusion: Various characteristics of articles' metadata are linked to the frequency with which the corresponding articles are cited. These results partially confirm and partially go counter to prior findings in software engineering and other disciplines.",
           "claimed_authors": [
-            "Muneera Bano",
-            "Hashini Gunatilake",
-            "Rashina Hoda"
+            "Lorenz Graf-Vlachy",
+            "Daniel Graziotin",
+            "Stefan Wagner"
           ],
-          "claimed_title": "What Does a Software Engineer Look Like? Exploring Societal Stereotypes in LLMs",
+          "claimed_title": "Text and Team: What Article Metadata Characteristics Drive Citations in Software Engineering?",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2501.03569"
+          "claimed_year": 2022,
+          "primary_pointer": "2204.06033"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='What Does a Software Engineer Look Like? Exploring Societal Stereotypes in LLMs')",
-        "failed_at": "2026-07-12T18:36:26Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Text and Team: What Article Metadata Characteristics Drive Citations in Software Engineering?')",
+        "failed_at": "2026-08-05T22:28:34Z",
         "reason": "query_irrelevant"
       },
       {
@@ -249,164 +249,166 @@
           "primary_pointer": "1707.03869"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Cognitive Biases in Software Engineering: A Systematic Mapping Study')",
-        "failed_at": "2026-07-12T18:36:26Z",
+        "failed_at": "2026-08-05T22:28:34Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Efficient maintenance has always been essential for the successful application of engineering systems. However, the challenges to be overcome in the implementation of Industry 4.0 necessitate new paradigms of maintenance optimization. Machine learning techniques are becoming increasingly used in engineering and maintenance, with reinforcement learning being one of the most promising. In this paper, we propose a gamma degradation process together with a novel maintenance model in which repairs are increasingly imperfect, i.e., the beneficial effect of system repairs decreases as more repairs are performed, reflecting the degradational behavior of real-world systems. To generate maintenance policies for this system, we developed a reinforcement-learning-based agent using a Double Deep Q-Network architecture. This agent presents two important advantages: it works without a predefined preventive threshold, and it can operate in a continuous degradation state space. Our agent learns to behave in different scenarios, showing great flexibility. In addition, we performed an analysis of how changes in the main parameters of the environment affect the maintenance policy proposed by the agent. The proposed approach is demonstrated to be appropriate and to significatively improve long-run cost as compared with other common maintenance strategies.",
+          "claimed_abstract": "We present SWE-Gym, the first environment for training real-world software engineering (SWE) agents. SWE-Gym contains 2,438 real-world Python task instances, each comprising a codebase with an executable runtime environment, unit tests, and a task specified in natural language. We use SWE-Gym to train language model based SWE agents, achieving up to 19% absolute gains in resolve rate on the popular SWE-Bench Verified and Lite test sets. We also experiment with inference-time scaling through verifiers trained on agent trajectories sampled from SWE-Gym. When combined with our fine-tuned SWE agents, we achieve 32.0% and 26.0% on SWE-Bench Verified and Lite, respectively, reflecting a new state-of-the-art for open-weight SWE agents. To facilitate further research, we publicly release SWE-Gym, models, and agent trajectories.",
           "claimed_authors": [
-            "Alberto Pliego Marugán",
-            "Jesús M. Pinar-Pérez",
-            "Fausto Pedro García Márquez"
+            "Jiayi Pan",
+            "Xingyao Wang",
+            "Graham Neubig",
+            "Navdeep Jaitly",
+            "Heng Ji",
+            "Alane Suhr",
+            "Yizhe Zhang"
           ],
-          "claimed_title": "A reinforcement learning agent for maintenance of deteriorating systems with increasingly imperfect repairs",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2505.20725"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='A reinforcement learning agent for maintenance of deteriorating systems with increasingly imperfect repairs')",
-        "failed_at": "2026-07-12T18:36:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper is about understanding the nature of bug fixing by analyzing thousands of bug fix transactions of software repositories. It then places this learned knowledge in the context of automated program repair. We give extensive empirical results on the nature of human bug fixes at a large scale and a fine granularity with abstract syntax tree differencing. We set up mathematical reasoning on the search space of automated repair and the time to navigate through it. By applying our method on 14 repositories of Java software and 89,993 versioning transactions, we show that not all probabilistic repair models are equivalent.",
-          "claimed_authors": [
-            "Matias Martinez",
-            "Martin Monperrus"
-          ],
-          "claimed_title": "Mining Software Repair Models for Reasoning on the Search Space of Automated Program Fixing",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1311.3414"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Mining Software Repair Models for Reasoning on the Search Space of Automated Program Fixing')",
-        "failed_at": "2026-07-12T18:36:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Many ML-based approaches have been proposed to automatically detect, localize, and repair software vulnerabilities. While ML-based methods are more effective than program analysis-based vulnerability analysis tools, few have been integrated into modern IDEs, hindering practical adoption. To bridge this critical gap, we propose AIBugHunter, a novel ML-based software vulnerability analysis tool for C/C++ languages that is integrated into Visual Studio Code. AIBugHunter helps software developers to achieve real-time vulnerability detection, explanation, and repairs during programming. In particular, AIBugHunter scans through developers' source code to (1) locate vulnerabilities, (2) identify vulnerability types, (3) estimate vulnerability severity, and (4) suggest vulnerability repairs. In this article, we propose a novel multi-objective optimization (MOO)-based vulnerability classification approach and a transformer-based estimation approach to help AIBugHunter accurately identify vulnerability types and estimate severity. Our empirical experiments on a large dataset consisting of 188K+ C/C++ functions confirm that our proposed approaches are more accurate than other state-of-the-art baseline methods for vulnerability classification and estimation. Furthermore, we conduct qualitative evaluations including a survey study and a user study to obtain software practitioners' perceptions of our AIBugHunter tool and assess the impact that AIBugHunter may have on developers' productivity in security aspects. Our survey study shows that our AIBugHunter is perceived as useful where 90% of the participants consider adopting our AIBugHunter. Last but not least, our user study shows that our AIBugHunter could possibly enhance developers' productivity in combating cybersecurity issues during software development.",
-          "claimed_authors": [
-            "Michael Fu",
-            "Chakkrit Tantithamthavorn",
-            "Trung Le",
-            "Yuki Kume",
-            "Van Nguyen",
-            "Dinh Phung",
-            "John Grundy"
-          ],
-          "claimed_title": "AIBugHunter: A Practical Tool for Predicting, Classifying and Repairing Software Vulnerabilities",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2305.16615"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='AIBugHunter: A Practical Tool for Predicting, Classifying and Repairing Software Vulnerabilities')",
-        "failed_at": "2026-07-12T18:36:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Training agentic models for terminal-based tasks critically depends on high-quality terminal trajectories that capture realistic long-horizon interactions across diverse domains. However, constructing such data at scale remains challenging due to two key requirements: \\textbf{\\emph{Executability}}, since each instance requires a suitable and often distinct Docker environment; and \\textbf{\\emph{Verifiability}}, because heterogeneous task outputs preclude unified, standardized verification. To address these challenges, we propose \\textbf{TerminalTraj}, a scalable pipeline that (i) filters high-quality repositories to construct Dockerized execution environments, (ii) generates Docker-aligned task instances, and (iii) synthesizes agent trajectories with executable validation code. Using TerminalTraj, we curate 32K Docker images and generate 50,733 verified terminal trajectories across eight domains. Models trained on this data with the Qwen2.5-Coder backbone achieve consistent performance improvements on TerminalBench (TB), with gains of up to 20\\% on TB~1.0 and 10\\% on TB~2.0 over their respective backbones. Notably, \\textbf{TerminalTraj-32B} achieves strong performance among models with fewer than 100B parameters, reaching 35.30\\% on TB~1.0 and 22.00\\% on TB~2.0, and demonstrates improved test-time scaling behavior. All code and data are available at https://github.com/Wusiwei0410/TerminalTraj.",
-          "claimed_authors": [
-            "Siwei Wu",
-            "Yizhi Li",
-            "Yuyang Song",
-            "Wei Zhang",
-            "Yang Wang",
-            "Riza Batista-Navarro",
-            "Xian Yang",
-            "Mingjie Tang",
-            "Bryan Dai",
-            "Jian Yang",
-            "Chenghua Lin"
-          ],
-          "claimed_title": "Large-Scale Terminal Agentic Trajectory Generation from Dockerized Environments",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2602.01244"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Large-Scale Terminal Agentic Trajectory Generation from Dockerized Environments')",
-        "failed_at": "2026-07-12T18:36:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Pretrained transformer-based models have shown high performance in natural language generation task. However, a new wave of interest has surged: automatic programming language generation. This task consists of translating natural language instructions to a programming code. Despite the fact that well-known pretrained models on language generation have achieved good performance in learning programming languages, effort is still needed in automatic code generation. In this paper, we introduce JaCoText, a model based on Transformers neural network. It aims to generate java source code from natural language text. JaCoText leverages advantages of both natural language and code generation models. More specifically, we study some findings from the state of the art and use them to (1) initialize our model from powerful pretrained models, (2) explore additional pretraining on our java dataset, (3) carry out experiments combining the unimodal and bimodal data in the training, and (4) scale the input and output length during the fine-tuning of the model. Conducted experiments on CONCODE dataset show that JaCoText achieves new state-of-the-art results.",
-          "claimed_authors": [
-            "Jessica López Espejel",
-            "Mahaman Sanoussi Yahaya Alassan",
-            "Walid Dahhane",
-            "El Hassane Ettifouri"
-          ],
-          "claimed_title": "JaCoText: A Pretrained Model for Java Code-Text Generation",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2303.12869"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='JaCoText: A Pretrained Model for Java Code-Text Generation')",
-        "failed_at": "2026-07-12T18:36:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Large Language Models (LLMs) have shown promise in automating code generation and software engineering tasks, yet they often struggle with complex, multi-file projects due to context limitations and knowledge gaps. We propose a novel context engineering workflow that combines multiple AI components: an Intent Translator (GPT-5) for clarifying user requirements, an Elicit-powered semantic literature retrieval for injecting domain knowledge, NotebookLM-based document synthesis for contextual understanding, and a Claude Code multi-agent system for code generation and validation. Our integrated approach leverages intent clarification, retrieval-augmented generation, and specialized sub-agents orchestrated via Claude's agent framework. We demonstrate that this method significantly improves the accuracy and reliability of code assistants in real-world repositories, yielding higher single-shot success rates and better adherence to project context than baseline single-agent approaches. Qualitative results on a large Next.js codebase show the multi-agent system effectively plans, edits, and tests complex features with minimal human intervention. We compare our system with recent frameworks like CodePlan, MASAI, and HyperAgent, highlighting how targeted context injection and agent role decomposition lead to state-of-the-art performance. Finally, we discuss the implications for deploying LLM-based coding assistants in production, along with lessons learned on context management and future research directions.",
-          "claimed_authors": [
-            "Muhammad Haseeb"
-          ],
-          "claimed_title": "Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2508.08322"
-        },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Context Engineering for Multi-Agent LLM Code Assistants Using Elicit, NotebookLM, ChatGPT, and Claude Code')",
-        "failed_at": "2026-07-12T18:36:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Large language models for code are advancing fast, yet our ability to evaluate them lags behind. Current benchmarks focus on narrow tasks and single metrics, which hide critical gaps in robustness, interpretability, fairness, efficiency, and real-world usability. They also suffer from inconsistent data engineering practices, limited software engineering context, and widespread contamination issues. To understand these problems and chart a path forward, we combined an in-depth survey of existing benchmarks with insights gathered from a dedicated community workshop. We identified three core barriers to reliable evaluation: the absence of software-engineering-rich datasets, overreliance on ML-centric metrics, and the lack of standardized, reproducible data pipelines. Building on these findings, we introduce BEHELM, a holistic benchmarking infrastructure that unifies software-scenario specification with multi-metric evaluation. BEHELM provides a structured way to assess models across tasks, languages, input and output granularities, and key quality dimensions. Our goal is to reduce the overhead currently required to construct benchmarks while enabling a fair, realistic, and future-proof assessment of LLMs in software engineering.",
-          "claimed_authors": [
-            "Daniel Rodriguez-Cardenas",
-            "Xiaochang Li",
-            "Marcos Macedo",
-            "Antonio Mastropaolo",
-            "Dipin Khati",
-            "Yuan Tian",
-            "Huajie Shao",
-            "Denys Poshyvanyk"
-          ],
-          "claimed_title": "Towards Comprehensive Benchmarking Infrastructure for LLMs In Software Engineering",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2601.21070"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Towards Comprehensive Benchmarking Infrastructure for LLMs In Software Engineering')",
-        "failed_at": "2026-07-12T18:36:28Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "With software maintenance accounting for 50% of the cost of developing software, enhancing code quality and reliability has become more critical than ever. In response to this challenge, this doctoral research proposal aims to explore innovative solutions by focusing on the deployment of agents powered by Large Language Models (LLMs) to perform software maintenance tasks. The iterative nature of agents, which allows for continuous learning and adaptation, can help surpass common challenges in code generation. One distinct challenge is the last-mile problems, errors at the final stage of producing functionally and contextually relevant code. Furthermore, this project aims to surpass the inherent limitations of current LLMs in source code through a collaborative framework where agents can correct and learn from each other's errors. We aim to use the iterative feedback in these systems to further fine-tune the LLMs underlying the agents, becoming better aligned to the task of automated software improvement. Our main goal is to achieve a leap forward in the field of automatic software improvement by developing new tools and frameworks that can enhance the efficiency and reliability of software development.",
-          "claimed_authors": [
-            "Fernando Vallecillos Ruiz"
-          ],
-          "claimed_title": "Agent-Driven Automatic Software Improvement",
+          "claimed_title": "Training Software Engineering Agents and Verifiers with SWE-Gym",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2406.16739"
+          "primary_pointer": "2412.21139"
         },
-        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Agent-Driven Automatic Software Improvement')",
-        "failed_at": "2026-07-12T18:36:28Z",
+        "details": "query-relevance 0.231 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Training Software Engineering Agents and Verifiers with SWE-Gym')",
+        "failed_at": "2026-08-05T22:28:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large Language Model (LLM) agents significantly extend the capabilities of standalone LLMs, empowering them to interact with external tools (e.g., APIs, functions) and complete various tasks in a self-directed fashion. The challenge of tool use demands that LLMs not only understand user queries and generate answers accurately but also excel in task planning, tool invocation, and result summarization. While traditional works focus on training a single LLM with all these capabilities, performance limitations become apparent, particularly with smaller models. To overcome these challenges, we propose a novel approach that decomposes the aforementioned capabilities into a planner, caller, and summarizer. Each component is implemented by a single LLM that focuses on a specific capability and collaborates with others to accomplish the task. This modular framework facilitates individual updates and the potential use of smaller LLMs for building each capability. To effectively train this framework, we introduce a two-stage training paradigm. First, we fine-tune a backbone LLM on the entire dataset without discriminating sub-tasks, providing the model with a comprehensive understanding of the task. Second, the fine-tuned LLM is used to instantiate the planner, caller, and summarizer respectively, which are continually fine-tuned on respective sub-tasks. Evaluation across various tool-use benchmarks illustrates that our proposed multi-LLM framework surpasses the traditional single-LLM approach, highlighting its efficacy and advantages in tool learning.",
+          "claimed_authors": [
+            "Weizhou Shen",
+            "Chenliang Li",
+            "Hongzhan Chen",
+            "Ming Yan",
+            "Xiaojun Quan",
+            "Hehong Chen",
+            "Ji Zhang",
+            "Fei Huang"
+          ],
+          "claimed_title": "Small LLMs Are Weak Tool Learners: A Multi-LLM Agent",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2401.07324"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Small LLMs Are Weak Tool Learners: A Multi-LLM Agent')",
+        "failed_at": "2026-08-05T22:28:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "As LLM agents increasingly select tools autonomously, their choices among tools with different privileges become safety-relevant. However, prior tool-selection studies focus on safety-agnostic metadata preferences, leaving privilege-sensitive choices underexplored. To address this gap, we study over-privileged tool selection, in which an agent selects or escalates to a higher-privilege tool despite a sufficient lower-privilege alternative. We introduce ToolPrivBench to evaluate whether agents choose higher-privilege tools despite sufficient lower-privilege alternatives, measuring both initial selection and escalation after transient tool failures. Across eight domains and five recurring risk patterns, we find that over-privileged tool selection is common among mainstream LLM agents and is further amplified by transient failures. We further find that general safety alignment does not reliably transfer to least-privilege tool choice, while prompt-level controls provide only limited mitigation under transient failures. We therefore introduce a privilege-aware post-training defense that teaches agents to prefer sufficient lower-privilege tools and escalate only when necessary. Our mitigation experiments show that this defense substantially reduces unnecessary high-privilege tool use while preserving general capabilities.",
+          "claimed_authors": [
+            "Kaiyue Yang",
+            "Yuyan Bu",
+            "Jingwei Yi",
+            "Yuchi Wang",
+            "Biyu Zhou",
+            "Juntao Dai",
+            "Songlin Hu",
+            "Yaodong Yang"
+          ],
+          "claimed_title": "When Lower Privileges Suffice: Investigating Over-Privileged Tool Selection in LLM Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.20023"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='When Lower Privileges Suffice: Investigating Over-Privileged Tool Selection in LLM Agents')",
+        "failed_at": "2026-08-05T22:28:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this paper, we present a new framework, named GPTAid, for automatic APSRs generation by analyzing API source code with LLM and detecting API misuse caused by incorrect parameter use. To validate the correctness of the LLM-generated APSRs, we propose an execution feedback-checking approach based on the observation that security-critical API misuse is often caused by APSRs violations, and most of them result in runtime errors. Specifically, GPTAid first uses LLM to generate raw APSRs and the Right calling code, and then generates Violation code for each raw APSR by modifying the Right calling code using LLM. Subsequently, GPTAid performs dynamic execution on each piece of Violation code and further filters out the incorrect APSRs based on runtime errors. To further generate concrete APSRs, GPTAid employs a code differential analysis to refine the filtered ones. Particularly, as the programming language is more precise than natural language, GPTAid identifies the key operations within Violation code by differential analysis, and then generates the corresponding concrete APSR based on the aforementioned operations. These concrete APSRs could be precisely interpreted into applicable detection code, which proven to be effective in API misuse detection. Implementing on the dataset containing 200 randomly selected APIs from eight popular libraries, GPTAid achieves a precision of 92.3%. Moreover, it generates 6 times more APSRs than state-of-the-art detectors on a comparison dataset of previously reported bugs and APSRs. We further evaluated GPTAid on 47 applications, 210 unknown security bugs were found potentially resulting in severe security issues (e.g., system crashes), 150 of which have been confirmed by developers after our reports.",
+          "claimed_authors": [
+            "Jinghua Liu",
+            "Yi Yang",
+            "Kai Chen",
+            "Miaoqian Lin"
+          ],
+          "claimed_title": "Generating API Parameter Security Rules with LLM for API Misuse Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.09288"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Generating API Parameter Security Rules with LLM for API Misuse Detection')",
+        "failed_at": "2026-08-05T22:28:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+          "claimed_authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "claimed_title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.08975"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='A Survey of Multi-Agent Deep Reinforcement Learning with Communication')",
+        "failed_at": "2026-08-05T22:28:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Software supply-chain security requires provenance mechanisms that support reproducibility and vulnerability assessment under dynamic execution conditions. Conventional Software Bills of Materials (SBOMs) provide static dependency inventories but cannot capture runtime behaviour, environment drift, or exploitability context. This paper introduces agentic Artificial Intelligence Bills of Materials (AIBOMs), extending SBOMs into active provenance artefacts through autonomous, policy-constrained reasoning. We present an agentic AIBOM framework based on a multi-agent architecture comprising (i) a baseline environment reconstruction agent (MCP), (ii) a runtime dependency and drift-monitoring agent (A2A), and (iii) a policy-aware vulnerability and VEX reasoning agent (AGNTCY). These agents generate contextual exploitability assertions by combining runtime execution evidence, dependency usage, and environmental mitigations with ISO/IEC 20153:2025 Common Security Advisory Framework (CSAF) v2.0 semantics. Exploitability is expressed via structured VEX assertions rather than enforcement actions. The framework introduces minimal, standards-aligned schema extensions to CycloneDX and SPDX, capturing execution context, dependency evolution, and agent decision provenance while preserving interoperability. Evaluation across heterogeneous analytical workloads demonstrates improved runtime dependency capture, reproducibility fidelity, and stability of vulnerability interpretation compared with established provenance systems, with low computational overhead. Ablation studies confirm that each agent contributes distinct capabilities unavailable through deterministic automation.",
+          "claimed_authors": [
+            "Petar Radanliev",
+            "Carsten Maple",
+            "Omar Santos",
+            "Kayvan Atefi"
+          ],
+          "claimed_title": "SBOMs into Agentic AIBOMs: Schema Extensions, Agentic Orchestration, and Reproducibility Evaluation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.10057"
+        },
+        "details": "query-relevance 0.154 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='SBOMs into Agentic AIBOMs: Schema Extensions, Agentic Orchestration, and Reproducibility Evaluation')",
+        "failed_at": "2026-08-05T22:28:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "One of the foundations of science is that researchers must publish the methodology used to achieve their results so that others can attempt to reproduce them. This has the added benefit of allowing methods to be adopted and adapted for other purposes. In the field of e-Science, services -- often choreographed through workflow, process data to generate results. The reproduction of results is often not straightforward as the computational objects may not be made available or may have been updated since the results were generated. For example, services are often updated to fix bugs or improve algorithms. This paper addresses these problems in three ways. Firstly, it introduces a new framework to clarify the range of meanings of \"reproducibility\". Secondly, it describes a new algorithm, \\PDIFF, that uses a comparison of workflow provenance traces to determine whether an experiment has been reproduced; the main innovation is that if this is not the case then the specific point(s) of divergence are identified through graph analysis, assisting any researcher wishing to understand those differences. One key feature is support for user-defined, semantic data comparison operators. Finally, the paper describes an implementation of \\PDIFF that leverages the power of the e-Science Central platform which enacts workflows in the cloud. As well as automatically generating a provenance trace for consumption by \\PDIFF, the platform supports the storage and re-use of old versions of workflows, data and services; the paper shows how this can be powerfully exploited in order to achieve reproduction and re-use.",
+          "claimed_authors": [
+            "Paolo Missier",
+            "Simon Woodman",
+            "Hugo Hiden",
+            "Paul Watson"
+          ],
+          "claimed_title": "Provenance and data differencing for workflow reproducibility analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1406.0905"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Provenance and data differencing for workflow reproducibility analysis')",
+        "failed_at": "2026-08-05T22:28:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI agents deployed for IT operations are typically permanent cost centers because every execution requires full LLM inference, even for previously solved problems. This paper introduces progressive crystallization, a lifecycle that treats agent exploration as a discovery mechanism rather than a permanent execution model. It defines a three-stage execution taxonomy, from fully agent-orchestrated to hybrid to fully deterministic workflows, together with an evidence-based promotion mechanism that converts repeatedly validated agent behaviors into cheaper and more reproducible deterministic workflows, while automatically demoting workflows that regress. Evaluated on a production cloud networking AIOps system processing tens of thousands of incidents per month, the approach increased deterministic execution from 0% to 45% over eight months, reduced per-incident agent costs by more than 70% despite doubling incident volume, and improved safety through greater reproducibility and auditability. The paper also presents the execution taxonomy, promotion and demotion criteria, trace extraction methodology, economic model, safety considerations, and discusses limitations and threats to validity.",
+          "claimed_authors": [
+            "Arun Malik"
+          ],
+          "claimed_title": "Progressive Crystallization: Turning Agent Exploration into Deterministic, Lower-Cost Workflows in Production",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.07052"
+        },
+        "details": "query-relevance 0.077 < 0.3 (query='llmXive follow-up: extending \"Claw-SWE-Bench: A Benchmark for Evaluating OpenCla', candidate_title='Progressive Crystallization: Turning Agent Exploration into Deterministic, Lower-Cost Workflows in Production')",
+        "failed_at": "2026-08-05T22:28:35Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -447,47 +449,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-12T18:36:26Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Mengyu Zheng",
-            "Kai Han",
-            "Boxun Li",
-            "Haiyang Xu",
-            "Yuchuan Tian",
-            "Wei He",
-            "Hang Zhou",
-            "Jianyuan Guo",
-            "Hailin Hu",
-            "Lin Ma",
-            "Chao Xu",
-            "Guohao Dai",
-            "Lixue Xia",
-            "Yunchao Wei",
-            "Yunhe Wang",
-            "Yu Wang"
-          ],
-          "title": "Claw-SWE-Bench: A Benchmark for Evaluating OpenClaw-style Agent Harnesses on Coding Tasks",
-          "venue": "arXiv",
-          "year": 2026
-        },
-        "primary_pointer": "2606.12344",
-        "summary": "General-purpose agents such as OpenClaw are increasingly used as autonomous tool users, but their coding ability is difficult to measure under SWE-bench: a generic agent does not by itself satisfy the clean Docker workspace, patch, and prediction contract required for scoring. We introduce Claw-SWE-Bench, a multilingual SWE-bench-style benchmark and adapter protocol that makes heterogeneous agent harnesses, or claws, comparable under fair settings including a fixed prompt, runtime budget, workspace contract, patch extraction procedure, and evaluator. The full benchmark contains 350 GitHub issue-resolution instances across 8 languages and 43 repositories, drawn from SWE-bench-Multilingual and SWE-bench-Verified-Mini after future-commit cleanup. We also release Claw-SWE-Bench Lite for faster validation, which is an 80-instance subset selected by a cost-aware, rank-aware procedure over 17 calibration columns. On the full benchmark, OpenClaw with a minimal direct-diff adapter scores only $19.1\\%$ Pass@1, whereas the full adapter reaches $73.4\\%$ with the same GLM 5.1 backbone, showing that adapter design is essential for enabling OpenClaw-style harnesses to perform coding tasks effectively. Across an OpenClaw $\\times$ nine-model sweep and a five-claw $\\times$ two-model sweep, model choice changes Pass@1 by $29.4$ pp and harness choice by $27.4$ pp under fixed models; systems with similar accuracy can differ substantially in total API cost. Claw-SWE-Bench therefore treats harness and cost accounting as first-class axes of SWE-style coding-agent evaluation, providing both a full benchmark and a low-cost reference set for reproducible comparison. The data is available at https://github.com/opensquilla/claw-swe-bench and https://huggingface.co/datasets/TokenRhythm/Claw-SWE-Bench.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2606.12344",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.5385,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-12T18:36:27Z"
+          "verified_at": "2026-08-05T22:28:34Z"
         }
       },
       {
@@ -523,28 +485,110 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-12T18:36:27Z"
+          "verified_at": "2026-08-05T22:28:35Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Ailiya Borjigin",
-            "Igor Stadnyk",
-            "Ben Bilski",
-            "Serhii Hovorov",
-            "Sofiia Pidturkina"
+            "Oorja Majgaonkar",
+            "Zhiwei Fei",
+            "Xiang Li",
+            "Federica Sarro",
+            "He Ye"
           ],
-          "title": "Execution Is the New Attack Surface: Survivability-Aware Agentic Crypto Trading with OpenClaw-Style Local Executors",
+          "title": "Understanding Code Agent Behaviour: An Empirical Study of Success and Failure Trajectories",
           "venue": "arXiv",
-          "year": 2026
+          "year": 2025
         },
-        "primary_pointer": "2603.10092",
-        "summary": "OpenClaw-style agent stacks turn language into privileged execution: LLM intents flow through tool interception, policy gates, and a local executor. In parallel, skill marketplaces such as skills.sh make capability acquisition as easy as installing skills and CLIs, creating a growing capability supply chain. Together, these trends shift the dominant safety failure mode from \"wrong answers\" to execution-induced loss, where untrusted prompts, compromised skills, or narrative manipulation can trigger real trades and irreversible side effects. We propose Survivability-Aware Execution (SAE), an execution-layer survivability standard for OpenClaw-style systems and skill-enabled agents. SAE sits as middleware between a strategy engine (LLM or non-LLM) and the exchange executor. It defines an explicit execution contract (ExecutionRequest, ExecutionContext, ExecutionDecision) and enforces non-bypassable last-mile invariants: projection-based exposure budgets, cooldown and order-rate limits, slippage bounds, staged execution, and tool/venue allowlists. To make delegated execution testable under supply-chain risk, we operationalize the Delegation Gap (DG) via a logged Intended Policy Spec that enables deterministic out-of-scope labeling and reproducible DG metrics. On an offline replay using official Binance USD-M BTCUSDT/ETHUSDT perpetual data (15m; 2025-09-01--2025-12-01, incl. funding), SAE improves survivability: MDD drops from 0.4643 to 0.0319 (Full; 93.1%), |CVaR_0.99| shrinks from 4.025e-3 to ~1.02e-4 (~97.5%), and DG loss proxy falls from 0.647 to 0.019 (~97.0%). AttackSuccess decreases from 1.00 to 0.728 with zero FalseBlock in this run. Block bootstrap, paired Wilcoxon, and two-proportion tests confirm the shifts. SAE reframes agentic trading safety for the OpenClaw+skills era: treat upstream intent and skills as untrusted, and enforce survivability where actions become side effects.",
+        "primary_pointer": "2511.00197",
+        "summary": "The increasing deployment of Large Language Model (LLM) agents for complex software engineering tasks has created a need to understand their problem-solving behaviours beyond simple success metrics. While these agents demonstrate impressive capabilities in automated issue resolution, their decision-making processes remain largely opaque. This paper presents an empirical study of agent trajectories, namely the execution traces capturing the steps agents take when attempting to resolve software issues. We analyse trajectories from three state-of-the-art code agents (OpenHands, SWE-agent, and Prometheus) on the SWE-Bench benchmark, examining both successful and failed attempts. Our investigation reveals several key insights into agent behaviour. First, we identify how distinct problem-solving strategies, such as defensive programming and context gathering, enable success in different scenarios. Second, we find that failed trajectories are consistently longer and exhibit higher variance than successful ones, with failure patterns differing significantly between agents. Third, our fault localisation analysis shows that while most trajectories correctly identify problematic files (72-81\\% even in failures), success depends more on achieving approximate rather than exact code modifications. These and other findings unveiled by our study, provide a foundation for understanding agent behaviour through trajectory analysis, contributing to the development of more robust and interpretable autonomous software engineering systems.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2603.10092",
+          "final_url": "https://arxiv.org/abs/2511.00197",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-05T22:28:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Arihant Tripathy",
+            "Ch Pavan Harshit",
+            "Karthik Vaidhyanathan"
+          ],
+          "title": "SWEnergy: An Empirical Study on Energy Efficiency in Agentic Issue Resolution Frameworks with SLMs",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.09543",
+        "summary": "Context. LLM-based autonomous agents in software engineering rely on large, proprietary models, limiting local deployment. This has spurred interest in Small Language Models (SLMs), but their practical effectiveness and efficiency within complex agentic frameworks for automated issue resolution remain poorly understood.\n  Goal. We investigate the performance, energy efficiency, and resource consumption of four leading agentic issue resolution frameworks when deliberately constrained to using SLMs. We aim to assess the viability of these systems for this task in resource-limited settings and characterize the resulting trade-offs.\n  Method. We conduct a controlled evaluation of four leading agentic frameworks (SWE-Agent, OpenHands, Mini SWE Agent, AutoCodeRover) using two SLMs (Gemma-3 4B, Qwen-3 1.7B) on the SWE-bench Verified Mini benchmark. On fixed hardware, we measure energy, duration, token usage, and memory over 150 runs per configuration.\n  Results. We find that framework architecture is the primary driver of energy consumption. The most energy-intensive framework, AutoCodeRover (Gemma), consumed 9.4x more energy on average than the least energy-intensive, OpenHands (Gemma). However, this energy is largely wasted. Task resolution rates were near-zero, demonstrating that current frameworks, when paired with SLMs, consume significant energy on unproductive reasoning loops. The SLM's limited reasoning was the bottleneck for success, but the framework's design was the bottleneck for efficiency.\n  Conclusions. Current agentic frameworks, designed for powerful LLMs, fail to operate efficiently with SLMs. We find that framework architecture is the primary driver of energy consumption, but this energy is largely wasted due to the SLMs' limited reasoning. Viable low-energy solutions require shifting from passive orchestration to architectures that actively manage SLM weaknesses.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.09543",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3077,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-05T22:28:35Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jan Gruber",
+            "Jan-Niclas Hilgert"
+          ],
+          "title": "Foundations for Agentic AI Investigations from the Forensic Analysis of OpenClaw",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.05589",
+        "summary": "Agentic Al systems are increasingly deployed as personal assistants and are likely to become a common object of digital investigations. However, little is known about how their internal state and actions can be reconstructed during forensic analysis. Despite growing popularity, systematic forensic approaches for such systems remain largely unexplored. This paper presents an empirical study of OpenClaw a widely used single-agent assistant. We examine OpenClaw's technical design via static code analysis and apply differential forensic analysis to identify recoverable traces across stages of the agent interaction loop. We classify and correlate these traces to assess their investigative value in a systematic way. Based on these observations, we propose an agent artifact taxonomy that captures recurring investigative patterns. Finally, we highlight a foundational challenge for agentic Al forensics: agent-mediated execution introduces an additional layer of abstraction and substantial nondeterminism in trace generation. The large language model (LLM), the execution environment, and the evolving context can influence tool choice and state transitions in ways that are largely absent from rule-based software. Overall, our results provide an initial foundation for the systematic investigation of agentic Al and outline implications for digital forensic practice and future research.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.05589",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-05T22:28:39Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yinjie Wang",
+            "Xuyang Chen",
+            "Xiaolong Jin",
+            "Mengdi Wang",
+            "Ling Yang"
+          ],
+          "title": "OpenClaw-RL: Train Any Agent Simply by Talking",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.10165",
+        "summary": "Every agent interaction generates a next-state signal, namely the user reply, tool output, terminal or GUI state change that follows each action, yet no existing agentic RL system recovers it as a live, online learning source. We present OpenClaw-RL, a framework that employs next-state signals to optimize personal agents online through infrastructure and methodology innovations. On the infrastructure side, we extend existing RL systems to a server-client architecture where the RL server hosts the policy behind an inference API and user terminals stream interaction data back over HTTP. From each observed next state, the system extracts two complementary training signals, evaluative and directive, via a separate asynchronous server so that neither signal extraction nor optimization blocks inference. On the methodology side, we introduce a hybrid RL objective that unifies both signal types in a single update: directive signals provide richer, token-level supervision but are sparser, while evaluative signals are more broadly available. To stabilize distillation under teacher-student mismatch, we propose overlap-guided hint selection, which picks the hint whose induced teacher distribution maximally overlaps with the student's top-$k$ tokens, together with a log-probability-difference clip that bounds per-token advantages. Applied to personal agents, OpenClaw-RL enables an agent to improve simply by being used, recovering conversational signals from user re-queries, corrections, and explicit feedback. Applied to general agents, OpenClaw-RL is the first RL framework to unify real-world agent settings spanning terminal, GUI, SWE, and tool-call environments, where we additionally demonstrate the utility of next-state signals in long-horizon settings.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.10165",
           "http_status": 200,
           "pdf_sample_score": null,
           "query_relevance_score": 0.75,
@@ -552,7 +596,72 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-12T18:36:32Z"
+          "verified_at": "2026-08-05T22:28:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuntao Wang",
+            "Jianle Ba",
+            "Han Liu",
+            "Yanghe Pan",
+            "Jintao Wei",
+            "Zhou Su",
+            "Tom H. Luan",
+            "Linkang Du"
+          ],
+          "title": "Security of OpenClaw Agents: Fundamentals, Attacks, and Countermeasures",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2605.25435",
+        "summary": "The rapid evolution of large language model (LLM)-driven autonomous agents has given rise to OpenClaw, a new class of open-source agent frameworks that operate as continuously running, skill-augmented systems with persistent memory, multi-channel interaction, and high degrees of autonomy. Such capabilities enable OpenClaw agents to autonomously execute complex, multi-step tasks and interact seamlessly with external applications, but simultaneously introduce a substantially enlarged attack surface. In particular, the combination of high-privilege operations and persistent memory exposes OpenClaw agents to various emerging threats, including skill poisoning, cognitive manipulation, multi-agent cascading failures, and supply-chain vulnerabilities. In this survey, we present a comprehensive study of the security landscape of OpenClaw agents. We first examine the general architecture and key characteristics that distinguish OpenClaw agents from traditional AI agent systems. We categorize existing security and privacy threats into a layered framework and analyze how vulnerabilities arise during agent reasoning, action execution, and external interaction. Representative defense mechanisms are also reviewed to draw the current defense landscape. Finally, several unresolved issues related to the reliability and trustworthiness of OpenClaw ecosystems are discussed.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2605.25435",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-05T22:28:40Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yuhang Wang",
+            "Feiming Xu",
+            "Zheng Lin",
+            "Guangyu He",
+            "Yuzhe Huang",
+            "Haichang Gao",
+            "Zhenxing Niu",
+            "Shiguo Lian",
+            "Zhaoxiang Liu"
+          ],
+          "title": "From Assistant to Double Agent: Formalizing and Benchmarking Attacks on OpenClaw for Personalized Local AI Agent",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.08412",
+        "summary": "Although large language model (LLM)-based agents, exemplified by OpenClaw, are increasingly evolving from task-oriented systems into personalized AI assistants for solving complex real-world tasks, their practical deployment also introduces severe security risks. However, existing agent security research and evaluation frameworks primarily focus on synthetic or task-centric settings, and thus fail to accurately capture the attack surface and risk propagation mechanisms of personalized agents in real-world deployments. To address this gap, we propose Personalized Agent Security Bench (PASB), an end-to-end security evaluation framework tailored for real-world personalized agents. Building upon existing agent attack paradigms, PASB incorporates personalized usage scenarios, realistic toolchains, and long-horizon interactions, enabling black-box, end-to-end security evaluation on real systems. Using OpenClaw as a representative case study, we systematically evaluate its security across multiple personalized scenarios, tool capabilities, and attack types. Our results indicate that OpenClaw exhibits critical vulnerabilities at different execution stages, including user prompt processing, tool usage, and memory retrieval, highlighting substantial security risks in personalized agent deployments. The code for the proposed PASB framework is available at https://github.com/AstorYH/PASB.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.08412",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-05T22:28:40Z"
         }
       }
     ]

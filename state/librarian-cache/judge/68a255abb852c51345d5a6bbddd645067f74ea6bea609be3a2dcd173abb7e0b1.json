@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1811.03426",
+  "judged_at": "2026-09-07T06:38:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"identifying stimulus-driven neural activity patterns in multi-patient \" biology",
+  "rationale": "The paper focuses on tourist movement patterns in social networks, which is an entirely different domain (tourism data mining) from the user's question regarding neural activity patterns in biological multi-patient studies. This falls under the rejection rule for \"off-domain entirely\" and \"distinct construct sharing only homonym keywords\" (where \"activity patterns\" refers to human behavior rather than biological neural signals).",
+  "relevant": false
+}

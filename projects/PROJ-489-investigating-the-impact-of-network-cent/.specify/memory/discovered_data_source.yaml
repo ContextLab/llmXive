@@ -1,0 +1,18 @@
+status: none
+intent: Download Sleep-EDF dataset from PhysioNet and Hugging Face mirror as python
+  package dataset
+required_fields:
+- subject_id
+- recording_id
+- epoch_start_time
+- epoch_end_time
+- eeg_fpz_cz
+- eeg_pz_oz
+- eog_channel
+- emg_channel
+- sleep_stage_label
+- sampling_rate
+- epoch_duration_seconds
+cache_key: a9aa9b9d00c36578d1b79bfdad5587666c038039d92d30b3a740f0686151b12d
+searched_at: '2026-10-21T20:46:36.516387+00:00'
+retry_count: 1

@@ -1,3 +1,17 @@
+"""
+Model Comparison Module for Early Universe Phase Transition Analysis.
+
+This module implements Bayesian model comparison using nested sampling evidence
+to distinguish between Inflation, Phase Transition (PT), and Null (lens-only) models.
+
+Functions:
+    compute_bayes_factor: Compute Bayes factor between two models.
+    interpret_bayes_factor: Interpret the strength of evidence.
+    compare_models: Compare multiple models and return a summary.
+    save_model_comparison_results: Save results to a JSON file.
+    main: Entry point for CLI execution.
+"""
+
 import json
 import os
 import numpy as np
@@ -5,184 +19,164 @@ from typing import Dict, Any, List, Optional, Tuple
 from pathlib import Path
 from config import get_config
 
-def compute_bayes_factor(evidence_model_1: float, evidence_model_2: float) -> float:
-    """
-    Compute the Bayes factor K = Z1 / Z2.
-    
-    Args:
-        evidence_model_1: Log-evidence (ln Z) for model 1.
-        evidence_model_2: Log-evidence (ln Z) for model 2.
-        
-    Returns:
-        Bayes factor K (linear scale).
-    """
-    # Handle log-evidence to linear conversion carefully to avoid overflow
-    # K = exp(ln Z1 - ln Z2)
-    log_k = evidence_model_1 - evidence_model_2
-    
-    # Clip to avoid overflow in exp if log_k is too large
-    if log_k > 700:
-        return float('inf')
-    elif log_k < -700:
-        return 0.0
-    else:
-        return np.exp(log_k)
+# Constants for Bayes factor interpretation (Jeffreys' scale)
+BAYES_FACTORS_THRESHOLDS = {
+    "barely worth": 1.0,
+    "substantial": 3.0,
+    "strong": 10.0,
+    "very strong": 30.0,
+    "decisive": 100.0
+}
 
-def interpret_bayes_factor(K: float) -> str:
+def compute_bayes_factor(log_evidence_1: float, log_evidence_2: float) -> float:
     """
-    Interpret the Bayes factor K according to standard thresholds.
-    
-    Thresholds (Jeffreys scale):
-    K > 10: Strong evidence for model 1
-    K > 3.2: Moderate evidence
-    1 < K < 3.2: Weak evidence
-    K = 1: Equal evidence
-    K < 1: Evidence for model 2 (inverse)
-    
+    Compute the Bayes factor K = P(D|M1) / P(D|M2).
+
     Args:
-        K: Bayes factor (Z1/Z2).
-        
+        log_evidence_1: Log-evidence for model 1 (ln Z1).
+        log_evidence_2: Log-evidence for model 2 (ln Z2).
+
     Returns:
-        Interpretation string.
+        Bayes factor K = exp(ln Z1 - ln Z2).
     """
-    if K > 10:
-        return "Strong evidence for model 1 (K > 10)"
-    elif K > 3.2:
-        return "Moderate evidence for model 1 (3.2 < K <= 10)"
-    elif K > 1:
-        return "Weak evidence for model 1 (1 < K <= 3.2)"
-    elif K >= 1/3.2:
-        return "Inconclusive (1/3.2 <= K <= 1)"
-    elif K >= 1/10:
-        return "Weak evidence for model 2 (1/10 <= K < 1/3.2)"
+    log_k = log_evidence_1 - log_evidence_2
+    return np.exp(log_k)
+
+def interpret_bayes_factor(k: float, direction: str = "M1 over M2") -> str:
+    """
+    Interpret the strength of evidence based on Jeffreys' scale.
+
+    Args:
+        k: Bayes factor value.
+        direction: Description of the comparison direction.
+
+    Returns:
+        A string describing the strength of evidence.
+    """
+    if k > BAYES_FACTORS_THRESHOLDS["decisive"]:
+        return f"Decisive evidence for {direction}"
+    elif k > BAYES_FACTORS_THRESHOLDS["very strong"]:
+        return f"Very strong evidence for {direction}"
+    elif k > BAYES_FACTORS_THRESHOLDS["strong"]:
+        return f"Strong evidence for {direction}"
+    elif k > BAYES_FACTORS_THRESHOLDS["substantial"]:
+        return f"Substantial evidence for {direction}"
+    elif k > BAYES_FACTORS_THRESHOLDS["barely worth"]:
+        return f"Barely worth mentioning evidence for {direction}"
     else:
-        return "Strong evidence for model 2 (K < 1/10)"
+        return f"Inconclusive or evidence against {direction}"
 
 def compare_models(
-    model_results: Dict[str, Dict[str, Any]],
-    reference_model: str = "Null"
+    model_results: List[Dict[str, Any]]
 ) -> Dict[str, Any]:
     """
-    Compare all models against a reference model (default: Null).
-    
+    Compare multiple models and return a summary of Bayes factors.
+
     Args:
-        model_results: Dictionary mapping model names to their results,
-                       expected to contain 'log_evidence' key.
-        reference_model: Name of the model to use as the denominator.
-        
+        model_results: List of dictionaries containing model results.
+            Each dict must have keys: 'model_type', 'log_evidence', 'params'.
+
     Returns:
-        Dictionary containing Bayes factors and interpretations.
+        Dictionary containing pairwise Bayes factors and interpretations.
     """
-    if reference_model not in model_results:
-        raise ValueError(f"Reference model '{reference_model}' not found in results.")
-        
-    ref_evidence = model_results[reference_model].get('log_evidence')
-    if ref_evidence is None:
-        raise ValueError(f"Reference model '{reference_model}' missing 'log_evidence'.")
-        
-    comparisons = {}
-    
-    for model_name, results in model_results.items():
-        if model_name == reference_model:
-            continue
-            
-        model_evidence = results.get('log_evidence')
-        if model_evidence is None:
-            continue
-            
-        K = compute_bayes_factor(model_evidence, ref_evidence)
-        interpretation = interpret_bayes_factor(K)
-        
-        comparisons[model_name] = {
-            "bayes_factor": round(K, 2),
-            "log_evidence_diff": round(model_evidence - ref_evidence, 4),
-            "interpretation": interpretation,
-            "exceeds_threshold": K > 10
-        }
-        
-    return comparisons
+    if len(model_results) < 2:
+        raise ValueError("At least two models are required for comparison.")
+
+    # Sort models by log_evidence descending to identify the best model
+    sorted_models = sorted(model_results, key=lambda x: x['log_evidence'], reverse=True)
+    best_model = sorted_models[0]
+
+    comparisons = []
+    for i, model_1 in enumerate(sorted_models):
+        for model_2 in sorted_models[i+1:]:
+            k = compute_bayes_factor(model_1['log_evidence'], model_2['log_evidence'])
+            interpretation = interpret_bayes_factor(k, f"{model_1['model_type']} over {model_2['model_type']}")
+            comparisons.append({
+                "model_1": model_1['model_type'],
+                "model_2": model_2['model_type'],
+                "bayes_factor": float(k),
+                "log_bayes_factor": float(model_1['log_evidence'] - model_2['log_evidence']),
+                "interpretation": interpretation
+            })
+
+    return {
+        "best_model": best_model['model_type'],
+        "best_log_evidence": best_model['log_evidence'],
+        "comparisons": comparisons
+    }
 
 def save_model_comparison_results(
-    comparisons: Dict[str, Any],
+    results: Dict[str, Any],
     output_path: str
 ) -> None:
     """
     Save model comparison results to a JSON file.
-    
+
     Args:
-        comparisons: Dictionary of comparison results.
-        output_path: Path to save the JSON file.
+        results: Dictionary containing comparison results.
+        output_path: Path to the output JSON file.
     """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    
+    output_dir = os.path.dirname(output_path)
+    if output_dir:
+        os.makedirs(output_dir, exist_ok=True)
+
     with open(output_path, 'w') as f:
-        json.dump(comparisons, f, indent=2)
+        json.dump(results, f, indent=2)
 
 def main() -> None:
     """
-    Main entry point for model comparison.
-    
-    Loads results from inference runs, computes Bayes factors,
-    and saves the comparison report.
+    Entry point for CLI execution.
+    Loads inference results, computes Bayes factors, and saves the comparison.
     """
     config = get_config()
-    
-    # Expected paths based on project structure
-    # These should be populated by previous inference runs
-    results_dir = Path("data/derived")
-    output_path = results_dir / "model_comparison_results.json"
-    
-    # Load individual model results
+    base_dir = Path(config.get('BASE_DIR', '.'))
+    synthetic_dir = base_dir / 'data' / 'synthetic'
+
+    # Define paths to inference results for different models
+    # These files are expected to be generated by T025a, T025b, T025c, T025d, T025e, T025f
+    # or by the synthetic validation pipeline.
     model_files = {
-        "Inflation": results_dir / "inflation_results.json",
-        "PhaseTransition": results_dir / "phase_transition_results.json",
-        "Null": results_dir / "null_results.json"
+        "inflation": synthetic_dir / 'inference_results_inflation.json',
+        "null": synthetic_dir / 'inference_results_null.json',
+        "pt": synthetic_dir / 'inference_results_pt.json'
     }
-    
-    model_results = {}
-    for model_name, file_path in model_files.items():
-        if file_path.exists():
-            with open(file_path, 'r') as f:
-                model_results[model_name] = json.load(f)
-        else:
-            print(f"Warning: {file_path} not found. Skipping {model_name}.")
-    
-    if not model_results:
-        raise FileNotFoundError("No model result files found in data/derived/.")
-        
-    # Ensure we have a reference model (Null is preferred)
-    if "Null" not in model_results and len(model_results) > 0:
-        # Use the first available model as reference if Null is missing
-        reference = list(model_results.keys())[0]
-        print(f"Warning: Null model not found. Using '{reference}' as reference.")
-    else:
-        reference = "Null"
-        
-    # Perform comparisons
-    comparisons = compare_models(model_results, reference_model=reference)
-    
-    # Add reference model info
-    comparisons["_metadata"] = {
-        "reference_model": reference,
-        "threshold": 10,
-        "precision": 2
-    }
-    
-    # Save results
-    save_model_comparison_results(comparisons, str(output_path))
-    print(f"Model comparison results saved to {output_path}")
-    
-    # Print summary
-    print("\nBayes Factor Summary:")
-    print("-" * 50)
-    for model_name, data in comparisons.items():
-        if model_name == "_metadata":
+
+    model_results = []
+    for model_type, file_path in model_files.items():
+        if not file_path.exists():
+            print(f"Warning: {file_path} not found. Skipping {model_type}.")
             continue
-        print(f"{model_name} vs {reference}:")
-        print(f"  K = {data['bayes_factor']:.2f}")
-        print(f"  Decision: {'> 10 (Strong)' if data['exceeds_threshold'] else '< 10 (Inconclusive/Weak)'}")
-        print(f"  Interpretation: {data['interpretation']}")
-        print()
+
+        with open(file_path, 'r') as f:
+            data = json.load(f)
+
+        # Expected schema: {'model_type': str, 'log_evidence': float, 'params': dict, ...}
+        if 'log_evidence' not in data:
+            print(f"Error: {file_path} does not contain 'log_evidence'. Skipping {model_type}.")
+            continue
+
+        model_results.append({
+            'model_type': data.get('model_type', model_type),
+            'log_evidence': data['log_evidence'],
+            'params': data.get('params', {})
+        })
+
+    if len(model_results) < 2:
+        print("Error: Not enough models found to perform comparison.")
+        return
+
+    comparison_results = compare_models(model_results)
+
+    # Save results
+    output_path = base_dir / 'data' / 'derived' / 'model_comparison_results.json'
+    save_model_comparison_results(comparison_results, str(output_path))
+    print(f"Model comparison results saved to {output_path}")
+
+    # Print summary
+    print(f"Best model: {comparison_results['best_model']}")
+    print("Pairwise comparisons:")
+    for comp in comparison_results['comparisons']:
+        print(f"  {comp['model_1']} vs {comp['model_2']}: K = {comp['bayes_factor']:.2f} ({comp['interpretation']})")
 
 if __name__ == "__main__":
     main()

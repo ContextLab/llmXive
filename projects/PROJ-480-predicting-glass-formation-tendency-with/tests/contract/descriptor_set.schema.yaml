@@ -1,0 +1,33 @@
+# JSON Schema for DescriptorSet (Computed Features)
+$schema: "http://json-schema.org/draft-07/schema#"
+title: DescriptorSet
+type: object
+properties:
+  record_id:
+    type: string
+    description: Foreign key linking to a CompositionRecord
+  delta_atomic_size:
+    type: number
+    minimum: 0
+    description: Atomic size mismatch (standard deviation)
+  delta_enthalpy:
+    type: number
+    description: Mixing enthalpy (kJ/mol)
+  delta_electronegativity:
+    type: number
+    minimum: 0
+    description: Weighted variance of electronegativity
+  mean_atomic_weight:
+    type: number
+    description: Weighted average atomic weight
+  mean_electronegativity:
+    type: number
+    description: Weighted average electronegativity
+required:
+  - record_id
+  - delta_atomic_size
+  - delta_enthalpy
+  - delta_electronegativity
+  - mean_atomic_weight
+  - mean_electronegativity
+additionalProperties: false

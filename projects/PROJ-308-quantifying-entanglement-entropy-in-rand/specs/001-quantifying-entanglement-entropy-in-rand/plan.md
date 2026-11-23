@@ -11,14 +11,14 @@ This feature implements a computational workflow to quantify entanglement entrop
 
 ## Technical Context
 
-**Language/Version**: Python 3.10+  
+**Language/Version**: Python 3.x or higher  
 **Primary Dependencies**: `tenpy` (CPU-only, pinned to specific commit/version for reproducibility), `numpy`, `scipy`, `pandas`, `matplotlib`, `pytest`  
 **Storage**: 
 - `data/`: Raw entropy data, processed fits, plots.
 - `state/`: **Single Source of Truth** for versioning, checksums, and advancement metadata (per Constitution Principle V).
 - `code/`: Scripts and libraries.
 **Testing**: `pytest` (unit tests for Hamiltonian generation, regression logic; integration tests for full workflow).  
-**Target Platform**: GitHub Actions `ubuntu-latest` (2 vCPUs, ~7 GB RAM, CPU-only).  
+**Target Platform**: GitHub Actions `ubuntu-latest` (A minimal number of vCPUs, ~7 GB RAM, CPU-only).  
 **Project Type**: Scientific CLI / Computational Physics Library  
 **Performance Goals**: Complete workflow for $L=30, \delta=0.2, N=100$ within 6 hours; memory usage < 6 GB.  
 **Constraints**: Double-precision arithmetic only; no GPU; strict input validation ($L$ within a moderate range, $0 \le \delta \le 1$); a sufficient number of bootstrap resamples.  
@@ -89,7 +89,7 @@ projects/PROJ-308-quantifying-entanglement-entropy-in-rand/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 | :--- | :--- | :--- |
-| **Bootstrap Resampling (1000+)** | Required by FR-006 and SC-001/SC-002 for robust error estimation and CI width. | Simple analytic error bars are insufficient for non-Gaussian distributions in disordered systems. |
+| **Bootstrap Resampling (+)** | Required by FR-006 and SC-001/SC-002 for robust error estimation and CI width. | Simple analytic error bars are insufficient for non-Gaussian distributions in disordered systems. |
 | **TEBD with Double Precision** | Required by Constitution Principle VI for numerical stability. | Single precision often leads to convergence failure or spurious entropy values in long chains. |
 | **Grid Scan Support** | Required by US-2 and FR-010 to map the MBL-thermal crossover. | Single-parameter runs do not provide the phase diagram needed for the scientific objective. |
 | **Adaptive Bond Dimension** | Required to avoid systematic bias in the critical regime where chi > 200 may be needed. | Hard cap (chi=200) risks artificially suppressing entropy and mimicking an area law. |

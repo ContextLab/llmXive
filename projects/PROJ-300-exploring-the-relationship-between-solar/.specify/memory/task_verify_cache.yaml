@@ -1,14 +1,44 @@
+T006c:
+  c: false
+  h: 5d3c744d8d51af1f9860a8774e32290fa96d32753f19e41efb8ff97170b35cf6
+  r: The `log_lag_derivation` function in `code/data/lag.py` is truncated and does
+    not contain the full implementation needed to write the derivation to a JSON file.
+    Moreover, the required output file `data/processed/quality_log.json` is absent
+    from the repository. Both the function implementation and the expected artifact
+    are missing, so the task is not genuinely completed.
 T016:
   c: true
-  h: 10605e4b0ad8c5d0be01680231ffd8999abf012296dbc75aec3c6bb52d847226
-  r: The provided `code/main.py` contains a `log_quality_warnings` function that writes
-    a list of warning dictionaries to `data/processed/quality_log.json` in proper
-    JSON format, matching the required behavior. The absence of the JSON file on disk
-    is acceptable because it is generated at runtime by this implementation.
-T020:
+  h: c81ae9b7edbd90f61d986e1f8ab9166451c838330a4f2566866115e89079a38e
+  r: "The `log_data_quality_warnings` function is fully implemented in `code/main.py`,\
+    \ handling directory creation, JSON reading/writing, key validation, and file\
+    \ locking as required. The absence of a pre\u2011existing `data/processed/quality_log.json`\
+    \ file is expected\u2014the function creates it when invoked."
+T025:
   c: false
-  h: 7e99a0531a072880e318cfe9d0beffd9fe9c3c4ed01dd74ebccdb82d900406b7
-  r: "The required source files `data/clean.py` and `data/lag.py` are missing from\
-    \ the repository, and there is no evidence that `main.py` has been updated to\
-    \ integrate these modules with `analysis/correlation.py`. Without these files\
-    \ and the integration code, the pipeline for US\u20111 cannot be executed."
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (code, output file, log, or figure) was provided that demonstrates
+    the pipeline computing or reporting the absolute difference `|L* - L_phys|`. Without
+    such evidence, we cannot confirm that the requirement of verifying this calculation
+    (SC-002) has been satisfied. The implementer must supply the relevant pipeline
+    output or test results showing the metric is produced.
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script output, log, or result file) showing the lag\u2011\
+    search run on a synthetic dataset and reporting an optimal lag of 45\u202Fmin\u202F\
+    \xB1\u202F1\u202Fmin is present; the claim lacks any concrete evidence of execution\
+    \ or verification."
+T033:
+  c: true
+  h: 2a636b737194dfac0fff666132125fe111d0dcd8a1aee2862aff8a02ccfe82f2
+  r: "The repository contains a non\u2011empty `tests/unit/test_lag.py` file with\
+    \ concrete unit tests for the functions in `data/lag.py`, satisfying the task\u2019\
+    s requirement to provide unit tests."
+T041a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test artifacts (e.g., unit\u2011test logs, integration\u2011test reports,\
+    \ coverage summaries) were provided, nor any indication that the analysis pipeline\
+    \ was exercised against the specified user stories. Without concrete evidence\
+    \ that the required unit and integration tests were executed and passed, the claim\
+    \ does not satisfy the task."

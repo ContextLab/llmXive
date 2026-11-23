@@ -1,52 +1,44 @@
-$schema: "http://json-schema.org/draft-07/schema#"
 type: object
 properties:
-  method:
+  transformation:
     type: string
     enum:
-      - "Box-Cox"
-      - "Yeo-Johnson"
-      - "rank-based"
-    description: "Transformation method"
+      - baseline
+      - box_cox
+      - yeo_johnson
+      - rank_inverse_normal
   test_type:
     type: string
     enum:
-      - "t-test"
-      - "ANOVA"
-    description: "Statistical test type"
+      - t_test
+      - anova
   metric:
     type: string
     enum:
-      - "type1_error"
-      - "power"
-    description: "Metric being aggregated"
-  mean:
+      - type1_error
+      - power
+  mean_value:
     type: number
-    description: "Mean estimate across datasets"
   ci_lower:
     type: number
-    description: "95% bootstrap CI lower bound"
   ci_upper:
     type: number
-    description: "95% bootstrap CI upper bound"
+  ci_half_width:
+    type: number
   n_datasets:
     type: integer
-    minimum: 50
-    description: "Number of datasets aggregated"
-  alpha:
-    type: number
-    enum:
-      - 0.01
-      - 0.05
-      - 0.1
-    description: "Significance threshold used"
+    minimum: 0
+  n_iterations:
+    type: integer
+    minimum: 1
 required:
-  - method
+  - transformation
   - test_type
   - metric
-  - mean
+  - mean_value
   - ci_lower
   - ci_upper
+  - ci_half_width
   - n_datasets
-  - alpha
+  - n_iterations
 additionalProperties: false

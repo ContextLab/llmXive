@@ -1,0 +1,78 @@
+T001:
+  reason: "The `quickstart.md` and `tests/integration/test_skeleton.py` exist, and\
+    \ `artifacts/help_output.txt` is present and non\u2011empty, but the `ruff check\
+    \ code/` step fails (see the logged test failure) because `.ruff.toml` is malformed,\
+    \ causing the test to abort and no valid `artifacts/ruff_output.txt` to be produced.\
+    \ The required linting command must exit\u202F0 and generate a non\u2011empty\
+    \ artifact for the task to be complete."
+  task: 9f9c0b4560206240b1373cb3d5fdfe2a7f4ea54abc610a9a571c5df47b8aca9b
+T002:
+  reason: "The contracts directory is empty \u2013 all four required schema files\
+    \ (`query_instance.schema.yaml`, `execution_log.schema.yaml`, `execution_metric.schema.yaml`,\
+    \ `statistics_result.schema.yaml`) are missing, and the duplicate `statistics-result.schema.yaml`\
+    \ is also absent. Consequently the provided `tests/unit/test_contracts.py` fails\
+    \ because it cannot find the schema files. The task requires the schemas to exist\
+    \ and the test to pass, which is not satisfied."
+  task: aaee1af098b65fff093d7bf964cbfe6cf2c8add7984ce40c85c991c5447d6a3c
+T003:
+  reason: "The three loader functions exist, but at runtime they raise errors: `load_ms_marco`\
+    \ cannot find the \u201Ctest\u201D config, `load_spider` cannot find the \u201C\
+    tables\u201D config, and `load_dbpedia` receives a 401 Unauthorized error, causing\
+    \ all unit tests to fail. The required behavior of successfully streaming the\
+    \ datasets and downloading the parquet file is therefore not met."
+  task: c16828ba900b0640760cb90ad5b27d17811b5c9a7e6770e890fae2dcd346e59f
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/generators/synthetic_query.py
+    exit=1'
+  task: cb288a327de842f63ecff2b0a4665ddad2b6051e844e0bd2ff8e37ff3213e8b5
+T005:
+  reason: "The provided `code/generators/reference_engine.py` does not meet the spec:\
+    \ it falls back to a default cost table because `data/processed/cost_table.json`\
+    \ is missing, returns identifiers of the form `gt_plan_\u2026` instead of the\
+    \ required `greedy_plan_<8\u2011hex\u2011hash>`, and there is no evidence that\
+    \ `generation_log.json` exists or is updated with non\u2011null `ground_truth_plan`\
+    \ for every query. The unit test expectations and the implementation are inconsistent,\
+    \ so the task is not genuinely completed."
+  task: 9c4ff8af6d98b8cd1f5f7033a8f85fa7aeb13fc773a7cd451eda9f36e7759d08
+T006:
+  reason: 'Requested task execution failed; rerun successfully: code/planners/optimal_planner.py
+    exit=1'
+  task: 2d4012c1fa6d4babe11e70fbdef6792f78c7155442644115a3d019375f1ca3f9
+T007:
+  reason: "The provided `tests/integration/test_cpu_throttle.py` fails (both tests\
+    \ exit with code\u202F2 due to argparse parsing the pytest command\u2011line arguments,\
+    \ not the expected code\u202F99 or successful run). Consequently the required\
+    \ verification that the utility aborts with exit\u202F99 on failure and sets `THROTTLE_MODE=\"\
+    cgroups\"` on success is not satisfied. Additionally, the implementation defaults\
+    \ to 2 CPU cores, which does not enforce the \u2264\u202F1\u202F000\u202Fms CPU\u2011\
+    time limit specified. The task therefore remains incomplete."
+  task: 3ace9e1f5c7d3a98727b7797d6417e0f73629d89a219c90f45bcd4f98530757d
+T008:
+  reason: "The executor package exists but each executor is only a stub that returns\
+    \ a placeholder plan identifier; none perform BM25 over MS\u202FMARCO, SQLite\
+    \ over Spider tables, or RDFLib SPARQL over DBpedia as required.\u202F`BaseExecutor`\
+    \ enforces timeouts via `signal.alarm` instead of the mandated `concurrent.futures.ThreadPoolExecutor`\
+    \ with a 60\u202Fs wall\u2011clock limit, and the test suite does not check `latency_ms\
+    \ > 0` nor validate results against the missing `execution_log.schema.yaml`.\u202F\
+    Consequently the task\u2019s functional and testing requirements are not satisfied."
+  task: d23c1de4f52e0994b5cc69665dab547af52b3c83fa02c4352596fecef834e700
+T009:
+  reason: 'Requested task execution failed; rerun successfully: code/baseline_overhead.py
+    exit=1'
+  task: de45cd46c6703475d3f37b44f11b85709d059bb8a6aee6919427f0bbe67695d5
+T010:
+  task: c9d3d866dd09df37418c4a84d6edf8bdce1ddbbdcc19c0381a7ad5720855fe87
+T011:
+  task: 8929fcd7542b224a9077e715a03cd944aeda81cb888a21eb56839bfce36649f6
+T012:
+  task: 0191acb3aa3d296480f27a16a8d97cf30eef45fdc78f7492022a7f2e1d85fc95
+T013:
+  task: 78920f0a9bce3d8d38eb21ffbb0619ce0a90a132271581e9863c92009d44b173
+T014:
+  task: 4893c841c9a75b8f429b05453d3bd4bf3ee5bb9bfbc5de7c21a3395daafb06f4
+T015:
+  task: a8a40d0ccf9233a29fa41ee91241f30898dae0b9c1b76959b9a925440496dca7
+T016:
+  task: 0709d4ae62d00463569dccd81cffbca488d154af21fccf1dc55badfef60bf8ba
+T017:
+  task: 070fe1f5a7d20c42f07e2d3b6bf3413b7cfe955df79f3adb5a499d0c2a81e8ec

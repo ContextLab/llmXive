@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelResult"
+type: object
+required:
+  - model_type
+  - trained_on
+  - validation_r2
+  - timestamp
+properties:
+  model_type:
+    type: string
+    enum:
+      - RandomForest
+      - GradientBoosting
+      - SHAPTree
+      - PySR
+    description: "Identifier of the modeling approach"
+  trained_on:
+    type: array
+    items:
+      type: string
+    description: "List of compound_id values used for training"
+  validation_r2:
+    type: number
+    description: "R² score on the held‑out validation split"
+  feature_importances:
+    type: array
+    items:
+      type: object
+      required:
+        - feature
+        - importance
+      properties:
+        feature:
+          type: string
+        importance:
+          type: number
+    description: "Ranked feature importance (empty for PySR models)"
+  symbolic_formulas:
+    type: array
+    items:
+      type: object
+      required:
+        - formula
+        - r2
+      properties:
+        formula:
+          type: string
+          description: "Mathematical expression produced by PySR"
+        r2:
+          type: number
+          description: "R² of the formula on the validation set"
+    description: "List of discovered symbolic equations (only for PySR)"
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp of model training completion"

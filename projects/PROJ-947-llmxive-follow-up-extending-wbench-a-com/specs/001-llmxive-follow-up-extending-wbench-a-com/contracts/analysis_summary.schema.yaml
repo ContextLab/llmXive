@@ -1,0 +1,46 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AnalysisSummary
+description: Schema for ANOVA and trend analysis results.
+type: object
+properties:
+  model_name:
+    type: string
+    description: "Name of the world model analyzed."
+  f_statistic:
+    type: number
+    description: "F-statistic from One-Way ANOVA."
+  p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Raw p-value for the ANOVA test."
+  bonferroni_p_value:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Bonferroni corrected p-value."
+  significant:
+    type: boolean
+    description: "Whether the result is significant after correction."
+  trend_type:
+    type: string
+    enum:
+      - linear
+      - non-linear
+      - none
+    description: "Type of degradation trend observed."
+  method:
+    type: string
+    enum:
+      - anova
+      - kruskal_wallis
+    description: "Statistical test method used."
+required:
+  - model_name
+  - f_statistic
+  - p_value
+  - bonferroni_p_value
+  - significant
+  - trend_type
+  - method
+additionalProperties: false

@@ -1,54 +1,33 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "ManipulationEpisodeSchema"
-description: "Schema for synthetic bi-manual manipulation episodes. Enforces translation-only input and binary stability labels."
+title: "ManipulationEpisodeDataset"
 type: "object"
 properties:
-  episode_id:
-    type: "string"
-    description: "Unique UUID for the episode."
-  geometry:
-    type: "object"
-    description: "Initial object bounding box coordinates."
-    properties:
-      min_x: { type: "number" }
-      min_y: { type: "number" }
-      min_z: { type: "number" }
-      max_x: { type: "number" }
-      max_y: { type: "number" }
-      max_z: { type: "number" }
-    required: ["min_x", "min_y", "min_z", "max_x", "max_y", "max_z"]
-  translation_sequence:
-    type: "array"
-    description: "Sequence of 3D translation vectors (t-10 to t). No rotation or force data."
-    items:
-      type: "array"
-      items:
-        type: "number"
-      minItems: 3
-      maxItems: 3
-    minItems: 10
-    maxItems: 10
-  tipping_angle:
-    type: "number"
-    description: "Maximum deviation of center of mass from base (degrees)."
-    minimum: 0.0
-  slippage_distance:
-    type: "number"
-    description: "Maximum relative displacement at contact points (meters)."
-    minimum: 0.0
-  stability_label:
-    type: "integer"
-    description: "Binary outcome: 1 (Success) if tipping < 15° AND slippage < 0.02m, else 0."
-    enum: [0, 1]
   metadata:
     type: "object"
-    description: "Simulation parameters including noise injection."
     properties:
-      seed: { type: "integer" }
-      object_mass: { type: "number" }
-      friction_coeff: { type: "number" }
-      noise_sigma: { type: "number" }
-required:
-  ["episode_id", "geometry", "translation_sequence", "tipping_angle", "slippage_distance", "stability_label", "metadata"]
-additionalProperties: false
-description: "This schema strictly forbids rotation, torque, or force columns. Any file violating this is invalid."
+      version: { "type": "string", "const": "1.0.0" }
+      generated_at: { "type": "string" }
+      seed: { "type": "integer" }
+    required: ["version", "generated_at", "seed"]
+  columns:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        name: { "type": "string" }
+        type: { "type": "string", "enum": ["int64", "float32", "float64", "string", "list[float]"] }
+        description: { "type": "string" }
+      required: ["name", "type"]
+  forbidden_columns:
+    type: "array"
+    items: { "type": "string" }
+    description: "List of columns that MUST NOT appear in the dataset"
+    default: ["rotation_quaternion", "joint_torque", "force_sensor", "angular_velocity"]
+  constraints:
+    type: "object"
+    properties:
+      min_rows: { "type": "integer", "minimum": 5000, "description": "Minimum number of episodes" }
+      has_geometry_id: { "type": "boolean", "const": true, "description": "Must have geometry_id for disjoint split" }
+      has_stability_label: { "type": "boolean", "const": true, "description": "Must have binary stability label" }
+required: ["metadata", "columns", "forbidden_columns", "constraints"]
+description: "Schema for the synthetic manipulation dataset. Enforces translation-only signal integrity."

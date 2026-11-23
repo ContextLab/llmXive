@@ -1,0 +1,3 @@
+metric_a,metric_b,pearson_r,pearson_p,pearson_q,spearman_r,spearman_p,spearman_q,interpretation,disclaimer
+demographic_parity_difference,equalized_odds_difference,0.45,0.03,0.05,0.42,0.04,0.06,medium,Findings are associational only; no causal claims are made.
+demographic_parity_difference,predictive_parity,0.32,0.08,0.10,0.29,0.09,0.11,small,Findings are associational only; no causal claims are made.

@@ -1,16 +1,21 @@
+"""
+Unit tests for participant exclusion logic (T014).
+"""
+
 import pytest
 import pandas as pd
 import numpy as np
-import json
-import os
-import tempfile
 from pathlib import Path
+import sys
+import os
+
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 from code.data.exclusion import (
     calculate_missing_ratio,
     evaluate_participant_exclusion,
-    run_exclusion_pipeline,
-    MISSING_THRESHOLD
+    run_exclusion_pipeline
 )
 
 
@@ -33,7 +38,7 @@ class TestCalculateMissingRatio:
         """Test with partial missing data."""
         data = pd.Series([1.0, np.nan, 3.0, np.nan, 5.0])
         ratio = calculate_missing_ratio(data)
-        assert ratio == 0.4  # 2 out of 5
+        assert ratio == 0.4  # 2 out of 5 missing
 
     def test_empty_series(self):
         """Test with empty series."""
@@ -50,111 +55,162 @@ class TestCalculateMissingRatio:
 class TestEvaluateParticipantExclusion:
     """Tests for evaluate_participant_exclusion function."""
 
-    @pytest.fixture
-    def sample_data(self):
-        """Create sample participant data with varying missing ratios."""
-        data = {
-            'participant_id': [1, 1, 1, 2, 2, 2, 3, 3, 3, 4, 4, 4],
-            'gaze_x': [10.0, 11.0, np.nan, 20.0, 21.0, 22.0, np.nan, np.nan, np.nan, 40.0, 41.0, 42.0],
-            'gaze_y': [100.0, 101.0, 102.0, 200.0, np.nan, 202.0, np.nan, np.nan, np.nan, 400.0, 401.0, 402.0]
-        }
-        return pd.DataFrame(data)
-
-    def test_exclusion_threshold(self, sample_data):
-        """Test that participants with >20% missing data are excluded."""
-        filtered_df, stats = evaluate_participant_exclusion(
-            df=sample_data,
-            gaze_columns=['gaze_x', 'gaze_y'],
-            participant_col='participant_id',
-            threshold=0.20
+    def test_below_threshold(self):
+        """Test participant below exclusion threshold."""
+        data = pd.DataFrame({
+            "participant_id": ["p1"],
+            "gaze_coordinates": [1.0, 2.0, 3.0, 4.0, 5.0]
+        })
+        should_exclude, ratio, details = evaluate_participant_exclusion(
+            data, threshold=0.20
         )
+        assert should_exclude is False
+        assert ratio == 0.0
+        assert details["excluded"] is False
 
-        # Participant 3 has 100% missing (6/6 values) -> excluded
-        # Participant 1 has 1/6 missing (~16.7%) -> kept
-        # Participant 2 has 1/6 missing (~16.7%) -> kept
-        # Participant 4 has 0/6 missing (0%) -> kept
-
-        assert stats['excluded_count'] == 1
-        assert stats['excluded_participants'] == [3]
-        assert stats['kept_count'] == 3
-        assert stats['exclusion_rate'] == 1/4
-
-        # Check filtered dataframe only contains kept participants
-        assert 3 not in filtered_df['participant_id'].values
-        assert 1 in filtered_df['participant_id'].values
-        assert 2 in filtered_df['participant_id'].values
-        assert 4 in filtered_df['participant_id'].values
-
-    def test_empty_dataframe(self):
-        """Test with empty DataFrame."""
-        df = pd.DataFrame(columns=['participant_id', 'gaze_x'])
-        filtered_df, stats = evaluate_participant_exclusion(
-            df=df,
-            gaze_columns=['gaze_x'],
-            participant_col='participant_id'
+    def test_above_threshold(self):
+        """Test participant above exclusion threshold."""
+        # 3 out of 5 missing = 60% > 20%
+        data = pd.DataFrame({
+            "participant_id": ["p1"],
+            "gaze_coordinates": [1.0, np.nan, np.nan, 4.0, np.nan]
+        })
+        should_exclude, ratio, details = evaluate_participant_exclusion(
+            data, threshold=0.20
         )
+        assert should_exclude is True
+        assert ratio == 0.6
+        assert details["excluded"] is True
 
-        assert stats['total_participants'] == 0
-        assert stats['excluded_count'] == 0
-        assert stats['exclusion_rate'] == 0.0
+    def test_missing_column(self):
+        """Test when required column is missing."""
+        data = pd.DataFrame({
+            "participant_id": ["p1"],
+            "other_column": [1.0, 2.0, 3.0]
+        })
+        should_exclude, ratio, details = evaluate_participant_exclusion(
+            data, threshold=0.20, gaze_column="gaze_coordinates"
+        )
+        assert should_exclude is True
+        assert ratio == 1.0
+        assert "Missing required column" in details["reason"]
 
-    def test_custom_threshold(self, sample_data):
+    def test_custom_threshold(self):
         """Test with custom threshold."""
-        filtered_df, stats = evaluate_participant_exclusion(
-            df=sample_data,
-            gaze_columns=['gaze_x', 'gaze_y'],
-            participant_col='participant_id',
-            threshold=0.10  # Stricter threshold
+        # 40% missing
+        data = pd.DataFrame({
+            "participant_id": ["p1"],
+            "gaze_coordinates": [1.0, np.nan, np.nan, np.nan, 5.0]
+        })
+        # With 0.50 threshold, should NOT exclude
+        should_exclude, ratio, details = evaluate_participant_exclusion(
+            data, threshold=0.50
         )
+        assert should_exclude is False
+        assert ratio == 0.4
 
-        # With 10% threshold, participants with 16.7% missing should be excluded
-        assert stats['excluded_count'] == 3  # P1, P2, P3 all have >= 16.7%
-        assert 4 in stats['kept_participants'] if 'kept_participants' in stats else True
+        # With 0.30 threshold, should exclude
+        should_exclude, ratio, details = evaluate_participant_exclusion(
+            data, threshold=0.30
+        )
+        assert should_exclude is True
 
 
 class TestRunExclusionPipeline:
-    """Tests for the full pipeline integration."""
+    """Tests for run_exclusion_pipeline function."""
 
-    def test_pipeline_creates_files(self):
-        """Test that pipeline creates output files."""
-        # Create temporary directory
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / "input.csv"
-            output_path = Path(tmpdir) / "output.csv"
-            stats_path = Path(tmpdir) / "stats.json"
+    def test_pipeline_creates_output(self, tmp_path):
+        """Test that pipeline creates cleaned output file."""
+        # Create test data
+        test_data = pd.DataFrame({
+            "participant_id": ["p1", "p1", "p1", "p2", "p2", "p2"],
+            "gaze_coordinates": [1.0, 2.0, 3.0, np.nan, np.nan, np.nan],
+            "trial_data": [10, 20, 30, 40, 50, 60]
+        })
 
-            # Create sample input
-            data = {
-                'participant_id': [1, 1, 2, 2],
-                'gaze_x': [10.0, 11.0, np.nan, 22.0],
-                'gaze_y': [100.0, 101.0, 200.0, 201.0]
-            }
-            pd.DataFrame(data).to_csv(input_path, index=False)
+        input_file = tmp_path / "features.csv"
+        output_file = tmp_path / "features_cleaned.csv"
+        report_file = tmp_path / "exclusion_report.json"
 
-            # Run pipeline
-            stats = run_exclusion_pipeline(
-                input_path=str(input_path),
-                output_path=str(output_path),
-                stats_path=str(stats_path)
+        test_data.to_csv(input_file, index=False)
+
+        # Run pipeline
+        report = run_exclusion_pipeline(
+            input_path=str(input_file),
+            output_path=str(output_file),
+            threshold=0.20,
+            gaze_column="gaze_coordinates"
+        )
+
+        # Verify output file created
+        assert output_file.exists()
+        assert report_file.exists()
+
+        # Verify exclusion logic
+        assert report["excluded_count"] == 1
+        assert report["included_count"] == 1
+        assert report["exclusion_rate"] == 0.5
+
+        # Verify cleaned data
+        cleaned_df = pd.read_csv(output_file)
+        assert len(cleaned_df) == 3  # Only p1's records
+        assert all(cleaned_df["participant_id"] == "p1")
+
+    def test_pipeline_no_included_participants(self, tmp_path):
+        """Test pipeline when all participants are excluded."""
+        # Create test data where all participants have >20% missing
+        test_data = pd.DataFrame({
+            "participant_id": ["p1", "p1", "p2", "p2"],
+            "gaze_coordinates": [np.nan, np.nan, np.nan, np.nan],
+            "trial_data": [10, 20, 30, 40]
+        })
+
+        input_file = tmp_path / "features.csv"
+        output_file = tmp_path / "features_cleaned.csv"
+
+        test_data.to_csv(input_file, index=False)
+
+        # Run pipeline
+        report = run_exclusion_pipeline(
+            input_path=str(input_file),
+            output_path=str(output_file),
+            threshold=0.20,
+            gaze_column="gaze_coordinates"
+        )
+
+        # Verify exclusion
+        assert report["excluded_count"] == 2
+        assert report["included_count"] == 0
+        assert report["exclusion_rate"] == 1.0
+
+        # Output file should not be created when no participants remain
+        assert not output_file.exists()
+
+    def test_pipeline_logging_exclusion_rate(self, tmp_path, caplog):
+        """Test that exclusion rate is logged."""
+        import logging
+
+        test_data = pd.DataFrame({
+            "participant_id": ["p1", "p1", "p1", "p2", "p2", "p2"],
+            "gaze_coordinates": [1.0, 2.0, 3.0, np.nan, np.nan, np.nan],
+            "trial_data": [10, 20, 30, 40, 50, 60]
+        })
+
+        input_file = tmp_path / "features.csv"
+        output_file = tmp_path / "features_cleaned.csv"
+
+        test_data.to_csv(input_file, index=False)
+
+        with caplog.at_level(logging.INFO):
+            run_exclusion_pipeline(
+                input_path=str(input_file),
+                output_path=str(output_file),
+                threshold=0.20,
+                gaze_column="gaze_coordinates"
             )
 
-            # Verify files exist
-            assert output_path.exists()
-            assert stats_path.exists()
-
-            # Verify stats content
-            assert 'exclusion_rate' in stats
-            assert 'excluded_count' in stats
-            assert 'kept_count' in stats
-
-            # Verify output file is valid CSV
-            output_df = pd.read_csv(output_path)
-            assert not output_df.empty
-
-    def test_pipeline_handles_missing_input(self):
-        """Test pipeline fails gracefully with missing input."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            input_path = Path(tmpdir) / "nonexistent.csv"
-            
-            with pytest.raises(FileNotFoundError):
-                run_exclusion_pipeline(input_path=str(input_path))
+        # Check that exclusion rate is logged
+        log_output = " ".join(caplog.messages)
+        assert "EXCLUSION SUMMARY" in log_output
+        assert "Excluded:" in log_output
+        assert "0.50" in log_output or "50%" in log_output

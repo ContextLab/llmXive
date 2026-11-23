@@ -1,0 +1,15 @@
+T008:
+  c: false
+  h: 27fd280edbdef7fbac678b01ace4a813cd8252111cf243d26cb6227969ceee73
+  r: The provided `tests/contract/test_schemas.py` includes imports and a base class,
+    and references `similarity_report.schema.yaml`, but it does not show any tests
+    that load `permutation_result.schema.yaml` or `wals_validation.schema.yaml` as
+    required by the task. Consequently, the skeleton does not fully satisfy the specification.
+    The missing references to the two other schemas need to be added.
+T009:
+  c: false
+  h: 27fd280edbdef7fbac678b01ace4a813cd8252111cf243d26cb6227969ceee73
+  r: The `tests/contract/test_schemas.py` file contains a test that tries to load
+    `similarity_report.schema.yaml`, but the required `similarity_report.schema.yaml`
+    file is missing from the repository, so the contract test cannot actually validate
+    anything. The missing schema file must be added for the task to be satisfied.

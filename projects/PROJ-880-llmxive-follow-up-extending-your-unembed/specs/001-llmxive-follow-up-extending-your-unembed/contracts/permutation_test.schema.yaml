@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Permutation Test Schema"
+type: object
+required:
+  - "observed_similarity"
+  - "null_distribution_mean"
+  - "null_distribution_std"
+  - "p_value"
+  - "iterations"
+  - "significance_flag"
+properties:
+  observed_similarity:
+    type: number
+    minimum: -1
+    maximum: 1
+  null_distribution_mean:
+    type: number
+  null_distribution_std:
+    type: number
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "Two-tailed p-value."
+  iterations:
+    type: integer
+    minimum: 10000
+  significance_flag:
+    type: boolean
+  null_components:
+    type: object
+    properties:
+      within_language:
+        type: integer
+      across_model:
+        type: integer
+      model_specific:
+        type: integer
+  generated_at:
+    type: string
+    format: date-time

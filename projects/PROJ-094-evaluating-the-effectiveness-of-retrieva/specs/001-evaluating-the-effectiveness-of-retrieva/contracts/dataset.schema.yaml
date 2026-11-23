@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CodeSearchNet Dataset Schema"
+type: "object"
+properties:
+  doc_id:
+    type: "string"
+    description: "Unique identifier for the code snippet"
+  repo:
+    type: "string"
+    description: "Repository name"
+  path:
+    type: "string"
+    description: "File path within repository"
+  func_name:
+    type: "string"
+    description: "Function/method name"
+  code:
+    type: "string"
+    description: "Source code (truncated to ≤256 tokens)"
+  language:
+    type: "string"
+    enum:
+      - "python"
+      - "java"
+    description: "Programming language"
+  docstring:
+    type: "string"
+    description: "Natural language description (query)"
+  api_density:
+    type: "number"
+    description: "Ratio of API calls to total tokens"
+  doc_density:
+    type: "number"
+    description: "Ratio of comment tokens to total tokens"
+  naming_consistency:
+    type: "number"
+    description: "Average pairwise cosine similarity of identifier embeddings (CodeBERT-base)"
+  truncated:
+    type: "boolean"
+    description: "True if code was truncated"
+required:
+  - doc_id
+  - repo
+  - path
+  - func_name
+  - code
+  - language
+  - docstring
+  - api_density
+  - doc_density
+  - naming_consistency
+  - truncated
+additionalProperties: false

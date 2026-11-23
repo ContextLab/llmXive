@@ -1,7 +1,3 @@
-"""
-Logging utility for llmXive pipeline.
-Provides JSON-formatted logging to both file and stdout.
-"""
 import json
 import logging
 import sys
@@ -9,98 +5,97 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, Dict, Any
 
-# Ensure the logging directory exists if we are logging to a file
-LOG_DIR = Path("code/logs")
-LOG_DIR.mkdir(parents=True, exist_ok=True)
-
 class JsonFormatter(logging.Formatter):
-    """Custom formatter that outputs logs as JSON lines."""
+    """Custom JSON formatter for structured logging."""
 
     def format(self, record: logging.LogRecord) -> str:
-        log_data: Dict[str, Any] = {
+        log_obj: Dict[str, Any] = {
             "timestamp": datetime.utcnow().isoformat() + "Z",
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
+            "module": record.module,
+            "function": record.funcName,
+            "line": record.lineno,
         }
 
         if record.exc_info:
-            log_data["exception"] = self.formatException(record.exc_info)
+            log_obj["exception"] = self.formatException(record.exc_info)
 
-        # Add extra fields if present
         if hasattr(record, "extra_data"):
-            log_data.update(record.extra_data)
+            log_obj.update(record.extra_data)
 
-        return json.dumps(log_data)
+        return json.dumps(log_obj)
+
 
 def setup_logging(
-    log_file: Optional[str] = None,
-    level: int = logging.INFO,
-    name: str = "llmxive"
-) -> logging.Logger:
+    log_level: str = "INFO",
+    log_file: Optional[Path] = None,
+    enable_json: bool = True,
+) -> None:
     """
-    Configure a logger with JSON formatting for both file and stdout handlers.
+    Configure root logger with stdout and optional file handlers.
 
     Args:
-        log_file: Optional path to a log file. If None, only stdout is used.
-        level: Logging level (e.g., logging.DEBUG, logging.INFO).
-        name: Name of the logger.
+        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL).
+        log_file: Optional path to write logs. If None, no file handler is added.
+        enable_json: If True, use JSON formatting; otherwise use standard text formatting.
+    """
+    root_logger = logging.getLogger()
+    root_logger.setLevel(getattr(logging, log_level.upper()))
+
+    # Clear existing handlers to avoid duplicates in repeated calls
+    root_logger.handlers.clear()
+
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(getattr(logging, log_level.upper()))
+
+    if enable_json:
+        console_handler.setFormatter(JsonFormatter())
+    else:
+        console_handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            )
+        )
+    root_logger.addHandler(console_handler)
+
+    # File handler (if specified)
+    if log_file:
+        # Ensure directory exists
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(getattr(logging, log_level.upper()))
+        # File logs always use JSON for easier parsing
+        file_handler.setFormatter(JsonFormatter())
+        root_logger.addHandler(file_handler)
+
+
+def get_logger(name: str) -> logging.Logger:
+    """
+    Get a named logger configured with the root handlers.
+
+    Args:
+        name: Logger name (typically __name__).
 
     Returns:
         Configured logger instance.
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
-
-    # Create formatters
-    json_formatter = JsonFormatter()
-
-    # Console Handler (stdout)
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    console_handler.setFormatter(json_formatter)
-    logger.addHandler(console_handler)
-
-    # File Handler (if path provided)
-    if log_file:
-        file_path = Path(log_file)
-        # Ensure directory exists
-        file_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        file_handler = logging.FileHandler(file_path)
-        file_handler.setLevel(level)
-        file_handler.setFormatter(json_formatter)
-        logger.addHandler(file_handler)
-
-    return logger
-
-def get_logger(name: str = "llmxive") -> logging.Logger:
-    """
-    Get or create a logger with the specified name.
-    Assumes setup_logging has been called or will be called.
-    """
     return logging.getLogger(name)
 
-# Convenience function for immediate usage
+
 def init_default_logger() -> logging.Logger:
     """
-    Initialize the default logger for the pipeline.
-    Logs to code/logs/pipeline.log and stdout.
-    """
-    log_path = LOG_DIR / "pipeline.log"
-    return setup_logging(log_file=str(log_path), level=logging.INFO)
+    Initialize and return a default logger with standard setup.
 
-# Example usage / test block
-if __name__ == "__main__":
-    logger = init_default_logger()
-    logger.info("Logger initialized successfully.")
-    logger.debug("This is a debug message.")
-    logger.warning("This is a warning message.", extra={"extra_data": {"key": "value"}})
-    try:
-        1 / 0
-    except ZeroDivisionError:
-        logger.error("An error occurred during execution.", exc_info=True)
+    Returns:
+        Configured logger instance.
+    """
+    setup_logging(
+        log_level="INFO",
+        log_file=Path("logs") / f"run_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log",
+        enable_json=True,
+    )
+    return get_logger("llmXive")

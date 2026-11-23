@@ -1,209 +1,78 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: AlignedEvent Schema
-description: |
-  Defines the schema for the unified dataset containing aligned solar flare events,
-  CME events, and geomagnetic storm data. This schema supports the analysis of
-  correlations between solar activity and geomagnetic storm intensities.
-definitions:
-  SolarFlareEvent:
-    type: object
-    required:
-      - flare_id
-      - flare_start_time
-      - flare_peak_time
-      - flare_end_time
-      - peak_flux
-      - flux_unit
-      - xray_class
-      - active_region
-    properties:
-      flare_id:
-        type: string
-        description: Unique identifier for the flare event (e.g., GOES ID)
-      flare_start_time:
-        type: string
-        format: date-time
-        description: UTC timestamp of flare onset
-      flare_peak_time:
-        type: string
-        format: date-time
-        description: UTC timestamp of flare peak flux
-      flare_end_time:
-        type: string
-        format: date-time
-        description: UTC timestamp of flare decay end
-      peak_flux:
-        type: number
-        description: Peak X-ray flux in W/m²
-      flux_unit:
-        type: string
-        enum: ["W/m²"]
-        description: Unit of measurement for peak flux
-      xray_class:
-        type: string
-        description: GOES X-ray classification (e.g., "X1.2", "M5.0")
-      active_region:
-        type: integer
-        description: NOAA Active Region number associated with the flare
-      source:
-        type: string
-        default: "GOES"
-        description: Data source for the flare event
-
-  CMEEvent:
-    type: object
-    required:
-      - cme_id
-      - cme_time
-      - speed_km_s
-      - width_deg
-      - latitude_deg
-      - longitude_deg
-      - halo
-    properties:
-      cme_id:
-        type: string
-        description: Unique identifier for the CME event (e.g., SOHO/LASCO ID)
-      cme_time:
-        type: string
-        format: date-time
-        description: UTC timestamp of first appearance in LASCO C2/C3
-      speed_km_s:
-        type: number
-        description: Radial speed of the CME in km/s
-      width_deg:
-        type: number
-        description: Angular width of the CME in degrees
-      latitude_deg:
-        type: number
-        description: Latitude of the CME propagation direction
-      longitude_deg:
-        type: number
-        description: Longitude of the CME propagation direction
-      halo:
-        type: boolean
-        description: True if the CME is a halo CME (Earth-directed)
-      source:
-        type: string
-        default: "SOHO/LASCO"
-        description: Data source for the CME event
-
-  GeomagneticStorm:
-    type: object
-    required:
-      - storm_id
-      - storm_start_time
-      - storm_end_time
-      - dst_min
-      - dst_min_time
-      - kp_max
-      - kp_max_time
-      - is_recurrent
-    properties:
-      storm_id:
-        type: string
-        description: Unique identifier for the geomagnetic storm
-      storm_start_time:
-        type: string
-        format: date-time
-        description: UTC timestamp of storm onset
-      storm_end_time:
-        type: string
-        format: date-time
-        description: UTC timestamp of storm recovery
-      dst_min:
-        type: number
-        description: Minimum Dst index value in nT
-      dst_min_time:
-        type: string
-        format: date-time
-        description: UTC timestamp of minimum Dst value
-      kp_max:
-        type: number
-        description: Maximum Kp index during the storm
-      kp_max_time:
-        type: string
-        format: date-time
-        description: UTC timestamp of maximum Kp value
-      is_recurrent:
-        type: boolean
-        description: True if this storm is part of a recurrent activity period
-      source:
-        type: string
-        default: "NOAA SWPC"
-        description: Data source for the geomagnetic storm data
-
-  AlignedEvent:
-    type: object
-    required:
-      - aligned_id
-      - storm_ref
-      - flare_ref
-      - cme_ref
-      - time_window_days
-      - flare_present
-      - cme_present
-      - storm_present
-    properties:
-      aligned_id:
-        type: string
-        description: Unique identifier for the aligned event record
-      storm_ref:
-        $ref: '#/definitions/GeomagneticStorm'
-        description: Reference to the associated geomagnetic storm
-      flare_ref:
-        oneOf:
-          - $ref: '#/definitions/SolarFlareEvent'
-          - type: "null"
-        description: Reference to the associated solar flare (null if no match found)
-      cme_ref:
-        oneOf:
-          - $ref: '#/definitions/CMEEvent'
-          - type: "null"
-        description: Reference to the associated CME (null if no match found)
-      time_window_days:
-        type: number
-        description: Time difference in days between the storm and the matched solar event
-      flare_present:
-        type: boolean
-        description: True if a flare was found within the alignment window
-      cme_present:
-        type: boolean
-        description: True if a CME was found within the alignment window
-      storm_present:
-        type: boolean
-        default: true
-        description: Always true for this schema as storms are the anchor
-      missing_predictors:
-        type: array
-        items:
-          type: string
-          enum: ["flare_flux", "cme_speed", "cme_width", "cme_direction"]
-        description: List of missing predictor flags
-      alignment_notes:
-        type: string
-        description: Additional notes about the alignment process
-
+description: >-
+  Defines the schema for the unified dataset containing solar flare events,
+  CME events, and geomagnetic storm data aligned within a 3-day window.
+  Includes derived flags for recurrence and missing data.
 type: object
+required:
+  - timestamp
+  - flare_flux
+  - cme_speed
+  - dst_min
+  - is_recurrent
 properties:
-  version:
-    type: string
-    description: Schema version
-  generated_at:
+  timestamp:
     type: string
     format: date-time
-    description: Timestamp of dataset generation
-  total_records:
-    type: integer
-    description: Total number of aligned events
-  records:
-    type: array
-    items:
-      $ref: '#/definitions/AlignedEvent'
-    description: List of aligned event records
-
-required:
-  - version
-  - generated_at
-  - total_records
-  - records
+    description: >-
+      The primary timestamp of the event (ISO 8601 format).
+      Typically the peak time of the solar flare or the onset of the storm.
+  flare_flux:
+    type: number
+    description: >-
+      Peak X-ray flux of the associated solar flare in W/m² (e.g., 1.0e-4).
+      May be null if no flare was associated or data is missing.
+  cme_speed:
+    type: number
+    description: >-
+      Radial speed of the associated Coronal Mass Ejection (CME) in km/s.
+      May be null if no CME was associated or data is missing.
+  dst_min:
+    type: number
+    description: >-
+      Minimum Dst index value (nT) observed within the alignment window (≤3 days).
+      Negative values indicate geomagnetic storm intensity.
+  is_recurrent:
+    type: boolean
+    description: >-
+      Flag indicating if the event occurred during a period of recurrent solar activity.
+      True if part of a recurrent stream, False otherwise.
+  flare_id:
+    type: string
+    description: >-
+      Optional identifier for the source flare event (e.g., GOES event ID).
+  cme_id:
+    type: string
+    description: >-
+      Optional identifier for the source CME event (e.g., LASCO CME catalog ID).
+  storm_id:
+    type: string
+    description: >-
+      Optional identifier for the associated geomagnetic storm.
+  alignment_window_days:
+    type: number
+    description: >-
+      The time difference in days between the solar event and the geomagnetic minimum.
+      Must be ≤ 3.0.
+  missing_flare:
+    type: boolean
+    description: >-
+      True if flare_flux is null.
+  missing_cme:
+    type: boolean
+    description: >-
+      True if cme_speed is null.
+  source_flare:
+    type: string
+    description: >-
+      Source of flare data (e.g., "NOAA SWPC", "GOES").
+  source_cme:
+    type: string
+    description: >-
+      Source of CME data (e.g., "CDAWeb SOHO/LASCO").
+  source_dst:
+    type: string
+    description: >-
+      Source of Dst data (e.g., "NOAA SWPC").
+additionalProperties: false

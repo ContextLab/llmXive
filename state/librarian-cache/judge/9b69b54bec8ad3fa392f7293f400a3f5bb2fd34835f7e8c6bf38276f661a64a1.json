@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2007.08663",
+  "judged_at": "2026-09-30T18:39:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting polymer glass transition temperatures with graph neural networks chemistry",
+  "rationale": "This paper qualifies as a foundational methodology/canonical reference (category d) because it provides the standard benchmark datasets, baseline implementations, and evaluation procedures for Graph Neural Networks, which are essential components for any study predicting polymer properties using GNNs. Additionally, it serves as an empirical baseline (category c) for the GNN regression task on chemical data, even though it does not specifically contain the polymer glass transition dataset itself.",
+  "relevant": true
+}

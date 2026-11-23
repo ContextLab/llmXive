@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Evaluation Metrics Schema"
+description: "Schema for the evaluation metrics calculated for a single seed."
+type: "object"
+properties:
+  seed_id:
+    type: "string"
+    description: "The seed item ID."
+  method:
+    type: "string"
+    enum:
+      - "beam"
+      - "prorl"
+      - "prorl-null"
+      - "greedy"
+    description: "Method used."
+  precision_at_k:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Precision@K metric."
+  recall_at_k:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Recall@K metric."
+  diversity:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Diversity metric (1 - average cosine similarity)."
+  coverage:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Coverage metric."
+  ground_truth_next:
+    type: "string"
+    description: "The actual next item in the user session."
+  k_value:
+    type: "integer"
+    minimum: 1
+    description: "The K value used for Precision@K and Recall@K."
+required:
+  - seed_id
+  - method
+  - precision_at_k
+  - recall_at_k
+  - diversity
+  - coverage
+  - ground_truth_next
+  - k_value
+additionalProperties: false

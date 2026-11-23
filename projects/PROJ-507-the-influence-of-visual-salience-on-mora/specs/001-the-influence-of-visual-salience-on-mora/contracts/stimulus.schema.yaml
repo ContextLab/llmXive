@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Stimulus Variant Schema"
-description: "Schema for validated stimulus variants with salience manipulation"
+description: "Schema for each visual stimulus variant with salience manipulation"
 type: "object"
 properties:
   variant_id:
@@ -8,49 +8,53 @@ properties:
     description: "Unique identifier for the stimulus variant"
   scenario_id:
     type: "string"
-    description: "Foreign key to the parent scenario"
+    description: "Foreign key linking to the scenario"
   salience_level:
-    type: string
-    enum:
-      - "low"
-      - "medium"
-      - "high"
-    description: "Salience manipulation level"
-  manipulated_image_path:
     type: "string"
-    description: "Relative path to the manipulated image file"
-  semantic_similarity:
+    enum: ["low", "medium", "high"]
+    description: "Salience level applied"
+  manipulation_params:
+    type: "object"
+    description: "Parameters used for contrast/brightness adjustment"
+    properties:
+      contrast_adjustment:
+        type: "number"
+        description: "Contrast scaling factor"
+      brightness_adjustment:
+        type: "number"
+        description: "Brightness offset"
+      version:
+        type: "string"
+        description: "Version tag for reproducibility"
+    required: ["contrast_adjustment", "brightness_adjustment", "version"]
+    additionalProperties: false
+  clip_similarity:
     type: "number"
-    minimum: 0
-    maximum: 1
-    description: "CLIP cosine similarity between original and manipulated image"
-  ssim_score:
+    minimum: 0.95
+    description: "CLIP cosine similarity to original (≥ 0.95 required)"
+  rms_contrast_change:
     type: "number"
-    minimum: 0
-    maximum: 1
-    description: "Structural Similarity Index Score for non-target regions"
-  is_valid:
-    type: "boolean"
-    description: "True if semantic_similarity >= 0.95 AND ssim_score >= 0.90"
-  contrast_change:
+    minimum: 15
+    description: "RMS contrast change percentage (≥ 15 %)"
+  moral_intent_preservation_score:
     type: "number"
-    description: "Pixel-level contrast change percentage"
+    minimum: 0.90
+    description: "BERT‑based moral‑intent similarity score (≥ 0.90 required)"
+  semantic_integrity:
+    type: "string"
+    enum: ["passed", "failed"]
+    description: "Result of semantic similarity check"
+  image_path:
+    type: "string"
+    description: "Filesystem path to the manipulated image"
 required:
-  - "variant_id"
-  - "scenario_id"
-  - "salience_level"
-  - "manipulated_image_path"
-  - "semantic_similarity"
-  - "ssim_score"
-  - "is_valid"
-  - "contrast_change"
+  - variant_id
+  - scenario_id
+  - salience_level
+  - manipulation_params
+  - clip_similarity
+  - rms_contrast_change
+  - moral_intent_preservation_score
+  - semantic_integrity
+  - image_path
 additionalProperties: false
-examples:
-  - variant_id: "STIM-001-M"
-    scenario_id: "SCEN-001"
-    salience_level: "medium"
-    manipulated_image_path: "data/processed/stimuli/SCEN-001-medium.png"
-    semantic_similarity: 0.97
-    ssim_score: 0.95
-    is_valid: true
-    contrast_change: 20.5

@@ -1,20 +1,19 @@
-# Quickstart: Neural Correlates of Anticipatory Reward Processing
+# Quickstart: Neural Correlates of Anticipatory Reward Processing in Vocal Learning
 
 ## Prerequisites
-
 *   Python 3.10+
-*   Git
-*   Access to the repository.
+*   `pip` or `conda`
+*   Access to the project repository.
 
 ## Installation
 
 1.  **Clone the repository**:
     ```bash
     git clone <repo-url>
-    cd projects/PROJ-517-neural-correlates-anticipatory-reward
+    cd projects/PROJ-517-neural-correlates-of-anticipatory-reward
     ```
 
-2.  **Create a virtual environment**:
+2.  **Create virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
@@ -22,44 +21,61 @@
 
 3.  **Install dependencies**:
     ```bash
-    pip install -r requirements.txt
+    pip install -r code/requirements.txt
     ```
-    *Dependencies include: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `pytest`.*
+
+## Data Setup
+
+### Option A: Real Data (Production)
+1.  Ensure the dataset is downloaded to `data/raw/`.
+2.  Verify the file matches `contracts/dataset.schema.yaml`.
+    ```bash
+    python -m tests.contract.test_schemas
+    ```
+
+### Option B: Synthetic Data (CI/Development)
+1.  Generate synthetic test data:
+    ```bash
+    python code/synthetic_generator.py --output data/raw/synthetic_test.csv
+    ```
+2.  This creates a file compatible with the ingestion pipeline for testing.
 
 ## Running the Pipeline
 
-### Option A: Run with Synthetic Data (CI/Testing Mode)
-This mode generates a synthetic dataset that mimics the expected schema to validate the pipeline logic (FR-001 to FR-010) without needing external data.
+Execute the full pipeline (Ingestion -> Modeling -> Visualization -> Reporting):
 
 ```bash
-python code/main.py --synthetic --seed 42
+python code/run_pipeline.py --data data/raw/synthetic_test.csv --output data/processed/
 ```
 
 **Expected Output**:
-*   `data/processed/synthetic_features.csv`: The aligned feature matrix.
-*   `data/processed/results_summary.json`: Model coefficients and p-values.
-*   `data/processed/plot_firing_vs_reward.png`: Scatter plot with regression line.
-*   `data/processed/report.txt`: Human-readable summary.
+*   `data/processed/unified_data.csv`
+*   `data/processed/spike_sorting_validation_report.md`
+*   `data/processed/summary_report.txt`
+*   `data/figures/firing_rate_vs_reward.png`
 
-### Option B: Run with Real Data
-If you have a real dataset in `data/raw/` (CSV/Parquet), place the files there and run:
+## Running Tests
 
-```bash
-python code/main.py --input-dir data/raw/
-```
-*Note: The input files must strictly match the schema defined in `contracts/dataset.schema.yaml`.*
+1.  **Unit Tests**:
+    ```bash
+    pytest tests/unit/ -v
+    ```
+    *Specifically tests permutation logic (`test_modeling_permutation.py`).*
 
-## Testing
+2.  **Integration Tests**:
+    ```bash
+    pytest tests/integration/ -v
+    ```
+    *Tests the full ingestion pipeline with synthetic data.*
 
-Run the unit tests to verify data ingestion, model fitting, and validation logic:
+3.  **Contract Tests**:
+    ```bash
+    pytest tests/contract/ -v
+    ```
+    *Validates data against schemas.*
 
-```bash
-pytest tests/ -v
-```
+## Troubleshooting
 
-## Verification
-
-To verify the pipeline against the specification:
-1.  Check that `data/processed/results_summary.json` contains `p_value_perm` < 0.05 (or > 0.05 for null data).
-2.  Verify `data/processed/plot_firing_vs_reward.png` shows the correct axes and confidence intervals.
-3.  Confirm `data/processed/report.txt` includes the dispersion parameter and MDES.
+*   **Memory Error**: If processing large datasets, ensure `streaming=True` is used in the ingestion script (if implemented) or reduce the dataset size.
+*   **Schema Mismatch**: Verify `data/raw/*.csv` columns match `contracts/dataset.schema.yaml`.
+*   **Missing Spike Sorting Metadata**: If the dataset lacks `spike_sorting_metadata`, the pipeline will flag `valid_spike_sorting=False` and log a warning, and halt the causal claim.

@@ -1,0 +1,7 @@
+{
+  "total_initial_sample_count": 1000,
+  "excluded_count": 150,
+  "exclusion_proportion": 0.15,
+  "status": "success",
+  "final_sample_count": 850
+}

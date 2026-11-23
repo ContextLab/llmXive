@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Result Entry"
+type: "object"
+properties:
+  trajectory_id:
+    type: "string"
+    description: "ID of the trajectory"
+  density:
+    type: "number"
+    description: "Final density of the critical evidence"
+  horizon:
+    type: "integer"
+    description: "Retention horizon used"
+  evidence_age:
+    type: "integer"
+    description: "Age of the evidence"
+  success:
+    type: "integer"
+    enum:
+      - 0
+      - 1
+    description: "1 if success, 0 if failure"
+  retrieval_prob:
+    type: "number"
+    description: "Probability of retrieval (constant 0.9"
+  # Note: This schema is retained for backward compatibility but is not used by the current pipeline.
+additionalProperties: false

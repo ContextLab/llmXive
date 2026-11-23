@@ -1,12 +1,21 @@
+# Core scientific stack
 pandas
 numpy
 scipy
 statsmodels
+
+# Testing & Config
 pytest
 pyyaml
+
+# Data & Graph
 rdflib
 networkx
+
+# Visualization
 matplotlib
 seaborn
+
+# Data fetching
 requests
 datasets

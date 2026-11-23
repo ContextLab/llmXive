@@ -32,7 +32,7 @@ The system MUST run a representative set of conflict trajectories through eight 
 
 1. **Given** a specific LLM model and a trajectory from the dataset, **When** the experiment runner executes the "Adapter" condition, **Then** the system prompt injected into the LLM context includes a dynamic style instruction derived from the inferred socio-cognitive state, where the instruction string matches a predefined set of templates (e.g., "validate cultural norms", "de-escalate") and the specific state label that triggered it is logged.
 2. **Given** the same trajectory and LLM, **When** the experiment runner executes the "Static" condition, **Then** the system prompt remains fixed and contains no dynamic state injection.
-3. **Given** the full experiment suite, **When** the job runs on the GitHub Actions free-tier runner, **Then** the total wall-clock compute time for all LLMs and a representative set of trajectories across 2 conditions (excluding external API queue wait times) does not exceed a reasonable duration in local simulation mode, and no GPU-specific errors (CUDA) occur.
+3. **Given** the full experiment suite, **When** the job runs on the GitHub Actions free-tier runner, **Then** the total wall-clock compute time for all LLMs and a representative set of trajectories across multiple conditions (excluding external API queue wait times) does not exceed a reasonable duration in local simulation mode, and no GPU-specific errors (CUDA) occur.
 
 ### User Story 3 - Compute Consensus Gap Closure and Statistical Significance (Priority: P3)
 

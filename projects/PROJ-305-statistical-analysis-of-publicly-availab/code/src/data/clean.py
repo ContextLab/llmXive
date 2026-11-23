@@ -1,270 +1,351 @@
-import os
-import sys
 import gc
 import logging
+import os
+import sys
 import tracemalloc
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
+import psutil
 
-# Configure logging to output to stdout and a file if needed
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
-)
-logger = logging.getLogger(__name__)
+# Constants for error codes
+E_MAPPINGS_INVALID = "E_MAPPINGS_INVALID"
+E_MEMORY_LIMIT = "E_MEMORY_LIMIT"
+E_SCHEMA_MISSING = "E_SCHEMA_MISSING"
+
+
+def setup_logging() -> logging.Logger:
+    """Configure logging for the cleaning process."""
+    logger = logging.getLogger("clean")
+    logger.setLevel(logging.INFO)
+
+    # Create logs directory if it doesn't exist
+    logs_dir = Path("logs")
+    logs_dir.mkdir(exist_ok=True)
+
+    # File handler
+    fh = logging.FileHandler(logs_dir / "clean.log")
+    fh.setLevel(logging.INFO)
+
+    # Console handler
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+
+    # Formatter
+    formatter = logging.Formatter(
+        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    fh.setFormatter(formatter)
+    ch.setFormatter(formatter)
+
+    logger.addHandler(fh)
+    logger.addHandler(ch)
+
+    return logger
 
 
 def get_memory_usage_gb() -> float:
-    """
-    Returns the current memory usage of the process in Gigabytes.
-    Uses tracemalloc if available, otherwise falls back to psutil if installed,
-    or returns 0.0 if neither is available.
-    """
-    try:
-        import psutil
-        process = psutil.Process(os.getpid())
-        mem_info = process.memory_info()
-        return mem_info.rss / (1024 ** 3)
-    except ImportError:
-        logger.warning("psutil not installed. Using tracemalloc fallback.")
-        if tracemalloc.is_tracing():
-            current, peak = tracemalloc.get_traced_memory()
-            return current / (1024 ** 3)
-        else:
-            # tracemalloc not started, try to get a rough estimate or 0
-            return 0.0
-    except Exception as e:
-        logger.error(f"Could not determine memory usage: {e}")
+    """Get current memory usage in GB."""
+    process = psutil.Process(os.getpid())
+    mem_info = process.memory_info()
+    return mem_info.rss / (1024**3)
+
+
+def check_memory_usage(logger: logging.Logger, limit_gb: float = 7.0) -> bool:
+    """Check if memory usage exceeds limit. Returns True if limit exceeded."""
+    current_mb = get_memory_usage_gb()
+    if current_mb > limit_gb:
+        logger.error(f"MEMORY_LIMIT_EXCEEDED: {current_mb:.2f} GB > {limit_gb} GB")
+        return True
+    return False
+
+
+def estimate_file_size_gb(file_path: Path) -> float:
+    """Estimate file size in GB."""
+    if not file_path.exists():
         return 0.0
+    size_bytes = file_path.stat().st_size
+    return size_bytes / (1024**3)
 
 
-def map_soc_codes(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Maps MedDRA SOC codes to their textual names using an embedded mapping table.
-    
-    Args:
-        df: DataFrame containing a 'SOC_CODE' column.
-        
-    Returns:
-        DataFrame with an added 'SOC' column.
-    """
-    # Embedded mapping table for MedDRA SOC Codes to Names
-    # Source: MedDRA Maintenance and Support Services Organization (MSSO)
-    soc_mapping = {
-        '10000000': 'Blood and lymphatic system disorders',
-        '10001000': 'Cardiac disorders',
-        '10002000': 'Congenital, familial and genetic disorders',
-        '10003000': 'Ear and labyrinth disorders',
-        '10004000': 'Endocrine disorders',
-        '10005000': 'Eye disorders',
-        '10006000': 'Gastrointestinal disorders',
-        '10007000': 'General disorders and administration site conditions',
-        '10008000': 'Hepatobiliary disorders',
-        '10009000': 'Immune system disorders',
-        '10010000': 'Infections and infestations',
-        '10011000': 'Injury, poisoning and procedural complications',
-        '10012000': 'Investigations',
-        '10013000': 'Metabolism and nutrition disorders',
-        '10014000': 'Musculoskeletal and connective tissue disorders',
-        '10015000': 'Neoplasms benign, malignant and unspecified',
-        '10016000': 'Nervous system disorders',
-        '10017000': 'Pregnancy, puerperium and perinatal conditions',
-        '10018000': 'Product issues',
-        '10019000': 'Psychiatric disorders',
-        '10020000': 'Renal and urinary disorders',
-        '10021000': 'Reproductive system and breast disorders',
-        '10022000': 'Respiratory, thoracic and mediastinal disorders',
-        '10023000': 'Skin and subcutaneous tissue disorders',
-        '10024000': 'Social circumstances',
-        '10025000': 'Surgical and medical procedures',
-        '10026000': 'Vascular disorders',
-        # Add common codes if specific ones are missing in raw data, defaulting to 'Unspecified'
-    }
+def load_meddra_mapping(mapping_path: Path, logger: logging.Logger) -> pd.DataFrame:
+    """Load MedDRA to SOC mapping table."""
+    logger.info(f"Loading MedDRA mapping from {mapping_path}")
 
-    df = df.copy()
-    # Map codes to names, filling unknown codes with 'Unknown SOC'
-    df['SOC'] = df['SOC_CODE'].map(soc_mapping).fillna('Unknown SOC')
-    return df
+    if not mapping_path.exists():
+        logger.error(f"MedDRA mapping file not found: {mapping_path}")
+        raise FileNotFoundError(f"MedDRA mapping file not found: {mapping_path}")
+
+    try:
+        mapping_df = pd.read_csv(mapping_path)
+
+        # Validate required columns
+        required_cols = ["LLT_CODE", "SOC_CODE", "SOC_NAME"]
+        missing_cols = [col for col in required_cols if col not in mapping_df.columns]
+
+        if missing_cols:
+            logger.error(f"MedDRA mapping missing required columns: {missing_cols}")
+            raise ValueError(f"MedDRA mapping missing columns: {missing_cols}")
+
+        logger.info(f"Loaded {len(mapping_df)} MedDRA mappings")
+        return mapping_df
+
+    except Exception as e:
+        logger.error(f"Failed to load MedDRA mapping: {str(e)}")
+        raise
 
 
-def process_data(input_path: str, output_dir: str) -> Dict[str, int]:
-    """
-    Processes the raw VAERS data:
-    1. Loads data (with chunking if necessary for large files).
-    2. Filters for COVID-19 and Non-COVID groups.
-    3. Cleans data (removes rows with missing SOC or REPT_DATE).
-    4. Maps SOC codes.
-    5. Saves outputs (Parquet and CSV).
-    6. Logs row counts and memory usage.
+def map_soc_to_code(
+    row: pd.Series, mapping_df: pd.DataFrame, logger: logging.Logger
+) -> str:
+    """Map LLT or SOC_CODE to SOC_NAME using the mapping table."""
+    llt_code = row.get("LLT", "")
+    soc_code = row.get("SOC_CODE", "")
 
-    Args:
-        input_path: Path to the raw VAERS CSV file(s).
-        output_dir: Directory to save processed files.
-        
-    Returns:
-        Dictionary with row counts per group.
-    """
-    Path(output_dir).mkdir(parents=True, exist_ok=True)
-    
-    # Start memory tracking
-    tracemalloc.start()
-    
-    logger.info(f"Starting data processing for: {input_path}")
-    initial_mem = get_memory_usage_gb()
-    logger.info(f"Initial memory usage: {initial_mem:.2f} GB")
+    # If we have an LLT code, try to map it
+    if pd.notna(llt_code) and llt_code != "":
+        match = mapping_df[mapping_df["LLT_CODE"] == str(llt_code)]
+        if not match.empty:
+            return match.iloc[0]["SOC_NAME"]
 
-    # Determine if we need chunking (heuristic: if file > 1GB)
-    file_size_gb = os.path.getsize(input_path) / (1024 ** 3)
-    chunk_size = 500000 if file_size_gb > 1.0 else None
-    
-    logger.info(f"File size: {file_size_gb:.2f} GB. Using chunk size: {chunk_size}")
+    # If we have an SOC_CODE, try to map it directly
+    if pd.notna(soc_code) and soc_code != "":
+        match = mapping_df[mapping_df["SOC_CODE"] == str(soc_code)]
+        if not match.empty:
+            return match.iloc[0]["SOC_NAME"]
 
-    # Read data
-    chunks = []
-    row_count = 0
-    
-    # Assuming input_path might be a single file or a glob pattern if extended later
-    # For this implementation, we assume a single consolidated raw file or list of files
-    # If multiple files, we'd iterate. Here we assume one file for simplicity based on T013.
-    if chunk_size:
-        for chunk in pd.read_csv(input_path, chunksize=chunk_size):
-            chunks.append(chunk)
-            row_count += len(chunk)
-            # Periodic GC to manage memory
-            if row_count % (chunk_size * 5) == 0:
-                gc.collect()
-                current_mem = get_memory_usage_gb()
-                logger.info(f"Processed {row_count} rows. Current memory: {current_mem:.2f} GB")
-    else:
-        df_raw = pd.read_csv(input_path)
-        row_count = len(df_raw)
-        chunks = [df_raw]
+    return "UNKNOWN"
 
-    df = pd.concat(chunks, ignore_index=True)
-    del chunks
-    gc.collect()
-    
-    logger.info(f"Loaded {len(df)} total rows.")
-    mem_after_load = get_memory_usage_gb()
-    logger.info(f"Memory after load: {mem_after_load:.2f} GB")
 
-    # --- T016 Logic: Filtering and Grouping ---
-    
-    # Filter for COVID-19 vaccine reports
-    # T018 Requirement: Log row counts per group
-    covid_mask = df['VAX_TYPE'].str.contains("COVID-19", na=False, case=True)
-    df_covid = df[covid_mask].copy()
-    logger.info(f"Row count for COVID-19 group: {len(df_covid)}")
+def process_chunk(
+    chunk: pd.DataFrame, mapping_df: pd.DataFrame, logger: logging.Logger
+) -> pd.DataFrame:
+    """Process a single chunk of data."""
+    # Filter out null/empty VAX_TYPE
+    chunk = chunk[chunk["VAX_TYPE"].notna() & (chunk["VAX_TYPE"] != "")]
+    chunk = chunk[chunk["VAX_TYPE"].apply(lambda x: isinstance(x, str))]
 
-    # Filter for Non-COVID baseline (all other vaccines)
-    non_covid_mask = ~covid_mask & df['VAX_TYPE'].notna()
-    df_non_covid = df[non_covid_mask].copy()
-    logger.info(f"Row count for Non-COVID baseline group: {len(df_non_covid)}")
-
-    # Filter for Non-COVID, Non-Flu sensitivity group
-    non_flu_mask = ~df_non_covid['VAX_TYPE'].str.contains("Influenza|Flu", na=False, case=True)
-    df_non_covid_non_flu = df_non_covid[non_flu_mask].copy()
-    logger.info(f"Row count for Non-COVID, Non-Flu sensitivity group: {len(df_non_covid_non_flu)}")
-
-    # Filter for Flu-only group
-    flu_mask = df_non_covid['VAX_TYPE'].str.contains("Influenza|Flu", na=False, case=True)
-    df_flu = df_non_covid[flu_mask].copy()
-    logger.info(f"Row count for Flu-only group: {len(df_flu)}")
-
-    # --- Cleaning ---
-    # Exclude records with missing SOC or REPT_DATE
-    # Note: We apply this to the main dataframe before splitting or to each subset?
-    # Usually, cleaning is done on the raw data first, then split.
-    # Let's clean the main dataframe first to ensure consistency.
-    
-    initial_clean_count = len(df)
-    df = df.dropna(subset=['SOC_CODE', 'REPT_DATE'])
-    # Re-apply filters on cleaned data to ensure accurate counts
-    # Re-calculate masks on cleaned df
-    covid_mask = df['VAX_TYPE'].str.contains("COVID-19", na=False, case=True)
-    non_covid_mask = ~covid_mask & df['VAX_TYPE'].notna()
-    
-    df_covid = df[covid_mask].copy()
-    df_non_covid = df[non_covid_mask].copy()
-    df_non_covid_non_flu = df_non_covid[~df_non_covid['VAX_TYPE'].str.contains("Influenza|Flu", na=False, case=True)].copy()
-    df_flu = df_non_covid[df_non_covid['VAX_TYPE'].str.contains("Influenza|Flu", na=False, case=True)].copy()
-
-    cleaned_count = len(df)
-    logger.info(f"Removed {initial_clean_count - cleaned_count} rows due to missing SOC_CODE or REPT_DATE.")
-    logger.info(f"Total cleaned rows: {cleaned_count}")
+    # Filter out missing REPT_DATE
+    chunk = chunk[chunk["REPT_DATE"].notna()]
 
     # Map SOC codes
-    df_covid = map_soc_codes(df_covid)
-    df_non_covid = map_soc_codes(df_non_covid)
-    df_non_covid_non_flu = map_soc_codes(df_non_covid_non_flu)
-    df_flu = map_soc_codes(df_flu)
+    chunk["SOC"] = chunk.apply(
+        lambda row: map_soc_to_code(row, mapping_df, logger), axis=1
+    )
 
-    # Save outputs
-    output_parquet = os.path.join(output_dir, 'cleaned_vaers.parquet')
-    output_csv = os.path.join(output_dir, 'cleaned_vaers.csv')
+    return chunk
 
-    logger.info(f"Saving cleaned data to {output_parquet}...")
-    df.to_parquet(output_parquet, index=False)
-    
-    logger.info(f"Saving cleaned data to {output_csv}...")
-    df.to_csv(output_csv, index=False)
 
-    # Final Memory Stats
-    current_mem, peak_mem = tracemalloc.get_traced_memory()
-    tracemalloc.stop()
-    
-    final_mem_gb = current_mem / (1024 ** 3)
-    peak_mem_gb = peak_mem / (1024 ** 3)
-    
-    logger.info(f"Processing complete.")
-    logger.info(f"Final memory usage: {final_mem_gb:.2f} GB")
-    logger.info(f"Peak memory usage: {peak_mem_gb:.2f} GB")
-    
-    # Log final row counts per group as required by T018
-    logger.info(f"Final Group Counts:")
-    logger.info(f"  - COVID-19: {len(df_covid)}")
-    logger.info(f"  - Non-COVID (Baseline): {len(df_non_covid)}")
-    logger.info(f"  - Non-COVID, Non-Flu (Sensitivity): {len(df_non_covid_non_flu)}")
-    logger.info(f"  - Flu-only (Sensitivity): {len(df_flu)}")
+def process_data(
+    input_files: List[Path],
+    mapping_df: pd.DataFrame,
+    output_dir: Path,
+    logger: logging.Logger,
+    chunk_size: int = 100000,
+) -> Dict[str, pd.DataFrame]:
+    """Process all input files with memory-aware chunked processing."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    all_data = []
+    total_rows = 0
+
+    for file_path in input_files:
+        logger.info(f"Processing file: {file_path}")
+
+        # Estimate file size and decide on chunked processing
+        file_size_gb = estimate_file_size_gb(file_path)
+        use_chunked = file_size_gb > 5.0 or check_memory_usage(logger)
+
+        if use_chunked:
+            logger.info(
+                f"Using chunked processing for {file_path} (size: {file_size_gb:.2f} GB)"
+            )
+
+            # Track memory during chunked processing
+            tracemalloc.start()
+
+            for chunk in pd.read_csv(file_path, chunksize=chunk_size):
+                if check_memory_usage(logger):
+                    tracemalloc.stop()
+                    raise MemoryError(
+                        f"Memory limit exceeded while processing {file_path}"
+                    )
+
+                processed_chunk = process_chunk(chunk, mapping_df, logger)
+                all_data.append(processed_chunk)
+                total_rows += len(processed_chunk)
+
+                # Log progress
+                if total_rows % 1000000 == 0:
+                    logger.info(f"Processed {total_rows:,} rows")
+                    current, peak = tracemalloc.get_traced_memory()
+                    logger.info(
+                        f"Current memory: {current / 1024 / 1024:.2f} MB, Peak: {peak / 1024 / 1024:.2f} MB"
+                    )
+
+            tracemalloc.stop()
+            gc.collect()
+        else:
+            logger.info(f"Loading full file into memory: {file_path}")
+            df = pd.read_csv(file_path)
+            processed_df = process_chunk(df, mapping_df, logger)
+            all_data.append(processed_df)
+            total_rows += len(processed_df)
+
+    # Combine all processed data
+    logger.info(f"Combining {len(all_data)} processed chunks")
+    combined_df = pd.concat(all_data, ignore_index=True)
+
+    # Log memory usage before grouping
+    mem_before = get_memory_usage_gb()
+    logger.info(f"Memory usage before grouping: {mem_before:.2f} GB")
+
+    # Create groups as per T015 specification
+    # COVID-19 Group: VAX_TYPE contains "COVID-19"
+    covid_mask = combined_df["VAX_TYPE"].str.contains("COVID-19", case=False, na=False)
+    covid_df = combined_df[covid_mask].copy()
+
+    # Full Non-COVID Group: VAX_TYPE does NOT contain "COVID-19"
+    non_covid_mask = ~covid_mask
+    full_non_covid_df = combined_df[non_covid_mask].copy()
+
+    # Flu-only Group: Full Non-COVID where VAX_TYPE contains "Influenza"
+    flu_mask = full_non_covid_df["VAX_TYPE"].str.contains(
+        "Influenza", case=False, na=False
+    )
+    flu_only_df = full_non_covid_df[flu_mask].copy()
+
+    # Non-COVID, Non-Flu Group: Full Non-COVID where VAX_TYPE does NOT contain "Influenza"
+    non_flu_mask = ~flu_mask
+    non_covid_non_flu_df = full_non_covid_df[non_flu_mask].copy()
+
+    # Log memory usage after grouping
+    mem_after = get_memory_usage_gb()
+    logger.info(f"Memory usage after grouping: {mem_after:.2f} GB")
+    logger.info(f"Memory delta for grouping: {mem_after - mem_before:.2f} GB")
+
+    # Log row counts per group
+    logger.info("=" * 60)
+    logger.info("ROW COUNTS PER GROUP:")
+    logger.info(f"  Total cleaned records: {len(combined_df):,}")
+    logger.info(f"  COVID-19 Group: {len(covid_df):,}")
+    logger.info(f"  Full Non-COVID Group (includes Flu): {len(full_non_covid_df):,}")
+    logger.info(f"  Flu-only Group: {len(flu_only_df):,}")
+    logger.info(f"  Non-COVID, Non-Flu Group: {len(non_covid_non_flu_df):,}")
+    logger.info("=" * 60)
+
+    # Verify all groups have valid SOC fields
+    for group_name, group_df in [
+        ("Combined", combined_df),
+        ("COVID-19", covid_df),
+        ("Full Non-COVID", full_non_covid_df),
+        ("Flu-only", flu_only_df),
+        ("Non-COVID Non-Flu", non_covid_non_flu_df),
+    ]:
+        valid_soc = group_df["SOC"].notna() & (group_df["SOC"] != "")
+        invalid_count = (~valid_soc).sum()
+        logger.info(
+            f"  {group_name} - Valid SOC count: {valid_soc.sum():,}, Invalid/Empty: {invalid_count}"
+        )
 
     return {
-        'total_cleaned': len(df),
-        'covid': len(df_covid),
-        'non_covid': len(df_non_covid),
-        'non_covid_non_flu': len(df_non_covid_non_flu),
-        'flu': len(df_flu)
+        "combined": combined_df,
+        "covid": covid_df,
+        "full_non_covid": full_non_covid_df,
+        "flu_only": flu_only_df,
+        "non_covid_non_flu": non_covid_non_flu_df,
     }
+
+
+def save_outputs(
+    data: Dict[str, pd.DataFrame], output_dir: Path, logger: logging.Logger
+):
+    """Save processed data to output files."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Save Full Non-COVID (Primary input for T022)
+    full_non_covid_path = output_dir / "cleaned_vaers_full_non_covid.parquet"
+    logger.info(f"Saving Full Non-COVID group to {full_non_covid_path}")
+    data["full_non_covid"].to_parquet(full_non_covid_path, index=False)
+
+    # Save all groups (General)
+    all_path = output_dir / "cleaned_vaers.parquet"
+    logger.info(f"Saving all groups to {all_path}")
+    # Create a combined dataframe with group labels
+    all_combined = pd.concat(
+        [
+            data["covid"].assign(group="COVID-19"),
+            data["full_non_covid"].assign(group="Full Non-COVID"),
+            data["flu_only"].assign(group="Flu-only"),
+            data["non_covid_non_flu"].assign(group="Non-COVID Non-Flu"),
+        ],
+        ignore_index=True,
+    )
+    all_combined.to_parquet(all_path, index=False)
+
+    # Save human-readable CSV
+    csv_path = output_dir / "cleaned_vaers.csv"
+    logger.info(f"Saving human-readable CSV to {csv_path}")
+    all_combined.to_csv(csv_path, index=False)
+
+    logger.info("All output files saved successfully")
 
 
 def main():
-    """
-    Main entry point for the data cleaning script.
-    Expects input file path and output directory as arguments or defaults.
-    """
-    # Default paths based on project structure
-    # If running from code/src/data/, adjust accordingly or pass args
-    input_file = os.getenv('VAERS_RAW_FILE', 'data/raw/combined_vaers.csv')
-    output_directory = os.getenv('VAERS_OUTPUT_DIR', 'data/processed')
-    
-    # Check if input file exists
-    if not os.path.exists(input_file):
-        # If not found, check relative to project root if running from subfolder
-        # Or raise error
-        logger.error(f"Input file not found: {input_file}")
-        sys.exit(1)
+    """Main entry point for data cleaning."""
+    logger = setup_logging()
+    logger.info("Starting data cleaning process")
+
+    # Start memory tracking
+    tracemalloc.start()
 
     try:
-        stats = process_data(input_file, output_directory)
-        logger.info("Data cleaning completed successfully.")
+        # Define paths
+        base_dir = Path(__file__).parent.parent.parent
+        data_dir = base_dir / "data"
+        raw_dir = data_dir / "raw"
+        processed_dir = data_dir / "processed"
+        mapping_path = data_dir / "meddra_soc_mapping.csv"
+
+        # Ensure output directory exists
+        processed_dir.mkdir(parents=True, exist_ok=True)
+
+        # Find input files (VAERS 2020-2023)
+        input_files = list(raw_dir.glob("vaers_*.csv"))
+
+        if not input_files:
+            logger.error(f"No VAERS CSV files found in {raw_dir}")
+            sys.exit(1)
+
+        logger.info(
+            f"Found {len(input_files)} input files: {[f.name for f in input_files]}"
+        )
+
+        # Load MedDRA mapping
+        mapping_df = load_meddra_mapping(mapping_path, logger)
+
+        # Process data
+        data = process_data(input_files, mapping_df, processed_dir, logger)
+
+        # Save outputs
+        save_outputs(data, processed_dir, logger)
+
+        # Final memory stats
+        current, peak = tracemalloc.get_traced_memory()
+        logger.info(
+            f"Final memory usage: Current {current / 1024 / 1024:.2f} MB, Peak {peak / 1024 / 1024:.2f} MB"
+        )
+        logger.info(f"Peak memory usage: {peak / 1024 / 1024 / 1024:.2f} GB")
+
+        logger.info("Data cleaning completed successfully")
+
     except Exception as e:
-        logger.error(f"Data cleaning failed: {e}")
-        sys.exit(1)
+        logger.error(f"Data cleaning failed: {str(e)}")
+        raise
+    finally:
+        tracemalloc.stop()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

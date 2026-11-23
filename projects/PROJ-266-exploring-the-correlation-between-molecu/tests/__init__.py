@@ -1,3 +1,1 @@
-"""
-Test suite for the molecular flexibility research pipeline.
-"""
+# Test package marker for tests/

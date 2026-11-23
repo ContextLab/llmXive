@@ -2,97 +2,138 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- pip / virtualenv
-- Git (for cloning the repository)
-- Access to GitHub Actions (for CI execution) or a local CPU-only environment.
+- **Python**: 3.11+
+- **Dependencies**: `pybullet`, `diff-taichi`, `torch`, `scipy`, `statsmodels`, `pandas`, `numpy`, `pytest`
+- **Hardware**: 2+ CPU cores, 7+ GB RAM (no GPU required)
+- **Storage**: 10+ GB free disk space (for datasets and generated logs)
 
 ## Installation
 
 1. **Clone the repository**:
- ```bash
- git clone
- cd llmxive-follow-up
- ```
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-898-llmxive-follow-up-extending-geometric-ac
+   ```
 
 2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
 3. **Install dependencies**:
- ```bash
- pip install -r projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/code/requirements.txt
- ```
- *Note: This installs `torch` (CPU), `pybullet`, `cvxpy`, `scipy`, and other required packages.*
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-## Data Generation (Phase 1)
+4. **Initialize Data Directories**:
+   ```bash
+   mkdir -p data/raw data/generated data/results
+   touch data/raw/.gitkeep data/generated/.gitkeep data/results/.gitkeep
+   ```
 
-Generate the synthetic topology-shift test set:
+5. **Install pre-commit hooks** (to ensure code quality):
+   ```bash
+   pre-commit install
+   ```
 
-```bash
-python projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/code/data_generation.py \
- --output data/generated/topology_shift_test_set_v1.jsonl \
- --num-topologies 50 \
- --seed 42
+## Pre-commit Configuration
+
+The `.pre-commit-config.yaml` file should contain:
+
+```yaml
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.4.0
+    hooks:
+      - id: trailing-whitespace
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-added-large-files
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+      - id: ruff
+        args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
 ```
 
-- This script uses PyBullet to create 50 unique topologies (novel kinematic chains and soft materials).
-- It verifies zero overlap with the original GAM training distribution.
-- **Output**: `data/generated/topology_shift_test_set_v1.jsonl`.
+## Running the Pipeline
 
-## Inference Pipeline (Phase 2)
+### 0. Compute Reference Latent Statistics
 
-Run the symbolic planner and baseline GAM on the generated test set:
-
-```bash
-python projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/code/inference_pipeline.py \
- --test-set data/generated/topology_shift_test_set_v1.jsonl \
- --gfm-weights data/raw/gfm_weights.pt \
- --output data/results/trial_results.csv \
- --timeout 300 \
- --seed 42
-```
-
-- **Symbolic Mode**: Runs the symbolic solver (FR-003).
-- **Baseline Mode**: Runs the original GAM neural predictor.
-- **Timeout**: 300 seconds per step (prevents CI timeout).
-- **Output**: `data/results/trial_results.csv` (success/failure, latency).
-
-## Statistical Analysis (Phase 3)
-
-Generate the comparative report:
+Compute the mean/covariance reference statistics for latent-drift
+detection from the real project artifacts (physics states if available,
+otherwise the real frozen GFM baseline checkpoint). The script aborts
+with a clear error if no real source is available — it never fabricates
+statistics:
 
 ```bash
-python projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/code/analysis.py \
- --input data/results/trial_results.csv \
- --output data/results/statistical_report.json
+python scripts/compute_reference_stats.py --input data/results/trial_logs.jsonl --output data/results/analysis_report.md
 ```
 
-- Performs Fisher's Exact Test (success rates), **Wilcoxon Signed-Rank Test** (latency for non-censored data), and **Kaplan-Meier Survival Analysis** (for censored timeout data).
-- **Output**: `data/results/statistical_report.json` (p-values, effect sizes).
+This writes the canonical deliverable `data/raw/gam_reference_stats.json`
+(plus a copy at the `--output` path).
 
-## Verification
+### 1. Generate Synthetic Test Set
 
-1. **Check Data Integrity**:
- ```bash
- sha256sum data/generated/topology_shift_test_set_v1.jsonl
- ```
- Compare against the hash in `state/...artifact_hashes`.
+Run the topology-shift generator to create a diverse set of unique tasks.:
 
-2. **Run Unit Tests**:
- ```bash
- pytest tests/unit/
- ```
+```bash
+python code/data/generator.py --num-trials 300 --output data/generated/test_set.json
+```
 
-3. **Run Integration Tests**:
- ```bash
- pytest tests/integration/test_full_pipeline.py
- ```
+This script will:
+- Load the `training-topology-manifest.json` (if available).
+- Generate novel kinematic chains and deformable materials using PyBullet.
+- Verify zero overlap with the training distribution.
+- Save the test set to `data/generated/test_set.json`.
+
+### 2. Execute Symbolic & Baseline Trials
+
+Run the evaluation pipeline to execute both methods on the generated test set:
+
+```bash
+python code/evaluation/runner.py --test-set data/generated/test_set.json --output data/results/trial_logs.jsonl
+```
+
+This script will:
+- Load the frozen GFM weights.
+- Execute the symbolic solver and baseline GAM for each trial.
+- Record `task_success`, `solver_feasibility`, `decoder_reconstruction_error`, latency, and latent drift.
+- Save results to `data/results/trial_logs.jsonl`.
+
+### 3. Analyze Results
+
+Run the statistical analysis script to compare the methods:
+
+```bash
+python code/evaluation/stats.py --input data/results/trial_logs.jsonl --output data/results/analysis_report.md
+```
+
+This script will:
+- Validate the input data against `contracts/trial_log.schema.yaml`.
+- Perform McNemar's test for `task_success` rates.
+- Perform Wilcoxon Signed-Rank test for latency (pre-registered, no Shapiro-Wilk pre-test).
+- Check if total execution time exceeded 6 hours (SC-005).
+- Generate a report with p-values, confidence intervals, and effect sizes.
+
+## Validation
+
+To ensure the pipeline is working correctly, run the unit tests:
+
+```bash
+pytest tests/ -v
+```
+
+To check the code style and formatting:
+
+```bash
+pre-commit run --all-files
+```
 
 ## Troubleshooting
 
-- **CUDA Error**: Ensure `torch` is installed as the CPU version (`pip install torch --index-url https://download.pytorch.org/whl/cpu`).
-- **Solver Timeout**: If trials fail due to timeout, check `data/results/trial_results.csv` for `failure_reason: timeout`. Increase solver complexity limits or reduce topology complexity.
-- **Memory Error**: Reduce `--num-topologies` or run trials sequentially.
+- **PyBullet Errors**: Ensure you have the correct version of `pybullet` installed. Check the `requirements.txt` for the pinned version.
+- **Solver Timeout**: If the symbolic solver exceeds the 300s timeout, the trial will be recorded as a "timeout failure". Check the `error` field in the `trial_log`.
+- **Latent Drift**: If the latent drift is high, the GFM encoder may be struggling with the novel topology. Check the `latent_drift` field in the `trial_log`.

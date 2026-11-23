@@ -1,0 +1,14 @@
+pandas
+numpy
+scipy
+scikit-learn
+statsmodels
+censusdata
+matplotlib
+seaborn
+pyyaml
+pydantic
+ruff
+black
+pytest
+pre-commit

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2106.07732",
+  "judged_at": "2026-10-10T21:21:16Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"when vision speaks for sound\" computer science",
+  "rationale": "The paper is a canonical audio-visual cross-modal work — it uses visual scene information to inform audio processing (dereverberation), directly matching the \"vision speaks for sound\" mechanism of the user's question (category a/f: same cross-modal mechanism in the audio-visual learning literature cluster).",
+  "relevant": true
+}

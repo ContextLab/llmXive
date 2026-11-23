@@ -1,25 +1,62 @@
 # Ruff configuration for llmXive project
-# Corresponds to .pre-commit-config.yaml settings
-
-target-version = "py311"
-line-length = 88
+# This configuration enforces strict code quality and style standards
 
 [lint]
+# Enable all recommended rules
 select = [
-  "E",  # pycodestyle errors
-  "W",  # pycodestyle warnings
-  "F",  # Pyflakes
-  "I",  # isort
-  "C",  # flake8-comprehensions
-  "B",  # flake8-bugbear
-]
-ignore = [
-  "E501", # line too long (handled by black)
-  "B008", # do not perform function calls in argument defaults
-  "C901", # too complex
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+    "RUF", # Ruff-specific rules
+    "NPY", # NumPy specific rules
 ]
 
+# Ignore specific rules that are too strict for this project
+ignore = [
+    "E501", # Line too long (handled by formatter)
+    "B008", # Do not perform function call in argument defaults (common in data science)
+    "C901", # Function is too complex (some ML functions are inherently complex)
+]
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude a few directories
+exclude = [
+    ".git",
+    "__pycache__",
+    ".eggs",
+    "*.egg-info",
+    "build",
+    "dist",
+]
+
+# Per-file ignores
+per-file-ignores = { "tests/*" = ["S101"] } # Allow assert in tests
+
+[format]
+# Use double quotes for strings
+quote-style = "double"
+
+# Indent with spaces
+indent-style = "space"
+
+# Skip magic trailing comma
+skip-magic-trailing-comma = false
+
+# Line length (formatter will enforce this)
+line-length = 88
+
 [lint.isort]
-known-first-party = ["utils", "data", "models", "evaluation"]
-force-single-line = true
-order-by-type = false
+# Force single line imports
+lines-after-imports = 2
+known-first-party = ["data", "models", "evaluation", "utils", "scripts"]
+
+[lint.pydocstyle]
+# Use Google style docstrings
+convention = "google"

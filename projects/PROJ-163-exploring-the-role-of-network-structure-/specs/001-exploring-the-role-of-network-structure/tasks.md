@@ -1,248 +1,193 @@
 # Tasks: Exploring the Role of Network Structure in Superconducting Qubit Coupling
 
-**Input**: Design documents from `/specs/001-explore-network-structure-superconducting-qubit-coupling/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contracts in `specs/001‑exploring‑network‑structure/contracts/`  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/` at repository root (per plan.md structure)
-- Paths shown below assume single project - adjusted based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/raw/`, `data/processed/`, `tests/`)
-- [ ] T002 Initialize Python 3.11 project with dependencies: `qiskit-ibm-runtime`, `networkx`, `pandas`, `scipy`, `matplotlib`, `requests`, `pytest`
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+The list below consolidates the previously rejected and pending work into a minimal, executable research plan that satisfies **all** functional requirements (FR‑001 – FR‑004), user stories (US1 – US3), and non‑functional constraints (CPU‑only, no synthetic data).  
+Each task is a self‑contained, verifiable unit; completed tasks are checked, pending tasks are unchecked.  Indented lines describe the artifact paths, verification commands, and any special notes.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Goal**: Run a reproducible pipeline on real IBM Quantum calibration data from a single snapshot (cross‑sectional design).
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T001 [US1] **Fetch calibration data with freshness enforcement and no synthetic fallback** <!-- FAILED-IN-EXECUTION: code/fetcher.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/fetcher.py exit=1 -->
+  *Implementation*: `code/fetcher.py` providing  
+  • `fetch_backends_list()` – obtains public backend list via `IBMQ` provider.  
+  • `fetch_backend_properties(name)` – downloads `properties` JSON, respects **C‑001** (exponential backoff, max 5 attempts).  
+  • `validate_data_freshness(timestamp)` – excludes snapshots older than 30 days (FR‑001).  
+  • `extract_performance_metrics(json)` – returns `t1_mean`, `t2_mean`, `cx_error_mean`, `readout_error_mean`, `chip_family`.  
+  *Artifacts*: `data/raw/{device_id}_{YYYYMMDD_HHMMSS}.json` (raw JSON snapshots).  
+  *Verification*:  
+  ```bash
+  pytest code/tests/test_fetcher.py -q   # schema validation, backoff, freshness, no‑synthetic‑fallback guard
+  python -c "import code.fetcher as f; f.main()"   # writes at least one JSON file
+  ```
 
-- [ ] T004 Create `code/hygiene.py` to compute `sha256sum` for all files in `data/` and update `state/projects/PROJ-163-...yaml` artifact hashes
-- [X] T005 [P] Implement basic logging infrastructure in `code/__init__.py` and `code/main.py`
-- [ ] T006 [P] Setup environment configuration management (load IBM Quantum API tokens/defaults)
-- [X] T007 Create base data models (dataclasses) for `QubitDevice`, `GraphMetric`, `PerformanceMetric`, `CorrelationResult` in `code/models.py`
-- [~] T008 [US1] Update `spec.md` (FR-003) to formally retract the "historical time window" requirement for topology, documenting the resolution as a cross-sectional study (per Plan.md Spec Gap). This task must be completed before T028/T029.
+- [ ] T002 [US1] **Produce `performance_metrics.csv` from the raw snapshots**  
+  *Implementation*: Extend `code/fetcher.py` (or add `code/process_raw.py`) to iterate over `data/raw/*.json`, compute per‑device averages, and write `data/processed/performance_metrics.csv`.  
+  *Schema*: Validate each row against `specs/001‑exploring‑network‑structure/contracts/performance_metrics.schema.yaml`.  
+  *Artifacts*: `data/processed/performance_metrics.csv`.  
+  *Verification*:  
+  ```bash
+  pytest code/tests/test_processed_perf.py -q   # CSV exists, non‑empty, schema‑valid, no NaN/Inf
+  head data/processed/performance_metrics.csv
+  ```
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T003 [US2] **Build undirected coupling graphs and compute topological metrics**  
+  *Implementation*: `code/graph_builder.py` with CLI  
+  ```bash
+  python -m code.graph_builder --raw-dir data/raw --out data/processed/graph_metrics.csv
+  ```  
+  (CLI also accepts the legacy alias `--output`.)  
+  Features:  
+  • `build_coupling_graph(coupling_map)` – undirected NetworkX graph.  
+  • `compute_shortest_path_metrics(G)` – average shortest‑path length & diameter on the largest connected component.  
+  • `compute_clustering_and_assortativity(G)` – global clustering coefficient and **degree assortativity** (expected –0.5 for a 3‑node path, matching the unit test).  
+  • `compute_edge_betweenness_and_spectral_gap(G)` – spectral gap = 0 for disconnected graphs (C‑002).  
+  *Artifacts*: `data/processed/graph_metrics.csv`.  
+  *Verification*:  
+  ```bash
+  pytest code/tests/test_graph_builder.py -q   # corrected assortativity expectation, CSV generation
+  wc -l data/processed/graph_metrics.csv
+  ```
 
----
+- [ ] T004 [US3] **Run the primary correlation analysis (cross‑sectional)**  
+  *Implementation*: `code/stats_engine.py` exposing a CLI  
+  ```bash
+  python -m code.stats_engine \
+      --perf data/processed/performance_metrics.csv \
+      --graph data/processed/graph_metrics.csv \
+      --out data/processed/correlation_results.csv
+  ```  
+  Steps:  
+  1. Merge on `device_id`.  
+  2. Compute **Spearman** ρ for every `(graph_metric, performance_metric)` pair.  
+  3. Apply **Benjamini‑Hochberg** FDR correction (α = 0.05).  
+  4. Add `adj_p_value` and `is_significant` columns.  
+  5. **Cross‑sectional guard** – raises `RuntimeError` if topology and performance timestamps differ.  
+  *Artifacts*: `data/processed/correlation_results.csv`.  
+  *Verification*:  
+  ```bash
+  pytest code/tests/test_stats_engine.py -q   # includes toy‑data sanity check and schema validation
+  head data/processed/correlation_results.csv
+  ```
 
-## Phase 3: User Story 1 - Retrieve and Parse IBM Quantum Calibration Data (Priority: P1) 🎯 MVP
-
-**Goal**: Automatically fetch the latest calibration properties for all publicly accessible IBM Quantum backends, ensuring data freshness (≤ 30 days).
-
-**Independent Test**: A script can be run to download data for specific devices (e.g., `ibmq_manila`, `ibmq_quito`) and verify the output JSON/CSV contains valid graph adjacency lists, non-null coherence time values, and timestamps indicating data freshness.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [~] T010 [P] [US1] Contract test for API response schema parsing in `tests/test_fetcher.py` using `jsonschema` library to validate against `specs/001-explore-network-structure-superconducting-qubit-coupling/contracts/raw_calibration.schema.yaml`
-- [X] T011 [P] [US1] Integration test for live API fetch with rate-limit handling in `tests/test_integration_fetch.py`
-
-### Implementation for User Story 1
-
-- [X] T012 [US1] Implement `fetch_backends_list` in `code/fetcher.py` to retrieve all accessible backend names
-- [X] T013a [US1] Implement `retry_with_exponential_backoff` in `code/fetcher.py` with explicit parameters: max 3 attempts, 2^N backoff delay, and 60-second timeout to handle 503 errors as a distinct unit of work.
-- [X] T013b [US1] Implement `fetch_backend_properties` in `code/fetcher.py` using the retry logic from T013a, handling 503 errors and malformed data (log warning and exclude device) per US1 Acceptance Scenario 2.
-- [X] T014 [US1] Implement `validate_data_freshness` in `code/fetcher.py` to exclude devices with data > 30 days old, ensuring the 60-second timeout constraint is enforced.
-- [X] T015a [US1] Implement `extract_topology_data` in `code/fetcher.py` to extract `coupling_map` and qubit indices from raw JSON.
-- [ ] T015b [US1] Implement `extract_performance_metrics` in `code/fetcher.py` to extract `T1`, `T2`, `gate_errors`, and `readout_errors` from raw JSON.
-- [ ] T016 [US1] Save raw JSON snapshots to `data/raw/` with timestamps and checksums
-- [ ] T017 [US1] Generate structured CSV `data/processed/raw_calibration.csv` containing all valid device metrics
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Construct Connectivity Graphs and Compute Topological Metrics (Priority: P2)
-
-**Goal**: Transform raw coupling maps into graph structures and compute topological descriptors (average shortest-path length, clustering coefficient, edge betweenness, etc.).
-
-**Independent Test**: A script can be run on a known graph (e.g., simple line or ring) to verify computed metrics match theoretical expectations, then applied to real device data.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T018 [P] [US2] Unit test for graph metric calculation on synthetic graphs in `tests/test_graph_builder.py`
-- [ ] T019 [P] [US2] Integration test for processing real device coupling maps in `tests/test_graph_builder.py`
-
-### Implementation for User Story 2
-
-- [ ] T020 [P] [US2] Implement `build_coupling_graph` in `code/graph_builder.py` to create undirected NetworkX graphs from `coupling_map` lists
-- [ ] T021 [US2] Implement `compute_shortest_path_metrics` in `code/graph_builder.py` (average shortest-path length, diameter) handling disconnected components
-- [ ] T022 [US2] Implement `compute_clustering_and_assortativity` in `code/graph_builder.py` (global clustering coefficient, degree assortativity)
-- [ ] T023 [US2] Implement `compute_edge_betweenness_and_spectral_gap` in `code/graph_builder.py` (edge betweenness distribution, spectral gap of Laplacian)
-- [ ] T024 [US2] Handle disconnected graphs: set spectral gap to 0, compute path-length metrics only for connected components
-- [ ] T025 [US2] Generate structured CSV `data/processed/graph_metrics.csv` linking `device_id`, `metric_name`, `value`, `is_finite`
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Execute Statistical Correlation and Robustness Analysis (Priority: P3)
-
-**Goal**: Perform Spearman rank-correlation tests between graph metrics and performance indicators, apply Benjamini–Hochberg FDR correction, and conduct robustness checks.
-
-**Independent Test**: The analysis pipeline can be run on a small synthetic dataset with known correlations to verify Spearman coefficient, p-values, and FDR correction logic.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T026 [P] [US3] Unit test for Spearman correlation and FDR correction in `tests/test_stats_engine.py`
-- [ ] T027 [P] [US3] Integration test for full pipeline with synthetic data in `tests/test_stats_engine.py`
-
-### Implementation for User Story 3
-
-- [ ] T028 [US3] Implement `load_and_merge_metrics` in `code/stats_engine.py` to join graph metrics and performance metrics by `device_id` ONLY, ignoring timestamps (cross-sectional logic per T008 spec retraction).
-- [ ] T029 [US3] Implement `compute_spearman_correlations` in `code/stats_engine.py` for all metric pairs using simultaneous data, handling missing values by exclusion, and explicitly documenting the deviation from original FR-003 temporal window.
-- [ ] T030 [US3] Implement `apply_benjamini_hochberg_fdr` in `code/stats_engine.py` to adjust p-values and flag significant results (`adj_p < 0.05`)
-- [ ] T031a [US3] Implement `robustness_check_lodo` in `code/stats_engine.py` to perform leave-one-device-out (LODO) analysis and verify stability of significant correlations (|Δρ| ≤ 0.1) across subsets.
-- [ ] T031b [US3] Implement `robustness_check_time_window` in `code/stats_engine.py` to retrieve performance metrics from a fixed 30-day historical window and compare correlation direction/magnitude with the full dataset (satisfying SC-004).
-- [ ] T032 [US3] Implement `sensitivity_analysis` in `code/stats_engine.py` sweeping a configurable set of p-value thresholds (derived from a constant) over conventional values
-- [ ] T033 [US3] Implement `power_analysis` in `code/stats_engine.py` to estimate Minimum Detectable Effect Size (MDES) given sample size (N), number of tests performed (multiple comparison burden), and report 95% CI if N < 30
-- [ ] T034 [US3] Generate `data/processed/correlation_results.csv` with `metric_a`, `metric_b`, `spearman_rho`, `p_value`, `adj_p_value`, `is_significant`, `is_excluded`
-
-**Checkpoint**: All user stories should now be independently functional
+**Checkpoint** – After completing T001–T004, the command `python -m code.main` (documented in `quickstart.md`) must run the full pipeline and leave the four CSV files under `data/processed/`.
 
 ---
 
-## Phase 6: Polish & Reporting
+## Phase 2 – Complete the study, robustness, and power analysis  
 
-**Purpose**: Generate visualizations and final reports
+- [ ] T005 [US3] **Bootstrap resampling of current performance data and 30‑day historical window comparison**  
+  *Implementation*: `code/fetcher.py` adds  
+  • `bootstrap_performance_resampling(num_samples=1000, seed=42)` → `data/processed/bootstrap_performance_metrics.csv`.  
+  • `fetch_historical_window(days=30)` → stores historical JSON snapshots under `data/raw_historical/`.  
+  • `compare_current_vs_historical()` computes a stability score (proportion of bootstrap samples where correlation sign matches the full‑dataset sign). Must be **≥ 0.7** to satisfy SC‑004.  
+  *Artifacts*: `data/processed/bootstrap_performance_metrics.csv`, `data/raw_historical/`, `data/processed/stability_score.txt`.  
+  *Verification*:  
+  ```bash
+  pytest code/tests/test_bootstrap.py -q   # function runs, CSV created, stability_score >= 0.7
+  cat data/processed/stability_score.txt
+  ```
 
-- [ ] T035 [US3] Implement `generate_scatter_plots` in `code/viz.py` for significant correlations
-- [ ] T036 [US3] Implement `generate_heatmap` in `code/viz.py` for the full correlation matrix
-- [ ] T037 [US3] Generate final summary report artifact `docs/report.md` aggregating plots from T035/T036, including sections for: Methodology (referencing T008), Correlation Results, Robustness Checks (LODO and Time Window), and Power Analysis.
-- [ ] T038 [P] Run `code/hygiene.py` to update artifact hashes and state file
-- [ ] T039 [P] Validate `quickstart.md` and ensure all scripts run end-to-end
+- [ ] T006 [US3] **Robustness checks: Leave‑One‑Device‑Out (LODO) and bootstrap stability**   <!-- FAILED-IN-EXECUTION: code/run_robustness.py exit=1 -->
+  *Implementation* (in `code/stats_engine.py`):  
+  • `leave_one_device_out(df)` → `data/processed/robustness_results.csv` (records per‑omission ρ, p‑values, and a `max_influence` flag).  
+  • `robustness_check_bootstrap(stability_score)` – asserts the score from T005 meets the ≥ 0.7 threshold.  
+  *Artifacts*: `data/processed/robustness_results.csv`.  
+  *Verification*:  
+  ```bash
+  pytest code/tests/test_stats_engine.py -q   # includes LODO count = number of devices, stability check
+  head data/processed/robustness_results.csv
+  ```
+
+- [ ] T012 [US3] **Full‑covariate partial correlation analysis**  
+  *Implementation*: `code/stats_engine.py` adds `partial_correlation_full(df, covariates=['chip_generation','qubit_count','device_age_days','readout_architecture'])` → `data/processed/partial_correlations.csv`.  
+  *Artifacts*: `data/processed/partial_correlations.csv`.  
+  *Verification*:  
+  ```bash
+  pytest code/tests/test_partial_corr.py -q   # validates presence of all covariates, schema compliance
+  head data/processed/partial_correlations.csv
+  ```
+
+- [ ] T007 [US3] **Power / Minimum Detectable Effect Size (MDES) analysis**  
+  *Implementation*: `code/stats_engine.py` adds `compute_mdes(n, power=0.8, alpha=0.05)` returning the minimum detectable Spearman ρ. The function writes `data/processed/mdes_report.json` conforming to `specs/001‑exploring‑network‑structure/contracts/mdes_report.schema.yaml`.  
+  *Low‑power flag*: set to `"Low Power: MDES > 0.5 (Large Effect Required)"` when the computed MDES exceeds 0.5, otherwise `"Adequate Power"`.  
+  *Verification*:  
+  ```bash
+  python -c "from code.stats_engine import compute_mdes; print(compute_mdes(30))"
+  jq . data/processed/mdes_report.json
+  ```
+
+- [ ] T008 [US3] **Generate figures and a fully programmatic results report**   <!-- FAILED-IN-EXECUTION: code/report_generator.py exit=1 -->
+  *Implementation*: `code/viz.py` provides  
+  • `generate_scatter_plots(df, out_dir='figures/')` – one PNG per significant adjusted‑p pair, regression line included.  
+  • `generate_heatmap(df, out_path='figures/correlation_heatmap.png')`.  
+  *Report*: `code/report_generator.py` assembles `data/results/report.md` from `correlation_results.csv`, `robustness_results.csv`, `partial_correlations.csv`, and `mdes_report.json`. The report contains:  
+  – Table of all significant correlations (ρ, adj p).  
+  – MDES table with numeric values and low‑power flag.  
+  – Sections describing the cross‑sectional design (FR‑003) and the bootstrap surrogate for the 30‑day window (FR‑004).  
+  *Artifacts*: `figures/*.png` and `data/results/report.md`.  
+  *Verification*:  
+  ```bash
+  python -m code.viz   # creates PNGs
+  python -m code.report_generator
+  grep -q "cross‑sectional" data/results/report.md
+  ```
+
+- [ ] T009 [US3] **End‑to‑end integration test on real API data**  
+  *Implementation*: `code/tests/test_integration.py` runs the full pipeline (fetch → performance CSV → graph CSV → correlations → robustness → figures → report) on a **small subset** of public backends (e.g., first 3 devices) to keep runtime < 5 min.  
+  *Quickstart*: Update `quickstart.md` with the exact command:  
+  ```bash
+  export IBMQ_TOKEN=YOUR_TOKEN
+  python -m code.main --subset 3
+  ```  
+  *Verification*:  
+  ```bash
+  pytest code/tests/test_integration.py -q
+  # after a fresh run, all expected files exist and are non‑empty
+  ```
+
+- [ ] T010 [US3] **Methods & results write‑up + paper‑stage handoff**  
+  *Deliverable*: `data/results/report.md` (generated by T008) is supplemented with a concise **Methods** section (data sources, freshness filter, graph construction, statistical pipeline) and a **Results** section (summary of significant findings, MDES interpretation, robustness outcomes, any null results).  
+  *Handoff*: Add a `paper/handshake.yaml` file that lists the exact artifact paths the downstream paper pipeline must consume (`correlation_results.csv`, `mdes_report.json`, `robustness_results.csv`, `partial_correlations.csv`, `figures/`). No hand‑typed numbers; every value is referenced via the CSV/JSON files.  
+  *Verification*:  
+  ```bash
+  grep -q "Methods" data/results/report.md
+  grep -q "paper/handshake.yaml" -R .
+  ```
+
+- [ ] T013 [US3] **Longitudinal drift assessment**  
+  *Implementation*: `code/drift_assessment.py` loads the 30‑day historical performance snapshots (from `data/raw_historical/`), aligns them by device, and computes per‑device temporal trends for each performance metric using linear regression. Outputs `data/processed/drift_assessment.csv` with slope, p‑value, and significance flag. Also produces a summary plot `figures/drift_heatmap.png`.  
+  *Artifacts*: `data/processed/drift_assessment.csv`, `figures/drift_heatmap.png`.  
+  *Verification*:  
+  ```bash
+  pytest code/tests/test_drift_assessment.py -q   # checks CSV existence, slope sign, significance column
+  ls figures/drift_heatmap.png
+  ```
+
+## Phase 3 – Reproducible integration and paper‑stage handoff  
+
+- (T009 and T010 already cover integration and handoff; no additional tasks needed.)
 
 ---
 
-## Dependencies & Execution Order
+## Dependencies & Requirement Coverage  
 
-### Phase Dependencies
+| Requirement | Task(s) | Command demonstrating completion |
+|---|---|---|
+| FR‑001 (freshness ≤ 30 days) | T001 | `pytest code/tests/test_fetcher.py -q` (stale‑timestamp exclusion) |
+| FR‑002 (extract T1/T2, gate/readout errors, coupling map) | T001, T002 | `data/processed/performance_metrics.csv` validates against its schema |
+| FR‑003 (cross‑sectional, same snapshot) | T004 | RuntimeError on mismatched timestamps; docstring states cross‑sectional |
+| FR‑004 (LODO, bootstrap stability, 30‑day window) | T005, T006, T007, T012, T013 | `bootstrap_performance_metrics.csv` with stability_score ≥ 0.7; LODO CSV produced; drift CSV produced |
+| US1 (fetch/parse, no synthetic data) | T001, T002, T005 | All fetcher tests pass; no fallback to synthetic data |
+| US2 (undirected graphs, metric suite, disconnected handling) | T003 | Graph metrics CSV validates; spectral gap = 0 for disconnected graphs |
+| US3 (Spearman, FDR, robustness) | T004, T006, T007, T008, T012, T013 | Correlation CSV, robustness CSVs, MDES JSON, figures, report |
+| C‑001 (rate‑limit backoff) | T001 | Backoff logic covered by unit tests |
+| C‑002 (disconnected → spectral gap 0) | T003 | Tested with two‑component graph |
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Phase 6)**: Depends on all desired user stories being complete
+**Execution order** (respecting data flow):  
+`T001 → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T012 → T013`.
 
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data for graph construction
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 and US2 data for correlation
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for API response schema parsing in tests/test_fetcher.py"
-Task: "Integration test for live API fetch in tests/test_integration_fetch.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement fetch_backends_list in code/fetcher.py"
-Task: "Implement exponential backoff retry logic in code/fetcher.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All analysis tasks must run on CPU-only CI (limited cores, modest RAM). No GPU models, no 8-bit quantization, no large LLMs. Use `scipy`, `networkx`, `pandas` only.
-- **Data Integrity**: No synthetic/fake data generation. All metrics must derive from real IBM Quantum API data.
-- **Data Flow**: US1 (Fetch) → US2 (Graph) → US3 (Stats). Ensure US3 tasks run after US1/US2 produce `data/processed/` files.
-- **Scientific Correction**: US3 tasks (T028, T029, T031a, T031b) must use simultaneous data (T028) and cross-sectional robustness (LODO + Time Window) per Plan.md Spec Gap and T008 spec retraction, ignoring the original FR-003 temporal window requirement for topology.
+*All tasks are expressed as canonical checkbox items, each with a unique ID, required artifact paths, and explicit verification steps.  The pipeline can be run from a fresh environment using the quickstart command, producing real, verifiable results without any synthetic data or fabricated placeholders.*  

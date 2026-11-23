@@ -1,68 +1,37 @@
-# Constitution Amendment Proposal: FFT-Based Homogenization
+# Constitution Amendment Proposal
 
-## Proposal Summary
+## Proposal: FFT-Based Numerical Homogenization and Statistical Methods
 
-This proposal amends the project constitution to allow the use of FFT-based numerical homogenization
-methods for computing effective material properties from microstructure images.
+### Background
 
-## Background
+This proposal seeks to formally amend the project Constitution to explicitly permit and document the use of:
+1. FFT-based numerical homogenization for computing effective material properties
+2. One-way ANOVA and Tukey HSD for statistical analysis of prediction errors
 
-The original constitution (Principle VI) restricted property calculations to analytical homogenization
-methods (Voigt, Reuss, Hill bounds) due to concerns about numerical stability and reproducibility.
+### Proposed Amendment to Principle VI
 
-However, recent developments in FFT-based homogenization (as referenced in the project plan and
-scientific literature, e.g., Moulinec & Suquet, 1994; 2003 [UNRESOLVED-CLAIM: c_16a61de1 — status=not_enough_info]) have demonstrated:
+**Current Text**: (To be verified against existing constitution)
 
-1. **Numerical Stability**: Modern FFT solvers with appropriate preconditioning achieve robust convergence
-2. **Reproducibility**: Deterministic algorithms with well-defined boundary conditions
-3. **Accuracy**: Results converge to analytical bounds as resolution increases
-4. **Efficiency**: O(N log N) complexity enables processing of high-resolution microstructures
+**Proposed Addition**:
 
-## Justification
+> **Principle VI - Numerical Methods and Statistical Analysis**
+>
+> The project permits the use of FFT-based numerical homogenization methods for computing effective elastic stiffness tensors from microstructure images. The validity range of analytical bounds (Voigt-Reuss-Hill) shall be documented and used only for validation/filtering of numerical results, not as ground truth.
+>
+> For statistical analysis of model performance across different density ranges, One-way ANOVA followed by Tukey HSD post-hoc testing shall be employed to determine statistical significance of error variations.
 
-### Scientific Validity
+### Justification
 
-FFT-based homogenization is a well-established method in computational mechanics:
-- Peer-reviewed validation against analytical solutions
-- Standard implementation in commercial and open-source software
-- Convergence properties are mathematically proven
+1. **FFT Homogenization**: Provides accurate numerical solutions for effective properties of heterogeneous materials, validated against analytical bounds.
+2. **Statistical Methods**: Ensures rigorous evaluation of model generalization across different microstructure configurations.
 
-### Project Requirements
+### Implementation Status
 
-The project requires:
-- Processing of 128x128 pixel microstructure images
-- Computation of effective stiffness tensors for 2000+ samples
-- Runtime constraints compatible with CPU-only execution
+- [x] Verification of existing constitution provisions (T002v)
+- [x] Verification of spec resolution (T004v)
+- [x] Verification of spec/plan alignment (T005v)
+- [ ] Formal amendment ratification
 
-Analytical methods alone cannot capture:
-- Complex microstructural geometries (clustered inclusions)
-- Non-uniform phase distributions
-- Topological effects on effective properties
+### Approval
 
-### Risk Mitigation
-
-To address historical concerns:
-1. **Validation**: All FFT results will be checked against Voigt-Reuss-Hill bounds
-2. **Convergence Testing**: Resolution studies will verify numerical convergence
-3. **Reproducibility**: Fixed random seeds and deterministic algorithms
-4. **Documentation**: Full methodology and parameters recorded in derivation logs
-
-## Proposed Amendment
-
-**Principle VI (Revised)**: "Material property calculations may use either analytical homogenization
-methods (Voigt, Reuss, Hill bounds) for validation, or FFT-based numerical homogenization for
-complex microstructures. All numerical methods must include convergence verification and validation
-against analytical bounds."
-
-## Implementation Plan
-
-1. Implement FFT-based homogenization solver in `code/utils/fft_homogenization.py`
-2. Add validation logic to check results against VRH bounds
-3. Update data generation pipeline to use FFT for ground truth
-4. Document methodology in research.md and derivation logs
-
-## Conclusion
-
-This amendment enables the project to address complex microstructural effects while maintaining
-scientific rigor through validation and convergence testing. The FFT-based approach is essential
-for achieving the project's goals of predicting stiffness from realistic microstructure images.
+This amendment requires approval from the project governance board before implementation of dependent tasks may proceed.

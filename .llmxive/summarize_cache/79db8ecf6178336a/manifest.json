@@ -1,0 +1,91 @@
+{
+  "schema": "llmxive-summary/1",
+  "root_hash": "79db8ecf6178336a",
+  "goal": "extract every plan element (phases, contracts, entities, quickstart steps) the tasks must cover",
+  "model": "qwen.qwen3.5-122b",
+  "token_budget": 4000,
+  "created_at": "2026-08-23T05:05:10.101568+00:00",
+  "entries": [
+    {
+      "element_id": "e000",
+      "kind": "content",
+      "file": "chunk_000.txt",
+      "critical": [
+        "001",
+        "2026",
+        "-07",
+        "-13",
+        "8",
+        "4",
+        "16",
+        "1",
+        "10",
+        "2",
+        "3",
+        "0",
+        "5",
+        "3.10",
+        "0.25",
+        "7",
+        "6",
+        "FR-006",
+        "-006",
+        "-3",
+        "FR-007",
+        "-007"
+      ],
+      "summary": "# Implementation Plan: Quantization Robustness of Multi-Effect LoRA Adapters\n\n**Branch**: `001-lora-quantization-robustness` | **Date**: 2026-07-13 | **Spec**: `specs/001-llmxive-follow-up-extending-collectionlo/spec.md`\n**Input**: Feature specification from `/specs/001-llmxive-follow-up-extending-collectionlo/spec.md`\n\n## Summary\n\nThis project evaluates the robustness of \"CollectionLoRA\" (a multi-effect LoRA adapter) when subjected to zero-shot post-training quantization (INT8, INT4) on CPU-only infrastructure. The primary technical approach involves loading a Stable Diffusion base model with [... full chunk preserved on disk; desummarize() to retrieve.]"
+    },
+    {
+      "element_id": "e001",
+      "kind": "content",
+      "file": "chunk_001.txt",
+      "critical": [
+        "FR-006",
+        "-006",
+        "-3",
+        "10",
+        "FR-010",
+        "-010",
+        "SC-005",
+        "-005",
+        "6",
+        "5",
+        "FR-002",
+        "-002",
+        "-60",
+        "3",
+        "30",
+        "1",
+        "2",
+        "137",
+        "4",
+        "FR-008",
+        "-008",
+        "16",
+        "0",
+        "-1",
+        "-5",
+        "8",
+        "0.8",
+        "FR-007",
+        "-007",
+        "0.2",
+        "0.1"
+      ],
+      "summary": "- `contracts/analysis_results.schema.yaml` -> `data/analysis_results.json`\n\n## Complexity Tracking\n\n| Violation | Why Needed | Simpler Alternative Rejected Because |\n|-----------|------------|-------------------------------------|\n| Bayesian Linear Model (not Hierarchical) | Required by FR-006/US-3 to handle N=10 sample size. Full hierarchical model is underpowered. | Standard ANOVA is underpowered for N=10 and cannot provide credible intervals for subspace rank correlation. |\n| Per-Effect SVD Extraction | Required by FR-010/US-3 to compute subspace ranks for correlation analysis. | Assuming u [... full chunk preserved on disk; desummarize() to retrieve.]"
+    },
+    {
+      "element_id": "e002",
+      "kind": "content",
+      "file": "chunk_002.txt",
+      "critical": [
+        "3",
+        "1",
+        "2021",
+        "2018"
+      ],
+      "summary": "3.  Flag the experiment as 'Failed to Validate Hypothesis' in the final report.\n\n## References\n\n- **CollectionLoRA Paper**: (To be verified against primary source; likely \"CollectionLoRA: Collecting Multiple Effects in 1 LoRA via Multi-Teacher On-P\").\n- **CLIP**: Radford et al., \"Learning Transferable Visual Models From Natural Language Supervision\" (2021).\n- **LPIPS**: Zhang et al., \"The Unreasonable Effectiveness of Deep Features as a Perceptual Metric\" (2018).\n- **Bayesian Data Analysis**: Gelman et al., \"Bayesian Data Analysis\" (3rd ed.)."
+    }
+  ]
+}

@@ -1,58 +1,51 @@
-# Data Model: Predicting Rate Constants of SN1 Reactions
+# Data Model: Predicting Rate Constants of SN1 Reactions from Molecular Structure
 
-## 1. Entity Definitions
+## Entity Definitions
 
 ### Molecule
-Represents a chemical substrate in the SN1 reaction context.
--   **smiles**: `string` - Canonical SMILES representation.
--   **substrate_class**: `enum` - One of `["secondary", "tertiary"]`. Derived from graph analysis.
--   **leaving_group**: `string` - e.g., "Cl", "Br", "I".
--   **steric_index**: `float` - Calculated steric hindrance metric (RDKit).
--   **gasteiger_charges**: `list[float]` - Partial charges for each atom.
--   **topological_indices**: `dict` - { "wiener": float, "zagreb": float, ... }.
+- **SMILES**: string (canonicalized)
+- **Substrate Class**: string (secondary, tertiary) — *must be explicit in source*
+- **Descriptors**: dict (Gasteiger charges, topological indices)
+- **Exclusion Reason**: string (if invalid)
 
 ### ReactionRate
-Represents the experimental outcome.
--   **rate_constant**: `float` - Value in s⁻¹ (standardized).
--   **temperature**: `float` - Temperature in Kelvin.
--   **solvent**: `string` - Solvent name (optional, may be null).
--   **source_id**: `string` - ID from the source dataset (e.g., DTS-SN1 row ID).
+- **Rate Constant**: float (s⁻¹ or M⁻¹s⁻¹, normalized to s⁻¹)
+- **Temperature**: float (K)
+- **Solvent**: string
+- **Source ID**: string (dataset ID)
+- **Exclusion Reason**: string (if invalid)
 
 ### ModelConfiguration
-Represents a trained model instance.
--   **config_id**: `string` - Unique hash of hyperparameters.
--   **hyperparameters**: `dict` - { "learning_rate": float, "hidden_dim": int, "dropout": float, "layers": int }.
--   **metrics**: `dict` - { "train_r2": float, "val_r2": float, "test_r2": float, "test_mae": float }.
--   **training_time**: `float` - Seconds.
+- **Hyperparameters**: dict (learning_rate, hidden_dim, dropout)
+- **Performance Metrics**: dict (R², MAE)
+- **Seed**: int (42)
 
-## 2. Data Flow & Transformations
+### CollinearPair
+- **Descriptor A**: string
+- **Descriptor B**: string
+- **VIF Score**: float
+- **Flag Reason**: string
 
-1.  **Raw Ingestion**:
-    -   Input: `merged-file.jsonl` (DTS-SN1).
-    -   Output: `raw_data.csv` (SMILES, rate, raw metadata).
-2.  **Cleaning & Filtering**:
-    -   Input: `raw_data.csv`.
-    -   Logic:
-        -   Parse SMILES.
-        -   Compute steric index.
-        -   Filter: `steric_index > 2.0` OR `substrate_class == "primary"`.
-        -   Filter: Missing rate constant.
-    -   Output: `cleaned_data.csv` + `exclusion_report.jsonl`.
-3.  **Descriptor Computation**:
-    -   Input: `cleaned_data.csv`.
-    -   Logic: Compute Gasteiger charges, Topological indices.
-    -   Output: `processed_data.csv` (includes all descriptors).
-4.  **Splitting**:
-    -   Input: `processed_data.csv`.
-    -   Logic: Stratified split (70/15/15) by `substrate_class`.
-    -   Output: `train.csv`, `val.csv`, `test.csv`.
-5.  **Model Training**:
-    -   Input: `train.csv`, `val.csv`.
-    -   Output: `model_weights.pt`, `metrics.json`.
+### Descriptor
+- **Name**: string
+- **Value**: float
+- **Type**: string (topological, electronic)
+- **Source Method**: string (Gasteiger, RDKit)
 
-## 3. Schema Constraints
+## Data Flow
 
--   **SMILES**: Must be canonicalized. If canonicalization fails, row is excluded.
--   **Rate Constant**: Must be > 0. If 0 or negative, excluded (log error).
--   **Substrate Class**: Must be "secondary" or "tertiary". Any other value is excluded.
--   **Missing Values**: No missing values allowed in `train`, `val`, or `test` sets. Rows with missing descriptors are excluded.
+1. **Ingestion**: Raw JSONL/Parquet → Validate columns → Exclude if missing metadata → Clean (remove NaN, invalid SMILES) → Output `cleaned.csv`.
+2. **Descriptor Computation**: `cleaned.csv` → RDKit → Compute Gasteiger/topological descriptors → Output `descriptors.csv`.
+3. **Splitting**: `descriptors.csv` → Stratified by substrate class → Train/Val/Test (70/15/15) → Output `split_*.csv`.
+4. **Training**: `train.csv` → MPNN (Nested CV) → Output `model.pt`, `metrics.json`.
+5. **Evaluation**: `test.csv` → Predictions → Bootstrap comparison → Output `comparison_report.json`.
+6. **Interpretability**: Model + `test.csv` → SHAP → Sensitivity → Perturbation → VIF → Output `shap_report.md`, `sensitivity_report.md`, `perturbation_report.md`, `vif_report.json`.
+7. **Consistency Check**: Re-run with 5 seeds → Output `shap_consistency_report.md`.
+
+## Constraints
+
+- No in-place modification of raw data.
+- All derived files checksummed.
+- Deterministic seeding enforced.
+- No causal language in outputs.
+- Unit normalization: All rate constants converted to s⁻¹.

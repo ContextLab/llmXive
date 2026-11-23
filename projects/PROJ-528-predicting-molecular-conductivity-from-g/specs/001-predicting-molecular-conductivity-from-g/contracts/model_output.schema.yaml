@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for model performance metrics and feature importance."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum: ["RandomForest", "GradientBoosting"]
+  r2_test:
+    type: "number"
+    description: "R² score on the test set."
+  mae_test:
+    type: "number"
+    description: "Mean Absolute Error on the test set."
+  cv_r2_mean:
+    type: "number"
+    description: "Mean R² from 5-fold cross-validation."
+  cv_r2_std:
+    type: "number"
+    description: "Standard deviation of R² from 5-fold cross-validation."
+  feature_importance:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+        importance_score:
+          type: "number"
+      required:
+        - "feature_name"
+        - "importance_score"
+  fdr_adjusted_pvalues:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        feature_name:
+          type: "string"
+        p_value:
+          type: "number"
+        adjusted_p_value:
+          type: "number"
+      required:
+        - "feature_name"
+        - "p_value"
+        - "adjusted_p_value"
+required:
+  - "model_type"
+  - "r2_test"
+  - "mae_test"
+  - "cv_r2_mean"
+  - "cv_r2_std"
+  - "feature_importance"
+additionalProperties: false

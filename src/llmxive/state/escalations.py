@@ -50,6 +50,83 @@ DIGEST_TITLE = "Escalation digest — bounded automation exhausted"
 ENGINE_FAILURE_LABEL = "engine-failure"
 DIGEST_LABEL = "escalation-digest"
 
+# Recurring root causes have shared tracking issues. Keep their latest bounded
+# evidence in the state ledger, instead of opening one ticket for every project.
+RECURRING_ENGINE_ISSUES: dict[str, int] = {
+    "reviewer-schema": 1474,
+    "provider-availability": 1475,
+}
+
+
+def _recurring_failure_category(error: str) -> str | None:
+    low = error.lower()
+    if "llmreviewer[" in low and (
+        "review frontmatter has neither" in low
+        or ("`concerns:`/`action_items:`" in low and "must be a list" in low)
+    ):
+        return "reviewer-schema"
+    if "backenderror:" in low and (
+        "no available server" in low or "budget has been exceeded" in low
+        or ("error code: 400" in low and "qwen.qwen3.5-122b" in low)
+    ):
+        return "provider-availability"
+    return None
+
+
+def _record_recurring_failure(
+    category: str, number: int, *, project_id: str, stage: str, error: str,
+    evidence: str, run_id: str, repo_root: Path | None, gh: GhRunner,
+) -> int:
+    """Route a known recurrence without creating or commenting on a ticket.
+
+    Check the tracking issue at most once per UTC day and reopen it if a new
+    occurrence disproves its resolution. Samples are bounded; complete attempts
+    remain in the existing run log. Local state is not a global occurrence count.
+    """
+    ledger = (repo_root or _repo_root()) / _ISSUE_LEDGER_REL / f"recurring-{category}.yaml"
+    now = datetime.now(UTC).isoformat()
+    try:
+        data = yaml.safe_load(ledger.read_text()) if ledger.exists() else {}
+        if not isinstance(data, dict):
+            data = {}
+    except (OSError, yaml.YAMLError):
+        data = {}
+    samples = data.get("recent_occurrences", [])
+    if not isinstance(samples, list):
+        samples = []
+    samples = [s for s in samples if isinstance(s, dict) and not (
+        s.get("project_id") == project_id and s.get("stage") == stage
+    )]
+    samples.append({
+        "project_id": project_id, "stage": stage, "run_id": run_id,
+        "error": error[:2000], "evidence": evidence[:2000], "last_seen": now,
+    })
+    data.update(issue_number=number, category=category, last_seen=now,
+                recent_occurrences=samples[-20:])
+    if data.get("checked_on") != now[:10]:
+        # Bound even unsuccessful network attempts: a GitHub outage must not
+        # make each project retry the same notification operation.
+        data["checked_on"] = now[:10]
+        try:
+            rc, out, _ = gh("api", f"repos/{GITHUB_REPO}/issues/{number}")
+            current = json.loads(out) if rc == 0 else {}
+            if isinstance(current, dict) and current.get("state") == "closed":
+                rc, _, _ = gh(
+                    "api", f"repos/{GITHUB_REPO}/issues/{number}", "-X", "PATCH",
+                    "-f", "state=open",
+                )
+                data["issue_refresh"] = "reopened" if rc == 0 else "reopen_failed"
+            else:
+                data["issue_refresh"] = "checked" if rc == 0 else "unavailable"
+        except Exception as exc:
+            logger.warning("recurring issue refresh failed for %s: %s", category, exc)
+            data["issue_refresh"] = "unavailable"
+    try:
+        atomic_write_text(ledger, yaml.safe_dump(data, sort_keys=False))
+    except OSError as exc:
+        logger.warning("recurring failure evidence write failed for %s: %s", category, exc)
+    return number
+
 
 class EscalationValidationError(ValueError):
     """A record was attempted before its bounded loop was exhausted."""
@@ -233,13 +310,21 @@ def file_engine_failure_issue(
 ) -> int | None:
     """File (or reuse) the tracked issue for an engine failure (FR-016).
 
-    Deduped per (project, failure class): the first occurrence opens an
-    issue and records its number in the ledger; repeats add nothing (the
-    project keeps retrying on schedule; the issue tracks the fix). Returns
+    Known recurring signatures route to shared tracking issues with bounded
+    local occurrence evidence. Other failures are deduped per (project,
+    failure class): the first occurrence opens an issue and records its
+    number in the ledger; repeats add nothing. Returns
     the issue number, or None when GitHub is unreachable — filing is
     best-effort and NEVER blocks or parks the project.
     """
     gh = gh or _default_gh
+    category = _recurring_failure_category(error)
+    if category in RECURRING_ENGINE_ISSUES:
+        return _record_recurring_failure(
+            category, RECURRING_ENGINE_ISSUES[category], project_id=project_id,
+            stage=stage, error=error, evidence=evidence, run_id=run_id,
+            repo_root=repo_root, gh=gh,
+        )
     failure_class = error.split(":", 1)[0].strip() or "EngineFailure"
     ledger = _issue_ledger_path(project_id, failure_class, repo_root=repo_root)
     if ledger.exists():

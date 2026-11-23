@@ -1,0 +1,18 @@
+pandas
+numpy
+scipy
+statsmodels
+pyyaml
+python-dotenv
+# Additional packages used elsewhere in the project
+matplotlib
+seaborn
+tqdm
+# The huggingface_hub package is optional for real downloads but not required for hypothetical mode
+huggingface_hub
+# Ensure the version of statsmodels is compatible with the current environment
+statsmodels>=0.14.0
+# Pin a recent version of PyYAML for yaml parsing
+PyYAML>=6.0
+# Pin python-dotenv for environment handling
+python-dotenv>=1.0.0

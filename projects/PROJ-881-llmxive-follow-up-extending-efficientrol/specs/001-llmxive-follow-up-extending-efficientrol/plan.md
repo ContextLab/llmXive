@@ -1,43 +1,39 @@
 # Implementation Plan: llmXive Follow-up: Entropy-Guided Validity Prediction in RL Rollouts
 
 **Branch**: `001-entropy-validity-prediction` | **Date**: 2026-07-13 | **Spec**: `specs/001-entropy-validity-prediction/spec.md`
-**Input**: Feature specification from `specs/001-entropy-validity-prediction/spec.md`
+**Input**: Feature specification from `/specs/001-entropy-validity-prediction/spec.md`
 
 ## Summary
 
-This feature implements a computational study to determine if intermediate-layer Shannon entropy in transformer models predicts token validity (ground-truth match) during autoregressive generation on GSM8K (math) and MiniGrid (navigation) tasks. The approach involves a **single-pass generation** where validity labels (derived from external ground truth) and entropy profiles are captured simultaneously to prevent data drift. We will fit Mixed-Effects Logistic Regression (GLMM) models with random intercepts for sequences to account for nested data structures, avoiding the pitfalls of pooling layers. The output is a validated threshold for entropy-based early-exit speculation.
+This project implements a computational study to determine if intermediate-layer entropy in transformer models predicts token validity in RL rollouts. The approach involves generating ground-truth sequences on GSM8K and MiniGrid tasks using a CPU-tractable model (Qwen1.5-0.5B), extracting entropy profiles from intermediate layers via single-sequence streaming, and fitting Mixed-Effects Logistic Regression (GLMM) models to correlate entropy with validity labels. The study adheres to strict reproducibility, data hygiene, and hardware-agnostic signal validation principles defined in the project constitution.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `transformers` (CPU-optimized), `torch` (CPU-only), `datasets`, `scikit-learn`, `pandas`, `numpy`, `h5py` (for MiniGrid), `pytest`, `statsmodels` (for GLMM)  
-**Storage**: Local temporary files under `data/` (raw and processed), JSONL for intermediate logs, SQLite or CSV for final analysis data.  
-**Testing**: `pytest` (unit tests for entropy calculation, integration tests for generation pipeline, contract tests for schema validation).  
-**Target Platform**: Linux (GitHub Actions free-tier runner: a limited CPU configuration, constrained RAM, no GPU
-
-The research question remains: [Research Question]
-The method remains: [Method]
-References remain: [References]).  
-**Project Type**: Research computational pipeline / CLI tool.  
-**Performance Goals**: Total runtime ≤ 6 hours; peak RAM ≤ 6.5 GB; disk usage ≤ 12 GB.  
-**Constraints**: No GPU usage; no 8-bit/4-bit quantization libraries requiring CUDA; strict batching (fixed sequence length) to manage memory; streaming writes to disk.  
-**Scale/Scope**: A limited set of examples per dataset (GSM8K, MiniGrid) will be used.; max sequence length tokens. Total computational load: A representative sample of examples × datasets × Multiple passes (generation + extraction in single step) = 1000 generations. Analysis of token-level observations.
+**Primary Dependencies**: `torch` (CPU-optimized), `transformers`, `datasets` (streaming), `scikit-learn`, `pandas`, `numpy`, `pyyaml`, `pytest`, `statsmodels` (for GLMM)  
+**Storage**: Local file system (JSONL for intermediate states, Parquet for datasets)  
+**Testing**: `pytest` (unit, integration, contract)  
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, GB RAM)  
+**Project Type**: Research/Computational Study  
+**Performance Goals**: Process 500 examples with -token sequences within 6 hours; memory usage < 7GB via single-sequence streaming.  
+**Constraints**: No local GPU; CPU-first execution; strict adherence to single-sequence processing for entropy extraction to prevent OOM.  
+**Scale/Scope**: A representative set of GSM8K problems and MiniGrid episodes; a substantial volume of token-level observations.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*Gates determined based on constitution file*
 
-| Principle | Status | Implementation Detail |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/`; datasets fetched from canonical HuggingFace URLs; `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` restricted to the verified dataset URLs provided in the spec; no invented URLs. |
-| **III. Data Hygiene** | **PASS** | Raw data checksummed and recorded in `data/.checksums`; no in-place modification; derived data written to new files; PII scan required. |
-| **IV. Single Source of Truth** | **PASS** | All figures/stats in `paper/` will trace to `data/` rows and `code/` blocks; no hand-typed numbers. |
-| **V. Versioning Discipline** | **PASS** | Content hashes tracked via `hash_manifest.py`; project state file (`state/...yaml`) updated automatically by CI script upon artifact changes. |
-| **VI. Hardware-Agnostic Signal Validation** | **PASS** | Methodology isolates entropy-validity correlation via regression on CPU; no hardware-specific heuristics assumed. |
-| **VII. Ground-Truth Dependency Discipline** | **PASS** | Validity labels derived strictly from external ground truth (GSM8K answers, MiniGrid paths); no heuristic approximations for labels. |
+| Principle | Compliance Status | Action Plan |
+|-----------|-------------------|-------------|
+| I. Reproducibility | **PASS** | `requirements.txt` pinned; random seeds fixed in `code/config.py`; datasets fetched via `datasets.load_dataset` with explicit revision. |
+| II. Verified Accuracy | **PASS** | All citations in `research.md` restricted to the "Verified datasets" block; Reference-Validator Agent checks `CITATION_TITLE_OVERLAP_THRESHOLD` on every artifact write. |
+| III. Data Hygiene | **PASS** | `data/` directory structure with checksums; raw data preserved; derivations written to new files with `derived_from` metadata. |
+| IV. Single Source of Truth | **PASS** | All statistics in `results/` trace to specific rows in `data/processed/`; no hand-typed numbers in `paper/`. |
+| V. Versioning Discipline | **PASS** | Content hashes recorded in `state/` via `state/...yaml` artifact_hashes map; `updated_at` timestamps updated on artifact changes by the Advancement-Evaluator Agent. |
+| VI. Hardware-Agnostic Signal Validation | **PASS** | Analysis uses CPU-only `torch`; threshold optimization is independent of hardware latency; signal decay analyzed across sequence lengths, not hardware. |
+| VII. Ground-Truth Dependency Discipline | **PASS** | Validity labels derived strictly from full forward pass ground-truth match; no heuristic early exits used for labeling. |
 
 ## Project Structure
 
@@ -49,48 +45,84 @@ specs/001-entropy-validity-prediction/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── dataset.schema.yaml
-    ├── entropy_profile.schema.yaml
-    └── analysis_result.schema.yaml
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/
-├── requirements.txt
-├── src/
-│   ├── __init__.py
-│   ├── data/
-│   │   ├── download.py          # FR-001: Download GSM8K/MiniGrid
-│   │   └── preprocessing.py     # FR-007: Batching/Chunking
-│   ├── generation/
-│   │   └── generation.py        # US-1 & US-2: Single-pass generation & entropy extraction
-│   ├── analysis/
-│   │   ├── logistic_model.py    # US-3: GLMM fit
-│   │   ├── threshold_opt.py     # US-3: Threshold optimization
-│   │   └── sensitivity.py       # FR-005: Sensitivity analysis
-│   └── utils/
-│       ├── entropy_calc.py      # FR-003: Shannon entropy logic
-│       └── validators.py        # Schema validation
-├── tests/
-│   ├── unit/
-│   ├── integration/
-│   └── contract/
-├── main.py                      # Orchestration script (unified pipeline)
-└── hash_manifest.py             # Versioning utility for Principle V
+projects/PROJ-881-llmxive-follow-up-extending-efficientrol/
+├── code/
+│   ├── src/
+│   │   ├── config.py           # Environment loading, seed pinning
+│   │   ├── data/
+│   │   │   ├── download.py     # Dataset fetching (GSM8K, MiniGrid)
+│   │   │   └── preprocessing.py # Streaming, batching (tokens)
+│   │   ├── generation/
+│   │   │   └── generation.py   # Autoregressive generation, ground-truth labeling
+│   │   ├── analysis/
+│   │   │   ├── entropy_calc.py # Shannon entropy calculation, layer extraction
+│   │   │   └── regression.py   # Logistic regression, AUC, FDR correction
+│   │   ├── utils/
+│   │   │   └── validators.py   # Schema validation (EntropyProfile, TokenSequence)
+│   │   └── contracts/          # Schema definitions
+│   │       ├── entropy_profile.schema.yaml
+│   │       ├── token_sequence.schema.yaml
+│   │       └── analysis_result.schema.yaml
+│   ├── tests/
+│   │   ├── unit/
+│   │   │   ├── test_entropy_calc.py
+│   │   │   └── test_validators.py
+│   │   └── integration/
+│   │       └── test_full_pipeline.py
+│   ├── requirements.txt        # Pinned dependencies
+│   └── pyproject.toml          # Project metadata, tooling config
+├── data/
+│   ├── raw/                    # Downloaded datasets (checksummed)
+│   ├── processed/              # Intermediate states, entropy profiles
+│   └── results/                # Model outputs, reports
+├── scripts/
+│   └── setup.sh                # Directory creation, environment setup
+└── docs/
+    └── constitution.md         # Project constitution
 ```
 
-**Structure Decision**: Single project structure chosen to minimize overhead for a research pipeline. The `generation.py` module merges baseline generation and instrumentation to ensure data alignment. Modular separation of `data`, `generation`, and `analysis` ensures that the memory-intensive generation steps are isolated from the statistical analysis, facilitating the 7GB RAM constraint.
+**Structure Decision**: Single project structure selected to maintain tight coupling between data generation, extraction, and analysis. `code/src` mirrors the logical flow: `data` -> `generation` -> `analysis`. `tests` are co-located with source logic for unit testing, with integration tests in `tests/integration`.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Single-Pass Generation** | Required to prevent sequence drift between validity labeling and entropy extraction. | Two-pass generation risks divergence due to non-determinism, invalidating the pairing of entropy and validity. |
-| **Mixed-Effects Logistic Regression (GLMM)** | Required to handle nested data (tokens within sequences) and avoid Type I error inflation. | Simple logistic regression ignores sequence-level correlation, violating independence assumptions. |
-| **Batched Streaming (moderate token counts)
+|-----------|------------|-------------------------------------|
+| N/A | N/A | N/A |
 
-The research question is to determine how batched streaming affects latency and throughput in large language model inference. The method involves implementing a dynamic batching algorithm that groups incoming requests based on estimated sequence lengths before processing. (Smith et al., 2023; arXiv:2305.12345)** | Mandatory to stay within 7GB RAM on GitHub Actions. | Loading full sequences or large batches into RAM would cause OOM errors on the free-tier runner. |
-| **Layer-wise Modeling** | Required to test the hypothesis that *intermediate* entropy decay predicts validity. | Pooling layers assumes homogeneity of effect, which contradicts the core hypothesis of depth-dependent signal. |
+## Implementation Phases
+
+### Phase 0: Research & Design
+- **T001**: Define Semantic Alignment logic for GSM8K/MiniGrid.
+- **T002**: Select Small-scale language model for CPU feasibility.
+- **T003**: Design GLMM with random intercepts for sequence_id.
+
+### Phase 1: Data Acquisition & Ground Truth Labeling (FR-001, FR-002)
+- **T010**: Download GSM8K and MiniGrid datasets using `datasets.load_dataset(..., streaming=True)`.
+- **T011**: Generate sequences using Qwen1.5-0.5B (temperature=0.0).
+- **T012**: Apply Semantic Alignment to label tokens as valid/invalid based on external ground truth.
+- **T013**: Output `data/processed/ground_truth_labels.jsonl`.
+
+### Phase 2: Intermediate State Extraction (FR-003, FR-007)
+- **T020**: Re-run generation with hooks to capture logits at every layer.
+- **T021**: Process sequences **one at a time** (single-sequence streaming) to fit GB RAM. Calculate Shannon entropy for each token at each layer.
+- **T022**: Merge temporary batch files (if any) into `data/processed/entropy_profiles.jsonl`.
+- **T023**: Validate schema using `contracts/entropy_profile.schema.yaml`.
+
+### Phase 3: Statistical Analysis (FR-004, FR-005, FR-006)
+- **T030**: Merge `ground_truth_labels.jsonl` and `entropy_profiles.jsonl` into `data/processed/merged_analysis.jsonl`.
+- **T031**: Fit Mixed-Effects Logistic Regression (GLMM) with random intercept for `sequence_id`.
+- **T032**: Apply Benjamini-Hochberg (FDR) correction to p-values across layers/tasks. Output `data/results/fdr_report.json`.
+- **T033**: Perform Decay Analysis: stratify by sequence length (short/long) and task type. Output `data/results/decay_analysis.json`.
+- **T034**: Generate Final Report `data/results/regression_results.json` containing coefficients, AUC, FDR-corrected p-values, and optimal thresholds.
+
+### Phase 4: Verification & Reporting
+- **T040**: Run `pytest` on unit and integration tests.
+- **T041**: Verify all artifacts against `contracts/` schemas.
+- **T042**: Update `state/...yaml` with content hashes and `updated_at` timestamps.

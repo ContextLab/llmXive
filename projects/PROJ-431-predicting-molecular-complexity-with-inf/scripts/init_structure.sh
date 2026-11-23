@@ -1,67 +1,62 @@
 #!/bin/bash
-# init_structure.sh - Automate directory creation and initial file scaffolding for PROJ-431
-# This script creates the standard project structure and initializes empty placeholder files
-# to ensure the project is ready for development.
+# init_structure.sh - Automate directory creation and initial file scaffolding
+#
+# This script creates the standard project directory structure for the
+# molecular complexity prediction pipeline and scaffolds initial files.
+#
+# Usage: ./scripts/init_structure.sh [project_root]
+# If project_root is not provided, the current directory is used.
 
-set -e  # Exit immediately if a command exits with a non-zero status
+set -e  # Exit on error
 
-# Define the project root (assumes script is run from project root)
-PROJECT_ROOT="."
+# Determine project root
+PROJECT_ROOT="${1:-.}"
+PROJECT_ROOT="$(cd "$PROJECT_ROOT" && pwd)"
 
-echo "🚀 Initializing project structure for PROJ-431..."
+echo "Initializing project structure in: $PROJECT_ROOT"
 
-# 1. Create Directory Structure
-echo "📂 Creating directories..."
-mkdir -p "${PROJECT_ROOT}/data/raw"
-mkdir -p "${PROJECT_ROOT}/data/processed"
-mkdir -p "${PROJECT_ROOT}/results/models"
-mkdir -p "${PROJECT_ROOT}/results/reports"
-mkdir -p "${PROJECT_ROOT}/results/plots"
-mkdir -p "${PROJECT_ROOT}/code"
-mkdir -p "${PROJECT_ROOT}/tests"
-mkdir -p "${PROJECT_ROOT}/tests/unit"
-mkdir -p "${PROJECT_ROOT}/tests/integration"
-mkdir -p "${PROJECT_ROOT}/scripts"
-mkdir -p "${PROJECT_ROOT}/docs"
+# Define directories to create
+DIRS=(
+    "data/raw"
+    "data/processed"
+    "results/models"
+    "results/reports"
+    "results/plots"
+    "code"
+    "tests"
+)
 
-# 2. Create Initial File Scaffolding (Empty or Minimal Content)
-echo "📝 Creating initial files..."
+# Create directories
+for dir in "${DIRS[@]}"; do
+    full_path="$PROJECT_ROOT/$dir"
+    if [ -d "$full_path" ]; then
+        echo "  [SKIP] $dir (already exists)"
+    else
+        mkdir -p "$full_path"
+        echo "  [CREATED] $dir"
+    fi
+done
 
-# Code files (empty or with minimal imports to satisfy structure)
-touch "${PROJECT_ROOT}/code/__init__.py"
-touch "${PROJECT_ROOT}/code/cli.py"
-touch "${PROJECT_ROOT}/code/entropy.py"
-touch "${PROJECT_ROOT}/code/model.py"
-touch "${PROJECT_ROOT}/code/utils.py"
-touch "${PROJECT_ROOT}/code/viz.py"
+# Scaffold initial files (if they don't exist)
+echo "Scaffolding initial files..."
 
-# Test files
-touch "${PROJECT_ROOT}/tests/__init__.py"
-touch "${PROJECT_ROOT}/tests/unit/__init__.py"
-touch "${PROJECT_ROOT}/tests/integration/__init__.py"
-
-# Documentation
-touch "${PROJECT_ROOT}/docs/research.md"
-touch "${PROJECT_ROOT}/docs/data-model.md"
-touch "${PROJECT_ROOT}/README.md"
-
-# Configuration
-touch "${PROJECT_ROOT}/code/requirements.txt"
-
-# 3. Verify Structure
-echo "✅ Verifying structure..."
-if [ -d "${PROJECT_ROOT}/data/raw" ] && \
-   [ -d "${PROJECT_ROOT}/data/processed" ] && \
-   [ -d "${PROJECT_ROOT}/results/models" ] && \
-   [ -d "${PROJECT_ROOT}/results/reports" ] && \
-   [ -d "${PROJECT_ROOT}/results/plots" ] && \
-   [ -d "${PROJECT_ROOT}/code" ] && \
-   [ -d "${PROJECT_ROOT}/tests" ]; then
-    echo "🎉 Project structure initialized successfully!"
-    echo ""
-    echo "Directory tree:"
-    find . -type d -not -path "*/\.*" | sort | head -20
-else
-    echo "❌ Error: Directory creation failed."
-    exit 1
+# Create __init__.py in code and tests if missing
+if [ ! -f "$PROJECT_ROOT/code/__init__.py" ]; then
+    touch "$PROJECT_ROOT/code/__init__.py"
+    echo "  [CREATED] code/__init__.py"
 fi
+
+if [ ! -f "$PROJECT_ROOT/tests/__init__.py" ]; then
+    touch "$PROJECT_ROOT/tests/__init__.py"
+    echo "  [CREATED] tests/__init__.py"
+fi
+
+# Create .gitkeep in data directories to ensure they are tracked by git
+for dir in "data/raw" "data/processed"; do
+    if [ ! -f "$PROJECT_ROOT/$dir/.gitkeep" ]; then
+        touch "$PROJECT_ROOT/$dir/.gitkeep"
+        echo "  [CREATED] $dir/.gitkeep"
+    fi
+done
+
+echo "Project structure initialization complete."

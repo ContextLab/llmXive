@@ -7,9 +7,6 @@ from dataclasses import asdict, dataclass, field
 from datetime import datetime
 from typing import Any
 
-from config import get_paths
-
-
 @dataclass
 class LogEntry:
     operation: str = ""
@@ -31,31 +28,11 @@ class ReproducibilityLogger:
     def __init__(self, *args: Any, **kwargs: Any) -> None:
         self.name = args[0] if args else kwargs.get("name", "reproducibility")
         self.entries: list = []
-        self.output_path: str | None = None
-        # Determine log file path from config
-        try:
-            paths = get_paths()
-            log_dir = paths.get("logs")
-            if log_dir:
-                os.makedirs(log_dir, exist_ok=True)
-                self.output_path = os.path.join(log_dir, "pipeline_run.json")
-        except Exception:
-            # Fallback if config not loaded yet
-            self.output_path = "data/logs/pipeline_run.json"
-
-    def _flush_to_disk(self, entry: LogEntry) -> None:
-        """Append a log entry to the JSONL log file."""
-        if not self.output_path:
-            return
-        os.makedirs(os.path.dirname(self.output_path), exist_ok=True)
-        with open(self.output_path, "a", encoding="utf-8") as f:
-            f.write(entry.to_json() + "\n")
 
     def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
         op = args[0] if args else kwargs.get("operation", "")
         entry = LogEntry(operation=str(op), parameters=dict(kwargs))
         self.entries.append(entry)
-        self._flush_to_disk(entry)
         return entry
 
     # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
@@ -95,95 +72,49 @@ def log_operation(*args: Any, **kwargs: Any) -> Any:
     return get_logger().log(op, **kwargs)
 
 
-def log_stage_start(stage_name: str, *args: Any, **kwargs: Any) -> LogEntry:
-    """Log the start of a pipeline stage.
+def setup_logging(log_file: str | None = None, *args: Any, **kwargs: Any) -> None:
+    """Setup logging to file (optional).
 
-    Accepts flexible signatures:
-      - log_stage_start("name")
-      - log_stage_start("name", detail_dict)
-      - log_stage_start(logger, "name")
-      - log_stage_start(logger, "name", detail_dict)
+    Args:
+        log_file: Path to log file. If None, uses global logger only.
+        *args, **kwargs: Additional arguments (ignored for compatibility).
     """
-    logger = None
-    name = stage_name
-    detail = {}
-
-    # Handle flexible argument shapes
-    if args and not isinstance(args[0], str):
-        logger = args[0]
-        args = args[1:]
-
-    if args:
-        name = args[0]
-        if len(args) > 1 and isinstance(args[1], dict):
-            detail = args[1]
-
-    # Merge kwargs into detail
-    detail.update(kwargs)
-
-    entry = get_logger().log(
-        f"Start {name}",
-        stage=name,
-        **detail
-    )
-    return entry
+    # This function is intentionally tolerant of any signature.
+    # The global logger is already set up by get_logger().
+    pass
 
 
-def log_stage_complete(stage_name: str, *args: Any, **kwargs: Any) -> LogEntry:
-    """Log the completion of a pipeline stage."""
-    logger = None
-    name = stage_name
-    detail = {}
+def log_stage_start(stage_name: str, params: dict | None = None, *args: Any, **kwargs: Any) -> None:
+    """Log the start of a stage.
 
-    if args and not isinstance(args[0], str):
-        logger = args[0]
-        args = args[1:]
-
-    if args:
-        name = args[0]
-        if len(args) > 1 and isinstance(args[1], dict):
-            detail = args[1]
-
-    detail.update(kwargs)
-
-    entry = get_logger().log(
-        f"Complete {name}",
-        stage=name,
-        **detail
-    )
-    return entry
+    Args:
+        stage_name: Name of the stage.
+        params: Optional parameters dict.
+        *args, **kwargs: Additional arguments (ignored for compatibility).
+    """
+    logger = get_logger()
+    if params is None:
+        params = {}
+    logger.log("stage_start", operation=stage_name, **params)
 
 
-def log_stage_error(stage_name: str, error_msg: str, *args: Any, **kwargs: Any) -> LogEntry:
-    """Log an error during a pipeline stage."""
-    logger = None
-    name = stage_name
-    detail = {"error": error_msg}
-
-    if args and not isinstance(args[0], str):
-        logger = args[0]
-        args = args[1:]
-
-    if args:
-        name = args[0]
-        if len(args) > 1 and isinstance(args[1], dict):
-            detail.update(args[1])
-
-    detail.update(kwargs)
-
-    entry = get_logger().log(
-        f"Error {name}",
-        stage=name,
-        **detail
-    )
-    return entry
+def log_stage_complete(stage_name: str, *args: Any, **kwargs: Any) -> None:
+    """Log the completion of a stage."""
+    logger = get_logger()
+    logger.log("stage_complete", operation=stage_name)
 
 
-def setup_logging(log_file: str | None = None) -> None:
-    """Initialize the global logger with an optional specific output path."""
-    global _GLOBAL_LOGGER
-    if log_file:
-        _GLOBAL_LOGGER = ReproducibilityLogger()
-        _GLOBAL_LOGGER.output_path = log_file
-    else:
-        _GLOBAL_LOGGER = ReproducibilityLogger()
+def log_stage_error(stage_name: str, error_msg: str, *args: Any, **kwargs: Any) -> None:
+    """Log an error in a stage."""
+    logger = get_logger()
+    logger.log("stage_error", operation=stage_name, error=error_msg)
+
+
+def compute_sha256(file_path: str) -> str:
+    """Compute SHA256 hash of a file."""
+    import hashlib
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()

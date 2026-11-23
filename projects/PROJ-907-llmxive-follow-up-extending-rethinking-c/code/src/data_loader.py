@@ -5,77 +5,39 @@ import torch
 from PIL import Image
 import io
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def load_imagenet_subset(num_images: int, start_idx: int = 0) -> List[Dict[str, Any]]:
+def load_imagenet_subset(split: str = "validation", streaming: bool = True) -> Iterator[Dict[str, Any]]:
     """
-    Fetches a subset of ImageNet-1k validation images using the HuggingFace datasets library.
-    
-    This function streams the dataset to avoid loading everything into memory.
-    It strictly adheres to the "fail loud" policy: if the real source is unreachable,
-    it raises an exception and does NOT fallback to synthetic data.
-    
-    Args:
-        num_images: Number of images to retrieve.
-        start_idx: Starting index in the validation split.
-    
-    Returns:
-        A list of dictionaries containing 'image' (PIL Image) and 'label'.
-    
-    Raises:
-        RuntimeError: If the dataset cannot be fetched or is unreachable.
+    Loads a subset of the ImageNet dataset using the HuggingFace datasets library.
+    CRITICAL: This loader MUST fail loudly if the real source is unreachable.
     """
-    logger.info(f"Attempting to load ImageNet-1k validation subset: indices {start_idx} to {start_idx + num_images}")
-    
     try:
-        # Load the dataset in streaming mode
-        # This fetches real data from the HuggingFace Hub
-        dataset = load_dataset("imagenet-1k", split="validation", streaming=True)
-        
-        # Iterate and collect the required subset
-        images_data = []
-        count = 0
-        
-        # We need to skip 'start_idx' items and take 'num_images'
-        # Since it's a streaming dataset, we iterate through it
-        iterator = iter(dataset)
-        
-        # Skip start_idx
-        for _ in range(start_idx):
-            try:
-                next(iterator)
-            except StopIteration:
-                raise RuntimeError(f"Requested start_idx {start_idx} is beyond the dataset size.")
-        
-        # Collect num_images
-        for item in iterator:
-            if count >= num_images:
-                break
-            
-            # The dataset item usually has 'image' (PIL) and 'label' (int)
-            # Ensure the image is loaded
-            img = item.get('image')
-            label = item.get('label')
-            
-            if img is None:
-                logger.warning(f"Skipping item at index {start_idx + count}: missing 'image' key.")
-                continue
-            
-            images_data.append({
-                'image': img,
-                'label': label,
-                'index': start_idx + count
-            })
-            count += 1
-        
-        if count < num_images:
-            logger.warning(f"Requested {num_images} images but only found {count} available in the dataset.")
-        
-        logger.info(f"Successfully loaded {len(images_data)} images from ImageNet-1k.")
-        return images_data
-
+        dataset = load_dataset("imagenet1k", split=split, streaming=streaming)
+        return iter(dataset)
     except Exception as e:
-        # CRITICAL: Do NOT fallback to synthetic data.
-        # Raise the error to indicate the real source is unreachable.
-        logger.error(f"CRITICAL: Failed to fetch real ImageNet data from HuggingFace Hub: {e}")
-        raise RuntimeError(f"Failed to load real ImageNet data. The dataset source is unreachable. Error: {e}") from e
+        logger.error(f"Failed to load ImageNet dataset: {e}")
+        raise RuntimeError(f"Failed to load ImageNet dataset: {e}")
+
+def preprocess_image(image: Image.Image) -> torch.Tensor:
+    """
+    Preprocesses an image for the model.
+    Converts PIL Image to torch.Tensor and normalizes.
+    """
+    # Convert to RGB if necessary
+    if image.mode != 'RGB':
+        image = image.convert('RGB')
+    
+    # Resize to 256x256 (common size for diffusion models)
+    image = image.resize((256, 256))
+    
+    # Convert to tensor
+    import numpy as np
+    img_array = np.array(image).astype(np.float32) / 255.0
+    img_tensor = torch.from_numpy(img_array).permute(2, 0, 1)
+    
+    # Normalize to [-1, 1]
+    img_tensor = (img_tensor - 0.5) * 2.0
+    
+    return img_tensor

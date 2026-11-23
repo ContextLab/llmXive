@@ -2,64 +2,82 @@
 
 ## Core Entities
 
-### ABSummary
-Represents a single audited A/B test summary. Conforms to FR-002 inline schema.
+### `ABSummary`
+Represents a single extracted A/B test summary (FR‑002).
 
 ```yaml
 ABSummary:
-  url: string (required, valid URL)
-  variant_a_n: integer (required, ≥1)
-  variant_b_n: integer (required, ≥1)
-  variant_a_conversions: integer (required, ≥0)
-  variant_b_conversions: integer (required, ≥0)
-  reported_p: float (required, 0 < p ≤ 1, or null for inequality bounds)
-  reported_effect_size: float (required, can be negative)
-  outcome_type: string (required, one of: binary, continuous)
-  confidence_interval: object (optional, {lower: float, upper: float})
-  extraction_notes: string (optional, FR-007 errors)
+  url: string               # required, valid URL
+  source_domain: string     # required, domain extracted from URL (provenance)
+  variant_a_n: integer      # required, ≥1
+  variant_b_n: integer      # required, ≥1
+  variant_a_conversions: integer   # required, ≥0 (binary only)
+  variant_b_conversions: integer   # required, ≥0 (binary only)
+  reported_p: float|null   # required, 0 < p ≤ 1 or null for inequality bounds
+  reported_effect_size: float      # required, can be negative
+  outcome_type: string      # required, one of: binary, continuous
+  confidence_interval:      # optional
+    lower: float
+    upper: float
+  extraction_timestamp: string     # ISO‑8601 timestamp
+  publication_year: integer|null  # optional
+  extraction_notes: string|null   # optional, FR‑007 messages
 ```
 
-### AuditRecord
-Result of the consistency check for one summary. Conforms to FR-024.
+### `AuditRecord`
+Result of the inconsistency check for one `ABSummary` (FR‑024).
 
 ```yaml
 AuditRecord:
-  url: string (required)
-  reported_p: float (required)
-  reported_effect_size: float (required)
-  reported_sample_size_a: integer (required)
-  reported_sample_size_b: integer (required)
-  reconstructed_p: float (required)
-  reconstructed_effect_size: float (required)
-  diff_abs_p: float (required)
-  diff_abs_effect: float (required)
-  flag_inconsistent: boolean (required)
-  notes: string (required)
+  url: string
+  reported_p: float|null
+  reported_effect_size: float
+  reported_sample_size_a: integer
+  reported_sample_size_b: integer
+  reconstructed_p: float
+  reconstructed_effect_size: float
+  diff_abs_p: float                # |reported p – reconstructed p|
+  diff_abs_effect: float           # absolute relative difference in effect size
+  flag_inconsistent: boolean
+  notes: string                    # ≤ 200 chars, includes ERR‑### codes if any
 ```
 
-### ValidationRecord
-Result of validation tasks (Synthetic & Real-World).
+### `SummaryReport`
+Aggregated prevalence statistics (FR‑024, SC‑024).
+
+```yaml
+SummaryReport:
+  total_summaries: integer
+  inconsistent_count: integer
+  inconsistent_rate: float          # 0 – 1
+  wilson_ci_lower: float
+  wilson_ci_upper: float
+```
+
+### `ValidationRecord`
+Outcome of a validation task (synthetic Monte Carlo or real‑world extraction) (FR‑026, FR‑031b).
 
 ```yaml
 ValidationRecord:
-  dataset_type: string (required, one of: synthetic, real_world)
-  total_samples: integer (required)
-  precision: float (required)
-  recall: float (required)
-  f1_score: float (required)
-  pass: boolean (required)
+  dataset_type: string          # "synthetic" or "real_world"
+  total_samples: integer
+  precision: float
+  recall: float
+  f1_score: float
+  pass: boolean
 ```
 
 ## Relationships
+- Each **AuditRecord** is a one‑to‑one mapping from an **ABSummary**.  
+- **SummaryReport** aggregates the `flag_inconsistent` field across all **AuditRecord** rows.  
+- **ValidationRecord** lives under `data/validation/` and is referenced in CI logs.
 
-- **AuditReport** contains a list of **AuditRecord** (FR-024).
-- **SummaryReport** aggregates **AuditRecord** statistics (FR-005a, FR-024).
-- **BiasReport** contains domain proportions derived from **ABSummary** (FR-027).
+## Constraints (derived from FRs)
+- **FR‑004**: `flag_inconsistent` is `true` iff `diff_abs_p > 0.05` **or** `diff_abs_effect > 0.05 × max(|reported_effect|,|reconstructed_effect|)`.  
+- **FR‑004b**: If `|variant_a_n – variant_b_n| / max(variant_a_n, variant_b_n) > 0.05`, `notes` must contain a `data_quality_warning`.  
+- **FR‑012**: When baseline conversion is missing, `reconstructed_effect_size` is derived from the average of the two variant rates; `notes` must contain a `baseline_heuristic` flag.  
+- **SC‑001**: Extraction accuracy (field‑level) must be ≥ 95 % on the validation set (evaluated via `ValidationRecord`).  
+- **SC‑003** & **SC‑026**: Monte Carlo validation must achieve absolute difference ≤ 0.005 for each statistical routine.  
+- **SC‑015**: The sensitivity sweep must not change the overall inconsistency prevalence by more than 0.02; runs exceeding this limit are flagged as failures.
 
-## Constraints
-
-- **FR-004**: `flag_inconsistent` is True if `diff_abs_p > 0.05` OR `diff_abs_effect > 0.05 * max(reported, reconstructed)`. **Note**: Uses absolute threshold only (no log-scale per methodology-5bca6076).
-- **FR-004b**: `notes` must include warning if sample size discrepancy > 5%.
-- **FR-012**: When baseline is missing, effect size reconstruction has reduced rigor; uncertainty quantification is documented in notes (scientific_soundness-ad85a63f).
-- **FR-027**: Bias-adjusted rate uses equal weighting per domain (scientific_soundness-64bd4091).
-- **FR-032**: Subgroup reports must include Bonferroni-adjusted p-values.
+---===END DATA MODEL===---

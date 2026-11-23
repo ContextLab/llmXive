@@ -7,20 +7,21 @@ __pycache__/
 venv/
 .venv/
 env/
+.env/
+
+# Data artifacts (large files)
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+data/outputs/*
+!data/outputs/.gitkeep
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-
-# Data (keep raw data out of repo, keep processed if small)
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*.csv
-data/processed/*.tsv
-data/outputs/*.png
-data/outputs/*.jpg
 
 # Logs
 logs/
@@ -30,6 +31,5 @@ logs/
 .DS_Store
 Thumbs.db
 
-# Config (sensitive)
-.env
-*.pem
+# Jupyter
+.ipynb_checkpoints

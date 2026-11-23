@@ -1,0 +1,11 @@
+datasets==2.20.0
+torch==2.3.0+cpu
+transformers==4.44.0
+networkx==3.3
+pandas==2.2.2
+polars==1.2.0
+pydantic==2.7
+scipy==1.14.0
+statsmodels==0.14.2
+ruff
+black

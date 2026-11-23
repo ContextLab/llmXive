@@ -1,9 +1,13 @@
 """
-Validation utilities for molecular descriptor output.
+Validation utilities for molecular descriptor data.
 
-Validates that the generated CSV file contains required columns,
-correct data types, and physically reasonable ranges (HOMO < LUMO, charge sum).
+Provides functions to validate:
+- Required columns presence
+- Physical ranges (HOMO < LUMO, charge sums)
+- Data types
+- Full validation suite
 """
+
 import csv
 import logging
 import sys
@@ -13,233 +17,295 @@ from typing import List, Tuple, Optional, Dict, Any
 logger = logging.getLogger(__name__)
 
 class ValidationError(Exception):
-    """Raised when validation of descriptor output fails."""
+    """Custom exception for validation failures."""
     pass
 
-REQUIRED_COLUMNS = [
-    'smiles', 
-    'molecule_id', 
-    'homo', 
-    'lumo', 
-    'mayer_bond_order', 
-    'total_charge', 
-    'convergence_status'
-]
 
-def validate_columns(filepath: Path) -> Tuple[bool, List[str]]:
+def validate_columns(filepath: Path, required_columns: List[str]) -> Tuple[bool, List[str]]:
     """
-    Verify that the CSV file contains all required columns.
+    Validate that a CSV file contains all required columns.
     
     Args:
-        filepath: Path to the CSV file to validate
+        filepath: Path to the CSV file
+        required_columns: List of required column names
         
     Returns:
-        Tuple of (is_valid, list_of_missing_columns)
+        Tuple of (is_valid, list of missing columns)
+        
+    Raises:
+        ValidationError: If file doesn't exist or can't be read
     """
     if not filepath.exists():
-        raise ValidationError(f"File does not exist: {filepath}")
+        raise ValidationError(f"File not found: {filepath}")
     
-    missing = []
+    missing_columns = []
+    
     try:
         with open(filepath, 'r', newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             if reader.fieldnames is None:
-                raise ValidationError("CSV file is empty or has no header")
+                raise ValidationError(f"Empty CSV file: {filepath}")
             
-            for col in REQUIRED_COLUMNS:
+            for col in required_columns:
                 if col not in reader.fieldnames:
-                    missing.append(col)
-    except csv.Error as e:
-        raise ValidationError(f"Failed to read CSV: {e}")
+                    missing_columns.append(col)
+    except Exception as e:
+        raise ValidationError(f"Error reading CSV file: {e}")
     
-    return len(missing) == 0, missing
+    is_valid = len(missing_columns) == 0
+    return is_valid, missing_columns
+
 
 def validate_physical_ranges(filepath: Path) -> Tuple[bool, List[str]]:
     """
-    Verify that physical values are in reasonable ranges.
-    
-    Checks:
-    - HOMO < LUMO for all molecules
-    - Total charge sum is within reasonable bounds (typically -10 to +10)
-    - No NaN or infinite values in numeric columns
+    Validate physical ranges in descriptor data:
+    - HOMO energy must be less than LUMO energy (both in eV)
+    - Sum of Mulliken charges must equal net molecular charge (within tolerance)
     
     Args:
-        filepath: Path to the CSV file to validate
+        filepath: Path to the CSV file
         
     Returns:
-        Tuple of (is_valid, list_of_error_messages)
+        Tuple of (is_valid, list of error messages)
+        
+    Raises:
+        ValidationError: If file doesn't exist or can't be read
     """
+    if not filepath.exists():
+        raise ValidationError(f"File not found: {filepath}")
+    
     errors = []
-    numeric_cols = ['homo', 'lumo', 'total_charge']
     
     try:
         with open(filepath, 'r', newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             
-            for row_idx, row in enumerate(reader, start=2):  # Start at 2 (1-indexed + header)
-                # Check for NaN/Inf in numeric columns
-                for col in numeric_cols:
-                    if col not in row:
-                        errors.append(f"Row {row_idx}: Missing column '{col}'")
-                        continue
+            # Check required columns exist
+            required = ['SMILES', 'HOMO_eV', 'LUMO_eV', 'mulliken_charges', 'net_charge']
+            if reader.fieldnames is None:
+                raise ValidationError(f"Empty CSV file: {filepath}")
+            
+            for col in required:
+                if col not in reader.fieldnames:
+                    errors.append(f"Missing required column: {col}")
+            
+            if errors:
+                return False, errors
+            
+            # Validate each row
+            row_num = 1
+            for row in reader:
+                row_num += 1
+                smiles = row.get('SMILES', 'unknown')
+                
+                try:
+                    homo = float(row['HOMO_eV'])
+                    lumo = float(row['LUMO_eV'])
+                    net_charge = float(row['net_charge'])
                     
-                    try:
-                        val = float(row[col])
-                        if val != val:  # NaN check
-                            errors.append(f"Row {row_idx}: {col} is NaN")
-                        elif val == float('inf') or val == float('-inf'):
-                            errors.append(f"Row {row_idx}: {col} is infinite")
-                    except ValueError:
-                        errors.append(f"Row {row_idx}: {col} is not a valid number: {row[col]}")
-                
-                # Check HOMO < LUMO
-                if 'homo' in row and 'lumo' in row:
-                    try:
-                        homo = float(row['homo'])
-                        lumo = float(row['lumo'])
-                        if not (homo != homo or lumo != lumo):  # Skip if NaN
-                            if homo >= lumo:
+                    # Check HOMO < LUMO
+                    if homo >= lumo:
+                        errors.append(
+                            f"Row {row_num} ({smiles}): HOMO ({homo} eV) >= LUMO ({lumo} eV)"
+                        )
+                    
+                    # Parse Mulliken charges and verify sum
+                    charges_str = row.get('mulliken_charges', '')
+                    if charges_str:
+                        try:
+                            # Expecting format like "[1.2, -0.5, 0.3, ...]" or "1.2,-0.5,0.3,..."
+                            charges_str = charges_str.strip()
+                            if charges_str.startswith('[') and charges_str.endswith(']'):
+                                charges_str = charges_str[1:-1]
+                            
+                            charges = [float(c.strip()) for c in charges_str.split(',') if c.strip()]
+                            charge_sum = sum(charges)
+                            
+                            # Allow small tolerance for floating point
+                            tolerance = 0.01
+                            if abs(charge_sum - net_charge) > tolerance:
                                 errors.append(
-                                    f"Row {row_idx}: HOMO ({homo:.4f}) >= LUMO ({lumo:.4f})"
+                                    f"Row {row_num} ({smiles}): Sum of Mulliken charges ({charge_sum:.4f}) "
+                                    f"does not match net charge ({net_charge}) within tolerance ({tolerance})"
                                 )
-                    except ValueError:
-                        pass  # Already caught above
-                
-                # Check total charge bounds (typical organic molecules: -5 to +5)
-                if 'total_charge' in row:
-                    try:
-                        charge = float(row['total_charge'])
-                        if charge < -10 or charge > 10:
+                        except (ValueError, AttributeError) as e:
                             errors.append(
-                                f"Row {row_idx}: Total charge ({charge:.4f}) outside "
-                                f"reasonable bounds [-10, 10]"
+                                f"Row {row_num} ({smiles}): Invalid Mulliken charges format: {charges_str}"
                             )
-                    except ValueError:
-                        pass  # Already caught above
-                        
-    except csv.Error as e:
-        raise ValidationError(f"Failed to read CSV: {e}")
+                    
+                except ValueError as e:
+                    errors.append(f"Row {row_num} ({smiles}): Invalid numeric value - {e}")
+                
+    except Exception as e:
+        raise ValidationError(f"Error reading CSV file: {e}")
     
-    return len(errors) == 0, errors
+    is_valid = len(errors) == 0
+    return is_valid, errors
+
 
 def validate_data_types(filepath: Path) -> Tuple[bool, List[str]]:
     """
-    Verify that data types are correct for each column.
+    Validate that data types are correct in the descriptor CSV.
     
     Args:
-        filepath: Path to the CSV file to validate
+        filepath: Path to the CSV file
         
     Returns:
-        Tuple of (is_valid, list_of_error_messages)
+        Tuple of (is_valid, list of error messages)
+        
+    Raises:
+        ValidationError: If file doesn't exist or can't be read
     """
+    if not filepath.exists():
+        raise ValidationError(f"File not found: {filepath}")
+    
     errors = []
     
     try:
         with open(filepath, 'r', newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
             
-            for row_idx, row in enumerate(reader, start=2):
-                # SMILES should be a non-empty string
-                if 'smiles' in row:
-                    if not row['smiles'] or not isinstance(row['smiles'], str):
-                        errors.append(f"Row {row_idx}: SMILES is empty or invalid type")
+            if reader.fieldnames is None:
+                raise ValidationError(f"Empty CSV file: {filepath}")
+            
+            # Define expected types
+            type_checks = {
+                'SMILES': str,
+                'HOMO_eV': float,
+                'LUMO_eV': float,
+                'net_charge': float,
+                'mulliken_charges': str  # Stored as string representation of list
+            }
+            
+            row_num = 1
+            for row in reader:
+                row_num += 1
+                smiles = row.get('SMILES', 'unknown')
                 
-                # Numeric columns should be parseable as float
-                for col in ['homo', 'lumo', 'total_charge']:
-                    if col in row:
+                for col, expected_type in type_checks.items():
+                    if col not in row:
+                        continue  # Handled by column validation
+                    
+                    value = row[col]
+                    
+                    if expected_type == float:
                         try:
-                            float(row[col])
-                        except ValueError:
+                            float(value)
+                        except (ValueError, TypeError):
                             errors.append(
-                                f"Row {row_idx}: {col} is not a valid float: {row[col]}"
+                                f"Row {row_num} ({smiles}): Column '{col}' should be float, got '{value}'"
+                            )
+                    
+                    elif expected_type == str:
+                        if not isinstance(value, str):
+                            errors.append(
+                                f"Row {row_num} ({smiles}): Column '{col}' should be string, got {type(value)}"
                             )
                 
-                # Mayer bond order should be non-negative
-                if 'mayer_bond_order' in row:
-                    try:
-                        mbo = float(row['mayer_bond_order'])
-                        if mbo < 0:
-                            errors.append(
-                                f"Row {row_idx}: Mayer bond order ({mbo:.4f}) is negative"
-                            )
-                    except ValueError:
-                        errors.append(
-                            f"Row {row_idx}: Mayer bond order is not a valid float: {row['mayer_bond_order']}"
-                        )
-                
-                # Convergence status should be 'success' or 'failure'
-                if 'convergence_status' in row:
-                    status = row['convergence_status'].lower()
-                    if status not in ['success', 'failure']:
-                        errors.append(
-                            f"Row {row_idx}: Invalid convergence_status: {row['convergence_status']}"
-                        )
-                        
-    except csv.Error as e:
-        raise ValidationError(f"Failed to read CSV: {e}")
+    except Exception as e:
+        raise ValidationError(f"Error reading CSV file: {e}")
     
-    return len(errors) == 0, errors
+    is_valid = len(errors) == 0
+    return is_valid, errors
 
-def validate_full(filepath: Path) -> bool:
+
+def validate_full(filepath: Path, required_columns: Optional[List[str]] = None) -> Tuple[bool, List[str]]:
     """
-    Run all validations on the descriptor output file.
+    Run full validation suite on a descriptor CSV file.
     
     Args:
-        filepath: Path to the CSV file to validate
+        filepath: Path to the CSV file
+        required_columns: Optional list of required columns (defaults to standard set)
         
     Returns:
-        True if all validations pass, False otherwise
+        Tuple of (is_valid, list of all error messages)
         
     Raises:
-        ValidationError: If any validation fails
+        ValidationError: If file doesn't exist or can't be read
     """
-    # Validate columns
-    cols_ok, missing_cols = validate_columns(filepath)
-    if not cols_ok:
-        raise ValidationError(
-            f"Missing required columns: {', '.join(missing_cols)}"
-        )
+    if required_columns is None:
+        required_columns = ['SMILES', 'HOMO_eV', 'LUMO_eV', 'mulliken_charges', 'net_charge']
     
-    # Validate physical ranges
-    ranges_ok, range_errors = validate_physical_ranges(filepath)
-    if not ranges_ok:
-        error_msg = "; ".join(range_errors)
-        raise ValidationError(f"Physical range validation failed: {error_msg}")
+    all_errors = []
     
-    # Validate data types
-    types_ok, type_errors = validate_data_types(filepath)
-    if not types_ok:
-        error_msg = "; ".join(type_errors)
-        raise ValidationError(f"Data type validation failed: {error_msg}")
+    # Check columns
+    try:
+        col_valid, col_errors = validate_columns(filepath, required_columns)
+        if not col_valid:
+            all_errors.extend([f"Column error: {e}" for e in col_errors])
+    except ValidationError as e:
+        raise e
     
-    logger.info(f"Validation passed for {filepath}")
-    return True
+    # Check physical ranges
+    try:
+        range_valid, range_errors = validate_physical_ranges(filepath)
+        if not range_valid:
+            all_errors.extend(range_errors)
+    except ValidationError as e:
+        raise e
+    
+    # Check data types
+    try:
+        type_valid, type_errors = validate_data_types(filepath)
+        if not type_valid:
+            all_errors.extend(type_errors)
+    except ValidationError as e:
+        raise e
+    
+    is_valid = len(all_errors) == 0
+    return is_valid, all_errors
+
 
 def main():
-    """CLI entry point for validation."""
+    """Command-line interface for validation."""
     import argparse
     
     parser = argparse.ArgumentParser(
-        description='Validate molecular descriptor output CSV'
+        description='Validate molecular descriptor CSV files'
     )
     parser.add_argument(
         'filepath',
         type=Path,
         help='Path to the CSV file to validate'
     )
+    parser.add_argument(
+        '--columns',
+        nargs='+',
+        default=None,
+        help='Required columns (default: SMILES, HOMO_eV, LUMO_eV, mulliken_charges, net_charge)'
+    )
+    parser.add_argument(
+        '--verbose', '-v',
+        action='store_true',
+        help='Show detailed error messages'
+    )
     
     args = parser.parse_args()
     
+    logging.basicConfig(
+        level=logging.DEBUG if args.verbose else logging.INFO,
+        format='%(levelname)s: %(message)s'
+    )
+    
     try:
-        if validate_full(args.filepath):
-            print(f"✓ Validation passed for {args.filepath}")
+        is_valid, errors = validate_full(args.filepath, args.columns)
+        
+        if is_valid:
+            logger.info(f"✓ Validation passed for {args.filepath}")
             sys.exit(0)
+        else:
+            logger.error(f"✗ Validation failed for {args.filepath} ({len(errors)} errors)")
+            if args.verbose:
+                for error in errors:
+                    logger.error(f"  - {error}")
+            sys.exit(1)
+            
     except ValidationError as e:
-        print(f"✗ Validation failed: {e}", file=sys.stderr)
-        sys.exit(1)
+        logger.error(f"Validation error: {e}")
+        sys.exit(2)
     except Exception as e:
-        print(f"✗ Unexpected error: {e}", file=sys.stderr)
-        sys.exit(1)
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(3)
 
 if __name__ == '__main__':
     main()

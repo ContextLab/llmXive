@@ -1,0 +1,111 @@
+T014a:
+  c: false
+  h: 61b2b15789ffd891a9bd40d40cf1367773ed8cd166c3e39a747f58d9026b22a1
+  r: The repository lacks the required output file `data/derived/driving_signals.csv`,
+    and the provided `code/ingestion.py` does not show any implementation that reads
+    raw driving logs, aligns timestamps, interpolates, and writes that CSV. Consequently
+    the core task requirement is unmet.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `data/derived/energy_samples.csv`, `artifacts/sampling_metadata.json`, or\
+    \ `artifacts/energy_samples.hash` were presented. Without these files (and their\
+    \ required contents such as the specified columns, seed/rule metadata, and SHA\u2011\
+    256 hash), the task\u2019s deliverables are missing. The next implementer must\
+    \ generate and provide the CSV, JSON metadata, and hash file."
+T020a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/test_params.json` file was presented, and there is no evidence\
+    \ that the required JSON containing the Maxwell\u2011Boltzmann (mean\u202F=\u202F\
+    1.0, scale\u202F=\u202F0.1) and Pareto (shape\u202F=\u202F2.0) parameters exists\
+    \ or is correctly formatted. The task therefore remains unfinished."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit test file or code snippet is present that demonstrates a test checking\
+    \ that files or data prefixed with `test_` are ignored by downstream analysis.\
+    \ The claim provides only a description of the task, without any concrete artifact\
+    \ (e.g., a `test_`\u2011prefixed test module, assertions, or test results). The\
+    \ required test implementation is therefore missing."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/sampling_metadata.json` file or its contents were provided for\
+    \ inspection, so we cannot confirm that it exists, is non\u2011empty, or correctly\
+    \ records the required seed and sampling rule. The implementer must supply the\
+    \ actual JSON file with the expected fields."
+T023b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, documentation, or data files were presented that show\
+    \ T021 and T022 explicitly referencing `test_thermal_data.csv` and `test_nonthermal_data.csv`.\
+    \ The required linking artifact is missing, so the task\u2019s requirement is\
+    \ not satisfied."
+T024:
+  c: false
+  h: 4ee51bbdaeb3964be01c207a53694d27b6f938c8358301f1218e61a3925b3353
+  r: The repository lacks the required `data/derived/energy_samples.csv` file, so
+    the function cannot read the necessary data. Moreover, the provided `bin_energy_data`
+    implementation (truncated) expects a DataFrame argument instead of reading the
+    CSV, and there is no visible logic handling `chirp_handling_result.csv`, raising
+    the specified `FileNotFoundError`, or consulting `power_analysis_plan.json`. These
+    core requirements are missing.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `artifacts/statistical_results.json` file was presented; the evidence does\
+    \ not include the required JSON containing test types, statistics, p\u2011values,\
+    \ and rejection flags. The implementer must supply a non\u2011empty JSON file\
+    \ at the specified path with the appropriate content."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, documentation, or test output was provided that shows logic\
+    \ for detecting and handling non\u2011stationary (chirped) signal segments via\
+    \ binning or exclusion. Without any artifact to inspect, we cannot confirm the\
+    \ required functionality was implemented."
+T029:
+  c: false
+  h: 61b2b15789ffd891a9bd40d40cf1367773ed8cd166c3e39a747f58d9026b22a1
+  r: "The repository lacks the required `data/derived/driving_signals.csv` input,\
+    \ and the provided `code/ingestion.py` does not contain any implementation of\
+    \ the `--chirp-handling` CLI flag, Hilbert\u2011transform based instantaneous\
+    \ frequency computation, or generation of `artifacts/chirp_handling_result.csv`.\
+    \ Consequently the specified functionality and output artifact are missing."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I looked for the required `artifacts/sensitivity_analysis_report.json` file\
+    \ containing the threshold\u2011vs\u2011rejection\u2011rate data, but no such\
+    \ file or any JSON content is present in the provided artifact list. Without the\
+    \ actual JSON report, the task\u2019s deliverable is missing."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script, notebook, or result file) was provided that computes\
+    \ the primary rejection decision at thresholds 0.01, 0.05, and 0.10 and then compares\
+    \ them to produce a boolean \u201Cidentical\u201D result. The evidence consists\
+    \ solely of the task description and project spec, without any implementation\
+    \ or output, so the requirement is not satisfied."
+T035:
+  c: false
+  h: e48be81847292bb568507c32486f9a0b25bc7b1369729c48734f024a050b47c6
+  r: The provided `code/regression.py` is truncated and contains a typo (`deviation_magni`),
+    so it does not successfully create the predictor/target DataFrame. Moreover, the
+    required `config.yaml` file is missing, preventing the roughness proxy mapping
+    from material type. Both artifacts needed for the task are absent or broken.
+T054:
+  c: true
+  h: ac1509b5554f712fffec91c71f0d7a8c185389fd9d36c1b75cac0133987b2a5b
+  r: "The `code/main.py` file defines `check_dependency_energy_samples()` which checks\
+    \ for the existence of `data/derived/energy_samples.csv`, logs the exact required\
+    \ error message when missing, validates non\u2011emptiness, and also checks `artifacts/chirp_handling_result.csv`\
+    \ for emptiness if present. This matches the task\u2019s specifications."
+T058:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `test_sample_size_reporting` unit test file is present, nor are the required
+    `statistical_results.json` and `energy_samples.csv` artifacts provided to verify
+    that the test checks `n_samples` against the actual row counts per bin. Consequently,
+    the claimed work cannot be confirmed as completed.

@@ -287,23 +287,6 @@
 - artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
   attempts: 1
   canonical: Process 213 scenarios within 6 hours
-  claim_id: c_e943a291
-  context: 'T032 [US2] Implement parallel execution logic in code/main.py to process
-    213 scenarios within 6h limit; Requires: T014-T018, T021-T024'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: Implement parallel execution logic in code/main.py to process 213 scenarios
-    within 6h limit
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-11T21:43:19Z'
-- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
-  attempts: 1
-  canonical: Process 213 scenarios within 6 hours
   claim_id: c_c3a0a8c2
   context: T032 [US2] Implement parallel execution logic in code/main.py to process
     213 scenarios within 6h limit
@@ -1004,3 +987,142 @@
   source_type: external
   status: verified
   updated_at: '2026-07-11T22:13:33Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: EVA-Bench system test verifies modified inter-turn gap consistent with
+    injected delay while original acoustic content remains unchanged
+  claim_id: c_a25af77c
+  context: 'Independent Test: The system can be tested by taking a single EVA-Bench
+    scenario, injecting a fixed delay, re-running the pipeline, and verifying that
+    the output log contains a modified inter-turn gap consistent with the injected
+    delay while the original acoustic content remains unchanged.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/EVA-Bench_system_test_verifies_modified_inter-turn_gap_consi
+  kind: entity_fact
+  raw_text: The system can be tested by taking a single EVA-Bench scenario, injecting
+    a fixed delay, re-running the pipeline, and verifying that the output log contains
+    a modified inter-turn gap consistent with the injected delay while the original
+    acoustic content remains unchanged.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:28:36Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: System test on 5 scenarios extracts Conversation Progression scores and
+    verifies piecewise regression model fit and inflection point report
+  claim_id: c_8a6aebc6
+  context: 'Independent Test: The system can be tested by running the full sweep on
+    a subset of 5 scenarios, extracting the ''Conversation Progression'' scores, and
+    verifying that a piecewise regression model is fitted and an inflection point
+    is reported.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system can be tested by running the full sweep on a subset of 5 scenarios,
+    extracting the 'Conversation Progression' scores, and verifying that a piecewise
+    regression model is fitted and an inflection point is reported.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:29:18Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: System test generates report with Latency Condition, Turn-Taking Score,
+    and Acoustic Baseline Score columns verifying metric alignment
+  claim_id: c_7ad64b2e
+  context: 'Independent Test: The system can be tested by generating a CSV or JSON
+    report that includes columns for ''Latency Condition,'' ''Turn-Taking Score,''
+    and ''Acoustic Baseline Score,'' verifying that the comparison logic correctly
+    aligns the metrics.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_test_generates_report_with_Latency_Condition,_Turn-Ta
+  kind: entity_fact
+  raw_text: The system can be tested by generating a CSV or JSON report that includes
+    columns for 'Latency Condition,' 'Turn-Taking Score,' and 'Acoustic Baseline Score,'
+    verifying that the comparison logic correctly aligns the metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:29:49Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 2
+  canonical: Process 213 scenarios within 6 hours
+  claim_id: c_e943a291
+  context: 'T032 [US2] Implement parallel execution logic in code/main.py to process
+    213 scenarios within 6h limit; Requires: T014-T018, T021-T024'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement parallel execution logic in code/main.py to process 213 scenarios
+    within 6h limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:38:23Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Audio processing must use librosa.stream to stay within 7GB RAM limits
+  claim_id: c_27f8a786
+  context: 'Critical Constraint: All audio processing must use librosa.stream to stay
+    within 7GB RAM limits.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Audio_processing_must_use_librosa.stream_to_stay_within_7GB
+  kind: entity_fact
+  raw_text: All audio processing must use librosa.stream to stay within 7GB RAM limits.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:40:45Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Wikidata Q5099853
+  claim_id: c_59ce6097
+  context: 'Critical Constraint: {{claim:c_52ef3759}} (Wikidata Q5099853, https://www.wikidata.org/wiki/Q5099853).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q5099853
+  kind: entity_fact
+  raw_text: Wikidata Q5099853 (https://www.wikidata.org/wiki/Q5099853)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:40:54Z'
+- artifact_path: projects/PROJ-824-llmxive-follow-up-extending-eva-bench-a/specs/001-llmxive-follow-up-extending-eva-bench-a/tasks.md
+  attempts: 1
+  canonical: Configure hyperparameters with 200ms to 2000ms bounds
+  claim_id: c_8c03ac5d
+  context: T005 [P] Implement code/config.py for path configuration, random seeds,
+    and hyperparameters (200ms-2000ms bounds)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Configure_hyperparameters_with_200ms_to_2000ms_bounds
+  kind: entity_fact
+  raw_text: Implement `code/config.py` for path configuration, random seeds, and hyperparameters
+    (200ms-2000ms bounds)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T03:41:05Z'

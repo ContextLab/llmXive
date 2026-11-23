@@ -71,5 +71,15 @@
     "tables/sample_efficiency.tex",
     "tables/skills.tex",
     "theoretical_analysis.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "b304d57a6357b3ac26f43cb22440b2fc796e887cfa41c807ba0c96e13459134a",
+      "bytes": 1944648
+    },
+    "original.pdf": {
+      "sha256": "a6587c062dbf5177766f20ab44a14327fff40fae560e8a10e477399dd8cc83ca",
+      "bytes": 1920472
+    }
+  }
 }

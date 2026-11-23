@@ -5,65 +5,59 @@ from pathlib import Path
 from logging.handlers import RotatingFileHandler
 from typing import Optional
 
-from .config import get_paths, get_config
+from .config import get_config
 
-# Default log format
-_DEFAULT_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-_DEFAULT_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+# Global logger registry to ensure single instance per module
+_loggers: dict[str, logging.Logger] = {}
 
-# Global logger registry to prevent duplicate handlers
-_logger_registry: dict[str, logging.Logger] = {}
-
-def _get_log_dir() -> Path:
-    """Retrieve the log directory from the project configuration."""
-    paths = get_paths()
-    log_dir = paths.log_dir
-    if not log_dir.exists():
-        log_dir.mkdir(parents=True, exist_ok=True)
-    return log_dir
-
-def get_log_file_path() -> Path:
+def get_log_file_path(log_filename: str = "project.log") -> Path:
     """
-    Returns the path to the main project log file.
-    Ensures the directory exists.
+    Determine the absolute path for the log file.
+    Uses the configured data directory from config.py.
+    Falls back to 'data/logs' if config is not yet initialized.
     """
-    log_dir = _get_log_dir()
-    return log_dir / "project.log"
+    config = get_config()
+    if config and hasattr(config, 'paths'):
+        log_dir = config.paths.data_dir / "logs"
+    else:
+        # Fallback relative to project root (assumed current working directory)
+        log_dir = Path("data") / "logs"
+
+    log_dir.mkdir(parents=True, exist_ok=True)
+    return log_dir / log_filename
 
 def setup_logging(
     level: int = logging.INFO,
-    log_file: Optional[Path] = None,
+    log_file: Optional[str] = None,
     format_str: Optional[str] = None,
-    date_format: Optional[str] = None,
     enable_console: bool = True,
     enable_file: bool = True,
+    max_bytes: int = 10 * 1024 * 1024,  # 10 MB
+    backup_count: int = 3
 ) -> None:
     """
-    Configures the root logger and the project-specific logger.
-
+    Configure the root logger and project-specific handlers.
+    
     Args:
-        level: The logging level (e.g., logging.DEBUG, logging.INFO).
-        log_file: Path to the log file. Defaults to config log_dir/project.log.
-        format_str: Log format string.
-        date_format: Date format string.
-        enable_console: If True, adds a StreamHandler for stdout.
-        enable_file: If True, adds a RotatingFileHandler.
+        level: Logging level (e.g., logging.DEBUG, logging.INFO).
+        log_file: Optional filename for the log file. Defaults to 'project.log'.
+        format_str: Optional custom format string. Defaults to standard format.
+        enable_console: Whether to add a StreamHandler to stdout.
+        enable_file: Whether to add a RotatingFileHandler.
+        max_bytes: Max size per log file before rotation.
+        backup_count: Number of backup files to keep.
     """
     if format_str is None:
-        format_str = _DEFAULT_FORMAT
-    if date_format is None:
-        date_format = _DEFAULT_DATE_FORMAT
-    if log_file is None:
-        log_file = get_log_file_path()
+        format_str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    
+    formatter = logging.Formatter(format_str)
 
-    formatter = logging.Formatter(format_str, date_format)
-
+    # Configure root logger
     root_logger = logging.getLogger()
     root_logger.setLevel(level)
 
-    # Clear existing handlers to avoid duplicates if called multiple times
-    if root_logger.hasHandlers():
-        root_logger.handlers.clear()
+    # Clear existing handlers to avoid duplicates on re-calls (e.g. in tests)
+    root_logger.handlers.clear()
 
     if enable_console:
         console_handler = logging.StreamHandler(sys.stdout)
@@ -72,42 +66,38 @@ def setup_logging(
         root_logger.addHandler(console_handler)
 
     if enable_file:
-        log_dir = log_file.parent
-        if not log_dir.exists():
-            log_dir.mkdir(parents=True, exist_ok=True)
-
-        # Rotate log file: max 10MB, keep 5 backups
+        file_path = get_log_file_path(log_file)
         file_handler = RotatingFileHandler(
-            log_file, maxBytes=10 * 1024 * 1024, backupCount=5, encoding="utf-8"
+            file_path,
+            maxBytes=max_bytes,
+            backupCount=backup_count,
+            encoding='utf-8'
         )
         file_handler.setLevel(level)
         file_handler.setFormatter(formatter)
         root_logger.addHandler(file_handler)
 
-    logging.info("Logging infrastructure initialized.")
-
 def get_logger(name: str) -> logging.Logger:
     """
-    Retrieves or creates a named logger.
-    If setup_logging hasn't been called, it initializes basic logging.
+    Retrieve or create a named logger.
+    This ensures consistent configuration across the application.
     """
-    if name in _logger_registry:
-        return _logger_registry[name]
-
+    if name in _loggers:
+        return _loggers[name]
+    
     logger = logging.getLogger(name)
-
-    # If root logger has no handlers, setup basic logging automatically
-    if not logging.getLogger().hasHandlers():
-        setup_logging()
-
-    _logger_registry[name] = logger
+    # If setup_logging hasn't been called yet, the root logger might not have handlers.
+    # We rely on the root logger's propagation to handle this, or call setup_logging explicitly.
+    _loggers[name] = logger
     return logger
 
-def init_logger(name: str, level: int = logging.INFO) -> logging.Logger:
+def init_logger(
+    module_name: str,
+    level: int = logging.INFO
+) -> logging.Logger:
     """
-    Convenience wrapper for get_logger that ensures the logger is set to the
-    specified level and returns it.
+    Convenience function to setup logging and get a logger for a specific module.
+    This is the recommended entry point for scripts.
     """
-    logger = get_logger(name)
-    logger.setLevel(level)
-    return logger
+    setup_logging(level=level)
+    return get_logger(module_name)

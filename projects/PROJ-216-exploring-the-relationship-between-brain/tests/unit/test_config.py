@@ -1,105 +1,129 @@
 """
-Unit tests for the environment configuration management (T008).
-
-Tests cover:
-- Default values
-- CI environment override (N=10)
-- Explicit environment variable overrides
+Unit tests for the configuration module (T010).
+Verifies YAML syntax, key presence, and value retrieval.
 """
-import os
 import pytest
+import os
+import tempfile
+import yaml
+from pathlib import Path
+import sys
 
-# Import the functions from the module we just created
-# Note: The import path assumes the test is run from the project root
-# or that 'code' is in sys.path. The task implementation ensures
-# the file structure supports this.
-from code.config import (
-    get_dataset_ids,
-    get_sample_limit,
-    DEFAULT_DATASET_IDS,
-    DEFAULT_SAMPLE_LIMIT,
-    CI_SAMPLE_LIMIT,
-    ENV_DATASET_IDS,
-    ENV_SAMPLE_LIMIT,
-    CI_ENV_VAR
-)
+# Add parent directory to path to allow imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
+from config import get_dataset_ids, get_sample_limit, get_config_summary, validate_config, CONFIG_PATH
 
-class TestGetDatasetIds:
-    def test_default_values(self):
-        """Test that default dataset IDs are returned when no env var is set."""
-        # Ensure env var is not set
-        if ENV_DATASET_IDS in os.environ:
-            del os.environ[ENV_DATASET_IDS]
+class TestConfigKeys:
+    """Tests for the existence and correctness of config keys."""
 
-        result = get_dataset_ids()
-        assert result == DEFAULT_DATASET_IDS
-        assert "ds000224" in result
-        assert "ds000230" in result
+    def test_config_file_exists(self):
+        """Verify that config.yaml exists in the project root."""
+        assert CONFIG_PATH.exists(), f"config.yaml not found at {CONFIG_PATH}"
 
-    def test_env_var_override(self):
-        """Test that env var correctly overrides default dataset IDs."""
-        test_ids = "ds009999,ds008888"
-        os.environ[ENV_DATASET_IDS] = test_ids
+    def test_yaml_syntax_valid(self):
+        """Verify that config.yaml has valid YAML syntax."""
+        try:
+            with open(CONFIG_PATH, "r") as f:
+                yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            pytest.fail(f"Invalid YAML syntax in config.yaml: {e}")
 
-        result = get_dataset_ids()
-        assert result == ["ds009999", "ds008888"]
+    def test_primary_dataset_key_present(self):
+        """Verify 'datasets.primary' key is present."""
+        config = yaml.safe_load(open(CONFIG_PATH, "r"))
+        assert "datasets" in config
+        assert "primary" in config["datasets"]
 
-        # Cleanup
-        del os.environ[ENV_DATASET_IDS]
+    def test_fallback_dataset_key_present(self):
+        """Verify 'datasets.fallback_only' key is present."""
+        config = yaml.safe_load(open(CONFIG_PATH, "r"))
+        assert "datasets" in config
+        assert "fallback_only" in config["datasets"]
 
-    def test_env_var_whitespace_handling(self):
-        """Test that whitespace in env var is handled correctly."""
-        os.environ[ENV_DATASET_IDS] = " ds007777 , ds006666 "
-        result = get_dataset_ids()
-        assert result == ["ds007777", "ds006666"]
-        del os.environ[ENV_DATASET_IDS]
+    def test_sample_limit_key_present(self):
+        """Verify 'sample_limit' key is present."""
+        config = yaml.safe_load(open(CONFIG_PATH, "r"))
+        assert "sample_limit" in config
 
+class TestConfigValues:
+    """Tests for the correctness of config values."""
 
-class TestGetSampleLimit:
-    def test_default_value(self):
-        """Test default sample limit (Spec SC-001) when no env vars are set."""
-        # Ensure env vars are not set
-        for var in [CI_ENV_VAR, ENV_SAMPLE_LIMIT]:
-            if var in os.environ:
-                del os.environ[var]
+    def test_primary_dataset_is_ds000224(self):
+        """Verify primary dataset ID is ds000224."""
+        primary, _ = get_dataset_ids()
+        assert primary == "ds000224", f"Expected primary 'ds000224', got '{primary}'"
 
-        result = get_sample_limit()
-        assert result == DEFAULT_SAMPLE_LIMIT
-        assert result == 50
+    def test_fallback_dataset_is_ds000230(self):
+        """Verify fallback dataset ID is ds000230."""
+        _, fallback = get_dataset_ids()
+        assert fallback == "ds000230", f"Expected fallback 'ds000230', got '{fallback}'"
 
-    def test_ci_environment_override(self):
-        """Test that CI environment forces sample limit to 10 (Plan constraint)."""
-        # Ensure other env vars are cleared
-        if ENV_SAMPLE_LIMIT in os.environ:
-            del os.environ[ENV_SAMPLE_LIMIT]
+    def test_sample_limit_is_10(self):
+        """Verify sample limit is 10."""
+        limit = get_sample_limit()
+        assert limit == 10, f"Expected sample_limit 10, got {limit}"
 
-        os.environ[CI_ENV_VAR] = "true"
-        result = get_sample_limit()
-        assert result == CI_SAMPLE_LIMIT
-        assert result == 10
+    def test_get_config_summary_structure(self):
+        """Verify get_config_summary returns correct structure."""
+        summary = get_config_summary()
+        assert "primary_dataset" in summary
+        assert "fallback_dataset" in summary
+        assert "sample_limit" in summary
+        assert summary["primary_dataset"] == "ds000224"
+        assert summary["fallback_dataset"] == "ds000230"
+        assert summary["sample_limit"] == 10
 
-        del os.environ[CI_ENV_VAR]
+class TestConfigValidation:
+    """Tests for config validation logic."""
 
-    def test_explicit_env_override(self):
-        """Test that explicit LMMXIVE_SAMPLE_LIMIT overrides default."""
-        if CI_ENV_VAR in os.environ:
-            del os.environ[CI_ENV_VAR]
+    def test_validate_config_returns_true(self):
+        """Verify validate_config returns True for valid config."""
+        assert validate_config() is True
 
-        os.environ[ENV_SAMPLE_LIMIT] = "25"
-        result = get_sample_limit()
-        assert result == 25
+    def test_validate_config_raises_on_missing_key(self):
+        """Verify validation fails if a required key is missing."""
+        # Create a temporary invalid config
+        invalid_config = {
+            "datasets": {"primary": "ds000224"}, # Missing fallback
+            "sample_limit": 10
+        }
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            yaml.dump(invalid_config, f)
+            temp_path = f.name
 
-        del os.environ[ENV_SAMPLE_LIMIT]
+        try:
+            # Temporarily override CONFIG_PATH
+            import config as cfg_module
+            original_path = cfg_module.CONFIG_PATH
+            cfg_module.CONFIG_PATH = Path(temp_path)
+            
+            with pytest.raises(ValueError, match="missing"):
+                validate_config()
+        finally:
+            # Restore original path and clean up
+            cfg_module.CONFIG_PATH = original_path
+            os.unlink(temp_path)
 
-    def test_ci_takes_precedence_over_explicit(self):
-        """Test that CI limit (10) overrides an explicit larger limit."""
-        os.environ[CI_ENV_VAR] = "true"
-        os.environ[ENV_SAMPLE_LIMIT] = "100"
+    def test_validate_config_raises_on_invalid_limit(self):
+        """Verify validation fails if sample_limit is invalid."""
+        invalid_config = {
+            "datasets": {"primary": "ds000224", "fallback_only": "ds000230"},
+            "sample_limit": -5
+        }
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            yaml.dump(invalid_config, f)
+            temp_path = f.name
 
-        result = get_sample_limit()
-        # CI constraint should win
-        assert result == 10
-
-        del os.environ[CI_ENV_VAR]
-        del os.environ[ENV_SAMPLE_LIMIT]
+        try:
+            import config as cfg_module
+            original_path = cfg_module.CONFIG_PATH
+            cfg_module.CONFIG_PATH = Path(temp_path)
+            
+            with pytest.raises(ValueError, match="positive"):
+                validate_config()
+        finally:
+            cfg_module.CONFIG_PATH = original_path
+            os.unlink(temp_path)

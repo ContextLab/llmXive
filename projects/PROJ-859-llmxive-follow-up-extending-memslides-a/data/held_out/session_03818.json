@@ -1,0 +1,114 @@
+{
+  "trace_id": "held_out_43_03818",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 10,
+  "tool_sequence": [
+    "delete_element",
+    "insert_text",
+    "resize_element",
+    "format_text",
+    "update_layout",
+    "update_layout",
+    "resize_element",
+    "format_text",
+    "format_text",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 51.8992
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 89.7565,
+        "y": 87.2298,
+        "length": 78.5855
+      }
+    },
+    {
+      "step": 2,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 78.4789,
+        "height": 90.4301
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 95.8014,
+        "x": 12.5667,
+        "y": 46.0782
+      }
+    },
+    {
+      "step": 4,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 45.9045,
+        "padding": 6.2469
+      }
+    },
+    {
+      "step": 5,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 12.2757,
+        "padding": 41.5323
+      }
+    },
+    {
+      "step": 6,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 48.198,
+        "height": 36.4471
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 33.223,
+        "x": 17.8344,
+        "y": 72.5204
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 64.3052,
+        "x": 56.0071,
+        "y": 21.5501
+      }
+    },
+    {
+      "step": 9,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 18.3329,
+        "height": 20.8033
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.504788,
+    "tool_repetition_freq": 0.5,
+    "arg_semantic_variance": 785.38623
+  },
+  "final_state": {
+    "dominant_tool": "resize_element",
+    "slide_element_count": 9,
+    "layout_hash": "43-3818-resize_element"
+  },
+  "variance_multiplier": 1.5
+}

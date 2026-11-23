@@ -1,49 +1,76 @@
-# Quickstart for Predicting Molecular Dipole Moments
+# Quickstart: Predicting Molecular Dipole Moments with Graph Neural Networks
 
-This document describes the minimal commands required to run the end‑to‑end
-pipeline on the synthetic dataset generated for the CI environment.
+## Prerequisites
+*   Python 3.11+
+*   Git
+*   Sufficient free disk space (for data and cache)
+*   GB RAM (minimum)
 
-## Steps
+## Installation
 
-1. **Generate synthetic processed data**
+1.  **Clone the repository** and navigate to the project directory:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-262-predicting-molecular-dipole-moments-with
+    ```
 
- ```bash
- python code/data/generate_processed_data.py
- ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-2. **Train the Graph Neural Network**
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
- ```bash
- python code/training/train_gnn.py
- ```
+## Execution Workflow
 
-3. **Train the Random Forest baseline**
+### Step 1: Data Download & Preprocessing
+Download the QM9 dataset from the verified Hugging Face source and preprocess it.
+```bash
+python code/data/download_qm9.py
+python code/data/preprocess.py
+```
+*Output*: `data/processed/train.parquet`, `data/reports/excluded_molecules.csv`.
 
- ```bash
- python code/training/train_rf.py
- ```
+### Step 2: Model Training
+Train the GNN and Random Forest models across multiple seeds.
+```bash
+# Train GNN
+python code/train/train_gnn.py --seeds 42,123,456,789,1011
 
-4. **Evaluate models and produce metrics**
+# Train RF Baseline
+python code/train/train_rf.py --seeds 42,123,456,789,1011
+```
+*Output*: `models/schnet_seed_*.pt`, `models/rf_seed_*.pkl`.
 
- ```bash
- python code/training/evaluate.py
- python code/generate_metrics.py
- ```
+### Step 3: Evaluation & Attribution
+Compute metrics and generate feature attribution.
+```bash
+python code/eval/metrics.py
+python code/eval/attribution.py
+python code/eval/stats.py  # Paired t-tests
+```
+*Output*: `results/metrics.json`, `results/attribution.json`.
 
-5. **Generate analysis visualisations**
+### Step 4: Visualization
+Generate plots of feature importance.
+```bash
+python code/viz/plot_feature_importance.py
+```
+*Output*: `figures/feature_importance.png`.
 
- ```bash
- python code/analysis/generate_performance_plots.py
- python code/analysis/generate_significance.py
- ```
+## Verification
 
-6. **Create the final summary report**
+Run the test suite to ensure data integrity and model outputs:
+```bash
+pytest tests/
+```
 
- ```bash
- python code/generate_summary.py
- ```
+## Troubleshooting
 
-The commands above assume a fresh checkout and that the `requirements.txt`
-have been installed (e.g. `pip install -r requirements.txt`). All
-intermediate artefacts are written under the `data/` or `results/`
-directories as described in the task list.
+*   **OOM Error**: If you encounter memory errors, reduce the `--subset_size` in `preprocess.py` (default: a sufficiently large sample size to ensure statistical power and representativeness).
+*   **CUDA Error**: If running on a GPU, ensure `CUDA_VISIBLE_DEVICES` is set. The default is CPU.
+*   **Missing Data**: Check `data/reports/excluded_molecules.csv` for molecules with missing coordinates.

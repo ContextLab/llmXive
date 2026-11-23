@@ -1,16 +1,17 @@
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
+  | \.hg
+  | \.mypy_cache
   | \.tox
-  | __pycache__
+  | \.venv
+  | _build
+  | buck-out
   | build
   | dist
-  | data
 )/
 '''
-skip-string-normalization = false
-preview = true

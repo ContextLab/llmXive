@@ -1,0 +1,9 @@
+[gemma2-2b] Generated documentation based on:\nCommit message: docs: update stale Sphinx link in contributing guide\nPre‑change documentation context: @@ -133,7 +133,7 @@ When presenting Python code, use single-quoted strings (``'hello'`` instead of
+ ``"hello"``).
+ 
+ .. _reStructuredText: http://docutils.sourceforge.net/rst.html
+-.. _Sphinx: http://sphinx-doc.org/index.html
++.. _Sphinx: https://www.sphinx-doc.org/en/master/
+ 
+ 
+ .. _bug-reports:\nGenerate updated documentation:

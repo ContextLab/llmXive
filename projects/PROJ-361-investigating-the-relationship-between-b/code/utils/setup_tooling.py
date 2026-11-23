@@ -1,82 +1,64 @@
-"""
-Utility module to initialize and run project tooling (linting, formatting, type checking).
-"""
 import subprocess
 import sys
 import os
+from pathlib import Path
 
-
-def run_command(cmd: list[str], description: str) -> bool:
-    """
-    Execute a shell command and report success/failure.
-
-    Args:
-        cmd: List of command arguments.
-        description: Human-readable description of the action.
-
-    Returns:
-        True if the command succeeded, False otherwise.
-    """
-    print(f"Running: {description}...")
+def run_command(command: list[str]) -> bool:
+    """Run a shell command and return True if successful."""
     try:
-        result = subprocess.run(
-            cmd,
-            check=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            text=True,
-        )
-        if result.stdout:
-            print(result.stdout)
-        if result.stderr:
-            print(result.stderr, file=sys.stderr)
+        result = subprocess.run(command, check=True, capture_output=True, text=True)
         return True
     except subprocess.CalledProcessError as e:
-        print(f"Error: {description} failed with exit code {e.returncode}")
-        if e.stderr:
-            print(e.stderr, file=sys.stderr)
-        return False
-    except FileNotFoundError:
-        print(f"Error: Command not found. Ensure tools are installed: {cmd[0]}")
+        print(f"Command failed: {' '.join(command)}")
+        print(f"Error: {e.stderr}")
         return False
 
+def ensure_config_files_exist():
+    """Ensure that configuration files for black, flake8, and mypy exist."""
+    base_dir = Path(__file__).parent.parent
+    config_files = [
+        base_dir / ".flake8",
+        base_dir / "pyproject.toml",
+        base_dir / "mypy.ini",
+    ]
 
-def main() -> int:
-    """
-    Main entry point for running linting, formatting, and type checking.
-    """
-    print("=== Project Tooling Runner ===")
+    missing = []
+    for file_path in config_files:
+        if not file_path.exists():
+            missing.append(file_path.name)
 
-    # 1. Format with Black
-    success = run_command(
-        [sys.executable, "-m", "black", "--check", "code/", "tests/"],
-        "Black formatting check",
-    )
-    if not success:
-        print("Formatting check failed. Run 'black code/ tests/' to fix.")
-        return 1
+    if missing:
+        print(f"Missing configuration files: {', '.join(missing)}")
+        print("Please ensure these files are created manually or by the setup script.")
+        return False
+    
+    print("All configuration files found.")
+    return True
 
-    # 2. Lint with Flake8
-    success = run_command(
-        [sys.executable, "-m", "flake8", "code/", "tests/"],
-        "Flake8 linting check",
-    )
-    if not success:
-        print("Linting check failed. Run 'flake8 code/ tests/' to fix.")
-        return 1
+def install_tools():
+    """Install linting tools (black, flake8, mypy) if not already installed."""
+    tools = ["black", "flake8", "mypy"]
+    for tool in tools:
+        try:
+            subprocess.check_call([sys.executable, "-m", "pip", "install", tool])
+            print(f"Successfully installed {tool}")
+        except subprocess.CalledProcessError:
+            print(f"Failed to install {tool}. Please install manually.")
+            return False
+    return True
 
-    # 3. Type check with Mypy
-    success = run_command(
-        [sys.executable, "-m", "mypy", "code/", "tests/"],
-        "Mypy type checking",
-    )
-    if not success:
-        print("Type checking failed. Run 'mypy code/ tests/' to fix.")
-        return 1
-
-    print("=== All tooling checks passed ===")
-    return 0
-
+def main():
+    """Main entry point for tooling setup."""
+    print("Setting up linting and formatting tools...")
+    
+    if not install_tools():
+        sys.exit(1)
+    
+    if not ensure_config_files_exist():
+        sys.exit(1)
+    
+    print("Tooling setup complete.")
+    sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

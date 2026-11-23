@@ -1,0 +1,14 @@
+status: none
+intent: download OSF IAT response time dataset with Project Implicit facial stimulus
+  metadata python package dataset
+required_fields:
+- trial_id
+- subject_id
+- response_time_ms
+- prime_valence
+- stimulus_id
+- stimulus_image_path
+- stimulus_ambiguity_score
+cache_key: 33c8223973f0f01cfff97db9dc95e6dd9f58cd395843ea31532026328e4ebe73
+searched_at: '2026-10-21T18:31:26.848630+00:00'
+retry_count: 1

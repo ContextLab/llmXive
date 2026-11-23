@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Analysis Ready Schema
+description: Schema for the merged, cleaned, and anonymized dataset ready for LMM.
+type: object
+required:
+  - participant_id
+  - stimulus_id
+  - relationship_type
+  - rating
+  - text
+  - emoji_count
+  - punctuation_type
+  - length_category
+  - cue_intensity
+properties:
+  participant_id:
+    type: string
+    description: Anonymized participant ID.
+    pattern: "^HASH[A-Z0-9]{64}$"
+  stimulus_id:
+    type: string
+    description: Stimulus identifier.
+    pattern: "^STIM\\d+$"
+  relationship_type:
+    type: string
+    enum:
+      - friend
+      - acquaintance
+  rating:
+    type: number
+    minimum: 1
+    maximum: 7
+  text:
+    type: string
+  emoji_count:
+    type: integer
+    minimum: 0
+  punctuation_type:
+    type: string
+    enum:
+      - Standard
+      - Excessive
+  length_category:
+    type: string
+    enum:
+      - short
+      - long
+  cue_intensity:
+    type: number
+    minimum: 0.0
+    maximum: 1.0

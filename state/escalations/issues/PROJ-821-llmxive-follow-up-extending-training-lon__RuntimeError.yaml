@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-14T17:52:36.322565+00:00'
+issue_number: 1383
+project_id: PROJ-821-llmxive-follow-up-extending-training-lon

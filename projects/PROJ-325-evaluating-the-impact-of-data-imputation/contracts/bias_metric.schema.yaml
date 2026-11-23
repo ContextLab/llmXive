@@ -1,0 +1,9 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: BiasMetric
+type: object
+properties:
+  method: { type: string }
+  bias_percentage: { type: number }
+  is_pass_sc002: { type: boolean }
+  reference_value: { type: number }
+required: [method, bias_percentage, is_pass_sc002, reference_value]

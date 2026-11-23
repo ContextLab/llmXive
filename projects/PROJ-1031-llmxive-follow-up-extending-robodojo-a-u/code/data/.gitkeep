@@ -1,0 +1,3 @@
+# Data directory for the RoboDojo Symbolic Extension.
+# Raw, interim, processed, and final data artifacts will be stored here.
+# This directory is typically added to .gitignore.

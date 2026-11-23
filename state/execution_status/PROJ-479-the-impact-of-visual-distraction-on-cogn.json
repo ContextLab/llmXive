@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-479-the-impact-of-visual-distraction-on-cogn",
+  "ok": false,
+  "reason": "3 command(s) failed: python code/01_data_acquisition.py (rc=1); python code/02_visual_metrics.py (rc=1); python code/03_analysis.py (rc=1); 1 declared deliverable(s) absent: data/processed/final_analysis_data.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/01_data_acquisition.py -> rc=1\n    2026-07-20 13:53:06,740 - __main__ - INFO - Starting Power Analysis (Task T019)...\n2026-07-20 13:53:06,740 - __main__ - ERROR - Power analysis calculation failed: TTestPower.solve_power() got an unexpected keyword argument 'nobs1'\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/code/01_data_acquisition.py\", line 165, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/code/01_data_acquisit",
+    "python code/02_visual_metrics.py -> rc=1\n    Creating new Ultralytics Settings v0.0.6 file \u2705 \nView Ultralytics Settings with 'yolo settings' or at '/home/runner/.config/Ultralytics/settings.json'\nUpdate Settings with 'yolo settings key=value', i.e. 'yolo settings runs_dir=path/to/dir'. For help see https://docs.ultralytics.com/quickstart/#ultralytics-settings.\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/code/02_visual_metrics.py\", line 177, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXi",
+    "python code/03_analysis.py -> rc=1\n    2026-07-20 13:53:11,209 - __main__ - INFO - Starting statistical analysis pipeline...\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/code/03_analysis.py\", line 297, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-479-the-impact-of-visual-distraction-on-cogn/code/03_analysis.py\", line 260, in main\n    df = load_analysis_data()\n         ^^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-479-the-impact-of-visual-d"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-20T13:53:14Z"
+}

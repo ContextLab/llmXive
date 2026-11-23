@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metrics Summary Schema"
+description: "Schema for the derived metrics summary CSV/JSON used in statistical analysis."
+type: "object"
+required:
+  - "participant_id"
+  - "interface_variant"
+  - "completion_time_sec"
+  - "error_count"
+  - "sus_score"
+  - "explanation_engagement_time_sec"
+properties:
+  participant_id:
+    type: "string"
+    description: "Anonymized participant ID."
+  interface_variant:
+    type: "string"
+    enum:
+      - "Traditional"
+      - "Explainable"
+    description: "The interface variant."
+  completion_time_sec:
+    type: "number"
+    minimum: 0
+    description: "Task completion time in seconds."
+  error_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of errors during the task."
+  sus_score:
+    type: "number"
+    minimum: 0
+    maximum: 100
+    description: "Calculated SUS score (0-100)."
+  explanation_engagement_time_sec:
+    type: "number"
+    minimum: 0
+    description: "Time spent interacting with XAI overlays in seconds."
+  exclusion_reason:
+    type: "string"
+    description: "Reason for exclusion if applicable (e.g., 'missing_sus_item')."
+additionalProperties: false

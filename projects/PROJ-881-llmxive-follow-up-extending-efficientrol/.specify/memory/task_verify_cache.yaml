@@ -1,0 +1,100 @@
+T001a:
+  c: true
+  h: 776f9762a4cfef22a99d5b9c066d2b686519707953ddb14ca1e7161909cb5d51
+  r: "Checked `specs/001-entropy-validity-prediction/contracts/semantic_alignment_gsm8k.md`;\
+    \ the file exists, is non\u2011empty, and provides a detailed semantic alignment\
+    \ specification (method, tokenization, validity criteria, output schema) for GSM8K\
+    \ as required."
+  sig: 3fe54ee979c5f9feaaf77a3e93b2927bbabac9ceba813b275bc83c9644cde1de
+T001a_v:
+  c: true
+  h: c1db355adac52093baa36a4e2b39e4c874326737b51a06832cde8f664258603d
+  r: "Checked `tests/contract/test_semantic_alignment_gsm8k.py`, which asserts the\
+    \ existence of `semantic_alignment_gsm8k.md` and validates its front\u2011matter\
+    \ against the required schema; the test ran successfully (exit\u202F0) confirming\
+    \ the contract file is present and conforms."
+  sig: bd0cd3c8123911c48e1054bd376ff0dfec8fbf751b0462e6d4a326b6898ee0ff
+T001b:
+  c: true
+  h: 11fa96630f3ff1be07c54fcf778c8f6ec0b69ff5eb29a7a7096adc88c8cd128c
+  r: "Checked the file `specs/001-entropy-validity-prediction/contracts/semantic_alignment_minigrid.md`\
+    \ (1356\u202Fbytes) which defines the MiniGrid semantic alignment logic, validity\
+    \ criteria, ground\u2011truth source, and step\u2011by\u2011step labeling procedure\
+    \ as required."
+  sig: 6b5becc99bd0e2a0b456585b4c865e64981445b9e13341fae434b7ac3cb75282
+T002_v:
+  c: true
+  h: 875ad5c2d35bd409f4f5f527d459b4c3b3f3a3f03352763775eeae80d12b00ce
+  r: The file `docs/model_selection.md` exists (5631 bytes, collector-confirmed) and
+    explicitly documents `meta-llama/Llama-2-7b-hf` as a reference baseline, including
+    benchmark figures and a decision section stating it satisfies FR-002's Llama-2-7B
+    (or 1.5B) requirement. The task only required verifying the document's existence
+    and content, which is met; the unverified benchmark numbers are not part of this
+    task's scope.
+  sig: f9132607c063edd77782e0119201c5c48324b866af2a52d527653bd5665ab29b
+T003:
+  c: true
+  h: e6cdcd48d0f2ecbf64c814de0ff575f9931350330f534641e5446a38cdca129f
+  r: 'The deliverable `docs/glmm_design.md` exists (6,523 bytes) and contains a substantive
+    GLMM design: the lme4-style formula `validity ~ entropy + (1 | sequence_id) +
+    (1 | task_type)`, extended layer-decay formulas (continuous covariate and early/mid/late
+    pooling), stratification by task type and median sequence length, random-effects
+    rationale, fitting/convergence/error-handling procedures, and output schema. The
+    example JSON metrics are clearly illustrative output specifications, not claimed
+    measurements, which is appropriate for a design document.'
+  sig: 56e89ee80063216a196e0fa6fb4072a537b839d08450d45bdd545c52dec9ad47
+T007a:
+  c: true
+  h: 5cc0796b10a4d4f6f7e5d39730df25cfb0a5831bc60cb708e965f6aa3599e6c7
+  r: "The repository contains `code/src/utils/entropy_calc.py` (\u22485.8\u202FKB)\
+    \ with a fully implemented `calculate_entropy(probs)` that clamps probabilities\
+    \ <\u202F1e\u20119, works on CPU tensors (or NumPy arrays), handles 1\u2011D and\
+    \ 2\u2011D inputs, and returns a float without crashing on near\u2011zero values.\
+    \ This matches the task\u2019s specifications."
+T008:
+  c: true
+  h: f89d8fd84140b1d48f8ce85f0759f67f016cad48453017a3a2f31df7abf8e426
+  r: "The artifact `code/src/utils/validators.py` exists, is non\u2011empty, and defines\
+    \ the `TokenSequence`, `ValidityLabel`, and `EntropyProfile` dataclasses with\
+    \ `from_dict` methods that enforce required fields, satisfying the schema\u2011\
+    validation requirement."
+T009:
+  c: false
+  h: 47f60e38510037116b34163358002cc4fad207f7746ee831258f9eb1ed03fbfe
+  r: "The provided `code/src/data/preprocessing.py` contains only a partial `stream_batch`\
+    \ implementation (it never yields batches or enforces the 50\u2011example limit)\
+    \ and does not include any `datasets.load_dataset` handling that raises `ConnectionError`/`FileNotFoundError`.\
+    \ Moreover, the integration test `tests/integration/test_preprocessing.py` checks\
+    \ `stream_tokens_in_batches` and other utilities but never verifies the required\
+    \ `stream_batch` 50\u2011token batching behavior. Consequently, the core function\
+    \ and its verification are missing."
+T015:
+  c: true
+  h: 221dbd000e23905a7ee9b86148dd9d490de34cd7759f345848bee3f796cf19d8
+  r: "The `generation.py` file defines `setup_logging()` that creates the `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/logs/generation.log`\
+    \ path, uses a custom JSON formatter, and adds `token_count` and `validity_stats`\
+    \ fields to log records. This matches the task\u2019s specification."
+T016:
+  c: false
+  h: 32db499e2e29cea721bcf542cbfc501727b769e0ef45db603643a3ff4df03278
+  r: "The provided `generation.py` contains only placeholder stubs (e.g., `generate_single_pass`,\
+    \ `validate_against_ground_truth`) and the `write_labeled_dataset` function is\
+    \ truncated and never shows logic that reads generation outputs, merges them with\
+    \ ground\u2011truth labels, or validates against `dataset.schema.yaml`. There\
+    \ is no explicit reference to the schema file, so the required merging implementation\
+    \ is missing."
+T022:
+  c: false
+  h: 70db43fc98b6bc56ab8b8460b192cf401f204722b4cd9f3fa8056a2cd216226a
+  r: "The provided `preprocessing.py` only contains batch\u2011handling utilities\
+    \ and a placeholder `process_batch_with_entropy` that inserts dummy `entropy_profile`\
+    \ data; it never loads or merges the labeled dataset from T016, never validates\
+    \ against or even references the `entropy_profile.schema.yaml`, and does not ensure\
+    \ layer\u2011wise granularity beyond inserting `np.nan` placeholders. Consequently\
+    \ the required merging logic is missing."
+T023:
+  c: false
+  h: 70db43fc98b6bc56ab8b8460b192cf401f204722b4cd9f3fa8056a2cd216226a
+  r: "The provided `preprocessing.py` does not contain a `validate_entropy_profile()`\
+    \ implementation (the file excerpt shows no such function), so the required validation\
+    \ logic is missing. Consequently the task\u2019s core requirement is not satisfied."

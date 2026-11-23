@@ -1,257 +1,243 @@
 """
-Hashing utilities for artifact integrity verification.
-
-Implements SHA-256 hashing for files and directories to ensure
-data integrity as per Constitution Principle V.
+Utility functions for hashing files and directories.
+Provides SHA-256 hashing and manifest generation/validation.
 """
 import hashlib
 import os
 import json
 from pathlib import Path
 from typing import Dict, List, Union, Optional
+import logging
+
+logger = logging.getLogger(__name__)
 
 
-def hash_file(filepath: Union[str, Path], algorithm: str = "sha256") -> str:
+def hash_file(file_path: Union[str, Path]) -> str:
     """
-    Calculate the hash of a single file.
-    
+    Calculate the SHA-256 hash of a file.
+
     Args:
-        filepath: Path to the file to hash.
-        algorithm: Hash algorithm to use (default: sha256).
-        
+        file_path: Path to the file to hash.
+
     Returns:
-        Hexadecimal hash string.
-        
+        str: Hexadecimal SHA-256 hash string.
+    
     Raises:
         FileNotFoundError: If the file does not exist.
-        ValueError: If the algorithm is not supported.
+        IOError: If there is an error reading the file.
     """
-    filepath = Path(filepath)
-    if not filepath.exists():
-        raise FileNotFoundError(f"File not found: {filepath}")
+    file_path = Path(file_path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
     
-    hasher = hashlib.new(algorithm)
-    
-    with open(filepath, "rb") as f:
-        # Read in chunks to handle large files efficiently
-        for chunk in iter(lambda: f.read(8192), b""):
-            hasher.update(chunk)
-    
-    return hasher.hexdigest()
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(chunk)
+        return sha256_hash.hexdigest()
+    except Exception as e:
+        logger.error(f"Error hashing file {file_path}: {e}")
+        raise IOError(f"Failed to hash file {file_path}: {e}")
 
 
-def hash_directory(
-    dirpath: Union[str, Path],
-    algorithm: str = "sha256",
-    recursive: bool = True,
-    exclude_patterns: Optional[List[str]] = None
-) -> Dict[str, str]:
+def hash_directory(dir_path: Union[str, Path]) -> Dict[str, str]:
     """
-    Calculate hashes for all files in a directory.
-    
+    Calculate SHA-256 hashes for all files in a directory (non-recursive).
+
     Args:
-        dirpath: Path to the directory.
-        algorithm: Hash algorithm to use (default: sha256).
-        recursive: If True, include files in subdirectories.
-        exclude_patterns: List of glob patterns to exclude (e.g., ["*.pyc", "__pycache__"]).
-        
+        dir_path: Path to the directory.
+
     Returns:
-        Dictionary mapping relative file paths to their hashes.
-        
-    Raises:
-        NotADirectoryError: If the path is not a directory.
+        Dict[str, str]: Dictionary mapping relative file paths to their hashes.
     """
-    dirpath = Path(dirpath)
-    if not dirpath.is_dir():
-        raise NotADirectoryError(f"Path is not a directory: {dirpath}")
-    
-    if exclude_patterns is None:
-        exclude_patterns = []
+    dir_path = Path(dir_path)
+    if not dir_path.exists() or not dir_path.is_dir():
+        raise NotADirectoryError(f"Directory not found: {dir_path}")
     
     hashes = {}
-    
-    if recursive:
-        files = dirpath.rglob("*")
-    else:
-        files = dirpath.glob("*")
-    
-    for filepath in files:
-        if filepath.is_file():
-            # Check exclusion patterns
-            rel_path = str(filepath.relative_to(dirpath))
-            excluded = False
-            for pattern in exclude_patterns:
-                if filepath.match(pattern) or rel_path.startswith(pattern):
-                    excluded = True
-                    break
-            
-            if not excluded:
-                try:
-                    hashes[str(filepath.relative_to(dirpath))] = hash_file(filepath, algorithm)
-                except (FileNotFoundError, ValueError) as e:
-                    # Log warning but continue processing other files
-                    print(f"Warning: Could not hash {filepath}: {e}")
+    for file_path in dir_path.iterdir():
+        if file_path.is_file() and not file_path.name.startswith('.'):
+            try:
+                relative_path = file_path.relative_to(dir_path)
+                hashes[str(relative_path)] = hash_file(file_path)
+            except Exception as e:
+                logger.warning(f"Skipping file {file_path}: {e}")
     
     return hashes
 
 
-def verify_file_hash(filepath: Union[str, Path], expected_hash: str, algorithm: str = "sha256") -> bool:
+def verify_file_hash(file_path: Union[str, Path], expected_hash: str) -> bool:
     """
-    Verify a file's hash against an expected value.
-    
+    Verify that a file's hash matches the expected hash.
+
     Args:
-        filepath: Path to the file to verify.
-        expected_hash: Expected hexadecimal hash string.
-        algorithm: Hash algorithm to use (default: sha256).
-        
+        file_path: Path to the file to verify.
+        expected_hash: Expected SHA-256 hash.
+
     Returns:
-        True if the hash matches, False otherwise.
+        bool: True if hash matches, False otherwise.
     """
-    actual_hash = hash_file(filepath, algorithm)
-    return actual_hash == expected_hash
+    try:
+        actual_hash = hash_file(file_path)
+        return actual_hash == expected_hash
+    except Exception as e:
+        logger.error(f"Error verifying hash for {file_path}: {e}")
+        return False
 
 
-def generate_manifest(
-    dirpath: Union[str, Path],
-    output_path: Optional[Union[str, Path]] = None,
-    algorithm: str = "sha256",
-    recursive: bool = True
-) -> Dict:
+def generate_manifest(dir_path: Union[str, Path], output_path: Union[str, Path]) -> bool:
     """
-    Generate a manifest of file hashes for a directory.
-    
+    Generate a manifest file containing hashes of all files in a directory.
+
     Args:
-        dirpath: Path to the directory to manifest.
-        output_path: Optional path to save the manifest JSON file.
-        algorithm: Hash algorithm to use (default: sha256).
-        recursive: If True, include files in subdirectories.
-        
+        dir_path: Path to the directory to hash.
+        output_path: Path where the manifest file will be saved.
+
     Returns:
-        Dictionary containing the manifest data.
+        bool: True if manifest was generated successfully, False otherwise.
     """
-    dirpath = Path(dirpath)
-    hashes = hash_directory(dirpath, algorithm, recursive)
-    
-    manifest = {
-        "directory": str(dirpath.absolute()),
-        "algorithm": algorithm,
-        "recursive": recursive,
-        "file_count": len(hashes),
-        "files": hashes
-    }
-    
-    if output_path:
+    try:
+        dir_path = Path(dir_path)
         output_path = Path(output_path)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(output_path, "w", encoding="utf-8") as f:
-            json.dump(manifest, f, indent=2)
-    
-    return manifest
-
-
-def verify_manifest(manifest_path: Union[str, Path]) -> Dict[str, bool]:
-    """
-    Verify all files against a manifest.
-    
-    Args:
-        manifest_path: Path to the manifest JSON file.
         
-    Returns:
-        Dictionary mapping file paths to verification status (True/False).
+        if not dir_path.exists() or not dir_path.is_dir():
+            logger.error(f"Directory not found: {dir_path}")
+            return False
+        
+        hashes = hash_directory(dir_path)
+        
+        manifest = {
+            "directory": str(dir_path),
+            "files": hashes,
+            "file_count": len(hashes)
+        }
+        
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(manifest, f, indent=2)
+        
+        logger.info(f"Generated manifest with {len(hashes)} files at {output_path}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to generate manifest: {e}")
+        return False
+
+
+def verify_manifest(manifest_path: Union[str, Path]) -> Tuple[bool, List[str]]:
     """
-    manifest_path = Path(manifest_path)
-    if not manifest_path.exists():
-        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
-    
-    with open(manifest_path, "r", encoding="utf-8") as f:
-        manifest = json.load(f)
-    
-    results = {}
-    base_dir = Path(manifest["directory"])
-    
-    for rel_path, expected_hash in manifest["files"].items():
-        full_path = base_dir / rel_path
-        if full_path.exists():
-            try:
-                actual_hash = hash_file(full_path, manifest["algorithm"])
-                results[rel_path] = actual_hash == expected_hash
-            except Exception as e:
-                results[rel_path] = False
-                print(f"Error verifying {rel_path}: {e}")
-        else:
-            results[rel_path] = False
-            print(f"File not found: {rel_path}")
-    
-    return results
+    Verify files against a manifest.
+
+    Args:
+        manifest_path: Path to the manifest file.
+
+    Returns:
+        Tuple[bool, List[str]]: (is_valid, list_of_failed_files)
+    """
+    try:
+        manifest_path = Path(manifest_path)
+        
+        if not manifest_path.exists():
+            logger.error(f"Manifest not found: {manifest_path}")
+            return False, [str(manifest_path)]
+        
+        with open(manifest_path, 'r', encoding='utf-8') as f:
+            manifest = json.load(f)
+        
+        dir_path = Path(manifest["directory"])
+        expected_hashes = manifest["files"]
+        
+        failed_files = []
+        
+        for relative_path, expected_hash in expected_hashes.items():
+            file_path = dir_path / relative_path
+            
+            if not file_path.exists():
+                logger.warning(f"File missing: {file_path}")
+                failed_files.append(relative_path)
+                continue
+            
+            if not verify_file_hash(file_path, expected_hash):
+                logger.warning(f"Hash mismatch for: {file_path}")
+                failed_files.append(relative_path)
+        
+        is_valid = len(failed_files) == 0
+        return is_valid, failed_files
+    except Exception as e:
+        logger.error(f"Error verifying manifest: {e}")
+        return False, [str(e)]
 
 
 def main():
     """
-    CLI entry point for hashing operations.
-    
-    Usage:
-        python -m code.utils.hasher hash <file_path>
-        python -m code.utils.hasher hash_dir <dir_path> [--output <output.json>]
-        python -m code.utils.hasher verify <file_path> <expected_hash>
-        python -m code.utils.hasher verify_manifest <manifest_path>
+    Main entry point for running hash operations from the command line.
     """
     import sys
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     
-    if len(sys.argv) < 3:
-        print("Usage:")
-        print("  python -m code.utils.hasher hash <file_path>")
-        print("  python -m code.utils.hasher hash_dir <dir_path> [--output <output.json>]")
-        print("  python -m code.utils.hasher verify <file_path> <expected_hash>")
-        print("  python -m code.utils.hasher verify_manifest <manifest_path>")
-        sys.exit(1)
+    if len(sys.argv) < 2:
+        print("Usage: python hasher.py <command> <path> [output_path]")
+        print("Commands: hash_file, hash_dir, generate_manifest, verify_manifest")
+        return 1
     
     command = sys.argv[1]
     
-    try:
-        if command == "hash":
-            file_path = sys.argv[2]
-            result = hash_file(file_path)
-            print(result)
-        
-        elif command == "hash_dir":
-            dir_path = sys.argv[2]
-            output_path = None
-            for i, arg in enumerate(sys.argv[3:], 3):
-                if arg == "--output" and i + 1 < len(sys.argv):
-                    output_path = sys.argv[i + 1]
-            
-            result = generate_manifest(dir_path, output_path)
-            if not output_path:
-                print(json.dumps(result, indent=2))
-            else:
-                print(f"Manifest saved to: {output_path}")
-        
-        elif command == "verify":
-            file_path = sys.argv[2]
-            expected_hash = sys.argv[3]
-            result = verify_file_hash(file_path, expected_hash)
-            print("PASS" if result else "FAIL")
-        
-        elif command == "verify_manifest":
-            manifest_path = sys.argv[2]
-            results = verify_manifest(manifest_path)
-            passed = sum(1 for v in results.values() if v)
-            total = len(results)
-            print(f"Verification complete: {passed}/{total} files passed")
-            if passed < total:
-                for path, status in results.items():
-                    if not status:
-                        print(f"  FAILED: {path}")
-                sys.exit(1)
-        
-        else:
-            print(f"Unknown command: {command}")
-            sys.exit(1)
+    if command == "hash_file":
+        if len(sys.argv) < 3:
+            print("Error: file path required")
+            return 1
+        file_path = sys.argv[2]
+        try:
+            hash_value = hash_file(file_path)
+            print(f"SHA-256: {hash_value}")
+        except Exception as e:
+            print(f"Error: {e}")
+            return 1
     
-    except Exception as e:
-        print(f"Error: {e}")
-        sys.exit(1)
+    elif command == "hash_dir":
+        if len(sys.argv) < 3:
+            print("Error: directory path required")
+            return 1
+        dir_path = sys.argv[2]
+        try:
+            hashes = hash_directory(dir_path)
+            print(json.dumps(hashes, indent=2))
+        except Exception as e:
+            print(f"Error: {e}")
+            return 1
+    
+    elif command == "generate_manifest":
+        if len(sys.argv) < 4:
+            print("Error: directory path and output path required")
+            return 1
+        dir_path = sys.argv[2]
+        output_path = sys.argv[3]
+        if not generate_manifest(dir_path, output_path):
+            return 1
+    
+    elif command == "verify_manifest":
+        if len(sys.argv) < 3:
+            print("Error: manifest path required")
+            return 1
+        manifest_path = sys.argv[2]
+        is_valid, failed = verify_manifest(manifest_path)
+        if is_valid:
+            print("Verification passed")
+            return 0
+        else:
+            print(f"Verification failed for {len(failed)} files:")
+            for f in failed:
+                print(f"  - {f}")
+            return 1
+    
+    else:
+        print(f"Unknown command: {command}")
+        return 1
+    
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    exit(main())

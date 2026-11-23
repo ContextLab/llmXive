@@ -1,5 +1,5 @@
 import logging
-from typing import Optional
+from typing import Optional, Tuple, List, Dict, Any
 import numpy as np
 import pandas as pd
 import config
@@ -8,346 +8,314 @@ logger = logging.getLogger(__name__)
 
 def calculate_quiescent_xuv(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate quiescent X-ray luminosity (L_X) for each star.
+    Calculate quiescent XUV luminosity (L_X) based on rotation period or fallback proxy.
     
-    PRIMARY: Wright et al. (2018) relation if Rotation Period is available:
-    L_X / L_bol = 10^(-3.5) * (P_rot / 10 days)^(-2.7)
+    Primary: Wright et al. (2018) relation if Rotation Period is available.
+    Fallback: Fixed proxy L_X = 10^-4 * L_bol if Rotation Period is missing.
     
-    FALLBACK: If Rotation Period is missing, use fixed proxy:
-    L_X = 10^(-4) * L_bol
-    
-    Output is in erg/s.
+    Output unit: erg/s
     """
     df = df.copy()
     
-    # Ensure L_bol is in erg/s (if in solar luminosities, convert)
-    # Assuming L_bol in the dataset is in erg/s. If in L_sun, multiply by 3.828e33
-    if 'L_bol' in df.columns:
-        # Check if values look like solar units (order of magnitude ~1) vs erg/s (~1e33)
-        if df['L_bol'].max() < 100.0:
-            logger.warning("Assuming L_bol is in solar units, converting to erg/s.")
-            df['L_bol_erg'] = df['L_bol'] * 3.828e33
-        else:
-            df['L_bol_erg'] = df['L_bol']
-    else:
-        raise ValueError("Column 'L_bol' is missing from the input DataFrame.")
-    
-    if 'Rotation Period' in df.columns and not df['Rotation Period'].isna().all():
-        logger.info("Using Rotation Period for quiescent XUV calculation (Wright et al. 2018).")
-        # L_X / L_bol = 10^(-3.5) * (P_rot / 10)^(-2.7)
-        # L_X = L_bol * 10^(-3.5) * (P_rot / 10)^(-2.7)
-        p_rot = df['Rotation Period']
-        ratio = (10 ** -3.5) * ((p_rot / 10.0) ** -2.7)
-        df['L_X_quiescent'] = df['L_bol_erg'] * ratio
+    # Check if Rotation Period column exists
+    if 'Rotation Period' in df.columns:
+        # Convert to float, handling potential non-numeric values
+        rot_period = pd.to_numeric(df['Rotation Period'], errors='coerce')
         
-        # Log warnings for rows where P_rot was NaN but others were used
-        nan_mask = df['Rotation Period'].isna()
-        if nan_mask.any():
-            logger.warning(f"{nan_mask.sum()} rows missing Rotation Period; using fallback for these.")
-            # Apply fallback for NaN rows
-            fallback_ratio = 10 ** -4
-            df.loc[nan_mask, 'L_X_quiescent'] = df.loc[nan_mask, 'L_bol_erg'] * fallback_ratio
+        # Identify rows with valid rotation periods
+        valid_rot_mask = ~rot_period.isna() & (rot_period > 0)
+        
+        # Wright et al. (2018) relation: L_X/L_bol = 10^-3.5 * (P_rot/10)^-2.7
+        # L_X = L_bol * 10^-3.5 * (P_rot/10)^-2.7
+        # Note: L_bol is expected to be in erg/s in the input dataframe
+        
+        if 'L_bol' not in df.columns:
+            logger.warning("L_bol column not found. Cannot calculate L_X using rotation period.")
+            df['L_X'] = np.nan
+        else:
+            L_bol = df['L_bol'].astype(float)
+            
+            # Calculate ratio
+            ratio = np.power(10, -3.5) * np.power(rot_period[valid_rot_mask] / 10.0, -2.7)
+            L_X_valid = L_bol[valid_rot_mask] * ratio
+            
+            df.loc[valid_rot_mask, 'L_X'] = L_X_valid
+            df.loc[~valid_rot_mask, 'L_X'] = np.nan
+            
+            # Log fallback cases
+            fallback_count = (~valid_rot_mask).sum()
+            if fallback_count > 0:
+                logger.warning(f"Rotation period missing or invalid for {fallback_count} rows. Using fallback proxy.")
     else:
-        logger.warning("Rotation Period column missing or all NaN. Using fallback L_X = 10^-4 * L_bol for all rows.")
-        df['L_X_quiescent'] = df['L_bol_erg'] * (10 ** -4)
+        logger.warning("Rotation Period column missing. Using fallback proxy for all rows.")
+        fallback_count = len(df)
+    
+    # Apply fallback for missing/NaN values
+    fallback_mask = df['L_X'].isna()
+    if fallback_mask.any():
+        # Fallback: L_X = 10^-4 * L_bol
+        if 'L_bol' in df.columns:
+            df.loc[fallback_mask, 'L_X'] = 1e-4 * df.loc[fallback_mask, 'L_bol'].astype(float)
+            logger.info(f"Applied fallback L_X = 10^-4 * L_bol for {fallback_mask.sum()} rows.")
+        else:
+            logger.error("L_bol column missing. Cannot apply fallback L_X calculation.")
+            # Leave as NaN, will be handled later or cause failure downstream
     
     return df
 
 def calculate_cumulative_flux(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Compute cumulative XUV flux (F_XUV) at the planet's orbital distance.
+    Calculate cumulative XUV flux: F_XUV = F_quiescent + sum(flare_contributions)
     
-    Formula: F_XUV = F_quiescent + sum(flare_contributions)
+    F_quiescent = L_X / (4 * pi * a^2)
+    Flare contribution = E_flare * f_XUV / (4 * pi * a^2)
     
     Where:
-    - F_quiescent = L_X_quiescent / (4 * pi * a^2)
-    - Flare contribution = (E_flare * f_XUV) / (4 * pi * a^2)
+    - L_X: Quiescent XUV luminosity (erg/s)
+    - a: Semi-major axis (cm)
+    - E_flare: Flare energy (erg)
+    - f_XUV: Conversion factor (default from config)
     
-    Inputs:
-    - df: DataFrame with columns 'L_X_quiescent' (erg/s), 'semi_major_axis' (cm or AU?),
-          and potentially a list of flare energies or a pre-aggregated flare energy sum.
-    
-    Assumption: The input `df` comes from `merged_filtered.csv` or a similar intermediate.
-    If flare data is in a separate long-format table, this function expects `df` to have
-    a column 'total_flare_energy' (erg) representing the sum of E_flare * f_XUV for the system,
-    OR it expects a list of flare events to aggregate.
-    
-    Based on task context, we assume `df` has 'semi_major_axis' (in cm) and 'total_flare_energy' (erg).
-    If 'total_flare_energy' is not present, we calculate it from flare data if available, 
-    otherwise assume 0.
-    
-    Returns: DataFrame with 'cumulative_flux' (erg/s/cm^2).
+    Returns DataFrame with 'cumulative_flux' column in erg/s/cm^2.
     """
     df = df.copy()
     
-    # Constants
-    f_XUV = config.F_XUV  # Fixed conversion factor (default 0.1)
-    pi = np.pi
+    # Ensure required columns exist
+    required_cols = ['L_X', 'semi_major_axis', 'flare_count', 'total_flare_energy']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns for cumulative flux calculation: {missing_cols}")
     
-    # Ensure semi_major_axis is in cm
-    # If the input is in AU (common for exoplanets), convert: 1 AU = 1.496e13 cm
-    if 'semi_major_axis' in df.columns:
-        # Heuristic: if max value < 10, assume AU; if > 1e12, assume cm
-        if df['semi_major_axis'].max() < 100.0:
-            logger.info("Assuming semi_major_axis is in AU, converting to cm.")
-            a_cm = df['semi_major_axis'] * 1.496e13
-        else:
-            a_cm = df['semi_major_axis']
-    else:
-        raise ValueError("Column 'semi_major_axis' is missing from the input DataFrame.")
+    # Constants
+    pi = np.pi
+    f_XUV = config.f_XUV  # Default from config.py
+    
+    # Convert semi_major_axis to cm if in AU (common unit)
+    # Assuming input is in AU, convert to cm: 1 AU = 1.496e13 cm
+    # If already in cm, this conversion will be wrong, so we assume AU based on typical exoplanet data
+    a_cm = df['semi_major_axis'].astype(float) * 1.496e13
     
     # Calculate quiescent flux: F_quiescent = L_X / (4 * pi * a^2)
-    # L_X is in erg/s, a is in cm -> F in erg/s/cm^2
-    if 'L_X_quiescent' not in df.columns:
-        raise ValueError("Column 'L_X_quiescent' is missing. Run calculate_quiescent_xuv first.")
+    F_quiescent = df['L_X'].astype(float) / (4 * pi * a_cm**2)
     
-    F_quiescent = df['L_X_quiescent'] / (4 * pi * (a_cm ** 2))
+    # Calculate total flare contribution
+    # Total flare energy is sum of all flare energies for the star
+    # F_flare_total = (E_flare_total * f_XUV) / (4 * pi * a^2)
+    E_flare_total = df['total_flare_energy'].astype(float)
+    F_flare_total = (E_flare_total * f_XUV) / (4 * pi * a_cm**2)
     
-    # Calculate flare contribution
-    # If 'total_flare_energy' (already multiplied by f_XUV) exists, use it.
-    # Otherwise, if 'flare_energy_sum' exists (raw E_flare sum), multiply by f_XUV.
-    # If neither, assume 0.
-    if 'total_flare_energy' in df.columns:
-        # Assume this column is already E_flare * f_XUV
-        E_flare_XUV = df['total_flare_energy']
-        logger.debug("Using 'total_flare_energy' column directly.")
-    elif 'flare_energy_sum' in df.columns:
-        E_flare_XUV = df['flare_energy_sum'] * f_XUV
-        logger.debug("Calculated flare energy using 'flare_energy_sum' and f_XUV.")
-    else:
-        logger.warning("No flare energy column found. Assuming zero flare contribution.")
-        E_flare_XUV = pd.Series(0.0, index=df.index)
+    # Cumulative flux
+    df['cumulative_flux'] = F_quiescent + F_flare_total
     
-    # Flare flux contribution (averaged over time? The task implies cumulative sum of energy / area)
-    # The formula in the task: sum(E_flare * f_XUV / (4 * pi * a^2))
-    # This results in units of erg/cm^2. However, to add to F_quiescent (erg/s/cm^2),
-    # we need a rate. The task description says "Cumulative XUV Flux".
-    # In many astrophysical contexts, this is the time-averaged flux.
-    # If E_flare is the total energy over the system's lifetime (or observation period),
-    # and we want an equivalent average flux, we divide by the time period (Age).
-    # However, the task formula: F_XUV = F_quiescent + sum(...) implies adding an energy term to a power term?
-    # Let's re-read: "F_XUV = F_quiescent + sum (E_flare * f_XUV / (4 pi a^2))"
-    # If F_quiescent is a rate (erg/s/cm^2), and the sum is energy/area (erg/cm^2), they are dimensionally inconsistent.
-    # Interpretation: The "sum" term represents the *time-averaged* flare flux.
-    # Average Flare Flux = (Total Flare Energy * f_XUV) / (4 pi a^2 * Age)
-    # But the task formula doesn't show division by Age.
-    # Alternative Interpretation: The "cumulative flux" is actually the total energy fluence (erg/cm^2) over the lifetime,
-    # and F_quiescent is converted to fluence as well (F_quiescent * Age).
-    # Given the subsequent step is "mass loss rate" which depends on instantaneous flux,
-    # it is highly likely the intended output is an AVERAGE FLUX (erg/s/cm^2).
-    # We will assume the "sum" in the task description implies the time-averaged contribution.
-    # To get average flux from total energy: F_avg = E_total / (4 pi a^2 * Age).
-    # If Age is missing, we cannot compute this accurately.
-    
-    # Let's look at the task again: "Compute F_XUV = F_quiescent + sum(...)"
-    # If we strictly follow the prompt's formula without Age, we get a dimension mismatch.
-    # However, if the input 'flare_energy_sum' is actually a *rate* (erg/s) or the prompt implies
-    # the sum is over a normalized time, it might work.
-    # Most robust approach for "Cumulative Flux" in this context (mass loss modeling):
-    # It is the time-averaged XUV flux experienced by the planet.
-    # F_avg = F_quiescent + (E_flare_total * f_XUV) / (4 * pi * a^2 * Age)
-    
-    # Check for Age
-    if 'age' in df.columns or 'system_age' in df.columns:
-        age_col = 'age' if 'age' in df.columns else 'system_age'
-        age = df[age_col]
-        # If age is in Gyr, convert to seconds (1 Gyr = 3.154e16 s)
-        if age.max() < 14: # Assume Gyr if < 14
-            age_s = age * 3.154e16
-        else:
-            age_s = age
-    else:
-        # If no age, we cannot average the flare energy.
-        # Fallback: Assume the flare energy provided is already an average rate?
-        # Or assume a default age?
-        logger.warning("System age missing. Cannot average flare energy. Assuming flare contribution is 0 for flux calculation or using default age.")
-        # If we must output a flux, and we have no age, we cannot convert E to F.
-        # We will assume the input 'flare_energy_sum' might be the time-integrated value, 
-        # and without age, we skip the flare part or assume age=1 Gyr?
-        # Let's use a default age of 5 Gyr (typical for M-dwarfs) if missing, as per config if available?
-        # config.DEFAULT_M_DWARF_AGE is in Gyr?
-        if hasattr(config, 'DEFAULT_M_DWARF_AGE'):
-            default_age_gyr = config.DEFAULT_M_DWARF_AGE
-            logger.warning(f"Using default M-dwarf age {default_age_gyr} Gyr for flare flux averaging.")
-            age_s = pd.Series(default_age_gyr * 3.154e16, index=df.index)
-        else:
-            # Cannot proceed with averaging. Set flare flux to 0.
-            logger.error("System age missing and no default configured. Flare flux contribution set to 0.")
-            F_flare_avg = pd.Series(0.0, index=df.index)
-            df['cumulative_flux'] = F_quiescent + F_flare_avg
-            return df
-    
-    # Calculate average flare flux
-    # F_flare_avg = (E_flare_XUV) / (4 * pi * a^2 * Age)
-    F_flare_avg = E_flare_XUV / (4 * pi * (a_cm ** 2) * age_s)
-    
-    df['cumulative_flux'] = F_quiescent + F_flare_avg
+    logger.info(f"Cumulative XUV flux calculated for {len(df)} systems.")
     
     return df
 
 def calculate_retention_fraction(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Calculate atmospheric retention fraction.
+    Calculate atmospheric retention fraction using energy-limited escape model.
     
-    1. Calculate instantaneous mass loss rate dM/dt using energy-limited model:
-       dM/dt = (epsilon * pi * Rp^3 * F_XUV) / (G * Mp * K_tide)
-       
-    2. Integrate over system age (assuming constant rate for simplicity or using trapezoidal if time-series).
-       Total Mass Loss = dM/dt * Age
-       
-    3. Calculate Initial Atmosphere Mass:
-       M_atm_initial = 0.01 * Mp
-       
-    4. Retention Fraction = 1 - (Total Mass Loss / M_atm_initial)
-       (Clamped to [0, 1])
+    Instantaneous mass loss rate: dM/dt = (epsilon * pi * R_p^3 * F_XUV) / (G * M_p * K_tide)
+    
+    Integrated mass loss over system age: delta_M = dM/dt * age
+    
+    Retention = 1 - (delta_M / M_atm_initial)
+    where M_atm_initial = 0.01 * M_p (1% of planet mass)
+    
+    Returns DataFrame with 'mass_loss_rate' (g/s), 'total_mass_loss' (g), and 'retention_fraction' (0-1).
     """
     df = df.copy()
     
-    # Constants
-    epsilon = config.EFFICIENCY  # Default 0.15
-    K_tide = config.K_TIDE       # Default 1.0
-    G = config.G                 # Gravitational constant
+    # Required columns
+    required_cols = ['cumulative_flux', 'radius', 'mass', 'system_age']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns for retention calculation: {missing_cols}")
     
-    # Ensure units are consistent (cgs)
-    # Rp in cm, Mp in g, F_XUV in erg/s/cm^2, Age in s
+    # Constants from config
+    epsilon = config.eta  # Efficiency
+    G = config.G  # Gravitational constant in cgs
+    K_tide = config.K_tide
     
-    # Check for radius and mass
-    if 'radius' not in df.columns or 'mass' not in df.columns:
-        raise ValueError("Columns 'radius' and 'mass' are required.")
+    # Convert units to cgs
+    # radius: Jupiter radii or Earth radii? Assume Earth radii (R_earth = 6.371e8 cm)
+    # mass: Earth masses or Jupiter masses? Assume Earth masses (M_earth = 5.972e27 g)
+    # If data is in different units, conversion factors need to be adjusted
     
-    # Assume radius is in Earth radii or Jupiter radii? Convert to cm.
-    # Heuristic: if max < 100, assume Earth radii (6.371e8 cm) or Jupiter (7.149e9)?
-    # Usually exoplanet radius is in R_earth or R_jup.
-    # Let's assume R_earth if values are small (1-20), R_jup if larger (1-20 but different scale).
-    # Standard convention in many archives: R_earth.
-    if df['radius'].max() < 20.0:
-        logger.info("Assuming radius is in Earth radii (R_earth).")
-        R_p = df['radius'] * 6.371e8
-    elif df['radius'].max() < 200.0:
-        logger.info("Assuming radius is in Jupiter radii (R_jup).")
-        R_p = df['radius'] * 7.1492e9
-    else:
-        R_p = df['radius'] # Assume cm
+    # Assuming input radius is in Earth radii, mass in Earth masses
+    R_p_cm = df['radius'].astype(float) * 6.371e8  # R_earth in cm
+    M_p_g = df['mass'].astype(float) * 5.972e27   # M_earth in g
+    age_gyr = df['system_age'].astype(float)
+    age_s = age_gyr * 1e9 * 365.25 * 24 * 3600  # Convert Gyr to seconds
     
-    # Mass: Assume Earth masses or Jupiter masses?
-    if df['mass'].max() < 100.0:
-        logger.info("Assuming mass is in Earth masses (M_earth).")
-        M_p = df['mass'] * 5.972e27
-    elif df['mass'].max() < 1000.0:
-        logger.info("Assuming mass is in Jupiter masses (M_jup).")
-        M_p = df['mass'] * 1.898e30
-    else:
-        M_p = df['mass'] # Assume g
-    
-    # F_XUV
-    if 'cumulative_flux' not in df.columns:
-        raise ValueError("Column 'cumulative_flux' is missing. Run calculate_cumulative_flux first.")
-    F_XUV = df['cumulative_flux']
-    
-    # Age
-    if 'age' in df.columns:
-        age = df['age']
-    elif 'system_age' in df.columns:
-        age = df['system_age']
-    else:
-        raise ValueError("System age column missing.")
-    
-    # Convert age to seconds if in Gyr
-    if age.max() < 14:
-        age_s = age * 3.154e16
-    else:
-        age_s = age
-    
-    # Calculate dM/dt
+    # Calculate instantaneous mass loss rate: dM/dt
     # dM/dt = (epsilon * pi * R_p^3 * F_XUV) / (G * M_p * K_tide)
-    numerator = epsilon * np.pi * (R_p ** 3) * F_XUV
-    denominator = G * M_p * K_tide
-    dMdt = numerator / denominator  # g/s
+    numerator = epsilon * np.pi * (R_p_cm**3) * df['cumulative_flux'].astype(float)
+    denominator = G * M_p_g * K_tide
+    dM_dt = numerator / denominator  # g/s
     
-    # Total mass loss over age
-    total_mass_loss = dMdt * age_s
+    # Total mass loss over system age (assuming constant rate)
+    total_mass_loss = dM_dt * age_s  # g
     
-    # Initial atmosphere mass
-    M_atm_initial = 0.01 * M_p
+    # Initial atmospheric mass (1% of planet mass)
+    M_atm_initial = 0.01 * M_p_g
     
     # Retention fraction
-    # Avoid division by zero
-    with np.errstate(divide='ignore', invalid='ignore'):
-        retention = 1.0 - (total_mass_loss / M_atm_initial)
-    
-    # Clamp to [0, 1]
+    # Retention = 1 - (total_mass_loss / M_atm_initial)
+    # Clamp to [0, 1] to handle cases where loss > initial
+    retention = 1.0 - (total_mass_loss / M_atm_initial)
     retention = retention.clip(lower=0.0, upper=1.0)
     
+    df['mass_loss_rate'] = dM_dt
+    df['total_mass_loss'] = total_mass_loss
     df['retention_fraction'] = retention
-    df['mass_loss_rate'] = dMdt
+    
+    logger.info(f"Retention fraction calculated for {len(df)} systems.")
     
     return df
 
 def calculate_unphysical_flag(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Flag rows where mass loss rate > 10% of planet mass per Gyr.
-    Threshold = 0.10 * M_p / (1 Gyr) = 0.10 * M_p / 3.154e16 s
+    Calculate a boolean flag for unphysical mass loss rates.
+    
+    Flag is True if mass_loss_rate > 10% of planet mass per Gyr.
+    Threshold: 0.1 * M_p / (1 Gyr) = 0.1 * M_p / (3.154e16 s)
+    
+    Returns DataFrame with 'is_unphysical' column.
     """
     df = df.copy()
     
-    if 'mass' not in df.columns or 'mass_loss_rate' not in df.columns:
-        raise ValueError("Columns 'mass' and 'mass_loss_rate' are required.")
+    if 'mass_loss_rate' not in df.columns or 'mass' not in df.columns:
+        raise ValueError("mass_loss_rate and mass columns required for unphysical flag calculation.")
     
-    # Reconstruct M_p in grams (same logic as above)
-    if df['mass'].max() < 100.0:
-        M_p = df['mass'] * 5.972e27
-    elif df['mass'].max() < 1000.0:
-        M_p = df['mass'] * 1.898e30
-    else:
-        M_p = df['mass']
+    # Constants
+    M_p_g = df['mass'].astype(float) * 5.972e27  # Assuming Earth masses
+    threshold_per_gyr = 0.1 * M_p_g / (1e9 * 365.25 * 24 * 3600)  # g/s
     
-    # Threshold: 10% per Gyr
-    threshold = 0.10 * M_p / 3.154e16
+    # Flag rows where mass loss rate exceeds threshold
+    df['is_unphysical'] = df['mass_loss_rate'] > threshold_per_gyr
     
-    df['is_unphysical'] = df['mass_loss_rate'] > threshold
+    unphysical_count = df['is_unphysical'].sum()
+    logger.info(f"Identified {unphysical_count} systems with unphysical mass loss rates (>10% M_p/Gyr).")
     
     return df
 
 def apply_unphysical_filter(df: pd.DataFrame) -> pd.DataFrame:
     """
     Filter out rows where is_unphysical is True.
-    """
-    return df[~df['is_unphysical']].copy()
-
-def run_physics_pipeline(input_path: str, output_path: str) -> None:
-    """
-    Main pipeline: Read merged_filtered.csv, apply physics models, filter, save.
-    """
-    logger.info(f"Reading input data from {input_path}")
-    df = pd.read_csv(input_path)
     
-    # 1. Quiescent XUV
-    logger.info("Calculating quiescent XUV luminosity...")
+    Returns filtered DataFrame with only valid systems.
+    """
+    if 'is_unphysical' not in df.columns:
+        raise ValueError("is_unphysical column required. Run calculate_unphysical_flag first.")
+    
+    initial_count = len(df)
+    df_filtered = df[~df['is_unphysical']].copy()
+    filtered_count = initial_count - len(df_filtered)
+    
+    logger.info(f"Filtered out {filtered_count} unphysical systems. {len(df_filtered)} remain.")
+    
+    return df_filtered
+
+def validate_derived_columns(df: pd.DataFrame) -> Tuple[pd.DataFrame, bool]:
+    """
+    Validate that derived columns contain no NaN values for valid inputs.
+    
+    Checks columns: 'cumulative_flux', 'mass_loss_rate', 'retention_fraction'
+    
+    Returns:
+        Tuple of (DataFrame, bool) where bool is True if validation passes.
+        
+    Raises:
+        ValueError if NaN values are found in derived columns.
+    """
+    required_derived_cols = ['cumulative_flux', 'mass_loss_rate', 'retention_fraction']
+    missing_cols = [col for col in required_derived_cols if col not in df.columns]
+    
+    if missing_cols:
+        raise ValueError(f"Missing derived columns for validation: {missing_cols}")
+    
+    nan_found = False
+    for col in required_derived_cols:
+        nan_count = df[col].isna().sum()
+        if nan_count > 0:
+            logger.error(f"NaN values found in {col}: {nan_count} rows.")
+            nan_found = True
+    
+    if nan_found:
+        raise ValueError("Validation failed: NaN values found in derived columns.")
+    
+    logger.info("Validation passed: No NaN values in derived columns.")
+    return df, True
+
+def run_physics_pipeline(input_path: str, output_path: str) -> pd.DataFrame:
+    """
+    Run the complete physics pipeline:
+    1. Read merged_filtered.csv
+    2. Calculate quiescent XUV
+    3. Calculate cumulative flux
+    4. Calculate retention fraction
+    5. Flag and filter unphysical systems
+    6. Validate derived columns
+    7. Write to derived_physics.csv
+    
+    Args:
+        input_path: Path to data/processed/merged_filtered.csv
+        output_path: Path to data/processed/derived_physics.csv
+        
+    Returns:
+        Final processed DataFrame
+    """
+    # Read input
+    df = pd.read_csv(input_path)
+    logger.info(f"Read {len(df)} rows from {input_path}")
+    
+    # Step 1: Quiescent XUV
     df = calculate_quiescent_xuv(df)
     
-    # 2. Cumulative Flux
-    logger.info("Calculating cumulative XUV flux...")
+    # Step 2: Cumulative Flux
     df = calculate_cumulative_flux(df)
     
-    # 3. Retention Fraction
-    logger.info("Calculating retention fraction...")
+    # Step 3: Retention Fraction
     df = calculate_retention_fraction(df)
     
-    # 4. Unphysical Flag
-    logger.info("Calculating unphysical flags...")
+    # Step 4: Unphysical Flag
     df = calculate_unphysical_flag(df)
     
-    # 5. Filter
-    initial_count = len(df)
+    # Step 5: Filter Unphysical
     df = apply_unphysical_filter(df)
-    logger.info(f"Filtered {initial_count - len(df)} unphysical rows.")
     
-    # Save
-    logger.info(f"Saving results to {output_path}")
-    df.to_csv(output_path, index=False)
-    logger.info("Physics pipeline complete.")
+    # Step 6: Validate Derived Columns (T026)
+    df, valid = validate_derived_columns(df)
+    if not valid:
+        raise RuntimeError("Physics pipeline failed validation.")
+    
+    # Prepare output columns
+    output_cols = ['host_star_id', 'cumulative_flux', 'mass_loss_rate', 'retention_fraction', 'is_valid']
+    # Add is_valid based on is_unphysical (inverted)
+    df['is_valid'] = ~df['is_unphysical']
+    
+    # Select output columns (ensure they exist)
+    available_cols = [col for col in output_cols if col in df.columns]
+    df_output = df[available_cols].copy()
+    
+    # Write output
+    df_output.to_csv(output_path, index=False)
+    logger.info(f"Wrote {len(df_output)} rows to {output_path}")
+    
+    return df_output
 
 if __name__ == "__main__":
     import logging
+    from pathlib import Path
+    
     logging.basicConfig(level=logging.INFO)
-    run_physics_pipeline("data/processed/merged_filtered.csv", "data/processed/derived_physics.csv")
+    
+    input_file = "data/processed/merged_filtered.csv"
+    output_file = "data/processed/derived_physics.csv"
+    
+    if Path(input_file).exists():
+        run_physics_pipeline(input_file, output_file)
+    else:
+        logger.error(f"Input file not found: {input_file}")
+        raise FileNotFoundError(f"Input file not found: {input_file}")

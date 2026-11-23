@@ -20,13 +20,13 @@ properties:
     description: Primary programming language (e.g., Python, JavaScript).
   response_time_variance:
     type: number
-    description: Interaction-weighted mean of pair-level response time variances (hours^2).
+    description: Median of pair-level response time variances (seconds^2).
   mean_delay:
     type: number
-    description: Interaction-weighted mean of pair-level mean delays (hours).
+    description: Mean of pair-level mean delays (seconds).
   cohesion_proxy_score:
     type: number
-    description: Composite score (sentiment stability + reciprocity + density) ranging from 0 to 1.
+    description: Composite score (VADER compound score) ranging from -1 to 1.
   sentiment_stability:
     type: number
     description: Standard deviation of VADER compound scores.
@@ -36,6 +36,9 @@ properties:
   network_density:
     type: number
     description: Density of the interaction graph.
+  total_comment_count:
+    type: integer
+    description: Total number of text-based events (for volume control).
   exclusion_reason:
     type: ["string", "null"]
     description: Reason for exclusion if any (e.g., "insufficient_data").
@@ -48,7 +51,5 @@ required:
   - response_time_variance
   - mean_delay
   - cohesion_proxy_score
-  - sentiment_stability
-  - reciprocity_ratio
-  - network_density
+  - total_comment_count
 additionalProperties: false

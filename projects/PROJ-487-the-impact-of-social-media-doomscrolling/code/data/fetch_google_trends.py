@@ -2,178 +2,219 @@ import os
 import sys
 import time
 import logging
-from datetime import datetime, timedelta
-from typing import List, Dict, Optional, Tuple
+import hashlib
+import json
+from datetime import datetime
+from typing import Optional, List, Dict, Any
 
-try:
-    from pytrends.request import TrendReq
-except ImportError:
-    TrendReq = None
-    logger = logging.getLogger(__name__)
-    logger.warning("pytrends not installed. Google Trends fetching will fail.")
+# Add project root to path to resolve local imports if running as script
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
 from utils.logging import get_logger
 
+# Import pytrends inside function to handle potential import errors gracefully
+# but fail loudly if the library is missing and needed.
+try:
+    from pytrends.request import TrendReq
+except ImportError:
+    print("ERROR: pytrends is not installed. Please run: pip install pytrends")
+    sys.exit(1)
+
 logger = get_logger(__name__)
 
-GOOGLE_TRENDS_MAX_RETRIES = 5
-GOOGLE_TRENDS_RETRY_DELAY = 10  # seconds
+# Configuration
+KEYWORDS = ["anticipatory anxiety", "worry about future"]
+TIMEFRAME = "2020-01-01 2023-12-31"
+OUTPUT_PATH = os.path.join("data", "raw", "google_trends.csv")
+MAX_RETRIES = 3
+BACKOFF_FACTOR = 2
 
-# Keywords for anxiety-related search trends
-ANXIETY_KEYWORDS = ["anticipatory anxiety", "worry about future"]
-
-def fetch_google_trends(
-    start_date: datetime,
-    end_date: datetime,
-    keywords: List[str] = None,
-    geo: str = "",
-    max_retries: int = GOOGLE_TRENDS_MAX_RETRIES,
-    retry_delay: int = GOOGLE_TRENDS_RETRY_DELAY
-) -> List[Dict[str, any]]:
-    """
-    Fetches anxiety-related search trends from Google Trends.
-
-    Args:
-        start_date: Start date for the query.
-        end_date: End date for the query.
-        keywords: List of keywords to track.
-        geo: Geographic code (e.g., "US"). Default is worldwide.
-        max_retries: Maximum number of retry attempts.
-        retry_delay: Delay in seconds between retries.
-
-    Returns:
-        A list of dictionaries containing date and search interest for each keyword.
-
-    Raises:
-        RuntimeError: If the API fails after max retries.
-        ImportError: If pytrends is not installed.
-    """
-    if TrendReq is None:
-        raise ImportError("pytrends is required for Google Trends fetching. Install it via pip.")
-
-    trends_data = []
-    current_date = start_date
+def validate_keywords(keywords: List[str]) -> None:
+    """Validate that keywords are not empty or contain only invalid characters."""
+    invalid_keywords = []
+    for kw in keywords:
+        if not kw or not isinstance(kw, str):
+            invalid_keywords.append(kw)
+        elif not kw.strip():
+            invalid_keywords.append(kw)
+        # Basic check for obviously invalid characters (optional, pytrends handles most)
+        # but we enforce non-empty and non-whitespace as per task T011 requirement context
+        if not kw.strip():
+            invalid_keywords.append(kw)
     
-    # Initialize pytrends
-    pytrends = TrendReq(hl='en-US', tz=360)
+    if invalid_keywords:
+        raise ValueError(f"Invalid keywords found: {invalid_keywords}. Keywords must be non-empty strings.")
 
+def fetch_with_retry(func, *args, max_retries=MAX_RETRIES, **kwargs) -> Any:
+    """
+    Execute a function with exponential backoff retry logic.
+    """
     attempt = 0
+    last_exception = None
+
     while attempt < max_retries:
         try:
-            logger.info(f"Fetching Google Trends data for {start_date} to {end_date} (Attempt {attempt + 1})")
-            
-            # Build payload
-            # Note: Google Trends API has rate limits. We might need to batch keywords.
-            # For this implementation, we fetch all keywords in one go if possible.
-            pytrends.build_payload(
-                kw_list=keywords if keywords else ANXIETY_KEYWORDS,
-                cat=0,
-                timeframe=f"{start_date.strftime('%Y-%m-%d')} {end_date.strftime('%Y-%m-%d')}",
-                geo=geo,
-                gprop=''
-            )
-
-            # Get interest over time
-            data_frame = pytrends.interest_over_time()
-
-            if data_frame.empty:
-                logger.warning("Google Trends returned empty data.")
-                return []
-
-            # Process the dataframe
-            # Columns are the keywords, index is the date
-            for date_row in data_frame.index:
-                date_str = date_row.strftime('%Y-%m-%d')
-                for keyword in (keywords if keywords else ANXIETY_KEYWORDS):
-                    value = data_frame.loc[date_row, keyword]
-                    # Handle NaN values (sometimes Google Trends returns NaN for low volume)
-                    if pd.isna(value):
-                        value = 0
-                    trends_data.append({
-                        "date": date_str,
-                        "keyword": keyword,
-                        "interest": int(value)
-                    })
-
-            logger.info(f"Successfully fetched {len(trends_data)} trend data points.")
-            return trends_data
-
+            logger.info(f"Attempt {attempt + 1}/{max_retries} for {func.__name__}")
+            return func(*args, **kwargs)
         except Exception as e:
+            last_exception = e
             attempt += 1
-            logger.warning(f"Request failed: {e}. Retrying in {retry_delay}s... (Attempt {attempt}/{max_retries})")
             if attempt < max_retries:
-                time.sleep(retry_delay)
+                wait_time = BACKOFF_FACTOR ** attempt
+                logger.warning(f"Request failed: {e}. Retrying in {wait_time} seconds...")
+                time.sleep(wait_time)
             else:
-                logger.error("Google Trends fetch failed after maximum retries.")
-                raise RuntimeError(f"Failed to fetch Google Trends data after {max_retries} attempts: {e}")
-
-    # Should not reach here
-    raise RuntimeError("Google Trends fetch failed after maximum retries.")
-
-def save_to_csv(data: List[Dict[str, any]], output_path: str) -> None:
-    """
-    Saves the fetched trends to a CSV file.
-
-    Args:
-        data: List of trend dictionaries.
-        output_path: Path to the output CSV file.
-    """
-    import pandas as pd
-
-    if not data:
-        logger.warning("No data to save to CSV.")
-        pd.DataFrame(columns=["date", "keyword", "interest"]).to_csv(output_path, index=False)
-        return
-
-    df = pd.DataFrame(data)
-    # Ensure column order
-    if "date" in df.columns and "keyword" in df.columns and "interest" in df.columns:
-        df = df[["date", "keyword", "interest"]]
+                logger.error(f"Request failed after {max_retries} attempts: {e}")
     
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(df)} rows to {output_path}")
+    raise last_exception
 
-def main():
+def fetch_google_trends(keywords: List[str], timeframe: str) -> Optional[Dict[str, Any]]:
     """
-    Main entry point for the Google Trends fetch script.
-    Fetches data for a predefined range and saves to data/raw/google_trends.csv.
+    Fetch Google Trends data for given keywords and timeframe.
+    
+    Args:
+        keywords: List of search terms.
+        timeframe: Time range string (e.g., '2020-01-01 2023-12-31').
+        
+    Returns:
+        Dictionary containing the interest over time data, or None if failed.
     """
-    import argparse
+    validate_keywords(keywords)
+    
+    def _do_fetch():
+        # Initialize pytrends connection
+        # hl=en-US, tz=360 are standard defaults, but we don't force a proxy here
+        # to ensure we hit the real source directly.
+        pytrends = TrendReq(hl='en-US', tz=360)
+        
+        # Build payload
+        # retry_logic is handled by the outer wrapper, but pytrends has internal retries too.
+        # We rely on our wrapper for network-level resilience.
+        try:
+            pytrends.build_payload(
+                kw_list=keywords,
+                timeframe=timeframe,
+                geo='',  # Global
+                cat=0,   # All categories
+                gprop='' # Web search
+            )
+        except Exception as e:
+            logger.error(f"Failed to build payload: {e}")
+            raise e
 
-    parser = argparse.ArgumentParser(description="Fetch anxiety-related search trends from Google Trends.")
-    parser.add_argument("--start", type=str, help="Start date (YYYY-MM-DD)")
-    parser.add_argument("--end", type=str, help="End date (YYYY-MM-DD)")
-    parser.add_argument("--output", type=str, default="data/raw/google_trends.csv", help="Output CSV path")
-    args = parser.parse_args()
-
-    # Default dates if not provided (last 30 days)
-    if args.start:
-        start_date = datetime.strptime(args.start, "%Y-%m-%d")
-    else:
-        start_date = datetime.now() - timedelta(days=30)
-
-    if args.end:
-        end_date = datetime.strptime(args.end, "%Y-%m-%d")
-    else:
-        end_date = datetime.now()
-
-    logger.info(f"Starting Google Trends fetch from {start_date} to {end_date}")
+        # Get interest over time
+        try:
+            data = pytrends.interest_over_time()
+            return data
+        except Exception as e:
+            logger.error(f"Failed to fetch interest over time: {e}")
+            raise e
 
     try:
-        # We fetch for the default keywords
-        events = fetch_google_trends(start_date, end_date, keywords=ANXIETY_KEYWORDS)
-        save_to_csv(events, args.output)
-        logger.info("Google Trends fetch completed successfully.")
-        sys.exit(0)
-    except RuntimeError as e:
-        logger.error(f"Google Trends fetch failed: {e}")
-        sys.exit(1)
-    except ImportError as e:
-        logger.error(f"Missing dependency: {e}")
-        sys.exit(1)
+        return fetch_with_retry(_do_fetch)
     except Exception as e:
-        logger.error(f"Unexpected error during Google Trends fetch: {e}")
+        logger.critical(f"Failed to fetch Google Trends data after retries: {e}")
+        return None
+
+def save_to_csv(data: Any, filepath: str) -> bool:
+    """
+    Save the Google Trends DataFrame to a CSV file.
+    
+    Args:
+        data: Pandas DataFrame from pytrends.
+        filepath: Output path for the CSV.
+        
+    Returns:
+        True if successful, False otherwise.
+    """
+    if data is None or data.empty:
+        logger.error("No data to save.")
+        return False
+
+    try:
+        # Ensure directory exists
+        os.makedirs(os.path.dirname(filepath), exist_ok=True)
+        
+        # Reset index to make 'date' a column if it's the index
+        if isinstance(data.index, pd.DatetimeIndex):
+            data = data.reset_index()
+        
+        # Rename 'date' column if it exists as index to ensure consistency
+        # pytrends usually returns 'date' as the index or a column named 'date'
+        if 'date' in data.columns:
+            data['date'] = pd.to_datetime(data['date']).dt.strftime('%Y-%m-%d')
+        
+        # Save to CSV
+        data.to_csv(filepath, index=False)
+        logger.info(f"Data saved to {filepath}")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to save data to CSV: {e}")
+        return False
+
+def calculate_md5(filepath: str) -> str:
+    """Calculate MD5 checksum of a file."""
+    hash_md5 = hashlib.md5()
+    with open(filepath, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_md5.update(chunk)
+    return hash_md5.hexdigest()
+
+def save_checksum(checksum: str, filepath: str) -> None:
+    """Save checksum to a .md5 file."""
+    md5_path = filepath + ".md5"
+    with open(md5_path, "w") as f:
+        f.write(checksum)
+    logger.info(f"Checksum saved to {md5_path}")
+
+def main():
+    """Main entry point for the Google Trends fetch script."""
+    logger.info("Starting Google Trends data fetch...")
+    
+    # Log proxy acknowledgment as per project requirements
+    logger.info("Data Source: Google Trends (Anticipatory Anxiety, Worry about Future).")
+    logger.info("This is a proxy for 'search interest' in anxiety, not direct 'social media consumption' data.")
+    
+    # Fetch data
+    trends_data = fetch_google_trends(KEYWORDS, TIMEFRAME)
+    
+    if trends_data is None:
+        logger.error("Failed to retrieve Google Trends data.")
         sys.exit(1)
+    
+    # Save data
+    if not save_to_csv(trends_data, OUTPUT_PATH):
+        logger.error("Failed to save data to CSV.")
+        sys.exit(1)
+    
+    # Calculate and save checksum
+    if os.path.exists(OUTPUT_PATH):
+        checksum = calculate_md5(OUTPUT_PATH)
+        save_checksum(checksum, OUTPUT_PATH)
+        logger.info(f"MD5 Checksum: {checksum}")
+    
+    logger.info("Google Trends fetch completed successfully.")
+    sys.exit(0)
 
 if __name__ == "__main__":
+    # Setup logging for this script execution
+    setup_log_dir = os.path.join("code", "logs")
+    os.makedirs(setup_log_dir, exist_ok=True)
+    # We assume utils.logging.setup_logging is called or configured globally.
+    # If not, we do a basic setup here to ensure logs are written.
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        handler.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        logger.addHandler(handler)
+        logger.setLevel(logging.INFO)
+    
+    # Import pandas here to ensure it's available for save_to_csv
+    try:
+        import pandas as pd
+    except ImportError:
+        print("ERROR: pandas is not installed.")
+        sys.exit(1)
+    
     main()

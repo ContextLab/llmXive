@@ -20,7 +20,6 @@ from pathlib import Path
 import pytest
 
 from llmxive.paper_reprocess.preprint_review import (
-    consolidate_action_items,
     paper_reviewer_agent_names,
     run_preprint_review,
 )

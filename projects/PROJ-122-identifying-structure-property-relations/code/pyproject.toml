@@ -3,30 +3,50 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-polymer-blends"
+name = "llmxive-proj-122"
 version = "0.1.0"
 description = "Identifying Structure-Property Relations in Polymer Blends"
-readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.8"
 dependencies = [
-    "pandas==2.2.3",
-    "rdkit==2024.3.5",
-    "scikit-learn==1.5.2",
-    "xgboost==2.1.1",
-    "shap==0.46.0",
-    "pyyaml==6.0.2",
-    "requests==2.32.3",
-    "joblib==1.4.2",
-    "psutil==6.0.0"
+    "pandas",
+    "rdkit",
+    "scikit-learn",
+    "xgboost",
+    "shap",
+    "pyyaml",
+    "requests",
+    "joblib",
+    "psutil",
+    "jsonschema",
+    "flake8",
+    "black",
+    "pytest"
 ]
 
-[project.optional-dependencies]
-dev = [
-    "pytest>=8.0.0",
-    "black>=24.0.0",
-    "flake8>=7.0.0"
-]
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["code*"]
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

@@ -1,64 +1,104 @@
 # Data Model: Investigating the Correlation Between Gut Microbiome Composition and Immune Response to Influenza Vaccination
 
-## Entities
+## Overview
 
-### Subject
+This document defines the data structures, transformations, and file formats used throughout the pipeline. The data model is designed to ensure reproducibility and strict adherence to the functional requirements (FR-001 to FR-008).
+
+## Entity Definitions
+
+### 1. Subject
 Represents an individual participant.
-- `subject_id`: Unique identifier (string).
-- `baseline_microbiome`: Dictionary of taxon -> relative abundance.
-- `post_vaccination_titer`: Log-transformed antibody titer (float).
-- `pre_vaccination_titer`: Log-transformed antibody titer (float, optional).
-- `responder_status`: Binary (0/1) based on threshold.
-  - *Logic*: 
-    - If `pre_vaccination_titer` exists for the subject: `responder_status = 1` if (Fold-Change ≥ 4 OR Absolute Titer ≥ 40) else `0`.
-    - If `pre_vaccination_titer` is missing: `responder_status = 1` if (Absolute Titer ≥ 40) else `0`. (Fallback mode).
-- `shannon_diversity`: Calculated diversity index (float).
-- `responder_mode`: String ("Seroconversion", "Absolute", "Mixed", "Absolute_Fallback").
+- **Attributes**:
+  - `subject_id`: Unique string identifier.
+  - `age`: Integer (optional).
+  - `sex`: String (optional).
+  - `titer_pre`: Float (log-transformed baseline antibody titer).
+  - `titer_post`: Float (log-transformed post-vaccination antibody titer).
+  - `responder_status`: Binary (0=Low, 1=High). Derived from `titer_post` vs `titer_pre`.
+  - `shannon_diversity`: Float (calculated diversity metric).
 
-### Taxon
-Represents a microbial taxon.
-- `taxon_id`: Unique identifier (string, e.g., "Genus_species").
-- `abundance_vector`: List of relative abundances across subjects.
-- `clr_abundance_vector`: List of CLR-transformed values.
-- `correlation_coefficient`: Spearman rho with titer.
-- `raw_p_value`: Raw p-value from correlation test.
-- `adjusted_p_value`: BH-corrected p-value.
-- `is_significant`: Boolean (adjusted_p < 0.05).
+### 2. Taxon
+Represents a microbial taxon (e.g., Genus, Species).
+- **Attributes**:
+  - `taxon_id`: String (e.g., "Bacteroides_fragilis").
+  - `abundances`: List of floats (relative abundance per subject).
+  - `clr_values`: List of floats (CLR-transformed values per subject).
+  - `correlation_coefficient`: Float (Spearman rho).
+  - `p_value_raw`: Float (raw p-value).
+  - `p_value_adj`: Float (BH-corrected p-value).
+  - `is_significant`: Boolean.
 
-### CorrelationResult
-Aggregated output of the correlation phase.
-- `taxon_id`: Reference to Taxon.
-- `coefficient`: Float.
-- `p_value_raw`: Float.
-- `p_value_adj`: Float.
-- `significant`: Boolean.
+### 3. CorrelationResult
+Output of the correlation analysis phase.
+- **Attributes**:
+  - `taxon_id`: String.
+  - `metric`: String (e.g., "Spearman").
+  - `coefficient`: Float.
+  - `p_value_raw`: Float.
+  - `p_value_adj`: Float.
+  - `significant`: Boolean.
 
-### ModelPerformance
-Aggregated output of the modeling phase.
-- `fold`: Integer (1-5).
-- `accuracy`: Float.
-- `precision`: Float.
-- `recall`: Float.
-- `f1_score`: Float.
-- `feature_importance`: Dictionary of taxon -> importance.
-- `threshold`: Float (the threshold used for this fold).
+### 4. ModelPerformance
+Output of the Random Forest validation.
+- **Attributes**:
+  - `fold_id`: Integer (0-4).
+  - `accuracy`: Float.
+  - `precision`: Float.
+  - `recall`: Float.
+  - `f1_score`: Float.
+  - `selected_features`: List of strings (taxa IDs used in this fold).
 
-## Data Flow
+### 5. LintReport
+Output of the T039 linting phase.
+- **Attributes**:
+  - `status`: String ("PASS" or "FAIL").
+  - `errors`: List of strings (error messages).
+  - `warnings`: List of strings (warning messages).
 
-1.  **Ingestion**: Raw data (CSV/Parquet) -> `data/raw/`.
-2.  **Filtering**: `data/raw/` -> `data/processed/filtered.csv` (Subjects with complete data).
-3.  **Zero-Variance Removal**: `filtered.csv` -> `data/processed/filtered_no_zero_var.csv` (T019).
-4.  **Transformation**: `filtered_no_zero_var.csv` -> `data/processed/cleared_default.csv` (CLR, Shannon, Pseudocount 1e-6).
-5.  **Correlation**: `cleared_default.csv` -> `data/results/correlations.csv` (Coefficients, P-values).
-6.  **Modeling**: `cleared_default.csv` + `correlations.csv` -> `data/results/model_metrics.json` (CV results).
-7.  **Sensitivity**: `model_metrics.json` -> `data/results/sensitivity_analysis.csv`.
-8.  **Comparison**: `model_metrics.json` + `null_distribution.csv` -> `data/results/model_significance.json`.
+## File Schema & Artifacts
 
-## Constraints
+### 1. `data/raw/ingested_data.csv`
+*Source*: Ingested from verified URLs (or synthetic generator).
+*Schema*:
+- `subject_id` (str)
+- `titer_pre` (float)
+- `titer_post` (float)
+- `taxa_1` (float) ... `taxa_N` (float)
 
-- **Completeness**: No nulls in `baseline_microbiome` or `post_vaccination_titer`.
-- **Uniqueness**: `subject_id` must be unique.
-- **Range**: `responder_status` ∈ {0, 1}.
-- **Threshold**: `adjusted_p_value` must be calculated via BH correction.
-- **Fallback**: If `pre_vaccination_titer` is missing for all subjects, `responder_mode` must be "Absolute_Fallback".
-- **Zero-Variance**: Taxa with zero variance must be excluded before CLR transformation.
+### 2. `data/processed/cleared_with_diversity.csv`
+*Source*: Filtered and transformed from `ingested_data.csv` (T011d).
+*Schema*:
+- `subject_id` (str)
+- `shannon_diversity` (float)
+- `titer_pre_log` (float)
+- `titer_post_log` (float)
+- `responder_status` (int)
+- `taxa_1_clr` (float) ... `taxa_N_clr` (float)
+
+*Note*: This file is the single source of truth for the analysis phase. It resolves the "consumer before producer" concern by explicitly merging microbiome and serology data before any transformation.
+
+### 3. `data/results/correlation_results.json`
+*Schema*: List of `CorrelationResult` objects.
+
+### 4. `data/results/model_metrics.json`
+*Schema*: List of `ModelPerformance` objects + aggregate summary.
+
+### 5. `data/results/lint_report.txt`
+*Source*: T039 output.
+*Schema*: Plain text log of `ruff` and `black` execution.
+
+## Data Flow Diagram
+
+1. **Ingestion**: `raw` -> `cleared_with_diversity.csv` (Filtering, Merging, CLR, Log-Transform).
+2. **Analysis**: `cleared_with_diversity.csv` -> `correlation_results.json` (Spearman, BH).
+3. **Modeling**: `cleared_with_diversity.csv` + `correlation_results.json` -> `model_metrics.json` (Nested CV).
+4. **Output**: Aggregated results to `data/results/`.
+5. **Linting**: `code/` -> `lint_report.txt` (Pre-requisite).
+
+## Assumptions & Constraints
+
+- **Missing Data**: Any subject with missing `titer_pre` or `titer_post` is dropped immediately in Step 1.
+- **Zero Abundance**: Taxa with 0 variance (all zeros) are removed before CLR to avoid `log(0)`.
+- **LOD**: Values below limit of detection are imputed to `0.5 * LOD` before log-transform.
+- **Responer Definition**: High responder = `titer_post / titer_pre >= 4` OR `titer_post >= 40` (HAI units).
+- **Zero-Handling**: Pseudo-count 1e-6 added before CLR.

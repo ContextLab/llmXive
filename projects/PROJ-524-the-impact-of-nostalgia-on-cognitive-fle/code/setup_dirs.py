@@ -2,56 +2,51 @@ import os
 import sys
 import logging
 from pathlib import Path
+from config import get_config, ensure_dirs
+from utils import setup_logging, log_info, log_warning, log_error
 
-from config import ensure_dirs, get_config
-
-def main():
+def create_required_directories():
     """
-    Create required project directories.
-    This script is used to initialize the data directory structure.
+    Creates all required data directories for the project.
+    Directories: data/raw/, data/processed/, data/results/, data/stimuli/,
+                 contracts/, code/, tests/, paper/
     """
     config = get_config()
-    
-    # Define directories to create based on project requirements
-    # T001a: data/raw/ (already done per task list, but ensuring existence)
-    # T001b: data/processed/
-    # T001c: data/results/
-    # T001e: data/stimuli/
-    
-    dirs_to_create = [
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "data/stimuli"
+    base_path = Path(config.get('base_path', '.'))
+
+    # Define relative paths based on task T001 description
+    required_dirs = [
+        base_path / 'data' / 'raw',
+        base_path / 'data' / 'processed',
+        base_path / 'data' / 'results',
+        base_path / 'data' / 'stimuli',
+        base_path / 'contracts',
+        base_path / 'code',
+        base_path / 'tests',
+        base_path / 'paper'
     ]
-    
-    for dir_path in dirs_to_create:
-        full_path = Path(dir_path)
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            logging.info(f"Created directory: {full_path}")
-        else:
-            logging.info(f"Directory already exists: {full_path}")
 
-    # Ensure code and tests __init__.py exist if they don't
-    code_init = Path("code/__init__.py")
-    if not code_init.exists():
-        code_init.touch()
-        logging.info(f"Created {code_init}")
-        
-    tests_init = Path("tests/__init__.py")
-    if not tests_init.exists():
-        tests_init.touch()
-        logging.info(f"Created {tests_init}")
+    created_count = 0
+    for dir_path in required_dirs:
+        try:
+            # exist_ok=True ensures we don't error if it already exists
+            dir_path.mkdir(parents=True, exist_ok=True)
+            log_info(f"Directory created or verified: {dir_path}")
+            created_count += 1
+        except PermissionError:
+            log_error(f"Permission denied creating directory: {dir_path}")
+        except Exception as e:
+            log_error(f"Error creating directory {dir_path}: {e}")
 
-    # Ensure README.md exists
-    readme = Path("README.md")
-    if not readme.exists():
-        readme.write_text("# The Impact of Nostalgia on Cognitive Flexibility in Aging Adults\n\nThis project investigates the effect of nostalgia on cognitive flexibility in older adults.\n")
-        logging.info(f"Created {readme}")
+    log_info(f"Successfully created/verified {created_count} directories.")
+    return created_count
 
-    logging.info("Directory structure initialization complete.")
+def main():
+    """Entry point for T001 directory creation."""
+    setup_logging()
+    log_info("Starting T001: Create required directories")
+    create_required_directories()
+    log_info("T001 completed successfully")
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     main()

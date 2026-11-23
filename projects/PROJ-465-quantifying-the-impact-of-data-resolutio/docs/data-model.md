@@ -1,65 +1,71 @@
-# Data Model Specification
+# Data Model Documentation
 
-This document defines the core data structures used in the `quantifying-the-impact-of-data-resolution` pipeline.
+This document describes the core data structures, file formats, and artifact definitions used in the `PROJ-465` project. It aligns with the `data-model.md` requirements and the implementation in `code/data/models.py`.
 
-## Core Entities
+## 1. Core Entities
 
-The project uses the following dataclasses defined in `code/data/models.py`.
+The project uses the following dataclasses defined in `code/data/models.py`:
 
-### 1. StrainEvent
+### 1.1 `StrainEvent`
 
-Represents a gravitational wave event detected by LIGO/Virgo.
+Represents a gravitational wave event and its raw strain data.
 
 ```python
 @dataclass
 class StrainEvent:
  event_id: str
- gw_osc_id: str
- snr: float
+ gwosc_id: str
  start_time: float
  end_time: float
- detector: str
- raw_file_path: Path
+ snr: float
+ data_path: Path
+ metadata: Dict[str, Any]
 ```
 
-- **event_id**: Unique identifier for the event within this project (e.g., "GW150914").
-- **snr**: Signal-to-Noise Ratio. Must be >= 20 for inclusion.
-- **raw_file_path**: Path to the downloaded raw strain data file.
+- **`event_id`**: Unique identifier for the event (e.g., "GW150914").
+- **`gwosc_id`**: ID used by the GWOSC API.
+- **`snr`**: Signal-to-Noise Ratio, fetched from the GWOSC catalog.
+- **`data_path`**: Path to the raw strain data file (`.hdf5` or `.txt`).
 
-### 2. ResolutionConfig
+### 1.2 `ResolutionConfig`
 
 Defines a specific downsampling and quantization configuration.
 
 ```python
 @dataclass
 class ResolutionConfig:
- sample_rate: int # e.g., 4096, 2048, 1024 Hz
+ sampling_rate: int # e.g., 4096, 2048, 1024
  bit_depth: int # e.g., 16, 32
- label: str # Human-readable label (e.g., "2048Hz_16bit")
+ downsample_factor: int
+ quantization_type: str # "float16", "float32"
 ```
 
-### 3. PosteriorDistribution
+- **`sampling_rate`**: Target sampling rate in Hz.
+- **`bit_depth`**: Simulated storage bit depth.
+- **`downsample_factor`**: Ratio of original rate to target rate.
 
-Represents the output of a `bilby` inference run.
+### 1.3 `PosteriorDistribution`
+
+Represents the output of the Bayesian inference step.
 
 ```python
 @dataclass
 class PosteriorDistribution:
  event_id: str
  resolution_config: ResolutionConfig
- file_path: Path
+ samples: np.ndarray # Shape: (n_samples, n_parameters)
+ parameters: List[str]
+ metadata: Dict[str, Any]
  is_inconclusive: bool
- convergence_dlogz: float
- max_iterations: int
- parameters: Dict[str, np.ndarray] # Sampled parameters (mass, spin, etc.)
+ posterior_width_ratio: float # Posterior width / Prior width
 ```
 
-- **is_inconclusive**: True if `dlogz > 0.1` after `max_iterations`.
-- **parameters**: Dictionary of parameter names to sample arrays.
+- **`is_inconclusive`**: `True` if the `dynesty` sampler failed to converge (`dlogz > 0.1`).
+- **`posterior_width_ratio`**: Used to filter out events where the posterior is > 50% of the prior width.
 
-### 4. BiasMetric
+### 1.4 `BiasMetric`
 
-Represents the calculated bias and divergence for a specific resolution.
+Stores the calculated bias and divergence metrics for a specific resolution.
 
 ```python
 @dataclass
@@ -67,29 +73,101 @@ class BiasMetric:
  event_id: str
  resolution_config: ResolutionConfig
  hellinger_distance: float
- mass_bias_percent: float
- spin_bias_percent: float
- exceeds_uncertainty: bool
- baseline_90_ci_width: float
+ mass_bias: float
+ spin_bias: float
+ catalog_ci_90: float
+ exceeds_ci: bool
+ is_inconclusive: bool
 ```
 
-- **hellinger_distance**: Distance between the downsampled posterior and the baseline posterior.
-- **exceeds_uncertainty**: True if the bias exceeds the catalog-reported 90% CI.
+- **`exceeds_ci`**: `True` if the bias magnitude exceeds the catalog-reported 90% confidence interval.
+- **`catalog_ci_90`**: The 90% CI width scaled from catalog uncertainties (1σ * 1.645).
 
-## Data Flow
+## 2. File Formats
 
-1. **Raw**: `StrainEvent` objects are created from GWOSC downloads.
-2. **Derived**: `ResolutionConfig` is applied to `StrainEvent` to create derived strain files.
-3. **Inference**: `PosteriorDistribution` is generated from derived strain using `bilby`.
-4. **Metrics**: `BiasMetric` is calculated by comparing `PosteriorDistribution` instances.
+### 2.1 Strain Data (`data/raw/`)
 
-## File Formats
+- **Format**: HDF5 (`.hdf5`) or plain text (`.txt`).
+- **Content**: Time series of strain data with metadata.
+- **Checksum**: A `.sha256` file is generated for each raw data file to ensure integrity.
 
-- **Strain Data**: HDF5 format (`.hdf5`) containing time series data.
-- **Posteriors**: HDF5 format (`.hdf5`) containing samples and metadata.
-- **Metrics**: JSON format (`.json`) containing aggregated results.
-- **Logs**: Text format (`.log`) containing derivation and execution logs.
+### 2.2 Derived Data (`data/derived/`)
 
-## Versioning
+- **Format**: HDF5 (`.hdf5`).
+- **Content**: Downsampled and quantized strain data.
+- **Structure**:
+ ```
+ data/derived/
+ └── <event_id>/
+ ├── 4096Hz_float32.hdf5
+ ├── 2048Hz_float16.hdf5
+ └──...
+ ```
 
-All derived artifacts include a hash of their input parameters and raw data checksums in their metadata to ensure reproducibility (Constitution V).
+### 2.3 Posterior Files (`results/posteriors/`)
+
+- **Format**: JSON (`.json`).
+- **Content**: Posterior samples, parameter names, and metadata.
+- **Example**:
+ ```json
+ {
+ "event_id": "GW150914",
+ "resolution": {
+ "sampling_rate": 2048,
+ "bit_depth": 32
+ },
+ "samples": [[...], [...],...],
+ "parameters": ["mass_1", "mass_2", "chi_eff",...],
+ "metadata": {
+ "is_inconclusive": false,
+ "posterior_width_ratio": 0.35,
+ "convergence_dlogz": 0.05
+ }
+ }
+ ```
+
+### 2.4 Metrics Files (`results/metrics/`)
+
+- **Format**: CSV (`.csv`) and JSON (`.json`).
+- **CSV Content**:
+ - `event_id`, `sampling_rate`, `bit_depth`, `hellinger_distance`, `mass_bias`, `spin_bias`, `catalog_ci_90`, `exceeds_ci`, `is_inconclusive`.
+- **JSON Content**: Aggregation reports and summary tables.
+
+## 3. Artifact Integrity
+
+All generated artifacts are checksummed using SHA-256. The `code/utils/hash_artifact.py` module provides utilities to:
+- Compute hashes for files and strings.
+- Save and load hash manifests.
+- Verify artifact integrity against stored hashes.
+
+**Manifest Format**:
+```json
+{
+ "version": "1.0",
+ "artifacts": {
+ "GW150914_2048Hz_float16.hdf5": "sha256:abc123...",
+ "GW150914_metrics.csv": "sha256:def456..."
+ }
+}
+```
+
+## 4. Logging and Derivation
+
+Derivation parameters (e.g., downsampling factor, quantization type) are logged using the `DerivationAdapter` in `code/utils/logging_config.py`. Logs are stored in `logs/` and include:
+- Timestamp
+- Event ID
+- Resolution configuration
+- Any warnings (e.g., missing segments, convergence failures)
+
+## 5. Conventions
+
+- **Paths**: All paths are relative to the project root.
+- **Units**: Sampling rates in Hz, masses in solar masses, spins dimensionless.
+- **Confidence Intervals**: 90% CI is calculated as 1σ * 1.645 (standard normality assumption).
+- **Inconclusive Handling**: Events flagged "inconclusive" are excluded from the denominator in majority-rule calculations but counted as "bias exceeded" in threshold analysis.
+
+## 6. References
+
+- **Spec**: `specs/001-quantify-gw-resolution-impact/spec.md`
+- **Plan**: `plan.md`
+- **Code**: `code/data/models.py`, `code/analysis/metrics.py`, `code/analysis/aggregate.py`

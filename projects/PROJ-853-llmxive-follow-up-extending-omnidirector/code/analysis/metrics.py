@@ -5,305 +5,363 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import numpy as np
 
-from config import get_path, get_constant
+from config import get_path
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-def calculate_reconstruction_error(estimated: Dict[str, Any], ground_truth: Dict[str, Any]) -> float:
+def calculate_reconstruction_error(estimated_value: float, ground_truth_value: float) -> float:
     """
-    Calculate the absolute difference between estimated and ground truth box dimensions.
-    
+    Calculate the absolute difference (reconstruction error) between an estimated
+    value and a ground truth value.
+
     Args:
-        estimated: Dictionary containing 'dimensions' (h, w, d) from reconstruction.
-        ground_truth: Dictionary containing 'dimensions' (h, w, d) from metadata.
-        
+        estimated_value: The value estimated by the solver.
+        ground_truth_value: The known ground truth value.
+
     Returns:
-        Absolute error (sum of absolute differences across dimensions).
+        The absolute difference (error).
     """
-    est_dims = estimated.get('dimensions', {})
-    gt_dims = ground_truth.get('dimensions', {})
+    if not isinstance(estimated_value, (int, float)) or not isinstance(ground_truth_value, (int, float)):
+        raise TypeError("Both estimated and ground truth values must be numeric.")
     
-    if not est_dims or not gt_dims:
-        logger.warning("Missing dimensions in comparison")
-        return float('nan')
-    
-    errors = []
-    for dim in ['height', 'width', 'depth']:
-        e_val = est_dims.get(dim, 0.0)
-        g_val = gt_dims.get(dim, 0.0)
-        if isinstance(e_val, (int, float)) and isinstance(g_val, (int, float)):
-            errors.append(abs(float(e_val) - float(g_val)))
-        
-    return sum(errors) if errors else float('nan')
+    return abs(float(estimated_value) - float(ground_truth_value))
 
 def process_poses_file(poses_path: Path) -> List[Dict[str, Any]]:
     """
-    Load and process the poses_estimated.json file.
-    
+    Load the poses_estimated.json file and return the list of pose entries.
+
     Args:
-        poses_path: Path to the JSON file containing pose estimates.
-        
+        poses_path: Path to the poses_estimated.json file.
+
     Returns:
-        List of processed pose records.
+        List of dictionaries containing pose data.
+
+    Raises:
+        FileNotFoundError: If the poses file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
     """
     if not poses_path.exists():
         raise FileNotFoundError(f"Poses file not found: {poses_path}")
-    
-    with open(poses_path, 'r') as f:
-        data = json.load(f)
-        
-    # Handle both list of records and dict of records
-    if isinstance(data, dict):
-        records = list(data.values())
-    else:
-        records = data
-        
-    logger.info(f"Loaded {len(records)} pose records from {poses_path}")
-    return records
 
-def compute_statistics(values: List[float]) -> Dict[str, float]:
-    """
-    Compute basic statistics for a list of numerical values.
+    with open(poses_path, 'r', encoding='utf-8') as f:
+        data = json.load(f)
+
+    # The file is expected to be a list of entries. If it's a dict with a key,
+    # we assume the key holds the list (common pattern in some outputs).
+    if isinstance(data, dict):
+        # Try common keys
+        for key in ['poses', 'results', 'data', 'entries']:
+            if key in data:
+                data = data[key]
+                break
+        else:
+            # If no known key, take the first value that is a list
+            for val in data.values():
+                if isinstance(val, list):
+                    data = val
+                    break
     
-    Args:
-        values: List of float values.
-        
-    Returns:
-        Dictionary with mean, std, min, max, count.
+    if not isinstance(data, list):
+        logger.warning(f"Expected a list in {poses_path}, got {type(data)}. Wrapping in list.")
+        data = [data]
+
+    return data
+
+def compute_statistics(errors: List[float]) -> Dict[str, float]:
     """
-    if not values:
+    Compute basic statistics for a list of errors.
+
+    Args:
+        errors: List of error values.
+
+    Returns:
+        Dictionary with mean, median, std, min, max.
+    """
+    if not errors:
         return {
             'mean': 0.0,
+            'median': 0.0,
             'std': 0.0,
             'min': 0.0,
             'max': 0.0,
             'count': 0
         }
-        
-    arr = np.array(values)
+
+    arr = np.array(errors)
     return {
         'mean': float(np.mean(arr)),
+        'median': float(np.median(arr)),
         'std': float(np.std(arr)),
         'min': float(np.min(arr)),
         'max': float(np.max(arr)),
-        'count': len(arr)
+        'count': len(errors)
     }
 
-def calculate_all_reconstruction_errors(poses_records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def calculate_all_reconstruction_errors(poses_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Calculate reconstruction errors for all pose records.
-    
+    Iterate through the poses data, calculate reconstruction errors for dimensions
+    where both estimated and ground truth values are present.
+
+    Expected keys in each pose dict:
+        - 'sequence_id', 'frame_id' (identifiers)
+        - 'estimated_box': {'width', 'height', 'depth'}
+        - 'ground_truth_box': {'width', 'height', 'depth'}
+
     Args:
-        poses_records: List of pose records containing 'estimated' and 'ground_truth'.
-        
+        poses_data: List of pose dictionaries.
+
     Returns:
-        List of records with added 'reconstruction_error' field.
+        List of dictionaries containing errors for each dimension per frame.
     """
     results = []
-    for record in poses_records:
-        est = record.get('estimated', {})
-        gt = record.get('ground_truth', {})
+    for entry in poses_data:
+        seq_id = entry.get('sequence_id', 'unknown')
+        frame_id = entry.get('frame_id', 'unknown')
         
-        error = calculate_reconstruction_error(est, gt)
-        
-        result = record.copy()
-        result['reconstruction_error'] = error
-        results.append(result)
-        
+        est_box = entry.get('estimated_box', {})
+        gt_box = entry.get('ground_truth_box', {})
+
+        if not est_box or not gt_box:
+            # Log warning if data is missing but continue
+            logger.debug(f"Missing box data for {seq_id}/{frame_id}. Skipping error calc.")
+            continue
+
+        dims = ['width', 'height', 'depth']
+        for dim in dims:
+            est_val = est_box.get(dim)
+            gt_val = gt_box.get(dim)
+
+            if est_val is not None and gt_val is not None:
+                error = calculate_reconstruction_error(est_val, gt_val)
+                results.append({
+                    'sequence_id': seq_id,
+                    'frame_id': frame_id,
+                    'dimension': dim,
+                    'estimated': est_val,
+                    'ground_truth': gt_val,
+                    'error': error
+                })
+            else:
+                logger.debug(f"Missing {dim} for {seq_id}/{frame_id}. Skipping.")
+
     return results
 
-def calculate_camera_motion_complexity(poses_records: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+def calculate_camera_motion_complexity(poses_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Calculate a complexity metric for camera motion per sequence.
+    Calculate a complexity metric based on the variance of motion vectors or
+    the magnitude of rotation/translation changes between frames.
     
-    The complexity metric is defined as a weighted combination of:
-    1. Angular velocity magnitude (rotation speed)
-    2. Linear velocity magnitude (translation speed)
-    3. Variance in motion direction (change in heading)
-    
-    This metric helps correlate motion complexity with reconstruction accuracy.
+    For this implementation, we use the sum of absolute differences in 
+    rotation (rvec) and translation (tvec) magnitudes compared to the previous frame.
     
     Args:
-        poses_records: List of pose records containing 'sequence_id', 'frame_id', 
-                       and 'pose' (with rotation matrix R and translation vector t).
-                       
+        poses_data: List of pose dictionaries containing 'rvec' and 'tvec'.
+
     Returns:
-        List of records with added 'motion_complexity' field.
+        List of dictionaries with complexity metrics per sequence.
     """
-    logger.info("Calculating camera motion complexity metrics...")
-    
     # Group by sequence
     sequences: Dict[str, List[Dict]] = {}
-    for record in poses_records:
-        seq_id = record.get('sequence_id', 'unknown')
+    for entry in poses_data:
+        seq_id = entry.get('sequence_id', 'unknown')
         if seq_id not in sequences:
             sequences[seq_id] = []
-        sequences[seq_id].append(record)
-    
-    complexity_results = []
-    
+        sequences[seq_id].append(entry)
+
+    complexities = []
     for seq_id, frames in sequences.items():
-        # Sort frames by frame_id
-        frames = sorted(frames, key=lambda x: x.get('frame_id', 0))
-        
-        if len(frames) < 2:
-            # Not enough frames to calculate motion
-            for f in frames:
-                result = f.copy()
-                result['motion_complexity'] = 0.0
-                complexity_results.append(result)
-            continue
-        
-        # Extract poses and calculate motion vectors
-        velocities = []
-        angular_velocities = []
-        direction_changes = []
-        
-        prev_R = None
-        prev_t = None
-        
-        for i, frame in enumerate(frames):
-            pose = frame.get('pose', {})
-            R = pose.get('R_matrix')
-            t = pose.get('t_vector')
-            
-            if R is None or t is None:
+        # Sort frames if possible, otherwise process in order
+        # Assuming frames are ordered in the list for now
+        total_complexity = 0.0
+        prev_rvec = None
+        prev_tvec = None
+
+        for frame in frames:
+            rvec = frame.get('rvec')
+            tvec = frame.get('tvec')
+
+            if rvec is None or tvec is None:
                 continue
-            
-            # Convert to numpy arrays
-            R = np.array(R).reshape(3, 3) if not isinstance(R, np.ndarray) else R
-            t = np.array(t).reshape(3) if not isinstance(t, np.ndarray) else t
-            
-            if prev_R is not None and prev_t is not None:
-                # Calculate linear velocity (translation difference)
-                linear_vel = t - prev_t
-                linear_vel_mag = np.linalg.norm(linear_vel)
-                velocities.append(linear_vel_mag)
-                
-                # Calculate angular velocity (rotation difference)
-                # R_rel = R_prev.T @ R_curr
-                R_rel = prev_R.T @ R
-                # Convert to axis-angle
-                angle, axis = cv2.Rodrigues(R_rel)
-                angular_vel_mag = np.linalg.norm(angle)
-                angular_velocities.append(angular_vel_mag)
-                
-                # Calculate direction change (dot product of consecutive translation vectors)
-                if len(velocities) > 1:
-                    prev_vel = velocities[-2]
-                    curr_vel = velocities[-1]
-                    if prev_vel > 1e-6 and curr_vel > 1e-6:
-                        # Normalize and compare
-                        # Note: We need the actual vectors, not just magnitudes
-                        # Re-calculate from stored vectors would be ideal, but for complexity
-                        # we can approximate using angular change
-                        direction_changes.append(angular_vel_mag)
-            
-            prev_R = R
-            prev_t = t
-        
-        # Calculate complexity score
-        if velocities and angular_velocities:
-            avg_linear = np.mean(velocities)
-            avg_angular = np.mean(angular_velocities)
-            avg_direction_change = np.mean(direction_changes) if direction_changes else 0.0
-            
-            # Weighted sum: angular motion typically harder to reconstruct than linear
-            # Weights can be tuned based on empirical results
-            w_linear = 0.3
-            w_angular = 0.5
-            w_direction = 0.2
-            
-            complexity = (w_linear * avg_linear + 
-                         w_angular * avg_angular + 
-                         w_direction * avg_direction_change)
-        else:
-            complexity = 0.0
-        
-        # Assign complexity to all frames in sequence
-        for f in frames:
-            result = f.copy()
-            result['motion_complexity'] = float(complexity)
-            complexity_results.append(result)
+
+            if isinstance(rvec, list):
+                rvec = np.array(rvec)
+            if isinstance(tvec, list):
+                tvec = np.array(tvec)
+
+            if prev_rvec is not None:
+                # Calculate change in rotation and translation
+                delta_r = np.linalg.norm(rvec - prev_rvec)
+                delta_t = np.linalg.norm(tvec - prev_tvec)
+                total_complexity += delta_r + delta_t
+
+            prev_rvec = rvec
+            prev_tvec = tvec
+
+        complexities.append({
+            'sequence_id': seq_id,
+            'complexity_score': total_complexity,
+            'frame_count': len(frames)
+        })
+
+    return complexities
+
+def calculate_pearson_correlation(x: List[float], y: List[float]) -> float:
+    """
+    Calculate Pearson's correlation coefficient between two lists.
+
+    Args:
+        x: List of values (e.g., complexity scores).
+        y: List of values (e.g., reconstruction errors).
+
+    Returns:
+        Pearson correlation coefficient.
+    """
+    if len(x) != len(y) or len(x) < 2:
+        logger.warning("Insufficient data for correlation calculation.")
+        return 0.0
+
+    x_arr = np.array(x)
+    y_arr = np.array(y)
+
+    # Handle constant arrays
+    if np.std(x_arr) == 0 or np.std(y_arr) == 0:
+        return 0.0
+
+    correlation = np.corrcoef(x_arr, y_arr)[0, 1]
+    if np.isnan(correlation):
+        return 0.0
+    return float(correlation)
+
+def run_correlation_analysis(poses_data: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Run the full correlation analysis:
+    1. Calculate complexity for each sequence.
+    2. Calculate mean error for each sequence.
+    3. Correlate complexity vs mean error.
+
+    Args:
+        poses_data: List of pose dictionaries.
+
+    Returns:
+        Dictionary containing correlation results and summary stats.
+    """
+    # 1. Get complexity per sequence
+    complexity_data = calculate_camera_motion_complexity(poses_data)
+    complexity_map = {item['sequence_id']: item['complexity_score'] for item in complexity_data}
+
+    # 2. Calculate mean error per sequence
+    all_errors = calculate_all_reconstruction_errors(poses_data)
+    error_by_seq: Dict[str, List[float]] = {}
+    for item in all_errors:
+        seq_id = item['sequence_id']
+        if seq_id not in error_by_seq:
+            error_by_seq[seq_id] = []
+        error_by_seq[seq_id].append(item['error'])
     
-    logger.info(f"Calculated complexity for {len(sequences)} sequences")
-    return complexity_results
+    mean_error_map = {seq_id: np.mean(errors) for seq_id, errors in error_by_seq.items()}
+
+    # 3. Prepare lists for correlation
+    x_vals = []
+    y_vals = []
+    for seq_id in complexity_map:
+        if seq_id in mean_error_map:
+            x_vals.append(complexity_map[seq_id])
+            y_vals.append(mean_error_map[seq_id])
+
+    if not x_vals:
+        return {
+            'pearson_r': 0.0,
+            'p_value': 0.0,
+            'sample_size': 0,
+            'error': "No overlapping data for correlation."
+        }
+
+    r = calculate_pearson_correlation(x_vals, y_vals)
+    
+    # Simple p-value approximation (two-tailed) using scipy if available, else 0
+    try:
+        from scipy import stats
+        _, p_value = stats.pearsonr(x_vals, y_vals)
+        p_value = float(p_value)
+    except ImportError:
+        logger.warning("scipy not found. P-value set to 0.0.")
+        p_value = 0.0
+
+    return {
+        'pearson_r': r,
+        'p_value': p_value,
+        'sample_size': len(x_vals),
+        'complexity_stats': compute_statistics(x_vals),
+        'error_stats': compute_statistics(y_vals)
+    }
 
 def main():
     """
-    Main entry point for the metrics module.
-    Runs the full analysis pipeline:
-    1. Loads poses_estimated.json
-    2. Calculates reconstruction errors
-    3. Calculates motion complexity
-    4. Computes statistics
-    5. Outputs results to data/processed/reconstruction_results.csv
+    Main entry point to run reconstruction error analysis.
+    Reads poses_estimated.json, calculates errors, and prints summary statistics.
     """
-    config = get_path('data/processed/poses_estimated.json')
-    output_path = get_path('data/processed/reconstruction_results.csv')
+    config = get_path('project_root')
+    poses_path = config / 'data' / 'processed' / 'poses_estimated.json'
     
-    logger.info(f"Starting metrics analysis pipeline")
-    logger.info(f"Input: {config}")
-    logger.info(f"Output: {output_path}")
+    logger.info(f"Loading poses from {poses_path}")
     
     try:
-        # Load data
-        records = process_poses_file(Path(config))
-        
-        # Calculate errors
-        records_with_errors = calculate_all_reconstruction_errors(records)
-        
-        # Calculate complexity
-        records_with_complexity = calculate_camera_motion_complexity(records_with_errors)
-        
-        # Compute statistics
-        errors = [r.get('reconstruction_error', 0.0) for r in records_with_complexity if not np.isnan(r.get('reconstruction_error', float('nan')))]
-        complexities = [r.get('motion_complexity', 0.0) for r in records_with_complexity]
-        
-        error_stats = compute_statistics(errors)
-        complexity_stats = compute_statistics(complexities)
-        
-        logger.info(f"Error stats: {error_stats}")
-        logger.info(f"Complexity stats: {complexity_stats}")
-        
-        # Write results to CSV
-        import csv
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-        with open(output_path, 'w', newline='') as csvfile:
-            fieldnames = ['sequence_id', 'frame_id', 'reconstruction_error', 'motion_complexity']
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames, extrasaction='ignore')
-            
-            writer.writeheader()
-            for record in records_with_complexity:
-                writer.writerow({
-                    'sequence_id': record.get('sequence_id', ''),
-                    'frame_id': record.get('frame_id', ''),
-                    'reconstruction_error': record.get('reconstruction_error', ''),
-                    'motion_complexity': record.get('motion_complexity', '')
-                })
-        
-        logger.info(f"Results written to {output_path}")
-        
-        # Also write summary stats to a separate file for reporting
-        stats_path = Path(output_path).parent / 'metrics_summary.json'
-        with open(stats_path, 'w') as f:
-            json.dump({
-                'error_statistics': error_stats,
-                'complexity_statistics': complexity_stats,
-                'total_records': len(records_with_complexity)
-            }, f, indent=2)
-        
-        logger.info(f"Summary statistics written to {stats_path}")
-        
-    except Exception as e:
-        logger.error(f"Error in metrics pipeline: {e}", exc_info=True)
-        raise
+        poses_data = process_poses_file(poses_path)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        return
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in poses file: {e}")
+        return
+
+    if not poses_data:
+        logger.warning("No poses data found.")
+        return
+
+    # Calculate all errors
+    errors = calculate_all_reconstruction_errors(poses_data)
+    
+    if not errors:
+        logger.warning("No reconstruction errors could be calculated (missing ground truth?).")
+        return
+
+    # Flatten errors to a list of values for summary
+    error_values = [e['error'] for e in errors]
+    stats = compute_statistics(error_values)
+
+    logger.info("--- Reconstruction Error Summary ---")
+    logger.info(f"Total error entries: {stats['count']}")
+    logger.info(f"Mean Error: {stats['mean']:.4f}")
+    logger.info(f"Median Error: {stats['median']:.4f}")
+    logger.info(f"Std Dev: {stats['std']:.4f}")
+    logger.info(f"Min Error: {stats['min']:.4f}")
+    logger.info(f"Max Error: {stats['max']:.4f}")
+    logger.info("------------------------------------")
+
+    # Run correlation analysis
+    corr_results = run_correlation_analysis(poses_data)
+    logger.info("--- Correlation Analysis ---")
+    logger.info(f"Pearson's r: {corr_results['pearson_r']:.4f}")
+    logger.info(f"P-value: {corr_results['p_value']:.4f}")
+    logger.info(f"Sample size: {corr_results['sample_size']}")
+    logger.info("----------------------------")
+
+    # Optionally save results to a file
+    output_dir = config / 'data' / 'processed'
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / 'error_analysis_results.json'
+    
+    results_payload = {
+        'error_statistics': stats,
+        'correlation_analysis': corr_results,
+        'raw_errors': errors
+    }
+
+    with open(output_file, 'w', encoding='utf-8') as f:
+        json.dump(results_payload, f, indent=2)
+    
+    logger.info(f"Results written to {output_file}")
 
 if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
     main()

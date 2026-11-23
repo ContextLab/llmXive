@@ -1,44 +1,74 @@
-"""
-Main entry point for the project pipeline.
-
-Currently supports:
-- Governance updates (T004): Updates spec.md resolution requirements.
-- Future phases will add data generation, training, and evaluation commands.
-"""
 import sys
 import argparse
+import logging
 from pathlib import Path
+import json
+from datetime import datetime
+from code.utils.verify_spec import verify_spec
+from code.utils.verify_constitution import verify_constitution
+from code.utils.verify_spec_anova import verify_anova_mention
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Main pipeline orchestrator.")
+    parser.add_argument("--verify-spec", action="store_true", help="Run spec verification (T004v).")
+    parser.add_argument("--verify-constitution", action="store_true", help="Run constitution verification (T002v).")
+    parser.add_argument("--verify-anova", action="store_true", help="Run ANOVA mention verification (T005v).")
+    return parser.parse_args()
+
+def run_verification():
+    """Run all governance verification tasks."""
+    logger.info("Starting governance verification...")
+    
+    t002v_pass = verify_constitution()
+    t004v_pass = verify_spec()
+    t005v_pass = verify_anova_mention()
+    
+    if t002v_pass and t004v_pass and t005v_pass:
+        logger.info("All governance verifications passed.")
+        return True
+    else:
+        logger.error("One or more governance verifications failed.")
+        return False
+
+def run_generation_pipeline():
+    """Placeholder for the generation pipeline execution."""
+    logger.info("Running generation pipeline...")
+    # This would be implemented in subsequent tasks
+    return True
 
 def main():
-    parser = argparse.ArgumentParser(description="Material Stiffness Prediction Pipeline")
-    subparsers = parser.add_subparsers(dest="command", help="Available commands")
-
-    # Subcommand for T004: Update Spec Resolution
-    parser_update_spec = subparsers.add_parser("update-spec", help="Update spec.md for T004")
-    parser_update_spec.add_argument(
-        "--force", 
-        action="store_true", 
-        help="Force update even if patterns seem already updated"
-    )
-
-    args = parser.parse_args()
-
-    if args.command == "update-spec":
-        # Import the specific task logic
-        from code.update_spec_resolution import update_spec_file
-        try:
-            update_spec_file()
-            print("Task T004 completed successfully.")
-            return 0
-        except Exception as e:
-            print(f"Task T004 failed: {e}")
-            return 1
-    elif args.command is None:
-        parser.print_help()
-        return 0
+    args = parse_args()
+    
+    if args.verify_spec:
+        success = verify_spec()
+        sys.exit(0 if success else 1)
+    elif args.verify_constitution:
+        success = verify_constitution()
+        sys.exit(0 if success else 1)
+    elif args.verify_anova:
+        success = verify_anova_mention()
+        sys.exit(0 if success else 1)
+    elif args.verify_spec or args.verify_constitution or args.verify_anova:
+        # Run all if no specific flag but verification is implied
+        success = run_verification()
+        sys.exit(0 if success else 1)
     else:
-        print(f"Unknown command: {args.command}")
-        return 1
+        # Default behavior
+        logger.info("Running default pipeline...")
+        # Run verifications first
+        if not run_verification():
+            logger.error("Governance verification failed. Aborting.")
+            sys.exit(1)
+        
+        # Run generation
+        if not run_generation_pipeline():
+            logger.error("Generation pipeline failed.")
+            sys.exit(1)
+        
+        logger.info("Pipeline completed successfully.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

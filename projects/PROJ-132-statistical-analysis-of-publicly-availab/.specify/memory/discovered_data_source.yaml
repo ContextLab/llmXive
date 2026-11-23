@@ -1,0 +1,13 @@
+status: none
+intent: eBird Basic Dataset 2020-2024 download and NOAA PRISM climate data python
+  package dataset
+required_fields:
+- species
+- grid_cell
+- week
+- phenology_metric
+- climate_temp
+- climate_precip
+cache_key: 7dfc9a0614a50460cf0747396d021a2e884b25ad81124ae24fefe1a944c416f2
+searched_at: '2026-10-14T17:54:16.379342+00:00'
+retry_count: 1

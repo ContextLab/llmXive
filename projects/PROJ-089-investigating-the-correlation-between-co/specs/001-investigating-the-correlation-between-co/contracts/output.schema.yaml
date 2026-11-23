@@ -13,20 +13,18 @@ properties:
   correlation_type:
     type: "string"
     enum:
-      - "pearson"
-      - "spearman"
-      - "partial"
+      - "log-log"
+      - "density"
+      - "meta"
     description: "Type of correlation analysis performed"
-  r_value:
+  beta_value:
     type: "number"
-    minimum: -1
-    maximum: 1
-    description: "Correlation coefficient (r)"
+    description: "Slope coefficient (beta)"
   p_value:
     type: "number"
     minimum: 0
     maximum: 1
-    description: "P-value for the correlation test"
+    description: "P-value for the slope test"
   n:
     type: "integer"
     minimum: 1
@@ -35,7 +33,7 @@ properties:
     type: "array"
     items:
       type: "string"
-    description: "List of covariates used in partial correlation"
+    description: "List of covariates used in regression"
   vif_values:
     type: "object"
     description: "Variance Inflation Factor values for each covariate"
@@ -45,10 +43,11 @@ properties:
   threshold_used:
     type: "integer"
     minimum: 5
+    nullable: true
     description: "File size exclusion threshold used (5, 10, or 20)"
-  bonferroni_adjusted:
+  fdr_adjusted:
     type: "boolean"
-    description: "Whether Bonferroni correction was applied (always false – replaced by meta‑analysis)"
+    description: "Whether FDR correction was applied"
   adjusted_p_value:
     type: "number"
     minimum: 0
@@ -62,10 +61,10 @@ properties:
 required:
   - "result_id"
   - "correlation_type"
-  - "r_value"
+  - "beta_value"
   - "p_value"
   - "n"
   - "threshold_used"
-  - "bonferroni_adjusted"
+  - "fdr_adjusted"
   - "timestamp"
 additionalProperties: false

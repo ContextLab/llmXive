@@ -293,3 +293,27 @@ def test_word_form_bound_operators_keep_design_thresholds():
     # Empirical world-claims — still deferred.
     assert "[deferred]" in strip("the analysis found that approximately 27,635 papers matched")
     assert "[deferred]" in strip("a total of 1,701,936 records were processed")
+
+
+@pytest.mark.parametrize("target", [
+    "For p ∈ {5, 7, 11}, compute the exact residues",
+    r"For $p \in \{5, 7, 11\}$, compute the exact residues",
+    "Use sample sizes N = {1,000, 10,000, 100,000} for the planned enumeration",
+])
+def test_parameter_domains_survive_even_an_erroneous_claim_extraction(target, monkeypatch, tmp_path):
+    from llmxive.claims.models import Claim, ClaimKind, ClaimStatus
+    from llmxive.claims.planning_scan import is_design_target, strip_empirical_values
+    assert is_design_target(target)
+    assert strip_empirical_values(target) == target
+    claim = Claim(claim_id="c_parameters", kind=ClaimKind.NUMERIC, raw_text=target,
+                  canonical=target, context="method parameters", artifact_path="plan.md",
+                  source_type="pending", status=ClaimStatus.PENDING, attempts=0,
+                  resolved_value=None, evidence=None, resolver=None,
+                  updated_at="2026-10-08T00:00:00Z")
+    monkeypatch.setattr(svc, "extract_claims", lambda *a, **k: [claim])
+    out, _, _ = svc.process_document(target, artifact_path="plan.md", project_id="PROJ-test",
+                                    backend=None, model=None, repo_root=tmp_path, stage_label="plan")
+    assert out == target
+    # An unrelated observed value on the same line remains subject to deferral.
+    observed = strip_empirical_values(target + "; approximately 27,635 records were observed")
+    assert target in observed and "27,635" not in observed

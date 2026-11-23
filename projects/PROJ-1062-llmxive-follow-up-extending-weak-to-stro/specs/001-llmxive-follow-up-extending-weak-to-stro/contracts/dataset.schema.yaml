@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AIME Dataset Schema"
+description: "Schema for the AIME 2024 dataset used in the study."
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the problem."
+  year:
+    type: integer
+    description: "Year of the AIME competition."
+  problem_number:
+    type: integer
+    description: "Problem number within the year."
+  question:
+    type: string
+    description: "The full text of the problem question."
+  answer:
+    type: string
+    description: "The ground truth answer/solution."
+  part:
+    type:
+      - string
+      - "null"
+    description: "Optional part identifier for multi-part problems."
+required:
+  - id
+  - year
+  - problem_number
+  - question
+  - answer

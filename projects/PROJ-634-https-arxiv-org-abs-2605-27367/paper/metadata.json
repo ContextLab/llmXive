@@ -115,5 +115,15 @@
     "tabs/single.tex",
     "tabs/models-datasets.tex",
     "tabs/main_table.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "cf9d89bd02cb2b19401d9d726cede0af60153692e199202b0b9f6aa00d999241",
+      "bytes": 36589808
+    },
+    "original.pdf": {
+      "sha256": "b5aa7e66dfebc3d7529eeb0bc3420ed892e6488060b1a0b76c8fd1265722e78d",
+      "bytes": 36574817
+    }
+  }
 }

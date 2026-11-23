@@ -1,225 +1,136 @@
-# Tasks: llmXive follow-up: extending "OmniDirector: General Multi-Shot Camera Cloning without Cross-Paired D"
+# Tasks: llmXive follow‑up: extending “OmniDirector: General Multi‑Shot Camera Cloning without Cross‑Paired D”
 
-**Input**: Design documents from `/specs/001-gene-regulation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per 'Project Structure' section in plan.md: create `code/`, `code/data/`, `code/geometry/`, `code/analysis/`, `code/tests/`, `code/tests/unit/`, `code/tests/integration/`, `data/raw/`, `data/processed/`. <!-- FAILED: unspecified -->
-- [X] T002 Initialize Python 3.11 project with `opencv-python`, `numpy`, `pandas`, `scipy`, `pytest`, `pyyaml` in `code/requirements.txt`.
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`.
+**Inputs**: `spec.md`, `plan.md`, data model, JSON schemas, and any reviewer feedback.  
+All tasks follow the canonical checklist format. Unchecked boxes (`[ ]`) indicate work that still needs to be completed and verified. Checked boxes (`[X]`) would be used only after a task passes its verification step – none are currently checked because the previous implementation did not produce verifiable artifacts.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Project scaffolding & early end‑to‑end runnable example
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T001 [US1] Create the required directory hierarchy.  
+  **Paths**: `code/`, `code/data/`, `code/geometry/`, `code/analysis/`, `code/tests/`, `code/tests/unit/`, `code/tests/integration/`, `data/raw/`, `data/processed/`, `logs/`.  
+  *Verification*: CI step runs `tree -L 3 .` and asserts that each listed directory exists and is non‑empty (contains at least an `__init__.py` placeholder where appropriate).  
+  *Depends on*: none – must run before any task that writes into these directories.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T002 [US1] Initialise a Python 3.11 package and create a fully version‑pinned `requirements.txt`.  
+  **Paths**: `code/requirements.txt` (pinned exact versions of `opencv-python`, `numpy`, `pandas`, `scipy`, `pytest`, `pyyaml`), `code/__init__.py`.  
+  *Verification*: `pip install -r code/requirements.txt` succeeds on the CI runner without warnings, and all version numbers are exact (e.g., `opencv-python==4.8.0.76`).  
 
-- [X] T004 [P] Setup basic logging infrastructure in `code/__init__.py`.
-- [ ] T005 [P] Implement configuration loader in `code/config.py` to manage paths and constants.
-- [ ] T006 [P] Create base data models for `GridFrame`, `CameraPose`, and `ReconstructedBox` in `code/data/models.py`.
-- [ ] T006b [P] Design memory-efficient processing strategy: Define chunked data loading and streaming logic in `code/config.py` to ensure <6GB memory footprint before implementation begins.
-- [ ] T007 Attempt to fetch the real OmniDirector dataset from the canonical source (e.g., HuggingFace or GitHub release). If fetch fails, generate a deterministic synthetic dataset locally that mimics the real schema. **Output Schema**: `data/processed/filtered_sequences.csv` must contain columns: `sequence_id`, `frame_id`, `radial_motion_deg`, `z_velocity`, `grid_points_2d` (list of pixel coords), `R_matrix`, `t_vector`, `randomized_depth` (boolean). For synthetic data, set `randomized_depth=True` for [deferred] of sequences. Output to `data/raw/omnidirector.zip` (real) or `data/raw/synthetic_omnidirector.zip` (fallback).
+- [ ] T003 [US1] Add linting and formatting configuration.   <!-- FAILED-IN-EXECUTION: code/lint.sh exit=1 -->
+  **Paths**: `.ruff.toml`, `.flake8`, `pyproject.toml` (with Black settings), `code/lint.sh` (runs `ruff check . && black --check .`).  
+  *Verification*: CI runs `code/lint.sh` and fails if any style violations are reported.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T004 [US1] Implement a deterministic dataset‑download script that fetches the real OmniDirector zip archive (no synthetic fallback for primary pipeline).  
+  **Paths**: `code/data/download.py`, resulting archive `data/raw/omnidirector.zip`.  
+  *Verification*: After `python -m code.data.download`, the zip file exists, its size > 0 KB, and a SHA‑256 checksum is written to `code/data/download.log`.  
+  *Depends on*: T001.
 
----
+- [ ] T005 [US1] Provide a CLI entry point that runs the full pipeline on a minimal synthetic subset (≤ 5 sequences).  
+  **Paths**: `code/main.py` (argument parser with `--run demo`), `quickstart.md` (command example).  
+  *Verification*: CI executes `python -m code.main --run demo` and checks that `report.md` is created within 30 minutes and contains a non‑empty Pearson‑r value.  
+  *Depends on*: T002, T004.
 
-## Phase 3: User Story 1 - Dataset Ingestion and Geometric Filtering (Priority: P1) 🎯 MVP
-
-**Goal**: Ingest OmniDirector dataset (real or fallback synthetic), filter sequences with defined spatial volumes, and output curated grid frames with ground-truth parameters.
-
-**Independent Test**: Run ingestion on a small subset of sequences and verify output contains valid grid frames, correct $R_i, t_i$ pairing, and excludes static/translational-only sequences.
-
-### Implementation for User Story 1
-
-- [~] T008 Implement dataset loader in `code/data/ingestion.py` to load the dataset from `data/raw/omnidirector.zip` (real) or `data/raw/synthetic_omnidirector.zip` (fallback) and extract grid-video pairs. **Input Schema**: Matches T007 output.
-- [X] T009 [US1] Implement geometric filtering logic in `code/data/ingestion.py` to classify sequences as 'retained' or 'excluded' based on FR-001 heuristics: **radial motion > 15° OR Z-axis velocity > 0.1 units/frame**. **Input**: `radial_motion_deg`, `z_velocity` columns from T008.
-- [X] T010 [US1] Implement grid frame extraction and ground-truth pairing in `code/data/preprocessing.py`. **Output**: Ensure `grid_points_2d` are extracted for each frame.
-- [ ] T011 [US1] Write filtered dataset to `data/processed/filtered_sequences.csv` with checksums. **Schema**: `sequence_id`, `frame_id`, `radial_motion_deg`, `z_velocity`, `grid_points_2d`, `R_matrix`, `t_vector`, `randomized_depth`.
-- [X] T012 [US1] Implement linear interpolation for missing/occluded grid lines in `code/data/ingestion.py` to handle edge cases without crashing.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE**: Write these tests AFTER implementation tasks T008-T012 are complete
-
-- [X] T013 [P] [US1] Unit test for filtering heuristics (radial > 15°, Z-vel > 0.1) in `code/tests/unit/test_ingestion.py`.
-- [X] T014 [P] [US1] Integration test for pipeline on subset in `code/tests/integration/test_ingestion_pipeline.py`.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T025 [US1] Set and document fixed random seeds for all stochastic components (e.g., synthetic fallback generation, line‑detection randomness).  
+  **Path**: `code/config.py` (defines `SEED = 42` and applies it globally).  
+  *Verification*: Unit tests import `code.config` and assert that `np.random.rand()` is deterministic across runs.
 
 ---
 
-## Phase 4: User Story 2 - CPU-Based Perspective Inversion Solver (Priority: P2)
+## Phase 2 – Dataset ingestion & geometric filtering (User Story 1)
 
-**Goal**: Implement a CPU-tractable geometric solver to detect grid lines, track perspective distortion, and estimate relative 3D camera motion/bounding box dimensions.
+- [ ] T006 [US1] Implement dataset loader that extracts video frames and metadata from the zip produced by T004.  
+  **Path**: `code/data/ingestion.py` (`load_raw_dataset()` returns a generator of `GridFrame` objects).  
+  *Verification*: Unit test `code/tests/unit/test_ingestion.py` loads the first two frames without raising exceptions and logs the discovered sequence count.  
+  *Depends on*: T004.
 
-**Independent Test**: Run solver on a single video sequence and compare reconstructed bounding box dimensions against ground-truth metadata.
+- [ ] T007 [US1] Implement the geometric‑filtering heuristic (FR‑001) and write a curated CSV.  
+  **Paths**: `code/data/ingestion.py` (`filter_sequences()`), output `data/processed/filtered_sequences.csv`.  
+  *Verification*: CSV validates against `specs/001-llmxive-follow-up-extending-omnidirector/contracts/dataset.schema.yaml` (using `jsonschema`), and every retained row satisfies `radial_motion_deg > 15 or z_velocity_avg > 0.1`.  
+  *Depends on*: T006.
 
-### Implementation for User Story 2
+- [ ] T008 [US1] Log excluded sequences with reasons.  
+  **Path**: `logs/ingestion.log`.  
+  *Verification*: CI checks that the log contains at least one entry with “excluded – insufficient spatial volume”.  
+  *Depends on*: T007.
 
-- [X] T015 [P] [US2] Define `WorldGridModel` (canonical unit grid at Z=0) in `code/geometry/utils.py`.
-- [X] T016 [US2] Implement orthogonal grid line detection and intersection logic in `code/geometry/utils.py`.
-- [~] T017 Implement CPU-based `solvePnP` solver in `code/geometry/solver.py` to estimate relative motion vectors, consuming `data/processed/filtered_sequences.csv` from T011. **Input**: `grid_points_2d` (2D image points) and `R_matrix`, `t_vector` (3D object points derived from WorldGridModel).
-- [X] T018 [US2] Implement bounding box dimension reconstruction (height, width, depth) from motion vectors in `code/geometry/reconstruction.py`.
-- [ ] T019 [US2] Write pose estimates and reconstructed boxes to `data/processed/poses_estimated.json`.
-- [X] T020 [US2] Implement logic to handle missing data (interpolation/skipping) and flag high-complexity sequences in `code/geometry/solver.py`.
-- [X] T021 [US2] Implement detection and logging of sequences where 'perspective distortion exceeds solvable thresholds' as defined in FR-007 in `code/geometry/solver.py`.
-- [X] T022 [US2] Enforce CPU-only implementation: Use `cv2.solvePnP` with `SOLVEPNP_ITERATIVE` and ensure no GPU flags or CUDA dependencies are used in `code/geometry/solver.py`.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T023 [P] [US2] Unit test for line intersection detection in `code/tests/unit/test_solver.py`.
-- [X] T024 [P] [US2] Unit test for solvePnP scale ambiguity handling in `code/tests/unit/test_solver.py`.
-- [~] T025 [P] [US2] Integration test for full sequence reconstruction in `code/tests/integration/test_geometry_pipeline.py`.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T022 [US1] Compute and record the dataset‑filtering success rate (SC‑004).  
+  **Path**: `code/analysis/filter_metrics.py` (generates `data/processed/filter_success_rate.txt`).  
+  *Verification*: The text file contains a percentage value equal to `retained / total_raw * 100`.  
+  *Depends on*: T007.
 
 ---
 
-## Phase 5: User Story 3 - Statistical Validation and Correlation Analysis (Priority: P3)
+## Phase 3 – CPU‑based perspective inversion solver (User Story 2)
 
-**Goal**: Compute reconstruction error, perform Pearson's r correlation analysis, validate aspect ratios, and run Synthetic Control validation.
+- [ ] T009 [US2] Define the canonical unit‑grid model and implement line‑detection / intersection extraction.  
+  **Path**: `code/geometry/utils.py` (`WORLD_GRID_POINTS`, `detect_grid_lines()`, `compute_intersections()`).  
+  *Verification*: Unit test `code/tests/unit/test_geometry_utils.py` runs on a synthetic grid image and asserts ≥ 4 intersection points are returned with pixel error ≤ 2 px.  
+  *Depends on*: T007.
 
-**Independent Test**: Run analysis on full curated dataset and generate report with Pearson's r, error distribution, and aspect ratio validation.
+- [ ] T010 [US2] Implement the `solvePnP`‑based pose estimator for a single sequence, handling scale ambiguity.  
+  **Path**: `code/geometry/solver.py` (`solve_sequence_pose()`).  
+  *Verification*: Unit test `code/tests/unit/test_solver.py` feeds known synthetic 2‑D projections and checks that the reprojection error ≤ 2 px and that a `scale_factor` flag is present.  
+  *Depends on*: T009.
 
-### Implementation for User Story 3
+- [ ] T011 [US2] Run the solver over all retained sequences, compute relative 3D bounding‑box dimensions (FR‑003), and write pose estimates plus bounding‑box results.  
+  **Paths**: `code/geometry/solver.py` (pipeline driver), output `data/processed/poses_estimated.json` and `data/processed/reconstruction_results.csv` (includes `reconstructed_dimensions`).  
+  *Verification*: The JSON file conforms to the `output.schema.yaml` “results” entry for each sequence and the CSV contains columns `height`, `width`, `depth`.  
+  *Depends on*: T010.
 
-- [~] T026 Implement reconstruction error calculation (absolute difference) in `code/analysis/metrics.py`, consuming `data/processed/poses_estimated.json` from T019.
-- [X] T027 [US3] Implement camera motion complexity metric calculation in `code/analysis/metrics.py`.
-- [ ] T028 [US3] Implement Pearson's r correlation analysis between complexity and accuracy in `code/analysis/metrics.py`.
-- [ ] T029 [US3] Implement aspect ratio validation (±5% tolerance) against known synthetic volumes in `code/analysis/validation.py`.
-- [ ] T030 Implement Synthetic Control Validation: Read `data/processed/filtered_sequences.csv` from T011. Identify rows where `randomized_depth` is `True`. Attempt to recover metric depth for these rows. Flag error >50% in `code/analysis/validation.py`.
-- [ ] T031 [US3] Calculate Dataset Filtering Success Rate (retained/total) and record in `data/processed/reconstruction_results.csv` (SC-004).
-- [ ] T032 [US3] Instrument pipeline for timing (start/stop) and record total execution time in `data/processed/reconstruction_results.csv` (SC-005).
-- [ ] T033 [US3] Generate final `data/processed/reconstruction_results.csv` (Single Source of Truth).
-- [ ] T034 [US3] Generate final statistical report `report.md` with specific sections: SC-001 (Error), SC-002 (Correlation), SC-003 (Aspect Ratio), SC-004 (Filter Rate), SC-005 (Time), and visualizations.
+- [ ] T023 [US2] Compute reconstruction‑error metrics (FR‑004) by comparing estimated dimensions against ground‑truth.  
+  **Path**: `code/analysis/error_metrics.py` (produces updated `data/processed/reconstruction_results.csv` with `error_metrics` fields).  
+  *Verification*: Each row now includes `height_error`, `width_error`, `depth_error`, `aspect_ratio_error`, `mean_absolute_error`.  
+  *Depends on*: T011.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T035 [P] [US3] Unit test for Pearson correlation calculation in `code/tests/unit/test_metrics.py`.
-- [ ] T036 [P] [US3] Unit test for aspect ratio validation logic in `code/tests/unit/test_validation.py`.
-- [ ] T037 [P] [US3] Integration test for full statistical report generation in `code/tests/integration/test_analysis_pipeline.py`.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T038 [P] Documentation updates in `code/docs/` and `code/README.md`.
-- [ ] T039 Implement chunked processing in `code/geometry/solver.py` and add memory profiling to ensure <6GB usage on full dataset.
-- [ ] T040 Optimize line detection to run in <100ms per frame: Replace Canny edge detection with Sobel and implement parallel frame processing using `multiprocessing` in `code/geometry/utils.py`.
-- [ ] T041 Run `quickstart.md` validation to ensure full pipeline execution within 6h on free-tier CI.
+- [ ] T012 [US2] Detect and flag sequences that exceed the solvable distortion threshold (FR‑007).  
+  **Path**: `logs/solver_warnings.log`.  
+  *Verification*: CI asserts that any sequence with `radial_motion_deg > 120` is recorded with `high_complexity: true`.  
+  *Depends on*: T011.
 
 ---
 
-## Dependencies & Execution Order
+## Phase 4 – Statistical validation & correlation analysis (User Story 3)
 
-### Phase Dependencies
+- [ ] T013 [US3] Compute per‑sequence error metrics, complexity metrics, and aggregate summary statistics including Pearson correlation (FR‑005).  
+  **Path**: `code/analysis/metrics.py` (`compute_error_metrics()`, `pearson_correlation()`, `filter_success_rate()`).  
+  *Verification*: The generated `data/processed/reconstruction_results.csv` contains a row `summary_statistics` with non‑empty fields `pearson_correlation`, `mean_error_overall`, and `synthetic_control_error_rate`.  
+  *Depends on*: T023, T012.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] T014 [US3] Implement aspect‑ratio validation against known synthetic room ratios (± 5 %) (FR‑006).  
+  **Path**: `code/analysis/validation.py` (`validate_aspect_ratio()`).  
+  *Verification*: Unit test `code/tests/unit/test_validation.py` confirms that a sequence with a ground‑truth aspect ratio of 1.33 passes, while one deviating by > 5 % fails.  
+  *Depends on*: T023.
 
-### User Story Dependencies
+- [ ] T015 [US3] Perform the synthetic‑control experiment (FR‑008) and record failure rates.  
+  **Path**: `code/analysis/validation.py` (`synthetic_control_check()`).  
+  *Verification*: After pipeline run, rows where `randomized_depth == true` have `error_metrics.mean_absolute_error` > 0.5 × ground‑truth and `validation.scale_anchored == false`.  
+  *Depends on*: T023.
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output (`data/processed/filtered_sequences.csv`)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 output (`data/processed/poses_estimated.json`)
-
-### Within Each User Story
-
-- Implementation tasks MUST be completed before Test tasks
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel (among tests, not with implementation)
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T016 [US3] Generate the final statistical report with tables, figures, Pearson r line, and discussion of limitations.  
+  **Path**: `report.md`.  
+  *Verification*: The markdown includes a non‑empty “Pearson r = …” line, an error‑distribution histogram (embedded as a base‑64 PNG data URI), and a concise discussion of scale ambiguity and synthetic‑control outcomes.  
+  *Depends on*: T013, T014, T015.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 5 – Polish, reproducibility, and handoff
 
-```bash
-# Launch all models for User Story 1 together:
-Task: "Implement dataset loader in code/data/ingestion.py"
-Task: "Implement grid frame extraction in code/data/preprocessing.py"
+- [ ] T017 [US0] Add comprehensive documentation.  
+  **Paths**: `code/README.md` (overview, installation, usage), `code/docs/architecture.md` (pipeline diagram, data‑flow), `quickstart.md` (step‑by‑step command).  
+  *Verification*: CI runs `mdformat -c` on all markdown files; the command exits with status 0.  
+  *Depends on*: T001‑T016.
 
-# Launch tests ONLY after implementation is complete:
-Task: "Unit test for filtering heuristics in code/tests/unit/test_ingestion.py"
-```
+- [ ] T018 [US0] Implement logging configuration and memory‑profiling hooks; verify peak RAM ≤ 6 GiB.  
+  **Paths**: `code/logging.py` (central logger), `logs/memory_profile.log`.  
+  *Verification*: After a full run, `memory_profile.log` contains a line “Peak RAM = X MiB” and the value is ≤ 6 GiB.  
+  *Depends on*: T020.
 
----
+- [ ] T019 [US0] Optimize line‑detection performance to meet the CI time budget.  
+  **Path**: `code/geometry/utils.py` (replace Canny with Sobel, add optional multiprocessing pool).  
+  *Verification*: Benchmark script `code/benchmark_line_detection.py` reports average per‑frame processing < 100 ms on the CI runner; CI fails if the average exceeds this threshold.  
+  *Depends on*: T009.
 
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Data Strategy
-
-- **Primary Source**: The system MUST attempt to fetch the real OmniDirector dataset from the canonical source (HuggingFace/GitHub) as defined in T007.
-- **Fallback**: If the real dataset is unavailable or the fetch fails, T007 generates a deterministic synthetic dataset locally. This synthetic dataset strictly adheres to the schema required by T008-T030 (including `randomized_depth` flags) to ensure the pipeline remains executable and testable.
-- **Validation**: FR-008 (Synthetic Control) is validated by identifying rows with `randomized_depth=True` in the filtered CSV, whether from real or synthetic data.
-- **Reproducibility**: All random seeds are pinned. If real data is used, the fetch URL is logged. If synthetic data is used, the seed is logged.
+- [ ] T020 [US0] Verify the entire end‑to‑end pipeline on the full filtered dataset fits within the 6‑hour CI budget and record execution time (SC‑005).  
+  **Path**: CI workflow step `run_full_pipeline.sh` (records wall‑clock time to `logs/runtime.log`).  
+  *Verification*: CI records total wall‑clock time; the step succeeds only if time ≤ 6 h and `report.md` is present with all required sections.  
+  *Depends on*: T019.

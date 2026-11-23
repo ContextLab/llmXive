@@ -1,9 +1,10 @@
 qiskit-ibm-runtime
-networkx
 pandas
+numpy
 scipy
+networkx
+scikit-learn
 matplotlib
 requests
-pytest
 jsonschema
-pyyaml
+PyYAML

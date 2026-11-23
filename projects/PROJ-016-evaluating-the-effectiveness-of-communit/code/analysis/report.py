@@ -1,0 +1,152 @@
+"""
+Report generation module for User Story 3.
+Generates a Markdown report summarizing coverage rates, sensitivity analysis,
+and the associational nature of the study.
+"""
+import json
+import logging
+import sys
+from pathlib import Path
+from typing import Dict, Any, Optional
+
+# Add parent to path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from logging_config import get_logger
+
+logger = get_logger(__name__)
+
+def load_json_file(file_path: Path) -> Dict[str, Any]:
+    """Load and parse a JSON file."""
+    if not file_path.exists():
+        raise FileNotFoundError(f"Required input file not found: {file_path}")
+    with open(file_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+def generate_report(
+    metrics_path: Path,
+    sensitivity_path: Path,
+    metadata_path: Path,
+    output_path: Path
+) -> None:
+    """
+    Generate the final research report in Markdown format.
+
+    Args:
+        metrics_path: Path to data/processed/metrics.json (Coverage Rate)
+        sensitivity_path: Path to data/processed/sensitivity_coefficients.json
+        metadata_path: Path to data/processed/regression_metadata.json
+        output_path: Path where report.md will be written
+    """
+    logger.info(f"Loading metrics from {metrics_path}")
+    try:
+        metrics_data = load_json_file(metrics_path)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        raise
+
+    logger.info(f"Loading sensitivity results from {sensitivity_path}")
+    try:
+        sensitivity_data = load_json_file(sensitivity_path)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        raise
+
+    logger.info(f"Loading metadata from {metadata_path}")
+    try:
+        metadata_data = load_json_file(metadata_path)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        raise
+
+    # Extract specific values
+    coverage_rate = metrics_data.get('coverage_rate', 'N/A')
+    coverage_details = metrics_data.get('details', {})
+    
+    # Sensitivity coefficients
+    full_model_coef = sensitivity_data.get('full_model', {}).get('regime_type_coef')
+    full_model_pval = sensitivity_data.get('full_model', {}).get('regime_type_pval')
+    no_gdp_model_coef = sensitivity_data.get('no_gdp_model', {}).get('regime_type_coef')
+    no_gdp_model_pval = sensitivity_data.get('no_gdp_model', {}).get('regime_type_pval')
+    pct_change = sensitivity_data.get('percent_change', 'N/A')
+
+    # Metadata
+    is_associational = metadata_data.get('is_associational', False)
+    
+    # Construct Report Content
+    report_lines = [
+        "# Research Report: Evaluating CBNRM vs State-Led Management",
+        "",
+        "## 1. Data Coverage and Quality",
+        "",
+        f"- **Data Coverage Rate**: {coverage_rate:.2%}" if isinstance(coverage_rate, float) else f"- **Data Coverage Rate**: {coverage_rate}",
+        "",
+        "### Coverage Details",
+        "",
+        f"- Total Available Records: {coverage_details.get('total_records', 'N/A')}",
+        f"- Merged Records Used: {coverage_details.get('merged_records', 'N/A')}",
+        f"- Years Analyzed: {coverage_details.get('year_range', 'N/A')}",
+        "",
+        "## 2. Regression Analysis Results",
+        "",
+        "### Primary Model (Fixed Effects with Controls)",
+        "",
+        f"- **Coefficient (Regime Type)**: {full_model_coef:.4f if full_model_coef else 'N/A'}",
+        f"- **P-Value**: {full_model_pval:.4f if full_model_pval else 'N/A'}",
+        "",
+        "### Sensitivity Analysis (Excluding GDP Controls)",
+        "",
+        f"- **Coefficient (Regime Type)**: {no_gdp_model_coef:.4f if no_gdp_model_coef else 'N/A'}",
+        f"- **P-Value**: {no_gdp_model_pval:.4f if no_gdp_model_pval else 'N/A'}",
+        "",
+        f"- **Percent Change in Coefficient**: {pct_change:.2f}%" if isinstance(pct_change, float) else f"- **Percent Change in Coefficient**: {pct_change}",
+        "",
+        "## 3. Study Classification",
+        "",
+    ]
+
+    if is_associational:
+        report_lines.append("### ⚠️ IMPORTANT: Associational Study")
+        report_lines.append("")
+        report_lines.append(
+            "This study is classified as **associational**. "
+            "While the analysis controls for GDP, population density, and country fixed effects, "
+            "it does not establish causal inference due to potential unobserved confounders "
+            "and the observational nature of the data. "
+            "Results should be interpreted as correlations between regime types and land-use change, "
+            "not as causal effects of policy interventions."
+        )
+    else:
+        report_lines.append("### Study Classification")
+        report_lines.append("")
+        report_lines.append("This study is classified as **causal** based on the methodology employed.")
+
+    report_lines.append("")
+    report_lines.append("---")
+    report_lines.append("*Generated by llmXive Automated Science Pipeline*")
+
+    # Write to file
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        f.write('\n'.join(report_lines))
+
+    logger.info(f"Report successfully generated at {output_path}")
+
+def main():
+    """Entry point for report generation."""
+    # Define paths relative to project root
+    project_root = Path(__file__).parent.parent.parent
+    metrics_path = project_root / "data" / "processed" / "metrics.json"
+    sensitivity_path = project_root / "data" / "processed" / "sensitivity_coefficients.json"
+    metadata_path = project_root / "data" / "processed" / "regression_metadata.json"
+    output_path = project_root / "docs" / "output" / "report.md"
+
+    try:
+        generate_report(metrics_path, sensitivity_path, metadata_path, output_path)
+    except Exception as e:
+        logger.error(f"Failed to generate report: {e}")
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

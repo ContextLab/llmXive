@@ -3,9 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-gatemem-followup"
+name = "llmxive-gatemem-benchmark"
 version = "0.1.0"
-description = "Extending GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memo"
+description = "Benchmarking Memory Governance in Multi-Principal Shared-Memo"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "datasets",
@@ -17,86 +18,57 @@ dependencies = [
     "pytest",
     "huggingface_hub",
     "ruff",
-    "black"
 ]
 
-[tool.setuptools.packages.find]
-where = ["code"]
-
-[tool.black]
-line-length = 88
-target-version = ['py311']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+]
 
 [tool.ruff]
+# Target Python version
 target-version = "py311"
+
+# Line length configuration
 line-length = 88
-src = ["code"]
+
+# Exclude directories
 exclude = [
-    ".bzr",
-    ".direnv",
-    ".eggs",
     ".git",
-    ".hg",
-    ".mypy_cache",
-    ".nox",
-    ".pants.d",
-    ".ruff_cache",
-    ".svn",
     ".tox",
-    ".venv",
-    "__pypackages__",
-    "_build",
-    "buck-out",
+    "__pycache__",
     "build",
     "dist",
-    "node_modules",
-    "venv",
-    "data",
+    "*.egg-info",
 ]
 
 [tool.ruff.lint]
+# Select specific rules
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # line too long, handled by black
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
 ]
 
-[tool.ruff.lint.per-file-ignores]
-"tests/*" = ["S101"] # Allow assertions in tests
+# Ignore specific rules if needed
+ignore = [
+    "E501", # Line too long (handled by formatter)
+    "B008", # Do not perform function call in argument defaults (common in testing)
+]
 
 [tool.ruff.lint.isort]
 known-first-party = ["code"]
-section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+force-sort-within-sections = true
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["code"]
-addopts = "-v --strict-markers"
-markers = [
-    "slow: marks tests as slow (deselect with '-m \"not slow\"')",
-    "integration: marks tests as integration tests",
-    "contract: marks tests as contract tests"
-]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.setuptools]
+packages = ["code"]

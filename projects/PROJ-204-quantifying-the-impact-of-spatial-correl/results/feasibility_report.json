@@ -1,0 +1,14 @@
+{
+  "sources": [
+    {
+      "source": "NREL Perovskite Database (placeholder)",
+      "url": "https://api.github.com/repos/psf/requests/commits?per_page=5",
+      "reachable": true,
+      "http_status": 200,
+      "n_records": 5,
+      "linked_sample_count": 0,
+      "has_linked_eds": false
+    }
+  ],
+  "verdict": "halt"
+}

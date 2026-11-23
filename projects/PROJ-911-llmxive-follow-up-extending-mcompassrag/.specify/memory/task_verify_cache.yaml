@@ -1,0 +1,90 @@
+T001:
+  c: true
+  h: a8324c65f950acb0aa1a738d3a843f264e3b5432f32818cb81d6d32051c149fd
+  r: The `projects/PROJ-911-llmxive-follow-up-extending-mcompassrag/` directory exists
+    and contains the expected hierarchy of files and subfolders (README, code, data,
+    docs, scripts, specs, tests, etc.) as outlined in the implementation plan. No
+    missing or placeholder components were found.
+T002:
+  c: false
+  h: b7512dbf91b98e298ec2a02cc47d84b151ba986e5d0496d3bc3b13e6733e1aa8
+  r: "The provided `requirements.txt` exists, but it uses \u201C>=\u201D version specifiers\
+    \ instead of exact pinned versions (e.g., `networkx==3.1`). Moreover, it lists\
+    \ many additional packages beyond the seven required, which does not meet the\
+    \ task\u2019s specification of a pinned requirements file for those specific dependencies."
+T004:
+  c: true
+  h: fb3fa657bd4daed5a778c30d40e375f458d291550223fda778ad4e2649e71951
+  r: The provided `code/config.py` file exists, defines `WINDOW_SIZE = 10`, sets `RANDOM_SEED`,
+    and includes path constants for project, data, raw, processed, and results directories,
+    fulfilling the task requirements.
+T005:
+  c: false
+  h: 6b8c588223eecffbc7915abd69f1d94a1e528e8124f32a76d8b7b303b585230f
+  r: "The `code/utils/hash_artifacts.py` script exists and implements hashing, but\
+    \ the required state file `state/projects/PROJ-911-llmxive-follow-up-extending-mcompassrag.yaml`\
+    \ is missing, so the task\u2019s requirement to update that YAML file has not\
+    \ been fulfilled. The missing YAML file must be created/updated by the script\
+    \ (or provided) for the task to be complete."
+T006:
+  c: true
+  h: 6d0221d9369b6e96626d9e41ad9cc69dda3298eaea82262954904bcb1ad040cf
+  r: The repository contains the three required directories (`data/raw/`, `data/processed/`,
+    `data/results/`) each with a `.gitkeep` file, confirming the directory structure
+    has been created as specified.
+T007:
+  c: true
+  h: 53a2987597794d3050f8d092165460654dced448cbba45cc0a6641c0db623ac6
+  r: "The file `code/data_loader.py` exists and contains concrete implementations\
+    \ that load the HotpotQA\u202F(fullwiki) and Wikipedia\u202F20231001.en datasets\
+    \ via `datasets.load_dataset`, apply a fixed random seed for deterministic sampling,\
+    \ and cap the number of returned documents at `MAX_DOCS` (\u2264\u202F360). All\
+    \ required functions return real document dictionaries, not stubs."
+T027:
+  c: false
+  h: 8da1da84084b8830383f62360bb21bce9c30e9c673242cb145d52b2917106a10
+  r: "The required integration test file `tests/integration/test_statistical_validation.py`\
+    \ is missing from the repository, so no test code exists to verify end\u2011to\u2011\
+    end statistical validation. Without this artifact, the task\u2019s deliverable\
+    \ is not present."
+T031:
+  c: false
+  h: 03cbb4cdd71a5d98d34a4f5c920e3b4b5cbafdcb1e034715224a259973fff4b5
+  r: "The provided `metrics.json` contains placeholder values (zeros, wrong task_id,\
+    \ status \u201Cplaceholder\u201D) and does not include the required fields such\
+    \ as correlation coefficient\u202F(r), Recall@k scores, or latency measurements.\
+    \ Additionally, the required `data/results/correlation.csv` file is missing entirely."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., a log file, CSV, or code output) showing the computed correlation\
+    \ coefficient\u202Fr, its p\u2011value, and a status field (r\u202F>\u202F0.6)\
+    \ was provided. Without such evidence the requirement to log these metrics cannot\
+    \ be verified. The implementer must supply the actual logged results (or the code\
+    \ that generates them) to satisfy the task."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `docs/quickstart.md` file or any architecture diagram files are present in
+    the provided evidence, so the required documentation updates have not been delivered.
+    The task remains unfinished until those artifacts are added to the repository.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No cleaned or refactored scripts from the `code/` directory are present; the\
+    \ only evidence provided is the feature specification, not any actual code changes,\
+    \ diff, or documentation of the cleanup. The required artifact\u2014a set of updated,\
+    \ lint\u2011free, and refactored code files\u2014is missing."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, benchmark results, or any other artifact were supplied; the claim that\
+    \ the graph\u2011construction loop has been vectorized and meets the CPU\u2011\
+    time thresholds cannot be verified. The required implementation and performance\
+    \ evidence are missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `quickstart.md` validation run (e.g., execution logs, output
+    screenshots, or a reproduced pipeline report) is provided; the claim lacks any
+    artifact confirming that the full pipeline was successfully validated.

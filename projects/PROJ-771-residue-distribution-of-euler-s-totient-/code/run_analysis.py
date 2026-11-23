@@ -1,188 +1,314 @@
 """
-Orchestration entry point for the Residue Distribution of Euler's Totient Function analysis.
+Orchestration module for the Euler Totient Residue Distribution Analysis.
 
-This module provides the base configuration loader and the main execution flow.
-It handles:
-- Configuration of N (range limit)
-- Selection of primes p in {3, 5, 7, 11}
-- Memory limit configuration
-- Random seed pinning (delegated to sibling modules)
-- Orchestration of the sieve and statistical analysis pipelines.
+This module implements the CLI orchestrator required by task T011.
+It parses command‑line arguments, pins deterministic seeds, runs the
+sieve, statistical analysis, flag generation and visualisation stages,
+and records a benchmark JSON for the whole run.
+
+The script can be executed as a module:
+
+    python -m code.run_analysis --N 200 --primes 3,5,7,11
+
+All output files are written under the ``data/`` and ``results/``
+directories as specified in the project specification.
 """
 
-import os
 import sys
 import argparse
-import logging
-import random
-import numpy as np
-from typing import List, Optional, Dict, Any
+import json
+from pathlib import Path
+from typing import Dict, Any, List
 
-# Import seed pinning utilities from existing modules
-# T007d: Initialize random seed pinning at the orchestration level.
-# We import the function from sieve.py (which already has it per API surface)
-# and ensure it is called here if a seed is provided.
-from sieve import pin_random_seed as sieve_pin_seed, is_seed_pinned
+from llmxive_toolkit import get_logger
 
-# Import configuration and logging setup
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout)
-    ]
+# Local imports
+from config import load_config, create_argument_parser, parse_cli_args
+from seed import pin_seeds
+from sieve import compute_phi_linear_sieve, compute_residues, save_residue_dataset
+from memory_guard import MemoryGuard
+from stats import (
+    run_full_statistical_analysis,
+    save_statistical_result,
 )
-logger = logging.getLogger(__name__)
+from flags import generate_flag_from_result
+from visualize import (
+    load_residue_data,
+    plot_bar_frequencies,
+    plot_residual_qq,
+    annotate_theoretical_bounds,
+    generate_visualization_report,
+)
+from benchmark import benchmark
 
-# Default configuration values
-DEFAULT_N = 1000000
-DEFAULT_PRIMES = [3, 5, 7, 11]
-DEFAULT_MEMORY_LIMIT_MB = 4096  # 4GB default
-DEFAULT_SEED = 42
+# ----------------------------------------------------------------------
+# Logging setup
+# ----------------------------------------------------------------------
+logger = get_logger(__name__)
 
+# ----------------------------------------------------------------------
+# Helper: normalise prime argument to a list of ints
+# ----------------------------------------------------------------------
+def _normalise_primes(arg: Any) -> List[int]:
+    """
+    Convert the ``--primes`` CLI argument into a list of ints.
 
-class Config:
+    The argparse configuration accepts ``nargs='+'`` which yields a list
+    of strings or ints.  This helper guarantees a clean ``List[int]``.
     """
-    Immutable configuration container for the analysis run.
-    
-    Attributes:
-        N (int): The upper bound for the totient calculation (n in [1, N]).
-        primes (List[int]): List of primes to analyze residues for.
-        memory_limit_mb (int): Soft memory limit in Megabytes.
-        seed (Optional[int]): Random seed for reproducibility.
-    """
-    
-    def __init__(
-        self,
-        N: int = DEFAULT_N,
-        primes: Optional[List[int]] = None,
-        memory_limit_mb: int = DEFAULT_MEMORY_LIMIT_MB,
-        seed: Optional[int] = DEFAULT_SEED
-    ):
-        if primes is None:
-            primes = DEFAULT_PRIMES
-        
-        # Validate primes
-        allowed_primes = {3, 5, 7, 11}
-        for p in primes:
-            if p not in allowed_primes:
-                raise ValueError(f"Prime {p} is not in allowed set {allowed_primes}. "
-                               f"Allowed values: {allowed_primes}")
-        
-        if N < 1:
-            raise ValueError("N must be a positive integer.")
-        
-        if memory_limit_mb < 64:
-            raise ValueError("Memory limit must be at least 64MB.")
-        
-        self.N = N
-        self.primes = primes
-        self.memory_limit_mb = memory_limit_mb
-        self.seed = seed
-        
-        logger.info(f"Configuration loaded: N={N}, primes={primes}, "
-                  f"mem_limit={memory_limit_mb}MB, seed={seed}")
+    if arg is None:
+        return [3, 5, 7, 11]
+    if isinstance(arg, list):
+        return [int(p) for p in arg]
+    # Fallback – split a comma‑separated string
+    return [int(p) for p in str(arg).split(",")]
 
-def load_config(
-    N: Optional[int] = None,
-    primes: Optional[List[int]] = None,
-    memory_limit_mb: Optional[int] = None,
-    seed: Optional[int] = None
-) -> Config:
+# ----------------------------------------------------------------------
+# CLI parsing
+# ----------------------------------------------------------------------
+def parse_args() -> argparse.Namespace:
     """
-    Factory function to create a Config object with overrides.
-    
-    Args:
-        N: Upper bound for totient calculation.
-        primes: List of primes to analyze.
-        memory_limit_mb: Memory limit in MB.
-        seed: Random seed.
-        
-    Returns:
-        Config: A validated configuration object.
+    Parse command‑line arguments, apply defaults required by the test
+    suite and return a populated ``argparse.Namespace``.
     """
-    return Config(
-        N=N if N is not None else DEFAULT_N,
-        primes=primes,
-        memory_limit_mb=memory_limit_mb if memory_limit_mb is not None else DEFAULT_MEMORY_LIMIT_MB,
-        seed=seed if seed is not None else DEFAULT_SEED
+    # Build a lightweight parser that accepts comma‑separated primes.
+    parser = argparse.ArgumentParser(description="Euler Totient residue analysis")
+    parser.add_argument(
+        "--N",
+        type=int,
+        default=None,
+        help="Upper bound N for the sieve (inclusive)",
     )
-
-def pin_orchestration_seed(seed: int) -> None:
-    """
-    Pin random seeds for all relevant libraries at the orchestration level.
-    
-    This ensures reproducibility across the entire pipeline (sieve, stats, visualize).
-    It delegates to the sieve module for the standard `random` module and explicitly
-    sets seeds for `numpy` here to ensure consistency at the entry point.
-    
-    Args:
-        seed (int): The seed value to use.
-    """
-    logger.info(f"Pinning orchestration random seed to {seed}")
-    
-    # Pin standard library random (via sieve module helper)
-    sieve_pin_seed(seed)
-    
-    # Pin numpy random state
-    np.random.seed(seed)
-    
-    logger.info("Orchestration random seed pinned successfully for all libraries.")
-
-def main():
-    """
-    Main entry point for the analysis pipeline.
-    
-    Parses command line arguments, initializes configuration and random seed,
-    and orchestrates the analysis flow.
-    """
-    parser = argparse.ArgumentParser(
-        description="Run Residue Distribution Analysis for Euler's Totient Function."
+    # Add alias --n for --N to support run-book commands
+    parser.add_argument(
+        "--n",
+        dest="N",
+        type=int,
+        default=None,
+        help="Upper bound N for the sieve (inclusive)",
     )
     parser.add_argument(
-        "--N", type=int, default=DEFAULT_N,
-        help=f"Upper bound for totient calculation (default: {DEFAULT_N})"
+        "--primes",
+        type=str,
+        default=None,
+        help="Comma‑separated list of primes (e.g. 3,5,7,11)",
     )
     parser.add_argument(
-        "--primes", type=int, nargs="+", default=DEFAULT_PRIMES,
-        help=f"Primes to analyze (default: {DEFAULT_PRIMES}). Allowed: {3, 5, 7, 11}"
+        "--seed",
+        type=int,
+        default=None,
+        help="Random seed for Monte‑Carlo simulations",
     )
     parser.add_argument(
-        "--memory-limit", type=int, default=DEFAULT_MEMORY_LIMIT_MB,
-        help=f"Memory limit in MB (default: {DEFAULT_MEMORY_LIMIT_MB})"
+        "--memory-limit-mb",
+        type=int,
+        default=None,
+        help="Memory limit in megabytes for the guard",
     )
     parser.add_argument(
-        "--seed", type=int, default=DEFAULT_SEED,
-        help=f"Random seed for reproducibility (default: {DEFAULT_SEED})"
+        "--memory-check-interval",
+        type=int,
+        default=None,
+        help="Iteration interval at which memory usage is polled",
     )
     
-    args = parser.parse_args()
-    
-    # Load configuration
-    config = load_config(
-        N=args.N,
-        primes=args.primes,
-        memory_limit_mb=args.memory_limit,
-        seed=args.seed
+    # Use parse_known_args to ignore unknown arguments (like pytest flags)
+    # which prevents SystemExit during unit tests.
+    args, _ = parser.parse_known_args()
+
+    # Apply the defaults expected by the unit tests when arguments are omitted.
+    if args.N is None:
+        args.N = 1_000_000
+    if args.primes is None:
+        args.primes = [3, 5, 7, 11]
+    else:
+        args.primes = _normalise_primes(args.primes)
+
+    if args.seed is None:
+        args.seed = 42
+    if args.memory_limit_mb is None:
+        # The test suite expects 6000 MB as the default.
+        args.memory_limit_mb = 6_000
+    if args.memory_check_interval is None:
+        args.memory_check_interval = 10_000
+
+    return args
+
+# ----------------------------------------------------------------------
+# Seed pinning
+# ----------------------------------------------------------------------
+def pin_orchestration_seed(config: Dict[str, Any]) -> None:
+    """
+    Pin deterministic seeds for the entire pipeline.
+
+    Parameters
+    ----------
+    config :
+        Configuration dictionary containing a ``seed`` entry.
+    """
+    seed = config.get("seed", 42)
+    pin_seeds(seed)
+    logger.info(f"Global seeds pinned to {seed}")
+
+# ----------------------------------------------------------------------
+# Sieve stage
+# ----------------------------------------------------------------------
+def run_sieve_stage(config: Dict[str, Any]) -> None:
+    """
+    Compute φ values, aggregate residues for each prime and write the
+    raw JSON artefacts.
+
+    Parameters
+    ----------
+    config :
+        Dictionary containing ``N``, ``primes`` and ``memory_limit_mb``.
+    """
+    N = config["N"]
+    primes: List[int] = config["primes"]
+    memory_limit_mb = config["memory_limit_mb"]
+
+    logger.info(f"Starting sieve stage for N={N}, primes={primes}")
+
+    # Initialise the memory guard – it will be polled inside the sieve.
+    guard = MemoryGuard(
+        limit_mb=memory_limit_mb,
+        check_interval=config.get("memory_check_interval", 10_000),
     )
-    
-    # Pin random seed for the orchestration level (T007d requirement)
-    if config.seed is not None:
-        pin_orchestration_seed(config.seed)
-        logger.info(f"Random seed pinned to {config.seed} for orchestration.")
-    
-    logger.info("Starting analysis pipeline...")
-    
-    # TODO: This is where the orchestration logic would call:
-    # 1. sieve.run_sieve_analysis(N, primes, memory_limit)
-    # 2. stats.run_full_statistical_analysis(...)
-    # 3. visualize.generate_plots(...)
-    # For now, we confirm configuration is valid and exit.
-    
-    logger.info(f"Configuration valid. N={config.N}, primes={config.primes}")
-    logger.info("Analysis pipeline ready.")
-    
-    return 0
+
+    # Compute φ once – the same list can be reused for all primes.
+    phi_vals = compute_phi_linear_sieve(N, memory_guard=guard)
+
+    for prime in primes:
+        logger.info(f"Processing prime {prime}")
+        residues = compute_residues(phi_vals, prime)
+
+        # Ensure the output directory exists.
+        out_path = Path("data", "raw", f"residues_{prime}_{N}.json")
+        out_path.parent.mkdir(parents=True, exist_ok=True)
+
+        save_residue_dataset(residues, prime, N, str(out_path))
+        logger.info(f"Residue dataset written to {out_path}")
+
+# ----------------------------------------------------------------------
+# Statistics stage
+# ----------------------------------------------------------------------
+def run_stats_stage(config: Dict[str, Any]) -> None:
+    """
+    Load each raw residue file, run the full statistical pipeline and
+    write the results JSON.  Afterwards a flag file is generated.
+
+    Parameters
+    ----------
+    config :
+        Dictionary containing ``N`` and ``primes``.
+    """
+    N = config["N"]
+    primes: List[int] = config["primes"]
+    seed = config.get("seed", 42)
+
+    logger.info("Starting statistics stage")
+
+    for prime in primes:
+        raw_path = Path("data", "raw", f"residues_{prime}_{N}.json")
+        result_path = Path("data", "processed", f"stats_{prime}_{N}.json")
+        result_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Load the raw residue JSON – keys are strings, convert to int.
+        with raw_path.open("r", encoding="utf-8") as f:
+            raw = json.load(f)
+
+        freq_map_raw = raw.get("frequency_map", {})
+        observed_counts = {int(k): int(v) for k, v in freq_map_raw.items()}
+
+        # Run the high‑level statistical analysis.
+        result = run_full_statistical_analysis(
+            observed_counts,
+            prime,
+            N,
+            config={"seed": seed},
+        )
+        save_statistical_result(result, str(result_path))
+        logger.info(f"Statistical result written to {result_path}")
+
+        # Generate the pass/fail flag JSON.
+        generate_flag_from_result(str(result_path))
+
+# ----------------------------------------------------------------------
+# Visualisation stage
+# ----------------------------------------------------------------------
+def run_visualization_stage(config: Dict[str, Any]) -> None:
+    """
+    Produce bar‑plots, QQ‑plots and a short markdown report for each prime.
+
+    Parameters
+    ----------
+    config :
+        Dictionary containing ``N`` and ``primes``.
+    """
+    N = config["N"]
+    primes: List[int] = config["primes"]
+
+    logger.info("Starting visualisation stage")
+
+    for prime in primes:
+        residue_path = Path("data", "raw", f"residues_{prime}_{N}.json")
+        stats_path = Path("data", "processed", f"stats_{prime}_{N}.json")
+
+        # Load the residue dataset (handles string‑to‑int conversion).
+        data = load_residue_data(str(residue_path))
+
+        # Create the two required figures.
+        plot_bar_frequencies(data, prime)
+        plot_residual_qq(data, prime)
+
+        # Future‑proof hook – currently a no‑op.
+        annotate_theoretical_bounds(prime, data)
+
+        # Write a tiny markdown summary linking the artefacts.
+        generate_visualization_report(prime, N, str(stats_path))
+
+# ----------------------------------------------------------------------
+# Orchestration entry point
+# ----------------------------------------------------------------------
+def run_orchestration(config: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Execute the full pipeline while measuring wall‑clock time and peak
+    memory usage via the ``benchmark`` context manager.
+
+    Returns a dictionary summarising the run (primarily for internal
+    debugging; the CLI only cares about the exit code).
+    """
+    summary: Dict[str, Any] = {"status": "success", "errors": []}
+
+    try:
+        with benchmark("fullrun"):
+            run_sieve_stage(config)
+            run_stats_stage(config)
+            run_visualization_stage(config)
+    except Exception as exc:
+        logger.exception("Pipeline failed")
+        summary["status"] = "failed"
+        summary["errors"].append(str(exc))
+
+    return summary
+
+# ----------------------------------------------------------------------
+# Main entry point
+# ----------------------------------------------------------------------
+def main() -> int:
+    """
+    Parse CLI arguments, load the configuration, pin seeds and run the
+    orchestrated pipeline.  Returns ``0`` on success and ``1`` on failure.
+    """
+    args = parse_args()
+    config = load_config(args)
+
+    # Pin deterministic seeds as early as possible.
+    pin_orchestration_seed(config)
+
+    result = run_orchestration(config)
+
+    return 0 if result.get("status") == "success" else 1
 
 if __name__ == "__main__":
     sys.exit(main())

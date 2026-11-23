@@ -1,43 +1,38 @@
-"""
-Script to initialize the project structure for the MgB2 Impurity Impact study.
-Executes the creation of all required directories as per the implementation plan.
-"""
 import os
 import sys
-
-# Define the directory structure relative to the project root
-# Note: The tasks.md mentions 'src/' but the system prompt constraints require
-# artifacts to live under 'code/', 'data/', 'tests/', or 'specs/'.
-# To satisfy the "Stay inside the project tree" constraint and ensure the
-# generated code is runnable and the paths are valid for subsequent tasks,
-# we map 'src' -> 'code', 'data/raw' -> 'data/raw', 'tests' -> 'tests'.
-# This ensures the project structure is consistent with the LlmXive pipeline constraints.
-
-base_dirs = [
-    "code/ingestion",
-    "code/modeling",
-    "code/visualization",
-    "code/utils",
-    "tests/contract",
-    "tests/integration",
-    "tests/unit",
-    "data/raw",
-    "data/processed",
-    "docs",
-]
+from pathlib import Path
 
 def create_structure():
-    created_count = 0
-    for dir_path in base_dirs:
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {dir_path}")
+    """
+    Wrapper to create the project structure.
+    This ensures the directory tree matches the implementation plan.
+    """
+    base_path = Path(__file__).parent
     
-    print(f"\nProject structure initialization complete. {created_count} new directories created.")
-    return 0
+    directories = [
+        "src/ingestion",
+        "src/modeling",
+        "src/visualization",
+        "src/utils",
+        "tests/contract",
+        "tests/integration",
+        "tests/unit",
+        "data/raw",
+        "data/processed",
+        "docs"
+    ]
+    
+    created_count = 0
+    for dir_name in directories:
+        full_path = base_path / dir_name
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+        elif not full_path.is_dir():
+            raise RuntimeError(f"Error: {full_path} exists but is not a directory.")
+    
+    return created_count
 
 if __name__ == "__main__":
-    sys.exit(create_structure())
+    count = create_structure()
+    print(f"Project structure initialized. {count} directories created.")

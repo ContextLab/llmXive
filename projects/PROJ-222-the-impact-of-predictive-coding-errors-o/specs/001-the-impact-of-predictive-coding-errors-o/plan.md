@@ -5,7 +5,9 @@
 
 ## Summary
 
-This project investigates whether manipulating the predictability of sequential stimuli alters participants' duration estimates and if larger prediction errors (surprisal) correlate with overestimation of elapsed time. The technical approach involves downloading existing time perception datasets from OpenML and HuggingFace, computing surprisal metrics via a first-order Markov model where missing, and fitting linear mixed-effects models (LMM) with duration estimate as the outcome and surprisal as the fixed effect. The implementation is constrained to CPU-only execution (GitHub Actions free tier: 2 CPU, 7 GB RAM) and must complete within 6 hours.
+This project investigates whether manipulating the predictability of sequential stimuli alters participants' duration estimates and if larger prediction errors (surprisal) correlate with overestimation of elapsed time. The technical approach involves downloading existing time perception datasets from OpenML and HuggingFace, computing surprisal metrics via a first-order Markov model where missing, and fitting linear mixed-effects models (LMM) with duration estimate as the outcome and surprisal as the fixed effect. The implementation is constrained to CPU-only execution (GitHub Actions free tier: a limited number of CPU cores and memory resources
+
+The research question, method, and references remain unchanged as required by the planning document guidelines, with no specific low-level empirical values asserted.) and must complete within 6 hours.
 
 **CRITICAL BLOCKER**: This project is currently blocked by a **Data Mismatch**. The "Verified datasets" block provided in the user message contains only NLP, Twitter, and Robotics data, none of which contain the required outcome variable ("duration estimates") or the specific experimental design ("sequential stimuli with predictability manipulations"). The pipeline includes a **Gate 0** that will halt execution if no valid dataset is found. The project cannot proceed to analysis until a valid time-perception dataset is added to the verified list.
 
@@ -137,7 +139,7 @@ projects/PROJ-222-the-impact-of-predictive-coding-errors-o/
 
 ### Phase 3: Visualization & Reporting
 1.  **Action**: `visualize.py` generates forest plots and residual diagnostics.
-2.  **Output**: `figures/` directory with 300+ DPI plots.
+2.  **Output**: `figures/` directory with + DPI plots.
 
 ## Data Gap Resolution Protocol
 If Gate 0 fails (no valid dataset found):

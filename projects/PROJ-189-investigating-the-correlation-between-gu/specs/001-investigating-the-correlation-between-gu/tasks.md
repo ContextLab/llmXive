@@ -1,253 +1,72 @@
 # Tasks: Gut Microbiome and Cognitive Decline Analysis
 
-**Input**: Design documents from `/specs/001-investigating-the-correlation-between-gu/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001a Create root project directory `projects/PROJ-189-investigating-the-correlation-between-gu/`
-- [ ] T001b Create subdirectories: `data/raw`, `data/processed`, `data/models`, `code`, `code/utils`, `tests`, `tests/contract`, `tests/integration`, `tests/unit`, `docs`
-- [ ] T001c Initialize `.gitignore` with patterns for large data files (`data/raw/*`), Python cache (`__pycache__`), and environment files (`venv/`)
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
-- [ ] T003 Configure linting (ruff) and formatting (black) tools
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T005 Implement deterministic data fetching utilities with checksum validation in `code/utils/data_fetchers.py`
-- [ ] T006 Setup logging infrastructure and memory usage monitoring in `code/utils/logging.py`
-- [X] T007 Create base data models/entities (Sample, Taxon) in `code/utils/data_models.py`
-- [ ] T008 Implement CPU-only execution guard and resource limit checks (≤7GB RAM, ≤6h) in `code/utils/resource_guard.py`
-- [~] T009 Setup environment configuration management for dataset paths and random seeds <!-- SKIPPED: YAML+regex parse failed (mapping values are not allowed here
- in "<unicode string>", line 2, column 13:
- contents: |
- ^) -->
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
-
-**Goal**: Ingest raw AGP 16S data and HRS cognitive metadata, merge by participant ID, filter for age ≥ 60, and produce a clean analysis-ready dataset using Rarefaction (per Spec FR-002) and document the process.
-
-**Independent Test**: Can be fully tested by executing `code/01_data_ingestion.py` and `code/02_preprocessing.py` and verifying the output dataframe contains ≥ 500 rows where every row has non-null values for at least 5 microbial genera and 1 cognitive score column.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE**: These are "Write Test Code" tasks. They must be executed AFTER implementation tasks.
-
-- [X] T010 Write contract test code for merged dataframe schema in `tests/contract/test_data_merge.py`
-- [X] T011 Write integration test code for age filtering and missing value imputation in `tests/integration/test_preprocessing.py`
-
-### Implementation for User Story 1
-
-- [X] T012 [US1] Implement AGP 16S taxonomic data fetcher from official Qiita/EBI source in `code/01_data_ingestion.py`
-- [X] T013 [US1] Implement HRS cognitive metadata fetcher from official HRS portal in `code/01_data_ingestion.py` <!-- FAILED: unspecified -->
-- [X] T014 [US1] Implement participant ID merge logic with overlap logging (≥500 samples required) in `code/01_data_ingestion.py`
-- [X] T015 [US1] Implement age ≥ 60 filter and covariate (BMI, education) imputation logic in `code/02_preprocessing.py`
-- [ ] T016 [US1] Implement Rarefaction to uniform depth (minimum read depth of retained samples) and collapse to genus-level relative abundances in `code/02_preprocessing.py` (Per Spec FR-002)
-- [ ] T017 [US1] Add validation to ensure no null values remain in the final analysis dataset
-- [ ] T018 [US1] Log mismatch counts and proceed only if overlap ≥ 500 samples; fail gracefully otherwise
-
-### Phase 3b: Test Execution (Run after Implementation)
-
-- [ ] T045 Execute contract tests for merged dataframe schema
-- [ ] T046 Execute integration tests for age filtering and missing value imputation
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Associational Correlation Analysis (Priority: P2)
-
-**Goal**: Compute Spearman rank correlations between genus-level microbial abundances and cognitive test scores with FDR correction and CLR transformation on rarefied data.
-
-**Independent Test**: Can be fully tested by running `code/03_correlation_analysis.py` and verifying the output table contains p-values adjusted via FDR, with no unadjusted p-values used for significance claims, and confirming the input data was CLR-transformed (on rarefied data).
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T019 Write contract test code for correlation output schema (rho, p-value, adj-p-value) in `tests/contract/test_correlation.py`
-- [ ] T020 Write integration test code for FDR correction logic in `tests/integration/test_correlation.py`
-
-### Implementation for User Story 2
-
-- [ ] T021 Implement Centered Log-Ratio (CLR) transformation for rarefied taxonomic data in `code/03_correlation_analysis.py`
-- [ ] T022 [US2] Implement Spearman rank correlation calculation between genus abundances and cognitive scores (PRIMARY METHOD per Spec FR-003) in `code/03_correlation_analysis.py`
-- [ ] T023 [US2] Implement Benjamini-Hochberg FDR correction (α = 0.05) on raw p-values in `code/03_correlation_analysis.py`
-- [ ] T024 [US2] Filter and flag significant associations (adj-p < 0.05) and explicitly label as "associational" in results output
-- [ ] T025 [US2] Generate summary report of significant genus-score pairs in `data/processed/correlation_results.csv`
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Predictive Modeling and Robustness Validation (Priority: P3)
-
-**Goal**: Train a Random Forest regressor with Nested Cross-Validation, validate against permutation null distribution, perform sensitivity analysis on rarefaction depth, and calculate VIF for collinearity on top predictive taxa.
-
-**Independent Test**: Can be fully tested by executing `code/04_predictive_modeling.py` and `code/05_sensitivity_analysis.py` and verifying the hold-out R² score exceeds a high percentile threshold of the permutation null distribution (1000 shuffles) and memory usage remains within acceptable system limits.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T028 Write contract test code for model metrics schema (R², RMSE, VIF) in `tests/contract/test_model_metrics.py`
-- [ ] T029 Write integration test code for permutation null distribution generation in `tests/integration/test_permutation.py`
-
-### Implementation for User Story 3
-
-- [ ] T030 [US3] Implement Random Forest regressor training with Nested Cross-Validation (inner loop: hyperparameter tuning; outer loop: evaluation) in `code/04_predictive_modeling.py` (FR-004, Plan Summary)
-- [ ] T031 [US3] Implement permutation test (sufficient shuffles) to generate null distribution for R² scores AND explicitly calculate and save the 95th percentile threshold to `data/processed/null_threshold.json` in `code/04_predictive_modeling.py`
-- [ ] T032 [US3] Implement logic to identify and select 'top predictive taxa' based on Random Forest feature importance (mean decrease in impurity or permutation importance) and save list to `data/processed/top_taxa.json` in `code/04_predictive_modeling.py`
-- [ ] T033 [US3] Calculate Variance Inflation Factors (VIF) for the 'top predictive taxa' (from T032) after CLR transformation; flag pairs with VIF > 5 and generate `data/processed/collinearity_review_log.json` (FR-006) in `code/04_predictive_modeling.py`
-- [ ] T034 [US3] Implement sensitivity analysis sweep loop over rarefaction depths {a high predefined threshold, min_depth} in `code/05_sensitivity_analysis.py` (FR-005)
-- [ ] T034b [US3] Execute model evaluation at each depth in the sweep and generate variance report in `data/processed/sensitivity_variance_report.json` (FR-005)
-- [ ] T035 [US3] Add memory usage checks during permutation testing; sample taxa or reduce permutations if approaching GB limit (FR-007)
-- [ ] T036 [US3] Save model artifacts (pickle/joblib) and SHAP values to `data/models/` with pinned hyperparameters and seeds
-- [ ] T037 [US3] Verify hold-out R² score against the 95th percentile threshold (from T031) and record result in `data/processed/model_significance.json`
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T042 Update `docs/paper_draft.md` Methods section with Rarefaction and Nested CV details
-- [ ] T043 Update `docs/paper_draft.md` Results section with correlation and model findings
-- [ ] T044 Update `docs/paper_draft.md` Discussion section with implications and limitations
-- [ ] T038 Code cleanup and refactoring of `code/utils/` modules
-- [ ] T039 Performance optimization for data loading and permutation loops
-- [ ] T040 Additional unit tests for helper functions in `tests/unit/`
-- [ ] T041 Run `quickstart.md` validation to ensure end-to-end reproducibility
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data output; US2 results inform feature selection
-
-### Within Each User Story
-
-- Tests (if included) MUST be written (T010/T011) BEFORE implementation tasks, but EXECUTED AFTER implementation tasks (T045/T046).
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks can run in parallel
-- All Foundational tasks can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all write-tests for User Story 1 together:
-Task: "Write contract test code for merged dataframe schema in tests/contract/test_data_merge.py"
-Task: "Write integration test code for age filtering and missing value imputation in tests/integration/test_preprocessing.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, `contracts/`
+**Goal**: Investigate the correlation between gut microbiome composition (AGP) and cognitive decline (HRS) in aging populations (age $\ge 60$).
+
+## Phase 1: Setup and first end-to-end analysis
+
+**Goal**: Establish the pipeline and run a thin, executable analysis on a small real-data subset to verify the full data flow from ingestion to prediction.
+
+- [ ] T001 Establish the project layout, pinned dependencies in `code/requirements.txt`, and validate input provenance. <!-- FAILED-IN-EXECUTION: code/validate_provenance.py exit=1 --> <!-- FAILED: unspecified --> <!-- FAILED-IN-EXECUTION: code/validate_provenance.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/validate_provenance.py exit=1 -->
+    - Verify access to American Gut Project (AGP) via `datasets.load_dataset("american_gut_project", streaming=True)` and Health and Retirement Study (HRS) portal.
+    - Document the runnable command in `docs/quickstart.md`.
+    - Ensure the CPU-only resource guard is active ($\le 7$ GB RAM, $\le 6$ hours).
+- [ ] T002 Implement the primary research pipeline scripts with granular verification: <!-- FAILED-IN-EXECUTION: code/01_data_ingestion.py exit=1; code/02_preprocessing.py exit=1; code/03_correlation_analysis.py exit=1; code/04_predictive_modeling.py exit=1 --> <!-- FAILED: unspecified -->
+    - **Ingestion (`code/01_data_ingestion.py`)**: Stream AGP data, merge with HRS by participant ID. Calculate and log the merge success rate (overlap / total AGP IDs) to satisfy SC-001; fail loudly if overlap $< 500$ samples.
+    - **Preprocessing (`code/02_preprocessing.py`)**: Filter age $\ge 60$, collapse to genus, apply Cumulative Sum Scaling (CSS) normalization (per plan.md), and impute BMI via MICE.
+    - **Analysis (`code/03_correlation_analysis.py`)**: Apply CLR transformation. Compute Spearman rank correlations (per spec.md) AND SparCC/SPIEC-EASI compositional correlations (per plan.md). Apply Benjamini-Hochberg FDR ($\alpha=0.05$).
+    - **Modeling (`code/04_predictive_modeling.py`)**: Train Random Forest regressor. Implement a hyperparameter grid search over `n_estimators` and `max_depth` as required by Constitution VII. Use 5-fold CV on CLR data.
+- [ ] T003 Run a thin end-to-end analysis on a small valid sample (e.g., first 1000 participants) to produce initial results. <!-- FAILED: unspecified -->
+    - Output: `data/results/thin_run_summary.json` containing sample count, merge success rate, number of significant taxa, and baseline $R^2$.
+    - Check: Verify the pipeline completes without OOM errors and produces artifacts conforming to `dataset.schema.yaml` and `correlation.schema.yaml`.
+
+## Phase 2: Complete the study and validate its evidence
+
+**Goal**: Execute the full-scale analysis on the target population and perform rigorous statistical validation to ensure results are not artifacts of noise or collinearity.
+
+- [ ] T004 Execute the complete analysis on the full target population (age $\ge 60$). <!-- FAILED: unspecified -->
+    - Process the full merged dataset and save `data/processed/merged_age60.csv` and `data/processed/corpus_clr.parquet`.
+    - Generate the final association table in `data/processed/correlation_results.csv`, ensuring all significant pairs are labeled as "associational".
+    - Check: Verify the output matches the `correlation.schema.yaml` contract.
+- [ ] T005 Perform robustness validation: Permutation null distribution and VIF collinearity check.
+    - Compute a null distribution of $R^2$ via 1000 label shuffles; save the 95th percentile threshold to `data/processed/null_threshold.json`.
+    - Calculate Variance Inflation Factors (VIF) for top predictive taxa; flag any pair with $\text{VIF} > 5$ in `data/processed/vif_report.json`.
+    - **Resource Measurement**: Record and log peak memory usage during the permutation process to `data/processed/resource_usage.json` to satisfy SC-004.
+    - Check: Verify the primary model's $R^2$ exceeds the null threshold in `data/processed/significance_verification.json`.
+- [ ] T006 Run sensitivity analysis on rarefaction depth thresholds (FR-002).
+    - Sweep the rarefaction depth over $\{5,000, \text{min\_depth}\}$ and re-evaluate model $R^2$ at each step to validate the CSS-based primary analysis.
+    - Output: `data/processed/sensitivity_variance_report.json` reporting the variance in performance metrics.
+    - Check: Ensure the process fails gracefully (exit code 1) if RAM exceeds 7 GB during the sweep.
+- [ ] T007 Generate final scientific figures and interpretability artifacts.
+    - Compute feature importance using BOTH permutation importance and SHAP values (per Constitution VII).
+    - Save the top-ranking genera for both methods to `data/processed/importance_analysis.json`.
+    - Produce a figure of the top 20 taxa by SHAP importance in `figures/shap_importance.png`.
+    - Produce a plot of $R^2$ vs. rarefaction depth in `figures/rarefaction_sensitivity.png`.
+
+## Phase 3: Reproducible results and paper handoff
+
+**Goal**: Synthesize the findings into a reproducible account and prepare the project for the paper pipeline.
+
+- [ ] T008 Write the methods and results account in `docs/paper_draft.md`.
+    - Link the text directly to `data/processed/correlation_results.csv`, `data/processed/significance_verification.json`, and the figures in `figures/`.
+    - Honestly document any negative findings (e.g., taxa that failed VIF check) and limitations regarding the associational nature of the data.
+- [ ] T009 Perform a final reproducibility run and document the handoff.
+    - Execute the full workflow from raw inputs to final figures using the documented quickstart.
+    - Verify that all artifact checksums are consistent and the final $R^2$ is reproducible given the fixed random seed.
+    - Output: `docs/handoff_receipt.md` confirming all requirements in `spec.md` are satisfied.
+
+## Dependencies and requirement coverage
+
+| Requirement | Task(s) | Verification Command |
+| :--- | :--- | :--- |
+| **FR-001 (Ingest/Merge)** | T002, T004 | `pytest tests/contract/test_data_merge.py` |
+| **FR-002 (Rarefy/Genus)** | T006 | Check `data/processed/sensitivity_variance_report.json` |
+| **FR-003 (Spearman/FDR)** | T002, T004 | `pytest tests/contract/test_correlation.py` |
+| **FR-004 (Random Forest)** | T002, T004 | Check `data/models/model.pkl` and `hyperparams.json` |
+| **FR-005 (Sensitivity)** | T006 | Check `data/processed/sensitivity_variance_report.json` |
+| **FR-006 (VIF/CLR)** | T002, T005 | Check `data/processed/vif_report.json` |
+| **FR-007 (Resource Limits)** | T001, T006 | Check `data/processed/run.log` for resource guards |
+| **SC-001 (Merge Rate)** | T002, T003 | Check `data/results/thin_run_summary.json` for overlap rate |
+| **SC-002 (Sig Assoc)** | T004 | Check `data/processed/correlation_results.csv` against $\alpha=0.05$ |
+| **SC-003 (Null Dist)** | T005 | Check `data/processed/significance_verification.json` |
+| **SC-004 (Peak RAM)** | T005 | Check `data/processed/resource_usage.json` |

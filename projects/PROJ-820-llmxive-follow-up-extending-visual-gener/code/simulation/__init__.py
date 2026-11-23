@@ -1,6 +1,30 @@
 """
-Simulation module for llmXive project.
-Contains physics simulation logic.
+Simulation module for llmXive.
+Contains physics simulation logic using PyMunk.
 """
-from .physics_engine import run_physics_simulation, main
-__all__ = ['run_physics_simulation', 'main']
+
+from .physics_engine import (
+    SceneDescriptionNotFoundError,
+    InvalidSceneDescriptionError,
+    SimulationError,
+    PhysicsConstraint,
+    load_scene_descriptions,
+    parse_scene_description,
+    simulate_physics,
+    update_contradiction_log,
+    run_physics_simulation,
+    main
+)
+
+__all__ = [
+    'SceneDescriptionNotFoundError',
+    'InvalidSceneDescriptionError',
+    'SimulationError',
+    'PhysicsConstraint',
+    'load_scene_descriptions',
+    'parse_scene_description',
+    'simulate_physics',
+    'update_contradiction_log',
+    'run_physics_simulation',
+    'main'
+]

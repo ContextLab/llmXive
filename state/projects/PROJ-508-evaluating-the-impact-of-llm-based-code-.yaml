@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-508-evaluating-the-impact-of-llm-based-code-
-last_run_id: e2e5d0dd-3c51-4c84-84e8-62556f7f3875
+last_run_id: c8c78d84-24da-4184-b3f9-98c554162ccd
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-508-evaluating-the-impact-of-llm-based-code-/specs/001-evaluating-the-impact-of-llm-based-code
 title: Evaluating the Impact of LLM-Based Code Completion on Developer Cognitive Load
-updated_at: '2026-07-05T12:27:42.822319Z'
+updated_at: '2026-08-16T17:27:44.732412Z'

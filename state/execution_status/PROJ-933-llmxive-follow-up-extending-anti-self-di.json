@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-933-llmxive-follow-up-extending-anti-self-di",
+  "ok": false,
+  "reason": "1 command(s) failed: python main.py --mode full --timeout [configured duration] (rc=2); 2 declared deliverable(s) absent: data/context_splits.json; data/teacher_distribution.json",
+  "artifacts": [],
+  "failures": [
+    "python main.py --mode full --timeout [configured duration] -> rc=2\n    usage: main.py [-h] [--mode {full,data,inference,train,analysis}]\n               [--timeout TIMEOUT]\nmain.py: error: argument --timeout: invalid int value: '[configured'"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-24T00:20:59Z"
+}

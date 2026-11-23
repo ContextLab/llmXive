@@ -29,7 +29,7 @@ The system MUST train three separate Gradient-Boosting Regressors (XGBoost) to p
 
 **Why this priority**: This is the core analytical engine. It transforms the engineered features into predictive models, directly addressing the research question of which mechanisms dominate.
 
-**Independent Test**: The training script can be tested by running it on a toy dataset (e.g., 100 samples) with a 2-minute timeout. It should output three model artifacts (`.json` or `.pkl`) and a log file showing the best hyperparameters found for each component.
+**Independent Test**: The training script can be tested by running it on a toy dataset (e.g., a small number of samples) with a short timeout. It should output three model artifacts (`.json` or `.pkl`) and a log file showing the best hyperparameters found for each component.
 
 **Acceptance Scenarios**:
 
@@ -45,7 +45,7 @@ The system MUST group predictions by cation/anion structural families, compute m
 
 **Why this priority**: This step answers the specific research question about trends across families and validates the model's generalizability. The ANOVA test is used not to prove the obvious (structure determines energy) but to identify *which specific families* deviate significantly from the global trend, enabling targeted analysis of outliers. Validating against experimental data ensures the model predicts real physical interactions, not just interpolation of SAPT artifacts.
 
-**Independent Test**: The analysis script can be tested by running it on the test set predictions and a subset of 20 experimental data points. It should output a JSON report containing ANOVA p-values for each family and a comparison plot (or data) of ML vs. Experimental errors.
+**Independent Test**: The analysis script can be tested by running it on the test set predictions and a subset of experimental data points. It should output a JSON report containing ANOVA p-values for each family and a comparison plot (or data) of ML vs. Experimental errors.
 
 **Acceptance Scenarios**:
 
@@ -95,12 +95,12 @@ The system MUST group predictions by cation/anion structural families, compute m
 
 - The ILThermo dataset and the curated SAPT/DFT energy decomposition repository are accessible and contain the necessary variables (cation/anion structures, interaction energy components) for the analysis.
 - The **combined** dataset (ILThermo + SAPT) is large enough (≥ 5,000 IonPairs) to support a stratified split (70/15/15) while maintaining sufficient samples per family for ANOVA.
-- The experimental validation calculations (or data retrieval) can be completed within the 6-hour job limit on a CPU-only runner.
+- The experimental validation calculations (or data retrieval) can be completed within the job limit on a CPU-only runner.
 - The XGBoost models trained on the CPU will achieve a reasonable MAE without requiring GPU acceleration or large-scale model architectures.
 - The structural families (e.g., imidazolium, BF4-) are well-defined and can be consistently mapped to the ions in the dataset.
 - The multiple-comparison correction (e.g., Bonferroni) will not overly penalize the statistical power to detect significant family trends.
 - The dataset is large enough to support the required stratified split by StructuralFamily.
 - The RDKit library can successfully generate the required graph embeddings and descriptors for all ions in the dataset without encountering parsing errors.
-- The Optuna hyperparameter optimization will converge to a reasonable set of hyperparameters within the 5-minute trial limit and 60 trial count.
+- The Optuna hyperparameter optimization will converge to a reasonable set of hyperparameters within a reasonable time limit and trial count.
 - The experimental validation data will be available for at least 20 IonPairs not in the training set.
 - The family-wise error rate correction will be applied to the ANOVA p-values to ensure the statistical findings are robust.

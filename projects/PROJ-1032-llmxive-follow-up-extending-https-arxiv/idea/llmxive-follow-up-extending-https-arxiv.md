@@ -9,94 +9,69 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-How does asynchronous gradient accumulation latency interact with stale policy states in CPU-constrained small language models (<1B parameters), and can a dynamic staleness threshold stabilize convergence for agentic reasoning tasks?
+How does the parameter count of language models modulate the critical staleness threshold for divergence in asynchronous reinforcement learning, and does this relationship follow a universal non-linear scaling law that holds across varying computational latencies?
 
 ## Motivation
 
-While Single-Rollout Asynchronous Optimization (SAO) demonstrates superior efficiency on large-scale models, its performance on resource-constrained, CPU-only agents remains unverified. The variable latency inherent in CPU execution may introduce destabilizing noise when policy updates rely on outdated trajectories, potentially causing divergence in small-model regimes where learning signals are already weak. Addressing this gap is critical for enabling efficient, local deployment of reasoning agents without reliance on GPU clusters.
+While Single-Rollout Asynchronous Optimization (SAO) demonstrates efficiency on large-scale models, its theoretical stability limits in resource-constrained, CPU-only regimes remain uncharacterized. Variable execution latency in small models (<1B parameters) introduces high-variance noise that may overwhelm weak learning signals, causing divergence. Identifying the staleness bounds that preserve convergence in this regime is critical for enabling robust, decentralized agentic workflows without GPU dependency.
 
 ## Literature gap analysis
 
 ### What we searched
-We queried Semantic Scholar and arXiv using terms including "asynchronous RL LLM," "staleness gradient accumulation," "CPU optimization LLM training," and "small model reinforcement learning stability." The search returned multiple papers on LLM deployment, benchmarking, and retrieval-augmented generation, but none specifically addressed the interaction between asynchronous training staleness and small-model convergence on CPU hardware.
+We queried Semantic Scholar and arXiv using terms including "asynchronous RL staleness," "gradient delay bounds," "small model convergence," and "input-to-state stabilization delay." The search returned papers on system lifecycle management, intent-based policy generation, and control theory, but none specifically addressed the interaction between asynchronous training staleness and small-model convergence in the context of LLM reinforcement learning.
 
 ### What is known
-- [YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition (2026)](https://arxiv.org/abs/2606.05868) — This work addresses high-concurrency deployment bottlenecks via architectural transitions (GQA-to-MLA) but focuses on memory overhead rather than training staleness or asynchronous gradient dynamics.
-- [What Twelve LLM Agent Benchmark Papers Disclose About Themselves: A Pilot Audit and an Open Scoring Schema (2026)](https://arxiv.org/abs/2605.21404) — This audit highlights inconsistencies in how LLM agent evaluations are reported, emphasizing the need for rigorous benchmarking, but does not provide methodological insights into training stability under latency constraints.
-- [RETA-LLM: A Retrieval-Augmented Large Language Model Toolkit (2023)](https://arxiv.org/abs/2306.05212) — This toolkit focuses on reducing hallucinations via retrieval augmentation, a distinct problem from the optimization dynamics of asynchronous reinforcement learning.
+- [Exponential input-to-state stabilization of a class of diagonal boundary control systems with delay boundary control (2020)](https://arxiv.org/abs/2003.05711) — This work establishes theoretical bounds for stabilization in infinite-dimensional systems with delay, offering a mathematical framework for delay-induced instability that is analogous to, but distinct from, discrete parameter updates in LLMs.
+- [Implementation of model predictive control for tracking in embedded systems using a sparse extended ADMM algorithm (2020)](https://arxiv.org/abs/2008.09071) — This paper addresses resource-constrained optimization in embedded systems using sparse algorithms, relevant to the computational constraints of CPU-only LLM training but not to the specific dynamics of asynchronous gradient staleness.
 
 ### What is NOT known
-No published work has empirically measured the convergence stability of SAO-style asynchronous RL when applied to quantized, sub-1B parameter models on CPU hardware. Specifically, there is no evidence on whether dynamic staleness thresholds can mitigate the divergence observed when policy updates are applied with variable, high-latency delays in non-GPU environments.
+No published work has empirically quantified the specific staleness thresholds that trigger divergence in sub-1B parameter LLMs trained via asynchronous RL on CPU hardware. Existing control-theoretic bounds for delay systems do not translate directly to the non-convex, high-dimensional optimization landscape of small language models, leaving a gap in understanding how model capacity modulates tolerance to gradient staleness.
 
 ### Why this gap matters
-As edge AI and local deployment of reasoning agents become more prevalent, the inability to train small models efficiently without GPU resources limits accessibility. Understanding how to stabilize asynchronous training on CPUs would enable cost-effective, decentralized agent deployment, directly impacting the scalability of agentic workflows in resource-constrained settings.
+As edge AI deployment grows, the inability to guarantee convergence stability for small models under asynchronous updates limits the reliability of local agents. Establishing these bounds would allow practitioners to configure training loops that avoid divergence without resorting to expensive GPU clusters, directly impacting the scalability and accessibility of agentic AI.
 
 ### How this project addresses the gap
-This project will implement a modified SAO training loop on a quantized 1.5B model using GSM8K and SWE-Bench-lite, explicitly varying staleness thresholds based on real-time CPU load. By comparing fixed and adaptive staleness regimes, we will generate the first empirical evidence on whether dynamic latency management stabilizes convergence in small-model, CPU-only asynchronous RL.
+This project will implement a controlled asynchronous RL training loop on quantized sub-1B models, systematically varying gradient staleness while monitoring convergence metrics. By mapping the relationship between staleness magnitude, model capacity, and divergence onset, we will derive empirical bounds that extend control-theoretic stability concepts to the specific context of small-model LLM optimization.
 
 ## Expected results
 
-We expect the adaptive staleness regime to achieve a higher reward convergence rate and lower variance in final accuracy compared to fixed high or low staleness baselines. The measurement will involve tracking the standard deviation of reward curves over training steps, with statistical significance confirmed via a two-sample t-test on final accuracy scores across multiple random seeds.
+We expect to identify a non-linear relationship where models below a certain capacity threshold exhibit rapid divergence beyond a specific staleness bound, whereas larger models (within the sub-1B range) remain stable. The measurement will involve tracking the variance of the reward signal and the norm of the gradient updates, with a clear divergence point defined by a sustained drop in reward below a baseline threshold.
 
 ## Methodology sketch
 
-- Download and preprocess the GSM8K dataset and a subset of SWE-Bench-lite using standard HuggingFace `datasets` pipeline.
-- Load a quantized 1.5B parameter model (e.g., Qwen1.5-1.8B) using `bitsandbytes` for CPU execution, ensuring no GPU dependency.
-- Implement a modified SAO training loop where trajectory generation and policy updates are decoupled, with a configurable staleness parameter.
-- Integrate a real-time CPU load monitor (using `psutil`) to dynamically adjust the staleness threshold during training (adaptive regime).
-- Run three experimental regimes: (1) fixed high staleness, (2) fixed low staleness, and (3) adaptive staleness, each with 5 random seeds.
-- Record reward curves and final accuracy for each regime, ensuring all runs complete within the 6-hour GitHub Actions limit.
-- Perform a two-sample t-test comparing the final accuracy of the adaptive regime against the best fixed regime to assess statistical significance.
-- Validate results by ensuring the evaluation metric (final accuracy) is derived from the held-out test set, independent of the training inputs or staleness mechanisms.
+- Download and preprocess the GSM8K dataset and a subset of SWE-Bench-lite using the HuggingFace `datasets` library (public URLs: `gsm8k`, `princeton-nlp/SWE-bench_Lite`).
+- Load a quantized 1.5B parameter model (e.g., Qwen1.5-1.8B) using `bitsandbytes` configured for CPU-only execution to ensure memory fits within 7GB constraints.
+- Implement a modified SAO training loop with a configurable "staleness queue" that holds delayed gradient updates, simulating variable CPU latency via artificial sleep intervals.
+- Define three experimental regimes: (1) low staleness (near-synchronous), (2) high staleness (fixed delay), and (3) adaptive staleness (dynamic threshold based on gradient norm).
+- Execute training runs with 5 random seeds per regime, ensuring total runtime per job stays under 6 hours on a 2-CPU, 7GB RAM runner by limiting steps and batch sizes.
+- Record reward curves, gradient norms, and convergence status (diverged vs. stable) for each run.
+- Perform a statistical analysis (two-sample t-test) comparing the convergence stability (measured as final reward variance) between regimes.
+- Validate the results by ensuring the convergence metric is derived from a held-out test set (GSM8K test split) that is strictly independent of the training staleness mechanism and gradient updates.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: llmXive follow-up: extending "https://arxiv.org/abs/2607.07508".
-- Closest match: llmXive follow-up: extending "https://arxiv.org/abs/2607.07508" (similarity sketch: identical title and core premise, but this iteration refines the focus to CPU-constrained small models and dynamic staleness, distinguishing it from the original broad SAO extension).
+- Closest match: llmXive follow-up: extending "https://arxiv.org/abs/2607.07508" (similarity sketch: identical title and core premise, but this iteration refines the focus to sub-1B capacity regimes and theoretical staleness bounds, distinguishing it from the original broader SAO extension).
 - Verdict: NOT a duplicate
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-12T04:22:03Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-04T21:36:57Z
 **Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "https://arxiv.org/abs/2607.07508" other
-**Verified citation count**: 9
+**Verified citation count**: 5
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
-| 0 (initial) | llmXive follow-up: extending "https://arxiv.org/abs/2607.07508" other | 0 |
-| 1 | extending LLM research papers | 4 |
-| 2 | follow-up studies on large language models | 5 |
-| 3 | iterative improvements to LLM architectures | 0 |
-| 4 | subsequent work on LLM methodologies | 0 |
-| 5 | LLM extension frameworks | 0 |
-| 6 | building upon existing LLM research | 0 |
-| 7 | LLM research evolution and progression | 0 |
-| 8 | advanced LLM implementations | 0 |
-| 9 | LLM model refinement techniques | 0 |
-| 10 | LLM research continuity | 0 |
-| 11 | LLM paper extensions and derivatives | 0 |
-| 12 | LLM incremental research | 0 |
-| 13 | LLM follow-up methodologies | 0 |
-| 14 | LLM research trajectory | 0 |
-| 15 | LLM model adaptation strategies | 0 |
-| 16 | LLM literature expansion | 0 |
-| 17 | LLM research lineage | 0 |
-| 18 | LLM paper successor studies | 0 |
-| 19 | LLM development iterations | 0 |
-| 20 | LLM research progression | 0 |
+| 0 (initial) | llmXive follow-up: extending "https://arxiv.org/abs/2607.07508" other | 5 |
 
 ### Verified citations
 
-1. **YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition** (2026).  PSBC LLM Team,  Huawei LLM Team, Ruihan Long, Junjie Wu, Tianan Zhang, et al.. arXiv. [2606.05868](https://arxiv.org/abs/2606.05868). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-2. **What Twelve LLM Agent Benchmark Papers Disclose About Themselves: A Pilot Audit and an Open Scoring Schema** (2026). Mahdi Naser Moghadasi, Faezeh Ghaderi. arXiv. [2605.21404](https://arxiv.org/abs/2605.21404). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-3. **Concentration of research funding leads to decreasing marginal returns** (2016). Philippe Mongeon, Christine Brodeur, Catherine Beaudry, Vincent Lariviere. arXiv. [1602.07396](https://arxiv.org/abs/1602.07396). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-4. **RETA-LLM: A Retrieval-Augmented Large Language Model Toolkit** (2023). Jiongnan Liu, Jiajie Jin, Zihan Wang, Jiehan Cheng, Zhicheng Dou, et al.. arXiv. [2306.05212](https://arxiv.org/abs/2306.05212). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-5. **Enhancing Human-Like Responses in Large Language Models** (2025). Ethem Yağız Çalık, Talha Rüzgar Akkuş. arXiv. [2501.05032](https://arxiv.org/abs/2501.05032). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-6. **Investigating Retrieval-Augmented Generation in Quranic Studies: A Study of 13 Open-Source Large Language Models** (2025). Zahra Khalila, Arbi Haza Nasution, Winda Monika, Aytug Onan, Yohei Murakami, et al.. arXiv. [2503.16581](https://arxiv.org/abs/2503.16581). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-7. **Self-Cognition in Large Language Models: An Exploratory Study** (2024). Dongping Chen, Jiawen Shi, Yao Wan, Pan Zhou, Neil Zhenqiang Gong, et al.. arXiv. [2407.01505](https://arxiv.org/abs/2407.01505). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-8. **Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality** (2024). Yiming Ai, Zhiwei He, Ziyin Zhang, Wenhong Zhu, Hongkun Hao, et al.. arXiv. [2402.14679](https://arxiv.org/abs/2402.14679). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-9. **Large Language Models Lack Understanding of Character Composition of Words** (2024). Andrew Shin, Kunitake Kaneko. arXiv. [2405.11357](https://arxiv.org/abs/2405.11357). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+1. **From product to system network challenges in system of systems lifecycle management** (2025). Vahid Salehi, Josef Vilsmeier, Shirui Wang. arXiv. [2510.27194](https://arxiv.org/abs/2510.27194). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+2. **LLM-based policy generation for intent-based management of applications** (2024). Kristina Dzeparoska, Jieyu Lin, Ali Tizghadam, Alberto Leon-Garcia. arXiv. [2402.10067](https://arxiv.org/abs/2402.10067). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+3. **VeML: An End-to-End Machine Learning Lifecycle for Large-scale and High-dimensional Data** (2023). Van-Duc Le, Tien-Cuong Bui, Wen-Syan Li. arXiv. [2304.13037](https://arxiv.org/abs/2304.13037). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+4. **Exponential input-to-state stabilization of a class of diagonal boundary control systems with delay boundary control** (2020). Hugo Lhachemi, Robert Shorten, Christophe Prieur. arXiv. [2003.05711](https://arxiv.org/abs/2003.05711). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+5. **Implementation of model predictive control for tracking in embedded systems using a sparse extended ADMM algorithm** (2020). Pablo Krupa, Ignacio Alvarado, Daniel Limon, Teodoro Alamo. arXiv. [2008.09071](https://arxiv.org/abs/2008.09071). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*

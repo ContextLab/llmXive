@@ -4,12 +4,12 @@ from pathlib import Path
 
 def main():
     """
-    Create the project directory structure as defined in the implementation plan.
-    Directories created relative to the repository root (where this script is run).
+    Creates the required project directory structure as per T001.
+    Executes: mkdir -p data/raw data/processed data/results code/ tests/ state/
     """
-    # Define the required directories relative to the current working directory
-    # which should be the project root.
-    directories = [
+    root = Path(__file__).resolve().parent.parent
+    
+    required_dirs = [
         "data/raw",
         "data/processed",
         "data/results",
@@ -18,29 +18,33 @@ def main():
         "state"
     ]
 
-    project_root = Path.cwd()
-    created_count = 0
+    created = []
+    skipped = []
 
-    for dir_path in directories:
-        full_path = project_root / dir_path
-        try:
-            if not full_path.exists():
-                full_path.mkdir(parents=True, exist_ok=True)
-                print(f"Created directory: {full_path}")
-                created_count += 1
-            else:
-                # Ensure it is actually a directory, not a file
-                if full_path.is_dir():
-                    print(f"Directory already exists: {full_path}")
-                else:
-                    print(f"ERROR: Path exists but is not a directory: {full_path}")
-                    return 1
-        except OSError as e:
-            print(f"ERROR: Failed to create directory {full_path}: {e}")
-            return 1
+    for dir_path in required_dirs:
+        full_path = root / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(full_path))
+        else:
+            skipped.append(str(full_path))
 
-    print(f"Project structure initialization complete. {created_count} new directories created.")
-    return 0
+    print(f"Project structure initialized at: {root}")
+    print(f"Created directories: {len(created)}")
+    for d in created:
+        print(f"  - {d}")
+    
+    if skipped:
+        print(f"Skipped existing directories: {len(skipped)}")
+        for d in skipped:
+            print(f"  - {d}")
+
+    # Verify existence for the task requirement
+    all_exist = all((root / d).exists() for d in required_dirs)
+    if not all_exist:
+        raise RuntimeError("Failed to create all required project directories.")
+    
+    print("Verification: All required directories exist.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,0 +1,12 @@
+status: none
+intent: stochastic physics sandbox grid world generator python package dataset
+required_fields:
+- grid_state_matrix
+- time_step_index
+- external_noise_vector
+- agent_positions
+- cell_state_history
+- environmental_force_vectors
+cache_key: eb0e6183b6e85271aee95170acedd563524f22fedeeb0d35c3c35e404ca92a1c
+searched_at: '2026-10-14T09:30:34.523223+00:00'
+retry_count: 1

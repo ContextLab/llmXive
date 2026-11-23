@@ -1,106 +1,139 @@
+"""
+Unit tests for the analysis pipeline (T020).
+Verifies correlation computation functionality.
+"""
+import os
+import tempfile
 import pandas as pd
 import numpy as np
 import pytest
-import sys
-import os
+from pathlib import Path
 
-# Add code directory to path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+# Add project root to path
+sys_path = Path(__file__).parent.parent.parent
+if str(sys_path) not in str(__import__('sys').path):
+    __import__('sys').path.insert(0, str(sys_path))
 
-from analysis import run_benjamini_hochberg
+from code.analysis import validate_inputs, calculate_deltas, compute_correlations
 
-class TestBenjaminiHochberg:
-    def test_bh_basic_significance(self):
-        """Test that BH correctly identifies significant p-values in a simple case."""
-        # Create a set of p-values where we know the outcome
-        # Sorted: 0.001, 0.01, 0.02, 0.1, ...
-        # n=10, alpha=0.05
-        # Thresholds: (i/10)*0.05 -> 0.005, 0.01, 0.015, 0.02, ...
-        # 0.001 <= 0.005 (True)
-        # 0.01 <= 0.01 (True)
-        # 0.02 <= 0.015 (False) -> k=2
-        p_values = pd.Series([0.001, 0.01, 0.02, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7])
-        result = run_benjamini_hochberg(p_values, alpha=0.05)
-        
-        # Expected: 0.001, 0.01 should be significant (k=2)
-        assert result['significant'].sum() == 2
-        assert result['significant'].iloc[0] == True
-        assert result['significant'].iloc[1] == True
-        assert result['significant'].iloc[2] == False
 
-    def test_bh_all_significant(self):
-        """Test case where all p-values are very small."""
-        p_values = pd.Series([0.0001, 0.0002, 0.0003, 0.0004, 0.0005])
-        result = run_benjamini_hochberg(p_values, alpha=0.05)
-        
-        # All should be significant
-        assert result['significant'].sum() == 5
-        assert all(result['significant'])
+def create_test_data(temp_dir: Path):
+    """Create mock test data files."""
+    # Create complexity metrics
+    complexity_data = {
+        'participant_id': ['P001', 'P001', 'P002', 'P002', 'P003', 'P003'],
+        'channel': ['Cz', 'Cz', 'Cz', 'Cz', 'Cz', 'Cz'],
+        'segment_id': ['pre', 'post', 'pre', 'post', 'pre', 'post'],
+        'lzc_value': [0.45, 0.42, 0.48, 0.44, 0.46, 0.43],
+        'pe_value': [0.72, 0.70, 0.75, 0.73, 0.73, 0.71]
+    }
+    complexity_df = pd.DataFrame(complexity_data)
+    complexity_path = temp_dir / "complexity_metrics.csv"
+    complexity_df.to_csv(complexity_path, index=False)
 
-    def test_bh_none_significant(self):
-        """Test case where no p-values are significant."""
-        p_values = pd.Series([0.1, 0.2, 0.3, 0.4, 0.5])
-        result = run_benjamini_hochberg(p_values, alpha=0.05)
-        
-        # None should be significant
-        assert result['significant'].sum() == 0
-        assert not any(result['significant'])
+    # Create fatigue scores
+    fatigue_data = {
+        'participant_id': ['P001', 'P002', 'P003'],
+        'pre_fatigue': [2.0, 2.5, 1.8],
+        'post_fatigue': [4.5, 4.0, 3.8]
+    }
+    fatigue_df = pd.DataFrame(fatigue_data)
+    fatigue_path = temp_dir / "fatigue_scores.csv"
+    fatigue_df.to_csv(fatigue_path, index=False)
 
-    def test_bh_adjusted_p_values_monotonic(self):
-        """Test that adjusted p-values are monotonic with respect to raw p-values."""
-        p_values = pd.Series([0.01, 0.02, 0.03, 0.04, 0.05])
-        result = run_benjamini_hochberg(p_values, alpha=0.05)
-        
-        adj_p = result['adjusted_p_values']
-        # Adjusted p-values should be non-decreasing
-        for i in range(len(adj_p) - 1):
-            assert adj_p.iloc[i] <= adj_p.iloc[i+1], f"Monotonicity violated at index {i}"
+    return complexity_path, fatigue_path
 
-    def test_bh_adjusted_p_values_capped_at_1(self):
-        """Test that adjusted p-values do not exceed 1.0."""
-        p_values = pd.Series([0.9, 0.95, 0.99, 1.0])
-        result = run_benjamini_hochberg(p_values, alpha=0.05)
-        
-        assert all(result['adjusted_p_values'] <= 1.0)
 
-    def test_bh_empty_input(self):
-        """Test handling of empty p-value series."""
-        p_values = pd.Series([], dtype=float)
-        result = run_benjamini_hochberg(p_values, alpha=0.05)
-        
-        assert len(result['significant']) == 0
-        assert len(result['adjusted_p_values']) == 0
-        assert result['threshold'] == 0.0
+def test_validate_inputs_valid():
+    """Test validation with valid input files."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        temp_dir = Path(tmpdir)
+        complexity_path, fatigue_path = create_test_data(temp_dir)
 
-    def test_bh_single_value(self):
-        """Test handling of a single p-value."""
-        p_values = pd.Series([0.03])
-        result = run_benjamini_hochberg(p_values, alpha=0.05)
-        
-        # For n=1, threshold is 1/1 * 0.05 = 0.05. 0.03 <= 0.05 -> Significant
-        assert result['significant'].iloc[0] == True
-        assert result['adjusted_p_values'].iloc[0] <= 1.0
+        # Create a dummy delta file
+        delta_path = temp_dir / "delta_scores.csv"
+        pd.DataFrame({'participant_id': ['P001'], 'fatigue_delta': [1.0], 'lzc_delta': [0.0], 'pe_delta': [0.0]}).to_csv(delta_path, index=False)
 
-    def test_bh_preserves_original_order(self):
-        """Test that the function returns results in the original input order."""
-        # Input is unsorted
-        p_values = pd.Series([0.05, 0.01, 0.02, 0.03])
-        result = run_benjamini_hochberg(p_values, alpha=0.05)
-        
-        # The result should align with the input order
-        # Input index 0: 0.05 -> Should be significant? (4/4 * 0.05 = 0.05, yes)
-        # Input index 1: 0.01 -> Significant
-        # Input index 2: 0.02 -> Significant
-        # Input index 3: 0.03 -> Significant
-        # Wait, let's re-verify logic.
-        # Sorted: 0.01, 0.02, 0.03, 0.05. n=4.
-        # i=1 (0.01) <= 0.0125 (True)
-        # i=2 (0.02) <= 0.025 (True)
-        # i=3 (0.03) <= 0.0375 (True)
-        # i=4 (0.05) <= 0.05 (True)
-        # All significant.
-        
-        assert len(result) == 4
-        assert all(result['significant'])
-        # Ensure the index matches the input
-        assert list(result.index) == list(p_values.index)
+        is_valid, message = validate_inputs(
+            complexity_file=str(complexity_path),
+            fatigue_file=str(fatigue_path),
+            delta_file=str(delta_path)
+        )
+
+        assert is_valid is True
+        assert "validated" in message.lower()
+
+
+def test_validate_inputs_missing_file():
+    """Test validation with missing input file."""
+    is_valid, message = validate_inputs(
+        complexity_file="nonexistent.csv",
+        fatigue_file="nonexistent.csv",
+        delta_file="nonexistent.csv"
+    )
+
+    assert is_valid is False
+    assert "not found" in message.lower()
+
+
+def test_calculate_deltas():
+    """Test delta calculation logic."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        temp_dir = Path(tmpdir)
+        complexity_path, fatigue_path = create_test_data(temp_dir)
+
+        output_path = temp_dir / "delta_scores.csv"
+        delta_df = calculate_deltas(
+            complexity_file=str(complexity_path),
+            fatigue_file=str(fatigue_path),
+            output_file=str(output_path)
+        )
+
+        assert os.path.exists(output_path)
+        assert 'fatigue_delta' in delta_df.columns
+        assert 'lzc_delta' in delta_df.columns
+        assert 'pe_delta' in delta_df.columns
+        assert len(delta_df) == 3  # 3 participants
+
+        # Verify delta calculation (post - pre)
+        assert all(delta_df['fatigue_delta'] > 0)  # All post > pre in test data
+
+
+def test_compute_correlations():
+    """Test correlation computation."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        temp_dir = Path(tmpdir)
+        complexity_path, fatigue_path = create_test_data(temp_dir)
+
+        # Create delta file
+        delta_path = temp_dir / "delta_scores.csv"
+        delta_data = {
+            'participant_id': ['P001', 'P002', 'P003'],
+            'fatigue_delta': [2.5, 1.5, 2.0],
+            'lzc_delta': [-0.03, -0.04, -0.03],
+            'pe_delta': [-0.02, -0.02, -0.02]
+        }
+        pd.DataFrame(delta_data).to_csv(delta_path, index=False)
+
+        output_path = temp_dir / "correlation_results.csv"
+        corr_df = compute_correlations(
+            delta_file=str(delta_path),
+            complexity_file=str(complexity_path),
+            output_file=str(output_path)
+        )
+
+        assert os.path.exists(output_path)
+        assert 'channel' in corr_df.columns
+        assert 'metric' in corr_df.columns
+        assert 'correlation_type' in corr_df.columns
+        assert 'coefficient' in corr_df.columns
+        assert 'p_value' in corr_df.columns
+
+        # Should have 4 correlations per channel (pearson/spearman for lzc/pe)
+        # With 1 channel in test data: 4 rows
+        assert len(corr_df) == 4
+
+        # Coefficients should be between -1 and 1
+        assert all(abs(corr_df['coefficient']) <= 1.0)
+        assert all(corr_df['p_value'] >= 0)
+        assert all(corr_df['p_value'] <= 1)

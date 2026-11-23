@@ -1,47 +1,78 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "AlloyEntry"
-description: "Schema for a single experimental Heusler alloy measurement."
-type: "object"
+$schema: http://json-schema.org/draft-07/schema#
+title: Alloy Entry Schema
+description: >
+  Canonical schema for experimental Heusler alloy entries used in the
+  composition‑hysteresis prediction pipeline. Captures composition,
+  magnetic hysteresis measurements, and provenance metadata.
+type: object
 required:
-  - "id"
-  - "composition"
-  - "hysteresis_coercivity"
-  - "hysteresis_saturation"
-  - "source_type"
-  - "is_dft"
+  - alloy_id
+  - composition
+  - coercivity
+  - saturation
+  - source_type
+  - is_dft
+  - raw_source
 properties:
-  id:
-    type: "string"
-    description: "Unique identifier for the alloy entry."
+  alloy_id:
+    type: string
+    description: Unique identifier (UUID format)
+    pattern: "^[a-f0-9\\-]{36}$"
   composition:
-    type: "object"
-    description: "Atomic fractions of constituent elements. Sum must be 1.0."
-    additionalProperties:
-      type: "number"
-      minimum: 0
-      maximum: 1
-  hysteresis_coercivity:
-    type: "number"
-    description: "Coercivity in Oersted (Oe)."
-  hysteresis_saturation:
-    type: "number"
-    description: "Saturation magnetization in emu/g."
+    type: object
+    description: Mapping element symbol → atomic fraction (sums to 1.0)
+    patternProperties:
+      "^[A-Z][a-z]?$":
+        type: number
+        minimum: 0
+        maximum: 1
+    additionalProperties: false
+  coercivity:
+    type: object
+    required:
+      - value
+      - unit
+    properties:
+      value:
+        type: number
+        minimum: 0
+      unit:
+        type: string
+        enum: ["Oe"]
+        description: Unit after normalization
+  saturation:
+    type: object
+    required:
+      - value
+      - unit
+    properties:
+      value:
+        type: number
+        minimum: 0
+      unit:
+        type: string
+        enum: ["emu/g"]
+        description: Unit after normalization
   source_type:
-    type: "string"
-    enum:
-      - "NIST"
-      - "Journal"
-      - "Manual"
-    description: "Origin of the data point."
-  synthesis_method:
-    type: "string"
-    description: "Method used to synthesize the alloy (e.g., 'Arc-melted')."
-  crystal_structure:
-    type: "string"
-    description: "Crystal phase (e.g., 'L2_1')."
+    type: string
+    enum: ["NIST","Journal","Manual"]
+    description: Data origin category
   is_dft:
-    type: "boolean"
-    description: "True if the data is from DFT calculation. Must be False for training targets."
+    type: boolean
+    description: Must be false for rows used as training targets
   raw_source:
-    type: "string"
-    description: "Citation or URL of the original source."
+    type: string
+    description: URL or citation key of the original source
+  synthesis_method:
+    type: string
+    description: Optional synthesis method metadata
+    nullable: true
+  crystal_structure:
+    type: string
+    description: Optional crystal structure label
+    nullable: true
+  reference:
+    type: string
+    description: DOI or bibliographic reference
+    nullable: true
+additionalProperties: false

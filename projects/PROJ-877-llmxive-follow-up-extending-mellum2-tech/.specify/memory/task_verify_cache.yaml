@@ -1,0 +1,22 @@
+T001a:
+  c: true
+  h: 25f30f9c8311c1db5139f17feaa769a7336ac58c55d4a65ae9f49080d8ba826c
+  r: '`code/requirements.txt` exists with all 19 required packages pinned (datasets,
+    transformers, tree-sitter variants, scikit-learn, statsmodels, pandas, numpy,
+    scipy, matplotlib, seaborn, kenlm, ruptures, pwlf, jsonschema, pytest, pytest-cov,
+    psutil), and `code/config.py` defines `SEED=12345`, imports project-wide paths
+    via `llmxive_toolkit`, and sets the primary frozen model identifier `PRIMARY_MODEL
+    = "Mistral-7B"`. The extra packages (pyarrow, tqdm) and additional config constants
+    are additive and don''t conflict with the requirements.'
+  sig: 0a943f673598e8070f1407fd2814df583ff686fdf2248c8ba114c75b0f3bf3ea
+T001b:
+  c: true
+  h: 43c26c50080d7c0ac6cfd2a2cb601f1a43067813b5f2fdab2b0cc0597162c10b
+  r: "The `quickstart.md` file exists (1512 bytes) and contains the exact required\
+    \ command `python -m code.main --phase all --sample small`, plus usage notes,\
+    \ virtual-environment activation instructions, and expected runtime limits (\u2264\
+    6 hours, 60s per-chunk timeout). The command-run verification cannot be independently\
+    \ evidenced here (no execution artifacts were collected), but the documentation\
+    \ deliverable itself fully matches the task's stated requirements, and pipeline\
+    \ execution is enforced by later tasks."
+  sig: b5bccfd61f8da50e0d1d45d3523b134c949f2cc39ba35cb66a6ae2b4df6bd295

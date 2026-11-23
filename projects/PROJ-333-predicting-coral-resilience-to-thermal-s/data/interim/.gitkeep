@@ -1,0 +1,2 @@
+# Directory for intermediate data files (optional, for large pipeline stages)
+# This file ensures the directory is tracked in version control.

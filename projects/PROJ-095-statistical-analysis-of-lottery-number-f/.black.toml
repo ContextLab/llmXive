@@ -1,0 +1,4 @@
+# Explicit Black configuration for the project
+# This file is a duplicate of settings in pyproject.toml for IDE compatibility
+line-length = 88
+target-version = ['py39', 'py310', 'py311']

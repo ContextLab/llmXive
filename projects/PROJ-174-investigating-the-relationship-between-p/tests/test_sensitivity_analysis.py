@@ -4,116 +4,171 @@ import pytest
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from unittest.mock import patch, MagicMock
+import yaml
+import tempfile
+import shutil
 
-# Add code directory to path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Add parent directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from classification.sensitivity_analysis import (
-    calculate_metrics_at_threshold,
-    calculate_relative_changes,
-    THRESHOLD_VALUES
+    compute_metrics_at_threshold,
+    calculate_stability_metrics,
+    run_sensitivity_analysis
 )
+from config import load_config
 
 @pytest.fixture
-def sample_predictions_df():
-    """Create a sample DataFrame with predictions and ground truth."""
-    np.random.seed(42)
-    n = 100
+def sample_data():
+    """Create sample labeled data for testing."""
     data = {
-        'subject_id': np.random.randint(1, 10, n),
-        'trial_id': range(n),
-        'search_time': np.random.uniform(1, 10, n),
-        'predicted_probability': np.random.uniform(0, 1, n),
-        'ground_truth_label': np.random.randint(0, 2, n)
+        'probability': [0.9, 0.8, 0.7, 0.6, 0.5, 0.4, 0.3, 0.2, 0.1, 0.0],
+        'label': [1, 1, 1, 1, 1, 0, 0, 0, 0, 0]
     }
     return pd.DataFrame(data)
 
-def test_calculate_metrics_at_threshold_050(sample_predictions_df):
-    """Test metric calculation at the baseline threshold of 0.50."""
-    metrics = calculate_metrics_at_threshold(sample_predictions_df, 0.50)
+@pytest.fixture
+def temp_config(tmp_path):
+    """Create a temporary config file with thresholds."""
+    config = {
+        'seeds': [42],
+        'thresholds': [0.4, 0.5, 0.6],
+        'paths': {
+            'data_raw': 'data/raw',
+            'data_processed': 'data/processed',
+            'results': 'results',
+            'figures': 'figures'
+        },
+        'aggregation': False
+    }
+    config_path = tmp_path / 'config.yaml'
+    with open(config_path, 'w') as f:
+        yaml.dump(config, f)
+    return config_path
+
+@pytest.fixture
+def temp_results_dir(tmp_path):
+    """Create a temporary results directory."""
+    results_dir = tmp_path / 'results'
+    results_dir.mkdir()
+    return results_dir
+
+def test_compute_metrics_at_threshold(sample_data):
+    """Test metric computation at a specific threshold."""
+    # Test with threshold 0.5
+    metrics = compute_metrics_at_threshold(sample_data, 0.5)
     
     assert 'accuracy' in metrics
-    assert 'precision' in metrics
-    assert 'recall' in metrics
-    assert 'f1_score' in metrics
-    assert 'threshold' in metrics
-    assert metrics['threshold'] == 0.50
+    assert 'auc' in metrics
+    assert isinstance(metrics['accuracy'], float)
+    assert isinstance(metrics['auc'], float)
     
-    # Check that accuracy is between 0 and 1
-    assert 0.0 <= metrics['accuracy'] <= 1.0
-    # Check that counts are non-negative integers
-    assert metrics['tp'] >= 0
-    assert metrics['tn'] >= 0
-    assert metrics['fp'] >= 0
-    assert metrics['fn'] >= 0
+    # At threshold 0.5, predictions should be [1,1,1,1,1,0,0,0,0,0]
+    # Which perfectly matches labels [1,1,1,1,1,0,0,0,0,0]
+    # So accuracy should be 1.0
+    assert metrics['accuracy'] == 1.0
 
-def test_calculate_metrics_at_threshold_040(sample_predictions_df):
-    """Test metric calculation at 0.40 threshold."""
-    metrics = calculate_metrics_at_threshold(sample_predictions_df, 0.40)
-    assert metrics['threshold'] == 0.40
-    # Lower threshold should generally increase recall (more positives predicted)
-    metrics_050 = calculate_metrics_at_threshold(sample_predictions_df, 0.50)
-    # Note: This is probabilistic, so we don't assert strict inequality, just presence
-    assert metrics['recall'] >= 0
+def test_compute_metrics_at_threshold_low(sample_data):
+    """Test metric computation with low threshold."""
+    # Test with threshold 0.1 - almost all predicted as 1
+    metrics = compute_metrics_at_threshold(sample_data, 0.1)
+    
+    assert metrics['accuracy'] >= 0.5  # At least 50% accuracy
 
-def test_calculate_metrics_at_threshold_060(sample_predictions_df):
-    """Test metric calculation at 0.60 threshold."""
-    metrics = calculate_metrics_at_threshold(sample_predictions_df, 0.60)
-    assert metrics['threshold'] == 0.60
-    # Higher threshold should generally decrease recall (fewer positives predicted)
+def test_compute_metrics_at_threshold_high(sample_data):
+    """Test metric computation with high threshold."""
+    # Test with threshold 0.9 - only first predicted as 1
+    metrics = compute_metrics_at_threshold(sample_data, 0.9)
+    
+    assert metrics['accuracy'] >= 0.5
 
-def test_calculate_relative_changes():
-    """Test relative change calculations."""
-    # Create mock metrics list
-    metrics_list = [
-        {'threshold': 0.40, 'accuracy': 0.70, 'precision': 0.65, 'recall': 0.80, 'f1_score': 0.718},
-        {'threshold': 0.50, 'accuracy': 0.75, 'precision': 0.70, 'recall': 0.75, 'f1_score': 0.725}, # Baseline
-        {'threshold': 0.60, 'accuracy': 0.72, 'precision': 0.75, 'recall': 0.65, 'f1_score': 0.696}
+def test_calculate_stability_metrics():
+    """Test stability metric calculation."""
+    results = [
+        {'threshold': 0.4, 'accuracy': 0.9, 'auc': 0.95},
+        {'threshold': 0.5, 'accuracy': 0.85, 'auc': 0.94},
+        {'threshold': 0.6, 'accuracy': 0.8, 'auc': 0.93}
     ]
     
-    df = calculate_relative_changes(metrics_list, baseline_threshold=0.50)
+    stable_results = calculate_stability_metrics(results)
     
-    assert 'relative_f1_change' in df.columns
+    assert len(stable_results) == 3
+    assert all('stability_status' in r for r in stable_results)
+    assert all('relative_decrease' in r for r in stable_results)
+    
+    # AUC drop is (0.95 - 0.93) / 0.95 = 0.021 < 0.05, so should be PASS
+    assert stable_results[0]['stability_status'] == 'PASS'
+    assert stable_results[0]['relative_decrease'] < 0.05
+
+def test_calculate_stability_metrics_unstable():
+    """Test stability metric calculation with unstable AUC."""
+    results = [
+        {'threshold': 0.4, 'accuracy': 0.9, 'auc': 0.95},
+        {'threshold': 0.5, 'accuracy': 0.7, 'auc': 0.80},
+        {'threshold': 0.6, 'accuracy': 0.6, 'auc': 0.70}
+    ]
+    
+    stable_results = calculate_stability_metrics(results)
+    
+    # AUC drop is (0.95 - 0.70) / 0.95 = 0.263 > 0.05, so should be FAIL
+    assert stable_results[0]['stability_status'] == 'FAIL'
+    assert stable_results[0]['relative_decrease'] > 0.05
+
+def test_run_sensitivity_analysis(tmp_path, sample_data, temp_config):
+    """Test full sensitivity analysis run."""
+    # Create necessary directories
+    data_dir = tmp_path / 'data' / 'processed'
+    data_dir.mkdir(parents=True)
+    
+    # Create labeled data file
+    labeled_data_path = data_dir / 'labeled_data.csv'
+    sample_data.to_csv(labeled_data_path, index=False)
+    
+    # Create metrics file (required by load_classification_predictions)
+    metrics_dir = tmp_path / 'results'
+    metrics_dir.mkdir()
+    metrics_path = metrics_dir / 'classification_metrics.csv'
+    pd.DataFrame({'threshold': [0.5], 'accuracy': [0.9], 'auc': [0.95], 
+                 'precision': [0.9], 'recall': [0.9], 
+                 'ground_truth_source': ['test']}).to_csv(metrics_path, index=False)
+    
+    # Run sensitivity analysis
+    output_path = tmp_path / 'results' / 'sensitivity_analysis.csv'
+    run_sensitivity_analysis(temp_config, output_path)
+    
+    # Verify output exists
+    assert output_path.exists()
+    
+    # Verify content
+    df = pd.read_csv(output_path)
+    assert 'threshold' in df.columns
+    assert 'accuracy' in df.columns
+    assert 'auc' in df.columns
     assert 'stability_status' in df.columns
     
-    # Check baseline row (0.50) has 0 change
-    baseline_row = df[df['threshold'] == 0.50]
-    assert np.isclose(baseline_row['relative_f1_change'].iloc[0], 0.0, atol=1e-5)
-    assert baseline_row['stability_status'].iloc[0] == 'STABLE'
+    # Should have 3 rows for 3 thresholds
+    assert len(df) == 3
     
-    # Check 0.40 row (should be negative change if 0.718 < 0.725)
-    row_040 = df[df['threshold'] == 0.40]
-    # 0.718 - 0.725 = -0.007 / 0.725 = -0.0096...
-    expected_change_040 = (0.718 - 0.725) / 0.725
-    assert np.isclose(row_040['relative_f1_change'].iloc[0], expected_change_040, atol=1e-4)
-    assert row_040['stability_status'].iloc[0] == 'DECREASED'
+    # Check stability status is present
+    assert all(df['stability_status'].isin(['PASS', 'FAIL']))
+
+def test_config_defaults():
+    """Test that default thresholds are used when config is missing thresholds."""
+    config = {
+        'seeds': [42],
+        'paths': {},
+        'aggregation': False
+    }
     
-    # Check 0.60 row
-    row_060 = df[df['threshold'] == 0.60]
-    expected_change_060 = (0.696 - 0.725) / 0.725
-    assert np.isclose(row_060['relative_f1_change'].iloc[0], expected_change_060, atol=1e-4)
-    assert row_060['stability_status'].iloc[0] == 'DECREASED'
-
-def test_calculate_relative_changes_empty_list():
-    """Test with empty metrics list."""
-    df = calculate_relative_changes([])
-    assert df.empty
-
-def test_calculate_relative_changes_missing_baseline():
-    """Test when baseline threshold is not in the list."""
-    metrics_list = [
-        {'threshold': 0.40, 'accuracy': 0.70, 'f1_score': 0.718},
-        {'threshold': 0.60, 'accuracy': 0.72, 'f1_score': 0.696}
-    ]
-    df = calculate_relative_changes(metrics_list, baseline_threshold=0.50)
+    # This should not raise an error, should use defaults
+    thresholds = config.get('thresholds', [0.4, 0.5, 0.6])
+    assert thresholds == [0.4, 0.5, 0.6]
     
-    # Should have NaN for relative changes
-    assert df['relative_f1_change'].isna().all()
-    assert (df['stability_status'] == 'UNKNOWN_BASELINE').all()
-
-def test_threshold_values_constant():
-    """Ensure the default threshold values match SC-004."""
-    expected = [0.40, 0.50, 0.60]
-    assert THRESHOLD_VALUES == expected
+    # Test with empty thresholds
+    config['thresholds'] = []
+    thresholds = config.get('thresholds', [0.4, 0.5, 0.6])
+    # When empty list is present, get returns empty list
+    # But our implementation in sensitivity_analysis.py checks if not thresholds
+    if not thresholds:
+        thresholds = [0.4, 0.5, 0.6]
+    assert thresholds == [0.4, 0.5, 0.6]

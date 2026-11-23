@@ -1,0 +1,21 @@
+T001:
+  c: false
+  h: 4f440b8a063548988cb9d05219632e7f0a41200756183f47d9f7ea36dc6aaf30
+  r: "The required artifact `docs/quickstart.md` is explicitly MISSING, so the task's\
+    \ core deliverable \u2014 documenting the runnable command `python run_pipeline.py\
+    \ --thin` \u2014 does not exist, and there is no evidence that command was ever\
+    \ executed. Additionally, `requirements.txt` does not match the pinned dependencies\
+    \ in `pyproject.toml` (e.g. pandas 2.2.2 vs 2.0.0, bayesmeta 2.0.0 vs 0.1.0),\
+    \ and no `Makefile`/`make setup` target or `run_pipeline.py` is evidenced, so\
+    \ the stated verification steps cannot be confirmed."
+  sig: 55209aae53a8c555efd0e1620bdb344187344f8d8e82878dba1df5bd4cda6a91
+T003:
+  c: false
+  h: 2d55084ce3169514796414ddaf475d36299a351e14de622a8b3cd69f5327a10a
+  r: 'The execution log shows `python -m pytest tests/contract/test_schemas.py` failed
+    with 2 of 4 tests failing (exit 1): the dummy-instance generator ignores `enum`
+    and `minimum` constraints, producing ''example'' for the registry enum and 0 for
+    `n_treatment` (minimum 1). The verification criterion explicitly requires all
+    tests to pass; the test helper `_dummy_value` must be fixed to respect enum/minimum/maximum
+    constraints (or use realistic valid fixtures).'
+  sig: 13332e08ad2715153a5ac7ebcac025f4e24cadbce5fdb759dae833799ae792c6

@@ -1,0 +1,41 @@
+{
+  "project_id": "PROJ-726-measuring-the-carbon-footprint-of-llm-as",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "No evidence of the required repository directories (`code/`, `data/raw/`, `data/processed/`, `data/outputs/`, `tests/`) is provided; the artifact list is empty, so the root structure has not been demonstrated.",
+      "first_seen": "2026-10-05T02:49:12.164737+00:00",
+      "last_seen": "2026-10-05T02:49:12.164737+00:00"
+    },
+    {
+      "task_key": "T003",
+      "reject_count": 1,
+      "last_reason": "No linting or formatting configuration files (e.g., `pyproject.toml` with Black settings, `.ruff.toml` or ruff section, or a GitHub Actions workflow invoking ruff/black) were supplied, nor any evidence that these tools have been set up in the repository. Without such artifacts, the requirement to configure ruff and black is not satisfied.",
+      "first_seen": "2026-10-05T02:49:12.168926+00:00",
+      "last_seen": "2026-10-05T02:49:12.168926+00:00"
+    },
+    {
+      "task_key": "T005",
+      "reject_count": 1,
+      "last_reason": "The required `data/raw/human_baseline_times.json` file does not exist, and there is no evidence of a `validate_baseline.py` implementation that attempts to extract developer time from the 2025 paper, raises `BaselineValidationError` on failure, excludes prompts lacking entries in `codexglue_sample.json`, or logs the exclusion count. These essential artifacts and behaviors are missing.",
+      "first_seen": "2026-10-05T02:49:14.204654+00:00",
+      "last_seen": "2026-10-05T02:49:14.204654+00:00"
+    },
+    {
+      "task_key": "T007",
+      "reject_count": 1,
+      "last_reason": "No evidence of a `download_data.py` file containing checksum validation was provided; the claim lacks any artifact showing the implementation of checksum verification for the downloaded raw data. The required code is missing or not visible, so the task is not demonstrably completed.",
+      "first_seen": "2026-10-05T02:49:14.205743+00:00",
+      "last_seen": "2026-10-05T02:49:14.205743+00:00"
+    },
+    {
+      "task_key": "T010",
+      "reject_count": 1,
+      "last_reason": "No `run_inference.py` script or any generated JSON output is present; the required code that loads GPT\u20112\u2011medium on CPU and records the generated code string is missing, so the task\u2019s core requirement is not satisfied.",
+      "first_seen": "2026-10-05T02:49:14.206672+00:00",
+      "last_seen": "2026-10-05T02:49:14.206672+00:00"
+    }
+  ],
+  "updated_at": "2026-10-05T02:49:14.206672+00:00"
+}

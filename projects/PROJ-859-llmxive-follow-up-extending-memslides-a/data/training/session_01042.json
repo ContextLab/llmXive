@@ -1,0 +1,123 @@
+{
+  "trace_id": "training_42_01042",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 10,
+  "tool_sequence": [
+    "insert_text",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 85.6572,
+        "y": 8.3632,
+        "length": 22.7969
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 3.8303,
+        "y": 4.5113,
+        "width": 14.5381,
+        "height": 47.2947,
+        "data_points": 74.6343
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 1.2782,
+        "y": 67.0975,
+        "width": 59.1297,
+        "height": 37.1975,
+        "data_points": 64.5068
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 98.2693,
+        "y": 51.6801,
+        "width": 26.1186,
+        "height": 13.6355,
+        "data_points": 22.8915
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 8.107,
+        "y": 56.1225,
+        "width": 67.3614,
+        "height": 70.7573,
+        "data_points": 16.0093
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 43.3819,
+        "y": 18.1247,
+        "width": 63.5965,
+        "height": 58.5412,
+        "data_points": 87.1648
+      }
+    },
+    {
+      "step": 6,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 70.9106
+      }
+    },
+    {
+      "step": 7,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 29.6951
+      }
+    },
+    {
+      "step": 8,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 38.7656
+      }
+    },
+    {
+      "step": 9,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 23.2528,
+        "saturation": 89.1487
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.168282,
+    "tool_repetition_freq": 0.6,
+    "arg_semantic_variance": 794.645452
+  },
+  "final_state": {
+    "dominant_tool": "insert_chart",
+    "slide_element_count": 8,
+    "layout_hash": "42-1042-insert_chart"
+  }
+}

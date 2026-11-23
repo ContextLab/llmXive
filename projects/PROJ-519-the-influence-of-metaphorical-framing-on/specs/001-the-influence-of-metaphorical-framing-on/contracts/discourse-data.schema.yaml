@@ -1,0 +1,89 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Discourse Data Schema
+description: >
+  Schema for the observational mental health discourse corpus.
+  Includes raw text, metadata, and derived metaphor/sentiment features.
+type: object
+required:
+  - post_id
+  - text
+  - timestamp
+  - metadata
+properties:
+  post_id:
+    type: string
+    description: Unique identifier for the discourse post.
+  text:
+    type: string
+    minLength: 1
+    description: The full text content of the post.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the post creation.
+  metadata:
+    type: object
+    description: Platform-specific metadata (e.g., Reddit upvotes, comments).
+    properties:
+      upvotes:
+        type: integer
+        minimum: 0
+      comments:
+        type: integer
+        minimum: 0
+      author_id:
+        type: string
+        description: Anonymous author hash.
+      platform:
+        type: string
+        enum:
+          - reddit
+          - twitter
+          - forum
+          - other
+  derived_metrics:
+    type: object
+    description: Metrics calculated by the analysis pipeline.
+    properties:
+      metaphor_count:
+        type: integer
+        minimum: 0
+        description: Total count of metaphor keywords found.
+      metaphor_density:
+        type: number
+        minimum: 0.0
+        description: Metaphor count normalized by text length.
+      metaphor_types:
+        type: array
+        items:
+          type: string
+          enum:
+            - battle
+            - journey
+            - burden
+        description: List of unique metaphor types detected.
+      vader_sentiment:
+        type: object
+        properties:
+          neg:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          neu:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          pos:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+          compound:
+            type: number
+            minimum: -1.0
+            maximum: 1.0
+        description: VADER sentiment analysis scores.
+      text_length:
+        type: integer
+        minimum: 1
+        description: Character count of the post text.
+additionalProperties: false

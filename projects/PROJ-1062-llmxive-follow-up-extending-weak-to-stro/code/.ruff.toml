@@ -1,0 +1,39 @@
+[lint]
+select = ["E", "F", "W", "I", "N", "UP", "D", "B", "C", "T", "A", "SIM"]
+ignore = [
+  "E501",  # Line too long (black handles this)
+  "E701",  # Multiple statements on one line (style preference)
+  "D100",  # Missing docstring in public module (optional for scripts)
+  "D101",  # Missing docstring in public class (optional for scripts)
+  "D102",  # Missing docstring in public method (optional for scripts)
+  "D200",  # One-line docstring should end with period (style)
+  "D401",  # Section title should be capitalized (style)
+  "SIM102", # Use a single `if` statement instead of nested `if`s (optional)
+  "SIM108", # Use ternary operator instead of `if`/`else` (optional)
+  "B019",  # lru_cache with maxsize 1 on methods (optional)
+]
+
+[lint.per-flake]
+max-size = 100
+
+[lint.pyflakes]
+extend-per-file-ignore = { "code/src/data/verify_human_labels.py" = ["F403", "F405"], "code/src/data/preprocess.py" = ["F403", "F405"], "code/src/models/teacher_loader.py" = ["F403", "F405"] }
+
+[lint.isort]
+known-first-party = ["core", "data", "models", "scripts", "tests", "setup"]
+known-third-party = ["transformers", "datasets", "torch", "bitsandbytes", "sklearn", "scipy", "pandas", "numpy", "statsmodels", "yaml", "pytest"]
+force-grid-sort = true
+skip = ["__init__.py", "venv", ".git", "data/raw", "data/processed", "data/results", "artifacts"]
+
+[lint.format]
+line-length = 120
+target-version = "py310"
+
+[lint.mccabe]
+max-complexity = 15
+
+[lint.flake8-bugbear]
+extend-per-file-ignore = { "code/src/data/verify_human_labels.py" = ["B019"], "code/src/data/preprocess.py" = ["B019"], "code/src/models/teacher_loader.py" = ["B019"] }
+
+[lint.flake8-bandit]
+extend-per-file-ignore = { "code/src/data/verify_human_labels.py" = ["S104"], "code/src/data/preprocess.py" = ["S104"], "code/src/models/teacher_loader.py" = ["S104"] }

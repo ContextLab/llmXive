@@ -1,0 +1,9 @@
+pandas
+statsmodels
+numpy
+scipy
+pytest
+flake8
+black
+isort
+python-dotenv

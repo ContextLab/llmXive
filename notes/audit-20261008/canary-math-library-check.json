@@ -1,0 +1,95 @@
+{
+  "kind": "independent read-only audit of model-generated library functions; not generated pipeline tables",
+  "source_sha256": {
+    "sieve": "5641fac4315675fe6ce72e04459974644a521687bfe90e0ac2bbf177f31052aa",
+    "tv": "dfc01985f6f95cfb35959f1cba72209b1be0f139cc692f1adb1a2a579fdcbd83"
+  },
+  "sieve_elapsed_s": 0.28535379201639444,
+  "all_12_rows_match": true,
+  "rows": [
+    {
+      "N": 1000,
+      "p": 5,
+      "counts_match": true,
+      "unconditional_abs_error": 1.3877787807814457e-17,
+      "conditional_abs_error": 1.3877787807814457e-17
+    },
+    {
+      "N": 1000,
+      "p": 7,
+      "counts_match": true,
+      "unconditional_abs_error": 0.0,
+      "conditional_abs_error": 2.0816681711721685e-17
+    },
+    {
+      "N": 1000,
+      "p": 11,
+      "counts_match": true,
+      "unconditional_abs_error": 1.0408340855860843e-17,
+      "conditional_abs_error": 3.469446951953614e-18
+    },
+    {
+      "N": 10000,
+      "p": 5,
+      "counts_match": true,
+      "unconditional_abs_error": 2.7755575615628914e-17,
+      "conditional_abs_error": 0.0
+    },
+    {
+      "N": 10000,
+      "p": 7,
+      "counts_match": true,
+      "unconditional_abs_error": 0.0,
+      "conditional_abs_error": 6.938893903907228e-18
+    },
+    {
+      "N": 10000,
+      "p": 11,
+      "counts_match": true,
+      "unconditional_abs_error": 6.938893903907228e-18,
+      "conditional_abs_error": 6.938893903907228e-18
+    },
+    {
+      "N": 100000,
+      "p": 5,
+      "counts_match": true,
+      "unconditional_abs_error": 5.551115123125783e-17,
+      "conditional_abs_error": 0.0
+    },
+    {
+      "N": 100000,
+      "p": 7,
+      "counts_match": true,
+      "unconditional_abs_error": 2.7755575615628914e-17,
+      "conditional_abs_error": 3.469446951953614e-18
+    },
+    {
+      "N": 100000,
+      "p": 11,
+      "counts_match": true,
+      "unconditional_abs_error": 6.938893903907228e-18,
+      "conditional_abs_error": 6.938893903907228e-18
+    },
+    {
+      "N": 1000000,
+      "p": 5,
+      "counts_match": true,
+      "unconditional_abs_error": 2.7755575615628914e-17,
+      "conditional_abs_error": 6.938893903907228e-18
+    },
+    {
+      "N": 1000000,
+      "p": 7,
+      "counts_match": true,
+      "unconditional_abs_error": 4.163336342344337e-17,
+      "conditional_abs_error": 0.0
+    },
+    {
+      "N": 1000000,
+      "p": 11,
+      "counts_match": true,
+      "unconditional_abs_error": 1.3877787807814457e-17,
+      "conditional_abs_error": 0.0
+    }
+  ]
+}

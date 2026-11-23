@@ -2,64 +2,106 @@ import os
 import logging
 from pathlib import Path
 from typing import Optional, Dict, Any
-from . import logger
+from dotenv import load_dotenv
 
-_config: Dict[str, Any] = {}
-_initialized = False
+# Import logger from the package root
+try:
+    from code import logger as package_logger
+    logger = package_logger
+except ImportError:
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
 
-def initialize_config():
-    global _config, _initialized
-    if _initialized:
-        return
-    
-    # Load from environment or defaults
-    _config = {
-        'project_root': Path(os.getenv('PROJECT_ROOT', Path(__file__).parent.parent)),
-        'data_source_url': os.getenv('DATA_SOURCE_URL', ''),
-        'random_seed': int(os.getenv('RANDOM_SEED', '42')),
-        'max_runtime_hours': int(os.getenv('MAX_RUNTIME_HOURS', '6')),
-        'n_permutations': int(os.getenv('N_PERMUTATIONS', '1000')),
-    }
-    _initialized = True
-    logger.info("Configuration initialized.")
+PROJECT_ROOT = Path(__file__).parent.parent
+ENV_FILE = PROJECT_ROOT / ".env"
+CONFIG = {}
 
 def load_environment():
-    """Load .env file if it exists."""
-    from dotenv import load_dotenv
-    env_path = Path(__file__).parent.parent / '.env'
-    load_dotenv(dotenv_path=env_path)
-    initialize_config()
+    """Load environment variables from .env file if it exists."""
+    if ENV_FILE.exists():
+        load_dotenv(ENV_FILE)
+        logger.info(f"Loaded environment from {ENV_FILE}")
+    else:
+        logger.warning(f".env file not found at {ENV_FILE}")
 
-def get_config_value(key: str) -> Any:
-    if not _initialized:
-        initialize_config()
-    return _config.get(key)
+def initialize_config():
+    """Initialize configuration from environment variables."""
+    load_environment()
+    
+    # Core settings
+    CONFIG['MEMORY_LIMIT_GB'] = float(os.getenv('MEMORY_LIMIT_GB', '7.0'))
+    CONFIG['DATA_DIR'] = PROJECT_ROOT / "data"
+    CONFIG['CODE_DIR'] = PROJECT_ROOT / "code"
+    CONFIG['LOGS_DIR'] = PROJECT_ROOT / "logs"
+    
+    # API Keys
+    CONFIG['MP_API_KEY'] = os.getenv('MP_API_KEY', '')
+    
+    # Data Sources
+    CONFIG['NIST_URL'] = os.getenv('NIST_URL', '')
+    CONFIG['ARXIV_QUERY'] = os.getenv('ARXIV_QUERY', 'all:ceramic AND all:weibull')
+    
+    logger.info("Configuration initialized.")
+    return CONFIG
+
+def get_config_value(key: str) -> Optional[str]:
+    """Get a configuration value by key."""
+    return CONFIG.get(key)
 
 def get_int_config(key: str, default: int = 0) -> int:
-    val = get_config_value(key)
+    """Get an integer configuration value."""
+    val = CONFIG.get(key)
     if val is None:
         return default
-    return int(val)
+    try:
+        return int(val)
+    except (ValueError, TypeError):
+        return default
 
 def get_float_config(key: str, default: float = 0.0) -> float:
-    val = get_config_value(key)
+    """Get a float configuration value."""
+    val = CONFIG.get(key)
     if val is None:
         return default
-    return float(val)
+    try:
+        return float(val)
+    except (ValueError, TypeError):
+        return default
 
 def get_bool_config(key: str, default: bool = False) -> bool:
-    val = get_config_value(key)
+    """Get a boolean configuration value."""
+    val = CONFIG.get(key)
     if val is None:
         return default
-    if isinstance(val, bool):
-        return val
     return str(val).lower() in ('true', '1', 'yes')
 
-def get_api_key(service: str) -> Optional[str]:
-    return os.getenv(f"{service.upper()}_API_KEY")
+def get_api_key(service: str) -> str:
+    """Get API key for a specific service."""
+    key_map = {
+        'materials_project': 'MP_API_KEY',
+    }
+    env_key = key_map.get(service.lower())
+    if not env_key:
+        return ''
+    return os.getenv(env_key, '')
 
-def get_data_source_url() -> str:
-    return get_config_value('data_source_url')
+def get_data_source_url(source: str) -> str:
+    """Get data source URL."""
+    url_map = {
+        'nist': 'NIST_URL',
+    }
+    env_key = url_map.get(source.lower())
+    if not env_key:
+        return ''
+    return os.getenv(env_key, '')
+
+def get_memory_limit() -> float:
+    """Get the memory limit in GB."""
+    return CONFIG.get('MEMORY_LIMIT_GB', 7.0)
 
 def get_project_config() -> Dict[str, Any]:
-    return _config.copy()
+    """Get the full project configuration."""
+    return CONFIG.copy()
+
+# Initialize config on import
+initialize_config()

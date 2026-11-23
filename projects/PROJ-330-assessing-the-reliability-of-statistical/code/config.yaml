@@ -1,0 +1,12 @@
+# Environment configuration for the genomic significance reliability pipeline
+# This file defines paths to R scripts and memory limits used throughout the pipeline.
+
+# Directory containing R scripts
+R_SCRIPT_DIR: "code/scripts"
+
+# Full path to the main R DE analysis script
+R_SCRIPT_PATH: "code/scripts/run_r_script.R"
+
+# Memory limits (in megabytes)
+MEMORY_LIMIT_MB: 6144               # Hard limit (6 GB)
+MEMORY_WARNING_THRESHOLD_MB: 5120   # Warning threshold (5 GB)

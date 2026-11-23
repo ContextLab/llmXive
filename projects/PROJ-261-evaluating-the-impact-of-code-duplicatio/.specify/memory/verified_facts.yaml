@@ -1,5 +1,6 @@
-'|any detected flagged found logged no pattern pii':
-  quote: Pii
-  source_id: Q18760935
-  url: https://www.wikidata.org/wiki/Q18760935
-  value: Pii
+'|asserting claimed integration significance test when':
+  quote: "understood correctly they are an ineffective metric: the standard signi\uFB01\
+    cance level of 0.05 produces an"
+  source_id: '1601.06805'
+  url: https://arxiv.org/abs/1601.06805
+  value: '0.05'

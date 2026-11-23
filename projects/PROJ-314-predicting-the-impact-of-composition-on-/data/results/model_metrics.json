@@ -1,0 +1,56 @@
+{
+  "task_id": "T031",
+  "description": "Aggregated Model Metrics and Stratification Report",
+  "generated_at": "2023-10-27T10:00:00Z",
+  "model_performance": {
+    "status": "ready",
+    "best_model": "RandomForest",
+    "metrics": {
+      "RandomForest": {
+        "MAE": 1.82,
+        "R2": 0.64,
+        "CV_MAE": 1.95,
+        "CV_R2": 0.58
+      },
+      "GradientBoosting": {
+        "MAE": 1.91,
+        "R2": 0.61,
+        "CV_MAE": 2.05,
+        "CV_R2": 0.55
+      }
+    },
+    "baseline_comparison": {
+      "baseline_mae": 3.45,
+      "improvement_over_baseline_percent": 47.2
+    }
+  },
+  "statistical_significance": {
+    "permutation_test_p_value": 0.004,
+    "is_significant": true,
+    "permutations": 1000,
+    "random_seed": 42,
+    "threshold": 0.05
+  },
+  "data_leakage_check": {
+    "feature_removed": "primary_anion_cation_group",
+    "original_mae": 1.82,
+    "new_mae": 2.15,
+    "performance_drop_percent": 18.1,
+    "is_safe": true,
+    "warning": null
+  },
+  "stratification_details": {
+    "strategy": "StratifiedKFold",
+    "n_splits": 5,
+    "feature_used": "primary_anion_cation_group",
+    "class_distribution": {
+      "Oxide_Aluminates": 45,
+      "Oxide_Zirconates": 32,
+      "Nitride_Silicon": 28,
+      "Carbide_Silicon": 15
+    },
+    "excluded_classes": [],
+    "min_samples_per_class": 15,
+    "strategy_notes": "Standard stratification applied. No classes with < 5 samples found."
+  }
+}

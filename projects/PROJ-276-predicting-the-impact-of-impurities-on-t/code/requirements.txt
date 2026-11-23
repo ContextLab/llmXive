@@ -8,3 +8,8 @@ matplotlib
 seaborn
 statsmodels
 pytest
+ruff
+black
+toml
+datasets
+huggingface_hub

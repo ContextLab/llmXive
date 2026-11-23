@@ -1,9 +1,9 @@
-"""
-llmXive research-implementer agent system for predicting coating adhesion strength.
-"""
-__version__ = "0.1.0"
-
-# Base configuration constants (Plan Phase 1)
-MAX_ROWS = 5000
-RAM_LIMIT_GB = 7
-TIMEOUT_HOURS = 4
+# llmXive Coating Adhesion Pipeline
+# This package contains the core implementation for predicting coating adhesion strength.
+from .config import *
+from .utils import *
+from .preprocessing import *
+from .ingestion import *
+from .modeling import *
+from .evaluation import *
+from .state_manager import *

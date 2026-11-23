@@ -1,159 +1,283 @@
+"""
+T014: Generate synthetic Moral Stories and VR interaction logs with known ground truth effect.
+
+This script generates synthetic data for the Moral Stories and VR Logs simulation.
+It uses specific distributions:
+  - response_time ~ LogNormal(3.5, 0.5)
+  - gaze_metrics ~ Normal(0.5, 0.1)
+
+It injects a known `ground_truth_effect` for parameter recovery analysis.
+"""
+from __future__ import annotations
+
+import hashlib
+import json
+import logging
 import os
 import sys
+from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
+
 import numpy as np
 import pandas as pd
-from pathlib import Path
-from typing import List, Dict, Tuple, Optional
+import yaml
 
 # Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
+project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
-from code.config import ensure_directories, init_random_seeds
-from code.utils.schema import SalienceLevel
-from code.utils.logging_utils import log_pipeline_step
+from code.config import get_path, DATA_MODE
+from code.utils.hashing import calculate_checksum, update_state_file
+from code.utils.logging import log_operation, get_logger
+from code.analysis.power_analysis import load_mdes_report
 
-LOG_FILE = "data/logs/simulation_stories_log.txt"
-STORIES_OUTPUT = "data/processed/synthetic_stories.csv"
-VR_LOGS_OUTPUT = "data/processed/synthetic_vr_logs.csv"
+# Configure logger
+logger = get_logger("simulation_stories")
 
-# Ground truth effect size for validation (parameter recovery)
-GROUND_TRUTH_SALIENCE_EFFECT = 0.8
+# Constants
+GROUND_TRUTH_EFFECT = 0.8  # Known effect size for parameter recovery
+N_PARTICIPANTS = 100  # Default, will be overridden by MDES if available
+STORY_COUNT = 10
+RESPONSE_TIME_MEAN = 3.5
+RESPONSE_TIME_STD = 0.5
+GAZE_MEAN = 0.5
+GAZE_STD = 0.1
 
-def set_seed(seed: int = 42):
-    """Set random seed for reproducibility."""
+# Story templates (simplified moral scenarios)
+STORY_TEMPLATES = [
+    "A person finds a wallet containing {amount} and decides to {action}.",
+    "During a meeting, someone {action} regarding a critical decision.",
+    "A team member {action} while the group was working on a shared goal.",
+    "An individual {action} when no one was watching.",
+    "A leader {action} affecting the entire organization.",
+    "A friend {action} when you needed support the most.",
+    "A stranger {action} in a public place.",
+    "A colleague {action} during a high-pressure situation.",
+    "A community member {action} that impacted everyone.",
+    "A family member {action} during a difficult time."
+]
+
+ACTIONS = {
+    "high_salience": [
+        "returns it immediately to the owner",
+        "publicly announces the truth",
+        "takes responsibility for the mistake",
+        "helps without being asked",
+        "prioritizes the group's welfare",
+        "supports you unconditionally",
+        "stands up for what is right",
+        "admits the error and fixes it",
+        "contributes generously to the cause",
+        "protects the vulnerable"
+    ],
+    "low_salience": [
+        "keeps it for themselves",
+        "remains silent about the issue",
+        "shifts blame to others",
+        "ignores the request for help",
+        "prioritizes personal gain",
+        "abandons you when needed",
+        "looks the other way",
+        "denies the error occurred",
+        "withholds resources",
+        "prioritizes self over community"
+    ]
+}
+
+def set_seed(seed: int = 42) -> None:
+    """Set random seeds for reproducibility."""
     np.random.seed(seed)
+    logger.log("set_seed", seed=seed)
 
-def generate_story_text(story_id: int, salience_level: SalienceLevel) -> str:
-    """Generate a mock moral story text based on salience level."""
-    templates_low = [
-        "Person A made a decision that affected Person B.",
-        "A situation occurred where resources were distributed.",
-        "An individual faced a choice regarding social norms."
-    ]
-    templates_high = [
-        f"Person A vividly witnessed a vivid event involving Person B, with intense emotional impact.",
-        f"A highly detailed situation occurred where resources were distributed with clear moral implications.",
-        f"An individual faced a critical choice regarding social norms, with strong visual cues present."
-    ]
+def load_mdes_report() -> Dict[str, Any]:
+    """Load the MDES report to determine required sample size."""
+    mdes_path = get_path("state", "mdes_report.yaml")
+    if not os.path.exists(mdes_path):
+        logger.log("load_mdes_report", status="failed", message="MDES report not found")
+        # Fallback to default if MDES report is missing, but log warning
+        logger.log("load_mdes_report", status="warning", message="Using default N_PARTICIPANTS")
+        return {"n_required": N_PARTICIPANTS}
     
-    templates = templates_high if salience_level == SalienceLevel.HIGH else templates_low
-    return np.random.choice(templates)
+    with open(mdes_path, 'r') as f:
+        return yaml.safe_load(f)
 
-def generate_moral_stories_dataset(n_stories: int = 200, n_participants: int = 500) -> pd.DataFrame:
-    """
-    Generate synthetic Moral Stories dataset.
-    Each participant is assigned a subset of stories.
-    """
-    init_random_seeds()
-    log_pipeline_step(f"Generating synthetic Moral Stories data", LOG_FILE)
+def validate_ground_truth_effect(effect: float) -> None:
+    """Validate that the ground truth effect is within reasonable bounds."""
+    if not (0.0 <= effect <= 2.0):
+        raise ValueError(f"Ground truth effect {effect} is outside reasonable bounds [0.0, 2.0]")
+
+def load_blend_shape_config() -> Dict[str, Any]:
+    """Load the Unity blend shape configuration."""
+    config_path = get_path("data", "config/unity_blend_shapes.yaml")
+    if not os.path.exists(config_path):
+        raise FileNotFoundError(f"Blend shape config not found at {config_path}")
+    
+    with open(config_path, 'r') as f:
+        return yaml.safe_load(f)
+
+def generate_story_text(story_id: int, salience_level: str) -> str:
+    """Generate a story text based on the story ID and salience level."""
+    template = STORY_TEMPLATES[story_id % len(STORY_TEMPLATES)]
+    action_list = ACTIONS[salience_level]
+    action = action_list[story_id % len(action_list)]
+    
+    if "{amount}" in template:
+        amount = np.random.randint(10, 1000)
+        return template.format(amount=amount, action=action)
+    else:
+        return template.format(action=action)
+
+def determine_salience_level(story_id: int) -> str:
+    """Determine salience level based on story ID (alternating for balance)."""
+    return "high" if story_id % 2 == 0 else "low"
+
+def generate_moral_stories_dataset(n_participants: int) -> pd.DataFrame:
+    """Generate synthetic moral stories dataset."""
+    logger.log("generate_moral_stories_dataset", n_participants=n_participants)
     
     data = []
-    story_ids = range(1, n_stories + 1)
-    participant_ids = range(1, n_participants + 1)
-    
-    for story_id in story_ids:
-        salience = np.random.choice([SalienceLevel.LOW, SalienceLevel.HIGH])
-        text = generate_story_text(story_id, salience)
-        
-        # Assign this story to a random subset of participants (e.g., 50%)
-        assigned_participants = np.random.choice(
-            list(participant_ids), 
-            size=int(n_participants * 0.5), 
-            replace=False
-        )
-        
-        for pid in assigned_participants:
+    for i in range(n_participants):
+        for j in range(STORY_COUNT):
+            story_id = i * STORY_COUNT + j
+            salience = determine_salience_level(story_id)
+            story_text = generate_story_text(j, salience)
+            
             data.append({
-                'participant_id': int(pid),
-                'story_id': int(story_id),
-                'story_text': text,
-                'salience_level': salience.value
+                "participant_id": f"P{i+1:03d}",
+                "story_id": f"S{j+1:03d}",
+                "salience_level": salience,
+                "story_text": story_text
             })
     
-    df = pd.DataFrame(data)
-    log_pipeline_step(f"Generated {len(df)} story assignments", LOG_FILE)
-    return df
+    return pd.DataFrame(data)
 
 def generate_vr_logs_dataset(stories_df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Generate synthetic VR interaction logs with a known ground truth effect.
-    The judgment score is influenced by salience_level.
-    """
-    init_random_seeds()
-    log_pipeline_step("Generating synthetic VR logs data", LOG_FILE)
+    """Generate synthetic VR interaction logs dataset with known effect."""
+    logger.log("generate_vr_logs_dataset", n_records=len(stories_df))
     
     data = []
-    
     for _, row in stories_df.iterrows():
-        # Simulate response time, gaze, and judgment
-        salience = SalienceLevel(row['salience_level'])
+        salience = row["salience_level"]
         
-        # Base judgment score (random)
-        base_judgment = np.random.uniform(1, 7)
+        # Generate response_time ~ LogNormal(3.5, 0.5)
+        # Note: For high salience, we might expect faster response times (lower mean)
+        # but we keep the distribution consistent as per spec, adding effect via judgment
+        rt_mean = RESPONSE_TIME_MEAN
+        if salience == "high":
+            # Slight adjustment to simulate effect, but keep distribution shape
+            rt_mean = RESPONSE_TIME_MEAN - 0.2 
+        response_time = np.random.lognormal(mean=rt_mean, sigma=RESPONSE_TIME_STD)
         
-        # Apply ground truth effect
-        if salience == SalienceLevel.HIGH:
-            judgment = base_judgment + GROUND_TRUTH_SALIENCE_EFFECT
+        # Generate gaze_metrics ~ Normal(0.5, 0.1)
+        gaze_mean = GAZE_MEAN
+        if salience == "high":
+            gaze_mean = GAZE_MEAN + 0.05
+        gaze_metrics = np.random.normal(loc=gaze_mean, scale=GAZE_STD)
+        gaze_metrics = max(0.0, min(1.0, gaze_metrics))  # Clamp to [0, 1]
+        
+        # Generate judgment_rating based on ground truth effect
+        # High salience -> higher judgment rating (more moral)
+        base_rating = 3.0
+        if salience == "high":
+            judgment_rating = base_rating + GROUND_TRUTH_EFFECT + np.random.normal(0, 0.5)
         else:
-            judgment = base_judgment
-        
-        # Clip to Likert scale
-        judgment = np.clip(judgment, 1, 7)
-        
-        # Simulate response time (lower for high salience)
-        response_time = np.random.exponential(scale=2.0)
-        if salience == SalienceLevel.HIGH:
-            response_time *= 0.8
-        
-        # Simulate gaze fixation duration (higher for high salience)
-        gaze_duration = np.random.normal(loc=2.5, scale=0.5)
-        if salience == SalienceLevel.HIGH:
-            gaze_duration += 0.5
+            judgment_rating = base_rating + np.random.normal(0, 0.5)
+        judgment_rating = max(1.0, min(5.0, judgment_rating))  # Clamp to [1, 5]
         
         data.append({
-            'participant_id': row['participant_id'],
-            'story_id': row['story_id'],
-            'response_time': round(response_time, 3),
-            'gaze_duration': round(gaze_duration, 3),
-            'judgment': round(judgment, 2)
+            "participant_id": row["participant_id"],
+            "story_id": row["story_id"],
+            "salience_level": salience,
+            "response_time": round(response_time, 4),
+            "gaze_metrics": round(gaze_metrics, 4),
+            "judgment_rating": round(judgment_rating, 2),
+            "ground_truth_effect": GROUND_TRUTH_EFFECT
         })
     
-    df = pd.DataFrame(data)
-    log_pipeline_step(f"Generated {len(df)} VR log records", LOG_FILE)
-    return df
+    return pd.DataFrame(data)
 
-def save_datasets(stories_df: pd.DataFrame, vr_logs_df: pd.DataFrame):
-    """Save generated datasets to CSV files."""
-    stories_path = project_root / STORIES_OUTPUT
-    vr_logs_path = project_root / VR_LOGS_OUTPUT
+def save_datasets(stories_df: pd.DataFrame, logs_df: pd.DataFrame) -> None:
+    """Save generated datasets to disk."""
+    stories_path = get_path("data", "processed/synthetic_stories.csv")
+    logs_path = get_path("data", "processed/synthetic_logs.csv")
+    
+    logger.log("save_datasets", stories_path=str(stories_path), logs_path=str(logs_path))
     
     stories_df.to_csv(stories_path, index=False)
-    vr_logs_df.to_csv(vr_logs_path, index=False)
+    logs_df.to_csv(logs_path, index=False)
     
-    log_pipeline_step(f"Stories saved to {stories_path}", LOG_FILE)
-    log_pipeline_step(f"VR Logs saved to {vr_logs_path}", LOG_FILE)
+    logger.log("save_datasets", status="success", stories_count=len(stories_df), logs_count=len(logs_df))
 
-def main():
-    """Main entry point for Stories and VR logs simulation."""
-    log_pipeline_step("Starting Stories & VR Logs Simulation (T014)", LOG_FILE)
+def update_artifact_hashes() -> None:
+    """Update artifact hashes for the generated files."""
+    files_to_hash = [
+        get_path("data", "processed/synthetic_stories.csv"),
+        get_path("data", "processed/synthetic_logs.csv")
+    ]
     
-    ensure_directories()
+    for file_path in files_to_hash:
+        if os.path.exists(file_path):
+            checksum = calculate_checksum(file_path)
+            update_state_file(file_path, checksum)
+            logger.log("update_artifact_hashes", file=str(file_path), checksum=checksum)
+
+def run_simulation_pipeline() -> pd.DataFrame:
+    """Run the full simulation pipeline."""
+    logger.log("run_simulation_pipeline", status="start")
     
+    # Validate mode
+    if DATA_MODE != "simulation":
+        # In real mode, we should not be generating synthetic data
+        # But for T014, we are explicitly in simulation validation
+        logger.log("run_simulation_pipeline", status="warning", message="DATA_MODE is not simulation")
+    
+    # Load MDES report to determine sample size
+    mdes_report = load_mdes_report()
+    n_participants = mdes_report.get("n_required", N_PARTICIPANTS)
+    logger.log("run_simulation_pipeline", n_participants=n_participants)
+    
+    # Validate ground truth effect
+    validate_ground_truth_effect(GROUND_TRUTH_EFFECT)
+    
+    # Set seed for reproducibility
+    set_seed(42)
+    
+    # Generate datasets
+    stories_df = generate_moral_stories_dataset(n_participants)
+    logs_df = generate_vr_logs_dataset(stories_df)
+    
+    # Save datasets
+    save_datasets(stories_df, logs_df)
+    
+    # Update hashes
+    update_artifact_hashes()
+    
+    logger.log("run_simulation_pipeline", status="complete")
+    return logs_df
+
+def main() -> None:
+    """Main entry point."""
     try:
-        stories_df = generate_moral_stories_dataset()
-        vr_logs_df = generate_vr_logs_dataset(stories_df)
-        save_datasets(stories_df, vr_logs_df)
+        logger.log("main", status="start")
+        logs_df = run_simulation_pipeline()
         
-        print(f"Successfully generated synthetic Stories and VR logs.")
-        print(f"Stories shape: {stories_df.shape}")
-        print(f"VR Logs shape: {vr_logs_df.shape}")
-        return True
+        # Verify output
+        output_path = get_path("data", "processed/synthetic_logs.csv")
+        if os.path.exists(output_path):
+            logger.log("main", status="success", output_path=str(output_path))
+            # Verify columns
+            expected_cols = ["participant_id", "story_id", "salience_level", "response_time", "gaze_metrics", "judgment_rating", "ground_truth_effect"]
+            if all(col in logs_df.columns for col in expected_cols):
+                logger.log("main", status="verified", columns=expected_cols)
+            else:
+                logger.log("main", status="error", message=f"Missing columns. Expected: {expected_cols}, Found: {list(logs_df.columns)}")
+        else:
+            logger.log("main", status="error", message=f"Output file not found: {output_path}")
+            
     except Exception as e:
-        log_pipeline_step(f"Stories Simulation failed: {str(e)}", LOG_FILE)
-        print(f"Error generating stories data: {str(e)}")
-        return False
+        logger.log("main", status="failed", error=str(e))
+        raise
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    main()

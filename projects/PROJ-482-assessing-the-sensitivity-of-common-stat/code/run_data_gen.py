@@ -3,7 +3,8 @@ import logging
 import pandas as pd
 import numpy as np
 import hashlib
-from typing import List, Dict, Any
+import json
+from typing import List, Dict, Any, Optional
 
 from data_generator import generate_data, validate_sample_statistics
 from config import SimulationConfig
@@ -17,26 +18,43 @@ logger = logging.getLogger(__name__)
 
 def compute_row_checksum(row: Dict[str, Any]) -> str:
     """
-    Compute MD5 checksum of the row data.
-    The checksum is calculated over the string representation of the key-value pairs
-    to ensure consistency and detect data tampering.
-    """
-    # Sort keys to ensure deterministic order
-    sorted_items = sorted(row.items())
-    # Create a string representation
-    data_str = "|".join([f"{k}={v}" for k, v in sorted_items])
-    return hashlib.md5(data_str.encode('utf-8')).hexdigest()
+    Compute MD5 checksum of the row dictionary.
 
-def generate_validation_dataset(output_path: str) -> None:
+    The checksum is the MD5 hash of the JSON representation of the row dictionary,
+    with keys sorted alphabetically and no whitespace, encoded as UTF-8.
+    This ensures deterministic output across environments.
+
+    Args:
+        row: Dictionary containing row data.
+
+    Returns:
+        Hexadecimal string of the MD5 hash.
+    """
+    # Create a copy to avoid modifying the original
+    row_copy = row.copy()
+
+    # Round all float values to 15 decimal places to ensure deterministic checksums
+    # across Python versions and floating point representations
+    for key, value in row_copy.items():
+        if isinstance(value, float):
+            row_copy[key] = round(value, 15)
+
+    # Create JSON string with sorted keys and no whitespace
+    json_str = json.dumps(row_copy, sort_keys=True, separators=(',', ':'))
+    # Encode to UTF-8 and compute MD5
+    return hashlib.md5(json_str.encode('utf-8')).hexdigest()
+
+def generate_validation_dataset(output_path: str, seed: int = 42) -> None:
     """
     Generate a small sample dataset for manual verification.
-    
+
     This script generates data for a specific set of configurations (small sample sizes)
     across different distributions and effect sizes, calculates statistics,
     validates them against theoretical expectations, and saves the results to a CSV.
-    
+
     Args:
         output_path: Path to save the output CSV file.
+        seed: Random seed for reproducibility.
     """
     # Define a small set of scenarios for validation
     # We use small sample sizes to make manual verification feasible
@@ -60,55 +78,49 @@ def generate_validation_dataset(output_path: str) -> None:
 
         logger.info(f"Generating scenario: n={n}, dist={dist_type}, effect={effect_size}")
 
-        # Generate data
-        # Note: generate_data returns a dict with 'group1', 'group2', 'stats'
-        # We assume the config is set up with standard parameters (mu=0, sigma=1 for normal/uniform)
-        # and effect_size is applied to the mean of group2.
-        
-        # We need to construct a config object or pass parameters directly.
-        # Looking at data_generator API, it likely takes params.
-        # Let's assume standard params: mu=0, sigma=1, scale=1 (for lognormal)
-        
         try:
-            data_dict = generate_data(
-                sample_size=n,
-                distribution_type=dist_type,
-                effect_size=effect_size,
-                seed=42  # Fixed seed for reproducibility
-            )
+            # Generate data using the data_generator module
+            # Use a unique seed for each scenario to ensure independence
+            scenario_seed = seed + (n * 100) + (int(dist_type == "uniform") * 50) + (int(dist_type == "log_normal") * 30) + int(effect_size * 10)
+            
+            # Call generate_data with positional arguments matching the defined API
+            # The API surface shows: generate_data(n, dist, eff, seed=seed)
+            data_dict = generate_data(n, dist_type, effect_size, seed=scenario_seed)
             
             group1 = data_dict['group1']
             group2 = data_dict['group2']
             stats = data_dict['stats']
             
-            # Validate statistics
-            # This function raises an error if validation fails
+            # Validate statistics - this raises an error if validation fails
+            # This ensures the generated data matches theoretical expectations
             validate_sample_statistics(group1, group2, effect_size, dist_type)
             
             # Calculate metrics for the CSV
             group_mean_1 = float(np.mean(group1))
             group_mean_2 = float(np.mean(group2))
             mean_diff = group_mean_2 - group_mean_1
+            # Calculate variance of the combined data (ddof=1 for sample variance)
             variance = float(np.var(np.concatenate([group1, group2]), ddof=1))
             skewness = float(stats['skewness'])
             
+            # Prepare row data
             row_data = {
                 "sample_size": n,
                 "distribution_type": dist_type,
-                "effect_size": effect_size,
+                "effect_size": float(effect_size),
                 "group_mean_1": group_mean_1,
                 "group_mean_2": group_mean_2,
                 "mean_diff": mean_diff,
                 "variance": variance,
                 "skewness": skewness,
-                "checksum": "" # Placeholder
+                "checksum": ""  # Placeholder to be filled
             }
             
-            # Compute checksum
+            # Compute checksum using the updated method
             row_data["checksum"] = compute_row_checksum(row_data)
             
             results.append(row_data)
-            logger.info(f"  -> Generated successfully. Mean diff: {mean_diff:.6f}")
+            logger.info(f"  -> Generated successfully. Mean diff: {mean_diff:.6f}, Checksum: {row_data['checksum'][:8]}...")
 
         except Exception as e:
             logger.error(f"  -> Failed for scenario {scenario}: {str(e)}")

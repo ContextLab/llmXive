@@ -1,0 +1,56 @@
+# Synthetic Baseline Data Configuration
+# Used by code/validation/synthetic_baseline.py
+#
+# This configuration defines the statistical parameters for generating
+# synthetic baseline data for pipeline validation (US1).
+#
+# IMPORTANT: This data is for SCHEMATIC VALIDATION and INSTRUMENT LOGIC TESTING ONLY.
+# It does NOT satisfy the acceptance criteria for real-world data collection (FR-009).
+
+seed: 42
+num_participants: 20
+
+# Metric distributions (mean, std_dev, min, max)
+# Based on typical psychometric ranges for the instruments used
+metrics:
+  SART:
+    description: "Sustained Attention to Response Task (Commission Errors)"
+    mean: 10.0
+    std: 3.0
+    min: 0
+    max: 50
+    unit: "count"
+
+  Ospan:
+    description: "Operation Span Task (Working Memory Capacity)"
+    mean: 15.0
+    std: 3.0
+    min: 0
+    max: 25
+    unit: "score"
+
+  PSS-10:
+    description: "Perceived Stress Scale (10 items)"
+    mean: 20.0
+    std: 5.0
+    min: 0
+    max: 50
+    unit: "score"
+
+  PANAS:
+    description: "Positive and Negative Affect Schedule"
+    mean: 30.0
+    std: 5.0
+    min: 10
+    max: 50
+    unit: "score"
+
+# Output configuration
+output:
+  directory: data/raw
+  filename: synthetic_baseline.csv
+  columns:
+    - participant_id
+    - metric_type
+    - value
+    - timestamp

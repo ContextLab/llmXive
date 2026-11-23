@@ -1,0 +1,198 @@
+schema_version: '1'
+round_number: 1
+project_id: PROJ-640-https-arxiv-org-abs-2605-28293
+revision_spec_path: specs/auto-revisions/PROJ-640-https-arxiv-org-abs-2605-28293/round-1
+implementer_agent: llmXive-implementer-v1.0
+agent_version: 1.0.0
+model_name: qwen.qwen3.5-122b
+backend: dartmouth
+canonical_identity: llmXive-implementer-v1.0 (qwen.qwen3.5-122b on dartmouth, 2026-06-29)
+started_at: '2026-06-29T14:40:21.644970Z'
+ended_at: '2026-06-29T14:46:55.028333Z'
+duration_s: 393.383363
+exit_reason: all-tasks-processed
+total_tasks: 10
+tasks_done: 1
+tasks_compile_failed: 0
+tasks_file_not_found: 0
+tasks_skipped: 9
+tasks_needs_external_data: 0
+final_compile_attempted: false
+final_compile_succeeded: false
+final_compile_pdf_sha256: null
+final_compile_pdf_bytes: null
+author_added: true
+author_entry:
+  name: qwen.qwen3.5-122b
+  kind: llm
+  affiliation: null
+  email: null
+  agent_version: null
+  model_name: qwen.qwen3.5-122b
+  backend: dartmouth
+  first_contributed_at: '2026-06-29T14:46:55.028333Z'
+task_outcomes:
+- task_id: '001'
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00000]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 1}'
+  edit_kind: search_and_replace
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "\n\n{\n  \"kind\": \"search_and_replace\",\n  \"file\"\
+    : \"paper/source/main.tex\",\n  \"search\": \"% Bibliography\\n\\\\bibliographystyle{icml2026}\\\
+    n\\\\bibliography{references}\",\n  \"replace\": \"% Bibliography\\n\\\\bibliographystyle{unsrt}\\\
+    n\\\\bibliography{references}\"\n}"
+  duration_s: 22.902017234000027
+  error_reason: 'no-match: search string not found (tried exact + flexible)'
+- task_id: '002'
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00001]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 1}'
+  edit_kind: search_and_replace
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "\n\n{\n  \"kind\": \"search_and_replace\",\n  \"file\"\
+    : \"paper/source/main.tex\",\n  \"search\": \"\\\\bibliographystyle{ieeetr}\"\
+    ,\n  \"replace\": \"\\\\bibliographystyle{unsrt}\"\n}"
+  duration_s: 37.42209311399995
+  error_reason: 'no-match: search string not found (tried exact + flexible)'
+- task_id: '003'
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00002]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b3", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 1}'
+  edit_kind: search_and_replace
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "\n\n{\n  \"kind\": \"search_and_replace\",\n  \"file\"\
+    : \"paper/source/main.tex\",\n  \"search\": \"\\\\bibliographystyle{plain}\",\n\
+    \  \"replace\": \"\\\\bibliographystyle{unsrt}\"\n}"
+  duration_s: 48.07474991600009
+  error_reason: 'no-match: search string not found (tried exact + flexible)'
+- task_id: '004'
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00003]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b3", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 1}'
+  edit_kind: search_and_replace
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "\n\n{\n  \"kind\": \"search_and_replace\",\n  \"file\"\
+    : \"paper/source/main.tex\",\n  \"search\": \"\\\\bibliographystyle{plain}\",\n\
+    \  \"replace\": \"\\\\bibliographystyle{unsrt}\"\n}"
+  duration_s: 16.958911278000073
+  error_reason: 'no-match: search string not found (tried exact + flexible)'
+- task_id: '005'
+  status: done
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00004]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b3", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 1}'
+  edit_kind: search_and_replace
+  files_modified:
+  - /home/runner/work/llmXive/llmXive/projects/PROJ-640-https-arxiv-org-abs-2605-28293/paper/source/main.tex
+  before_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-640-https-arxiv-org-abs-2605-28293/paper/source/main.tex: 588bef61996c6fa3b474aa602fe96095ba9e6e26809e20c3fa6709191a31bf75
+  after_hashes:
+    /home/runner/work/llmXive/llmXive/projects/PROJ-640-https-arxiv-org-abs-2605-28293/paper/source/main.tex: 4b43213db4beaa85b7fe4febb1f3b0f60bb3ed22049b9346531858dc45eb74a1
+  model_response_excerpt: "\n\n{\n  \"kind\": \"search_and_replace\",\n  \"file\"\
+    : \"paper/source/main.tex\",\n  \"search\": \"\\\\bibliographystyle{icml2026}\"\
+    ,\n  \"replace\": \"\\\\bibliographystyle{unsrt}\"\n}"
+  duration_s: 43.68998011100007
+  error_reason: null
+- task_id: '006'
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00005]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b3", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 1}'
+  edit_kind: search_and_replace
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "\n\n{\n  \"kind\": \"search_and_replace\",\n  \"file\"\
+    : \"paper/source/main-llmxive.tex\",\n  \"search\": \"\\\\bibliographystyle{plain}\"\
+    ,\n  \"replace\": \"\\\\bibliographystyle{unsrt}\"\n}"
+  duration_s: 63.51200449800001
+  error_reason: 'no-match: search string not found (tried exact + flexible)'
+- task_id: '007'
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00006]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b3", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 1}'
+  edit_kind: search_and_replace
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "\n\n{\n  \"kind\": \"search_and_replace\",\n  \"file\"\
+    : \"paper/source/main.tex\",\n  \"search\": \"\\\\bibliographystyle{icml2026}\"\
+    ,\n  \"replace\": \"\\\\bibliographystyle{unsrt}\"\n}"
+  duration_s: 31.180502252999986
+  error_reason: 'no-match: search string not found (tried exact + flexible)'
+- task_id: 008
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00007]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b3", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 1}'
+  edit_kind: search_and_replace
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "\n\n{\n  \"kind\": \"search_and_replace\",\n  \"file\"\
+    : \"paper/source/main.tex\",\n  \"search\": \"\\\\bibliographystyle{icml2026}\"\
+    ,\n  \"replace\": \"\\\\bibliographystyle{unsrt}\"\n}"
+  duration_s: 30.775379793999946
+  error_reason: 'no-match: search string not found (tried exact + flexible)'
+- task_id: 009
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00008]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 1}'
+  edit_kind: search_and_replace
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "\n\n{\n  \"kind\": \"search_and_replace\",\n  \"file\"\
+    : \"paper/source/main.tex\",\n  \"search\": \"\\\\bibliographystyle{icml2026}\"\
+    ,\n  \"replace\": \"\\\\bibliographystyle{unsrt}\"\n}"
+  duration_s: 57.25169849300005
+  error_reason: 'no-match: search string not found (tried exact + flexible)'
+- task_id: '010'
+  status: skipped
+  action_item_severity: writing
+  action_item_text: 'Address action item **[auditdef00009]** (severity: writing):
+    Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b3", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 1}'
+  edit_kind: search_and_replace
+  files_modified: []
+  before_hashes: {}
+  after_hashes: {}
+  model_response_excerpt: "\n\n{\n  \"kind\": \"search_and_replace\",\n  \"file\"\
+    : \"paper/source/main.tex\",\n  \"search\": \"\\\\bibliographystyle{icml2026}\"\
+    ,\n  \"replace\": \"\\\\bibliographystyle{unsrt}\"\n}"
+  duration_s: 41.61296839400006
+  error_reason: 'no-match: search string not found (tried exact + flexible)'

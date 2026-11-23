@@ -90,5 +90,15 @@
     "section/report_sft.tex",
     "section/report_tts.tex",
     "simplex_30b_report.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "addcbf5121ed02d62fc62af5031af9b2fcc1e3e2da51dad9d7a2f918989d13d8",
+      "bytes": 1371879
+    },
+    "original.pdf": {
+      "sha256": "ebde2a61fd43385fc5a1e8b886fa0fb17a39155f7917713c5bd305e7972bc931",
+      "bytes": 1346248
+    }
+  }
 }

@@ -1,97 +1,91 @@
-"""
-Unit tests for the data_loader module.
-"""
-
 import json
 import os
 import tempfile
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
 import pytest
 
-# We cannot easily test the full download in a unit test due to network/size,
-# so we test the helper functions and logic.
-# We mock the dataset loading.
+# Adjust imports based on project structure
+import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from code import data_loader
+from code.data_loader import compute_checksum, load_manifest, save_manifest, fetch_gsm8k, fetch_mmlu, save_dataset_and_manifest, DATA_DIR, MANIFEST_PATH
+from utils.logging import DataLoadError
 
+@pytest.fixture
+def temp_dir():
+    with tempfile.TemporaryDirectory() as tmp:
+        yield Path(tmp)
 
-class MockDatasetItem:
-    def __init__(self, text):
-        self.text = text
-
-    def __getitem__(self, key):
-        return self.text if key == "text" else None
-
-
-class MockDataset:
-    def __init__(self, items):
-        self.items = items
-
-    def __iter__(self):
-        return iter(self.items)
-
-    def __len__(self):
-        return len(self.items)
-
-
-def test_concatenate_and_truncate():
-    """
-    Test the concatenation and truncation logic.
-    """
-    items = [
-        MockDatasetItem("Hello "),
-        MockDatasetItem("World "),
-        MockDatasetItem("!")
-    ]
-    dataset = MockDataset(items)
-
-    # Test no truncation
-    result = data_loader.concatenate_and_truncate(dataset, 100)
-    assert result == "Hello World !"
-    assert len(result) == 13
-
-    # Test truncation
-    result = data_loader.concatenate_and_truncate(dataset, 10)
-    assert result == "Hello Wo"
-    assert len(result) == 10
-
-
-def test_compute_checksum():
-    """
-    Test the checksum computation.
-    """
-    data = "test string"
-    checksum = data_loader.compute_checksum(data)
+def test_compute_checksum(temp_dir):
+    """Test that compute_checksum returns a valid hex string."""
+    test_file = temp_dir / "test.txt"
+    test_file.write_text("hello world")
+    checksum = compute_checksum(test_file)
     assert len(checksum) == 64  # SHA-256 hex length
-    assert isinstance(checksum, str)
+    assert all(c in "0123456789abcdef" for c in checksum)
 
+def test_load_manifest_empty(temp_dir, monkeypatch):
+    """Test loading manifest when file doesn't exist."""
+    monkeypatch.setattr("code.data_loader.MANIFEST_PATH", temp_dir / "nonexistent.json")
+    manifest = load_manifest()
+    assert manifest == {}
 
-def test_save_dataset_and_manifest():
-    """
-    Test saving data and updating manifest.
-    """
-    with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = os.path.join(tmpdir, "test.json")
-        manifest_path = os.path.join(tmpdir, "manifest.json")
+def test_save_manifest(temp_dir, monkeypatch):
+    """Test saving manifest."""
+    manifest_path = temp_dir / "manifest.json"
+    monkeypatch.setattr("code.data_loader.MANIFEST_PATH", manifest_path)
+    
+    test_data = {"key": "value"}
+    save_manifest(test_data)
+    
+    assert manifest_path.exists()
+    with open(manifest_path) as f:
+        loaded = json.load(f)
+    assert loaded == test_data
 
-        data_loader.save_dataset_and_manifest(
-            "Sample data",
-            output_path,
-            manifest_path
-        )
+def test_fetch_gsm8k_failure():
+    """Test that fetch_gsm8k raises DataLoadError on failure."""
+    with patch("code.data_loader.load_dataset") as mock_load:
+        mock_load.side_effect = Exception("Network error")
+        with pytest.raises(DataLoadError):
+            fetch_gsm8k()
 
-        # Check file existence
-        assert os.path.exists(output_path)
-        assert os.path.exists(manifest_path)
+def test_fetch_mmlu_failure():
+    """Test that fetch_mmlu raises DataLoadError on failure."""
+    with patch("code.data_loader.load_dataset") as mock_load:
+        mock_load.side_effect = Exception("Network error")
+        with pytest.raises(DataLoadError):
+            fetch_mmlu()
 
-        # Check content
-        with open(output_path, "r") as f:
-            content = json.load(f)
-            assert content["content"] == "Sample data"
+def test_save_dataset_and_manifest(temp_dir, monkeypatch):
+    """Test saving dataset and updating manifest."""
+    # Setup paths in temp dir
+    data_dir = temp_dir / "raw"
+    manifest_path = temp_dir / "manifest.json"
+    monkeypatch.setattr("code.data_loader.DATA_DIR", data_dir)
+    monkeypatch.setattr("code.data_loader.MANIFEST_PATH", manifest_path)
 
-        # Check manifest
-        with open(manifest_path, "r") as f:
-            manifest = json.load(f)
-            assert "pile_arxiv_truncated" in manifest
-            assert manifest["pile_arxiv_truncated"]["checksum"] == data_loader.compute_checksum("Sample data")
+    mock_data = [{"question": "2+2?", "answer": "4"}]
+    save_dataset_and_manifest("test_dataset", mock_data)
+
+    # Check file exists
+    json_file = data_dir / "test_dataset.json"
+    assert json_file.exists()
+
+    # Check content
+    with open(json_file) as f:
+        loaded_data = json.load(f)
+    assert loaded_data == mock_data
+
+    # Check manifest
+    assert manifest_path.exists()
+    with open(manifest_path) as f:
+        manifest = json.load(f)
+    
+    assert "test_dataset" in manifest
+    assert manifest["test_dataset"]["type"] == "evaluation"
+    assert "checksum" in manifest["test_dataset"]
+    assert "size_bytes" in manifest["test_dataset"]
+    assert "created_at" in manifest["test_dataset"]

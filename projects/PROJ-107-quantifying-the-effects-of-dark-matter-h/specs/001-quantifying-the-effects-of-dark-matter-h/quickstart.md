@@ -47,44 +47,24 @@
 ### Step 1: Ingest Data
 Download and prepare the TNG-100 dataset (chunked).
 ```bash
-python code/main.py --step ingest --dataset tng100
+python code/main.py --stage ingestion
 ```
-*Output*: `data/processed/halo_shapes.csv`, `data/processed/galaxy_properties.csv`
+*Output*: `data/raw/tng100/` contains at least one `*.hdf5` file and `data/metadata.yaml` is updated with checksums.
 
 ### Step 2: Compute Shapes & Alignments
-Calculate inertia tensors and misalignment angles.
-```bash
-python code/main.py --step compute_shapes
-```
-*Output*: Updated `halo_shapes.csv` with triaxiality and `alignment_angles.csv`.
+(Placeholder – to be implemented in later tasks.)
 
 ### Step 3: Null Simulation Control
-Run the shuffled null simulation to check for artifacts.
-```bash
-python code/main.py --step null_control --iterations 10000
-```
-*Output*: `data/processed/null_control_results.csv`
+(Placeholder – to be implemented in later tasks.)
 
 ### Step 4: Statistical Analysis
-Run hypothesis tests and regression.
-```bash
-python code/main.py --step analyze --mass-match
-```
-*Output*: `data/processed/analysis_results.csv`
+(Placeholder – to be implemented in later tasks.)
 
 ### Step 5: Sensitivity Analysis
-Sweep binning thresholds (Effect Size Stability).
-```bash
-python code/main.py --step sensitivity --thresholds "0.45,0.55,0.75,0.85"
-```
-*Output*: `data/processed/sensitivity_report.csv`
+(Placeholder – to be implemented in later tasks.)
 
 ### Step 6: Generate Report
-Compile results into a summary.
-```bash
-python code/main.py --step report
-```
-*Output*: `outputs/reports/summary.md`
+(Placeholder – to be implemented in later tasks.)
 
 ## Testing
 
@@ -97,4 +77,4 @@ pytest code/tests/ -v
 
 *   **Memory Error**: Reduce the chunk size in `code/utils/config.py` (e.g., `CHUNK_SIZE = 2000`).
 *   **Missing Data**: Ensure you have registered with the IllustrisTNG website and have an API key set in the environment variable `TNG_API_KEY`.
-*   **Millennium-II Unavailable**: If the pipeline logs "Data Gap: Millennium-II not found", the cross-validation step is skipped. This is expected if no verified URL is provided.
+*   **Millennium-II Unavailable**: If the pipeline logs "Data Gap: Millennium-II not found", the cross‑validation step is skipped. This is expected if no verified URL is provided.

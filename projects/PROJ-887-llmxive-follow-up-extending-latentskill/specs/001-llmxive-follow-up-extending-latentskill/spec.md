@@ -17,7 +17,7 @@ The researcher MUST be able to ingest the pre-trained LoRA adapters (A and B mat
 
 **Acceptance Scenarios**:
 
-1. **Given** the original LatentSkill LoRA weight files and task descriptions are available, **When** the ingestion script runs on a CPU-only environment, **Then** a normalized vector index is generated containing all skill vectors with L2 normalization applied.
+1. **Given** the original LatentSkill LoRA weight files and task descriptions are available, **When** the ingestion script runs on a CPU-only environment, **Then** a normalized vector index is generated containing all skill vectors with normalization applied.
 2. **Given** a raw LoRA weight file, **When** the flattening process is executed, **Then** the resulting vector dimensions match the theoretical product of the A and B matrix dimensions, and the data type remains compatible with standard CPU float32 operations.
 
 ---
@@ -48,7 +48,7 @@ The researcher MUST be able to apply the retrieved or interpolated LoRA adapters
 
 **Acceptance Scenarios**:
 
-1. **Given** a synthesized LoRA adapter from User Story 2 and a composite task, **When** the adapter is applied to the frozen base LLM in the simulation environment for $N \ge 5$ runs, **Then** the system records a binary success/failure outcome for each run based solely on the environment's internal logic.
+1. **Given** a synthesized LoRA adapter from User Story 2 and a composite task, **When** the adapter is applied to the frozen base LLM in the simulation environment for $N \ge $ runs, **Then** the system records a binary success/failure outcome for each run based solely on the environment's internal logic.
 2. **Given** success rates (probabilities) for retrieval, interpolation, and baseline methods derived from multiple runs, **When** the statistical test is run, **Then** the system outputs a p-value indicating whether the difference in performance is statistically significant ($p < 0.05$).
 
 ### Edge Cases
@@ -67,8 +67,8 @@ The researcher MUST be able to apply the retrieved or interpolated LoRA adapters
 - **FR-004**: System MUST apply the synthesized LoRA adapters to a frozen base LLM and evaluate task success using the environment's internal logic (independent of the selection mechanism). (See US-3)
 - **FR-005**: System MUST perform statistical testing (paired t-test or Wilcoxon signed-rank) to compare success rates of approximation strategies against the baseline with a significance threshold of $p < 0.05$. (See US-3)
 - **FR-006**: System MUST enforce the Benjamini-Hochberg procedure for multiple-comparison correction when evaluating the set of primary hypothesis tests (comparing the 3 approximation strategies against the baseline) and the sensitivity analysis sweeps defined in SC-004, to control the False Discovery Rate (FDR). (See US-3)
-- **FR-007**: System MUST validate the "text-weight alignment" assumption by calculating the Pearson correlation coefficient between text-space cosine distances and weight-space cosine distances for a held-out set of known task pairs; the correlation must be $\ge 0.6$ for the retrieval mechanism to be considered valid. (See US-2)
-- **FR-008**: System MUST execute $N \ge 5$ independent runs for every task in the evaluation set to establish a stable success probability (mean of binary outcomes) before performing statistical tests. (See US-3)
+- **FR-007**: System MUST validate the "text-weight alignment" assumption by calculating the Pearson correlation coefficient between text-space cosine distances and weight-space cosine distances for a held-out set of known task pairs; the correlation must be sufficiently strong for the retrieval mechanism to be considered valid. (See US-2)
+- **FR-008**: System MUST execute multiple independent runs for every task in the evaluation set to establish a stable success probability (mean of binary outcomes) before performing statistical tests. (See US-3)
 
 ### Key Entities
 
@@ -85,14 +85,14 @@ The researcher MUST be able to apply the retrieved or interpolated LoRA adapters
 
 - **SC-001**: Task success rate for retrieval/interpolation methods is measured against the **standard fine-tuned baseline** success rate; the method is considered acceptable if the degradation is **no more than 10% lower** than the baseline. (See US-3)
 - **SC-002**: Statistical significance of the performance difference between approximation strategies and the baseline is measured against the $p < 0.05$ threshold using a paired t-test or Wilcoxon signed-rank test, with Benjamini-Hochberg correction applied to all primary comparisons and sensitivity sweeps. (See US-3)
-- **SC-003**: Wall-clock latency for skill selection (retrieval vs. hypernetwork inference) is measured against the 2-core CPU runner limit to quantify computational savings. (See US-2)
-- **SC-004**: Sensitivity of the retrieval performance is measured against varying top-$k$ values ($k \in \{1, 3, 5\}$) to determine if the linear approximation is robust to the number of neighbors used. (See US-2)
+- **SC-003**: Wall-clock latency for skill selection (retrieval vs. hypernetwork inference) is measured against a multi-core CPU runner limit to quantify computational savings. (See US-2)
+- **SC-004**: Sensitivity of the retrieval performance is measured against varying top-$k$ values to determine if the linear approximation is robust to the number of neighbors used. (See US-2)
 - **SC-005**: The validity of the "linearity" assumption is measured against the **geometric reconstruction error** (cosine distance) between synthesized weights and true weights for known composite tasks; if the error rate exceeds **0.05**, the latent space is deemed non-linear for this purpose. (See US-2)
 
 ## Assumptions
 
 - The original LatentSkill repository (arXiv:2606.06087) provides downloadable LoRA weight files (A and B matrices) and corresponding task descriptions in a format compatible with standard PyTorch/NumPy loading.
-- The base LLM (e.g., Llama-8B) can be run in a quantized mode (e.g., 4-bit or 8-bit via `bitsandbytes` or similar CPU-optimized quantization) within the 7 GB RAM limit of the GitHub Actions free runner.
+- The base LLM (e.g., LlamaB) can be run in a quantized mode (e.g., low-bit or higher-precision via `bitsandbytes` or similar CPU-optimized quantization) within the RAM limit of the GitHub Actions free runner.
 - The "environment's internal logic" for ALFWorld and Search-QA is accessible as a deterministic simulation or script that returns a binary success/failure flag independent of the LLM's internal state, provided the action sequence is correct.
 - The sentence-transformer `all-MiniLM-L6-v2` is small enough to be loaded and executed on the CPU-only runner without exceeding memory constraints.
 - **Scientific Premise**: The latent space geometry of LoRA adapters is assumed to be consistent across different base models if the same fine-tuning protocol is used; any deviation in base model architecture is treated as a confounding variable to be controlled.
@@ -101,11 +101,11 @@ The researcher MUST be able to apply the retrieved or interpolated LoRA adapters
 - The statistical power of the test is sufficient to detect a small-to-moderate difference in success rates with the available number of held-out composite tasks; if the sample size is too small, the power limitation will be acknowledged in the final report.
 - The latency measurement includes only the skill selection phase (retrieval/interpolation) and excludes the time required for the base LLM to generate a response, as the focus is on the overhead of the hypernetwork replacement.
 - The "5-10% tolerance window" for performance degradation is a community-standard default for acceptable approximation error in this domain, as no specific threshold was provided in the idea.
-- The top-$k$ value for retrieval is set to $k=5$ as a defensible default for balancing precision and recall in high-dimensional spaces, with sensitivity analysis performed over $k \in \{1, 3, 5, 10\}$.
+- The top-$k$ value for retrieval is set to $k=5$ as a defensible default for balancing precision and recall in high-dimensional spaces, with sensitivity analysis performed over $k \in \{, 3, 5, 10\}$.
 - The quantization method used for the base LLM (e.g., 4-bit) does not introduce significant noise that would confound the comparison between retrieval and baseline methods.
 - The frozen sentence-transformer model is assumed to provide a valid semantic representation of the task descriptions, such that cosine similarity in text space correlates with proximity in weight space.
 - The "environment's internal logic" is assumed to be a reliable and deterministic measure of task success, without stochastic elements that would require multiple runs per task to establish a ground truth (addressed by FR-008).
-- The GitHub Actions free runner (2 CPU, 7 GB RAM) is capable of handling the memory footprint of the flattened LoRA vectors, the sentence-transformer, and the quantized base LLM simultaneously.
+- The GitHub Actions free runner (multiple CPUs, sufficient RAM) is capable of handling the memory footprint of the flattened LoRA vectors, the sentence-transformer, and the quantized base LLM simultaneously.
 - The original LatentSkill hypernetwork weights are either available for direct comparison or a standard fine-tuned baseline can be used as a proxy if the hypernetwork is not accessible.
 - The composite tasks used for evaluation are generated by combining existing skills in a way that is semantically meaningful and not trivially solvable by a single existing skill.
 - The statistical tests (t-test/Wilcoxon) are appropriate for the distribution of the success rates; if normality assumptions fail, the non-parametric alternative will be used.
@@ -113,7 +113,7 @@ The researcher MUST be able to apply the retrieved or interpolated LoRA adapters
 - The "density" of the latent space is defined as the minimum distance between any two skill vectors in the database; if the space is too sparse, retrieval may fail to find a relevant neighbor.
 - The "computational bottleneck" of the hypernetwork is assumed to be the inference time for skill selection; other bottlenecks (e.g., data loading) are not considered in this analysis.
 - The "edge device" scenario is approximated by the CPU-only runner, assuming that the latency and memory constraints of the runner are representative of a standard edge device.
-- The "serverless environment" scenario is approximated by the 6-hour job limit and the 14 GB disk limit of the GitHub Actions runner.
+- The "serverless environment" scenario is approximated by the time and disk limits of the GitHub Actions runner.
 - The "deterministic agent architecture" is assumed to be achievable if retrieval/interpolation is viable, as the selection mechanism becomes a simple lookup rather than a generative process.
 - The "modular AI systems" trade-off between flexibility and computational cost is assumed to be the primary motivation for this research, and the results will inform this trade-off.
 - The "novel task compositions" are assumed to be unseen during the training of the original LoRA adapters, ensuring that the test is truly out-of-distribution.
@@ -123,4 +123,4 @@ The researcher MUST be able to apply the retrieved or interpolated LoRA adapters
 - The "Wilcoxon signed-rank test" is assumed to be the appropriate non-parametric alternative if the success rates are not normally distributed.
 - The "Benjamini-Hochberg correction" is assumed to be the appropriate multiple-comparison correction method for controlling the false discovery rate, mandated by FR-006 due to the multiple comparisons inherent in testing 3 strategies and sensitivity sweeps.
 - The "sensitivity analysis" for the top-$k$ value is assumed to be necessary to determine the robustness of the retrieval mechanism to the number of neighbors used.
-- The "power limitation" is assumed to be a potential issue if the number of held-out composite tasks is too small to detect a 5-10% difference in success rates.
+- The "power limitation" is assumed to be a potential issue if the number of held-out composite tasks is too small to detect a difference in success rates.

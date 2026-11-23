@@ -1,0 +1,20 @@
+# Existing dependencies
+datasets
+transformers
+tree-sitter
+codeql
+scikit-learn
+statsmodels
+pandas
+numpy
+matplotlib
+seaborn
+kenlm
+pwlf
+ruptures
+python-dotenv
+pyyaml
+torch
+accelerate
+sentencepiece
+protobuf

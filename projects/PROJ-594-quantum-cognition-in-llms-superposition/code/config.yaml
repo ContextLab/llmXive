@@ -1,0 +1,16 @@
+seed: 42
+device: cpu
+batch_size: 8
+max_epochs: 3
+timeout_hours: 6
+max_ram_gb: 7
+# Configuration for WiC dataset
+dataset_name: "super_glue"
+dataset_config: "wic"
+# Model configuration
+model_name: "bert-base-uncased"
+# Training/Inference parameters
+max_seq_length: 128
+# Stability check parameters
+stability_seeds: [42, 123, 456, 789, 1011]
+variance_threshold: 0.02

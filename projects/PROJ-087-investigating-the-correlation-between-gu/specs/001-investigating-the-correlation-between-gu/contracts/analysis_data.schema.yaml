@@ -33,18 +33,22 @@ properties:
     type: "number"
     description: "Shannon diversity index"
     minimum: 0
+    nullable: true
   simpson_index:
     type: "number"
     description: "Simpson diversity index"
     minimum: 0
     maximum: 1
+    nullable: true
+  status:
+    type: "string"
+    description: "Status of the row. 'blocked' indicates the dataset was not available."
+    enum:
+      - "valid"
+      - "blocked"
 required:
   - sample_id
-  - shannon_index
-  - simpson_index
-  - age
-  - bmi
-  - diet_category
+  - status
 anyOf:
   - required:
     - sleep_efficiency

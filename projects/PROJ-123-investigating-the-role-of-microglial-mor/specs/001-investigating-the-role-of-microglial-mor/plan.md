@@ -15,7 +15,7 @@ This feature implements a CPU-tractable pipeline to ingest confocal microscopy i
 **Primary Dependencies**: `scikit-learn`, `statsmodels`, `numpy`, `pandas`, `opencv-python-headless`, `scikit-image`, `pyyaml`  
 **Storage**: Local filesystem (`data/`), CSV/Parquet intermediates  
 **Testing**: `pytest` (contract tests, unit tests for extraction logic, null-hypothesis validation)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7GB RAM)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, ~7GB RAM)  
 **Project Type**: Computational Research Pipeline (CLI)  
 **Performance Goals**: Runtime < 6 hours; Memory < 7GB; Extraction error < 10% vs manual ground truth (applies to synthetic validation phase only)  
 **Constraints**: NO GPU; NO deep learning models for segmentation (uses classical image processing); All datasets must be CPU-loadable; Strict adherence to verified dataset URLs only (currently none available).  

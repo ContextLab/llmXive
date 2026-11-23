@@ -1,0 +1,32 @@
+name: Verify Repository Skeleton
+
+# This workflow runs on every push and pull‑request to ensure that the
+# required top‑level directories exist.  If any are missing the job
+# exits with a non‑zero status, causing the CI run to fail (task T001d).
+
+on:
+  push:
+    branches: [ "**" ]
+  pull_request:
+    branches: [ "**" ]
+
+jobs:
+  check-skeleton:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Verify required directories exist
+        run: |
+          python - <<'PY'
+          import sys
+          from pathlib import Path
+
+          required = ["src", "tests", "data", "results", "docs", "contracts"]
+          missing = [d for d in required if not (Path.cwd() / d).is_dir()]
+          if missing:
+              print(f"Missing required directories: {missing}")
+              sys.exit(1)
+          print("All required repository skeleton directories are present.")
+          PY

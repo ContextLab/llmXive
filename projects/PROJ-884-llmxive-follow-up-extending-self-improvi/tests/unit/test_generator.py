@@ -1,100 +1,60 @@
 """
-Unit tests for code/dataset/generator.py.
-
-This module contains contract tests to ensure the generator handles
-edge cases correctly, specifically empty input scenarios.
+Unit tests for the puzzle generator.
+Checks that generated instances conform to the JSON schema
+defined in `contracts/dataset.schema.yaml`.
 """
-import pytest
-import sys
-import os
+
+import json
+import yaml
+import tempfile
 from pathlib import Path
 
-# Add project root to path for imports if running directly
-project_root = Path(__file__).parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+import pytest
+from jsonschema import validate, ValidationError
 
-from code.dataset.generator import generate_puzzles, validate_puzzle_input
-from code.exceptions import PARSE_FAILURE
+from code.dataset.generator import PuzzleGenerator, PuzzleType, DataGenerationError
 
+# Load the contract schema once (YAML format)
+with open("contracts/dataset.schema.yaml", "r", encoding="utf-8") as f:
+    SCHEMA = yaml.safe_load(f)
 
-class TestGeneratorEmptyInput:
-    """Contract tests for handling empty input in the puzzle generator."""
+def test_generate_small_dataset(tmp_path: Path):
+    """
+    Generate a minimal dataset (4x4 Sudoku + pathfinding) and
+    validate each puzzle against the schema.
+    """
+    generator = PuzzleGenerator(seed=123, source_id="test_run")
+    output_file = generator.generate_puzzles(
+        n_values=[4],
+        count=1,
+        puzzle_types=[PuzzleType.SUDOKU, PuzzleType.PATHFINDING],
+        output_dir=str(tmp_path)
+    )
 
-    def test_generator_handles_empty_input(self):
-        """
-        Contract: When the generator receives an empty list of constraints
-        or an empty configuration, it must return an empty list of puzzles
-        rather than crashing or generating invalid artifacts.
-        """
-        # Test with empty constraints list
-        empty_constraints = []
-        
-        # The generator should handle this gracefully and return empty list
-        # It should NOT raise an exception unless explicitly designed to fail on empty input
-        # Based on robust design principles, returning empty is safer for pipeline flow
-        result = generate_puzzles(empty_constraints)
-        
-        assert isinstance(result, list), "Generator must return a list"
-        assert len(result) == 0, "Generator must return empty list for empty input"
+    # Read JSON file (single object with "puzzles" list)
+    with open(output_file, "r", encoding="utf-8") as f:
+        data = json.load(f)
 
-    def test_generator_handles_empty_config(self):
-        """
-        Contract: When the generator receives an empty configuration dictionary,
-        it must raise a PARSE_FAILURE or return empty, depending on strictness.
-        Here we test for graceful handling (returning empty or raising specific error).
-        """
-        empty_config = {}
-        
-        # Test with empty config
-        # We expect either an empty list or a specific exception
+    puzzles = data.get("puzzles", [])
+    # Expect exactly two puzzle records
+    assert len(puzzles) == 2
+
+    for puzzle in puzzles:
+        # Validate against the contract schema
         try:
-            result = generate_puzzles([], config=empty_config)
-            assert isinstance(result, list)
-            assert len(result) == 0
-        except PARSE_FAILURE:
-            # If the design requires strict validation, this is acceptable
-            pass
+            validate(instance=puzzle, schema=SCHEMA)
+        except ValidationError as ve:
+            pytest.fail(f"Puzzle failed schema validation: {ve}")
 
-    def test_validate_puzzle_input_empty(self):
-        """
-        Contract: The validation helper should reject empty puzzle definitions.
-        """
-        empty_puzzle = {}
-        is_valid, error_code = validate_puzzle_input(empty_puzzle)
-        
-        assert is_valid is False
-        assert error_code is not None
-        assert "EMPTY" in error_code or error_code == "INVALID_FORMAT"
-
-    def test_generator_with_none_constraints(self):
-        """
-        Contract: Passing None as constraints should be handled gracefully.
-        """
-        with pytest.raises((TypeError, PARSE_FAILURE)):
-            generate_puzzles(None)
-
-    def test_generator_with_only_whitespace_constraints(self):
-        """
-        Contract: Constraints that are effectively empty (e.g., list of empty strings)
-        should result in no puzzles generated.
-        """
-        # Assuming constraints are strings or dicts; if strings, empty ones should be skipped
-        # This test depends on the specific constraint format in generator.py
-        # For now, we test the list structure
-        whitespace_constraints = ["", "   ", "\t"]
-        
-        result = generate_puzzles(whitespace_constraints)
-        
-        # Should produce no valid puzzles
-        assert len(result) == 0, "Whitespace-only constraints should not generate puzzles"
-
-    def test_generator_empty_output_structure(self):
-        """
-        Contract: Even when returning empty, the structure of the return type
-        must be consistent (list of dicts) to prevent downstream errors.
-        """
-        result = generate_puzzles([])
-        
-        assert isinstance(result, list)
-        # If there were items, they would be dicts. Empty list satisfies this.
+def test_invalid_type_raises():
+    """
+    Requesting an unknown puzzle type should raise DataGenerationError.
+    """
+    generator = PuzzleGenerator()
+    with pytest.raises(DataGenerationError):
+        generator.generate_puzzles(
+            n_values=[4],
+            count=1,
+            puzzle_types=[PuzzleType.SUDOKU, "unknown_type"],  # type: ignore
+            output_dir="."
+        )

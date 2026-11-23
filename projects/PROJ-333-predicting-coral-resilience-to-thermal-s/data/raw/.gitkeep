@@ -1,1 +1,2 @@
-# Placeholder to ensure directory exists for raw data downloads
+# This directory stores raw data files (e.g., FASTQ).
+# Do not commit large binary files.

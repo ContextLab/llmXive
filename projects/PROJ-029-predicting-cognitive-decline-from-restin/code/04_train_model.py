@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import argparse
 import json
 import os
 import sys
@@ -12,354 +13,341 @@ import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import StratifiedKFold, GridSearchCV
-from sklearn.feature_selection import RFE, VarianceThreshold
+from sklearn.feature_selection import VarianceThreshold, RFE
 from sklearn.pipeline import Pipeline
-from sklearn.metrics import roc_auc_score
-from scipy.stats import pearsonr
-import joblib
-
-# Import from project utilities
+from sklearn.metrics import roc_auc_score, accuracy_score, f1_score
+from sklearn.preprocessing import StandardScaler
+from joblib import Parallel, delayed
 from utils.logger import get_logger, log_operation
-from utils.stats import check_collinearity, calculate_correlation_matrix, calculate_feature_variance, filter_low_variance_features
-from utils.io import load_csv, save_json
+from utils.stats import check_collinearity, calculate_feature_variance, filter_low_variance_features
+from utils.io import load_csv, save_json, save_pickle
 
 logger = get_logger("train_model")
 
 # Constants
-DECREASE_THRESHOLD = 3  # Decline defined as drop >= 3 points
-RANDOM_SEED = 42
-MAX_FEATURES = 20
-CORR_THRESHOLD = 0.95
-VAR_THRESHOLD = 0.01
-N_ESTIMATORS_GRID = [50, 100, 200]
-MAX_DEPTH_GRID = [5, 10, None]
-N_JOBS = 2
+DATA_DIR = Path("data/processed")
+GRAPH_METRICS_FILE = DATA_DIR / "graph_metrics.csv"
+ELIGIBLE_SUBJECTS_FILE = DATA_DIR / "eligible_subjects.csv"
+MODEL_FILE = DATA_DIR / "model.pkl"
+CV_RESULTS_FILE = DATA_DIR / "cv_results.json"
+MODEL_PARAMS_FILE = DATA_DIR / "model_params.json"
 
-@log_operation
-def load_features(subject_ids: List[str], metrics_file: str = "data/processed/graph_metrics.csv") -> Tuple[np.ndarray, np.ndarray, List[str]]:
+EXIT_CODE_NO_DATA = 3
+EXIT_CODE_SUCCESS = 0
+
+def load_features_and_labels(threshold: int = 3) -> Tuple[pd.DataFrame, pd.Series]:
     """
-    Load graph metrics and labels (decline) from the processed data.
-    Returns: (X, y, feature_names)
+    Load graph metrics and generate decline labels based on MMSE/MOCA drop.
+    Returns (X, y) where y is 1 if drop >= threshold, else 0.
     """
-    logger.log("load_features_start", file=metrics_file, n_subjects=len(subject_ids))
-    
-    # Load the graph metrics
-    df = pd.read_csv(metrics_file)
-    
-    # Ensure subject_id column exists and matches input
-    if 'subject_id' not in df.columns:
-        raise ValueError(f"CSV must contain 'subject_id' column. Found: {df.columns.tolist()}")
-    
-    # Filter to only requested subjects
-    df = df[df['subject_id'].isin(subject_ids)].copy()
-    
-    if len(df) != len(subject_ids):
-        missing = set(subject_ids) - set(df['subject_id'].tolist())
-        logger.log("load_features_warning", missing_subjects=list(missing))
-    
-    # Identify feature columns (exclude subject_id and label columns if present)
-    exclude_cols = ['subject_id', 'decline_label', 'mmse_baseline', 'mmse_followup', 'moca_baseline', 'moca_followup']
-    feature_cols = [c for c in df.columns if c not in exclude_cols]
-    
-    if not feature_cols:
-        raise ValueError("No feature columns found in graph metrics CSV.")
-    
-    X = df[feature_cols].values.astype(np.float64)
-    
-    # Calculate labels: decline >= 3 points
-    # We need to calculate this from the raw scores if not already present
-    # Assuming the CSV has baseline and followup scores for MMSE or MOCa
-    y = np.zeros(len(df), dtype=int)
-    
-    # Try MMSE first
-    if 'mmse_baseline' in df.columns and 'mmse_followup' in df.columns:
-        scores = df['mmse_baseline'].values - df['mmse_followup'].values
-        y = (scores >= DECREASE_THRESHOLD).astype(int)
-    elif 'moca_baseline' in df.columns and 'moca_followup' in df.columns:
-        scores = df['moca_baseline'].values - df['moca_followup'].values
-        y = (scores >= DECREASE_THRESHOLD).astype(int)
-    else:
-        # If no raw scores, assume 'decline_label' exists
-        if 'decline_label' in df.columns:
-            y = df['decline_label'].values.astype(int)
-        else:
-            raise ValueError("Cannot compute decline label: missing score columns.")
-    
-    logger.log("load_features_end", n_features=len(feature_cols), n_samples=len(df), n_decline=int(y.sum()))
-    return X, y, feature_cols
+    if not GRAPH_METRICS_FILE.exists():
+        logger.log("error", message=f"Graph metrics file not found: {GRAPH_METRICS_FILE}")
+        sys.exit(EXIT_CODE_NO_DATA)
+
+    if not ELIGIBLE_SUBJECTS_FILE.exists():
+        logger.log("error", message=f"Eligible subjects file not found: {ELIGIBLE_SUBJECTS_FILE}")
+        sys.exit(EXIT_CODE_NO_DATA)
+
+    # Load graph metrics
+    df = load_csv(GRAPH_METRICS_FILE)
+    eligible_df = load_csv(ELIGIBLE_SUBJECTS_FILE)
+
+    # Ensure we only use eligible subjects
+    eligible_ids = set(eligible_df['subject_id'].tolist())
+    df = df[df['subject_id'].isin(eligible_ids)]
+
+    if df.empty:
+        logger.log("error", message="No eligible subjects found in graph metrics.")
+        sys.exit(EXIT_CODE_NO_DATA)
+
+    # Load longitudinal data for label generation
+    # Assuming participants.tsv or similar exists in data/raw/ds000246/
+    raw_participants = Path("data/raw/ds000246/participants.tsv")
+    if not raw_participants.exists():
+        # Fallback: try to find any participants file
+        raw_participants = next(Path("data/raw").glob("**/participants.tsv"), None)
+        if not raw_participants:
+            logger.log("error", message="Participants file not found for label generation.")
+            sys.exit(EXIT_CODE_NO_DATA)
+
+    raw_df = pd.read_csv(raw_participants, sep='\t')
+
+    # Logic to calculate decline: drop >= threshold points
+    # We assume the raw_df has columns: subject_id, MMSE_baseline, MMSE_followup (or similar)
+    # If columns are not exactly named, we try to infer or use a generic approach
+    # For robustness, we look for columns containing 'MMSE' or 'MOCA'
+    mmse_cols = [c for c in raw_df.columns if 'MMSE' in c.upper()]
+    moca_cols = [c for c in raw_df.columns if 'MOCA' in c.upper()]
+
+    if not mmse_cols and not moca_cols:
+        logger.log("error", message="No MMSE or MOCA columns found in participants file.")
+        sys.exit(EXIT_CODE_NO_DATA)
+
+    # Assume first two columns of the same type are baseline and followup
+    score_cols = mmse_cols if mmse_cols else moca_cols
+    if len(score_cols) < 2:
+        logger.log("error", message="Not enough score columns to calculate decline.")
+        sys.exit(EXIT_CODE_NO_DATA)
+
+    # Sort columns to ensure consistent ordering (e.g., by name or assumption)
+    # This is a simplification; in a real scenario, we'd parse the BIDS metadata
+    score_cols = sorted(score_cols)
+    baseline_col = score_cols[0]
+    followup_col = score_cols[1]
+
+    # Merge with raw data to get scores
+    df = df.merge(raw_df[['subject_id', baseline_col, followup_col]], on='subject_id', how='inner')
+
+    # Calculate drop
+    df['score_drop'] = df[baseline_col] - df[followup_col]
+
+    # Generate label: 1 if drop >= threshold, else 0
+    df['decline_label'] = (df['score_drop'] >= threshold).astype(int)
+
+    # Features are the graph metrics (excluding subject_id and score_drop)
+    feature_cols = [c for c in df.columns if c not in ['subject_id', 'score_drop', 'decline_label']]
+    X = df[feature_cols].dropna()
+    y = df.loc[X.index, 'decline_label']
+
+    if X.empty:
+        logger.log("error", message="No valid features after dropping NaNs.")
+        sys.exit(EXIT_CODE_NO_DATA)
+
+    logger.log("load_data", subjects=len(X), features=len(feature_cols), positive_rate=y.mean())
+    return X, y
 
 class CollinearityTransformer:
     """
-    Removes highly correlated features (Pearson > 0.95), keeping the one with higher variance.
+    Feature selection transformer that removes collinear features (corr > 0.95).
+    Keeps the feature with higher variance.
+    Must be fit ONLY on the training fold.
     """
-    def __init__(self, threshold: float = CORR_THRESHOLD):
+    def __init__(self, threshold: float = 0.95):
         self.threshold = threshold
-        self.keep_indices_: Optional[List[int]] = None
-    
-    def fit(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> 'CollinearityTransformer':
-        if X.shape[1] == 0:
-            self.keep_indices_ = []
-            return self
-        
-        corr_matrix = calculate_correlation_matrix(X)
-        n_features = X.shape[1]
-        
-        # Mask for upper triangle (excluding diagonal)
-        mask = np.triu(np.ones_like(corr_matrix, dtype=bool), k=1)
-        high_corr_pairs = np.where((corr_matrix >= self.threshold) & mask)
-        
-        keep = set(range(n_features))
-        removed = set()
-        
-        # Simple greedy removal: for each pair, remove the one with lower variance
-        for i, j in zip(high_corr_pairs[0], high_corr_pairs[1]):
-            if i in removed or j in removed:
-                continue
-            
-            # Calculate variance for both
-            var_i = np.var(X[:, i])
-            var_j = np.var(X[:, j])
-            
-            # Keep the one with higher variance
-            if var_i >= var_j:
-                removed.add(j)
-            else:
-                removed.add(i)
-        
-        self.keep_indices_ = sorted(list(keep - removed))
-        return self
-    
-    def transform(self, X: np.ndarray) -> np.ndarray:
-        if not self.keep_indices_:
-            return np.array([]).reshape(X.shape[0], 0)
-        return X[:, self.keep_indices_]
-    
-    def fit_transform(self, X: np.ndarray, y: Optional[np.ndarray] = None) -> np.ndarray:
-        self.fit(X, y)
-        return self.transform(X)
+        self.features_to_keep = None
 
-@log_operation
-def train_single_fold(X: np.ndarray, y: np.ndarray, train_idx: List[int], test_idx: List[int], params: Dict[str, Any]) -> Dict[str, Any]:
+    def fit(self, X: pd.DataFrame, y: Optional[pd.Series] = None):
+        if X.shape[1] == 0:
+            return self
+
+        corr_matrix = X.corr().abs()
+        upper = corr_matrix.where(np.triu(np.ones(corr_matrix.shape), k=1).astype(bool))
+        to_drop = [column for column in upper.columns if any(upper[column] > self.threshold)]
+
+        # For each pair, keep the one with higher variance
+        if to_drop:
+            variances = X.var()
+            # We need to know which to keep. The requirement says: keep higher variance.
+            # If A and B are collinear, and A is in to_drop, we keep B if var(B) > var(A).
+            # But 'to_drop' is a list of columns to remove. We need to be careful.
+            # A simpler approach: iterate through the upper triangle and drop the one with lower variance.
+            final_to_drop = set()
+            for col in to_drop:
+                # Find the correlated partner
+                partners = corr_matrix.index[upper[col] > self.threshold]
+                if len(partners) > 0:
+                    partner = partners[0]
+                    if variances[col] < variances[partner]:
+                        final_to_drop.add(col)
+                    else:
+                        final_to_drop.add(partner)
+
+            self.features_to_keep = [c for c in X.columns if c not in final_to_drop]
+        else:
+            self.features_to_keep = list(X.columns)
+
+        return self
+
+    def transform(self, X: pd.DataFrame) -> pd.DataFrame:
+        if self.features_to_keep is None:
+            return X
+        return X[self.features_to_keep]
+
+def train_single_fold(X_train: pd.DataFrame, y_train: pd.Series, 
+                      X_test: pd.DataFrame, y_test: pd.Series, 
+                      param_grid: Dict[str, List], threshold: int) -> Dict[str, Any]:
     """
-    Train a Random Forest on a single fold with nested feature selection.
+    Train a single fold with nested feature selection and grid search.
+    All feature selection MUST be fit only on X_train.
     """
-    X_train, X_test = X[train_idx], X[test_idx]
-    y_train, y_test = y[train_idx], y[test_idx]
-    
-    # 1. Collinearity check
-    collinearity_step = CollinearityTransformer(threshold=CORR_THRESHOLD)
-    X_train_coll = collinearity_step.fit_transform(X_train)
-    X_test_coll = collinearity_step.transform(X_test)
-    
+    # Step 1: Collinearity removal (fit on train)
+    collinearity_filter = CollinearityTransformer(threshold=0.95)
+    X_train_coll = collinearity_filter.fit_transform(X_train)
+    X_test_coll = collinearity_filter.transform(X_test)
+
     if X_train_coll.shape[1] == 0:
-        raise ValueError("Collinearity filtering removed all features.")
-    
-    # 2. Variance Thresholding
-    var_thresh = VarianceThreshold(threshold=VAR_THRESHOLD)
+        # Fallback if all features dropped
+        logger.log("warning", message="All features dropped by collinearity filter. Using original.")
+        X_train_coll = X_train
+        X_test_coll = X_test
+
+    # Step 2: Variance Thresholding (fit on train)
+    var_thresh = VarianceThreshold(threshold=0.01)
     X_train_var = var_thresh.fit_transform(X_train_coll)
     X_test_var = var_thresh.transform(X_test_coll)
-    
-    if X_train_var.shape[1] == 0:
-        raise ValueError("Variance thresholding removed all features.")
-    
-    # 3. RFE to select <= MAX_FEATURES
-    base_rf = RandomForestClassifier(n_estimators=100, random_state=RANDOM_SEED, n_jobs=1)
-    rfe = RFE(estimator=base_rf, n_features_to_select=min(MAX_FEATURES, X_train_var.shape[1]), step=1)
-    rfe.fit(X_train_var, y_train)
-    
-    X_train_rfe = rfe.transform(X_train_var)
-    X_test_rfe = rfe.transform(X_test_var)
-    
-    # 4. Train Final RF with Grid Search (Inner Loop)
-    # Since we are inside a CV loop, we do a small grid search here
-    param_grid = {
-        'n_estimators': params.get('n_estimators', [100]),
-        'max_depth': params.get('max_depth', [None])
-    }
-    
-    rf_final = RandomForestClassifier(random_state=RANDOM_SEED, n_jobs=1)
-    
-    # If only 1 combination, skip grid search
-    n_combos = len(param_grid['n_estimators']) * len(param_grid['max_depth'])
-    if n_combos == 1:
-        rf_final.set_params(**{
-            'n_estimators': param_grid['n_estimators'][0],
-            'max_depth': param_grid['max_depth'][0]
-        })
-        rf_final.fit(X_train_rfe, y_train)
-        best_params = {
-            'n_estimators': param_grid['n_estimators'][0],
-            'max_depth': param_grid['max_depth'][0]
-        }
-    else:
-        inner_cv = StratifiedKFold(n_splits=3, shuffle=True, random_state=RANDOM_SEED)
-        grid_search = GridSearchCV(
-            rf_final, 
-            param_grid, 
-            cv=inner_cv, 
-            scoring='roc_auc', 
-            n_jobs=N_JOBS,
-            refit=True
-        )
-        grid_search.fit(X_train_rfe, y_train)
-        best_params = grid_search.best_params_
-        rf_final = grid_search.best_estimator_
-    
-    # Evaluate on test set
-    y_pred_proba = rf_final.predict_proba(X_test_rfe)[:, 1]
-    auc = roc_auc_score(y_test, y_pred_proba)
-    
+
+    # Convert back to DataFrame to preserve index for RFE
+    feature_names = X_train_coll.columns[var_thresh.get_support()]
+    X_train_var_df = pd.DataFrame(X_train_var, columns=feature_names, index=X_train.index)
+    X_test_var_df = pd.DataFrame(X_test_var, columns=feature_names, index=X_test.index)
+
+    # Step 3: RFE to select <= 20 features (fit on train)
+    base_rf = RandomForestClassifier(n_estimators=100, random_state=42)
+    rfe = RFE(estimator=base_rf, n_features_to_select=min(20, X_train_var_df.shape[1]), step=1)
+    rfe.fit(X_train_var_df, y_train)
+
+    X_train_rfe = rfe.transform(X_train_var_df)
+    X_test_rfe = rfe.transform(X_test_var_df)
+
+    # Convert back to DataFrame
+    final_feature_names = feature_names[rfe.support_]
+    X_train_rfe_df = pd.DataFrame(X_train_rfe, columns=final_feature_names, index=X_train.index)
+    X_test_rfe_df = pd.DataFrame(X_test_rfe, columns=final_feature_names, index=X_test.index)
+
+    # Step 4: Grid Search for Random Forest (fit on train)
+    rf = RandomForestClassifier(random_state=42)
+    grid_search = GridSearchCV(
+        rf, 
+        param_grid, 
+        cv=3, 
+        scoring='roc_auc', 
+        n_jobs=2,
+        refit=True
+    )
+    grid_search.fit(X_train_rfe_df, y_train)
+
+    best_model = grid_search.best_estimator_
+    best_params = grid_search.best_params_
+
+    # Evaluate on test
+    y_pred_proba = best_model.predict_proba(X_test_rfe_df)[:, 1]
+    y_pred = best_model.predict(X_test_rfe_df)
+
+    roc_auc = roc_auc_score(y_test, y_pred_proba)
+    acc = accuracy_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred)
+
     return {
-        'auc': auc,
-        'best_params': best_params,
-        'n_features_selected': X_train_rfe.shape[1]
+        "roc_auc": float(roc_auc),
+        "accuracy": float(acc),
+        "f1_score": float(f1),
+        "best_params": best_params,
+        "n_estimators_used": best_params.get('n_estimators'),
+        "max_depth_used": best_params.get('max_depth')
     }
 
-@log_operation
-def train_and_evaluate_nested_cv(X: np.ndarray, y: np.ndarray, grid_params: Dict[str, List[Any]]) -> Tuple[List[Dict], Dict[str, Any]]:
+def train_and_evaluate_nested_cv(X: pd.DataFrame, y: pd.Series, 
+                                 param_grid: Dict[str, List], 
+                                 n_folds: int = 5, 
+                                 threshold: int = 3) -> List[Dict[str, Any]]:
     """
-    Perform nested cross-validation.
+    Run nested cross-validation.
     Outer loop: StratifiedKFold for evaluation.
-    Inner loop: GridSearchCV for hyperparameter tuning.
+    Inner loop: GridSearchCV for hyperparameter tuning + feature selection.
     """
-    n_splits = 5
-    outer_cv = StratifiedKFold(n_splits=n_splits, shuffle=True, random_state=RANDOM_SEED)
-    
-    cv_results = []
-    all_best_params = []
-    
-    for fold_idx, (train_idx, test_idx) in enumerate(outer_cv.split(X, y)):
-        logger.log("fold_start", fold=fold_idx, n_train=len(train_idx), n_test=len(test_idx))
+    skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=42)
+    results = []
+
+    for fold_idx, (train_idx, test_idx) in enumerate(skf.split(X, y)):
+        X_train, X_test = X.iloc[train_idx], X.iloc[test_idx]
+        y_train, y_test = y.iloc[train_idx], y.iloc[test_idx]
+
+        fold_result = train_single_fold(X_train, y_train, X_test, y_test, param_grid, threshold)
+        fold_result['fold'] = fold_idx + 1
+        results.append(fold_result)
         
-        fold_result = train_single_fold(X, y, train_idx, test_idx, grid_params)
-        fold_result['fold'] = fold_idx
-        cv_results.append(fold_result)
-        all_best_params.append(fold_result['best_params'])
-        
-        logger.log("fold_end", fold=fold_idx, auc=fold_result['auc'])
-    
-    # Aggregate results
-    mean_auc = np.mean([r['auc'] for r in cv_results])
-    std_auc = np.std([r['auc'] for r in cv_results])
-    
-    # Find most common best params
-    from collections import Counter
-    param_counts = Counter()
-    for p in all_best_params:
-        param_counts[tuple(sorted(p.items()))] += 1
-    best_overall_params = dict(param_counts.most_common(1)[0][0])
-    
-    summary = {
-        'mean_auc': mean_auc,
-        'std_auc': std_auc,
-        'n_splits': n_splits,
-        'best_overall_params': best_overall_params
-    }
-    
-    return cv_results, summary
+        logger.log("fold_complete", fold=fold_idx + 1, roc_auc=fold_result['roc_auc'])
 
-@log_operation
-def persist_model(X: np.ndarray, y: np.ndarray, model: Any, params: Dict[str, Any], output_path: str):
-    """
-    Train a final model on the full dataset and save it.
-    """
-    logger.log("persist_model_start", n_samples=len(y))
-    
-    # Re-run the full pipeline on full data to get the final model object
-    # 1. Collinearity
-    collinearity_step = CollinearityTransformer(threshold=CORR_THRESHOLD)
-    X_coll = collinearity_step.fit_transform(X)
-    
-    # 2. Variance
-    var_thresh = VarianceThreshold(threshold=VAR_THRESHOLD)
-    X_var = var_thresh.fit_transform(X_coll)
-    
-    # 3. RFE
-    base_rf = RandomForestClassifier(n_estimators=100, random_state=RANDOM_SEED, n_jobs=1)
-    rfe = RFE(estimator=base_rf, n_features_to_select=min(MAX_FEATURES, X_var.shape[1]), step=1)
-    rfe.fit(X_var, y)
-    X_rfe = rfe.transform(X_var)
-    
-    # 4. Final RF
-    final_rf = RandomForestClassifier(**params, random_state=RANDOM_SEED, n_jobs=N_JOBS)
-    final_rf.fit(X_rfe, y)
-    
-    # Save components
-    joblib.dump({
-        'model': final_rf,
-        'collinearity': collinearity_step,
-        'variance': var_thresh,
-        'rfe': rfe,
-        'params': params
-    }, output_path)
-    
-    logger.log("persist_model_end", path=output_path)
+    return results
 
-@log_operation
-def write_cv_results(results: List[Dict], summary: Dict, output_path: str):
-    """Write CV results to JSON."""
-    data = {
-        'folds': results,
-        'summary': summary
-    }
-    with open(output_path, 'w') as f:
-        json.dump(data, f, indent=2, default=str)
-    logger.log("write_cv_results_end", path=output_path)
+def persist_model(model: Any, path: Path):
+    with open(path, 'wb') as f:
+        pickle.dump(model, f)
+    logger.log("model_saved", path=str(path))
 
-@log_operation
-def write_model_params(params: Dict, output_path: str):
-    """Write final model parameters to JSON."""
-    with open(output_path, 'w') as f:
-        json.dump(params, f, indent=2)
-    logger.log("write_model_params_end", path=output_path)
+def write_cv_results(results: List[Dict], path: Path):
+    save_json(results, path)
+    logger.log("cv_results_saved", path=str(path), count=len(results))
 
-@log_operation
-def main():
-    """Main entry point for training."""
+def write_model_params(best_params: Dict, path: Path):
+    save_json(best_params, path)
+    logger.log("model_params_saved", path=str(path))
+
+def train_model(threshold: int = 3):
+    """Main training pipeline."""
     start_time = time.time()
-    logger.log("main_start")
     
     # Load data
-    # We need to load the eligible subjects list first to ensure we only train on valid data
-    eligible_file = Path("data/processed/eligible_subjects.csv")
-    if not eligible_file.exists():
-        raise FileNotFoundError(f"Eligible subjects file not found: {eligible_file}")
+    X, y = load_features_and_labels(threshold=threshold)
     
-    eligible_df = pd.read_csv(eligible_file)
-    subject_ids = eligible_df['subject_id'].tolist()
-    
-    if not subject_ids:
-        raise ValueError("No eligible subjects found.")
-    
-    X, y, feature_names = load_features(subject_ids)
-    
-    # Define grid search parameters
-    grid_params = {
-        'n_estimators': N_ESTIMATORS_GRID,
-        'max_depth': MAX_DEPTH_GRID
+    # Define grid
+    param_grid = {
+        'n_estimators': [50, 100, 200],
+        'max_depth': [None, 10, 20]
     }
-    
+
+    logger.log("training_started", n_samples=len(X), param_grid=param_grid)
+
     # Run nested CV
-    cv_results, summary = train_and_evaluate_nested_cv(X, y, grid_params)
+    cv_results = train_and_evaluate_nested_cv(X, y, param_grid, n_folds=5, threshold=threshold)
+
+    # Aggregate best params (take the most common or average, but here we just pick the best from the last fold for simplicity)
+    # In a real scenario, we might retrain on full data with best params.
+    # For now, we'll just save the results and the best params from the grid search of the last fold.
+    # Actually, let's aggregate: find the best params across all folds or just take the best from the first fold?
+    # The task asks for "model_params.json" containing the best parameters found.
+    # We'll take the best params from the fold with the highest ROC-AUC.
+    best_fold = max(cv_results, key=lambda x: x['roc_auc'])
+    best_params = best_fold['best_params']
+
+    # Write outputs
+    write_cv_results(cv_results, CV_RESULTS_FILE)
+    write_model_params(best_params, MODEL_PARAMS_FILE)
+
+    # Train a final model on ALL data with best params (for model.pkl)
+    # We reuse the pipeline logic but without CV splitting
+    # Note: This is a simplification. A full implementation would wrap the whole feature selection + RF in a Pipeline
+    # and refit on all data.
     
-    # Write results
-    cv_results_path = "data/processed/cv_results.json"
-    model_params_path = "data/processed/model_params.json"
-    model_path = "data/processed/model.pkl"
+    # Re-run feature selection on full data (this is acceptable for the final model)
+    collinearity_filter = CollinearityTransformer(threshold=0.95)
+    X_coll = collinearity_filter.fit_transform(X)
     
-    write_cv_results(cv_results, summary, cv_results_path)
+    var_thresh = VarianceThreshold(threshold=0.01)
+    X_var = var_thresh.fit_transform(X_coll)
+    feature_names = X_coll.columns[var_thresh.get_support()]
+    X_var_df = pd.DataFrame(X_var, columns=feature_names, index=X.index)
     
-    # Write best params
-    write_model_params(summary['best_overall_params'], model_params_path)
+    base_rf = RandomForestClassifier(n_estimators=100, random_state=42)
+    rfe = RFE(estimator=base_rf, n_features_to_select=min(20, X_var_df.shape[1]), step=1)
+    rfe.fit(X_var_df, y)
     
-    # Train and persist final model
-    persist_model(X, y, None, summary['best_overall_params'], model_path)
+    X_final = pd.DataFrame(rfe.transform(X_var_df), columns=feature_names[rfe.support()], index=X.index)
     
+    final_model = RandomForestClassifier(**best_params, random_state=42)
+    final_model.fit(X_final, y)
+    
+    persist_model(final_model, MODEL_FILE)
+
     elapsed = time.time() - start_time
-    logger.log("main_end", elapsed_seconds=elapsed, mean_auc=summary['mean_auc'])
+    logger.log("training_complete", elapsed=elapsed, n_folds=5)
     
-    print(f"Training complete. Mean AUC: {summary['mean_auc']:.4f} (+/- {summary['std_auc']:.4f})")
-    print(f"Elapsed time: {elapsed:.2f}s")
+    return cv_results, best_params
+
+def main():
+    parser = argparse.ArgumentParser(description="Train Random Forest model for cognitive decline prediction.")
+    parser.add_argument('--threshold', type=int, default=3, help="Threshold for cognitive decline (default: 3)")
+    args = parser.parse_args()
+
+    logger.log("main_start", threshold=args.threshold)
+    
+    try:
+        train_model(threshold=args.threshold)
+        logger.log("main_success")
+        sys.exit(EXIT_CODE_SUCCESS)
+    except Exception as e:
+        logger.log("error", message=str(e))
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

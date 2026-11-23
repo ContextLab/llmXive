@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2602.08412",
+  "judged_at": "2026-08-05T22:28:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"claw-swe-bench: a benchmark for evaluating openclaw-style agent harnes\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly studies the \"OpenClaw\" agent system mentioned in the user's question, providing empirical evidence on its security vulnerabilities and attack surface, which constitutes the same mechanism and domain variables (OpenClaw agent behavior) required for a literature review on extending benchmarks for this specific agent.",
+  "relevant": true
+}

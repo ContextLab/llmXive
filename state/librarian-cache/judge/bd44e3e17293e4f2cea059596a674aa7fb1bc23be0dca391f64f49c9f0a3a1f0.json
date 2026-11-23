@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2103.02005",
+  "judged_at": "2026-08-04T19:00:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting avian migration patterns from publicly available ebird data biology",
+  "rationale": "The paper focuses on classifying variable stars using astronomical light curves, which is an off-domain topic entirely unrelated to the user's question about predicting avian migration patterns using eBird data. While both involve citizen science, the specific biological domain (birds vs. stars), data type (migration records vs. light curves), and research goals are distinct constructs sharing only the general methodology of volunteer classification.",
+  "relevant": false
+}

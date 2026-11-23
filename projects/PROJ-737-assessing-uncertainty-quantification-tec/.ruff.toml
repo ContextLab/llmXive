@@ -1,20 +1,7 @@
-# Ruff configuration for llmXive project
-target-version = "py311"
-line-length = 88
+[tool.ruff]
+line-length = 120
+select = ["E", "F", "W", "C90"]
+ignore = ["E501"]  # handled by line-length above
 
-[lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # Pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-]
-
-[lint.isort]
-known-first-party = ["code", "tests", "data"]
+[tool.ruff.format]
+quote-style = "double"

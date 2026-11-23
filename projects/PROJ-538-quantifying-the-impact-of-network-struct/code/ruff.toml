@@ -1,0 +1,44 @@
+# Ruff configuration for PROJ-538
+# Enforces PEP8, Pyflakes, and project-specific style guides
+
+[lint]
+# Enable specific rule sets
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # pyflakes
+    "I",    # isort
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "SIM",  # flake8-simplify
+    "ARG",  # flake8-unused-arguments
+    "RUF",  # Ruff-specific rules
+]
+
+# Ignore specific rules that are too strict for research code
+ignore = [
+    "E501",  # Line too long (handled by Black)
+    "D100",  # Missing docstring in public module
+    "D101",  # Missing docstring in public class
+    "D102",  # Missing docstring in public method
+    "D103",  # Missing docstring in public function
+    "D104",  # Missing docstring in public package
+    "D105",  # Missing docstring in magic method
+    "D107",  # Missing docstring in __init__
+    "ARG001", # Unused function argument (sometimes needed for interface compliance)
+    "ARG002", # Unused method argument
+]
+
+# Per-file ignores
+[lint.per-file-ignores]
+"code/__init__.py" = ["F401"]
+"tests/*" = ["D", "ARG"]
+"code/utils.py" = ["D103"]
+"code/models.py" = ["D101"]
+
+[format]
+# Black configuration
+quote-style = "double"
+indent-style = "space"
+line-length = 88
+skip-magic-trailing-comma = false

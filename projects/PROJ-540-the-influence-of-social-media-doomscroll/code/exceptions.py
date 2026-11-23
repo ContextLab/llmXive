@@ -1,9 +1,9 @@
 """
-Custom exceptions for the research pipeline.
+Custom exceptions for the doomscrolling anxiety analysis pipeline.
 """
 
 class PowerLimitationError(Exception):
-    """Raised when statistical power is insufficient for the analysis."""
+    """Raised when the sample size is below the required power threshold."""
     pass
 
 class MathematicalCouplingError(Exception):

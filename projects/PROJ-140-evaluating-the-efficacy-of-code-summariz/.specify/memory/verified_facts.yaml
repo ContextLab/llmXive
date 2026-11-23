@@ -1,0 +1,5 @@
+'|alpha applied bonferroni correction holm':
+  quote: '0.05'
+  source_id: "Holm\u2013Bonferroni method"
+  url: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
+  value: '0.05'

@@ -1,136 +1,87 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: EotvosResult
-description: |
-  Schema for the final Eötvös parameter ($\eta$) estimation results derived from
-  joint orbit determination of multiple satellites (e.g., LAGEOS-1, LAGEOS-2, Etalon-1, Etalon-2, Starlette).
-  This schema defines the structure for `data/results/eotvos_metrics.json`.
-type: object
+%YAML 1.2
+---
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EotvosResult"
+description: "Schema for the final Eötvös parameter estimation result and associated metadata."
+type: "object"
 required:
-  - meta
-  - parameters
-  - statistics
-  - validation
+  - "eta_value"
+  - "confidence_interval"
+  - "p_value"
+  - "sensitivity_sweep_data"
+  - "metadata"
 properties:
-  meta:
-    type: object
-    description: Metadata regarding the run and data sources.
+  eta_value:
+    type: "number"
+    description: "The calculated Eötvös parameter (dimensionless ratio |ac|/g)."
+    minimum: -1.0
+    maximum: 1.0
+  confidence_interval:
+    type: "array"
+    description: "95% confidence interval [lower_bound, upper_bound] for the eta_value."
+    minItems: 2
+    maxItems: 2
+    items:
+      type: "number"
+  p_value:
+    type: "number"
+    description: "P-value from the statistical test (e.g., F-test) comparing the null hypothesis (eta=0) against the alternative."
+    minimum: 0.0
+    maximum: 1.0
+  sensitivity_sweep_data:
+    type: "object"
+    description: "Mapping of geopotential model names to their corresponding z-score sensitivity metrics."
+    additionalProperties:
+      type: "number"
+      description: "Z-score representing the deviation of the result when using this specific geopotential model."
+  metadata:
+    type: "object"
     required:
-      - timestamp
-      - satellites
-      - geopotential_model
-      - data_checksum
+      - "timestamp"
+      - "satellite_pair"
+      - "data_period"
+      - "model_version"
     properties:
       timestamp:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of when the analysis was completed.
-      satellites:
-        type: array
+        type: "string"
+        format: "date-time"
+        description: "ISO 8601 timestamp of when the analysis was completed."
+      satellite_pair:
+        type: "array"
+        description: "List of satellite IDs included in this joint estimation."
+        minItems: 2
         items:
-          type: string
-        description: List of satellite IDs included in the joint solution (e.g., ["LAGEOS-1", "LAGEOS-2"]).
-      geopotential_model:
-        type: string
-        description: Identifier for the geopotential model used (e.g., "GGM05C", "EGM2008").
-      data_checksum:
-        type: string
-        description: SHA-256 checksum of the input cleaned dataset (`data/processed/cleaned_slr_data.csv`).
-      pipeline_version:
-        type: string
-        description: Version of the analysis pipeline (e.g., "1.0.0").
-
-  parameters:
-    type: object
-    description: Estimated physical parameters from the joint least-squares fit.
-    required:
-      - ac
-      - ac_uncertainty
-      - g_local
-      - eta
-      - eta_uncertainty
-    properties:
-      ac:
-        type: number
-        description: Differential acceleration (m/s^2) between the test bodies.
-      ac_uncertainty:
-        type: number
-        description: Standard deviation (1-sigma) of the differential acceleration estimate.
-      g_local:
-        type: number
-        description: Local gravitational acceleration magnitude (m/s^2) at the mean orbital altitude.
-      eta:
-        type: number
-        description: Eötvös parameter ($\eta = |a_c| / g$). Dimensionless.
-      eta_uncertainty:
-        type: number
-        description: Standard deviation (1-sigma) of the Eötvös parameter.
-      ci_95_lower:
-        type: number
-        description: Lower bound of the 95% confidence interval for $\eta$.
-      ci_95_upper:
-        type: number
-        description: Upper bound of the 95% confidence interval for $\eta$.
-
-  statistics:
-    type: object
-    description: Goodness-of-fit and statistical metrics.
-    required:
-      - chi2
-      - dof
-      - reduced_chi2
-      - rms_residuals_mm
-    properties:
-      chi2:
-        type: number
-        description: Total chi-squared value of the joint fit.
-      dof:
-        type: integer
-        description: Degrees of freedom (number of observations minus number of estimated parameters).
-      reduced_chi2:
-        type: number
-        description: Reduced chi-squared ($\chi^2 / \text{dof}$).
-      rms_residuals_mm:
-        type: number
-        description: Root Mean Square of post-fit residuals in millimeters.
-      covariance_matrix:
-        type: array
-        items:
-          type: array
-          items:
-            type: number
-        description: Full covariance matrix of the estimated parameters (flattened or nested array).
-        minItems: 1
-        description: "Nested array representation of the covariance matrix for parameters [ac, g, ...]."
-
-  validation:
-    type: object
-    description: Robustness and sensitivity analysis results.
-    required:
-      - convergence_status
-      - sensitivity_z_variation
-      - reliability_flag
-    properties:
-      convergence_status:
-        type: string
-        enum: [converged, max_iterations_reached, failed]
-        description: Status of the least-squares solver.
-      sensitivity_z_variation:
-        type: number
-        description: Percentage variation in Z-scores when sweeping geopotential models.
-      reliability_flag:
-        type: string
-        enum: [reliable, unreliable]
-        description: "Flag indicating result reliability based on sensitivity thresholds (e.g., variation > 20% -> unreliable)."
-      p_value_null:
-        type: number
-        description: P-value for the null hypothesis ($\eta = 0$).
-      model_comparison:
-        type: object
-        description: Model comparison metrics (AIC/BIC) if applicable.
+          type: "string"
+      data_period:
+        type: "object"
+        description: "Start and end dates of the data used for the analysis."
+        required:
+          - "start_date"
+          - "end_date"
         properties:
-          bic:
-            type: number
-          aic:
-            type: number
-
+          start_date:
+            type: "string"
+            format: "date"
+          end_date:
+            type: "string"
+            format: "date"
+      model_version:
+        type: "string"
+        description: "Version identifier of the dynamics and estimation pipeline used."
+      fit_status:
+        type: "string"
+        enum: ["converged", "max_iterations_reached", "diverged"]
+        description: "Convergence status of the joint least-squares solver."
+      chi2_null:
+        type: "number"
+        description: "Chi-squared value for the null hypothesis (no differential acceleration)."
+      chi2_alt:
+        type: "number"
+        description: "Chi-squared value for the alternative hypothesis (with differential acceleration)."
+      delta_chi2:
+        type: "number"
+        description: "Difference in chi-squared (chi2_null - chi2_alt)."
+      degrees_of_freedom:
+        type: "integer"
+        description: "Degrees of freedom used in the F-test calculation."
 additionalProperties: false

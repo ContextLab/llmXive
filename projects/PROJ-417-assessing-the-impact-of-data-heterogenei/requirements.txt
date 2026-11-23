@@ -5,4 +5,4 @@ scikit-learn
 matplotlib
 pyyaml
 pytest
-requests
+jsonschema

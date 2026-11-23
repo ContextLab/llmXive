@@ -1,3 +1,17 @@
+# ============================================================================
+# DEVIATION NOTE: PyMC5 Implementation
+# ============================================================================
+# This project implements PyMC5 as a deviation from the original specification
+# (FR-002) which requested PyMC3. Per Plan.md "Spec Deviation & Resolution",
+# PyMC3 is deprecated and PyMC5 (successor) is the required standard for
+# Bayesian inference in this pipeline.
+#
+# PyMC5 includes:
+# - Aesara backend (replacing Theano)
+# - Modern NUTS samplers
+# - Improved ArviZ integration
+# ============================================================================
+
 pymc>=5.0.0
 pandas>=2.0.0
 numpy>=1.24.0
@@ -6,9 +20,7 @@ pyyaml>=6.0
 requests>=2.31.0
 seaborn>=0.13.0
 statsmodels>=0.14.0
-pytest>=7.4.0
+arviz>=0.15.0
 pydantic>=2.0.0
-black>=23.0.0
 ruff>=0.1.0
-matplotlib>=3.7.0
-arviz>=0.16.0
+black>=23.0.0

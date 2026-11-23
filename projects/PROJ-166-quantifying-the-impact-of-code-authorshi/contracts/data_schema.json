@@ -1,63 +1,158 @@
 {
-  "$schema": "http://json-schema.org/draft-07/schema#",
-  "title": "Research Data Schemas",
-  "description": "Schema definitions for raw and processed data artifacts in the llmXive pipeline.",
-  "definitions": {
+  "version": "1.0.0",
+  "description": "Schema definitions for the Code Authorship Diversity project datasets.",
+  "datasets": {
     "target_list": {
-      "description": "Schema for data/raw/target_list.csv",
-      "type": "object",
-      "properties": {
-        "url": { "type": "string", "description": "Full GitHub repository URL" },
-        "language": { "type": "string", "description": "Primary programming language" },
-        "stars": { "type": "integer", "minimum": 0, "description": "GitHub star count" },
-        "age": { "type": "integer", "description": "Repository age in days" }
-      },
-      "required": ["url", "language", "stars", "age"],
-      "additionalProperties": false
+      "file": "data/raw/target_list.csv",
+      "description": "List of target repositories to analyze.",
+      "columns": {
+        "url": {
+          "type": "string",
+          "description": "Full GitHub repository URL (e.g., https://github.com/owner/repo).",
+          "nullable": false,
+          "unique": true
+        },
+        "primary_language": {
+          "type": "string",
+          "description": "Primary programming language of the repository.",
+          "nullable": false
+        },
+        "stars": {
+          "type": "integer",
+          "description": "Number of GitHub stars at the time of selection.",
+          "nullable": false
+        },
+        "age": {
+          "type": "integer",
+          "description": "Age of the repository in days since creation.",
+          "nullable": false
+        }
+      }
     },
     "github_raw_metrics": {
-      "description": "Schema for data/processed/github_raw_metrics.csv",
-      "type": "object",
-      "properties": {
-        "url": { "type": "string", "description": "Full GitHub repository URL" },
-        "unique_authors": { "type": "integer", "minimum": 1, "description": "Count of unique authors with >=1 line of code" },
-        "raw_line_count": { "type": "integer", "minimum": 0, "description": "Total lines of code from cloc" },
-        "kloc": { "type": "number", "minimum": 0, "description": "Kilo-lines of code (raw_line_count / 1000)" }
-      },
-      "required": ["url", "unique_authors", "raw_line_count", "kloc"],
-      "additionalProperties": false
-    },
-    "repo_metrics": {
-      "description": "Schema for data/processed/repo_metrics.csv (merged dataset)",
-      "type": "object",
-      "properties": {
-        "url": { "type": "string", "description": "Full GitHub repository URL" },
-        "language": { "type": "string", "description": "Primary programming language" },
-        "unique_authors": { "type": "integer", "minimum": 1, "description": "Count of unique authors" },
-        "kloc": { "type": "number", "minimum": 0, "description": "Kilo-lines of code" },
-        "cve_count": { "type": "integer", "minimum": 0, "description": "Number of associated CVEs" },
-        "project_age": { "type": "integer", "description": "Project age in days" },
-        "release_count": { "type": "integer", "minimum": 0, "description": "Number of GitHub releases" }
-      },
-      "required": ["url", "language", "unique_authors", "kloc", "cve_count", "project_age", "release_count"],
-      "additionalProperties": false
+      "file": "data/processed/github_raw_metrics.csv",
+      "description": "Raw metrics extracted from GitHub repositories.",
+      "columns": {
+        "url": {
+          "type": "string",
+          "description": "Repository URL (foreign key to target_list).",
+          "nullable": false
+        },
+        "primary_language": {
+          "type": "string",
+          "description": "Primary language.",
+          "nullable": false
+        },
+        "unique_authors": {
+          "type": "integer",
+          "description": "Count of unique author emails found in git log.",
+          "nullable": false
+        },
+        "raw_line_count": {
+          "type": "integer",
+          "description": "Total lines of code from cloc.",
+          "nullable": false
+        },
+        "kloc": {
+          "type": "float",
+          "description": "Kilo-lines of code (raw_line_count / 1000).",
+          "nullable": false
+        }
+      }
     },
     "nvd_cve_merged": {
-      "description": "Schema for data/raw/nvd_cve_merged.json.gz structure",
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "cve_id": { "type": "string" },
-          "published": { "type": "string", "format": "date-time" },
-          "descriptions": { "type": "array", "items": { "type": "object" } },
-          "references": { "type": "array", "items": { "type": "object" } },
-          "metrics": { "type": "object" }
+      "file": "data/raw/nvd_cve_merged.json.gz",
+      "description": "Merged and deduplicated NVD CVE data.",
+      "format": "gzip-compressed JSON",
+      "record_fields": {
+        "cve_id": {
+          "type": "string",
+          "description": "Unique CVE identifier."
         },
-        "required": ["cve_id"]
+        "url": {
+          "type": "string",
+          "description": "Associated project URL if available."
+        },
+        "published_date": {
+          "type": "string",
+          "description": "ISO 8601 date string."
+        }
+      }
+    },
+    "repo_metrics": {
+      "file": "data/processed/repo_metrics.csv",
+      "description": "Merged dataset of GitHub metrics and CVE counts.",
+      "columns": {
+        "url": {
+          "type": "string",
+          "description": "Repository URL.",
+          "nullable": false
+        },
+        "primary_language": {
+          "type": "string",
+          "description": "Primary language.",
+          "nullable": false
+        },
+        "unique_authors": {
+          "type": "integer",
+          "description": "Number of unique authors.",
+          "nullable": false
+        },
+        "kloc": {
+          "type": "float",
+          "description": "Kilo-lines of code.",
+          "nullable": false
+        },
+        "cve_count": {
+          "type": "integer",
+          "description": "Number of CVEs associated with this URL.",
+          "nullable": false
+        },
+        "project_age": {
+          "type": "integer",
+          "description": "Age in days.",
+          "nullable": false
+        },
+        "release_count": {
+          "type": "integer",
+          "description": "Number of releases (if available, else 0).",
+          "nullable": false
+        }
+      }
+    },
+    "repo_metrics_clean": {
+      "file": "data/processed/repo_metrics_clean.csv",
+      "description": "Validated dataset with nulls handled for analysis.",
+      "columns": {
+        "url": {
+          "type": "string",
+          "nullable": false
+        },
+        "primary_language": {
+          "type": "string",
+          "nullable": false
+        },
+        "unique_authors": {
+          "type": "integer",
+          "nullable": false
+        },
+        "kloc": {
+          "type": "float",
+          "nullable": false
+        },
+        "cve_count": {
+          "type": "integer",
+          "nullable": false
+        },
+        "project_age": {
+          "type": "integer",
+          "nullable": false
+        },
+        "release_count": {
+          "type": "integer",
+          "nullable": false
+        }
       }
     }
-  },
-  "version": "1.0.0",
-  "created_at": "2023-10-27T00:00:00Z"
+  }
 }

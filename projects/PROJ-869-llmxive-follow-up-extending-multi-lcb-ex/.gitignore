@@ -1,0 +1,47 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+
+# Data
+data/raw/*
+!data/raw/.gitkeep
+data/processed/*
+!data/processed/.gitkeep
+*.json
+!data/*.json
+!data/raw/*.json
+!data/processed/*.json
+data/checksums.json
+data/feasibility_log.json
+data/blind_baseline_logs.json
+data/final_tasks_enriched.json
+data/initial_pool.json
+data/blind_filter_runs.json
+data/filtered_tasks.json
+data/anchors.json
+data/guided_results.json
+data/statistical_report.yaml
+data/results.csv
+data/power_metric.yaml
+data/power_check.yaml
+data/pipeline_state.json
+
+# Logs
+*.log
+logs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

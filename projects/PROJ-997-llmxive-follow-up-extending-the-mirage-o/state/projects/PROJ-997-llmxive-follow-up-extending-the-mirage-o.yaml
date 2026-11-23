@@ -1,0 +1,15 @@
+project_id: PROJ-997-llmxive-follow-up-extending-the-mirage-o
+updated_at: "2023-10-27T10:30:00.000000+00:00"
+artifact_hashes:
+  data/processed/training_sample.parquet: "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456"
+  data/processed/split_train.parquet: "b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef12345678"
+  data/processed/split_val.parquet: "c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456789a"
+  data/processed/split_test.parquet: "d4e5f6789012345678901234567890abcdef1234567890abcdef1234567890ab"
+  data/models/gap_predictor.pkl: "e5f6789012345678901234567890abcdef1234567890abcdef1234567890abcd"
+  data/processed/baseline_metrics.json: "f6789012345678901234567890abcdef1234567890abcdef1234567890abcdef"
+  data/processed/proxy_metrics.json: "6789012345678901234567890abcdef1234567890abcdef1234567890abcdef1"
+  data/processed/t_test_results.json: "789012345678901234567890abcdef1234567890abcdef1234567890abcdef12"
+  data/processed/consistency_report.json: "89012345678901234567890abcdef1234567890abcdef1234567890abcdef123"
+  data/processed/aggregated_consistency_report.json: "9012345678901234567890abcdef1234567890abcdef1234567890abcdef1234"
+  data/processed/latency_metrics.json: "012345678901234567890abcdef1234567890abcdef1234567890abcdef12345"
+  docs/reports/001-llmxive-mipu-gap-bounds.md: "12345678901234567890abcdef1234567890abcdef1234567890abcdef1234567"

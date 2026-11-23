@@ -57,5 +57,15 @@
     "tables/tab_mmsi_zeroshot.tex",
     "tables/tab_viewspatial_zeroshot.tex",
     "tables/tab_vsr_vsc.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "40775577f37ff447695be7993a779a1454b47d0cb99a8ca34f980d1d8910f611",
+      "bytes": 9348730
+    },
+    "original.pdf": {
+      "sha256": "a527b62f46a0afa8d1283f3691970b17e7db74ae1eb6d5903d0878b97dec9cc1",
+      "bytes": 9304040
+    }
+  }
 }

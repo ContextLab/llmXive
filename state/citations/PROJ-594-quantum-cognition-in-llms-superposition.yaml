@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 026dca8f206fbffa1737bdab57026991e6f835a50b73a6ba3a090bf602730f37
+  artifact_path: projects/PROJ-594-quantum-cognition-in-llms-superposition/specs/001-quantum-cognition-in-llms-superposition/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Pi - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Pi
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Pi
+  verified_at: '2026-08-21T09:33:09.867939Z'

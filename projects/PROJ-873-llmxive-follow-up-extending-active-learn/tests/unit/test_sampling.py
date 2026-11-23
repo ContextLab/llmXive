@@ -1,88 +1,107 @@
-"""
-Unit tests for T013b sampling logic.
-"""
-import pytest
 import json
 import os
+import random
 import tempfile
-from unittest.mock import patch, MagicMock
-from collections import defaultdict
+import random
+import pytest
+from pathlib import Path
 
-# Import the module to test
-# Note: In a real run, these would be imported from code.sampling
-# Here we assume the structure is set up correctly
+# Adjust path if running from tests/unit
 import sys
-import os
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "code"))
 
 from sampling import (
+    load_comparison_logs,
     filter_wasted_calls,
-    stratify_by_query,
-    select_stratified_sample,
-    calculate_dynamic_sample_size
+    load_sample_config,
+    select_simple_random_sample,
+    run_sampling_pipeline
 )
-from metrics import calculate_dynamic_sample_size as calc_dynamic_size
 
+@pytest.fixture
+def temp_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
 
-def test_filter_wasted_calls():
-    """Test that filter_wasted_calls correctly identifies high similarity pairs."""
-    data = [
-        {"query_id": "q1", "cosine_similarity": 0.96},
-        {"query_id": "q2", "cosine_similarity": 0.94},
-        {"query_id": "q3", "cosine_similarity": 0.99},
-        {"query_id": "q4", "cosine_similarity": 0.50},
+@pytest.fixture
+def sample_log_data():
+    return [
+        {"pair_id": "p1", "doc1_id": "d1", "doc2_id": "d2", "cosine_sim": 0.96, "is_wasted": True, "timestamp": "2023-01-01T00:00:00"},
+        {"pair_id": "p2", "doc1_id": "d3", "doc2_id": "d4", "cosine_sim": 0.94, "is_wasted": False, "timestamp": "2023-01-01T00:00:01"},
+        {"pair_id": "p3", "doc1_id": "d5", "doc2_id": "d6", "cosine_sim": 0.99, "is_wasted": True, "timestamp": "2023-01-01T00:00:02"},
+        {"pair_id": "p4", "doc1_id": "d7", "doc2_id": "d8", "cosine_sim": 0.80, "is_wasted": False, "timestamp": "2023-01-01T00:00:03"},
+        {"pair_id": "p5", "doc1_id": "d9", "doc2_id": "d10", "cosine_sim": 0.97, "is_wasted": True, "timestamp": "2023-01-01T00:00:04"},
     ]
-    
-    wasted = filter_wasted_calls(data, threshold=0.95)
-    
-    assert len(wasted) == 2
-    assert wasted[0]["query_id"] == "q1"
-    assert wasted[1]["query_id"] == "q3"
 
+@pytest.fixture
+def sample_config():
+    return {
+        "sample_size": 2,
+        "minimum_threshold": 10,
+        "percentage": 0.05,
+        "skip_validation": False
+    }
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.json') as f:
+        json.dump(config, f)
+        return f.name
 
-def test_stratify_by_query():
-    """Test grouping by query ID."""
-    data = [
-        {"query_id": "q1", "similarity": 0.96},
-        {"query_id": "q1", "similarity": 0.97},
-        {"query_id": "q2", "similarity": 0.98},
-    ]
+def test_load_comparison_logs(temp_dir, sample_log_data):
+    log_path = os.path.join(temp_dir, "test_log.json")
+    with open(log_path, "w") as f:
+        for record in sample_log_data:
+            f.write(json.dumps(record) + "\n")
     
-    strata = stratify_by_query(data)
-    
-    assert len(strata) == 2
-    assert len(strata["q1"]) == 2
-    assert len(strata["q2"]) == 1
+    loaded = load_comparison_logs(log_path)
+    assert len(loaded) == 5
+    assert loaded[0]["pair_id"] == "p1"
 
+def test_filter_wasted_calls(sample_log_data):
+    filtered = filter_wasted_calls(sample_log_data, threshold=0.95)
+    assert len(filtered) == 3
+    assert all(r["cosine_sim"] > 0.95 for r in filtered)
+    pair_ids = {r["pair_id"] for r in filtered}
+    assert pair_ids == {"p1", "p3", "p5"}
 
-def test_select_stratified_sample():
-    """Test proportional stratified sampling."""
-    # Create a scenario with 2 queries: q1 has 10 items, q2 has 2 items
-    data = []
-    for i in range(10):
-        data.append({"query_id": "q1", "id": f"q1_{i}"})
-    for i in range(2):
-        data.append({"query_id": "q2", "id": f"q2_{i}"})
+def test_load_sample_config(temp_dir, sample_config):
+    config_path = os.path.join(temp_dir, "config.json")
+    with open(config_path, "w") as f:
+        json.dump(sample_config, f)
     
-    # Target sample size 6
-    # Expected: q1 gets ~5, q2 gets ~1 (proportional)
-    sample = select_stratified_sample(data, target_sample_size=6)
-    
-    assert len(sample) == 6
-    
-    q1_count = sum(1 for x in sample if x["query_id"] == "q1")
-    q2_count = sum(1 for x in sample if x["query_id"] == "q2")
-    
-    # Verify proportional distribution (approximate)
-    assert q1_count >= 4
-    assert q2_count >= 0
+    loaded = load_sample_config(config_path)
+    assert loaded["sample_size"] == 2
 
+def test_select_simple_random_sample():
+    candidates = [{"id": i} for i in range(10)]
+    seed = 42
+    random.seed(seed)
+    indices = select_simple_random_sample(candidates, 3, seed)
+    assert len(indices) == 3
+    assert all(0 <= i < 10 for i in indices)
+    assert len(set(indices)) == 3  # No duplicates
 
-def test_dynamic_sample_size_calculation():
-    """Test the dynamic sample size formula."""
-    # Formula: min(deferred, upper_bound)
-    # If deferred is 1000 and upper_bound is 100, result should be 100
-    assert calculate_dynamic_sample_size(1000, 100) == 100
+def test_run_sampling_pipeline(temp_dir, sample_log_data, sample_config):
+    log_path = os.path.join(temp_dir, "log.json")
+    config_path = os.path.join(temp_dir, "config.json")
+    output_path = os.path.join(temp_dir, "sample.json")
     
-    # If deferred is 50 and upper_bound is 100, result should be 50
-    assert calculate_dynamic_sample_size(50, 100) == 50
+    with open(log_path, "w") as f:
+        for r in sample_log_data:
+            f.write(json.dumps(r) + "\n")
+    
+    with open(config_path, "w") as f:
+        json.dump(sample_config, f)
+    
+    result = run_sampling_pipeline(
+        log_path=log_path,
+        config_path=config_path,
+        output_path=output_path,
+        threshold=0.95
+    )
+    
+    assert os.path.exists(output_path)
+    with open(output_path, "r") as f:
+        sample_indices = json.load(f)
+    
+    assert len(sample_indices) == 2
+    assert isinstance(sample_indices, list)
+    assert all(isinstance(i, int) for i in sample_indices)

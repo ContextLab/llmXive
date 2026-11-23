@@ -1,0 +1,46 @@
+# Environment configuration for llmXive Follow-up: Reward Fidelity vs. Error Recovery Density
+# This file defines the runtime environment, logging paths, and default parameters.
+
+project:
+  name: "llmXive-follow-up-extending-long-horizon"
+  version: "1.0.0"
+  root_dir: "."
+
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  source_dataset: "lmz/agentbench"
+
+logging:
+  level: "INFO"
+  file_path: "logs/run.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  # Custom format for structured research metrics
+  structured_format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s - %(extra_json)s"
+  handlers:
+    - type: "file"
+      path: "logs/run.log"
+      level: "INFO"
+    - type: "console"
+      level: "INFO"
+
+default_experiment:
+  # Default reward fidelity level for baseline runs (dense, binary, 3-bin)
+  reward_fidelity_level: "dense"
+  # Default pruning strategy (none, random, fidelity_based)
+  pruning_strategy: "none"
+  # Model configuration
+  model:
+    name: "Llama-3-8B"
+    quantization: "Q4_K_M"
+    fallback: "Qwen-1.5-1.8B"
+
+thresholds:
+  # Recovery segment contribution threshold (FR-007)
+  recovery_segment_threshold: 0.05
+
+execution:
+  # Timeout for single task execution (seconds)
+  timeout_seconds: 300
+  # Number of tasks to process in a single run (None for all)
+  max_tasks: null

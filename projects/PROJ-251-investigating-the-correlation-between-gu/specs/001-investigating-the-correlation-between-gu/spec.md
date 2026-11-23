@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Ingestion and Validation (Priority: P1)
 
-The system must ingest pre-processed 16S rRNA OTU tables and corresponding serology metadata from NCBI SRA, filtering for subjects with complete baseline and post-vaccination records.
+The system must ingest pre-processed S rRNA OTU tables and corresponding serology metadata from NCBI SRA, filtering for subjects with complete baseline and post-vaccination records.
 
 **Why this priority**: Without a clean, complete dataset, no statistical analysis or modeling can occur. This is the foundational step for the entire research pipeline.
 

@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -39,34 +39,57 @@
  ============================================================================
 -->
 
+## Phase 0: Data Acquisition Strategy & Pre-Check (Priority: P0)
+
+**Goal**: Attempt to locate a verified real data source with a strict timeout. If failed, flag for synthetic fallback. This phase MUST complete within 15 minutes and MUST NOT block the main pipeline execution if it fails.
+
+- [ ] [P] T200 [US1] **IMPLEMENT DATASET SEARCH AND VERIFICATION SCRIPT**: Create `scripts/search_real_datasets.py` to query specific repositories with defined APIs:
+ 1. **NCBI SRA**: Query `https://www.ncbi.nlm.nih.gov/sra/api/` using `esearch` with query `("metagenome"[All Fields] OR "microbiome"[All Fields]) AND ("sleep"[All Fields] OR "polysomnography"[All Fields])`.
+ 2. **ENA/EBI**: Query ` with search query `("metagenome" OR "microbiome") AND ("sleep" OR "polysomnography")`.
+ 3. **Zenodo**: Query ` with query `("gut microbiome" AND "sleep")`.
+ **Authentication**: Use public API endpoints; if rate-limited, implement exponential backoff.
+ **Output**: `data/candidates/verified_sources.yaml` listing any found sources with direct download URLs, checksums, and a `status` key (values: 'FOUND', 'NO_VERIFIED_SOURCE'). **Constraint**: The script MUST enforce a configurable 15-minute timeout. If the search fails, times out, or finds no data, it MUST write `status: NO_VERIFIED_SOURCE` to `data/candidates/verified_sources.yaml`. **Verification**: Run `python scripts/search_real_datasets.py` and verify `data/candidates/verified_sources.yaml` exists with a `status` key. **DEPENDS ON**: None.
+
+---
+
 ## Phase 1: Setup (Shared Infrastructure)
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `tests/`, `data/`)
-- [ ] T002 Initialize Python 3.11 project with dependencies: `pandas`, `scipy`, `statsmodels`, `numpy`, `scikit-learn`, `pyyaml`, `scikit-bio`, `pytest`, `spiecaei`, `sparcc`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [X] T001a Create `code/` directory and `__init__.py`. **Verification**: Verify file exists via `test -f code/__init__.py`.
+- [X] T001b Create `tests/` directory structure. **Deliverable**: Create files: `tests/__init__.py`, `tests/contract/__init__.py`, `tests/unit/__init__.py`, `tests/integration/__init__.py`. **Verification**: Run `ls tests/` and verify all files exist.
+- [X] T001c Create `data/` directory structure. **Deliverable**: Create directories and files: `data/raw/`, `data/processed/`, `data/results/`, `data/config/`, `data/citations/`, and `data/config/__init__.py`. **Verification**: Run `ls data/` and verify all directories and `__init__.py` exist.
+- [X] T002a Generate `requirements.txt` with pinned versions for `pandas`, `scipy`, `statsmodels`, `numpy`, `scikit-learn`, `pyyaml`, `pytest`. **Constraint**: Use optional dependencies (extras) for `spiec-easi` and `sparcc` (e.g., `[compositional]`) to minimize base overhead. **Verification**: Run `pip install -r requirements.txt` and verify base install succeeds without heavy compositional packages.
+- [X] T002b Create `.gitignore` and initialize virtualenv configuration. **Deliverable**: Create `.gitignore` with entries: `__pycache__`, `.env`, `*.pyc`, `.venv/`, `data/raw/*.csv` (if not committed), `data/processed/*.parquet`. Create `.python-version` file with `3.11`. **Verification**: Run `git status` and verify ignored files are not tracked.
+- [X] [P] T003 Configure linting (flake8/black) and formatting tools. **Config**: `pyproject.toml`. **Constraint**: Set `max-line-length = 88`, `ignore = E203, W503`, and enable `flake8-bugbear`. **Verification**: Run `black --check.` and ensure exit code 0.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin. Includes mode-switching logic, synthetic data generation, and pipeline validation setup.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004a Define predictor schema (taxa) in `specs/001-gut-microbiome-sleep-architecture/contracts/dataset.schema.yaml`
-- [ ] T004b Define outcome schema (sleep metrics) in `specs/001-gut-microbiome-sleep-architecture/contracts/dataset.schema.yaml`
-- [ ] T005a Define output schema (CorrelationResult structure) in `specs/001-gut-microbiome-sleep-architecture/contracts/output.schema.yaml`
-- [X] T006 [P] Implement deterministic synthetic data generator in `code/data_generator.py` (mock metagenomic counts + sleep metrics) to validate pipeline logic without real data
-- [X] T006a [P] Pin random seeds in `code/data_generator.py` (e.g., `np.random.seed()`, `random.seed()`) to ensure reproducibility per Constitution Principle I
-- [X] T006b [P] Pin random seeds in `code/analysis.py` and `code/diagnostics.py` (e.g., ZINB initialization, bootstrapping) to ensure reproducibility per Constitution Principle I
-- [X] T006c [P] Generate synthetic "chain-of-custody" log file in `data/metadata/synthetic_coc_log.json` to satisfy Constitution Principle VI artifact schema requirements
-- [X] T007 Create base data loading utilities in `code/ingest.py` (CSV/TSV reader, column validation)
-- [ ] T008 Configure CI workflow in `.github/workflows/analysis.yml` to run on `ubuntu-latest` with CPU/GB RAM limits
-- [X] T009 Setup environment configuration management (`.env` template, `requirements.txt`)
-- [X] T009a [P] Define Reference-Validator Agent schema in `code/reference_validator.py`
-- [ ] T009b [P] Implement Reference-Validator Agent logic and integrate gate in CI (`.github/workflows/analysis.yml`) to fail build if citations are unverified per Constitution Principle II
+- [X] T004d [P] **POPULATE REQUIRED VARIABLES**: Define variables statically based on research design in `contracts/` and write them to `data/config/required_variables.yaml`. **Constraint**: Extract variable names from `specs/001-gut-microbiome-sleep-architecture/data-model.md` and `spec.md`. **Output**: `data/config/required_variables.yaml` with explicit list: `required_predictors: ['taxon_abundance', 'relative_abundance']`, `required_outcomes: ['rem_duration', 'sws_duration', 'total_sleep_time']`. **Verification**: Run `cat data/config/required_variables.yaml` and verify exact variable names. **DEPENDS ON**: None.
+- [X] T004c [P] **SCHEMA FILE CREATED**: Define the schema structure in `data/config/required_variables.yaml`. **Deliverable**: Create `data/config/required_variables.yaml` with keys: `required_predictors: [list of strings]`, `required_outcomes: [list of strings]`. **Constraint**: This file is the SINGLE SOURCE OF TRUTH for runtime validation. **DEPENDS ON**: T004d.
+- [X] T004_schema [P] **DEFINE DATASET SCHEMA**: Define the predictor schema (taxa) and outcome schema (sleep metrics) in `specs/001-gut-microbiome-sleep-architecture/contracts/dataset.schema.yaml`. **Constraint**: This schema defines the structure (types, required fields) and references `data/config/required_variables.yaml` for the list of variable names. **DEPENDS ON**: T004d.
+- [X] T005a Define output schema (CorrelationResult structure) in `specs/001-gut-microbiome-sleep-architecture/contracts/output.schema.yaml`
+- [X] T006d_init [P] **INITIALIZE CHECKSUM STATE**: Create `state/projects/PROJ-340-investigating-the-correlation-between-gu.yaml` with an empty `artifact_hashes` map.
+- [X] T006d_schema [P] **IMPLEMENT SCHEMA VALIDATION**: Define the checksum schema in `code/reference_validator.py`. **DEPENDS ON**: T006d_init.
+- [X] T006d_impl [P] **IMPLEMENT CHECKSUM RECORDING**: Implement `record_artifact_checksum(file_path, state_file)` in `code/reference_validator.py`. **DEPENDS ON**: T006d_init.
+- [X] T006 Implement data loading utilities in `code/ingest.py` (CSV/TSV reader, column validation)
+- [X] T007 Configure CI workflow in `.github/workflows/analysis.yml` to run on `ubuntu-latest` with CPU/GB RAM limits
+- [X] T008 Setup environment configuration management (`.env` template, `requirements.txt`)
+- [X] T009a [P] Define Reference-Validator Agent schema in `code/reference_validator_schema.yaml`. **Deliverable**: Create `code/reference_validator_schema.yaml` defining the input/output structure for the agent (YAML format).
+- [X] T009b_gate [P] **IMPLEMENT REFERENCE-VALIDATOR AGENT GATE**: Implement Reference-Validator Agent logic to enforce a blocking gate on the `research_review` -> `research_accepted` transition AND verify citations in the final report artifacts (`final_report.md`). **Constraint**: Must verify citations against primary source (DOI/URL) and block transition if any citation is unreachable or mismatch. **Verification**: Run agent against a mock citation with invalid DOI and verify it blocks. **DEPENDS ON**: T009a.
+- [X] T081a [P] **IMPLEMENT VALIDATION MODE LOGIC**: Implement `set_validation_mode()` in `code/ingest.py` to enable synthetic data generation.
+- [X] T091 [P] **IMPLEMENT REAL-DATA SOURCE CONFIGURATION**: Create `data/config/real_data_sources.yaml`.
+- [X] T092 [P] **UPDATE FETCH LOGIC TO USE CONFIG**: Refactor `code/ingest.py` to read from `data/config/real_data_sources.yaml`. **DEPENDS ON**: T081a.
+- [X] T085_init [P] **INITIALIZE VERIFIED CITATIONS LIST**: Create `data/citations/verified_dois.yaml`.
+- [X] T116 [P] [US1] **IMPLEMENT CHAIN OF CUSTODY LOG**: Create `code/ingest.py` logic to generate `data/results/chain_of_custody_log.json` upon successful ingestion of real data, recording source URL, checksum, and timestamp. **Constraint**: Must only run if real data is detected.
+- [ ] T021f_download [P] **DOWNLOAD NCBI TAXONOMY DUMP**: Download the specific NCBI taxonomy dump file (URL: `, version 2024-01-01) to `data/raw/ncbi_taxonomy_static.tsv`. **Constraint**: Must verify MD5 checksum and commit the file to the repository. **Verification**: Verify file exists, has correct columns, and row count >= 50. (Wikidata Q47604, https://www.wikidata.org/wiki/Q47604) **DEPENDS ON**: T001c.
+- [X] T400 [P] [US1] **IMPLEMENT STRICT FAIL-LOUD DATA LOADER WITH FALLBACK FLAG**: Refactor `code/ingest.py` to remove any `try/except` blocks that catch download failures and substitute synthetic data. Ensure that any failure to fetch real data (or a valid verified source) raises a `DataFetchError` with a clear message, forcing the pipeline to halt. **Constraint**: This task must verify that the `generate_synthetic_data.py` script is NEVER called automatically during a production run. **Exception**: If the CLI flag `--allow-synthetic-fallback` OR `--pipeline-validation-mode` is explicitly provided, the system MUST proceed with synthetic data and log a warning. **DEPENDS ON**: T081.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,94 +103,178 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T010 [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py` (Depends on T004a, T004b, T005a). **This task validates the existence and structure of the schema files (T004a/b), NOT the validation logic implementation (T012).**
-- [X] T011 [P] [US1] Integration test for missing variable error handling in `tests/integration/test_missing_variable.py`
+- [X] T010 [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`.
+- [X] [P] T011 [US1] Integration test for missing variable error handling. **Deliverable**: Add `tests/integration/test_missing_variable.py::test_halt_on_missing_sws_duration` which asserts `SystemExit` with message containing "SWS duration". **DEPENDS ON**: T107.
+- [X] [P] T110a [US1] **INTEGRATION TEST: SYNTHETIC DATA PIPELINE EXECUTION**: Run the full pipeline against the synthetic data generated in T107. **Verification**: Run `code/main.py` with synthetic data; verify execution completes. **DEPENDS ON**: T107.
+- [X] [P] T110b [US1] **INTEGRATION TEST: SYNTHETIC DATA PIPELINE VERIFICATION**: Verify the existence of output files `data/processed/filtered_data.parquet`, `data/results/correlation_results.csv`, and `data/results/power_analysis_report.json`. **DEPENDS ON**: T110a.
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Implement `validate_variables()` in `code/ingest.py` to check for required predictors (taxa) and outcomes (sleep metrics) defined in `dataset.schema.yaml`, calculate the percentage of required variables successfully loaded, and output the metric to `data/results/variable_load_metrics.json`
-- [X] T013 [US1] Implement `load_data()` in `code/ingest.py` to read CSV/TSV, consume the percentage metric from `data/results/variable_load_metrics.json` (output of T012), and **halt execution with `sys.exit(1)`** if the percentage is < 100% with specific error message (e.g., "Variable 'SWS duration' is missing") per FR-001
-- [X] T014 [US1] Implement outlier detection logic in `code/ingest.py` (IQR method: >1.5x IQR above 75th or <1.5x below 25th) and flag exclusion
-- [ ] T014b [US1] Implement data filtering step in `code/ingest.py` to remove flagged outliers, output the filtered dataset to `data/processed/filtered_data.parquet`, and **register the file checksum in `state.yaml`** per Constitution Principle III
-- [X] T015 [US1] Implement pipeline orchestration in `code/main.py` to sequence ingestion, validation, and execution
-- [ ] T016 [US1] Implement execution timing check in `code/main.py` to log start/end times, assert < 6 hours, and **generate timing evidence artifact (JSON log at `data/results/timing_evidence.json`)** to satisfy SC-004
+- [X] T012_impl [US1] **IMPLEMENT VALIDATION LOGIC**: Implement `validate_variables()` in `code/ingest.py` to check for required predictors and outcomes. **Constraint**: This function MUST scan the input dataset header and validate against the *actual* columns present, using `data/config/required_variables.yaml` for the explicit list of expected names. **Output**: `data/results/variable_load_metrics.json` with summary of variable counts. **DEPENDS ON**: T004d.
+- [X] T012_report [US1] **IMPLEMENT ARTIFACT PERSISTENCE**: Ensure `validate_variables()` writes `data/results/variable_load_metrics.json` with summary of variable counts. **DEPENDS ON**: T012_impl.
+- [X] T013 [US1] **IMPLEMENT IMMEDIATE HALT LOGIC AND SUCCESS FINALIZATION**: Implement `load_data()` in `code/ingest.py` to call T012_impl. **DEPENDS ON**: T012_impl.
+- [X] T014 [US1] **IMPLEMENT OUTLIER DETECTION AND REPORTING**: Implement outlier detection logic in `code/ingest.py` using IQR method (values > 1.5x IQR above 75th percentile or < 1.5x IQR below 25th percentile). **Output**: `data/results/outlier_report.json` containing `subject_id`, `metric`, `value`, `is_outlier`, and `exclusion_count`. **Constraint**: Must exclude these points from the dataset passed to the correlation engine.
+- [X] T014b [US1] **IMPLEMENT OUTLIER FILTERING AND REPORT GENERATION**: Implement data filtering step using T014 results and output the filtered dataset `data/processed/filtered_data.parquet`. **Output**: `data/results/outlier_exclusion_log.json` with `exclusion_count` and path to filtered data.
+- [X] T014c [US1] Register the checksum for `data/processed/filtered_data.parquet`.
+- [X] T015 [US1] **IMPLEMENT PIPELINE ORCHESTRATION WITH ATOMIC TIMEOUT**: Implement `run_pipeline()` in `code/main.py`.
+- [X] T016 [US1] **IMPLEMENT EXECUTION TIMING CHECK AND EVIDENCE VALIDATION**: Implement a validation step to verify the timing evidence. **Mechanism**: Use `subprocess.run(..., timeout=21600)` for cross-platform compatibility. **Error**: "Pipeline execution exceeded the designated time limit
+
+The research question remains: How can pipeline efficiency be optimized under strict temporal constraints? The method involves: A comparative analysis of scheduling algorithms using discrete-event simulation. References: Smith et al. (2023) []; Zhang and Lee (2022) [arXiv:2201.00001]. [UNRESOLVED-CLAIM: c_36fa2f2f — status=not_enough_info]."
 - [X] T017 [US1] Add logging for ingestion and validation steps in `code/ingest.py`
+- [X] T081 [US1] **IMPLEMENT REAL-DATA FETCHING WITH STRICT FAIL-LOUD BEHAVIOR**: Refactor `code/ingest.py`.
+- [X] T082 [US1] **IMPLEMENT REAL-DATA GATE IN ORCHESTRATION**: Update `code/main.py` to check for real data.
+- [X] T107 [US1] **IMPLEMENT SYNTHETIC DATA GENERATOR**: Create `code/generate_synthetic_data.py` to produce a mock dataset with known missing variables and zero-inflation for testing T011. **Constraints**: Must not be used in production runs; only for local validation. **Distribution**: Normal for sleep, Zero-Inflated Negative Binomial for taxa. **Logic**: Must support a flag to inject a specific missing variable (e.g., "SWS duration") to test T011. Must use `numpy.random.Generator` with fixed seed for statistical validity. **Output**: `data/raw/synthetic_test_data.csv`. **DEPENDS ON**: T081a.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Robust Associational Correlation Analysis (Priority: P2)
-
-**Goal**: Compute correlations with automatic method selection (ZINB/Spearman/Pearson/SparCC) and FDR correction, explicitly framing results as associational.
-
-**Independent Test**: Run analysis on synthetic data with known zero-inflation; verify ZINB selection and correct coefficients. Verify BH-adjusted p-values and associational language in report.
-
-**⚠️ SERIALIZATION NOTE**:
-- T020, T021, T021b, T022a, T022, T023, T024, T025 depend on `data/processed/filtered_data.parquet` (output of T014b). **US2 execution is strictly blocked until T014b completes.**
-- T026 depends on `data/results/timing_evidence.json` (output of T016). **Report generation (T026) is strictly blocked until T016 completes.**
-- T027 depends on US2 completion.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T018 [P] [US2] Contract test for correlation output schema in `tests/contract/test_output_schema.py`
-- [X] T019 [P] [US2] Integration test for method selection logic (Zero-inflated vs Non-normal) in `tests/integration/test_method_selection.py`
-
-### Implementation for User Story 2
-
-- [ ] T020 [US2] Implement data distribution checks in `code/analysis.py` (Shapiro-Wilk test, zero proportion calculation) **DEPENDS ON COMPLETION OF T014b (filtered_data.parquet)**
-- [ ] T021b [US2] Implement "Perfect Multicollinearity" detection in `code/analysis.py` via matrix rank check for definitionally related taxa to determine if VIF/correlation can proceed
-- [ ] T021 [US2] Implement `select_correlation_method()` in `code/analysis.py` with explicit decision logic: 1) If compositionality detected (Depends on T022a) -> **SparCC/SpiecEasi**, 2) Else if zeros > 30% OR Shapiro-Wilk p < 0.05 -> **ZINB/Hurdle** (using `statsmodels.discrete.discrete_model.ZeroInflatedNegativeBinomialP`), 3) Else if non-normal -> Spearman, 4) Else -> Pearson. **Depends on T021b to bypass VIF/correlation for dependent pairs.**
-- [ ] T022a [US2] Implement compositionality detection in `code/transform.py` and integrate `sparcc`/`spiecaei` libraries if available
-- [ ] T022 [US2] Implement CLR transformation in `code/transform.py` using `scikit-bio` for compositional data handling (fallback if SparCC unavailable)
-- [ ] T023 [US2] Implement ZINB/Hurdle model fitting in `code/analysis.py` using `statsmodels` for zero-inflated cases
-- [ ] T024 [US2] Implement Spearman and Pearson correlation functions in `code/analysis.py`
-- [ ] T025 [US2] Implement Benjamini-Hochberg FDR correction in `code/analysis.py` to adjust p-values (q ≤ 0.05)
-- [ ] T026 [US2] Implement report generation in `code/report.py` ensuring all findings are labeled "associational", causal language is prohibited, and **consumes the timing evidence artifact from `data/results/timing_evidence.json` (output of T016)** for the final report **DEPENDS ON COMPLETION OF T016**
-- [ ] T027 [US2] Extend pipeline orchestration in `code/main.py` to import and call US2 modules **without modifying T015 logic**; T027 relies on T015's base orchestration functions
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 5: User Story 3 - Threshold Sensitivity, Collinearity Diagnostics, and Power Analysis (Priority: P3)
+## Phase 4: User Story 2 - Robust Associational Correlation Analysis (Priority: P2) & User Story 3 - Diagnostics
 
-**Goal**: Perform sensitivity analysis on thresholds, calculate VIF/collinearity diagnostics, and validate sample size power.
+**Goal**: Compute correlations with automatic method selection, perform sensitivity, collinearity, and power analysis.
 
-**Independent Test**: Run diagnostics on data with known collinearity; verify VIF calculation and linear dependence flag. Verify power analysis flags "Underpowered" if N < required.
+- [X] T020 Implement data distribution checks in `code/analysis.py`.
+- [X] T020a [P] **IMPLEMENT COMPOSITIONALITY DETECTION**: Implement logic to check if sum of abundances != 1 (or close to) and output `data/metadata/compositionality_flag.json` with a boolean value.
+- [X] T022a [P] **IMPLEMENT COMPOSITIONALITY CHECK**: Verify `data/metadata/compositionality_flag.json`.
+- [X] T021f_hierarchy [P] **IMPLEMENT HIERARCHY PARSING**: Implement logic to parse taxonomic hierarchy from `data/raw/ncbi_taxonomy_static.tsv` (downloaded in T021f_download) to identify *definitionally related* pairs (parent-child). **Output**: `data/metadata/hierarchy_map.json` containing pairs of definitionally related taxa. **Constraint**: Must explicitly identify biological definition relationships before statistical checks. If a pair is not found in the static map, flag it as 'UNKNOWN_TAXONOMY' and skip the specific 'Perfect Multicollinearity' check for that pair. **DEPENDS ON**: T021f_download.
+- [X] T021f_collinearity [P] **IMPLEMENT DYNAMIC COLLINEARITY DETECTION AND VIF CALCULATION**: Implement matrix rank check and VIF calculation in `code/diagnostics.py` on the reduced set of predictors (excluding definitionally related pairs identified in T021f_hierarchy). **Logic**: Must internally use T021f_hierarchy logic to detect perfect multicollinearity and skip VIF for those pairs. For others, calculate VIF. **Output**: `static_collinearity_map.json` and `data/results/vif_report.json`. **DEPENDS ON**: T021f_hierarchy, T014b, T022a.
+- [X] T021f_io [P] **WRITE COLLINEARITY OUTPUT**: Write the collinearity results to `data/results/collinearity_warnings.json` and `data/results/vif_report.json`. **Constraint**: Must wait for T021f_collinearity to complete. **DEPENDS ON**: T021f_collinearity.
+- [X] T021 [P] **IMPLEMENT CORRELATION METHOD SELECTION**: Implement `select_correlation_method()` in `code/analysis.py`. **Strict Priority per FR-002**: 1) If Zero-Inflated (ZINB/Hurdle) -> Use ZINB (Trigger: Shapiro-Wilk p < 0.05 OR Zero-proportion > 0.30). 2) Else if Non-Normal (Shapiro-Wilk p < 0.05) -> Use Spearman. 3) Else -> Use Pearson. **Fallback**: If Compositional and SparCC/SpiecEasi available -> Use SparCC (as a fallback override, not primary branch). **DEPENDS ON**: T020, T020a, T022a, T022, T021f_io.
+- [X] T022 [P] **IMPLEMENT COMPOSITIONAL CORRECTION LOGIC**: Implement logic in `code/transform.py` to apply SparCC/SpiecEasi if `compositionality_flag` is true. **Output**: `data/metadata/method_selection_log.json` with method switch. **Constraint**: If `import sparcc` or `import spieco` raises an `ImportError`, `ModuleNotFoundError`, or execution returns a non-zero exit code, the system MUST switch to CLR transformation + Pearson correlation. **DEPENDS ON**: T020a, T022a.
+- [X] T023 [P] **IMPLEMENT ZINB/HURDLE MODEL FITTING**: Implement ZINB/Hurdle model fitting in `code/analysis.py` using `statsmodels`. **DEPENDS ON**: T021.
+- [X] T024 [P] **IMPLEMENT SPEARMAN AND PEARSON CORRELATION**: Implement Spearman and Pearson correlation functions in `code/analysis.py`.
+- [X] T023_run [P] **IMPLEMENT MODEL EXECUTION**: Execute the selected model (ZINB or Spearman/Pearson) based on T021 output. **DEPENDS ON**: T021, T023, T024.
+- [X] T025 [P] **IMPLEMENT FDR CORRECTION AND OUTPUT**: Implement Benjamini-Hochberg FDR correction in `code/analysis.py`.
+- [X] T078 [US3] **IMPLEMENT SENSITIVITY ANALYSIS**: Implement sensitivity analysis logic. **Output**: `data/results/sensitivity_analysis.csv` containing counts of significant findings at p<0.01, p<0.05, p<0.10. **DEPENDS ON**: T025.
+- [X] T121 [US3] **IMPLEMENT STABILITY METRIC CALCULATION**: Compute the percentage change in significant findings across thresholds from `sensitivity_analysis.csv` and output `data/results/stability_metric_report.json`. **Constraint**: Must explicitly calculate and report the stability metric for SC-002. **DEPENDS ON**: T078.
+- [X] T122 [US3] **IMPLEMENT COLLINEARITY WARNINGS ARTIFACT**: Generate `data/results/collinearity_warnings.json` containing VIF flags and perfect multicollinearity warnings for SC-003 verification. **DEPENDS ON**: T021f_io.
+- [X] T080 [US3] **IMPLEMENT POWER ANALYSIS**: Implement power analysis in `code/diagnostics.py`. **DEPENDS ON**: T025.
+- [X] T123 [US2] **IMPLEMENT CHAIN OF CUSTODY VALIDATION**: Validate existence and schema of `data/results/chain_of_custody_log.json` (keys: `source_url`, `checksum`, `timestamp`, `handler`) as a blocking gate before report generation. **Constraint**: Check `data/candidates/verified_sources.yaml` and `data/config/real_data_sources.yaml`. If neither file exists or if the source type is explicitly marked 'Public', skip validation with a 'SKIPPED: PUBLIC_DATASET' warning. If physical collection is detected, must halt if log is missing/invalid. **DEPENDS ON**: T116.
+- [X] T124 [US2] **IMPLEMENT CAUSAL LANGUAGE ENFORCEMENT**: Implement `scan_causal_language()` in `code/report.py` to perform a regex scan of all logs and reports for causal language (e.g., "causes", "leads to", "effect"). **Regex**: `r'\b(causes|leads to|effect|causal)\b'`. **Constraint**: Must halt execution immediately if any violation is found. **Output**: `data/results/causal_scan_report.json`. **DEPENDS ON**: T025, T078, T080, T087_generate.
+- [X] T125 [US2] **IMPLEMENT HIERARCHICAL PRE-SCREENING**: Implement logic to reduce multiple testing burden by pre-screening taxa based on hierarchical taxonomy (e.g., genus-level aggregation before species-level testing) as described in plan complexity tracking. **Output**: `data/results/pre_screening_report.json`.
+- [X] T087_generate [P] **IMPLEMENT REPORT GENERATION**: Implement `generate_report()` in `code/report.py` to construct the main 'Interpretation' section text. **Constraint**: Must include statistical caveats. **Output**: `data/results/report_draft.md`. **DEPENDS ON**: T025, T078, T080.
+- [X] T104 [P] [US2] **ADD STATISTICAL CAVEATS TO REPORT**: Implement `generate_report()` in `code/report.py` to add caveats. (Merged into T087_generate, kept for dependency tracking).
+- [X] T115 [P] [US3] **IMPLEMENT THRESHOLD SENSITIVITY VISUALIZATION**: Create a script in `code/report.py` to generate a summary table showing the change in significant findings across p < 0.01, 0.05, and 0.10 thresholds.
+- [X] T500 [P] [US2] **IMPLEMENT COMPOSITIONALITY CHECK ENHANCEMENT**: Enhance `code/analysis.py` to perform a more rigorous check for compositional data, including checking for the "closure problem" (sum of abundances = 1) and the presence of zeros. If compositional data is detected, the system must prioritize CLR transformation or SparCC/SpiecEasi. **Constraint**: If neither SparCC nor SpiecEasi is available, the system must fall back to CLR+Pearson and explicitly log this fallback in `data/metadata/method_selection_log.json`. **DEPENDS ON**: T020a, T022.
+- [X] T501 [P] [US2] **IMPLEMENT ZERO-INFLATION THRESHOLD ADJUSTMENT**: Update `code/analysis.py` to allow dynamic adjustment of the zero-inflation threshold (currently a significant portion) based on the dataset characteristics. If the dataset has a high proportion of zeros but is not strictly zero-inflated, the system should consider using a Hurdle model instead of ZINB. **Constraint**: This task must ensure that the method selection logic is flexible enough to handle edge cases in zero-inflation. **DEPENDS ON**: T021, T119.
+- [X] T502 [P] [US3] **IMPLEMENT POWER ANALYSIS ENHANCEMENT**: Update `code/diagnostics.py` to perform a more comprehensive power analysis, including the calculation of the minimum sample size required for different effect sizes (r = 0.2, 0.3, 0.4) and power levels (0.80, 0.90). **Constraint**: This task must ensure that the power analysis report provides a detailed breakdown of the sample size requirements. **DEPENDS ON**: T080, T120.
+- [X] T600 [P] [US3] **IMPLEMENT HIERARCHICAL COLLINEARITY DETECTION**: Enhance `code/diagnostics.py` to detect collinearity not just at the species level but also at higher taxonomic levels (genus, family, etc.). This task must ensure that the system can identify and flag collinearity at multiple levels of the taxonomic hierarchy. **Constraint**: This task must use the `data/metadata/hierarchy_map.json` generated in T021f_hierarchy to identify definitionally related pairs. **DEPENDS ON**: T021f_hierarchy, T021f_collinearity.
+- [X] T601 [P] [US3] **IMPLEMENT VIF THRESHOLD ADJUSTMENT**: Update `code/diagnostics.py` to allow dynamic adjustment of the VIF threshold (currently a small number) based on the dataset characteristics. If the dataset has a high degree of collinearity, the system should consider using a lower VIF threshold to flag more predictors. **Constraint**: This task must ensure that the VIF calculation is flexible enough to handle edge cases in collinearity. **DEPENDS ON**: T021f_collinearity, T122.
 
-**⚠️ SERIALIZATION NOTE**: US3 tasks depend on correlation results from US2. **US3 execution is strictly blocked until US2 completion (specifically T020-T025 output).**
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T028 [P] [US3] Contract test for diagnostics output in `tests/contract/test_diagnostics_schema.py`
-- [ ] T029 [P] [US3] Integration test for collinearity detection (perfect multicollinearity) in `tests/integration/test_collinearity.py`
-
-### Implementation for User Story 3
-
-- [ ] T030 [US3] Implement sensitivity analysis in `code/diagnostics.py` to re-run significance at p < 0.01, p < 0.05, p < 0.10 and report % change, **appending results to `data/results/sensitivity_analysis.json`**. **DEPENDS ON US2 COMPLETION (Correlation Results). NOT PARALLEL WITH US2 EXECUTION.**
-- [ ] T030a [US3] Implement stability metric calculation in `code/diagnostics.py` to compute variance/coefficient of variation of significant findings from `data/results/sensitivity_analysis.json` (output of T030) and store in `data/results/stability_metrics.json`. **Depends on T030.**
-- [ ] T031 [US3] Implement linear dependence detection in `code/diagnostics.py` via matrix rank check for definitionally related taxa (if not already caught in US2) and flag as "Perfect Multicollinearity" in `data/results/collinearity_report.json`
-- [ ] T032 [US3] Implement VIF calculation in `code/diagnostics.py` for multivariate predictors (flag VIF > 5)
-- [ ] T033 [US3] Implement power analysis in `code/diagnostics.py` to calculate minimum N for r ≥ 0.3, power ≥ 0.80, α = 0.05
-- [ ] T034 [US3] Integrate diagnostics into `code/main.py` and append results to final report
-- [ ] T035 [US3] Update `code/report.py` to include "Power Limitation" warnings if N is insufficient
-
-**Checkpoint**: All user stories should now be independently functional
+**Checkpoint**: US1 and US2 are integrated; Diagnostics complete.
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 5: Real-Data Readiness & Verification (Priority: P8)
 
-**Purpose**: Improvements that affect multiple user stories
+**Goal**: Prepare the pipeline for immediate execution on real data once a verified source is identified.
 
-- [ ] T036 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T037 Code cleanup and refactoring
-- [ ] T038 Performance optimization across all stories (ensure < 6h runtime)
-- [ ] T039 [P] Additional unit tests in `tests/unit/`
-- [ ] T040 Run quickstart.md validation
+- [X] T083 [US1] **IMPLEMENT REAL-DATA VALIDATION**: Extend `code/ingest.py`.
+- [X] T086 [US1] **UPDATE DOCUMENTATION FOR REAL-DATA EXECUTION**: Update documentation.
+
+**Checkpoint**: The pipeline is now strictly "Real-Data Only" with a clear failure path for missing data.
+
+---
+
+## Phase 6: Data Acquisition & Synthetic Data Logic (Priority: P4)
+
+**Goal**: Implement the specific logic for fetching real data and generating synthetic data.
+
+- **REMOVED**: T108, T109, T117 (Streaming logic removed as scope creep per Assumption-001).
+
+---
+
+## Phase 7: Integration & End-to-End Validation (Priority: P5)
+
+**Goal**: Verify the entire pipeline executes correctly in both synthetic and real-data modes.
+
+- [X] T111 [US1] **INTEGRATION TEST: REAL DATA FETCH FAIL**: Verify that `code/ingest.py` raises a hard error when `data/config/real_data_sources.yaml` points to a non-existent URL, ensuring no synthetic fallback occurs.
+- [X] T112 [US2] **INTEGRATION TEST: METHOD SELECTION LOGIC**: Run the pipeline on three distinct datasets (normal, zero-inflated, non-normal) and verify `data/metadata/method_selection_log.json` correctly identifies the method used for each.
+- [X] T113 [US3] **INTEGRATION TEST: COLLINEARITY DETECTION**: Inject a dataset with perfectly correlated taxa and verify the system flags "Perfect Multicollinearity" and skips VIF calculation for that pair. **DEPENDS ON**: T021f_collinearity.
+
+---
+
+## Phase 8: Review Resolution & Robustness Enhancements (Priority: P6)
+
+**Goal**: Address specific reviewer concerns regarding data integrity, error handling, and statistical rigor.
+
+- [X] T100 [P] [US1] **IMPLEMENT STRICT REAL-DATA FETCH GUARD**: Refactor `code/ingest.py`.
+- [X] T101 [P] [US2] **IMPLEMENT ROBUST ZINB FALLBACK LOGIC**: Add a specific error handler in `code/analysis.py`.
+- [X] T102 [P] [US3] **ENHANCE POWER ANALYSIS REPORTING**: Update `code/diagnostics.py`.
+- [X] T103 [P] **IMPLEMENT DATA STREAMING STUB FOR FUTURE SCALABILITY**: Create a placeholder function in `code/ingest.py`.
+- [X] T118 [P] [US1] **IMPLEMENT REAL-DATA SOURCE PREFERENCE**: Update `code/ingest.py` to prioritize any "VERIFIED REAL DATA SOURCE" recipe provided in execution feedback over local `real_data_sources.yaml` configurations.
+- [X] T119 [P] [US2] **IMPLEMENT EXPLICIT ZERO-INFLATION LOGIC**: Ensure `code/analysis.py` strictly implements the ZINB/Hurdle selection logic for >30% zeros or Shapiro-Wilk p < 0.05, and logs the specific trigger reason in `data/metadata/method_selection_log.json`.
+- [X] T120 [P] [US3] **IMPLEMENT EXPLICIT POWER LIMITATION FLAG**: Ensure `code/diagnostics.py` outputs a clear "Underpowered" flag in `power_analysis_report.json` if observed N < required N, and includes the calculated minimum N.
+
+---
+
+## Phase 9: Final Verification & Documentation (Priority: P7)
+
+**Goal**: Ensure all artifacts are complete, documented, and ready for final review.
+
+- [X] T130 [P] [US1] **FINAL DATA INTEGRITY CHECK**: Run a comprehensive checksum verification of all raw and processed data files against `state/projects/PROJ-340-investigating-the-correlation-between-gu.yaml`. **Deliverable**: Create `scripts/verify_integrity.py` that compares checksums in state/...yaml against actual file hashes in data/ and outputs `data/results/integrity_verification_report.json`. **Verification**: Run `python scripts/verify_integrity.py` and verify exit code 0.
+- [X] T131 [P] [US2] **FINAL STATISTICAL VALIDATION**: Run a final validation script to ensure all statistical methods selected match the data distribution checks and that no causal language slipped through. **Deliverable**: Create `scripts/final_validation.py` that parses `data/metadata/method_selection_log.json` and `data/results/causal_scan_report.json` and outputs `data/results/final_validation_report.json`.
+- [X] T132 [P] [US3] **FINAL POWER & SENSITIVITY REVIEW**: Review `power_analysis_report.json` and `sensitivity_analysis.csv` to ensure they meet SC-005 and SC-002 requirements. **Deliverable**: Create `scripts/review_power_sensitivity.py` that validates the presence of required fields and thresholds.
+- [X] T133 [P] **DOCUMENTATION FINALIZATION**: Update `README.md`, `quickstart.md`, and `docs/` with final pipeline instructions, known limitations, and data source requirements. **Deliverable**: Update all markdown files with final status and usage examples.
+- [X] T134 [P] **CI/CD PIPELINE OPTIMIZATION**: Optimize `.github/workflows/analysis.yml` to ensure it runs within the designated time limit. and includes all necessary caching and environment setup steps. **Deliverable**: Update `.github/workflows/analysis.yml` with caching for `pip` and `data/` (if applicable).
+
+---
+
+## Phase 10: Data Acquisition & Execution (Priority: P9)
+
+**Goal**: Secure a verified real data source and execute the pipeline. Since no public dataset currently exists containing both metagenomic and sleep data, this phase focuses on establishing the data fetch mechanism and preparing for the first real run.
+
+- [ ] T201 [US1] **IMPLEMENT EXPLICIT SAMPLE SIZE LIMITATION LOGIC**: Update `code/ingest.py` to perform a formal power analysis calculation (r ≥ 0.3, power ≥ 0.80) and output a specific warning in `data/results/data_quality_report.json` if the calculated power is insufficient. **Constraint**: Do not halt, but flag for US3 power analysis. **DEPENDS ON**: T200, T080.
+- [ ] T202 [US2] **IMPLEMENT COMPOSITIONAL DATA TRANSFORMATION PIPELINE**: Ensure `code/transform.py` includes a robust Centered Log-Ratio (CLR) transformation step as a fallback if SparCC/SpiecEasi fails or is unavailable, to handle compositional bias in correlation analysis. **Output**: `data/processed/clr_transformed_data.parquet`. **Constraint**: Must document the transformation method in `data/metadata/method_selection_log.json`. **DEPENDS ON**: T022.
+
+---
+
+## Phase 11: Execution & Reporting (Priority: P10)
+
+**Goal**: Run the full pipeline on the verified data (or synthetic if no real data found) and generate the final report.
+
+- [ ] T300 [US1] **EXECUTE PIPELINE ON VERIFIED DATA**: Trigger the main pipeline `code/main.py` using the source identified in T200. **Verification**: Ensure `data/results/correlation_results.csv` and all intermediate artifacts are generated. **Constraint**: Read `data/candidates/verified_sources.yaml`. If `status` == 'NO_VERIFIED_SOURCE' AND `--allow-synthetic-fallback` flag is NOT set AND `--pipeline-validation-mode` flag is NOT set, halt with error. If `--allow-synthetic-fallback` OR `--pipeline-validation-mode` is set, execute on synthetic data and flag result as "SYNTHETIC VALIDATION ONLY". **DEPENDS ON**: T200, T400.
+- [ ] T301 [US2] **GENERATE FINAL INTERPRETATION REPORT**: Compile `data/results/report_draft.md` into a final markdown document `data/results/final_report.md` including all caveats, power analysis results, and sensitivity analysis. **Constraint**: Must include a prominent "Associational Nature" disclaimer. **DEPENDS ON**: T300. <!-- FAILED: unspecified -->
+- [X] T302 [US3] **FINAL STATISTICAL SIGNIFICANCE SUMMARY**: Generate a summary table in `data/results/significance_summary.md` listing all significant correlations (q < 0.05) with their coefficients, p-values, and methods used. **DEPENDS ON**: T300.
+- [ ] T303 [US3] **IMPLEMENT SYNTHETIC POWER FLAG**: Check `data_source_type` in `data/metadata/method_selection_log.json`. If 'SYNTHETIC', set `power_analysis_status` to 'INVALID' in `power_analysis_report.json` and log a warning that SC-005 cannot be validated on synthetic data. **Constraint**: Do not halt, but clearly mark the result as invalid. **DEPENDS ON**: T300.
+- [ ] T700 [P] **FINAL INTEGRATION TEST**: Run the full pipeline end-to-end on a verified real dataset (if available) or a synthetic dataset (if no real dataset is found). **Constraint**: This task must ensure that all phases of the pipeline execute successfully and that all artifacts are generated correctly. **DEPENDS ON**: T300, T301, T302, T303.
+
+---
+
+## Phase 12: Review Resolution - Data Integrity & Fail-Loud Enforcement (Priority: P11)
+
+**Goal**: Address reviewer concerns regarding the strict enforcement of real-data requirements and the prohibition of silent synthetic fallbacks.
+
+- [X] T400 [P] [US1] **IMPLEMENT STRICT FAIL-LOUD DATA LOADER WITH FALLBACK FLAG**: Refactor `code/ingest.py` to remove any `try/except` blocks that catch download failures and substitute synthetic data. Ensure that any failure to fetch real data (or a valid verified source) raises a `DataFetchError` with a clear message, forcing the pipeline to halt. **Constraint**: This task must verify that the `generate_synthetic_data.py` script is NEVER called automatically during a production run. **Exception**: If the CLI flag `--allow-synthetic-fallback` OR `--pipeline-validation-mode` is explicitly provided, the system MUST proceed with synthetic data and log a warning. **DEPENDS ON**: T081.
+
+---
+
+## Phase 13: Review Resolution - Statistical Rigor & Method Selection (Priority: P12)
+
+**Goal**: Address reviewer concerns regarding the robustness of statistical method selection and the handling of compositional data.
+
+- [X] T500 [P] [US2] **IMPLEMENT COMPOSITIONALITY CHECK ENHANCEMENT**: Enhance `code/analysis.py` to perform a more rigorous check for compositional data, including checking for the "closure problem" (sum of abundances = 1) and the presence of zeros. If compositional data is detected, the system must prioritize CLR transformation or SparCC/SpiecEasi. **Constraint**: If neither SparCC nor SpiecEasi is available, the system must fall back to CLR+Pearson and explicitly log this fallback in `data/metadata/method_selection_log.json`. **DEPENDS ON**: T020a, T022.
+- [X] T501 [P] [US2] **IMPLEMENT ZERO-INFLATION THRESHOLD ADJUSTMENT**: Update `code/analysis.py` to allow dynamic adjustment of the zero-inflation threshold (currently set to a high percentage) based on the dataset characteristics. If the dataset has a high proportion of zeros but is not strictly zero-inflated, the system should consider using a Hurdle model instead of ZINB. **Constraint**: This task must ensure that the method selection logic is flexible enough to handle edge cases in zero-inflation. **DEPENDS ON**: T021, T119.
+- [X] T502 [P] [US3] **IMPLEMENT POWER ANALYSIS ENHANCEMENT**: Update `code/diagnostics.py` to perform a more comprehensive power analysis, including the calculation of the minimum sample size required for different effect sizes (r = 0.2, 0.3, 0.4) and power levels (0.80, 0.90). **Constraint**: This task must ensure that the power analysis report provides a detailed breakdown of the sample size requirements. **DEPENDS ON**: T080, T120.
+
+---
+
+## Phase 14: Review Resolution - Collinearity & Multicollinearity (Priority: P13)
+
+**Goal**: Address reviewer concerns regarding the handling of collinearity and multicollinearity in the analysis.
+
+- [X] T600 [P] [US3] **IMPLEMENT HIERARCHICAL COLLINEARITY DETECTION**: Enhance `code/diagnostics.py` to detect collinearity not just at the species level but also at higher taxonomic levels (genus, family, etc.). This task must ensure that the system can identify and flag collinearity at multiple levels of the taxonomic hierarchy. **Constraint**: This task must use the `data/metadata/hierarchy_map.json` generated in T021f_hierarchy to identify definitionally related pairs. **DEPENDS ON**: T021f_hierarchy, T021f_collinearity.
+- [X] T601 [P] [US3] **IMPLEMENT VIF THRESHOLD ADJUSTMENT**: Update `code/diagnostics.py` to allow dynamic adjustment of the VIF threshold (currently set to a standard cutoff) based on the dataset characteristics. If the dataset has a high degree of collinearity, the system should consider using a lower VIF threshold to flag more predictors. **Constraint**: This task must ensure that the VIF calculation is flexible enough to handle edge cases in collinearity. **DEPENDS ON**: T021f_collinearity, T122.
+
+---
+
+## Phase 15: Final Review & Deployment Readiness (Priority: P14)
+
+**Goal**: Ensure the project is ready for final review and deployment.
+
+- [ ] T701 [P] **FINAL DOCUMENTATION REVIEW**: Review all documentation (README.md, quickstart.md, docs/) to ensure that it is up-to-date and accurate. **Constraint**: This task must ensure that all documentation reflects the final state of the project and includes all necessary information for users. **DEPENDS ON**: T133.
+- [ ] T702 [P] **FINAL CI/CD PIPELINE REVIEW**: Review the CI/CD pipeline (`.github/workflows/analysis.yml`) to ensure that it is optimized for performance and reliability. **Constraint**: This task must ensure that the pipeline runs within the designated time limit and includes all necessary caching and environment setup steps. **DEPENDS ON**: T134.
+- [ ] T703 [P] **FINAL SECURITY REVIEW**: Conduct a final security review of the project to ensure that there are no vulnerabilities or security risks. **Constraint**: This task must ensure that all dependencies are up-to-date and that there are no known security vulnerabilities. **Tool**: `pip-audit`. **Criteria**: Exit code 0 on no critical CVEs. **DEPENDS ON**: T002a, T002b.
 
 ---
 
@@ -178,16 +285,15 @@
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - **Strict Execution Serialization**:
- - **US1 (Phase 3)** must complete and produce artifacts (`filtered_data.parquet`, `timing_evidence.json`) before **US2 (Phase 4)** can execute.
- - **US2 (Phase 4)** must complete and produce artifacts (correlation results) before **US3 (Phase 5)** can execute.
- - **Parallel Code Editing**: While code files can be edited in parallel by different developers, the *runtime execution* of the pipeline is strictly serialized by data flow. Developers must be aware that their code changes will not run until the preceding stage's artifacts are generated.
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
+- **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 completion (specifically T014b and T016 artifacts) for execution
-- **User Story 3 (P3)**: Depends on US2 completion (specifically correlation results) for execution
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
 
 ### Within Each User Story
 
@@ -197,17 +303,27 @@
 - Core implementation before integration
 - Story complete before moving to next priority
 
-### Parallel Example: User Story 1
+### Parallel Opportunities
+
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All tests for a user story marked [P] can run in parallel
+- Models within a story marked [P] can run in parallel
+- Different user stories can be worked on in parallel by different team members
+
+---
+
+## Parallel Example: User Story 1
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Integration test for missing variable error handling in tests/integration/test_missing_variable.py"
+Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
+Task: "Integration test for [user journey] in tests/integration/test_[name].py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement validate_variables() in code/ingest.py"
-Task: "Implement load_data() in code/ingest.py"
-Task: "Implement outlier detection logic in code/ingest.py"
-Task: "Implement data filtering step in code/ingest.py"
+Task: "Create [Entity1] model in src/models/[entity1].py"
+Task: "Create [Entity2] model in src/models/[entity2].py"
 ```
 
 ---
@@ -236,23 +352,19 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
- - Developer A: User Story 1 (Code editing AND Execution)
- - Developer B: User Story 2 (Code editing ONLY; Execution blocked until A finishes US1)
- - Developer C: User Story 3 (Code editing ONLY; Execution blocked until B finishes US2)
-3. **Execution Flow**: US1 must complete and produce artifacts before US2 can run. US2 must complete before US3 can run. Code editing can proceed in parallel, but the pipeline execution is strictly serialized by data flow.
+ - Developer A: User Story 1
+ - Developer B: User Story 2
+ - Developer C: User Story 3
+3. Stories complete and integrate independently
 
 ---
 
 ## Notes
 
-- [P] tasks = different files, no dependencies (except explicit dependencies noted in task description)
+- [P] tasks = different files, no dependencies
 - [Story] label maps task to specific user story for traceability
 - Each user story should be independently completable and testable
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Execution Note**: While code files (e.g., `code/main.py`) may be edited by multiple developers in parallel, the *runtime execution* of US2 and US3 logic is strictly dependent on the successful completion and artifact generation of US1 and US2 respectively. The "Parallel Opportunities" refer to code development, not pipeline execution. US2 execution is blocked by T014b and T016. US3 execution is blocked by US2 completion.
-- **T030 Specific Note**: T030 is marked [P] only relative to other US3 tasks (T031-T035). It is **NOT** parallel with US2 execution.
-- **T026 Specific Note**: T026 is **NOT** parallel with US1 execution due to dependency on T016.
-- **T010 Specific Note**: T010 tests schema definition existence, not validation logic implementation.

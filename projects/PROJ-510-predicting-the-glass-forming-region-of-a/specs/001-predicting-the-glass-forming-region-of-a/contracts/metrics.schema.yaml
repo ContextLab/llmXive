@@ -1,0 +1,32 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Model Metrics"
+type: object
+required:
+  - fold_scores
+  - mean_rmse
+  - test_rmse
+  - dummy_rmse
+  - p_value
+properties:
+  fold_scores:
+    type: array
+    items:
+      type: number
+    minItems: 5
+    maxItems: 5
+    description: "RMSE for each CV fold"
+  mean_rmse:
+    type: number
+    description: "Mean RMSE across folds"
+  test_rmse:
+    type: number
+    description: "RMSE on held-out test set"
+  dummy_rmse:
+    type: number
+    description: "RMSE of dummy baseline (mean predictor)"
+  p_value:
+    type: number
+    minimum: 0
+    maximum: 1
+    description: "P-value from t-test vs dummy model"
+additionalProperties: false

@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-845-llmxive-follow-up-extending-qwen-image-f",
+  "tasks": [
+    {
+      "task_key": "T025",
+      "reject_count": 1,
+      "last_reason": "No code, script, or logs showing that `ResourceMonitor` hooks were added to the training script, that RAM usage is capped at 7\u202fGB, that a 6\u2011hour wall\u2011clock limit is enforced, or that a specific error code is emitted on breach are present. The required artifact is missing, so the task is not satisfied.",
+      "first_seen": "2026-08-26T10:23:49.981129+00:00",
+      "last_seen": "2026-08-26T10:23:49.981129+00:00"
+    }
+  ],
+  "updated_at": "2026-08-26T10:23:49.981129+00:00"
+}

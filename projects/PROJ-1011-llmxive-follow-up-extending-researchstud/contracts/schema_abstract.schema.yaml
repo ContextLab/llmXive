@@ -1,0 +1,16 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Abstract
+type: object
+additionalProperties: false
+required: [title, abstract_text, venue, domain, acceptance_status]
+properties:
+  title: {type: string, minLength: 1}
+  abstract_text: {type: string, minLength: 1}
+  venue: {type: string, minLength: 1}
+  domain: {type: string, minLength: 1}
+  acceptance_status: {type: string, enum: [accepted, rejected, unknown]}
+  doi: {type: [string, "null"]}
+  arxiv_id: {type: [string, "null"]}
+  published_date: {type: [string, "null"]}
+  metadata: {type: object}
+  hash: {type: string}

@@ -1,262 +1,149 @@
-# Tasks: Investigating the Stability of Rotating Bose-Einstein Condensates with Dipolar Interactions
+# Tasks: Investigating the Stability of Rotating Bose‑Einstein Condensates with Dipolar Interactions  
 
-**Input**: Design documents from `/specs/001-gene-regulation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: `spec.md`, `plan.md`, `data-model.md`, contract schemas, and reviewer feedback.  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-133-investigating-the-stability-of-rotating-/` using: `mkdir -p code/{simulation,analysis,statistics,viz,utils} data/{raw,processed,aggregated} tests/{unit,contract,integration} docs`
-- [X] T002 Create `code/requirements.txt` containing: numpy, scipy, matplotlib, pandas, pytest, numba, ruff, black
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+**Goal**: Deliver a fully reproducible end‑to‑end study that (1) runs the time‑dependent Gross‑Pitaevskii solver on a 64 × 64 grid for the full Ω × ε₍dd₎ scan, (2) detects vortices, (3) computes stability metrics, (4) performs a Two‑Way ANOVA + Dunnett post‑hoc, (5) generates phase‑map visualisations, (6) provides complete documentation, and (7) updates the specification so that the scientific requirements are consistent with the implementation.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Project scaffolding (must exist before any scientific code runs)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] **T001** [P] Create the core source tree under `code/` with the sub‑packages required by the specification.   <!-- FAILED: unspecified -->
+  - **Paths**: `code/`, `code/simulation/`, `code/analysis/`, `code/statistics/`, `code/viz/`, `code/utils/`  
+  - **Verification**: `tree -L 2 code/` must list exactly the six directories; a contract test `tests/contract/test_code_tree.py` asserts their existence.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] **T002** [P] Create the data hierarchy that stores raw snapshots, processed metrics, and aggregated results.  
+  - **Paths**: `data/raw/`, `data/processed/`, `data/aggregated/`  
+  - **Verification**: `tree -L 2 data/` must show the three sub‑folders; `tests/contract/test_data_tree.py` checks that each folder contains at least one file after the first run.
 
-- [ ] T004 Setup `data/` directory structure: `raw/`, `processed/`, `aggregated/`
-- [ ] T005 [P] Implement deterministic random seed management utility in `code/utils/seed_manager.py`
-- [X] T006 [P] Setup file-based I/O helpers for `.npy` and `.csv` in `code/utils/io_helpers.py`
-- [X] T007 [P] Create base `SimulationRun` and `StabilityMetric` dataclasses in `code/models/entities.py` (Note: StabilityMetric must use `vortex_density` per amended spec FR-004 from T021b)
-- [X] T008 Configure error handling and logging infrastructure in `code/utils/logger.py`
-- [X] T009 Setup environment configuration management for grid parameters in `code/config/grid_config.py`
+- [X] **T003** [P] Create the test hierarchy required for unit, contract, and integration verification.  
+  - **Paths**: `tests/unit/`, `tests/contract/`, `tests/integration/`  
+  - **Verification**: `tree -L 2 tests/` must list the three directories; `pytest -q` must discover at least one test in each sub‑folder.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] **T004** [P] Add linting and formatting configuration so the project adheres to the platform’s style standards.  
+  - **Files**: `.ruff.toml`, `pyproject.toml` (black section), `.pre-commit-config.yaml`  
+  - **Verification**: `ruff check .` returns exit‑code 0; `black --check .` returns exit‑code 0; `pre‑commit run --all-files` passes; a CI step `tests/contract/test_lint_config.py` confirms the files exist.
 
----
+- [ ] **T005** [P] Write a top‑level `README.md` that (a) describes the scientific question, (b) lists required dependencies, (c) provides a single‑command quick‑start example, and (d) points to the generated figures in `figures/`.  
+  - **File**: `README.md`  
+  - **Verification**: `markdownlint` passes with no errors; `tests/contract/test_readme.py` checks for the presence of the quick‑start command string.
 
-## Phase 3: User Story 1 - Compute Stability Phase Diagram (Priority: P1) 🎯 MVP
+- [ ] **T006** [P] Add comprehensive NumPy‑style docstrings to **all public functions and classes** in the `code/` package (including `gpe_solver.py`, `runner.py`, `vortex_detector.py`, `metrics.py`, `aggregators.py`, `plotter.py`).  
+  - **Verification**: `pydocstyle code/` reports zero violations; `tests/contract/test_docstrings.py` asserts that each public object has a non‑empty `__doc__`.
 
-**Goal**: Run the time-dependent GPE solver across the parameter grid to generate raw simulation data.
+- [ ] **T007** [P] Create a `quickstart.md` inside `specs/001-investigating-the-stability-of-rotating/` that reproduces the entire workflow in three commands (environment setup, full‑grid run, figure generation).  
+  - **File**: `specs/001-investigating-the-stability-of-rotating/quickstart.md`  
+  - **Verification**: The file exists and contains exactly three shell‑command lines; `tests/contract/test_quickstart.py` parses the file and validates the syntax of each command.
 
-**Independent Test**: Can be fully tested by executing the simulation script for a single parameter set (e.g., Ω=0.5, ε_dd=0.5, N=10^4) and verifying that it completes within the CI limit without GPU errors, producing density and phase snapshot files.
-
-### Spec Amendment: Grid Resolution (Pre-requisite for Implementation)
-
-- [~] T017b [P] [US1] **SPEC AMENDMENT**: Update `spec.md` FR-001 to replace "256x256 grid" with "256x256 grid for verification, 64x64 grid for full batch scan (conditional on RUN_FULL_GRID=true)". Update Assumptions to reflect 64x64 feasibility. (Pre-requisite for T013).
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T010 [P] [US1] Unit test `tests/unit/test_gpe_solver.py::test_split_step_preserves_norm` for split-step Fourier stability
-- [X] T011 [P] [US1] Integration test `tests/integration/test_single_run.py::test_single_run_completes` for single run completion
-
-### Implementation for User Story 1
-
-- [X] T012 [P] [US1] Implement Thomas-Fermi initial condition generator in `code/simulation/initial_conditions.py` (FR-002)
-- [X] T013 [US1] Implement split-step Fourier GPE solver with dipolar term in `code/simulation/gpe_solver.py` (FR-001) with conditional grid size: 64x64 if RUN_FULL_GRID=true (default), else 256x256. (Depends on T017b).
-- [ ] T014 [US1] Implement batch runner to iterate over (Ω, ε_dd, N) grid in `code/simulation/runner.py` (US-1) ensuring N ∈ {small, intermediate, large}, Ω ∈ [lower bound, 0.9], ε_dd ∈ {, 0.5, 1.0, 1.5}.
-- [ ] T015 [US1] Add logic to handle numerical instability crashes (log failure, set retention=0) in `code/simulation/runner.py`
-- [ ] T016 [US1] Add logging for simulation steps and resource usage in `code/simulation/runner.py`
-- [ ] T017 [P] [US1] Create verification script `code/simulation/verify_performance.py` to run 256x256 (subset) and 64x64 (full grid) and log peak memory usage to validate memory limit assumption and runtime constraint.
-- [ ] T017a [P] [US1] Update spec.md performance assumptions to formally document the 64x64 full scan vs 256x256 verification deviation and the performance validation results. (Parallel to T017b).
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] **T008** [P] Update `spec.md` to replace the invalid statistical requirements (one‑sample t‑test, vortex‑number retention fraction) with the corrected Two‑Way ANOVA and Vortex‑Density metric, and to reference the new section numbers where the changes appear.  
+  - **File**: `specs/001-investigating-the-stability-of-rotating/spec.md`  
+  - **Verification**: `scripts/verify_spec_update.py` confirms that the old FR‑005 text is absent and that the new wording matches the plan; a contract test `tests/contract/test_spec_consistency.py` ensures the spec now mentions Two‑Way ANOVA and Vortex Density.
 
 ---
 
-## Phase 4: User Story 2 - Detect Vortices and Calculate Stability Metrics (Priority: P2)
+## Phase 2 – Core scientific implementation (blocking prerequisites for the user stories)
 
-**Goal**: Automatically detect vortex positions via phase winding and calculate stability metrics (vortex density, radial variance, structure factor).
+- [ ] **T009** [P] Implement deterministic random‑seed management in `code/utils/seed_manager.py`.  
+  - **Verification**: `tests/unit/test_seed_manager.py` confirms that `set_seed(42)` yields reproducible NumPy and Python RNG states.
 
-**Independent Test**: Can be fully tested by running the analysis script on a pre-generated "stable" and "unstable" snapshot file and verifying that it correctly counts vortices and outputs the three defined metrics.
+- [ ] **T010** [P] Implement the split‑step Fourier Gross‑Pitaevskii solver with dipolar term in `code/simulation/gpe_solver.py`.  
+  - **Requirement**: Supports conditional grid size – 64 × 64 when `RUN_FULL_GRID=true`, otherwise 256 × 256 (FR‑001).  
+  - **Note**: Initial conditions are supplied by task **T010a**.  
+  - **Verification**: `tests/unit/test_gpe_solver.py` checks norm preservation, correct handling of the `grid_size` argument, and that dipolar contributions are included.
 
-### Spec Amendment: Metric Definition (Pre-requisite for Implementation)
+- [ ] **T010a** [P] Generate and validate Thomas‑Fermi initial conditions in `code/simulation/initial_conditions.py`.  
+  - **Verification**: `tests/unit/test_initial_conditions.py` asserts that the density profile matches the analytical Thomas‑Fermi shape for given parameters and that the phase imprint for rotation is correctly applied.
 
-- [ ] T021b [P] [US2] **SPEC AMENDMENT**: Update `spec.md` FR-004 to replace "vortex-number retention fraction" with "vortex density (vortices/area)". Update SC-001 and SC-002 to reference "vortex density" instead of "retention fraction". (Pre-requisite for T007, T021).
+- [ ] **T011** [P] Implement the batch runner in `code/simulation/runner.py` that iterates over the full (Ω, ε₍dd₎, N) grid, writes each run’s metadata to `data/raw/<run_id>_meta.json` and snapshots to `data/raw/<run_id>_dens.npy` / `..._phase.npy`.  
+  - **Verification**: Integration test `tests/integration/test_full_grid.py` confirms that ~300 runs complete within the 6 h CI wall‑time limit, that each run produces a `status` field (`completed` or `unstable`), and that the file naming convention matches the schema.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+- [ ] **T011a** [P] Ensure that the batch runner executes **≥ 5 independent noise‑seed repeats** for every (Ω, ε₍dd₎) configuration.  
+  - **Verification**: `tests/unit/test_runner_repeats.py` checks that for each parameter tuple the runner creates exactly five runs with distinct `seed` values and that the metadata reflects this.
 
-- [ ] T018 [P] [US2] Unit test `tests/unit/test_vortex_detector.py::test_phase_winding_detects_single_vortex` on synthetic vortex data
-- [ ] T019 [P] [US2] Contract test `tests/contract/test_metrics_schema.py::test_metrics_schema` for metrics output schema
+- [ ] **T011b** [P] Add a configurable `MAX_RUNTIME` parameter to the runner; after each run the script logs a warning if the cumulative estimated runtime would exceed this limit instead of asserting a hard failure.  
+  - **Verification**: `tests/unit/test_runtime_guard.py` validates that when the projected total exceeds `MAX_RUNTIME` a warning is emitted and the script continues gracefully.
 
-### Implementation for User Story 2
+- [ ] **T012** [P] Implement phase‑winding vortex detection in `code/analysis/vortex_detector.py` (FR‑003).  
+  - **Verification**: Unit test `tests/unit/test_vortex_detector.py` validates detection on a synthetic single‑vortex field and on a vortex‑antivortex pair; the output format must match `stability_metric.schema.yaml`.
 
-- [ ] T020 [P] [US2] Implement phase-winding vortex detection algorithm in `code/analysis/vortex_detector.py` (FR-003, handle vortex-antivortex pairs)
-- [ ] T021 [US2] Implement stability metric calculation: Vortex Density, Radial Variance, Structure Factor Sharpness in `code/analysis/metrics.py` (FR-004). (Depends on T021b).
-- [ ] T022 [US2] Implement sensitivity analysis sweep for instability threshold over the EXACT discrete values {, 0.30, 0.35} in `code/analysis/metrics.py` (FR-006, SC-005) and explicitly calculate/report variation in false-positive/negative rates.
-- [ ] T023 [US2] Integrate vortex detection and metric calculation into a processing pipeline in `code/analysis/pipeline.py`
-- [ ] T024 [US2] Add logic to handle metastable boundary (drop >30%) as binary threshold while recording exact percentage in `code/analysis/metrics.py`
-- [ ] T025 [P] [US2] Create unit test `tests/unit/test_edge_cases.py::test_zero_initial_vortices` for edge cases (zero initial vortices, annihilation events)
+- [ ] **T013** [P] Implement stability‑metric calculation (vortex density, radial variance, structure‑factor sharpness) in `code/analysis/metrics.py` (FR‑004).  
+  - **Verification**: Contract test `tests/contract/test_metrics_schema.py` checks each CSV row against `stability_metric.schema.yaml`; a unit test `tests/unit/test_metrics_values.py` verifies numerical sanity on a known test case.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] **T014** [P] Implement metastability classification strictly according to Constitution‑VII (≥ 30 % vortex‑count drop **or** crystalline‑order loss). No additional vortex‑density threshold is introduced.  
+  - **File**: `code/analysis/metastability.py` writes `data/processed/metastability_report.csv` containing columns `run_id`, `instability_classified`, `false_positive_rate`, `false_negative_rate`.  
+  - **Verification**: `tests/unit/test_metastability.py` asserts that any run meeting the Constitution‑VII criteria is flagged, and that FP/FN rates are correctly computed on a synthetic benchmark set.
 
----
+- [ ] **T015** [P] Perform Two‑Way ANOVA (Ω × ε₍dd₎) and Dunnett’s post‑hoc test in `code/statistics/aggregators.py`, outputting `data/aggregated/statistical_results.json` conforming to `statistical_aggregation.schema.yaml` (FR‑005).  
+  - **Verification**: Unit test `tests/unit/test_two_way_anova.py` checks that the JSON contains `p_value_anova_interaction` and `p_value_dunnett` formatted to ≥ 4 dp; a regression test `tests/integration/test_aggregation_consistency.py` ensures the same results are obtained on repeated runs.
 
-## Phase 5: User Story 3 - Generate Statistical Phase Maps and Visualizations (Priority: P3)
+- [ ] **T015a** [P] Run the required **two‑sample t‑test** (α = 0.05) on each stability claim using the ≥ 5 seed repeats, and record its p‑value (`p_value_two_sample`) in the aggregation JSON.  
+  - **Verification**: `tests/unit/test_two_sample_ttest.py` confirms that the test is executed for every configuration and that the p‑value field appears with at least four decimal places.
 
-**Goal**: Aggregate results from repeated simulations, perform Two-Way ANOVA, and generate contour maps.
+- [ ] **T015b** [P] Enforce output precision: all statistical numbers (p‑values, means, standard deviations, etc.) in `statistical_results.json` and CSV files are formatted to **≥ 4 decimal places**.  
+  - **Verification**: `tests/unit/test_precision.py` parses the JSON/CSV and asserts the formatting requirement.
 
-**Independent Test**: Can be fully tested by running the visualization script on a mock dataset of repeats per point and verifying that it produces a contour map distinguishing stable/unstable regions and a summary table of ANOVA p-values.
-
-### Spec Amendment: Statistical Method (Pre-requisite for Implementation)
-
-- [ ] T029b [P] [US3] **SPEC AMENDMENT**: Update `spec.md` FR-005 to replace "one-sample t-test" and "one-way ANOVA" with "Two-Way ANOVA (Ω × ε_dd)" and "Dunnett's post-hoc test". Update SC-003 to reference the corrected statistical method. (Pre-requisite for T029).
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T026 [P] [US3] Unit test `tests/unit/test_statistics.py::test_two_way_anova` for Two-Way ANOVA calculation
-- [ ] T027 [P] [US3] Integration test `tests/integration/test_aggregation.py::test_full_aggregation_pipeline` for full aggregation pipeline
-
-### Implementation for User Story 3
-
-- [ ] T028 [P] [US3] Implement data aggregation logic (multiple repeats per point) in `code/statistics/aggregators.py`
-- [ ] T029 [US3] Implement Two-Way ANOVA (Ω × ε_dd) and Dunnett's post-hoc test in `code/statistics/aggregators.py` (Per Plan correction to FR-005). (Depends on T029b).
-- [ ] T030 [US3] Implement statistical significance flagging (α=0.05) against null hypothesis in `code/statistics/aggregators.py`
-- [ ] T031 [US3] Implement 3D parameter space contour map generation (Ω vs ε_dd vs Stability) in `code/viz/plotter.py`
-- [ ] T032 [US3] Generate representative density/phase plots for stable, metastable, and unstable regimes in `code/viz/plotter.py`
-- [ ] T033 [US3] Create summary table of ANOVA p-values and export to `data/aggregated/` in `code/viz/reporter.py`
-- [ ] T034 [P] [US3] Validate that the statistical design handles the "zero initial vortex" case without division errors in `tests/unit/test_zero_vortex_stats.py::test_no_division_by_zero`
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] **T016** [P] Generate contour phase‑maps and representative density/phase figures in `code/viz/plotter.py`; write PNGs to `figures/phase_map.png`, `figures/stable_example.png`, `figures/metastable_example.png`, `figures/unstable_example.png` (US‑3).  
+  - **Verification**: Integration test `tests/integration/test_plotting.py` confirms that each PNG file is created, that the colour‑scale matches the underlying `mean_vortex_density` values, and that the files are non‑empty.
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 3 – Validation, reproducibility & hand‑off
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] **T017** [P] Run the full 64 × 64 grid scan (`RUN_FULL_GRID=true`) on the CI runner, then re‑run the selected verification subset at 256 × 256. Store the performance log in `data/processed/performance_log.txt`.  
+  - **Verification**: `tests/integration/test_performance.py` parses the log and asserts total runtime ≤ 6 h and peak memory ≤ 14 GB; the log must contain timestamps for the first and last run.
 
-- [ ] T035a [P] Documentation: Update `README.md` with specific usage examples, parameter descriptions, and installation instructions.
-- [ ] T035b [P] Documentation: Add comprehensive docstrings (numpy style) to all public functions and classes in `code/`.
-- [ ] T035c [P] Documentation: Generate API documentation in `docs/` using Sphinx or similar tool based on the docstrings.
-- [ ] T036 Code cleanup and refactoring for readability
-- [ ] T037 Performance optimization: ensure full grid (300 runs) completes in ≤6 hours on GitHub Actions 2-core runner (optimize `gpe_solver.py` with Numba) and add CI benchmark script that fails if runtime > 6h
-- [ ] T038 [P] Additional unit tests for numerical convergence in `tests/unit/test_convergence.py::test_convergence_rate`
-- [ ] T039 Security hardening (input validation for grid parameters)
-- [ ] T040 Run quickstart.md validation and end-to-end CI check
+- [ ] **T017a** [P] Ensure that the full‑grid run (T017) also respects the **≥ 5 independent noise‑seed repeats** per configuration.  
+  - **Verification**: `tests/unit/test_full_grid_repeats.py` checks that for every (Ω, ε₍dd₎) point the log contains five distinct seed entries.
 
----
+- [ ] **T018** [P] Validate that the statistical pipeline correctly handles the “zero initial vortex” edge case without division‑by‑zero errors.  
+  - **File**: `tests/unit/test_zero_vortex_stats.py` (already present).  
+  - **Verification**: The test must pass on the real `statistical_results.json`; a CI step fails if any `NaN` or `inf` appears in the aggregated JSON.
 
-## Dependencies & Execution Order
+- [ ] **T019** [P] Produce the final research artefacts:  
+  - **Files**: `data/aggregated/final_phase_diagram.json`, `figures/final_phase_diagram.png`, `docs/methods.md` (detailing solver, vortex detection, metrics, statistics).  
+  - **Verification**: Contract test `tests/contract/test_final_artifacts.py` checks that the JSON conforms to the aggregation schema, that the PNG is readable, and that `methods.md` contains at least one citation to each of the three primary references listed in the spec.
 
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (snapshots)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 output (metrics)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] **T020** [P] Create a reproducibility script `scripts/reproduce.sh` that (1) installs dependencies from `code/requirements.txt`, (2) runs the full grid, (3) runs the aggregation, and (4) generates the figures. The script must exit with status 0 on success.  
+  - **Verification**: CI step executes `bash scripts/reproduce.sh`; `tests/contract/test_repro.sh.py` checks that the script prints a success message and that all expected output files exist afterward.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 4 – Reviewer response & hand‑off to paper pipeline
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for split-step Fourier stability in tests/unit/test_gpe_solver.py::test_split_step_preserves_norm"
-Task: "Integration test for single run completion in tests/integration/test_single_run.py::test_single_run_completes"
+- [ ] **T021** [P] Compile a short “Research Summary” (`research_summary.md`) that links directly to the generated figures, tables, and the `methods.md` documentation. This file will be consumed by the downstream paper‑generation pipeline.  
+  - **Verification**: `tests/contract/test_summary_links.py` parses the markdown and confirms that every referenced figure or JSON file exists.
 
-# Launch all models for User Story 1 together:
-Task: "Implement Thomas-Fermi initial condition generator in code/simulation/initial_conditions.py"
-Task: "Implement split-step Fourier GPE solver in code/simulation/gpe_solver.py"
-```
+- [ ] **T022** [P] Archive a provenance manifest `data/provenance.yaml` that records the git commit hash, the exact command‑line used for the full‑grid run, and the versions of the major scientific libraries (`numpy`, `scipy`, `matplotlib`).  
+  - **Verification**: `tests/contract/test_provenance.yaml` validates the YAML syntax and the presence of required keys (`commit`, `command`, `library_versions`).
 
 ---
 
-## Implementation Strategy
+### Dependency matrix (for reviewer reference)
 
-### MVP First (User Story 1 Only)
+| Task | Depends on |
+|------|------------|
+| T001–T008 | – |
+| T009 | – |
+| T010 | T001, T009 |
+| T010a | T009 |
+| T011 | T001, T002, T009, T010 |
+| T011a | T011 |
+| T011b | T011a |
+| T012 | T001, T009 |
+| T013 | T012 |
+| T014 | T013 |
+| T015 | T013, T014 |
+| T015a | T015 |
+| T015b | T015a |
+| T016 | T015 |
+| T017 | T011, T015 |
+| T017a | T017 |
+| T018 | T015 |
+| T019 | T016, T017 |
+| T020 | T011, T015, T016 |
+| T021 | T019, T020 |
+| T022 | T017, T020 |
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (including T017b amendment first)
-4. **STOP and VALIDATE**: Test User Story 1 independently (single run on 256x256, full grid on 64x64)
-5. Deploy/demo if ready
+---  
 
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (GPE Solver) - Starts after T017b
- - Developer B: User Story 2 (Vortex Detection) - Starts after T021b
- - Developer C: User Story 3 (Statistics & Viz) - Starts after T029b
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Correction**: The implementation uses **Two-Way ANOVA** and **Vortex Density** (T029, T021) instead of the Spec's invalid One-Way ANOVA and Retention Fraction (FR-005), as mandated by the Plan's Spec-Plan Alignment Gap. Amendment tasks T017b, T021b, and T029b update the spec to reflect this BEFORE implementation proceeds.
+*All unchecked tasks must produce real files or executable scripts that can be inspected by the platform’s verifier.  When a task is completed, its checkbox will be checked by the CI pipeline.*  

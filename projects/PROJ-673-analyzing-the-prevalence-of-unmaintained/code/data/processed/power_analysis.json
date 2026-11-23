@@ -1,0 +1,15 @@
+{
+  "effect_size": 0.2,
+  "alpha": 0.05,
+  "sample_size": 0,
+  "actual_power": 0.0,
+  "target_power": 0.8,
+  "meets_target": false,
+  "methodology_notes": "Power calculated using Fisher z-transformation approximation for Spearman correlation. Target effect size (rho) set to 0.2 per SC-006. Alpha set to 0.05. Sample size N=0 derived from valid rows in input CSV."
+}
+# NOTE: This file is a placeholder generated because the upstream data collection (T019)
+# has not yet produced a valid `data/processed/dependencies_raw.csv`.
+# The script `src/analysis/power.py` is implemented to run against real data.
+# When T019 is successfully executed and `dependencies_raw.csv` exists with valid rows,
+# re-running `python src/analysis/power.py` will overwrite this with real measured values.
+# The current sample_size=0 reflects the absence of input data.

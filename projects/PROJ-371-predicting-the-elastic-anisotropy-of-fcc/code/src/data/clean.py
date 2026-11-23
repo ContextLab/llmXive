@@ -1,9 +1,3 @@
-"""
-Data cleaning module for elastic anisotropy dataset.
-
-Filters for single-phase FCC entries, handles edge cases for division by zero,
-and calculates the Zener anisotropy ratio A1.
-"""
 import os
 import sys
 import logging
@@ -11,150 +5,134 @@ from pathlib import Path
 from typing import Optional
 
 import pandas as pd
+import numpy as np
 
-# Add project root to path for imports if running as script
-if "code" in os.getcwd():
-    sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
-from src.utils.config import get_path
+# Import project utilities
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 from src.utils.logging import get_logger, log_info, log_warning, log_error, log_success
+from src.utils.config import get_path
 
-# Configure logger for this module
 logger = get_logger(__name__)
 
-def clean_elastic_data(
-    input_path: Optional[str] = None,
-    output_path: Optional[str] = None,
-    min_entries: int = 1
-) -> pd.DataFrame:
+def clean_elastic_data(input_path: str, output_path: Optional[str] = None) -> pd.DataFrame:
     """
-    Clean the elastic constants dataset.
-    
-    Operations:
-    1. Filter for single-phase FCC entries (assuming 'phase' column or similar indicator).
-       Since the specific column name for phase isn't defined in the prompt's API surface,
-       we assume the input data from T012 (ingest) already contains a 'structure' or 'phase'
-       column indicating FCC, or we filter by the presence of all required elastic constants.
-       Based on standard practices in this domain, we will filter rows where C11, C12, C44 exist.
-       If a 'structure' column exists with value 'FCC', we use that.
-    2. Exclude entries where C11 == C12 to prevent division by zero in A1 calculation.
-    3. Calculate A1 = 2 * C44 / (C11 - C12).
-    4. Log removed entries and final dataset statistics.
-    
+    Clean the ingested elastic data by:
+    1. Filtering for single-phase FCC entries (Crystal system == 'cubic').
+    2. Excluding entries where C11 == C12 (prevents division by zero).
+    3. Calculating the anisotropy factor A1 = 2*C44 / (C11 - C12).
+    4. Handling NaN/Inf values.
+
     Args:
-        input_path: Path to the input CSV (default: data/processed/ingested_elastic.csv).
-        output_path: Path to save the cleaned CSV (default: data/processed/cleaned_elastic.csv).
-        min_entries: Minimum number of entries required to proceed (safety check).
-        
+        input_path: Path to the input CSV (merged MP/AFLOW data).
+        output_path: Path to save the cleaned CSV. If None, uses default processed path.
+
     Returns:
-        Cleaned DataFrame with A1 column added.
+        The cleaned DataFrame.
     """
-    # Resolve paths
-    if input_path is None:
-        input_path = get_path("data_processed", "ingested_elastic.csv")
-    else:
-        input_path = get_path("data_processed", input_path) if not Path(input_path).is_absolute() else input_path
-        
     if output_path is None:
-        output_path = get_path("data_processed", "cleaned_elastic.csv")
-    else:
-        output_path = get_path("data_processed", output_path) if not Path(output_path).is_absolute() else output_path
+        output_path = get_path("data_processed", "elastic_anisotropy.csv")
 
-    input_path = Path(input_path)
-    output_path = Path(output_path)
-
-    if not input_path.exists():
-        error_msg = f"Input file not found: {input_path}"
-        log_error(error_msg)
-        raise FileNotFoundError(error_msg)
-
-    log_info(f"Loading data from {input_path}")
+    log_info(logger, f"Loading data from {input_path}")
     try:
         df = pd.read_csv(input_path)
+    except FileNotFoundError:
+        log_error(logger, f"Input file not found: {input_path}")
+        raise
     except Exception as e:
-        log_error(f"Failed to read CSV: {e}")
+        log_error(logger, f"Failed to read input file: {e}")
         raise
 
     initial_count = len(df)
-    log_info(f"Loaded {initial_count} rows")
+    log_info(logger, f"Loaded {initial_count} rows.")
 
-    # 1. Filter for single-phase FCC entries
-    # Check if a structural identifier column exists
-    structural_cols = [col for col in df.columns if col.lower() in ["structure", "phase", "crystal_system", "bravais_lattice"]]
-    
-    if structural_cols:
-        # Prefer 'structure' or 'phase' if available
-        target_col = structural_cols[0]
-        log_info(f"Filtering by {target_col} == 'FCC'")
-        # Case-insensitive check for FCC
-        fcc_mask = df[target_col].astype(str).str.upper().str.contains("FCC")
-        df = df[fcc_mask]
-        dropped_struct = initial_count - len(df)
-        if dropped_struct > 0:
-            log_warning(f"Dropped {dropped_struct} rows due to non-FCC structure")
-    else:
-        log_warning("No structural column found; assuming all entries are FCC based on input source.")
-
-    # 2. Ensure required columns exist
-    required_cols = ["C11", "C12", "C44"]
+    # Ensure required columns exist
+    required_cols = ['C11', 'C12', 'C44']
     missing_cols = [c for c in required_cols if c not in df.columns]
     if missing_cols:
-        error_msg = f"Missing required elastic constant columns: {missing_cols}"
-        log_error(error_msg)
-        raise ValueError(error_msg)
+        log_error(logger, f"Missing required columns in input: {missing_cols}")
+        raise ValueError(f"Missing required columns: {missing_cols}")
 
-    # Convert to numeric, coercing errors to NaN
-    for col in required_cols:
-        df[col] = pd.to_numeric(df[col], errors="coerce")
+    # 1. Filter for Cubic Crystal System
+    # The column name might vary slightly depending on merge, check common variations
+    crystal_col = None
+    for col in ['crystal_system', 'symmetry_crystal_system', 'structure_symmetry_crystal_system']:
+        if col in df.columns:
+            crystal_col = col
+            break
 
-    # Drop rows with any missing elastic constants
-    before_na = len(df)
-    df = df.dropna(subset=required_cols)
-    dropped_na = before_na - len(df)
-    if dropped_na > 0:
-        log_warning(f"Dropped {dropped_na} rows due to missing elastic constant values")
+    if crystal_col:
+        log_info(logger, f"Filtering for cubic crystal system using column: {crystal_col}")
+        # Normalize to lowercase for robust comparison
+        df = df[df[crystal_col].str.lower() == 'cubic']
+        log_success(logger, f"Filtered cubic entries: {len(df)} remaining.")
+    else:
+        log_warning(logger, "No crystal system column found. Skipping cubic filter. "
+                            "Assuming all input is FCC/Cubic or handled upstream.")
 
-    # 3. Exclude entries where C11 == C12 (prevents division by zero)
-    # Use a small tolerance for floating point comparison if needed, but strict equality is safer for data integrity
-    before_zero = len(df)
-    # Using a small epsilon for float comparison safety
-    epsilon = 1e-6
-    valid_diff_mask = (df["C11"] - df["C12"]).abs() > epsilon
-    df = df[valid_diff_mask]
-    dropped_zero = before_zero - len(df)
-    if dropped_zero > 0:
-        log_warning(f"Dropped {dropped_zero} rows where C11 approx equals C12 (division by zero risk)")
+    # 2. Exclude entries where C11 == C12 (Division by Zero Prevention)
+    # Using a small epsilon for float comparison safety, though exact equality is the spec
+    epsilon = 1e-9
+    mask_div_zero = np.abs(df['C11'] - df['C12']) > epsilon
+    dropped_div_zero = initial_count - len(df) - (len(df) - mask_div_zero.sum()) # Approximate logic
+    dropped_div_zero = len(df) - mask_div_zero.sum()
+    
+    if dropped_div_zero > 0:
+        log_warning(logger, f"Dropped {dropped_div_zero} entries where C11 ≈ C12 to prevent division by zero.")
+    
+    df = df[mask_div_zero]
 
-    # 4. Calculate A1 = 2 * C44 / (C11 - C12)
-    df["A1"] = 2 * df["C44"] / (df["C11"] - df["C12"])
-    log_info("Calculated Zener Anisotropy Ratio (A1)")
+    # 3. Calculate A1 = 2 * C44 / (C11 - C12)
+    log_info(logger, "Calculating Anisotropy Factor A1.")
+    df['A1'] = (2.0 * df['C44']) / (df['C11'] - df['C12'])
 
-    # Validate A1 values (Physical bounds: A1 should be > 0 for stable FCC, though theoretical range varies)
-    # We do not drop negative values here as they might indicate unstable phases or measurement errors,
-    # but we log them.
-    negative_a1 = df[df["A1"] <= 0]
-    if len(negative_a1) > 0:
-        log_warning(f"Found {len(negative_a1)} entries with A1 <= 0. These may be physically unstable.")
+    # 4. Handle NaN and Inf values resulting from calculation or bad input
+    nan_count = df['A1'].isna().sum()
+    inf_count = np.isinf(df['A1']).sum()
+    
+    if nan_count > 0 or inf_count > 0:
+        log_warning(logger, f"Found {nan_count} NaN and {inf_count} Inf values in A1. Dropping them.")
+        df = df.replace([np.inf, -np.inf], np.nan)
+        df = df.dropna(subset=['A1'])
+
+    final_count = len(df)
+    log_success(logger, f"Cleaning complete. Started with {initial_count}, ended with {final_count} valid entries.")
 
     # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_dir = Path(output_path).parent
+    output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Save to CSV
+    log_info(logger, f"Saving cleaned data to {output_path}")
     df.to_csv(output_path, index=False)
-    log_success(f"Cleaned dataset saved to {output_path} ({len(df)} rows)")
-
-    if len(df) < min_entries:
-        log_error(f"Final dataset size ({len(df)}) is below minimum required ({min_entries})")
-        raise ValueError(f"Insufficient data: {len(df)} < {min_entries}")
 
     return df
 
 def main():
-    """Entry point for running the cleaning script directly."""
+    """
+    CLI entry point for the cleaning task.
+    Expects input from the validated ingest stage.
+    """
+    # Default paths based on project structure
+    # Assuming T012c produced data/processed/validated_elastic_data.csv or similar
+    # We look for the most recent merged file or a specific name defined in config if available.
+    # For now, we assume the pipeline passes the output of T012c to this.
+    # If run standalone, we check for a default location.
+    
+    input_file = get_path("data_processed", "validated_elastic_data.csv")
+    if not os.path.exists(input_file):
+        # Fallback if T012c output name differs, check raw merged
+        input_file = get_path("data_processed", "merged_elastic_data.csv")
+    
+    if not os.path.exists(input_file):
+        log_error(logger, "No validated/merged input file found. Run T012c first.")
+        sys.exit(1)
+
+    output_file = get_path("data_processed", "elastic_anisotropy.csv")
+
     try:
-        clean_elastic_data()
+        clean_elastic_data(input_file, output_file)
+        log_success(logger, "Task T013 completed successfully.")
     except Exception as e:
-        log_error(f"Pipeline failed: {e}")
+        log_error(logger, f"Task T013 failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

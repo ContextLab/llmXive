@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-130-evaluating-the-explainability-of-llm-bas
-last_run_id: e007cd14-26cb-4455-bdc7-f18adffe6e58
+last_run_id: 7527ffe0-c06a-45dd-9214-14889a02720b
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-130-evaluating-the-explainability-of-llm-bas/specs/001-evaluating-the-explainability-of-llm-bas
 title: Evaluating the Explainability of LLM-Based Bug Fixes
-updated_at: '2026-07-01T02:15:16.375809Z'
+updated_at: '2026-09-20T15:26:06.079620Z'

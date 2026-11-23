@@ -1,0 +1,4 @@
+# This file ensures the data/raw directory is tracked by git.
+# Actual data files (e.g., political_iat_raw.csv) will be downloaded here
+# by running `python code/data_fetcher.py`.
+# Do not commit large data files; ensure .gitignore excludes them.

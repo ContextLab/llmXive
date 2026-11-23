@@ -41,16 +41,10 @@
 
 ## Phase 1: Setup (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization and basic structure (Programmatic execution)
 
-- [ ] T001 [P] Create root project directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/`
-- [ ] T002 [P] Create source directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/`
-- [ ] T003 [P] Create test directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/`
-- [ ] T004 [P] Create data directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/data/`
-- [ ] T005 [P] Create results directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/`
-- [ ] T006 [P] Create models directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/models/`
-- [~] T007 [P] Create config directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/config/`
-- [~] T008 [P] Create docs directory: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/docs/`
+- [X] T001 [P] Write `scripts/init_project.py` to programmatically create the required directory structure: `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/data/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/data/raw/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/data/processed/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/models/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/config/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/docs/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/scripts/`, `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/state/`. (Addresses executability/reproducibility, FR-001, Constitution Principle I & V)
+- [X] T002 [P] Execute `scripts/init_project.py` to generate the directory structure and verify creation via file system checks. (Depends on T001)
 
 ---
 
@@ -60,23 +54,120 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T009 Create `contracts/` directory with `dataset.schema.yaml`, `model_output.schema.yaml`, and `alerts.schema.yaml`
-- [ ] T010 [P] Implement `config/structural_alerts.json` with a curated set of SMARTS patterns and weights:
- 1. NitroAromatic: `[*;a]([N+](=O)[O-])` (weight: 1.5)
- 2. Epoxide: `[C;D3]1[O;D1][C;D3]1` (weight: 2.0)
- 3. PrimaryAromaticAmine: `[N;D1;H2][c]` (weight: 1.2)
- 4. SecondaryAromaticAmine: `[N;D2;H1][c]` (weight: 1.0)
- 5. Azide: `[N;D1]=[N;D1]=[N;D1]` (weight: 2.5)
- 6. Isocyanate: `[N;D1]=[C;D2]=[O;D1]` (weight: 2.0)
- 7. Aldehyde: `[C;D2](=[O;D1])[H;D1]` (weight: 0.8)
- 8. HalogenatedAliphatic: `[C;D4][Cl,Br,I,F]` (weight: 0.5)
- 9. Azo: `[N;D1]=[N;D1]` (weight: 1.8)
- 10. Hydrazine: `[N;D1][N;D1]` (weight: 1.5)
- (FR-003)
-- [ ] T011 [P] Create `src/pipeline/run.py` orchestration skeleton with CLI argument parsing
-- [ ] T012 Create `src/config/__init__.py` and environment variable management for paths
-- [ ] T013 Implement `src/scripts/update_state.py` for artifact hashing and state file updates
-- [ ] T014 Setup logging infrastructure in `src/utils/logger.py` to capture data counts, errors, and checksums
+- [ ] T009 [P] Create `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/specs/001-predicting-molecular-toxicity-from-struc/contracts/` directory with `dataset.schema.yaml` and `model_output.schema.yaml`. (Clarified path per plan.md)
+- [X] T009b [P] Create the file `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/specs/001-predicting-molecular-toxicity-from-struc/contracts/alerts.schema.yaml` (empty or with header). (FR-003, Constitution Principle II)
+- [X] T009c [P] Generate `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/specs/001-predicting-molecular-toxicity-from-struc/contracts/alerts.schema.yaml` with the exact JSON Schema definition for `config/structural_alerts.json`. **Instruction**: Generate a valid JSON Schema file matching the structure defined in FR-003 (do not copy-paste text from this description). **Content**:
+```yaml
+$schema: http://json-schema.org/draft-07/schema#
+title: StructuralAlertsConfig
+type: object
+properties:
+ patterns:
+ type: array
+ minItems: a sufficient number to ensure statistical validity
+ items:
+ type: object
+ required:
+ - pattern_id
+ - smarts_string
+ - weight
+ - source
+ - description
+ properties:
+ pattern_id:
+ type: string
+ smarts_string:
+ type: string
+ weight:
+ type: number
+ source:
+ type: string
+ description:
+ type: string
+```
+ **Instruction**: Generate the YAML content programmatically or from a verified template to ensure robustness. (FR-003, Constitution Principle II)
+- [X] T010 [P] Create `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/config/structural_alerts.json` with a curated set of at least 10 SMARTS patterns and weights. **Requirement**: Each pattern must include a `source` field (e.g., "ToxCast", "Brenk set") and `description` to satisfy the "curated" requirement. **Exact JSON Schema Example**:
+```json
+{
+ "patterns": [
+ {
+ "pattern_id": "NITRO_AROMATIC_01",
+ "smarts_string": "[*;a]([N+](=O)[O-])",
+ "weight": 1.5,
+ "source": "Brenk Set",
+ "description": "Nitroaromatic group"
+ },
+ {
+ "pattern_id": "EPOXIDE_01",
+ "smarts_string": "[C;D3]1[O;D1][C;D3]1",
+ "weight": 2.0,
+ "source": "Brenk Set",
+ "description": "Epoxide ring"
+ },
+ {
+ "pattern_id": "PRIMARY_ARI_AMINE_01",
+ "smarts_string": "[N;D1;H2][c]",
+ "weight": 1.2,
+ "source": "Brenk Set",
+ "description": "Primary aromatic amine"
+ },
+ {
+ "pattern_id": "SECONDARY_ARI_AMINE_01",
+ "smarts_string": "[N;D2;H1][c]",
+ "weight": 1.0,
+ "source": "Brenk Set",
+ "description": "Secondary aromatic amine"
+ },
+ {
+ "pattern_id": "AZIDE_01",
+ "smarts_string": "[N;D1]=[N;D1]=[N;D1]",
+ "weight": 2.5,
+ "source": "Brenk Set",
+ "description": "Azide group"
+ },
+ {
+ "pattern_id": "ISOCYANATE_01",
+ "smarts_string": "[N;D1]=[C;D2]=[O;D1]",
+ "weight": 2.0,
+ "source": "Brenk Set",
+ "description": "Isocyanate group"
+ },
+ {
+ "pattern_id": "ALDEHYDE_01",
+ "smarts_string": "[C;D2](=[O;D1])[H;D1]",
+ "weight": 0.8,
+ "source": "Brenk Set",
+ "description": "Aldehyde group"
+ },
+ {
+ "pattern_id": "HALO_ALIPHATIC_01",
+ "smarts_string": "[C;D4][Cl,Br,I,F]",
+ "weight": 0.5,
+ "source": "Brenk Set",
+ "description": "Halogenated aliphatic"
+ },
+ {
+ "pattern_id": "AZO_01",
+ "smarts_string": "[N;D1]=[N;D1]",
+ "weight": 1.8,
+ "source": "Brenk Set",
+ "description": "Azo group"
+ },
+ {
+ "pattern_id": "HYDRAZINE_01",
+ "smarts_string": "[N;D1][N;D1]",
+ "weight": 1.5,
+ "source": "Brenk Set",
+ "description": "Hydrazine group"
+ }
+ ]
+}
+```
+ **Instruction**: Copy the exact JSON content from the task description into `config/structural_alerts.json`. (FR-003)
+- [~] T011 [P] Create `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/pipeline/run.py` orchestration skeleton with CLI argument parsing
+- [~] T012 Create `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/config/__init__.py` and environment variable management for paths
+- [~] T013 Implement `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/scripts/update_state.py` for artifact hashing and state file updates
+- [~] T014 Setup logging infrastructure in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/utils/logger.py` to capture data counts, errors, and checksums
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -86,28 +177,28 @@
 
 **Goal**: Download a verified mutagenicity dataset, extract rule-based and descriptor features, train both models, and compare ROC-AUC/F1.
 
-**Independent Test**: The pipeline can be fully tested by running the data acquisition, feature extraction, and model training scripts on a local CPU environment and verifying that the script outputs a JSON report containing ROC-AUC and F1 scores for both models without requiring external API calls or GPU resources.
+**Independent Test**: The pipeline can be fully tested by running the data acquisition, feature extraction, and model training scripts on a a local CPU environment and verifying that the script outputs a JSON report containing ROC-AUC and F1 scores for both models without requiring external API calls or GPU resources.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T015 [P] [US1] Unit test for SMILES standardization and MW filtering in `tests/unit/test_preprocess.py`
-- [ ] T016 [P] [US1] Unit test for SMARTS pattern loading and binary vector generation in `tests/unit/test_alerts.py`
-- [ ] T017 [P] [US1] Unit test for descriptor calculation (a set of fixed descriptors) in `tests/unit/test_descriptors.py`
-- [ ] T018 [P] [US1] Integration test for full data-to-model pipeline in `tests/integration/test_pipeline.py`
+- [~] T015 [P] [US1] Unit test for SMILES standardization and MW filtering in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/unit/test_preprocess.py`
+- [~] T016 [P] [US1] Unit test for SMARTS pattern loading and binary vector generation in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/unit/test_alerts.py`
+- [ ] T017 [P] [US1] Unit test for descriptor calculation (a set of fixed descriptors) in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/unit/test_descriptors.py`
+- [ ] T018 [P] [US1] Integration test for full data-to-model pipeline in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/integration/test_pipeline.py`
 
 ### Implementation for User Story 1
 
-- [ ] T019 [P] [US1] Implement `src/data/download.py` to fetch ToxCast/PubChem data from verified URL (HuggingFace/UCI) with SHA-256 checksumming
-- [ ] T020 [P] [US1] Implement `src/data/preprocess.py` for SMILES canonicalization, MW < 1000 Da filtering, and duplicate handling (FR-002, Edge Cases)
-- [ ] T021 [P] [US1] Implement `src/features/alerts.py` to load `config/structural_alerts.json`, validate SMARTS, and generate binary vectors (FR-003)
-- [ ] T022 [P] [US1] Implement `src/features/descriptors.py` to compute a comprehensive set of RDKit global descriptors (non-correlated): `MolWt`, `MolLogP`, `TPSA`, `NumHDonors`, `NumHAcceptors`, `NumRotatableBonds`, `NumAromaticRings`, `NumAliphaticRings`, `NumSaturatedRings`, `NumHeteroatoms`, `HeavyAtomCount`, `FractionCSP3`, `NumBridgeheadAtoms`, `NumSpiroAtoms`, `RingCount`, `MaxDendriticBranching`, `Kappa1`, `Kappa2`, `Kappa3`, `Chi0` (FR-004)
-- [ ] T023 [P] [US1] Implement `src/models/rule_based.py` for scoring based on alert weights (FR-005)
-- [ ] T024 [P] [US1] Implement `src/models/logistic.py` for Logistic Regression with k-fold stratified CV repeated multiple times (k × n total folds) (FR-005)
-- [ ] T025 [US1] Implement `src/evaluation/metrics.py` to calculate ROC-AUC, F1, and Recall for both models on held-out test set (FR-006). **Specific Task**: Measure and report the difference in Recall (Desc - Rule) against the 5% threshold to quantify marginal gain (SC-002).
-- [ ] T026 [US1] Implement `src/pipeline/run.py` logic to orchestrate download → preprocess → features → train → evaluate. **Critical**: Must output intermediate OOF prediction vectors for every instance in every fold to `results/oof_predictions_fold_{fold_id}.json` (FR-001, FR-010)
-- [ ] T027 [US1] Generate `results/metrics_baseline.json` with ROC-AUC and F1 for both models
+- [ ] T019 [P] [US1] Implement `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/data/download.py` to fetch ToxCast/PubChem data from verified URL `https://huggingface.co/datasets/toxcast/ames` (dataset identifier `toxcast/ames`) with SHA-256 checksumming. **Constraint**: Must fail loudly if download fails; no synthetic fallback. **Requirement**: Ensure the dataset source is known to contain > 108319 (1705.05693, https://arxiv.org/abs/1705.05693) samples [UNRESOLVED-CLAIM: c_a64c2925 — status=not_enough_info]; if the source is unknown, add a pre-flight check to validate sample size before proceeding. (FR-001)
+- [ ] T020 [US1] Implement `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/data/preprocess.py` for SMILES canonicalization, MW < 1000 Da filtering, and duplicate handling (FR-002, Edge Cases). **Algorithm**: Group by canonical SMILES. If a group has >1 unique label, **discard ONLY the conflicting rows** (keep rows where all labels agree) and log the count of discarded rows. **Constraint**: Immediately check the final dataset size (N). If N <= 1000, **raise a `ValueError`** with the message "Dataset size {N} is below the minimum threshold of 1000. Pipeline halted." **Do NOT log a warning and proceed.** This enforces the "fail loudly" requirement of T019 and Spec Assumptions. **Output**: Write the count of discarded rows and the final N to `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/preprocessing_log.json` with keys `discarded_conflict_count` and `final_n`. Ensure the `code/results/` directory exists (guaranteed by T001). (FR-002, Edge Cases)
+- [ ] T021 [US1] Implement `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/features/alerts.py` to load `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/specs/001-predicting-molecular-toxicity-from-struc/contracts/alerts.schema.yaml` (from T009c), validate SMARTS against it, and generate binary vectors (FR-003). **Note**: Validation logic is included here. **Depends on T009c, T010**.
+- [ ] T022a [P] [US1] Implement `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/features/descriptors.py` to compute a **fixed, pre-defined set** of 20 global molecular descriptors. **Constraint**: Do NOT perform any correlation analysis or filtering. Use the exact RDKit function names as column headers. **Fixed List**: `MolWt`, `MolLogP`, `TPSA`, `NumHDonors`, `NumHAcceptors`, `NumRotatableBonds`, `NumAromaticRings`, `NumAliphaticRings`, `NumSaturatedRings`, `NumHeteroatoms`, `HeavyAtomCount`, `FractionCSP3`, `NumBridgeheadAtoms`, `NumSpiroAtoms`, `RingCount`, `MaxDendriticBranching`, `Kappa1`, `Kappa2`, `Kappa3`, `Chi0`. This fixed list satisfies the Plan's requirement to prevent data leakage. **Output**: Save results as a pandas DataFrame to `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/data/processed/descriptors.csv` with columns `[smiles, MolWt, MolLogP,...]`. (FR-004) **Depends on T020**.
+- [ ] T023 [P] [US1] Implement `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/models/rule_based.py` for scoring based on alert weights (FR-005)
+- [ ] T024 [P] [US1] Implement `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/models/logistic.py` for Logistic Regression with **5-fold stratified cross-validation repeated multiple times to ensure robust evaluation.**. **Constraint**: Hardcode `n_splits=5`, `n_repeats=3`, and `random_state=42` to ensure deterministic folds. (Addresses executability/ordering)
+- [ ] T025 [US1] Implement `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/evaluation/metrics.py` to calculate ROC-AUC, F1, and Recall for both models on held-out test set (FR-006). **Specific Task**: Calculate the percentage point difference in Recall (Desc - Rule) as `(Desc_Recall - Rule_Recall)` scaled to percentage units.. **Output**: Append `recall_diff_pct_points` (float, the measured quantity), `recall_diff_significant` (boolean: true if `abs(recall_diff) > 0.05` where `recall_diff` is the **raw** difference, NOT the percentage points), and `recall_diff_raw` (float, the raw difference value) to `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/metrics_baseline.json`. (Addresses SC-002 measurability). **Constraint**: This task must be independent of T026 (orchestration) and implement the logic only. **Critical**: Ensure `recall_diff_significant` compares the raw difference (e.g., 0.05) against 0.05, not the percentage point value (e.g., 5.0) against 0.05.
+- [ ] T026 [US1] Implement `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/pipeline/run.py` logic to orchestrate download → preprocess → features → train → evaluate. **Critical**: Must output **consolidated Out-of-Fold (OOF) prediction vectors** for every instance in the test set to `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/oof_predictions_final_rule.json` and `oof_predictions_final_desc.json`. **Schema**: Each file must be a JSON list of objects: `[{ "instance_id": <int>, "prediction": <float> },...]`. **Note**: `instance_id` must be the row index of the preprocessed DataFrame to ensure consistent mapping. **Constraint**: **Override Note**: The Spec (US-2) mentions "averaged per instance" but the Plan (Phase 4) and Constitution (Principle VI) mandate **Out-of-Fold (OOF)** predictions for statistical validity. This task follows the **Plan's OOF methodology**. The contradiction is logged in the final report. **Depends on T019, T020, T021, T022a, T023, T024, T025**. (FR-001, FR-010)
+- [ ] T027 [US1] Generate `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/metrics_baseline.json` with ROC-AUC and F for both models
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -121,14 +212,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T028 [P] [US2] Unit test for DeLong's test implementation using synthetic paired data in `tests/unit/test_statistical.py`. **Specific Task**: Verify DeLong's test returns p-value < 0.05 for synthetic data and appends result to `results/metrics_baseline.json`.
-- [ ] T029 [P] [US2] Integration test for OOF prediction collection and statistical comparison in `tests/integration/test_statistical.py`. **Specific Task**: Verify the OOF prediction vector is constructed correctly (one value per instance).
+- [ ] T028 [P] [US2] Unit test for DeLong's test implementation using synthetic paired data in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/unit/test_statistical.py`. **Specific Task**: Verify DeLong's test returns p-value < 0.05 for synthetic data [UNRESOLVED-CLAIM: c_48d986e1 — status=refuted] and appends result to `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/metrics_baseline.json`. **Source**: Cite "DeLong et al. (1988) " as the primary source for the statistical method, not Wikipedia. (Addresses Constitution Principle II)
+- [ ] T029 [P] [US2] Integration test for OOF prediction collection and statistical comparison in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/integration/test_statistical.py`. **Specific Task**: Verify the OOF prediction vector is constructed correctly (one value per instance).
 
 ### Implementation for User Story 2
 
-- [ ] T030 [US2] Implement logic in `src/pipeline/run.py` to **COLLECT** Out-of-Fold (OOF) predicted probabilities for every instance (one prediction per instance from the fold where it was held out) across all 15 folds (5-fold x 3 repeats) for both models. Save OOF vectors to `results/oof_predictions_final.json`. (FR-007, US-2)
-- [ ] T031 [US2] Implement `src/evaluation/statistical.py` with a custom, reproducible implementation of DeLong's test. **Input**: The **OOF** probability vectors from T030. **Output**: P-value and 95% CI. (FR-007)
-- [ ] T032 [US2] Execute DeLong's test on paired OOF probability vectors and append p-value and 95% CI to `results/metrics_baseline.json`. (FR-007, SC-001)
+- [ ] T030 [US2] Implement logic in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/pipeline/run.py` to **READ** the consolidated OOF prediction vectors from T026. **Logic**: Load `oof_predictions_final_rule.json` and `oof_predictions_final_desc.json`. **Constraint**: These files already contain the single OOF prediction per instance. No merging of 15 files is required. Save the resulting 1D vectors to `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/oof_predictions_final.json` as a JSON object: `{ "rule_based": [float,...], "descriptor": [float,...] }`. (FR-007, US-2). **Depends on T026**. **Note**: This task confirms the data flow from T026 (consolidated output) to T031.
+- [ ] T031 [US2] Implement `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/evaluation/statistical.py` with a custom, reproducible implementation of DeLong's test. **Input**: The **paired OOF probability vectors** (Rule and Descriptor) from T030. **Algorithm**: Implement the DeLong et al. (1988) / Zou et al. (2007) method for comparing correlated AUCs. **Output**: P-value and 95 CI. (FR-007) **Depends on T030**.
+- [ ] T032 [US2] Execute DeLong's test on paired OOF probability vectors and append p-value and confidence interval to `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/metrics_baseline.json`. (FR-007, SC-001)
 - [ ] T033 [US2] Implement logic to flag "statistically significant" if p < 0.05 and "no significant difference" otherwise. (FR-009)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
@@ -143,16 +234,16 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T034 [P] [US3] Unit test for Murcko scaffold extraction in `tests/unit/test_error_analysis.py`
-- [ ] T035 [P] [US3] Integration test for false negative identification and scaffold frequency ranking in `tests/integration/test_error_analysis.py`
+- [ ] T034 [P] [US3] Unit test for Murcko scaffold extraction in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/unit/test_error_analysis.py`
+- [ ] T035 [P] [US3] Integration test for false negative identification and scaffold frequency ranking in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/integration/test_error_analysis.py`
 
 ### Implementation for User Story 3
 
-- [ ] T036 [P] [US3] Implement `src/evaluation/error_analysis.py` to filter test set for Rule-Based model False Negatives (FR-008)
+- [ ] T036 [P] [US3] Implement `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/evaluation/error_analysis.py` to filter test set for Rule-Based model False Negatives (FR-008)
 - [ ] T037 [US3] Implement Murcko scaffold extraction for false negative compounds using RDKit (FR-008)
-- [ ] T038 [US3] Implement frequency ranking of top 10 unique **Murcko scaffolds** in false negatives (US-3, SC-003)
-- [ ] T039 [US3] Generate a report listing the top unique **Murcko scaffolds** and their frequencies (FR-008)
-- [ ] T040 [US3] Append error analysis results (scaffold counts, missing motifs) to `results/metrics_baseline.json`
+- [ ] T038 [US3] Implement frequency ranking of top unique **Murcko scaffolds** in false negatives by **counting occurrences** (US-3, SC-003). **Note**: Ranking by frequency is a standard descriptive statistic; no external citation required. **Calculation**: Calculate the ratio of false negatives explained by the top-performing scaffolds: `(Count of FNs with scaffold in Top 10) / (Total Count of FNs)`. **Supplemental Metric**: Label this ratio as `fn_explained_pct` and mark it as "supplemental" in the output JSON, as it is not a primary Success Criterion but provides additional insight. (FR-008, SC-003)
+- [ ] T039 [US3] Generate a report listing the top unique **Murcko scaffolds** present in the **false negatives** of the rule-based model. **Output**: Save to `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/error_analysis_scaffolds.json` as a list of objects: `[{ "scaffold_smiles": str, "count": int, "frequency": float, "supplemental": true },...]`. Append `fn_explained_pct` (float, the ratio from T038 * 100) and `fn_explained_count` (int) to this file. (FR-008, SC-003)
+- [ ] T040 [US3] Append error analysis results (scaffold counts, missing motifs, ratios) to `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/metrics_baseline.json`
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -162,15 +253,14 @@
 
 **Goal**: Address the specific concerns raised by the "Marie Curie" review regarding sample size, assay specificity, and reproducibility standards.
 
-**Independent Test**: Verify that the `results/metrics_baseline.json` and `research.md` explicitly state the compound count (N > 1000), the specific assay source (e.g., PubChem AID 1851), and the reproducibility standard (5-fold CV x 3 repeats).
+**Independent Test**: Verify that the `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/metrics_baseline.json` and `research.md` explicitly state the compound count (N > 1000), the specific assay source (e.g., PubChem AID 1851), and the reproducibility standard (5-fold CV x 3 repeats).
 
 ### Implementation for Research Validation
 
-- [ ] T041 [P] [US1] Update `src/data/download.py` to enforce a minimum sample size check (N > 1000) and fail gracefully if the dataset is too small (Addressing Reviewer Concern: "quantity of material matters"). **Source**: Spec Assumptions.
-- [ ] T042 [P] [US1] Update `src/data/download.py` to explicitly log the specific assay ID (e.g., PubChem AID 1851) and assay type (Ames/ToxCast) in the data report (Addressing Reviewer Concern: "measurement instrument for mutagenicity"). **Source**: Spec Assumptions.
-- [ ] T043 [US1] Update `results/metrics_baseline.json` schema to include `dataset_metadata` field to store assay_id, assay_type, and total_compounds (FR-001, FR-002).
-- [ ] T044 [US1] Update `research.md` to explicitly state the reproducibility standard: "Validation requires 5-fold stratified CV repeated 3 times on N > 1000 compounds from [Specific Assay] [UNRESOLVED-CLAIM: c_ee448bec — status=not_enough_info] " (Addressing Reviewer Concern: "reproducibility standard")
-- [ ] T045 [P] [US1] Add a pre-flight validation script `scripts/validate_dataset.py` that checks column existence, label distribution, and SMILES validity before pipeline execution
+- [ ] T041 [US1] Update `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/data/download.py` to explicitly log the specific assay ID (e.g., a PubChem AID) and assay type (Ames/ToxCast) in the data report (Addressing Reviewer Concern: "measurement instrument for mutagenicity"). **Source**: Spec Assumptions.
+- [ ] T042 [US1] Update `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/results/metrics_baseline.json` schema to include `dataset_metadata` field to store assay_id, assay_type, and total_compounds (FR-001, FR-002). **Schema**: `{ "assay_id": str, "assay_type": str, "total_compounds": int }`.
+- [ ] T043 [US1] Update `research.md` to explicitly state the reproducibility standard: "Validation requires 5-fold stratified CV repeated 3 times on N > 1000 compounds from [Specific Assay]". **Constraint**: Replace any placeholder text with verified facts from T041/T042 or explicitly mark as "pending verification" if data is not yet available. (Addresses writing/constraint preservation) **Tags**: [FR-001] [FR-002] [SC-004]
+- [ ] T044 [US1] Add a pre-flight validation script `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/scripts/validate_dataset.py` that checks column existence, label distribution, and SMILES validity before pipeline execution
 
 ---
 
@@ -178,14 +268,21 @@
 
 **Goal**: Ensure functional enforcement of statistical constraints (FR-009) and memory limits (SC-004/005).
 
-- [ ] T046 [P] [US2] Implement `src/evaluation/statistical.py` check: Add an explicit assertion that raises an error if multiple-comparison correction is detected in the statistical workflow, enforcing FR-009 functionally (Constraint Preservation).
-- [ ] T047 [P] [Polish] Implement `tests/integration/test_memory.py` with a specific test command to verify peak RSS < 7 GB during full pipeline execution.
-- [ ] T048 [Polish] Update `README.md` with CLI usage examples and dependency list
-- [ ] T049 Update `docs/quickstart.md` with end-to-end execution instructions
-- [ ] T050 [Polish] Code cleanup and refactoring for memory efficiency: Run `pytest tests/integration/test_memory.py` and ensure PASS (< 7 GB peak RSS) (SC-004, SC-005)
-- [ ] T051 [Polish] Performance optimization to ensure full pipeline < 4 hours on CPU-only runner (SC-004)
-- [ ] T052 [P] Additional unit tests for edge cases (duplicate SMILES, invalid SMARTS) in `tests/unit/`
-- [ ] T053 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T045 [US2] Implement `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/evaluation/statistical.py` check: Implement the DeLong's test in `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/src/evaluation/statistical.py` such that the p-value is returned directly without any adjustment (e.g., Bonferroni, FDR). Add a comment in the code explicitly stating "No multiple-comparison correction applied per FR-009". **Constraint**: The logic must explicitly skip any adjustment step, not just block specific library calls, to satisfy FR-009. (Enforces FR-009)
+- [ ] T046 [P] [Polish] Implement `projects/PROJ-356-predicting-molecular-toxicity-from-struc/code/tests/integration/test_memory.py` with a specific test command to verify peak RSS < 7 GB during full pipeline execution.
+
+---
+
+## Phase 8: Polish & Documentation (Priority: P3)
+
+**Goal**: Final documentation, cleanup, and performance verification.
+
+- [ ] T047 [P] [Polish] Update `README.md` with CLI usage examples and dependency list
+- [ ] T048 [Polish] Update `docs/quickstart.md` with end-to-end execution instructions
+- [ ] T049 [Polish] Code cleanup and refactoring for memory efficiency: Run `pytest tests/integration/test_memory.py` and ensure PASS (< 7 GB peak RSS) (SC-004, SC-005)
+- [ ] T050 [Polish] Performance optimization to ensure full pipeline < 4 hours on CPU-only runner (SC-004)
+- [ ] T051 [P] Additional unit tests for edge cases (duplicate SMILES, invalid SMARTS) in `tests/unit/`
+- [ ] T052 Run `quickstart.md` validation to ensure end-to-end reproducibility
 
 ---
 
@@ -198,7 +295,7 @@
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Polish (Phase 8)**: Depends on all desired user stories being complete
 - **Research Validation (Phase 6)**: Can run in parallel with US1 implementation but must be completed before final report generation
 - **Statistical Constraint Enforcement (Phase 7)**: Depends on Phase 2 and Phase 4 completion
 
@@ -225,7 +322,7 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
-- Research Validation tasks (T041-T045) can run in parallel with US1 implementation
+- Research Validation tasks (T041-T044) can run in parallel with US1 implementation
 
 ---
 
@@ -252,7 +349,7 @@ Task: "Implement src/models/rule_based.py"
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
 3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently and verify Reviewer Concerns (T041-T045) are addressed
+4. **STOP and VALIDATE**: Test User Story 1 independently and verify Reviewer Concerns (T041-T044) are addressed
 5. Deploy/demo if ready
 
 ### Incremental Delivery
@@ -270,7 +367,7 @@ With multiple developers:
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
  - Developer A: User Story 1 (Data & Models)
- - Developer B: Research Validation (T041-T045)
+ - Developer B: Research Validation (T041-T044)
  - Developer C: User Story 2 (Statistical) & User Story 3 (Error Analysis)
 3. Stories complete and integrate independently
 
@@ -287,5 +384,10 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **CRITICAL**: All tasks must run on CPU-only CI with a limited core count and memory capacity.. No GPU, no 8-bit/4-bit quantization, no large LLMs.
 - **CRITICAL**: All data must be real and from verified sources. No synthetic data fabrication.
-- **CRITICAL**: Statistical methodology in Phase 4 MUST use **Out-of-Fold (OOF)** predictions (one per instance) as mandated by Plan Phase 4 and Constitution Principle VI. The previous Spec instruction to use "averaged" predictions was incorrect and has been overridden.
-- **CRITICAL**: Descriptor selection in T022 uses a specific, hardcoded list of 20 descriptors to ensure non-correlation and determinism.
+- **CRITICAL**: Statistical methodology in Phase 4 MUST use **Out-of-Fold (OOF)** predictions (one per instance) as mandated by Plan Phase 4 and Constitution Principle VI. The previous Spec instruction to use "averaged" predictions was incorrect and has been overridden. Tasks T026 explicitly enforce this.
+- **CRITICAL**: Descriptor selection in T022a uses a specific, hardcoded list of 20 descriptors without any data-dependent correlation filtering, as mandated by Plan Phase 2.
+- **CRITICAL**: Research Validation tasks (T041-T044) specifically address the "Marie Curie" review regarding sample size (N > 1000), assay specificity (AID 1851), and reproducibility standards.
+- **CRITICAL**: T020 now enforces N > 1000 immediately with a hard error, preventing the pipeline from proceeding with invalid data.
+- **CRITICAL**: T025 logic compares raw recall difference against 0.05, not percentage points.
+- **CRITICAL**: T026 outputs consolidated OOF files to avoid fragile merging logic.
+- **CRITICAL**: T028 cites primary source (DeLong 1988).

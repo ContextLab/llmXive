@@ -1,0 +1,148 @@
+'**Verification**: Run `tests/unit/test_scorer.py` to validate the new metric.':
+  task: 99a18327e192fbcd872f0a515fccd52f202e0f3dceada0528b58f7eee1a461f3
+T001a:
+  reason: The required directories `data/raw/`, `data/processed/`, and `specs/contracts/`
+    are missing from the project tree, even though `code/__init__.py` is present.
+    The task demands all listed directories to exist, so the implementation is incomplete.
+  task: bb47ef16861449cfc19bbdc9e67bd34322dbe6925027496b00bd62ef7766bc05
+T001b:
+  reason: "The provided `requirements.txt` is missing the two required pinned packages\
+    \ `memory-profiler==0.61.0` and `llama-cpp-python==0.2.91`; thus the artifact\
+    \ does not meet the task\u2019s specification."
+  task: 45e2d06e9e8637e27eab00dd1a81bacad44621433b04f6ffb2c23dfb158cad4b
+T002:
+  reason: "No renderer script, event logger, text\u2011only agent loop, or memory\u2011\
+    gap metric code/data were provided; the claim contains only a description of desired\
+    \ behavior without any actual artifacts to verify deterministic ASCII output,\
+    \ JSON logs, inference results, or statistical analysis. Consequently the required\
+    \ deliverables are missing."
+  task: 5c3d845d03926390f2c327b78b18104ec61682092ba8d3bd86556ee4b1010e9b
+T003a:
+  task: c4676c576757059c363f97da48faadd77cdf2cf85eb99843c49db4b095fabfcb
+T003b:
+  task: 710ec8564e2fd67ea022266d78a6774b6882ff0c28918fd9c60bccd2c90b86a9
+T004a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/, state/checksums.yaml'
+  task: 7f9f607fe9d07fcfe6ecabdf8576678166f2816f80c62db0d672efad5a9af00b
+T004b:
+  reason: "The required artifact `utils/checksum.py` with a functional command\u2011\
+    line interface is not present or not shown; no evidence of CLI arguments, help\
+    \ output, or error handling is provided. The implementer must supply the script\
+    \ containing the full CLI implementation and demonstrate it works (e.g., by showing\
+    \ the `--help` output)."
+  task: 9aeea0865c0ef0d91532b1798ec92650d97566fcbf35f888b416ce9accd7b28d
+T005a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/, state/artifact_hashes.yaml'
+  task: 4d17fb7e77a20894681c75fc1aa18c162d7052e9fb40a87f871e18d42933630e
+T005b:
+  task: 83c2a921c76d904bb56653f899f4a2ebfc44c93214ae42aa11b2c6dcca0a0a00
+T006a:
+  task: d718e2ecaf9e1cf0fe668829276d81f2dd545a87d7d91e3f13d4e7b309456f65
+T006b:
+  task: 25f6b4d8619dae40249a73e750df2a2bda9c16c8f23feb55ddd6219cf0192527
+T007:
+  task: 2e55570a8e67c7de335283e0fc8a0bc6c9df1c3c8d8313545d2463e4fc8654b6
+T008:
+  task: 815e1d4fbb21c2d395d7759fe1c50c8536b5b5545422a0e41b23dbb61e74693c
+T009:
+  task: 560dea7823fb14e636d64bd7c88c55a5987479e31086590eb1425369d9ae949e
+T014:
+  task: 0420b7917ddb5787ee65c20f0a9a34c145086d682da0387b0eb1c70973d6da16
+T015:
+  task: 877d3249444df21e3deaa70357a33d67d527f68c548aa5e4fa3a6b9efa527c0f
+T015b:
+  task: 238b4851188215a0b4095acb736076882beea8cf9eb6daaca21b2746addd2ad9
+T015c:
+  task: 2fa082c24b8b6ea24d671fa63ff06da5c0e90f0946598e73a3644924fce744bc
+T016:
+  task: 43c1f38b914d49f814630a2e67a37ee0c910d4b5474db293900ad7b0f5025221
+T016b:
+  task: e301c6acaf90878040e39b1bf23845bd3941e8fed4ee969c53a9701689b7952c
+T017:
+  task: f13b91df8a5bd034cffb293bd1e1c46f592159affd475bbdeff9c84ffa77a2f7
+T021:
+  task: 625d5a2eb0512091947d0b945fcfb4276d243ddf83936800becc0b1ef24f3629
+T022:
+  task: 94f9b8c8ae38c69295f4ff95f56c6bbe953c767adf775f6520543c3cfb051872
+T023:
+  task: 05a055d4eb25cde7e2cafb1d1d2685cec812ac207f95ca18313a7a7fcd0a32fb
+T024:
+  task: 6faa27cd3e325244d37bc8886eb8b81bd33f2ef4a581a07627ce376f854e8773
+T025:
+  task: 511124af76ac4fb275bc3192497ca9f889ed3403cdd477c511441ec970479764
+T026:
+  task: 99520472b3d831de25c962bc3a36bc2c86afde61e9a761de77701e3de497b981
+T027:
+  task: 9c40a89360b52a3c552bc5a333ad16a4f0e4bf6ace589bfb720872a26f27ca46
+T028:
+  task: 85cb4ca7e9ad82a2a099396ed643353ce4d103653d8d777b962d452eab7607f8
+T028b:
+  task: 251cf0e2b69507107cf7a37a63fa944cf1a15362f5c658bc6ef4a01fdaf24ba0
+T030:
+  task: d750e262ee54d4d1b24a538e6bd4888e8c0346dfa7452a65f0e7a79e44b33af3
+T031:
+  task: b259b3deeca1ab6bcfc54b86b54944a03428cdffa97004910fd642d620a5b5b8
+T032:
+  task: 4be07148b60d429de8fcb46cdf683047e70fecefc336bcac8968a347304e8ad0
+T033a:
+  task: 7319630421362378684c1ffe0766b31e8834ad5270da17254ece13e71be8938d
+T033b:
+  task: a8d49502c8b37a5832e0f9158365c803918023170e572c280f1a127bed0a7bde
+T033c:
+  task: 0c7c1d7b9eb8ce879aaad9f62349a097e64fc0cea7578624781c4460583603c5
+T033d:
+  task: 7a66d0bd2937407d217b936a288346be2e0f16eb909d8960c33ece4c95509122
+T035:
+  task: d3a30599966e43fde71476265972f0a4bb92cabf102df45fd21386b99c78b546
+T036:
+  task: 508679d4815a8d3f009d948e81f28d7f09cbb7f88455bd4f0e43b780b36a82e1
+T037:
+  task: 6763e99ac8ccdbc9b3ae243b45f0e9e8d7860893d4546d2f2a8437ba892a726f
+T038a:
+  task: 8165290b3ed042a4220939a4fe2cd76359742f6fd4472333dd2f3925c644f3a0
+T038c:
+  task: 5c9551218641c12f9b361ed59cd65fb36a2819d169cc53065737d074fcf05c15
+T039a:
+  task: f316a65e0edcb41db08971186d5e92ff902f5401a4e325cf798d1beb49ac820b
+T039a-1:
+  task: de0f5589a60a0aa13c2f428ba7ca0db901678d1ec3d94dc96dbf0f5bd2174e0f
+T039a-2:
+  task: 8aa2e7cf5621fb9e97257e413be6f39313ef52656b9f89824e896261cbeb8c91
+T039a-3:
+  task: 546beeb8ae5b6262f04268c2f3278c8b60b122fb1a929963d264c9b47aec3a8f
+T039a-4:
+  reason: 'declared artifact(s) missing/empty/invalid: state/checksums.yaml, state/artifact_hashes.yaml'
+  task: 9b85297360338a7b3d87166dab9a077b2458fbf8872f9cc0e087e4a285bcee08
+T039a-5:
+  task: c92423968f38de84dae52b7e937810545cd8b41a54c725a9b172b252dc4c38bb
+T039b:
+  task: f2ebdfd38572f2114ac1a44ca60aa7a4eebff449f7a82ec651af4c87252431b1
+T039c:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
+  task: 5f50973936b190f39e36c7dfdad8495fc4ea019b59ccee54f13d06a1ac51c068
+T039c-1:
+  task: 32a48b64d3841a662d3b467dc613a9b25fca4295039868ccb5100625efb74f2f
+T039d:
+  task: d2f7aba1f732ee7dbfe54028c9d6cd672ef4efbc09450a8877251da1924f2ddc
+T040a:
+  task: 5e32443e95e781a019731192705812014a73acfb3bf9363c3d59e3fe5f40746f
+T040b:
+  task: 0b6abdd75945eed8fd56a1fb09a26f51c881f5d41c8c15302437eb01f9a3ce95
+T040c:
+  task: e77560557af243c1be92ba6f03bb6a3b36e18953db6f27c065ad1d595d216274
+T041:
+  task: 8b9670a261d1a1483e3f405fa0e432bb374ac7328fe21abaacf365688948593f
+T041a:
+  task: ae05714c49ee8198b54933d19e659c5286fb9846a35473ff88290b03ab3e00a3
+T042a:
+  task: db0c1df9e66a8b3bbd4f9c92957fbd4a32fb28e4f422562122737e5f0b1e8c11
+T042b:
+  task: 9cc5a1f33833b3284f1cdd38827f85a5b22bb031cb4775532ace2e032709fa32
+T043:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/, state/...yaml,
+    state/checksums.yaml'
+  task: 81640eff743cefac9b4f8c1d3d9d04fa48f7f02b69ce55ead9fdaecd2447fc53
+T044:
+  task: 6d982fc6af634c8714abdb8b921e787a8a5dfbdb1bf031d3397bcf25aeecf643
+T046:
+  task: afd136e45fbee0286bcbf1655ee339c31055fde2be0c21fc0ef0d55b2cef6ba7

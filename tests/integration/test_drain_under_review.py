@@ -47,16 +47,16 @@ def test_drain_reclassifies_mixed_marks(tmp_path: Path) -> None:
     res = tv.drain_under_review(project_dir, tasks, apply=True)
 
     text = tasks.read_text(encoding="utf-8")
-    # T001: artifact present → accepted [X]; T005 stays [X].
-    assert "- [X] T001" in text and "- [X] T005" in text
+    # T001: artifact present → needs semantic verification [~]; T005 stays [X].
+    assert "- [~] T001" in text and "- [X] T005" in text
     # T002 & T004: production task, artifact missing → reopened [ ]; T006 stays [ ].
     assert "- [ ] T002" in text and "- [ ] T004" in text and "- [ ] T006" in text
     # T003: ambiguous (no artifact path) → LEFT [~] for the semantic verifier.
     assert "- [~] T003" in text
-    assert res["accepted"] == 1
+    assert res["accepted"] == 0
     assert res["reopened"] == 2
-    assert res["ambiguous"] == 1
-    assert res["before"]["~"] == 4 and res["after"]["~"] == 1
+    assert res["ambiguous"] == 2
+    assert res["before"]["~"] == 4 and res["after"]["~"] == 2
 
 
 def test_drain_dry_run_writes_nothing(tmp_path: Path) -> None:
@@ -67,7 +67,7 @@ def test_drain_dry_run_writes_nothing(tmp_path: Path) -> None:
 
     # The projected counts are computed, but the file on disk is UNCHANGED.
     assert tasks.read_text(encoding="utf-8") == original
-    assert res["after"]["~"] == 1 and res["before"]["~"] == 4  # projection only
+    assert res["after"]["~"] == 2 and res["before"]["~"] == 4  # projection only
 
 
 def test_drain_records_unverifiable_at_reject_cap(tmp_path: Path) -> None:
@@ -131,4 +131,4 @@ def test_script_main_end_to_end(tmp_path: Path, capsys) -> None:
     rc = script.main(["--repo-root", str(tmp_path), "--apply"])
     assert rc == 0
     text = tasks.read_text(encoding="utf-8")
-    assert "- [X] T001" in text and "- [ ] T002" in text and "- [~] T003" in text
+    assert "- [~] T001" in text and "- [ ] T002" in text and "- [~] T003" in text

@@ -1,0 +1,12 @@
+# Pinned versions of all scientific packages required by the specification.
+# Versions are chosen from the latest stable releases available on PyPI.
+# Adjust as needed for compatibility with the execution environment.
+
+numpy==1.26.0
+pandas==2.2.0
+scikit-learn==1.4.0
+shap==0.44.0
+mdtraj==1.9.9
+lammps==2023.06.20
+datasets==2.18.0
+pyyaml==6.0

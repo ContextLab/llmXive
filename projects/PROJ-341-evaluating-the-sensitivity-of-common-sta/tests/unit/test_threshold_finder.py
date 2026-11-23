@@ -1,19 +1,12 @@
+"""Unit tests for threshold_finder module.
+
+This file contains tests for the threshold detection logic, specifically
+focusing on the "3 consecutive increments" rule for power threshold detection.
 """
-Unit tests for code/analysis/threshold_finder.py
-"""
-import os
-import sys
-import json
-import tempfile
-import shutil
-import csv
+
 import pytest
 import numpy as np
-
-# Add project root to path
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-sys.path.insert(0, PROJECT_ROOT)
-
+import pandas as pd
 from code.analysis.threshold_finder import (
     wilson_score_interval,
     calculate_confidence_intervals,
@@ -25,136 +18,312 @@ from code.analysis.threshold_finder import (
 
 
 class TestWilsonScoreInterval:
-    def test_wilson_normal_case(self):
-        # 95 successes out of 100, z=1.96
-        lower, upper = wilson_score_interval(95, 100)
-        assert 0.88 < lower < 0.92
-        assert 0.97 < upper < 0.99
+    """Tests for the Wilson score interval calculation."""
 
-    def test_wilson_low_proportion(self):
-        # 5 successes out of 100
-        lower, upper = wilson_score_interval(5, 100)
-        assert 0.02 < lower < 0.05
-        assert 0.10 < upper < 0.15
+    def test_wilson_score_implementation(self):
+        """Assert that the Wilson score formula is used, not normal approximation."""
+        # Wilson score interval formula:
+        # (p + z^2/(2n) +/- z * sqrt((p(1-p) + z^2/(4n))/n)) / (1 + z^2/n)
+        # where z is the z-score for the confidence level
 
-    def test_wilson_zero_successes(self):
-        lower, upper = wilson_score_interval(0, 100)
-        assert lower == 0.0
-        assert 0.0 < upper < 0.05
+        # Test with known values
+        p = 0.5
+        n = 100
+        alpha = 0.05
+        z = 1.96  # z-score for 95% confidence
 
-    def test_wilson_all_successes(self):
-        lower, upper = wilson_score_interval(100, 100)
-        assert 0.96 < lower < 0.99
-        assert upper == 1.0
+        # Expected Wilson score calculation
+        center = (p + z**2 / (2 * n)) / (1 + z**2 / n)
+        margin = (z / (1 + z**2 / n)) * np.sqrt(
+            (p * (1 - p) + z**2 / (4 * n)) / n
+        )
 
-    def test_wilson_small_n(self):
-        # 1 success out of 2
-        lower, upper = wilson_score_interval(1, 2)
-        # With small n, interval should be wide
-        assert lower < 0.3
-        assert upper > 0.7
+        expected_lower = center - margin
+        expected_upper = center + margin
+
+        # Get actual calculation
+        lower, upper = wilson_score_interval(p, n, alpha)
+
+        # Assert they match
+        np.testing.assert_almost_equal(lower, expected_lower, decimal=6)
+        np.testing.assert_almost_equal(upper, expected_upper, decimal=6)
+
+        # Also verify it's different from normal approximation
+        normal_margin = z * np.sqrt(p * (1 - p) / n)
+        normal_lower = p - normal_margin
+        normal_upper = p + normal_margin
+
+        # Wilson should be different from normal (especially for small n)
+        assert abs(lower - normal_lower) > 0.001, "Wilson score should differ from normal approximation"
+        assert abs(upper - normal_upper) > 0.001, "Wilson score should differ from normal approximation"
+
+
+class TestPowerThresholdConsecutiveRule:
+    """Tests for the '3 consecutive increments' rule in power threshold detection."""
+
+    def test_power_threshold_consecutive_rule(self):
+        """
+        Assert that the logic correctly identifies the threshold only after
+        3 consecutive increments below 0.80.
+
+        This test verifies FR-004: "identify the smallest n where power CI
+        remains < 0.80 for 3 consecutive increments".
+        """
+        # Create a mock dataset with power values
+        # The threshold should be at n=15, where we have 3 consecutive values < 0.80
+        # n=5: 0.90 (above 0.80)
+        # n=10: 0.85 (above 0.80)
+        # n=15: 0.75 (below 0.80) - first below
+        # n=20: 0.70 (below 0.80) - second below
+        # n=25: 0.65 (below 0.80) - third below -> threshold should be 15
+        # n=30: 0.60 (below 0.80)
+        # n=35: 0.55 (below 0.80)
+
+        data = {
+            'test_type': ['t-test'] * 7,
+            'sample_size': [5, 10, 15, 20, 25, 30, 35],
+            'effect_size': [0.5] * 7,
+            'hypothesis_state': ['alternative'] * 7,
+            'type1_error_rate': [0.05] * 7,
+            'type2_error_rate': [0.10, 0.15, 0.25, 0.30, 0.35, 0.40, 0.45],
+            'ci_lower': [0.04, 0.04, 0.20, 0.25, 0.30, 0.35, 0.40],
+            'ci_upper': [0.16, 0.26, 0.30, 0.35, 0.40, 0.45, 0.50]
+        }
+
+        df = pd.DataFrame(data)
+        df['power'] = 1 - df['type2_error_rate']
+
+        # Calculate CI for power (using the complement of type2 error rate CI)
+        # For simplicity, we'll use the type2_error_rate CI to derive power CI
+        df['power_ci_lower'] = 1 - df['ci_upper']
+        df['power_ci_upper'] = 1 - df['ci_lower']
+
+        # Now test the find_power_threshold function
+        # We need to mock the function to work with our data
+        # The function should return the first n where power CI < 0.80 for 3 consecutive increments
+
+        # Expected: threshold at n=15 (first of 3 consecutive below 0.80)
+        threshold = find_power_threshold(df, test_type='t-test', effect_size=0.5, alpha=0.05)
+
+        # Verify the threshold is 15
+        assert threshold == 15, f"Expected threshold at n=15, got {threshold}"
+
+    def test_power_threshold_edge_case_n5(self):
+        """
+        Test edge case where threshold is exactly at n=5.
+        This happens when the first 3 sample sizes (5, 10, 15) all have power < 0.80.
+        """
+        data = {
+            'test_type': ['t-test'] * 5,
+            'sample_size': [5, 10, 15, 20, 25],
+            'effect_size': [0.5] * 5,
+            'hypothesis_state': ['alternative'] * 5,
+            'type1_error_rate': [0.05] * 5,
+            'type2_error_rate': [0.30, 0.25, 0.20, 0.15, 0.10],
+            'ci_lower': [0.25, 0.20, 0.15, 0.10, 0.05],
+            'ci_upper': [0.35, 0.30, 0.25, 0.20, 0.15]
+        }
+
+        df = pd.DataFrame(data)
+        df['power'] = 1 - df['type2_error_rate']
+        df['power_ci_lower'] = 1 - df['ci_upper']
+        df['power_ci_upper'] = 1 - df['ci_lower']
+
+        # All first 3 values (n=5, 10, 15) have power < 0.80
+        # Threshold should be at n=5
+        threshold = find_power_threshold(df, test_type='t-test', effect_size=0.5, alpha=0.05)
+
+        assert threshold == 5, f"Expected threshold at n=5, got {threshold}"
+
+    def test_power_threshold_edge_case_n500(self):
+        """
+        Test edge case where threshold is exactly at n=500.
+        This happens when power only drops below 0.80 at the very end.
+        """
+        # Create data where only the last 3 values are below 0.80
+        sample_sizes = list(range(5, 505, 5))  # 5 to 500
+        n_values = len(sample_sizes)
+
+        # Power starts high and drops at the end
+        power_values = [0.95] * (n_values - 3) + [0.75, 0.70, 0.65]
+        type2_error_rates = [1 - p for p in power_values]
+
+        data = {
+            'test_type': ['t-test'] * n_values,
+            'sample_size': sample_sizes,
+            'effect_size': [0.5] * n_values,
+            'hypothesis_state': ['alternative'] * n_values,
+            'type1_error_rate': [0.05] * n_values,
+            'type2_error_rate': type2_error_rates,
+            'ci_lower': [0.20] * n_values,
+            'ci_upper': [0.30] * n_values
+        }
+
+        df = pd.DataFrame(data)
+        df['power'] = 1 - df['type2_error_rate']
+        df['power_ci_lower'] = 1 - df['ci_upper']
+        df['power_ci_upper'] = 1 - df['ci_lower']
+
+        # Threshold should be at n=490 (first of 3 consecutive below 0.80)
+        # But since we only have 3 values below, it's 490
+        threshold = find_power_threshold(df, test_type='t-test', effect_size=0.5, alpha=0.05)
+
+        # The first of the 3 consecutive values is at index -3, which is 490
+        assert threshold == 490, f"Expected threshold at n=490, got {threshold}"
+
+    def test_power_threshold_no_threshold_found(self):
+        """
+        Test case where no threshold is found (power never drops below 0.80 for 3 consecutive).
+        """
+        data = {
+            'test_type': ['t-test'] * 5,
+            'sample_size': [5, 10, 15, 20, 25],
+            'effect_size': [0.5] * 5,
+            'hypothesis_state': ['alternative'] * 5,
+            'type1_error_rate': [0.05] * 5,
+            'type2_error_rate': [0.10, 0.08, 0.06, 0.04, 0.02],
+            'ci_lower': [0.05, 0.03, 0.01, 0.00, 0.00],
+            'ci_upper': [0.15, 0.13, 0.11, 0.09, 0.07]
+        }
+
+        df = pd.DataFrame(data)
+        df['power'] = 1 - df['type2_error_rate']
+        df['power_ci_lower'] = 1 - df['ci_upper']
+        df['power_ci_upper'] = 1 - df['ci_lower']
+
+        # All power values are above 0.80, so no threshold should be found
+        threshold = find_power_threshold(df, test_type='t-test', effect_size=0.5, alpha=0.05)
+
+        assert threshold is None, f"Expected no threshold (None), got {threshold}"
+
+    def test_power_threshold_only_two_consecutive(self):
+        """
+        Test case where only 2 consecutive values are below 0.80, not 3.
+        Threshold should not be found.
+        """
+        data = {
+            'test_type': ['t-test'] * 5,
+            'sample_size': [5, 10, 15, 20, 25],
+            'effect_size': [0.5] * 5,
+            'hypothesis_state': ['alternative'] * 5,
+            'type1_error_rate': [0.05] * 5,
+            'type2_error_rate': [0.10, 0.25, 0.30, 0.20, 0.10],
+            'ci_lower': [0.05, 0.20, 0.25, 0.15, 0.05],
+            'ci_upper': [0.15, 0.30, 0.35, 0.25, 0.15]
+        }
+
+        df = pd.DataFrame(data)
+        df['power'] = 1 - df['type2_error_rate']
+        df['power_ci_lower'] = 1 - df['ci_upper']
+        df['power_ci_upper'] = 1 - df['ci_lower']
+
+        # Only 2 consecutive values (n=10, 15) are below 0.80, not 3
+        # Threshold should not be found
+        threshold = find_power_threshold(df, test_type='t-test', effect_size=0.5, alpha=0.05)
+
+        assert threshold is None, f"Expected no threshold (None), got {threshold}"
+
+    def test_power_threshold_with_confidence_interval_check(self):
+        """
+        Test that the rule checks the LOWER confidence interval bound, not just the point estimate.
+        """
+        # Create data where point estimate is above 0.80 but CI lower bound is below
+        data = {
+            'test_type': ['t-test'] * 5,
+            'sample_size': [5, 10, 15, 20, 25],
+            'effect_size': [0.5] * 5,
+            'hypothesis_state': ['alternative'] * 5,
+            'type1_error_rate': [0.05] * 5,
+            'type2_error_rate': [0.15, 0.18, 0.22, 0.25, 0.20],
+            'ci_lower': [0.08, 0.10, 0.12, 0.15, 0.10],
+            'ci_upper': [0.22, 0.26, 0.32, 0.35, 0.30]
+        }
+
+        df = pd.DataFrame(data)
+        df['power'] = 1 - df['type2_error_rate']
+        df['power_ci_lower'] = 1 - df['ci_upper']
+        df['power_ci_upper'] = 1 - df['ci_lower']
+
+        # Check if the function correctly identifies based on CI lower bound
+        # n=5: power=0.85, CI_lower=0.78 (above 0.80? No, 0.78 < 0.80)
+        # n=10: power=0.82, CI_lower=0.74 (below 0.80)
+        # n=15: power=0.78, CI_lower=0.68 (below 0.80)
+        # n=20: power=0.75, CI_lower=0.65 (below 0.80) -> threshold at n=10
+        # n=25: power=0.80, CI_lower=0.70 (below 0.80)
+
+        # Actually, let's re-examine:
+        # The rule is: "power CI remains < 0.80 for 3 consecutive increments"
+        # This means the LOWER bound of the power CI should be < 0.80
+
+        # For n=5: power_ci_lower = 1 - 0.22 = 0.78 < 0.80
+        # For n=10: power_ci_lower = 1 - 0.26 = 0.74 < 0.80
+        # For n=15: power_ci_lower = 1 - 0.32 = 0.68 < 0.80
+        # So we have 3 consecutive at n=5, 10, 15 -> threshold at n=5
+
+        threshold = find_power_threshold(df, test_type='t-test', effect_size=0.5, alpha=0.05)
+
+        assert threshold == 5, f"Expected threshold at n=5, got {threshold}"
 
 
 class TestCalculateConfidenceIntervals:
-    def test_adds_ci_to_records(self):
-        records = [
-            {"test_type": "t-test", "effect_size": 0.0, "sample_size": 10, "error_rate": 0.05, "num_rejections": 500, "total_iterations": 10000}
-        ]
-        result = calculate_confidence_intervals(records)
-        assert len(result) == 1
-        assert "ci_lower" in result[0]
-        assert "ci_upper" in result[0]
-        assert result[0]["ci_lower"] <= result[0]["error_rate"] <= result[0]["ci_upper"]
+    """Tests for confidence interval calculation."""
 
+    def test_calculate_confidence_intervals(self):
+        """Test that confidence intervals are calculated correctly."""
+        data = {
+            'test_type': ['t-test'] * 3,
+            'sample_size': [10, 20, 30],
+            'effect_size': [0.5, 0.5, 0.5],
+            'hypothesis_state': ['null', 'alternative', 'alternative'],
+            'type1_error_rate': [0.05, 0.05, 0.05],
+            'type2_error_rate': [0.10, 0.20, 0.30],
+            'ci_lower': [0.04, 0.15, 0.25],
+            'ci_upper': [0.16, 0.25, 0.35]
+        }
 
-class TestLoadErrorRates:
-    def test_loads_from_csv(self, tmp_path):
-        # Create a temporary error_rates_summary.csv
-        csv_path = os.path.join(tmp_path, "error_rates_summary.csv")
-        with open(csv_path, "w", newline="") as f:
-            writer = csv.writer(f)
-            writer.writerow(["test_type", "effect_size", "sample_size", "error_rate", "num_rejections", "total_iterations"])
-            writer.writerow(["t-test", "0.0", "10", "0.05", "500", "10000"])
-            writer.writerow(["t-test", "0.5", "50", "0.80", "8000", "10000"])
-        
-        # Temporarily override the module constant
-        import code.analysis.threshold_finder as tf_module
-        original_path = tf_module.ERROR_RATES_CSV_PATH
-        tf_module.ERROR_RATES_CSV_PATH = csv_path
-        
-        try:
-            data = load_error_rates()
-            assert len(data) == 2
-            assert data[0]["test_type"] == "t-test"
-            assert data[0]["sample_size"] == 10
-        finally:
-            tf_module.ERROR_RATES_CSV_PATH = original_path
+        df = pd.DataFrame(data)
+
+        # The function should calculate confidence intervals using Wilson score
+        # For this test, we just verify it doesn't crash and returns expected structure
+        result = calculate_confidence_intervals(df)
+
+        assert isinstance(result, pd.DataFrame)
+        assert 'ci_lower' in result.columns
+        assert 'ci_upper' in result.columns
+        assert len(result) == len(df)
 
 
 class TestFindTypeIThreshold:
-    def test_finds_threshold_when_ci_exceeds_alpha(self):
-        # Create data where CI lower bound exceeds 0.05 at n=50
-        records = [
-            {"test_type": "t-test", "effect_size": 0.0, "sample_size": 10, "error_rate": 0.04, "ci_lower": 0.03, "ci_upper": 0.05, "total_iterations": 10000},
-            {"test_type": "t-test", "effect_size": 0.0, "sample_size": 20, "error_rate": 0.045, "ci_lower": 0.04, "ci_upper": 0.05, "total_iterations": 10000},
-            {"test_type": "t-test", "effect_size": 0.0, "sample_size": 50, "error_rate": 0.06, "ci_lower": 0.055, "ci_upper": 0.065, "total_iterations": 10000},
-        ]
-        result = find_type_i_threshold(records, alpha=0.05)
-        assert result["threshold_sample_size"] == 50
-        assert result["test_type"] == "t-test"
+    """Tests for Type I error threshold detection."""
 
-    def test_returns_none_if_no_threshold(self):
-        records = [
-            {"test_type": "t-test", "effect_size": 0.0, "sample_size": 10, "error_rate": 0.04, "ci_lower": 0.03, "ci_upper": 0.05, "total_iterations": 10000},
-        ]
-        result = find_type_i_threshold(records, alpha=0.05)
-        assert result["threshold_sample_size"] is None
+    def test_find_type_i_threshold(self):
+        """Test that Type I error threshold is correctly identified."""
+        # Create data where Type I error exceeds 0.05 at n=20
+        data = {
+            'test_type': ['t-test'] * 5,
+            'sample_size': [5, 10, 15, 20, 25],
+            'effect_size': [0.0, 0.0, 0.0, 0.0, 0.0],  # Null hypothesis
+            'hypothesis_state': ['null'] * 5,
+            'type1_error_rate': [0.04, 0.045, 0.048, 0.052, 0.055],
+            'type2_error_rate': [0.5, 0.5, 0.5, 0.5, 0.5],
+            'ci_lower': [0.03, 0.035, 0.038, 0.042, 0.045],
+            'ci_upper': [0.05, 0.055, 0.058, 0.062, 0.065]
+        }
 
+        df = pd.DataFrame(data)
 
-class TestFindPowerThreshold:
-    def test_finds_threshold_where_power_exceeds_target(self):
-        # Create data where power lower CI >= 0.80 for 3 consecutive points starting at n=100
-        records = [
-            {"test_type": "t-test", "effect_size": 0.5, "sample_size": 50, "ci_lower": 0.70, "ci_upper": 0.85},
-            {"test_type": "t-test", "effect_size": 0.5, "sample_size": 80, "ci_lower": 0.75, "ci_upper": 0.90},
-            {"test_type": "t-test", "effect_size": 0.5, "sample_size": 100, "ci_lower": 0.80, "ci_upper": 0.92},
-            {"test_type": "t-test", "effect_size": 0.5, "sample_size": 120, "ci_lower": 0.82, "ci_upper": 0.94},
-            {"test_type": "t-test", "effect_size": 0.5, "sample_size": 140, "ci_lower": 0.85, "ci_upper": 0.96},
-        ]
-        result = find_power_threshold(records, power_target=0.80, consecutive=3)
-        # Should find n=100 as the start of 3 consecutive (100, 120, 140)
-        assert result["threshold_sample_size"] == 100
+        # The threshold should be at n=20 where the lower CI bound (0.042) is still below 0.05
+        # But the point estimate (0.052) is above 0.05
+        # Actually, the rule is: "smallest sample size where the Type I error lower confidence
+        # interval bound exceeds 0.05"
+        # So we need the lower bound to exceed 0.05
 
-    def test_returns_none_if_no_threshold(self):
-        records = [
-            {"test_type": "t-test", "effect_size": 0.5, "sample_size": 50, "ci_lower": 0.50, "ci_upper": 0.60},
-            {"test_type": "t-test", "effect_size": 0.5, "sample_size": 80, "ci_lower": 0.60, "ci_upper": 0.70},
-        ]
-        result = find_power_threshold(records, power_target=0.80, consecutive=3)
-        assert result["threshold_sample_size"] is None
+        # Let's adjust the data
+        data['ci_lower'] = [0.03, 0.035, 0.038, 0.051, 0.055]
 
+        df = pd.DataFrame(data)
 
-class TestSaveThresholds:
-    def test_saves_to_json(self, tmp_path):
-        thresholds = [
-            {"test_type": "t-test", "threshold_sample_size": 50, "condition": "Type I error"}
-        ]
-        output_path = os.path.join(tmp_path, "thresholds.json")
-        
-        # Temporarily override the module constant
-        import code.analysis.threshold_finder as tf_module
-        original_dir = tf_module.DATA_SIMULATION_DIR
-        original_path = tf_module.THRESHOLDS_OUTPUT_PATH
-        tf_module.DATA_SIMULATION_DIR = tmp_path
-        tf_module.THRESHOLDS_OUTPUT_PATH = output_path
-        
-        try:
-            result_path = save_thresholds(thresholds)
-            assert os.path.exists(result_path)
-            with open(result_path, "r") as f:
-                data = json.load(f)
-            assert len(data) == 1
-            assert data[0]["test_type"] == "t-test"
-        finally:
-            tf_module.DATA_SIMULATION_DIR = original_dir
-            tf_module.THRESHOLDS_OUTPUT_PATH = original_path
+        threshold = find_type_i_threshold(df, test_type='t-test', alpha=0.05)
+
+        # Threshold should be at n=20 where ci_lower (0.051) > 0.05
+        assert threshold == 20, f"Expected threshold at n=20, got {threshold}"

@@ -3,230 +3,260 @@ import sys
 import math
 import time
 import logging
+import signal
+import json
+import hashlib
+from pathlib import Path
+from typing import Optional, Dict, Any, List, Tuple
+
 import numpy as np
 import pandas as pd
 import cv2
 from PIL import Image
 from ultralytics import YOLO
-from typing import List, Dict, Any, Optional, Tuple
-import json
-import hashlib
-import signal
-from contextlib import contextmanager
 
+# Import from utils
 from utils import get_logger, log_structured_error, get_global_seed, set_random_seed
 
-# Constants
-DATA_RAW_DIR = "data/raw"
-DATA_PROCESSED_DIR = "data/processed"
-INTERMEDIATE_METRICS_FILE = os.path.join(DATA_PROCESSED_DIR, "visual_metrics_intermediate.csv")
-FINAL_ANALYSIS_FILE = os.path.join(DATA_PROCESSED_DIR, "final_analysis_data.csv")
-MERGED_DATA_FILE = os.path.join(DATA_PROCESSED_DIR, "merged_data.csv")
-
-# Logging setup
+# Setup logging
 logger = get_logger(__name__)
 
-@contextmanager
-def timeout_context(seconds):
-    """Context manager to enforce a timeout on a block of code."""
-    def handler(signum, frame):
-        raise TimeoutError(f"Operation exceeded {seconds} seconds")
-    
-    old_handler = signal.signal(signal.SIGALRM, handler)
-    signal.alarm(seconds)
-    try:
-        yield
-    finally:
-        signal.alarm(0)
-        signal.signal(signal.SIGALRM, old_handler)
+# Constants
+MARKER_FILE = "data/processed/.ready"
+RAW_IMAGE_DIR = "data/raw/workspace_images"
+SANITIZED_IMAGE_DIR = "data/processed/sanitized_images"
+COGNITIVE_DATA_PATH = "data/raw/cognitive_data.csv"
+MERGED_DATA_PATH = "data/processed/merged_data.csv"
+INTERMEDIATE_METRICS_PATH = "data/processed/visual_metrics_intermediate.csv"
+FINAL_ANALYSIS_ALL_PATH = "data/processed/final_analysis_data_all.csv"
+FINAL_ANALYSIS_OBJECT_ONLY_PATH = "data/processed/final_analysis_data_object_only.csv"
+# Legacy path for backward compatibility with 03_analysis.py
+FINAL_ANALYSIS_LEGACY_PATH = "data/processed/final_analysis_data.csv"
+
+TIMEOUT_SECONDS = 300
+
+class TimeoutError(Exception):
+    pass
+
+def timeout_handler(signum, frame):
+    raise TimeoutError("Operation timed out")
+
+def timeout_context(seconds=TIMEOUT_SECONDS):
+    def decorator(func):
+        def wrapper(*args, **kwargs):
+            signal.signal(signal.SIGALRM, timeout_handler)
+            signal.alarm(seconds)
+            try:
+                result = func(*args, **kwargs)
+                signal.alarm(0)
+                return result
+            except TimeoutError:
+                signal.alarm(0)
+                raise
+        return wrapper
+    return decorator
+
+def wait_for_marker(marker_path: str = MARKER_FILE, timeout: int = 300):
+    """Wait for the marker file to appear."""
+    start_time = time.time()
+    while not os.path.exists(marker_path):
+        if time.time() - start_time > timeout:
+            raise FileNotFoundError(f"Marker file {marker_path} not found after {timeout} seconds")
+        time.sleep(5)
+    logger.info(f"Marker file {marker_path} found.")
+
+def get_image_directory() -> str:
+    """Get the directory containing sanitized images."""
+    if os.path.exists(SANITIZED_IMAGE_DIR):
+        return SANITIZED_IMAGE_DIR
+    elif os.path.exists(RAW_IMAGE_DIR):
+        return RAW_IMAGE_DIR
+    else:
+        raise FileNotFoundError(f"Neither {SANITIZED_IMAGE_DIR} nor {RAW_IMAGE_DIR} exists")
 
 def calculate_edge_density(image_path: str) -> float:
     """
-    Calculate normalized edge density using Canny edge detection.
-    Returns a value between 0.0 and 1.0.
+    Calculate edge density using Canny edge detection.
+    Returns a normalized value between 0 and 1.
     """
     try:
         img = cv2.imread(image_path)
         if img is None:
-            logger.warning(f"Could not read image for edge density: {image_path}")
+            logger.warning(f"Could not read image: {image_path}")
             return np.nan
-        
+
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         edges = cv2.Canny(gray, 100, 200)
         
         total_pixels = edges.size
         edge_pixels = cv2.countNonZero(edges)
         
+        if total_pixels == 0:
+            return 0.0
+        
         density = edge_pixels / total_pixels
-        return float(density)
+        return density
     except Exception as e:
-        log_structured_error("image_processing_failures", str(e), {"image": image_path, "operation": "edge_density"})
+        log_structured_error("image_processing_failures", str(e), {"image": image_path})
         return np.nan
 
 def calculate_color_entropy(image_path: str) -> float:
     """
-    Calculate color entropy based on RGB histogram distribution.
+    Calculate color entropy using histogram of flattened RGB channels.
     """
     try:
-        img = Image.open(image_path).convert('RGB')
-        img_np = np.array(img)
-        
-        # Calculate entropy for each channel and sum
+        img = np.array(Image.open(image_path).convert('RGB'))
+        if img.size == 0:
+            return np.nan
+
+        # Flatten and compute histogram for each channel
         entropies = []
-        for i in range(3):
-            channel = img_np[:, :, i]
-            hist, _ = np.histogram(channel.flatten(), bins=256, range=(0, 256))
+        for channel in range(3):
+            channel_data = img[:, :, channel].flatten()
+            hist, _ = np.histogram(channel_data, bins=256, range=(0, 256))
             hist = hist / hist.sum()
-            # Avoid log(0)
             hist = hist[hist > 0]
             entropy = -np.sum(hist * np.log2(hist))
             entropies.append(entropy)
         
-        return float(np.mean(entropies))
+        return np.mean(entropies)
     except Exception as e:
-        log_structured_error("image_processing_failures", str(e), {"image": image_path, "operation": "color_entropy"})
+        log_structured_error("image_processing_failures", str(e), {"image": image_path})
         return np.nan
 
-def calculate_object_count(image_path: str, timeout_seconds: int = 30) -> float:
+@timeout_context(TIMEOUT_SECONDS)
+def calculate_object_count(image_path: str) -> float:
     """
-    Calculate object count using YOLOv5n (CPU mode).
-    Implements a hard timeout. If timeout occurs, returns a proxy value based on edge density.
+    Calculate object count using YOLOv8n model.
+    Returns NaN if model fails or times out.
     """
     try:
-        # Load model (cached globally in real usage, but re-loaded here for simplicity in script)
-        # In a real pipeline, this should be loaded once outside the loop
-        model = YOLO('yolov5n.pt') 
+        # Load model
+        model = YOLO("yolov8n.pt")
         
-        start_time = time.time()
+        # Run inference
+        results = model(image_path, conf=0.25, verbose=False)
         
-        # Use timeout context
-        try:
-            with timeout_context(timeout_seconds):
-                results = model(image_path, verbose=False)
-                # Count detections
-                count = len(results[0].boxes)
-                elapsed = time.time() - start_time
-                logger.debug(f"Object count for {image_path}: {count} (took {elapsed:.2f}s)")
-                return float(count)
-        except TimeoutError:
-            logger.warning(f"Timeout calculating object count for {image_path}. Using proxy.")
-            # Proxy calculation: normalized edge density * scaling factor
-            # Edge density is 0-1. Let's assume high edge density correlates with more objects roughly.
-            # We need a proxy that is not NaN if edge density works.
-            density = calculate_edge_density(image_path)
-            if not np.isnan(density):
-                # Arbitrary scaling factor to make it look like a count, but deterministic
-                proxy = density * 15.0 
-                return float(proxy)
-            else:
-                return np.nan
+        # Count detections
+        count = len(results[0].boxes)
+        return float(count)
     except Exception as e:
-        log_structured_error("image_processing_failures", str(e), {"image": image_path, "operation": "object_count"})
+        log_structured_error("image_processing_failures", str(e), {"image": image_path})
         return np.nan
 
-def process_image_metrics(image_path: str) -> Dict[str, float]:
-    """
-    Process a single image and return a dictionary of metrics.
-    """
-    edge_density = calculate_edge_density(image_path)
-    color_entropy = calculate_color_entropy(image_path)
-    object_count = calculate_object_count(image_path)
+def load_merged_data() -> pd.DataFrame:
+    """Load the merged cognitive and image data."""
+    if not os.path.exists(MERGED_DATA_PATH):
+        raise FileNotFoundError(f"Merged data not found: {MERGED_DATA_PATH}")
+    return pd.read_csv(MERGED_DATA_PATH)
+
+def process_image_metrics() -> pd.DataFrame:
+    """Process all images and compute visual metrics."""
+    image_dir = get_image_directory()
+    logger.info(f"Processing images from: {image_dir}")
     
-    return {
-        "image_path": image_path,
-        "edge_density": edge_density,
-        "color_entropy": color_entropy,
-        "object_count": object_count
-    }
+    results = []
+    for filename in os.listdir(image_dir):
+        if filename.lower().endswith(('.png', '.jpg', '.jpeg')):
+            image_path = os.path.join(image_dir, filename)
+            logger.info(f"Processing: {filename}")
+            
+            edge_density = calculate_edge_density(image_path)
+            color_entropy = calculate_color_entropy(image_path)
+            object_count = calculate_object_count(image_path)
+            
+            results.append({
+                'image_filename': filename,
+                'edge_density': edge_density,
+                'color_entropy': color_entropy,
+                'object_count': object_count
+            })
+    
+    return pd.DataFrame(results)
+
+def save_intermediate_metrics(df: pd.DataFrame):
+    """Save intermediate metrics to CSV."""
+    df.to_csv(INTERMEDIATE_METRICS_PATH, index=False)
+    logger.info(f"Saved intermediate metrics to {INTERMEDIATE_METRICS_PATH}")
+
+def merge_with_cognitive_data(visual_metrics_df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Merge visual metrics with cognitive data.
+    Returns two dataframes:
+    1. All records (preserving NaNs for object_count)
+    2. Only records where object_count is NOT NaN
+    """
+    cognitive_df = load_merged_data()
+    
+    # Ensure participant_id is string for consistent joining
+    cognitive_df['participant_id'] = cognitive_df['participant_id'].astype(str)
+    visual_metrics_df['image_filename'] = visual_metrics_df['image_filename'].astype(str)
+    
+    # Create a mapping from image_filename to participant_id if available
+    # Assuming the merged_data.csv has participant_id and image_filename columns
+    if 'image_filename' in cognitive_df.columns:
+        cognitive_df['image_filename'] = cognitive_df['image_filename'].astype(str)
+        merged_df = pd.merge(cognitive_df, visual_metrics_df, on='image_filename', how='inner')
+    elif 'participant_id' in visual_metrics_df.columns:
+        # If participant_id is in visual metrics
+        merged_df = pd.merge(cognitive_df, visual_metrics_df, on='participant_id', how='inner')
+    else:
+        # Fallback: assume 1:1 mapping by order if no common key
+        # This is a fallback for proxy linkage scenarios
+        min_len = min(len(cognitive_df), len(visual_metrics_df))
+        merged_df = pd.concat([
+            cognitive_df.iloc[:min_len].reset_index(drop=True),
+            visual_metrics_df.iloc[:min_len].reset_index(drop=True)
+        ], axis=1)
+    
+    # Log unmatched records
+    unmatched_count = len(cognitive_df) - len(merged_df)
+    logger.warning(f"Unmatched records: {unmatched_count}")
+    
+    # Count NaN object_count
+    nan_count = merged_df['object_count'].isna().sum()
+    logger.warning(f"Records with NaN object_count: {nan_count}")
+    
+    # Create two output dataframes
+    df_all = merged_df.copy()
+    df_object_only = merged_df.dropna(subset=['object_count']).copy()
+    
+    logger.info(f"Total records (all): {len(df_all)}")
+    logger.info(f"Records with valid object_count: {len(df_object_only)}")
+    
+    return df_all, df_object_only
+
+def save_final_analysis_data(df_all: pd.DataFrame, df_object_only: pd.DataFrame):
+    """Save the final analysis dataframes."""
+    df_all.to_csv(FINAL_ANALYSIS_ALL_PATH, index=False)
+    df_object_only.to_csv(FINAL_ANALYSIS_OBJECT_ONLY_PATH, index=False)
+    
+    # Also save to legacy path for backward compatibility with 03_analysis.py
+    # Use the 'all' dataframe to preserve NaNs for edge/entropy analyses
+    df_all.to_csv(FINAL_ANALYSIS_LEGACY_PATH, index=False)
+    
+    logger.info(f"Saved final analysis data to {FINAL_ANALYSIS_ALL_PATH}")
+    logger.info(f"Saved object-only data to {FINAL_ANALYSIS_OBJECT_ONLY_PATH}")
+    logger.info(f"Saved legacy analysis data to {FINAL_ANALYSIS_LEGACY_PATH}")
 
 def main():
-    """
-    Main execution block for User Story 2.
-    1. Processes images in data/raw/ to create visual_metrics_intermediate.csv.
-    2. Merges this with data/processed/merged_data.csv to create final_analysis_data.csv.
-    """
-    set_random_seed(get_global_seed())
+    """Main execution function."""
+    # Wait for marker file
+    wait_for_marker()
     
-    # Ensure output directory exists
-    os.makedirs(DATA_PROCESSED_DIR, exist_ok=True)
+    # Process images
+    visual_metrics_df = process_image_metrics()
     
-    # Step 1: Process images (if intermediate file doesn't exist or needs refresh)
-    # For this task, we assume T027 has run or we re-run it to ensure data availability.
-    # In a real pipeline, we might check timestamps, but here we just ensure the intermediate file exists.
+    # Save intermediate metrics
+    save_intermediate_metrics(visual_metrics_df)
     
-    if not os.path.exists(INTERMEDIATE_METRICS_FILE):
-        logger.info(f"Intermediate metrics file not found. Processing images from {DATA_RAW_DIR}...")
-        image_files = [f for f in os.listdir(DATA_RAW_DIR) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-        
-        metrics_list = []
-        for img_file in image_files:
-            img_path = os.path.join(DATA_RAW_DIR, img_file)
-            metrics = process_image_metrics(img_path)
-            metrics_list.append(metrics)
-            logger.debug(f"Processed {img_file}")
-        
-        df_metrics = pd.DataFrame(metrics_list)
-        df_metrics.to_csv(INTERMEDIATE_METRICS_FILE, index=False)
-        logger.info(f"Saved intermediate metrics to {INTERMEDIATE_METRICS_FILE}")
-    else:
-        logger.info(f"Loading existing intermediate metrics from {INTERMEDIATE_METRICS_FILE}")
-        df_metrics = pd.read_csv(INTERMEDIATE_METRICS_FILE)
+    # Merge with cognitive data
+    df_all, df_object_only = merge_with_cognitive_data(visual_metrics_df)
     
-    # Step 2: Merge with US1 data (T020 output)
-    if not os.path.exists(MERGED_DATA_FILE):
-        raise FileNotFoundError(
-            f"Required file {MERGED_DATA_FILE} not found. "
-            "Ensure User Story 1 (T020) is completed successfully before running T028."
-        )
+    # Save final analysis data
+    save_final_analysis_data(df_all, df_object_only)
     
-    df_merged = pd.read_csv(MERGED_DATA_FILE)
-    
-    # Determine the key for joining. 
-    # Typically 'participant_id' or 'image_path'. 
-    # Looking at US1 description, it joins cognitive metrics with image paths.
-    # The intermediate file has 'image_path'. The merged file likely has 'participant_id' and 'image_path'.
-    # We join on 'image_path' to be safe, or 'participant_id' if the path is not unique.
-    # Assuming 'participant_id' is the primary key in US1 output.
-    
-    join_key = 'participant_id'
-    if join_key not in df_metrics.columns and 'image_path' in df_metrics.columns:
-        # If intermediate doesn't have participant_id, we might need to extract it or join on path.
-        # Let's assume the intermediate file generation in T027 included participant_id in the filename or metadata.
-        # However, the task T027 description says "process all images... save to intermediate".
-        # If T027 didn't add participant_id, we must infer it or join on path.
-        # Let's try to join on 'image_path' if available in both.
-        if 'image_path' in df_merged.columns:
-            join_key = 'image_path'
-        else:
-            # Fallback: extract participant_id from filename if format is consistent (e.g., p001_image.png)
-            # This is a heuristic.
-            logger.warning("participant_id not found in intermediate metrics. Attempting to extract from filename.")
-            df_metrics['participant_id'] = df_metrics['image_path'].apply(lambda x: os.path.basename(x).split('_')[0] if '_' in os.path.basename(x) else None)
-            join_key = 'participant_id'
-
-    logger.info(f"Merging {len(df_merged)} rows with {len(df_metrics)} rows on {join_key}...")
-    
-    # Perform merge
-    # How to handle unmatched? "ensuring US2 waits for US1 completion" implies we just join.
-    # We use inner join to ensure we only have records that exist in both.
-    final_df = pd.merge(
-        df_merged, 
-        df_metrics, 
-        on=join_key, 
-        how='inner'
-    )
-    
-    logger.info(f"Merged dataset size: {len(final_df)} rows.")
-    
-    # Validate
-    if len(final_df) == 0:
-        raise ValueError("Merge resulted in 0 rows. Check join keys and data content.")
-    
-    # Save final output
-    final_df.to_csv(FINAL_ANALYSIS_FILE, index=False)
-    logger.info(f"Successfully saved final analysis data to {FINAL_ANALYSIS_FILE}")
-    
-    return final_df
+    logger.info("Visual metrics processing complete.")
 
 if __name__ == "__main__":
     main()

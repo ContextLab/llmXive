@@ -1,0 +1,38 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SegregationProfile
+description: Schema for a single grain boundary segregation profile data point.
+type: object
+properties:
+  solute_element:
+    type: string
+    description: "The segregating element (e.g., Cr, Mo)."
+  temperature_K:
+    type: number
+    description: "Temperature in Kelvin."
+  bulk_concentration:
+    type: number
+    description: "Bulk atomic fraction (0.0 to 1.0)."
+  segregation_energy_eV:
+    type: number
+    description: "Surrogate-derived segregation energy in eV."
+  equilibrium_concentration:
+    type: number
+    description: "Calculated GB concentration (atomic fraction)."
+  system_id:
+    type: string
+    description: "Identifier for the alloy system (e.g., Fe-Cr-Mo)."
+  source:
+    type: string
+    description: "Source of the data (e.g., surrogate_calculated, thermodynamic_proxy, literature)."
+  interaction_coefficient_truth:
+    type: number
+    description: "The ground-truth interaction coefficient injected during data generation (optional)."
+required:
+  - solute_element
+  - temperature_K
+  - bulk_concentration
+  - segregation_energy_eV
+  - equilibrium_concentration
+  - system_id
+  - source
+additionalProperties: false

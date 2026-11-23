@@ -1,0 +1,86 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "plant-disease-severity-prediction"
+version = "0.1.0"
+description = "Predicting plant disease severity from image data and meteorological records"
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MIT"}
+dependencies = [
+    "opencv-python",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "requests",
+    "datasets",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest>=7.0.0",
+    "pytest-cov>=4.0.0",
+    "flake8>=6.0.0",
+]
+
+[tool.black]
+# Black formatting configuration
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+)/
+'''
+
+[tool.ruff]
+# Ruff configuration (mirrors .ruff.toml for CI consistency)
+line-length = 88
+target-version = "py311"
+src = ["code", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "C", "B", "UP", "N"]
+ignore = ["E501", "B008", "ARG001"]
+fixable = ["ALL"]
+exclude = [
+    ".git",
+    "__pycache__",
+    "data",
+    "venv",
+    "build",
+    "dist"
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "data_ingestion", "weather_linker", "main", "utils"]
+force-sort-within-sections = true
+
+[tool.pytest.ini_options]
+# Pytest configuration
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]

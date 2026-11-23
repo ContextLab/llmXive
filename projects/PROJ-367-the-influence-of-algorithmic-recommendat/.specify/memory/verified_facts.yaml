@@ -1,0 +1,8 @@
+'|base calculation entropy log shannon use':
+  quote: ', the logarithm, varies for different applications. Base 2 gives the unit
+    of bits (or "shannons"), while base e gives "natural units" nat, and base 10 gives
+    units of "dits", "bans", or "hartleys". An equivalent definition of entropy is
+    the expected value of the self-information of a variable.'
+  source_id: Entropy (information theory)
+  url: https://en.wikipedia.org/wiki/Entropy_(information_theory)
+  value: '2'

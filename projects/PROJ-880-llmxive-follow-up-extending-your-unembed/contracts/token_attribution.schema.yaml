@@ -1,0 +1,36 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Token Attribution Report
+description: Report of ranked tokens based on projection onto edge spectrum subspace.
+type: object
+required:
+  - results
+properties:
+  results:
+    type: object
+    description: Map of language code to token ranking results
+    additionalProperties:
+      type: object
+      required:
+        - top_tokens
+        - total_tokens_processed
+      properties:
+        top_tokens:
+          type: array
+          items:
+            type: object
+            required:
+              - token
+              - score
+            properties:
+              token:
+                type: string
+              score:
+                type: number
+                format: float
+        total_tokens_processed:
+          type: integer
+          minimum: 0
+        mean_embedding_norm:
+          type: number
+          format: float
+additionalProperties: false

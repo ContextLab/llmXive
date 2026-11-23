@@ -6,7 +6,7 @@ failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-723-resting-state-fmri-global-signal-as-a-ma
-last_run_id: f26a5a62-23f7-4de6-a82c-2b4b909a0eae
+last_run_id: d108f891-2b0a-48d5-b027-5815463a93e1
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/specs/001-resting-state-fmri-global-signal-as-a-ma
 title: "Resting\u2011State fMRI Global Signal as a Marker of Mind\u2011Wandering"
-updated_at: '2026-07-15T08:24:42.970792Z'
+updated_at: '2026-10-16T00:52:45.490161Z'

@@ -1,117 +1,130 @@
 """
-Ingestion script for diffusion dataset.
+ingest.py
+----------
 
-This module reads a CSV file containing molecule‑solvent records, validates
-each SMILES string, featurizes valid rows, and writes the results to a JSONL
-file. Invalid SMILES are skipped and logged with the ``[ERROR_SMILES]`` tag
-via the project's logging utilities.
+End‑to‑end ingestion orchestrator.
 
-The implementation builds on the existing ``featurize_row`` helper (which
-creates a ``torch_geometric.data.Data`` object) and the shared logging
-helpers defined in ``utils.logging``.
+This script coordinates the validation and featurization steps for the
+diffusion dataset. It:
+
+1. Ensures the raw dataset is present (real or synthetic).
+2. Validates each CSV row using ``ingestion.validate.validate_row``.
+   Invalid rows are logged with the appropriate tags.
+3. Featurizes all *valid* rows via ``ingestion.featurize.featurize_row``.
+   Rows that cannot be featurized (e.g. missing solvent descriptors) are
+   skipped and a warning is logged.
+4. Writes the featurized records to
+   ``data/processed/featurized_data.jsonl``.
+5. Writes the number of **featurized** records to
+   ``data/processed/valid_record_count.txt`` (this count now matches the
+   actual number of JSON‑L entries).
+6. Updates the data‑source flag (real vs synthetic) by invoking
+   ``ingestion.flag_source.main``.
 """
 
 import csv
 import json
+import sys
 from pathlib import Path
-from typing import Dict, Any
+from typing import List
 
-from rdkit import Chem
-
-from utils.logging import (
-    get_logger,
-    log_invalid_smiles,
-    log_missing_data_excluded,
-)
+from utils.logging import get_logger, log_error, log_info
+from ingestion.validate import validate_row
 from ingestion.featurize import featurize_row
+from ingestion.flag_source import main as update_data_source_flag
+from utils.config import get_project_root
 
-def _is_valid_smiles(smiles: str) -> bool:
+logger = get_logger()
+
+def _load_raw_rows(raw_path: Path) -> List[dict]:
+    """Read the raw CSV and return a list of row dictionaries."""
+    with raw_path.open(newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        return list(reader)
+
+def _write_featurized_jsonl(records: List[dict], output_path: Path) -> None:
+    """Write each record as a JSON line."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with output_path.open("w", encoding="utf-8") as f:
+        for rec in records:
+            f.write(json.dumps(rec) + "\n")
+
+def _write_valid_count(count: int, count_path: Path) -> None:
+    """Write the integer count of *featurized* records."""
+    count_path.parent.mkdir(parents=True, exist_ok=True)
+    count_path.write_text(str(count), encoding="utf-8")
+
+def ingest(root: Path) -> bool:
     """
-    Return ``True`` if ``smiles`` can be parsed by RDKit, otherwise ``False``.
+    Run the full ingestion pipeline.
+
+    Returns
+    -------
+    bool
+        ``True`` on success, ``False`` on any fatal error.
     """
-    if not smiles:
+    raw_dir = root / "data" / "raw"
+    processed_dir = root / "data" / "processed"
+
+    raw_path = raw_dir / "dataset.csv"
+    if not raw_path.is_file():
+        log_error(logger, f"Raw dataset not found at {raw_path}")
         return False
-    mol = Chem.MolFromSmiles(smiles)
-    return mol is not None
 
-def ingest(input_csv: Path, output_jsonl: Path) -> None:
-    """
-    Process ``input_csv`` and write featurized records to ``output_jsonl``.
+    # Load rows from the raw CSV
+    rows = _load_raw_rows(raw_path)
 
-    - Rows with missing critical fields are excluded and logged
-      via ``log_missing_data_excluded`` (implemented in T013).
-    - Rows with an invalid SMILES string are excluded and logged
-      via ``log_invalid_smiles`` (the focus of T014).
+    valid_rows: List[dict] = []
+    featurized_records: List[dict] = []
 
-    The output format is a JSON Lines file where each line contains a
-    dictionary with the original SMILES and a string representation of the
-    ``torch_geometric`` ``Data`` object produced by ``featurize_row``.
-    """
-    logger = get_logger()
-    output_jsonl.parent.mkdir(parents=True, exist_ok=True)
-
-    with input_csv.open(newline="", encoding="utf-8") as csv_file, \
-         output_jsonl.open("w", encoding="utf-8") as out_file:
-
-        reader = csv.DictReader(csv_file)
-        for row_number, row in enumerate(reader, start=1):
-            # Basic missing‑data guard (already part of T013)
-            if any(value == "" or value is None for value in row.values()):
-                log_missing_data_excluded(logger, row)
-                continue
-
-            smiles = row.get("smiles")
-            if not _is_valid_smiles(smiles):
-                # Log the error with the required tag and skip the row
-                log_invalid_smiles(logger, smiles if smiles else "")
-                continue
-
-            # Featurize the valid row
+    for row in rows:
+        if validate_row(row):
+            valid_rows.append(row)
             try:
-                data_obj = featurize_row(row)
-            except Exception as exc:  # Defensive: any unexpected featurization error
-                logger.error(
-                    f"Featurization failed for row {row_number} (SMILES={smiles}): {exc}"
+                feat = featurize_row(row)
+                if feat is not None:
+                    featurized_records.append(feat)
+                else:
+                    # This should be rare; log for traceability.
+                    log_error(
+                        logger,
+                        f"Featurization returned None for SMILES "
+                        f"'{row.get('smiles', row.get('SMILES', 'unknown'))}'",
+                    )
+            except Exception as exc:
+                log_error(
+                    logger,
+                    f"Featurization failed for SMILES "
+                    f"'{row.get('smiles', row.get('SMILES', 'unknown'))}': {exc}",
                 )
-                continue
+        # ``validate_row`` already logs tags for invalid rows.
 
-            # Serialize – we cannot JSON‑encode torch tensors directly, so we store
-            # a simple representation that downstream steps can reinterpret.
-            record: Dict[str, Any] = {
-                "smiles": smiles,
-                "data_repr": str(data_obj),
-            }
-            out_file.write(json.dumps(record) + "\n")
+    # Write JSON‑L output
+    jsonl_path = processed_dir / "featurized_data.jsonl"
+    _write_featurized_jsonl(featurized_records, jsonl_path)
+
+    # Write count of featurized records (matches JSON‑L length)
+    count_path = processed_dir / "valid_record_count.txt"
+    _write_valid_count(len(featurized_records), count_path)
+
+    log_info(
+        logger,
+        f"Ingestion finished: {len(featurized_records)} valid rows written to {jsonl_path}",
+    )
+
+    # Update the data‑source flag (real vs synthetic)
+    try:
+        update_data_source_flag()
+    except Exception as exc:
+        log_error(logger, f"Failed to update data source flag: {exc}")
+        # Not fatal for ingestion itself
+    return True
 
 def main() -> None:
-    """
-    CLI entry point.
-
-    Usage:
-        python -m ingestion.ingest [--input INPUT_CSV] [--output OUTPUT_JSONL]
-
-    If arguments are omitted, defaults are:
-        input  -> data/raw/dataset.csv
-        output -> data/processed/featurized.jsonl
-    """
-    import argparse
-
-    parser = argparse.ArgumentParser(description="Ingest and featurize diffusion data")
-    parser.add_argument(
-        "--input",
-        type=Path,
-        default=Path("data/raw/dataset.csv"),
-        help="Path to the raw CSV dataset",
-    )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=Path("data/processed/featurized.jsonl"),
-        help="Path where the featurized JSONL will be written",
-    )
-    args = parser.parse_args()
-
-    ingest(args.input, args.output)
+    """CLI entry point."""
+    root = get_project_root()
+    success = ingest(root)
+    sys.exit(0 if success else 1)
 
 if __name__ == "__main__":
     main()

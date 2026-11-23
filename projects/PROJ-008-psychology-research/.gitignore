@@ -3,32 +3,79 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# C extensions
+*.so
+
 # Distribution / packaging
-.eggs/
-*.egg-info/
-dist/
+.Python
 build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
 
-# Virtual environments
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+.pytest_cache/
+
+# Translations
+*.mo
+*.pot
+
+# Environments
+.env
+.venv
+env/
 venv/
-.venv/
 ENV/
+env.bak/
+venv.bak/
 
-# IDE
+# IDEs
 .idea/
 .vscode/
 *.swp
 *.swo
-
-# Data (large files)
-data/raw/*.csv
-data/raw/*.json
-data/processed/*.csv
-data/figures/*.png
-
-# Logs
-*.log
+*~
 
 # OS
 .DS_Store
-Thumbs.db
+.AppleDouble
+.LSOverride
+
+# Project specific
+data/raw/*.pdf
+data/interim/
+data/processed/*.csv
+data/processed/*.png
+data/raw/retrieval_log.json
+data/raw/excluded_studies.log
+docs/results.md
+docs/protocol.md
+*.log

@@ -1,0 +1,18 @@
+status: none
+intent: download GAM manipulation dataset for robotics python package dataset
+required_fields:
+- task_id
+- kinematic_chain_definition
+- hinge_count
+- link_lengths
+- joint_types
+- deformable_material_type
+- mesh_vertices
+- mesh_faces
+- initial_object_pose
+- goal_object_pose
+- simulation_timestep
+- object_positions_per_timestep
+cache_key: b9b26a28794ff231ebb83d50d77611a567b14e67e63e287a7242c9a4e7db9332
+searched_at: '2026-11-10T15:24:42.427814+00:00'
+retry_count: 1

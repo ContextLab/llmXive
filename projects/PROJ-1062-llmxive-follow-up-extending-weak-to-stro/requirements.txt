@@ -1,0 +1,15 @@
+transformers
+datasets
+torch
+bitsandbytes==0.43.0
+scikit-learn
+scipy
+pandas
+numpy
+statsmodels
+pyyaml
+ruff
+black
+pytest
+pytest-cov
+pre-commit

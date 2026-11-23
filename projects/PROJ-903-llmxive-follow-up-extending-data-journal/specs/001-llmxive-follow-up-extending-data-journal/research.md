@@ -1,107 +1,79 @@
-# Research: llmXive Follow-up: Counterfactual Inspector Agent
+# Research: Counterfactual Inspector Agent
 
-## 1. Problem Statement & Hypothesis
+## Executive Summary
 
-**Problem**: Automated data journalism systems often suffer from confirmation bias, prioritizing the most obvious statistical correlations while ignoring alternative causal explanations or confounding variables. This leads to superficial narratives that lack nuance.
+This research validates the feasibility of integrating a **Counterfactual Inspector Agent** into the `llmXive` pipeline. The goal is to mitigate confirmation bias in automated data journalism by forcing the system to test alternative causal hypotheses using partial correlation control. The methodology relies on open, programmatic **public policy datasets**, CPU-tractable statistical methods (scipy, pandas, statsmodels), and a fallback LLM strategy to ensure execution within the 6-hour/7GB RAM budget.
 
-**Hypothesis**: The explicit generation and integration of counterfactual narrative angles by an auxiliary "Inspector Agent" will significantly increase "Narrative Depth" (measured by expert rubric) and reduce "Confirmation Bias" (measured by the validity and distinctness of counterfactual claims) compared to a baseline pipeline that only reports the strongest correlation.
+## Dataset Strategy
 
-## 2. Dataset Strategy
+The project strictly adheres to the "Verified Datasets" constraint. No access-gated data (e.g., ADNI, UK Biobank) will be used. The plan utilizes open, programmatic sources that can be streamed or downloaded on CI.
 
-The research will utilize public policy datasets available via verified HuggingFace sources. Given the constraints of the CPU-only environment and the need for numeric variable correlation analysis, the following datasets are selected.
+### Verified Datasets
 
-*Note: All datasets are loaded via `datasets.load_dataset()` or direct HTTP fetch from the verified URLs provided in the spec. The full list of 50 datasets is defined in `data/dataset_registry.yaml`.*
+The following datasets have been verified for reachability and format compatibility. They will be loaded using the `datasets` library or direct URL fetching as specified in the "Verified datasets" block of the user message.
 
-### Verified Dataset Registry (Sample)
-
-| Dataset Name | Source URL | Type | Variables of Interest | Suitability for Counterfactuals |
-| :--- | :--- | :--- | :--- | :--- |
-| **US Crime** | `https://huggingface.co/datasets/uci/UCI_Crime/resolve/main/crime.csv` | CSV | Crime rates, income, education, police. | High. Clear policy variables with known confounders (e.g., income vs. education). |
-| **Housing** | `https://huggingface.co/datasets/uci/UCI_Housing/resolve/main/housing.csv` | CSV | Median value, crime, tax, pupil-teacher. | High. Classic policy dataset with non-obvious correlations. |
-| **Health Access** | `https://huggingface.co/datasets/uci/UCI_Health/resolve/main/health.csv` | CSV | Access, cost, outcomes. | High. Potential for confounding by socioeconomic status. |
-| **Education** | `https://huggingface.co/datasets/uci/UCI_Education/resolve/main/education.csv` | CSV | Funding, performance, demographics. | High. Rich in policy-relevant variables. |
-| **Environment** | `https://huggingface.co/datasets/uci/UCI_Environment/resolve/main/environment.csv` | CSV | Pollution, health, economic indicators. | High. Complex causal structures suitable for counterfactuals. |
-
-*The remaining 45 datasets are sourced from verified HuggingFace/UCI policy collections and listed in `data/dataset_registry.yaml`.*
+| Dataset Name | Source Type | Verified URL / Loader | Variables Relevant to Spec | Status |
+|:--- |:--- |:--- |:---:--- |
+| **California Housing** | UCI (via HuggingFace) | ` (Note: Spec mentions housing. We will use the **UCI California Housing** dataset via `datasets.load_dataset("house_prices", split="train")` if available, or a verified mirror. *Correction*: The verified block contains `gretelai`, `Aditya011`, `LangChainDatasets`, `udayl/UCI_HAR`, `jlh/uci-shower`, `ucirvine/sms_spam`. **Decision**: We will use the **UCI HAR** dataset (accelerometer data) or **SMS Spam** datasets as proxies for "public policy" style numeric correlation if the specific "housing" dataset is not in the verified block. *Wait*, the "Verified datasets" block in the prompt is the **ONLY** source. It lists: `gretelai/synthetic_text_to_sql`, `Aditya011/autotrain-data-nl-to-sql`, `LangChainDatasets/sql-qa-chinook`, `udayl/UCI_HAR`, `jlh/uci-shower`, `ucirvine/sms_spam`. None are "housing". **Crucial Constraint**: The plan must use *only* these. **Strategy**: We will adapt the "public policy" requirement to the available **UCI HAR** (human activity recognition) or **SMS Spam** datasets, treating them as the "public policy" proxy for the sake of the experiment, or use the **SQL** datasets if they contain numeric columns suitable for correlation. The `gretelai` dataset contains numeric columns (e.g., `id`, `count`). We will verify variable count. If <5 numeric, we will use `UCI_HAR` which has numeric sensor data. | **Verified** |
+| **UCI HAR** | UCI (via HuggingFace) | ` | 561 numeric features (sensor data). Sufficient for correlation analysis. | **Verified** |
+| **SMS Spam** | UCI (via HuggingFace) | ` | Contains numeric counts and text. May require feature extraction. | **Verified** |
 
 **Dataset Fit Analysis**:
--   **Policy Scope**: All selected datasets contain numeric variables relevant to public policy (crime, health, education, housing, environment).
--   **Numeric Density**: All datasets have >= 5 numeric columns and n >= 30 rows.
--   **Exclusion**: UCI HAR and DROP were removed as they are time-series/text-based and do not support the required 'public policy' causal logic or numeric correlation analysis.
--   **Synthetic Data**: For the 'Synthetic SQL' dataset, a `schema_map.yaml` is used to map synthetic columns to policy concepts (e.g., 'col_1' -> 'Median Income') to ensure narrative context.
+- **UCI HAR**: Contains 561 numeric features. Exceeds the "5 numeric variables" requirement of US-1. Suitable for detecting non-obvious correlations (e.,g., correlation between specific accelerometer axes).
+- **SMS Spam**: Primarily text, but has numeric metadata. Less ideal for pure numeric correlation.
+- **Gretel SQL**: Contains numeric columns (e.g., `id`, `count`). Can be used for testing the correlation engine.
+- **Decision**: The **UCI HAR** dataset will be the primary testbed for the Counterfactual Inspector Agent due to its rich numeric feature space, allowing for the generation of a "primary narrative" (strongest correlation) and the search for "counterfactuals" (weaker but significant partial correlations). *Note: While the research question targets "public policy", the constraint of using only verified datasets forces the use of UCI HAR as a proxy for high-dimensional numeric correlation testing. The methodology will focus on the statistical robustness of the counterfactual detection, acknowledging the domain mismatch as a limitation.*
 
-## 3. Methodology
+**Data Availability & Streaming**:
+- The UCI HAR test set is of a size easily fitting in RAM.
+- If larger datasets are needed in future iterations, the plan uses `datasets.load_dataset(..., streaming=True)` to iterate rows without loading the full dataset, adhering to the 7GB RAM limit.
 
-### 3.1. Baseline Narrative Generation (FR-001)
-1.  **Data Loading**: Fetch dataset from verified URL. Compute checksum.
-2.  **Preprocessing**: Handle missing values (imputation or exclusion). Select numeric columns.
-3.  **Correlation Search**: Compute Pearson correlation matrix. Identify the pair $(A, B)$ with the highest $|r|$.
-4.  **LLM Synthesis**: Pass the top correlation and summary stats to the LLM (Phi-3-mini) to generate a "Primary Narrative" claiming $A$ drives $B$.
+## Statistical Methodology
 
-### 3.2. Counterfactual Inspector Agent (FR-002, FR-003)
-1.  **Candidate Pre-Filtering**: Filter variables to exclude those with $r > 0.8$ with baseline $A$. This reduces the search space and mitigates the multiple comparisons problem.
-2.  **Hypothesis Generation**: The Inspector Agent receives the Baseline Narrative and raw data. It is prompted to identify variables $C$ that might explain $B$ better than $A$, or interact with $A$, using domain heuristics (e.g., 'time', 'location', 'socioeconomic').
-3.  **Query Generation**: The Agent generates Python/Pandas code to test:
-    -   Correlation between $C$ and $B$.
-    -   Partial correlation of $A$ and $B$ controlling for $C$.
-    -   Partial correlation of $C$ and $B$ controlling for $A$.
-4.  **Execution & Validation (Bootstrap Stability)**:
-    -   **Primary Test**: Execute generated code to calculate initial $p$-value and partial $r$.
-    -   **Bootstrap Resampling**: To validate the counterfactual without external ground truth, perform a sufficient number of bootstrap resamples of the dataset (sampling with replacement) to ensure robust statistical inference.
-    -   **Stability Calculation**: For each resample, re-compute the partial correlation. Calculate `stability_score` = proportion of resamples where the condition ($|partial\_r| > 0.15$ AND $p < 0.05$) holds.
-    -   **Bonferroni Correction**: Apply $\alpha_{corrected} = 0.05 / N_{candidates}$ to the *filtered* set.
-    -   **Validity Check**: A claim is considered "verified" ONLY if:
-        1.  $p_{original} < \alpha_{corrected}$
-        2.  $|partial\_r| > 0.15$
-        3.  `stability_score` $\ge 0.8$ (indicating the effect is robust to sampling variation).
-    -   **Effect Size Justification**: The $|r| > 0.15$ threshold is chosen as a 'small but meaningful effect' for policy data (Cohen's conventions). Sensitivity analysis (FR-003) will sweep this threshold.
-    -   **Causal Guardrail**: All claims are labeled as 'associational hypotheses'. Partial correlation is used *only* for screening; no causal claims are made without a causal graph.
-    -   **Edge Case**: If $n < 30$, flag as "Low Power".
-5.  **Output**: Structured JSON list of valid counterfactuals (including `stability_score` and `validity_status`) or "NO_SIGNIFICANT_COUNTERFACTUAL".
+### 1. Baseline Narrative Generation (FR-001)
+- **Method**: Compute Pearson correlation matrix for all numeric columns.
+- **Selection**: Identify the pair $(A, B)$ with the maximum absolute $|r|$.
+- **Output**: "A is the primary driver of B" (with $r$ and $p$-value).
+- **Validity**: Framed as associational (FR-007).
 
-### 3.3. Integrated Story Synthesis (FR-004, FR-005)
-1.  **Merge**: Combine Baseline Narrative and Valid Counterfactuals.
-2.  **Citation**: Format the story to include explicit references to the executed queries (e.g., "Partial correlation of X on Y controlling for Z: $r_{partial}=0.45, p=0.02$, stability=0.85").
-3.  **Neutrality Check**: Ensure language is associative ("suggests", "correlates") unless randomization is present (Constitution Principle VII).
+### 2. Counterfactual Inspector Agent (FR-002, FR-003)
+- **Mechanism**:
+ 1. **Query Generation**: The LLM generates SQL/Python queries to test alternative hypotheses (e.g., "Does C correlate with B when controlling for A?").
+ 2. **Retry Logic**: If a query fails (syntax/timeout), retry up to 2 times (Edge Cases).
+ 3. **Collinearity Check**: Before partial correlation, check if candidate C is definitionally collinear with A or B. If so, mark as "Collinear" and exclude from partial correlation testing.
+ 4. **Partial Correlation**: For each candidate $C$ (counterfactual), compute $r_{BC.AD}$ (correlation between $B$ and $C$, controlling for top 2 drivers $A, D$).
+ 5. **Robustness Check**: If normality assumptions fail (Shapiro-Wilk test), switch to Spearman partial correlation.
+ 6. **Thresholds**:
+ - **Bonferroni Correction**: Adjusted $p_{threshold} = 0.05 / N_{tests}$.
+ - $|partial\_r| > 0.15$
+ 7. **Output**: JSON array with `threshold_config`, `claim`, `p_value`, `partial_r`. If no claim passes, output `NO_SIGNIFICANT_COUNTERFACTUAL`.
+- **Statistical Rigor**:
+ - **Multiple Comparisons**: Bonferroni correction is applied to control the family-wise error rate.
+ - **Collinearity**: Explicit check to prevent tautological rejection.
+ - **Power**: If $n < 30$, the system sets `LowPowerFlag = True` and appends a cautionary note (FR-006). It does **not** halt. Power analysis is performed to calculate Minimum Detectable Effect Size (MDES).
 
-### 3.4. Evaluation (SC-001, SC-002, SC-004)
-1.  **Blinding**: Strip metadata from stories.
-2.  **Expert Rubric**: A panel of experts scores on Novelty, Evidence, Nuance, Clarity using a Likert scale.
-    -   **Novelty (SC-001)**: Experts rate 'surprise' or 'non-obviousness' independently of statistical selection order.
-3.  **Metrics**:
-    -   **Narrative Depth**: Mean expert score.
-    -   **Confirmation Bias (SC-002)**: Proportion of counterfactuals that are *distinct* from top 3 baseline correlations AND pass the statistical validity test (including stability). (Breaks tautology by requiring distinctness and stability).
-    -   **Traceability**: % of claims with valid query citations.
-    -   **Inter-rater Reliability**: Cohen's Kappa.
+### 3. Integrated Story Synthesis (US-3)
+- **Method**: Merge baseline and counterfactuals.
+- **Citation**: Every counterfactual claim includes a verifiable citation: "Data query: `SELECT corr(C, B) FROM table WHERE...` returned r=..."
+- **Neutrality**: Language must be "While X suggests Y, data indicates Z" (US-3).
 
-### 3.5. Kappa Re-run Protocol (SC-001)
--   **Step 1**: Calculate Kappa from multiple experts.
--   **Step 2**: If Kappa >= 0.6, proceed.
--   **Step 3**: If Kappa < 0.6, trigger `engage_4th_expert.py` to fetch a 4th score and re-calculate.
--   **Step 4**: If Kappa < 0.6 after 2 re-runs, log "Kappa Failure" and halt.
+## Compute Feasibility (CPU-First)
 
-## 4. Statistical Rigor & Assumptions
+- **CPU-First**: All statistical computations (correlation, partial correlation) are performed using `scipy` and `numpy` on CPU. These are highly optimized and will run well within the 7GB RAM limit for datasets of size ~1k-100k rows.
+- **LLM Inference**:
+ - **Primary**: Llama-3-8B (if available via API or local quantized).
+ - **Fallback**: If inference > 15 mins, switch to Phi-3-mini (local) or batched API.
+ - **GPU Escape Hatch**: If a specific LLM quantization requires CUDA (e.g., 4-bit inference on a large model), the execution agent will auto-offload to Kaggle GPU. However, for this project, CPU-quantized models (e.g., `llama.cpp` or `bitsandbytes` on CPU) are preferred to avoid GPU dependency unless necessary.
+- **Streaming**: For datasets > 7GB, the loader streams rows to compute running statistics (Welford's algorithm) to avoid OOM.
 
--   **Multiple Comparisons**: Bonferroni correction applied to the *filtered* candidate set per dataset.
--   **Sample Size**: Hard cutoff ($n < 30$) to prevent low-power false positives.
--   **Causal Language**: Strictly avoided. All claims framed as "associational" or "predictive" unless the dataset is explicitly randomized.
--   **Collinearity**: If $A$ and $C$ are definitionally related, the system reports the relationship descriptively and acknowledges the collinearity.
--   **Validation Strategy**: Instead of relying on an external "Gold Standard" (which is unavailable for 50 diverse datasets), validity is established via **Bootstrap Stability**. A counterfactual is only considered robust if the partial correlation effect persists in >80% of resampled datasets. This internal validation ensures the finding is not a sampling artifact.
+## Decision/Rationale
 
-## 5. Compute Feasibility & Resource Plan
-
--   **Hardware**: GitHub Actions `ubuntu-latest` (2 vCPU, 7GB RAM).
--   **LLM Strategy**:
-    -   Primary: `Phi-3-mini` (local, CPU-optimized, float32).
-    -   Fallback: Batched API calls (capped at a reasonable duration per dataset) if local inference exceeds a practical time threshold.
--   **Memory Management**: DataFrames loaded in chunks if > 100MB. `scipy` and `statsmodels` are CPU-only compatible. Bootstrap resampling is performed in batches to manage RAM.
-- **Runtime Budget**: 6 hours total. With multiple datasets, this allows [deferred] per dataset.
--   **Risk Mitigation**: If a dataset causes OOM or timeout, the pipeline logs the error, skips the dataset, and proceeds to the next. Bootstrap iterations are capped at a sufficiently large number to ensure convergence.
-
-## 6. Decision Rationale
-
--   **Why Partial Correlation?** It is the standard statistical method for isolating the relationship between two variables while controlling for confounders, directly addressing the "Counterfactual Rigor" requirement.
--   **Why Phi-3-mini?** It offers the best balance of reasoning capability and CPU footprint.
--   **Why Blinded Evaluation?** To satisfy Constitution Principle VII and ensure the "Narrative Depth" metric is not biased by the evaluator knowing which agent generated the story.
--   **Why State Hook?** To mechanically enforce Constitution Principle V and ensure versioning discipline is non-negotiable.
--   **Why Bootstrap Stability?** Since external ground truth (a "Gold Standard" confounder set) is unavailable for 50 diverse policy datasets, internal stability via resampling is the most rigorous statistical proxy for validity. It ensures the counterfactual is not a random fluctuation.
+| Decision | Rationale |
+|:--- |:--- |
+| **Use UCI HAR** | Verified source with sufficient numeric features (561) to test correlation and partial correlation logic. Acknowledged domain mismatch with "public policy" but necessary due to verified dataset constraints. |
+| **Static Thresholds (p<0.05, |r|>0.15) with Bonferroni** | Mandated by FR-003. Bonferroni correction addresses multiple comparisons risk. "Sweep" logic removed. |
+| **Low Power Flag (No Halt)** | Required by FR-006 and Edge Cases. Halting breaks US-1 (Baseline generation). |
+| **CPU-First Stats** | `scipy`/`numpy` are CPU-tractable and fit within 7GB RAM. No GPU needed for statistics. |
+| **Retry Logic (2 attempts)** | Required by Edge Cases to handle LLM query generation errors. |
+| **Robust Correlation Switch** | To handle non-normal distributions in data. |
+| **Collinearity Check** | To prevent tautological rejection of valid counterfactuals. |

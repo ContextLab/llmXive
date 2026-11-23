@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1106.5992",
+  "judged_at": "2026-08-10T06:41:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the impact of network proximity on epidemic spreading in scale-free networks physics",
+  "rationale": "This paper satisfies criteria (a) and (b) by empirically measuring the dynamics of spreading (data diffusion) on a real-world proximity network, which serves as the canonical empirical population and mechanism for studying how network proximity influences spreading processes, even though the specific context is data rather than biological epidemics.",
+  "relevant": true
+}

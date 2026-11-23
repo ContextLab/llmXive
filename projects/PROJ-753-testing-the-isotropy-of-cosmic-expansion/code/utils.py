@@ -2,6 +2,7 @@ import csv
 import json
 import logging
 import os
+import math
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
@@ -18,7 +19,7 @@ _logger_initialized: bool = False
 def setup_logging(
     log_level: int = DEFAULT_LOG_LEVEL,
     log_file: Optional[str] = None,
-    project_root: Optional[Path] = None
+    project_root: Optional[Path] = None,
 ) -> logging.Logger:
     """
     Configure the root logger for the project.
@@ -96,7 +97,7 @@ def log_excluded_entry(
     entry_id: str,
     reason: str,
     field: Optional[str] = None,
-    value: Optional[Any] = None
+    value: Optional[Any] = None,
 ) -> None:
     """
     Log an excluded entry with details.
@@ -115,9 +116,7 @@ def log_excluded_entry(
 
 
 def log_processing_step(
-    logger: logging.Logger,
-    step_name: str,
-    details: Optional[Dict[str, Any]] = None
+    logger: logging.Logger, step_name: str, details: Optional[Dict[str, Any]] = None
 ) -> None:
     """
     Log a processing step with optional details.
@@ -134,7 +133,9 @@ def log_processing_step(
     logger.info(message)
 
 
-def calculate_hubble_parameter(z: float, h0: float = 70.0, omega_m: float = 0.3) -> float:
+def calculate_hubble_parameter(
+    z: float, h0: float = 70.0, omega_m: float = 0.3
+) -> float:
     """
     Calculate the Hubble parameter E(z) = H(z)/H0 for a flat LambdaCDM universe.
 
@@ -151,10 +152,7 @@ def calculate_hubble_parameter(z: float, h0: float = 70.0, omega_m: float = 0.3)
 
 
 def integrate_comoving_distance(
-    z: float,
-    h0: float = 70.0,
-    omega_m: float = 0.3,
-    rtol: float = 1e-8
+    z: float, h0: float = 70.0, omega_m: float = 0.3, rtol: float = 1e-8
 ) -> float:
     """
     Calculate comoving distance via numerical integration.
@@ -181,10 +179,7 @@ def integrate_comoving_distance(
 
 
 def calculate_distance_modulus_theoretical(
-    z: float,
-    h0: float = 70.0,
-    omega_m: float = 0.3,
-    rtol: float = 1e-8
+    z: float, h0: float = 70.0, omega_m: float = 0.3, rtol: float = 1e-8
 ) -> float:
     """
     Calculate theoretical distance modulus for a flat LambdaCDM universe.
@@ -201,14 +196,9 @@ def calculate_distance_modulus_theoretical(
     d_c = integrate_comoving_distance(z, h0, omega_m, rtol)
     # Luminosity distance
     d_l = d_c * (1 + z)
-    # Distance modulus: mu = 5 * log10(d_L / 10pc) = 5 * log10(d_L) - 5
-    # d_L is in Mpc, so d_L / 10pc = d_L * 1e6 / 10 = d_L * 1e5
-    return 5 * (d_l * 1e5) ** 0.5  # This is incorrect, let's fix
     # Correct formula: mu = 5 * log10(d_L / 10pc)
-    # d_L in Mpc -> d_L * 1e6 pc
-    # d_L / 10pc = d_L * 1e5
-    # mu = 5 * log10(d_L * 1e5) = 5 * (log10(d_L) + 5)
-    import math
+    # d_L in Mpc -> d_L * 1e6 pc; d_L / 10pc = d_L * 1e5
+    # mu = 5 * (log10(d_L) + 5)
     return 5 * (math.log10(d_l) + 5)
 
 
@@ -222,7 +212,7 @@ def load_csv(file_path: str) -> List[Dict[str, str]]:
     Returns:
         List of dictionaries, one per row.
     """
-    with open(file_path, 'r', newline='', encoding='utf-8') as f:
+    with open(file_path, "r", newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         return list(reader)
 
@@ -239,7 +229,7 @@ def save_csv(data: List[Dict[str, Any]], file_path: str) -> None:
         return
 
     fieldnames = list(data[0].keys())
-    with open(file_path, 'w', newline='', encoding='utf-8') as f:
+    with open(file_path, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         writer.writerows(data)
@@ -255,7 +245,7 @@ def load_json(file_path: str) -> Dict[str, Any]:
     Returns:
         Parsed JSON object.
     """
-    with open(file_path, 'r', encoding='utf-8') as f:
+    with open(file_path, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -265,10 +255,10 @@ def save_json(data: Dict[str, Any], file_path: str, indent: int = 2) -> None:
 
     Args:
         data: Dictionary to save.
-        file_path: Path to the output JSON file.
+        file_path: Path to the JSON file.
         indent: Indentation level for pretty printing.
     """
-    with open(file_path, 'w', encoding='utf-8') as f:
+    with open(file_path, "w", encoding="utf-8") as f:
         json.dump(data, f, indent=indent)
 
 
@@ -283,9 +273,9 @@ def extract_cosmology_params(metadata: Dict[str, Any]) -> Tuple[float, float]:
         Tuple of (H0, Omega_m).
     """
     # Try to get from cosmology section
-    cosmology = metadata.get('cosmology', {})
-    h0 = cosmology.get('H0')
-    omega_m = cosmology.get('Omega_m')
+    cosmology = metadata.get("cosmology", {})
+    h0 = cosmology.get("H0")
+    omega_m = cosmology.get("Omega_m")
 
     if h0 is not None and omega_m is not None:
         return float(h0), float(omega_m)
@@ -305,14 +295,14 @@ def validate_record(record: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
     Returns:
         Tuple of (is_valid, reason_if_invalid).
     """
-    required_fields = ['ID', 'RA', 'Dec', 'z', 'mu_obs', 'sigma_mu']
+    required_fields = ["ID", "RA", "Dec", "z", "mu_obs", "sigma_mu"]
 
     for field in required_fields:
-        if field not in record or record[field] is None or record[field] == '':
+        if field not in record or record[field] is None or record[field] == "":
             return False, f"Missing required field: {field}"
 
         # Check for valid numeric values where needed
-        if field in ['RA', 'Dec', 'z', 'mu_obs', 'sigma_mu']:
+        if field in ["RA", "Dec", "z", "mu_obs", "sigma_mu"]:
             try:
                 float(record[field])
             except (ValueError, TypeError):

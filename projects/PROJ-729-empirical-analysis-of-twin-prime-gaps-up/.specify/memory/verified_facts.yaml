@@ -1,5 +1,5 @@
-'|between context distribution gap goldston heuristic ld pintz prime refined regarding small':
-  quote: arXiv:math/0506067v1 [math.NT] 3 Jun 2005
-  source_id: math/0506067
-  url: https://arxiv.org/abs/math/0506067
-  value: '0'
+'|c2 calculated expected formula prime twin up using':
+  quote: '{\displaystyle \pi _{2}(n)\sim C_{2}\int _{2}^{n}{\frac {dt}{\log ^{2}t}},}'
+  source_id: "First Hardy\u2013Littlewood conjecture"
+  url: "https://en.wikipedia.org/wiki/First_Hardy\u2013Littlewood_conjecture"
+  value: C_{2}\int _{2}^{n}{\frac {dt}{\log ^{2}t}}

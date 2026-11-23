@@ -1,0 +1,130 @@
+T001b:
+  c: false
+  h: f6435bcd6088522b5a0b1528d6ad5d1ed80029cd4926af02006e04b6a1586a5f
+  r: "The `code/__init__.py` and `code/utils/__init__.py` files are present, but the\
+    \ provided evidence does not show their contents, so we cannot confirm they are\
+    \ truly empty as required. Add verification (e.g., file size\u202F0\u202Fbytes\
+    \ or displayed empty content) to prove they are empty."
+  sig: 4fe127314b9b1c271683de8e966923ff68fe010b7dc3be99756835a6cde79a2e
+T002a:
+  c: false
+  h: 5169f9f5cb4354a6b34307ed8101beec6f26a69ebf5857ccc8a41d43e9e6a350
+  r: The `code/requirements.txt` file exists, but it lists version ranges using `>=`
+    and adds an extra `seaborn` entry, whereas the task demanded *pinned* versions
+    (e.g., `pandas==X.Y.Z`) for exactly the eight specified packages. The artifact
+    therefore does not satisfy the requirement.
+  sig: 6d2ebe5c9a171aead6b2489527c3823ec5c40eab51b0d2c90dcda49acf16f779
+T002b:
+  c: true
+  h: b46baf0361c9b6f3d6f664d158e5226185c902e03ab310537bd1a697fd19ef6b
+  r: "Checked the `pyproject.toml` file (projects/PROJ-374\u2011.../pyproject.toml,\
+    \ 2242\u202Fbytes) which contains full project metadata (name, version, description,\
+    \ dependencies, etc.). This satisfies the requirement to provide a `pyproject.toml`\
+    \ (or `setup.cfg`) for the project."
+  sig: 293bce78bfbc746d2d4093fd146d55ce6c4f8ce0a027d4aec41a93a5615971c9
+T003:
+  c: false
+  h: f9c377fc566f3283608093314c36c1b07a3f19cc517e82b0ed6c08067d2b79be
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `pyproject.toml`
+    with Black settings, or a `.pre-commit-config.yaml` invoking ruff/black) were
+    found in the project root or any subdirectory, and no evidence of these tools
+    being installed or run is present. The task therefore lacks the required artifacts
+    to demonstrate that linting (ruff) and formatting (black) have been configured.
+  sig: bbbf782145b35dc43978de562c3154c1f1b585b31abbf78f01db073c1d34b2ae
+T004:
+  c: true
+  h: 5a386c66824c31139790b5ce6fe01e455f222ce062eb741a3c90b8673fbcbb79
+  r: "The file `code/utils/periodic_data.py` exists (3.8\u202FKB) and implements cached\
+    \ wrapper functions (`get_element`, `get_atomic_radius`, `get_electronegativity`,\
+    \ `get_valence_electrons`, `get_atomic_number`, `get_element_properties`) that\
+    \ retrieve periodic\u2011table properties via the `mendeleev` library, fulfilling\
+    \ the requested wrapper."
+  sig: 86b8a2e116099fe1c22ee2779b62a1a157efb84381684eed4ef6031ccd6f4c41
+T005:
+  c: true
+  h: fce7029a380418e64f25cb294720d68cea77abb04c81c131bac46bfa7c4fa748
+  r: "Checked the resolved artifact `code/utils/stoichiometry_parser.py`; it exists,\
+    \ is non\u2011empty, and provides functions to parse chemical formulas into element\u2011\
+    count dictionaries and to normalize those counts to mole fractions (plus helper\
+    \ utilities), fulfilling the requested creation of a stoichiometry parser module."
+  sig: 4c8d64a880486be9da0561883b4dc9be6cd1d554e1cd95bf2013e9d12a3431e0
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw/` and `data/processed/` directories (or
+    any files within them) was provided; the claim lacks any tangible artifact confirming
+    the directory structure was created. The implementer must create and show the
+    actual folder hierarchy (e.g., a listing or screenshots) to satisfy the task.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `docs/figures/` directory was provided; the required folder
+    is missing (or empty), so the task of setting up that directory has not been demonstrated.
+T021:
+  c: false
+  h: a4e7dd69be1b59b2f8e509c88e5162c31aac8511c6c6dceaf8850f6fc2a4bdbb
+  r: "The `code/03_train_and_evaluate.py` file exists but its implementation is incomplete\
+    \ (truncated) and does not explicitly load the required `data/processed/final_features.csv`.\
+    \ Moreover, the required CSV file is missing from the repository, so the script\
+    \ cannot be executed as specified. The task\u2019s core requirement is therefore\
+    \ not met."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the required split logic was\
+    \ provided; the artifact that should contain the conditional dataset splitting\
+    \ (80/20 stratified for N\u202F\u2265\u202F100, repeated 5\u2011fold CV for N\u202F\
+    <\u202F100, with no halt for N\u202F<\u202F50) is missing. The claim cannot be\
+    \ verified without such implementation."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, dataset, model files, or evaluation outputs were presented. The claim\
+    \ of having implemented a baseline linear regression model and its evaluation\
+    \ cannot be verified because the required artifacts (e.g., ingestion script, engineered\
+    \ CSV, training script, model performance metrics, feature importance list) are\
+    \ absent. The next implementer must provide the actual files and results that\
+    \ demonstrate the linear regression training, cross\u2011validation, R\xB2 score\
+    \ with confidence interval, and descriptor correlations."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, model file, training script, or output results (e.g., performance metrics,
+    feature importance list) were presented. The required implementation of a `GradientBoostingRegressor`
+    with `n_estimators=100`, `max_depth=3`, `random_state=42`, along with the associated
+    training/evaluation artifacts, is missing.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `state/cv_fold_scores.json` file or corresponding code implementing a 5\u2011\
+    fold cross\u2011validation loop was presented. The required artifact that records\
+    \ individual fold R\xB2 scores is missing, so the task is not satisfied."
+T026a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or output implementing the permutation test with\
+    \ a sufficient number of iterations and `random_state=42` is present. The required\
+    \ artifact (e.g., a function or script that computes the p\u2011value for R\xB2\
+    \ significance) is missing, so the task is not satisfied."
+T026b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No confidence\u2011interval output, code, or data file was provided; the claim\
+    \ lacks any artifact (e.g., a script, notebook, or result table) showing the 95\u202F\
+    % CI for the R\xB2 score derived from the T025 cross\u2011validation scores. Consequently\
+    \ the requirement is not satisfied."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact containing the computed F\u2011statistic and p\u2011value (or the\
+    \ code performing the F\u2011test) is present; the claim provides only a description\
+    \ of the required analysis without any actual results or implementation, so the\
+    \ task\u2019s output requirement is not satisfied."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact containing the extracted and ranked top\u20115 feature importances\
+    \ (e.g., a CSV, JSON, or printed list) was provided, nor any evidence (code output,\
+    \ figure, or report) showing that a gradient\u2011boosting model was trained and\
+    \ its feature importances were computed. The required output is missing, so the\
+    \ task is not satisfied."

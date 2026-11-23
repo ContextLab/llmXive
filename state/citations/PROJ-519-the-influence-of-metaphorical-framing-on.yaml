@@ -1,0 +1,11 @@
+- artifact_hash: e1e776aaf643690464dbdc2a7db4d5ba0cef72bd0c0e3a866c80a59c6283d233
+  artifact_path: projects/PROJ-519-the-influence-of-metaphorical-framing-on/specs/001-the-influence-of-metaphorical-framing-on/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Nopht.zip
+  kind: url
+  value: https://huggingface.co/datasets/camimo/sukasuka-Dataset/resolve/main/Nopht.zip`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/64828ed4d1bc22de4d939ee2/d62b4d38f2e16cd5981f6350dc2a38eadd877adc892a77d9d4d8668504b7d0be?X-Xet-Cas-Uid=public&user_id=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27Nopht.zip%3B+filename%3D%22Nopht.zip%22%3B&response-content-type=application%2Fzip&Expires=1786611371&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjQ4MjhlZDRkMWJjMjJkZTRkOTM5ZWUyL2Q2MmI0ZDM4ZjJlMTZjZDU5ODFmNjM1MGRjMmEzOGVhZGQ4NzdhZGM4OTJhNzdkOWQ0ZDg2Njg1MDRiN2QwYmVcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3Tm9waHQuemlwJTNCK2ZpbGVuYW1lJTNEJTIyTm9waHQuemlwJTIyJTNCJnJlc3BvbnNlLWNvbnRlbnQtdHlwZT1hcHBsaWNhdGlvbiUyRnppcCIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzg2NjExMzcxfX19XX0_&Signature=MEUCIQCzB7-WdCwl888Mmm6kxeWKyD3LKu9EsAM4i7R7B9FhQwIgZRdhE9g5-0MGj7QJYccHjUPCvGa-RKPj3U3OnkmsqxY_&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F
+  verified_at: '2026-08-13T07:56:11.546170Z'

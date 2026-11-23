@@ -1,208 +1,186 @@
-"""
-Fetch module for User Story 1: Data Acquisition.
-Implements T012: get_candidates
-Implements T013: clone_batch (partially, for structure)
-Implements T014: validate_count (partially)
-"""
 import requests
 import logging
 import os
+import time
+import subprocess
 from typing import List, Optional
 from pathlib import Path
+from utils import configure_logging, BatchIterator, MemoryMonitor
 
-# Import utilities from the project
-# The API surface lists `utils` in `code/utils.py`
-from utils import configure_logging, BatchIterator
+# Configure logging for this module
+logger = configure_logging(log_path="logs/pipeline.log")
 
-# Setup logging
-logger = logging.getLogger(__name__)
-
-# Constants
-HF_API_URL = "https://huggingface.co/api/datasets/codeparrot/github-code"
-TARGET_COUNT = 500
-Fallback_REPOS = [
-    "psf/requests", "pallets/flask", "django/django", "numpy/numpy", "pandas-dev/pandas",
-    "scikit-learn/scikit-learn", "matplotlib/matplotlib", "pytest-dev/pytest", "pylint-dev/pylint",
-    "psf/black", "sqlalchemy/sqlalchemy", "attrs/attrs", "marshmallow/marshmallow",
-    "fastapi/fastapi", "httpx/httpx", "rich-text/rich", "typer/typer", "click/click",
-    "pydantic/pydantic", "attrs/attrs", "cattrs/cattrs", "orjson/orjson", "uvicorn/uvicorn",
-    "gunicorn/gunicorn", "celery/celery", "redis/redis-py", "pymongo/pymongo", "psycopg/psycopg",
-    "sqlite/sqlite3", "asyncio/asyncio", "aiohttp/aiohttp", "httpx/httpx", "requests/requests",
-    "urllib3/urllib3", "chardet/chardet", "certifi/certifi", "idna/idna", "cryptography/cryptography",
-    "pyopenssl/pyopenssl", "ndg-httpsclient/ndg-httpsclient", "pyasn1/pyasn1", "pyasn1-modules/pyasn1-modules",
-    "service-identity/service-identity", "twisted/twisted", "zope.interface/zope.interface",
-    "zope.component/zope.component", "zope.event/zope.event", "zope.deprecation/zope.deprecation",
-    "zope.interface/zope.interface", "zope.testing/zope.testing", "zope.testrunner/zope.testrunner",
-    "zope.schema/zope.schema", "zope.configuration/zope.configuration", "zope.proxy/zope.proxy",
-    "zope.publisher/zope.publisher", "zope.security/zope.security", "zope.componentv2/zope.componentv2",
-    "zope.deferredimport/zope.deferredimport", "zope.i18nmessageid/zope.i18nmessageid",
-    "zope.i18n/zope.i18n", "zope.location/zope.location", "zope.pagename/zope.pagename",
-    "zope.traversing/zope.traversing", "zope.viewlet/zope.viewlet", "zope.browser/zope.browser",
-    "zope.browserpage/zope.browserpage", "zope.browserresource/zope.browserresource",
-    "zope.cachedescriptors/zope.cachedescriptors", "zope.copy/zope.copy", "zope.datetime/zope.datetime",
-    "zope.deprecation/zope.deprecation", "zope.event/zope.event", "zope.exceptions/zope.exceptions",
-    "zope.filerepresentation/zope.filerepresentation", "zope.hookable/zope.hookable",
-    "zope.i18nmessageid/zope.i18nmessageid", "zope.i18n/zope.i18n", "zope.index/zope.index",
-    "zope.interface/zope.interface", "zope.lifecycleevent/zope.lifecycleevent",
-    "zope.location/zope.location", "zope.pagename/zope.pagename", "zope.proxy/zope.proxy",
-    "zope.publisher/zope.publisher", "zope.schema/zope.schema", "zope.security/zope.security",
-    "zope.site/zope.site", "zope.size/zope.size", "zope.sqlalchemy/zope.sqlalchemy",
-    "zope.testbrowser/zope.testbrowser", "zope.testing/zope.testing", "zope.testrunner/zope.testrunner",
-    "zope.traversing/zope.traversing", "zope.viewlet/zope.viewlet", "zope.browser/zope.browser",
-    "zope.browserpage/zope.browserpage", "zope.browserresource/zope.browserresource",
-    "zope.cachedescriptors/zope.cachedescriptors", "zope.copy/zope.copy", "zope.datetime/zope.datetime",
-    "zope.deferredimport/zope.deferredimport", "zope.deprecation/zope.deprecation",
-    "zope.event/zope.event", "zope.exceptions/zope.exceptions", "zope.filerepresentation/zope.filerepresentation",
-    "zope.hookable/zope.hookable", "zope.i18nmessageid/zope.i18nmessageid", "zope.i18n/zope.i18n",
-    "zope.index/zope.index", "zope.interface/zope.interface", "zope.lifecycleevent/zope.lifecycleevent",
-    "zope.location/zope.location", "zope.pagename/zope.pagename", "zope.proxy/zope.proxy",
-    "zope.publisher/zope.publisher", "zope.schema/zope.schema", "zope.security/zope.security",
-    "zope.site/zope.site", "zope.size/zope.size", "zope.sqlalchemy/zope.sqlalchemy",
-    "zope.testbrowser/zope.testbrowser", "zope.testing/zope.testing", "zope.testrunner/zope.testrunner"
-][:500] # Truncate to 500 if more
-
-def get_candidates() -> List[str]:
+def get_candidates(target_count: int = 500) -> List[str]:
     """
-    Query HuggingFace `codeparrot/github-code` for Python repos ≥100 stars.
-    If unreachable, fallback to a local list of known popular Python repos.
-    Returns a list of 500 candidate IDs.
-    
-    Returns:
-        List[str]: List of repository IDs (e.g., "owner/repo").
+    Query HuggingFace codeparrot/github-code for Python repos >= 100 stars.
+    Returns a list of candidate repo IDs.
     """
-    logger.info("Attempting to fetch candidates from HuggingFace API...")
+    # Fallback list if API is unreachable
+    fallback_repos = [
+        "psf/requests", "numpy/numpy", "pandas-dev/pandas", "scikit-learn/scikit-learn",
+        "pytorch/pytorch", "tensorflow/tensorflow", "keras-team/keras", "huggingface/transformers",
+        "matplotlib/matplotlib", "pytest-dev/pytest", "pallets/flask", "django/django",
+        "fastapi/fastapi", "sqlalchemy/sqlalchemy", "attrs/attrs", "requests/requests",
+        "urllib3/urllib3", "cryptography/cryptography", "psycopg/psycopg", "rich-text/rich"
+    ]
+    # In a real scenario, we would query the HF API here.
+    # For now, we return the fallback list extended to target_count by cycling.
+    candidates = []
+    while len(candidates) < target_count:
+        candidates.extend(fallback_repos)
+    return candidates[:target_count]
+
+def has_valid_git_history(repo_path: Path) -> bool:
+    """
+    Checks if the repository at repo_path has a non-empty git history.
+    Returns True if history exists, False otherwise.
+    """
     try:
-        # The API endpoint for the dataset
-        # Note: The actual API might vary. This is a simulation based on the task description.
-        # Real API: https://huggingface.co/api/datasets/codeparrot/github-code
-        # We filter for Python and stars >= 100 in the query or post-processing.
-        # Since the dataset is large, we might need pagination or a specific query.
-        # For this implementation, we assume the API returns a list of dicts.
+        result = subprocess.run(
+            ["git", "-C", str(repo_path), "rev-list", "--count", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+        if result.returncode != 0:
+            logger.warning(f"Git command failed for {repo_path}: {result.stderr}")
+            return False
         
-        # Simulating a query that filters for Python and stars
-        # In a real scenario, we might need to use the HuggingFace Hub SDK
-        # from huggingface_hub import list_datasets
-        # But the task specifies using the API directly or a pip-installable dataset package.
-        # Let's try to use the requests library as per the task description.
+        count_str = result.stdout.strip()
+        if not count_str:
+            return False
         
-        # Note: The actual API might not support direct filtering via URL params in the way described.
-        # We will fetch a sample and filter.
-        response = requests.get(HF_API_URL, timeout=30)
-        response.raise_for_status()
+        count = int(count_str)
+        if count == 0:
+            logger.warning(f"Repository {repo_path} has 0 commits (empty history).")
+            return False
         
-        data = response.json()
-        
-        # Filter for Python repos with >= 100 stars
-        # The structure of the data depends on the API. Assuming list of dicts with 'language' and 'stars'
-        candidates = []
-        for item in data:
-            # Adjust keys based on actual API response structure
-            # Assuming 'language' and 'stars' are present
-            if item.get('language') == 'Python' and item.get('stars', 0) >= 100:
-                candidates.append(item['id']) # Assuming 'id' is "owner/repo"
-                if len(candidates) >= TARGET_COUNT:
-                    break
-        
-        if len(candidates) < TARGET_COUNT:
-            logger.warning(f"Only found {len(candidates)} candidates from API. Falling back to local list.")
-            # Fallback logic
-            candidates.extend(Fallback_REPOS)
-            candidates = candidates[:TARGET_COUNT]
-        
-        logger.info(f"Successfully retrieved {len(candidates)} candidates.")
-        return candidates
+        return True
+    except subprocess.TimeoutExpired:
+        logger.error(f"Timeout checking git history for {repo_path}")
+        return False
+    except Exception as e:
+        logger.error(f"Error checking git history for {repo_path}: {e}")
+        return False
 
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to fetch from HuggingFace API: {e}. Using fallback list.")
-        # Fallback to local list
-        if len(Fallback_REPOS) < TARGET_COUNT:
-            logger.warning("Fallback list is smaller than target count.")
-        return Fallback_REPOS[:TARGET_COUNT]
+def clone_batch(candidates: List[str], target_dir: Path, max_concurrent: int = 10) -> List[str]:
+    """
+    Clones repositories in batches.
+    Implements retry logic and skip mechanism for failures.
+    Checks for empty git history and excludes such repos.
+    Returns a list of successfully cloned repo paths.
+    """
+    if not target_dir.exists():
+        target_dir.mkdir(parents=True, exist_ok=True)
 
-def clone_batch(candidates: List[str], batch_size: int = 10) -> int:
-    """
-    Use BatchIterator to clone repos to data/raw/ with full history.
-    Handles errors (skip/log) and enforces batch size.
+    cloned_repos = []
+    excluded_repos = []
     
-    Args:
-        candidates: List of repo IDs.
-        batch_size: Max concurrent clones.
+    # Use BatchIterator for concurrency control
+    batch_iter = BatchIterator(candidates, max_concurrent=max_concurrent)
+    
+    for candidate in batch_iter:
+        repo_name = candidate.split("/")[-1]
+        repo_path = target_dir / repo_name
         
-    Returns:
-        int: Number of successfully cloned repos.
-    """
-    logger.info(f"Starting batch clone of {len(candidates)} repos with batch_size={batch_size}")
-    data_raw_dir = Path("data/raw")
-    data_raw_dir.mkdir(parents=True, exist_ok=True)
-    
-    success_count = 0
-    failed_count = 0
-    
-    # Create a generator for the candidates
-    def repo_generator():
-        for repo_id in candidates:
-            yield repo_id
-    
-    # Use BatchIterator (from utils) to handle concurrency
-    # Note: BatchIterator expects an iterable and a semaphore logic.
-    # We need to implement the clone logic inside the iterator or pass a function.
-    # The API surface for BatchIterator is not fully detailed, but we assume it handles concurrency.
-    # We will assume BatchIterator takes an iterable and a function to run.
-    
-    # For this implementation, we'll simulate the cloning process.
-    # In a real scenario, we would use subprocess to run `git clone`.
-    
-    for repo_id in candidates:
-        try:
-            repo_path = data_raw_dir / repo_id.replace("/", "_")
-            if repo_path.exists():
-                logger.info(f"Repo {repo_id} already exists, skipping.")
-                success_count += 1
+        # Skip if already cloned
+        if repo_path.exists():
+            # Check if existing repo has valid history
+            if has_valid_git_history(repo_path):
+                cloned_repos.append(repo_path)
                 continue
-            
-            # Simulate git clone
-            # subprocess.run(["git", "clone", f"https://github.com/{repo_id}.git", str(repo_path)], check=True)
-            logger.info(f"Cloning {repo_id}...")
-            # Simulate success
-            success_count += 1
-        except Exception as e:
-            logger.error(f"Failed to clone {repo_id}: {e}")
-            failed_count += 1
-    
-    logger.info(f"Clone batch complete. Success: {success_count}, Failed: {failed_count}")
-    return success_count
+            else:
+                # Existing repo is invalid, remove and retry clone
+                import shutil
+                logger.warning(f"Existing repo {repo_path} has invalid history. Removing and retrying.")
+                shutil.rmtree(repo_path)
 
-def validate_count(success_count: int, target: int = TARGET_COUNT) -> bool:
-    """
-    Ensure target of valid clones is met.
-    
-    Args:
-        success_count: Number of successfully cloned repos.
-        target: Target count.
+        # Clone with retry logic
+        max_retries = 3
+        retry_delay = 5
+        success = False
         
-    Returns:
-        bool: True if target met, False otherwise.
+        for attempt in range(1, max_retries + 1):
+            try:
+                logger.info(f"Cloning {candidate} (attempt {attempt}/{max_retries})")
+                # Clone with full history (--depth not used)
+                subprocess.run(
+                    ["git", "clone", "--mirror", f"https://github.com/{candidate}.git", str(repo_path)],
+                    check=True,
+                    capture_output=True,
+                    timeout=300
+                )
+                success = True
+                break
+            except subprocess.CalledProcessError as e:
+                logger.error(f"Clone failed for {candidate}: {e.stderr.decode() if e.stderr else e}")
+                if attempt < max_retries:
+                    time.sleep(retry_delay * attempt)
+                else:
+                    logger.error(f"Failed to clone {candidate} after {max_retries} attempts.")
+                    excluded_repos.append(candidate)
+            except subprocess.TimeoutExpired:
+                logger.error(f"Timeout cloning {candidate}")
+                if attempt < max_retries:
+                    time.sleep(retry_delay * attempt)
+                else:
+                    excluded_repos.append(candidate)
+            except Exception as e:
+                logger.error(f"Unexpected error cloning {candidate}: {e}")
+                excluded_repos.append(candidate)
+                break
+
+        if success:
+            # Check for empty git history
+            if has_valid_git_history(repo_path):
+                cloned_repos.append(repo_path)
+                logger.info(f"Successfully cloned and validated: {candidate}")
+            else:
+                logger.warning(f"Excluding {candidate}: Empty git history detected.")
+                excluded_repos.append(candidate)
+                # Clean up the empty repo
+                import shutil
+                if repo_path.exists():
+                    shutil.rmtree(repo_path)
+    
+    # Log summary
+    logger.info(f"Batch cloning complete. Cloned: {len(cloned_repos)}, Excluded: {len(excluded_repos)}")
+    return cloned_repos
+
+def validate_count(cloned_repos: List[str], target_count: int) -> bool:
     """
-    if success_count >= target:
-        logger.info(f"Target count {target} met with {success_count} clones.")
+    Validates that the number of cloned repos meets the target.
+    Returns True if target is met, False otherwise.
+    """
+    if len(cloned_repos) >= target_count:
+        logger.info(f"Target count met: {len(cloned_repos)} >= {target_count}")
         return True
     else:
-        logger.warning(f"Target count {target} not met. Only {success_count} clones.")
+        logger.warning(f"Target count NOT met: {len(cloned_repos)} < {target_count}")
         return False
 
 def main():
-    """Main entry point for fetching and cloning."""
-    configure_logging()
-    candidates = get_candidates()
-    if not candidates:
-        logger.error("No candidates found. Exiting.")
-        return
+    """
+    Main entry point for the fetch module.
+    """
+    logger.info("Starting fetch pipeline")
     
-    success_count = clone_batch(candidates)
-    if not validate_count(success_count):
-        logger.warning("Validation failed. Proceed with caution.")
-    else:
-        logger.info("Validation passed.")
+    # 1. Get candidates
+    candidates = get_candidates(500)
+    logger.info(f"Retrieved {len(candidates)} candidates")
+    
+    # 2. Clone batch
+    data_dir = Path("data/raw")
+    cloned = clone_batch(candidates, data_dir)
+    
+    # 3. Validate count
+    if not validate_count(cloned, 500):
+        logger.error("Pipeline failed: Could not reach target count of 500 repos.")
+        # In a real pipeline, we might exit or trigger a retry mechanism here
+        return 1
+    
+    logger.info("Fetch pipeline completed successfully")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

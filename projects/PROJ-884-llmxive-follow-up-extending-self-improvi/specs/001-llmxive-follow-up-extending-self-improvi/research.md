@@ -1,113 +1,109 @@
-# Research: llmXive follow-up: extending "Self-Improving Language Models with Bidirectional Evolutionary Search"
+# Research Strategy: Dataset Construction, Symbolic Planner, and Statistical Analysis
 
-## 1. Research Question & Hypothesis
+## 1. Overview
+This document details the synthetic data generation pipeline, the symbolic planning approach, and the statistical framework required to evaluate whether a symbolic‑guided Bidirectional Evolutionary Search (BES) can match or exceed a neural‑verifier baseline on logic/arithmetic puzzles.
 
-**Question**: Can a Bidirectional Evolutionary Search (BES) framework, where the backward step is replaced by a deterministic symbolic planner, achieve comparable solution success rates to a learned neural-verifier baseline while significantly reducing computational overhead (CPU vs. GPU)?
+## 2. Dataset Construction
 
-**Hypothesis**: 
-- **H1**: The symbolic-guided BES will achieve a success rate statistically equivalent (TOST p < 0.05 with pre-defined delta) to the learned neural-verifier baseline on logic/arithmetic puzzles.
-- **H2**: The symbolic-guided BES will demonstrate a statistically significant reduction in computational cost (p < 0.05 for t-test) compared to the learned neural-verifier baseline, measured in wall-clock time and energy (Joules).
-- **H3**: The symbolic planner will fail to decompose a small fraction of complex, non-linear constraints, which will be excluded from the symbolic-guided run (as per FR-006), without crashing the system. The rate of logical contradictions introduced by the planner will be measured as a distinct metric.
+### 2.1 Generation Approach
+- **Synthetic Curation**: Puzzles are generated algorithmically, guaranteeing deterministic verification scripts and eliminating the need for external gated datasets.  
+- **Puzzle Types**  
+  1. **Sudoku Variants** – grid size `N×N` (e.g., 4×4, 9×9). Complexity score = `N`.  
+  2. **Constrained Pathfinding** – rectangular grid with obstacles; complexity score = number of nodes `N`.  
+- **Scaling**: The generator accepts a list of `N` values (e.g., `10 20 50 100 200 500`). For each `N` it creates `M(N)` puzzles (default `M=20` for pilot, `M=80` for full run) to ensure sufficient power for the McNemar test.  
+- **Determinism**: A global seed (default `42`) is stored in each puzzle’s JSON header (`generation_seed`). The same seed reproduces identical puzzles.  
 
-## 2. Dataset Strategy
+### 2.2 Output Format
+`generator.py` writes a **single JSON object**:
 
-**Dataset Source**: 
-The project requires a curated dataset of logic and arithmetic puzzles (e.g., Sudoku variants, constrained pathfinding). 
-- **Verified Source**: As of this planning stage, **no verified external dataset** containing the specific mix of logic puzzles with *deterministic Python verification scripts* and *formal constraint definitions* suitable for BES backward-step substitution was found in the "Verified datasets" block of the user message.
-- **Strategy**: The dataset will be **synthetically curated** within the project (`data/raw/`). This aligns with FR-001, which mandates the system MUST curate such a dataset. The curation process will generate puzzle instances and corresponding Python verifier scripts programmatically to ensure [deferred] coverage of required variables (constraints, initial state, target state) and deterministic verification.
-- **Scaling Generation**: To satisfy SC-005, the dataset generation will include a specific task to vary puzzle complexity (N) systematically (e.g., N=10, 20, 50, 100, 200, 500) to enable log-log regression for complexity class analysis.
+```json
+{
+  "puzzles": [
+    { "puzzle_id": "...", "puzzle_type": "...", "constraints": "...", ... },
+    ...
+  ]
+}
+```
 
-**Dataset Variables**:
-| Variable | Description | Source |
-| :--- | :--- | :--- |
-| `puzzle_id` | Unique identifier for the instance | Generated |
-| `puzzle_type` | Category (e.g., "Sudoku-4x4", "Pathfinding-Grid") | Generated |
-| `constraints` | Formal string representation of rules | Generated |
-| `initial_state` | Starting configuration | Generated |
-| `target_state` | Goal configuration | Generated |
-| `verifier_script` | Path to deterministic Python script | Generated |
-| `solution_path` | (Optional) Ground truth solution for validation | Generated |
-| `complexity_score` | Numeric score (N) for scaling analysis | Generated |
+This matches the expectations of `tests/unit/test_generator.py`.
 
-**Dataset Fit**: 
-The synthetic curation ensures that every variable required for the analysis (predictors: constraint complexity; outcome: solution validity; covariates: puzzle type) is present. This avoids the fatal flaw of relying on an external dataset that lacks necessary variables (e.g., missing formal constraint definitions).
+### 2.3 Verification Scripts
+Each puzzle receives an immutable Python file `verifier_<puzzle_id>.py` exposing:
 
-## 3. Methodology & Statistical Rigor
+```python
+def verify(solution: str) -> tuple[bool, str]:
+    """
+    Returns (is_valid, error_code). error_code is one of:
+    "valid", "PARSE_FAILURE", "CONTRADICTION_DETECTED", "INVALID_PATH"
+    """
+```
 
-### 3.1 Experimental Design
-- **Conditions**: 
-  1. **Symbolic-Guided BES**: Forward step = Small LLM (CPU); Backward step = Symbolic Planner.
-  2. **Learned Verifier Baseline**: Forward step = Small LLM (CPU); Backward step = **Learned Verifier (DistilBERT)**. The baseline model will be **trained** on a subset of the synthetic puzzle dataset (train/val/test split) to learn the verification task, ensuring it is a true learned verifier and not a heuristic.
-  - **Fallback Strategy**: If DistilBERT on CPU exceeds the 6-hour limit, the baseline will switch to **TinyBERT** or **DistilBERT with CPU-optimized quantization** (via `optimum`). This fallback is pre-registered to avoid a 'moving target'.
-- **Procedure**:
-  1. Generate/Curate N puzzle instances (N ≥ 500), including a scaling subset.
-  2. Run BES loop for both conditions on the **full dataset**.
-  3. Record success (valid solution found) and cost (time, energy) for each instance.
-  4. **Stratified Analysis**:
-     - **Subset A (Symbolic-Passable)**: Compare Symbolic Success vs. Neural Success.
-     - **Subset B (Symbolic-Fail)**: Compare Symbolic Failure Rate (Exclusion) vs. Neural Success/Failure Rate.
-  5. Measure 'Logical Contradiction Rate' for the symbolic planner (instances where planner generates contradictory sub-goals).
+The verifier parses the solution (≤ 100 ms) and checks every formal constraint, returning a specific error code on failure.
 
-### 3.2 Statistical Analysis Plan
-- **Success Rate Comparison (Equivalence)**: 
-  - **Test**: **Two One-Sided Tests (TOST)** for equivalence.
-  - **Null Hypothesis**: Success rates are different (outside the equivalence margin).
-  - **Alternative**: Success rates are equivalent (within the pre-defined delta).
- - **Margin (Delta)**: Pre-registered (e.g., [deferred] difference).
-  - **Correction**: If multiple puzzle types are analyzed separately, apply Bonferroni correction to maintain family-wise error rate.
-- **Cost Comparison**: 
-  - **Test**: Independent samples t-test (or Mann-Whitney U if non-normal).
-  - **Metric**: Wall-clock time (seconds) and estimated energy (Joules, derived from CPU time and TDP).
-  - **Correction**: Bonferroni if comparing multiple cost metrics.
-- **Complexity Class (SC-005)**: 
-  - **Method**: Log-log regression of computation time vs. complexity score (N).
-  - **Output**: Slope (exponent) to determine complexity class (e.g., O(n^1), O(n^2)).
-- **Power Analysis**: 
-  - **Assumption**: Effect size (Cohen's h) of 0.3 (medium) for success rate difference.
-  - **Alpha**: 0.05.
-  - **Power**: 0.80.
-  - **Required N**: ~175 per group (total ~350). We plan for N=500 to account for exclusions (FR-006).
-  - **Acknowledgement**: If the actual effect size is smaller, power may be lower; this will be reported as a limitation.
+## 3. Symbolic Planner
 
-### 3.3 Statistical Rigor Checklist
-- **Multiple Comparisons**: Bonferroni correction applied if analyzing sub-groups (e.g., by puzzle type).
-- **Sample Size**: Justified via power analysis (deferred exact N to implementation based on runtime profiling).
-- **Causal Inference**: This is an observational comparison of two methods. Claims will be framed as "associational" regarding efficiency, not causal claims about "understanding" unless randomization of the method is strictly controlled (which it is, by design).
-- **Measurement Validity**: Deterministic verifiers provide ground truth validity.
-- **Collinearity**: If predictors (e.g., puzzle complexity) are correlated, descriptive statistics will be reported, and collinearity acknowledged.
+### 3.1 Parser (`parser.py`)
+Translates the formal constraint string into an abstract syntax tree (AST). Parsing errors raise `ParseFailure`.
 
-## 4. Computational Feasibility (CPU-Only)
+### 3.2 Planner (`planner.py`)
+Walks the AST to produce an ordered list of sub‑goals (e.g., “fill row 1”, “place number 5 in column 3”).  
+- If constraints are contradictory, raises `ContradictionDetected`.  
+- On success returns `List[Dict]` of sub‑goals; on failure the BES controller **logs the puzzle as a symbolic failure**, excludes it from the symbolic‑guided run, and increments `excluded_instances`.  
+- The **planner feasibility rate** is computed as `1 - excluded_instances / total_instances` and reported separately (see Section 5.2).
 
-**Constraints**: 
-- **Hardware**: GitHub Actions free-tier (2 CPU, ~7GB RAM, no GPU).
-- **Time**: ≤ 6 hours per job.
-- **Memory**: ≤ 6GB (safety margin).
+## 4. Evolutionary Search (BES)
 
-**Mitigations**:
-- **LLM Selection**: Use a small, CPU-optimized model (e.g., `distilbert-base-uncased` for embeddings, or a tiny decoder-only model like `TinyLlama` if available in CPU wheel, running in default precision). **No 8-bit/4-bit quantization** (requires CUDA).
-- **Data Subset**: Process puzzles in batches. If memory is tight, stream data from disk.
-- **Symbolic Planner**: Pure Python, rule-based, negligible memory/CPU overhead.
-- **Verifier**: < 100ms execution per solution (as per spec).
-- **Baseline**: The "Learned Verifier Baseline" will be implemented as DistilBERT trained on the synthetic data. **Fallback**: If DistilBERT is too slow, use TinyBERT or CPU-optimized quantization (via `optimum`).
-- **Scaling**: The scaling dataset will be processed in smaller batches to avoid memory overflow.
+### 4.1 Forward Step (CPU LLM)
+- Uses `transformers` with a small pretrained model (`gpt2`) on the CPU.  
+- Input: current population + planner‑generated sub‑goals.  
+- Output: candidate solution strings formatted for the deterministic verifier.
 
-**Decision**: The plan prioritizes CPU-tractability. If the full BES loop with a small LLM exceeds 6 hours, the population size or generations will be reduced (documented in `research.md` as a limitation).
+### 4.2 Backward Step (Symbolic)
+- Calls `SymbolicPlanner.decompose(puzzle.constraints)`.  
+- If an exception occurs, the puzzle is **logged as a symbolic failure** and omitted from the paired statistical analyses (see Section 5.2). Excluded instances are still counted in `excluded_instances` for reporting but do **not** contribute to success‑rate or cost comparisons.
 
-## 5. Risk Management
+## 5. Statistical Analysis Plan
 
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Symbolic Planner Failure** | High | Log exclusion (FR-006); analyze only successful cases; report exclusion rate. |
-| **LLM Inference Too Slow** | High | Use smallest viable model; reduce population/generations; batch processing. |
-| **Statistical Power Insufficient** | Medium | Report power analysis; interpret non-significant results cautiously; increase N if time permits. |
-| **Dataset Curation Gap** | High | Synthetic generation ensures all variables are present; no reliance on external missing data. |
-| **Runtime Exceeds 6h** | High | Profile early; implement early stopping; reduce complexity parameters; use fallback baseline. |
-| **Baseline Infeasible** | High | Pre-registered fallback to TinyBERT or CPU-quantized model if DistilBERT fails pilot. |
+All analysis lives in `code/analysis/stats.py`.
 
-## 6. Decision Rationale
+### 5.1 Primary Metrics
+- **Success Rate** = `valid_solutions / (total_instances - excluded_instances)`.  
+  *Only puzzles where the symbolic planner succeeded are included; this yields a conditional success rate.*  
+- **Planner Feasibility Rate** = `1 - excluded_instances / total_instances`.  
+- **Mean Wall‑Clock Time** per instance (seconds) – computed on the same matched set.  
+- **Energy Estimate** (Joules) derived from CPU power draw (`≈ 50 W` × wall‑clock seconds).
 
-- **Synthetic Dataset**: Chosen because no verified external dataset meets the specific requirement of "deterministic Python verification scripts" paired with "formal constraint definitions" for BES. This ensures FR-001 is met without fabricating URLs.
-- **CPU-Only Execution**: Mandated by the target platform (GitHub Actions free-tier). GPU methods are excluded to prevent job failure.
-- **TOST for Equivalence**: Standard for testing if two methods are equivalent within a margin, replacing the standard z-test which only tests for difference.
-- **Bonferroni Correction**: Applied to control family-wise error rate if multiple hypothesis tests are performed (e.g., per puzzle type).
-- **Pre-registered Fallback**: Ensures the experiment can complete even if the primary baseline is too slow, maintaining the 'neural' requirement.
+### 5.2 Hypothesis Tests
+| Test | Null Hypothesis | Alternative | α (significance) |
+|------|----------------|------------|------------------|
+| **Paired McNemar’s test** (binary outcomes on matched instances) | `p_symbolic = p_neural` | `p_symbolic ≠ p_neural` (two‑tailed) | **0.0497** (source: Two‑proportion Z‑test, https://en.wikipedia.org/wiki/Two-proportion_Z-test) |
+| **TOST Equivalence (success rate)** | `|p_symbolic - p_neural| ≥ Δ` | `|p_symbolic - p_neural| < Δ` (Δ = 0.05) | 0.0497 |
+| **Paired t‑test (CPU‑seconds)** | `μ_symbolic = μ_neural` | `μ_symbolic < μ_neural` (one‑tailed) | 0.0497 |
+
+Implementation uses:
+- `statsmodels.stats.contingency_tables.mcnemar` for McNemar.  
+- `statsmodels.stats.proportion.proportions_ztest` for the TOST equivalence.  
+- `scipy.stats.ttest_rel` for the paired t‑test.
+
+### 5.3 Power Analysis
+- **Effect size assumptions**:  
+  - Success‑rate: Cohen’s h = 0.20 (small). Required matched sample size ≈ 200 per condition for 80 % power at α = 0.0497.  
+ - CPU‑time: Cohen’s d = 0.50 (medium). Required matched sample size ≈ 64 for [deferred] power.
+- **Pre‑analysis check**: `pre_analysis_power_check(effect_size_h=0.20, effect_size_d=0.50, alpha=0.0497, power=0.80)` computes required N. If the generated dataset does not meet these minima, the experiment aborts with a clear “insufficient power” message.  
+- **Impact of exclusions**: Because exclusions reduce the matched sample, the effective N is recomputed after data collection; a **post‑hoc power report** is generated and included in `summary.json`.
+
+### 5.4 Scalability Regression
+- Log‑log linear regression on `complexity_score` vs. `mean_time`.  
+- Acceptable fit: `R² ≥ 0.85`. The slope is interpreted as the empirical complexity class (e.g., O(n), O(n²)).
+
+## 6. Reproducibility Measures
+- **Seeds**: All RNGs (`numpy`, `random`, `torch`) are seeded via `code/utils/seed.py`. Seed stored in `data/processed/metadata.json`.  
+- **Manifests**: `MANIFEST.md` lists SHA‑256 hashes for every file in `data/raw/` and `code/`.  
+- **Environment**: `requirements.txt` pins exact library versions; CI installs from this file each run.
+
+## 7. References
+- Specification: `spec.md`  
+- Alpha level for two‑proportion Z‑test & McNemar: **0.0497** (source: Two‑proportion Z‑test, https://en.wikipedia.org/wiki/Two-proportion_Z-test)  
+
+---
+

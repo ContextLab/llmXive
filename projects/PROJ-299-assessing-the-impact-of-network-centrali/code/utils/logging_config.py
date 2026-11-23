@@ -1,8 +1,8 @@
 """
-Logging infrastructure for the llmXive pipeline.
+Logging Configuration Module
 
-Implements FR-011: Machine-readable logs in JSON format.
-Logs are written to logs/pipeline.log.
+Provides machine-readable (JSON) logging infrastructure for the pipeline.
+Writes logs to `logs/pipeline.log` as per FR-011.
 """
 import json
 import logging
@@ -10,20 +10,20 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Any, Dict, Optional, Union
 
-# Ensure the logs directory exists
-LOGS_DIR = Path("logs")
-LOGS_DIR.mkdir(exist_ok=True)
+from code.config.env_config import get_config
 
-LOG_FILE_PATH = LOGS_DIR / "pipeline.log"
 
 class JSONFormatter(logging.Formatter):
-    """Custom formatter that outputs log records as JSON lines."""
+    """
+    Custom formatter that outputs log records as JSON lines.
+    Ensures machine-readable logs for automated analysis.
+    """
 
     def format(self, record: logging.LogRecord) -> str:
-        log_entry: Dict[str, Any] = {
-            "timestamp": datetime.utcnow().isoformat() + "Z",
+        log_data = {
+            "timestamp": datetime.utcnow().isoformat(),
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
@@ -32,101 +32,86 @@ class JSONFormatter(logging.Formatter):
             "line": record.lineno,
         }
 
-        # Add exception info if present
+        # Include exception info if present
         if record.exc_info:
-            log_entry["exception"] = self.formatException(record.exc_info)
+            log_data["exception"] = self.formatException(record.exc_info)
 
-        # Add extra fields if present
-        if hasattr(record, "extra_data") and isinstance(record.extra_data, dict):
-            log_entry.update(record.extra_data)
+        # Include extra data if present
+        if hasattr(record, "extra_data"):
+            log_data["data"] = record.extra_data
 
-        return json.dumps(log_entry)
+        return json.dumps(log_data)
+
 
 def setup_logging(
-    log_file: Optional[Path] = None,
-    level: int = logging.INFO,
-    console_output: bool = True,
+    log_path: Union[str, Path],
+    level: str = "INFO",
+    console: bool = True,
 ) -> logging.Logger:
     """
-    Configure the root logger for the pipeline.
-    
-    Args:
-        log_file: Path to the log file. Defaults to logs/pipeline.log.
-        level: Logging level (e.g., logging.DEBUG, logging.INFO).
-        console_output: Whether to also output logs to stdout/stderr.
-        
-    Returns:
-        The configured root logger.
-    """
-    if log_file is None:
-        log_file = LOG_FILE_PATH
-    
-    # Ensure parent directory exists
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+    Initialize the logging infrastructure.
 
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-    
+    Args:
+        log_path: Path to the log file (e.g., 'logs/pipeline.log').
+        level: Logging level (DEBUG, INFO, WARNING, ERROR).
+        console: Whether to also log to stdout.
+
+    Returns:
+        The root logger instance.
+    """
+    log_path = Path(log_path)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Get root logger
+    logger = logging.getLogger()
+    logger.setLevel(getattr(logging, level.upper(), logging.INFO))
+
     # Clear existing handlers to avoid duplicates
-    root_logger.handlers.clear()
+    logger.handlers.clear()
 
     # File handler with JSON formatting
-    file_handler = logging.FileHandler(log_file, mode='a')
-    file_handler.setLevel(level)
+    file_handler = logging.FileHandler(log_path)
     file_handler.setFormatter(JSONFormatter())
-    root_logger.addHandler(file_handler)
+    file_handler.setLevel(getattr(logging, level.upper(), logging.INFO))
+    logger.addHandler(file_handler)
 
-    # Console handler for immediate feedback (optional)
-    if console_output:
+    # Console handler (optional)
+    if console:
         console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(level)
-        # Use a simple text format for console to be human-readable
-        console_formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%dT%H:%M:%S'
-        )
-        console_handler.setFormatter(console_formatter)
-        root_logger.addHandler(console_handler)
+        console_handler.setFormatter(JSONFormatter())
+        console_handler.setLevel(getattr(logging, level.upper(), logging.INFO))
+        logger.addHandler(console_handler)
 
-    return root_logger
+    return logger
+
 
 def get_logger(name: str) -> logging.Logger:
     """
-    Get a named logger instance.
-    
+    Retrieve a named logger instance.
+
     Args:
-        name: Name of the logger (usually __name__).
-        
+        name: Logger name (e.g., 'main', 'adni_downloader').
+
     Returns:
         A configured logger instance.
     """
     return logging.getLogger(name)
 
+
 def log_event(
     logger: logging.Logger,
-    level: int,
-    message: str,
-    extra_data: Optional[Dict[str, Any]] = None,
+    event: str,
+    data: Optional[Dict[str, Any]] = None,
 ) -> None:
     """
-    Log an event with optional structured data.
-    
+    Log a structured event with optional data payload.
+
     Args:
         logger: The logger instance to use.
-        level: The logging level.
-        message: The log message.
-        extra_data: Optional dictionary of key-value pairs to include in the JSON log.
+        event: Event name/description.
+        data: Optional dictionary of event-specific data.
     """
-    record = logger.makeRecord(
-        logger.name,
-        level,
-        "",
-        0,
-        message,
-        (),
-        None,
-        func=""
-    )
-    if extra_data:
-        record.extra_data = extra_data
-    logger.handle(record)
+    if data:
+        logger.info(event, extra={"extra_data": data})
+    else:
+        logger.info(event)

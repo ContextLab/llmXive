@@ -1,37 +1,61 @@
+T003:
+  c: false
+  h: cc5411c06e4b93eddba50a3297f9e9b296e3256ac53c570ce4df8cd6ab408bed
+  r: The repository contains a correct `.ruff.toml` and a `pyproject.toml` with Black
+    settings, but there is no `.flake8` file present, which is a required artifact
+    for the task. The missing lint configuration prevents the claim from being fully
+    satisfied.
+  sig: 0423f9c2f343e1fca69909a78ea1a06b806e6fa06c3514690ab2126d964ddb31
+T004:
+  c: false
+  h: 133ccae02c939af8be4cc739adf419fe0ce21ec8dbf300dfdda87e532adefedb
+  r: The provided `validate_dataset_schema.py` is only partially shown and does not
+    contain the logic that loads the input file, performs the required column/ROI
+    checks, raises `DataInvalidError` with missing items, or writes `state/schema_validation.json`.
+    Moreover, the required input file `data/raw/eye_tracking_raw.parquet` is missing,
+    so the script cannot be executed as specified. The task therefore remains unfinished.
+T005:
+  c: false
+  h: eaea539bc85bc453f0c46240a4d5536156ce0996d857bf7dcb4ebd15cf6768ef
+  r: The `code/config.yaml` lacks a `dataset_id` field (it only has a `dataset_url`),
+    and the data loading script downloads via `requests` instead of using `datasets.load_dataset(...,
+    revision="v1.0")`. Moreover, the required output files (`data/raw/eye_tracking_raw.parquet`,
+    `state/data_hashes.json`, and `state/runtime_events.json`) are absent. The implementation
+    does not verify the dataset ID against the config nor log the resolved ID.
 T006:
   c: false
   h: e30bdf942c129971709ed90b64852b01bc687a74e25fb9ad9163ae63907f754b
   r: "The required file `code/utils/fixation_detection.py` does not exist, so no implementation\
     \ of I\u2011VT/I\u2011DT, no config\u2011reading logic, and no documentation of\
     \ fallback behavior are present. The task is therefore not satisfied."
-T009:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No environment configuration files (e.g., `requirements.txt`, `environment.yml`,
-    Dockerfile, or similar) or code that sets and documents a random seed for reproducibility
-    are present. Consequently, the task of setting up reproducible environment and
-    seed management is not demonstrated.
 T015:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or documentation implementing the ROI mapping logic is present;\
-    \ the provided project excerpt only describes higher\u2011level user stories and\
-    \ testing criteria, but there is no artifact that actually assigns gaze points\
-    \ to the \u201Csource attribution\u201D or other bounding boxes. The required\
-    \ implementation artifact is missing."
-T016:
+  r: "No code, script, or data implementing the ROI mapping logic is present; the\
+    \ only material provided is the specification text. The required artifact\u2014\
+    a functional implementation that assigns gaze points to the \u201Csource attribution\u201D\
+    \ and other bounding boxes\u2014is missing."
+T018:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, log file, or any other artifact demonstrating that trials with\
-    \ missing ROI coordinates are excluded and that exclusion counts are logged was\
-    \ provided. Without such evidence, we cannot confirm the edge\u2011case handling\
-    \ was implemented. The implementer must supply the preprocessing script (or relevant\
-    \ module) and example output/log showing the exclusions."
+  h: 4a6347fca466a750f644eeb1767b9762dca9f4a945f92e80341da3b42e667bd0
+  r: The required output file `data/derived/preprocessed_gaze.csv` does not exist,
+    and the accompanying exclusion log is also absent. Without these artifacts the
+    preprocessing script has not demonstrably fulfilled its core requirement of producing
+    the cleaned gaze dataset and log.
 T023:
   c: false
-  h: f7bb899d94ca1b5fed1c4e11f37fb51cc27ecaff15077566635d5a7baca01202
-  r: "The required `data/derived/synthetic_raw_data.csv` file is missing, so the merge\
-    \ cannot be performed. Additionally, `preprocessed_gaze.csv` lacks the columns\
-    \ (`headline_id`, `fixation_duration`) that the script expects, meaning even if\
-    \ the synthetic file existed the script would raise errors. The task\u2019s core\
-    \ requirement\u2014producing a merged dataset\u2014is therefore not satisfied."
+  h: 6f815f6da40209bc1b6b87b1568faf6d9ec74863f3b081f00500d73c359e8532
+  r: The three required source files (`data/derived/preprocessed_gaze.csv`, `data/derived/empirical_outcomes.csv`,
+    and `data/derived/valence_scores.csv`) are all missing, so no merged dataset could
+    be produced. The task cannot be considered completed until these input files exist
+    and are merged as specified.
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output files implementing a mixed\u2011effects\
+    \ regression with `statsmodels` are present; the claim consists only of a brief\
+    \ description without any actual artifact. Consequently the required regression\
+    \ model, interaction term, p\u2011values, or robustness checks are not provided.\
+    \ The next implementer must add the regression script (or notebook) that fits\
+    \ the specified three\u2011way interaction, outputs coefficient estimates, significance\
+    \ tests, and any diagnostic information."

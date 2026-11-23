@@ -1,121 +1,90 @@
-# Quickstart: llmXive Follow-up: Extending "Mega-ASR" for Semantic Collapse Thresholds
+# Quickstart: llmXive Follow-up – Semantic Collapse Threshold
 
-## 1. Prerequisites
+This guide shows how to run the full end‑to‑end pipeline on a fresh GitHub Actions runner (or locally).
 
-*   Python 3.11+
-*   Git
-*   GitHub Actions (for CI execution) or a local environment with ≥7GB RAM.
-
-## 2. Installation
-
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: Ensure `torch` is installed without CUDA support (e.g., `pip install torch --index-url https://download.pytorch.org/whl/cpu`).*
-
-## 3. Data Preparation
-
-The pipeline automatically downloads the verified datasets on first run.
-
-1.  **Run the data loader**:
-    ```bash
-    python code/data_loader.py --download
-    ```
-    This will:
-    *   Fetch the LibriSpeech and CORAA subsets.
-    *   Compute checksums.
-    *   Store raw data in `data/raw/`.
-
-2.  **Verify data integrity**:
-    ```bash
-    python code/data_loader.py --verify
-    ```
-
-## 4. Running the Stress Test Pipeline
-
-Execute the full pipeline (distortion generation, ASR inference, collapse detection, regression):
-
+## 1. Setup
 ```bash
-python code/main.py --config code/config.yaml
+# Assume repository is already checked out
+git checkout 001-semantic-collapse-threshold
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt   # pins exact versions
 ```
 
-**Configuration Options** (in `code/config.yaml`):
-*   `sample_size`: Number of clips to process (default: 100 for testing).
-*   `models`: List of ASR models to test (e.g., `["whisper-tiny"]`).
-*   `threshold`: SSS collapse threshold (default: 0.5).
-*   `sensitivity_sweep`: Boolean to run the threshold sweep (0.40-0.60).
-
-## 5. Resource Monitoring & CI Enforcement (SC-004)
-
-To ensure the pipeline runs within the 7GB RAM and 6-hour limits:
-
-1.  **Manual Check**:
-    ```bash
-    python code/monitor_resources.py
-    ```
-    This script logs current resource usage.
-
-2.  **CI Enforcement**:
-    The GitHub Actions workflow includes a step:
-    ```yaml
-    - name: Check Resource Constraints
-      run: python code/monitor_resources.py --check-limit --max-rss 7000000000
-    ```
-    If RSS exceeds 7GB, this step **fails the job**.
-
-## 6. Viewing Results
-
-*   **Stress Curves**: `data/derived/stress_curves.parquet`
-*   **Collapse Points**: `data/derived/collapse_points.parquet`
-*   **Regression Results**: `data/derived/regression_results.json`
-*   **Plots**: `data/derived/figures/` (e.g., `collapse_distribution.png`, `interaction_vector.png`)
-
-## 7. Versioning & State Update (Principle V)
-
-After a successful run, update the project state file with content hashes:
-
+## 2. Verify Checksums (Data Hygiene)
 ```bash
-python code/hash_updater.py
+python -m src.utils.logging verify_checksums
+# Reads artifact_hashes.yaml and compares SHA‑256 values
 ```
-This script computes hashes for all `data/derived/` artifacts and updates `state/projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow.yaml`.
 
-## 8. Validation & Testing
+## 3. Run the Full Pipeline
+```bash
+# Hydra config `conf/config.yaml` contains all defaults.
+# Phase 0 (gate) runs first; aborts if the gate fails.
+python -m src.pipeline.run all \
+    +seed=42 \
+    +sample_size=50000 \
+    +distortion_grid.snr_levels="[-12,-9,-6,-3,0,3,6,9,12]" \
+    +distortion_grid.rt_levels="[0.2,0.4,0.6,0.8,1.0,1.2]" \
+    +use_paid_cluster=true \
+    +gpu_shards=4   # split into four parallel GPU nodes
+```
 
-1.  **Run Unit Tests**:
-    ```bash
-    pytest tests/unit/
-    ```
+The command executes the following sub‑commands in order:
+1. `download` – fetches Voices‑in‑the‑Wild‑2M, verifies checksums.  
+2. `distort` – generates distorted audio (GPU off‑load to paid cluster, 4 shards).  
+3. `asr` – runs the five small ASR models.  
+4. `sss` – computes Semantic Similarity Scores (fallback to phoneme edit distance if needed).  
+5. `collapse` – identifies deterministic collapse points and universal intensity.  
+6. `create_manual_validation` – randomly selects a representative set of stress curves and launches the expert annotation UI (simulated here; in practice this step outputs `data/derived/manual_collapse.parquet`).  
+7. `evaluate_collapse_precision` – computes precision/recall of deterministic collapse identification against the manual set (requires ≥ 0.90 for both).  
+8. `train_regressor` – fits the hierarchical regression model (predicting **annotated collapse intensity**).  
+9. `evaluate` – runs permutation baseline, interaction significance, sensitivity analysis, partial‑correlation, universality checks, and schema validation.
 
-2.  **Run Contract Tests** (validates data schemas):
-    ```bash
-    pytest tests/contract/
-    ```
+## 4. Inspect Results
+```bash
+# Stress‑curve preview (first 5 rows)
+python - <<'PY'
+import pandas as pd
+print(pd.read_parquet('data/derived/stress_curves.parquet').head())
+PY
 
-3.  **Validate SSS Metric** (FR-011):
-    ```bash
-    python code/analysis.py --validate-sss
-    ```
+# Collapse points summary
+python - <<'PY'
+import pandas as pd
+print(pd.read_parquet('data/derived/collapse_points.parquet').describe())
+PY
 
-4.  **Test Multiple Comparison Correction** (FR-008):
-    ```bash
-    pytest tests/contract/test_multiple_comparison.py
-    ```
+# Manual validation set (precision/recall)
+python - <<'PY'
+import pandas as pd
+df = pd.read_parquet('data/derived/manual_collapse.parquet')
+print(df[['clip_id','expert_label','collapse_intensity']].head())
+PY
 
-## 9. Troubleshooting
+# Critical interaction vectors
+python - <<'PY'
+import pandas as pd
+print(pd.read_parquet('data/derived/critical_vector.parquet'))
+PY
+```
 
-*   **Memory Error**: Reduce `sample_size` in `config.yaml` or process in smaller chunks.
-*   **Runtime Error**: Ensure `torch` is the CPU version. Check `pip list | grep torch`.
-*   **Dataset Missing**: Verify internet connection and that the verified URLs in `research.md` are accessible.
+## 5. Run Tests
+```bash
+pytest -v
+# Includes contract validation tests in tests/unit/test_contracts.py
+```
+
+## 6. Generate Figures (optional)
+```bash
+python -m src.pipeline.visualize \
+    --stress-curves data/derived/stress_curves.parquet \
+    --collapse-points data/derived/collapse_points.parquet \
+    --critical-vectors data/derived/critical_vector.parquet \
+    --output-dir figures/
+```
+
+All artifacts are reproducible; re‑run with a different seed or sample size to perform sensitivity analyses (FR‑006).  
+
+---
+

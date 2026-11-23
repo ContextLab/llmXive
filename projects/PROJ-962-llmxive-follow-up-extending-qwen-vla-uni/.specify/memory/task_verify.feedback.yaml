@@ -1,0 +1,186 @@
+T001a:
+  reason: The provided evidence shows that `code/`, `code/utils/`, `code/tests/`,
+    `data/raw/`, `data/processed/`, and `data/results/` directories exist, but the
+    required `artifacts/models/` directory is not present in the artifact list. The
+    missing `artifacts/models/` directory means the full directory structure specified
+    in task T001a has not been created.
+  task: bb80cb34b22d5794f10c3f369265b92aef5a1189947e9d55ecb94cf148e2a195
+T001c:
+  reason: "The file `code/01_ingest_cluster.py` does exist, but it is a fully\u2011\
+    implemented script (13\u202FKB of code) rather than an empty scaffold as the task\
+    \ required. The task explicitly demanded only an empty placeholder file, so the\
+    \ provided artifact does not satisfy the specification."
+  task: f97a78c94cfe022241a64e2e759e71d93683069fc3248c368cb0c19b3d408cdb
+T001d:
+  reason: "`code/02_train_models.py` and `code/04_simulate_eval.py` exist but contain\
+    \ full implementations (non\u2011empty), and `code/03_inference.py` is missing\
+    \ entirely. The task required three empty files, which is not met."
+  task: 7fd70ca185cf8a1d7c48b59bfc1e8c54a198676adc4b1e4dd60c3b1c23d14b2c
+T001e:
+  reason: "The three required files exist, but each contains full implementations\
+    \ rather than being empty placeholders as the task explicitly demanded. The task\
+    \ \u201Cinitialize \u2026 as empty files\u201D is not satisfied."
+  task: 656643ad63355f1f16c7cadf14ca65588b6fc69bc5e4774901ec48cb9df4e7c5
+T001f:
+  reason: The `code/tests/__init__.py` file is present, but the required `.gitkeep`
+    file is missing from the `code/tests` directory. The task is not fully satisfied.
+  task: 21196cae7c1a0662ff6ba031946b2c632e2a15128b18f1b35f232d30db967f47
+T004:
+  reason: "The provided `code/utils/seeds.py` sets Python\u2019s `random` and NumPy\
+    \ seeds but never imports\u202Ftorch nor calls `torch.manual_seed`, contrary to\
+    \ the task\u2019s requirement to set the torch seed (and any `random_state` for\
+    \ other libraries). Consequently the script does not ensure full reproducibility\
+    \ across all scripts."
+  task: 08c1329806e1bc586c68c84d8629517dc996f89661cc4607d138bb1c6b914e14
+T005:
+  task: a28614c1b2d4f200b20f581ab68acd558c5739b56179c98b913b04958818e8cc
+T006:
+  task: 104280ea19a962218aba22d81735f50a162675996cd38201ef57c62d308a5451
+T007:
+  task: f286d271844e15d208d013ddeb5b605fc4d69ffaa9bb9249affda28bcb570a09
+T010:
+  task: 6b98e4505f0bad31aa5358439ef4c38f1e1c16e0d9fe08867d58e95ce8e2c7a9
+T011:
+  task: a5985522ee15c6cad224231067d6fa9619ab9cc5fb6800829784f52f3ae963f3
+T012:
+  task: 7cb42bfee6511269869927335785819adbd78fb42357236caddaff2009fa91ad
+T013:
+  task: 2caa08d1be21fe8fcb80a362e101faf2c531014210a4211d5cc63b9736014550
+T014:
+  task: e8f07beae685530a2f14ecd501a135c57feb06809a77174273c859d4dbc353d7
+T016:
+  task: d30bfa2ca584dd13302dd7f17398d788d16aee0297e7dcf71289ff8cac5d8c8a
+T017:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/clusters.json,
+    data/processed/assignments.parquet'
+  task: 477716c03c90264497117fab68a7e47a4be1edf093f3ff108727773f0835dd7c
+T018:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/coverage_report.json'
+  task: a63bb2df2381d62e001770cf143b3f5394b1f28bcc441c5fa43dc0e40ddaf137
+T019:
+  task: 6d2932fd2971fbd1234f883f2946aa7b1bde4e5e5b9279ee92bf62b20765aae5
+T020:
+  task: 16c8693bc808530e321596874a9e951860c2e889cda439808c7bc9ff08ee6c8d
+T020a:
+  task: 18d97c7a15effcfd0055ea12b51c79a3c641176f1f99053c4753f529664b40fe
+T021:
+  task: c260fe7837e78b3293f07b0000217e052713049005572ba8f14c7ba357585e91
+T021a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/train_embeddings.parquet,
+    data/processed/assignments.parquet, data/processed/clusters.json, data/processed/embedding_verification.json,
+    data/processed/train_embeddings.sha256'
+  task: e2192cc0c0efd569c699678f9b18f61e1115640eddd13a15859a59125ece7889
+T022:
+  task: fbdd4e5c38b5202eb0db0fbb6b055b9bec2af47ba434888cc4ba14bac122406e
+T023:
+  reason: 'declared artifact(s) missing/empty/invalid: code/03_inference.py'
+  task: 9797eeffe77f4c327c450259c4d7e51ed44a885aa3b3518ff55770f8655a4a6c
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: code/03_inference.py'
+  task: db2e72abe52bf046876eb5c2dee31c7a13b54a888e32dcf4fcdf6b0d31ae9a8a
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: code/03_inference.py'
+  task: 13a00f98189052e245bcea5a3202d80b2d0648f473438dd5f1726a17bc3aaba8
+T026:
+  reason: 'declared artifact(s) missing/empty/invalid: code/bench_inference.py, data/results/inference_benchmark.csv'
+  task: 204ecd4ea3259a33299d03d79a33b02d0c1ff093df3a2ed9c592ea7dca23ae39
+T028:
+  task: 782de67c9ea34409a7719373f98a876d8efaf03e8672853b19987ccc7fb36981
+T029:
+  task: b6e11dd076e35c8f47572a0902161870f9549d0b2e675b1aabefd55aebb8e113
+T030:
+  task: 78efc376c2a80763ad534ff30eca21aad894fc875ea219edb63c05d37e779a59
+T031:
+  task: 66b0582642c0fe52fbe4333872c0698af4d5a69e7330244b52f7bf5bc484730c
+T032:
+  task: 1db94f1dd06b7057569d2de83fb0e101dc45917de0dc235f503fc68f8a91acae
+T032b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/vla_proxy_baseline.parquet'
+  task: 1004bd34422f4f725121107f99df545cd7508ecd2a141a8e742f1529a819612a
+T033:
+  task: aa2ffba7e232760f7dbc03cb057143351dca57e4be1b998f0c2d98c7366ede6a
+T034:
+  task: 27a6bc3134cd0cdbf423ef91571e6dadaf6eeff0861ccf0a581b4a859b0accea
+T035a:
+  task: 25b1ee8b3ee4da2a30bbb85a990ae602a76104627651fb9b5bb390637d147cce
+T035b:
+  task: afbfa8468ec2226bd6b966d671fc48ce36a209a9e06fc938103c4b62cd979622
+T035c:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/fidelity_scores_per_sample.json'
+  task: 7f3d8c0b2d261749ef277a696cee679a80be6472b2ea93ea80ac3293a15fdd93
+T035d:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/fidelity_scores_per_sample.json'
+  task: deef15ce9e440aeee62d5783e9f4fe3779efd2aaed25609bf71370dd9e6f510c
+T036:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/fidelity_metrics.json,
+    data/results/fidelity_scores_per_sample.json'
+  task: cca2a8d856ba01737ee0dc6d71da32b9fc419a953000914224ea2467393f6e0c
+T037a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/evaluation_report.md'
+  task: 0f91de198a261f4eb872e033a949f9b436d9b837654e6563eec69447b02abb16
+T038:
+  task: 93f4dc868ca0ae64bdaa35b47fb128f0ee7cba786511acb937ed5569e81dc0e7
+T039a:
+  task: be79fae32fc70e08e6f92c050cd92cc9cbaf3c0c5ddbd84900d7366082f725c0
+T039b:
+  task: 47d160d55119e8214c4290dedd646fc53b6a5a58ad8f24803ffffa90c2dbdd4b
+T040:
+  task: 5e3fcea9d1969414f141c9f2e026243ee2672c38b72ed11d1bfa4e87304e0cdf
+T041:
+  task: 66fbb5d72038345b76c3816117fb9b0904518f7938270210ae791a627b4a126d
+T042:
+  task: cc52dfb510151f36e1309d5ac8c99d0ada536a01ecdb5933dd773476ffb635de
+T044:
+  task: 5b7781010e7fe6d220a4de78b231c89a186d56e8ab0767821513ce9290c1f260
+T047:
+  task: 7af8b08afd3c3c72cb7aae7fffbdccfdd03eb80369c9c9d0ee3002d0523d065f
+T049:
+  task: d6f3aba2113a1dd4a2e67465870013dc30ed7255679f4ee5fdd693968e6c912d
+T050:
+  task: 6485b4d78dfda6290f417e983760d58f2bc1e87f6e82ad957f6bc96a5f42071d
+T051:
+  task: 07bf02cdcad2ca0d9cfb9550a0cafe6c7b65146d34f72999138cb72f49d14550
+T052:
+  task: c37ef27e1a6324810c2def7ebb41c8fce9f2874c48f1d20efc8919ba00c246db
+T053:
+  task: ac0af02ff7a7b59d1bde25738e95b7559358222d0aa550a4a95b64bd765261e3
+T054:
+  task: 564034ad7d17c79e2799d475a9e31ba47512f1110fd86cd78971db8c3cd33c4f
+T055:
+  task: eb223dea3b0ba124ebb706a5167775df4fc79f05b920a73a4ad36e0571276135
+T056:
+  task: 7ebf70cf068a634759e2a2dbb681717537f005a766d52a226a06cff275da55e1
+T057:
+  task: 3d9494cfafb9d0095a22fb144d1ffe968099226104bd751ce3b35fa64e7bc878
+T058:
+  task: 310364a6bf6700361e9200f6c5ebe46acfa9e1e28c7123d08459dacde26aad60
+T059:
+  task: e07c1fbe0b74503dec03010f1f68184e168e646cbf2879cb5a91d7e29ee37ea2
+T060:
+  task: d2a1640f215d2e829283f5bd229aadffb49471189dee8afa2795d73384ae195f
+T061:
+  task: 34a498c2797c850e24feae622ed1893d35f7f288373a4cdb132eaec1db8f7dbb
+T062:
+  task: 2e8f433c7aab61446705cf70664d4f7077710e3b53d281fa056f53dbd5ab5328
+T063:
+  task: 663722b8a8c558bccea1d85637d454e4fed9b1a6f7a002f035c9f0c86b70e00a
+T065:
+  task: 8cb285bd870aa15496f38d42838571be53b5d2cef674902948a00d9a306509cb
+T066:
+  task: 59eea48092d3f4eb13ae2f78e5aa3c91dd62c48e586975d0b9b199ab2cfc8f6b
+T067:
+  reason: 'Requested task execution failed; rerun successfully: code/run_cpu_validity_check.py
+    exit=-1'
+  task: 131ff17d0b57b6c3ae2251d2b5ebfd12a69c0485e0541fa95efa7f175c29e6e6
+T068:
+  task: 051a0188a27269955b60ef6a45ba23f52e516914c32a084ce0c1f57e1ea6914a
+T069:
+  task: 209d30ab15654c0c443b377b2a7674d20deb20e3b0d9d2993812a82375f9d273
+T070:
+  task: eecb688bb26d8d853f0b59e71d811ddc3bc8cb19fb7501ad523072cbd8df40de
+T071:
+  task: d7cdfc8144cb2661865807df70b36a521ccd515af1517b227071aa8914668e1a
+T072:
+  task: 3e71ceacd0301c806e1de253cfaef4a62a3369fadeaf647ea81adbb222fd9a4e
+T073:
+  task: 14f81d8522c40fa095f02482171d575f9435cb8b501706f35d17cc8d667fc94e

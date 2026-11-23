@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-850-llmxive-follow-up-extending-evoarena-tra",
+  "tasks": [
+    {
+      "task_key": "T014a",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/heuristics/sensitivity_thresholds.py, data/processed/sensitivity_analysis_thresholds.csv",
+      "first_seen": "2026-10-01T11:56:40.621692+00:00",
+      "last_seen": "2026-10-01T11:56:40.621692+00:00"
+    },
+    {
+      "task_key": "T014b",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/heuristics/sensitivity_models.py, data/processed/sensitivity_analysis_models.csv",
+      "first_seen": "2026-10-01T11:56:40.622513+00:00",
+      "last_seen": "2026-10-01T11:56:40.622513+00:00"
+    },
+    {
+      "task_key": "T015",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: src/heuristics/conflict_detector.py",
+      "first_seen": "2026-10-01T11:56:40.623345+00:00",
+      "last_seen": "2026-10-01T11:56:40.623345+00:00"
+    }
+  ],
+  "updated_at": "2026-10-01T11:56:40.623345+00:00"
+}

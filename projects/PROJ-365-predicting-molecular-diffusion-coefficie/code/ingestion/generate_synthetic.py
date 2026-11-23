@@ -1,211 +1,130 @@
-"""
-Synthetic dataset generator for the molecular diffusion coefficient pipeline.
-
-This script creates a CSV file ``data/raw/dataset.csv`` containing a set of
-molecule–solvent pairs together with an estimated diffusion coefficient
-calculated via the Stokes‑Einstein relation.  The generated data is meant
-solely for pipeline validation when real experimental data cannot be
-obtained.
-
-The output schema matches the expectations of downstream ingestion code:
-
-    molecule_id               : unique integer identifier
-    smiles                    : SMILES string of the solute molecule
-    solvent                   : name of the solvent
-    temperature_K             : temperature at which D is evaluated (K)
-    viscosity_Pas             : dynamic viscosity of the solvent (Pa·s)
-    dielectric_constant       : relative permittivity of the solvent
-    diffusion_cm2_per_s       : estimated diffusion coefficient (cm²·s⁻¹)
-
-The script can be invoked directly:
-
-    python code/ingestion/generate_synthetic.py
-
-It will create the ``data/raw`` directory if missing and write the CSV.
-"""
-
 import csv
-import math
 import random
+import math
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Dict
 
-from utils.config import get_project_root
+# Fixed seed for reproducibility
+RANDOM_SEED = 42
+NUM_ROWS = 500  # Updated to meet task specification
 
-# -------------------------------------------------------------------------
-# Physical constants
-# -------------------------------------------------------------------------
-K_B = 1.380649e-23           # Boltzmann constant (J·K⁻¹)
-AVOGADRO = 6.02214076e23     # Avogadro's number (mol⁻¹)
-TEMPERATURE = 298.15         # Standard temperature (K)
-DENSITY_SOLUTE = 0.8         # Approx. density of organic solutes (g·cm⁻³)
+# Simple SMILES templates for synthetic data
+SMILES_TEMPLATES = [
+    "C", "CC", "CCC", "CCCC", "CCO", "CCCO", "CCCCO", "C(C)O", "CC(C)O",
+    "CC=O", "C=O", "CC(=O)O", "C(=O)O", "CC(=O)OC", "C1=CC=CC=C1", "CC1=CC=CC=C1",
+    "CC1=CC=CC=C1O", "CC1=CC=CC=C1C(=O)O", "CC1=CC=CC=C1C(=O)OC",
+    "C1CCCCC1", "C1CCCCC1O", "C1CCCCC1C(=O)O", "C1=CC=CC=C1C1CCCCC1",
+    "CC(C)C", "CC(C)CC", "CC(C)CCC", "CC(C)CCCC", "CC(C)C(C)C",
+    "CC(C)C(C)CC", "CC(C)C(C)CCC", "CC(C)C(C)CCCC", "CC(C)C(C)C(C)C"
+]
 
-# -------------------------------------------------------------------------
-# Helper functions
-# -------------------------------------------------------------------------
+SOLVENTS = [
+    {"name": "water", "viscosity": 0.89, "dielectric_constant": 78.4},
+    {"name": "ethanol", "viscosity": 1.07, "dielectric_constant": 24.3},
+    {"name": "methanol", "viscosity": 0.59, "dielectric_constant": 32.6},
+    {"name": "acetone", "viscosity": 0.31, "dielectric_constant": 20.7},
+    {"name": "hexane", "viscosity": 0.31, "dielectric_constant": 1.89},
+    {"name": "benzene", "viscosity": 0.65, "dielectric_constant": 2.28},
+    {"name": "toluene", "viscosity": 0.59, "dielectric_constant": 2.38},
+]
+
 def approximate_molecular_weight(smiles: str) -> float:
     """
-    Very rough molecular‑weight estimator for aliphatic SMILES consisting
-    only of carbon atoms (e.g., C, CC, CCC...).  Hydrogen count is inferred
-    from the alkane formula CnH2n+2.
+    Rough approximation of molecular weight based on SMILES length and composition.
+    This is a heuristic for synthetic data generation, not a real calculation.
+    """
+    # Count heavy atoms (non‑hydrogen) in the SMILES string
+    count = len([c for c in smiles if c not in ['H', ' ', '(', ')', '[', ']', '=', '#']])
+    # Add a small random perturbation for diversity
+    return count * 13.5 + random.uniform(-5, 5)
+
+def stokes_einstein_diffusion(mw: float, viscosity: float, temperature: float = 298.15) -> float:
+    """
+    Approximate diffusion coefficient using the Stokes‑Einstein relation.
+    D = kT / (6π η r), with a simplistic radius estimate based on molecular weight.
+    """
+    k_b = 1.380649e-23  # Boltzmann constant (J·K⁻¹)
+    # Very rough radius scaling (meters)
+    r = (mw ** (1 / 3)) * 1e-9 * 0.5
+    eta = viscosity * 1e-3  # cP → Pa·s
+    D = (k_b * temperature) / (6 * math.pi * eta * r)
+    # Convert from m²·s⁻¹ to cm²·s⁻¹
+    return D * 1e4
+
+def generate_random_smiles() -> str:
+    """Select a random SMILES template, occasionally concatenating two."""
+    if random.random() < 0.8:
+        return random.choice(SMILES_TEMPLATES)
+    else:
+        # Concatenate two templates to increase variety
+        s1 = random.choice(SMILES_TEMPLATES)
+        s2 = random.choice(SMILES_TEMPLATES)
+        return s1 + s2
+
+def select_random_solvent() -> Dict:
+    """Pick a solvent definition at random."""
+    return random.choice(SOLVENTS)
+
+def generate_synthetic_dataset(output_path: Path, num_rows: int = NUM_ROWS) -> None:
+    """
+    Generate a deterministic synthetic diffusion dataset and write it to CSV.
 
     Parameters
     ----------
-    smiles: str
-        SMILES string (expected to contain only carbon atoms).
-
-    Returns
-    -------
-    float
-        Molecular weight in grams per mole (g·mol⁻¹).
+    output_path : Path
+        Destination CSV file (including filename).
+    num_rows : int, optional
+        Number of rows to generate; defaults to the module‑level NUM_ROWS (500).
     """
-    n_c = smiles.count('C')
-    # Alkane formula: CnH2n+2
-    n_h = 2 * n_c + 2
-    mw = n_c * 12.01 + n_h * 1.008
-    return mw
-
-def stokes_einstein_diffusion(
-    mw_g_mol: float,
-    viscosity_pas: float,
-    temperature_k: float = TEMPERATURE,
-    density_g_cm3: float = DENSITY_SOLUTE,
-) -> float:
-    """
-    Compute diffusion coefficient using the Stokes‑Einstein equation.
-
-    Parameters
-    ----------
-    mw_g_mol: float
-        Molecular weight (g·mol⁻¹).
-    viscosity_pas: float
-        Dynamic viscosity of the solvent (Pa·s).
-    temperature_k: float
-        Absolute temperature (K). Default 298.15 K.
-    density_g_cm3: float
-        Approximate density of the solute (g·cm⁻³). Default 0.8 g·cm⁻³.
-
-    Returns
-    -------
-    float
-        Diffusion coefficient in cm²·s⁻¹.
-    """
-    # Convert molecular weight to kg·mol⁻¹
-    mw_kg_mol = mw_g_mol / 1000.0
-
-    # Convert density to kg·m⁻³ (1 g·cm⁻³ = 1000 kg·m⁻³)
-    density_kg_m3 = density_g_cm3 * 1000.0
-
-    # Estimate hydrodynamic radius (m) from volume of a sphere:
-    #   V = MW / (N_A * density)
-    #   r = (3V / (4π))^(1/3)
-    volume_m3 = mw_kg_mol / (AVOGADRO * density_kg_m3)
-    radius_m = ((3.0 * volume_m3) / (4.0 * math.pi)) ** (1.0 / 3.0)
-
-    # Stokes‑Einstein equation (m²·s⁻¹)
-    d_m2_s = K_B * temperature_k / (6.0 * math.pi * viscosity_pas * radius_m)
-
-    # Convert to cm²·s⁻¹ (1 m² = 1e4 cm²)
-    return d_m2_s * 1e4
-
-def generate_random_smiles(min_c: int = 1, max_c: int = 10) -> str:
-    """
-    Produce a simple alkane SMILES with a random number of carbon atoms.
-    """
-    n_c = random.randint(min_c, max_c)
-    return "C" * n_c
-
-def select_random_solvent() -> Tuple[str, float, float]:
-    """
-    Choose a solvent and return its name, viscosity (Pa·s) and dielectric constant.
-    The values are typical at 298 K.
-    """
-    solvents = [
-        ("water", 0.001, 78.5),
-        ("ethanol", 0.001095, 24.5),
-        ("benzene", 0.000652, 2.28),
-        ("acetone", 0.000316, 20.7),
-        ("toluene", 0.000590, 2.38),
-    ]
-    return random.choice(solvents)
-
-def generate_synthetic_dataset(
-    num_samples: int = 200,
-    output_path: Path = None,
-) -> Path:
-    """
-    Generate a synthetic CSV dataset.
-
-    Parameters
-    ----------
-    num_samples: int
-        Number of rows to generate.
-    output_path: Path | None
-        Destination CSV file.  If ``None`` the file will be placed at
-        ``data/raw/dataset.csv`` relative to the project root.
-
-    Returns
-    -------
-    Path
-        Path to the written CSV file.
-    """
-    if output_path is None:
-        project_root = get_project_root()
-        output_path = project_root / "data" / "raw" / "dataset.csv"
-
-    # Ensure the parent directory exists
+    random.seed(RANDOM_SEED)  # Ensure reproducibility
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
+    rows: List[Dict] = []
+    for _ in range(num_rows):
+        smiles = generate_random_smiles()
+        solvent_info = select_random_solvent()
+        solvent_name = solvent_info["name"]
+        viscosity = float(solvent_info["viscosity"])
+        dielectric = float(solvent_info["dielectric_constant"])
+
+        mw = approximate_molecular_weight(smiles)
+        diffusion = stokes_einstein_diffusion(mw, viscosity)
+
+        rows.append({
+            "smiles": smiles,
+            "solvent_type": solvent_name,          # Column name matches schema
+            "diffusion_coefficient": diffusion,    # Store as numeric value
+            "viscosity": viscosity,
+            "dielectric_constant": dielectric
+        })
+
     fieldnames = [
-        "molecule_id",
         "smiles",
-        "solvent",
-        "temperature_K",
-        "viscosity_Pas",
-        "dielectric_constant",
-        "diffusion_cm2_per_s",
+        "solvent_type",
+        "diffusion_coefficient",
+        "viscosity",
+        "dielectric_constant"
     ]
 
-    with output_path.open("w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    with open(output_path, mode="w", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
+        writer.writerows(rows)
 
-        for idx in range(1, num_samples + 1):
-            smiles = generate_random_smiles()
-            mw = approximate_molecular_weight(smiles)
+    print(f"Generated synthetic dataset with {num_rows} rows at {output_path}")
 
-            solvent, viscosity, dielectric = select_random_solvent()
-            diffusion = stokes_einstein_diffusion(
-                mw_g_mol=mw,
-                viscosity_pas=viscosity,
-                temperature_k=TEMPERATURE,
-            )
-
-            writer.writerow(
-                {
-                    "molecule_id": idx,
-                    "smiles": smiles,
-                    "solvent": solvent,
-                    "temperature_K": f"{TEMPERATURE:.2f}",
-                    "viscosity_Pas": f"{viscosity:.6f}",
-                    "dielectric_constant": f"{dielectric:.2f}",
-                    "diffusion_cm2_per_s": f"{diffusion:.6e}",
-                }
-            )
-
-    return output_path
-
-# -------------------------------------------------------------------------
-# CLI entry point
-# -------------------------------------------------------------------------
 def main() -> None:
     """
-    Generate a default synthetic dataset (200 samples) and write it to
-    ``data/raw/dataset.csv``.  The function prints the location of the
-    created file for user convenience.
+    Entry‑point used by the CI / quick‑start. It resolves the project root,
+    ensures the raw data directory exists, and creates ``dataset.csv``.
     """
-    output_file = generate_synthetic_dataset()
-    print(f"Synthetic diffusion dataset written to: {output_file}")
+    # Resolve the project root relative to this file's location
+    root = Path(__file__).resolve().parents[2]  # <project>/code/ingestion/..
+    raw_dir = root / "data" / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+
+    output_file = raw_dir / "dataset.csv"
+    generate_synthetic_dataset(output_file)
 
 if __name__ == "__main__":
     main()

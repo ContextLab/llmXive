@@ -1,0 +1,59 @@
+# Revision Specification: Paper Science Revision — PROJ-631-https-arxiv-org-abs-2605-25604 round 1
+
+**Generated**: 2026-06-29T06:22:04.055556+00:00
+**Kind**: paper_science
+**Project**: PROJ-631-https-arxiv-org-abs-2605-25604
+**Round**: 1
+
+## Input
+
+Address the following reviewer-raised action items:
+
+- **[32c648cc9ab9] (severity: writing)** GDPO citation (neurips_2026.bib) shows arXiv year 2026, which is implausible for a preprint. Verify the correct arXiv ID and publication year or remove if placeholder.
+- **[0b9147bddd4b] (severity: writing)** BFCL-v4 benchmark is used in experiments but only the original BFCL paper is cited. Provide a specific citation for the v4 version or clarify the version difference.
+- **[896a0740039f] (severity: writing)** Math500 benchmark name does not match the cited paper (Lightman et al. 2024 describes MATH, not MATH500). Clarify whether MATH500 is a subset or rename to match the citation.
+- **[cfbac88ea4c4] (severity: writing)** Claims about 'standard practice' for scalarization methods lack supporting citations establishing this as established convention. Add literature support or soften the claim.
+- **[826aea014a24] (severity: science)** No code repository or reproducibility artifacts provided. Paper claims to implement DVAO on verl framework but lacks training scripts, evaluation code, requirements.txt, or Dockerfile for independent verification.
+- **[1724eaac9cb3] (severity: science)** Missing implementation details for variance-adaptive weighting logic. Appendix.tex describes hyperparameters but does not expose the core DVAO algorithm code for review.
+- **[399b92639b83] (severity: science)** No test suite or validation scripts included to verify correctness of advantage computation across rollout groups (G=16) and multi-reward normalization.
+- **[3c2070993686] (severity: writing)** Add dataset version numbers (e.g., commit hashes, release tags) for all training and evaluation datasets to ensure reproducibility. Currently only URLs are provided without versioning.
+- **[641ddfb72c80] (severity: writing)** Include license information for all external datasets used (DAPO-MATH-17K, ToolACE, Hammer, xLAM, AIME-2024/2025, etc.). This is required for downstream use and legal compliance.
+- **[95fca95e0a08] (severity: writing)** Provide data schema documentation for custom datasets (e.g., field names, data types, expected value ranges) in Appendix or main text.
+- **[31e50bd74d09] (severity: writing)** Replace HuggingFace URLs with stable DOIs or arXiv IDs where available to prevent link rot. Some footnotes (e.g., AIME-2024) lack permanent identifiers.
+- **[3cb87fbb2a57] (severity: writing)** Add missing-data handling discussion if applicable (e.g., how incomplete reward signals or missing annotations were treated during training).
+- **[fc98073e46b5] (severity: writing)** Add explicit axis labels to all figure captions. Training dynamics plots should specify x-axis (training steps/epochs) and y-axis units. Pareto frontier figures need clear axis labels for accuracy vs length/format compliance.
+- **[3afdbcfbf3b8] (severity: writing)** Include alt text for all figures to support accessibility compliance. Each figure should have a descriptive alt text explaining the visual content for screen readers.
+- **[7ed4644fb588] (severity: writing)** Document color scheme and line styles used to distinguish methods in training dynamics plots. Ensure colorblind-friendly palette and include a legend or key in captions.
+- **[057ca460df85] (severity: writing)** Consolidate training dynamics figures (Figures 1-2) or explicitly highlight key differences between 4B and 8B results rather than showing near-duplicate plots.
+- **[1cc7ba286ebf] (severity: writing)** Replace 'scalarization' with 'combining multiple rewards' in Abstract and Introduction for clarity.
+- **[fd0ff0d168fe] (severity: writing)** Define 'verl' framework in Appendix; replace 'avg@16' with 'average over 16 samples'.
+- **[a84e5473ed83] (severity: writing)** Simplify 'convex combination' to 'weighted average' and 'Pareto frontier' to 'trade-off curve' in Method and Experiments.
+- **[5484d8752163] (severity: writing)** Define 'rollout group' as 'batch of generated responses' in Abstract and Method to aid non-RL readers.
+- **[c77a3af0a505] (severity: writing)** Clarify the claim in the Abstract and Introduction that Reward Combination generates 'excessively large squared magnitudes.' Proposition 1 proves the normalized variance is exactly 1, while Advantage Combination is <=1. 'Excessively large' implies an absolute scale issue, but the math shows it is a relative variance issue. Rephrase to 'larger than baselines' to maintain logical precision.
+- **[d5803dabb3b4] (severity: science)** Resolve the logical tension between the Abstract's claim that high variance indicates a 'stronger learning signal' and the Limitations section's admission that high variance can be 'noise.' Clarify the boundary conditions under which the variance-adaptive weighting is theoretically sound versus potentially harmful.
+- **[58aadcae5aeb] (severity: writing)** The claim 'hyperparameter-free weighting scheme' (Abstract, Introduction) is slightly misleading. The method requires initial weights {w_k} (Eq. 17), even if set equally. Clarify that it removes the need for *tuning* trade-off weights rather than being entirely free of hyperparameters.
+- **[6165207aa4d0] (severity: writing)** The title 'Multi-reward Reinforcement Learning' suggests generality beyond the GRPO framework tested. Consider narrowing to 'Multi-reward GRPO' or explicitly stating the GRPO scope in the abstract to avoid overreach regarding other RL algorithms.
+- **[d7ab0d2fc6df] (severity: science)** Report variance across multiple random seeds for all benchmark results. Tables 1-2 show single-run numbers without error bars or standard deviations, making it impossible to assess statistical significance of DVAO's improvements over baselines.
+- **[bd78f91c03f3] (severity: science)** Include ablation studies isolating the variance-adaptive weighting mechanism. Without removing this component and comparing to fixed-weight baselines, the claimed causal mechanism remains unverified.
+- **[29c25c7a12d7] (severity: science)** Add statistical significance testing (e.g., t-tests, confidence intervals) for reported accuracy gains. Current effect sizes are modest (2-5% absolute improvements) and require proper hypothesis testing to rule out random variation.
+- **[2990acfc2871] (severity: writing)** Clarify whether experiments were run with a single random seed or multiple seeds. The appendix mentions hardware but not random seed protocol, which is critical for reproducibility and variance estimation.
+- **[d9ad2a504652] (severity: science)** Report results averaged over multiple independent training seeds (e.g., 3-5) with standard deviation or confidence intervals in Tables 1 and 2 to support 'significantly outperforms' claims.
+- **[ebb8b5b0a90c] (severity: science)** Provide statistical significance testing (e.g., t-test or bootstrap p-values) comparing DVAO against baselines on the main benchmarks, as single-point estimates are insufficient for RLHF claims.
+- **[0f480d7bb6c6] (severity: writing)** Clarify the aggregation method for the 'Average' column in Tables 1 and 2; simple arithmetic mean across heterogeneous benchmarks (e.g., AIME vs. MATH500) may not reflect statistical significance of overall improvement.
+- **[e39b7f433eef] (severity: science)** Analyze the variance of the variance estimator (sigma_k^i) with group size G=16; acknowledge that G=16 yields ~20% relative error on std estimates, potentially affecting DVAO's stability guarantees.
+- **[125b1c8d0488] (severity: writing)** tex/appendix.tex line 1 uses \BeforeBeginEnvironment which requires the etoolbox package. This package is not explicitly loaded in neurips_2026.tex preamble. Load etoolbox or remove the counter manipulation hack to ensure compilation stability.
+- **[518498b40250] (severity: writing)** tex/experiments.tex line 134 has inconsistent reference capitalization: 'Tables~\ref{tab:main_math} and Table~\ref{tab:main_tool}'. Standardize to 'Tables~\ref{tab:main_math} and \ref{tab:main_tool}' or 'Table~\ref{tab:main_math} and Table~\ref{tab:main_tool}'.
+- **[7973b7bd894e] (severity: writing)** tex/method.tex and tex/appendix.tex both define Proposition 1, 2, and 3. The appendix hack resets the counter, but relying on fragile counter manipulation is poor LaTeX hygiene. Consider referencing main text propositions (e.g., 'Proof of Proposition 1 from Section 3') to avoid duplicate numbering conflicts.
+- **[df1e05f540e3] (severity: writing)** The manuscript demonstrates strong technical content, but the writing quality requires minor revisions to ensure clarity and professionalism. Several typographical errors detract from the polish of the paper. For instance, OlympaidBench in Table 1 should be OlympiadBench to match the text in the Introduction and Experiments sections. Similarly, comperhensive and challanges in the Experiments section need correction to comprehensive and challenges. In the Appendix, interger should be integer, gro
+
+
+## Success Criterion
+
+After the implementer applies this revision, the project returns to
+``paper_review`` and the per-specialist re-review protocol confirms
+each of the 36 action item(s) above as ADEQUATELY ADDRESSED.
+
+## Out of scope
+
+- New experiments not directly required by a ``science``-severity item above.
+- Refactors / cleanups not required by an action item.

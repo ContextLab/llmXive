@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-06-17T12:36:53Z",
+  "fetched_at": "2026-08-25T21:15:53Z",
   "field": "statistics",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,15 +9,15 @@
       "idea_body_excerpt": "Robustness of Change‑Point Detection Methods on Public Financial Time Series",
       "target_n": 5
     },
-    "duration_seconds": 106.791,
-    "ended_at": "2026-06-17T12:36:53Z",
+    "duration_seconds": 89.855,
+    "ended_at": "2026-08-25T21:15:53Z",
     "expansion": null,
     "extracted_queries": [
-      "structural break robustness",
-      "S&P 500 returns change point",
-      "Bai Perron multiple breakpoint",
-      "detection delay false alarm rate",
-      "nonstationary regime switching theory"
+      "structural break regime shift anomaly detection",
+      "S&P 500 DJI NASDAQ volatility clustering",
+      "Bayesian online change point detection BOCPD",
+      "mean shift variance change point accuracy",
+      "non-stationarity heavy-tailed distribution robustness"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -28,19 +28,20 @@
     },
     "outcome": "success",
     "pdf_sample": {
-      "sample_size_target": 1,
-      "sampled_count": 1,
+      "sample_size_target": 2,
+      "sampled_count": 2,
       "sampled_pointers": [
-        "1912.07775"
+        "2511.10078",
+        "2206.03038"
       ]
     },
     "per_query_hit_count": {
-      "Bai Perron multiple breakpoint": 3,
+      "Bayesian online change point detection BOCPD": 3,
       "Robustness of Change‑Point Detection Methods on Public Financial Time Series statistics": 3,
-      "S&P 500 returns change point": 3,
-      "detection delay false alarm rate": 3,
-      "nonstationary regime switching theory": 3,
-      "structural break robustness": 3
+      "S&P 500 DJI NASDAQ volatility clustering": 3,
+      "mean shift variance change point accuracy": 3,
+      "non-stationarity heavy-tailed distribution robustness": 3,
+      "structural break regime shift anomaly detection": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -55,7 +56,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-06-17T12:35:07Z",
+    "started_at": "2026-08-25T21:14:24Z",
     "term_input": {
       "normalized": "robustness of change‑point detection methods on public financial time series statistics",
       "raw": "Robustness of Change‑Point Detection Methods on Public Financial Time Series statistics"
@@ -76,63 +77,46 @@
           "primary_pointer": "2303.14295"
         },
         "details": "query-relevance 0.222 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Clustering Multivariate Time Series using Energy Distance')",
-        "failed_at": "2026-06-17T12:36:26Z",
+        "failed_at": "2026-08-25T21:15:44Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Accurate structural response prediction forms a main driver for structural health monitoring and control applications. This often requires the proposed model to adequately capture the underlying dynamics of complex structural systems. In this work, we utilize a learnable Extended Kalman Filter (EKF), named the Neural Extended Kalman Filter (Neural EKF) throughout this paper, for learning the latent evolution dynamics of complex physical systems. The Neural EKF is a generalized version of the conventional EKF, where the modeling of process dynamics and sensory observations can be parameterized by neural networks, therefore learned by end-to-end training. The method is implemented under the variational inference framework with the EKF conducting inference from sensing measurements. Typically, conventional variational inference models are parameterized by neural networks independent of the latent dynamics models. This characteristic makes the inference and reconstruction accuracy weakly based on the dynamics models and renders the associated training inadequate. In this work, we show that the structure imposed by the Neural EKF is beneficial to the learning process. We demonstrate the efficacy of the framework on both simulated and real-world structural monitoring datasets, with the results indicating significant predictive capabilities of the proposed scheme.",
+          "claimed_abstract": "Large language models (LLMs) have shown their potential in long-context understanding and mathematical reasoning. In this paper, we study the problem of using LLMs to detect tabular anomalies and show that pre-trained LLMs are zero-shot batch-level anomaly detectors. That is, without extra distribution-specific model fitting, they can discover hidden outliers in a batch of data, demonstrating their ability to identify low-density data regions. For LLMs that are not well aligned with anomaly detection and frequently output factual errors, we apply simple yet effective data-generating processes to simulate synthetic batch-level anomaly detection datasets and propose an end-to-end fine-tuning strategy to bring out the potential of LLMs in detecting real anomalies. Experiments on a large anomaly detection benchmark (ODDS) showcase i) GPT-4 has on-par performance with the state-of-the-art transductive learning-based anomaly detection methods and ii) the efficacy of our synthetic dataset and fine-tuning strategy in aligning LLMs to this task.",
           "claimed_authors": [
-            "Wei Liu",
-            "Zhilu Lai",
-            "Kiran Bacsa",
-            "Eleni Chatzi"
+            "Aodong Li",
+            "Yunhan Zhao",
+            "Chen Qiu",
+            "Marius Kloft",
+            "Padhraic Smyth",
+            "Maja Rudolph",
+            "Stephan Mandt"
           ],
-          "claimed_title": "Neural Extended Kalman Filters for Learning and Predicting Dynamics of Structural Systems",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2210.04165"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Neural Extended Kalman Filters for Learning and Predicting Dynamics of Structural Systems')",
-        "failed_at": "2026-06-17T12:36:26Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Interest in components with detailed structures increased with the progress in advanced manufacturing techniques in recent years. Parts with graded lattice elements can provide interesting mechanical, thermal, and acoustic properties compared to parts where only coarse features are included. One of these improvements is better global buckling resistance of the component. However, thin features are prone to local buckling. Normally, analyses with high computational effort are conducted on high-resolution finite element meshes to optimize parts with good global and local stability. Until recently, works focused only on either global or local buckling behavior. We use two-scale optimization based on asymptotic homogenization of elastic properties and local buckling behavior to reduce the effort of full-scale analyses. For this, we present an approach for concurrent local and global buckling optimization of parameterized graded lattice structures. It is based on a worst-case model for the homogenized buckling load factor, which acts as a safeguard against pure local buckling. Cross-modes residing on both scales are not detected. We support our theory with numerical examples and validations on dehomogenized designs, which show the capabilities of our method, and discuss the advantages and limitations of the worst-case model.",
-          "claimed_authors": [
-            "Daniel Hübner",
-            "Fabian Wein",
-            "Michael Stingl"
-          ],
-          "claimed_title": "Two-Scale Optimization of Graded Lattice Structures respecting Buckling on Micro- and Macroscale",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2303.08710"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Two-Scale Optimization of Graded Lattice Structures respecting Buckling on Micro- and Macroscale')",
-        "failed_at": "2026-06-17T12:36:26Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "In optimizing real-world structures, due to fabrication or budgetary restraints, the design variables may be restricted to a set of standard engineering choices. Such variables, commonly called categorical variables, are discrete and unordered in essence, precluding the utilization of gradient-based optimizers for the problems containing them. In this paper, incorporating the Gumbel-Softmax (GSM) method, we propose a new gradient-based optimizer for handling such variables in the optimal design of large-scale frame structures. The GSM method provides a means to draw differentiable samples from categorical distributions, thereby enabling sensitivity analysis for the variables generated from such distributions. The sensitivity information can greatly reduce the computational cost of traversing high-dimensional and discrete design spaces in comparison to employing gradient-free optimization methods. In addition, since the developed optimizer is gradient-based, it can naturally handle the simultaneous optimization of categorical and continuous design variables. Through three numerical case studies, different aspects of the proposed optimizer are studied and its advantages over population-based optimizers, specifically a genetic algorithm, are demonstrated.",
-          "claimed_authors": [
-            "Mehran Ebrahimi",
-            "Hyunmin Cheong",
-            "Pradeep Kumar Jayaraman",
-            "Farhad Javid"
-          ],
-          "claimed_title": "Optimal design of frame structures with mixed categorical and continuous design variables using the Gumbel-Softmax method",
+          "claimed_title": "Anomaly Detection of Tabular Data Using LLMs",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2501.00258"
+          "primary_pointer": "2406.16308"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Optimal design of frame structures with mixed categorical and continuous design variables using the Gumbel-Softmax method')",
-        "failed_at": "2026-06-17T12:36:26Z",
+        "details": "query-relevance 0.111 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Anomaly Detection of Tabular Data Using LLMs')",
+        "failed_at": "2026-08-25T21:15:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Anomaly detection has a wide range of real-world applications, such as bank fraud detection and cyber intrusion detection. In the past decade, a variety of anomaly detection models have been developed, which lead to big progress towards accurately detecting various anomalies. Despite the successes, anomaly detection models still face many limitations. The most significant one is whether we can trust the detection results from the models. In recent years, the research community has spent a great effort to design trustworthy machine learning models, such as developing trustworthy classification models. However, the attention to anomaly detection tasks is far from sufficient. Considering that many anomaly detection tasks are life-changing tasks involving human beings, labeling someone as anomalies or fraudsters should be extremely cautious. Hence, ensuring the anomaly detection models conducted in a trustworthy fashion is an essential requirement to deploy the models to conduct automatic decisions in the real world. In this brief survey, we summarize the existing efforts and discuss open problems towards trustworthy anomaly detection from the perspectives of interpretability, fairness, robustness, and privacy-preservation.",
+          "claimed_authors": [
+            "Shuhan Yuan",
+            "Xintao Wu"
+          ],
+          "claimed_title": "Trustworthy Anomaly Detection: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2202.07787"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Trustworthy Anomaly Detection: A Survey')",
+        "failed_at": "2026-08-25T21:15:44Z",
         "reason": "query_irrelevant"
       },
       {
@@ -148,394 +132,160 @@
           "primary_pointer": "2403.01088"
         },
         "details": "query-relevance 0.000 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Justifying the Volatility of S&P 500 Daily Returns')",
-        "failed_at": "2026-06-17T12:36:26Z",
+        "failed_at": "2026-08-25T21:15:44Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "A linear link between S&P 500 return and the change rate of the number of nine-year-olds in the USA has been found. The return is represented by a sum of monthly returns during previous twelve months. The change rate of the specific age population is represented by moving averages. The period between January 1990 and December 2003 is described by monthly population intercensal estimates as provided by the US Census Bureau. Four years before 1990 are described using the estimates of the number of 17 year-olds shifted 8 years back. The prediction of S&P 500 returns for the months after 2003, including those beyond 2007, are obtained using the number of 3 year-olds between 1990 and 2003 shifted by 6 years ahead and quarterly estimates of real GDP per capita. A prediction is available for the period beyond 2007. There are two sharp drops in the predicted returns - in 2007 and 2009, and one strong rally in 2008. Equivalently, S&P 500 index should drop in 2007 and 2009 to the level observed one year before. Potential link between S&P 500 returns and 9-year-old population is tested for cointegration. The Engle-Granger and Johansen tests demonstrate the presence of a long-term equilibrium (cointegrating) relation between these variables. This makes valid standard statistical estimates. Correlation between the predicted and observed indices, including RMS difference, linear regression, and VAR demonstrate good prediction accuracy at two-year horizon, when the prediction uses 7-year-olds instead of 9-year-olds. The RMS difference between the observed and predicted returns for the period between 1992 and 2003 is only 0.09 with standard deviation of the observed series for the same period of 0.12 and the naive (random walk) RMS deference of 0.18.",
+          "claimed_abstract": "Predicting the S&P 500 index volatility is crucial for investors and financial analysts as it helps assess market risk and make informed investment decisions. Volatility represents the level of uncertainty or risk related to the size of changes in a security's value, making it an essential indicator for financial planning. This study explores four methods to improve the accuracy of volatility forecasts for the S&P 500: the established GARCH model, known for capturing historical volatility patterns; an LSTM network that utilizes past volatility and log returns; a hybrid LSTM-GARCH model that combines the strengths of both approaches; and an advanced version of the hybrid model that also factors in the VIX index to gauge market sentiment. This analysis is based on a daily dataset that includes S&P 500 and VIX index data, covering the period from January 3, 2000, to December 21, 2023. Through rigorous testing and comparison, we found that machine learning approaches, particularly the hybrid LSTM models, significantly outperform the traditional GARCH model. Including the VIX index in the hybrid model further enhances its forecasting ability by incorporating real-time market sentiment. The results of this study offer valuable insights for achieving more accurate volatility predictions, enabling better risk management and strategic investment decisions in the volatile environment of the S&P 500.",
           "claimed_authors": [
-            "Ivan O. Kitov",
-            "Oleg I. Kitov"
+            "Natalia Roszyk",
+            "Robert Ślepaczuk"
           ],
-          "claimed_title": "Exact prediction of S&P 500 returns",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2008,
-          "primary_pointer": "0811.0376"
-        },
-        "details": "query-relevance 0.222 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Exact prediction of S&P 500 returns')",
-        "failed_at": "2026-06-17T12:36:26Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The predictions of the S&P 500 returns made in 2007 have been tested and the underlying models amended. The period between 2003 and 2008 should be described by the dependence of the S&P 500 stock market index on real GDP because the population pyramid was highly inaccurate. The 2008 trough and 2009 rally are well predicted by the original model, however. The rally will end in March/April 2010 and the S&P 500 level will be decreasing into 2011.  This prediction should validate the model.",
-          "claimed_authors": [
-            "Ivan O. Kitov",
-            "Oleg I. Kitov"
-          ],
-          "claimed_title": "S&P 500 returns revisited",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1004.0213"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='S&P 500 returns revisited')",
-        "failed_at": "2026-06-17T12:36:26Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The full data set of the Daya Bay reactor neutrino experiment is used to probe the effect of the charged current non-standard interactions (CC-NSI) on neutrino oscillation experiments. Two different approaches are applied and constraints on the corresponding CC-NSI parameters are obtained with the neutrino flux taken from the Huber-Mueller model with a $5\\%$ uncertainty. For the quantum mechanics-based approach (QM-NSI), the constraints on the CC-NSI parameters $ε_{eα}$ and $ε_{eα}^{s}$ are extracted with and without the assumption that the effects of the new physics are the same in the production and detection processes, respectively. The approach based on the weak effective field theory (WEFT-NSI) deals with four types of CC-NSI represented by the parameters $[\\varepsilon_{X}]_{eα}$. For both approaches, the results for the CC-NSI parameters are shown for cases with various fixed values of the CC-NSI and the Dirac CP-violating phases, and when they are allowed to vary freely. We find that constraints on the QM-NSI parameters $ε_{eα}$ and $ε_{eα}^{s}$ from the Daya Bay experiment alone can reach the order $\\mathcal{O}(0.01)$ for the former and $\\mathcal{O}(0.1)$ for the latter, while for WEFT-NSI parameters $[\\varepsilon_{X}]_{eα}$, we obtain $\\mathcal{O}(0.1)$ for both cases.",
-          "claimed_authors": [
-            " Daya Bay collaboration",
-            "F. P. An",
-            "W. D. Bai",
-            "A. B. Balantekin",
-            "M. Bishai",
-            "S. Blyth",
-            "G. F. Cao",
-            "J. Cao",
-            "J. F. Chang",
-            "Y. Chang",
-            "H. S. Chen",
-            "H. Y. Chen",
-            "S. M. Chen",
-            "Y. Chen",
-            "Y. X. Chen",
-            "Z. Y. Chen",
-            "J. Cheng",
-            "Y. C. Cheng",
-            "Z. K. Cheng",
-            "J. J. Cherwinka",
-            "M. C. Chu",
-            "J. P. Cummings",
-            "O. Dalager",
-            "F. S. Deng",
-            "X. Y. Ding",
-            "Y. Y. Ding",
-            "M. V. Diwan",
-            "T. Dohnal",
-            "D. Dolzhikov",
-            "J. Dove",
-            "K. V. Dugas",
-            "H. Y. Duyang",
-            "D. A. Dwyer",
-            "J. P. Gallo",
-            "M. Gonchar",
-            "G. H. Gong",
-            "H. Gong",
-            "W. Q. Gu",
-            "J. Y. Guo",
-            "L. Guo",
-            "X. H. Guo",
-            "Y. H. Guo",
-            "Z. Guo",
-            "R. W. Hackenburg",
-            "Y. Han",
-            "S. Hans",
-            "M. He",
-            "K. M. Heeger",
-            "Y. K. Heng",
-            "Y. K. Hor",
-            "Y. B. Hsiung",
-            "B. Z. Hu",
-            "J. R. Hu",
-            "T. Hu",
-            "Z. J. Hu",
-            "H. X. Huang",
-            "J. H. Huang",
-            "X. T. Huang",
-            "Y. B. Huang",
-            "P. Huber",
-            "D. E. Jaffe",
-            "K. L. Jen",
-            "X. L. Ji",
-            "X. P. Ji",
-            "R. A. Johnson",
-            "D. Jones",
-            "L. Kang",
-            "S. H. Kettell",
-            "S. Kohn",
-            "M. Kramer",
-            "T. J. Langford",
-            "J. Lee",
-            "J. H. C. Lee",
-            "R. T. Lei",
-            "R. Leitner",
-            "J. K. C. Leung",
-            "F. Li",
-            "H. L. Li",
-            "J. J. Li",
-            "Q. J. Li",
-            "R. H. Li",
-            "S. Li",
-            "S. Li",
-            "S. C. Li",
-            "W. D. Li",
-            "X. N. Li",
-            "X. Q. Li",
-            "Y. F. Li",
-            "Z. B. Li",
-            "H. Liang",
-            "C. J. Lin",
-            "G. L. Lin",
-            "S. Lin",
-            "J. J. Ling",
-            "J. M. Link",
-            "L. Littenberg",
-            "B. R. Littlejohn",
-            "J. C. Liu",
-            "J. L. Liu",
-            "J. X. Liu",
-            "C. Lu",
-            "H. Q. Lu",
-            "K. B. Luk",
-            "B. Z. Ma",
-            "X. B. Ma",
-            "X. Y. Ma",
-            "Y. Q. Ma",
-            "R. C. Mandujano",
-            "C. Marshall",
-            "K. T. McDonald",
-            "R. D. McKeown",
-            "Y. Meng",
-            "J. Napolitano",
-            "D. Naumov",
-            "E. Naumova",
-            "T. M. T. Nguyen",
-            "J. P. Ochoa-Ricoux",
-            "A. Olshevskiy",
-            "J. Park",
-            "S. Patton",
-            "J. C. Peng",
-            "C. S. J. Pun",
-            "F. Z. Qi",
-            "M. Qi",
-            "X. Qian",
-            "N. Raper",
-            "J. Ren",
-            "C. Morales Reveco",
-            "R. Rosero",
-            "B. Roskovec",
-            "X. C. Ruan",
-            "B. Russell",
-            "H. Steiner",
-            "J. L. Sun",
-            "T. Tmej",
-            "W. -H. Tse",
-            "C. E. Tull",
-            "Y. C. Tung",
-            "B. Viren",
-            "V. Vorobel",
-            "C. H. Wang",
-            "J. Wang",
-            "M. Wang",
-            "N. Y. Wang",
-            "R. G. Wang",
-            "W. Wang",
-            "X. Wang",
-            "Y. F. Wang",
-            "Z. Wang",
-            "Z. Wang",
-            "Z. M. Wang",
-            "H. Y. Wei",
-            "L. H. Wei",
-            "W. Wei",
-            "L. J. Wen",
-            "K. Whisnant",
-            "C. G. White",
-            "H. L. H. Wong",
-            "E. Worcester",
-            "D. R. Wu",
-            "Q. Wu",
-            "W. J. Wu",
-            "D. M. Xia",
-            "Z. Q. Xie",
-            "Z. Z. Xing",
-            "H. K. Xu",
-            "J. L. Xu",
-            "T. Xu",
-            "T. Xue",
-            "C. G. Yang",
-            "L. Yang",
-            "Y. Z. Yang",
-            "H. F. Yao",
-            "M. Ye",
-            "M. Yeh",
-            "B. L. Young",
-            "H. Z. Yu",
-            "Z. Y. Yu",
-            "B. B. Yue",
-            "V. Zavadskyi",
-            "S. Zeng",
-            "Y. Zeng",
-            "L. Zhan",
-            "C. Zhang",
-            "F. Y. Zhang",
-            "H. H. Zhang",
-            "J. L. Zhang",
-            "J. W. Zhang",
-            "Q. M. Zhang",
-            "S. Q. Zhang",
-            "X. T. Zhang",
-            "Y. M. Zhang",
-            "Y. X. Zhang",
-            "Y. Y. Zhang",
-            "Z. J. Zhang",
-            "Z. P. Zhang",
-            "Z. Y. Zhang",
-            "J. Zhao",
-            "R. Z. Zhao",
-            "L. Zhou",
-            "H. L. Zhuang",
-            "J. H. Zou"
-          ],
-          "claimed_title": "Charged-current non-standard neutrino interactions at Daya Bay",
+          "claimed_title": "The Hybrid Forecast of S&P 500 Volatility ensembled from VIX, GARCH and LSTM models",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2401.02901"
+          "primary_pointer": "2407.16780"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Charged-current non-standard neutrino interactions at Daya Bay')",
-        "failed_at": "2026-06-17T12:36:27Z",
+        "details": "query-relevance 0.222 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='The Hybrid Forecast of S&P 500 Volatility ensembled from VIX, GARCH and LSTM models')",
+        "failed_at": "2026-08-25T21:15:44Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The Daya Bay Reactor Neutrino Experiment has measured the last unknown neutrino mixing angle, θ13, to be non-zero at the 7.7σ level. This is the most precise measurement to θ13 to date. To further enhance the understanding of the response of the antineutrino detectors (ADs), a detailed calibration of an AD with the Manual Calibration System (MCS) was undertaken during the summer 2012 shutdown. The MCS is capable of placing a radioactive source with a positional accuracy of 25 mm in R direction, 20 mm in Z axis and 0.5° in Φ direction. A detailed description of the MCS is presented followed by a summary of its performance in the AD calibration run.",
+          "claimed_abstract": "A reputation of high volatility accompanies the emergence of Bitcoin as a financial asset. This paper intends to nuance this reputation and clarify our understanding of Bitcoin's volatility. Using daily, weekly, and monthly closing prices and log-returns data going from September 2014 to January 2021, we find that Bitcoin is a prime example of an asset for which the two conceptions of volatility diverge. We show that, historically, Bitcoin allies both high volatility (high Standard Deviation) and high predictability (low Approximate Entropy), relative to Gold and S&P 500.\n  Moreover, using tools from Extreme Value Theory, we analyze the convergence of moments, and the mean excess functions of both the closing prices and the log-returns of the three assets. We find that the closing price of Bitcoin is consistent with a generalized Pareto distribution, when the closing prices of the two other assets (Gold and S&P 500) present thin-tailed distributions. However, returns for all three assets are heavy tailed and second moments (variance, standard deviation) non-convergent. In the case of Bitcoin, lower sampling frequencies (monthly vs weekly, weekly vs daily) drastically reduce the Kurtosis of log-returns and increase the convergence of empirical moments to their true value. The opposite effect is observed for Gold and S&P 500. These properties suggest that Bitcoin's volatility is essentially an intra-day and intra-week phenomenon that is strongly attenuated on a weekly time-scale, and make it an attractive store of value to investors and speculators, but its high standard deviation excludes its use a currency.",
           "claimed_authors": [
-            "Hanxiong Huang",
-            "Xichao Ruan",
-            "Jie Ren",
-            "Chengjun Fan",
-            "Yannan Chen",
-            "Yinglong Lv",
-            "Zhaohui Wang",
-            "Zuying Zhou",
-            "Long Hou",
-            "Biao Xin",
-            "Chaoju Yu",
-            "Jiawen Zhang",
-            "Yinghong Zhang",
-            "Jingzhi Bai",
-            "Honglin Zhuang",
-            "Wei He",
-            "Jianglai Liu",
-            "Elizabeth Worcester",
-            "Harry Themann",
-            "Jeff Cherwinka",
-            "David M. Webber"
+            "Nassim Dehouche"
           ],
-          "claimed_title": "Manual Calibration System for Daya Bay Reactor Neutrino Experiment",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1305.2343"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Manual Calibration System for Daya Bay Reactor Neutrino Experiment')",
-        "failed_at": "2026-06-17T12:36:27Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Organizations use intrusion detection systems (IDSes) to identify harmful activity among millions of computer network events. Cybersecurity analysts review IDS alarms to verify whether malicious activity occurred and to take remedial action. However, IDS systems exhibit high false alarm rates. This study examines the impact of IDS false alarm rate on human analyst sensitivity (probability of detection), precision (positive predictive value), and time on task when evaluating IDS alarms. A controlled experiment was conducted with participants divided into two treatment groups, 50% IDS false alarm rate and 86% false alarm rate, who classified whether simulated IDS alarms were true or false alarms. Results show statistically significant differences in precision and time on task. The median values for the 86% false alarm rate group were 47% lower precision and 40% slower time on task than the 50% false alarm rate group. No significant difference in analyst sensitivity was observed.",
-          "claimed_authors": [
-            "Lucas Layman",
-            "William Roden"
-          ],
-          "claimed_title": "A Controlled Experiment on the Impact of Intrusion Detection False Alarm Rate on Analyst Performance",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2307.07023"
-        },
-        "details": "query-relevance 0.222 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='A Controlled Experiment on the Impact of Intrusion Detection False Alarm Rate on Analyst Performance')",
-        "failed_at": "2026-06-17T12:36:27Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Anomaly detection in surveillance videos is attracting an increasing amount of attention. Despite the competitive performance of recent methods, they lack theoretical performance analysis, particularly due to the complex deep neural network architectures used in decision making. Additionally, online decision making is an important but mostly neglected factor in this domain. Much of the existing methods that claim to be online, depend on batch or offline processing in practice. Motivated by these research gaps, we propose an online anomaly detection method in surveillance videos with asymptotic bounds on the false alarm rate, which in turn provides a clear procedure for selecting a proper decision threshold that satisfies the desired false alarm rate. Our proposed algorithm consists of a multi-objective deep learning module along with a statistical anomaly detection module, and its effectiveness is demonstrated on several publicly available data sets where we outperform the state-of-the-art algorithms. All codes are available at https://github.com/kevaldoshi17/Prediction-based-Video-Anomaly-Detection-.",
-          "claimed_authors": [
-            "Keval Doshi",
-            "Yasin Yilmaz"
-          ],
-          "claimed_title": "Online Anomaly Detection in Surveillance Videos with Asymptotic Bounds on False Alarm Rate",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2020,
-          "primary_pointer": "2010.07110"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Online Anomaly Detection in Surveillance Videos with Asymptotic Bounds on False Alarm Rate')",
-        "failed_at": "2026-06-17T12:36:27Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "The development of sliding window detection processes, based upon a single cell under test, and operating in clutter modelled by a Pareto distribution, has been examined extensively. This includes the construction of decision rules with the complete constant false alarm rate property. However, the case where there are multiple pulses available has only been examined in the partial constant false alarm rate scenario. This paper outlines in the latter case how the probability of false alarm can be produced, for a geometric mean detector, using properties of gamma distributions. The extension of this result, to the full constant false alarm rate detector case, is then presented.",
-          "claimed_authors": [
-            "Graham V. Weinberg"
-          ],
-          "claimed_title": "Extension of the Geometric Mean Constant False Alarm Rate Detector to Multiple Pulses",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1901.00250"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Extension of the Geometric Mean Constant False Alarm Rate Detector to Multiple Pulses')",
-        "failed_at": "2026-06-17T12:36:27Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper is concerned with cost optimization of an insurance company. The surplus of the insurance company is modeled by a controlled regime switching diffusion, where the regime switching mechanism provides the fluctuations of the random environment. The goal is to find an optimal control that minimizes the total cost up to a stochastic exit time. A weaker sufficient condition than that of (Fleming and Soner 2006, Section V.2) for the continuity of the value function is obtained. Further, the value function is shown to be a viscosity solution of a Hamilton-Jacobian-Bellman equation.",
-          "claimed_authors": [
-            "Chao Zhu"
-          ],
-          "claimed_title": "Optimal control of risk process in a regime-switching environment",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1009.3247"
-        },
-        "details": "query-relevance 0.111 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Optimal control of risk process in a regime-switching environment')",
-        "failed_at": "2026-06-17T12:36:27Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We consider a risk-sensitive optimization of consumption-utility on infinite time horizon where the one-period investment gain depends on an underlying economic state whose evolution over time is assumed to be described by a discrete-time, finite-state, Markov chain. We suppose that the production function also depends on a sequence of i.i.d. random shocks. For the sake of generality, the utility and the production functions are allowed to be unbounded from above. Under the Markov regime-switching model, it is shown that the value function of optimization problem satisfies an optimality equation and that the optimality equation has a unique solution in a particular class of functions. Furthermore, we show that an optimal policy exists in the class of stationary policies. We also derive the Euler equation of optimal consumption. Furthermore, the existence of the unique joint stationary distribution of the optimal growth process and the underlying regime process is examined. Finally, we present a numerical solution by considering power utility and some hypothetical values of parameters in a regime switching extension of Cobb-Douglas production rate function.",
-          "claimed_authors": [
-            "Anindya Goswami",
-            "Nimit Rana",
-            "Tak Kuen Siu"
-          ],
-          "claimed_title": "Regime Switching Optimal Growth Model with Risk Sensitive Preferences",
+          "claimed_title": "Scale matters: The daily, weekly and monthly volatility and predictability of Bitcoin, Gold, and the S&P 500",
           "claimed_venue": "arXiv",
           "claimed_year": 2021,
-          "primary_pointer": "2110.15025"
+          "primary_pointer": "2103.00395"
         },
-        "details": "query-relevance 0.111 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Regime Switching Optimal Growth Model with Risk Sensitive Preferences')",
-        "failed_at": "2026-06-17T12:36:27Z",
+        "details": "query-relevance 0.222 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Scale matters: The daily, weekly and monthly volatility and predictability of Bitcoin, Gold, and the S&P 500')",
+        "failed_at": "2026-08-25T21:15:44Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The functional Schrodinger picture formulation of quantum field theory and the variational Gaussian approximation method based on the formulation are briefly reviewed. After presenting recent attempts to improve the variational approximation, we introduce a new systematic method based on the background field method, which enables one to compute the order-by-order correction terms to the Gaussian approximation of the effective action.",
+          "claimed_abstract": "This chapter overviews some of the work on detecting and estimating the location of a single change. We first consider the most common change-point problem, namely that of detecting a change in mean, before looking at extensions to detecting other types of change. The intuition from the problem of detecting a single change-point is helpful for understanding the variety of methods for detecting multiple changes.",
           "claimed_authors": [
-            "Jae Hyung Yee"
+            "Paul Fearnhead",
+            "Piotr Fryzlewicz"
           ],
-          "claimed_title": "Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It",
+          "claimed_title": "Detecting A Single Change-point",
           "claimed_venue": "arXiv",
-          "claimed_year": 1997,
-          "primary_pointer": "hep-th/9707234"
+          "claimed_year": 2022,
+          "primary_pointer": "2210.07066"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Variational Approach to Quantum Field Theory: Gaussian Approximation and the Perturbative Expansion around It')",
-        "failed_at": "2026-06-17T12:36:27Z",
+        "details": "query-relevance 0.222 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Detecting A Single Change-point')",
+        "failed_at": "2026-08-25T21:15:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Blurring mean shift (BMS) algorithm, a variant of the mean shift algorithm, is a kernel-based iterative method for data clustering, where data points are clustered according to their convergent points via iterative blurring. In this paper, we analyze convergence properties of the BMS algorithm by leveraging its interpretation as an optimization procedure, which is known but has been underutilized in existing convergence studies. Whereas existing results on convergence properties applicable to multi-dimensional data only cover the case where all the blurred data point sequences converge to a single point, this study provides a convergence guarantee even when those sequences can converge to multiple points, yielding multiple clusters. This study also shows that the convergence of the BMS algorithm is fast by further leveraging geometrical characterization of the convergent points.",
+          "claimed_authors": [
+            "Ryoya Yamasaki",
+            "Toshiyuki Tanaka"
+          ],
+          "claimed_title": "Convergence Analysis of Blurring Mean Shift",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.15146"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Convergence Analysis of Blurring Mean Shift')",
+        "failed_at": "2026-08-25T21:15:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dynamic optimization of mean and variance in Markov decision processes (MDPs) is a long-standing challenge caused by the failure of dynamic programming. In this paper, we propose a new approach to find the globally optimal policy for combined metrics of steady-state mean and variance in an infinite-horizon undiscounted MDP. By introducing the concepts of pseudo mean and pseudo variance, we convert the original problem to a bilevel MDP problem, where the inner one is a standard MDP optimizing pseudo mean-variance and the outer one is a single parameter selection problem optimizing pseudo mean. We use the sensitivity analysis of MDPs to derive the properties of this bilevel problem. By solving inner standard MDPs for pseudo mean-variance optimization, we can identify worse policy spaces dominated by optimal policies of the pseudo problems. We propose an optimization algorithm which can find the globally optimal policy by repeatedly removing worse policy spaces. The convergence and complexity of the algorithm are studied. Another policy dominance property is also proposed to further improve the algorithm efficiency. Numerical experiments demonstrate the performance and efficiency of our algorithms. To the best of our knowledge, our algorithm is the first that efficiently finds the globally optimal policy of mean-variance optimization in MDPs. These results are also valid for solely minimizing the variance metrics in MDPs.",
+          "claimed_authors": [
+            "Li Xia",
+            "Shuai Ma"
+          ],
+          "claimed_title": "Global Algorithms for Mean-Variance Optimization in Markov Decision Processes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.13710"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Global Algorithms for Mean-Variance Optimization in Markov Decision Processes')",
+        "failed_at": "2026-08-25T21:15:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We prove that the Lehmer mean function of two or three positive numbers has always one and only one inflection point. We further show that in case of two numbers, the inflection point is $p^\\star = 1$, and we discuss the location of the inflection point in case of three numbers. We furthermore provide an example of a Lehmer mean function with more than one inflection point and provide simple bounds on the number of inflection points for arbitrary many numbers.",
+          "claimed_authors": [
+            "Ondrej Sluciak"
+          ],
+          "claimed_title": "On Inflection Points of the Lehmer Mean Function",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1509.09277"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='On Inflection Points of the Lehmer Mean Function')",
+        "failed_at": "2026-08-25T21:15:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "While adaptive gradient methods are the workhorse of modern machine learning, sign-based optimization algorithms such as Lion and Muon have recently demonstrated superior empirical performance over AdamW in training large language models (LLM). However, a theoretical understanding of why sign-based updates outperform variance-adapted methods remains elusive. In this paper, we aim to bridge the gap between theory and practice through the lens of heavy-tailed gradient noise, a phenomenon frequently observed in language modeling tasks. Theoretically, we introduce a novel generalized heavy-tailed noise condition that captures the behavior of LLMs more accurately than standard finite variance assumptions. Under this noise model, we establish sharp convergence rates of SignSGD and Lion for generalized smooth function classes, matching or surpassing previous best-known bounds. Furthermore, we extend our analysis to Muon and Muonlight, providing what is, to our knowledge, the first rigorous analysis of matrix optimization under heavy-tailed stochasticity. These results offer a strong theoretical justification for the empirical superiority of sign-based optimizers, showcasing that they are naturally suited to handle the noisy gradients associated with heavy tails. Empirically, LLM pretraining experiments validate our theoretical insights and confirm that our proposed noise models are well-aligned with practice.",
+          "claimed_authors": [
+            "Dingzhi Yu",
+            "Hongyi Tao",
+            "Yuanyu Wan",
+            "Luo Luo",
+            "Lijun Zhang"
+          ],
+          "claimed_title": "Sign-Based Optimizers Are Effective Under Heavy-Tailed Noise",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.07425"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Sign-Based Optimizers Are Effective Under Heavy-Tailed Noise')",
+        "failed_at": "2026-08-25T21:15:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Cartoon-texture image decomposition is a fundamental yet challenging problem in image processing. A significant hurdle in achieving accurate decomposition is the pervasive presence of noise in the observed images, which severely impedes robust results. To address the challenging problem of cartoon-texture decomposition in the presence of heavy-tailed noise, we in this paper propose a robust low-rank prior model. Our approach departs from conventional models by adopting the Huber loss function as the data-fidelity term, rather than the traditional $\\ell_2$-norm, while retaining the total variation norm and nuclear norm to characterize the cartoon and texture components, respectively. Given the inherent structure, we employ two implementable operator splitting algorithms, tailored to different degradation operators. Extensive numerical experiments, particularly on image restoration tasks under high-intensity heavy-tailed noise, efficiently demonstrate the superior performance of our model.",
+          "claimed_authors": [
+            "Weihao Tang",
+            "Hongjin He"
+          ],
+          "claimed_title": "A Robust Low-Rank Prior Model for Structured Cartoon-Texture Image Decomposition with Heavy-Tailed Noise",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.27579"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='A Robust Low-Rank Prior Model for Structured Cartoon-Texture Image Decomposition with Heavy-Tailed Noise')",
+        "failed_at": "2026-08-25T21:15:44Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "I present a parametric, bijective transformation to generate heavy tail versions Y of arbitrary RVs X ~ F. The tail behavior of the so-called 'heavy tail Lambert W x F' RV Y depends on a tail parameter delta >= 0: for delta = 0, Y = X, for delta > 0 Y has heavier tails than X. For X being Gaussian, this meta-family of heavy-tailed distributions reduces to Tukey's h distribution. Lambert's W function provides an explicit inverse transformation, which can be estimated by maximum likelihood. This inverse can remove heavy tails from data, and also provide analytical expressions for the cumulative distribution (cdf) and probability density function (pdf). As a special case, these yield explicit formulas for Tukey's h pdf and cdf - to the author's knowledge for the first time in the literature. Simulations and applications to S&P 500 log-returns and solar flares data demonstrate the usefulness of the introduced methodology. The R package \"LambertW\" (cran.r-project.org/web/packages/LambertW) implementing the presented methodology is publicly available at CRAN.",
+          "claimed_authors": [
+            "Georg M. Goerg"
+          ],
+          "claimed_title": "The Lambert Way to Gaussianize heavy tailed data with the inverse of Tukey's h as a special case",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1010.2265"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title=\"The Lambert Way to Gaussianize heavy tailed data with the inverse of Tukey's h as a special case\")",
+        "failed_at": "2026-08-25T21:15:44Z",
         "reason": "query_irrelevant"
       },
       {
@@ -555,7 +305,7 @@
           "primary_pointer": "1506.03198"
         },
         "details": "query-relevance 0.111 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Estimating the number of change-points in a two-dimensional segmentation model without penalization')",
-        "failed_at": "2026-06-17T12:36:27Z",
+        "failed_at": "2026-08-25T21:15:44Z",
         "reason": "query_irrelevant"
       },
       {
@@ -571,7 +321,7 @@
           "primary_pointer": "2009.05431"
         },
         "details": "query-relevance 0.222 < 0.3 (query='Robustness of Change‑Point Detection Methods on Public Financial Time Series sta', candidate_title='Narrowest Significance Pursuit: inference for multiple change-points in linear models')",
-        "failed_at": "2026-06-17T12:36:27Z",
+        "failed_at": "2026-08-25T21:15:44Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -594,39 +344,98 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/1912.07775",
           "http_status": 200,
-          "pdf_sample_score": 0.1918,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.5556,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-17T12:36:26Z"
+          "verified_at": "2026-08-25T21:15:43Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Alessandro Casini",
-            "Pierre Perron"
+            "Erik Rodner",
+            "Björn Barz",
+            "Yanira Guanche",
+            "Milan Flach",
+            "Miguel Mahecha",
+            "Paul Bodesheim",
+            "Markus Reichstein",
+            "Joachim Denzler"
           ],
-          "title": "Generalized Laplace Inference in Multiple Change-Points Models",
+          "title": "Maximally Divergent Intervals for Anomaly Detection",
           "venue": "arXiv",
-          "year": 2018
+          "year": 2016
         },
-        "primary_pointer": "1803.10871",
-        "summary": "Under the classical long-span asymptotic framework we develop a class of Generalized Laplace (GL) inference methods for the change-point dates in a linear time series regression model with multiple structural changes analyzed in, e.g., Bai and Perron (1998). The GL estimator is defined by an integration rather than optimization-based method and relies on the least-squares criterion function. It is interpreted as a classical (non-Bayesian) estimator and the inference methods proposed retain a frequentist interpretation. This approach provides a better approximation about the uncertainty in the data of the change-points relative to existing methods. On the theoretical side, depending on some input (smoothing) parameter, the class of GL estimators exhibits a dual limiting distribution; namely, the classical shrinkage asymptotic distribution, or a Bayes-type asymptotic distribution. We propose an inference method based on Highest Density Regions using the latter distribution. We show that it has attractive theoretical properties not shared by the other popular alternatives, i.e., it is bet-proof. Simulations confirm that these theoretical properties translate to better finite-sample performance.",
+        "primary_pointer": "1610.06761",
+        "summary": "We present new methods for batch anomaly detection in multivariate time series. Our methods are based on maximizing the Kullback-Leibler divergence between the data distribution within and outside an interval of the time series. An empirical analysis shows the benefits of our algorithms compared to methods that treat each time step independently from each other without optimizing with respect to all possible intervals.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1803.10871",
+          "final_url": "https://arxiv.org/abs/1610.06761",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.4444,
+          "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-17T12:36:26Z"
+          "verified_at": "2026-08-25T21:15:44Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ginga Yoshizawa"
+          ],
+          "title": "Bayesian Online Change Point Detection for Baseline Shifts",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2201.02325",
+        "summary": "In time series data analysis, detecting change points on a real-time basis (online) is of great interest in many areas, such as finance, environmental monitoring, and medicine. One promising means to achieve this is the Bayesian online change point detection (BOCPD) algorithm, which has been successfully adopted in particular cases in which the time series of interest has a fixed baseline. However, we have found that the algorithm struggles when the baseline irreversibly shifts from its initial state. This is because with the original BOCPD algorithm, the sensitivity with which a change point can be detected is degraded if the data points are fluctuating at locations relatively far from the original baseline. In this paper, we not only extend the original BOCPD algorithm to be applicable to a time series whose baseline is constantly shifting toward unknown values but also visualize why the proposed extension works. To demonstrate the efficacy of the proposed algorithm compared to the original one, we examine these algorithms on two real-world data sets and six synthetic data sets.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2201.02325",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5556,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-25T21:15:44Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Jiyeon Han",
+            "Kyowoon Lee",
+            "Anh Tong",
+            "Jaesik Choi"
+          ],
+          "title": "Confirmatory Bayesian Online Change Point Detection in the Covariance Structure of Gaussian Processes",
+          "venue": "arXiv",
+          "year": 2019
+        },
+        "primary_pointer": "1905.13168",
+        "summary": "In the analysis of sequential data, the detection of abrupt changes is important in predicting future changes. In this paper, we propose statistical hypothesis tests for detecting covariance structure changes in locally smooth time series modeled by Gaussian Processes (GPs). We provide theoretically justified thresholds for the tests, and use them to improve Bayesian Online Change Point Detection (BOCPD) by confirming statistically significant changes and non-changes. Our Confirmatory BOCPD (CBOCPD) algorithm finds multiple structural breaks in GPs even when hyperparameters are not tuned precisely. We also provide conditions under which CBOCPD provides the lower prediction error compared to BOCPD. Experimental results on synthetic and real-world datasets show that our new tests correctly detect changes in the covariance structure in GPs. The proposed algorithm also outperforms existing methods for the prediction of nonstationarity in terms of both regression error and log likelihood.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1905.13168",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5556,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-25T21:15:44Z"
         }
       },
       {
@@ -647,13 +456,13 @@
           "backend": "theoremsearch",
           "final_url": "https://arxiv.org/abs/2511.10078",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.1966,
           "query_relevance_score": 0.3333,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-17T12:36:27Z"
+          "verified_at": "2026-08-25T21:15:44Z"
         }
       },
       {
@@ -679,7 +488,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-17T12:36:27Z"
+          "verified_at": "2026-08-25T21:15:45Z"
         }
       },
       {
@@ -705,7 +514,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-17T12:36:27Z"
+          "verified_at": "2026-08-25T21:15:45Z"
         }
       },
       {
@@ -730,7 +539,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-17T12:36:27Z"
+          "verified_at": "2026-08-25T21:15:45Z"
         }
       },
       {
@@ -757,7 +566,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-17T12:36:27Z"
+          "verified_at": "2026-08-25T21:15:45Z"
         }
       },
       {
@@ -785,7 +594,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-17T12:36:28Z"
+          "verified_at": "2026-08-25T21:15:45Z"
         }
       },
       {
@@ -805,13 +614,13 @@
           "backend": "theoremsearch",
           "final_url": "https://arxiv.org/abs/2206.03038",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.2313,
           "query_relevance_score": 0.4444,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-06-17T12:36:28Z"
+          "verified_at": "2026-08-25T21:15:45Z"
         }
       }
     ]

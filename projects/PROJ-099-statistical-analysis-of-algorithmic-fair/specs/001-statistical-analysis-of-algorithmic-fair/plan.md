@@ -95,7 +95,7 @@ projects/PROJ-099-statistical-analysis-of-algorithmic-fair/
 
 ### Phase 0: Dataset Acquisition (FR-001, FR-002)
 
-**Objective**: Download and validate 5-8 public datasets with binary protected attributes and outcomes.
+**Objective**: Download and validate a set of public datasets with binary protected attributes and outcomes.
 
 **Steps**:
 1. Download datasets from verified sources (COMPAS, UCI Adult, Bank Marketing, German Credit, Law School)
@@ -181,7 +181,7 @@ projects/PROJ-099-statistical-analysis-of-algorithmic-fair/
 
 **Steps**:
 1. Perform bootstrap resampling (n=1000 iterations, reducible to n=500 if time-constrained)
-2. Compute 95% CIs for all correlation coefficients
+2. Compute confidence intervals for all correlation coefficients
 3. Log iteration count and any reductions to logs/exclusion.log
 4. Store results in data/analysis/bootstrap_results.csv
 

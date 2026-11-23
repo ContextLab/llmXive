@@ -1,0 +1,7 @@
+# Planning artifact identity during implementation (2026-10-09)
+
+At 05:01–05:05 UTC, the live canary implementer edited `specs/001-totient-canary/quickstart.md` and other design documents. Claim processing used the producer's `implement` stage label, so expected outputs became external facts: it requested Wikipedia URLs for `detail_N{N}_p{p}.csv per-integer phi residue file created`, residue histograms and expected plot curves. HTTP 404 correctly failed grounding, but each filename then triggered many unrelated source-search/extraction calls. Registered claim evidence identifies quickstart.md as the source.
+
+Known research Spec Kit documents now retain their planning role across later edits: exact `projects/<current-project>/specs/<feature>/{spec,plan,research,data-model,quickstart}.md` paths. They use the existing planning extraction/defer policy and citation path. Results, manuscripts, paper specifications, other projects, arbitrary same-basename files and unknown paths retain full verification. This changes no execution or task-completion gate.
+
+83 focused tests pass. All five new planning-artifact behavioral regressions fail against the prior platform by reaching external factual resolution. Six negative path cases still require full verification. A real GPT-OSS probe on the actual runbook completed in 6.473 seconds, preserved its bytes, registered no external claims and never reached the external resolver (guarded to fail if called). This is live document-processing evidence, not end-to-end scientific acceptance.

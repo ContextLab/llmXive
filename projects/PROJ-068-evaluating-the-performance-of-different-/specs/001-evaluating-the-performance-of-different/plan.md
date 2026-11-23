@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements and benchmarks three Bloom filter variants (native arrays, dynamic vectors, specialized bitsets) to evaluate memory overhead and operation latency across varying dataset sizes. The implementation adheres to strict CPU-only constraints for GitHub Actions free-tier compatibility, using Python 3.11 with `scipy` for statistical analysis (Kruskal-Wallis H-test) and `memory_profiler` for resource tracking. The study targets false positive rates of [deferred], [deferred], and [deferred] with dataset sizes ranging from a minimum threshold to one million elements.
+This project implements and benchmarks three Bloom filter variants (native arrays, dynamic vectors, specialized bitsets) to evaluate memory overhead and operation latency across varying dataset sizes. The implementation adheres to strict CPU-only constraints for GitHub Actions free-tier compatibility, using Python for statistical analysis (Kruskal-Wallis H-test) and `memory_profiler` for resource tracking. The study targets false positive rates of [deferred], [deferred], and [deferred] with dataset sizes ranging from a minimum threshold to one million elements.
 
 **Critical Amendment**: Due to the absence of Enron/Google datasets in the "Verified datasets" block, this plan executes a **Requirement Exception**. We will use **Synthetic Data Modeled on Target Distributions** (validated via Kolmogorov-Smirnov test) instead of raw sampling, as inventing URLs is strictly prohibited.
 
@@ -34,7 +34,7 @@ This project implements and benchmarks three Bloom filter variants (native array
 | **III. Data Hygiene** | ✅ Pass | Plan requires checksums for all `data/` files and immutable raw data handling. |
 | **IV. Single Source of Truth** | ✅ Pass | Visualizations and stats generated directly from `results/` CSVs; no manual transcription. |
 | **V. Versioning Discipline** | ✅ Pass | Content hashes to be computed for all artifacts; `state/` updated on changes. |
-| **VI. Benchmarking Consistency** | ✅ Pass (Exception) | Plan explicitly schedules FPRs ([deferred], [deferred], [deferred]), sizes (10k–1M), 50 repetitions, and wall-clock/memory metrics. Dataset source is synthetic proxy, not raw Enron/Google, per Requirement Exception. |
+| **VI. Benchmarking Consistency** | ✅ Pass (Exception) | Plan explicitly schedules FPRs ([deferred], [deferred], [deferred]), sizes (k–1M), 50 repetitions, and wall-clock/memory metrics. Dataset source is synthetic proxy, not raw Enron/Google, per Requirement Exception. |
 | **VII. Statistical Significance Reporting** | ✅ Pass | Plan mandates Kruskal-Wallis H-test with p < 0.05 threshold and reporting of effect sizes. |
 
 ### Constitutional Amendment Note
@@ -143,7 +143,7 @@ tests/
 |------|------------|
 | Dataset download fails | N/A (Synthetic data generated locally). |
 | Memory overflow (>7GB) | Enforce strict dataset sampling; monitor memory usage per run; fail gracefully if limit exceeded. |
-| High variance (>20% CV) | Increase repetitions to 50; log variance metrics; report "Inconclusive" for small effects. |
+| High variance (>20% CV) | Increase repetitions to a sufficient number to ensure statistical robustness.; log variance metrics; report "Inconclusive" for small effects. |
 | Hash collision false positives | Use deterministic MurmurHash3; verify observed FPR via Cross-Implementation Consistency. |
 | 6-hour timeout exceeded | **Phased Execution**: Run small sizes first. **Hard Stop**: If [deferred] budget consumed by large sizes, truncate remaining large-size runs to ensure full matrix of smaller sizes completes. |
 | KS-test validation deadlock | **Retry Limit**: A limited number of attempts. If failed, proceed with best-fit parameters and log "degraded" status. |

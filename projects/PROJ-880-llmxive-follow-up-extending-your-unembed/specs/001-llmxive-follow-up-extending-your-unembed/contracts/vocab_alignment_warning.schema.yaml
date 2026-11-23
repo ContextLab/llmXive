@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Vocabulary Alignment Warning"
+description: "Schema for vocabulary overlap warnings between models."
+type: object
+properties:
+  model_a:
+    type: string
+  model_b:
+    type: string
+  overlap_ratio:
+    type: number
+    description: "Ratio of shared tokens in top‑k vocabulary"
+    minimum: 0.0
+    maximum: 1.0
+  warning_level:
+    type: string
+    enum: ["LOW", "MEDIUM", "HIGH"]
+    description: "Severity of the warning"
+  recommended_action:
+    type: string
+    description: "Recommended action for alignment"
+required:
+  - model_a
+  - model_b
+  - overlap_ratio
+  - warning_level
+  - recommended_action
+additionalProperties: false

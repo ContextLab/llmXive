@@ -1,1 +1,3 @@
-# Utility modules (logging, config)
+"""
+utils package initialization.
+"""

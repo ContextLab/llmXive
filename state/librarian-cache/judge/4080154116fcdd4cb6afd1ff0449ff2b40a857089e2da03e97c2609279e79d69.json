@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.04143",
+  "judged_at": "2026-08-26T00:46:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting chemical reaction yields from spectroscopic data with attention mechanisms chemistry",
+  "rationale": "The paper is off-domain entirely, focusing on medical imaging (CT/CTA) and clinical outcomes for stroke treatment, whereas the user's question concerns chemical reaction yields and spectroscopic data in chemistry. Although both papers utilize attention mechanisms, the constructs, data types, and scientific domains are completely distinct, satisfying the rejection rule for \"off-domain entirely.\"",
+  "relevant": false
+}

@@ -1,113 +1,139 @@
-"""
-Tests for fetch_xeno_canto.py module.
-"""
-
-import unittest
-from unittest.mock import patch, MagicMock
-from pathlib import Path
-import sys
 import os
+import csv
+import tempfile
+import pytest
+from pathlib import Path
+from unittest.mock import patch, MagicMock
+import json
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from code.fetch_xeno_canto import (
-    extract_metadata,
-    calculate_sha256,
-    SAMPLE_SIZE
+# Import the module under test
+# Note: We assume the tests are run with the project root in sys.path
+# or the module is installed in editable mode.
+from fetch_xeno_canto import (
+    fetch_xeno_canto_data, 
+    write_to_csv, 
+    calculate_sha256, 
+    fetch_page
 )
 
-class TestExtractMetadata(unittest.TestCase):
-    """Tests for the extract_metadata function."""
+@pytest.fixture
+def temp_csv_path():
+    """Create a temporary CSV file path for testing."""
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        path = f.name
+    yield path
+    if os.path.exists(path):
+        os.remove(path)
 
-    def test_extract_valid_record(self):
-        """Test extraction of a valid recording."""
-        recordings = [
-            {
-                'sp': 'Turdus_migratorius',
-                'lat': '40.7128',
-                'lon': '-74.0060',
-                'id': '12345',
-                'file-type': 'mp3',
-                'q': 'A'
-            }
+@pytest.fixture
+def mock_api_response():
+    """Mock response data for Xeno-Canto API."""
+    return {
+        "recordings": [
+            {"sp": "Turdus merula", "lat": "51.5", "lon": "-0.1", "id": "1"},
+            {"sp": "Accipiter nisus", "lat": "48.8", "lon": "2.3", "id": "2"},
+            {"sp": "Pica pica", "lat": "52.0", "lon": "0.1", "id": "3"},
+            {"sp": "Corvus corone", "lat": "invalid", "lon": "1.0", "id": "4"}, # Invalid lat
+            {"sp": None, "lat": "50.0", "lon": "1.0", "id": "5"}, # No species
         ]
-        result = extract_metadata(recordings)
-        self.assertEqual(len(result), 1)
-        self.assertEqual(result[0]['species_id'], 'Turdus_migratorius')
-        self.assertEqual(result[0]['lat'], 40.7128)
-        self.assertEqual(result[0]['lon'], -74.0060)
-        self.assertEqual(result[0]['recording_id'], '12345')
+    }
 
-    def test_skip_invalid_lat(self):
-        """Test that records with invalid lat are skipped."""
-        recordings = [
-            {
-                'sp': 'Turdus_migratorius',
-                'lat': 'invalid',
-                'lon': '-74.0060',
-                'id': '12345',
-                'file-type': 'mp3',
-                'q': 'A'
-            }
+def test_fetch_page_success(mock_api_response):
+    """Test that fetch_page returns the correct JSON structure."""
+    with patch('fetch_xeno_canto.requests.get') as mock_get:
+        mock_response = MagicMock()
+        mock_response.json.return_value = mock_api_response
+        mock_response.raise_for_status.return_value = None
+        mock_get.return_value = mock_response
+
+        result = fetch_page(page=1, limit=10)
+        
+        assert result is not None
+        assert 'recordings' in result
+        assert len(result['recordings']) == 5
+
+def test_fetch_page_failure():
+    """Test that fetch_page returns None on request failure."""
+    with patch('fetch_xeno_canto.requests.get') as mock_get:
+        mock_get.side_effect = Exception("Network error")
+        
+        result = fetch_page(page=1, limit=10)
+        assert result is None
+
+def test_fetch_xeno_canto_data_filters_invalid(mock_api_response):
+    """Test that fetch_xeno_canto_data filters out invalid records."""
+    with patch('fetch_xeno_canto.fetch_page') as mock_fetch:
+        # Simulate one page fetch
+        mock_fetch.return_value = mock_api_response
+        
+        records = fetch_xeno_canto_data(limit=100)
+        
+        # Should have 3 valid records (indices 0, 1, 2)
+        # Index 3 has invalid lat, Index 4 has no species
+        assert len(records) == 3
+        
+        # Check species_id
+        species_ids = [r['species_id'] for r in records]
+        assert 'Turdus merula' in species_ids
+        assert 'Accipiter nisus' in species_ids
+        assert 'Pica pica' in species_ids
+
+def test_write_to_csv(temp_csv_path):
+    """Test that write_to_csv creates a valid CSV file."""
+    data = [
+        {'species_id': 'Species A', 'lat': 1.0, 'lon': 2.0},
+        {'species_id': 'Species B', 'lat': 3.0, 'lon': 4.0}
+    ]
+    
+    write_to_csv(data, temp_csv_path)
+    
+    assert os.path.exists(temp_csv_path)
+    
+    with open(temp_csv_path, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        
+    assert len(rows) == 2
+    assert rows[0]['species_id'] == 'Species A'
+    assert rows[0]['lat'] == '1.0'
+    assert rows[0]['lon'] == '2.0'
+
+def test_calculate_sha256(temp_csv_path):
+    """Test SHA256 calculation."""
+    with open(temp_csv_path, 'w') as f:
+        f.write("test content")
+    
+    hash1 = calculate_sha256(temp_csv_path)
+    hash2 = calculate_sha256(temp_csv_path)
+    
+    assert hash1 == hash2
+    assert len(hash1) == 64  # SHA256 hex length
+    
+    # Change content and verify hash changes
+    with open(temp_csv_path, 'w') as f:
+        f.write("different content")
+    
+    hash3 = calculate_sha256(temp_csv_path)
+    assert hash1 != hash3
+
+def test_fetch_xeno_canto_data_empty_response():
+    """Test handling of empty API response."""
+    with patch('fetch_xeno_canto.fetch_page') as mock_fetch:
+        mock_fetch.return_value = {"recordings": []}
+        
+        with pytest.raises(RuntimeError, match="Failed to fetch any valid records"):
+            fetch_xeno_canto_data(limit=10)
+
+def test_fetch_xeno_canto_data_no_valid_records(mock_api_response):
+    """Test handling of response with no valid records (all filtered)."""
+    bad_response = {
+        "recordings": [
+            {"sp": None, "lat": "invalid", "lon": "1.0"},
+            {"sp": "Species", "lat": "invalid", "lon": "1.0"}
         ]
-        result = extract_metadata(recordings)
-        self.assertEqual(len(result), 0)
-
-    def test_skip_missing_species(self):
-        """Test that records with missing species are skipped."""
-        recordings = [
-            {
-                'sp': None,
-                'lat': '40.7128',
-                'lon': '-74.0060',
-                'id': '12345',
-                'file-type': 'mp3',
-                'q': 'A'
-            }
-        ]
-        result = extract_metadata(recordings)
-        self.assertEqual(len(result), 0)
-
-    def test_skip_missing_coordinates(self):
-        """Test that records with missing coordinates are skipped."""
-        recordings = [
-            {
-                'sp': 'Turdus_migratorius',
-                'lat': None,
-                'lon': None,
-                'id': '12345',
-                'file-type': 'mp3',
-                'q': 'A'
-            }
-        ]
-        result = extract_metadata(recordings)
-        self.assertEqual(len(result), 0)
-
-class TestCalculateSha256(unittest.TestCase):
-    """Tests for the calculate_sha256 function."""
-
-    def test_calculate_checksum(self):
-        """Test checksum calculation for a known string."""
-        # Create a temporary file with known content
-        test_file = Path("test_checksum.txt")
-        test_content = b"Hello, World!"
-        test_file.write_bytes(test_content)
-
-        try:
-            checksum = calculate_sha256(test_file)
-            # Expected SHA256 for "Hello, World!"
-            expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
-            self.assertEqual(checksum, expected)
-        finally:
-            if test_file.exists():
-                test_file.unlink()
-
-    def test_nonexistent_file(self):
-        """Test that calculating checksum for non-existent file raises error."""
-        with self.assertRaises(FileNotFoundError):
-            calculate_sha256(Path("nonexistent_file.txt"))
-
-if __name__ == '__main__':
-    unittest.main()
+    }
+    with patch('fetch_xeno_canto.fetch_page') as mock_fetch:
+        mock_fetch.return_value = bad_response
+        
+        with pytest.raises(RuntimeError, match="Failed to fetch any valid records"):
+            fetch_xeno_canto_data(limit=10)

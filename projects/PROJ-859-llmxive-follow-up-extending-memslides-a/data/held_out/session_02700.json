@@ -1,0 +1,130 @@
+{
+  "trace_id": "held_out_43_02700",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 10,
+  "tool_sequence": [
+    "format_text",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 18.4121,
+        "x": 62.1344,
+        "y": 70.5912
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 63.3215,
+        "y": 44.5285,
+        "width": 81.2634,
+        "height": 98.4402
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 17.7411,
+        "y": 86.3545,
+        "width": 76.8518,
+        "height": 68.3286
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 79.1856,
+        "y": 98.6565,
+        "width": 85.7274,
+        "height": 27.2912
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 73.9099,
+        "y": 28.1876,
+        "width": 39.8688,
+        "height": 73.9852
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 3.1903,
+        "y": 98.1555,
+        "width": 62.2387,
+        "height": 44.1968
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 25.9723,
+        "y": 43.8487,
+        "width": 99.5256,
+        "height": 55.5799
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 18.1716,
+        "y": 72.5312,
+        "width": 47.3362,
+        "height": 7.1171
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 59.7935,
+        "y": 15.6068,
+        "width": 88.9683,
+        "height": 42.5307
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 83.9112,
+        "y": 26.5494,
+        "width": 80.4721,
+        "height": 6.5587
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.325083,
+    "tool_repetition_freq": 0.8,
+    "arg_semantic_variance": 832.378915
+  },
+  "final_state": {
+    "dominant_tool": "insert_chart",
+    "slide_element_count": 9,
+    "layout_hash": "43-2700-insert_chart"
+  },
+  "variance_multiplier": 1.5
+}

@@ -1,87 +1,92 @@
-"""
-Unit tests for stability trend analysis functionality in analyzer.py
-"""
 import pytest
 import pandas as pd
 import numpy as np
 import os
 import tempfile
-from scipy import stats
-
-# Mock the analyzer functions for testing if needed, or test directly
-# Since we need to test the logic, we will create temporary files.
-
-from analyzer import analyze_stability_trend, aggregate_results, load_simulation_results
+from analyzer import load_simulation_results, aggregate_results, analyze_stability_trend
 
 @pytest.fixture
 def sample_raw_data():
-    """Generate a sample raw p-values DataFrame simulating T021b output."""
-    np.random.seed(42)
-    n_samples = 100
+    """Create a temporary CSV with simulated raw p-values for testing."""
     data = []
-    
-    # Simulate scenarios: n=10, 50, 100, 500
-    # Distributions: normal, uniform
-    # Tests: t-test, anova
-    # Hypothesis: H0_true (for Type I error)
-    
-    sample_sizes = [10, 50, 100, 500]
+    # Generate synthetic but realistic looking data for testing purposes
+    # We simulate 3 sample sizes, 2 distributions, 1 test, 100 replicates each
+    sample_sizes = [10, 50, 100]
     distributions = ['normal', 'uniform']
-    tests = ['t-test', 'anova']
+    test_type = 't-test'
     
     for n in sample_sizes:
         for dist in distributions:
-            for test in tests:
-                # Generate random p-values
-                # For H0, p-values should be uniform [0, 1]
-                p_vals = np.random.uniform(0, 1, size=1000)
-                rejected = (p_vals < 0.05).astype(int)
-                
-                for p, r in zip(p_vals, rejected):
-                    data.append({
-                        'n': n,
-                        'distribution': dist,
-                        'test_type': test,
-                        'p_value': p,
-                        'rejected': r,
-                        'hypothesis_type': 'H0_true'
-                    })
+            # Simulate Null hypothesis (effect=0) -> p-values should be uniform [0,1]
+            # We generate 100 random p-values for each config
+            p_values = np.random.uniform(0, 1, 100)
+            for p in p_values:
+                data.append({
+                    'sample_size': n,
+                    'distribution_type': dist,
+                    'test_type': test_type,
+                    'p_value': p,
+                    'hypothesis_type': 'Null'
+                })
     
-    return pd.DataFrame(data)
+    df = pd.DataFrame(data)
+    return df
 
-def test_analyze_stability_trend_integration(sample_raw_data):
-    """Integration test for the full stability trend analysis pipeline."""
+@pytest.fixture
+def temp_input_file(sample_raw_data):
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        sample_raw_data.to_csv(f, index=False)
+        temp_path = f.name
+    yield temp_path
+    os.unlink(temp_path)
+
+@pytest.fixture
+def temp_output_dir():
     with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = os.path.join(tmpdir, 'raw_pvalues.csv')
-        csv_out_path = os.path.join(tmpdir, 'stability_trend.csv')
-        plot_out_path = os.path.join(tmpdir, 'plots', 'stability_trend.png')
-        
-        # Save input data
-        sample_raw_data.to_csv(input_path, index=False)
-        
-        # Run analysis
-        result_df = analyze_stability_trend(
-            raw_input_path=input_path,
-            csv_output_path=csv_out_path,
-            plot_output_path=plot_out_path
-        )
-        
-        # Assertions
-        assert not result_df.empty, "Result DataFrame should not be empty"
-        assert os.path.exists(csv_out_path), "CSV output file should exist"
-        # Check plot files (might be named differently based on group)
-        # The function saves plots with group names appended
-        plot_files = [f for f in os.listdir(os.path.dirname(plot_out_path)) if f.endswith('.png')]
-        assert len(plot_files) > 0, "Plot files should be generated"
-        
-        # Check columns in result
-        expected_cols = ['distribution', 'test_type', 'slope', 'intercept', 'r_squared', 'p_value_trend', 'std_err', 'n_points']
-        assert all(col in result_df.columns for col in expected_cols), "Result should have expected columns"
-        
-        # Check that we have results for each combination
-        assert len(result_df) == len(sample_raw_data['distribution'].unique()) * len(sample_raw_data['test_type'].unique())
-        
-        # Verify regression logic: for H0, error rate should be ~0.05, slope should be near 0 (or slightly negative due to discreteness)
-        # We just check that the regression ran without error and produced reasonable R^2
-        assert all(result_df['r_squared'] >= 0), "R^2 should be non-negative"
-        assert all(result_df['n_points'] > 0), "Should have at least one point per group"
+        yield tmpdir
+
+def test_load_simulation_results(temp_input_file):
+    df = load_simulation_results(temp_input_file)
+    assert len(df) > 0
+    assert 'p_value' in df.columns
+    assert 'hypothesis_type' in df.columns
+
+def test_aggregate_results(temp_input_file):
+    df = load_simulation_results(temp_input_file)
+    agg = aggregate_results(df)
+    assert len(agg) > 0
+    assert 'type_i_error_rate' in agg.columns
+    # Check that error rates are between 0 and 1
+    assert agg['type_i_error_rate'].between(0, 1).all()
+
+def test_analyze_stability_trend(temp_input_file, temp_output_dir):
+    df = load_simulation_results(temp_input_file)
+    agg = aggregate_results(df)
+    
+    csv_path = os.path.join(temp_output_dir, 'stability_trend.csv')
+    plot_path = os.path.join(temp_output_dir, 'stability_trend.png')
+    
+    result_df = analyze_stability_trend(agg, output_csv=csv_path, plot_path=plot_path)
+    
+    # Check CSV output
+    assert os.path.exists(csv_path)
+    assert 'sample_size' in result_df.columns
+    assert 'mean_error_rate' in result_df.columns
+    assert 'regression_slope' in result_df.columns
+    
+    # Check Plot output
+    assert os.path.exists(plot_path)
+    
+    # Check trend analysis logic
+    # For uniform p-values (Null), expected error rate is alpha (0.05)
+    # The mean should be close to 0.05
+    assert result_df['mean_error_rate'].between(0, 0.2).all() # Allow some variance
+
+def test_analyze_stability_trend_empty_data(temp_output_dir):
+    empty_df = pd.DataFrame(columns=['sample_size', 'distribution_type', 'test_type', 'type_i_error_rate'])
+    csv_path = os.path.join(temp_output_dir, 'stability_trend.csv')
+    plot_path = os.path.join(temp_output_dir, 'stability_trend.png')
+    
+    result_df = analyze_stability_trend(empty_df, output_csv=csv_path, plot_path=plot_path)
+    assert result_df.empty
+    # Should not crash, but return empty

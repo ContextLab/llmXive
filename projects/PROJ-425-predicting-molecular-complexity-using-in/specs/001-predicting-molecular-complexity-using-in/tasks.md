@@ -43,9 +43,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure: `mkdir -p code/ data/raw/ data/processed/ tests/unit tests/integration`
-- [X] T002 Create `code/requirements.txt` with pinned versions: `rdkit==2023.9.1 [UNRESOLVED-CLAIM: c_2e16acbd — status=not_enough_info] `, `pandas==2.1.0 [UNRESOLVED-CLAIM: c_050f1421 — status=not_enough_info] `, `numpy==1.24.0 [UNRESOLVED-CLAIM: c_a8886ff2 — status=not_enough_info] `, `scipy==1.11.0 [UNRESOLVED-CLAIM: c_6017bdbd — status=not_enough_info] `, `scikit-learn==1.3.0 [UNRESOLVED-CLAIM: c_6e828e9d — status=not_enough_info] `, `matplotlib==3.8.0 [UNRESOLVED-CLAIM: c_dcd1c697 — status=not_enough_info] `, `seaborn==0.13.0 [UNRESOLVED-CLAIM: c_816127a2 — status=not_enough_info] `, `requests==2.31.0 [UNRESOLVED-CLAIM: c_547ab086 — status=not_enough_info] `, `huggingface_hub==0.17.0 [UNRESOLVED-CLAIM: c_b8974a31 — status=not_enough_info] `, `datasets==2.14.0 [UNRESOLVED-CLAIM: c_9cfade3e — status=not_enough_info] `
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [ ] T001 Create project structure: `mkdir -p code/ data/raw/ data/processed/ tests/unit tests/integration`
+- [X] T002 Create `code/requirements.txt` with pinned versions: `rdkit==2023.9.1 `, `pandas==2.1.0 `, `numpy==1.24.0 `, `scipy==1.11.0 `, `scikit-learn==1.3.0 `, `matplotlib==3.8.0 `, `seaborn==0.13.0 `, `requests==2.31.0 `, `huggingface_hub==0.17.0 `, `datasets==2.14.0 `
+- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
 
 ---
 
@@ -66,9 +66,9 @@
  - `calculate_qed_score(smiles: str) -> float`
  - `calculate_molecular_weight(smiles: str) -> float`
  - `calculate_atom_count(smiles: str) -> int`
-- [X] T007 [P] [Atomic] Create `code/main.py` orchestration skeleton: Load config, initialize logging, define `process_chunk` function. <!-- FAILED: unspecified -->
-- [ ] T008 [P] [Atomic] Configure logging in `code/main.py` to capture skipped molecules (invalid SMILES, timeouts) with specific format: `{"event": "skipped", "reason": "timeout" | "invalid_smiles", "cid": int}`.
-- [X] T009 [P] [Atomic] Create `code/setup_env.py` (or equivalent): Configure environment variables for CI runner constraints (CPU-only, memory limits) and validate `rdkit` installation.
+- [~] T007 [P] [Atomic] Create `code/main.py` orchestration skeleton: Load config, initialize logging, define `process_chunk` function. <!-- FAILED: unspecified -->
+- [~] T008 [P] [Atomic] Configure logging in `code/main.py` to capture skipped molecules (invalid SMILES, timeouts) with specific format: `{"event": "skipped", "reason": "timeout" | "invalid_smiles", "cid": int}`.
+- [~] T009 [P] [Atomic] Create `code/setup_env.py` (or equivalent): Configure environment variables for CI runner constraints (CPU-only, memory limits) and validate `rdkit` installation.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -84,19 +84,19 @@
 
 > **NOTE**: Write these test scaffolds FIRST to define assertions for Phase 2 functions.
 
-- [ ] T010 [P] [US1] Add `tests/unit/test_metrics.py::test_shannon_entropy_returns_positive_float` with assertion: Input `smiles="CCO"`, assert `result > 0` and `isinstance(result, float)`.
-- [ ] T011 [P] [US1] Add `tests/unit/test_metrics.py::test_lzma_length_returns_integer` with assertion: Input `smiles="CCO"`, assert `isinstance(result, int)` and `result > 0`.
-- [ ] T012 [P] [US1] Add `tests/unit/test_metrics.py::test_sa_and_qed_return_valid_range` with assertion: Input `smiles="CCO"`, assert `0.0 <= sa_score <= 10.0` and `0.0 <= qed_score <= 1.0`.
-- [X] T013 [P] [US1] Add `tests/integration/test_error_handling.py::test_invalid_smiles_skipped` with assertion: Input list `["CCO", "INVALID_SMILES_STRING", "CC"]`, assert `skipped_count == 1` and `valid_count == 2`.
+- [~] T010 [P] [US1] Add `tests/unit/test_metrics.py::test_shannon_entropy_returns_positive_float` with assertion: Input `smiles="CCO"`, assert `result > 0` and `isinstance(result, float)`.
+- [~] T011 [P] [US1] Add `tests/unit/test_metrics.py::test_lzma_length_returns_integer` with assertion: Input `smiles="CCO"`, assert `isinstance(result, int)` and `result > 0`.
+- [~] T012 [P] [US1] Add `tests/unit/test_metrics.py::test_sa_and_qed_return_valid_range` with assertion: Input `smiles="CCO"`, assert `0.0 <= sa_score <= 10.0` and `0.0 <= qed_score <= 1.0`.
+- [~] T013 [P] [US1] Add `tests/integration/test_error_handling.py::test_invalid_smiles_skipped` with assertion: Input list `["CCO", "INVALID_SMILES_STRING", "CC"]`, assert `skipped_count == 1` and `valid_count == 2`.
 
 ### Implementation for User Story 1
 
-- [X] T014 [US1] **VERIFY DATA SOURCE**: Confirm `code/main.py` calls `code/download.py` (T005) which fetches from `sagawa/pubchem-10m-canonicalized `. Document in `code/main.py` comments that this overrides Spec FR-001 (CID 1-5000) per Plan, ensuring the sample is representative.
-- [ ] T014B [US1] **Document Deviation**: Update `code/report.py` to include a `limitations` section in the final JSON/HTML report explicitly stating: "Analysis performed on HuggingFace dataset 'sagawa/pubchem-10m-canonicalized ' (random sample) instead of Spec FR-001 (CID 1-5000) per Plan.md. Results are generalizable to chemical space but not strictly limited to the CID 1-5000 range."
-- [~] T015 [US1] Implement `code/main.py` chunked processing loop: Iterate `code/download.py` in batches of `CHUNK_SIZE`; call `code/metrics.py` functions; write results incrementally to `data/processed/metrics.csv` (columns: cid, smiles, entropy, lz, sa, qed, mw, atom_count). <!-- ATOMIZE: requested -->
-- [X] T016 [US1] Implement `code/analysis.py` function `calculate_pearson_correlations(df: pd.DataFrame) -> dict`: Input `df` columns; use `scipy.stats.pearsonr`; return dict `{'entropy_sa': (r, p), 'entropy_qed': (r, p),...}`.
+- [~] T014 [US1] **VERIFY DATA SOURCE**: Confirm `code/main.py` calls `code/download.py` (T005) which fetches from `sagawa/pubchem-10m-canonicalized `. Document in `code/main.py` comments that this overrides Spec FR-001 (CID 1-5000) per Plan, ensuring the sample is representative.
+- [~] T014B [US1] **Document Deviation**: Update `code/report.py` to include a `limitations` section in the final JSON/HTML report explicitly stating: "Analysis performed on HuggingFace dataset 'sagawa/pubchem-10m-canonicalized ' (random sample) instead of Spec FR-001 (CID 1-5000) per Plan.md. Results are generalizable to chemical space but not strictly limited to the CID 1-5000 range."
+- [ ] T015 [US1] Implement `code/main.py` chunked processing loop: Iterate `code/download.py` in batches of `CHUNK_SIZE`; call `code/metrics.py` functions; write results incrementally to `data/processed/metrics.csv` (columns: cid, smiles, entropy, lz, sa, qed, mw, atom_count). <!-- ATOMIZE: requested -->
+- [~] T016 [US1] Implement `code/analysis.py` function `calculate_pearson_correlations(df: pd.DataFrame) -> dict`: Input `df` columns; use `scipy.stats.pearsonr`; return dict `{'entropy_sa': (r, p), 'entropy_qed': (r, p),...}`.
 - [~] T017 [US1] Implement `code/report.py` function `generate_initial_report(correlations: dict) -> None`: Write JSON to `data/processed/report.json` with keys `r`, `p`, `n`, and explicit label `type: "associational"`.
-- [X] T018 [US1] Implement timeout handling in `code/metrics.py` wrapper: Enforce `TIMEOUT_SECONDS` per molecule with a duration sufficient to complete the evaluation.; log skipped entries with `reason: "timeout"`; ensure no hanging processes.
+- [~] T018 [US1] Implement timeout handling in `code/metrics.py` wrapper: Enforce `TIMEOUT_SECONDS` per molecule with a duration sufficient to complete the evaluation.; log skipped entries with `reason: "timeout"`; ensure no hanging processes.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,26 +106,26 @@
 
 **Goal**: Verify correlations via bootstrap resampling, apply multiple-comparison correction, and implement additional statistical methods per Plan.
 
-**Independent Test**: The system must perform a sufficient number of bootstrap iterations to generate 95% confidence intervals., apply Bonferroni correction, and include Spearman/Partial correlations.
+**Independent Test**: The system must perform a sufficient number of bootstrap iterations to generate 95% confidence intervals. [UNRESOLVED-CLAIM: c_b258d16d — status=not_enough_info], apply Bonferroni correction, and include Spearman/Partial correlations.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T020 [P] [US2] Unit test for bootstrap resampling logic in `tests/unit/test_analysis.py`: Input `data=[1, 2, 3, 4, 5]`, `n_iter=100`, assert `len(results) == 100` and `0 < mean(results) < 6`.
-- [X] T021 [P] [US2] Unit test for multiple-comparison correction (Bonferroni) in `tests/unit/test_analysis.py`: Input `p_values=[0.01, 0.04, 0.05, 0.06]`, `n_tests=4`, assert `adjusted[0] == 0.04` and `adjusted[3] == 1.0` (capped at 1).
+- [~] T020 [P] [US2] Unit test for bootstrap resampling logic in `tests/unit/test_analysis.py`: Input `data=[1, 2, 3, 4, 5]`, `n_iter=100`, assert `len(results) == 100` and `0 < mean(results) < 6`.
+- [~] T021 [P] [US2] Unit test for multiple-comparison correction (Bonferroni) in `tests/unit/test_analysis.py`: Input `p_values=[0.01, 0.04, 0.05, 0.06]`, `n_tests=4`, assert `adjusted[0] == 0.04` and `adjusted[3] == 1.0` (capped at 1).
 
 ### Implementation for User Story 2
 
-- [X] T022 [US2] Implement `code/analysis.py` function `calculate_bootstrap_stats(df: pd.DataFrame, metric_x: str, metric_y: str, n_iter: int=1000) -> dict`: Resample rows with replacement; calculate Pearson r for each iteration; compute 95% CI using percentile method; return `{'r_mean': float, 'ci_lower': float, 'ci_upper': float, 'std': float}`.
+- [~] T022 [US2] Implement `code/analysis.py` function `calculate_bootstrap_stats(df: pd.DataFrame, metric_x: str, metric_y: str, n_iter: int=1000) -> dict`: Resample rows with replacement; calculate Pearson r for each iteration; compute 95% CI using percentile method; return `{'r_mean': float, 'ci_lower': float, 'ci_upper': float, 'std': float}`.
 - [ ] T022B [US2] **Orchestrate Bootstrap**: Update `code/main.py` to call `calculate_bootstrap_stats` for all four metric pairs after Pearson calculation and pass results to `generate_final_report`.
-- [X] T023 [US2] Implement `code/analysis.py` function `apply_multiple_comparison_correction(p_values: dict) -> dict`: Apply Bonferroni correction to 4 p-values; return adjusted p-values.
-- [ ] T037 [US2] Implement `code/analysis.py` function `calculate_spearman_correlations(df: pd.DataFrame) -> dict`: Use `scipy.stats.spearmanr`; return dict of r and p-values for same pairs as Pearson.
+- [~] T023 [US2] Implement `code/analysis.py` function `apply_multiple_comparison_correction(p_values: dict) -> dict`: Apply Bonferroni correction to 4 p-values; return adjusted p-values.
+- [~] T037 [US2] Implement `code/analysis.py` function `calculate_spearman_correlations(df: pd.DataFrame) -> dict`: Use `scipy.stats.spearmanr`; return dict of r and p-values for same pairs as Pearson.
 - [ ] T037B [US2] **Integrate Spearman**: Update `code/report.py` to include Spearman correlation results (r and p) in the final report table.
 - [ ] T037C [US2] **Execute Spearman**: Update `code/main.py` to explicitly call `calculate_spearman_correlations` and pass results to `generate_final_report`.
-- [ ] T038 [US2] Implement `code/analysis.py` function `calculate_partial_correlations(df: pd.DataFrame) -> dict`: Control for MW and Atom Count; return partial r and p-values for Entropy-SA and LZ-SA.
+- [~] T038 [US2] Implement `code/analysis.py` function `calculate_partial_correlations(df: pd.DataFrame) -> dict`: Control for MW and Atom Count; return partial r and p-values for Entropy-SA and LZ-SA.
 - [ ] T038B [US2] **Integrate Partial**: Update `code/report.py` to include Partial correlation results (r and p) in the final report table.
 - [ ] T038C [US2] **Execute Partial**: Update `code/main.py` to explicitly call `calculate_partial_correlations` and pass results to `generate_final_report`.
 - [ ] T040 [US2] **Load Data for Analysis**: Implement `code/main.py` step to load `data/processed/metrics.csv` into a pandas DataFrame (`df_full`) for analysis. Handle `FileNotFoundError` gracefully.
-- [ ] T039 [US2] **Enforce Memory Limit**: Implement `code/analysis.py` function `enforce_memory_limit_bootstrap(df: pd.DataFrame) -> pd.DataFrame`:
+- [~] T039 [US2] **Enforce Memory Limit**: Implement `code/analysis.py` function `enforce_memory_limit_bootstrap(df: pd.DataFrame) -> pd.DataFrame`:
  1. Check `df.memory_usage(deep=True)`.
  2. If `> 4GB`:
  a. Bin `atom_count` into 10 quantiles.
@@ -150,7 +150,7 @@
 
 **Goal**: Generate scatter plots with regression lines, confidence intervals, and annotated statistics.
 
-**Independent Test**: The system must generate four distinct scatter plots (Entropy-SA, Entropy-QED, LZ-SA, LZ-QED) with linear regression lines and annotated r, p, n values.
+**Independent Test**: The system must generate four distinct scatter plots (Entropy-SA, Entropy-QED, LZ-SA, LZ-QED) with linear regression lines and annotated r, p, n values. [UNRESOLVED-CLAIM: c_96231645 — status=not_enough_info]
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 

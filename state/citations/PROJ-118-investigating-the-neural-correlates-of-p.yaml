@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 3ecdb5ccacd55c0074db0bf20731c108250bcc74e84ade4e351bd39d3a55fdd1
+  artifact_path: projects/PROJ-118-investigating-the-neural-correlates-of-p/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenNeuro
+  kind: url
+  value: https://openneuro.org
+  verification_status: pending
+  verified_against_url: https://openneuro.org
+  verified_at: '2026-08-04T07:42:02.676368Z'

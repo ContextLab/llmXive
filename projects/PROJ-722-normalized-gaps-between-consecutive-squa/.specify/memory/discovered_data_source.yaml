@@ -1,0 +1,9 @@
+status: none
+intent: OEIS A005117 squarefree numbers gaps python package dataset
+required_fields:
+- squarefree_number
+- gap
+- normalized_gap
+cache_key: d5540e21b74763fd1422f59ad45397ffa832d024f26d1d36e9ef79f34f3b1dbb
+searched_at: '2026-09-21T07:21:58.109195+00:00'
+retry_count: 1

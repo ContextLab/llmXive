@@ -5,34 +5,82 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "Long-Horizon-Terminal-Bench: Testing the Limits of Agents on Long-Hori"
 
-## Summary of the prior work
-The paper introduces Long-Horizon-Terminal-Bench, a benchmark of 46 complex, long-duration terminal tasks that utilize dense, fine-grained reward signals to evaluate intermediate progress rather than just final outcomes. By testing 15 frontier models, the authors demonstrate that current agents struggle significantly with tasks requiring hundreds of episodes and hours of execution, revealing critical gaps in long-horizon planning, context management, and iterative debugging. The work establishes a new standard for evaluating agent robustness in open-ended workflows where sparse rewards previously masked partial failures.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Can a lightweight, CPU-tractable "Error-Aware Context Pruning" mechanism, which dynamically discards low-reward subtask histories based on the dense reward signals from Long-Horizon-Terminal-Bench, significantly improve agent success rates on long-horizon tasks without degrading performance on tasks requiring long-term dependency?
+## Research question
 
-**Why it matters:** The original study highlights that agents consume massive token budgets (9.9M tokens) and suffer from context overload over hundreds of episodes; since the benchmark provides dense intermediate rewards, we can hypothesize that not all historical steps are equally valuable for future planning, and a selective memory strategy could reduce computational load and improve reasoning focus.
+How does the fidelity of reward signals required to identify "stagnant" context segments compare to the density of information required to recover from state errors in long-horizon terminal tasks?
+
+## Motivation
+
+Long-horizon agents often discard historical context to save tokens, assuming low-reward segments are redundant. However, if sparse or coarse reward signals fail to capture the subtle state changes necessary for error recovery, aggressive pruning may permanently break the agent's ability to self-correct. This research addresses the critical gap between *efficiency-driven* context management and *robustness-driven* information retention.
+
+## Related work
+
+- [Long-Horizon-Terminal-Bench: Testing the Limits of Agents on Long-Horizon Terminal Tasks with Dense Reward-Based Grading](https://arxiv.org/abs/2607.08964) — Provides the primary benchmark environment with dense intermediate rewards, establishing the baseline for measuring how reward granularity impacts task completion.
+- [LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning](https://arxiv.org/abs/2604.14140) — Highlights the necessity of extended reasoning traces for complex planning, suggesting that "stagnant" looking segments may actually contain essential logical derivations.
+- [Four-Axis Decision Alignment for Long-Horizon Enterprise AI Agents](https://arxiv.org/abs/2604.19457) — Discusses the risks of "lossy memory" in high-stakes decision environments, supporting the hypothesis that information density correlates with error recovery capability.
+- [Cross-Benchmark Generalization in Long-Horizon Agents](https://arxiv.org/abs/2608.00181) — Analyzes how agents exploit environment-specific regularities, indicating that pruning based on generic reward thresholds might remove context specific to the current task's unique error states.
+
+## Expected results
+
+We expect to find a non-linear threshold where reward signal fidelity drops below the density required for state recovery, causing a sharp decline in success rates despite token savings. Specifically, tasks requiring multi-step error correction will fail when pruning removes context segments that appear low-reward but contain critical state transition data.
 
 ## Methodology sketch
-**Data:** Utilize the 46 tasks from the Long-Horizon-Terminal-Bench dataset, specifically selecting the 10 most resource-intensive tasks (requiring >100 episodes) from the software engineering and scientific computing categories.
-**Procedure:** 
-1. Replicate the baseline agent runs from the original paper to establish a token consumption and pass-rate baseline.
-2. Implement a CPU-only "Pruning Agent" that ingests the dense reward logs; at fixed intervals (e.g., every 10 episodes), the agent analyzes the reward trajectory to identify and discard context segments associated with negative or stagnant reward gradients, retaining only high-reward "milestones" and the immediate recent history.
-3. Run the Pruning Agent on the selected tasks with a hard context window limit (e.g., 32k tokens) and compare the total execution time, token usage, and partial/full pass rates against the baseline.
-**Expected result:** We anticipate the Pruning Agent will achieve a comparable or slightly higher pass rate (e.g., +2-5% absolute improvement) while reducing total token consumption by at least 40% and execution time by 30%, demonstrating that dense reward signals can effectively guide efficient context management in long-horizon settings.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download the Long-Horizon-Terminal-Bench dataset (46 tasks) and baseline execution logs from the official arXiv supplementary repository.
+- **Baseline Execution**: Run a standard agent (using a lightweight open-source model like Llama-3-8B via `vLLM` on CPU) on a subset of 15 error-prone tasks to establish ground-truth success rates and context usage.
+- **Reward Fidelity Manipulation**: Implement a context manager that simulates varying reward fidelities by coarsening the dense reward signals (e.g., binning continuous rewards into binary "progress/stagnant" labels) to create distinct "low-fidelity" and "high-fidelity" pruning triggers.
+- **Controlled Pruning**: Execute the agent with dynamic pruning enabled, where the pruning logic is driven *only* by the manipulated reward signals, ensuring the context window is truncated based on these varying fidelity levels.
+- **Error Injection & Recovery Tracking**: For tasks where the agent makes a recoverable error, manually or programmatically tag the specific context segment required for recovery and measure if the pruning logic (at different fidelities) retains or discards it.
+- **Metric Collection**: Record the "recovery success rate" (ability to correct errors after pruning), total token consumption, and the specific reward fidelity level at which recovery fails.
+- **Statistical Analysis**: Perform a logistic regression to model the probability of task success as a function of reward fidelity and the density of retained context; calculate the inflection point where token savings begin to degrade recovery capability.
+- **Independence Check**: Validate the methodology by comparing the *recovery success rate* (outcome) against the *reward fidelity level* (input). The recovery success is measured by the final task completion status, which is an independent outcome not mathematically determined by the reward signal values used to drive pruning.
 
-- **Long-Horizon-Terminal-Bench: Testing the Limits of Agents on Long-Horizon Terminal Tasks with Dense Reward-Based Grading** — Zongxia Li, Zhongzhi Li, Yucheng Shi, Ruhan Wang, Junyao Yang, Zhichao Liu, Xiyang Wu, Anhao Li, Yue Yu, Ninghao Liu, Lichao Sun, Haotao Mi, LeoweiLiang. https://arxiv.org/abs/2607.08964.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2607_08964,
-  title = {Long-Horizon-Terminal-Bench: Testing the Limits of Agents on Long-Horizon Terminal Tasks with Dense Reward-Based Grading},
-  author = {Zongxia Li and Zhongzhi Li and Yucheng Shi and Ruhan Wang and Junyao Yang and Zhichao Liu and Xiyang Wu and Anhao Li and Yue Yu and Ninghao Liu and Lichao Sun and Haotao Mi and LeoweiLiang},
-  year = {2026},
-  eprint = {2607.08964},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2607.08964},
-  url = {https://arxiv.org/abs/2607.08964}
-}
-```
+- Reviewed existing ideas: Long-Horizon-Terminal-Bench extension, LongCoT reasoning analysis, Enterprise agent memory constraints.
+- Closest match: Long-Horizon-Terminal-Bench extension (similarity sketch: identical dataset and focus on long-horizon agents).
+- Verdict: NOT a duplicate (The proposed investigation into the *trade-off threshold* between reward signal fidelity and error recovery density is a novel analytical contribution distinct from the baseline benchmark's definition or the general context pruning proposals).
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-09-07T23:10:36Z
+**Outcome**: success_after_expansion
+**Original term**: llmXive follow-up: extending "Long-Horizon-Terminal-Bench: Testing the Limits of Agents on Long-Hori" computer science
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "Long-Horizon-Terminal-Bench: Testing the Limits of Agents on Long-Hori" computer science | 0 |
+| 1 | Long-horizon autonomous agents | 4 |
+| 2 | Terminal-based agent benchmarks | 0 |
+| 3 | Extended planning in language models | 0 |
+| 4 | Multi-step reasoning benchmarks for LLMs | 0 |
+| 5 | Long-term task execution evaluation | 0 |
+| 6 | Agent autonomy in terminal environments | 0 |
+| 7 | Hierarchical planning for software agents | 0 |
+| 8 | Complex workflow automation benchmarks | 0 |
+| 9 | LLMs for long-context software tasks | 0 |
+| 10 | Evaluating agent persistence and memory | 0 |
+| 11 | Multi-turn terminal interaction datasets | 0 |
+| 12 | Reasoning limits of foundation models | 0 |
+| 13 | Automated software engineering benchmarks | 0 |
+| 14 | Long-duration agent trajectories | 0 |
+| 15 | Tool-augmented language model evaluation | 0 |
+| 16 | Sequential decision making in coding tasks | 0 |
+| 17 | Scalability of agent planning horizons | 0 |
+| 18 | Terminal shell interaction for AI agents | 0 |
+| 19 | Benchmarking LLMs on complex software projects | 0 |
+| 20 | Failure modes of long-horizon agents | 0 |
+
+### Verified citations
+
+1. **LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning** (2026). Sumeet Ramesh Motwani, Daniel Nichols, Charles London, Peggy Li, Fabio Pizzati, et al.. arXiv. [2604.14140](https://arxiv.org/abs/2604.14140). PDF-sampled: No.
+2. **Long-Horizon-Terminal-Bench: Testing the Limits of Agents on Long-Horizon Terminal Tasks with Dense Reward-Based Grading** (2026). Zongxia Li, Zhongzhi Li, Yucheng Shi, Ruhan Wang, Junyao Yang, et al.. arXiv. [2607.08964](https://arxiv.org/abs/2607.08964). PDF-sampled: No.
+3. **Cross-Benchmark Generalization in Long-Horizon Agents** (2026). Sushant Mehta, Logan Ritchie, Liudas Panavas, Edwin Chen. arXiv. [2608.00181](https://arxiv.org/abs/2608.00181). PDF-sampled: No.
+4. **Four-Axis Decision Alignment for Long-Horizon Enterprise AI Agents** (2026). Vasundra Srininvasan. arXiv. [2604.19457](https://arxiv.org/abs/2604.19457). PDF-sampled: No.
+5. **SAGA: Scene-Aware, Goal-Evolving Agents for Long-Horizon Strategy Game Planning** (2026). Tianyu Jin, Shuo Chen, Yida Wang, Liuyu Xiang, Yingzhuo Liu, et al.. arXiv. [2606.29932](https://arxiv.org/abs/2606.29932). PDF-sampled: No.

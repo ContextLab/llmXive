@@ -1,11 +1,7 @@
 """
-State management utility for llmXive research pipeline.
-
-Implements Principle V: Deterministic State Management.
-Computes SHA-256 hashes for artifacts and updates state YAML files
-to track pipeline progress and data integrity.
+State management utilities for tracking artifact integrity and task completion.
+Implements Principle V for reproducible state tracking.
 """
-
 import hashlib
 import os
 import yaml
@@ -13,8 +9,7 @@ from pathlib import Path
 from datetime import datetime
 from typing import Optional, Dict, Any, List
 
-
-def compute_sha256(file_path: str) -> str:
+def compute_sha256(file_path: Path) -> str:
     """
     Compute SHA-256 hash of a file.
 
@@ -23,292 +18,180 @@ def compute_sha256(file_path: str) -> str:
 
     Returns:
         Hexadecimal string of the SHA-256 hash.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
     """
     sha256_hash = hashlib.sha256()
-    path = Path(file_path)
-
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
-
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-
-def load_state(state_path: str) -> Dict[str, Any]:
+def load_state(state_file: Path) -> Dict[str, Any]:
     """
-    Load existing state file or create a new one if it doesn't exist.
+    Load state from a YAML file.
 
     Args:
-        state_path: Path to the state YAML file.
+        state_file: Path to the state YAML file.
 
     Returns:
-        Dictionary containing the state data.
+        Dictionary containing the state.
     """
-    path = Path(state_path)
+    if not state_file.exists():
+        return {"artifacts": {}, "tasks": {}, "metadata": {}}
 
-    if path.exists():
-        with open(path, "r") as f:
-            return yaml.safe_load(f) or {}
+    with open(state_file, "r") as f:
+        return yaml.safe_load(f) or {"artifacts": {}, "tasks": {}, "metadata": {}}
 
-    # Initialize new state structure
-    return {
-        "pipeline_version": "1.0.0",
-        "last_updated": None,
-        "artifacts": {},
-        "tasks": {},
-        "metadata": {}
-    }
-
-
-def save_state(state: Dict[str, Any], state_path: str) -> None:
+def save_state(state: Dict[str, Any], state_file: Path) -> None:
     """
-    Save state dictionary to a YAML file.
+    Save state to a YAML file.
 
     Args:
-        state: Dictionary containing state data.
-        state_path: Path to the state YAML file.
+        state: State dictionary to save.
+        state_file: Path to the state YAML file.
     """
-    path = Path(state_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-
-    state["last_updated"] = datetime.utcnow().isoformat()
-
-    with open(path, "w") as f:
-        yaml.safe_dump(state, f, default_flow_style=False, sort_keys=False)
-
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    with open(state_file, "w") as f:
+        yaml.safe_dump(state, f, default_flow_style=False)
 
 def update_artifact_state(
-    artifact_path: str,
-    state_path: str,
-    artifact_name: Optional[str] = None,
-    task_id: Optional[str] = None,
-    metadata: Optional[Dict[str, Any]] = None
+    state: Dict[str, Any],
+    artifact_name: str,
+    artifact_path: Path,
+    task_id: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Update the state file with information about a generated artifact.
+    Update state with information about a generated artifact.
 
     Args:
+        state: Current state dictionary.
+        artifact_name: Name of the artifact.
         artifact_path: Path to the artifact file.
-        state_path: Path to the state YAML file.
-        artifact_name: Optional custom name for the artifact.
-        task_id: Optional task ID that generated this artifact.
-        metadata: Optional additional metadata to store.
+        task_id: Optional ID of the task that generated the artifact.
 
     Returns:
         Updated state dictionary.
     """
-    state = load_state(state_path)
-    artifact_name = artifact_name or Path(artifact_path).name
-
     if "artifacts" not in state:
         state["artifacts"] = {}
 
-    state["artifacts"][artifact_name] = {
-        "path": str(Path(artifact_path).resolve()),
-        "hash": compute_sha256(artifact_path),
-        "size_bytes": Path(artifact_path).stat().st_size,
-        "task_id": task_id,
-        "created_at": datetime.utcnow().isoformat(),
-        "metadata": metadata or {}
-    }
+    if artifact_path.exists():
+        file_hash = compute_sha256(artifact_path)
+        file_size = artifact_path.stat().st_size
+        timestamp = datetime.now().isoformat()
 
-    save_state(state, state_path)
+        state["artifacts"][artifact_name] = {
+            "path": str(artifact_path),
+            "hash": file_hash,
+            "size_bytes": file_size,
+            "timestamp": timestamp,
+            "task_id": task_id
+        }
+    else:
+        state["artifacts"][artifact_name] = {
+            "path": str(artifact_path),
+            "hash": None,
+            "size_bytes": 0,
+            "timestamp": timestamp,
+            "task_id": task_id,
+            "status": "missing"
+        }
+
     return state
 
-
 def update_task_state(
+    state: Dict[str, Any],
     task_id: str,
-    status: str,
-    state_path: str,
+    status: str = "completed",
     details: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
-    Update the state file with task execution status.
+    Update state with task completion information.
 
     Args:
-        task_id: Unique identifier for the task.
-        status: Task status (e.g., 'completed', 'failed', 'running').
-        state_path: Path to the state YAML file.
-        details: Optional additional details about the task execution.
+        state: Current state dictionary.
+        task_id: ID of the task.
+        status: Task status (e.g., "completed", "failed", "in_progress").
+        details: Optional additional details about the task.
 
     Returns:
         Updated state dictionary.
     """
-    state = load_state(state_path)
-
     if "tasks" not in state:
         state["tasks"] = {}
 
     state["tasks"][task_id] = {
         "status": status,
-        "updated_at": datetime.utcnow().isoformat(),
+        "timestamp": datetime.now().isoformat(),
         "details": details or {}
     }
 
-    save_state(state, state_path)
     return state
 
-
 def hash_multiple_artifacts(
-    artifact_paths: List[str],
-    state_path: str,
-    task_id: Optional[str] = None
-) -> Dict[str, Any]:
+    artifact_paths: List[Path],
+    state: Dict[str, Any]
+) -> Dict[str, str]:
     """
     Compute hashes for multiple artifacts and update state.
 
     Args:
         artifact_paths: List of paths to artifact files.
-        state_path: Path to the state YAML file.
-        task_id: Optional task ID associated with these artifacts.
+        state: Current state dictionary.
 
     Returns:
-        Updated state dictionary.
+        Dictionary mapping artifact names to their hashes.
     """
-    state = load_state(state_path)
+    hashes = {}
+    for path in artifact_paths:
+        if path.exists():
+          artifact_name = path.stem
+          file_hash = compute_sha256(path)
+          hashes[artifact_name] = file_hash
+          state = update_artifact_state(state, artifact_name, path)
+    return hashes
 
-    if "artifacts" not in state:
-        state["artifacts"] = {}
-
-    for artifact_path in artifact_paths:
-        path = Path(artifact_path)
-        if not path.exists():
-            continue
-
-        artifact_name = path.name
-        state["artifacts"][artifact_name] = {
-            "path": str(path.resolve()),
-            "hash": compute_sha256(artifact_path),
-            "size_bytes": path.stat().st_size,
-            "task_id": task_id,
-            "created_at": datetime.utcnow().isoformat()
-        }
-
-    save_state(state, state_path)
-    return state
-
-
-def get_artifact_hash(artifact_path: str) -> str:
+def get_artifact_hash(state: Dict[str, Any], artifact_name: str) -> Optional[str]:
     """
-    Get the SHA-256 hash of an artifact without updating state.
+    Get the hash of a specific artifact from state.
 
     Args:
-        artifact_path: Path to the artifact file.
+        state: State dictionary.
+        artifact_name: Name of the artifact.
 
     Returns:
-        Hexadecimal string of the SHA-256 hash.
+        Hash string or None if not found.
     """
-    return compute_sha256(artifact_path)
+    if "artifacts" in state and artifact_name in state["artifacts"]:
+        return state["artifacts"][artifact_name].get("hash")
+    return None
 
-
-def verify_artifact_integrity(artifact_path: str, expected_hash: str) -> bool:
+def verify_artifact_integrity(
+    artifact_path: Path,
+    expected_hash: str
+) -> bool:
     """
-    Verify that an artifact's hash matches an expected value.
+    Verify that an artifact matches its expected hash.
 
     Args:
         artifact_path: Path to the artifact file.
         expected_hash: Expected SHA-256 hash.
 
     Returns:
-        True if hashes match, False otherwise.
+        True if the artifact matches the expected hash, False otherwise.
     """
+    if not artifact_path.exists():
+        return False
+
     actual_hash = compute_sha256(artifact_path)
     return actual_hash == expected_hash
 
-
 def main():
     """
-    CLI entry point for testing state management utilities.
+    Main entry point for state management CLI.
+    This is a placeholder for future CLI functionality.
     """
-    import argparse
-
-    parser = argparse.ArgumentParser(
-        description="State management utility for llmXive pipeline"
-    )
-    parser.add_argument(
-        "--action",
-        choices=["hash", "update-artifact", "update-task", "verify"],
-        required=True,
-        help="Action to perform"
-    )
-    parser.add_argument(
-        "--path",
-        required=True,
-        help="Path to the file or state file"
-    )
-    parser.add_argument(
-        "--state-path",
-        default="state/pipeline_state.yaml",
-        help="Path to the state YAML file"
-    )
-    parser.add_argument(
-        "--task-id",
-        help="Task ID for task state updates"
-    )
-    parser.add_argument(
-        "--status",
-        choices=["completed", "failed", "running"],
-        help="Task status for task state updates"
-    )
-    parser.add_argument(
-        "--expected-hash",
-        help="Expected hash for verification"
-    )
-
-    args = parser.parse_args()
-
-    if args.action == "hash":
-        try:
-            hash_value = compute_sha256(args.path)
-            print(f"SHA-256: {hash_value}")
-        except Exception as e:
-            print(f"Error: {e}")
-            return 1
-
-    elif args.action == "update-artifact":
-        try:
-            state = update_artifact_state(
-                args.path,
-                args.state_path,
-                task_id=args.task_id
-            )
-            print(f"State updated. Artifact hash: {state['artifacts'][Path(args.path).name]['hash']}")
-        except Exception as e:
-            print(f"Error: {e}")
-            return 1
-
-    elif args.action == "update-task":
-        if not args.task_id or not args.status:
-            print("Error: --task-id and --status required for task updates")
-            return 1
-        try:
-            state = update_task_state(args.task_id, args.status, args.state_path)
-            print(f"Task {args.task_id} status updated to {args.status}")
-        except Exception as e:
-            print(f"Error: {e}")
-            return 1
-
-    elif args.action == "verify":
-        if not args.expected_hash:
-            print("Error: --expected-hash required for verification")
-            return 1
-        try:
-            is_valid = verify_artifact_integrity(args.path, args.expected_hash)
-            print(f"Integrity check: {'PASSED' if is_valid else 'FAILED'}")
-            return 0 if is_valid else 1
-        except Exception as e:
-            print(f"Error: {e}")
-            return 1
-
-    return 0
-
+    print("State management utilities loaded successfully.")
+    print("Use update_artifact_state, update_task_state, and related functions to manage project state.")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

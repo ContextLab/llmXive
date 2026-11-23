@@ -8,8 +8,8 @@ properties:
     description: "Unique identifier for the run"
   bit_width:
     type: "integer"
-    description: "Simulated bit-width (2, 3, 4, 5, or 6)"
-    enum: [2, 3, 4, 5, 6]
+    description: "Simulated bit-width (2, 4, or 8)"
+    enum: [2, 4, 8]
   seed:
     type: "integer"
     description: "Random seed used for the run"
@@ -35,7 +35,7 @@ properties:
     enum: ["converged", "collapsed", "timeout"]
   noise_kl_divergence:
     type: "number"
-    description: "KL-divergence of quantization emulation noise from uniform distribution"
+    description: "KL divergence of quantization emulation noise from uniform distribution"
     minimum: 0
   timestamp:
     type: "string"
@@ -52,3 +52,4 @@ required:
   - convergence_status
   - noise_kl_divergence
   - timestamp
+additionalProperties: false

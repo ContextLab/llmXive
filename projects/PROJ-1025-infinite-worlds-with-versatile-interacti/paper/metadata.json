@@ -72,5 +72,15 @@
     "sections/7.contributors.tex",
     "sections/8.ref.tex",
     "sections/acknowledgments.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "1afd102d93a5dd9c3c7d221bf1cec87bb5d9a2e1539446c3aabcd71fd06fde62",
+      "bytes": 34058723
+    },
+    "original.pdf": {
+      "sha256": "e38f60f0a520a4ba6461797d4ce7f3b45a60d54586cd264a2eda9e2d5f4648e9",
+      "bytes": 33920199
+    }
+  }
 }

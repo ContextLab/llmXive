@@ -1,0 +1,51 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SequenceFeatureSet
+description: |
+  Schema for the GENEB sequence feature dataset.
+  Defines the structure for 15 low-dimensional sequence statistics per task.
+  
+  CRITICAL NOTE:
+  - Feature names are NOT hardcoded here. They must be dynamically derived 
+    from the authoritative list in `data-model.md` (Phase 1 output).
+  - The `at_content` feature is explicitly EXCLUDED due to perfect collinearity 
+    with GC-Content (Plan.md, Principle VII).
+  - This schema validates the *structure* and *types* of the feature set, 
+    allowing for dynamic feature names as defined in `data-model.md`.
+type: object
+required:
+  - task_id
+  - features
+properties:
+  task_id:
+    description: Unique identifier for the benchmark task.
+    type: string
+    pattern: "^[a-zA-Z0-9_-]+$"
+  features:
+    description: |
+      A map of sequence feature names to their computed float values.
+      The keys (feature names) must match the authoritative list in `data-model.md`.
+      This schema enforces that all values are non-negative floats (for entropy/variance metrics)
+      or floats within valid theoretical ranges.
+      Exactly 15 features are expected per task as per project specification.
+    type: object
+    additionalProperties:
+      type: number
+      minimum: 0.0
+      description: |
+        Computed value for a specific sequence feature.
+        Must be a float. For entropy-based features, minimum is 0.0.
+        For variance-based features, minimum is 0.0.
+        For normalized metrics, typically 0.0 to 1.0, but schema allows >1.0 if theoretically valid.
+    minProperties: 15
+    maxProperties: 15
+additionalProperties: false
+examples:
+  - task_id: "HESC_Enhancer"
+    features:
+      # Example structure only. Actual keys MUST come from data-model.md.
+      # 'at_content' is intentionally omitted.
+      "gc_content": 0.45
+      "gc_variance": 0.02
+      "entropy_mono": 1.98
+      "entropy_di": 3.85
+      # ... (10 more features as defined in data-model.md)

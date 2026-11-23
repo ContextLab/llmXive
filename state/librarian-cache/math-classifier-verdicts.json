@@ -11,12 +11,24 @@
     "classified_at": "2026-07-12T07:04:57Z",
     "verdict": false
   },
+  "PROJ-007-energy-systems::1.6.0": {
+    "classified_at": "2026-07-28T16:22:27Z",
+    "verdict": false
+  },
   "PROJ-008-psychology-research::1.6.0": {
     "classified_at": "2026-06-25T21:35:50Z",
     "verdict": false
   },
   "PROJ-009-build-a-mesh-network-that-forms-the-larg::1.6.0": {
     "classified_at": "2026-07-09T18:48:21Z",
+    "verdict": false
+  },
+  "PROJ-010-quantitative-analysis-of-gene-expression::1.6.0": {
+    "classified_at": "2026-08-02T09:59:48Z",
+    "verdict": false
+  },
+  "PROJ-013-developing-a-low-cost-solar-powered-wate::1.6.0": {
+    "classified_at": "2026-07-27T07:42:43Z",
     "verdict": false
   },
   "PROJ-014-robotic-artificial-intelligence-for-auto::1.6.0": {
@@ -37,6 +49,14 @@
   },
   "PROJ-024-bayesian-nonparametrics-for-anomaly-dete::1.6.0": {
     "classified_at": "2026-06-24T18:40:18Z",
+    "verdict": false
+  },
+  "PROJ-025-the-impact-of-social-media-algorithm-tra::1.6.0": {
+    "classified_at": "2026-09-19T15:17:25Z",
+    "verdict": false
+  },
+  "PROJ-030-predicting-crystal-structures-from-molec::1.6.0": {
+    "classified_at": "2026-08-26T16:20:19Z",
     "verdict": false
   },
   "PROJ-033-predicting-material-properties-from-comp::1.6.0": {
@@ -79,6 +99,14 @@
     "classified_at": "2026-07-04T09:08:31Z",
     "verdict": false
   },
+  "PROJ-063-computational-screening-of-deep-eutectic::1.6.0": {
+    "classified_at": "2026-08-13T09:47:57Z",
+    "verdict": false
+  },
+  "PROJ-066-investigating-correlations-between-molec::1.6.0": {
+    "classified_at": "2026-08-07T12:56:47Z",
+    "verdict": false
+  },
   "PROJ-078-predicting-polymer-degradation-pathways-::1.6.0": {
     "classified_at": "2026-06-13T04:35:32Z",
     "verdict": false
@@ -103,6 +131,10 @@
     "classified_at": "2026-07-13T13:43:59Z",
     "verdict": false
   },
+  "PROJ-093-the-impact-of-cognitive-load-on-decision::1.6.0": {
+    "classified_at": "2026-09-24T09:33:14Z",
+    "verdict": false
+  },
   "PROJ-094-evaluating-the-effectiveness-of-retrieva::1.6.0": {
     "classified_at": "2026-06-24T22:46:29Z",
     "verdict": false
@@ -115,6 +147,18 @@
     "classified_at": "2026-06-26T14:38:00Z",
     "verdict": false
   },
+  "PROJ-1000-llmxive-follow-up-extending-orbitquant-d::1.6.0": {
+    "classified_at": "2026-08-07T09:42:03Z",
+    "verdict": false
+  },
+  "PROJ-1002-llmxive-follow-up-extending-datacomp-vlm::1.6.0": {
+    "classified_at": "2026-08-29T00:54:47Z",
+    "verdict": false
+  },
+  "PROJ-1008-llmxive-follow-up-extending-pixworld-uni::1.6.0": {
+    "classified_at": "2026-08-09T09:44:35Z",
+    "verdict": false
+  },
   "PROJ-1009-llmxive-follow-up-extending-ui-mopd-mult::1.6.0": {
     "classified_at": "2026-07-10T08:04:58Z",
     "verdict": false
@@ -123,24 +167,156 @@
     "classified_at": "2026-07-16T10:02:58Z",
     "verdict": false
   },
+  "PROJ-1010-llmxive-follow-up-extending-omniopt-taxo::1.6.0": {
+    "classified_at": "2026-07-31T16:18:42Z",
+    "verdict": false
+  },
+  "PROJ-1011-llmxive-follow-up-extending-researchstud::1.6.0": {
+    "classified_at": "2026-07-23T04:13:11Z",
+    "verdict": false
+  },
   "PROJ-1012-llmxive-follow-up-extending-researchstud::1.6.0": {
     "classified_at": "2026-07-08T12:49:04Z",
+    "verdict": false
+  },
+  "PROJ-1018-llmxive-follow-up-extending-hierarchical::1.6.0": {
+    "classified_at": "2026-08-10T10:16:14Z",
+    "verdict": false
+  },
+  "PROJ-1019-llmxive-follow-up-extending-vision-as-un::1.6.0": {
+    "classified_at": "2026-07-20T04:46:35Z",
     "verdict": false
   },
   "PROJ-102-predicting-sleep-stage-transitions-from-::1.6.0": {
     "classified_at": "2026-07-06T11:30:00Z",
     "verdict": false
   },
+  "PROJ-1020-llmxive-follow-up-extending-rynnworld-te::1.6.0": {
+    "classified_at": "2026-08-24T01:00:24Z",
+    "verdict": false
+  },
+  "PROJ-1021-llmxive-follow-up-extending-alayaworld-l::1.6.0": {
+    "classified_at": "2026-07-18T18:59:52Z",
+    "verdict": false
+  },
+  "PROJ-1022-llmxive-follow-up-extending-gemma-4-tech::1.6.0": {
+    "classified_at": "2026-07-17T15:38:19Z",
+    "verdict": false
+  },
   "PROJ-1023-llmxive-follow-up-extending-rynnworld-4d::1.6.0": {
     "classified_at": "2026-07-11T16:10:39Z",
+    "verdict": false
+  },
+  "PROJ-1029-llmxive-follow-up-extending-accurate-int::1.6.0": {
+    "classified_at": "2026-09-05T09:34:05Z",
+    "verdict": false
+  },
+  "PROJ-1030-llmxive-follow-up-extending-scaling-mixt::1.6.0": {
+    "classified_at": "2026-07-31T13:15:38Z",
+    "verdict": false
+  },
+  "PROJ-1031-llmxive-follow-up-extending-robodojo-a-u::1.6.0": {
+    "classified_at": "2026-07-31T08:16:49Z",
     "verdict": false
   },
   "PROJ-1032-llmxive-follow-up-extending-https-arxiv::1.6.0": {
     "classified_at": "2026-07-12T04:21:10Z",
     "verdict": false
   },
+  "PROJ-1033-llmxive-follow-up-extending-dual-latent::1.6.0": {
+    "classified_at": "2026-08-01T12:43:34Z",
+    "verdict": false
+  },
+  "PROJ-1034-llmxive-follow-up-extending-infinite-wor::1.6.0": {
+    "classified_at": "2026-07-16T18:43:15Z",
+    "verdict": false
+  },
+  "PROJ-104-evaluating-the-use-of-llms-for-automated::1.6.0": {
+    "classified_at": "2026-08-21T12:35:38Z",
+    "verdict": false
+  },
+  "PROJ-1040-llmxive-follow-up-extending-ideas-have-g::1.6.0": {
+    "classified_at": "2026-07-22T01:08:09Z",
+    "verdict": false
+  },
+  "PROJ-1041-llmxive-follow-up-extending-vidu-s1-a-re::1.6.0": {
+    "classified_at": "2026-07-24T13:23:16Z",
+    "verdict": false
+  },
+  "PROJ-1042-llmxive-follow-up-extending-uniclawbench::1.6.0": {
+    "classified_at": "2026-08-16T22:23:25Z",
+    "verdict": false
+  },
+  "PROJ-1043-llmxive-follow-up-extending-video-oasis::1.6.0": {
+    "classified_at": "2026-08-22T18:20:16Z",
+    "verdict": false
+  },
+  "PROJ-1044-llmxive-follow-up-extending-why-can-t-i::1.6.0": {
+    "classified_at": "2026-08-18T12:29:07Z",
+    "verdict": false
+  },
+  "PROJ-1050-llmxive-follow-up-extending-trust-region::1.6.0": {
+    "classified_at": "2026-08-03T13:15:53Z",
+    "verdict": false
+  },
+  "PROJ-1051-llmxive-follow-up-extending-scalable-vis::1.6.0": {
+    "classified_at": "2026-08-11T10:12:56Z",
+    "verdict": false
+  },
+  "PROJ-1052-llmxive-follow-up-extending-long-horizon::1.6.0": {
+    "classified_at": "2026-08-03T16:26:45Z",
+    "verdict": false
+  },
+  "PROJ-1053-llmxive-follow-up-extending-kronq-llm-qu::1.6.0": {
+    "classified_at": "2026-09-01T03:44:01Z",
+    "verdict": false
+  },
+  "PROJ-1054-llmxive-follow-up-extending-video-genera::1.6.0": {
+    "classified_at": "2026-09-06T18:55:17Z",
+    "verdict": false
+  },
+  "PROJ-1060-llmxive-follow-up-extending-abot-agentos::1.6.0": {
+    "classified_at": "2026-07-31T10:03:27Z",
+    "verdict": false
+  },
+  "PROJ-1061-llmxive-follow-up-extending-4d-human-sce::1.6.0": {
+    "classified_at": "2026-08-24T09:38:58Z",
+    "verdict": false
+  },
   "PROJ-1062-llmxive-follow-up-extending-weak-to-stro::1.6.0": {
     "classified_at": "2026-07-16T13:05:47Z",
+    "verdict": false
+  },
+  "PROJ-1063-llmxive-follow-up-extending-abot-n1-towa::1.6.0": {
+    "classified_at": "2026-08-16T03:26:36Z",
+    "verdict": false
+  },
+  "PROJ-1064-llmxive-follow-up-extending-lightmem-ego::1.6.0": {
+    "classified_at": "2026-07-28T16:23:48Z",
+    "verdict": false
+  },
+  "PROJ-1070-llmxive-follow-up-extending-search-beyon::1.6.0": {
+    "classified_at": "2026-08-03T18:55:13Z",
+    "verdict": false
+  },
+  "PROJ-1071-llmxive-follow-up-extending-synthdocbenc::1.6.0": {
+    "classified_at": "2026-07-31T21:30:45Z",
+    "verdict": false
+  },
+  "PROJ-1072-llmxive-follow-up-extending-blind-spots::1.6.0": {
+    "classified_at": "2026-08-12T00:48:10Z",
+    "verdict": false
+  },
+  "PROJ-1073-llmxive-follow-up-extending-function-awa::1.6.0": {
+    "classified_at": "2026-08-31T15:44:40Z",
+    "verdict": false
+  },
+  "PROJ-1073-llmxive-follow-up-extending-read-it-back::1.6.0": {
+    "classified_at": "2026-08-22T12:34:40Z",
+    "verdict": false
+  },
+  "PROJ-1074-llmxive-follow-up-extending-function-awa::1.6.0": {
+    "classified_at": "2026-07-21T01:08:15Z",
     "verdict": false
   },
   "PROJ-111-exploring-the-potential-for-machine-lear::1.6.0": {
@@ -167,8 +343,16 @@
     "classified_at": "2026-07-14T06:06:00Z",
     "verdict": false
   },
+  "PROJ-126-predicting-avian-migration-patterns-from::1.6.0": {
+    "classified_at": "2026-08-04T19:00:27Z",
+    "verdict": false
+  },
   "PROJ-128-investigating-the-influence-of-network-t::1.6.0": {
     "classified_at": "2026-06-26T10:09:36Z",
+    "verdict": false
+  },
+  "PROJ-129-predicting-polymer-glass-transition-temp::1.6.0": {
+    "classified_at": "2026-09-30T18:39:33Z",
     "verdict": false
   },
   "PROJ-137-predicting-the-impact-of-alloying-on-cre::1.6.0": {
@@ -219,6 +403,10 @@
     "classified_at": "2026-07-03T00:52:08Z",
     "verdict": false
   },
+  "PROJ-184-exploring-the-statistical-significance-o::1.6.0": {
+    "classified_at": "2026-08-30T03:23:34Z",
+    "verdict": false
+  },
   "PROJ-186-predicting-the-stability-of-perovskite-s::1.6.0": {
     "classified_at": "2026-06-25T04:35:06Z",
     "verdict": false
@@ -263,6 +451,10 @@
     "classified_at": "2026-07-12T09:54:54Z",
     "verdict": false
   },
+  "PROJ-219-leveraging-llms-for-automated-generation::1.6.0": {
+    "classified_at": "2026-08-12T00:35:36Z",
+    "verdict": false
+  },
   "PROJ-220-predicting-amine-reactivity-using-graph-::1.6.0": {
     "classified_at": "2026-07-09T16:10:10Z",
     "verdict": false
@@ -285,6 +477,14 @@
   },
   "PROJ-229-investigating-the-predictive-power-of-ma::1.6.0": {
     "classified_at": "2026-07-13T17:35:47Z",
+    "verdict": false
+  },
+  "PROJ-233-predicting-the-diffusion-coefficient-of-::1.6.0": {
+    "classified_at": "2026-07-20T10:14:44Z",
+    "verdict": false
+  },
+  "PROJ-237-predicting-molecular-interactions-in-pol::1.6.0": {
+    "classified_at": "2026-09-05T12:24:24Z",
     "verdict": false
   },
   "PROJ-240-predicting-the-impact-of-cold-work-on-re::1.6.0": {
@@ -319,12 +519,20 @@
     "classified_at": "2026-06-27T09:24:04Z",
     "verdict": false
   },
+  "PROJ-253-predicting-the-impact-of-composition-on-::1.6.0": {
+    "classified_at": "2026-08-05T21:46:55Z",
+    "verdict": false
+  },
   "PROJ-261-evaluating-the-impact-of-code-duplicatio::1.6.0": {
     "classified_at": "2026-05-12T20:21:42Z",
     "verdict": false
   },
   "PROJ-262-predicting-molecular-dipole-moments-with::1.6.0": {
     "classified_at": "2026-05-12T20:41:18Z",
+    "verdict": false
+  },
+  "PROJ-263-quantifying-the-impact-of-network-proxim::1.6.0": {
+    "classified_at": "2026-08-10T06:41:40Z",
     "verdict": false
   },
   "PROJ-266-machine-learning-prediction-of-fracture-::1.6.0": {
@@ -375,6 +583,14 @@
     "classified_at": "2026-06-25T05:44:46Z",
     "verdict": false
   },
+  "PROJ-293-predicting-the-impact-of-laser-surface-t::1.6.0": {
+    "classified_at": "2026-07-26T07:30:34Z",
+    "verdict": false
+  },
+  "PROJ-296-predicting-molecular-refractive-indices-::1.6.0": {
+    "classified_at": "2026-08-12T12:55:17Z",
+    "verdict": false
+  },
   "PROJ-301-predicting-molecular-descriptors-from-qu::1.6.0": {
     "classified_at": "2026-06-25T21:29:39Z",
     "verdict": false
@@ -387,12 +603,36 @@
     "classified_at": "2026-06-24T22:47:38Z",
     "verdict": false
   },
+  "PROJ-311-the-impact-of-self-talk-on-resilience-to::1.6.0": {
+    "classified_at": "2026-08-13T09:46:10Z",
+    "verdict": false
+  },
+  "PROJ-313-predicting-bacterial-antibiotic-resistan::1.6.0": {
+    "classified_at": "2026-08-02T12:54:24Z",
+    "verdict": false
+  },
   "PROJ-314-predicting-the-impact-of-composition-on-::1.6.0": {
     "classified_at": "2026-07-13T15:52:16Z",
     "verdict": false
   },
+  "PROJ-321-predicting-molecular-viscosity-from-stru::1.6.0": {
+    "classified_at": "2026-09-13T22:56:08Z",
+    "verdict": false
+  },
+  "PROJ-323-predicting-glass-transition-temperature-::1.6.0": {
+    "classified_at": "2026-07-22T22:07:03Z",
+    "verdict": false
+  },
   "PROJ-324-predicting-molecular-properties-from-ope::1.6.0": {
     "classified_at": "2026-06-27T18:30:12Z",
+    "verdict": false
+  },
+  "PROJ-331-investigating-the-correlation-between-gu::1.6.0": {
+    "classified_at": "2026-07-17T04:10:42Z",
+    "verdict": false
+  },
+  "PROJ-343-predicting-gut-microbiome-response-to-di::1.6.0": {
+    "classified_at": "2026-09-22T01:20:30Z",
     "verdict": false
   },
   "PROJ-348-exploring-the-validity-of-the-weak-equiv::1.6.0": {
@@ -419,6 +659,10 @@
     "classified_at": "2026-07-01T21:36:55Z",
     "verdict": false
   },
+  "PROJ-389-the-impact-of-simulated-social-compariso::1.6.0": {
+    "classified_at": "2026-09-06T18:54:00Z",
+    "verdict": false
+  },
   "PROJ-400-can-publicly-available-data-reveal-subtl::1.6.0": {
     "classified_at": "2026-07-14T07:01:52Z",
     "verdict": false
@@ -427,12 +671,24 @@
     "classified_at": "2026-06-30T04:48:56Z",
     "verdict": false
   },
+  "PROJ-404-predicting-molecular-surface-charge-dist::1.6.0": {
+    "classified_at": "2026-07-20T00:49:25Z",
+    "verdict": false
+  },
+  "PROJ-405-predicting-plant-disease-severity-from-p::1.6.0": {
+    "classified_at": "2026-08-04T18:59:28Z",
+    "verdict": false
+  },
   "PROJ-406-investigating-neural-signatures-of-predi::1.6.0": {
     "classified_at": "2026-06-27T00:08:07Z",
     "verdict": false
   },
   "PROJ-419-predicting-coating-adhesion-strength-fro::1.6.0": {
     "classified_at": "2026-06-25T07:13:31Z",
+    "verdict": false
+  },
+  "PROJ-422-predicting-molecular-permeability-coeffi::1.6.0": {
+    "classified_at": "2026-07-21T07:07:44Z",
     "verdict": false
   },
   "PROJ-426-the-impact-of-parasocial-relationships-w::1.6.0": {
@@ -479,8 +735,24 @@
     "classified_at": "2026-06-24T14:37:54Z",
     "verdict": false
   },
+  "PROJ-474-neural-correlates-of-simulated-social-ex::1.6.0": {
+    "classified_at": "2026-07-24T21:11:32Z",
+    "verdict": false
+  },
+  "PROJ-477-predicting-material-strength-from-micros::1.6.0": {
+    "classified_at": "2026-09-09T18:14:43Z",
+    "verdict": false
+  },
   "PROJ-484-the-impact-of-visual-attention-on-recall::1.6.0": {
     "classified_at": "2026-07-11T12:32:06Z",
+    "verdict": false
+  },
+  "PROJ-494-predicting-molecular-dielectric-constant::1.6.0": {
+    "classified_at": "2026-08-16T15:45:43Z",
+    "verdict": false
+  },
+  "PROJ-497-evaluating-the-impact-of-code-generation::1.6.0": {
+    "classified_at": "2026-08-17T09:36:05Z",
     "verdict": false
   },
   "PROJ-513-the-impact-of-social-comparison-on-self-::1.6.0": {
@@ -1487,8 +1759,44 @@
     "classified_at": "2026-07-16T09:19:59Z",
     "verdict": false
   },
+  "PROJ-929-llmxive-follow-up-extending-from-pixels::1.6.0": {
+    "classified_at": "2026-08-29T18:41:52Z",
+    "verdict": false
+  },
+  "PROJ-930-llmxive-follow-up-extending-mobileforge::1.6.0": {
+    "classified_at": "2026-07-19T10:04:00Z",
+    "verdict": false
+  },
+  "PROJ-931-llmxive-follow-up-extending-the-topologi::1.6.0": {
+    "classified_at": "2026-08-25T12:17:48Z",
+    "verdict": false
+  },
+  "PROJ-932-llmxive-follow-up-extending-evolving-age::1.6.0": {
+    "classified_at": "2026-09-02T12:40:44Z",
+    "verdict": false
+  },
+  "PROJ-933-llmxive-follow-up-extending-anti-self-di::1.6.0": {
+    "classified_at": "2026-08-01T10:37:31Z",
+    "verdict": false
+  },
+  "PROJ-934-llmxive-follow-up-extending-skillopt-exe::1.6.0": {
+    "classified_at": "2026-07-31T13:01:09Z",
+    "verdict": false
+  },
+  "PROJ-935-llmxive-follow-up-extending-on-the-scali::1.6.0": {
+    "classified_at": "2026-07-19T04:30:18Z",
+    "verdict": false
+  },
+  "PROJ-936-llmxive-follow-up-extending-a-matter-of::1.6.0": {
+    "classified_at": "2026-07-31T04:40:47Z",
+    "verdict": false
+  },
   "PROJ-937-llmxive-follow-up-extending-minimax-spar::1.6.0": {
     "classified_at": "2026-07-05T12:50:25Z",
+    "verdict": false
+  },
+  "PROJ-938-llmxive-follow-up-extending-trisplat-sim::1.6.0": {
+    "classified_at": "2026-08-07T04:17:08Z",
     "verdict": false
   },
   "PROJ-939-llmxive-follow-up-extending-redesign-mix::1.6.0": {
@@ -1503,24 +1811,64 @@
     "classified_at": "2026-07-11T01:27:38Z",
     "verdict": false
   },
+  "PROJ-942-llmxive-follow-up-extending-bench-evalua::1.6.0": {
+    "classified_at": "2026-08-01T04:24:36Z",
+    "verdict": false
+  },
   "PROJ-943-llmxive-follow-up-extending-cosmos-3-omn::1.6.0": {
     "classified_at": "2026-07-15T21:40:25Z",
+    "verdict": false
+  },
+  "PROJ-944-llmxive-follow-up-extending-geneb-why-ge::1.6.0": {
+    "classified_at": "2026-07-19T21:48:01Z",
     "verdict": false
   },
   "PROJ-945-llmxive-follow-up-extending-enterprisecl::1.6.0": {
     "classified_at": "2026-07-06T16:45:02Z",
     "verdict": false
   },
+  "PROJ-946-llmxive-follow-up-extending-humanoid-gpt::1.6.0": {
+    "classified_at": "2026-08-08T06:36:16Z",
+    "verdict": false
+  },
+  "PROJ-947-llmxive-follow-up-extending-wbench-a-com::1.6.0": {
+    "classified_at": "2026-07-21T01:04:36Z",
+    "verdict": false
+  },
+  "PROJ-948-llmxive-follow-up-extending-are-we-ready::1.6.0": {
+    "classified_at": "2026-08-04T04:21:12Z",
+    "verdict": false
+  },
+  "PROJ-949-llmxive-follow-up-extending-dataclaw0-ag::1.6.0": {
+    "classified_at": "2026-09-03T15:34:52Z",
+    "verdict": false
+  },
+  "PROJ-950-llmxive-follow-up-extending-tua-bench-a::1.6.0": {
+    "classified_at": "2026-09-02T21:20:19Z",
+    "verdict": false
+  },
   "PROJ-951-llmxive-follow-up-extending-physisforcin::1.6.0": {
     "classified_at": "2026-07-07T21:50:35Z",
+    "verdict": false
+  },
+  "PROJ-952-llmxive-follow-up-extending-domino-decou::1.6.0": {
+    "classified_at": "2026-07-24T18:53:48Z",
     "verdict": false
   },
   "PROJ-953-llmxive-follow-up-extending-code-as-agen::1.6.0": {
     "classified_at": "2026-07-04T21:28:03Z",
     "verdict": false
   },
+  "PROJ-954-llmxive-follow-up-extending-minwm-a-full::1.6.0": {
+    "classified_at": "2026-08-09T06:25:39Z",
+    "verdict": false
+  },
   "PROJ-955-llmxive-follow-up-extending-dockerless-e::1.6.0": {
     "classified_at": "2026-07-12T21:46:40Z",
+    "verdict": false
+  },
+  "PROJ-956-llmxive-follow-up-extending-from-activat::1.6.0": {
+    "classified_at": "2026-08-29T09:38:58Z",
     "verdict": false
   },
   "PROJ-957-llmxive-follow-up-extending-researchclaw::1.6.0": {
@@ -1531,6 +1879,14 @@
     "classified_at": "2026-07-10T01:11:42Z",
     "verdict": false
   },
+  "PROJ-959-llmxive-follow-up-extending-searchswarm::1.6.0": {
+    "classified_at": "2026-09-08T10:55:56Z",
+    "verdict": false
+  },
+  "PROJ-960-llmxive-follow-up-extending-geometry-awa::1.6.0": {
+    "classified_at": "2026-08-13T12:28:47Z",
+    "verdict": false
+  },
   "PROJ-961-llmxive-follow-up-extending-videokr-towa::1.6.0": {
     "classified_at": "2026-07-07T16:01:40Z",
     "verdict": false
@@ -1539,16 +1895,56 @@
     "classified_at": "2026-07-10T10:25:53Z",
     "verdict": false
   },
+  "PROJ-963-llmxive-follow-up-extending-indusagent-r::1.6.0": {
+    "classified_at": "2026-07-19T19:00:43Z",
+    "verdict": false
+  },
+  "PROJ-964-llmxive-follow-up-extending-memgui-agent::1.6.0": {
+    "classified_at": "2026-08-02T21:27:05Z",
+    "verdict": false
+  },
   "PROJ-964-llmxive-follow-up-extending-wan-streamer::1.6.0": {
     "classified_at": "2026-07-04T18:41:34Z",
+    "verdict": false
+  },
+  "PROJ-965-llmxive-follow-up-extending-trust-region::1.6.0": {
+    "classified_at": "2026-08-14T18:52:46Z",
+    "verdict": false
+  },
+  "PROJ-966-llmxive-follow-up-extending-playful-agen::1.6.0": {
+    "classified_at": "2026-08-13T07:04:20Z",
     "verdict": false
   },
   "PROJ-967-llmxive-follow-up-extending-beyond-scala::1.6.0": {
     "classified_at": "2026-07-05T04:34:01Z",
     "verdict": false
   },
+  "PROJ-968-llmxive-follow-up-extending-memgui-agent::1.6.0": {
+    "classified_at": "2026-09-05T09:19:06Z",
+    "verdict": false
+  },
+  "PROJ-969-llmxive-follow-up-extending-perception-o::1.6.0": {
+    "classified_at": "2026-07-19T09:53:32Z",
+    "verdict": false
+  },
+  "PROJ-970-llmxive-follow-up-extending-opid-on-poli::1.6.0": {
+    "classified_at": "2026-07-24T07:15:30Z",
+    "verdict": false
+  },
   "PROJ-971-llmxive-follow-up-extending-in-context-w::1.6.0": {
     "classified_at": "2026-07-10T21:34:43Z",
+    "verdict": false
+  },
+  "PROJ-972-llmxive-follow-up-extending-spatialbench::1.6.0": {
+    "classified_at": "2026-07-25T01:21:19Z",
+    "verdict": false
+  },
+  "PROJ-973-llmxive-follow-up-extending-toward-gener::1.6.0": {
+    "classified_at": "2026-08-26T09:26:57Z",
+    "verdict": false
+  },
+  "PROJ-974-llmxive-follow-up-extending-lance-unifie::1.6.0": {
+    "classified_at": "2026-07-25T04:56:36Z",
     "verdict": false
   },
   "PROJ-975-llmxive-follow-up-extending-from-chatbot::1.6.0": {
@@ -1559,6 +1955,10 @@
     "classified_at": "2026-07-05T00:57:27Z",
     "verdict": false
   },
+  "PROJ-977-llmxive-follow-up-extending-mmskills-tow::1.6.0": {
+    "classified_at": "2026-09-05T21:40:20Z",
+    "verdict": false
+  },
   "PROJ-978-llmxive-follow-up-extending-transitlm-a::1.6.0": {
     "classified_at": "2026-07-04T15:36:37Z",
     "verdict": false
@@ -1567,8 +1967,36 @@
     "classified_at": "2026-07-04T12:37:43Z",
     "verdict": false
   },
+  "PROJ-980-llmxive-follow-up-extending-naturebench::1.6.0": {
+    "classified_at": "2026-09-04T06:50:58Z",
+    "verdict": false
+  },
+  "PROJ-981-llmxive-follow-up-extending-agentic-envi::1.6.0": {
+    "classified_at": "2026-09-07T18:26:15Z",
+    "verdict": false
+  },
+  "PROJ-982-llmxive-follow-up-extending-dopd-dual-on::1.6.0": {
+    "classified_at": "2026-07-23T07:34:28Z",
+    "verdict": false
+  },
+  "PROJ-983-llmxive-follow-up-extending-scaling-the::1.6.0": {
+    "classified_at": "2026-07-24T22:01:50Z",
+    "verdict": false
+  },
+  "PROJ-984-llmxive-follow-up-extending-imaginative::1.6.0": {
+    "classified_at": "2026-08-11T21:54:25Z",
+    "verdict": false
+  },
   "PROJ-985-llmxive-follow-up-extending-full-attenti::1.6.0": {
     "classified_at": "2026-07-09T10:39:02Z",
+    "verdict": false
+  },
+  "PROJ-986-llmxive-follow-up-extending-blockpilot-i::1.6.0": {
+    "classified_at": "2026-07-30T18:39:23Z",
+    "verdict": false
+  },
+  "PROJ-987-llmxive-follow-up-extending-openthoughts::1.6.0": {
+    "classified_at": "2026-08-22T04:20:27Z",
     "verdict": false
   },
   "PROJ-988-llmxive-follow-up-extending-abot-earth-0::1.6.0": {
@@ -1579,12 +2007,24 @@
     "classified_at": "2026-07-05T21:36:52Z",
     "verdict": false
   },
+  "PROJ-991-llmxive-follow-up-extending-program-as-w::1.6.0": {
+    "classified_at": "2026-09-01T21:45:34Z",
+    "verdict": false
+  },
   "PROJ-993-llmxive-follow-up-extending-evopolicygym::1.6.0": {
     "classified_at": "2026-07-12T10:08:48Z",
     "verdict": false
   },
   "PROJ-997-llmxive-follow-up-extending-the-mirage-o::1.6.0": {
     "classified_at": "2026-07-12T18:37:24Z",
+    "verdict": false
+  },
+  "PROJ-998-llmxive-follow-up-extending-embodied-cpp::1.6.0": {
+    "classified_at": "2026-08-13T12:36:43Z",
+    "verdict": false
+  },
+  "PROJ-999-llmxive-follow-up-extending-vla-correcto::1.6.0": {
+    "classified_at": "2026-08-05T04:27:56Z",
     "verdict": false
   }
 }

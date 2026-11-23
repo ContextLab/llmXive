@@ -12,9 +12,9 @@
     "python code/main.py --task stats -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py\", line 121, in main\n    run_stats_phase(config)\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py\", line 58, in run_stats_phase\n    orchestrate_analysis(config)\nTypeError: orchestrate_analysis() takes 0 positional arguments but 1 was given\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last",
     "python code/main.py --task sensitivity-kappa -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py\", line 126, in main\n    run_sensitivity_kappa_analysis(config)\nTypeError: run_sensitivity_kappa_analysis() missing 1 required positional argument: 'output_file'\n\nDuring handling of the above exception, another exception occurred:\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-592-phenomenological-ai-first-person-experie/code/main.py\", line 141, in"
   ],
-  "fix_rounds": 7,
-  "model_tier": 0,
-  "updated_at": "2026-07-13T22:15:34Z",
+  "fix_rounds": 0,
+  "model_tier": 1,
+  "updated_at": "2026-10-11T12:37:50Z",
   "total_attempts": 15,
   "replan_rounds": 1,
   "failure_class": "data_unreachable",

@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "QM9 Dataset Schema"
+description: "Schema for the preprocessed QM9 dataset used in dipole prediction."
+type: "object"
+properties:
+  mol_id:
+    type: "string"
+    description: "Unique identifier for the molecule."
+  atom_numbers:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Atomic numbers for each atom in the molecule."
+  coordinates:
+    type: "array"
+    description: "3D coordinates (x, y, z) for each atom."
+    items:
+      type: "array"
+      items:
+        type: "number"
+      minItems: 3
+      maxItems: 3
+  dipole_magnitude:
+    type: "number"
+    description: "Magnitude of the dipole moment in Debye."
+  dipole_vector:
+    type: "array"
+    description: "Dipole moment vector components (x, y, z)."
+    items:
+      type: "number"
+    minItems: 3
+    maxItems: 3
+  morgan_fingerprint:
+    type: "array"
+    description: "Morgan fingerprint (binary array)."
+    items:
+      type: "integer"
+      minimum: 0
+      maximum: 1
+  coulomb_eigenvalues:
+    type: "array"
+    description: "Sorted eigenvalues of the Coulomb matrix."
+    items:
+      type: "number"
+required:
+  - mol_id
+  - atom_numbers
+  - coordinates
+  - dipole_magnitude
+  - dipole_vector
+  - morgan_fingerprint
+  - coulomb_eigenvalues
+additionalProperties: false

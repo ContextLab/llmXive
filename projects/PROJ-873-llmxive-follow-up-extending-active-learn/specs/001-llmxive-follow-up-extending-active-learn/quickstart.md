@@ -1,72 +1,73 @@
-# Quickstart: llmXive follow-up: extending "Active Learners as Efficient PRP Rerankers"
+# Quickstart: Active Learners as Efficient PRP Rerankers
 
 ## Prerequisites
-
-- Python 3.11+
-- Git
-- Access to a GitHub Actions runner (or local machine with sufficient RAM)
+-   Python 3.11+
+-   7GB+ RAM available
+-   14GB+ Disk space
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-873-llmxive-follow-up-extending-active-learn
-   ```
+1.  **Clone and Setup**:
+    ```bash
+    cd projects/PROJ-873-llmxive-follow-up-extending-active-learn
+    python -m venv venv
+    source venv/bin/activate
+    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Install Dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
+    *Key dependencies*: `beir`, `datasketch`, `sentence-transformers`, `scikit-learn`, `psutil`, `llama-cpp-python`.
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+3.  **Verify Environment**:
+    ```bash
+    python code/utils.py --check-env
+    ```
 
 ## Running the Pipeline
 
-### 1. Prepare Data
-Download and prepare the BEIR datasets with synthetic redundancy:
+### Full Execution (5 Seeds)
+Run the complete experiment (Data Loading -> Injection -> Clustering -> Ranking -> Stats):
 ```bash
-python code/data_loader.py --prepare
+python code/main.py --seeds 5
 ```
-*This will download `scifact`, `nfcorpus`, and `trec-covid`, inject synthetic redundancy, and save to `data/processed/`.*
+-   **Output**: Results will be saved in `data/results/`.
+-   **Duration**: ~2-4 hours on CPU.
+-   **Resource Watchdog**: The script will automatically abort if memory > 7GB or time > 6h.
 
-### 2. Run Baseline (High Redundancy)
-Execute the baseline active ranker on the redundant list for all required budgets:
+### Single Seed Debug
+To run a single seed for debugging:
 ```bash
-python code/run_pipeline.py --variant baseline --budgets 20 50 100 --seeds 5
-```
-
-### 3. Run Clustering-Aided Variant
-Execute the MinHash-LSH filtered ranker for all required budgets:
-```bash
-python code/run_pipeline.py --variant clustering_aided --budgets 20 50 100 --seeds 5
+python code/main.py --seeds 1 --seed 42
 ```
 
-### 4. Run Unique Baseline (Reference)
-Execute on a unique pool of N=100 for comparison:
+### Step-by-Step Execution
+If you need to inspect intermediate artifacts:
+1.  **Load & Inject**:
+    ```bash
+    python code/injection.py --inject --output data/processed/injected_datasets.json
+    ```
+2.  **Cluster**:
+    ```bash
+    python code/cluster_engine.py --input data/processed/injected_datasets.json --output data/processed/clusters.json
+    ```
+3.  **Rank & Measure**:
+    ```bash
+    python code/ranker.py --input data/processed/injected_datasets.json --output data/results/wasted_calls.json
+    ```
+
+## Verifying Results
+Check the statistical report:
 ```bash
-python code/run_pipeline.py --variant unique_baseline --budgets 20 50 100 --seeds 5
+cat data/results/statistical_report.md
 ```
-
-### 5. Statistical Analysis
-Compute metrics and run significance tests:
+Verify the Wilcoxon test:
 ```bash
-python code/metrics.py --aggregate
+cat data/results/wilcoxon_wasted_calls.json
 ```
-*This generates `data/results/statistical_summary.csv`, `data/results/ndcg_recovery_plot.png`, and `data/results/correlation_analysis.json`.*
-
-## Verification
-
-- **Check Resource Usage**: Monitor RAM and CPU during `run_pipeline.py`. It should stay under 7GB RAM and complete within 6 hours.
-- **Check Outputs**: Verify `data/results/statistical_summary.csv` contains p-values < 0.05 for the clustering-aided variant if the hypothesis holds.
-- **Check Correlation**: Verify `data/results/correlation_analysis.json` contains the Jaccard-Cosine correlation results.
 
 ## Troubleshooting
-
-- **OOM Error**: Reduce `--budgets` or `--seeds` in `run_pipeline.py`.
-- **Slow Embedding**: Ensure `sentence-transformers` is installed and using CPU (no CUDA errors).
-- **MinHash Threshold**: Adjust `--minhash-threshold` in `run_pipeline.py` if clustering is too aggressive.
+-   **Memory Error**: Reduce `batch_size` in `code/config.py`.
+-   **Timeout**: Ensure the runner has sufficient CPU; the 6h limit is strict.
+-   **Dataset Download**: If `beir` fails to download, check internet connectivity or use the manual download URLs in `research.md`.

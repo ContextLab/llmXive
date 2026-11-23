@@ -1,7 +1,21 @@
-? 'T005 [P] Implement `code/entropy.py` to calculate Shannon entropy of legal move
-  distributions. **Edge Case Handling**: If calculation returns NaN or Inf, the function
-  MUST default to returning a sentinel value that triggers retrieval of the **full
-  "all-layers" set** for that turn and MUST log a warning event with the specific
-  error details. **Input**: `data/raw/trajectories.csv`. **Depends on**: T006.'
-: 1
-T007 Create `data/processed/` directory structure and schema validation for derived metrics.: 2
+T003a: 1
+T005a: 2
+T005b: 1
+T008#2: 1
+T008c: 1
+T008d: 1
+T008e: 1
+T009: 1
+T014: 2
+T014a: 2
+T019: 2
+T020: 1
+T022: 2
+T022a: 1
+T023: 2
+T024: 1
+T026: 1
+T044: 1
+T050: 2
+T057c: 2
+T058: 2

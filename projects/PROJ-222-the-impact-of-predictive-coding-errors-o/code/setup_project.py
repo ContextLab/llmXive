@@ -1,41 +1,36 @@
-"""
-Script to initialize the project directory structure for the llmXive project.
-Creates necessary folders for data, code, figures, analysis, and contracts.
-"""
 import os
 import sys
+from pathlib import Path
+
 
 def create_directories():
-    """Create the required project directory structure."""
-    # Define the directories to create relative to the project root
+    """
+    Create the project directory structure as per the implementation plan.
+    Creates: data/raw, data/processed, code, figures, analysis, contracts
+    """
+    base_dir = Path(__file__).resolve().parent.parent
+    
     directories = [
-        "data/raw",
-        "data/processed",
-        "code",
-        "figures",
-        "analysis",
-        "contracts"
+        base_dir / "data" / "raw",
+        base_dir / "data" / "processed",
+        base_dir / "code",  # Already exists but ensures presence
+        base_dir / "figures",
+        base_dir / "analysis",
+        base_dir / "contracts",
     ]
+    
+    created_count = 0
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {directory}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {directory}")
+    
+    print(f"\nProject structure setup complete. Created {created_count} new directories.")
+    return created_count
 
-    created = []
-    failed = []
-
-    for dir_path in directories:
-        try:
-            os.makedirs(dir_path, exist_ok=True)
-            created.append(dir_path)
-            print(f"Created directory: {dir_path}")
-        except OSError as e:
-            failed.append((dir_path, str(e)))
-            print(f"Failed to create directory {dir_path}: {e}")
-
-    if failed:
-        print(f"\n{len(created)} directories created successfully.")
-        print(f"{len(failed)} directories failed to create.")
-        sys.exit(1)
-    else:
-        print(f"\nAll {len(created)} directories created successfully.")
-        sys.exit(0)
 
 if __name__ == "__main__":
     create_directories()

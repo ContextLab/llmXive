@@ -1,7 +1,6 @@
 """
-Configuration management for the Co-Evolving Policy Distillation pipeline.
-
-Handles seeding, generation counts, rule evaluation budgets, and file paths.
+Configuration management for the project.
+Implements T004a, T004b: Constants for seeding, generation counts, and exposure calculation.
 """
 import os
 import json
@@ -10,207 +9,132 @@ from typing import Dict, Any, Optional, List
 import random
 import hashlib
 
-
 class ConfigError(Exception):
-    """Raised when configuration loading or validation fails."""
+    """Custom exception for configuration errors."""
     pass
 
+# Constants for T004a
+VALIDITY_THRESHOLD = 0.95  # High confidence level for validity checks
+RULE_EVALUATION_BUDGET = 10000  # Total rule evaluations allowed
+RULES_PER_GENERATION = 100  # Number of rules to evaluate per generation
+TRAIN_SEED_START = 0
+TEST_SEED_START = 10000  # Disjoint seed range for test instances
 
 class Config:
-    """
-    Immutable configuration container for the research pipeline.
-    
-    Attributes:
-        seed: Global random seed for reproducibility.
-        num_generations: Number of generations for training loops.
-        rule_eval_budget: Maximum number of rule evaluations allowed per run.
-        data_dir: Path to the data directory.
-        results_dir: Path to store results and artifacts.
-        logic_config: Dict containing logic generation parameters.
-        grid_config: Dict containing grid generation parameters.
-        agent_config: Dict containing agent training parameters.
-    """
-    def __init__(
-        self,
-        seed: int,
-        num_generations: int,
-        rule_eval_budget: int,
-        data_dir: str = "data",
-        results_dir: str = "data/results",
-        logic_config: Optional[Dict[str, Any]] = None,
-        grid_config: Optional[Dict[str, Any]] = None,
-        agent_config: Optional[Dict[str, Any]] = None
-    ):
-        self.seed = seed
-        self.num_generations = num_generations
-        self.rule_eval_budget = rule_eval_budget
-        self.data_dir = Path(data_dir)
-        self.results_dir = Path(results_dir)
-        
-        self.logic_config = logic_config or {}
-        self.grid_config = grid_config or {}
-        self.agent_config = agent_config or {}
-        
-        # Validate constraints
-        if self.rule_eval_budget <= 0:
-            raise ConfigError("rule_eval_budget must be positive")
-        if self.num_generations <= 0:
-            raise ConfigError("num_generations must be positive")
+    """Configuration manager."""
 
-    def get_seed(self) -> int:
-        """Return the global seed."""
-        return self.seed
+    def __init__(self, config_dict: Optional[Dict[str, Any]] = None):
+        self._config = config_dict or {}
+        # Apply defaults
+        self._apply_defaults()
 
-    def set_seed(self) -> None:
-        """Apply the seed to random, numpy, and torch (if available)."""
-        random.seed(self.seed)
-        try:
-            import numpy as np
-            np.random.seed(self.seed)
-        except ImportError:
-            pass
-        try:
-            import torch
-            torch.manual_seed(self.seed)
-        except ImportError:
-            pass
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Serialize config to a dictionary."""
-        return {
-            "seed": self.seed,
-            "num_generations": self.num_generations,
-            "rule_eval_budget": self.rule_eval_budget,
-            "data_dir": str(self.data_dir),
-            "results_dir": str(self.results_dir),
-            "logic_config": self.logic_config,
-            "grid_config": self.grid_config,
-            "agent_config": self.agent_config
+    def _apply_defaults(self):
+        """Apply default configuration values."""
+        defaults = {
+            "seeds": {
+                "train_start": TRAIN_SEED_START,
+                "test_start": TEST_SEED_START
+            },
+            "generation": {
+                "validity_threshold": VALIDITY_THRESHOLD,
+                "rule_evaluation_budget": RULE_EVALUATION_BUDGET,
+                "rules_per_generation": RULES_PER_GENERATION
+            },
+            "paths": {
+                "generated_proofs": "data/generated_proofs.json",
+                "generated_grids": "data/generated_grids.json",
+                "test_instances": "data/test_instances.json",
+                "checksums": "data/checksums.json",
+                "validation_report": "data/validation_report.json",
+                "batch_config": "data/batch_config.json",
+                "results_dir": "data/results/"
+            }
         }
+        self._config = _deep_merge(defaults, self._config)
 
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Config':
-        """Deserialize config from a dictionary."""
-        return cls(
-            seed=data["seed"],
-            num_generations=data["num_generations"],
-            rule_eval_budget=data["rule_eval_budget"],
-            data_dir=data.get("data_dir", "data"),
-            results_dir=data.get("results_dir", "data/results"),
-            logic_config=data.get("logic_config"),
-            grid_config=data.get("grid_config"),
-            agent_config=data.get("agent_config")
-        )
+    def get(self, key: str, default: Any = None) -> Any:
+        """Get a configuration value by dot-notation key."""
+        keys = key.split('.')
+        value = self._config
+        for k in keys:
+            if isinstance(value, dict) and k in value:
+                value = value[k]
+            else:
+                return default
+        return value
 
+    def set(self, key: str, value: Any) -> None:
+        """Set a configuration value by dot-notation key."""
+        keys = key.split('.')
+        current = self._config
+        for k in keys[:-1]:
+            if k not in current:
+                current[k] = {}
+            current = current[k]
+        current[keys[-1]] = value
 
-def get_default_config() -> Config:
-    """
-    Returns a default configuration with sensible research defaults.
-    
-    Returns:
-        Config: A valid Config instance.
-    """
-    return Config(
-        seed=42,
-        num_generations=50,
-        rule_eval_budget=10000,
-        data_dir="data",
-        results_dir="data/results",
-        logic_config={
-            "num_proofs": 1000,
-            "max_depth": 5,
-            "num_vars": 8
-        },
-        grid_config={
-            "grid_size": 10,
-            "num_obstacles": 5,
-            "num_goals": 1
-        },
-        agent_config={
-            "population_size": 50,
-            "mutation_rate": 0.1,
-            "crossover_rate": 0.7
-        }
-    )
+    def calculate_total_exposure(self, num_generations: int) -> int:
+        """
+        Calculate total target exposure based on generations.
+        Implements T004b.
 
+        Args:
+            num_generations: Number of generations.
+
+        Returns:
+            Total target exposure (integer).
+        """
+        return RULES_PER_GENERATION * num_generations
+
+def _deep_merge(base: Dict, override: Dict) -> Dict:
+    """Deep merge two dictionaries."""
+    result = base.copy()
+    for key, value in override.items():
+        if key in result and isinstance(result[key], dict) and isinstance(value, dict):
+            result[key] = _deep_merge(result[key], value)
+        else:
+            result[key] = value
+    return result
+
+def get_default_config() -> Dict[str, Any]:
+    """Get the default configuration dictionary."""
+    return Config().get._config if hasattr(Config().get, '_config') else Config()._config
 
 def load_config_from_env() -> Config:
-    """
-    Loads configuration from environment variables.
-    
-    Environment Variables:
-        COEV_SEED: Integer seed.
-        COEV_GENERATIONS: Number of generations.
-        COEV_BUDGET: Rule evaluation budget.
-        COEV_DATA_DIR: Path to data directory.
-        
-    Returns:
-        Config: A Config instance populated from env vars.
-        
-    Raises:
-        ConfigError: If required env vars are missing or invalid.
-    """
-    try:
-        seed = int(os.getenv("COEV_SEED", 42))
-        generations = int(os.getenv("COEV_GENERATIONS", 50))
-        budget = int(os.getenv("COEV_BUDGET", 10000))
-        data_dir = os.getenv("COEV_DATA_DIR", "data")
-        results_dir = os.getenv("COEV_RESULTS_DIR", "data/results")
-        
-        return Config(
-            seed=seed,
-            num_generations=generations,
-            rule_eval_budget=budget,
-            data_dir=data_dir,
-            results_dir=results_dir
-        )
-    except ValueError as e:
-        raise ConfigError(f"Invalid environment variable value: {e}")
+    """Load configuration from environment variables."""
+    config_dict = {}
+    # Example: LLMXIVE_CONFIG_PATH=/path/to/config.json
+    config_path = os.environ.get('LLMXIVE_CONFIG_PATH')
+    if config_path and Path(config_path).exists():
+        with open(config_path, 'r') as f:
+            config_dict = json.load(f)
+    return Config(config_dict)
 
+def load_config() -> Config:
+    """Load configuration (environment or defaults)."""
+    return load_config_from_env()
 
-def load_config(config_path: Optional[str] = None) -> Config:
-    """
-    Loads configuration from a JSON file or environment variables.
-    
-    Priority:
-        1. JSON file if `config_path` is provided.
-        2. Environment variables if `config_path` is None.
-        3. Defaults if neither exists.
-        
-    Args:
-        config_path: Optional path to a JSON config file.
-        
-    Returns:
-        Config: A valid Config instance.
-    """
-    if config_path:
-        path = Path(config_path)
-        if not path.exists():
-            raise ConfigError(f"Config file not found: {config_path}")
-        
-        with open(path, "r") as f:
-            data = json.load(f)
-        
-        return Config.from_dict(data)
-    
-    # Try environment variables
-    if os.getenv("COEV_SEED"):
-        return load_config_from_env()
-    
-    # Fallback to defaults
-    return get_default_config()
+def save_config(config: Config, path: str) -> None:
+    """Save configuration to a JSON file."""
+    path_obj = Path(path)
+    path_obj.parent.mkdir(parents=True, exist_ok=True)
+    with open(path_obj, 'w') as f:
+        json.dump(config._config, f, indent=2)
 
+def main():
+    """CLI entry point for config operations."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Manage configuration")
+    parser.add_argument('--show', action='store_true', help='Show current config')
+    parser.add_argument('--save', type=str, help='Save config to file')
+    args = parser.parse_args()
 
-def save_config(config: Config, config_path: str) -> None:
-    """
-    Saves the configuration to a JSON file.
-    
-    Args:
-        config: The Config instance to save.
-        config_path: Path to the output JSON file.
-    """
-    path = Path(config_path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(path, "w") as f:
-        json.dump(config.to_dict(), f, indent=2)
+    config = load_config()
+    if args.show:
+        print(json.dumps(config._config, indent=2))
+    if args.save:
+        save_config(config, args.save)
+        print(f"Config saved to {args.save}")
+
+if __name__ == "__main__":
+    main()

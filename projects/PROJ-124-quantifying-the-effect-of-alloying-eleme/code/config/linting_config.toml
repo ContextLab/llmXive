@@ -1,0 +1,52 @@
+# Ruff configuration for llmXive project
+# This file provides linting rules for consistent code style
+
+[ruff]
+target-version = "py311"
+line-length = 88
+select = [
+    "E",      # pycodestyle errors
+    "W",      # pycodestyle warnings
+    "F",      # Pyflakes
+    "I",      # isort
+    "B",      # flake8-bugbear
+    "C4",     # flake8-comprehensions
+    "UP",     # pyupgrade
+    "ARG",    # flake8-unused-arguments
+    "SIM",    # flake8-simplify
+]
+ignore = [
+    "E501",   # line too long (handled by black)
+    "B008",   # do not perform function calls in argument defaults
+    "ARG001", # unused arguments (sometimes needed for interface compatibility)
+]
+exclude = [
+    ".git",
+    "__pycache__",
+    ".eggs",
+    "*.egg-info",
+    "build",
+    "dist",
+    "venv",
+    ".venv",
+]
+
+[ruff.per-file-ignores]
+"tests/*" = ["ARG001"]  # Allow unused arguments in tests for fixtures
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+skip-string-normalization = false
+exclude = '''
+(
+    __pycache__
+    | .git
+    | .eggs
+    | \.egg-info
+    | build
+    | dist
+    | venv
+    | \.venv
+)
+'''

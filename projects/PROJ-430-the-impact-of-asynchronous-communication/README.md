@@ -1,19 +1,19 @@
-# The Impact of Asynchronous Communication Delays on Team Cohesion
+# PROJ-430: The Impact of Asynchronous Communication Delays on Team Cohesion
 
-## Project Overview
-This project analyzes GitHub event data to study the relationship between asynchronous communication delays and team cohesion.
+## Overview
+This project investigates the correlation between asynchronous communication delays (response time variance) and team cohesion proxies in open-source software development.
 
 ## Structure
-- `code/`: Python source code for data ingestion, metrics, analysis, and visualization
-- `data/`: Raw, derived, and validation data
-- `specs/`: Project specifications and design documents
-- `tests/`: Unit and integration tests
+- `code/`: Source code for data ingestion, metrics calculation, sentiment analysis, and visualization.
+- `data/`: Raw, derived, and validation data artifacts.
+- `tests/`: Unit and integration tests.
+- `specs/`: Research specifications and design documents.
 
-## Setup
-1. Clone the repository
-2. Create a virtual environment: `python -m venv venv`
-3. Activate: `source venv/bin/activate` (or `venv\Scripts\activate` on Windows)
-4. Install dependencies: `pip install -r requirements.txt`
+## Prerequisites
+- Python 3.11+
+- Dependencies listed in `requirements.txt` (pandas, scikit-learn, nltk, requests, matplotlib, seaborn, pyyaml, langdetect, networkx)
 
-## Usage
-See `quickstart.md` for execution instructions.
+## Quick Start
+1. Install dependencies: `pip install -r requirements.txt`
+2. Configure paths in `code/config.py`.
+3. Run the pipeline: `python code/pipeline.py`

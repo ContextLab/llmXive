@@ -1,3 +1,3 @@
 """
-Test suite initialization.
+Test suite for the research pipeline.
 """

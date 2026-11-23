@@ -1,27 +1,22 @@
 """
-Custom exception classes for the llmXive molecular interactions pipeline.
+Custom exception classes for the llmXive research pipeline.
 
-These exceptions provide specific error signaling for data validation
-failures and training resource constraints, allowing the main pipeline
-to handle critical failures distinctly from general runtime errors.
+These exceptions are used to enforce strict data validation and training
+constraints as defined in the project plan (e.g., hard abort on missing data).
 """
 
 class DataError(Exception):
     """
-    Raised when data validation fails or required data is missing.
+    Raised when there is an error with data processing, validation, or availability.
 
-    This exception is used to signal critical data issues such as:
-    - Missing required fields (e.g., adhesion energy)
-    - Insufficient row counts in curated datasets
-    - Checksum mismatches during data verification
-    - Invalid data formats that prevent processing
+    This exception is used to implement the 'Hard Abort' strategy for data
+    pipelines. When raised, the script should terminate immediately without
+    attempting to fall back to synthetic data or proxy metrics.
 
     Attributes:
-        message (str): Human-readable explanation of the error.
-        code (str, optional): Specific error code (e.g., 'E-DATA-001') for
-            automated handling and logging.
+        message (str): The error message describing the failure.
+        code (str): Optional error code (e.g., 'E-DATA-001').
     """
-
     def __init__(self, message: str, code: str = None):
         self.message = message
         self.code = code
@@ -29,31 +24,31 @@ class DataError(Exception):
 
     def __str__(self):
         if self.code:
-            return f"[{self.code}] {self.message}"
+            return f"{self.code}: {self.message}"
         return self.message
 
 
 class TrainingTimeoutError(Exception):
     """
-    Raised when a training process exceeds the allowed time or resource limits.
+    Raised when the model training process exceeds the allowed time limit.
 
-    This exception is used to enforce the hard limits defined in the
-    implementation plan (e.g., 6-hour maximum runtime, 6GB RAM limit).
-    It triggers checkpointing and graceful shutdown procedures.
+    Per project constraints, training must complete within a specific window
+    (e.g., 6 hours). If this limit is exceeded, this exception is raised
+    to trigger checkpointing and termination.
 
     Attributes:
-        message (str): Human-readable explanation of the timeout.
-        current_duration (float, optional): Duration in seconds elapsed so far.
-        limit_duration (float, optional): Maximum allowed duration in seconds.
+        message (str): The error message describing the timeout.
+        elapsed_time (float): Time elapsed in seconds before the timeout.
+        limit_time (float): The configured time limit in seconds.
     """
-
-    def __init__(self, message: str, current_duration: float = None, limit_duration: float = None):
+    def __init__(self, message: str, elapsed_time: float = None, limit_time: float = None):
         self.message = message
-        self.current_duration = current_duration
-        self.limit_duration = limit_duration
+        self.elapsed_time = elapsed_time
+        self.limit_time = limit_time
         super().__init__(self.message)
 
     def __str__(self):
-        if self.current_duration is not None and self.limit_duration is not None:
-            return f"{self.message} (Elapsed: {self.current_duration:.2f}s, Limit: {self.limit_duration:.2f}s)"
-        return self.message
+        base_msg = self.message
+        if self.elapsed_time is not None and self.limit_time is not None:
+            base_msg += f" (Elapsed: {self.elapsed_time:.2f}s, Limit: {self.limit_time:.2f}s)"
+        return base_msg

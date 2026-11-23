@@ -1,0 +1,179 @@
+T001:
+  c: true
+  h: c78ef72cb3979d690fb7e29063acaaa9e939b90c2d554df7be5ce8d6d429c23e
+  r: "Checked the `code/.tasks/T001.code_create_project_structure.py.log` which records\
+    \ successful execution of the directory\u2011creation script and the subsequent\
+    \ `ls -R` output showing the required `src/models`, `src/services`, `src/analysis`,\
+    \ `src/cli`, `src/utils`, `data/raw`, `data/processed`, `tests/unit`, `tests/integration`,\
+    \ and `docs` directories. No top\u2011level `contracts/` directory is present\
+    \ (only under `specs/\u2026`)."
+  sig: 9ec9c02997d9aca957a6ab6d3df2af211cdbeebdede1e927fb14d2f3e8da0eff
+T002:
+  c: true
+  h: f0606395197c39aec052f2021d315c218651e84edd8fe8d85437f4f625c6601e
+  r: The `pyproject.toml` exists at the project root (970 bytes) and declares `requires-python
+    = ">=3.11"` plus all six required dependencies (`requests`, `pandas`, `scipy`,
+    `statsmodels`, `matplotlib`, `pyyaml`) with sensible version bounds; extra dev
+    dependencies and tool config are harmless additions.
+  sig: d429ecd1f781ef2e8e6a45f7245292a4831ccb902547c88f29772434fe45f580
+T004:
+  c: true
+  h: 94881244ef0160ec7c02765cf06412c8977cb35cef7d0a28a76574626e4d921c
+  r: The file `src/models/data_models.py` exists (3339 bytes) and defines Pydantic
+    `Package`, `Dependency`, and `AnalysisResult` models with all spec-relevant fields
+    (last_release_date, last_commit_date, vulnerability_count, age_in_days, correlation_coefficient,
+    p_value, is_significant, stratified_results), with no stubs or placeholders.
+  sig: 3f43bde2b159ba657261a425e171289aefb99007cba02bc9fff7881ee8d00099
+T005:
+  c: true
+  h: 2d701a9ae23ebe24de17b0a1db44767ec76c06ea6a721c84ef8f2fd9f21d91a3
+  r: 'The file `src/utils/backoff.py` exists (3526 bytes) and implements exponential
+    backoff with the exact required parameters: max_retries=3, initial_delay=1.0s,
+    multiplier=2.0, max_delay=60s, via both a decorator and a standalone delay calculator,
+    with no stubs or placeholders.'
+  sig: 283229ab87c6e04aa3f95afa9dd9b8b5acb642bdcdc41318959cb1539e9eff05
+T005a:
+  c: false
+  h: ce7f6450d9ab6b26ba6957a6411004100851f74a370d5ac6fb4d9becdb378d6a
+  r: "The file `src/utils/checksum.py` exists and is substantive, but it defines `generate_checksum`\
+    \ (plus verify/directory helpers), while the task's verification command imports\
+    \ and calls `compute_checksum` \u2014 running the specified check would raise\
+    \ `ImportError: cannot import name 'compute_checksum'`. The implementer must add\
+    \ a `compute_checksum` function (or alias) so the exact verification command passes."
+  sig: ed380c367ff42cad462ca6e865060156f3a0a607a997969a1685a4580ca37bf5
+T006:
+  c: true
+  h: 28dcd8bca98110c2baac90788a6b06a48a707e275b7ade56c280e771930e3c5a
+  r: "The file `src/config/settings.py` exists (3224 bytes) and contains a real Config\
+    \ class with defaults for `NPM_API_KEY` (empty string), `GITHUB_TOKEN` (empty\
+    \ string), and `RATE_LIMIT` (60 requests/min), loaded from environment variables\
+    \ with sensible fallbacks \u2014 exactly what T006 asked for, with no stubs or\
+    \ placeholders."
+  sig: 461b01672e36dcd4be3c17f43dc02ba099d8ab9092e6df11c4468849a83a16e8
+T007:
+  c: true
+  h: 62559c711064bc1d2c9832eef2df0d7692180ce03f340ea630a4efd689827ad3
+  r: "Checked `src/utils/logging_config.py` (3325\u202Fbytes) which defines a logger,\
+    \ records each API call\u2019s SUCCESS/FAILURE in an in\u2011memory registry,\
+    \ and provides functions to retrieve aggregated metrics and compute success ratios,\
+    \ fulfilling the FR\u2011009 requirement."
+  sig: bdcace15d79af8c3e334da4c7cee1fc20d4cae0d591269e32fe22a91fc3fcd19
+T007a:
+  c: true
+  h: efecf1071060ff04cac5a42dcda0068999834fd7809d904370ceaed566455005
+  r: "Checked `src/utils/api_metrics.py` (3643\u202Fbytes) which defines `aggregate_and_report`\
+    \ that gathers metrics via `get_aggregated_metrics`, computes per\u2011endpoint\
+    \ and overall success/failure ratios, and can write a JSON report; a `main` entry\
+    \ prints the report, fulfilling the SC\u2011004 requirement. The supporting `src/utils/logging_config.py`\
+    \ provides the needed metric registry and logging utilities, confirming the implementation\
+    \ is functional and non\u2011stub."
+  sig: 97f9726ecf647bcfbbb8c601cdd09f79765ddbb55aaf56e3f015350ce29d6161
+T008b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data, or report was provided that demonstrates a local file caching
+    mechanism being exercised in a real pipeline simulation, nor any evidence that
+    such a verification was performed. The required artifact (e.g., a script, logs,
+    or test results showing the caching behavior) is missing.
+T009:
+  c: true
+  h: e862b900fcbe9e800738ed95a1e9237147884a940ae985a3cb9b648537b0edef
+  r: "Checked the presence and content of `tests/unit/test_age_calc.py`, which defines\
+    \ a full suite of pytest unit tests covering age calculation, including handling\
+    \ of null release and commit dates, timezone\u2011naive inputs, and edge cases.\
+    \ The file exists, is non\u2011empty, and directly implements the required tests."
+  sig: 8403312af53a3e28b918f54a116cb2364c24857b6dcb508b9fc13bdb0947fd71
+T010:
+  c: false
+  h: 0a550efca76bee0bb2c2eebfaaec374bf9d67e48689ba42cb7ba92bca9ab9987
+  r: "The file `tests/unit/test_backoff.py` exists and contains tests, but it imports\
+    \ `exponential_backoff` from `src.utils.backoff`, whose implementation is a decorator\
+    \ factory (`exponential_backoff(retries=..., ...) -> decorator`). The tests call\
+    \ it as a plain function with arguments `max_retries`, `initial_delay`, etc.,\
+    \ which does not match the actual signature and will raise a TypeError, so the\
+    \ max\u2011retries behavior of the real backoff logic is never exercised. The\
+    \ unit test therefore does not correctly verify the required backoff logic."
+  sig: 200712b538dd6046752cb9fc0a2da91dd61a59aaa916909a162aec39155659dc
+T011:
+  c: false
+  h: cb44f89d596cc39650548891e3291b644f443a03540d4d4dc06975eedccbf7ff
+  r: "The `tests/integration/test_api_clients_replay.py` file exists, but it does\
+    \ **not** use real cached snapshots from the project\u2019s `data/raw/` directory\
+    \ (which is empty). Instead, the test creates temporary mock cache files in a\
+    \ `tmp_path` directory, patches `load_from_cache` incorrectly, and never exercises\
+    \ the actual cache\u2011loading logic of the client services. Consequently, the\
+    \ integration test does not satisfy the requirement to replay API responses using\
+    \ real cached snapshots. The missing real snapshot files and the flawed test implementation\
+    \ must be fixed."
+  sig: 206af5e88c7dea96d50b9d94e566e18c7c3e848c89172f8b5e56f6504655348c
+T017a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration file, or documentation was provided showing a `TOP_PACKAGES`
+    default value being set. The required artifact (e.g., a source file or settings
+    entry defining the default count) is missing, so the task is not satisfied.
+T017b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, dataset, or script was provided that demonstrates the calculation of\
+    \ `age_in_days` with the required behavior (null `release_date` \u2192 `age_in_days`\
+    \ null, while still having a non\u2011null `vulnerability_count`). The artifact\
+    \ needed to verify the logic is missing."
+T018:
+  c: false
+  h: 7373a8e1a078c222a6e2d0ff0f5c64a1ab9b84bde1fe3cf0e8e220af26aa65af
+  r: The provided `src/cli/collect_data.py` does not contain any code that writes
+    `data/processed/dependencies_raw.csv` or `data/processed/metrics.json` (no references
+    to those filenames appear in the shown portion), and the expected output files
+    are absent from the repository. The export logic required by the task is missing.
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or report artifact was provided that demonstrates the addition\
+    \ of logic to detect p\u202F<\u202F0.05 and flag statistical significance in the\
+    \ output report, as required by US\u20112 Acceptance\u202F3. The implementer\u2019\
+    s claim cannot be verified without such evidence."
+T027:
+  c: false
+  h: 556f19969af428dfc0697e82378d7d8428bbb04e3c391d6bfe2adffcce577fa6
+  r: The required output file `data/processed/results_correlation.json` does not exist,
+    and the provided `src/analysis/correlation.py` only defines helper functions without
+    any code that runs the analysis and writes the JSON result. Consequently the task
+    of executing the script to generate the correlation results has not been fulfilled.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or report artifact was provided that implements the required\
+    \ logic to flag statistical significance (p\u202F<\u202F0.05) in the US\u2011\
+    2 output report. Without a concrete file showing the flagging behavior, the task\
+    \ requirement is not satisfied. The next implementer must add and commit the updated\
+    \ analysis/report generation code (or a sample output) that includes the significance\
+    \ flag."
+T031:
+  c: false
+  h: bbd9895c4a794f82110eb956130c96865739031749c51f3b2817207bcf90c897
+  r: "The `src/cli/generate_report.py` script exists, but the provided excerpt ends\
+    \ abruptly and shows no code that writes a markdown file to `docs/report.md`.\
+    \ Moreover, the expected output file `docs/report.md` is missing from the repository.\
+    \ Without a concrete implementation that creates the report, the task\u2019s requirement\
+    \ is not satisfied."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `docs/` directory or `quickstart.md` file was presented; the claim of documentation
+    updates cannot be verified because the required artifacts are missing. The task
+    specifically requires a `quickstart.md` in `docs/` describing how to run the pipeline,
+    which is absent.
+T040:
+  c: false
+  h: bbd9895c4a794f82110eb956130c96865739031749c51f3b2817207bcf90c897
+  r: The `generate_report.py` script is present, but the required output file `docs/report.md`
+    does not exist, so the aggregation step has not been demonstrated. The missing
+    report file must be generated and present for the task to be considered complete.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `docs/` directory or `quickstart.md` file was provided; the claim of documentation
+    updates cannot be verified because the required artifacts are missing. The task
+    requires actual documentation files to be present and contain instructions for
+    running the pipeline.

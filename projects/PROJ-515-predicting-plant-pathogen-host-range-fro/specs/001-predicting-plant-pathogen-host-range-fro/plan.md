@@ -13,11 +13,11 @@ This project implements a computational pipeline to predict plant pathogen host 
 **Primary Dependencies**: `scikit-learn` (>=1.3.0), `pandas` (>=2.0.0), `numpy` (>=1.24.0), `shap` (>=0.44.0, cpu-only), `biopython` (>=1.81), `requests` (>=2.31.0), `loguru` (>=0.7.0), `pyyaml` (>=6.0.1)  
 **Storage**: Local filesystem (`data/`, `results/`, `logs/`); no external database required.  
 **Testing**: `pytest` (>=7.4.0) with `pytest-cov` for coverage; contract tests against YAML schemas.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM, 14 GB disk).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, limited RAM, GB disk).  
 **Project Type**: CLI pipeline (Python scripts + Bash wrappers).  
 **Performance Goals**: End-to-end runtime ≤ 5 hours for 50 pathogens; memory ≤ 4 GB; prediction latency ≤ 30s per novel genome.  
 **Constraints**: No GPU/CUDA; no deep learning; no proprietary data; strict data provenance (NCBI GenBank, PHI-Base, etc.); missing interactions treated as 'unknown' unless sensitivity analysis is run.  
-**Scale/Scope**: A diverse set of pathogens (max 2 GB total genome data), ~ host species, genomic feature categories.
+**Scale/Scope**: A diverse set of pathogens (max GB total genome data), ~ host species, genomic feature categories.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -119,7 +119,7 @@ Contract tests (`tests/contract/`) will validate:
 ### Phase 1: Feature Engineering & Preprocessing
 - **T005**: Implement `logging.py` to configure loguru with timestamps and error levels (FR-010).
 - **T006**: Implement `extract_genomic_features.py` to compute effector counts, Pfam, GC, k-mers, and SM clusters (FR-003).
-- **T007**: Implement dimensionality reduction: PCA (k=20) for k-mers and top-50 filtering for Pfam domains (Research Rationale).
+- **T007**: Implement dimensionality reduction: PCA (k=20) for k-mers and top filtering for Pfam domains (Research Rationale).
 - **T008**: Implement `collinearity_check.py` to perform VIF analysis and remove collinear features (FR-014).
 - **T009**: Generate `data/processed/feature_matrix.csv`.
 

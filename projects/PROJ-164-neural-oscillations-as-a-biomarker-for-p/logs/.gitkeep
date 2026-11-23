@@ -1,0 +1,2 @@
+# This file ensures the logs directory exists in the repository.
+# Actual logs are written to pipeline.log by the logging_setup module.

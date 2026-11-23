@@ -115,7 +115,7 @@ projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/
 | **P1** | ROI Extraction | FR-001, SC-001 | Extract BOLD signals from dlPFC, VS, ACC from preprocessed volumes. Compute discrepancy regressors. |
 | **P2** | Behavioral Modeling | FR-002, SC-002, SC-007 | Fit Hierarchical Bayesian model (pymc/numpyro) for belief updating (alpha). **Target N=30**. Validate on held-out data. Monitor convergence (R-hat < 1.01). |
 | **P3** | Neural-Behavioral Correlation | FR-003, FR-005, SC-003 | GLM analysis of feedback discrepancy. Partial correlation of neural activation vs. alpha (with LOSO cross-validation to avoid tautology). Control for confounds (motion, global signal). |
-| **P4** | Voxel-Wise Inference | FR-004, SC-004 | Permutation testing (1000 perms) with FDR correction **across full brain volume** (voxel-wise). |
+| **P4** | Voxel-Wise Inference | FR-004, SC-004 | Permutation testing with FDR correction **across full brain volume** (voxel-wise). |
 | **P5** | Sensitivity Analysis | FR-006, SC-005 | Sweep updating thresholds; report stability of correlation coefficients. |
 | **P6** | Reporting & Tasks | SC-001..005 | Generate final stats, figures, `tasks.md`, and validation reports. |
 
@@ -123,7 +123,7 @@ projects/PROJ-011-neural-mechanisms-underlying-adaptive-de/
 
 - **Memory**: Data will be loaded in chunks. fMRI volumes will be masked to ROI masks immediately after loading to reduce dimensionality.
 - **CPU**: `pymc` with `numpyro` backend (CPU). **Target N=30**. MCMC: 4 chains, 2000 samples (total 8000 draws) to ensure convergence (R-hat < 1.01) within 6h.
-- **Parallelism**: Python `multiprocessing` will be used for participant-level loops (P1, P2, P5), limited to 2 workers to avoid OOM on 7GB RAM.
+- **Parallelism**: Python `multiprocessing` will be used for participant-level loops (P1, P2, P5), limited to a small number of workers to avoid OOM on 7GB RAM.
 - **Fallback**: If a participant's model fails to converge after 3 restarts (Edge Case), they are excluded and logged (FR-002).
 - **Power**: Target N=30 provides [deferred] power to detect r=0.3 at alpha=0.05. If dataset N < 30, power limitation is explicitly reported.
 - **Preprocessing**: Use lightweight `nibabel`/`nilearn` pipelines for motion correction and normalization to fit within 6h. Avoid heavy `fMRIPrep` if possible; use simplified spatial normalization if necessary.

@@ -1,316 +1,248 @@
 """
-Preprocess module for mapping text stories to VR scenes.
+Preprocessing Pipeline (T016-Preprocess-Validate)
 
-This module assigns `salience_level` (low/high) to moral stories
-by mapping them to specific VR scene configurations and blend-shape parameters.
+This module implements the preprocessing logic for User Story 1.
+It maps text stories to VR scenes, assigns salience levels via blend-shape parameters,
+and produces the merged preprocessed dataset required for downstream analysis.
+
+Dependencies:
+- T044: data/config/unity_blend_shapes.yaml (Configuration)
+- T013/T014: data/processed/synthetic_mfq.csv, data/processed/synthetic_logs.csv (Input)
+
+Output:
+- data/processed/merged_simulation.csv (Preprocessed Data)
 """
-import os
-import sys
+from __future__ import annotations
+
 import json
 import logging
+import os
+import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import Any, Dict, List, Optional
+
 import pandas as pd
-from datetime import datetime
+import yaml
 
-# Local imports matching API surface
-from code.config import ensure_directories
-from code.utils.schema import MergedDataset, SalienceLevel, MoralStory
-from code.utils.logging_utils import log_vr_mapping, get_logger
-from code.utils.hashing import calculate_sha256, update_state_yaml
+# Add parent to path for imports if running as script
+if __name__ == "__main__":
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-# Configure logging
-logger = get_logger(__name__)
+from code.config import get_path, load_yaml_config
+from code.utils.logging import get_logger, log_operation
 
-# Constants for blend-shape mapping
-# These map logical salience levels to specific Unity blend-shape weights
-# Low Salience: Subtle cues, lower weight on emotional facial features
-# High Salience: Exaggerated cues, higher weight on emotional facial features
-BLEND_SHAPE_CONFIG = {
-    "low": {
-        "eye_brows_inner_up": 0.15,
-        "mouth_corner_pull": 0.10,
-        "jaw_open": 0.05,
-        "cheek_puff": 0.0,
-        "eye_close_left": 0.0,
-        "eye_close_right": 0.0,
-        "brow_down_left": 0.05,
-        "brow_down_right": 0.05
-    },
-    "high": {
-        "eye_brows_inner_up": 0.85,
-        "mouth_corner_pull": 0.90,
-        "jaw_open": 0.70,
-        "cheek_puff": 0.40,
-        "eye_close_left": 0.15,
-        "eye_close_right": 0.15,
-        "brow_down_left": 0.75,
-        "brow_down_right": 0.75
-    }
-}
+# Configure paths
+CONFIG_PATH = "data/config/unity_blend_shapes.yaml"
+# Note: T016-Preprocess-Validate expects merged data from T013/T014 orchestration
+# The orchestration (T056-Orch) writes to 'merged_simulation.csv' before this runs
+# However, for robustness, we check common intermediate paths if the specific one is missing
+MERGED_DATA_PATHS = [
+    "data/processed/merged_simulation.csv",
+    "data/processed/merged_data.csv",
+    "data/processed/synthetic_mfq.csv", # Fallback if merge didn't happen yet
+]
+PREPROCESSED_OUTPUT_PATH = "data/processed/merged_simulation.csv"
 
-# Mapping of story themes to default salience levels based on experimental design
-# This simulates the assignment logic where specific story types are assigned
-# to high or low salience conditions for the VR environment.
-STORY_THEME_SALIENCE_MAP = {
-    "harm": "high",
-    "fairness": "high",
-    "loyalty": "high",
-    "authority": "high",
-    "purity": "high",
-    "neutral": "low",
-    "baseline": "low"
-}
+logger = get_logger("preprocess_pipeline")
 
-def load_merged_data(input_path: Path) -> pd.DataFrame:
+
+def load_yaml_config(config_path: str) -> Dict[str, Any]:
+    """Load a YAML configuration file."""
+    full_path = get_path(config_path)
+    if not os.path.exists(full_path):
+        raise FileNotFoundError(f"Configuration file not found: {full_path}")
+    
+    with open(full_path, 'r') as f:
+        return yaml.safe_load(f)
+
+
+def load_blend_shape_config() -> Dict[str, Any]:
     """
-    Load the merged dataset from the ingestion step.
-    
-    Args:
-        input_path: Path to the merged CSV file.
-        
-    Returns:
-        DataFrame containing merged MFQ and story data.
-        
-    Raises:
-        FileNotFoundError: If the input file does not exist.
-        ValueError: If the file is empty or malformed.
+    Load the Unity blend shape configuration.
+    Validates that the required 'low' and 'high' keys exist.
     """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Merged data file not found: {input_path}")
+    config = load_yaml_config(CONFIG_PATH)
     
-    df = pd.read_csv(input_path)
+    # Schema Validation per T044 requirements
+    if "low" not in config or "high" not in config:
+        raise ValueError(
+            f"Invalid blend shape config at {CONFIG_PATH}. "
+            "Missing required keys: 'low' and/or 'high'. "
+            "Each must contain a 'blend_shape_params' object."
+        )
     
-    if df.empty:
-        raise ValueError(f"Merged data file is empty: {input_path}")
+    if "blend_shape_params" not in config["low"] or "blend_shape_params" not in config["high"]:
+        raise ValueError(
+            f"Invalid blend shape config at {CONFIG_PATH}. "
+            "Keys 'low' and 'high' must contain 'blend_shape_params'."
+        )
+    
+    logger.info("Blend shape config loaded and validated.")
+    return config
+
+
+def load_merged_data() -> pd.DataFrame:
+    """
+    Load the merged dataset from the intermediate CSV.
+    Tries the primary expected path first, then fallbacks.
+    """
+    # Try primary path first
+    primary_path = get_path(MERGED_DATA_PATHS[0])
+    if os.path.exists(primary_path):
+        logger.info(f"Loading merged data from {primary_path}")
+        return pd.read_csv(primary_path)
+    
+    # Fallback logic: Try to merge MFQ and Logs manually if the intermediate file is missing
+    # This handles cases where T056-Orch might have skipped the merge step or named it differently
+    mfq_path = get_path("data/processed/synthetic_mfq.csv")
+    logs_path = get_path("data/processed/synthetic_logs.csv")
+    
+    if os.path.exists(mfq_path) and os.path.exists(logs_path):
+        logger.warning("Merged data file not found. Attempting to merge MFQ and Logs on-the-fly.")
+        df_mfq = pd.read_csv(mfq_path)
+        df_logs = pd.read_csv(logs_path)
         
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
+        # Merge on participant_id
+        # Ensure both have participant_id
+        if "participant_id" not in df_mfq.columns or "participant_id" not in df_logs.columns:
+            raise ValueError("Cannot merge: participant_id missing in source files.")
+        
+        merged_df = pd.merge(df_mfq, df_logs, on="participant_id", how="inner")
+        logger.info(f"Merged {len(df_mfq)} MFQ rows with {len(df_logs)} log rows. Result: {len(merged_df)} rows.")
+        return merged_df
+    
+    # If all else fails
+    raise FileNotFoundError(
+        f"Merged data file not found at expected path: {primary_path}. "
+        f"Also checked fallbacks at {get_path('data/processed/synthetic_mfq.csv')} "
+        f"and {get_path('data/processed/synthetic_logs.csv')}. "
+        "Ensure T013 and T014 have completed successfully."
+    )
+
+
+def assign_salience_level(story_id: Any, config: Dict[str, Any]) -> str:
+    """
+    Assign a salience level ('low' or 'high') based on the story_id.
+    
+    Logic:
+    - If story_id is in config['low'], return 'low'.
+    - If story_id is in config['high'], return 'high'.
+    - If not found, default to 'low' (or raise error depending on strictness).
+      Per T044, the config is the single source of truth.
+    """
+    low_stories = config.get("low", {}).get("story_ids", [])
+    high_stories = config.get("high", {}).get("story_ids", [])
+    
+    # Handle potential float/int types from CSV
+    story_id_str = str(story_id)
+    
+    if story_id_str in [str(s) for s in low_stories]:
+        return "low"
+    elif story_id_str in [str(s) for s in high_stories]:
+        return "high"
+    else:
+        # Default to low if not explicitly mapped, but log a warning
+        logger.warning(f"Story ID '{story_id}' not found in salience mapping. Defaulting to 'low'.")
+        return "low"
+
+
+def map_to_blend_shapes(row: pd.Series, config: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Map a row's story_id to the specific blend shape parameters.
+    Returns a dictionary of parameters for that salience level.
+    """
+    salience = row.get("salience_level")
+    if salience not in config:
+        # Fallback if salience wasn't assigned correctly
+        salience = "low"
+        
+    params = config[salience].get("blend_shape_params", {})
+    return params
+
+
+def process_salience_mapping(df: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
+    """
+    Apply salience mapping to the dataframe.
+    Adds 'salience_level' and 'blend_shape_params' (JSON string) columns.
+    """
+    if "story_id" not in df.columns:
+        # If story_id is missing, we might need to infer it or fail
+        # Assuming synthetic logs have story_id. If not, we can't map.
+        raise ValueError("Input dataframe missing 'story_id' column required for salience mapping.")
+    
+    # Apply mapping
+    df["salience_level"] = df["story_id"].apply(lambda x: assign_salience_level(x, config))
+    
+    # Extract blend shape params as JSON string for storage
+    # This ensures the data is serializable and matches the schema requirements
+    df["blend_shape_params"] = df.apply(
+        lambda row: json.dumps(map_to_blend_shapes(row, config)), axis=1
+    )
+    
+    logger.info(f"Salience mapping applied. Distribution: {df['salience_level'].value_counts().to_dict()}")
     return df
 
-def assign_salience_level(row: pd.Series, theme_map: Optional[Dict[str, str]] = None) -> str:
-    """
-    Assign a salience level to a story row based on its theme or ID.
-    
-    This function implements the logic to map text stories to VR scenes
-    by determining the appropriate salience level (low/high).
-    
-    Args:
-        row: A single row from the DataFrame.
-        theme_map: Optional custom mapping of themes to salience levels.
-        
-    Returns:
-        String representing the salience level ('low' or 'high').
-    """
-    if theme_map is None:
-        theme_map = STORY_THEME_SALIENCE_MAP
-    
-    # Determine theme from the row
-    theme = None
-    if 'theme' in row:
-        theme = str(row['theme']).lower()
-    elif 'story_theme' in row:
-        theme = str(row['story_theme']).lower()
-    elif 'moral_foundation' in row:
-        theme = str(row['moral_foundation']).lower()
-    
-    # If theme is found, use the mapping
-    if theme and theme in theme_map:
-        return theme_map[theme]
-    
-    # Fallback: If no explicit theme, check for specific keywords in story text
-    if 'story_text' in row and pd.notna(row['story_text']):
-        text = str(row['story_text']).lower()
-        if any(kw in text for kw in ['harm', 'hurt', 'damage', 'injury']):
-            return "high"
-        if any(kw in text for kw in ['fair', 'equal', 'right', 'wrong']):
-            return "high"
-    
-    # Default fallback to low salience
-    return "low"
 
-def map_to_blend_shapes(salience_level: str) -> Dict[str, float]:
-    """
-    Map a salience level to specific blend-shape parameters for VR rendering.
+def save_preprocessed_data(df: pd.DataFrame, output_path: str) -> None:
+    """Save the preprocessed dataframe to CSV."""
+    full_path = get_path(output_path)
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(full_path), exist_ok=True)
     
-    Args:
-        salience_level: The salience level ('low' or 'high').
-        
-    Returns:
-        Dictionary of blend-shape names to weight values.
-        
-    Raises:
-        ValueError: If the salience level is invalid.
-    """
-    if salience_level not in BLEND_SHAPE_CONFIG:
-        raise ValueError(f"Invalid salience level: {salience_level}. Must be 'low' or 'high'.")
-    
-    return BLEND_SHAPE_CONFIG[salience_level].copy()
+    df.to_csv(full_path, index=False)
+    logger.info(f"Preprocessed data saved to {full_path}")
 
-def process_salience_mapping(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
-    """
-    Process the entire DataFrame to assign salience levels and blend-shape parameters.
-    
-    This is the core function that implements the task requirement:
-    "map text stories to VR scenes, assigning `salience_level` (low/high) 
-    via blend-shape parameters".
-    
-    Args:
-        df: The merged DataFrame.
-        
-    Returns:
-        Tuple of (processed DataFrame, list of mapping logs).
-    """
-    logs = []
-    processed_rows = []
-    
-    for idx, row in df.iterrows():
-        try:
-            # Assign salience level
-            salience = assign_salience_level(row)
-            
-            # Map to blend shapes
-            blend_shapes = map_to_blend_shapes(salience)
-            
-            # Create new row with added columns
-            new_row = row.to_dict()
-            new_row['salience_level'] = salience
-            new_row['blend_shape_params'] = json.dumps(blend_shapes)
-            
-            # Log the mapping
-            log_entry = {
-                "row_index": idx,
-                "story_id": new_row.get('story_id', 'unknown'),
-                "theme": new_row.get('theme', 'unknown'),
-                "salience_level": salience,
-                "blend_shapes": blend_shapes,
-                "timestamp": datetime.now().isoformat()
-            }
-            logs.append(log_entry)
-            
-            processed_rows.append(new_row)
-            
-        except Exception as e:
-            logger.error(f"Error processing row {idx}: {str(e)}")
-            # Log exclusion reason
-            exclusion_log = {
-                "row_index": idx,
-                "reason": f"Processing error: {str(e)}",
-                "timestamp": datetime.now().isoformat()
-            }
-            log_vr_mapping("exclusion", exclusion_log)
-            # Skip this row or handle as needed
-            continue
-    
-    processed_df = pd.DataFrame(processed_rows)
-    return processed_df, logs
 
-def save_preprocessed_data(df: pd.DataFrame, output_path: Path) -> str:
+def run_preprocessing_pipeline() -> pd.DataFrame:
     """
-    Save the preprocessed DataFrame to CSV and return the checksum.
-    
-    Args:
-        df: The processed DataFrame.
-        output_path: Path to save the output CSV.
-        
-    Returns:
-        SHA-256 checksum of the saved file.
+    Main entry point for the preprocessing pipeline.
+    1. Load config.
+    2. Load merged data.
+    3. Map salience.
+    4. Save output.
     """
-    # Ensure parent directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save to CSV
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved preprocessed data to {output_path}")
-    
-    # Calculate checksum
-    checksum = calculate_sha256(output_path)
-    logger.info(f"Checksum for {output_path}: {checksum}")
-    
-    return checksum
-
-def run_preprocessing_pipeline(
-    input_path: Path,
-    output_path: Path,
-    config_path: Optional[Path] = None
-) -> Dict[str, Any]:
-    """
-    Run the complete preprocessing pipeline.
-    
-    This function orchestrates the loading, mapping, and saving of preprocessed data.
-    
-    Args:
-        input_path: Path to the merged input CSV.
-        output_path: Path to save the preprocessed output CSV.
-        config_path: Optional path to custom configuration file.
-        
-    Returns:
-        Dictionary containing pipeline results and metadata.
-    """
-    logger.info("Starting preprocessing pipeline...")
-    
-    # Load data
-    df = load_merged_data(input_path)
-    
-    # Process salience mapping
-    processed_df, logs = process_salience_mapping(df)
-    
-    # Save results
-    checksum = save_preprocessed_data(processed_df, output_path)
-    
-    # Update state file
-    state_entry = {
-        "task_id": "T016",
-        "input_file": str(input_path),
-        "output_file": str(output_path),
-        "checksum": checksum,
-        "rows_processed": len(processed_df),
-        "timestamp": datetime.now().isoformat()
-    }
-    update_state_yaml(state_entry)
-    
-    # Log summary
-    salience_counts = processed_df['salience_level'].value_counts().to_dict()
-    logger.info(f"Salience distribution: {salience_counts}")
-    
-    return {
-        "status": "success",
-        "rows_processed": len(processed_df),
-        "checksum": checksum,
-        "output_path": str(output_path),
-        "salience_distribution": salience_counts
-    }
-
-def main():
-    """
-    Main entry point for the preprocessing script.
-    
-    Reads configuration from environment or defaults, runs the pipeline,
-    and writes output to the specified location.
-    """
-    # Ensure directories exist
-    ensure_directories()
-    
-    # Default paths
-    input_path = Path("data/processed/merged_data.csv")
-    output_path = Path("data/processed/preprocessed_data.csv")
-    
-    # Allow override via command line arguments
-    if len(sys.argv) > 1:
-        input_path = Path(sys.argv[1])
-    if len(sys.argv) > 2:
-        output_path = Path(sys.argv[2])
+    log_operation("START", "T016: Preprocessing Pipeline")
     
     try:
-        result = run_preprocessing_pipeline(input_path, output_path)
-        print(f"Preprocessing completed successfully.")
-        print(f"Output: {result['output_path']}")
-        print(f"Rows processed: {result['rows_processed']}")
-        print(f"Checksum: {result['checksum']}")
-        print(f"Salience distribution: {result['salience_distribution']}")
+        # 1. Load Config
+        config = load_blend_shape_config()
+        
+        # 2. Load Data
+        df = load_merged_data()
+        
+        # 3. Process
+        df_processed = process_salience_mapping(df, config)
+        
+        # 4. Save
+        save_preprocessed_data(df_processed, PREPROCESSED_OUTPUT_PATH)
+        
+        log_operation("COMPLETE", "T016: Preprocessing Pipeline", output_file=PREPROCESSED_OUTPUT_PATH)
+        return df_processed
+        
     except Exception as e:
-        logger.error(f"Preprocessing failed: {str(e)}")
-        print(f"ERROR: {str(e)}")
+        log_operation("FAILED", "T016: Preprocessing Pipeline", error=str(e))
+        raise
+
+
+def main() -> None:
+    """Script entry point."""
+    # Ensure logging is initialized
+    logger = get_logger("preprocess_main")
+    logger.info("Starting preprocessing pipeline (T016-Preprocess-Validate)...")
+    
+    try:
+        df = run_preprocessing_pipeline()
+        logger.info(f"Pipeline completed successfully. Processed {len(df)} records.")
+    except FileNotFoundError as e:
+        logger.error(f"Data file missing: {e}")
         sys.exit(1)
+    except ValueError as e:
+        logger.error(f"Configuration or data validation error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

@@ -5,371 +5,351 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
-# Import from project API surface
-from utils.constants import calculate_coverage_ratio, is_valid_coverage_vector
-from utils.logging import get_logger, log_with_context, SchedulerError
+from utils.logging import get_logger, log_with_context, log_error
+from utils.constants import calculate_coverage_ratio
 
 logger = get_logger(__name__)
 
 class CurriculumScheduler:
     """
-    Dynamic Curriculum Scheduler for MobileGym.
-    Implements state-guided task selection based on coverage vectors.
+    Dynamic curriculum scheduler that selects tasks based on state coverage
+    and success rate targets. Implements a two-phase logic:
+    
+    Phase 1: Target low coverage (< 5%) to explore new state space.
+    Phase 2: Target moderate success rate (dynamic range expansion 10-90%)
+             to optimize learning in the "sweet spot".
     """
-
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        self.config = config or {}
-        self.low_coverage_threshold = self.config.get("low_coverage_threshold", 0.05)
-        self.sweet_spot_min = self.config.get("sweet_spot_min", 0.30)
-        self.sweet_spot_max = self.config.get("sweet_spot_max", 0.70)
-        self.entropy_weight = self.config.get("entropy_weight", 1.0)
-        self.batch_size = self.config.get("batch_size", 10)
+    
+    def __init__(self, config: Dict[str, Any]):
+        self.config = config
+        self.phase = 1
+        self.low_coverage_threshold = config.get("low_coverage_threshold", 0.05)
+        self.sweet_spot_min = config.get("sweet_spot_min", 0.10)
+        self.sweet_spot_max = config.get("sweet_spot_max", 0.90)
+        self.current_min = self.sweet_spot_min
+        self.current_max = self.sweet_spot_max
+        self.expansion_rate = config.get("expansion_rate", 0.1)
+        self.logger = get_logger(__name__)
         
-        # Deadlock prevention settings
-        self.deadlock_threshold = self.config.get("deadlock_threshold", 0.99)
-        self.random_selection_probability = self.config.get("random_selection_probability", 0.1)
-
-    def _calculate_entropy(self, coverage_vector: List[int]) -> float:
-        """Calculate entropy of the coverage vector."""
-        if not coverage_vector:
-            return 0.0
+        # Constants for Phase 1
+        self.phase1_target_coverage = config.get("phase1_target_coverage", 0.05)
         
-        total_bits = len(coverage_vector)
-        ones_count = sum(coverage_vector)
-        zeros_count = total_bits - ones_count
-        
-        if ones_count == 0 or zeros_count == 0:
-            return 0.0
-        
-        p_ones = ones_count / total_bits
-        p_zeros = zeros_count / total_bits
-        
-        entropy = - (p_ones * math.log2(p_ones) + p_zeros * math.log2(p_zeros))
-        return entropy
-
-    def _calculate_task_difficulty(self, task_params: Dict[str, Any]) -> float:
+    def _calculate_task_difficulty(self, task: Dict[str, Any], history: List[Dict[str, Any]]) -> float:
         """
-        Estimate task difficulty based on parameters.
-        This is a placeholder - in real implementation, this would use
-        historical success rates or complexity metrics.
+        Calculate difficulty score for a task based on historical success rates.
+        Returns a value between 0.0 (easy) and 1.0 (hard).
         """
-        # Simple heuristic: more complex parameters = higher difficulty
-        complexity_score = 0.0
+        task_id = task.get("id")
         
-        if "num_steps" in task_params:
-            complexity_score += min(task_params["num_steps"] / 100.0, 1.0)
-        if "num_objects" in task_params:
-            complexity_score += min(task_params["num_objects"] / 20.0, 1.0)
-        if "state_variables" in task_params:
-            complexity_score += min(len(task_params["state_variables"]) / 10.0, 1.0)
+        # Find historical results for this task
+        task_history = [h for h in history if h.get("task_id") == task_id]
         
-        return min(complexity_score, 1.0)
-
+        if not task_history:
+            # No history - assume medium difficulty
+            return 0.5
+        
+        # Calculate success rate from history
+        success_count = sum(1 for h in task_history if h.get("success", False))
+        total_count = len(task_history)
+        success_rate = success_count / total_count if total_count > 0 else 0.5
+        
+        # Invert success rate to get difficulty (0.0 = easy, 1.0 = hard)
+        return 1.0 - success_rate
+    
     def _select_low_coverage_tasks(
         self, 
-        available_tasks: List[Dict[str, Any]], 
-        current_coverage: List[int]
+        tasks: List[Dict[str, Any]], 
+        current_coverage: List[float]
     ) -> List[Dict[str, Any]]:
-        """Select tasks that target low coverage states."""
-        if not available_tasks:
+        """
+        Phase 1: Select tasks that target uncovered state variables.
+        Prioritizes tasks that cover state variables with low current coverage.
+        """
+        if not tasks:
             return []
         
-        selected = []
-        current_ratio = calculate_coverage_ratio(current_coverage)
+        # Calculate coverage ratio for each task based on current state coverage
+        task_scores = []
         
-        if current_ratio >= self.low_coverage_threshold:
-            # We're above the low coverage threshold, don't prioritize this phase
-            return []
-        
-        # Score tasks by how much they would improve coverage
-        for task in available_tasks:
-            task_state_vars = task.get("state_variables", [])
-            if not task_state_vars:
+        for task in tasks:
+            task_coverage_vector = task.get("coverage_vector", [])
+            if not task_coverage_vector:
                 continue
             
-            # Calculate potential coverage gain
-            potential_gain = 0
-            for var in task_state_vars:
-                # Assuming task state variables map to indices in coverage vector
-                # In real implementation, this would use a mapping from variable names to indices
-                var_index = hash(var) % len(current_coverage) if current_coverage else 0
-                if current_coverage[var_index] == 0:
-                    potential_gain += 1
+            # Calculate how much new coverage this task would provide
+            new_coverage_score = 0.0
+            for i, (task_bit, current_val) in enumerate(zip(task_coverage_vector, current_coverage)):
+                if task_bit == 1 and current_val < self.low_coverage_threshold:
+                    new_coverage_score += 1.0
             
-            task["potential_coverage_gain"] = potential_gain
-            selected.append(task)
+            # Normalize score
+            if task_coverage_vector:
+                new_coverage_score /= len(task_coverage_vector)
+            
+            task_scores.append((task, new_coverage_score))
         
-        # Sort by potential gain (descending)
-        selected.sort(key=lambda x: x.get("potential_coverage_gain", 0), reverse=True)
+        # Sort by coverage score (descending)
+        task_scores.sort(key=lambda x: x[1], reverse=True)
         
-        return selected[:self.batch_size]
-
-    def _select_sweet_spot_tasks(
-        self, 
-        available_tasks: List[Dict[str, Any]], 
-        current_coverage: List[int]
+        # Return top tasks that provide significant new coverage
+        selected_tasks = []
+        for task, score in task_scores:
+            if score > 0.0:  # Only select tasks that cover uncovered variables
+                selected_tasks.append(task)
+        
+        return selected_tasks
+    
+    def _select_moderate_success_tasks(
+        self,
+        tasks: List[Dict[str, Any]],
+        history: List[Dict[str, Any]],
+        min_success_rate: float,
+        max_success_rate: float
     ) -> List[Dict[str, Any]]:
-        """Select tasks in the moderate success rate range (sweet spot)."""
-        if not available_tasks:
+        """
+        Phase 2: Select tasks with success rates in the target range.
+        Implements dynamic range expansion from (10-90%) as training progresses.
+        """
+        if not tasks:
             return []
         
-        selected = []
-        current_ratio = calculate_coverage_ratio(current_coverage)
+        # Calculate success rates for each task
+        task_success_rates = []
         
-        # Filter tasks that are likely to achieve moderate success
-        for task in available_tasks:
-            difficulty = self._calculate_task_difficulty(task)
+        for task in tasks:
+            task_id = task.get("id")
             
-            # Sweet spot: tasks with difficulty that should yield 30-70% success
-            # This is a simplified heuristic
-            if self.sweet_spot_min <= difficulty <= self.sweet_spot_max:
-                selected.append(task)
+            # Find historical results for this task
+            task_history = [h for h in history if h.get("task_id") == task_id]
+            
+            if not task_history:
+                # No history - assume medium difficulty (0.5 success rate)
+                success_rate = 0.5
+            else:
+                success_count = sum(1 for h in task_history if h.get("success", False))
+                total_count = len(task_history)
+                success_rate = success_count / total_count if total_count > 0 else 0.5
+            
+            task_success_rates.append((task, success_rate))
         
-        # If we have tasks in the sweet spot, return them
-        if selected:
-            # Sort by difficulty to get a range
-            selected.sort(key=lambda x: self._calculate_task_difficulty(x))
-            return selected[:self.batch_size]
+        # Filter tasks within the target success rate range
+        selected_tasks = []
+        for task, success_rate in task_success_rates:
+            if min_success_rate <= success_rate <= max_success_rate:
+                selected_tasks.append(task)
         
-        # If no tasks in sweet spot, try to expand range
-        expanded_tasks = []
-        for task in available_tasks:
-            difficulty = self._calculate_task_difficulty(task)
-            # Expand to 10-90% range
-            if 0.10 <= difficulty <= 0.90:
-                expanded_tasks.append(task)
+        # If no tasks in range, expand the range dynamically
+        if not selected_tasks:
+            self.logger.info(
+                f"No tasks found in range [{min_success_rate:.2f}, {max_success_rate:.2f}]. "
+                f"Expanding range..."
+            )
+            
+            # Expand range by expansion_rate
+            new_min = max(0.0, min_success_rate - self.expansion_rate)
+            new_max = min(1.0, max_success_rate + self.expansion_rate)
+            
+            # Check if we've reached the full range (10-90%)
+            if new_min <= 0.1 and new_max >= 0.9:
+                self.logger.warning(
+                    "Range expansion reached limits (10-90%). Falling back to maximum entropy selection."
+                )
+                # Fallback: return tasks with most variance in success rates
+                task_success_rates.sort(key=lambda x: x[1])
+                # Return tasks from both ends of the spectrum
+                mid = len(task_success_rates) // 2
+                selected_tasks = [t for t, _ in task_success_rates[:mid//2] + task_success_rates[-mid//2:]]
+            else:
+                # Retry with expanded range
+                selected_tasks = [
+                    task for task, success_rate in task_success_rates
+                    if new_min <= success_rate <= new_max
+                ]
+                # Update current range for next iteration
+                self.current_min = new_min
+                self.current_max = new_max
         
-        if expanded_tasks:
-            expanded_tasks.sort(key=lambda x: self._calculate_task_difficulty(x))
-            return expanded_tasks[:self.batch_size]
+        return selected_tasks
+    
+    def _update_phase(self, history: List[Dict[str, Any]]) -> None:
+        """
+        Update the current phase based on overall progress.
+        Transition from Phase 1 to Phase 2 when sufficient coverage is achieved.
+        """
+        if not history:
+            return
         
-        return []
-
-    def _select_by_max_entropy(
-        self, 
-        available_tasks: List[Dict[str, Any]], 
-        current_coverage: List[int]
+        # Calculate overall success rate
+        total_success = sum(1 for h in history if h.get("success", False))
+        total_count = len(history)
+        overall_success_rate = total_success / total_count if total_count > 0 else 0.0
+        
+        # Transition to Phase 2 if success rate is above threshold
+        phase_transition_threshold = self.config.get("phase_transition_threshold", 0.3)
+        
+        if self.phase == 1 and overall_success_rate >= phase_transition_threshold:
+            self.phase = 2
+            self.logger.info(
+                f"Transitioned to Phase 2. Overall success rate: {overall_success_rate:.2f}"
+            )
+        
+        # Within Phase 2, expand range if success rate is consistently high
+        if self.phase == 2 and overall_success_rate > 0.8:
+            # Expand range towards the 10-90% bounds
+            if self.current_min > 0.1:
+                self.current_min = max(0.1, self.current_min - self.expansion_rate)
+            if self.current_max < 0.9:
+                self.current_max = min(0.9, self.current_max + self.expansion_rate)
+            
+            self.logger.info(
+                f"Phase 2 range expanded to [{self.current_min:.2f}, {self.current_max:.2f}]"
+            )
+    
+    def select_tasks(
+        self,
+        tasks: List[Dict[str, Any]],
+        history: List[Dict[str, Any]],
+        current_coverage: List[float],
+        batch_size: int = 5
     ) -> List[Dict[str, Any]]:
-        """Select tasks that maximize entropy of the coverage vector."""
-        if not available_tasks:
-            return []
-        
-        # Calculate current entropy
-        current_entropy = self._calculate_entropy(current_coverage)
-        
-        # Score tasks by potential entropy increase
-        scored_tasks = []
-        for task in available_tasks:
-            task_state_vars = task.get("state_variables", [])
-            if not task_state_vars:
-                continue
-            
-            # Simulate adding this task's coverage
-            simulated_coverage = current_coverage.copy()
-            for var in task_state_vars:
-                var_index = hash(var) % len(simulated_coverage) if simulated_coverage else 0
-                simulated_coverage[var_index] = 1
-            
-            new_entropy = self._calculate_entropy(simulated_coverage)
-            entropy_gain = new_entropy - current_entropy
-            
-            task["entropy_gain"] = entropy_gain
-            scored_tasks.append(task)
-        
-        # Sort by entropy gain (descending)
-        scored_tasks.sort(key=lambda x: x.get("entropy_gain", 0), reverse=True)
-        
-        return scored_tasks[:self.batch_size]
-
-    def _select_random_tasks(
-        self, 
-        available_tasks: List[Dict[str, Any]]
-    ) -> List[Dict[str, Any]]:
-        """Randomly select tasks (baseline)."""
-        if not available_tasks:
-            return []
-        
-        selected = random.sample(available_tasks, min(len(available_tasks), self.batch_size))
-        return selected
-
-    def _check_deadlock_condition(self, current_coverage: List[int]) -> bool:
         """
-        Check if we're in a deadlock condition (all or nearly all states covered).
-        Returns True if random selection should be used to prevent stagnation.
-        """
-        if not current_coverage:
-            return False
-        
-        coverage_ratio = calculate_coverage_ratio(current_coverage)
-        return coverage_ratio >= self.deadlock_threshold
-
-    def select_batch(
-        self, 
-        available_tasks: List[Dict[str, Any]], 
-        current_coverage: List[int],
-        history: Optional[List[Dict[str, Any]]] = None
-    ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
-        """
-        Select a batch of tasks based on the curriculum strategy.
+        Main entry point for task selection.
         
         Args:
-            available_tasks: List of available task configurations
+            tasks: List of available tasks with metadata
+            history: List of historical rollout results
             current_coverage: Current state coverage vector
-            history: Optional history of previous selections and outcomes
+            batch_size: Number of tasks to select
         
         Returns:
-            Tuple of (selected_tasks, selection_metadata)
+            List of selected tasks
         """
-        if not available_tasks:
-            raise SchedulerError("No available tasks for selection")
+        # Update phase based on history
+        self._update_phase(history)
         
-        if not is_valid_coverage_vector(current_coverage):
-            raise SchedulerError(f"Invalid coverage vector: {current_coverage}")
+        selected_tasks = []
         
-        selection_metadata = {
-            "timestamp": datetime.now().isoformat(),
-            "current_coverage_ratio": calculate_coverage_ratio(current_coverage),
-            "selection_method": None,
-            "metrics_triggered": []
+        if self.phase == 1:
+            # Phase 1: Focus on low coverage exploration
+            self.logger.info("Phase 1: Selecting tasks for low coverage exploration")
+            selected_tasks = self._select_low_coverage_tasks(tasks, current_coverage)
+            
+            if not selected_tasks:
+                # Fallback to random selection if no low coverage tasks found
+                self.logger.warning("No low coverage tasks found. Falling back to random selection.")
+                selected_tasks = random.sample(tasks, min(batch_size, len(tasks)))
+        
+        elif self.phase == 2:
+            # Phase 2: Focus on moderate success rate optimization
+            self.logger.info(
+                f"Phase 2: Selecting tasks with success rate in "
+                f"[{self.current_min:.2f}, {self.current_max:.2f}]"
+            )
+            selected_tasks = self._select_moderate_success_tasks(
+                tasks, history, self.current_min, self.current_max
+            )
+            
+            if not selected_tasks:
+                # Fallback to maximum entropy or random selection
+                self.logger.warning(
+                    "No tasks found in target range. Falling back to maximum entropy selection."
+                )
+                # Fallback: select tasks with most diverse difficulty levels
+                task_difficulties = [
+                    (task, self._calculate_task_difficulty(task, history))
+                    for task in tasks
+                ]
+                task_difficulties.sort(key=lambda x: x[1])
+                # Select tasks from different difficulty levels
+                step = max(1, len(task_difficulties) // batch_size)
+                selected_tasks = [
+                    task for task, _ in task_difficulties[::step][:batch_size]
+                ]
+        
+        # Ensure we don't exceed batch size
+        selected_tasks = selected_tasks[:batch_size]
+        
+        # Log selection details
+        self.logger.info(
+            f"Selected {len(selected_tasks)} tasks for batch. "
+            f"Current phase: {self.phase}, Success rate range: "
+            f"[{self.current_min:.2f}, {self.current_max:.2f}]"
+        )
+        
+        return selected_tasks
+    
+    def get_phase_info(self) -> Dict[str, Any]:
+        """Get current phase information for logging and monitoring."""
+        return {
+            "phase": self.phase,
+            "current_min_success_rate": self.current_min,
+            "current_max_success_rate": self.current_max,
+            "low_coverage_threshold": self.low_coverage_threshold,
+            "expansion_rate": self.expansion_rate
         }
-        
-        # Check for deadlock condition first
-        if self._check_deadlock_condition(current_coverage):
-            logger.info("Deadlock condition detected: all states covered. Using random selection.")
-            selected = self._select_random_tasks(available_tasks)
-            selection_metadata["selection_method"] = "random_deadlock_prevention"
-            selection_metadata["metrics_triggered"].append({
-                "metric": "deadlock_threshold",
-                "value": calculate_coverage_ratio(current_coverage),
-                "threshold": self.deadlock_threshold,
-                "action": "random_selection"
-            })
-            return selected, selection_metadata
-        
-        # Phase 1: Low coverage targeting
-        low_coverage_tasks = self._select_low_coverage_tasks(available_tasks, current_coverage)
-        if low_coverage_tasks:
-            selected = low_coverage_tasks
-            selection_metadata["selection_method"] = "low_coverage_phase"
-            selection_metadata["metrics_triggered"].append({
-                "metric": "coverage_ratio",
-                "value": calculate_coverage_ratio(current_coverage),
-                "threshold": self.low_coverage_threshold,
-                "action": "low_coverage_targeting"
-            })
-            return selected, selection_metadata
-        
-        # Phase 2: Sweet spot targeting
-        sweet_spot_tasks = self._select_sweet_spot_tasks(available_tasks, current_coverage)
-        if sweet_spot_tasks:
-            selected = sweet_spot_tasks
-            selection_metadata["selection_method"] = "sweet_spot_phase"
-            selection_metadata["metrics_triggered"].append({
-                "metric": "task_difficulty",
-                "range": [self.sweet_spot_min, self.sweet_spot_max],
-                "action": "sweet_spot_targeting"
-            })
-            return selected, selection_metadata
-        
-        # Fallback: Max entropy selection
-        entropy_tasks = self._select_by_max_entropy(available_tasks, current_coverage)
-        if entropy_tasks:
-            selected = entropy_tasks
-            selection_metadata["selection_method"] = "max_entropy_fallback"
-            selection_metadata["metrics_triggered"].append({
-                "metric": "fallback",
-                "reason": "no_sweet_spot_tasks",
-                "action": "max_entropy_selection"
-            })
-            return selected, selection_metadata
-        
-        # Ultimate fallback: Random selection
-        selected = self._select_random_tasks(available_tasks)
-        selection_metadata["selection_method"] = "random_ultimate_fallback"
-        selection_metadata["metrics_triggered"].append({
-            "metric": "fallback",
-            "reason": "all_strategies_exhausted",
-            "action": "random_selection"
-        })
-        
-        return selected, selection_metadata
-
-    def get_static_random_batch(
-        self, 
-        available_tasks: List[Dict[str, Any]]
-    ) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
-        """
-        Generate a batch using static random sampling (baseline).
-        
-        Args:
-            available_tasks: List of available task configurations
-        
-        Returns:
-            Tuple of (selected_tasks, selection_metadata)
-        """
-        selected = self._select_random_tasks(available_tasks)
-        metadata = {
-            "timestamp": datetime.now().isoformat(),
-            "selection_method": "static_random_baseline",
-            "metrics_triggered": []
-        }
-        return selected, metadata
 
 
 def main():
     """
-    Main entry point for testing the scheduler.
-    This demonstrates the deadlock prevention mechanism.
+    Main entry point for the curriculum scheduler.
+    Demonstrates the two-phase logic with dynamic range expansion.
     """
-    # Sample configuration
+    # Example configuration
     config = {
         "low_coverage_threshold": 0.05,
-        "sweet_spot_min": 0.30,
-        "sweet_spot_max": 0.70,
-        "deadlock_threshold": 0.99,
-        "batch_size": 5
+        "sweet_spot_min": 0.10,
+        "sweet_spot_max": 0.90,
+        "expansion_rate": 0.1,
+        "phase_transition_threshold": 0.3
     }
     
+    # Initialize scheduler
     scheduler = CurriculumScheduler(config)
     
-    # Create sample tasks
-    sample_tasks = [
-        {
-            "task_id": f"task_{i}",
-            "state_variables": [f"var_{j}" for j in range(i % 5 + 1)],
-            "num_steps": 50 + i * 10,
-            "num_objects": 5 + i
-        }
-        for i in range(20)
+    # Example tasks (in real usage, these would come from MobileGym)
+    tasks = [
+        {"id": "task_1", "coverage_vector": [1, 0, 0, 1]},
+        {"id": "task_2", "coverage_vector": [0, 1, 1, 0]},
+        {"id": "task_3", "coverage_vector": [1, 1, 0, 0]},
+        {"id": "task_4", "coverage_vector": [0, 0, 1, 1]},
+        {"id": "task_5", "coverage_vector": [1, 0, 1, 0]},
     ]
     
-    # Test 1: Normal operation with low coverage
-    print("Test 1: Low coverage scenario")
-    low_coverage = [0] * 10  # 0% coverage
-    selected, meta = scheduler.select_batch(sample_tasks, low_coverage)
-    print(f"  Selected {len(selected)} tasks using method: {meta['selection_method']}")
-    print(f"  Metrics triggered: {meta['metrics_triggered']}")
+    # Example history (in real usage, this would come from previous rollouts)
+    history = [
+        {"task_id": "task_1", "success": True},
+        {"task_id": "task_2", "success": False},
+        {"task_id": "task_3", "success": True},
+        {"task_id": "task_1", "success": True},
+        {"task_id": "task_2", "success": True},
+    ]
     
-    # Test 2: Sweet spot scenario
-    print("\nTest 2: Sweet spot scenario")
-    medium_coverage = [1] * 5 + [0] * 5  # 50% coverage
-    selected, meta = scheduler.select_batch(sample_tasks, medium_coverage)
-    print(f"  Selected {len(selected)} tasks using method: {meta['selection_method']}")
-    print(f"  Metrics triggered: {meta['metrics_triggered']}")
+    # Example current coverage
+    current_coverage = [0.2, 0.1, 0.3, 0.1]
     
-    # Test 3: Deadlock prevention (all states covered)
-    print("\nTest 3: Deadlock prevention scenario")
-    full_coverage = [1] * 10  # 100% coverage
-    selected, meta = scheduler.select_batch(sample_tasks, full_coverage)
-    print(f"  Selected {len(selected)} tasks using method: {meta['selection_method']}")
-    print(f"  Metrics triggered: {meta['metrics_triggered']}")
+    # Select tasks
+    selected_tasks = scheduler.select_tasks(tasks, history, current_coverage, batch_size=3)
     
-    # Test 4: Static random baseline
-    print("\nTest 4: Static random baseline")
-    selected, meta = scheduler.get_static_random_batch(sample_tasks)
-    print(f"  Selected {len(selected)} tasks using method: {meta['selection_method']}")
+    # Log results
+    print(f"Selected tasks: {[t['id'] for t in selected_tasks]}")
+    print(f"Phase info: {scheduler.get_phase_info()}")
     
-    print("\nAll tests completed successfully!")
+    # Demonstrate phase transition
+    # Add more history to trigger Phase 2
+    extended_history = history + [
+        {"task_id": "task_4", "success": True},
+        {"task_id": "task_5", "success": True},
+        {"task_id": "task_3", "success": True},
+        {"task_id": "task_1", "success": True},
+        {"task_id": "task_2", "success": True},
+    ]
+    
+    scheduler._update_phase(extended_history)
+    print(f"After phase update: {scheduler.get_phase_info()}")
+    
+    # Select tasks again with updated phase
+    selected_tasks_phase2 = scheduler.select_tasks(tasks, extended_history, current_coverage, batch_size=3)
+    print(f"Phase 2 selected tasks: {[t['id'] for t in selected_tasks_phase2]}")
 
 
 if __name__ == "__main__":

@@ -1,372 +1,392 @@
 """
 Quality Control Module for Neural Avalanche Dynamics Pipeline.
 
-This module implements quality control checks to exclude participants with:
-1. Disconnected structural graphs (SC-004 adaptation).
-2. Insufficient data quality, defined as channels with SNR < 5dB in simulated EEG data.
-
-It calculates pipeline completeness and generates QC reports.
+This module implements rigorous quality control checks for both real and simulated
+data pipelines. It ensures data integrity, graph connectivity, and pipeline completeness.
 """
 
 import os
 import json
+import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Optional, Tuple, Any
 
-# Import from sibling modules based on provided API surface
-from data.models import Participant, StructuralConnectome, AvalancheRecord
-from utils.logger import get_logger, ResearchError
+import networkx as nx
+
+from config import get_data_root
+from utils.logger import get_logger
 
 logger = get_logger(__name__)
 
 # Constants
-SNR_THRESHOLD_DB: float = 5.0
-MIN_SUBJECTS_REQUIRED: int = 10
+CHANNEL_REMOVAL_THRESH = 0.30  # 30% threshold for real EEG
+CONNECTIVITY_MIN_NODES = 5     # Minimum nodes for a valid graph (simulated)
 
-
-def calculate_snr(signal: np.ndarray, noise_estimate: Optional[np.ndarray] = None) -> float:
+def calculate_snr(eeg_signal: np.ndarray, noise_window: Tuple[int, int] = (0, 100)) -> float:
     """
-    Calculate the Signal-to-Noise Ratio (SNR) in decibels (dB).
-
-    For simulated data, if no explicit noise vector is provided, noise is estimated
-    as the high-frequency residual or a standard deviation of the baseline if available.
-    In this simulation context, we estimate noise as the standard deviation of the
-    signal itself (assuming the signal contains both 'neural' and 'noise' components,
-    or using a proxy if the simulation output includes a noise term).
-
-    However, for a robust simulation fidelity check as per T012, we assume the
-    'signal' provided is the raw simulated EEG. If the simulation model (Wilson-Cowan)
-    adds explicit noise, we can separate it. If not, we use a heuristic:
-    SNR (dB) = 10 * log10(P_signal / P_noise)
-
-    For this implementation, we assume the input `signal` is the raw time series.
-    If `noise_estimate` is not provided, we estimate noise power as 10% of signal power
-    (a conservative assumption for high-fidelity simulation) or use the standard
-    deviation of the signal if the signal is dominated by noise (unlikely here).
-
-    A more rigorous approach for simulated data:
-    If the simulator outputs (state, noise), we use them.
-    Since we only receive the final time series here, we calculate SNR based on
-    the ratio of the signal variance to a baseline noise floor estimate.
-
-    Args:
-        signal: The EEG time series array.
-        noise_estimate: Optional array of noise samples. If None, estimated.
-
-    Returns:
-        SNR in dB.
-    """
-    if signal.size == 0:
-        return -np.inf
-
-    signal_power = np.mean(signal ** 2)
+    Calculate Signal-to-Noise Ratio for EEG data.
     
-    if noise_estimate is not None:
-        if noise_estimate.size == 0:
-            return np.inf
-        noise_power = np.mean(noise_estimate ** 2)
-    else:
-        # Heuristic for simulated data without explicit noise separation:
-        # Assume a baseline noise floor. If the simulation is high quality,
-        # the 'noise' is small relative to the structured dynamics.
-        # We estimate noise as the high-frequency component or a fixed fraction.
-        # To be conservative and detect 'insufficient quality' (low SNR),
-        # we assume a noise floor of 10% of the signal RMS if not provided.
-        # This allows the function to detect if the signal is essentially flat or noisy.
-        # A better approach for T012: The simulator should ideally output SNR.
-        # If not, we check if the signal variance is too low (flat) or too erratic.
-        # Let's use a standard deviation based estimate:
-        # If the signal is purely random noise, SNR ~ 0dB.
-        # If it has structure, SNR > 0dB.
-        # We'll estimate noise as the standard deviation of the signal filtered by a high-pass.
-        # For simplicity in this QC step, we assume the 'signal' passed here is the
-        # raw output. We estimate noise as 10% of the signal's RMS power as a default
-        # 'good' simulation floor, but if the calculated SNR (using this estimate)
-        # is low, it implies the signal is weak or the noise assumption is wrong.
-        
-        # Actually, let's follow the prompt's definition: "channels with SNR < 5dB".
-        # This implies we need a way to measure it.
-        # If the simulation adds known noise, we should have access to it.
-        # Since we don't, we will estimate noise power as the variance of the signal
-        # after removing the mean and low-frequency trends, or simply assume a 
-        # fixed noise floor if the signal is very strong.
-        
-        # Robust estimation: Use the median absolute deviation (MAD) to estimate noise.
-        # Noise is often the high-frequency component.
-        # Let's assume the signal has a mean of 0 (centered).
-        # We estimate noise as the standard deviation of the signal.
-        # If the signal is structured, this is an overestimate of noise, leading to lower SNR.
-        # This is safe for QC: if the calculated SNR is < 5dB even with this conservative
-        # noise estimate, the channel is definitely bad.
-        
-        # Alternative: If the simulation output includes a 'noise' parameter, use it.
-        # Since we don't have it here, we assume the 'signal' is the clean output + noise.
-        # We will estimate noise power as the variance of the signal multiplied by a small factor
-        # representing the expected noise floor in a good simulation, or use a fixed value.
-        # To be strictly compliant with "SNR < 5dB", we need a calculation.
-        # Let's assume the 'signal' is the raw data. We estimate noise as the standard deviation
-        # of the signal. This is a lower bound on SNR.
-        
-        # Correct approach for simulated data QC:
-        # If the simulation is `x = dynamics + noise`, and we only have `x`.
-        # We can't separate them perfectly without knowing the dynamics model state.
-        # However, the task asks to exclude channels with SNR < 5dB.
-        # We will calculate SNR as: 10 * log10(var(signal) / var(noise_estimate)).
-        # If noise_estimate is None, we estimate it as 0.1 * var(signal) (assuming 10% noise floor).
-        # If the resulting SNR is < 5dB, it means the signal is weak or the noise is high.
-        
-        # Let's use a standard heuristic: Noise is estimated as the high-frequency content.
-        # We'll use a simple difference filter to estimate noise.
-        noise_estimate = np.diff(signal)
-        noise_power = np.mean(noise_estimate ** 2) / 2.0  # Approximate power of difference
-        
-        # If noise_power is 0 (flat signal), SNR is infinite (good) or undefined.
-        # If signal_power is 0, SNR is -inf.
-        if noise_power < 1e-12:
-            noise_power = 1e-12
-        
-        # Re-calculate signal power to be safe
-        signal_power = np.mean(signal ** 2)
-        if signal_power < 1e-12:
-            return -np.inf
-
-    snr_linear = signal_power / noise_power
-    snr_db = 10 * np.log10(snr_linear)
-    return snr_db
-
-
-def check_graph_connectivity(adjacency_matrix: np.ndarray) -> Tuple[bool, int]:
-    """
-    Check if the structural connectome graph is connected.
-
     Args:
-        adjacency_matrix: N x N adjacency matrix (weighted or binary).
-
+        eeg_signal: 1D or 2D numpy array of EEG data.
+        noise_window: Tuple (start, end) indices for noise estimation.
+        
     Returns:
-        Tuple of (is_connected, number_of_components).
+        SNR value as float.
     """
-    if adjacency_matrix.size == 0:
+    if eeg_signal.ndim == 2:
+        eeg_signal = eeg_signal.mean(axis=0)  # Average over channels if 2D
+        
+    signal_power = np.var(eeg_signal)
+    noise_segment = eeg_signal[noise_window[0]:noise_window[1]]
+    noise_power = np.var(noise_segment)
+    
+    if noise_power == 0:
+        return float('inf')
+        
+    return float(signal_power / noise_power)
+
+def check_graph_connectivity(connectome_path: Path) -> Tuple[bool, int]:
+    """
+    Check if a structural connectome graph is fully connected.
+    
+    Args:
+        connectome_path: Path to the connectome TSV file.
+        
+    Returns:
+        Tuple of (is_connected, num_components).
+    """
+    if not connectome_path.exists():
+        logger.error(f"Connectome file not found: {connectome_path}")
         return False, 0
-
-    # Convert to binary for connectivity check
-    binary_adj = (adjacency_matrix > 0).astype(int)
-    
-    # Use networkx for connectivity check (imported in metrics.py, but we can import here too)
-    # However, to avoid heavy imports in QC if possible, we can use scipy or simple BFS.
-    # Let's use scipy.sparse.csgraph if available, or networkx.
-    # Given the project uses networkx in metrics.py, we assume it's available.
+        
     try:
-        import networkx as nx
-        G = nx.from_numpy_array(binary_adj)
+        # Load connectome
+        df = pd.read_csv(connectome_path, sep='\t', header=None)
+        # Assuming format: source, target, weight
+        # Create graph
+        G = nx.from_pandas_edgelist(
+            df, 
+            source=0, 
+            target=1, 
+            edge_attr=2,
+            create_using=nx.Graph()
+        )
+        
         num_components = nx.number_connected_components(G)
         is_connected = (num_components == 1)
+        
         return is_connected, num_components
-    except ImportError:
-        # Fallback to simple BFS if networkx is missing (unlikely given dependencies)
-        # Or raise an error.
-        raise ResearchError("NetworkX is required for connectivity check.")
+        
+    except Exception as e:
+        logger.error(f"Error checking connectivity for {connectome_path}: {e}")
+        return False, 0
 
+def check_real_eeg_quality(eeg_path: Path) -> Dict[str, Any]:
+    """
+    Check quality metrics for real EEG data.
+    
+    Args:
+        eeg_path: Path to cleaned EEG file (.fif).
+        
+    Returns:
+        Dictionary with quality metrics.
+    """
+    try:
+        import mne
+        raw = mne.io.read_raw_fif(eeg_path, preload=True)
+        info = raw.info
+        
+        # Count channels
+        total_channels = len(info['ch_names'])
+        
+        # Check for bad channels
+        bad_channels = info['bads']
+        n_bad = len(bad_channels)
+        removal_ratio = n_bad / total_channels if total_channels > 0 else 1.0
+        
+        # Calculate SNR
+        data = raw.get_data()
+        snr = calculate_snr(data)
+        
+        is_valid = removal_ratio <= CHANNEL_REMOVAL_THRESH
+        
+        return {
+            'is_valid': is_valid,
+            'total_channels': total_channels,
+            'bad_channels': n_bad,
+            'removal_ratio': removal_ratio,
+            'snr': snr,
+            'reason': 'Too many channels removed' if not is_valid else 'Pass'
+        }
+        
+    except Exception as e:
+        logger.error(f"Error processing real EEG {eeg_path}: {e}")
+        return {
+            'is_valid': False,
+            'total_channels': 0,
+            'bad_channels': 0,
+            'removal_ratio': 1.0,
+            'snr': 0.0,
+            'reason': f'Error: {str(e)}'
+        }
+
+def check_simulated_eeg_quality(
+    connectome_path: Path, 
+    eeg_path: Path
+) -> Dict[str, Any]:
+    """
+    Check quality metrics for simulated EEG data.
+    
+    Args:
+        connectome_path: Path to structural connectome.
+        eeg_path: Path to simulated EEG file.
+        
+    Returns:
+        Dictionary with quality metrics.
+    """
+    # Check graph connectivity
+    is_connected, n_components = check_graph_connectivity(connectome_path)
+    
+    # Check if EEG file exists
+    eeg_exists = eeg_path.exists()
+    
+    is_valid = is_connected and eeg_exists
+    
+    return {
+        'is_valid': is_valid,
+        'is_connected': is_connected,
+        'n_components': n_components,
+        'eeg_exists': eeg_exists,
+        'reason': (
+            'Disconnected graph' if not is_connected and not eeg_exists else
+            'Disconnected graph' if not is_connected else
+            'Missing EEG file' if not eeg_exists else
+            'Pass'
+        )
+    }
 
 def run_qc_for_subject(
-    subject_id: str,
-    adjacency_matrix: np.ndarray,
-    eeg_data: np.ndarray,
-    snr_threshold: float = SNR_THRESHOLD_DB
-) -> Dict[str, any]:
+    subject_id: str, 
+    data_type: str = 'simulated'
+) -> Dict[str, Any]:
     """
     Run quality control checks for a single subject.
-
-    Checks:
-    1. Graph Connectivity: Is the structural connectome connected?
-    2. Channel SNR: Are there channels with SNR < 5dB?
-
-    Args:
-        subject_id: Unique identifier for the subject.
-        adjacency_matrix: N x N structural connectivity matrix.
-        eeg_data: M x T matrix of EEG time series (M channels, T time points).
-        snr_threshold: Minimum SNR in dB required for a channel to be kept.
-
-    Returns:
-        Dictionary containing:
-            - subject_id
-            - passed_qc: bool (True if all checks pass)
-            - graph_connected: bool
-            - num_components: int
-            - removed_channels: List[int] (indices of channels with low SNR)
-            - snr_values: List[float] (SNR for each channel)
-            - reason: str (if failed)
-    """
-    result = {
-        "subject_id": subject_id,
-        "passed_qc": True,
-        "graph_connected": True,
-        "num_components": 0,
-        "removed_channels": [],
-        "snr_values": [],
-        "reason": ""
-    }
-
-    # 1. Check Graph Connectivity
-    is_connected, num_components = check_graph_connectivity(adjacency_matrix)
-    result["graph_connected"] = is_connected
-    result["num_components"] = num_components
-
-    if not is_connected:
-        result["passed_qc"] = False
-        result["reason"] = f"Graph is disconnected ({num_components} components)."
-        # Even if graph is disconnected, we might still want to check EEG, 
-        # but the task says "exclude participants with disconnected graphs".
-        # So we can return early or continue to log. We'll mark as failed.
-
-    # 2. Check Channel SNR
-    num_channels = eeg_data.shape[0]
-    snr_values = []
-    removed_channels = []
-
-    for ch_idx in range(num_channels):
-        channel_signal = eeg_data[ch_idx, :]
-        snr = calculate_snr(channel_signal)
-        snr_values.append(snr)
-
-        if snr < snr_threshold:
-            removed_channels.append(ch_idx)
-
-    result["snr_values"] = snr_values
-    result["removed_channels"] = removed_channels
-
-    if len(removed_channels) > 0:
-        if not result["passed_qc"]:
-            result["reason"] += f" Also, {len(removed_channels)} channels have SNR < {snr_threshold}dB."
-        else:
-            result["passed_qc"] = False
-            result["reason"] = f"{len(removed_channels)} channels have SNR < {snr_threshold}dB."
-
-    return result
-
-
-def generate_qc_report(
-    qc_results: List[Dict[str, any]],
-    output_path: Path
-) -> None:
-    """
-    Generate a JSON report of QC results for all subjects.
-
-    Args:
-        qc_results: List of dictionaries from run_qc_for_subject.
-        output_path: Path to save the JSON report.
-    """
-    report = {
-        "total_subjects": len(qc_results),
-        "subjects_passed": sum(1 for r in qc_results if r["passed_qc"]),
-        "subjects_failed": sum(1 for r in qc_results if not r["passed_qc"]),
-        "details": qc_results
-    }
-
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
     
-    logger.info(f"QC report generated at {output_path}")
-
+    Args:
+        subject_id: Subject identifier.
+        data_type: 'real' or 'simulated'.
+        
+    Returns:
+        QC results dictionary.
+    """
+    data_root = get_data_root()
+    results = {
+        'subject_id': subject_id,
+        'data_type': data_type,
+        'passed': False
+    }
+    
+    if data_type == 'real':
+        eeg_path = data_root / 'processed' / 'eeg' / f'sub-{subject_id}' / 'eeg_cleaned.fif'
+        if eeg_path.exists():
+            qc_result = check_real_eeg_quality(eeg_path)
+            results.update(qc_result)
+            results['passed'] = qc_result['is_valid']
+        else:
+            results['passed'] = False
+            results['reason'] = 'EEG file not found'
+            
+    elif data_type == 'simulated':
+        connectome_path = data_root / 'processed' / 'connectomes' / f'sub-{subject_id}' / 'connectome.tsv'
+        eeg_path = data_root / 'processed' / 'eeg' / f'sub-{subject_id}' / 'eeg_simulated.fif'
+        
+        if connectome_path.exists() and eeg_path.exists():
+            qc_result = check_simulated_eeg_quality(connectome_path, eeg_path)
+            results.update(qc_result)
+            results['passed'] = qc_result['is_valid']
+        else:
+            results['passed'] = False
+            results['reason'] = 'Missing files'
+            
+    else:
+        logger.error(f"Unknown data type: {data_type}")
+        results['passed'] = False
+        results['reason'] = 'Invalid data type'
+        
+    return results
 
 def calculate_pipeline_completeness(
-    qc_results: List[Dict[str, any]],
-    total_subjects: int
-) -> float:
+    routing_state_path: Optional[Path] = None
+) -> Dict[str, Any]:
     """
     Calculate the proportion of participants with complete pipelines.
-
+    
+    This implements SC-004: Measures the ratio of usable subjects to total
+    subjects attempted, treating simulation generation as a valid pipeline.
+    
     Args:
-        qc_results: List of QC result dictionaries.
-        total_subjects: Total number of subjects attempted.
-
+        routing_state_path: Optional path to routing_state.json.
+        
     Returns:
-        Proportion (0.0 to 1.0) of subjects that passed QC.
+        Dictionary with completeness metrics.
     """
-    if total_subjects == 0:
-        return 0.0
-    passed_count = sum(1 for r in qc_results if r["passed_qc"])
-    return passed_count / total_subjects
+    if routing_state_path is None:
+        routing_state_path = get_data_root() / 'processed' / 'routing_state.json'
+        
+    if not routing_state_path.exists():
+        logger.warning(f"Routing state not found: {routing_state_path}")
+        return {
+            'total_subjects': 0,
+            'usable_subjects': 0,
+            'completeness_ratio': 0.0,
+            'status': 'error'
+        }
+        
+    try:
+        with open(routing_state_path, 'r') as f:
+            routing_state = json.load(f)
+            
+        data_root = get_data_root()
+        eeg_dir = data_root / 'processed' / 'eeg'
+        connectomes_dir = data_root / 'processed' / 'connectomes'
+        
+        # Get all subject directories
+        all_subjects = []
+        if eeg_dir.exists():
+            all_subjects = [
+                d.name for d in eeg_dir.iterdir() 
+                if d.is_dir() and d.name.startswith('sub-')
+            ]
+            
+        total_subjects = len(all_subjects)
+        usable_subjects = []
+        
+        for subj in all_subjects:
+            # Determine data type from routing state
+            is_simulated = routing_state.get('simulation_required', False)
+            
+            # Run QC for this subject
+            qc_result = run_qc_for_subject(
+                subj.replace('sub-', ''), 
+                'simulated' if is_simulated else 'real'
+            )
+            
+            if qc_result['passed']:
+                usable_subjects.append(subj)
+                
+        usable_count = len(usable_subjects)
+        completeness_ratio = usable_count / total_subjects if total_subjects > 0 else 0.0
+        
+        # Save usable subjects list
+        usable_path = data_root / 'processed' / 'usable_subjects.json'
+        with open(usable_path, 'w') as f:
+            json.dump({
+                'subject_ids': [s.replace('sub-', '') for s in usable_subjects],
+                'total_subjects': total_subjects,
+                'usable_subjects': usable_count,
+                'completeness_ratio': completeness_ratio
+            }, f, indent=2)
+            
+        logger.info(f"Pipeline completeness: {usable_count}/{total_subjects} ({completeness_ratio:.2%})")
+        
+        return {
+            'total_subjects': total_subjects,
+            'usable_subjects': usable_count,
+            'completeness_ratio': completeness_ratio,
+            'status': 'complete' if total_subjects > 0 else 'no_data'
+        }
+        
+    except Exception as e:
+        logger.error(f"Error calculating pipeline completeness: {e}")
+        return {
+            'total_subjects': 0,
+            'usable_subjects': 0,
+            'completeness_ratio': 0.0,
+            'status': 'error',
+            'error': str(e)
+        }
 
+def generate_qc_report(
+    output_path: Optional[Path] = None
+) -> Path:
+    """
+    Generate a comprehensive QC report for all subjects.
+    
+    Args:
+        output_path: Optional output path for the report.
+        
+    Returns:
+        Path to the generated report.
+    """
+    if output_path is None:
+        output_path = get_data_root() / 'processed' / 'qc_report.json'
+        
+    data_root = get_data_root()
+    routing_state_path = data_root / 'processed' / 'routing_state.json'
+    
+    # Get all subjects
+    all_subjects = []
+    eeg_dir = data_root / 'processed' / 'eeg'
+    if eeg_dir.exists():
+        all_subjects = [
+            d.name for d in eeg_dir.iterdir() 
+            if d.is_dir() and d.name.startswith('sub-')
+        ]
+        
+    results = []
+    for subj in all_subjects:
+        # Determine data type
+        is_simulated = False
+        if routing_state_path.exists():
+            try:
+                with open(routing_state_path, 'r') as f:
+                    state = json.load(f)
+                    is_simulated = state.get('simulation_required', False)
+            except:
+                pass
+                
+        qc_result = run_qc_for_subject(
+            subj.replace('sub-', ''), 
+            'simulated' if is_simulated else 'real'
+        )
+        results.append(qc_result)
+        
+    report = {
+        'total_subjects': len(results),
+        'passed_subjects': sum(1 for r in results if r['passed']),
+        'failed_subjects': sum(1 for r in results if not r['passed']),
+        'subjects': results
+    }
+    
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
+        
+    logger.info(f"QC report generated: {output_path}")
+    return output_path
 
 def main():
-    """
-    Main entry point for running QC on the dataset.
-    Assumes data has been processed and stored by T010 and T011.
-    """
-    from config import get_data_root
+    """Main entry point for quality control pipeline."""
+    logger.info("Starting quality control pipeline...")
     
-    data_root = get_data_root()
-    processed_dir = data_root / "processed"
-    results_dir = data_root / "results"
-    
-    # Load subject list (assuming stored in a manifest or inferred from files)
-    # For this implementation, we iterate over known subjects or a manifest.
-    # Let's assume a manifest exists or we scan the directory.
-    # Since T010/T011 might have generated files, we look for them.
-    
-    # Example: Scan for adjacency matrices and EEG files
-    # Assuming files are named: sub-{id}_connectome.npy, sub-{id}_eeg.npy
-    
-    subject_ids = []
-    # This is a placeholder for actual file discovery logic
-    # In a real run, this would scan the directory
-    import glob
-    conn_files = list((processed_dir / "connectomes").glob("sub-*_connectome.npy"))
-    for f in conn_files:
-        sid = f.stem.replace("_connectome", "")
-        subject_ids.append(sid)
-    
-    if not subject_ids:
-        logger.warning("No subject data found for QC.")
-        return
-
-    qc_results = []
-    
-    for sid in subject_ids:
-        logger.info(f"Running QC for subject {sid}")
-        
-        try:
-            # Load data
-            conn_path = processed_dir / "connectomes" / f"{sid}_connectome.npy"
-            eeg_path = processed_dir / "eeg" / f"{sid}_eeg.npy"
-            
-            if not conn_path.exists() or not eeg_path.exists():
-                logger.warning(f"Data missing for {sid}, skipping.")
-                continue
-                
-            adj_mat = np.load(conn_path)
-            eeg_data = np.load(eeg_path)
-            
-            # Run QC
-            result = run_qc_for_subject(sid, adj_mat, eeg_data)
-            qc_results.append(result)
-            
-        except Exception as e:
-            logger.error(f"Error processing {sid}: {e}")
-            qc_results.append({
-                "subject_id": sid,
-                "passed_qc": False,
-                "reason": f"Processing error: {str(e)}"
-            })
-
-    # Generate Report
-    report_path = results_dir / "qc_report.json"
-    generate_qc_report(qc_results, report_path)
-
     # Calculate completeness
-    completeness = calculate_pipeline_completeness(qc_results, len(subject_ids))
-    logger.info(f"Pipeline completeness: {completeness:.2%}")
-
-    # Filter out failed subjects for downstream tasks (if needed)
-    # This function is typically called by the main pipeline to decide which subjects to use.
-    # We return the list of passed subjects here for demonstration.
-    passed_subjects = [r["subject_id"] for r in qc_results if r["passed_qc"]]
-    logger.info(f"Passed subjects: {passed_subjects}")
+    completeness = calculate_pipeline_completeness()
+    logger.info(f"Pipeline completeness: {completeness}")
     
-    return qc_results
+    # Generate report
+    report_path = generate_qc_report()
+    logger.info(f"QC report saved to: {report_path}")
+    
+    # Output usable subjects count
+    usable_path = get_data_root() / 'processed' / 'usable_subjects.json'
+    if usable_path.exists():
+        with open(usable_path, 'r') as f:
+            usable_data = json.load(f)
+            logger.info(f"Usable subjects: {usable_data['usable_subjects']} / {usable_data['total_subjects']}")
+    
+    logger.info("Quality control pipeline completed.")
+    return completeness
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

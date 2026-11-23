@@ -1,59 +1,33 @@
 """
-Custom exception classes for the llmXive research pipeline.
+Exception definitions and helper functions for the llmXive project.
 
-These exceptions handle specific failure modes in the symbolic planning
-and verification pipeline, addressing robustness gaps identified in the
-research design.
+This module provides a minimal set of custom exception classes and
+utility functions used across the codebase, particularly by the
+symbolic planner and related components.
 """
 
 class BaseResearchException(Exception):
-    """Base class for all custom research pipeline exceptions."""
-    
-    def __init__(self, message: str, details: dict = None):
-        super().__init__(message)
-        self.message = message
-        self.details = details or {}
-
-class PARSE_FAILURE(BaseResearchException):
-    """
-    Raised when the symbolic parser fails to convert puzzle constraints
-    into a formal language parseable by the planner.
-    
-    This addresses the robustness gap where input constraints may be
-    malformed or outside the supported grammar.
-    """
+    """Base class for all custom research exceptions."""
     pass
 
-class CONTRADICTION_DETECTED(BaseResearchException):
-    """
-    Raised when the symbolic planner detects logical contradictions
-    within the problem constraints or during sub-goal decomposition.
-    
-    This indicates that the current set of constraints is unsatisfiable,
-    requiring the evolutionary loop to exclude this candidate or backtrack.
-    """
+# Specific exception classes
+class ContradictionDetected(BaseResearchException):
+    """Raised when contradictory constraints are detected."""
     pass
 
-class VERIFIER_ERROR(BaseResearchException):
-    """
-    Raised when the deterministic verifier encounters an internal error
-    that prevents it from validating a solution path.
-    
-    This is distinct from a solution being invalid; it indicates a
-    failure in the verification mechanism itself (e.g., timeout,
-    unsupported operation, or state corruption).
-    """
+class ParseFailure(BaseResearchException):
+    """Raised when constraint parsing fails."""
     pass
 
-# Factory functions for consistent instantiation (optional but useful)
-def raise_parse_failure(message: str, details: dict = None) -> None:
-    """Helper to raise PARSE_FAILURE with standardized formatting."""
-    raise PARSE_FAILURE(message, details)
+# Error code constants (used for logging and result objects)
+CONTRADICTION_DETECTED = "CONTRADICTION_DETECTED"
+PARSE_FAILURE = "PARSE_FAILURE"
 
-def raise_contradiction(message: str, details: dict = None) -> None:
-    """Helper to raise CONTRADICTION_DETECTED with standardized formatting."""
-    raise CONTRADICTION_DETECTED(message, details)
+# Helper functions to raise the above exceptions with a message
+def raise_contradiction(message: str) -> None:
+    """Raise a ContradictionDetected exception with the given message."""
+    raise ContradictionDetected(message)
 
-def raise_verifier_error(message: str, details: dict = None) -> None:
-    """Helper to raise VERIFIER_ERROR with standardized formatting."""
-    raise VERIFIER_ERROR(message, details)
+def raise_parse_failure(message: str) -> None:
+    """Raise a ParseFailure exception with the given message."""
+    raise ParseFailure(message)

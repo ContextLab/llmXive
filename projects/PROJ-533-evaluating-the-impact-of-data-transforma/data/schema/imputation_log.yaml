@@ -1,0 +1,55 @@
+# Schema definition for data/imputation_log.csv
+# This file documents the structure and constraints for the imputation log.
+# The CSV file must be comma-delimited with string types for all columns.
+
+file: data/imputation_log.csv
+format: csv
+delimiter: ","
+
+columns:
+  - name: dataset_id
+    type: string
+    description: Unique identifier for the dataset being processed
+    required: true
+    constraints:
+      - non_empty: true
+      - pattern: "^[a-zA-Z0-9_-]+$"
+    
+  - name: variable
+    type: string
+    description: Name of the variable/feature that was imputed
+    required: true
+    constraints:
+      - non_empty: true
+    
+  - name: imputation_method
+    type: string
+    description: The method used for imputation (e.g., 'mean', 'median', 'mode')
+    required: true
+    constraints:
+      - non_empty: true
+      - allowed_values:
+          - "mean"
+          - "median"
+          - "mode"
+          - "constant"
+          - "forward_fill"
+          - "backward_fill"
+          - "interpolation"
+    
+  - name: rate
+    type: string
+    description: The rate of missing values imputed for this variable (as a percentage string, e.g., "5.25")
+    required: true
+    constraints:
+      - non_empty: true
+      - format: numeric_string
+      - range:
+          min: "0.0"
+          max: "100.0"
+
+header_row: dataset_id,variable,imputation_method,rate
+notes: |
+  All columns are stored as strings in the CSV file.
+  The 'rate' column contains the percentage of missing values as a string 
+  (e.g., "12.5" for 12.5%).

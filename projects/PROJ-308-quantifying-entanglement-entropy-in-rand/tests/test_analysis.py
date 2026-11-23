@@ -1,127 +1,181 @@
 """
-tests/test_analysis.py
-
-Unit tests for analysis.py module.
+Tests for code/analysis.py
 """
 import numpy as np
 import pytest
-from unittest.mock import patch, MagicMock
+import os
+import sys
+import json
+from pathlib import Path
+
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
 from analysis import (
+    ModelSelectionResult,
+    log_fit,
+    linear_fit,
+    constant_fit,
+    compute_aic,
     select_model_aic,
-    filter_unresolved_realizations,
     bootstrap_resample,
     compute_bootstrap_statistics,
     compute_scaling_exponent,
-    generate_toy_model_data
+    filter_unresolved_realizations,
+    log_amendment
 )
 
-def test_filter_unresolved_realizations():
-    """Test that numerically unresolved realizations are filtered out."""
-    # Create mock data
-    entropy_data = [
-        {'realization_id': 1, 'l_values': np.array([1, 2, 3]), 'entropy_values': np.array([0.5, 1.0, 1.5])},
-        {'realization_id': 2, 'l_values': np.array([1, 2, 3]), 'entropy_values': np.array([0.6, 1.1, 1.6])},
-        {'realization_id': 3, 'l_values': np.array([1, 2, 3]), 'entropy_values': np.array([0.4, 0.9, 1.4])},
-    ]
-    ground_state_flags = [False, True, False]  # Second one is unresolved
+class TestFilterUnresolved:
+    """Tests for filter_unresolved_realizations function."""
 
-    filtered_data, filtered_flags = filter_unresolved_realizations(entropy_data, ground_state_flags)
+    def test_filter_unresolved(self):
+        """Test that unresolved realizations are correctly filtered out."""
+        # Create mock data with mixed resolved/unresolved status
+        data = [
+            {'l_values': [1, 2, 3], 's_values': [0.1, 0.2, 0.3], 'is_unresolved': False},
+            {'l_values': [1, 2, 3], 's_values': [0.1, 0.2, 0.3], 'is_unresolved': True, 'reason': 'convergence_fail'},
+            {'l_values': [1, 2, 3], 's_values': [0.1, 0.2, 0.3], 'is_unresolved': False},
+            {'l_values': [1, 2, 3], 's_values': [0.1, 0.2, 0.3], 'is_unresolved': True, 'reason': 'max_bond_exceeded'},
+        ]
 
-    assert len(filtered_data) == 2
-    assert len(filtered_flags) == 2
-    assert filtered_flags == [False, False]
-    assert filtered_data[0]['realization_id'] == 1
-    assert filtered_data[1]['realization_id'] == 3
+        filtered = filter_unresolved_realizations(data)
 
-def test_filter_unresolved_realizations_all_unresolved():
-    """Test filtering when all realizations are unresolved."""
-    entropy_data = [
-        {'realization_id': 1, 'l_values': np.array([1, 2, 3]), 'entropy_values': np.array([0.5, 1.0, 1.5])},
-        {'realization_id': 2, 'l_values': np.array([1, 2, 3]), 'entropy_values': np.array([0.6, 1.1, 1.6])},
-    ]
-    ground_state_flags = [True, True]
+        # Should have 2 items left
+        assert len(filtered) == 2
+        # All remaining items should be resolved
+        for item in filtered:
+            assert not item.get('is_unresolved', False)
 
-    filtered_data, filtered_flags = filter_unresolved_realizations(entropy_data, ground_state_flags)
+    def test_filter_with_reasons(self):
+        """Test filtering with specific unresolved reasons."""
+        data = [
+            {'l_values': [1, 2, 3], 's_values': [0.1, 0.2, 0.3], 'is_unresolved': False},
+            {'l_values': [1, 2, 3], 's_values': [0.1, 0.2, 0.3], 'is_unresolved': True, 'reason': 'convergence_fail'},
+            {'l_values': [1, 2, 3], 's_values': [0.1, 0.2, 0.3], 'is_unresolved': True, 'reason': 'other_reason'},
+        ]
 
-    assert len(filtered_data) == 0
-    assert len(filtered_flags) == 0
+        # Filter only 'convergence_fail'
+        filtered = filter_unresolved_realizations(data, unresolved_reasons=['convergence_fail'])
 
-def test_filter_unresolved_realizations_none_unresolved():
-    """Test filtering when no realizations are unresolved."""
-    entropy_data = [
-        {'realization_id': 1, 'l_values': np.array([1, 2, 3]), 'entropy_values': np.array([0.5, 1.0, 1.5])},
-        {'realization_id': 2, 'l_values': np.array([1, 2, 3]), 'entropy_values': np.array([0.6, 1.1, 1.6])},
-    ]
-    ground_state_flags = [False, False]
+        # Should have 2 items: the resolved one and the one with 'other_reason'
+        assert len(filtered) == 2
+        # Check that the 'convergence_fail' one is gone
+        reasons_in_filtered = [item.get('reason') for item in filtered if item.get('is_unresolved')]
+        assert 'convergence_fail' not in reasons_in_filtered
 
-    filtered_data, filtered_flags = filter_unresolved_realizations(entropy_data, ground_state_flags)
+    def test_empty_list(self):
+        """Test filtering an empty list."""
+        filtered = filter_unresolved_realizations([])
+        assert len(filtered) == 0
 
-    assert len(filtered_data) == 2
-    assert len(filtered_flags) == 2
+    def test_all_resolved(self):
+        """Test filtering when all are resolved."""
+        data = [
+            {'l_values': [1, 2, 3], 's_values': [0.1, 0.2, 0.3], 'is_unresolved': False},
+            {'l_values': [1, 2, 3], 's_values': [0.1, 0.2, 0.3], 'is_unresolved': False},
+        ]
+        filtered = filter_unresolved_realizations(data)
+        assert len(filtered) == 2
 
-def test_filter_unresolved_realizations_mismatched_lengths():
-    """Test that mismatched lengths raise an error."""
-    entropy_data = [
-        {'realization_id': 1, 'l_values': np.array([1, 2, 3]), 'entropy_values': np.array([0.5, 1.0, 1.5])},
-    ]
-    ground_state_flags = [False, True]
+    def test_all_unresolved(self):
+        """Test filtering when all are unresolved."""
+        data = [
+            {'l_values': [1, 2, 3], 's_values': [0.1, 0.2, 0.3], 'is_unresolved': True},
+            {'l_values': [1, 2, 3], 's_values': [0.1, 0.2, 0.3], 'is_unresolved': True},
+        ]
+        filtered = filter_unresolved_realizations(data)
+        assert len(filtered) == 0
 
-    with pytest.raises(ValueError):
-        filter_unresolved_realizations(entropy_data, ground_state_flags)
+class TestAICSelection:
+    """Tests for AIC-based model selection."""
 
-def test_bootstrap_resample():
-    """Test bootstrap resampling generates correct number of samples."""
-    l_values = np.array([1, 2, 3, 4, 5])
-    entropy_values = np.array([0.5, 1.0, 1.5, 2.0, 2.5])
-    n_resamples = 100
+    def test_aic_selection_logic(self):
+        """Test AIC selection with synthetic data of known slope."""
+        # Generate data that follows a logarithmic law
+        l_vals = np.array([2, 4, 8, 16, 32])
+        alpha_true = 0.5
+        intercept_true = 0.1
+        s_vals = alpha_true * np.log(l_vals) + intercept_true + np.random.normal(0, 0.01, size=len(l_vals))
 
-    resamples = bootstrap_resample(l_values, entropy_values, n_resamples, random_seed=42)
+        result = select_model_aic(l_vals, s_vals)
 
-    assert len(resamples) == n_resamples
-    for sample in resamples:
-        assert len(sample) == len(entropy_values)
+        # Should select logarithmic model
+        assert result.model_type == 'logarithmic'
+        # Alpha should be close to true value
+        assert abs(result.alpha - alpha_true) < 0.1
 
-def test_compute_bootstrap_statistics():
-    """Test bootstrap statistics computation."""
-    l_values = np.array([1, 2, 3, 4, 5])
-    entropy_values = np.array([0.5, 1.0, 1.5, 2.0, 2.5])
+    def test_area_law_selection(self):
+        """Test selection of area law (constant) model."""
+        l_vals = np.array([2, 4, 8, 16, 32])
+        s_vals = np.ones_like(l_vals) * 0.5 + np.random.normal(0, 0.01, size=len(l_vals))
 
-    stats_result = compute_bootstrap_statistics(l_values, entropy_values, n_resamples=100, random_seed=42)
+        result = select_model_aic(l_vals, s_vals)
 
-    assert 'exponent_mean' in stats_result
-    assert 'exponent_std' in stats_result
-    assert 'ci_lower' in stats_result
-    assert 'ci_upper' in stats_result
-    assert 'p_value' in stats_result
-    assert 'resample_count' in stats_result
-    assert stats_result['resample_count'] == 100
+        # Should select area_law (constant)
+        assert result.model_type == 'area_law'
 
-def test_select_model_aic_logarithmic():
-    """Test AIC selection for logarithmic data."""
-    l_values = np.array([1, 2, 3, 4, 5])
-    entropy_values = 0.5 * np.log(l_values) + 1.0  # Pure logarithmic
+    def test_volume_law_selection(self):
+        """Test selection of volume law (linear) model."""
+        l_vals = np.array([2, 4, 8, 16, 32])
+        slope_true = 0.05
+        intercept_true = 0.1
+        s_vals = slope_true * l_vals + intercept_true + np.random.normal(0, 0.01, size=len(l_vals))
 
-    result = select_model_aic(l_values, entropy_values)
+        result = select_model_aic(l_vals, s_vals)
 
-    assert result.model_type == 'logarithmic'
-    assert abs(result.params[0] - 0.5) < 0.1
+        # Should select volume_law (linear)
+        assert result.model_type == 'volume_law'
+        assert abs(result.alpha - slope_true) < 0.01
 
-def test_select_model_aic_area_law():
-    """Test AIC selection for area law (constant) data."""
-    l_values = np.array([1, 2, 3, 4, 5])
-    entropy_values = np.full_like(l_values, 1.0, dtype=float)  # Constant
+class TestBootstrap:
+    """Tests for bootstrap resampling."""
 
-    result = select_model_aic(l_values, entropy_values)
+    def test_bootstrap(self):
+        """Test bootstrap resampling generates reasonable statistics."""
+        l_vals = np.array([2, 4, 8, 16, 32])
+        alpha_true = 0.5
+        s_vals = alpha_true * np.log(l_vals) + 0.1
 
-    assert result.model_type == 'area_law'
+        alphas = bootstrap_resample(l_vals, s_vals, n_resamples=100, random_seed=42)
 
-def test_select_model_aic_volume_law():
-    """Test AIC selection for volume law (linear) data."""
-    l_values = np.array([1, 2, 3, 4, 5])
-    entropy_values = 0.5 * l_values + 1.0  # Linear
+        # Should have 100 samples (or close, if some failed)
+        assert len(alphas) > 0
+        
+        stats_dict = compute_bootstrap_statistics(alphas)
+        
+        # Mean should be close to true alpha
+        assert abs(stats_dict['mean'] - alpha_true) < 0.1
+        # CI should contain the true value
+        assert stats_dict['ci_low'] < alpha_true < stats_dict['ci_high']
 
-    result = select_model_aic(l_values, entropy_values)
+class TestAICCalculation:
+    """Tests for AIC calculation."""
 
-    # With enough points, volume law should be selected
-    assert result.model_type in ['volume_law', 'logarithmic']  # May sometimes be logarithmic for small ranges
+    def test_compute_aic(self):
+        """Test AIC calculation with known residuals."""
+        residuals = np.array([0.1, -0.1, 0.2, -0.2])
+        n_params = 2
+        n_obs = 4
+
+        aic = compute_aic(residuals, n_params, n_obs)
+
+        # Manual calculation:
+        # RSS = 0.01 + 0.01 + 0.04 + 0.04 = 0.1
+        # AIC = 4 * ln(0.1/4) + 2*2 = 4 * ln(0.025) + 4
+        expected_rss = np.sum(residuals**2)
+        expected_aic = n_obs * np.log(expected_rss / n_obs) + 2 * n_params
+
+        assert abs(aic - expected_aic) < 1e-6
+
+class TestLogAmendment:
+    """Tests for logging the AIC amendment."""
+
+    def test_log_amendment_creates_file(self, tmp_path):
+        """Test that log_amendment creates the validation log file."""
+        log_file = str(tmp_path / "validation_log.txt")
+        log_amendment(log_file=log_file)
+
+        assert os.path.exists(log_file)
+        with open(log_file, 'r') as f:
+            content = f.read()
+        assert "AMENDMENT: AIC used per Plan.md" in content

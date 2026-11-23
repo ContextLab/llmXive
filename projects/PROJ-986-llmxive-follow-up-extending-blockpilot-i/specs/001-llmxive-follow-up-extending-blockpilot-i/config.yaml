@@ -1,0 +1,63 @@
+# BlockPilot Extension Configuration
+# This file defines the environment configuration for dataset paths, model weights,
+# and processing parameters.
+
+debug: false
+log_level: INFO
+
+dataset:
+  # Dataset identifiers or paths
+  # For HuggingFace datasets, use the dataset name (e.g., "gsm8k")
+  # For local files, use the full path
+  gsm8k_path: "gsm8k"
+  humaneval_path: "code_humaneval"
+  streaming: true
+  max_samples: null  # null means use all samples
+  cache_dir: "data/cache"
+
+model:
+  base_model: "meta-llama/Llama-2-7b-hf"
+  weights_path: null  # null means use base_model
+  device: "cpu"
+  dtype: "float32"
+  max_memory_mb: 4096
+  batch_size: 1
+
+sweep:
+  block_sizes: [1, 2, 4, 8, 16, 32]
+  timeout_seconds: 3600  # 1 hour
+  checkpoint_interval: 100  # samples
+  oom_fallback: "skip"  # Options: "skip", "reduce_batch"
+
+feature:
+  extract_attention_entropy: true
+  extract_hidden_norms: true
+  max_layers: null  # null means all layers
+  latency_target_ms: 1.0
+
+training:
+  models:
+    - "xgboost"
+    - "random_forest"
+    - "decision_tree"
+  test_split: 0.2
+  random_state: 42
+  vif_threshold: 5.0
+  max_depth: 10
+  n_estimators: 100
+
+paths:
+  raw_data_dir: "data/raw"
+  processed_dir: "data/processed"
+  models_dir: "data/models"
+  figures_dir: "figures"
+  logs_dir: "logs"
+  
+  # Output file names
+  ground_truth_file: "ground_truth.jsonl"
+  features_file: "features.jsonl"
+  uncertainty_file: "uncertainty_metrics.jsonl"
+  training_set_file: "training_set.jsonl"
+  results_file: "results.json"
+  importance_file: "feature_importance.json"
+  checkpoint_file: "sweep_checkpoint.json"

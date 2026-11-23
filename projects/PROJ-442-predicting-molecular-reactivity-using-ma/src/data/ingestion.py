@@ -1,9 +1,11 @@
 """
 Data Ingestion Module for USPTO-MIT Reaction Dataset.
 
-Implements download, parsing, and initial processing of the USPTO-MIT subset
-from Zenodo. Handles streaming of large JSONL.GZ files to manage memory constraints.
+This module handles downloading, parsing, and filtering the USPTO-MIT subset
+of reaction data from Zenodo. It classifies reactions into SN1, SN2, and
+Diels-Alder categories based on SMARTS patterns.
 """
+
 import csv
 import gzip
 import hashlib
@@ -12,106 +14,87 @@ import logging
 import os
 import sys
 import time
+from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional, Generator, List, Tuple
+from typing import Any, Dict, Generator, List, Optional, Tuple
 
 import requests
 from tqdm import tqdm
 
-# Import local project utilities
-from src.utils.logging import setup_logger, get_logger
-from src.utils.state_manager import register_artifact
-from src.data.schemas import validate_reaction_record
+# Local imports
+from src.modeling.config import load_config
+from src.utils.chemistry import classify_batch, get_templates
+from src.utils.logging import get_logger, setup_logger
+from src.utils.state_manager import register_artifact, update_stage_status
 
-# Constants
-USPTO_ZENODO_URL = "https://zenodo.org/record/3969375/files/USPTO_MIT_subset.jsonl.gz"
-# Note: The actual filename might vary. We attempt to fetch the record listing
-# or rely on the direct file link if known. For this implementation, we assume
-# the direct file link provided in tasks.md is valid or use the record root.
-# If the direct link fails, we will attempt to find the file in the record.
-# However, per instructions, we use the provided URL.
-
-# Fallback to a known working structure if the direct file link is unstable,
-# but strictly adhering to the task URL first.
-# The Zenodo record 3969375 usually contains 'uspto_mit.jsonl.gz' or similar.
-# We will implement a robust download that handles the specific URL provided.
-
-# Output paths
-OUTPUT_DIR = Path("data/processed")
-RAW_OUTPUT_PATH = OUTPUT_DIR / "raw_reactions.jsonl"
-ERROR_LOG_PATH = OUTPUT_DIR / "ingestion_errors.log"
-
-# Initialize logger
+# Setup logger for this module
 logger = get_logger(__name__)
 
-def compute_file_checksum(filepath: Path, algorithm: str = "sha256") -> str:
-    """Compute SHA256 checksum of a file."""
-    sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
-    return sha256_hash.hexdigest()
-
-def download_uspto_data(output_path: Path) -> Path:
+def download_uspto_data(output_dir: str, url: str, filename: str) -> str:
     """
     Download the USPTO-MIT dataset from Zenodo.
-    
+
     Args:
-        output_path: Local path to save the downloaded file.
-        
+        output_dir: Directory to save the downloaded file.
+        url: URL to download the file from.
+        filename: Name of the file to save.
+
     Returns:
         Path to the downloaded file.
-        
+
     Raises:
-        RuntimeError: If download fails.
+        RuntimeError: If download fails or file is not found.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    logger.info(f"Downloading USPTO-MIT dataset from {USPTO_ZENODO_URL}")
-    
+    os.makedirs(output_dir, exist_ok=True)
+    file_path = os.path.join(output_dir, filename)
+
+    if os.path.exists(file_path):
+        logger.info(f"File already exists at {file_path}, skipping download.")
+        return file_path
+
+    logger.info(f"Downloading USPTO-MIT dataset from {url}...")
     try:
-        # Stream the download to handle large files
-        response = requests.get(USPTO_ZENODO_URL, stream=True, timeout=300)
+        response = requests.get(url, stream=True, timeout=300)
         response.raise_for_status()
-        
+
         total_size = int(response.headers.get('content-length', 0))
-        
-        with open(output_path, 'wb') as f, tqdm(
-            desc="Downloading",
+        block_size = 1024  # 1 Kibibyte
+
+        with open(file_path, 'wb') as f, tqdm(
+            desc=filename,
             total=total_size,
             unit='B',
             unit_scale=True,
             unit_divisor=1024,
-        ) as bar:
-            for chunk in response.iter_content(chunk_size=8192):
+        ) as pbar:
+            for chunk in response.iter_content(chunk_size=block_size):
                 if chunk:
                     f.write(chunk)
-                    bar.update(len(chunk))
-                    
-        logger.info(f"Download complete: {output_path}")
-        return output_path
-        
+                    pbar.update(len(chunk))
+
+        logger.info(f"Download complete: {file_path}")
+        return file_path
+
     except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to download data: {e}")
+        logger.error(f"Failed to download dataset: {e}")
         raise RuntimeError(f"Download failed: {e}")
 
-def stream_jsonl_gz(gz_path: Path) -> Generator[Dict[str, Any], None, None]:
+def stream_jsonl_gz(file_path: str) -> Generator[Dict[str, Any], None, None]:
     """
     Stream and parse a gzipped JSONL file line by line.
-    
+
     Args:
-        gz_path: Path to the .jsonl.gz file.
-        
+        file_path: Path to the gzipped JSONL file.
+
     Yields:
         Parsed JSON dictionaries.
     """
-    if not gz_path.exists():
-        raise FileNotFoundError(f"File not found: {gz_path}")
-        
-    logger.info(f"Streaming JSONL from {gz_path}")
-    
+    if not os.path.exists(file_path):
+        raise FileNotFoundError(f"File not found: {file_path}")
+
+    logger.info(f"Streaming {file_path}...")
     try:
-        with gzip.open(gz_path, 'rt', encoding='utf-8') as f:
+        with gzip.open(file_path, 'rt', encoding='utf-8') as f:
             for line_num, line in enumerate(f, 1):
                 line = line.strip()
                 if not line:
@@ -122,166 +105,268 @@ def stream_jsonl_gz(gz_path: Path) -> Generator[Dict[str, Any], None, None]:
                     logger.warning(f"Skipping malformed JSON at line {line_num}: {e}")
                     continue
     except Exception as e:
-        logger.error(f"Error reading compressed file: {e}")
+        logger.error(f"Error reading {file_path}: {e}")
         raise
 
-def parse_jsonl_line(data: Dict[str, Any]) -> Optional[Dict[str, Any]]:
+def parse_jsonl_line(record: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
-    Parse and validate a single reaction record from the raw JSON.
-    
+    Parse a single JSON record from the USPTO dataset.
+
+    Extracts relevant fields and validates basic structure.
+
     Args:
-        data: Raw dictionary from JSONL line.
-        
+        record: Raw JSON record from the dataset.
+
     Returns:
-        Normalized record or None if invalid.
+        Parsed record with extracted fields, or None if invalid.
     """
-    # Basic schema validation
-    required_fields = ['reactants', 'products', 'reagents']
-    for field in required_fields:
-        if field not in data:
-            logger.debug(f"Missing field '{field}' in record")
-            return None
-            
-    # Normalize SMILES strings (remove spaces, ensure valid format)
-    # This is a placeholder for more complex normalization logic
-    # that might be expanded in later tasks.
-    normalized = data.copy()
-    
-    # Ensure smiles are strings
-    if isinstance(normalized.get('reactants'), str):
-        normalized['reactants'] = normalized['reactants'].replace(' ', '')
-    if isinstance(normalized.get('products'), str):
-        normalized['products'] = normalized['products'].replace(' ', '')
-    if isinstance(normalized.get('reagents'), str):
-        normalized['reagents'] = normalized['reagents'].replace(' ', '')
-        
-    return normalized
+    try:
+        # Expected fields based on USPTO-MIT dataset structure
+        required_fields = ['reaction_smiles', 'reagents']
+        for field in required_fields:
+            if field not in record:
+                logger.debug(f"Missing required field '{field}' in record")
+                return None
+
+        # Extract yield or success flag if available
+        yield_val = record.get('yield_pct')
+        success_val = record.get('success_flag')
+
+        parsed = {
+            'reaction_smiles': record['reaction_smiles'],
+            'reagents': record.get('reagents', ''),
+            'yield_pct': float(yield_val) if yield_val is not None else None,
+            'success_flag': int(success_val) if success_val is not None else None,
+            'raw_record': record,
+            'source_line': json.dumps(record)
+        }
+
+        return parsed
+    except (ValueError, TypeError, KeyError) as e:
+        logger.debug(f"Failed to parse record: {e}")
+        return None
 
 def process_chunk(
     records: List[Dict[str, Any]],
-    error_log: Path,
-    target_path: Path
-) -> int:
+    templates: Dict[str, str]
+) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
     """
-    Process a batch of records, validate, and write to raw output.
-    
+    Process a chunk of records by classifying reactions.
+
     Args:
-        records: List of parsed reaction records.
-        error_log: Path to log invalid records.
-        target_path: Path to append valid records.
-        
+        records: List of parsed records.
+        templates: SMARTS patterns for classification.
+
     Returns:
-        Number of valid records processed.
+        Tuple of (classified_records, error_records).
     """
-    valid_count = 0
-    
-    with open(target_path, 'a', encoding='utf-8') as out_f, \
-         open(error_log, 'a', encoding='utf-8') as err_f:
-         
-        for rec in records:
-            parsed = parse_jsonl_line(rec)
-            if parsed:
-                # Validate against schema
-                # Note: validate_reaction_record expects a dict-like object
-                # We pass the dict directly
-                if validate_reaction_record(parsed):
-                    out_f.write(json.dumps(parsed) + '\n')
-                    valid_count += 1
-                else:
-                    err_f.write(f"Validation failed: {json.dumps(rec)}\n")
-            else:
-                err_f.write(f"Parse failed: {json.dumps(rec)}\n")
-                
-    return valid_count
+    if not records:
+        return [], []
+
+    # Extract SMILES for batch classification
+    smiles_list = [r['reaction_smiles'] for r in records]
+
+    # Classify reactions using chemistry module
+    classifications = classify_batch(smiles_list, templates)
+
+    classified = []
+    errors = []
+
+    for i, record in enumerate(records):
+        reaction_type = classifications[i]
+        if reaction_type:
+            record['reaction_type'] = reaction_type
+            classified.append(record)
+        else:
+            record['error_reason'] = 'No matching template'
+            errors.append(record)
+
+    return classified, errors
+
+def filter_by_class_sample_size(
+    df: List[Dict[str, Any]],
+    min_samples: int = 1000
+) -> List[Dict[str, Any]]:
+    """
+    Filter out reaction classes with fewer than min_samples.
+
+    Args:
+        df: List of classified records.
+        min_samples: Minimum number of samples required per class.
+
+    Returns:
+        Filtered list of records.
+    """
+    from collections import Counter
+    class_counts = Counter(r['reaction_type'] for r in df if 'reaction_type' in r)
+
+    valid_classes = {cls for cls, count in class_counts.items() if count >= min_samples}
+
+    if len(valid_classes) < len(class_counts):
+        removed_classes = set(class_counts.keys()) - valid_classes
+        logger.warning(f"Removing classes with < {min_samples} samples: {removed_classes}")
+
+    return [r for r in df if r.get('reaction_type') in valid_classes]
 
 def ingest_and_filter(
-    raw_gz_path: Optional[Path] = None,
-    force_download: bool = False
-) -> Tuple[Path, int]:
+    input_file: str,
+    output_file: str,
+    error_file: str,
+    templates: Dict[str, str],
+    min_samples: int = 1000,
+    chunk_size: int = 10000
+) -> Dict[str, Any]:
     """
-    Main orchestration function for data ingestion.
-    
-    Downloads the dataset if needed, streams it, parses, and saves
-    valid records to data/processed/raw_reactions.jsonl.
-    
+    Main ingestion pipeline: download, parse, classify, filter, and save.
+
     Args:
-        raw_gz_path: Optional path to existing local .jsonl.gz file.
-        force_download: If True, re-download even if file exists.
-        
+        input_file: Path to input JSONL.GZ file.
+        output_file: Path to output CSV file.
+        error_file: Path to error log file.
+        templates: SMARTS patterns for classification.
+        min_samples: Minimum samples per class.
+        chunk_size: Number of records to process at once.
+
     Returns:
-        Tuple of (output_path, total_valid_records)
+        Dictionary with ingestion statistics.
     """
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    
-    # Determine source
-    if raw_gz_path is None:
-        raw_gz_path = OUTPUT_DIR / "USPTO_MIT_subset.jsonl.gz"
-        
-    # Download if missing or forced
-    if not raw_gz_path.exists() or force_download:
-        download_uspto_data(raw_gz_path)
-        
-    # Initialize output paths
-    raw_output_path = OUTPUT_DIR / "raw_reactions.jsonl"
-    error_log_path = OUTPUT_DIR / "ingestion_errors.log"
-    
-    # Reset output files
-    if raw_output_path.exists():
-        raw_output_path.unlink()
-    if error_log_path.exists():
-        error_log_path.unlink()
-        
-    logger.info("Starting ingestion pipeline...")
-    start_time = time.time()
-    
-    total_valid = 0
-    chunk_size = 1000
-    current_chunk = []
-    
-    try:
-        for record in stream_jsonl_gz(raw_gz_path):
-            current_chunk.append(record)
-            
-            if len(current_chunk) >= chunk_size:
-                count = process_chunk(current_chunk, error_log_path, raw_output_path)
-                total_valid += count
-                current_chunk = []
-                
-        # Process remaining
-        if current_chunk:
-            count = process_chunk(current_chunk, error_log_path, raw_output_path)
-            total_valid += count
-            
-    except Exception as e:
-        logger.error(f"Ingestion pipeline failed: {e}")
-        raise
-        
-    elapsed = time.time() - start_time
-    logger.info(f"Ingestion complete. Processed {total_valid} valid records in {elapsed:.2f}s.")
-    
-    # Register artifact
-    checksum = compute_file_checksum(raw_output_path)
-    register_artifact(
-        stage="ingestion",
-        artifact_name="raw_reactions",
-        path=str(raw_output_path),
-        checksum=checksum
-    )
-    
-    return raw_output_path, total_valid
+    stats = {
+        'total_records': 0,
+        'parsed_records': 0,
+        'classified_records': 0,
+        'filtered_records': 0,
+        'error_records': 0,
+        'classes': {},
+        'start_time': datetime.now().isoformat(),
+        'end_time': None
+    }
+
+    all_classified = []
+    all_errors = []
+
+    # Stream and process in chunks
+    chunk = []
+    for record in stream_jsonl_gz(input_file):
+        stats['total_records'] += 1
+        parsed = parse_jsonl_line(record)
+        if parsed:
+            stats['parsed_records'] += 1
+            chunk.append(parsed)
+
+        if len(chunk) >= chunk_size:
+            classified, errors = process_chunk(chunk, templates)
+            all_classified.extend(classified)
+            all_errors.extend(errors)
+            chunk = []
+
+    # Process remaining chunk
+    if chunk:
+        classified, errors = process_chunk(chunk, templates)
+        all_classified.extend(classified)
+        all_errors.extend(errors)
+
+    stats['classified_records'] = len(all_classified)
+    stats['error_records'] = len(all_errors)
+
+    # Apply sample size filter
+    filtered_data = filter_by_class_sample_size(all_classified, min_samples)
+    stats['filtered_records'] = len(filtered_data)
+
+    # Calculate class distribution
+    from collections import Counter
+    class_counts = Counter(r['reaction_type'] for r in filtered_data)
+    stats['classes'] = dict(class_counts)
+
+    # Write output CSV
+    if filtered_data:
+        fieldnames = ['reaction_smiles', 'reaction_type', 'yield_pct', 'success_flag']
+        with open(output_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            for record in filtered_data:
+                writer.writerow({
+                    'reaction_smiles': record['reaction_smiles'],
+                    'reaction_type': record['reaction_type'],
+                    'yield_pct': record['yield_pct'],
+                    'success_flag': record['success_flag']
+                })
+        logger.info(f"Wrote {len(filtered_data)} records to {output_file}")
+
+    # Write error log
+    if all_errors:
+        with open(error_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=['reaction_smiles', 'error_reason'])
+            writer.writeheader()
+            for record in all_errors:
+                writer.writerow({
+                    'reaction_smiles': record['reaction_smiles'],
+                    'error_reason': record.get('error_reason', 'Unknown')
+                })
+        logger.info(f"Wrote {len(all_errors)} error records to {error_file}")
+
+    stats['end_time'] = datetime.now().isoformat()
+    return stats
 
 def main():
-    """Entry point for the ingestion script."""
-    setup_logger()
-    logger.info("Starting USPTO-MIT Data Ingestion (Task T012)")
-    
-    try:
-        output_path, count = ingest_and_filter()
-        logger.info(f"Successfully ingested {count} records to {output_path}")
-        return 0
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
-        return 1
+    """
+    Main entry point for the ingestion script.
+    """
+    # Load configuration
+    config = load_config()
 
-if __name__ == "__main__":
+    # Setup paths
+    raw_dir = config['data']['raw_dir']
+    processed_dir = config['data']['processed_dir']
+    output_filename = config['data']['output_filename']
+    input_filename = config['data']['input_filename']
+    url = config['data']['uspto_url']
+
+    input_path = os.path.join(raw_dir, input_filename)
+    output_path = os.path.join(processed_dir, output_filename)
+    error_path = os.path.join(processed_dir, 'ingestion_errors.csv')
+
+    # Ensure directories exist
+    os.makedirs(raw_dir, exist_ok=True)
+    os.makedirs(processed_dir, exist_ok=True)
+
+    # Download data
+    logger.info("Starting USPTO-MIT data ingestion pipeline...")
+    try:
+        downloaded_file = download_uspto_data(raw_dir, url, input_filename)
+    except RuntimeError as e:
+        logger.error(f"Pipeline failed: {e}")
+        sys.exit(1)
+
+    # Load templates
+    templates = get_templates()
+
+    # Run ingestion
+    try:
+        stats = ingest_and_filter(
+            input_file=downloaded_file,
+            output_file=output_path,
+            error_file=error_path,
+            templates=templates,
+            min_samples=config['model']['min_samples_per_class'],
+            chunk_size=config['model'].get('chunk_size', 10000)
+        )
+    except Exception as e:
+        logger.error(f"Ingestion failed: {e}")
+        sys.exit(1)
+
+    # Log results
+    logger.info(f"Ingestion complete. Statistics: {stats}")
+
+    # Update state
+    try:
+        update_stage_status('T012', 'completed', stats)
+        register_artifact('data/processed/filtered_reactions.csv', output_path)
+        register_artifact('data/processed/ingestion_errors.csv', error_path)
+    except Exception as e:
+        logger.warning(f"Failed to update state: {e}")
+
+    return 0
+
+if __name__ == '__main__':
+    setup_logger()
     sys.exit(main())

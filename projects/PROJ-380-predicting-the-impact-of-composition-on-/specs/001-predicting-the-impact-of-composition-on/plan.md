@@ -18,7 +18,7 @@ This project implements a reproducible machine learning pipeline to predict the 
 **Primary Dependencies**: `pandas`, `scikit-learn`, `numpy`, `matplotlib`, `seaborn`, `mendeleev`, `requests`, `pyyaml`, `bayesfactor` (optional for Bayesian comparison)  
 **Storage**: Local CSV/Parquet files in `data/` (raw, processed, and derived)  
 **Testing**: `pytest` (unit tests for feature engineering, integration tests for pipeline execution)  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, ~7 GB RAM, No GPU)  
+**Target Platform**: Linux (GitHub Actions Free Tier: Multi-core CPU, Multi-gigabyte RAM, No GPU)  
 **Project Type**: Computational Research / Data Science Pipeline  
 **Performance Goals**: Complete full pipeline (ingest -> train -> evaluate -> visualize) within 6 hours on free-tier runner.  
 **Constraints**:  

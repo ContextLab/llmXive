@@ -1,0 +1,21 @@
+T028:
+  c: false
+  h: bf24cf43952c48af9e0e2e4c9bb4af2c4e378e54bad62006451b6c70b0ebf2b2
+  r: "The required artifact `tests/unit/test_aggregate.py` does not exist in the repository,\
+    \ so no unit test for the majority\u2011rule threshold logic is present. The task\
+    \ cannot be considered done until the file is added with the appropriate test\
+    \ implementation."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No figure or data file showing a plot of sampling rate versus bias magnitude\
+    \ with a catalog\u2011uncertainty threshold line was provided; the only content\
+    \ is the task description and specifications, which does not satisfy the requirement\
+    \ to generate the requested visualization."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No summary table or any output artifact was presented; the claim provides only\
+    \ the task description and specifications, but no actual data, table, or file\
+    \ showing the identified lowest viable sampling rate where the majority rule (FR\u2011\
+    007) is satisfied. The required artifact is missing."

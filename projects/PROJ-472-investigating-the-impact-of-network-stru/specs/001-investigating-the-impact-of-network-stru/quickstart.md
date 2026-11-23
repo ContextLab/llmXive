@@ -1,63 +1,68 @@
-# Quickstart Guide: Network Structure & Avalanche Dynamics
+# Quickstart: Investigating the Impact of Network Structure on Neural Avalanche Dynamics
 
-## 1. Prerequisites
-- Python 3.9+
-- MRtrix3 (for dMRI processing, installed separately)
-- MNE-Python
-- NetworkX, BCTpy, powerlaw, pandas, numpy, scipy
+## Prerequisites
+- **Python** 3.11 or newer  
+- **MRtrix3** (system binary; `mrconvert`, `tckgen`, `tck2connectome` must be in `$PATH`). On the GitHub Actions runner MRtrix3 is pre‑installed; on a local machine install via the official package manager.  
+- **Git** (to clone the repository)  
 
-## 2. Installation
-1. Clone the repository.
-2. Install dependencies:
- ```bash
- pip install -r code/requirements.txt
- ```
-3. Set up environment variables (optional, defaults are in `code/config.py`):
- ```bash
- cp code/.env.example code/.env
- # Edit.env if custom paths are needed
- ```
+## Installation
 
-## 3. Data Acquisition
-The pipeline automatically downloads data from OpenNeuro `ds004231` upon first run.
-- **Note**: Ensure sufficient disk space (~10GB+).
-- **Constraint**: If `ds004231` is unreachable, the pipeline will halt with a clear error.
-
-## 4. Running the Pipeline
-Execute the main entry point:
 ```bash
-python code/main.py
+# 1️⃣ Clone the repository
+git clone <repo-url>
+cd projects/PROJ-472-investigating-the-impact-of-network-stru
+
+# 2️⃣ Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3️⃣ Install Python dependencies
+pip install -r requirements.txt
 ```
-This will:
-1. Download and verify data.
-2. Preprocess dMRI and EEG.
-3. Compute structural and avalanche metrics.
-4. Run statistical analysis (if N >= 10).
-5. Generate reports.
 
-## 5. Output Location
-- **Processed Data**: `data/processed/`
-- **Results & Reports**: `data/results/`
-- **Logs**: `data/logs/`
+## Configuration
+Edit `src/config.yaml` if you wish to change:
+- **Dataset URL** (default points to the verified OpenNeuro ds004230 dataset)  
+- Avalanche thresholds (`thresholds: [0.75, 0.80]`)  
+- Random seed (`seed: 42`)  
 
-## 6. Validation
-To verify the pipeline integrity:
+## Running the Full Pipeline
+
 ```bash
-python code/main.py --validate
+python -m src.cli.run_pipeline
 ```
-This checks for:
-- Presence of required files.
-- Valid checksums.
-- Correct routing state (`routing_state.json`).
 
-## 7. Troubleshooting
-- **Data Download Failed**: Check internet connection and OpenNeuro status. The pipeline does not support offline/fallback modes for the primary source.
-- **Insufficient Subjects**: If fewer than 10 subjects pass QC, a `insufficient_sample_report.md` will be generated in `data/results/`.
-- **Power-Law Convergence**: If fitting fails for a subject, they are excluded from the correlation matrix (logged in `fitting_report.json`).
+The command performs, in order:
 
-## 8. Documentation Path
-All project documentation resides in `specs/001-network-structure-avalanche-dynamics/`.
-- `research.md`: Research protocol.
-- `data-model.md`: Data structures.
-- `quickstart.md`: This guide.
-- **Deprecated**: The `docs/` directory is no longer used.
+1. **Data download & checksum verification** (`download.py`).  
+2. **dMRI preprocessing** (`preprocess_dMRI.py`) → adjacency matrices (with fallback to pre‑computed matrix if tractography fails).  
+3. **EEG preprocessing** (`preprocess_EEG.py`) → cleaned epochs (band‑pass 1–40 Hz, down‑sample 250 Hz, ICA).  
+4. **Metric computation** (`network_metrics.py`, `avalanche_metrics.py`).  
+5. **Statistical validation** (`stats.py`) – Spearman correlation, permutation testing, VIF diagnostics, and threshold sensitivity sweep.  
+6. **Report generation** (`report.md`) in `data/results/`.
+
+### Expected Outputs
+- `data/processed/` – `.npy` connectivity matrices & cleaned EEG.  
+- `data/results/metrics.csv` – participant‑level structural & avalanche metrics.  
+- `data/results/correlations.csv` – Spearman + permutation results for each metric pair and threshold.  
+- `data/results/collinearity_status.json` – VIF diagnostics and high‑collinearity flags.  
+- `data/results/report.md` – final narrative (includes data‑availability disclaimer).
+
+## Troubleshooting
+
+| Symptom | Likely Cause | Remedy |
+|---------|--------------|--------|
+| `mrtrix3` command not found | MRtrix3 not installed or not on `$PATH` | Install MRtrix3 or add its `bin/` directory to `$PATH`. |
+| Out‑of‑memory error during dMRI conversion | Too many subjects loaded simultaneously | Reduce `max_subjects` in `config.yaml` or run on a machine with more RAM. |
+| `powerlaw` fails to converge for a participant | Poor avalanche distribution (e.g., too few events) | Participant will be excluded automatically; check `data/results/metrics.csv` for missing exponents. |
+| No matched dMRI + EEG found | By design – the open dataset provides both modalities; ensure you are using the designated dataset. | Verify that `src/config.yaml` points to the correct OpenNeuro URL. |
+
+## Notes on Compute
+- The pipeline is **CPU‑first**; no CUDA calls are present.  
+- If MRtrix3 tractography fails, the script falls back to the pre‑computed connectivity matrix bundled with ds004230 (logged in `data/logs/fallback.log`).  
+- All random processes (permutation shuffling, any stochastic steps) use the seed from `src/utils/seed.py`.
+
+---
+
+
+

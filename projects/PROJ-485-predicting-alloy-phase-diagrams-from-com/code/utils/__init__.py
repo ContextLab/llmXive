@@ -1,1 +1,1 @@
-"""Utility functions and helpers."""
+"""Utility package initialization."""

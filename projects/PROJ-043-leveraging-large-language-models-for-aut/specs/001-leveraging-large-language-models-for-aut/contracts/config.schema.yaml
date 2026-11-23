@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Configuration Schema"
+description: "Schema for the project configuration file."
+type: "object"
+properties:
+  max_attempts:
+    type: "integer"
+    description: "Maximum number of sampling attempts"
+    default: 400
+  min_valid_functions:
+    type: "integer"
+    description: "Minimum number of valid functions required"
+    default: 100
+  target_valid_functions:
+    type: "integer"
+    description: "Target number of valid functions"
+    default: 200
+  api_timeout:
+    type: "integer"
+    description: "Timeout per API call in seconds"
+    default: 60
+  max_retries:
+    type: "integer"
+    description: "Maximum number of retries per API call"
+    default: 3
+  batch_size:
+    type: "integer"
+    description: "Maximum number of functions per API batch"
+    default: 10
+  vif_threshold:
+    type: "number"
+    description: "VIF threshold for diagnostic (not for dropping)"
+    default: 5.0
+  ridge_alpha:
+    type: "number"
+    description: "Regularization parameter for Ridge Regression"
+    default: 1.0
+  significance_level:
+    type: "number"
+    description: "Significance level for hypothesis tests"
+    default: 0.05
+  random_seed:
+    type: "integer"
+    description: "Random seed for reproducibility"
+    default: 42
+required:
+  - max_attempts
+  - min_valid_functions
+  - target_valid_functions
+  - vif_threshold
+  - significance_level
+  - random_seed
+additionalProperties: false

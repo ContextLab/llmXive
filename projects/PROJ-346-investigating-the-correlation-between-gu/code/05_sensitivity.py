@@ -1,297 +1,221 @@
 import os
 import sys
 import logging
+import json
 import pandas as pd
 import numpy as np
-from pathlib import Path
-from scipy.stats import spearmanr
-from statsmodels.stats.multitest import multipletests
-import json
+from scipy import stats
+from utils import get_data_processed_path, get_data_qc_path, ensure_directory, get_logger
 
-# Import shared utilities from utils
-try:
-    from utils import (
-        get_project_root_path,
-        get_data_processed_path,
-        get_data_qc_path,
-        setup_logger,
-        get_logger,
-        load_data_from_api
-    )
-except ImportError:
-    # Fallback for direct execution or different import context
-    sys.path.insert(0, str(Path(__file__).parent))
-    from utils import (
-        get_project_root_path,
-        get_data_processed_path,
-        get_data_qc_path,
-        setup_logger,
-        get_logger
-    )
-
-logger = setup_logger("05_sensitivity")
-
-# Constants for normalization methods
-NORMALIZATION_METHODS = ["DESeq2", "rarefaction"]
-AGE_GROUPS = {
-    "young": (0, 40),
-    "middle": (40, 60),
-    "senior": (60, 120)
-}
+logger = get_logger(__name__)
 
 def load_merged_data():
-    """
-    Loads the merged dataset from the processed data directory.
-    Returns None if the file does not exist (Data Gap scenario).
-    """
-    data_dir = get_data_processed_path()
-    merged_path = data_dir / "merged_dataset.parquet"
-    
-    if not merged_path.exists():
-        logger.warning(f"Merged dataset not found at {merged_path}. Skipping sensitivity analysis (Data Gap).")
+    processed_dir = get_data_processed_path()
+    data_path = processed_dir / "merged_dataset.parquet"
+    if not data_path.exists():
+        logger.warning("Merged dataset not found. Skipping sensitivity analysis (Data Gap).")
         return None
-    
-    try:
-        df = pd.read_parquet(merged_path)
-        logger.info(f"Loaded merged dataset with {len(df)} samples.")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load merged dataset: {e}")
-        return None
+    return pd.read_parquet(data_path)
 
-def get_age_group(age):
+def apply_rarefaction(df, depth=10000):
     """
-    Categorizes age into groups: young (<40), middle (40-60), senior (>=60).
+    Simulates rarefaction by downsampling the dataset to a target depth.
+    In a real microbiome pipeline, this would normalize sequencing depth.
+    Here we simulate the effect on the statistical power by reducing N.
     """
-    if pd.isna(age):
-        return None
-    if age < 40:
-        return "young"
-    elif age < 60:
-        return "middle"
-    else:
-        return "senior"
+    n_samples = min(len(df), depth)
+    return df.sample(n=n_samples, random_state=42).reset_index(drop=True)
 
-def apply_rarefaction(df, taxa_columns, target_depth=10000):
+def apply_deseq2_simulation(df):
     """
-    Applies rarefaction (subsampling without replacement) to normalize counts.
-    This is a simplified implementation for sensitivity analysis.
+    Simulates DESeq2 normalization effects.
+    Real DESeq2 performs variance stabilizing transformation and size factor normalization.
+    We simulate this by applying a log-like transformation and scaling to unit variance
+    to mimic the stabilization of variance across abundance ranges.
     """
-    logger.info(f"Applying rarefaction to {len(taxa_columns)} taxa with target depth {target_depth}.")
-    rarefied_df = df.copy()
+    df_norm = df.copy()
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
     
-    for col in taxa_columns:
-        if col in rarefied_df.columns:
-            # Simulate rarefaction by scaling and rounding, or actual subsampling if raw counts
-            # Since we likely have relative abundance or processed counts, we simulate the effect
-            # by adding noise or scaling if the data is not raw counts.
-            # For this implementation, we assume the input is raw counts or we simulate the variance.
-            # A true rarefaction requires raw counts. If data is relative, we note the limitation.
-            
-            # Check if data looks like counts (integers or large floats)
-            if rarefied_df[col].dtype in ['int64', 'float64']:
-                # Simple scaling to simulate rarefaction variance if not raw counts
-                # In a real scenario with raw counts:
-                # rarefied_df[col] = np.random.hypergeometric(...) or similar subsampling
-                # Here we apply a deterministic scaling factor to simulate the effect of lower depth
-                # for the sake of the correlation comparison logic.
-                rarefied_df[col] = rarefied_df[col] * (target_depth / rarefied_df[col].sum() if rarefied_df[col].sum() > 0 else 1)
-            else:
-                rarefied_df[col] = rarefied_df[col]
+    # Filter out target variable if present in numeric cols for normalization
+    target_col = 'z_score'
+    cols_to_norm = [c for c in numeric_cols if c != target_col]
     
-    return rarefied_df
+    for col in cols_to_norm:
+        if df[col].std() > 0:
+            # Apply a pseudo-log transform to reduce skew (common in microbiome)
+            # Adding 1 to avoid log(0)
+            transformed = np.log1p(df[col])
+            # Scale to zero mean and unit variance (standardization)
+            df_norm[col] = (transformed - transformed.mean()) / transformed.std()
+        else:
+            df_norm[col] = 0.0
+    return df_norm
 
-def apply_deseq2_simulation(df, taxa_columns):
+def compute_correlations(df):
     """
-    Simulates DESeq2 normalization (Median of Ratios) effect.
-    Since we cannot easily import R's DESeq2 in pure Python without rpy2,
-    we implement the Median of Ratios logic manually for the sensitivity check.
+    Computes Spearman rank correlations between all numeric columns and the target 'z_score'.
+    Returns a dict mapping column name to {'r': float, 'p': float}.
     """
-    logger.info(f"Applying DESeq2-like normalization to {len(taxa_columns)} taxa.")
-    deseq_df = df.copy()
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    target = 'z_score'
     
-    # Calculate geometric mean for each taxa
-    # Avoid log(0) by adding small epsilon
-    epsilon = 1e-6
-    geo_means = (deseq_df[taxa_columns] + epsilon).apply(lambda x: np.exp(np.log(x).mean()))
+    if target not in numeric_cols:
+        logger.warning(f"Target column '{target}' not found in numeric columns.")
+        return {}
     
-    # Calculate size factors (ratio of each sample to geometric mean)
-    ratios = deseq_df[taxa_columns] / geo_means
-    # Median of ratios for each sample
-    size_factors = ratios.median(axis=1)
-    
-    # Normalize
-    for col in taxa_columns:
-        deseq_df[col] = deseq_df[col] / size_factors
-        
-    return deseq_df
-
-def compute_correlations(df, taxa_columns, cognitive_col):
-    """
-    Computes Spearman correlations between taxa and cognitive score.
-    Returns a dictionary of {taxon: (correlation, p_value)}.
-    """
     correlations = {}
-    valid_indices = df[cognitive_col].notna()
-    
-    for taxon in taxa_columns:
-        if taxon not in df.columns:
-            continue
-        
-        valid_taxon = df.loc[valid_indices, taxon]
-        valid_cog = df.loc[valid_indices, cognitive_col]
-        
-        if valid_taxon.nunique() < 2 or valid_cog.nunique() < 2:
-            continue
-        
-        try:
-            corr, p_val = spearmanr(valid_taxon, valid_cog)
-            correlations[taxon] = (corr, p_val)
-        except Exception as e:
-            logger.debug(f"Correlation failed for {taxon}: {e}")
-            continue
+    for col in numeric_cols:
+        if col != target:
+            # Check for constant columns to avoid division by zero in correlation
+            if df[col].std() == 0:
+                correlations[col] = {"r": 0.0, "p": 1.0}
+                continue
+            
+            try:
+                corr, p = stats.spearmanr(df[col], df[target])
+                # Handle NaN results (e.g. if only one unique value after filtering)
+                if np.isnan(corr):
+                    corr, p = 0.0, 1.0
+                correlations[col] = {"r": float(corr), "p": float(p)}
+            except Exception as e:
+                logger.warning(f"Could not compute correlation for {col}: {e}")
+                correlations[col] = {"r": 0.0, "p": 1.0}
     
     return correlations
 
 def apply_fdr(correlations, alpha=0.05):
     """
-    Applies Benjamini-Hochberg FDR correction.
-    Returns list of significant taxa.
+    Applies Benjamini-Hochberg FDR correction to a dictionary of correlations.
+    Returns a dictionary of only significant correlations (q < alpha).
     """
     if not correlations:
-        return []
+        return {}
     
-    p_values = [v[1] for v in correlations.values()]
-    taxa_names = list(correlations.keys())
+    # Extract p-values and their original keys
+    items = list(correlations.items())
+    p_values = [v["p"] for _, v in items]
+    keys = [k for k, _ in items]
     
-    if len(p_values) == 0:
-        return []
+    # Sort by p-value
+    sorted_indices = np.argsort(p_values)
+    sorted_p = np.array([p_values[i] for i in sorted_indices])
+    sorted_keys = np.array([keys[i] for i in sorted_indices])
     
-    try:
-        rejected, corrected_p, _, _ = multipletests(p_values, alpha=alpha, method='fdr_bh')
-        significant = [taxa_names[i] for i, is_sig in enumerate(rejected) if is_sig]
-        return significant
-    except Exception as e:
-        logger.error(f"FDR correction failed: {e}")
-        return []
+    n = len(p_values)
+    significant = {}
+    
+    # BH Procedure
+    # Calculate adjusted p-values (q-values)
+    # q_i = p_i * n / i  (where i is rank 1..n)
+    # We need to ensure monotonicity: q_i = min(q_j for j >= i)
+    
+    adjusted_p = np.zeros(n)
+    for i in range(n):
+        rank = i + 1
+        adj = sorted_p[i] * n / rank
+        adjusted_p[i] = adj
+    
+    # Enforce monotonicity (from largest rank to smallest)
+    for i in range(n - 2, -1, -1):
+        if adjusted_p[i] > adjusted_p[i + 1]:
+            adjusted_p[i] = adjusted_p[i + 1]
+    
+    # Filter
+    for i, key in enumerate(sorted_keys):
+        if adjusted_p[i] < alpha:
+            significant[key] = correlations[key]
+    
+    return significant
 
 def compute_stratified_correlations(df):
     """
-    Main logic for T030: Compare significant taxa counts across normalization methods.
-    Also handles age stratification (T029 logic included for completeness).
+    Stratifies the dataset by age groups: <40, >=40-<60, >=60.
+    Computes correlations for each group.
     """
-    if df is None:
-        logger.warning("No data to process. Skipping sensitivity analysis.")
-        return None
-
-    # Identify taxa columns (exclude metadata)
-    metadata_cols = ['sample_id', 'age', 'sex', 'bmi', 'cognitive_score', 'age_group']
-    taxa_columns = [col for col in df.columns if col not in metadata_cols]
-    cognitive_col = 'cognitive_score'
-
-    if not taxa_columns:
-        logger.warning("No taxa columns found in dataset.")
-        return None
-
-    logger.info(f"Found {len(taxa_columns)} taxa columns.")
-
-    results = {
-        "global": {},
-        "stratified": {}
-    }
-
-    # --- Global Analysis (T030 Focus: Normalization Comparison) ---
-    logger.info("Performing global analysis to compare normalization methods...")
+    if 'age' not in df.columns:
+        logger.warning("Age column not found. Cannot stratify.")
+        return {}
     
-    for method in NORMALIZATION_METHODS:
-        logger.info(f"Processing method: {method}")
-        
-        if method == "rarefaction":
-            norm_df = apply_rarefaction(df, taxa_columns)
-        elif method == "DESeq2":
-            norm_df = apply_deseq2_simulation(df, taxa_columns)
-        else:
-            norm_df = df # Fallback
-
-        # Compute correlations
-        corrs = compute_correlations(norm_df, taxa_columns, cognitive_col)
-        significant = apply_fdr(corrs)
-        
-        results["global"][method] = {
-            "total_correlations": len(corrs),
-            "significant_count": len(significant),
-            "significant_taxa": significant
-        }
-        logger.info(f"Method {method}: {len(significant)} significant taxa found.")
-
-    # --- Stratified Analysis (T029 Focus) ---
-    logger.info("Performing age-stratified analysis...")
-    df['age_group'] = df['age'].apply(get_age_group)
+    # Create age groups
+    # Labels must be strings for JSON serialization
+    df['age_group'] = pd.cut(
+        df['age'], 
+        bins=[-np.inf, 40, 60, np.inf], 
+        labels=['<40', '40-59', '>=60']
+    )
     
-    for group, (min_age, max_age) in AGE_GROUPS.items():
-        subset = df[(df['age'] >= min_age) & (df['age'] < max_age)]
-        if len(subset) < 10:
-            logger.warning(f"Not enough samples in {group} group ({len(subset)}). Skipping.")
+    results = {}
+    for group_name, group_df in df.groupby('age_group'):
+        # Skip groups with too few samples for correlation
+        if len(group_df) < 3:
+            logger.warning(f"Group {group_name} has too few samples ({len(group_df)}). Skipping.")
             continue
-
-        group_results = {}
-        for method in NORMALIZATION_METHODS:
-            if method == "rarefaction":
-                norm_subset = apply_rarefaction(subset, taxa_columns)
-            elif method == "DESeq2":
-                norm_subset = apply_deseq2_simulation(subset, taxa_columns)
-            else:
-                norm_subset = subset
-            
-            corrs = compute_correlations(norm_subset, taxa_columns, cognitive_col)
-            significant = apply_fdr(corrs)
-            group_results[method] = len(significant)
         
-        results["stratified"][group] = group_results
-
+        corr = compute_correlations(group_df)
+        results[str(group_name)] = corr
+    
     return results
 
-def save_results(results):
+def save_results(normalization_results, stratified_results):
     """
-    Saves the sensitivity analysis results to data/qc/
+    Saves the sensitivity analysis results to a JSON file in the QC directory.
     """
     qc_dir = get_data_qc_path()
+    ensure_directory(qc_dir)
     output_path = qc_dir / "sensitivity_analysis_results.json"
     
+    output_data = {
+        "normalization_comparison": normalization_results,
+        "stratified_correlations": stratified_results
+    }
+    
     with open(output_path, 'w') as f:
-        json.dump(results, f, indent=2)
+        json.dump(output_data, f, indent=2)
     
     logger.info(f"Saved sensitivity analysis results to {output_path}")
-    return output_path
 
 def main():
-    """
-    Entry point for T030.
-    """
-    logger.info("Starting T030: Sensitivity Analysis (Normalization Comparison)")
+    logger.info("Starting sensitivity analysis (T029-T030)")
     
     df = load_merged_data()
     if df is None:
-        # Graceful exit if data gap exists
-        # Create a placeholder result indicating N/A
-        qc_dir = get_data_qc_path()
-        output_path = qc_dir / "sensitivity_analysis_results.json"
-        with open(output_path, 'w') as f:
-            json.dump({
-                "status": "N/A",
-                "reason": "Data Gap: merged_dataset.parquet not found",
-                "message": "Skipped sensitivity analysis as per SC-001/SC-004"
-            }, f, indent=2)
-        logger.warning("Skipped T030 due to missing data. Report generated.")
+        logger.info("Skipping sensitivity analysis due to missing merged dataset.")
         return
 
-    results = compute_stratified_correlations(df)
+    # T030: Normalization Comparison (DESeq2 vs Rarefaction)
+    # We compare the count of significant taxa under different normalization assumptions.
     
-    if results:
-        save_results(results)
-        logger.info("T030 completed successfully.")
-    else:
-        logger.warning("T030 completed but no results generated.")
+    # Method 1: Raw (current data)
+    corr_raw = compute_correlations(df)
+    sig_raw = apply_fdr(corr_raw)
+    count_raw = len(sig_raw)
+    
+    # Method 2: Rarefaction (simulated by downsampling)
+    df_rare = apply_rarefaction(df)
+    corr_rare = compute_correlations(df_rare)
+    sig_rare = apply_fdr(corr_rare)
+    count_rare = len(sig_rare)
+    
+    # Method 3: DESeq2 Simulation (variance stabilization)
+    df_deseq = apply_deseq2_simulation(df)
+    corr_deseq = compute_correlations(df_deseq)
+    sig_deseq = apply_fdr(corr_deseq)
+    count_deseq = len(sig_deseq)
+    
+    normalization_results = {
+        "raw_significant_count": count_raw,
+        "rarefaction_significant_count": count_rare,
+        "deseq2_significant_count": count_deseq,
+        "delta_rarefaction": count_rare - count_raw,
+        "delta_deseq2": count_deseq - count_raw,
+        "methodology_note": "Rarefaction simulated by random downsampling. DESeq2 simulated by log-transformation and standardization."
+    }
+    
+    # T029: Stratified Correlations
+    stratified_results = compute_stratified_correlations(df)
+    
+    save_results(normalization_results, stratified_results)
+    logger.info("Sensitivity analysis complete.")
 
 if __name__ == "__main__":
     main()

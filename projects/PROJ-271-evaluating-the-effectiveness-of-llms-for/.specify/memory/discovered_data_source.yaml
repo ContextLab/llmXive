@@ -1,0 +1,11 @@
+status: none
+intent: HuggingFace Python function dataset static analysis metrics LOC cyclomatic
+  complexity pylint python package dataset
+required_fields:
+- function_code
+- loc
+- cyclomatic_complexity
+- pylint_smell_labels
+cache_key: afb7ec06b8e15c7c0bb06aed541678a0637d6c0cf7cba2b57e2a53be2edb0857
+searched_at: '2026-10-24T20:49:45.028142+00:00'
+retry_count: 1

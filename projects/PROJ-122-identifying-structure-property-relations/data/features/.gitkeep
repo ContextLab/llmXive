@@ -1,1 +1,2 @@
-# Placeholder for feature data directory
+# This directory holds feature matrices and derived datasets.
+# Do not commit large binary files; use .gitignore to exclude data files.

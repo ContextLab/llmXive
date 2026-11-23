@@ -1,29 +1,44 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Simulation Catalog Schema"
-description: "Schema for synthetic or downloaded simulation data"
+description: "Schema for binary‑black‑hole population catalog rows derived from the official IllustrisTNG/EAGLE releases."
 type: "object"
 properties:
   event_id:
     type: "string"
-    description: "Unique identifier for the synthetic event"
+    description: "Unique identifier for the simulation event."
   component_mass_1:
     type: "number"
-    description: "Primary component mass in solar masses"
+    description: "Primary component mass in solar masses."
+    minimum: 0
   component_mass_2:
     type: "number"
-    description: "Secondary component mass in solar masses"
+    description: "Secondary component mass in solar masses."
+    minimum: 0
   mass_ratio:
     type: "number"
-    description: "Mass ratio q = m2/m1 (0 < q <= 1)"
+    description: "Mass ratio q = m2 / m1 (0 < q <= 1)."
+    exclusiveMinimum: 0
+    maximum: 1
   effective_spin:
     type: "number"
-    description: "Effective aligned spin parameter chi_eff"
+    description: "Effective aligned spin parameter chi_eff."
+    minimum: -1
+    maximum: 1
   formation_channel:
     type: "string"
-    description: "Source of the event (e.g., 'synthetic_powerlaw')"
+    description: "Source of the simulation data."
+    enum:
+      - "official_IllustrisTNG_EAGLE"
   generation_method:
     type: "string"
-    description: "Description of the generation hypothesis"
+    description: "Method by which the catalog was generated."
+    enum:
+      - "official_release"
+  data_status:
+    type: "string"
+    description: "Provenance flag."
+    enum:
+      - "real"
 required:
   - event_id
   - component_mass_1
@@ -32,4 +47,5 @@ required:
   - effective_spin
   - formation_channel
   - generation_method
+  - data_status
 additionalProperties: false

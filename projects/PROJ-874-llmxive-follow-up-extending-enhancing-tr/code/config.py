@@ -1,282 +1,343 @@
 """
-Configuration management for llmXive Follow-up project.
-
-Provides:
-- Seed management for reproducibility
-- Dataset path resolution
-- State update logic for tracking pipeline progress
-- Environment variable overrides
+Configuration management for llmXive project.
+Handles seed management, dataset paths, state updates, and checksum logic.
 """
-
 import os
 import json
 import logging
 import random
 import hashlib
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Tuple
+from typing import Dict, List, Optional, Any, Tuple
+from datetime import datetime
 
-# Project root relative to this file
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Default configuration
-DEFAULT_CONFIG = {
-    "seed": 42,
-    "dataset_names": ["NarrLV", "VBench"],
-    "raw_data_dir": "data/raw",
-    "processed_data_dir": "data/processed",
-    "results_dir": "data/results",
-    "log_level": "INFO",
-    "max_workers": 2,  # CPU constraint
-    "memory_limit_gb": 6.0,
-    "flow_model": "raft-small",
-    "flow_precision": "fp32",  # Fallback from fp16 if needed
-}
+# --- Custom Exceptions ---
 
-# Required files for dataset validation (checksums)
-REQUIRED_FILES = {
-    "NarrLV": [
-        "narrlv_train.json",
-        "narrlv_val.json",
-        "narrlv_test.json",
-    ],
-    "VBench": [
-        "vbench_train.json",
-        "vbench_val.json",
-        "vbench_test.json",
-    ],
-}
+class LlmXiveError(Exception):
+    """Base exception for llmXive errors."""
+    pass
 
-# Logging configuration
-def setup_logging(log_level: str = "INFO") -> logging.Logger:
-    """Configure and return the project logger."""
-    log_level = getattr(logging, log_level.upper(), logging.INFO)
-    
-    logger = logging.getLogger("llmxive")
-    logger.setLevel(log_level)
-    
-    if not logger.handlers:
-        handler = logging.StreamHandler()
-        formatter = logging.Formatter(
-            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-        )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-    
-    return logger
+class ConfigError(LlmXiveError):
+    """Configuration error."""
+    pass
 
-logger = setup_logging()
+class DatasetNotFoundError(LlmXiveError):
+    """Dataset not found error."""
+    pass
+
+class ValidationError(LlmXiveError):
+    """Validation error (e.g., checksum mismatch)."""
+    pass
+
+class StateUpdateError(LlmXiveError):
+    """Error updating state file."""
+    pass
+
+# --- Global Configuration ---
+
+_config: Optional['Config'] = None
 
 class Config:
     """
-    Central configuration manager.
-    
-    Handles:
-    - Seed setting for reproducibility
-    - Dataset path resolution
-    - State tracking for pipeline progress
+    Central configuration class.
+    Manages paths, seeds, and global settings.
     """
+    def __init__(self, project_root: Optional[Path] = None):
+        if project_root is None:
+            # Default to current working directory or a specific project root
+            # For this project, we assume the root is the parent of 'code'
+            current_file = Path(__file__).resolve()
+            project_root = current_file.parent.parent
+        
+        self.project_root = project_root
+        self.code_dir = self.project_root / "code"
+        self.data_dir = self.project_root / "data"
+        self.tests_dir = self.project_root / "tests"
+        self.docs_dir = self.project_root / "docs"
+        self.contracts_dir = self.project_root / "contracts"
+        
+        # Data subdirectories
+        self.raw_dir = self.data_dir / "raw"
+        self.processed_dir = self.data_dir / "processed"
+        self.results_dir = self.data_dir / "results"
+        
+        # Test subdirectories
+        self.contract_tests_dir = self.tests_dir / "contract"
+        self.integration_tests_dir = self.tests_dir / "integration"
+        self.unit_tests_dir = self.tests_dir / "unit"
+        
+        # Defaults
+        self.seed = 42
+        self.max_workers = 1
+        self.memory_limit_mb = 6000
+        self.flow_model = "raft-small"
+        self.flow_precision = "fp16"
+        
+        # Load config from file if exists
+        self._load_config()
     
-    def __init__(self, config_path: Optional[Path] = None):
-        """Initialize configuration with optional override file."""
-        self._config = DEFAULT_CONFIG.copy()
-        self._state_file = PROJECT_ROOT / "data" / "pipeline_state.json"
-        
-        if config_path and config_path.exists():
-            self._load_from_file(config_path)
-        
-        # Override from environment variables
-        self._load_from_env()
-        
-        # Initialize state
-        self._load_state()
-    
-    def _load_from_file(self, path: Path) -> None:
-        """Load configuration from a JSON file."""
-        try:
-            with open(path, "r") as f:
-                override_config = json.load(f)
-            self._config.update(override_config)
-            logger.info(f"Loaded config from {path}")
-        except Exception as e:
-            logger.warning(f"Failed to load config from {path}: {e}")
-    
-    def _load_from_env(self) -> None:
-        """Override config with environment variables."""
-        env_mapping = {
-            "LLMXIVE_SEED": "seed",
-            "LLMXIVE_DATASET_NAMES": "dataset_names",
-            "LLMXIVE_LOG_LEVEL": "log_level",
-            "LLMXIVE_MAX_WORKERS": "max_workers",
-            "LLMXIVE_MEMORY_LIMIT_GB": "memory_limit_gb",
-        }
-        
-        for env_var, config_key in env_mapping.items():
-            value = os.environ.get(env_var)
-            if value is not None:
-                if config_key in ["seed", "max_workers"]:
-                    try:
-                        self._config[config_key] = int(value)
-                    except ValueError:
-                        logger.warning(f"Invalid integer for {env_var}: {value}")
-                elif config_key == "memory_limit_gb":
-                    try:
-                        self._config[config_key] = float(value)
-                    except ValueError:
-                        logger.warning(f"Invalid float for {env_var}: {value}")
-                elif config_key == "dataset_names":
-                    self._config[config_key] = value.split(",")
-                else:
-                    self._config[config_key] = value
-        
-        # Update logger level if changed
-        if "log_level" in self._config:
-            setup_logging(self._config["log_level"])
-    
-    def _load_state(self) -> None:
-        """Load pipeline state from disk."""
-        if self._state_file.exists():
+    def _load_config(self):
+        """Load configuration from config.json if it exists."""
+        config_path = self.project_root / "config.json"
+        if config_path.exists():
             try:
-                with open(self._state_file, "r") as f:
-                    self._state = json.load(f)
-                logger.debug(f"Loaded state from {self._state_file}")
+                with open(config_path, 'r') as f:
+                    data = json.load(f)
+                    self.seed = data.get('seed', self.seed)
+                    self.max_workers = data.get('max_workers', self.max_workers)
+                    self.memory_limit_mb = data.get('memory_limit_mb', self.memory_limit_mb)
+                    self.flow_model = data.get('flow_model', self.flow_model)
+                    self.flow_precision = data.get('flow_precision', self.flow_precision)
+                    logger.info(f"Configuration loaded from {config_path}")
             except Exception as e:
-                logger.warning(f"Failed to load state: {e}")
-                self._state = {}
+                logger.warning(f"Failed to load config from {config_path}: {e}. Using defaults.")
         else:
-            self._state = {}
+            logger.info("No config.json found. Using defaults.")
     
-    def save_state(self) -> None:
-        """Save current pipeline state to disk."""
-        self._state_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(self._state_file, "w") as f:
-            json.dump(self._state, f, indent=2)
-        logger.debug(f"Saved state to {self._state_file}")
-    
-    def update_state(self, key: str, value: Any) -> None:
-        """Update a single state value and persist."""
-        self._state[key] = value
-        self.save_state()
-    
-    def get_state(self, key: str, default: Any = None) -> Any:
-        """Get a state value."""
-        return self._state.get(key, default)
-    
-    def set_seed(self, seed: Optional[int] = None) -> int:
-        """Set random seed for reproducibility. Returns the seed used."""
-        if seed is None:
-            seed = self._config["seed"]
-        
-        self._config["seed"] = seed
-        random.seed(seed)
-        
-        # Set numpy seed if available
-        try:
-            import numpy as np
-            np.random.seed(seed)
-        except ImportError:
-            pass
-        
-        logger.info(f"Random seed set to {seed}")
-        return seed
-    
-    def get_seed(self) -> int:
-        """Get the current seed value."""
-        return self._config["seed"]
-    
-    def get_dataset_paths(self, dataset_name: Optional[str] = None) -> Dict[str, Path]:
-        """
-        Resolve dataset paths.
-        
-        Args:
-            dataset_name: Optional specific dataset name. If None, returns all.
-        
-        Returns:
-            Dict mapping dataset name to its raw data directory path.
-        """
-        if dataset_name:
-            datasets = [dataset_name]
-        else:
-            datasets = self._config["dataset_names"]
-        
-        paths = {}
-        for name in datasets:
-            raw_dir = PROJECT_ROOT / self._config["raw_data_dir"] / name
-            paths[name] = raw_dir
-        
-        return paths
-    
-    def get_processed_dir(self) -> Path:
-        """Get the processed data directory."""
-        return PROJECT_ROOT / self._config["processed_data_dir"]
-    
-    def get_results_dir(self) -> Path:
-        """Get the results directory."""
-        return PROJECT_ROOT / self._config["results_dir"]
-    
-    def get_required_files(self, dataset_name: str) -> List[str]:
-        """Get list of required files for a dataset."""
-        return REQUIRED_FILES.get(dataset_name, [])
-    
-    def get_config(self) -> Dict[str, Any]:
-        """Get full configuration dictionary."""
-        return self._config.copy()
-    
-    def get_memory_limit(self) -> float:
-        """Get memory limit in GB."""
-        return self._config["memory_limit_gb"]
-    
-    def get_max_workers(self) -> int:
-        """Get maximum worker count."""
-        return self._config["max_workers"]
-    
-    def get_flow_model(self) -> str:
-        """Get flow model name."""
-        return self._config["flow_model"]
-    
-    def get_flow_precision(self) -> str:
-        """Get flow precision setting."""
-        return self._config["flow_precision"]
+    def save_config(self):
+        """Save current configuration to config.json."""
+        config_path = self.project_root / "config.json"
+        data = {
+            'seed': self.seed,
+            'max_workers': self.max_workers,
+            'memory_limit_mb': self.memory_limit_mb,
+            'flow_model': self.flow_model,
+            'flow_precision': self.flow_precision
+        }
+        with open(config_path, 'w') as f:
+            json.dump(data, f, indent=2)
+        logger.info(f"Configuration saved to {config_path}")
 
-# Global config instance
-config = Config()
+# --- Global Accessors ---
 
-# Convenience functions for importing in other modules
+def get_config() -> Config:
+    """Get the global configuration instance."""
+    global _config
+    if _config is None:
+        _config = Config()
+    return _config
+
 def get_seed() -> int:
-    return config.get_seed()
+    """Get the current random seed."""
+    return get_config().seed
 
-def set_seed(seed: int) -> int:
-    return config.set_seed(seed)
+def set_seed(seed: int):
+    """Set the random seed for reproducibility."""
+    random.seed(seed)
+    # Note: For numpy/torch, import and set there as well if needed
+    get_config().seed = seed
 
-def get_dataset_paths(dataset_name: Optional[str] = None) -> Dict[str, Path]:
-    return config.get_dataset_paths(dataset_name)
-
-def get_required_files(dataset_name: str) -> List[str]:
-    return config.get_required_files(dataset_name)
+def get_raw_dir() -> Path:
+    """Get the raw data directory."""
+    return get_config().raw_dir
 
 def get_processed_dir() -> Path:
-    return config.get_processed_dir()
+    """Get the processed data directory."""
+    return get_config().processed_dir
 
 def get_results_dir() -> Path:
-    return config.get_results_dir()
+    """Get the results directory."""
+    return get_config().results_dir
 
-def update_state(key: str, value: Any) -> None:
-    config.update_state(key, value)
+def get_dataset_paths() -> Dict[str, Path]:
+    """Get paths for all required datasets."""
+    raw_dir = get_raw_dir()
+    return {
+        "NarrLV": raw_dir / "NarrLV",
+        "VBench": raw_dir / "VBench"
+    }
 
-def get_state(key: str, default: Any = None) -> Any:
-    return config.get_state(key, default)
+def get_required_files() -> List[str]:
+    """Get list of required dataset names."""
+    return ["NarrLV", "VBench"]
 
-def get_memory_limit() -> float:
-    return config.get_memory_limit()
+def get_state() -> Dict[str, Any]:
+    """
+    Load the state file (state.yaml or state.json).
+    Returns an empty dict if not found.
+    """
+    state_path = get_config().project_root / "state.json"
+    if state_path.exists():
+        try:
+            with open(state_path, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            logger.error(f"Failed to load state: {e}")
+            return {}
+    return {}
+
+def update_state(key: str, value: Any):
+    """
+    Update a value in the state file.
+    """
+    state = get_state()
+    state[key] = value
+    state_path = get_config().project_root / "state.json"
+    try:
+        with open(state_path, 'w') as f:
+            json.dump(state, f, indent=2)
+        logger.debug(f"State updated: {key} = {value}")
+    except Exception as e:
+        raise StateUpdateError(f"Failed to update state: {e}")
+
+def get_memory_limit() -> int:
+    """Get memory limit in MB."""
+    return get_config().memory_limit_mb
 
 def get_max_workers() -> int:
-    return config.get_max_workers()
+    """Get max number of workers."""
+    return get_config().max_workers
 
 def get_flow_model() -> str:
-    return config.get_flow_model()
+    """Get flow model name."""
+    return get_config().flow_model
 
 def get_flow_precision() -> str:
-    return config.get_flow_precision()
+    """Get flow precision setting."""
+    return get_config().flow_precision
 
-def get_config() -> Dict[str, Any]:
-    return config.get_config()
+def calculate_hash(file_path: Path, algorithm: str = 'sha256') -> str:
+    """
+    Calculate the hash of a file.
+    
+    Args:
+        file_path: Path to the file
+        algorithm: Hash algorithm ('md5' or 'sha256')
+        
+    Returns:
+        Hex digest of the file hash
+    """
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
+    hash_obj = hashlib.new(algorithm)
+    with open(file_path, 'rb') as f:
+        for chunk in iter(lambda: f.read(8192), b''):
+            hash_obj.update(chunk)
+    
+    return hash_obj.hexdigest()
+
+def validate_path_exists(path: Path) -> bool:
+    """
+    Validate that a path exists.
+    
+    Args:
+        path: Path to validate
+        
+    Returns:
+        True if exists, False otherwise
+    """
+    if not path.exists():
+        logger.error(f"Path does not exist: {path}")
+        return False
+    return True
+
+def setup_logging(level: int = logging.INFO):
+    """
+    Setup logging configuration.
+    
+    Args:
+        level: Logging level
+    """
+    logging.basicConfig(
+        level=level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    logger.setLevel(level)
+
+# ----------------------------------------------------------------------
+# New checksum verification utilities (required by T005)
+# ----------------------------------------------------------------------
+
+def verify_manifest_checksums(manifest_path: Path) -> bool:
+    """
+    Verify file checksums defined in a dataset manifest.
+
+    The manifest follows the schema defined in ``contracts/dataset.schema.yaml``.
+    For each listed file the function computes both MD5 and SHA256 hashes and
+    compares them against the recorded values.
+
+    Args:
+        manifest_path: Path to the JSON manifest file.
+
+    Returns:
+        True if all files pass checksum verification.
+
+    Raises:
+        FileNotFoundError: If the manifest file does not exist.
+        ValidationError: If any checksum does not match.
+    """
+    if not manifest_path.exists():
+        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
+
+    with open(manifest_path, 'r') as f:
+        manifest = json.load(f)
+
+    files = manifest.get('files', [])
+    checksums = manifest.get('checksums', {})
+
+    all_ok = True
+    missing = []
+
+    for file_info in files:
+        rel_path = file_info.get('relative_path')
+        absolute_path = manifest_path.parent / rel_path
+
+        if not absolute_path.is_file():
+            missing.append(str(rel_path))
+            logger.error(f"Missing file for checksum verification: {absolute_path}")
+            all_ok = False
+            continue
+
+        expected = checksums.get(rel_path, {})
+        # MD5 verification
+        if 'md5' in expected:
+            observed_md5 = calculate_hash(absolute_path, algorithm='md5')
+            if observed_md5 != expected['md5']:
+                logger.error(
+                    f"MD5 mismatch for {rel_path}: expected {expected['md5']}, got {observed_md5}"
+                )
+                all_ok = False
+        # SHA256 verification
+        if 'sha256' in expected:
+            observed_sha = calculate_hash(absolute_path, algorithm='sha256')
+            if observed_sha != expected['sha256']:
+                logger.error(
+                    f"SHA256 mismatch for {rel_path}: expected {expected['sha256']}, got {observed_sha}"
+                )
+                all_ok = False
+
+    if missing:
+        raise DatasetNotFoundError(f"Missing files in manifest: {missing}")
+
+    if not all_ok:
+        raise ValidationError("One or more checksum verifications failed.")
+
+    logger.info(f"All checksum verifications passed for manifest {manifest_path}")
+    return True
+
+# ----------------------------------------------------------------------
+# End of new utilities
+# ----------------------------------------------------------------------
+
+# --- Main (for testing) ---
+if __name__ == "__main__":
+    config = get_config()
+    print(f"Project Root: {config.project_root}")
+    print(f"Raw Dir: {config.raw_dir}")
+    print(f"Seed: {get_seed()}")
+    
+    # Example usage of checksum verification (will raise if manifest missing)
+    test_manifest = config.raw_dir / "NarrLV" / "manifest.json"
+    if test_manifest.exists():
+        try:
+            verify_manifest_checksums(test_manifest)
+        except Exception as e:
+            print(f"Verification error: {e}")

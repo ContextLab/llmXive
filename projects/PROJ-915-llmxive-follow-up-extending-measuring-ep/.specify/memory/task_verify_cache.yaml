@@ -1,0 +1,83 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory structure or `tree -L 2` output was provided; the claim that the\
+    \ required folders (`projects/PROJ-915-llmxive-follow-up-extending-measuring-ep/`\
+    \ with sub\u2011directories `code/`, `data/raw`, `data/processed`, `data/interim`,\
+    \ `data/results`, `state/`, and test/docs folders) exist cannot be verified. The\
+    \ implementer must create the directories and supply the `tree` command output\
+    \ showing the expected layout."
+T002:
+  c: true
+  h: fa6d7f8c62443f43c0a870801870ee49c61ba55020467c14886cd9da5514f6f7
+  r: '`requirements.txt` exists with all 13 required packages pinned to exact versions,
+    and `tests/unit/test_requirements.py` checks each package name at line start;
+    the recorded pytest run (exit 0, Python 3.11 venv) shows the test passed. No evidence
+    of `pip install -r requirements.txt` conflict-free run was provided, but the core
+    artifacts and verification test are present and passing.'
+  sig: 320f84299848281af10a48b8cb83d8a8cce0786f8ed96e47435f5135325c9fe0
+T003a:
+  c: true
+  h: def7fe570afc054ff5dcd995f866bd30ce4488ddd6058651ee2cbaf2b1be56f4
+  r: The `code/.ruff.toml` exists with the required settings (line-length 100, ANN
+    selected, `__init__.py` per-file-ignored), and `tests/unit/test_ruff_config.py`
+    parses the file and asserts those settings; the platform execution log shows all
+    5 tests passing with exit code 0. The pipeline_log.json ingestion failure is unrelated
+    to this lint-configuration task.
+  sig: 44a8fe714e901938652ca1f06f69478738db490d5e1eaafb6559ecd488935d2b
+T003b:
+  c: true
+  h: 3841abf3cb69f3ca7e65a4817c2679eb94a78adc899e9ad53b9f8da126efaa72
+  r: "The artifact `pyproject.toml` exists at the project root and contains a correct\
+    \ `[tool.black]` section with `line-length = 100` and `target-version = ['py311']`,\
+    \ exactly as required. The pytest log showing `black --check code/` failing (rc=1)\
+    \ predates the `format_code.py` execution, whose stderr shows Black actually reformatting\
+    \ those same 23 files with exit code 0 \u2014 so the formatting violations the\
+    \ check flagged were subsequently fixed, and the two unit tests confirming line-length\
+    \ 100 and py311 target passed."
+  sig: 90851750496c9dc4d6b2cb3adab59401a3248249bb535ea06ef22a983593c0b2
+T003c:
+  c: true
+  h: 1a1b5502ea24de397654851353b7b9ace3b1371dbac678e0405763546262aa49
+  r: '`code/validation.py` contains `verify_ruff_config()` which raises a clear `FileNotFoundError`
+    naming the missing file and task T003a, and its `main()` exits with code 1 on
+    failure; `code/.ruff.toml` exists (566 bytes). Unit tests covering both the pass
+    and fail-loudly cases passed (exit 0), and the script itself ran successfully
+    with the check passing.'
+  sig: 31ca13b9323fe50492ee9fc993d98d227364866bfd64a998805f93c6210ebf68
+T004:
+  c: true
+  h: 8db20735ed46042dabdedc23fdc0fa5497c490fd8fa183a7abf19ff716d76ace
+  r: '`code/config.py` exists and defines exactly the required constants (`SEED =
+    42`, `MAX_RUNTIME_HOURS = 6`, `DATA_ROOT = Path("../data")`, `RESULTS_ROOT = Path("../data/results")`),
+    and `tests/unit/test_config.py` asserts `MAX_RUNTIME_HOURS == 6` (plus the other
+    constants). The pytest execution log shows all 5 tests passing with exit code
+    0, confirming the module imports and the constants are correct.'
+  sig: 15cf37912471997f3f0b4741bf152b62099a86b7e870314414e10b06301ccadc
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation for an error\u2011handling framework\
+    \ (e.g., retry logic for dataset download or timeout handling for inference) was\
+    \ provided. The required artifact is missing, so the task is not satisfied."
+T020:
+  c: false
+  h: 632acb947e9d6d77c288b6913d0d0bfa244f9625d6109bec8376aa5a7221608f
+  r: "The required output file `data/interim/pubmed_facts.json` (and the log file)\
+    \ does not exist, and the provided `code/labeling.py` is truncated and lacks the\
+    \ full caching, error\u2011handling, and retrieval\u2011rate logic described in\
+    \ the task. The implementation is therefore incomplete."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script, module, or documentation) implementing safety trigger\
+    \ detection and setting a `safety_refusal` flag is present; the provided evidence\
+    \ only describes unrelated data\u2011ingestion and modeling features, so the required\
+    \ functionality is missing."
+T027:
+  c: false
+  h: 52e8ddf2bd62274577b2e0007d7e21ba9f0765173fb028ef0f78e2720effd5d1
+  r: "The required artifact `data/raw/expert_rater_labels.csv` does not exist on disk,\
+    \ so there is no evidence that two expert raters were recruited or that any labels\
+    \ were produced. The task\u2019s deliverable is missing, making the requirement\
+    \ unmet."

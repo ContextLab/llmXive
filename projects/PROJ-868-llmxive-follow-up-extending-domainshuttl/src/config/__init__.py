@@ -1,3 +1,3 @@
 """
-Configuration management module.
+Configuration management package.
 """

@@ -1,65 +1,114 @@
-# Data Model: llmXive follow-up: extending "Intern-Atlas: A Methodological Evolution Graph as Research Infrastruct"
+# Data Model: llmXive Follow-up (Extending Intern-Atlas)
 
-## Overview
+This document defines the core data structures used throughout the project pipeline,
+specifically for representing research papers, their retraction status, and derived
+topological features.
 
-This document defines the data structures used throughout the project, ensuring consistency between the extraction, training, and validation phases. All data is stored in CSV or Parquet format under `data/processed/`.
+## 1. MethodNode
 
-## Entities
+Represents a single research paper (node) in the citation graph.
 
-### 1. MethodNode (Raw & Processed)
+```yaml
+MethodNode:
+ type: object
+ description: "A research paper node in the citation network."
+ fields:
+ paper_id:
+ type: string
+ description: "Unique identifier for the paper (e.g., DOI or internal hash)."
+ required: true
+ title:
+ type: string
+ description: "Title of the paper."
+ required: true
+ year:
+ type: integer
+ description: "Publication year."
+ required: true
+ outgoing_edges:
+ type: list
+ description: "List of edges where this paper is the source."
+ items:
+ type: object
+ fields:
+ target_id:
+ type: string
+ description: "Target paper ID."
+ required: true
+ edge_type:
+ type: string
+ description: "Type of relationship ('improves', 'replaces', 'extends')."
+ required: true
+ metadata:
+ type: object
+ description: "Additional edge metadata."
+ required: false
+ nullable: true
+ required: true
+ incoming_citations:
+ type: list
+ description: "List of papers that cite this paper."
+ items:
+ type: string
+ description: "paper_id of the citing paper."
+ required: true
+```
 
-Represents a single methodological paper in the Intern-Atlas graph.
+## 2. RetractionLabel
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `paper_id` | string | Unique identifier for the paper (e.g., DOI or internal ID). | Intern-Atlas |
-| `title` | string | Full title of the paper. | Intern-Atlas |
-| `year` | integer | Publication year (2010-2018). | Intern-Atlas |
-| `outgoing_edges` | list[dict] | List of edges: `{"target_id": str, "type": str}`. | Intern-Atlas |
-| `incoming_citations` | integer | Total number of incoming citations. | Intern-Atlas |
-| `field_of_study` | string | Domain classification (e.g., "Machine Learning", "Biology"). | Intern-Atlas |
-| `publication_venue` | string | Journal or conference name. | Intern-Atlas |
+Represents the retraction status and details for a specific paper.
 
-### 2. RetractionLabel
+```yaml
+RetractionLabel:
+ type: object
+ description: "Metadata regarding the retraction status of a paper."
+ fields:
+ paper_id:
+ type: string
+ description: "Unique identifier matching the MethodNode."
+ required: true
+ status:
+ type: integer
+ description: "Retraction status code: 0=Robust, 1=Fragile, 2=Retraction-Only."
+ required: true
+ source:
+ type: string
+ description: "Source of the retraction data (e.g., 'RetractionWatch', 'PubMed')."
+ required: true
+ retraction_reason:
+ type: string
+ description: "Textual reason for retraction if applicable (e.g., 'methodological error', 'fraud')."
+ required: false
+ nullable: true
+```
 
-External truth label mapped to a MethodNode.
+## 3. TopologicalFeatures
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `paper_id` | string | Matching paper ID. | Retraction Watch DB |
-| `status` | integer | 1 (Fragile), 2 (Retraction-Only), 0 (Robust). | Retraction Watch DB |
-| `reason` | string | Specific reason for retraction (if applicable). | Retraction Watch DB |
-| `source` | string | "Retraction Watch" or "Replication Index". | Retraction Watch DB |
+Derived numerical features calculated from the graph structure for a specific node.
 
-### 3. TopologicalFeatures
-
-Derived record for each MethodNode, ready for modeling.
-
-| Field | Type | Description | Calculation |
-| :--- | :--- | :--- | :--- |
-| `paper_id` | string | Foreign key to MethodNode. | Inherited |
-| `bottleneck_resolution_ratio` | float | Ratio of (`improves` + `replaces`) edges to total outgoing. | FR-002 |
-| `branching_entropy` | float | Shannon entropy of downstream edge types. | FR-003 |
-| `citation_count` | integer | Total incoming citations. | Inherited |
-| `label` | integer | 1 (Fragile), 0 (Robust). (Retraction-Only excluded from primary model). | FR-004 |
-
-### 4. ModelResult
-
-Record storing performance metrics.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `model_type` | string | "Topological" or "Baseline". |
-| `auc_roc` | float | Area Under the ROC Curve. |
-| `precision` | float | Precision score. |
-| `recall` | float | Recall score. |
-| `f1_score` | float | F1 score. |
-| `stability_flag` | boolean | True if VIF > 5 or MI > 0.1. |
-| `threshold_sweep` | dict | FPR/FNR for cutoffs {0.3, 0.5, 0.7}. |
-
-## Data Flow
-
-1.  **Raw Data**: `data/raw/intern_atlas_graph.json`, `data/raw/retraction_watch.csv`.
-2.  **Extraction**: `run_extraction.py` -> `data/processed/feature_dataset.csv` (contains `TopologicalFeatures` + `RetractionLabel`).
-3.  **Training**: `run_training.py` reads `feature_dataset.csv`, splits into train/val, trains models, outputs `data/processed/model_results.json` and `data/processed/permutation_results.csv`.
-4.  **Artifacts**: All files are checksummed and recorded in `state/...yaml`.
+```yaml
+TopologicalFeatures:
+ type: object
+ description: "Computed topological metrics for a paper node."
+ fields:
+ paper_id:
+ type: string
+ description: "Unique identifier matching the MethodNode."
+ required: true
+ bottleneck_resolution_ratio:
+ type: float
+ description: "Ratio of (improves + replaces) edges to total outgoing edges."
+ required: true
+ branching_entropy:
+ type: float
+ description: "Shannon entropy of the downstream method types."
+ required: true
+ citation_count:
+ type: integer
+ description: "Total number of incoming citations."
+ required: true
+ retraction_status_binary:
+ type: integer
+ description: "Binary label: 1 if status is Fragile (1) or Retraction-Only (2), 0 if Robust (0)."
+ required: true
+```

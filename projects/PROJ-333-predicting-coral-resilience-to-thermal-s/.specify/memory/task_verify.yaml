@@ -1,16 +1,22 @@
-T001 Create project structure per implementation plan (`code/`, `tests/`, `data/raw`, `data/processed`): 2
-'T001a [P] Create project directory structure: `code/`, `tests/`, `data/`, `results/`, `docs/`': 1
-? T001b [P] Create `__init__.py` files in `code/`, `code/data/`, `code/analysis/`,
-  `code/viz/`, `tests/`, `tests/unit/`, `tests/contract/`, `tests/integration/`
-: 1
-? 'T002 Initialize Python 3.11 project with dependencies: plink2 (install via `apt-get
-  install plink2` or conda-forge), scikit-learn, pandas, numpy, matplotlib, requests,
-  pyyaml, pytest, memory-profiler'
-: 1
-? T002 Initialize Python project with pinned dependencies (`biopython`, `pysam`, `scipy`,
-  `pandas`, `matplotlib`, `gprofiler-official`, `rpy2`) in `requirements.txt`
-: 2
-T003 [P] Configure linting (flake8/pylint) and formatting (black/isort) tools: 2
-T003 [P] Configure linting (ruff/flake8) and formatting (black) tools: 1
-T005 [P] Implement `code/utils.py` for logging, error handling, and checksum validation: 1
-T005 [P] Implement logging infrastructure in `code/utils/logging.py` to track memory usage (RSS) and execution time: 2
+T001b: 1
+T002: 1
+T003a: 1
+T004a: 1
+T009b: 1
+T019b: 1
+T020: 1
+T023b: 1
+T024: 1
+T025: 1
+T026: 1
+T027: 1
+T028a: 1
+T028b: 1
+T028c: 1
+T028d: 1
+T029: 1
+T032: 1
+T033: 1
+T034: 1
+T035: 1
+T035c: 1

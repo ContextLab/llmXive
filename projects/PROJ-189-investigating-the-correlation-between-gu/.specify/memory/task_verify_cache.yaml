@@ -1,0 +1,10 @@
+T006:
+  c: false
+  h: a7d58fa7ba260373d30a6abbbba0f56dbdefe8e7eee455b4b61afc5c06cf98df
+  r: "The `code/utils/logging.py` file defines a `setup_logging` function with a default\
+    \ path of `data/processed/run.log`, but the implementation is truncated and does\
+    \ not show that a file handler is added to write logs to that location. Additionally,\
+    \ the required log file `data/processed/run.log` does not exist, indicating the\
+    \ logging infrastructure has not been verified to create or use it. The missing\
+    \ implementation details and absent log file mean the task\u2019s requirement\
+    \ is not demonstrably satisfied."

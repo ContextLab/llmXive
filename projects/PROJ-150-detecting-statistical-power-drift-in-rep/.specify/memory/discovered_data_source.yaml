@@ -1,0 +1,9 @@
+status: none
+intent: OSF replication project Nosek dataset download csv python package dataset
+required_fields:
+- year
+- effect_size
+- sample_size
+cache_key: 0c6d54e3ffe518b2f9f1e9103d815f2b2992d02039e9189ffc7f37a0925ac250
+searched_at: '2026-10-10T21:12:37.028561+00:00'
+retry_count: 1

@@ -1,3 +1,2 @@
-"""
-Contract tests for API schemas and data interfaces.
-"""
+"""Contract tests package."""
+pass

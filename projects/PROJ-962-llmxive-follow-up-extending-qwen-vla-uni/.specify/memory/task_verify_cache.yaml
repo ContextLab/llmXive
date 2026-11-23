@@ -1,0 +1,128 @@
+T001a:
+  c: false
+  h: 9809e3bea4b654a6dff62d0d34ff305807c2677248d7b81e15bebf186afc5b44
+  r: The provided evidence shows that `code/`, `code/utils/`, `code/tests/`, `data/raw/`,
+    `data/processed/`, and `data/results/` directories exist, but the required `artifacts/models/`
+    directory is not present in the artifact list. The missing `artifacts/models/`
+    directory means the full directory structure specified in task T001a has not been
+    created.
+T001c:
+  c: false
+  h: d3d8664de8cf59b2b5c7d71d20fd25222fb4fecba3d23e9ee4b5d1724ce08099
+  r: "The file `code/01_ingest_cluster.py` does exist, but it is a fully\u2011implemented\
+    \ script (13\u202FKB of code) rather than an empty scaffold as the task required.\
+    \ The task explicitly demanded only an empty placeholder file, so the provided\
+    \ artifact does not satisfy the specification."
+T001d:
+  c: false
+  h: 5f69a366dce4be7e257d762a342b13b91cceb3039695f8e0a4619d796b1b9d42
+  r: "`code/02_train_models.py` and `code/04_simulate_eval.py` exist but contain full\
+    \ implementations (non\u2011empty), and `code/03_inference.py` is missing entirely.\
+    \ The task required three empty files, which is not met."
+T001e:
+  c: false
+  h: 18ec334611b6355ae3774ce46a43545c7357f277fb722511c78f9ac414eaea8f
+  r: "The three required files exist, but each contains full implementations rather\
+    \ than being empty placeholders as the task explicitly demanded. The task \u201C\
+    initialize \u2026 as empty files\u201D is not satisfied."
+T001f:
+  c: false
+  h: db217820e4f43402c985e0fc05580876a47a04c8b424a60eb78f05345fce530f
+  r: The `code/tests/__init__.py` file is present, but the required `.gitkeep` file
+    is missing from the `code/tests` directory. The task is not fully satisfied.
+T004:
+  c: false
+  h: c5cf34f422c98d2becfbe9fa162292b1c0a7bb8d0bd5838d25f55c3aecc5e99a
+  r: "The provided `code/utils/seeds.py` sets Python\u2019s `random` and NumPy seeds\
+    \ but never imports\u202Ftorch nor calls `torch.manual_seed`, contrary to the\
+    \ task\u2019s requirement to set the torch seed (and any `random_state` for other\
+    \ libraries). Consequently the script does not ensure full reproducibility across\
+    \ all scripts."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only the textual acceptance criteria but no concrete artifacts\
+    \ such as benchmark logs, memory usage reports, or timing measurements demonstrating\
+    \ that 100 prompts are processed within 10\u202Fminutes and memory stays below\
+    \ 7\u202FGB on a CPU runner. Without these evidential files, the requirement is\
+    \ not verified."
+T032b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or documentation was provided that attempts to generate the
+    VLA proxy baseline, raises a clear error if generation is not implemented, or
+    saves the result to the configured path. The required artifact is missing, so
+    the task is not satisfied.
+T034:
+  c: false
+  h: e1ce9290e1a676e1e6a1df8b2f7ea86b81e168ab03d42a77d246c7ddc7daf6ab
+  r: The required `data/results/simulation_logs.csv` file does not exist, so no simulation
+    results have been logged as specified (task type, success flag, collision count,
+    execution time). The implementer must create this CSV file with the appropriate
+    columns and populate it with the simulation data.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (script, notebook, data file, or report) showing the calculation\
+    \ of the \u201Ctrajectory fidelity metric\u201D was provided. Consequently there\
+    \ is no evidence that the percentage of kinematic features within the VLA proxy\
+    \ error margin was computed or documented. The required output is missing."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` (or updated `quickstart.md`) was presented; therefore the required\
+    \ documentation containing the DT vs\u202FGMM selection rationale and exact pipeline\
+    \ flags is missing. The implementer must create or supply these files with the\
+    \ specified content."
+T039b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code files from `code/utils/` were presented, nor any diff or description\
+    \ showing that duplicate imports and unused variables have been removed. Without\
+    \ the actual cleaned modules, we cannot confirm the required cleanup was performed.\
+    \ The implementer must provide the updated `code/utils/` files (or a clear before\u2011\
+    after diff) demonstrating the removal of duplicate imports and unused variables."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim references unit tests in `code/tests/`, but no test files, directory\
+    \ listings, or test code were provided as evidence. Without concrete artifacts\
+    \ showing non\u2011empty test cases for OOD prompts and simulation crashes, we\
+    \ cannot verify that the required tests exist or meet the specification. The implementer\
+    \ must add and show the actual test files in `code/tests/`."
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, output files, or verification results for running `quickstart.md`\
+    \ are present; the implementer provided only the feature specification without\
+    \ any evidence that the end\u2011to\u2011end pipeline was actually executed and\
+    \ validated. The required artifact (a successful run of the quickstart validation)\
+    \ is missing."
+T044:
+  c: false
+  h: 04d41698cdb2e42ef72febecd74ec6559b9e792deb53ec58f9239d771e85bad6
+  r: "The required files `code/utils/data_loader.py` and `code/tests/test_data_loader.py`\
+    \ are missing entirely, so no refactoring or unit test exists to verify the new\
+    \ error handling behavior. The task\u2019s output artifacts are absent."
+T067:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script, logs, or test output are present that demonstrate running the combined\
+    \ training pipeline (T057\u202F+\u202FT061) and verifying the CPU\u2011only enforcement\
+    \ and Construct Validity Gate behavior. The required evidence\u2014error messages\
+    \ when conditions fail and successful execution when they pass\u2014is missing."
+T069:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No output files, logs, or other artifacts were provided to demonstrate that\
+    \ the full ingestion\u2011clustering\u2011model\u2011simulation pipeline was actually\
+    \ run, nor any evidence that the data used came exclusively from the real Qwen\u2011\
+    VLA dataset or the VLA Proxy baseline. The implementer\u2019s claim cannot be\
+    \ verified without those concrete artifacts."
+T070:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `quickstart.md`, `research.md`, or `README.md` files were provided
+    or referenced, and there is no evidence that their contents were modified to reflect
+    Phases O, P, and Q. The required documentation artifacts are missing, so the task
+    is not satisfied.

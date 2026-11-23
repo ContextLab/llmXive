@@ -1,0 +1,194 @@
+T000:
+  c: true
+  h: 346c23730f724b37343cd474a92ff43a8a4259944392fd37abab651b28805963
+  r: "The `research.md` file (projects/PROJ-561-self-improving-llm-recursive-architectur/research.md,\
+    \ 7665\u202Fbytes) contains the three required headings: `## Methodology for Parameter\
+    \ Limit`, `## External Oracle Protocol`, and `## Philosophical & Operational Definitions`,\
+    \ each with the mandated statements about the 30\u202F% parameter limit and the\
+    \ \u201CReject if new_params significantly exceed baseline.\u201D requirement."
+  sig: 3a9991c31a7e991ef6e1f7b6608aa7fa46a3193d2bbbc508247b80e8dd3bed0b
+T001:
+  c: true
+  h: 28e59aad9a733ee61358763c8e22c0ce3520a32690af22abdca8e94784878f37
+  r: All required directories (`code/`, `code/tests/`, `code/tests/unit/`, `code/tests/integration/`,
+    `data/raw/`, `data/processed/`, `results/`, `state/`) exist with the expected
+    contents, and `__init__.py` files are present in `code/tests/unit/` (26 bytes,
+    non-empty docstring), `code/tests/integration/`, and `code/tests/` per the directory
+    listings. The verification command's checks (existence of `code/tests/unit/__init__.py`
+    and the `data/raw`, `results`, `state` directories) are all satisfied by the observed
+    artifacts.
+  sig: a0cbdedaf27d1edda3223ca2e57d4fc4378ffafe70b4d7654d85ad2c04dfde28
+T001a:
+  c: false
+  h: 7dbe80ba3162c9ee9e90bb0f48507b94172e1d4a41c34eb28638d3c6d3c1dd74
+  r: The `tests/unit/test_data_loader.py` file exists and contains detailed tests
+    for `verify_urls`, but the test suite cannot be collected/run because importing
+    `code/pipeline/loader.py` (required for the `exponential_backoff` decorator) raises
+    an `ImportError` from the `datasets` library, which depends on a newer NumPy/pyarrow
+    version. This import error aborts test execution, so the required unit test does
+    not actually pass. The task needs the import issue resolved (e.g., make the `datasets`
+    import lazy or adjust dependencies) so the tests can run successfully.
+  sig: 3a23f1e07e17ead111eadf985e38e9b1baadf301a8d7996419a685d84ae65b29
+T001b:
+  c: false
+  h: 8a9265b07a06ee7d2f9bf859bef963536322c7bfdd7ec56d145829bdc01863c0
+  r: "The only unit\u2011test file (`tests/unit/test_data_loader.py`) exercises `verify_urls`\
+    \ and the `exponential_backoff` decorator, but it contains no test case that imports\
+    \ or validates the `download_and_checksum` function. A test for `download_and_checksum`\
+    \ is required to satisfy task T001b."
+  sig: 972da6dec4a3a2b75505aa3a1ee06cb00f0b20568864347de326c5cc3a0f9fc1
+T001c:
+  c: false
+  h: 7a357fcbea16da8a9c5d2d966a3fc4349ed2c96fc07721f8e50961eb0b86ddd7
+  r: "The `utils/data_loader.py` file only re\u2011exports `verify_urls` from `code.utils.data_loader`\
+    \ and does not contain its own implementation, while the unit test imports `verify_urls`\
+    \ from `pipeline.loader` instead of `utils.data_loader`. Consequently the required\
+    \ function is not directly implemented in the specified module and the provided\
+    \ test does not verify it. The task\u2019s requirement is therefore unmet."
+  sig: 9ed1b1f08116e69c8d872878b594a0f7f3ee6261a1fdea67105d3e818f4952d6
+T001d:
+  c: false
+  h: a5bb93e83a52daa8c71a330c75428da96880a2d850446f8f476331146f08e1ec
+  r: "The repository contains a `download_and_checksum` implementation, but the claimed\
+    \ verification unit test (`tests/unit/test_data_loader.py`) does **not** test\
+    \ this function \u2013 it only covers `verify_urls` and the `exponential_backoff`\
+    \ decorator. A test exercising `download_and_checksum` (e.g., mocking `datasets.load_dataset`\
+    \ and checking that a `SHA256SUM` file is created and the correct checksum is\
+    \ returned) is missing. Adding such a test is required to satisfy the task."
+  sig: 3670d62b2933ba0005a0d66c6dc77427df7c6b80687d31b0410f82a881ee38af
+T001e:
+  c: true
+  h: dcf72f37c8a2e14a93eaf93e1645156696b0015203bcafe80ba7c3e2c1d85128
+  r: '`code/utils/random.py` exists and implements `pin_random_seed()` which calls
+    `random.seed(seed)`, `np.random.seed(seed)`, and `torch.manual_seed(seed)` with
+    the seed obtained from `config.get_seed()` (which returns the config''s seed,
+    default 42), plus optional CUDA seeding. The verification criterion (unit test
+    asserting those three calls with the config seed) is satisfiable by this implementation;
+    no stubs or placeholders are present.'
+  sig: 2381f8aa3d25fa68fa9d1fbd56a3f9a32ff99abdf16efece31c4ce4b4d454ca0
+T001f:
+  c: true
+  h: 0d84538a6b75023f9c52373c96b9902c4f74fd6501ac1230d751791ec87ebc70
+  r: The file `data-model.md` exists (3,226 bytes) at the resolved project path and
+    contains substantive documentation of core entities (ModelCheckpoint, PerformanceMetric,
+    RefinementCycle, TrajectorySummary), data flow, and constraints consistent with
+    the project plan (benchmarks, sample sizes, parameter cap, trajectory.json output).
+    It is not a stub or placeholder.
+  sig: a137d011d457f15edfeb6f070c0ae0bb36cf65fca0da084ac75b1a3f737fb06c
+T001g:
+  c: true
+  h: eebc7e2d49687e866e06f832c8e230f08f12e58e8a238b51f2859bec1640fe75
+  r: "The file `quickstart.md` exists (2182 bytes) at the resolved project path and\
+    \ contains genuine, substantive instructions covering prerequisites, installation,\
+    \ configuration, running the pipeline (`python code/main.py`), expected outputs,\
+    \ and troubleshooting \u2014 matching the task's requirement for run instructions.\
+    \ The verification criterion `test -f quickstart.md` is satisfied."
+  sig: 71410f4c18669b0bbd89be777213165eee375e87e0bb80ad360d9f94e9364f55
+T005b:
+  c: true
+  h: dc566a3aa4362e0aa35d19e668edff7c9f4cb9e364257d7d3f9b74fc9633156c
+  r: '`code/pipeline/loader.py` contains a real `exponential_backoff` decorator with
+    initial_delay=30 s, max_retries=5, exponential doubling, and re-raise of the original
+    exception after exhaustion, and `tests/unit/test_backoff.py` exists with two substantive
+    tests (success-after-retries verifying 30 s/60 s delays, and exhaustion re-raising
+    the original error) that correctly monkeypatch `time.sleep` and `random.uniform`
+    to match the implementation''s module-level usage. The stubs in loader.py belong
+    to other tasks and do not affect this requirement.'
+  sig: 2bfa78bba46d95cae72f5cbca06492ead0764b1801080b932b7e2f0168d3b09e
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code for `run_bootstrap_and_regression` is present, nor evidence that it reads
+    `NUM_RESAMPLES` from `config.py` or that a verification test was added. The required
+    implementation and test artifacts are missing.
+T008:
+  c: false
+  h: 18df09178b58221943c16464f51f85bb56ffb251a4fc92d02b2333ecae84f4d0
+  r: "The unit\u2011test `test_parse_research_md` fails because `config.MAX_PARAM_INCREASE_RATIO`\
+    \ is read as\u202F1.0 instead of being clamped to\u202F0.30, violating the requirement\
+    \ that any value from `research.md` exceeding 0.30 must be capped. The `config.py`\
+    \ therefore does not correctly enforce the ratio limit."
+  sig: 86e202a0708fba1fdd607be6e8e1f8bc5fa53d386ddc1a70fa234f482edf4922
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `utils/logging.py` file or any generated log file is provided for inspection,
+    so we cannot confirm that a structured JSON log is created after a mock cycle.
+    The required artifact and its functional verification are missing.
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `pipeline/evaluator.py` file or corresponding unit test is present in the\
+    \ provided evidence; therefore the required benchmark runner and evaluation logic,\
+    \ as well as the mocked\u2011dataset test asserting accuracy/ECE, are missing.\
+    \ The implementer must add the module and its test to satisfy T010."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `ModificationProposal` Pydantic model file or corresponding verification test
+    is present in the provided evidence; the claim lacks any concrete code or test
+    artifacts to confirm the schema was defined. The required files must be added
+    and contain a valid Pydantic schema plus a passing test.
+T014b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `validate_schema` implementation or accompanying verification test was provided
+    in the evidence; the required artifact is missing, so the task cannot be considered
+    completed.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `pipeline/model.py` implementation was provided; the required\
+    \ method that reconstructs a GPT\u20112 124M model, maps existing weights, adds\
+    \ layers or changes head count, and initializes new parameters with Xavier uniform\
+    \ is missing. Without the actual code file, we cannot confirm the functionality\
+    \ or that it meets the specification."
+T017a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `pipeline/trainer.py` file or a `train_epoch` implementation\
+    \ was provided; without the actual code we cannot confirm that the required training\
+    \ loop (AdamW, batch size 4, lr\u202F5e\u20115, gradient accumulation\u202F=\u202F\
+    4, CPU offloading, periodic checkpointing) exists or works. The necessary artifact\
+    \ is missing."
+T017b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code for `pipeline/trainer.py::count_flops` was provided; the artifact is
+    missing, so the FLOP counter has not been implemented as required.
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `pipeline/evaluator.py` file or any code implementing the required metric\
+    \ calculations is present in the provided evidence; therefore the task\u2019s\
+    \ core deliverable is missing. The implementer must add a non\u2011empty `pipeline/evaluator.py`\
+    \ that computes GSM8K accuracy, ARC\u2011Challenge accuracy, and Wikitext\u2011\
+    2 Expected Calibration Error."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, test files, or documentation for a `validate_distinctness` function\
+    \ were presented, nor any evidence that a distinctness validator checking Hamming\
+    \ distance\u202F\u2265\u202F1 or >5\u202F% parameter change against history was\
+    \ added. The required implementation and its verification test are missing."
+T059:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code defining `validate_external_oracle`, no enforcement of the \u226430\u202F\
+    % parameter increase rule, and no structural\u2011validity checks are present,\
+    \ nor is there a verification test added. The required implementation and its\
+    \ test are missing, so the task is not satisfied."
+T125:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code changes to `pipeline/evaluator.py` or accompanying unit test are provided;\
+    \ thus we cannot confirm that a read\u2011only, immutable benchmark loading mechanism\
+    \ was added or that a test asserting failure on modification exists. The required\
+    \ artifact is missing."
+T126:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code changes to `pipeline/attempt_tracker.py` implementing the rollback state
+    machine are provided, nor is an integration test that simulates a degradation
+    event and checks the cycle counter and new modification. The required artifact
+    and verification are missing.

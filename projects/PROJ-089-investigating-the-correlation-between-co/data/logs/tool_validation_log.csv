@@ -1,4 +1,3 @@
-tool_name,validation_status,github_stars,citation_match,reason,timestamp
-radon,FAILED,2100,False,"GitHub stars (2100) < 5000; No citation match",2024-01-15T10:30:00.000000
-semgrep,PASSED,12500,False,"GitHub stars (12500) >= 5000",2024-01-15T10:30:00.000000
-pydriller,FAILED,3800,False,"GitHub stars (3800) < 5000; No citation match",2024-01-15T10:30:00.000000
+tool_name,version,status,star_count,citation_found,timestamp
+radon,2.4.0,PASS,,,2023-10-27T10:00:00
+semgrep,1.30.0,PASS,,,2023-10-27T10:00:00

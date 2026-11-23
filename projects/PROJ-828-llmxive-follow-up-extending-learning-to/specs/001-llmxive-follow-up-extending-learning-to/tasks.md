@@ -1,281 +1,143 @@
-# Tasks: Low-Rank RL for Foresight in LLM Training
-
-**Input**: Design documents from `/specs/001-low-rank-rl-foresight/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project structure per implementation plan (src/, tests/, data/, results/)
-- [X] T002 Initialize Python 3.10 project with `torch`, `transformers`, `datasets`, `peft`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T004 Implement `src/utils/seeds.py` for deterministic seed pinning across all variants
-- [ ] T005 Implement `src/utils/memory_monitor.py` to track RAM usage and enforce a memory limit
-- [ ] T006 Implement `src/utils/hasher.py` to compute SHA-256 hashes of all derived artifacts
-- [ ] T007 Create `src/data/loader.py` to fetch GSM8K subset (≥1,000 problems) from HuggingFace `datasets` with checksum verification
-- [ ] T008 Create `src/data/checksums.py` for data integrity verification
-- [ ] T009 Implement `src/models/config.py` to programmatically prune `TinyLlama` to a reduced parameter scale. **Logic**: Detect source model layer count. If a reduced number of layers, remove the final subset (indices 6-10). If 24 layers, remove last 18. Verify `hidden_size=512` and final param count ~300M.
-- [ ] T009b Implement verification logic in `src/models/config.py` to validate the pruned model architecture (layer count, attention heads, hidden size) matches TinyLlama-300M specifications before training begins.
-- [ ] T010 Implement `src/models/backbone.py` with hooks to capture attention projection updates
-- [ ] T011 [P] Create stub file `src/training/projection_utils.py` containing signatures for `layer_wise_svd` and `project_gradient` functions
-- [ ] T012 Create `src/cli/run_experiment.py` as the single entry point orchestrating all training and analysis
-- [ ] T013 [P] Create `tests/unit/test_svd.py` to verify SVD on small matrices fits memory constraints
-- [ ] T014 [P] Create `tests/unit/test_projection.py` to verify projection math (cosine similarity ≥ 0.99)
-- [ ] T018c [P] Implement logic in `src/analysis/metrics.py` to define the 'early' window (first [deferred] of training steps, minimum 50 steps) and write it to `results/early_window_config.json`
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Establish Geometric Baseline via On-Policy Distillation (Priority: P1) 🎯 MVP
-
-**Goal**: Run OPD baseline on GSM8K subset to generate a "stable subspace" defined by top singular vectors of early parameter updates.
-
-**Independent Test**: Run OPD loop for fixed steps, extract accumulated update matrices, perform SVD, and verify existence of defined subspace (top-k vectors) without running RL.
-
-### Tests for User Story 1
-
-- [ ] T015 [P] [US1] Contract test for OPD SVD output shape in `tests/unit/test_opd_svd.py`
-- [ ] T016 [P] [US1] Integration test for OPD data flow in `tests/integration/test_opd_flow.py`
-
-### Implementation for User Story 1
-
-- [ ] T017 [US1] Implement `src/training/opd_baseline.py` runner for GSM8K subset (capped steps)
-- [ ] T018 [US1] Implement logic in `src/training/opd_baseline.py` to record $\Delta W$ matrices for the initial phase of training (after every optimizer step). Save list of tensors to `results/opd/updates_seed_{i}.pt`
-- [ ] T018b [US1] Implement per-step update direction logging in `src/training/opd_baseline.py`. **Storage**: Save per-layer update vectors to separate files `results/opd/updates_seed_{i}/layer_{l}.pt` (NOT a single stacked array) to ensure memory compliance.
-- [ ] T019 [US1] Implement **layer-wise SVD logic** in `src/training/projection_utils.py` for accumulated updates
-- [ ] T020 [US1] Implement logic to select $k$ such that cumulative explained variance ≥ 80% (default $k=10$ if none)
-- [ ] T021 [US1] Save stable subspace matrix (shape $k \times n_{params}$) to `results/opd_subspace.npy`
-- [ ] T022 [US1] Log memory usage during SVD to ensure < 7GB limit [UNRESOLVED-CLAIM: c_9798e452 — status=not_enough_info]
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Execute Low-Rank RL Hybrid with Geometric Projection (Priority: P2)
-
-**Goal**: Train a PPO-based RL agent where gradients are projected onto the stable subspace from US1 before update.
-
-**Independent Test**: Run PPO training with projection active, verify update direction cosine similarity with subspace basis ≥ 0.99.
-
-### Tests for User Story 2
-
-- [ ] T023 [P] [US2] Contract test for gradient projection in `tests/unit/test_gradient_projection.py`
-- [ ] T024 [P] [US2] Integration test for Low-Rank RL loop in `tests/integration/test_low_rank_rl.py`
-
-### Implementation for User Story 2
-
-- [ ] T025 [US2] Implement `src/training/rl_baseline.py` with **lightweight PPO loop using torch.optim** (no external RL libs) and logging schema: steps, accuracy, loss.
-- [ ] T026 [US2] Implement `src/training/low_rank_rl.py` loading subspace from `results/opd_subspace.npy` (Depends on T021)
-- [ ] T027 [US2] Implement **gradient projection logic** in `low_rank_rl.py` to constrain raw RL gradients to top-$k$ vectors
-- [ ] T028 [US2] Add logging to verify update vector lies entirely within span of top-$k$ vectors
-- [ ] T029 [US2] Log cosine similarity between applied update and subspace basis (must be ≥ 0.99) [UNRESOLVED-CLAIM: c_2865476b — status=not_enough_info]
-- [ ] T030 [US2] Save Low-Rank RL training logs and checkpoints to `results/low_rank_rl/`
-- [ ] T030b [US2] Implement per-step update direction logging in `src/training/low_rank_rl.py`. **Storage**: Save per-layer update vectors to separate files `results/low_rank_rl/updates_seed_{i}/layer_{l}.pt` (NOT a single stacked array).
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Compare Convergence and Subspace Alignment (Priority: P3)
-
-**Goal**: Compare sample efficiency and subspace alignment of Low-Rank RL vs Standard RL vs OPD.
-
-**Independent Test**: Aggregate accuracy-vs-steps curves, run statistical test (Wilcoxon) on steps-to-threshold metric.
-
-### Tests for User Story 3
-
-- [ ] T031 [P] [US3] Contract test for statistical significance in `tests/unit/test_stats.py`
-- [ ] T032 [P] [US3] Integration test for full pipeline comparison in `tests/integration/test_full_pipeline.py`
-
-### Implementation for User Story 3
-
-- [ ] T033 [P] [US3] Implement `src/training/random_projection.py` (Random Baseline)
-- [ ] T034 [P] [US3] Implement `src/training/random_walk_prior.py` with random walk subspace projection logic
-- [ ] T035 [P] [US3] Implement `src/training/opd_initialized_rl.py` with OPD weight initialization and no projection
-- [ ] T036 [US3] Implement `src/analysis/metrics.py` to calculate steps-to-threshold-accuracy for all 4 variants (OPD, Low-Rank, Standard, Random Projection)
-- [ ] T037 [US3] Implement `src/analysis/metrics.py` to compute cosine similarity between final update directions and PPO proxy
-- [ ] T038a [US3] Implement `src/analysis/power_analysis.py` to perform pre-experiment/post-hoc power analysis and sample size estimation
-- [ ] T038b-a [US3] Implement Wilcoxon signed-rank test logic in `src/analysis/metrics.py` (N=3 minimum) with dynamic power calculation and conditional re-run flagging.
-- [ ] T039 [US3] Implement `src/analysis/plots.py` to generate convergence curves and alignment plots
-- [ ] T041 [US3] Generate final comparison table and statistical report in `results/analysis_report.md`
-
-### Execution Tasks (N=3 Seeds per Variant, Adaptive to N=10)
-
-- [ ] T042-a [US3] **Orchestrate** initial training runs for 4 variants (OPD, Low-Rank RL, Standard RL, Random Projection) with **N=3 seeds**.
-- [ ] T043 [US3] Execute training runs for OPD Baseline (N=3 seeds) via CLI (Managed by T042-a)
-- [ ] T043b [US3] Execute training runs for Low-Rank RL (N=3 seeds) via CLI (Managed by T042-a)
-- [ ] T044 [US3] Execute training runs for Standard RL (N=3 seeds) via CLI (Managed by T042-a)
-- [ ] T045 [US3] Execute training runs for Random Projection Baseline (N=3 seeds) via CLI (Managed by T042-a)
-- [ ] T036-exec [US3] Execute metrics calculation (T036 logic) on generated logs from T043-T045
-- [ ] T038b-d [US3] Execute Wilcoxon signed-rank test on N=3 seeds per variant (FR-006) and generate p-values (Depends on T036-exec)
-- [ ] T038c [US3] Generate statistical report artifact in `results/statistical_report.md` containing p-values and effect sizes
-- [ ] T040 [US3] Compute Early Trajectory Alignment (first [deferred] of steps, min 50) between Low-Rank RL and OPD using logged $\Delta W_t$ vectors (Depends on T018c config and T043/T043b execution logs)
-- [ ] T042-b [US3] **Orchestrate** conditional re-run for 4 variants with **N=10 seeds** if T048c triggers (Managed by T042-b)
-- [ ] T048 [US3] Implement adaptive sample size logic in `src/analysis/power_analysis.py` to trigger re-runs if effect size < 0.5 (up to N=10) OR flag for human review if time limit is exceeded.
-- [ ] T048b [US3] Implement conditional branching logic in `src/analysis/power_analysis.py` to check effect size and prepare for re-run (Depends on T038b-d)
-- [ ] T048c [US3] Execute conditional branching logic: if effect size < 0.5 AND N < 10 AND time permits, re-invoke T042-b via CLI flag `--rerun-seeds` (Depends on T048b)
-- [ ] T048d [US3] Re-run analysis (T036-exec, T038b-d, T038c) on new data if re-run occurred (Depends on T048c)
-- [ ] T049 [US3] **Monitor** execution time and trigger Variant Reduction Strategy if 6-hour limit is at risk.
-- [ ] T049a [US3] **Resolve** hardware constraint: Implement 'Variant Reduction Strategy' to ensure pipeline completes within 6 hours. If time exceeded, reduce variants (e.g., drop Random Walk Prior) or flag as 'inconclusive' and stop.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T050 [P] Documentation updates in `docs/` and `quickstart.md`
-- [ ] T051 Code cleanup and refactoring of training loops
-- [ ] T052 Performance optimization for CPU execution (batching, mixed precision)
-- [ ] T053 [P] Additional unit tests in `tests/unit/`
-- [ ] T054 Run quickstart.md validation to ensure 6-hour limit compliance (with N=3 seed count and 4 variants) [UNRESOLVED-CLAIM: c_363d26b6 — status=not_enough_info]
-- [ ] T055 Verify all `results/` artifacts have SHA-256 hashes recorded in `state/`
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (`opd_subspace.npy`)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 and US2 outputs
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together:
-Task: "Contract test for OPD SVD output shape in tests/unit/test_opd_svd.py"
-Task: "Integration test for OPD data flow in tests/integration/test_opd_flow.py"
-
-# Launch all implementation for User Story 1:
-Task: "Implement src/training/opd_baseline.py runner"
-Task: "Implement layer-wise SVD logic in src/training/projection_utils.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (SVD output, memory usage)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (OPD Baseline)
- - Developer B: User Story 2 (Low-Rank RL)
- - Developer C: User Story 3 (Analysis & Baselines)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All training must run on CPU-only (2 vCPU, 7GB RAM) within 6 hours [UNRESOLVED-CLAIM: c_f6717b0f — status=not_enough_info]. No GPU, no 8-bit quantization.
-- **CRITICAL**: Use real GSM8K data from HuggingFace; no synthetic data or fabrication.
-- **NOTE**: Task T042-a orchestrates N=3 pilot runs for 4 variants. T042-b handles conditional re-runs to N=10 if power analysis requires and time permits.
-- **NOTE**: T018b and T030b explicitly log per-step vectors **layer-wise** to separate files to satisfy FR-008 and memory constraints.
-- **NOTE**: T049 and T049a explicitly resolve the hardware constraint conflict by implementing a 'Variant Reduction Strategy' to ensure completion within 6 hours, flagging 'inconclusive' if statistical power cannot be achieved within time limits.
-- **NOTE**: T018c defines the 'early' window (first [deferred] of steps, min 50) and writes it to `results/early_window_config.json` for T040 to consume.
-- **NOTE**: T009b verifies the pruned model architecture to ensure 'Verified Accuracy'.
+# Tasks: Low-Rank RL for Foresight in LLM Training  
+
+**Input**: Design documents from `/specs/001-low-rank-rl-foresight/`  
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`  
+
+**Tests**: Tests are **mandatory** for all scientific requirements (statistical testing, alignment verification, etc.).  
+
+**Organization**: Tasks are grouped by research phase and user story to enable independent implementation and testing.  
+
+---  
+
+## Phase 1 – Project Setup & Quick‑Start  
+
+- [ ] T001 Create project structure per implementation plan (`src/`, `tests/`, `data/`, `results/`).  
+- [ ] T002 Initialise Python 3.10 environment with required dependencies (`torch`, `transformers`, `datasets`, `peft`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`).  
+- [ ] T003 Configure linting (ruff) and formatting (black) tools.  
+
+## Phase 2 – Core Infrastructure (Blocking Prerequisites)  
+
+- [ ] T004 Implement `src/utils/seeds.py` for deterministic seed pinning across all variants. **Verify**: file exists and unit test `tests/unit/test_seeds.py` passes.  
+- [ ] T005 Implement `src/utils/memory_monitor.py` to track RAM usage and enforce the 7 GB limit. **Verify**: file exists and runtime monitor writes `results/memory_profile.json` matching `training_log.schema.yaml`.  
+- [ ] T006 Implement `src/utils/hasher.py` to compute SHA‑256 hashes of all derived artifacts. **Verify**: file exists and `state/artifact_hashes` updated after a dummy run.  
+- [ ] T008 Create `src/data/checksums.py` for data‑integrity verification. **Verify**: file exists and checksum function returns correct SHA‑256 for a known file.  
+- [ ] T007 Create `src/data/loader.py` to fetch the GSM8K subset (≥ 1,000 problems) from HuggingFace `datasets` with checksum verification. **Must raise an exception on fetch failure; no synthetic fallback.** **Verify**: file exists, runs without error on a small sample, and validates checksum via `src/data/checksums.py`.  
+- [ ] T009 Implement `src/models/config.py` to programmatically prune TinyLlama to a 300 M ± 1 % parameter model. Includes verification logic and graceful fallback to the closest verified size (warning logged, abort if deviation > 1 %). **Verify**: model config file generated, parameter count printed, and deviation check passes.  
+- [ ] T010 Implement `src/models/backbone.py` with hooks to capture attention‑projection updates. **Verify**: hooks fire during a dummy forward pass and produce tensors of expected shape.  
+- [ ] T011 Create `src/cli/run_experiment.py` – the **single entry point** that orchestrates data loading, training variants, and analysis.  
+&nbsp;&nbsp;&nbsp;&nbsp;• Defines CLI arguments `--early-window-fraction`, `--early-alignment-threshold`, `--num-seeds`, and `--variant`.  
+&nbsp;&nbsp;&nbsp;&nbsp;• Validates required inputs (e.g., existence of `results/opd_subspace.npy` for Low‑Rank RL).  
+&nbsp;&nbsp;&nbsp;&nbsp;• Writes a run‑manifest `results/run_manifest.json`.  
+**Verify**: script runs with `--dry-run` flag, produces manifest, and exits with code 0.  
+- [ ] T012 Add verification test for the CLI entry point. Create `tests/integration/test_cli_run.py` that invokes `src/cli/run_experiment.py --dry-run` and asserts successful execution. **Verify**: pytest passes (exit code 0).  
+- [ ] T013 Create `tests/unit/test_svd.py` to verify SVD on small matrices fits memory constraints. **Verify**: pytest passes and memory usage < 200 MB.  
+- [ ] T014 Create `tests/unit/test_projection.py` to verify projection math (cosine similarity ≥ 0.99). **Verify**: pytest passes; placed after projection utilities are implemented.  
+
+## Phase 3 – CPU Feasibility & Resource Hardening  
+
+- [ ] T061 Add SVD fallback logic in `src/training/projection_utils.py`: if cumulative variance < 80 % for any k ≤ 50, default to k = 10 and log a warning. **Verify**: runs on a synthetic low‑variance matrix and selects k=10.  
+- [ ] T062 Add gradient‑projection sanity check (condition number > 1e6 ⇒ renormalise) in `src/training/projection_utils.py`. **Verify**: unit test confirms renormalisation triggers when condition number exceeds threshold.  
+- [ ] T052a Implement `src/utils/time_estimator.py` – estimates runtime per variant; aborts if total > 6 h (writes `results/time_estimate.json`). **Verify**: JSON file created and `total_estimated_time` ≤ 6 h for default config.  
+- [ ] T052b Implement `src/utils/memory_estimator.py` – estimates peak RAM; aborts if > 7 GB (writes `results/memory_estimate.json`). **Verify**: JSON file created and `peak_estimated_ram_mb` ≤ 7000.  
+- [ ] T052c‑final‑time‑verify Aggregate final wall‑clock measurement after execution and write `results/pipeline_time.json` (checks against SC‑005). **Verify**: file exists and `elapsed_seconds` ≤ 21600.  
+- [ ] T059 Refactor `src/data/loader.py` to use `datasets.load_dataset(..., streaming=True)`. **Verify**: loader runs in streaming mode (no full in‑memory load) and logs streaming status.  
+- [ ] T060‑stream Implement streaming data loader in `src/data/loader.py` (chunked iteration, no full in‑memory load). **Verify**: loader yields batches without exceeding 500 MB RAM (checked via `memory_monitor`).  
+- [ ] T060‑accum Implement online statistics accumulator in `src/analysis/metrics.py` (writes `results/online_stats_checkpoint.json`). **Verify**: accumulator updates and JSON checkpoint matches schema.  
+- [ ] T063 Add time‑budget enforcement in `src/cli/run_experiment.py`: aborts a seed if the 6 h limit is exceeded, writes `results/experiment_status.json` with status *inconclusive*, and exits with a designated code. **Verify**: simulated long run triggers abort and status file is created.  
+
+## Phase 4 – User Story 1: Establish Geometric Baseline via On‑Policy Distillation (P1)  
+
+- [ ] T015 Create unit test `tests/unit/test_opd_svd.py` – verifies OPD SVD output shape. **Verify**: pytest passes and output shape matches `(k, n_params)`.  
+- [ ] T016 Create integration test `tests/integration/test_opd_flow.py` – end‑to‑end OPD data flow. **Verify**: pytest passes, generates `results/opd_subspace.npy`.  
+- [ ] T017 Implement OPD baseline runner `src/training/opd_baseline.py`.  
+&nbsp;&nbsp;&nbsp;&nbsp;• Loads GSM8K via T007, runs for `--num-steps` (configurable).  
+&nbsp;&nbsp;&nbsp;&nbsp;• Records per‑step parameter updates ΔW for each layer to `results/opd/updates_seed_{i}/layer_{idx:02d}.pt`.  
+**Verify**: runner creates the expected update files, aggregates them, produces `results/opd_subspace.npy`, and the file passes `opd_subspace.schema.yaml` validation.  
+- [ ] T018b Log per‑step update directions (same path as above). **Verify**: log files exist and contain numeric tensors.  
+- [ ] T018c‑aggregate Aggregate per‑layer vectors into a single matrix `results/opd/accumulated_matrix_seed_{i}.npy`. **Verify**: matrix file exists and shape matches `(num_steps, total_params)`.  
+- [ ] T018c‑config Write early‑window configuration (`results/early_window_config.json`). **Verify**: JSON file created with `early_window_fraction` key.  
+- [ ] T018d‑align Log early‑trajectory alignment during the early window to `results/opd/early_alignment_log.json`. **Verify**: JSON file exists and entries contain `alignment_score`.  
+- [ ] T018d‑verify Verify existence and JSON validity of `results/opd/early_alignment_log.json`. **Verify**: schema validation passes.  
+- [ ] T019 Implement global SVD in `src/training/projection_utils.py` – input `accumulated_matrix_seed_{i}.npy`, output `results/opd/svd_results.npy`. **Verify**: output file exists and matches expected dimensions.  
+- [ ] T020 Select rank k (cumulative variance ≥ 80 % or fallback k = 10) and write `results/opd/k_value.json`. **Verify**: JSON contains `rank_k` and `cumulative_variance`.  
+- [ ] T021 Save stable subspace matrix (`k × n_params`) to `results/opd_subspace.npy`. **Verify**: file exists, shape `(k, total_params)`, and passes `opd_subspace.schema.yaml`.  
+- [ ] T022a Log memory usage during SVD; assert < 7 GB. **Verify**: memory log written and value ≤ 7000 MB.  
+- [ ] T022b Log peak memory to `results/memory_profile.json` for SC‑004 verification. **Verify**: JSON conforms to `training_log.schema.yaml`.  
+
+## Phase 5 – User Story 2: Execute Low‑Rank RL Hybrid with Geometric Projection (P2)  
+
+- [ ] T023 Unit test `tests/unit/test_gradient_projection.py` – verifies projection retains ≥ 0.99 cosine similarity. **Verify**: pytest passes.  
+- [ ] T024 Integration test `tests/integration/test_low_rank_rl.py` – mini‑run (1 step) on 10‑sample GSM8K subset, checks `results/low_rank_rl/early_alignment_log.json`. **Verify**: pytest passes and early‑alignment file created.  
+- [ ] T026‑core Implement gradient‑projection function in `src/training/projection_utils.py` (uses `results/opd_subspace.npy`). **Verify**: function returns projected gradient with cosine ≥ 0.99.  
+- [ ] T025‑impl Implement Low‑Rank RL runner `src/training/low_rank_rl.py`.  
+&nbsp;&nbsp;&nbsp;&nbsp;• Loads GSM8K via T007.  
+&nbsp;&nbsp;&nbsp;&nbsp;• Checks for `results/opd_subspace.npy` (raises `SubspaceNotFoundError` if missing).  
+&nbsp;&nbsp;&nbsp;&nbsp;• Computes raw PPO gradient, projects with T026‑core, applies update.  
+&nbsp;&nbsp;&nbsp;&nbsp;• Logs per‑step update vectors to `results/low_rank_rl/updates_seed_{i}/layer_{idx:02d}.pt`.  
+**Verify**: runner creates update logs, `results/low_rank_rl/alignment_log.json` contains cosine ≥ 0.99 for every step, and the run completes without error.  
+- [ ] T025‑std Implement Standard RL baseline runner `src/training/rl_baseline.py` (no projection). **Verify**: runs without error and produces `results/standard_rl/updates_seed_{i}`.  
+- [ ] T027 Add logging to verify each applied update lies within the span of the top‑k vectors. **Verify**: `results/low_rank_rl/alignment_log.json` contains cosine ≥ 0.99 for every step.  
+- [ ] T028 Assert cosine similarity ≥ 0.99 for every update (writes to `results/low_rank_rl/alignment_log.json`). **Verify**: JSON schema validation passes and min similarity ≥ 0.99.  
+- [ ] T029‑mem Enforce memory limit during Low‑Rank RL training (uses `memory_monitor`). **Verify**: `results/low_rank_rl/memory_profile.json` records peak ≤ 7000 MB.  
+- [ ] T029a‑mem Measure memory for Standard RL (writes `results/standard_rl/memory_profile.json`). **Verify**: same as above.  
+- [ ] T030 Save Low‑Rank RL training logs and checkpoints under `results/low_rank_rl/`. **Verify**: checkpoint files exist and are < 600 MB each.  
+- [ ] T030b‑log Per‑step update logging for Low‑Rank RL (same format as OPD). **Verify**: logs written and parsable.  
+- [ ] T030c‑early Log early‑trajectory alignment (compare to OPD) to `results/low_rank_rl/early_alignment_log.json`. **Verify**: file exists and contains `alignment_score`.  
+- [ ] T030c‑verify Verify existence and JSON validity of `results/low_rank_rl/early_alignment_log.json`. **Verify**: schema validation passes.  
+
+## Phase 6 – User Story 3: Compare Convergence & Subspace Alignment (P3)  
+
+- [ ] T031 Unit test `tests/unit/test_stats.py` – synthetic data verifies Wilcoxon test returns p < 0.05 when appropriate. **Verify**: pytest passes.  
+- [ ] T032 Integration test `tests/integration/test_full_pipeline.py` – mini‑pipeline across all variants, checks `results/analysis_report.md`. **Verify**: pytest passes and report generated.  
+- [ ] T033 Implement Random Projection baseline `src/training/random_projection.py`.  
+&nbsp;&nbsp;&nbsp;&nbsp;• Generates random matrix R (k × n_params), projects gradients, trains PPO.  
+- [ ] T033a‑mem Measure memory for Random Projection (`results/random_projection/memory_profile.json`). **Verify**: peak ≤ 7000 MB.  
+- [ ] T034 Implement Random Walk Prior baseline `src/training/random_walk_prior.py`.  
+- [ ] T034a‑mem Measure memory for Random Walk Prior (`results/random_walk_prior/memory_profile.json`). **Verify**: peak ≤ 7000 MB.  
+- [ ] T035 Implement OPD‑Initialized RL (no projection) `src/training/opd_initialized_rl.py`.  
+- [ ] T035a‑mem Measure memory for OPD‑Initialized RL (`results/opd_initialized_rl/memory_profile.json`). **Verify**: peak ≤ 7000 MB.  
+- [ ] T036‑feasibility Determine feasible variant set based on time/memory estimates; write `results/feasibility_report.json`. **Verify**: JSON lists variants with status “feasible”.  
+- [ ] T036‑manifest Write active‑variant manifest to `results/active_variants.json`. **Verify**: manifest matches feasibility report.  
+- [ ] T042‑filter‑list Filter run list according to feasibility; write `results/run_list_filtered.json`. **Verify**: filtered list excludes infeasible variants.  
+- [ ] T042‑write‑list Write final run list to `results/run_list.json`. **Verify**: file exists and contains at least 3 seeds per variant.  
+- [ ] T042‑execute‑list Execute all runs defined in `results/run_list.json` via `src/cli/run_experiment.py`.  
+&nbsp;&nbsp;&nbsp;&nbsp;• Each run writes logs, checkpoints, and memory profiles under its variant folder.  
+- [ ] T036‑metrics‑explicit Aggregate accuracy‑vs‑steps curves, compute steps‑to‑80 % accuracy, and cosine‑similarity alignment; output `results/metrics_summary.json`. **Verify**: JSON conforms to `analysis_results.schema.yaml`.  
+- [ ] T037 Generate convergence and alignment plots (`results/convergence_plots.png`). **Verify**: image file created and readable.  
+- [ ] T038a Implement power‑analysis module `src/analysis/power_analysis.py`. **Verify**: module runs and outputs `results/power_analysis.json`.  
+- [ ] T038b‑wilcoxon Perform Wilcoxon signed‑rank test on steps‑to‑threshold data (requires N ≥ 3).  
+&nbsp;&nbsp;&nbsp;&nbsp;• If N < 3, write `results/statistical_status.json` with *Inconclusive (Insufficient Samples)* and stop further statistical testing. **Verify**: JSON reflects correct status and test p‑value when performed.  
+- [ ] T039 Generate final analysis report `results/analysis_report.md` (tables, plots, statistical summary). **Verify**: report includes p‑value < 0.05 when significance claimed.  
+- [ ] T040a‑early‑alignment‑core Compute early‑trajectory alignment for Low‑Rank RL vs OPD (FR‑008) and write `results/low_rank_rl/early_alignment_metrics.json`. **Verify**: JSON contains mean alignment ≥ 0.99.  
+- [ ] T040b‑baseline‑alignment Compute early alignment for Standard RL and OPD baselines; write respective JSON files. **Verify**: files exist and conform to schema.  
+- [ ] T080 Compute final subspace alignment for each variant – after training, calculate the cosine similarity between the final accumulated update direction of the variant and the standard PPO baseline; store results in `results/final_alignment.json` (array of `{variant, seed, final_alignment_score}`). **Verify**: file validates against `analysis_results.schema.yaml` and satisfies SC‑002.  
+- [ ] T081 Verify mixed‑precision (FP16) is enabled – during each training run, log the model dtype; after run, assert dtype is `torch.float16`. Write verification entry to `results/fp16_check.json`. **Verify**: all entries report FP16.  
+
+## Phase 7 – Polish & Cross‑Cutting Concerns  
+
+- [ ] T050a Update `quickstart.md` with CLI examples, hard‑abort description, and status‑file interpretation. **Verify**: quickstart renders without broken links.  
+- [ ] T050b Add Sphinx‑style docstrings to `src/training/projection_utils.py` and `src/utils/memory_monitor.py`. **Verify**: `pydocstyle` passes.  
+- [ ] T050c Update `README.md` with experiment‑status badge and data‑availability section. **Verify**: badge renders on GitHub.  
+- [ ] T051a Extract logging logic to `src/utils/logger.py` (JSON‑structured logs to `results/experiment.log`). **Verify**: log file created and JSON lines parse.  
+- [ ] T051b Run `ruff --select F401` and remove all unused imports. **Verify**: ruff reports zero F401 warnings.  
+- [ ] T052‑opt Performance optimisation – batch‑size doubling and ensure FP16 mixed precision throughout training loops. **Verify**: batch size increased in config and FP16 usage confirmed by T081.  
+- [ ] T053 Add additional unit tests for `projection_utils.py` and `seeds.py` to reach required branch coverage. **Verify**: coverage report ≥ 90 %.  
+- [ ] T067 Data‑loader fail‑loud verification test (`tests/unit/test_loader_failure.py`). **Verify**: test passes when loader raises on bad URL.  
+- [ ] T068 Hash audit of all files in `results/` against `state/artifact_hashes`. **Verify**: audit script reports zero mismatches.  
+- [ ] T069 Subspace‑stability verification – run OPD for 3 seeds, ensure variance of selected k < 5 %. **Verify**: JSON `results/opd/k_stability.json` contains `k_variance` < 0.05.  
+- [ ] T071‑variants Memory‑assertion verification for **all** experimental variants (after T042‑execute‑list). Writes any violations to `results/experiment_status.json`. **Verify**: status file reports “all within limits”.  
+- [ ] T071 Final memory report aggregation (`results/memory_report.md`). **Verify**: report lists peak memory per variant and total ≤ 7 GB.  
+
+## Phase 8 – Review & Revision (Addressing Analysis Concerns)  
+
+- [ ] T072 Ensure `src/training/low_rank_rl.py` explicitly checks for `results/opd_subspace.npy` before training; raises `SubspaceNotFoundError` with clear guidance. **Verify**: missing file triggers error and message.  
+- [ ] T073 Robust SVD fallback – enhanced in `src/training/projection_utils.py` with elbow‑heuristic when variance threshold cannot be met. **Verify**: fallback logs warning and selects appropriate k.  
+- [ ] T074 Add gradient‑projection unit tests (`tests/unit/test_gradient_projection.py`). **Verify**: pytest passes (duplicate of T023 but retained for clarity).  
+- [ ] T075 Validate early‑window logic in `src/cli/run_experiment.py`; clamp `early_window_steps` to `total_steps` if necessary and log a warning. **Verify**: warning appears when over‑specified.  
+- [ ] T076 Standardise `early_alignment_log.json` schema across all variants (fields: `variant_name`, `seed`, `step`, `alignment_score`, `timestamp`). **Verify**: all early‑alignment logs validate against shared schema.  
+- [ ] T077 Extend `src/analysis/plots.py` to visualise effect size (Cohen’s d) and achieved power, overlaying the 0.8 power threshold. **Verify**: plot includes annotated power curve.  
+- [ ] T078 Variant‑abortion handler – in `src/cli/run_experiment.py`, catch `OOMError` and `TimeoutError`, log to `results/failures.json`, skip the failed seed, and continue the experiment. **Verify**: simulated OOM writes entry and proceeds.  
+
+---  
+
+**Note**: All tasks now include explicit verification criteria, correct ordering, no duplicate identifiers, and added steps to satisfy final‑alignment (FR‑005, SC‑002) and mixed‑precision (FR‑007) requirements. The test policy is mandatory for scientific validity. Do not infer completion from an existing filename or code stub. New or changed tasks must be unchecked; the runtime retains existing checked tasks only when their review receipts still match the task requirements, specification and current artifacts.  

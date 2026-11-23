@@ -2,7 +2,8 @@
 Exclusion logic for low-reliability EBSD samples.
 
 Implements the logic to flag and exclude samples where >50% of points
-are filtered out during preprocessing, marking them as "low reliability".
+are filtered out during preprocessing, ensuring only high-quality data
+is used for training.
 """
 import logging
 import pandas as pd
@@ -10,216 +11,238 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 
 from utils.logging import get_logger
+from config import get_reductions
 
 logger = get_logger(__name__)
 
-RELIABILITY_THRESHOLD = 0.5  # Exclude if >50% points filtered
+# Threshold for exclusion: if more than 50% of points are filtered, mark as low reliability
+RELIABILITY_THRESHOLD = 0.50
 
 def calculate_reliability_metrics(
-    original_count: int, 
-    filtered_count: int, 
-    sample_id: str
-) -> Dict[str, Any]:
+    df: pd.DataFrame,
+    sample_id_col: str = "sample_id",
+    filtered_col: str = "is_filtered",
+    original_count_col: str = "original_point_count",
+    filtered_count_col: str = "filtered_point_count"
+) -> pd.DataFrame:
     """
-    Calculate reliability metrics for a single sample.
-    
+    Calculate reliability metrics for each sample.
+
+    Computes the ratio of filtered points to original points for each sample.
+    Samples with a ratio > RELIABILITY_THRESHOLD are flagged as "low_reliability".
+
     Args:
-        original_count: Number of points before filtering
-        filtered_count: Number of points after filtering
-        sample_id: Identifier for the sample
-        
+        df: DataFrame containing EBSD data with sample identifiers and filter status.
+            Expected columns: sample_id_col, filtered_col, original_count_col, filtered_count_col.
+            If original_count_col or filtered_count_col are missing, they are derived
+            by counting rows per sample.
+        sample_id_col: Name of the column containing unique sample IDs.
+        filtered_col: Name of the column indicating if a point was filtered (True/False).
+        original_count_col: Name of the column with the original point count per sample.
+        filtered_count_col: Name of the column with the filtered point count per sample.
+
     Returns:
-        Dictionary containing reliability metrics
+        DataFrame with added columns:
+            - reliability_ratio: Fraction of points filtered (0.0 to 1.0)
+            - is_low_reliability: Boolean flag (True if ratio > threshold)
+            - status: "low_reliability" or "valid"
     """
-    if original_count == 0:
-        reliability_score = 0.0
-        points_filtered_ratio = 1.0
-    else:
-        points_remaining_ratio = filtered_count / original_count
-        points_filtered_ratio = 1.0 - points_remaining_ratio
-        reliability_score = points_remaining_ratio
+    logger.info(f"Calculating reliability metrics for {len(df)} rows...")
+
+    # Ensure we have the necessary counts
+    # If the count columns are not present, derive them from the data
+    if original_count_col not in df.columns or filtered_count_col not in df.columns:
+        logger.info("Deriving point counts from raw data...")
+        # Count total points per sample
+        total_counts = df.groupby(sample_id_col).size().reset_index(name='total_points')
+        
+        # Count filtered points per sample
+        filtered_counts = df[df[filtered_col] == True].groupby(sample_id_col).size().reset_index(name='filtered_points')
+        
+        # Merge back
+        df = df.merge(total_counts, on=sample_id_col, how='left')
+        df = df.merge(filtered_counts, on=sample_id_col, how='left')
+        
+        # Fill NaN with 0 (for samples with no filtered points)
+        df['filtered_points'] = df['filtered_points'].fillna(0)
+        
+        # Update column names to match expected interface if needed
+        if original_count_col not in df.columns:
+            df[original_count_col] = df['total_points']
+        if filtered_count_col not in df.columns:
+            df[filtered_count_col] = df['filtered_points']
+
+    # Calculate reliability ratio
+    # Avoid division by zero
+    df['reliability_ratio'] = df[filtered_count_col] / df[original_count_col].replace(0, 1)
     
-    is_low_reliability = points_filtered_ratio > RELIABILITY_THRESHOLD
-    
-    return {
-        'sample_id': sample_id,
-        'original_point_count': original_count,
-        'filtered_point_count': filtered_count,
-        'points_remaining_ratio': points_remaining_ratio,
-        'points_filtered_ratio': points_filtered_ratio,
-        'is_low_reliability': is_low_reliability,
-        'reliability_status': 'low_reliability' if is_low_reliability else 'acceptable'
-    }
+    # Apply threshold
+    df['is_low_reliability'] = df['reliability_ratio'] > RELIABILITY_THRESHOLD
+    df['status'] = df['is_low_reliability'].map({True: 'low_reliability', False: 'valid'})
+
+    logger.info(f"Reliability calculation complete. "
+                f"Samples flagged: {df['is_low_reliability'].sum()}, "
+                f"Total samples: {df[sample_id_col].nunique()}")
+
+    return df
 
 def apply_exclusion_logic(
-    data_path: Path,
-    output_path: Path,
-    metadata_path: Optional[Path] = None
-) -> Dict[str, Any]:
+    df: pd.DataFrame,
+    sample_id_col: str = "sample_id",
+    reliability_col: str = "is_low_reliability",
+    output_path: Optional[Path] = None
+) -> pd.DataFrame:
     """
-    Apply exclusion logic to filtered EBSD data.
-    
-    Reads the filtered data, calculates reliability metrics per sample,
-    flags low-reliability samples, and produces a clean dataset excluding
-    them.
-    
+    Apply exclusion logic to remove low-reliability samples.
+
+    Filters the DataFrame to exclude samples flagged as "low_reliability".
+    Logs the excluded samples and writes a summary report if output_path is provided.
+
     Args:
-        data_path: Path to the filtered EBSD data (Parquet/CSV)
-        output_path: Path to write the clean dataset
-        metadata_path: Optional path to write detailed metadata about excluded samples
-        
+        df: DataFrame with reliability metrics calculated (must contain reliability_col).
+        sample_id_col: Column name for sample IDs.
+        reliability_col: Column name for the low reliability flag.
+        output_path: Optional path to write a summary report of excluded samples.
+
     Returns:
-        Dictionary containing summary statistics
+        DataFrame containing only valid (high-reliability) samples.
     """
-    logger.info(f"Loading filtered data from {data_path}")
-    
-    if not data_path.exists():
-        raise FileNotFoundError(f"Input data file not found: {data_path}")
-    
-    # Load data
-    if data_path.suffix == '.parquet':
-        df = pd.read_parquet(data_path)
-    elif data_path.suffix == '.csv':
-        df = pd.read_csv(data_path)
-    else:
-        raise ValueError(f"Unsupported file format: {data_path.suffix}")
-    
-    if df.empty:
-        logger.warning("Input data is empty. Creating empty output.")
-        df_clean = pd.DataFrame()
-        summary = {
-            'total_samples': 0,
-            'low_reliability_samples': 0,
-            'kept_samples': 0,
-            'excluded_samples': 0
-        }
-    else:
-        # Ensure sample_id column exists
-        if 'sample_id' not in df.columns:
-            raise ValueError("Input data must contain 'sample_id' column")
-        
-        # Calculate point counts per sample
-        original_counts = df.groupby('sample_id').size()
-        
-        # We need the original count before filtering. 
-        # Assuming the input to this stage is the result of T012 (filtering),
-        # we need to track the original counts. 
-        # If the input data contains a 'original_count' column (from T012), use it.
-        # Otherwise, we assume the current df represents the kept points,
-        # and we need to know how many were dropped.
-        
-        # Strategy: We look for a metadata column or infer from context.
-        # However, T012 (preprocess.py) should ideally pass the original count.
-        # If not present, we must rely on a separate metadata file or assume
-        # the input to T012 was the "original" and we are comparing.
-        # Since T012 is the filter step, the data passed to T014 is the *filtered* result.
-        # We need the *original* count to calculate the ratio.
-        
-        # If the dataframe has 'original_point_count' (added by T012), use it.
-        if 'original_point_count' in df.columns:
-            # Group by sample_id and aggregate
-            sample_stats = df.groupby('sample_id').agg(
-                filtered_point_count=('sample_id', 'size'),
-                original_point_count=('original_point_count', 'first')
-            ).reset_index()
-        else:
-            # Fallback: If original count is not in the data, we cannot calculate
-            # the ratio accurately without external metadata. 
-            # However, per T013, we handle missing info by logging warnings.
-            # For this implementation, we assume the caller (T015 or main) 
-            # ensures the 'original_point_count' is present in the input data
-            # from T012. If missing, we raise an error as we cannot proceed.
-            raise ValueError(
-                "Input data missing 'original_point_count' column. "
-                "Preprocessing step (T012) must include original point counts."
-            )
-        
-        # Calculate metrics
-        metrics = []
-        for _, row in sample_stats.iterrows():
-            metrics.append(calculate_reliability_metrics(
-                original_count=row['original_point_count'],
-                filtered_count=row['filtered_point_count'],
-                sample_id=row['sample_id']
-            ))
-        
-        metrics_df = pd.DataFrame(metrics)
-        
-        # Identify low reliability samples
-        low_reliability_ids = metrics_df[metrics_df['is_low_reliability']]['sample_id'].tolist()
-        kept_ids = metrics_df[~metrics_df['is_low_reliability']]['sample_id'].tolist()
-        
-        logger.info(f"Identified {len(low_reliability_ids)} low-reliability samples to exclude.")
-        logger.info(f"Keeping {len(kept_ids)} acceptable samples.")
-        
-        # Filter the main dataframe
-        df_clean = df[~df['sample_id'].isin(low_reliability_ids)].copy()
-        
-        # Add reliability status to the clean dataframe (optional, for debugging)
-        # But the output should ideally just be the clean data.
-        
-        # Prepare metadata for excluded samples
-        excluded_metadata = metrics_df[metrics_df['is_low_reliability']].copy()
-        
-        # Summary
-        summary = {
-            'total_samples': len(metrics_df),
-            'low_reliability_samples': len(low_reliability_ids),
-            'kept_samples': len(kept_ids),
-            'excluded_samples': len(low_reliability_ids),
-            'excluded_sample_ids': low_reliability_ids
-        }
-        
-        # Write metadata if requested
-        if metadata_path:
-            metadata_path.parent.mkdir(parents=True, exist_ok=True)
-            excluded_metadata.to_csv(metadata_path, index=False)
-            logger.info(f"Wrote exclusion metadata to {metadata_path}")
-    
-    # Write clean data
+    logger.info("Applying exclusion logic...")
+
+    if reliability_col not in df.columns:
+        raise ValueError(f"Column '{reliability_col}' not found in DataFrame. "
+                         f"Run calculate_reliability_metrics first.")
+
+    valid_samples = df[~df[reliability_col]]
+    excluded_samples = df[df[reliability_col]]
+
+    excluded_count = excluded_samples[sample_id_col].nunique()
+    valid_count = valid_samples[sample_id_col].nunique()
+    total_count = df[sample_id_col].nunique()
+
+    logger.info(f"Exclusion complete: {excluded_count} samples excluded, "
+                f"{valid_count} samples retained (out of {total_count} total).")
+
+    if excluded_count > 0:
+        logger.warning(f"The following samples were excluded due to >{RELIABILITY_THRESHOLD*100}% "
+                       f"filtered points:")
+        excluded_list = excluded_samples[sample_id_col].unique().tolist()
+        for sid in excluded_list:
+            logger.warning(f"  - {sid}")
+
+    if output_path:
+        _write_exclusion_report(excluded_samples, valid_samples, output_path)
+
+    return valid_samples
+
+def _write_exclusion_report(
+    excluded_df: pd.DataFrame,
+    valid_df: pd.DataFrame,
+    output_path: Path
+) -> None:
+    """
+    Write a detailed report of excluded and valid samples to a CSV file.
+
+    Args:
+        excluded_df: DataFrame of excluded samples.
+        valid_df: DataFrame of valid samples.
+        output_path: Path to write the report CSV.
+    """
+    output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    if output_path.suffix == '.parquet':
-        df_clean.to_parquet(output_path, index=False)
-    elif output_path.suffix == '.csv':
-        df_clean.to_csv(output_path, index=False)
+
+    report_data = []
+
+    # Process excluded
+    if not excluded_df.empty:
+        excluded_summary = excluded_df.groupby('sample_id').agg({
+            'reliability_ratio': 'first',
+            'original_point_count': 'first',
+            'filtered_point_count': 'first'
+        }).reset_index()
+        excluded_summary['status'] = 'excluded'
+        report_data.append(excluded_summary)
+
+    # Process valid
+    if not valid_df.empty:
+        valid_summary = valid_df.groupby('sample_id').agg({
+            'reliability_ratio': 'first',
+            'original_point_count': 'first',
+            'filtered_count': 'first' # Fallback if column name varies
+        }).reset_index()
+        # Ensure column consistency
+        if 'filtered_count' in valid_summary.columns and 'filtered_point_count' not in valid_summary.columns:
+            valid_summary = valid_summary.rename(columns={'filtered_count': 'filtered_point_count'})
+        
+        valid_summary['status'] = 'valid'
+        report_data.append(valid_summary)
+
+    if report_data:
+        full_report = pd.concat(report_data, ignore_index=True)
+        full_report.to_csv(output_path, index=False)
+        logger.info(f"Exclusion report written to {output_path}")
     else:
-        # Default to parquet
-        output_path = output_path.with_suffix('.parquet')
-        df_clean.to_parquet(output_path, index=False)
-    
-    logger.info(f"Wrote clean dataset to {output_path}")
-    
-    return summary
+        logger.warning("No samples to report in exclusion summary.")
 
 def main():
     """
-    Main entry point for exclusion logic.
-    Reads configuration, runs exclusion, and prints summary.
+    Main entry point for the exclusion module.
+    Reads processed data, applies reliability checks, and outputs the clean dataset.
     """
-    import json
-    from config import get_reductions
+    logger.info("Starting exclusion logic execution...")
+
+    # Configuration
+    # Assuming processed data is in data/interim/ or data/processed/
+    # We look for the output of the preprocessing step
+    input_dir = Path("data/interim")
+    if not input_dir.exists():
+        input_dir = Path("data/processed")
     
-    # Default paths (can be overridden by CLI args or config in a full implementation)
-    # Assuming the pipeline runs T012 -> T014 -> T015
-    # T012 outputs to data/processed/filtered_ebsd.parquet (or similar)
-    # T014 reads that and outputs data/processed/cleaned_ebsd.parquet
+    # Find the most recent parquet or csv file with EBSD data
+    # This is a heuristic; in a real pipeline, paths might be passed via config or CLI
+    ebsd_files = list(input_dir.glob("*.parquet")) + list(input_dir.glob("*.csv"))
     
-    input_path = Path("data/processed/filtered_ebsd.parquet")
-    output_path = Path("data/processed/cleaned_ebsd.parquet")
-    metadata_path = Path("data/processed/exclusion_metadata.csv")
+    if not ebsd_files:
+        logger.error("No processed EBSD data files found in data/interim or data/processed. "
+                     "Please ensure T012 (preprocess) has run successfully.")
+        return
+
+    # Sort by modification time, take newest
+    ebsd_files.sort(key=lambda x: x.stat().st_mtime, reverse=True)
+    latest_file = ebsd_files[0]
     
-    if not input_path.exists():
-        # Check if CSV fallback exists
-        csv_input = Path("data/processed/filtered_ebsd.csv")
-        if csv_input.exists():
-            input_path = csv_input
-        else:
-            logger.error(f"Input file not found: {input_path} or {csv_input}")
-            return
-    
-    try:
-        summary = apply_exclusion_logic(input_path, output_path, metadata_path)
-        print(json.dumps(summary, indent=2))
-    except Exception as e:
-        logger.error(f"Exclusion logic failed: {e}")
-        raise
+    logger.info(f"Processing file: {latest_file}")
+
+    if latest_file.suffix == '.parquet':
+        df = pd.read_parquet(latest_file)
+    else:
+        df = pd.read_csv(latest_file)
+
+    if df.empty:
+        logger.error("Input file is empty.")
+        return
+
+    # Ensure required columns exist (preprocessing should have added 'is_filtered')
+    if 'is_filtered' not in df.columns:
+        logger.error("Column 'is_filtered' not found in data. "
+                     "Ensure T012 (preprocess) added this column.")
+        return
+
+    # Calculate metrics
+    df_with_metrics = calculate_reliability_metrics(df)
+
+    # Apply exclusion
+    clean_df = apply_exclusion_logic(
+        df_with_metrics,
+        output_path=Path("data/processed/exclusion_report.csv")
+    )
+
+    # Save the clean dataset
+    output_file = Path("data/processed/cleaned_ebsd.parquet")
+    clean_df.to_parquet(output_file, index=False)
+    logger.info(f"Clean dataset saved to {output_file}")
+
+    return clean_df
+
+if __name__ == "__main__":
+    main()

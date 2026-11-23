@@ -1,75 +1,65 @@
 # Quickstart: llmXive Follow-up: Entropy-Guided Validity Prediction in RL Rollouts
 
 ## Prerequisites
-*   Python 3.11+
-*   Sufficient RAM (GitHub Actions free-tier compatible)
-*   Git
+
+- Python 3.11+
+- Git
+- Access to Hugging Face Hub (free account)
 
 ## Installation
 
-1.  **Clone and Setup Environment**
-    ```bash
-    cd projects/PROJ-881-llmxive-follow-up-extending-efficientrol
-    python -m venv .venv
-    source .venv/bin/activate
-    pip install -r code/requirements.txt
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-881-llmxive-follow-up-extending-efficientrol
+   ```
 
-2.  **Verify Dependencies**
-    ```bash
-    python -c "import torch; import transformers; import datasets; import statsmodels; print('Dependencies OK')"
-    ```
+2. **Set up the environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate
+   pip install -r code/requirements.txt
+   ```
 
-## Running the Pipeline
+3. **Run the setup script**:
+   ```bash
+   bash scripts/setup.sh
+   ```
+   *Note: `setup.sh` creates all required directories (`code/`, `data/`, `docs/`, `scripts/`, `tests/`, `results/`) and logs them to `project_structure.log`.*
 
-The pipeline is executed via the unified `main.py` orchestration script, which handles single-pass generation and analysis sequentially.
+## Execution
 
-### Step 1: Run the Full Pipeline
-This command performs data download, single-pass generation (with entropy extraction), and statistical analysis.
+### Step 1: Download Datasets
 ```bash
-python code/main.py \
-    --model TinyLlama/TinyLlamaB-Chat-v1.0 \
-    --datasets gsm8k,minigrid \
-    --subset-size: a fixed, representative sample size determined during the experimental design phase. \
-    --output-dir data/ \
-    --seed 42
+python code/src/data/download.py --task gsm8k --limit 500
+python code/src/data/download.py --task minigrid --limit 500
 ```
 
-### Step 2: Run Individual Stages (Optional)
-If you need to run stages independently for debugging:
-
-**Stage 1: Single-Pass Generation & Entropy Extraction**
+### Step 2: Generate Ground Truth & Labels
 ```bash
-python code/src/generation/generation.py \
-    --dataset gsm8k \
-    --subset-size 50 \
-    --output data/raw/gsm8k_single_pass.jsonl \
-    --model TinyLlama/TinyLlama-1.1B-Chat-v1.0 \
-    --seed 42
-```
-*Note: This step captures both validity flags and entropy profiles in a single forward pass.*
-
-**Stage 2: Analysis & Threshold Optimization**
-```bash
-python code/src/analysis/logistic_model.py \
-    --input data/raw/gsm8k_single_pass.jsonl \
-    --output data/results/gsm8k_analysis.jsonl \
-    --correct-method bh \
-    --sweep-range start,step,0.001
-
-The specific value to remove/generalize: 'start'
-
-Rewritten passage:
-The study will investigate the effect of varying the initial parameter value across a defined range to determine optimal performance, using a systematic parameter sweep. This approach aligns with established methodologies for hyperparameter optimization (Smith et al., 2020; arXiv:2103.00001). The research question focuses on identifying the sensitivity of model convergence to the starting point of the optimization trajectory. The method involves executing a parameter sweep with a fixed step size, where the initial value is treated as a variable within a plausible domain rather than a fixed constant. \
-    --use-glmm
+python code/src/generation/generation.py --model Qwen/Qwen1.5-0.5B --task gsm8k --output data/processed/gsm8k_labels.jsonl
+python code/src/generation/generation.py --model Qwen/Qwen1.5-0.5B --task minigrid --output data/processed/minigrid_labels.jsonl
 ```
 
-## Validation
-Run the contract tests to ensure data integrity:
+### Step 3: Extract Entropy Profiles
 ```bash
-pytest tests/contract/ -v
+# Note: Uses single-sequence streaming to avoid OOM. If --batch-size is provided, it is ignored for entropy extraction.
+python code/src/analysis/entropy_calc.py --input data/processed/gsm8k_labels.jsonl --output data/processed/gsm8k_entropy.jsonl
+python code/src/analysis/entropy_calc.py --input data/processed/minigrid_labels.jsonl --output data/processed/minigrid_entropy.jsonl
 ```
 
-## Expected Outputs
-*   `data/raw/*.jsonl`: Ground truth sequences, validity labels, and entropy profiles (single-pass).
-*   `data/results/*.jsonl`: GLMM coefficients, p-values, optimal thresholds, and random effect variances.
+### Step 4: Run Analysis
+```bash
+python code/src/analysis/regression.py --input data/processed/gsm8k_entropy.jsonl data/processed/minigrid_entropy.jsonl --output data/results/regression_results.json
+```
+
+### Step 5: Verify Results
+```bash
+pytest tests/
+```
+
+## Troubleshooting
+
+- **Memory Error**: Ensure the model is `Qwen/Qwen1.5-0.5B`. If OOM occurs, the system automatically falls back to single-sequence processing. Do not use 1.5B models with batching.
+- **CUDA Error**: This project is CPU-first. If a CUDA error occurs, verify `torch` is installed with CPU support only (`pip install torch --index-url https://download.pytorch.org/whl/cpu`).
+- **Dataset Download Failure**: Verify internet connection and Hugging Face Hub access. Check `data/raw/` for partial downloads.

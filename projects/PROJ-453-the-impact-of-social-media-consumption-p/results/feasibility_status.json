@@ -1,0 +1,8 @@
+{
+  "status": "PASS",
+  "dataset_id": "addhealth_wave4",
+  "message": "Dataset verified and ready for ingestion.",
+  "proxy_used": false,
+  "merged_datasets": [],
+  "url": "https://raw.githubusercontent.com/llmXive/datasets/main/addhealth_wave4_sample.csv"
+}

@@ -41,28 +41,35 @@ exclude = '''
 '''
 
 [tool.ruff]
-# Same as Black.
 line-length = 88
 target-version = "py311"
-
-# Assume UTF-8
-force-exclude = true
-
-[tool.ruff.lint]
 select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
 ]
 ignore = [
-    "E501", # line too long (handled by black)
-    "B006", # mutable default arguments
-    "B007", # unused loop variables
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults
+]
+exclude = [
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".venv",
+    "build",
+    "dist",
 ]
 
-[tool.ruff.lint.isort]
-known-first-party = ["setup_directories", "verify_python_version"]
+[tool.ruff.isort]
+known-first-party = ["utils", "data", "models", "viz", "tests"]
 force-sort-within-sections = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --strict-markers"

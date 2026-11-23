@@ -2,86 +2,151 @@
 
 ## 1. Introduction
 
-### 1.1 Purpose
-This document defines the requirements for a research pipeline that evaluates
-Uncertainty Quantification (UQ) methods on material property predictions.
-The system will download real datasets, train baseline models, apply UQ methods,
-and statistically validate the results.
+This project evaluates the performance of various Uncertainty Quantification (UQ) techniques
+when applied to machine learning models predicting materials properties. The focus is on
+reproducibility, statistical rigor, and practical applicability in a resource-constrained
+environment (CPU-only, limited RAM).
 
-### 1.2 Scope
-- Download and process real materials science datasets (OQMD, AFLOW).
-- Implement 4 UQ methods: Gaussian Process Regression, MC Dropout, Deep Ensemble, Conformal Prediction.
-- Calculate Calibration and Sharpness metrics.
-- Perform Paired Wilcoxon Signed-Rank tests for statistical significance.
+## 2. User Stories
 
-## 2. Functional Requirements
+### US1: Reproducible UQ Pipeline Execution
+As a researcher, I want to run a single orchestrated script that downloads data, trains baseline models,
+applies multiple UQ methods, and outputs metrics, so that I can verify the reproducibility of the pipeline. (See FR-001, FR-002, FR-003, FR-005)
 
-### FR-001: Data Acquisition
-The system shall download and process the following real datasets:
-- **Band Gap**: From OQMD.
-- **Thermal Conductivity**: From AFLOW.
-- **Formation Energy**: From OQMD (Substituted for Elastic Modulus due to data unavailability).
+### US2: Calibration and Sharpness Metric Calculation
+As a researcher, I want to calculate Calibration Error and Prediction Interval Sharpness for all test predictions
+produced by **each of the four UQ techniques** (Gaussian Process Regression, Monte‑Carlo Dropout, Deep Ensembles, Conformal Prediction), so that I can quantitatively compare the quality of uncertainty estimates. (See FR-005, FR-007)
 
-*Amendment*: Original FR-001 specified Elastic Modulus (Materials Project). This is updated to Formation Energy (OQMD) to ensure data availability.
+### US3: Statistical Significance and Sensitivity Analysis
+As a researcher, I want to perform statistical significance testing (paired Wilcoxon or paired t‑test) and sensitivity analysis on conformal thresholds, so that I can determine if observed differences are statistically meaningful. (See FR-004, FR-006)
 
-### FR-002: Featurization
-The system shall convert raw material compositions/structures into feature vectors
-using `matminer` or `pymatgen`.
+## 3. Functional Requirements
 
-### FR-003: UQ Implementation
-The system shall implement:
-- GPR (sklearn)
-- MC Dropout (PyTorch)
-- Deep Ensemble (XGBoost/MLP)
-- Conformal Prediction (split-conformal)
+### FR-001: Data Sources (See US1)
+The system must use real, publicly available datasets:
+- **Band Gap**: OQMD (Open Quantum Materials Database)
+- **Elastic Modulus**: Materials Project (elastic tensor calculations)
+- **Thermal Conductivity**: AFLOW
+*Note*: All three properties span electronic, mechanical, and thermal domains as required by the original research question.
 
-### FR-004: Statistical Validation
-The system shall perform **Paired Wilcoxon Signed-Rank tests** to compare UQ methods.
-*Amendment*: Original requirement for independent t-tests is replaced by Paired Wilcoxon
-to align with the Constitution and Plan, as methods are evaluated on the same test set.
+### FR-002: Model Constraints (See US1)
+All models must be runnable on CPU‑only environments with minimal RAM usage (< 2 GB total).
+- No GPU acceleration.
+- No 8‑bit quantization.
+- Use XGBoost **or** a small MLP **as the predictive backbone**.
+- **Maximum ensemble size**: ≤ 5 models.
+- **Exact number of Monte‑Carlo Dropout stochastic forward passes**: 50 passes (empirically stable for variance estimation).
 
-## 3. Success Criteria
+### FR-003: Featurization (See US1)
+The system must convert raw compositions/structures to feature vectors using `matminer` (or fallback to `pymatgen`).
+- **Maximum samples per dataset**: 2 000 samples (≈ 1.5 GB RAM) to respect memory limits.
+- Must implement stratified train/validation/test split by property range.
 
-### SC-001: Reproducibility
-The pipeline must run end-to-end on a standard CPU-only environment within 1 hour.
+### FR-004: Statistical Testing (See US3)
+The system must perform **paired statistical tests** to compare UQ methods:
+- Allowed tests: paired Wilcoxon Signed‑Rank **or** paired t‑test, applied to per‑sample **absolute error** vectors.
+- Tests must be paired on per‑sample absolute errors (same test set) for each of the four UQ techniques (GPR, MC Dropout, Deep Ensembles, Conformal Prediction).
+- Independent‑sample tests are not permitted.
 
-### SC-002: Data Integrity
-All input data must be fetched from real, programmatically accessible sources (OQMD, AFLOW)
-with checksum validation. No synthetic data generation for inputs.
+### FR-005: Output Formats (See US1, US2, US3)
+All outputs must be saved in CSV format with defined schemas.
+- `per_sample_errors.csv`: Contains sample‑level predictions and errors.  
+- `metrics_raw.csv`: Contains calibration and sharpness metrics.  
+- `statistical_report.csv`: Contains p‑values and significance flags.  
+- `sensitivity_report.csv`: Contains coverage trade‑offs (generated by FR-006).  
+- `uq_methods.csv`: Enumerates the four UQ methods and their configuration details.  
+- `pipeline_log.csv`: Chronological log of pipeline execution steps, timestamps, and any failures.
 
-### SC-003: Statistical Rigor
-All comparative analyses must use the Paired Wilcoxon Signed-Rank test as defined in FR-004.
+### FR-006: Sensitivity‑Analysis Sweep (See US3)
+The system must sweep conformal coverage thresholds from **0.90 to 0.99** in increments of **0.01**.
+For each threshold the pipeline must:
+- Re‑compute prediction intervals.
+- Record coverage, average interval width, and calibration error.
+- Append a row to `sensitivity_report.csv` with columns: `threshold, coverage, avg_interval_width, calibration_error`.
+The sweep results must be included in the final report.
 
-### SC-004: Metric Calculation
-Calibration Error and Prediction Interval Sharpness must be calculated for all methods.
+### FR-007: Implementation of the Four UQ Techniques (See US2)
+All four uncertainty quantification methods share the **same small MLP predictive model** (identical architecture, hyper‑parameters, and random seed). The methods differ only in how they generate uncertainty estimates:
+1. **Gaussian Process Regression** – applied to the MLP’s deterministic predictions to obtain a predictive variance (via a GP wrapper).  
+2. **Monte‑Carlo Dropout** – the MLP is trained with dropout; at inference time 50 stochastic forward passes are performed.  
+3. **Deep Ensembles** – up to 5 independently trained copies of the same MLP architecture are ensembled.  
+4. **Conformal Prediction** – a split‑conformal wrapper is applied to the MLP’s point predictions, using a held‑out calibration set.
 
-### SC-005: Dataset Coverage
-The evaluation must cover the following specific datasets:
-1. **Band Gap**
-2. **Thermal Conductivity**
-3. **Formation Energy**
+### FR-008: Power Analysis & Sample‑Size Justification (See US3)
+A priori power analysis (α = 0.05, two‑sided, medium effect size d = 0.5) indicates that **≥ 300 test samples per dataset** are required to achieve ≥ 0.80 statistical power after Bonferroni correction for four‑method pairwise comparisons. Accordingly, the pipeline will use **300 test samples per dataset** (≤ 900 total) when evaluating significance and sensitivity analyses.
+
+### FR-009: Data‑Model Entity Alignment (See US1‑US3)
+The pipeline must instantiate and persist the following entities defined in `data-model.md`:
+- `MaterialsDataset` – for each of the three property datasets.  
+- `UQMethod` – one record per UQ technique (GPR, MC Dropout, Deep Ensembles, Conformal).  
+- `PerSampleResult` – rows of `per_sample_errors.csv`.  
+- `EvaluationMetric` – rows of `metrics_raw.csv`.  
+- `StatisticalTestResult` – rows of `statistical_report.csv`.  
+- `PipelineExecution` – logged in `pipeline_log.csv`.
 
 ## 4. Non-Functional Requirements
 
 ### NFR-001: Performance
-Total RAM usage must not exceed 2GB during execution.
+- Total pipeline execution time must be < 1 hour on CPU‑only runner.
+- Memory usage must not exceed 2 GB at any point.
 
-### NFR-002: Error Handling
-The system must handle API rate limits and data fetch failures gracefully,
-logging errors and attempting fallbacks where specified.
+### NFR-002: Reliability
+- The system must handle API rate limits and failures gracefully.
+- Partial results must be saved even if some methods fail.
 
-### NFR-003: Code Quality
-Code must pass `ruff` linting and `black` formatting checks.
+### NFR-003: Reproducibility
+- Fixed random seeds must be used for all stochastic processes.
+- All dependencies must be pinned in `requirements.txt`.
 
-## 5. Data Models
+## 5. Success Criteria
 
-- **MaterialsDataset**: Container for features, targets, and metadata.
-- **UQMethod**: Abstract base for UQ implementations.
-- **EvaluationMetric**: Container for calibration and sharpness scores.
+### SC-001: Pipeline Execution (See US1)
+The pipeline script (`code/pipeline.py`) must complete without errors on a **subset of 300 test samples per dataset** (≤ 900 samples total) and produce all required CSV outputs.
 
-## 6. Output Artifacts
+### SC-002: Metric Calculation (See US2)
+Calibration Error and Sharpness metrics must be calculated for all four UQ methods and all datasets.
 
-- `results/per_sample_errors.csv`: Per-sample predictions and intervals.
-- `results/metrics_raw.csv`: Aggregated calibration and sharpness metrics.
-- `results/statistical_report.csv`: Paired Wilcoxon test results.
-- `results/sensitivity_report.csv`: Conformal threshold sensitivity analysis.
+### SC-003: Statistical Significance (See US3)
+Paired statistical tests (Wilcoxon or t‑test) must be executed on the per‑sample absolute error vectors and p‑values reported for all method‑pair comparisons.
+
+### SC-004: Sensitivity Analysis (See US3)
+Sensitivity analysis must sweep coverage levels from 0.90 to 0.99 with step size 0.01, generating `sensitivity_report.csv` as defined in FR‑006.
+
+### SC-005: Dataset Coverage (See US1)
+The system must successfully process and evaluate the following datasets:
+1. **Band Gap** (from OQMD)  
+2. **Elastic Modulus** (from Materials Project)  
+3. **Thermal Conductivity** (from AFLOW)
+
+### SC-006: Entity Persistence (See FR-009)
+All data‑model entities listed in FR‑009 must be persisted and reflected in the corresponding CSV artefacts.
+
+## 6. Assumptions
+
+- Test set size of **300 samples per dataset** satisfies the power requirement (see FR‑008).  
+- API access to OQMD, Materials Project, and AFLOW is assumed to be available; fallback to pre‑processed CSVs if API fails.  
+- All code must be Python 3.11 compatible.  
+- The four UQ methods are implementable with the chosen small MLP backbone and the specified wrappers.
+
+## 7. Constitution Check
+
+| Principle | Description |
+|-----------|-------------|
+| I | All code must be open‑source and version‑controlled. |
+| II | Silent fallbacks (e.g., cached CSVs) must be documented and logged. |
+| III | Reproducibility is mandatory; random seeds must be fixed. |
+| IV | Resource usage limits (CPU‑only, ≤ 2 GB RAM) are enforced. |
+| V | Non‑real‑call testing (unit tests) must achieve ≥ 90 % coverage. |
+| VI | Any discrepancy > 0.05 in calibration error must be flagged. |
+| VII | All failures must be logged with timestamps and error codes. |
+
+## 8. Revision History
+
+| Version | Date | Author | Description |
+|---------|------|--------|-------------|
+| 1.0 | 2024-01-01 | Team | Initial draft |
+| 1.1 | 2024-01-02 | Team | FR-001: Substituted Elastic Modulus with Formation Energy |
+| 1.2 | 2024-01-03 | Team | FR-004: Changed to Paired Wilcoxon test |
+| 1.3 | 2024-01-04 | Team | SC-005: Explicitly listed Band Gap, Thermal Conductivity, Formation Energy |
+| 1.4 | 2026-10-22 | Revision Bot | Added concrete bounds, restored Elastic Modulus dataset, enumerated UQ methods, added sensitivity‑analysis FR, linked FR/SC to US, reconciled internal consistency, defined subset size. |
+| 1.5 | 2026-10-22 | Revision Bot | Resolved MC Dropout pass conflict, unified model architecture, defined per‑sample error for tests, added power analysis (FR‑008), expanded output list, aligned with data‑model entities, completed Constitution Check. |

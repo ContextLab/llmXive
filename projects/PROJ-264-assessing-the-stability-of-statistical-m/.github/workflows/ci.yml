@@ -1,0 +1,112 @@
+name: CI - Statistical Stability Pipeline
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      run_full_pipeline:
+        description: 'Run the full 15-dataset pipeline'
+        required: true
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+env:
+  PYTHON_VERSION: '3.10'
+  SEED: 42
+
+jobs:
+  lint:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff mypy
+      - name: Run Ruff (PII & Style)
+        run: ruff check .
+      - name: Run Type Check
+        run: mypy code/ --ignore-missing-imports
+
+  smoke-test:
+    name: Smoke Test (3 Datasets)
+    runs-on: ubuntu-latest
+    needs: lint
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run Smoke Test
+        run: |
+          python code/scripts/run_smoke_test.py
+      - name: Upload Smoke Test Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: smoke-test-results
+          path: |
+            results/raw_evaluations.csv
+            results/stability_metrics.csv
+            results/correlation_results.csv
+            results/permutation_results.csv
+            results/final_report.md
+            results/memory_profile.log
+
+  evaluation:
+    name: Full Evaluation (15 Datasets)
+    runs-on: ubuntu-latest
+    needs: smoke-test
+    # Only run if explicitly triggered or on main/develop
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop') || github.event.inputs.run_full_pipeline == 'true'
+    timeout-minutes: 360
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run Full Pipeline
+        # The main.py script includes the signal handler (T036b)
+        run: |
+          python code/main.py
+      - name: Upload Full Results
+        uses: actions/upload-artifact@v3
+        with:
+          name: full-evaluation-results
+          path: |
+            results/*.csv
+            results/*.md
+            results/*.log
+            data/spectrum_report.json
+
+  notify:
+    name: Notify on Failure
+    runs-on: ubuntu-latest
+    needs: [lint, smoke-test, evaluation]
+    if: failure()
+    steps:
+      - name: Send Failure Notification
+        run: echo "Pipeline failed. Please check logs."

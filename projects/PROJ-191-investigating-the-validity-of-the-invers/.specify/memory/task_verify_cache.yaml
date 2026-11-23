@@ -1,22 +1,78 @@
-T001:
+T001-A-INIT-CODE:
+  c: true
+  h: 03d3a7ca277fea5158e91cdadd70036abf796e2b725f1d9c0a0e4d4a72288f69
+  r: "Checked the existence of `projects/PROJ-191-investigating-the-validity-of-the-invers/code/`\
+    \ (directory with 26 entries) and the execution log `code/.tasks/T001-A-INIT-CODE.code_init_code_tree.py.log`\
+    \ showing a successful run (exit\u202F0) of the script that created the code tree\
+    \ via `mkdir -p`."
+  sig: 1807c18c40e993144659ac684cf36dc1457d844f7ef36f3a10189ec1c868998a
+T001-B-INIT-DATA:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No directory tree or listing of the required `projects/PROJ-191-investigating-the-validity-of-the-invers/`\
-    \ sub\u2011folders is present in the provided evidence; without concrete artifacts\
-    \ we cannot confirm the tree was created in a single atomic operation. The implementer\
-    \ must supply a visible file\u2011system snapshot (e.g., `tree` output or a zip\
-    \ archive) showing all required sub\u2011directories."
+  h: 8fe71cd94b302aa524a24c1a7064ec25df65f42bba02dcd2db019bef6a858609
+  r: "The `projects/PROJ-191-investigating-the-validity-of-the-invers/data/` tree\
+    \ with `raw/`, `processed/`, and `results/` sub\u2011directories does exist, but\
+    \ the only evidence of creation is a Python script log (`code/.tasks/T001-B-INIT-DATA.code_init_data_tree.py.log`).\
+    \ No artifact (e.g., shell command output or script invoking `mkdir -p \u2026\
+    `) demonstrates that the required `mkdir -p \u2026` command was actually run,\
+    \ so the procedural requirement is not satisfied."
+  sig: b022c214ca0c4a68d41e6be69ef9b3bf76ff5c1567252007303d1a98d78b4d24
+T001-C-INIT-TEST:
+  c: false
+  h: dcf63a644b0a0531be971ed944fb0a90290c023b124495fef9d64dcd122043b6
+  r: The required `tests/`, `tests/unit/`, `tests/contract/`, and `tests/integration/`
+    directories exist, but the provided log only shows a Python script ensuring the
+    directories; there is no evidence that the exact shell command `mkdir -p projects/PROJ-191-investigating-the-validity-of-the-invers/tests/{unit,contract,integration}`
+    was executed as required.
+  sig: 89dd39bd0e4cfa1d1eac31dfb08bb462fd968bc105f48b6fb598d157d704e388
+T002-A:
+  c: true
+  h: f9f942f01725b80cef3f9121a3d36149593be5edbffeb961832370ae137278e5
+  r: "The `venv/` directory is present in the project root, and the execution log\
+    \ `code/.tasks/T002-A.code_setup_venv.sh.log` shows the script ran successfully\
+    \ (exit\u202F0), confirmed that `venv/bin/activate` exists, and reported using\
+    \ Python\u202F3.11.17, satisfying the compatibility constraint."
+  sig: 641942057c624ad4feb02100f0f31a41da436c06d77db459ff8dddc0d695e772
+T002-B:
+  c: true
+  h: dfbeb5f2672eab2497d6bc419b229e99b3400fdcd7033263f2b35e4a6871cb52
+  r: "Checked the `projects/PROJ-191-investigating-the-validity-of-the-invers/code/requirements.txt`\
+    \ file (contains all ten exact pinned versions, including `psutil==5.9.8`) and\
+    \ the execution log `code/.tasks/T002-B.code_install_requirements.sh.log` showing\
+    \ a successful `pip install -r \u2026/code/requirements.txt` with exit code\u202F\
+    0. All task requirements are satisfied."
+  sig: 14a6042abc77d330621a75419219136eece6e88c22f1fa292e65d96190bd61b8
 T003:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `.pre-commit-config.yaml` with black settings) are present in the provided evidence,
-    so the requirement to configure ruff and black is not demonstrated. The implementer
-    must add the appropriate configuration artifacts.
-T007:
+  h: 5e63b18791434b90d9164bd3d605bc6fd894d524fdc8c167328a49b2ff03e56f
+  r: The evidence shows a `.ruff.toml` file exists in the project root and a `pyproject.toml`
+    with the required `[tool.black]` and `[tool.ruff]` sections, but the task specifically
+    required these artifacts **inside `projects/PROJ-191-investigating-the-validity-of-the-invers/code/`**.
+    While a `pyproject.toml` and a `.ruff.toml` are listed in that `code/` directory,
+    their contents are not provided, so we cannot verify that the required sections
+    are present there. The implementer must supply the `code/pyproject.toml` (and
+    optionally the `code/.ruff.toml`) showing the `[tool.black]` and `[tool.ruff]`
+    c
+  sig: 42f7ab471a6e8b34c4b971e48f8354e33a694a7adb7919abd4c9739c7a411fe8
+T022:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No directory structure or script implementing robust `mkdir -p` logic was provided;
-    there is no evidence that `data/raw/`, `data/processed/`, and `data/results/`
-    actually exist or that code creates them. The implementer must supply the created
-    directories (or a script that creates them) as proof.
+  r: "No code, script, or module implementing the full\u2011covariance log\u2011likelihood\
+    \ function (with Cholesky decomposition) is present, nor any evidence that it\
+    \ runs after T015\u2011Z\u2011RESOLVE\u2011COV and T021. The required artifact\
+    \ is missing, so the task is not satisfied."
+T031:
+  c: false
+  h: 5ebdcaee46ca1fc6c68a9024fa5ea982f15c73a2b712e49685cd995bbb724298
+  r: "The provided `uncertainty.py` is truncated and does not show the logic that\
+    \ applies the inflation factor to the covariance matrix, re\u2011runs inference,\
+    \ or checks the Bayes\u2011factor change. Moreover, the required `data/processed/config.json`\
+    \ file is missing, so the script cannot read the `INFLATION_FACTOR` as specified.\
+    \ The task therefore remains unfinished."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, log file, or computed CV value was provided; the required artifact\
+    \ (a calculation of the 95th\u2011percentile credible\u2011upper\u2011limits across\
+    \ robustness iterations, the resulting CV percentage, and the appropriate log/warning)\
+    \ is absent. The implementer must supply the implementation and its output to\
+    \ satisfy the task."

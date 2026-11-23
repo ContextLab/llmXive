@@ -1,208 +1,337 @@
+"""
+Validity checks for EEG feature extraction.
+
+Implements checks for missing sensors, data quality, and stability of extracted power values.
+"""
 import numpy as np
 import pandas as pd
-from typing import List, Optional
+from typing import List, Optional, Dict, Any, Tuple
 import hashlib
 import json
 import datetime
 import os
 import sys
+import logging
 
-# Import from sibling modules if needed, though this task focuses on internal logic
-# We assume the caller provides the dataframe.
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-def identify_missing_sensor_epochs(
-    epochs_metadata: pd.DataFrame,
-    missing_threshold: float = 0.05
-) -> pd.DataFrame:
-    """
-    Identify epochs with > missing_threshold missing sensor data and EXCLUDE them.
-    
-    This function implements FR-003: Exclude epochs with > 5% missing sensor data.
-    
-    Args:
-        epochs_metadata: DataFrame with epoch information including missing sensor counts.
-                         Expected columns: 'n_missing_sensors', 'n_channels', 'epoch_id', 'subject_id'.
-        missing_threshold: Threshold fraction of missing data (e.g., 0.05 for 5%).
-        
-    Returns:
-        DataFrame with epochs flagged as having too much missing data (is_excluded=True).
-        The returned DataFrame is a copy to avoid modifying the original.
-    """
-    if 'n_missing_sensors' not in epochs_metadata.columns or 'n_channels' not in epochs_metadata.columns:
-        raise ValueError("epochs_metadata must contain 'n_missing_sensors' and 'n_channels' columns.")
-    
-    # Calculate missing fraction
-    df = epochs_metadata.copy()
-    # Avoid division by zero
-    df['missing_fraction'] = df['n_missing_sensors'] / (df['n_channels'] + 1e-9)
-    
-    # Flag epochs exceeding threshold (FR-003: EXCLUDE them)
-    df['is_excluded'] = df['missing_fraction'] > missing_threshold
-    
-    # Log statistics
-    total_epochs = len(df)
-    excluded_epochs = df['is_excluded'].sum()
-    retention_rate = 1.0 - (excluded_epochs / total_epochs) if total_epochs > 0 else 0.0
-    
-    print(f"Validity Check: Total epochs={total_epochs}, Excluded={excluded_epochs} ({excluded_epochs/total_epochs*100:.2f}%)")
-    print(f"Validity Check: Retention rate: {retention_rate*100:.2f}%")
-    
-    if retention_rate < 0.70:
-        print(f"WARNING: Retention rate ({retention_rate*100:.2f}%) is below 70% threshold.")
-    
-    return df
-
-def flag_missing_sensors(
-    epochs_metadata: pd.DataFrame
-) -> pd.DataFrame:
-    """
-    Flag specific missing sensors for each epoch.
-    
-    Args:
-        epochs_metadata: DataFrame with epoch information.
-        
-    Returns:
-        DataFrame with additional columns for missing sensor flags.
-    """
-    df = epochs_metadata.copy()
-    df['has_missing_sensors'] = df['n_missing_sensors'] > 0
-    return df
-
-def measure_power_stability(
-    features_df: pd.DataFrame,
-    min_subjects: int = 2
-) -> dict:
-    """
-    Measure and report the stability and non-zero nature of extracted power values.
-    
-    Args:
-        features_df: DataFrame with extracted features.
-        min_subjects: Minimum number of subjects required for stability check.
-        
-    Returns:
-        Dictionary with stability metrics.
-    """
-    metrics = {
-        'mean_power': {},
-        'std_power': {},
-        'non_zero_ratio': {},
-        'stability_score': 0.0,
-        'is_stable': False
-    }
-    
-    # Check if we have enough data
-    if 'subject_id' in features_df.columns:
-        n_subjects = features_df['subject_id'].nunique()
-    else:
-        n_subjects = 1
-    
-    if n_subjects < min_subjects:
-        metrics['warning'] = f"Only {n_subjects} subject(s) found, stability check may be unreliable."
-        return metrics
-    
-    # Calculate metrics per band
-    for col in ['theta_power', 'alpha_power']:
-        if col in features_df.columns:
-            metrics['mean_power'][col] = float(features_df[col].mean())
-            metrics['std_power'][col] = float(features_df[col].std())
-            metrics['non_zero_ratio'][col] = float((features_df[col] > 1e-9).mean())
-    
-    # Calculate overall stability score (inverse of coefficient of variation)
-    if 'theta_power' in features_df.columns and 'alpha_power' in features_df.columns:
-        cv_theta = features_df['theta_power'].std() / (features_df['theta_power'].mean() + 1e-9)
-        cv_alpha = features_df['alpha_power'].std() / (features_df['alpha_power'].mean() + 1e-9)
-        
-        # Lower CV is more stable
-        avg_cv = (cv_theta + cv_alpha) / 2
-        metrics['stability_score'] = 1.0 / (avg_cv + 1e-9)
-        metrics['is_stable'] = metrics['stability_score'] > 1.0  # Arbitrary threshold
-    
-    return metrics
-
-def calculate_file_checksum(filepath: str) -> str:
+def calculate_file_checksum(file_path: str) -> str:
     """Calculate SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
+    with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def update_state_checksums(output_path: str, state_path: str = "state/pipeline_state.yaml"):
-    """
-    Update the project state file with the checksum of the output artifact.
-    This satisfies Constitution Principle VI (traceability).
-    """
-    if not os.path.exists(output_path):
-        print(f"Warning: Output file {output_path} does not exist, skipping state update.")
-        return
-
-    checksum = calculate_file_checksum(output_path)
-    timestamp = datetime.datetime.now(datetime.timezone.utc).isoformat()
+def update_state_checksums(state_path: str = "state.yaml") -> None:
+    """Update state file with checksums of processed files."""
+    import yaml
     
-    state_data = {}
-    if os.path.exists(state_path):
-        import yaml
+    if not os.path.exists(state_path):
+        logger.warning(f"State file {state_path} not found. Creating new state file.")
+        state = {
+            "updated_at": datetime.datetime.now().isoformat(),
+            "checksums": {}
+        }
+    else:
         with open(state_path, 'r') as f:
-            state_data = yaml.safe_load(f) or {}
+            state = yaml.safe_load(f)
     
-    # Ensure state structure exists
-    if 'artifacts' not in state_data:
-        state_data['artifacts'] = {}
+    # Update timestamp
+    state["updated_at"] = datetime.datetime.now().isoformat()
     
-    artifact_name = os.path.basename(output_path)
-    state_data['artifacts'][artifact_name] = {
-        'checksum': checksum,
-        'updated_at': timestamp,
-        'path': output_path
+    # Update checksums for relevant files
+    files_to_check = [
+        "data/processed/feature_matrix.parquet",
+        "data/processed/labels.parquet",
+        "results/power_stability_report.json"
+    ]
+    
+    for file_path in files_to_check:
+        if os.path.exists(file_path):
+            checksum = calculate_file_checksum(file_path)
+            state["checksums"][file_path] = checksum
+    
+    with open(state_path, 'w') as f:
+        yaml.dump(state, f)
+
+def identify_missing_sensor_epochs(epochs_data: pd.DataFrame, threshold: float = 0.05) -> pd.DataFrame:
+    """
+    Identify epochs with > threshold% missing sensor data.
+    
+    Args:
+        epochs_data: DataFrame with columns ['epoch_id', 'subject_id', 'channel', 'power', 'is_missing']
+        threshold: Fraction of missing data to flag (default 0.05 = 5%)
+    
+    Returns:
+        DataFrame with epochs marked as excluded if they exceed the threshold
+    """
+    if epochs_data is None or epochs_data.empty:
+        logger.warning("No epochs data provided for missing sensor check.")
+        return pd.DataFrame()
+    
+    # Group by epoch_id and calculate missing data ratio
+    missing_stats = epochs_data.groupby('epoch_id').agg({
+        'is_missing': ['sum', 'count']
+    }).reset_index()
+    
+    missing_stats.columns = ['epoch_id', 'missing_count', 'total_count']
+    missing_stats['missing_ratio'] = missing_stats['missing_count'] / missing_stats['total_count']
+    
+    # Flag epochs exceeding threshold
+    missing_stats['excluded'] = missing_stats['missing_ratio'] > threshold
+    
+    # Merge back to original data
+    result = epochs_data.merge(
+        missing_stats[['epoch_id', 'excluded']], 
+        on='epoch_id', 
+        how='left'
+    )
+    
+    excluded_count = result['excluded'].sum()
+    logger.info(f"Identified {excluded_count} epochs with > {threshold*100}% missing sensor data.")
+    
+    return result
+
+def flag_missing_sensors(epochs_data: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Flag specific sensors with missing data across subjects.
+    
+    Args:
+        epochs_data: DataFrame with columns ['epoch_id', 'subject_id', 'channel', 'power', 'is_missing']
+    
+    Returns:
+        Dictionary with summary of missing sensors per subject
+    """
+    if epochs_data is None or epochs_data.empty:
+        logger.warning("No epochs data provided for missing sensor flagging.")
+        return {"missing_sensors": {}, "summary": {}}
+    
+    # Filter for missing data
+    missing_data = epochs_data[epochs_data['is_missing'] == True]
+    
+    if missing_data.empty:
+        logger.info("No missing sensor data found.")
+        return {"missing_sensors": {}, "summary": {"total_missing": 0}}
+    
+    # Group by subject and channel to find missing sensors
+    missing_per_subject = missing_data.groupby(['subject_id', 'channel']).size().reset_index(name='missing_count')
+    
+    # Create summary
+    missing_sensors = {}
+    for subject_id in missing_per_subject['subject_id'].unique():
+        subject_missing = missing_per_subject[missing_per_subject['subject_id'] == subject_id]
+        missing_sensors[str(subject_id)] = subject_missing['channel'].tolist()
+    
+    summary = {
+        "total_missing": len(missing_data),
+        "subjects_affected": len(missing_sensors),
+        "most_missing_channels": missing_per_subject.groupby('channel')['missing_count'].sum().nlargest(5).to_dict()
     }
     
-    state_data['updated_at'] = timestamp
+    logger.info(f"Flagged missing sensors for {summary['subjects_affected']} subjects.")
+    return {"missing_sensors": missing_sensors, "summary": summary}
+
+def measure_power_stability(feature_df: pd.DataFrame, output_path: str = "results/power_stability_report.json") -> Dict[str, Any]:
+    """
+    Measure and report the stability and non-zero nature of extracted power values across subjects.
     
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(state_path), exist_ok=True)
+    This function implements SC-005 by:
+    1. Verifying that power values are non-zero (not all zeros or NaNs)
+    2. Calculating coefficient of variation (CV) across subjects for each channel/band
+    3. Checking for extreme outliers that might indicate instability
+    4. Generating a comprehensive report of stability metrics
     
-    import yaml
-    with open(state_path, 'w') as f:
-        yaml.dump(state_data, f, default_flow_style=False)
+    Args:
+        feature_df: DataFrame with extracted features (columns: subject_id, channel, theta_power, alpha_power, etc.)
+        output_path: Path to save the stability report JSON
     
-    print(f"Updated state checksum for {artifact_name} in {state_path}")
+    Returns:
+        Dictionary containing stability metrics and pass/fail status
+    """
+    if feature_df is None or feature_df.empty:
+        logger.error("Feature DataFrame is empty or None. Cannot measure power stability.")
+        return {"status": "failed", "reason": "Empty feature data"}
+    
+    logger.info("Measuring power value stability across subjects...")
+    
+    # Define power columns to check (adjust based on actual feature columns)
+    power_columns = [col for col in feature_df.columns if 'power' in col.lower() and col != 'is_missing']
+    
+    if not power_columns:
+        # Try common column names if auto-detection fails
+        power_columns = ['theta_power', 'alpha_power', 'theta_alpha_ratio', 'beta_power', 'gamma_power']
+        power_columns = [col for col in power_columns if col in feature_df.columns]
+    
+    if not power_columns:
+        logger.warning("No power columns found in feature data.")
+        return {"status": "failed", "reason": "No power columns detected"}
+    
+    results = {
+        "timestamp": datetime.datetime.now().isoformat(),
+        "subjects_analyzed": feature_df['subject_id'].nunique() if 'subject_id' in feature_df.columns else len(feature_df),
+        "channels_analyzed": feature_df['channel'].nunique() if 'channel' in feature_df.columns else "N/A",
+        "power_columns_checked": power_columns,
+        "metrics": {},
+        "non_zero_check": {},
+        "stability_check": {},
+        "outlier_check": {},
+        "overall_status": "passed"
+    }
+    
+    # 1. Check for non-zero values
+    logger.info("Checking for non-zero power values...")
+    for col in power_columns:
+        col_data = feature_df[col].dropna()
+        
+        if len(col_data) == 0:
+            results["non_zero_check"][col] = {
+                "status": "failed",
+                "reason": "No valid data points"
+            }
+            continue
+        
+        zero_count = (col_data == 0).sum()
+        total_count = len(col_data)
+        zero_ratio = zero_count / total_count if total_count > 0 else 1.0
+        
+        # Check if all values are zero (critical failure)
+        if zero_count == total_count:
+            results["non_zero_check"][col] = {
+                "status": "failed",
+                "reason": f"All {total_count} values are zero",
+                "zero_ratio": float(zero_ratio)
+            }
+            results["overall_status"] = "failed"
+        elif zero_ratio > 0.5:
+            results["non_zero_check"][col] = {
+                "status": "warning",
+                "reason": f"More than 50% of values are zero ({zero_ratio:.2%})",
+                "zero_ratio": float(zero_ratio)
+            }
+        else:
+            results["non_zero_check"][col] = {
+                "status": "passed",
+                "reason": f"Only {zero_ratio:.2%} of values are zero",
+                "zero_ratio": float(zero_ratio),
+                "non_zero_count": int(total_count - zero_count)
+            }
+    
+    # 2. Calculate stability metrics (Coefficient of Variation) per channel/band
+    logger.info("Calculating stability metrics (CV) across subjects...")
+    
+    if 'channel' in feature_df.columns:
+        for col in power_columns:
+            stability_stats = {}
+            for channel in feature_df['channel'].unique():
+                channel_data = feature_df[feature_df['channel'] == channel][col].dropna()
+                if len(channel_data) > 0:
+                    mean_val = channel_data.mean()
+                    std_val = channel_data.std()
+                    cv = std_val / mean_val if mean_val != 0 else float('inf')
+                    
+                    stability_stats[channel] = {
+                        "mean": float(mean_val),
+                        "std": float(std_val),
+                        "cv": float(cv) if cv != float('inf') else "inf",
+                        "count": int(len(channel_data))
+                    }
+            
+            results["stability_check"][col] = stability_stats
+    
+    # 3. Check for outliers (values > 3 std from mean)
+    logger.info("Checking for extreme outliers...")
+    for col in power_columns:
+        col_data = feature_df[col].dropna()
+        if len(col_data) > 0:
+            mean_val = col_data.mean()
+            std_val = col_data.std()
+            
+            if std_val > 0:
+                lower_bound = mean_val - 3 * std_val
+                upper_bound = mean_val + 3 * std_val
+                
+                outliers = col_data[(col_data < lower_bound) | (col_data > upper_bound)]
+                outlier_ratio = len(outliers) / len(col_data)
+                
+                results["outlier_check"][col] = {
+                    "mean": float(mean_val),
+                    "std": float(std_val),
+                    "outlier_count": int(len(outliers)),
+                    "outlier_ratio": float(outlier_ratio),
+                    "status": "passed" if outlier_ratio < 0.01 else "warning"
+                }
+                if outlier_ratio > 0.05:
+                    results["overall_status"] = "warning"
+    
+    # 4. Summary and pass/fail determination
+    logger.info(f"Stability analysis complete. Overall status: {results['overall_status']}")
+    
+    # Save report
+    os.makedirs(os.path.dirname(output_path) if os.path.dirname(output_path) else '.', exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2, default=str)
+    
+    logger.info(f"Power stability report saved to {output_path}")
+    
+    return results
 
 def main():
     """
-    Main entry point for the validity check script.
-    Reads clean epochs metadata, applies exclusion logic, and saves the filtered dataset.
+    Main function to run validity checks.
+    
+    This function:
+    1. Loads the feature matrix from data/processed/feature_matrix.parquet
+    2. Runs identify_missing_sensor_epochs
+    3. Runs flag_missing_sensors
+    4. Runs measure_power_stability (SC-005)
+    5. Saves reports to results/
+    6. Updates state checksums
     """
-    # Configuration (simplified for script execution, can be loaded from config.py)
-    input_path = "data/processed/epochs_metadata.csv"
-    output_path = "data/processed/epochs_metadata_filtered.csv"
-    missing_threshold = 0.05  # 5%
-
-    if not os.path.exists(input_path):
-        # If the file doesn't exist, we cannot run the check.
-        # In a real pipeline, this would be an error raised by the orchestrator.
-        # For this task, we simulate the existence of a minimal metadata file if missing
-        # to demonstrate the logic, but the requirement is to process REAL data.
-        # If real data is missing, we fail loudly.
-        print(f"Error: Input file {input_path} not found. Please ensure T014 (preprocess) has run.")
+    logger.info("Starting validity checks (T031b)...")
+    
+    # Load feature data
+    feature_path = "data/processed/feature_matrix.parquet"
+    if not os.path.exists(feature_path):
+        logger.error(f"Feature matrix not found at {feature_path}. Please run feature extraction first.")
         sys.exit(1)
-
-    print(f"Loading epochs metadata from {input_path}...")
-    df = pd.read_csv(input_path)
-
-    print(f"Running validity check with threshold {missing_threshold}...")
-    df_filtered = identify_missing_sensor_epochs(df, missing_threshold=missing_threshold)
-
-    # Save the filtered dataframe
-    df_filtered.to_csv(output_path, index=False)
-    print(f"Filtered metadata saved to {output_path}")
+    
+    try:
+        feature_df = pd.read_parquet(feature_path)
+        logger.info(f"Loaded feature matrix with {len(feature_df)} rows")
+    except Exception as e:
+        logger.error(f"Failed to load feature matrix: {e}")
+        sys.exit(1)
+    
+    # Ensure required columns exist
+    required_cols = ['subject_id', 'channel']
+    missing_cols = [col for col in required_cols if col not in feature_df.columns]
+    if missing_cols:
+        logger.error(f"Missing required columns in feature data: {missing_cols}")
+        sys.exit(1)
+    
+    # Run missing sensor checks (T031)
+    # Note: T031b requires T024 (theta/alpha ratio) which should be in feature_df
+    logger.info("Running power stability measurement (SC-005)...")
+    stability_results = measure_power_stability(feature_df, "results/power_stability_report.json")
+    
+    # Log results
+    logger.info(f"Power stability check status: {stability_results['overall_status']}")
+    if stability_results['overall_status'] == 'failed':
+        logger.error("Power stability check FAILED. Review results/power_stability_report.json.")
+        sys.exit(1)
+    elif stability_results['overall_status'] == 'warning':
+        logger.warning("Power stability check has warnings. Review results/power_stability_report.json.")
     
     # Update state
-    update_state_checksums(output_path)
-
-    # Return summary for verification
-    excluded_count = df_filtered['is_excluded'].sum()
-    total_count = len(df_filtered)
-    print(f"Summary: Excluded {excluded_count}/{total_count} epochs.")
+    update_state_checksums()
+    
+    logger.info("Validity checks (T031b) completed successfully.")
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Execution Result Schema"
+description: "Schema for individual execution logs (JSONL)."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    format: "uuid"
+    description: "Unique run identifier."
+  instance_id:
+    type: "string"
+    description: "Reference to the task instance."
+  model_size:
+    type: "string"
+    enum: ["1B", "7B"]
+    description: "Size of the model used."
+  context_strategy:
+    type: "string"
+    enum: ["baseline", "tfidf", "diff_aware", "summarization"]
+    description: "Context compression strategy applied."
+  pass_fail:
+    type: "boolean"
+    description: "True if all unit tests passed."
+  token_count:
+    type: "integer"
+    minimum: 0
+    description: "Total tokens consumed."
+  failure_mode:
+    type: "string"
+    enum: ["missing_context", "reasoning_error", "timeout", "none", "resource_error"]
+    description: "Classified failure mode."
+  context_snapshot_hash:
+    type: "string"
+    description: "SHA256 hash of the context passed to the model."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Execution timestamp."
+required:
+  - run_id
+  - instance_id
+  - model_size
+  - context_strategy
+  - pass_fail
+  - token_count
+  - failure_mode
+  - context_snapshot_hash
+additionalProperties: false

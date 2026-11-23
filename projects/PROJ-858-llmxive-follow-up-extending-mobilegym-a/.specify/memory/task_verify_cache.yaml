@@ -1,0 +1,26 @@
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code files, diff, or documentation for the claimed cleanup and refactoring
+    of `code/scheduler/` and `code/analysis/` are present. The required artifacts
+    (updated source code, refactoring notes, or test results) are missing, so the
+    task is not satisfied.
+T046:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No test files or code snippets for additional unit tests in `tests/unit/` were
+    provided; without concrete artifacts showing tests for empty batches or malformed
+    data, the requirement cannot be confirmed as satisfied.
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No logs, screenshots, or any other artifact demonstrating that the quickstart.md\
+    \ validation was actually executed on a CPU\u2011only runner and succeeded are\
+    \ present. The required evidence of a successful end\u2011to\u2011end run is missing."
+T048:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No logs, state\u2011coverage vectors, or analysis reports are present, and there\
+    \ are no checksum files or reproducibility documentation provided. Consequently,\
+    \ the requirement to verify that all artifacts are checksummed and reproducible\
+    \ is not satisfied."

@@ -1,0 +1,167 @@
+.
+├── .gitignore
+├── .gitkeep
+├── .pre-commit-config.yaml
+├── .python-version
+├── .ruff.toml
+├── .runtime-home
+├── .specify
+│   ├── memory
+│   │   ├── constitution.md
+│   │   ├── convergence_trail
+│   │   ├── discovered_data_source.yaml
+│   │   ├── execution_feedback.md
+│   │   ├── research_question_validated.yaml
+│   │   ├── task_verifier_notes.md
+│   │   ├── task_verify.feedback.yaml
+│   │   ├── task_verify.yaml
+│   │   ├── task_verify_cache.yaml
+│   │   └── tasker_rounds.yaml
+│   ├── scripts
+│   │   └── bash
+│   └── templates
+│       ├── checklist-template.md
+│       ├── constitution-template.md
+│       ├── plan-template.md
+│       ├── spec-template.md
+│       └── tasks-template.md
+├── Makefile
+├── README.md
+├── activity.jsonl
+├── code
+│   ├── .black.toml
+│   ├── .flake8
+│   ├── .gitignore
+│   ├── .gitkeep
+│   ├── .ruff.toml
+│   ├── .tasks
+│   │   └── T016b.atomize.yaml
+│   ├── Makefile
+│   ├── README.md
+│   ├── __init__.py
+│   ├── contracts
+│   │   ├── .gitkeep
+│   │   ├── dataset.schema.yaml
+│   │   └── signal.schema.yaml
+│   ├── copy_contracts.py
+│   ├── create_structure.py
+│   ├── data
+│   │   ├── .gitkeep
+│   │   ├── __init__.py
+│   │   └── raw
+│   ├── figures
+│   │   └── .gitkeep
+│   ├── output
+│   │   ├── .gitkeep
+│   │   ├── __init__.py
+│   │   └── signals.csv
+│   ├── pyproject.toml
+│   ├── requirements-dev.txt
+│   ├── requirements.txt
+│   ├── run_lint.py
+│   ├── scripts
+│   │   ├── gpu_check.py
+│   │   └── setup_linting.py
+│   ├── setup_project.py
+│   ├── setup_project_structure.py
+│   ├── setup_structure.py
+│   ├── specs
+│   │   └── .gitkeep
+│   ├── src
+│   │   ├── .gitkeep
+│   │   ├── __init__.py
+│   │   ├── analysis
+│   │   ├── data
+│   │   ├── main.py
+│   │   └── utils
+│   └── tests
+│       ├── .gitkeep
+│       ├── __init__.py
+│       ├── integration
+│       └── unit
+├── contracts
+│   ├── .gitkeep
+│   ├── dataset.schema.yaml
+│   ├── signal.schema.yaml
+│   └── soc_cluster.schema.yaml
+├── data
+│   ├── .gitkeep
+│   ├── checksums.txt
+│   ├── meddra_soc_mapping.csv
+│   ├── meddra_to_soc.csv
+│   ├── processed
+│   ├── raw
+│   └── results
+│       ├── __init__.py
+│       └── download_summary.txt
+├── figures
+│   └── .gitkeep
+├── idea
+│   ├── research_question_validation.md
+│   └── statistical-analysis-of-publicly-availab.md
+├── logs
+│   ├── lint.txt
+│   ├── structure.txt
+│   └── validate_fail.txt
+├── output
+│   ├── .gitkeep
+│   └── figures
+│       └── __init__.py
+├── pyproject.toml
+├── quickstart.md
+├── requirements.txt
+├── reviews
+│   └── research
+│       └── alan-turing-simulated__2026-10-18__research.md
+├── scripts
+│   ├── format.sh
+│   └── lint.sh
+├── setup.cfg
+├── specs
+│   └── 001-statistical-analysis-of-publicly-availab
+│       ├── contracts
+│       ├── data-model.md
+│       ├── plan.md
+│       ├── quickstart.md
+│       ├── research.md
+│       ├── spec.md
+│       └── tasks.md
+├── src
+│   ├── .gitkeep
+│   ├── analysis
+│   │   └── disproportionality.py
+│   ├── data
+│   │   ├── clean.py
+│   │   ├── download.py
+│   │   ├── validate.py
+│   │   └── validate_raw.py
+│   ├── main.py
+│   ├── requirements.txt
+│   ├── utils
+│   │   ├── config.py
+│   │   └── plots.py
+│   └── validation
+│       └── __init__.py
+└── tests
+    ├── .gitkeep
+    ├── fixtures
+    │   ├── __init__.py
+    │   └── malformed_missing_vax_type.csv
+    ├── integration
+    │   ├── test_pipeline.py
+    │   ├── test_signal_detection.py
+    │   └── test_temporal_profiles.py
+    └── unit
+        ├── test_bh_correction.py
+        ├── test_clean_filter.py
+        ├── test_disproportionality.py
+        ├── test_download.py
+        ├── test_download_meddra.py
+        ├── test_signal_schema.py
+        ├── test_structure.py
+        ├── test_t022_disproportionality.py
+        ├── test_validate.py
+        ├── test_validate_e_schema_missing.py
+        └── test_validate_raw.py
+
+49 directories, 116 files

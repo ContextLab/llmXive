@@ -1,0 +1,23 @@
+$schema: http://json-schema.org/draft-07/schema#
+$id: output-schema
+type: object
+properties:
+  metric:
+    type: string
+  coefficient:
+    type: number
+  p_value:
+    type: number
+  lag:
+    type: integer
+  significance_flag:
+    type: boolean
+  stationarity_status:
+    type: string
+required:
+  - metric
+  - coefficient
+  - p_value
+  - lag
+  - significance_flag
+  - stationarity_status

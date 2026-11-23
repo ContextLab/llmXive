@@ -1,87 +1,61 @@
 # Quickstart: Investigating the Impact of Visual Complexity on Prefrontal Cortex Activity
 
-## Prerequisites
+## 1. Prerequisites
 
-- Python 3.10+
-- Git
-- Access to GitHub Actions (for CI) or a local environment with similar specs (≤6GB RAM).
+- Python 3.11+
+- `git`
+- At least 14GB disk space (for data downloads and processing).
+- Internet access to fetch datasets from OpenNeuro (via `wget`).
 
-## Installation
-
-1.  **Clone the repository**:
-    ```bash
-    git clone <repository-url>
-    cd projects/PROJ-228-investigating-the-impact-of-visual-compl
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-
-## Data Setup
-
-1.  **Download the dataset**:
-    The `code/ingestion.py` script will download the OpenNeuro dataset **ds000248** (Naturalistic Viewing). Ensure you have sufficient disk space (>14GB).
-
-    ```bash
-    python code/ingestion.py --dataset ds000248
-    ```
-
-2.  **Verify data integrity**:
-    Checksums will be automatically recorded in `data/metadata.yaml`. The script will also verify the presence of stimulus images and check for pre-residualization flags in the BOLD data.
-
-## Running the Pipeline
-
-To run the entire pipeline (ingestion, processing, analysis):
+## 2. Installation
 
 ```bash
-python code/main.py
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-228-investigating-the-impact-of-visual-compl
+
+# Create virtual environment
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+
+# Install dependencies
+pip install -r requirements.txt
 ```
 
-This will:
-1.  Download and verify the dataset.
-2.  Compute visual complexity metrics, luminance, and contrast.
-3.  Extract DLPFC time-series.
-4.  Fit subject-level GLMs with AR(1) pre-whitening.
-5.  Perform group-level analysis and permutation tests.
-6.  Save results to `data/results/`.
+## 3. Data Download
 
-## Running Individual Stages
-
-- **Ingestion only**:
-    ```bash
-    python code/ingestion.py
-    ```
-- **Complexity calculation**:
-    ```bash
-    python code/complexity.py
-    ```
-- **ROI extraction**:
-    ```bash
-    python code/roi_extraction.py
-    ```
-- **Modeling**:
-    ```bash
-    python code/modeling.py
-    ```
-
-## Testing
-
-Run the test suite:
+The pipeline automatically downloads data from the verified OpenNeuro source using `wget` if not present. To manually verify:
 
 ```bash
-pytest tests/
+# Run the ingestion script (downloads and processes)
+python code/main.py --phase download
 ```
 
-## Troubleshooting
+## 4. Running the Pipeline
 
-- **Memory Error**: If you encounter a memory error, ensure you are not running other heavy processes. The pipeline is designed to process data in chunks.
-- **Dataset Unavailable**: If the OpenNeuro dataset is unavailable, the script will fail with a clear error message. Check your internet connection and the dataset URL.
-- **Collinearity Warning**: If VIF is high, the pipeline will automatically switch to separate univariate models and log this decision.
+Execute the full pipeline (US1 → US2 → US3a → US3b):
+
+```bash
+python code/main.py --phase full
+```
+
+### Output
+
+- `data/interim/complexity_metrics.csv`
+- `data/interim/pfc_timeseries.csv`
+- `data/processed/results.json`
+- Logs in `logs/`
+
+## 5. Verification
+
+Check the output JSON for expected fields:
+
+```bash
+python -c "import json; data = json.load(open('data/processed/results.json')); print(data[0]['entropy']['is_significant'])"
+```
+
+## 6. Troubleshooting
+
+- **Memory Error**: Ensure you are running on a machine with ≥6GB RAM. The script will abort if exceeded.
+- **Dataset Missing**: If the verified OpenNeuro link is unreachable, check `research.md` for alternative sources or re-run `main.py` with `--retry`.
+- **Missing Frames**: Check `logs/ingestion.log` for warnings about excluded frames.

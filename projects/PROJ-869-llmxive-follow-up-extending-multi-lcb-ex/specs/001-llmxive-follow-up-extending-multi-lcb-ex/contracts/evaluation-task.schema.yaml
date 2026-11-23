@@ -10,6 +10,8 @@ required:
   - "test_cases"
   - "difficulty"
   - "topic"
+  - "blind_fail_count"
+  - "selected"
 properties:
   task_id:
     type: "string"
@@ -27,9 +29,6 @@ properties:
       - "rust"
       - "kotlin"
       - "go"
-  target_solution:
-    type: "string"
-    description: "Ground-truth solution in the target language (optional, for verification)."
   test_cases:
     type: "array"
     description: "List of input/output pairs for execution."
@@ -55,6 +54,14 @@ properties:
   topic:
     type: "string"
     description: "Algorithmic topic (e.g., 'DP', 'Graphs', 'Math')."
+  blind_fail_count:
+    type: "integer"
+    minimum: 0
+    maximum: 3
+    description: "Number of times the blind run failed (0-3)."
+  selected:
+    type: "boolean"
+    description: "True if the task passed the stochasticity filter."
   metadata:
     type: "object"
     description: "Additional metadata (e.g., source URL, timestamp)."
@@ -66,3 +73,4 @@ properties:
         type: "string"
         format: "date-time"
         description: "Timestamp of task creation or download."
+additionalProperties: false

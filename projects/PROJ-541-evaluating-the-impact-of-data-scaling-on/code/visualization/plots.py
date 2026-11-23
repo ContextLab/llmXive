@@ -1,110 +1,238 @@
-"""
-Visualization module for generating error rate plots.
-"""
-import os
+"""Visualization module for the llmXive data scaling impact study."""
+
+from __future__ import annotations
+
 import logging
+import os
 from pathlib import Path
-from typing import Optional
+from typing import List, Optional, Tuple
 
 import matplotlib.pyplot as plt
-import seaborn as sns
-import pandas as pd
 import numpy as np
+import pandas as pd
+import seaborn as sns
+from scipy import stats
 
-# Configure logger for this module
 logger = logging.getLogger(__name__)
 
-def generate_error_rate_plot(
-    results_path: str = "results/simulation_results.csv",
-    output_path: str = "results/figures/error_rate_vs_alpha.png",
-    nominal_alpha: float = 0.05
-) -> None:
-    """
-    Generate a plot showing empirical error rate vs nominal alpha with 95% CI.
+# Ensure the plot output directory exists
+FIGURES_DIR = Path("results/figures")
+FIGURES_DIR.mkdir(parents=True, exist_ok=True)
 
-    This function reads the simulation results, calculates the aggregate metrics
-    (Type I error rate and Power) per scaling method and distribution type,
-    and plots the empirical error rate against the nominal alpha level (0.05),
-    including 95% confidence intervals.
+
+def calculate_confidence_interval(
+    successes: int, total: int, alpha: float = 0.05
+) -> Tuple[float, float]:
+    """
+    Calculate the Clopper-Pearson (exact) confidence interval for a binomial proportion.
 
     Args:
-        results_path: Path to the CSV file containing simulation results.
-        output_path: Path where the plot will be saved.
-        nominal_alpha: The nominal significance level (default 0.05).
+        successes: Number of successes (e.g., rejections of null hypothesis).
+        total: Total number of trials (iterations).
+        alpha: Significance level for the confidence interval (default 0.05).
+
+    Returns:
+        A tuple (lower_bound, upper_bound) for the confidence interval.
     """
-    logger.info(f"Loading simulation results from {results_path}")
-    
-    # Ensure output directory exists
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
+    if total == 0:
+        return 0.0, 0.0
 
-    # Load data
-    if not os.path.exists(results_path):
-        logger.error(f"Results file not found: {results_path}")
-        raise FileNotFoundError(f"Results file not found: {results_path}")
+    # Use scipy.stats.beta for the exact Clopper-Pearson interval
+    # Lower bound: Beta(alpha/2, successes, total - successes + 1)
+    # Upper bound: Beta(1 - alpha/2, successes + 1, total - successes)
+    # Note: scipy.stats.beta.ppf(q, a, b)
+    # For successes=0, lower is 0. For successes=total, upper is 1.
 
-    df = pd.read_csv(results_path)
+    if successes == 0:
+        lower = 0.0
+    else:
+        lower = stats.beta.ppf(alpha / 2, successes, total - successes + 1)
 
-    # Calculate aggregate metrics using the existing function
-    # We expect calculate_aggregate_metrics to return a DataFrame with columns:
-    # scaling_method, distribution_type, empirical_error_rate, ci_lower, ci_upper
-    from analysis.metrics import calculate_aggregate_metrics
+    if successes == total:
+        upper = 1.0
+    else:
+        upper = stats.beta.ppf(1 - alpha / 2, successes + 1, total - successes)
 
-    try:
-        metrics_df = calculate_aggregate_metrics(results_path, nominal_alpha=nominal_alpha)
-    except Exception as e:
-        logger.error(f"Failed to calculate aggregate metrics: {e}")
-        raise
+    return float(lower), float(upper)
 
-    logger.info(f"Calculated aggregate metrics for {len(metrics_df)} combinations")
 
-    # Set up the plot style
+def generate_error_rate_plot(
+    df: Optional[pd.DataFrame] = None,
+    output_path: Optional[str] = None,
+    alpha_threshold: float = 0.05,
+) -> None:
+    """
+    Generate a plot of empirical error rates with confidence intervals.
+
+    This function expects a DataFrame with the following columns:
+    - scaling_method: The scaling method used (string).
+    - error_rate: The empirical error rate (float).
+    - ci_lower: Lower bound of the confidence interval (float).
+    - ci_upper: Upper bound of the confidence interval (float).
+    - test_type: The statistical test used (optional, for grouping).
+    - config_id: The configuration ID (optional, for grouping).
+
+    If `df` is None, it attempts to load from the default path:
+    'results/aggregate_metrics.csv'.
+
+    Args:
+        df: DataFrame containing the aggregate metrics.
+        output_path: Path to save the plot. Defaults to 'results/figures/error_rate_plot.png'.
+        alpha_threshold: The horizontal reference line threshold (default 0.05).
+    """
+    if df is None:
+        input_path = Path("results/aggregate_metrics.csv")
+        if not input_path.exists():
+            raise FileNotFoundError(
+                f"Input file not found: {input_path}. "
+                "Please ensure T029 has run and produced 'results/aggregate_metrics.csv'."
+            )
+        df = pd.read_csv(input_path)
+
+    required_cols = ["scaling_method", "error_rate", "ci_lower", "ci_upper"]
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(
+            f"DataFrame missing required columns: {missing_cols}. "
+            f"Required: {required_cols}"
+        )
+
+    # Set style
     sns.set_theme(style="whitegrid", context="talk")
-    fig, ax = plt.subplots(figsize=(12, 8))
 
-    # Plot empirical error rates with confidence intervals
-    # Group by scaling_method and distribution_type
-    for (scaling_method, dist_type), group in metrics_df.groupby(['scaling_method', 'distribution_type']):
-        # Calculate the average empirical error rate across distributions for each scaling method
-        # or plot per distribution if needed. For clarity, we'll plot per scaling method aggregated.
-        pass
+    # Create the plot
+    plt.figure(figsize=(12, 8))
 
-    # Aggregate by scaling_method only for a cleaner comparison against nominal alpha
-    # Calculate mean error rate and CI across all distributions for each scaling method
-    summary_df = metrics_df.groupby('scaling_method').agg(
-        mean_error_rate=('empirical_error_rate', 'mean'),
-        std_error_rate=('empirical_error_rate', 'std'),
-        count=('empirical_error_rate', 'count')
-    ).reset_index()
+    # Use seaborn pointplot or stripplot with error bars
+    # Since we have pre-calculated CI bounds, we can use errorbar capability in newer seaborn
+    # or manually plot errorbars.
+    # To ensure compatibility and explicit control, we'll use plt.errorbar or a custom approach
+    # if seaborn's pointplot doesn't accept pre-calculated CIs directly in older versions.
+    # However, seaborn.pointplot with 'ci' argument expects raw data or a function.
+    # Given the input is already aggregated with CIs, let's use a barplot with errorbars
+    # or scatter with errorbars.
 
-    # Calculate 95% CI for the mean
-    summary_df['ci_lower'] = summary_df['mean_error_rate'] - 1.96 * (summary_df['std_error_rate'] / np.sqrt(summary_df['count']))
-    summary_df['ci_upper'] = summary_df['mean_error_rate'] + 1.96 * (summary_df['std_error_rate'] / np.sqrt(summary_df['count']))
+    # Sort by scaling_method for consistent plotting
+    df = df.sort_values(by="scaling_method")
+
+    # Plot using errorbar
+    x_positions = range(len(df))
+    x_labels = [f"{row['scaling_method']}" for _, row in df.iterrows()]
+
+    # If there are multiple tests/configs per scaling method, we might need to group.
+    # Assuming the input is already grouped or we plot all points.
+    # If we want to group by scaling_method, we need to aggregate or use a loop.
+    # Let's assume the input DataFrame is one row per (scaling_method, test_type, config_id)
+    # and we want to plot them all.
+
+    # To make it readable, let's group by scaling_method on the x-axis
+    unique_methods = df["scaling_method"].unique()
+    unique_methods = sorted(unique_methods)
+
+    # Create a mapping for x-axis positions
+    method_to_x = {m: i for i, m in enumerate(unique_methods)}
+
+    # Prepare data for plotting
+    plot_data = []
+    for _, row in df.iterrows():
+        plot_data.append(
+            {
+                "x": method_to_x[row["scaling_method"]],
+                "y": row["error_rate"],
+                "yerr": [
+                    [row["error_rate"] - row["ci_lower"]],
+                    [row["ci_upper"] - row["error_rate"]],
+                ],
+                "label": f"{row.get('test_type', 'test')} - {row.get('config_id', 'config')}",
+            }
+        )
 
     # Plot
-    x_pos = np.arange(len(summary_df))
-    ax.bar(x_pos, summary_df['mean_error_rate'], yerr=[
-        summary_df['mean_error_rate'] - summary_df['ci_lower'],
-        summary_df['ci_upper'] - summary_df['mean_error_rate']
-    ], capsize=5, color=sns.color_palette("viridis", len(summary_df)), alpha=0.8, label='Empirical Error Rate')
+    for item in plot_data:
+        plt.errorbar(
+            item["x"],
+            item["y"],
+            yerr=item["yerr"],
+            fmt="o",
+            capsize=5,
+            label=item["label"],
+            markersize=8,
+            linestyle="None",
+        )
 
-    # Add nominal alpha line
-    ax.axhline(y=nominal_alpha, color='red', linestyle='--', linewidth=2, label=f'Nominal Alpha ({nominal_alpha})')
+    # Set x-axis ticks and labels
+    plt.xticks(range(len(unique_methods)), unique_methods)
+    plt.xlabel("Scaling Method")
+    plt.ylabel("Empirical Error Rate")
+    plt.title("Empirical Error Rate with 95% Confidence Intervals (Clopper-Pearson)")
 
-    # Add labels and title
-    ax.set_xticks(x_pos)
-    ax.set_xticklabels(summary_df['scaling_method'])
-    ax.set_ylabel('Empirical Type I Error Rate')
-    ax.set_xlabel('Scaling Method')
-    ax.set_title(f'Empirical Error Rate vs Nominal Alpha ({nominal_alpha}) with 95% CI')
-    ax.legend(loc='upper right')
-    ax.set_ylim(0, max(summary_df['ci_upper'].max(), nominal_alpha) * 1.2)
-
-    # Add grid
-    ax.grid(True, axis='y', linestyle='--', alpha=0.7)
+    # Add horizontal reference line
+    plt.axhline(
+        y=alpha_threshold,
+        color="red",
+        linestyle="--",
+        linewidth=2,
+        label=f"Significance Threshold ($\\alpha$ = {alpha_threshold})",
+    )
+    plt.legend(bbox_to_anchor=(1.05, 1), loc="upper left")
 
     # Save the plot
+    if output_path is None:
+        output_path = "results/figures/error_rate_plot.png"
+
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    logger.info(f"Error rate plot saved to {output_path}")
+    plt.savefig(output_path, dpi=300)
     plt.close()
+
+    logger.info(f"Error rate plot saved to {output_path}")
+
+
+def generate_sensitivity_plot(
+    df: Optional[pd.DataFrame] = None,
+    output_path: Optional[str] = None,
+) -> None:
+    """
+    Generate a plot showing error rates across different alpha thresholds.
+
+    Args:
+        df: DataFrame from sensitivity analysis (results/sensitivity_analysis.csv).
+            Expected columns: alpha, scaling_method, error_rate, power.
+        output_path: Path to save the plot.
+    """
+    if df is None:
+        input_path = Path("results/sensitivity_analysis.csv")
+        if not input_path.exists():
+            logger.warning(
+                f"Sensitivity analysis file not found: {input_path}. Skipping plot."
+            )
+            return
+        df = pd.read_csv(input_path)
+
+    if "alpha" not in df.columns or "error_rate" not in df.columns:
+        raise ValueError("Sensitivity plot requires 'alpha' and 'error_rate' columns.")
+
+    sns.set_theme(style="whitegrid")
+    plt.figure(figsize=(10, 6))
+
+    # Plot error rate vs alpha for each scaling method
+    sns.lineplot(
+        data=df,
+        x="alpha",
+        y="error_rate",
+        hue="scaling_method",
+        marker="o",
+        err_style="band",
+    )
+
+    plt.xlabel("Alpha Threshold")
+    plt.ylabel("Empirical Error Rate")
+    plt.title("Sensitivity of Error Rate to Alpha Threshold")
+    plt.legend(title="Scaling Method")
+
+    if output_path is None:
+        output_path = "results/figures/sensitivity_plot.png"
+
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+    logger.info(f"Sensitivity plot saved to {output_path}")

@@ -1,0 +1,519 @@
+{
+  "commit": "c95996fa5e106216da756a75746eaab6e9a370e7",
+  "normalization": "Unicode NFD + casefold (case-insensitive Mac portability)",
+  "collisions": [
+    [
+      {
+        "path": "projects/PROJ-044-evaluating-the-effectiveness-of-differen/docs/EXCLUSION_POLICY.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "637b79016a0a2495054d94c75250382050f87159"
+      },
+      {
+        "path": "projects/PROJ-044-evaluating-the-effectiveness-of-differen/docs/exclusion_policy.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "cfa08b573d32cb5b0fa7d5d486653d150b847df3"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-044-evaluating-the-effectiveness-of-differen/docs/QUICKSTART.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "8f22d805ea2ddc36f1f3137778584796f3589622"
+      },
+      {
+        "path": "projects/PROJ-044-evaluating-the-effectiveness-of-differen/docs/quickstart.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "43231b967867f836852039c741e043638ecb532a"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-046-the-relationship-between-sleep-chronotyp/docs/QUICKSTART.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "55ef2561dbee241002e995415183176ddc7a0ab4"
+      },
+      {
+        "path": "projects/PROJ-046-the-relationship-between-sleep-chronotyp/docs/quickstart.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "9ff1440c40457a0ea6236cb956d6bf001431415f"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-046-the-relationship-between-sleep-chronotyp/docs/RUN_INSTRUCTIONS.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "8219c68546ff7613c37810dae9630f8932338f7f"
+      },
+      {
+        "path": "projects/PROJ-046-the-relationship-between-sleep-chronotyp/docs/run_instructions.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "22282c074b0e33467fc06061fa9c7a2a15b5447c"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-128-investigating-the-influence-of-network-t/docs/QUICKSTART.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "e0c5af54cdda7aecec7fdb4876bc183eea6ecd18"
+      },
+      {
+        "path": "projects/PROJ-128-investigating-the-influence-of-network-t/docs/quickstart.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "757e7a5257bedd1ee89cb83de0b1d13cd0157584"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-149-predicting-individual-differences-in-sen/tests/test_T013_behavioral_metrics.py",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "6d075c5e3bd5d116d9495abfef8fa885eabb9daf"
+      },
+      {
+        "path": "projects/PROJ-149-predicting-individual-differences-in-sen/tests/test_t013_behavioral_metrics.py",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "b2fe25115a40840d0cceeb645ffb4ce46e606078"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-149-predicting-individual-differences-in-sen/tests/test_T035b_validation.py",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "5454f5642736920fb43e0e5c89f05968e5b1ea67"
+      },
+      {
+        "path": "projects/PROJ-149-predicting-individual-differences-in-sen/tests/test_t035b_validation.py",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "bffe0b7a0e51fdd9fff82cfc4d93c99042b51f49"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-198-predicting-plant-secondary-metabolite-pr/docs/ARCHITECTURE.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "7ea9eb8921154ef5abc0ba5fbb58b698bb81f7b3"
+      },
+      {
+        "path": "projects/PROJ-198-predicting-plant-secondary-metabolite-pr/docs/architecture.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "8d2811432c153344a24ab1111b0ed21cc662ca72"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/docs/MODEL_LIMITATIONS.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "8015009b99522bb1d808e9bbc3b2d59bd6ac62e3"
+      },
+      {
+        "path": "projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/docs/model_limitations.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "22f6e6532153ad4aa158db6adae6741d0de59239"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/docs/SENSITIVITY_ANALYSIS.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "788a7ce0aa7834656c0d1c3b53ebc27a960c4f19"
+      },
+      {
+        "path": "projects/PROJ-199-predicting-the-impact-of-cold-rolling-re/docs/sensitivity_analysis.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "1cd3d78931ba9e32160fb04538de84b478e36672"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/docs/CONTRIBUTING.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "67f63263e6270c7c24bb5b302488a741cbc493f8"
+      },
+      {
+        "path": "projects/PROJ-317-the-impact-of-visual-detail-on-false-mem/docs/contributing.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "6f3aee245636c451f85c90ffc52f7334a5d8302d"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-331-investigating-the-influence-of-network-m/docs/USAGE_GUIDE.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "095c2fa3e94372411b57d4818c327ffe32ede6d1"
+      },
+      {
+        "path": "projects/PROJ-331-investigating-the-influence-of-network-m/docs/usage_guide.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "691cb3a5a8aa93e26c03267b067043190d47599b"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-340-investigating-the-correlation-between-gu/docs/CONTRIBUTING.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "095605be687339aafd291b7e70859ed1aec404c8"
+      },
+      {
+        "path": "projects/PROJ-340-investigating-the-correlation-between-gu/docs/contributing.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "be368c10c2d39adaf907b1a61adda538bd683cdf"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-340-investigating-the-correlation-between-gu/docs/KNOWN_LIMITATIONS.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "30e6d3ddc2774647a943dbec2bef0b3392541563"
+      },
+      {
+        "path": "projects/PROJ-340-investigating-the-correlation-between-gu/docs/known_limitations.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "68f2a12e112fff9231cb0cf6ef48f901598127f8"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-340-investigating-the-correlation-between-gu/docs/REAL_DATA_REQUIREMENTS.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "b3e19d3ac136301f56f4d172bd998c3a3851b080"
+      },
+      {
+        "path": "projects/PROJ-340-investigating-the-correlation-between-gu/docs/real_data_requirements.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "eb37fae58284d4e650625a95c7f0f14b54cbefea"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-345-the-influence-of-visual-priming-on-impli/docs/API.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "88397363efd81e2b67299d9603c6a383142b91e5"
+      },
+      {
+        "path": "projects/PROJ-345-the-influence-of-visual-priming-on-impli/docs/api.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "4dda0a1171f7585a0e42623c36da87e3912c1e7a"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/docs/ARCHITECTURE.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "87e16f2d497380fac20540a389d2bd8fd205a487"
+      },
+      {
+        "path": "projects/PROJ-351-predicting-the-solubility-of-pharmaceuti/docs/architecture.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "47fcf918b2d530e43c294c722195e1d595a96249"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-354-investigating-the-correlation-between-gu/docs/CONTRIBUTING.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "2ef15a435f5230ee631962ddf8b14a593be960f2"
+      },
+      {
+        "path": "projects/PROJ-354-investigating-the-correlation-between-gu/docs/contributing.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "e65d3e6a9c5a7e227271aa4dfc9993a1bff105c4"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-363-predicting-the-impact-of-additive-manufa/docs/USAGE.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "259fbfc9fff4703bda071dbd563d4f1552e23df3"
+      },
+      {
+        "path": "projects/PROJ-363-predicting-the-impact-of-additive-manufa/docs/usage.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "dfbffb2a2cd75324042978ad5cef1bfcd7584a5f"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/DATA_SOURCES.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "d5d5660f4ad41c6a481c4da31aee8ad5fa1f6d7b"
+      },
+      {
+        "path": "projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/data_sources.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "cb32e8876d2338c6a9979512a13df22980c274ae"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/PIPELINE_PARAMETERS.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "5de0f405568e389539d9b43ae51d83bc10bdbc5b"
+      },
+      {
+        "path": "projects/PROJ-470-predicting-cognitive-fatigue-from-restin/docs/pipeline_parameters.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "48eee936c2c697ebebda39da71864a4b53f98abf"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-512-predicting-molecular-permeability-of-pol/docs/ARCHITECTURE.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "28359df1119b4f1f59e336d7e2b4e457fd87e8b3"
+      },
+      {
+        "path": "projects/PROJ-512-predicting-molecular-permeability-of-pol/docs/architecture.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "a83527fcbeada113196f3f9d5c2792a0eca9861f"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-512-predicting-molecular-permeability-of-pol/docs/DATA_DICTIONARY.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "d9d7603e5b2267c0e26481ff67cc8eadfaa1f7bd"
+      },
+      {
+        "path": "projects/PROJ-512-predicting-molecular-permeability-of-pol/docs/data_dictionary.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "296dad346b551484b0b2a898c2af82927453ba60"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-540-the-influence-of-social-media-doomscroll/docs/API.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "f0f290bd1f0dbc55a831cd1314c9ca80b63fffe8"
+      },
+      {
+        "path": "projects/PROJ-540-the-influence-of-social-media-doomscroll/docs/api.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "fb4e90a2f920de7395d3175421ad3ddcc12543c2"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/docs/METRICS_DEFINITIONS.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "f0bf8a3522cb79f9091ee9bb2d08e60696a2534c"
+      },
+      {
+        "path": "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/docs/metrics_definitions.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "dfdf391e56a8233474fb89c43c6f9043121d635b"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/docs/METRICS_REFERENCE.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "155c7560bffdf82083f6285298b7a3e01cd2cf0b"
+      },
+      {
+        "path": "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/docs/metrics_reference.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "95d67582604bc613f49450e1b97a8ae4210fbbdb"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/docs/STATISTICAL_REPORT_FORMAT.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "948956b9204282efb6475436002611765e1a98c7"
+      },
+      {
+        "path": "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/docs/statistical_report_format.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "98d616c2bd1119adc1feb227fd4b10d56b8c0818"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/docs/STATISTICAL_REPORT_SCHEMA.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "8a6e4ab8214151d37562c5f53410fce31dd4966b"
+      },
+      {
+        "path": "projects/PROJ-558-consciousness-bootstrapping-self-aware-a/docs/statistical_report_schema.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "da8c9c0f39eb759bacadb89c423a525b3ce5049d"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-589-dream-state-learning-implementing-rem-li/docs/ARCHITECTURE.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "9c32211a1ebaf84f653d1b8417921698d654b690"
+      },
+      {
+        "path": "projects/PROJ-589-dream-state-learning-implementing-rem-li/docs/architecture.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "12769cebe2069de53bf546e45f60407675c03ee0"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/METHODOLOGY.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "5a506dc4964e80c15e6b609b8841adb80ab0935e"
+      },
+      {
+        "path": "projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/methodology.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "7305a1191b37bacbabc93156d876a73c60177615"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/QUICKSTART.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "3cf87a1b5a3fd5e038226920254e130aa16f9c6a"
+      },
+      {
+        "path": "projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/quickstart.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "98f3c5f2a38864cbf469599503bcf1da0de87498"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/RESULTS.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "2eb42d84f89584fa262042e8915dc2041791044b"
+      },
+      {
+        "path": "projects/PROJ-672-the-impact-of-bounded-confidence-on-opin/docs/results.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "c19a0d23a1accfa86ebadec5a6c2ef76fbd52eb7"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-715-physical-activity-levels-and-mood-variab/docs/DATA_DICTIONARY_DAILY_AGGREGATES.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "9ea94c336331fffe494a38c800d306d90e009921"
+      },
+      {
+        "path": "projects/PROJ-715-physical-activity-levels-and-mood-variab/docs/data_dictionary_daily_aggregates.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "9679c205cd289708b28282719d3a9d27db632468"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/API_analysis.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "44b69620e8aefc6ca331495db615db2091ec3283"
+      },
+      {
+        "path": "projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/api_analysis.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "becf90d34a9bf44c6bf92ecee67069dfaebe8768"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/QUICKSTART.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "4e3d8d47a915cf20130c3e55bf08a6bc071d7964"
+      },
+      {
+        "path": "projects/PROJ-873-llmxive-follow-up-extending-active-learn/docs/quickstart.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "8b4fd4c16bc7b1e1f78f9b2278d49b690c506c36"
+      }
+    ],
+    [
+      {
+        "path": "projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/docs/QUICKSTART.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "3501d1fdd43b07098708e6af3106fe4ee991da37"
+      },
+      {
+        "path": "projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/docs/quickstart.md",
+        "mode": "100644",
+        "kind": "blob",
+        "git_blob": "81e0fdb53fbfa88a7c8878ba7fd0daf662b8cdc6"
+      }
+    ]
+  ],
+  "resolved_renames": [
+    {
+      "old_path": "projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/API_analysis.md",
+      "new_path": "projects/PROJ-715-physical-activity-levels-and-mood-variab/specs/001-physical-activity-levels-and-mood-variab/API_analysis.case-preserved.md",
+      "git_blob": "44b69620e8aefc6ca331495db615db2091ec3283",
+      "mode": "100644",
+      "bytes": 6183
+    }
+  ]
+}

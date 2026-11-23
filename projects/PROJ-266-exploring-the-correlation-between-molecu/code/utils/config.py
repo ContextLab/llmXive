@@ -1,104 +1,61 @@
-"""
-Configuration module for the molecular flexibility and permeability project.
-
-This module centralizes random seeds, file paths, and constant parameters
-to ensure reproducibility and consistency across the pipeline.
-"""
-
 import os
 import random
 from pathlib import Path
 from typing import Dict, Any
 
-# Project Root
-# Assumes the code structure: project_root/code/utils/config.py
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-
-# Directory Paths
-DATA_DIR = _PROJECT_ROOT / "data"
-DATA_RAW_DIR = DATA_DIR / "raw"
-DATA_PROCESSED_DIR = DATA_DIR / "processed"
-FIGURES_DIR = _PROJECT_ROOT / "figures"
-SPECS_DIR = _PROJECT_ROOT / "specs" / "001-molecular-flexibility-permeability"
-CONTRACTS_DIR = SPECS_DIR / "contracts"
-
-# Ensure directories exist (for initialization scripts)
-# Note: Do not auto-create in production runs unless explicitly intended.
-# These paths are provided for reference in other modules.
-
-# Random Seeds for Reproducibility
-# Set these to ensure deterministic behavior in RDKit, numpy, etc.
-RANDOM_SEED = 42
-RDKit_SEED = 42
-NUMPY_SEED = 42
-
-# Constants
-# Conformer generation settings (per Plan.md Deviation DEV-001)
-# Overrides Spec FR-003 (50 conformers) for CPU feasibility.
-MAX_CONFORMERS = 20
-MMFF_MAX_ITER = 200
-RMSD_CUTOFF = 0.5  # Angstroms
-
-# Data Processing
-MIN_RECORDS_TARGET = 500
-MIN_RAW_BATCH_SIZE = 600
-CHENMBL_ASSAY_TYPE = "Caco-2"
-CHENMBL_STANDARD_TYPE = "MEASUREMENT"
-
-# Statistical Analysis
-ALPHA_FDR = 0.05  # Benjamini-Hochberg q-value threshold
-VIF_THRESHOLD = 5.0  # Variance Inflation Factor threshold for collinearity
-IQR_MULTIPLIER = 1.5  # Outlier detection multiplier
-
-# ChEMBL API Settings
-CHEMBL_BASE_URL = "https://www.ebi.ac.uk/chembl/ws"
-API_TIMEOUT = 30  # seconds
-MAX_RETRIES = 5
-RETRY_BACKOFF_FACTOR = 2
-
-# Logging
-LOG_LEVEL = "INFO"
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-
 def get_project_root() -> Path:
-    """Return the project root directory."""
-    return _PROJECT_ROOT
-
-def set_seed(seed: int = RANDOM_SEED) -> None:
     """
-    Set random seeds for reproducibility across the stack.
+    Get the root directory of the project.
+    Assumes the script is run from the repository root or code/ directory.
+    """
+    # Try to find the project root by looking for a marker file or specific structure
+    # Common approach: look for the 'data' directory or 'specs' directory
+    current = Path(__file__).resolve()
+    
+    # Search up the tree for the project root
+    # We expect to find 'data' and 'specs' directories at the root
+    for parent in [current] + list(current.parents):
+        if (parent / "data").exists() and (parent / "specs").exists():
+            return parent
+        
+        # Fallback: if we are in the 'code' directory, parent is root
+        if parent.name == "code" and (parent.parent / "data").exists():
+            return parent.parent
 
-    Args:
-        seed: The integer seed to use. Defaults to RANDOM_SEED.
+    # If all else fails, assume current working directory or the parent of the script
+    return Path.cwd()
+
+def set_seed(seed: int = 42) -> None:
+    """
+    Set random seeds for reproducibility.
     """
     random.seed(seed)
-    try:
-        import numpy as np
-        np.random.seed(seed)
-    except ImportError:
-        pass
-    try:
-        import rdkit
-        rdkit.RDConfig.RANDOM_SEED = seed
-        # Note: RDKit seed setting is often done via specific functions
-        # or environment variables depending on the version.
-        # This is a best-effort global setting.
-    except ImportError:
-        pass
+    os.environ['PYTHONHASHSEED'] = str(seed)
 
 def get_config_summary() -> Dict[str, Any]:
     """
-    Return a summary of the current configuration for logging.
-
-    Returns:
-        A dictionary containing key configuration values.
+    Return a summary of the current configuration.
     """
     return {
-        "project_root": str(_PROJECT_ROOT),
-        "data_dir": str(DATA_DIR),
-        "random_seed": RANDOM_SEED,
-        "max_conformers": MAX_CONFORMERS,
-        "min_records_target": MIN_RECORDS_TARGET,
-        "vif_threshold": VIF_THRESHOLD,
-        "alpha_fdr": ALPHA_FDR,
+        "project_root": str(get_project_root()),
+        "data_path": str(get_data_path()),
+        "state_path": str(get_state_path()),
+        "figures_path": str(get_figures_path()),
+        "logs_path": str(get_logs_path()),
     }
+
+def get_data_path() -> Path:
+    """Get the path to the data directory."""
+    return get_project_root() / "data"
+
+def get_state_path() -> Path:
+    """Get the path to the state directory."""
+    return get_project_root() / "state"
+
+def get_figures_path() -> Path:
+    """Get the path to the figures directory."""
+    return get_project_root() / "figures"
+
+def get_logs_path() -> Path:
+    """Get the path to the logs directory."""
+    return get_project_root() / "logs"

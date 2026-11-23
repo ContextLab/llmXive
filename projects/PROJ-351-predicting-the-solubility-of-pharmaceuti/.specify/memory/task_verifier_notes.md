@@ -2,8 +2,13 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T008** — No logging configuration files, scripts, or generated log output were presented, and the `data/logs/` directory contains no evidence of exclusion counts or training metrics being captured. The required artifact (logging infrastructure targeting that path) is missing.
-- **T009** — No configuration file or code snippet in the `code/` directory that defines and pins random seeds (e.g., setting `random`, `numpy`, `torch` seeds) was provided. Without such an artifact, the requirement to set up environment configuration management for random seeds is not satisfied.
-- **T010** — No `tests/unit/test_preprocess.py` file or its contents were provided, so there is no evidence that a unit test for SMILES validation logic exists or is non‑empty. The required artifact is missing, preventing verification that the task’s requirement is satisfied.
-- **T011** — No `tests/unit/test_split.py` file or any unit test code for the quantile‑binning split logic is present in the provided artifacts. Without the actual test file, the claim that a unit test exists cannot be verified. The implementer must add a non‑empty test file at the specified path that exercises the split logic.
-- **T012** — No `tests/integration/test_baseline_pipeline.py` file was provided or shown, and there is no evidence of an integration test that exercises the full Random Forest baseline pipeline. The required artifact is missing, so the task is not satisfied.
+- **T003** — No linting or formatting configuration files (e.g., .flake8, pyproject.toml/black settings, or pre‑commit hooks) are present in the provided artifacts, so the requirement to configure flake8/black is not satisfied.
+- **T003b** — The `contracts/model_output.schema.yaml` file is present, but its contents only define `status`, `artifacts`, and `errors`; it does not define the required structures for `metrics`, `statistical_test`, or `viz_manifest` as the task specifies. The schema therefore does not satisfy the task’s requirement.
+- **T004** — Requested task execution failed; rerun successfully: code/data/download_esol.py exit=1
+- **T005** — The script does not produce the required `data/processed/cleaned_graphs.pkl` (file is missing) and its output dictionaries lack the mandated keys (`mol` and a combined `features` dict) while also omitting SMILES canonicalization. Additionally, the exclusion log is written to the output directory rather than `data/logs/exclusions.log`, violating the logging location requirement.
+- **T005b** — declared artifact(s) missing/empty/invalid: code/data/graph_tensorizer.py, data/processed/cleaned_graphs.pkl, data/processed/graph_tensors.pt
+- **T009** — declared artifact(s) missing/empty/invalid: code/config.py
+- **T024** — declared artifact(s) missing/empty/invalid: results/gnn_predictions.csv, results/gnn_metrics.json
+- **T030** — declared artifact(s) missing/empty/invalid: code/evaluation/visualize_molecules.py, data/processed/aggregated_predictions.json, code/config.py, docs/reports/interpretability_plots/, results/viz_manifest.json
+- **T032** — declared artifact(s) missing/empty/invalid: code/evaluation/write_metrics.py, results/metrics.json
+- **T034** — declared artifact(s) missing/empty/invalid: results/final_report.json

@@ -1,0 +1,584 @@
+{
+  "fetched_at": "2026-10-16T15:31:10Z",
+  "field": "materials science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "materials science",
+      "idea_body_excerpt": "Predicting Material Strength from Microstructure Images with Convolutional Neural Networks",
+      "target_n": 5
+    },
+    "duration_seconds": 49.726,
+    "ended_at": "2026-10-16T15:31:10Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "microstructure-property linkage convolutional neural networks"
+        ],
+        [
+          2,
+          "deep learning mechanical property prediction from micrographs"
+        ],
+        [
+          3,
+          "CNN microstructure image regression yield strength"
+        ],
+        [
+          4,
+          "microstructure-informed machine learning materials design"
+        ],
+        [
+          5,
+          "convolutional neural networks materials microstructure classification"
+        ],
+        [
+          6,
+          "image-based property prediction microstructural images"
+        ],
+        [
+          7,
+          "deep learning quantitative microstructure analysis"
+        ],
+        [
+          8,
+          "convolutional neural network elastic modulus prediction"
+        ],
+        [
+          9,
+          "materials informatics microstructure feature extraction"
+        ],
+        [
+          10,
+          "texture analysis neural networks mechanical behavior"
+        ],
+        [
+          11,
+          "transfer learning microstructure images property prediction"
+        ],
+        [
+          12,
+          "segmentation-based microstructure quantification deep learning"
+        ],
+        [
+          13,
+          "graph neural networks microstructure property prediction"
+        ],
+        [
+          14,
+          "computer vision metallography automated analysis"
+        ],
+        [
+          15,
+          "deep learning steel microstructure hardness prediction"
+        ],
+        [
+          16,
+          "generative microstructure representation learning properties"
+        ],
+        [
+          17,
+          "n-point correlation functions machine learning structure-property"
+        ],
+        [
+          18,
+          "convolutional neural networks composite microstructure failure prediction"
+        ],
+        [
+          19,
+          "physics-informed neural networks material strength prediction"
+        ],
+        [
+          20,
+          "data-driven constitutive modeling from microstructure imaging"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Material Strength from Microstructure Images with Convolutional Neural Networks materials science": 0,
+        "microstructure-property linkage convolutional neural networks": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "microstructure segmentation deep learning",
+      "SEM micrograph dataset steel",
+      "CNN texture classification grain",
+      "yield strength prediction convolutional neural network",
+      "processing structure property linkage machine learning"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2008.06415"
+      ]
+    },
+    "per_query_hit_count": {
+      "CNN texture classification grain": 3,
+      "Predicting Material Strength from Microstructure Images with Convolutional Neural Networks materials science": 3,
+      "SEM micrograph dataset steel": 3,
+      "microstructure segmentation deep learning": 3,
+      "processing structure property linkage machine learning": 3,
+      "yield strength prediction convolutional neural network": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 7,
+      "rejections": [
+        {
+          "primary_pointer": "2009.06819",
+          "rationale": "The paper focuses on natural language processing and information extraction from scientific literature to build databases, which is a distinct construct from the user's question about using convolutional neural networks to predict material strength from microstructure images. It fails to measure the same mechanism, variables, or domain (image-based property prediction) and instead addresses a different problem (text-based data mining), falling under the rejection rule for distinct constructs sha",
+          "title": "MatScIE: An automated tool for the generation of databases of methods and parameters used in the computational materials science literature"
+        },
+        {
+          "primary_pointer": "1512.00242",
+          "rationale": "The paper focuses exclusively on the internal mechanics of dropout and pooling strategies in convolutional neural networks using standard computer vision benchmarks (MNIST, CIFAR), without addressing the specific domain of materials science, microstructure images, or the prediction of material strength. It fails to meet any inclusion criteria as it does not study the target mechanism, variables, or empirical population, and is not a foundational method paper specifically for the materials scienc",
+          "title": "Towards Dropout Training for Convolutional Neural Networks"
+        },
+        {
+          "primary_pointer": "1901.01502",
+          "rationale": "This paper is about acoustic scene classification from audio spectrograms, not material strength prediction from microstructure images. It shares only the generic keyword \"CNN\" with the user's question and is entirely off-domain (audio vs. materials science microstructure).",
+          "title": "Enhancing Sound Texture in CNN-Based Acoustic Scene Classification"
+        },
+        {
+          "primary_pointer": "2205.13273",
+          "rationale": "The paper applies CNNs to medical blood-smear images for leukemia detection, not to material microstructure images for strength prediction — it shares only the generic \"CNN on microscopic images\" technique, with no connection to materials science, microstructure, or material strength variables. This is off-domain relative to the user's question.",
+          "title": "Acute Lymphoblastic Leukemia Detection Using Hypercomplex-Valued Convolutional Neural Networks"
+        },
+        {
+          "primary_pointer": "2306.14753",
+          "rationale": "The paper is a theoretical work on neural network architecture via polynomial chaos expansion, with no connection to microstructure images, materials science, or material strength prediction. It shares only the generic \"deep neural network\" keyword, which is far too broad to establish relevance to the user's specific domain and mechanism.",
+          "title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory"
+        },
+        {
+          "primary_pointer": "1901.06610",
+          "rationale": "The paper applies CNNs to document (text) classification, not to microstructure images or material strength prediction — it is off-domain entirely, sharing only the generic \"convolutional neural networks\" keyword with no connection to materials science, microstructure, or mechanical properties.",
+          "title": "Hierarchical Attentional Hybrid Neural Networks for Document Classification"
+        },
+        {
+          "primary_pointer": "2307.05639",
+          "rationale": "The paper is about interpretable tabular-data regression/classification with Gaussian RBF neural networks; it does not involve microstructure images, CNNs, or material strength prediction. It shares only the generic machine-learning keyword space, not the user's domain, variables, or mechanism.",
+          "title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-10-16T15:30:20Z",
+    "term_input": {
+      "normalized": "predicting material strength from microstructure images with convolutional neural networks materials science",
+      "raw": "Predicting Material Strength from Microstructure Images with Convolutional Neural Networks materials science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evidential deep learning, built upon belief theory and subjective logic, offers a principled and computationally efficient way to turn a deterministic neural network uncertainty-aware. The resultant evidential models can quantify fine-grained uncertainty using the learned evidence. To ensure theoretically sound evidential models, the evidence needs to be non-negative, which requires special activation functions for model training and inference. This constraint often leads to inferior predictive performance compared to standard softmax models, making it challenging to extend them to many large-scale datasets. To unveil the real cause of this undesired behavior, we theoretically investigate evidential models and identify a fundamental limitation that explains the inferior performance: existing evidential activation functions create zero evidence regions, which prevent the model to learn from training samples falling into such regions. A deeper analysis of evidential activation functions based on our theoretical underpinning inspires the design of a novel regularizer that effectively alleviates this fundamental limitation. Extensive experiments over many challenging real-world datasets and settings confirm our theoretical findings and demonstrate the effectiveness of our proposed approach.",
+          "claimed_authors": [
+            "Deep Pandey",
+            "Qi Yu"
+          ],
+          "claimed_title": "Learn to Accumulate Evidence from All Training Samples: Theory and Practice",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.11113"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='Learn to Accumulate Evidence from All Training Samples: Theory and Practice')",
+        "failed_at": "2026-10-16T15:30:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe the new field of mathematical analysis of deep learning. This field emerged around a list of research questions that were not answered within the classical framework of learning theory. These questions concern: the outstanding generalization power of overparametrized neural networks, the role of depth in deep architectures, the apparent absence of the curse of dimensionality, the surprisingly successful optimization performance despite the non-convexity of the problem, understanding what features are learned, why deep architectures perform exceptionally well in physical problems, and which fine aspects of an architecture affect the behavior of a learning task in which way. We present an overview of modern approaches that yield partial answers to these questions. For selected approaches, we describe the main ideas in more detail.",
+          "claimed_authors": [
+            "Julius Berner",
+            "Philipp Grohs",
+            "Gitta Kutyniok",
+            "Philipp Petersen"
+          ],
+          "claimed_title": "The Modern Mathematics of Deep Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2105.04026"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='The Modern Mathematics of Deep Learning')",
+        "failed_at": "2026-10-16T15:30:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "These notes were compiled as lecture notes for a course developed and taught at the University of the Southern California. They should be accessible to a typical engineering graduate student with a strong background in Applied Mathematics.\n  The main objective of these notes is to introduce a student who is familiar with concepts in linear algebra and partial differential equations to select topics in deep learning. These lecture notes exploit the strong connections between deep learning algorithms and the more conventional techniques of computational physics to achieve two goals. First, they use concepts from computational physics to develop an understanding of deep learning algorithms. Not surprisingly, many concepts in deep learning can be connected to similar concepts in computational physics, and one can utilize this connection to better understand these algorithms. Second, several novel deep learning algorithms can be used to solve challenging problems in computational physics. Thus, they offer someone who is interested in modeling a physical phenomena with a complementary set of tools.",
+          "claimed_authors": [
+            "Deep Ray",
+            "Orazio Pinti",
+            "Assad A. Oberai"
+          ],
+          "claimed_title": "Deep Learning and Computational Physics (Lecture Notes)",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2301.00942"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='Deep Learning and Computational Physics (Lecture Notes)')",
+        "failed_at": "2026-10-16T15:30:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-10-16T15:30:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Intracranial aneurysm rupture is associated with substantial morbidity and mortality, yet aneurysm detection remains challenging, particularly for small lesions and on routine non-angiographic imaging examinations. To support the development and evaluation of artificial intelligence (AI) algorithms for intracranial aneurysm detection and localization, the Radiological Society of North America (RSNA), in collaboration with the American Society of Neuroradiology (ASNR), the Society of Neurointerventional Surgery (SNIS), and the European Society of Neuroradiology (ESNR), curated the RSNA Intracranial Aneurysm (RSNA-ICA) Dataset. Developed for the 2025 RSNA Intracranial Aneurysm Detection Challenge, RSNA-ICA is a large, publicly available, expert-annotated dataset comprising 7202 CTA, MRA, and MRI series from 4278 adult patients collected across 21 institutions in 12 countries spanning five continents. The dataset includes 2566 CTA, 2166 MRA, and 2470 MRI series from patients with and without intracranial saccular aneurysms, providing substantial geographic and imaging diversity. Expert annotations indicate both aneurysm presence and location, and 178 series additionally include three-dimensional segmentations of challenge-defined vascular locations. RSNA-ICA was used to develop and evaluate algorithms in the 2025 RSNA Intracranial Aneurysm Detection Challenge. Of the 7202 image series, 5041 are publicly available through MIRA, while the remainder were used for challenge public and private test sets. The dataset is freely available to the research community for noncommercial use and provides a comprehensive resource for advancing AI-based aneurysm detection across both angiographic and routine neuroimaging examinations.",
+          "claimed_authors": [
+            "Maria Correia de Verdier",
+            "Rachit Saluja",
+            "Jason Sho",
+            "Maryam Vabarizad",
+            "Rennie Yung-Chieh Chen",
+            "Uyen N. T. Nguyen",
+            "Mona Alrehaili",
+            "Layal Aweidah",
+            "Deniz Bulja",
+            "Wesley C. Chan",
+            "Hernan Chaves",
+            "Madhavi Duvvuri",
+            "Huseyin Ekin Ergin",
+            "Undrakh-Erdene Erdenebold",
+            "Ekim Gumeler",
+            "Mohamed Sobhi Jabal",
+            "Chin-Chi Kuo",
+            "Fatima Mubarak",
+            "Sevde Nur Emir",
+            "Scott Riley K. Ong",
+            "Johanna Ortiz",
+            "Almudena Pérez-Lara",
+            "Andreas M. Rauschecker",
+            "Shayan Sirat Maheen Anwar",
+            "Charit Tippareddy",
+            "Tam Tran",
+            "Sorawis Visrutaratna",
+            "John Mongan",
+            "Adam E. Flanders",
+            "Robyn Ball",
+            "Greg Zaharchuk",
+            "Peter D. Chang",
+            "Felipe Kitamura",
+            "Errol Colak",
+            "Luciano Prevedello",
+            "Tyler Richards",
+            "Data Contributor Group",
+            "Dataset Annotator Group",
+            "Evan Calabrese",
+            "Jeffrey D. Rudie"
+          ],
+          "claimed_title": "The RSNA Intracranial Aneurysm (RSNA-ICA) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2610.01135"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='The RSNA Intracranial Aneurysm (RSNA-ICA) Dataset')",
+        "failed_at": "2026-10-16T15:30:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-10-16T15:30:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tactile texture refers to the tangible feel of a surface and visual texture refers to see the shape or contents of the image. In the image processing, the texture can be defined as a function of spatial variation of the brightness intensity of the pixels. Texture is the main term used to define objects or concepts of a given image. Texture analysis plays an important role in computer vision cases such as object recognition, surface defect detection, pattern recognition, medical image analysis, etc. Since now many approaches have been proposed to describe texture images accurately. Texture analysis methods usually are classified into four categories: statistical methods, structural, model-based and transform-based methods. This paper discusses the various methods used for texture or analysis in details. New researches shows the power of combinational methods for texture analysis, which can't be in specific category. This paper provides a review on well known combinational methods in a specific section with details. This paper counts advantages and disadvantages of well-known texture image descriptors in the result part. Main focus in all of the survived methods is on discrimination performance, computational complexity and resistance to challenges such as noise, rotation, etc. A brief review is also made on the common classifiers used for texture image classification. Also, a survey on texture image benchmark datasets is included.",
+          "claimed_authors": [
+            "Laleh Armi",
+            "Shervan Fekri-Ershad"
+          ],
+          "claimed_title": "Texture image analysis and texture classification methods - A review",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.06554"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='Texture image analysis and texture classification methods - A review')",
+        "failed_at": "2026-10-16T15:30:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Texture analysis plays an important role in many image processing applications to describe the image content or objects. On the other hand, visual surface defect detection is a highly research field in the computer vision. Surface defect refers to abnormalities in the texture of the surface. So, in this paper a dual purpose benchmark dataset is proposed for texture image analysis and surface defect detection titled stone texture image (STI dataset). The proposed benchmark dataset consist of 4 different class of stone texture images. The proposed benchmark dataset have some unique properties to make it very near to real applications. Local rotation, different zoom rates, unbalanced classes, variation of textures in size are some properties of the proposed dataset. In the result part, some descriptors are applied on this dataset to evaluate the proposed STI dataset in comparison with other state-of-the-art datasets.",
+          "claimed_authors": [
+            "Shervan Fekri-Ershad"
+          ],
+          "claimed_title": "A New Benchmark Dataset for Texture Image Analysis and Surface Defect Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.11561"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='A New Benchmark Dataset for Texture Image Analysis and Surface Defect Detection')",
+        "failed_at": "2026-10-16T15:30:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Random Neural Networks (RNNs) are a class of Neural Networks (NNs) that can also be seen as a specific type of queuing network. They have been successfully used in several domains during the last 25 years, as queuing networks to analyze the performance of resource sharing in many engineering areas, as learning tools and in combinatorial optimization, where they are seen as neural systems, and also as models of neurological aspects of living beings. In this article we focus on their learning capabilities, and more specifically, we present a practical guide for using the RNN to solve supervised learning problems. We give a general description of these models using almost indistinctly the terminology of Queuing Theory and the neural one. We present the standard learning procedures used by RNNs, adapted from similar well-established improvements in the standard NN field. We describe in particular a set of learning algorithms covering techniques based on the use of first order and, then, of second order derivatives. We also discuss some issues related to these objects and present new perspectives about their use in supervised learning problems. The tutorial describes their most relevant applications, and also provides a large bibliography.",
+          "claimed_authors": [
+            "Sebastián Basterrech",
+            "Gerardo Rubino"
+          ],
+          "claimed_title": "A Tutorial about Random Neural Networks in Supervised Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1609.04846"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='A Tutorial about Random Neural Networks in Supervised Learning')",
+        "failed_at": "2026-10-16T15:30:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Air pollution (AP) poses a great threat to human health, and people are paying more attention than ever to its prediction. Accurate prediction of AP helps people to plan for their outdoor activities and aids protecting human health. In this paper, long-short term memory (LSTM) recurrent neural networks (RNNs) have been used to predict the future concentration of air pollutants (APS) in Macau. Additionally, meteorological data and data on the concentration of APS have been utilized. Moreover, in Macau, some air quality monitoring stations (AQMSs) have less observed data in quantity, and, at the same time, some AQMSs recorded less observed data of certain types of APS. Therefore, the transfer learning and pre-trained neural networks have been employed to assist AQMSs with less observed data to build a neural network with high prediction accuracy. The experimental sample covers a period longer than 12-year and includes daily measurements from several APS as well as other more classical meteorological values. Records from five stations, four out of them are AQMSs and the remaining one is an automatic weather station, have been prepared from the aforesaid period and eventually underwent to computational intelligence techniques to build and extract a prediction knowledge-based system. As shown by experimentation, LSTM RNNs initialized with transfer learning methods have higher prediction accuracy; it incurred shorter training time than randomly initialized recurrent neural networks.",
+          "claimed_authors": [
+            "Iat Hang Fong",
+            "Tengyue Li",
+            "Simon Fong",
+            "Raymond K. Wong",
+            "Antonio J. Tallón-Ballesteros"
+          ],
+          "claimed_title": "Predicting concentration levels of air pollutants by transfer learning and recurrent neural network",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2502.01654"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='Predicting concentration levels of air pollutants by transfer learning and recurrent neural network')",
+        "failed_at": "2026-10-16T15:30:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Accurate uncertainty quantification is necessary to enhance the reliability of deep learning models in real-world applications. In the case of regression tasks, prediction intervals (PIs) should be provided along with the deterministic predictions of deep learning models. Such PIs are useful or \"high-quality\" as long as they are sufficiently narrow and capture most of the probability density. In this paper, we present a method to learn prediction intervals for regression-based neural networks automatically in addition to the conventional target predictions. In particular, we train two companion neural networks: one that uses one output, the target estimate, and another that uses two outputs, the upper and lower bounds of the corresponding PI. Our main contribution is the design of a novel loss function for the PI-generation network that takes into account the output of the target-estimation network and has two optimization objectives: minimizing the mean prediction interval width and ensuring the PI integrity using constraints that maximize the prediction interval probability coverage implicitly. Furthermore, we introduce a self-adaptive coefficient that balances both objectives within the loss function, which alleviates the task of fine-tuning. Experiments using a synthetic dataset, eight benchmark datasets, and a real-world crop yield prediction dataset showed that our method was able to maintain a nominal probability coverage and produce significantly narrower PIs without detriment to its target estimation accuracy when compared to those PIs generated by three state-of-the-art neural-network-based methods. In other words, our method was shown to produce higher-quality PIs.",
+          "claimed_authors": [
+            "Giorgio Morales",
+            "John W. Sheppard"
+          ],
+          "claimed_title": "Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2212.06370"
+        },
+        "details": "query-relevance 0.222 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='Dual Accuracy-Quality-Driven Neural Network for Prediction Interval Generation')",
+        "failed_at": "2026-10-16T15:30:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Data science has become increasingly essential for the production of official statistics, as it enables the automated collection, processing, and analysis of large amounts of data. With such data science practices in place, it enables more timely, more insightful and more flexible reporting. However, the quality and integrity of data-science-driven statistics rely on the accuracy and reliability of the data sources and the machine learning techniques that support them. In particular, changes in data sources are inevitable to occur and pose significant risks that are crucial to address in the context of machine learning for official statistics.\n  This paper gives an overview of the main risks, liabilities, and uncertainties associated with changing data sources in the context of machine learning for official statistics. We provide a checklist of the most prevalent origins and causes of changing data sources; not only on a technical level but also regarding ownership, ethics, regulation, and public perception. Next, we highlight the repercussions of changing data sources on statistical reporting. These include technical effects such as concept drift, bias, availability, validity, accuracy and completeness, but also the neutrality and potential discontinuation of the statistical offering. We offer a few important precautionary measures, such as enhancing robustness in both data sourcing and statistical techniques, and thorough monitoring. In doing so, machine learning-based official statistics can maintain integrity, reliability, consistency, and relevance in policy-making, decision-making, and public discourse.",
+          "claimed_authors": [
+            "Cedric De Boom",
+            "Michael Reusens"
+          ],
+          "claimed_title": "Changing Data Sources in the Age of Machine Learning for Official Statistics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.04338"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='Changing Data Sources in the Age of Machine Learning for Official Statistics')",
+        "failed_at": "2026-10-16T15:30:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Modern biology frequently relies on machine learning to provide predictions and improve decision processes. There have been recent calls for more scrutiny on machine learning performance and possible limitations. Here we present a set of community-wide recommendations aiming to help establish standards of supervised machine learning validation in biology. Adopting a structured methods description for machine learning based on data, optimization, model, evaluation (DOME) will aim to help both reviewers and readers to better understand and assess the performance and limitations of a method or outcome. The recommendations are formulated as questions to anyone wishing to pursue implementation of a machine learning algorithm. Answers to these questions can be easily included in the supplementary material of published papers.",
+          "claimed_authors": [
+            "Ian Walsh",
+            "Dmytro Fishman",
+            "Dario Garcia-Gasulla",
+            "Tiina Titma",
+            "Gianluca Pollastri",
+            "The ELIXIR Machine Learning focus group",
+            "Jen Harrow",
+            "Fotis E. Psomopoulos",
+            "Silvio C. E. Tosatto"
+          ],
+          "claimed_title": "DOME: Recommendations for supervised machine learning validation in biology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2006.16189"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='DOME: Recommendations for supervised machine learning validation in biology')",
+        "failed_at": "2026-10-16T15:30:49Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning curves are a concept from social sciences that has been adopted in the context of machine learning to assess the performance of a learning algorithm with respect to a certain resource, e.g., the number of training examples or the number of training iterations. Learning curves have important applications in several machine learning contexts, most notably in data acquisition, early stopping of model training, and model selection. For instance, learning curves can be used to model the performance of the combination of an algorithm and its hyperparameter configuration, providing insights into their potential suitability at an early stage and often expediting the algorithm selection process. Various learning curve models have been proposed to use learning curves for decision making. Some of these models answer the binary decision question of whether a given algorithm at a certain budget will outperform a certain reference performance, whereas more complex models predict the entire learning curve of an algorithm. We contribute a framework that categorises learning curve approaches using three criteria: the decision-making situation they address, the intrinsic learning curve question they answer and the type of resources they use. We survey papers from the literature and classify them into this framework.",
+          "claimed_authors": [
+            "Felix Mohr",
+            "Jan N. van Rijn"
+          ],
+          "claimed_title": "Learning Curves for Decision Making in Supervised Machine Learning: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.12150"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Material Strength from Microstructure Images with Convolutional Neura', candidate_title='Learning Curves for Decision Making in Supervised Machine Learning: A Survey')",
+        "failed_at": "2026-10-16T15:30:49Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Mohammadreza Karamad",
+            "Rishikesh Magar",
+            "Yuting Shi",
+            "Samira Siahrostami",
+            "Ian D. Gates",
+            "Amir Barati Farimani"
+          ],
+          "title": "Orbital Graph Convolutional Neural Network for Material Property Prediction",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2008.06415",
+        "summary": "Material representations that are compatible with machine learning models play a key role in developing models that exhibit high accuracy for property prediction. Atomic orbital interactions are one of the important factors that govern the properties of crystalline materials, from which the local chemical environments of atoms is inferred. Therefore, to develop robust machine learningmodels for material properties prediction, it is imperative to include features representing such chemical attributes. Here, we propose the Orbital Graph Convolutional Neural Network (OGCNN), a crystal graph convolutional neural network framework that includes atomic orbital interaction features that learns material properties in a robust way. In addition, we embedded an encoder-decoder network into the OGCNN enabling it to learn important features among basic atomic (elemental features), orbital-orbital interactions, and topological features. We examined the performance of this model on a broad range of crystalline material data to predict different properties. We benchmarked the performance of the OGCNN model with that of: 1) the crystal graph convolutional neural network (CGCNN), 2) other state-of-the-art descriptors for material representations including Many-body Tensor Representation (MBTR) and the Smooth Overlap of Atomic Positions (SOAP), and 3) other conventional regression machine learning algorithms where different crystal featurization methods have been used. We find that OGCNN significantly outperforms them. The OGCNN model with high predictive accuracy can be used to discover new materials among the immense phase and compound spaces of materials",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2008.06415",
+          "http_status": 200,
+          "pdf_sample_score": 0.2959,
+          "query_relevance_score": 0.4444,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-16T15:30:48Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting material strength from microstructure images with convolutional neural networks materials science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

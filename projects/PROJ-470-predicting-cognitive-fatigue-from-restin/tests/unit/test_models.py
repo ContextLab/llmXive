@@ -1,300 +1,204 @@
-"""
-Unit tests for data models (EEGSegment and ComplexityMetric).
-"""
-
 import pytest
+import numpy as np
 from datetime import datetime
-from code.models import EEGSegment, ComplexityMetric
-from code.models.complexity_metric import MetricType
+import sys
+import os
 
+# Add parent directory to path to allow imports from code/models
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+
+from models.eeg_segment import EEGSegment
+from models.complexity_metric import ComplexityMetric, MetricType
 
 class TestEEGSegment:
-    """Tests for the EEGSegment data model."""
-    
-    def test_create_eeg_segment(self):
-        """Test creating a basic EEGSegment."""
+    def test_creation_basic(self):
+        """Test basic creation of EEGSegment."""
+        data = np.random.rand(1000)
         segment = EEGSegment(
-            segment_id='seg_001',
-            participant_id='p_001',
-            channel_count=19,
-            sample_rate=256.0,
-            duration_seconds=120.0
+            participant_id="P001",
+            channel="Fp1",
+            data=data,
+            sampling_rate=250.0
         )
         
-        assert segment.segment_id == 'seg_001'
-        assert segment.participant_id == 'p_001'
-        assert segment.channel_count == 19
-        assert segment.sample_rate == 256.0
-        assert segment.duration_seconds == 120.0
-        assert segment.preprocessed is False
-        assert segment.artifact_rejected is False
-        assert len(segment.rejection_reasons) == 0
-    
-    def test_eeg_segment_to_dict(self):
-        """Test converting EEGSegment to dictionary."""
+        assert segment.participant_id == "P001"
+        assert segment.channel == "Fp1"
+        assert np.array_equal(segment.data, data)
+        assert segment.sampling_rate == 250.0
+        assert segment.duration_seconds == 4.0  # 1000 / 250
+
+    def test_creation_with_metadata(self):
+        """Test creation with metadata and start time."""
+        data = np.random.rand(2000)
+        start = datetime(2023, 1, 1, 10, 0, 0)
         segment = EEGSegment(
-            segment_id='seg_001',
-            participant_id='p_001',
-            recording_date=datetime(2024, 1, 15, 10, 30),
-            channel_count=19,
-            sample_rate=256.0,
-            duration_seconds=120.0,
-            preprocessed=True,
-            artifact_rejected=True,
-            rejection_reasons=['high_amplitude', 'line_noise'],
-            metadata={'source': 'Sleep-EDF', 'quality': 'good'}
+            participant_id="P002",
+            channel="Cz",
+            data=data,
+            sampling_rate=500.0,
+            start_time=start,
+            duration_seconds=5.0,
+            metadata={"fatigue_score": 0.8, "condition": "post"}
         )
         
-        data = segment.to_dict()
-        
-        assert data['segment_id'] == 'seg_001'
-        assert data['participant_id'] == 'p_001'
-        assert data['channel_count'] == 19
-        assert data['preprocessed'] is True
-        assert data['artifact_rejected'] is True
-        assert 'high_amplitude' in data['rejection_reasons']
-        assert data['metadata']['source'] == 'Sleep-EDF'
-    
-    def test_eeg_segment_from_dict(self):
-        """Test creating EEGSegment from dictionary."""
-        data = {
-            'segment_id': 'seg_002',
-            'participant_id': 'p_002',
-            'recording_date': '2024-02-20T14:00:00',
-            'channel_count': 21,
-            'sample_rate': 512.0,
-            'duration_seconds': 180.0,
-            'preprocessed': False,
-            'artifact_rejected': False,
-            'rejection_reasons': [],
-            'metadata': {'source': 'SHHS'}
-        }
-        
-        segment = EEGSegment.from_dict(data)
-        
-        assert segment.segment_id == 'seg_002'
-        assert segment.participant_id == 'p_002'
-        assert segment.channel_count == 21
-        assert segment.sample_rate == 512.0
-        assert segment.duration_seconds == 180.0
-        assert segment.recording_date == datetime(2024, 2, 20, 14, 0)
-    
-    def test_eeg_segment_validation(self):
-        """Test EEGSegment validation."""
-        # Valid segment
-        valid_segment = EEGSegment(
-            segment_id='seg_001',
-            participant_id='p_001',
-            channel_count=19,
-            sample_rate=256.0,
-            duration_seconds=120.0
-        )
-        assert valid_segment.validate() is True
-        
-        # Invalid segment - missing segment_id
-        invalid_segment = EEGSegment(
-            segment_id='',
-            participant_id='p_001',
-            channel_count=19,
-            sample_rate=256.0,
-            duration_seconds=120.0
-        )
-        assert invalid_segment.validate() is False
-        
-        # Invalid segment - zero channels
-        invalid_segment = EEGSegment(
-            segment_id='seg_001',
-            participant_id='p_001',
-            channel_count=0,
-            sample_rate=256.0,
-            duration_seconds=120.0
-        )
-        assert invalid_segment.validate() is False
-        
-        # Invalid segment - negative sample rate
-        invalid_segment = EEGSegment(
-            segment_id='seg_001',
-            participant_id='p_001',
-            channel_count=19,
-            sample_rate=-1.0,
-            duration_seconds=120.0
-        )
-        assert invalid_segment.validate() is False
-    
-    def test_eeg_segment_rejection(self):
-        """Test artifact rejection tracking."""
+        assert segment.start_time == start
+        assert segment.duration_seconds == 5.0
+        assert segment.metadata["fatigue_score"] == 0.8
+
+    def test_invalid_data_type(self):
+        """Test that non-numpy data raises TypeError."""
+        with pytest.raises(TypeError):
+            EEGSegment(
+                participant_id="P003",
+                channel="Fp1",
+                data=[1, 2, 3],  # List instead of array
+                sampling_rate=250.0
+            )
+
+    def test_invalid_dimensions(self):
+        """Test that multi-dimensional data raises ValueError."""
+        data_2d = np.random.rand(100, 100)
+        with pytest.raises(ValueError):
+            EEGSegment(
+                participant_id="P004",
+                channel="Fp1",
+                data=data_2d,
+                sampling_rate=250.0
+            )
+
+    def test_invalid_sampling_rate(self):
+        """Test that non-positive sampling rate raises ValueError."""
+        data = np.random.rand(100)
+        with pytest.raises(ValueError):
+            EEGSegment(
+                participant_id="P005",
+                channel="Fp1",
+                data=data,
+                sampling_rate=-10.0
+            )
+
+    def test_serialization_roundtrip(self):
+        """Test that to_dict and from_dict preserve data."""
+        data = np.random.rand(500)
         segment = EEGSegment(
-            segment_id='seg_001',
-            participant_id='p_001',
-            channel_count=19,
-            sample_rate=256.0,
-            duration_seconds=120.0
+            participant_id="P006",
+            channel="O1",
+            data=data,
+            sampling_rate=250.0,
+            metadata={"test": True}
         )
         
-        # Initially not rejected
-        assert segment.artifact_rejected is False
-        assert len(segment.rejection_reasons) == 0
+        d = segment.to_dict()
+        restored = EEGSegment.from_dict(d)
         
-        # Add rejection reason
-        segment.artifact_rejected = True
-        segment.rejection_reasons.append('high_amplitude')
-        segment.rejection_reasons.append('muscle_artifact')
-        
-        assert segment.artifact_rejected is True
-        assert len(segment.rejection_reasons) == 2
+        assert restored.participant_id == segment.participant_id
+        assert restored.channel == segment.channel
+        assert np.array_equal(restored.data, segment.data)
+        assert restored.sampling_rate == segment.sampling_rate
+        assert restored.metadata == segment.metadata
+
+    def test_len(self):
+        """Test length of segment."""
+        data = np.zeros(1500)
+        segment = EEGSegment(
+            participant_id="P007",
+            channel="Fp1",
+            data=data,
+            sampling_rate=500.0
+        )
+        assert len(segment) == 1500
 
 
 class TestComplexityMetric:
-    """Tests for the ComplexityMetric data model."""
-    
-    def test_create_complexity_metric(self):
-        """Test creating a basic ComplexityMetric."""
+    def test_creation_lzc(self):
+        """Test creation of a LZC metric."""
         metric = ComplexityMetric(
-            metric_id='m_001',
-            segment_id='seg_001',
-            channel='Fz',
+            participant_id="P001",
+            channel="Fp1",
             metric_type=MetricType.LEMPEL_ZIV_COMPLEXITY,
-            value=0.65,
-            parameters={'threshold': 0.5, 'window_size': 10}
+            value=0.6543,
+            parameters={"normalized": True}
         )
         
-        assert metric.metric_id == 'm_001'
-        assert metric.segment_id == 'seg_001'
-        assert metric.channel == 'Fz'
+        assert metric.participant_id == "P001"
+        assert metric.channel == "Fp1"
         assert metric.metric_type == MetricType.LEMPEL_ZIV_COMPLEXITY
-        assert metric.value == 0.65
-        assert metric.parameters['threshold'] == 0.5
-    
-    def test_complexity_metric_to_dict(self):
-        """Test converting ComplexityMetric to dictionary."""
+        assert metric.value == 0.6543
+        assert metric.parameters["normalized"] is True
+
+    def test_creation_pe(self):
+        """Test creation of a Permutation Entropy metric."""
         metric = ComplexityMetric(
-            metric_id='m_001',
-            segment_id='seg_001',
-            channel='Cz',
+            participant_id="P002",
+            channel="Cz",
             metric_type=MetricType.PERMUTATION_ENTROPY,
-            value=3.25,
-            parameters={'order': 3, 'delay': 1},
-            quality_score=0.92,
-            metadata={'algorithm': 'standard'}
+            value=2.312,
+            parameters={"order": 3, "lag": 1}
         )
         
-        data = metric.to_dict()
-        
-        assert data['metric_id'] == 'm_001'
-        assert data['segment_id'] == 'seg_001'
-        assert data['channel'] == 'Cz'
-        assert data['metric_type'] == 'pe'
-        assert data['value'] == 3.25
-        assert data['quality_score'] == 0.92
-        assert data['metadata']['algorithm'] == 'standard'
-    
-    def test_complexity_metric_from_dict(self):
-        """Test creating ComplexityMetric from dictionary."""
-        data = {
-            'metric_id': 'm_002',
-            'segment_id': 'seg_002',
-            'channel': 'Pz',
-            'metric_type': 'lzc',
-            'value': 0.72,
-            'parameters': {'threshold': 0.5},
-            'timestamp': '2024-03-15T09:30:00',
-            'quality_score': 0.88,
-            'metadata': {'source': 'preprocessing_v2'}
-        }
-        
-        metric = ComplexityMetric.from_dict(data)
-        
-        assert metric.metric_id == 'm_002'
-        assert metric.segment_id == 'seg_002'
-        assert metric.channel == 'Pz'
-        assert metric.metric_type == MetricType.LEMPEL_ZIV_COMPLEXITY
-        assert metric.value == 0.72
-        assert metric.quality_score == 0.88
-        assert metric.metadata['source'] == 'preprocessing_v2'
-    
-    def test_complexity_metric_validation(self):
-        """Test ComplexityMetric validation."""
-        # Valid metric
-        valid_metric = ComplexityMetric(
-            metric_id='m_001',
-            segment_id='seg_001',
-            channel='Fz',
-            metric_type=MetricType.LEMPEL_ZIV_COMPLEXITY,
-            value=0.65,
-            parameters={}
-        )
-        assert valid_metric.validate() is True
-        
-        # Invalid metric - missing metric_id
-        invalid_metric = ComplexityMetric(
-            metric_id='',
-            segment_id='seg_001',
-            channel='Fz',
-            metric_type=MetricType.LEMPEL_ZIV_COMPLEXITY,
-            value=0.65,
-            parameters={}
-        )
-        assert invalid_metric.validate() is False
-        
-        # Invalid metric - quality_score out of range
-        invalid_metric = ComplexityMetric(
-            metric_id='m_001',
-            segment_id='seg_001',
-            channel='Fz',
-            metric_type=MetricType.LEMPEL_ZIV_COMPLEXITY,
-            value=0.65,
-            parameters={},
-            quality_score=1.5
-        )
-        assert invalid_metric.validate() is False
-    
-    def test_complexity_metric_string_representation(self):
-        """Test string representation of ComplexityMetric."""
+        assert metric.metric_type == MetricType.PERMUTATION_ENTROPY
+        assert metric.value == 2.312
+
+    def test_invalid_value_type(self):
+        """Test that non-numeric value raises TypeError."""
+        with pytest.raises(TypeError):
+            ComplexityMetric(
+                participant_id="P003",
+                channel="Fp1",
+                metric_type=MetricType.LEMPEL_ZIV_COMPLEXITY,
+                value="string_value"
+            )
+
+    def test_nan_value_rejected(self):
+        """Test that NaN value raises ValueError."""
+        with pytest.raises(ValueError):
+            ComplexityMetric(
+                participant_id="P004",
+                channel="Fp1",
+                metric_type=MetricType.LEMPEL_ZIV_COMPLEXITY,
+                value=float('nan')
+            )
+
+    def test_inf_value_rejected(self):
+        """Test that Inf value raises ValueError."""
+        with pytest.raises(ValueError):
+            ComplexityMetric(
+                participant_id="P005",
+                channel="Fp1",
+                metric_type=MetricType.LEMPEL_ZIV_COMPLEXITY,
+                value=float('inf')
+            )
+
+    def test_serialization_roundtrip(self):
+        """Test that to_dict and from_dict preserve data."""
         metric = ComplexityMetric(
-            metric_id='m_001',
-            segment_id='seg_001',
-            channel='Fz',
-            metric_type=MetricType.LEMPEL_ZIV_COMPLEXITY,
-            value=0.65432,
-            parameters={}
+            participant_id="P006",
+            channel="O1",
+            metric_type=MetricType.SAMPLE_ENTROPY,
+            value=1.2345,
+            parameters={"m": 2, "r": 0.2},
+            metadata={"source": "raw"}
         )
         
-        str_repr = str(metric)
-        assert 'LZC' in str_repr
-        assert 'Fz' in str_repr
-        assert '0.6543' in str_repr
-    
-    def test_metric_type_enum(self):
-        """Test MetricType enum values."""
-        assert MetricType.LEMPEL_ZIV_COMPLEXITY.value == 'lzc'
-        assert MetricType.PERMUTATION_ENTROPY.value == 'pe'
-        assert MetricType.SAMPLE_ENTROPY.value == 'sampen'
-        assert MetricType.MULTISCALE_ENTROPY.value == 'mse'
-    
-    def test_complexity_metric_default_timestamp(self):
-        """Test that timestamp defaults to current time."""
+        d = metric.to_dict()
+        restored = ComplexityMetric.from_dict(d)
+        
+        assert restored.participant_id == metric.participant_id
+        assert restored.channel == metric.channel
+        assert restored.metric_type == metric.metric_type
+        assert restored.value == metric.value
+        assert restored.parameters == metric.parameters
+        assert restored.metadata == metric.metadata
+
+    def test_str_representation(self):
+        """Test string representation."""
         metric = ComplexityMetric(
-            metric_id='m_001',
-            segment_id='seg_001',
-            channel='Fz',
-            metric_type=MetricType.LEMPEL_ZIV_COMPLEXITY,
-            value=0.65,
-            parameters={}
+            participant_id="P007",
+            channel="Fp1",
+            metric_type=MetricType.PERMUTATION_ENTROPY,
+            value=2.5
         )
-        
-        assert metric.timestamp is not None
-        assert isinstance(metric.timestamp, datetime)
-    
-    def test_complexity_metric_default_metadata(self):
-        """Test that metadata defaults to empty dict."""
-        metric = ComplexityMetric(
-            metric_id='m_001',
-            segment_id='seg_001',
-            channel='Fz',
-            metric_type=MetricType.LEMPEL_ZIV_COMPLEXITY,
-            value=0.65,
-            parameters={}
-        )
-        
-        assert metric.metadata == {}
-        assert isinstance(metric.metadata, dict)
+        s = str(metric)
+        assert "PERMUTATION_ENTROPY" in s
+        assert "Fp1" in s
+        assert "2.5000" in s

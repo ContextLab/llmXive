@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-045-investigating-the-relationship-between-d",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/dft_runner.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026er started.\")          # Mock data for demonstration if no\u2026\u201d; every produced artifact is gitignored (data/processed/defect_density_metrics.json, data/processed/download_summary.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 command(s) failed: python code/validate.py (rc=2); python code/semi_empirical.py --all (rc=1); python code/analysis.py (rc=1); 3 declared deliverable(s) absent: data/processed/citation_status.json; data/processed/semi_empirical_results.json; data/raw/citations_cache.json",
+  "artifacts": [
+    "data/processed/defect_density_metrics.json",
+    "data/processed/download_summary.json"
+  ],
+  "failures": [
+    "python code/validate.py -> rc=2\n    usage: validate.py [-h] [--structures STRUCTURES] [--summary SUMMARY]\n                   [--output OUTPUT]\nvalidate.py: error: Either --structures or --summary must be provided",
+    "python code/semi_empirical.py --all -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/semi_empirical.py\", line 18, in <module>\n    from pymatgen.analysis.bond_valence import BondValenceAnalyzer\nImportError: cannot import name 'BondValenceAnalyzer' from 'pymatgen.analysis.bond_valence' (/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/.venv/lib/python3.11/site-packages/pymatgen/analysis/bond_valence.py)",
+    "python code/analysis.py -> rc=1\n    full analysis pipeline\n2026-08-17 03:10:24 - __main__ - INFO - Loading processed data from data/processed/processed_data.json\n2026-08-17 03:10:24 - __main__ - ERROR - Analysis failed: Data file not found: data/processed/processed_data.json\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/analysis.py\", line 325, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-045-investigating-the-relationship-between-d/code/analysis.py\", line 310, in ma"
+  ],
+  "fix_rounds": 3,
+  "model_tier": 0,
+  "total_attempts": 3,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-17T03:10:27Z"
+}

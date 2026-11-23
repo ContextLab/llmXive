@@ -15,10 +15,11 @@ CROSS-CLUSTER CONTRACT (consumed by the pipeline graph / kickback router):
                          "last_reason": str, "first_seen": iso8601,
                          "last_seen": iso8601}],
               "updated_at": iso8601}``
-  * The CORE pipeline routes a project to ``research_full_revision`` when
-    :func:`has_unverifiable` is true (a task the implementer cannot make pass
-    needs a re-plan, not another redo lap), and calls :func:`clear` once the
-    project has been kicked back so the next cycle starts clean.
+  * CORE retries implementation with the next free model while preserving task
+    definitions and verifier feedback, clearing this store so tasks are judged
+    again. After the free ladder is exhausted it routes to ``planned`` with
+    deterministic feedback. Exhausted re-plan budgets route to ``agent_blocked``
+    and retain these unresolved records. No rejected task is force-accepted.
 
 All writes go through :func:`llmxive.state._io.atomic_write_text` (Constitution I:
 one shared atomic writer — a crash mid-write never truncates the JSON).
@@ -74,7 +75,7 @@ def recorded_keys(project_id: str, *, repo_root: Path | None = None) -> set[str]
 
 def has_unverifiable(project_id: str, *, repo_root: Path | None = None) -> bool:
     """True iff ``project_id`` has ANY recorded unverifiable task — the signal CORE
-    uses to route the project to ``research_full_revision``."""
+    uses to retry another free model or re-plan after exhausting the ladder."""
     return bool(load(project_id, repo_root=repo_root))
 
 
@@ -120,11 +121,21 @@ def record_unverifiable(
     return rec
 
 
-def clear(project_id: str, *, repo_root: Path | None = None) -> None:
+def clear(project_id: str, *, repo_root: Path | None = None, track: str | None = None) -> None:
     """Drop ALL unverifiable records for ``project_id`` (the whole file).
 
-    CORE calls this after routing the project to ``research_full_revision`` so the
-    re-planned cycle starts with a clean slate."""
+    CORE calls this after selecting a new free model or routing to ``planned``
+    so the next implementation cycle verifies rejected tasks afresh."""
+    if track not in {None, "research", "paper"}:
+        raise ValueError(f"unknown task track: {track}")
+    if track is not None:
+        remaining = [entry for entry in load(project_id, repo_root=repo_root)
+                     if str(entry.get("task_key", "")).startswith("paper:") != (track == "paper")]
+        if remaining:
+            atomic_write_text(_path(project_id, repo_root=repo_root), json.dumps({
+                "project_id": project_id, "tasks": remaining, "updated_at": _now(),
+            }, indent=2) + "\n")
+            return
     _path(project_id, repo_root=repo_root).unlink(missing_ok=True)
 
 

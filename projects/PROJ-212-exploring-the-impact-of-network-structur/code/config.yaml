@@ -1,0 +1,13 @@
+# Configuration for network synchronization impact study
+seeds:
+  random: 42
+thresholds:
+  r: 0.8
+  t: 100
+  min_files: 10
+paths:
+  raw_data: data/raw
+  processed: data/processed
+  results: results
+  state: state
+  logs: logs

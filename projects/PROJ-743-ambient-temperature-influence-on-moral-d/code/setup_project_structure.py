@@ -1,74 +1,54 @@
 """
-Project Structure Setup Module.
-
-This module provides utilities to ensure the required directory structure
-for the ambient temperature influence on moral decision speed project.
+T007: Create project structure per implementation plan.
+Creates the required directory tree for the project.
 """
-
 import os
 import sys
 from pathlib import Path
 
-# Define the required directory structure relative to the project root
-REQUIRED_DIRS = [
-    "code",
-    "data/raw",
-    "data/processed",
-    "results/figures",
-    "results/logs",
-    "results/stats",
-    "tests",
-]
+def ensure_directories():
+    """Create the required project directories."""
+    # Define the base directory relative to the script location or current working directory
+    # The task specifies paths relative to project root.
+    base_dirs = [
+        "code",
+        "data/raw",
+        "data/processed",
+        "results/figures",
+        "results/logs",
+        "results/stats",
+        "tests"
+    ]
 
+    created_count = 0
+    for dir_path in base_dirs:
+        full_path = Path(dir_path)
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {full_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {full_path}")
 
-def ensure_directories(base_path: Path = None) -> bool:
-    """
-    Ensure all required project directories exist.
-
-    Args:
-        base_path: The base path for the project. Defaults to the current
-                   working directory.
-
-    Returns:
-        True if all directories were successfully created or already exist,
-        False otherwise.
-    """
-    if base_path is None:
-        base_path = Path.cwd()
-
-    success = True
-    for dir_name in REQUIRED_DIRS:
-        dir_path = base_path / dir_name
-        try:
-            dir_path.mkdir(parents=True, exist_ok=True)
-            # Verify the directory actually exists and is a directory
-            if not dir_path.is_dir():
-                print(f"Error: {dir_path} exists but is not a directory.")
-                success = False
-        except OSError as e:
-            print(f"Error creating directory {dir_path}: {e}")
-            success = False
-
-    return success
-
+    return created_count
 
 def main():
-    """
-    Main entry point for the script.
-    Creates the project structure from the current working directory.
-    """
-    print("Setting up project structure...")
-    if ensure_directories():
-        print("Project structure created successfully.")
-        # List created directories for verification
-        base_path = Path.cwd()
-        for dir_name in REQUIRED_DIRS:
-            print(f"  - {base_path / dir_name}")
-        sys.exit(0)
-    else:
-        print("Failed to create project structure.")
+    print("Initializing project structure for PROJ-743...")
+    count = ensure_directories()
+    print(f"Project structure initialization complete. {count} new directories created.")
+    # Verify existence of critical paths required for downstream tasks
+    critical_paths = [
+        "data/raw",
+        "data/processed",
+        "results/logs",
+        "results/figures",
+        "results/stats"
+    ]
+    missing = [p for p in critical_paths if not Path(p).exists()]
+    if missing:
+        print(f"ERROR: Missing critical directories: {missing}")
         sys.exit(1)
-
+    print("All critical directories verified.")
 
 if __name__ == "__main__":
     main()

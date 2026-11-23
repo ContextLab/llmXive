@@ -1,0 +1,14 @@
+status: none
+intent: causalml synthetic causal inference dataset python package dataset
+required_fields:
+- X1
+- X2
+- X3
+- X4
+- X5
+- T
+- Y
+- propensity_score
+cache_key: 7e3a671c971c523fabec2790b44098d2576c9e9c57027f6f51ad054e8e0b2180
+searched_at: '2026-10-25T12:41:06.555531+00:00'
+retry_count: 1

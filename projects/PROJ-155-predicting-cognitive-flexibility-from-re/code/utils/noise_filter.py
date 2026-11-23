@@ -1,237 +1,196 @@
 """
-Noise filtering utilities for resting-state fMRI analysis.
+Noise filtering utilities for SNR filtering and Motion-Noise Orthogonalization.
 
-Implements:
-1. SNR filtering based on temporal signal-to-noise ratio.
-2. Motion-Noise Orthogonalization (MNO) to regress out motion-related variance
-   that is orthogonal to the neural signal of interest.
-
-Dependencies:
-- code/config: for SNR thresholds and motion parameters
-- code/utils/motion: for motion parameter extraction if needed
+Exposed API:
+    calculate_snr: Calculate Signal-to-Noise Ratio.
+    filter_by_snr: Filter time series based on SNR threshold (returns boolean mask).
+    orthogonalize_motion_noise: Regress out motion parameters from time series.
+    apply_noise_filter_pipeline: End-to-end pipeline applying SNR check and orthogonalization.
 """
+import logging
+
 import numpy as np
-from typing import Optional, Tuple, List, Dict
+
 from code.config import get_config
-from code.utils.motion import calculate_mean_fd
 
+logger = logging.getLogger(__name__)
 
-def calculate_snr(time_series: np.ndarray, mask: Optional[np.ndarray] = None) -> float:
+def calculate_snr(time_series: np.ndarray) -> float:
     """
-    Calculate temporal Signal-to-Noise Ratio (tSNR) for a given time series.
-    
-    tSNR = mean(signal) / std(signal)
-    
+    Calculate Signal-to-Noise Ratio (SNR) for fMRI time series.
+
+    Definition: Mean signal intensity / Standard deviation of signal.
+    Computed across all timepoints and regions, then averaged.
+
     Args:
-        time_series: 1D or 2D numpy array of fMRI time series data.
-                     If 2D, shape should be (n_timepoints, n_regions).
-        mask: Optional boolean or integer mask array to select specific regions.
-              If None, all regions are used.
-    
+        time_series: 1D (n_timepoints) or 2D (n_timepoints, n_regions) array.
+
     Returns:
-        float: Mean tSNR across selected regions.
-    
-    Raises:
-        ValueError: If input array is empty or contains NaNs.
+        float: Mean SNR value across all regions.
     """
-    if time_series.size == 0:
-        raise ValueError("Input time series is empty.")
-    
-    if np.any(np.isnan(time_series)):
-        # Replace NaNs with 0 for calculation, but warn
-        time_series = np.nan_to_num(time_series, nan=0.0)
-    
     if time_series.ndim == 1:
         time_series = time_series.reshape(-1, 1)
-    
-    if mask is not None:
-        time_series = time_series[:, mask]
-    
-    mean_signal = np.mean(time_series, axis=0)
-    std_signal = np.std(time_series, axis=0)
-    
+
+    # Calculate mean and std across time axis (axis=0)
+    mean_val = np.mean(time_series, axis=0)
+    std_val = np.std(time_series, axis=0)
+
     # Avoid division by zero
-    std_signal[std_signal == 0] = 1e-8
-    
-    tsnr = mean_signal / std_signal
-    
-    return float(np.mean(tsnr))
+    std_val = np.where(std_val == 0, 1e-8, std_val)
 
+    # Calculate SNR per region
+    snr_per_region = mean_val / std_val
 
-def filter_by_snr(
-    time_series: np.ndarray,
-    snr_threshold: Optional[float] = None,
-    mask: Optional[np.ndarray] = None
-) -> Tuple[np.ndarray, np.ndarray]:
+    # Return mean SNR across all regions
+    return float(np.mean(snr_per_region))
+
+def filter_by_snr(time_series: np.ndarray, threshold: float | None = None) -> tuple[np.ndarray, bool]:
     """
-    Filter regions based on SNR threshold.
-    
+    Check if time series meets SNR threshold.
+
     Args:
-        time_series: 2D numpy array of shape (n_timepoints, n_regions).
-        snr_threshold: Minimum SNR required. If None, uses config value.
-        mask: Optional mask to apply before SNR calculation.
-    
+        time_series: 1D or 2D array of fMRI data.
+        threshold: SNR threshold. If None, uses config value.
+
     Returns:
-        Tuple of:
-            - filtered_time_series: Time series with low-SNR regions removed.
-            - kept_indices: Boolean array indicating which regions were kept.
+        Tuple of (time_series, passes_threshold).
+        If passes_threshold is False, the data is considered noisy.
     """
-    if snr_threshold is None:
+    if threshold is None:
         config = get_config()
-        snr_threshold = config.get('snr_threshold', 50.0)
-    
-    if time_series.ndim != 2:
-        raise ValueError("time_series must be 2D (n_timepoints, n_regions)")
-    
-    # Calculate SNR for each region
-    mean_signal = np.mean(time_series, axis=0)
-    std_signal = np.std(time_series, axis=0)
-    std_signal[std_signal == 0] = 1e-8
-    snr_values = mean_signal / std_signal
-    
-    # Determine which regions to keep
-    if mask is not None:
-        combined_mask = mask & (snr_values >= snr_threshold)
-    else:
-        combined_mask = snr_values >= snr_threshold
-    
-    kept_indices = combined_mask
-    filtered_time_series = time_series[:, kept_indices]
-    
-    return filtered_time_series, kept_indices
+        threshold = config.get('snr_threshold', 1.0)
 
+    snr = calculate_snr(time_series)
+    passes = snr >= threshold
 
-def orthogonalize_motion_noise(
-    time_series: np.ndarray,
-    motion_params: np.ndarray,
-    mean_fd: float,
-    fd_threshold: Optional[float] = None
-) -> np.ndarray:
+    if not passes:
+        logger.warning(f"SNR {snr:.4f} is below threshold {threshold}. Data may be noisy.")
+
+    return time_series, passes
+
+def orthogonalize_motion_noise(time_series: np.ndarray, motion_params: np.ndarray) -> np.ndarray:
     """
-    Perform Motion-Noise Orthogonalization (MNO).
-    
-    This function removes motion-related variance from the time series by
-    regressing out motion parameters, but only for volumes where motion
-    exceeds a threshold (scrubbing-like approach combined with regression).
-    
+    Orthogonalize time series against motion parameters using nuisance regression.
+
+    This implements a standard linear regression approach to remove motion-related
+    variance from the fMRI signal.
+
     Args:
-        time_series: 2D numpy array of shape (n_timepoints, n_regions).
-        motion_params: 2D numpy array of shape (n_timepoints, n_motion_params).
-                       Typically 6 rigid-body parameters (3 translations, 3 rotations).
-        mean_fd: Mean Framewise Displacement for the subject.
-        fd_threshold: FD threshold for identifying high-motion volumes.
-                      If None, uses config value (default 0.2).
-    
+        time_series: Shape (n_timepoints, n_regions).
+        motion_params: Shape (n_timepoints, n_motion_params) (typically 6 rigid-body parameters).
+
     Returns:
-        np.ndarray: Cleaned time series with motion-related variance removed.
-    
-    Raises:
-        ValueError: If dimensions don't match or inputs are invalid.
+        Residualized time series with motion effects removed.
+        Shape: (n_timepoints, n_regions).
     """
-    if time_series.shape[0] != motion_params.shape[0]:
+    n_timepoints = time_series.shape[0]
+
+    if motion_params.shape[0] != n_timepoints:
         raise ValueError(
-            f"Time series ({time_series.shape[0]} timepoints) and "
-            f"motion params ({motion_params.shape[0]} timepoints) must have "
-            f"the same number of timepoints."
+            f"Time series ({n_timepoints} timepoints) and motion params "
+            f"({motion_params.shape[0]} timepoints) length mismatch."
         )
-    
-    if fd_threshold is None:
-        config = get_config()
-        fd_threshold = config.get('fd_threshold', 0.2)
-    
-    # Identify high-motion volumes
-    # We assume motion_params contains FD or we calculate it
-    # For simplicity, we use the provided mean_fd to check if overall motion is high
-    # and then identify specific high-motion frames if motion_params includes FD
-    
-    # If motion_params has 6 columns (3 trans, 3 rot), we need to estimate FD
-    # Standard FD calculation: sum of absolute differences of motion parameters
-    if motion_params.shape[1] == 6:
-        # Calculate FD from 6 motion parameters
-        diffs = np.abs(np.diff(motion_params, axis=0))
-        # Convert rotations (radians) to mm (assume 50mm radius)
-        fd_values = np.sum(diffs[:, :3], axis=1) + 50.0 * np.sum(diffs[:, 3:], axis=1)
-        # Prepend 0 for the first timepoint
-        fd_values = np.insert(fd_values, 0, 0.0)
-    else:
-        # Assume motion_params is already FD or we can't calculate it
-        # In this case, we'll use the provided mean_fd as a global check
-        # and skip frame-specific scrubbing
-        fd_values = np.full(motion_params.shape[0], mean_fd)
-    
-    high_motion_mask = fd_values > fd_threshold
-    
-    # Create design matrix for regression
-    # Include motion parameters and their derivatives
-    X = np.column_stack([
-        motion_params,
-        np.diff(motion_params, axis=0, prepend=motion_params[0:1])
-    ])
-    
-    # Add constant term
-    X = np.column_stack([np.ones(X.shape[0]), X])
-    
-    # Perform orthogonalization
-    cleaned_time_series = time_series.copy()
-    
+
+    if motion_params.ndim == 1:
+        motion_params = motion_params.reshape(-1, 1)
+
+    # Design matrix: [intercept, motion_params]
+    X = np.column_stack([np.ones(n_timepoints), motion_params])
+
+    # Solve for beta using least squares for each region
+    # Y = X * beta + error  =>  beta = (X'X)^-1 X'Y
+    # We use np.linalg.lstsq for numerical stability
+
+    residuals = np.zeros_like(time_series)
+
     for i in range(time_series.shape[1]):
         y = time_series[:, i]
-        
-        # Regress out motion from high-motion volumes only
-        if np.any(high_motion_mask):
-            # Fit model on high-motion volumes
-            X_high = X[high_motion_mask]
-            y_high = y[high_motion_mask]
-            
-            # Ordinary least squares
-            beta = np.linalg.lstsq(X_high, y_high, rcond=None)[0]
-            
-            # Predict and subtract from all volumes
-            predicted_motion = X @ beta
-            cleaned_time_series[:, i] = y - predicted_motion
-        else:
-            # No high-motion volumes, just detrend if needed
-            # Simple mean subtraction
-            cleaned_time_series[:, i] = y - np.mean(y)
-    
-    return cleaned_time_series
+        beta, _, _, _ = np.linalg.lstsq(X, y, rcond=None)
+        fitted = X @ beta
+        residuals[:, i] = y - fitted
 
+    return residuals
 
 def apply_noise_filter_pipeline(
     time_series: np.ndarray,
     motion_params: np.ndarray,
-    mean_fd: float
-) -> np.ndarray:
+    snr_threshold: float | None = None
+) -> tuple[np.ndarray, dict[str, float | bool]]:
     """
-    Apply the full noise filtering pipeline:
-    1. SNR filtering to remove low-quality regions.
-    2. Motion-noise orthogonalization to remove motion artifacts.
-    
+    Apply full noise filter pipeline:
+    1. Calculate and check SNR.
+    2. Orthogonalize against motion parameters.
+
     Args:
-        time_series: 2D numpy array of shape (n_timepoints, n_regions).
-        motion_params: 2D numpy array of shape (n_timepoints, n_motion_params).
-        mean_fd: Mean Framewise Displacement for the subject.
-    
+        time_series: fMRI time series data (n_timepoints, n_regions).
+        motion_params: Motion parameters (n_timepoints, 6).
+        snr_threshold: Optional SNR threshold override.
+
     Returns:
-        np.ndarray: Cleaned time series ready for connectivity analysis.
+        Tuple of (cleaned_time_series, metadata_dict).
+        metadata_dict contains:
+            - 'snr': Calculated SNR value.
+            - 'snr_passed': Boolean indicating if SNR threshold was met.
     """
-    # Step 1: SNR filtering
-    config = get_config()
-    snr_threshold = config.get('snr_threshold', 50.0)
-    fd_threshold = config.get('fd_threshold', 0.2)
-    
-    filtered_ts, kept_mask = filter_by_snr(
-        time_series, 
-        snr_threshold=snr_threshold
-    )
-    
-    # Step 2: Motion-noise orthogonalization
-    # Filter motion params to match kept regions (though motion params are global)
-    cleaned_ts = orthogonalize_motion_noise(
-        filtered_ts,
-        motion_params,
-        mean_fd,
-        fd_threshold=fd_threshold
-    )
-    
-    return cleaned_ts
+    # Step 1: SNR Check
+    snr = calculate_snr(time_series)
+
+    if snr_threshold is None:
+        config = get_config()
+        snr_threshold = config.get('snr_threshold', 1.0)
+
+    snr_passed = snr >= snr_threshold
+
+    if not snr_passed:
+        logger.warning(
+            f"Subject data SNR ({snr:.4f}) below threshold ({snr_threshold}). "
+            "Proceeding with orthogonalization but flagging for review."
+        )
+
+    # Step 2: Motion Orthogonalization
+    cleaned_ts = orthogonalize_motion_noise(time_series, motion_params)
+
+    metadata = {
+        'snr': snr,
+        'snr_passed': snr_passed
+    }
+
+    return cleaned_ts, metadata
+
+# CLI Entry Point for standalone testing
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Test Noise Filter Pipeline")
+    parser.add_argument("--test", action="store_true", help="Run unit tests on synthetic data")
+    args = parser.parse_args()
+
+    if args.test:
+        # Generate synthetic test data
+        np.random.seed(42)
+        n_timepoints = 200
+        n_regions = 200
+
+        # Simulate signal + noise
+        signal = np.random.randn(n_timepoints, n_regions) * 0.5
+        noise = np.random.randn(n_timepoints, n_regions) * 0.2
+        time_series = signal + noise
+
+        # Simulate motion parameters (6 rigid body params)
+        motion_params = np.random.randn(n_timepoints, 6) * 0.1
+
+        print(f"Input shape: {time_series.shape}")
+        print(f"Motion params shape: {motion_params.shape}")
+
+        # Run pipeline
+        cleaned, meta = apply_noise_filter_pipeline(time_series, motion_params)
+
+        print(f"Cleaned shape: {cleaned.shape}")
+        print(f"SNR: {meta['snr']:.4f}")
+        print(f"SNR Passed: {meta['snr_passed']}")
+
+        # Verify shape preservation
+        assert cleaned.shape == time_series.shape, "Shape mismatch after orthogonalization"
+        print("Test passed: Noise filter pipeline executed successfully.")
+    else:
+        print("Run with --test to execute verification on synthetic data.")

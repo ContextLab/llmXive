@@ -1,0 +1,84 @@
+The binding problem refers to the neural mechanism by which the brain integrates distinct features (color, shape, motion) processed in separate cortical areas into a unified perceptual object. The "Synchronized Oscillations" hypothesis posits that neurons representing features of the same object synchronize their firing at specific frequencies (typically gamma band, ~40Hz), while neurons representing different objects fire out of phase.
+
+### Computational Mapping
+This project tests whether implementing synchronized oscillatory dynamics in a transformer's attention mechanism improves feature integration in a manner analogous to the brain.
+- **Hypothesis**: Injecting a phase-locked sinusoidal gating signal at a relative frequency (scaled to sequence length) into DistilBERT attention heads will:
+ 1. Produce a detectable spectral peak at the injected frequency in the activation time-series (defined as sequence index).
+ 2. Increase Spectral Density Correlation (SDC) similarity to human MEG gamma-band *spectral shape* (not phase).
+ 3. Improve performance on compositional reasoning benchmarks (CLUTRR, bAbI) that require feature integration.
+
+### Reviewer Feedback Integration
+- **rosalind-franklin-simulated**: The 40Hz claim is not arbitrary but a testable hypothesis. We will perform a frequency sweep (low to high relative frequency) to determine if the alignment is specific to 40Hz or a broader gamma phenomenon. This addresses the need for quantitative constraints.
+- **richard-feynman-simulated**: The "physical" meaning of oscillation in a transformer is implemented as a time-varying multiplicative mask on attention weights. We distinguish "genuine" oscillation from noise by verifying the spectral peak (SNR ≥ 3.0 dB) and comparing against a non-oscillatory control.
+- **john-von-neumann-simulated**: We address the "synchronization vs. correlation" issue by framing results as "Associational Similarity Scores" and using permutation tests to rule out chance alignment. We explicitly acknowledge the model does not *generate* synchronization endogenously; we test the *functional role* of the constraint.
+
+## 2. Dataset Strategy
+
+### OpenNeuro MEG/EEG Reference
+**Source**: OpenNeuro ds (binding task)
+**Verified URL**: ` (Note: This is a derived FSLR64k dataset; for raw MEG, we use the verified HuggingFace mirror of OpenNeuro data).
+**Strategy**:
+- We will stream the OpenNeuro dataset using `datasets.load_dataset(..., streaming=True)` to avoid RAM overflow.
+- **Filtering**: Extract the gamma band using a bandpass filter.
+- **Fallback**: If the specific 40Hz signature is not isolated (SNR < 2.0), the system will fall back to analyzing the broader 30-50Hz band, as noted in the spec's edge cases.
+- **Variable Fit**: The dataset contains task-evoked MEG responses. We will align the "binding task" condition (if available) with the model's forward pass. If the dataset lacks a clean "feature binding" condition (as acknowledged by reviewers), we will use the general task-evoked gamma response as a *qualitative proxy* for "gamma engagement," explicitly noting this limitation. The comparison will be limited to **Spectral Density Correlation** (shape of the power spectrum), not Phase Locking Value (PLV), to avoid the category error of discrete vs. continuous time.
+
+### CLUTRR & bAbI Benchmarks
+**Source**: Hugging Face `tasksource/clutrr`
+**Verified URL**: `
+**Strategy**:
+- Use a representative sample (a sufficient number of samples, multi-hop relations) to ensure CPU feasibility.
+- Split into multiple random seeds for statistical testing.
+
+### PLV Reference Data (Deprecated)
+**Source**: Hugging Face `Thanh271001/PLVN`
+**Verified URL**: `
+**Strategy**: This dataset is no longer used for PLV calculation due to the category error. It may be used for validation of the spectral analysis pipeline only.
+
+### Data Availability & Feasibility
+- **OpenNeuro**: Accessible via Hugging Face `datasets` library. No credentials required for the public subset.
+- **CLUTRR**: Publicly available, small size (~10MB).
+- **Constraint**: If the full OpenNeuro dataset exceeds available system RAM, we will subsample to a fixed number of trials (e.g., a series of initial trials) and record this as a power limitation.
+
+## 3. Methodological Rigor
+
+### Statistical Corrections
+- **Multiple Comparisons**: A Bonferroni correction will be applied to all p-values generated from the frequency sweep and benchmark tasks.
+- **Power Analysis**: We acknowledge the power limitation due to subsampling. The plan will explicitly state the sample size and its effect on statistical power.
+
+### Causal Inference Framing
+- All similarity claims will be labeled as "Associational Similarity Score".
+- Permutation tests (≥1000 permutations) will be used to generate a null distribution. The p-value will represent the probability of observing the similarity score by chance.
+- **Limitation**: The model does not *generate* synchronization endogenously. The results test the *functional role* of an external oscillatory constraint, not the emergence of binding.
+
+### Measurement Validity
+- **Spectral Peak**: Verified via Welch's method (window=512) with a target SNR ≥ 3.0 dB.
+- **Spectral Density Correlation (SDC)**: Calculated as the Pearson correlation of normalized Power Spectral Density (PSD) vectors between model and MEG data. This avoids the need for phase alignment of discrete vs. continuous time series.
+
+### Predictor Collinearity
+- The frequency parameter is the primary independent variable. We will not claim "independent effects" of frequency on performance if predictors are definitionally related (e.g., frequency and token rate). Instead, we will report the relationship descriptively.
+
+## 4. Compute Feasibility
+
+### CPU-First Strategy
+- **Model**: DistilBERT-base (a reduced-layer variant with a standard hidden dimension) fits easily in standard RAM capacities..
+- **Operations**: FFT, Welch's method, and SDC calculation are CPU-tractable using `scipy` and `numpy`.
+- **Benchmarking**: CLUTRR evaluation on samples is fast (< 10min).
+- **Time Limit**: Total runtime estimated at < 2 hours on CPU.
+
+### GPU Escape Hatch
+- If the MEG filtering or SDC calculation requires CUDA-specific operations (unlikely for standard scipy), the system will detect the error and re-run on a Kaggle GPU (scaled down to a few hundred examples).
+- **No Fabrication**: We will not simulate GPU computations on CPU. If a method truly requires GPU, we will scale it down to fit the Kaggle constraint.
+
+## 5. Decision/Rationale
+
+- **Frequency Choice**: 40Hz is chosen based on the gamma-band hypothesis, but the sweep (20-60Hz) ensures we test the robustness of this claim. The frequency is defined as "cycles per sequence length" (relative frequency), not physical Hz.
+- **Dataset Selection**: OpenNeuro datasets relevant to binding tasks are selected for the study. The research question is [insert research question]. The method is [insert method]. References include [insert references]. If the specific condition is missing, we use the broader gamma response as a qualitative proxy, explicitly noting the limitation.
+- **Statistical Method**: Permutation tests are chosen over parametric tests to avoid assumptions about the distribution of SDC scores.
+- **Compute Platform**: CPU-first is chosen for reproducibility and cost. GPU is only used as a fallback for specific CUDA requirements.
+- **Mapping Hypothesis**: The "1 token = 10ms" mapping is **removed**. Frequency is defined relative to the sequence length. The MEG comparison is limited to spectral shape (SDC), avoiding the category error of discrete vs. continuous time.
+
+===BEGIN_ARTIFACT projects/PROJ-593-the-binding-problem-in-llms-implementing/specs/001-the-binding-problem-in-llms-implementing/data-model.md===
+# Data Model: The Binding Problem in LLMs: Implementing Synchronized Oscillations for Feature Integration
+
+## 1. Overview

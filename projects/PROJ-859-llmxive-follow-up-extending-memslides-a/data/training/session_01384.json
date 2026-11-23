@@ -1,0 +1,106 @@
+{
+  "trace_id": "training_42_01384",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "resize_element",
+    "resize_element",
+    "insert_text",
+    "format_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "apply_theme",
+    "update_layout"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 0.1818,
+        "height": 19.5175
+      }
+    },
+    {
+      "step": 1,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 22.9308,
+        "height": 37.6892
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 51.0573,
+        "y": 77.5189,
+        "length": 99.2023
+      }
+    },
+    {
+      "step": 3,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 57.2857,
+        "x": 27.9605,
+        "y": 5.5405
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 2.7652,
+        "y": 79.4092,
+        "length": 37.2149
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 80.3142,
+        "y": 68.7026,
+        "length": 19.9001
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 72.7486,
+        "y": 72.4391,
+        "length": 60.8273
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 24.7618,
+        "saturation": 67.3951
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 31.9907,
+        "padding": 33.1315
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.427061,
+    "tool_repetition_freq": 0.444444,
+    "arg_semantic_variance": 768.713314
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 10,
+    "layout_hash": "42-1384-insert_text"
+  }
+}

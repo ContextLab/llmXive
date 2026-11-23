@@ -1,9 +1,15 @@
 """
 Unit tests for code/config.py
+
+Verifies:
+- Random seeds are set correctly
+- CPU-only constraints are enforced
+- Path definitions are valid Path objects
+- Analysis parameters are of correct types
 """
+
 import os
 import sys
-import pytest
 from pathlib import Path
 
 # Add parent directory to path for imports
@@ -11,202 +17,99 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
 import code.config as config
 
-class TestConfigSeeds:
-    """Test random seed initialization and constants."""
 
-    def test_random_seed_constant(self):
-        """Verify RANDOM_SEED is an integer."""
-        assert isinstance(config.RANDOM_SEED, int)
-        assert config.RANDOM_SEED == 42
+def test_random_seed_exists():
+    """Test that RANDOM_SEED is defined and is an integer."""
+    assert hasattr(config, "RANDOM_SEED")
+    assert isinstance(config.RANDOM_SEED, int)
+    assert config.RANDOM_SEED == 42
 
-    def test_numpy_seed_constant(self):
-        """Verify NUMPY_SEED is an integer."""
-        assert isinstance(config.NUMPY_SEED, int)
-        assert config.NUMPY_SEED == 42
 
-    def test_torch_seed_constant(self):
-        """Verify TORCH_SEED is an integer."""
-        assert isinstance(config.TORCH_SEED, int)
-        assert config.TORCH_SEED == 42
+def test_pythonhashseed_set():
+    """Test that PYTHONHASHSEED environment variable is set."""
+    assert "PYTHONHASHSEED" in os.environ
+    assert os.environ["PYTHONHASHSEED"] == str(config.RANDOM_SEED)
 
-    def test_sklearn_seed_constant(self):
-        """Verify SKLEARN_SEED is an integer."""
-        assert isinstance(config.SKLEARN_SEED, int)
-        assert config.SKLEARN_SEED == 42
 
-class TestExecutionConstraints:
-    """Test execution constraint settings."""
+def test_cpu_only_constraints():
+    """Test that CPU-only constraints are enforced."""
+    assert config.USE_CUDA is False
+    assert config.N_CPUS == 2
+    assert os.environ.get("CUDA_VISIBLE_DEVICES") == ""
 
-    def test_force_cpu_only(self):
-        """Verify CPU-only constraint is enabled."""
-        assert config.FORCE_CPU_ONLY is True
 
-    def test_max_memory_gb(self):
-        """Verify max memory constraint is set."""
-        assert config.MAX_MEMORY_GB == 7.0
+def test_path_definitions():
+    """Test that all path definitions are valid Path objects."""
+    assert isinstance(config.ROOT_DIR, Path)
+    assert isinstance(config.CODE_DIR, Path)
+    assert isinstance(config.DATA_DIR, Path)
+    assert isinstance(config.TESTS_DIR, Path)
+    assert isinstance(config.SPECS_DIR, Path)
+    assert isinstance(config.FIGURES_DIR, Path)
+    assert isinstance(config.LOGS_DIR, Path)
 
-    def test_thread_count(self):
-        """Verify thread count matches fMRIPrep constraints."""
-        assert config.THREAD_COUNT == 2
+    # Verify paths are absolute
+    assert config.ROOT_DIR.is_absolute()
+    assert config.CODE_DIR.is_absolute()
 
-    def test_cuda_visible_devices_env(self):
-        """Verify CUDA_VISIBLE_DEVICES is set to empty string if torch is available."""
-        # This is a side effect of the import in config.py
-        # We check the environment variable was set
-        assert os.environ.get("CUDA_VISIBLE_DEVICES") == ""
 
-class TestProjectPaths:
-    """Test path definitions."""
+def test_analysis_parameters():
+    """Test that analysis parameters are of correct types and values."""
+    assert isinstance(config.MOTION_THRESHOLD_MM, float)
+    assert config.MOTION_THRESHOLD_MM == 3.0
 
-    def test_project_root_exists(self):
-        """Verify PROJECT_ROOT is a valid Path object."""
-        assert isinstance(config.PROJECT_ROOT, Path)
-        assert config.PROJECT_ROOT.exists()
+    assert isinstance(config.HRF_FWHM, float)
+    assert config.HRF_FWHM == 6.0
 
-    def test_data_dir_exists(self):
-        """Verify DATA_DIR is a valid Path object."""
-        assert isinstance(config.DATA_DIR, Path)
-        assert config.DATA_DIR.exists()
+    assert isinstance(config.RSA_METRIC, str)
+    assert config.RSA_METRIC in ["correlation", "euclidean"]
 
-    def test_figures_dir_exists(self):
-        """Verify FIGURES_DIR is a valid Path object."""
-        assert isinstance(config.FIGURES_DIR, Path)
-        assert config.FIGURES_DIR.exists()
+    assert isinstance(config.DECODER_C, float)
+    assert config.DECODER_C == 1.0
 
-    def test_logs_dir_exists(self):
-        """Verify LOGS_DIR is a valid Path object."""
-        assert isinstance(config.LOGS_DIR, Path)
-        assert config.LOGS_DIR.exists()
+    assert isinstance(config.PERMUTATION_ITERATIONS, int)
+    assert config.PERMUTATION_ITERATIONS == 1000
 
-    def test_raw_dir_exists(self):
-        """Verify RAW_DIR is a valid Path object."""
-        assert isinstance(config.RAW_DIR, Path)
-        assert config.RAW_DIR.exists()
+    assert isinstance(config.FDR_ALPHA, float)
+    assert config.FDR_ALPHA == 0.05
 
-    def test_processed_dir_exists(self):
-        """Verify PROCESSED_DIR is a valid Path object."""
-        assert isinstance(config.PROCESSED_DIR, Path)
-        assert config.PROCESSED_DIR.exists()
 
-class TestDatasetConfiguration:
-    """Test dataset and fMRIPrep configuration."""
+def test_dataset_id():
+    """Test that DATASET_ID is defined correctly."""
+    assert hasattr(config, "DATASET_ID")
+    assert config.DATASET_ID == "ds000234"
 
-    def test_openneuro_dataset_id(self):
-        """Verify OpenNeuro dataset ID is correct."""
-        assert config.OPENNEURO_DATASET_ID == "ds000234"
 
-    def test_ci_subject_subset(self):
-        """Verify CI subject subset is a list."""
-        assert isinstance(config.CI_SUBJECT_SUBSET, list)
-        assert len(config.CI_SUBJECT_SUBSET) > 0
+def test_log_configuration():
+    """Test that logging configuration is defined."""
+    assert isinstance(config.LOG_LEVEL, str)
+    assert isinstance(config.LOG_FILE, Path)
+    assert isinstance(config.ERROR_LOG_FILE, Path)
 
-    def test_fmriprep_flags(self):
-        """Verify fMRIPrep flags are correctly configured."""
-        assert isinstance(config.FMRIPREP_FLAGS, list)
-        assert "--output-spaces" in config.FMRIPREP_FLAGS
-        assert "MNI" in config.FMRIPREP_FLAGS
-        assert "--fs-no-reconall" in config.FMRIPREP_FLAGS
-        # Check thread count matches config
-        assert str(config.THREAD_COUNT) in config.FMRIPREP_FLAGS
 
-class TestAnalysisParameters:
-    """Test analysis parameter constants."""
+def test_data_paths():
+    """Test that data path variables are defined."""
+    assert isinstance(config.RAW_DATA_DIR, Path)
+    assert isinstance(config.PREPROCESSED_DATA_DIR, Path)
+    assert isinstance(config.EVENT_ANNOTATIONS_FILE, Path)
+    assert isinstance(config.ROI_MASKS_DIR, Path)
 
-    def test_hrf_model(self):
-        """Verify HRF model is set."""
-        assert config.HRF_MODEL == "glover"
 
-    def test_tr(self):
-        """Verify TR value is set."""
-        assert config.TR == 2.0
+def test_helper_functions():
+    """Test that helper functions exist and return Path objects."""
+    assert callable(config.get_data_path)
+    assert callable(config.get_output_path)
+    assert callable(config.get_figure_path)
 
-    def test_motion_threshold_mm(self):
-        """Verify motion threshold is set."""
-        assert config.MOTION_THRESHOLD_MM == 3.0
+    test_file = "test.txt"
+    data_path = config.get_data_path(test_file)
+    output_path = config.get_output_path(test_file)
+    figure_path = config.get_figure_path(test_file)
 
-    def test_permutation_iterations(self):
-        """Verify permutation iterations are set."""
-        assert config.PERMUTATION_ITERATIONS == 1000
+    assert isinstance(data_path, Path)
+    assert isinstance(output_path, Path)
+    assert isinstance(figure_path, Path)
 
-    def test_fdr_q_threshold(self):
-        """Verify FDR q threshold is set."""
-        assert config.FDR_Q_THRESHOLD == 0.05
-
-    def test_classifier_type(self):
-        """Verify classifier type is set."""
-        assert config.CLASSIFIER_TYPE == "ridge"
-
-    def test_n_folds(self):
-        """Verify number of folds is set."""
-        assert config.N_FOLDS == 5
-
-    def test_min_samples_per_class(self):
-        """Verify min samples per class is set."""
-        assert config.MIN_SAMPLES_PER_CLASS == 5
-
-    def test_distance_metric(self):
-        """Verify distance metric is set."""
-        assert config.DISTANCE_METRIC == "correlation"
-
-class TestLoggingConfiguration:
-    """Test logging configuration."""
-
-    def test_log_level(self):
-        """Verify log level is set."""
-        assert config.LOG_LEVEL == "INFO"
-
-    def test_log_format(self):
-        """Verify log format is set."""
-        assert isinstance(config.LOG_FORMAT, str)
-        assert "%(asctime)s" in config.LOG_FORMAT
-
-    def test_error_log_file(self):
-        """Verify error log file path is set."""
-        assert isinstance(config.ERROR_LOG_FILE, Path)
-        assert config.ERROR_LOG_FILE.suffix == ".log"
-
-class TestExternalDependencies:
-    """Test external dependency flags."""
-
-    def test_use_bert_features(self):
-        """Verify BERT features flag is set."""
-        assert config.USE_BERT_FEATURES is True
-
-    def test_bert_model_name(self):
-        """Verify BERT model name is set."""
-        assert config.BERT_MODEL_NAME == "bert-base-uncased"
-
-class TestValidateEnvironment:
-    """Test the validate_environment function."""
-
-    def test_validate_environment_returns_dict(self):
-        """Verify validate_environment returns a dictionary."""
-        result = config.validate_environment()
-        assert isinstance(result, dict)
-
-    def test_validate_environment_has_valid_key(self):
-        """Verify validate_environment has 'valid' key."""
-        result = config.validate_environment()
-        assert "valid" in result
-        assert isinstance(result["valid"], bool)
-
-    def test_validate_environment_has_warnings_key(self):
-        """Verify validate_environment has 'warnings' key."""
-        result = config.validate_environment()
-        assert "warnings" in result
-        assert isinstance(result["warnings"], list)
-
-    def test_validate_environment_has_config_key(self):
-        """Verify validate_environment has 'config' key."""
-        result = config.validate_environment()
-        assert "config" in result
-        assert isinstance(result["config"], dict)
-
-    def test_validate_environment_config_seeds(self):
-        """Verify validate_environment config contains seed info."""
-        result = config.validate_environment()
-        config_dict = result["config"]
-        assert "random_seed" in config_dict
-        assert config_dict["random_seed"] == 42
-        assert "force_cpu_only" in config_dict
-        assert config_dict["force_cpu_only"] is True
+    assert data_path.name == test_file
+    assert output_path.name == test_file
+    assert figure_path.name == test_file

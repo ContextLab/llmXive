@@ -1,0 +1,60 @@
+{
+  "speckit": {
+    "files": 9857,
+    "bytes": 51528426,
+    "paths_sha256": "ba5324dd40f13273d0266cfbc50e45f38f1342c0188dcfd1b96c0690d1b1d099",
+    "manifest_sha256": "0f0a0b4bc64b856ea1e3c558a1ae4faaa678372d460034362235dc9a6932e19d",
+    "summary": {
+      "total": 6907,
+      "by_classification": {
+        "real": 6907
+      },
+      "by_defect_type": {}
+    },
+    "scanned_inputs": 6907,
+    "materialized_files": 10124
+  },
+  "pdf": {
+    "files": 13,
+    "bytes": 2276355,
+    "paths_sha256": "4a29ba0a520d36e610d2b76b44f219d8fc0374bf42c9f3c445cc942c11ac0714",
+    "manifest_sha256": "439f3868267d66b4adfcdd6b5a3143f297b1180f3aaaaebc77caeee2fe008460",
+    "summary": {
+      "total": 0,
+      "by_classification": {},
+      "by_defect_type": {}
+    },
+    "scanned_inputs": 0,
+    "materialized_files": 280
+  },
+  "personality": {
+    "files": 684,
+    "bytes": 1008701,
+    "paths_sha256": "d41a353ebf9f3d407fa4f7e27396171c99a58d1142cbdf5ad88bd69e892b1816",
+    "manifest_sha256": "741173cfe9f004103647129c104310c6defaa9624f926ecf30731d3e39ba89e3",
+    "summary": {
+      "total": 515,
+      "by_classification": {
+        "passes": 515
+      },
+      "by_defect_type": {}
+    },
+    "scanned_inputs": 667,
+    "materialized_files": 951
+  },
+  "feedback-loop": {
+    "files": 667,
+    "bytes": 938448,
+    "paths_sha256": "4c21f4dacf862f8a46f3513ee9265c30f5973fc6606c88b139605c0984e87578",
+    "manifest_sha256": "439f3868267d66b4adfcdd6b5a3143f297b1180f3aaaaebc77caeee2fe008460",
+    "summary": {
+      "total": 0,
+      "by_classification": {},
+      "by_defect_type": {}
+    },
+    "scanned_inputs": 0,
+    "materialized_files": 934
+  },
+  "head": "c95996fa5e106216da756a75746eaab6e9a370e7",
+  "tracked_files": 268195
+}

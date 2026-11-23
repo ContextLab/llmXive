@@ -1,63 +1,44 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: AggregatedMetric
-description: >
-  Schema for aggregated statistical results across multiple replicates
-  for a specific heterogeneity level and estimator.
 type: object
 required:
-  - heterogeneity_level
-  - true_tau_squared
-  - estimator_name
-  - num_replicates
+  - tau_squared
+  - estimator_type
+  - sweep_type
   - mean_bias
   - coverage_rate
-  - coverage_test_p_value
-  - mean_i_squared
-  - convergence_failure_rate
+  - coverage_deviation
+  - coverage_ci_lower
+  - coverage_ci_upper
+  - binomial_p_value
+  - bias_test_p_value
+  - report_framing
 properties:
-  heterogeneity_level:
-    type: string
-    description: The level name (e.g., "tau_0.1").
-  true_tau_squared:
+  tau_squared:
     type: number
-    description: The true tau^2 for this group.
-  estimator_name:
+  estimator_type:
     type: string
     enum:
       - FixedEffects
       - DerSimonianLaird
       - REML
-    description: The estimator aggregated.
-  num_replicates:
-    type: integer
-    minimum: 1
-    description: Total number of replicates processed.
+  sweep_type:
+    type: string
+    enum:
+      - primary
+      - sensitivity
   mean_bias:
     type: number
-    description: Mean difference between estimated and true effect.
   coverage_rate:
     type: number
-    minimum: 0
-    maximum: 1
-    description: Proportion of replicates where the CI contained the true effect.
-  coverage_test_p_value:
+  coverage_deviation:
     type: number
-    description: P-value from the exact binomial test against nominal 0.95 coverage.
-  mean_i_squared:
+  coverage_ci_lower:
     type: number
-    description: Mean I^2 statistic across replicates.
-  convergence_failure_rate:
+  coverage_ci_upper:
     type: number
-    minimum: 0
-    maximum: 1
-    description: Proportion of replicates where estimation failed.
-  kruskal_wallis_p_value:
+  binomial_p_value:
     type: number
-    description: P-value from Kruskal-Wallis test comparing bias across estimators (if applicable).
-  anova_p_value:
+  bias_test_p_value:
     type: number
-    description: P-value from ANOVA test comparing bias across estimators (if applicable).
-  shapiro_wilk_p_value:
-    type: number
-    description: P-value from Shapiro-Wilk test for normality of bias distribution.
-additionalProperties: false
+  report_framing:
+    type: string
+    description: "Must be 'associational' per SC‑005"

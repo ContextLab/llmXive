@@ -1,7 +1,3 @@
 """
-Integration tests for the AI Personality Consistency project.
-
-These tests verify the interaction between multiple components,
-such as data ingestion, metric computation, and analysis pipelines.
+Integration tests package for the project.
 """
-pass

@@ -1,0 +1,2 @@
+# Additional dependencies for T054 (if any)
+# No new dependencies required - uses existing utils module

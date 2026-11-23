@@ -1,0 +1,93 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing that the `data/raw/` and `data/processed/` directories
+    actually exist or contain a `.gitkeep` file; without these artifacts the task
+    requirement is not satisfied.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No pytest configuration (e.g., `pytest.ini`, `setup.cfg`, or `pyproject.toml`
+    with `pytest-cov` settings) or related files were provided, so the requirement
+    to configure pytest with coverage in the `tests/` directory is not demonstrated.
+    The implementer must add the appropriate configuration files and verify they enable
+    coverage reporting.
+T014b:
+  c: false
+  h: b12ab2c7de8d73d9377930175c2cde36e6884e6ca2533df7eda78535fe6b3526
+  r: "The `filter_non_english` function uses `langdetect.detect` without accessing\
+    \ a confidence score, so it cannot enforce the required \u201Cconfidence\u202F\
+    <\u202F0.8\u201D rule, and it never reads `filtering.langdetect_threshold` from\
+    \ `contracts/analysis.schema.yaml`. Moreover, the script does not read `data/raw/social_media.csv`\
+    \ nor write the filtered result to `data/processed/preprocessed_text.csv`, and\
+    \ those files are missing from the repository."
+T014c:
+  c: false
+  h: 2240f7c7c879e52fcebd8dd14ea9eba46ab09ad9ea6ab0c88b93be0c78c6d1d5
+  r: "The repository lacks the required `data/processed/preprocessed_text.csv` input\
+    \ (and thus no output can be written), and the referenced `contracts/analysis.schema.yaml`\
+    \ is missing, so the configuration keys cannot be read or validated. Additionally,\
+    \ the provided `code/services/anxiety_scoring.py` is truncated before showing\
+    \ any implementation of the gibberish\u2011filtering logic (length/entropy checks),\
+    \ so we cannot confirm the task\u2019s core requirement is met."
+T015:
+  c: false
+  h: 4aa20795673b076b275793c840f741f3325f9d2e3d3f2665a7b1fdb8cd71d7a4
+  r: "The required input file `data/processed/preprocessed_text.csv` and the expected\
+    \ output `data/processed/scoring_results.csv` are absent, and the provided `code/services/anxiety_scoring.py`\
+    \ snippet does not demonstrate the required model loading, CPU\u2011only inference,\
+    \ verification of \u201Canxiety\u201D/\u201Cfear\u201D labels, or the mapping/halt\
+    \ logic. The task therefore remains unfinished."
+T016:
+  c: false
+  h: 0a18675ec9cf2173f8ac3f413965cdeaeabb86d62ac59199d770cff005c36ec7
+  r: "The required output file `data/processed/scoring_results.csv` does not exist,\
+    \ and the provided `anxiety_scoring.py` snippet is incomplete (truncated) so it\u2019\
+    s unclear whether confidence\u2011score filtering and saving back to the same\
+    \ CSV are actually implemented. The task\u2019s core artifact is missing."
+T021:
+  c: false
+  h: 2bd8f1db7da28c2937fda6abfd731bbc53067bc4edce89f58b87634d166d3c7f
+  r: "The required input file `data/raw/social_media.csv` does not exist, and the\
+    \ expected output `data/processed/proxy_results.csv` was never created. Moreover,\
+    \ the provided `proxy_extractor.py` is only partially shown and does not demonstrate\
+    \ the full implementation (e.g., loading the CSV, enforcing the \u201Cno text\
+    \ column\u201D rule, and writing the results). Without these artifacts the task\u2019\
+    s requirements are not satisfied."
+T033a:
+  c: false
+  h: bdc5b776b6fc4308f3f141a1803bb8975c12776af2cbf76475c176791cc4e4c9
+  r: The script uses `scipy.stats.linregress` instead of `statsmodels.OLS`, does not
+    read `data/processed/final_analysis.csv`, does not create a temporary variable
+    `residuals` and does not write any JSON file. Moreover, both `data/processed/final_analysis.csv`
+    and `data/processed/normality_check.json` are missing.
+T033b:
+  c: false
+  h: 7367059dbef50e57d2d3351a00746f7ffe696c67b6edf2be875b5e1d1b4f6265
+  r: "The provided `statistical_test.py` contains functions to compute residuals and\
+    \ run a Shapiro\u2011Wilk test, but there is no code that writes the residuals\
+    \ and the normality p\u2011value to `data/processed/normality_check.json`. Moreover,\
+    \ the required JSON file is missing from the repository. The task\u2019s core\
+    \ output is therefore not present."
+T034:
+  c: false
+  h: d0eeb2e49ef80dbca11b5207a118a6aec00b7b7d76b3a0f4981d6f5ae26dbce9
+  r: "The provided `statistical_test.py` stops mid\u2011function and never writes\
+    \ any results to `data/processed/analysis_results.json`; moreover the required\
+    \ JSON file does not exist on disk. The implementation therefore does not fulfill\
+    \ the requirement to save the correlation coefficient, p\u2011value, and `is_significant`\
+    \ flag."
+T044:
+  c: true
+  h: be61b9349ab08be486489eb83f4149999497a2ea5012415047fdbfc2e2772bc6
+  r: "The `tests/integration/test_reproducibility.py` file exists, is non\u2011empty,\
+    \ and contains code that resets seeds, re\u2011runs the statistical analysis pipeline,\
+    \ and compares the resulting `analysis_results.json` (or creates a baseline) to\
+    \ ensure identical output, fulfilling the reproducibility audit requirement."
+T053:
+  c: true
+  h: 2f92980188e4957fbcbe5acf32ef22dc7eb4fac89166057fbe7855ec46e33263
+  r: "The repository contains a non\u2011empty `tests/unit/test_plot_quality.py` implementing\
+    \ the required checks (file existence, size limit, regression line, axis labels,\
+    \ and title). The missing `correlation_plot.png` is expected to be produced by\
+    \ T036 and does not affect the completeness of the script implementation."

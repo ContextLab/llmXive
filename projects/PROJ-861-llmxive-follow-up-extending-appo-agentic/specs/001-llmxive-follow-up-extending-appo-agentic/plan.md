@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a CPU-only validation pipeline to test the hypothesis that a "Static Branching Score" (derived from frozen LLM next-token entropy/KL divergence at semantic steps) correlates with a "Dynamic Branching Score" (derived from APPO Advantage values on online rollouts). The implementation covers three phases: (1) Static score generation on GSM8K/MATH traces using a frozen decoder-only model (e.g., Phi-2) in CPU mode; (2) Dynamic score generation on a subset of tasks using the APPO algorithm with Advantage estimation (A(s,a)) based on binary reward signals; and (3) Statistical alignment and correlation analysis (Pearson/Spearman + permutation tests) to validate the proxy metric. The solution strictly adheres to the 7 GB RAM and 6-hour runtime constraints of free-tier GitHub Actions runners, avoiding GPU dependencies and large-model training.
+This feature implements a CPU-only validation pipeline to test the hypothesis that a "Static Branching Score" (derived from frozen LLM next-token entropy/KL divergence at semantic steps) correlates with a "Dynamic Branching Score" (derived from APPO Advantage values on online rollouts). The implementation covers three phases: (1) Static score generation on GSM8K/MATH traces using a frozen decoder-only model (e.g., Phi-2) in CPU mode; (2) Dynamic score generation on a subset of tasks using the APPO algorithm with Advantage estimation (A(s,a)) based on binary reward signals; and (3) Statistical alignment and correlation analysis (Pearson/Spearman + permutation tests) to validate the proxy metric. The solution strictly adheres to the 7 GB RAM and -hour runtime constraints of free-tier GitHub Actions runners, avoiding GPU dependencies and large-model training.
 
 > **Spec Conflict Note**: The source `spec.md` FR-002 and FR-003 mandate "likelihood gains" and "DTW/edit distance" respectively. This plan implements the scientifically necessary revisions (Advantage values, semantic step alignment) as per panel feedback. A kickback is required to update `spec.md` to match these definitions.
 
@@ -91,7 +91,7 @@ data/
 
 | ID | Coverage in Plan |
 |----|------------------|
-| **FR-001** (Static Score) | Phase 1: `static_scorer.py` implements KL divergence vs uniform top-5 at semantic steps (parsed by `step_parser.py`). |
+| **FR-001** (Static Score) | Phase 1: `static_scorer.py` implements KL divergence vs uniform top at semantic steps (parsed by `step_parser.py`). |
 | **FR-002** (Dynamic Score) | Phase 2: `dynamic_scorer.py` runs APPO (via CleanRL) on subset with **Advantage estimation (A(s,a))** derived from binary rewards, not likelihood gains. |
 | **FR-003** (Alignment) | Phase 3: `analyzer.py` aligns **semantic step identifiers** (extracted via regex) between static and dynamic traces. Steps without matching identifiers are excluded from correlation. |
 | **FR-004** (Correlation) | Phase 3: `analyzer.py` computes Pearson/Spearman. |

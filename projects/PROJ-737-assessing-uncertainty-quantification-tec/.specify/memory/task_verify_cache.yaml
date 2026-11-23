@@ -1,0 +1,12 @@
+T004:
+  c: false
+  h: dabf8cc249f9efbad1d55426a39cc8500e18855514e00d69992707b82f3a935c
+  r: "Checked `code/pipeline.py` (exists) and the result files. `data/results/per_sample_errors.csv`\
+    \ is present but contains only the header (no rows), and the required files `data/results/uq_methods.csv`,\
+    \ `data/results/pipeline_log.csv`, and `data/results/cost_metrics.csv` are missing.\
+    \ Consequently the integration test fails and the pipeline does not satisfy the\
+    \ task\u2019s requirements. The next implementer must run the pipeline to generate\
+    \ all four CSVs with full content (including \u2265200 test samples per dataset\
+    \ and entries for every dataset\u2011method pair) and ensure they conform to the\
+    \ specified schemas"
+  sig: 4dcb632560c682aaf709f43bb6bdfe8e4b512d9c82f88badd8de044ca4a0522d

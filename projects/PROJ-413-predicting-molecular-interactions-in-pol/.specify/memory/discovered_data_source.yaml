@@ -1,0 +1,16 @@
+status: none
+intent: MolNet polymer filler adhesion energy dataset NIST Chemistry WebBook python
+  package dataset
+required_fields:
+- polymer_smiles
+- filler_smiles
+- adhesion_energy
+- temperature
+- pressure
+- reference_id
+- atom_types
+- bond_types
+- connectivity
+cache_key: 0395847b8e6edb3b5deb8519b9352bbbecc38f35a4c9aee7c5b8872911250397
+searched_at: '2026-09-02T03:38:17.239233+00:00'
+retry_count: 1

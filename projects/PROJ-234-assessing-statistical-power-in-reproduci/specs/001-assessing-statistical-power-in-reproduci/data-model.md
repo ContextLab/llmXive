@@ -1,79 +1,84 @@
 # Data Model: Assessing Statistical Power in Reproducible Research with Public Datasets
 
 ## 1. Overview
-
-This document defines the data structures used throughout the pipeline. All data is persisted in `data/` and validated against schemas in `contracts/`.
+All pipeline artifacts are stored under `projects/PROJ-<identifier>-assessing-statistical-power-in-reproduci/data/` and validated against JSON‑Schema files in `contracts/`. Immutable raw files reside in `raw/`; derived files in `processed/`. The **Single Source of Truth (SSoT)** for checksums, timestamps, and version hashes is `data/metadata.json`.
 
 ## 2. Entity Definitions
 
-### 2.1. DatasetMetadata
-Represents a single entry from the OpenML API.
+### 2.1 DatasetMetadata
+| Field | Type | Description |
+|---|---|---|
+| `dataset_id` | integer | OpenML identifier. |
+| `name` | string | Human‑readable dataset name. |
+| `download_count` | integer | Number of downloads on OpenML. |
+| `publication_link` | string \| null | URL to primary publication (may be null). |
+| `task_id` | integer \| null | Associated task ID (may be null). |
+| `task_type` | string \| null | e.g., “Binary Classification”. |
+| `class_distribution` | object \| null | Distribution of classes if available. |
+| `downloaded_at` | string (date‑time) | ISO‑8601 timestamp of retrieval. |
+| `oa_status` | string (`open_access` | `paywalled` | `no_link`) | Open Access status of the publication link. |
+| `status` | string (`active` | `archived` | `unparseable`) | Pipeline status. |
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `dataset_id` | `int` | Unique OpenML identifier. | API |
-| `name` | `str` | Human-readable dataset name. | API |
-| `download_count` | `int` | Number of times downloaded. | API |
-| `publication_link` | `str` | URL to the primary publication (may be null). | API |
-| `task_id` | `int` | Associated task ID (may be null). | API |
-| `task_type` | `str` | e.g., "Binary Classification", "Multi-class". | API |
-| `class_distribution` | `dict` | e.g., `{"class_0": 100, "class_1": 50}`. | API |
-| `downloaded_at` | `str` | ISO 8601 timestamp of retrieval. | System |
-| `oa_status` | `str` | `open_access`, `paywalled`, `no_link`. | OA Checker |
-| `status` | `str` | `active`, `archived`, or `unparseable`. | Pipeline |
+### 2.2 StatisticalParameters
+| Field | Type | Description |
+|---|---|---|
+| `dataset_id` | integer | FK to `DatasetMetadata`. |
+| `sample_size` | integer | Total N reported in the paper. |
+| `effect_size` | number | Cohen’s d, F, or odds ratio (standardized). |
+| `metric_type` | string (`Cohen's d` | `F` | `odds_ratio`) | Type of effect size. |
+| `degrees_of_freedom` | object \| null | `{ "num": int, "den": int }` for F‑statistics. |
+| `validation_status` | string (`valid` | `invalid_metric` | `ambiguous`) | Extraction quality flag. |
+| `extraction_pass` | string (`full_text` | `abstract`) | Which source yielded the match. |
+| `extraction_confidence` | string (`high` | `medium` | `low`) | Confidence based on match length. |
+| `source_text_snippet` | string | Raw snippet that triggered extraction. |
 
-### 2.2. StatisticalParameters
-Represents extracted values from a publication.
+### 2.3 PowerAuditResult
+| Field | Type | Description |
+|---|---|---|
+| `dataset_id` | integer | FK to `DatasetMetadata`. |
+| `observed_power` | number (0‑1) | Observed statistical power from reported effect size. |
+| `reference_power` | number (0‑1) | Power computed with the **test‑specific small‑effect benchmark** (d = 0.2, f = 0.2, log‑odds ≈ 0.2). |
+| `target_power` | number | Power level used for a priori checks (default 0.8). |
+| `threshold_met` | boolean | `True` if `reference_power` ≥ 0.8 (primary adequacy criterion). |
+| `status` | string (`success` | `paywalled` | `unparseable` | `skipped`) | Outcome of the calculation. |
+| `alpha` | number | Significance level used (default 0.05). |
+| `test_type` | string (`t-test` | `anova` | `logistic`) | Statistical test assumed. |
+| `weighted_power` | number (0‑1) \| null | Power after applying quintile weighting (optional). |
+| `extraction_audit_report_path` | string | Path to the `ExtractionAuditReport` JSON (currently `reports/extraction_audit.json`). |
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `dataset_id` | `int` | FK to `DatasetMetadata`. | Pipeline |
-| `sample_size` | `float` | Total N. | Parser |
-| `effect_size` | `float` | Cohen's d, F, or r value. | Parser |
-| `metric_type` | `str` | `Cohen's d`, `F`, `r`. | Parser |
-| `degrees_of_freedom` | `dict` | Optional: `{"num": int, "den": int}` for F. | Parser |
-| `validation_status` | `str` | `valid`, `invalid_metric`, `ambiguous`. | Parser |
-| `extraction_pass` | `str` | `full_text`, `abstract`. | Parser |
-| `extraction_confidence` | `str` | `high`, `medium`, `low`. | Parser |
-| `source_text_snippet` | `str` | The raw text snippet that triggered the match. | Parser |
+### 2.4 ExtractionAuditReport
+| Field | Type | Description |
+|---|---|---|
+| `total_datasets` | integer |
+| `oa_count` | integer |
+| `paywalled_count` | integer |
+| `extraction_success_full_text` | integer |
+| `extraction_success_abstract` | integer |
+| `sensitivity_delta` | number |
+| `extraction_success_rate` | number (0‑1) |
+| `precision` | number (0‑1) |
+| `recall` | number (0‑1) |
+| `f1_score` | number (0‑1) |
 
-### 2.3. PowerAuditResult
-Represents the final MDES calculation for a dataset.
+## 3. Data Flow Diagram
+1. **Ingest** → `data/raw/openml_raw.json` (immutable).  
+2. **Filter & OA Check** → `data/processed/filtered_datasets.csv` (validated against `DatasetMetadata` schema).  
+3. **Parse** → `data/processed/statistical_params.json` (validated against `StatisticalParameters` schema).  
+4. **Observed & Reference Power Compute** → `data/processed/observed_power.csv` (validated against `PowerAuditResult` schema, includes `reference_power`).  
+5. **Weighting** → `data/processed/weighted_power.csv` (contains weighted power estimates).  
+6. **Extraction Audit Report** → `reports/extraction_audit.json` (conforms to `ExtractionAuditReport` definition).  
+7. **Final HTML Report** → `data/processed/audit_report.html` (contains histograms, count < 0.8, disclaimer, and a JSON‑pointer link to `reports/extraction_audit.json`).  
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `dataset_id` | `int` | FK to `DatasetMetadata`. | Pipeline |
-| `calculated_mdes` | `float` | Minimum Detectable Effect Size (e.g., Cohen's d). | `statsmodels` |
-| `target_power` | `float` | Target power used (default 0.8). | Config |
-| `threshold_met` | `bool` | `True` if MDES <= 0.5 (example threshold for "small"). | Pipeline |
-| `status` | `str` | `success`, `paywalled`, `unparseable`, `skipped`. | Pipeline |
-| `alpha` | `float` | Significance level used (default 0.05). | Config |
-| `test_type` | `str` | `t-test`, `anova`, `z-test`. | Config |
-
-### 2.4. ExtractionAuditReport
-Aggregated metrics for FR-008 and SC-001.
-
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `total_datasets` | `int` | Total datasets in the audit. | Pipeline |
-| `oa_count` | `int` | Datasets with OA links. | Pipeline |
-| `paywalled_count` | `int` | Datasets with paywalled links. | Pipeline |
-| `extraction_success_full_text` | `int` | Successful extractions from full text. | Pipeline |
-| `extraction_success_abstract` | `int` | Successful extractions from abstract. | Pipeline |
-| `sensitivity_delta` | `float` | Difference in success rates (Full Text - Abstract). | Pipeline |
-| `extraction_success_rate` | `float` | (Success / Total OA) as a percentage. | Pipeline |
-
-## 3. Data Flow
-
-1.  **Ingest**: `01_ingest_openml.py` fetches raw JSON from OpenML $\to$ `data/raw/openml_raw.json`.
-2.  **Filter & Check OA**: Filter for `publication_link` OR `task_id` and check OA status $\to$ `data/processed/filtered_datasets.csv`.
-3.  **Parse**: `02_parse_publications.py` reads filtered list, fetches OA text, extracts params $\to$ `data/processed/statistical_params.json`.
-4.  **Compute**: `03_compute_sensitivity.py` reads params, calculates MDES $\to$ `data/processed/mdes_results.csv`.
-5.  **Report**: `04_generate_report.py` aggregates results $\to$ `data/processed/audit_report.html` (or PDF).
+All files have SHA‑based checksums recorded in `data/metadata.json`.
 
 ## 4. Constraints
+- **Immutability**: Files under `data/raw/` are never overwritten.  
+- **Checksums**: Every artifact’s checksum is recorded; any mismatch fails CI.  
+- **No PII**: OpenML metadata is assumed clean; no personal data is stored.  
+- **OA‑Only**: Paywalled PDFs are not fetched; such entries are flagged `paywalled`.  
 
-- **Immutable Raw Data**: `data/raw/` files are never modified.
-- **Checksums**: Every file in `data/` must have a corresponding SHA-256 hash in `data/metadata.json`.
-- **PII**: No PII allowed in `data/`. OpenML metadata is assumed clean.
-- **OA Only**: No extraction from paywalled content.
+**Schema Availability**  
+The schemas for `StatisticalParameters` and `ExtractionAuditReport` are defined within `contracts/power_audit_result.schema.yaml` under `$defs`. Contract tests reference these embedded definitions, satisfying the requirement that all intermediate files are validated against schemas in `contracts/`.
+
+---
+

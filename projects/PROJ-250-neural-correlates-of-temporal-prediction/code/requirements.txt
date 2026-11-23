@@ -1,0 +1,3 @@
+mne>=1.7.0
+# Core scientific stack (already available in the base environment)
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels, seaborn, jsonschema, pytest, requests, PyYAML

@@ -4,123 +4,142 @@ import hashlib
 import shutil
 import logging
 from pathlib import Path
+from typing import List, Dict, Any, Optional
+import requests
 import pandas as pd
-import numpy as np
-import yaml
+from src.config import setup_logging
 
-# Add parent to path for imports if running as script
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+# Configure logging
+logger = setup_logging()
 
-logger = logging.getLogger(__name__)
+# Constants
+CLO_MIGRATORY_URL = "https://ebird.org/sites/default/files/clo_migratory_species_list.csv"
+# Fallback mirror if the primary URL is unavailable (Cornell Lab of Ornithology)
+# Note: The actual URL structure for CLO lists often requires authentication or specific
+# endpoints. We use a direct download link if available, otherwise we rely on a verified
+# mirror or a standard public dataset that contains this mapping.
+# For this implementation, we attempt the direct CLO URL. If it fails (403/404),
+# we raise an error as per the "Fail loudly" constraint.
+CACHE_DIR = Path("data/raw")
+CACHE_FILE = CACHE_DIR / "clo_migratory_list.csv"
 
 def compute_sha256(file_path: Path) -> str:
-    """Compute SHA-256 hash of a file."""
+    """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def archive_real_data(data_dir: Path, archive_dir: Path) -> None:
-    """Archive real data files."""
-    archive_dir.mkdir(parents=True, exist_ok=True)
-    for file_path in data_dir.glob("*"):
-        if file_path.is_file():
-            shutil.copy2(file_path, archive_dir / file_path.name)
-    logger.info(f"Archived real data to {archive_dir}")
+def get_clo_migratory_list(force_download: bool = False) -> pd.DataFrame:
+    """
+    Fetch and cache the Cornell Lab of Ornithology (CLO) list of migratory species.
 
-def generate_synthetic_ebird_data(output_path: Path, seed: int = 42) -> pd.DataFrame:
-    """Generate synthetic eBird data matching the schema."""
-    np.random.seed(seed)
-    n_rows = 10000
-    
-    data = {
-        "species": np.random.choice(["Turdus migratorius", "Setophaga ruticilla", "Cardinalis cardinalis"], n_rows),
-        "lat": np.random.uniform(25, 50, n_rows),
-        "lon": np.random.uniform(-125, -70, n_rows),
-        "date": pd.date_range("2020-01-01", periods=n_rows, freq="D").to_series().sample(n_rows).reset_index(drop=True),
-        "count": np.random.poisson(5, n_rows),
-        "checklist_id": [f"CHECK_{i}" for i in range(n_rows)]
-    }
-    df = pd.DataFrame(data)
-    df["date"] = pd.to_datetime(df["date"])
-    df.to_csv(output_path, index=False)
-    logger.info(f"Generated synthetic eBird data: {output_path}")
-    return df
+    This function attempts to download the official CLO migratory species list.
+    If the file exists in the cache and force_download is False, it returns the cached version.
+    If the download fails, it raises a RuntimeError (fail loudly).
 
-def generate_synthetic_climate_data(output_path: Path, seed: int = 42) -> pd.DataFrame:
-    """Generate synthetic climate data matching the schema."""
-    np.random.seed(seed)
-    n_rows = 5000
-    
-    data = {
-        "lat": np.random.uniform(25, 50, n_rows),
-        "lon": np.random.uniform(-125, -70, n_rows),
-        "temp": np.random.normal(15, 5, n_rows),
-        "week": np.random.randint(1, 53, n_rows),
-        "precip": np.random.exponential(2, n_rows)
-    }
-    df = pd.DataFrame(data)
-    df.to_parquet(output_path, index=False)
-    logger.info(f"Generated synthetic climate data: {output_path}")
-    return df
+    Args:
+        force_download (bool): If True, re-download the file even if it exists in cache.
 
-def write_synthetic_data(data_dir: Path, seed: int = 42) -> None:
-    """Write synthetic data files."""
-    data_dir.mkdir(parents=True, exist_ok=True)
-    ebird_path = data_dir / "synthetic_ebird.csv"
-    climate_path = data_dir / "synthetic_climate.parquet"
-    
-    generate_synthetic_ebird_data(ebird_path, seed)
-    generate_synthetic_climate_data(climate_path, seed)
+    Returns:
+        pd.DataFrame: A DataFrame containing the list of migratory species.
+                      Expected columns: 'scientific_name', 'common_name', 'species_code'.
 
-def write_state_file(state_path: Path, artifact_hashes: dict, updated_at: str) -> None:
-    """Write state file with checksums."""
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    state_data = {
-        "artifact_hashes": artifact_hashes,
-        "updated_at": updated_at
-    }
-    with open(state_path, 'w') as f:
-        yaml.dump(state_data, f)
-    logger.info(f"State file written: {state_path}")
+    Raises:
+        RuntimeError: If the download fails or the file is not found.
+        FileNotFoundError: If the cached file is missing and download fails.
+    """
+    os.makedirs(CACHE_DIR, exist_ok=True)
 
-def check_real_data_available(data_dir: Path) -> bool:
-    """Check if real data files exist."""
-    ebird_path = data_dir / "ebird" / "ebird_data.csv"
-    climate_path = data_dir / "climate" / "climate_data.parquet"
-    return ebird_path.exists() and climate_path.exists()
+    # Check cache
+    if not force_download and CACHE_FILE.exists():
+        logger.info(f"Using cached CLO migratory list from {CACHE_FILE}")
+        try:
+            df = pd.read_csv(CACHE_FILE)
+            # Basic validation
+            required_cols = ['scientific_name']
+            if not all(col in df.columns for col in required_cols):
+                logger.warning("Cached file missing expected columns, re-downloading...")
+                return get_clo_migratory_list(force_download=True)
+            return df
+        except Exception as e:
+            logger.warning(f"Failed to read cached file: {e}, re-downloading...")
+            return get_clo_migratory_list(force_download=True)
 
-def ensure_data_available(data_dir: Path, state_path: Path, seed: int = 42) -> None:
-    """Ensure data is available, generating synthetic if needed in dev mode."""
-    if check_real_data_available(data_dir):
-        logger.info("Real data found. Proceeding with real data.")
-        archive_real_data(data_dir, data_dir / "archive")
-        # Compute checksums for real data
-        artifact_hashes = {}
-        for f in data_dir.glob("ebird/*.csv"):
-            artifact_hashes[f.name] = compute_sha256(f)
-        for f in data_dir.glob("climate/*.parquet"):
-            artifact_hashes[f.name] = compute_sha256(f)
-        write_state_file(state_path, artifact_hashes, "real_data")
-    else:
-        logger.warning("Real data not found. Generating synthetic data for development.")
-        write_synthetic_data(data_dir, seed)
-        # Compute checksums for synthetic data
-        artifact_hashes = {}
-        for f in data_dir.glob("synthetic_ebird.csv"):
-            artifact_hashes[f.name] = compute_sha256(f)
-        for f in data_dir.glob("synthetic_climate.parquet"):
-            artifact_hashes[f.name] = compute_sha256(f)
-        write_state_file(state_path, artifact_hashes, "synthetic_data")
+    logger.info(f"Downloading CLO migratory list from {CLO_MIGRATORY_URL}...")
+    try:
+        # Attempt download
+        response = requests.get(CLO_MIGRATORY_URL, timeout=60)
+        response.raise_for_status()
 
-def run_download_pipeline(data_dir: Path = None, state_dir: Path = None, seed: int = 42) -> None:
-    """Main download pipeline entry point."""
-    if data_dir is None:
-        data_dir = project_root / "data" / "raw"
-    if state_dir is None:
-        state_dir = project_root / "state"
-    
-    state_path = state_dir / "projects" / "PROJ-132-statistical-analysis-of-publicly-availab.yaml"
-    ensure_data_available(data_dir, state_path, seed)
+        # Save to cache
+        with open(CACHE_FILE, 'wb') as f:
+            f.write(response.content)
+
+        logger.info(f"Downloaded and cached CLO migratory list to {CACHE_FILE}")
+
+        # Verify checksum (conceptually, we'd have a known hash, but here we just ensure file integrity)
+        checksum = compute_sha256(CACHE_FILE)
+        logger.info(f"Checksum of downloaded file: {checksum}")
+
+        # Load and validate
+        df = pd.read_csv(CACHE_FILE)
+
+        # Ensure we have the necessary columns for filtering
+        # The CLO list typically has 'scientificName' or 'species'.
+        # We normalize to 'scientific_name' for consistency with downstream tasks.
+        if 'scientificName' in df.columns:
+            df = df.rename(columns={'scientificName': 'scientific_name'})
+        elif 'species' in df.columns:
+            df = df.rename(columns={'species': 'scientific_name'})
+
+        if 'scientific_name' not in df.columns:
+            # If the column is not found, we raise an error because we cannot proceed
+            # without a valid list of species names.
+            raise ValueError("Downloaded file does not contain 'scientific_name' column.")
+
+        logger.info(f"Successfully loaded {len(df)} migratory species.")
+        return df
+
+    except requests.exceptions.RequestException as e:
+        error_msg = f"Failed to download CLO migratory list from {CLO_MIGRATORY_URL}: {e}"
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+    except Exception as e:
+        error_msg = f"Unexpected error while processing CLO migratory list: {e}"
+        logger.error(error_msg)
+        raise RuntimeError(error_msg)
+
+def ensure_data_available() -> bool:
+    """
+    Ensure the CLO migratory list is available in the cache.
+    Returns True if available, False otherwise.
+    """
+    if CACHE_FILE.exists():
+        try:
+            pd.read_csv(CACHE_FILE)
+            return True
+        except Exception:
+            return False
+    return False
+
+def run_download_pipeline() -> None:
+    """
+    Main entry point for the download pipeline.
+    Downloads the CLO migratory list and verifies it.
+    """
+    try:
+        df = get_clo_migratory_list()
+        logger.info("CLO Migratory List download pipeline completed successfully.")
+        logger.info(f"Output file: {CACHE_FILE}")
+    except Exception as e:
+        logger.error(f"CLO Migratory List download pipeline failed: {e}")
+        sys.exit(1)
+
+def main():
+    """CLI entry point."""
+    run_download_pipeline()
+
+if __name__ == "__main__":
+    main()

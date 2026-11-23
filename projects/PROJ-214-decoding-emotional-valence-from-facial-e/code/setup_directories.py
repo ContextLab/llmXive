@@ -1,31 +1,42 @@
 """
-Directory structure setup for the DEAP EMG Valence Classification project.
+Directory Setup Module for llmXive Project PROJ-214.
 
-This script creates the necessary directory structure for data storage:
-- data/raw: Raw downloaded dataset files
-- data/processed: Preprocessed feature data and logs
-- data/models: Trained model artifacts and bundles
+This module creates the required directory structure for the project.
+It ensures that `data/raw`, `data/processed`, `data/models`, and `data/logs`
+exist at the repository root relative to the project structure.
+
+This script is idempotent: running it multiple times will not cause errors
+if directories already exist.
 """
 import os
 from pathlib import Path
+from config import ensure_directories
 
 
 def main():
-    """Create the required directory structure at the project root."""
-    # Determine project root (parent of the 'code' directory)
-    current_file = Path(__file__).resolve()
-    project_root = current_file.parent.parent
+    """
+    Main entry point to create project directory structure.
 
-    # Define required directories relative to project root
-    directories = [
+    Creates the following directories under the project root:
+    - data/raw
+    - data/processed
+    - data/models
+    - data/logs
+    """
+    # Define relative paths to create
+    # These are relative to the project root.
+    # We assume this script is run from the project root or config handles the base.
+    paths_to_create = [
         "data/raw",
         "data/processed",
         "data/models",
+        "data/logs"
     ]
 
+    print("Initializing project directory structure...")
     created_count = 0
-    for dir_path in directories:
-        full_path = project_root / dir_path
+    for rel_path in paths_to_create:
+        full_path = Path(rel_path)
         if not full_path.exists():
             full_path.mkdir(parents=True, exist_ok=True)
             print(f"Created directory: {full_path}")
@@ -33,13 +44,7 @@ def main():
         else:
             print(f"Directory already exists: {full_path}")
 
-    print(f"Directory setup complete. Created {created_count} new directories.")
-
-    # Verify existence of all required directories
-    all_exist = all((project_root / d).exists() for d in directories)
-    if not all_exist:
-        raise RuntimeError("Failed to create all required directories.")
-
+    print(f"Directory setup complete. {created_count} new directories created.")
     return 0
 
 

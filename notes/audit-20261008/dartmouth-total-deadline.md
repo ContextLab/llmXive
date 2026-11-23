@@ -1,0 +1,7 @@
+# Dartmouth generation deadline across retries
+
+Observed 2026-10-09 in deployed repair trial [37892793428](https://github.com/ContextLab/llmXive/actions/runs/37892793428): GLM selected a repair target in 211.6 seconds, then proposal generation encountered slow connection errors at roughly 338 and 283 seconds before an SDK `Request timed out.` error. Each transient attempt received a new full request deadline. The SDK timeout was classified as permanent, so the free peer chain was never reached. Subsequent attempts failed similarly before any patch or preservation tests ran. This is a rejected trial, not repair acceptance.
+
+The backend now gives generation, parameter correction, retries and backoff one shared model deadline. SDK read/request timeouts become model-down errors so the existing free-model router can try a peer. Explicit account-budget errors retain precedence, and paid-model guards and model/token/reasoning defaults are unchanged.
+
+Validation uses actual ChatDartmouth/OpenAI calls to a credential-free localhost HTTP server. A real SDK read timeout falls back from GLM to GPT-OSS with exactly one request to each. Slow HTTP 503 responses stop at the shared 0.30-second test deadline instead of making nine separate attempts. Both regressions fail against the previous backend; 80 related backend, deadline, retry, breaker and fallback tests pass with the fix. These controlled tests establish timeout behavior, not Dartmouth availability or useful autonomous repair. A new deployed repair trial remains required.

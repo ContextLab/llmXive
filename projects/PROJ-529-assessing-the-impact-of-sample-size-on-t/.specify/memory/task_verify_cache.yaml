@@ -1,0 +1,43 @@
+T016:
+  c: false
+  h: 2c8d02677a5617f8ccc06ca41010c61ca23a45cbbf50f0bca1251fa2db9fbbdc
+  r: "The required output file `data/processed/subsample_data.parquet` does not exist,\
+    \ so the logging requirement is not met. Consequently the task\u2019s deliverable\
+    \ is incomplete."
+T017:
+  c: false
+  h: e7e0521d86c6321c455cadab29f2e3742a0e13cdac12ac3ec78b15b48fb0bac9
+  r: "The `code/validate_data.py` file is present but its content is truncated and\
+    \ does not show any logic that computes the success\u2011rate metrics or writes\
+    \ `data/output/success_rate_report.json`. Moreover, the required JSON report file\
+    \ is missing from the repository. The task\u2019s core output (the summary JSON\
+    \ with the specified fields) is therefore not provided."
+T019:
+  c: false
+  h: b36e0b40f94a5bdf751830e68c6934a581dd6b3b6a3fc6e46c8861f9323a2c9a
+  r: "The repository lacks the required `data/raw/simulation_params.json` file, and\
+    \ the shown `code/download.py` is truncated (the `save_synthetic_data` implementation\
+    \ and any conditional fallback logic are missing), so the parameters are never\
+    \ written to disk nor are synthetic data files guaranteed to be created. The task\u2019\
+    s output requirements are therefore not satisfied."
+T023:
+  c: false
+  h: 7abe074973780acb1816bb8e86e12c8241845fea48798372a6ab97b2f925d28e
+  r: "The repository contains `code/models.py`, but the required primary output file\
+    \ `data/processed/stability_metrics.csv` does not exist, so the task\u2019s main\
+    \ deliverable is missing. Without this CSV (tagged as \u201Cprimary\u201D), the\
+    \ implementation does not meet the specification."
+T024:
+  c: false
+  h: a1174bc07f511e5d849ee31e3d0f3b7239af657da2c17d850d10a77d6a63eb8b
+  r: "The repository lacks the required `data/processed/sensitivity_check.csv` file,\
+    \ and `code/models.py` does not contain a parallel sensitivity\u2011run implementation\
+    \ that uses REML for all\u202Fk nor writes results to that CSV. The existing code\
+    \ only fits FE/RE models with a DL/REML rule and writes to a different CSV."
+T027:
+  c: false
+  h: 02a02084774c51bda7a23f76636778fd87f92613db6c56438c78e12d5b19cbc2
+  r: "The repository lacks the required `data/processed/sensitivity_analysis_results.csv`\
+    \ file, and the `calculate_sensitivity_analysis` function in `code/metrics.py`\
+    \ is incomplete (no implementation shown for perturbing the estimate, computing\
+    \ variation, or writing results). The task\u2019s core output is therefore missing."

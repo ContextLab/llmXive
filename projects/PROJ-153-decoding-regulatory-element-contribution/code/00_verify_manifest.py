@@ -2,107 +2,165 @@ import os
 import sys
 import json
 import time
+import re
 from pathlib import Path
 from urllib.request import urlopen, Request
 import yaml
 
-def check_ncbi_accession(accession_id):
+def check_ncbi_accession(accession):
     """
-    Checks if an accession ID exists in NCBI E-utilities.
-    Returns True if found, False otherwise.
+    Checks if an NCBI accession (GEO or SRA) is valid and NOT a placeholder.
+    
+    Rules:
+    1. Must start with GSE, GSM, SRP, or SRR.
+    2. Must NOT be a pattern like 'GSE####' where # is a digit (placeholder).
+    3. Must NOT be 'GSE000000' or similar zero-filled placeholders.
+    4. Performs a lightweight existence check via NCBI E-utilities if possible.
+    
+    Returns:
+        tuple: (is_valid: bool, reason: str)
     """
-    if not accession_id:
-        return False
+    if not accession or not isinstance(accession, str):
+        return False, "Accession is empty or not a string."
     
-    # Use E-utilities esearch to check existence
-    # Database: sra or gds
-    # We try 'sra' first, then 'gds' or 'geo'
-    databases = ['sra', 'gds', 'geo']
+    accession = accession.strip()
     
-    for db in databases:
-        url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db={db}&term={accession_id}[Accession]&retmode=json&retmax=1"
-        try:
-            req = Request(url, headers={'User-Agent': 'llmXive-pipeline/1.0'})
-            with urlopen(req, timeout=10) as response:
-                data = json.loads(response.read().decode('utf-8'))
-                if 'result' in data and 'ids' in data['result']:
-                    if len(data['result']['ids']) > 0:
-                        return True
-        except Exception:
-            continue
+    # Check for valid prefixes
+    valid_prefixes = ("GSE", "GSM", "SRP", "SRR")
+    if not any(accession.startswith(p) for p in valid_prefixes):
+        return False, f"Invalid prefix. Must start with {valid_prefixes}."
     
-    return False
+    # Check for placeholder patterns (e.g., GSE1234, GSE####, GSE000000)
+    # A placeholder is typically a generic pattern or a very low number often used in docs
+    # We strictly reject if it looks like a template: GSE followed by 4 digits or fewer, 
+    # or if it matches a regex of "GSE" + 4-5 digits that are likely placeholders in context.
+    # However, the prompt specifically says "abort if any accession is a placeholder (e.g., GSE####)".
+    # We interpret "GSE####" as a literal placeholder string or a pattern of generic digits.
+    # Real accessions are usually GSE + 5-7 digits.
+    
+    # Regex to detect obvious placeholders: GSE followed by exactly 4 digits (common doc placeholder)
+    # or a string containing "####"
+    if "####" in accession:
+        return False, "Accession contains placeholder pattern '####'."
+    
+    # Check for GSE followed by exactly 4 digits (often used as examples like GSE1234)
+    # Real GEO series are typically GSE + 5 to 7 digits.
+    match = re.match(r"^(GSE|GSM|SRP|SRR)(\d+)$", accession)
+    if match:
+        prefix, number = match.groups()
+        if len(number) < 5:
+            return False, f"Accession '{accession}' looks like a placeholder (too short, < 5 digits)."
+        
+        # Additional check: GSE000000, GSE00001, etc. are likely placeholders
+        if int(number) == 0:
+            return False, f"Accession '{accession}' is zero-filled placeholder."
+    
+    # Attempt to verify existence via NCBI E-utilities (ESummary)
+    # This is a lightweight check to ensure the accession exists in the database.
+    # We use a timeout to prevent hanging.
+    try:
+        db = "geo" if prefix in ("GSE", "GSM") else "sra"
+        # Map prefix to DB
+        if prefix.startswith("SR"):
+            db = "sra"
+            # For SRA, the ID is the accession number without prefix for some calls, 
+            # but esummary accepts the accession.
+            url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db={db}&id={accession}&retmode=json"
+        else:
+            # For GEO, the ID is the accession
+            url = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=geo&id={accession}&retmode=json"
+        
+        req = Request(url)
+        req.add_header('User-Agent', 'llmXive-pipeline/1.0 (research-impl)')
+        
+        with urlopen(req, timeout=10) as response:
+            data = json.loads(response.read().decode('utf-8'))
+            
+            # Check if response contains an error or empty result
+            if db == "sra":
+                if 'result' not in data or accession not in data['result']:
+                    return False, f"NCBI SRA returned no data for {accession}."
+            else: # geo
+                if 'result' not in data or accession not in data['result']:
+                    return False, f"NCBI GEO returned no data for {accession}."
+                
+            # If we get here, the accession exists
+            return True, "Accession verified via NCBI."
+            
+    except Exception as e:
+        # If network fails, we might still consider it valid if format is perfect,
+        # but the task says "abort if... missing".
+        # If we can't reach NCBI, we can't confirm it's not missing.
+        # However, for robustness in CI, we might want to be strict.
+        # Given the instruction "abort if... missing", we should fail if we can't verify.
+        # But if the format is valid and it's a real-looking accession, we might warn.
+        # Strict interpretation: If we can't verify existence, we assume it might be missing.
+        # However, a network error shouldn't necessarily kill the whole pipeline if the ID looks real.
+        # Let's be strict: if we can't verify, we raise an error unless it's a known format.
+        # Actually, the prompt says "abort if... missing". If we can't check, we don't know.
+        # Best approach: If format is valid and length is correct, assume valid but log warning?
+        # No, the task says "abort if... missing". We must be sure.
+        # If network is down, we can't be sure. But typically, we assume the runner has internet.
+        # Let's treat network failure as a fatal error for the verification step.
+        return False, f"Could not verify accession via NCBI (network error): {e}"
 
 def verify_manifest(manifest_path):
     """
-    Loads the manifest.yaml and verifies all SRA/GEO accessions.
-    Returns (is_valid, error_message)
+    Verifies the manifest.yaml file structure and validates accessions.
+    Returns the parsed manifest if valid, raises an error otherwise.
     """
     if not os.path.exists(manifest_path):
-        return False, f"Manifest file not found: {manifest_path}"
+        raise FileNotFoundError(f"Manifest file not found: {manifest_path}")
     
     try:
         with open(manifest_path, 'r') as f:
             manifest = yaml.safe_load(f)
-    except Exception as e:
-        return False, f"Failed to parse manifest.yaml: {e}"
+    except yaml.YAMLError as e:
+        raise ValueError(f"Invalid YAML in manifest: {e}")
     
     if 'datasets' not in manifest:
-        return False, "Manifest missing 'datasets' key"
+        raise ValueError("Manifest must contain a 'datasets' key.")
+    
+    if not isinstance(manifest['datasets'], list):
+        raise ValueError("'datasets' must be a list.")
+    
+    if len(manifest['datasets']) == 0:
+        raise ValueError("Manifest 'datasets' list is empty.")
     
     errors = []
-    verified_count = 0
-    total_count = 0
-
-    print(f"Verifying {len(manifest['datasets'])} datasets...")
-
-    for dataset in manifest['datasets']:
-        dataset_type = dataset.get('type', 'Unknown')
-        study_acc = dataset.get('study_accession', '')
-        runs = dataset.get('runs', [])
+    for i, dataset in enumerate(manifest['datasets']):
+        if 'accession' not in dataset:
+            errors.append(f"Dataset at index {i} is missing 'accession'.")
+            continue
         
-        # Verify Study Accession
-        if study_acc:
-            total_count += 1
-            if check_ncbi_accession(study_acc):
-                print(f"  [OK] Study {study_acc} ({dataset_type})")
-                verified_count += 1
-            else:
-                errors.append(f"Study accession {study_acc} ({dataset_type}) not found in NCBI.")
+        accession = dataset['accession']
+        is_valid, reason = check_ncbi_accession(accession)
         
-        # Verify Run Accessions (SRA)
-        for run in runs:
-            sra_id = run.get('sra', '')
-            if sra_id:
-                total_count += 1
-                if check_ncbi_accession(sra_id):
-                    print(f"  [OK] Run {sra_id} ({dataset_type})")
-                    verified_count += 1
-                else:
-                    errors.append(f"SRA Run {sra_id} ({dataset_type}) not found in NCBI.")
+        if not is_valid:
+            errors.append(f"Dataset at index {i} (Accession: {accession}) is invalid: {reason}")
+        
+        if 'type' not in dataset:
+            errors.append(f"Dataset at index {i} is missing 'type'.")
     
     if errors:
-        return False, "\n".join(errors)
+        error_msg = "Manifest verification failed with the following errors:\n" + "\n".join(errors)
+        raise ValueError(error_msg)
     
-    print(f"Verification complete: {verified_count}/{total_count} accessions verified.")
-    return True, "All accessions verified successfully."
+    return manifest
 
 def main():
-    manifest_path = Path(__file__).parent / "manifest.yaml"
-    if not manifest_path.exists():
-        print("ERROR: manifest.yaml not found in code/ directory.")
+    if len(sys.argv) < 2:
+        print("Usage: python 00_verify_manifest.py <manifest_path>")
         sys.exit(1)
     
-    is_valid, message = verify_manifest(str(manifest_path))
-    
-    if not is_valid:
-        print("\nCRITICAL ERROR: Manifest verification failed.")
-        print(message)
-        print("\nThe pipeline must abort because data integrity (FR-001) cannot be guaranteed.")
-        sys.exit(1)
-    else:
-        print("\nManifest verification passed. Pipeline can proceed.")
-        sys.exit(0)
+    manifest_path = sys.argv[1]
+    try:
+        manifest = verify_manifest(manifest_path)
+        print(f"Manifest verified successfully. Found {len(manifest['datasets'])} valid datasets.")
+        return 0
+    except Exception as e:
+        print(f"Manifest verification failed: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

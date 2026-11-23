@@ -1,0 +1,141 @@
+T001:
+  c: false
+  h: ec7a15843ae1ee9f498073ff8ee789a9a7d2ff1c197be140ed68dba6061b4aa1
+  r: "The provided artifact only shows top\u2011level entries (e.g., `code/`, `data/`,\
+    \ `results/`, `tests/`) but does not demonstrate that the required sub\u2011directories\
+    \ (`data/raw`, `data/processed`, `results/plots`, `tests/unit`, `tests/integration`,\
+    \ `tests/contract`, `state`) actually exist. A full recursive listing (`ls -R`)\
+    \ confirming each of these paths is missing."
+T002:
+  c: false
+  h: d7a9593c17e9feac5fd8271ee52da08e6c2db50adddd48cdf4ebf088f870d768
+  r: "The provided `requirements.txt` exists and lists all required packages, but\
+    \ it does not pin them to exact versions (it uses `>=` specifiers) as the task\
+    \ demands, and there is no evidence that `pip check` was run to confirm conflict\u2011\
+    free installation. The implementer must supply a `requirements.txt` with exact\
+    \ version pins (e.g., `statsmodels==0.14.0`) for every listed dependency and include\
+    \ proof that `pip check` passes."
+T003:
+  c: true
+  h: 954cb3bb6b8af34bd5e64124ae9fc649e54e6b4c3322e43db5445683e7550aba
+  r: "Both required files are present, non\u2011empty, and contain the exact configurations\
+    \ specified (the .ruff.toml selects E4,\u202FE7,\u202FE9,\u202FF,\u202FI; the\
+    \ .pre-commit-config.yaml includes black and ruff hooks). No placeholders or missing\
+    \ content were found."
+T004:
+  c: false
+  h: dccda8acc826bcf1be78356557b8526b9558a066c93070c786eaa28224ddabab
+  r: The listed evidence shows that `data/raw/` does not contain `M4-Dataset.zip`
+    (file missing) and `state/checksums.yaml` is also missing, so the required artifacts
+    are absent and the checksum validation cannot be performed. The implementer must
+    add the downloaded zip file and the checksum YAML file.
+T004b:
+  c: false
+  h: fe573ed5f93a4fd4445d5b60b8742a514d461055de021d9a20c5c27cab83f967
+  r: "The provided `config.yaml` is present but its contents do not match the specification:\
+    \ the required top\u2011level keys `learning_rate`, `step_size`, `initial_alpha`,\
+    \ `seed` are missing or nested under `aci`/`pipeline`; `nominal_levels` contains\
+    \ `[0.80, 0.90]` instead of `[0.80, 0.95]`; and `sensitivity_thresholds` lacks\
+    \ the value `0.02`. The file therefore fails the verification script."
+T005d:
+  c: false
+  h: 73e939e85ed477b45eec9ecd63c364dc88264698a07645df1906d50aef46e934
+  r: "The required file `code/models/lightgbm_quantile.py` is missing, and the test\
+    \ file `tests/unit/test_models.py` (which contains the verification test) does\
+    \ not exist, so no implementation or test can be run. The task\u2019s core artifact\
+    \ is absent."
+T011:
+  c: false
+  h: 458ab585cea2c734e145a6a3aeee5dae80efed5819cc228c9a2373a31d63ad4d
+  r: "The repository contains a partially\u2011written `tests/contract/test_coverage_schema.py`,\
+    \ but the file is truncated (e.g., the last test method is incomplete) and it\
+    \ expects a real `results/coverage.csv` file rather than a mock JSON as the task\
+    \ specifies. No mock JSON file is provided, and there is no evidence that the\
+    \ test was executed against such a mock. The required artifact (a complete contract\
+    \ test that validates the schema using a mock JSON) is therefore missing."
+T012:
+  c: false
+  h: 5d0bfed5a02410e80c1174dcec153ecd937d0d4aa8d5d60043f6a3855c7b51d1
+  r: "The required file `tests/integration/test_mini_pipeline.py` does not exist in\
+    \ the repository, so the integration test artifact is missing entirely. Without\
+    \ this test file, the task\u2019s requirement is not satisfied."
+T013a:
+  c: false
+  h: c065b4ed72508935df5e201c9456ac7e49edba884ede406a5c10b20f6e1d2638
+  r: "The repository contains `code/download.py`, but the shown content only includes\
+    \ utility functions (download, checksum, extraction) and does not implement the\
+    \ required stratified sampling logic. Moreover, the required output file `data/processed/sample_indices.csv`\
+    \ is absent, so the KL\u2011divergence check and row\u2011count condition cannot\
+    \ be verified. The task\u2019s deliverable is therefore not satisfied."
+T013c:
+  c: false
+  h: 2f6554a85f1867fcc7b70c7cfdd0495a0257000d6e50d652a717cb6f90671a38
+  r: "The required deliverable `data/processed/sample_indices_10.csv` does not exist\
+    \ on disk, so the sub\u2011sample selection task has not been provided. The missing\
+    \ file must be created and populated with the appropriate indices to satisfy the\
+    \ requirement."
+T014:
+  c: false
+  h: 6912a0b930d4f1d0e6f6783ceae67612ee0fb0188cb3c5832cbbca041171cda7
+  r: "The required input file `data/processed/sample_indices_1000.csv` is missing,\
+    \ so the script cannot select the 1000\u2011series subset. Additionally, the provided\
+    \ `run_pipeline.py` is truncated and does not show the full loop with short\u2011\
+    series skipping and model\u2011convergence error handling, nor any evidence that\
+    \ `state/errors.log` is created after a test run. Both the input artifact and\
+    \ the complete orchestration logic are absent."
+T015:
+  c: false
+  h: a28d58f33d59df7c652db0180bd234e9fef951298b1276db04ef7dbfe50b646f
+  r: "The required input `data/processed/sample_indices_1000.csv` is missing, and\
+    \ there is no artifact (e.g., CSV/JSON) showing prediction intervals generated\
+    \ for all series and horizons. Without the input data and the interval output,\
+    \ the task\u2019s core requirement is not satisfied."
+T016:
+  c: false
+  h: 87e0864774cd8fe54f5ecefd8b5488d1a1fcc2aa4ab9d73578c3330d63cab140
+  r: "The repository contains `code/metrics.py` with an `empirical_coverage` function,\
+    \ but the required output file `results/coverage_intermediate.csv` is missing,\
+    \ and there is no code that generates this CSV for each series/model/horizon.\
+    \ Consequently, the task\u2019s core deliverable (the coverage CSV) is not present."
+T018:
+  c: false
+  h: 1b997108f30229497cfc0b64f509706dbe920339400784968731bb7d22a7d5ca
+  r: "The required `results/sensitivity_analysis.csv` file does not exist, so no output\
+    \ data was produced. Additionally, the configuration uses `sensitivity_thresholds`\
+    \ instead of the specified `sensitivity_range`, indicating the loop\u2019s parameters\
+    \ are not set as required. Both the artifact and the config key need to be provided\
+    \ correctly."
+T019:
+  c: false
+  h: 9e188159bdf917477040700fe2a97faa0bb485c1d12375310dc5f0c6918ce565
+  r: The required `results/coverage.csv` file does not exist, and the referenced `contracts/output.schema.yaml`
+    (or `schema.yaml`) is also missing, so there is no evidence that the CSV with
+    the correct columns, order, and types was produced. The task therefore remains
+    unfinished.
+T042:
+  c: false
+  h: 8011732e91d7e630f598ce5c5be6ff7faa50e9aa92ea09c38211221abad1e231
+  r: "The required artifact `results/interval_scores.csv` does not exist, so the task\u2019\
+    s output file and its required columns/values are missing."
+T053:
+  c: false
+  h: 519c4889e4289853037904324095c3e82d7ea068a7e6ea398094aef97f7ccf71
+  r: The repository lacks a `results/sample_metadata.json` file entirely, and the
+    provided `code/download.py` does not contain any implementation that logs the
+    number of series selected, the sampling method, or the seed (it ends with an incomplete
+    function and placeholder code). Both required artifacts are missing or incomplete.
+T055:
+  c: false
+  h: c7dc55afe7037c233999fcf2626022f1093045f47a970765aa832b097ababdf4
+  r: The `code/recalibration.py` file contains no docstring or logging statement that
+    mentions the bootstrap test power limitation, and the expected `results/bootstrap_pvalues.json`
+    file is absent, so the required disclaimer is not present anywhere.
+T056:
+  c: false
+  h: 72b5d6dcb530e79e265a5ea964b3403cd13f361056c292822684ec48b85508d1
+  r: "The required `code/config.yaml` file is missing, so the grep verification cannot\
+    \ be performed, and there is no evidence that `plan.md` or `spec.md` have had\
+    \ their `[deferred]` placeholders resolved or marked as \u201CTBD\u201D. The existing\
+    \ `config.yaml` (outside `code/`) contains no \u201Cdeferred\u201D text, but the\
+    \ absence of the expected file and lack of checks on the markdown documents mean\
+    \ the task\u2019s requirement is not satisfied."

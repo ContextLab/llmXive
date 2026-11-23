@@ -1,0 +1,43 @@
+{
+  "description": "Schema for graph metadata generated during topology generation.",
+  "version": "1.0",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "node_count": {
+        "type": "integer",
+        "description": "Total number of nodes in the graph (N)."
+      },
+      "avg_degree": {
+        "type": "number",
+        "description": "Average degree of the graph."
+      },
+      "p": {
+        "type": "number",
+        "description": "Rewiring probability used in Watts-Strogatz generation."
+      },
+      "seed": {
+        "type": "integer",
+        "description": "Random seed used for reproducibility."
+      },
+      "checksum": {
+        "type": "string",
+        "description": "SHA256 checksum of the .gpickle file."
+      }
+    },
+    "required": [
+      "node_count",
+      "avg_degree",
+      "p",
+      "seed",
+      "checksum"
+    ]
+  },
+  "example": {
+    "node_count": 500,
+    "avg_degree": 4.0,
+    "p": 0.1,
+    "seed": 42,
+    "checksum": "abc123..."
+  }
+}

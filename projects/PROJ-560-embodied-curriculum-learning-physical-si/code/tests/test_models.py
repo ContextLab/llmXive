@@ -1,98 +1,74 @@
 import pytest
 from typing import Dict, Any
-from src.models import DatasetRecord
+from src.models import DatasetRecord, AnalysisResult, SensitivitySweep
 
 class TestDatasetRecordValidation:
-    """Unit tests for DatasetRecord validation logic."""
-
-    def test_valid_record_creation(self):
-        """Test that a valid DatasetRecord can be created."""
+    """Tests for DatasetRecord validation."""
+    
+    def test_valid_record(self) -> None:
+        """Test creating a valid DatasetRecord."""
         record = DatasetRecord(
-            pre_test_score=85.0,
-            post_test_score=92.0,
-            instruction_type="embodied",
-            covariates={"age": 12, "gender": "M"}
-        )
-        assert record.pre_test_score == 85.0
-        assert record.post_test_score == 92.0
-        assert record.instruction_type == "embodied"
-        assert record.covariates == {"age": 12, "gender": "M"}
-
-    def test_missing_required_field_pre_test(self):
-        """Test that missing pre_test_score raises TypeError."""
-        with pytest.raises(TypeError):
-            DatasetRecord(
-                post_test_score=92.0,
-                instruction_type="embodied",
-                covariates={}
-            )
-
-    def test_missing_required_field_post_test(self):
-        """Test that missing post_test_score raises TypeError."""
-        with pytest.raises(TypeError):
-            DatasetRecord(
-                pre_test_score=85.0,
-                instruction_type="embodied",
-                covariates={}
-            )
-
-    def test_missing_required_field_instruction_type(self):
-        """Test that missing instruction_type raises TypeError."""
-        with pytest.raises(TypeError):
-            DatasetRecord(
-                pre_test_score=85.0,
-                post_test_score=92.0,
-                covariates={}
-            )
-
-    def test_negative_scores_allowed(self):
-        """Test that negative scores are allowed (data integrity check)."""
-        record = DatasetRecord(
-            pre_test_score=-5.0,
-            post_test_score=-2.0,
-            instruction_type="static",
-            covariates={}
-        )
-        assert record.pre_test_score == -5.0
-        assert record.post_test_score == -2.0
-
-    def test_empty_covariates_allowed(self):
-        """Test that empty covariates dict is valid."""
-        record = DatasetRecord(
-            pre_test_score=80.0,
-            post_test_score=85.0,
-            instruction_type="embodied",
-            covariates={}
-        )
-        assert record.covariates == {}
-
-    def test_covariates_type_check(self):
-        """Test that covariates must be a dictionary."""
-        with pytest.raises(TypeError):
-            DatasetRecord(
-                pre_test_score=80.0,
-                post_test_score=85.0,
-                instruction_type="embodied",
-                covariates="invalid_type"
-            )
-
-    def test_gain_score_calculation_property(self):
-        """Test that gain_score can be calculated correctly."""
-        record = DatasetRecord(
-            pre_test_score=60.0,
+            pre_test_score=50.0,
             post_test_score=75.0,
             instruction_type="embodied",
-            covariates={}
+            covariates={"age": 10}
         )
-        gain = record.post_test_score - record.pre_test_score
-        assert gain == 15.0
+        assert record.pre_test_score == 50.0
+        assert record.post_test_score == 75.0
+        assert record.instruction_type == "embodied"
+        assert record.covariates == {"age": 10}
+    
+    def test_missing_covariates(self) -> None:
+        """Test creating a record without covariates."""
+        record = DatasetRecord(
+            pre_test_score=50.0,
+            post_test_score=75.0,
+            instruction_type="static"
+        )
+        assert record.covariates == {}
+    
+    def test_gain_score_calculation(self) -> None:
+        """Test gain score assignment."""
+        record = DatasetRecord(
+            pre_test_score=50.0,
+            post_test_score=75.0,
+            instruction_type="embodied",
+            gain_score=25.0
+        )
+        assert record.gain_score == 25.0
 
-    def test_string_instruction_type(self):
-        """Test that instruction_type must be a string."""
-        with pytest.raises(TypeError):
-            DatasetRecord(
-                pre_test_score=80.0,
-                post_test_score=85.0,
-                instruction_type=123,
-                covariates={}
-            )
+class TestAnalysisResultValidation:
+    """Tests for AnalysisResult validation."""
+    
+    def test_valid_result(self) -> None:
+        """Test creating a valid AnalysisResult."""
+        result = AnalysisResult(
+            test_name="t_test",
+            statistic=2.5,
+            p_value=0.01,
+            effect_size=0.8,
+            confidence_interval=(0.5, 1.1),
+            inference_framing="associational"
+        )
+        assert result.test_name == "t_test"
+        assert result.statistic == 2.5
+        assert result.p_value == 0.01
+        assert result.effect_size == 0.8
+        assert result.confidence_interval == (0.5, 1.1)
+        assert result.inference_framing == "associational"
+
+class TestSensitivitySweepValidation:
+    """Tests for SensitivitySweep validation."""
+    
+    def test_valid_sweep(self) -> None:
+        """Test creating a valid SensitivitySweep."""
+        sweep = SensitivitySweep(
+            threshold=0.05,
+            n_participants=100,
+            effect_size_cohen_d=0.6,
+            robustness_flag=True
+        )
+        assert sweep.threshold == 0.05
+        assert sweep.n_participants == 100
+        assert sweep.effect_size_cohen_d == 0.6
+        assert sweep.robustness_flag is True

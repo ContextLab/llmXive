@@ -276,7 +276,8 @@ def resolve_relational(
             "subject": subj,
             "relation": rel,
             "object": obj,
-            "entailment_status": verdict.status,
+            "source_validation_version": 2,
+                "entailment_status": verdict.status,
             "entailment_evidence": verdict.evidence,
         },
         resolver="resolve_relational",
@@ -345,6 +346,7 @@ def resolve_superlative(
             value=canonical,
             evidence={
                 "source_url": doc.final_url,
+                "source_validation_version": 2,
                 "entailment_status": entailment.status,
                 "entailment_evidence": entailment.evidence,
             },
@@ -357,6 +359,7 @@ def resolve_superlative(
             value=None,
             evidence={
                 "source_url": doc.final_url,
+                "source_validation_version": 2,
                 "entailment_status": entailment.status,
                 "entailment_evidence": entailment.evidence,
             },

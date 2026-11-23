@@ -4,150 +4,174 @@ import os
 import sys
 import random
 from pathlib import Path
-import csv
-import textstat
-from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+from typing import List, Dict, Any, Tuple
 
-# Ensure we can import sibling utilities when run as a script
-sys.path.insert(0, str(Path(__file__).parent))
-from utils.logger import setup_logger, log_script_start, log_script_end, log_data_operation
-from utils.random_utils import set_global_seed
+try:
+    import textstat
+except ImportError:
+    print("Error: textstat is required. Install with: pip install textstat")
+    sys.exit(1)
 
-logger = setup_logger(__name__)
+try:
+    from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
+except ImportError:
+    print("Error: vaderSentiment is required. Install with: pip install vaderSentiment")
+    sys.exit(1)
+
+# Ensure project root is in path for imports
+project_root = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(project_root))
+
+from utils.logger import setup_logger, log_script_start, log_script_end, log_data_operation, info
+from utils.random_utils import set_global_seed, ensure_seed_set
+
+logger = setup_logger()
 analyzer = SentimentIntensityAnalyzer()
 
-# Controlled templates for the two conditions
-# These templates are designed to be identical in structure and length,
-# differing only in the framing noun (Partner vs Tool).
-TEMPLATES = {
-    "Partner": [
-        "Imagine you are working on a complex project with an AI system designed to act as a collaborative Partner. This AI Partner actively engages with your ideas, offering suggestions and building upon your thoughts in a conversational manner. It feels like working with a teammate who understands your goals and helps you navigate challenges together.",
-        "In this scenario, the AI Partner adapts its communication style to match your preferences, creating a sense of mutual understanding. When you encounter difficulties, the Partner offers encouragement and alternative perspectives, much like a human colleague would. The interaction feels natural and supportive, fostering a sense of shared purpose."
-    ],
-    "Tool": [
-        "Imagine you are working on a complex project using an AI system designed to function as a specialized Tool. This AI Tool processes information efficiently, providing data and suggestions based on your inputs in a functional manner. It operates like a sophisticated instrument that helps you execute tasks more effectively.",
-        "In this scenario, the AI Tool responds to your commands with precision, delivering results based on its programming. When you encounter difficulties, the Tool provides optimized solutions and data-driven alternatives, much like a high-tech calculator. The interaction feels efficient and precise, maximizing your individual productivity."
-    ]
-}
+# Templates for the two conditions
+# These are controlled templates that only change the framing (Partner vs Tool)
+# while keeping structure, length, and other linguistic variables constant.
+TEMPLATE_PARTNER = """
+Imagine you are working on a complex project with a new AI system. This system is designed to act as a collaborative **Partner**.
+It actively listens to your ideas, suggests creative directions, and challenges your assumptions to help you grow.
+The AI operates with a shared sense of purpose, aiming to achieve mutual goals alongside you.
+It remembers your past preferences and adapts its behavior to support your long-term development.
+In this relationship, the AI is a proactive teammate that shares the burden of decision-making.
+You and the AI work together as equals, blending human intuition with machine processing power.
+The system's goal is to enhance your capabilities, making you a better professional through partnership.
+"""
 
-def calculate_metrics(text: str) -> dict:
+TEMPLATE_TOOL = """
+Imagine you are working on a complex project with a new AI system. This system is designed to act as a specialized **Tool**.
+It efficiently processes your inputs, executes specific commands, and provides accurate data for your decisions.
+The Tool operates with a clear set of functions, aiming to complete assigned tasks with maximum precision.
+It remembers your past inputs and adapts its output format to support your immediate workflow needs.
+In this interaction, the Tool is a responsive utility that executes your specific instructions.
+You direct the Tool, combining human strategy with machine speed and accuracy.
+The system's goal is to enhance your efficiency, making you a faster professional through utility.
+"""
+
+def calculate_metrics(text: str) -> Dict[str, float]:
     """Calculate readability and sentiment metrics for a given text."""
-    fk_score = textstat.flesch_reading_ease(text)
-    fk_grade = textstat.flesch_kincaid_grade(text)
+    fk_score = textstat.flesch_kincaid_grade(text)
     sentiment = analyzer.polarity_scores(text)
     return {
-        "flesch_reading_ease": fk_score,
-        "flesch_kincaid_grade": fk_grade,
+        "flesch_kincaid_grade": fk_score,
         "sentiment_compound": sentiment['compound'],
         "sentiment_pos": sentiment['pos'],
-        "sentiment_neu": sentiment['neu'],
-        "sentiment_neg": sentiment['neg']
+        "sentiment_neg": sentiment['neg'],
+        "sentiment_neu": sentiment['neu']
     }
 
-def generate_vignette(condition: str, seed: int = None) -> str:
-    """Generate a vignette for the specified condition."""
-    if seed is not None:
-        random.seed(seed)
-    
-    if condition not in TEMPLATES:
+def generate_vignette(condition: str) -> str:
+    """Generate a vignette based on the specified condition."""
+    if condition == "Partner":
+        return TEMPLATE_PARTNER.strip()
+    elif condition == "Tool":
+        return TEMPLATE_TOOL.strip()
+    else:
         raise ValueError(f"Unknown condition: {condition}")
-    
-    # Select a template variant randomly if multiple exist
-    template = random.choice(TEMPLATES[condition])
-    return template
 
-def validate_constraints(vignettes: dict, max_diff_readability: float = 2.0, max_diff_sentiment: float = 0.05) -> bool:
-    """Validate that generated vignettes meet the constraints."""
-    metrics = {k: calculate_metrics(v) for k, v in vignettes.items()}
-    
-    readability_diff = abs(metrics["Partner"]["flesch_reading_ease"] - metrics["Tool"]["flesch_reading_ease"])
-    sentiment_diff = abs(metrics["Partner"]["sentiment_compound"] - metrics["Tool"]["sentiment_compound"])
-    
-    logger.info(f"Readability difference: {readability_diff:.2f} (Max allowed: {max_diff_readability})")
-    logger.info(f"Sentiment difference: {sentiment_diff:.4f} (Max allowed: {max_diff_sentiment})")
-    
-    if readability_diff > max_diff_readability:
-        logger.warning(f"Readability difference {readability_diff:.2f} exceeds threshold {max_diff_readability}")
-        return False
-    if sentiment_diff > max_diff_sentiment:
-        logger.warning(f"Sentiment difference {sentiment_diff:.4f} exceeds threshold {max_diff_sentiment}")
-        return False
-        
-    return True
+def validate_constraints(vignettes: Dict[str, str], max_attempts: int = 10) -> Tuple[bool, Dict[str, Any]]:
+    """
+    Validate that the generated vignettes meet the readability and sentiment constraints.
+    Returns (success, metrics_log).
+    """
+    metrics = {}
+    for condition, text in vignettes.items():
+        metrics[condition] = calculate_metrics(text)
 
-def run_generation(max_attempts: int = 10) -> tuple:
-    """Run the generation loop with validation."""
-    for attempt in range(max_attempts):
-        logger.info(f"Generation attempt {attempt + 1}/{max_attempts}")
-        
-        vignettes = {
-            "Partner": generate_vignette("Partner"),
-            "Tool": generate_vignette("Tool")
-        }
-        
-        if validate_constraints(vignettes):
-            metrics = {k: calculate_metrics(v) for k, v in vignettes.items()}
-            return vignettes, metrics
-        
-        logger.info("Constraints not met, retrying...")
-    
-    logger.critical(f"Failed to generate balanced vignettes after {max_attempts} attempts.")
-    raise RuntimeError("Could not generate vignettes meeting constraints.")
+    # Check Readability Constraint (FR-001): Flesch-Kincaid diff <= 2.0
+    fk_diff = abs(metrics["Partner"]["flesch_kincaid_grade"] - metrics["Tool"]["flesch_kincaid_grade"])
+    if fk_diff > 2.0:
+        logger.warning(f"Readability constraint failed: diff={fk_diff:.2f} > 2.0")
+        return False, metrics
 
-def save_vignettes(vignettes: dict, output_dir: str):
-    """Save generated vignettes to CSV files."""
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+    # Check Sentiment Constraint (FR-010): Compound sentiment diff <= 0.05
+    sent_diff = abs(metrics["Partner"]["sentiment_compound"] - metrics["Tool"]["sentiment_compound"])
+    if sent_diff > 0.05:
+        logger.warning(f"Sentiment constraint failed: diff={sent_diff:.2f} > 0.05")
+        return False, metrics
+
+    logger.info(f"Constraints met. FK Diff: {fk_diff:.2f}, Sentiment Diff: {sent_diff:.2f}")
+    return True, metrics
+
+def run_generation(seed: int, max_attempts: int = 10) -> Tuple[Dict[str, str], Dict[str, Any], bool]:
+    """
+    Run the generation loop. Since templates are static in this implementation,
+    the first attempt will always succeed if the templates are well-crafted.
+    In a more complex implementation, this would loop over variations.
+    """
+    set_global_seed(seed)
+    ensure_seed_set()
+
+    vignettes = {
+        "Partner": generate_vignette("Partner"),
+        "Tool": generate_vignette("Tool")
+    }
+
+    success, metrics = validate_constraints(vignettes, max_attempts)
+    
+    if not success:
+        logger.error("Failed to generate vignettes meeting constraints after max attempts.")
+        # In a real loop, we would regenerate here. Since templates are fixed, we fail.
+        return vignettes, metrics, False
+
+    return vignettes, metrics, True
+
+def save_vignettes(vignettes: Dict[str, str], output_dir: Path):
+    """Save vignettes to CSV files."""
+    output_dir.mkdir(parents=True, exist_ok=True)
     
     for condition, text in vignettes.items():
-        file_path = output_path / f"vignettes_{condition.lower()}.csv"
-        with open(file_path, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.writer(f)
-            writer.writerow(["condition", "text", "id"])
-            # Assign a generic ID for the stimulus version
-            writer.writerow([condition, text, f"v1_{condition.lower()}"])
+        filename = f"vignettes_{condition.lower()}.csv"
+        filepath = output_dir / filename
         
-        log_data_operation("write", str(file_path), "csv")
-        logger.info(f"Saved vignette for {condition} to {file_path}")
+        with open(filepath, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.writer(f)
+            writer.writerow(['condition', 'text'])
+            writer.writerow([condition, text])
+        
+        log_data_operation("save", str(filepath), 1)
+        logger.info(f"Saved vignette to {filepath}")
 
-def save_metrics_log(metrics: dict, output_dir: str):
-    """Save metrics to a JSON log file."""
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    log_path = output_path / "vignette_metrics.json"
+def save_metrics_log(metrics: Dict[str, Any], output_dir: Path, seed: int):
+    """Save generation metrics to a JSON log."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    log_path = output_dir / "generation_metrics.json"
+    
+    log_entry = {
+        "seed": seed,
+        "metrics": metrics,
+        "timestamp": datetime.now().isoformat()
+    }
     
     with open(log_path, 'w', encoding='utf-8') as f:
-        json.dump(metrics, f, indent=2)
-        
-    log_data_operation("write", str(log_path), "json")
-    logger.info(f"Saved metrics to {log_path}")
+        json.dump(log_entry, f, indent=2)
+    
+    logger.info(f"Saved metrics log to {log_path}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Generate and save AI framing vignettes.")
-    parser.add_argument("--output-dir", type=str, default="data/stimuli",
-                        help="Directory to save output files")
-    parser.add_argument("--seed", type=int, default=None,
-                        help="Random seed for reproducibility")
-    parser.add_argument("--max-attempts", type=int, default=10,
-                        help="Maximum generation attempts")
+    parser = argparse.ArgumentParser(description="Generate and validate AI framing vignettes.")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed for reproducibility")
+    parser.add_argument("--output-dir", type=str, default="data/stimuli", help="Output directory for CSVs")
+    parser.add_argument("--max-attempts", type=int, default=10, help="Max attempts to meet constraints")
     
     args = parser.parse_args()
     
-    log_script_start("stimulus_generation")
+    log_script_start("01_stimulus_generation", args)
     
-    if args.seed is not None:
-        set_global_seed(args.seed)
+    output_path = Path(args.output_dir)
     
-    try:
-        vignettes, metrics = run_generation(max_attempts=args.max_attempts)
-        save_vignettes(vignettes, args.output_dir)
-        save_metrics_log(metrics, args.output_dir)
-        logger.info("Stimulus generation completed successfully.")
-    except Exception as e:
-        logger.error(f"Stimulus generation failed: {e}")
+    vignettes, metrics, success = run_generation(args.seed, args.max_attempts)
+    
+    if success:
+        save_vignettes(vignettes, output_path)
+        save_metrics_log(metrics, output_path, args.seed)
+        log_script_end("01_stimulus_generation", "Success")
+    else:
+        log_script_end("01_stimulus_generation", "Failed constraints")
         sys.exit(1)
-    finally:
-        log_script_end("stimulus_generation")
 
 if __name__ == "__main__":
     main()

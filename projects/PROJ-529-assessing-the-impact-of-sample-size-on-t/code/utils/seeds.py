@@ -91,3 +91,24 @@ class SeedManager:
         random.seed(self.base_seed)
         np.random.seed(self.base_seed)
         logger.info(f"SeedManager reset with base seed {self.base_seed}")
+        
+    def get_history(self) -> List[Dict[str, Any]]:
+        """
+        Retrieve the history of all logged iterations.
+        
+        Returns:
+            List of dictionaries containing iteration details.
+        """
+        return self.seed_history.copy()
+        
+    def set_seed(self, seed: int):
+        """
+        Explicitly set the current seed and synchronize random state.
+        
+        Args:
+            seed: The seed value to set.
+        """
+        self.current_seed = seed
+        random.seed(seed)
+        np.random.seed(seed)
+        logger.debug(f"SeedManager explicitly set to {seed}")

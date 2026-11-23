@@ -1,0 +1,29 @@
+functional_group,min_wavenumber,max_wavenumber,unit
+O-H stretch (alcohol),3200.0,3600.0,cm-1
+O-H stretch (carboxylic acid),2500.0,3300.0,cm-1
+N-H stretch (amine),3300.0,3500.0,cm-1
+N-H stretch (amide),3190.0,3500.0,cm-1
+C-H stretch (alkane),2850.0,3000.0,cm-1
+C-H stretch (alkene),3000.0,3100.0,cm-1
+C-H stretch (alkyne),3300.0,3320.0,cm-1
+C-H stretch (aromatic),3000.0,3100.0,cm-1
+C≡N stretch (nitrile),2210.0,2260.0,cm-1
+C≡C stretch (alkyne),2100.0,2260.0,cm-1
+C=O stretch (ketone),1705.0,1725.0,cm-1
+C=O stretch (aldehyde),1720.0,1740.0,cm-1
+C=O stretch (carboxylic acid),1700.0,1725.0,cm-1
+C=O stretch (ester),1735.0,1750.0,cm-1
+C=O stretch (amide),1650.0,1690.0,cm-1
+C=O stretch (anhydride),1740.0,1830.0,cm-1
+C=O stretch (acid chloride),1770.0,1815.0,cm-1
+C=C stretch (alkene),1620.0,1680.0,cm-1
+C=C stretch (aromatic),1450.0,1600.0,cm-1
+C-N stretch (amine),1080.0,1360.0,cm-1
+C-O stretch (alcohol),1050.0,1150.0,cm-1
+C-O stretch (ether),1060.0,1150.0,cm-1
+C-O stretch (ester),1150.0,1300.0,cm-1
+C-Cl stretch (alkyl chloride),600.0,800.0,cm-1
+C-Br stretch (alkyl bromide),500.0,600.0,cm-1
+NO2 stretch (nitro),1350.0,1550.0,cm-1
+S=O stretch (sulfoxide),1030.0,1070.0,cm-1
+S=O stretch (sulfone),1120.0,1350.0,cm-1

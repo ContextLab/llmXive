@@ -1,77 +1,72 @@
-# Quickstart: Dynamic Socio-Cognitive State Injection
+# Quickstart: llmXive Follow-up: Dynamic Socio-Cognitive State Injection
 
-## Prerequisites
+## 1. Prerequisites
+- Python 3.11 or newer  
+- ≥ 7 GB RAM, ≥ 2 vCPU (GitHub Actions free tier)  
+- Internet access for dataset download  
 
-- Python 3.11+
-- Git
-- ≤7 GB RAM available (CPU inference)
-- Optional: HuggingFace CLI for model caching
-
-## Installation
-
+## 2. Installation
 ```bash
-cd projects/PROJ-885-llmxive-follow-up-extending-socrates-tow
+# Clone the repository (already done in CI)
+cd projects/PROJ-885-llmxive-follow-up-extending-socrates-tow/code/
+
+# Create and activate a virtual environment
 python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
+source venv/bin/activate
+
+# Install exact dependencies
 pip install -r requirements.txt
 ```
 
-## Running the Study
-
-### 1. Generate Synthetic Trajectories (Oversampling)
-Creates 500 trajectories with ≥40 % high‑difficulty samples.
-
+## 3. Data Download & Generation
 ```bash
-python code/data/generator.py --count 500 --oversample 0.4 --seed 42
+# Download SoCRATES prompts (streaming) and generate oversampled trajectories
+python src/data/generate_trajectories.py --download-only   # creates data/raw/
+python src/data/generate_trajectories.py --oversample-high-difficulty --num-trajectories 120
 ```
+*Outputs:*  
+- `data/raw/socrates_prompts.parquet` (checksum verified)  
+- `data/processed/filtered_trajectories.jsonl` (experiment set, ≥ 40 % high‑difficulty)  
+- `data/processed/generation_stats.json` (total count, oversampling ratio)  
+- `data/results/oversampling_report.json` (must show ≥ 40 % high‑difficulty)  
 
-*Output*: `data/processed/trajectories.jsonl` and a summary JSON (`data/processed/summary.json`).
-
-### 2. Train the Dynamic State Classifier
-Trains a logistic‑regression model on turn‑level text features plus metadata.
-
+## 4. Train the State Classifier
 ```bash
-python code/models/classifier.py --train
+# Split the dataset into training and experiment subsets
+python src/data/split_dataset.py --train-ratio 0.6
+
+# Train the logistic‑regression classifier on the training split
+python src/data/classifier_training.py
 ```
+*Outputs:* `models/state_classifier.pkl` and `data/results/feature_independence_audit.json`.
 
-*Output*: `data/models/classifier.pkl`.
-
-### 3. Execute Paired Experiments (Adapter vs. Static)
-Runs all CPU‑compatible LLMs on the generated trajectories.
-
+## 5. Run the Full Experiment (CPU‑Only)
 ```bash
-python code/experiments/runner.py \
-  --llms "llama-3-8b, mistral-7b, gemma-7b, ..." \
-  --conditions static adapter
+python src/experiments/runner.py \
+  --models llama-3-8b,mistral-7b,gemma-2b,phi-2b,openchat-3.5,starling-7b,qwen-7b,gemma-7b \
+  --conditions adapter,static \
+  --batch-size 4
 ```
+*Outputs:* `data/results/experiment_logs/<model_name>/<condition>.jsonl` and `data/results/scope_adjustments.json`.
 
-*Note*: The script respects a bounded wall‑clock budget on a free‑tier runner.
-
-*Outputs*: `data/processed/experiments/<llm_id>.jsonl`.
-
-### 4. Analyze Results
-Computes consensus‑gap scores and performs statistical testing with Holm‑Bonferroni correction.
-
+## 6. Statistical Analysis
 ```bash
-python code/analysis/stats.py \
-  --input data/processed/experiments/ \
-  --output data/results/statistical_summary.json
+python src/analysis/stats_utils.py
 ```
+*Outputs:* `data/results/statistical_report.json`, `data/results/threshold_sensitivity_report.json`.
 
-*Output*: `data/results/statistical_summary.json`.
+## 7. Validation & Verification
+```bash
+# End‑to‑end integration test
+python tests/integration/test_full_pipeline.py
+```
+*Expected:* The test completes without error, confirming the pipeline runs end‑to‑end.
 
-## Verification
+## 8. Troubleshooting
+- **Out‑of‑Memory**: Reduce `--batch-size` or drop the largest model from `--models`.  
+- **CUDA Error**: Ensure `device="cpu"` is enforced; the runner will abort if any CUDA import is detected.  
+- **Oversampling Failure**: Check `data/results/oversampling_report.json`; regenerate with a different random seed (`--seed <int>`).  
+- **Low Confidence Excess**: Review `data/results/threshold_sensitivity_report.json` to see how many neutral‑monitoring runs were produced.
 
-- **Distribution Check**:  
-  ```bash
-  python code/data/generator.py --verify data/processed/summary.json
-  ```  
-  Should report > 40 % high‑difficulty samples.
+---
 
-- **Statistical Significance**: Inspect `data/results/statistical_summary.json` for `is_significant: true` and `p_value < 0.05`.
-
-## Troubleshooting
-
-- **Memory Error**: Reduce `--count` or run a subset of LLMs.
-- **CUDA Error**: Ensure `CUDA_VISIBLE_DEVICES=""` is set; the code forces CPU execution.
-- **Timeout**: Increase the GitHub Actions job timeout or lower trajectory count.

@@ -1,0 +1,7 @@
+# Standalone ruff config for CLI usage
+# Extends pyproject.toml settings but ensures explicit file selection
+extend = "pyproject.toml"
+
+[lint]
+# Override any specific ignores if needed for the CLI run
+# (pyproject.toml is the source of truth for most rules)

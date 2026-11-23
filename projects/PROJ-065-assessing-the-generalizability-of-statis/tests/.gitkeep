@@ -1,1 +1,2 @@
-# Placeholder for tests directory
+# This file ensures the tests directory exists in version control
+# Tests will be added as specific tasks are implemented

@@ -1,73 +1,91 @@
 # Quickstart: Exploring the Role of Network Structure in Superconducting Qubit Coupling
 
 ## Prerequisites
-- Python 3.11+
-- Internet access (for IBM Quantum API)
-- (Optional) IBM Quantum API token (for higher rate limits, though public access is used by default).
+- Python 3.11+  
+- Internet connectivity (to query the IBM Quantum API).  
+- (Optional) IBM Quantum API token for higher rate limits (`QISKIT_IBM_TOKEN` environment variable).
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory.
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-163-exploring-the-role-of-network-structure-/
-    ```
+```bash
+git clone <repo-url>
+cd projects/PROJ-163-exploring-the-role-of-network-structure-/
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
 
-2.  **Create a virtual environment** and install dependencies.
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
-
-3.  **Verify dependencies**:
-    ```bash
-    python -c "import networkx, scipy, pandas, qiskit_ibm_runtime, sklearn; print('Dependencies OK')"
-    ```
-
-## Running the Pipeline
-
-The full analysis pipeline can be executed via the main script.
+Verify the environment:
 
 ```bash
-# Run the full pipeline (Fetch -> Graph -> Stats -> Viz -> Hygiene)
+python -c "import networkx, pandas, qiskit_ibm_runtime, pingouin, matplotlib; print('Ready')"
+```
+
+## Running the Full Pipeline
+
+```bash
 python code/main.py
 ```
 
-### Output
-- **Data**: Saved to `data/processed/` (CSVs).
-- **Figures**: Saved to `data/processed/plots/` (PNGs).
-- **Logs**: Printed to stdout and saved to `logs/pipeline.log`.
-- **State Update**: `state/projects/PROJ-163-...yaml` is updated with data checksums.
+The orchestrator executes the steps **in order**:
+
+1. **Fetch** current and 30‑day historical calibration snapshots (`fetcher.py`).  
+2. **Build** undirected coupling graphs and compute topological metrics (`graph_builder.py`).  
+3. **Analyze** correlations, partial correlations, permutation‑based confidence intervals, FDR correction, and robustness checks (LODO, chip‑family exclusion, time‑window comparison) (`stats_engine.py`).  
+4. **Generate** a power‑analysis / MDES report (`stats_engine.py`).  
+5. **Visualize** scatter plots, heatmaps, and MDES summary (`viz.py`).  
+6. **Record** SHA‑256 checksums and update `state/projects/...yaml` (`hygiene.py`).
+
+### Expected Output Files
+
+| Path | Description |
+|------|-------------|
+| `data/raw/*.json` | Raw JSON calibration snapshots (current + historical). |
+| `data/processed/performance_metrics.csv` | Median performance metrics per device (`source_window="current"`). |
+| `data/processed/performance_window_metrics.csv` | Time‑averaged performance metrics (`source_window="window"`). |
+| `data/processed/graph_metrics.csv` | Topological descriptors per device. |
+| `data/processed/correlation_results.csv` | Spearman/partial correlation results (schema: `contracts/correlation_results.schema.yaml`). |
+| `data/processed/window_comparison.csv` | Cross‑sectional vs. window ρ and `window_delta` (SC‑004). |
+| `data/processed/power_analysis.csv` | MDES and power‑analysis report (schema: `contracts/mdes_report.schema.yaml`). |
+| `data/processed/plots/*.png` | Scatter plots, correlation heatmap, MDES figure. |
+| `state/projects/PROJ-163-...yaml` | Artifact hashes and timestamps for reproducibility. |
 
 ## Testing
 
-Run the test suite to verify graph calculations and API mocking.
-
 ```bash
-# Unit tests (mocked API)
 pytest tests/test_fetcher.py -v
-
-# Integration tests (live API, rate-limited)
-pytest tests/test_integration_fetch.py -v
+pytest tests/test_graph_builder.py -v
+pytest tests/test_stats_engine.py -v
+pytest tests/test_integration_fetch.py -v   # hits live API (rate‑limited)
 ```
 
-## Data Inspection
+All tests must pass; schema validation is performed automatically against the files in `contracts/`.
 
-To inspect the raw data fetched:
+## CLI Usage (graph_builder)
+
+The graph‑building CLI accepts both the new `--out` flag and the legacy `--output` flag for backward compatibility:
+
 ```bash
-ls data/raw/
-cat data/processed/graph_metrics.csv | head
+python -m code.graph_builder --backend ibmq_manila --out graph_metrics.csv
+# or
+python -m code.graph_builder --backend ibmq_manila --output graph_metrics.csv
 ```
 
-To check the correlation results:
+The CLI implements a **custom degree assortativity** calculation that yields –1.0 for a 3‑node path, satisfying the unit‑test expectation.
+
+## Inspection Commands
+
 ```bash
-cat data/processed/correlation_results.csv | grep "True"  # Filter significant results
+head data/processed/performance_metrics.csv
+head data/processed/graph_metrics.csv
+grep True data/processed/correlation_results.csv   # show significant pairs
+cat data/processed/power_analysis.csv
 ```
 
 ## Troubleshooting
+- **Rate‑limit errors** – the fetcher retries with exponential backoff; set `QISKIT_IBM_TOKEN` to increase limits.  
+- **Disconnected graphs** – `spectral_gap` will be assigned its minimal baseline value; path‑length metrics are computed on the largest component only.  
+- **Missing metrics** – devices lacking a metric are omitted from that specific correlation pair.  
+- **Low statistical power** – if `N < 30`, the MDES report will flag the study as exploratory; only effect‑size estimates with permutation‑CI are reported.  
 
-- **Rate Limit Errors**: The fetcher automatically retries with exponential backoff. If persistent, add an IBM Quantum token to `QISKIT_IBM_TOKEN` environment variable.
-- **Disconnected Graphs**: Devices with disconnected coupling maps will have `spectral_gap=0` and be excluded from path-length correlations. Check `logs/pipeline.log` for warnings.
-- **Missing Metrics**: If a device lacks `entanglement_fidelity`, it is skipped for that specific correlation.
-- **Low Power**: If N < 30, the output will explicitly state the Minimum Detectable Effect Size (MDES) and flag the study as exploratory.
+---

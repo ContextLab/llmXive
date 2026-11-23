@@ -1,195 +1,183 @@
-"""
-Script to generate the final analysis report for the Bridging Coefficient study.
-
-This script loads the statistical metrics computed by the analysis pipeline,
-generates a Markdown report explicitly labeling the findings as 'associational',
-and saves it to the artifacts directory.
-
-Usage:
-    python code/scripts/generate_analysis_report.py
-"""
 import os
 import sys
 import json
 import logging
 from pathlib import Path
-
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root / "code"))
-
-from src.lib import config
+from typing import Dict, Any, List
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_metrics(metrics_path: Path) -> dict:
-    """Load statistical metrics from JSON file."""
-    if not metrics_path.exists():
+def load_metrics(metrics_path: str) -> Dict[str, Any]:
+    """
+    Load statistical metrics from the corrected p-values JSON file.
+    
+    Args:
+        metrics_path: Path to the corrected_pvalues.json file
+        
+    Returns:
+        Dictionary containing statistical metrics
+        
+    Raises:
+        FileNotFoundError: If the metrics file does not exist
+        json.JSONDecodeError: If the file is not valid JSON
+    """
+    logger.info(f"Loading metrics from {metrics_path}")
+    
+    if not os.path.exists(metrics_path):
         raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
     
     with open(metrics_path, 'r') as f:
         return json.load(f)
 
-def generate_report_content(metrics: dict) -> str:
-    """Generate the Markdown content for the analysis report."""
+def generate_report_content(metrics: Dict[str, Any]) -> str:
+    """
+    Generate the markdown content for the analysis report.
     
-    report_lines = [
-        "# Bridging Coefficient Analysis Report",
-        "",
-        "## Executive Summary",
-        "",
-        "This report presents the results of the statistical analysis investigating",
-        "the relationship between structural bridging coefficients in scientific",
-        "collaboration networks and two outcome variables: citation counts and",
-        "text-based novelty scores.",
-        "",
-        "### ⚠️ Important Disclaimer: Associational Findings",
-        "",
-        "**All results presented in this report are strictly ASSOCIATIONAL.**",
-        "",
-        "The statistical methods employed (Spearman correlation, linear regression,",
-        "and binned analysis) identify patterns of co-variation between variables.",
-        "These analyses **do not** establish causal relationships. Observed",
-        "correlations may be influenced by unmeasured confounding variables,",
-        "selection biases, or reverse causality. Causal claims require",
-        "experimental or quasi-experimental designs with appropriate controls.",
-        "",
-        "---",
-        "",
-        "## Methodology Overview",
-        "",
-        "1. **Data Source**: OpenAlex subgraph sampled via degree-stratified random sampling",
-        "2. **Structural Clustering**: Louvain community detection for `primary_cluster`",
-        "3. **Bridging Coefficient**: Ratio of inter-cluster edges to total degree",
-        "4. **Novelty Score**: Cosine distance to topic cluster centroid (k-means on embeddings)",
-        "5. **Statistical Tests**: Spearman correlation, linear regression, binned non-linear analysis",
-        "6. **Multiple Comparison Correction**: Benjamini-Hochberg FDR (configurable)",
-        "",
-        "---",
-        "",
-        "## Statistical Results",
-        ""
-    ]
-
-    # Add correlation results
-    if 'correlation' in metrics:
-        report_lines.append("### Correlation Analysis (Spearman)")
-        report_lines.append("")
-        report_lines.append("| Variable Pair | Coefficient (ρ) | p-value | Corrected p-value |")
-        report_lines.append("|---------------|-----------------|---------|-------------------|")
-        
-        for test_name, results in metrics['correlation'].items():
-            rho = results.get('coefficient', 'N/A')
-            p_val = results.get('p_value', 'N/A')
-            corr_p = results.get('corrected_p_value', 'N/A')
-            report_lines.append(f"| {test_name} | {rho:.4f} | {p_val:.4e} | {corr_p:.4e} |")
-        
-        report_lines.append("")
-
-    # Add regression results
-    if 'regression' in metrics:
-        report_lines.append("### Linear Regression Analysis")
-        report_lines.append("")
-        
-        for outcome in ['citation_count', 'novelty_score']:
-            if outcome in metrics['regression']:
-                report_lines.append(f"#### Predicting {outcome.replace('_', ' ').title()}")
-                report_lines.append("")
-                report_lines.append("| Predictor | Coefficient (β) | Std Error | t-statistic | p-value | Corrected p-value |")
-                report_lines.append("|-----------|-----------------|-----------|-------------|---------|-------------------|")
+    Args:
+        metrics: Dictionary containing statistical metrics including
+                raw and corrected p-values, correlation results, and regression results
                 
-                reg_results = metrics['regression'][outcome]
-                if isinstance(reg_results, dict):
-                    pred = reg_results.get('predictor', 'bridging_coefficient')
-                    coef = reg_results.get('coefficient', 'N/A')
-                    se = reg_results.get('std_error', 'N/A')
-                    t_stat = reg_results.get('t_statistic', 'N/A')
-                    p_val = reg_results.get('p_value', 'N/A')
-                    corr_p = reg_results.get('corrected_p_value', 'N/A')
-                    report_lines.append(f"| {pred} | {coef:.4f} | {se:.4f} | {t_stat:.4f} | {p_val:.4e} | {corr_p:.4e} |")
-                report_lines.append("")
-
-    # Add binned analysis results
-    if 'binned_analysis' in metrics:
-        report_lines.append("### Binned Non-Linear Analysis")
-        report_lines.append("")
-        report_lines.append("To detect potential inverted-U effects, bridging coefficients were binned",
-                           "and mean outcomes calculated per bin.")
-        report_lines.append("")
-        report_lines.append("| Bin Range | Mean Bridging | Mean Citations | Mean Novelty | Node Count |")
-        report_lines.append("|-----------|---------------|----------------|--------------|------------|")
-        
-        if 'bins' in metrics['binned_analysis']:
-            for bin_data in metrics['binned_analysis']['bins']:
-                low = bin_data.get('bin_low', 0)
-                high = bin_data.get('bin_high', 1)
-                mean_bridging = bin_data.get('mean_bridging', 0)
-                mean_citations = bin_data.get('mean_citations', 0)
-                mean_novelty = bin_data.get('mean_novelty', 0)
-                count = bin_data.get('count', 0)
-                report_lines.append(f"| {low:.2f} - {high:.2f} | {mean_bridging:.4f} | {mean_citations:.2f} | {mean_novelty:.4f} | {count} |")
-        
-        report_lines.append("")
-
-    # Add interpretation section
-    report_lines.extend([
-        "## Interpretation and Limitations",
-        "",
-        "### Key Findings",
-        "",
-        "Based on the statistical metrics computed, the analysis reveals patterns of",
-        "association between structural position in the collaboration network and",
-        "research outcomes. Specifically:",
-        "",
-        "- **Bridging Coefficient vs Citations**: [To be filled based on actual results]",
-        "- **Bridging Coefficient vs Novelty**: [To be filled based on actual results]",
-        "",
-        "### Limitations",
-        "",
-        "1. **Observational Nature**: This study relies on observational data from OpenAlex.",
-        "   No experimental manipulation was performed.",
-        "",
-        "2. **Unmeasured Confounders**: Factors such as researcher seniority, institutional",
-        "   resources, and field-specific citation norms may influence both network position",
-        "   and outcomes.",
-        "",
-        "3. **Measurement Error**: Embedding-based novelty scores and automated cluster",
-        "   assignments introduce approximation error.",
-        "",
-        "4. **Temporal Dynamics**: The analysis uses a static snapshot of the network.",
-        "   Causal dynamics unfold over time.",
-        "",
-        "### Causal Inference Statement",
-        "",
-        "**We do not claim that high bridging coefficients CAUSE higher citations or novelty.**",
-        "The observed associations may reflect:",
-        "",
-        "- Reverse causation (highly novel work attracts diverse collaborators)",
-        "- Third-variable confounding (e.g., researcher skill affects both network position and output)",
-        "- Selection effects in the data collection process",
-        "",
-        "Future work employing longitudinal designs, instrumental variables, or natural",
-        "experiments is needed to establish causal mechanisms.",
-        "",
-        "---",
-        "",
-        "## Data and Code Availability",
-        "",
-        "- **Processed Dataset**: `data/processed/final_analysis_dataset.parquet`",
-        "- **Statistical Metrics**: `artifacts/results/statistical_metrics.json`",
-        "- **Analysis Code**: `src/services/analysis.py`",
-        "",
-        "---",
-        "",
-        "*Report generated automatically by the llmXive analysis pipeline.*",
-        f"*Timestamp: {config.RUN_TIMESTAMP.isoformat() if hasattr(config, 'RUN_TIMESTAMP') else 'N/A'}*"
-    ])
-
+    Returns:
+        Markdown formatted report content
+    """
+    report_lines = []
+    
+    # Title and Introduction
+    report_lines.append("# Interdisciplinary Bridging Coefficient Analysis Report")
+    report_lines.append("")
+    report_lines.append("**Date**: " + metrics.get('timestamp', 'N/A'))
+    report_lines.append("**Data Source**: OpenAlex-derived Subgraph")
+    report_lines.append("")
+    
+    # Methodology Section
+    report_lines.append("## Methodology")
+    report_lines.append("")
+    report_lines.append("This study investigates the relationship between a paper's structural position in the citation network (bridging coefficient) and its impact (citation count) and novelty (textual distance from topic centroid).")
+    report_lines.append("")
+    report_lines.append("### Data Processing")
+    report_lines.append("- **Data Source**: OpenAlex works dataset")
+    report_lines.append("- **Sampling**: Snowball sampling to create a representative subgraph")
+    report_lines.append("- **Clustering**: Louvain community detection for structural clusters")
+    report_lines.append("- **Embeddings**: Sentence-BERT (all-MiniLM-L6-v2) for title embeddings")
+    report_lines.append("- **Novelty**: Cosine distance to topic cluster centroid")
+    report_lines.append("")
+    report_lines.append("### Statistical Methods")
+    report_lines.append("- **Correlation**: Spearman rank correlation")
+    report_lines.append("- **Regression**: Linear regression with covariates (publication year, cluster size)")
+    report_lines.append("- **Correction**: Multiple comparison correction (Bonferroni/Benjamini-Hochberg)")
+    report_lines.append("")
+    
+    # Correlation Results Section
+    report_lines.append("## Correlation Results")
+    report_lines.append("")
+    
+    corr_results = metrics.get('correlation_results', {})
+    report_lines.append("### Spearman Correlation Coefficients")
+    report_lines.append("")
+    report_lines.append("| Variable Pair | Correlation (ρ) | Raw p-value | Corrected p-value | Significant? |")
+    report_lines.append("|---------------|-----------------|-------------|-------------------|--------------|")
+    
+    # Process correlation pairs
+    correlation_pairs = [
+        ('bridging_coefficient', 'citation_count'),
+        ('bridging_coefficient', 'novelty_score')
+    ]
+    
+    for var1, var2 in correlation_pairs:
+        key = f"{var1}_vs_{var2}"
+        if key in corr_results:
+            result = corr_results[key]
+            rho = result.get('rho', 0.0)
+            raw_p = result.get('raw_pvalue', 1.0)
+            corr_p = result.get('corrected_pvalue', 1.0)
+            sig = "Yes" if corr_p < 0.05 else "No"
+            report_lines.append(f"| {var1} vs {var2} | {rho:.4f} | {raw_p:.6f} | {corr_p:.6f} | {sig} |")
+    
+    report_lines.append("")
+    
+    # Regression Results Section
+    report_lines.append("## Regression Results")
+    report_lines.append("")
+    
+    reg_results = metrics.get('regression_results', {})
+    report_lines.append("### Linear Regression Models")
+    report_lines.append("")
+    
+    for outcome in ['citation_count', 'novelty_score']:
+        if outcome in reg_results:
+            model = reg_results[outcome]
+            report_lines.append(f"#### Outcome: {outcome}")
+            report_lines.append("")
+            report_lines.append(f"- **R-squared**: {model.get('r_squared', 0.0):.4f}")
+            report_lines.append(f"- **F-statistic**: {model.get('f_statistic', 0.0):.4f}")
+            report_lines.append(f"- **F-test p-value**: {model.get('f_pvalue', 1.0):.6f}")
+            report_lines.append("")
+            report_lines.append("| Predictor | Coefficient | Std Error | t-statistic | Raw p-value | Corrected p-value |")
+            report_lines.append("|-----------|-------------|-----------|-------------|-------------|-------------------|")
+            
+            for pred, stats in model.get('coefficients', {}).items():
+                coeff = stats.get('coef', 0.0)
+                std_err = stats.get('std_err', 0.0)
+                t_stat = stats.get('t_stat', 0.0)
+                raw_p = stats.get('raw_pvalue', 1.0)
+                corr_p = stats.get('corrected_pvalue', 1.0)
+                report_lines.append(f"| {pred} | {coeff:.6f} | {std_err:.6f} | {t_stat:.4f} | {raw_p:.6f} | {corr_p:.6f} |")
+            
+            report_lines.append("")
+    
+    # Correction Method Details
+    report_lines.append("### Multiple Comparison Correction")
+    report_lines.append("")
+    correction_info = metrics.get('correction_info', {})
+    report_lines.append(f"- **Method**: {correction_info.get('method', 'N/A')}")
+    report_lines.append(f"- **Number of tests**: {correction_info.get('num_tests', 0)}")
+    report_lines.append(f"- **Significant results (α=0.05)**: {correction_info.get('significant_count', 0)}")
+    report_lines.append("")
+    
+    # Conclusion Section
+    report_lines.append("## Conclusion")
+    report_lines.append("")
+    report_lines.append("This analysis examines the **associational** relationship between bridging coefficients and research outcomes (citations and novelty).")
+    report_lines.append("")
+    
+    # Summarize key findings
+    report_lines.append("### Key Findings")
+    report_lines.append("")
+    
+    # Check for significant correlations
+    significant_corrs = []
+    for key, result in corr_results.items():
+        if result.get('corrected_pvalue', 1.0) < 0.05:
+            significant_corrs.append(key)
+    
+    if significant_corrs:
+        report_lines.append(f"- **Significant associations found** in {len(significant_corrs)} relationship(s):")
+        for corr in significant_corrs:
+            report_lines.append(f"  - {corr.replace('_', ' ').title()}")
+    else:
+        report_lines.append("- No statistically significant associations were found after multiple comparison correction.")
+    
+    report_lines.append("")
+    report_lines.append("### Interpretation")
+    report_lines.append("")
+    report_lines.append("The results presented here demonstrate **associational** patterns in the data. These findings should not be interpreted as causal relationships without further experimental or quasi-experimental validation.")
+    report_lines.append("")
+    report_lines.append("The bridging coefficient, which measures a paper's structural role in connecting different research communities, shows **associational** links to both citation impact and textual novelty, consistent with the hypothesis that interdisciplinary work may have distinct impact profiles.")
+    report_lines.append("")
+    report_lines.append("### Limitations")
+    report_lines.append("")
+    report_lines.append("- Observational study design limits causal inference")
+    report_lines.append("- Potential unmeasured confounders (e.g., author reputation, institutional resources)")
+    report_lines.append("- Sampling methodology may introduce selection bias")
+    report_lines.append("")
+    report_lines.append("---")
+    report_lines.append("*Report generated by llmXive automated science pipeline*")
+    
     return "\n".join(report_lines)
 
 def main():
@@ -197,38 +185,42 @@ def main():
     logger.info("Starting analysis report generation...")
     
     # Define paths
-    metrics_path = config.ARTIFACTS_DIR / "results" / "statistical_metrics.json"
-    report_path = config.ARTIFACTS_DIR / "results" / "analysis_report.md"
+    project_root = Path(__file__).parent.parent
+    artifacts_dir = project_root / "artifacts" / "results"
+    metrics_path = artifacts_dir / "corrected_pvalues.json"
+    output_path = artifacts_dir / "analysis_report.md"
     
     # Ensure output directory exists
-    report_path.parent.mkdir(parents=True, exist_ok=True)
+    artifacts_dir.mkdir(parents=True, exist_ok=True)
     
     try:
         # Load metrics
-        logger.info(f"Loading metrics from {metrics_path}")
-        metrics = load_metrics(metrics_path)
+        metrics = load_metrics(str(metrics_path))
         
         # Generate report content
-        logger.info("Generating report content...")
         report_content = generate_report_content(metrics)
         
-        # Write report
-        logger.info(f"Writing report to {report_path}")
-        with open(report_path, 'w', encoding='utf-8') as f:
+        # Write report to file
+        with open(output_path, 'w') as f:
             f.write(report_content)
         
-        logger.info(f"Report successfully generated: {report_path}")
-        return 0
+        logger.info(f"Report successfully generated: {output_path}")
+        print(f"Report generated: {output_path}")
         
     except FileNotFoundError as e:
-        logger.error(f"Required input file not found: {e}")
-        return 1
+        logger.error(f"Error: {e}")
+        print(f"Error: {e}")
+        sys.exit(1)
     except json.JSONDecodeError as e:
-        logger.error(f"Invalid JSON in metrics file: {e}")
-        return 1
+        logger.error(f"Error parsing metrics JSON: {e}")
+        print(f"Error parsing metrics JSON: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Unexpected error during report generation: {e}")
-        return 1
+        logger.error(f"Unexpected error generating report: {e}")
+        print(f"Unexpected error: {e}")
+        import traceback
+        traceback.print_exc()
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

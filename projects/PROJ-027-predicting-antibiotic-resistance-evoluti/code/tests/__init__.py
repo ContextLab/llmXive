@@ -1,3 +1,3 @@
 """
-Tests package for the antibiotic resistance prediction pipeline.
+Test suite for the llmXive antibiotic resistance pipeline.
 """

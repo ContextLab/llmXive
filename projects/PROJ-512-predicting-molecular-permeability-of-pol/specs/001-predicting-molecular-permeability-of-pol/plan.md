@@ -66,7 +66,7 @@ projects/PROJ-512-predicting-molecular-permeability-of-pol/code/
 │   ├── preprocessing.py      # Scaffold split, graph construction, feature extraction (FR-002)
 │   └── utils.py              # Logging, checksumming, seed setting
 ├── models/
-│   ├── gnn.py                # Message-passing GNN (multiple layers, 64 dims) (FR-003)
+│   ├── gnn.py                # Message-passing GNN (multiple layers, configurable dimensionality) (FR-003)
 │   ├── baselines.py          # Random Forest (ECFP4), Linear Regression, Randomized Topology (FR-004)
 │   └── trainer.py            # Training loop, gradient clipping, early stopping
 ├── evaluation/

@@ -1,0 +1,68 @@
+[
+  {
+    "subject_id": "sub-01",
+    "motion_metric": 1.2,
+    "condition_status": "valid",
+    "retained": true
+  },
+  {
+    "subject_id": "sub-02",
+    "motion_metric": 0.8,
+    "condition_status": "valid",
+    "retained": true
+  },
+  {
+    "subject_id": "sub-03",
+    "motion_metric": 1.5,
+    "condition_status": "valid",
+    "retained": true
+  },
+  {
+    "subject_id": "sub-04",
+    "motion_metric": 2.1,
+    "condition_status": "valid",
+    "retained": true
+  },
+  {
+    "subject_id": "sub-05",
+    "motion_metric": 0.5,
+    "condition_status": "valid",
+    "retained": true
+  },
+  {
+    "subject_id": "sub-06",
+    "motion_metric": 1.8,
+    "condition_status": "valid",
+    "retained": true
+  },
+  {
+    "subject_id": "sub-07",
+    "motion_metric": 2.5,
+    "condition_status": "valid",
+    "retained": true
+  },
+  {
+    "subject_id": "sub-08",
+    "motion_metric": 1.1,
+    "condition_status": "valid",
+    "retained": true
+  },
+  {
+    "subject_id": "sub-10",
+    "motion_metric": 0.9,
+    "condition_status": "valid",
+    "retained": true
+  },
+  {
+    "subject_id": "sub-11",
+    "motion_metric": 1.3,
+    "condition_status": "valid",
+    "retained": true
+  },
+  {
+    "subject_id": "sub-12",
+    "motion_metric": 2.0,
+    "condition_status": "valid",
+    "retained": true
+  }
+]

@@ -24,7 +24,7 @@ As a researcher, I want to execute the block-sparse attention selection logic us
 
 ### User Story 2 - Retrieval Accuracy & Perplexity Benchmarking (Priority: P2)
 
-As a researcher, I want to measure the retrieval accuracy (Exact Match/F1) and perplexity of the heuristic-based sparse attention against the learned Index Branch baseline, so that I can determine if the local heuristics preserve semantic fidelity within the expected 1-2% margin.
+As a researcher, I want to measure the retrieval accuracy (Exact Match/F1) and perplexity of the heuristic-based sparse attention against the learned Index Branch baseline, so that I can determine if the local heuristics preserve semantic fidelity within an expected marginal tolerance.
 
 **Why this priority**: This addresses the core research question regarding "semantic importance" capture. It is the primary metric for the "Expected Results" section.
 
@@ -64,11 +64,11 @@ As a researcher, I want to perform a Wilcoxon signed-rank test on the retrieval 
 
 - **FR-001**: System MUST load the MiniMax-M3 model weights in frozen mode and disable the original learned "Index Branch" parameters for inference, serving as a fixed reference baseline. (See US-1)
 - **FR-002**: System MUST implement three distinct CPU-executable selection heuristics: (1) Block Entropy, (2) Local Gradient Magnitude (computed via a proxy next-token prediction loss), and (3) Recency Bias (standard baseline for long-context attention). (See US-1)
-- **FR-003**: System MUST execute the inference loop on a standard 2-core CPU runner without requiring CUDA, GPU, or 8-bit/4-bit quantization libraries. If memory constraints prevent loading the full model, the system MUST reduce context to [deferred] tokens OR reduce batch size to 1, whichever is necessary. If 4k context + batch 1 still exceeds 7 GB RAM, the system MUST exit with code 1 and log "Memory constraint exceeded". (See US-1)
+- **FR-003**: System MUST execute the inference loop on a standard multi-core CPU runner without requiring CUDA, GPU, or 8-bit/4-bit quantization libraries. If memory constraints prevent loading the full model, the system MUST reduce context to [deferred] tokens OR reduce batch size to 1, whichever is necessary. If 4k context + batch 1 still exceeds 7 GB RAM, the system MUST exit with code 1 and log "Memory constraint exceeded". (See US-1)
 - **FR-004**: System MUST calculate and output retrieval accuracy (Exact Match and F1) and perplexity for each heuristic against the Learned Index Branch baseline on RULER tasks. (See US-2)
 - **FR-005**: System MUST perform a Wilcoxon signed-rank test comparing the retrieval accuracy of the best-performing heuristic against the learned baseline to determine statistical significance. (See US-3)
 - **FR-006**: System MUST execute a sensitivity analysis sweeping the selection threshold (e.g., Top-k or gradient cutoff) across at least three values (e.g., 0.01, 0.05, 0.1) and report the resulting variation in accuracy. (See US-3)
-- **FR-007**: System MUST ensure that data loading and processing fit within ~7 GB RAM and ~14 GB disk constraints, utilizing subsampling (defined as reducing context window to [deferred] tokens OR reducing batch size to 1) if necessary. (See US-1)
+- **FR-007**: System MUST ensure that data loading and processing fit within constrained RAM and disk resources, utilizing subsampling (defined as reducing context window to [deferred] tokens OR reducing batch size to 1) if necessary. (See US-1)
 
 ### Key Entities
 
@@ -87,7 +87,7 @@ As a researcher, I want to perform a Wilcoxon signed-rank test on the retrieval 
 - **SC-001**: The retrieval accuracy (F1) of the best-performing heuristic is measured against the Learned Index Branch baseline on the RULER benchmark tasks. (See US-2)
 - **SC-002**: The computational cost (CPU time) and memory footprint of the heuristic execution are measured against the 6-hour time limit and 7 GB RAM constraint of the GitHub Actions free-tier runner; success is defined as completing in < 6 hours. (See US-1)
 - **SC-003**: The statistical significance of the accuracy difference is measured against the p < 0.05 threshold using a Wilcoxon signed-rank test on the RULER task scores. (See US-3)
-- **SC-004**: The robustness of the selection threshold is measured against the variance in accuracy rates across the sensitivity sweep values {0.01, 0.05, 0.1}. (See US-3)
+- **SC-004**: The robustness of the selection threshold is measured against the variance in accuracy rates across the sensitivity sweep values. (See US-3)
 - **SC-005**: The inference stability is measured against the requirement of zero CUDA-related runtime errors during execution on a CPU-only environment. (See US-1)
 
 ## Assumptions
@@ -95,5 +95,5 @@ As a researcher, I want to perform a Wilcoxon signed-rank test on the retrieval 
 - **Assumption about data**: The RULER benchmark dataset is available and can be downloaded directly via the HuggingFace datasets library or a standard HTTP request without requiring a paid API key or restricted access.
 - **Assumption about model**: The MiniMax-M3 model weights are compatible with the `transformers` library in frozen mode and do not require custom CUDA kernels that cannot be mocked or disabled on CPU.
 - **Assumption about gradients**: Calculating local gradient magnitudes via a single backward pass on a small batch is computationally feasible on the 2-core CPU runner within the 6-hour window, provided the batch size is restricted to ≤ 4. The gradients are derived from a proxy next-token prediction loss (cross-entropy), not the retrieval task itself.
-- **Assumption about threshold justification**: The values {0.01, 0.05, 0.1} are selected as log-spaced candidate thresholds for the sensitivity analysis to observe variance, without asserting any as a community standard.
+- **Assumption about threshold justification**: A set of log-spaced candidate thresholds is selected for the sensitivity analysis to observe variance, without asserting any as a community standard.
 - **Assumption about inference framing**: Since the study uses a frozen model and observational benchmark data (RULER) without random assignment of tokens, findings will be framed as associational (correlation between heuristics and performance) rather than causal.

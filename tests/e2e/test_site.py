@@ -118,10 +118,10 @@ def test_dialog_opens_and_lists_artifacts(web_server, expected_projects):
         page = browser.new_page()
         page.goto(web_server + "/index.html")
         page.wait_for_load_state("networkidle")
-        # The brainstormed projects show under the Backlog tab as kanban issues.
-        page.click('button[data-tab="backlog"]')
+        # The current board includes brainstormed and later unfinished projects.
+        page.click('button[data-tab="inProgress"]')
         # Click the first issue card
-        first_issue = page.locator(".issue").first
+        first_issue = page.locator("#inProgress-cards .issue").first
         first_issue.click()
         # Dialog should open
         page.wait_for_selector("#ad-backdrop.open", timeout=2000)
@@ -132,21 +132,23 @@ def test_dialog_opens_and_lists_artifacts(web_server, expected_projects):
         browser.close()
 
 
-def test_about_thresholds_present(web_server):
-    """US5 / FR-025: about page contains data-threshold spans."""
+def test_about_review_contract_and_pipeline_details(web_server):
+    """The visible About tab describes current gates and opens real step data."""
     with sync_playwright() as pw:
         browser = pw.chromium.launch()
         page = browser.new_page()
         page.goto(web_server + "/index.html")
         page.wait_for_load_state("networkidle")
         page.click('button[data-tab="about"]')
-        thresholds = page.evaluate(
-            "() => [...document.querySelectorAll('[data-threshold]')].map(e => [e.getAttribute('data-threshold'), e.textContent])"
-        )
-        keys = {k for k, v in thresholds}
-        for required in ("research_review_accept_pts", "paper_review_accept_pts",
-                         "llm_review_score", "human_review_score"):
-            assert required in keys, f"about page missing data-threshold {required}"
+        panel = page.locator('[data-panel="about"]')
+        assert panel.is_visible()
+        assert "unanimous acceptance" in panel.inner_text()
+        assert panel.locator('.lane-name').all_text_contents() == [
+            "Research pipeline", "Paper pipeline",
+        ]
+        panel.locator('[data-step="paper_drafting"]').click()
+        page.wait_for_selector('#about-modal.open', timeout=2000)
+        assert page.locator('#about-modal').inner_text().strip()
         browser.close()
 
 

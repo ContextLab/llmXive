@@ -1,14 +1,8 @@
 """
-llmXive Cognitive Flexibility Pipeline
+llmXive Cognitive Flexibility Prediction Pipeline.
+
+This package implements a computational pipeline to test whether inter-individual
+variability in resting-state functional connectivity (RSFC) predicts performance
+on cognitive-flexibility tasks.
 """
-
 __version__ = "0.1.0"
-
-from code.config import get_config
-from code.data import load_nifti, load_behavioral_csv
-
-__all__ = [
-    "get_config",
-    "load_nifti",
-    "load_behavioral_csv",
-]

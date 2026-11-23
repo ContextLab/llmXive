@@ -1,2 +1,3 @@
-# state package
-# Storage for experiment state, hashes, and metadata.
+"""
+State directory for versioning artifacts.
+"""

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1508.05820",
+  "judged_at": "2026-09-05T12:24:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular interactions in polymer blends using machine learning chemistry",
+  "rationale": "The paper focuses on deriving and validating a specific quantum dynamics simulation method (TRPMD) for computing spectra, which does not address the user's question about using machine learning to predict molecular interactions in polymer blends. It fails to meet any inclusion criteria as it lacks the machine learning component, does not study the specific domain of polymer blend interactions, and is not a foundational reference for the ML methodology requested.",
+  "relevant": false
+}

@@ -1,0 +1,98 @@
+T002a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or other proof is provided showing that the required folders
+    (`src/data`, `src/models`, `src/analysis`, `src/utils`, `src/cli`, `data/raw`,
+    `data/processed`, `data/interim`, `tests/contract`, `tests/unit`, `tests/integration`,
+    `docs`) actually exist on disk. Without such evidence the claim that the project
+    structure was created cannot be verified.
+T005a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No preprocessing scripts, dataset files, or output CSVs were supplied; the claim
+    provides only a textual description without any tangible artifact to verify that
+    raw eBird/NOAA data were ingested, filtered, and aggregated as required. Consequently,
+    the required evidence of data availability is missing.
+T005b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., downloaded eBird sample file, checksum verification, or script)\
+    \ is present; the only provided material is a high\u2011level specification unrelated\
+    \ to the actual download task. The required eBird dataset download and verification\
+    \ are missing."
+T010c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test log entry file or parsing script was provided; the only artifacts present\
+    \ relate to the bird\u2011migration data pipeline, not to the \u201CTest Logging\u201D\
+    \ task. Consequently the required log entry and its format\u2011compliance verification\
+    \ are missing."
+T015a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or output artifacts (e.g., preprocessing scripts, resulting\
+    \ CSV, GAMM modeling scripts, model result files, or analysis figures) were supplied.\
+    \ Without these concrete deliverables, the claim that the \u201CCLO Migratory\
+    \ List\u201D retrieval and associated preprocessing/analysis pipeline is complete\
+    \ cannot be verified. The implementer must provide the actual scripts and generated\
+    \ outputs that meet the specifications outlined in the user stories."
+T017d:
+  c: true
+  h: 46e809cb470be233bd45ffebcdb85e1a45a782c9d2a8b17050accebace1c59da
+  r: "The `tests/unit/test_imputation_metadata.py` file exists, is non\u2011empty,\
+    \ and implements the required checks: file existence, JSON loading, list\u2011\
+    of\u2011records schema, and the constraint that any record with `is_imputed =\
+    \ true` has a non\u2011null `imputation_source`. No further artifacts were required\
+    \ by the task."
+T025c:
+  c: false
+  h: 93fa3d6863026d3c79377ab94b8855a246a852e60e00c07fc4bc1c4517831132
+  r: The `src/models/utils.py` file does not contain an `apply_fdr_correction` function
+    (the shown code only defines other utilities), and the required output file `data/processed/model_results_fdr.parquet`
+    is absent. Both the implementation and the expected artifact are missing.
+T028:
+  c: false
+  h: 682d9f5883bfedf1e0c848d9d753f4d7da0eae76d8bed6c58b14a05ebacab909
+  r: "The required output file `data/processed/trajectory_results.json` does not exist,\
+    \ so the test cannot verify the presence of the required keys. The artifact is\
+    \ missing, violating the task\u2019s requirement."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or results were supplied; there is no evidence of weekly\
+    \ migration centroids (Fr\xE9chet means) being computed, nor any figures, tables,\
+    \ or scripts that perform the manifold\u2011based trajectory analysis required\
+    \ by the task. The implementer must provide the actual implementation and its\
+    \ output (e.g., a script/notebook that calculates the centroids and a resulting\
+    \ dataset or visualization)."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script, notebook, CSV, or report) showing the calculation\
+    \ of SC\u2011002 \u2013 the proportion of grid cells marked \u201Cinsufficient\
+    \ data\u201D \u2013 was provided. Without any output or code, the requirement\
+    \ cannot be verified as met. The implementer must supply the actual computation\
+    \ (e.g., a numeric result, a data file, or reproducible code) that derives this\
+    \ proportion from the preprocessed dataset."
+T045a:
+  c: true
+  h: be30fb64f0b20e53e09498e971a4c003f3fe7adac09c57ce631e2e48fba09fca
+  r: "The `src/utils/locks.py` file exists, is non\u2011empty, and defines `pipeline_lock\
+    \ = FileLock(str(LOCK_FILE_PATH))` where `LOCK_FILE_PATH` resolves to `\"data/interim/pipeline.lock\"\
+    `, exactly matching the task specification. The absence of an actual lock file\
+    \ on disk is acceptable, as the lock is created lazily when used."
+T045b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, commit, or documentation showing that a lock mechanism was added to\
+    \ the components T023a and T032b is present. The provided artifacts relate only\
+    \ to the bird\u2011migration statistical analysis and contain no evidence of any\
+    \ lock integration, so the task requirement is not satisfied."
+T045c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test code, script, or documentation for lock contention was provided; the\
+    \ only artifacts listed pertain to bird\u2011migration data pipelines, not a lock\u2011\
+    contention test. The required test file (e.g., a unit\u2011 or integration\u2011\
+    test that creates competing threads/processes to provoke lock contention and asserts\
+    \ expected behavior) is missing."

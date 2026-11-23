@@ -1,43 +1,74 @@
 # Data Model: Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Sensorimotor Performance
 
-## Entity Relationship Overview
+## Overview
 
-The data model consists of three primary entities: `Subject`, `ConnectivityMatrix`, and `CorrelationResult`.
+This document defines the data structures, schemas, and file formats used in the project. It ensures the "Single Source of Truth" principle by strictly defining how data flows from raw acquisition to final analysis.
 
-### Subject
-Represents a single participant.
-- **Attributes**: `subject_id` (str), `age` (int), `sex` (str), `motor_task_score` (float), `fd_mean` (float), `tSNR` (float).
-- **Constraints**: `subject_id` is unique. `motor_task_score` and `fd_mean` must be non-null for inclusion in analysis.
+## Entity Definitions
 
-### ConnectivityMatrix
-Represents the functional connectivity for a subject.
-- **Attributes**: `subject_id` (str), `matrix_data` (numpy array, 400x400), `modularity` (float), `global_efficiency` (float), `participation_coef_mean` (float), `within_module_degree_mean` (float).
-- **Constraints**: `matrix_data` must be symmetric. Diagonal is zero.
+### 1. Subject
+Represents a single participant in the HCP dataset.
+- **Attributes**:
+  - `subject_id`: Unique string identifier (e.g., "100307").
+  - `age`: Integer.
+  - `sex`: String ("M", "F").
+  - `motor_score`: Float (Motor Task Performance composite score - measure of motor execution).
+  - `fd_mean`: Float (Mean Framewise Displacement).
+  - `tsnr_mean`: Float (Mean tSNR).
+  - `quality_pass`: Boolean (True if tSNR ≥ 50 and FD < 0.5mm).
 
-### CorrelationResult
-Stores the outcome of the statistical test.
-- **Attributes**: `metric_name` (str), `r_value` (float), `p_value` (float), `q_value` (float), `significant` (bool), `covariate_controlled` (bool), `ci_lower` (float), `ci_upper` (float), `n_subjects` (int).
-- **Constraints**: `q_value` is the FDR-corrected p-value. `significant` is true if `q_value < 0.05`. `ci_lower` and `ci_upper` are the 95% Confidence Intervals.
+### 2. ConnectivityMatrix
+A symmetric 400x400 matrix representing functional connectivity.
+- **Format**: `numpy.ndarray` (float32) or `pandas.DataFrame`.
+- **Shape**: (400, 400).
+- **Properties**: Symmetric, diagonal = 0 (or 1 if self-correlation kept, but typically 0 for graph metrics).
+
+### 3. NetworkMetric
+A scalar value derived from a connectivity matrix.
+- **Attributes**:
+  - `subject_id`: String.
+  - `metric_name`: String ("modularity", "participation_coeff", "within_module_degree").
+  - `value`: Float.
+  - `atlas`: String ("Schaefer_400").
+
+### 4. CorrelationResult
+The output of the statistical analysis.
+- **Attributes**:
+  - `metric_name`: String.
+  - `correlation_coefficient`: Float (r).
+  - `p_value`: Float (uncorrected).
+  - `p_value_corrected`: Float (q, FDR).
+  - `significant`: Boolean (q < 0.05).
+  - `covariate_controlled`: Boolean (True if FD was controlled).
 
 ## File Formats
 
-### Raw Data (Downloaded)
-- **Format**: NIfTI (`.nii.gz`) for fMRI, CSV/JSON for behavioral data.
-- **Location**: `data/raw/`
+### Raw Data (`data/raw/`)
+- **Behavioral**: `behavioral_metadata.json` (from HCP verified source).
+- **fMRI**: `sub-<ID>_rest.nii.gz` (NIfTI-1 format).
+- **Checksums**: `data/raw/checksums.txt` (SHA-256 hashes).
 
-### Processed Data
-- **Format**: HDF5 (`.h5`) for connectivity matrices and metrics.
-- **Location**: `data/processed/`
+### Processed Data (`data/processed/`)
+- **Preprocessed fMRI**: `sub-<ID>_preproc.nii.gz` (Minimal Preprocessed, no re-processing).
+- **Motion Parameters**: `sub-<ID>_fd.csv` (FD per volume).
 
-### Analysis Results
-- **Format**: CSV (`.csv`) for correlation results, JSON (`.json`) for confidence intervals.
-- **Location**: `data/analysis/`
+### Analysis Data (`data/analysis/`)
+- **Connectivity Matrices**: `sub-<ID>_connectivity.npy` (NumPy binary).
+- **Metrics Table**: `metrics_summary.csv` (Columns: subject_id, modularity, participation, within_module, motor_score, fd_mean).
+- **PCA Loadings**: `pca_loadings.csv` (T023a) - Loadings for exactly 2 components.
+- **PCA Factor Scores**: `factor_scores.csv` (T023a) - 2 factor scores per subject.
+- **Full Metrics**: `full_metrics.csv` (T023b) - Merged metrics + PCA scores.
+- **Correlation Results**: `correlation_results.csv` (Columns: metric, r, p, q, significant).
+- **Power Analysis**: `power_analysis.json`.
 
-## Data Flow
+## Data Flow Diagram
 
-1. **Download**: Raw NIfTI and behavioral CSVs fetched from HCP API (or verified ICA-FIX parquet fallback).
-2. **Preprocess**: Raw NIfTI -> Cleaned NIfTI (motion corrected, normalized) - *Fallback only*.
-3. **Extract**: Cleaned NIfTI -> Time Series -> **Motion Regression** -> Connectivity Matrix (400x400) -> Network Metrics.
-4. **Analyze**: Network Metrics + Behavioral Scores -> PCA/MANOVA -> Correlation Results (with FDR and 95% CI).
-5. **Visualize**: Correlation Results -> Scatter Plots, Network Diagrams.
-6. **Report**: All results -> Markdown/PDF Report (including Limitation Statement).
+1. **Download**: `fetch_hcp_data.py` → `data/raw/behavioral_metadata.json`, `data/raw/sub-*/rest.nii.gz`.
+2. **Preprocess**: `run_preprocessing.py` → `data/processed/sub-*/preproc.nii.gz`, `data/processed/sub-*/fd.csv`.
+3. **QC**: Filter subjects based on tSNR/FD → `data/analysis/subjects_included.csv`.
+4. **Connectivity**: `compute_connectivity.py` → `data/analysis/sub-*/connectivity.npy`.
+5. **Metrics**: `extract_metrics.py` → `data/analysis/metrics_summary.csv`.
+6. **PCA**: `run_pca_on_metrics.py` → `data/analysis/pca_loadings.csv`, `data/analysis/factor_scores.csv`.
+7. **Merge**: `correlations.py` → `data/analysis/full_metrics.csv`.
+8. **Correlation**: `correlations.py` → `data/analysis/correlation_results.csv`.
+9. **Viz/Report**: `plot_scatter.py`, `report_generator.py` → `reports/summary.md`.

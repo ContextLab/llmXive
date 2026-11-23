@@ -1,0 +1,4 @@
+# Standalone ruff config for CLI usage if pyproject.toml is not picked up
+extend = "code/pyproject.toml"
+line-length = 88
+target-version = "py311"

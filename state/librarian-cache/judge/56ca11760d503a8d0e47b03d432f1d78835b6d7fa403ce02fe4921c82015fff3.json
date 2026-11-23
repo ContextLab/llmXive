@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1610.06761",
+  "judged_at": "2026-08-25T21:15:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robustness of change‑point detection methods on public financial time series statistics",
+  "rationale": "This paper satisfies criterion (a) and (b) because it proposes and evaluates a method for detecting distributional shifts (maximizing KL divergence between intervals) in multivariate time series, which is a direct measure of the same underlying mechanism (change-point detection) and domain (time series statistics) as the user's question, even though it uses the terminology \"anomaly detection\" and \"divergent intervals.\"",
+  "relevant": true
+}

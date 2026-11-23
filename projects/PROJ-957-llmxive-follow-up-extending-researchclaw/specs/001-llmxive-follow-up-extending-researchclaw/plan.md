@@ -15,7 +15,7 @@ This feature implements a comparative analysis of autonomous scientific agents o
 **Testing**: `pytest` with contract tests against `rubric_schema.json` and `constraint_keywords.yaml` (used as fixtures).  
 **Target Platform**: GitHub Actions `ubuntu-latest` (CPU-only, 2 cores, 7GB RAM).  
 **Project Type**: Research Data Pipeline & Statistical Analysis.  
-**Performance Goals**: Complete multiple agent runs (multiple agents × conditions × 10 tasks) within a duration of approximately one day.; individual run timeout set to a fixed duration.  
+**Performance Goals**: Complete multiple agent runs (multiple agents × conditions × multiple tasks) within a duration of approximately one day.; individual run timeout set to a fixed duration.  
 **Constraints**: No GPU; strict memory limits (<7GB); no external API calls during execution (datasets pre-fetched); reproducible random seeds.  
 **Scale/Scope**: A moderate number of tasks, 7 agents, conditions, Multiple executions.
 
@@ -90,7 +90,7 @@ results/
 └── logs/                    # Execution logs
 ```
 
-**Structure Decision**: Selected a modular single-project structure (Option 1) to maintain tight coupling between data loading, agent execution, and analysis, which is critical for reproducible research pipelines. The `agents/` directory isolates the 7 specific agent implementations, while `scaffolding/` and `scoring/` handle the experimental intervention and evaluation logic respectively.
+**Structure Decision**: Selected a modular single-project structure (Option 1) to maintain tight coupling between data loading, agent execution, and analysis, which is critical for reproducible research pipelines. The `agents/` directory isolates multiple specific agent implementations, while `scaffolding/` and `scoring/` handle the experimental intervention and evaluation logic respectively.
 
 ## Complexity Tracking
 
@@ -107,7 +107,7 @@ results/
 
 ### Phase 0: Research & Feasibility (Week 1)
 - **T001**: Verify ResearchClawBench dataset availability and metadata schema (specifically `failure_mode` field).
-- **T002**: Identify and document the 7 CPU-tractable agents from the original study.
+- **T002**: Identify and document the CPU-tractable agents from the original study.
 - **T003**: Source and verify the "Curated Template Set v1.0" from open-access manuals (specific URLs).
 - **T004**: Define the statistical power analysis for N=10 and document limitations.
 - **T005**: Draft `rubric_schema.json` and `constraint_keywords.yaml` drafts.
@@ -123,21 +123,21 @@ results/
 - **T010a**: Finalize `rubric_schema.json` (Protocol Alignment & Scientific Core).
 - **T010b**: Implement scoring engine logic (T010b).
 - **T011**: Define `task_metadata.schema.yaml`.
-- **T012**: Define `agents_config.yaml` (7 agents) and `agents/loader.py`.
+- **T012**: Define `agents_config.yaml` (multiple agents) and `agents/loader.py`.
 - **T013**: Implement `scaffolding/template_loader.py`.
 - **T014**: Implement `scaffolding/validator.py` (FR-007).
 - **T015**: Implement `scoring/dummy_test.py` (FR-008).
 
 ### Phase 2: Execution Engine (Week 3)
 - **T016**: Implement `agents/executor.py` with a configurable timeout..
-- **T023a**: Implement 24-hour wall-clock budget enforcement and concurrency controller (limit=7).
+- **T023a**: Implement -hour wall-clock budget enforcement and concurrency controller (limit=7).
 - **T024**: Implement `analysis/stats.py` (TOST, t-test, Wilcoxon, effect sizes).
 - **T025**: Implement `analysis/report.py`.
 - **T026**: End-to-end integration test.
 
 ### Phase 3: Experiment Execution (Week 4)
-- **T027**: Run Zero-Shot condition (agents × 10 tasks).
-- **T028**: Run Scaffolded condition (agents × 10 tasks).
+- **T027**: Run Zero-Shot condition (agents × multiple tasks).
+- **T028**: Run Scaffolded condition (agents × multiple tasks).
 - **T029**: Score all runs and generate `results/paired_scores.json`.
 - **T030**: Generate `results/failure_mode_audit.csv`.
 

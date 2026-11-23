@@ -1,13 +1,8 @@
 """
 Task T020: Calculate and report Cohen's d with 95% confidence intervals.
 
-This module calculates Cohen's d effect sizes and their 95% confidence intervals
-for the primary comparisons (nostalgia vs control) on:
-1. Perseverative Errors
-2. Categories Completed
-
-It reads the cleaned dataset produced by T014a and writes the results to
-data/results/effect_sizes.json.
+Implements effect size calculation for the nostalgia vs control comparison
+on WCST metrics (perseverative_errors, categories_completed).
 """
 import os
 import json
@@ -16,226 +11,259 @@ import numpy as np
 import pandas as pd
 from pathlib import Path
 from typing import Dict, Any, Tuple, List
+from scipy import stats
+from statsmodels.stats.weightstats import zconfint
+from config import get_config
 
-# Import from existing project API
-from config import get_config, ensure_dirs, get_env_str
-from utils import setup_logging, log_info, log_warning, log_error, get_timestamp
-from analysis import calculate_cohen_d, calculate_effect_size_ci
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Constants
-PRIMARY_METRICS = ['perseverative_errors', 'categories_completed']
-OUTPUT_FILE = 'data/results/effect_sizes.json'
-
+class DataNotFoundError(Exception):
+    """Raised when required input data file is missing."""
+    pass
 
 def load_cleaned_dataset() -> pd.DataFrame:
-    """Load the cleaned dataset from data/processed/cleaned_dataset.csv."""
-    config = get_config()
-    input_path = Path(config['paths']['processed_data']) / 'cleaned_dataset.csv'
+    """
+    Load the final cleaned dataset from the processed directory.
     
-    if not input_path.exists():
-        raise FileNotFoundError(
-            f"Cleaned dataset not found at {input_path}. "
-            "Ensure T014a has been completed."
-        )
+    Returns:
+        pd.DataFrame: The cleaned dataset containing WCST metrics.
+        
+    Raises:
+        DataNotFoundError: If the file does not exist or is empty.
+    """
+    config = get_config()
+    input_path = config['paths']['cleaned_dataset']
+    
+    if not os.path.exists(input_path):
+        raise DataNotFoundError(f"Input file not found: {input_path}")
     
     df = pd.read_csv(input_path)
-    log_info(f"Loaded {len(df)} records from {input_path}")
+    
+    if df.empty:
+        raise DataNotFoundError(f"Input file is empty: {input_path}")
+    
+    required_cols = ['stimulus_type', 'perseverative_errors', 'categories_completed']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise DataNotFoundError(f"Missing required columns in {input_path}: {missing_cols}")
+        
+    logger.info(f"Loaded {len(df)} records from {input_path}")
     return df
 
-
-def calculate_effect_sizes(df: pd.DataFrame, metric: str) -> Dict[str, Any]:
+def calculate_cohen_d(group1: np.ndarray, group2: np.ndarray) -> float:
     """
-    Calculate Cohen's d and 95% CI for a specific metric between nostalgia and control groups.
+    Calculate Cohen's d effect size for two independent groups.
+    
+    Cohen's d = (mean1 - mean2) / pooled_std
+    where pooled_std = sqrt(((n1-1)*std1^2 + (n2-1)*std2^2) / (n1+n2-2))
     
     Args:
-        df: Cleaned dataset with 'stimulus_type' and metric columns
-        metric: Name of the cognitive metric column
+        group1: Array of values for group 1 (e.g., nostalgia)
+        group2: Array of values for group 2 (e.g., control)
         
     Returns:
-        Dictionary with effect size results
+        float: Cohen's d value.
     """
-    # Group data
-    nostalgia_group = df[df['stimulus_type'] == 'nostalgia'][metric].dropna()
-    control_group = df[df['stimulus_type'] == 'control'][metric].dropna()
+    n1, n2 = len(group1), len(group2)
+    if n1 < 2 or n2 < 2:
+        logger.warning("Sample size too small for effect size calculation")
+        return np.nan
+        
+    mean1, mean2 = np.mean(group1), np.mean(group2)
+    std1, std2 = np.std(group1, ddof=1), np.std(group2, ddof=1)
     
-    if len(nostalgia_group) == 0 or len(control_group) == 0:
-        log_warning(f"Empty group for metric {metric}: Nostalgia={len(nostalgia_group)}, Control={len(control_group)}")
-        return {
-            'metric': metric,
-            'nostalgia_n': len(nostalgia_group),
-            'control_n': len(control_group),
-            'cohen_d': None,
-            'ci_lower': None,
-            'ci_upper': None,
-            'ci_confidence_level': 0.95,
-            'status': 'insufficient_data'
-        }
-    
-    # Calculate means and standard deviations
-    mean_nostalgia = nostalgia_group.mean()
-    mean_control = control_group.mean()
-    std_nostalgia = nostalgia_group.std(ddof=1)
-    std_control = control_group.std(ddof=1)
-    
-    # Calculate pooled standard deviation
-    n1, n2 = len(nostalgia_group), len(control_group)
-    if n1 + n2 <= 2:
-        log_error(f"Sample size too small for {metric}: {n1 + n2}")
-        return {
-            'metric': metric,
-            'nostalgia_n': n1,
-            'control_n': n2,
-            'cohen_d': None,
-            'ci_lower': None,
-            'ci_upper': None,
-            'ci_confidence_level': 0.95,
-            'status': 'sample_size_too_small'
-        }
-    
-    pooled_std = np.sqrt(((n1 - 1) * std_nostalgia**2 + (n2 - 1) * std_control**2) / (n1 + n2 - 2))
+    # Pooled standard deviation
+    pooled_std = np.sqrt(((n1 - 1) * std1**2 + (n2 - 1) * std2**2) / (n1 + n2 - 2))
     
     if pooled_std == 0:
-        log_warning(f"Zero pooled standard deviation for {metric}")
-        return {
-            'metric': metric,
-            'nostalgia_n': n1,
-            'control_n': n2,
-            'nostalgia_mean': float(mean_nostalgia),
-            'control_mean': float(mean_control),
-            'cohen_d': 0.0,
-            'ci_lower': 0.0,
-            'ci_upper': 0.0,
-            'ci_confidence_level': 0.95,
-            'status': 'zero_variance'
-        }
-    
-    # Calculate Cohen's d
-    cohen_d = (mean_nostalgia - mean_control) / pooled_std
-    
-    # Calculate 95% CI using the non-central t-distribution approximation
-    # Using the formula from Hedges & Olkin (1985)
-    ci_lower, ci_upper = calculate_effect_size_ci(cohen_d, n1, n2, confidence_level=0.95)
-    
-    status = 'success'
-    log_info(f"Cohen's d for {metric}: {cohen_d:.4f} (95% CI [{ci_lower:.4f}, {ci_upper:.4f}])")
-    
-    return {
-        'metric': metric,
-        'nostalgia_n': int(n1),
-        'control_n': int(n2),
-        'nostalgia_mean': float(mean_nostalgia),
-        'control_mean': float(mean_control),
-        'nostalgia_std': float(std_nostalgia),
-        'control_std': float(std_control),
-        'pooled_std': float(pooled_std),
-        'cohen_d': float(cohen_d),
-        'ci_lower': float(ci_lower),
-        'ci_upper': float(ci_upper),
-        'ci_confidence_level': 0.95,
-        'status': status
-    }
-
-
-def run_effect_size_analysis(df: pd.DataFrame) -> List[Dict[str, Any]]:
-    """Run effect size analysis for all primary metrics."""
-    results = []
-    
-    for metric in PRIMARY_METRICS:
-        if metric not in df.columns:
-            log_error(f"Metric {metric} not found in dataset")
-            results.append({
-                'metric': metric,
-                'status': 'missing_column',
-                'error': f"Column '{metric}' not found in dataset"
-            })
-            continue
+        logger.warning("Pooled standard deviation is zero, cannot calculate Cohen's d")
+        return np.nan
         
-        result = calculate_effect_sizes(df, metric)
-        results.append(result)
+    return (mean1 - mean2) / pooled_std
+
+def calculate_effect_size_ci(group1: np.ndarray, group2: np.ndarray, 
+                             d: float, alpha: float = 0.05) -> Tuple[float, float]:
+    """
+    Calculate 95% confidence interval for Cohen's d.
     
+    Uses the non-central t-distribution approximation or the standard error method.
+    SE_d ≈ sqrt((n1+n2)/(n1*n2) + d^2/(2*(n1+n2)))
+    
+    Args:
+        group1: Array of values for group 1
+        group2: Array of values for group 2
+        d: The calculated Cohen's d
+        alpha: Significance level (default 0.05 for 95% CI)
+        
+    Returns:
+        Tuple[float, float]: (lower_bound, upper_bound)
+    """
+    n1, n2 = len(group1), len(group2)
+    if n1 < 2 or n2 < 2:
+        return (np.nan, np.nan)
+        
+    # Standard error of Cohen's d
+    se_d = np.sqrt((n1 + n2) / (n1 * n2) + (d**2) / (2 * (n1 + n2)))
+    
+    # Critical value for normal distribution (approximation for large samples)
+    # For small samples, a non-central t-distribution would be more accurate,
+    # but this approximation is standard for effect size reporting
+    z_critical = stats.norm.ppf(1 - alpha/2)
+    
+    lower = d - z_critical * se_d
+    upper = d + z_critical * se_d
+    
+    return (lower, upper)
+
+def run_effect_size_analysis(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Run effect size analysis for all primary comparisons.
+    
+    Calculates Cohen's d and 95% CI for:
+    - perseverative_errors (nostalgia vs control)
+    - categories_completed (nostalgia vs control)
+    
+    Args:
+        df: Cleaned dataset with stimulus_type, perseverative_errors, categories_completed
+        
+    Returns:
+        Dict[str, Any]: Dictionary containing effect sizes and confidence intervals
+    """
+    logger.info("Starting effect size analysis")
+    
+    # Split data by stimulus type
+    # Ensure we have both groups
+    nostalgia_group = df[df['stimulus_type'] == 'nostalgia']
+    control_group = df[df['stimulus_type'] == 'control']
+    
+    if nostalgia_group.empty:
+        raise ValueError("No nostalgia group found in data")
+    if control_group.empty:
+        raise ValueError("No control group found in data")
+        
+    logger.info(f"Group sizes - Nostalgia: {len(nostalgia_group)}, Control: {len(control_group)}")
+    
+    results = {}
+    
+    # Analyze perseverative_errors
+    logger.info("Calculating effect size for perseverative_errors")
+    pe_nostalgia = nostalgia_group['perseverative_errors'].dropna().values
+    pe_control = control_group['perseverative_errors'].dropna().values
+    
+    if len(pe_nostalgia) > 0 and len(pe_control) > 0:
+        d_pe = calculate_cohen_d(pe_nostalgia, pe_control)
+        ci_pe = calculate_effect_size_ci(pe_nostalgia, pe_control, d_pe)
+        
+        results['perseverative_errors'] = {
+            'cohen_d': float(d_pe),
+            'ci_95_lower': float(ci_pe[0]),
+            'ci_95_upper': float(ci_pe[1]),
+            'n_nostalgia': len(pe_nostalgia),
+            'n_control': len(pe_control),
+            'mean_nostalgia': float(np.mean(pe_nostalgia)),
+            'mean_control': float(np.mean(pe_control)),
+            'std_nostalgia': float(np.std(pe_nostalgia, ddof=1)),
+            'std_control': float(np.std(pe_control, ddof=1))
+        }
+    else:
+        logger.warning("Insufficient data for perseverative_errors analysis")
+        results['perseverative_errors'] = {
+            'cohen_d': None,
+            'ci_95_lower': None,
+            'ci_95_upper': None,
+            'error': "Insufficient data"
+        }
+        
+    # Analyze categories_completed
+    logger.info("Calculating effect size for categories_completed")
+    cc_nostalgia = nostalgia_group['categories_completed'].dropna().values
+    cc_control = control_group['categories_completed'].dropna().values
+    
+    if len(cc_nostalgia) > 0 and len(cc_control) > 0:
+        d_cc = calculate_cohen_d(cc_nostalgia, cc_control)
+        ci_cc = calculate_effect_size_ci(cc_nostalgia, cc_control, d_cc)
+        
+        results['categories_completed'] = {
+            'cohen_d': float(d_cc),
+            'ci_95_lower': float(ci_cc[0]),
+            'ci_95_upper': float(ci_cc[1]),
+            'n_nostalgia': len(cc_nostalgia),
+            'n_control': len(cc_control),
+            'mean_nostalgia': float(np.mean(cc_nostalgia)),
+            'mean_control': float(np.mean(cc_control)),
+            'std_nostalgia': float(np.std(cc_nostalgia, ddof=1)),
+            'std_control': float(np.std(cc_control, ddof=1))
+        }
+    else:
+        logger.warning("Insufficient data for categories_completed analysis")
+        results['categories_completed'] = {
+            'cohen_d': None,
+            'ci_95_lower': None,
+            'ci_95_upper': None,
+            'error': "Insufficient data"
+        }
+        
+    logger.info("Effect size analysis completed")
     return results
 
-
-def save_results(results: List[Dict[str, Any]], output_path: Path) -> None:
-    """Save effect size results to JSON file."""
-    output_dir = output_path.parent
-    ensure_dirs([output_dir])
+def save_results(results: Dict[str, Any], output_path: str) -> None:
+    """
+    Save effect size results to a JSON file.
     
-    report = {
-        'timestamp': get_timestamp(),
-        'task_id': 'T020',
-        'description': 'Cohen\'s d effect sizes with 95% confidence intervals',
-        'metrics_analyzed': PRIMARY_METRICS,
-        'results': results,
-        'summary': {
-            'total_metrics': len(PRIMARY_METRICS),
-            'successful_calculations': sum(1 for r in results if r.get('status') == 'success'),
-            'failed_calculations': sum(1 for r in results if r.get('status') not in ['success', 'insufficient_data'])
-        }
-    }
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(report, f, indent=2)
-    
-    log_info(f"Effect size results saved to {output_path}")
-
+    Args:
+        results: Dictionary containing effect size analysis results
+        output_path: Path to save the JSON file
+    """
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+        
+    logger.info(f"Results saved to {output_path}")
 
 def main():
-    """Main entry point for T020."""
-    # Setup logging
-    log_level = logging.INFO
-    setup_logging(level=log_level)
-    
-    log_info("=" * 60)
-    log_info("Task T020: Calculate Effect Sizes (Cohen's d with 95% CI)")
-    log_info("=" * 60)
+    """Main entry point for Task T020."""
+    logger.info("Starting Task T020: Effect Size Calculation")
     
     try:
-        # Load cleaned dataset
+        # Load data
         df = load_cleaned_dataset()
         
-        # Verify required columns
-        required_cols = ['stimulus_type'] + PRIMARY_METRICS
-        missing_cols = [col for col in required_cols if col not in df.columns]
-        if missing_cols:
-            raise ValueError(f"Missing required columns: {missing_cols}")
-        
         # Run analysis
-        log_info("Calculating effect sizes for primary metrics...")
         results = run_effect_size_analysis(df)
         
+        # Determine output path
+        config = get_config()
+        output_path = config['paths']['effect_size_results']
+        
         # Save results
-        output_path = Path(get_config()['paths']['results_data']) / 'effect_sizes.json'
         save_results(results, output_path)
         
-        # Log summary
-        success_count = sum(1 for r in results if r.get('status') == 'success')
-        log_info(f"Analysis complete: {success_count}/{len(PRIMARY_METRICS)} metrics calculated successfully")
+        logger.info("Task T020 completed successfully")
         
-        # Print summary to console
-        print("\n" + "=" * 60)
-        print("EFFECT SIZE SUMMARY (Cohen's d)")
-        print("=" * 60)
-        for r in results:
-            if r.get('status') == 'success':
-                print(f"\n{r['metric'].replace('_', ' ').title()}:")
-                print(f"  Nostalgia (n={r['nostalgia_n']}): M={r['nostalgia_mean']:.2f}, SD={r['nostalgia_std']:.2f}")
-                print(f"  Control   (n={r['control_n']}): M={r['control_mean']:.2f}, SD={r['control_std']:.2f}")
-                print(f"  Cohen's d = {r['cohen_d']:.4f} [95% CI: {r['ci_lower']:.4f}, {r['ci_upper']:.4f}]")
+        # Print summary
+        print("\n=== Effect Size Summary ===")
+        for metric, data in results.items():
+            if data.get('cohen_d') is not None:
+                print(f"{metric}:")
+                print(f"  Cohen's d = {data['cohen_d']:.4f}")
+                print(f"  95% CI = [{data['ci_95_lower']:.4f}, {data['ci_95_upper']:.4f}]")
             else:
-                print(f"\n{r['metric'].replace('_', ' ').title()}: FAILED - {r.get('status', 'unknown error')}")
-        print("=" * 60)
-        
-        log_info("Task T020 completed successfully")
-        return 0
-        
+                print(f"{metric}: Unable to calculate (insufficient data)")
+                
+    except DataNotFoundError as e:
+        logger.error(f"Data error: {e}")
+        raise
     except Exception as e:
-        log_error(f"Task T020 failed: {str(e)}")
-        log_error(f"Error type: {type(e).__name__}")
-        import traceback
-        log_error(traceback.format_exc())
-        return 1
+        logger.error(f"Unexpected error: {e}")
+        raise
 
-
-if __name__ == '__main__':
-    exit(main())
+if __name__ == "__main__":
+    main()

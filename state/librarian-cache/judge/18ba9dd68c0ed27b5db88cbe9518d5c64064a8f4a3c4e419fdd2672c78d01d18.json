@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1309.0070",
+  "judged_at": "2026-08-05T21:47:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of composition on the band gap of perovskite materials materials science",
+  "rationale": "This paper directly addresses the user's question by systematically investigating the chemical trends of the band gap as the composition (A, B, and X elements) varies in perovskite materials, satisfying acceptance criteria (a) for measuring the same mechanism and (b) for studying the specific independent and dependent variables in the user's domain.",
+  "relevant": true
+}

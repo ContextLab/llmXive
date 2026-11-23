@@ -1,233 +1,248 @@
 """
 Data Hygiene Utilities for PROJ-329.
 
-Provides checksumming functionality for data integrity verification
-across 'data/raw/' and 'data/processed/' directories.
+Provides checksumming, integrity verification, and state recording
+for data directories (data/raw/ and data/processed/).
 """
 import hashlib
 import os
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
+import logging
 
 from .state_manager import calculate_file_hash, load_state_file, save_state_file
 
+logger = logging.getLogger(__name__)
 
-def get_data_directories(project_root: Path) -> List[Path]:
+# Define the project root relative to this file's location
+# Assuming structure: code/src/data_hygiene.py -> project root is two levels up
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
+
+
+def get_data_directories() -> List[Path]:
     """
-    Retrieve the list of data directories to be monitored for integrity.
+    Returns a list of Path objects for the primary data directories
+    that require checksumming and hygiene monitoring.
+    """
+    dirs = []
+    if DATA_RAW_DIR.exists():
+        dirs.append(DATA_RAW_DIR)
+    if DATA_PROCESSED_DIR.exists():
+        dirs.append(DATA_PROCESSED_DIR)
+    if DATA_RESULTS_DIR.exists():
+        dirs.append(DATA_RESULTS_DIR)
+    return dirs
 
+
+def scan_directory_for_files(directory: Path, extensions: Optional[List[str]] = None) -> List[Path]:
+    """
+    Recursively scans a directory and returns a list of file paths.
+    
     Args:
-        project_root: The root path of the project.
-
+        directory: The root directory to scan.
+        extensions: Optional list of file extensions to filter (e.g., ['.h5', '.json']).
+                    If None, includes all files.
+    
     Returns:
-        List of Path objects pointing to data/raw and data/processed.
+        List of Path objects for files found.
     """
-    raw_dir = project_root / "data" / "raw"
-    processed_dir = project_root / "data" / "processed"
-    return [raw_dir, processed_dir]
-
-
-def scan_directory_for_files(directory: Path) -> List[Path]:
-    """
-    Recursively scan a directory for all files.
-
-    Args:
-        directory: The directory path to scan.
-
-    Returns:
-        List of Path objects for all files found.
-    """
+    files = []
     if not directory.exists():
-        return []
-    return sorted([f for f in directory.rglob("*") if f.is_file()])
+        logger.warning(f"Directory does not exist: {directory}")
+        return files
+    
+    for path in directory.rglob('*'):
+        if path.is_file():
+            if extensions is None or any(path.suffix == ext for ext in extensions):
+                files.append(path)
+    
+    return sorted(files)
 
 
-def compute_checksums_for_directory(directory: Path) -> Dict[str, str]:
+def compute_checksums_for_directory(directory: Path, algorithm: str = 'sha256') -> Dict[str, str]:
     """
-    Compute SHA-256 checksums for all files in a directory.
-
+    Computes checksums for all files in a directory recursively.
+    
     Args:
-        directory: The directory to scan and hash.
-
+        directory: The directory to scan.
+        algorithm: Hash algorithm to use (default: 'sha256').
+    
     Returns:
-        Dictionary mapping relative file paths to their SHA-256 hashes.
+        Dictionary mapping relative file paths (string) to their checksums.
+        If a file cannot be read, it is logged and skipped.
     """
     checksums = {}
     files = scan_directory_for_files(directory)
     
     for file_path in files:
         try:
-            rel_path = str(file_path.relative_to(directory))
-            file_hash = calculate_file_hash(file_path)
-            checksums[rel_path] = file_hash
+            # Calculate hash relative to the directory root
+            rel_path = file_path.relative_to(directory)
+            file_hash = calculate_file_hash(file_path, algorithm)
+            checksums[str(rel_path)] = file_hash
+            logger.debug(f"Computed checksum for {rel_path}: {file_hash[:16]}...")
         except Exception as e:
-            # Log error but continue processing other files
-            print(f"Warning: Could not hash {file_path}: {e}")
+            logger.error(f"Failed to compute checksum for {file_path}: {e}")
+            continue
     
     return checksums
 
 
-def verify_data_integrity(project_root: Path, state_file: Optional[Path] = None) -> Tuple[bool, Dict[str, List[str]]]:
+def verify_data_integrity(directory: Path, state_file: Optional[Path] = None) -> Tuple[bool, Dict[str, str], Dict[str, str]]:
     """
-    Verify the integrity of data directories against stored state.
-
+    Verifies the integrity of a data directory against a previously recorded state.
+    
     Args:
-        project_root: The root path of the project.
-        state_file: Optional path to the state file (defaults to project root).
-
+        directory: The directory to verify.
+        state_file: Optional path to the state file (yaml). If None, uses the default
+                    location in the project root.
+    
     Returns:
-        Tuple of (is_valid, errors_dict).
-        is_valid: True if all files match stored checksums.
-        errors_dict: Dictionary mapping directory names to lists of error messages.
+        Tuple of:
+            - (bool): True if integrity is verified, False otherwise.
+            - (Dict): Current checksums.
+            - (Dict): Expected checksums (from state file).
     """
     if state_file is None:
-        state_file = project_root / "state.yaml"
+        state_file = PROJECT_ROOT / "state.yaml"
     
     if not state_file.exists():
-        return False, {"global": ["State file not found. Run state_manager to initialize."]}
-
-    try:
-        state = load_state_file(state_file)
-    except Exception as e:
-        return False, {"global": [f"Failed to load state file: {e}"]}
-
-    data_dirs = get_data_directories(project_root)
-    errors = {}
+        logger.error(f"State file not found at {state_file}. Cannot verify integrity.")
+        return False, {}, {}
+    
+    state_data = load_state_file(state_file)
+    if not state_data:
+        logger.error("State file is empty or invalid.")
+        return False, {}, {}
+    
+    # Retrieve stored checksums for this directory
+    dir_name = directory.name
+    stored_checksums = state_data.get('data_checksums', {}).get(dir_name, {})
+    
+    if not stored_checksums:
+        logger.warning(f"No stored checksums found for directory '{dir_name}' in state file.")
+        return False, {}, stored_checksums
+    
+    current_checksums = compute_checksums_for_directory(directory)
+    
+    # Compare
     is_valid = True
-
-    for dir_path in data_dirs:
-        dir_name = dir_path.name
-        dir_errors = []
-
-        if not dir_path.exists():
-            # Directory missing is not necessarily an error if no state exists for it
-            # but we log it for visibility
-            continue
-
-        current_checksums = compute_checksums_for_directory(dir_path)
-        
-        # Retrieve stored checksums for this directory from state
-        # Assuming state structure: {'phases': [{'artifacts': {'data/raw': {...}, 'data/processed': {...}}}, ...]}
-        # We look for the most recent entry containing data checksums
-        stored_checksums = {}
-        if "phases" in state:
-            for phase in reversed(state["phases"]):
-                if "artifacts" in phase:
-                    if dir_name in phase["artifacts"]:
-                        stored_checksums = phase["artifacts"][dir_name]
-                        break
-        
-        # Check for missing files
-        for rel_path in stored_checksums:
-            if rel_path not in current_checksums:
-                dir_errors.append(f"Missing file: {rel_path}")
-                is_valid = False
-
-        # Check for modified files
-        for rel_path, current_hash in current_checksums.items():
-            if rel_path in stored_checksums:
-                if stored_checksums[rel_path] != current_hash:
-                    dir_errors.append(f"Modified file: {rel_path} (hash mismatch)")
-                    is_valid = False
-            else:
-                # New file detected
-                dir_errors.append(f"New file detected (not in state): {rel_path}")
-                # This might be expected during generation, so we don't flag as fatal error
-                # unless strict mode is required. For now, we log it.
-
-        if dir_errors:
-            errors[dir_name] = dir_errors
-
-    return is_valid, errors
+    if set(current_checksums.keys()) != set(stored_checksums.keys()):
+        logger.warning(f"File mismatch in {dir_name}. Expected {len(stored_checksums)}, found {len(current_checksums)}.")
+        is_valid = False
+    
+    for rel_path, current_hash in current_checksums.items():
+        if rel_path not in stored_checksums:
+            logger.warning(f"New file detected: {rel_path}")
+            is_valid = False
+        elif stored_checksums[rel_path] != current_hash:
+            logger.warning(f"Checksum mismatch for {rel_path}: expected {stored_checksums[rel_path][:16]}..., got {current_hash[:16]}...")
+            is_valid = False
+    
+    return is_valid, current_checksums, stored_checksums
 
 
-def record_directory_state(project_root: Path, state_file: Optional[Path] = None) -> bool:
+def record_directory_state(directory: Path, state_file: Optional[Path] = None, phase: str = "hygiene") -> bool:
     """
-    Compute current checksums for data directories and record them in state.
-
+    Computes checksums for a directory and records them in the state file.
+    
     Args:
-        project_root: The root path of the project.
+        directory: The directory to scan and record.
         state_file: Optional path to the state file.
-
+        phase: The phase name to record in the state (e.g., "T005_hygiene").
+    
     Returns:
         True if successful, False otherwise.
     """
-    if state_file is None:
-        state_file = project_root / "state.yaml"
-
-    data_dirs = get_data_directories(project_root)
-    artifacts = {}
-
-    for dir_path in data_dirs:
-        if dir_path.exists():
-          checksums = compute_checksums_for_directory(dir_path)
-          if checksums:
-              artifacts[dir_path.name] = checksums
-
-    if not artifacts:
-        return True  # Nothing to record
-
-    # Load existing state
-    state = {}
-    if state_file.exists():
-        try:
-            state = load_state_file(state_file)
-        except Exception:
-            state = {}
-
-    # Append new phase state
-    if "phases" not in state:
-        state["phases"] = []
-    
-    state["phases"].append({
-        "phase": "data_hygiene_scan",
-        "timestamp": str(Path(project_root / "data").stat().st_mtime), # Using mtime of data dir as rough proxy
-        "artifacts": artifacts
-    })
-
-    try:
-        save_state_file(state_file, state)
-        return True
-    except Exception as e:
-        print(f"Error saving state file: {e}")
+    if not directory.exists():
+        logger.error(f"Directory does not exist: {directory}")
         return False
+    
+    checksums = compute_checksums_for_directory(directory)
+    
+    if state_file is None:
+        state_file = PROJECT_ROOT / "state.yaml"
+    
+    state_data = load_state_file(state_file)
+    if state_data is None:
+        state_data = {'phases': {}, 'data_checksums': {}}
+    
+    if 'data_checksums' not in state_data:
+        state_data['data_checksums'] = {}
+    
+    state_data['data_checksums'][directory.name] = checksums
+    
+    # Record phase metadata
+    phase_key = f"{phase}_{directory.name}"
+    state_data['phases'][phase_key] = {
+        'timestamp': str(Path(directory).stat().st_mtime),
+        'file_count': len(checksums),
+        'checksum_sample': list(checksums.values())[:3] if checksums else []
+    }
+    
+    return save_state_file(state_file, state_data)
+
 
 def main():
-    """CLI entry point for data hygiene utilities."""
+    """
+    CLI entry point for data hygiene verification and recording.
+    Usage: python -m src.data_hygiene [command] [directory_name]
+    Commands:
+      verify  : Verify integrity against state.yaml
+      record  : Record current state to state.yaml
+      scan    : Just list files and checksums
+    """
     import argparse
-    from pathlib import Path
-
+    
     parser = argparse.ArgumentParser(description="Data Hygiene Utilities")
-    parser.add_argument("--project-root", type=Path, default=Path.cwd(), help="Project root directory")
-    parser.add_argument("--verify", action="store_true", help="Verify data integrity against state")
-    parser.add_argument("--record", action="store_true", help="Record current data checksums to state")
-    parser.add_argument("--state-file", type=Path, default=None, help="Path to state file")
-
+    parser.add_argument('command', choices=['verify', 'record', 'scan'], help="Operation to perform")
+    parser.add_argument('directory', nargs='?', default=None, help="Directory name (raw, processed, results) or 'all'")
+    
     args = parser.parse_args()
-
-    if args.verify:
-        valid, errors = verify_data_integrity(args.project_root, args.state_file)
-        if valid:
-            print("Data integrity check passed.")
+    
+    dirs_to_process = []
+    
+    if args.directory:
+        if args.directory == 'all':
+            dirs_to_process = get_data_directories()
         else:
-            print("Data integrity check FAILED.")
-            for dir_name, errs in errors.items():
-                print(f"  {dir_name}:")
-                for err in errs:
-                    print(f"    - {err}")
-        return 0 if valid else 1
-
-    elif args.record:
-        success = record_directory_state(args.project_root, args.state_file)
-        if success:
-            print("Data checksums recorded successfully.")
-        else:
-            print("Failed to record data checksums.")
-        return 0 if success else 1
-
+            target = PROJECT_ROOT / "data" / args.directory
+            if target.exists():
+                dirs_to_process.append(target)
+            else:
+                logger.error(f"Directory not found: {target}")
+                return
     else:
-        parser.print_help()
-        return 1
+        dirs_to_process = get_data_directories()
+    
+    if not dirs_to_process:
+        logger.info("No data directories found.")
+        return
+    
+    for directory in dirs_to_process:
+        logger.info(f"Processing directory: {directory}")
+        if args.command == 'verify':
+            is_valid, current, expected = verify_data_integrity(directory)
+            status = "PASS" if is_valid else "FAIL"
+            logger.info(f"Integrity check for {directory.name}: {status}")
+            if not is_valid:
+                logger.warning("Differences found. Run 'record' to update state.")
+        elif args.command == 'record':
+            success = record_directory_state(directory)
+            if success:
+                logger.info(f"State recorded for {directory.name}")
+            else:
+                logger.error(f"Failed to record state for {directory.name}")
+        elif args.command == 'scan':
+            checksums = compute_checksums_for_directory(directory)
+            logger.info(f"Found {len(checksums)} files in {directory.name}")
+            for rel_path, checksum in checksums.items():
+                logger.info(f"  {rel_path}: {checksum[:16]}...")
 
-if __name__ == "__main__":
-    exit(main())
+
+if __name__ == '__main__':
+    logging.basicConfig(level=logging.INFO)
+    main()

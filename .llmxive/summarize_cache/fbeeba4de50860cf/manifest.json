@@ -1,0 +1,75 @@
+{
+  "schema": "llmxive-summary/1",
+  "root_hash": "fbeeba4de50860cf",
+  "goal": "extract every plan element (phases, contracts, entities, quickstart steps) the tasks must cover",
+  "model": "qwen.qwen3.5-122b",
+  "token_budget": 4000,
+  "created_at": "2026-09-27T01:35:52.690893+00:00",
+  "entries": [
+    {
+      "element_id": "e000",
+      "kind": "content",
+      "file": "chunk_000.txt",
+      "critical": [
+        "001",
+        "2026",
+        "-06",
+        "-29",
+        "3.11",
+        "2",
+        "7",
+        "6",
+        "100",
+        "0",
+        "-256",
+        "-137",
+        "1",
+        "0.05"
+      ],
+      "summary": "# Implementation Plan: Predicting the Impact of Alloying on Creep Resistance via Public Data\n\n**Branch**: `001-predicting-impact-of-alloying-on-creep-resistance` | **Date**: 2026-06-29 | **Spec**: [spec.md](./spec.md)\n\n## Summary\n\nThis project implements a reproducible data pipeline and comparative modeling framework to evaluate whether **explicit feature engineering** (transforming raw elemental composition into physics-informed thermodynamic descriptors) provides a predictive advantage over raw composition for predicting creep rupture time. Due to the unverified status of the primary NIMS so [... full chunk preserved on disk; desummarize() to retrieve.]"
+    },
+    {
+      "element_id": "e001",
+      "kind": "content",
+      "file": "chunk_001.txt",
+      "critical": [
+        "1",
+        "2",
+        "2.1",
+        "0.8",
+        "0.05",
+        "2.2",
+        "2.3",
+        "3",
+        "2.4",
+        "3.1",
+        "-10",
+        "-5",
+        "4",
+        "3.2",
+        "50",
+        "10",
+        "5",
+        "3.3",
+        "20",
+        "95%",
+        "100",
+        "000",
+        "FR-005",
+        "-005",
+        "1000"
+      ],
+      "summary": "# Research: Predicting the Impact of Alloying on Creep Resistance via Public Data\n\n## 1. Problem Statement & Motivation\n\nCreep resistance in high-temperature alloys is a critical property for aerospace and energy applications. While microstructural data (grain size, precipitates) is known to be influential, it is often difficult to predict *a priori*. This study investigates whether **explicit feature engineering** (transforming raw weight% into thermodynamic properties like mixing enthalpy and atomic radius mismatch) provides a predictive advantage over raw composition.\n\n**Reframed Hypothesis [... full chunk preserved on disk; desummarize() to retrieve.]"
+    },
+    {
+      "element_id": "e002",
+      "kind": "content",
+      "file": "chunk_002.txt",
+      "critical": [
+        "2",
+        "6"
+      ],
+      "summary": "*   SHAP computation limited to `TreeExplainer` (fast for tree-based models).\n    *   Permutation Test optimized with parallelization (if available) or limited to a computationally feasible number of permutations.\n*   **Runtime**: Estimated < 2 hours for full pipeline (including Nested CV and Permutation Test).\n\n## 6. Decision Rationale\n\n*   **Synthetic Data First**: Chosen because the NIMS source is unverified. This ensures the project is runnable and testable in CI without external dependencies.\n*   **Strict Intersection**: Excluding rows with missing thermodynamic data from *both* models pr [... full chunk preserved on disk; desummarize() to retrieve.]"
+    }
+  ]
+}

@@ -1,0 +1,20 @@
+# Unresolved panel concerns (address in this revision)
+
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+
+**Why it was kicked back**: 12 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'science'. Routing to 'specified' with full provenance so the next worker can address the root cause.
+
+## Unresolved concerns
+
+- "fit a Linear Mixed‑Effects Model (LMM) with species as a fixed effect" – treating species as a fixed effect contradicts the mixed‑effects intent and can lead to over‑parameterisation and leakage when using species‑stratified CV. A proper LMM should include species as a random intercept (or random slope where appropriate) to model between‑species variance while preserving the ability to predict for unseen species.
+- "A priori power analysis … using statsmodels.stats.power.FTestPower …" – the power calculation assumes a simple fixed‑effects F‑test and does not incorporate the hierarchical structure of the LMM nor the species‑stratified cross‑validation. This may underestimate the required sample size and give a false sense of ≥80 % power.
+- "If the merged dataset is used directly (no spatial join), set this field to null…" – relying on a pre‑merged dataset without explicit validation of spatial/temporal alignment threatens construct validity of the nutrient measurements. The plan should include a verification step (e.g., distance statistics, visual checks) to ensure that soil samples truly correspond to the root observations.
+- Success Criterion SC‑010 (bias‑assessment metric ≤ 5 %) is defined in the specification but never referenced or satisfied by any task in the implementation plan.
+- Task T013 claims to satisfy FR‑025 (missing‑nutrient policy) but FR‑025 does not exist in the feature specification; this is an over‑reach.
+- Task T016 claims to satisfy FR‑026 (environmental covariate imputation) but FR‑026 is not defined in the specification; this is an over‑reach.
+- Task T034 lists FR‑011 (multiple‑comparison correction) as covered, yet FR‑011 is absent from the spec; this is an over‑reach.
+- The plan cites only the **PlantPheno** root‑phenotype dataset and a pre‑merged **MergedDataset** for soil nutrients, but the feature specification (spec.md) and functional requirements (FR‑001, FR‑002) explicitly require downloading **RootReader** (for root phenotypes) *and* **ISRIC‑World Soil Information** (for soil nutrients). Using the MergedDataset instead of the mandated separate datasets means the pipeline does not satisfy the required data acquisition strategy and may miss required provenance checks, violating FR‑001 and FR‑002.
+- The plan references a “Verified datasets” block in the Constitution Check table, but no such block is defined anywhere in the plan document. This makes the verification claim untraceable and violates Principle II (Verified Accuracy).
+- Task T037 mentions validating `artifacts/model_results.json` against `contracts/model_results.schema.yaml`, yet there is no preceding task that creates `model_results.json`. The absence of a generation step means the contract cannot be satisfied.
+- Task T037 also validates `artifacts/final_report.json` against `contracts/output.schema.yaml`, but the plan never defines a task to produce `final_report.json`. Only a PDF report is generated (Task T034). This mismatch leaves the output contract untested.
+- The sensitivity analysis (FR‑011, FR‑028) falls back to comparing each LMM coefficient to a ±10 % range derived from the same estimated coefficient when literature ranges are unavailable. This creates a circular validation because the reference interval is defined by the quantity being tested, guaranteeing the test will always pass and providing no independent evidence of biological plausibility.

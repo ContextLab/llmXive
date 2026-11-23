@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-723-resting-state-fmri-global-signal-as-a-ma",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/model_report.py: self-declared fabricated metric \u2014 \u201c\u2026observed metrics found. Using placeholder values.\")         observed_metrics\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/main.py; 3 command(s) failed: python code/ingestion.py (rc=1); python code/modeling.py --data data/processed/cleaned_data.csv (rc=1); python code/robustness.py --data data/processed/cleaned_data.csv (rc=1); 1 declared deliverable(s) absent: data/processed/cleaned_data.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/ingestion.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/code/ingestion.py\", line 12, in <module>\n    import pandas as pd\nModuleNotFoundError: No module named 'pandas'",
+    "python code/modeling.py --data data/processed/cleaned_data.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/code/modeling.py\", line 6, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/robustness.py --data data/processed/cleaned_data.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/code/robustness.py\", line 6, in <module>\n    import numpy as np\nModuleNotFoundError: No module named 'numpy'",
+    "python code/main.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-723-resting-state-fmri-global-signal-as-a-ma/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-10-05T19:21:28Z"
+}

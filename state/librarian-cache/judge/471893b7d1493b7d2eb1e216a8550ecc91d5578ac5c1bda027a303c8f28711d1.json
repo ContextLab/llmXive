@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.08893",
+  "judged_at": "2026-09-05T12:24:43Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular interactions in polymer blends using machine learning chemistry",
+  "rationale": "The paper is a general survey on active learning for data streams and does not address the specific domain of molecular interactions, polymer blends, or chemistry, failing to meet the criteria for same-mechanism evidence, domain-specific variables, or foundational methodology for this specific application. It falls under the rejection rule for being \"off-domain entirely\" as it lacks any measurable connection to the user's specific scientific mechanism or empirical setting.",
+  "relevant": false
+}

@@ -1,40 +1,46 @@
 """
-Project Configuration Module.
-
-Handles random seeds, file paths, and study parameters.
+Configuration module: random seed and canonical data-path constants.
+Provides both a get_config() helper and module-level constants for easy import.
 """
 
 import os
 from pathlib import Path
 from typing import Final, Dict, Any
-from datetime import datetime
 
-# Root directory of the project
-_ROOT_DIR = Path(__file__).resolve().parents[1]
+# ----------------------------------------------------------------------
+# Core constants
+# ----------------------------------------------------------------------
+# Random seed for reproducibility across the project
+SEED: Final[int] = 42
 
-# Study Period
-START_DATE: Final[datetime] = datetime(2023, 1, 1)
-END_DATE: Final[datetime] = datetime(2023, 12, 31)
-RANDOM_SEED: Final[int] = 42
+# Base directories – resolved relative to the project root (two levels up from this file)
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]
 
-# Directory Paths
-DATA_RAW_DIR: Final[Path] = _ROOT_DIR / "data" / "raw"
-DATA_PROCESSED_DIR: Final[Path] = _ROOT_DIR / "data" / "processed"
-DATA_ARTIFACTS_DIR: Final[Path] = _ROOT_DIR / "data" / "artifacts"
-CODE_DIR: Final[Path] = _ROOT_DIR / "code"
-TESTS_DIR: Final[Path] = _ROOT_DIR / "tests"
+# Directory where raw data files are stored (unchanged source files)
+RAW_DIR: Final[Path] = _PROJECT_ROOT / "data" / "raw"
 
+# Directory for processed, aligned datasets
+PROC_DIR: Final[Path] = _PROJECT_ROOT / "data" / "processed"
+
+# Directory for generated artefacts (models, reports, etc.)
+ARTIFACT_DIR: Final[Path] = _PROJECT_ROOT / "data" / "artifacts"
+
+# ----------------------------------------------------------------------
+# Helper to return a configuration dictionary (kept for backward compatibility)
+# ----------------------------------------------------------------------
 def get_config() -> Dict[str, Any]:
     """
-    Returns a dictionary of configuration parameters.
+    Return a dictionary with project‑wide configuration values.
+
+    This function mirrors the original API used throughout the codebase,
+    while the module‑level constants above provide a more convenient import
+    style for new code (e.g. ``from config import SEED, RAW_DIR``).
     """
     return {
-        "start_date": START_DATE,
-        "end_date": END_DATE,
-        "seed": RANDOM_SEED,
-        "data_raw_dir": DATA_RAW_DIR,
-        "data_processed_dir": DATA_PROCESSED_DIR,
-        "data_artifacts_dir": DATA_ARTIFACTS_DIR,
-        "code_dir": CODE_DIR,
-        "tests_dir": TESTS_DIR,
+        "seed": SEED,
+        "start_date": "2000-01-01",
+        "end_date": "2023-12-31",
+        "data_dir": Path("data"),
+        "code_dir": Path("code"),
+        "output_dir": Path("data/artifacts")
     }

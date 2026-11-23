@@ -1,0 +1,32 @@
+T013:
+  task: 6f7ddcd201c173df819d114b71f273a7e41eea87567ea00bcf0d097da68cf525
+T015:
+  reason: 'Requested task execution failed; rerun successfully: code/cli/generate_ground_truth.py
+    exit=1'
+  task: b87c89ca665ceade1f36d76781a299ca3d7dbcbd022646a05c98fa7898469176
+T016:
+  reason: 'Requested task execution failed; rerun successfully: code/cli/generate_ground_truth.py
+    exit=1; code/cli/validate_dataset_stats.py exit=1'
+  task: a2a072cedc68bf0eef8232b383074775ee95985bdea3bb66a69f849078effc2f
+T019:
+  reason: 'Requested task execution failed; rerun successfully: code/data/extract_features.py
+    exit=1'
+  task: 896923ec221401ab36bc1aaeff436ab1e36c0c4f8d331829740af97cf6d6c9de
+T021:
+  task: f6d05e48623911818e9624e24f82e689cb83da15c78f9c2579c8e46b0fae6676
+T022:
+  task: fea7dfdc30a33c1ff0e0f853e7ba420776bf1d21812da2919936c227aac008a9
+T023:
+  task: 34362a423b040c2239e7f320bbdc8a4653608825a07638e797708211126e6a88
+T027:
+  task: 7d808a8dae7a5ce7d112d2e0c4af8f14fdc0843b26b284557c17dac627b4ab29
+T028:
+  task: d4e827e3f5e82e7636986bf5fc5f4ac9b49dae12d27cc0383a257988964076f5
+T029:
+  task: 92a92cdd63be7ac7e438d04902c023ee5986ce26a63f26c997af39321525c430
+T031:
+  task: 883d01e914f7127cfec2d46c9b3f3e2c57e36c368ba7e4b0a86fdfb132e9ba18
+T032:
+  task: 39f4086c521d70ba0db64eb2a588275c2bd0a6cc88845b2d9d2c5d01c96c7fa3
+T034:
+  task: ad096c5f8cb43e6438ff7a8987114a27624ad25175f3c02759f0a2f523093207

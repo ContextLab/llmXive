@@ -1,0 +1,19 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Climate Variable Schema"
+description: "Schema for climate variables extracted at occurrence points."
+type: "object"
+properties:
+  occurrenceID:
+    type: "string"
+    description: "Reference to occurrence record"
+  variableName:
+    type: "string"
+    description: "Bioclim variable name (e.g., 'bio1')"
+  value:
+    type: "number"
+    description: "Climate value at location"
+required:
+  - occurrenceID
+  - variableName
+  - value
+additionalProperties: false

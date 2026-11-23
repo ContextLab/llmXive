@@ -7,6 +7,9 @@ import yaml
 
 logger = logging.getLogger(__name__)
 
+# FR-012: Default junction resistance constant
+DEFAULT_JUNCTION_RESISTANCE = 1e-9  # K/W
+
 @dataclass
 class SimulationConfig:
     """Configuration for simulation parameters."""
@@ -61,14 +64,21 @@ def load_config(config_path: Optional[str] = None) -> SimulationConfig:
         'SIM_MATERIAL': 'material',
         'SIM_BULK_K': 'bulk_conductivity',
         'SIM_DIAMETER': 'diameter',
-        'SIM_LENGTH': 'length'
+        'SIM_LENGTH': 'length',
+        'SIM_JUNCTION_R': 'junction_resistance'  # Optional override for FR-012
     }
     
     for env_key, attr_key in env_map.items():
         val = os.getenv(env_key)
         if val is not None:
             try:
-                current_val = getattr(config, attr_key)
+                current_val = getattr(config, attr_key, None)
+                if current_val is None:
+                    # If attribute doesn't exist on dataclass, we can't set it directly
+                    # but we can store it in __dict__ or ignore if not needed
+                    # For now, we only set known attributes to avoid dataclass errors
+                    continue
+                
                 if isinstance(current_val, float):
                     setattr(config, attr_key, float(val))
                 elif isinstance(current_val, int):

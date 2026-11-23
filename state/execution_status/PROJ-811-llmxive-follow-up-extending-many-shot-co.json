@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-811-llmxive-follow-up-extending-many-shot-co",
+  "ok": false,
+  "reason": "2 run-book script(s) missing (plan/impl path mismatch): python code/src/download_data.py; python code/src/validate_metric.py --dags data/processed/dags.json --gold data/processed/gold_standard_annotations.json; 4 command(s) failed: python code/src/prompt_gen.py --dags data/processed/dags.json --seeds 0 1 2 3 4 5 6 7 8 9 (rc=2); python code/src/inference.py --prompts data/processed/prompts/ --models qwen2.5-7b llama-3.1-8b (rc=2); python code/src/analysis.py --input data/results/inference_log.csv (rc=1); 3 declared deliverable(s) absent: data/processed/dag_manifest.json; data/processed/gold_standard_annotations.json; data/processed/prompt_manifest.json",
+  "artifacts": [],
+  "failures": [
+    "python code/src/download_data.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/code/src/download_data.py': [Errno 2] No such file or directory",
+    "python code/src/validate_metric.py --dags data/processed/dags.json --gold data/processed/gold_standard_annotations.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/code/src/validate_metric.py': [Errno 2] No such file or directory",
+    "python code/src/prompt_gen.py --dags data/processed/dags.json --seeds 0 1 2 3 4 5 6 7 8 9 -> rc=2\n    usage: prompt_gen.py [-h] --manifest MANIFEST\n                     [--strategy {original_cds,logical_ascending,logical_random}]\n                     [--seed SEED] [--output OUTPUT]\nprompt_gen.py: error: the following arguments are required: --manifest",
+    "python code/src/inference.py --prompts data/processed/prompts/ --models qwen2.5-7b llama-3.1-8b -> rc=2\n    usage: inference.py [-h] --model-class {reasoning,non_reasoning} [--seed SEED]\n                    [--prompt-file PROMPT_FILE] [--output-dir OUTPUT_DIR]\ninference.py: error: the following arguments are required: --model-class",
+    "python code/src/analysis.py --input data/results/inference_log.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/code/src/analysis.py\", line 7, in <module>\n    from statsmodels.stats.effect_size import compute_effsize\nImportError: cannot import name 'compute_effsize' from 'statsmodels.stats.effect_size' (/home/runner/work/llmXive/llmXive/projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/code/.venv/lib/python3.11/site-packages/statsmodels/stats/effect_size.py)",
+    "python code/src/update_state.py -> rc=1\n    Usage: python -m code.src.update_state <command> [arguments]\nCommands: hash, update, verify, verify-all, status"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-21T07:38:33Z"
+}

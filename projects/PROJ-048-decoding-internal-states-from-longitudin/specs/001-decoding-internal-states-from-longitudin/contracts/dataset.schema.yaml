@@ -1,38 +1,49 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Dataset Schema
-description: Schema for the raw and processed calcium imaging dataset.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema describing the raw and processed dataset files and their metadata."
 type: object
-properties:
-  metadata:
-    type: object
-    properties:
-      source:
-        type: string
-      acquisition_date:
-        type: string
-        format: date-time
-      animal_id:
-        type: string
-      session_id:
-        type: string
-  data:
-    type: object
-    properties:
-      roi_traces:
-        type: array
-        items:
-          type: array
-          items:
-            type: number
-      timestamps:
-        type: array
-        items:
-          type: number
-      behavioral_metadata:
-        type: object
-    required:
-      - roi_traces
-      - timestamps
 required:
-  - metadata
-  - data
+  - id
+  - description
+  - modality
+  - source_url
+  - version
+  - files
+properties:
+  id:
+    type: string
+    description: Unique identifier for the dataset.
+  description:
+    type: string
+    description: Human‑readable description of the dataset.
+  modality:
+    type: string
+    enum: [calcium_imaging, behavior, other]
+    description: Type of data contained.
+  source_url:
+    type: string
+    format: uri
+    description: URL where the dataset can be downloaded.
+  version:
+    type: string
+    description: Version tag or commit hash of the dataset.
+  files:
+    type: array
+    description: List of files that belong to the dataset.
+    items:
+      type: object
+      required:
+        - path
+        - format
+        - size_bytes
+      properties:
+        path:
+          type: string
+          description: Relative path to the file within the repository.
+        format:
+          type: string
+          description: File format (e.g., "parquet", "npz", "nwb").
+        size_bytes:
+          type: integer
+          minimum: 0
+          description: Size of the file in bytes.

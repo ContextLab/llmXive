@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output: Comprehensive"
+description: "Schema aggregating all pipeline outputs for validation"
+type: object
+properties:
+  metrics:
+    type: object
+    $ref: "#/definitions/model_metrics"
+  statistical_validation:
+    type: object
+    properties:
+      permutation_p_values:
+        type: object
+        description: "P-values for feature importance from permutation testing."
+      bootstrap_ci:
+        type: object
+        description: "Confidence intervals at a conventional confidence level derived from bootstrap resampling."
+      vif_scores:
+        type: object
+        description: "Variance Inflation Factors for linear model descriptors."
+      sensitivity_analysis:
+        type: array
+        description: "Results for alpha sweeps (a small alpha setting, low values)."
+    required:
+      - permutation_p_values
+      - bootstrap_ci
+      - vif_scores
+      - sensitivity_analysis
+  disclaimer:
+    type: string
+    const: "Associational analysis only; no causal inference"
+definitions:
+  model_metrics:
+    type: object
+    properties:
+      R2:
+        type: number
+      MAE:
+        type: number
+      RMSE:
+        type: number
+    required:
+      - R2
+      - MAE
+      - RMSE

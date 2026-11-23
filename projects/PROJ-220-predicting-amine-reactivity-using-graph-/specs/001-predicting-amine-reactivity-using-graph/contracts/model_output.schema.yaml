@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: ModelOutput
+type: object
+properties:
+  model_type:
+    type: string
+    enum:
+      - "baseline"
+      - "gnn"
+    description: "Type of model trained"
+  metrics:
+    type: object
+    properties:
+      r_squared:
+        type: number
+        description: "R² score on the test set"
+      mean_absolute_error:
+        type: number
+        description: "MAE on the test set"
+      p_value:
+        type: ["number", "null"]
+        description: "P-value from permutation test (if applicable)"
+      effect_size:
+        type: ["number", "null"]
+        description: "Cohen's d effect size (if N < 1000)"
+      bootstrap_ci:
+        type: ["array", "null"]
+        description: "95% Bootstrap Confidence Interval [lower, upper]"
+    required:
+      - r_squared
+      - mean_absolute_error
+  hyperparameters:
+    type: object
+    description: "Dictionary of hyperparameters used during training"
+  file_path:
+    type: string
+    description: "Path to the serialized model artifact"
+required:
+  - model_type
+  - metrics
+  - file_path
+additionalProperties: false

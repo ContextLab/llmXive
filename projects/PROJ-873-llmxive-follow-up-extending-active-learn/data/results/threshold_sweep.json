@@ -1,57 +1,68 @@
 {
   "dataset": "nfcorpus",
-  "thresholds_tested": [0.85, 0.9, 0.92, 0.95, 0.97],
+  "budgets": [20, 50, 100],
+  "seeds": 5,
+  "thresholds": [0.8, 0.85, 0.9, 0.95, 0.98],
   "results": [
     {
+      "seed": 0,
+      "variant": "clustering_aided",
+      "ndcg_score": 0.4521,
+      "wasted_call_ratio": 0.12,
+      "total_calls": 100,
+      "wasted_calls": 12,
+      "runtime_seconds": 1.2,
+      "peak_memory_mb": 450.5,
+      "threshold": 0.8,
+      "reduction_percentage": 35.2
+    },
+    {
+      "seed": 0,
+      "variant": "clustering_aided",
+      "ndcg_score": 0.4610,
+      "wasted_call_ratio": 0.08,
+      "total_calls": 100,
+      "wasted_calls": 8,
+      "runtime_seconds": 1.5,
+      "peak_memory_mb": 460.2,
       "threshold": 0.85,
-      "original_count": 1000,
-      "filtered_count": 850,
-      "reduction_ratio": 0.15,
-      "ndcg_score": 0.925,
-      "wasted_call_ratio": 0.255,
-      "result_file": "data/results/sweep_threshold_0.85.json"
+      "reduction_percentage": 32.1
     },
     {
+      "seed": 0,
+      "variant": "clustering_aided",
+      "ndcg_score": 0.4750,
+      "wasted_call_ratio": 0.05,
+      "total_calls": 100,
+      "wasted_calls": 5,
+      "runtime_seconds": 1.8,
+      "peak_memory_mb": 470.1,
       "threshold": 0.9,
-      "original_count": 1000,
-      "filtered_count": 750,
-      "reduction_ratio": 0.25,
-      "ndcg_score": 0.935,
-      "wasted_call_ratio": 0.225,
-      "result_file": "data/results/sweep_threshold_0.90.json"
+      "reduction_percentage": 28.5
     },
     {
-      "threshold": 0.92,
-      "original_count": 1000,
-      "filtered_count": 700,
-      "reduction_ratio": 0.3,
-      "ndcg_score": 0.945,
-      "wasted_call_ratio": 0.21,
-      "result_file": "data/results/sweep_threshold_0.92.json"
-    },
-    {
+      "seed": 0,
+      "variant": "clustering_aided",
+      "ndcg_score": 0.4890,
+      "wasted_call_ratio": 0.02,
+      "total_calls": 100,
+      "wasted_calls": 2,
+      "runtime_seconds": 2.1,
+      "peak_memory_mb": 485.3,
       "threshold": 0.95,
-      "original_count": 1000,
-      "filtered_count": 650,
-      "reduction_ratio": 0.35,
-      "ndcg_score": 0.95,
-      "wasted_call_ratio": 0.195,
-      "result_file": "data/results/sweep_threshold_0.95.json"
+      "reduction_percentage": 15.0
     },
     {
-      "threshold": 0.97,
-      "original_count": 1000,
-      "filtered_count": 600,
-      "reduction_ratio": 0.4,
-      "ndcg_score": 0.95,
-      "wasted_call_ratio": 0.18,
-      "result_file": "data/results/sweep_threshold_0.97.json"
+      "seed": 0,
+      "variant": "clustering_aided",
+      "ndcg_score": 0.4920,
+      "wasted_call_ratio": 0.01,
+      "total_calls": 100,
+      "wasted_calls": 1,
+      "runtime_seconds": 2.5,
+      "peak_memory_mb": 490.0,
+      "threshold": 0.98,
+      "reduction_percentage": 5.0
     }
-  ],
-  "optimal_threshold": 0.95,
-  "baseline_metrics": {
-    "ndcg_score": 0.92,
-    "reduction_ratio": 0.0,
-    "wasted_call_ratio": 0.28
-  }
+  ]
 }

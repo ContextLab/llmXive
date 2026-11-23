@@ -1,130 +1,150 @@
 import pytest
 import pandas as pd
 import numpy as np
-from code.preprocessing import (
-    calculate_sequencing_depth,
-    apply_rarefaction,
-    apply_vst,
-    filter_low_prevalence,
-    calculate_alpha_diversity,
-    generate_beta_diversity_matrices,
-    run_preprocessing
-)
-from code.config import calculate_median_depth, estimate_rarefaction_loss
+import json
+import os
+import tempfile
+from pathlib import Path
+import sys
 
-# Mock data fixtures
-@pytest.fixture
-def mock_counts_df():
-    """Create a mock OTU table for testing."""
-    data = {
-        'Taxon_A': [100, 50, 200, 0, 150],
-        'Taxon_B': [0, 0, 10, 5, 20],
-        'Taxon_C': [50, 60, 40, 55, 45],
-        'Taxon_D': [0, 0, 0, 0, 0],  # Zero count taxon
-        'Taxon_E': [10, 12, 11, 13, 9],
-    }
-    index = ['Sample_1', 'Sample_2', 'Sample_3', 'Sample_4', 'Sample_5']
-    return pd.DataFrame(data, index=index)
+# Add project root to path for imports if needed
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-@pytest.fixture
-def mock_metadata_df():
-    """Create mock metadata."""
-    data = {
-        'Age': [25, 30, 35, 40, 45],
-        'BMI': [22, 24, 26, 28, 30]
-    }
-    index = ['Sample_1', 'Sample_2', 'Sample_3', 'Sample_4', 'Sample_5']
-    return pd.DataFrame(data, index=index)
+from code.preprocessing import estimate_rarefaction_loss
+from code.config import get_output_path, ensure_directories
 
-def test_calculate_sequencing_depth(mock_counts_df):
-    depths = calculate_sequencing_depth(mock_counts_df)
-    expected = pd.Series([160, 122, 261, 68, 244], index=mock_counts_df.index)
-    pd.testing.assert_series_equal(depths, expected)
-
-def test_apply_rarefaction(mock_counts_df):
-    rarefied = apply_rarefaction(mock_counts_df, depth=100, random_seed=42)
-    # Check that sums are close to 100 (allowing for integer rounding in rarefaction)
-    sums = rarefied.sum(axis=1)
-    assert all(sums >= 95), "Rarefaction depth not maintained"
-    assert rarefied.shape == mock_counts_df.shape
-
-def test_apply_vst(mock_counts_df):
-    vst_data = apply_vst(mock_counts_df)
-    assert vst_data.shape == mock_counts_df.shape
-    assert not vst_data.isna().any().any()
-
-def test_filter_low_prevalence(mock_counts_df):
-    # Taxon_D has 0 prevalence, Taxon_B has 20% (1/5) which is < 0.2 threshold
-    # With threshold 0.001 (0.1%), all non-zero taxa should pass except Taxon_D
-    filtered = filter_low_prevalence(mock_counts_df, prevalence_threshold=0.001)
-    assert 'Taxon_D' not in filtered.columns
-    assert len(filtered.columns) == 4  # A, B, C, E
-
-def test_calculate_alpha_diversity(mock_counts_df):
-    alpha = calculate_alpha_diversity(mock_counts_df)
-    assert 'shannon' in alpha.columns
-    assert 'simpson' in alpha.columns
-    assert len(alpha) == len(mock_counts_df)
-    assert not alpha.isna().any().any()
-
-def test_generate_beta_diversity_matrices(mock_counts_df, mock_metadata_df):
-    # This test requires skbio. We assume it's installed.
-    matrices = generate_beta_diversity_matrices(mock_counts_df, mock_metadata_df)
-    assert 'bray_curtis' in matrices
-    assert matrices['bray_curtis'].shape == (5, 5)
+class TestRarefactionLossEstimation:
     
-    # Check that IDs match
-    assert list(matrices['bray_curtis'].ids) == list(mock_counts_df.index)
+    @pytest.fixture
+    def mock_otu_table(self):
+        """Create a mock OTU table with varying depths."""
+        data = {
+            'sample_1': [100, 200, 300], # Depth 600
+            'sample_2': [50, 50, 50],    # Depth 150
+            'sample_3': [1000, 1000, 1000], # Depth 3000
+            'sample_4': [10, 10, 10],    # Depth 30
+            'sample_5': [500, 500, 500]  # Depth 1500
+        }
+        df = pd.DataFrame(data, index=['taxon_A', 'taxon_B', 'taxon_C']).T
+        # Add a non-numeric column to test filtering
+        df['sample_id'] = df.index
+        return df
 
-def test_run_preprocessing(mock_counts_df, mock_metadata_df):
-    preprocessed, alpha, beta = run_preprocessing(
-        counts_df=mock_counts_df,
-        metadata_df=mock_metadata_df,
-        rarefaction_depth=100
-    )
-    assert preprocessed.shape[0] == mock_counts_df.shape[0]
-    assert 'shannon' in alpha.columns
-    assert 'bray_curtis' in beta
+    @pytest.fixture
+    def mock_median_depth_file(self, mock_otu_table):
+        """Create a temporary median depth file."""
+        # Median of [600, 150, 3000, 30, 1500] -> sorted: [30, 150, 600, 1500, 3000] -> 600
+        median_val = 600.0
+        data = {
+            "median_depth": median_val,
+            "total_samples": 5,
+            "samples_with_nonzero_depth": 5,
+            "min_depth": 30.0,
+            "max_depth": 3000.0
+        }
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(data, f)
+            return f.name
 
-def test_rarefaction_fallback_logic(mock_counts_df, mock_metadata_df):
-    """
-    Test the logic that decides whether to use rarefaction or VST fallback.
-    
-    Scenario 1: Median depth is high enough, loss is low -> Use Rarefaction
-    Scenario 2: Median depth is low (< 1000) -> Trigger VST fallback
-    Scenario 3: Estimated loss is high (> 20%) -> Trigger VST fallback
-    
-    This test validates the decision logic by inspecting the return values
-    and logs (via side effects or explicit returns if refactored).
-    Since run_preprocessing currently performs the operation, we test the
-    helper functions that drive the decision.
-    """
-    # Calculate median depth
-    depths = calculate_sequencing_depth(mock_counts_df)
-    median_depth = depths.median()
-    
-    # Estimate loss if we rarefy to median (should be 0% since we rarefy to median)
-    # But let's test a depth that causes loss
-    high_depth = depths.max() + 100
-    loss_pct = estimate_rarefaction_loss(mock_counts_df, high_depth)
-    
-    # The estimate_rarefaction_loss function should return a percentage
-    assert isinstance(loss_pct, (int, float))
-    assert loss_pct >= 0
-    
-    # Test that VST works as a fallback when rarefaction would fail
-    # (e.g. if we tried to rarefy to a depth higher than some samples)
-    # We simulate the fallback path by directly calling apply_vst
-    vst_result = apply_vst(mock_counts_df)
-    assert vst_result is not None
-    assert not vst_result.isna().any().any()
-    
-    # Verify that if we force a rarefaction depth that is too high for some samples,
-    # the function handles it gracefully (returns NaN or drops rows, depending on impl)
-    # Here we just ensure the function doesn't crash
-    try:
-        # This should not crash, though it might produce NaNs or warnings
-        rarefied = apply_rarefaction(mock_counts_df, depth=high_depth, random_seed=42)
-    except Exception:
-        # If it raises an error, that's also a valid behavior for invalid depth
-        pass
+    def test_estimate_rarefaction_loss_calculation(self, mock_otu_table, mock_median_depth_file):
+        """
+        Test that loss is calculated correctly.
+        Depths: [600, 150, 3000, 30, 1500]
+        Median Depth: 600
+        Samples lost (depth < 600): sample_2 (150), sample_4 (30). Count = 2.
+        Total: 5.
+        Loss Rate: 2/5 = 0.4
+        """
+        # Save mock OTU to temp parquet
+        with tempfile.NamedTemporaryFile(suffix='.parquet', delete=False) as f:
+            temp_path = f.name
+            mock_otu_table.to_parquet(temp_path)
+        
+        try:
+            result = estimate_rarefaction_loss(temp_path, mock_median_depth_file)
+            
+            assert result['total_samples'] == 5
+            assert result['samples_lost'] == 2
+            assert abs(result['loss_rate'] - 0.4) < 0.001
+            assert result['exceeds_threshold'] == True # 0.4 > 0.2
+            assert result['rarefaction_depth'] == 600.0
+        finally:
+            os.unlink(temp_path)
+            os.unlink(mock_median_depth_file)
+
+    def test_estimate_rarefaction_loss_no_loss(self, mock_otu_table, mock_median_depth_file):
+        """
+        Test scenario where no samples are lost.
+        Change median depth to 100.
+        """
+        # Create a new median file with depth 100
+        data = {
+            "median_depth": 100.0,
+            "total_samples": 5,
+            "samples_with_nonzero_depth": 5,
+            "min_depth": 30.0,
+            "max_depth": 3000.0
+        }
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(data, f)
+            new_median_path = f.name
+        
+        try:
+            with tempfile.NamedTemporaryFile(suffix='.parquet', delete=False) as f:
+                temp_path = f.name
+                mock_otu_table.to_parquet(temp_path)
+            
+            try:
+                result = estimate_rarefaction_loss(temp_path, new_median_path)
+                
+                # Only sample_4 (depth 30) is < 100
+                assert result['samples_lost'] == 1
+                assert abs(result['loss_rate'] - 0.2) < 0.001
+                assert result['exceeds_threshold'] == False # 0.2 is not > 0.2
+            finally:
+                os.unlink(temp_path)
+        finally:
+            os.unlink(new_median_path)
+
+    def test_missing_median_depth_file(self, mock_otu_table):
+        """Test that missing median depth file raises error."""
+        with tempfile.NamedTemporaryFile(suffix='.parquet', delete=False) as f:
+            temp_path = f.name
+            mock_otu_table.to_parquet(temp_path)
+        
+        try:
+            with pytest.raises(FileNotFoundError):
+                estimate_rarefaction_loss(temp_path, "non_existent_path.json")
+        finally:
+            os.unlink(temp_path)
+
+    def test_zero_depth_samples_handling(self):
+        """Test handling of samples with zero depth."""
+        data = {
+            'sample_1': [100, 0, 0], # Depth 100
+            'sample_2': [0, 0, 0],   # Depth 0
+            'sample_3': [200, 200, 200] # Depth 600
+        }
+        df = pd.DataFrame(data).T
+        df['sample_id'] = df.index
+        
+        median_data = {"median_depth": 100.0}
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(median_data, f)
+            median_path = f.name
+        
+        try:
+            with tempfile.NamedTemporaryFile(suffix='.parquet', delete=False) as f:
+                temp_path = f.name
+                df.to_parquet(temp_path)
+            
+            try:
+                result = estimate_rarefaction_loss(temp_path, median_path)
+                # sample_2 has depth 0, which is < 100, so it is lost.
+                # sample_1 has depth 100, which is NOT < 100, so it is kept.
+                assert result['samples_lost'] == 1
+            finally:
+                os.unlink(temp_path)
+        finally:
+            os.unlink(median_path)

@@ -1,0 +1,380 @@
+T001-Setup-Dirs-Code:
+  c: true
+  h: 470523b7990e43761d7bc291b124a4d5e6dfa2f320599100c5030eab532de067
+  r: The script `scripts/setup_dirs.py` exists (4588 bytes) and creates exactly the
+    nine required directories (code/, code/data/, code/models/, code/eval/, code/utils/,
+    tests/contract/, tests/unit/, tests/integration/, logs/) via `create_directories()`.
+    The execution log shows it ran with exit 0 and printed "OK" for each required
+    directory, and the collector confirms all nine directories currently exist and
+    are populated.
+  sig: 25a4181af2424a56fccafc6e453f4c17caaedce1199c3fcd1ea1f13dc3988634
+T001-Setup-Dirs-Data:
+  c: true
+  h: b24b87fcf2276129565087a7ba4f7e9b68fedec5f88cee3953ff5649529d6c1b
+  r: 'The script `scripts/setup_dirs.py` exists (4588 bytes) and contains real, working
+    logic (`create_data_directories` with `mkdir(parents=True, exist_ok=True)`) that
+    creates exactly the four required directories: `data/raw/`, `data/processed/`,
+    `data/splits/`, `data/schemas/`. The execution log shows the script ran with exit
+    0 and printed "OK" for all four data directories, and the collector confirms all
+    four directories currently exist on disk with content.'
+  sig: 8a9cc96e7b6894d7cfc34359e6d67ec707e5b8ec5a1178672e722dc09a60942c
+T001-Setup-Dirs-Results:
+  c: true
+  h: 33d340957881ed6c2a249b14d65b9e07d25a8fb6619700736ed16bf599e40a2f
+  r: The script `scripts/setup_dirs.py` exists (4588 bytes) and contains `create_results_directories()`
+    that creates exactly the four required directories (`results/reports/`, `results/plots/`,
+    `results/baseline/`, `results/predictions/`), which are confirmed to exist on
+    disk, and the execution log shows the script ran with exit 0 successfully creating
+    and verifying all of them.
+  sig: 556c219d322cf650be8e7612aae6b8889d3955b1d077950830fa73a063a8d877
+T001-Setup-Execute:
+  c: true
+  h: bc068fb816c8dc9eeab3038260bee42c13aaf43c813019aa64d5eb4e343c6e30
+  r: The setup script exists with full directory-creation and verification logic,
+    and the execution log shows `python scripts/setup_dirs.py` ran with exit code
+    0, printing "OK" for all 17 listed directories (code, tests, logs, data, results
+    trees) and confirming "All code-, data-, and results-related directories created
+    and verified."
+  sig: 41c32dd5e02e028d591fbd9665101900251d8c4c0c475c03e0dfad86bdd6a222
+T002:
+  c: true
+  h: dfb4199c4b012992d0450db743423095e326157a4a1a0244c27ff78a92ff24cb
+  r: The file `code/requirements.txt` exists (927 bytes) and contains all eleven required
+    pinned packages with exactly the specified versions (rdkit==2023.9.5, pandas==2.1.4,
+    scikit-learn==1.3.2, pyyaml==6.0.1, numpy==1.26.2, torch==2.1.0, torch-geometric==2.4.0,
+    ruff==0.1.6, black==23.11.0, datasets==2.15.0, huggingface_hub==0.19.4). The additional
+    entries (extra-index-url, pyarrow, pytest) are reasonable supporting pins, not
+    placeholders or unresolved claims.
+  sig: 9bc4779f7a5517da64931c0c9896d555ed03fc7a2750466f73574dbc4e04722b
+T002-Install:
+  c: true
+  h: 588ae457f3d026bc07eb60b9a2f24ad596bf24e64bb41c88efbb0ae8571bb6c2
+  r: The requirements.txt exists with correct pins (torch==2.1.0, torch-geometric==2.4.0
+    from the CPU index, no `torch (cpu)` package name), and the execution log shows
+    the install script ran inside the T001 virtualenv (`code/.venv`) with exit 0,
+    confirming all pinned packages including torch 2.1.0+cpu and torch-geometric 2.4.0
+    are installed.
+  sig: 681e17c7b8e89f2e0532d766cd4b3b5c427764751400c24f0a0152b4f4e336c1
+T002b:
+  c: true
+  h: e6e32ce69e914c19d14db4f4c07d7f32c15eeadd5b267249c261504ddda89059
+  r: '`code/config.py` exists (1043 bytes) and defines all five required constants
+    with the exact specified values and types: `TIME_BUDGET: float = 6.0`, `MAX_RAM_GB:
+    float = 7.0`, `RANDOM_SEED: int = 42`, `MAX_MOLECULES: int = 5000`, and `SENSITIVITY_THRESHOLDS:
+    List[float] = [0.01, 0.05, 0.1]` with units documented. The extra path constants
+    and directory creation are harmless additions, not placeholders or deviations.'
+  sig: 058c8ca9bd277bbfc66d6a62f5150b77406f4a02d686b636e7969e11945010fd
+T003a:
+  c: true
+  h: dc2aa4805e9576a3b77ac653a0e2ae72d68283d6fb5d0ad01cdad49769c754cb
+  r: 'The `.ruff.toml` exists at the project root (1018 bytes) with substantive, project-specific
+    configuration: target version, line length, a curated rule selection (E, W, F,
+    I, B, C4, UP, S, RUF), justified ignores, isort settings, per-file ignores referencing
+    actual project modules (e.g., `code/data/ingest.py` for ZINC15 URL handling),
+    and formatter settings. It is a real configuration, not a placeholder.'
+  sig: 30258a05c727bf8466a88cf8c1795a2a1295b696d1c379621f753589f79d03df
+T003b:
+  c: true
+  h: dcbaf7e09472f871cd1226b175c36b9cb1a420db4f6ca5c0f1321bd0397449d1
+  r: The `pyproject.toml` exists (2470 bytes) and contains a substantive `[tool.black]`
+    section with line-length, target versions, include/exclude patterns, and normalization
+    options, satisfying the task's requirement for Black formatting rules. A redundant
+    `.black.toml` also exists under `code/`, but this doesn't undermine the primary
+    deliverable.
+  sig: 4b02251546d57ceb150e4fd98a77867c2b6b7193dce311d2e14b0c80a7a5f9b3
+T004:
+  c: true
+  h: 5181cdf2c82fff523340d4fa317c40cee24692b249b946daaceddacce72bc743
+  r: "The requested schema file exists at the collector-confirmed canonical path (`specs/001-predicting-molecular-surface-area-from-g/contracts/dataset.schema.yaml`,\
+    \ 1448 bytes) and defines all required fields \u2014 SMILES, node_features, edge_features,\
+    \ surface_area, and molecular_weight \u2014 with sensible types, constraints,\
+    \ and a required list. The content is a real, well-formed JSON Schema (draft-07),\
+    \ not a stub or placeholder, and matches the task's stated deliverable."
+  sig: 2f21d3bbe753400dcd858b1f1fc6e450b1fa20ea4812762ca6c41a7b21719871
+T006:
+  c: true
+  h: 0af4a8422504de88999250e80654445e5f1e0dfda67b76341b25e064c1044f10
+  r: "The file `specs/.../contracts/sensitivity_schema.yaml` exists (4291 bytes) and\
+    \ defines all required fields \u2014 thresholds (with spec-mandated values 0.01/0.05/0.1),\
+    \ success_rates, and corrected_p_values (Bonferroni, n>1 condition) \u2014 plus\
+    \ required columns/sections for the CSV and markdown report outputs, matching\
+    \ the task's contract requirement."
+  sig: d89032dbfe9f19b0b1dbb1ebada004f0fef6f3ea888bcad9925237257648e25c
+T007:
+  c: true
+  h: 804e41666acc52c8b7df38e108787cd6b576697db330348009016da26649d89d
+  r: The required `code/__init__.py` exists (1750 bytes) with a real package docstring,
+    version, sys.path setup, and guarded imports of the config and utility modules,
+    and the environment configuration loader `code/config.py` exists with substantive
+    content (time budget, RAM limit, seed, paths, directory creation). All referenced
+    utility modules (logging, seed, validators, checksum, memory_monitor, network_check,
+    directories) are present and non-stub implementations, so the task's deliverables
+    are genuinely satisfied.
+  sig: b42be478acd915e392ce1f8192b6ae1bca172a1b7b63b1e01ee7237071fe26e2
+T008a:
+  c: true
+  h: 304500594df2d96a4791bd49b624380025f445b5d17646474f1791e34487a848
+  r: 'The artifact `code/utils/logging.py` exists (4730 bytes) and contains a real,
+    functional logging infrastructure: `setup_logging` with console and file handlers
+    (pipeline.log, excluded_molecules.log, ingestion_errors.log), plus JSON-formatting
+    helpers for excluded molecules, ingestion errors, and dataset/split statistics,
+    matching the spec''s logging needs (e.g., warning logs with specific SMILES strings).
+    The only blemish is a redundant local redefinition of `get_project_root` alongside
+    the `.config` import, which is harmless duplication, not a defect preventing the
+    task''s requirement.'
+  sig: 55993a3ff072ccd4b142ae62b01c88fe49fa7304579e96a9a9f05078913a1b2a
+T009a:
+  c: true
+  h: 8b5f01add438b698c1cb239b4da3e64002471b9221127fdecc1f05e8e63c5e81
+  r: The file `code/data_models/molecule.py` exists (5699 bytes) and defines a `Molecule`
+    dataclass with all required attributes (`smiles`, `mol`, `molecular_weight`, `atom_count`,
+    `node_features`, `edge_features`), the required `validate()` and `to_dict()` methods,
+    and explicitly implements node features as `[atom_type, hybridization, formal_charge]`
+    and edge features as `[bond_type, conjugated, aromatic]` with no stubs or placeholders.
+  sig: 0d6b7b8ed10a36b9fbcc13dd471c06f999e73928c4a4a99cd6d0143ebbf54839
+T009b:
+  c: true
+  h: 6556d2c56ba998c84e3c4ba1b13fb242d63e7c59299eb039530124b1e0b11c2f
+  r: 'The file `code/data_models/graph.py` exists (3692 bytes) and defines a `Graph`
+    dataclass with all five required attributes (`nodes`, `edges`, `node_features`,
+    `edge_features`, `adjacency_matrix`) and both required methods: `validate()` performs
+    real consistency checks (node/edge counts vs. feature rows, adjacency shape) and
+    `to_pyg_format()` converts to a PyTorch Geometric `Data` object with proper edge_index
+    transposition and empty-edge handling. No stubs, TODOs, or placeholders; no dependencies
+    required.'
+  sig: 0dc6cf92df5d02863b480a04cad35f4093af57adb62de7fdf9b3c1e0736a899c
+T009c:
+  c: true
+  h: 0f5576c6b63a61d7c67046e0882a66f69a186647262ef1d27965d43a17da6ab0
+  r: The file `code/data_models/evaluation_result.py` exists (3174 bytes) and defines
+    a dataclass with all required attributes (`model_type`, `mae`, `rmse`, `r2`, `predictions`,
+    `errors`) and both required methods `to_json()` and `summary()`, plus useful extras
+    (`from_dict`, `to_dict`), with no stubs or placeholders.
+  sig: b0efe0de8abfe6047e875b7e66a472840e7f3cf1c4c4cc40de1f16babd4b23d6
+T010:
+  c: true
+  h: d3877d499ff213e62838e4f4701f22327aa44936de7a12d7e2907884445fbc34
+  r: '`code/utils/seed.py` exists (5938 bytes) and implements a real seed-pinning
+    utility: it imports `RANDOM_SEED` from `code/config.py` (confirmed value 42),
+    sets Python/NumPy/PyTorch seeds, sets `PYTHONHASHSEED`, and provides supporting
+    helpers (env override, reproducibility verification, context manager) with no
+    stubs or TODOs. The dependency `code/utils/logging.py` also exists, so the module''s
+    imports are resolvable in the project layout.'
+  sig: 50cf1a6b2bcdb8cd9ca51eb58d1b39f3f6f8845f3472e80c56329d6e063ed7bc
+T011:
+  c: true
+  h: 31bfde8ca21df3254b1e524effd8f217ff5ec931cccbd3e6e8d5833ff6f8c8f3
+  r: "The artifact `code/utils/checksum.py` exists (12KB, non-empty) and contains\
+    \ a full, real implementation: SHA-256 file/directory checksum calculation with\
+    \ chunked reading and exclusion patterns, JSON manifest save/load, verification\
+    \ functions, and a CLI with calculate-file/calculate-dir/save-manifest/verify-manifest\
+    \ subcommands \u2014 no stubs, TODOs, or placeholders. Its only local dependency\
+    \ `code/utils/logging.py` also exists and provides the imported `get_logger`,\
+    \ so the module is importable as written."
+  sig: 54b6a03f786d4fb9bc52fd587a4b10348db70a161fbbcbed0918d5a2ad07338a
+T012:
+  c: true
+  h: c93e09a6d6c537c4477ed5781e2b840603655cdf4603c2f66c308d5cf91f9c75
+  r: The test file `tests/contract/test_data_schema.py` exists (1195 bytes) and contains
+    real, non-stub assertions validating the schema file's existence, required fields
+    (smiles, node_features, edge_features, surface_area, molecular_weight), and type/minimum
+    constraints, all consistent with the actual `dataset.schema.yaml` content (which
+    defines those fields, required list, and `surface_area` as number with minimum
+    0). The schema path in the test matches the collector-resolved canonical directory,
+    so the contract test genuinely validates against the T004-generated schema.
+  sig: e0296f5be20c5918fcea442e79678d825f8144c94c92e1d9640cd6803fd058b3
+T013:
+  c: false
+  h: 9cccbb3ff00d33fe3f054b110fbef3207e0c3bc7e597b80720172e33a95102e4
+  r: 'The test file exists and is non-empty, but it is not a genuine integration test
+    of the T048 pipeline: `test_ingestion_pipeline_chunk_processing` imports `process_smiles_chunk`
+    and `write_chunk_to_parquet` yet never calls them, instead re-implementing the
+    validation/filtering logic inline ("Simulate logging", "Simulate feature extraction"),
+    so the actual ingestion code is untested. Additionally, the `test_env` fixture
+    calls `setup_logging(log_level=..., log_file=...)`, but `code/utils/logging.py`
+    defines `setup_logging(log_level=logging.INFO)` with no `log_file` parameter,
+    so the fixture would '
+  sig: 5ebafbd900b36fc02928f5579e5f218e82270195aefd022f937fc9226c6c171d
+T014-Features:
+  c: false
+  h: f1f3476c9e3f7e4505d09e21dc3b87fe4cd173c5b88f41934ee7957edfc11b69
+  r: "The required output `data/processed/graphs_with_features.parquet` is MISSING\
+    \ \u2014 the collector confirms it does not exist, so there is no evidence the\
+    \ pipeline was ever run or produced feature data. Additionally, `code/data/preprocess.py`\
+    \ re-applies the >100-atom filter (task explicitly says not to re-filter since\
+    \ T014-Sample already did) and its `process_molecule_2d` performs 3D conformer\
+    \ generation/minimization rather than the ordered 2D-feature-then-MW extraction\
+    \ on the filtered molecules from T014-Sample."
+  sig: e87b08b95ed3f41c5f4bc8ad81aa829e5065881d8263bc3635566b0ff5b727f6
+T014-Sample:
+  c: false
+  h: c65f1f71fe7bb35aac7adcd352b1d0d48bca3078063540f962489c996389f3f1
+  r: The required outputs `data/processed/sampled_dataset.parquet` and `data/processed/sampling_report.json`
+    do not exist, and the dependency `data/processed/pilot_report.json` is also missing.
+    Only `code/config.py` exists; no sampling code or artifacts were produced.
+  sig: 1a4bc2327616bc5e6965ee0672427c6ab8350f2c5698f31e5d63c35bd72c1ebf
+T015b:
+  c: false
+  h: c4877a91f92298ed82a08944fc3af4741b388197803652f182268e194be072be
+  r: "The required output `data/processed/descriptors.parquet` is MISSING, and the\
+    \ shown `code/data/preprocess.py` content contains no SASA calculation or the\
+    \ required 3D descriptors (`radius_of_gyration`, `principal_moment_1/2/3`, `sasa_components`)\
+    \ \u2014 it only covers conformer generation (T015a work). The implementer must\
+    \ add the descriptor computation logic and actually run it to produce the parquet\
+    \ file with SMILES, `surface_area`, and the 3D descriptor columns."
+  sig: 429a7bb5710e7a4f2ce2ebef02d5d92070b1c2c33d9e80a5c0255ecfe4d95f25
+T015c:
+  c: false
+  h: 9eaa84e3425f122c3f72f7d1d4ccf546e55a5c74f02e8c0f3adeb84a40e5e68a
+  r: The required output artifacts `data/processed/paired_dataset.parquet` and `data/processed/conformer_params.json`
+    are both MISSING, so the merge and hash-embedding verification cannot be checked
+    at all. The provided `code/data/preprocess.py` excerpt shows conformer-generation
+    code but no evidence of the merge logic (joining T014/T015a/T015b artifacts, computing
+    the SHA-256 of conformer_params.json, or embedding `conformer_config_hash` in
+    Parquet metadata and as a column). The implementer must actually run the merge
+    to produce both files with the `surface_area` column (no NaNs), the 3D descripto
+  sig: 0b2ec8b957d5bfaebd28025a636a09d166b122dce01de267b884e5e8e623fb36
+T016-Gate:
+  c: false
+  h: cea169801887ca239cd2554f0eb0bc5fe76b9c37bf98eed49ed49b904bf8f0cd
+  r: "The required input `data/splits/split_report.json` does not exist (collector\
+    \ confirms MISSING), so the gate's core action \u2014 loading the report and verifying\
+    \ `ks_p_value` > 0.05 \u2014 could not have been performed. No gate script implementing\
+    \ the retry logic (seed increment, up to 5 retries, `split_failure_report.json`\
+    \ with `best_p_value`/`seeds_tried`/`final_error`, CRITICAL log, exit code 1)\
+    \ exists anywhere in the evidence; `code/data/split.py` is the T016 splitter and\
+    \ explicitly does not handle retries or accept a `--seed` argument. The implementer\
+    \ must first run the split to produce `split_repo"
+  sig: 06496988606eb17abbe192a76e097390854bea803a884044975f9e3fb292bb72
+T017:
+  c: true
+  h: 1fe2df62b40ccd341babb4fa12fc109d6da5f422a61580480700dc760e001108
+  r: "`code/utils/validators.py` exists (5162 bytes) and contains a real `validate_smiles(smiles_list)`\
+    \ function that uses RDKit's `Chem.MolFromSmiles` to check syntax and returns\
+    \ the list of invalid strings, plus a warning log for invalid entries \u2014 matching\
+    \ the task's stated contract for T048/T014. The implementation is genuine (no\
+    \ stubs/TODOs), handles non-string and empty inputs, and includes a CLI test entry\
+    \ point."
+  sig: 9f6c495bb10c4eb691f52521d5185141e16c49fd7371e107d5aa9c2f52780597
+T018:
+  c: true
+  h: 57906ab56a73031b47cf57414940a3252eebbc93e9ca7129d9ce970d640621fc
+  r: '`code/utils/logging.py` exists (4730 bytes) and defines both required functions
+    with the correct signatures: `log_excluded_molecules(count, smiles_list)` writes
+    JSON entries routed to `logs/excluded_molecules.log` via a dedicated file handler,
+    and `log_errors(errors)` logs each error as JSON at the WARNING level to `logs/ingestion_errors.log`,
+    satisfying the WARNING-level requirement. The relative import `from .config import
+    get_project_root` resolves to the confirmed `code/utils/config.py`, and the local
+    redefinition of `get_project_root` (a minor redundancy, not a defect) still returns
+    the c'
+  sig: f49f04ea760e6b2dc61f2486a105727e2f252206b93b4aa2c53f774bbc18a907
+T019:
+  c: false
+  h: ca02ad737f239c95037ae8b3c4c8dd5bc2bd0bc3ce153801973d1c7421cf5058
+  r: "The test file exists and is substantive, but it validates against `data/schemas/model_schema.yaml`\
+    \ instead of the required `specs/001-predicting-molecular-surface-area/contracts/model_schema.yaml`,\
+    \ and its expectations contradict the actual schema: the schema's `required` is\
+    \ only `[model_type, metrics, hyperparameters]` (no `timestamp`/`dataset_checksum`),\
+    \ and `model_type` enum values are lowercase (`gcn`, `baseline_2d`, `baseline_3d`,\
+    \ `geometry_oracle`) while the test demands uppercase values including `RandomForest`,\
+    \ `BaselineGeometry`, `Baseline3D` that don't exist in the schema \u2014 so `test_"
+  sig: 8eab582c106a90101da242f0ea2d0d8bf58ea2e4db910a2c931b8f655a283974
+T020:
+  c: false
+  h: 93d08d0a246a4c4db4717779ca6597259bc993554e57cc4690d48c42c80fccd4
+  r: 'The test file `tests/integration/test_training.py` exists and is substantive,
+    but it is not runnable against the actual codebase: it imports `EarlyStopping`,
+    `train_model`, and `generate_predictions` from `code.models.train`, yet no `code/models/train.py`
+    appears among the resolved artifacts (only `code/models/gcn.py` and `__init__.py`
+    exist), and `code/data/split.py` is likewise absent. Additionally, the test constructs
+    `GCNModel(input_dim=..., hidden_dim=..., output_dim=..., num_layers=...)`, while
+    the actual `GCNModel.__init__` in `code/models/gcn.py` accepts `in_channels/hidden_channels/ou'
+  sig: 0ae3033451efe9e6178df80b382abdfd1b24a0fb5299b404894a5fdea6873f82
+T021c:
+  c: false
+  h: b1fbfbc6ab00b2ee76cb6e79dafd7c1abc53899352c660b3432947a109156d4d
+  r: The required input files (`data/processed/descriptors.parquet`, `data/processed/conformer_params.json`)
+    are missing, and the expected output artifacts (`results/baseline/baseline_3d.pkl`,
+    `results/predictions/baseline_3d_predictions.parquet`) do not exist. Additionally,
+    the provided `baseline.py` is truncated and shows no evidence of a completed training
+    run.
+T026:
+  c: false
+  h: 1adedc87a47e6d40b5692eb897d44644a857a36cd57f967855668e46a9c965db
+  r: The required files `tests/contract/test_sensitivity_report.py` and `sensitivity_schema.yaml`
+    are missing, so no contract test or schema validation exists to meet the task.
+    The implementer must add both artifacts with appropriate test code and schema
+    definition.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact showing that the `quickstart.md` steps were run or that functional\
+    \ requirements FR-001\u202F\u2013\u202FFR-007 were verified is present; the implementer\
+    \ provided only the task description without any validation logs, screenshots,\
+    \ or generated output."
+T045:
+  c: true
+  h: 9ecb4530c39359e0c21e4c61fcec8a4a871dea5e9a5708c9cfd244e90d9cb245
+  r: '`code/utils/memory_monitor.py` exists (8191 bytes) with a full `MemoryMonitor`
+    class that starts/stops tracemalloc, logs per-epoch peak/current memory via `log_epoch`,
+    checks the `MAX_RAM_GB` limit from `code/config.py` (which defines MAX_RAM_GB=7.0
+    plus LOGS_DIR/PROJECT_ROOT used by the imports), and generates a JSON diagnostic
+    report on limit exceedance or exception, with a context manager and a working
+    demo `main()`. The early-exit behavior is exposed via `check_limit()` returning
+    True on exceedance (used to break the training loop in the demo), which satisfies
+    the wrapper requirement.'
+  sig: 64a532adb4c2e20a23005d7b7fa3c4fc18c4fc251b20d291dbd59d491f4e7870
+T048:
+  c: false
+  h: 2ed26d20947a61c50d15b912611ab39637368d93138f8d78cd6fe11d9c5ebadb
+  r: The only artifact provided in the evidence is `specs/.../contracts/dataset.schema.yaml`;
+    there is no ingestion code implementing streaming `load_dataset`, chunked processing,
+    the max-atoms filter, or the DATA_SOURCE_OVERRIDE logic, no `logs/excluded_molecules.log`
+    or `logs/ingestion_errors.log`, and no `data/raw/chunk_*.parquet` outputs or execution
+    evidence. The task's required deliverables (the ingestion script and its chunked
+    parquet outputs with verified row counts) are entirely absent from the evidence,
+    so the claim cannot be verified as done.
+  sig: 992252758d9ce26797428e58edc75caeec13d48bf4096569ea428e7202bd623e
+T049:
+  c: true
+  h: 1ccd4ab12dd4502811ac284e6a5bb313c68bf27cf56e7ed4bef9e9fdcfb17517
+  r: 'The artifact `code/utils/network_check.py` exists (3988 bytes) and implements
+    a real connectivity check (HuggingFace dataset_info for the ZINC15 dataset plus
+    a PubChem endpoint probe) with the required failure behavior: `main()` raises
+    `ConnectionError` immediately when the ZINC15 check fails, with no retry or synthetic-data
+    fallback. The ZINC15-via-HuggingFace interpretation is consistent with the spec''s
+    "public repository (e.g., ZINC15 or OpenDataPubChem)" and the supporting `logging.py`/`config.py`
+    imports resolve locally.'
+  sig: da3ee8e0244081cd81aa66184b2cc420a8378aa99652946e7aca8f0ac96a3179
+T056:
+  c: true
+  h: 5a66e1cbf94549f82ca4c762cd6e3bd87d6e4324e37dc08358791d35bbcdfc6c
+  r: "The artifact `code/data/ingest.py` exists (8294 bytes) and its `fetch_zinc15_streaming`\
+    \ wraps `load_dataset(..., streaming=True)` with no synthetic-data fallback: connection\
+    \ errors are re-raised immediately, other fetch failures are re-raised as `ValueError`,\
+    \ and an empty stream raises `ValueError` \u2014 matching the \"Fail Loudly\"\
+    \ requirement. The remaining try/except blocks only log and re-raise, never swallow\
+    \ errors or substitute fake data."
+  sig: 039993474f0d71c1ad37f3b606dec3a1f254f2da634cb9cbaa73325207b67930
+T057:
+  c: false
+  h: cfa58d5fc0aa0aaca284a36d761ccd2d2150c5284710b3332b2d75d909c626e3
+  r: "The ingest.py defines `calculate_checksum` and `save_checksums` helpers but\
+    \ never calls them: `main()` creates an empty `checksums` dict, passes it to `process_and_write_chunk`\
+    \ (which ignores it), and never computes any chunk hash, never checks a manifest,\
+    \ never writes `data/raw/checksums.json` \u2014 which is confirmed MISSING on\
+    \ disk. The task's unconditional checksum verification, manifest mismatch halt,\
+    \ and checksum logging requirements are entirely unimplemented."
+  sig: c5dba4e4426ea72459cc8297f8e912c9f4aadb03b26fe354e7dd0957528dbb5f
+T058:
+  c: true
+  h: 26cd47f7874ab33c385b2831da5109b7136cd3d6520f066468fb4f2414ac19e9
+  r: "I examined `code/models/train.py` (15005 bytes) and confirmed the T058 logic:\
+    \ `train_model` wraps the epoch loop in a try/except that detects `RuntimeError`\
+    \ containing \"out of memory\", logs the adjustment (\"Reducing batch size from\
+    \ X to X//2\"), halves the batch size, clears the CUDA cache, and retries via\
+    \ the `while current_batch_size >= min_batch_size` loop, halting only when the\
+    \ minimum (default 1) is reached \u2014 exactly the required fallback behavior\
+    \ rather than an immediate crash. Minor unrelated defects exist (e.g., `memory_monitor.log_epoch(epoch,\
+    \ train_loss, val_loss)` passes two loss arg"
+  sig: 31335c8f4de80b05820154fb9f27762c281f34f87eb6963fec4edc96d6a16281

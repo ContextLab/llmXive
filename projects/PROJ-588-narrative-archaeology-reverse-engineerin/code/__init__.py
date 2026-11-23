@@ -1,1 +1,3 @@
-"""Narrative Archaeology Research Pipeline."""
+"""
+Narrative Archaeology Project Codebase.
+"""

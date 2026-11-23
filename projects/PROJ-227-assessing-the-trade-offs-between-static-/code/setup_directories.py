@@ -1,55 +1,64 @@
 """
-Setup script for PROJ-227-assessing-the-trade-offs-between-static-
-
-Creates the required project directory structure as specified in T001.
+Script to initialize the project directory structure for PROJ-227.
+Creates the required folders for data, code, tests, and state management.
 """
 import os
+import sys
 from pathlib import Path
 
-# Define the project root relative to the current working directory
-# The task assumes we are running from the repository root
-PROJECT_ROOT = Path.cwd()
-PROJECT_NAME = "PROJ-227-assessing-the-trade-offs-between-static-"
-
-# Define the base path for the project
-PROJECT_DIR = PROJECT_ROOT / "projects" / PROJECT_NAME
-
-# Define the directories to create based on T001 requirements
-DIRECTORIES_TO_CREATE = [
-    PROJECT_DIR / "data" / "raw",
-    PROJECT_DIR / "data" / "processed",
-    PROJECT_DIR / "state",
-    PROJECT_DIR / "code",
-    PROJECT_DIR / "tests",
-]
-
 def main():
-    """Create the directory structure if it doesn't exist."""
-    print(f"Setting up project directory structure at: {PROJECT_DIR}")
+    # Define the project root relative to the script location or CWD
+    # The task specifies paths relative to the project root.
+    # We assume the script is run from the project root or the script determines the root.
+    # Based on the task description, the root is likely the current working directory
+    # where the project was initialized, or we create a specific subdirectory if implied.
+    # However, the task says: "Create project directory structure: projects/PROJ-227..."
+    # This implies the root of the repo is the parent of "projects".
+    
+    # Let's assume we are running from the repository root.
+    # If the script is in code/, we need to go up two levels to reach repo root?
+    # Or we just create relative to CWD. The task description implies:
+    # "projects/PROJ-227-assessing-the-trade-offs-between-static-/" is the project folder.
+    
+    project_name = "PROJ-227-assessing-the-trade-offs-between-static-"
+    base_path = Path("projects") / project_name
+    
+    required_dirs = [
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "state",
+        base_path / "code",
+        base_path / "tests",
+        base_path / "tests" / "unit",
+        base_path / "tests" / "integration",
+        base_path / "tests" / "contract",
+    ]
     
     created_count = 0
-    skipped_count = 0
-    
-    for dir_path in DIRECTORIES_TO_CREATE:
+    for dir_path in required_dirs:
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
             print(f"Created: {dir_path}")
             created_count += 1
         else:
             print(f"Exists: {dir_path}")
-            skipped_count += 1
     
-    print(f"Setup complete. Created {created_count} directories, skipped {skipped_count} existing.")
+    print(f"Setup complete. Created {created_count} new directories.")
     
-    # Verify structure
-    assert PROJECT_DIR.exists(), "Project root directory not created"
-    assert (PROJECT_DIR / "data" / "raw").exists(), "data/raw not created"
-    assert (PROJECT_DIR / "data" / "processed").exists(), "data/processed not created"
-    assert (PROJECT_DIR / "state").exists(), "state not created"
-    assert (PROJECT_DIR / "code").exists(), "code not created"
-    assert (PROJECT_DIR / "tests").exists(), "tests not created"
-    
-    print("Verification passed: All required directories exist.")
+    # Verification step: List the tree
+    print("\n--- Directory Verification (ls -R) ---")
+    if base_path.exists():
+        # Walk and print
+        for root, dirs, files in os.walk(base_path):
+            level = root.replace(str(base_path), '').count(os.sep)
+            indent = ' ' * 2 * level
+            print(f'{indent}{os.path.basename(root)}/')
+            subindent = ' ' * 2 * (level + 1)
+            for file in files:
+                print(f'{subindent}{file}')
+    else:
+        print(f"Error: Base path {base_path} does not exist.")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

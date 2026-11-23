@@ -1,8 +1,9 @@
 """
-Script to generate provenance metadata for datasets in data/raw/.
+Script to generate provenance metadata for all files in the raw data directory.
 
-This script verifies that real data files exist in data/raw/ and generates
-corresponding _meta.json files with hash, timestamp, and source keys.
+This script scans `data/raw/` for data files (csv, json, parquet, etc.) and
+generates corresponding `_meta.json` files using the `write_meta` function
+from `utils.provenance`.
 """
 import os
 import sys
@@ -11,68 +12,61 @@ import argparse
 from pathlib import Path
 import json
 
-# Add parent directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add project root to path if running as script
+if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parent.parent
+    sys.path.insert(0, str(project_root))
 
-from utils.provenance import write_meta, hash_file
+from utils.provenance import generate_provenance_for_dataset, hash_file
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Generate provenance metadata for datasets in data/raw/"
-    )
-    parser.add_argument(
-        "--source",
-        type=str,
-        default="verified_dataset",
-        help="Source identifier for the metadata"
+        description="Generate provenance metadata for raw data files."
     )
     parser.add_argument(
         "--data-dir",
         type=str,
         default="data/raw",
-        help="Directory containing dataset files"
+        help="Path to the raw data directory."
+    )
+    parser.add_argument(
+        "--source-id",
+        type=str,
+        default="verified_dataset",
+        help="Source identifier to include in metadata."
     )
     args = parser.parse_args()
 
     data_dir = Path(args.data_dir)
     if not data_dir.exists():
-        print(f"ERROR: Data directory not found: {data_dir}")
+        print(f"Error: Data directory {data_dir} does not exist.")
         sys.exit(1)
 
-    # Find all non-meta files in the data directory
-    # Exclude .json files (metadata files) and common non-data extensions
-    extensions_to_process = {".csv", ".tsv", ".edf", ".asc", ".txt"}
-    files_processed = 0
+    # Supported extensions
+    extensions = ["*.csv", "*.json", "*.parquet", "*.tsv", "*.npy"]
+    files = []
+    for ext in extensions:
+        files.extend(data_dir.glob(ext))
     
-    for file_path in data_dir.iterdir():
-        if file_path.is_file() and file_path.suffix.lower() in extensions_to_process:
-            # Skip if it's already a meta file
-            if file_path.name.endswith("_meta.json"):
-                continue
-            
-            print(f"Processing: {file_path.name}")
-            
-            # Create metadata dictionary
-            meta_dict = {
-                "dataset_id": file_path.name,
-                "file_size_bytes": file_path.stat().st_size
-            }
-            
-            # Generate metadata file
-            try:
-                write_meta(str(file_path), meta_dict, source=args.source)
-                meta_file = str(file_path).replace(file_path.suffix, "") + "_meta.json"
-                print(f"  -> Generated: {os.path.basename(meta_file)}")
-                files_processed += 1
-            except Exception as e:
-                print(f"  -> ERROR: {e}")
+    if not files:
+        print(f"No data files found in {data_dir}.")
+        sys.exit(0)
+
+    print(f"Found {len(files)} data files. Generating provenance...")
     
-    print(f"\nCompleted: {files_processed} provenance files generated.")
+    generated_count = 0
+    for file_path in files:
+        try:
+            meta_path = generate_provenance_for_dataset(
+                str(file_path), 
+                args.source_id
+            )
+            print(f"  Generated: {meta_path}")
+            generated_count += 1
+        except Exception as e:
+            print(f"  Error processing {file_path}: {e}")
     
-    if files_processed == 0:
-        print("WARNING: No data files found to process.")
-        print("Ensure real data files exist in data/raw/ (e.g., .csv, .tsv, .edf)")
-        sys.exit(1)
+    print(f"Successfully generated {generated_count} provenance files.")
 
 if __name__ == "__main__":
     main()

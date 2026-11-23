@@ -1,0 +1,84 @@
+- artifact_path: projects/PROJ-126-predicting-avian-migration-patterns-from/README.md
+  attempts: 1
+  canonical: Predict American Robin first-arrival dates in Lake Powell region
+  claim_id: c_51de13f8
+  context: This project implements an automated science pipeline to predict the first-arrival
+    dates of the American Robin (Setophaga ruticilla) in the Lake Powell region using
+    eBird observation data and MODIS environmental data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Predict_American_Robin_first-arrival_dates_in_Lake_Powell_re
+  kind: entity_fact
+  raw_text: The project predicts the first-arrival dates of the American Robin (Setophaga
+    ruticilla) in the Lake Powell region.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:52:08Z'
+- artifact_path: projects/PROJ-126-predicting-avian-migration-patterns-from/README.md
+  attempts: 1
+  canonical: eBird data used for Setophaga ruticilla 2015 to 2023
+  claim_id: c_dbe25f6d
+  context: "eBird: Downloaded via the datasets library or verified URL for Setophaga\
+    \ ruticilla (2015\u20132023)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "eBird observation data for Setophaga ruticilla from 2015\u20132023 was\
+    \ used."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:52:34Z'
+- artifact_path: projects/PROJ-126-predicting-avian-migration-patterns-from/README.md
+  attempts: 1
+  canonical: MODIS MOD11A2 and MOD13Q1 data resampled to 0.5 degree grid
+  claim_id: c_ea0eea79
+  context: "MODIS: Temperature (MOD11A2) and NDVI (MOD13Q1) data, resampled to 0.5\xB0\
+    \ grid."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "MODIS data included Temperature (MOD11A2) and NDVI (MOD13Q1) resampled\
+    \ to a 0.5\xB0 grid."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:52:54Z'
+- artifact_path: projects/PROJ-126-predicting-avian-migration-patterns-from/README.md
+  attempts: 1
+  canonical: Random seed fixed at 42
+  claim_id: c_d24af1d0
+  context: 'Key settings include: Random Seed: Fixed at 42 for reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random seed was fixed at 42 for reproducibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:53:18Z'
+- artifact_path: projects/PROJ-126-predicting-avian-migration-patterns-from/README.md
+  attempts: 1
+  canonical: First-arrival dates calculated for thresholds 3, 5, and 10
+  claim_id: c_d6f050ad
+  context: First-arrival dates for thresholds {3, 5, 10}.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: First-arrival dates were calculated for thresholds of 3, 5, and 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T07:53:41Z'

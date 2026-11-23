@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Qwen-VLA Dataset Schema"
+description: "Schema for the ingested Qwen-VLA parquet dataset"
+type: "object"
+properties:
+  text_instruction:
+    type: "string"
+    description: "The text instruction for the robot task"
+  action_sequence:
+    type: "array"
+    description: "List of action vectors (joint angles, end-effector pose) over time"
+    items:
+      type: "array"
+      items:
+        type: "number"
+    minItems: 1
+  task_type:
+    type: "string"
+    enum:
+      - "grasp"
+      - "navigate"
+      - "place"
+      - "other"
+required:
+  - "text_instruction"
+  - "action_sequence"
+  - "task_type"
+additionalProperties: false

@@ -1,0 +1,51 @@
+# pyproject.toml
+# Configuration for Black (code formatter) and Ruff (linter) tools.
+# This file resides at the repository root so that both tools can discover
+# their settings automatically when invoked via `black .` or `ruff check .`.
+
+[tool.black]
+# Target Python version
+target-version = ["py311"]
+# Maximum line length (default 88, matching Ruff)
+line-length = 88
+# Do not alter string quotes; keep original style
+skip-string-normalization = false
+# Enable experimental mode for better handling of trailing commas
+experimental-string-processing = true
+
+[tool.ruff]
+# Maximum line length; must match Black for consistency
+line-length = 88
+# Target Python version for syntax checks
+target-version = "py311"
+# Select the rule sets we want to enforce:
+#   E – pycodestyle errors
+#   F – pyflakes errors
+#   W – pycodestyle warnings
+#   C90 – McCabe complexity
+select = ["E", "F", "W", "C90"]
+# Ignore specific rules that are too noisy for this project:
+#   E501 – line too long (handled by Black)
+ignore = ["E501"]
+# Exclude generated or data directories from linting
+exclude = [
+  "data",
+  "results",
+  "docs",
+  "tests",
+  ".git",
+  "__pycache__",
+  "build",
+  "dist",
+  "*.egg-info"
+]
+# Enable automatic fixing where possible (e.g., formatting, unused imports)
+fix = true
+
+# Optional: per-file-ignores can be added here if needed, e.g.:
+# per-file-ignores = {"__init__.py" = ["F401"]}  # ignore unused imports in __init__ files
+
+# Ruff can also be configured to run in parallel for speed:
+# jobs = 4  # Uncomment to set number of parallel workers
+
+# End of configuration. Use `ruff check .` to lint and `black .` to format the codebase.

@@ -1,0 +1,199 @@
+*The plan never fabricates a GPU‑only step; all computation is CPU‑first and fits the free GitHub Actions environment.*
+
+---
+
+
+## projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/research.md
+# Research: Predicting the Yield Strength of High‑Entropy Alloys
+
+## Dataset Strategy
+
+| Need | Candidate | Availability | Action |
+|------|-----------|--------------|--------|
+| Curated experimental HEA yield‑strength dataset (‑020‑00374‑5) | DOI ‑020‑00374‑5 (internal repository) | **Not publicly downloadable** (no verified URL) | **User must supply** a CSV matching `contracts/dataset.schema.yaml` at `data/raw/heas_raw.csv`. The pipeline aborts with a clear error if the file is absent. |
+| Elemental property reference table | `elemental_properties.csv` (included in repo) | Open, version‑controlled | Use directly for descriptor calculations. |
+
+> **Note:** Because the curated dataset is not openly downloadable, the pipeline treats it as a required user‑provided asset. This satisfies FR‑001 while preserving reproducibility (Constitution I).
+
+## Methodology Decisions & Rationale
+
+| Decision | Rationale | Compute Mode |
+|----------|-----------|--------------|
+| **Random Forest Regressor** (scikit‑learn) | Non‑parametric, robust to multicollinearity; fast CPU training; easy permutation importance extraction. | CPU‑first |
+| **5‑fold Cross‑Validation** | Provides unbiased out‑of‑fold performance; aligns with Principle VII (statistical rigor). | CPU‑first |
+| **Bootstrap CI (a large number of resamples)** | Generates confidence intervals for R², Pearson r, and Spearman ρ without analytic assumptions; complies with Principle VII. | CPU‑first |
+| **Permutation Importance – 1 000 permutations** | Fixed count mandated by FR‑012; enables empirical p‑value estimation. | CPU‑first; parallelized across features via `joblib`. |
+| **Multiple‑Comparison Correction** | Holm‑Bonferroni correction applied to permutation‑importance p‑values (more appropriate under dependency). | CPU‑first |
+| **Power / Sample‑Size Justification** | Dataset size is unknown until user provides CSV. The plan will compute observed effect size (Cohen’s f²) and report achieved power; if N < 50 a low‑power warning is emitted. | N/A – descriptive |
+| **Causal Claims** | The study is purely observational; all claims are associative. | N/A |
+| **Collinearity Handling** | Descriptors are correlated; VIF is computed, and any descriptor with VIF > 5 is dropped or orthogonalised via PCA before model training. | CPU‑first |
+| **Correlation Tests** | Both Pearson and Spearman correlations are reported; Pearson p‑value obtained via bootstrap to avoid normality assumptions. | CPU‑first |
+
+## Statistical Rigor Checklist
+
+- **Multiple‑comparison correction** – Holm‑Bonferroni on permutation‑importance p‑values.
+- **Sample‑size / power** – Report N, compute Cohen’s f² for observed R², and provide achieved power; flag low‑power (N < 50).
+- **Causal‑inference** – Explicitly label results as *associational*.
+- **Measurement validity** – Dataset documentation (curated experimental measurements) will be cited; limitations noted if missing.
+- **Collinearity** – VIF computed for each descriptor; high VIF handled as described.
+
+## Compute Feasibility Statement
+
+All steps are implementable on the free GitHub Actions runner (2 CPU cores, ~7 GB RAM). No GPU‑only libraries are required. The only potential bottleneck is the permutation‑importance loop; we parallelize across 2 cores and limit memory by streaming descriptors from Parquet.
+
+If runtime exceeds the 2 h budget, the pipeline will automatically down‑scale `n_estimators` (from 500 to 300) and re‑measure; this adaptation does **not** violate any FR (model architecture remains Random Forest).
+
+## Risks & Mitigations
+
+| Risk | Impact | Mitigation |
+|------|--------|------------|
+| Curated dataset not accessible | Fatal (FR‑001) | Require user‑provided CSV; abort with informative error if missing. |
+| High descriptor collinearity → unstable importance | May affect SC‑006 | Compute VIF; drop or PCA‑transform high‑VIF features; report in manifest. |
+| Runtime > 2 h | Violates SC‑004 | Parallelize permutation importance; fallback to fewer trees; early‑stop and report violation. |
+| Missing element fields in user CSV | FR‑009 violation | Schema validation will catch and abort with clear message. |
+| Small sample size → low power | May make SC‑001/SC‑002 unattainable | Report achieved power; if N < 50, include a “Data Limitation” warning in the report. |
+
+---
+
+
+## projects/PROJ-418-predicting-the-yield-strength-of-high-en/specs/001-predicting-the-yield-strength-of-high-en/data-model.md
+# Data Model: Predicting the Yield Strength of High‑Entropy Alloys
+
+## Overview
+The pipeline manipulates three core data artifacts, each governed by a JSON‑Schema contract stored under `contracts/`. All files are stored in `data/` (raw) or `data/derived/` (processed).
+
+## Schemas
+
+### `contracts/dataset.schema.yaml`
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HEA Yield‑Strength Dataset"
+type: object
+required:
+ - alloy_id
+ - composition
+ - yield_strength
+properties:
+ alloy_id:
+ type: string
+ description: "Unique identifier for the alloy sample."
+ composition:
+ type: object
+ description: "Elemental fractions; keys are element symbols (e.g., \"Fe\", \"Co\")."
+ patternProperties:
+ "^[A-Z][a-z]?$":
+ type: number
+ minimum: 0
+ maximum: 1
+ additionalProperties: false
+ minProperties: 1
+ yield_strength:
+ type: number
+ description: "Experimental yield strength in MPa."
+ minimum: 0
+```
+
+### `contracts/elemental_properties.schema.yaml`
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Elemental Property Table"
+type: array
+items:
+ type: object
+ required:
+ - element
+ - atomic_radius
+ - electronegativity
+ - valence_electrons
+ - melting_point
+ properties:
+ element:
+ type: string
+ pattern: "^[A-Z][a-z]?$"
+ atomic_radius:
+ type: number
+ electronegativity:
+ type: number
+ valence_electrons:
+ type: integer
+ melting_point:
+ type: number
+```
+
+### `contracts/hea_composition.schema.yaml`
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HEA Composition Record"
+type: object
+required:
+ - composition
+ - yield_strength
+properties:
+ composition:
+ type: object
+ description: "Element fractions that sum to 1.0."
+ patternProperties:
+ "^[A-Z][a-z]?$":
+ type: number
+ minimum: 0
+ maximum: 1
+ additionalProperties: false
+ minProperties: 1
+ yield_strength:
+ type: number
+ minimum: 0
+```
+
+### `contracts/descriptor.schema.yaml`
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HEA Descriptor Table"
+description: "Row‑wise deterministic descriptors for each alloy composition."
+type: object
+properties:
+ composition:
+ type: string
+ description: "Alloy composition formula (e.g., 'CoCrFeMnNi')."
+ mixing_entropy:
+ type: number
+ description: "Configurational mixing entropy (J mol⁻¹ K⁻¹)."
+ atomic_size_mismatch:
+ type: number
+ description: "δ, atomic size mismatch (dimensionless)."
+ electronegativity_variance:
+ type: number
+ description: "Δχ, variance of Pauling electronegativities."
+ vec:
+ type: number
+ description: "Valence electron concentration (electrons per atom)."
+ tm_variance:
+ type: number
+ description: "Variance of melting temperatures of constituent elements."
+required:
+ - composition
+ - mixing_entropy
+ - atomic_size_mismatch
+ - electronegativity_variance
+ - vec
+ - tm_variance
+additionalProperties: false
+```
+
+### `contracts/processed_data.schema.yaml`
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed HEA Dataset"
+description: "Schema for the filtered and descriptor‑engineered HEA dataset."
+type: object
+properties:
+ meta:
+ type: object
+ properties:
+ source_url:
+ type: string
+ description: "The verified URL from which the raw data was downloaded (e.g., materialsproject/hea-yield-strength)."
+ filter_criteria:
+ type: object
+ properties:
+ phase:
+ type: string

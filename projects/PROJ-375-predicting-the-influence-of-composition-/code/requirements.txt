@@ -1,0 +1,10 @@
+pandas
+scikit-learn
+requests
+pyyaml
+mendeleev
+statsmodels
+pytest
+memory_profiler
+joblib
+ruff

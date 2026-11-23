@@ -1,0 +1,114 @@
+# Training Output Schema for llmXive Anti-Self-Distillation
+# Defines the structure of model outputs and training metrics
+$schema: http://json-schema.org/draft-07/schema#
+title: llmXive Training Output Schema
+type: object
+required:
+  - training_run_id
+  - config
+  - metrics
+  - trajectories
+properties:
+  training_run_id:
+    type: string
+    description: Unique identifier for the training run
+  config:
+    type: object
+    required:
+      - model_name
+      - learning_rate
+      - batch_size
+      - num_epochs
+      - anti_sd_lambda
+      - seed
+    properties:
+      model_name:
+        type: string
+      learning_rate:
+        type: number
+        minimum: 0
+      batch_size:
+        type: integer
+        minimum: 1
+      num_epochs:
+        type: integer
+        minimum: 1
+      anti_sd_lambda:
+        type: number
+        description: Weight for AntiSD loss term
+        minimum: 0
+      seed:
+        type: integer
+      max_tokens:
+        type: integer
+      timeout_seconds:
+        type: integer
+        const: 19800  # 5.5 hours
+  metrics:
+    type: object
+    required:
+      - loss_curve
+      - js_divergence_curve
+      - final_js_divergence
+      - avg_deliberation_tokens
+      - elapsed_seconds
+    properties:
+      loss_curve:
+        type: array
+        items:
+          type: number
+        description: Per-step training loss
+      js_divergence_curve:
+        type: array
+        items:
+          type: number
+        description: Per-step JS divergence between student and teacher
+      final_js_divergence:
+        type: number
+        description: Final JS divergence value
+      avg_deliberation_tokens:
+        type: number
+        description: Average count of deliberation tokens (e.g., "Wait", "However")
+      elapsed_seconds:
+        type: number
+        description: Actual wall-clock time spent training
+      peak_ram_gb:
+        type: number
+        description: Peak RAM usage in GB
+      anti_sd_gradient_dot_product:
+        type: number
+        description: Dot product of AntiSD gradient vs standard gradient
+  trajectories:
+    type: array
+    description: Generated output trajectories for evaluation
+    items:
+      type: object
+      required:
+        - trajectory_id
+        - prompt_id
+        - generated_text
+        - token_probabilities
+        - deliberation_count
+      properties:
+        trajectory_id:
+          type: string
+        prompt_id:
+          type: string
+        generated_text:
+          type: string
+        token_probabilities:
+          type: array
+          items:
+            type: number
+            minimum: 0
+            maximum: 1
+        deliberation_count:
+          type: integer
+          minimum: 0
+        bleu_score:
+          type: number
+          description: BLEU score against unselected rationales
+        semantic_similarity:
+          type: number
+          description: Semantic similarity score
+additionalProperties: false

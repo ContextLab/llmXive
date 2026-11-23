@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2201.02325",
+  "judged_at": "2026-08-25T21:15:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "robustness of change‑point detection methods on public financial time series statistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly evaluates a specific change-point detection method (Bayesian Online Change Point Detection) on real-world data sets (implied to include financial or similar domains given the context of \"finance\" in the abstract) and explicitly investigates the algorithm's robustness against baseline shifts, which is a core aspect of the user's query regarding method robustness on time series statistics.",
+  "relevant": true
+}

@@ -1,0 +1,63 @@
+{
+  "total_folds": 5,
+  "folds": [
+    {
+      "fold_id": 0,
+      "train_count": 450,
+      "test_count": 90,
+      "unique_train_alloys": 45,
+      "unique_test_alloys": 9,
+      "overlap_count": 0,
+      "overlap_alloys": [],
+      "status": "PASS"
+    },
+    {
+      "fold_id": 1,
+      "train_count": 450,
+      "test_count": 90,
+      "unique_train_alloys": 45,
+      "unique_test_alloys": 9,
+      "overlap_count": 0,
+      "overlap_alloys": [],
+      "status": "PASS"
+    },
+    {
+      "fold_id": 2,
+      "train_count": 450,
+      "test_count": 90,
+      "unique_train_alloys": 45,
+      "unique_test_alloys": 9,
+      "overlap_count": 0,
+      "overlap_alloys": [],
+      "status": "PASS"
+    },
+    {
+      "fold_id": 3,
+      "train_count": 450,
+      "test_count": 90,
+      "unique_train_alloys": 45,
+      "unique_test_alloys": 9,
+      "overlap_count": 0,
+      "overlap_alloys": [],
+      "status": "PASS"
+    },
+    {
+      "fold_id": 4,
+      "train_count": 450,
+      "test_count": 90,
+      "unique_train_alloys": 45,
+      "unique_test_alloys": 9,
+      "overlap_count": 0,
+      "overlap_alloys": [],
+      "status": "PASS"
+    }
+  ],
+  "global_status": "PASS",
+  "details": [
+    "Fold 0: Train(450) vs Test(90) -> Overlap: 0",
+    "Fold 1: Train(450) vs Test(90) -> Overlap: 0",
+    "Fold 2: Train(450) vs Test(90) -> Overlap: 0",
+    "Fold 3: Train(450) vs Test(90) -> Overlap: 0",
+    "Fold 4: Train(450) vs Test(90) -> Overlap: 0"
+  ]
+}

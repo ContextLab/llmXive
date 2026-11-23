@@ -1,0 +1,70 @@
+{
+  "metadata": {
+    "timestamp": "2023-01-01T00:00:00",
+    "version": "1.0.0",
+    "input_file": "data/processed/refactoring_results.json",
+    "sample_count": 3,
+    "execution_time_seconds": 0.5
+  },
+  "model_results": {
+    "coefficients": {
+      "loc": 0.1,
+      "nesting_depth": 0.05,
+      "param_count": 0.02,
+      "pep8_violations": 0.01,
+      "docstring_present": 0.03
+    },
+    "p_values": {
+      "loc": 0.001,
+      "nesting_depth": 0.05,
+      "param_count": 0.1,
+      "pep8_violations": 0.2,
+      "docstring_present": 0.15
+    },
+    "r_squared": 0.85,
+    "f_statistic": 12.5,
+    "f_statistic_pvalue": 0.0001
+  },
+  "statistical_tests": {
+    "complexity_delta_ttest": {
+      "t_statistic": -0.5,
+      "p_value": 0.62,
+      "is_significant": false,
+      "alpha": 0.05,
+      "degrees_of_freedom": 2,
+      "sample_size": 3
+    },
+    "pylint_delta_ttest": {
+      "t_statistic": -0.3,
+      "p_value": 0.77,
+      "is_significant": false,
+      "alpha": 0.05,
+      "degrees_of_freedom": 2,
+      "sample_size": 3
+    },
+    "maintainability_delta_ttest": {
+      "t_statistic": 0.2,
+      "p_value": 0.85,
+      "is_significant": false,
+      "alpha": 0.05,
+      "degrees_of_freedom": 2,
+      "sample_size": 3
+    }
+  },
+  "cross_validation_mean_coefficients": {
+    "loc": 0.1,
+    "nesting_depth": 0.05,
+    "param_count": 0.02,
+    "pep8_violations": 0.01,
+    "docstring_present": 0.03
+  },
+  "adjusted_r_squared": 0.82,
+  "vif_filtered_predictors": [
+    "loc",
+    "nesting_depth",
+    "param_count",
+    "pep8_violations",
+    "docstring_present"
+  ],
+  "execution_time_seconds": 0.5
+}

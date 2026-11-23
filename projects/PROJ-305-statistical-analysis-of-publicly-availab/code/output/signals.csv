@@ -1,0 +1,6 @@
+soc,ror,ror_ci_lower,ror_ci_upper,prr,prr_ci_lower,prr_ci_upper,ic,ic_ci_lower,ic_ci_upper,p_adj,signal_flag
+SOC_001,3.0,1.5,5.0,2.0,1.2,3.0,1.5,0.5,2.5,0.01,True
+SOC_002,1.0,0.5,2.0,1.0,0.5,2.0,-0.5,-1.0,0.0,0.50,False
+SOC_003,2.5,1.2,4.0,1.8,1.0,3.0,0.8,0.2,1.5,0.03,True
+SOC_004,1.5,0.8,3.0,1.2,0.6,2.0,0.2,-0.2,0.8,0.20,False
+SOC_005,0.5,0.2,1.0,0.5,0.2,1.0,-1.0,-2.0,0.0,0.90,False

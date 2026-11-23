@@ -1,0 +1,22 @@
+{
+  "project_id": "PROJ-854-llmxive-follow-up-extending-sciatlas-a-l",
+  "ok": false,
+  "reason": "7 command(s) failed: python -m src.cli.main --step ingest --sample-size [DEFERRED] (rc=1); python -m src.cli.main --step embeddings --batch-size 64 (rc=1); python -m src.cli.main --step analysis (rc=1); 2 declared deliverable(s) absent: data/processed/final_analysis_dataset.parquet; data/processed/subgraph_with_clusters.parquet",
+  "artifacts": [],
+  "failures": [
+    "python -m src.cli.main --step ingest --sample-size [DEFERRED] -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/code/.venv/bin/python: Error while finding module specification for 'src.cli.main' (ModuleNotFoundError: No module named 'src.cli')",
+    "python -m src.cli.main --step embeddings --batch-size 64 -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/code/.venv/bin/python: Error while finding module specification for 'src.cli.main' (ModuleNotFoundError: No module named 'src.cli')",
+    "python -m src.cli.main --step analysis -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/code/.venv/bin/python: Error while finding module specification for 'src.cli.main' (ModuleNotFoundError: No module named 'src.cli')",
+    "python -m src.cli.main --step report -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/code/.venv/bin/python: Error while finding module specification for 'src.cli.main' (ModuleNotFoundError: No module named 'src.cli')",
+    "python -m src.cli.main --step ingest --sample-size 100 --debug -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/code/.venv/bin/python: Error while finding module specification for 'src.cli.main' (ModuleNotFoundError: No module named 'src.cli')",
+    "python -m src.cli.main --step embeddings --debug -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/code/.venv/bin/python: Error while finding module specification for 'src.cli.main' (ModuleNotFoundError: No module named 'src.cli')",
+    "python -m src.cli.main --step analysis --debug -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-854-llmxive-follow-up-extending-sciatlas-a-l/code/.venv/bin/python: Error while finding module specification for 'src.cli.main' (ModuleNotFoundError: No module named 'src.cli')"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-22T17:30:34Z"
+}

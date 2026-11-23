@@ -1,0 +1,39 @@
+T005:
+  c: false
+  h: 517ac7584a382a3fbfbd9e07c4d22bc9faf446699601018f6f8214ee6b040c59
+  r: '`code/hygiene.py` provides MD5 calculation and loading functions, but the `save_artifact_hashes`
+    implementation is truncated and the required `state/artifact_hashes.yaml` file
+    does not exist. The task also demands that the utilities update this YAML file,
+    which cannot be verified without a concrete file and a complete save routine.
+    The missing file and incomplete function must be added for the task to be considered
+    complete.'
+T012:
+  c: false
+  h: 174c1c4e528bbae70344f7e76498274c4609b559f90568be3effcc91f0115bc2
+  r: "The repository lacks a `handle_missing_values` implementation in `code/ingest.py`\
+    \ (the shown code only defines `count_records` and related helpers). The required\
+    \ output file `data/processed/aggregated_dropped.csv` does not exist, and the\
+    \ unit test `tests/unit/test_ingest.py::test_missing_predictor_handling` is not\
+    \ present in the test suite (the provided tests focus on threshold logic). Consequently\
+    \ the task\u2019s specifications are not satisfied."
+T014:
+  c: false
+  h: 3bc705a27cffee1353a9f488c50505349359e9a38b3cd5bd70ee9119ca2707ce
+  r: "The repository\u2019s `code/ingest.py` does not contain a `split_dataset` implementation\
+    \ (the shown excerpt ends before any such function) and the required output artifacts\
+    \ (`data/processed/normalized_only.csv`, `raw_only.csv`, `split_summary.json`)\
+    \ are absent. Consequently the task\u2019s core functionality and expected files\
+    \ are not provided."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evaluation script, functions, or output files (e.g., computed R\xB2, MAE,\
+    \ RMSE values, model selection logic, or a `model_report.json`) are present in\
+    \ the provided evidence. The claim lacks any concrete artifact demonstrating that\
+    \ the required metrics are calculated and the best model is selected."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the required LOMO (Leave-One-Group-Out)\
+    \ logic was provided; there is no evidence of class\u2011size checks, fallback\
+    \ to K\u2011Fold, or warning logging, so the task is not satisfied."

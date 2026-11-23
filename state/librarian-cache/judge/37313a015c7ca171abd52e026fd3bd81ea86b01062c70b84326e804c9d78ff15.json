@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2311.16486",
+  "judged_at": "2026-08-10T12:47:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "estimating causal effects with doubly robust methods on observational data statistics",
+  "rationale": "This paper qualifies under category (d) as a foundational methodology reference for causal forests, a specific and prominent class of doubly robust methods used for estimating causal effects on observational data. It also satisfies category (a) by providing theoretical evidence on the mechanism of estimating the conditional average treatment effect (CATE), which is the core dependent variable in the user's query.",
+  "relevant": true
+}

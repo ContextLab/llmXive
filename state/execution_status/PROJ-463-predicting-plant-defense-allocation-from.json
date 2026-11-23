@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-463-predicting-plant-defense-allocation-from",
+  "ok": false,
+  "reason": "29 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/README.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026nifests  - `synthetic/`: Synthetic data for validation - `script\u2026\u201d; code/quickstart.md: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026(Validation)  This mode generates synthetic data to validate the pip\u2026\u201d; code/src/data/synthetic_generator.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026\"\"\" Synthetic Data Generator for Prototype\u2026\u201d; 2 command(s) failed: python -m src.cli.run_pipeline --mode real --min-studies [threshold] --min-replicates 2 (rc=1); python -m src.cli.run_pipeline --mode synthetic (rc=1); 5 declared deliverable(s) absent: data/manifests/batch_correction_report.json; data/manifests/reproducibility_report.json; data/processed/aggregated_features.csv",
+  "artifacts": [],
+  "failures": [
+    "python -m src.cli.run_pipeline --mode real --min-studies [threshold] --min-replicates 2 -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-463-predicting-plant-defense-allocation-from/code/.venv/bin/python: No module named src.cli.run_pipeline",
+    "python -m src.cli.run_pipeline --mode synthetic -> rc=1\n    /home/runner/work/llmXive/llmXive/projects/PROJ-463-predicting-plant-defense-allocation-from/code/.venv/bin/python: No module named src.cli.run_pipeline"
+  ],
+  "fix_rounds": 3,
+  "model_tier": 0,
+  "total_attempts": 3,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-10T04:34:58Z"
+}

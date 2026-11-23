@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2608.17095",
+  "judged_at": "2026-08-25T04:02:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"abot-n1: toward a general visual language navigation foundation model\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (attention steering/modification in Vision-Language-Action models) and domain (VLA models for navigation/driving) as the user's question, even though it focuses on a specific application (driving) and a specific technique (inference-time bias) rather than the general foundation model architecture mentioned in the title. It provides essential prior work on how to manipulate attention in VLA systems, which is dire",
+  "relevant": true
+}

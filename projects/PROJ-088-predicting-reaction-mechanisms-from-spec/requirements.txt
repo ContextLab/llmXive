@@ -1,0 +1,19 @@
+# Core scientific stack (already present in the environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+xgboost
+datasets
+pyyaml
+pytest
+pubchempy
+# The project originally required psi4; we keep it for completeness.
+psi4
+# Additional dependency required for HTML parsing in T033a
+beautifulsoup4
+# Requests is already available in the base environment, but we list it
+# explicitly for clarity.
+requests
+# llmxive_toolkit is provided by the platform – do not add it here.

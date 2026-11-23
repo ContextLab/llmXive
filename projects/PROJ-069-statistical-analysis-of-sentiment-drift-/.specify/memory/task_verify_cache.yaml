@@ -1,0 +1,10 @@
+T001:
+  c: false
+  h: 8f230be08b95cf9f46b3d0889ec6683e9d06b876933b322f12b97fe5a3694e4c
+  r: "The required directories are present and `scripts/check_env.py` is correctly\
+    \ implemented, but the repository lacks the `.env.example` (with the placeholder\
+    \ keys) and the copied `.env` file, and there is no evidence that the script was\
+    \ run successfully (i.e., that both variables are set and the script exits with\
+    \ status\u202F0 printing the two names). These missing files and execution proof\
+    \ prevent the task from being considered complete."
+  sig: 0e7a8e57a0dc6f07c6bac8be7358e09014d7272d72e63fc1ed557960afeaaff4

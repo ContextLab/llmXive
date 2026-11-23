@@ -1,31 +1,14 @@
-status: verified
-kind: pypi_package
-ref: datasets
-access_python: 'import datasets
-
-
-  ds_dict = datasets.load_dataset(''openai/openai_humaneval'')
-
-  total_records = sum(len(split) for split in ds_dict.values())
-
-  print(f"RECORDS={total_records}")
-
-
-  first_split = next(iter(ds_dict.values()))
-
-  print("FIELDS=" + ",".join(first_split.column_names))'
-record_count: 164
-sample_fields:
-- task_id
-- prompt
-- canonical_solution
-- test
-- entry_point
-field_coverage: 0.8
+status: none
+intent: download MBPP and HumanEval benchmark tasks python package dataset
 required_fields:
 - task_id
 - prompt
-- canonical_solution
+- function_signature
+- description
 - test_cases
+- reference_solution
 - language
-intent: MBPP and HumanEval programming task datasets python package dataset
+- dataset_name
+cache_key: 34e69ac55c3b890568ede01b3d7b41ec6de5f5cf16978fd883e55e6503bffc9d
+searched_at: '2026-08-16T15:51:58.757632+00:00'
+retry_count: 1

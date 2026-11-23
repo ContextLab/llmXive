@@ -1,62 +1,101 @@
-# Output Schema for Merged Drugs Dataset
-# Defines the expected structure of data/processed/merged_drugs.csv
+# Data Output Schema for PROJ-071
+# This file defines the expected structure for all output data artifacts.
 
-version: "1.0"
-description: "Schema for the merged dataset containing molecular descriptors and degradation data."
+schemas:
+  merged_drugs:
+    file: data/processed/merged_drugs.csv
+    columns:
+      - name: canonical_smiles
+        type: string
+        required: true
+      - name: half_life
+        type: float
+        required: false
+      - name: degradation_rate
+        type: float
+        required: false
+      - name: tpsa
+        type: float
+        required: true
+      - name: rotatable_bonds
+        type: integer
+        required: true
+      - name: molecular_weight
+        type: float
+        required: true
+      - name: aromatic_rings
+        type: integer
+        required: true
+      - name: wiener_index
+        type: float
+        required: true
+      - name: zagreb_index
+        type: float
+        required: true
 
-fields:
-  - name: SMILES
-    type: string
-    required: true
-    description: "Canonical SMILES string of the molecule."
-    
-  - name: half_life_hours
-    type: float
-    required: true
-    description: "Degradation half-life in hours."
-    
-  - name: tpsa
-    type: float
-    required: true
-    description: "Topological Polar Surface Area."
-    
-  - name: rotatable_bonds
-    type: integer
-    required: true
-    description: "Count of rotatable bonds."
-    
-  - name: molecular_weight
-    type: float
-    required: true
-    description: "Molecular weight (MW)."
-    
-  - name: aromatic_rings
-    type: integer
-    required: true
-    description: "Count of aromatic rings."
-    
-  - name: wiener_index
-    type: float
-    required: true
-    description: "Wiener index (topological index)."
-    
-  - name: zagreb_index
-    type: float
-    required: true
-    description: "Zagreb index (topological index)."
-    
-  - name: drug_name
-    type: string
-    required: false
-    description: "Name of the drug (if available in source)."
-    
-constraints:
-  no_nulls:
-    - SMILES
-    - half_life_hours
-    - tpsa
-    - molecular_weight
-    
-  validation_rules:
-    - "molecular_weight > 0"
-    - "half_life_hours > 0"
+  excluded_molecules:
+    file: data/processed/excluded_molecules.csv
+    columns:
+      - name: smiles
+        type: string
+        required: true
+      - name: error_type
+        type: string
+        required: true
+      - name: timestamp
+        type: string
+        format: ISO8601
+        required: true
+      - name: source_hash
+        type: string
+        required: true
+
+  analysis_results:
+    file: data/processed/analysis_results.json
+    schema:
+      status: string (PASS|FAIL|WARN|SKIPPED)
+      N: integer
+      R2: float|null
+      p_values: object|null
+      coefficients: object|null
+      methodology: string
+      timestamp: string (ISO8601)
+      diagnostics:
+        shapiro_wilk:
+          stat: float
+          p: float
+        breusch_pagan:
+          stat: float
+          p: float
+
+  gate_status:
+    file: data/gate_status.json
+    schema:
+      status: string (PASS|FAIL)
+      reason: string|null
+      N: integer|null
+      column_found: string|null
+
+  stat_gate_status:
+    file: data/stat_gate_status.json
+    schema:
+      status: string (PASS|FAIL)
+      reason: string|null
+      N_std: integer|null
+
+  reproducibility_log:
+    file: data/reproducibility_log.json
+    schema:
+      artifacts:
+        - path: string
+          hash: string
+          lineage:
+            source_path: string
+            transformation: string
+
+  pipeline_metrics:
+    file: data/output/pipeline_metrics.json
+    schema:
+      total_duration_seconds: float
+      status: string (PASS|FAIL|WARN|SKIPPED)
+      error_message: string|null

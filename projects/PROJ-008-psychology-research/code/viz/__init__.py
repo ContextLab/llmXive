@@ -1,1 +1,3 @@
-# Visualization modules
+"""
+Visualization module for psychology research pipeline.
+"""

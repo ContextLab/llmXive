@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformance"
+description: "Schema for model evaluation results."
+type: object
+required:
+  - model_type
+  - r_squared
+  - mae
+  - rmse
+  - confidence_interval
+  - feature_importance
+  - feature_stability
+  - practical_utility
+properties:
+  model_type:
+    type: string
+    description: "Type of model (e.g., RandomForest)."
+  r_squared:
+    type: number
+    description: "Mean R² score."
+  mae:
+    type: number
+    description: "Mean Absolute Error (MPa)."
+  rmse:
+    type: number
+    description: "Root Mean Squared Error (MPa)."
+  confidence_interval:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "95% Confidence Interval [lower, upper] for R²."
+  feature_importance:
+    type: object
+    additionalProperties:
+      type: number
+    description: "Ranked feature importance scores."
+  feature_stability:
+    type: object
+    description: "Stability metrics for feature importance."
+    properties:
+      rank_std_dev:
+        type: number
+        description: "Standard deviation of ranks."
+      spearman_correlation:
+        type: number
+        description: "Median Spearman correlation of ranks."
+    required:
+      - rank_std_dev
+      - spearman_correlation
+  practical_utility:
+    type: object
+    description: "Practical utility metrics."
+    properties:
+      mae_vs_threshold:
+        type: boolean
+        description: "True if MAE <= 50 MPa."
+      mae_value:
+        type: number
+        description: "MAE in MPa."
+    required:
+      - mae_vs_threshold
+      - mae_value

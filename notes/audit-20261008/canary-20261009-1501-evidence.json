@@ -1,0 +1,37 @@
+{
+  "recorded_at": "2026-10-09T15:18:00Z",
+  "scope": "fresh isolated run in specification; no full acceptance",
+  "provenance": {
+    "source_head": "1d2b4287245cf12cdb01ff9d367d9157229101ca",
+    "recorded_at": "2026-10-09T15:00:55.426600+00:00",
+    "project": "PROJ-9999-totient-canary",
+    "initial_stage": "flesh_out_complete",
+    "fresh_initial_state": true,
+    "seed_files_sha256": {
+      "idea/fleshed_out.md": "595ade6304d1de9dac90bacae2809b59f532abe65e7474cc3882ae38e1b0aaea"
+    },
+    "paid_opt_in": false,
+    "production_scientific_guards": true,
+    "prior_failed_runs_preserved": [
+      "/private/tmp/llmxive-canary-clean-20261008",
+      "/private/tmp/llmxive-canary-rescoped-20261009",
+      "/private/tmp/llmxive-canary-fresh-20261009-1250"
+    ]
+  },
+  "observed_transitions": [
+    "flesh_out_complete -> flesh_out_in_progress (validator requested substantive revision)",
+    "flesh_out_in_progress -> flesh_out_complete",
+    "flesh_out_complete -> validated",
+    "validated -> project_initialized"
+  ],
+  "model_timeout": {
+    "requested_model": "zai-org.glm-5.3",
+    "duration_seconds": 360.02,
+    "error_type": "DeadlineExceededError",
+    "free_peer_started_at": "2026-10-09T15:16:09.681039+00:00",
+    "free_peer": "openai.gpt-oss-120b"
+  },
+  "scientific_artifacts_manually_edited": false,
+  "pipeline_state_manually_reset": false,
+  "full_pipeline_accepted": false
+}

@@ -1,5 +1,16 @@
-Complete the following Python function according to the specification below.
-You may use any coding style, formatting, or variable naming convention you prefer.
-There are no style constraints imposed. Focus solely on correctness.
+# Neutral Style Prompt
+# This prompt instructs the model to generate code without specific stylistic constraints
+# other than functional correctness. It serves as the baseline for comparison.
 
-{prompt}
+Instruction:
+Solve the following programming problem. The solution must be correct and pass all unit tests.
+Do not apply any specific coding style guidelines (like PEP8) or minification techniques.
+Write the code naturally as you would in a standard development environment.
+
+Problem:
+{problem}
+
+Input:
+{inputs}
+
+Output:

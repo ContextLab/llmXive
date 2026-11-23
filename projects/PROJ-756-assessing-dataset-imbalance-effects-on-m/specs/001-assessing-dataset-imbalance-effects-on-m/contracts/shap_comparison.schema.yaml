@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SHAPComparisonSchema"
+description: "Schema for SHAP feature importance comparison between skewed and balanced models."
+type: object
+properties:
+  feature_name:
+    type: string
+    description: "Name of the compositional descriptor."
+  rank_skewed:
+    type: integer
+    minimum: 1
+    description: "Rank in the skewed model (1 = most important)."
+  rank_balanced:
+    type: integer
+    minimum: 1
+    description: "Rank in the balanced model."
+  rank_shift:
+    type: integer
+    description: "Difference in rank (rank_balanced - rank_skewed)."
+  absolute_shift:
+    type: integer
+    description: "Absolute value of rank shift."
+  physical_plausibility:
+    type: string
+    enum: ["Consistent", "Distortion", "Uncertain"]
+    description: "Whether the shift aligns with known physical laws (Consistent) or contradicts them (Distortion)."
+required:
+  - feature_name
+  - rank_skewed
+  - rank_balanced
+  - rank_shift
+  - absolute_shift
+  - physical_plausibility
+additionalProperties: false

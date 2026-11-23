@@ -1,0 +1,9 @@
+{
+  "predictors": {
+    "log_co_occurrence": 2.1,
+    "flavor_similarity": 3.42,
+    "functional_role": 2.8
+  },
+  "dropped": [],
+  "max_vif": 3.42
+}

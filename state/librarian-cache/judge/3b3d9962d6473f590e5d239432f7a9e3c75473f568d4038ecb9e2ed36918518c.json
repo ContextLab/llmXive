@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2206.14908",
+  "judged_at": "2026-07-22T01:08:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ideas have genomes: benchmarking scientific lineage reasoning and line\" computer science",
+  "rationale": "The paper focuses on astrophysics and galaxy evolution using the Prime Focus Spectrograph, which is entirely off-domain from the user's question regarding Large Language Models (LLMs) and scientific lineage reasoning in computer science. It shares no measurable connection to the user's mechanism, variables, or empirical setting, failing all inclusion criteria (a-f) and triggering the \"Off-domain entirely\" rejection rule.",
+  "relevant": false
+}

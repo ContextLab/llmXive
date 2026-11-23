@@ -60,5 +60,15 @@
     "xiaomiev/xiaomiev-Bold.ttf",
     "xiaomiev/xiaomiev.tfm",
     "xiaomiev.cls"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "7cb6b4a6d259f07b422bf9d3a44c52a0e02235c477ef2eb0f938d1c7c0e8f9ee",
+      "bytes": 3223556
+    },
+    "original.pdf": {
+      "sha256": "c9aeb2d583c499e8dee7db5c86501de0bb7326beec461cbda59ba41676e4efce",
+      "bytes": 3213508
+    }
+  }
 }

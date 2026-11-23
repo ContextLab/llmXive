@@ -1,0 +1,15 @@
+[flake8]
+max-line-length = 100
+extend-ignore = E203, W503
+exclude =
+    .git,
+    __pycache__,
+    build,
+    dist,
+    .venv,
+    venv,
+    data/*,
+    state/*
+per-file-ignores =
+    # Allow long lines in comments in test files if necessary
+    tests/*:E501

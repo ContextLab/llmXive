@@ -1,0 +1,82 @@
+T003a:
+  c: true
+  h: 2c3294f402e213b8f3683ec817e83c752b43974f90996ba6dfd003e1a5cd6431
+  r: "The `pyproject.toml` (1400\u202Fbytes) in the project root contains a full `[tool.ruff]`\
+    \ section with target version, line length, selected rules, and ignored warnings,\
+    \ and the auxiliary `ruff.toml` (344\u202Fbytes) mirrors this configuration, confirming\
+    \ that linting has been properly initialized."
+  sig: b4d3beb51f8d76e9887663655813e3bd32f58b653cf2cd5eb4665777ca2ce260
+T003b:
+  c: true
+  h: b5e3c0c4c0cd1ae100d471fa009cb87aa30356aedb681be4c60a07c12f60cd10
+  r: "The `pyproject.toml` file (1400\u202Fbytes) is present at the project root and\
+    \ contains a `[tool.black]` section configuring Black (line\u2011length, target\
+    \ version, include pattern). This satisfies the task\u2019s requirement to initialize\
+    \ a Black formatting configuration."
+  sig: cb6dd278b0ae60b7a38ac098fa105c018b81a2fca60b6b8fcce8ec45bed7442f
+T005:
+  c: true
+  h: 45a206f046b95e0cc4e909b473c29ac7cace63a1f10c1823b1f23a68e02c9886
+  r: 'Both artifacts exist and are non-empty: `data/metadata.yaml` contains the full
+    project configuration (data source, model parameters, analysis thresholds, paths),
+    and `code/__init__.py` implements a real `load_metadata()` function that parses
+    the YAML via `yaml.safe_load` with a documented default path matching the task''s
+    requirement. The loader is a genuine implementation, not a stub or placeholder.'
+  sig: cf15783296bb149276f4e6c60cc7f6152d61cc43438afd832c2ff32e7e90cfe0
+T006:
+  c: true
+  h: 322215a375cc7bd834d02ae7cf5ba1f91a61cd98db1f9a336e81e612fb3caa4a
+  r: '`code/utils.py` exists (2895 bytes) and contains a `set_global_seed(seed)` function
+    that pins `random.seed`, `np.random.seed`, and `PYTHONHASHSEED`, tracking the
+    global seed in `_global_seed`, which satisfies the deterministic seed-pinning
+    requirement. The late `from typing import Optional` import is stylistically odd
+    but executes at module load before any function call, so the module is functional.'
+  sig: 16f42af1a00072c68392b1b6458778bc6cd3890e2c358dbf783af03cacf01f7c
+T007:
+  c: true
+  h: 97b5a132a40e8e45e24ea3d6826cbdb898244b601b10d9fbe3372621f9f424cb
+  r: '`code/download.py` exists (13,495 bytes) and contains a genuine, non-stub retry
+    wrapper: `fetch_with_retry` with configurable `max_retries`, `retry_delay`, and
+    `timeout`, handling HTTP errors, timeouts, connection errors, and generic request
+    exceptions with logging, plus `download_file` and `download_sparc_data` built
+    on it. The `utils` import is resolvable via the local `code/utils.py`/`code/utils/__init__.py`
+    candidates, and the retry logic matches the task''s requirement.'
+  sig: ca1deb9ec08cfcd2430a58f7568b0fd2eb4382e30e1a599d0a0fc73a75f3b369
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or analysis results are present to demonstrate that the\
+    \ SPARC data download/preprocessing, dual\u2011model fitting (MOND & NFW) with\
+    \ chi\u2011squared/AIC/BIC calculations, or residual\u2011analysis with block\u2011\
+    bootstrap tests have been implemented. Additionally, the required FR\u2011005\
+    \ citation/value is still missing, as noted in the claim. The task therefore lacks\
+    \ the essential artifacts and cannot be considered complete."
+T048:
+  c: true
+  h: 5a8aebe2c6eb24fabbaea3bb7b15d49e516064e607267fda35aed501e7c06210
+  r: "The artifact `contracts/dataset.schema.yaml` exists (492 bytes) and defines\
+    \ a valid JSON Schema (draft-07) for parsed galaxy rotation-curve data covering\
+    \ galaxy name, radius, velocity, velocity error, inclination, and inclination\
+    \ error with required fields \u2014 matching FR-002/FR-003 needs for parsed SPARC\
+    \ data. Content is substantive, not a stub or placeholder."
+  sig: 5f14097df2f195a67969f8500975054a394fe7b33de40ef626f5137d14775e37
+T049:
+  c: true
+  h: 3295ef8833462a00109bc15b3e9d4ed51131d6680b1b92f2dbbd65b3654ce25e
+  r: "The file `contracts/fit_results.schema.yaml` exists (707 bytes) and defines\
+    \ a draft-07 JSON Schema covering the fit outputs required by FR-007/FR-009: galaxy\
+    \ ID, model type (mond/nfw enum), fit success/message, model parameters (M/L,\
+    \ r_s with errors), and goodness-of-fit metrics (reduced chi-squared, AIC, BIC),\
+    \ with required fields and nullable numerics \u2014 a substantive, non-stub schema\
+    \ matching the task."
+  sig: 5d30a54caa74d4b4096a5e981f2e4c82b44173b722be4621863ecfea8b0c4167
+T050:
+  c: true
+  h: dc0367da21621933957b119c86446d69f6a98ca6ecc04923bc96c19bad13611e
+  r: The test file `tests/contract/test_schemas.py` exists (6827 bytes) with 8 substantive
+    validators covering schema existence, structure (required fields like galaxy_id,
+    radial_distance, reduced_chi2, aic, bic), Draft-7 validity, and sample-data validation
+    against both T048/T049 contracts. The historical execution log shows all 8 tests
+    passing via pytest from the project root (exit 0), and the imported `utils` module
+    provides the required `get_logger`/`ensure_directory` functions.
+  sig: 349860c92b5db3106f1e9fd126b8b2458a19e72d896487a85c7fd314c376022d

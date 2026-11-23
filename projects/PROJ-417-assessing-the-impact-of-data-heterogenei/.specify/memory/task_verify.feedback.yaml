@@ -1,0 +1,45 @@
+T001:
+  reason: 'Requested task execution failed; rerun successfully: code/scripts/generate_base_template.py
+    exit=1'
+  task: 3a5581874bf50035ec578f3de3c8122a88cf5cb9d9b853f5122d629c336e4d78
+T001a:
+  reason: The evidence does not include any script or CI configuration that checks
+    the availability of the Cochrane CSV and raises a `FileNotFoundError` on failure.
+    No file path, code snippet, or CI log showing the abort behavior is provided,
+    so the required validation functionality is missing.
+  task: 23ebb3f19070bd6c3c3570c4585a07c907ed50516155b03fdd8a8b4635db5dbc
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
+  task: 1b3720e43681cf37f0a3bde403fb75419bcfa60fd446723f2f7f75a7200e4db5
+T003:
+  task: ffec5db28a354c8cde055b5e7053544dafeb3f0b990055884cf21dad2ed75212
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=2'
+  task: 88ee1160736e2825847e8daaca2f6db661120a10c584fed2958bd1aad120baf1
+T005:
+  reason: "Checked `code/main.py`, `data/results/sample_estimates.csv` (missing),\
+    \ and `data/results/simulation_raw.jsonl`. The CLI does not accept `--sweep-type`\
+    \ or `--out`, writes outputs to the wrong locations, produces only one \u201C\
+    Synthetic\u201D estimator (not the three required), generates 20 simulation records\
+    \ and 20 estimation records (instead of 10\u202F+\u202F30), and the required `sample_estimates.csv`\
+    \ with 30 rows and the specified columns is absent. The task\u2019s end\u2011\
+    to\u2011end entry point and output specifications are therefore not met."
+  task: 5f7ea25897dda64c044e8df3bedcf93c7f018b94c2114ee093b0d013280d4e18
+T006:
+  task: 1817d0d1ae34b32a794ff419806c42a76ca2dbb5754d0e8f50cf1e0e38a58697
+T007:
+  task: b57061bb9bc09dc41d98a0a1e21e9e9ee05187599298a6789bb42e301db030f7
+T008:
+  task: ce78e9670679793bfabd5e2bddffe33ef8457e7c258231b9f5414da91cc8c17c
+T009:
+  task: 4db51cdb7fc5a8af19dbedef2e40716c7ee938cb5625dad2e8f002415f2fb382
+T010:
+  task: 9e6d314b2228ff2c72d4b8051f3b37ab9b1b562564b0bd12058f8f57451c3cba
+T011:
+  task: edf6b22b61b9bb8875068edd3ed8afca6c5b9cbe35b90dd3944bfca6e7a631dc
+T012:
+  task: d1082e2faf5073cee06fd9cd2f9998a7e617c9c6c77dc36af9558335f17463bd
+T013:
+  task: 2218b102287d7a20b822a9851c324894ccb0558565913805ae2c51a6401af9bb
+T014:
+  task: ec4946d62fbe291ac65e1d515386fe06d62533f69ecef3b38db4f05f54608770

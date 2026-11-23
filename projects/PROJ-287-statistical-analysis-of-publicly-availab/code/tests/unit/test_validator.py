@@ -1,171 +1,126 @@
 """
-Unit tests for the LDA Model Validator.
+Unit tests for LDA Model Validator (T021).
 """
-
 import unittest
 import tempfile
+import json
 import os
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
+from unittest.mock import patch, MagicMock, mock_open
 import numpy as np
-from gensim import corpora, models
-from gensim.models.coherencemodel import CoherenceModel
+
+# Mock gensim before importing the module if necessary, or assume installed
+try:
+    from gensim import corpora
+    from gensim.models import LdaModel
+except ImportError:
+    # If gensim is not installed, we skip these tests or mock heavily
+    # For the purpose of the test file, we assume the environment has gensim
+    # or the test runner handles the import error gracefully.
+    pass
 
 from src.models.lda.validator import (
     compute_c_v_coherence,
     validate_lda_model,
     validate_and_save_results,
-    DEFAULT_COHERENCE_THRESHOLD
+    CoherenceValidationError,
+    COHERENCE_THRESHOLD
 )
 
-
 class TestValidatorLogic(unittest.TestCase):
-    """Test cases for LDA validation logic."""
 
     def setUp(self):
-        """Set up test fixtures."""
-        # Create a small mock dictionary and corpus
-        self.dictionary = corpora.Dictionary([['human', 'interface', 'computer'],
-                                              ['user', 'response', 'time']])
-        self.corpus = [self.dictionary.doc2bow(text) for text in [['human', 'interface', 'computer'],
-                                                                  ['user', 'response', 'time'],
-                                                                  ['human', 'computer', 'system']]]
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.output_dir = Path(self.temp_dir.name)
+        self.window_id = "2000-2004"
+        
+        # Create mock dictionary and corpus
+        self.mock_dictionary = MagicMock()
+        self.mock_corpus = [[(0, 1), (1, 2)], [(0, 3), (2, 1)]]
+        
+        # Create mock LDA model
+        self.mock_lda_model = MagicMock()
+        # Mock the get_topics or similar methods if coherence model needs them
+        self.mock_lda_model.get_topics.return_value = np.array([[0.1, 0.9], [0.8, 0.2]])
 
-        # Create a mock LDA model
-        self.mock_lda = MagicMock(spec=models.LdaModel)
-        self.mock_lda.num_topics = 2
-        self.mock_lda.get_document_topics = MagicMock(return_value=[])
-        self.mock_lda.show_topic = MagicMock(return_value=[])
+    def tearDown(self):
+        self.temp_dir.cleanup()
 
-    def test_compute_c_v_coherence_with_mock(self):
-        """Test coherence computation with mocked CoherenceModel."""
-        with patch('src.models.lda.validator.CoherenceModel') as mock_cm:
-            mock_instance = MagicMock()
-            mock_instance.get_coherence.return_value = 0.45
-            mock_cm.return_value = mock_instance
+    @patch('src.models.lda.validator.CoherenceModel')
+    def test_compute_c_v_coherence_success(self, mock_coherence_model_class):
+        """Test that coherence is computed correctly."""
+        mock_instance = MagicMock()
+        mock_instance.get_coherence.return_value = 0.55
+        mock_coherence_model_class.return_value = mock_instance
 
-            score = compute_c_v_coherence(self.mock_lda, self.dictionary, self.corpus)
+        score = compute_c_v_coherence(self.mock_lda_model, self.mock_dictionary, self.mock_corpus)
 
-            self.assertEqual(score, 0.45)
-            mock_cm.assert_called_once()
+        self.assertAlmostEqual(score, 0.55)
+        mock_coherence_model_class.assert_called_once()
 
-    def test_compute_c_v_coherence_none_model(self):
-        """Test that None model raises ValueError."""
-        with self.assertRaises(ValueError):
-            compute_c_v_coherence(None, self.dictionary, self.corpus)
+    @patch('src.models.lda.validator.CoherenceModel')
+    def test_compute_c_v_coherence_empty_corpus(self, mock_coherence_model_class):
+        """Test handling of empty corpus."""
+        score = compute_c_v_coherence(self.mock_lda_model, self.mock_dictionary, [])
+        self.assertEqual(score, 0.0)
+        mock_coherence_model_class.assert_not_called()
 
-    def test_compute_c_v_coherence_none_dictionary(self):
-        """Test that None dictionary raises ValueError."""
-        with self.assertRaises(ValueError):
-            compute_c_v_coherence(self.mock_lda, None, self.corpus)
+    @patch('src.models.lda.validator.CoherenceModel')
+    def test_validate_lda_model_pass(self, mock_coherence_model_class):
+        """Test validation passes when score >= threshold."""
+        mock_instance = MagicMock()
+        mock_instance.get_coherence.return_value = 0.45
+        mock_coherence_model_class.return_value = mock_instance
 
-    def test_compute_c_v_coherence_empty_corpus(self):
-        """Test that empty corpus raises ValueError."""
-        with self.assertRaises(ValueError):
-            compute_c_v_coherence(self.mock_lda, self.dictionary, [])
+        is_valid, score, msg = validate_lda_model(self.window_id, self.mock_lda_model, self.mock_dictionary, self.mock_corpus)
 
-    def test_validate_lda_model_passes(self):
-        """Test validation when coherence score passes threshold."""
-        with patch('src.models.lda.validator.CoherenceModel') as mock_cm:
-            mock_instance = MagicMock()
-            mock_instance.get_coherence.return_value = 0.5  # Above default threshold
-            mock_cm.return_value = mock_instance
+        self.assertTrue(is_valid)
+        self.assertAlmostEqual(score, 0.45)
+        self.assertIn("PASSED", msg)
 
-            result = validate_lda_model(
-                self.mock_lda,
-                self.dictionary,
-                self.corpus,
-                threshold=DEFAULT_COHERENCE_THRESHOLD,
-                window_name="test_window"
-            )
+    @patch('src.models.lda.validator.CoherenceModel')
+    def test_validate_lda_model_fail(self, mock_coherence_model_class):
+        """Test validation fails when score < threshold."""
+        mock_instance = MagicMock()
+        mock_instance.get_coherence.return_value = 0.35
+        mock_coherence_model_class.return_value = mock_instance
 
-            self.assertTrue(result['valid'])
-            self.assertEqual(result['coherence_score'], 0.5)
-            self.assertEqual(result['window'], "test_window")
-            self.assertIn("passed", result['message'].lower())
+        is_valid, score, msg = validate_lda_model(self.window_id, self.mock_lda_model, self.mock_dictionary, self.mock_corpus)
 
-    def test_validate_lda_model_fails(self):
-        """Test validation when coherence score fails threshold."""
-        with patch('src.models.lda.validator.CoherenceModel') as mock_cm:
-            mock_instance = MagicMock()
-            mock_instance.get_coherence.return_value = 0.3  # Below default threshold
-            mock_cm.return_value = mock_instance
+        self.assertFalse(is_valid)
+        self.assertAlmostEqual(score, 0.35)
+        self.assertIn("FAILED", msg)
+        self.assertIn("BLOCKED", msg)
 
-            result = validate_lda_model(
-                self.mock_lda,
-                self.dictionary,
-                self.corpus,
-                threshold=DEFAULT_COHERENCE_THRESHOLD,
-                window_name="test_window"
-            )
+    @patch('src.models.lda.validator.CoherenceModel')
+    def test_validate_lda_model_error(self, mock_coherence_model_class):
+        """Test validation raises error on computation failure."""
+        mock_coherence_model_class.side_effect = RuntimeError("Gensim error")
 
-            self.assertFalse(result['valid'])
-            self.assertEqual(result['coherence_score'], 0.3)
-            self.assertIn("failed", result['message'].lower())
+        with self.assertRaises(CoherenceValidationError):
+            validate_lda_model(self.window_id, self.mock_lda_model, self.mock_dictionary, self.mock_corpus)
 
-    def test_validate_lda_model_exception_handling(self):
-        """Test validation handles exceptions gracefully."""
-        with patch('src.models.lda.validator.CoherenceModel') as mock_cm:
-            mock_cm.side_effect = Exception("Test error")
+    @patch('src.models.lda.validator.validate_lda_model')
+    @patch('builtins.open', new_callable=mock_open)
+    @patch('src.models.lda.validator.json.dump')
+    def test_validate_and_save_results_success(self, mock_json_dump, mock_file, mock_validate):
+        """Test successful validation and file saving."""
+        mock_validate.return_value = (True, 0.50, "PASSED")
+        
+        result = validate_and_save_results(self.window_id, self.mock_lda_model, self.mock_dictionary, self.mock_corpus, self.output_dir)
 
-            result = validate_lda_model(
-                self.mock_lda,
-                self.dictionary,
-                self.corpus,
-                threshold=DEFAULT_COHERENCE_THRESHOLD,
-                window_name="test_window"
-            )
+        self.assertTrue(result["is_valid"])
+        self.assertEqual(result["status"], "PROCEEDING")
+        mock_file.assert_called_once()
+        mock_json_dump.assert_called_once()
 
-            self.assertFalse(result['valid'])
-            self.assertIsNone(result['coherence_score'])
-            self.assertIn("error", result['message'].lower())
-
-    def test_validate_and_save_results_success(self):
-        """Test saving validation results for passing models."""
-        results = [
-            {'window': 'w1', 'valid': True, 'coherence_score': 0.5, 'threshold': 0.4},
-            {'window': 'w2', 'valid': True, 'coherence_score': 0.45, 'threshold': 0.4}
-        ]
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'results.json')
-            success = validate_and_save_results(results, output_path, fail_fast=True)
-
-            self.assertTrue(success)
-            self.assertTrue(os.path.exists(output_path))
-
-            with open(output_path, 'r') as f:
-                import json
-                saved = json.load(f)
-            self.assertEqual(len(saved), 2)
-
-    def test_validate_and_save_results_failure_no_fail_fast(self):
-        """Test saving results when some fail but fail_fast is False."""
-        results = [
-            {'window': 'w1', 'valid': True, 'coherence_score': 0.5, 'threshold': 0.4},
-            {'window': 'w2', 'valid': False, 'coherence_score': 0.3, 'threshold': 0.4}
-        ]
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'results.json')
-            success = validate_and_save_results(results, output_path, fail_fast=False)
-
-            self.assertFalse(success)
-            self.assertTrue(os.path.exists(output_path))
-
-    def test_validate_and_save_results_failure_with_fail_fast(self):
-        """Test that fail_fast raises exception on failure."""
-        results = [
-            {'window': 'w1', 'valid': True, 'coherence_score': 0.5, 'threshold': 0.4},
-            {'window': 'w2', 'valid': False, 'coherence_score': 0.3, 'threshold': 0.4}
-        ]
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, 'results.json')
-            with self.assertRaises(RuntimeError):
-                validate_and_save_results(results, output_path, fail_fast=True)
-
+    @patch('src.models.lda.validator.validate_lda_model')
+    def test_validate_and_save_results_failure_raises(self, mock_validate):
+        """Test that validation failure raises an exception."""
+        mock_validate.return_value = (False, 0.30, "FAILED")
+        
+        with self.assertRaises(CoherenceValidationError):
+            validate_and_save_results(self.window_id, self.mock_lda_model, self.mock_dictionary, self.mock_corpus, self.output_dir)
 
 if __name__ == '__main__':
     unittest.main()

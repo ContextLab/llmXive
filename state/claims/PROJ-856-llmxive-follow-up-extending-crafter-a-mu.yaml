@@ -1,0 +1,260 @@
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: data/figures and data/ground_truth directories are created after execution
+  claim_id: c_6cd2da38
+  context: Step 2 bullet list after running the data curation script.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: After execution you will see `data/figures/` and `data/ground_truth/`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T03:10:03Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: checksum file data/checksums.txt is generated automatically
+  claim_id: c_c7d5e930
+  context: Step 2 bullet list after running the data curation script.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: A checksum file `data/checksums.txt` is generated automatically.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T03:10:03Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: 200 OK JSON with randomized interface_order and shuffled task_order is
+    returned by endpoints
+  claim_id: c_b27ae0f0
+  context: Step 3 description of launching the interface stubs and visiting endpoints.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Visit the endpoints to see a 200\u202FOK JSON with a randomized `interface_order`\
+    \ and shuffled `task_order`."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T03:10:03Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: simulation creates log files with millisecond-precise interaction records
+    and shuffles interface and task order per session
+  claim_id: c_c21c948f
+  context: Step 5 simulation of participant sessions.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "This creates `data/logs/<session_id>.jsonl` files containing millisecond\u2011\
+    precise interaction records and shuffles both interface and task order per session."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T03:10:03Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: pipeline outputs 'Pipeline completed'
+  claim_id: c_aa27c818
+  context: Final command expected output after running the full pipeline.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Pipeline completed
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T03:10:03Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: file contains 7500 lines with 30 participants, 50 figures, and 5 edits
+    per figure
+  claim_id: c_efc6dd26
+  context: "The simulation step creates `data/logs/interactions_clean.jsonl` containing\
+    \ millisecond\u2011precise interaction records. With 30 participants, 50 figures,\
+    \ and 5 edits per figure the file contains 7\u202F500 lines, satisfying the contract\
+    \ schema."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "With 30 participants, 50 figures, and 5 edits per figure the file contains\
+    \ 7\u202F500 lines, satisfying the contract schema."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-21T03:18:52Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: script generates checksum file data/checksums.txt
+  claim_id: c_015d0ab6
+  context: During data availability verification the script attempts to download CrafterBench
+    and generates a checksum file `data/checksums.txt` automatically.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The script will generate a checksum file `data/checksums.txt` automatically.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-21T03:18:52Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: file contains 7500 lines with 30 participants 50 figures 5 edits per
+    figure
+  claim_id: c_bba97744
+  context: "The simulate participants command creates data/logs/interactions_clean.jsonl;\
+    \ with 30 participants, 50 figures, and 5 edits per figure the file contains 7\u202F\
+    500 lines, satisfying the contract schema."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "With 30 participants, 50 figures, and 5 edits per figure the file contains\
+    \ 7\u202F500 lines, satisfying the contract schema."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:42:13Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: script attempts to download CrafterBench via CIFAR-10 and falls back
+    to synthetic data if unavailable
+  claim_id: c_a1fc97ef
+  context: The script will attempt to download CrafterBench (via CIFAR-10); if unavailable
+    it falls back to synthetic data.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The script will attempt to download CrafterBench (via CIFAR-10); if unavailable
+    it falls back to synthetic data.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:42:14Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: endpoints return 200 OK JSON response with randomized interface_order
+    and shuffled task_order
+  claim_id: c_b2f8547b
+  context: Visit the endpoints ... to see a 200 OK JSON response containing a randomized
+    interface_order and shuffled task_order.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Visit the endpoints (e.g., ` Connection refused`))] and ` Connection refused`))]
+    to see a 200 OK JSON response containing a randomized interface_order and shuffled
+    task_order.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:42:14Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: src.run_pipeline seeds randomness sources to guarantee deterministic
+    behavior across runs
+  claim_id: c_eb3ac8c0
+  context: The src.run_pipeline module seeds all randomness sources (Python random,
+    NumPy, and PyTorch when available) to guarantee deterministic behaviour across
+    runs.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The src.run_pipeline module seeds all randomness sources (Python random,
+    NumPy, and PyTorch when available) to guarantee deterministic behaviour across
+    runs.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:42:14Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: pipeline outputs 'Pipeline completed' upon completion
+  claim_id: c_8b1737ad
+  context: 'Expected output: Pipeline completed'
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'Expected output: Pipeline completed'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T03:42:14Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: minimum required participants approximately 40 for mixed-effects model
+  claim_id: c_f0d8e0bc
+  context: "In step 4, the power analysis script prints the minimum required participants\
+    \ (\u2248\u202F40 for the mixed\u2011effects model) and exits with status\u202F\
+    0 if the planned N meets or exceeds it."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The script prints the minimum required participants (\u2248\u202F40 for\
+    \ the mixed\u2011effects model) and exits with status\u202F0 if the planned N\
+    \ meets or exceeds it."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-11-11T01:24:44Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: pipeline completed output after running end-to-end pipeline
+  claim_id: c_56f08d62
+  context: "Step 10 runs the end\u2011to\u2011end pipeline and expects the output:\
+    \ Pipeline completed."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Running the end\u2011to\u2011end pipeline prints 'Pipeline completed'."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-11-11T01:24:44Z'
+- artifact_path: projects/PROJ-856-llmxive-follow-up-extending-crafter-a-mu/quickstart.md
+  attempts: 1
+  canonical: "report contains statistical tables and NASA\u2011TLX scores"
+  claim_id: c_52efce43
+  context: "Step 8 states that the report includes mean/median tables, test statistics,\
+    \ effect sizes, confidence intervals, success\u2011rate breakdowns, and average\
+    \ NASA\u2011TLX scores."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The report includes mean/median tables, test statistics, effect sizes,\
+    \ confidence intervals, success\u2011rate breakdowns, and average NASA\u2011TLX\
+    \ scores."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-11-11T01:24:44Z'

@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MolecularGraph"
+description: "Schema for a heterogeneous molecular graph representation."
+type: "object"
+required:
+  - "graph_id"
+  - "smiles"
+  - "node_features"
+  - "edge_index"
+  - "edge_features"
+  - "reaction_center_indices"
+properties:
+  graph_id:
+    type: "string"
+    description: "Unique identifier for the graph."
+  smiles:
+    type: "string"
+    description: "Original SMILES string."
+  node_features:
+    type: "array"
+    description: "List of node feature vectors."
+    items:
+      type: "array"
+      items:
+        type: "number"
+      description: "Features: [atomic_num, hybridization, formal_charge, gasteiger_charge, pKa]"
+  edge_index:
+    type: "array"
+    description: "2 x E tensor (source, target)."
+    items:
+      type: "array"
+      items:
+        type: "integer"
+  edge_features:
+    type: "array"
+    description: "List of edge feature vectors."
+    items:
+      type: "array"
+      items:
+        type: "number"
+      description: "Features: [bond_order, conjugation, ring_membership]"
+  reaction_center_indices:
+    type: "array"
+    description: "Indices of atoms involved in the reaction center."
+    items:
+      type: "integer"

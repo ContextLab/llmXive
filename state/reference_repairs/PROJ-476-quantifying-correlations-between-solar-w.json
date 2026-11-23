@@ -1,0 +1,20 @@
+[
+  {
+    "repaired_at": "2026-10-25T22:29:52.268942+00:00",
+    "project": "PROJ-476-quantifying-correlations-between-solar-w",
+    "repairs": [
+      {
+        "dead_url": "https://services.swpc.noaa.gov/json/kp/kp_1m.json",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/ACERobotics/ACE-Data-0/resolve/main/Room-scale/date_to_take_mapping_20261006.csv",
+        "intent": "services.swpc.noaa.gov json kp The \" Verified datasets\" block supplies two ACE composition CSV URLs; these are used directly. NOAA and Dst indices publicly available"
+      },
+      {
+        "dead_url": "https://wdc.kugi.kyoto-u.ac.jp/dstdir/dst.txt",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/ACERobotics/ACE-Data-0/resolve/main/Room-scale/date_to_take_mapping_20261006.csv",
+        "intent": "wdc.kugi.kyoto u.ac.jp dstdir The \" Verified datasets\" block supplies two ACE composition CSV URLs; these are used directly. NOAA Kp and Dst indices publicly"
+      }
+    ]
+  }
+]

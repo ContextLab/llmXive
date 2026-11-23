@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Static Feature Vector Schema"
+type: object
+required:
+  - segment_id
+  - entropy_mean
+  - entropy_std
+  - hand_conf_mean
+  - hand_conf_std
+  - lighting_mean
+  - lighting_std
+  - timestamp_mean
+  - exposure_mean
+  - focal_length_mean
+properties:
+  segment_id:
+    type: string
+    description: "Unique identifier for the video segment."
+  entropy_mean:
+    type: number
+    description: "Mean Shannon entropy of all frames in the segment."
+  entropy_std:
+    type: number
+    description: "Standard deviation of Shannon entropy of frames within the segment."
+  hand_conf_mean:
+    type: number
+    description: "Mean MediaPipe Hands detection confidence across frames."
+  hand_conf_std:
+    type: number
+    description: "Standard deviation of MediaPipe Hands detection confidence."
+  lighting_mean:
+    type: number
+    description: "Mean pixel intensity (grayscale) across frames."
+  lighting_std:
+    type: number
+    description: "Standard deviation of pixel intensity "
+  timestamp_mean:
+    type: number
+    description: "Average timestamp (seconds) across frames in the segment."
+  exposure_mean:
+    type: number
+    description: "Mean exposure value (if available) across frames."
+  focal_length_mean:
+    type: number
+    description: "Average focal length (if available) across frames."
+additionalProperties: false

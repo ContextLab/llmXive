@@ -1,181 +1,269 @@
-"""
-Data Download Module for TRY Database.
-
-Implements fetching TRY database CSVs with exponential backoff and checksum verification.
-"""
 import os
 import time
 import hashlib
+import json
 import requests
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Tuple, List
 from pathlib import Path
+import logging
+import sys
 
-from config import get_config, ensure_directories
-from utils.logging import DataPipelineLog
+# Configure logging for this module
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
-# Constants for retry logic
+# Configuration constants
 MAX_RETRIES = 5
-INITIAL_BACKOFF = 1.0
-MAX_BACKOFF = 30.0
+INITIAL_DELAY = 1.0
+MAX_DELAY = 60.0
 BACKOFF_MULTIPLIER = 2.0
-
-# TRY Database configuration
-TRY_BASE_URL = "https://www.try-db.org/TryWebData.php"
-# Note: The actual TRY database requires registration or specific endpoints.
-# For this implementation, we target a known public trait CSV export if available,
-# or a stable mirror for demonstration of the pipeline logic.
-# In a real production scenario, this would be the specific API endpoint or
-# the direct download link for the "TRY_Traits.csv" or similar.
-# Using a representative public URL for trait data to ensure the code runs.
-# We will attempt to fetch the main trait dataset.
-# If the specific TRY URL is blocked or requires auth, we fall back to a 
-# robust error handling path as per FR-001 "fetch ... with verification".
-
-# For the purpose of this pipeline implementation, we will attempt to download
-# a known public dataset that mimics the structure or a direct TRY export if accessible.
-# Since TRY often requires login, we will implement the logic against a 
-# stable public source for plant traits (e.g., from a GitHub release of a 
-# processed TRY subset or a similar open repository) to ensure the 
-# "Real Data" constraint is met without hardcoding fake values.
-# We will use a direct link to a TRY subset hosted on a public repository 
-# or a similar open dataset if TRY is strictly gated.
-# However, to strictly follow "Real Data from Real Source", we will target
-# the TRY database's public download link if available, or a stable mirror.
-# Let's assume the project expects us to hit the TRY endpoint or a mirror.
-# We will use a specific, known public CSV URL for plant traits as a proxy 
-# if the main TRY portal is not directly scriptable without a browser session.
-# Actually, to be safe and compliant with "Real Data", we will use the 
-# "TRY Database" public download link for the "Trait Database" if it exists publicly,
-# or a specific known dataset.
-# Given the constraints of a script running without a browser, we will target
-# a stable public CSV containing plant traits. 
-# We will use the URL for the TRY database's public trait export if available,
-# otherwise a known open alternative.
-
-# For this implementation, we will attempt to fetch from a specific public endpoint.
-# If the TRY database requires a session cookie, the code will fail gracefully
-# with a clear error message, as we cannot fabricate data.
-# We will use a specific known public file for demonstration:
-# A common public trait dataset is hosted on Zenodo or similar.
-# We will use a direct link to a TRY-derived dataset from a public repository.
-
-# URL for a public plant trait dataset (mimicking TRY structure)
-# This is a real, accessible CSV file with plant trait data.
-TRY_DATA_URL = "https://raw.githubusercontent.com/try-db/try-db.github.io/main/data/TRY_Traits.csv" 
-# Note: If this URL changes or is unavailable, the code will raise an error.
-# Alternative: Use a specific Zenodo record for TRY data if the GitHub link is unstable.
-# For robustness, we will try the GitHub link first.
-
-# Checksums (MD5) for verification. 
-# In a real scenario, these would be provided by the data source.
-# We will implement the verification logic, but since we might not have the 
-# exact checksum of the live file without a prior successful run, 
-# we will make the checksum optional or log a warning if not provided.
-# However, to satisfy "checksum verification", we will compute the checksum
-# of the downloaded file and log it. If a known checksum is provided in config, we verify.
+CHUNK_SIZE = 8192
 
 def calculate_md5(file_path: str) -> str:
-    """Calculate MD5 checksum of a file."""
-    hash_md5 = hashlib.md5()
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            hash_md5.update(chunk)
-    return hash_md5.hexdigest()
-
-def exponential_backoff_retry(func, *args, **kwargs) -> Any:
     """
-    Execute a function with exponential backoff retry logic.
-    """
-    attempt = 0
-    backoff = INITIAL_BACKOFF
-    last_exception = None
+    Calculate the MD5 checksum of a file.
 
-    while attempt < MAX_RETRIES:
-        try:
-            return func(*args, **kwargs)
-        except requests.exceptions.RequestException as e:
-            last_exception = e
-            attempt += 1
-            if attempt < MAX_RETRIES:
-                time.sleep(backoff)
-                backoff = min(backoff * BACKOFF_MULTIPLIER, MAX_BACKOFF)
-            else:
-                raise
-    raise last_exception
-
-def download_try_data(logger: DataPipelineLog, output_dir: str, expected_checksum: Optional[str] = None) -> str:
-    """
-    Download TRY database CSV with exponential backoff and checksum verification.
-    
     Args:
-        logger: DataPipelineLog instance for recording events.
-        output_dir: Directory to save the downloaded file.
-        expected_checksum: Optional MD5 checksum to verify the download.
-        
-    Returns:
-        Path to the downloaded file.
-        
-    Raises:
-        RuntimeError: If download fails or checksum verification fails.
-    """
-    ensure_directories([output_dir])
-    output_path = os.path.join(output_dir, "TRY_Traits.csv")
-    
-    logger.info("Starting TRY database download", url=TRY_DATA_URL, output_path=output_path)
-    
-    def _download():
-        response = requests.get(TRY_DATA_URL, stream=True, timeout=60)
-        response.raise_for_status()
-        with open(output_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-        return output_path
+        file_path: Path to the file to calculate checksum for.
 
+    Returns:
+        Hexadecimal string of the MD5 checksum.
+    """
+    hash_md5 = hashlib.md5()
     try:
-        file_path = exponential_backoff_retry(_download)
-        
-        # Verify checksum if expected
-        if expected_checksum:
-            actual_checksum = calculate_md5(file_path)
-            logger.info("Checksum verification", expected=expected_checksum, actual=actual_checksum)
-            if actual_checksum.lower() != expected_checksum.lower():
-                error_msg = f"Checksum mismatch! Expected {expected_checksum}, got {actual_checksum}"
-                logger.error(error_msg)
-                # Optional: delete the corrupted file
-                # os.remove(file_path)
-                raise RuntimeError(error_msg)
-        else:
-            actual_checksum = calculate_md5(file_path)
-            logger.info("Download complete (no checksum provided for verification)", 
-                        checksum=actual_checksum, file_size=os.path.getsize(file_path))
-        
-        return file_path
-        
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Download failed after retries: {str(e)}")
-        raise RuntimeError(f"Failed to download TRY data: {e}") from e
-    except Exception as e:
-        logger.error(f"Unexpected error during download: {str(e)}")
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(CHUNK_SIZE), b""):
+                hash_md5.update(chunk)
+        return hash_md5.hexdigest()
+    except FileNotFoundError:
+        logger.error(f"File not found for checksum calculation: {file_path}")
         raise
+    except Exception as e:
+        logger.error(f"Error calculating MD5 for {file_path}: {e}")
+        raise
+
+def exponential_backoff_retry(func, max_retries: int = MAX_RETRIES,
+                              initial_delay: float = INITIAL_DELAY,
+                              max_delay: float = MAX_DELAY,
+                              backoff_multiplier: float = BACKOFF_MULTIPLIER):
+    """
+    Decorator to retry a function with exponential backoff.
+
+    Args:
+        func: The function to retry.
+        max_retries: Maximum number of retry attempts.
+        initial_delay: Initial delay in seconds.
+        max_delay: Maximum delay in seconds.
+        backoff_multiplier: Multiplier for the delay.
+
+    Returns:
+        The result of the function if successful, otherwise raises the last exception.
+    """
+    def wrapper(*args, **kwargs):
+        delay = initial_delay
+        last_exception = None
+
+        for attempt in range(1, max_retries + 1):
+            try:
+                return func(*args, **kwargs)
+            except (requests.exceptions.RequestException, OSError) as e:
+                last_exception = e
+                if attempt == max_retries:
+                    logger.error(f"Attempt {attempt} failed. No more retries left. Error: {e}")
+                    raise
+                else:
+                    logger.warning(f"Attempt {attempt} failed: {e}. Retrying in {delay:.2f}s...")
+                    time.sleep(delay)
+                    delay = min(delay * backoff_multiplier, max_delay)
+
+        raise last_exception  # Should not reach here due to return/raise above
+    return wrapper
+
+def verify_try_url_access(url: str, timeout: int = 10) -> Tuple[bool, str]:
+    """
+    Verify if the TRY database URL is accessible and returns a valid CSV.
+
+    Args:
+        url: The URL to check.
+        timeout: Request timeout in seconds.
+
+    Returns:
+        Tuple of (is_accessible, message).
+    """
+    try:
+        logger.info(f"Verifying URL access: {url}")
+        # Use HEAD request first if possible, fallback to GET with small limit
+        response = requests.head(url, timeout=timeout, allow_redirects=True)
+        if response.status_code == 405: # Method Not Allowed
+            response = requests.get(url, timeout=timeout, stream=True, allow_redirects=True)
+            # Just read a small chunk to verify it's a CSV stream
+            next(response.iter_content(chunk_size=1024))
+        else:
+            response.raise_for_status()
+
+        content_type = response.headers.get('Content-Type', '')
+        if 'text/csv' in content_type or response.url.endswith('.csv'):
+            return True, f"URL accessible and appears to be CSV (Status: {response.status_code})"
+        else:
+            return False, f"URL accessible but content type '{content_type}' is unexpected."
+
+    except requests.exceptions.HTTPError as e:
+        if e.response.status_code == 404:
+            return False, "HTTP 404: Resource not found."
+        elif e.response.status_code == 403:
+            return False, "HTTP 403: Forbidden. Access denied."
+        else:
+            return False, f"HTTP Error: {e.response.status_code} - {e}"
+    except requests.exceptions.RequestException as e:
+        return False, f"Request failed: {e}"
+    except Exception as e:
+        return False, f"Unexpected error during verification: {e}"
+
+@exponential_backoff_retry
+def _download_file(url: str, destination: str) -> None:
+    """
+    Internal function to download a file with streaming.
+
+    Args:
+        url: Source URL.
+        destination: Local destination path.
+    """
+    response = requests.get(url, stream=True, timeout=300)
+    response.raise_for_status()
+    with open(destination, 'wb') as f:
+        for chunk in response.iter_content(chunk_size=CHUNK_SIZE):
+            if chunk:
+                f.write(chunk)
+
+def download_try_data(try_url: str, output_dir: str, expected_md5: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Fetch TRY database CSVs with exponential backoff and checksum verification.
+
+    Args:
+        try_url: URL to the TRY database CSV.
+        output_dir: Directory to save the downloaded file.
+        expected_md5: Optional expected MD5 checksum for verification.
+
+    Returns:
+        Dictionary with 'status' (SUCCESS/FAILED), 'message', 'file_path', 'md5'.
+    """
+    os.makedirs(output_dir, exist_ok=True)
+    filename = os.path.basename(try_url.split('?')[0]) # Handle query params
+    if not filename.endswith('.csv'):
+        filename = "try_data.csv"
+    local_path = os.path.join(output_dir, filename)
+
+    logger.info(f"Starting download from {try_url}")
+    logger.info(f"Destination: {local_path}")
+
+    # 1. Verify URL access
+    is_accessible, access_msg = verify_try_url_access(try_url)
+    if not is_accessible:
+        logger.error(f"URL verification failed: {access_msg}")
+        return {
+            "status": "FAILED",
+            "message": access_msg,
+            "file_path": None,
+            "md5": None
+        }
+
+    # 2. Download with retry logic
+    try:
+        _download_file(try_url, local_path)
+        logger.info(f"Download completed successfully to {local_path}")
+    except Exception as e:
+        logger.error(f"Download failed after retries: {e}")
+        return {
+            "status": "FAILED",
+            "message": f"Download failed: {e}",
+            "file_path": None,
+            "md5": None
+        }
+
+    # 3. Verify Checksum
+    actual_md5 = calculate_md5(local_path)
+    logger.info(f"Calculated MD5: {actual_md5}")
+
+    if expected_md5:
+        if actual_md5.lower() != expected_md5.lower():
+            error_msg = f"Checksum mismatch! Expected: {expected_md5}, Got: {actual_md5}"
+            logger.error(error_msg)
+            # Remove corrupted file
+            try:
+                os.remove(local_path)
+            except OSError:
+                pass
+            return {
+                "status": "FAILED",
+                "message": error_msg,
+                "file_path": None,
+                "md5": actual_md5
+            }
+        else:
+            logger.info("Checksum verification passed.")
+    else:
+        logger.warning("No expected MD5 provided, skipping checksum verification.")
+
+    return {
+        "status": "SUCCESS",
+        "message": "Download and verification successful.",
+        "file_path": local_path,
+        "md5": actual_md5
+    }
+
+def fetch_ncbi_refseq(species_list: List[str], output_dir: str) -> Dict[str, Any]:
+    """
+    Fetch NCBI RefSeq genomic annotation files for the species list.
+    Note: This is a placeholder for the actual implementation of T011b.
+    The logic for real fetch vs synthetic fallback is handled in T011b.
+    """
+    logger.info(f"Fetching NCBI RefSeq for {len(species_list)} species")
+    # Implementation details for T011b
+    return {"status": "PENDING", "message": "Logic implemented in T011b"}
+
+def fetch_tree(species_list: List[str], output_dir: str) -> Dict[str, Any]:
+    """
+    Fetch a real phylogenetic tree from OpenTree of Life.
+    Note: This is a placeholder for the actual implementation of T016c.
+    """
+    logger.info(f"Fetching phylogenetic tree for {len(species_list)} species")
+    # Implementation details for T016c
+    return {"status": "PENDING", "message": "Logic implemented in T016c"}
 
 def main():
-    """Main entry point for the download script."""
+    """
+    Main entry point for downloading TRY data.
+    Reads configuration from config.py if available, otherwise uses defaults.
+    """
+    from config import get_config, ensure_directories
+
     config = get_config()
-    logger = DataPipelineLog(config)
-    
-    try:
-        # Get configuration
-        output_dir = config.get('data', {}).get('raw_dir', 'data/raw')
-        expected_checksum = config.get('data', {}).get('try_checksum', None)
-        
-        print(f"Downloading TRY data to {output_dir}...")
-        file_path = download_try_data(logger, output_dir, expected_checksum)
-        print(f"Successfully downloaded: {file_path}")
-        
-    except Exception as e:
-        print(f"Error: {e}")
-        raise
+    ensure_directories([config.get('output_dir', 'data/raw')])
+
+    try_url = config.get('try_url')
+    if not try_url:
+        logger.error("TRY URL not found in configuration. Exiting.")
+        return {"status": "FAILED", "message": "Missing TRY URL in config"}
+
+    result = download_try_data(
+        try_url=try_url,
+        output_dir=config.get('output_dir', 'data/raw'),
+        expected_md5=config.get('expected_try_md5')
+    )
+
+    logger.info(f"Final Status: {result['status']}")
+    if result['status'] == 'SUCCESS':
+        logger.info(f"File saved at: {result['file_path']}")
+        logger.info(f"MD5: {result['md5']}")
+    else:
+        logger.error(f"Error: {result['message']}")
+
+    return result
 
 if __name__ == "__main__":
     main()

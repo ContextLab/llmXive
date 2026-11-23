@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2410.12595",
+  "judged_at": "2026-10-10T21:22:07Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"when vision speaks for sound\" computer science",
+  "rationale": "The paper is a cross-modal (vision-language) learning framework, directly in the same domain as \"When Vision Speaks for Sound\" (cross-modal associative learning between modalities), satisfying criterion (a)/(f) as canonical cross-modal learning work — it studies the same mechanism of leveraging one modality's information to enhance another, which a follow-up on that paper would cite as related vision-language pre-training work.",
+  "relevant": true
+}

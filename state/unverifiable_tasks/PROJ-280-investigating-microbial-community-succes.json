@@ -1,0 +1,13 @@
+{
+  "project_id": "PROJ-280-investigating-microbial-community-succes",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "No directory tree or `MANIFEST.txt` file was presented in the evidence; without a visible listing of the required folders (e.g., `projects/PROJ-280-investigating-microbial-community-succes/`, `data/raw`, etc.) and the generated `MANIFEST.txt` that enumerates them, we cannot confirm that the project structure was actually created. The implementer must provide the filesystem layout (or a screenshot/command output) and the contents of the manifest file.",
+      "first_seen": "2026-09-01T01:32:56.687783+00:00",
+      "last_seen": "2026-09-01T01:32:56.687783+00:00"
+    }
+  ],
+  "updated_at": "2026-09-01T01:32:56.687783+00:00"
+}

@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Output Schema"
+description: "Schema for the aggregated error rates CSV file (data/processed/error_rates.csv)"
+type: object
+properties:
+  sample_size:
+    type: integer
+    description: "Number of observations per group"
+    minimum: 10
+    maximum: 1000
+  distribution:
+    type: string
+    enum: ["normal", "uniform", "log-normal"]
+    description: "Underlying data distribution"
+  test_type:
+    type: string
+    enum: ["t-test", "anova", "chi-squared"]
+    description: "Statistical test performed"
+  effect_size:
+    type: number
+    description: "True effect size used in generation (0.0 or 0.5)"
+  type1_rate:
+    type: number
+    description: "Observed Type I error rate (proportion)"
+    minimum: 0.0
+    maximum: 1.0
+  type2_rate:
+    type: number
+    description: "Observed Type II error rate (proportion)"
+    minimum: 0.0
+    maximum: 1.0
+  power:
+    type: number
+    description: "Statistical power (1 - Type II rate)"
+    minimum: 0.0
+    maximum: 1.0
+  ci_lower:
+    type: number
+    description: "Lower bound of 95% bootstrap confidence interval"
+    minimum: 0.0
+    maximum: 1.0
+  ci_upper:
+    type: number
+    description: "Upper bound of 95% bootstrap confidence interval"
+    minimum: 0.0
+    maximum: 1.0
+  n_replicates:
+    type: integer
+    description: "Total number of Monte Carlo replicates run"
+    minimum: 1000
+required:
+  - sample_size
+  - distribution
+  - test_type
+  - effect_size
+  - type1_rate
+  - type2_rate
+  - power
+  - ci_lower
+  - ci_upper
+  - n_replicates
+additionalProperties: false

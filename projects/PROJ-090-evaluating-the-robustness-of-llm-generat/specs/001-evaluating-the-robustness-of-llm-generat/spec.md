@@ -33,7 +33,7 @@ The system MUST execute a quantized (low-bit) StarCoder2-3B model on CPU hardwar
 **Acceptance Scenarios**:
 
 1. **Given** a perturbed prompt, **When** the model inference runs, **Then** the code is generated without CUDA errors, within the A memory limit is imposed to constrain resource usage during the research phase., and completes within 30 seconds.
-2. **Given** generated code, **When** the sandbox executor runs, **Then** the test suite is executed with a 10-second timeout per test case, returning a pass/fail status or a timeout error.
+2. **Given** generated code, **When** the sandbox executor runs, **Then** the test suite is executed with a timeout per test case, returning a pass/fail status or a timeout error.
 
 ---
 
@@ -70,11 +70,11 @@ The system MUST calculate pass@1 rates for original vs. perturbed prompts, apply
 - **FR-002**: System MUST attempt to generate up to 3 perturbation variants per task using synonym substitution, typo injection, and syntactic rephrasing, retaining only those with a semantic similarity score > 0.95 for the primary dataset. (See US-1)
 - **FR-003**: System MUST validate semantic equivalence using the `sentence-transformers/all-MiniLM-L6-v2` model with cosine similarity, retaining only perturbations with a score > 0.95, while storing raw scores for all candidates. (See US-1)
 - **FR-004**: System MUST perform model inference using a `bitsandbytes` 4-bit quantized StarCoder2-3B configuration on CPU with offload, ensuring memory usage stays ≤ 7 GB. (See US-2)
-- **FR-005**: System MUST enforce a reasonable timeout for model generation and a 10-second timeout for test case execution. (See US-2)
+- **FR-005**: System MUST enforce a reasonable timeout for model generation and a bounded timeout for test case execution.. (See US-2)
 - **FR-006**: System MUST calculate pass@1 rates separately for the original prompts and each valid perturbation type. (See US-3)
 - **FR-007**: System MUST apply McNemar's test separately for each perturbation type (Original vs. Synonym; Original vs. Typo; Original vs. Rephrase) by aggregating contingency tables across all tasks for each comparison. (See US-3)
 - **FR-008**: System MUST apply Bonferroni correction for multiple comparisons when testing >1 hypothesis across perturbation types. (See US-3)
-- **FR-009**: System MUST perform a sensitivity analysis on the semantic similarity threshold by re-scoring the full candidate pool with thresholds ∈ {0.85, 0.90, 0.95, 0.99} and reporting the variation in pass@1 rates. (See US-3)
+- **FR-009**: System MUST perform a sensitivity analysis on the semantic similarity threshold by re-scoring the full candidate pool with thresholds ∈ {high, very high} and reporting the variation in pass@1 rates. (See US-3)
 - **FR-010**: System MUST classify failures into syntax, logic, or hallucination types for all failures if the total count is ≤ 50, otherwise for a stratified random sample of 50 failures. (See US-3)
 - **FR-011**: System MUST limit total generations to a sufficient number of samples by prioritizing all original tasks and filling the remaining budget with perturbed prompts in a deterministic order until the cap is reached. (See US-2)
 - **FR-012**: System MUST perform a Mixed-Effects Logistic Regression with 'task' as a random effect to account for clustering of perturbations within tasks. (See US-3)

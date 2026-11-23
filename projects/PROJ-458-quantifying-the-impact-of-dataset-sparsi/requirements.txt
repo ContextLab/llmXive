@@ -1,4 +1,11 @@
-# Task T001: Initial requirements stub.
-# Specific versions for pymatgen, matminer, scikit-learn, statsmodels, pandas, numpy, matplotlib, requests
-# will be added in Task T002 as per the plan.
-# Currently empty to allow T002 to populate it with pinned versions.
+pymatgen==2023.10.10
+matminer==0.9.3
+scikit-learn==1.3.2
+statsmodels==0.14.1
+pandas==2.1.3
+numpy==1.26.2
+matplotlib==3.8.2
+requests==2.31.0
+python-dotenv==1.0.0
+psutil==5.9.6
+scipy==1.11.4

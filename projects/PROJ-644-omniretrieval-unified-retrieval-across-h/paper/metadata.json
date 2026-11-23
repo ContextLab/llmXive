@@ -102,5 +102,15 @@
     "tables/constrained_baseline.tex",
     "tables/main_table.tex",
     "tables/per_route_breakdown.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "141c3a212b5b8267d312c8c0350eed5cd5e2bb237ed7519c6e115ea5f20e9b02",
+      "bytes": 1295979
+    },
+    "original.pdf": {
+      "sha256": "0695e0b90f3d78f5e522559526e5f2c67df0867505f1f02ec52265feaf046795",
+      "bytes": 1243835
+    }
+  }
 }

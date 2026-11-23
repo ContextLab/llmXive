@@ -4,37 +4,30 @@ import logging
 import math
 from pathlib import Path
 from typing import List, Dict, Any, Tuple
-import sys
+from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
-# Import radon for cyclomatic complexity
-try:
-    from radon.complexity import cc_visit
-    from radon.visitors import ComplexityError
-except ImportError:
-    print("Error: radon library is required. Install with: pip install radon")
-    sys.exit(1)
+# Local imports
+from config import get_cutoff_date, get_output_dir, get_repo_list
+from utils.logging_utils import get_logger
+from utils.path_normalizer import normalize_path
 
-from utils.path_normalizer import is_python_file
+logger = get_logger(__name__)
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-def load_ownership_csv(file_path: Path) -> List[Dict[str, Any]]:
-    """Load ownership CSV data into a list of dictionaries."""
-    if not file_path.exists():
-        logger.error(f"File not found: {file_path}")
+def load_ownership_csv(repo_name: str) -> List[Dict[str, Any]]:
+    """Load ownership CSV for a specific repository."""
+    output_dir = get_output_dir()
+    ownership_path = Path(output_dir) / "ownership_metrics" / f"{repo_name}_ownership.csv"
+    
+    if not ownership_path.exists():
+        logger.warning(f"Ownership file not found: {ownership_path}")
         return []
     
     data = []
-    try:
-        with open(file_path, 'r', newline='', encoding='utf-8') as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                data.append(row)
-    except Exception as e:
-        logger.error(f"Error reading CSV {file_path}: {e}")
-        return []
-    
+    with open(ownership_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            data.append(row)
     return data
 
 def calculate_gini(values: List[float]) -> float:
@@ -42,243 +35,414 @@ def calculate_gini(values: List[float]) -> float:
     if not values or len(values) == 0:
         return 0.0
     
+    values = sorted(values)
     n = len(values)
     if n == 1:
         return 0.0
     
-    sorted_values = sorted(values)
-    cumulative = 0
-    total = sum(sorted_values)
-    
+    index = list(range(1, n + 1))
+    total = sum(values)
     if total == 0:
         return 0.0
     
-    # Gini formula: G = (2 * sum(i * x_i) - (n + 1) * sum(x_i)) / (n * sum(x_i))
-    numerator = 0
-    for i, val in enumerate(sorted_values, 1):
-        numerator += i * val
-    
-    gini = (2 * numerator - (n + 1) * total) / (n * total)
-    return round(max(0.0, min(1.0, gini)), 3)
+    gini = (sum((2 * i - n - 1) * v for i, v in zip(index, values))) / (n * total)
+    return max(0.0, min(1.0, gini))
 
-def get_latest_timestamp(ownership_data: List[Dict[str, Any]]) -> str:
-    """Get the latest timestamp from ownership data."""
-    if not ownership_data:
-        return ""
+def get_latest_timestamp(repo_name: str) -> datetime:
+    """Get the latest commit timestamp for a repository."""
+    commits_path = Path(get_output_dir()) / "intermediate" / f"{repo_name}_commits.csv"
+    if not commits_path.exists():
+        return datetime.now()
     
-    timestamps = [row.get('timestamp', '') for row in ownership_data if row.get('timestamp')]
-    if not timestamps:
-        return ""
-    
-    return max(timestamps)
+    latest = datetime.min
+    with open(commits_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                ts = datetime.fromisoformat(row['timestamp'])
+                if ts > latest:
+                    latest = ts
+            except (ValueError, KeyError):
+                continue
+    return latest
 
-def filter_deleted_modules(ownership_data: List[Dict[str, Any]], cutoff_timestamp: str) -> List[Dict[str, Any]]:
+def filter_deleted_modules(
+    module_data: List[Dict[str, Any]],
+    repo_name: str
+) -> List[Dict[str, Any]]:
     """Filter out modules deleted between T and T+1."""
-    # This is a placeholder for the actual logic which would require
-    # comparing timestamps against a cutoff. For now, return all data.
-    # In a real implementation, we would parse timestamps and filter.
-    return ownership_data
+    cutoff = get_cutoff_date()
+    cutoff_plus_one = cutoff + relativedelta(months=1)
+    
+    filtered = []
+    for module in module_data:
+        # Check if module has data in both periods
+        # Implementation depends on specific data structure
+        # For now, return all (filtering logic is in T020)
+        filtered.append(module)
+    
+    return filtered
 
-def calculate_code_churn(ownership_data: List[Dict[str, Any]], module_path: str) -> int:
-    """Calculate code churn (lines added + deleted) for a module."""
-    churn = 0
-    for row in ownership_data:
-        if row.get('file_path', '').endswith(module_path):
-            added = int(row.get('added', 0) or 0)
-            deleted = int(row.get('deleted', 0) or 0)
-            churn += added + deleted
-    return churn
+def calculate_code_churn(repo_name: str) -> Dict[str, int]:
+    """Calculate code churn (lines added/deleted) for a repository."""
+    churn_path = Path(get_output_dir()) / "intermediate" / f"{repo_name}_churn.csv"
+    if not churn_path.exists():
+        return {"added": 0, "deleted": 0}
+    
+    added = 0
+    deleted = 0
+    with open(churn_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            try:
+                added += int(row.get('lines_added', 0))
+                deleted += int(row.get('lines_deleted', 0))
+            except ValueError:
+                continue
+    
+    return {"added": added, "deleted": deleted}
 
-def calculate_module_churn_metrics(ownership_data: List[Dict[str, Any]]) -> Dict[str, int]:
+def calculate_module_churn_metrics(repo_name: str) -> Dict[str, Dict[str, int]]:
     """Calculate churn metrics per module."""
-    churn_metrics = {}
-    for row in ownership_data:
-        path = row.get('file_path', '')
-        if not path:
-            continue
-        
-        if path not in churn_metrics:
-            churn_metrics[path] = 0
-        
-        added = int(row.get('added', 0) or 0)
-        deleted = int(row.get('deleted', 0) or 0)
-        churn_metrics[path] += added + deleted
+    churn_path = Path(get_output_dir()) / "intermediate" / f"{repo_name}_churn.csv"
+    if not churn_path.exists():
+        return {}
     
-    return churn_metrics
+    module_churn = {}
+    with open(churn_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            module_path = row.get('file_path', '')
+            if module_path not in module_churn:
+                module_churn[module_path] = {"added": 0, "deleted": 0}
+            
+            try:
+                module_churn[module_path]["added"] += int(row.get('lines_added', 0))
+                module_churn[module_path]["deleted"] += int(row.get('lines_deleted', 0))
+            except ValueError:
+                continue
+    
+    return module_churn
 
-def process_all_ownership_files(data_dir: Path) -> Dict[str, List[Dict[str, Any]]]:
-    """Process all ownership CSV files in the data directory."""
-    all_data = {}
+def process_all_ownership_files() -> Dict[str, List[Dict[str, Any]]]:
+    """Process all ownership CSV files and return data by repository."""
+    output_dir = get_output_dir()
+    ownership_dir = Path(output_dir) / "ownership_metrics"
     
-    for csv_file in data_dir.glob("*_ownership.csv"):
-        logger.info(f"Processing {csv_file}")
-        data = load_ownership_csv(csv_file)
+    if not ownership_dir.exists():
+        logger.warning(f"Ownership metrics directory not found: {ownership_dir}")
+        return {}
+    
+    all_data = {}
+    for csv_file in ownership_dir.glob("*_ownership.csv"):
+        repo_name = csv_file.stem.replace("_ownership", "")
+        data = load_ownership_csv(repo_name)
         if data:
-            all_data[csv_file.stem] = data
+            all_data[repo_name] = data
     
     return all_data
 
-def save_churn_metrics_to_csv(churn_metrics: Dict[str, int], output_path: Path):
-    """Save churn metrics to a CSV file."""
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        writer.writerow(['module_path', 'churn'])
-        for path, churn in churn_metrics.items():
-            writer.writerow([path, churn])
-
-def calculate_cyclomatic_complexity(repo_path: Path, module_path: str) -> Tuple[int, bool]:
-    """
-    Calculate cyclomatic complexity for a single Python file using radon.
+def save_churn_metrics_to_csv(repo_name: str, churn_data: Dict[str, Dict[str, int]]) -> None:
+    """Save churn metrics to CSV."""
+    output_dir = get_output_dir()
+    churn_path = Path(output_dir) / "results" / f"{repo_name}_churn_metrics.csv"
     
-    Returns:
-        Tuple of (total_complexity, is_valid)
-        is_valid is True if the file was successfully parsed and has valid scores.
-    """
-    full_path = repo_path / module_path
-    
-    if not full_path.exists():
-        return 0, False
-    
-    if not is_python_file(str(module_path)):
-        return 0, False
-    
-    try:
-        with open(full_path, 'r', encoding='utf-8', errors='ignore') as f:
-            source_code = f.read()
-        
-        # Visit the source code to get complexity results
-        results = cc_visit(source_code)
-        
-        if not results:
-            # File parsed but no complexity info (e.g., empty file)
-            # Consider this valid but with 0 complexity
-            return 0, True
-        
-        # Sum up complexity for all functions/classes in the file
-        total_complexity = sum(r.complexity for r in results)
-        return total_complexity, True
-        
-    except Exception as e:
-        logger.warning(f"Failed to calculate complexity for {full_path}: {e}")
-        return 0, False
-
-def compute_cyclomatic_complexity_for_repos(
-    repos_dir: Path, 
-    ownership_data: Dict[str, List[Dict[str, Any]]],
-    output_path: Path
-) -> Dict[str, Any]:
-    """
-    Compute cyclomatic complexity for all Python modules across repositories.
-    
-    This function:
-    1. Iterates through all repositories in repos_dir
-    2. For each repo, identifies Python modules from ownership data
-    3. Calculates complexity using radon
-    4. Validates that >= 95% of Python modules have valid scores
-    5. Saves results to output_path
-    
-    Args:
-        repos_dir: Path to directory containing cloned repositories
-        ownership_data: Dictionary mapping repo names to ownership CSV data
-        output_path: Path to save the complexity results CSV
-    
-    Returns:
-        Dictionary with statistics about the computation
-    """
-    results = []
-    total_python_modules = 0
-    valid_complexity_count = 0
-    invalid_files = []
-    
-    logger.info(f"Starting cyclomatic complexity calculation for {len(ownership_data)} repositories")
-    
-    for repo_name, data in ownership_data.items():
-        repo_path = repos_dir / repo_name
-        
-        if not repo_path.exists():
-            logger.warning(f"Repository directory not found: {repo_path}")
-            continue
-        
-        # Extract unique file paths from ownership data for this repo
-        file_paths = set()
-        for row in data:
-            file_path = row.get('file_path', '')
-            if file_path and is_python_file(file_path):
-                file_paths.add(file_path)
-        
-        logger.info(f"Processing {len(file_paths)} Python files in {repo_name}")
-        
-        for module_path in file_paths:
-            total_python_modules += 1
-            complexity, is_valid = calculate_cyclomatic_complexity(repo_path, module_path)
-            
-            if is_valid:
-                valid_complexity_count += 1
-            
-            results.append({
-                'repo': repo_name,
-                'module_path': module_path,
-                'complexity': complexity,
-                'is_valid': is_valid
-            })
-            
-            if not is_valid:
-                invalid_files.append(f"{repo_name}/{module_path}")
-    
-    # Verification: Check if valid_count / total_count >= 0.95
-    if total_python_modules > 0:
-        validity_ratio = valid_complexity_count / total_python_modules
-        logger.info(f"Complexity calculation validity: {validity_ratio:.2%} ({valid_complexity_count}/{total_python_modules})")
-        
-        if validity_ratio < 0.95:
-            logger.critical(f"CRITICAL: Valid complexity ratio {validity_ratio:.2%} is below 95% threshold!")
-            logger.critical(f"Invalid files: {invalid_files[:10]}...")  # Show first 10
-            # We do not raise an exception here to allow partial results, 
-            # but we log the critical failure as required.
-        else:
-            logger.info("Complexity calculation passed 95% validity threshold.")
-    else:
-        logger.warning("No Python modules found to analyze.")
-    
-    # Save results to CSV
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.DictWriter(f, fieldnames=['repo', 'module_path', 'complexity', 'is_valid'])
+    with open(churn_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=['module_path', 'lines_added', 'lines_deleted'])
         writer.writeheader()
-        writer.writerows(results)
+        
+        for module_path, metrics in churn_data.items():
+            writer.writerow({
+                'module_path': module_path,
+                'lines_added': metrics['added'],
+                'lines_deleted': metrics['deleted']
+            })
+
+def calculate_cyclomatic_complexity(repo_name: str) -> Dict[str, float]:
+    """Calculate cyclomatic complexity for Python files in a repository."""
+    from radon.complexity import cc_visit
+    from radon.visitors import ComplexityVisitor
     
-    return {
-        'total_python_modules': total_python_modules,
-        'valid_complexity_count': valid_complexity_count,
-        'validity_ratio': valid_complexity_count / total_python_modules if total_python_modules > 0 else 0,
-        'output_file': str(output_path)
-    }
+    repo_path = Path(get_output_dir()) / "raw" / repo_name
+    if not repo_path.exists():
+        return {}
+    
+    complexity_data = {}
+    
+    for py_file in repo_path.rglob("*.py"):
+        try:
+            with open(py_file, 'r', encoding='utf-8', errors='ignore') as f:
+                source = f.read()
+            
+            results = cc_visit(source)
+            total_complexity = sum(block.complexity for block in results)
+            
+            relative_path = py_file.relative_to(repo_path)
+            complexity_data[str(relative_path)] = total_complexity
+        except Exception as e:
+            logger.warning(f"Error processing {py_file}: {e}")
+            continue
+    
+    return complexity_data
+
+def compute_cyclomatic_complexity_for_repos() -> Dict[str, Dict[str, float]]:
+    """Compute cyclomatic complexity for all repositories."""
+    all_complexity = {}
+    repo_list = get_repo_list()
+    
+    for repo_name in repo_list:
+        complexity = calculate_cyclomatic_complexity(repo_name)
+        if complexity:
+            all_complexity[repo_name] = complexity
+    
+    return all_complexity
+
+def calculate_bug_density(repo_name: str) -> Dict[str, float]:
+    """Calculate bug density (bugs/KLOC) for a repository."""
+    issues_path = Path(get_output_dir()) / "intermediate" / f"{repo_name}_issues.csv"
+    churn_path = Path(get_output_dir()) / "intermediate" / f"{repo_name}_churn.csv"
+    
+    if not issues_path.exists() or not churn_path.exists():
+        return {}
+    
+    # Count issues per module
+    issue_counts = {}
+    with open(issues_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            module_path = row.get('file_path', '')
+            if module_path not in issue_counts:
+                issue_counts[module_path] = 0
+            issue_counts[module_path] += 1
+    
+    # Calculate lines of code per module
+    module_lines = {}
+    with open(churn_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            module_path = row.get('file_path', '')
+            if module_path not in module_lines:
+                module_lines[module_path] = 0
+            try:
+                module_lines[module_path] += int(row.get('lines_added', 0))
+            except ValueError:
+                continue
+    
+    # Calculate bug density
+    bug_density = {}
+    for module_path, lines in module_lines.items():
+        if lines > 0:
+            kloc = lines / 1000.0
+            bugs = issue_counts.get(module_path, 0)
+            bug_density[module_path] = bugs / kloc if kloc > 0 else 0.0
+    
+    return bug_density
+
+def save_bug_density_metrics(repo_name: str, bug_density: Dict[str, float]) -> None:
+    """Save bug density metrics to CSV."""
+    output_dir = get_output_dir()
+    density_path = Path(output_dir) / "results" / f"{repo_name}_bug_density.csv"
+    
+    with open(density_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=['module_path', 'bug_density'])
+        writer.writeheader()
+        
+        for module_path, density in bug_density.items():
+            writer.writerow({
+                'module_path': module_path,
+                'bug_density': round(density, 4)
+            })
+
+def calculate_module_size_and_age(repo_name: str) -> Tuple[Dict[str, float], Dict[str, float]]:
+    """
+    Calculate module Size (KLOC) and Age (months since creation).
+    Also generates Gini² (Gini squared) for each module.
+    
+    Returns:
+        Tuple of (size_dict, age_dict) where:
+        - size_dict: {module_path: size_in_kloc}
+        - age_dict: {module_path: age_in_months}
+    """
+    # Load ownership data
+    ownership_data = load_ownership_csv(repo_name)
+    if not ownership_data:
+        logger.warning(f"No ownership data for {repo_name}")
+        return {}, {}
+    
+    # Get commit history to determine file creation dates
+    commits_path = Path(get_output_dir()) / "intermediate" / f"{repo_name}_commits.csv"
+    if not commits_path.exists():
+        logger.warning(f"Commit history not found for {repo_name}")
+        return {}, {}
+    
+    # Parse commit history to find first appearance of each file
+    file_first_commit = {}
+    cutoff = get_cutoff_date()
+    
+    with open(commits_path, 'r', encoding='utf-8') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            file_path = row.get('file_path', '')
+            timestamp_str = row.get('timestamp', '')
+            
+            try:
+                timestamp = datetime.fromisoformat(timestamp_str)
+                # Only consider commits before cutoff date
+                if timestamp <= cutoff:
+                    if file_path not in file_first_commit:
+                        file_first_commit[file_path] = timestamp
+                    else:
+                        if timestamp < file_first_commit[file_path]:
+                            file_first_commit[file_path] = timestamp
+            except (ValueError, KeyError):
+                continue
+    
+    # Calculate size (KLOC) per module
+    # We'll use the last known line count from churn data
+    churn_path = Path(get_output_dir()) / "intermediate" / f"{repo_name}_churn.csv"
+    module_lines = {}
+    
+    if churn_path.exists():
+        with open(churn_path, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                module_path = row.get('file_path', '')
+                try:
+                    lines = int(row.get('lines_added', 0)) - int(row.get('lines_deleted', 0))
+                    if module_path not in module_lines:
+                        module_lines[module_path] = 0
+                    module_lines[module_path] += lines
+                except ValueError:
+                    continue
+    
+    # If no churn data, estimate size from ownership data
+    if not module_lines:
+        for row in ownership_data:
+            module_path = row.get('file_path', '')
+            if module_path not in module_lines:
+                module_lines[module_path] = 0
+            # Use a simple heuristic: count occurrences as proxy for size
+            module_lines[module_path] += 1
+    
+    # Convert to KLOC
+    size_dict = {}
+    for module_path, lines in module_lines.items():
+        kloc = max(0.0, lines / 1000.0)
+        size_dict[module_path] = kloc
+    
+    # Calculate Age (months since creation)
+    age_dict = {}
+    latest_ts = get_latest_timestamp(repo_name)
+    
+    for module_path, first_commit in file_first_commit.items():
+        delta = latest_ts - first_commit
+        age_months = delta.days / 30.44  # Average days per month
+        age_dict[module_path] = age_months
+    
+    # Calculate Gini² for each module (using ownership data)
+    # Group ownership by module and calculate Gini
+    module_ownership = {}
+    for row in ownership_data:
+        module_path = row.get('file_path', '')
+        committer = row.get('committer', '')
+        commits = int(row.get('commits', 0))
+        
+        if module_path not in module_ownership:
+            module_ownership[module_path] = {}
+        
+        if committer not in module_ownership[module_path]:
+            module_ownership[module_path][committer] = 0
+        module_ownership[module_path][committer] += commits
+    
+    # Store Gini² in a separate dict for T031
+    ginisq_dict = {}
+    for module_path, committers in module_ownership.items():
+        if committers:
+            values = list(committers.values())
+            gini = calculate_gini(values)
+            ginisq_dict[module_path] = gini * gini
+    
+    return size_dict, age_dict, ginisq_dict
+
+def save_size_age_metrics(repo_name: str, size_dict: Dict[str, float], age_dict: Dict[str, float], ginisq_dict: Dict[str, float]) -> None:
+    """Save Size, Age, and Gini² metrics to CSV."""
+    output_dir = get_output_dir()
+    metrics_path = Path(output_dir) / "results" / f"{repo_name}_size_age_ginisq.csv"
+    
+    with open(metrics_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(
+            f, 
+            fieldnames=['module_path', 'size_kloc', 'age_months', 'gini_squared']
+        )
+        writer.writeheader()
+        
+        # Use union of all keys
+        all_modules = set(size_dict.keys()) | set(age_dict.keys()) | set(ginisq_dict.keys())
+        
+        for module_path in all_modules:
+            writer.writerow({
+                'module_path': module_path,
+                'size_kloc': round(size_dict.get(module_path, 0.0), 4),
+                'age_months': round(age_dict.get(module_path, 0.0), 2),
+                'gini_squared': round(ginisq_dict.get(module_path, 0.0), 6)
+            })
+
+def process_all_ownership_for_size_age() -> Dict[str, Dict[str, Any]]:
+    """
+    Process all repositories to calculate Size, Age, and Gini².
+    Returns a dictionary with results for each repository.
+    """
+    repo_list = get_repo_list()
+    results = {}
+    
+    for repo_name in repo_list:
+        logger.info(f"Processing size, age, and Gini² for {repo_name}")
+        
+        try:
+            size_dict, age_dict, ginisq_dict = calculate_module_size_and_age(repo_name)
+            
+            if size_dict or age_dict:
+                save_size_age_metrics(repo_name, size_dict, age_dict, ginisq_dict)
+                
+                results[repo_name] = {
+                    'size': size_dict,
+                    'age': age_dict,
+                    'gini_squared': ginisq_dict,
+                    'module_count': len(size_dict)
+                }
+                logger.info(f"Completed {repo_name}: {len(size_dict)} modules processed")
+            else:
+                logger.warning(f"No valid data for {repo_name}")
+                
+        except Exception as e:
+            logger.error(f"Error processing {repo_name}: {e}", exc_info=True)
+            continue
+    
+    return results
 
 def main():
-    """Main entry point for metrics calculation."""
-    # Configuration
-    repos_dir = Path("data/raw")
-    ownership_dir = Path("data/intermediate")
-    output_file = Path("data/results/cyclomatic_complexity.csv")
+    """Main entry point for Size, Age, and Gini² calculation."""
+    logger.info("Starting Size, Age, and Gini² calculation")
     
-    logger.info("Starting cyclomatic complexity calculation")
+    results = process_all_ownership_for_size_age()
     
-    # Load ownership data
-    if not ownership_dir.exists():
-        logger.error(f"Ownership directory not found: {ownership_dir}")
-        return
+    if results:
+        total_modules = sum(r['module_count'] for r in results.values())
+        logger.info(f"Successfully processed {len(results)} repositories with {total_modules} total modules")
+        
+        # Print summary
+        for repo_name, data in results.items():
+            logger.info(f"  {repo_name}: {data['module_count']} modules")
+            if data['size']:
+                avg_size = sum(data['size'].values()) / len(data['size'])
+                logger.info(f"    Average size: {avg_size:.3f} KLOC")
+            if data['age']:
+                avg_age = sum(data['age'].values()) / len(data['age'])
+                logger.info(f"    Average age: {avg_age:.2f} months")
+    else:
+        logger.warning("No repositories processed successfully")
     
-    ownership_data = process_all_ownership_files(ownership_dir)
-    
-    if not ownership_data:
-        logger.warning("No ownership data found to process.")
-        return
-    
-    # Calculate complexity
-    stats = compute_cyclomatic_complexity_for_repos(repos_dir, ownership_data, output_file)
-    
-    logger.info(f"Complexity calculation complete. Results saved to {output_file}")
-    logger.info(f"Statistics: {stats}")
+    return results
 
 if __name__ == "__main__":
     main()

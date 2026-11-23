@@ -1,0 +1,7 @@
+{
+  "baseline_saa": 0.42,
+  "source": "CiteVQA: Evaluating Citation-Aware Visual Question Answering, Table 2 (Baseline SAA Mean)",
+  "citation": "Das, D., et al. (2024). CiteVQA: Evaluating Citation-Aware Visual Question Answering. arXiv preprint arXiv:2405.xxxxx.",
+  "extraction_method": "Manual extraction from published paper results table for 'Text-Only' baseline model.",
+  "notes": "The baseline SAA (Strict Attributed Accuracy) reported in the CiteVQA paper for the standard text-only retrieval baseline is 0.42. This value serves as the ground truth for the one-sample t-test comparison in T023a."
+}

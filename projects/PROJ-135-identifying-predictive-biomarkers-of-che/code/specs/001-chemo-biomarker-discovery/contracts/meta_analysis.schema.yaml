@@ -1,0 +1,12 @@
+gene_symbol:
+  type: string
+  description: Official HGNC gene symbol
+meta_p_value:
+  type: float
+  description: P-value from meta-analysis (e.g., Stouffer's method)
+log2FC_mean:
+  type: float
+  description: Mean log2 fold change across tumor types
+selected:
+  type: boolean
+  description: Whether this gene was selected for the final panel

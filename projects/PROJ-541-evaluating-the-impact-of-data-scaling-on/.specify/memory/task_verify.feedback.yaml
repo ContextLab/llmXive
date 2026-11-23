@@ -1,0 +1,52 @@
+T001:
+  reason: 'Requested task execution failed; rerun successfully: code/verify_scaffolding.py
+    exit=1'
+  task: 196be1182bf25472391af15a7e14a012433d24d9eb818eecaa8c2ec97383569d
+T002:
+  reason: "The required test run fails: the recorded execution log shows `pytest code/tests/unit/test_generator.py`\
+    \ exits 1 with 2 failures \u2014 `test_skewness_within_01_of_target[2.0]` (sample\
+    \ skewness 1.89, off by 0.11 > 0.1 tolerance) and `test_from_config` (test passes\
+    \ `mean=` but `SimulationConfig` has no `mean` field, only `mean_diff`). The generator\
+    \ and test files exist and are substantive, but the verification requirement \"\
+    pytest passes\" is not met; fix the skewness realization for target 2.0 (e.g.,\
+    \ larger n, moment matching, or different skewed distribution) and correct the\
+    \ `SimulationConfig` field"
+  task: d48a912e71812884a5c8e279e802ef512de9910c676af128a72f2f747e23379b
+T003:
+  task: 4ae7bdc8ea38e8f59f035f15cd54415e0dc81dcb8016a40806561936ae218633
+T004:
+  task: 1b45e5e6e829b488acb4c2a17a55d59f3af38671b8ee04684349381678d6b30f
+T005:
+  task: 154ff7966591000508077882566020213c0eb9a7e097a9d3e7d90b995802e77f
+T006:
+  task: 4c544ff774d688fb8c56e26590954741cce569f6ce5b1f3d987bdc827dc77e63
+T007:
+  task: 8a2c047aada76db371b4531d0fb4912e81748ea9488d55143b615860da789dbd
+T008:
+  task: a20da779308de45e51f0863a02ed6899bf7e37b14090b823474f6d95dfaf7ad3
+T009:
+  task: 57831f9ba539f3bbe18bb4f6be13dcae1c7372c6fc790c26d5bac00aebf78ebb
+T010:
+  task: 9838ad46e8b1d4afb1b5e94a8b6a4b980f90734d286a9fca86636036de6811a0
+T011:
+  task: be35853f5d357d5e1b6a2e8a79448060f3f37c3df33ff0cef16f6ae2818c044e
+T012:
+  task: 23d15b0d8ca8123d7201fd4612f8edb03ab04e1fd755f922c0ed900bf49f31cc
+T013:
+  task: 4a69966cfacf990f6d446d20f736958bf59b8eb0a3faae4f8f4f4264a1a4c245
+T014:
+  task: 4d8ed7c57ed5a63f538c821ce866cdedbd2b229c1daf6ef503b7ae4a9134322b
+T015:
+  task: 1216c7c623788d358577e21641eede7ab577d090b43972972005ba27d3b8cb39
+T016:
+  task: 063f7a41c7789da9a751f87ef14c406a71f773034f4d12a91f9526f309d635cb
+T017:
+  task: 8f20f653db40c2e5717e4bf8b160f90c5b12686a6e0233615aea01b1ed500997
+T018:
+  task: e25c55e8bb22011638cc206a0e28d11e0d3afa4c9359e5cd9011fe9334a5aa59
+T019:
+  task: ad9d70b46ea005e1aff1de2f256c5196e102a0fcea3a9d1111feeff9a003fca4
+T020:
+  task: fbe8acd979a32958776abd3ceb1d0041a7f08dd69853fa5795afcd9cd1464e5d
+T021:
+  task: c5e43ca87772623d148198893678e72915d03749dfb82f35b98b07b49b0f59fc

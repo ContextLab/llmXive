@@ -1,210 +1,244 @@
+"""Implementation of full metrics generation and Benjamini-Hochberg FDR correction for US2.
+
+This module merges the outputs of the PCA step (``pca_loadings.csv`` and
+``factor_scores.csv``) with the aggregated network metrics (``aggregated_metrics.csv``)
+to produce ``full_metrics.csv`` and then applies FDR correction to the
+correlation results (``correlation_results.csv``), writing ``fdr_corrected_results.csv``.
+"""
+
 from __future__ import annotations
-import os
+
 import logging
 from pathlib import Path
-from typing import Optional, Tuple, List, Dict, Any
-import numpy as np
+from typing import Tuple
+
 import pandas as pd
-from sklearn.decomposition import PCA
+from statsmodels.stats.multitest import multipletests
+
+# Re‑use the PCA pipeline implementation that already writes the PCA
+# artefacts.  Importing it here keeps the dependency graph simple and
+# guarantees that the PCA step is executed before we attempt to merge the
+# results.
+from .pca_utils import run_pca_pipeline
+
+# ----------------------------------------------------------------------
+# Logging – the project uses a tolerant reproducibility logger defined in
+# ``code/logging_config.py``.  ``get_logger`` returns a singleton that
+# works with any call signature.
+# ----------------------------------------------------------------------
 from code.logging_config import get_logger
 
 logger = get_logger(__name__)
 
-def load_metrics_data(filepath: str = "data/processed/aggregated_metrics.csv") -> pd.DataFrame:
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _read_csv(path: Path) -> pd.DataFrame:
+    """Read a CSV file and raise a clear error if the file is missing."""
+    if not path.is_file():
+        raise FileNotFoundError(f"Required file not found: {path}")
+    logger.log("reading_csv", path=str(path))
+    return pd.read_csv(path)
+
+def _write_csv(df: pd.DataFrame, path: Path) -> None:
+    """Write a DataFrame to CSV, creating parent directories as needed."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(path, index=False)
+    logger.log("wrote_csv", path=str(path), rows=len(df))
+
+# ----------------------------------------------------------------------
+# Core functionality – full metrics generation
+# ----------------------------------------------------------------------
+def generate_full_metrics(
+    analysis_dir: Path = Path("data/analysis")
+) -> Path:
     """
-    Load the aggregated metrics DataFrame containing:
-    subject_id, modularity, global_efficiency, participation_coef, within_module_degree, fd
+    Generate ``full_metrics.csv`` by merging the aggregated network metrics
+    with the PCA factor scores.
+
+    Parameters
+    ----------
+    analysis_dir :
+        Directory containing the intermediate CSV artefacts produced by
+        previous tasks (default: ``data/analysis``).
+
+    Returns
+    -------
+    Path
+        Path to the written ``full_metrics.csv`` file.
     """
-    path = Path(filepath)
-    if not path.exists():
-        raise FileNotFoundError(f"Metrics file not found at {filepath}. "
-                                "Ensure T021/T022 have run and written data/processed/aggregated_metrics.csv.")
-    
-    df = pd.read_csv(filepath)
-    required_cols = ['subject_id', 'modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
-    missing = [c for c in required_cols if c not in df.columns]
+    logger.log("generate_full_metrics_start", analysis_dir=str(analysis_dir))
+
+    # Expected input file names
+    aggregated_path = analysis_dir / "aggregated_metrics.csv"
+    factor_scores_path = analysis_dir / "factor_scores.csv"
+
+    # Ensure the required inputs exist; if not, run the PCA pipeline which
+    # will also generate ``factor_scores.csv``.
+    if not aggregated_path.is_file():
+        raise FileNotFoundError(
+            f"Aggregated metrics file missing: {aggregated_path}"
+        )
+
+    # ``run_pca_pipeline`` reads ``aggregated_metrics.csv`` and writes the
+    # PCA artefacts.  It is safe to call it even if the artefacts already
+    # exist – the function overwrites them with the same deterministic
+    # results.
+    run_pca_pipeline(analysis_dir=analysis_dir)
+
+    # Load the required data frames
+    aggregated_df = _read_csv(aggregated_path)
+    factor_scores_df = _read_csv(factor_scores_path)
+
+    # Verify that both data frames contain a ``subject_id`` column.
+    for df, name in [(aggregated_df, "aggregated_metrics"), (factor_scores_df, "factor_scores")]:
+        if "subject_id" not in df.columns:
+            raise KeyError(
+                f"'{name}.csv' must contain a 'subject_id' column; columns found: {list(df.columns)}"
+            )
+
+    # Merge on ``subject_id`` – a left join preserves all subjects that have
+    # network metrics (the PCA step always produces a factor row for each of
+    # those subjects).
+    full_df = pd.merge(
+        aggregated_df,
+        factor_scores_df,
+        on="subject_id",
+        how="left",
+        validate="one_to_one",
+    )
+
+    # The specification requires the following column order.
+    required_columns = [
+        "subject_id",
+        "modularity",
+        "global_efficiency",
+        "pc_mean",
+        "wmd_mean",
+        "pca_factor_1",
+        "pca_factor_2",
+    ]
+
+    missing = [col for col in required_columns if col not in full_df.columns]
     if missing:
-        raise ValueError(f"Missing required columns in {filepath}: {missing}")
-    
-    # Ensure numeric types
-    numeric_cols = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
-    for col in numeric_cols:
-        df[col] = pd.to_numeric(df[col], errors='coerce')
-    
-    # Drop rows with NaN in metrics
-    df = df.dropna(subset=numeric_cols)
-    return df
+        raise KeyError(
+            f"The following required columns are missing after merge: {missing}"
+        )
 
-def run_pca_on_metrics(
-    df: pd.DataFrame,
-    n_components: int = 2,
-    output_dir: str = "data/analysis",
-    loadings_file: str = "pca_loadings.csv",
-    scores_file: str = "factor_scores.csv"
-) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    # Re‑order columns exactly as required.
+    full_df = full_df[required_columns]
+
+    # Write the final CSV.
+    output_path = analysis_dir / "full_metrics.csv"
+    _write_csv(full_df, output_path)
+
+    logger.log("generate_full_metrics_complete", output_path=str(output_path))
+    return output_path
+
+# ----------------------------------------------------------------------
+# Benjamini-Hochberg FDR correction
+# ----------------------------------------------------------------------
+def apply_fdr_correction(
+    analysis_dir: Path = Path("data/analysis"),
+    pvalue_column: str = "p",
+    qvalue_column: str = "q",
+    significance_column: str = "significant",
+    alpha: float = 0.05,
+) -> Path:
     """
-    Perform PCA on network metrics.
-    
-    Input: DataFrame with columns [modularity, global_efficiency, participation_coef, within_module_degree]
-    Output: 
-      - pca_loadings.csv: columns [component_1, component_2] (loadings for each metric)
-      - factor_scores.csv: columns [subject_id, pca_factor_1] (projected scores)
-    
-    This function implements T023a.
+    Apply Benjamini‑Hochberg FDR correction to the set of p‑values produced
+    by the correlation step and write a CSV that includes corrected q‑values
+    and a boolean ``significant`` flag.
+
+    The function expects a CSV named ``correlation_results.csv`` (produced by
+    task T024) in ``analysis_dir`` with at least the columns ``metric_name``
+    and the p‑value column (default ``p``).  It writes
+    ``fdr_corrected_results.csv`` to the same directory.
+
+    Parameters
+    ----------
+    analysis_dir : Path
+        Directory containing ``correlation_results.csv`` and where the
+        corrected file will be written.
+    pvalue_column : str, optional
+        Name of the column containing raw p‑values. Default ``"p"``.
+    qvalue_column : str, optional
+        Name of the column to store the corrected q‑values. Default ``"q"``.
+    significance_column : str, optional
+        Name of the Boolean column indicating significance after correction.
+        Default ``"significant"``.
+    alpha : float, optional
+        FDR threshold. Default ``0.05``.
+
+    Returns
+    -------
+    Path
+        Path to the written ``fdr_corrected_results.csv`` file.
     """
-    logger.log("run_pca_on_metrics", operation="PCA", n_components=n_components)
-    
-    # Select features
-    features = ['modularity', 'global_efficiency', 'participation_coef', 'within_module_degree']
-    X = df[features].values
-    
-    # Initialize and fit PCA
-    pca = PCA(n_components=n_components)
-    pca.fit(X)
-    
-    # 1. Generate Loadings DataFrame
-    # Loadings are the components_ array (n_components x n_features)
-    # We transpose to make it n_features x n_components for easier reading
-    loadings_df = pd.DataFrame(
-        pca.components_.T,
-        columns=[f'component_{i+1}' for i in range(n_components)],
-        index=features
+    logger.log("apply_fdr_correction_start", analysis_dir=str(analysis_dir))
+
+    corr_path = analysis_dir / "correlation_results.csv"
+    if not corr_path.is_file():
+        raise FileNotFoundError(f"Correlation results file not found: {corr_path}")
+
+    df = _read_csv(corr_path)
+
+    if pvalue_column not in df.columns:
+        raise KeyError(f"Column '{pvalue_column}' not found in correlation results.")
+
+    # Perform Benjamini‑Hochberg correction
+    pvals = df[pvalue_column].values
+    _, qvals, _, _ = multipletests(pvals, alpha=alpha, method="fdr_bh")
+    df[qvalue_column] = qvals
+    df[significance_column] = df[qvalue_column] < alpha
+
+    # Preserve original column order, appending the new ones at the end.
+    output_path = analysis_dir / "fdr_corrected_results.csv"
+    _write_csv(df, output_path)
+
+    logger.log(
+        "apply_fdr_correction_complete",
+        output_path=str(output_path),
+        total_tests=int(len(pvals)),
+        significant=int(df[significance_column].sum()),
     )
-    
-    # Save loadings
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
-    loadings_path = output_path / loadings_file
-    loadings_df.to_csv(loadings_path, index=True)
-    logger.log("save_loadings", path=str(loadings_path), rows=len(loadings_df))
-    
-    # 2. Generate Factor Scores (Transformed data)
-    scores = pca.transform(X)
-    scores_df = pd.DataFrame(
-        scores,
-        columns=[f'pca_factor_{i+1}' for i in range(n_components)]
+    return output_path
+
+# ----------------------------------------------------------------------
+# Command‑line interface
+# ----------------------------------------------------------------------
+def _parse_cli() -> Tuple[Path]:
+    """Parse a minimal CLI – the script can be called with an optional
+    ``--analysis-dir`` argument.  Using ``argparse`` keeps the interface
+    consistent with the rest of the project."""
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description=(
+            "Create ``full_metrics.csv`` by merging aggregated network metrics "
+            "with PCA factor scores and apply Benjamini‑Hochberg FDR correction "
+            "to correlation results."
+        )
     )
-    # Add subject_id back
-    scores_df.insert(0, 'subject_id', df['subject_id'].values)
-    
-    # Save scores
-    scores_path = output_path / scores_file
-    scores_df.to_csv(scores_path, index=False)
-    logger.log("save_scores", path=str(scores_path), rows=len(scores_df))
-    
-    return loadings_df, scores_df
-
-def run_correlations_with_fd_covariate(
-    df: pd.DataFrame,
-    metric_cols: List[str] = None
-) -> pd.DataFrame:
-    """
-    Run correlations between metrics and behavioral scores, controlling for FD.
-    Implemented in T024. Placeholder for T023a context.
-    """
-    logger.log("run_correlations_with_fd_covariate", operation="Correlation")
-    # Implementation deferred to T024
-    return pd.DataFrame()
-
-def apply_fdr_correction(p_values: List[float], alpha: float = 0.05) -> List[bool]:
-    """
-    Apply Benjamini-Hochberg FDR correction.
-    Implemented in T025. Placeholder for T023a context.
-    """
-    logger.log("apply_fdr_correction", operation="FDR", alpha=alpha)
-    # Implementation deferred to T025
-    return [False] * len(p_values)
-
-def log_significant_correlations(results: pd.DataFrame) -> None:
-    """Log significant correlations."""
-    logger.log("log_significant_correlations", operation="Logging")
-
-def generate_full_metrics(df: pd.DataFrame, pca_scores: pd.DataFrame) -> pd.DataFrame:
-    """
-    Merge individual metric columns with PCA factor scores.
-    Implements T023b.
-    
-    Logic:
-    1. Ensure both DataFrames are indexed by subject_id (or merge on it).
-    2. Concatenate raw metrics (from df) and PCA scores (from pca_scores).
-    3. Return a single DataFrame containing all data for FR-005 and FR-004.
-    """
-    logger.log("generate_full_metrics", operation="Merge")
-    
-    if df.empty or pca_scores.empty:
-        logger.log("generate_full_metrics", status="skipped", reason="Empty input")
-        return pd.DataFrame()
-
-    # Ensure subject_id is a column and set as index for merging
-    # df comes from load_metrics_data, which keeps subject_id as a column
-    # pca_scores comes from run_pca_on_metrics, which inserts subject_id as first col
-    
-    # Prepare left (raw metrics)
-    left = df.copy()
-    if 'subject_id' in left.columns:
-        left = left.set_index('subject_id')
-    
-    # Prepare right (PCA scores)
-    right = pca_scores.copy()
-    if 'subject_id' in right.columns:
-        right = right.set_index('subject_id')
-    
-    # Merge on index (subject_id)
-    # inner join ensures we only keep subjects present in BOTH datasets
-    merged = left.join(right, how='inner')
-    
-    if merged.empty:
-        logger.log("generate_full_metrics", status="warning", reason="No matching subjects found")
-        return pd.DataFrame()
-    
-    # Reset index to make subject_id a column again for CSV output
-    merged = merged.reset_index()
-    
-    # Log output schema
-    logger.log("generate_full_metrics", status="success", columns=list(merged.columns), rows=len(merged))
-    
-    return merged
+    parser.add_argument(
+        "--analysis-dir",
+        type=Path,
+        default=Path("data/analysis"),
+        help="Directory containing the intermediate CSV artefacts (default: data/analysis).",
+    )
+    args = parser.parse_args()
+    return (args.analysis_dir,)
 
 def main() -> None:
-    """
-    Main entry point for T023a/T023b: Run PCA and generate full metrics.
-    Reads from data/processed/aggregated_metrics.csv
-    Writes:
-      - data/analysis/pca_loadings.csv
-      - data/analysis/factor_scores.csv
-      - data/analysis/full_metrics.csv (T023b output)
-    """
+    """Entry point used by the run‑book and by the higher‑level pipeline."""
+    analysis_dir, = _parse_cli()
     try:
-        # Load data
-        df = load_metrics_data()
-        
-        if df.empty:
-            logger.log("main", status="skipped", reason="No data available")
-            return
-        
-        logger.log("main", status="starting", subjects=len(df))
-        
-        # Run PCA (T023a)
-        loadings, scores = run_pca_on_metrics(df)
-        
-        # Generate Full Metrics (T023b)
-        full_metrics = generate_full_metrics(df, scores)
-        
-        if not full_metrics.empty:
-            output_dir = Path("data/analysis")
-            output_dir.mkdir(parents=True, exist_ok=True)
-            full_metrics_path = output_dir / "full_metrics.csv"
-            full_metrics.to_csv(full_metrics_path, index=False)
-            logger.log("save_full_metrics", path=str(full_metrics_path), rows=len(full_metrics))
-        
-        logger.log("main", status="completed", 
-                   loadings_file="data/analysis/pca_loadings.csv",
-                   scores_file="data/analysis/factor_scores.csv",
-                   full_metrics_file="data/analysis/full_metrics.csv")
-        
-    except Exception as e:
-        logger.log("main", status="failed", error=str(e))
+        generate_full_metrics(analysis_dir=analysis_dir)
+        apply_fdr_correction(analysis_dir=analysis_dir)
+    except Exception as exc:
+        logger.log("full_metrics_or_fdr_failed", error=str(exc))
         raise
 
 if __name__ == "__main__":
+    # When the module is executed directly, run the main entry point.
     main()

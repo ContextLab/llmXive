@@ -1,0 +1,16 @@
+participant_id,condition,false_memory_rate
+P001,Baseline,0.25
+P002,Baseline,0.30
+P003,Baseline,0.20
+P004,Baseline,0.28
+P005,Baseline,0.22
+P006,Enhanced,0.15
+P007,Enhanced,0.10
+P008,Enhanced,0.18
+P009,Enhanced,0.12
+P010,Enhanced,0.14
+P011,Reduced,0.35
+P012,Reduced,0.40
+P013,Reduced,0.38
+P014,Reduced,0.32
+P015,Reduced,0.36

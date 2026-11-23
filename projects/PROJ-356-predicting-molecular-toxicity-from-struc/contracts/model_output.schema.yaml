@@ -1,0 +1,115 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: >
+  Schema for model predictions, performance metrics, and statistical analysis
+  results. Ensures reproducibility and standardized reporting of model
+  performance across different experiments.
+type: object
+required:
+  - experiment_metadata
+  - metrics
+  - predictions
+properties:
+  experiment_metadata:
+    type: object
+    required:
+      - model_type
+      - hyperparameters
+      - cv_config
+      - timestamp
+    properties:
+      model_type:
+        type: string
+        enum:
+          - rule_based
+          - logistic_regression
+        description: "Type of model used"
+      hyperparameters:
+        type: object
+        description: "Dictionary of model hyperparameters"
+      cv_config:
+        type: object
+        required:
+          - n_splits
+          - n_repeats
+          - stratified
+        properties:
+          n_splits:
+            type: integer
+            minimum: 2
+          n_repeats:
+            type: integer
+            minimum: 1
+          stratified:
+            type: boolean
+      timestamp:
+        type: string
+        format: date-time
+  metrics:
+    type: object
+    required:
+      - roc_auc
+      - f1_score
+      - recall
+      - precision
+    properties:
+      roc_auc:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      f1_score:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      recall:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      precision:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+      recall_diff:
+        type: number
+        description: "Difference in recall between descriptor and rule-based models"
+      recall_diff_significant:
+        type: boolean
+        description: "True if recall difference > 0.05"
+      p_value_delong:
+        type: number
+        description: "P-value from DeLong's test"
+      delong_ci_lower:
+        type: number
+      delong_ci_upper:
+        type: number
+      significant_difference:
+        type: boolean
+        description: "True if p < 0.05"
+  predictions:
+    type: object
+    required:
+      - oof_predictions
+      - test_predictions
+    properties:
+      oof_predictions:
+        type: array
+        description: "Out-of-fold predictions for all instances"
+        items:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+      test_predictions:
+        type: array
+        description: "Final test set predictions"
+        items:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+      test_labels:
+        type: array
+        description: "Ground truth labels for test set"
+        items:
+          type: integer
+          enum:
+            - 0
+            - 1

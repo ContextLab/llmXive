@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Prediction Output Schema"
+description: "Schema for model predictions and uncertainty metrics."
+type: object
+properties:
+  composition_id:
+    type: string
+    description: "Unique hash of the composition."
+  prediction_energy:
+    type: number
+    description: "Predicted formation energy."
+  prediction_enthalpy:
+    type: number
+    description: "Predicted mixing enthalpy."
+  prediction_var_energy:
+    type: number
+    minimum: 0
+    description: "Ensemble variance for energy prediction."
+  prediction_var_enthalpy:
+    type: number
+    minimum: 0
+    description: "Ensemble variance for enthalpy prediction."
+  distance_from_hull:
+    type: number
+    description: "Distance of the composition from the training convex hull."
+  reliability_rank:
+    type: integer
+    minimum: 1
+    description: "Rank of the candidate based on lowest uncertainty."
+required:
+  - composition_id
+  - prediction_energy
+  - prediction_enthalpy
+  - prediction_var_energy
+  - prediction_var_enthalpy
+  - distance_from_hull
+additionalProperties: true

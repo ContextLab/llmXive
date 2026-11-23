@@ -1,0 +1,4 @@
+# Black configuration is defined in pyproject.toml.
+# This file exists to ensure black is recognized in some IDEs 
+# if they look for a specific config file, though pyproject.toml is preferred.
+include = "pyproject.toml"

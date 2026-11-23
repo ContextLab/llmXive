@@ -360,23 +360,6 @@
   updated_at: '2026-06-30T11:20:27Z'
 - artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
   attempts: 1
-  canonical: 4mm FWHM smoothing kernel
-  claim_id: c_ab1011b0
-  context: Unit test for 4mm FWHM smoothing logic in tests/unit/test_roi_extraction.py
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/4mm_FWHM_smoothing_kernel
-  kind: entity_fact
-  raw_text: 4mm FWHM smoothing logic
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-30T11:20:29Z'
-- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
-  attempts: 1
   canonical: z-score normalization output mean zero standard deviation one
   claim_id: c_39a92077
   context: 'Implement z-score normalization of the mean time-series within the DLPFC
@@ -441,24 +424,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-30T11:21:49Z'
-- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
-  attempts: 1
-  canonical: peak RAM usage less than 5.5GB
-  claim_id: c_4788183f
-  context: Optimize batch sizes in code/complexity.py to ensure peak RAM usage stays
-    < 5.5GB
-  evidence:
-    candidates_found: 1
-    reason: candidate set too small to verify ordering
-    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_less_than_5.5GB
-  kind: magnitude
-  raw_text: peak RAM usage stays < 5.5GB
-  resolved_value: null
-  resolver: resolve_superlative
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-06-30T11:21:51Z'
 - artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
   attempts: 1
   canonical: significance logic observed statistic outside 95 percent confidence interval
@@ -660,3 +625,3338 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-06-30T11:24:55Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: Plan.md mentions dataset ID ds000248
+  claim_id: c_66962b4c
+  context: 'All tasks reference ds000246 as per Spec FR-001. (Note: Plan.md contains
+    a discrepancy mentioning ds000248; tasks enforce ds000246 to comply with the Spec).'
+  evidence:
+    entailment_evidence: Plan.md mentions ds000248 - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Plan.md_mentions_ds000248
+  kind: entity_fact
+  raw_text: Plan.md contains a discrepancy mentioning ds000248.
+  resolved_value: Plan.md mentions ds000248
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T10:29:40Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 2
+  canonical: 'HRF model parameters: double-gamma, peak 5s, undershoot 15s'
+  claim_id: c_bb8fb0b8
+  context: 'HRF Lag: Fixed at double-gamma model (peak=5s, undershoot=15s) for reproducibility.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_model_parameters:_double-gamma,_peak_5s,_undershoot_15s
+  kind: entity_fact
+  raw_text: HRF model is fixed at double-gamma model with peak=5s and undershoot=15s.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:30:01Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Image processing RAM usage limit 6GB on CPU-only runners
+  claim_id: c_b97e4e40
+  context: 'Resource Constraint: All image processing tasks must use batched loading
+    to ensure <6GB RAM usage on CPU-only runners.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Image_processing_RAM_usage_limit_6GB_on_CPU-only_runners
+  kind: magnitude
+  raw_text: All image processing tasks must use batched loading to ensure less than
+    6GB RAM usage on CPU-only runners.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:30:57Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Subject-level AR(1) pre-whitening included in implementation
+  claim_id: c_14049036
+  context: 'Two-Level GLM: Implementation includes subject-level AR(1) pre-whitening
+    (T032) and group-level t-test (T037b) as required by the Plan and Spec.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implementation includes subject-level AR(1) pre-whitening.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:31:21Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Group-level t-test included in implementation
+  claim_id: c_c4e3e5fc
+  context: 'Two-Level GLM: Implementation includes subject-level AR(1) pre-whitening
+    (T032) and group-level t-test (T037b) as required by the Plan and Spec.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Group-level_t-test_included_in_implementation
+  kind: entity_fact
+  raw_text: Implementation includes group-level t-test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:31:58Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Permutation test block size is 2 * TR
+  claim_id: c_6a5b7453
+  context: 'Block Size: Calculate as 2 * TR (Repetition Time) to preserve temporal
+    autocorrelation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Block size for Circular Block Permutation Test is calculated as 2 * TR.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:32:26Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_0b4f3c9b
+  context: Initialize global seeds (numpy, random), define paths (data/raw, data/interim,
+    data/results), and set constants (OpenNeuro ID ds000246...
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_ds000246
+  kind: entity_fact
+  raw_text: The project uses OpenNeuro dataset ds000246.
+  resolved_value: OpenNeuro dataset ID ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T10:34:01Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF double-gamma model peak 5s undershoot 15s
+  claim_id: c_a03d2532
+  context: '...HRF model double-gamma with peak=5s, undershoot=15s... Convolve complexity
+    metrics with canonical HRF using nilearn.glm.first_level.make_regressor (double-gamma
+    model, peak=5s, undershoot=15s)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_double-gamma_model_peak_5s_undershoot_15s
+  kind: entity_fact
+  raw_text: The HRF model is a double-gamma model with a peak of 5 seconds and an
+    undershoot of 15 seconds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:34:19Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Pipeline aborts if RAM exceeds 6GB
+  claim_id: c_d832c73d
+  context: "...memory usage logs show \u2264 6GB peak... Add memory monitoring in\
+    \ code/ingestion.py and code/complexity.py to abort if RAM > 6GB."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_aborts_if_RAM_exceeds_6GB
+  kind: entity_fact
+  raw_text: The pipeline is designed to abort if RAM usage exceeds 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:34:52Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Spatial smoothing 4mm FWHM kernel
+  claim_id: c_70c02742
+  context: Unit test for 4mm FWHM smoothing logic in tests/unit/test_roi_extraction.py...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_smoothing_4mm_FWHM_kernel
+  kind: entity_fact
+  raw_text: Spatial smoothing uses a 4mm FWHM kernel.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:35:22Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation block size 2 * TR
+  claim_id: c_0e80b2dd
+  context: 'Block Size: Calculate as 2 * TR (Repetition Time) to preserve temporal
+    autocorrelation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The circular block permutation test uses a block size calculated as 2
+    times the Repetition Time (TR).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:35:49Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Significance logic checks 95% CI of null distribution
+  claim_id: c_317517f0
+  context: 'Logic: Derive is_significant as True if the observed correlation coefficient
+    falls outside the confidence interval of the null distribution... T035 explicitly
+    checks if the observed statistic falls outside the 95% CI of the null distribution...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The significance logic checks if the observed statistic falls outside
+    the 95% confidence interval of the null distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:35:49Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_13e49b5b
+  context: Define paths and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    with peak=5s, undershoot=15s)
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T10:36:44Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model double-gamma with peak 5s and undershoot 15s
+  claim_id: c_a0755388
+  context: Set constants (OpenNeuro ID ds000246, HRF model double-gamma with peak=5s,
+    undershoot=15s)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_model_double-gamma_with_peak_5s_and_undershoot_15s
+  kind: entity_fact
+  raw_text: HRF model double-gamma with peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:37:02Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 2
+  canonical: 4mm FWHM smoothing kernel
+  claim_id: c_ab1011b0
+  context: Unit test for 4mm FWHM smoothing logic in tests/unit/test_roi_extraction.py
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/4mm_FWHM_smoothing_kernel
+  kind: entity_fact
+  raw_text: 4mm FWHM smoothing logic
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:37:25Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation block size calculated as 2 times Repetition
+    Time
+  claim_id: c_c919ff58
+  context: 'Implement Circular Block Permutation Test with a sufficient number of
+    iterations. Block Size: Calculate as 2 * TR (Repetition Time) to preserve temporal
+    autocorrelation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Block Size: Calculate as 2 * TR (Repetition Time)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:37:56Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Linear regression uses AR(1) noise model
+  claim_id: c_43739738
+  context: Implement Single-subject Linear Regression (OLS) with AR(1) pre-whitening
+    using nilearn.glm.first_level.FirstLevelModel with noise_model='ar1' to handle
+    temporal autocorrelation
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: noise_model='ar1'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:38:08Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: FDR correction uses Benjamini-Hochberg method
+  claim_id: c_2be034ca
+  context: Implement FDR correction (Benjamini-Hochberg) for the two metrics (entropy,
+    fractal dimension)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: "Benjamini\u2013Hochberg procedure"
+      source_id: Q136366870
+      url: https://www.wikidata.org/wiki/Q136366870
+      value: "Benjamini\u2013Hochberg procedure"
+    filled: true
+  kind: entity_fact
+  raw_text: Benjamini-Hochberg
+  resolved_value: "Benjamini\u2013Hochberg procedure"
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-21T10:38:17Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Significance determined if statistic falls outside 95% CI of null distribution
+  claim_id: c_3a5e375a
+  context: T035 explicitly checks if the observed statistic falls outside the 95%
+    CI of the null distribution, not just p < 0.05
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% CI of the null distribution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-21T10:38:18Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_5c504d6e
+  context: Task T004 defines constants including OpenNeuro ID ds000246.
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_ds000246
+  kind: entity_fact
+  raw_text: The dataset used is OpenNeuro ID ds000246.
+  resolved_value: OpenNeuro dataset ID ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-20T06:19:51Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model double-gamma peak 5s undershoot 15s
+  claim_id: c_9315fb07
+  context: Task T004 and T016 specify the HRF model parameters as double-gamma with
+    peak=5s and undershoot=15s.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_model_double-gamma_peak_5s_undershoot_15s
+  kind: entity_fact
+  raw_text: The HRF model is a double-gamma model with a peak of 5 seconds and an
+    undershoot of 15 seconds.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:20:50Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Wikidata Q136366870
+  claim_id: c_12150f14
+  context: Task T033 references Wikidata Q136366870 for FDR correction.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q136366870
+  kind: entity_fact
+  raw_text: The dataset referenced is identified in Wikidata as Q136366870.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:21:16Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_bf307e37
+  context: Initialize global seeds (numpy, random), define paths (data/raw, data/interim,
+    data/results), and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    with peak=5s, undershoot=15s
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-20T06:22:34Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: Plan.md mentions dataset ID ds000248
+  claim_id: c_2f7fed26
+  context: 'Dataset ID: All tasks reference ds000246 as per Spec FR-001. (Note: Plan.md
+    contains a discrepancy mentioning ds000248; tasks enforce ds000246 to comply with
+    the Spec)'
+  evidence:
+    entailment_evidence: Plan.md mentions ds000248 - Wikipedia
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Plan.md_mentions_ds000248
+  kind: entity_fact
+  raw_text: Plan.md contains a discrepancy mentioning ds000248
+  resolved_value: Plan.md mentions ds000248
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-20T06:22:36Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model double-gamma with peak 5s and undershoot 15s
+  claim_id: c_d8c72b09
+  context: Initialize global seeds (numpy, random), define paths (data/raw, data/interim,
+    data/results), and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    with peak=5s, undershoot=15s
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_model_double-gamma_with_peak_5s_and_undershoot_15s
+  kind: entity_fact
+  raw_text: HRF model double-gamma with peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:23:14Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 2
+  canonical: HRF model double-gamma with peak 5s and undershoot 15s
+  claim_id: c_30dab66c
+  context: Convolve complexity metrics with canonical HRF using nilearn.glm.first_level.make_regressor
+    (double-gamma model, peak=5s, undershoot=15s) to align with BOLD signal
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_model_double-gamma_with_peak_5s_and_undershoot_15s
+  kind: entity_fact
+  raw_text: HRF model double-gamma with peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:23:18Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: memory usage peak 6GB
+  claim_id: c_39e66d26
+  context: "Run ingestion script on a single subject; verify CSV output contains time-locked\
+    \ complexity scores and memory usage logs show \u2264 6GB peak"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_peak_6GB
+  kind: entity_fact
+  raw_text: "memory usage logs show \u2264 6GB peak"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:23:53Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: abort if RAM exceeds 6GB
+  claim_id: c_59effc0f
+  context: Add memory monitoring in code/ingestion.py and code/complexity.py to abort
+    if RAM > 6GB
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Abort_if_RAM_exceeds_6GB
+  kind: entity_fact
+  raw_text: abort if RAM > 6GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:24:40Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: 4mm FWHM smoothing logic test_smoothing_increases_variance
+  claim_id: c_341dc437
+  context: 'Unit test for 4mm FWHM smoothing logic in tests/unit/test_roi_extraction.py.
+    Test: test_smoothing_increases_variance asserts NotImplementedError before implementation'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/4mm_FWHM_smoothing_logic_test_smoothing_increases_variance
+  kind: entity_fact
+  raw_text: 'smoothing logic in tests/unit/test_roi_extraction.py. Test: test_smoothing_increases_variance'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:25:36Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: 4mm FWHM kernel
+  claim_id: c_4ef9ec2d
+  context: Implement spatial smoothing on BOLD data using nilearn.image.smooth_img
+    with an appropriate FWHM kernel
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/4mm_FWHM_kernel
+  kind: entity_fact
+  raw_text: 4mm FWHM kernel
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:26:32Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: output mean 0 std 1
+  claim_id: c_652d2ae7
+  context: 'Implement z-score normalization of the mean time-series within the DLPFC
+    ROI. Verify: Output mean ~0, std ~1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: output mean ~0, std ~1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:27:16Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular Block Permutation Block Size 2 times TR
+  claim_id: c_94107a5e
+  context: 'Implement Circular Block Permutation Test with a sufficient number of
+    iterations. Block Size: Calculate as 2 * TR (Repetition Time) to preserve temporal
+    autocorrelation'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Circular Block Permutation Test with Block Size: Calculate as 2 * TR
+    (Repetition Time)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:28:34Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: FDR correction Wikidata Q136366870 for entropy and fractal dimension
+  claim_id: c_4723e0e5
+  context: Implement FDR correction ({{claim:c_2be034ca}} (Wikidata Q136366870, https://www.wikidata.org/wiki/Q136366870))
+    for the two metrics (entropy, fractal dimension)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/FDR_correction_Wikidata_Q136366870_for_entropy_and_fractal_d
+  kind: entity_fact
+  raw_text: FDR correction (Wikidata Q136366870, https://www.wikidata.org/wiki/Q136366870)
+    for the two metrics (entropy, fractal dimension)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:29:31Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: exclude subjects with excessive motion artifacts
+  claim_id: c_ca3ecf64
+  context: Add logic to exclude subjects with excessive motion artifacts (flagged
+    in logs) from group-level aggregation
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_excessive_motion_artifacts
+  kind: entity_fact
+  raw_text: excludes subjects with excessive motion artifacts
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:30:05Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 2
+  canonical: peak RAM usage less than 5.5GB
+  claim_id: c_4788183f
+  context: Optimize batch sizes in code/complexity.py to ensure peak RAM usage stays
+    < 5.5GB
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_less_than_5.5GB
+  kind: magnitude
+  raw_text: peak RAM usage stays < 5.5GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-20T06:30:45Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ID is ds000246
+  claim_id: c_fd2dfa49
+  context: Initialize global seeds (numpy, random), define paths (data/raw, data/interim,
+    data/results), and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    with peak=5s, undershoot=15s
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T12:25:52Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model is double-gamma with peak 5s and undershoot 15s
+  claim_id: c_57254e5e
+  context: Initialize global seeds (numpy, random), define paths (data/raw, data/interim,
+    data/results), and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    with peak=5s, undershoot=15s
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_model_is_double-gamma_with_peak_5s_and_undershoot_15s
+  kind: entity_fact
+  raw_text: HRF model double-gamma with peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:27:02Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Independent test verifies memory usage peak is less than or equal to
+    6GB
+  claim_id: c_6fcac3b7
+  context: "Independent Test: Run ingestion script on a single subject; verify CSV\
+    \ output contains time-locked complexity scores and memory usage logs show \u2264\
+    \ 6GB peak."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Independent_test_verifies_memory_usage_peak_is_less_than_or
+  kind: magnitude
+  raw_text: "memory usage logs show \u2264 6GB peak"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:27:19Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Spatial smoothing uses a 4mm FWHM kernel
+  claim_id: c_5a8ea471
+  context: Unit test for 4mm FWHM smoothing logic in tests/unit/test_roi_extraction.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_smoothing_uses_a_4mm_FWHM_kernel
+  kind: entity_fact
+  raw_text: 4mm FWHM smoothing
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:27:51Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation test block size is calculated as 2 times the
+    Repetition Time
+  claim_id: c_70ec3ea2
+  context: 'Implement Circular Block Permutation Test with a sufficient number of
+    iterations. Block Size: Calculate as 2 * TR (Repetition Time) to preserve temporal
+    autocorrelation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Block Size: Calculate as 2 * TR (Repetition Time)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:28:14Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Optimized batch sizes ensure peak RAM usage is less than 5.5GB
+  claim_id: c_4cb538ca
+  context: Optimize batch sizes in code/complexity.py to ensure peak RAM usage stays
+    < 5.5GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Optimized_batch_sizes_ensure_peak_RAM_usage_is_less_than_5.5
+  kind: magnitude
+  raw_text: peak RAM usage stays < 5.5GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:28:44Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ID is ds000246
+  claim_id: c_611d4abd
+  context: Initialize global seeds... and set constants (OpenNeuro ID ds000246...)
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T12:30:05Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model is double-gamma with peak 5s and undershoot 15s
+  claim_id: c_dd15eb0f
+  context: HRF model double-gamma with peak=5s, undershoot=15s...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_model_is_double-gamma_with_peak_5s_and_undershoot_15s
+  kind: entity_fact
+  raw_text: HRF model double-gamma with peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:30:08Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Samsung Galaxy A50
+  claim_id: c_69733e30
+  context: '...{{claim:c_0e75b9e6}} (Wikipedia: Samsung Galaxy A50, https://en.wikipedia.org/wiki/Samsung_Galaxy_A50))'
+  evidence:
+    entailment_evidence: Samsung Galaxy A50 - Wikipedia ... 2019 smartphone from Samsung
+      Samsung Galaxy A50 Samsung Galaxy A50s Samsung Galaxy A50 in Blue Brand Samsung
+      Manufacturer Samsung Electronics
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Samsung_Galaxy_A50
+  kind: entity_fact
+  raw_text: Samsung Galaxy A50
+  resolved_value: Samsung Galaxy A50
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T12:30:10Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: FDR correction Wikidata Q136366870
+  claim_id: c_aeb930fa
+  context: Implement FDR correction ({{claim:c_2be034ca}} (Wikidata Q136366870, https://www.wikidata.org/wiki/Q136366870))
+    for the two metrics...
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: "Benjamini\u2013Hochberg procedure"
+      source_id: Q136366870
+      url: https://www.wikidata.org/wiki/Q136366870
+      value: "Benjamini\u2013Hochberg procedure"
+    filled: true
+  kind: entity_fact
+  raw_text: Wikidata Q136366870
+  resolved_value: "Benjamini\u2013Hochberg procedure"
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T12:30:17Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation test block size is 2 times TR
+  claim_id: c_686f2a00
+  context: 'Block Size: Calculate as 2 * TR (Repetition Time) to preserve temporal
+    autocorrelation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Block Size: Calculate as 2 * TR'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:30:17Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_b2d7e6e2
+  context: Define paths and set constants (OpenNeuro ID ds000246, HRF model double-gamma...)
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T12:32:02Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: Samsung Galaxy A50
+  claim_id: c_d4489419
+  context: 'constants (OpenNeuro ID ds000246, HRF model double-gamma with peak=5s,
+    undershoot=15s, {{claim:c_0e75b9e6}} (Wikipedia: {{claim:c_69733e30}}, https://en.wikipedia.org/wiki/Samsung_Galaxy_A50))'
+  evidence:
+    entailment_evidence: Samsung Galaxy A50 - Wikipedia ... 2019 smartphone from Samsung
+      Samsung Galaxy A50 Samsung Galaxy A50s Samsung Galaxy A50 in Blue Brand Samsung
+      Manufacturer Samsung Electronics
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Samsung_Galaxy_A50
+  kind: entity_fact
+  raw_text: Samsung Galaxy A50
+  resolved_value: Samsung Galaxy A50
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T12:32:02Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: double-gamma HRF model peak 5s undershoot 15s
+  claim_id: c_127278dc
+  context: HRF model double-gamma with peak=5s, undershoot=15s
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Double-gamma_HRF_model_peak_5s_undershoot_15s
+  kind: entity_fact
+  raw_text: double-gamma HRF model with peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:32:05Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Wikidata Q136366870
+  claim_id: c_784be104
+  context: Implement FDR correction ({{claim:c_2be034ca}} ({{claim:c_aeb930fa}}, https://www.wikidata.org/wiki/Q136366870))
+    for the two metrics
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_Q136366870
+  kind: entity_fact
+  raw_text: Q136366870
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:32:25Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_4975899d
+  context: T004 Initialize Python 3.10 project ... set constants (OpenNeuro ID ds000246,
+    HRF model double-gamma...)
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T12:33:38Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: Samsung Galaxy A50 mentioned in config constants
+  claim_id: c_c12eb52a
+  context: 'T004 ... set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    with peak=5s, undershoot=15s, {{claim:c_0e75b9e6}} (Wikipedia: {{claim:c_69733e30}},
+    https://en.wikipedia.org/wiki/Samsung_Galaxy_A50)).'
+  evidence:
+    entailment_evidence: Samsung Galaxy A50 - Wikipedia ... 2019 smartphone from Samsung
+      Samsung Galaxy A50 Samsung Galaxy A50s Samsung Galaxy A50 in Blue Brand Samsung
+      Manufacturer Samsung Electronics
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Samsung_Galaxy_A50
+  kind: entity_fact
+  raw_text: Samsung Galaxy A50
+  resolved_value: Samsung Galaxy A50
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T12:33:38Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model double-gamma with peak 5s and undershoot 15s
+  claim_id: c_28ced9d7
+  context: T004 ... define paths ... and set constants (OpenNeuro ID ds000246, HRF
+    model double-gamma with peak=5s, undershoot=15s...)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_model_double-gamma_with_peak_5s_and_undershoot_15s
+  kind: entity_fact
+  raw_text: HRF model double-gamma with peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:33:41Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Wikidata ID Q136366870 referenced for FDR correction
+  claim_id: c_3d21ebe7
+  context: T033 Implement FDR correction ({{claim:c_2be034ca}} ({{claim:c_aeb930fa}},
+    https://www.wikidata.org/wiki/Q136366870)) for the two metrics...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Wikidata_ID_Q136366870_referenced_for_FDR_correction
+  kind: entity_fact
+  raw_text: Q136366870
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:33:43Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_1c5dc10e
+  context: define paths (data/raw, data/interim, data/results), and set constants
+    (OpenNeuro ID ds000246, HRF model double-gamma with peak=5s, undershoot=15s
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T12:35:16Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Double-gamma HRF model with peak 5s and undershoot 15s
+  claim_id: c_ff6d91ad
+  context: OpenNeuro ID ds000246, HRF model double-gamma with peak=5s, undershoot=15s,
+    {{claim:c_0e75b9e6}}
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Double-gamma_HRF_model_with_peak_5s_and_undershoot_15s
+  kind: entity_fact
+  raw_text: HRF model double-gamma with peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:35:20Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Memory usage peak limit of 6GB
+  claim_id: c_78d2d6ce
+  context: "Independent Test: Run ingestion script on a single subject; verify CSV\
+    \ output contains time-locked complexity scores and memory usage logs show \u2264\
+    \ 6GB peak."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_peak_limit_of_6GB
+  kind: entity_fact
+  raw_text: "verify memory usage logs show \u2264 6GB peak"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:35:35Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Spatial smoothing with 4mm FWHM kernel
+  claim_id: c_c1ea9c5d
+  context: Unit test for 4mm FWHM smoothing logic in tests/unit/test_roi_extraction.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_smoothing_with_4mm_FWHM_kernel
+  kind: entity_fact
+  raw_text: 4mm FWHM smoothing logic
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:36:01Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation test block size calculated as 2 times TR
+  claim_id: c_d806d323
+  context: 'Implement Circular Block Permutation Test with a sufficient number of
+    iterations. Block Size: Calculate as 2 * TR (Repetition Time) to preserve temporal
+    autocorrelation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Block Size: Calculate as 2 * TR (Repetition Time)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:36:01Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage constraint of less than 5.5GB
+  claim_id: c_796a8e7e
+  context: Optimize batch sizes in code/complexity.py to ensure peak RAM usage stays
+    < 5.5GB.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_constraint_of_less_than_5.5GB
+  kind: magnitude
+  raw_text: ensure peak RAM usage stays < 5.5GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T12:36:41Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_a72c9035
+  context: Initialize global seeds (numpy, random), define paths (data/raw, data/interim,
+    data/results), and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998)
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T10:40:05Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Friston 1998 Event-related fMRI NeuroImage 7(1) 30-40
+  claim_id: c_27cc278b
+  context: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K. J.,
+    et al. (1998). Event-related fMRI: characterizing differential responses. NeuroImage,
+    7(1), 30-40.'', peak=5s, undershoot=15s'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Friston, K. J., et al. (1998). Event-related fMRI: characterizing differential
+    responses. NeuroImage, 7(1), 30-40.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:40:46Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF double-gamma model peak 5s undershoot 15s
+  claim_id: c_54016387
+  context: 'HRF model double-gamma based on Friston et al. (1998): ... peak=5s, undershoot=15s'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_double-gamma_model_peak_5s_undershoot_15s
+  kind: entity_fact
+  raw_text: peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:41:14Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Memory usage peak 6GB
+  claim_id: c_b5f86091
+  context: "Independent Test: Run ingestion script on a single subject; verify CSV\
+    \ output contains time-locked complexity scores and memory usage logs show \u2264\
+    \ 6GB peak."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_peak_6GB
+  kind: entity_fact
+  raw_text: "\u2264 6GB peak"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:41:54Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Winkler 2014 Permutation inference NeuroImage 381-397
+  claim_id: c_0bb50d90
+  context: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Winkler, A. M., et al. (2014). Permutation inference for the general linear
+    model. NeuroImage, [volume], 381-397.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:42:07Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Significance defined as outside 95% confidence interval
+  claim_id: c_f28af8b3
+  context: 'Derive is_significant as True if the observed correlation coefficient
+    falls outside the 95% confidence interval (calculated via percentile method: lower
+    and upper percentiles) of the null distribution'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% confidence interval
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:42:08Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ds000246
+  claim_id: c_c919626a
+  context: Define paths and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998))
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T10:42:24Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF double-gamma model parameters from Friston et al. 1998 NeuroImage
+    7(1) 30-40
+  claim_id: c_755aba24
+  context: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K. J.,
+    et al. (1998). Event-related fMRI: characterizing differential responses. NeuroImage,
+    7(1), 30-40.'', peak=5s, undershoot=15s'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K.
+    J., et al. (1998). Event-related fMRI: characterizing differential responses.
+    NeuroImage, 7(1), 30-40.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:42:49Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF undershoot latency 15 seconds
+  claim_id: c_082ed3d4
+  context: HRF model double-gamma based on Friston et al. (1998)... peak=5s, undershoot=15s
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: undershoot=15s
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:43:08Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Spatial smoothing 4mm FWHM kernel
+  claim_id: c_0265eba9
+  context: Implement spatial smoothing on BOLD data using nilearn.image.smooth_img
+    with a 4mm FWHM kernel
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_smoothing_4mm_FWHM_kernel
+  kind: entity_fact
+  raw_text: 4mm FWHM kernel
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:43:12Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation block size calculation from Winkler et al.
+    2014 NeuroImage
+  claim_id: c_1fd171b3
+  context: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Winkler, A. M., et al. (2014). Permutation inference for the general linear
+    model. NeuroImage, [volume], 381-397.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:43:12Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage limit 6GB
+  claim_id: c_f9baeb8f
+  context: Add memory monitoring in code/ingestion.py and code/complexity.py to abort
+    if RAM > 6GB
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_limit_6GB
+  kind: entity_fact
+  raw_text: "peak RAM usage stays \u2264 6GB"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:43:39Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ds000246
+  claim_id: c_51530fad
+  context: Define paths... and set constants (OpenNeuro ID ds000246...)
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T10:43:53Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: double-gamma HRF model with 5s peak and 15s undershoot based on Friston
+    et al. 1998
+  claim_id: c_da45f42c
+  context: Define constants (OpenNeuro ID ds000246, HRF model double-gamma based on
+    Friston et al. (1998)...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K.
+    J., et al. (1998). Event-related fMRI: characterizing differential responses.
+    NeuroImage, 7(1), 30-40.'', peak=5s, undershoot=15s.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:44:09Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: circular block permutation block size proportional to TR per Winkler
+    et al. 2014
+  claim_id: c_50ec010c
+  context: 'Implement Circular Block Permutation Logic... Verify: Block size calculation
+    is proportional to TR as established in Winkler et al. (2014)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:44:28Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_71163789
+  context: 'T004: ...define paths (data/raw, data/interim, data/results), and set
+    constants (OpenNeuro ID ds000246...)'
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro dataset ID ds000246
+  resolved_value: OpenNeuro dataset ID ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T10:44:45Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: double-gamma HRF model peak 5s undershoot 15s based on Friston et al.
+    1998
+  claim_id: c_abed8a5b
+  context: 'T004: Implement code/config.py: Initialize global seeds, define paths,
+    and set constants (OpenNeuro ID ds000246, HRF model double-gamma based on Friston
+    et al. (1998)...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K.
+    J., et al. (1998). Event-related fMRI: characterizing differential responses.
+    NeuroImage, 7(1), 30-40.'', peak=5s, undershoot=15s'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:44:46Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: circular block permutation block size proportional to TR based on Winkler
+    et al. 2014
+  claim_id: c_523c2407
+  context: 'T034a: Implement Circular Block Permutation Logic: Calculate block size
+    as an integer multiple of TR... as established in Winkler et al. (2014)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:44:46Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: peak RAM usage constraint 6GB for image processing
+  claim_id: c_5a44d8c3
+  context: "Independent Test for User Story 1: ...verify CSV output contains time-locked\
+    \ complexity scores and memory usage logs show \u2264 6GB peak."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_constraint_6GB_for_image_processing
+  kind: entity_fact
+  raw_text: "Memory-batched processing to ensure peak RAM usage stays \u2264 6GB"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:45:04Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: spatial smoothing 4mm FWHM kernel
+  claim_id: c_16b54563
+  context: 'T024: Implement spatial smoothing on BOLD data using nilearn.image.smooth_img
+    with a 4mm FWHM kernel.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_smoothing_4mm_FWHM_kernel
+  kind: entity_fact
+  raw_text: Spatial smoothing on BOLD data using a 4mm FWHM kernel
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:45:30Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_d387a8df
+  context: 'T004 Implement code/config.py: ...define paths (data/raw, data/interim,
+    data/results), and set constants (OpenNeuro ID ds000246...'
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T10:45:59Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF double-gamma model peak 5s undershoot 15s based on Friston et al.
+    1998
+  claim_id: c_82ddc814
+  context: 'T004 Implement code/config.py: Initialize global seeds, define paths,
+    and set constants (OpenNeuro ID ds000246, HRF model double-gamma based on Friston
+    et al. (1998)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K.
+    J., et al. (1998). Event-related fMRI: characterizing differential responses.
+    NeuroImage, 7(1), 30-40.'', peak=5s, undershoot=15s'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:46:00Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation block size proportional to TR based on Winkler
+    et al. 2014
+  claim_id: c_baf94014
+  context: 'T034a Implement Circular Block Permutation Logic: Calculate block size
+    as an integer multiple of TR... as established in Winkler et al. (2014)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:46:01Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF double-gamma model peak 5s undershoot 15s Friston 1998
+  claim_id: c_3271e20d
+  context: 'Phase 2: Foundational tasks require setting constants based on Friston
+    et al. (1998) with specific HRF parameters.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K.
+    J., et al. (1998). Event-related fMRI: characterizing differential responses.
+    NeuroImage, 7(1), 30-40.'' with peak=5s and undershoot=15s'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:46:13Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation block size proportional to TR Winkler 2014
+  claim_id: c_d2fceeec
+  context: 'Phase 5: User Story 3 implementation requires calculating block size as
+    an integer multiple of TR based on Winkler et al. (2014).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Block size calculation for circular block permutation is proportional
+    to TR as established in Winkler et al. (2014)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:46:31Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_f1ce18bc
+  context: The document references ds000246 as the OpenNeuro dataset for fMRI data
+    and stimuli.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_ds000246
+  kind: entity_fact
+  raw_text: Dataset ID ds000246 is used for the study
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:46:55Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_80090718
+  context: 'T004 Implement code/config.py: Initialize global seeds... and set constants
+    (OpenNeuro ID ds000246...)'
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T10:47:42Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF double-gamma model peak 5s undershoot 15s based on Friston et al.
+    1998
+  claim_id: c_db001038
+  context: 'T004 Implement code/config.py: Initialize global seeds... and set constants
+    (OpenNeuro ID ds000246, HRF model double-gamma based on Friston et al. (1998)...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K.
+    J., et al. (1998). Event-related fMRI: characterizing differential responses.
+    NeuroImage, 7(1), 30-40.'', peak=5s, undershoot=15s.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:47:43Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation block size proportional to TR based on Winkler
+    et al. 2014
+  claim_id: c_b76c046a
+  context: 'T034a [US3] Implement Circular Block Permutation Logic: Calculate block
+    size as an integer multiple of TR (Repetition Time)... as established in Winkler
+    et al. (2014)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:47:44Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF double-gamma model peak 5s undershoot 15s based on Friston et al.
+    1998
+  claim_id: c_9f029a9a
+  context: 'Notes: HRF Lag: Fixed at double-gamma model (peak=5s, undershoot=15s)
+    based on Friston et al. (1998) for reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: HRF Lag Fixed at double-gamma model (peak=5s, undershoot=15s) based on
+    Friston et al. (1998)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:47:59Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF double-gamma model peak 5s undershoot 15s based on Friston 1998
+  claim_id: c_526cff3f
+  context: 'T004 Implement code/config.py: Initialize global seeds... and set constants
+    (OpenNeuro ID ds000246, HRF model double-gamma based on Friston et al. (1998)...
+    peak=5s, undershoot=15s).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K.
+    J., et al. (1998). Event-related fMRI: characterizing differential responses.
+    NeuroImage, 7(1), 30-40.'', peak=5s, undershoot=15s.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:48:36Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation block size proportional to TR based on Winkler
+    2014
+  claim_id: c_fcde5e45
+  context: 'T034a [US3] Implement Circular Block Permutation Logic: Calculate block
+    size as an integer multiple of TR... and implement circular wrap-around... as
+    established in Winkler et al. (2014)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:48:36Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ds000246
+  claim_id: c_dcfb390c
+  context: set constants (OpenNeuro ID ds000246, HRF model double-gamma
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T10:49:15Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model double-gamma based on Friston et al. 1998
+  claim_id: c_cefda344
+  context: define paths... and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: HRF model double-gamma based on Friston et al. (1998)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:49:30Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF peak 5s undershoot 15s
+  claim_id: c_65a5f821
+  context: 'HRF model double-gamma based on Friston et al. (1998): ... peak=5s, undershoot=15s'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_peak_5s_undershoot_15s
+  kind: entity_fact
+  raw_text: HRF peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:49:56Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation block size proportional to TR
+  claim_id: c_dd350b8a
+  context: Calculate block size as an integer multiple of TR (Repetition Time). and
+    implement circular wrap-around
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Circular_block_permutation_block_size_proportional_to_TR
+  kind: entity_fact
+  raw_text: Circular Block Permutation block size calculation proportional to TR
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:49:59Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage 6GB
+  claim_id: c_67819edb
+  context: abort if RAM > 6GB... Optimize batch sizes in code/complexity.py to ensure
+    peak RAM usage stays <= 6GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_6GB
+  kind: entity_fact
+  raw_text: Memory limit peak RAM usage stays <= 6GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:50:23Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Significance outside 95% confidence interval of null distribution
+  claim_id: c_c33cf536
+  context: Derive is_significant as True if the observed correlation coefficient falls
+    outside the 95% confidence interval (calculated via percentile method
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Significance logic checks if observed statistic falls outside 95% confidence
+    interval of null distribution
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:50:24Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_f1329af0
+  context: Define paths and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998))
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T10:50:47Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model double-gamma based on Friston et al. (1998) NeuroImage 7(1)
+    30-40
+  claim_id: c_f58e2ca4
+  context: Define constants including HRF model double-gamma based on Friston et al.
+    (1998) with peak=5s, undershoot=15s
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K.
+    J., et al. (1998). Event-related fMRI: characterizing differential responses.
+    NeuroImage, 7(1), 30-40.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:50:50Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF peak 5s undershoot 15s
+  claim_id: c_53dfe1df
+  context: Set constants for HRF model double-gamma based on Friston et al. (1998)
+    with peak=5s, undershoot=15s
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_peak_5s_undershoot_15s
+  kind: entity_fact
+  raw_text: peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:50:54Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation block size integer multiple of TR
+  claim_id: c_ed3a52b0
+  context: 'Implement Circular Block Permutation Logic: Calculate block size as an
+    integer multiple of TR... as established in Winkler et al. (2014)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Circular_block_permutation_block_size_integer_multiple_of_TR
+  kind: entity_fact
+  raw_text: block size as an integer multiple of TR (Repetition Time) and implement
+    circular wrap-around (index modulo N) to preserve temporal autocorrelation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:51:25Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Significance defined as outside 95% CI of null distribution
+  claim_id: c_b67b991b
+  context: Derive is_significant as True if the observed correlation coefficient falls
+    outside the 95% confidence interval of the null distribution generated by the
+    circular block permutation test
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'observed correlation coefficient falls outside the 95% confidence interval
+    (calculated via percentile method: lower and upper percentiles) of the null distribution'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:51:25Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ds000246
+  claim_id: c_ac1a108f
+  context: Initialize global seeds (numpy, random), define paths (data/raw, data/interim,
+    data/results), and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998)...
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T10:51:52Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Friston 1998 Event-related fMRI NeuroImage 7 30-40
+  claim_id: c_1d22a2d6
+  context: '...HRF model double-gamma based on Friston et al. (1998): ''Friston, K.
+    J., et al. (1998). Event-related fMRI: characterizing differential responses.
+    NeuroImage, 7(1), 30-40.''...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Friston, K. J., et al. (1998). Event-related fMRI: characterizing differential
+    responses. NeuroImage, 7(1), 30-40.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:51:54Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Double-gamma HRF model peak 5s undershoot 15s
+  claim_id: c_8eca7d8a
+  context: '...HRF model double-gamma based on Friston et al. (1998)... peak=5s, undershoot=15s).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Double-gamma_HRF_model_peak_5s_undershoot_15s
+  kind: entity_fact
+  raw_text: HRF model peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:52:14Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Winkler 2014 Permutation inference general linear model NeuroImage 381-397
+  claim_id: c_65075e3f
+  context: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Winkler, A. M., et al. (2014). Permutation inference for the general linear
+    model. NeuroImage, [volume], 381-397.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:52:14Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: double-gamma HRF model peak 5s undershoot 15s based on Friston 1998
+  claim_id: c_024051ff
+  context: 'T004 Implement code/config.py: Initialize global seeds... and set constants
+    (OpenNeuro ID ds000246, HRF model double-gamma based on Friston et al. (1998)...)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K.
+    J., et al. (1998). Event-related fMRI: characterizing differential responses.
+    NeuroImage, 7(1), 30-40.'', peak=5s, undershoot=15s'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:52:46Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: peak RAM usage limit 6GB
+  claim_id: c_a02d6d0e
+  context: "Independent Test: Run ingestion script on a single subject; verify CSV\
+    \ output contains time-locked complexity scores and memory usage logs show \u2264\
+    \ 6GB peak."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_limit_6GB
+  kind: entity_fact
+  raw_text: "Memory-batched processing to ensure peak RAM usage stays \u2264 6GB"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:52:47Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: spatial smoothing 4mm FWHM kernel
+  claim_id: c_387e470d
+  context: T024 Implement spatial smoothing on BOLD data using nilearn.image.smooth_img
+    with a 4mm FWHM kernel.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_smoothing_4mm_FWHM_kernel
+  kind: entity_fact
+  raw_text: Spatial smoothing on BOLD data using nilearn.image.smooth_img with a 4mm
+    FWHM kernel
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:53:10Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: circular block permutation block size integer multiple of TR based on
+    Winkler 2014
+  claim_id: c_3b2e2af9
+  context: 'T034a Implement Circular Block Permutation Logic: Calculate block size
+    as an integer multiple of TR (Repetition Time). and implement circular wrap-around
+    (index modulo N) to preserve temporal autocorrelation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Circular Block Permutation Logic: Calculate block size as an integer
+    multiple of TR... based in Winkler et al. (2014): ''Winkler, A. M., et al. (2014).
+    Permutation inference for the general linear model. NeuroImage, [volume], 381-397.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:53:23Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF double-gamma model peak 5s undershoot 15s based on Friston 1998
+  claim_id: c_1045ed8c
+  context: Define paths and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998)... peak=5s, undershoot=15s).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K.
+    J., et al. (1998). Event-related fMRI: characterizing differential responses.
+    NeuroImage, 7(1), 30-40.'', peak=5s, undershoot=15s'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:53:40Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation block size proportional to TR per Winkler
+    2014
+  claim_id: c_628fc608
+  context: 'Implement Circular Block Permutation Logic: Calculate block size as an
+    integer multiple of TR... as established in Winkler et al. (2014)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:53:41Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ds000246
+  claim_id: c_60ccad68
+  context: Define paths and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998)...
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T10:54:08Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Friston et al. 1998 NeuroImage 7(1) 30-40
+  claim_id: c_03c8786c
+  context: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K. J.,
+    et al. (1998). Event-related fMRI: characterizing differential responses. NeuroImage,
+    7(1), 30-40.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Friston, K. J., et al. (1998). Event-related fMRI: characterizing differential
+    responses. NeuroImage, 7(1), 30-40.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:54:12Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Winkler et al. 2014 NeuroImage Permutation inference GLM
+  claim_id: c_e37bd76f
+  context: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Winkler, A. M., et al. (2014). Permutation inference for the general linear
+    model. NeuroImage, [volume], 381-397.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:54:15Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: 4mm FWHM smoothing kernel
+  claim_id: c_37f32369
+  context: Implement spatial smoothing on BOLD data using nilearn.image.smooth_img
+    with a 4mm FWHM kernel.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/4mm_FWHM_smoothing_kernel
+  kind: entity_fact
+  raw_text: 4mm FWHM kernel for spatial smoothing
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:54:47Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage 6GB
+  claim_id: c_16769e3b
+  context: Add memory monitoring in code/ingestion.py and code/complexity.py to abort
+    if RAM > 6GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_6GB
+  kind: entity_fact
+  raw_text: RAM usage limit of 6GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:55:15Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project
+  claim_id: c_c5a58d35
+  context: Initialize Python 3.11 project with requirements.txt...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Python 3.11 project
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:55:38Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_43e38726
+  context: Define paths (data/raw, data/interim, data/results), and set constants
+    (OpenNeuro ID ds000246, HRF model double-gamma based on Friston et al. (1998))
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_ds000246
+  kind: entity_fact
+  raw_text: The project uses the OpenNeuro dataset ID ds000246.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:56:39Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF double-gamma model peak 5s undershoot 15s
+  claim_id: c_b3b9cc57
+  context: 'HRF model double-gamma based on Friston et al. (1998): Friston, K. J.,
+    et al. (1998). Event-related fMRI: characterizing differential responses. NeuroImage,
+    7(1), 30-40., peak=5s, undershoot=15s'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_double-gamma_model_peak_5s_undershoot_15s
+  kind: entity_fact
+  raw_text: The HRF model used is the double-gamma model with a peak of 5s and an
+    undershoot of 15s.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:57:00Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model based on Friston et al. 1998
+  claim_id: c_790a5f34
+  context: 'HRF model double-gamma based on Friston et al. (1998): Friston, K. J.,
+    et al. (1998). Event-related fMRI: characterizing differential responses. NeuroImage,
+    7(1), 30-40.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: We will refer to it as the 3HRF basis. In this case, each
+      source_id: '1402.7015'
+      url: https://arxiv.org/abs/1402.7015
+      value: 3HRF
+    filled: true
+  kind: numeric
+  raw_text: The HRF model parameters are based on Friston et al. (1998).
+  resolved_value: 3HRF
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T10:57:19Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation block size integer multiple of TR
+  claim_id: c_e270c42c
+  context: Calculate block size as an integer multiple of TR (Repetition Time). and
+    implement circular wrap-around (index modulo N) to preserve temporal autocorrelation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Circular_block_permutation_block_size_integer_multiple_of_TR
+  kind: entity_fact
+  raw_text: The circular block permutation test block size is calculated as an integer
+    multiple of the Repetition Time (TR).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:57:46Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation logic references Winkler et al. 2014
+  claim_id: c_3fa59451
+  context: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): Winkler, A. M., et al. (2014). Permutation inference for the general
+    linear model. NeuroImage, [volume], 381-397.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The circular block permutation logic references Winkler et al. (2014).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:58:12Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Significance logic 95% confidence interval null distribution
+  claim_id: c_3d8cbd05
+  context: 'Derive is_significant as True if the observed correlation coefficient
+    falls outside the 95% confidence interval (calculated via percentile method: lower
+    and upper percentiles) of the null distribution generated by the circular block
+    permutation test'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The significance logic checks if the observed correlation coefficient
+    falls outside the 95% confidence interval of the null distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:58:12Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: 4mm FWHM kernel spatial smoothing
+  claim_id: c_99e67655
+  context: Implement spatial smoothing on BOLD data using nilearn.image.smooth_img
+    with a 4mm FWHM kernel.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/4mm_FWHM_kernel_spatial_smoothing
+  kind: entity_fact
+  raw_text: The implementation uses a 4mm FWHM kernel for spatial smoothing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:58:37Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage 6GB
+  claim_id: c_4fbbe2bc
+  context: "memory usage logs show \u2264 6GB peak"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_6GB
+  kind: entity_fact
+  raw_text: The project targets a peak RAM usage of 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:59:00Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project
+  claim_id: c_ca71f403
+  context: Initialize Python 3.11 project with requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:59:19Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Flake8 max-line-length 88
+  claim_id: c_82252175
+  context: Create .flake8 (max-line-length=88, exclude=venv,*.egg)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The max-line-length for flake8 is configured to 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T10:59:48Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_a9a50d01
+  context: Initialize global seeds, define paths, and set constants (OpenNeuro ID
+    ds000246, HRF model double-gamma based on Friston et al. (1998))
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T11:00:07Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: 'Friston et al. (1998) Event-related fMRI: characterizing differential
+    responses NeuroImage 7(1) 30-40'
+  claim_id: c_1010cce1
+  context: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K. J.,
+    et al. (1998). Event-related fMRI: characterizing differential responses. NeuroImage,
+    7(1), 30-40.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Friston, K. J., et al. (1998). Event-related fMRI: characterizing differential
+    responses. NeuroImage, 7(1), 30-40.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:00:10Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF double-gamma model peak 5s undershoot 15s
+  claim_id: c_8edcf905
+  context: set constants (OpenNeuro ID ds000246, HRF model double-gamma based on Friston
+    et al. (1998)... peak=5s, undershoot=15s)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_double-gamma_model_peak_5s_undershoot_15s
+  kind: entity_fact
+  raw_text: HRF peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:00:13Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Winkler et al. (2014) Permutation inference for the general linear model
+    NeuroImage 381-397
+  claim_id: c_61bcf28a
+  context: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Winkler, A. M., et al. (2014). Permutation inference for the general linear
+    model. NeuroImage, [volume], 381-397.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:00:14Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: OpenNeuro ID ds000246 used
+  claim_id: c_71b6af12
+  context: Define paths and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998))
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_ID_ds000246_used
+  kind: entity_fact
+  raw_text: The project uses OpenNeuro ID ds000246.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:06:31Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF double-gamma peak 5s undershoot 15s Friston 1998
+  claim_id: c_f446077e
+  context: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K. J.,
+    et al. (1998). Event-related fMRI: characterizing differential responses. NeuroImage,
+    7(1), 30-40.'', peak=5s, undershoot=15s'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HRF model used is double-gamma with peak=5s and undershoot=15s based
+    on Friston et al. (1998).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:06:43Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: 4mm FWHM smoothing kernel used
+  claim_id: c_050b235b
+  context: Implement spatial smoothing on BOLD data using nilearn.image.smooth_img
+    with a 4mm FWHM kernel
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/4mm_FWHM_smoothing_kernel_used
+  kind: entity_fact
+  raw_text: Spatial smoothing is applied using a 4mm FWHM kernel.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:07:12Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation block size TR multiple Winkler 2014
+  claim_id: c_170f8159
+  context: 'Calculate block size as an integer multiple of TR (Repetition Time) and
+    implement circular wrap-around... as established in Winkler et al. (2014): ''Winkler,
+    A. M., et al. (2014). Permutation inference for the general linear model. NeuroImage,
+    [volume], 381-397.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The circular block permutation test block size is calculated as an integer
+    multiple of TR based on Winkler et al. (2014).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:07:34Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: 95% confidence interval used for permutation significance
+  claim_id: c_0f7e37b0
+  context: Derive is_significant as True if the observed correlation coefficient falls
+    outside the 95% confidence interval... of the null distribution
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis uses a 95% confidence interval for significance testing of
+    the permutation test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:07:34Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage limit 6GB
+  claim_id: c_0690e57a
+  context: "Run with test data; log confirms peak \u2264 6GB"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_limit_6GB
+  kind: entity_fact
+  raw_text: "The pipeline is designed to ensure peak RAM usage stays \u2264 6GB."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:08:12Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ds000246 used
+  claim_id: c_2ed41d92
+  context: Define paths and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998))
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_ds000246
+  kind: entity_fact
+  raw_text: The project uses the OpenNeuro dataset ds000246.
+  resolved_value: OpenNeuro dataset ID ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T11:08:36Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF double-gamma model peak 5s undershoot 15s Friston 1998
+  claim_id: c_70c691e6
+  context: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K. J.,
+    et al. (1998). Event-related fMRI: characterizing differential responses. NeuroImage,
+    7(1), 30-40.'', peak=5s, undershoot=15s'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HRF model is the double-gamma model based on Friston et al. (1998)
+    with a peak of 5 seconds and an undershoot of 15 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:08:54Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 3
+  canonical: Spatial smoothing 4mm FWHM kernel
+  claim_id: c_93a0465b
+  context: Implement spatial smoothing on BOLD data using nilearn.image.smooth_img
+    with a 4mm FWHM kernel.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_smoothing_4mm_FWHM_kernel
+  kind: entity_fact
+  raw_text: 4mm FWHM kernel
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:09:00Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Permutation block size Winkler 2014
+  claim_id: c_e4a1108b
+  context: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation inference block size calculation references Winkler et al.
+    (2014).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:09:28Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage limit 6GB
+  claim_id: c_79b2bba0
+  context: "All image processing tasks must use batched loading to ensure \u2264 6GB\
+    \ RAM usage on CPU-only runners."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_limit_6GB
+  kind: entity_fact
+  raw_text: The pipeline enforces a peak RAM usage limit of 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:09:56Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Significance outside 95% confidence interval null distribution
+  claim_id: c_aff37d85
+  context: Derive is_significant as True if the observed correlation coefficient falls
+    outside the 95% confidence interval (calculated via percentile method) of the
+    null distribution generated by the circular block permutation test.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Significance is determined if the observed correlation coefficient falls
+    outside the 95% confidence interval of the null distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:09:57Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: double-gamma HRF model peak 5s undershoot 15s based on Friston 1998
+  claim_id: c_fd81f53a
+  context: 'Initialize global seeds (numpy, random), define paths (data/raw, data/interim,
+    data/results), and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998): ''Friston, K. J., et al. (1998). Event-related
+    fMRI: characterizing differential responses. NeuroImage, 7(1), 30-40. '', peak=5s,
+    undershoot=15s).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K.
+    J., et al. (1998). Event-related fMRI: characterizing differential responses.
+    NeuroImage, 7(1), 30-40.'', peak=5s, undershoot=15s.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:10:40Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: circular block permutation block size proportional to TR per Winkler
+    2014
+  claim_id: c_ac2e4e24
+  context: 'Implement Circular Block Permutation Logic: Calculate block size as an
+    integer multiple of TR (Repetition Time). and implement circular wrap-around (index
+    modulo N) to preserve temporal autocorrelation. Verify: Block size calculation
+    is proportional to TR as established in Winkler et al. (2014): ''Winkler, A. M.,
+    et al. (2014). Permutation inference for the general linear model. NeuroImage,
+    [volume], 381-397.''; wrap-around logic applied correctly in test data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:10:41Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: spatial smoothing 4mm FWHM kernel
+  claim_id: c_694dd135
+  context: 'Implement spatial smoothing on BOLD data using nilearn.image.smooth_img
+    with a 4mm FWHM kernel. Verify: Smoothed image file created; kernel size confirmed.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_smoothing_4mm_FWHM_kernel
+  kind: entity_fact
+  raw_text: Implement spatial smoothing on BOLD data using nilearn.image.smooth_img
+    with a 4mm FWHM kernel.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:11:10Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ID ds000246
+  claim_id: c_fe3b2e6b
+  context: Initialize global seeds (numpy, random), define paths (data/raw, data/interim,
+    data/results), and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998).
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T11:12:54Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF double-gamma model peak 5s undershoot 15s Friston 1998
+  claim_id: c_239779c9
+  context: 'Initialize global seeds (numpy, random), define paths (data/raw, data/interim,
+    data/results), and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998): ''Friston, K. J., et al. (1998). Event-related
+    fMRI: characterizing differential responses. NeuroImage, 7(1), 30-40.'', peak=5s,
+    undershoot=15s).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K.
+    J., et al. (1998). Event-related fMRI: characterizing differential responses.
+    NeuroImage, 7(1), 30-40.'', peak=5s, undershoot=15s'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:12:56Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Block size proportional to TR Winkler 2014 permutation inference
+  claim_id: c_76e4e102
+  context: 'Implement Circular Block Permutation Logic: Calculate block size as an
+    integer multiple of TR (Repetition Time). and implement circular wrap-around (index
+    modulo N) to preserve temporal autocorrelation. Verify: Block size calculation
+    is proportional to TR as established in Winkler et al. (2014): ''Winkler, A. M.,
+    et al. (2014). Permutation inference for the general linear model. NeuroImage,
+    [volume], 381-397.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:12:57Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF parameters match nilearn canonical double-gamma
+  claim_id: c_0a70f8c7
+  context: 'Verify: Import code.config in Python shell without errors; constants match
+    spec; citation is valid academic source; HRF parameters match nilearn.glm.hemodynamic_models
+    canonical double-gamma.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_parameters_match_nilearn_canonical_double-gamma
+  kind: entity_fact
+  raw_text: HRF parameters match nilearn.glm.hemodynamic_models canonical double-gamma
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:13:19Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ds000246
+  claim_id: c_38a9c37a
+  context: Define paths and set constants (OpenNeuro ID ds000246...)
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T11:13:33Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Friston et al. 1998 double-gamma HRF model peak 5s undershoot 15s
+  claim_id: c_c4a1bd8b
+  context: Define paths and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998)...)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K.
+    J., et al. (1998). Event-related fMRI: characterizing differential responses.
+    NeuroImage, 7(1), 30-40.'', peak=5s, undershoot=15s'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:13:35Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Winkler et al. 2014 circular block permutation block size proportional
+    to TR
+  claim_id: c_d9d50549
+  context: 'Implement Circular Block Permutation Logic: Calculate block size as an
+    integer multiple of TR... as established in Winkler et al. (2014)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:13:36Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Statistical pipeline results within 60 minutes
+  claim_id: c_e13344db
+  context: 'Independent Test: Run analysis script; verify results JSON contains correlation
+    coefficients, FDR-corrected p-values, and permutation test results within 60 mins.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Test pipeline on a single subject; verify results JSON contains correlation
+    coefficients, FDR-corrected p-values, and permutation test results within 60 mins
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:13:54Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF double-gamma model based on Friston et al. 1998
+  claim_id: c_b579ae73
+  context: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K. J.,
+    et al. (1998). Event-related fMRI: characterizing differential responses. NeuroImage,
+    7(1), 30-40.'''
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_double-gamma_model_based_on_Friston_et_al._1998
+  kind: entity_fact
+  raw_text: The HRF model is a double-gamma model based on Friston et al. (1998).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:14:49Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation block size based on Winkler et al. 2014
+  claim_id: c_5b3acb48
+  context: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Circular block permutation block size is calculated as an integer multiple
+    of TR based on Winkler et al. (2014).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:15:10Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Significance defined as outside 95% CI of null distribution
+  claim_id: c_b1241cce
+  context: 'Derive is_significant as True if the observed correlation coefficient
+    falls outside the 95% confidence interval (calculated via percentile method: lower
+    and upper percentiles) of the null distribution generated by the circular block
+    permutation test'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The significance logic checks if the observed correlation coefficient
+    falls outside the 95% confidence interval of the null distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:15:11Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Friston et al. 1998 NeuroImage 7(1) 30-40 event-related fMRI
+  claim_id: c_5d9e1c31
+  context: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K. J.,
+    et al. (1998). Event-related fMRI: characterizing differential responses. NeuroImage,
+    7(1), 30-40.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Friston, K. J., et al. (1998). Event-related fMRI: characterizing differential
+    responses. NeuroImage, 7(1), 30-40.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:15:47Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 2
+  canonical: HRF double-gamma model peak 5s undershoot 15s
+  claim_id: c_a6dd181c
+  context: HRF model double-gamma based on Friston et al. (1998)... peak=5s, undershoot=15s
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_double-gamma_model_peak_5s_undershoot_15s
+  kind: entity_fact
+  raw_text: HRF model peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:16:25Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Winkler et al. 2014 NeuroImage permutation inference general linear model
+    381-397
+  claim_id: c_5ba936aa
+  context: 'Block size calculation is proportional to TR as established in Winkler
+    et al. (2014): ''Winkler, A. M., et al. (2014). Permutation inference for the
+    general linear model. NeuroImage, [volume], 381-397.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Winkler, A. M., et al. (2014). Permutation inference for the general linear
+    model. NeuroImage, [volume], 381-397.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:16:26Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: memory usage peak 6GB
+  claim_id: c_c4814b63
+  context: "Independent Test: Run ingestion script on a single subject; verify CSV\
+    \ output contains time-locked complexity scores and memory usage logs show \u2264\
+    \ 6GB peak."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_peak_6GB
+  kind: entity_fact
+  raw_text: "memory usage logs show \u2264 6GB peak"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:33:44Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: spatial smoothing 4mm FWHM kernel
+  claim_id: c_e915e48c
+  context: Implement spatial smoothing on BOLD data using nilearn.image.smooth_img
+    with a 4mm FWHM kernel.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Spatial_smoothing_4mm_FWHM_kernel
+  kind: entity_fact
+  raw_text: 4mm FWHM kernel
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:33:46Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: 95% confidence interval null distribution
+  claim_id: c_50032884
+  context: 'Derive is_significant as True if the observed correlation coefficient
+    falls outside the 95% confidence interval (calculated via percentile method: lower
+    and upper percentiles) of the null distribution'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95% confidence interval
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T11:33:47Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: OpenNeuro dataset ID ds000246 used
+  claim_id: c_2ccf0bf1
+  context: Define paths and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998))
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_ds000246_used
+  kind: entity_fact
+  raw_text: The project uses OpenNeuro ID ds000246.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:47:26Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model double-gamma peak 5s undershoot 15s based on Friston et al.
+    1998
+  claim_id: c_0849bf1e
+  context: 'Set constants (OpenNeuro ID ds000246, HRF model double-gamma based on
+    Friston et al. (1998): ''Friston, K. J., et al. (1998). Event-related fMRI: characterizing
+    differential responses. NeuroImage, 7(1), 30-40.'', HRF model peak=5s, undershoot=15s).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HRF model used is double-gamma based on Friston et al. (1998) with
+    a peak of 5s and undershoot of 15s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:48:13Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation logic from Winkler et al. 2014
+  claim_id: c_58c44857
+  context: 'Block size calculation is proportional to TR as established in Winkler
+    et al.: ''Winkler, A. M., et al. (2014). Permutation inference for the general
+    linear model. NeuroImage, [volume], -397.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation uses a circular block permutation logic as established
+    in Winkler et al. (2014).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:49:11Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage limit 6GB
+  claim_id: c_23f70321
+  context: Add memory monitoring in code/ingestion.py and code/complexity.py to abort
+    if RAM > 6GB.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_limit_6GB
+  kind: entity_fact
+  raw_text: The system is designed to ensure peak RAM usage stays at or below 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:50:19Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: FDR correction using Benjamini-Hochberg procedure
+  claim_id: c_eed3ee53
+  context: Implement FDR correction for the two metrics (entropy, fractal dimension)
+    using Benjamini-Hochberg procedure.
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: '2607.12208'
+        url: https://arxiv.org/abs/2607.12208
+        value: '0.01'
+      quote: i.e., an adaptive Benjamini-Hochberg (BH) procedure and an adaptive Benjamini-Hochberg-
+      source_id: '1410.4274'
+      url: https://arxiv.org/abs/1410.4274
+      value: Benjamini-Hochberg (BH) procedure
+    filled: true
+  kind: entity_fact
+  raw_text: The Benjamini-Hochberg procedure is used for FDR correction.
+  resolved_value: Benjamini-Hochberg (BH) procedure
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T02:51:52Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 2
+  canonical: Python version 3.11
+  claim_id: c_c23a1a02
+  context: Initialize Python 3.11 project with requirements.txt
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:52:12Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: AAL atlas used for ROI extraction
+  claim_id: c_f10fdecb
+  context: Create code/roi_extraction.py skeleton for AAL atlas loading and smoothing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/AAL_atlas_used_for_ROI_extraction
+  kind: entity_fact
+  raw_text: The project uses the AAL atlas for ROI extraction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:53:23Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: 'Dependencies: nibabel, numpy, scikit-image, scipy, pandas, statsmodels,
+    nilearn, matplotlib, requests, tqdm, pyfd, wget, Pillow'
+  claim_id: c_61c82f44
+  context: Initialize Python 3.11 project with requirements.txt (nibabel, numpy, scikit-image,
+    scipy, pandas, statsmodels, nilearn, matplotlib, requests, tqdm, pyfd, wget, Pillow).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dependencies:_nibabel,_numpy,_scikit-image,_scipy,_pandas,_s
+  kind: entity_fact
+  raw_text: The project uses nibabel, numpy, scikit-image, scipy, pandas, statsmodels,
+    nilearn, matplotlib, requests, tqdm, pyfd, wget, and Pillow.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:53:46Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Single-subject regression and permutation testing focus
+  claim_id: c_c2d867bc
+  context: Implementation focuses strictly on single-subject regression and permutation
+    testing as per Spec US-3.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Single-subject_regression_and_permutation_testing_focus
+  kind: entity_fact
+  raw_text: The project focuses on single-subject regression and permutation testing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:54:09Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ds000246
+  claim_id: c_165d33ad
+  context: Define paths and set constants including OpenNeuro ID ds000246
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID is ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_is_ds000246
+  kind: entity_fact
+  raw_text: OpenNeuro ID ds000246
+  resolved_value: OpenNeuro dataset ID is ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T02:54:22Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Friston et al. 1998 NeuroImage 7(1) 30-40
+  claim_id: c_89516cfc
+  context: Define constants (OpenNeuro ID ds000246, HRF model double-gamma based on
+    Friston et al. (1998))
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Friston, K. J., et al. (1998). Event-related fMRI: characterizing differential
+    responses. NeuroImage, 7(1), 30-40.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:54:49Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF peak 5s undershoot 15s
+  claim_id: c_483546c6
+  context: Set constants including HRF model peak=5s, undershoot=15s based on Friston
+    et al. (1998)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/HRF_peak_5s_undershoot_15s
+  kind: entity_fact
+  raw_text: HRF model peak=5s, undershoot=15s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:55:10Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Winkler et al. 2014 NeuroImage permutation inference GLM
+  claim_id: c_0f2ecbc6
+  context: Block size calculation proportional to TR as established in Winkler et
+    al.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Winkler, A. M., et al. (2014). Permutation inference for the general linear
+    model. NeuroImage, [volume], -397.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:55:33Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 0
+  canonical: OpenNeuro dataset ds000246 used
+  claim_id: c_ecb5703b
+  context: Initialize global seeds (numpy, random), define paths (data/raw, data/interim,
+    data/processed), and set constants (OpenNeuro ID ds000246, HRF model double-gamma
+    based on Friston et al. (1998)
+  evidence:
+    entailment_evidence: OpenNeuro dataset ID ds000246
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/OpenNeuro_dataset_ID_ds000246
+  kind: entity_fact
+  raw_text: The project uses the OpenNeuro dataset ds000246.
+  resolved_value: OpenNeuro dataset ID ds000246
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-30T02:55:52Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model double-gamma based on Friston et al. (1998)
+  claim_id: c_7596c7a1
+  context: 'HRF model double-gamma based on Friston et al. (1998): ''Friston, K. J.,
+    et al. (1998). Event-related fMRI: characterizing differential responses. NeuroImage,
+    7(1), 30-40.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HRF model used is the double-gamma model based on Friston et al. (1998).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:56:10Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: HRF model peak 5s and undershoot 15s
+  claim_id: c_fbd0d785
+  context: HRF model peak=5s, undershoot=15s
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The HRF model parameters are set to a peak of 5 seconds and an undershoot
+    of 15 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:56:23Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage limit 6GB
+  claim_id: c_3fa96960
+  context: "memory usage logs show \u2264 6GB peak"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_limit_6GB
+  kind: entity_fact
+  raw_text: The project requires a peak RAM usage of 6GB or less during processing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:56:50Z'
+- artifact_path: projects/PROJ-228-investigating-the-impact-of-visual-compl/specs/001-investigating-the-impact-of-visual-compl/tasks.md
+  attempts: 1
+  canonical: Circular block permutation block size proportional to TR per Winkler
+    et al. (2014)
+  claim_id: c_2ee267c8
+  context: 'Block size calculation is proportional to TR as established in Winkler
+    et al.: ''Winkler, A. M., et al. (2014). Permutation inference for the general
+    linear model. NeuroImage, [volume], -397.'''
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Circular Block Permutation logic references Winkler et al. (2014)
+    for block size calculation proportional to TR.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T02:57:20Z'

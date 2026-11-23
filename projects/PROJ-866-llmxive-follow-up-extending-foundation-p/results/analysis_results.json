@@ -1,0 +1,16 @@
+{
+  "threshold_pct": 0.0,
+  "ci_lower": 0.0,
+  "ci_upper": 0.0,
+  "regression_coefficients": {
+    "depth": -22.566068523292337,
+    "complexity": -3.9392859603879384e-14,
+    "intercept": NaN
+  },
+  "p_values": {
+    "depth": 2.0758522155867704e-133,
+    "complexity": 0.9999999999998824,
+    "intercept": NaN
+  },
+  "n_samples": 5
+}

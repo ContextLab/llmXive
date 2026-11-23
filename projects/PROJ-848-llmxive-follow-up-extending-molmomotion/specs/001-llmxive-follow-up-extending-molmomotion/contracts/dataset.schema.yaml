@@ -1,0 +1,121 @@
+# JSON Schema for MolmoMotion subsampled trajectory instances and
+# synthesized dual-modality instruction pairs.
+#
+# This contract governs two artifacts:
+#   1. data/processed/subsampled_instances.parquet  (fields:
+#      instance_id, ground_truth_points, kinematic_metadata)
+#   2. data/processed/instruction_pairs.jsonl        (all fields below)
+#
+# Field naming follows the schema mapping table in plan.md.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: MolmoMotionDatasetInstance
+type: object
+additionalProperties: false
+required:
+  - instance_id
+  - ground_truth_points
+  - kinematic_metadata
+  - instruction_nl
+  - instruction_struct
+properties:
+  instance_id:
+    type: string
+    description: >
+      Unique identifier of a single trajectory instance from the
+      subsampled MolmoMotion-1M corpus. Used as the join key to align
+      NL and structured predictions for the paired t-test (FR-005).
+    minLength: 1
+    examples:
+      - "molmomotion-000123"
+
+  ground_truth_points:
+    type: array
+    description: >
+      Ground-truth 3D point sequence (independent reference for ATE,
+      FR-004). Each element is an [x, y, z] coordinate in meters.
+    minItems: 1
+    items:
+      type: array
+      description: A single 3D point [x, y, z] in meters.
+      minItems: 3
+      maxItems: 3
+      items:
+        type: number
+    examples:
+      - [[0.0, 0.0, 0.0], [0.1, 0.0, 0.0], [0.2, 0.0, 0.0]]
+
+  kinematic_metadata:
+    type: object
+    description: >
+      Ground-truth kinematic metadata from which both instruction
+      modalities are derived (FR-002). Missing or null velocity /
+      duration values mark ambiguous instances that must be skipped
+      during structured instruction synthesis (logged as warnings).
+    additionalProperties: true
+    properties:
+      velocity:
+        oneOf:
+          - type: "null"
+          - type: array
+            description: Mean velocity vector [vx, vy, vz] in m/s.
+            minItems: 3
+            maxItems: 3
+            items:
+              type: number
+      duration:
+        oneOf:
+          - type: "null"
+          - type: number
+            description: Trajectory duration in seconds.
+            minimum: 0
+            exclusiveMinimum: false
+      displacement:
+        type: array
+        description: Total displacement vector [dx, dy, dz] in meters.
+        minItems: 3
+        maxItems: 3
+        items:
+          type: number
+
+  instruction_nl:
+    type: string
+    description: >
+      Coarse natural-language instruction (e.g., "move left")
+      synthesized from ground-truth metadata (FR-002).
+    minLength: 1
+    examples:
+      - "move left"
+
+  instruction_struct:
+    type: object
+    description: >
+      Structured kinematic instruction specification (velocity vector
+      plus duration) derived strictly from ground-truth metadata
+      (FR-002), e.g. "velocity [-0.5, 0, 0], duration 2s".
+    additionalProperties: false
+    required:
+      - velocity
+      - duration
+    properties:
+      velocity:
+        type: array
+        description: Intended velocity vector [vx, vy, vz] in m/s.
+        minItems: 3
+        maxItems: 3
+        items:
+          type: number
+      duration:
+        type: number
+        description: Intended motion duration in seconds.
+        minimum: 0
+
+  synthesis_status:
+    type: string
+    description: >
+      Status of dual-modality instruction synthesis for this instance.
+      Instances with ambiguous metadata (null velocity or duration)
+      are marked "skipped" and excluded from the paired analysis.
+    enum:
+      - ok
+      - skipped
+    default: ok

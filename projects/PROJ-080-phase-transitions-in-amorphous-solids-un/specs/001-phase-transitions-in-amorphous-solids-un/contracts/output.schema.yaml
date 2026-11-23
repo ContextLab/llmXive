@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Output Schema"
+description: "Schema for the final analysis outputs (Permutation Test results and sensitivity table)."
+type: "object"
+properties:
+  permutation_test_results:
+    type: object
+    description: "Results of the Permutation Test."
+    properties:
+      statistic:
+        type: number
+        description: "Test statistic."
+      pvalue:
+        type: number
+        description: "P-value of the test."
+      method:
+        type: string
+        enum: ["Permutation Test"]
+        description: "Method used."
+      correction:
+        type: string
+        description: "Multiple comparison correction applied."
+    required:
+      - statistic
+      - pvalue
+      - method
+  sensitivity_table:
+    type: array
+    description: "List of threshold sweep results."
+    items:
+      type: object
+      properties:
+        threshold:
+          type: number
+          description: "Threshold value."
+        fpr:
+          type: number
+          description: "False Positive Rate."
+        fnr:
+          type: number
+          description: "False Negative Rate."
+        f1_score:
+          type: number
+          description: "F1-score."
+      required:
+        - threshold
+        - fpr
+        - fnr
+        - f1_score
+  memory_profile:
+    type: object
+    description: "Memory usage statistics."
+    properties:
+      peak_ram_mb:
+        type: number
+        description: "Peak RAM usage in MB."
+      limit_mb:
+        type: number
+        description: "RAM limit in MB."
+      status:
+        type: string
+        enum: ["PASS", "FAIL"]
+        description: "Status of memory check."
+    required:
+      - peak_ram_mb
+      - limit_mb
+      - status
+required:
+  - permutation_test_results
+  - sensitivity_table
+  - memory_profile
+additionalProperties: false

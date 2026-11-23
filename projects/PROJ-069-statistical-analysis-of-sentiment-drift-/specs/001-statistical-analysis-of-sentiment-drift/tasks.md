@@ -1,268 +1,186 @@
-# Tasks: Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions
+# Tasks: Statistical Analysis of Sentiment Drift in Social Media During Economic Recessions  
 
-**Input**: Design documents from `/specs/001-sentiment-drift/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, existing repository artifacts.  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `data/raw/`, `data/processed/`, `data/metadata/`, `results/`, `tests/`, `artifacts/`, `docs/` at repository root
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 [P] Initialize project directory structure (`code/`, `data/raw/`, `data/processed/`, `data/metadata/`, `results/`, `tests/`, `artifacts/`, `docs/`)
-- [X] T002 Create `code/requirements.txt` with pinned dependencies. **Execution**: Run `pip-compile --generate-hashes requirements.in` to ensure exact equality `package==1.2.3` and checksum verification `--hash=sha256:...` for all packages to ensure reproducibility per Constitution Principle I.
-- [X] T003 [P] Initialize Python 3.11 virtualenv and install dependencies
-- [X] T004 [P] Configure linting (ruff/flake8) and formatting (black) tools
-- [X] T005 [P] Create base schema definitions in `code/contracts/` for `TimeSeries`, `ModelResult`, and `RecessionPeriod`
+The following checklist implements the full research pipeline required by the specification.  
+Unchecked boxes (`- [ ]`) indicate work that still needs to be performed; once a task is completed and its artefacts pass the independent tests described in the indented lines, the box should be checked.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Project bootstrap & environment  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T006 [P] Implement `code/update_state.py` to automatically update `state/projects/...yaml` with artifact hashes for `data/raw/`, `data/processed/`, `data/metadata/`, and `code/` using SHA-256
-- [ ] T007 [P] Setup environment configuration management (`.env` handling for FRED API keys, HF token)
-- [ ] T008 Create `code/data_ingestion.py` skeleton with FRED and HuggingFace client wrappers
-- [ ] T009 Create `code/preprocessing.py` skeleton for interpolation logic and stationarity checks
-- [ ] T010 Create `code/modeling.py` skeleton for ADF, Johansen, VAR, and Granger tests
-- [ ] T011 [P] Create `code/validation.py` skeleton for MBB and sensitivity analysis
-- [ ] T012 [P] Create `code/visualization.py` skeleton for NBER-shaded plots
-- [ ] T049 [P] [Foundational] **Execute Sensitivity Threshold Pilot**: Run a pilot sensitivity sweep using standard masking proportions ([deferred], [deferred], [deferred]) on a small sample of the data to empirically determine the optimal masking range and the 'negligible' p-value shift threshold (target <0.01). Output the final masking proportions and threshold to `code/config.yaml` as `sensitivity_masking_proportions` and `p_value_shift_threshold`. **Note**: This resolves the '[deferred]' values in FR-012/SC-006 by executing a concrete analysis step rather than deferring to a future research phase, making the requirement testable.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T001 [P1] [US-1] **Create project layout, environment files, and sanity‑check script**  
+  - Ensure directories `code/`, `data/raw/`, `data/processed/`, `data/metadata/`, `outputs/figures/`, `notebooks/`, `scripts/`, `tests/` exist.  
+  - Add `.env.example` with placeholders `FRED_API_KEY` and `TWITTER_BEARER_TOKEN`; copy to `.env` and verify both variables are set.  
+  - Provide `scripts/check_env.py` that loads the variables via `python‑dotenv` and exits with status 0 if both are present, otherwise prints a clear error message.  
+  - **Verification**: Run `python scripts/check_env.py`; it must exit cleanly and print the two variable names.
 
 ---
 
-## Phase 3: User Story 1 - Data Acquisition, Alignment, and Preprocessing (Priority: P1) 🎯 MVP
+## Phase 2 – Data acquisition  
 
-**Goal**: Ingest historical sentiment and macroeconomic data, align to monthly frequency (corrected from quarterly to satisfy MBB constraints), and handle missing data via documented interpolation.
+- [ ] T002 [P1] [US-1] **Download macro‑economic series from the official FRED API**   <!-- FAILED-IN-EXECUTION: code/ingest/fetch_fred.py exit=1 -->
+  - Use `fredapi` to fetch quarterly GDP (`GDP`), unemployment rate (`UNRATE`), and consumer confidence (`CSCICP03`).  
+  - Save as `data/raw/fred/fred_gdp.csv`, `data/raw/fred/fred_unrate.csv`, `data/raw/fred/fred_consumer_confidence.csv`.  
+  - Compute SHA‑256 checksums for each CSV and record them in `data/checksums.json`.  
+  - Log each source URL (including API endpoint and series ID) in `results/fred_download_log.json`.  
+  - **Verification**: Each CSV must contain at least 30 rows and a header row; the log file must be valid JSON with three entries; `data/checksums.json` must contain matching SHA‑256 entries.
 
-**Independent Test**: Run `code/data_ingestion.py` and `code/preprocessing.py` to verify `data/processed/aligned_monthly.csv` exists with monthly timestamps, ≤5% missing rate (flagged otherwise), and valid sentiment polarity ratios.
+- [ ] T003 [P1] [US-1] **Download verified sentiment dataset from HuggingFace**  
+  - Stream the open dataset `allenai/tweet_sentiment` via `datasets.load_dataset(..., streaming=True)` and write the raw records to `data/raw/sentiment_raw.csv`.  
+  - Abort with a clear error if the final record count is < 10 000 (FR‑015).  
+  - Compute SHA‑256 checksum of `sentiment_raw.csv` and add it to `data/checksums.json`.  
+  - **Verification**: `wc -l data/raw/sentiment_raw.csv` ≥ 10 000 and the file is a valid CSV with columns `text`, `label`; checksum entry exists.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T013 [P] [US1] Contract test for `aligned_monthly.csv` schema in `tests/contract/test_timeseries_schema.py`
-- [ ] T014 [P] [US1] Integration test for data alignment logic in `tests/integration/test_data_alignment.py`
-- [ ] T015 [P] [US1] Unit tests for interpolation methods (forward-fill vs linear) in `tests/unit/test_interpolation.py`
-
-### Implementation for User Story 1
-
-- [ ] T016 [US1] **Override FR-001/FR-002 per Plan**: Implement FRED data fetcher in `code/data_ingestion.py` to download GDP (`FRED/GDP`), UNRATE (`FRED/UNRATE`), and Consumer Confidence (`FRED/UMCSENT`). **Scope Change**: This task overrides the Spec's FR-001/FR-002 "quarterly frequency" requirement with **monthly frequency** per the Plan's "Critical Methodological Correction". Handle partial data with forward-fill and flag affected periods as per FR-008. **Input**: Reads from FRED API. **Output**: `data/raw/fred_gdp.csv`, `data/raw/fred_unrate.csv`.
-- [ ] T017 [US1] **Override FR-001 per Plan**: Implement GDELT sentiment fetcher in `code/data_ingestion.py` to download historical sentiment time-series using the GDELT 2.0 API (Dataset ID: `gdelt-2.0` or equivalent verified endpoint via `pygdelt`) and aggregate to **monthly** time series. **Scope Change**: This task overrides the Spec's FR-001 requirement for `snap-cornell/twitter-roberta-base-sentiment-dataset` (which is not a time-series source) with **GDELT** to satisfy the requirement for historical sentiment time-series data. **Aggregation**: Compute monthly mean of daily sentiment scores. **Input**: GDELT API. **Output**: `data/raw/gdelt_sentiment.csv`.
-- [ ] T018 [US1] **Override FR-002 per Plan**: Implement monthly alignment logic in `code/preprocessing.py` (resample daily sentiment to monthly averages using `mean`; interpolate monthly macro data using `linear`). **Scope Change**: This task overrides the Spec's FR-002 "quarterly alignment" requirement with **monthly alignment** to ensure statistical validity of the MBB step. **Input**: `data/raw/fred_*.csv`, `data/raw/gdelt_sentiment.csv`. **Output**: `data/processed/aligned_monthly.csv`.
-- [ ] T019 [US1] Implement missing data rate calculation and flagging logic (exclude periods >5% missing) in `code/preprocessing.py`
-- [ ] T020 [US1] Implement sentiment noise reduction (rolling average) in `code/preprocessing.py`
-- [ ] T021 [US1] Implement low-confidence flagging (confidence <0.7 (2502.18978, https://arxiv.org/abs/2502.18978) or sample size <100) in `code/preprocessing.py`
-- [ ] T022 [US1] Generate `data/processed/aligned_monthly.csv` and `data/processed/data_quality_log.json` (logging method and % affected per variable)
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T004 [P1] [US-1] **Extract sentiment scores with confidence ≥ 0.7**  
+  - Run `code/ingest/sentiment_extraction.py` (RoBERTa‑base) on `sentiment_raw.csv`; output `data/processed/sentiment_extracted.csv` containing columns `date`, `pos_ratio`, `neg_ratio`, `neu_ratio`, `media_volume`, `avg_confidence`.  
+  - Record model name, tokenizer version, and confidence threshold in `metadata/sentiment_extraction.json`.  
+  - **Verification**: The output CSV must have a row for every day present in the raw data and `media_volume` ≥ 30 for at least 90 % of days; the JSON must contain the fields `model`, `tokenizer`, `confidence_threshold`.
 
 ---
 
-## Phase 4: User Story 2 - Statistical Modeling, Stationarity Testing, Causal Inference & Validation (Priority: P2)
+## Phase 3 – Pre‑processing & alignment  
 
-**Goal**: Execute stationarity tests, select optimal lags, run Granger causality tests, and perform robustness/out-of-sample validation on the monthly dataset.
+- [ ] T005 [P1] [US-1] **Merge macro and sentiment data to monthly frequency with interpolation & imputation comparison**  
+  - Resample daily sentiment ratios to monthly averages; compute `media_volume` per month and flag months with `< 30` posts or `avg_confidence < 0.7` as low‑confidence.  
+  - Perform **linear interpolation** for missing macro values (only if missing ≤ 5 % per series).  
+  - Independently perform **Kalman‑Smoother** imputation for the same missing points.  
+  - Compute lag‑1 autocorrelation for each series under both imputation methods; if the absolute difference exceeds **0.05**, select the method with the smaller difference (prefer linear unless Kalman improves autocorrelation).  
+  - Transform the three sentiment ratios into two additive log‑ratio (ILR) components (`sentiment_ilr_1`, `sentiment_ilr_2`).  
+  - Write `data/processed/aligned_monthly.csv`.  
+  - Generate `data/processed/data_quality_log.json` documenting: interpolation method chosen, percentages of imputed points per series, lag‑1 autocorrelation values for both methods, and low‑confidence month flags.  
+  - **Verification**: The CSV must validate against `aligned_timeseries.schema.yaml`; the JSON log must contain keys `imputation_method`, `interpolation_percent_*`, `lag1_acf_linear`, `lag1_acf_kalman`, `low_confidence_months`.
 
-**Independent Test**: Run `code/modeling.py` and `code/validation.py` to verify `results/model_stats.json`, `results/validation_stats.json`, and `results/holdout_validation.json` contain all required p-values, statistics, and verification metrics.
+- [ ] T006 [P1] [US-1] **Aggregate monthly data to quarterly frequency**  
+  - Average the three months of each quarter for all numeric fields; propagate the low‑confidence flag (quarter is low‑confidence if any constituent month is flagged).  
+  - Produce `data/processed/aligned_quarterly.csv` and update `data/processed/data_quality_log.json` with quarterly interpolation percentages and flag summaries.  
+  - **Verification**: The quarterly CSV must validate against `aligned_data.schema.yaml`; at least 95 % of quarters must have interpolation ≤ 5 % and low‑confidence flag ≤ 20 % (FR‑010a).
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T022 [P1] [US-1] **Enforce abort on excessive low‑confidence quarters**  
+  - After T006, compute the proportion of low‑confidence quarters.  
+  - If the proportion exceeds **20 %** of total quarters, abort the pipeline with a clear error message indicating the failure of FR‑010a.  
+  - **Verification**: Pipeline exits with non‑zero status and descriptive error when the threshold is crossed.
 
-- [ ] T023 [P] [US2] Contract test for `model_stats.json` schema in `tests/contract/test_model_results_schema.py`
-- [ ] T024 [P] [US2] Integration test for Granger causality logic in `tests/integration/test_granger_causality.py`
-- [ ] T025 [P] [US2] Unit tests for ADF and Johansen test logic in `tests/unit/test_stationarity.py`
-
-### Implementation for User Story 2
-
-- [ ] T026 [US2] Implement Augmented Dickey-Fuller (ADF) test runner in `code/modeling.py` with fallback transformations (log/Box-Cox) for non-stationary series
-- [ ] T027 [US2] Implement Johansen Cointegration Test and Model Selection in `code/modeling.py`. **Logic**: Run Johansen test; **strictly prioritize the Trace statistic** for cointegration rank selection as per the Plan's "Methodological Corrections". If cointegration is detected, select VECM; otherwise, select VAR. **Artifact**: Write test statistics, p-values, cointegration rank, selected model type (VAR/VECM) to `results/model_stats.json`. This artifact is required by T028. (As per Plan.md Phase 1 Step 1.3)
-- [ ] T028 [US2] Implement VAR/VECM model fitting with AIC-based optimal lag selection in `code/modeling.py`. **Dependency**: Reads `results/model_stats.json` from T027 to determine the model type (VAR vs VECM) to fit. **Output**: Updated `results/model_stats.json`.
-- [ ] T029 [US2] Implement Granger Causality F-test runner in `code/modeling.py` for Sentiment → GDP/Unemployment/ConsumerConfidence and reverse directions
-- [ ] T030 [US2] Implement collinearity diagnostic (Variance Inflation Factor) for GDP vs Unemployment in `code/modeling.py`. **Action**: If high collinearity is detected (VIF > 33 (Wikidata Q113106917, https://www.wikidata.org/wiki/Q113106917)), log the VIF and explicitly **frame results as a joint relationship** rather than independent effects in the final output, as per spec Edge Cases.
-- [ ] T031 [US2] Generate `results/model_stats.json` with p-values, F-statistics, and lag lengths (Updated by T027/T028/T029)
-- [ ] T032 [US2] Implement Moving Block Bootstrap (MBB) with block length = **1 month** in `code/validation.py`; **Logic**: Since the input data (`aligned_monthly.csv`) is now monthly, the '4-week' requirement from FR-006/SC-004 is approximated by **1 month** (1 data point) as a necessary correction per the Plan's "Frequency Shift". The MBB must use a block length of 1 month. Calculate 95% CI; verify CI width ≤20% of original OLS coefficient and convergence (width stable <1% for 3 runs). **Verification**: Explicitly check if the CI width ≤20% of the OLS coefficient for the monthly frequency and log a warning if statistical properties change significantly. **Output**: Generate `results/validation_stats.json` containing CI arrays, convergence flag, verification status, and convergence log. **Dependency**: T033/T050 depend on T032 completing successfully (validation pass).
-- [ ] T033 [US2] Implement sensitivity analysis scaffolding in `code/validation.py` (prepare logic for masking/re-interpolation)
-- [ ] T049b [US2] Execute sensitivity analysis in `code/validation.py` using masking proportions **read from `code/config.yaml` (output of T049)**; re-interpolate masked data, re-run VAR/VECM for each proportion, and generate `results/validation_stats.json` reporting absolute p-value shifts for each specific proportion (must be < `p_value_shift_threshold` from T049). **Dependency**: Depends on `results/model_stats.json` from T031/T028. **Note**: This task explicitly tags FR-012 and handles the '[deferred]' values by using the concrete values defined in T049.
-- [ ] T034a [US2] Fetch/define recession periods for major economic downturns from NBER. **Primary Method**: Fetch NBER recession dates from the official URL ` and save to `data/metadata/recession_periods.json`. **Verification**: Compute a checksum of the fetched data and record it in `data/metadata/recession_periods.json` to satisfy Constitution Principle II (Verified Accuracy). **Note**: This hardcoded list is the 'sourced' data from the Committee.
-- [ ] T034 [US2] Implement out-of-sample validation using periods in `data/metadata/recession_periods.json`; hold out representative historical and recent months, re-fit model, forecast, and generate `results/holdout_validation.json` with RMSE and consistency metrics. **Dependency**: T034 explicitly depends on T034a completion.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently, including all validation steps
-
----
-
-## Phase 5: User Story 3 - Visualization, Robustness Validation, and Reporting (Priority: P3)
-
-**Goal**: Visualize temporal relationships with recession shading and generate final report artifacts.
-
-**Independent Test**: Generate `artifacts/figures/` and `analysis_notebook.ipynb` and verify recession shading, MBB confidence intervals, and sensitivity analysis report are included.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T035 [P] [US3] Contract test for `validation_stats.json` schema in `tests/contract/test_robustness_schema.py`
-- [ ] T036 [P] [US3] Integration test for MBB and sensitivity analysis in `tests/integration/test_robustness.py`
-
-### Implementation for User Story 3
-
-- [ ] T037 [US3] Implement time-series visualization with NBER recession shading in `code/visualization.py` using `data/metadata/recession_periods.json`
-- [ ] T038 [US3] Implement impulse response functions (IRFs) and cross-correlation heatmaps in `code/visualization.py`
-- [ ] T039 [US3] Generate `artifacts/figures/` (PDF/PNG) with all required annotations and metadata
-- [ ] T040 [US3] Assemble `analysis_notebook.ipynb` with embedded code, outputs, and narrative text (FR-007); include dataset URLs and DOIs in metadata. **Note**: Ensure outputs are automatically captured from script runs to satisfy "embedded outputs" requirement.
-- [ ] T041 [US3] Update `state/projects/...yaml` via `update_state.py` with final artifact hashes
-- [ ] T042 [US3] Implement concordance score calculation in `code/validation.py` to compute the **percentage of recessions where peak sentiment occurs ≤ 1 month before onset ** and report in `results/validation_stats.json`. **Dependency**: Explicitly tags FR-014 and implements the full validation logic against the external economic event timeline (NBER dates) as required, not just the concordance score.
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T020 [P1] [US-1] **Validate overall quarterly coverage ≥ 95 %**  
+  - Count total expected quarterly timestamps between the earliest and latest dates in the macro series.  
+  - Verify that at least 95 % of those timestamps are present in `aligned_quarterly.csv`.  
+  - Abort with an informative error if the coverage falls below the threshold.  
+  - **Verification**: Coverage metric is computed and logged; pipeline fails if < 0.95.
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 4 – Diagnostic checks, feasibility, & model fitting  
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] T007 [P2] [US-2] **Stationarity, VIF, cointegration, lag selection, and feasibility check**  
+  - Run ADF tests on every quarterly series; if non‑stationary, difference once and re‑test. If still non‑stationary, apply log or Box‑Cox transformation (FR‑009).  
+  - Compute Variance Inflation Factors for GDP, UNRATE, and Consumer Confidence; flag any VIF ≥ 33 (FR‑020).  
+  - Perform Johansen cointegration test; select rank using the trace statistic, applying the conflict‑resolution rule described in FR‑013.  
+  - Choose optimal VAR lag via AIC (max 4 quarters).  
+  - Verify feasibility: `num_parameters ≤ floor(observations/5)` (FR‑021); if violated, automatically reduce lag order and log the decision.  
+  - Log the **imputation method** used (from T005) and the **percentage of interpolated points** for each series as required by FR‑011.  
+  - Consolidate all results in `results/diagnostics.json`.  
+  - **Verification**: `results/diagnostics.json` must contain keys `adf`, `vif`, `cointegration_rank`, `optimal_lag`, `feasibility`, `imputation_method`, `interpolation_percent_*`, and each sub‑object must include p‑values, test statistics, and any transformation actions taken.
 
-- [ ] T043 [P] Documentation updates in `docs/` (including dataset URLs and DOIs in metadata)
-- [ ] T044 Code cleanup and refactoring for performance on CPU-only CI
-- [ ] T045 Performance optimization (ensure full pipeline runs <4 hours on CPU/7GB RAM)
-- [ ] T046 [P] Additional unit tests for edge cases (API failures, non-stationary fallbacks) in `tests/unit/`
-- [ ] T047 Run `quickstart.md` validation to ensure reproducibility from scratch
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**:
- - **Phase 3 (US1)**: Depends on Foundational (Phase 2)
- - **Phase 4 (US2)**: Depends on **Phase 3 (US1) completion** and Foundational (Phase 2) - Data must be clean before modeling
- - **Phase 5 (US3)**: Depends on Phase 4 (US2) completion
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on clean data from US1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on results from US2
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Data fetching before alignment
-- Alignment before modeling
-- Modeling before validation/visualization
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
-### Conditional Flows & Decision Gates
-
-- **T027 -> T028**: T027 (Johansen Test) **atomically** determines the model type (VAR vs VECM) and writes it to `results/model_stats.json`. T028 (Model Fitting) reads this decision directly from `results/model_stats.json` to fit the correct model. No intermediate temp files or manual steps.
-- **T034a -> T034**: T034a must produce `recession_periods.json` containing BOTH 2008 and 2020 periods from the verified NBER historical data. T034 iterates over this list. **Dependency**: T034 explicitly depends on T034a completion.
-- **T032**: Calculates CI width and verifies against the 20% threshold defined in SC-004. Produces convergence log required by T033/T050.
-- **T049b**: The masking proportions are now determined by T049 (pilot analysis) and read from config, ensuring traceability to the '[deferred]' requirement in the spec. T049b iterates over the values defined in `code/config.yaml`. **Dependency**: T049b depends on T031 (model stats) for baseline.
+- [ ] T008 [P2] [US-2] **Fit VAR or VECM and compute Granger‑causality statistics**  
+  - Based on the cointegration rank, fit a VAR (rank 0) or VECM (rank > 0) using the selected lag. Serialize the fitted model to `results/model_fit.pkl`.  
+  - Generate `results/model_stats.json` summarising `model_type`, `optimal_lag`, `cointegration_rank`, and a list of bidirectional Granger‑causality results (direction, F‑stat, p‑value, Benjamini‑Hochberg‑adjusted p‑value).  
+  - **Verification**: The JSON must contain 12 direction entries (sentiment ↔ each macro variable) and all p‑values must be ≤ 1.0; the pickle file must be loadable with `statsmodels`.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 5 – Robustness validation  
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for aligned_monthly.csv schema in tests/contract/test_timeseries_schema.py"
-Task: "Integration test for data alignment logic in tests/integration/test_data_alignment.py"
-Task: "Unit tests for interpolation methods in tests/unit/test_interpolation.py"
+- [ ] T009 [P3] [US-3] **Moving Block Bootstrap (MBB) validation with convergence check**  
+  - Apply MBB to the **monthly** aligned data (`aligned_monthly.csv`) with 1 000 iterations, block length = 13 weeks (≈ 1 quarter).  
+  - Compute 95 % confidence intervals for each VAR coefficient; verify that:  
+    1. CI width for `sentiment_ilr_1 → gdp_growth` ≤ 20 % of its point estimate,  
+    2. The interval contains the point estimate,  
+    3. Coefficient‑of‑variation < 0.1,  
+    4. CI width stabilises (change < 1 %) over three consecutive iteration batches (convergence).  
+  - Store results and a pass/fail flag in `results/bootstrap_validation.json`.  
+  - **Verification**: The JSON must include `ci_lower`, `ci_upper`, `point_estimate`, `width_ratio`, `cv`, and `converged` (true/false); all criteria must be satisfied for a pass.
 
-# Launch all models for User Story 1 together:
-Task: "Implement FRED data fetcher in code/data_ingestion.py"
-Task: "Implement GDELT sentiment fetcher in code/data_ingestion.py"
-```
+- [ ] T010 [P3] [US-4] **Sensitivity analysis on data masking**  
+  - For masking proportions 0.05, 0.10, and 0.15: randomly mask that fraction of quarterly observations, re‑interpolate using the method selected in T005, re‑run the full modeling pipeline (T007–T008), and compute the absolute shift in each Granger‑causality p‑value relative to the baseline.  
+  - Use the fixed random seed defined in T019.  
+  - Assert that every shift ≤ 0.01 (FR‑012).  
+  - Summarise results in `results/sensitivity_analysis.json`.  
+  - **Verification**: JSON must contain an array of objects with fields `masking_proportion`, `direction`, `p_value_shift`; all `p_value_shift` values ≤ 0.01.
 
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data Ingestion)
- - Developer B: User Story 2 (Modeling & Validation)
- - Developer C: User Story 3 (Visualization)
-3. Stories complete and integrate independently
+- [ ] T011 [P3] [US-3] **Rolling‑origin out‑of‑sample forecast**  
+  - Hold out the most recent 8 quarters, then iteratively expand the training window, refit the selected model, and forecast the hold‑out period.  
+  - Compute RMSE and MAE for each horizon and aggregate into `results/forecast_validation.json`.  
+  - **Verification**: The JSON must contain keys `rmse`, `mae`, `average_rmse`, `average_mae`; values must be numeric.
 
 ---
 
-## Notes
+## Phase 6 – Recession metadata, change‑point detection, & visualisation  
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Feasibility Note**: All tasks are designed for CPU-only execution. No GPU models or large-scale training are included. The dataset is sampled to a representative subset if necessary to fit in available RAM.
-- **Data Integrity**: All data sources are real (FRED API, GDELT, NBER historical data). No synthetic data generation is used for primary analysis.
-- **Sensitivity Analysis**: T049 defines masking proportions via a pilot analysis, ensuring traceability to the '[deferred]' requirement in the spec. T049b iterates over these values.
-- **Frequency Correction**: The analysis frequency is shifted to **Monthly** (T016, T017, T018) to satisfy the spec's "4-week block" requirement for MBB (T032), resolving the mathematical incoherence of a 4-week block on quarterly data. This is a **Plan override** of the Spec's FR-001/FR-002.
-- **MBB Block Length Note**: Task T032 correctly maps the '4-week' spec requirement to the monthly data frequency by using a block length of 1 month (approximation). This ensures statistical validity on the `aligned_monthly.csv` input, acknowledging the discrepancy (1 month [deferred] ≠ 4 weeks = 28 days) but prioritizing the Plan's frequency correction.
-- **Data Source Correction**: Task T017 uses GDELT instead of `snap-cornell` as per the Plan's "Data Source Correction" to ensure valid time-series data.
-- **NBER Data Source**: Task T034a uses a hardcoded, verified list of NBER recession dates fetched from the official URL to ensure robustness and satisfy the "sourced from" requirement.
+- [ ] T012 [P3] [US-3] **Download and store official NBER recession dates**  
+  - Retrieve `[UNRESOLVED-CLAIM: https://raw.githubusercontent.com/datasets/nber-business-cycle-dating/master/data/nber-cycles.csv` — HTTP 404] and convert to JSON `data/metadata/recession_periods.json` with fields `start_date`, `end_date`, `label`.  
+  - **Verification**: The JSON file must contain at least three recession periods and be valid JSON.
+
+- [ ] T013 [P3] [US-3] **PELT change‑point detection on sentiment ILR components**  
+  - Run `ruptures` with BIC penalty and minimum segment length = 2 quarters on `sentiment_ilr_1` and `sentiment_ilr_2`.  
+  - Compute the proportion of detected breakpoints that fall within ±1 quarter of any NBER recession start or end; require ≥ 80 % (SC‑014).  
+  - Output `results/pelt_breakpoints.json` containing breakpoints and the alignment metric.  
+  - **Verification**: JSON must include `breakpoints` (list of dates) and `alignment_proportion` ≥ 0.80.
+
+- [ ] T014 [P3] [US-3] **Generate all required visual artefacts**  
+  - Time‑series plot of sentiment ILR components and macro variables with NBER recession shading (`outputs/figures/time_series.png`).  
+  - Impulse‑response function plots for each VAR/VECM coefficient (`outputs/figures/irf_*.png`).  
+  - Cross‑correlation heatmap between sentiment and each macro series (`outputs/figures/cross_corr_heatmap.png`).  
+  - Save each figure as both PNG **and** PDF.  
+  - **Verification**: The `outputs/figures/` directory must contain the listed files; each file size > 5 KB.
+
+---
+
+## Phase 7 – Reproducible notebook & project hand‑off  
+
+- [ ] T015 [P3] [US-3] **Assemble a fully reproducible Jupyter notebook**  
+  - `notebooks/sentiment_drift_analysis.ipynb` must sequentially execute every script from T002 through T014, display all figures, and embed a narrative discussion of results, including the disclaimer from FR‑019 that Granger causality indicates predictive precedence only.  
+  - Export the notebook to HTML (`outputs/report.html`) and PDF (`outputs/report.pdf`).  
+  - **Verification**: Running `jupyter nbconvert --to notebook --execute notebooks/sentiment_drift_analysis.ipynb` must complete without errors; the exported PDF must be non‑empty and contain all figure captions.
+
+- [ ] T016 [P3] [US-3] **Provide quick‑start script and integration test**  
+  - `scripts/quickstart.sh` creates a virtual environment, installs `requirements.txt`, runs the notebook, and then checks for the presence of the key artefacts: `data/processed/aligned_quarterly.csv`, `results/model_stats.json`, `results/bootstrap_validation.json`, `outputs/report.pdf`, and all figure files.  
+  - Add `tests/integration/test_quickstart.sh` that invokes `quickstart.sh` and asserts each artefact exists and matches its SHA‑256 checksum recorded in `data/checksums.json`.  
+  - **Verification**: The integration test must exit with status 0 on a clean run.
+
+- [ ] T019 [P1] [US-2] **Set and record a fixed random seed for all stochastic procedures**  
+  - Define a project‑wide seed (e.g., `12345`) in a constants module `code/constants.py`.  
+  - Ensure all bootstrap, sensitivity, and any randomised modeling steps import this seed.  
+  - Record the seed value in `outputs/model_results.json` under the field `random_seed`.  
+  - **Verification**: The seed value appears in `model_results.json` and all stochastic scripts reference `code/constants.py`.
+
+- [ ] T021 [P1] [US-1] **Compute SHA‑256 hashes for all generated artifacts and update project state**  
+  - After each major phase, compute SHA‑256 hashes for new files and write them to `data/checksums.json`.  
+  - Update `state/projects/PROJ-069-statistical-analysis-of-sentiment-drift-.yaml` `artifact_hashes` map with the new hashes (this file is managed by the platform; the task writes the updated content).  
+  - **Verification**: `data/checksums.json` contains entries for every artifact listed in the verification mapping; the state YAML reflects the same hashes.
+
+---
+
+### Verification mapping (summary)
+
+| Spec requirement | Task(s) fulfilling it |
+|------------------|------------------------|
+| FR‑001, FR‑002, FR‑015, FR‑018 | T002, T003 |
+| FR‑010a, FR‑011 | T005, T006 |
+| FR‑017 | T005 (imputation comparison) |
+| FR‑003, FR‑009, FR‑013, FR‑021 | T007 |
+| FR‑004, FR‑020 | T007 (VIF) & T008 (Granger) |
+| FR‑014 | T012, T013 |
+| FR‑022 | T009 (with convergence) |
+| FR‑012 | T010 |
+| FR‑006 | T011 |
+| FR‑005, FR‑007 | T014, T015 |
+| FR‑019 | T015 (disclaimer) |
+| SC‑001 … SC‑014 | Covered by the corresponding validation tasks (T007‑T014) |
+| SC‑003 (reproducibility) | T015, T016, T019 |
+| SC‑002 (data completeness) | T002, T003, T005, T006, T020 |
+| SC‑014 (breakpoint‑recession metric) | T013 |
+| Constitution Principles I, III, V, VI, VII | T001, T002, T003, T005, T007, T019, T021 |
+
+---  
+
+*All tasks remain unchecked (`- [ ]`) until their artefacts are produced and the verification steps succeed. Once a task is completed, the box should be ticked.*  

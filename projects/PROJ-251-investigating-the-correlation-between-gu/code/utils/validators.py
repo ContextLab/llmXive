@@ -1,319 +1,164 @@
-"""
-Schema validators for dataset, correlation, and model metrics.
-
-This module provides validation functions to ensure data integrity
-across the pipeline's output files.
-"""
-
-import pandas as pd
-import numpy as np
-from typing import Dict, List, Any, Optional
+import os
+import yaml
+import json
+from typing import Dict, Any, List, Optional
 from pathlib import Path
 
-# Dataset Schema Requirements
-DATASET_REQUIRED_COLUMNS = {
-    'subject_id',
-    'titer_baseline',
-    'titer_post',
-    'seroconversion',  # Boolean or 0/1
-    'shannon_diversity'
-}
+def load_schema(schema_path: str) -> Dict[str, Any]:
+    """Load a YAML schema file."""
+    if not os.path.exists(schema_path):
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    
+    with open(schema_path, 'r') as f:
+        return yaml.safe_load(f)
 
-# Correlation Results Schema Requirements
-CORRELATION_REQUIRED_COLUMNS = {
-    'taxon_id',
-    'correlation_coefficient',
-    'p_value_raw',
-    'p_value_adj'
-}
-
-# Model Metrics Schema Requirements
-MODEL_METRICS_REQUIRED_KEYS = {
-    'accuracy',
-    'precision',
-    'recall',
-    'f1_score',
-    'confusion_matrix',
-    'cv_folds',
-    'feature_selection_method',
-    'null_distribution_p_value'
-}
-
-# Model Metrics Schema Requirements (JSON structure)
-MODEL_METRICS_REQUIRED_FIELDS = {
-    'accuracy': (int, float),
-    'precision': (int, float),
-    'recall': (int, float),
-    'f1_score': (int, float),
-    'cv_folds': int,
-    'feature_selection_method': str,
-    'null_distribution_p_value': (int, float)
-}
-
-MODEL_METRICS_CONFUSION_MATRIX_SHAPE = (2, 2)
-
-def validate_dataset_schema(df: pd.DataFrame, strict: bool = True) -> Dict[str, Any]:
+def validate_dataset_schema(data: Dict[str, Any], schema: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Validate that a DataFrame conforms to the expected dataset schema.
+    Validate a dataset dictionary against a schema.
     
     Args:
-        df: DataFrame to validate
-        strict: If True, raise ValueError on missing columns. If False, return 
-               a report with missing columns.
+        data: Dictionary containing dataset keys and values.
+        schema: Dictionary containing schema definition.
     
     Returns:
-        Dict with validation results:
-            - valid: bool
-            - missing_columns: List[str] (if any)
-            - row_count: int
-            - null_counts: Dict[str, int] (for required columns)
-    
-    Raises:
-        ValueError: If strict=True and required columns are missing
+        Dictionary with validation results.
     """
-    if not isinstance(df, pd.DataFrame):
-        if strict:
-            raise ValueError("Input must be a pandas DataFrame")
-        return {
-            'valid': False,
-            'error': 'Input must be a pandas DataFrame',
-            'missing_columns': [],
-            'row_count': 0,
-            'null_counts': {}
-        }
+    errors = []
+    required = schema.get('required', [])
+    properties = schema.get('properties', {})
     
-    missing_columns = []
-    null_counts = {}
+    # Check required fields
+    for field in required:
+        if field not in data:
+            errors.append(f"Missing required field: {field}")
     
-    for col in DATASET_REQUIRED_COLUMNS:
-        if col not in df.columns:
-            missing_columns.append(col)
+    # Check field types
+    for field, value in data.items():
+        if field in properties:
+            expected_type = properties[field].get('type')
+            if expected_type == 'number':
+                if not isinstance(value, (int, float)):
+                    errors.append(f"Field '{field}' should be a number, got {type(value).__name__}")
+            elif expected_type == 'string':
+                if not isinstance(value, str):
+                    errors.append(f"Field '{field}' should be a string, got {type(value).__name__}")
+    
+    return {
+        'valid': len(errors) == 0,
+        'errors': errors
+    }
+
+def validate_correlation_results_schema(data: List[Dict[str, Any]]) -> Dict[str, Any]:
+    """
+    Validate correlation results against expected schema.
+    
+    Args:
+        data: List of dictionaries containing correlation results.
+    
+    Returns:
+        Dictionary with validation results.
+    """
+    errors = []
+    required_fields = ['taxon', 'coefficient', 'raw_pvalue', 'adj_pvalue']
+    
+    if not isinstance(data, list):
+        return {'valid': False, 'errors': ['Data must be a list of correlation results']}
+    
+    for i, item in enumerate(data):
+        for field in required_fields:
+            if field not in item:
+                errors.append(f"Item {i} missing required field: {field}")
+        
+        # Check numeric fields
+        for field in ['coefficient', 'raw_pvalue', 'adj_pvalue']:
+            if field in item and not isinstance(item[field], (int, float)):
+                errors.append(f"Item {i}, field '{field}' must be numeric")
+        
+        # Check p-value ranges
+        if 'raw_pvalue' in item and not (0 <= item['raw_pvalue'] <= 1):
+            errors.append(f"Item {i}, raw_pvalue out of range [0, 1]")
+        if 'adj_pvalue' in item and not (0 <= item['adj_pvalue'] <= 1):
+            errors.append(f"Item {i}, adj_pvalue out of range [0, 1]")
+    
+    return {
+        'valid': len(errors) == 0,
+        'errors': errors
+    }
+
+def validate_model_metrics_schema(data: Dict[str, Any], schema_path: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Validate model metrics against expected schema.
+    
+    Args:
+        data: Dictionary containing model metrics.
+        schema_path: Optional path to YAML schema file.
+    
+    Returns:
+        Dictionary with validation results.
+    """
+    errors = []
+    required_fields = [
+        'mean_accuracy', 'std_accuracy', 'meets_accuracy_target',
+        'significance_pvalue', 'threshold_details'
+    ]
+    
+    # Check required fields
+    for field in required_fields:
+        if field not in data:
+            errors.append(f"Missing required field: {field}")
+    
+    # Check numeric fields
+    numeric_fields = ['mean_accuracy', 'std_accuracy', 'significance_pvalue']
+    for field in numeric_fields:
+        if field in data and not isinstance(data[field], (int, float)):
+            errors.append(f"Field '{field}' must be numeric")
+    
+    # Check boolean fields
+    if 'meets_accuracy_target' in data and not isinstance(data['meets_accuracy_target'], bool):
+        errors.append("Field 'meets_accuracy_target' must be boolean")
+    
+    # Check threshold_details structure
+    if 'threshold_details' in data:
+        if not isinstance(data['threshold_details'], list):
+            errors.append("Field 'threshold_details' must be a list")
         else:
-            null_counts[col] = int(df[col].isna().sum())
+            for i, threshold in enumerate(data['threshold_details']):
+                if not isinstance(threshold, dict):
+                    errors.append(f"Threshold {i} must be a dictionary")
+                elif 'accuracy' not in threshold:
+                    errors.append(f"Threshold {i} missing 'accuracy' field")
     
-    if missing_columns:
-        if strict:
-            raise ValueError(f"Dataset missing required columns: {missing_columns}")
-        return {
-            'valid': False,
-            'missing_columns': missing_columns,
-            'row_count': len(df),
-            'null_counts': null_counts
-        }
-    
-    # Check for nulls in required columns
-    has_nulls = any(count > 0 for count in null_counts.values())
+    # Check ranges
+    if 'mean_accuracy' in data and not (0 <= data['mean_accuracy'] <= 1):
+        errors.append("mean_accuracy must be between 0 and 1")
+    if 'significance_pvalue' in data and not (0 <= data['significance_pvalue'] <= 1):
+        errors.append("significance_pvalue must be between 0 and 1")
     
     return {
-        'valid': not has_nulls,
-        'missing_columns': [],
-        'row_count': len(df),
-        'null_counts': null_counts,
-        'warning': 'Contains null values in required columns' if has_nulls else None
+        'valid': len(errors) == 0,
+        'errors': errors
     }
 
-def validate_correlation_results_schema(df: pd.DataFrame, strict: bool = True) -> Dict[str, Any]:
+def validate_schema_loads_yaml(schema_path: str) -> Dict[str, Any]:
     """
-    Validate that correlation results DataFrame conforms to expected schema.
+    Test that a schema can be loaded from YAML.
     
     Args:
-        df: DataFrame to validate
-        strict: If True, raise ValueError on missing columns.
+        schema_path: Path to the YAML schema file.
     
     Returns:
-        Dict with validation results.
-    
-    Raises:
-        ValueError: If strict=True and required columns are missing or invalid.
+        Dictionary with validation results.
     """
-    if not isinstance(df, pd.DataFrame):
-        if strict:
-            raise ValueError("Input must be a pandas DataFrame")
+    try:
+        schema = load_schema(schema_path)
+        return {
+            'valid': True,
+            'schema': schema,
+            'errors': []
+        }
+    except Exception as e:
         return {
             'valid': False,
-            'error': 'Input must be a pandas DataFrame',
-            'missing_columns': [],
-            'row_count': 0
+            'schema': None,
+            'errors': [str(e)]
         }
-    
-    missing_columns = []
-    
-    for col in CORRELATION_REQUIRED_COLUMNS:
-        if col not in df.columns:
-            missing_columns.append(col)
-    
-    if missing_columns:
-        if strict:
-            raise ValueError(f"Correlation results missing required columns: {missing_columns}")
-        return {
-            'valid': False,
-            'missing_columns': missing_columns,
-            'row_count': len(df)
-        }
-    
-    # Validate p-value ranges
-    invalid_pvalues = []
-    for col in ['p_value_raw', 'p_value_adj']:
-        if col in df.columns:
-            if (df[col] < 0).any() or (df[col] > 1).any():
-                invalid_pvalues.append(col)
-    
-    if invalid_pvalues:
-        if strict:
-            raise ValueError(f"P-values out of range [0, 1] in columns: {invalid_pvalues}")
-        return {
-            'valid': False,
-            'missing_columns': [],
-            'row_count': len(df),
-            'warning': f'P-values out of range in: {invalid_pvalues}'
-        }
-    
-    return {
-        'valid': True,
-        'missing_columns': [],
-        'row_count': len(df)
-    }
-
-def validate_model_metrics_schema(metrics: Dict[str, Any], strict: bool = True) -> Dict[str, Any]:
-    """
-    Validate that model metrics dictionary conforms to expected schema.
-    
-    Args:
-        metrics: Dictionary containing model metrics
-        strict: If True, raise ValueError on missing/invalid fields.
-    
-    Returns:
-        Dict with validation results.
-    
-    Raises:
-        ValueError: If strict=True and validation fails.
-    """
-    if not isinstance(metrics, dict):
-        if strict:
-            raise ValueError("Input must be a dictionary")
-        return {
-            'valid': False,
-            'error': 'Input must be a dictionary',
-            'missing_fields': [],
-            'invalid_fields': []
-        }
-    
-    missing_fields = []
-    invalid_fields = []
-    
-    # Check required top-level keys
-    for key in MODEL_METRICS_REQUIRED_KEYS:
-        if key not in metrics:
-            missing_fields.append(key)
-    
-    # Validate field types and ranges
-    for key, expected_types in MODEL_METRICS_REQUIRED_FIELDS.items():
-        if key in metrics:
-            value = metrics[key]
-            if not isinstance(value, expected_types):
-                invalid_fields.append(key)
-            elif key in ['accuracy', 'precision', 'recall', 'f1_score']:
-                if not (0 <= value <= 1):
-                    invalid_fields.append(f"{key} (out of range [0,1])")
-            elif key == 'cv_folds':
-                if value < 2:
-                    invalid_fields.append(f"{key} (must be >= 2)")
-    
-    # Validate confusion matrix structure
-    if 'confusion_matrix' in metrics:
-        cm = metrics['confusion_matrix']
-        if not isinstance(cm, (list, np.ndarray)):
-            invalid_fields.append('confusion_matrix (not a list/array)')
-        elif isinstance(cm, list):
-            try:
-                cm_array = np.array(cm)
-                if cm_array.shape != MODEL_METRICS_CONFUSION_MATRIX_SHAPE:
-                    invalid_fields.append(f'confusion_matrix (wrong shape: {cm_array.shape})')
-            except:
-                invalid_fields.append('confusion_matrix (invalid array)')
-        elif isinstance(cm, np.ndarray):
-            if cm.shape != MODEL_METRICS_CONFUSION_MATRIX_SHAPE:
-                invalid_fields.append(f'confusion_matrix (wrong shape: {cm.shape})')
-    
-    if missing_fields or invalid_fields:
-        if strict:
-            error_parts = []
-            if missing_fields:
-                error_parts.append(f"Missing fields: {missing_fields}")
-            if invalid_fields:
-                error_parts.append(f"Invalid fields: {invalid_fields}")
-            raise ValueError(f"Model metrics validation failed: {'; '.join(error_parts)}")
-        return {
-            'valid': False,
-            'missing_fields': missing_fields,
-            'invalid_fields': invalid_fields
-        }
-    
-    return {
-        'valid': True,
-        'missing_fields': [],
-        'invalid_fields': []
-    }
-
-def validate_file_exists(filepath: str, strict: bool = True) -> Dict[str, Any]:
-    """
-    Validate that a file exists at the given path.
-    
-    Args:
-        filepath: Path to the file
-        strict: If True, raise FileNotFoundError if file doesn't exist.
-    
-    Returns:
-        Dict with validation results.
-    
-    Raises:
-        FileNotFoundError: If strict=True and file doesn't exist.
-    """
-    path = Path(filepath)
-    
-    if not path.exists():
-        if strict:
-            raise FileNotFoundError(f"File not found: {filepath}")
-        return {
-            'valid': False,
-            'error': f"File not found: {filepath}",
-            'path': filepath
-        }
-    
-    return {
-        'valid': True,
-        'path': str(path),
-        'size_bytes': path.stat().st_size
-    }
-
-def validate_dataframe_not_empty(df: pd.DataFrame, min_rows: int = 1, strict: bool = True) -> Dict[str, Any]:
-    """
-    Validate that a DataFrame has at least min_rows rows.
-    
-    Args:
-        df: DataFrame to validate
-        min_rows: Minimum number of rows required
-        strict: If True, raise ValueError if not enough rows.
-    
-    Returns:
-        Dict with validation results.
-    
-    Raises:
-        ValueError: If strict=True and DataFrame has fewer than min_rows.
-    """
-    row_count = len(df)
-    
-    if row_count < min_rows:
-        if strict:
-            raise ValueError(f"DataFrame has {row_count} rows, minimum required: {min_rows}")
-        return {
-            'valid': False,
-            'row_count': row_count,
-            'min_required': min_rows
-        }
-    
-    return {
-        'valid': True,
-        'row_count': row_count,
-        'min_required': min_rows
-    }

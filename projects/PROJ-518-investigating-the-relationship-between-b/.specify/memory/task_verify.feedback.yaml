@@ -1,0 +1,62 @@
+T002:
+  task: c5f2c2df05e09cb98846819599bb88ca61cd231a167870a2bf7d63d02ac9b158
+T005:
+  task: 6de41d786bc69313186005076278b5cfd4832cd1edf76a0fba57908c84771147
+T006:
+  task: d77b0feb8d377937631f5ae45861a38998e5c9efd0f87329d27cad6b7d5053e1
+T101:
+  task: 4cc415b86ad30070cdf188e4af9629cf24ed78153156b896c3ca723e1707dc12
+T102:
+  reason: 'Requested task execution failed; rerun successfully: code/data/run_fetch.py
+    exit=1'
+  task: 872b9bd50ddce618d0a7ab2d2515fc8c68f3323ef30f90fcafa411e2cf0a3250
+T103:
+  reason: "The recorded pytest run of `code/tests/unit/test_filter_subjects.py` FAILED\
+    \ (exit 1): the test asserts `participant.fmri_path == fmri_004` but `filter_subjects`\
+    \ returns a toolkit-resolved absolute path while the test builds a relative one,\
+    \ so the single test covering all three exclusion codes does not pass. Additionally,\
+    \ the required output `data/interim/included_subjects.csv` does not exist, and\
+    \ the exclusion log contains only unrelated `FILE_NOT_FOUND`/SYSTEM entries rather\
+    \ than the MISSING_SCAN/MISSING_SCORE/HIGH_MOTION rows the tests should have produced\
+    \ \u2014 fix the path comparison (e.g., re"
+  task: 55ebae9287e1348ccec0cc52da4be6daa9627ac23264a8c575775505550c9cf1
+T104:
+  reason: 'Requested task execution failed; rerun successfully: code/data/run_preprocess.py
+    exit=-1 (TIMEOUT)'
+  task: c930973bbcf0a55e7116c8502dfe868150bf6023394b260455bb5b1cc4c94e69
+T105:
+  task: a6a75c753eb9550885cf8bae6de1a4b6cd5c3cb9f0dbe5b94292e7ed0216a879
+T106:
+  task: 3f558504ada8a7884fab165f4d0bccf693194a539eac30838859ced1bd4afc45
+T107:
+  task: bdd4649ad219c2fd8ab589c619d6b1f2f869bff36950c434deed8effaa7e5d68
+T108:
+  task: 6622a014940406de859c6abfd2f4baf3c4f792ad7f657c7cc6776e30e00c70ca
+T109:
+  task: 4bac713eeda8db2ceeabe7b9fa04f73e4264bdd2d844dcd64dbf9b48cae27ecd
+T110:
+  task: 02bd0a1540011845e890a7cd384ad1d2256fabd0a19f2c5761878cf5027d5a71
+T111:
+  task: cc1e513365ee66e577f0ab376ac2330aa1f00b2cc4f7dadbb4eaa7bb70eb8d02
+T112:
+  task: 4eba0f325911cc4cfdf625ec7c726878e784eb928ca1e51aabd0305f4b354bd7
+T113:
+  task: 0fa0bbf1577f58bf166d35f11e5a6f5ca78afbd12453b7c99a61305d8ab3f141
+T114:
+  task: 4d69375d48730285e7938e9c8ddcfd2ad69d919c01e766ff3ab5251c94037716
+T115:
+  task: 19a8d8213759fea51c5d88484461e9e4fa20336d7626e8da3096ae1dfa99bcd7
+T116:
+  task: 1ee657863df9f7268608ab1782341d0f8bc6a05b3a7dd363d934c488b05fe730
+T117:
+  task: 083b8f4d9a216cc24278e7b5c3e7787a7b6a77b624e3417c397d88803f988df7
+T118:
+  task: a9dac28c7217535b5a9de1e588068c46584dc08d3a682d726c3fbbc13dd55d5c
+T119:
+  task: efe8a44c2de0c203fe05ffc044b3c9f8a912677d89326368d85b586c2871ab66
+T120:
+  task: c81d4630ee794b725998416dc3eab4921df703fb783f95edcc36d70a45566f3d
+T121:
+  task: 14582758289f89bbd92d3e881a933bdfdb5b687bc97827def7a955cfffe9f9a7
+T122:
+  task: 801208d72f75b97257b19127d773424e6d1e79e17de0b192414a1b81f4745f6c

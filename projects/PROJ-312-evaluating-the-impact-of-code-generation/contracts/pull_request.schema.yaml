@@ -1,10 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: PullRequest
 type: object
 properties:
-  pr_id: {type: string}
-  repo_name: {type: string}
-  created_at: {type: string}
-  merged_at: {type: string}
-  labels: {type: array}
-  commit_messages: {type: array}
-  turnaround_hours: {type: number}
-required: [pr_id, repo_name, turnaround_hours]
+  pr_id:
+    type: integer
+  repo_name:
+    type: string
+  created_at:
+    type: string
+    format: date-time
+  merged_at:
+    type: string
+    format: date-time
+  labels:
+    type: array
+    items:
+      type: string
+  is_ai_assisted:
+    type: boolean
+  turnaround_hours:
+    type: number
+required:
+  - pr_id
+  - repo_name
+  - created_at
+  - merged_at
+  - labels
+  - is_ai_assisted
+  - turnaround_hours

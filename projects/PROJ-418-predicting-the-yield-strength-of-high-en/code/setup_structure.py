@@ -1,33 +1,58 @@
 import os
 import sys
+from pathlib import Path
 
-def create_directories():
+
+def create_directories(root_dir: str = ".") -> None:
     """
-    Create the required directory structure for the HEA Yield Strength project.
-    Creates: code/, data/raw, data/processed, output/, output/plots, tests/
+    Create the standard project directory structure.
+
+    Args:
+        root_dir: Root directory where structure will be created (default: current)
     """
-    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    
+    path = Path(root_dir)
+    if not path.exists():
+        raise FileNotFoundError(f"Directory {root_dir} does not exist")
+
+    # Define required directories
     directories = [
-        os.path.join(base_dir, "code"),
-        os.path.join(base_dir, "data", "raw"),
-        os.path.join(base_dir, "data", "processed"),
-        os.path.join(base_dir, "output"),
-        os.path.join(base_dir, "output", "plots"),
-        os.path.join(base_dir, "tests"),
+        "code",
+        "code/data",
+        "code/models",
+        "code/utils",
+        "data/raw",
+        "data/processed",
+        "output",
+        "output/plots",
+        "tests",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
+        "specs",
     ]
-    
+
     created_count = 0
-    for directory in directories:
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-            print(f"Created directory: {directory}")
+    for dir_name in directories:
+        full_path = path / dir_name
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created: {full_path}")
             created_count += 1
         else:
-            print(f"Directory already exists: {directory}")
-    
-    print(f"Directory setup complete. {created_count} new directories created.")
-    return created_count
+            print(f"Exists:  {full_path}")
+
+    print(f"\nTotal directories created: {created_count}")
+
+
+def main() -> None:
+    """Main entry point for directory structure creation."""
+    root = os.getenv("PROJECT_ROOT", ".")
+    try:
+        create_directories(root)
+    except Exception as e:
+        print(f"Error creating directories: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
-    create_directories()
+    main()

@@ -1,0 +1,25 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GTEx Donor Phenotype with MetS Classification"
+type: object
+required:
+  - donor_id
+  - mets_label
+  - criteria_count
+  - excluded
+properties:
+  donor_id:
+    type: string
+    description: "Unique GTE​X donor identifier"
+  mets_label:
+    type: string
+    enum: ["MetS", "Control"]
+    description: "Binary Metabolic Syndrome status per ATP‑III"
+  criteria_count:
+    type: integer
+    minimum: 0
+    maximum: 5
+    description: "Number of ATP‑III criteria met (0‑5)"
+  excluded:
+    type: boolean
+    description: "True if donor dropped due to missing/invalid clinical data "
+additionalProperties: false

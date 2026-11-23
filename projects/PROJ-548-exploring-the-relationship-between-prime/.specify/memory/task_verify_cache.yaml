@@ -1,15 +1,28 @@
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` entries\
+    \ for Black, `.ruff.toml` or a `ruff.toml` section, or a pre\u2011commit hook\
+    \ setup) are present in the provided evidence, nor any documentation showing that\
+    \ Ruff and Black have been installed and integrated into the project's CI. The\
+    \ required artifacts to prove the task are missing."
 T009:
   c: false
   h: 4590b66282d73ef584a6040f8912f5e3146b0cfcd19327e9e80ed76f13fa8881
   r: The required file `tests/unit/test_sieve.py` does not exist, so no unit test
     for the segmented sieve logic is present to verify primality or chunk boundaries.
     The task remains undone.
-T022:
+T012:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No artifact (e.g., script, results file, KS statistic, p\u2011value, or plot)\
-    \ was provided to demonstrate that the empirical maximal gap distribution was\
-    \ compared to the GUE extreme\u2011value distribution using a Kolmogorov\u2011\
-    Smirnov test. Consequently the claim cannot be verified. The implementer must\
-    \ supply the analysis code and the resulting output (e.g., `ks_results.json` or\
-    \ similar) showing the computed KS statistic and p\u2011value."
+  h: 400e0fb32fe6ef2618d4545fbb86eed7dac91cac079f76ece7dfd14b0b7d4ee6
+  r: "The `src/data/generate_primes.py` file is truncated and does not contain code\
+    \ that writes the computed prime gaps to `data/raw/gaps.csv`. Moreover, the required\
+    \ output file `data/raw/gaps.csv` is missing entirely. The task\u2019s core requirement\u2014\
+    generating and streaming prime gap data to the specified CSV file\u2014is therefore\
+    \ not fulfilled."
+T027:
+  c: false
+  h: 7cb776002ce123463d15c276afbf63bbba5d1d9a4b779e5365d69e9620c92e79
+  r: The required artifact `tests/integration/test_robustness.py` does not exist on
+    disk, so the integration test for the sensitivity sweep cannot be verified. The
+    task remains unfinished until the file is created with appropriate test code.

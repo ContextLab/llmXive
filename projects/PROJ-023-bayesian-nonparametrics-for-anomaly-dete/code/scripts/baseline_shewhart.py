@@ -1,265 +1,281 @@
 """
-Shewhart Control Chart for Time Series Anomaly Detection
+Shewhart Control Chart Baseline for Anomaly Detection.
 
-Implements a classical statistical process control method that flags
-observations outside mean ± k*standard_deviation as anomalies.
-
-Input:  data/processed/series_with_anomalies.csv
-Output: data/results/shewhart_predictions.csv
-
-This script implements User Story 2 (Baseline Comparison Engine) for the
-Bayesian Nonparametrics for Anomaly Detection project.
+Implements a standard Shewhart chart with configurable sigma control limits.
+Uses the shared data loader from T004 to ingest real time series data.
+Outputs anomaly scores and binary flags to data/results/shewhart_predictions.csv.
 """
+import os
+import sys
+import logging
+import argparse
+from pathlib import Path
+from typing import Tuple, Dict, Any, Optional
 
 import pandas as pd
 import numpy as np
-from pathlib import Path
-import logging
-import sys
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from lib.data_loader import load_processed_data
+from lib.utils import set_seed, normalize_series, handle_missing_values
+from lib.memory_profiler import check_memory_usage, MemoryProfiler
+
 logger = logging.getLogger(__name__)
 
-# Configuration
-DATA_PATH = Path("data/processed/series_with_anomalies.csv")
-OUTPUT_PATH = Path("data/results/shewhart_predictions.csv")
-SIGMA_THRESHOLD = 3.0  # Standard control chart limit (99.7% coverage)
-NORMAL_ESTIMATE_FRACTION = 0.8  # Assume first 80% is mostly normal
-
-def load_and_validate_data(data_path: Path) -> tuple[np.ndarray, np.ndarray]:
+def load_and_validate_data(data_path: Optional[Path] = None) -> pd.DataFrame:
     """
-    Load time series data and extract values and indices.
-    
+    Load processed time series data and validate its structure.
+
     Args:
-        data_path: Path to the CSV file containing time series data
-        
+        data_path: Path to the processed CSV file. If None, uses default location.
+
     Returns:
-        Tuple of (values array, indices array)
-        
+        DataFrame with 'timestamp' and 'value' columns.
+
     Raises:
-        FileNotFoundError: If data file doesn't exist
-        ValueError: If data format is invalid
+        FileNotFoundError: If the data file does not exist.
+        ValueError: If the schema is invalid.
     """
+    if data_path is None:
+        data_path = PROJECT_ROOT / "data" / "processed" / "series_with_anomalies.csv"
+
     if not data_path.exists():
-        raise FileNotFoundError(f"Data file not found: {data_path}")
-    
-    logger.info(f"Loading data from {data_path}")
+        raise FileNotFoundError(f"Processed data not found at {data_path}. "
+                                f"Run data loading/injection tasks first.")
+
     df = pd.read_csv(data_path)
-    
-    # Handle different column formats
-    if 'value' in df.columns:
-        series = df['value'].values.astype(np.float64)
-        # Use 'index' column if present, otherwise use DataFrame index
-        if 'index' in df.columns:
-            indices = df['index'].values
-        else:
-            indices = np.arange(len(series))
-    elif len(df.columns) == 1:
-        series = df.iloc[:, 0].values.astype(np.float64)
-        indices = np.arange(len(series))
-    else:
-        # Use first numeric column
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        if len(numeric_cols) == 0:
-            raise ValueError("No numeric columns found in data")
-        series = df[numeric_cols[0]].values.astype(np.float64)
-        indices = df.index.values
-    
-    # Validate data
-    if len(series) == 0:
-        raise ValueError("Data series is empty")
-    
-    if np.any(np.isnan(series)):
-        logger.warning("NaN values detected in data. Dropping them.")
-        valid_mask = ~np.isnan(series)
-        series = series[valid_mask]
-        indices = indices[valid_mask]
-    
-    logger.info(f"Loaded {len(series)} data points")
-    return series, indices
 
-def calculate_control_limits(series: np.ndarray, sigma: float, 
-                             normal_fraction: float) -> tuple[float, float, float, float]:
+    # Validate schema
+    required_cols = {'timestamp', 'value'}
+    if not required_cols.issubset(df.columns):
+        raise ValueError(f"DataFrame missing required columns {required_cols}. "
+                         f"Found: {df.columns.tolist()}")
+
+    # Ensure numeric type for values
+    df['value'] = pd.to_numeric(df['value'], errors='raise')
+
+    logger.info(f"Loaded {len(df)} rows from {data_path}")
+    return df
+
+def calculate_control_limits(
+    values: np.ndarray,
+    sigma_factor: float = 3.0
+) -> Tuple[float, float, float]:
     """
-    Calculate control limits based on baseline statistics.
-    
-    Uses the first portion of the data (assumed mostly normal) to estimate
-    mean and standard deviation.
-    
+    Calculate Shewhart control limits based on the training data statistics.
+
     Args:
-        series: Time series values
-        sigma: Number of standard deviations for control limits
-        normal_fraction: Fraction of data to use for baseline estimation
-        
+        values: Array of time series values.
+        sigma_factor: Number of standard deviations for control limits (default 3.0).
+
     Returns:
-        Tuple of (mean, std, upper_limit, lower_limit)
+        Tuple of (center_line, upper_control_limit, lower_control_limit).
     """
-    n_normal_estimate = int(len(series) * normal_fraction)
-    
-    # Ensure we have at least 10 points for baseline estimation
-    n_normal_estimate = max(n_normal_estimate, 10)
-    
-    baseline_data = series[:n_normal_estimate]
-    
-    mean = np.mean(baseline_data)
-    std = np.std(baseline_data)
-    
-    # Handle edge case where std is zero or very small
-    if std < 1e-10:
-        logger.warning("Baseline standard deviation is near zero. Setting to 1.0")
-        std = 1.0
-    
-    upper_limit = mean + sigma * std
-    lower_limit = mean - sigma * std
-    
-    logger.info(f"Baseline mean: {mean:.4f}, std: {std:.4f}")
-    logger.info(f"Control limits: [{lower_limit:.4f}, {upper_limit:.4f}]")
-    
-    return mean, std, upper_limit, lower_limit
+    center_line = np.mean(values)
+    std_dev = np.std(values, ddof=1) # Sample standard deviation
 
-def detect_anomalies(series: np.ndarray, upper_limit: float, 
-                    lower_limit: float) -> np.ndarray:
+    ucl = center_line + (sigma_factor * std_dev)
+    lcl = center_line - (sigma_factor * std_dev)
+
+    logger.info(f"Calculated limits: CL={center_line:.4f}, UCL={ucl:.4f}, LCL={lcl:.4f} "
+                f"(sigma={sigma_factor})")
+
+    return center_line, ucl, lcl
+
+def calculate_z_scores(
+    values: np.ndarray,
+    center_line: float,
+    std_dev: float
+) -> np.ndarray:
     """
-    Detect anomalies based on control limits.
-    
+    Calculate z-scores for each point relative to the center line and standard deviation.
+
     Args:
-        series: Time series values
-        upper_limit: Upper control limit
-        lower_limit: Lower control limit
-        
+        values: Array of time series values.
+        center_line: The mean of the series.
+        std_dev: The standard deviation of the series.
+
     Returns:
-        Binary array indicating anomalies (1) and normal points (0)
+        Array of z-scores.
     """
-    anomaly_flags = ((series > upper_limit) | (series < lower_limit)).astype(int)
-    return anomaly_flags
+    if std_dev == 0:
+        # Avoid division by zero; if std is 0, all points are equal to mean (z=0)
+        return np.zeros_like(values, dtype=float)
+    return (values - center_line) / std_dev
 
-def calculate_z_scores(series: np.ndarray, mean: float, std: float) -> np.ndarray:
+def detect_anomalies(
+    z_scores: np.ndarray,
+    threshold: float = 3.0
+) -> np.ndarray:
     """
-    Calculate z-scores for each point.
-    
+    Detect anomalies based on absolute z-scores exceeding the threshold.
+
     Args:
-        series: Time series values
-        mean: Baseline mean
-        std: Baseline standard deviation
-        
+        z_scores: Array of calculated z-scores.
+        threshold: Absolute z-score threshold (default 3.0).
+
     Returns:
-        Array of z-scores
+        Binary array (1 for anomaly, 0 for normal).
     """
-    # Avoid division by zero
-    if std < 1e-10:
-        std = 1.0
-    z_scores = (series - mean) / std
-    return z_scores
+    return (np.abs(z_scores) > threshold).astype(int)
 
-def save_predictions(indices: np.ndarray, series: np.ndarray, mean: float,
-                    std: float, upper_limit: float, lower_limit: float,
-                    z_scores: np.ndarray, anomaly_flags: np.ndarray,
-                    output_path: Path):
+def save_predictions(
+    df: pd.DataFrame,
+    predictions: np.ndarray,
+    z_scores: np.ndarray,
+    output_path: Path
+) -> None:
     """
-    Save predictions to CSV file.
-    
+    Save predictions and scores to a CSV file.
+
     Args:
-        indices: Time indices
-        series: Time series values
-        mean: Baseline mean
-        std: Baseline standard deviation
-        upper_limit: Upper control limit
-        lower_limit: Lower control limit
-        z_scores: Z-scores for each point
-        anomaly_flags: Binary anomaly flags
-        output_path: Path to save the predictions
+        df: Original DataFrame with timestamps.
+        predictions: Binary anomaly flags.
+        z_scores: Calculated z-scores.
+        output_path: Path to save the output CSV.
     """
+    output_df = pd.DataFrame({
+        'timestamp': df['timestamp'],
+        'value': df['value'],
+        'z_score': z_scores,
+        'anomaly_flag': predictions
+    })
+
     # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    predictions = pd.DataFrame({
-        'index': indices,
-        'value': series,
-        'mean': mean,
-        'std': std,
-        'upper_limit': upper_limit,
-        'lower_limit': lower_limit,
-        'z_score': z_scores,
-        'anomaly': anomaly_flags
-    })
-    
-    predictions.to_csv(output_path, index=False)
-    logger.info(f"Predictions saved to {output_path}")
+    output_df.to_csv(output_path, index=False)
+    logger.info(f"Saved predictions to {output_path}")
 
-def print_summary(series: np.ndarray, anomaly_flags: np.ndarray, 
-                 mean: float, std: float, upper_limit: float, 
-                 lower_limit: float):
+def print_summary(
+    predictions: np.ndarray,
+    total_points: int
+) -> None:
+    """Print a summary of the detection results."""
+    anomaly_count = np.sum(predictions)
+    anomaly_rate = anomaly_count / total_points * 100
+    print(f"\n--- Shewhart Detection Summary ---")
+    print(f"Total points: {total_points}")
+    print(f"Anomalies detected: {anomaly_count} ({anomaly_rate:.2f}%)")
+    print(f"----------------------------------")
+
+def load_threshold_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Print summary statistics to console.
-    
+    Load threshold configuration from YAML file.
+
     Args:
-        series: Time series values
-        anomaly_flags: Binary anomaly flags
-        mean: Baseline mean
-        std: Baseline standard deviation
-        upper_limit: Upper control limit
-        lower_limit: Lower control limit
-    """
-    n_anomalies = int(anomaly_flags.sum())
-    anomaly_rate = n_anomalies / len(series) * 100
-    
-    print("\n" + "="*60)
-    print("Shewhart Control Chart Results")
-    print("="*60)
-    print(f"Baseline mean:        {mean:.4f}")
-    print(f"Baseline std:         {std:.4f}")
-    print(f"Upper control limit:  {upper_limit:.4f}")
-    print(f"Lower control limit:  {lower_limit:.4f}")
-    print(f"Sigma threshold:      {SIGMA_THRESHOLD}σ")
-    print("-"*60)
-    print(f"Total points analyzed: {len(series)}")
-    print(f"Anomalies detected:    {n_anomalies}")
-    print(f"Anomaly rate:          {anomaly_rate:.2f}%")
-    print("="*60 + "\n")
+        config_path: Path to the config file. Defaults to project config.
 
-def main():
+    Returns:
+        Dictionary with configuration parameters.
     """
-    Main entry point for the Shewhart baseline detection script.
+    if config_path is None:
+        config_path = PROJECT_ROOT / "code" / "config" / "threshold_strategy.yaml"
+
+    if not config_path.exists():
+        logger.warning(f"Config file not found at {config_path}. Using defaults.")
+        return {"sigma_factor": 3.0}
+
+    import yaml
+    with open(config_path, 'r') as f:
+        config = yaml.safe_load(f)
+
+    # Extract sigma factor if available, otherwise default to 3.0
+    sigma_factor = config.get('sigma_factor', 3.0)
+    return {"sigma_factor": sigma_factor}
+
+def main() -> int:
     """
+    Main entry point for the Shewhart baseline script.
+    """
+    parser = argparse.ArgumentParser(description="Run Shewhart baseline anomaly detection.")
+    parser.add_argument(
+        "--data-path",
+        type=str,
+        default=None,
+        help="Path to processed data CSV. Defaults to data/processed/series_with_anomalies.csv"
+    )
+    parser.add_argument(
+        "--output-path",
+        type=str,
+        default=None,
+        help="Path for output CSV. Defaults to data/results/shewhart_predictions.csv"
+    )
+    parser.add_argument(
+        "--sigma",
+        type=float,
+        default=None,
+        help="Sigma factor for control limits. Overrides config if provided."
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility."
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Enable verbose logging."
+    )
+
+    args = parser.parse_args()
+
+    # Setup logging
+    log_level = logging.DEBUG if args.verbose else logging.INFO
+    logging.basicConfig(
+        level=log_level,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
+    # Pin seed
+    set_seed(args.seed)
+
+    # Initialize memory profiler
+    profiler = MemoryProfiler(limit_gb=7.0)
+    profiler.start()
+
     try:
-        # Load and validate data
-        series, indices = load_and_validate_data(DATA_PATH)
-        
-        # Calculate control limits
-        mean, std, upper_limit, lower_limit = calculate_control_limits(
-            series, SIGMA_THRESHOLD, NORMAL_ESTIMATE_FRACTION
-        )
-        
-        # Detect anomalies
-        anomaly_flags = detect_anomalies(series, upper_limit, lower_limit)
-        
-        # Calculate z-scores
-        z_scores = calculate_z_scores(series, mean, std)
-        
-        # Save predictions
-        save_predictions(
-            indices, series, mean, std, upper_limit, lower_limit,
-            z_scores, anomaly_flags, OUTPUT_PATH
-        )
-        
-        # Print summary
-        print_summary(series, anomaly_flags, mean, std, upper_limit, lower_limit)
-        
-        logger.info("Shewhart baseline detection completed successfully")
+        # 1. Load Configuration
+        config = load_threshold_config()
+        sigma_factor = args.sigma if args.sigma is not None else config.get('sigma_factor', 3.0)
+        logger.info(f"Using sigma factor: {sigma_factor}")
+
+        # 2. Load Data
+        data_path = Path(args.data_path) if args.data_path else None
+        df = load_and_validate_data(data_path)
+
+        # Handle missing values (interpolation policy)
+        df['value'] = handle_missing_values(df['value'], policy='interpolate')
+
+        # 3. Calculate Statistics
+        values = df['value'].to_numpy()
+        center_line, ucl, lcl = calculate_control_limits(values, sigma_factor)
+        std_dev = np.std(values, ddof=1)
+
+        # 4. Calculate Z-Scores and Detect Anomalies
+        z_scores = calculate_z_scores(values, center_line, std_dev)
+        predictions = detect_anomalies(z_scores, threshold=sigma_factor)
+
+        # 5. Save Results
+        output_path = Path(args.output_path) if args.output_path else (PROJECT_ROOT / "data" / "results" / "shewhart_predictions.csv")
+        save_predictions(df, predictions, z_scores, output_path)
+
+        # 6. Print Summary
+        print_summary(predictions, len(df))
+
+        # 7. Check Memory
+        profiler.stop()
+        if profiler.peak_gb > profiler.limit_gb:
+            logger.error(f"Memory limit exceeded: {profiler.peak_gb:.2f}GB > {profiler.limit_gb}GB")
+            return 1
+
         return 0
-        
-    except FileNotFoundError as e:
-        logger.error(f"Data file error: {e}")
-        return 1
-    except ValueError as e:
-        logger.error(f"Data validation error: {e}")
-        return 1
+
     except Exception as e:
-        logger.error(f"Unexpected error: {e}")
+        logger.exception(f"Error during Shewhart execution: {e}")
         return 1
 
 if __name__ == "__main__":

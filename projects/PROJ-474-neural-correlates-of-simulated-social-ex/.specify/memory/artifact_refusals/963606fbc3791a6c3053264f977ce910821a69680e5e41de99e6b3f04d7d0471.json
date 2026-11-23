@@ -1,0 +1,7 @@
+{
+  "task_id": "T003",
+  "fingerprint": "90028f55215b4dc17bb21f1af1db920451124ac7030e2f359f5860c9586ccdb6",
+  "count": 1,
+  "model": "zai-org.glm-5.3",
+  "reason": "[implementer] refusing to write 'code/tests/test_roi_extractor.py': SyntaxError at line 6: unexpected indent. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 8588"
+}

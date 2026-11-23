@@ -1,237 +1,562 @@
 """
-Estimators for meta-analysis: Fixed-Effects, DerSimonian-Laird (DL), REML.
+estimators.py
+
+Meta‑analysis estimators and heterogeneity utilities.
+
+This module provides three standard estimators:
+* Fixed‑Effects (FE)
+* DerSimonian‑Laird (DL) random‑effects
+* Restricted Maximum Likelihood (REML) random‑effects
+
+Each estimator returns an :class:`EstimationResult` that contains
+the pooled effect, its standard error, a 95 % confidence interval,
+the estimated between‑study variance (``tau2``), heterogeneity
+statistics (Cochran's Q and I²), degrees of freedom, a p‑value for
+the Q‑test, the number of studies and flags for convergence status
+and small‑study warnings.
+
+The module also implements a dispatcher ``apply_estimator`` used by
+the test‑suite and the pipeline, and helper functions for logging
+REML optimisation failures.
 """
 
+import json
 import math
-from typing import List, Tuple, Optional
+import time
+from typing import List, Optional, Dict, Any
+
 import numpy as np
 from scipy import optimize
+from pathlib import Path  # Added import for Path handling
 
-from utils.logging import get_logger
+# ----------------------------------------------------------------------
+# Logging helper – fall back to the standard library if the project‑specific
+# ``utils.logging`` module is unavailable (e.g., during isolated test runs).
+# ----------------------------------------------------------------------
+try:
+    from utils.logging import get_logger  # type: ignore
+except Exception:  # pragma: no cover
+    import logging
+
+    def get_logger(name: str, **kwargs) -> logging.Logger:  # noqa: D401
+        """Return a standard library logger as a fallback."""
+        return logging.getLogger(name)
 
 logger = get_logger(__name__)
 
+# ----------------------------------------------------------------------
+# Public API
+# ----------------------------------------------------------------------
+__all__ = [
+    "EstimationResult",
+    "REML_FAILURE_LOG_PATH",
+    "log_reml_failure",
+    "estimate_fixed_effects",
+    "estimate_dersimonian_laird",
+    "estimate_reml",
+    "apply_estimator",
+    "calculate_i_squared",
+]
 
+# ----------------------------------------------------------------------
+# Constants
+# ----------------------------------------------------------------------
+# Path for REML failure event logging (FR‑006)
+REML_FAILURE_LOG_PATH = "data/results/reml_failures.json"
+
+# Minimum number of studies for reliable chi‑square / df approximations
+MIN_STUDIES_FOR_RELIABILITY = 5
+
+# Minimal positive tau² to use when REML fails (as required by the spec)
+MIN_POSITIVE_TAU2 = 1e-6
+
+# ----------------------------------------------------------------------
+# Helper classes / functions
+# ----------------------------------------------------------------------
 class EstimationResult:
-    """Container for estimation results."""
+    """
+    Container for the results of a meta‑analysis estimation.
+    Conforms to the EstimationResult schema.
+    """
+
     def __init__(
         self,
-        pooled_estimate: float,
+        pooled_effect: float,
+        se_pooled: float,
         ci_lower: float,
         ci_upper: float,
-        tau_squared: float,
-        i_squared: float,
-        converged: bool,
-        method: str
+        tau2: float,
+        i2: float,
+        q_statistic: float,
+        df: int,
+        p_value: float,
+        n_studies: int,
+        convergence_status: str = "success",
+        small_study_flag: bool = False,
+        convergence_warning: bool = False,
     ):
-        self.pooled_estimate = pooled_estimate
+        self.pooled_effect = pooled_effect
+        self.se_pooled = se_pooled
         self.ci_lower = ci_lower
         self.ci_upper = ci_upper
-        self.tau_squared = tau_squared
-        self.i_squared = i_squared
-        self.converged = converged
-        self.method = method
+        self.tau2 = tau2
+        self.i2 = i2
+        self.q_statistic = q_statistic
+        self.df = df
+        self.p_value = p_value
+        self.n_studies = n_studies
+        self.convergence_status = convergence_status
+        self.small_study_flag = small_study_flag
+        self.convergence_warning = convergence_warning
 
-    def to_dict(self):
+    def to_dict(self) -> Dict[str, Any]:
+        """Serialise the result for downstream JSON/CSV output."""
         return {
-            "pooled_estimate": self.pooled_estimate,
+            "pooled_effect": self.pooled_effect,
+            "se_pooled": self.se_pooled,
             "ci_lower": self.ci_lower,
             "ci_upper": self.ci_upper,
-            "tau_squared": self.tau_squared,
-            "i_squared": self.i_squared,
-            "converged": self.converged,
-            "method": self.method
+            "tau2": self.tau2,
+            "i2": self.i2,
+            "q_statistic": self.q_statistic,
+            "df": self.df,
+            "p_value": self.p_value,
+            "n_studies": self.n_studies,
+            "convergence_status": self.convergence_status,
+            "small_study_flag": self.small_study_flag,
+            "convergence_warning": self.convergence_warning,
         }
 
-
-def estimate_fixed_effects(
-    effects: List[float],
-    ses: List[float]
-) -> EstimationResult:
+# ----------------------------------------------------------------------
+# Logging utilities
+# ----------------------------------------------------------------------
+def log_reml_failure(event: Dict[str, Any], log_path: Optional[str] = None) -> None:
     """
-    Estimates pooled effect using Fixed-Effects model (Inverse Variance).
-    Assumes tau^2 = 0.
+    Log a REML convergence failure event to a JSON file (FR‑006).
+
+    The file contains a JSON list of event dicts. Each event records the
+    failure reason, a timestamp, the fallback action taken, and (when
+    available) the data context.
+
+    Parameters
+    ----------
+    event :
+        Dictionary describing the failure.
+    log_path :
+        Path to the JSON failure log. If ``None`` the default
+        :data:`REML_FAILURE_LOG_PATH` is used, which respects any
+        runtime monkey‑patching of that constant.
     """
-    if len(effects) == 0:
-        return EstimationResult(0, 0, 0, 0, 0, False, "FixedEffects")
+    # Resolve the log path at call time so monkey‑patching of
+    # ``REML_FAILURE_LOG_PATH`` is honoured.
+    if log_path is None:
+        log_path = REML_FAILURE_LOG_PATH
 
-    weights = [1.0 / (se**2) for se in ses]
-    w_sum = sum(weights)
-    pooled = sum(w * e for w, e in zip(weights, effects)) / w_sum
+    events: List[Dict[str, Any]] = []
+    loaded: Optional[Any] = None  # Will hold the original JSON content if present
+    try:
+        with open(log_path, "r", encoding="utf-8") as f:
+            content = f.read().strip()
+            if content:
+                loaded = json.loads(content)
+                # Support both legacy plain‑list format and the newer dict format
+                if isinstance(loaded, list):
+                    events = loaded
+                elif isinstance(loaded, dict) and isinstance(loaded.get("events"), list):
+                    events = loaded["events"]
+    except FileNotFoundError:
+        # No previous log – start a fresh list.
+        pass
+    except (json.JSONDecodeError, OSError) as e:
+        logger.warning("Could not read existing REML failure log %s: %s", log_path, e)
 
-    se_pooled = math.sqrt(1.0 / w_sum)
-    ci_lower = pooled - 1.96 * se_pooled
-    ci_upper = pooled + 1.96 * se_pooled
-
-    # Calculate I^2 for reporting (using pooled as estimate)
-    # Q statistic
-    q = sum(w * (e - pooled)**2 for w, e in zip(weights, effects))
-    k = len(effects)
-    df = k - 1
-    i_sq = 0.0
-    if q > df and q > 0:
-        i_sq = (q - df) / q * 100.0
-
-    return EstimationResult(
-        pooled_estimate=pooled,
-        ci_lower=ci_lower,
-        ci_upper=ci_upper,
-        tau_squared=0.0,
-        i_squared=i_sq,
-        converged=True,
-        method="FixedEffects"
-    )
-
-
-def estimate_dersimonian_laird(
-    effects: List[float],
-    ses: List[float]
-) -> EstimationResult:
-    """
-    Estimates pooled effect using DerSimonian-Laird random effects model.
-    """
-    if len(effects) == 0:
-        return EstimationResult(0, 0, 0, 0, 0, False, "DL")
-
-    weights = [1.0 / (se**2) for se in ses]
-    w_sum = sum(weights)
-    pooled_fe = sum(w * e for w, e in zip(weights, effects)) / w_sum
-
-    # Q statistic
-    q = sum(w * (e - pooled_fe)**2 for w, e in zip(weights, effects))
-    k = len(effects)
-    df = k - 1
-
-    if df <= 0:
-        return EstimationResult(pooled_fe, pooled_fe-1, pooled_fe+1, 0, 0, True, "DL")
-
-    c = w_sum - (sum(w**2) / w_sum)
-    tau_sq = (q - df) / c if c > 0 else 0.0
-    tau_sq = max(0.0, tau_sq) # DL can be negative, truncate to 0
-
-    # Recalculate weights with tau^2
-    weights_re = [1.0 / (se**2 + tau_sq) for se in ses]
-    w_re_sum = sum(weights_re)
-    pooled_re = sum(w * e for w, e in zip(weights_re, effects)) / w_re_sum
-
-    se_pooled = math.sqrt(1.0 / w_re_sum)
-    ci_lower = pooled_re - 1.96 * se_pooled
-    ci_upper = pooled_re + 1.96 * se_pooled
-
-    # I^2
-    i_sq = 0.0
-    if q > df and q > 0:
-        i_sq = (q - df) / q * 100.0
-
-    return EstimationResult(
-        pooled_estimate=pooled_re,
-        ci_lower=ci_lower,
-        ci_upper=ci_upper,
-        tau_squared=tau_sq,
-        i_squared=i_sq,
-        converged=True,
-        method="DL"
-    )
-
-
-def estimate_reml(
-    effects: List[float],
-    ses: List[float]
-) -> EstimationResult:
-    """
-    Estimates pooled effect using REML (Restricted Maximum Likelihood).
-    Uses optimization to find tau^2.
-    """
-    if len(effects) == 0:
-        return EstimationResult(0, 0, 0, 0, 0, False, "REML")
-
-    k = len(effects)
-    if k < 2:
-        return EstimationResult(effects[0], effects[0]-1, effects[0]+1, 0, 0, True, "REML")
-
-    ses_arr = np.array(ses)
-    effects_arr = np.array(effects)
-
-    def reml_log_likelihood(tau_sq):
-        if tau_sq <= 0:
-            tau_sq = 1e-6
-        w = 1.0 / (ses_arr**2 + tau_sq)
-        w_sum = np.sum(w)
-        mu = np.sum(w * effects_arr) / w_sum
-
-        # Log likelihood components
-        # -0.5 * sum(log(2*pi) + log(v_i) + (y_i - mu)^2 / v_i)
-        # v_i = se_i^2 + tau^2
-        v = ses_arr**2 + tau_sq
-        ll = -0.5 * (np.sum(np.log(2 * np.pi * v)) + np.sum((effects_arr - mu)**2 / v))
-
-        # REML correction: subtract 0.5 * log(det(X' V^-1 X))
-        # Here X is a column of 1s, so X' V^-1 X = sum(1/v_i) = w_sum
-        ll -= 0.5 * np.log(w_sum)
-
-        return -ll # Minimize negative log likelihood
+    # Normalise the event structure.
+    event = dict(event)
+    event.setdefault("timestamp", time.strftime("%Y-%m-%dT%H:%M:%S"))
+    events.append(event)
 
     try:
-        # Optimize tau^2
+        # Ensure the parent directory exists before writing.
+        Path(log_path).parent.mkdir(parents=True, exist_ok=True)
+        # Preserve backward‑compatible dict wrapper if the original file was a dict
+        if isinstance(loaded, dict):
+            # Update the wrapper with the new events list and recompute failure_count
+            loaded["events"] = events
+            loaded["failure_count"] = len(events)
+            with open(log_path, "w", encoding="utf-8") as f:
+                json.dump(loaded, f, indent=2)
+        else:
+            # Plain list format (including the case where the file did not exist)
+            with open(log_path, "w", encoding="utf-8") as f:
+                json.dump(events, f, indent=2)
+    except OSError as e:
+        logger.error("Could not write REML failure log %s: %s", log_path, e)
+
+# ----------------------------------------------------------------------
+# Core statistical helpers
+# ----------------------------------------------------------------------
+def _check_small_study(n_studies: int) -> bool:
+    """Return ``True`` if the dataset has fewer than the reliability threshold."""
+    return n_studies < MIN_STUDIES_FOR_RELIABILITY
+
+def calculate_i_squared(q_statistic: float, df: int) -> float:
+    """
+    Calculate the I² statistic (Higgins & Thompson, 2002).
+
+    I² = max(0, (Q - df) / Q) * 100
+
+    Parameters
+    ----------
+    q_statistic:
+        Cochran's Q heterogeneity statistic.
+    df:
+        Degrees of freedom (k − 1).
+
+    Returns
+    -------
+    float
+        I² as a percentage in the range [0, 100].
+    """
+    if q_statistic <= 0 or df <= 0:
+        return 0.0
+
+    i2_raw = (q_statistic - df) / q_statistic
+    return max(0.0, i2_raw) * 100.0
+
+def _validate_inputs(effect_sizes: List[float], variances: List[float]) -> int:
+    """Validate input lengths and positivity; return the number of studies."""
+    if len(effect_sizes) != len(variances):
+        raise ValueError("Effect sizes and variances must have the same length")
+    n = len(effect_sizes)
+    if n == 0:
+        raise ValueError("No studies provided")
+    if any(v <= 0 for v in variances):
+        raise ValueError("All within‑study variances must be positive")
+    return n
+
+def _q_statistics(effect_sizes: List[float], variances: List[float]):
+    """
+    Compute the fixed‑effects pooled estimate and Cochran's Q using inverse‑variance weights.
+    Returns ``(pooled_fe, q_statistic, weights, sum_weights)``.
+    """
+    w_fixed = [1.0 / v for v in variances]
+    sum_w_fixed = sum(w_fixed)
+    pooled_fe = sum(w * y for w, y in zip(w_fixed, effect_sizes)) / sum_w_fixed
+    q_statistic = sum(w * (y - pooled_fe) ** 2 for w, y in zip(w_fixed, effect_sizes))
+    return pooled_fe, q_statistic, w_fixed, sum_w_fixed
+
+# ----------------------------------------------------------------------
+# Estimator implementations
+# ----------------------------------------------------------------------
+def estimate_fixed_effects(
+    effect_sizes: List[float],
+    variances: List[float],
+) -> EstimationResult:
+    """
+    Fixed‑effects estimator (tau² = 0).
+    Returns an :class:`EstimationResult` with Q, I² and the small‑study flag.
+    """
+    n = _validate_inputs(effect_sizes, variances)
+
+    pooled_fe, q_statistic, weights, sum_w = _q_statistics(effect_sizes, variances)
+
+    if sum_w == 0:
+        raise ValueError("Sum of weights is zero (infinite variances)")
+
+    pooled = pooled_fe
+    se_pooled = math.sqrt(1.0 / sum_w)
+
+    z = 1.96  # 95 % normal‑based CI
+    ci_lower = pooled - z * se_pooled
+    ci_upper = pooled + z * se_pooled
+
+    df = n - 1
+    from scipy.stats import chi2
+
+    p_value = 1.0 - chi2.cdf(q_statistic, df) if df > 0 else 1.0
+    i2 = calculate_i_squared(q_statistic, df)
+
+    small_flag = _check_small_study(n)
+    if small_flag:
+        logger.warning(
+            "Small‑study dataset (N=%d < %d): heterogeneity statistics (Q, I²) may be unreliable.",
+            n,
+            MIN_STUDIES_FOR_RELIABILITY,
+        )
+
+    return EstimationResult(
+        pooled_effect=pooled,
+        se_pooled=se_pooled,
+        ci_lower=ci_lower,
+        ci_upper=ci_upper,
+        tau2=0.0,
+        i2=i2,
+        q_statistic=q_statistic,
+        df=df,
+        p_value=p_value,
+        n_studies=n,
+        convergence_status="success",
+        small_study_flag=small_flag,
+        convergence_warning=False,
+    )
+
+def estimate_dersimonian_laird(
+    effect_sizes: List[float],
+    variances: List[float],
+) -> EstimationResult:
+    """
+    DerSimonian‑Laird random‑effects estimator.
+    Returns an :class:`EstimationResult` with the DL estimate of tau²,
+    Q, I² and the small‑study flag.
+    """
+    n = _validate_inputs(effect_sizes, variances)
+
+    pooled_fe, q_statistic, w_fixed, sum_w_fixed = _q_statistics(effect_sizes, variances)
+
+    df = n - 1
+    if df <= 0:
+        # With a single study the random‑effects model collapses to FE.
+        return estimate_fixed_effects(effect_sizes, variances)
+
+    sum_w_sq = sum(w ** 2 for w in w_fixed)
+    c_val = sum_w_fixed - (sum_w_sq / sum_w_fixed)
+
+    if c_val <= 0:
+        tau2 = 0.0
+    else:
+        tau2 = max(0.0, (q_statistic - df) / c_val)
+
+    w_re = [1.0 / (v + tau2) for v in variances]
+    sum_w_re = sum(w_re)
+
+    if sum_w_re == 0:
+        return estimate_fixed_effects(effect_sizes, variances)
+
+    pooled = sum(w * y for w, y in zip(w_re, effect_sizes)) / sum_w_re
+    se_pooled = math.sqrt(1.0 / sum_w_re)
+
+    z = 1.96
+    ci_lower = pooled - z * se_pooled
+    ci_upper = pooled + z * se_pooled
+
+    from scipy.stats import chi2
+
+    p_value = 1.0 - chi2.cdf(q_statistic, df) if df > 0 else 1.0
+    i2 = calculate_i_squared(q_statistic, df)
+
+    small_flag = _check_small_study(n)
+    if small_flag:
+        logger.warning(
+            "Small‑study dataset (N=%d < %d): heterogeneity statistics (Q, I²) may be unreliable.",
+            n,
+            MIN_STUDIES_FOR_RELIABILITY,
+        )
+
+    return EstimationResult(
+        pooled_effect=pooled,
+        se_pooled=se_pooled,
+        ci_lower=ci_lower,
+        ci_upper=ci_upper,
+        tau2=tau2,
+        i2=i2,
+        q_statistic=q_statistic,
+        df=df,
+        p_value=p_value,
+        n_studies=n,
+        convergence_status="success",
+        small_study_flag=small_flag,
+        convergence_warning=False,
+    )
+
+def estimate_reml(
+    effect_sizes: List[float],
+    variances: List[float],
+    log_failures: bool = True,
+) -> EstimationResult:
+    """
+    Restricted Maximum Likelihood (REML) random‑effects estimator.
+
+    On optimisation failure the event is logged (FR‑006) and the
+    estimator falls back to the DerSimonian‑Laird variance, but
+    additionally sets ``convergence_warning`` to ``True`` and replaces
+    the estimated τ² with a minimal positive value (``MIN_POSITIVE_TAU2``).
+    """
+    n = _validate_inputs(effect_sizes, variances)
+    if n == 1:
+        # With a single study REML collapses to the FE result.
+        return estimate_fixed_effects(effect_sizes, variances)
+
+    def reml_log_likelihood(tau2: float) -> float:
+        """Negative REML log‑likelihood (to be minimised)."""
+        if tau2 < 0:
+            return float("inf")
+        w = [1.0 / (v + tau2) for v in variances]
+        sum_w = sum(w)
+        if sum_w <= 0:
+            return float("inf")
+        mu = sum(wi * yi for wi, yi in zip(w, effect_sizes)) / sum_w
+        term1 = sum(math.log(v + tau2) for v in variances)
+        term2 = math.log(sum_w)
+        term3 = sum((y - mu) ** 2 / (v + tau2) for y, v in zip(effect_sizes, variances))
+        return 0.5 * (term1 + term2 + term3)
+
+    tau2: Optional[float] = None
+    failure_reason: Optional[str] = None
+    try:
         res = optimize.minimize_scalar(
             reml_log_likelihood,
-            bounds=(1e-6, 10.0),
-            method='bounded'
+            bounds=(0.0, max(variances) * 10.0),
+            method="bounded",
+            options={"xatol": 1e-8},
         )
-
         if not res.success:
-            logger.warning("REML optimization failed. Falling back to DL.")
-            return estimate_dersimonian_laird(effects, ses)
+            failure_reason = f"optimizer reported failure: {res.message}"
+        else:
+            tau2 = max(0.0, float(res.x))
+    except Exception as e:  # noqa: BLE001
+        failure_reason = f"optimizer raised exception: {e}"
 
-        tau_sq = res.x
-        if tau_sq < 0:
-            tau_sq = 0.0
-
-        # Calculate pooled estimate with final tau^2
-        w = 1.0 / (ses_arr**2 + tau_sq)
-        w_sum = np.sum(w)
-        pooled = np.sum(w * effects_arr) / w_sum
-        se_pooled = math.sqrt(1.0 / w_sum)
-
-        ci_lower = pooled - 1.96 * se_pooled
-        ci_upper = pooled + 1.96 * se_pooled
-
-        # I^2 (approximate using Q from DL for consistency or recalculate)
-        # Recalculating Q with REML weights for I^2
-        mu_fe = np.sum((1.0/ses_arr**2) * effects_arr) / np.sum(1.0/ses_arr**2)
-        q = np.sum((1.0/ses_arr**2) * (effects_arr - mu_fe)**2)
-        df = k - 1
-        i_sq = 0.0
-        if q > df and q > 0:
-            i_sq = (q - df) / q * 100.0
-
+    if tau2 is None:
+        # ------------------------------------------------------------------
+        # REML failed – log and fall back to DerSimonian‑Laird.
+        # ------------------------------------------------------------------
+        if log_failures:
+            log_reml_failure(
+                {
+                    "estimator": "reml",
+                    "reason": failure_reason,
+                    "n_studies": n,
+                    "effect_sizes": list(effect_sizes),
+                    "variances": list(variances),
+                    "fallback": "dersimonian_laird_tau2",
+                }
+            )
+        logger.warning("REML optimisation failed (%s); falling back to DL tau².", failure_reason)
+        dl_res = estimate_dersimonian_laird(effect_sizes, variances)
+        # According to the specification the fallback τ² must be exactly 1e‑6.
+        minimal_tau2 = MIN_POSITIVE_TAU2
         return EstimationResult(
-            pooled_estimate=pooled,
-            ci_lower=ci_lower,
-            ci_upper=ci_upper,
-            tau_squared=float(tau_sq),
-            i_squared=float(i_sq),
-            converged=True,
-            method="REML"
+            pooled_effect=dl_res.pooled_effect,
+            se_pooled=dl_res.se_pooled,
+            ci_lower=dl_res.ci_lower,
+            ci_upper=dl_res.ci_upper,
+            tau2=minimal_tau2,
+            i2=dl_res.i2,
+            q_statistic=dl_res.q_statistic,
+            df=dl_res.df,
+            p_value=dl_res.p_value,
+            n_studies=dl_res.n_studies,
+            convergence_status="fallback_dl",
+            small_study_flag=dl_res.small_study_flag,
+            convergence_warning=True,
         )
 
-    except Exception as e:
-        logger.error(f"REML estimation error: {e}")
-        # Fallback to DL on failure
-        return estimate_dersimonian_laird(effects, ses)
+    # ----------------------------------------------------------------------
+    # Successful REML optimisation – compute the usual random‑effects
+    # quantities using the estimated tau².
+    # ----------------------------------------------------------------------
+    w_re = [1.0 / (v + tau2) for v in variances]
+    sum_w_re = sum(w_re)
 
+    if sum_w_re == 0:
+        # Edge case – weights collapsed; fall back to FE.
+        if log_failures:
+            log_reml_failure(
+                {
+                    "estimator": "reml",
+                    "reason": "random‑effects weights collapsed to zero",
+                    "n_studies": n,
+                    "fallback": "fixed_effects",
+                }
+            )
+        fe_res = estimate_fixed_effects(effect_sizes, variances)
+        return EstimationResult(
+            pooled_effect=fe_res.pooled_effect,
+            se_pooled=fe_res.se_pooled,
+            ci_lower=fe_res.ci_lower,
+            ci_upper=fe_res.ci_upper,
+            tau2=0.0,
+            i2=fe_res.i2,
+            q_statistic=fe_res.q_statistic,
+            df=fe_res.df,
+            p_value=fe_res.p_value,
+            n_studies=fe_res.n_studies,
+            convergence_status="fallback_fe",
+            small_study_flag=fe_res.small_study_flag,
+            convergence_warning=False,
+        )
+
+    pooled = sum(w * y for w, y in zip(w_re, effect_sizes)) / sum_w_re
+    se_pooled = math.sqrt(1.0 / sum_w_re)
+
+    z = 1.96
+    ci_lower = pooled - z * se_pooled
+    ci_upper = pooled + z * se_pooled
+
+    # Q, I², df and p‑value are based on the fixed‑effects weights
+    # (the standard definition used throughout the literature).
+    pooled_fe, q_statistic, _, _ = _q_statistics(effect_sizes, variances)
+    df = n - 1
+    from scipy.stats import chi2
+
+    p_value = 1.0 - chi2.cdf(q_statistic, df) if df > 0 else 1.0
+    i2 = calculate_i_squared(q_statistic, df)
+
+    small_flag = _check_small_study(n)
+    if small_flag:
+        logger.warning(
+            "Small‑study dataset (N=%d < %d): heterogeneity statistics (Q, I²) may be unreliable.",
+            n,
+            MIN_STUDIES_FOR_RELIABILITY,
+        )
+
+    return EstimationResult(
+        pooled_effect=pooled,
+        se_pooled=se_pooled,
+        ci_lower=ci_lower,
+        ci_upper=ci_upper,
+        tau2=tau2,
+        i2=i2,
+        q_statistic=q_statistic,
+        df=df,
+        p_value=p_value,
+        n_studies=n,
+        convergence_status="success",
+        small_study_flag=small_flag,
+        convergence_warning=False,
+    )
 
 def apply_estimator(
-    method: str,
-    effects: List[float],
-    ses: List[float]
+    estimator_name: str,
+    effect_sizes: List[float],
+    variances: List[float],
 ) -> EstimationResult:
-    """Factory function to apply the specified estimator."""
-    if method == "FixedEffects":
-        return estimate_fixed_effects(effects, ses)
-    elif method == "DL":
-        return estimate_dersimonian_laird(effects, ses)
-    elif method == "REML":
-        return estimate_reml(effects, ses)
-    else:
-        raise ValueError(f"Unknown estimator method: {method}")
+    """
+    Dispatcher that selects the requested estimator.
+
+    Parameters
+    ----------
+    estimator_name:
+        One of ``'fixed'``, ``'dl'`` or ``'reml'`` (case‑insensitive).
+    effect_sizes:
+        List of observed study effect sizes.
+    variances:
+        List of within‑study variances (SE²).
+
+    Returns
+    -------
+    EstimationResult
+        The result produced by the selected estimator.
+    """
+    name = estimator_name.lower()
+    if name in ("fixed", "fixed_effects"):
+        return estimate_fixed_effects(effect_sizes, variances)
+    if name in ("dl", "dersimonian_laird"):
+        return estimate_dersimonian_laird(effect_sizes, variances)
+    if name in ("reml", "restricted_maximum_likelihood"):
+        return estimate_reml(effect_sizes, variances)
+    raise ValueError(f"Unknown estimator: {estimator_name}")
+
+# ----------------------------------------------------------------------
+# End of module
+# ----------------------------------------------------------------------

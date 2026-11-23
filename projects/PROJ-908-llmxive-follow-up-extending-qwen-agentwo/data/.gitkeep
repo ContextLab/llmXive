@@ -1,1 +1,2 @@
-# Placeholder to ensure data directory exists
+# This file ensures the data directory exists in git.
+# Raw and processed data are ignored via .gitignore.

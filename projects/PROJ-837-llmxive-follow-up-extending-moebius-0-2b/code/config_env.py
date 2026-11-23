@@ -1,230 +1,211 @@
 """
 Environment configuration management for dataset paths and artifact hashes.
 
-This module extends the base config.py to handle:
-- Dataset directory paths ( Places365, CelebA-HQ, etc. )
-- Artifact hash verification for data integrity
-- Environment variable overrides for CI vs Research modes
+Handles:
+- Dataset path resolution
+- Artifact hash verification and registration
+- Mode-specific path generation (CI vs Research)
 """
 import os
 import hashlib
 import json
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
-from config import get_mode, is_ci_mode, is_research_mode, get_config_summary
-from utils.logger import get_logger
+from config import get_mode, is_ci_mode, get_config_summary
 
-logger = get_logger(__name__)
+# Constants for directory structure
+DATA_ROOT = Path("data")
+DATASETS_DIR = DATA_ROOT / "raw"
+PROCESSED_DIR = DATA_ROOT / "processed"
+ANNOTATIONS_DIR = DATA_ROOT / "annotations"
+RESULTS_DIR = DATA_ROOT / "results"
+ARTIFACTS_DIR = DATA_ROOT / "artifacts"
+HASHES_FILE = ARTIFACTS_DIR / "artifact_hashes.json"
 
-# Project root relative to this file
-PROJECT_ROOT = Path(__file__).parent.parent
-
-# Default paths relative to project root
-DEFAULT_DATA_ROOT = PROJECT_ROOT / "data"
-DEFAULT_DATASETS_DIR = DEFAULT_DATA_ROOT / "raw"
-DEFAULT_PROCESSED_DIR = DEFAULT_DATA_ROOT / "processed"
-DEFAULT_ANNOTATIONS_DIR = DEFAULT_DATA_ROOT / "annotations"
-DEFAULT_RESULTS_DIR = DEFAULT_DATA_ROOT / "results"
-DEFAULT_CHECKSUMS_FILE = DEFAULT_DATA_ROOT / "manifest.json"
-
-# Known dataset identifiers and their expected checksums (placeholders for real hashes)
-# In a real implementation, these would be populated with actual SHA256 hashes
-KNOWN_DATASET_HASHES = {
-    "places365_standard": "TODO_REAL_HASH",
-    "celeba_hq": "TODO_REAL_HASH",
+# Default dataset configurations
+DEFAULT_DATASETS = {
+    "places365": {
+        "name": "mit-places/Places365",
+        "subset": "standard",
+        "checksum": None  # Will be computed on first fetch
+    },
+    "celebahq": {
+        "name": "celeba-hq",
+        "subset": "train",
+        "checksum": None
+    }
 }
 
 class EnvConfig:
-    """
-    Manages environment-specific configuration for data paths and integrity checks.
-    """
+    """Environment configuration container."""
     
-    def __init__(self):
-        self.mode = get_mode()
-        self.data_root = self._resolve_path("DATA_ROOT", DEFAULT_DATA_ROOT)
-        self.datasets_dir = self._resolve_path("DATASETS_DIR", DEFAULT_DATASETS_DIR)
-        self.processed_dir = self._resolve_path("PROCESSED_DIR", DEFAULT_PROCESSED_DIR)
-        self.annotations_dir = self._resolve_path("ANNOTATIONS_DIR", DEFAULT_ANNOTATIONS_DIR)
-        self.results_dir = self._resolve_path("RESULTS_DIR", DEFAULT_RESULTS_DIR)
-        self.checksums_file = self._resolve_path("CHECKSUMS_FILE", DEFAULT_CHECKSUMS_FILE)
-        
-        # Ensure directories exist
-        self._ensure_directories()
-        
-        # Load or initialize manifest
-        self.manifest = self._load_manifest()
+    def __init__(self, 
+                data_root: Path = DATA_ROOT,
+                datasets_dir: Path = DATASETS_DIR,
+                processed_dir: Path = PROCESSED_DIR,
+                annotations_dir: Path = ANNOTATIONS_DIR,
+                results_dir: Path = RESULTS_DIR,
+                artifacts_dir: Path = ARTIFACTS_DIR,
+                hashes_file: Path = HASHES_FILE,
+                mode: str = "research"):
+        self.data_root = data_root
+        self.datasets_dir = datasets_dir
+        self.processed_dir = processed_dir
+        self.annotations_dir = annotations_dir
+        self.results_dir = results_dir
+        self.artifacts_dir = artifacts_dir
+        self.hashes_file = hashes_file
+        self.mode = mode
+        self._dataset_registry: Dict[str, Dict[str, Any]] = {}
+        self._load_registry()
 
-    def _resolve_path(self, env_var: str, default: Path) -> Path:
-        """Resolve a path from environment variable or default."""
-        env_val = os.getenv(env_var)
-        if env_val:
-            path = Path(env_val)
-            if not path.is_absolute():
-                path = PROJECT_ROOT / path
-            return path
-        return default
-
-    def _ensure_directories(self):
-        """Create necessary directories if they don't exist."""
-        dirs = [
-            self.datasets_dir,
-            self.processed_dir,
-            self.annotations_dir,
-            self.results_dir,
-            self.processed_dir / "masked_images",
-            self.annotations_dir / "decoupled_scores",
-        ]
-        for d in dirs:
-            d.mkdir(parents=True, exist_ok=True)
-            logger.debug(f"Ensured directory: {d}")
-
-    def _load_manifest(self) -> Dict[str, Any]:
-        """Load the manifest file or return an empty structure."""
-        if self.checksums_file.exists():
+    def _load_registry(self):
+        """Load artifact hash registry from disk."""
+        if self.hashes_file.exists():
             try:
-                with open(self.checksums_file, 'r', encoding='utf-8') as f:
-                    return json.load(f)
+                with open(self.hashes_file, 'r') as f:
+                    self._dataset_registry = json.load(f)
             except (json.JSONDecodeError, IOError) as e:
-                logger.warning(f"Failed to load manifest: {e}. Initializing empty manifest.")
-        return {
-            "version": "1.0",
-            "datasets": {},
-            "artifacts": {},
-            "last_updated": None
-        }
+                print(f"Warning: Could not load artifact registry: {e}")
+                self._dataset_registry = {}
+        else:
+            self._dataset_registry = {}
 
-    def save_manifest(self):
-        """Save the current manifest to disk."""
-        self.manifest["last_updated"] = str(Path(__file__).parent.parent / "config_env.py") # Placeholder for timestamp logic
-        with open(self.checksums_file, 'w', encoding='utf-8') as f:
-            json.dump(self.manifest, f, indent=2)
-        logger.info(f"Manifest saved to {self.checksums_file}")
+    def save_registry(self):
+        """Save artifact hash registry to disk."""
+        self.artifacts_dir.mkdir(parents=True, exist_ok=True)
+        with open(self.hashes_file, 'w') as f:
+            json.dump(self._dataset_registry, f, indent=2)
 
-    def compute_file_hash(self, file_path: Path) -> str:
-        """Compute SHA256 hash of a file."""
-        sha256_hash = hashlib.sha256()
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-
-    def register_dataset(self, dataset_name: str, path: Path, expected_hash: Optional[str] = None):
-        """
-        Register a dataset in the manifest and verify its hash if expected_hash is provided.
-        """
-        if not path.exists():
-            raise FileNotFoundError(f"Dataset path does not exist: {path}")
-        
-        actual_hash = self.compute_file_hash(path) if path.is_file() else "directory"
-        
-        if expected_hash and expected_hash != "TODO_REAL_HASH":
-            if actual_hash != expected_hash:
-                logger.warning(f"Hash mismatch for {dataset_name}: expected {expected_hash}, got {actual_hash}")
-        
-        self.manifest["datasets"][dataset_name] = {
+    def register_artifact(self, name: str, path: Path, hash_value: str, 
+                        metadata: Optional[Dict[str, Any]] = None):
+        """Register an artifact with its hash and metadata."""
+        self._dataset_registry[name] = {
             "path": str(path),
-            "hash": actual_hash,
-            "registered_mode": self.mode
-        }
-        self.save_manifest()
-        logger.info(f"Registered dataset: {dataset_name} at {path}")
-
-    def verify_artifact(self, artifact_name: str, path: Path) -> bool:
-        """Verify an artifact's hash against the manifest."""
-        if artifact_name not in self.manifest.get("artifacts", {}):
-            logger.warning(f"Artifact {artifact_name} not found in manifest.")
-            return False
-        
-        expected_hash = self.manifest["artifacts"][artifact_name]["hash"]
-        if not path.exists():
-            logger.error(f"Artifact file missing: {path}")
-            return False
-        
-        actual_hash = self.compute_file_hash(path)
-        if actual_hash != expected_hash:
-            logger.error(f"Artifact hash mismatch for {artifact_name}: expected {expected_hash}, got {actual_hash}")
-            return False
-        
-        logger.info(f"Artifact verified: {artifact_name}")
-        return True
-
-    def register_artifact(self, artifact_name: str, path: Path):
-        """Register an artifact in the manifest."""
-        if not path.exists():
-            raise FileNotFoundError(f"Artifact path does not exist: {path}")
-        
-        actual_hash = self.compute_file_hash(path)
-        self.manifest["artifacts"][artifact_name] = {
-            "path": str(path),
-            "hash": actual_hash,
-            "registered_mode": self.mode
-        }
-        self.save_manifest()
-        logger.info(f"Registered artifact: {artifact_name}")
-
-    def get_dataset_path(self, dataset_name: str) -> Optional[Path]:
-        """Get the path for a registered dataset."""
-        if dataset_name in self.manifest.get("datasets", {}):
-            return Path(self.manifest["datasets"][dataset_name]["path"])
-        return None
-
-    def get_config_summary(self) -> Dict[str, Any]:
-        """Return a summary of the environment configuration."""
-        return {
+            "hash": hash_value,
             "mode": self.mode,
-            "data_root": str(self.data_root),
-            "datasets_dir": str(self.datasets_dir),
-            "processed_dir": str(self.processed_dir),
-            "annotations_dir": str(self.annotations_dir),
-            "results_dir": str(self.results_dir),
-            "checksums_file": str(self.checksums_file),
-            "registered_datasets": list(self.manifest.get("datasets", {}).keys()),
-            "registered_artifacts": list(self.manifest.get("artifacts", {}).keys())
+            "metadata": metadata or {},
+            "registered_at": str(Path.cwd().joinpath(name).stat().st_mtime if path.exists() else 0)
         }
+        self.save_registry()
+
+    def verify_artifact(self, name: str, path: Path) -> bool:
+        """Verify an artifact's hash matches the registered value."""
+        if name not in self._dataset_registry:
+            return False
+        
+        registered = self._dataset_registry[name]
+        if registered.get("path") != str(path):
+            return False
+        
+        current_hash = self._compute_file_hash(path)
+        return current_hash == registered.get("hash")
+
+    def _compute_file_hash(self, path: Path, algorithm: str = "sha256") -> str:
+        """Compute SHA256 hash of a file."""
+        if not path.exists():
+            raise FileNotFoundError(f"Cannot compute hash: file not found - {path}")
+        
+        hasher = hashlib.sha256()
+        with open(path, 'rb') as f:
+            for chunk in iter(lambda: f.read(8192), b''):
+                hasher.update(chunk)
+        return hasher.hexdigest()
+
+    def get_artifact_info(self, name: str) -> Optional[Dict[str, Any]]:
+        """Get registered info for an artifact."""
+        return self._dataset_registry.get(name)
 
 # Global instance
 _env_config: Optional[EnvConfig] = None
 
 def get_env_config() -> EnvConfig:
-    """Get the singleton EnvConfig instance."""
+    """Get or create the global environment configuration."""
     global _env_config
     if _env_config is None:
-        _env_config = EnvConfig()
+        mode = "ci" if is_ci_mode() else "research"
+        _env_config = EnvConfig(mode=mode)
     return _env_config
 
 def reset_env_config():
-    """Reset the singleton (useful for testing)."""
+    """Reset the global environment configuration."""
     global _env_config
     _env_config = None
 
-def get_data_path(sub_path: str) -> Path:
-    """Convenience function to get a path relative to the data root."""
-    return get_env_config().data_root / sub_path
+def get_data_path() -> Path:
+    """Get the root data directory."""
+    return get_env_config().data_root
 
 def get_datasets_path() -> Path:
-    """Get the datasets directory path."""
+    """Get the datasets directory."""
     return get_env_config().datasets_dir
 
 def get_annotations_path() -> Path:
-    """Get the annotations directory path."""
+    """Get the annotations directory."""
     return get_env_config().annotations_dir
 
 def get_results_path() -> Path:
-    """Get the results directory path."""
+    """Get the results directory."""
     return get_env_config().results_dir
 
-def verify_dataset(dataset_name: str, path: Path) -> bool:
-    """Verify a dataset's integrity."""
-    cfg = get_env_config()
-    cfg.register_dataset(dataset_name, path)
-    return True
+def ensure_env_paths_exist():
+    """Ensure all environment paths exist."""
+    env_config = get_env_config()
+    env_config.data_root.mkdir(parents=True, exist_ok=True)
+    env_config.datasets_dir.mkdir(parents=True, exist_ok=True)
+    env_config.processed_dir.mkdir(parents=True, exist_ok=True)
+    env_config.annotations_dir.mkdir(parents=True, exist_ok=True)
+    env_config.results_dir.mkdir(parents=True, exist_ok=True)
+    env_config.artifacts_dir.mkdir(parents=True, exist_ok=True)
+    # Initialize empty hash file if it doesn't exist
+    if not env_config.hashes_file.exists():
+        env_config.hashes_file.write_text("{}")
 
-def verify_artifact(artifact_name: str, path: Path) -> bool:
-    """Verify an artifact's integrity."""
-    cfg = get_env_config()
-    return cfg.verify_artifact(artifact_name, path)
+def verify_dataset(dataset_name: str, path: Path) -> Tuple[bool, Optional[str]]:
+    """
+    Verify a dataset's integrity using stored hash.
+    
+    Returns:
+        Tuple of (is_valid, error_message)
+    """
+    env_config = get_env_config()
+    
+    if not path.exists():
+        return False, f"Dataset file not found: {path}"
+    
+    if env_config.verify_artifact(dataset_name, path):
+        return True, None
+    
+    # If not registered, compute and register
+    try:
+        hash_value = env_config._compute_file_hash(path)
+        metadata = {
+            "size_bytes": path.stat().st_size,
+            "verified_at": "now"
+        }
+        env_config.register_artifact(dataset_name, path, hash_value, metadata)
+        return True, None
+    except Exception as e:
+        return False, f"Hash computation failed: {str(e)}"
 
-def register_artifact(artifact_name: str, path: Path):
-    """Register an artifact."""
-    cfg = get_env_config()
-    cfg.register_artifact(artifact_name, path)
+def get_env_config_summary() -> Dict[str, Any]:
+    """Get a summary of the current environment configuration."""
+    env_config = get_env_config()
+    return {
+        "mode": env_config.mode,
+        "data_root": str(env_config.data_root),
+        "datasets_dir": str(env_config.datasets_dir),
+        "annotations_dir": str(env_config.annotations_dir),
+        "results_dir": str(env_config.results_dir),
+        "registered_artifacts": list(env_config._dataset_registry.keys()),
+        "total_artifacts": len(env_config._dataset_registry)
+    }
+
+def register_artifact(name: str, path: Path, hash_value: str = None, 
+                     metadata: Optional[Dict[str, Any]] = None):
+    """Convenience function to register an artifact."""
+    env_config = get_env_config()
+    if hash_value is None:
+        hash_value = env_config._compute_file_hash(path)
+    env_config.register_artifact(name, path, hash_value, metadata)
+    return hash_value

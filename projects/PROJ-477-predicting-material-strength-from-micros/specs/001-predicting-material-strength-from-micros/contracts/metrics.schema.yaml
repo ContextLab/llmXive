@@ -1,0 +1,74 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MetricsReport"
+description: "Schema for the final performance metrics report"
+type: object
+properties:
+  model_name:
+    type: string
+    description: "Name of the model architecture (e.g., MobileNetV2)"
+  baseline_name:
+    type: string
+    description: "Name of the baseline (e.g., MeanPredictor)"
+  test_set_size:
+    type: integer
+    description: "Number of samples in the test set"
+  cnn_metrics:
+    type: object
+    properties:
+      mse:
+        type: number
+        description: "Mean Squared Error for the CNN"
+      r2:
+        type: number
+        description: "R-squared score for the CNN"
+    required:
+      - mse
+      - r2
+  baseline_metrics:
+    type: object
+    properties:
+      mse:
+        type: number
+        description: "Mean Squared Error for the baseline"
+      r2:
+        type: number
+        description: "R-squared score for the baseline"
+    required:
+      - mse
+      - r2
+  statistical_test:
+    type: object
+    properties:
+      t_statistic:
+        type: number
+      p_value:
+        type: number
+      is_significant:
+        type: boolean
+        description: "True if p_value < 0.05 (CNN error < Baseline error)"
+      alpha:
+        type: number
+        description: "Significance level used (default 0.05)"
+    required:
+      - t_statistic
+      - p_value
+      - is_significant
+      - alpha
+  interpretability:
+    type: object
+    properties:
+      heatmap_generated:
+        type: boolean
+      sensitivity_analysis_complete:
+        type: boolean
+    required:
+      - heatmap_generated
+      - sensitivity_analysis_complete
+required:
+  - model_name
+  - baseline_name
+  - test_set_size
+  - cnn_metrics
+  - baseline_metrics
+  - statistical_test
+  - interpretability

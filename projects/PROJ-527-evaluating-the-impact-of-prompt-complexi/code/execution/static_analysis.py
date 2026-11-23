@@ -1,251 +1,278 @@
+from __future__ import annotations
+
 import os
 import subprocess
 import json
 import tempfile
+import re
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
-# --------------------------------------------------------------------------
-# Validation Sources Documentation (FR-008 Compliance)
-# --------------------------------------------------------------------------
-# The readability and complexity metrics extracted below are derived from
-# established, citable literature and standard static analysis tools:
-#
-# 1. McCabe Cyclomatic Complexity (CC):
-#    - Source: McCabe, T. J. (1976). "A Complexity Measure". IEEE Transactions
-#      on Software Engineering, SE-2(4), 308–320.
-#    - Definition: A quantitative measure of the number of linearly independent
-#      paths through a program's source code. Calculated as M = E - N + 2P,
-#      where E is edges, N is nodes, and P is connected components.
-#    - Implementation: Extracted via `ruff` (which uses a Rust-based AST parser
-#      implementing the standard algorithm) under the `mccabe` plugin or via
-#      direct AST traversal if `ruff` output format changes.
-#    - Thresholds: Low complexity (1-10) indicates maintainable code; >10 suggests
-#      high cognitive load and potential error-proneness.
-#
-# 2. Lines of Code (LOC):
-#    - Source: Standard software engineering metric (e.g., Pressman, R. S. "Software
-#      Engineering: A Practitioner's Approach").
-#    - Definition: Count of non-blank, non-comment lines in the source file.
-#    - Relevance: Correlates with effort and defect density; used here as a
-#      proxy for code verbosity induced by prompt complexity.
-#
-# 3. Indentation Consistency:
-#    - Source: PEP 8 - Style Guide for Python Code (Python Software Foundation).
-#    - Definition: Measures adherence to the standard 4-space indentation rule.
-#    - Relevance: Inconsistent indentation often indicates copy-paste errors or
-#      poorly structured code generation, affecting readability and execution.
-#
-# 4. Security Vulnerabilities (Hardcoded Credentials, eval usage):
-#    - Source: OWASP Top 10 (A02:2021 - Cryptographic Failures, A03:2021 - Injection).
-#    - Implementation: Pattern matching via `ruff` rules (e.g., `S105` for hardcoded
-#      passwords, `S307` for `eval`).
-#    - Relevance: Flags generated code that may be functionally correct but
-#      insecure, requiring manual review.
-# --------------------------------------------------------------------------
+import pandas as pd
 
-def run_ruff_check(code_content: str, temp_dir: Optional[Path] = None) -> Dict[str, Any]:
+from config import Paths
+from utils.logger import get_logger
+
+logger = get_logger(__name__)
+
+# ============================================================================
+# VALIDATION SOURCES (FR-008)
+# ============================================================================
+# The metrics extracted in this module are validated against the following
+# authoritative sources:
+#
+# 1. Cyclomatic Complexity (McCabe):
+#    - Source: McCabe, J. (1976). "A Complexity Measure". IEEE Transactions
+#      on Software Engineering, SE-2(4), 308-320.
+#    - Definition: A software metric used to indicate the complexity of a
+#      program. It is a measure of the number of linearly independent paths
+#      through a program's source code.
+#    - Implementation: Calculated using `radon cc` (radon library), which
+#      implements the standard McCabe algorithm for Python AST analysis.
+#
+# 2. Ruff Static Analysis:
+#    - Source: Ruff Documentation v0.1.0 (https://docs.astral.sh/ruff/)
+#    - Usage: Used for security vulnerability detection (SEC rules) and
+#      code style consistency checks.
+# ============================================================================
+
+def run_ruff_check(code_content: str) -> Tuple[bool, str, List[Dict[str, Any]]]:
     """
-    Runs `ruff` static analysis on the provided code content.
-
-    This function writes the code to a temporary file and invokes `ruff check`
-    with specific flags to extract metrics relevant to FR-008 (Readability &
-    Complexity Validation).
-
-    Returns a dictionary containing:
-    - 'mccabe': Cyclomatic complexity score (int)
-    - 'loc': Lines of code (int)
-    - 'indentation_issues': List of indentation errors
-    - 'security_warnings': List of security-related warnings
-    - 'raw_output': Full JSON output from ruff for debugging
-    """
-    if temp_dir is None:
-        temp_dir = Path(tempfile.gettempdir())
-
-    # Create a temporary file with .py extension
-    temp_file = temp_dir / f"temp_code_{os.getpid()}.py"
-    try:
-        temp_file.write_text(code_content)
-
-        # Run ruff with JSON output format
-        # We request 'mccabe' complexity, 'pylint' (for some structural checks),
-        # and 'security' (for vulnerability checks)
-        cmd = [
-            "ruff", "check",
-            "--output-format=json",
-            "--select", "E,W,F,I,S,C90", # E:Error, W:Warning, F:Pyflakes, I:Import, S:Security, C90:Mccabe
-            str(temp_file)
-        ]
-
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            timeout=30 # Timeout to prevent hanging on bad code
-        )
-
-        if result.returncode not in (0, 1): # 0: no issues, 1: issues found
-            # If ruff crashes or fails to parse, return empty metrics
-            # Log the stderr if needed for debugging
-            return {
-                "mccabe": 0,
-                "loc": len(code_content.splitlines()),
-                "indentation_issues": [],
-                "security_warnings": [],
-                "raw_output": result.stderr,
-                "error": "Ruff execution failed"
-            }
-
-        try:
-            issues = json.loads(result.stdout)
-        except json.JSONDecodeError:
-            issues = []
-
-        # Process issues to extract specific metrics
-        mccabe_score = 0
-        indentation_issues = []
-        security_warnings = []
-
-        for issue in issues:
-            code = issue.get("code", "")
-            message = issue.get("message", "")
-            row = issue.get("row", 0)
-
-            # Extract McCabe Complexity
-            if code == "C901":
-                # Format: "C901: `func_name` is too complex (X)"
-                try:
-                    complexity = int(message.split('(')[1].split(')')[0])
-                    if complexity > mccabe_score:
-                        mccabe_score = complexity
-                except (IndexError, ValueError):
-                    pass
-
-            # Extract Indentation Issues
-            elif code.startswith("E1"): # E111, E112, E113, E114, E115, E116, E117
-                indentation_issues.append({
-                    "row": row,
-                    "code": code,
-                    "message": message
-                })
-
-            # Extract Security Warnings
-            elif code.startswith("S"): # S105, S307, etc.
-                security_warnings.append({
-                    "row": row,
-                    "code": code,
-                    "message": message
-                })
-
-        return {
-            "mccabe": mccabe_score,
-            "loc": len([l for l in code_content.splitlines() if l.strip()]), # Non-blank lines
-            "indentation_issues": indentation_issues,
-            "security_warnings": security_warnings,
-            "raw_output": issues
-        }
-
-    finally:
-        # Cleanup temporary file
-        if temp_file.exists():
-            temp_file.unlink()
-
-
-def analyze_generated_code(code_samples: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Analyzes a list of generated code samples for readability and complexity metrics.
+    Run Ruff static analysis on the provided code content.
 
     Args:
-        code_samples: List of dicts containing 'code' (string) and metadata.
+        code_content: The Python code string to analyze.
 
     Returns:
-        List of dicts with added analysis results:
-        - 'mccabe_complexity': int
-        - 'lines_of_code': int
-        - 'indentation_consistency': bool (True if no issues)
-        - 'security_flags': list of warning dicts
+        Tuple of (success, error_message, list_of_issues).
+        If success is False, error_message contains the stderr output.
+        If success is True, list_of_issues contains the parsed JSON results.
     """
-    results = []
-    for sample in code_samples:
-        code = sample.get("code", "")
-        if not code:
-            results.append({
-                **sample,
-                "mccabe_complexity": 0,
-                "lines_of_code": 0,
-                "indentation_consistency": True,
-                "security_flags": [],
-                "analysis_error": "Empty code"
-            })
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        f.write(code_content)
+        temp_path = f.name
+
+    try:
+        # Run ruff check with JSON output
+        # Using --output-format=json for machine-readable results
+        result = subprocess.run(
+            ['ruff', 'check', temp_path, '--output-format=json', '--quiet'],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+
+        if result.returncode == 0:
+            # No issues found
+            return True, "", []
+        elif result.returncode == 1:
+            # Issues found (return code 1 is standard for linter findings)
+            try:
+                issues = json.loads(result.stdout)
+                return True, "", issues
+            except json.JSONDecodeError:
+                return False, "Failed to parse Ruff JSON output", []
+        else:
+            # Error running ruff (syntax error in code, missing file, etc.)
+            return False, result.stderr.strip(), []
+    except subprocess.TimeoutExpired:
+        return False, "Ruff check timed out", []
+    except Exception as e:
+        return False, str(e), []
+    finally:
+        try:
+            os.unlink(temp_path)
+        except OSError:
+            pass
+
+def extract_complexity_value(code_content: str) -> Optional[float]:
+    """
+    Extract cyclomatic complexity (McCabe) from code using radon.
+
+    Implements the complexity measure defined in:
+    McCabe, J. (1976). A Complexity Measure. IEEE Transactions on Software Engineering.
+
+    Args:
+        code_content: The Python code string to analyze.
+
+    Returns:
+        The maximum cyclomatic complexity value found in the code, or None if
+        extraction fails.
+    """
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        f.write(code_content)
+        temp_path = f.name
+
+    try:
+        # Run radon cc (cyclomatic complexity) with JSON output
+        result = subprocess.run(
+            ['radon', 'cc', temp_path, '-s', '-j'],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
+
+        if result.returncode != 0 and result.returncode != 1:
+            # radon returns 1 if issues are found but still outputs JSON
+            # returns non-zero for actual errors
+            logger.warning(f"Radon CC returned error code {result.returncode}: {result.stderr}")
+            return None
+
+        try:
+            data = json.loads(result.stdout)
+            if not data:
+                return None
+
+            # Find the maximum complexity across all functions/classes
+            max_cc = 0.0
+            for block in data:
+                if 'complexity' in block:
+                    # 'complexity' can be a dict with 'total' key for nested structures
+                    if isinstance(block['complexity'], dict):
+                        max_cc = max(max_cc, block['complexity'].get('total', 0))
+                    else:
+                        max_cc = max(max_cc, block.get('complexity', 0))
+            return float(max_cc) if max_cc > 0 else None
+        except json.JSONDecodeError:
+            logger.warning(f"Failed to parse radon JSON output: {result.stdout}")
+            return None
+    except subprocess.TimeoutExpired:
+        logger.error("Radon CC timed out")
+        return None
+    except FileNotFoundError:
+        logger.error("Radon not found. Please install: pip install radon")
+        return None
+    except Exception as e:
+        logger.error(f"Error running radon CC: {e}")
+        return None
+    finally:
+        try:
+            os.unlink(temp_path)
+        except OSError:
+            pass
+
+def check_security_vulnerabilities(code_content: str) -> List[str]:
+    """
+    Check for security vulnerabilities using Ruff SEC rules.
+
+    Args:
+        code_content: The Python code string to analyze.
+
+    Returns:
+        List of security rule codes detected (e.g., 'SEC101', 'SEC301').
+    """
+    success, _, issues = run_ruff_check(code_content)
+    if not success:
+        return []
+
+    security_codes = []
+    for issue in issues:
+        # Ruff JSON output typically includes 'code' or 'rule' field
+        code = issue.get('code') or issue.get('rule')
+        if code and code.startswith('SEC'):
+            security_codes.append(code)
+
+    return security_codes
+
+def analyze_generated_code(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Analyze generated code for static metrics: cyclomatic complexity and lines of code.
+
+    This function implements the metrics defined in standard literature:
+    - Cyclomatic Complexity: Per McCabe (1976)
+    - Lines of Code: Standard metric for code size
+
+    Args:
+        df: DataFrame containing 'code' column with generated Python code.
+
+    Returns:
+        DataFrame with appended columns:
+        - 'cyclomatic_complexity': Max McCabe complexity (float)
+        - 'lines_of_code': Total lines of code (int)
+        - 'security_issues': List of detected security rule codes (list)
+    """
+    results = {
+        'cyclomatic_complexity': [],
+        'lines_of_code': [],
+        'security_issues': []
+    }
+
+    logger.info(f"Analyzing {len(df)} code samples for static metrics...")
+
+    for idx, row in df.iterrows():
+        code = row.get('code', '')
+        if not code or not isinstance(code, str):
+            results['cyclomatic_complexity'].append(None)
+            results['lines_of_code'].append(0)
+            results['security_issues'].append([])
             continue
 
-        analysis = run_ruff_check(code)
+        # Calculate Lines of Code
+        lines = [line for line in code.split('\n') if line.strip()]
+        loc = len(lines)
 
-        results.append({
-            **sample,
-            "mccabe_complexity": analysis["mccabe"],
-            "lines_of_code": analysis["loc"],
-            "indentation_consistency": len(analysis["indentation_issues"]) == 0,
-            "security_flags": analysis["security_warnings"],
-            "analysis_details": {
-                "indentation_issues": analysis["indentation_issues"],
-                "raw_issues_count": len(analysis["raw_output"]) if isinstance(analysis["raw_output"], list) else 0
-            }
-        })
+        # Calculate Cyclomatic Complexity (McCabe)
+        cc = extract_complexity_value(code)
 
-    return results
+        # Check Security Vulnerabilities
+        sec_issues = check_security_vulnerabilities(code)
 
+        results['cyclomatic_complexity'].append(cc)
+        results['lines_of_code'].append(loc)
+        results['security_issues'].append(sec_issues)
+
+        if (idx + 1) % 50 == 0:
+            logger.info(f"Processed {idx + 1}/{len(df)} samples")
+
+    df['cyclomatic_complexity'] = results['cyclomatic_complexity']
+    df['lines_of_code'] = results['lines_of_code']
+    df['security_issues'] = results['security_issues']
+
+    logger.info("Static analysis complete.")
+    return df
 
 def main():
-    """
-    Main entry point for static analysis testing.
-    Reads sample code from data/processed/prompt_variants.parquet (if exists)
-    or runs a self-test with a hardcoded snippet.
-    """
-    import sys
-    from pathlib import Path
+    """Main entry point for static analysis script."""
+    import argparse
 
-    # Try to load real data if available
-    data_path = Path("data/processed/prompt_variants.parquet")
-    if data_path.exists():
-        try:
-            import pandas as pd
-            df = pd.read_parquet(data_path)
-            if "code" in df.columns:
-                samples = df.to_dict(orient="records")
-                print(f"Analyzing {len(samples)} samples from {data_path}...")
-                results = analyze_generated_code(samples)
-                print(f"Analysis complete. Processed {len(results)} samples.")
-                # Optional: Write results to a new file
-                # output_path = Path("data/results/static_analysis_results.json")
-                # with open(output_path, "w") as f:
-                #     json.dump(results, f, indent=2)
-                # print(f"Results written to {output_path}")
-                return
-        except Exception as e:
-            print(f"Warning: Could not load parquet file: {e}. Running self-test.")
+    parser = argparse.ArgumentParser(description="Analyze generated code for static metrics.")
+    parser.add_argument(
+        '--input',
+        type=str,
+        default=str(Paths.PROCESSED_DATA_DIR / 'prompt_variants.parquet'),
+        help='Input parquet file path'
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default=str(Paths.PROCESSED_DATA_DIR / 'prompt_variants_with_analysis.parquet'),
+        help='Output parquet file path'
+    )
 
-    # Self-test with a sample snippet
-    test_code = """
-    def calculate_factorial(n):
-        if n < 0:
-            raise ValueError("Negative")
-        elif n == 0 or n == 1:
-            return 1
-        else:
-            return n * calculate_factorial(n - 1)
-    """
+    args = parser.parse_args()
 
-    print("Running self-test on sample code...")
-    result = analyze_generated_code([{"code": test_code, "id": "test-001"}])
-    print(f"Test Result: {result[0]}")
+    input_path = Path(args.input)
+    output_path = Path(args.output)
 
-    # Verify FR-008 compliance
-    print("\n--- FR-008 Validation Source Check ---")
-    print("Metrics extracted: McCabe (C90), LOC, Indentation, Security (S).")
-    print("Sources: McCabe (1976), PEP 8, OWASP Top 10.")
-    print("Validation: Citable and standard.")
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
+        return 1
 
+    logger.info(f"Loading data from {input_path}")
+    df = pd.read_parquet(input_path)
 
-if __name__ == "__main__":
-    main()
+    logger.info(f"Analyzing code in {len(df)} rows")
+    analyzed_df = analyze_generated_code(df)
+
+    logger.info(f"Writing results to {output_path}")
+    analyzed_df.to_parquet(output_path, index=False)
+
+    # Also write a summary CSV for manual review if needed
+    summary_csv = Paths.RESULTS_DIR / 'static_analysis_summary.csv'
+    analyzed_df[['problem_id', 'variant_label', 'cyclomatic_complexity', 'lines_of_code', 'security_issues']].to_csv(summary_csv, index=False)
+    logger.info(f"Summary written to {summary_csv}")
+
+    return 0
+
+if __name__ == '__main__':
+    exit(main())

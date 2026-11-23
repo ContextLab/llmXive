@@ -1,0 +1,13 @@
+{
+  "thresholds": {
+    "grasp_probability": 0.5,
+    "connectivity_strength": 0.3,
+    "object_presence": 0.1,
+    "grasp_probability_dim": 10
+  },
+  "predicates": {
+    "graspable": ["object"],
+    "connected": ["object_a", "object_b"],
+    "present": ["object"]
+  }
+}

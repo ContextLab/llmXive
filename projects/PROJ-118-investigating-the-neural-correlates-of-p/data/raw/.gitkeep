@@ -1,2 +1,2 @@
-# This directory contains raw EEG data downloaded from OpenNeuro.
-# Do not commit large binary files.
+# This file ensures the data/raw directory exists in the repository.
+# Actual data will be downloaded here by code/download.py.

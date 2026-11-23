@@ -1,0 +1,24 @@
+{
+  "stimuli": [
+    {
+      "type": "professional",
+      "description": "High-fidelity CSS, serif fonts (Georgia), balanced layout, subtle shadows, professional color palette (navy/white/gray).",
+      "css_features": ["serif-font", "box-shadow", "responsive-grid", "navy-header"]
+    },
+    {
+      "type": "minimalist",
+      "description": "Low-fidelity CSS, sans-serif (Arial), sparse layout, no decorations, stark black/white contrast.",
+      "css_features": ["sans-serif", "no-shadows", "single-column", "high-contrast"]
+    },
+    {
+      "type": "low_quality",
+      "description": "Broken CSS, mismatched fonts (Comic Sans + Times), cluttered layout, bright clashing colors, unaligned elements.",
+      "css_features": ["mismatched-fonts", "cluttered", "clashing-colors", "broken-alignment"]
+    },
+    {
+      "type": "neutral",
+      "description": "Standard default browser styling, plain text, no custom CSS.",
+      "css_features": ["default-browser", "no-custom-css"]
+    }
+  ]
+}

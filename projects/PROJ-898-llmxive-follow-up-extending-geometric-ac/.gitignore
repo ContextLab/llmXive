@@ -1,0 +1,19 @@
+# Data and results
+data/
+
+# Python bytecode
+__pycache__/
+*.pyc
+
+# Environment and secrets
+.env
+venv/
+.venv/
+env/
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs
+*.log

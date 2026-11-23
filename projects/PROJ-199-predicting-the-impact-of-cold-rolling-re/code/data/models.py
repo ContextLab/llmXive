@@ -51,6 +51,20 @@ class EbsdSample(BaseModel):
             pass
         return v
 
+    @field_validator('confidence_index')
+    @classmethod
+    def validate_confidence_index(cls, v: float) -> float:
+        """
+        Validates that the confidence index is sufficient for analysis.
+        Per FR-001 and T009 requirements, confidence must be >= 0.1.
+        """
+        if v < 0.1:
+            raise ValueError(
+                f"Confidence index {v} is below the minimum threshold of 0.1. "
+                "Samples with low confidence are excluded to ensure data quality."
+            )
+        return v
+
 class TextureDescriptor(BaseModel):
     """
     Quantitative descriptor of crystallographic texture derived from EBSD data.

@@ -1,0 +1,8 @@
+pandas
+numpy
+scipy
+requests
+pyyaml
+jsonschema
+pytest
+datasets>=2.0.0

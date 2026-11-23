@@ -1,0 +1,26 @@
+{
+  "project_id": "PROJ-437-statistical-power-analysis-of-openly-ava",
+  "ok": false,
+  "reason": "5 command(s) failed: python code/main.py --action download --config config.yaml (rc=1); python code/main.py --action estimate_noise --config config.yaml (rc=1); python code/main.py --action generate_synthetic --config config.yaml (rc=1); 2 declared deliverable(s) absent: data/aggregated/convergence_log.json; data/aggregated/split_half_results.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --action download --config config.yaml -> rc=1\n    datasets - INFO - TensorFlow version 2.21.0 available.\n\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1791373560.242533    3087 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI000",
+    "python code/main.py --action estimate_noise --config config.yaml -> rc=1\n    datasets - INFO - TensorFlow version 2.21.0 available.\n\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1791373568.688018    3098 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDER",
+    "python code/main.py --action generate_synthetic --config config.yaml -> rc=1\n    datasets - INFO - TensorFlow version 2.21.0 available.\n\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1791373575.180933    3108 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to S",
+    "python code/main.py --action analyze --config config.yaml -> rc=1\n    datasets - INFO - TensorFlow version 2.21.0 available.\n\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1791373581.800377    3120 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000",
+    "python code/main.py --action report --config config.yaml -> rc=1\n    datasets - INFO - TensorFlow version 2.21.0 available.\n\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 00:00:1791373588.468828    3130 cpu_feature_guard.cc:227] This TensorFlow binary is optimized to use available CPU instructions in performance-critical operations.\nTo enable the following instructions: AVX2 FMA, in other operations, rebuild TensorFlow with the appropriate compiler flags.\nWARNING: All log messages before absl::InitializeLog() is called are written to STDERR\nI0000 "
+  ],
+  "fix_rounds": 3,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "compute_env",
+  "evidence": [
+    "python code/main.py --action download --config config.yaml",
+    "python code/main.py --action estimate_noise --config config.yaml",
+    "python code/main.py --action generate_synthetic --config config.yaml",
+    "python code/main.py --action analyze --config config.yaml",
+    "python code/main.py --action report --config config.yaml"
+  ],
+  "updated_at": "2026-10-07T11:46:37Z"
+}

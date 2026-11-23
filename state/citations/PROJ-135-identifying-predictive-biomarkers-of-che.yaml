@@ -1,11 +1,33 @@
-- artifact_hash: b1f402166a44feeec219962236aae09f791bed567028a0020e619a163584d911
+- artifact_hash: 941eadbf72b9c440e05f19b3a148261131770f55761051ee2b838597557740c3
   artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: metadata.csv
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/farrell236/TCGA-OV-AS/resolve/main/metadata.csv`
-  verification_status: verified
-  verified_against_url: https://huggingface.co/api/resolve-cache/datasets/farrell236/TCGA-OV-AS/e11ff6a6d23d4f9bd34c85f9ef7f71ecc7493201/metadata.csv?%2Fdatasets%2Ffarrell236%2FTCGA-OV-AS%2Fresolve%2Fmain%2Fmetadata.csv=&etag=%2284cd66cc4f4b1cd46730bf802edeb8e5604edef1%22
-  verified_at: '2026-07-04T19:14:18.011889Z'
+  value: https://www.gdc.cancer.gov/
+  verification_status: unreachable
+  verified_against_url: https://www.gdc.cancer.gov/
+  verified_at: '2026-08-17T01:04:49.425209Z'
+- artifact_hash: 941eadbf72b9c440e05f19b3a148261131770f55761051ee2b838597557740c3
+  artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: GEO Accession viewer
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE25055
+  verification_status: pending
+  verified_against_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE25055
+  verified_at: '2026-08-17T01:04:49.425209Z'
+- artifact_hash: 941eadbf72b9c440e05f19b3a148261131770f55761051ee2b838597557740c3
+  artifact_path: projects/PROJ-135-identifying-predictive-biomarkers-of-che/specs/001-identifying-predictive-biomarkers-of-che/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: GEO Accession viewer
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE42752
+  verification_status: pending
+  verified_against_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE42752
+  verified_at: '2026-08-17T01:04:49.425209Z'

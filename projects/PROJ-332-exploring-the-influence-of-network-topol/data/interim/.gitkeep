@@ -1,0 +1,3 @@
+# Interim data directory
+# This directory stores temporary batch buffers (e.g., batch_*.json).
+# Files are created by runtime scripts, not statically.

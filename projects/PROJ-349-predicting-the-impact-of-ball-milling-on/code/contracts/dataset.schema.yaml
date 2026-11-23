@@ -1,0 +1,53 @@
+fields:
+  experiment_id:
+    type: string
+    required: true
+  source:
+    type: string
+    required: true
+  source_id:
+    type: string
+    required: true
+  material_type:
+    type: string
+    required: true
+  milling_speed:
+    type: float
+    required: true
+  milling_time:
+    type: float
+    required: true
+  ball_to_powder_ratio:
+    type: float
+    required: true
+  youngs_modulus:
+    type: float
+    required: true
+  density:
+    type: float
+    required: true
+  d10:
+    type: float
+    required: true
+  d50:
+    type: float
+    required: true
+  d90:
+    type: float
+    required: true
+  process_duration:
+    type: float
+    required: false
+required_columns:
+  - experiment_id
+  - source
+  - source_id
+  - material_type
+  - milling_speed
+  - milling_time
+  - ball_to_powder_ratio
+  - youngs_modulus
+  - density
+  - d10
+  - d50
+  - d90

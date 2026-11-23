@@ -1,0 +1,11 @@
+pandas==2.2.*
+numpy==1.26.*
+scikit-learn==1.5.*
+torch==2.3.*
+statsmodels==0.14.*
+pyyaml==6.0.*
+pytest==8.2.*
+jsonschema==4.21.*
+psutil==5.9.*
+openml==0.14.*
+ucimlrepo==0.1.11

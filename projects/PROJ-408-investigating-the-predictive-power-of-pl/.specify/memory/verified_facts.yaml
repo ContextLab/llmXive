@@ -1,0 +1,18 @@
+'|dpi must parameter png save':
+  quote: The first relatively affordable flatbed scanner for personal computers appeared
+    in February 1987 with Hewlett-Packard's ScanJet, which was capable of scanning
+    4-bit (64-shade) grayscale images at a maximum resolution of 300 dpi. By the beginning
+    of 1988, the ScanJet had accounted for 27 percent of all scanner sales in terms
+    of dollar volume, per Gartner Dataquest. In February 1989, the company introduced
+    the ScanJet Plus, which increased the bit depth to 8 bits (256 shades) while costing
+    only US$200 more than the original ScanJet's $1990 (equivalent to $5,169 in 2025).
+    This led to a massive price drop in grayscale scanners with equivalent or lesser
+    features in the market. The number of third-party developers producing software
+    and hardware supporting these scanners jumped dramatically in turn, effectively
+    popularizing the scanner for the personal computer user. By 1999, the cost of
+    the average color-capable scanner had dropped to $300 (equivalent to $580 in 2025).
+    That year, Computer Shopper declared 1999 "the year that scanners finally became
+    a mainstream commodity".
+  source_id: Image scanner
+  url: https://en.wikipedia.org/wiki/Image_scanner
+  value: '300'

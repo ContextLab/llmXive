@@ -1,0 +1,36 @@
+T001:
+  reason: 'Requested task execution failed; rerun successfully: code/src/data/download_gwtc.py
+    exit=1; code/src/data/record_availability.py exit=1'
+  task: f4e718bf992b2ae3ca6ee3aed0c425447ea282bdafa8d6bbf44d1839f3d04e58
+T002:
+  task: 18826bcb79d4fc75aa8df4a7795a1fecda4332b22da5d20fd8c448fd3e223106
+T003:
+  task: 11ed0204c9ada72e1a55caa6d61727c9063c493c75b7be28013859b861feb210
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/src/validation/validate_observations.py
+    exit=1'
+  task: 33bfedd7e675287be3aac2138c97fe26d14f7025079c6b994e0bda766fa2cab1
+T005:
+  task: ed3d88c1333bfadcd1f9e485fb9aa48d8d55c579d106bcbe81ba9168c1001993
+T006:
+  task: f130e1ae1a00a0b763ba71fb8238ce268fa7935a2e3206ba76fba8aea2706fce
+T007:
+  task: b96bfc9be4c5954db95580fc0766be14eb041fb50e67e6d11c7714d841837fd2
+T008:
+  task: 7344e16bf9397f064ee4b818ab64ae9760c7319a85f33918220b3098a55dc843
+T009:
+  task: b24af5c91cd4155614d527ca9671986667441e9cb70a7deafd4cf3c475ab5eec
+T010:
+  task: 53b5e85a8a6cda7369f5b5bc44b195d8be5ea1fdb5518783399669b1e7538227
+T011:
+  task: 6bf9ebb0f56d7b9721d88584cc318ebf3cb97b32fee7a49075db968b34c590a2
+T012:
+  task: c0f18e6c3356aa89f7934fa20ef02d0384661a108419a923c3512f9f03ded10e
+T013:
+  task: 4d1f6397f7223bfb97611240c79385e1ed2748776c9ac4dff43c4e5c088e6e12
+T014:
+  task: 32340f9fa8c3c45816dd4012132028f45795a80511ce2c8680aa199dc5dfcf46
+T015:
+  task: be279144c1c3917d4864be7f71b0583bdfb3c04f25fbf77f162ff00796723a1d
+T016:
+  task: 5b65e5ef2d12bd7b230f862ada7d582e5706ce7c083749805c5790c5a23aec21

@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results Schema"
+description: "Schema for per-repo and meta-analysis correlation results."
+type: object
+properties:
+  metric_type:
+    type: string
+    description: "Type of analysis: 'log-log', 'density', or 'meta'."
+  beta_value:
+    type: number
+    format: float
+    description: "Slope coefficient from regression."
+  p_value:
+    type: number
+    format: float
+    description: "P-value of the slope."
+  n:
+    type: integer
+    description: "Sample size (number of files)."
+  threshold:
+    type: integer
+    description: "LOC threshold used for sensitivity analysis (0 if not applicable)."
+  z_score:
+    type: number
+    format: float
+    description: "Fisher-transformed Z-score (for meta-analysis)."
+  weight:
+    type: number
+    format: float
+    description: "Weight (1 / SE^2) for meta-analysis."
+  fdr_adjusted:
+    type: boolean
+    description: "Whether FDR correction was applied."
+required:
+  - metric_type
+  - beta_value
+  - p_value
+  - n
+  - threshold
+  - z_score
+  - weight
+additionalProperties: false

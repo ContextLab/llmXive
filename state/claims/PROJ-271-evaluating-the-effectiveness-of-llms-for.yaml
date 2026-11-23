@@ -1,0 +1,507 @@
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Target initial sample size of 800 functions for codeparrot/github-code
+  claim_id: c_f1f0b50a
+  context: 'Implement code/data_pipeline.py to sample functions from codeparrot/github-code
+    using HuggingFace datasets with streaming=True, split=''train'', and a pinned
+    random seed. Target initial sample size: 800 functions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Target initial sample size: 800 functions.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:10:12Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Maximum sample limit calculated to ensure processing time does not exceed
+    5.5 hours
+  claim_id: c_f53ad902
+  context: "Implement a dynamic runtime check: process a small batch of functions\
+    \ to estimate time; calculate a max-sample limit such that (estimated_time_per_function\
+    \ * max_samples) \u2264 5.5 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "process a small batch of functions to estimate time; calculate a max-sample\
+    \ limit such that (estimated_time_per_function * max_samples) \u2264 5.5 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:10:12Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Proceed with maximum possible sample if reduced sample size is less than
+    100 functions
+  claim_id: c_765a2dfc
+  context: If the reduced sample size is < 100 functions, log the deviation and final
+    count to results/sample_report.json with a warning, and proceed with the maximum
+    possible sample to satisfy FR-001's compute constraint.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proceed_with_maximum_possible_sample_if_reduced_sample_size
+  kind: magnitude
+  raw_text: If the reduced sample size is < 100 functions, log the deviation and final
+    count to results/sample_report.json with a warning, and proceed with the maximum
+    possible sample
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:11:15Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Use 4-bit quantized CodeLlama-7B-Instruct-GGUF model variant
+  claim_id: c_e91c0d23
+  context: Implement code/semantic_analysis.py to load CodeLlama-7B-Instruct-GGUF
+    specifically using the 4-bit quantized variant (file suffix must be q4_0.gguf
+    or Q4_K_M.gguf). Use llama-cpp-python on CPU device.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use CodeLlama-7B-Instruct-GGUF specifically using the 4-bit quantized
+    variant (file suffix must be q4_0.gguf or Q4_K_M.gguf).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:11:39Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Batched inference loop with batch size less than or equal to 10
+  claim_id: c_2cac105b
+  context: "Implement batched inference loop in code/semantic_analysis.py with batch\
+    \ size \u2264 10 (within \u2264 50 constraint) and explicit gc.collect() between\
+    \ batches to manage RAM, and record batch-level metrics (RAM, CPU, time) (FR-004,\
+    \ FR-008)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Batched_inference_loop_with_batch_size_less_than_or_equal_to
+  kind: magnitude
+  raw_text: "Implement batched inference loop in code/semantic_analysis.py with batch\
+    \ size \u2264 10"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:12:22Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Validate merged dataset completeness with at least 95% rows having required
+    fields
+  claim_id: c_5c4199d5
+  context: "Validate merged dataset completeness (\u226595% rows have all required\
+    \ fields: code, metrics, static labels, semantic vectors, LLM labels) of the sampled\
+    \ functions and explicitly calculate and report the drop-off rate from the original\
+    \ sampled functions (using the count from T007) to results/statistical_significance.json\
+    \ to satisfy SC-005 (SC-005)"
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Validate_merged_dataset_completeness_with_at_least_95%25_rows
+  kind: magnitude
+  raw_text: "Validate merged dataset completeness (\u226595% rows have all required\
+    \ fields)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-02T05:13:16Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeping LOC thresholds at 100 and 150
+  claim_id: c_c6a8434a
+  context: "Implement sensitivity analysis in code/statistical_analysis.py sweeping\
+    \ LOC thresholds across the specific range LOC \u2208 {, 100, 150} as required\
+    \ by FR-009, and calculating and reporting false-positive and false-negative rates\
+    \ for static-only detections to results/sensitivity_metrics.json (FR-009)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement sensitivity analysis in code/statistical_analysis.py sweeping\
+    \ LOC thresholds across the specific range LOC \u2208 {, 100, 150}"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:14:32Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Verify total runtime does not exceed 6 hours
+  claim_id: c_2d71fdae
+  context: "Verify total runtime \u2264 6h via timing run on a real, representative\
+    \ subset (e.g. A subset of the sample, comprising a representative proportion\
+    \ of functions) in code/. Do NOT use mock data. Execute the pipeline on this subset,\
+    \ record the wall-clock time to results/runtime_log.json, and extrapolate the\
+    \ full runtime based on the sample count to verify compliance with the \u2264\
+    6h constraint (SC-004). (SC-004)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify total runtime \u2264 6h via timing run on a real, representative\
+    \ subset"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:14:32Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/results/vif_report.md
+  attempts: 1
+  canonical: Pearson correlation between loc and cyclomatic_complexity is 0.654
+  claim_id: c_3a0b4506
+  context: 'The following table shows the pairwise Pearson correlation coefficients
+    between the predictors: | Variable | loc | cyclomatic_complexity | semantic_mean
+    | | --- | --- | --- | --- | | loc | 1.000 | 0.654 | 0.123 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pairwise Pearson correlation coefficient between loc and cyclomatic_complexity
+    is 0.654.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:52:13Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/results/vif_report.md
+  attempts: 1
+  canonical: Pearson correlation between loc and semantic_mean is 0.123
+  claim_id: c_e75640d5
+  context: 'The following table shows the pairwise Pearson correlation coefficients
+    between the predictors: | Variable | loc | cyclomatic_complexity | semantic_mean
+    | | --- | --- | --- | --- | | loc | 1.000 | 0.654 | 0.123 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pairwise Pearson correlation coefficient between loc and semantic_mean
+    is 0.123.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:52:57Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/results/vif_report.md
+  attempts: 1
+  canonical: Pearson correlation between cyclomatic_complexity and semantic_mean is
+    0.089
+  claim_id: c_2ca1a5d4
+  context: 'The following table shows the pairwise Pearson correlation coefficients
+    between the predictors: | Variable | loc | cyclomatic_complexity | semantic_mean
+    | | --- | --- | --- | --- | | cyclomatic_complexity | 0.654 | 1.000 | 0.089 |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pairwise Pearson correlation coefficient between cyclomatic_complexity
+    and semantic_mean is 0.089.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:53:22Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/results/vif_report.md
+  attempts: 1
+  canonical: Initial VIF score for loc is 2.145
+  claim_id: c_3e0c174c
+  context: '**Initial VIF Scores:** | Predictor | VIF Score | Status | |-----------|-----------|--------|
+    | loc | 2.145 | Retained |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The initial VIF score for the predictor loc is 2.145.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:53:55Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/results/vif_report.md
+  attempts: 1
+  canonical: Initial VIF score for cyclomatic_complexity is 1.892
+  claim_id: c_95a5e352
+  context: '**Initial VIF Scores:** | Predictor | VIF Score | Status | |-----------|-----------|--------|
+    | cyclomatic_complexity | 1.892 | Retained |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The initial VIF score for the predictor cyclomatic_complexity is 1.892.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:54:13Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/results/vif_report.md
+  attempts: 1
+  canonical: Initial VIF score for semantic_mean is 1.034
+  claim_id: c_1a03d074
+  context: '**Initial VIF Scores:** | Predictor | VIF Score | Status | |-----------|-----------|--------|
+    | semantic_mean | 1.034 | Retained |'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The initial VIF score for the predictor semantic_mean is 1.034.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:54:27Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/results/vif_report.md
+  attempts: 1
+  canonical: No extreme pairwise correlations (|r| > 0.7) detected in predictor set
+  claim_id: c_41d31d99
+  context: '**High Correlation Detected:** No extreme pairwise correlations (|r| >
+    0.7) were detected in the predictor set.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/No_extreme_pairwise_correlations_(%7Cr%7C_%3E_0.7)_detected_in_pre
+  kind: magnitude
+  raw_text: No extreme pairwise correlations with an absolute value greater than 0.7
+    were detected in the predictor set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:55:06Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Initial sample size of 800 functions from codeparrot/github-code
+  claim_id: c_5dc0b7aa
+  context: 'Implement code/data_pipeline.py to sample functions from codeparrot/github-code
+    using HuggingFace datasets with streaming=True, split=''train'', and a pinned
+    random seed. Target initial sample size: 800 functions.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Target initial sample size: 800 functions.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:56:53Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: "Max sample limit calculated to ensure total time \u2264 5.5 hours"
+  claim_id: c_543f380b
+  context: "Implement a dynamic runtime check: process a small batch of functions\
+    \ to estimate time; calculate a max-sample limit such that (estimated_time_per_function\
+    \ * max_samples) \u2264 5.5 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate a max-sample limit such that (estimated_time_per_function *\
+    \ max_samples) \u2264 5.5 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:56:53Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Proceed with sample if reduced count is at least 100 functions
+  claim_id: c_1b475942
+  context: If the reduced sample size is < 100 functions, log the deviation and final
+    count to results/sample_report.json with a warning, and proceed with the maximum
+    possible sample to satisfy FR-001's compute constraint.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Proceed_with_sample_if_reduced_count_is_at_least_100_functio
+  kind: magnitude
+  raw_text: If the reduced sample size is < 100 functions, log the deviation and final
+    count to results/sample_report.json with a warning, and proceed with the maximum
+    possible sample.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:56:55Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Smell mapping contract includes at least 5 Pylint codes
+  claim_id: c_baa05734
+  context: Create contracts/smell_mapping.json defining a fixed mapping from common
+    Pylint codes to canonical smell names derived from the LLM prompt categories.
+    Create the file with at least 5 common Pylint codes mapped to canonical names
+    before the full pipeline runs.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Smell_mapping_contract_includes_at_least_5_Pylint_codes
+  kind: magnitude
+  raw_text: Create contracts/smell_mapping.json with at least 5 common Pylint codes
+    mapped to canonical names before the full pipeline runs.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:57:23Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Static baseline CSV contains at least 95% of sampled functions
+  claim_id: c_8406ceb0
+  context: "Add validation to ensure data/static_baseline.csv contains \u2265 95%\
+    \ of sampled functions with all required columns (FR-001, SC-005)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Static_baseline_CSV_contains_at_least_95%25_of_sampled_functio
+  kind: magnitude
+  raw_text: "Ensure data/static_baseline.csv contains \u2265 95% of sampled functions\
+    \ with all required columns."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:58:05Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Use CodeLlama-7B-Instruct-GGUF 4-bit quantized variant
+  claim_id: c_b90621bd
+  context: Implement code/semantic_analysis.py to load CodeLlama-7B-Instruct-GGUF
+    specifically using the 4-bit quantized variant (file suffix must be q4_0.gguf
+    or Q4_K_M.gguf).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load CodeLlama-7B-Instruct-GGUF specifically using the 4-bit quantized
+    variant (file suffix must be q4_0.gguf or Q4_K_M.gguf).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:58:25Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Inference batch size limited to 10
+  claim_id: c_977143cd
+  context: "Implement batched inference loop in code/semantic_analysis.py with batch\
+    \ size \u2264 10 (within \u2264 50 constraint) and explicit gc.collect() between\
+    \ batches to manage RAM."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement batched inference loop with batch size \u2264 10."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:58:25Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Merged dataset completeness at least 95%
+  claim_id: c_461bfd32
+  context: "Validate merged dataset completeness (\u226595% rows have all required\
+    \ fields: code, metrics, static labels, semantic vectors, LLM labels) of the actual\
+    \ sampled functions (target 800, or reduced count from T007)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Merged_dataset_completeness_at_least_95%25
+  kind: magnitude
+  raw_text: "Validate merged dataset completeness (\u226595% rows have all required\
+    \ fields) of the actual sampled functions."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:59:15Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Exclude predictors with Variance Inflation Factor of 5 or greater
+  claim_id: c_6bac6874
+  context: "Implement logistic regression fitting in code/statistical_analysis.py\
+    \ that excludes predictors with VIF \u2265 5."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement logistic regression fitting that excludes predictors with VIF\
+    \ \u2265 5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:59:15Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: LOC thresholds swept at 50, 100, and 150
+  claim_id: c_84d76612
+  context: "Implement sensitivity analysis in code/statistical_analysis.py sweeping\
+    \ LOC thresholds across the specific numeric range LOC \u2208 {50, 100, 150} as\
+    \ required by FR-009."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Sweep LOC thresholds across the specific numeric range LOC \u2208 {50,\
+    \ 100, 150}."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:59:40Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Total runtime verified to be under 6 hours
+  claim_id: c_613fd361
+  context: "Verify total runtime \u2264 6h via timing run on a real, representative\
+    \ subset (e.g., the first 50 functions) in code/."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify total runtime \u2264 6h via timing run on a real, representative\
+    \ subset."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T05:59:40Z'
+- artifact_path: projects/PROJ-271-evaluating-the-effectiveness-of-llms-for/specs/001-evaluating-the-effectiveness-of-llms-for/tasks.md
+  attempts: 1
+  canonical: Runtime extrapolated from first 50 functions
+  claim_id: c_1f313cf3
+  context: "Execute the pipeline on this subset (the first 50 functions), record the\
+    \ wall-clock time to results/runtime_log.json, and extrapolate the full runtime\
+    \ based on the sample count to verify compliance with the \u22646h constraint."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute the pipeline on the first 50 functions to record wall-clock time
+    and extrapolate full runtime.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T06:00:03Z'

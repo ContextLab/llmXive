@@ -1,0 +1,64 @@
+T001:
+  c: true
+  h: b0d932dba33c8787e47c791208751f4e269e80b4351e1be5b4678d900fb56f8e
+  r: Checked the pytest run (`tests/test_create_core_dirs.py`) which passed, confirming
+    the four directories exist, and the script log (`code/create_core_dirs.py`) showing
+    it created/ensured `data/raw`, `data/processed`, `data/primes`, and `data/targets`.
+  sig: 5f86e3ef62ca1a5fdc8567c81695644445e17dfe32f9f3518ccc05a1881724ee
+T004:
+  c: false
+  h: a35067f29585011c6b532fbfd507089b1ad3341e1325e2fd326889965c17a987
+  r: "The `pyproject.toml` is present and correctly configures ruff and black, but\
+    \ the required `.pre-commit-config.yaml` file is missing, so the pre\u2011commit\
+    \ hook configuration cannot be verified or installed. The task is therefore not\
+    \ fully satisfied."
+T007:
+  c: false
+  h: 8881e564ae4ebc05bc2e79bb90d0e64004ad64addbb64e642c7896dfbc96ab51
+  r: "The generated `state/projects/PROJ-345/state.yaml` does not contain the required\
+    \ top\u2011level keys `project_id`, `created_at`, and `artifact_hashes`; instead\
+    \ it has unrelated fields. Moreover, the `init_state.py` script writes to `state/PROJ-345/state.yaml`\
+    \ (missing the required `projects/` subdirectory), so it would not create the\
+    \ file at the specified location. The correct schema and path are therefore not\
+    \ satisfied."
+T009:
+  c: false
+  h: 51c4531761739d44db00a2fa6f653a8eee19514f7a2d17aa2851c26893a66dbe
+  r: '`code/main.py` correctly defines the logging configuration, but the required
+    log file `code/logs/pipeline.log` does not exist, and there is no evidence that
+    the script was executed to generate log entries in the specified format. The verification
+    step is missing.'
+T011:
+  c: false
+  h: 2a525523383cc1bc2d5bfbd6e9d0d7e288e23ffaff2884f60867c65a8fcc431f
+  r: The required artifact `tests/unit/test_ingest.py` does not exist on disk, so
+    no unit tests for URL validation and CSV parsing are present. The task cannot
+    be considered completed until this file is created with appropriate test cases.
+T012:
+  c: false
+  h: 832ee4739203bc9f5d46e6d0f0088573850cc319eb279ef1d241fc44d1f98169
+  r: "The required file `tests/integration/test_ingest_integration.py` is missing\
+    \ from the repository, so no integration test for missing image handling exists.\
+    \ The task\u2019s primary artifact is absent, making the claim unsubstantiated."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, documentation, or example output was provided that demonstrates\
+    \ the model\u2019s results being phrased as \u201Cassociational\u201D rather than\
+    \ causal. Without such artifact, we cannot verify that the requirement of framing\
+    \ findings as associational has been satisfied."
+T036:
+  c: false
+  h: 0be674b4f93f5f1b9c7650bb7a2a934f9c8b88001e29ac1f0dd830076c745ba3
+  r: The required output PDF (`reports/final_report.pdf`) is absent, so the verification
+    step cannot be performed. Additionally, the provided `generate_report.py` is truncated
+    and does not show a complete implementation for assembling the PDF. The task therefore
+    remains unfinished.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No report or document was provided that shows the required explicit citations\
+    \ of the \u201Cobservational nature\u201D limitation and the \u201Cderived prime\
+    \ valence\u201D limitation. Without a tangible artifact containing those statements,\
+    \ the task is not satisfied. The next implementer must supply the final report\
+    \ (e.g., PDF or markdown) where these limitations are clearly mentioned."

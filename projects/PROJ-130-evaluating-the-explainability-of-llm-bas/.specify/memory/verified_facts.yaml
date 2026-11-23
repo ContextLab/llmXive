@@ -1,0 +1,10 @@
+0|captum library version:
+  quote: functionalities in Captum v0.7 to easily apply ex-
+  source_id: '2312.05491'
+  url: https://arxiv.org/abs/2312.05491
+  value: '0.7'
+'|bonferroni comparison correction performed':
+  quote: '0.3'
+  source_id: Multiple comparisons problem
+  url: https://en.wikipedia.org/wiki/Multiple_comparisons_problem
+  value: '0.3'

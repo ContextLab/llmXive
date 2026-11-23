@@ -1,0 +1,57 @@
+T000:
+  task: 8009f0a957a2f9bf0584b2f0ed4ff9c3e8a52a6a297f8a7905551fab7b76b23e
+T001:
+  task: f944ecf2db7974df06b84326a3ca73c6a8de103aa19cb3c30934673d7adedc97
+T002:
+  task: 01225ffdef422e3621ee10adc1a293d9872947bae04c7caf4da6044af5d4f2a8
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/data/split.py
+    exit=1'
+  task: 63ca040e52b19fb51b3b431c6e48dd0f60bf36a7cda072de4c10c871d0eb7c97
+T004:
+  reason: 'Requested task execution failed; rerun successfully: run_all.sh exit=1'
+  task: 873e7c9a4063fcbc6e94b6aec0cd441573872d1c204a0e4e5d9cf8748abaf5b3
+T005:
+  reason: "The `code/models/rf.py` script correctly trains a `RandomForestRegressor`\
+    \ with the required hyper\u2011parameters on the six descriptor columns and writes\
+    \ `code/models/rf.pkl`, and the pickle file is present. However, the unit test\
+    \ `test_rf_training` also expects a `results/training_log.json` file containing\
+    \ a `total_hours` field (and\u202F<\u202F6\u202Fhours), which is not present in\
+    \ the artifacts. This missing log causes the test to fail, so the task is not\
+    \ fully satisfied."
+  task: c74d3a808c2fea719e4dcdd1d8082d28c6c1a0861773958d3faa1b3059d6126f
+T007:
+  reason: 'Requested task execution failed; rerun successfully: code/analysis/train.py
+    exit=1'
+  task: 8a9a6ce82dd9428eb8e75aea8ff4cf74d824a02345767e2ad6c166ad72bea948
+T008:
+  task: 5aa9235f0096e7e38769e5cb94c18d9a3050ecace119388e3e4a6e34c1c159bc
+T009:
+  task: a2391a26dd05211a819f164db8f745d62ff436865ff87769b744199984b90e9b
+T010:
+  task: f96e63296c20780ed26561414c10ee9a1d12a5f59e7e7a201c3d45b029766afa
+T011:
+  task: 1962e14a47fc7ea483932b5b6717cd99ea26415ed34d867adf1fb0db395f063a
+T012:
+  task: 8a60b80c0c4931b024436c0960ea5134687e1cb0b32f6d3c33bcb79dda24c71a
+T013:
+  task: f45d7b39b97a52e3cdb70a747add94d34106b2227a8b0cd195d9cb4e9c347abb
+T014:
+  reason: "The repository contains a non\u2011empty `tests/unit/test_models.py` with\
+    \ a `test_gnn_training_pipeline` that builds a tiny graph dataset, calls `train_gnn`,\
+    \ checks that a checkpoint file and an interim copy exist, and asserts the elapsed\
+    \ time is\u202F<\u202F3600\u202Fs. However, there is no execution evidence (e.g.,\
+    \ CI logs or test run output) showing that this test actually runs and passes,\
+    \ nor can we confirm from the truncated `train_gnn` implementation that the interim\
+    \ checkpoint is indeed created. Without proof that the CI pipeline executes the\
+    \ test successfully within the time limit, the task\u2019s requirement"
+  task: 8a2d11fff8f9e2054e8e661f6ea2347f7d68f099eb1b3207f687a41f9cc35ac7
+T015:
+  reason: "The repository contains `tests/unit/test_models.py` with a `test_rf_training`\
+    \ that checks the RF pickle, verifies six feature importances, and asserts `total_hours\
+    \ < 6`. However, the task\u2019s verification requires the test to confirm training\
+    \ time\u202F<\u202F3600\u202Fs (1\u202Fh) and to \u201Creport\u201D that duration,\
+    \ which the current test does not do. Moreover, the referenced `results/training_log.json`\
+    \ is not present in the checked artifacts, so its existence and content cannot\
+    \ be verified. The test therefore does not fully satisfy the specified requirement."
+  task: 24d781cc412c74b757ded7dacbff05964bbc18a4d17e0afe9540327ec898b584

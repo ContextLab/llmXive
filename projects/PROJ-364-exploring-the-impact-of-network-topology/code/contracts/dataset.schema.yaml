@@ -1,0 +1,59 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: Dataset Schema
+description: Schema for raw and processed defect coordinate datasets.
+type: object
+required:
+  - metadata
+  - data
+properties:
+  metadata:
+    type: object
+    required:
+      - source
+      - material
+      - timestamp
+      - version
+    properties:
+      source:
+        type: string
+        description: Origin of the data (URL, file path, or dataset ID).
+      material:
+        type: string
+        description: Material name (e.g., graphene, MoS2).
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of data generation or ingestion.
+      version:
+        type: string
+        description: Schema version or dataset version.
+      notes:
+        type: string
+        description: Optional notes about the dataset.
+  data:
+    type: array
+    description: List of defect records.
+    items:
+      type: object
+      required:
+        - x
+        - y
+      properties:
+        x:
+          type: number
+          description: X coordinate in nanometers.
+        y:
+          type: number
+          description: Y coordinate in nanometers.
+        defect_type:
+          type: string
+          description: Optional type of defect (e.g., vacancy, interstitial).
+        sample_id:
+          type: string
+          description: Optional sample identifier for pairing with thermal data.
+        thermal_conductivity:
+          type: number
+          description: Optional thermal conductivity value (W/mK) if paired.
+additionalProperties: false

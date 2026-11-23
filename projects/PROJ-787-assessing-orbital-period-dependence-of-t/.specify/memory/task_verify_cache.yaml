@@ -1,0 +1,128 @@
+T001a:
+  c: true
+  h: 3cb4ff3fad9528ec6ba5b8c8760cdac864ea3e7c2b84eb56f16e2dec26e01c23
+  r: "The collector shows that `code/`, `tests/contract/`, `tests/unit/`, `tests/integration/`,\
+    \ and all sub\u2011directories under `code/` (`ingest/`, `analysis/`, `theory/`,\
+    \ `validation/`, `utils/`) exist and contain multiple files, confirming the required\
+    \ directory hierarchy was created."
+  sig: 5a6471456f8fd34f0cb7d47ff1b0a1020f9e9fa3f0fae3ebdc075cbce7835268
+T001b:
+  c: false
+  h: 3dd2c6a91729cc99720d92fb1e457268a070ccba74df90ec9b35a18f11c70b4e
+  r: "Checked the project\u2019s `data/` folder: `data/processed/` directory exists\
+    \ (though empty, which satisfies creation), but `data/raw/` directory is missing\
+    \ entirely, so the required directory structure is not fully initialized."
+  sig: 202356214ac36237f65e6f2f05008212dbc683436290169a5fee6563320ad1cd
+T002a:
+  c: true
+  h: 7160368127d22ae552c6830870f89bed25c033b41d2d8763c0488b4fb9ed43ca
+  r: "Checked `code/requirements.txt` (resolved path `code/requirements.txt`) \u2013\
+    \ it exists, is non\u2011empty, and lists all required packages (`pandas`, `numpy`,\
+    \ `scipy`, `scikit-learn`, `astropy`, `astroquery`, `pyyaml`, `pytest`, `tqdm`).\
+    \ The extra `requests` line does not violate the requirement."
+  sig: 78e6bf8d023519288f1eb08357c291c620af54b542faf290a1b42f787e4acfa8
+T002b:
+  c: false
+  h: 6752edb27f0463c5aec250d640354c28ad59a4252fb1d96db9ccab6495059030
+  r: "Checked the presence of `code/requirements.txt`, which exists and lists packages,\
+    \ but there is no evidence that a virtual environment was created or that the\
+    \ listed dependencies were actually installed (e.g., no `venv/` directory, installation\
+    \ logs, `pip freeze` output, or scripts invoking the install). The task\u2019\
+    s core requirement\u2014installing the dependencies in a virtual environment\u2014\
+    is therefore unmet."
+  sig: f9895fb1a5a2fbbec531f096c4108e4da2a21c2a1c1875f9c9114907f9b67a4c
+T003:
+  c: false
+  h: 59608f9b27df2aa136eaabe06552f2a17e930c72ca918212f05e258c91499610
+  r: "The evidence contains no linting or formatting configuration files (e.g.,\u202F\
+    `.flake8`, `pyproject.toml` with Black settings, `setup.cfg`, or related scripts)\
+    \ and no proof that flake8/black have been set up or run. These required artifacts\
+    \ are missing, so the task is not satisfied."
+  sig: c939b95f3bacd2056f1f00ce7b3b1affda122d9ddda09a51ecd6d9b534706ca7
+T004:
+  c: false
+  h: d5c89e943fcf4665b6352d4c072d34e8ddae0984dbb08ba197f5d22d66c55b74
+  r: "The repository contains `code/models/planet_record.py` and `code/models/gap_result.py`,\
+    \ but the required contract `contracts/planet_record.schema.yaml` is missing,\
+    \ so the PlanetRecord model cannot be verified against its schema. Moreover, `gap_result.py`\
+    \ defines a `GapResult` class whose fields (e.g., `period_bin_min`, `component_1_mean`,\
+    \ `bic`) do not correspond to the structure defined in `contracts/analysis_output.schema.yaml`\
+    \ (which expects top\u2011level slope metrics and a `bin_results` array with different\
+    \ property names). Consequently, the implemented data models do not match the\
+    \ specified "
+  sig: 11ebe5ef9c5594200b9e07f123f3a1d661931a7f8bdc21b7da8287c8a879f2ec
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging or configuration management code was presented in `code/utils/`; the
+    evidence lacks any files, classes, or documentation showing that the required
+    infrastructure was implemented. The task remains undone.
+T012a:
+  c: false
+  h: 36cd8893aee655688a89af78938de67c9f29779b1fea5c057c510ee5313f00bf
+  r: "The provided `download_dr25.py` script is incomplete (truncated) and does not\
+    \ show logic that writes the fetched data to `data/raw/dr25_raw.csv`. Moreover,\
+    \ the required output file `data/raw/dr25_raw.csv` is missing from the repository.\
+    \ The task\u2019s core requirement\u2014downloading the DR25 table and saving\
+    \ it to the specified CSV\u2014has not been fulfilled."
+T012c:
+  c: false
+  h: 88e2ac5fea1ed3c855f4ac02cbb33f6b66ce3a5d8241d2fe9eec9e65e0b6675c
+  r: The `download_kic.py` script exists but the required output file `data/raw/kic_raw.csv`
+    is missing, and the shown code does not demonstrate the retry logic being applied
+    to the download operation. The task is therefore not fully satisfied.
+T014:
+  c: false
+  h: 6dde2a958d069f8be916902497cfa8be8ec645fdd8dd6d4026cfa316dcb3b138
+  r: "The `code/ingest/preprocess.py` file is present but truncated and does not contain\
+    \ logic to write the filtered DataFrame to `data/processed/filtered_planets.csv`.\
+    \ Moreover, the required output CSV file is missing from the repository. The task\u2019\
+    s core deliverable\u2014producing and saving the filtered dataset\u2014is therefore\
+    \ not satisfied."
+T015:
+  c: false
+  h: 6f3805b1146e3d71954a310c1f7596d5014b46dff6e4539f8f0a2ac5472ec2d8
+  r: "The repository contains a partially shown `preprocess.py` that implements loading\
+    \ and filtering but the file is truncated and does not include any logic for detecting\
+    \ or resolving duplicate planet entries, nor does it log removed duplicates. Moreover,\
+    \ the required output files `data/processed/filtered_planets.csv` and `data/processed/deduped_planets.csv`\
+    \ are absent from the disk. The task\u2019s core requirement\u2014duplicate resolution\
+    \ and saving the deduplicated CSV\u2014is therefore not satisfied."
+T016:
+  c: false
+  h: d7e100ace3fcfa4881031228c55b581bc92f668cc59b600ef46c6fd18241b0b1
+  r: "The `code/ingest/loaders.py` file exists and contains checksum\u2011verification\
+    \ logic, but the required data file `data/processed/deduped_planets.csv` is missing,\
+    \ so the loader cannot actually load the dataset as the task demands. The missing\
+    \ CSV (and its checksum file) must be provided for the task to be complete."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were provided that demonstrate logging has
+    been added to the ingestion pipeline, nor any evidence (e.g., sample log output)
+    showing counts of excluded planets and the reasons for exclusion. The required
+    artifact is missing.
+T021:
+  c: false
+  h: a60f60ab57dc4339f0ca3616fde6995c3564fb6ea48b29008f3125ab74841b1c
+  r: "The repository contains `code/analysis/binning.py`, but the file is truncated\
+    \ in the provided view and we cannot confirm it implements the required merging\
+    \ logic or writes the results to `data/processed/binned_planets.csv`. Moreover,\
+    \ the expected output CSV file is missing from the `data/processed` directory.\
+    \ The task\u2019s core deliverable \u2013 a saved CSV with merged bin definitions\
+    \ and statistics \u2013 is not present."
+T025:
+  c: false
+  h: c48c96fe52a9d064d9585f8a93bf9fd89f78b3f2ac501e0ffd2b35c1fde92f47
+  r: "The provided `gmm_fitter.py` does not contain any logic that checks the BIC\
+    \ difference, flags unimodal bins as \u201Cunresolved\u201D, or writes/updates\
+    \ `data/processed/gap_locations.csv` with a `status` column. Moreover, the required\
+    \ `gap_locations.csv` file is absent from the repository."
+T029:
+  c: false
+  h: a0ff671e7f5ef03623b85d36dad0e41810d1fb59c01492c5bf298d7afe0c1e44
+  r: The repository contains `code/analysis/kde_validator.py`, but the file is truncated
+    and does not show the logic that writes `data/processed/kde_validation.json`.
+    Moreover, the required output file `data/processed/kde_validation.json` is absent
+    from the project. Without the JSON output (including the `validation_passed` flag),
+    the task is not fully satisfied.

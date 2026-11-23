@@ -1,233 +1,227 @@
-"""
-Compute tabular feature metadata statistics for all available datasets.
-
-Outputs a single summary CSV: data/processed/metadata_stats_summary.csv
-Columns: dataset_id, cardinality, missingness, sparsity, variance
-"""
 import os
 import sys
 import json
 import hashlib
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, List, Optional, Union
+from typing import List, Dict, Any, Optional
+
 import pandas as pd
 import numpy as np
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root))
+# Import logging utilities if available, otherwise fallback to standard logging
+try:
+    from utils.logging import get_logger, log_info, log_error, log_warning
+    logger = get_logger(__name__)
+except ImportError:
+    import logging
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    logger = logging.getLogger(__name__)
 
-from utils.logging import get_logger, log_info, log_warning, log_error, log_debug
-from config import DATA_DIR, PROCESSED_DIR
-
-logger = get_logger(__name__)
-
-def compute_feature_stats(df: pd.DataFrame, dataset_id: str) -> Dict[str, Any]:
-    """
-    Compute cardinality, missingness, sparsity, and variance for all numeric features.
-    
-    Args:
-        df: DataFrame containing tabular features
-        dataset_id: Identifier for the dataset
-    
-    Returns:
-        Dictionary with aggregated statistics
-    """
-    if df.empty:
-        log_warning(f"Dataset {dataset_id} is empty. Skipping statistics computation.")
-        return {
-            "dataset_id": dataset_id,
-            "cardinality": 0.0,
-            "missingness": 0.0,
-            "sparsity": 0.0,
-            "variance": 0.0
-        }
-
-    # Select only numeric columns for variance and cardinality calculations
-    numeric_df = df.select_dtypes(include=[np.number])
-    
-    if numeric_df.empty:
-        log_warning(f"Dataset {dataset_id} has no numeric features.")
-        return {
-            "dataset_id": dataset_id,
-            "cardinality": 0.0,
-            "missingness": 0.0,
-            "sparsity": 0.0,
-            "variance": 0.0
-        }
-
-    # Calculate missingness: fraction of missing values across all numeric features
-    total_cells = numeric_df.size
-    missing_cells = numeric_df.isna().sum().sum()
-    missingness = missing_cells / total_cells if total_cells > 0 else 0.0
-
-    # Calculate sparsity: fraction of zero values across all numeric features
-    zero_cells = (numeric_df == 0).sum().sum()
-    sparsity = zero_cells / total_cells if total_cells > 0 else 0.0
-
-    # Calculate variance: average variance across all numeric features
-    # Only compute for features with >1 unique value to avoid division by zero
-    variances = []
-    for col in numeric_df.columns:
-        col_data = numeric_df[col].dropna()
-        if len(col_data) > 1:
-            var = col_data.var()
-            if not np.isnan(var):
-                variances.append(var)
-    
-    avg_variance = np.mean(variances) if variances else 0.0
-
-    # Calculate cardinality: average number of unique values per feature
-    cardinalities = []
-    for col in numeric_df.columns:
-        col_data = numeric_df[col].dropna()
-        if len(col_data) > 0:
-            unique_count = col_data.nunique()
-            cardinalities.append(unique_count)
-    
-    avg_cardinality = np.mean(cardinalities) if cardinalities else 0.0
-
-    return {
-        "dataset_id": dataset_id,
-        "cardinality": avg_cardinality,
-        "missingness": missingness,
-        "sparsity": sparsity,
-        "variance": avg_variance
-    }
+# Constants
+RAW_DATA_DIR = Path("data/raw")
+PROCESSED_DATA_DIR = Path("data/processed")
+SUMMARY_CSV_PATH = PROCESSED_DATA_DIR / "metadata_stats_summary.csv"
 
 def load_dataset_list() -> List[Dict[str, Any]]:
     """
-    Load the list of available datasets from the project's data configuration.
-    Returns a list of dataset metadata dictionaries.
+    Scans data/raw/ for available datasets and returns a list of dataset metadata.
+    Expects datasets to be in subdirectories or as specific file patterns.
+    For this implementation, we assume tabular data is in CSV files within data/raw/.
     """
-    datasets_dir = DATA_DIR / "datasets"
-    if not datasets_dir.exists():
-        log_error(f"Datasets directory not found: {datasets_dir}")
-        return []
+    datasets = []
+    if not RAW_DATA_DIR.exists():
+        logger.warning(f"Raw data directory {RAW_DATA_DIR} does not exist.")
+        return datasets
+
+    # Look for CSV files in data/raw/
+    for file_path in RAW_DATA_DIR.glob("*.csv"):
+        # Skip the baselines file if present, as it's metadata, not a dataset
+        if "baselines" in file_path.name.lower():
+            continue
+        
+        dataset_id = file_path.stem
+        datasets.append({
+            "dataset_id": dataset_id,
+            "file_path": str(file_path)
+        })
     
-    dataset_list = []
-    for item in datasets_dir.iterdir():
+    # Also check for subdirectories that might contain datasets
+    for item in RAW_DATA_DIR.iterdir():
         if item.is_dir():
-            dataset_id = item.name
-            # Check for tabular data files
-            tabular_files = list(item.glob("*.csv")) + list(item.glob("*.parquet"))
-            if tabular_files:
-                dataset_list.append({
-                    "dataset_id": dataset_id,
-                    "path": str(item),
-                    "tabular_files": [str(f) for f in tabular_files]
+            # Assume the directory name is the dataset_id
+            # Look for a CSV inside
+            csv_files = list(item.glob("*.csv"))
+            if csv_files:
+                datasets.append({
+                    "dataset_id": item.name,
+                    "file_path": str(csv_files[0]) # Take the first CSV found
                 })
     
-    log_info(f"Found {len(dataset_list)} datasets with tabular data.")
-    return dataset_list
+    return datasets
+
+def load_raw_tabular_data(file_path: str) -> pd.DataFrame:
+    """
+    Loads a tabular dataset from a CSV file.
+    """
+    try:
+        df = pd.read_csv(file_path)
+        return df
+    except Exception as e:
+        logger.error(f"Failed to load dataset from {file_path}: {e}")
+        raise
+
+def compute_cardinality(df: pd.DataFrame) -> float:
+    """
+    Computes the average cardinality of categorical features.
+    For numerical features, returns 0 or a placeholder if not applicable.
+    Here we calculate the number of unique values across all non-numeric columns
+    and average them, or return 0 if no categorical columns exist.
+    """
+    categorical_cols = df.select_dtypes(include=['object', 'category']).columns
+    if len(categorical_cols) == 0:
+        return 0.0
+    
+    cardinalities = [df[col].nunique() for col in categorical_cols]
+    return float(np.mean(cardinalities))
+
+def compute_missingness(df: pd.DataFrame) -> float:
+    """
+    Computes the fraction of missing values in the dataset.
+    """
+    total_cells = df.size
+    if total_cells == 0:
+        return 0.0
+    missing_count = df.isnull().sum().sum()
+    return float(missing_count / total_cells)
+
+def compute_sparsity(df: pd.DataFrame) -> float:
+    """
+    Computes the sparsity of the dataset (fraction of zero values).
+    Only considers numerical columns.
+    """
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    if len(numeric_cols) == 0:
+        return 0.0
+    
+    numeric_df = df[numeric_cols]
+    total_zeros = (numeric_df == 0).sum().sum()
+    total_cells = numeric_df.size
+    
+    if total_cells == 0:
+        return 0.0
+    return float(total_zeros / total_cells)
+
+def compute_variance(df: pd.DataFrame) -> float:
+    """
+    Computes the average variance of numerical features.
+    """
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+    if len(numeric_cols) == 0:
+        return 0.0
+    
+    variances = df[numeric_cols].var(numeric_only=True).dropna()
+    if len(variances) == 0:
+        return 0.0
+    
+    return float(np.mean(variances))
+
+def compute_feature_stats(df: pd.DataFrame) -> Dict[str, float]:
+    """
+    Computes all metadata stats for a single dataset.
+    """
+    return {
+        "cardinality": compute_cardinality(df),
+        "missingness": compute_missingness(df),
+        "sparsity": compute_sparsity(df),
+        "variance": compute_variance(df)
+    }
 
 def process_single_dataset(dataset_info: Dict[str, Any]) -> Optional[Dict[str, Any]]:
     """
-    Process a single dataset and compute its metadata statistics.
-    
-    Args:
-        dataset_info: Dictionary containing dataset path and metadata
-    
-    Returns:
-        Dictionary with computed statistics or None if processing fails
+    Processes a single dataset and returns its stats.
     """
-    dataset_id = dataset_info["dataset_id"]
-    tabular_files = dataset_info["tabular_files"]
-    
-    log_info(f"Processing dataset: {dataset_id}")
-    
     try:
-        # Load the first available tabular file
-        df = None
-        for file_path in tabular_files:
-            try:
-                if file_path.endswith('.parquet'):
-                    df = pd.read_parquet(file_path)
-                elif file_path.endswith('.csv'):
-                    df = pd.read_csv(file_path)
-                else:
-                    continue
-                
-                if df is not None and not df.empty:
-                    log_debug(f"Loaded {len(df)} rows from {file_path}")
-                    break
-            except Exception as e:
-                log_warning(f"Failed to load {file_path}: {e}")
-                continue
-        
-        if df is None or df.empty:
-            log_warning(f"No valid data loaded for dataset {dataset_id}")
-            return compute_feature_stats(pd.DataFrame(), dataset_id)
-        
-        # Compute statistics
-        stats = compute_feature_stats(df, dataset_id)
-        log_info(f"Completed statistics for {dataset_id}: "
-                 f"cardinality={stats['cardinality']:.2f}, "
-                 f"missingness={stats['missingness']:.4f}, "
-                 f"sparsity={stats['sparsity']:.4f}, "
-                 f"variance={stats['variance']:.4f}")
-        
+        df = load_raw_tabular_data(dataset_info["file_path"])
+        stats = compute_feature_stats(df)
+        stats["dataset_id"] = dataset_info["dataset_id"]
         return stats
-        
     except Exception as e:
-        log_error(f"Failed to process dataset {dataset_id}: {e}")
+        logger.error(f"Error processing dataset {dataset_info['dataset_id']}: {e}")
         return None
 
 def save_summary_csv(stats_list: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Save the computed statistics to a CSV file.
-    
-    Args:
-        stats_list: List of statistics dictionaries
-        output_path: Path to the output CSV file
+    Aggregates stats into a single CSV file.
     """
     if not stats_list:
-        log_warning("No statistics to save.")
+        logger.warning("No stats to save.")
         return
-    
+
     df_stats = pd.DataFrame(stats_list)
+    # Ensure columns are in the specified order
+    expected_columns = ["dataset_id", "cardinality", "missingness", "sparsity", "variance"]
+    # Reindex to ensure order, adding missing columns with NaN if necessary (though logic above should prevent this)
+    if not all(col in df_stats.columns for col in expected_columns):
+        # This case should ideally not happen if compute_feature_stats always returns these keys
+        for col in expected_columns:
+            if col not in df_stats.columns:
+                df_stats[col] = np.nan
     
-    # Ensure correct column order
-    columns = ["dataset_id", "cardinality", "missingness", "sparsity", "variance"]
-    df_stats = df_stats[columns]
+    df_stats = df_stats[expected_columns]
     
-    # Ensure output directory exists
+    # Ensure directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
     df_stats.to_csv(output_path, index=False)
-    log_info(f"Saved metadata statistics summary to {output_path}")
+    logger.info(f"Saved metadata stats summary to {output_path}")
+
+def compute_all_stats() -> List[Dict[str, Any]]:
+    """
+    Iterates through all datasets and computes stats for each.
+    """
+    datasets = load_dataset_list()
+    if not datasets:
+        logger.warning("No datasets found in data/raw/")
+        return []
+    
+    logger.info(f"Found {len(datasets)} datasets to process.")
+    stats_list = []
+    
+    for ds in datasets:
+        logger.info(f"Processing dataset: {ds['dataset_id']}")
+        result = process_single_dataset(ds)
+        if result:
+            stats_list.append(result)
+    
+    return stats_list
+
+def aggregate_stats() -> None:
+    """
+    Main entry point for T024c: Aggregates stats from T024b logic into a single CSV.
+    This function orchestrates loading datasets, computing stats, and saving the summary.
+    """
+    logger.info("Starting metadata stats aggregation (T024c)...")
+    
+    # 1. Compute stats for all datasets
+    stats_list = compute_all_stats()
+    
+    # 2. Save to CSV
+    if stats_list:
+        save_summary_csv(stats_list, SUMMARY_CSV_PATH)
+        logger.info("Aggregation complete.")
+    else:
+        logger.error("No stats were generated. CSV not created.")
+        # We do not raise an exception here to allow the pipeline to continue 
+        # if the lack of data is a valid state (e.g., empty raw dir), 
+        # but the task requirement is to produce the file if possible.
 
 def main():
     """
-    Main entry point for computing metadata statistics across all datasets.
+    CLI entry point for metadata stats aggregation.
     """
-    log_info("Starting metadata statistics computation for all datasets...")
-    
-    # Load dataset list
-    datasets = load_dataset_list()
-    if not datasets:
-        log_error("No datasets found to process.")
-        sys.exit(1)
-    
-    # Process each dataset
-    all_stats = []
-    for dataset_info in datasets:
-        stats = process_single_dataset(dataset_info)
-        if stats is not None:
-            all_stats.append(stats)
-    
-    if not all_stats:
-        log_error("No statistics computed successfully.")
-        sys.exit(1)
-    
-    # Define output path
-    output_path = PROCESSED_DIR / "metadata_stats_summary.csv"
-    
-    # Save results
-    save_summary_csv(all_stats, output_path)
-    
-    log_info("Metadata statistics computation completed successfully.")
+    logger.info("Running metadata_stats.py main...")
+    aggregate_stats()
 
 if __name__ == "__main__":
     main()

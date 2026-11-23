@@ -1,0 +1,2 @@
+Placeholder file to ensure the code/data/ directory is tracked in version control.
+This directory holds the data acquisition and preprocessing modules (download.py, preprocess.py) for PROJ-066.

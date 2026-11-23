@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-144-predicting-plant-disease-resistance-from",
+  "ok": false,
+  "reason": "2 command(s) failed: python code/data/preprocess.py --input data/raw --output data/processed (rc=1); python code/modeling/interpret.py --input results/shap_analysis.json --output results/pathway_analysis.json (rc=1); 2 declared deliverable(s) absent: data/processed/heterogeneity_report.json; data/raw/study_manifest.json",
+  "artifacts": [],
+  "failures": [
+    "python code/data/preprocess.py --input data/raw --output data/processed -> rc=1\n    2026-09-03 22:51:11,295 - INFO - Starting preprocessing. Input: data/raw, Output: data/processed\n2026-09-03 22:51:11,295 - INFO - Loading data from data/raw\n2026-09-03 22:51:11,295 - ERROR - Preprocessing failed: [Errno 21] Is a directory: 'data/raw'\n2026-09-03 22:51:11,295 - ERROR - Pipeline failed: [Errno 21] Is a directory: 'data/raw'",
+    "python code/modeling/interpret.py --input results/shap_analysis.json --output results/pathway_analysis.json -> rc=1\n    2026-09-03 22:51:11,714 - __main__ - INFO - Starting T043: Verifying KEGG API fallback/retry in pathway interpretation\n2026-09-03 22:51:11,714 - __main__ - ERROR - Required input file missing: results/shap_analysis.json\n2026-09-03 22:51:11,714 - __main__ - ERROR - Input file not found: results/shap_analysis.json"
+  ],
+  "fix_rounds": 3,
+  "model_tier": 0,
+  "total_attempts": 3,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-03T22:51:12Z"
+}

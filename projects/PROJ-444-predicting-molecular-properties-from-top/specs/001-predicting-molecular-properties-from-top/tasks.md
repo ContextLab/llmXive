@@ -1,217 +1,152 @@
 # Tasks: Predicting Molecular Properties from Topological Data Analysis
 
-**Input**: Design documents from `/specs/001-predict-molecular-properties-tda/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, original research idea, existing artifacts, and reviewer feedback.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-444-predicting-molecular-properties-from-top/`)
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (rdkit, gudhi/dionysus2, scikit-learn, pandas, numpy, matplotlib, seaborn, pyyaml, requests)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+The goal is to deliver a fully reproducible, CPU‑only study that satisfies every functional requirement (FR‑001 … FR‑009) and success criterion (SC‑001 … SC‑005) while respecting platform constraints (real data only, no synthetic fall‑backs, no GPU).  
+Tasks are ordered to respect data flow; later tasks depend on the outputs of earlier ones.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+| Goal | Run a minimal pipeline on real inputs and obtain the first set of validated artifacts. |
+|------|----------------------------------------------------------------------------------------|
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [X] **T001** [US1] Create the **dataset schema** file.  
+  - Write `specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml` containing the required properties `molecule_id` (string), `smiles` (string), and `logP` (number).  
+  - **Verification**: `python -c "import jsonschema, yaml, pathlib; schema=yaml.safe_load(pathlib.Path('specs/001-predicting-molecular-properties-from-top/contracts/dataset.schema.yaml').read_text()); jsonschema.Draft7Validator.check_schema(schema)"` exits 0.
 
-- [ ] T004 Setup `data/` directory structure (`raw/`, `processed/`) and `state/` tracking
-- [X] T005 [P] Implement `code/utils/graph_builder.py` for RDKit molecular graph construction with validity checks
-- [ ] T006 [P] Implement `code/utils/persistence_utils.py` for shortest-path filtration and empty diagram handling
-- [~] T007 Implement `code/00_checksum_verify.py` to compute SHA256 hashes of raw data and record them in `data/checksums.txt` (Constitution III)
-- [ ] T008 Implement `code/01_data_ingestion.py` to fetch MoleculeNet ESOL, validate `smiles`/`logP` columns against schema, perform a priori power analysis (N>=128) [UNRESOLVED-CLAIM: c_d8f70333 — status=not_enough_info], enforce min scaffolds check, and ensure random seed pinning (fixed value)
-- [~] T010 [P] [US1] Contract test for `data/processed/tda_features.csv` schema in `tests/contract/test_tda_schema.py`
-- [X] T011 [P] [US1] Integration test for disconnected graph handling in `tests/integration/test_disconnected_graphs.py`
+- [ ] **T001a** [US1] Download the **MoleculeNet Lipophilicity** dataset (the canonical dataset required by FR‑001). <!-- FAILED-IN-EXECUTION: code/01_download_lipophilicity.py exit=1 -->
+  - Use `deepchem.molnet.load_molnet_dataset('Lipophilicity')` or fetch from the official URL `https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/lipophilicity.csv`.  
+  - Save the CSV as `data/raw/lipophilicity.csv`.  
+  - Compute its SHA‑256 checksum and append a line `lipophilicity.csv <checksum>` to `data/checksums.txt`.  
+  - **Verification**: `sha256sum data/raw/lipophilicity.csv` matches the hash recorded in `data/checksums.txt`.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] **T001b** [US1] Run **checksum verification**.   <!-- FAILED-IN-EXECUTION: code/00_checksum_verify.py exit=1 -->
+  - Execute `python code/00_checksum_verify.py`. It reads `data/checksums.txt`, recomputes hashes, and exits 0 only if all match.  
+  - **Verification**: Script prints “All checksums verified” and returns status 0.
 
----
+- [ ] **T001c** [US1] **Ingest and filter** the raw Lipophilicity CSV.  
+  - Run `python code/01_data_ingestion.py` which validates the CSV against the dataset schema, canonicalizes SMILES with RDKit, logs and skips invalid entries, and writes `data/processed/filtered_lipophilicity.csv`.  
+  - **Verification**: The output file exists, row count equals the number of valid SMILES, and `pytest code/tests/test_ingestion_schema.py` passes.
 
-## Phase 3: User Story 1 - Compute TDA Features for Molecular Dataset (Priority: P1) 🎯 MVP
+- [ ] **T001d** [US1] Generate **scaffold‑based splits** and perform a power analysis.  
+  - After ingestion, compute Bemis‑Murcko scaffolds, ensure ≥ 100 distinct scaffolds, and write a 5‑fold scaffold split (seed 42) to `data/processed/splits.json`.  
+  - Perform an a‑priori power analysis (paired t‑test, α = 0.05, power = 0.8, effect size = 0.5) and write `data/processed/power_analysis_report.json` with fields `min_n`, `actual_n`, `passes`.  
+  - **Verification**: `jq .passes data/processed/power_analysis_report.json` returns `true`; `jq '.[] | length' data/processed/splits.json` yields five non‑overlapping groups.
 
-**Goal**: Ingest ESOL dataset, compute persistence diagrams via shortest-path filtration, and vectorize to persistence images with a fixed grid resolution.
+- [ ] **T002** [US1] Create the **feature‑matrix schema** file.  
+  - Write `specs/001-predicting-molecular-properties-from-top/contracts/feature_matrix.schema.yaml` exactly as defined in the spec (requires `molecule_id`, `target_property`, `target_value`, and `pixel_*` fields).  
+  - **Verification**: Loading the file with `jsonschema` succeeds.
 
-**Independent Test**: Run `02_tda_computation.py` on a fixed subset; verify output CSV has non-null topological descriptors for every valid molecule.
+- [ ] **T003** [US1] Compute **baseline TDA features (10 × 10 persistence images)**.  
+  - Read `data/processed/filtered_lipophilicity.csv`. For each SMILES, build a molecular graph with RDKit, apply the shortest‑path distance filtration (FR‑001) via GUDHI, and vectorize to a 10 × 10 persistence image (kernel = 1.0).  
+  - Include `target_property = "logP"` and `target_value` (experimental logP) in every row.  
+  - Write `data/processed/topological_features_10x10.csv` (columns: `molecule_id` + 100 `pixel_n` values).  
+  - Log invalid SMILES to `data/logs/invalid_smiles.log`; handle disconnected graphs and empty diagrams by writing a zero‑vector.  
+  - **Verification**: No `NaN` values; row count equals that of `filtered_lipophilicity.csv`; `pytest code/tests/test_feature_matrix.py` passes.
 
-### Pre-Implementation Tests for User Story 1 (MUST FAIL BEFORE IMPLEMENTATION)
+- [ ] **T004** [US1] Compute **traditional descriptors** and build the **combined feature matrix**.  
+  - `code/03_feature_engineering.py` reads `data/processed/filtered_lipophilicity.csv` and `data/processed/topological_features_10x10.csv`.  
+  - Compute RDKit descriptors: molecular weight, atom counts, and 1024‑bit Morgan fingerprint (radius 2). Write `data/processed/traditional_features.csv`.  
+  - Merge traditional and topological descriptors on `molecule_id` (cast to string) → `data/processed/combined_features.csv`. **Drop the `target` column before merging** to avoid circular prediction.  
+  - **Verification**: All three CSVs have identical row counts; `pandas.isnull().sum().sum()` returns `0`.
 
-- [~] T010 [US1] Contract test for `data/processed/tda_features.csv` schema in `tests/contract/test_tda_schema.py`
-- [X] T011 [US1] Integration test for disconnected graph handling in `tests/integration/test_disconnected_graphs.py`
-
-### Implementation for User Story 1
-
-- [X] T012 [US1] Implement `code/02_tda_computation.py`: Graph construction and shortest-path filtration (FR-001)
-- [X] T013 [US1] Implement `code/02_tda_computation.py`: Vectorization to persistence images of appropriate resolution
-
-The research question, method, and references remain unchanged as per the planning document requirements. (FR-002) for the **Primary Experiment**; include zero-vector fallback for empty diagrams; implement `run_sweep(resolutions=[10, 20, 30])` function to support sensitivity analysis (FR-006)
-- [ ] T015 [US1] Add error handling for invalid SMILES (log to `data/logs/invalid_smiles.log` and skip) and implement sparse matrix logic with memory threshold checks for shortest-path computation to handle extremely large molecular weights (Edge Case)
-- [ ] T016 [US1] Generate `data/processed/tda_features.csv` (primary dimensions) and `data/processed/traditional_descriptors.csv`
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Train and Compare Predictive Models (Priority: P2)
-
-**Goal**: Train Linear Regression (L2) and Random Forest on Traditional, Topological, and Combined feature sets using -fold scaffold splits.
-
-**Independent Test**: Execute `04_model_training.py`; verify R²/RMSE reported for all 3 configurations and 5 folds [UNRESOLVED-CLAIM: c_33f33c24 — status=not_enough_info].
-
-### Implementation for User Story 2
-
-- [ ] T017 [US2] Implement `code/03_feature_engineering.py`: Merge traditional descriptors and TDA features; prepare combined feature matrix
-- [ ] T018 [US2] Implement `code/04_model_training.py`: Stratified scaffold split
-
-The research question, method, and references remain unchanged as per the planning document requirements, with the specific fold count replaced by a qualitative description of the cross-validation strategy. (Bemis-Murcko) with **explicit ScaffoldSplitter(seed=42)** initialization (FR-004)
-- [ ] T019 [US2] Implement `code/04_model_training.py`: Train Linear Regression (alpha=1.0) and Random Forest (100 trees, max_depth=10) on 3 feature sets [UNRESOLVED-CLAIM: c_c934dfb3 — status=not_enough_info] (FR-003)
-- [ ] T020 [US2] Implement `code/04_model_training.py`: Calculate R² and RMSE per fold; aggregate metrics
-- [ ] T021 [US2] Add runtime GPU check (FR-008) using generic CUDA detection (checking `CUDA_VISIBLE_DEVICES` and library-specific GPU flags) to raise `SystemExit(1)` if any GPU acceleration is detected; do not rely on `torch`
-- [ ] T022 [US2] Generate `reports/metrics/model_performance.json` with all metrics and feature importance
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] **T005** [US1] Create the **model‑metrics schema** file.  
+  - Write `specs/001-predicting-molecular-properties-from-top/contracts/model_metrics.schema.yaml` exactly as in the spec (requires `traditional`, `topological`, `combined`, `feature_importance`, `metadata`).  
+  - **Verification**: Loading with `jsonschema` succeeds.
 
 ---
 
-## Phase 5: User Story 3 - Validate Methodological Rigor and Sensitivity (Priority: P3)
+## Phase 2 – Complete the study and validate its evidence  
 
-**Goal**: Perform sensitivity analysis on grid resolution, apply Holm-Bonferroni correction, and run VIF diagnostics.
+| Goal | Run the full analysis, perform statistical checks, and record diagnostics. |
+|------|-----------------------------------------------------------------------------|
 
-**Independent Test**: Inspect logs/reports to confirm sensitivity sweep, corrected p-values, and VIF flags are present.
+- [ ] **T006** [US2] **Train regression models** on the three feature sets with CPU‑only enforcement.  
+  - Load `data/processed/splits.json`.  
+  - Train Ridge Regression (`alpha=1.0`) and Random Forest (`n_estimators=100`, `max_depth=10`, `random_state=42`) for each feature set (traditional, topological, combined) using 5‑fold scaffold CV (FR‑003, FR‑004).  
+  - **CPU‑only guard**: script aborts with an error if `torch.cuda.is_available()` or any `/dev/nvidia*` device is present (FR‑008).  
+  - Write `reports/metrics/model_metrics.json` conforming to `model_metrics.schema.yaml`; include per‑fold R², RMSE, means, and feature‑importance arrays.  
+  - Log the run (seed, split details) to `data/logs/training.log`.  
+  - **Verification**: `pytest code/tests/validate_model_performance.py` exits 0 and the JSON validates; additionally, a test checks that the script exits with non‑zero status when a GPU is artificially detected.
 
-### Implementation for User Story 3
+- [ ] **T007** [US2] **Validate the model‑metrics contract** and presence of sensitivity output.  
+  - Run `pytest code/tests/test_metrics_schema.py` which validates `reports/metrics/model_metrics.json` against the schema and also asserts that `reports/metrics/sensitivity_report.json` exists.  
+  - **Verification**: Test exits 0.
 
-- [ ] T023 [US3] Implement `code/05_sensitivity_analysis.py`: Execute sensitivity sweeps on resolutions including low, medium, and high settings. using the pipeline from T013; measure and report R² variance (FR-006, SC-002); requires outputs from Phase 4 (US2)
-- [ ] T024 [US3] Generate `reports/metrics/sensitivity_analysis.json` aggregating sweep results
-- [ ] T025 [US3] Implement `code/06_diagnostics.py`: Apply Holm-Bonferroni correction to p-values (per plan.md amendment to FR-005, replacing spec's Bonferroni for correlated tests)
-- [ ] T026 [US3] Implement `code/06_diagnostics.py`: Calculate VIF; flag predictors > 5 [UNRESOLVED-CLAIM: c_4937c469 — status=not_enough_info] (FR-007)
-- [ ] T027 [US3] Implement `code/06_diagnostics.py`: Calculate Mutual Information between traditional and topological feature sets (FR-009)
-- [ ] T028 [US3] Generate `reports/metrics/diagnostics.json` with VIF flags, corrected p-values, and MI scores
-- [ ] T029 [US3] Implement `code/07_resource_monitor.py` to log RAM/CPU usage to `reports/metrics/resource_usage.json`; integrate into main pipeline execution context (SC-004)
+- [ ] **T008** [US3] **Sensitivity sweep of vectorization resolution**.  
+  - Extend `code/02_tda_computation.py` with a `--grid` argument. Generate topological feature CSVs for grid sizes 20 × 20 and 30 × 30 (`topological_features_20x20.csv`, `topological_features_30x30.csv`).  
+  - Run `code/05_sensitivity_analysis.py` which, for each grid size (10, 20, 30), re‑trains the models (same hyper‑parameters, same splits) and records mean R² and its standard deviation.  
+  - Write `reports/metrics/sensitivity_report.json` containing a list of objects `{ "grid_size": <int>, "r2_mean": <float>, "r2_std": <float> }`.  
+  - **Verification**: JSON has three entries; `jq length reports/metrics/sensitivity_report.json` returns `3`.
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] **T009** [US3] **Statistical comparison & Bonferroni correction**.  
+  - Using per‑fold R² from `model_metrics.json`, perform paired t‑tests (or Wilcoxon if non‑normal) comparing **combined** vs **traditional** models.  
+  - Apply the plain Bonferroni correction (FR‑005) and write `reports/metrics/bonferroni_diagnostics.json` containing `raw_p_value`, `adjusted_p_value`, and `significant`.  
+  - Also write `reports/metrics/fwer_report.json` with `alpha`, `num_tests`, `rejections`, and `fwer_bound`.  
+  - **Verification**: Helper script checks that `adjusted_p_value = min(raw_p_value * num_tests, 1.0)`.
 
----
+- [ ] **T010** [US3] **Collinearity (VIF) and redundancy (mutual information) diagnostics**.  
+  - Compute Variance Inflation Factor for every predictor **in the Linear Regression model only** (FR‑007). Write `reports/diagnostics/vif_report.json` with `{ "predictor": <str>, "vif": <float> }` and a `flagged` array for VIF > 5. Include a top‑level field `"model_type": "linear_l2"` to certify the source.  
+  - Compute average mutual information between the traditional descriptor matrix and the topological descriptor matrix (FR‑009) using `mutual_info_regression`. Write `reports/diagnostics/mi_report.json` with field `average_mi`.  
+  - **Verification**: Tests confirm the presence of `"model_type": "linear_l2"` and that no VIF entries exist for Random Forest; `mi_report.json` contains a numeric `average_mi`.
 
-## Phase N: Polish & Cross-Cutting Concerns
+- [ ] **T011** [US3] **Redundancy significance warning**.  
+  - Parse `reports/diagnostics/mi_report.json`; if `average_mi < 0.1` emit a warning to `data/logs/mi_warning.log` (do not abort).  
+  - **Verification**: Running the script creates the warning log when appropriate; `code/tests/test_mi_reporting.py` passes.
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] **T012** [US3] **Resource‑monitor wrapper for the full pipeline**.  
+  - Execute the entire sequence (T001 → T010) under `code/07_resource_monitor.py`. The wrapper records peak RAM (GB) and total CPU time (hours) to `reports/metrics/resource_usage.json`.  
+  - Enforce SC‑004 limits: `peak_ram_gb < 6.3` and `cpu_hours < 5.4`. If limits are exceeded, the wrapper exits with a non‑zero status.  
+  - **Verification**: After a successful run, `jq .peak_ram_gb reports/metrics/resource_usage.json` returns a value < 6.3 and `jq .cpu_hours …` < 5.4.
 
-- [ ] T030 [P] Documentation updates: Update `docs/` and `quickstart.md` with specific sections on TDA methodology and reproducibility steps
-- [ ] T031 [P] Code cleanup: Refactor `code/utils/graph_builder.py` to reduce cyclomatic complexity to < 10 [UNRESOLVED-CLAIM: c_316e1e43 — status=not_enough_info]
-- [ ] T032 [P] Performance optimization: Profile `code/02_tda_computation.py` and optimize memory usage to ensure total runtime < 5.4h [UNRESOLVED-CLAIM: c_020a066c — status=not_enough_info] (SC-004)
-- [ ] T033 [P] Additional unit tests: Implement `tests/unit/` for graph builder and persistence utils
-- [ ] T034 [P] Run quickstart.md validation to ensure full pipeline reproducibility
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 completion (requires `tda_features.csv` and `traditional_descriptors.csv`)
-- **User Story 3 (P3)**: Depends on US2 completion (requires model metrics for statistical testing)
-
-### Within Each User Story
-
-- Tests MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] **T013** [US3] **Generate figures, tables, and summary artifacts**.  
+  - Create figures in `reports/figures/`:  
+    1. Example Betti curves and persistence images for a representative molecule.  
+    2. Box‑plots of per‑fold R²/RMSE for each model‑feature set.  
+    3. Sensitivity‑sweep performance curve (grid size vs. R²).  
+  - Produce `reports/metrics/summary_table.csv` joining model performance, Bonferroni‑adjusted p‑values, VIF flags, and average MI.  
+  - **Verification**: All PNG/SVG files open without error; the CSV loads in pandas with expected columns (`model`, `feature_set`, `r2_mean`, `rmse_mean`, `adjusted_p`, `vif_flags`, `average_mi`).
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 3 – Reproducible results and paper hand‑off  
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data/processed/tda_features.csv schema in tests/contract/test_tda_schema.py"
-Task: "Integration test for disconnected graph handling in tests/integration/test_disconnected_graphs.py"
+| Goal | Provide clear documentation and hand‑off artifacts for downstream writing. |
+|------|-----------------------------------------------------------------------------|
 
-# Launch all models for User Story 1 together:
-Task: "Implement code/00_checksum_verify.py to record hashes in data/checksums.txt"
-Task: "Implement code/01_data_ingestion.py: Fetch MoleculeNet ESOL, validate columns"
-```
+- [ ] **T014** [US3] **Quickstart documentation & paper‑stage handoff**.  
+  - Update `specs/001-predicting-molecular-properties-from-top/quickstart.md` with the exact command sequence (including the resource‑monitor wrapper) that reproduces the pipeline from raw data to final artifacts.  
+  - Add a “Paper‑stage handoff” section listing all artifacts the paper pipeline must consume (`model_metrics.json`, `bonferroni_diagnostics.json`, `fwer_report.json`, `summary_table.csv`, all figures, diagnostics JSONs) and a brief note on any negative findings or limitations (e.g., low mutual information, VIF flags).  
+  - **Verification**: Rendering the markdown shows no broken links; a dry‑run of the documented commands reproduces all final files with exit code 0.
 
----
+---  
 
-## Implementation Strategy
+### Dependencies & requirement coverage
 
-### MVP First (User Story 1 Only)
+| Requirement | Task(s) |
+|-------------|---------|
+| FR‑001 (shortest‑path filtration) | T003 |
+| FR‑002 (10 × 10 baseline + target fields) | T003 |
+| FR‑003 (models & feature sets) | T006 |
+| FR‑004 (scaffold CV, seed 42) | T001d |
+| FR‑005 (Bonferroni) | T009 |
+| FR‑006 (resolution sweep) | T008 |
+| FR‑007 (VIF) | T010 |
+| FR‑008 (CPU‑only guard) | T006 |
+| FR‑009 (mutual information) | T010 |
+| SC‑001 (combined vs. traditional R²) | T006 → T009 |
+| SC‑002 (stability across resolutions) | T008 |
+| SC‑003 (FWER ≤ 0.05) | T009 |
+| SC‑004 (resource limits) | T012 |
+| SC‑005 (VIF > 5 flag) | T010 |
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
+**Execution order** (respecting data flow):  
+T001 → T001a → T001b → T001c → T001d → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T009 → T010 → T011 → T012 → T013 → T014.  
 
-### Incremental Delivery
+All tasks together constitute a complete, reproducible CPU‑only study that fulfills the specification, data model, and constitutional constraints.  
 
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+---  
 
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+# End of tasks.md

@@ -1,66 +1,68 @@
-# Quickstart: llmXive follow-up: extending "FastContext: Training Efficient Repository Explorer for Coding Agents"
+# Quickstart: FastContext-Lite
 
 ## Prerequisites
 - Python 3.11+
 - Git
-- Sufficient RAM (recommended for data processing)
-- Disk space: Sufficient capacity for the SWE-bench subset
+- Access to a machine with 7GB+ RAM (GitHub Actions or local).
 
 ## Installation
 
-1.  **Clone and Setup Environment**
-    ```bash
-    cd projects/PROJ-905-llmxive-follow-up-extending-fastcontext
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
+1. **Clone and Setup**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-905-llmxive-follow-up-extending-fastcontext
+   ```
 
-2.  **Download Data**
-    The script below will fetch the SWE-bench Lite subset. Ensure you have sufficient disk space.
-    ```bash
-    python code/main.py --action download_data
-    ```
-    *Note: This step may take time depending on network speed. Checksums are verified automatically.*
+2. **Create Virtual Environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-## Running the Experiment
+3. **Install Dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
+   *Note: This installs `torch==2.2.0+cpu` explicitly to ensure reproducibility on CPU-only runners. `ruff` is installed as a dev dependency only.*
 
-### Step 1: Compute Regularity Scores
-This step analyzes the file structure of all repositories in the dataset.
+## Running the Pipeline
+
+### Step 1: Data Preparation (Ground Truth & Scoring)
+Run the static analysis and ground truth extraction.
 ```bash
-python code/main.py --action score_regularity
+python code/static_analysis.py --input-swe-bench --output-processed
 ```
-*Output*: `data/processed/regularity_scores.csv`
+*This generates `data/processed/regularity_scores.csv` and `data/processed/ground_truth_annotations.csv`.*
 
-### Step 2: Execute FastContext-Lite
-Runs the deterministic engine on the stratified dataset.
-```bash
-python code/main.py --action run_lite
-```
-*Output*: Appends to `data/results/exploration_logs.jsonl`
+### Step 2: Stratification
+The script automatically splits the data into "Regular" and "Irregular" sets based on the median score (using stable sort).
 
-### Step 3: Execute Baseline (Distilled 1.5B)
-Runs the distilled baseline (CPU-optimized). **Warning**: This may take several hours.
+### Step 3: Execution (FastContext-Lite)
+Run the deterministic engine on the "Regular" set.
 ```bash
-python code/main.py --action run_baseline --limit
+python code/fastcontext_lite.py --split Regular --output results
 ```
-*Note*: The `--limit` flag restricts the run to a subset of repositories (the "Regular" set) to ensure the job completes within the 6h CI limit.
 
-### Step 4: Statistical Analysis
-Generates the final comparison metrics.
+### Step 4: Baseline Execution (FastContext-Original)
+Run the original baseline (CPU or quantized GPU if enabled).
 ```bash
-python code/main.py --action analyze
+python code/baseline_runner.py --split Regular --mode cpu --output results
 ```
-*Output*: `data/results/statistical_summary.json`
+
+### Step 5: Analysis
+Generate statistical reports.
+```bash
+python code/analysis.py --input results/metrics.csv --output results/statistical_analysis.json
+```
 
 ## Verification
-To verify the pipeline on a single repository:
+To verify the installation:
 ```bash
-python code/main.py --action verify --repo swe-bench-{identifier}
+pytest tests/unit/test_scoring.py -v
 ```
-This runs the scoring and Lite execution for one repo and prints the metrics to stdout.
+This should pass without errors, confirming the scoring logic and dependencies are correctly installed.
 
 ## Troubleshooting
-- **Memory Error**: If you encounter `MemoryError`, reduce the `--limit` flag or process repositories in smaller batches.
-- **GPU Detected**: The script explicitly checks for CUDA. If a GPU is found, it will warn but proceed in CPU mode. Ensure `CUDA_VISIBLE_DEVICES=""` if you want to force CPU-only behavior in a mixed environment.
-- **Baseline Load Failure**: If the target model fails to load, the script will automatically fall back to the "Rule-Only" baseline and log a warning.
+- **CUDA Error**: If you see CUDA errors, ensure `torch==2.2.0+cpu` is installed. The `requirements.txt` should explicitly pin this.
+- **Memory Error**: If processing large repos, ensure `streaming=True` is used in the dataset loader.
+- **Missing Ground Truth**: Verify that the SWE-bench dataset version matches the one used for annotation extraction.

@@ -1,68 +1,74 @@
+%YAML 1.2
+---
+# SWE-Explore Dataset Schema
+# Defines the structure for raw and curated dataset artifacts
 $schema: http://json-schema.org/draft-07/schema#
-title: SWEExploreDatasetSchema
-description: >
-  Schema for the curated SWE-Explore dataset artifacts.
-  Defines the structure for hard_subset.jsonl and synthetic_issues.jsonl.
+title: SWEExploreDataset
+description: Schema for SWE-Explore benchmark dataset artifacts
 type: object
 required:
   - issue_id
   - repo
-  - base_commit
   - instance_id
   - problem_statement
-  - ground_truth_lines
-  - coverage_score
-  - source_type
+  - base_commit
+  - patch
+  - environment_setup_commit
+  - metadata
 properties:
   issue_id:
     type: string
-    description: Unique identifier for the issue (e.g., "swe-bench/123" or "synthetic/001")
+    description: Unique identifier for the issue (e.g., "sphinx-doc/sphinx#12345")
   repo:
     type: string
-    description: Repository name (e.g., "swe-bench/eval")
-  base_commit:
-    type: string
-    description: Git commit hash for the base code
+    description: Repository identifier (e.g., "sphinx-doc/sphinx")
   instance_id:
     type: string
-    description: Original instance ID from the benchmark
+    description: Unique instance identifier for this run
   problem_statement:
     type: string
-    description: The natural language problem description
-  ground_truth_lines:
-    type: array
-    items:
-      type: integer
-    description: List of line numbers (1-based) that constitute the ground truth solution
-  coverage_score:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: Initial coverage score used to determine 'hard' status
-  source_type:
+    description: The original issue/problem text
+  base_commit:
     type: string
-    enum:
-      - original
-      - synthetic
-    description: Whether this instance is from the original benchmark or synthetically generated
-  mutation_metadata:
+    description: Git commit hash for the base state
+  patch:
+    type: string
+    description: The ground truth patch (solution)
+  environment_setup_commit:
+    type: string
+    description: Commit hash for environment setup
+  metadata:
     type: object
-    description: >
-      Metadata for synthetic issues. Only present if source_type is 'synthetic'.
-      Contains hash of original code and mutation parameters.
+    description: Additional metadata fields
     properties:
-      original_code_hash:
+      initial_coverage:
+        type: number
+        format: float
+        description: Initial retrieval coverage score (0.0 to 1.0)
+      complexity_score:
+        type: number
+        format: float
+        description: Cyclomatic complexity score (diagnostic only)
+      ground_truth_lines:
+        type: array
+        items:
+          type: integer
+        description: List of line numbers changed in the solution
+      retrieved_lines:
+        type: array
+        items:
+          type: integer
+        description: List of retrieved relevant line numbers
+      is_hard:
+        type: boolean
+        description: Whether this instance is in the hard subset
+      synthetic_source:
         type: string
+        nullable: true
+        description: Original issue_id if this is a synthetic mutation
       mutation_type:
         type: string
-        enum:
-          - variable_rename
-          - comment_removal
-          - control_flow_reorder
-          - api_signature_change
-      mutation_params:
-        type: object
-    required:
-      - original_code_hash
-      - mutation_type
-additionalProperties: false
+        nullable: true
+        description: Type of mutation applied (e.g., "variable_rename", "comment_removal")
+    additionalProperties: true
+additionalProperties: true

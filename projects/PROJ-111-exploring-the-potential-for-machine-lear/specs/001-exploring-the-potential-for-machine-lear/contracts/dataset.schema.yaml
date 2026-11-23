@@ -1,11 +1,10 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Processed Spin Configuration Dataset
+title: Processed Spin Dataset Schema
 description: |
-  Schema defining the structure, types, and constraints for the processed
-  spin configuration dataset used for unsupervised learning in the
-  Isotropic Systems Phase Transition project.
-  
-  This dataset is the output of `code/preprocessing.py` (Task T005).
+  JSON Schema defining the structure, types, and constraints for the processed
+  spin configuration dataset used for machine learning in the llmXive pipeline.
+  This schema validates the output of the preprocessing pipeline (T005) before
+  it is consumed by the VAE training or analysis modules.
 type: object
 required:
   - metadata
@@ -13,124 +12,195 @@ required:
 properties:
   metadata:
     type: object
-    description: Global dataset metadata and provenance information.
+    description: Metadata describing the dataset generation and processing parameters.
     required:
       - version
-      - generated_by
-      - generation_timestamp
-      - source_models
+      - model_type
       - lattice_sizes
       - temperature_range
-      - total_samples
-      - normalization_method
+      - seed
+      - preprocessing_params
+      - split_ratios
+      - generated_at
     properties:
       version:
         type: string
-        pattern: '^\\d+\\.\\d+\\.\\d+$'
-        description: Semantic version of the dataset schema (e.g., "1.0.0").
-      generated_by:
+        pattern: "^\\d+\\.\\d+\\.\\d+$"
+        description: Semantic version of the dataset format.
+        example: "1.0.0"
+      model_type:
         type: string
-        const: "code/preprocessing.py"
-        description: The script that generated this dataset.
-      generation_timestamp:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of dataset generation.
-      source_models:
-        type: array
-        items:
-          type: string
-          enum:
-            - "J1-J2 Heisenberg"
-            - "XY"
-        description: List of physical models included in this dataset.
+        enum:
+          - J1-J2_Heisenberg
+          - XY
+        description: The physical model used to generate the raw data.
       lattice_sizes:
         type: array
         items:
           type: integer
           minimum: 1
-        description: List of lattice sizes (L) included (e.g., [16, 24]).
+        description: List of lattice sizes (L) included in this dataset.
+        minItems: 1
+        example: [16, 24]
       temperature_range:
         type: object
         required:
           - min
           - max
+          - step
         properties:
           min:
             type: number
             minimum: 0.0
+            description: Minimum temperature (T).
           max:
             type: number
             minimum: 0.0
-        description: The range of temperatures covered by the dataset.
-      total_samples:
-        type: integer
-        minimum: 1
-        description: Total number of spin configurations in the dataset.
-      normalization_method:
-        type: string
-        const: "unit_length"
-        description: The normalization method applied to spin vectors.
+            description: Maximum temperature (T).
+          step:
+            type: number
+            minimum: 0.0
+            description: Temperature sampling step size.
       seed:
         type: integer
-        description: Random seed used for generation (if applicable).
-      checksum:
-        type: string
-        pattern: '^[a-fA-F0-9]{64}$'
-        description: SHA-256 checksum of the data payload for integrity verification.
-  data:
-    type: array
-    description: List of spin configuration records.
-    items:
-      type: object
-      required:
-        - config_id
-        - model_type
-        - lattice_size
-        - temperature
-        - spins
-        - split
-      properties:
-        config_id:
-          type: string
-          pattern: '^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$'
-          description: Unique UUID for the configuration.
-        model_type:
-          type: string
-          enum:
-            - "J1-J2 Heisenberg"
-            - "XY"
-          description: The physical model this configuration belongs to.
-        lattice_size:
-          type: integer
-          minimum: 1
-          description: The lattice size L (e.g., 16 or 24).
-        temperature:
-          type: number
-          minimum: 0.0
-          description: The temperature T at which this configuration was sampled.
-        spins:
-          type: array
-          description: |
-            Spin vector data. Shape: [3, L, L] for Heisenberg (3 components),
-            or [2, L, L] for XY (2 components). Values are normalized to unit length.
-            Stored as a flat list of floats for JSON compatibility, or as nested arrays.
-          items:
+        minimum: 0
+        description: Random seed used for generation and preprocessing.
+      preprocessing_params:
+        type: object
+        required:
+          - normalization
+          - reshape_format
+        properties:
+          normalization:
+            type: string
+            enum:
+              - unit_norm
+            description: Type of normalization applied to spin vectors.
+          reshape_format:
+            type: string
+            pattern: "^\\[batch, 3, L, L\\]$"
+            description: Expected tensor shape format string.
+      split_ratios:
+        type: object
+        required:
+          - train
+          - val
+        properties:
+          train:
             type: number
-          minItems: 2  # Minimum for XY (2*L*L)
-        split:
-          type: string
-          enum:
-            - "train"
-            - "validation"
-            - "test"
-          description: The dataset split assignment.
-        sampling_index:
-          type: integer
-          minimum: 0
-          description: The index in the original Monte Carlo chain (for autocorrelation analysis).
-        thinning_factor:
-          type: integer
-          minimum: 1
-          description: The factor by which the chain was thinned (>= 2 * tau_int).
-additionalProperties: false
+            minimum: 0.0
+            maximum: 1.0
+            description: Fraction of data allocated to training.
+          val:
+            type: number
+            minimum: 0.0
+            maximum: 1.0
+            description: Fraction of data allocated to validation.
+      generated_at:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of dataset generation.
+  data:
+    type: object
+    description: Container for the actual tensor data split by model and lattice size.
+    required:
+      - J1-J2_Heisenberg
+      - XY
+    properties:
+      J1-J2_Heisenberg:
+        type: object
+        description: Data for the J1-J2 Heisenberg model.
+        additionalProperties:
+          type: object
+          description: Data for a specific lattice size (e.g., "L16", "L24").
+          required:
+            - train
+            - val
+            - temperatures
+          properties:
+            train:
+              type: array
+              description: List of temperature bins, each containing training samples.
+              items:
+                type: object
+                required:
+                  - temperature
+                  - samples
+                properties:
+                  temperature:
+                    type: number
+                    description: The temperature T for this bin.
+                  samples:
+                    type: array
+                    description: 4D array of shape (N, 3, L, L) flattened or encoded.
+                    items:
+                      type: number
+                    minItems: 1
+            val:
+              type: array
+              description: List of temperature bins for validation data.
+              items:
+                type: object
+                required:
+                  - temperature
+                  - samples
+                properties:
+                  temperature:
+                    type: number
+                  samples:
+                    type: array
+                    items:
+                      type: number
+                    minItems: 1
+            temperatures:
+              type: array
+              items:
+                type: number
+              description: List of all temperatures covered in this block.
+      XY:
+        type: object
+        description: Data for the XY model.
+        additionalProperties:
+          type: object
+          required:
+            - train
+            - val
+            - temperatures
+          properties:
+            train:
+              type: array
+              items:
+                type: object
+                required:
+                  - temperature
+                  - samples
+                properties:
+                  temperature:
+                    type: number
+                  samples:
+                    type: array
+                    items:
+                      type: number
+            val:
+              type: array
+              items:
+                type: object
+                required:
+                  - temperature
+                  - samples
+                properties:
+                  temperature:
+                    type: number
+                  samples:
+                    type: array
+                    items:
+                      type: number
+            temperatures:
+              type: array
+              items:
+                type: number
+constraints:
+  - "The sum of train and val split ratios must equal 1.0 (within floating point tolerance)."
+  - "All spin vector components must be normalized such that ||s|| = 1.0."
+  - "Temperature bins must be sorted in ascending order."
+  - "Sample counts per bin must not vary by more than 5 between any two bins (stratification constraint)."

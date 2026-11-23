@@ -1,21 +1,30 @@
+$schema: http://json-schema.org/draft-07/schema#
 type: object
 required:
   - bulk_config_id
   - impurity_species
-  - segregation_energy
+  - alloy_system_id
   - clustering_descriptors
 properties:
   bulk_config_id:
     type: string
-    description: Unique identifier for the bulk configuration
   impurity_species:
     type: string
-    description: Chemical symbol of the impurity species
+  alloy_system_id:
+    type: string
+  clustering_descriptors:
+    type: object
+    required:
+      - rdf_peak
+      - pair_corr
+      - voronoi_count
+    properties:
+      rdf_peak:
+        type: number
+      pair_corr:
+        type: number
+      voronoi_count:
+        type: number
   segregation_energy:
     type: number
-    description: Calculated segregation energy in eV
-  clustering_descriptors:
-    type: array
-    items:
-      type: number
-    description: Array of clustering descriptor values
+    nullable: true

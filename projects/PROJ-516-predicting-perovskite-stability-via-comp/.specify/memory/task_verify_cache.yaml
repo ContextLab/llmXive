@@ -1,0 +1,57 @@
+T001:
+  c: true
+  h: dc47cec1e5abec1bbf456e9c08bb1d0bd7c74f94fcf791b4a3b39dc359d1fd7e
+  r: The evidence shows that the project root contains the six required directories
+    (`code/`, `data/raw/`, `data/processed/`, `tests/`, `docs/`, `state/`), each with
+    files (e.g., `.gitkeep`) confirming they exist and are not empty. No required
+    directory is missing.
+  sig: 37a5cb0c254564eea8d4008dbd0360ab6b67403bdedff3e13deafe49e6d000c4
+T002:
+  c: false
+  h: a24996b58b6f073e8c027b0c79176198c07bc8980455fddd759a3258d57a081c
+  r: "The `code/requirements.txt` file exists and contains the required pinned versions,\
+    \ but the recorded test (`tests/test_requirements_install.py`) shows that `pip\
+    \ install -r code/requirements.txt` fails (exit code\u202F1) because the specified\
+    \ `mp-api==0.38.5` cannot be installed in the Python\u202F3.11 environment. The\
+    \ installation must succeed in a fresh virtual environment for the task to be\
+    \ considered complete."
+  sig: 4fad9ccf8d65f1ced717ae0688a08c0581e9007fa60d48d8fe0f229f70c76a9d
+T003:
+  c: true
+  h: 6956269e5b20733a852a8d99083c4c911e0fc8c8769033d337b07c6f1d713346
+  r: "Checked `docs/quickstart.md` and `README.md`; both files exist, contain substantive\
+    \ non\u2011comment text, and include the required sections \u201CProject overview\u201D\
+    , \u201CInstallation\u201D, and \u201CRunning the pipeline\u201D."
+  sig: 6ae04ccc28e785303da1256d556471f1c502aeb1b6449ace49b56743c3e8bf3b
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.env` file, configuration script, or documentation was presented showing
+    that API keys for Materials Project and NREL have been set up and managed via
+    environment variables. The required artifact is missing, so the task is not satisfied.
+T019:
+  c: false
+  h: 86c0f6d2a8a0c60b9a89c1b0ce5fc9bde3fc8a06cd99769c519f5a284e44e764
+  r: "The required integration test file `tests/integration/test_pipeline_runtime.py`\
+    \ is missing, so no test exists to verify the full pipeline runtime constraint.\
+    \ The task\u2019s primary artifact is absent, making the implementation incomplete."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or output logs were provided to demonstrate a grid\u2011\
+    search implementation that enforces a hard limit of ten or fewer hyperparameter\
+    \ combinations per model, nor any evidence that the resulting metrics are recorded.\
+    \ The required artifact is missing."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, logs, or documentation were provided that demonstrate RMSE,\
+    \ R\xB2, MAE tracking or the recording of the best hyperparameters. The claim\
+    \ cannot be verified without concrete artifacts, so the required implementation\
+    \ is missing."
+T041:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: The required file `contracts/metadata.schema.yaml` does not exist (the only listed
+    artifact is a missing `schema.yaml`). Without the schema file, the explicit fields
+    cannot be enforced, so the task is not satisfied.

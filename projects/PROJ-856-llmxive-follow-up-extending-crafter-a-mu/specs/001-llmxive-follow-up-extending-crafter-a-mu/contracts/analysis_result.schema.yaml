@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "AnalysisResult",
+  "type": "object",
+  "required": [
+    "metric",
+    "test_used",
+    "statistic",
+    "p_value_raw",
+    "p_value_corrected",
+    "effect_size",
+    "ci_95_lower",
+    "ci_95_upper",
+    "n_participants"
+  ],
+  "properties": {
+    "metric": {
+      "type": "string",
+      "enum": ["time_to_success_ms", "iteration_count", "subjective_load"]
+    },
+    "test_used": {
+      "type": "string",
+      "enum": ["wilcoxon", "paired_t"]
+    },
+    "statistic": {
+      "type": "number"
+    },
+    "p_value_raw": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "p_value_corrected": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "effect_size": {
+      "type": "number"
+    },
+    "ci_95_lower": {
+      "type": "number"
+    },
+    "ci_95_upper": {
+      "type": "number"
+    },
+    "n_participants": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "mixed_effects": {
+      "type": "object",
+      "required": ["interface_coef", "interface_p", "model_summary"],
+      "properties": {
+        "interface_coef": {
+          "type": ["number", "null"]
+        },
+        "interface_p": {
+          "type": ["number", "null"]
+        },
+        "model_summary": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

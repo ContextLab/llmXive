@@ -1,0 +1,28 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Final Report Metadata Schema
+description: JSON schema for the metadata section of results/final_report.json. This schema validates the structured metadata extracted from the final Markdown report, not the Markdown formatting itself.
+type: object
+required:
+  - title
+  - summary
+  - methodological_limitations
+  - associational_disclaimer
+properties:
+  title:
+    type: string
+    description: The title of the final report.
+    minLength: 1
+  summary:
+    type: string
+    description: A concise summary of the report's findings.
+    minLength: 1
+  methodological_limitations:
+    type: array
+    description: A list of strings describing methodological limitations or concerns identified during the analysis.
+    items:
+      type: string
+      minLength: 1
+  associational_disclaimer:
+    type: boolean
+    description: True if the report explicitly states that the findings are associational and not causal.
+additionalProperties: false

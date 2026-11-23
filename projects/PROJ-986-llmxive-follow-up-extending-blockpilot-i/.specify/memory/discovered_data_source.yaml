@@ -1,0 +1,10 @@
+status: none
+intent: download GSM8K and HumanEval datasets as pip installable python package dataset
+required_fields:
+- prompt
+- reference_solution
+- dataset_name
+- question_id
+cache_key: 5484566a8a07f746477a64e65446a1e1e828a038a83c308cf9a5ea6d99b7d664
+searched_at: '2026-10-21T12:34:35.271777+00:00'
+retry_count: 1

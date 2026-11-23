@@ -1,0 +1,21 @@
+# Black configuration for llm-code-review-impact
+# Line length and target version defined in pyproject.toml
+# This file exists for IDE compatibility
+
+line-length = 100
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''

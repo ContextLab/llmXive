@@ -1,0 +1,10 @@
+status: none
+intent: download BIG-bench reasoning dataset and validation sets python package dataset
+required_fields:
+- question_id
+- task_name
+- question_text
+- answer
+cache_key: 8b93418c40d42adf9d39dd5def9d7047786b3bc70bdc1ddbbcf3e914e848bb6d
+searched_at: '2026-08-20T00:05:56.802198+00:00'
+retry_count: 1

@@ -1,0 +1,33 @@
+T001:
+  c: true
+  h: ef40938b3c1cb8fafbd13ecb4fb5c3aa8bb5756d78ef80e5abe34838764d1a9d
+  r: "The directory tree is present (src/, tests/, data/, data/raw/, data/processed/,\
+    \ data/results/, docs/, contracts/, config/) as shown by the collector\u2019s\
+    \ directory listings, and the verification file `docs/directory_structure.txt`\
+    \ contains the expected nine entries. The pytest test `tests/test_directory_structure.py`\
+    \ also passed, confirming the file\u2019s existence and correctness."
+  sig: 7a1df473d6b2eaab8dbfe7edf9bf570ea2014c0e3639da42a122e807aac6e94d
+T002:
+  c: true
+  h: 9b8abc5f4fceb3f4133bb8cdc681c364e2c9052e75f90626037a0068defa1ce7
+  r: "Checked the three contract schema files (`contracts/unified_dataset.schema.yaml`,\
+    \ `contracts/model_output.schema.yaml`, `contracts/weekly_aggregates.schema.yaml`)\
+    \ which are present and contain appropriate JSON\u2011Schema definitions, and\
+    \ verified the `src/utils/validate_schema.py` script exists and runs successfully\
+    \ (exit\u202F0) with tests (`tests/contract/test_validate_schema.py`) confirming\
+    \ it creates `logs/schema_validation.log` and validates all schemas."
+  sig: 479de851198f366bdc776a3ee206384b9c196f853b2820f7da059ad9bfa4a402
+T011:
+  c: false
+  h: 96296957c986942207ca42fece3101dbc6c07a5fb8bfb6ab4fee27a3faa9f70a
+  r: "The required file `tests/integration/test_full_pipeline.py` does not exist,\
+    \ so no integration test is present to verify end\u2011to\u2011end data ingestion\
+    \ as specified. The task\u2019s primary artifact is missing, making the claim\
+    \ of completion invalid."
+T020:
+  c: true
+  h: bf2899a226f14fd668e90b4bb31163ef5578486a2964f0e8745d5b3184c9f388
+  r: "Checked `config/random_seed.yaml` (contains seed\u202F42) and `src/utils/set_seed.py`\
+    \ (defines `DEFAULT_SEED = 42`, seeds `random`, `numpy`, and `torch` when available,\
+    \ and writes the seed file). The script fulfills the required behavior."
+  sig: 16ad8c25d12a0db78f0564fb98b8f646a88e98e914a16fff22ad85a1f62086fd

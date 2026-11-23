@@ -1,62 +1,46 @@
-$schema: http://json-schema.org/draft-07/schema#
+$schema: "http://json-schema.org/draft-07/schema#"
 title: PowerEstimate
-description: Schema for baseline power analysis results conforming to User Story 1.
+description: Schema for baseline power analysis results (T014)
 type: object
 required:
   - dataset_id
-  - dataset_type
-  - n_samples
   - theoretical_power
   - empirical_power
   - absolute_error
-  - status
 properties:
   dataset_id:
     type: string
-    description: Unique identifier for the dataset.
-  dataset_type:
-    type: string
-    enum: [continuous, count, binary]
-    description: Type of the outcome variable.
-  n_samples:
+    description: The ID of the dataset used
+  n_obs:
     type: integer
-    minimum: 30
-    description: Number of samples used in the analysis after cleaning.
-  theoretical_power:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: Power calculated using standard theoretical methods (e.g., statsmodels).
-  empirical_power:
-    type: number
-    minimum: 0.0
-    maximum: 1.0
-    description: Power estimated via bootstrap simulation.
-  absolute_error:
-    type: number
-    minimum: 0.0
-    description: Absolute difference between theoretical and empirical power.
+    description: Number of observations after cleaning
+  is_binary:
+    type: boolean
+    description: Whether the outcome variable is binary
   status:
     type: string
-    enum: [completed, skipped, excluded, error]
-    description: Status of the analysis for this dataset.
+    enum:
+      - completed
+      - skipped
+      - excluded_unreliable
+      - error
+    description: Status of the analysis
   reason:
     type: string
-    nullable: true
-    description: Reason for skipping or exclusion (if applicable).
-  validation:
-    type: object
-    description: Validation details from the bootstrap check.
-    properties:
-      is_valid:
-        type: boolean
-      details:
-        type: object
-  bootstrap_stats:
-    type: object
-    description: Additional statistics from the bootstrap simulation.
-  error_message:
-    type: string
-    nullable: true
-    description: Error message if status is 'error'.
-additionalProperties: false
+    description: Reason for skipping or error, if applicable
+  theoretical_power:
+    type: number
+    description: Theoretical power calculated via statsmodels
+  empirical_power:
+    type: number
+    description: Empirical power estimated via bootstrap
+  absolute_error:
+    type: number
+    description: Absolute difference between theoretical and empirical
+  bootstrap_iterations:
+    type: integer
+    description: Number of bootstrap iterations performed
+  validation_passed:
+    type: boolean
+    description: Whether the bootstrap validity check passed
+additionalProperties: true

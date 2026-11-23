@@ -5,43 +5,40 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def celsius_to_kelvin(temp_c: Union[int, float]) -> float:
-    """Converts temperature from Celsius to Kelvin."""
-    return float(temp_c) + 273.15
+def celsius_to_kelvin(temp_c: float) -> float:
+    """Convert temperature from Celsius to Kelvin."""
+    return temp_c + 273.15
 
-def pascal_to_gpa(pressure_pa: Union[int, float]) -> float:
-    """Converts pressure from Pascals to GigaPascals."""
-    return float(pressure_pa) / 1e9
+def pascal_to_gpa(pressure_pa: float) -> float:
+    """Convert pressure/stress from Pascal to GPa."""
+    return pressure_pa * 1e-9
 
-def validate_weight_fractions(
-    fractions: List[float], 
-    tolerance: float = 0.02
-) -> bool:
+def validate_weight_fractions(weights: List[float], tolerance: float = 0.02) -> bool:
     """
-    Validates that weight fractions sum to approximately 1.0.
+    Validate that weight fractions sum to approximately 1.0.
     
     Args:
-        fractions: List of weight fractions.
-        tolerance: Allowed deviation from 1.0 (default 0.02).
+        weights: List of weight fractions
+        tolerance: Allowed deviation from 1.0
         
     Returns:
-        True if sum is within tolerance, False otherwise.
+        True if sum is within tolerance, False otherwise
     """
-    if not fractions:
+    if not weights:
         return False
     
-    total = sum(fractions)
+    total = sum(weights)
     return abs(total - 1.0) <= tolerance
 
 def is_valid_smiles(smiles: str) -> bool:
     """
-    Checks if a SMILES string is valid using RDKit.
+    Validate SMILES string using RDKit.
     
     Args:
-        smiles: The SMILES string to validate.
+        smiles: SMILES string to validate
         
     Returns:
-        True if valid, False otherwise.
+        True if valid, False otherwise
     """
     if not smiles or not isinstance(smiles, str):
         return False
@@ -50,19 +47,20 @@ def is_valid_smiles(smiles: str) -> bool:
         mol = Chem.MolFromSmiles(smiles)
         return mol is not None
     except Exception as e:
-        logger.debug(f"SMILES validation error for '{smiles}': {e}")
+        logger.warning(f"SMILES validation failed for '{smiles}': {e}")
         return False
 
 def parse_smiles_to_mol(smiles: str):
     """
-    Parses a SMILES string into an RDKit Mol object.
+    Parse SMILES string to RDKit Mol object.
     
     Args:
-        smiles: The SMILES string.
+        smiles: SMILES string
         
     Returns:
-        RDKit Mol object or None if invalid.
+        RDKit Mol object or None if parsing fails
     """
     if not is_valid_smiles(smiles):
         return None
+    
     return Chem.MolFromSmiles(smiles)

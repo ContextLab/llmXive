@@ -1,3 +1,3 @@
 """
-llmXive Research Pipeline - Results Module
+Results directory for reports, plots, and metrics.
 """

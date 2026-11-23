@@ -1,0 +1,48 @@
+# Descriptor Registry Configuration
+# This file defines the molecular descriptors to be calculated for the adsorption isotherm prediction pipeline.
+# Each entry specifies the descriptor name, the calculation method, and any required parameters.
+
+descriptors:
+  - name: kinetic_diameter
+    method: rdkit_calculation
+    parameters:
+      formula: "sqrt(4 * CalcTPSA(mol) / PI)"
+      fallback: null  # No fallback allowed per constraints
+    description: "Kinetic diameter estimated from Topological Polar Surface Area (TPSA)"
+    
+  - name: lj_epsilon
+    method: critical_properties
+    parameters:
+      formula: "0.75 * Tc"
+      tc_formula: "1.5 * (Pc * Vc / R)"
+      required_columns:
+        - critical_pressure
+        - critical_volume
+      fallback: null  # Exclude row if missing
+    description: "Lennard-Jones energy parameter estimated from critical properties"
+    
+  - name: quadrupole_moment
+    method: psi4_calculation
+    parameters:
+      method: "b3lyp"
+      basis: "def2-svp"
+      charge: 0
+      multiplicity: 1
+      origin: "center_of_mass"
+      component: "0,0"  # Extract Q_xx component
+      fallback: null  # No fallback allowed per constraints
+    description: "Quadrupole moment calculated via PSI4 quantum chemistry"
+    
+  - name: polarizability
+    method: rdkit_calculation
+    parameters:
+      function: "CalcPolarizability"
+      fallback: null  # No fallback allowed per constraints
+    description: "Molecular polarizability calculated using RDKit"
+    
+  - name: vdw_volume
+    method: rdkit_calculation
+    parameters:
+      function: "CalcVdWVolume"
+      fallback: null  # No fallback allowed per constraints
+    description: "Van der Waals volume calculated using RDKit"

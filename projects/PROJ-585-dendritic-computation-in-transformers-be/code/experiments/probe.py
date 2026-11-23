@@ -1,11 +1,9 @@
 """
 Probe intermediate layer representations with linear classifiers.
 
-This module trains linear classifiers on the hidden states of intermediate
-transformer layers to probe the representational quality of the model at
-different depths. It supports multiple random seeds for statistical power.
+This module implements Task T025: Train linear classifiers on intermediate
+layer representations for multiple random seeds to enable statistical analysis.
 """
-
 import os
 import sys
 import argparse
@@ -14,33 +12,28 @@ import json
 import csv
 import random
 from pathlib import Path
-from typing import List, Dict, Tuple, Optional, Any
+from typing import List, Dict, Any, Tuple, Optional
 
 import torch
 import torch.nn as nn
+import torch.optim as optim
 from torch.utils.data import DataLoader, TensorDataset
 import numpy as np
-from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import accuracy_score
-from sklearn.preprocessing import StandardScaler
-
-# Add project root to path to resolve imports
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from experiments.train import load_sst2_data
-from models.transformer_base import TransformerBaseline
-from models.transformer_dendritic import TransformerDendritic
-from config.config import load_config
+from datasets import load_dataset
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
+# Constants
+DEFAULT_SEEDS = [42, 123, 456, 789, 1011]
+DEFAULT_EPOCHS = 10
+DEFAULT_LR = 0.01
+DEFAULT_BATCH_SIZE = 32
+DEFAULT_PROB_THRESHOLD = 0.5
 
 def set_seed(seed: int) -> None:
     """Set random seeds for reproducibility."""
@@ -50,394 +43,361 @@ def set_seed(seed: int) -> None:
     if torch.cuda.is_available():
         torch.cuda.manual_seed_all(seed)
 
-
-def load_checkpoint(checkpoint_path: str, model_type: str = "baseline") -> Tuple[Any, dict]:
-    """
-    Load a model checkpoint and return the model and its config.
-
-    Args:
-        checkpoint_path: Path to the checkpoint file (.pt)
-        model_type: Either "baseline" or "dendritic"
-
-    Returns:
-        Tuple of (model, config_dict)
-    """
+def load_checkpoint(checkpoint_path: str) -> Dict[str, Any]:
+    """Load a model checkpoint."""
     if not os.path.exists(checkpoint_path):
         raise FileNotFoundError(f"Checkpoint not found: {checkpoint_path}")
-
-    checkpoint = torch.load(checkpoint_path, map_location='cpu', weights_only=False)
-    config = checkpoint.get('config', {})
-
-    if model_type == "baseline":
-        model = TransformerBaseline(config)
-    elif model_type == "dendritic":
-        model = TransformerDendritic(config)
-    else:
-        raise ValueError(f"Unknown model_type: {model_type}")
-
-    model.load_state_dict(checkpoint['model_state_dict'])
-    model.eval()
-    logger.info(f"Loaded checkpoint from {checkpoint_path} for {model_type} model")
-    return model, config
-
+    logger.info(f"Loading checkpoint from {checkpoint_path}")
+    checkpoint = torch.load(checkpoint_path, map_location='cpu')
+    return checkpoint
 
 def extract_layer_features(
-    model: Any,
+    model: torch.nn.Module,
     dataloader: DataLoader,
     layer_indices: List[int],
-    device: str = 'cpu'
-) -> Dict[int, List[np.ndarray]]:
+    device: torch.device
+) -> Dict[int, List[Tuple[np.ndarray, np.ndarray]]]:
     """
-    Extract hidden states from specified layers for all samples in the dataset.
+    Extract features from specified layers for all samples in the dataset.
 
     Args:
-        model: The transformer model
-        dataloader: DataLoader containing the input data
-        layer_indices: List of layer indices to extract features from
-        device: Device to run inference on
+        model: The trained transformer model.
+        dataloader: DataLoader containing the dataset.
+        layer_indices: List of layer indices to extract features from.
+        device: Device to run inference on.
 
     Returns:
-        Dict mapping layer index to list of feature arrays (one per sample)
+        Dictionary mapping layer index to list of (features, labels) tuples.
     """
-    model.to(device)
     model.eval()
+    layer_features: Dict[int, List[Tuple[np.ndarray, np.ndarray]]] = {
+        idx: [] for idx in layer_indices
+    }
 
-    features_by_layer = {idx: [] for idx in layer_indices}
+    # Hook to capture layer outputs
+    hooks = []
+    captured_outputs: Dict[int, torch.Tensor] = {}
 
-    with torch.no_grad():
-        for batch in dataloader:
-            # Handle different batch structures
-            if isinstance(batch, dict):
+    def get_layer_hook(layer_idx):
+        def hook_fn(module, input, output):
+            captured_outputs[layer_idx] = output[0] if isinstance(output, tuple) else output
+        return hook_fn
+
+    try:
+        # Register hooks
+        for idx in layer_indices:
+            # Assuming model has a 'layers' or 'encoder' attribute with indexed layers
+            # Adjust based on actual model structure
+            try:
+                layer = model.model.layers[idx]
+            except (AttributeError, IndexError):
+                try:
+                    layer = model.encoder.layer[idx]
+                except (AttributeError, IndexError):
+                    logger.warning(f"Could not access layer {idx}, skipping")
+                    continue
+            hooks.append(layer.register_forward_hook(get_layer_hook(idx)))
+
+        with torch.no_grad():
+            for batch in dataloader:
                 input_ids = batch['input_ids'].to(device)
                 attention_mask = batch['attention_mask'].to(device)
-                labels = batch['labels'].to(device) if 'labels' in batch else None
-            else:
-                # Assume tuple: (input_ids, attention_mask, labels)
-                input_ids, attention_mask, labels = batch[0].to(device), batch[1].to(device), batch[2].to(device)
+                labels = batch['label'].to(device)
 
-            # Forward pass with hook to capture intermediate features
-            layer_outputs = {}
-
-            def get_layer_output(layer_idx):
-                def hook_fn(module, input, output):
-                    # Output is typically (batch, seq_len, hidden_dim)
-                    if isinstance(output, tuple):
-                        output = output[0]
-                    layer_outputs[layer_idx] = output.detach().cpu().numpy()
-                return hook_fn
-
-            hooks = []
-            for idx in layer_indices:
-                # Access the specific layer (assumes model has 'layers' or 'encoder.layer' attribute)
+                # Forward pass
                 try:
-                    if hasattr(model, 'layers'):
-                        layer = model.layers[idx]
-                    elif hasattr(model, 'encoder') and hasattr(model.encoder, 'layer'):
-                        layer = model.encoder.layer[idx]
-                    else:
-                        logger.warning(f"Could not access layer {idx} in model. Skipping.")
-                        continue
-                    hooks.append(layer.register_forward_hook(get_layer_output(idx)))
-                except (IndexError, AttributeError) as e:
-                    logger.warning(f"Could not register hook for layer {idx}: {e}")
-                    continue
+                    outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+                except TypeError:
+                    # Fallback for models that don't accept attention_mask
+                    outputs = model(input_ids=input_ids)
 
-            try:
-                _ = model(input_ids=input_ids, attention_mask=attention_mask)
-            except Exception as e:
-                logger.error(f"Forward pass failed: {e}")
-                raise
+                # Extract features for each layer
+                for idx in layer_indices:
+                    if idx in captured_outputs:
+                        features = captured_outputs[idx].cpu().numpy()
+                        # Mean pool over sequence dimension if necessary
+                        if len(features.shape) > 2:
+                            features = features.mean(axis=1)
+                        layer_features[idx].append((features, labels.cpu().numpy()))
+    finally:
+        # Remove hooks
+        for hook in hooks:
+            hook.remove()
 
-            # Remove hooks
-            for hook in hooks:
-                hook.remove()
+    # Flatten lists
+    for idx in layer_indices:
+        if layer_features[idx]:
+            all_features, all_labels = zip(*layer_features[idx])
+            layer_features[idx] = (
+                np.vstack(all_features),
+                np.concatenate(all_labels)
+            )
 
-            # Process batch outputs
-            batch_size = input_ids.size(0)
-            for idx in layer_indices:
-                if idx in layer_outputs:
-                    out = layer_outputs[idx]
-                    # out shape: (batch, seq_len, hidden) -> pool to (batch, hidden)
-                    # Use mean pooling over sequence length
-                    pooled = out.mean(axis=1)  # (batch, hidden)
-                    for i in range(batch_size):
-                        features_by_layer[idx].append(pooled[i])
-
-    return features_by_layer
-
+    return layer_features
 
 def train_linear_probe(
-    train_features: np.ndarray,
-    train_labels: np.ndarray,
-    test_features: np.ndarray,
-    test_labels: np.ndarray,
+    features: np.ndarray,
+    labels: np.ndarray,
+    num_classes: int = 2,
+    epochs: int = DEFAULT_EPOCHS,
+    lr: float = DEFAULT_LR,
+    batch_size: int = DEFAULT_BATCH_SIZE,
     seed: int = 42
-) -> Tuple[float, LogisticRegression]:
+) -> Tuple[float, float]:
     """
-    Train a linear probe (Logistic Regression) on features.
+    Train a linear probe on the given features.
 
     Args:
-        train_features: Training features (n_samples, n_features)
-        train_labels: Training labels
-        test_features: Test features
-        test_labels: Test labels
-        seed: Random seed
+        features: Feature matrix (N, D).
+        labels: Labels (N,).
+        num_classes: Number of output classes.
+        epochs: Number of training epochs.
+        lr: Learning rate.
+        batch_size: Batch size.
+        seed: Random seed.
 
     Returns:
-        Tuple of (accuracy, trained_model)
+        Tuple of (train_accuracy, val_accuracy).
     """
     set_seed(seed)
+    device = torch.device('cpu')
 
-    # Standardize features
-    scaler = StandardScaler()
-    train_features_scaled = scaler.fit_transform(train_features)
-    test_features_scaled = scaler.transform(test_features)
+    # Split data: 80% train, 20% val
+    n_samples = len(features)
+    indices = np.random.permutation(n_samples)
+    split_idx = int(0.8 * n_samples)
 
-    # Train logistic regression
-    clf = LogisticRegression(
-        max_iter=1000,
-        random_state=seed,
-        solver='lbfgs',
-        multi_class='auto'
+    train_idx = indices[:split_idx]
+    val_idx = indices[split_idx:]
+
+    X_train, y_train = features[train_idx], labels[train_idx]
+    X_val, y_val = features[val_idx], labels[val_idx]
+
+    # Convert to tensors
+    X_train_tensor = torch.FloatTensor(X_train).to(device)
+    y_train_tensor = torch.LongTensor(y_train).to(device)
+    X_val_tensor = torch.FloatTensor(X_val).to(device)
+    y_val_tensor = torch.LongTensor(y_val).to(device)
+
+    # Create data loaders
+    train_dataset = TensorDataset(X_train_tensor, y_train_tensor)
+    val_dataset = TensorDataset(X_val_tensor, y_val_tensor)
+
+    train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+
+    # Define linear probe
+    input_dim = X_train.shape[1]
+    probe = nn.Linear(input_dim, num_classes).to(device)
+
+    criterion = nn.CrossEntropyLoss()
+    optimizer = optim.Adam(probe.parameters(), lr=lr)
+
+    # Training loop
+    probe.train()
+    for epoch in range(epochs):
+        total_loss = 0
+        for batch_X, batch_y in train_loader:
+            optimizer.zero_grad()
+            outputs = probe(batch_X)
+            loss = criterion(outputs, batch_y)
+            loss.backward()
+            optimizer.step()
+            total_loss += loss.item()
+
+    # Evaluation
+    probe.eval()
+    correct_train = 0
+    total_train = 0
+    correct_val = 0
+    total_val = 0
+
+    with torch.no_grad():
+        for batch_X, batch_y in train_loader:
+            outputs = probe(batch_X)
+            _, predicted = torch.max(outputs, 1)
+            total_train += batch_y.size(0)
+            correct_train += (predicted == batch_y).sum().item()
+
+        for batch_X, batch_y in val_loader:
+            outputs = probe(batch_y)
+            _, predicted = torch.max(outputs, 1)
+            total_val += batch_y.size(0)
+            correct_val += (predicted == batch_y).sum().item()
+
+    train_acc = correct_train / total_train
+    val_acc = correct_val / total_val
+
+    logger.info(f"Probe trained: Train Acc={train_acc:.4f}, Val Acc={val_acc:.4f}")
+    return train_acc, val_acc
+
+def load_sst2_data() -> Tuple[DataLoader, DataLoader, int]:
+    """
+    Load SST-2 dataset using the verified source from T006.
+    Returns train and val dataloaders, and number of classes.
+    """
+    logger.info("Loading SST-2 dataset...")
+    try:
+        # Use the exact loading method from T006
+        dataset = load_dataset('glue', 'sst2', trust_remote_code=True)
+    except Exception as e:
+        logger.error(f"Failed to load SST-2: {e}")
+        raise
+
+    # Preprocess
+    def preprocess(examples):
+        tokenizer = None
+        try:
+            from transformers import AutoTokenizer
+            tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
+        except ImportError:
+            logger.warning("Transformers not installed, using simple tokenization")
+            # Fallback: simple tokenization
+            def simple_tokenize(text):
+                return [ord(c) % 32 for c in text[:512]]
+            return {
+                'input_ids': [simple_tokenize(t) for t in examples['sentence']],
+                'attention_mask': [[1]*len(t) for t in examples['sentence']],
+                'label': examples['label']
+            }
+
+        encoded = tokenizer(
+            examples['sentence'],
+            truncation=True,
+            padding='max_length',
+            max_length=128
+        )
+        encoded['label'] = examples['label']
+        return encoded
+
+    # Apply preprocessing
+    tokenized_datasets = dataset.map(
+        preprocess,
+        batched=True,
+        remove_columns=['sentence', 'label'] if 'sentence' in dataset['train'].column_names else ['label']
     )
-    clf.fit(train_features_scaled, train_labels)
 
-    # Evaluate
-    train_pred = clf.predict(train_features_scaled)
-    test_pred = clf.predict(test_features_scaled)
+    # Create dataloaders
+    train_dataset = tokenized_datasets['train']
+    val_dataset = tokenized_datasets['validation']
 
-    train_acc = accuracy_score(train_labels, train_pred)
-    test_acc = accuracy_score(test_labels, test_pred)
+    train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
+    val_loader = DataLoader(val_dataset, batch_size=32, shuffle=False)
 
-    logger.info(f"Linear Probe - Train Acc: {train_acc:.4f}, Test Acc: {test_acc:.4f}")
-
-    return test_acc, clf
-
+    return train_loader, val_loader, 2
 
 def main():
-    parser = argparse.ArgumentParser(description="Probe intermediate layer representations")
-    parser.add_argument(
-        "--input-dir",
-        type=str,
-        required=True,
-        help="Directory containing model checkpoints"
-    )
-    parser.add_argument(
-        "--output-dir",
-        type=str,
-        default="artifacts/results",
-        help="Directory to save probe results"
-    )
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="code/config/config.yaml",
-        help="Path to config file"
-    )
-    parser.add_argument(
-        "--seeds",
-        type=int,
-        nargs='+',
-        default=[42, 123, 456],
-        help="List of random seeds for probing"
-    )
-    parser.add_argument(
-        "--layers",
-        type=int,
-        nargs='+',
-        default=None,
-        help="Specific layers to probe (default: all layers)"
-    )
-    parser.add_argument(
-        "--model-type",
-        type=str,
-        choices=["baseline", "dendritic", "both"],
-        default="both",
-        help="Which model type to probe"
-    )
+    """Main entry point for probing experiments."""
+    parser = argparse.ArgumentParser(description='Probe intermediate layer representations')
+    parser.add_argument('--input-dir', type=str, default='data/experiments/',
+                        help='Directory containing model checkpoints')
+    parser.add_argument('--output-dir', type=str, default='artifacts/results/',
+                        help='Directory to save probing results')
+    parser.add_argument('--seeds', type=str, default=','.join(map(str, DEFAULT_SEEDS)),
+                        help='Comma-separated list of random seeds')
+    parser.add_argument('--layers', type=str, default='0,6,12',
+                        help='Comma-separated list of layer indices to probe')
+    parser.add_argument('--epochs', type=int, default=DEFAULT_EPOCHS,
+                        help='Number of training epochs for probes')
+    parser.add_argument('--lr', type=float, default=DEFAULT_LR,
+                        help='Learning rate for probes')
+    parser.add_argument('--batch-size', type=int, default=DEFAULT_BATCH_SIZE,
+                        help='Batch size for probes')
 
     args = parser.parse_args()
 
-    # Setup
-    config = load_config(args.config)
+    # Parse arguments
+    seeds = [int(s) for s in args.seeds.split(',')]
+    layers = [int(l) for l in args.layers.split(',')]
+
+    # Create output directory
     os.makedirs(args.output_dir, exist_ok=True)
 
-    # Load SST-2 data (using the same loader as training)
-    logger.info("Loading SST-2 data...")
-    dataset = load_sst2_data()
-    # Assume dataset is a dict with 'train', 'validation', 'test' keys
-    # We'll use train for training probe, validation for testing
-    if 'train' in dataset and 'validation' in dataset:
-        train_data = dataset['train']
-        test_data = dataset['validation']
-    else:
-        # Fallback if structure is different
-        train_data = dataset['train']
-        test_data = dataset['test'] if 'test' in dataset else dataset['validation']
+    # Load SST-2 data
+    train_loader, val_loader, num_classes = load_sst2_data()
+    device = torch.device('cpu')
 
-    # Prepare dataloaders
-    # We need to extract features, so we'll create a simple tensor dataset
-    # Note: This assumes the data loader returns (input_ids, attention_mask, labels)
-    # For probing, we need to run inference on the model to get features
-    
-    # Since we can't easily batch the feature extraction with the model in the loop,
-    # we'll iterate through the dataset and collect features
-    
-    # For efficiency, we'll use a small subset for probing if the dataset is huge
-    # But for SST-2, it's small enough to process all
-    
-    train_inputs = []
-    train_labels = []
-    test_inputs = []
-    test_labels = []
-
-    # Assuming dataset items are dicts with 'input_ids', 'attention_mask', 'label'
-    for item in train_data:
-        train_inputs.append({
-            'input_ids': item['input_ids'],
-            'attention_mask': item['attention_mask']
-        })
-        train_labels.append(item['label'])
-
-    for item in test_data:
-        test_inputs.append({
-            'input_ids': item['input_ids'],
-            'attention_mask': item['attention_mask']
-        })
-        test_labels.append(item['label'])
-
-    train_labels = np.array(train_labels)
-    test_labels = np.array(test_labels)
-
-    # Create a simple loader for feature extraction
-    # We'll process one by one to avoid memory issues
-    
-    # Determine layers to probe
-    # Default: probe all layers (assuming 12 layers for BERT-base)
-    if args.layers is None:
-        # We'll try to infer from config or default to common values
-        num_layers = config.get('num_layers', 12)
-        layer_indices = list(range(num_layers))
-    else:
-        layer_indices = args.layers
-
-    logger.info(f"Probing layers: {layer_indices}")
-
-    # Find checkpoints
-    checkpoint_files = []
-    for pattern in ["*.pt", "*.pth"]:
-        checkpoint_files.extend(Path(args.input_dir).glob(pattern))
-    
+    # Find all checkpoints
+    checkpoint_files = list(Path(args.input_dir).glob('*.pt')) + list(Path(args.input_dir).glob('*.pth'))
     if not checkpoint_files:
         logger.error(f"No checkpoints found in {args.input_dir}")
         sys.exit(1)
 
-    results = []
+    logger.info(f"Found {len(checkpoint_files)} checkpoints")
 
-    for ckpt_path in checkpoint_files:
-        model_name = ckpt_path.stem
-        # Infer model type from filename or config
-        if "dendritic" in model_name.lower():
-            model_type = "dendritic"
-        elif "baseline" in model_name.lower():
-            model_type = "baseline"
-        else:
-            # Try to load config from checkpoint to determine
-            checkpoint = torch.load(ckpt_path, map_location='cpu', weights_only=False)
-            cfg = checkpoint.get('config', {})
-            if cfg.get('model_type', '').lower() == 'dendritic':
-                model_type = "dendritic"
-            else:
-                model_type = "baseline"
+    # Results storage
+    all_results = []
 
-        if args.model_type != "both" and args.model_type != model_type:
+    for checkpoint_path in checkpoint_files:
+        checkpoint_name = checkpoint_path.stem
+        logger.info(f"\nProcessing checkpoint: {checkpoint_name}")
+
+        # Load checkpoint
+        try:
+            checkpoint = load_checkpoint(str(checkpoint_path))
+            model = checkpoint.get('model')
+            if model is None:
+                logger.warning(f"No model found in {checkpoint_path}, skipping")
+                continue
+            model.eval()
+            model.to(device)
+        except Exception as e:
+            logger.error(f"Failed to load checkpoint {checkpoint_path}: {e}")
             continue
 
-        logger.info(f"Processing checkpoint: {ckpt_path} (type: {model_type})")
+        # Extract features for each layer
+        layer_features = extract_layer_features(model, val_loader, layers, device)
 
-        try:
-            model, _ = load_checkpoint(str(ckpt_path), model_type)
-            device = 'cpu'
-            model.to(device)
+        # Train probes for each layer and each seed
+        for layer_idx in layers:
+            if layer_idx not in layer_features:
+                logger.warning(f"Layer {layer_idx} not found in features, skipping")
+                continue
 
-            # Extract features for train and test sets
-            # We need to pass data through the model in a way that captures layer outputs
-            # Since our extract_layer_features expects a DataLoader, we'll create one
-            
-            # Create a simple dataset wrapper
-            class FeatureDataset(torch.utils.data.Dataset):
-                def __init__(self, inputs, labels):
-                    self.inputs = inputs
-                    self.labels = labels
+            features, labels = layer_features[layer_idx]
+            logger.info(f"  Layer {layer_idx}: {features.shape[0]} samples, {features.shape[1]} features")
 
-                def __len__(self):
-                    return len(self.inputs)
-
-                def __getitem__(self, idx):
-                    item = self.inputs[idx]
-                    return (
-                        torch.tensor(item['input_ids'], dtype=torch.long),
-                        torch.tensor(item['attention_mask'], dtype=torch.long),
-                        torch.tensor(self.labels[idx], dtype=torch.long)
-                    )
-
-            train_dataset = FeatureDataset(train_inputs, train_labels)
-            test_dataset = FeatureDataset(test_inputs, test_labels)
-
-            train_loader = DataLoader(train_dataset, batch_size=16, shuffle=False)
-            test_loader = DataLoader(test_dataset, batch_size=16, shuffle=False)
-
-            # Extract features
-            logger.info("Extracting features from model...")
-            train_features_by_layer = extract_layer_features(model, train_loader, layer_indices, device)
-            test_features_by_layer = extract_layer_features(model, test_loader, layer_indices, device)
-
-            # Train probes for each layer and each seed
-            for layer_idx in layer_indices:
-                if layer_idx not in train_features_by_layer or layer_idx not in test_features_by_layer:
-                    logger.warning(f"Features not extracted for layer {layer_idx}")
-                    continue
-
-                train_feats = np.array(train_features_by_layer[layer_idx])
-                test_feats = np.array(test_features_by_layer[layer_idx])
-
-                for seed in args.seeds:
-                    acc, _ = train_linear_probe(
-                        train_feats, train_labels,
-                        test_feats, test_labels,
+            for seed in seeds:
+                logger.info(f"    Training probe on layer {layer_idx} with seed {seed}")
+                try:
+                    train_acc, val_acc = train_linear_probe(
+                        features, labels,
+                        num_classes=num_classes,
+                        epochs=args.epochs,
+                        lr=args.lr,
+                        batch_size=args.batch_size,
                         seed=seed
                     )
 
-                    results.append({
-                        'checkpoint': model_name,
-                        'model_type': model_type,
+                    result = {
+                        'checkpoint': checkpoint_name,
                         'layer': layer_idx,
                         'seed': seed,
-                        'accuracy': acc
-                    })
+                        'train_accuracy': train_acc,
+                        'val_accuracy': val_acc
+                    }
+                    all_results.append(result)
+                    logger.info(f"      Result: Train={train_acc:.4f}, Val={val_acc:.4f}")
+                except Exception as e:
+                    logger.error(f"    Failed to train probe on layer {layer_idx}, seed {seed}: {e}")
+                    continue
 
-        except Exception as e:
-            logger.error(f"Failed to process checkpoint {ckpt_path}: {e}")
-            import traceback
-            traceback.print_exc()
-            continue
-
-    # Save results
-    output_file = os.path.join(args.output_dir, "probe_results.csv")
+    # Save results to CSV
+    output_file = os.path.join(args.output_dir, 'probing_results.csv')
     with open(output_file, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=results[0].keys() if results else [])
+        writer = csv.DictWriter(f, fieldnames=all_results[0].keys() if all_results else [])
         writer.writeheader()
-        writer.writerows(results)
+        writer.writerows(all_results)
 
-    logger.info(f"Probe results saved to {output_file}")
+    logger.info(f"\nSaved results to {output_file}")
+    logger.info(f"Total probes trained: {len(all_results)}")
 
-    # Also save as JSON for easier parsing
-    json_file = os.path.join(args.output_dir, "probe_results.json")
+    # Also save as JSON for easier parsing by analyze.py
+    json_file = os.path.join(args.output_dir, 'probing_results.json')
     with open(json_file, 'w') as f:
-        json.dump(results, f, indent=2)
+        json.dump(all_results, f, indent=2)
 
-    logger.info(f"Probe results saved to {json_file}")
+    logger.info(f"Saved JSON results to {json_file}")
 
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

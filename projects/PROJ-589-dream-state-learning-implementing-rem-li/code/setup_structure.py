@@ -1,77 +1,92 @@
-"""
-Project structure initialization for Dream-State Learning.
-Creates the required directory hierarchy for code, data, tests, and logs.
-"""
 import os
 import sys
 from pathlib import Path
 
-def create_directories(base_path: str = ".") -> None:
+def create_directories():
     """
-    Creates the standard project directory structure.
+    Creates the project directory structure as defined in the implementation plan.
     
-    Args:
-        base_path: The root directory where the structure will be created.
+    Directories created:
+    - code/
+    - tests/
+    - data/
+    - data/raw/
+    - data/checkpoints/
+    - data/results/
+    - data/logs/
+    - tests/unit/
+    - tests/integration/
+    - tests/contract/
     """
-    root = Path(base_path)
+    base_path = Path(__file__).parent.parent
     
-    # Define the required directory structure
     directories = [
-        # Core code directories
         "code",
-        "code/data",
-        "code/models",
-        "code/utils",
-        "code/eval",
-        "code/scripts",
-        
-        # Test directories
         "tests",
-        "tests/unit",
-        "tests/integration",
-        "tests/contract",
-        
-        # Data directories
         "data",
         "data/raw",
         "data/checkpoints",
         "data/results",
         "data/logs",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
     ]
     
-    created_count = 0
-    for dir_path in directories:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
+    created = []
+    for dir_name in directories:
+        dir_path = base_path / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created.append(str(dir_path))
+            print(f"Created directory: {dir_path}")
         else:
-            print(f"Directory already exists: {full_path}")
+            print(f"Directory already exists: {dir_path}")
     
-    print(f"\nProject structure initialization complete.")
-    print(f"Created {created_count} new directories.")
+    return created
+
+def verify_structure():
+    """
+    Verifies that all required directories exist.
     
-    # Create __init__.py files to make directories Python packages
-    init_files = [
-        "code/__init__.py",
-        "code/data/__init__.py",
-        "code/models/__init__.py",
-        "code/utils/__init__.py",
-        "code/eval/__init__.py",
-        "tests/__init__.py",
-        "tests/unit/__init__.py",
-        "tests/integration/__init__.py",
-        "tests/contract/__init__.py",
+    Returns:
+        bool: True if all directories exist, False otherwise.
+    """
+    base_path = Path(__file__).parent.parent
+    
+    required_dirs = [
+        "code",
+        "tests",
+        "data",
+        "data/raw",
+        "data/checkpoints",
+        "data/results",
+        "data/logs",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
     ]
     
-    for init_file in init_files:
-        full_path = root / init_file
-        if not full_path.exists():
-            full_path.touch()
-            print(f"Created init file: {full_path}")
+    missing = []
+    for dir_name in required_dirs:
+        dir_path = base_path / dir_name
+        if not dir_path.exists() or not dir_path.is_dir():
+            missing.append(str(dir_path))
+    
+    if missing:
+        print(f"Missing directories: {missing}")
+        return False
+    
+    print("All required directories exist.")
+    return True
 
 if __name__ == "__main__":
-    # Default to current directory if no argument provided
-    base = sys.argv[1] if len(sys.argv) > 1 else "."
-    create_directories(base)
+    print("Creating project structure...")
+    create_directories()
+    print("\nVerifying structure...")
+    if verify_structure():
+        print("\nProject structure verification successful.")
+        sys.exit(0)
+    else:
+        print("\nProject structure verification failed.")
+        sys.exit(1)

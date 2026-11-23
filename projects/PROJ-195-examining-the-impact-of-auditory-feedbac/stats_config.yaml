@@ -1,0 +1,25 @@
+# Statistical Analysis Configuration
+# Used by: glm_first_level.py (T022), glm_group.py (T024), glm_fdr_correction.py (T025)
+# Defines GLM parameters, FDR thresholds, and ROI definitions.
+
+glm_params:
+  # Smoothing kernel in mm (FWHM)
+  smoothing: 6
+  # High-pass filter cutoff frequency in Hz
+  # Appropriate for signal bandwidth of typical motor learning tasks (TR ~ 2s)
+  high_pass: 0.008
+
+fdr_threshold: 0.05
+
+roi_definition:
+  name: 'auditory_cortex'
+  file: 'roi_masks/auditory_cortex.nii.gz'
+
+# Additional thresholds for group analysis and cluster extraction
+cluster_threshold:
+  # Minimum cluster size in voxels (optional, can be overridden in code)
+  size: 10
+  # Minimum connectivity (18 or 26)
+  connectivity: 18
+
+global_p_threshold: 0.001  # For uncorrected maps in null result scenarios (T027)

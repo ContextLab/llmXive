@@ -1,85 +1,117 @@
 """
-Unit tests for the literature review module.
+Unit tests for the literature_review module.
 """
 import json
 import os
-import tempfile
 from pathlib import Path
-from unittest import TestCase
+from unittest.mock import patch, MagicMock
 
-# Ensure code/ is in path for imports
+import pytest
+
+# Add project root to path for imports if running standalone
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from pathlib import Path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from literature_review import extract_feature_importance, aggregate_importance_vectors, construct_literature_vector, REVIEW_PAPERS
+from code.literature_review import (
+    load_dois_from_file,
+    fetch_paper_metadata,
+    extract_feature_importance,
+    aggregate_importance_vectors,
+    construct_literature_vector,
+    KNOWN_FEATURE_RANKINGS
+)
+from code import utils
 
-class TestLiteratureReview(TestCase):
-    
-    def test_extract_feature_importance_ranking(self):
-        """Test that extraction assigns correct 1/rank scores."""
-        paper = {
-            "title": "Test Paper",
-            "doi": "10.1000/test",
-            "features": ["A", "B", "C"]
+@pytest.fixture
+def temp_dois_file(tmp_path):
+    file_path = tmp_path / "literature_dois.txt"
+    file_path.write_text("10.1016/j.corsci.2019.01.026\n10.1016/j.corsci.2013.06.024\n")
+    return file_path
+
+def test_load_dois_from_file(temp_dois_file):
+    dois = load_dois_from_file(temp_dois_file)
+    assert len(dois) == 2
+    assert "10.1016/j.corsci.2019.01.026" in dois
+
+def test_load_dois_from_file_missing():
+    with pytest.raises(FileNotFoundError):
+        load_dois_from_file(Path("nonexistent.txt"))
+
+def test_extract_feature_importance_known_doi():
+    doi = "10.1016/j.corsci.2019.01.026"
+    weights = extract_feature_importance(doi, None)
+    assert "Cr" in weights
+    assert weights["Cr"] == 1.0  # Rank 1
+    assert weights["Ni"] == 0.5  # Rank 2
+    assert len(weights) == 5
+
+def test_extract_feature_importance_unknown_doi():
+    with pytest.raises(ValueError):
+        extract_feature_importance("10.1000/unknown", None)
+
+def test_aggregate_importance_vectors():
+    # Mock data with different weights
+    papers = [
+        {
+            "doi": "1",
+            "citations": 10,
+            "features": {"A": 1.0, "B": 0.5}
+        },
+        {
+            "doi": "2",
+            "citations": 10,
+            "features": {"B": 1.0, "C": 0.5}
         }
-        result = extract_feature_importance(paper)
-        
-        # Rank 1 (A) -> 1.0
-        self.assertEqual(result["A"], 1.0)
-        # Rank 2 (B) -> 0.5
-        self.assertEqual(result["B"], 0.5)
-        # Rank 3 (C) -> 0.333...
-        self.assertAlmostEqual(result["C"], 1.0/3.0)
+    ]
+    result = aggregate_importance_vectors(papers)
+    # A: 1.0 * 0.5 = 0.5
+    # B: (0.5 * 0.5) + (1.0 * 0.5) = 0.25 + 0.5 = 0.75
+    # C: 0.5 * 0.5 = 0.25
+    # Max is 0.75 (B).
+    # Normalized: A=0.5/0.75, B=1.0, C=0.25/0.75
+    assert "B" in result
+    assert result["B"] == 1.0
+    assert abs(result["A"] - (0.5/0.75)) < 0.0001
+
+@patch('code.literature_review.requests.get')
+def test_fetch_paper_metadata_success(mock_get):
+    mock_response = MagicMock()
+    mock_response.raise_for_status = MagicMock()
+    mock_response.json.return_value = {
+        "message": {
+            "title": ["Test Paper"],
+            "is-referenced-by-count": 42
+        }
+    }
+    mock_get.return_value = mock_response
+
+    meta = fetch_paper_metadata("10.1234/test")
+    assert meta["title"] == "Test Paper"
+    assert meta["citations"] == 42
+
+@patch('code.literature_review.requests.get')
+def test_fetch_paper_metadata_failure(mock_get):
+    mock_get.side_effect = Exception("Network Error")
+    meta = fetch_paper_metadata("10.1234/test")
+    assert meta is None
+
+def test_construct_literature_vector_integration(tmp_path):
+    # Create a minimal dois file in tmp
+    dois_file = tmp_path / "test_dois.txt"
+    dois_file.write_text("10.1016/j.corsci.2019.01.026\n")
     
-    def test_aggregate_importance_vectors(self):
-        """Test aggregation logic and normalization."""
-        # Two papers with overlapping features
-        papers = [
-            {"title": "P1", "doi": "1", "features": ["Fe", "Cr"]},
-            {"title": "P2", "doi": "2", "features": ["Cr", "Ni"]}
-        ]
-        
-        result = aggregate_importance_vectors(papers)
-        
-        # Check that all features are present
-        self.assertIn("Fe", result)
-        self.assertIn("Cr", result)
-        self.assertIn("Ni", result)
-        
-        # Check normalization (max value should be 1.0)
-        max_val = max(result.values())
-        self.assertAlmostEqual(max_val, 1.0)
-        
-        # Check sorting (descending)
-        values = list(result.values())
-        self.assertEqual(values, sorted(values, reverse=True))
+    output_file = tmp_path / "test_vector.json"
     
-    def test_construct_literature_vector_writes_file(self):
-        """Test that the full pipeline writes a valid JSON file."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_vector.json"
-            
-            result = construct_literature_vector(output_path)
-            
-            # Check file exists
-            self.assertTrue(output_path.exists())
-            
-            # Check JSON content
-            with open(output_path, 'r') as f:
-                data = json.load(f)
-            
-            self.assertEqual(data["source"], "Literature Review")
-            self.assertEqual(data["papers_count"], 5)
-            self.assertIn("vector", data)
-            self.assertTrue(data["normalized"])
-            
-            # Verify the vector has the expected keys from REVIEW_PAPERS
-            expected_features = set()
-            for p in REVIEW_PAPERS:
-                expected_features.update(p["features"])
-            
-            self.assertEqual(set(data["vector"].keys()), expected_features)
+    # Patch load_dois_from_file to use our temp file
+    with patch('code.literature_review.load_dois_from_file', return_value=["10.1016/j.corsci.2019.01.026"]):
+        with patch('code.literature_review.fetch_paper_metadata', return_value={"title": "Test", "citations": 10}):
+            result = construct_literature_vector(output_file)
+    
+    assert output_file.exists()
+    assert result["papers_count"] == 1
+    assert "vector" in result
+    assert "Cr" in result["vector"]
 
 if __name__ == "__main__":
-    import unittest
-    unittest.main()
+    pytest.main([__file__, "-v"])

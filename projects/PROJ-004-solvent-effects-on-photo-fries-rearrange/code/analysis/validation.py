@@ -1,191 +1,287 @@
+"""
+Validation module for environmental and solvent series data.
+Implements T017a: Environmental Validation.
+"""
 import json
 import logging
+import sys
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
-import pandas as pd
-from config import get_processed_data_path, get_chemicals_path
+
+import yaml
+
+# Local imports based on provided API surface
+from config import get_chemicals_path, get_processed_data_path
+from utils.logging import setup_logging
 
 logger = logging.getLogger(__name__)
 
-def check_dielectric_deviation(run_data: Dict[str, Any], reference_data: Dict[str, Any], tolerance_percent: float = 2.0) -> Tuple[bool, float]:
+class ConfigurationError(Exception):
+    """Raised when configuration files are missing or invalid."""
+    pass
+
+class ValidationError(Exception):
+    """Raised when validation logic encounters an unrecoverable error."""
+    pass
+
+def load_solvent_reference() -> Dict[str, Any]:
     """
-    Check if the logged dielectric constant deviates from the reference by more than tolerance_percent.
-    
-    Args:
-        run_data: Dictionary containing 'dielectric_constant' key from the run log.
-        reference_data: Dictionary containing 'dielectric_constant' key from solvents.yaml.
-        tolerance_percent: Maximum allowed percentage deviation (default 2.0%).
-    
+    Load and validate the solvent reference file (solvents.yaml).
+    Checks for existence and the required 'version_hash' in metadata.
+
     Returns:
-        Tuple of (is_compliant, deviation_percent)
-    """
-    if 'dielectric_constant' not in run_data or 'dielectric_constant' not in reference_data:
-        logger.warning("Missing dielectric constant data for comparison")
-        return False, 0.0
-    
-    run_val = run_data['dielectric_constant']
-    ref_val = reference_data['dielectric_constant']
-    
-    if ref_val == 0:
-        logger.error("Reference dielectric constant is zero, cannot calculate percentage deviation")
-        return False, float('inf')
-    
-    deviation = abs(run_val - ref_val) / abs(ref_val) * 100
-    is_compliant = deviation <= tolerance_percent
-    
-    return is_compliant, deviation
+        Dict containing the parsed YAML content.
 
-def validate_solvent_series_runs(log_file_path: Path) -> List[Dict[str, Any]]:
+    Raises:
+        ConfigurationError: If file is missing or lacks version_hash.
     """
-    Validate a series of solvent runs against environmental tolerances.
-    
-    This function reads environment logs and checks:
-    1. Dielectric constant deviation (<= 2% from reference)
-    2. Temperature tolerance (typically ±1°C or as defined in spec)
-    3. Humidity tolerance (±2% RH as per Rosalind Franklin review)
-    
-    Args:
-        log_file_path: Path to the environment logs JSON file.
-    
-    Returns:
-        List of validation results for each run.
-    """
-    if not log_file_path.exists():
-        raise FileNotFoundError(f"Log file not found: {log_file_path}")
-    
-    with open(log_file_path, 'r') as f:
-        logs = json.load(f)
-    
-    # Load reference solvent data
-    ref_path = get_chemicals_path() / "solvents.yaml"
-    import yaml
-    with open(ref_path, 'r') as f:
-        solvent_refs = yaml.safe_load(f)
-    
-    # Create lookup dict
-    solvent_lookup = {s['name']: s for s in solvent_refs}
-    
-    results = []
-    
-    # Define tolerances (standard experimental tolerances)
-    TEMP_TOLERANCE = 1.0  # ±1°C
-    HUMIDITY_TOLERANCE = 2.0  # ±2% RH
-    DIELECTRIC_TOLERANCE = 2.0  # ±2%
-    
-    for run in logs:
-        run_id = run.get('run_id', 'unknown')
-        solvent_name = run.get('solvent', 'unknown')
-        
-        validation_status = {
-            'run_id': run_id,
-            'solvent': solvent_name,
-            'is_compliant': True,
-            'flags': [],
-            'metrics': {}
-        }
-        
-        # Check Temperature
-        temp = run.get('temperature_celsius')
-        if temp is not None:
-            # Assuming target is 25°C, but we check stability if target varies
-            # For now, we check if it's within a reasonable range (24-26°C) or against a recorded target
-            target_temp = run.get('target_temperature_celsius', 25.0)
-            temp_dev = abs(temp - target_temp)
-            validation_status['metrics']['temperature_deviation'] = temp_dev
-            if temp_dev > TEMP_TOLERANCE:
-                validation_status['is_compliant'] = False
-                validation_status['flags'].append(f"Temperature deviation {temp_dev:.2f}°C exceeds tolerance ±{TEMP_TOLERANCE}°C")
-        
-        # Check Humidity
-        humidity = run.get('relative_humidity_percent')
-        if humidity is not None:
-            target_humidity = run.get('target_relative_humidity_percent', 50.0)
-            hum_dev = abs(humidity - target_humidity)
-            validation_status['metrics']['humidity_deviation'] = hum_dev
-            if hum_dev > HUMIDITY_TOLERANCE:
-                validation_status['is_compliant'] = False
-                validation_status['flags'].append(f"Humidity deviation {hum_dev:.2f}% RH exceeds tolerance ±{HUMIDITY_TOLERANCE}% RH")
-        
-        # Check Dielectric Constant
-        if solvent_name in solvent_lookup:
-            ref_solvent = solvent_lookup[solvent_name]
-            is_dielectric_ok, dielectric_dev = check_dielectric_deviation(
-                run, ref_solvent, tolerance_percent=DIELECTRIC_TOLERANCE
-            )
-            validation_status['metrics']['dielectric_deviation'] = dielectric_dev
-            if not is_dielectric_ok:
-                validation_status['is_compliant'] = False
-                validation_status['flags'].append(f"Dielectric constant deviation {dielectric_dev:.2f}% exceeds tolerance ±{DIELECTRIC_TOLERANCE}%")
-        else:
-            logger.warning(f"Solvent {solvent_name} not found in reference data")
-        
-        results.append(validation_status)
-    
-    return results
+    chemicals_path = get_chemicals_path()
+    solvent_file = chemicals_path / "solvents.yaml"
 
-def write_validation_report(results: List[Dict[str, Any]], output_path: Path) -> None:
-    """
-    Write the validation report to a JSON file.
-    
-    Args:
-        results: List of validation results from validate_solvent_series_runs.
-        output_path: Path to write the report.
-    """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    report = {
-        'generated_at': str(pd.Timestamp.now(timezone.utc)),
-        'total_runs': len(results),
-        'compliant_runs': sum(1 for r in results if r['is_compliant']),
-        'compliance_rate': sum(1 for r in results if r['is_compliant']) / len(results) * 100 if results else 0.0,
-        'violations': [r for r in results if not r['is_compliant']],
-        'details': results
-    }
-    
-    with open(output_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    logger.info(f"Validation report written to {output_path}")
+    if not solvent_file.exists():
+        raise ConfigurationError(
+            f"Solvent reference file missing at {solvent_file}. "
+            "Ensure T006b (Data Population) and T006d (Hash Generation) have completed."
+        )
 
-def main() -> None:
-    """
-    Main entry point for running validation checks.
-    Reads environment logs, validates against tolerances, and writes report.
-    """
-    import os
-    import sys
-    from datetime import datetime
-    
-    # Setup logging
-    from utils.logging import setup_logging
-    setup_logging()
-    
-    log_path = get_processed_data_path() / "environment_logs.json"
-    report_path = get_processed_data_path() / "validation_report.json"
-    
-    if not log_path.exists():
-        logger.error(f"Environment logs not found at {log_path}. Run environment logging first.")
-        sys.exit(1)
-    
-    logger.info(f"Validating runs from {log_path}")
-    
     try:
-        results = validate_solvent_series_runs(log_path)
-        write_validation_report(results, report_path)
+        with open(solvent_file, 'r', encoding='utf-8') as f:
+            data = yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        raise ConfigurationError(f"Failed to parse {solvent_file}: {e}")
+
+    # Constraint: MUST verify version_hash exists (from T006d)
+    metadata = data.get('metadata', {})
+    if 'version_hash' not in metadata:
+        raise ConfigurationError(
+            f"Solvent reference {solvent_file} is missing 'version_hash' in metadata. "
+            "Run T006d to generate the hash."
+        )
+
+    logger.info(f"Loaded solvent reference with version_hash: {metadata['version_hash']}")
+    return data
+
+def check_dielectric_deviation(
+    run_solvent_name: str,
+    run_dielectric: float,
+    reference_data: Dict[str, Any],
+    tolerance_pct: float = 2.0
+) -> Tuple[bool, str]:
+    """
+    Check if the logged dielectric constant deviates >2% from the reference.
+
+    Args:
+        run_solvent_name: Name of the solvent from the run.
+        run_dielectric: The logged dielectric constant value.
+        reference_data: Parsed solvents.yaml content.
+        tolerance_pct: Maximum allowed percentage deviation.
+
+    Returns:
+        Tuple of (is_valid, message).
+    """
+    solvents = reference_data.get('solvents', [])
+    ref_entry = next((s for s in solvents if s['name'] == run_solvent_name), None)
+
+    if not ref_entry:
+        return False, f"Solvent '{run_solvent_name}' not found in reference table."
+
+    ref_dielectric = ref_entry['dielectric_constant']
+    if ref_dielectric == 0:
+        # Avoid division by zero if reference is 0 (unlikely for dielectric)
+        deviation = abs(run_dielectric)
+        is_valid = deviation == 0
+        msg = "Reference dielectric is 0; any deviation is invalid." if not is_valid else "Match."
+        return is_valid, msg
+
+    deviation_pct = abs((run_dielectric - ref_dielectric) / ref_dielectric) * 100
+
+    if deviation_pct > tolerance_pct:
+        msg = (
+            f"Dielectric constant deviation {deviation_pct:.2f}% exceeds tolerance {tolerance_pct}% "
+            f"(Run: {run_dielectric}, Ref: {ref_dielectric})."
+        )
+        return False, msg
+
+    return True, f"Deviation {deviation_pct:.2f}% within tolerance."
+
+def validate_environmental_conditions(
+    run_data: Dict[str, Any],
+    tolerance_temp: float = 0.5,
+    tolerance_humidity: float = 2.0
+) -> List[str]:
+    """
+    Detect and flag runs where temperature or humidity exceeds tolerance.
+
+    Args:
+        run_data: Dictionary containing logged environmental parameters.
+        tolerance_temp: Allowed deviation in Celsius (default 0.5).
+        tolerance_humidity: Allowed deviation in %RH (default 2.0).
+
+    Returns:
+        List of flag messages.
+    """
+    flags = []
+
+    # Temperature validation
+    target_temp = 25.0  # Spec target
+    run_temp = run_data.get('temperature_c')
+    if run_temp is not None:
+        diff = abs(run_temp - target_temp)
+        if diff > tolerance_temp:
+            flags.append(
+                f"Temperature {run_temp}°C deviates {diff:.2f}°C from target {target_temp}°C "
+                f"(tolerance ±{tolerance_temp}°C)."
+            )
+    else:
+        flags.append("Temperature not recorded.")
+
+    # Humidity validation
+    run_humidity = run_data.get('relative_humidity_pct')
+    if run_humidity is not None:
+        # Assuming target is 50% or similar, but spec says "within tolerance" usually implies
+        # deviation from a setpoint or a range. Here we check if it's within a standard range
+        # or just flag if it's outside a reasonable experimental bound if no target is set.
+        # However, T041 mentions ±2% RH tolerance. Let's assume a target of 50% RH or check
+        # against a configured target if available. For now, we flag if it's outside 48-52%
+        # if no target is specified, OR we check deviation from a stored target if run_data has it.
+        # T014 logs 'relative_humidity'. Let's assume we check against a standard 50% target
+        # or just flag extreme values. The prompt says "exceeds tolerance", implying a target.
+        # Let's assume target is 50% based on standard lab conditions unless specified.
+        target_humidity = 50.0
+        diff = abs(run_humidity - target_humidity)
+        if diff > tolerance_humidity:
+            flags.append(
+                f"Humidity {run_humidity}% deviates {diff:.2f}% from target {target_humidity}% "
+                f"(tolerance ±{tolerance_humidity}%)."
+            )
+    else:
+        flags.append("Relative humidity not recorded.")
+
+    return flags
+
+def validate_solvent_series_runs(
+    environment_log_path: Optional[Path] = None
+) -> List[Dict[str, Any]]:
+    """
+    Main validation routine:
+    1. Load solvents.yaml (checking version_hash).
+    2. Load environment_logs.json.
+    3. Flag runs with dielectric deviation >2%.
+    4. Flag runs with T/Humidity out of tolerance.
+
+    Args:
+        environment_log_path: Path to environment_logs.json. Defaults to processed path.
+
+    Returns:
+        List of flagged run dictionaries.
+    """
+    # 1. Load Reference
+    try:
+        reference_data = load_solvent_reference()
+    except ConfigurationError as e:
+        logger.error(f"Configuration Error: {e}")
+        raise
+
+    # 2. Load Environment Logs
+    if environment_log_path is None:
+        processed_path = get_processed_data_path()
+        environment_log_path = processed_path / "environment_logs.json"
+
+    if not environment_log_path.exists():
+        raise ConfigurationError(
+            f"Environment log file missing at {environment_log_path}. "
+            "Run T014 to generate environment_logs.json."
+        )
+
+    try:
+        with open(environment_log_path, 'r', encoding='utf-8') as f:
+            logs = json.load(f)
+    except json.JSONDecodeError as e:
+        raise ValidationError(f"Failed to parse environment logs: {e}")
+
+    # Handle both list of runs or dict with 'runs' key
+    runs = logs if isinstance(logs, list) else logs.get('runs', [])
+
+    flagged_runs = []
+
+    for run in runs:
+        run_id = run.get('run_id', 'unknown')
+        solvent_name = run.get('solvent_name', 'unknown')
+        logged_dielectric = run.get('dielectric_constant')
         
-        compliant = sum(1 for r in results if r['is_compliant'])
-        total = len(results)
-        logger.info(f"Validation complete: {compliant}/{total} runs compliant ({compliant/total*100:.1f}%)")
+        flags = []
+
+        # Check Dielectric
+        if logged_dielectric is not None:
+            is_valid, msg = check_dielectric_deviation(
+                solvent_name, logged_dielectric, reference_data
+            )
+            if not is_valid:
+                flags.append({"type": "dielectric_deviation", "message": msg})
+        else:
+            flags.append({"type": "missing_dielectric", "message": "Dielectric constant not logged."})
+
+        # Check T/Humidity
+        env_flags = validate_environmental_conditions(run)
+        for f_msg in env_flags:
+            flags.append({"type": "environmental_tolerance", "message": f_msg})
+
+        if flags:
+            flagged_runs.append({
+                "run_id": run_id,
+                "solvent_name": solvent_name,
+                "flags": flags
+            })
+
+    return flagged_runs
+
+def write_validation_report(flagged_runs: List[Dict[str, Any]], output_path: Optional[Path] = None) -> Path:
+    """
+    Write the list of flagged runs to data/processed/validation_flags.json.
+
+    Args:
+        flagged_runs: List of flagged run dictionaries.
+        output_path: Output path. Defaults to processed/validation_flags.json.
+
+    Returns:
+        Path to the written file.
+    """
+    if output_path is None:
+        processed_path = get_processed_data_path()
+        output_path = processed_path / "validation_flags.json"
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    report = {
+        "generated_at": "2026-01-01T00:00:00Z", # Placeholder for actual timestamp logic if needed
+        "total_flagged": len(flagged_runs),
+        "flagged_runs": flagged_runs
+    }
+
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(report, f, indent=2)
+
+    logger.info(f"Validation report written to {output_path}")
+    return output_path
+
+def main():
+    """Entry point for validation script."""
+    setup_logging()
+    logger.info("Starting Environmental Validation (T017a)...")
+
+    try:
+        flagged_runs = validate_solvent_series_runs()
+        output_file = write_validation_report(flagged_runs)
         
-        if compliant < total:
-            logger.warning("Some runs failed environmental compliance checks.")
-            for r in results:
-                if not r['is_compliant']:
-                    logger.warning(f"Run {r['run_id']} ({r['solvent']}): {', '.join(r['flags'])}")
-        
-    except Exception as e:
-        logger.error(f"Validation failed with error: {e}")
-        sys.exit(1)
+        if flagged_runs:
+            logger.warning(f"Validation complete. {len(flagged_runs)} runs flagged. See {output_file}")
+            sys.exit(1) # Exit non-zero to indicate flags found (optional, but good for CI)
+        else:
+            logger.info("Validation complete. All runs within tolerance.")
+            sys.exit(0)
+    except (ConfigurationError, ValidationError) as e:
+        logger.error(f"Validation failed: {e}")
+        sys.exit(2)
 
 if __name__ == "__main__":
     main()

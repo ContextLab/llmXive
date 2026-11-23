@@ -1,0 +1,85 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: S-Agent-300K Dataset Schema
+description: |
+  Schema for the raw S-Agent-300K dataset entries.
+  Each entry represents a single 3D spatial reasoning scene.
+type: object
+required:
+  - scene_id
+  - question
+  - ground_truth
+  - constraints
+  - metadata
+properties:
+  scene_id:
+    type: string
+    description: Unique identifier for the scene (e.g., "scene_001234")
+    pattern: "^scene_\\d+$"
+  question:
+    type: string
+    description: The natural language spatial reasoning question.
+    minLength: 1
+  ground_truth:
+    type: object
+    description: The correct answer to the question.
+    required:
+      - answer
+      - reasoning_type
+    properties:
+      answer:
+        type: [string, integer, number, boolean, array]
+        description: The expected answer value.
+      reasoning_type:
+        type: string
+        enum:
+          - counting
+          - positioning
+          - relative_direction
+          - occlusion
+          - spatial_relationship
+  constraints:
+    type: array
+    description: List of geometric constraints extracted from the scene description.
+    items:
+      type: object
+      required:
+        - constraint_type
+        - parameters
+      properties:
+        constraint_type:
+          type: string
+          enum:
+            - object_exists
+            - object_position
+            - relative_position
+            - distance
+            - occlusion
+            - orientation
+        parameters:
+          type: object
+          description: Type-specific parameters (e.g., object_id, coordinates, distance_value).
+  metadata:
+    type: object
+    description: Additional scene metadata.
+    properties:
+      source:
+        type: string
+        description: Origin of the scene (e.g., "synthetic", "real_world_scan").
+      difficulty:
+        type: string
+        enum:
+          - easy
+          - medium
+          - hard
+      object_count:
+        type: integer
+        minimum: 0
+      spatial_variance:
+        type: number
+        format: float
+        description: Variance of object positions in the scene.
+      object_density:
+        type: number
+        format: float
+        description: Number of objects per unit volume.
+additionalProperties: false

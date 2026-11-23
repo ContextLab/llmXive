@@ -1,0 +1,8 @@
+# This directory serves as the root for project PROJ-846-llmxive-follow-up-extending-guava-an-eff.
+# It contains the following subdirectories:
+# - code/    : Source code modules
+# - data/    : Data files (raw, processed, artifacts)
+# - tests/   : Test suites
+# - specs/   : Feature specifications
+#
+# This file ensures the directory is tracked by version control.

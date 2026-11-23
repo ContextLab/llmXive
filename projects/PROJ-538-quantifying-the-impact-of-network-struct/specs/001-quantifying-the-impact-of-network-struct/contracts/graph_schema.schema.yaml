@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DefectGraph Schema"
+description: "Schema for defect network graph and computed metrics."
+type: "object"
+properties:
+  graph_id:
+    type: "string"
+    description: "Unique identifier for the graph."
+  snapshot_id:
+    type: "string"
+    description: "Foreign key to AtomicSnapshot."
+  nodes:
+    type: "array"
+    items:
+      type: "integer"
+    description: "List of node indices."
+  edges:
+    type: "array"
+    items:
+      type: "array"
+      items:
+        type: "integer"
+      minItems: 2
+      maxItems: 2
+    description: "List of edges (u, v)."
+  metrics:
+    type: "object"
+    properties:
+      clustering_coefficient:
+        type: "number"
+        description: "Global clustering coefficient."
+      mean_degree:
+        type: "number"
+        description: "Mean degree of nodes."
+      degree_variance:
+        type: "number"
+        description: "Variance of degree distribution."
+      percolation_threshold:
+        type: "number"
+        description: "Percolation threshold (NaN if undefined)."
+    required:
+      - clustering_coefficient
+      - mean_degree
+      - degree_variance
+      - percolation_threshold
+  component_count:
+    type: "integer"
+    minimum: 1
+    description: "Number of connected components."
+required:
+  - graph_id
+  - snapshot_id
+  - nodes
+  - edges
+  - metrics
+  - component_count
+additionalProperties: false

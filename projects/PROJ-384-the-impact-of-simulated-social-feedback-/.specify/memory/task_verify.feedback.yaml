@@ -1,0 +1,141 @@
+T001:
+  task: 63eb8f65545fc43f4281816a004d1c0ada4809ccfc360b529f9aae47c4261797
+T002:
+  reason: "The provided `code/requirements.txt` lists the required packages but does\
+    \ not pin them to specific version numbers (e.g., `pandas==1.5.3`), violating\
+    \ the \u201Cpinned dependencies\u201D requirement, and it also includes an extra\
+    \ `pyyaml` entry not requested. The task is therefore not fully satisfied."
+  task: 12231ffda417124dd69159f51e23c054c125154060661e054743c18b94179dae
+T003:
+  task: 0907de77b013f2f54abd7ab77886802c7e32d47837951b9e3942186e50daa4f0
+T004:
+  task: 4f2babb670946c039c6c6f5fbebd117a8cbd9af15cc4da963a5fb2ecbeaba0ed
+T005:
+  reason: "The provided `code/utils/logger.py` defines a custom `ReproducibilityLogger`\
+    \ but never configures Python\u2019s `logging` module with file and console handlers,\
+    \ nor does it write any output to `logs/pipeline.log`. The task explicitly required\
+    \ setting up logging that writes to that file, which is missing."
+  task: 763df41172e31f98a731c34c770015b59b77ec03e1701a28f33c72424a6241ba
+T006:
+  reason: The schema file exists and is a valid, strict YAML definition, but there
+    is no accompanying evidence (e.g., Python code or test output) showing that the
+    schema was loaded with `jsonschema`, validated against a good payload, and that
+    it correctly raises an error on a known bad JSON payload as required.
+  task: cfdd1e3171b5b2285a659d5077586fff0695730f6321165cf44ed4962f42adee
+T007:
+  task: 5a0bf6229ad08cccc34f9dace7097fb02724260d91620c29a72cba32237a579e
+T008:
+  task: 0bc26bc98546c013e8c547b544a527e93486ec4f35a8c1d526d6b0ced4661de2
+T009:
+  task: 5163c05bb00628fab2cb889f7302f9e1f418af59339ebd0f1515c187b108224d
+T010:
+  task: 9ab6dcdc987e8a74b856c3d30c460c73b93ba0ac5740d55db67aacb175e99d4d
+T011:
+  task: 71231425da655fca401a4fc86720e7bfd5aa50ecf9627352a6b8b7f387a9cb84
+T012:
+  task: 5ea3784a5356a4c43d8899768bd9bff99af72e1cd36d1de3f6c1d1d7a05ce709
+T013:
+  task: effb28e822985c4b00966b9199c76d5f0e5fb5bf4d7036cfe9c59259e2e15ad9
+T014:
+  task: 2263fa48f3afc8b8d76b2d6ce95a18e68af0952235a64e841f1ecdc970fdf2dd
+T015:
+  task: 2dd1530539bd26c7572002212787853a5e8a3c6b09a11f445a153597200388c8
+T016:
+  task: e8f89453fa0642a18c5445147286331d93baf0c80f0ccc755028c741bfc9187e
+T017:
+  task: 3fc6d00063ba8d9a09b9778951af929c609fd03ddf70ee6807123697c8a38ae8
+T018:
+  task: 89ddac5737c0216cd4524791f883eb50395fec59080c43190fab42ed96f2de67
+T019:
+  task: 58c34062a54ac8de36daadc286e7ca055e0ff8460bdb118ae174c30f2abaaf6b
+T020:
+  task: 5f691c3267aadd26efb056ce1cf8348e62aea8aeaaa3d244aeec8c4835d000db
+T021:
+  task: 36926665b83c49af1d9ec14a2a9340cb1d7c07055a59714e5da90dc81e276fc2
+T022:
+  task: 734fc1419a0daa85f7526af525741b50c075a925c7e8e46af4d645b697e544fe
+T023:
+  task: c13b84485802215c34db63c5114040c9dfb25bcd579a01c1f0bbd8ed7f4cb6e1
+T024:
+  task: 6f6ce9d1f8c3e002ff23378d7035923048655292c1ec0615951ab6587a748e7b
+T025:
+  task: 0c294aa2ce539862e63fd0d8e1427d882e078100c18b33725cd8ea147f0ba23e
+T030a:
+  task: adf1a4a125496aa3fa39c516feda1fb8ddfb035fd618d4da82a77c32df87c0f3
+T030b:
+  task: 9a724677c2bf60751f2e766fe07f5217509a5bf80fcbd1409e594a92cd33a0b0
+T030c:
+  task: 3627b34fe9da880a3fe89959409a06eb19f23820a0dd2e887bb59fb6f7824927
+T031:
+  task: 873d91d7012bd2f62fa1d8cb6be92a844a69086e7703e3921dea81149277be60
+T032:
+  task: bfda3824eead84c8ae1acf6e191c085decbb4b7163cef4a4589c0db7999099a8
+T035a:
+  task: b8283d7ce281a355d41a0242dae2f1133e4ae8a4c18556a80395c1e5e1d45048
+T035b:
+  task: 50774e8d8fff6b1d5d218e5064099d77cffc5d27dcf0e8dbfd0c16d6dde8eb94
+T035c:
+  task: ddff4c124a0e4936b32aebf3d948c6745f4fadeb030dc5474ab7df08effbbfcc
+T035d:
+  reason: 'declared artifact(s) missing/empty/invalid: code/03_analysis.py, data/processed/volatility_window_3.csv,
+    data/results/regression_window_3.json'
+  task: 74523ac49545279da27504f5f6541fc80b9b63a07c2b68e851bb0e272a51621a
+T035e:
+  reason: 'declared artifact(s) missing/empty/invalid: code/03_analysis.py, data/processed/volatility_window_7.csv,
+    data/results/regression_window_7.json'
+  task: 72a5c490fb9479970366cb469b48ea4d750701f370ca983d826f76272586703e
+T036:
+  task: bd58d4b68d5c0ed4a3085528925a2fa303b53833ff8b30ae7b097c51c9a8105d
+T037:
+  task: 44b0da98674f5974bea5dd2bcd5dcf0a2865601e10163eca7b3b94ce26460c55
+T038:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/test_analysis.py'
+  task: c5bcb791ae03ac0d5841f9ec1ed568fa734b79cfe1f32f6b70fd86e00643000f
+T039:
+  reason: 'declared artifact(s) missing/empty/invalid: code/03_analysis.py, data/processed/user_metrics.csv'
+  task: 8a7a66b2fb5235bcb35ab0535dc1beff68ce931cacbbfda4a029cbff9b00b388
+T040:
+  reason: 'declared artifact(s) missing/empty/invalid: code/03_analysis.py'
+  task: 3de1cbb3b1078ba39ef0e8b8f997b8c161613270e1e42a5e4af36a98d209e45b
+T041:
+  reason: 'declared artifact(s) missing/empty/invalid: code/03_analysis.py, data/results/diagnostics/vif_report.csv'
+  task: 7f6d1886dc7c5820da3d05706d1fe5392a85c2ec31eba5ada940e402fd0f7a39
+T042:
+  reason: 'declared artifact(s) missing/empty/invalid: code/03_analysis.py'
+  task: 018d0e17438333c07e5b8f2cd943ad62dad33e7b8a3978bb8d305703c46741c1
+T043:
+  reason: 'declared artifact(s) missing/empty/invalid: code/03_analysis.py'
+  task: e4d6dae0d726e171e14a7e253926a06b23b12b79fc10e21a8a589686b7430e62
+T044:
+  reason: 'declared artifact(s) missing/empty/invalid: code/03_analysis.py'
+  task: 638ec38da960dbd0a0aa0bbb06be216267702a7fda32e5b61a78527e703f8f0e
+T045:
+  reason: 'declared artifact(s) missing/empty/invalid: code/03_analysis.py, data/results/regression_window_3.json,
+    data/results/regression_window_5.json, data/results/regression_window_7.json,
+    data/results/sensitivity_summary.csv'
+  task: eff1f9d1722f1aa2bccfb572bc7a6d9de4de2b694d27ff4c614b25e387d7c548
+T046:
+  reason: 'declared artifact(s) missing/empty/invalid: code/03_analysis.py, data/results/regression_report.md'
+  task: 13e0e4f95da70805d5f65cfecd05a9928d93b8d34dbc707e5a703e70d3bf1bbf
+T047:
+  reason: 'declared artifact(s) missing/empty/invalid: code/03_analysis.py, data/results/diagnostics/'
+  task: 980f1e119a02474be7df7bffe275ef4f3dc3dff52ab3a25d08fc961b61b6ced1
+T048:
+  reason: 'declared artifact(s) missing/empty/invalid: code/04_report.py, data/results/regression_report.md,
+    data/processed/user_metrics.csv, data/results/final_report.md'
+  task: 01d47bf0c846bcdbabbb5650a1530127c03a81d732937b15ea6c8b4e57dd6552
+T049:
+  task: af12847a0496389983eae827057f8cbfc130590f75d6f201dbf59e2662dd3582
+T052:
+  task: 33552f3850d97dcbaaa243299fa985d159dca5ac96498aa1615c4b0c57aa72ab
+T053:
+  reason: 'declared artifact(s) missing/empty/invalid: code/run_pipeline.sh'
+  task: e4c7ff5e8d4d337cb46e7911acba6ad732325c5805a8e446019954a57ed6c238
+T054:
+  task: abe6baa2dca43effb304abded16f15cd9772eceef5a04eb82b37aa6b640fc48d
+T055:
+  task: 4ed9a4544358e7b45748ad129ae3f7c7d2553e00d5bdbcd0a337041e63fe0927
+T056:
+  task: 3a8f9d281f2abccb962a486230ea9082220afef1b0569a1571ce4fbf0f4944b2
+T057:
+  task: fc5f5c17cd4ca2bab522dac99f47a79ee11d155190432c9b37b80d1c9c2a9077

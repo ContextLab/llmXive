@@ -1,0 +1,1870 @@
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: filter excludes protein-ligand complexes with resolution greater than
+    2.5 Angstroms
+  claim_id: c_f7fe2f6d
+  context: "T020 [P] [US1] Implement high-resolution filter in code/data/preprocessing.py\
+    \ that strictly excludes complexes with resolution > 2.5 \xC5 (matching Spec Edge\
+    \ Cases) to ensure data quality before ingestion."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_excludes_protein-ligand_complexes_with_resolution_gre
+  kind: magnitude
+  raw_text: "Implement high-resolution filter in code/data/preprocessing.py that strictly\
+    \ excludes complexes with resolution > 2.5 \xC5"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:25:00Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: download PDBbind v2020 refined set
+  claim_id: c_9361915b
+  context: T013 [US1] Implement code/data/ingest.py to download PDBbind v2020 refined
+    set from with SHA256 checksum verification (NO synthetic fallback)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_PDBbind_v2020_refined_set
+  kind: entity_fact
+  raw_text: download PDBbind v2020 refined set
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:25:27Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: edges represent interactions within 5.0 Angstroms
+  claim_id: c_ebaa2ec5
+  context: "Independent Test: Run the data pipeline on a subset of complexes. Verify\
+    \ that the output graph contains nodes with atomic coordinates, edges representing\
+    \ interactions within 5.0 \xC5, and that the data structure fits within RAM limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "edges representing interactions within 5.0 \xC5"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:25:44Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: water-mediated interaction detection distance less than 3.5 Angstroms
+    to oxygen atoms
+  claim_id: c_e625044e
+  context: "T015 [US1] Implement FR-009: Water-mediated interaction detection in code/data/ingest.py\
+    \ (distance < 3.5 \xC5 to oxygen atoms) and set water_flag"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Water-mediated_interaction_detection_distance_less_than_3.5
+  kind: magnitude
+  raw_text: "distance < 3.5 \xC5 to oxygen atoms"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:26:48Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: train model for up to 50 epochs or 4 hours
+  claim_id: c_a1428cb8
+  context: 'Independent Test: Train the model on the training split for up to 50 epochs
+    or 4 hours. Evaluate on the test set. Verify MSE is finite and model file is saved.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: up to 50 epochs or 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:27:29Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: inference latency less than 5 seconds per complex
+  claim_id: c_1c293e11
+  context: T022 [P] [US2] Integration test for inference latency (< 5s/complex) in
+    tests/integration/test_inference_latency.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inference_latency_less_than_5_seconds_per_complex
+  kind: magnitude
+  raw_text: inference latency (< 5s/complex)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:28:10Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: early stopping patience of 10
+  claim_id: c_20fd5952
+  context: 'T025 [US2] Implement code/models/train.py: Training loop with early stopping
+    (patience=10) and a maximum time limit of several hours (FR-007)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: patience=10
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:28:38Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: inference latency less than 5 seconds
+  claim_id: c_06ad111e
+  context: T027 [US2] Implement inference benchmarking in code/models/train.py to
+    measure and record latency per complex (SC-004), ensuring < 5s latency.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inference_latency_less_than_5_seconds
+  kind: magnitude
+  raw_text: ensure < 5s latency
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:29:00Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: percentage of test complexes within plus or minus 1.0 pKd unit
+  claim_id: c_6b01541b
+  context: "T029 [US2] Calculate SC-001 metric: % of test complexes within \xB11.0\
+    \ pKd unit vs baseline"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\xB11.0 pKd unit"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:29:51Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: clustering produces at least 3 distinct clusters
+  claim_id: c_546f3042
+  context: "Independent Test: Run attribution on top high-affinity test complexes.\
+    \ Verify clustering produces \u22653 distinct clusters and at least one maps to\
+    \ a known pharmacophore with p < 0.05."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Clustering_produces_at_least_3_distinct_clusters
+  kind: magnitude
+  raw_text: "clustering produces \u22653 distinct clusters"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:30:28Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: DBSCAN clustering min_samples of 5
+  claim_id: c_b568c035
+  context: 'T034 [US3] Implement code/analysis/clustering.py: DBSCAN clustering on
+    aligned substructures (min_samples=5) to identify motifs (FR-004)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: min_samples=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:30:42Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: two-sample t-tests comparing high-affinity pKd greater than 8 and low-affinity
+    pKd less than 6
+  claim_id: c_a4cfb9e7
+  context: 'T035a [US3] Primary: Implement code/analysis/validation.py: Two-sample
+    t-tests comparing high-affinity (pKd > 8) and low-affinity (pKd < 6) complexes
+    for each identified cluster (Constitution Principle VII).'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Two-sample_t-tests_comparing_high-affinity_pKd_greater_than
+  kind: magnitude
+  raw_text: high-affinity (pKd > 8) and low-affinity (pKd < 6)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:31:11Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction alpha of 0.05
+  claim_id: c_657aee61
+  context: Apply Benjamini-Hochberg FDR correction (alpha=0.05) (FR-006).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:31:55Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: RMSD less than 1.5 Angstroms
+  claim_id: c_2c7b9e18
+  context: "T038 [US3] Implement cross-referencing against known pharmacophore set\
+    \ in data/reference/pharmacophores.json (generated in T038a) using Kabsch algorithm\
+    \ (RMSD < 1.5 \xC5) and reporting matches (FR-005)"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RMSD_less_than_1.5_Angstroms
+  kind: magnitude
+  raw_text: "RMSD < 1.5 \xC5"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:33:05Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Download PDBbind v2020 refined set
+  claim_id: c_63568aa2
+  context: Implement `code/data/ingest.py` to download PDBbind v2020 refined set from
+    ` with SHA256 checksum verification (NO synthetic fallback)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_PDBbind_v2020_refined_set
+  kind: entity_fact
+  raw_text: Implement `code/data/ingest.py` to download PDBbind v2020 refined set
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:38:35Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Generate pharmacophores.json from ChEMBL Homo sapiens IC50 or Ki subset
+  claim_id: c_fbc4498b
+  context: 'Generate `data/reference/pharmacophores.json` from a recent ChEMBL ''standard''
+    bioactivity subset using query: `target_organism=Homo sapiens AND activity_type=''IC50''
+    OR ''Ki''`. **MUST**: Calculate SHA256 checksum, record version, and raise exception
+    on API failure (NO synthetic fallback).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_pharmacophores.json_from_ChEMBL_Homo_sapiens_IC50_o
+  kind: entity_fact
+  raw_text: 'Generate `data/reference/pharmacophores.json` from a recent ChEMBL ''standard''
+    bioactivity subset using query: `target_organism=Homo sapiens AND activity_type=''IC50''
+    OR ''Ki''`'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:39:00Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Exclude protein-ligand complexes with resolution greater than 2.5 Angstroms
+  claim_id: c_9230309e
+  context: "Task T020 specifies a filter to ensure data quality before ingestion by\
+    \ excluding complexes with resolution > 2.5 \xC5."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_protein-ligand_complexes_with_resolution_greater_tha
+  kind: magnitude
+  raw_text: "Implement high-resolution filter in code/data/preprocessing.py that strictly\
+    \ excludes complexes with resolution > 2.5 \xC5"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:41:16Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Generate pharmacophore reference from ChEMBL Homo sapiens IC50 or Ki
+    activity subset
+  claim_id: c_b439233f
+  context: Task T038a requires generating a reference file from ChEMBL with specific
+    query criteria.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_pharmacophore_reference_from_ChEMBL_Homo_sapiens_IC
+  kind: entity_fact
+  raw_text: 'Generate data/reference/pharmacophores.json from a recent ChEMBL ''standard''
+    bioactivity subset using query: target_organism=Homo sapiens AND activity_type=''IC50''
+    OR ''Ki'''
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:41:18Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Verify graph edges represent interactions within 5.0 Angstroms
+  claim_id: c_b9c47938
+  context: "Independent test for User Story 1 requires verifying edge distances within\
+    \ a 5.0 \xC5 cutoff."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify that the output graph contains nodes with atomic coordinates,\
+    \ edges representing interactions within 5.0 \xC5"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:42:20Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Perform sensitivity analysis with molecular interaction cutoffs around
+    5 Angstroms
+  claim_id: c_b5136904
+  context: "Task T016 describes a sensitivity analysis using cutoffs around 5 \xC5\
+    ."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Re-run graph construction with varying cutoffs within a standard molecular\
+    \ interaction range (approximately 5 \xC5)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:42:55Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Train model for maximum 50 epochs or 4 hours
+  claim_id: c_127302ac
+  context: Independent test for User Story 2 sets a training limit of 50 epochs or
+    4 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train the model on the training split for up to 50 epochs or 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:43:10Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Use DBSCAN clustering with min_samples=5 to identify motifs
+  claim_id: c_442f199c
+  context: Task T034 specifies the clustering algorithm and a specific parameter value.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/analysis/clustering.py`: DBSCAN clustering on aligned
+    substructures (min_samples=5) to identify motifs'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:43:37Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Compare high-affinity (pKd > 8) and low-affinity (pKd < 6) complexes
+    using two-sample t-tests
+  claim_id: c_22dacc7f
+  context: Task T035a defines the affinity thresholds for statistical comparison.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement `code/analysis/validation.py`: Two-sample t-tests comparing
+    high-affinity (pKd > 8) and low-affinity (pKd < 6) complexes'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:43:37Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg FDR correction with alpha 0.05
+  claim_id: c_b5fb9f96
+  context: Task T035a specifies the statistical correction method and alpha level.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Benjamini-Hochberg FDR correction (alpha=0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:44:12Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Cross-reference pharmacophores using Kabsch algorithm with RMSD less
+    than 1.5 Angstroms
+  claim_id: c_de7ef409
+  context: Task T038 defines the matching criteria for pharmacophore validation.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cross-reference_pharmacophores_using_Kabsch_algorithm_with_R
+  kind: magnitude
+  raw_text: "Implement cross-referencing against known pharmacophore set in data/reference/pharmacophores.json\
+    \ using Kabsch algorithm (RMSD < 1.5 \xC5)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T05:45:01Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Dataset defined by 3.5-hour processing timeout on PDBbind
+  claim_id: c_91cdb66f
+  context: T013 describes the ingestion strategy with a 3.5-hour runtime limit for
+    processing complexes sequentially.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final dataset for the project is the set of complexes processed before
+    the timeout OR the full set if processed within the limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:33:23Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Protein-ligand complexes filtered for resolution greater than 2.5 Angstroms
+  claim_id: c_bd04bc01
+  context: "T020 specifies the implementation of a high-resolution filter that excludes\
+    \ complexes exceeding 2.5 \xC5 to ensure data quality."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Protein-ligand_complexes_filtered_for_resolution_greater_tha
+  kind: magnitude
+  raw_text: "The high-resolution filter logic strictly excludes complexes with resolution\
+    \ > 2.5 \xC5."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:34:23Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Water-mediated interactions defined by distance less than 3.5 Angstroms
+    to oxygen atoms
+  claim_id: c_5278a750
+  context: "T015 details the implementation of water-mediated interaction detection\
+    \ based on a 3.5 \xC5 distance cutoff to oxygen atoms."
+  evidence:
+    entailment_evidence: Water-mediated interactions defined by distance less than
+      3.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Water-mediated_interactions_defined_by_distance_less_than_3.
+  kind: magnitude
+  raw_text: "Water-mediated interaction detection uses a distance threshold of < 3.5\
+    \ \xC5 to oxygen atoms."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-04T05:35:46Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Graph edges represent molecular interactions within 5.0 Angstroms
+  claim_id: c_8f673362
+  context: "The Independent Test for User Story 1 requires verifying that edges represent\
+    \ interactions within 5.0 \xC5."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Edges in the constructed graph represent interactions within 5.0 \xC5\
+    ."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:36:12Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis performed on first 200 complexes
+  claim_id: c_845d9e17
+  context: T016a specifies using the first 200 complexes from T013's output for sensitivity
+    data generation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity data generation uses the first 200 complexes from the
+    ingestion output.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:36:52Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Pipeline fails if memory usage exceeds 7 GB
+  claim_id: c_689281cb
+  context: T017 mandates memory instrumentation to ensure compliance with SC-005,
+    which sets a 7 GB limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must explicitly fail if memory usage exceeds a 7 GB limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:37:53Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: GNN training limited to 4 hours
+  claim_id: c_f105e4d6
+  context: T025 describes the training loop implementation with a maximum time limit
+    of 4 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training loop has a maximum time limit of 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:38:24Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Inference latency requirement of less than 5 seconds per complex
+  claim_id: c_e0f70c86
+  context: T027 requires measuring and recording latency per complex to ensure it
+    is under 5s.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inference_latency_requirement_of_less_than_5_seconds_per_com
+  kind: magnitude
+  raw_text: Inference latency must be less than 5 seconds per complex.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:39:01Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: DBSCAN clustering with min_samples of 5
+  claim_id: c_19a49c77
+  context: T034 specifies implementing DBSCAN clustering with min_samples=5 for motif
+    identification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: DBSCAN clustering uses a min_samples value of 5 to identify motifs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:39:25Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: T-tests comparing high-affinity (pKd > 8) and low-affinity (pKd < 6)
+    complexes
+  claim_id: c_20cf088f
+  context: T035a describes computing two-sample t-tests comparing complexes with pKd
+    > 8 and pKd < 6.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Two-sample t-tests compare high-affinity (pKd > 8) and low-affinity (pKd
+    < 6) complexes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:39:25Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction with alpha 0.05
+  claim_id: c_5aee2233
+  context: T035a and T035b specify applying Benjamini-Hochberg FDR correction with
+    alpha=0.05.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "are small and n\u2217 is relatively large. For example, when \u03B1\
+        \ = 0.05, \u03C00 = 0.2"
+      source_id: '1906.01701'
+      url: https://arxiv.org/abs/1906.01701
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Benjamini-Hochberg FDR correction is applied with an alpha of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-04T05:40:07Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Pharmacophore matching using Kabsch algorithm with RMSD less than 1.5
+    Angstroms
+  claim_id: c_e1b9036a
+  context: "T039 specifies implementing cross-referencing using the Kabsch algorithm\
+    \ with an RMSD < 1.5 \xC5 threshold."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pharmacophore_matching_using_Kabsch_algorithm_with_RMSD_less
+  kind: magnitude
+  raw_text: "Pharmacophore matching uses the Kabsch algorithm with an RMSD threshold\
+    \ of < 1.5 \xC5."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:41:02Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Small set of motifs defined as 5 or fewer distinct motifs
+  claim_id: c_61c690c9
+  context: "T042 defines 'small set' as \u2264 5 distinct motifs for the purpose of\
+    \ aggregating SC-002."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Small_set_of_motifs_defined_as_5_or_fewer_distinct_motifs
+  kind: entity_fact
+  raw_text: "A 'small set' of distinct, statistically significant motifs is defined\
+    \ as \u2264 5 distinct motifs."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:42:02Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: PDBbind v2020 refined set from jglaser/pdbbind_v2020_refined on Hugging
+    Face
+  claim_id: c_04fd71d6
+  context: T013 specifies downloading the PDBbind v2020 refined set from the canonical
+    Hugging Face source.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PDBbind_v2020_refined_set_from_jglaser/pdbbind_v2020_refined
+  kind: entity_fact
+  raw_text: The PDBbind v2020 refined set is downloaded from the Hugging Face source
+    'jglaser/pdbbind_v2020_refined'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:42:36Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: ChEMBL reference data from version 29 snapshot
+  claim_id: c_1cbcea21
+  context: T038a0 specifies using a static, versioned snapshot of ChEMBL, specifically
+    'chembl_snapshot_v29.json'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ChEMBL reference uses a static, versioned snapshot 'chembl_snapshot_v29.json'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:43:00Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: "Edges representing interactions within 5.0 \xC5"
+  claim_id: c_7efe99f9
+  context: "Verify that the output graph contains nodes with atomic coordinates, edges\
+    \ representing interactions within 5.0 \xC5, and that the data structure fits\
+    \ within RAM limits via chunking."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Edges representing interactions within 5.0 \xC5"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:46:15Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: "Water-mediated interaction detection distance < 3.5 \xC5 to oxygen atoms"
+  claim_id: c_11830582
+  context: "Implement FR-009: Water-mediated interaction detection in projects/PROJ-543-predicting-molecular-interactions-in-pro/code/data/ingest.py\
+    \ (distance < 3.5 \xC5 to oxygen atoms)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "distance < 3.5 \xC5 to oxygen atoms"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:46:15Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Inference latency less than 5 seconds per complex
+  claim_id: c_b7b35d5c
+  context: Integration test for inference latency (< 5s/complex) in projects/PROJ-543-predicting-molecular-interactions-in-pro/tests/integration/test_inference_latency.py
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inference_latency_less_than_5_seconds_per_complex
+  kind: magnitude
+  raw_text: inference latency < 5s/complex
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:46:51Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Training loop with early stopping patience 10 and 4 hour time limit
+  claim_id: c_44b6f814
+  context: 'Implement projects/PROJ-543-predicting-molecular-interactions-in-pro/code/models/train.py:
+    Training loop with early stopping (patience=10), a maximum time limit of 4 hours
+    (FR-007), and GPU offload trigger logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: training loop with early stopping (patience=10), a maximum time limit
+    of 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:47:46Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: High-affinity complexes defined as pKd > 8 and low-affinity as pKd <
+    6
+  claim_id: c_4ad39dd8
+  context: Compute two-sample t-tests comparing high-affinity (pKd > 8) and low-affinity
+    (pKd < 6) complexes for each identified cluster (Constitution Principle VII).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pKd > 8 and low-affinity (pKd < 6)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:47:46Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Benjamini-Hochberg FDR correction with alpha 0.05
+  claim_id: c_d3fcd45a
+  context: 'MUST: Apply Benjamini-Hochberg FDR correction with alpha=0.05 (as per
+    Spec FR-006) to the raw p-values.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "are small and n\u2217 is relatively large. For example, when \u03B1\
+        \ = 0.05, \u03C00 = 0.2"
+      source_id: '1906.01701'
+      url: https://arxiv.org/abs/1906.01701
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Benjamini-Hochberg FDR correction with alpha=0.05
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-04T05:48:30Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: "Pharmacophore matching RMSD less than 1.5 \xC5"
+  claim_id: c_35264c4c
+  context: "Implement cross-referencing against known pharmacophore set in projects/PROJ-543-predicting-molecular-interactions-in-pro/data/reference/pharmacophores.json\
+    \ (generated in T038a1) using Kabsch algorithm (RMSD < 1.5 \xC5) and reporting\
+    \ matches (FR-005)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pharmacophore_matching_RMSD_less_than_1.5_%C3%85
+  kind: magnitude
+  raw_text: "RMSD < 1.5 \xC5"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:49:38Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Small set defined as 5 or fewer distinct motifs
+  claim_id: c_35569d27
+  context: "Aggregate SC-002: Count distinct, statistically significant motifs (after\
+    \ FDR correction); define 'small set' as \u2264 5 distinct motifs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "define 'small set' as \u2264 5 distinct motifs"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:49:38Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Download PDBbind v2020 refined set from jglaser/pdbbind_v2020_refined
+    split train
+  claim_id: c_e8a6f770
+  context: Download the PDBbind v refined set from the canonical Hugging Face source
+    (jglaser/pdbbind_v2020_refined, split 'train') with SHA256 checksum verification
+    (NO synthetic fallback).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_PDBbind_v2020_refined_set_from_jglaser/pdbbind_v202
+  kind: entity_fact
+  raw_text: Download the PDBbind v refined set from the canonical Hugging Face source
+    (jglaser/pdbbind_v2020_refined, split 'train')
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:50:27Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Use static versioned snapshot of ChEMBL bioactivity subset chembl_snapshot_v29.json
+  claim_id: c_316b5f6d
+  context: 'Use a static, versioned snapshot of a ChEMBL ''standard'' bioactivity
+    subset (e.g., data/raw/chembl_snapshot_v29.json). MUST: Verify SHA256 checksum
+    against a known good hash.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_static_versioned_snapshot_of_ChEMBL_bioactivity_subset_c
+  kind: entity_fact
+  raw_text: static, versioned snapshot of a ChEMBL 'standard' bioactivity subset (e.g.,
+    data/raw/chembl_snapshot_v29.json)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:51:01Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: "Exclude complexes with resolution greater than 2.5 \xC5"
+  claim_id: c_9d716b62
+  context: "Implement high-resolution filter logic in projects/PROJ-543-predicting-molecular-interactions-in-pro/code/data/preprocessing.py\
+    \ that strictly excludes complexes with resolution > 2.5 \xC5 (matching Spec Edge\
+    \ Cases) to ensure data quality."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_complexes_with_resolution_greater_than_2.5_%C3%85
+  kind: magnitude
+  raw_text: "strictly excludes complexes with resolution > 2.5 \xC5"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:52:00Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Implement 3.5 hour runtime limit for PDBbind ingestion task
+  claim_id: c_1f4d2dee
+  context: 'Timeout Constraint: Implement a 3.5-hour runtime limit for this task.
+    Process complexes sequentially. If the 3.5-hour limit is reached, stop processing
+    immediately.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a 3.5-hour runtime limit for this task
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:52:30Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: DBSCAN clustering with min_samples 5
+  claim_id: c_f0b2b9f0
+  context: 'Implement projects/PROJ-543-predicting-molecular-interactions-in-pro/code/analysis/clustering.py:
+    DBSCAN clustering on aligned substructures (min_samples=5) to identify motifs
+    (FR-004)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: DBSCAN clustering on aligned substructures (min_samples=5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:53:08Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Verify clustering produces 3 or more distinct clusters
+  claim_id: c_701b88e7
+  context: "Verify clustering produces \u22653 distinct clusters and at least one\
+    \ maps to a known pharmacophore with p < 0.05."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify clustering produces \u22653 distinct clusters"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:53:08Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Verify Mean Squared Error is finite on test set
+  claim_id: c_948d6453
+  context: Train the model on the training split for up to 50 epochs or 4 hours. Evaluate
+    on the test set. Verify MSE is finite and model file is saved.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_Mean_Squared_Error_is_finite_on_test_set
+  kind: entity_fact
+  raw_text: Evaluate on the test set. Verify MSE is finite
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:54:07Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Training up to 50 epochs
+  claim_id: c_0485cfbd
+  context: Train the model on the training split for up to 50 epochs or 4 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: up to 50 epochs
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T05:54:45Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Download PDBbind v2020 refined set from jglaser/pdbbind_v2020_refined
+    with SHA256 verification
+  claim_id: c_d7d67d98
+  context: 'T013 [US1] Ingest and Stream PDBbind: 1. Download the PDBbind v refined
+    set from the canonical Hugging Face source...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_PDBbind_v2020_refined_set_from_jglaser/pdbbind_v202
+  kind: entity_fact
+  raw_text: Download the PDBbind v refined set from the canonical Hugging Face source
+    (jglaser/pdbbind_v2020_refined, split 'train') with SHA256 checksum verification
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:53:05Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Exclude protein-ligand complexes with resolution greater than 2.5 Angstroms
+  claim_id: c_aae0f07f
+  context: "T020 [P] [US1] Implement high-resolution filter logic... that strictly\
+    \ excludes complexes with resolution > 2.5 \xC5"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_protein-ligand_complexes_with_resolution_greater_tha
+  kind: magnitude
+  raw_text: "Strictly exclude complexes with resolution > 2.5 \xC5"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:54:05Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Define graph edges for interactions within 5.0 Angstroms
+  claim_id: c_1f16f6d6
+  context: "Independent Test: Run the data pipeline... Verify that the output graph\
+    \ contains... edges representing interactions within 5.0 \xC5"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Edges representing interactions within 5.0 \xC5"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:54:36Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Training limit is 50 epochs or 4 hours
+  claim_id: c_4f897eb9
+  context: 'Independent Test: Train the model on the training split for up to 50 epochs
+    or 4 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train the model on the training split for up to 50 epochs or 4 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:55:27Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Inference latency must be less than 5 seconds per complex
+  claim_id: c_59ab7712
+  context: T022 [P] [US2] Integration test for inference latency (< 5s/complex)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inference_latency_must_be_less_than_5_seconds_per_complex
+  kind: magnitude
+  raw_text: Verify inference latency < 5s/complex
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:56:02Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: DBSCAN clustering min_samples set to 5
+  claim_id: c_a303e053
+  context: T034 [US3] Implement... DBSCAN clustering on aligned substructures (min_samples=5)
+    to identify motifs
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement DBSCAN clustering on aligned substructures (min_samples=5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:56:24Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg FDR correction with alpha 0.05
+  claim_id: c_c7577862
+  context: 'T035b [US3] FDRCorrection: Apply Benjamini-Hochberg FDR correction (alpha=0.05)
+    to the raw p-values'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Benjamini-Hochberg FDR correction (alpha=0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:57:05Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Verify SHA256 checksum for ChEMBL snapshot
+  claim_id: c_c5de85d4
+  context: 'T038a0 [US3] Ingest ChEMBL Reference: Use a static, versioned snapshot...
+    MUST: Verify SHA256 checksum against a known good hash.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_SHA256_checksum_for_ChEMBL_snapshot
+  kind: entity_fact
+  raw_text: Verify SHA256 checksum against a known good hash for ChEMBL snapshot
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:57:45Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Pharmacophore matching uses Kabsch algorithm with RMSD less than 1.5
+    Angstroms
+  claim_id: c_6a85f85c
+  context: "T039 [US3] Implement cross-referencing... using Kabsch algorithm (RMSD\
+    \ < 1.5 \xC5) and reporting matches"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pharmacophore_matching_uses_Kabsch_algorithm_with_RMSD_less
+  kind: magnitude
+  raw_text: "Use Kabsch algorithm (RMSD < 1.5 \xC5) for pharmacophore matching"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:58:31Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Small set defined as 5 or fewer distinct motifs
+  claim_id: c_bfa1fe26
+  context: "T042 [US3] Aggregate SC-002: Count distinct, statistically significant\
+    \ motifs... define 'small set' as \u2264 5 distinct motifs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Define 'small set' as \u2264 5 distinct motifs"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:58:31Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: PDBbind dataset processing limited to 3.5-hour runtime
+  claim_id: c_d96e4ff3
+  context: Task T013 describes the streaming strategy for the PDBbind v2020 refined
+    set, including a strict 3.5-hour runtime limit for sequential processing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final dataset for the project is the set of complexes processed before
+    the 3.5-hour timeout OR the full set if processed within the limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T10:01:41Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: "High-resolution filter excludes complexes with resolution > 2.5 \xC5"
+  claim_id: c_d1f7a53b
+  context: Task T020 specifies the implementation of a high-resolution filter in the
+    preprocessing pipeline that excludes complexes exceeding this threshold.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/High-resolution_filter_excludes_complexes_with_resolution_%3E_
+  kind: magnitude
+  raw_text: "The high-resolution filter logic strictly excludes complexes with resolution\
+    \ greater than 2.5 \xC5."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T10:02:18Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: "Graph edges represent interactions within 5.0 \xC5"
+  claim_id: c_d3f96f5f
+  context: The independent test for User Story 1 requires verifying that the output
+    graph contains edges representing interactions within this distance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Edges in the constructed graph represent interactions within 5.0 \xC5\
+    ."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T10:02:37Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: "Water-mediated interaction detection threshold is 3.5 \xC5"
+  claim_id: c_8fa80725
+  context: Task T015 implements water-mediated interaction detection logic with this
+    specific distance constraint to oxygen atoms.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Water-mediated_interaction_detection_threshold_is_3.5_%C3%85
+  kind: magnitude
+  raw_text: "Water-mediated interaction detection uses a distance threshold of less\
+    \ than 3.5 \xC5 to oxygen atoms."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T10:03:20Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: GNN training loop maximum time limit is 4 hours
+  claim_id: c_a8fb0f91
+  context: Task T025 implements the training loop with early stopping and a maximum
+    time limit of 4 hours as per FR-007.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training loop has a maximum time limit of 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T10:03:47Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: GNN architecture is fixed to 3 layers
+  claim_id: c_6af1c0cc
+  context: The goal for User Story 2 is to train a 3-layer message-passing GNN to
+    predict pKd.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model must be fixed to a 3-layer message-passing GNN architecture.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T10:04:22Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Inference latency is less than 5 seconds per complex
+  claim_id: c_d47147e6
+  context: Task T027 implements inference benchmarking to measure and record latency
+    per complex, ensuring it meets the SC-004 requirement.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Inference_latency_is_less_than_5_seconds_per_complex
+  kind: magnitude
+  raw_text: The inference latency benchmark ensures a latency of less than 5 seconds
+    per complex.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T10:05:07Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: "Baseline metric is percentage of test complexes within \xB11.0 pKd unit"
+  claim_id: c_c82d3958
+  context: Task T029 calculates the SC-001 metric, defined as the percentage of test
+    complexes within this specific pKd range compared to the baseline.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The baseline QSAR comparison metric calculates the percentage of test\
+    \ complexes within \xB11.0 pKd unit."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T10:05:23Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: DBSCAN clustering min_samples is 5
+  claim_id: c_b2b1fbbf
+  context: Task T034 implements DBSCAN clustering on aligned substructures with this
+    specific minimum sample size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: DBSCAN clustering uses a min_samples parameter of 5 to identify motifs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T10:05:39Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: T-test compares high-affinity (pKd > 8) and low-affinity (pKd < 6) complexes
+  claim_id: c_9eb12944
+  context: Task T035a implements two-sample t-tests comparing these specific affinity
+    groups for each identified cluster.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The t-test validation compares high-affinity complexes (pKd > 8) and low-affinity
+    complexes (pKd < 6).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T10:05:39Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: FDR correction alpha level is 0.05
+  claim_id: c_13cba5ba
+  context: Task T035b applies Benjamini-Hochberg FDR correction with alpha=0.05, and
+    Task T038 validates significance if p < 0.05.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: 'In statistics, testing multiple hypotheses simultaneously using methods
+        appropriate for testing single hypotheses tends to yield many false positives:
+        the so-called multiple comparisons problem. For example, assume that one were
+        to test 1,000 null hypotheses, all of which are true, and (as is conventional
+        in single hypothesis testing) to reject null hypotheses with a significance
+        level of 0.05; due to random chance, one would expect 5% of the results to
+        appear significant (P < 0.05), yielding 50 false positives (rejections of
+        the null hypothesis). Since the 1950s, statisticians had been developing methods
+        for multiple comparisons that reduced the number of false positives, such
+        as controlling the family-wise error rate (FWER) using the Bonferroni correction,
+        but these methods also increased the number of false negatives (i.e. reduced
+        the statistical power). In 1995, Yoav Benjamini and Yosef Hochberg proposed
+        controlling the false discovery rate (FDR) as a more statistically powerful
+        alternative to controlling the FWER in multiple hypothesis testing. The pFDR
+        and the q-value were introduced by John D. Storey in 2002.'
+      source_id: Q-value (statistics)
+      url: https://en.wikipedia.org/wiki/Q-value_(statistics)
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The FDR correction and statistical significance validation use an alpha
+    level of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T10:05:48Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: "Pharmacophore matching RMSD threshold is 1.5 \xC5"
+  claim_id: c_7f282c0b
+  context: Task T039 implements cross-referencing against known pharmacophores using
+    the Kabsch algorithm with this specific RMSD constraint.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pharmacophore_matching_RMSD_threshold_is_1.5_%C3%85
+  kind: magnitude
+  raw_text: "Pharmacophore matching uses the Kabsch algorithm with an RMSD threshold\
+    \ of less than 1.5 \xC5."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T10:06:23Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: "Small set of motifs is defined as \u2264 5 distinct motifs"
+  claim_id: c_6b3df241
+  context: Task T042 aggregates SC-002 and explicitly defines the 'small set' threshold
+    for the count of distinct motifs.
+  evidence:
+    entailment_evidence: "Small set of motifs is defined as \u2264 5 distinct motifs"
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Small_set_of_motifs_is_defined_as_%E2%89%A4_5_distinct_motifs
+  kind: entity_fact
+  raw_text: The project defines a 'small set' of distinct, statistically significant
+    motifs as having 5 or fewer motifs.
+  resolved_value: "Small set of motifs is defined as \u2264 5 distinct motifs"
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T10:06:24Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: ChEMBL reference data uses version 29 snapshot
+  claim_id: c_38379dc7
+  context: Task T038a0 specifies the ingestion of a static, versioned snapshot of
+    the ChEMBL 'standard' bioactivity subset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The ChEMBL reference data uses a static, versioned snapshot named chembl_snapshot_v29.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T10:06:49Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Download PDBbind v refined set from Hugging Face jglaser/pdbbind_v_refined
+    split train with checksum verification
+  claim_id: c_b67a148e
+  context: 'T013 [US1] Ingest and Stream PDBbind: 1. Download the PDBbind v refined
+    set from the canonical Hugging Face source...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Download_PDBbind_v_refined_set_from_Hugging_Face_jglaser/pdb
+  kind: entity_fact
+  raw_text: Download the PDBbind v refined set from the canonical Hugging Face source
+    ('jglaser/pdbbind_v_refined', split 'train') with cryptographic checksum verification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:26:57Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Implement DBSCAN clustering with min_samples=5 to identify motifs
+  claim_id: c_cfeea2da
+  context: 'T034 [US3] Implement clustering.py: DBSCAN clustering on aligned substructures
+    (min_samples=5) to identify motifs (FR-004)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement DBSCAN clustering on aligned substructures with min_samples=5
+    to identify motifs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:27:25Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Perform permutation test with 1000 iterations of atom coordinates to
+    generate null distribution
+  claim_id: c_dae221c1
+  context: 'T037 [US3] Secondary Validation (Permutation): Implement permutation test
+    with 1,000 iterations of atom coordinates...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a permutation test with 1,000 iterations of atom coordinates to
+    generate the null distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:27:45Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Calculate overlap score as fraction of atoms within 1.5 Angstroms of
+    original centroid
+  claim_id: c_37f06341
+  context: "T037 [US3] ...Overlap Score: Calculate overlap score as fraction of atoms\
+    \ within 1.5 \xC5 of original centroid."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate overlap score as fraction of atoms within 1.5 \xC5 of original\
+    \ centroid."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:28:34Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Apply Benjamini-Hochberg FDR correction with alpha 0.05 to raw p-values
+  claim_id: c_0b839dc4
+  context: 'T035a2 [US3] FDR Correction: Apply Benjamini-Hochberg FDR correction (alpha=0.05
+    per Spec FR-006)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Benjamini-Hochberg FDR correction with alpha=0.05 to the raw p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:29:12Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Validate attribution scores against random edge removal and feature permutation
+    baselines
+  claim_id: c_3ce224f1
+  context: T040 [US3] Implement ablation study... Validate attribution scores against
+    random edge removal and feature permutation baselines
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validate_attribution_scores_against_random_edge_removal_and
+  kind: entity_fact
+  raw_text: Validate attribution scores against random edge removal and feature permutation
+    baselines.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:29:43Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Run MMPBSA.py with igb=2 GB/SA and default dielectric for fallback validation
+  claim_id: c_0e79205c
+  context: 'T044b [US3] Fallback Validation (MM-GBSA): ...Run MMPBSA.py (AmberTools)
+    with igb=2 (GB/SA) and default dielectric.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MMPBSA.py (AmberTools) with igb=2 (GB/SA) and default dielectric for
+    fallback validation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:30:07Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Define small set of motifs as 5 or fewer distinct motifs
+  claim_id: c_958350a3
+  context: "T042 [US3] Aggregate SC-002: Count distinct, statistically significant\
+    \ motifs... define 'small set' as \u2264 5 distinct motifs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Define 'small set' of motifs as \u2264 5 distinct motifs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:30:08Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Use Kabsch algorithm with RMSD less than 1.5 Angstroms for cross-referencing
+    pharmacophores
+  claim_id: c_b56a75e7
+  context: "T039 [US3] Implement cross-referencing... using Kabsch algorithm (RMSD\
+    \ < 1.5 \xC5)..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Use_Kabsch_algorithm_with_RMSD_less_than_1.5_Angstroms_for_c
+  kind: magnitude
+  raw_text: "Use Kabsch algorithm with RMSD < 1.5 \xC5 for cross-referencing against\
+    \ known pharmacophore set."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:31:16Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Compare high-affinity pKd greater than 8 and low-affinity pKd less than
+    6 complexes for clusters
+  claim_id: c_f9c190af
+  context: 'T035a1 [US3] Primary Validation (T-Test): ...comparing high-affinity (pKd
+    > 8) and low-affinity (pKd < 6) complexes...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Compare_high-affinity_pKd_greater_than_8_and_low-affinity_pK
+  kind: magnitude
+  raw_text: Compare high-affinity (pKd > 8) and low-affinity (pKd < 6) complexes for
+    each identified cluster.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:31:49Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Detect CUDA availability and offload to Kaggle GPU if available
+  claim_id: c_ca7c8107
+  context: T023 [P] [US2] ...Include logic to detect CUDA availability (if torch.cuda.is_available())
+    and offload to Kaggle GPU if available.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Detect_CUDA_availability_and_offload_to_Kaggle_GPU_if_availa
+  kind: entity_fact
+  raw_text: Detect CUDA availability and offload to Kaggle GPU if available.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:32:09Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Implement early stopping with patience 10 monitoring val_loss to minimize
+  claim_id: c_03e843ae
+  context: T025 [US2] Implement training loop with early stopping (patience=10), monitoring
+    val_loss with direction minimize.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement early stopping with patience=10, monitoring val_loss with direction
+    minimize.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:32:55Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Ensure inference latency is less than 5 seconds per complex
+  claim_id: c_bb107cc5
+  context: T027 [US2] Implement inference benchmarking... ensuring < 5s latency.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_inference_latency_is_less_than_5_seconds_per_complex
+  kind: magnitude
+  raw_text: Ensure inference latency is less than 5 seconds per complex.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:33:42Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Train model on training split for up to 50 epochs or 4 hours
+  claim_id: c_2e75caa5
+  context: 'Independent Test: Train the model on the training split for up to 50 epochs
+    or 4 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train the model on the training split for up to 50 epochs or 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:34:20Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Use random seed from code/utils/seeds.py for train val test splitting
+  claim_id: c_eebb1bbe
+  context: T026 [P] ...perform train/val/test splitting ... using the random seed
+    defined in code/utils/seeds.py.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_random_seed_from_code/utils/seeds.py_for_train_val_test
+  kind: entity_fact
+  raw_text: Use a random seed defined in code/utils/seeds.py for train/val/test splitting.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:34:47Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Flag complexes with resolution greater than 2.5 Angstroms as low_resolution
+  claim_id: c_2dc859b1
+  context: "T020 [US1] ...flags complexes with resolution > 2.5 \xC5 (matching Spec\
+    \ Edge Cases) by setting a low_resolution flag..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_complexes_with_resolution_greater_than_2.5_Angstroms_as
+  kind: magnitude
+  raw_text: "Flag complexes with resolution > 2.5 \xC5 as low_resolution."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:35:57Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Store Euclidean distance as explicit edge attribute for edges within
+    5.0 Angstroms
+  claim_id: c_f9c47c5d
+  context: "T014 [US1] ...Edges (covalent + non-covalent < 5.0 \xC5). MUST: Store\
+    \ Euclidean distance as an explicit edge attribute..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Store Euclidean distance as an explicit edge attribute for edges within\
+    \ 5.0 \xC5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:36:52Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Detect water-mediated interactions with distance less than 3.5 Angstroms
+    to oxygen atoms
+  claim_id: c_9a9de150
+  context: "T015 [US1] ...Water-mediated interaction detection ... (distance < 3.5\
+    \ \xC5 to oxygen atoms)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Detect_water-mediated_interactions_with_distance_less_than_3
+  kind: magnitude
+  raw_text: "Detect water-mediated interactions with distance < 3.5 \xC5 to oxygen\
+    \ atoms."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:37:46Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Use ECFP4 fingerprints for Random Forest QSAR baseline model
+  claim_id: c_c050fef2
+  context: T024 [US2] ...Random Forest QSAR model using ECFP4 fingerprints for SC-001
+    comparison.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_ECFP4_fingerprints_for_Random_Forest_QSAR_baseline_model
+  kind: entity_fact
+  raw_text: Use ECFP4 fingerprints for the Random Forest QSAR baseline model.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:38:13Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Set random seed to 42 in configuration
+  claim_id: c_81cc4ac7
+  context: 'T007 [P] ...config.yaml ... seed: 42...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set the random seed to 42 in the configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:38:48Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Run 50 epochs as default number of training epochs
+  claim_id: c_5410e637
+  context: 'T007 [P] ...config.yaml ... epochs: 50...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 50 epochs as the default number of training epochs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:39:29Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Set cutoffs for sensitivity analysis to 3.0 4.0 5.0 6.0 Angstroms
+  claim_id: c_bf05cc30
+  context: 'T007 [P] ...config.yaml ... cutoffs_for_sensitivity: [3.0, 4.0, 5.0, 6.0]...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Set the cutoffs for sensitivity analysis to [3.0, 4.0, 5.0, 6.0] \xC5\
+    ."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:40:06Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Set timeout for training to 4 hours
+  claim_id: c_a1315cb6
+  context: 'T007 [P] ...config.yaml ... timeout_hours: 4.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Set the timeout for training to 4 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-28T16:40:44Z'
+- artifact_path: projects/PROJ-543-predicting-molecular-interactions-in-pro/specs/001-predicting-molecular-interactions-in-pro/tasks.md
+  attempts: 1
+  canonical: Use alpha 0.05 for Benjamini-Hochberg FDR correction
+  claim_id: c_0b8eaf51
+  context: T004a [P] ...explicitly state alpha=0.05 for Benjamini-Hochberg FDR correction...
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: "are small and n\u2217 is relatively large. For example, when \u03B1\
+        \ = 0.05, \u03C00 = 0.2"
+      source_id: '1906.01701'
+      url: https://arxiv.org/abs/1906.01701
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Use alpha=0.05 for Benjamini-Hochberg FDR correction.
+  resolved_value: '0.05'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-28T16:41:30Z'

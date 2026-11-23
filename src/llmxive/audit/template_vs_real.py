@@ -119,6 +119,21 @@ def _placeholder_scan_text(text: str) -> str:
     t = re.sub(r"<!--.*?-->", "", t, flags=re.S)
     t = re.sub(r"!?\[[^\]]*\]\([^)]*\)", "", t)   # [text](url) / ![alt](url)
     t = re.sub(r"!?\[[^\]]*\]\[[^\]]*\]", "", t)  # [text][ref]
+    # Filled task tags such as [Write Script] describe the concrete task that
+    # follows. They are metadata, not six distinct missing template fields.
+    # Keep explicit fill-in directives even in this position.
+    def strip_task_tags(match: re.Match[str]) -> str:
+        tags = re.findall(r"\[[^\]]+\]", match.group(2))
+        unresolved = [tag for tag in tags if re.search(
+            r"\b(insert|placeholder|fill|TBD|TODO|description here)\b", tag, re.I
+        )]
+        return match.group(1) + " ".join(unresolved) + " "
+
+    t = re.sub(
+        r"(^\s*[-*]\s+\[[ xX~]\]\s+[A-Z]{1,4}\d+[\w.-]*\s+)"
+        r"((?:\*{0,2}\[[^\]\n]+\]\*{0,2}\s*)+)(?=\S.{20})",
+        strip_task_tags, t, flags=re.M,
+    )
     # Generic type annotations / subscripts — ``Map[String, Float]``,
     # ``List[String]``, ``dict[str, int]``, ``arr[0]`` — are a bracket IMMEDIATELY
     # preceded by an identifier (a type parameter or index), NOT a standalone

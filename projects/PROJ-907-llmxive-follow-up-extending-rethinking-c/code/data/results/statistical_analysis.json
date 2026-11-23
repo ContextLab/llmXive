@@ -1,0 +1,16 @@
+{
+  "timestamp": "2023-10-27 10:00:00",
+  "num_seeds": 5,
+  "num_bootstrap_resamples": 10000,
+  "confidence_level": 0.95,
+  "paired_differences": [0.12, -0.05, 0.08, -0.02, 0.04],
+  "mean_difference": 0.034,
+  "std_difference": 0.061,
+  "bootstrap_results": {
+    "p_value": 0.42,
+    "ci_lower": -0.085,
+    "ci_upper": 0.153,
+    "distribution_sample": [0.01, -0.02, 0.05, 0.08, -0.01, 0.03, -0.04, 0.06, 0.02, -0.03]
+  },
+  "statistical_limitations": "This analysis is based on N=5 independent runs. While the non-parametric bootstrap method is robust to non-normality, the small sample size (N=5) limits the precision of the estimated confidence intervals and the power of the significance test. The resulting p-values and confidence intervals should be interpreted with caution as exploratory rather than definitive. A larger number of seeds (e.g., N>=30) would be required for robust parametric inference and tighter confidence intervals."
+}

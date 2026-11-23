@@ -1,0 +1,8 @@
+{
+  "seed": 0,
+  "mode": "debug",
+  "steps_completed": 20,
+  "final_loss": 14.081332206726074,
+  "checkpoint": "checkpoints/debug_seed0.pt",
+  "peak_rss_mb": 1880
+}

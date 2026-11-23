@@ -1,0 +1,21 @@
+T002:
+  c: false
+  h: f7f887f1ef518ba1b7a911c8b5869bbc3299fc0c08276a8f01a258570d14e047
+  r: "The Hamiltonian generator and storage utilities exist, but the required provenance\
+    \ and checksum artifacts are not present as specified: `data/metadata/checksums.json`\
+    \ is missing, and `data/metadata/provenance.json` contains only a JSON schema\
+    \ rather than actual provenance entries logged by the code. No unit\u2011test\
+    \ files are provided to demonstrate seed reproducibility, disorder bounds, or\
+    \ open\u2011boundary structure. These omissions mean the task\u2019s storage\u2011\
+    with\u2011provenance requirement is not satisfied."
+  sig: f553ff611fcfd8ff5cad07374c42dd8bdb143d5a6d9c39f78b6ef2f25d4d42e1
+T011:
+  c: false
+  h: 43b3b6b8d5f936b2490fa439815440a56fad0ad54bb7faf19219f7740f8a17b8
+  r: "Checked `code/logger.py` (exists) and the required output files `data/metadata/residuals.json`\
+    \ and `data/metadata/convergence_trace.json` (both missing). The logger\u2019\
+    s `log_residual`/`log_convergence` methods do not emit the required fields (`realization_id`,\
+    \ `W`, `L`, `residual_norm`, timestamp) and they write only to a single file,\
+    \ not separately to `residuals.json` and `convergence_trace.json`. Hence the implementation\
+    \ does not meet the task specification."
+  sig: e871351ccd58a87f9280e241a52d99e27a1401d7eb78d86d8eeaf38d7eb72c58

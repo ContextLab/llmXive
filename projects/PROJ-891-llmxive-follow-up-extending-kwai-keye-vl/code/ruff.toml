@@ -1,0 +1,29 @@
+[lint]
+select = [
+  "E",   # pycodestyle errors
+  "W",   # pycodestyle warnings
+  "F",   # pyflakes
+  "I",   # isort
+  "C",   # flake8-comprehensions
+  "B",   # flake8-bugbear
+  "UP",  # pyupgrade
+  "SIM", # flake8-simplify
+  "PL",  # pylint
+]
+ignore = [
+  "E501",  # line too long (handled by black)
+  "B008",  # do not perform function call in argument (common in tests)
+  "PLR0913", # too many arguments (flexible for complex generators)
+  "PLR2004", # magic value comparison (common in tests)
+]
+per-file-ignores = {}
+
+[lint.flake8-unused-parameters]
+ignore-args = ["_"]
+
+[format]
+line-length = 88
+quote-style = "single"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

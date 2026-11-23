@@ -1,0 +1,621 @@
+{
+  "fetched_at": "2026-07-19T04:55:30Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Statistical Analysis of Publicly Available Climate Model Output Ensembles",
+      "target_n": 5
+    },
+    "duration_seconds": 93.31,
+    "ended_at": "2026-07-19T04:55:30Z",
+    "expansion": null,
+    "extracted_queries": [
+      "CMIP6 ensemble intercomparison multimodel spread",
+      "CMIP6 model output bias correction downscaling",
+      "structural uncertainty scenario ensemble spread",
+      "ensemble mean variance quantile assessment",
+      "climate model initialization drift internal variability"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "success",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2012.10386"
+      ]
+    },
+    "per_query_hit_count": {
+      "CMIP6 ensemble intercomparison multimodel spread": 3,
+      "CMIP6 model output bias correction downscaling": 3,
+      "Statistical Analysis of Publicly Available Climate Model Output Ensembles statistics": 3,
+      "climate model initialization drift internal variability": 2,
+      "ensemble mean variance quantile assessment": 3,
+      "structural uncertainty scenario ensemble spread": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-19T04:53:57Z",
+    "term_input": {
+      "normalized": "statistical analysis of publicly available climate model output ensembles statistics",
+      "raw": "Statistical Analysis of Publicly Available Climate Model Output Ensembles statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Mediterranean ecosystems such as those found in California, Central Chile, Southern Europe, and Southwest Australia host numerous, diverse, fire-adapted micro-ecosystems. These micro-ecosystems are as diverse as mountainous conifer to desert-like chaparral communities. Over the last few centuries, human intervention, invasive species, and climate warming have drastically affected the composition and health of Mediterranean ecosystems on almost every continent. Increased fuel load from fire suppression policies and the continued range expansion of non-native insects and plants, some driven by long-term drought, produced the deadliest wildfire season on record in 2018. As a consequence of these fires, a large number of structures are destroyed, releasing household chemicals into the environment as uncontrolled toxins. The mobilization of these materials can lead to health risks and disruption in both human and natural systems. This article identifies drivers that led to a structural weakening of the mosaic of fire-adapted ecosystems in California, and subsequently increased the risk of destructive and explosive wildfires throughout the state. Under a new climate regime, managing the impacts on systems moving out-of-phase with natural processes may protect lives and ensure the stability of ecosystem services.",
+          "claimed_authors": [
+            "Kimberley Miner",
+            "Laura Meyerson",
+            ". Climate Change Institute",
+            "School of Earth",
+            "Climate Sciences",
+            "University of Maine",
+            " Orono",
+            "ME 04469 2. Department of Natural Resources Science",
+            "University of Rhode Island",
+            " Kingston",
+            "RI 02881"
+          ],
+          "claimed_title": "Invasive species, extreme fire risk, and toxin release under a changing climate",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2008.01035"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Invasive species, extreme fire risk, and toxin release under a changing climate')",
+        "failed_at": "2026-07-19T04:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Statistics has moved beyond the frequentist-Bayesian controversies of the past. Where does this leave our ability to interpret results? I suggest that a philosophy compatible with statistical practice, labeled here statistical pragmatism, serves as a foundation for inference. Statistical pragmatism is inclusive and emphasizes the assumptions that connect statistical models with observed data. I argue that introductory courses often mischaracterize the process of statistical inference and I propose an alternative \"big picture\" depiction.",
+          "claimed_authors": [
+            "Robert E. Kass"
+          ],
+          "claimed_title": "Statistical Inference: The Big Picture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1106.2895"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Statistical Inference: The Big Picture')",
+        "failed_at": "2026-07-19T04:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Spectroscopic characterization of rocky exoplanets with the James Webb Space Telescope has brought the origin and evolution of their atmospheres into the focus of exoplanet science. Time-evolved models of the feedback between interior and atmosphere are critical to predict and interpret these observations and link them to the Solar System terrestrial planets. However, models differ in methodologies and input data, which can lead to significant differences in interpretation. In this paper, we present the experimental protocol of the Coupled atmospHere Interior modeL Intercomparison (CHILI) project. CHILI is an (exo-)planet model intercomparison project within the Climates Using Interactive Suites of Intercomparisons Nested for Exoplanet Studies (CUISINES) framework, which aims to support a diverse set of multi-model intercomparison projects in the exoplanet community. The present protocol includes the initial set of participating magma ocean models, divided into evolutionary and static models, and two types of test categories, one focused on Solar System planets (Earth & Venus) and the other on exoplanets orbiting low-mass M-dwarfs. Both test categories aim to quantify the evolution of key markers of the links between planetary atmospheres and interiors over geological timescales. The proposed tests would allow us to quantify and compare the differences between coupled atmosphere-interior models used by the exoplanet and planetary science communities. Results from the proposed tests will be published in dedicated follow-up papers. To encourage the community to join this comparison effort and as an example, we present initial test results for the early Earth and TRAPPIST-1 b, conducted with models differing in the treatment of energy transport in the planetary interior and atmosphere, surface boundary layer, geochemistry, and the in- and outgassing of volatile compounds.",
+          "claimed_authors": [
+            "Tim Lichtenberg",
+            "Laura Schaefer",
+            "Joshua Krissansen-Totton",
+            "Yamila Miguel",
+            "Denis E. Sergeev",
+            "Philipp Baumeister",
+            "Jessica Cmiel",
+            "Leoni J. Janssen",
+            "T. Giang Nguyen",
+            "Yoshinori Miyazaki",
+            "Harrison Nicholls",
+            "Alexandra Papesh",
+            "Hugo Pelissard",
+            "Bo Peng",
+            "Junellie Perez",
+            "Emma Postolec",
+            "Mariana Sastre",
+            "Arnaud Salvador",
+            "Hanno Spreeuw",
+            "Andrea Zorzi",
+            "Thomas J. Fauchez",
+            "Keiko Hamano",
+            "Jérémy Leconte",
+            "Maxime Maurice",
+            "Lena Noack",
+            "Laurent Soucasse"
+          ],
+          "claimed_title": "Coupled atmospHere Interior modeL Intercomparison (CHILI) Protocol Version 1.0: A CUISINES Intercomparison Project of Magma Ocean Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.16142"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Coupled atmospHere Interior modeL Intercomparison (CHILI) Protocol Version 1.0: A CUISINES Intercomparison Project of Magma Ocean Models')",
+        "failed_at": "2026-07-19T04:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quantitative measurements of medium energy electron (MEE) precipitation ($>$40 keV) are a key to understand the total effect of particle precipitation on the atmosphere. The Medium Energy Proton and Electron Detector (MEPED) instrument on board the NOAA/Polar Orbiting Environmental Satellites (POES) has two sets of electron telescopes pointing $\\sim$0$^{\\circ}$ and $\\sim$90$^{\\circ}$ to the local vertical. Pitch angle anisotropy, which varies with particle energy, location, and geomagnetic activity, makes the 0$^{\\circ}$ detector measurements a lower estimate of the flux of precipitating electrons. In the solar forcing recommended for Coupled Model Intercomparison Project (CMIP) 6 (v3.2) MEE precipitation is parameterized by Ap based on 0$^{\\circ}$ detector measurements hence providing a general underestimate of the flux level. In order to assess the accuracy of the Ap model, we compare the modeled electron fluxes with estimates of the loss cone fluxes using both detectors in combination with electron pitch angle distributions from theory of wave-particle interactions. The Ap model falls short in respect to reproducing the flux level and variability associated with strong geomagnetic storms (Ap $>$ 40) as well as the duration of corotating interaction region storms causing a systematic bias within a solar cycle. As the Ap-parameterized fluxes reach a plateau for Ap $>$ 40, the model's ability to reflect the flux level of previous solar cycles associated with generally higher Ap values is questioned. The objective of this comparison is to understand the potential uncertainty in the energetic particle precipitation applying the CMIP6 particle energy input in order to assess its subsequent impact on the atmosphere.",
+          "claimed_authors": [
+            "H. Nesse Tyssøy",
+            "A. Haderlein",
+            "M. I. Sandanger",
+            "J. Stadsnes"
+          ],
+          "claimed_title": "Intercomparison of the POES/MEPED Loss Cone Electron Fluxes With the CMIP6 Parametrization",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.10460"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Intercomparison of the POES/MEPED Loss Cone Electron Fluxes With the CMIP6 Parametrization')",
+        "failed_at": "2026-07-19T04:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Improvements in the representation of the land carbon cycle in Earth system models participating in the Coupled Model Intercomparison Project Phase 6 (CMIP6) include interactive treatment of both the carbon and nitrogen cycles, improved photosynthesis, and soil hydrology. To assess the impact of these model developments on aspects of the global carbon cycle, the Earth System Model Evaluation Tool is expanded to compare CO2 concentration and emission-driven historical simulations from CMIP5 and CMIP6 to observational data sets. Overestimations of photosynthesis (GPP) in CMIP5 were largely resolved in CMIP6 for participating models with an interactive nitrogen cycle, but remaining for models without one. This points to the importance of including nutrient limitation. Simulating the leaf area index (LAI) remains challenging with a large model spread in both CMIP5 and CMIP6. In ESMs, global mean land carbon uptake (NBP) is well reproduced in the CMIP5 and CMIP6 multi-model means. However, this is the result of an underestimation of NBP in the northern hemisphere, which is compensated by an overestimation in the southern hemisphere and the tropics. Overall, a slight improvement in the simulation of land carbon cycle parameters is found in CMIP6 compared to CMIP5, but with many biases remaining, further improvements of models in particular for LAI and NBP is required. Emission-driven simulations perform just as well as concentration driven models despite the added process-realism. Due to this we recommend ESMs in future CMIP phases to perform emission-driven simulations as the standard so that climate-carbon cycle feedbacks are fully active. The inclusion of nitrogen limitation led to a large improvement in photosynthesis compared to models not including this process, suggesting the need to view the nitrogen cycle as a necessary part of all future carbon cycle models.",
+          "claimed_authors": [
+            "Bettina K. Gier",
+            "Manuel Schlund",
+            "Pierre Friedlingstein",
+            "Chris D. Jones",
+            "Colin Jones",
+            "Sönke Zaehle",
+            "Veronika Eyring"
+          ],
+          "claimed_title": "Representation of the Terrestrial Carbon Cycle in CMIP6",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2402.05671"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Representation of the Terrestrial Carbon Cycle in CMIP6')",
+        "failed_at": "2026-07-19T04:55:17Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bias in web search has been in the spotlight of bias detection research for quite a while. At the same time, little attention has been paid to query suggestions in this regard. Awareness of the problem of biased query suggestions has been raised. Likewise, there is a rising need for automatic bias detection approaches. This paper adds on the bias detection pipeline for bias detection in query suggestions of person-related search developed by Bonart et al. \\cite{Bonart_2019a}. The sparseness and lack of contextual metadata of query suggestions make them a difficult subject for bias detection. Furthermore, query suggestions are perceived very briefly and subliminally. To overcome these issues, perception-aware metrics are introduced. Consequently, the enhanced pipeline is able to better detect systematic topical bias in search engine query suggestions for person-related searches. The results of an analysis performed with the developed pipeline confirm this assumption. Due to the perception-aware bias detection metrics, findings produced by the pipeline can be assumed to reflect bias that users would discern.",
+          "claimed_authors": [
+            "Fabian Haak",
+            "Philipp Schaer"
+          ],
+          "claimed_title": "Perception-Aware Bias Detection for Query Suggestions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03730"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Perception-Aware Bias Detection for Query Suggestions')",
+        "failed_at": "2026-07-19T04:55:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deep ensembles (DE) have emerged as a powerful approach for quantifying predictive uncertainty and distinguishing its aleatoric and epistemic components, thereby enhancing model robustness and reliability. However, their high computational and memory costs during inference pose significant challenges for wide practical deployment. To overcome this issue, we propose credal ensemble distillation (CED), a novel framework that compresses a DE into a single model, CREDIT, for classification tasks. Instead of a single softmax probability distribution, CREDIT predicts class-wise probability intervals that define a credal set, a convex set of probability distributions, for uncertainty quantification. Empirical results on out-of-distribution detection benchmarks demonstrate that CED achieves superior or comparable uncertainty estimation compared to several existing baselines, while substantially reducing inference overhead compared to DE.",
+          "claimed_authors": [
+            "Kaizheng Wang",
+            "Fabio Cuzzolin",
+            "David Moens",
+            "Hans Hallez"
+          ],
+          "claimed_title": "Credal Ensemble Distillation for Uncertainty Quantification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.13766"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Credal Ensemble Distillation for Uncertainty Quantification')",
+        "failed_at": "2026-07-19T04:55:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Accurate structural response prediction forms a main driver for structural health monitoring and control applications. This often requires the proposed model to adequately capture the underlying dynamics of complex structural systems. In this work, we utilize a learnable Extended Kalman Filter (EKF), named the Neural Extended Kalman Filter (Neural EKF) throughout this paper, for learning the latent evolution dynamics of complex physical systems. The Neural EKF is a generalized version of the conventional EKF, where the modeling of process dynamics and sensory observations can be parameterized by neural networks, therefore learned by end-to-end training. The method is implemented under the variational inference framework with the EKF conducting inference from sensing measurements. Typically, conventional variational inference models are parameterized by neural networks independent of the latent dynamics models. This characteristic makes the inference and reconstruction accuracy weakly based on the dynamics models and renders the associated training inadequate. In this work, we show that the structure imposed by the Neural EKF is beneficial to the learning process. We demonstrate the efficacy of the framework on both simulated and real-world structural monitoring datasets, with the results indicating significant predictive capabilities of the proposed scheme.",
+          "claimed_authors": [
+            "Wei Liu",
+            "Zhilu Lai",
+            "Kiran Bacsa",
+            "Eleni Chatzi"
+          ],
+          "claimed_title": "Neural Extended Kalman Filters for Learning and Predicting Dynamics of Structural Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.04165"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Neural Extended Kalman Filters for Learning and Predicting Dynamics of Structural Systems')",
+        "failed_at": "2026-07-19T04:55:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Dynamic optimization of mean and variance in Markov decision processes (MDPs) is a long-standing challenge caused by the failure of dynamic programming. In this paper, we propose a new approach to find the globally optimal policy for combined metrics of steady-state mean and variance in an infinite-horizon undiscounted MDP. By introducing the concepts of pseudo mean and pseudo variance, we convert the original problem to a bilevel MDP problem, where the inner one is a standard MDP optimizing pseudo mean-variance and the outer one is a single parameter selection problem optimizing pseudo mean. We use the sensitivity analysis of MDPs to derive the properties of this bilevel problem. By solving inner standard MDPs for pseudo mean-variance optimization, we can identify worse policy spaces dominated by optimal policies of the pseudo problems. We propose an optimization algorithm which can find the globally optimal policy by repeatedly removing worse policy spaces. The convergence and complexity of the algorithm are studied. Another policy dominance property is also proposed to further improve the algorithm efficiency. Numerical experiments demonstrate the performance and efficiency of our algorithms. To the best of our knowledge, our algorithm is the first that efficiently finds the globally optimal policy of mean-variance optimization in MDPs. These results are also valid for solely minimizing the variance metrics in MDPs.",
+          "claimed_authors": [
+            "Li Xia",
+            "Shuai Ma"
+          ],
+          "claimed_title": "Global Algorithms for Mean-Variance Optimization in Markov Decision Processes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.13710"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Global Algorithms for Mean-Variance Optimization in Markov Decision Processes')",
+        "failed_at": "2026-07-19T04:55:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multi-period mean-variance optimization is a long-standing problem, caused by the failure of dynamic programming principle. This paper studies the mean-variance optimization in a setting of finite-horizon discrete-time Markov decision processes (MDPs), where the objective is to maximize the combined metrics of mean and variance of the accumulated rewards at terminal stage. By introducing the concepts of pseudo mean and pseudo variance, we convert the original mean-variance MDP to a bilevel MDP, where the outer is a single parameter optimization of the pseudo mean and the inner is a standard finite-horizon MDP with an augmented state space by adding an auxiliary state of accumulated rewards. We further study the properties of this bilevel MDP, including the optimality of history-dependent deterministic policies and the piecewise quadratic concavity of the inner MDPs' optimal values with respect to the pseudo mean. To efficiently solve this bilevel MDP, we propose an iterative algorithm that alternatingly updates the inner optimal policy and the outer pseudo mean. We prove that this algorithm converges to a local optimum. We also derive a sufficient condition under which our algorithm converges to the global optimum. Furthermore, we apply this approach to study the mean-variance optimization of multi-period portfolio selection problem, which shows that our approach exactly coincides with the classical result by Li and Ng (2000) in financial engineering. Our approach builds a new avenue to solve mean-variance optimization problems and has wide applicability to any problem modeled by MDPs, which is further demonstrated by examples of mean-variance optimization for queueing control and inventory management.",
+          "claimed_authors": [
+            "Li Xia",
+            "Zhihui Yu"
+          ],
+          "claimed_title": "Mean-Variance Optimization and Algorithm for Finite-Horizon Markov Decision Processes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2507.22327"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Mean-Variance Optimization and Algorithm for Finite-Horizon Markov Decision Processes')",
+        "failed_at": "2026-07-19T04:55:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This work considers the problem of depth completion, with or without image data, where an algorithm may measure the depth of a prescribed limited number of pixels. The algorithmic challenge is to choose pixel positions strategically and dynamically to maximally reduce overall depth estimation error. This setting is realized in daytime or nighttime depth completion for autonomous vehicles with a programmable LiDAR. Our method uses an ensemble of predictors to define a sampling probability over pixels. This probability is proportional to the variance of the predictions of ensemble members, thus highlighting pixels that are difficult to predict. By additionally proceeding in several prediction phases, we effectively reduce redundant sampling of similar pixels. Our ensemble-based method may be implemented using any depth-completion learning algorithm, such as a state-of-the-art neural network, treated as a black box. In particular, we also present a simple and effective Random Forest-based algorithm, and similarly use its internal ensemble in our design. We conduct experiments on the KITTI dataset, using the neural network algorithm of Ma et al. and our Random Forest based learner for implementing our method. The accuracy of both implementations exceeds the state of the art. Compared with a random or grid sampling pattern, our method allows a reduction by a factor of 4-10 in the number of measurements required to attain the same accuracy.",
+          "claimed_authors": [
+            "Eyal Gofer",
+            "Shachar Praisler",
+            "Guy Gilboa"
+          ],
+          "claimed_title": "Adaptive LiDAR Sampling and Depth Completion using Ensemble Variance",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.13834"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Adaptive LiDAR Sampling and Depth Completion using Ensemble Variance')",
+        "failed_at": "2026-07-19T04:55:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The response of precipitation extremes to climate change is considered using results from theory, modeling, and observations, with a focus on the physical factors that control the response. Observations and simulations with climate models show that precipitation extremes intensify in response to a warming climate. However, the sensitivity of precipitation extremes to warming remains uncertain when convection is important, and it may be higher in the tropics than the extratropics. Several physical contributions govern the response of precipitation extremes. The thermodynamic contribution is robust and well understood, but theoretical understanding of the microphysical and dynamical contributions is still being developed. Orographic precipitation extremes and snowfall extremes respond differently from other precipitation extremes and require particular attention. Outstanding research challenges include the influence of mesoscale convective organization, the dependence on the duration considered, and the need to better constrain the sensitivity of tropical precipitation extremes to warming.",
+          "claimed_authors": [
+            "Paul A. O'Gorman"
+          ],
+          "claimed_title": "Precipitation extremes under climate change",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1503.07557"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Precipitation extremes under climate change')",
+        "failed_at": "2026-07-19T04:55:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this work we study several types of diagonal-effect models for two-way contingency tables in the framework of Algebraic Statistics. We use both toric models and mixture models to encode the different behavior of the diagonal cells. We compute the invariants of these models and we explore their geometrical structure.",
+          "claimed_authors": [
+            "Cristiano Bocci",
+            "Enrico Carlini",
+            "Fabio Rapallo"
+          ],
+          "claimed_title": "Geometry of diagonal-effect models for contingency tables",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0908.0232"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Geometry of diagonal-effect models for contingency tables')",
+        "failed_at": "2026-07-19T04:55:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We determine the asymptotics of the number of independent sets of size $\\lfloor β2^{d-1} \\rfloor$ in the discrete hypercube $Q_d = \\{0,1\\}^d$ for any fixed $β\\in [0,1]$ as $d \\to \\infty$, extending a result of Galvin for $β\\in [1-1/\\sqrt{2},1]$. Moreover, we prove a multivariate local central limit theorem for structural features of independent sets in $Q_d$ drawn according to the hard core model at any fixed fugacity $λ>0$. In proving these results we develop several general tools for performing combinatorial enumeration using polymer models and the cluster expansion from statistical physics along with local central limit theorems.",
+          "claimed_authors": [
+            "Matthew Jenssen",
+            "Will Perkins",
+            "Aditya Potukuchi"
+          ],
+          "claimed_title": "Independent sets of a given size and structure in the hypercube",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2106.09709"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Independent sets of a given size and structure in the hypercube')",
+        "failed_at": "2026-07-19T04:55:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This paper establishes the global asymptotic equivalence, in the sense of the Le Cam $Δ$-distance, between scalar diffusion models with unknown drift function and small variance on the one side, and nonparametric autoregressive models on the other side. The time horizon $T$ is kept fixed and both the cases of discrete and continuous observation of the path are treated. We allow non constant diffusion coefficient, bounded but possibly tending to zero. The asymptotic equivalences are established by constructing explicit equivalence mappings.",
+          "claimed_authors": [
+            "Ester Mariucci"
+          ],
+          "claimed_title": "Asymptotic equivalence of discretely observed diffusion processes and their Euler scheme: small variance case",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1411.3684"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Asymptotic equivalence of discretely observed diffusion processes and their Euler scheme: small variance case')",
+        "failed_at": "2026-07-19T04:55:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We propose a novel Markov chain Monte-Carlo (MCMC) method for reverse engineering the topological structure of stochastic reaction networks, a notoriously challenging problem that is relevant in many modern areas of research, like discovering gene regulatory networks or analyzing epidemic spread. The method relies on projecting the original time series trajectories onto information rich summary statistics and constructing the appropriate synthetic likelihood function to estimate reaction rates. The resulting estimates are consistent in the large volume limit and are obtained without employing complicated tuning strategies and expensive resampling as typically used by likelihood-free MCMC and approximate Bayesian methods. To illustrate run time improvements that can be achieved with our approach, we present a simulation study on inferring rates in a stochastic dynamical system arising from a density dependent Markov jump process. We then apply the method to two real data examples: the RNA-seq data from zebrafish experiment and the incidence data from 1665 plague outbreak at Eyam, England.",
+          "claimed_authors": [
+            "Daniel F. Linder",
+            "Grzegorz A. Rempala"
+          ],
+          "claimed_title": "Synthetic likelihood method for reaction network inference",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1810.02457"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Synthetic likelihood method for reaction network inference')",
+        "failed_at": "2026-07-19T04:55:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Up-and-Down (U&D) is a popular sequential design for estimating threshold percentiles in binary experiments. However, U&D application practices have stagnated, and significant gaps in understanding its properties persist. The first part of my work aims to fill gaps in U&D theory. New results concerning stationary distribution properties are proven. A second focus of this study is nonparametric U&D estimation. An improvement to isotonic regression called \"centered isotonic regression\" (CIR), and a new averaging estimator called \"auto-detect\" are introduced and their properties studied. Bayesian percentile-finding designs, most notably the continual reassessment method (CRM) developed for Phase I clinical trials, are also studied. In general, CRM convergence depends upon random run-time conditions -- meaning that convergence is not always assured. Small-sample behavior is studied as well. It is shown that CRM is quite sensitive to outlier sub-sequences of thresholds, resulting in highly variable small-sample behavior between runs under identical conditions. Nonparametric CRM variants exhibit a similar sensitivity. Ideas to combine the advantages of U&D and Bayesian designs are examined. A new approach is developed, using a hybrid framework, that evaluates the evidence for overriding the U&D allocation with a Bayesian one.",
+          "claimed_authors": [
+            "Assaf P. Oron"
+          ],
+          "claimed_title": "Up-and-Down and the Percentile-Finding Problem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2008,
+          "primary_pointer": "0808.3004"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Up-and-Down and the Percentile-Finding Problem')",
+        "failed_at": "2026-07-19T04:55:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We revisit, in an original and challenging perspective, the problem of testing the null hypothesis that the mode of a directional signal is equal to a given value. Motivated by a real data example where the signal is weak, we consider this problem under asymptotic scenarios for which the signal strength goes to zero at an arbitrary rate~$η_n$. Both under the null and the alternative, we focus on rotationally symmetric distributions. We show that, while they are asymptotically equivalent under fixed signal strength, the classical Wald and Watson tests exhibit very different (null and non-null) behaviours when the signal becomes arbitrarily weak. To fully characterize how challenging the problem is as a function of~$η_n$, we adopt a Le Cam, convergence-of-statistical-experiments, point of view and show that the resulting limiting experiments crucially depend on~$η_n$. In the light of these results, the Watson test is shown to be \\emph{adaptively} rate-consistent and essentially adaptively Le Cam optimal. Throughout, our theoretical findings are illustrated via Monte-Carlo simulations. The practical relevance of our results is also shown on the real data example that motivated the present work.",
+          "claimed_authors": [
+            "Davy Paindaveine",
+            "Thomas Verdebout"
+          ],
+          "claimed_title": "Inference on the mode of weak directional signals: a Le Cam perspective on hypothesis testing near singularities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1512.04594"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Inference on the mode of weak directional signals: a Le Cam perspective on hypothesis testing near singularities')",
+        "failed_at": "2026-07-19T04:55:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In the paper we develop an approach to asymptotic normality through factorial cumulants. Factorial cumulants arise in the same manner from factorial moments, as do (ordinary) cumulants from (ordinary) moments. Another tool we exploit is a new identity for \"moments\" of partitions of numbers. The general limiting result is then used to (re-)derive asymptotic normality for several models including classical discrete distributions, occupancy problems in some generalized allocation schemes and two models related to negative multinomial distribution.",
+          "claimed_authors": [
+            "Konstancja Bobecka",
+            "Pawel Hitczenko",
+            "Fernando Lopez-Blazquez",
+            "Grzegorz Rempala",
+            "Jacek Wesolowski"
+          ],
+          "claimed_title": "Asymptotic normality through factorial cumulants and partitions identities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1106.4684"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Asymptotic normality through factorial cumulants and partitions identities')",
+        "failed_at": "2026-07-19T04:55:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this article, we propose a novel Bayesian multiple testing formulation for model and variable selection in inverse setups, judiciously embedding the idea of inverse reference distributions proposed by Bhattacharya (2013) in a mixture framework consisting of the competing models. We develop the theory and methods in the general context encompassing parametric and nonparametric competing models, dependent data, as well as misspecifications. Our investigation shows that asymptotically the multiple testing procedure almost surely selects the best possible inverse model that minimizes the minimum Kullback-Leibler divergence from the true model. We also show that the error rates, namely, versions of the false discovery rate and the false non-discovery rate converge to zero almost surely as the sample size goes to infinity. Asymptotic α-control of versions of the false discovery rate and its impact on the convergence of false non-discovery rate versions, are also investigated.\n  Our simulation experiments involve small sample based selection among inverse Poisson log regression and inverse geometric logit and probit regression, where the regressions are either linear or based on Gaussian processes. Additionally, variable selection is also considered. Our multiple testing results turn out to be very encouraging in the sense of selecting the best models in all the non-misspecified and misspecified cases.",
+          "claimed_authors": [
+            "Debashis Chatterjee",
+            "Sourabh Bhattacharya"
+          ],
+          "claimed_title": "A Bayesian Multiple Testing Paradigm for Model Selection in Inverse Regression Problems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.07847"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='A Bayesian Multiple Testing Paradigm for Model Selection in Inverse Regression Problems')",
+        "failed_at": "2026-07-19T04:55:18Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "There exist some testing procedures based on the maximum mean discrepancy (MMD) to address the challenge of model specification. However, they ignore the presence of estimated parameters in the case of composite null hypotheses. In this paper, we first illustrate the effect of parameter estimation in model specification tests based on the MMD. Second, we propose simple model specification and model selection tests in the case of models with estimated parameters. All our tests are asymptotically standard normal under the null, even when the true underlying distribution belongs to the competing parametric families. A simulation study and a real data analysis illustrate the performance of our tests in terms of power and level.",
+          "claimed_authors": [
+            "Florian Brück",
+            "Jean-David Fermanian",
+            "Aleksey Min"
+          ],
+          "claimed_title": "Distribution free MMD tests for model selection with estimated parameters",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2305.07549"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Statistical Analysis of Publicly Available Climate Model Output Ensembles statis', candidate_title='Distribution free MMD tests for model selection with estimated parameters')",
+        "failed_at": "2026-07-19T04:55:18Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Michael Steininger",
+            "Daniel Abel",
+            "Katrin Ziegler",
+            "Anna Krause",
+            "Heiko Paeth",
+            "Andreas Hotho"
+          ],
+          "title": "Deep Learning for Climate Model Output Statistics",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2012.10394",
+        "summary": "Climate models are an important tool for the assessment of prospective climate change effects but they suffer from systematic and representation errors, especially for precipitation. Model output statistics (MOS) reduce these errors by fitting the model output to observational data with machine learning. In this work, we explore the feasibility and potential of deep learning with convolutional neural networks (CNNs) for MOS. We propose the CNN architecture ConvMOS specifically designed for reducing errors in climate model outputs and apply it to the climate model REMO. Our results show a considerable reduction of errors and mostly improved performance compared to three commonly used MOS approaches.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2012.10394",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T04:55:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Michael Aich",
+            "Philipp Hess",
+            "Baoxiang Pan",
+            "Sebastian Bathiany",
+            "Yu Huang",
+            "Niklas Boers"
+          ],
+          "title": "Conditional diffusion models for downscaling and bias correction of Earth system model precipitation",
+          "venue": "arXiv",
+          "year": 2024
+        },
+        "primary_pointer": "2404.14416",
+        "summary": "Climate change exacerbates extreme weather events like heavy rainfall and flooding. As these events cause severe socioeconomic damage, accurate high-resolution simulation of precipitation is imperative. However, existing Earth System Models (ESMs) struggle to resolve small-scale dynamics and suffer from biases. Traditional statistical bias correction and downscaling methods fall short in improving spatial structure, while recent deep learning methods lack controllability and suffer from unstable training. Here, we propose a machine learning framework for simultaneous bias correction and downscaling. We first map observational and ESM data to a shared embedding space, where both are unbiased towards each other, and then train a conditional diffusion model to reverse the mapping. Only observational data is used for the training, so that the diffusion model can be employed to correct and downscale any ESM field without need for retraining. Our approach ensures statistical fidelity and preserves spatial patterns larger than a chosen spatial correction scale. We demonstrate that our approach outperforms existing statistical and deep learning methods especially regarding extreme events.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2404.14416",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T04:55:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Sumanta Chandra Mishra Sharma",
+            "Adway Mitra",
+            "Auroop Ratan Ganguly"
+          ],
+          "title": "MAUNet-Light: A Concise MAUNet Architecture for Bias Correction and Downscaling of Precipitation Estimates",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2602.12980",
+        "summary": "Satellite-derived data products and climate model simulations of geophysical variables like precipitation, often exhibit systematic biases compared to in-situ measurements. Bias correction and spatial downscaling are fundamental components to develop operational weather forecast systems, as they seek to improve the consistency between coarse-resolution climate model simulations or satellite-based estimates and ground-based observations. In recent years, deep learning-based models have been increasingly replaced traditional statistical methods to generate high-resolution, bias free projections of climate variables. For example, Max-Average U-Net (MAUNet) architecture has been demonstrated for its ability to downscale precipitation estimates. The versatility and adaptability of these neural models make them highly effective across a range of applications, though this often come at the cost of high computational and memory requirements. The aim of this research is to develop light-weight neural network architectures for both bias correction and downscaling of precipitation, for which the teacher-student based learning paradigm is explored. This research demonstrates the adaptability of MAUNet to the task of bias correction, and further introduces a compact, lightweight neural network architecture termed MAUNet-Light.The proposed MAUNet-Light model is developed by transferring knowledge from the trained MAUNet, and it is designed to perform both downscaling and bias correction with reduced computational requirements without any significant loss in accuracy compared to state-of-the-art.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2602.12980",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T04:55:17Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Stephen Jewson",
+            "Ed Hawkins"
+          ],
+          "title": "CMIP3 ensemble spread, model similarity, and climate prediction uncertainty",
+          "venue": "arXiv",
+          "year": 2009
+        },
+        "primary_pointer": "0909.1890",
+        "summary": "The CMIP3 multi-model ensemble spread most likely underestimates the real model uncertainty in future climate predictions because of the similarity, and shared defects, of the models in the ensemble. To generate an appropriate level of uncertainty, the spread needs inflating. We derive the mathematical connection between an assumed level of correlation between the model output and the necessary inflation of the spread, and illustrate the connection by making temperature predictions for the UK for the 21st century using four different correlation scenarios.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/0909.1890",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T04:55:18Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "J. Sanjay",
+            "R. Krishnan",
+            "M. V. S. Ramarao",
+            "R. Mahesh",
+            "Bhupendra Bahadur Singh",
+            "Jayashri Patel",
+            "Sandip Ingle",
+            "Preethi Bhaskar",
+            "J. V. Revadekar",
+            "T. P. Sabin",
+            "M. Mujumdar"
+          ],
+          "title": "Future Climate Change Projections over the Indian Region",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2012.10386",
+        "summary": "Assessments of impacts of climate change and future projections over the Indian region, have so far relied on a single regional climate model (RCM) - eg., the PRECIS RCM of the Hadley Centre, UK. While these assessments have provided inputs to various reports (e.g., INCCA 2010; NATCOMM2 2012), it is important to have an ensemble of climate projections drawn from multiple RCMs due to large uncertainties in regional-scale climate projections. Ensembles of multi-RCM projections driven under different perceivable socio-economic scenarios are required to capture the probable path of growth, and provide the behavior of future climate and impacts on various biophysical systems and economic sectors dependent on such systems.\n  The Centre for Climate Change Research, Indian Institute of Tropical Meteorology (CCCR-IITM) has generated an ensemble of high resolution downscaled projections of regional climate and monsoon over South Asia until 2100 for the Intergovernmental Panel for Climate Change (IPCC)using a RCM (ICTP-RegCM4) at 50 km horizontal resolution, by driving the regional model with lateral and lower boundary conditions from multiple global atmosphere-ocean coupled models from the Coupled Model Intercomparison Project Phase 5 (CMIP5). The future projections are based on three Representation Concentration Pathway (RCP) scenarios (viz., RCP2.6, RCP4.5, RCP8.5) of the IPCC.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2012.10386",
+          "http_status": 200,
+          "pdf_sample_score": 0.3273,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-19T04:55:18Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "statistical analysis of publicly available climate model output ensembles statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

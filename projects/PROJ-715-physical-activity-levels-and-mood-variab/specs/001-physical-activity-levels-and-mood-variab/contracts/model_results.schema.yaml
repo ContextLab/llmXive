@@ -1,163 +1,161 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Results Schema
-description: >
-  Schema for the statistical model results (Linear Mixed-Effects Models).
-  Contains fixed effects, diagnostics, and sensitivity analysis summaries.
 type: object
 required:
-  - models
-  - metadata
+  - model_type
+  - fixed_effects
+  - random_effects
+  - model_fit
+  - validation
+  - sensitivity
+  - diagnostics
+  - associational
 properties:
-  metadata:
+  model_type:
+    type: string
+    description: Name of the primary model, e.g., "LMM_mood_variability"
+  fixed_effects:
     type: object
-    required:
-      - generated_at
-      - pipeline_version
-      - data_source
-      - analysis_type
-    properties:
-      generated_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of when the analysis was run
-      pipeline_version:
-        type: string
-        description: Version of the analysis pipeline
-      data_source:
-        type: string
-        description: Source of the data (e.g., OSF DOI)
-      analysis_type:
-        type: string
-        const: "associational"
-        description: Explicitly marks findings as associational, not causal
-  models:
-    type: array
-    description: List of fitted model results
-    items:
+    description: Fixed effect coefficients for the primary model
+    additionalProperties:
       type: object
       required:
-        - model_name
-        - outcome_variable
-        - predictor_variable
-        - fixed_effects
-        - random_effects
-        - convergence_status
-        - diagnostics
+        - estimate
+        - std_err
+        - p_value
+        - ci_lower
+        - ci_upper
       properties:
-        model_name:
-          type: string
-          description: Unique identifier for the model (e.g., "steps_to_mood_std")
-        outcome_variable:
-          type: string
-          description: Name of the dependent variable
-        predictor_variable:
-          type: string
-          description: Name of the primary independent variable (total_steps)
-        fixed_effects:
-          type: object
-          description: Fixed effect coefficients and statistics
-          required:
-            - total_steps
-          properties:
-            total_steps:
-              type: object
-              required:
-                - estimate
-                - std_error
-                - p_value
-                - ci_lower
-                - ci_upper
-              properties:
-                estimate:
-                  type: number
-                  description: Coefficient estimate
-                std_error:
-                  type: number
-                  description: Standard error of the estimate
-                p_value:
-                  type: number
-                  description: P-value for the coefficient
-                ci_lower:
-                  type: number
-                  description: Lower bound of 95% confidence interval
-                ci_upper:
-                  type: number
-                  description: Upper bound of 95% confidence interval
-            # Covariates are dynamic keys, but structure is same
-        random_effects:
-          type: object
-          description: Random effects structure (e.g., intercepts)
-          properties:
-            participant:
-              type: object
-              properties:
-                variance:
-                  type: number
-                  description: Variance of the random intercept
-                std_dev:
-                  type: number
-                  description: Standard deviation of the random intercept
-        convergence_status:
-          type: string
-          enum:
-            - success
-            - warning
-            - failure
-          description: Status of the model optimization
-        diagnostics:
-          type: object
-          description: Model diagnostic test results
-          properties:
-            shapiro_wilk:
-              type: object
-              properties:
-                statistic:
-                  type: number
-                p_value:
-                  type: number
-                passed:
-                  type: boolean
-            breusch_pagan:
-              type: object
-              properties:
-                statistic:
-                  type: number
-                p_value:
-                  type: number
-                passed:
-                  type: boolean
-  sensitivity_analysis:
+        estimate:
+          type: number
+        std_err:
+          type: number
+        p_value:
+          type: number
+        ci_lower:
+          type: number
+        ci_upper:
+          type: number
+  random_effects:
     type: object
-    description: Results from sensitivity checks (LOPO, weekdays, etc.)
+    description: Variance components for random effects
+    additionalProperties:
+      type: number
+  model_fit:
+    type: object
+    required:
+      - aic
+      - bic
+      - log_likelihood
     properties:
-      lopo:
+      aic:
+        type: number
+      bic:
+        type: number
+      log_likelihood:
+        type: number
+  secondary_model:
+    type: object
+    description: Results for the secondary model (mean_mood)
+    required:
+      - model_type
+      - fixed_effects
+      - random_effects
+      - model_fit
+    properties:
+      model_type:
+        type: string
+      fixed_effects:
         type: object
-        description: Leave-One-Participant-Out cross-validation results
+        additionalProperties:
+          type: object
+          required:
+            - estimate
+            - std_err
+            - p_value
+            - ci_lower
+            - ci_upper
+          properties:
+            estimate:
+              type: number
+            std_err:
+              type: number
+            p_value:
+              type: number
+            ci_lower:
+              type: number
+            ci_upper:
+              type: number
+      random_effects:
+        type: object
+        additionalProperties:
+          type: number
+      model_fit:
+        type: object
+        required:
+          - aic
+          - bic
+          - log_likelihood
         properties:
-          coefficient_sign_stability:
+          aic:
             type: number
-            description: Percentage of folds where sign matches full model (0-100)
-          passes_threshold:
-            type: boolean
-            description: True if stability >= 90%
-      weekdays_only:
+          bic:
+            type: number
+          log_likelihood:
+            type: number
+  validation:
+    type: object
+    required:
+      - lopo_average_rmse
+      - lopo_sign_consistency_pct
+    properties:
+      lopo_average_rmse:
+        type: number
+      lopo_sign_consistency_pct:
+        type: number
+  sensitivity:
+    type: object
+    required:
+      - weekdays_only_sign_consistent
+      - active_minutes_sign_consistent
+      - single_rating_bootstrap_consistency
+      - single_rating_bootstrap_pass
+    properties:
+      weekdays_only_sign_consistent:
+        type: boolean
+      active_minutes_sign_consistent:
+        type: boolean
+      single_rating_bootstrap_consistency:
+        type: number
+      single_rating_bootstrap_pass:
+        type: boolean
+  diagnostics:
+    type: object
+    required:
+      - shapiro_wilk
+      - breusch_pagan
+      - residuals_plot
+    properties:
+      shapiro_wilk:
         type: object
-        description: Model fit on weekdays only
+        required:
+          - statistic
+          - p_value
         properties:
-          coefficient:
+          statistic:
             type: number
           p_value:
             type: number
-          direction_matches:
-            type: boolean
-      single_rating_handling:
+      breusch_pagan:
         type: object
-        description: Bootstrap consistency for single-rating handling
+        required:
+          - lm_statistic
+          - p_value
         properties:
-          bootstrap_consistency_rate:
+          lm_statistic:
             type: number
-            description: Percentage of iterations where direction matches (0-100)
-          passes_threshold:
-            type: boolean
-            description: True if consistency >= 80%
-additionalProperties: false
+          p_value:
+            type: number
+      residuals_plot:
+        type: string
+  associational:
+    type: boolean
+    description: Flag indicating results are associational, not causal

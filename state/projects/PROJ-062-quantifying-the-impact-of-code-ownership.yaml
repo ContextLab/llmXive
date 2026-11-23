@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-062-quantifying-the-impact-of-code-ownership
-last_run_id: 4660df3d-d179-494b-b4ae-322ac2c8dfe8
+last_run_id: 0baeb60c-53b0-4665-8eb4-5298143831c3
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-062-quantifying-the-impact-of-code-ownership/specs/001-quantifying-the-impact-of-code-ownership
 title: Quantifying the Impact of Code Ownership on Software Quality
-updated_at: '2026-07-04T19:52:54.643949Z'
+updated_at: '2026-09-22T16:47:34.801249Z'

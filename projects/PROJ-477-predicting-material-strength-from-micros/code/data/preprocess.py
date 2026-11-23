@@ -1,267 +1,219 @@
 """
-Image Preprocessing Module for Material Strength Prediction.
-
-This module handles the preprocessing of EBSD microstructure images:
-- Resizing to 224x224 (preserving aspect ratio with padding)
-- Normalization (ImageNet statistics)
-- Handling various input depths (grayscale, RGB)
-- Saving processed images to the 'processed' directory
+T041: Image Preprocessor
+Resizes images to 224x224, normalizes pixel values, and handles aspect ratios/depths.
+Input: data/raw/
+Output: data/processed/
 """
+from __future__ import annotations
 
 import os
 import logging
 import json
+import sys
 from pathlib import Path
-from typing import List, Dict, Optional, Tuple
+from typing import List, Dict, Optional, Tuple, Any
 
 import cv2
 import numpy as np
-import torch
-from torchvision import transforms
 
-from utils.config import get_project_root, get_raw_dir, get_processed_dir
-from utils.logging_config import get_logger
+# Import from local project structure
+# We need to add the 'code' directory to sys.path if running as a script
+# but the runner usually handles this. We'll try to import, and if it fails,
+# we adjust sys.path.
+try:
+    from utils.logging_config import get_logger, log_operation
+    from utils.config import get_data_dir, get_processed_dir, get_raw_dir
+except ImportError:
+    # Fallback for direct execution or path issues
+    code_root = Path(__file__).parent.parent
+    if str(code_root) not in sys.path:
+        sys.path.insert(0, str(code_root))
+    from utils.logging_config import get_logger, log_operation
+    from utils.config import get_data_dir, get_processed_dir, get_raw_dir
 
 # Constants
-TARGET_SIZE = 224
-logger = get_logger(__name__)
+TARGET_SIZE = (224, 224)
+TARGET_DEPTH = 3  # RGB
+MIN_PIXEL_VALUE = 0.0
+MAX_PIXEL_VALUE = 1.0
 
-# ImageNet normalization statistics
-IMAGENET_MEAN = [0.485, 0.456, 0.406]
-IMAGENET_STD = [0.229, 0.224, 0.225]
+def setup_logging() -> Any:
+    """Setup logging for the preprocess task."""
+    # Use the tolerant logger
+    return get_logger("preprocess", log_file="results/preprocess.log")
 
-def resize_with_aspect_ratio(
-    image: np.ndarray,
-    target_size: int = TARGET_SIZE
-) -> Tuple[np.ndarray, Tuple[int, int]]:
+def resize_with_aspect_ratio(image: np.ndarray, target_size: Tuple[int, int] = TARGET_SIZE) -> np.ndarray:
     """
-    Resize image to target_size x target_size while preserving aspect ratio.
-    Pads with black pixels to fill the square.
-
-    Args:
-        image: Input image (H, W) or (H, W, C)
-        target_size: Desired output dimension (square)
-
-    Returns:
-        Tuple of (padded_resized_image, (original_width, original_height))
+    Resize image to target size while maintaining aspect ratio, then pad to fill.
+    Handles different input depths (1, 3, 4) by converting to 3-channel RGB.
     """
-    original_height, original_width = image.shape[:2]
-    aspect_ratio = original_width / original_height
+    h, w = image.shape[:2]
+    target_h, target_w = target_size
 
-    # Calculate new dimensions
-    if aspect_ratio > 1:
-        # Wider than tall
-        new_width = target_size
-        new_height = int(target_size / aspect_ratio)
-    else:
-        # Taller than wide
-        new_height = target_size
-        new_width = int(target_size * aspect_ratio)
+    # Handle depth conversion first
+    if len(image.shape) == 2 or image.shape[2] == 1:
+        # Grayscale or single channel -> RGB
+        image = cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+    elif image.shape[2] == 4:
+        # RGBA -> RGB (drop alpha)
+        image = cv2.cvtColor(image, cv2.COLOR_RGBA2RGB)
+    
+    current_h, current_w = image.shape[:2]
+
+    # Calculate scaling factor
+    scale = min(target_w / current_w, target_h / current_h)
+    new_w = int(current_w * scale)
+    new_h = int(current_h * scale)
 
     # Resize
-    resized = cv2.resize(
-        image,
-        (new_width, new_height),
-        interpolation=cv2.INTER_AREA
-    )
+    resized = cv2.resize(image, (new_w, new_h), interpolation=cv2.INTER_LINEAR)
 
-    # Create padding
-    pad_h = (target_size - new_height) // 2
-    pad_w = (target_size - new_width) // 2
+    # Create a blank canvas
+    canvas = np.zeros((target_h, target_w, 3), dtype=np.uint8)
+    
+    # Calculate padding
+    pad_w = (target_w - new_w) // 2
+    pad_h = (target_h - new_h) // 2
 
-    if len(image.shape) == 2:
-        # Grayscale
-        padded = cv2.copyMakeBorder(
-            resized,
-            pad_h,
-            target_size - new_height - pad_h,
-            pad_w,
-            target_size - new_width - pad_w,
-            cv2.BORDER_CONSTANT,
-            value=0
-        )
+    # Paste resized image onto canvas
+    canvas[pad_h:pad_h+new_h, pad_w:pad_w+new_w] = resized
+
+    return canvas
+
+def normalize_image(image: np.ndarray) -> np.ndarray:
+    """
+    Normalize image pixel values to [0, 1] range.
+    Assumes input is uint8 [0, 255] or float [0, 255].
+    """
+    if image.dtype == np.uint8:
+        normalized = image.astype(np.float32) / 255.0
+    elif np.issubdtype(image.dtype, np.floating):
+        # Already float, check range
+        if image.max() > 1.0:
+            normalized = image / 255.0
+        else:
+            normalized = image
     else:
-        # Color
-        padded = cv2.copyMakeBorder(
-            resized,
-            pad_h,
-            target_size - new_height - pad_h,
-            pad_w,
-            target_size - new_width - pad_w,
-            cv2.BORDER_CONSTANT,
-            value=[0, 0, 0]
-        )
-
-    return padded, (original_width, original_height)
-
-def normalize_image(image: np.ndarray) -> torch.Tensor:
-    """
-    Convert image to tensor and normalize using ImageNet statistics.
-
-    Args:
-        image: Input image (H, W, C) in range [0, 255]
-
-    Returns:
-        Normalized tensor (C, H, W)
-    """
-    # Convert to float and normalize to [0, 1]
-    img_float = image.astype(np.float32) / 255.0
-
-    # Ensure 3 channels
-    if len(img_float.shape) == 2:
-        img_float = np.stack([img_float] * 3, axis=-1)
-
-    # Convert to tensor (H, W, C) -> (C, H, W)
-    tensor = torch.from_numpy(img_float).permute(2, 0, 1)
-
-    # Normalize
-    transform = transforms.Normalize(mean=IMAGENET_MEAN, std=IMAGENET_STD)
-    normalized = transform(tensor)
-
+        # Fallback for other types
+        min_val = image.min()
+        max_val = image.max()
+        if max_val - min_val == 0:
+            normalized = np.zeros_like(image, dtype=np.float32)
+        else:
+            normalized = (image - min_val) / (max_val - min_val)
+    
     return normalized
 
-def preprocess_single_image(
-    input_path: Path,
-    output_path: Path
-) -> Dict:
+def preprocess_single_image(input_path: Path, output_path: Path, logger: Any) -> bool:
     """
-    Preprocess a single image: resize, normalize, and save.
-
-    Args:
-        input_path: Path to input image
-        output_path: Path to save processed image
-
-    Returns:
-        Dictionary with processing metadata
+    Preprocess a single image: resize and normalize.
+    Returns True if successful, False otherwise.
     """
-    # Read image
-    image = cv2.imread(str(input_path))
-    if image is None:
-        raise ValueError(f"Failed to read image: {input_path}")
-
-    # Handle BGR to RGB conversion if needed
-    if len(image.shape) == 3:
-        image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-
-    # Resize with aspect ratio
-    resized_image, original_size = resize_with_aspect_ratio(image, TARGET_SIZE)
-
-    # Normalize and convert to tensor
-    tensor = normalize_image(resized_image)
-
-    # Save processed image (convert back to numpy for saving)
-    # We save the normalized, resized version as a numpy array for inspection
-    # Convert tensor back to numpy for saving (denormalize for visualization)
-    # Note: We save the resized version, not the normalized tensor, for visual inspection
-    save_image = resized_image
-    if len(save_image.shape) == 2:
-        save_image = np.stack([save_image] * 3, axis=-1)
-
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Save as PNG
-    cv2.imwrite(str(output_path), cv2.cvtColor(save_image, cv2.COLOR_RGB2BGR))
-
-    return {
-        "input_path": str(input_path),
-        "output_path": str(output_path),
-        "original_size": original_size,
-        "target_size": (TARGET_SIZE, TARGET_SIZE),
-        "success": True
-    }
-
-def preprocess_dataset(
-    raw_dir: Optional[Path] = None,
-    processed_dir: Optional[Path] = None,
-    image_extensions: List[str] = None
-) -> Dict:
-    """
-    Preprocess all images in the raw directory.
-
-    Args:
-        raw_dir: Directory containing raw images (default: from config)
-        processed_dir: Directory to save processed images (default: from config)
-        image_extensions: List of valid image extensions
-
-    Returns:
-        Summary statistics of the preprocessing run
-    """
-    if raw_dir is None:
-        raw_dir = get_raw_dir()
-    if processed_dir is None:
-        processed_dir = get_processed_dir()
-    if image_extensions is None:
-        image_extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.tif', '.tiff']
-
-    # Ensure processed directory exists
-    processed_dir.mkdir(parents=True, exist_ok=True)
-
-    # Find all images
-    image_files = []
-    for ext in image_extensions:
-        image_files.extend(raw_dir.glob(f"*{ext}"))
-        image_files.extend(raw_dir.glob(f"*{ext.upper()}"))
-
-    # Remove duplicates and sort
-    image_files = sorted(list(set(image_files)))
-
-    logger.info(f"Found {len(image_files)} images to preprocess")
-
-    results = []
-    failed = []
-
-    for img_path in image_files:
-        try:
-            # Generate output path
-            output_filename = f"processed_{img_path.name}"
-            output_path = processed_dir / output_filename
-
-            result = preprocess_single_image(img_path, output_path)
-            results.append(result)
-            logger.debug(f"Processed: {img_path.name}")
-
-        except Exception as e:
-            logger.error(f"Failed to process {img_path}: {str(e)}")
-            failed.append({"path": str(img_path), "error": str(e)})
-
-    summary = {
-        "total_images": len(image_files),
-        "processed_count": len(results),
-        "failed_count": len(failed),
-        "target_size": TARGET_SIZE,
-        "normalization": "ImageNet",
-        "results": results,
-        "failures": failed
-    }
-
-    # Save summary report
-    summary_path = processed_dir / "preprocessing_summary.json"
-    with open(summary_path, 'w') as f:
-        json.dump(summary, f, indent=2)
-
-    logger.info(f"Preprocessing complete: {len(results)}/{len(image_files)} successful")
-    logger.info(f"Summary saved to: {summary_path}")
-
-    return summary
-
-def main():
-    """Main entry point for preprocessing."""
-    logger.info("Starting image preprocessing pipeline")
-
     try:
-        summary = preprocess_dataset()
+        # Read image
+        image = cv2.imread(str(input_path))
+        if image is None:
+            logger.error(f"Failed to read image: {input_path}")
+            return False
 
-        if summary["failed_count"] > 0:
-            logger.warning(f"Failed to process {summary['failed_count']} images")
-            return 1
+        # Resize with aspect ratio handling
+        resized = resize_with_aspect_ratio(image)
 
-        logger.info("Preprocessing completed successfully")
-        return 0
+        # Normalize
+        normalized = normalize_image(resized)
+
+        # Ensure output directory exists
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # Save as PNG (lossless)
+        # We save as float32 PNG? No, cv2 expects uint8. 
+        # For deep learning, we usually keep as float in memory or save as float16/32 in numpy.
+        # However, the task says "Output: data/processed/". 
+        # Let's save as normalized float16 numpy file or re-quantize to uint8 [0, 255] for storage.
+        # Standard practice for image datasets is to store as uint8.
+        # But for "normalized" data often used in CNNs, storing as float16 is efficient.
+        # Let's save as .npy for precision, or .png scaled back to 0-255.
+        # Given the context of "images", let's save as PNG scaled to 0-255 for compatibility,
+        # but the "normalized" aspect is often an in-memory transform.
+        # The prompt says "normalize" in the task. If we save as PNG, we lose the exact float.
+        # Let's save as .npy to preserve the float32 normalized state.
+        
+        # Alternative: Save as uint8 PNG (0-255) and normalize again at load time?
+        # The task says "Output: data/processed/". 
+        # Let's save as .npy to preserve the processed float state exactly.
+        np.save(str(output_path.with_suffix('.npy')), normalized)
+        
+        logger.info(f"Processed: {input_path.name} -> {output_path.with_suffix('.npy').name}")
+        return True
 
     except Exception as e:
-        logger.error(f"Preprocessing pipeline failed: {str(e)}")
-        return 1
+        logger.error(f"Error processing {input_path}: {str(e)}")
+        return False
+
+def preprocess_dataset(logger: Any) -> Dict[str, Any]:
+    """
+    Iterate through data/raw/ and preprocess all images to data/processed/.
+    Returns statistics.
+    """
+    raw_dir = get_raw_dir()
+    processed_dir = get_processed_dir()
+    
+    if not raw_dir.exists():
+        logger.error(f"Raw directory not found: {raw_dir}")
+        return {"success": False, "error": "Raw directory not found"}
+
+    processed_dir.mkdir(parents=True, exist_ok=True)
+
+    stats = {
+        "total": 0,
+        "success": 0,
+        "failed": 0,
+        "files": []
+    }
+
+    # Walk through raw directory
+    for root, _, files in os.walk(raw_dir):
+        for file in files:
+            if file.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.tiff')):
+                input_path = Path(root) / file
+                # Preserve relative structure
+                rel_path = input_path.relative_to(raw_dir)
+                output_path = processed_dir / rel_path
+                
+                stats["total"] += 1
+                if preprocess_single_image(input_path, output_path, logger):
+                    stats["success"] += 1
+                else:
+                    stats["failed"] += 1
+                    stats["files"].append({"file": str(input_path), "status": "failed"})
+
+    return stats
+
+def save_manifest(stats: Dict[str, Any], output_path: Path) -> None:
+    """Save processing manifest as JSON."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(stats, f, indent=2)
+
+def main() -> None:
+    """Main entry point."""
+    logger = setup_logging()
+    logger.info("Starting preprocessing pipeline")
+    
+    try:
+        stats = preprocess_dataset(logger)
+        manifest_path = get_processed_dir() / "preprocess_manifest.json"
+        save_manifest(stats, manifest_path)
+        
+        logger.info(f"Preprocessing complete. Success: {stats['success']}, Failed: {stats['failed']}")
+        
+        if stats['failed'] > 0:
+            sys.exit(1)
+        sys.exit(0)
+        
+    except Exception as e:
+        logger.error(f"Pipeline failed: {str(e)}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    exit(main())
+    main()

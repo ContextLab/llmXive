@@ -1,0 +1,26 @@
+[
+  {
+    "repaired_at": "2026-10-01T04:18:26.289200+00:00",
+    "project": "PROJ-938-llmxive-follow-up-extending-trisplat-sim",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/RealEstate10K",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/DavidYan2001/RealEstate10K/resolve/main/dataset/test.tar.gz",
+        "intent": "RealEstate10K datasets.load_dataset \"RealEstate10K\", split=\"validation\", streaming=True Verified Open, HuggingFace, contains video sequences with intrinsics"
+      }
+    ]
+  },
+  {
+    "repaired_at": "2026-10-01T04:22:12.832616+00:00",
+    "project": "PROJ-938-llmxive-follow-up-extending-trisplat-sim",
+    "repairs": [
+      {
+        "dead_url": "https://github.com/google-research/google-research/tree/master/realestate10k",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/Solshine/DAM-test-1-merge-dataset-unverified/resolve/main/data/train-00000-of-00001.parquet",
+        "intent": "google research master realestate10k UNVERIFIED 404 REPLACED : Streamed via Hugging Face dataset verified alternative"
+      }
+    ]
+  }
+]

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2504.03306",
+  "judged_at": "2026-07-19T19:00:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"indusagent: reinforcing open-vocabulary industrial anomaly detection w\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the same core domain (industrial anomaly detection) and mechanism (normalizing flows) as the user's question, specifically extending the work to multi-view scenarios which is a direct methodological evolution of the \"IndusAgent\" follow-up context.",
+  "relevant": true
+}

@@ -4,64 +4,37 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-def init_log_file(path: str | Path) -> None:
-    """
-    Initialize a log file at the specified path.
-    Creates the directory if it doesn't exist.
-    """
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    # Create empty file
-    with open(path, 'w', encoding='utf-8') as f:
-        f.write("")
+def init_log_file(log_path: Path) -> None:
+    """Initialize a JSONL log file."""
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    if not log_path.exists():
+        log_path.touch()
 
-def write_log_entry(path: str | Path, entry: Dict[str, Any]) -> None:
-    """
-    Write a single log entry (JSONL format) to the file.
-    """
-    path = Path(path)
-    with open(path, 'a', encoding='utf-8') as f:
+def write_log_entry(log_path: Path, entry: Dict[str, Any]) -> None:
+    """Append a single log entry to the JSONL file."""
+    with open(log_path, 'a') as f:
         f.write(json.dumps(entry) + '\n')
 
-def write_log_entries(path: str | Path, entries: List[Dict[str, Any]]) -> None:
-    """
-    Write multiple log entries to the file.
-    """
-    for entry in entries:
-        write_log_entry(path, entry)
+def write_log_entries(log_path: Path, entries: List[Dict[str, Any]]) -> None:
+    """Append multiple log entries to the JSONL file."""
+    with open(log_path, 'a') as f:
+        for entry in entries:
+            f.write(json.dumps(entry) + '\n')
 
-def read_log_entries(path: str | Path) -> List[Dict[str, Any]]:
-    """
-    Read all log entries from the file.
-    """
-    path = Path(path)
+def read_log_entries(log_path: Path) -> List[Dict[str, Any]]:
+    """Read all entries from a JSONL log file."""
     entries = []
-    if not path.exists():
-        return entries
-        
-    with open(path, 'r', encoding='utf-8') as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                try:
+    if log_path.exists():
+        with open(log_path, 'r') as f:
+            for line in f:
+                if line.strip():
                     entries.append(json.loads(line))
-                except json.JSONDecodeError:
-                    continue
     return entries
 
-def get_log_stats(path: str | Path) -> Dict[str, Any]:
-    """
-    Calculate basic statistics from the log file.
-    """
-    entries = read_log_entries(path)
-    total = len(entries)
-    success = sum(1 for e in entries if e.get("agent_status") == "success")
-    failure = sum(1 for e in entries if e.get("agent_status") == "failure")
-    exceptions = sum(1 for e in entries if e.get("agent_status") == "exception")
-    
+def get_log_stats(log_path: Path) -> Dict[str, Any]:
+    """Get statistics about a log file."""
+    entries = read_log_entries(log_path)
     return {
-        "total_entries": total,
-        "success": success,
-        "failure": failure,
-        "exception": exceptions
+        'total_entries': len(entries),
+        'timestamp': datetime.now().isoformat()
     }

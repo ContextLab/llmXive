@@ -1,0 +1,14 @@
+{
+  "advancement_rate_7d": 808.0,
+  "successful_invocations_7d": 11680,
+  "paid_api_calls": 0,
+  "citations_verified": 879,
+  "citations_blocked": 597,
+  "revision_round_distribution": {
+    "1": 6,
+    "2": 384,
+    "3": 225,
+    "4": 101,
+    "5": 0
+  }
+}

@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-26T07:37:30.216224+00:00'
+issue_number: 1420
+project_id: PROJ-893-llmxive-follow-up-extending-s-agent-spat

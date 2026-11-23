@@ -105,5 +105,15 @@
     "table/diagnosis_cg.tex",
     "table/iv2_1b_results.tex",
     "table/sth_com.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "d651313e7da15f97ed79694a99687944f7ae56421cf928008d258af0f1e7c16f",
+      "bytes": 5509265
+    },
+    "original.pdf": {
+      "sha256": "ea4364df1a7ae842dcd35eebfb80cc034d3d5a63405a7138573c187e4e208a70",
+      "bytes": 5463569
+    }
+  }
 }

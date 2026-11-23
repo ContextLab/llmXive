@@ -1,24 +1,30 @@
-# Explicit Ruff configuration file for IDE and CLI integration
-extend = "pyproject.toml"
-line-length = 88
-select = ["ALL"]
+# Ruff configuration for PROJ-255
+# Linting rules aligned with scientific Python best practices
+line-length = 100
+target-version = "py39"
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "B",   # flake8-bugbear
+    "C4",  # flake8-comprehensions
+    "UP",  # pyupgrade
+    "N",   # pep8-naming
+    "RUF", # Ruff-specific rules
+]
 ignore = [
-    "D100", # Missing docstring in public module
-    "D104", # Missing docstring in public package
-    "D107", # Missing docstring in __init__
-    "ANN",  # flake8-annotations (type hints) - too strict for initial setup
-    "S",    # flake8-bandit (security) - handled in CI
-    "COM812", # Missing trailing comma (conflicts with black sometimes)
-    "ISC001", # Implicit string concatenation (conflicts with black)
+    "E501", # line-too-long (handled by formatter)
+    "B008", # do-not-perform-function-calls-in-argument-defaults (common in data loading)
 ]
 
-[lint.per-file-ignores]
-"code/setup_*.py" = ["INP001"] # Ignore implicit namespace package for setup scripts
-"code/src/utils/config.py" = ["D100", "D101", "D102"]
-"code/tests/**/*.py" = ["D", "S101"] # Ignore docstrings and asserts in tests
+[lint.isort]
+known-first-party = ["src", "tests", "code"]
+force-sort-within-sections = true
 
-[format]
-quote-style = "double"
-indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+[lint.per-file-ignores]
+"code/__init__.py" = ["F401"]
+"src/__init__.py" = ["F401"]
+"tests/**/*.py" = ["S101"] # allow assert in tests

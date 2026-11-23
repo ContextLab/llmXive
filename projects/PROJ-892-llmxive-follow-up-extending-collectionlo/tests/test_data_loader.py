@@ -1,91 +1,109 @@
-"""
-Unit tests for code/data_loader.py functions.
-
-These tests verify the correctness of model loading, adapter handling,
-and subspace rank computation.
-"""
-import torch
-import numpy as np
-from pathlib import Path
 import pytest
-import tempfile
 import json
+import torch
+from pathlib import Path
+from safetensors.torch import save_file
+import sys
+import os
+
+# Add code directory to path
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
 from data_loader import (
-    compute_subspace_ranks,
-    load_adapter_weights,
-    save_adapter_weights
+    get_project_root,
+    ensure_download_dir,
+    compute_sha256_file,
+    generate_procedural_source_loras,
+    load_and_verify_source_loras,
+    check_lora_compatibility,
+    compute_source_ranks,
+    merge_collection_lora,
+    compute_merged_ranks,
+    load_fp16_adapter_and_base_model
 )
 
 @pytest.fixture
-def mock_adapter_weights():
-    """Create mock adapter weights for testing."""
-    weights = {
-        'unet.down_blocks.0.attentions.0.transformer_blocks.0.attn1.to_q.lora_A.weight': 
-            torch.randn(32, 64),
-        'unet.down_blocks.0.attentions.0.transformer_blocks.0.attn1.to_q.lora_B.weight': 
-            torch.randn(64, 32),
-        'unet.down_blocks.0.attentions.0.transformer_blocks.0.attn1.to_k.lora_A.weight': 
-            torch.randn(32, 64),
-        'unet.down_blocks.0.attentions.0.transformer_blocks.0.attn1.to_k.lora_B.weight': 
-            torch.randn(64, 32),
-        'unet.down_blocks.0.attentions.0.transformer_blocks.0.attn1.to_v.lora_A.weight': 
-            torch.randn(32, 64),
-        'unet.down_blocks.0.attentions.0.transformer_blocks.0.attn1.to_v.lora_B.weight': 
-            torch.randn(64, 32),
-    }
-    return weights
+def temp_project_root(tmp_path):
+    """Creates a temporary project root structure."""
+    # Create necessary directories
+    dirs = [
+        "data/models/source_loras",
+        "data/models",
+        "state",
+        "data"
+    ]
+    for d in dirs:
+        (tmp_path / d).mkdir(parents=True, exist_ok=True)
+    
+    # Mock the get_project_root function to return tmp_path
+    import data_loader
+    original_get_root = data_loader.get_project_root
+    data_loader.get_project_root = lambda: tmp_path
+    
+    yield tmp_path
+    
+    # Restore original function
+    data_loader.get_project_root = original_get_root
 
-def test_compute_subspace_ranks(mock_adapter_weights):
-    """Test subspace rank computation."""
-    ranks = compute_subspace_ranks(mock_adapter_weights)
-    
-    assert ranks is not None
-    assert isinstance(ranks, dict)
-    
-    # Check that ranks are computed for each effect
-    for key, rank in ranks.items():
+def test_generate_procedural_source_loras(temp_project_root):
+    paths = generate_procedural_source_loras(num_effects=5)
+    assert len(paths) == 5
+    for effect, path in paths.items():
+        assert path.exists()
+        assert path.suffix == ".safetensors"
+
+def test_check_lora_compatibility(temp_project_root):
+    paths = generate_procedural_source_loras(num_effects=5)
+    assert check_lora_compatibility(paths) is True
+
+def test_compute_source_ranks(temp_project_root):
+    paths = generate_procedural_source_loras(num_effects=5)
+    ranks = compute_source_ranks(paths)
+    assert len(ranks) == 5
+    for rank in ranks.values():
         assert isinstance(rank, int)
         assert rank > 0
 
-def test_save_and_load_adapter_weights(mock_adapter_weights):
-    """Test saving and loading adapter weights."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        save_path = Path(tmpdir) / "adapter_weights.pt"
-        
-        # Save weights
-        save_adapter_weights(mock_adapter_weights, save_path)
-        
-        # Verify file was created
-        assert save_path.exists()
-        
-        # Load weights
-        loaded_weights = load_adapter_weights(save_path)
-        
-        # Verify loaded weights match
-        assert loaded_weights is not None
-        assert len(loaded_weights) == len(mock_adapter_weights)
-        
-        for key in mock_adapter_weights:
-            assert torch.allclose(
-                mock_adapter_weights[key], 
-                loaded_weights[key],
-                atol=1e-6
-            )
+def test_merge_collection_lora(temp_project_root):
+    source_paths = generate_procedural_source_loras(num_effects=5)
+    output_path = temp_project_root / "data/models/collection_lora.safetensors"
+    result_path = merge_collection_lora(source_paths, output_path)
+    assert result_path.exists()
 
-def test_compute_subspace_ranks_different_ranks():
-    """Test subspace rank computation with varying rank matrices."""
-    weights = {
-        'effect1.lora_A': torch.randn(10, 100),  # Rank 10
-        'effect1.lora_B': torch.randn(100, 10),
-        'effect2.lora_A': torch.randn(5, 50),    # Rank 5
-        'effect2.lora_B': torch.randn(50, 5),
-    }
+def test_compute_merged_ranks(temp_project_root):
+    # Setup: Generate source, merge, then compute merged ranks
+    source_paths = generate_procedural_source_loras(num_effects=5)
+    output_path = temp_project_root / "data/models/collection_lora.safetensors"
+    merge_collection_lora(source_paths, output_path)
     
-    ranks = compute_subspace_ranks(weights)
-    
-    assert ranks['effect1'] == 10
-    assert ranks['effect2'] == 5
+    ranks = compute_merged_ranks()
+    assert len(ranks) == 5
+    assert "subspace_ranks_merged.json" in str(temp_project_root / "data/subspace_ranks_merged.json")
+    assert (temp_project_root / "data/subspace_ranks_merged.json").exists()
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+def test_load_fp16_adapter_and_base_model_defaults(temp_project_root):
+    # Setup: Create the expected adapter file
+    adapter_path = temp_project_root / "data/models/collection_lora.safetensors"
+    save_file({"dummy": torch.tensor([1.0])}, str(adapter_path))
+    
+    adapter, base = load_fp16_adapter_and_base_model()
+    assert adapter == adapter_path
+    assert base == temp_project_root / "data/models/base/placeholder.safetensors"
+
+def test_load_fp16_adapter_and_base_model_args(temp_project_root):
+    adapter_path = temp_project_root / "data/models/collection_lora.safetensors"
+    save_file({"dummy": torch.tensor([1.0])}, str(adapter_path))
+    
+    # Test positional args
+    adapter, base = load_fp16_adapter_and_base_model(str(adapter_path), "custom_base.safetensors")
+    assert adapter == adapter_path
+    assert base == Path("custom_base.safetensors")
+    
+    # Test keyword args
+    adapter, base = load_fp16_adapter_and_base_model(adapter_path=str(adapter_path), base_model_path="another_base.safetensors")
+    assert adapter == adapter_path
+    assert base == Path("another_base.safetensors")
+
+def test_load_fp16_adapter_not_found(temp_project_root):
+    with pytest.raises(FileNotFoundError):
+        load_fp16_adapter_and_base_model()

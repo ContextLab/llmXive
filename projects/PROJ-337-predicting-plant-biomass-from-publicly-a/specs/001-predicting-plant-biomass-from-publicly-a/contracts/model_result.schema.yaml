@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelResult"
+description: "Schema for storing model performance metrics and hyperparameters."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum: ["RandomForest", "TabPFN", "NullBaseline"]
+    description: "Type of model used."
+  fold:
+    type: "integer"
+    minimum: 0
+    description: "Cross-validation fold index."
+  rmse:
+    type: "number"
+    description: "Root Mean Squared Error."
+  mae:
+    type: "number"
+    description: "Mean Absolute Error."
+  r2:
+    type: "number"
+    description: "Coefficient of Determination."
+  hyperparameters:
+    type: "object"
+    description: "Model hyperparameters (e.g., n_estimators, max_depth)."
+  feature_importance:
+    type: "object"
+    description: "Mapping of feature names to importance scores."
+  p_value:
+    type: "number"
+    description: "Significance p-value vs. null baseline (Nadeau & Bengio corrected)."
+  corrected_p_value:
+    type: "number"
+    description: "Bonferroni-corrected p-value."
+required:
+  - "model_type"
+  - "fold"
+  - "rmse"
+  - "mae"
+  - "r2"
+  - "p_value"
+  - "corrected_p_value"
+additionalProperties: false

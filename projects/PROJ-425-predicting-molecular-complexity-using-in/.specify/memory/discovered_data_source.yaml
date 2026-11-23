@@ -1,0 +1,9 @@
+status: none
+intent: download PubChem CID 1-5000 SMILES dataset from HuggingFace python package
+  dataset
+required_fields:
+- cid
+- smiles
+cache_key: d031c40b20899f87c71a587bb916f01d287f69fef136e0b7a26e527921793a8a
+searched_at: '2026-10-25T06:40:11.120276+00:00'
+retry_count: 1

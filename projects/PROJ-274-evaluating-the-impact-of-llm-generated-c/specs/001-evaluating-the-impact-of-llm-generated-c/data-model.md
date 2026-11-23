@@ -1,142 +1,69 @@
 # Data Model: Evaluating the Impact of LLM-Generated Code Documentation on Developer Onboarding
 
-## 1. Overview
+## 1. Entity Relationship Overview
 
-This document defines the data model for the pilot study. All data is stored as files (JSON/CSV/Parquet) in `data/`. No database is used.
+The data model consists of three primary entities: `Repository`, `Participant`, and `TaskSession`.
+*   **Repository**: The codebase being studied (one-to-many with TaskSessions).
+*   **Participant**: The human subject (one-to-many with TaskSessions).
+*   **TaskSession**: A single onboarding attempt (one-to-many with ClarificationQuestions).
 
 ## 2. Entity Definitions
 
-### 2.1 Participant
+### 2.1 Repository
+Represents the open-source project selected for the study.
+*   **Attributes**:
+    *   `repo_id`: Unique identifier (UUID).
+    *   `url`: GitHub URL.
+    *   `commit_hash`: Pinned commit SHA (string).
+    *   `condition`: Enum {`llm_docs`, `human_docs`, `no_docs`}.
+    *   `loc`: Lines of Code (integer).
+    *   `cc`: Cyclomatic Complexity (integer).
+    *   `doc_quality_score`: Float (0.0-1.0) based on rubric.
+    *   `generated_docs_path`: Relative path to generated Markdown.
 
-A volunteer recruited for the study.
+### 2.2 Participant
+Represents a recruited volunteer.
+*   **Attributes**:
+    *   `participant_id`: Anonymized UUID.
+    *   `condition`: Enum {`llm_docs`, `human_docs`, `no_docs`}.
+    *   `demographics`: Optional JSON (age, experience level).
+    *   `status`: Enum {`active`, `completed`, `dropped_out`}.
+    *   `consent_timestamp`: ISO 8601 datetime.
 
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `participant_id` | string | Unique ID (e.g., `P001`) | Primary key, anonymized |
-| `condition` | string | Assigned condition: `llm`, `human`, `none` | Enum |
-| `start_time` | datetime | Session start (UTC) | ISO 8601 |
-| `end_time` | datetime | Session end (UTC) | ISO 8601 |
-| `total_time_sec` | integer | Total elapsed time (seconds) | ≥0 |
-| `status` | string | `complete`, `incomplete`, `failed` | Enum |
-| `dropout_reason` | string | Reason for dropout (if incomplete/failed) | Optional |
-| `anonymized` | boolean | Whether PII has been removed | True |
-| `irb_protocol_hash` | string | SHA256 hash of the IRB protocol document | Required (Constitution VI) |
+### 2.3 TaskSession
+Represents a single onboarding task attempt by a participant on a repository.
+*   **Attributes**:
+    *   `session_id`: Unique UUID.
+    *   `participant_id`: FK to Participant.
+    *   `repo_id`: FK to Repository.
+    *   `start_time`: ISO 8601 datetime.
+    *   `end_time`: ISO 8601 datetime (or null if incomplete).
+    *   `duration_seconds`: Integer (calculated).
+    *   `status`: Enum {`completed`, `failed`, `stopped`}.
+    *   `max_time_flag`: Boolean (true if stopped at 45m).
+    *   `helpfulness_rating`: Integer (1-5) or null.
 
-### 2.2 Task
-
-An onboarding activity assigned to participants.
-
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `task_id` | string | Unique ID (e.g., `T001`) | Primary key |
-| `repo_url` | string | Repository URL | |
-| `commit_hash` | string | Pinned commit hash | |
-| `condition` | string | Condition for this task: `llm`, `human`, `none` | Enum |
-| `expected_duration_min` | integer | Expected completion time (minutes) | |
-| `description` | string | Task description | |
-
-### 2.3 TaskLog
-
-Per-task metrics for a participant.
-
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `log_id` | string | Unique ID | Primary key |
-| `participant_id` | string | FK to Participant | |
-| `task_id` | string | FK to Task | |
-| `start_time` | datetime | Task start (UTC) | ISO 8601 |
-| `end_time` | datetime | Task end (UTC) | ISO 8601 |
-| `time_sec` | integer | Elapsed time (seconds) | ≥0 |
-| `help_request_count` | integer | Number of "Help Requests" (keyword + moderator tag) | ≥0 |
-| `cognitive_load_proxy` | float | Composite score (time, clicks, NASA-TLX) | 0.0-100.0 |
-| `helpfulness_rating` | integer | Likert scale (1-5) | 1-5 |
-| `moderator_intervention` | boolean | Whether moderator intervened | |
-| `intervention_type` | string | `clarification`, `action`, or `none` | |
-| `status` | string | `complete`, `failed`, `timeout` | Enum |
-
-### 2.4 Repository
-
-Repository metadata for the study.
-
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `repo_id` | string | Unique ID | Primary key |
-| `url` | string | GitHub URL | |
-| `commit_hash` | string | Pinned commit | |
-| `loc` | integer | Lines of Code | ≥0 |
-| `cyclomatic_complexity` | integer | Cyclomatic Complexity | ≥0 |
-| `has_human_docs` | boolean | Whether human docs exist | |
-| `doc_rubric_score` | integer | Rubric score (0-4) for Human Docs | 0-4 |
-| `condition` | string | Assigned condition: `llm`, `human`, `none` | Enum |
-
-### 2.5 LLMConfig
-
-Configuration for documentation generation.
-
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `config_id` | string | Unique ID | Primary key |
-| `model_name` | string | LLM model (e.g., `gpt-4`, `phi-2`) | |
-| `version` | string | Model version/commit | |
-| `temperature` | float | Sampling temperature | 0.0-2.0 |
-| `prompt_template` | string | Prompt used | |
-| `fallback_model` | string | Fallback model (e.g., `phi-2`) | |
-| `checksum` | string | SHA256 of config | |
-
-### 2.6 AnalysisResult
-
-Output of statistical analysis.
-
-| Field | Type | Description | Constraints |
-|-------|------|-------------|-------------|
-| `result_id` | string | Unique ID | Primary key |
-| `test_type` | string | e.g., `Welch_ANOVA`, `Games-Howell` | |
-| `statistic` | float | Test statistic (F, t, etc.) | |
-| `p_value` | float | p-value | 0.0-1.0 |
-| `degrees_of_freedom` | string | e.g., `df1=2, df2=15` | |
-| `confidence_interval` | string | e.g., `[0.1, 0.9]` | |
-| `conclusion` | string | Summary statement | |
-| `timestamp` | datetime | Analysis time (UTC) | |
-| `resource_usage` | object | Runtime and memory metrics | See schema |
+### 2.4 ClarificationQuestion
+Represents a query made by a participant during the session.
+*   **Attributes**:
+    *   `question_id`: Unique UUID.
+    *   `session_id`: FK to TaskSession.
+    *   `timestamp`: ISO 8601 datetime.
+    *   `content`: String (text of the question).
+    *   `type`: Enum {`clarification`, `moderator_action`}.
 
 ## 3. Data Flow
 
-1. **Participant Registration**: `experiment.py` creates `Participant` record (includes `irb_protocol_hash`).
-2. **Task Assignment**: `experiment.py` creates `TaskLog` for each task.
-3. **Documentation Generation**: `doc_pipeline.py` creates `LLMConfig` and `Repository` records.
-4. **Data Collection**: `experiment.py` logs `TaskLog` entries.
-5. **Anonymization**: `anonymize.py` creates anonymized `Participant` and `TaskLog` in `data/processed/`.
-6. **Analysis**: `stats_runner.py` reads `data/processed/` (including `Repository` covariates) and writes `AnalysisResult` to `data/processed/`.
-7. **Reporting**: `report_gen.py` reads `AnalysisResult` and generates `paper/`.
+1.  **Ingestion**: Repositories are fetched, metrics (LOC, CC) calculated, and stored in `data/raw/repo_metrics.json`.
+2.  **Generation**: LLM generates docs (or human docs are verified) and stored in `data/raw/generated_docs/`.
+3.  **Experiment**: Participants run tasks; logs are written to `data/raw/participant_logs.json` in real-time.
+4.  **Anonymization**: Script strips PII from `participant_logs.json` and writes to `data/processed/anonymized_logs.json`.
+5.  **Analysis**: `analyze.py` reads `data/processed/anonymized_logs.json` and outputs `data/processed/results.json`.
 
-## 4. Anonymization Rules
+## 4. Validation Rules
 
-- **Participant ID**: Replace with hash (e.g., `P001` → `a1b2c3d4`).
-- **PII Removal**: Remove names, emails, IPs from raw logs before analysis.
-- **Consent Records**: Stored separately in `data/consent/` with restricted access.
-- **IRB Protocol**: Hash stored in `Participant` record; original file in `data/irb_protocol.pdf` (restricted).
+*   **Commit Hash**: Must be a valid 40-character SHA-1 string.
+*   **Timestamps**: Must be valid ISO 8601; `end_time` >= `start_time`.
+*   **Ratings**: Must be integers in range [1, 5].
+*   **Conditions**: Must be one of the three valid conditions.
 
-## 5. File Structure
-
-```text
-data/
-├── raw/
-│   ├── participants.json       # Raw participant data (PII included)
-│   ├── task_logs.json          # Raw task logs (PII included)
-│   └── consent/                # Consent records (restricted)
-├── processed/
-│   ├── participants_anon.json  # Anonymized participant data
-│   ├── task_logs_anon.json     # Anonymized task logs
-│   ├── repos.json              # Repository metadata (with covariates)
-│   ├── llm_config.json         # LLM configuration
-│   └── analysis_results.json   # Statistical analysis outputs
-├── repos/                      # Pinned repository snapshots
-│   └── <repo_id>/
-│       ├── commit_hash.txt
-│       └── source_code/
-└── checksums.json              # SHA256 checksums for all files
-```
-
-## 6. Schema Validation
-
-All files in `data/processed/` must validate against schemas in `contracts/`.

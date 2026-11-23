@@ -9,19 +9,15 @@ class ReplicationError(Exception):
     """Custom exception for replication analysis errors."""
     pass
 
-def solve_linear_system(A: List[List[float]], b: List[float]) -> Optional[List[float]]:
+def solve_linear_system(A: List[List[float]], b: List[float]) -> List[float]:
     """
-    Solve a linear system Ax = b using Gaussian elimination with partial pivoting.
-    Returns None if the system is singular.
+    Solves the linear system Ax = b using Gaussian elimination with partial pivoting.
+    Returns the solution vector x.
     """
     n = len(A)
-    if n == 0:
-        return None
-    m = len(A[0])
-    
     # Create augmented matrix
-    M = [row[:] + [b[i]] for i, row in enumerate(A)]
-    
+    M = [row[:] + [val] for row, val in zip(A, b)]
+
     # Forward elimination
     for i in range(n):
         # Find pivot
@@ -30,83 +26,66 @@ def solve_linear_system(A: List[List[float]], b: List[float]) -> Optional[List[f
             if abs(M[k][i]) > abs(M[max_row][i]):
                 max_row = k
         M[i], M[max_row] = M[max_row], M[i]
-        
-        if abs(M[i][i]) < 1e-12:
-            return None  # Singular matrix
-        
+
+        if abs(M[i][i]) < 1e-10:
+            raise ReplicationError("Matrix is singular or near-singular.")
+
         for k in range(i + 1, n):
             factor = M[k][i] / M[i][i]
-            for j in range(i, m + 1):
+            for j in range(i, n + 1):
                 M[k][j] -= factor * M[i][j]
-    
+
     # Back substitution
-    x = [0.0] * m
+    x = [0.0] * n
     for i in range(n - 1, -1, -1):
-        x[i] = M[i][n]
-        for j in range(i + 1, m):
-            x[i] -= M[i][j] * x[j]
-        x[i] /= M[i][i]
-    
+        s = M[i][n]
+        for j in range(i + 1, n):
+            s -= M[i][j] * x[j]
+        x[i] = s / M[i][i]
     return x
 
-def invert_matrix(M: List[List[float]]) -> Optional[List[List[float]]]:
+def invert_matrix(M: List[List[float]]) -> List[List[float]]:
     """
-    Invert a square matrix using Gauss-Jordan elimination.
-    Returns None if the matrix is singular.
+    Inverts a square matrix using Gauss-Jordan elimination.
     """
     n = len(M)
-    if n == 0:
-        return None
-    if any(len(row) != n for row in M):
-        return None
-        
-    # Create augmented matrix [M | I]
+    # Augment with identity
     aug = [row[:] + [1.0 if i == j else 0.0 for j in range(n)] for i, row in enumerate(M)]
-    
+
     for i in range(n):
-        # Find pivot
+        # Pivot
         max_row = i
         for k in range(i + 1, n):
             if abs(aug[k][i]) > abs(aug[max_row][i]):
                 max_row = k
         aug[i], aug[max_row] = aug[max_row], aug[i]
-        
-        if abs(aug[i][i]) < 1e-12:
-            return None  # Singular matrix
-        
+
+        if abs(aug[i][i]) < 1e-10:
+            raise ReplicationError("Matrix is singular and cannot be inverted.")
+
         # Scale pivot row
-        pivot = aug[i][i]
+        div = aug[i][i]
         for j in range(2 * n):
-            aug[i][j] /= pivot
-        
+            aug[i][j] /= div
+
         # Eliminate column
         for k in range(n):
             if k != i:
                 factor = aug[k][i]
                 for j in range(2 * n):
                     aug[k][j] -= factor * aug[i][j]
-    
+
     # Extract inverse
     return [row[n:] for row in aug]
 
 def normal_cdf(x: float) -> float:
-    """
-    Approximate the cumulative distribution function for the standard normal distribution.
-    Uses the error function approximation.
-    """
-    # Approximation of erf using Abramowitz and Stegun formula
-    t = 1.0 / (1.0 + 0.2316419 * abs(x))
-    d = 0.3989423 * math.exp(-x * x / 2.0)
-    p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))))
-    if x > 0:
-        return 1.0 - p
-    else:
-        return p
+    """Approximation of the standard normal CDF."""
+    return 0.5 * (1.0 + math.erf(x / math.sqrt(2.0)))
 
 def load_replication_expression_data(filepath: str) -> Dict[str, Dict[str, float]]:
     """
-    Load gene expression data from a CSV file.
-    Returns a dict: { gene_id: { line_id: tpm_value } }
+    Loads expression data from a CSV file.
+    Returns: { gene_id: { line_id: tpm_value } }
     """
     data = {}
     with open(filepath, 'r', newline='') as f:
@@ -116,7 +95,7 @@ def load_replication_expression_data(filepath: str) -> Dict[str, Dict[str, float
             if gene_id not in data:
                 data[gene_id] = {}
             for key, val in row.items():
-                if key != 'gene_id' and val:
+                if key != 'gene_id':
                     try:
                         data[gene_id][key] = float(val)
                     except ValueError:
@@ -125,8 +104,8 @@ def load_replication_expression_data(filepath: str) -> Dict[str, Dict[str, float
 
 def load_replication_te_presence_data(filepath: str) -> Dict[str, Dict[str, int]]:
     """
-    Load TE presence/absence data from a CSV file.
-    Returns a dict: { te_id: { line_id: presence (0/1) } }
+    Loads TE presence data from a CSV file.
+    Returns: { te_id: { line_id: presence (0/1) } }
     """
     data = {}
     with open(filepath, 'r', newline='') as f:
@@ -136,17 +115,17 @@ def load_replication_te_presence_data(filepath: str) -> Dict[str, Dict[str, int]
             if te_id not in data:
                 data[te_id] = {}
             for key, val in row.items():
-                if key != 'te_id' and val:
+                if key != 'te_id':
                     try:
-                        data[te_id][key] = int(val)
+                        data[te_id][key] = int(float(val))
                     except ValueError:
                         pass
     return data
 
 def load_replication_pcs_data(filepath: str) -> Dict[str, List[float]]:
     """
-    Load population structure PCs from a CSV file.
-    Returns a dict: { line_id: [pc1, pc2, pc3, ...] }
+    Loads PC data from a CSV file.
+    Returns: { line_id: [pc1, pc2, pc3] }
     """
     data = {}
     with open(filepath, 'r', newline='') as f:
@@ -154,12 +133,10 @@ def load_replication_pcs_data(filepath: str) -> Dict[str, List[float]]:
         for row in reader:
             line_id = row['line_id']
             pcs = []
-            for key in row:
-                if key.startswith('pc') and key != 'line_id':
-                    try:
-                        pcs.append(float(row[key]))
-                    except ValueError:
-                        pcs.append(0.0)
+            for i in range(1, 4):
+                key = f'PC{i}'
+                if key in row:
+                    pcs.append(float(row[key]))
             data[line_id] = pcs
     return data
 
@@ -169,271 +146,377 @@ def get_common_lines(
     pc_data: Dict[str, List[float]]
 ) -> List[str]:
     """
-    Find line IDs that have data in all three datasets.
+    Identifies lines present in all three datasets.
     """
     expr_lines = set()
-    for gene_id, line_dict in expr_data.items():
-        expr_lines.update(line_dict.keys())
-    
+    for gene in expr_data.values():
+        expr_lines.update(gene.keys())
+
     te_lines = set()
-    for te_id, line_dict in te_data.items():
-        te_lines.update(line_dict.keys())
-    
-    common = expr_lines.intersection(te_lines).intersection(pc_data.keys())
+    for te in te_data.values():
+        te_lines.update(te.keys())
+
+    pc_lines = set(pc_data.keys())
+
+    common = expr_lines.intersection(te_lines).intersection(pc_lines)
     return sorted(list(common))
 
 def fit_replication_model(
-    expr_values: List[float],
-    te_values: List[int],
-    pc_values: List[List[float]]
-) -> Tuple[Optional[float], Optional[float], Optional[float]]:
+    expr: List[float],
+    te: List[int],
+    pcs: List[List[float]]
+) -> Tuple[float, float, float]:
     """
-    Fit the linear model: log2(expr) ~ TE + PC1 + PC2 + PC3
-    Returns (effect_size, std_error, t_statistic) or (None, None, None) if fit fails.
+    Fits the model: expr ~ TE + PC1 + PC2 + PC3
+    Returns: (beta_TE, se_TE, t_stat)
     """
-    n = len(expr_values)
+    n = len(expr)
     if n == 0:
-        return None, None, None
-    
-    # Transform expression: log2(expr + 1e-6)
-    y = [math.log2(v + 1e-6) for v in expr_values]
-    
-    # Design matrix: [1, TE, PC1, PC2, PC3]
+        raise ReplicationError("No data points for fitting.")
+
+    # Design matrix X: [1, TE, PC1, PC2, PC3]
     X = []
     for i in range(n):
-        row = [1.0, float(te_values[i])]
-        # Pad PC values if necessary
-        for j in range(3):
-            if j < len(pc_values[i]):
-                row.append(pc_values[i][j])
-            else:
-                row.append(0.0)
+        row = [1.0, float(te[i])] + pcs[i]
         X.append(row)
-    
-    # Solve normal equations: (X'X) * beta = X'y
-    XtX = [[0.0] * len(X[0]) for _ in range(len(X[0]))]
-    Xty = [0.0] * len(X[0])
-    
-    for i in range(n):
-        for j in range(len(X[0])):
-            Xty[j] += X[i][j] * y[i]
-            for k in range(len(X[0])):
-                XtX[j][k] += X[i][j] * X[i][k]
-    
+
+    # Solve for coefficients: (X'X)^-1 X'y
+    # Compute X'X
+    XtX = [[0.0] * 5 for _ in range(5)]
+    for i in range(5):
+        for j in range(5):
+            s = 0.0
+            for k in range(n):
+                s += X[k][i] * X[k][j]
+            XtX[i][j] = s
+
+    # Compute X'y
+    Xty = [0.0] * 5
+    for i in range(5):
+        s = 0.0
+        for k in range(n):
+            s += X[k][i] * expr[k]
+        Xty[i] = s
+
+    try:
+        XtX_inv = invert_matrix(XtX)
+    except ReplicationError:
+        raise ReplicationError("Design matrix is singular.")
+
     beta = solve_linear_system(XtX, Xty)
-    if beta is None:
-        return None, None, None
-    
-    # Calculate residuals and standard error
-    y_pred = [sum(X[i][j] * beta[j] for j in range(len(beta))) for i in range(n)]
-    residuals = [y[i] - y_pred[i] for i in range(n)]
-    
-    ss_res = sum(r * r for r in residuals)
-    df = n - len(beta)
+    # beta_TE is beta[1]
+
+    # Residuals
+    residuals = []
+    for k in range(n):
+        pred = sum(X[k][j] * beta[j] for j in range(5))
+        residuals.append(expr[k] - pred)
+
+    # Residual Sum of Squares
+    rss = sum(r * r for r in residuals)
+    df = n - 5
     if df <= 0:
-        return None, None, None
-    
-    mse = ss_res / df
-    
-    # Calculate standard errors from (X'X)^-1
-    XtX_inv = invert_matrix(XtX)
-    if XtX_inv is None:
-        return None, None, None
-    
-    # Effect size is beta[1] (TE coefficient)
-    effect_size = beta[1]
-    se_effect = math.sqrt(mse * XtX_inv[1][1]) if XtX_inv[1][1] > 0 else 0.0
-    
-    if se_effect == 0:
-        t_stat = 0.0
+        raise ReplicationError("Insufficient degrees of freedom.")
+
+    sigma2 = rss / df
+
+    # Variance of beta_TE: sigma2 * (X'X)^-1[1,1]
+    var_beta_te = sigma2 * XtX_inv[1][1]
+    if var_beta_te < 0:
+        var_beta_te = 0.0
+    se_beta_te = math.sqrt(var_beta_te)
+
+    if se_beta_te < 1e-10:
+        t_stat = float('inf') if beta[1] > 0 else float('-inf')
     else:
-        t_stat = effect_size / se_effect
-    
-    return effect_size, se_effect, t_stat
+        t_stat = beta[1] / se_beta_te
+
+    return beta[1], se_beta_te, t_stat
 
 def load_significant_pairs(filepath: str) -> List[Dict[str, Any]]:
     """
-    Load significant TE-gene pairs from the US1 results file.
+    Loads the list of significant TE-Gene pairs from the US1 results.
     """
     pairs = []
+    if not os.path.exists(filepath):
+        raise ReplicationError(f"Significant pairs file not found: {filepath}")
+
     with open(filepath, 'r', newline='') as f:
         reader = csv.DictReader(f)
         for row in reader:
+            # Convert numeric strings to floats
+            try:
+                row['effect_size'] = float(row['effect_size'])
+                row['p_value'] = float(row['p_value'])
+                row['adj_p_value'] = float(row['adj_p_value'])
+            except (ValueError, KeyError):
+                continue
             pairs.append(row)
     return pairs
 
 def filter_significant_pairs_for_replication(
     pairs: List[Dict[str, Any]],
-    expr_data: Dict[str, Dict[str, float]],
     te_data: Dict[str, Dict[str, int]],
+    expr_data: Dict[str, Dict[str, float]],
     common_lines: List[str]
 ) -> List[Dict[str, Any]]:
     """
-    Filter pairs to those that have sufficient data in the replication dataset.
+    Filters pairs that have sufficient data (non-missing) in the replication set.
     """
-    filtered = []
+    valid_pairs = []
     for pair in pairs:
         te_id = pair['te_id']
         gene_id = pair['gene_id']
-        
+
         # Check if TE and Gene exist in replication data
         if te_id not in te_data or gene_id not in expr_data:
             continue
-        
-        # Check if enough common lines exist
-        te_lines = set(te_data[te_id].keys())
-        gene_lines = set(expr_data[gene_id].keys())
-        valid_lines = te_lines.intersection(gene_lines).intersection(set(common_lines))
-        
-        if len(valid_lines) >= 5:  # Minimum sample size
-            filtered.append(pair)
-    
-    return filtered
+
+        # Check if there are enough common lines with data
+        te_vals = te_data[te_id]
+        expr_vals = expr_data[gene_id]
+
+        valid_lines = [
+            line for line in common_lines
+            if line in te_vals and line in expr_vals
+        ]
+
+        if len(valid_lines) >= 10: # Minimum sample size for replication
+            pair['_valid_lines'] = valid_lines
+            valid_pairs.append(pair)
+
+    return valid_pairs
 
 def calculate_concordance(
-    original_t: float,
-    replication_t: float
+    original_beta: float,
+    replication_beta: float,
+    original_se: float,
+    replication_se: float
 ) -> Tuple[bool, float]:
     """
-    Calculate direction concordance and replication p-value.
-    
-    Returns:
-        (is_concordant, replication_pvalue)
+    Calculates direction concordance and performs a binomial test logic.
+    Returns: (is_concordant, z_score_for_binomial_approx)
     """
-    # Concordance: same sign of effect (t-statistic)
-    is_concordant = (original_t > 0 and replication_t > 0) or (original_t < 0 and replication_t < 0)
-    
-    # Calculate two-tailed p-value for replication t-statistic
-    # Assuming large enough df for normal approximation
-    abs_t = abs(replication_t)
-    # Using normal CDF approximation for p-value
-    p_value = 2.0 * (1.0 - normal_cdf(abs_t))
-    
-    return is_concordant, p_value
+    # Direction concordance
+    is_concordant = (original_beta > 0 and replication_beta > 0) or \
+                    (original_beta < 0 and replication_beta < 0)
+
+    # For the binomial test against null (p=0.5), we just count successes later.
+    # This function returns the boolean flag for the individual pair.
+    return is_concordant, 0.0
+
+def generate_comparison_table(
+    original_pairs: List[Dict[str, Any]],
+    replication_results: List[Dict[str, Any]],
+    output_path: str
+) -> None:
+    """
+    Generates the final comparison table CSV.
+    """
+    ensure_directory(output_path)
+    headers = [
+        'te_id', 'gene_id', 'original_effect_size', 'original_p_value',
+        'replication_effect_size', 'replication_p_value',
+        'concordance_flag', 'replication_t_stat'
+    ]
+
+    with open(output_path, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=headers)
+        writer.writeheader()
+
+        for orig, rep in zip(original_pairs, replication_results):
+            row = {
+                'te_id': orig['te_id'],
+                'gene_id': orig['gene_id'],
+                'original_effect_size': orig['effect_size'],
+                'original_p_value': orig['p_value'],
+                'replication_effect_size': rep['beta'],
+                'replication_p_value': rep['p_value'],
+                'concordance_flag': rep['concordance'],
+                'replication_t_stat': rep['t_stat']
+            }
+            writer.writerow(row)
 
 def run_replication_analysis(
-    original_results_path: str,
     replication_expr_path: str,
     replication_te_path: str,
-    replication_pcs_path: str,
-    output_path: str
-) -> List[Dict[str, Any]]:
+    replication_pc_path: str,
+    significant_pairs_path: str,
+    output_table_path: str,
+    output_concordance_path: str
+) -> Dict[str, Any]:
     """
-    Run the full replication analysis pipeline.
-    
-    1. Load significant pairs from US1.
-    2. Load replication datasets.
-    3. Filter pairs with sufficient data.
-    4. Fit model for each pair in replication data.
-    5. Calculate concordance and p-values.
-    6. Write results to output CSV.
+    Orchestrates the full replication analysis:
+    1. Load replication data.
+    2. Load significant pairs from US1.
+    3. Filter pairs for valid data.
+    4. Fit models for each pair.
+    5. Calculate concordance.
+    6. Write comparison table.
+    7. Compute overall concordance rate and binomial test.
     """
-    logger = setup_logger('replication')
-    logger.info("Starting replication analysis")
-    
-    # Load significant pairs
-    significant_pairs = load_significant_pairs(original_results_path)
-    logger.info(f"Loaded {len(significant_pairs)} significant pairs from US1")
-    
-    # Load replication data
+    logger = setup_logger(__name__)
+    logger.info("Starting replication analysis...")
+
+    # 1. Load Data
     expr_data = load_replication_expression_data(replication_expr_path)
     te_data = load_replication_te_presence_data(replication_te_path)
-    pc_data = load_replication_pcs_data(replication_pcs_path)
-    
+    pc_data = load_replication_pcs_data(replication_pc_path)
+
     common_lines = get_common_lines(expr_data, te_data, pc_data)
-    logger.info(f"Found {len(common_lines)} common lines across all datasets")
-    
-    # Filter pairs
+    logger.info(f"Found {len(common_lines)} common lines.")
+
+    # 2. Load Significant Pairs
+    significant_pairs = load_significant_pairs(significant_pairs_path)
+    logger.info(f"Loaded {len(significant_pairs)} significant pairs from US1.")
+
+    if not significant_pairs:
+        logger.warning("No significant pairs found to replicate.")
+        # Write empty results
+        ensure_directory(output_table_path)
+        with open(output_table_path, 'w', newline='') as f:
+            f.write("te_id,gene_id,original_effect_size,original_p_value,replication_effect_size,replication_p_value,concordance_flag,replication_t_stat\n")
+        ensure_directory(output_concordance_path)
+        with open(output_concordance_path, 'w') as f:
+            f.write("concordance_rate,concordance_count,total_count,p_value_binomial\n0.0,0,0,1.0\n")
+        return {"concordance_rate": 0.0, "count": 0}
+
+    # 3. Filter for valid data
     valid_pairs = filter_significant_pairs_for_replication(
-        significant_pairs, expr_data, te_data, common_lines
+        significant_pairs, te_data, expr_data, common_lines
     )
-    logger.info(f"Filtered to {len(valid_pairs)} pairs with sufficient data")
-    
-    results = []
+    logger.info(f"Filtered to {len(valid_pairs)} pairs with sufficient replication data.")
+
+    replication_results = []
+    concordance_count = 0
+
+    # 4. Fit Models & 5. Calculate Concordance
     for pair in valid_pairs:
         te_id = pair['te_id']
         gene_id = pair['gene_id']
-        original_effect = float(pair.get('effect_size', 0.0))
-        original_t = float(pair.get('t_statistic', 0.0))
-        
-        # Extract values for common lines
-        expr_vals = []
-        te_vals = []
-        pc_vals = []
-        
-        for line_id in common_lines:
-            if line_id in te_data[te_id] and line_id in expr_data[gene_id]:
-                expr_vals.append(expr_data[gene_id][line_id])
-                te_vals.append(te_data[te_id][line_id])
-                pc_vals.append(pc_data.get(line_id, [0.0, 0.0, 0.0]))
-        
-        if len(expr_vals) < 5:
-            continue
-        
-        # Fit replication model
-        rep_effect, rep_se, rep_t = fit_replication_model(expr_vals, te_vals, pc_vals)
-        
-        if rep_effect is None:
-            continue
-        
-        # Calculate concordance and p-value
-        is_concordant, rep_pvalue = calculate_concordance(original_t, rep_t)
-        
-        results.append({
-            'te_id': te_id,
-            'gene_id': gene_id,
-            'original_effect_size': original_effect,
-            'replication_effect_size': rep_effect,
-            'concordance_flag': 'true' if is_concordant else 'false',
-            'replication_p_value': rep_pvalue
-        })
+        valid_lines = pair['_valid_lines']
+
+        # Prepare vectors
+        expr_vec = [expr_data[gene_id][line] for line in valid_lines]
+        te_vec = [te_data[te_id][line] for line in valid_lines]
+        pc_vec = [pc_data[line] for line in valid_lines]
+
+        try:
+            beta, se, t_stat = fit_replication_model(expr_vec, te_vec, pc_vec)
+            
+            # Calculate p-value from t-stat (two-tailed approximation)
+            # Using normal approximation for large N, or t-dist if we had df
+            # For simplicity in this mock context, using normal CDF
+            p_val = 2 * (1 - normal_cdf(abs(t_stat)))
+
+            # Check concordance
+            is_concordant, _ = calculate_concordance(pair['effect_size'], beta, 0, 0)
+            if is_concordant:
+                concordance_count += 1
+
+            replication_results.append({
+                'beta': beta,
+                'p_value': p_val,
+                't_stat': t_stat,
+                'concordance': is_concordant
+            })
+        except Exception as e:
+            logger.warning(f"Failed to fit model for {te_id}-{gene_id}: {e}")
+            replication_results.append({
+                'beta': float('nan'),
+                'p_value': float('nan'),
+                't_stat': float('nan'),
+                'concordance': False
+            })
+
+    # 6. Write Comparison Table
+    generate_comparison_table(valid_pairs, replication_results, output_table_path)
+    logger.info(f"Comparison table written to {output_table_path}")
+
+    # 7. Compute Overall Concordance Rate and Binomial Test
+    total_count = len(replication_results)
+    concordance_rate = concordance_count / total_count if total_count > 0 else 0.0
+
+    # Binomial test against null hypothesis p=0.5
+    # We approximate using Normal approximation to Binomial:
+    # Z = (k - n*p) / sqrt(n * p * (1-p))
+    # p_val = 2 * (1 - Phi(|Z|))
+    n = total_count
+    p_null = 0.5
+    if n > 0:
+        expected = n * p_null
+        std_dev = math.sqrt(n * p_null * (1 - p_null))
+        if std_dev > 0:
+            z_score = (concordance_count - expected) / std_dev
+            binomial_p_val = 2 * (1 - normal_cdf(abs(z_score)))
+        else:
+            binomial_p_val = 1.0
+    else:
+        binomial_p_val = 1.0
+
+    # Write Concordance Summary
+    ensure_directory(output_concordance_path)
+    with open(output_concordance_path, 'w') as f:
+        f.write("concordance_rate,concordance_count,total_count,p_value_binomial\n")
+        f.write(f"{concordance_rate},{concordance_count},{total_count},{binomial_p_val}\n")
     
-    # Write output
-    ensure_directory(output_path)
-    with open(output_path, 'w', newline='') as f:
-        if results:
-            fieldnames = [
-                'te_id', 'gene_id', 'original_effect_size', 
-                'replication_effect_size', 'concordance_flag', 'replication_p_value'
-            ]
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(results)
-    
-    logger.info(f"Wrote {len(results)} replication results to {output_path}")
-    return results
+    logger.info(f"Concordance rate: {concordance_rate:.4f} ({concordance_count}/{total_count})")
+    logger.info(f"Binomial test p-value: {binomial_p_val:.4f}")
+
+    return {
+        "concordance_rate": concordance_rate,
+        "concordance_count": concordance_count,
+        "total_count": total_count,
+        "p_value_binomial": binomial_p_val
+    }
 
 def main():
     """
     Main entry point for replication analysis.
+    Assumes paths are configured or passed via arguments.
+    For this task, we use hardcoded paths relative to the project structure
+    as per the project's standard data layout.
     """
-    logger = setup_logger('replication')
+    logger = setup_logger(__name__)
     set_random_seed(42)
+
+    # Define paths
+    replication_expr_path = "data/mock_expression_replication.csv"
+    replication_te_path = "data/mock_te_presence_replication.csv"
+    replication_pc_path = "data/mock_pcs_replication.csv"
+    significant_pairs_path = "data/results/association_results_fdr0.05.csv"
     
-    # Define paths (adjust as needed for project structure)
-    project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    original_results = os.path.join(project_root, 'data', 'results', 'association_results.csv')
-    replication_expr = os.path.join(project_root, 'data', 'replication', 'expression_replication.csv')
-    replication_te = os.path.join(project_root, 'data', 'replication', 'te_presence_replication.csv')
-    replication_pcs = os.path.join(project_root, 'data', 'replication', 'pcs_replication.csv')
-    output_file = os.path.join(project_root, 'data', 'results', 'replication_concordance.csv')
-    
-    if not os.path.exists(original_results):
-        logger.error(f"Original results file not found: {original_results}")
-        raise ReplicationError("Original results file not found")
-    
+    output_table_path = "data/results/replication_comparison_table.csv"
+    output_concordance_path = "data/results/replication_concordance_summary.csv"
+
+    # Ensure input files exist (they should be generated by T031-T035 or data_generator)
+    if not os.path.exists(replication_expr_path):
+        logger.error(f"Replication expression data not found: {replication_expr_path}")
+        return
+    if not os.path.exists(replication_te_path):
+        logger.error(f"Replication TE data not found: {replication_te_path}")
+        return
+    if not os.path.exists(significant_pairs_path):
+        logger.error(f"Significant pairs file not found: {significant_pairs_path}")
+        return
+
     try:
         results = run_replication_analysis(
-            original_results,
-            replication_expr,
-            replication_te,
-            replication_pcs,
-            output_file
+            replication_expr_path,
+            replication_te_path,
+            replication_pc_path,
+            significant_pairs_path,
+            output_table_path,
+            output_concordance_path
         )
-        logger.info(f"Replication analysis complete. {len(results)} pairs tested.")
-    except Exception as e:
+        logger.info("Replication analysis completed successfully.")
+        logger.info(f"Final Concordance Rate: {results['concordance_rate']}")
+        logger.info(f"Binomial Test P-Value: {results['p_value_binomial']}")
+    except ReplicationError as e:
         logger.error(f"Replication analysis failed: {e}")
-        raise ReplicationError(str(e))
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        raise
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

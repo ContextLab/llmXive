@@ -1,0 +1,5 @@
+'|clip model used vit':
+  quote: CLIP can enable contrastive training of a ViT-B/32 model
+  source_id: '2304.08480'
+  url: https://arxiv.org/abs/2304.08480
+  value: ViT-B/32

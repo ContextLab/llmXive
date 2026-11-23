@@ -34,7 +34,7 @@ MAX_CONCURRENT_CLONES: Final[int] = 4
 
 # Tool Versions
 RADON_VERSION: Final[str] = "0.0"  # Radon version string
-SEMGREP_VERSION: Final[str] = "latest"
+SEMGREP_VERSION: Final[str] = "1.30.0"
 PYDRILLER_VERSION: Final[str] = "2.0.0"
 
 # Analysis Parameters
@@ -45,7 +45,7 @@ RANDOM_SEED: Final[int] = 42
 # Timeouts (seconds)
 CLONE_TIMEOUT: Final[int] = 600
 ANALYSIS_TIMEOUT: Final[int] = 3600
-PIPELINE_TIMEOUT: Final[int] = 7200
+PIPELINE_TIMEOUT: Final[int] = 21600  # 6 hours
 
 # File Paths (Relative to Data/Results)
 UNIFIED_METRICS_FILE: Final[Path] = DATA_PROCESSED / "unified_metrics.csv"
@@ -55,6 +55,8 @@ CORRELATION_RESULTS_FILE: Final[Path] = DATA_RESULTS / "correlation_results.csv"
 SENSITIVITY_ANALYSIS_FILE: Final[Path] = DATA_RESULTS / "sensitivity_analysis.csv"
 META_ANALYSIS_RESULTS_FILE: Final[Path] = DATA_RESULTS / "meta_analysis_results.csv"
 SUMMARY_REPORT_FILE: Final[Path] = DATA_RESULTS / "summary_report.txt"
+PIPELINE_LOG_FILE: Final[Path] = DATA_LOGS / "pipeline.log"
+ARTIFACT_STATE_FILE: Final[Path] = DATA_RESULTS / "pipeline_state.json"
 
 # Supported Languages
 SUPPORTED_LANGUAGES: Final[List[str]] = [
@@ -70,6 +72,10 @@ FILE_EXTENSIONS: Final[Dict[str, List[str]]] = {
     "Go": [".go"],
     "Rust": [".rs"]
 }
+
+# Memory Limits (GB)
+MEMORY_LIMIT_GB: Final[float] = 7.0
+MEMORY_WARNING_GB: Final[float] = 6.5
 
 def get_config_summary() -> Dict[str, Any]:
     """
@@ -91,6 +97,14 @@ def get_config_summary() -> Dict[str, Any]:
             "clone": CLONE_TIMEOUT,
             "analysis": ANALYSIS_TIMEOUT,
             "pipeline": PIPELINE_TIMEOUT
+        },
+        "memory_limit_gb": MEMORY_LIMIT_GB,
+        "paths": {
+            "raw": str(DATA_RAW),
+            "processed": str(DATA_PROCESSED),
+            "results": str(DATA_RESULTS),
+            "logs": str(DATA_LOGS),
+            "plots": str(FIGURES_DIR)
         }
     }
 

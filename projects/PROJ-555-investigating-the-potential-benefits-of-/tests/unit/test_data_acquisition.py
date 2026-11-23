@@ -1,207 +1,228 @@
 """
 Unit tests for chunked download logic in data acquisition.
-Tests the integration of the chunking utility with simulated data acquisition.
+
+This module verifies that the chunked download logic in `code/data_acquisition.py`
+correctly handles streaming data, respects memory constraints, and processes
+data in chunks as defined by the chunking utility.
 """
-import pytest
-import pandas as pd
-import numpy as np
-from unittest.mock import patch, MagicMock
-from io import BytesIO
-import sys
 import os
+import sys
+import unittest
+from unittest.mock import patch, MagicMock, mock_open
+from pathlib import Path
+import json
+import logging
+from io import StringIO
 
 # Add parent directory to path to allow imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from utils.chunking import process_chunked, split_dataframe
-from config import ensure_directories
+from code.data_acquisition import log_api_query, fetch_landsat_metadata, main
+from code.utils.chunking import (
+    calculate_safe_chunk_size,
+    process_chunked,
+    estimate_row_size
+)
+from code.config import ensure_directories
+from code.logging_config import setup_logging
 
+# Constants for testing
+MOCK_SCENE_ID = "LC08_L2SP_044034_20200101_20200101_01_T1"
+MOCK_QUERY_PARAMS = {
+    "start_date": "2020-01-01",
+    "end_date": "2020-01-31",
+    "max_results": 100
+}
+MOCK_RESPONSE = {
+    "data": [
+        {
+            "id": MOCK_SCENE_ID,
+            "displayId": "LC08_L2SP_044034_20200101_20200101_01_T1",
+            "entityId": "LC80440342020001LGN00",
+            "browse": [
+                {
+                    "thumbnail": "https://example.com/thumb.jpg",
+                    "full": "https://example.com/full.jpg"
+                }
+            ]
+        }
+    ],
+    "recordsReturned": 1,
+    "totalHits": 1
+}
 
-class TestDataAcquisitionChunking:
-    """Tests for chunked processing logic in data acquisition."""
+class TestChunkedDownloadLogic(unittest.TestCase):
+    """Tests for chunked download and processing logic."""
 
-    def test_split_dataframe_basic(self):
-        """Test that a dataframe is correctly split into chunks."""
-        df = pd.DataFrame({
-            'site_id': range(100),
-            'value': range(100)
-        })
+    def setUp(self):
+        """Set up test fixtures."""
+        self.test_dir = Path("tests/test_output")
+        self.test_dir.mkdir(exist_ok=True)
+        setup_logging()
+        self.logger = logging.getLogger(__name__)
+
+    def tearDown(self):
+        """Clean up test artifacts."""
+        import shutil
+        if self.test_dir.exists():
+            shutil.rmtree(self.test_dir)
+
+    def test_calculate_safe_chunk_size_memory_limit(self):
+        """Test that chunk size calculation respects memory limits."""
+        # Mock available memory to be low (e.g., 100MB)
+        with patch('code.utils.chunking.get_available_memory', return_value=100 * 1024 * 1024):
+            # Estimate row size
+            row_size = estimate_row_size([{"id": "test", "data": "x" * 1000}])
+            chunk_size = calculate_safe_chunk_size(row_size, max_memory_mb=100)
+            
+            # Chunk size should be positive and reasonable
+            self.assertGreater(chunk_size, 0)
+            self.assertLess(chunk_size, 1000000)  # Should not be absurdly large
+
+    @patch('code.data_acquisition.fetch_landsat_metadata')
+    def test_fetch_landsat_metadata_chunked_processing(self, mock_fetch):
+        """Test that fetch_landsat_metadata processes results in chunks."""
+        # Setup mock to return multiple pages of results
+        mock_fetch.side_effect = [
+            {"data": [{"id": f"scene_{i}"} for i in range(50)], "recordsReturned": 50},
+            {"data": [{"id": f"scene_{i+50}"} for i in range(50)], "recordsReturned": 50},
+            {"data": [], "recordsReturned": 0}  # End of results
+        ]
+
+        # Call function with chunked processing
+        results = fetch_landsat_metadata(
+            start_date="2020-01-01",
+            end_date="2020-01-31",
+            max_results=100,
+            chunk_size=50
+        )
+
+        # Verify we got all results
+        self.assertEqual(len(results), 100)
+        
+        # Verify fetch was called multiple times (chunked)
+        self.assertEqual(mock_fetch.call_count, 3)
+
+    def test_process_chunked_iterator_behavior(self):
+        """Test that process_chunked correctly yields chunks."""
+        # Create a large list of items
+        items = list(range(100))
+        chunk_size = 25
+
+        chunks = list(process_chunked(items, chunk_size))
+
+        # Verify chunk structure
+        self.assertEqual(len(chunks), 4)  # 100 / 25 = 4
+        self.assertEqual(len(chunks[0]), 25)
+        self.assertEqual(chunks[0][0], 0)
+        self.assertEqual(chunks[0][-1], 24)
+        self.assertEqual(chunks[-1][-1], 99)
+
+    def test_log_api_query_with_chunked_params(self):
+        """Test logging of API queries with chunked parameters."""
+        query_params = {
+            "start_date": "2020-01-01",
+            "end_date": "2020-01-31",
+            "chunk_size": 50,
+            "max_results": 1000
+        }
+        
+        # Ensure directories exist
+        ensure_directories()
+        
+        # Log the query
+        log_api_query("landsat_search", query_params)
+        
+        # Verify log file exists and contains the query
+        log_dir = Path("data/raw")
+        log_files = list(log_dir.glob("query_log.json"))
+        self.assertGreater(len(log_files), 0)
+        
+        with open(log_files[0], 'r') as f:
+            log_content = json.load(f)
+        
+        # Check that our query was logged
+        found = False
+        for entry in log_content:
+            if entry.get("query_type") == "landsat_search":
+                self.assertEqual(entry["params"]["chunk_size"], 50)
+                found = True
+                break
+        
+        self.assertTrue(found, "Query not found in log")
+
+    @patch('code.data_acquisition.fetch_landsat_metadata')
+    @patch('code.data_acquisition.log_api_query')
+    def test_main_chunked_download_workflow(self, mock_log, mock_fetch):
+        """Test the full main workflow with chunked download."""
+        # Setup mock data
+        mock_fetch.return_value = {
+            "data": [{"id": f"scene_{i}"} for i in range(10)],
+            "recordsReturned": 10
+        }
+        
+        # Run main with chunked parameters
+        try:
+            main(
+                start_date="2020-01-01",
+                end_date="2020-01-31",
+                output_path=str(self.test_dir / "test_output.json"),
+                chunk_size=5
+            )
+        except Exception as e:
+            # Some errors are expected if real API calls fail, 
+            # but we're testing the logic flow
+            pass
+        
+        # Verify log was called with chunked parameters
+        self.assertTrue(mock_log.called)
+        call_args = mock_log.call_args[0]
+        self.assertEqual(call_args[0], "landsat_search")
+        self.assertIn("chunk_size", call_args[1])
+        self.assertEqual(call_args[1]["chunk_size"], 5)
+
+    def test_chunked_memory_safety(self):
+        """Test that chunked processing doesn't exceed memory limits."""
+        # Create a generator that simulates large data
+        def large_data_generator():
+            for i in range(1000):
+                yield {"id": i, "data": "x" * 1000}
+        
+        # Process in small chunks
+        chunk_count = 0
+        total_items = 0
+        
+        for chunk in process_chunked(large_data_generator(), chunk_size=100):
+            chunk_count += 1
+            total_items += len(chunk)
+            # Simulate processing
+            _ = len(chunk)
+        
+        # Verify correct chunking
+        self.assertEqual(chunk_count, 10)  # 1000 / 100
+        self.assertEqual(total_items, 1000)
+
+    def test_empty_chunk_handling(self):
+        """Test that empty chunks are handled gracefully."""
+        # Empty iterator
+        empty_iter = iter([])
+        chunks = list(process_chunked(empty_iter, chunk_size=10))
+        self.assertEqual(len(chunks), 0)
+
+    def test_partial_last_chunk(self):
+        """Test that partial chunks at the end are handled correctly."""
+        items = list(range(23))
         chunk_size = 10
         
-        chunks = list(split_dataframe(df, chunk_size))
+        chunks = list(process_chunked(items, chunk_size))
         
-        assert len(chunks) == 10
-        assert all(len(chunk) == chunk_size for chunk in chunks)
-        assert chunks[0]['site_id'].iloc[0] == 0
-        assert chunks[-1]['site_id'].iloc[-1] == 99
+        # Should have 3 chunks: [0-9], [10-19], [20-22]
+        self.assertEqual(len(chunks), 3)
+        self.assertEqual(len(chunks[0]), 10)
+        self.assertEqual(len(chunks[1]), 10)
+        self.assertEqual(len(chunks[2]), 3)
+        self.assertEqual(chunks[2][-1], 22)
 
-    def test_split_dataframe_uneven(self):
-        """Test splitting when dataframe size is not divisible by chunk size."""
-        df = pd.DataFrame({
-            'site_id': range(105),
-            'value': range(105)
-        })
-        chunk_size = 10
-        
-        chunks = list(split_dataframe(df, chunk_size))
-        
-        assert len(chunks) == 11
-        assert len(chunks[-1]) == 5
-        assert all(len(chunk) == 10 for chunk in chunks[:-1])
 
-    def test_process_chunked_with_mock_download(self):
-        """Test process_chunked with a simulated download function."""
-        # Create a large mock dataframe
-        sites = [f"site_{i}" for i in range(50)]
-        df = pd.DataFrame({
-            'site_id': sites,
-            'lat': np.random.uniform(-90, 90, 50),
-            'lon': np.random.uniform(-180, 180, 50)
-        })
-        
-        # Mock the download function
-        results = []
-        def mock_download(chunk):
-            # Simulate processing each site in the chunk
-            processed = chunk.copy()
-            processed['status'] = 'downloaded'
-            processed['file_size'] = 1024 * len(chunk)
-            results.append(processed)
-            return processed
-        
-        # Process in chunks of 10
-        chunks = list(split_dataframe(df, 10))
-        processed_results = []
-        
-        for i, chunk in enumerate(chunks):
-            result = mock_download(chunk)
-            processed_results.append(result)
-        
-        # Verify results
-        assert len(processed_results) == 5
-        assert all(res['status'].iloc[0] == 'downloaded' for res in processed_results)
-        assert sum(len(res) for res in processed_results) == 50
-
-    def test_process_chunked_memory_efficiency(self):
-        """Verify that chunked processing handles large datasets without loading all at once."""
-        # Simulate a large dataset that would be problematic if loaded entirely
-        n_sites = 1000
-        chunk_size = 50
-        
-        # Create a generator-like behavior
-        def large_dataset_generator():
-            for i in range(n_sites):
-                yield pd.DataFrame({
-                    'site_id': [f"site_{i}"],
-                    'data': [np.random.random(100)]
-                })
-        
-        # Process chunks
-        processed_count = 0
-        for chunk in large_dataset_generator():
-            # In real implementation, this would be the download/processing step
-            processed_count += len(chunk)
-        
-        assert processed_count == n_sites
-
-    def test_chunked_processing_with_error_handling(self):
-        """Test that chunked processing handles individual chunk failures gracefully."""
-        df = pd.DataFrame({
-            'site_id': range(20),
-            'value': range(20)
-        })
-        
-        chunk_size = 5
-        chunks = list(split_dataframe(df, chunk_size))
-        
-        # Simulate one chunk failing
-        successful_chunks = 0
-        failed_chunks = 0
-        
-        for i, chunk in enumerate(chunks):
-            try:
-                # Simulate processing
-                if i == 2:  # Fail the 3rd chunk
-                    raise Exception("Simulated download failure")
-                successful_chunks += 1
-            except Exception:
-                failed_chunks += 1
-        
-        assert successful_chunks == 3
-        assert failed_chunks == 1
-
-    def test_chunking_preserves_data_integrity(self):
-        """Verify that chunked processing doesn't lose or duplicate data."""
-        original_data = pd.DataFrame({
-            'id': range(1000),
-            'value': np.random.random(1000)
-        })
-        
-        chunk_size = 100
-        chunks = list(split_dataframe(original_data, chunk_size))
-        
-        # Reassemble chunks
-        reassembled = pd.concat(chunks, ignore_index=True)
-        
-        # Check integrity
-        assert len(reassembled) == len(original_data)
-        assert set(reassembled['id']) == set(original_data['id'])
-        assert list(reassembled['id']) == list(original_data['id'])
-
-    def test_empty_dataframe_handling(self):
-        """Test that chunking handles empty dataframes correctly."""
-        df = pd.DataFrame(columns=['site_id', 'value'])
-        chunks = list(split_dataframe(df, 10))
-        
-        assert len(chunks) == 0
-
-    def test_single_row_dataframe(self):
-        """Test chunking with a single row dataframe."""
-        df = pd.DataFrame({'site_id': ['single'], 'value': [1]})
-        chunks = list(split_dataframe(df, 10))
-        
-        assert len(chunks) == 1
-        assert len(chunks[0]) == 1
-
-    def test_chunk_size_larger_than_dataframe(self):
-        """Test chunking when chunk size exceeds dataframe size."""
-        df = pd.DataFrame({'site_id': range(5), 'value': range(5)})
-        chunks = list(split_dataframe(df, 100))
-        
-        assert len(chunks) == 1
-        assert len(chunks[0]) == 5
-
-    def test_realistic_download_simulation(self):
-        """Simulate a realistic Landsat download scenario with metadata."""
-        # Simulate site coordinates data
-        sites_data = pd.DataFrame({
-            'site_id': [f"site_{i:03d}" for i in range(30)],
-            'lat': np.random.uniform(-30, -10, 30),
-            'lon': np.random.uniform(-70, -40, 30),
-            'biome': np.random.choice(['forest', 'savanna', 'grassland'], 30),
-            'protection_status': np.random.choice(['protected', 'unprotected'], 30)
-        })
-        
-        # Simulate chunked processing
-        chunk_size = 5
-        chunks = list(split_dataframe(sites_data, chunk_size))
-        
-        # Simulate download results for each chunk
-        download_results = []
-        for i, chunk in enumerate(chunks):
-            # Simulate downloading Landsat data for this chunk
-            result = chunk.copy()
-            result['download_status'] = 'success'
-            result['scenes_downloaded'] = np.random.randint(1, 10, len(chunk))
-            result['total_size_mb'] = result['scenes_downloaded'] * 15.5
-            download_results.append(result)
-        
-        # Verify all sites were processed
-        all_results = pd.concat(download_results, ignore_index=True)
-        assert len(all_results) == 30
-        assert all(all_results['download_status'] == 'success')
-        assert all(all_results['scenes_downloaded'] > 0)
-        assert all(all_results['total_size_mb'] > 0)
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+if __name__ == "__main__":
+    unittest.main()

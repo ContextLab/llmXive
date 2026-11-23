@@ -55,7 +55,7 @@ The primary dataset will be a tabular structure (CSV) with the following columns
 
 ### 5.2. Train/Test Split
 - **Strategy**: Project-level stratified split to prevent data leakage (a project must not appear in both sets).
-- **Proportions**: 70% Train / 30% Test.
+- **Proportions**: [deferred] Train / [deferred] Test.
 - **Validation**: Ensure each project appears in exactly one split.
 
 ### 5.3. Modeling

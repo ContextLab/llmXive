@@ -1,0 +1,653 @@
+{
+  "fetched_at": "2026-09-08T10:56:32Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-\"",
+      "target_n": 5
+    },
+    "duration_seconds": 65.643,
+    "ended_at": "2026-09-08T10:56:32Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "agentic LLM delegation strategies"
+        ],
+        [
+          2,
+          "multi-agent LLM task delegation"
+        ],
+        [
+          3,
+          "LLM swarm intelligence for long-horizon planning"
+        ],
+        [
+          4,
+          "hierarchical delegation in autonomous agents"
+        ],
+        [
+          5,
+          "recursive task decomposition with LLMs"
+        ],
+        [
+          6,
+          "collaborative LLM agents for complex search"
+        ],
+        [
+          7,
+          "dynamic agent role assignment in LLM systems"
+        ],
+        [
+          8,
+          "long-context reasoning with delegating agents"
+        ],
+        [
+          9,
+          "meta-cognitive delegation in generative AI"
+        ],
+        [
+          10,
+          "multi-turn agent collaboration frameworks"
+        ],
+        [
+          11,
+          "automated agent orchestration for information retrieval"
+        ],
+        [
+          12,
+          "LLM-based task splitting and delegation"
+        ],
+        [
+          13,
+          "swarm-based search strategies with language models"
+        ],
+        [
+          14,
+          "adaptive delegation protocols for agentic workflows"
+        ],
+        [
+          15,
+          "distributed reasoning in multi-LLM systems"
+        ],
+        [
+          16,
+          "autonomous agent coordination for long-horizon tasks"
+        ],
+        [
+          17,
+          "LLM agent handoff mechanisms"
+        ],
+        [
+          18,
+          "intelligent task routing in agentic AI"
+        ],
+        [
+          19,
+          "emergent delegation behaviors in LLM swarms"
+        ],
+        [
+          20,
+          "scalable agent delegation for extended reasoning"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "agentic LLM delegation strategies": 4,
+        "llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-\" computer science": 0,
+        "multi-agent LLM task delegation": 4
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "multi-agent delegation LLM task decomposition",
+      "SearchSwarm agentic framework long-horizon planning",
+      "recursive agent coordination hierarchical task networks",
+      "multi-turn agent collaboration benchmark evaluation",
+      "emergent delegation strategies LLM agent societies"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2503.23037"
+      ]
+    },
+    "per_query_hit_count": {
+      "SearchSwarm agentic framework long-horizon planning": 3,
+      "emergent delegation strategies LLM agent societies": 2,
+      "llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-\" computer science": 3,
+      "multi-agent delegation LLM task decomposition": 3,
+      "multi-turn agent collaboration benchmark evaluation": 3,
+      "recursive agent coordination hierarchical task networks": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 2,
+      "rejections": [
+        {
+          "primary_pointer": "1311.5108",
+          "rationale": "The paper focuses on a general methodology for engineering multi-level agent-based simulations to optimize computational resources, which is distinct from the user's specific question about \"delegation intelligence\" and \"search swarms\" in agentic LLMs. While both involve multi-agent systems, the candidate paper lacks the specific domain (LLMs), mechanism (delegation/search), or empirical population required by the inclusion criteria, falling instead under the \"off-domain entirely\" or \"distinct c",
+          "title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations"
+        },
+        {
+          "primary_pointer": "2412.06333",
+          "rationale": "The paper focuses on multi-agent reinforcement learning (MARL) and cooperative conventions in the specific domain of the card game Hanabi, which does not address the user's question regarding \"delegation intelligence\" in \"Agentic LLMs\" for long-horizon tasks or search. While both involve multi-agent systems, the mechanisms (MARL conventions vs. LLM delegation/search) and domains (game theory vs. agentic LLM workflows) are distinct, failing the criteria for same-mechanism evidence, shared variabl",
+          "title": "Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-08T10:55:27Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"searchswarm: towards delegation intelligence in agentic llms for long-\" computer science",
+      "raw": "llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Agentic LLMs for Long-\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+          "claimed_authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "claimed_title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2203.08975"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='A Survey of Multi-Agent Deep Reinforcement Learning with Communication')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Agentic AI systems increasingly execute consequential actions on behalf of human principals, delegating tasks through multi-step chains of autonomous agents. No existing standard addresses a fundamental accountability gap: verifying that terminal actions in a delegation chain were genuinely authorized by a human principal, through what chain of delegation, and under what scope. This paper presents the Human Delegation Provenance (HDP) protocol, a lightweight token-based scheme that cryptographically captures and verifies human authorization context in multi-agent systems. An HDP token binds a human authorization event to a session, records each agent's delegation action as a signed hop in an append-only chain, and enables any participant to verify the full provenance record using only the issuer's Ed25519 public key and the current session identifier. Verification is fully offline, requiring no registry lookups or third-party trust anchors. We situate HDP within the existing landscape of delegation protocols, identify its distinct design point relative to OAuth 2.0 Token Exchange (RFC 8693), JSON Web Tokens (RFC 7519), UCAN, and the Intent Provenance Protocol (draft-haberkamp-ipp-00), and demonstrate that existing standards fail to address the multi-hop, append-only, human-provenance requirements of agentic systems. HDP has been published as an IETF Internet-Draft (draft-helixar-hdp-agentic-delegation-00) and a reference TypeScript SDK is publicly available.",
+          "claimed_authors": [
+            "Asiri Dalugoda"
+          ],
+          "claimed_title": "HDP: A Lightweight Cryptographic Protocol for Human Delegation Provenance in Agentic AI Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.04522"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='HDP: A Lightweight Cryptographic Protocol for Human Delegation Provenance in Agentic AI Systems')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article proposes a methodology to model and simulate complex systems, based on IRM4MLS, a generic agent-based meta-model able to deal with multi-level systems. This methodology permits the engineering of dynamic multi-level agent-based models, to represent complex systems over several scales and domains of interest. Its goal is to simulate a phenomenon using dynamically the lightest representation to save computer resources without loss of information. This methodology is based on two mechanisms: (1) the activation or deactivation of agents representing different domain parts of the same phenomenon and (2) the aggregation or disaggregation of agents representing the same phenomenon at different scales.",
+          "claimed_authors": [
+            "Jean-Baptiste Soyez",
+            "Gildas Morvan",
+            "Daniel Dupont",
+            "Rochdi Merzouki"
+          ],
+          "claimed_title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.5108"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Grand-strategy games such as Civilization pose a distinctive long-horizon planning problem: an agent must divide one shared resource pool among six competing domains -- technology, government, diplomacy, city development, expansion, and military -- under partial observability, with no feedback except a delayed final score. Current LLM agents fall short in three ways: 1) they cannot infer spatial relations from raw coordinates; 2) they allocate resources poorly, because feeding the entire growing state into one prompt and planning all domains in a single output diffuses attention and biases decisions toward urgent events; and 3) they cannot improve, as the delayed score gives no signal within or across games. We present SAGA, an LLM multi-agent framework pairing one mechanism with each weakness: (i) a Map-Semantic Scene Graph turning coordinates into per-entity statements of distance, direction, and threat; (ii) a Tool-Augmented Planner that retrieves only the state a decision needs, cutting the order of magnitude of its input, and issues a separate plan per domain to six specialist controllers, so urgent events do not derail long-term plans; and (iii) a Dual-Horizon Feedback Loop setting short-term goals during play and distilling each game into lessons for the next. On CivRealm, a Civilization-style benchmark, SAGA leads five LLM baselines on mean final score and is the only method significantly ahead of all of them on city development, the first investment baselines sacrifice, with 27% fewer output tokens; with cross-game learning it scores highest after five games, and its fifth game consistently surpasses its first across four maps. Our code is available at https://github.com/Kazecloudk/SAGA-Scene-Aware-Goal-Evolving-Agents-for-Long-Horizon-Strategy-Game-Planning.",
+          "claimed_authors": [
+            "Tianyu Jin",
+            "Shuo Chen",
+            "Yida Wang",
+            "Liuyu Xiang",
+            "Yingzhuo Liu",
+            "Yexin Li",
+            "Peipei Li",
+            "Zhaofeng He"
+          ],
+          "claimed_title": "SAGA: Scene-Aware, Goal-Evolving Agents for Long-Horizon Strategy Game Planning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.29932"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='SAGA: Scene-Aware, Goal-Evolving Agents for Long-Horizon Strategy Game Planning')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present a framework for solving long-horizon planning problems involving manipulation of rigid objects that operates directly from a point-cloud observation, i.e. without prior object models. Our method plans in the space of object subgoals and frees the planner from reasoning about robot-object interaction dynamics by relying on a set of generalizable manipulation primitives. We show that for rigid bodies, this abstraction can be realized using low-level manipulation skills that maintain sticking contact with the object and represent subgoals as 3D transformations. To enable generalization to unseen objects and improve planning performance, we propose a novel way of representing subgoals for rigid-body manipulation and a graph-attention based neural network architecture for processing point-cloud inputs. We experimentally validate these choices using simulated and real-world experiments on the YuMi robot. Results demonstrate that our method can successfully manipulate new objects into target configurations requiring long-term planning. Overall, our framework realizes the best of the worlds of task-and-motion planning (TAMP) and learning-based approaches. Project website: https://anthonysimeonov.github.io/rpo-planning-framework/.",
+          "claimed_authors": [
+            "Anthony Simeonov",
+            "Yilun Du",
+            "Beomjoon Kim",
+            "Francois R. Hogan",
+            "Joshua Tenenbaum",
+            "Pulkit Agrawal",
+            "Alberto Rodriguez"
+          ],
+          "claimed_title": "A Long Horizon Planning Framework for Manipulating Rigid Pointcloud Objects",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2011.08177"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='A Long Horizon Planning Framework for Manipulating Rigid Pointcloud Objects')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in artificial intelligence have produced systems capable of remarkable performance across a wide range of tasks. These gains, however, are increasingly accompanied by concerns regarding long-horizon developmental behavior, as many systems converge toward repetitive solution patterns rather than sustained growth.\n  We argue that a central limitation of contemporary AI systems lies not in capability per se, but in the premature fixation of their performance frontier. To address this issue, we introduce the concept of a \\emph{Dynamic Intelligence Ceiling} (DIC), defined as the highest level of effective intelligence attainable by a system at a given time under its current resources, internal intent, and structural configuration.\n  To make this notion empirically tractable, we propose a trajectory-centric evaluation framework that measures intelligence as a moving frontier rather than a static snapshot. We operationalize DIC using two estimators: the \\emph{Progressive Difficulty Ceiling} (PDC), which captures the maximal reliably solvable difficulty under constrained resources, and the \\emph{Ceiling Drift Rate} (CDR), which quantifies the temporal evolution of this frontier. These estimators are instantiated through a procedurally generated benchmark that jointly evaluates long-horizon planning and structural creativity within a single controlled environment.\n  Our results reveal a qualitative distinction between systems that deepen exploitation within a fixed solution manifold and those that sustain frontier expansion over time. Importantly, our framework does not posit unbounded intelligence, but reframes limits as dynamic and trajectory-dependent rather than static and prematurely fixed.\n  \\vspace{0.5em} \\noindent\\textbf{Keywords:} AI evaluation, planning and creativity, developmental intelligence, dynamic intelligence ceilings, complex adaptive systems",
+          "claimed_authors": [
+            "Truong Xuan Khanh",
+            "Truong Quynh Hoa"
+          ],
+          "claimed_title": "Dynamic Intelligence Ceilings: Measuring Long-Horizon Limits of Planning and Creativity in Artificial Systems",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.06102"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='Dynamic Intelligence Ceilings: Measuring Long-Horizon Limits of Planning and Creativity in Artificial Systems')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Hierarchical forecasting problems arise when time series have a natural group structure, and predictions at multiple levels of aggregation and disaggregation across the groups are needed. In such problems, it is often desired to satisfy the aggregation constraints in a given hierarchy, referred to as hierarchical coherence in the literature. Maintaining coherence while producing accurate forecasts can be a challenging problem, especially in the case of probabilistic forecasting. We present a novel method capable of accurate and coherent probabilistic forecasts for time series when reliable hierarchical information is present. We call it Deep Poisson Mixture Network (DPMN). It relies on the combination of neural networks and a statistical model for the joint distribution of the hierarchical multivariate time series structure. By construction, the model guarantees hierarchical coherence and provides simple rules for aggregation and disaggregation of the predictive distributions. We perform an extensive empirical evaluation comparing the DPMN to other state-of-the-art methods which produce hierarchically coherent probabilistic forecasts on multiple public datasets. Comparing to existing coherent probabilistic models, we obtain a relative improvement in the overall Continuous Ranked Probability Score (CRPS) of 11.8% on Australian domestic tourism data, and 8.1% on the Favorita grocery sales dataset, where time series are grouped with geographical hierarchies or travel intent hierarchies. For San Francisco Bay Area highway traffic, where the series' hierarchical structure is randomly assigned, and their correlations are less informative, our method does not show significant performance differences over statistical baselines.",
+          "claimed_authors": [
+            "Kin G. Olivares",
+            "O. Nganba Meetei",
+            "Ruijun Ma",
+            "Rohan Reddy",
+            "Mengfei Cao",
+            "Lee Dicker"
+          ],
+          "claimed_title": "Probabilistic Hierarchical Forecasting with Deep Poisson Mixtures",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2110.13179"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='Probabilistic Hierarchical Forecasting with Deep Poisson Mixtures')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "An essential requirement for the representation of functional patterns in complex neural networks, such as the mammalian cerebral cortex, is the existence of stable regimes of network activation, typically arising from a limited parameter range. In this range of limited sustained activity (LSA), the activity of neural populations in the network persists between the extremes of either quickly dying out or activating the whole network. Hierarchical modular networks were previously found to show a wider parameter range for LSA than random or small-world networks not possessing hierarchical organization or multiple modules. Here we explored how variation in the number of hierarchical levels and modules per level influenced network dynamics and occurrence of LSA. We tested hierarchical configurations of different network sizes, approximating the large-scale networks linking cortical columns in one hemisphere of the rat, cat, or macaque monkey brain. Scaling of the network size affected the number of hierarchical levels and modules in the optimal networks, also depending on whether global edge density or the numbers of connections per node were kept constant. For constant edge density, only few network configurations, possessing an intermediate number of levels and a large number of modules, led to a large range of LSA independent of brain size. For a constant number of node connections, there was a trend for optimal configurations in larger-size networks to possess a larger number of hierarchical levels or more modules. These results may help to explain the trend to greater network complexity apparent in larger brains and may indicate that this complexity is required for maintaining stable levels of neural activation.",
+          "claimed_authors": [
+            "Marcus Kaiser",
+            "Claus C. Hilgetag"
+          ],
+          "claimed_title": "Optimal hierarchical modular topologies for producing limited sustained activation of neural networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1003.3081"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='Optimal hierarchical modular topologies for producing limited sustained activation of neural networks')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Learning anticipation is a reasoning paradigm in multi-agent reinforcement learning, where agents, during learning, consider the anticipated learning of other agents. There has been substantial research into the role of learning anticipation in improving cooperation among self-interested agents in general-sum games. Two primary examples are Learning with Opponent-Learning Awareness (LOLA), which anticipates and shapes the opponent's learning process to ensure cooperation among self-interested agents in various games such as iterated prisoner's dilemma, and Look-Ahead (LA), which uses learning anticipation to guarantee convergence in games with cyclic behaviors. So far, the effectiveness of applying learning anticipation to fully-cooperative games has not been explored. In this study, we aim to research the influence of learning anticipation on coordination among common-interested agents. We first illustrate that both LOLA and LA, when applied to fully-cooperative games, degrade coordination among agents, causing worst-case outcomes. Subsequently, to overcome this miscoordination behavior, we propose Hierarchical Learning Anticipation (HLA), where agents anticipate the learning of other agents in a hierarchical fashion. Specifically, HLA assigns agents to several hierarchy levels to properly regulate their reasonings. Our theoretical and empirical findings confirm that HLA can significantly improve coordination among common-interested agents in fully-cooperative normal-form games. With HLA, to the best of our knowledge, we are the first to unlock the benefits of learning anticipation for fully-cooperative games.",
+          "claimed_authors": [
+            "Ariyan Bighashdel",
+            "Daan de Geus",
+            "Pavol Jancura",
+            "Gijs Dubbelman"
+          ],
+          "claimed_title": "Coordinating Fully-Cooperative Agents Using Hierarchical Learning Anticipation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2303.08307"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='Coordinating Fully-Cooperative Agents Using Hierarchical Learning Anticipation')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI agents powered by large language models (LLMs) have shown strong capabilities in problem solving. Through combining many intelligent agents, multi-agent collaboration has emerged as a promising approach to tackle complex, multi-faceted problems that exceed the capabilities of single AI agents. However, designing the collaboration protocols and evaluating the effectiveness of these systems remains a significant challenge, especially for enterprise applications. This report addresses these challenges by presenting a comprehensive evaluation of coordination and routing capabilities in a novel multi-agent collaboration framework. We evaluate two key operational modes: (1) a coordination mode enabling complex task completion through parallel communication and payload referencing, and (2) a routing mode for efficient message forwarding between agents. We benchmark on a set of handcrafted scenarios from three enterprise domains, which are publicly released with the report. For coordination capabilities, we demonstrate the effectiveness of inter-agent communication and payload referencing mechanisms, achieving end-to-end goal success rates of 90%. Our analysis yields several key findings: multi-agent collaboration enhances goal success rates by up to 70% compared to single-agent approaches in our benchmarks; payload referencing improves performance on code-intensive tasks by 23%; latency can be substantially reduced with a routing mechanism that selectively bypasses agent orchestration. These findings offer valuable guidance for enterprise deployments of multi-agent systems and advance the development of scalable, efficient multi-agent collaboration frameworks.",
+          "claimed_authors": [
+            "Raphael Shu",
+            "Nilaksh Das",
+            "Michelle Yuan",
+            "Monica Sunkara",
+            "Yi Zhang"
+          ],
+          "claimed_title": "Towards Effective GenAI Multi-Agent Collaboration: Design and Evaluation for Enterprise Applications",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.05449"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='Towards Effective GenAI Multi-Agent Collaboration: Design and Evaluation for Enterprise Applications')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The growing dependence on Large Language Models (LLMs) for finishing user instructions necessitates a comprehensive understanding of their robustness to complex task completion in real-world situations. To address this critical need, we propose the PowerPoint Task Completion Robustness benchmark (PPTC-R) to measure LLMs' robustness to the user PPT task instruction and software version. Specifically, we construct adversarial user instructions by attacking user instructions at sentence, semantic, and multi-language levels. To assess the robustness of Language Models to software versions, we vary the number of provided APIs to simulate both the newest version and earlier version settings. Subsequently, we test 3 closed-source and 4 open-source LLMs using a benchmark that incorporates these robustness settings, aiming to evaluate how deviations impact LLMs' API calls for task completion. We find that GPT-4 exhibits the highest performance and strong robustness in our benchmark, particularly in the version update and the multilingual settings. However, we find that all LLMs lose their robustness when confronted with multiple challenges (e.g., multi-turn) simultaneously, leading to significant performance drops. We further analyze the robustness behavior and error reasons of LLMs in our benchmark, which provide valuable insights for researchers to understand the LLM's robustness in task completion and develop more robust LLMs and agents. We release the code and data at \\url{https://github.com/ZekaiGalaxy/PPTCR}.",
+          "claimed_authors": [
+            "Zekai Zhang",
+            "Yiduo Guo",
+            "Yaobo Liang",
+            "Dongyan Zhao",
+            "Nan Duan"
+          ],
+          "claimed_title": "PPTC-R benchmark: Towards Evaluating the Robustness of Large Language Models for PowerPoint Task Completion",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.03788"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='PPTC-R benchmark: Towards Evaluating the Robustness of Large Language Models for PowerPoint Task Completion')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Multimodal large language models (MLLMs) are increasingly deployed as assistants that interact through text and images, making it crucial to evaluate contextual safety when risk depends on both the visual scene and the evolving dialogue. Existing contextual safety benchmarks are mostly single-turn and often miss how malicious intent can emerge gradually or how the same scene can support both benign and exploitative goals. We introduce the Multi-Turn Multimodal Contextual Safety Benchmark (MTMCS-Bench), a benchmark of realistic images and multi-turn conversations that evaluates contextual safety in MLLMs under two complementary settings, escalation-based risk and context-switch risk. MTMCS-Bench offers paired safe and unsafe dialogues with structured evaluation. It contains over 30 thousand multimodal (image+text) and unimodal (text-only) samples, with metrics that separately measure contextual intent recognition, safety-awareness on unsafe cases, and helpfulness on benign ones. Across eight open-source and seven proprietary MLLMs, we observe persistent trade-offs between contextual safety and utility, with models tending to either miss gradual risks or over-refuse benign dialogues. Finally, we evaluate five current guardrails and find that they mitigate some failures but do not fully resolve multi-turn contextual risks.",
+          "claimed_authors": [
+            "Zheyuan Liu",
+            "Dongwhi Kim",
+            "Yixin Wan",
+            "Xiangchi Yuan",
+            "Zhaoxuan Tan",
+            "Fengran Mo",
+            "Meng Jiang"
+          ],
+          "claimed_title": "MTMCS-Bench: Evaluating Contextual Safety of Multimodal Large Language Models in Multi-Turn Dialogues",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.06757"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='MTMCS-Bench: Evaluating Contextual Safety of Multimodal Large Language Models in Multi-Turn Dialogues')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Societies can become a conspiratorial society where there is a majority of humans that believe, and therefore spread, conspiracy theories. Artificial intelligence gave rise to social media bots that can spread conspiracies in an automated fashion. Currently, organizations combat the spread of conspiracies through manual fact-checking processes and the dissemination of counter-narratives. However, the effects of harnessing the same automation to create useful bots are not well explored. To address this, we create BotSim, an Agent-Based Model of a society in which useful bots are introduced into a small world network. These useful bots are: Info-Correction Bots, which correct bad information into good, and Good Bots, which put out good messaging. The simulated agents interact through generating, consuming and propagating information. Our results show that, left unchecked, Bad Bots can create a conspiratorial society, and this can be mitigated by either Info-Correction Bots or Good Bots; however, Good Bots are more efficient and sustainable than Info-Correction Bots . Proactive good messaging is more resource-effective than reactive information correction. With our observations, we expand the concept of bots as a malicious social media agent towards automated social media agent that can be used for both good and bad purposes. These results have implications for designing communication strategies to maintain a healthy social cyber ecosystem.",
+          "claimed_authors": [
+            "Lynnette Hui Xian Ng",
+            "Kathleen M. Carley"
+          ],
+          "claimed_title": "BotSim: Mitigating The Formation Of Conspiratorial Societies with Useful Bots",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2601.06154"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='BotSim: Mitigating The Formation Of Conspiratorial Societies with Useful Bots')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "LLM agents increasingly present as conversational collaborators, yet human--agent teamwork remains brittle due to information asymmetry: users lack task-specific reliability cues, and agents rarely surface calibrated uncertainty or rationale. We propose a task-aware collaboration signaling layer that turns offline preference evaluations into online, user-facing primitives for delegation. Using Chatbot Arena pairwise comparisons, we induce an interpretable task taxonomy via semantic clustering, then derive (i) Capability Profiles as task-conditioned win-rate maps and (ii) Coordination-Risk Cues as task-conditioned disagreement (tie-rate) priors. These signals drive a closed-loop delegation protocol that supports common-ground verification, adaptive routing (primary vs.\\ primary+auditor), explicit rationale disclosure, and privacy-preserving accountability logs. Two predictive probes validate that task typing carries actionable structure: cluster features improve winner prediction accuracy and reduce difficulty prediction error under stratified 5-fold cross-validation. Overall, our framework reframes delegation from an opaque system default into a visible, negotiable, and auditable collaborative decision, providing a principled design space for adaptive human--agent collaboration grounded in mutual awareness and shared accountability.",
+          "claimed_authors": [
+            "Xingrui Gu"
+          ],
+          "claimed_title": "Task-Aware Delegation Cues for LLM Agents",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2603.11011"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"SearchSwarm: Towards Delegation Intelligence in Ag', candidate_title='Task-Aware Delegation Cues for LLM Agents')",
+        "failed_at": "2026-09-08T10:55:56Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Asiri Dalugoda"
+          ],
+          "title": "HDP: A Lightweight Cryptographic Protocol for Human Delegation Provenance in Agentic AI Systems",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2604.04522",
+        "summary": "Agentic AI systems increasingly execute consequential actions on behalf of human principals, delegating tasks through multi-step chains of autonomous agents. No existing standard addresses a fundamental accountability gap: verifying that terminal actions in a delegation chain were genuinely authorized by a human principal, through what chain of delegation, and under what scope. This paper presents the Human Delegation Provenance (HDP) protocol, a lightweight token-based scheme that cryptographically captures and verifies human authorization context in multi-agent systems. An HDP token binds a human authorization event to a session, records each agent's delegation action as a signed hop in an append-only chain, and enables any participant to verify the full provenance record using only the issuer's Ed25519 public key and the current session identifier. Verification is fully offline, requiring no registry lookups or third-party trust anchors. We situate HDP within the existing landscape of delegation protocols, identify its distinct design point relative to OAuth 2.0 Token Exchange (RFC 8693), JSON Web Tokens (RFC 7519), UCAN, and the Intent Provenance Protocol (draft-haberkamp-ipp-00), and demonstrate that existing standards fail to address the multi-hop, append-only, human-provenance requirements of agentic systems. HDP has been published as an IETF Internet-Draft (draft-helixar-hdp-agentic-delegation-00) and a reference TypeScript SDK is publicly available.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2604.04522",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-08T10:56:02Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xingrui Gu"
+          ],
+          "title": "Task-Aware Delegation Cues for LLM Agents",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.11011",
+        "summary": "LLM agents increasingly present as conversational collaborators, yet human--agent teamwork remains brittle due to information asymmetry: users lack task-specific reliability cues, and agents rarely surface calibrated uncertainty or rationale. We propose a task-aware collaboration signaling layer that turns offline preference evaluations into online, user-facing primitives for delegation. Using Chatbot Arena pairwise comparisons, we induce an interpretable task taxonomy via semantic clustering, then derive (i) Capability Profiles as task-conditioned win-rate maps and (ii) Coordination-Risk Cues as task-conditioned disagreement (tie-rate) priors. These signals drive a closed-loop delegation protocol that supports common-ground verification, adaptive routing (primary vs.\\ primary+auditor), explicit rationale disclosure, and privacy-preserving accountability logs. Two predictive probes validate that task typing carries actionable structure: cluster features improve winner prediction accuracy and reduce difficulty prediction error under stratified 5-fold cross-validation. Overall, our framework reframes delegation from an opaque system default into a visible, negotiable, and auditable collaborative decision, providing a principled design space for adaptive human--agent collaboration grounded in mutual awareness and shared accountability.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.11011",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-08T10:56:02Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "YenTing Lee",
+            "Keerthi Koneru",
+            "Zahra Moslemi",
+            "Sheethal Kumar",
+            "Ramesh Radhakrishnan"
+          ],
+          "title": "AEMA: Verifiable Evaluation Framework for Trustworthy and Controlled Agentic LLM Systems",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2601.11903",
+        "summary": "Evaluating large language model (LLM)-based multi-agent systems remains a critical challenge, as these systems must exhibit reliable coordination, transparent decision-making, and verifiable performance across evolving tasks. Existing evaluation approaches often limit themselves to single-response scoring or narrow benchmarks, which lack stability, extensibility, and automation when deployed in enterprise settings at multi-agent scale. We present AEMA (Adaptive Evaluation Multi-Agent), a process-aware and auditable framework that plans, executes, and aggregates multi-step evaluations across heterogeneous agentic workflows under human oversight. Compared to a single LLM-as-a-Judge, AEMA achieves greater stability, human alignment, and traceable records that support accountable automation. Our results on enterprise-style agent workflows simulated using realistic business scenarios demonstrate that AEMA provides a transparent and reproducible pathway toward responsible evaluation of LLM-based multi-agent systems.\n  Keywords Agentic AI, Multi-Agent Systems, Trustworthy AI, Verifiable Evaluation, Human Oversight",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2601.11903",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-08T10:56:02Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Aske Plaat",
+            "Max van Duijn",
+            "Niki van Stein",
+            "Mike Preuss",
+            "Peter van der Putten",
+            "Kees Joost Batenburg"
+          ],
+          "title": "Agentic Large Language Models, a survey",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.23037",
+        "summary": "Background: There is great interest in agentic LLMs, large language models that act as agents.\n  Objectives: We review the growing body of work in this area and provide a research agenda.\n  Methods: Agentic LLMs are LLMs that (1) reason, (2) act, and (3) interact. We organize the literature according to these three categories.\n  Results: The research in the first category focuses on reasoning, reflection, and retrieval, aiming to improve decision making; the second category focuses on action models, robots, and tools, aiming for agents that act as useful assistants; the third category focuses on multi-agent systems, aiming for collaborative task solving and simulating interaction to study emergent social behavior. We find that works mutually benefit from results in other categories: retrieval enables tool use, reflection improves multi-agent collaboration, and reasoning benefits all categories.\n  Conclusions: We discuss applications of agentic LLMs and provide an agenda for further research. Important applications are in medical diagnosis, logistics and financial market analysis. Meanwhile, self-reflective agents playing roles and interacting with one another augment the process of scientific research itself. Further, agentic LLMs provide a solution for the problem of LLMs running out of training data: inference-time behavior generates new training states, such that LLMs can keep learning without needing ever larger datasets. We note that there is risk associated with LLM assistants taking action in the real world-safety, liability and security are open problems-while agentic LLMs are also likely to benefit society.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.23037",
+          "http_status": 200,
+          "pdf_sample_score": 0.3641,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-08T10:56:03Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Changxi Zhu",
+            "Mehdi Dastani",
+            "Shihan Wang"
+          ],
+          "title": "A Survey of Multi-Agent Deep Reinforcement Learning with Communication",
+          "venue": "arXiv",
+          "year": 2022
+        },
+        "primary_pointer": "2203.08975",
+        "summary": "Communication is an effective mechanism for coordinating the behaviors of multiple agents, broadening their views of the environment, and to support their collaborations. In the field of multi-agent deep reinforcement learning (MADRL), agents can improve the overall learning performance and achieve their objectives by communication. Agents can communicate various types of messages, either to all agents or to specific agent groups, or conditioned on specific constraints. With the growing body of research work in MADRL with communication (Comm-MADRL), there is a lack of a systematic and structural approach to distinguish and classify existing Comm-MADRL approaches. In this paper, we survey recent works in the Comm-MADRL field and consider various aspects of communication that can play a role in designing and developing multi-agent reinforcement learning systems. With these aspects in mind, we propose 9 dimensions along which Comm-MADRL approaches can be analyzed, developed, and compared. By projecting existing works into the multi-dimensional space, we discover interesting trends. We also propose some novel directions for designing future Comm-MADRL systems through exploring possible combinations of the dimensions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2203.08975",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.4,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-08T10:56:07Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Rachael Colley",
+            "Umberto Grandi",
+            "Arianna Novaro"
+          ],
+          "title": "Unravelling multi-agent ranked delegations",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2111.13145",
+        "summary": "We introduce a voting model with multi-agent ranked delegations. This model generalises liquid democracy in two aspects: first, an agent's delegation can use the votes of multiple other agents to determine their own -- for instance, an agent's vote may correspond to the majority outcome of the votes of a trusted group of agents; second, agents can submit a ranking over multiple delegations, so that a backup delegation can be used when their preferred delegations are involved in cycles. The main focus of this paper is the study of unravelling procedures that transform the delegation ballots received from the agents into a profile of direct votes, from which a winning alternative can then be determined by using a standard voting rule. We propose and study six such unravelling procedures, two based on optimisation and four using a greedy approach. We study both algorithmic and axiomatic properties, as well as related computational complexity problems of our unravelling procedures for different restrictions on the types of ballots that the agents can submit.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2111.13145",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-08T10:56:07Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"searchswarm: towards delegation intelligence in agentic llms for long-\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

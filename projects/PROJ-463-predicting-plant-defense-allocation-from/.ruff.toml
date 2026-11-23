@@ -1,12 +1,10 @@
-# This file is an alias for the ruff configuration defined in pyproject.toml.
-# We keep a dedicated .ruff.toml for clarity in some CI environments,
-# but the primary configuration lives in pyproject.toml.
-# This file intentionally mirrors the [tool.ruff] section of pyproject.toml
-# to ensure ruff picks it up if run without the --config flag in some setups.
+# This file is a duplicate of the ruff config in pyproject.toml
+# for environments that prefer a separate config file.
+# It mirrors the settings defined in [tool.ruff] in pyproject.toml.
 
-line-length = 88
 target-version = "py311"
-src = ["code/src", "code/tests", "code"]
+line-length = 100
+src = ["code/src", "code/tests", "code/scripts", "code/setup_directories.py"]
 
 [lint]
 select = [
@@ -16,15 +14,23 @@ select = [
     "I",
     "C",
     "B",
+    "UP",
+    "ANN",
 ]
 ignore = [
     "E501",
-    "C901",
+    "B008",
+    "ANN101",
+    "ANN102",
 ]
 
 [lint.per-file-ignores]
-"tests/*" = ["S101"]
+"code/tests/*" = ["ANN", "S101"]
+"code/scripts/*" = ["ANN"]
 
 [lint.isort]
-known-first-party = ["src", "tests"]
+known-first-party = ["src", "scripts", "setup_directories"]
 force-sort-within-sections = true
+
+[lint.flake8-bugbear]
+extend-immutable-calls = ["fastapi.Depends", "fastapi.params.Depends"]

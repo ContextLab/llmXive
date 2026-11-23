@@ -1,43 +1,52 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Collapse Point Schema
-description: Schema for the derived collapse intensity point for a specific clip and model.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CollapsePoint"
 type: object
-properties:
-  collapse_id:
-    type: string
-    description: Unique identifier for the collapse point.
-  clip_id:
-    type: string
-    description: Foreign key to the AudioClip table.
-  model_name:
-    type: string
-    description: Name of the ASR model used.
-  collapse_vector_id:
-    type: string
-    description: Foreign key to the DistortionVector table where collapse occurred.
-  rt60_at_collapse:
-    type: number
-    description: Reverberation time (RT60) in seconds at the collapse point.
-  snr_at_collapse:
-    type: number
-    description: Signal-to-Noise Ratio (SNR) in dB at the collapse point.
-  collapse_threshold:
-    type: number
-    description: The SSS threshold used to define collapse (e.g., 0.5).
-  status:
-    type: string
-    description: Status of the collapse detection.
-    enum:
-      - "Found"
-      - "Max Tested"
-      - "None"
 required:
-  - collapse_id
   - clip_id
   - model_name
-  - collapse_vector_id
-  - rt60_at_collapse
-  - snr_at_collapse
-  - collapse_threshold
-  - status
+  - snr_db
+  - rt60_s
+  - collapse_intensity
+  - early_collapse_flag
+  - inflection_step
+  - universal_collapse_intensity
+  - metadata
+properties:
+  clip_id:
+    type: string
+    description: "Unique identifier of the audio clip from Voices‑in‑the‑Wild dataset"
+  model_name:
+    type: string
+    description: "ASR model identifier (e.g., whisper_tiny)"
+  snr_db:
+    type: number
+    description: "Signal‑to‑Noise Ratio (dB) at the identified collapse"
+  rt60_s:
+    type: number
+    description: "Reverberation time (seconds) at the identified collapse"
+  collapse_intensity:
+    type: string
+    description: "Step identifier (e.g., \"step_23\") or \"None\"/\"Max Tested\""
+  early_collapse_flag:
+    type: boolean
+    description: "True if max negative derivative occurs before CCM crossing"
+  inflection_step:
+    type: integer
+    description: "Index of the step with maximum negative derivative"
+  universal_collapse_intensity:
+    type: string
+    description: "Step where absolute SSS ≤ 0.5 (FR‑036)"
+  metadata:
+    type: object
+    description: "Baseline metrics for the clean clip"
+    required:
+      - baseline_sss
+      - baseline_wer
+    properties:
+      baseline_sss:
+        type: number
+        description: "Semantic Similarity Score on the clean clip"
+      baseline_wer:
+        type: number
+        description: "Word Error Rate on the clean clip"
 additionalProperties: false

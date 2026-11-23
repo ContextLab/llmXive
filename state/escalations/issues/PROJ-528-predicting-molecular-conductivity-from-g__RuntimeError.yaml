@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-09-03T20:23:09.617603+00:00'
+issue_number: 1343
+project_id: PROJ-528-predicting-molecular-conductivity-from-g

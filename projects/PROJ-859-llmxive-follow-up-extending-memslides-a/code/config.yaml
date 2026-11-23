@@ -1,37 +1,77 @@
 # llmXive Configuration File
-# This file defines default paths, seeds, and thresholds for the pipeline.
-# Environment variables (via .env) can override specific values.
+# This file contains all configurable parameters for the research pipeline.
+# Values here can be overridden by environment variables or command-line arguments.
 
+# --- General Settings ---
 project:
   name: "llmXive-follow-up-extending-memslides-a"
   version: "0.1.0"
-  root_dir: "."
+  seed: 42
 
+# --- Paths ---
+# All paths are relative to the project root defined in the environment
 paths:
   data_raw: "data/raw"
   data_processed: "data/processed"
   data_held_out: "data/held_out"
-  figures: "figures"
   contracts: "contracts"
-  models: "data/processed/models"
-  rules: "data/processed/rules"
+  rules_output: "data/processed/rules"
 
-seeds:
-  global_seed: 42
-  python_seed: 42
-  numpy_seed: 42
+# --- Generation Settings (US1) ---
+generation:
+  num_sessions: 100
+  min_sequence_length: 5
+  max_sequence_length: 50
+  tool_types:
+    - "edit_slide"
+    - "add_slide"
+    - "delete_slide"
+    - "move_slide"
+    - "update_layout"
+  argument_variance_scale: 1.5
+  enable_edge_cases: true
 
-thresholds:
-  compressibility_fidelity_cutoff: 0.90
-  max_rule_depth: 5
-  min_trace_length: 3
+# --- Metrics Extraction (US2) ---
+metrics:
+  sentence_transformer_model: "all-MiniHR-L6-v2"
+  embedding_batch_size: 32
+  embedding_device: "cpu"
+  # Variance calculation: mean pairwise cosine distance
+  variance_method: "mean_pairwise_cosine"
 
-model_config:
-  embedding_model: "sentence-transformers/all-MiniLM-L6-v2"
-  device: "cpu"
-  max_memory_gb: 7
+# --- Rule Induction & Compressibility (US2) ---
+rule_induction:
+  model_type: "DecisionTreeClassifier"
+  max_depth: 3
+  min_samples_split: 2
+  min_samples_leaf: 1
+  fidelity_threshold: 0.90
+  # Compressibility Score = RuleSetSize / TraceLength
+  # A score < 1.0 indicates compression
 
+# --- Benchmarking (US3) ---
+benchmark:
+  held_out_split_ratio: 0.2
+  random_seed: 42
+  # Metrics to track
+  metrics:
+    - "edit_accuracy"
+    - "retrieval_latency"
+    - "fidelity_loss"
+
+# --- Statistical Analysis (US3) ---
+statistics:
+  regression_type: "beta"
+  correlation_method: "spearman"
+  sensitivity_sweep_thresholds:
+    - 0.80
+    - 0.85
+    - 0.90
+    - 0.95
+    - 0.99
+
+# --- Logging ---
 logging:
   level: "INFO"
   format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-  file: "logs/pipeline.log"
+  file: "logs/llmxive.log"

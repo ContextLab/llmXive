@@ -1,0 +1,694 @@
+{
+  "fetched_at": "2026-10-25T15:33:10Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection w\"",
+      "target_n": 5
+    },
+    "duration_seconds": 54.649,
+    "ended_at": "2026-10-25T15:33:10Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "open‑vocabulary industrial anomaly detection with vision‑language models"
+        ],
+        [
+          2,
+          "large language model‑augmented industrial defect detection"
+        ],
+        [
+          3,
+          "zero‑shot visual inspection for manufacturing anomalies"
+        ],
+        [
+          4,
+          "multimodal foundation models for industrial anomaly detection"
+        ],
+        [
+          5,
+          "prompt‑based anomaly detection in factory settings"
+        ],
+        [
+          6,
+          "CLIP‑style vision‑language approaches for defect spotting"
+        ],
+        [
+          7,
+          "self‑supervised industrial visual inspection using LLMs"
+        ],
+        [
+          8,
+          "contrastive learning for open‑set industrial anomaly detection"
+        ],
+        [
+          9,
+          "foundation model‑driven zero‑shot defect localization"
+        ],
+        [
+          10,
+          "language‑guided anomaly detection in manufacturing pipelines"
+        ],
+        [
+          11,
+          "vision‑language pretraining for industrial quality control"
+        ],
+        [
+          12,
+          "open‑set visual anomaly detection with large multimodal models"
+        ],
+        [
+          13,
+          "few‑shot industrial fault detection using LLM embeddings"
+        ],
+        [
+          14,
+          "cross‑modal anomaly detection for production line monitoring"
+        ],
+        [
+          15,
+          "semantic segmentation of industrial defects via LLM‑XAI"
+        ],
+        [
+          16,
+          "generative language‑vision models for unsupervised defect spotting"
+        ],
+        [
+          17,
+          "adaptive prompt engineering for industrial anomaly identification"
+        ],
+        [
+          18,
+          "large‑scale pre‑trained models for open‑vocabulary defect classification"
+        ],
+        [
+          19,
+          "multimodal contrastive pretraining for manufacturing anomaly detection"
+        ],
+        [
+          20,
+          "foundation model‑based inspection of heterogeneous industrial assets"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection w\" computer science": 0,
+        "open‑vocabulary industrial anomaly detection with vision‑language models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "zero-shot anomaly detection",
+      "MVTec AD dataset",
+      "CLIP industrial defect detection",
+      "AUROC anomaly detection benchmark",
+      "contrastive pretraining defect detection"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2508.19294"
+      ]
+    },
+    "per_query_hit_count": {
+      "AUROC anomaly detection benchmark": 3,
+      "CLIP industrial defect detection": 3,
+      "MVTec AD dataset": 3,
+      "contrastive pretraining defect detection": 1,
+      "llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection w\" computer science": 3,
+      "zero-shot anomaly detection": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 0,
+      "rejections": []
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-10-25T15:32:15Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"indusagent: reinforcing open-vocabulary industrial anomaly detection w\" computer science",
+      "raw": "llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial Anomaly Detection w\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-10-25T15:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-10-25T15:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-10-25T15:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This technical report outlines our submission to the zero-shot track of the Visual Anomaly and Novelty Detection (VAND) 2023 Challenge. Building on the performance of the WINCLIP framework, we aim to enhance the system's localization capabilities by integrating zero-shot segmentation models. In addition, we perform foreground instance segmentation which enables the model to focus on the relevant parts of the image, thus allowing the models to better identify small or subtle deviations. Our pipeline requires no external data or information, allowing for it to be directly applied to new datasets. Our team (Variance Vigilance Vanguard) ranked third in the zero-shot track of the VAND challenge, and achieve an average F1-max score of 81.5/24.2 at a sample/pixel level on the VisA dataset.",
+          "claimed_authors": [
+            "Matthew Baugh",
+            "James Batten",
+            "Johanna P. Müller",
+            "Bernhard Kainz"
+          ],
+          "claimed_title": "Zero-Shot Anomaly Detection with Pre-trained Segmentation Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.09269"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Zero-Shot Anomaly Detection with Pre-trained Segmentation Models')",
+        "failed_at": "2026-10-25T15:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Zero-shot anomaly localization is a rising field in computer vision research, with important progress in recent years. This work focuses on the problem of detecting and localizing anomalies in textures, where anomalies can be defined as the regions that deviate from the overall statistics, violating the stationarity assumption. The main limitation of existing methods is their high running time, making them impractical for deployment in real-world scenarios, such as assembly line monitoring. We propose a real-time method, named QFCA, which implements a quantized version of the feature correspondence analysis (FCA) algorithm. By carefully adapting the patch statistics comparison to work on histograms of quantized values, we obtain a 10x speedup with little to no loss in accuracy. Moreover, we introduce a feature preprocessing step based on principal component analysis, which enhances the contrast between normal and anomalous features, improving the detection precision on complex textures. Our method is thoroughly evaluated against prior art, comparing favorably with existing methods. Project page: https://reality.tf.fau.de/pub/ardelean2025quantized.html",
+          "claimed_authors": [
+            "Andrei-Timotei Ardelean",
+            "Patrick Rückbeil",
+            "Tim Weyrich"
+          ],
+          "claimed_title": "Quantized FCA: Efficient Zero-Shot Texture Anomaly Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.15602"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Quantized FCA: Efficient Zero-Shot Texture Anomaly Detection')",
+        "failed_at": "2026-10-25T15:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This work builds upon the Euphemism Detection Shared Task proposed in the EMNLP 2022 FigLang Workshop, and extends it to few-shot and zero-shot settings. We demonstrate a few-shot and zero-shot formulation using the dataset from the shared task, and we conduct experiments in these settings using RoBERTa and GPT-3. Our results show that language models are able to classify euphemistic terms relatively well even on new terms unseen during training, indicating that it is able to capture higher-level concepts related to euphemisms.",
+          "claimed_authors": [
+            "Sedrick Scott Keh"
+          ],
+          "claimed_title": "Exploring Euphemism Detection in Few-Shot and Zero-Shot Settings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.12926"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Exploring Euphemism Detection in Few-Shot and Zero-Shot Settings')",
+        "failed_at": "2026-10-25T15:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-10-25T15:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In recent years, performance on existing anomaly detection benchmarks like MVTec AD and VisA has started to saturate in terms of segmentation AU-PRO, with state-of-the-art models often competing in the range of less than one percentage point. This lack of discriminatory power prevents a meaningful comparison of models and thus hinders progress of the field, especially when considering the inherent stochastic nature of machine learning results. We present MVTec AD 2, a collection of eight anomaly detection scenarios with more than 8000 high-resolution images. It comprises challenging and highly relevant industrial inspection use cases that have not been considered in previous datasets, including transparent and overlapping objects, dark-field and back light illumination, objects with high variance in the normal data, and extremely small defects. We provide comprehensive evaluations of state-of-the-art methods and show that their performance remains below 60% average AU-PRO. Additionally, our dataset provides test scenarios with lighting condition changes to assess the robustness of methods under real-world distribution shifts. We host a publicly accessible evaluation server that holds the pixel-precise ground truth of the test set (https://benchmark.mvtec.com/). All image data is available at https://www.mvtec.com/company/research/datasets/mvtec-ad-2.",
+          "claimed_authors": [
+            "Lars Heckler-Kram",
+            "Jan-Hendrik Neudeck",
+            "Ulla Scheler",
+            "Rebecca König",
+            "Carsten Steger"
+          ],
+          "claimed_title": "The MVTec AD 2 Dataset: Advanced Scenarios for Unsupervised Anomaly Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2503.21622"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='The MVTec AD 2 Dataset: Advanced Scenarios for Unsupervised Anomaly Detection')",
+        "failed_at": "2026-10-25T15:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Intracranial aneurysm rupture is associated with substantial morbidity and mortality, yet aneurysm detection remains challenging, particularly for small lesions and on routine non-angiographic imaging examinations. To support the development and evaluation of artificial intelligence (AI) algorithms for intracranial aneurysm detection and localization, the Radiological Society of North America (RSNA), in collaboration with the American Society of Neuroradiology (ASNR), the Society of Neurointerventional Surgery (SNIS), and the European Society of Neuroradiology (ESNR), curated the RSNA Intracranial Aneurysm (RSNA-ICA) Dataset. Developed for the 2025 RSNA Intracranial Aneurysm Detection Challenge, RSNA-ICA is a large, publicly available, expert-annotated dataset comprising 7202 CTA, MRA, and MRI series from 4278 adult patients collected across 21 institutions in 12 countries spanning five continents. The dataset includes 2566 CTA, 2166 MRA, and 2470 MRI series from patients with and without intracranial saccular aneurysms, providing substantial geographic and imaging diversity. Expert annotations indicate both aneurysm presence and location, and 178 series additionally include three-dimensional segmentations of challenge-defined vascular locations. RSNA-ICA was used to develop and evaluate algorithms in the 2025 RSNA Intracranial Aneurysm Detection Challenge. Of the 7202 image series, 5041 are publicly available through MIRA, while the remainder were used for challenge public and private test sets. The dataset is freely available to the research community for noncommercial use and provides a comprehensive resource for advancing AI-based aneurysm detection across both angiographic and routine neuroimaging examinations.",
+          "claimed_authors": [
+            "Maria Correia de Verdier",
+            "Rachit Saluja",
+            "Jason Sho",
+            "Maryam Vabarizad",
+            "Rennie Yung-Chieh Chen",
+            "Uyen N. T. Nguyen",
+            "Mona Alrehaili",
+            "Layal Aweidah",
+            "Deniz Bulja",
+            "Wesley C. Chan",
+            "Hernan Chaves",
+            "Madhavi Duvvuri",
+            "Huseyin Ekin Ergin",
+            "Undrakh-Erdene Erdenebold",
+            "Ekim Gumeler",
+            "Mohamed Sobhi Jabal",
+            "Chin-Chi Kuo",
+            "Fatima Mubarak",
+            "Sevde Nur Emir",
+            "Scott Riley K. Ong",
+            "Johanna Ortiz",
+            "Almudena Pérez-Lara",
+            "Andreas M. Rauschecker",
+            "Shayan Sirat Maheen Anwar",
+            "Charit Tippareddy",
+            "Tam Tran",
+            "Sorawis Visrutaratna",
+            "John Mongan",
+            "Adam E. Flanders",
+            "Robyn Ball",
+            "Greg Zaharchuk",
+            "Peter D. Chang",
+            "Felipe Kitamura",
+            "Errol Colak",
+            "Luciano Prevedello",
+            "Tyler Richards",
+            "Data Contributor Group",
+            "Dataset Annotator Group",
+            "Evan Calabrese",
+            "Jeffrey D. Rudie"
+          ],
+          "claimed_title": "The RSNA Intracranial Aneurysm (RSNA-ICA) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2610.01135"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='The RSNA Intracranial Aneurysm (RSNA-ICA) Dataset')",
+        "failed_at": "2026-10-25T15:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Utilizing Convolutional Neural Networks (CNNs), Recurrent Neural Networks (RNNs), and Generative Adversarial Networks (GANs), our system introduces an innovative approach to defect detection in manufacturing. This technology excels in precisely identifying faults by extracting intricate details from product photographs, utilizing RNNs to detect evolving errors and generating synthetic defect data to bolster the model's robustness and adaptability across various defect scenarios. The project leverages a deep learning framework to automate real-time flaw detection in the manufacturing process. It harnesses extensive datasets of annotated images to discern complex defect patterns. This integrated system seamlessly fits into production workflows, thereby boosting efficiency and elevating product quality. As a result, it reduces waste and operational costs, ultimately enhancing market competitiveness.",
+          "claimed_authors": [
+            "Arti Kumbhar",
+            "Amruta Chougule",
+            "Priya Lokhande",
+            "Saloni Navaghane",
+            "Aditi Burud",
+            "Saee Nimbalkar"
+          ],
+          "claimed_title": "DeepInspect: An AI-Powered Defect Detection for Manufacturing Industries",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.03725"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='DeepInspect: An AI-Powered Defect Detection for Manufacturing Industries')",
+        "failed_at": "2026-10-25T15:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Given the tremendous success of the Internet of Things in interconnecting consumer devices, we observe a natural trend to likewise interconnect devices in industrial settings, referred to as Industrial Internet of Things or Industry 4.0. While this coupling of industrial components provides many benefits, it also introduces serious security challenges. Although sharing many similarities with the consumer Internet of Things, securing the Industrial Internet of Things introduces its own challenges but also opportunities, mainly resulting from a longer lifetime of components and a larger scale of networks. In this paper, we identify the unique security goals and challenges of the Industrial Internet of Things, which, unlike consumer deployments, mainly follow from safety and productivity requirements. To address these security goals and challenges, we provide a comprehensive survey of research efforts to secure the Industrial Internet of Things, discuss their applicability, and analyze their security benefits.",
+          "claimed_authors": [
+            "Martin Serror",
+            "Sacha Hack",
+            "Martin Henze",
+            "Marko Schuba",
+            "Klaus Wehrle"
+          ],
+          "claimed_title": "Challenges and Opportunities in Securing the Industrial Internet of Things",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.11714"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Challenges and Opportunities in Securing the Industrial Internet of Things')",
+        "failed_at": "2026-10-25T15:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Quality assurance is crucial in the smart manufacturing industry as it identifies the presence of defects in finished products before they are shipped out. Modern machine learning techniques can be leveraged to provide rapid and accurate detection of these imperfections. We, therefore, propose a transfer learning approach, namely TransferD2, to correctly identify defects on a dataset of source objects and extend its application to new unseen target objects. We present a data enhancement technique to generate a large dataset from the small source dataset for building a classifier. We then integrate three different pre-trained models (Xception, ResNet101V2, and InceptionResNetV2) into the classifier network and compare their performance on source and target data. We use the classifier to detect the presence of imperfections on the unseen target data using pseudo-bounding boxes. Our results show that ResNet101V2 performs best on the source data with an accuracy of 95.72%. Xception performs best on the target data with an accuracy of 91.00% and also provides a more accurate prediction of the defects on the target images. Throughout the experiment, the results also indicate that the choice of a pre-trained model is not dependent on the depth of the network. Our proposed approach can be applied in defect detection applications where insufficient data is available for training a model and can be extended to identify imperfections in new unseen data.",
+          "claimed_authors": [
+            "Atah Nuh Mih",
+            "Hung Cao",
+            "Joshua Pickard",
+            "Monica Wachowicz",
+            "Rickey Dubay"
+          ],
+          "claimed_title": "TransferD2: Automated Defect Detection Approach in Smart Manufacturing using Transfer Learning Techniques",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2302.13317"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='TransferD2: Automated Defect Detection Approach in Smart Manufacturing using Transfer Learning Techniques')",
+        "failed_at": "2026-10-25T15:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) have shown their potential in long-context understanding and mathematical reasoning. In this paper, we study the problem of using LLMs to detect tabular anomalies and show that pre-trained LLMs are zero-shot batch-level anomaly detectors. That is, without extra distribution-specific model fitting, they can discover hidden outliers in a batch of data, demonstrating their ability to identify low-density data regions. For LLMs that are not well aligned with anomaly detection and frequently output factual errors, we apply simple yet effective data-generating processes to simulate synthetic batch-level anomaly detection datasets and propose an end-to-end fine-tuning strategy to bring out the potential of LLMs in detecting real anomalies. Experiments on a large anomaly detection benchmark (ODDS) showcase i) GPT-4 has on-par performance with the state-of-the-art transductive learning-based anomaly detection methods and ii) the efficacy of our synthetic dataset and fine-tuning strategy in aligning LLMs to this task.",
+          "claimed_authors": [
+            "Aodong Li",
+            "Yunhan Zhao",
+            "Chen Qiu",
+            "Marius Kloft",
+            "Padhraic Smyth",
+            "Maja Rudolph",
+            "Stephan Mandt"
+          ],
+          "claimed_title": "Anomaly Detection of Tabular Data Using LLMs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2406.16308"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='Anomaly Detection of Tabular Data Using LLMs')",
+        "failed_at": "2026-10-25T15:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video anomaly detection (VAD) is essential for enhancing safety and security by identifying unusual events across different environments. Existing VAD benchmarks, however, are primarily designed for general-purpose scenarios, neglecting the specific characteristics of smart home applications. To bridge this gap, we introduce SmartHome-Bench, the first comprehensive benchmark specially designed for evaluating VAD in smart home scenarios, focusing on the capabilities of multi-modal large language models (MLLMs). Our newly proposed benchmark consists of 1,203 videos recorded by smart home cameras, organized according to a novel anomaly taxonomy that includes seven categories, such as Wildlife, Senior Care, and Baby Monitoring. Each video is meticulously annotated with anomaly tags, detailed descriptions, and reasoning. We further investigate adaptation methods for MLLMs in VAD, assessing state-of-the-art closed-source and open-source models with various prompting techniques. Results reveal significant limitations in the current models' ability to detect video anomalies accurately. To address these limitations, we introduce the Taxonomy-Driven Reflective LLM Chain (TRLC), a new LLM chaining framework that achieves a notable 11.62% improvement in detection accuracy. The benchmark dataset and code are publicly available at https://github.com/Xinyi-0724/SmartHome-Bench-LLM.",
+          "claimed_authors": [
+            "Xinyi Zhao",
+            "Congjing Zhang",
+            "Pei Guo",
+            "Wei Li",
+            "Lin Chen",
+            "Chaoyue Zhao",
+            "Shuai Huang"
+          ],
+          "claimed_title": "SmartHome-Bench: A Comprehensive Benchmark for Video Anomaly Detection in Smart Homes Using Multi-Modal Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.12992"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='SmartHome-Bench: A Comprehensive Benchmark for Video Anomaly Detection in Smart Homes Using Multi-Modal Large Language Models')",
+        "failed_at": "2026-10-25T15:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Detecting anomalies in images has become a well-explored problem in both academia and industry. State-of-the-art algorithms are able to detect defects in increasingly difficult settings and data modalities. However, most current methods are not suited to address 3D objects captured from differing poses. While solutions using Neural Radiance Fields (NeRFs) have been proposed, they suffer from excessive computation requirements, which hinder real-world usability. For this reason, we propose the novel 3D Gaussian splatting-based framework SplatPose which, given multi-view images of a 3D object, accurately estimates the pose of unseen views in a differentiable manner, and detects anomalies in them. We achieve state-of-the-art results in both training and inference speed, and detection performance, even when using less training data than competing methods. We thoroughly evaluate our framework using the recently proposed Pose-agnostic Anomaly Detection benchmark and its multi-pose anomaly detection (MAD) data set.",
+          "claimed_authors": [
+            "Mathis Kruse",
+            "Marco Rudolph",
+            "Dominik Woiwode",
+            "Bodo Rosenhahn"
+          ],
+          "claimed_title": "SplatPose & Detect: Pose-Agnostic 3D Anomaly Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.06832"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='SplatPose & Detect: Pose-Agnostic 3D Anomaly Detection')",
+        "failed_at": "2026-10-25T15:32:46Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Texture analysis plays an important role in many image processing applications to describe the image content or objects. On the other hand, visual surface defect detection is a highly research field in the computer vision. Surface defect refers to abnormalities in the texture of the surface. So, in this paper a dual purpose benchmark dataset is proposed for texture image analysis and surface defect detection titled stone texture image (STI dataset). The proposed benchmark dataset consist of 4 different class of stone texture images. The proposed benchmark dataset have some unique properties to make it very near to real applications. Local rotation, different zoom rates, unbalanced classes, variation of textures in size are some properties of the proposed dataset. In the result part, some descriptors are applied on this dataset to evaluate the proposed STI dataset in comparison with other state-of-the-art datasets.",
+          "claimed_authors": [
+            "Shervan Fekri-Ershad"
+          ],
+          "claimed_title": "A New Benchmark Dataset for Texture Image Analysis and Surface Defect Detection",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.11561"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"IndusAgent: Reinforcing Open-Vocabulary Industrial', candidate_title='A New Benchmark Dataset for Texture Image Analysis and Surface Defect Detection')",
+        "failed_at": "2026-10-25T15:32:46Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Hao Zhang",
+            "Feng Li",
+            "Xueyan Zou",
+            "Shilong Liu",
+            "Chunyuan Li",
+            "Jianfeng Gao",
+            "Jianwei Yang",
+            "Lei Zhang"
+          ],
+          "title": "A Simple Framework for Open-Vocabulary Segmentation and Detection",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2303.08131",
+        "summary": "We present OpenSeeD, a simple Open-vocabulary Segmentation and Detection framework that jointly learns from different segmentation and detection datasets. To bridge the gap of vocabulary and annotation granularity, we first introduce a pre-trained text encoder to encode all the visual concepts in two tasks and learn a common semantic space for them. This gives us reasonably good results compared with the counterparts trained on segmentation task only. To further reconcile them, we locate two discrepancies: $i$) task discrepancy -- segmentation requires extracting masks for both foreground objects and background stuff, while detection merely cares about the former; $ii$) data discrepancy -- box and mask annotations are with different spatial granularity, and thus not directly interchangeable. To address these issues, we propose a decoupled decoding to reduce the interference between foreground/background and a conditioned mask decoding to assist in generating masks for given boxes. To this end, we develop a simple encoder-decoder model encompassing all three techniques and train it jointly on COCO and Objects365. After pre-training, our model exhibits competitive or stronger zero-shot transferability for both segmentation and detection. Specifically, OpenSeeD beats the state-of-the-art method for open-vocabulary instance and panoptic segmentation across 5 datasets, and outperforms previous work for open-vocabulary detection on LVIS and ODinW under similar settings. When transferred to specific tasks, our model achieves new SoTA for panoptic segmentation on COCO and ADE20K, and instance segmentation on ADE20K and Cityscapes.\n  Finally, we note that OpenSeeD is the first to explore the potential of joint training on segmentation and detection, and hope it can be received as a strong baseline for developing a single model for both tasks in open world.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2303.08131",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-25T15:32:51Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ranjan Sapkota",
+            "Manoj Karkee"
+          ],
+          "title": "Object Detection with Multimodal Large Vision-Language Models: An In-depth Review",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.19294",
+        "summary": "The fusion of language and vision in large vision-language models (LVLMs) has revolutionized deep learning-based object detection by enhancing adaptability, contextual reasoning, and generalization beyond traditional architectures. This in-depth review presents a structured exploration of the state-of-the-art in LVLMs, systematically organized through a three-step research review process. First, we discuss the functioning of vision language models (VLMs) for object detection, describing how these models harness natural language processing (NLP) and computer vision (CV) techniques to revolutionize object detection and localization. We then explain the architectural innovations, training paradigms, and output flexibility of recent LVLMs for object detection, highlighting how they achieve advanced contextual understanding for object detection. The review thoroughly examines the approaches used in integration of visual and textual information, demonstrating the progress made in object detection using VLMs that facilitate more sophisticated object detection and localization strategies. This review presents comprehensive visualizations demonstrating LVLMs' effectiveness in diverse scenarios including localization and segmentation, and then compares their real-time performance, adaptability, and complexity to traditional deep learning systems. Based on the review, its is expected that LVLMs will soon meet or surpass the performance of conventional methods in object detection. The review also identifies a few major limitations of the current LVLM modes, proposes solutions to address those challenges, and presents a clear roadmap for the future advancement in this field. We conclude, based on this study, that the recent advancement in LVLMs have made and will continue to make a transformative impact on object detection and robotic applications in the future.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.19294",
+          "http_status": 200,
+          "pdf_sample_score": 0.2803,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-25T15:32:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Yongchao Feng",
+            "Yajie Liu",
+            "Shuai Yang",
+            "Wenrui Cai",
+            "Jinqing Zhang",
+            "Qiqi Zhan",
+            "Ziyue Huang",
+            "Hongxi Yan",
+            "Qiao Wan",
+            "Chenguang Liu",
+            "Junzhe Wang",
+            "Jiahui Lv",
+            "Ziqi Liu",
+            "Tengyuan Shi",
+            "Qingjie Liu",
+            "Yunhong Wang"
+          ],
+          "title": "Vision-Language Model for Object Detection and Segmentation: A Review and Evaluation",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2504.09480",
+        "summary": "Vision-Language Model (VLM) have gained widespread adoption in Open-Vocabulary (OV) object detection and segmentation tasks. Despite they have shown promise on OV-related tasks, their effectiveness in conventional vision tasks has thus far been unevaluated. In this work, we present the systematic review of VLM-based detection and segmentation, view VLM as the foundational model and conduct comprehensive evaluations across multiple downstream tasks for the first time: 1) The evaluation spans eight detection scenarios (closed-set detection, domain adaptation, crowded objects, etc.) and eight segmentation scenarios (few-shot, open-world, small object, etc.), revealing distinct performance advantages and limitations of various VLM architectures across tasks. 2) As for detection tasks, we evaluate VLMs under three finetuning granularities: \\textit{zero prediction}, \\textit{visual fine-tuning}, and \\textit{text prompt}, and further analyze how different finetuning strategies impact performance under varied task. 3) Based on empirical findings, we provide in-depth analysis of the correlations between task characteristics, model architectures, and training methodologies, offering insights for future VLM design. 4) We believe that this work shall be valuable to the pattern recognition experts working in the fields of computer vision, multimodal learning, and vision foundation models by introducing them to the problem, and familiarizing them with the current status of the progress while providing promising directions for future research. A project associated with this review and evaluation has been created at https://github.com/better-chao/perceptual_abilities_evaluation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2504.09480",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.75,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-25T15:32:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Shu Zou",
+            "Xinyu Tian",
+            "Lukas Wesemann",
+            "Fabian Waschkowski",
+            "Zhaoyuan Yang",
+            "Jing Zhang"
+          ],
+          "title": "Unlocking Vision-Language Models for Video Anomaly Detection via Fine-Grained Prompting",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2510.02155",
+        "summary": "Prompting has emerged as a practical way to adapt frozen vision-language models (VLMs) for video anomaly detection (VAD). Yet, existing prompts are often overly abstract, overlooking the fine-grained human-object interactions or action semantics that define complex anomalies in surveillance videos. We propose ASK-Hint, a structured prompting framework that leverages action-centric knowledge to elicit more accurate and interpretable reasoning from frozen VLMs. Our approach organizes prompts into semantically coherent groups (e.g. violence, property crimes, public safety) and formulates fine-grained guiding questions that align model predictions with discriminative visual cues. Extensive experiments on UCF-Crime and XD-Violence show that ASK-Hint consistently improves AUC over prior baselines, achieving state-of-the-art performance compared to both fine-tuned and training-free methods. Beyond accuracy, our framework provides interpretable reasoning traces towards anomaly and demonstrates strong generalization across datasets and VLM backbones. These results highlight the critical role of prompt granularity and establish ASK-Hint as a new training-free and generalizable solution for explainable video anomaly detection.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2510.02155",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.625,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-25T15:32:52Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zhangyu Lai",
+            "Yilin Lu",
+            "Xinyang Li",
+            "Jianghang Lin",
+            "Yansong Qu",
+            "Liujuan Cao",
+            "Ming Li",
+            "Rongrong Ji"
+          ],
+          "title": "AnomalyPainter: Vision-Language-Diffusion Synergy for Zero-Shot Realistic and Diverse Industrial Anomaly Synthesis",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2503.07253",
+        "summary": "While existing anomaly synthesis methods have made remarkable progress, achieving both realism and diversity in synthesis remains a major obstacle. To address this, we propose AnomalyPainter, a zero-shot framework that breaks the diversity-realism trade-off dilemma through synergizing Vision Language Large Model (VLLM), Latent Diffusion Model (LDM), and our newly introduced texture library Tex-9K. Tex-9K is a professional texture library containing 75 categories and 8,792 texture assets crafted for diverse anomaly synthesis. Leveraging VLLM's general knowledge, reasonable anomaly text descriptions are generated for each industrial object and matched with relevant diverse textures from Tex-9K. These textures then guide the LDM via ControlNet to paint on normal images. Furthermore, we introduce Texture-Aware Latent Init to stabilize the natural-image-trained ControlNet for industrial images. Extensive experiments show that AnomalyPainter outperforms existing methods in realism, diversity, and generalization, achieving superior downstream performance.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2503.07253",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.5,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-10-25T15:32:53Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"indusagent: reinforcing open-vocabulary industrial anomaly detection w\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

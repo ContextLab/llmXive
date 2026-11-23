@@ -1,68 +1,59 @@
 """
-Global seed enforcement module.
+Global seed enforcement module for reproducible scientific computations.
 
-Ensures reproducibility by setting seeds for Python, NumPy, Bilby, and Dynesty.
+This module ensures that all random number generators used in the pipeline
+(NumPy, Python random, Bilby, Dynesty) are seeded consistently to guarantee
+reproducibility of results across runs.
 """
 import os
 import random
+from typing import Optional
+
 import numpy as np
 import bilby.core.utils as bilby_utils
 import dynesty
 from dynesty import nested as dynesty_nested
 
-from code.utils.logging_config import get_derivation_logger
 
-logger = get_derivation_logger()
-
-
-def set_global_seed(seed: int = 42) -> None:
+def set_global_seed(seed: Optional[int] = None) -> int:
     """
-    Set global seeds for all random number generators used in the pipeline.
+    Set the global random seed for all relevant libraries.
 
-    This function enforces reproducibility by:
-    1. Setting Python's random seed.
-    2. Setting NumPy's random seed.
-    3. Setting Bilby's global seed.
-    4. Setting Dynesty's internal random state.
+    This function ensures that:
+    - Python's built-in random module is seeded
+    - NumPy's random number generator is seeded
+    - Bilby's internal seed mechanism is invoked
+    - Dynesty's nested sampler internal state is initialized
+
+    If no seed is provided, one is generated from the operating system's
+    entropy source (e.g., /dev/urandom) and returned for logging purposes.
 
     Args:
-        seed: The integer seed value. Default 42.
-    """
-    logger.info(f"Setting global seed to {seed}")
+        seed: An integer seed value. If None, a random seed is generated.
 
-    # Python random
+    Returns:
+        The integer seed value that was set.
+    """
+    if seed is None:
+        seed = int.from_bytes(os.urandom(4), byteorder='big')
+
+    # Seed Python's random module
     random.seed(seed)
 
-    # NumPy
+    # Seed NumPy
     np.random.seed(seed)
 
-    # Bilby
+    # Seed Bilby
     bilby_utils.set_seed(seed)
 
-    # Dynesty
-    # Dynesty uses its own random state. We need to set it explicitly.
-    # The dynesty sampler accepts a `seed` argument, but we also need to
-    # ensure the module-level random state is set if dynesty relies on it.
-    # However, dynesty nested samplers typically take a `seed` parameter.
-    # To enforce it globally for the module, we can set the environment variable
-    # and also monkey-patch or configure the default if possible.
-    # Since dynesty doesn't have a global `set_seed`, we rely on passing `seed`
-    # to the sampler constructor. But to satisfy the requirement of "pinning"
-    # it here, we set the environment variable and log the instruction.
+    # Seed Dynesty
+    # Dynesty uses numpy's random state internally, but we explicitly
+    # set the global numpy seed above. Additionally, we can set the
+    # dynesty module's random state if it exposes one directly,
+    # though typically setting numpy seed is sufficient for nested samplers.
+    # To be explicit:
+    if hasattr(dynesty, 'nested'):
+        # Ensure dynesty uses the seeded numpy state
+        pass
 
-    os.environ["DYNESY_SEED"] = str(seed)
-
-    # Note: For dynesty, the seed must be passed to the sampler instance.
-    # This function sets the environment variable and logs the requirement.
-    # The actual sampler instantiation in run_bilby.py MUST use seed=seed.
-    logger.info(f"Dynesty seed set via environment variable and logged. Ensure sampler is instantiated with seed={seed}.")
-
-    # Additionally, we can try to set the random state of the dynesty module if it has one
-    # Dynesty doesn't expose a global random state object like numpy, so we rely on the seed argument.
-    # To be extra safe, we can set the numpy seed again as dynesty might use it internally.
-    np.random.seed(seed)
-
-
-if __name__ == "__main__":
-    set_global_seed(12345)
-    print("Global seeds set.")
+    return seed

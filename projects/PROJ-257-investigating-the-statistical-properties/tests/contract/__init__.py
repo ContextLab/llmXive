@@ -1,1 +1,3 @@
-"""Contract tests package."""
+"""
+Initialize the tests.contract package for contract tests.
+"""

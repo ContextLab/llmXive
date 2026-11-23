@@ -1,0 +1,111 @@
+{
+  "trace_id": "held_out_43_04668",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 10,
+  "tool_sequence": [
+    "delete_element",
+    "delete_element",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "insert_chart",
+    "update_layout",
+    "format_text",
+    "delete_element",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 92.1478
+      }
+    },
+    {
+      "step": 1,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 86.358
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 6.9971,
+        "saturation": 97.7305
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 95.5944,
+        "saturation": 41.8098
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 93.4949,
+        "saturation": 61.3197
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 30.4117,
+        "y": 33.2959,
+        "width": 61.2112,
+        "height": 9.6074
+      }
+    },
+    {
+      "step": 6,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 93.9803,
+        "padding": 79.2835
+      }
+    },
+    {
+      "step": 7,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 50.5173,
+        "x": 70.6189,
+        "y": 84.8173
+      }
+    },
+    {
+      "step": 8,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 3.8633
+      }
+    },
+    {
+      "step": 9,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 31.167,
+        "height": 84.2458
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.643418,
+    "tool_repetition_freq": 0.4,
+    "arg_semantic_variance": 986.205593
+  },
+  "final_state": {
+    "dominant_tool": "delete_element",
+    "slide_element_count": 4,
+    "layout_hash": "43-4668-delete_element"
+  },
+  "variance_multiplier": 1.5
+}

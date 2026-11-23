@@ -1,46 +1,53 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "CuratedDatasetSchema"
-description: "Schema for the curated 'hard', 'easy', and 'synthetic' issues derived from SWE-Explore."
-type: "object"
-properties:
-  issue_id:
-    type: "string"
-    description: "Unique identifier for the issue."
-  type:
-    type: "string"
-    enum:
-      - "hard"
-      - "synthetic"
-      - "easy"
-    description: "Classification of the issue."
-  original_issue_id:
-    type: "string"
-    description: "Reference to the original issue (only for synthetic)."
-    nullable: true
-  problem_statement:
-    type: "string"
-    description: "The text description of the coding task."
-  code_context:
-    type: "string"
-    description: "The code snippet or full file content relevant to the issue."
-  ground_truth_lines:
-    type: "array"
-    items:
-      type: "integer"
-    description: "List of line numbers in the ground truth solution."
-  mutation_applied:
-    type: "array"
-    items:
-      type: "string"
-    description: "List of obfuscation techniques applied (e.g., 'var_rename')."
-  complexity_score:
-    type: "number"
-    description: "Cyclomatic complexity or lines of code metric used for selection."
+title: SWE-Explore Dataset Schema
+description: Schema for the raw and curated SWE-Explore benchmark dataset entries.
+type: object
 required:
   - issue_id
-  - type
+  - repo_name
+  - instance_id
   - problem_statement
-  - code_context
-  - ground_truth_lines
-  - complexity_score
-additionalProperties: false
+  - patch
+  - base_commit
+properties:
+  issue_id:
+    type: string
+    description: Unique identifier for the GitHub issue.
+  repo_name:
+    type: string
+    description: Repository name in format 'owner/repo'.
+  instance_id:
+    type: string
+    description: Unique instance identifier for this benchmark run.
+  problem_statement:
+    type: string
+    description: The text of the issue or bug report.
+  patch:
+    type: string
+    description: The ground truth patch (solution) for the issue.
+  base_commit:
+    type: string
+    description: The commit hash where the issue exists.
+  ground_truth_lines:
+    type: array
+    items:
+      type: integer
+    description: Line numbers in the file that are modified by the patch.
+  initial_coverage:
+    type: number
+    format: float
+    description: The initial code coverage score before any agent intervention.
+  files_changed:
+    type: array
+    items:
+      type: string
+    description: List of file paths modified in the patch.
+  metadata:
+    type: object
+    description: Additional metadata fields (e.g., complexity, difficulty).
+    properties:
+      cyclomatic_complexity:
+        type: integer
+      language:
+        type: string
+additionalProperties: true

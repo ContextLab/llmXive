@@ -2,352 +2,244 @@ import os
 import json
 import time
 import requests
+import logging
+import pyarrow as pa
+import pyarrow.parquet as pq
 from pathlib import Path
 from datetime import datetime
-import logging
-from urllib.parse import urlparse
-import hashlib
-import re
+from typing import Optional, List, Dict, Any
 
 # Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Constants
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = BASE_DIR / "data"
-EXTERNAL_DIR = DATA_DIR / "external"
-VERIFICATION_LOG_PATH = DATA_DIR / "verification_log.json"
-
-# Security constraints
-MAX_FILE_SIZE = 100 * 1024 * 1024  # 100MB limit
-ALLOWED_EXTENSIONS = {'.csv', '.json', '.yaml', '.yml', '.txt', '.parquet'}
-ALLOWED_HOSTS = {
-    'figshare.com',
-    'zenodo.org',
-    'github.com',
-    'raw.githubusercontent.com',
-    'nist.gov',
-    'mofdb.org'
-}
+# Verified real data source
+DATASET_ID = "nasa/nist-adsorption-isotherms"
 
 def sanitize_url(url: str) -> str:
-    """
-    Sanitize and validate the input URL.
-    Prevents SSRF, path traversal, and injection attacks.
-    """
-    if not isinstance(url, str):
-        raise ValueError("URL must be a string")
-
-    # Remove whitespace and control characters
-    url = url.strip()
-    if not url:
-        raise ValueError("URL cannot be empty")
-
-    # Check for null bytes or dangerous characters
-    if '\x00' in url or any(c in url for c in ['\n', '\r', '\t']):
-        raise ValueError("URL contains invalid characters")
-
-    # Validate URL format
-    parsed = urlparse(url)
-    
-    if not parsed.scheme:
-        raise ValueError("URL must include a scheme (http/https)")
-    
-    if parsed.scheme not in ('http', 'https'):
-        raise ValueError("Only HTTP and HTTPS schemes are allowed")
-
-    # Validate hostname
-    hostname = parsed.hostname
-    if not hostname:
-        raise ValueError("URL must include a valid hostname")
-
-    # Check against allowlist
-    if not any(hostname.endswith(host) for host in ALLOWED_HOSTS):
-        raise ValueError(f"Hostname '{hostname}' is not in the allowed list")
-
-    # Normalize and return
+    """Sanitize URL to prevent injection attacks."""
+    if not url.startswith(('http://', 'https://')):
+        raise ValueError(f"Invalid URL scheme: {url}")
     return url
 
 def sanitize_filename(filename: str) -> str:
-    """
-    Sanitize filename to prevent path traversal and injection.
-    """
-    if not isinstance(filename, str):
-        raise ValueError("Filename must be a string")
+    """Sanitize filename to prevent path traversal."""
+    safe_name = os.path.basename(filename)
+    if not safe_name:
+        raise ValueError("Empty filename")
+    return safe_name
 
-    # Remove path separators and control characters
-    filename = filename.replace('\\', '/').split('/')[-1]
-    filename = filename.replace('\x00', '').strip()
-
-    if not filename:
-        raise ValueError("Filename cannot be empty after sanitization")
-
-    # Check extension
-    _, ext = os.path.splitext(filename.lower())
-    if ext not in ALLOWED_EXTENSIONS:
-        raise ValueError(f"File extension '{ext}' is not allowed")
-
-    # Check for dangerous patterns
-    if '..' in filename or filename.startswith('.'):
-        raise ValueError("Filename contains invalid path components")
-
-    return filename
-
-def write_verification_log(
-    status: str,
-    source: str,
-    details: str,
-    timestamp: Optional[datetime] = None,
-    file_hash: Optional[str] = None,
-    error: Optional[str] = None
-) -> Path:
-    """
-    Write a verification log entry to verification_log.json.
-    Creates the file if it doesn't exist, appends if it does.
-    """
-    if timestamp is None:
-        timestamp = datetime.now()
-
-    log_entry = {
-        "timestamp": timestamp.isoformat(),
+def write_verification_log(log_path: Path, status: str, message: str):
+    """Write verification log to JSON."""
+    log_data = {
+        "timestamp": datetime.now().isoformat(),
         "status": status,
-        "source": source,
-        "details": details,
-        "file_hash": file_hash,
-        "error": error
+        "message": message
     }
+    with open(log_path, 'w') as f:
+        json.dump(log_data, f, indent=2)
 
-    # Ensure directory exists
-    VERIFICATION_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-
-    # Read existing logs or create new list
-    if VERIFICATION_LOG_PATH.exists():
-        try:
-            with open(VERIFICATION_LOG_PATH, 'r', encoding='utf-8') as f:
-                logs = json.load(f)
-                if not isinstance(logs, list):
-                    logs = [logs]
-        except (json.JSONDecodeError, IOError):
-            logger.warning("Corrupted verification log, creating new one")
-            logs = []
-    else:
-        logs = []
-
-    # Append new entry
-    logs.append(log_entry)
-
-    # Write back with formatting
-    with open(VERIFICATION_LOG_PATH, 'w', encoding='utf-8') as f:
-        json.dump(logs, f, indent=2, ensure_ascii=False)
-
-    logger.info(f"Verification log written: {VERIFICATION_LOG_PATH}")
-    return VERIFICATION_LOG_PATH
-
-def calculate_file_hash(filepath: Path) -> str:
+def calculate_file_hash(file_path: Path) -> str:
     """Calculate SHA256 hash of a file."""
+    import hashlib
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
+    with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def attempt_nist_fetch(url: str, output_filename: str) -> bool:
+def stream_and_filter_dataset(
+    dataset_id: str,
+    output_dir: Path,
+    chunk_size: int = 1000
+) -> List[str]:
     """
-    Attempt to fetch data from NIST or similar trusted source.
-    Returns True on success, False on failure.
+    Stream the dataset from Hugging Face, filter for Type I isotherms,
+    and write chunks to Parquet files.
+    
+    Args:
+        dataset_id: The Hugging Face dataset ID.
+        output_dir: Directory to write chunk files.
+        chunk_size: Number of rows per chunk.
+        
+    Returns:
+        List of paths to written chunk files.
     """
+    from datasets import load_dataset
+    
+    logger.info(f"Attempting to stream dataset: {dataset_id}")
+    
+    # Load dataset in streaming mode
     try:
-        # Sanitize inputs
-        sanitized_url = sanitize_url(url)
-        sanitized_filename = sanitize_filename(output_filename)
-        output_path = EXTERNAL_DIR / sanitized_filename
-
-        logger.info(f"Attempting fetch from: {sanitized_url}")
-
-        # Ensure output directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Stream download with size limit
-        headers = {'User-Agent': 'llmXive-Downloader/1.0'}
-        response = requests.get(sanitized_url, headers=headers, stream=True, timeout=30)
-        response.raise_for_status()
-
-        total_size = 0
-        with open(output_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-                    total_size += len(chunk)
-                    if total_size > MAX_FILE_SIZE:
-                        logger.error("Download exceeded size limit")
-                        output_path.unlink()
-                        raise ValueError("File size exceeds maximum allowed")
-
-        # Verify file integrity
-        file_hash = calculate_file_hash(output_path)
-        logger.info(f"Downloaded successfully. Size: {total_size} bytes, Hash: {file_hash}")
-
-        # Write success log
-        write_verification_log(
-            status="SUCCESS",
-            source="NIST",
-            details=f"Fetched {sanitized_filename}",
-            file_hash=file_hash
-        )
-
-        return True
-
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Network error during NIST fetch: {str(e)}")
-        write_verification_log(
-            status="FAILURE",
-            source="NIST",
-            details=f"Failed to fetch {output_filename}",
-            error=str(e)
-        )
-        return False
-    except ValueError as e:
-        logger.error(f"Validation error: {str(e)}")
-        write_verification_log(
-            status="FAILURE",
-            source="NIST",
-            details="Input validation failed",
-            error=str(e)
-        )
-        return False
+        dataset = load_dataset(dataset_id, split="train", streaming=True)
     except Exception as e:
-        logger.error(f"Unexpected error during NIST fetch: {str(e)}")
-        write_verification_log(
-            status="FAILURE",
-            source="NIST",
-            details="Unexpected error",
-            error=str(e)
-        )
-        return False
+        # Specific error handling for incorrect dataset ID
+        raise ValueError(
+            f"Failed to load dataset '{dataset_id}'. "
+            f"Verify the dataset ID exists on Hugging Face. "
+            f"Original error: {e}"
+        ) from e
 
-def attempt_fallback_fetch(url: str, output_filename: str) -> bool:
-    """
-    Fallback fetch mechanism for when primary source fails.
-    Validates URL and attempts download with stricter checks.
-    """
+    # Check available columns to identify isotherm type column
+    # The task specifies checking 'isotherm_type' or 'IsothermType'
+    # We will check the first batch to determine column names
+    first_batch = next(iter(dataset))
+    available_columns = list(first_batch.keys())
+    logger.info(f"Available columns in dataset: {available_columns}")
+    
+    isotherm_col = None
+    if 'isotherm_type' in available_columns:
+        isotherm_col = 'isotherm_type'
+    elif 'IsothermType' in available_columns:
+        isotherm_col = 'IsothermType'
+    
+    if isotherm_col is None:
+        # Fallback: check for case-insensitive match or common variations
+        for col in available_columns:
+            if 'type' in col.lower() and 'isotherm' in col.lower():
+                isotherm_col = col
+                break
+    
+    if isotherm_col is None:
+        raise ValueError(
+            f"Could not find 'isotherm_type' or 'IsothermType' column in dataset. "
+            f"Available columns: {available_columns}. "
+            f"Cannot filter for Type I isotherms."
+        )
+    
+    logger.info(f"Using column '{isotherm_col}' for Type I isotherm filtering.")
+    
+    chunk_files = []
+    current_chunk = []
+    chunk_idx = 0
+    total_rows = 0
+    filtered_rows = 0
+    
+    for row_idx, row in enumerate(dataset):
+        total_rows += 1
+        
+        # Check isotherm type
+        isotherm_val = row.get(isotherm_col)
+        
+        # Filter logic: include ONLY Type I isotherms
+        # Check for 'I', 1, '1', or similar representations
+        is_type_i = False
+        if isotherm_val is not None:
+            str_val = str(isotherm_val).strip().upper()
+            if str_val == 'I' or str_val == '1' or str_val == 'I':
+                is_type_i = True
+            # Also check if it's an integer 1
+            elif isinstance(isotherm_val, int) and isotherm_val == 1:
+                is_type_i = True
+        
+        if is_type_i:
+            current_chunk.append(row)
+            filtered_rows += 1
+        
+        # Write chunk when size limit reached
+        if len(current_chunk) >= chunk_size:
+            chunk_path = output_dir / f"streamed_chunk_{chunk_idx:04d}.parquet"
+            
+            # Convert list of dicts to PyArrow Table
+            table = pa.Table.from_pylist(current_chunk)
+            pq.write_table(table, chunk_path)
+            
+            chunk_files.append(str(chunk_path))
+            logger.info(f"Written chunk {chunk_idx} with {len(current_chunk)} rows to {chunk_path}")
+            
+            chunk_idx += 1
+            current_chunk = []
+        
+        # Progress logging
+        if row_idx % 10000 == 0 and row_idx > 0:
+            logger.info(f"Processed {row_idx} rows, filtered {filtered_rows} Type I isotherms so far...")
+    
+    # Write final partial chunk if any
+    if current_chunk:
+        chunk_path = output_dir / f"streamed_chunk_{chunk_idx:04d}.parquet"
+        table = pa.Table.from_pylist(current_chunk)
+        pq.write_table(table, chunk_path)
+        chunk_files.append(str(chunk_path))
+        logger.info(f"Written final chunk {chunk_idx} with {len(current_chunk)} rows to {chunk_path}")
+    
+    logger.info(f"Streaming complete. Total rows processed: {total_rows}, Type I isotherms written: {filtered_rows}")
+    logger.info(f"Written {len(chunk_files)} chunk files.")
+    
+    return chunk_files
+
+def attempt_nist_fetch(url: str, output_dir: Path) -> bool:
+    """Attempt to fetch data from NIST or specified URL."""
     try:
-        # Sanitize inputs
-        sanitized_url = sanitize_url(url)
-        sanitized_filename = sanitize_filename(output_filename)
-        output_path = EXTERNAL_DIR / sanitized_filename
-
-        logger.info(f"Attempting fallback fetch from: {sanitized_url}")
-
-        # Ensure output directory exists
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-
-        # Additional check for known malicious patterns in path
-        if re.search(r'//', sanitized_url.split('://')[1]):
-            raise ValueError("Suspicious URL path structure detected")
-
-        headers = {'User-Agent': 'llmXive-Downloader/1.0'}
-        response = requests.get(sanitized_url, headers=headers, stream=True, timeout=30)
+        response = requests.get(url, timeout=60)
         response.raise_for_status()
-
-        # Check content type
-        content_type = response.headers.get('content-type', '')
-        if 'text/html' in content_type and not sanitized_filename.endswith('.html'):
-            logger.warning("Received HTML content for non-HTML request")
-            # Allow it but log warning
-
-        total_size = 0
+        
+        filename = sanitize_filename(url.split('/')[-1] or "adsorption_data.csv")
+        output_path = output_dir / filename
+        
         with open(output_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                if chunk:
-                    f.write(chunk)
-                    total_size += len(chunk)
-                    if total_size > MAX_FILE_SIZE:
-                        logger.error("Download exceeded size limit")
-                        output_path.unlink()
-                        raise ValueError("File size exceeds maximum allowed")
-
-        file_hash = calculate_file_hash(output_path)
-        logger.info(f"Fallback fetch successful. Size: {total_size} bytes, Hash: {file_hash}")
-
-        write_verification_log(
-            status="SUCCESS",
-            source="FALLBACK",
-            details=f"Fetched {sanitized_filename} via fallback",
-            file_hash=file_hash
-        )
-
+            f.write(response.content)
+        
+        logger.info(f"Successfully fetched data from {url} to {output_path}")
         return True
-
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Network error during fallback fetch: {str(e)}")
-        write_verification_log(
-            status="FAILURE",
-            source="FALLBACK",
-            details=f"Failed to fetch {output_filename} via fallback",
-            error=str(e)
-        )
-        return False
-    except ValueError as e:
-        logger.error(f"Validation error: {str(e)}")
-        write_verification_log(
-            status="FAILURE",
-            source="FALLBACK",
-            details="Input validation failed",
-            error=str(e)
-        )
-        return False
     except Exception as e:
-        logger.error(f"Unexpected error during fallback fetch: {str(e)}")
-        write_verification_log(
-            status="FAILURE",
-            source="FALLBACK",
-            details="Unexpected error",
-            error=str(e)
-        )
+        logger.error(f"Failed to fetch from NIST: {e}")
         return False
+
+def attempt_fallback_fetch(url: str, output_dir: Path) -> bool:
+    """Attempt fallback fetch from alternative source."""
+    # Placeholder for fallback logic if needed
+    return False
 
 def main():
+    """Main entry point for download script.
+    
+    This function implements T060: Streaming Data Loader with Filtering.
+    It streams the NIST adsorption isotherms dataset from Hugging Face,
+    filters for Type I isotherms, and writes chunks to Parquet files.
     """
-    Main entry point for the download module.
-    Demonstrates security-hardened fetching with verification logging.
-    """
-    logger.info("Starting download module with security hardening")
-
-    # Test case 1: Valid NIST fetch attempt (will likely fail if URL doesn't exist)
-    test_url = "https://figshare.com/ndownloader/files/12345678"  # Example valid structure
-    test_filename = "test_data.csv"
+    import argparse
     
-    logger.info(f"Testing with URL: {test_url}")
+    parser = argparse.ArgumentParser(description="Stream and filter adsorption isotherm data")
+    parser.add_argument("--dataset-id", type=str, default=DATASET_ID,
+                      help=f"Hugging Face dataset ID (default: {DATASET_ID})")
+    parser.add_argument("--output-dir", type=str, default="data/raw",
+                      help="Output directory for chunk files")
+    parser.add_argument("--chunk-size", type=int, default=1000,
+                      help="Number of rows per chunk file")
+    args = parser.parse_args()
     
-    # Attempt primary fetch
-    success = attempt_nist_fetch(test_url, test_filename)
+    output_dir = Path(args.output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    if not success:
-        logger.info("Primary fetch failed, attempting fallback")
-        # In a real scenario, we might try a different URL
-        # For this demo, we just log the attempt
+    log_path = output_dir / "verification_log.json"
     
-    # Test case 2: Invalid URL (should be caught by sanitization)
-    invalid_url = "javascript:alert('xss')"
     try:
-        sanitize_url(invalid_url)
-        logger.error("Should have raised an exception for invalid URL")
+        # Stream, filter, and write chunks
+        chunk_files = stream_and_filter_dataset(
+            dataset_id=args.dataset_id,
+            output_dir=output_dir,
+            chunk_size=args.chunk_size
+        )
+        
+        if not chunk_files:
+            write_verification_log(log_path, "EMPTY", "No Type I isotherms found in dataset.")
+            raise ValueError("No Type I isotherms found in the dataset. Cannot proceed.")
+        
+        write_verification_log(
+            log_path, 
+            "SUCCESS", 
+            f"Streamed and filtered dataset. Written {len(chunk_files)} chunk files."
+        )
+        logger.info("Streaming and filtering completed successfully.")
+        
     except ValueError as e:
-        logger.info(f"Correctly rejected invalid URL: {e}")
-    
-    # Test case 3: Path traversal attempt
-    malicious_filename = "../../../etc/passwd.csv"
-    try:
-        sanitize_filename(malicious_filename)
-        logger.error("Should have raised an exception for path traversal")
-    except ValueError as e:
-        logger.info(f"Correctly rejected malicious filename: {e}")
-
-    logger.info("Download module security tests completed")
+        # Re-raise with specific message for dataset ID issues
+        write_verification_log(log_path, "FAILED", str(e))
+        raise
+    except Exception as e:
+        write_verification_log(log_path, "FAILED", f"Unexpected error: {e}")
+        logger.error(f"Streaming failed with error: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

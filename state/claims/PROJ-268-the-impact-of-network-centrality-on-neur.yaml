@@ -1,0 +1,135 @@
+- artifact_path: projects/PROJ-268-the-impact-of-network-centrality-on-neur/specs/001-the-impact-of-network-centrality-on-neur/tasks.md
+  attempts: 1
+  canonical: halt with fatal error if final count of valid subjects is less than 10
+  claim_id: c_2f385320
+  context: T013 [US1] Implement logic in code/download_data.py to skip corrupted subjects
+    and log warnings; proceed with remaining downloads. Only halt with a fatal error
+    if the final count of valid subjects is < 10.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_with_fatal_error_if_final_count_of_valid_subjects_is_le
+  kind: magnitude
+  raw_text: Implement logic in code/download_data.py to skip corrupted subjects and
+    log warnings; proceed with remaining downloads. Only halt with a fatal error if
+    the final count of valid subjects is < 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T04:38:23Z'
+- artifact_path: projects/PROJ-268-the-impact-of-network-centrality-on-neur/specs/001-the-impact-of-network-centrality-on-neur/tasks.md
+  attempts: 1
+  canonical: remove raw files after processing to stay within 14 GB limit
+  claim_id: c_efefa1ed
+  context: T016 [US1] Implement storage cleanup logic in code/download_data.py to
+    remove raw files after processing to stay within 14 GB limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement storage cleanup logic in code/download_data.py to remove raw
+    files after processing to stay within 14 GB limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T04:39:07Z'
+- artifact_path: projects/PROJ-268-the-impact-of-network-centrality-on-neur/specs/001-the-impact-of-network-centrality-on-neur/tasks.md
+  attempts: 1
+  canonical: Spearman correlation across subjects with N=10
+  claim_id: c_b12bc01e
+  context: T027 [US3] Implement code/analyze.py to perform Spearman correlation between
+    structural centrality and functional synchrony across subjects (N=10), aggregating
+    node-level metrics per subject as defined in Plan.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/analyze.py to perform Spearman correlation between structural
+    centrality and functional synchrony across subjects (N=10), aggregating node-level
+    metrics per subject as defined in Plan.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T04:39:50Z'
+- artifact_path: projects/PROJ-268-the-impact-of-network-centrality-on-neur/specs/001-the-impact-of-network-centrality-on-neur/tasks.md
+  attempts: 1
+  canonical: Subject-level permutation with N=10 and n=1000 resamples
+  claim_id: c_d8e59e5c
+  context: T028 [US3] Implement Spatial Null Model (BrainSMASH) as the primary method
+    for permutation testing. If BrainSMASH is unavailable, implement Subject-level
+    permutation (N=10) with n=1000 resamples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If BrainSMASH is unavailable, implement Subject-level permutation (N=10)
+    with n=1000 resamples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T04:40:14Z'
+- artifact_path: projects/PROJ-268-the-impact-of-network-centrality-on-neur/specs/001-the-impact-of-network-centrality-on-neur/tasks.md
+  attempts: 1
+  canonical: sweep structural graph threshold density from 0.1 to 0.5 in steps of
+    0.05
+  claim_id: c_5d5a387e
+  context: T029 [US3] Implement sensitivity analysis in code/analyze.py sweeping structural
+    graph threshold density from 0.1 to 0.5 in steps of 0.05 using proportional thresholding.
+  evidence:
+    asserted: '0.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement sensitivity analysis in code/analyze.py sweeping structural
+    graph threshold density from 0.1 to 0.5 in steps of 0.05 using proportional thresholding.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-04T04:40:14Z'
+- artifact_path: projects/PROJ-268-the-impact-of-network-centrality-on-neur/specs/001-the-impact-of-network-centrality-on-neur/tasks.md
+  attempts: 1
+  canonical: VIF greater than 5 defined as high collinearity
+  claim_id: c_e5606c13
+  context: 'T030 [US3] Implement VIF calculation for collinearity diagnostics among
+    centrality metrics. Input matrix structure: columns = [degree, betweenness, eigenvector].
+    Define VIF > 5 as high collinearity.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/VIF_greater_than_5_defined_as_high_collinearity
+  kind: magnitude
+  raw_text: Define VIF > 5 as high collinearity.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T04:41:09Z'
+- artifact_path: projects/PROJ-268-the-impact-of-network-centrality-on-neur/specs/001-the-impact-of-network-centrality-on-neur/tasks.md
+  attempts: 1
+  canonical: full pipeline runtime less than 6 hours on CI
+  claim_id: c_faa8718b
+  context: T036c [P] Verify full pipeline runtime < 6 hours on CI.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_pipeline_runtime_less_than_6_hours_on_CI
+  kind: magnitude
+  raw_text: Verify full pipeline runtime < 6 hours on CI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T04:41:31Z'

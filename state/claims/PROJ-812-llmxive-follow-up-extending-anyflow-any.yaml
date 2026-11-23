@@ -1,0 +1,293 @@
+- artifact_path: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any/tasks.md
+  attempts: 1
+  canonical: processing 500 clips within 6 hours and 7 GB RAM
+  claim_id: c_dab5243b
+  context: "Implementation for User Story 2 specifies an independent test where a\
+    \ script processes 500 clips on a CPU\u2011only runner with runtime and memory\
+    \ limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "A script processes 500 clips on a CPU\u2011only runner, completes in\
+    \ \u22646\u202Fh, uses <7\u202FGB RAM, and outputs a CSV with divergence scores."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:41:24Z'
+- artifact_path: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any/tasks.md
+  attempts: 1
+  canonical: pilot subset size 50
+  claim_id: c_a094b8c3
+  context: Task T011a defines a pilot subset defined in data/raw/pilot_subset_ids.csv
+    (N=50).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pilot subset contains N=50 clips.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:42:07Z'
+- artifact_path: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any/tasks.md
+  attempts: 1
+  canonical: power analysis sample size 500 for effect size 0.12 at 80% power
+  claim_id: c_194ceeb5
+  context: "Task T021 implements a formal power analysis to justify sample size N=500,\
+    \ ensuring detection of effect size r\u22480.12 with 80% power (alpha=0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Power analysis justifies sample size N=500 to detect a minimum effect\
+    \ size r\u22480.12 with 80% power at alpha=0.05."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:43:04Z'
+- artifact_path: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any/tasks.md
+  attempts: 1
+  canonical: "ipw weights sum to one and are non\u2011negative"
+  claim_id: c_6289f5c4
+  context: Task T046 generates IPW weighting logic and outputs weights; verification
+    test T047 checks that weights sum to 1 and are not negative.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: IPW weights sum to 1 (within tolerance) and no weight is negative.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:45:00Z'
+- artifact_path: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any/tasks.md
+  attempts: 1
+  canonical: sensitivity report contains 9 combos
+  claim_id: c_22982495
+  context: Task T023 sweeps thresholds {0.01, 0.05, 0.1} and baseline resolutions
+    N {500, 200, 100}, producing a report; test T056 verifies that all 9 combos are
+    present.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity report includes rows for all 9 threshold/N combinations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:45:22Z'
+- artifact_path: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any/tasks.md
+  attempts: 1
+  canonical: "final report includes required flow\u2011map divergence disclaimer"
+  claim_id: c_37df2ae9
+  context: "Task T024 specifies that the final JSON report must inject the exact disclaimer\
+    \ string about flow\u2011map divergence."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Final_report_includes_required_flow%E2%80%91map_divergence_disclaime
+  kind: entity_fact
+  raw_text: "The final report contains the mandatory string: 'The ''flow\u2011map\
+    \ divergence'' metric is a proxy for model instability and the correlation analysis\
+    \ tests the hypothesis that this instability correlates with semantic discontinuity.'"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:45:57Z'
+- artifact_path: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any/tasks.md
+  attempts: 1
+  canonical: script processes 500 clips within 6 hours using less than 7 GB RAM
+  claim_id: c_3b04e685
+  context: "Goal: Load a frozen AnyFlow model in ONNX Runtime (CPU\u2011only) and\
+    \ compute \"flow\u2011map divergence\" for every video clip without GPU. Independent\
+    \ Test: A script processes 500 clips on a CPU\u2011only runner, completes in \u2264\
+    6\u202Fh, uses <7\u202FGB RAM, and outputs a CSV with divergence scores."
+  evidence:
+    candidates:
+    - - Create account Log in Script processes
+      - 500.0
+    - - Script processes 500 clips within
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Script_processes_500_clips_within_6_hours_using_less_than_7
+  kind: magnitude
+  raw_text: "A script processes 500 clips on a CPU\u2011only runner, completes in\
+    \ \u22646\u202Fh, uses <7\u202FGB RAM, and outputs a CSV with divergence scores."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-23T09:46:14Z'
+- artifact_path: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any/tasks.md
+  attempts: 1
+  canonical: "integration test runtime \u22646 hours and peak RAM \u22647 GB"
+  claim_id: c_4db4d9dc
+  context: "Phase N: Polish & Cross\u2011Cutting Concerns \u2013 T028 Run full pipeline\
+    \ integration test on CI (verify \u22646\u202Fh runtime, \u22647\u202FGB peak\
+    \ RAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run full pipeline integration test on CI (verify \u22646\u202Fh runtime,\
+    \ \u22647\u202FGB peak RAM)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:46:14Z'
+- artifact_path: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any/tasks.md
+  attempts: 1
+  canonical: "power analysis determines N=500 required to detect effect size r\u2248\
+    0.12 with 80% power at alpha=0.05"
+  claim_id: c_7fd57d2f
+  context: "T021 Implement code/analysis/power_analysis.py to perform a formal power\
+    \ analysis to justify sample size N=500, ensuring the study is powered to detect\
+    \ the minimum effect size (r \u2248 0.12) at 80% power (alpha=0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform a formal power analysis to justify sample size N=500, ensuring\
+    \ the study is powered to detect the minimum effect size (r \u2248 0.12) at 80%\
+    \ power (alpha=0.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:47:09Z'
+- artifact_path: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any/tasks.md
+  attempts: 1
+  canonical: script processes 500 clips on CPU-only runner within 6 hours using less
+    than 7 GB RAM
+  claim_id: c_6e7329f3
+  context: "Independent Test: A script processes 500 clips on a CPU\u2011only runner,\
+    \ completes in \u22646\u202Fh, uses <7\u202FGB RAM, and outputs a CSV with divergence\
+    \ scores."
+  evidence:
+    candidates:
+    - - Script processes
+      - 500.0
+    - - CPU-only runner within
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Script_processes_500_clips_on_CPU-only_runner_within_6_hours
+  kind: magnitude
+  raw_text: "A script processes 500 clips on a CPU\u2011only runner, completes in\
+    \ \u22646\u202Fh, uses <7\u202FGB RAM, and outputs a CSV with divergence scores."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-23T09:47:51Z'
+- artifact_path: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any/tasks.md
+  attempts: 1
+  canonical: pilot subset size 50
+  claim_id: c_5c408de0
+  context: Implement code/data_curation/annotate_pilot.py ... pilot subset defined
+    in data/raw/pilot_subset_ids.csv (N=50).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pilot subset defined in data/raw/pilot_subset_ids.csv (N=50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:48:11Z'
+- artifact_path: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any/tasks.md
+  attempts: 1
+  canonical: control subset size 50
+  claim_id: c_d9a081b9
+  context: Implement code/metric_calculation/process_control_subset.py ... control
+    subset defined in data/raw/control_subset_ids.csv (n=50).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: control subset defined in data/raw/control_subset_ids.csv (n=50).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:49:04Z'
+- artifact_path: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any/tasks.md
+  attempts: 1
+  canonical: sample size 500 powered to detect effect size 0.12 at 80% power
+  claim_id: c_28a7d59c
+  context: "Implement code/analysis/power_analysis.py to perform a formal power analysis\
+    \ to justify sample size N=500, ensuring the study is powered to detect the minimum\
+    \ effect size (r \u2248 0.12) at 80% power (alpha=0.05)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "justify sample size N=500, ensuring the study is powered to detect the\
+    \ minimum effect size (r \u2248 0.12) at 80% power (alpha=0.05)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:49:34Z'
+- artifact_path: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any/tasks.md
+  attempts: 1
+  canonical: Euler baseline trajectories using N=500 steps
+  claim_id: c_57654699
+  context: "Implement code/metric_calculation/generate_baseline.py to generate the\
+    \ High\u2011Resolution Euler Baseline trajectories (N=500) for all clips ..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "generate the High\u2011Resolution Euler Baseline trajectories (N=500)\
+    \ for all clips."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:49:57Z'
+- artifact_path: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any/tasks.md
+  attempts: 1
+  canonical: gold standard integration uses N=10000 steps
+  claim_id: c_074798ea
+  context: Implement code/metric_calculation/generate_golden_values.py to generate
+    tests/integration/expected_static_divergence.json ... Use N=10000 as ground truth
+    for expected values.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use N=10000 as ground truth for expected values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:50:45Z'
+- artifact_path: projects/PROJ-812-llmxive-follow-up-extending-anyflow-any/specs/001-llmxive-follow-up-extending-anyflow-any/tasks.md
+  attempts: 1
+  canonical: "full pipeline integration test runtime \u22646h and RAM \u22647GB"
+  claim_id: c_209c2358
+  context: "Run full pipeline integration test on CI (verify \u22646\u202Fh runtime,\
+    \ \u22647\u202FGB peak RAM)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Run full pipeline integration test on CI (verify \u22646\u202Fh runtime,\
+    \ \u22647\u202FGB peak RAM)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T09:50:45Z'

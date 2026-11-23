@@ -56,5 +56,15 @@
     "tables/ablation_study.tex",
     "tables/recon.tex",
     "tables/worldscore.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "cd8664d34b4b824c4971d1dba615a6c96f2cf2809a0c0c963ad82eeede185c7d",
+      "bytes": 21257365
+    },
+    "original.pdf": {
+      "sha256": "b790367ef3932c76a2753d7f667f97f56fd611887f6c4277da323e67167bded7",
+      "bytes": 21223986
+    }
+  }
 }

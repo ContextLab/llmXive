@@ -1,0 +1,16 @@
+[
+  {
+    "data_file": "data/processed/taxonomy_centroids.json",
+    "required": [
+      "Path"
+    ]
+  },
+  {
+    "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/data/processed/taxonomy_agentdog.json",
+    "required": []
+  },
+  {
+    "data_file": "home/runner/work/llmXive/llmXive/projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5/processed/drift_scores.csv",
+    "required": []
+  }
+]

@@ -1,0 +1,5 @@
+cpu_model: AMD EPYC 7B12 8-Core Processor
+core_count: 8
+cache_line_size: 64
+compiler_flags: -O3 -march=native
+timestamp: 2023-10-27T10:30:00.000000

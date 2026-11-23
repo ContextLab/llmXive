@@ -1,0 +1,551 @@
+{
+  "fetched_at": "2026-08-26T04:28:14Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\"",
+      "target_n": 5
+    },
+    "duration_seconds": 60.058,
+    "ended_at": "2026-08-26T04:28:14Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "infinite procedural generation with large language models"
+        ],
+        [
+          2,
+          "LLM-driven open world game environments"
+        ],
+        [
+          3,
+          "dynamic narrative generation in interactive fiction"
+        ],
+        [
+          4,
+          "versatile agent interactions in simulated worlds"
+        ],
+        [
+          5,
+          "large language models for non-player character behavior"
+        ],
+        [
+          6,
+          "generative AI for endless game content creation"
+        ],
+        [
+          7,
+          "context-aware dialogue systems in virtual worlds"
+        ],
+        [
+          8,
+          "adaptive storytelling using transformer models"
+        ],
+        [
+          9,
+          "LLM-based procedural content generation for games"
+        ],
+        [
+          10,
+          "emergent gameplay through natural language processing"
+        ],
+        [
+          11,
+          "scalable world simulation with foundation models"
+        ],
+        [
+          12,
+          "interactive narrative engines powered by LLMs"
+        ],
+        [
+          13,
+          "autonomous agents with versatile interaction capabilities"
+        ],
+        [
+          14,
+          "language model integration in game development pipelines"
+        ],
+        [
+          15,
+          "infinite quest generation using generative AI"
+        ],
+        [
+          16,
+          "semantic world modeling for interactive simulations"
+        ],
+        [
+          17,
+          "LLMs for real-time game environment adaptation"
+        ],
+        [
+          18,
+          "generative design of interactive virtual spaces"
+        ],
+        [
+          19,
+          "natural language interfaces for game world manipulation"
+        ],
+        [
+          20,
+          "reinforcement learning with large language model policies"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "LLM-driven open world game environments": 3,
+        "infinite procedural generation with large language models": 4,
+        "llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" computer science": 0
+      },
+      "total_queries_issued": 2
+    },
+    "extracted_queries": [
+      "procedural content generation LLM environment synthesis",
+      "infinite procedural world large language model benchmark",
+      "emergent behavior open-ended LLM agent simulation",
+      "LLM agent evaluation dynamic environment interaction metrics",
+      "training data contamination synthetic world generation leakage"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2107.12533"
+      ]
+    },
+    "per_query_hit_count": {
+      "LLM agent evaluation dynamic environment interaction metrics": 3,
+      "emergent behavior open-ended LLM agent simulation": 3,
+      "infinite procedural world large language model benchmark": 2,
+      "llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" computer science": 3,
+      "procedural content generation LLM environment synthesis": 3,
+      "training data contamination synthetic world generation leakage": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 6,
+      "rejections": [
+        {
+          "primary_pointer": "2107.12524",
+          "rationale": "The paper focuses on procedural content generation (PCGML) using Markov chain ensembles for game level design, which is a distinct construct from the user's question regarding \"Infinite Worlds with Versatile Interactions\" (likely referring to the specific LLM-based framework or the concept of infinite context/worlds in LLMs). While both involve generative models, the paper does not measure the same mechanism, variables, or domain (LLM interaction scaling vs. game level playability) and falls und",
+          "title": "Ensemble Learning For Mega Man Level Generation"
+        },
+        {
+          "primary_pointer": "2107.12532",
+          "rationale": "The paper focuses on procedural content generation (PCGML) using LSTMs for game level design, which is a distinct construct from the user's question regarding \"Infinite Worlds with Versatile Interactions\" (likely referring to the specific LLMXive framework for scalable, interactive environments). While both involve generative models in gaming, the candidate paper does not measure the same mechanism, variables, or domain as the specific LLMXive follow-up research, and it falls under the \"distinct",
+          "title": "Generating Lode Runner Levels by Learning Player Paths with LSTMs"
+        },
+        {
+          "primary_pointer": "2311.04589",
+          "rationale": "The paper proposes a specific architecture (TEAL) for multi-modal tokenization and generation, which does not address the user's specific question about extending the \"Infinite Worlds with Versatile Interactions\" (llmXive) framework or its follow-up research. While both fall under the broad domain of Large Language Models, the candidate paper lacks any measurable connection to the specific mechanism, variables, or empirical setting of the llmXive project, failing to satisfy criteria (a) through ",
+          "title": "TEAL: Tokenize and Embed ALL for Multi-modal Large Language Models"
+        },
+        {
+          "primary_pointer": "2207.14140",
+          "rationale": "The paper focuses on using NEAT and Reinforcement Learning to play a specific 2D game (\"Flappy Bird\") for algorithm testing, which is a distinct construct from the user's question about extending the \"Infinite Worlds with Versatile Interactions\" (llmXive) framework for Large Language Models. While both involve AI agents, the candidate paper does not address the specific mechanism, domain (LLM-based world generation), or variables of the llmXive system, failing to meet the criteria for same-mecha",
+          "title": "Playing a 2D Game Indefinitely using NEAT and Reinforcement Learning"
+        },
+        {
+          "primary_pointer": "2606.27068",
+          "rationale": "The paper focuses on \"parametric open-source games\" and \"program equilibria\" in game theory, which is a distinct theoretical construct from the user's query regarding \"Infinite Worlds with Versatile Interactions\" (a specific computer science framework likely related to procedural generation or simulation environments). While both involve \"open-source\" or \"interaction\" concepts, the paper does not measure the same mechanism, domain, or variables as the user's specific follow-up research, nor does",
+          "title": "Parametric Open Source Games"
+        },
+        {
+          "primary_pointer": "2512.21309",
+          "rationale": "The paper focuses on a specific engineering optimization (plan reuse for latency reduction) in LLM-driven agents, which does not align with the user's question about extending the \"Infinite Worlds with Versatile Interactions\" framework or its specific mechanisms. There is no evidence that this paper measures the same biological/algorithmic mechanism, establishes a baseline for the \"Infinite Worlds\" domain, or serves as a foundational reference for that specific research line, failing all inclusi",
+          "title": "A Plan Reuse Mechanism for LLM-Driven Agent"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-26T04:27:14Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"infinite worlds with versatile interactions\" computer science",
+      "raw": "llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tabletop roleplaying games (TTRPGs) and procedural content generators can both be understood as systems of rules for producing content. In this paper, we argue that TTRPG design can usefully be viewed as procedural content generator design. We present several case studies linking key concepts from PCG research -- including possibility spaces, expressive range analysis, and generative pipelines -- to key concepts in TTRPG design. We then discuss the implications of these relationships and suggest directions for future work uniting research in TTRPGs and PCG.",
+          "claimed_authors": [
+            "Matthew Guzdial",
+            "Devi Acharya",
+            "Max Kreminski",
+            "Michael Cook",
+            "Mirjam Eladhari",
+            "Antonios Liapis",
+            "Anne Sullivan"
+          ],
+          "claimed_title": "Tabletop Roleplaying Games as Procedural Content Generators",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2007.06108"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Tabletop Roleplaying Games as Procedural Content Generators')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Procedural content generation via machine learning (PCGML) is the process of procedurally generating game content using models trained on existing game content. PCGML methods can struggle to capture the true variance present in underlying data with a single model. In this paper, we investigated the use of ensembles of Markov chains for procedurally generating \\emph{Mega Man} levels. We conduct an initial investigation of our approach and evaluate it on measures of playability and stylistic similarity in comparison to a non-ensemble, existing Markov chain approach.",
+          "claimed_authors": [
+            "Bowei Li",
+            "Ruohan Chen",
+            "Yuqing Xue",
+            "Ricky Wang",
+            "Wenwen Li",
+            "Matthew Guzdial"
+          ],
+          "claimed_title": "Ensemble Learning For Mega Man Level Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.12524"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Ensemble Learning For Mega Man Level Generation')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Co-creative Procedural Content Generation via Machine Learning (PCGML) refers to systems where a PCGML agent and a human work together to produce output content. One of the limitations of co-creative PCGML is that it requires co-creative training data for a PCGML agent to learn to interact with humans. However, acquiring this data is a difficult and time-consuming process. In this work, we propose approximating human-AI interaction data and employing transfer learning to adapt learned co-creative knowledge from one game to a different game. We explore this approach for co-creative Zelda dungeon room generation.",
+          "claimed_authors": [
+            "Zisen Zhou",
+            "Matthew Guzdial"
+          ],
+          "claimed_title": "Toward Co-creative Dungeon Generation via Transfer Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.12533"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Toward Co-creative Dungeon Generation via Transfer Learning')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Video generation models are increasingly used as world simulators for tasks like driving and robotic manipulation. What matters in these settings is not whether a single video looks right, but whether the model's output changes when its input changes. We test this by giving a model two prompts describing the same scene with one physical detail varied, and checking whether the two videos diverge the way physics predicts. The wording difference between the prompts is small by design, since only one variable is changed, but the correct physical difference is not. A model that misses this can still produce two videos that each look plausible individually, and existing benchmarks score videos one at a time and cannot detect this failure. We introduce What-If World, 319 such prompt pairs built on real frames from nuScenes and DROID, organized by a taxonomy of six physical variables shared across driving and manipulation. Each pair is scored with APEO, a four-part rubric checking whether each video follows its prompt (Adherence), is physically consistent (Physics), preserves the shared scene (Environment), and ends in the correct difference (Outcome). Across nine state-of-the-art models, no system exceeds 52% on the paired score, and open-source models cluster near 28%. Every model tested fails on a large fraction of causal interventions, indicating substantial room before these models can reliably support action-conditioned simulation or model-based planning. Where models do score well, performance appears to track the visual prominence of the intervention rather than the tractability of its underlying physics. Some visually subtle interventions score as low as 14.2%, while visually pronounced ones reach 40.4%.",
+          "claimed_authors": [
+            "Kunlin Cai",
+            "Rui Song",
+            "Jinghuai Zhang",
+            "Kaiyuan Zhang",
+            "Pranav Bodapati",
+            "Alicia Yu",
+            "Fnu Suya",
+            "Mohammad Rostami",
+            "Jiaqi Ma",
+            "Yuan Tian"
+          ],
+          "claimed_title": "What-If World: A Causal Benchmark for General World Models in Embodied Scenarios",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2605.27589"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='What-If World: A Causal Benchmark for General World Models in Embodied Scenarios')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a new benchmark corpus to be used for measuring progress in statistical language modeling. With almost one billion words of training data, we hope this benchmark will be useful to quickly evaluate novel language modeling techniques, and to compare their contribution when combined with other advanced techniques. We show performance of several well-known types of language models, with the best results achieved with a recurrent neural network based language model. The baseline unpruned Kneser-Ney 5-gram model achieves perplexity 67.6; a combination of techniques leads to 35% reduction in perplexity, or 10% reduction in cross-entropy (bits), over that baseline.\n  The benchmark is available as a code.google.com project; besides the scripts needed to rebuild the training/held-out data, it also makes available log-probability values for each word in each of ten held-out data sets, for each of the baseline n-gram models.",
+          "claimed_authors": [
+            "Ciprian Chelba",
+            "Tomas Mikolov",
+            "Mike Schuster",
+            "Qi Ge",
+            "Thorsten Brants",
+            "Phillipp Koehn",
+            "Tony Robinson"
+          ],
+          "claimed_title": "One Billion Word Benchmark for Measuring Progress in Statistical Language Modeling",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1312.3005"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='One Billion Word Benchmark for Measuring Progress in Statistical Language Modeling')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large-scale learner-task interaction data are crucial for intelligent educational systems but are costly to collect and constrained by privacy and learner engagement. Learner simulators play a critical role in simulating scalable learner behavior without the need for continuous involvement of real learners. However, existing methods are predominantly \\textbf{individual-centric}, pairing a simulator with each learner to iteratively infer latent knowledge states from dense interaction histories, which is both data- and computation-intensive, and fragile in cold-start scenarios. We propose a \\textbf{cohort-aware roll-call simulation paradigm} that first constructs cohort-level proficiency priors and refines individual learner states through a small number of targeted diagnostic queries. Based on this paradigm, we introduce \\textbf{Edu-Theater}, an LLM-powered agent system that performs cohort-aware learner simulation via a teacher agent and retrospective roll-call probing over learner logs. Edu-Theater enables scalable future behavior simulation without the need for dense per-learner histories. Experiments on two real-world datasets demonstrate that Edu-Theater achieves higher simulation accuracy with significantly fewer LLM calls, producing synthetic data that enhances downstream applications such as adaptive testing.",
+          "claimed_authors": [
+            "Weibo Gao",
+            "Qi Liu",
+            "Linan Yue",
+            "Zheng Zhang",
+            "Yichao Du",
+            "Fangzhou Yao",
+            "Ao Yu",
+            "Zhenya Huang",
+            "Shijin Wang"
+          ],
+          "claimed_title": "Edu-Theater: A Data-Efficient Agent Framework for Scalable Learner Behavior Simulation through Staging Roll-Call",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.15225"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Edu-Theater: A Data-Efficient Agent Framework for Scalable Learner Behavior Simulation through Staging Roll-Call')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article proposes a methodology to model and simulate complex systems, based on IRM4MLS, a generic agent-based meta-model able to deal with multi-level systems. This methodology permits the engineering of dynamic multi-level agent-based models, to represent complex systems over several scales and domains of interest. Its goal is to simulate a phenomenon using dynamically the lightest representation to save computer resources without loss of information. This methodology is based on two mechanisms: (1) the activation or deactivation of agents representing different domain parts of the same phenomenon and (2) the aggregation or disaggregation of agents representing the same phenomenon at different scales.",
+          "claimed_authors": [
+            "Jean-Baptiste Soyez",
+            "Gildas Morvan",
+            "Daniel Dupont",
+            "Rochdi Merzouki"
+          ],
+          "claimed_title": "A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.5108"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Agent-based models have historically served as tools for generative explanation, constructing testbeds in which candidate micro-level behavioral rules can be tested for their capacity to produce observed macro-level phenomena. The integration of Large Language Models into agent-based simulation has expanded what these models can represent, but it has also introduced an unexamined shift in how users engage them. We argue that current generative agent-based models (GABMs) inherit the dominant interaction metaphor of conversational LLM interfaces - a question-answer pattern that positions users as consumers of system output rather than explorers of a possibility space. In the context of policy, where problems are wicked and ground truth is unknowable in advance, this metaphor produces a trust deficit that cannot be resolved through improved model accuracy alone. We open a design space we call human-simulation interaction, and argue that warranted trust requires interaction metaphors that restore the exploratory capacity simulation has historically supported.",
+          "claimed_authors": [
+            "Huanxing Chen"
+          ],
+          "claimed_title": "Human-Simulation Interaction: From Prediction to Exploration in LLM Agent Simulations for Policy",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2608.07496"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Human-Simulation Interaction: From Prediction to Exploration in LLM Agent Simulations for Policy')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In the domain of Human-Computer Interaction, focus groups represent a widely utilised yet resource-intensive methodology, often demanding the expertise of skilled moderators and meticulous preparatory efforts. This study introduces the ``Focus Agent,'' a Large Language Model (LLM) powered framework that simulates both the focus group (for data collection) and acts as a moderator in a focus group setting with human participants. To assess the data quality derived from the Focus Agent, we ran five focus group sessions with a total of 23 human participants as well as deploying the Focus Agent to simulate these discussions with AI participants. Quantitative analysis indicates that Focus Agent can generate opinions similar to those of human participants. Furthermore, the research exposes some improvements associated with LLMs acting as moderators in focus group discussions that include human participants.",
+          "claimed_authors": [
+            "Taiyu Zhang",
+            "Xuesong Zhang",
+            "Robbe Cools",
+            "Adalberto L. Simeone"
+          ],
+          "claimed_title": "Focus Agent: LLM-Powered Virtual Focus Group",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2409.01907"
+        },
+        "details": "query-relevance 0.111 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Focus Agent: LLM-Powered Virtual Focus Group')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent evidence suggests that SARS-CoV-2, which is the virus causing a global pandemic in 2020, is predominantly transmitted via airborne aerosols in indoor environments. This calls for novel strategies when assessing and controlling a building's indoor air quality (IAQ). IAQ can generally be controlled by ventilation and/or policies to regulate human-building-interaction. However, in a building, occupants use rooms in different ways, and it may not be obvious which measure or combination of measures leads to a cost- and energy-effective solution ensuring good IAQ across the entire building. Therefore, in this article, we introduce a novel agent-based simulator, ArchABM, designed to assist in creating new or adapt existing buildings by estimating adequate room sizes, ventilation parameters and testing the effect of policies while taking into account IAQ as a result of complex human-building interaction patterns. A recently published aerosol model was adapted to calculate time-dependent carbon dioxide ($CO_2$) and virus quanta concentrations in each room and inhaled $CO_2$ and virus quanta for each occupant over a day as a measure of physiological response. ArchABM is flexible regarding the aerosol model and the building layout due to its modular architecture, which allows implementing further models, any number and size of rooms, agents, and actions reflecting human-building interaction patterns. We present a use case based on a real floor plan and working schedules adopted in our research center. This study demonstrates how advanced simulation tools can contribute to improving IAQ across a building, thereby ensuring a healthy indoor environment.",
+          "claimed_authors": [
+            "Iñigo Martinez",
+            "Jan L. Bruse",
+            "Ane M. Florez-Tapia",
+            "Elisabeth Viles",
+            "Igor G. Olaizola"
+          ],
+          "claimed_title": "ArchABM: an agent-based simulator of human interaction with the built environment. $CO_2$ and viral load analysis for indoor air quality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.01484"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='ArchABM: an agent-based simulator of human interaction with the built environment. $CO_2$ and viral load analysis for indoor air quality')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluation methodologies for language models increasingly combine multiple signals, from automated metrics and LLM-as-judge ratings to human assessments and benchmark suite results. When these signals are aggregated via averaging, evaluation confidence can then substantially exceed the reliability of the weakest signal: a phenomenon we call trust inflation in evaluation. We argue that evaluation scores should be treated as epistemic claims with three properties: formality (human evaluation provides stronger evidence than an automated metric), scope (a benchmark result applies to the tested distribution, not universally), and validity windows (benchmark results expire as contamination accumulates and distributions shift). Several converging research traditions (chain-of-thought analysis, possibilistic logic, and algebraic theory) establish weakest-link aggregation as the conservative endpoint of a parameterized operator family controlled by a single pessimism parameter. Drawing on those traditions, and on concrete lessons from building an evaluation harness for agentic AI, we propose that evaluation results carry explicit metadata (formality tier, scope declaration, and expiration date) to make their epistemic status transparent. We illustrate the cost of mean aggregation on the public HELM leaderboard: across 54 frontier models on ten scenarios, the top-five models ranked by mean score and by weakest-link are completely disjoint.",
+          "claimed_authors": [
+            "Sankalp Gilda",
+            "Shlok Gilda"
+          ],
+          "claimed_title": "Position: Evaluation Scores Are Perishable Knowledge Claims",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.26191"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Position: Evaluation Scores Are Perishable Knowledge Claims')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative modeling has been used frequently in synthetic data generation. Fairness and privacy are two big concerns for synthetic data. Although Recent GAN [\\cite{goodfellow2014generative}] based methods show good results in preserving privacy, the generated data may be more biased. At the same time, these methods require high computation resources. In this work, we design a fast, fair, flexible and private data generation method. We show the effectiveness of our method theoretically and empirically. We show that models trained on data generated by the proposed method can perform well (in inference stage) on real application scenarios.",
+          "claimed_authors": [
+            "Weijie Xu",
+            "Jinjin Zhao",
+            "Francis Iannacci",
+            "Bo Wang"
+          ],
+          "claimed_title": "FFPDG: Fast, Fair and Private Data Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.00161"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='FFPDG: Fast, Fair and Private Data Generation')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Synthetic data (SD) have garnered attention as a privacy enhancing technology. Unfortunately, there is no standard for quantifying their degree of privacy protection. In this paper, we discuss proposed quantification approaches. This contributes to the development of SD privacy standards; stimulates multi-disciplinary discussion; and helps SD researchers make informed modeling and evaluation decisions.",
+          "claimed_authors": [
+            "Alexander Boudewijn",
+            "Andrea Filippo Ferraris",
+            "Daniele Panfilo",
+            "Vanessa Cocca",
+            "Sabrina Zinutti",
+            "Karel De Schepper",
+            "Carlo Rossi Chauvenet"
+          ],
+          "claimed_title": "Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.17453"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Insufficient training data is a major bottleneck for most deep learning practices, not least in medical imaging where data is difficult to collect and publicly available datasets are scarce due to ethics and privacy. This work investigates the use of synthetic images, created by generative adversarial networks (GANs), as the only source of training data. We demonstrate that for this application, it is of great importance to make use of multiple GANs to improve the diversity of the generated data, i.e. to sufficiently cover the data distribution. While a single GAN can generate seemingly diverse image content, training on this data in most cases lead to severe over-fitting. We test the impact of ensembled GANs on synthetic 2D data as well as common image datasets (SVHN and CIFAR-10), and using both DCGANs and progressively growing GANs. As a specific use case, we focus on synthesizing digital pathology patches to provide anonymized training data.",
+          "claimed_authors": [
+            "Gabriel Eilertsen",
+            "Apostolia Tsirikoglou",
+            "Claes Lundström",
+            "Jonas Unger"
+          ],
+          "claimed_title": "Ensembles of GANs for synthetic training data generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2104.11797"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Infinite Worlds with Versatile Interactions\" compu', candidate_title='Ensembles of GANs for synthetic training data generation')",
+        "failed_at": "2026-08-26T04:27:45Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Zisen Zhou",
+            "Matthew Guzdial"
+          ],
+          "title": "Toward Co-creative Dungeon Generation via Transfer Learning",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2107.12533",
+        "summary": "Co-creative Procedural Content Generation via Machine Learning (PCGML) refers to systems where a PCGML agent and a human work together to produce output content. One of the limitations of co-creative PCGML is that it requires co-creative training data for a PCGML agent to learn to interact with humans. However, acquiring this data is a difficult and time-consuming process. In this work, we propose approximating human-AI interaction data and employing transfer learning to adapt learned co-creative knowledge from one game to a different game. We explore this approach for co-creative Zelda dungeon room generation.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2107.12533",
+          "http_status": 200,
+          "pdf_sample_score": 0.1694,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-26T04:27:51Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"infinite worlds with versatile interactions\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,0 +1,32 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.mypy_cache/
+
+# Virtual Environment
+venv/
+env/
+.venv/
+
+# Data
+data/raw/*.h5
+data/raw/*.hdf5
+data/generated/*.h5
+data/generated/*.hdf5
+data/processed/*.csv
+
+# Figures
+figures/*.png
+figures/*.pdf
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db

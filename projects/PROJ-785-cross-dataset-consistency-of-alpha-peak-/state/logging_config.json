@@ -1,0 +1,17 @@
+{
+  "version": "1.0.0",
+  "timestamp": "2023-10-27T10:00:00Z",
+  "configuration": {
+    "log_level": "INFO",
+    "file_handler": {
+      "path": "state/pipeline.log",
+      "format": "json",
+      "mode": "a"
+    },
+    "console_handler": {
+      "format": "human_readable",
+      "level": "INFO"
+    }
+  },
+  "description": "Structured logging configuration for llmXive pipeline. Logs are written to state/pipeline.log in JSON format for machine parsing and to console for human monitoring."
+}

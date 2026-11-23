@@ -97,8 +97,8 @@ As a computational physicist, I need to visualize individual eigenstate probabil
 - **SC-002**: Method agreement is measured against PR baseline; success if transfer matrix localization lengths agree with PR values within 10% relative error for ≥80% of realizations (See US-2)
 - **SC-003**: Statistical power is measured against t-test requirements; success if 100 disorder realizations per W value achieve ≥80% power to detect slope deviation from -2 at α=0.05 (See US-1)
 - **SC-004**: Visualization decay length is measured against computed localization length; success if eigenstate probability density plots show decay lengths within 20% of ξ (See US-3)
-- **SC-005**: Multiplicity correction is measured against family-wise error rate; success if Bonferroni-corrected p-values maintain FWER ≤ 0.05 across 10 disorder widths (See US-1)
-- **SC-006**: Compute feasibility is measured against hardware constraints; success if all 1000 realizations (10 W values × 100 realizations) complete within 6 hours on parallelized CPU cores with ≤7 GB peak RAM (See US-1)
+- **SC-005**: Multiplicity correction is measured against family-wise error rate; success if Bonferroni-corrected p-values maintain FWER ≤ 0.05 across disorder widths (See US-1)
+- **SC-006**: Compute feasibility is measured against hardware constraints; success if all realizations (10 W values × 100 realizations) complete within 6 hours on parallelized CPU cores with ≤7 GB peak RAM (See US-1)
 
 ## Assumptions
 

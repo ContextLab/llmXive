@@ -1,2 +1,2 @@
-# This directory is for generated data artifacts.
-# Do not commit large files here.
+# This directory contains all data artifacts (raw, processed, logs).
+# Created by T001: Project directory structure setup.

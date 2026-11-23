@@ -1,0 +1,15 @@
+# Existing dependencies
+torch-cpu
+transformers
+datasets
+pybullet
+scikit-learn
+opencv-python-headless
+monodepth2
+shap
+huggingface-hub
+pytest
+ruff
+black
+numpy
+torchvision

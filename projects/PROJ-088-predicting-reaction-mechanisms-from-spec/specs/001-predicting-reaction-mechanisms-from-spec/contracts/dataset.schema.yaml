@@ -1,0 +1,66 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Spectral Fingerprint Dataset"
+description: "Schema for the processed 512-bin spectral fingerprint dataset."
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      source_datasets:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of verified dataset URLs used."
+      total_samples:
+        type: "integer"
+        description: "Total number of valid samples in the dataset."
+      class_counts:
+        type: "object"
+        properties:
+          SN1:
+            type: "integer"
+          SN2:
+            type: "integer"
+          E1:
+            type: "integer"
+        required:
+          - SN1
+          - SN2
+          - E1
+    required:
+      - source_datasets
+      - total_samples
+      - class_counts
+  records:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          description: "Unique identifier for the sample."
+        fingerprint:
+          type: "array"
+          items:
+            type: "number"
+          minItems: 512
+          maxItems: 512
+          description: "512-bin spectral fingerprint vector."
+        mechanism_label:
+          type: "string"
+          enum:
+            - SN1
+            - SN2
+            - E1
+          description: "Ground truth mechanism label."
+        provenance:
+          type: "string"
+          description: "Source of the label (e.g., kinetic_study)."
+      required:
+        - id
+        - fingerprint
+        - mechanism_label
+        - provenance
+required:
+  - metadata
+  - records

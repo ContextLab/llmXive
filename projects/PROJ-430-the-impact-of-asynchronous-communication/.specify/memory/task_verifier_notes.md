@@ -2,8 +2,14 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — No directory `projects/PROJ-430-the-impact-of-asynchronous-communication/` or any file hierarchy is presented; the response only contains feature specifications and user stories, not the required project structure. The task’s core deliverable—a concrete folder layout per the implementation plan—is missing.
-- **T002** — No `requirements.txt` file (or any other project initialization artifact) is present in the provided evidence, and thus the Python 3.11 project with the specified dependencies has not been created. The implementer only supplied feature specifications and user stories, not the required initialization files.
-- **T003** — The implementer provided only a feature specification unrelated to linting/formatting and no configuration files, scripts, or documentation for ruff or black. There is no evidence that linting or formatting tools have been set up, so the required artifact is missing.
-- **T005** — The provided `code/utils/hygiene.py` contains implementations for `compute_sha256`, `load_manifest`, and `save_manifest`, but the `update_state_manifest` function is cut off and its body is not shown, so we cannot confirm that the required state‑update logic (hashing the artifact, adding metadata, and persisting the manifest) is actually implemented. The missing/unfinished portion must be completed for the task to be satisfied.
-- **T006** — No `data/` directory with the required subfolders (`raw/`, `derived/`, `validation/`) and no accompanying `.gitignore` file were provided. The implementer supplied no filesystem artifacts to demonstrate that the directory structure and ignore rules have been created.
+- **T001** — The project root contains `code/`, `data/`, and `tests/` but the required `docs/` and `config/` sub‑directories are absent, and the provided test script fails because it looks for `projects/code/init_project_structure.py` instead of the correct path. The directory structure does not fully meet the task specification.
+- **T001c** — The evidence shows the `data/raw/` and `data/derived/` directories but no `.gitignore` file at `projects/PROJ-430-the-impact-of-asynchronous-communication/.gitignore`, nor any content confirming the required exclusion patterns. The required artifact is missing.
+- **T002b** — Requested task execution failed; rerun successfully: code/install_dependencies.py exit=1
+- **T003** — The `.ruff.toml` and `pyproject.toml` files exist and contain reasonable configurations, but there is no provided evidence (e.g., command output, log file, CI step) that an initial lint/formatting check was actually executed. The task’s requirement to “run initial lint check” is therefore unmet.
+- **T004** — The `code/config.py` file is present and defines paths and the deferred thresholds (`sample_size`, `min_events`, `deferred_threshold`), but it does not provide any mechanism for configuring or loading API keys as required by the task. Adding support for API key storage (e.g., reading from environment variables or a `config.json` entry) is needed to satisfy the specification.
+- **T010a** — declared artifact(s) missing/empty/invalid: code/ingestion.py
+- **T015** — Requested task execution failed; rerun successfully: code/aggregate_project_metrics.py exit=1
+- **T022a** — declared artifact(s) missing/empty/invalid: data/validation/sampling_request.json
+- **T023b** — declared artifact(s) missing/empty/invalid: data/validation/validation_report.json
+- **T024** — declared artifact(s) missing/empty/invalid: data/logs/exclusion_rate.json
+- **T029** — declared artifact(s) missing/empty/invalid: data/derived/corrected_pvalues.json

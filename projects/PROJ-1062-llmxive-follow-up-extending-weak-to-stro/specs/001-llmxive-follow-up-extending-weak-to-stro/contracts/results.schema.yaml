@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Experimental Results Schema"
+description: "Schema for the aggregated experimental results and statistical analysis."
+type: object
+properties:
+  experiment_id:
+    type: string
+    description: "Unique identifier for the experiment run."
+  architecture:
+    type: string
+    description: "Student architecture type (e.g., 'MoE', 'SSM')."
+    enum:
+      - "MoE"
+      - "SSM"
+  training_regime:
+    type: string
+    description: "Training regime used (e.g., 'Direct-OPD', 'Baseline')."
+    enum:
+      - "Direct-OPD"
+      - "Baseline"
+  avg_log_prob_improvement:
+    type: number
+    description: "Average log-probability improvement of ground-truth tokens."
+  p_value_raw:
+    type: number
+    description: "Raw p-value from the statistical test."
+  p_value_adjusted:
+    type: number
+    description: "Bonferroni-corrected p-value."
+  significant:
+    type: boolean
+    description: "Whether the result is statistically significant at alpha=0.05."
+  sample_size:
+    type: integer
+    description: "Number of problems used in the analysis."
+required:
+  - experiment_id
+  - architecture
+  - training_regime
+  - avg_log_prob_improvement
+  - p_value_raw
+  - p_value_adjusted
+  - significant
+  - sample_size

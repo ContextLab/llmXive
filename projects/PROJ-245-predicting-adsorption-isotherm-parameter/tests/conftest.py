@@ -1,57 +1,62 @@
 """
-Pytest configuration and shared fixtures for the test suite.
+Pytest configuration and shared fixtures for all test suites.
 """
 import os
 import sys
+import logging
 import pytest
 from pathlib import Path
 
-# Add project root to path to ensure imports work during testing
-# Assumes this file is at tests/conftest.py
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Ensure project root is in path for imports
+ROOT_DIR = Path(__file__).parent.parent
+sys.path.insert(0, str(ROOT_DIR))
 
-# Fixtures for test data paths
-@pytest.fixture
-def project_root_path():
-    return project_root
-
-@pytest.fixture
-def data_dir(project_root_path):
-    return project_root_path / "data"
+# Configure logging for tests
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 
 @pytest.fixture
-def synthetic_data_path(data_dir):
-    return data_dir / "raw" / "synthetic_adsorption_data.csv"
+def project_root():
+    """Return the project root directory path."""
+    return ROOT_DIR
 
 @pytest.fixture
-def contracts_dir(project_root_path):
-    return project_root_path / "contracts"
+def data_dir(project_root):
+    """Return the data directory path."""
+    return project_root / "data"
 
 @pytest.fixture
-def dataset_schema_path(contracts_dir):
-    return contracts_dir / "dataset.schema.yaml"
+def code_dir(project_root):
+    """Return the code directory path."""
+    return project_root / "code"
 
 @pytest.fixture
-def model_output_schema_path(contracts_dir):
-    return contracts_dir / "model_output.schema.yaml"
+def tests_dir(project_root):
+    """Return the tests directory path."""
+    return project_root / "tests"
 
-# Fixtures for mock data if needed, but prefer real generated data
-@pytest.fixture(scope="session")
-def setup_test_environment(project_root_path):
+@pytest.fixture
+def setup_test_environment(tmp_path, project_root):
     """
-    Ensure necessary directories exist for tests.
+    Create a temporary test environment with necessary directory structure.
+    Useful for tests that need to write output files.
     """
-    dirs = [
-        project_root_path / "data" / "raw",
-        project_root_path / "data" / "processed",
-        project_root_path / "data" / "external",
-        project_root_path / "data" / "validation",
-        project_root_path / "figures",
-        project_root_path / "tests" / "unit",
-        project_root_path / "tests" / "integration",
-        project_root_path / "tests" / "contract",
-    ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-    yield
+    # Create temporary data directories
+    temp_data = tmp_path / "data"
+    temp_data.mkdir(parents=True)
+    
+    # Copy existing contracts if they exist
+    contracts_src = project_root / "contracts"
+    if contracts_src.exists():
+        import shutil
+        shutil.copytree(contracts_src, tmp_path / "contracts")
+    
+    # Set environment variables for test isolation
+    os.environ["DATA_DIR"] = str(temp_data)
+    os.environ["PROJECT_ROOT"] = str(project_root)
+    
+    yield tmp_path
+    
+    # Cleanup handled by pytest's tmp_path fixture

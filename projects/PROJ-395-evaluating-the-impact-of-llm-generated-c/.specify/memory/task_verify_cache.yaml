@@ -1,0 +1,100 @@
+T001a:
+  c: true
+  h: c298f1fb049d4689affcf47cac31a1e41764d7fb11f265d8ed4dd44f824ecfb7
+  r: "The `projects/PROJ-395-evaluating-the-impact-of-llm-generated-c/` directory\
+    \ exists and contains the required `data/`, `code/`, `tests/`, and `state/` subdirectories,\
+    \ as shown in the directory listing. The execution log `code/.tasks/T001a.code_create_project_structure.py.log`\
+    \ confirms the creation script ran successfully (exit code\u202F0) and printed\
+    \ the expected confirmation message."
+T001b:
+  c: false
+  h: 69f504b8370a34b07aa764153ffed239038b260944d25c920ba1d85c330be9a2
+  r: "The provided `requirements.txt` lists the required packages but uses \u201C\
+    >=\u201D version specifiers instead of pinned \u201C==\u201D versions, and it\
+    \ also contains many additional packages that were not part of the task. Hence\
+    \ it does not satisfy the requirement to create a requirements file with pinned\
+    \ versions for the specified nine libraries."
+T002:
+  c: false
+  h: fccb96ffefbdc2795d9c531b525d32e1d776a5ab263c0f9804b1b60332fbd9b0
+  r: "No evidence of a Python\u202F3.11 virtual environment (e.g., a `venv/` directory,\
+    \ `pyproject.toml`, or `requirements.txt`) or of installed dependencies is present;\
+    \ the claim cannot be verified from any provided artifact. The required environment\
+    \ setup files are missing."
+T003:
+  c: false
+  h: c139f9491f1dda83b73b3a9f29eb678da63856a011bd62ab50ce6214c2af73c3
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings, or associated setup scripts) are present
+    in the provided artifacts, so the requirement to configure ruff/flake8 and Black
+    is not satisfied.
+T004:
+  c: true
+  h: d89e694370473c5f7408e52d1792366d1b54105204db8fe8d95abfcb786b1141
+  r: The `data/raw/`, `data/processed/`, `state/`, and `code/` directories are present
+    (each contains a `.gitkeep` placeholder) and the log `code/.tasks/T004.code_setup_directories.py.log`
+    shows the `setup_directories.py` script ran successfully, reporting that all required
+    directories were created or already existed.
+T005:
+  c: true
+  h: 194b1397724aaba15f2037b2a789725d4d6a8c521368e79c100ceec87f763767
+  r: "The `code/config.py` file is present (4\u202FKB) and defines a reproducible\
+    \ random seed, model parameters (name, length, temperature, token limits), a timeout\
+    \ of 60\u202Fseconds (`TIMEOUT_SECONDS = 60`), and a CI memory limit in gigabytes\
+    \ (`CI_MEMORY_LIMIT_GB = 7.0`)."
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence contains only a feature specification for memory\u2011\
+    profiling and statistical analysis; there is no `state/` directory, no code implementing\
+    \ versioning logic, and no functionality that computes or records SHA\u2011256\
+    \ hashes for artifacts. Consequently, the required artifact is missing."
+T010:
+  c: false
+  h: e3ab9945132df816685250a0d8564696080cd1f794047aa3065aafd511fc59ef
+  r: "The required `code/download.py` file does not exist, and consequently no unit\
+    \ test for it can be present. The missing module means the task\u2019s core artifact\
+    \ is absent, so the requirement is not satisfied."
+T017:
+  c: false
+  h: c296530f1aae6a8bc6a32f30f9f929aabd85c899ab5f712cd8411d4e4c1bec75
+  r: The provided `code/utils.py` file is present, but the excerpt does not show an
+    implementation of `write_memory_measurements_csv`, nor any code that actually
+    creates `data/processed/memory_measurements.csv` with the required columns. Additionally,
+    the CSV file itself is missing from the repository. Without evidence that the
+    function writes the file using the exact schema, the task requirement is not satisfied.
+T020:
+  c: true
+  h: ba7a56c15ea276d483b8db682ff46e27f485a37e23dffbca6b91fe9a33dd5cd0
+  r: "The `code/analyze.py` file exists (9\u202FKB) and implements a `load_memory_data`\
+    \ function that reads `data/processed/memory_measurements.csv` (with a fallback\
+    \ to pandas). This satisfies the requirement to provide a skeleton with data\u2011\
+    loading capability, regardless of the CSV\u2019s current presence."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No JSON or CSV statistical report containing raw and corrected p\u2011values,\
+    \ effect sizes, and confidence intervals was provided; the only evidence is the\
+    \ task description and specifications, without any actual output artifact. The\
+    \ required report file is missing."
+T026:
+  c: false
+  h: 5caa6515a88d6d0b17332335363dc2bca6171ec6c91dfc2bf3e3ee254eac2bcb
+  r: "The required artifact `tests/unit/test_features.py` does not exist on disk,\
+    \ so no unit test for feature extraction (LOC, Complexity) is provided. The task\u2019\
+    s core deliverable is missing."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation defining a `memory_per_loc` metric\
+    \ (peak_memory_bytes\u202F/\u202FLOC) is present, nor any evidence that it has\
+    \ been marked as a descriptive\u2011only metric and excluded from regression analysis\
+    \ as required. The implementer must add the calculation, document its descriptive\
+    \ status, and update the regression pipeline to skip this metric."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No correlation report (e.g., CSV, PDF, or notebook) containing feature\u2011\
+    memory correlation coefficients, their standard errors, and VIF flag columns was\
+    \ supplied. Without such an artifact, the requirement to generate the feature\
+    \ correlation report cannot be verified."

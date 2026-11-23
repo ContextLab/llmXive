@@ -24,6 +24,14 @@ Does the spec match the idea it was specified from?
     or engineering gold-plating that does not serve the stated question.
 - **Drift**: does the spec subtly *redefine* the research question into an
   easier or different one? This is the most insidious failure mode — flag it.
+- **Explicit bounds and engineering additions**: compare task, runtime,
+  data and output scope with the source idea. Exact internal variable names,
+  exact error punctuation, extra CLI wrappers, byte-identical plots and
+  project-specific CI are not automatically essential rigor. Require a
+  concrete reason tied to the research question or reproducibility before
+  making them acceptance blockers. A prior panel request alone does not
+  establish that scientific reason. Preserve independent validation and the
+  requested question; consolidate unnecessary supporting work.
 
 You do NOT judge coverage of stories→FRs (`requirements_coverage`) or
 testability (`testability`) — only spec-vs-idea fidelity.

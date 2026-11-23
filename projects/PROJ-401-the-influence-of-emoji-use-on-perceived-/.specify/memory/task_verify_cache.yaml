@@ -1,0 +1,59 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `src/` directory or its subfolders (`src/data`, `src/analysis`,
+    `src/utils`, `src/reports`) is provided; the required directory structure is missing.
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided no evidence of a `tests/` directory or its subfolders
+    (`unit`, `integration`, `contract`). Without a directory listing or files showing
+    that this structure exists, the task requirement is not satisfied. The missing
+    artifact is the required `tests/` directory hierarchy.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/` directory hierarchy (`data/raw`, `data/processed`,
+    `state`) is present; the implementer provided no files, listings, or screenshots
+    confirming the directories exist. The task cannot be considered done without concrete
+    proof of the directory structure.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The evidence only contains user\u2011story specifications for data ingestion\
+    \ and analysis; there are no linting or formatting configuration files (e.g.,\
+    \ `.flake8`, `pyproject.toml` with Black settings, or related scripts). Consequently,\
+    \ the requirement to configure flake8/black is not met. The missing artifacts\
+    \ are the actual linting/formatting configuration files and any integration steps."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No files were found in `src/data/contracts/` defining the required `Message`
+    and `AnalysisResult` schemas; the implementer provided no code, schema definitions,
+    or any artifact confirming these contracts exist. The task therefore remains unfinished.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the repository actually contains the required\
+    \ directories `data/raw/`, `data/processed/`, and `state/`; the implementer\u2019\
+    s claim is unsubstantiated. The task cannot be considered complete without tangible\
+    \ proof of the directory structure."
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation for a pipeline step that joins raw text with\
+    \ extracted features is present, nor any evidence that it handles zero\u2011length\
+    \ texts or encoding errors. Additionally, there is no verification that prerequisite\
+    \ T012\u2019s data is available. The required artifact is missing entirely."
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or log files were supplied that demonstrate logging of
+    extraction errors or skipped records; the claim cannot be verified without concrete
+    artifacts. The required implementation of logging is missing.
+T020:
+  c: false
+  h: 0586963e5b98107066abcf2ac971e6d816b982a6361fc15eeaf8221d2e3f0490
+  r: "The required artifact `tests/unit/test_power.py` does not exist on disk, so\
+    \ no unit test for the verification logic is present. The task\u2019s core deliverable\
+    \ is missing."

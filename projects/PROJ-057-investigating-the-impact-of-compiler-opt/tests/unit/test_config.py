@@ -1,67 +1,124 @@
+import os
+import json
 import pytest
-from benchmarks.config import validate_flags, BenchmarkConfig
-from typing import List
+import tempfile
+from pathlib import Path
+import sys
 
-class TestValidateFlags:
-    """Unit tests for flag validation logic in config.py."""
+# Add code directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-    def test_validate_flags_accepts_valid_flags(self):
-        """Verify that standard valid flags are accepted."""
-        valid_flags = [
-            "-O0", "-O1", "-O2", "-O3", "-Os", "-Oz",
-            "-march=native", "-ffast-math", "-funroll-loops",
-            "-Wall", "-Wextra"
+from benchmarks.config import ConfigManager, BenchmarkConfig
+
+class TestConfigManager:
+    def test_default_flags(self):
+        """Test that default flags are loaded when no file provided."""
+        manager = ConfigManager()
+        expected_defaults = [
+            "-O0", "-O1", "-O2", "-O3", "-Os",
+            "-march=native", "-ffast-math", "-funroll-loops"
         ]
-        for flag in valid_flags:
-            result = validate_flags([flag])
-            assert result is True, f"Expected {flag} to be valid"
+        assert manager._flags == expected_defaults
+
+    def test_custom_flags_from_yaml(self):
+        """Test loading flags from a YAML file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            f.write("- -O2\n- -march=native\n- -ffast-math\n")
+            yaml_path = f.name
+
+        try:
+            manager = ConfigManager(flags_file=yaml_path)
+            assert manager._flags == ["-O2", "-march=native", "-ffast-math"]
+        finally:
+            os.unlink(yaml_path)
+
+    def test_custom_flags_from_json(self):
+        """Test loading flags from a JSON file."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump({"flags": ["-O3", "-funroll-loops"]}, f)
+            json_path = f.name
+
+        try:
+            manager = ConfigManager(flags_file=json_path)
+            assert manager._flags == ["-O3", "-funroll-loops"]
+        finally:
+            os.unlink(json_path)
 
     def test_validate_flags_rejects_invalid(self):
-        """Verify that invalid flags are rejected."""
-        # Flags that do not start with '-' or are nonsensical
-        invalid_flags = [
-            "O2",             # Missing dash
-            "-O9",            # Invalid optimization level
-            "-march=invalid_arch_name_xyz", # Invalid arch
-            "-ffast-math-unknown", # Invalid fast-math variant
-            "-unknown-flag-xyz",
-            "",               # Empty string
-            "-X",             # Single char flag not in standard set (optional strictness)
-        ]
-        
-        for flag in invalid_flags:
-            # We expect validation to return False or raise an error depending on implementation.
-            # Based on the task requirement "rejects invalid", we check that it does not return True.
-            result = validate_flags([flag])
-            assert result is False, f"Expected invalid flag '{flag}' to be rejected, but it was accepted"
+        """Test that flags not starting with '-' are rejected."""
+        manager = ConfigManager()
+        with pytest.raises(ValueError) as excinfo:
+            manager.validate_flags(["-O2", "invalid_flag"])
+        assert "invalid_flag" in str(excinfo.value)
 
-    def test_validate_flags_rejects_mixed_valid_invalid(self):
-        """Verify that a list containing any invalid flag is rejected."""
-        valid_flags = ["-O2", "-march=native"]
-        invalid_flag = "-O9"
-        
-        mixed_list = valid_flags + [invalid_flag]
-        result = validate_flags(mixed_list)
-        assert result is False, "Expected mixed list to be rejected due to invalid flag"
+    def test_generate_combinations(self):
+        """Test combination generation logic."""
+        # Test with a small set
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            f.write("- -O2\n- -O3\n")
+            yaml_path = f.name
 
-    def test_validate_flags_empty_list(self):
-        """Verify behavior with empty flag list (should be valid as no invalid flags exist)."""
-        result = validate_flags([])
-        # An empty list contains no invalid flags, so it should be valid.
-        assert result is True
+        try:
+            manager = ConfigManager(flags_file=yaml_path)
+            combos = manager.generate_combinations()
+            
+            # Should have 3 combinations: [-O2], [-O3], [-O2, -O3]
+            assert len(combos) == 3
+            assert ["-O2"] in combos
+            assert ["-O3"] in combos
+            assert ["-O2", "-O3"] in combos
+        finally:
+            os.unlink(yaml_path)
 
-    def test_validate_flags_case_sensitivity(self):
-        """Verify that flags are case-sensitive (e.g., -o vs -O)."""
-        # -o is typically for output file, but in the context of optimization flags, -O is standard.
-        # If the validator is strict about optimization flags, -o might be invalid in that specific set.
-        # However, generally -o is a valid gcc flag. We test strict optimization set if defined.
-        # Assuming the validator checks for known optimization flags.
-        # Let's test a clearly invalid casing for a known flag if the validator is strict.
-        # e.g., -ffast-Math (incorrect casing for fast-math)
-        invalid_casing = "-ffast-Math"
-        result = validate_flags([invalid_casing])
-        # If the validator normalizes or is case-insensitive, this might pass.
-        # But typically compiler flags are case-sensitive.
-        # We assert that if the validator is strict, this fails.
-        # Given the task is to "reject invalid", and -ffast-Math is not a standard flag, it should fail.
-        assert result is False, f"Expected '{invalid_casing}' to be rejected due to case sensitivity"
+    def test_generate_configurations(self):
+        """Test full configuration generation."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+            f.write("- -O2\n")
+            yaml_path = f.name
+
+        try:
+            manager = ConfigManager(flags_file=yaml_path)
+            configs = list(manager.generate_configurations(kernel="matmul", compiler="g++"))
+            
+            assert len(configs) == 1
+            config = configs[0]
+            assert config.kernel == "matmul"
+            assert config.compiler == "g++"
+            assert config.flags == ["-O2"]
+            assert config.config_id.startswith("matmul_g++_O2")
+        finally:
+            os.unlink(yaml_path)
+
+    def test_cli_generate_combinations(self):
+        """Test the CLI entry point for generating combinations."""
+        import subprocess
+        import sys
+
+        # Create a temporary output file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            output_path = f.name
+
+        try:
+            # Run the CLI
+            result = subprocess.run(
+                [sys.executable, "code/benchmarks/config.py", 
+                 "--generate-combinations", 
+                 "--input", "data/flags.yaml",
+                 "--output", output_path],
+                capture_output=True,
+                text=True,
+                cwd=str(Path(__file__).parent.parent.parent)
+            )
+
+            assert result.returncode == 0
+            assert os.path.exists(output_path)
+
+            # Verify the output
+            with open(output_path, 'r') as f:
+                data = json.load(f)
+            
+            assert isinstance(data, list)
+            assert len(data) > 0
+        finally:
+            if os.path.exists(output_path):
+                os.unlink(output_path)

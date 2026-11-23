@@ -1,3 +1,3 @@
 """
-Test suite for the crack propagation pipeline.
+Test suite for the crack propagation prediction pipeline.
 """

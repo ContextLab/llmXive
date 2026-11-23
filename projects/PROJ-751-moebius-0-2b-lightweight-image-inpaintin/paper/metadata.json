@@ -51,5 +51,15 @@
     "tables/bcmk67_portraits_total.tex",
     "tables/cover_cmp_sota_indu.tex",
     "tables/fine_grained_ablation_DoubleColumn.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "0abd7e48900c9a87800b33b4761850a761d75710cbc0176eeac83d19c712744f",
+      "bytes": 7259253
+    },
+    "original.pdf": {
+      "sha256": "0dd8c48893fcc8d0baf020399d2e8556182288a56e4750397964d0adb0e2f8b0",
+      "bytes": 7199759
+    }
+  }
 }

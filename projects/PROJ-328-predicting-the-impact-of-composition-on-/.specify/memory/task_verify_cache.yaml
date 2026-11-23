@@ -1,0 +1,10 @@
+T014:
+  c: false
+  h: 1810825bc549dd4c67f88646f5ceb578e772f22faaf40ec4136d0bfa7bc6b61a
+  r: "The repository contains `code/ingestion/validator.py`, but the shown content\
+    \ is truncated and does not demonstrate the required sample\u2011size checks,\
+    \ raising of `DataInsufficientError` for N\u202F<\u202F50, flagging for 50\u202F\
+    \u2264\u202FN\u202F<\u202F100, nor writing of `threshold_status` and `warning_text`\
+    \ to `data/processed/.ingestion_status.json`. Moreover, the required `.ingestion_status.json`\
+    \ file is absent. The implementer must add the missing validation logic and ensure\
+    \ the status JSON is created with the exact fields."

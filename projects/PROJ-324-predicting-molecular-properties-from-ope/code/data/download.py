@@ -1,262 +1,210 @@
 import os
 import sys
 import json
-from pathlib import Path
-from datetime import datetime
-from typing import Dict, Any, Optional, List, Tuple
 import logging
+import hashlib
+import time
+from pathlib import Path
+from typing import Dict, Any, List, Optional, Tuple
 import pandas as pd
-from datasets import load_dataset
+import pubchempy as pcp
 
-# Add project root to path if not already present
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
-
-from logging_utils import setup_logger
-
-logger = setup_logger(__name__)
-
-# Constants for data paths
-DATA_RAW_DIR = project_root / "data" / "raw"
-DATA_PROCESSED_DIR = project_root / "data" / "processed"
-DATA_DERIVED_DIR = project_root / "data" / "derived"
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 def ensure_dirs():
-    """Ensure required data directories exist."""
-    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-    DATA_DERIVED_DIR.mkdir(parents=True, exist_ok=True)
+    """Ensure all required directories exist."""
+    base_dir = Path(__file__).parent.parent.parent
+    data_raw = base_dir / "data" / "raw"
+    data_raw.mkdir(parents=True, exist_ok=True)
+    return data_raw
 
-def fetch_chembl_data(output_file: Optional[str] = None) -> pd.DataFrame:
+def compute_file_hash(file_path: Path) -> str:
+    """Compute SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def fetch_molecule_properties(cids: List[int], properties: List[str]) -> pd.DataFrame:
     """
-    Fetch ChEMBL data for molecules with logP, solubility, and boiling point.
-    
-    Uses the HuggingFace 'chembl' dataset as a verified source.
+    Fetch molecule properties from PubChem using PubChemPy.
     
     Args:
-        output_file: Optional path to save the raw CSV.
-        
+        cids: List of Compound IDs to fetch.
+        properties: List of property names to fetch (e.g., 'IsomericSMILES', 'XLogP').
+    
     Returns:
-        DataFrame with molecular data.
+        DataFrame with fetched properties.
     """
-    logger.info("Fetching ChEMBL data from HuggingFace...")
-    
-    try:
-        # Load the dataset with streaming to handle large sizes
-        # Using a specific subset that contains physicochemical properties
-        dataset = load_dataset("chembl", split="train", streaming=True)
-        
-        # Convert to DataFrame (limit to first 10k for initial fetch if needed)
-        # In a real scenario, we might want to filter more specifically
-        df = pd.DataFrame(dataset.take(10000))
-        
-        # Filter for rows with required properties
-        required_cols = ['smiles', 'logp', 'solubility', 'boiling_point']
-        available_cols = [col for col in required_cols if col in df.columns]
-        
-        if len(available_cols) < 2:
-            logger.warning(f"ChEMBL dataset missing required columns. Found: {df.columns.tolist()}")
-            # Fallback to a more specific query if available
-            # For now, we'll use a synthetic-like structure but with real data source
-            # This is a placeholder until we find the exact ChEMBL subset
-            logger.info("Attempting alternative data fetch strategy...")
-            return fetch_molecule_net_data(output_file)
-        
-        df = df[available_cols].dropna()
-        
-        if output_file:
-            df.to_csv(output_file, index=False)
-            logger.info(f"Saved ChEMBL data to {output_file}")
-            
-        return df
-        
-    except Exception as e:
-        logger.error(f"Failed to fetch ChEMBL data: {e}")
-        raise
-
-def fetch_molecule_net_data(output_file: Optional[str] = None) -> pd.DataFrame:
-    """
-    Fetch MoleculeNet data as an alternative verified source.
-    
-    Uses the 'molecule-net' dataset from HuggingFace which contains
-    various molecular property datasets including logP, solubility, etc.
-    
-    Args:
-        output_file: Optional path to save the raw CSV.
-        
-    Returns:
-        DataFrame with molecular data.
-    """
-    logger.info("Fetching MoleculeNet data from HuggingFace...")
-    
-    try:
-        # MoleculeNet datasets are often available through the 'molecule_net' repo
-        # We'll try to load a specific dataset like 'ESOL' for solubility or 'FreeSolv' for logP
-        
-        # Try ESOL dataset for solubility
+    records = []
+    for cid in cids:
         try:
-            esol_dataset = load_dataset("molecule_net", "esol", split="train", streaming=True)
-            esol_df = pd.DataFrame(esol_dataset.take(5000))
+            compound = pcp.get_compounds(cid, 'cid')[0]
+            record = {'cid': cid}
             
-            # Rename columns to standard names
-            if 'measured log solubility in mols/litre' in esol_df.columns:
-                esol_df = esol_df.rename(columns={
-                    'measured log solubility in mols/litre': 'solubility'
-                })
+            # Fetch requested properties
+            for prop in properties:
+                try:
+                    # Handle specific property access
+                    if prop == 'IsomericSMILES':
+                        record['smiles'] = compound.isomeric_smiles
+                    elif prop == 'XLogP':
+                        record['xlogp'] = compound.xlogp
+                    elif prop == 'WaterSolubility':
+                        record['solubility'] = compound.water_solubility
+                    elif prop == 'BoilingPoint':
+                        record['boiling_point'] = compound.boiling_point
+                    elif prop == 'MolecularWeight':
+                        record['molecular_weight'] = compound.molecular_weight
+                    elif prop == 'RecordType':
+                        record['record_type'] = compound.record_type
+                    else:
+                        # Try generic attribute access
+                        val = getattr(compound, prop.lower(), None)
+                        if val is not None:
+                            record[prop.lower()] = val
+                except Exception as e:
+                    logger.warning(f"Failed to fetch {prop} for CID {cid}: {e}")
+                    record[prop.lower()] = None
             
-            if 'smiles' in esol_df.columns and 'solubility' in esol_df.columns:
-                esol_df = esol_df[['smiles', 'solubility']].dropna()
-                logger.info(f"Loaded {len(esol_df)} rows from ESOL dataset")
-                
-                if output_file:
-                    esol_df.to_csv(output_file, index=False)
-                    logger.info(f"Saved ESOL data to {output_file}")
-                    
-                return esol_df
-                
+            # Add metadata about source
+            record['source_type'] = 'Experimental' if compound.record_type == 'experimental' else 'Computed'
+            records.append(record)
+            
         except Exception as e:
-            logger.warning(f"Failed to load ESOL dataset: {e}")
-        
-        # Try FreeSolv for logP
-        try:
-            freesolv_dataset = load_dataset("molecule_net", "freesolv", split="train", streaming=True)
-            freesolv_df = pd.DataFrame(freesolv_dataset.take(2000))
-            
-            if 'smiles' in freesolv_df.columns and 'expt' in freesolv_df.columns:
-                freesolv_df = freesolv_df.rename(columns={'expt': 'logp'})
-                freesolv_df = freesolv_df[['smiles', 'logp']].dropna()
-                logger.info(f"Loaded {len(freesolv_df)} rows from FreeSolv dataset")
-                
-                if output_file:
-                    freesolv_df.to_csv(output_file, index=False)
-                    logger.info(f"Saved FreeSolv data to {output_file}")
-                    
-                return freesolv_df
-                  
-        except Exception as e:
-            logger.warning(f"Failed to load FreeSolv dataset: {e}")
-            
-        # If both fail, raise error
-        raise Exception("Could not fetch any verified molecular property data from MoleculeNet")
-        
-    except Exception as e:
-        logger.error(f"Failed to fetch MoleculeNet data: {e}")
-        raise
-
-def save_metadata(metadata: Dict[str, Any], output_path: str):
-    """
-    Save dataset metadata to a JSON file.
+            logger.error(f"Failed to fetch data for CID {cid}: {e}")
+            continue
     
-    Args:
-        metadata: Dictionary containing dataset metadata.
-        output_path: Path to save the metadata JSON file.
-    """
-    with open(output_path, 'w') as f:
-        json.dump(metadata, f, indent=2)
-    logger.info(f"Saved metadata to {output_path}")
+    return pd.DataFrame(records)
 
-def create_dataset_metadata(
-    source: str,
-    measurement_conditions: Dict[str, Any],
-    confidence_score: float,
-    dataset_info: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+def create_diverse_cid_list(n_molecules: int = 100) -> List[int]:
     """
-    Create a comprehensive metadata dictionary for the dataset.
+    Create a diverse list of CIDs for sampling.
     
-    Args:
-        source: Name of the data source (e.g., 'ChEMBL', 'MoleculeNet').
-        measurement_conditions: Dictionary of measurement conditions (temperature, pH, etc.).
-        confidence_score: Confidence score for the data source (0-1).
-        dataset_info: Additional dataset-specific information.
-        
+    In a real implementation, this would use a diversity algorithm.
+    For now, we use a predefined set of diverse CIDs.
+    
     Returns:
-        Complete metadata dictionary.
+        List of CIDs.
     """
+    # Using a diverse set of CIDs covering different chemical classes
+    diverse_cids = [
+        2244, 3672, 5957, 702, 1234, 5281, 5280, 5282, 5283, 5284,
+        1036, 1113, 1125, 1184, 1192, 1207, 1218, 1227, 1235, 1246,
+        1255, 1267, 1278, 1289, 1298, 1307, 1316, 1325, 1334, 1343,
+        1352, 1361, 1370, 1379, 1388, 1397, 1406, 1415, 1424, 1433,
+        1442, 1451, 1460, 1469, 1478, 1487, 1496, 1505, 1514, 1523,
+        1532, 1541, 1550, 1559, 1568, 1577, 1586, 1595, 1604, 1613,
+        1622, 1631, 1640, 1649, 1658, 1667, 1676, 1685, 1694, 1703,
+        1712, 1721, 1730, 1739, 1748, 1757, 1766, 1775, 1784, 1793,
+        1802, 1811, 1820, 1829, 1838, 1847, 1856, 1865, 1874, 1883,
+        1892, 1901, 1910, 1919, 1928, 1937, 1946, 1955, 1964, 1973
+    ]
+    return diverse_cids[:n_molecules]
+
+def save_raw_data(df: pd.DataFrame, output_path: Path):
+    """Save raw data to CSV."""
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved raw data to {output_path}")
+
+def create_dataset_metadata(df: pd.DataFrame, output_path: Path, query_params: Dict[str, Any]):
+    """
+    Create dataset metadata JSON file.
+    
+    Performs runtime schema check for measurement_uncertainty and quantity_of_substance fields.
+    If absent, records "Not Available in Source".
+    
+    Args:
+        df: DataFrame with fetched data.
+        output_path: Path to save metadata JSON.
+        query_params: Original query parameters used for fetching.
+    """
+    # Check for measurement uncertainty and quantity of substance fields
+    columns = df.columns.tolist()
+    
+    measurement_uncertainty_status = "Available" if 'measurement_uncertainty' in columns else "Not Available in Source"
+    quantity_of_substance_status = "Available" if 'quantity_of_substance' in columns else "Not Available in Source"
+    
+    # Calculate experimental ratio
+    if 'source_type' in df.columns:
+        experimental_count = (df['source_type'] == 'Experimental').sum()
+        total_count = len(df)
+        experimental_ratio = experimental_count / total_count if total_count > 0 else 0.0
+    else:
+        experimental_ratio = 0.0
+    
+    # Create metadata structure
     metadata = {
-        "dataset_name": f"{source}_molecular_properties",
-        "created_at": datetime.now().isoformat(),
-        "source": {
-            "name": source,
-            "type": "experimental",
-            "access_method": "huggingface_dataset_hub",
-            "confidence_score": confidence_score
-        },
-        "measurement_conditions": measurement_conditions,
-        "data_quality": {
-            "filtering_applied": True,
-            "missing_value_handling": "dropped",
-            "covariate_detection": "implemented"
-        },
-        "schema": {
-            "required_fields": ["smiles", "logp", "solubility", "boiling_point"],
-            "optional_fields": ["temperature", "ph", "concentration"]
-        }
+        "source": "PubChem",
+        "query_parameters": query_params,
+        "measurement_uncertainty_status": measurement_uncertainty_status,
+        "quantity_of_substance_status": quantity_of_substance_status,
+        "experimental_ratio": float(experimental_ratio),
+        "source_verification_hash": compute_file_hash(Path(output_path).parent / "pubchem_raw.csv") if (Path(output_path).parent / "pubchem_raw.csv").exists() else "pending",
+        "raw_data_file": "data/raw/pubchem_raw.csv",
+        "hash_algorithm": "SHA-256"
     }
     
-    if dataset_info:
-        metadata["dataset_specific_info"] = dataset_info
-        
-    return metadata
+    # Save metadata
+    with open(output_path, 'w') as f:
+        json.dump(metadata, f, indent=2)
+    
+    logger.info(f"Saved dataset metadata to {output_path}")
+    logger.info(f"Measurement uncertainty status: {measurement_uncertainty_status}")
+    logger.info(f"Quantity of substance status: {quantity_of_substance_status}")
+    logger.info(f"Experimental ratio: {experimental_ratio:.2f}")
 
 def main():
-    """
-    Main function to fetch data and create metadata.
-    """
-    logger.info("Starting data download and metadata creation...")
+    """Main entry point for data download and metadata creation."""
+    base_dir = Path(__file__).parent.parent.parent
+    data_raw = base_dir / "data" / "raw"
     
+    # Ensure directories exist
     ensure_dirs()
     
-    # Fetch data from verified sources
-    output_file = str(DATA_RAW_DIR / "molecular_properties.csv")
+    # Define query parameters
+    query_params = {
+        "cids_sampled": 100,
+        "properties_requested": [
+            "IsomericSMILES", "XLogP", "WaterSolubility", 
+            "BoilingPoint", "MolecularWeight", "RecordType"
+        ],
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    }
     
-    try:
-        # Try ChEMBL first, fallback to MoleculeNet
-        df = fetch_chembl_data(output_file)
-        source = "ChEMBL"
-        confidence = 0.85
-        measurement_conditions = {
-            "temperature": "variable (standard conditions assumed)",
-            "ph": "not specified (neutral assumed)",
-            "pressure": "1 atm (standard)"
-        }
-        
-        # If ChEMBL failed, try MoleculeNet
-        if df.empty:
-            df = fetch_molecule_net_data(output_file)
-            source = "MoleculeNet"
-            confidence = 0.90
-            measurement_conditions = {
-                "temperature": "25°C (standard for most datasets)",
-                "ph": "varies by dataset",
-                "pressure": "1 atm"
-            }
-            
-        logger.info(f"Successfully fetched {len(df)} molecules from {source}")
-        
-        # Create and save metadata
-        metadata = create_dataset_metadata(
-            source=source,
-            measurement_conditions=measurement_conditions,
-            confidence_score=confidence,
-            dataset_info={
-                "total_molecules": len(df),
-                "properties_available": df.columns.tolist(),
-                "data_format": "CSV",
-                "encoding": "UTF-8"
-            }
-        )
-        
-        metadata_path = str(DATA_RAW_DIR / "dataset_metadata.json")
-        save_metadata(metadata, metadata_path)
-        
-        logger.info("Data download and metadata creation completed successfully")
-        return df, metadata_path
-        
-    except Exception as e:
-        logger.error(f"Data download failed: {e}")
-        raise
+    # Fetch diverse CIDs
+    cids = create_diverse_cid_list(n_molecules=100)
+    logger.info(f"Fetched {len(cids)} diverse CIDs")
+    
+    # Fetch molecule properties
+    properties_to_fetch = [
+        "IsomericSMILES", "XLogP", "WaterSolubility", 
+        "BoilingPoint", "MolecularWeight", "RecordType"
+    ]
+    
+    df = fetch_molecule_properties(cids, properties_to_fetch)
+    
+    if df.empty:
+        logger.error("No data fetched. Check CID list and PubChemPy connectivity.")
+        sys.exit(1)
+    
+    logger.info(f"Fetched {len(df)} records with columns: {df.columns.tolist()}")
+    
+    # Save raw data
+    raw_data_path = data_raw / "pubchem_raw.csv"
+    save_raw_data(df, raw_data_path)
+    
+    # Create dataset metadata
+    metadata_path = data_raw / "dataset_metadata.json"
+    create_dataset_metadata(df, metadata_path, query_params)
+    
+    logger.info("Data download and metadata creation completed successfully.")
 
 if __name__ == "__main__":
     main()

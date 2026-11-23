@@ -1,136 +1,290 @@
+"""
+Visualization module for plotting analysis results.
+Implements publication-quality boxplot of D-scores by visual complexity condition,
+with 95% confidence interval error bars, 12 pt font size, and viridis palette.
+"""
 import matplotlib.pyplot as plt
 import seaborn as sns
 import pandas as pd
-from typing import List, Dict, Any, Optional
+from typing import Dict, Any, Optional
 import logging
 from pathlib import Path
+import numpy as np
 
-from ..config import get_data_path
+from config import get_project_root, get_data_path
+from utils.logging import get_logger
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
+
+# Global matplotlib style for publication-quality figures
+plt.rcParams.update({
+    "font.size": 12,          # 12 pt font size
+    "font.family": "Arial",  # Arial font
+    "figure.dpi": 300,       # High resolution
+    "savefig.dpi": 300,
+    "axes.titlesize": 14,
+    "axes.labelsize": 12,
+    "legend.fontsize": 10,
+    "xtick.labelsize": 10,
+    "ytick.labelsize": 10,
+})
+
+
+def load_permutation_results() -> Dict[str, Any]:
+    """Load permutation test results from JSON."""
+    project_root = get_project_root()
+    results_path = project_root / "data" / "results" / "permutation_results.json"
+    
+    if not results_path.exists():
+        raise FileNotFoundError(f"Permutation results not found: {results_path}")
+    
+    import json
+    with open(results_path, "r") as f:
+        return json.load(f)
+
+
+def load_aggregated_d_scores() -> pd.DataFrame:
+    """Load aggregated D-scores from CSV."""
+    data_path = get_data_path()
+    scores_path = data_path / "processed" / "aggregated_d_scores.csv"
+    
+    if not scores_path.exists():
+        raise FileNotFoundError(f"Aggregated D-scores not found: {scores_path}")
+    
+    return pd.read_csv(scores_path)
+
 
 def plot_boxplot(
-    data: pd.DataFrame,
-    x_col: str,
-    y_col: str,
     output_path: Optional[Path] = None,
-    title: str = "D-Scores by Complexity Category"
+    confidence_level: float = 0.95
 ) -> None:
     """
-    Generate a publication-quality boxplot.
-    
+    Create a publication-quality boxplot of D-scores by complexity condition.
+
     Args:
-        data: DataFrame containing the data.
-        x_col: Column name for x-axis (category).
-        y_col: Column name for y-axis (values).
-        output_path: Path to save the plot.
-        title: Plot title.
+        output_path: Path to save the plot. Defaults to data/results/d_score_comparison.png.
+        confidence_level: Confidence level for error bars (default 0.95).
     """
+    project_root = get_project_root()
     if output_path is None:
-        data_path = get_data_path()
-        output_path = data_path / "results" / "boxplot.png"
-    
-    plt.figure(figsize=(10, 6))
-    sns.set_style("whitegrid")
-    
-    # Filter valid data
-    valid_data = data.dropna(subset=[y_col])
-    
-    if valid_data.empty:
-        logger.warning("No valid data for plotting.")
+        output_path = project_root / "data" / "results" / "d_score_comparison.png"
+
+    # Load data
+    df = load_aggregated_d_scores()
+
+    # Filter valid scores
+    valid_df = df[df["status"] == "valid"].copy()
+
+    if valid_df.empty:
+        logger.warning("No valid D-scores found for plotting.")
         return
-    
-    ax = sns.boxplot(x=x_col, y=y_col, data=valid_data, palette="viridis")
-    ax.set_title(title, fontsize=14)
-    ax.set_xlabel(x_col.capitalize(), fontsize=12)
-    ax.set_ylabel(y_col.replace('_', ' ').title(), fontsize=12)
-    
+
+    # Set Seaborn theme (font already enforced via rcParams)
+    sns.set_theme(style="whitegrid", font="Arial")
+    # Use a larger context to ensure 12 pt base size is applied consistently
+    sns.set_context("paper", rc={"font.size": 12})
+
+    # Create figure
+    plt.figure(figsize=(10, 6))
+
+    # Plot boxplot
+    ax = sns.boxplot(
+        x="complexity_condition",
+        y="d_score",
+        data=valid_df,
+        palette="viridis",
+        linewidth=1.5,
+        fliersize=3
+    )
+
+    # Add jittered individual points
+    sns.stripplot(
+        x="complexity_condition",
+        y="d_score",
+        data=valid_df,
+        color="black",
+        alpha=0.5,
+        size=4,
+        jitter=True,
+        dodge=True
+    )
+
+    # Plot mean points
+    means = valid_df.groupby("complexity_condition")["d_score"].mean().reset_index()
+    sns.scatterplot(
+        x="complexity_condition",
+        y="d_score",
+        data=means,
+        color="red",
+        s=100,
+        marker="D",
+        label="Mean",
+        zorder=10
+    )
+
+    # Compute 95 % confidence intervals for the mean
+    ci_data = valid_df.groupby("complexity_condition")["d_score"].agg(
+        mean="mean",
+        sem="sem",
+        count="count"
+    ).reset_index()
+
+    from scipy.stats import t
+    ci_data["ci"] = t.ppf((1 + confidence_level) / 2, ci_data["count"] - 1) * ci_data["sem"]
+
+    # Add error bars for the means
+    for _, row in ci_data.iterrows():
+        ax.errorbar(
+            x=row["complexity_condition"],
+            y=row["mean"],
+            yerr=row["ci"],
+            color="red",
+            fmt="none",
+            capsize=5,
+            linewidth=2,
+            zorder=9
+        )
+
+    # Axis labels and title
+    plt.xlabel("Complexity Condition", fontsize=12, fontfamily="Arial")
+    plt.ylabel("D-Score (IAT Effect)", fontsize=12, fontfamily="Arial")
+    plt.title("Implicit Bias by Visual Complexity Condition", fontsize=14, fontfamily="Arial")
+
+    # Legend
+    plt.legend(loc="upper right", fontsize=10, frameon=True)
+
     plt.tight_layout()
+
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_path, dpi=300)
+
+    # Save figure
+    plt.savefig(output_path, bbox_inches="tight")
     plt.close()
-    
+
     logger.info(f"Boxplot saved to {output_path}")
 
+
 def plot_sensitivity(
-    results: Dict[str, Any],
+    sensitivity_results: Dict[str, Any],
     output_path: Optional[Path] = None
 ) -> None:
     """
-    Plot sensitivity analysis results.
-    
+    Plot sensitivity analysis results (threshold sweep).
+
     Args:
-        results: Dictionary containing sensitivity analysis results.
+        sensitivity_results: Dictionary containing threshold sweep and LOIO results.
         output_path: Path to save the plot.
     """
     if output_path is None:
-        data_path = get_data_path()
-        output_path = data_path / "results" / "sensitivity_plot.png"
-    
-    if "results" not in results or not results["results"]:
-        logger.warning("No sensitivity results to plot.")
+        project_root = get_project_root()
+        output_path = project_root / "data" / "results" / "sensitivity_analysis.png"
+
+    threshold_sweep = sensitivity_results.get("threshold_sweep", [])
+    if not threshold_sweep:
+        logger.warning("No threshold sweep data for sensitivity plot.")
         return
-    
-    df = pd.DataFrame(results["results"])
-    df_valid = df[df["status"] == "success"]
-    
-    if df_valid.empty:
-        logger.warning("No valid sensitivity results to plot.")
-        return
-    
+
+    df = pd.DataFrame(threshold_sweep)
+
     plt.figure(figsize=(10, 6))
-    sns.lineplot(data=df_valid, x="threshold", y="p_value", marker="o")
-    plt.axhline(y=0.05, color='r', linestyle='--', label='Alpha = 0.05')
-    plt.title("Sensitivity Analysis: P-value vs Threshold", fontsize=14)
-    plt.xlabel("Threshold Offset (SD)", fontsize=12)
-    plt.ylabel("P-value", fontsize=12)
-    plt.legend()
-    plt.grid(True)
-    
+    sns.lineplot(
+        x="threshold_shift",
+        y="p_value",
+        data=df,
+        marker="o",
+        linewidth=2,
+        markersize=8
+    )
+
+    plt.axhline(y=0.05, color="red", linestyle="--", label="Significance Threshold (0.05)")
+    plt.xlabel("Threshold Shift (SD units)", fontsize=12, fontfamily="Arial")
+    plt.ylabel("P-Value", fontsize=12, fontfamily="Arial")
+    plt.title("Sensitivity Analysis: Threshold Sweep", fontsize=14, fontfamily="Arial")
+    plt.legend(fontsize=10)
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_path, dpi=300)
+    plt.savefig(output_path, bbox_inches="tight")
     plt.close()
-    
+
     logger.info(f"Sensitivity plot saved to {output_path}")
 
+
 def plot_loio_sensitivity(
-    results: Dict[str, Any],
+    sensitivity_results: Dict[str, Any],
     output_path: Optional[Path] = None
 ) -> None:
     """
-    Plot Leave-One-Image-Out sensitivity analysis results.
-    
+    Plot LOIO (Leave-One-Image-Out) sensitivity analysis results.
+
     Args:
-        results: Dictionary containing LOIO results.
+        sensitivity_results: Dictionary containing LOIO results.
         output_path: Path to save the plot.
     """
     if output_path is None:
-        data_path = get_data_path()
-        output_path = data_path / "results" / "loio_plot.png"
-    
-    # This is a placeholder implementation. In a real scenario, 
-    # results would contain the LOIO specific data.
-    # We simulate a simple plot for demonstration.
-    
+        project_root = get_project_root()
+        output_path = project_root / "data" / "results" / "loio_sensitivity.png"
+
+    loio_results = sensitivity_results.get("loio_results", [])
+    if not loio_results:
+        logger.warning("No LOIO data for sensitivity plot.")
+        return
+
+    df = pd.DataFrame(loio_results)
+
     plt.figure(figsize=(10, 6))
-    # Simulated data
-    x = list(range(10))
-    y = [0.04 + i * 0.01 for i in range(10)]
-    sns.lineplot(x=x, y=y, marker="o")
-    plt.axhline(y=0.05, color='r', linestyle='--', label='Alpha = 0.05')
-    plt.title("LOIO Sensitivity Analysis", fontsize=14)
-    plt.xlabel("Iteration", fontsize=12)
-    plt.ylabel("P-value", fontsize=12)
-    plt.legend()
-    plt.grid(True)
-    
+    sns.barplot(
+        x="image_index",
+        y="p_value",
+        data=df,
+        palette="viridis",
+        edgecolor="black"
+    )
+
+    plt.axhline(y=0.05, color="red", linestyle="--", label="Significance Threshold (0.05)")
+    plt.xlabel("Excluded Image Index", fontsize=12, fontfamily="Arial")
+    plt.ylabel("P-Value", fontsize=12, fontfamily="Arial")
+    plt.title("Leave-One-Image-Out Sensitivity Analysis", fontsize=14, fontfamily="Arial")
+    plt.legend(fontsize=10)
+    plt.xticks(rotation=45)
+    plt.tight_layout()
+
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    plt.savefig(output_path, dpi=300)
+    plt.savefig(output_path, bbox_inches="tight")
     plt.close()
-    
-    logger.info(f"LOIO plot saved to {output_path}")
+
+    logger.info(f"LOIO sensitivity plot saved to {output_path}")
+
+
+def main() -> None:
+    """
+    Main entry point for plotting.
+    Generates all required plots.
+    """
+    logger.info("Starting visualization...")
+
+    project_root = get_project_root()
+    results_dir = project_root / "data" / "results"
+    results_dir.mkdir(parents=True, exist_ok=True)
+
+    # Plot 1: D-Score Comparison Boxplot (T037)
+    plot_boxplot(output_path=results_dir / "d_score_comparison.png")
+
+    # Plot 2: Sensitivity Analysis (threshold sweep and LOIO)
+    try:
+        import json
+        with open(results_dir / "sensitivity_results.json", "r") as f:
+            sensitivity_results = json.load(f)
+
+        plot_sensitivity(sensitivity_results, output_path=results_dir / "sensitivity_analysis.png")
+        plot_loio_sensitivity(sensitivity_results, output_path=results_dir / "loio_sensitivity.png")
+    except FileNotFoundError:
+        logger.warning("Sensitivity results not found. Skipping sensitivity plots.")
+
+    logger.info("Visualization completed.")
+
 
 if __name__ == "__main__":
-    import sys
-    print("Viz module. Use via main pipeline.")
-    sys.exit(0)
+    main()

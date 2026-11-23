@@ -1,6 +1,3 @@
 """
-Utility functions for logging and configuration.
+Utilities package containing logging, configuration, and memory profiling tools.
 """
-from .logging import setup_logging, get_logger
-
-__all__ = ["setup_logging", "get_logger"]

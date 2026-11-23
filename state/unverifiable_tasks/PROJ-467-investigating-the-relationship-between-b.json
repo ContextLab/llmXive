@@ -1,0 +1,34 @@
+{
+  "project_id": "PROJ-467-investigating-the-relationship-between-b",
+  "tasks": [
+    {
+      "task_key": "T002",
+      "reject_count": 1,
+      "last_reason": "No project files (e.g., `pyproject.toml`, `requirements.txt`, `setup.cfg`, or a virtual environment) were provided, and there is no evidence that a Python\u202f3.11 project was created or that the listed dependencies were installed. The required artifact is missing.",
+      "first_seen": "2026-09-20T13:52:22.692952+00:00",
+      "last_seen": "2026-09-20T13:52:22.692952+00:00"
+    },
+    {
+      "task_key": "T003",
+      "reject_count": 1,
+      "last_reason": "No linting or formatting configuration files (e.g., pyproject.toml, .flake8, .ruff.toml, .isort.cfg) or setup scripts are present in the provided evidence, so the task of configuring ruff/flake8, black, and isort has not been demonstrated. The required artifacts are missing.",
+      "first_seen": "2026-09-20T13:52:22.694142+00:00",
+      "last_seen": "2026-09-20T13:52:22.694142+00:00"
+    },
+    {
+      "task_key": "T005",
+      "reject_count": 1,
+      "last_reason": "No `.gitignore` file or its contents were supplied; without the artifact we cannot confirm that data\u2011artifact and Python\u2011cache patterns are listed as required. The implementer must add a `.gitignore` containing entries such as `__pycache__/`, `*.pyc`, `*.pyo`, `*.pyd`, `*.egg-info/`, `*.egg`, `*.ipynb_checkpoints/`, and any data directories (e.g., `data/`, `*.nii`, `*.csv`) to satisfy the task.",
+      "first_seen": "2026-09-20T13:52:22.694933+00:00",
+      "last_seen": "2026-09-20T13:52:22.694933+00:00"
+    },
+    {
+      "task_key": "T007",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-09-20T13:52:22.695757+00:00",
+      "last_seen": "2026-09-20T13:52:22.695757+00:00"
+    }
+  ],
+  "updated_at": "2026-09-20T13:52:22.695757+00:00"
+}

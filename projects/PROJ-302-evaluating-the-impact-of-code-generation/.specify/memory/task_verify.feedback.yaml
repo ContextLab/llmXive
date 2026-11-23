@@ -1,0 +1,40 @@
+T001:
+  task: 07a7d178243203e52e8e8056088f81faa793d96eebe7787b11b89c1aa50fa5f9
+T002:
+  reason: "The `data/raw/` directory contains only a `.gitkeep`; the required `<owner>_<repo>.parquet`\
+    \ files and `commit_messages.parquet` are missing, and the `pull_request.schema.yaml`\
+    \ file is absent, so the task\u2019s output artifacts do not exist."
+  task: e8434a10257568c4f6d44e271608b76cb800f5bb7d13c584ffc1ee6c6e19f36d
+T003:
+  reason: "The required output file `data/processed/intent_prompts.parquet` does not\
+    \ exist (and the raw input `data/raw/commit_messages.parquet` is also missing),\
+    \ and the provided test fails because it cannot monkey\u2011patch the toolkit\u2019\
+    s path root, so the script\u2019s behavior is not demonstrated. The task\u2019\
+    s core artifact is absent."
+  task: 5881a2814012a369414f9211ce17be2eeb3934d5d97dedf34bc5dbf2fe0e0362
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/synthetic_generation.py
+    exit=1'
+  task: cbe32e240ace677d7572bb6d4fc39276cffc563f5b601349b6003131b4b1ee01
+T005:
+  reason: 'Requested task execution failed; rerun successfully: code/feature_extraction.py
+    exit=1'
+  task: 1005478d42f19ef5156abbffd8bf39e8ada3e19d7f598caf8ceb7849d53d3cca
+T006:
+  task: 15f6feb0aee45aa6c664e9702e60c7a2d96c735171131641f3c49821c8aaad6d
+T007:
+  task: 2ed4ef708180e8ae28695c6c4bc15107b249733ad6b062c312c6c97ea5be8f19
+T009:
+  task: 5fc30c1ea6739f63d2fc49e490ddba208deccb2dec71e7f6272c7db943dd5470
+T010:
+  task: 02013c9e22698096b698b7b55cebf2b67ef01b81dc19cbe3077b81551955f374
+T011:
+  task: 053ae8a8013651eb46f073887da2a58fbf81669b2428aa56ab958bd56687d30d
+T012:
+  task: 8d34fc81593e0e4105ec1bf3744b13bf60c2e613a3b18d42cf5c1752c5501724
+T013:
+  task: a0915048790c59dfac0ce2bf74ebd7ee8d51cedf56a543fc5d37572ce1790b9f
+T014:
+  task: 9b0f2f4db6f2d10aaf042bed6395b41576f54bcf6930c756d9c5019602780a28
+T015:
+  task: 7c6bfecbc2bee43447911ff35db45ec353c1e5e6f3d2d636a63cc49157bb454d

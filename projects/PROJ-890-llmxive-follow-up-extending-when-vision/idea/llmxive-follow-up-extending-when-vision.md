@@ -9,44 +9,48 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Does the cognitive decoupling between temporal synchronization (Shift) and physical existence verification (Mute/Swap) in Multimodal Large Language Models persist when trained exclusively on low-compute, CPU-tractable synthetic datasets that isolate specific acoustic-visual causal mechanisms?
+Does the persistence of audio-visual decoupling in models trained on causally isolated synthetic data indicate that current MLLM architectures fundamentally lack a mechanism for verifying physical sound existence, independent of alignment data scale?
 
 ## Motivation
 
-Current large-scale MLLMs exhibit an "audio-visual Clever Hans effect," relying on visual cues to hallucinate audio understanding rather than processing the audio stream. It remains unclear whether the failure to verify physical sound existence (Mute/Swap) is a limitation of massive-scale alignment recipes or a fundamental architectural deficiency requiring lighter, causally-informed training objectives. This study addresses this gap by testing if decoupling persists in a constrained, interpretable regime.
+Current multimodal large language models exhibit an "audio-visual Clever Hans effect": they infer expected sounds from visual content rather than processing the audio stream itself. It remains unclear whether the failure to verify physical sound existence (Mute/Swap conditions) is a limitation of large-scale alignment recipes or a deeper architectural deficiency. Testing whether the decoupling persists in a constrained, causally-controlled training regime separates these hypotheses and informs whether future fixes require data-scale growth or new architectural objectives.
 
 ## Literature gap analysis
 
 ### What we searched
-We queried Semantic Scholar, arXiv, and OpenAlex using terms like "multimodal large language model audio hallucination," "audio-visual Clever Hans effect," "counterfactual audio verification MLLM," and "synthetic audio-visual dataset for causal reasoning." The search focused on recent preprints (2023–2026) addressing the "Thud" framework, audio-visual misalignment, and synthetic data generation for multimodal alignment.
+
+The librarian queried Semantic Scholar/arXiv with the idea title and ~20 variants covering vision-to-audio synthesis, cross-modal generation, multimodal vision-audio learning, cross-modal attention, and joint vision-audio representations. The verified literature block returned five results, of which only one (a survey of audio-visual learning) is directly on-topic for audio-visual integration in multimodal models; the remainder concern dereverberation, embodied navigation, vision-language pretraining, and speech enhancement — related application areas but not probing causal sound-existence verification.
 
 ### What is known
-- [When Vision Speaks for Sound](https://arxiv.org/abs/2605.16403) — Establishes the existence of the "audio-visual Clever Hans effect" in MLLMs and introduces the *Thud* probing framework to diagnose failures in temporal, existential, and material verification.
-- [Sound Synthesis, Propagation, and Rendering: A Survey](https://arxiv.org/abs/2011.05538) — Reviews sound rendering techniques in virtual environments, highlighting the importance of audio for realism but not addressing the specific cognitive failure modes of MLLMs in verifying audio existence.
-- [FlashSpeech: Efficient Zero-Shot Speech Synthesis](https://arxiv.org/abs/2404.14700) — Discusses efficient speech synthesis methods but focuses on generation quality and speed rather than the verification of audio-visual consistency or causal reasoning in multimodal models.
+
+- [Learning in Audio-visual Context: A Review, Analysis, and New Perspective (2022)](https://arxiv.org/abs/2208.09579) — A survey of audio-visual learning paradigms establishing that joint audio-visual modeling is a mature research area and organizing its tasks, but it does not address whether MLLMs verify physical sound existence versus hallucinating it from visual cues.
 
 ### What is NOT known
-No published work has specifically investigated whether the decoupling between temporal synchronization and physical existence verification persists when models are trained on small, synthetic datasets designed to isolate causal mechanisms on CPU hardware. The literature lacks evidence on whether "Alignment Tax" phenomena observed in large-scale training transfer to these constrained, interpretable regimes.
+
+No published work, to our knowledge, has measured whether audio-visual decoupling — specifically failure on Mute (silent audio with visible sound sources) and Swap (mismatched audio) probes — persists after fine-tuning on causally isolated synthetic data with explicit negative examples of sound existence. It is also unknown whether improvements on temporal-shift detection transfer to physical-existence verification within the same model, which would indicate whether these are dissociable competencies.
 
 ### Why this gap matters
-Understanding whether these failures are scale-dependent or architecturally fundamental is critical for determining if future research should focus on massive data scaling or on developing new, causally-grounded training objectives. If the decoupling persists in low-compute settings, it would suggest that current alignment objectives are insufficient for modeling physical causality, necessitating a shift in research direction.
+
+If decoupling persists under causally-targeted training, practitioners building audio-capable MLLMs should stop expecting alignment-scale fixes to work and instead invest in architectural mechanisms (e.g., explicit audio-grounding verification heads). If it does not persist, a cheap synthetic-data recipe becomes a practical mitigation. Either outcome constrains the design space for the next generation of audio-visual models.
 
 ### How this project addresses the gap
-This project directly addresses the gap by generating a synthetic dataset with strict causal conditions (Silence-Only, Sound-Only, Sync-Shift) and training a small MLLM using Direct Preference Optimization. By applying the *Thud* probing framework to this model, we will empirically determine if the decoupling is a result of data scale or a structural gap in alignment objectives.
+
+The methodology below constructs exactly the missing evidence: a synthetic dataset with controlled Mute/Swap/Shift conditions, a lightweight fine-tuning protocol with preference pairs contrasting correct vs. hallucinated audio-visual alignment, and a probing evaluation that dissociates temporal detection from existence verification, all within a single free-tier CPU job.
 
 ## Expected results
 
-We anticipate that while synthetic training will improve "Shift" (temporal) detection, it will yield negligible improvement on "Mute" and "Swap" tasks unless the data explicitly includes negative examples of sound existence reasoning. This would confirm that the decoupling is a structural gap in how current alignment objectives model physical causality, rather than merely a data-scale issue.
+We anticipate that synthetic training will substantially improve Shift (temporal misalignment) detection but yield small or statistically non-significant gains on Mute and Swap tasks. This pattern — dissociable improvement — would support the architectural-deficiency hypothesis. The alternative outcome (uniform improvement across all three probes) would indicate the gap is data-driven and closable with targeted synthetic data. Either result is informative; a paired statistical comparison across probe types with confidence intervals provides the confirmatory/falsifying measurement, and we would require improvement differences beyond bootstrap 95% CIs to claim an effect.
 
 ## Methodology sketch
 
-- **Data Generation**: Use `pydub` and `numpy` on a CPU to synthesize ~500 samples with three conditions: (1) **Silence-Only** (visual speech with silent audio), (2) **Sound-Only** (visual speech with unrelated sound), and (3) **Sync-Shift** (audio delayed by 500ms).
-- **Model Selection**: Select a small, open-source MLLM (e.g., 1-2B parameters) with a frozen vision encoder to ensure CPU tractability.
-- **Training Protocol**: Apply Direct Preference Optimization (DPO) using the synthetic dataset, constructing preference pairs that explicitly contrast correct vs. incorrect audio-visual alignment.
-- **Evaluation Framework**: Execute the *Thud* probing framework on the fine-tuned model to measure accuracy on Shift, Mute, and Swap tasks.
-- **Baseline Comparison**: Compare performance against a baseline model trained on general video QA data to isolate the effect of the synthetic causal data.
-- **Statistical Analysis**: Perform paired t-tests comparing the fine-tuned model's accuracy on Mute/Swap tasks against the baseline, ensuring the entire pipeline (synthesis, training, inference) completes within 48 hours on a standard multi-core CPU.
-- **Validation Independence**: Validation accuracy is measured against the ground-truth labels of the synthetic dataset (which are defined by the generation script's parameters), independent of the model's internal representations or the visual features used for prediction.
+- **Data generation**: Use `numpy` and `pydub` on CPU to synthesize ~500 short (≤5s) samples across three conditions: (1) **Silence-Only** (visible speech-like visual motion, silent audio), (2) **Sound-Only/Swap** (visual content paired with unrelated audio), (3) **Sync-Shift** (audio delayed by 500ms), plus matched positive controls.
+- **Model selection**: Use a small open-source audio-capable MLLM (e.g., Qwen2-Audio-0.5B or comparable ≤1B-parameter model) with a frozen vision encoder, quantized to fit the 7 GB RAM envelope.
+- **Training protocol**: Apply parameter-efficient fine-tuning (LoRA) with Direct Preference Optimization on preference pairs contrasting correct vs. hallucinated audio-visual alignment answers; run in ≤30-minute checkpointed chunks to stay within the 6-hour GHA job limit.
+- **Evaluation framework**: Run the Thud-style probing suite (Shift, Mute, Swap binary questions) on the fine-tuned model and on the unmodified base model.
+- **Baseline comparison**: The unmodified base model serves as the control; optionally include a model fine-tuned on generic audio-visual QA pairs to isolate the causal-data effect.
+- **Statistical analysis**: McNemar's test per probe type (paired, binary outcomes) plus bootstrap 95% CIs on accuracy deltas; report the Shift-vs-Mute/Swap improvement difference as the key statistic.
+- **Compute plan**: Entire pipeline (synthesis, LoRA fine-tuning, inference, statistics) executes end-to-end on a GitHub Actions free-tier runner (2 CPU, 7 GB RAM, ≤6h); no GPU, no external datasets beyond the model weights from HuggingFace.
+- **Validation independence**: Evaluation uses held-out synthetic samples whose ground-truth condition labels are fixed by the generation script's random seed, disjoint from the fine-tuning split; the predicted variable (probe accuracy) is measured from model text outputs, not from any internal representation or feature used in training.
 
 ## Duplicate-check
 
@@ -57,7 +61,7 @@ We anticipate that while synthetic training will improve "Shift" (temporal) dete
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-09T13:13:04Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-10-10T21:22:33Z
 **Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "When Vision Speaks for Sound" computer science
 **Verified citation count**: 5
@@ -67,31 +71,31 @@ We anticipate that while synthetic training will improve "Shift" (temporal) dete
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | llmXive follow-up: extending "When Vision Speaks for Sound" computer science | 0 |
-| 1 | vision-to-sound synthesis | 5 |
-| 2 | audio generation from visual input | 0 |
-| 3 | cross-modal audio synthesis | 0 |
-| 4 | image-to-audio generation models | 0 |
-| 5 | visual-driven sound synthesis | 0 |
-| 6 | multimodal generative models for audio | 0 |
-| 7 | deep learning for vision-audio translation | 0 |
-| 8 | automatic sound generation from images | 0 |
-| 9 | video-to-audio synthesis networks | 0 |
-| 10 | semantic audio generation from visual features | 0 |
-| 11 | cross-modal representation learning for audio | 0 |
-| 12 | generative adversarial networks for image-to-sound | 0 |
-| 13 | transformer-based vision-to-audio models | 0 |
-| 14 | audio synthesis conditioned on visual data | 0 |
-| 15 | machine hearing from visual cues | 0 |
-| 16 | visual context for audio generation | 0 |
-| 17 | neural audio synthesis from images | 0 |
-| 18 | cross-modal generative adversarial networks | 0 |
-| 19 | multimodal pre-training for vision and audio | 0 |
-| 20 | unsupervised vision-to-sound mapping | 0 |
+| 1 | audio-visual cross-modal learning | 5 |
+| 2 | visual sound source localization | 0 |
+| 3 | audio-visual correspondence | 0 |
+| 4 | audio-driven video generation | 0 |
+| 5 | cross-modal retrieval between audio and video | 0 |
+| 6 | multimodal representation learning | 0 |
+| 7 | vision-guided audio generation | 0 |
+| 8 | audio-visual scene understanding | 0 |
+| 9 | self-supervised audio-visual pretraining | 0 |
+| 10 | sound source separation guided by visual cues | 0 |
+| 11 | audio-visual event detection | 0 |
+| 12 | audio-visual question answering | 0 |
+| 13 | lip reading and speech recognition from video | 0 |
+| 14 | cross-modal knowledge transfer | 0 |
+| 15 | audio-visual synchronization | 0 |
+| 16 | embodied audio-visual navigation | 0 |
+| 17 | multimodal foundation models | 0 |
+| 18 | audio-visual saliency prediction | 0 |
+| 19 | visual-to-audio sensory translation | 0 |
+| 20 | contrastive audio-visual learning | 0 |
 
 ### Verified citations
 
-1. **Synthesis of Reversible Functions Beyond Gate Count and Quantum Cost** (2010). Robert Wille, Mehdi Saeedi, Rolf Drechsler. arXiv. [1004.4609](https://arxiv.org/abs/1004.4609). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-2. **Synth-by-Reg (SbR): Contrastive learning for synthesis-based registration of paired images** (2021). Adrià Casamitjana, Matteo Mancini, Juan Eugenio Iglesias. arXiv. [2107.14449](https://arxiv.org/abs/2107.14449). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-3. **Text-to-Speech Synthesis Techniques for MIDI-to-Audio Synthesis** (2021). Erica Cooper, Xin Wang, Junichi Yamagishi. arXiv. [2104.12292](https://arxiv.org/abs/2104.12292). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-4. **Sound Synthesis, Propagation, and Rendering: A Survey** (2020). Shiguang Liu, Dinesh Manocha. arXiv. [2011.05538](https://arxiv.org/abs/2011.05538). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
-5. **FlashSpeech: Efficient Zero-Shot Speech Synthesis** (2024). Zhen Ye, Zeqian Ju, Haohe Liu, Xu Tan, Jianyi Chen, et al.. arXiv. [2404.14700](https://arxiv.org/abs/2404.14700). PDF-sampled: No. ⚠️ *topically marginal — admitted as fallback when judge rejected all stricter matches*
+1. **Learning in Audio-visual Context: A Review, Analysis, and New Perspective** (2022). Yake Wei, Di Hu, Yapeng Tian, Xuelong Li. arXiv. [2208.09579](https://arxiv.org/abs/2208.09579). PDF-sampled: No.
+2. **Learning Audio-Visual Dereverberation** (2021). Changan Chen, Wei Sun, David Harwath, Kristen Grauman. arXiv. [2106.07732](https://arxiv.org/abs/2106.07732). PDF-sampled: No.
+3. **Semantic Audio-Visual Navigation** (2020). Changan Chen, Ziad Al-Halah, Kristen Grauman. arXiv. [2012.11583](https://arxiv.org/abs/2012.11583). PDF-sampled: No.
+4. **CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training** (2024). Zhiyuan Ma, Jianjun Li, Guohui Li, Kaiyan Huang. arXiv. [2410.12595](https://arxiv.org/abs/2410.12595). PDF-sampled: No.
+5. **Audio-visual Speech Enhancement Using Conditional Variational Auto-Encoders** (2019). Mostafa Sadeghi, Simon Leglaive, Xavier Alameda-PIneda, Laurent Girin, Radu Horaud. arXiv. [1908.02590](https://arxiv.org/abs/1908.02590). PDF-sampled: No.

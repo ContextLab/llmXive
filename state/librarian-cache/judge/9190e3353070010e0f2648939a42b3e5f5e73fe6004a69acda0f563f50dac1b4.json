@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2104.08013",
+  "judged_at": "2026-08-24T09:39:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"4d human-scene reconstruction from low-overlap captures\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the same core mechanism (3D human reconstruction from sparse/low-overlap views) and domain (dressed humans in computer vision) as the user's question, providing essential prior work on handling depth ambiguities and view fusion that a literature review on extending \"4D Human-Scene Reconstruction\" would require.",
+  "relevant": true
+}

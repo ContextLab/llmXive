@@ -1,0 +1,2 @@
+# This directory stores CI/CD workflow definitions
+# Contains ci.yml and other GitHub Actions workflows

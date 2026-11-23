@@ -1,0 +1,7 @@
+{
+  "success_rate_delta": 0.0,
+  "memory_reduction_pct": 0.0,
+  "avg_symbolic_latency_ms": 0.0,
+  "avg_baseline_latency_ms": 0.0,
+  "total_traces": 0
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2011.07112",
+  "judged_at": "2026-09-03T14:10:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"robodojo: a unified sim-and-real benchmark for comprehensive evaluatio\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it provides empirical evidence on the core mechanism (sim-to-real transfer via domain randomization) and the specific domain (robotics benchmarks) central to the user's question about extending the \"RoboDojo\" sim-and-real benchmark. Even though it does not mention \"RoboDojo\" specifically, it establishes the foundational empirical baseline for the variables and methodology the user intends to extend.",
+  "relevant": true
+}

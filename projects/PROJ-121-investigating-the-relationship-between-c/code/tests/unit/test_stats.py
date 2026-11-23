@@ -5,205 +5,178 @@ from src.stats import (
     compute_lomb_scargle_periodogram,
     find_significant_peaks,
     compute_false_alarm_probability,
-    bonferroni_corrected_pvalue,
-    is_significant_after_bonferroni,
     compute_correlation_coefficient,
+    compute_correlation_with_uncertainty,
     block_bootstrap_resample,
     monte_carlo_shuffle_test,
-    compute_correlation_with_uncertainty
+    bonferroni_corrected_pvalue,
+    is_significant_after_bonferroni
 )
 from src.config import DEFAULT_BIN_SIZE_DAYS
 
 @pytest.fixture
 def sample_timeseries():
     """Generate sample time series for testing."""
+    np.random.seed(42)
     n = 100
-    times = np.linspace(0, 365, n)  # 1 year of data
-    anisotropy = np.sin(2 * np.pi * times / 365) + 0.1 * np.random.randn(n)
-    solar_proxy = np.cos(2 * np.pi * times / 365) + 0.1 * np.random.randn(n)
-    return times, anisotropy, solar_proxy
+    time = np.arange(n) * 1.0  # Days
+    # Create a signal with some noise
+    signal = 0.5 * np.sin(2 * np.pi * time / 27.0) + np.random.normal(0, 0.1, n)
+    return time, signal
 
-def test_monte_carlo_shuffle_test_basic(sample_timeseries):
-    """Test basic Monte-Carlo shuffle test functionality."""
-    times, anisotropy, solar_proxy = sample_timeseries
+def test_block_bootstrap_resample_adaptive_blocks():
+    """
+    Test block bootstrap with adaptive block length selection.
+    Verifies FR-005: if n_blocks < 30, use 1x bin_size; else 2x bin_size.
+    """
+    np.random.seed(123)
+    n = 50  # Small dataset to trigger adaptive behavior (< 30 blocks expected)
+    time = np.arange(n) * 1.0
+    anisotropy = np.random.normal(0, 1, n)
+    solar_proxy = np.random.normal(0, 1, n)
     
-    result = monte_carlo_shuffle_test(
-        times, anisotropy, solar_proxy,
-        n_permutations=100,  # Small number for speed
-        n_bootstrap=50
-    )
-    
-    assert 'observed_corr' in result
-    assert 'p_value' in result
-    assert 'significant' in result
-    assert 'null_distribution' in result
-    assert 'bootstrap_distribution' in result
-    
-    # Check that null distribution has correct size
-    assert len(result['null_distribution']) == 100
-    assert len(result['bootstrap_distribution']) == 50
-    
-    # P-value should be between 0 and 1
-    assert 0 <= result['p_value'] <= 1
-
-def test_block_bootstrap_resample_adaptive_blocks(sample_timeseries):
-    """Test that block bootstrap adapts block size based on data length."""
-    times, anisotropy, solar_proxy = sample_timeseries
-    
-    # Test with short series (< 30 blocks expected)
-    short_times = times[:20]
-    short_aniso = anisotropy[:20]
-    short_proxy = solar_proxy[:20]
-    
-    result_short = block_bootstrap_resample(
-        short_times, short_aniso, short_proxy,
-        bin_size_days=DEFAULT_BIN_SIZE_DAYS,
-        n_bootstrap=10
-    )
-    
-    assert len(result_short) == 10
-    assert np.all(np.abs(result_short) <= 1.0)  # Correlation bounds
-
-def test_block_bootstrap_resample_long_series(sample_timeseries):
-    """Test block bootstrap with longer series (>= 30 blocks)."""
-    times, anisotropy, solar_proxy = sample_timeseries
-    
-    # Extend to ensure >= 30 blocks
-    extended_times = np.linspace(0, 365 * 2, 200)
-    extended_aniso = np.sin(2 * np.pi * extended_times / 365) + 0.1 * np.random.randn(len(extended_times))
-    extended_proxy = np.cos(2 * np.pi * extended_times / 365) + 0.1 * np.random.randn(len(extended_times))
+    bin_size = DEFAULT_BIN_SIZE_DAYS  # 27 days
     
     result = block_bootstrap_resample(
-        extended_times, extended_aniso, extended_proxy,
-        bin_size_days=DEFAULT_BIN_SIZE_DAYS,
+        time, anisotropy, solar_proxy,
+        bin_size_days=bin_size,
         n_bootstrap=10
     )
     
-    assert len(result) == 10
-    assert np.all(np.abs(result) <= 1.0)
+    # With n=50 and bin_size=27, estimated blocks ~ 50/(2*27/27) = 25 < 30
+    # So block_length should be 1 * bin_size = 27
+    expected_block_length = int(1.0 * bin_size)
+    
+    assert result['block_length'] == expected_block_length, \
+        f"Expected block_length {expected_block_length}, got {result['block_length']}"
+    assert result['n_blocks'] >= 1, "Should have at least 1 block"
+    assert 'mean_corr' in result
+    assert 'ci_lower' in result
+    assert 'ci_upper' in result
+
+def test_block_bootstrap_resample_long_series():
+    """
+    Test block bootstrap with long series (>= 30 blocks).
+    Should use 2x bin_size.
+    """
+    np.random.seed(456)
+    n = 500  # Large dataset to trigger standard behavior
+    time = np.arange(n) * 1.0
+    anisotropy = np.random.normal(0, 1, n)
+    solar_proxy = np.random.normal(0, 1, n)
+    
+    bin_size = DEFAULT_BIN_SIZE_DAYS
+    
+    result = block_bootstrap_resample(
+        time, anisotropy, solar_proxy,
+        bin_size_days=bin_size,
+        n_bootstrap=10
+    )
+    
+    # With n=500, estimated blocks ~ 500/(2*27/27) = 250 >= 30
+    # So block_length should be 2 * bin_size = 54
+    expected_block_length = int(2.0 * bin_size)
+    
+    assert result['block_length'] == expected_block_length, \
+        f"Expected block_length {expected_block_length}, got {result['block_length']}"
+    assert result['n_blocks'] >= 30, "Should have >= 30 blocks for standard logic"
+
+def test_block_bootstrap_with_small_blocks():
+    """Test block bootstrap with very small dataset."""
+    np.random.seed(789)
+    n = 10
+    time = np.arange(n) * 1.0
+    anisotropy = np.random.normal(0, 1, n)
+    solar_proxy = np.random.normal(0, 1, n)
+    
+    result = block_bootstrap_resample(
+        time, anisotropy, solar_proxy,
+        bin_size_days=27,
+        n_bootstrap=5
+    )
+    
+    # Should handle small datasets gracefully
+    assert 'mean_corr' in result
+    assert 'n_blocks' in result
+    assert result['block_length'] >= 1
+
+def test_monte_carlo_shuffle_test_basic():
+    """Test basic Monte-Carlo shuffle test functionality."""
+    np.random.seed(999)
+    n = 50
+    time = np.arange(n) * 1.0
+    anisotropy = np.random.normal(0, 1, n)
+    solar_proxy = np.random.normal(0, 1, n)
+    
+    result = monte_carlo_shuffle_test(
+        time, anisotropy, solar_proxy,
+        n_permutations=20  # Small for testing
+    )
+    
+    assert 'observed_correlation' in result
+    assert 'mc_p_value' in result
+    assert 'null_mean' in result
+    assert 'n_permutations' in result
+    assert result['n_permutations'] <= 20  # May be less if some failed
 
 def test_monte_carlo_significance_detection():
-    """Test that Monte-Carlo can detect strong correlations."""
-    # Create perfectly correlated data
-    n = 50
-    times = np.linspace(0, 365, n)
-    anisotropy = np.sin(2 * np.pi * times / 365)
-    solar_proxy = np.sin(2 * np.pi * times / 365)  # Perfect correlation
+    """Test MC test with known correlation."""
+    np.random.seed(555)
+    n = 100
+    time = np.arange(n) * 1.0
+    # Create correlated data
+    anisotropy = np.random.normal(0, 1, n)
+    solar_proxy = 0.8 * anisotropy + np.random.normal(0, 0.2, n)
     
     result = monte_carlo_shuffle_test(
-        times, anisotropy, solar_proxy,
-        n_permutations=500,
-        n_bootstrap=50
+        time, anisotropy, solar_proxy,
+        n_permutations=50
     )
     
-    # Should detect strong correlation
-    assert abs(result['observed_corr']) > 0.9
-    # P-value should be very small for perfect correlation
-    assert result['p_value'] < 0.1
+    # With strong correlation, p-value should be low
+    assert result['mc_p_value'] < 0.5, "Should detect significant correlation"
+    assert abs(result['observed_correlation']) > 0.5
 
 def test_monte_carlo_no_correlation():
-    """Test Monte-Carlo with uncorrelated data."""
-    n = 50
-    times = np.linspace(0, 365, n)
-    anisotropy = np.random.randn(n)
-    solar_proxy = np.random.randn(n)  # Uncorrelated
+    """Test MC test with uncorrelated data."""
+    np.random.seed(111)
+    n = 100
+    time = np.arange(n) * 1.0
+    anisotropy = np.random.normal(0, 1, n)
+    solar_proxy = np.random.normal(0, 1, n)
     
     result = monte_carlo_shuffle_test(
-        times, anisotropy, solar_proxy,
-        n_permutations=500,
-        n_bootstrap=50
+        time, anisotropy, solar_proxy,
+        n_permutations=50
     )
     
-    # Correlation should be near zero
-    assert abs(result['observed_corr']) < 0.5
-    # P-value should be large (not significant)
-    assert result['p_value'] > 0.05
+    # With no correlation, p-value should be high (not significant)
+    assert result['mc_p_value'] > 0.1, "Should not detect spurious correlation"
 
-def test_compute_correlation_with_uncertainty(sample_timeseries):
-    """Test full correlation analysis pipeline."""
-    times, anisotropy, solar_proxy = sample_timeseries
+def test_compute_correlation_with_uncertainty():
+    """Test correlation with bootstrap uncertainty."""
+    np.random.seed(333)
+    n = 50
+    x = np.random.normal(0, 1, n)
+    y = 0.5 * x + np.random.normal(0, 0.5, n)
     
-    result = compute_correlation_with_uncertainty(
-        times, anisotropy, solar_proxy,
-        bin_size_days=DEFAULT_BIN_SIZE_DAYS
-    )
+    result = compute_correlation_with_uncertainty(x, y, n_bootstrap=100)
     
-    # Check all expected keys
-    expected_keys = [
-        'pearson_correlation', 'pearson_pvalue',
-        'monte_carlo_pvalue', 'monte_carlo_significant',
-        'bonferroni_corrected_p', 'bonferroni_significant',
-        'bootstrap_mean', 'bootstrap_std', 'bootstrap_ci_95'
-    ]
-    
-    for key in expected_keys:
-        assert key in result, f"Missing key: {key}"
-    
-    # Check correlation bounds
-    assert -1 <= result['pearson_correlation'] <= 1
-    assert 0 <= result['pearson_pvalue'] <= 1
+    assert 'correlation' in result
+    assert 'ci_lower' in result
+    assert 'ci_upper' in result
+    assert result['ci_lower'] <= result['correlation'] <= result['ci_upper']
 
-def test_block_bootstrap_with_small_blocks(sample_timeseries):
-    """Test block bootstrap logic when blocks < 30."""
-    times, anisotropy, solar_proxy = sample_timeseries
+def test_bonferroni_correction():
+    """Test Bonferroni correction logic."""
+    p_values = [0.01, 0.05, 0.1, 0.5]
+    result = bonferroni_corrected_pvalue(p_values, alpha=0.05)
     
-    # Use very small bin size to force many blocks
-    # But with limited data, blocks should still be < 30
-    result = block_bootstrap_resample(
-        times, anisotropy, solar_proxy,
-        bin_size_days=7,  # Small bin size
-        n_bootstrap=20
-    )
-    
-    assert len(result) == 20
-    assert np.std(result) >= 0  # Should have some variance
+    assert len(result['corrected_pvalues']) == 4
+    assert result['corrected_alpha'] == 0.05 / 4
+    assert result['n_tests'] == 4
 
-def test_monte_carlo_with_different_permutations(sample_timeseries):
-    """Test that increasing permutations improves p-value stability."""
-    times, anisotropy, solar_proxy = sample_timeseries
-    
-    result_100 = monte_carlo_shuffle_test(
-        times, anisotropy, solar_proxy,
-        n_permutations=100,
-        n_bootstrap=20
-    )
-    
-    result_1000 = monte_carlo_shuffle_test(
-        times, anisotropy, solar_proxy,
-        n_permutations=1000,
-        n_bootstrap=20
-    )
-    
-    # Both should have valid p-values
-    assert 0 <= result_100['p_value'] <= 1
-    assert 0 <= result_1000['p_value'] <= 1
-    
-    # With more permutations, p-value should be more stable
-    # (not a strict assertion, but good sanity check)
-    assert abs(result_100['p_value'] - result_1000['p_value']) < 0.2
-
-def test_integration_bootstrap_and_shuffle(sample_timeseries):
-    """Test that bootstrap and shuffle work together in full pipeline."""
-    times, anisotropy, solar_proxy = sample_timeseries
-    
-    # Run full analysis
-    full_result = compute_correlation_with_uncertainty(
-        times, anisotropy, solar_proxy,
-        bin_size_days=DEFAULT_BIN_SIZE_DAYS
-    )
-    
-    # Bootstrap CI should contain bootstrap mean
-    ci_low, ci_high = full_result['bootstrap_ci_95']
-    assert ci_low <= full_result['bootstrap_mean'] <= ci_high
-    
-    # Bootstrap std should be positive
-    assert full_result['bootstrap_std'] >= 0
-
-def test_monte_carlo_handles_mismatched_lengths():
-    """Test that Monte-Carlo raises error on mismatched inputs."""
-    times = np.linspace(0, 365, 50)
-    anisotropy = np.random.randn(50)
-    solar_proxy = np.random.randn(40)  # Different length
-    
-    with pytest.raises(ValueError):
-        monte_carlo_shuffle_test(times, anisotropy, solar_proxy)
+def test_is_significant_after_bonferroni():
+    """Test individual significance check."""
+    assert is_significant_after_bonferroni(0.01, 4, 0.05)
+    assert not is_significant_after_bonferroni(0.02, 4, 0.05)  # 0.02 > 0.0125

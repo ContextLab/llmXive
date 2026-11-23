@@ -1,146 +1,135 @@
+"""
+code/data/ingest.py
+-------------------
+Implements the ingestion pipeline: download -> align -> mask -> unify.
+Produces the SSoT unified_dataset.csv and ingestion_stats.json.
+"""
+import json
 import logging
 from pathlib import Path
-from typing import List, Tuple
+from typing import Dict, List
+import numpy as np
 import pandas as pd
+from llmxive_toolkit import paths, get_logger
+from data.download import download_from_verified_source
+from data.align import create_aligned_dataset, resample_map
+from preprocess.calibrate import calibrate_and_log
 
-__all__ = [
-    "ingest_and_filter_dataset",
-    "download_data",
-    "align_maps",
-    "mask_defects",
-]
+log = get_logger(__name__)
 
-def download_data(urls: List[str], dest_dir: Path) -> List[Path]:
-    """
-    Download files from a list of URLs into ``dest_dir``.
+def _write_ingestion_log(messages: List[str]) -> None:
+    log_path = paths.results("ingestion_log.txt")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(log_path, "w") as f:
+        for line in messages:
+            f.write(line + "\n")
 
-    This placeholder implementation simply records the intended download
-    locations; in a real system you would use ``requests`` or ``urllib`` to
-    fetch the data.
+def _write_ingestion_stats(n_requested: int, n_processed: int, exclusions: List[Dict]) -> None:
+    stats = {
+        "ingestion_success_rate": n_processed / n_requested if n_requested else 0.0,
+        "total_requested": n_requested,
+        "total_processed": n_processed,
+        "exclusions": exclusions,
+    }
+    stats_path = paths.results("ingestion_stats.json")
+    stats_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(stats_path, "w") as f:
+        json.dump(stats, f, indent=2)
 
-    Parameters
-    ----------
-    urls: List[str]
-        URLs to download.
-    dest_dir: Path
-        Destination directory.
+def ingest_and_filter_dataset(config_path: str = None) -> pd.DataFrame:
+    raw_dir = paths.data("raw")
+    processed_dir = paths.data("processed")
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
 
-    Returns
-    -------
-    List[Path]
-        Paths to the downloaded files.
-    """
-    downloaded = []
-    for url in urls:
-        filename = url.split("/")[-1]
-        target = dest_dir / filename
-        logging.info("Pretending to download %s -> %s", url, target)
-        # In a real implementation you would download here.
-        downloaded.append(target)
-    return downloaded
+    # 1. Download
+    # The feasibility dict is optional for the fallback logic in download.py
+    feasibility = {} 
+    try:
+        samples = download_from_verified_source(feasibility)
+    except Exception as e:
+        log.error(f"Data download failed: {e}")
+        raise
 
-def align_maps(map_paths: List[Path]) -> dict:
-    """
-    Align a collection of elemental map files.
-
-    Parameters
-    ----------
-    map_paths: List[Path]
-        Paths to ``.npy`` files containing elemental maps.
-
-    Returns
-    -------
-    dict
-        Mapping from element name to aligned ``np.ndarray``.
-    """
-    from code.data.align import create_aligned_dataset
-
-    raw_dir = map_paths[0].parent
-    element_files = [p.name for p in map_paths]
-    return create_aligned_dataset(raw_dir, element_files)
-
-def mask_defects(aligned_maps: dict, threshold: float = 0.1) -> dict:
-    """
-    Generate a mask for defective regions and apply it to each map.
-
-    The mask flags pixels where any element intensity is below ``threshold``.
-
-    Parameters
-    ----------
-    aligned_maps: dict
-        Mapping from element name to aligned image.
-    threshold: float, optional
-        Intensity threshold for defect detection.
-
-    Returns
-    -------
-    dict
-        Masked maps (same keys, ``np.ndarray`` values).
-    """
-    import numpy as np
-
-    # Create a combined mask where any channel is below threshold
-    stacked = np.stack(list(aligned_maps.values()))
-    mask = np.all(stacked > threshold, axis=0)
-    masked = {k: v * mask for k, v in aligned_maps.items()}
-    return masked
-
-def ingest_and_filter_dataset(
-    metadata_csv: Path,
-    raw_dir: Path,
-    output_csv: Path,
-    performance_columns: List[str],
-) -> None:
-    """
-    Orchestrate the ingestion pipeline: read metadata, download maps,
-    align them, mask defects, and write a unified CSV.
-
-    Parameters
-    ----------
-    metadata_csv: Path
-        CSV containing at least ``sample_id`` and URLs for each element.
-    raw_dir: Path
-        Directory where raw map files will be stored.
-    output_csv: Path
-        Destination for the unified dataset CSV.
-    performance_columns: List[str]
-        Columns in the metadata that contain performance metrics (e.g.,
-        ``['PCE', 'J_sc', 'V_oc']``). Samples missing any of these will be
-        excluded.
-    """
-    df = pd.read_csv(metadata_csv)
-    # Filter rows missing performance metrics
-    before = len(df)
-    df = df.dropna(subset=performance_columns)
-    logging.info(
-        "Filtered %d samples missing performance metrics (kept %d)",
-        before - len(df),
-        len(df),
-    )
-    # Download maps (placeholder)
-    element_keys = [col for col in df.columns if col.endswith("_url")]
-    for _, row in df.iterrows():
-        urls = [row[key] for key in element_keys]
-        download_data(urls, raw_dir)
-    # Align and mask (simplified)
-    # Assume each sample has its own folder under raw_dir named by sample_id
+    n_requested = len(samples)
+    
+    # 2. Align & Mask
     records = []
-    for _, row in df.iterrows():
-        sample_id = row["sample_id"]
-        sample_dir = raw_dir / sample_id
-        map_paths = [sample_dir / f"{elem}.npy" for elem in ["Pb", "I", "MA"]]
-        aligned = align_maps(map_paths)
-        masked = mask_defects(aligned)
-        # Store paths to masked maps
-        record = {
-            "sample_id": sample_id,
-            "Pb_map_path": str(sample_dir / "Pb.npy"),
-            "I_map_path": str(sample_dir / "I.npy"),
-            "MA_map_path": str(sample_dir / "MA.npy"),
-        }
-        for col in performance_columns:
-            record[col] = row[col]
-        records.append(record)
-    out_df = pd.DataFrame(records)
-    out_df.to_csv(output_csv, index=False)
-    logging.info("Unified dataset written to %s", output_csv)
+    exclusions = []
+    
+    for sample in samples:
+        try:
+            sample_id = sample["sample_id"]
+            element_files = [
+                sample["pb_map_filename"],
+                sample["i_map_filename"],
+                sample["ma_map_filename"],
+            ]
+            
+            # Alignment to reference (Pb)
+            aligned_maps = create_aligned_dataset(
+                raw_dir=raw_dir,
+                element_files=element_files,
+                reference_key="Pb",
+            )
+            
+            # Force 512x512 for the project spec as required by T002
+            target_shape = (512, 512)
+            final_maps = {}
+            for elem, arr in aligned_maps.items():
+                if arr.shape != target_shape:
+                    final_maps[elem] = resample_map(arr, target_shape)
+                else:
+                    final_maps[elem] = arr
+
+            # Masking and Calibration
+            masked_paths = {}
+            mask_percentages = []
+            for elem, arr in final_maps.items():
+                masked_arr, stats = calibrate_and_log(image=arr)
+                out_path = processed_dir / f"{sample_id}_{elem}_masked.npy"
+                np.save(out_path, masked_arr)
+                masked_paths[elem] = str(out_path)
+                mask_percentages.append(stats["total_mask_fraction"])
+
+            # Create unified record
+            # Ensure no nulls in required performance columns
+            record = {
+                "sample_id": sample_id,
+                "pce": float(sample["pce"]),
+                "j_sc": float(sample["j_sc"]),
+                "v_oc": float(sample["v_oc"]),
+                "mask_percentage": float(np.mean(mask_percentages)),
+                "eds_status": "complete",
+                "Pb_map_path": masked_paths.get("Pb"),
+                "I_map_path": masked_paths.get("I"),
+                "MA_map_path": masked_paths.get("MA"),
+            }
+            records.append(record)
+            
+        except Exception as e:
+            log.warning(f"Sample {sample.get('sample_id', 'unknown')} failed: {e}")
+            exclusions.append({"sample_id": sample.get("sample_id", "unknown"), "reason": str(e)})
+
+    # Create DataFrame
+    df = pd.DataFrame(records)
+    
+    # Validation: Ensure required columns are present and non-null
+    required_cols = ["pce", "j_sc", "v_oc"]
+    df = df.dropna(subset=required_cols)
+    
+    unified_path = paths.data("processed", "unified_dataset.csv")
+    df.to_csv(unified_path, index=False)
+    
+    # Log and stats
+    _write_ingestion_log([f"{ex['sample_id']}: {ex['reason']}" for ex in exclusions])
+    _write_ingestion_stats(n_requested, len(df), exclusions)
+    
+    log.info(f"Ingestion completed. {len(df)}/{n_requested} samples successfully processed.")
+    return df
+
+def main() -> None:
+    ingest_and_filter_dataset()
+
+if __name__ == "__main__":
+    main()

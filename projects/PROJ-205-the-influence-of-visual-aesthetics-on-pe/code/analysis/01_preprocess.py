@@ -1,239 +1,177 @@
-"""
-Preprocessing script for User Story 2 (Statistical Analysis).
-
-Loads raw submission data, filters incomplete/invalid records, logs exclusions
-for audit transparency, and reshapes valid data to wide format for ANOVA.
-
-Output:
-  - data/processed/valid_data_wide.csv: Wide-format dataframe ready for ANOVA
-  - data/processed/excluded_audit.csv: Log of excluded rows with reasons
-"""
 import os
 import sys
 import csv
+import json
 from pathlib import Path
 from datetime import datetime
-from typing import List, Dict, Any, Tuple
 
-# Add project root to path for imports if running as script
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+def get_project_root() -> Path:
+    """Return the project root directory."""
+    return Path(__file__).resolve().parent.parent
 
-from utils.helpers import ensure_data_dirs
+def get_env_mode() -> str:
+    """Get the environment mode."""
+    return os.getenv('MODE', 'development')
 
-# Configuration
-RAW_DATA_PATH = project_root / "data" / "raw" / "submissions.csv"
-PROCESSED_DIR = project_root / "data" / "processed"
-VALID_DATA_PATH = PROCESSED_DIR / "valid_data_wide.csv"
-EXCLUDED_AUDIT_PATH = PROCESSED_DIR / "excluded_audit.csv"
+def get_submissions_csv_path() -> Path:
+    """Return the path to the submissions CSV file."""
+    return get_project_root() / "data" / "raw" / "submissions.csv"
 
-# Required columns for validation
-REQUIRED_COLUMNS = [
-    "submission_status", 
-    "session_timeout", 
-    "rating_count",
-    "participant_id",
-    "credibility_professional",
-    "credibility_minimalist",
-    "credibility_low_quality",
-    "credibility_neutral",
-    "professionalism_professional",
-    "professionalism_minimalist",
-    "professionalism_low_quality",
-    "professionalism_neutral"
-]
+def get_cleaned_csv_path() -> Path:
+    """Return the path to the cleaned data CSV file."""
+    return get_project_root() / "data" / "processed" / "cleaned_data.csv"
 
-def load_raw_data() -> List[Dict[str, Any]]:
-    """Load raw submissions CSV."""
-    if not RAW_DATA_PATH.exists():
-        raise FileNotFoundError(f"Raw data file not found: {RAW_DATA_PATH}")
+def get_excluded_audit_path() -> Path:
+    """Return the path to the excluded audit log CSV file."""
+    return get_project_root() / "data" / "raw" / "excluded_audit.csv"
+
+def load_raw_data() -> list:
+    """Load the raw submissions data."""
+    path = get_submissions_csv_path()
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {path}")
     
-    rows = []
-    with open(RAW_DATA_PATH, 'r', newline='', encoding='utf-8') as f:
+    with open(path, mode='r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
-        for row in reader:
-            rows.append(row)
-    return rows
+        return list(reader)
 
-def validate_and_filter(
-    rows: List[Dict[str, Any]]
-) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+def validate_and_filter(data: list) -> tuple:
     """
-    Filter rows based on inclusion criteria.
-    
-    Exclusion criteria (row is excluded if ANY is true):
-    - submission_status != 'complete'
-    - session_timeout == true (or 'true' string)
-    - rating_count < 8
-    
-    Returns:
-      Tuple of (valid_rows, excluded_rows_with_reasons)
+    Validate and filter the data.
+    Returns (cleaned_data, excluded_rows)
     """
-    valid_rows = []
-    excluded_rows = []
+    cleaned = []
+    excluded = []
     
-    for i, row in enumerate(rows):
-        exclusion_reasons = []
+    required_fields = ['participant_id', 'stimulus_id', 'credibility', 'professionalism', 'age', 'education']
+    
+    for row in data:
+        valid = True
+        reason = ""
         
-        # Check submission_status
-        status = row.get("submission_status", "").strip().lower()
-        if status != "complete":
-            exclusion_reasons.append(f"status_not_complete:{status}")
-        
-        # Check session_timeout (handle both boolean and string representations)
-        timeout_val = row.get("session_timeout", "").strip().lower()
-        if timeout_val in ["true", "1", "yes"]:
-            exclusion_reasons.append("session_timeout_true")
-        
-        # Check rating_count
-        try:
-            rating_count = int(row.get("rating_count", 0))
-            if rating_count < 8:
-                exclusion_reasons.append(f"rating_count_low:{rating_count}")
-        except (ValueError, TypeError):
-            exclusion_reasons.append("rating_count_invalid")
-        
-        if exclusion_reasons:
-            # Add reason column to excluded row
-            excluded_row = row.copy()
-            excluded_row["exclusion_reasons"] = "; ".join(exclusion_reasons)
-            excluded_row["original_index"] = i
-            excluded_rows.append(excluded_row)
-        else:
-            valid_rows.append(row)
-    
-    return valid_rows, excluded_rows
-
-def reshape_to_wide(valid_rows: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """
-    Reshape data from long to wide format for ANOVA.
-    
-    Assumes each participant has exactly one row with ratings for all 4 conditions
-    already aggregated (as per T021/T022 implementation).
-    
-    If data is already in wide format (one row per participant with all ratings),
-    this function validates and returns it as-is.
-    
-    Expected wide format columns:
-    - participant_id
-    - credibility_professional, credibility_minimalist, credibility_low_quality, credibility_neutral
-    - professionalism_professional, professionalism_minimalist, professionalism_low_quality, professionalism_neutral
-    - age, education (demographics)
-    """
-    # For this implementation, we assume the CSV is already in wide format
-    # (one row per participant with all 8 ratings). 
-    # We validate the structure and ensure required columns exist.
-    
-    wide_rows = []
-    required_wide_cols = [
-        "participant_id",
-        "credibility_professional", "credibility_minimalist", 
-        "credibility_low_quality", "credibility_neutral",
-        "professionalism_professional", "professionalism_minimalist",
-        "professionalism_low_quality", "professionalism_neutral"
-    ]
-    
-    for row in valid_rows:
-        # Validate all required rating columns exist and are numeric
-        valid_row = True
-        for col in required_wide_cols:
-            if col not in row:
-                valid_row = False
+        # Check required fields
+        for field in required_fields:
+            if field not in row or row[field] is None or row[field] == '':
+                valid = False
+                reason = f"Missing {field}"
                 break
+        
+        # Check numeric fields
+        if valid:
             try:
-                float(row[col])
-            except (ValueError, TypeError):
-                valid_row = False
-                break
+                int(row['age'])
+                int(row['credibility'])
+                int(row['professionalism'])
+                int(row['education'])
+            except ValueError:
+                valid = False
+                reason = "Invalid numeric value"
         
-        if valid_row:
-            wide_rows.append(row)
+        if valid:
+            cleaned.append(row)
         else:
-            # Log malformed rows as excluded
-            excluded_row = row.copy()
-            excluded_row["exclusion_reasons"] = "missing_or_invalid_rating_columns"
-            excluded_row["original_index"] = -1
-            # This would be added to excluded_rows in a real scenario
-            # but we're returning only valid wide rows here
+            row['exclusion_reason'] = reason
+            excluded.append(row)
     
-    return wide_rows
+    return cleaned, excluded
 
-def write_outputs(valid_wide: List[Dict[str, Any]], excluded: List[Dict[str, Any]]):
-    """Write valid wide data and excluded audit log to CSV files."""
-    # Ensure output directory exists
-    ensure_data_dirs()
+def generate_audit_log(excluded_rows: list) -> None:
+    """Generate an audit log of excluded rows."""
+    path = get_excluded_audit_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
     
-    # Write valid wide data
-    if valid_wide:
-        fieldnames = list(valid_wide[0].keys())
-        with open(VALID_DATA_PATH, 'w', newline='', encoding='utf-8') as f:
+    fieldnames = list(excluded_rows[0].keys()) if excluded_rows else []
+    
+    with open(path, mode='w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(excluded_rows)
+
+def reshape_to_wide(cleaned_data: list) -> list:
+    """
+    Reshape the data from long to wide format.
+    Each participant becomes a row, with columns for each stimulus rating.
+    """
+    if not cleaned_data:
+        return []
+    
+    # Group by participant_id
+    participants = {}
+    for row in cleaned_data:
+        pid = row['participant_id']
+        if pid not in participants:
+            participants[pid] = {
+                'age': row['age'],
+                'education': row['education'],
+                'stimuli': {}
+            }
+        stim_id = row['stimulus_id']
+        participants[pid]['stimuli'][stim_id] = {
+            'credibility': row['credibility'],
+            'professionalism': row['professionalism']
+        }
+    
+    # Convert to wide format
+    wide_data = []
+    for pid, data in participants.items():
+        row = {
+            'participant_id': pid,
+            'age': data['age'],
+            'education': data['education']
+        }
+        for stim_id, ratings in data['stimuli'].items():
+            row[f"{stim_id}_credibility"] = ratings['credibility']
+            row[f"{stim_id}_professionalism"] = ratings['professionalism']
+        wide_data.append(row)
+    
+    return wide_data
+
+def write_outputs(cleaned_data: list, wide_data: list) -> None:
+    """Write the cleaned and wide data to CSV files."""
+    # Write cleaned data (long format)
+    path = get_cleaned_csv_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    if cleaned_data:
+        fieldnames = list(cleaned_data[0].keys())
+        with open(path, mode='w', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, fieldnames=fieldnames)
             writer.writeheader()
-            writer.writerows(valid_wide)
+            writer.writerows(cleaned_data)
     else:
-        # Create empty file with headers if no valid data
-        with open(VALID_DATA_PATH, 'w', newline='', encoding='utf-8') as f:
-            f.write("")
-    
-    # Write excluded audit log
-    if excluded:
-        fieldnames = list(excluded[0].keys())
-        with open(EXCLUDED_AUDIT_PATH, 'w', newline='', encoding='utf-8') as f:
-            writer = csv.DictWriter(f, fieldnames=fieldnames)
-            writer.writeheader()
-            writer.writerows(excluded)
-    else:
-        # Create empty audit log if no exclusions
-        with open(EXCLUDED_AUDIT_PATH, 'w', newline='', encoding='utf-8') as f:
-            f.write("")
+        # Write empty file with headers
+        with open(path, mode='w', newline='', encoding='utf-8') as f:
+            f.write("participant_id,stimulus_id,credibility,professionalism,timestamp,hashed_ip,age,education,duplicate_flag,session_status,submission_status\n")
 
 def main():
-    """Main entry point for preprocessing."""
-    print(f"[INFO] Starting preprocessing at {datetime.now().isoformat()}")
-    print(f"[INFO] Loading raw data from: {RAW_DATA_PATH}")
+    """Main entry point for the preprocessing script."""
+    print("Starting preprocessing...")
     
     try:
-        # Load raw data
-        raw_rows = load_raw_data()
-        print(f"[INFO] Loaded {len(raw_rows)} raw records")
+        raw_data = load_raw_data()
+        print(f"Loaded {len(raw_data)} rows.")
         
-        if len(raw_rows) == 0:
-            print("[WARN] No raw data found. Creating empty output files.")
-            write_outputs([], [])
-            print("[INFO] Preprocessing complete (no data).")
-            return
+        cleaned_data, excluded_data = validate_and_filter(raw_data)
+        print(f"Cleaned data: {len(cleaned_data)} rows.")
+        print(f"Excluded data: {len(excluded_data)} rows.")
         
-        # Validate and filter
-        valid_rows, excluded_rows = validate_and_filter(raw_rows)
-        print(f"[INFO] Valid records: {len(valid_rows)}")
-        print(f"[INFO] Excluded records: {len(excluded_rows)}")
+        if excluded_data:
+            generate_audit_log(excluded_data)
+            print(f"Audit log written to {get_excluded_audit_path()}")
         
-        if excluded_rows:
-            print(f"[INFO] Exclusion reasons:")
-            reasons = {}
-            for row in excluded_rows:
-                reason = row.get("exclusion_reasons", "unknown")
-                reasons[reason] = reasons.get(reason, 0) + 1
-            for reason, count in sorted(reasons.items()):
-                print(f"  - {reason}: {count}")
+        wide_data = reshape_to_wide(cleaned_data)
+        print(f"Wide data: {len(wide_data)} rows.")
         
-        # Reshape to wide format
-        wide_rows = reshape_to_wide(valid_rows)
-        print(f"[INFO] Wide format records: {len(wide_rows)}")
+        write_outputs(cleaned_data, wide_data)
+        print(f"Cleaned data written to {get_cleaned_csv_path()}")
         
-        # Write outputs
-        write_outputs(wide_rows, excluded_rows)
-        
-        print(f"[INFO] Valid data written to: {VALID_DATA_PATH}")
-        print(f"[INFO] Excluded audit log written to: {EXCLUDED_AUDIT_PATH}")
-        print(f"[INFO] Preprocessing complete at {datetime.now().isoformat()}")
+        print("Preprocessing complete.")
         
     except FileNotFoundError as e:
-        print(f"[ERROR] {e}")
+        print(f"Error: {e}")
         sys.exit(1)
     except Exception as e:
-        print(f"[ERROR] Unexpected error: {e}")
+        print(f"Unexpected error: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

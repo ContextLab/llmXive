@@ -1,81 +1,95 @@
-# Data Model: Predicting Molecular Stability from Spectroscopic Data
+# Data Model: Predicting Chemical Reaction Yields from Spectroscopic Data with Attention Mechanisms
 
-## Entity Definitions
+## 1. Conceptual Entity‑Relationship Diagram
+```mermaid
+erDiagram
+    ReactionSample ||--|| SpectralData : "has"
+    ReactionSample ||--|| Fingerprint : "has"
+    ReactionSample ||--|| ConditionVector : "has"
+    ReactionSample ||--|| YieldLabel : "has"
+    ReactionSample ||--|| ReactionTemplate : "belongs to"
+    
+    ReactionSample {
+        string reaction_smiles
+        float yield_percent
+        string template_id
+        string solvent
+        string catalyst
+        float temperature_k
+    }
+    
+    SpectralData {
+        float[] ir_spectrum
+        float[] nmr_spectrum
+        string grid_type
+    }
+    
+    Fingerprint {
+        int[] ecfp4   "1024‑bit vector"
+    }
+    
+    ConditionVector {
+        int solvent_id
+        int catalyst_id
+        float temperature_norm
+    }
+    
+    YieldLabel {
+        float yield_percent
+    }
+    
+    ReactionTemplate {
+        string md5_hash
+    }
+```
 
-### ReactionSample
-Represents a single chemical reaction instance after preprocessing.
-- `reaction_smiles`: str (Canonical SMILES of the reaction)
-- `yield_percent`: float (0.0 to 100.0, or **normalized DFT total energy proxy**)
-- `ir_spectrum`: list[float] (Resampled array, length = num_bins_IR)
-- `nmr_spectrum`: list[float] (Resampled array, length = num_bins_NMR, or null if missing)
-- `rfp`: list[int] (ECFP4 fingerprint vector, length = 2048)
-- `scaffold_id`: str (Hash of the Bemis-Murcko scaffold)
-- `solvent_id`: int (Encoded categorical ID)
-- `catalyst_id`: int (Encoded categorical ID)
-- `temperature_k`: float (Absolute temperature)
-- `source_dataset`: str (e.g., "DFT")
+## 2. Core Entities
 
-### SpectralGrid
-Defines the standardized domain for spectral data.
-- `type`: str ("IR", "Raman", "NMR")
-- `min_value`: float (e.g., 400.0 for IR)
-- `max_value`: float (e.g., 4000.0 for IR)
-- `num_bins`: int (e.g., 1000)
+| Entity | Attributes | Type / Constraints |
+|--------|------------|--------------------|
+| **ReactionSample** | `reaction_smiles`, `yield_percent`, `template_id`, `solvent`, `catalyst`, `temperature_k` | Primary analysis unit |
+| **SpectralData** | `ir_spectrum` (array of 1000 floats, grid 400‑4000 cm⁻¹, step = 1 cm⁻¹), `nmr_spectrum` (array of 1000 floats, grid 0‑10 ppm, step = 0.01 ppm) | Resampled, unit‑variance normalized |
+| **Fingerprint** | `ecfp4` (1024‑bit integer array) | Generated via RDKit |
+| **ConditionVector** | `solvent_id` (one‑hot/int), `catalyst_id` (one‑hot/int), `temperature_norm` (float) | Encodes reaction environment |
+| **YieldLabel** | `yield_percent` (float) | Target variable |
+| **ReactionTemplate** | `md5_hash` (string) | Derived from Bemis‑Murcko scaffold; used for leakage checks |
 
-### ModelCheckpoint
-Represents a saved state of the trained model.
-- `epoch`: int
-- `validation_rmse`: float
-- `weights_path`: str (Relative path to .pt file)
-- `config_hash`: str (SHA-256 of the training config)
+## 3. Variable Reactant Handling (Methodology‑f96f913d)
+Reactions can contain 1–3 reactants plus a product. To create a fixed‑size tensor for the attention model we:
 
-### EvaluationResult
-Stores the output of the evaluation phase.
-- `model_name`: str (e.g., "attention", "fingerprint_baseline")
-- `rmse`: float
-- `mae`: float
-- `r2`: float
-- `p_value`: float (from paired t-test vs best baseline)
-- `attention_map`: list[float] (Averaged attention weights over spectral axis)
+1. **Pad** missing reactant spectra with zero‑filled arrays (same length as a real spectrum).  
+2. **Order** the channels as Reactant 1, Reactant 2, Reactant 3, Product.  
+3. **Concatenate** IR and NMR within each channel, yielding a per‑channel vector of length 2000 (1000 IR + 1000 NMR).  
+4. The final input tensor shape is `[4 × 2000]`.  
 
-### AnalysisTrace
-Links every statistic/figure to its source data and code.
-- `statistic_id`: str (Unique ID for the statistic)
-- `data_row_ids`: list[str] (List of row IDs from the processed dataset)
-- `code_block_hash`: str (SHA-256 hash of the specific code block/script that generated the result)
-- `artifact_path`: str (Path to the generated figure or metric file)
-- `description`: str (Human-readable description of the statistic)
+This deterministic padding ensures all samples are compatible with the 4‑head self‑attention encoder.
 
-## Data Flow
+## 4. Data‑Model ↔ Schema Alignment
+- The schema `dataset.schema.yaml` defines the spectral fields with 1000 points each and uses the field name `fingerprint`.  
+- For compatibility with downstream code that may reference the fingerprint as `rfp`, the schema also includes an alias property `rfp` with identical constraints.  
+- All downstream pipelines accept either `fingerprint` or `rfp`; the plan and documentation primarily use `fingerprint` for clarity.
 
-1.  **Ingestion**: Raw data (DFT) is downloaded and stored in `data/raw/`.
-2.  **Preprocessing**:
-    - SMILES are parsed to extract scaffolds.
-    - Spectra are resampled to `SpectralGrid`.
-    - Conditions are one-hot or integer encoded.
-    - Data is split into Train/Val/Test based on `scaffold_id` (zero overlap).
-    - Output: `data/processed/train.parquet`, `val.parquet`, `test.parquet`.
-3.  **Training**:
-    - Model loads `train.parquet`.
-    - Trains for max 10 epochs.
-    - Saves `ModelCheckpoint` to `data/artifacts/`.
-4.  **Evaluation**:
-    - Model and baselines are evaluated on `test.parquet`.
-    - Attention maps are generated.
-    - **AnalysisTrace** entries are created for every metric and figure.
-    - Output: `data/artifacts/metrics.json`, `data/artifacts/attention_heatmap.png`, `data/artifacts/trace_log.json`.
+## 5. Data Flow
+1. **Ingestion** (`src/data/ingestion.py`) – download USPTO reactions, query NIST & PubChem for JCAMP‑DX spectra, store raw files under `data/raw/`.  
+2. **Preprocessing** (`src/data/preprocessing.py`) – resample, normalize, pad, compute fingerprints, encode conditions, generate MD5 template hashes, perform scaffold‑based split, write `train.parquet`, `val.parquet`, `test.parquet` under `data/processed/`.  
+3. **Loading** (`src/data/loaders.py`) – PyTorch `Dataset` objects stream parquet rows into tensors matching the fixed‑size schema.  
+4. **Model Training** – consumes tensors from loaders, produces `model.pth` and `training_log.csv`.  
+5. **Evaluation & Interpretability** – generates `metrics.csv`, `wilcoxon_results.json`, `permutation_report.json`, heatmap PNGs, and `peak_alignment_report.json`.  
 
-## Constraints & Validation
+All generated files receive SHA‑256 checksums recorded in `state/projects/PROJ-165-.../artifact_hashes.yaml`.  
 
-- **Yield Range**: `yield_percent` must be between 0.0 and 100.0. If a proxy (DFT Energy) is used, the range must be normalized to this scale.
-- **Spectral Length**: All `ir_spectrum` and `nmr_spectrum` arrays must have length equal to `num_bins` defined in `SpectralGrid`.
-- **Scaffold Uniqueness**: The set of `scaffold_id` in `train` must be disjoint from `test` and `val`.
-- **Missing Data**: If `nmr_spectrum` is missing, it is replaced with a zero vector and a mask flag is set (if the model supports masking).
-- **SSoT Linkage**: Every statistic reported in the paper must have a corresponding `AnalysisTrace` entry. The `code_block_hash` must match the hash of the specific script/function used to generate the result.
+## 6. Constraints & Validation (Schema‑driven)
 
-## Linkage Mechanism (Principle IV)
+- **Yield Range**: `0.0 ≤ yield_percent ≤ 100.0`.  
+- **Spectrum Length**: 1000 points per IR and NMR spectrum (as enforced by the schema).  
+- **Template Uniqueness**: `template_id` appears in only one split (validated by `leakage_report.json`).  
+- **Condition Balance**: Splits are stratified by solvent/catalyst categories (checked in `split_manifest.json`).  
+- **Checksum Integrity**: Every file’s SHA‑256 must match entry in `state/...yaml`.  
+- **VIF Threshold**: VIF ≤ 5 for all predictor groups; otherwise flagged in `evaluation_report.json`.  
+- **Statistical Significance**: Bonferroni‑adjusted p < 0.0167 for required Wilcoxon tests (SC‑002).
 
-To satisfy Principle IV (Single Source of Truth):
-1.  The `src/utils/trace_logger.py` module is used to generate `AnalysisTrace` entries.
-2.  Every time a statistic is calculated (e.g., RMSE), the logger records the `data_row_ids` and the `code_block_hash` of the function that calculated it.
-3.  The `trace_log.json` file serves as the master index linking all figures and statistics to their source.
+All constraints are enforced by `src/utils/validators.py` before downstream steps.
+
+---
+
+

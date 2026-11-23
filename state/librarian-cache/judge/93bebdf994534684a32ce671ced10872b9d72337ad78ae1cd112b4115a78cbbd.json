@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2409.07720",
+  "judged_at": "2026-09-06T18:54:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of simulated social comparison on self-evaluation in online environments psychology",
+  "rationale": "The paper focuses on detecting adversarial influence networks and \"astroturfing\" operations using machine learning, which is a distinct construct from the psychological mechanism of \"simulated social comparison\" and its impact on \"self-evaluation.\" While both involve online environments, the candidate paper addresses information security and network analysis rather than the specific psychological variables or causal mechanisms requested by the user.",
+  "relevant": false
+}

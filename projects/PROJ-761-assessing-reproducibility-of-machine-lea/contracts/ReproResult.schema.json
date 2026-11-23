@@ -1,90 +1,93 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://llmxive.org/schemas/ReproResult.json",
+  "$id": "https://llmxive.org/schemas/ReproResult.schema.json",
   "title": "ReproResult",
-  "description": "Schema for the result of a reproducibility attempt for a single paper.",
+  "description": "Schema for the output of a single paper's reproducibility assessment.",
   "type": "object",
-  "required": ["doi", "status", "metrics"],
+  "required": [
+    "doi",
+    "mae",
+    "r2",
+    "rho",
+    "deviation_mae",
+    "deviation_r2",
+    "deviation_rho",
+    "score_s",
+    "flags",
+    "max_metric_std_dev"
+  ],
   "properties": {
     "doi": {
       "type": "string",
-      "description": "DOI of the paper being reproduced."
+      "description": "Digital Object Identifier of the paper."
     },
-    "status": {
-      "type": "string",
-      "enum": ["success", "partial", "failed", "unavailable"],
-      "description": "Overall status of the reproduction attempt."
+    "mae": {
+      "type": ["number", "null"],
+      "description": "Reproduced Mean Absolute Error. Null if calculation failed."
     },
-    "failure_reason": {
-      "type": "string",
-      "description": "Detailed reason if status is failed or unavailable."
+    "r2": {
+      "type": ["number", "null"],
+      "description": "Reproduced R-squared value. Null if calculation failed."
     },
-    "metrics": {
-      "type": "object",
-      "required": ["mae", "r2"],
-      "properties": {
-        "mae": {
-          "type": "number",
-          "description": "Reproduced Mean Absolute Error."
-        },
-        "r2": {
-          "type": "number",
-          "description": "Reproduced R-squared value."
-        },
-        "spearman_rho": {
-          "type": "number",
-          "description": "Reproduced Spearman's rank correlation."
-        }
-      }
+    "rho": {
+      "type": ["number", "null"],
+      "description": "Reproduced Spearman's Rho. Null if calculation failed."
     },
-    "deviations": {
-      "type": "object",
-      "properties": {
-        "delta_mae": {
-          "type": "number",
-          "description": "Absolute difference between reproduced and reported MAE."
-        },
-        "delta_r2": {
-          "type": "number",
-          "description": "Absolute difference between reproduced and reported R2."
-        },
-        "delta_rho": {
-          "type": "number",
-          "description": "Absolute difference between reproduced and reported Spearman rho."
-        }
-      }
+    "deviation_mae": {
+      "type": ["number", "null"],
+      "description": "Absolute deviation of reproduced MAE from reported."
     },
-    "reproducibility_score": {
-      "type": "number",
-      "minimum": 0,
-      "maximum": 1,
-      "description": "Deviation Index S (FR-009)."
+    "deviation_r2": {
+      "type": ["number", "null"],
+      "description": "Absolute deviation of reproduced R2 from reported."
     },
-    "model_substituted": {
-      "type": "boolean",
-      "description": "True if the original model was too large and a baseline was used."
+    "deviation_rho": {
+      "type": ["number", "null"],
+      "description": "Absolute deviation of reproduced Rho from reported."
     },
-    "seed_used": {
+    "score_s": {
+      "type": ["number", "null"],
+      "description": "Reproducibility Score S (1 - average normalized deviations)."
+    },
+    "max_metric_std_dev": {
+      "type": ["number", "null"],
+      "description": "Maximum standard deviation of metrics across sensitivity seeds."
+    },
+    "experimental_replicates": {
       "type": ["integer", "null"],
-      "description": "The seed actually used for the run."
+      "description": "Number of experimental replicates found/used."
     },
-    "seed_sweep_std": {
-      "type": "object",
-      "description": "Standard deviations from seed sensitivity analysis (FR-010).",
+    "reaction_conditions": {
+      "type": ["object", "null"],
+      "description": "Extracted reaction conditions.",
       "properties": {
-        "mae_std": { "type": "number" },
-        "r2_std": { "type": "number" },
-        "rho_std": { "type": "number" },
-        "max_metric_std": { "type": "number" }
-      }
+        "temperature": {
+          "type": "number"
+        },
+        "solvent": {
+          "type": "string"
+        },
+        "catalyst_loading": {
+          "type": "number"
+        }
+      },
+      "additionalProperties": false
     },
-    "environment": {
-      "type": "object",
-      "properties": {
-        "python_version": { "type": "string" },
-        "os": { "type": "string" },
-        "docker_hash": { "type": "string" }
-      }
+    "yield_std_dev": {
+      "type": ["number", "null"],
+      "description": "Standard deviation of yields across replicates."
+    },
+    "flags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "List of flags indicating issues (e.g., 'Model Substitution', 'Missing Replicate Data', 'Data Unavailable')."
+    },
+    "failure_details": {
+      "type": ["object", "null"],
+      "description": "Detailed error or failure information if applicable."
     }
-  }
+  },
+  "additionalProperties": false
 }

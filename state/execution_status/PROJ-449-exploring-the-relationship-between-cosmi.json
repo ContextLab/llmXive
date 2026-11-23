@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-449-exploring-the-relationship-between-cosmi",
+  "ok": false,
+  "reason": "6 command(s) failed: python code/main.py --stage retrieve (rc=1); python code/main.py --stage ratios (rc=1); python code/main.py --stage correlation (rc=1); 4 declared deliverable(s) absent: data/processed/correlation_results.json; data/processed/correlation_summary.csv; data/processed/modulation_amplitudes.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --stage retrieve -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationship-between-cosmi/code/main.py\", line 21, in <module>\n    from code.utils.logging import setup_logger\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationship-between-cosmi/code/utils/__init__.py\", line 2, in <module>\n    from code.utils.config import CONFIG\nImportError: cannot import name 'CONFIG' from 'code.utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationshi",
+    "python code/main.py --stage ratios -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationship-between-cosmi/code/main.py\", line 21, in <module>\n    from code.utils.logging import setup_logger\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationship-between-cosmi/code/utils/__init__.py\", line 2, in <module>\n    from code.utils.config import CONFIG\nImportError: cannot import name 'CONFIG' from 'code.utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationship-",
+    "python code/main.py --stage correlation -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationship-between-cosmi/code/main.py\", line 21, in <module>\n    from code.utils.logging import setup_logger\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationship-between-cosmi/code/utils/__init__.py\", line 2, in <module>\n    from code.utils.config import CONFIG\nImportError: cannot import name 'CONFIG' from 'code.utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relation",
+    "python code/main.py --stage bootstrap -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationship-between-cosmi/code/main.py\", line 21, in <module>\n    from code.utils.logging import setup_logger\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationship-between-cosmi/code/utils/__init__.py\", line 2, in <module>\n    from code.utils.config import CONFIG\nImportError: cannot import name 'CONFIG' from 'code.utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationsh",
+    "python code/main.py --stage model -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationship-between-cosmi/code/main.py\", line 21, in <module>\n    from code.utils.logging import setup_logger\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationship-between-cosmi/code/utils/__init__.py\", line 2, in <module>\n    from code.utils.config import CONFIG\nImportError: cannot import name 'CONFIG' from 'code.utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationship-b",
+    "python code/main.py --stage all -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationship-between-cosmi/code/main.py\", line 21, in <module>\n    from code.utils.logging import setup_logger\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationship-between-cosmi/code/utils/__init__.py\", line 2, in <module>\n    from code.utils.config import CONFIG\nImportError: cannot import name 'CONFIG' from 'code.utils.config' (/home/runner/work/llmXive/llmXive/projects/PROJ-449-exploring-the-relationship-bet"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-20T05:43:59Z"
+}

@@ -1,0 +1,2 @@
+# This directory holds raw, unmodified downloaded datasets (e.g., LibriSpeech, CORAA).
+# Ensure large files are excluded via .gitignore.

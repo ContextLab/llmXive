@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1404.2860",
+  "judged_at": "2026-07-22T22:07:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting glass transition temperature from compositional descriptors with explainable boosting machines materials science",
+  "rationale": "This paper addresses the fundamental thermodynamic mechanisms and variables (glass transition temperature $T_g$, specific heat jumps, enthalpy, and entropy) that define the target property the user aims to predict, satisfying criteria (a) for same-mechanism evidence and (b) for measuring the dependent variable on the same domain. Although it does not use machine learning or compositional descriptors, it provides the essential physical theory and empirical relationships for $T_g$ that any literat",
+  "relevant": true
+}

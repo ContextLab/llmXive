@@ -1,79 +1,87 @@
-import os
+"""
+Unit tests for the T002 ingestion script.
+
+The tests verify that:
+  * The script exits with code 0 on a successful download.
+  * The parquet file contains a ``task`` column with the expected value.
+  * The metadata JSON includes a SHA‑256 checksum.
+  * The citation file exists and contains the OpenNeuro citation.
+"""
 import json
+import os
+import subprocess
+import sys
 import tempfile
-import pytest
+from pathlib import Path
+
 import pandas as pd
-from unittest.mock import patch, MagicMock
+import pytest
 
-from ingest import save_checksums, calculate_file_hash, setup_paths
+# The URL used in the quick‑start is a small verified parquet file.
+# It is publicly reachable; the test will download it for real.
+TEST_URL = "https://huggingface.co/datasets/clane9/openneuro-fslr64k/resolve/main/data/test-00000-of-00016.parquet"
 
-class TestChecksums:
-    def test_save_checksums_creates_file(self, tmp_path):
-        """Test that save_checksums creates the checksums.json file."""
-        # Create a dummy file to checksum
-        dummy_file = tmp_path / "test_data.csv"
-        dummy_file.write_text("col1,col2\n1,2\n3,4\n")
-        
-        checksum_path = tmp_path / "checksums.json"
-        
-        # Call the function
-        save_checksums([str(dummy_file)], str(checksum_path))
-        
-        # Verify file exists
-        assert checksum_path.exists()
-        
-        # Verify content
-        with open(checksum_path, 'r') as f:
-            data = json.load(f)
-        
-        assert str(dummy_file) in data
-        assert len(data[str(dummy_file)]) == 64  # SHA256 length
+@pytest.fixture(scope="module")
+def temp_dir():
+    with tempfile.TemporaryDirectory() as td:
+        yield Path(td)
 
-    def test_save_checksums_handles_missing_file(self, tmp_path):
-        """Test that save_checksums logs a warning for missing files."""
-        checksum_path = tmp_path / "checksums.json"
-        missing_file = tmp_path / "nonexistent.csv"
-        
-        # Should not raise, but log warning
-        save_checksums([str(missing_file)], str(checksum_path))
-        
-        # File should still be created (possibly empty or with warning entry)
-        assert checksum_path.exists()
-        
-        with open(checksum_path, 'r') as f:
-            data = json.load(f)
-        
-        # Missing file should not be in the dictionary
-        assert str(missing_file) not in data
+def run_ingest(temp_dir: Path):
+    """Helper to invoke the ingestion script."""
+    cmd = [
+        sys.executable,
+        "code/ingest.py",
+        "--dataset-url",
+        TEST_URL,
+        "--output-dir",
+        str(temp_dir),
+        "--dataset-id",
+        "ds000208",
+    ]
+    result = subprocess.run(
+        cmd,
+        cwd=Path(__file__).parents[1],  # project root
+        capture_output=True,
+        text=True,
+    )
+    return result
 
-    def test_checksums_generated_before_validation(self):
-        """
-        Contract test for T016: Ensure checksums are generated
-        immediately after download, before any validation logic.
-        This is verified by the order of operations in run_ingestion.
-        """
-        # This is a structural test. In the real run, we verify the log output
-        # or the order of function calls.
-        # Here we assert that the function save_checksums is available and callable
-        # and that it is called before validation in the pipeline logic.
-        assert callable(save_checksums)
-        assert callable(calculate_file_hash)
-        # The actual order is enforced by the code in ingest.py:run_ingestion
+def test_ingest_success(temp_dir):
+    result = run_ingest(temp_dir)
+    assert result.returncode == 0, f"stderr: {result.stderr}"
 
-def test_checksums_json_content(tmp_path):
-    """Test the content of the generated checksums.json."""
-    # Create a file with known content
-    test_file = tmp_path / "known.csv"
-    content = "A,B\n1,2\n"
-    test_file.write_text(content)
-    
-    checksum_path = tmp_path / "checksums.json"
-    save_checksums([str(test_file)], str(checksum_path))
-    
-    with open(checksum_path, 'r') as f:
-        data = json.load(f)
-    
-    # Verify the hash matches the content
-    # We can manually calculate or just check format
-    assert len(data[str(test_file)]) == 64
-    assert all(c in '0123456789abcdef' for c in data[str(test_file)])
+    # Check parquet exists
+    parquet_path = temp_dir / "ds000208.parquet"
+    assert parquet_path.is_file()
+
+    # Verify ``task`` column
+    df = pd.read_parquet(parquet_path)
+    assert "task" in df.columns
+    assert set(df["task"].unique()) == {"cyberball"}
+
+    # Check metadata JSON
+    meta_path = temp_dir / "metadata_ds000208.json"
+    assert meta_path.is_file()
+    meta = json.loads(meta_path.read_text())
+    assert meta["dataset_id"] == "ds000208"
+    assert "sha256" in meta
+    assert len(meta["sha256"]) == 64  # SHA‑256 length
+
+    # Check citation
+    citation_path = temp_dir / "CITATION.md"
+    assert citation_path.is_file()
+    content = citation_path.read_text()
+    assert "OpenNeuro" in content and "ds000208" in content
+
+# The following test ensures that the size guard works.  We cannot
+# realistically download a >7 GB file in CI, so we simulate the guard
+# by monkey‑patching ``requests.head`` to return an exaggerated size.
+def test_size_guard(monkeypatch, temp_dir):
+    class DummyResponse:
+        headers = {"Content-Length": str(8 * 1024 ** 3)}  # 8 GB
+        def raise_for_status(self): pass
+
+    monkeypatch.setattr("requests.head", lambda *args, **kwargs: DummyResponse())
+    result = run_ingest(temp_dir)
+    assert result.returncode == 1
+    assert "exceeds RAM limit" in result.stderr.lower()

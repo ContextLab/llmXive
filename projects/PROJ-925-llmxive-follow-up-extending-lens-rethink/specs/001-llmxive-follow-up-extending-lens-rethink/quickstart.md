@@ -3,58 +3,64 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip` or `conda`
-- Sufficient disk space for dependencies and cached models.
+- Access to Hugging Face Hub (for `pick-a-pic` and `distilbert-base-uncased`).
+- GB RAM available.
 
 ## Installation
 
-1. **Clone and Setup**
-   ```bash
-   cd projects/PROJ-925-llmxive-follow-up-extending-lens-rethink
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   pip install -r code/requirements.txt
-   ```
+1.  **Clone and Setup**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-925-llmxive-follow-up-extending-lens-rethink
+    python -m venv venv
+    source venv/bin/activate
+    pip install -r requirements.txt
+    ```
 
-2. **Verify Dependencies**
-   ```bash
-   python -c "import spacy; import xgboost; import transformers; print('All dependencies OK')"
-   ```
+2.  **Download Models**:
+    ```bash
+    python -m spacy download en_core_web_sm
+    # The BERT model will be downloaded automatically on first run by the script
+    ```
 
 ## Running the Pipeline
 
-The pipeline is executed via a single orchestration script or individual steps.
+The pipeline is executed in three sequential stages.
 
-### Step 1: Download & Preprocess (Streaming)
-Downloads a sample of COCO data and computes CLIP scores.
+### Stage 1: Feature Extraction
+Computes linguistic features for all valid captions.
 ```bash
-python code/data/download.py --sample-size sufficient to ensure statistical power for detecting the target effect size. --streaming
-python code/data/preprocess.py --input data/raw/coco_stream.parquet --output data/processed/caption_records.csv
+python code/data/features.py
 ```
+- **Output**: `data/processed/features.csv`, `data/logs/exclusions.log`.
+- **Validation**: Checks for nulls in `linguistic_uncertainty_proxy`, `syntactic_depth`.
 
-### Step 2: Feature Extraction
-Computes linguistic features on CPU.
+### Stage 2: Target Calculation
+Calculates the deviation score and joins with features.
 ```bash
-python code/data/features.py --input data/processed/caption_records.csv --output data/processed/features.csv --batch-size
+python code/data/preprocess.py
 ```
+- **Output**: `data/processed/deviation.csv`.
+- **Validation**: Checks for zero variance in target (halts if found).
 
-### Step 3: Training & Significance Testing
-Trains the XGBoost model and performs permutation tests.
+### Stage 3: Model Training & Analysis
+Trains XGBoost, performs permutation tests, and sensitivity sweeps.
 ```bash
-python code/data/train.py --features data/processed/features.csv --target deviation_score --output results/model_artifacts/
+python code/models/train.py
 ```
+- **Output**: `results/model_metrics.json`, `results/significance_results.json`.
+- **Duration**: ~2-4 hours on CPU (depending on dataset size).
 
 ## Verification
 
-Run the unit tests to ensure feature extraction logic is correct:
+Run the test suite to ensure constitution compliance and data integrity:
 ```bash
-pytest code/tests/test_features.py -v
-pytest code/tests/test_train.py -v
+pytest code/tests/
 ```
+- **Key Test**: `test_constitution.py` ensures no image imports in `features.py` and no GPU usage in `train.py`.
 
-## Expected Outputs
+## Troubleshooting
 
-- `data/processed/features.csv`: Contains `semantic_entropy`, `syntactic_depth`, etc.
-- `results/model_artifacts/xgboost_model.json`: The trained model.
-- `results/model_artifacts/significance.json`: Feature rankings with p-values.
-- `results/plots/feature_importance.png`: Visualization of top predictors.
+- **Error: "Missing required dataset or column: pick-a-pic/human_rating"**: The 'pick-a-pic' dataset is not available via the standard Hugging Face loader. Check your HF token or network. No synthetic data is generated.
+- **Error: "Target not learnable: zero variance detected"**: All deviation scores are identical. This implies the dataset has no variance in the gap, or normalization failed.
+- **Memory Error**: If OOM occurs, reduce the batch size in `code/utils/config.py` or stream the dataset more aggressively.

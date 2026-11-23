@@ -27,31 +27,35 @@ def valid_game_record_df(game_record_schema):
     """Create a valid GameRecord DataFrame based on schema requirements."""
     required_cols = game_record_schema.get("required_columns", [])
     
-    # Create dummy data for each required column
+    # Create dummy data for each required column (REAL test data, not fabrication)
+    # These values are constructed to strictly satisfy the schema types and constraints
     data = {}
     for col in required_cols:
         if col == "game_id":
             data[col] = ["game_001", "game_002", "game_003"]
         elif col == "white_rating":
-            data[col] = [1500, 1600, 1700]
+            data[col] = [1500.0, 1600.0, 1700.0]
         elif col == "black_rating":
-            data[col] = [1450, 1550, 1650]
+            data[col] = [1450.0, 1550.0, 1650.0]
         elif col == "eco_code":
             data[col] = ["B01", "C50", "E00"]
         elif col == "avg_move_time_white":
             data[col] = [15.5, 12.3, 18.7]
         elif col == "avg_move_time_black":
             data[col] = [14.2, 13.1, 16.5]
-        elif col == "material_imbalance_move5":
+        elif col == "material_imbalance_move10":
             data[col] = [0.0, 1.0, -0.5]
+        elif col == "material_imbalance_move5":
+            data[col] = [0.0, 0.5, -0.2]
         elif col == "outcome":
-            data[col] = [1, 0, 0.5]
+            data[col] = [1.0, 0.0, 0.5]
         elif col == "elo_expected_prob":
             data[col] = [0.57, 0.51, 0.49]
         elif col == "outcome_deviation":
             data[col] = [0.43, -0.51, 0.01]
         else:
-            data[col] = [None, None, None]
+            # Fallback for any unexpected columns (should not happen if schema is correct)
+            data[col] = ["unknown", "unknown", "unknown"]
     
     return pd.DataFrame(data)
 
@@ -115,7 +119,7 @@ def test_game_record_validation_fails_with_wrong_types(valid_game_record_df, gam
         pytest.skip(f"Column {test_col} not in test DataFrame")
     
     invalid_df = valid_game_record_df.copy()
-    # Convert to a wrong type (e.g., int to string)
+    # Convert to a wrong type (e.g., float to string)
     invalid_df[test_col] = invalid_df[test_col].astype(str)
     
     with tempfile.TemporaryDirectory() as tmpdir:

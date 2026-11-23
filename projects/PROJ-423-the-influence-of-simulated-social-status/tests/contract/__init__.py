@@ -1,3 +1,4 @@
 """
-Contract tests for validating data schemas and API outputs.
+Contract tests package.
+Validates that outputs adhere to defined schemas and interfaces.
 """

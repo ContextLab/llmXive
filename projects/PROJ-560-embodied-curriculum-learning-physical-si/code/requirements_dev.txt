@@ -1,0 +1,8 @@
+# Development and Linting Dependencies
+# Pinned versions to ensure reproducible environments
+ruff==0.9.10
+black==24.10.0
+pytest==8.3.4
+pytest-cov==6.0.0
+mypy==1.14.1
+pre-commit==4.1.0

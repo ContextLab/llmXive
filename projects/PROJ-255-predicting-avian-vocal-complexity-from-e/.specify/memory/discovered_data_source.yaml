@@ -1,0 +1,19 @@
+status: none
+intent: download Xeno-canto bird vocalization recordings and Global Soundscapes ambient
+  noise map python package dataset
+required_fields:
+- recording_id
+- species_id
+- species_common_name
+- latitude
+- longitude
+- audio_url
+- ambient_noise_db
+- land_use_category
+- syllable_count
+- duration_seconds
+- bandwidth_hz
+- signal_to_noise_ratio_db
+cache_key: 150e5fdf9cf5ffa3416a023c07ccc68dd0afa9ac58e3656f86e331852f2bdc06
+searched_at: '2026-08-07T04:28:16.528579+00:00'
+retry_count: 1

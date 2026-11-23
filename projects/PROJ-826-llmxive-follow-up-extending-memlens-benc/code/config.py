@@ -1,28 +1,27 @@
 """
-Configuration constants for the llmXive MemLens extension project.
-
-This module centralizes all project-level hyperparameters and path settings
-to ensure consistency across data loading, model inference, and evaluation.
+Configuration module for the MemLens benchmark extension.
 """
-
 import os
 
-# Project root is assumed to be the parent of the 'code' directory
-# We use relative paths from the project root as specified in tasks.md
-_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+# Model Configuration
+MODEL_NAME = os.getenv("MODEL_NAME", "microsoft/Phi-3-mini-4k-instruct")
+QUANTIZATION = os.getenv("QUANTIZATION", "4bit")  # Options: '4bit', '8bit', 'none'
 
-# Random seed for reproducibility across all libraries (torch, numpy, random)
-SEED = 42
+# Path Configuration
+DATA_DIR = os.getenv("DATA_DIR", "data")
+RAW_DATA_DIR = os.path.join(DATA_DIR, "raw")
+PROCESSED_DATA_DIR = os.path.join(DATA_DIR, "processed")
+STATE_DIR = os.getenv("STATE_DIR", "state/projects/PROJ-826-llmxive-follow-up-extending-memlens-benc")
 
-# Data paths relative to project root
-DATA_PATH = os.path.join(_ROOT, 'data', 'raw')
-OUTPUT_PATH = os.path.join(_ROOT, 'outputs')
+# Inference Configuration
+INFERENCE_OUTPUT_PATH = os.path.join(PROCESSED_DATA_DIR, "inference_results.json")
+MAX_NEW_TOKENS = int(os.getenv("MAX_NEW_TOKENS", "256"))
+MAX_CONTEXT_LENGTH = int(os.getenv("MAX_CONTEXT_LENGTH", "4096"))
 
-# Hyperparameters
-TOP_K = 5  # Number of retrieved context items for RAG
-BATCH_SIZE = 4  # Batch size for inference (optimized for CPU memory constraints)
+# Resource Limits
+MAX_RAM_GB = float(os.getenv("MAX_RAM_GB", "7.0"))
+MAX_RUNTIME_HOURS = float(os.getenv("MAX_RUNTIME_HOURS", "6.0"))
 
-# Ensure output directories exist if not already created
-# Note: T001 creates the structure, but this ensures safety on first run
-os.makedirs(DATA_PATH, exist_ok=True)
-os.makedirs(OUTPUT_PATH, exist_ok=True)
+# Logging
+LOG_DIR = os.path.join(PROCESSED_DATA_DIR, "logs")
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")

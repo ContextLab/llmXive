@@ -1,0 +1,13 @@
+status: none
+intent: download NIST Polymer Database permeability dataset PubChem polymer SMILES
+  python package dataset
+required_fields:
+- smiles
+- polymer_name
+- polymer_id
+- co2_permeability
+- molecular_weight
+- pubchem_cid
+cache_key: 03d39989ecae9a711e5aac11e000db456268375c98ffdb0460cdaec423a71e71
+searched_at: '2026-10-18T03:36:14.705345+00:00'
+retry_count: 1

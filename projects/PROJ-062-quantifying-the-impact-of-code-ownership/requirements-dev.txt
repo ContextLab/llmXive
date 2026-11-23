@@ -1,0 +1,5 @@
+# Development and Linting Dependencies
+flake8>=6.1.0
+black>=23.12.1
+isort>=5.13.2
+mypy>=1.8.0

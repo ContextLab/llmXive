@@ -1,0 +1,116 @@
+T008b:
+  c: true
+  h: a516ecf5389ac59e334b6c6255d15bf5c58d72ea1fb6eca55d874445533db2a7
+  r: "The provided `code/pipelines/fetch_baselines.py` script exists, is non\u2011\
+    empty, and implements the required logic: it checks for `data/raw/multabench_baselines.csv`,\
+    \ logs the exact ERROR message to stderr, and exits with code\u202F1 when the\
+    \ file is missing or empty, without generating any synthetic data."
+T008c:
+  c: true
+  h: 91536e09529baaf82e2117d361b49f15117fe355021bcda2373b3d493d96cf87
+  r: "The `data/README.md` file exists and contains a clearly written \u201CAcquiring\
+    \ `data/raw/multabench_baselines.csv`\u201D section that lists the required manual\
+    \ steps (download, unzip, locate, and place the file), satisfying the task\u2019\
+    s specification."
+T024c:
+  c: false
+  h: f09be2646bbc813f84b0f97e459111cb7b426b0cf94d7befa744590795edf562
+  r: The required output file `data/processed/metadata_stats_summary.csv` does not
+    exist, and the provided `metadata_stats.py` script is incomplete (truncated) with
+    no visible implementation of `aggregate_stats`. Consequently, the aggregation
+    functionality and the expected CSV output are missing.
+T024e:
+  c: false
+  h: 30e93fd53ba3ab2ef3d980a02b755daf8c3811a264c7e2641556d11afda015ea
+  r: "The required output file `data/processed/metadata_stats_summary.csv` does not\
+    \ exist, nor does the required log file `data/artifacts/data_availability_gap_report.json`.\
+    \ Without these artifacts, the task\u2019s sorting, subset selection, and gap\
+    \ reporting cannot have been performed. The implementer must generate the CSV\
+    \ (with the subset flag if applicable) and, when necessary, create the JSON gap\
+    \ report."
+T024f:
+  c: false
+  h: b2445781905f21ed9017bd45645c993218353432564519e585341128707d3843
+  r: The repository contains the pipeline script and a `normalize_features` implementation,
+    but the required output file `data/processed/normalized_tabular_features.parquet`
+    does not exist. Since the task explicitly demands that this Parquet file be generated,
+    the missing artifact means the requirement is not met. The next implementer must
+    run the pipeline (or add code to write the file) so that the normalized features
+    Parquet file is created in the specified location.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or output files were provided that implement or demonstrate\
+    \ evaluation logic for held\u2011out test sets, nor any recorded AUC or RMSE values.\
+    \ The required artifact (evaluation module and its metric recordings) is missing,\
+    \ so the task is not satisfied."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "I looked for a JSON file named `metrics_conditioned_{run_id}.json` under `data/artifacts/`\
+    \ and found no such artifact present or referenced in the provided evidence. The\
+    \ required results file with the run\u2011ID linkage is missing, so the task is\
+    \ not satisfied."
+T031:
+  c: false
+  h: 75d0139ddb029912c017290f2fe4f47b53beb597a964e9f4de3532da956548a6
+  r: The provided `code/analysis/correlation.py` exists, but the required input file
+    `data/artifacts/gpu_tuned_baselines.csv` is missing, so the script cannot compute
+    the Recovery Ratio as specified. Additionally, the script is truncated and does
+    not demonstrate that it produces the required output files. The task therefore
+    remains unfinished.
+T032b:
+  c: false
+  h: 580736fe99af661696acad4f3226a28b16f08d47defb057bd4436ace77b21b66
+  r: The repository contains the `extract_baseline_scalars.py` script, but the required
+    input CSV (`data/artifacts/gpu_tuned_baselines.csv`) and the resulting JSON output
+    (`data/artifacts/gpu_tuned_scalars.json`) are missing, so the pipeline cannot
+    be executed nor produce the validated dictionary of floats. The task is therefore
+    not fulfilled.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script, notebook, CSV/JSON results, or figure) showing the\
+    \ Pearson correlation between \u201CRecovery Ratio\u201D and the metadata features\
+    \ for all datasets is present. Without any output file, code, or documented results,\
+    \ the requirement cannot be verified as fulfilled. The implementer must provide\
+    \ the actual correlation calculations (e.g., a table of correlation coefficients\
+    \ and p\u2011values) for every dataset with complete data."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or JSON file containing Benjamini\u2011Hochberg adjusted p\u2011\
+    values is provided. The claim lacks any artifact showing that p\u2011values from\
+    \ T033 and T035 were read, corrected, and written to the required JSON output.\
+    \ The implementer must supply the implementation (e.g., a Python module or notebook)\
+    \ and the resulting JSON file with the adjusted p\u2011values."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No statistical analysis artifact (e.g., script, results table, or figure) showing\
+    \ a one\u2011sample t\u2011test or Wilcoxon test across all valid datasets is\
+    \ present. The implementer provided no code, output, or documentation of the required\
+    \ comparison, so the task is not satisfied."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `data/artifacts/correlation_report_{run_id}.json` file was presented, and\
+    \ the response contains no JSON content with correlation coefficients, p\u2011\
+    values, or significance flags. The required artifact is missing, so the task is\
+    \ not satisfied."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., updated final report, changelog, or code that adds the \u201C\
+    Data Availability Gap\u201D section) was provided for inspection. Consequently,\
+    \ we cannot confirm that the required reporting for datasets lacking GPU\u2011\
+    Tuned baselines was added. The implementer must supply the modified report (or\
+    \ source files) showing the new \u201CData Availability Gap\u201D content."
+T045:
+  c: false
+  h: c4cfed36fa8366d800cb52d38e75dc0c40437b59d19e200b67fde5d187f24e6e
+  r: "The required `data/processed/metadata_stats_summary.csv` does not exist, so\
+    \ the script cannot operate, and the expected `data/artifacts/data_integrity_report.json`\
+    \ was never generated. Moreover, the implementation in `verify_data_integrity.py`\
+    \ adds an imputation step for zero\u2011variance features, which directly violates\
+    \ the task\u2019s \u201Cdo NOT impute\u201D rule. The task therefore remains unfinished."

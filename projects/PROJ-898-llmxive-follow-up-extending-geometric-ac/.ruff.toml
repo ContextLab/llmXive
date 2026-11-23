@@ -1,0 +1,2 @@
+# Root ruff configuration
+extend = "code/.ruff.toml"

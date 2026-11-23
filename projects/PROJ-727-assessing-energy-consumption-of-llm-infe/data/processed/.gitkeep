@@ -1,1 +1,2 @@
-# This directory stores processed data files
+# This directory contains processed data files.
+# energy_results_raw.csv will be written here by T013 (inference.py)

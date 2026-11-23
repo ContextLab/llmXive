@@ -1,0 +1,101 @@
+T001a directory structure evidence
+Project root: /home/runner/work/llmXive/llmXive/projects/PROJ-088-predicting-reaction-mechanisms-from-spec
+
+src/  (7 entries: ['.gitkeep', 'analysis', 'cli', 'ingestion', 'modeling', 'research', 'utils'])
+src/ingestion/  (2 entries: ['.gitkeep', '__init__.py'])
+src/modeling/  (2 entries: ['.gitkeep', '__init__.py'])
+src/analysis/  (1 entries: ['.gitkeep'])
+src/utils/  (2 entries: ['.gitkeep', 'logging.py'])
+src/cli/  (1 entries: ['.gitkeep'])
+src/research/  (1 entries: ['.gitkeep'])
+tests/  (4 entries: ['.gitkeep', 'contract', 'integration', 'unit'])
+tests/contract/  (3 entries: ['.gitkeep', 'test_fingerprint_schema.py', 'test_schema_validation.py'])
+tests/unit/  (2 entries: ['.gitkeep', 'test_logging.py'])
+tests/integration/  (2 entries: ['.gitkeep', 'test_ingestion_flow.py'])
+specs/001-predicting-reaction-mechanisms/  (1 entries: ['.gitkeep'])
+specs/001-predicting-reaction-mechanisms-from-spec/contracts/  (3 entries: ['.gitkeep', 'dataset.schema.yaml', 'output.schema.yaml'])
+data/  (5 entries: ['.gitkeep', 'processed', 'raw', 'reference', 'results'])
+data/raw/  (3 entries: ['.gitkeep', 'nist', 'pubchem'])
+data/raw/nist/  (1 entries: ['.gitkeep'])
+data/raw/pubchem/  (1 entries: ['.gitkeep'])
+data/processed/  (1 entries: ['.gitkeep'])
+data/reference/  (1 entries: ['.gitkeep'])
+data/results/  (1 entries: ['.gitkeep'])
+state/  (2 entries: ['.gitkeep', 'projects'])
+state/projects/  (1 entries: ['.gitkeep'])
+
+Full recursive listing of created directories:
+[FILE] src/.gitkeep
+[DIR ] src/analysis
+[FILE] src/analysis/.gitkeep
+[DIR ] src/cli
+[FILE] src/cli/.gitkeep
+[DIR ] src/ingestion
+[FILE] src/ingestion/.gitkeep
+[FILE] src/ingestion/__init__.py
+[DIR ] src/modeling
+[FILE] src/modeling/.gitkeep
+[FILE] src/modeling/__init__.py
+[DIR ] src/research
+[FILE] src/research/.gitkeep
+[DIR ] src/utils
+[FILE] src/utils/.gitkeep
+[FILE] src/utils/logging.py
+[FILE] src/ingestion/.gitkeep
+[FILE] src/ingestion/__init__.py
+[FILE] src/modeling/.gitkeep
+[FILE] src/modeling/__init__.py
+[FILE] src/analysis/.gitkeep
+[FILE] src/utils/.gitkeep
+[FILE] src/utils/logging.py
+[FILE] src/cli/.gitkeep
+[FILE] src/research/.gitkeep
+[FILE] tests/.gitkeep
+[DIR ] tests/contract
+[FILE] tests/contract/.gitkeep
+[FILE] tests/contract/test_fingerprint_schema.py
+[FILE] tests/contract/test_schema_validation.py
+[DIR ] tests/integration
+[FILE] tests/integration/.gitkeep
+[FILE] tests/integration/test_ingestion_flow.py
+[DIR ] tests/unit
+[FILE] tests/unit/.gitkeep
+[FILE] tests/unit/test_logging.py
+[FILE] tests/contract/.gitkeep
+[FILE] tests/contract/test_fingerprint_schema.py
+[FILE] tests/contract/test_schema_validation.py
+[FILE] tests/unit/.gitkeep
+[FILE] tests/unit/test_logging.py
+[FILE] tests/integration/.gitkeep
+[FILE] tests/integration/test_ingestion_flow.py
+[FILE] specs/001-predicting-reaction-mechanisms/.gitkeep
+[FILE] specs/001-predicting-reaction-mechanisms-from-spec/contracts/.gitkeep
+[FILE] specs/001-predicting-reaction-mechanisms-from-spec/contracts/dataset.schema.yaml
+[FILE] specs/001-predicting-reaction-mechanisms-from-spec/contracts/output.schema.yaml
+[FILE] data/.gitkeep
+[DIR ] data/processed
+[FILE] data/processed/.gitkeep
+[DIR ] data/raw
+[FILE] data/raw/.gitkeep
+[DIR ] data/raw/nist
+[FILE] data/raw/nist/.gitkeep
+[DIR ] data/raw/pubchem
+[FILE] data/raw/pubchem/.gitkeep
+[DIR ] data/reference
+[FILE] data/reference/.gitkeep
+[DIR ] data/results
+[FILE] data/results/.gitkeep
+[FILE] data/raw/.gitkeep
+[DIR ] data/raw/nist
+[FILE] data/raw/nist/.gitkeep
+[DIR ] data/raw/pubchem
+[FILE] data/raw/pubchem/.gitkeep
+[FILE] data/raw/nist/.gitkeep
+[FILE] data/raw/pubchem/.gitkeep
+[FILE] data/processed/.gitkeep
+[FILE] data/reference/.gitkeep
+[FILE] data/results/.gitkeep
+[FILE] state/.gitkeep
+[DIR ] state/projects
+[FILE] state/projects/.gitkeep
+[FILE] state/projects/.gitkeep

@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-408-investigating-the-predictive-power-of-pl",
+  "ok": false,
+  "reason": "4 command(s) failed: python code/main.py --step download --species-list data/species_list.csv (rc=1); python code/main.py --step phylogeny (rc=1); python code/main.py --step stats (rc=1); 1 declared deliverable(s) absent: data/processed/mantel_results.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --step download --species-list data/species_list.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-408-investigating-the-predictive-power-of-pl/code/main.py\", line 7, in <module>\n    from data_loader import fetch_marker_genes, fetch_metabolite_profiles, save_fasta_sequences\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-408-investigating-the-predictive-power-of-pl/code/data_loader.py\", line 7, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/main.py --step phylogeny -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-408-investigating-the-predictive-power-of-pl/code/main.py\", line 7, in <module>\n    from data_loader import fetch_marker_genes, fetch_metabolite_profiles, save_fasta_sequences\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-408-investigating-the-predictive-power-of-pl/code/data_loader.py\", line 7, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/main.py --step stats -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-408-investigating-the-predictive-power-of-pl/code/main.py\", line 7, in <module>\n    from data_loader import fetch_marker_genes, fetch_metabolite_profiles, save_fasta_sequences\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-408-investigating-the-predictive-power-of-pl/code/data_loader.py\", line 7, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'",
+    "python code/main.py --step viz -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-408-investigating-the-predictive-power-of-pl/code/main.py\", line 7, in <module>\n    from data_loader import fetch_marker_genes, fetch_metabolite_profiles, save_fasta_sequences\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-408-investigating-the-predictive-power-of-pl/code/data_loader.py\", line 7, in <module>\n    import requests\nModuleNotFoundError: No module named 'requests'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-02T14:20:39Z"
+}

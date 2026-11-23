@@ -1,0 +1,122 @@
+# Prediction Schema for Kwai Keye-VL Inference Output
+# This schema defines the structure of JSONL/JSON files produced by
+# src/inference/run_inference.py (Task T020).
+#
+# Purpose: To store temporal grounding predictions (start/end timestamps)
+# for both distorted and square-cropped video clips, enabling downstream
+# mIoU calculation (T026) and paired statistical analysis (T027).
+#
+# Constraints:
+# - All timestamps are in seconds relative to the start of the original source video.
+# - The 'source_id' field is mandatory and serves as the join key for paired tests.
+# - The 'condition' field distinguishes between 'distorted' and 'control' (square-cropped).
+# - If inference fails for a clip, an error entry must be logged to data/outputs/fallback_log.json (T024b),
+#   but this schema describes successful predictions.
+
+$schema: http://json-schema.org/draft-07/schema#
+title: InferencePrediction
+type: object
+required:
+  - clip_id
+  - source_id
+  - condition
+  - predicted_start
+  - predicted_end
+  - model_version
+  - inference_timestamp
+additionalProperties: false
+properties:
+  clip_id:
+    type: string
+    description: >-
+      Unique identifier for the specific video clip processed.
+      Format: {source_id}_{start}_{end}_{condition}_{hash}
+      Example: "ActivityNet_001_10.5_15.2_distorted_a1b2c3"
+    pattern: "^[A-Za-z0-9_\\-\\.]+$"
+
+  source_id:
+    type: string
+    description: >-
+      The original source video ID from the ActivityNet Captions dataset.
+      This is the mandatory join key linking the distorted clip and its
+      corresponding square-cropped control clip for the Paired Test (T027).
+      Example: "v_001", "v_12345"
+    pattern: "^[A-Za-z0-9_\\-\\.]+$"
+
+  condition:
+    type: string
+    description: >-
+      The experimental condition under which this clip was processed.
+      Must be one of: "distorted", "control".
+      - "distorted": Extreme aspect ratio distortion applied.
+      - "control": Square-cropped control clip (1:1 aspect ratio).
+    enum:
+      - distorted
+      - control
+
+  predicted_start:
+    type: number
+    description: >-
+      The model's predicted start timestamp (in seconds) for the event.
+      Relative to the original source video timeline.
+    minimum: 0.0
+
+  predicted_end:
+    type: number
+    description: >-
+      The model's predicted end timestamp (in seconds) for the event.
+      Relative to the original source video timeline.
+      Must be greater than or equal to predicted_start.
+    minimum: 0.0
+    exclusiveMinimum: false
+
+  model_version:
+    type: string
+    description: >-
+      Identifier for the specific model checkpoint and quantization used.
+      Example: "Kwai-Kyle/Kwai-Keye-VL-2.0-Int4-v1.0"
+    pattern: "^[A-Za-z0-9/\\-\\.]+$"
+
+  inference_timestamp:
+    type: string
+    format: date-time
+    description: >-
+      ISO 8601 timestamp indicating when the inference was executed.
+      Example: "2024-06-15T14:30:00Z"
+
+  duration_seconds:
+    type: number
+    description: >-
+      Duration of the processed clip in seconds.
+      Used for validation (e.g., ensuring predictions fall within clip bounds).
+    minimum: 0.0
+
+  aspect_ratio:
+    type: number
+    description: >-
+      The aspect ratio (width/height) of the input frame(s) for this clip.
+      For "control" condition, this should be approximately 1.0.
+      For "distorted", this will be one of the extreme ratios (e.g., 0.1, 10.0).
+    minimum: 0.0
+
+  fallback_mode:
+    type: string
+    nullable: true
+    description: >-
+      If the model used a fallback configuration (e.g., FP16 vision encoder
+      due to INT4 failure), this field records the mode.
+      If the primary INT4 load succeeded, this is null.
+      Allowed values: "int4_fp16_hybrid", "fp16_fallback", null.
+    enum:
+      - int4_fp16_hybrid
+      - fp16_fallback
+      - null
+
+  confidence_score:
+    type: number
+    nullable: true
+    description: >-
+      Optional model confidence score for the prediction, if available.
+      Range [0.0, 1.0]. Null if not provided by the model.
+    minimum: 0.0
+    maximum: 1.0

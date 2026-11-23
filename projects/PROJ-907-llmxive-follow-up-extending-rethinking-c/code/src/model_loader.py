@@ -2,39 +2,31 @@ import torch
 from diffusers import StableDiffusionPipeline
 from transformers import AutoConfig, AutoModelForCausalLM
 import logging
+import os
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
-def load_sit_xl_model():
+def load_sit_xl_model(dtype: torch.dtype = torch.float16):
     """
-    Load canonical pre-trained SiT-XL model with DAR enabled.
-    Returns a model object (pipeline or transformer) compatible with the project.
+    Loads the canonical pre-trained SiT-XL model with DAR enabled.
+    Note: This is a placeholder for the actual model loading logic.
+    Since the exact model class is not provided, we assume it's a StableDiffusionPipeline
+    or a similar model that can be loaded from HuggingFace.
     """
-    # Placeholder for the actual model loading logic.
-    # Since the specific model name and architecture are not provided in the prompt,
-    # we assume a standard StableDiffusionPipeline or a custom transformer.
-    # We will attempt to load a generic diffusion model as a stand-in for SiT-XL
-    # to ensure the code is runnable.
-    
-    model_id = "stabilityai/stable-diffusion-2-1-base" # Example model
+    model_id = "facebook/sit-xl-2"  # Placeholder model ID
     try:
-        logger.info(f"Loading model from {model_id}...")
-        pipe = StableDiffusionPipeline.from_pretrained(
-            model_id,
-            torch_dtype=torch.float32,
-            safety_checker=None,
-            requires_safety_checker=False
-        )
-        pipe = pipe.to("cpu")
-        pipe.enable_attention_slicing()
-        return pipe
+        pipe = StableDiffusionPipeline.from_pretrained(model_id, torch_dtype=dtype)
+        return pipe.unet  # Return the UNet model
     except Exception as e:
         logger.error(f"Failed to load model: {e}")
         raise
 
 def get_cpu_optimized_model(model):
     """
-    Returns a CPU-optimized version of the model.
+    Optimizes the model for CPU inference.
+    Note: This is a placeholder for the actual optimization logic.
     """
-    # The model is already loaded on CPU in load_sit_xl_model
+    # For CPU, we might want to use torch.jit.trace or similar
+    # But for now, we'll just return the model as is
     return model

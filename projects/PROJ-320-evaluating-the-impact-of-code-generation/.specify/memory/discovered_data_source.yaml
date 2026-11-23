@@ -1,0 +1,19 @@
+status: none
+intent: download GitHub pull request dataset GH Archive GHTorrent Google BigQuery
+  python package dataset
+required_fields:
+- pull_request_id
+- repository_full_name
+- pr_number
+- created_at
+- merged_at
+- closed_at
+- author_login
+- author_association
+- title
+- body
+- commits_count
+- commit_messages
+cache_key: bcccec4debfbfb36e2227fff88c90ce8f3870e0276b5a89a356a1ec99dcbab09
+searched_at: '2026-10-29T06:15:32.962669+00:00'
+retry_count: 1

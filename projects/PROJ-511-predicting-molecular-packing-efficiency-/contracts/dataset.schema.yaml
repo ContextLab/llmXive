@@ -1,75 +1,76 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Molecular Packing Dataset Schema
-description: Schema for the molecular packing efficiency dataset
+title: Molecular Packing Efficiency Dataset Schema
+description: >
+  Schema for the final dataset (data/dataset.csv) containing SMILES representations,
+  3D descriptors, packing metrics, and confounders for organic crystal structures.
+  Used for training and validating the packing efficiency prediction model.
 type: object
 required:
-  - smiles
-  - pc
-  - cape
-  - h_bond_count
-  - aromatic_ring_count
-  - confounders
+  - properties
+  - type
 properties:
+  cod_id:
+    type: string
+    description: Unique identifier from the Crystallography Open Database (COD).
+    pattern: "^[0-9]+$"
   smiles:
     type: string
-    description: SMILES representation of the molecule
-    pattern: "^[A-Za-z0-9@%+\\-\\[\\]\\(\\)\\/=#\\~]+$"
-  pc:
+    description: Canonical SMILES string representing the molecular structure.
+    minLength: 1
+  smiles_source:
+    type: string
+    description: Source of the SMILES string.
+    enum:
+      - "extracted_from_cif"
+      - "generated_from_geometry"
+  unit_cell_volume:
     type: number
-    description: Raw Packing Coefficient (diagnostic)
+    description: Unit cell volume in cubic angstroms (Å³).
+    minimum: 0
+  n_atoms:
+    type: integer
+    description: Total number of non-hydrogen atoms in the asymmetric unit.
+    minimum: 1
+  lattice_system:
+    type: string
+    description: Crystal lattice system derived from symmetry information.
+    enum:
+      - "triclinic"
+      - "monoclinic"
+      - "orthorhombic"
+      - "tetragonal"
+      - "trigonal"
+      - "hexagonal"
+      - "cubic"
+      - "unknown"
+  temperature_K:
+    type: number
+    description: Temperature in Kelvin at which the crystal structure was determined.
+    minimum: 0
+  has_solvent:
+    type: boolean
+    description: Flag indicating if solvent molecules are present in the unit cell.
+  radius_of_gyration:
+    type: number
+    description: Radius of gyration (Å) calculated from the gas-phase minimized conformer.
+    minimum: 0
+  asphericity:
+    type: number
+    description: Asphericity parameter (dimensionless) describing molecular shape anisotropy.
     minimum: 0
     maximum: 1
+  principal_moments:
+    type: string
+    description: Comma-separated string of the three principal moments of inertia (amu·Å²).
+    pattern: "^[0-9]+\\.[0-9]+,[0-9]+\\.[0-9]+,[0-9]+\\.[0-9]+$"
   cape:
     type: number
-    description: Corrected Accessible Packing Efficiency (target)
+    description: Composition-Adjusted Packing Efficiency (CAPE). Target variable.
     minimum: 0
-    maximum: 1
-  h_bond_count:
-    type: integer
-    description: Total hydrogen bond count (donors + acceptors)
+    maximum: 2
+  raw_pc:
+    type: number
+    description: Raw Packing Coefficient (PC_raw). Diagnostic metric.
     minimum: 0
-  aromatic_ring_count:
-    type: integer
-    description: Number of aromatic rings in the molecule
-    minimum: 0
-  confounders:
-    type: object
-    description: Thermodynamic and experimental confounders
-    required:
-      - temperature
-      - solvent_present
-    properties:
-      temperature:
-        type: number
-        description: Temperature in Kelvin
-      solvent_present:
-        type: boolean
-        description: Whether solvent molecules are present
-      pressure:
-        type: number
-        description: Pressure in atm (optional)
-      crystal_system:
-        type: string
-        description: Crystal system (e.g., monoclinic, orthorhombic)
-      space_group:
-        type: string
-        description: Space group notation
-      unit_cell_a:
-        type: number
-        description: Unit cell parameter a in Angstroms
-      unit_cell_b:
-        type: number
-        description: Unit cell parameter b in Angstroms
-      unit_cell_c:
-        type: number
-        description: Unit cell parameter c in Angstroms
-      unit_cell_alpha:
-        type: number
-        description: Unit cell angle alpha in degrees
-      unit_cell_beta:
-        type: number
-        description: Unit cell angle beta in degrees
-      unit_cell_gamma:
-        type: number
-        description: Unit cell angle gamma in degrees
+    maximum: 2
 additionalProperties: false

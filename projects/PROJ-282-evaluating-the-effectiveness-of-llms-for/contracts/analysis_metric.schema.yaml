@@ -1,0 +1,9 @@
+type: object
+properties:
+  metric_name: {type: string}
+  feature_name: {type: string}
+  value: {type: number}
+  p_value: {type: number}
+  adjusted_p_value: {type: number}
+  method: {type: string}
+required: [metric_name, feature_name, value, p_value, adjusted_p_value, method]

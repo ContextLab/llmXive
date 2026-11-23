@@ -1,46 +1,89 @@
 # Data Model: Multi-Property Trade-Offs in Alloy Design
 
-## 1. Entity Definitions
+## Overview
 
-### AlloyEntry
-Represents a single processed alloy data point.
-*   `id`: Unique identifier (string).
-*   `composition`: Dictionary `{element: fraction}`.
-*   `bulk_modulus`: Float (GPa) - **Primary Target** (DFT-derived).
-*   `shear_modulus`: Float (GPa) - **Primary Target** (DFT-derived).
-*   `yield_strength`: Float (MPa) - **Optional** (Experimental, likely null).
-*   `elongation`: Float (%) - **Optional** (Experimental, likely null).
-*   `feature_vector`: List of floats (encoded features).
-*   `system`: String (e.g., "Fe-Cr").
-*   `source`: String (Dataset URL).
+This document defines the data structures used throughout the pipeline. All data is stored in `data/processed/` as CSV or JSON files. The `contracts/` directory contains YAML schemas for validation.
 
-### ParetoFrontier
-A set of non-dominated points.
-*   `points`: List of `SyntheticAlloy`.
-*   `dominance_ratio`: Float (Percentage of empirical points dominated).
+## Core Entities
 
-### DecoupledRegion
-A cluster with low correlation (high deviation from global trend).
-*   `cluster_id`: Integer.
-*   `global_correlation`: Float (Global Pearson r).
-*   `local_correlation`: Float (Cluster Pearson r).
-*   `deviation_score`: Float ($|r_{global} - r_{local}|$).
-*   `point_count`: Integer.
-*   `uncertainty_variance`: Float.
-*   `is_significant`: Boolean (based on permutation test p-value).
+### 1. AlloyEntry
+Represents a single alloy composition and its properties.
 
-## 2. Data Flow
+**Source**: `data/processed/encoded_alloys.csv`
+**Schema**: `contracts/alloy_entry.schema.yaml`
 
-1.  **Raw Input**: OQMD CSV/Parquet -> `data/raw/`.
-2.  **Ingestion**: Filter missing values (bulk/shear) -> `data/processed/filtered.csv`.
-3.  **Encoding**: Add periodic descriptors -> `data/processed/encoded.csv`.
-4.  **Model**: Train GBM -> `data/processed/models/`.
-5.  **Optimization**: Generate Pareto -> `data/processed/results/pareto_frontier.csv`.
-6.  **Analysis**: Cluster & Deviation -> `data/processed/results/decoupled_regions.json`.
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `composition` | string | Chemical formula (e.g., "Fe0.8Ni0.2") | Non-null, unique |
+| `bulk_modulus` | float | Bulk Modulus (GPa) | > 0, non-null |
+| `shear_modulus` | float | Shear Modulus (GPa) | > 0, non-null |
+| `elements` | list[string] | List of constituent elements | Non-empty |
+| `ilr_features` | list[float] | Isometric log-ratio transformed features | Length = num_elements - 1 |
+| `periodic_desc` | list[float] | Weighted periodic descriptors | Length = num_elements * 2 |
+| `system_group` | string | Primary constituent group (e.g., "Fe-Ni") | Non-null |
+| `valid` | bool | Filtered for non-null moduli | True |
 
-## 3. Schema Constraints
+### 2. ClusterAnalysis
+Represents the result of HDBSCAN clustering and decoupling analysis.
 
-*   **Compositional Sum**: Sum of elemental fractions must be 1.0 (±0.001).
-*   **Physical Bounds**: Bulk/Shear Moduli must be > 0.
-*   **Feature Vector**: Fixed length based on the periodic table subset used.
-*   **Proxy Mode**: If `yield_strength` and `elongation` are null, `bulk_modulus` and `shear_modulus` MUST be present.
+**Source**: `data/processed/cluster_analysis.json`
+**Schema**: `contracts/cluster_analysis.schema.yaml` (Implicit in CSV/JSON)
+
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `cluster_id` | int | Cluster identifier | >= 0 |
+| `size` | int | Number of samples in cluster | > 0 |
+| `correlation_coefficient` | float | Local Pearson r (K vs G) | [-1, 1] |
+| `residual_variance` | float | Variance from Poisson line (if applicable) | >= 0 |
+| `is_decoupled` | bool | Meets SC-002 criteria | True/False |
+| `decoupling_reason` | string | "low_correlation" or "poisson_anomaly" | Enum |
+| `p_value` | float | P-value from local permutation test | [0, 1] |
+| `bootstrap_ci` | list[float] | 95% CI of correlation from bootstrap | [0, 1] |
+
+### 3. ModelValidation
+Represents the output of LOSO-CV and uncertainty metrics.
+
+**Source**: `data/processed/model_validation_report.json`
+**Schema**: `contracts/model_validation.schema.yaml`
+
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `sample_id` | string | Unique identifier for the sample | Non-null |
+| `predicted_bulk` | float | Predicted Bulk Modulus | Any |
+| `predicted_shear` | float | Predicted Shear Modulus | Any |
+| `actual_bulk` | float | Actual Bulk Modulus | > 0 |
+| `actual_shear` | float | Actual Shear Modulus | > 0 |
+| `uncertainty_variance` | float | Variance across LOSO-CV splits | >= 0 |
+| `hull_distance` | float | Distance from convex hull centroid | >= 0 |
+| `is_boundary` | bool | Within 5% of hull radius | True/False |
+| `is_valid_composition` | bool | Passed simplex projection check | True |
+
+### 4. SensitivityAnalysis
+Represents the robustness of decoupling clusters to threshold changes.
+
+**Source**: `data/processed/sensitivity_analysis.csv`
+**Schema**: `contracts/sensitivity_analysis.schema.yaml`
+
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `threshold` | float | Correlation/Residual threshold | [0.1, 0.9] |
+| `robustness_score` | float | Jaccard Index with adjacent threshold | [0, 1] |
+| `num_clusters` | int | Number of clusters at this threshold | >= 0 |
+| `bootstrap_ci_lower` | float | Lower bound of 95% CI | >= 0 |
+| `bootstrap_ci_upper` | float | Upper bound of 95% CI | <= 1 |
+
+## Data Flow
+
+1. **Ingestion**: Raw OQMD CSV -> Filtered/Encoded `encoded_alloys.csv`.
+2. **Feasibility**: `encoded_alloys.csv` -> `feasibility_report.json` (Global r, analysis mode).
+3. **Modeling**: `encoded_alloys.csv` -> `model_validation_report.json` (Predictions, uncertainty).
+4. **Clustering**: `encoded_alloys.csv` + `feasibility_report.json` -> `cluster_analysis.json`.
+5. **Sensitivity**: `cluster_analysis.json` -> `sensitivity_analysis.csv`.
+6. **Optimization**: `encoded_alloys.csv` -> `pareto_frontier.csv`.
+
+## Storage Constraints
+
+- **Format**: CSV for tabular data (efficient streaming), JSON for structured reports.
+- **Encoding**: UTF-8.
+- **Compression**: Raw data gzipped; processed data uncompressed for speed.
+- **Checksums**: All files in `data/` must have a corresponding `.sha256` file.

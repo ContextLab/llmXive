@@ -1,262 +1,58 @@
 # Tasks: Investigating Statistical Properties of Simulated Dark Matter Halos
 
-**Input**: Design documents from `/specs/001-dark-matter-halo-statistics/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: Design documents from `/specs/001-dark-matter-halo-statistics/`  
+**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+## Verified work (status shown)
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+- [X] T003 Configure linting/formatting in `pyproject.toml` (black line-length 88, flake8 max-line-length 100)
+- [X] T004 [P] Create `code/config.py` with pinned seeds, paths, box sizes, critical density constants
+- [X] T006 [P] Logging infrastructure in `code/utils/logging.py`
+- [X] T011 [P] [US1] Integration test `test_full_data_pipeline` in `tests/integration/test_data_pipeline.py`
+- [ ] T012 [US1] Implement `code/data/download.py` (real-download attempt with DATA_GAP logging, FR-001)
+- [ ] T013 [US1] Halo filtering ≥300 particles in `code/data/preprocess.py` (FR-002)
+- [ ] T014 [US1] Chunked streaming writer to `data/processed/filtered_halos.parquet` (FR-002)
+- [ ] T016 [US1] Data-gap detection logging in `code/data/download.py`
+- [ ] T018–T021 [P] [US2] Unit/integration tests for shape, spin, NFW convergence, metric pipeline
+- [ ] T022 [P] [US2] Shape parameter s=c/a from inertia tensor in `code/data/compute_metrics.py` (FR-004)
+- [ ] T023 [US2] Spin parameter λ with subsampled Plummer-softened potential (FR-005)
+- [ ] T024 [US2] NFW profile fitting via `scipy.optimize.curve_fit` with exclusion logic (FR-006)
+- [ ] T025 [US2] Metric range validation in `code/data/compute_metrics.py`
+- [ ] T027–T030 [P] [US3] Unit/integration tests for binning, KS, BH correction, Spearman, Bullock comparison
+- [X] T031–T035, T037 [US3] Statistical analysis implementation in `code/analysis/stats.py` and `code/analysis/visualize.py` (FR-007 to FR-012)
 
-## Format: `[ID] [P?] [Story] Description`
+## Pending tasks (re‑planned)
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+### Phase 1: Data validation and first end‑to‑end result
 
-## Path Conventions
+- [ ] T101 [US1] **Complete schema validation after filtering**: In `code/data/preprocess.py`, after the ≥300‑particle filter runs, load `code/contracts/halo.schema.yaml` and validate each filtered halo record with `jsonschema.validate`. Raise `ValueError` on the first violation. **Verification**: `python -m code.data.preprocess` completes without errors, validates the filtered dataset, and exits 0; the file contains a visible `jsonschema.validate` (or `Draft7Validator`) invocation on the filtered data. (FR-002)
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T102 [US2] **Convergence‑rate logging artifact**: In `code/data/compute_metrics.py`, after the NFW fitting loop, aggregate fit outcomes and emit the log line `CONVERGENCE: X% success, Y failed fits`, and write `results/convergence_stats.json` containing `{"total_halos": int, "successful_fits": int, "rate": float}` matching the ConvergenceRate entity (SC‑004). **Verification**: the file exists, parses as JSON, and `rate == 100 * successful_fits / total_halos`. (FR‑006, SC‑004)
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- [ ] T103 [US3] **Implement local overdensity computation** (formerly US1): In `code/data/compute_metrics.py`, compute spherical top‑hat overdensity (R_TOP_HAT = 5.0 Mpc h⁻¹) using `scipy.spatial.cKDTree` on a memory‑mapped particle array, applying periodic wrapping via `code/config.BOX_SIZE`; Δ = ρ_local / ρ_critical (FR‑003). **Verification**: `data/processed/` gains an `overdensity_delta` column; all values are finite and positive. **Dependency**: after T101.
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T104 [US3] **Produce the canonical results artifact**: Add a `run_analysis()` entry point (in `code/analysis/stats.py` or `code/main.py`) that executes the full pipeline – binning (FR‑007), KS tests between low vs. high environment bins for each metric (FR‑008), Benjamini‑Hochberg correction (FR‑009), Spearman correlations (FR‑010) – and writes `results/statistics.json` as a JSON array of records conforming to `code/contracts/results.schema.yaml`. **Verification**: `results/statistics.json` exists, is non‑empty, validates against the schema, and contains exactly three KS records (one per metric, `bin_comparison: "low_vs_high"`). (FR‑007‑010)
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+- [ ] T105 [US3] **Bullock et al. (2001) comparison**: Add constants `BULLOCK_C200` and `BULLOCK_ALPHA` to `code/config.py` with citation docstrings; implement the analytic c(M) fit in `code/analysis/stats.py`; compute deviation statistics (mean difference, RMSE) between the measured mass‑concentration relation and the fit, and write them to `results/bullock_comparison.json`. **Verification**: the constants are importable, and the JSON file contains finite `rmse` and `mean_difference` fields. (FR‑011, SC‑005)
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T106 [US3] **Save visualizations to disk**: In `code/analysis/visualize.py`, add explicit `fig.savefig(...)` calls writing PNG files to `results/figures/`: (a) mass‑concentration scatter with Bullock fit overlay, (b) KDE curves per metric per environment bin (histogram fallback for bins with < 30 halos), (c) metric‑correlation heatmap. **Verification**: `results/figures/` contains at least three non‑empty PNG files generated from the validated `results/statistics.json` and processed data. (FR‑012)
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T107 [US1] **Edge‑case unit tests**: Add tests in `tests/unit/test_edge_cases.py` for (a) a halo with exactly 300 particles is retained, (b) a failed NFW fit is excluded from concentration analysis and counted, (c) a bin with insufficient halos skips KDE and falls back to histogram, (d) missing required column (e.g., `velocity`) causes the pipeline to raise a clear `MissingColumnError` and halt. **Verification**: `pytest tests/unit/test_edge_cases.py` passes with assertions on all four cases. (Edge cases from spec.md)
 
-**Purpose**: Project initialization and basic structure
+- [ ] T108 [US3] **End‑to‑end orchestration and timing**: Create `code/main.py` with a `--run-all` mode that chains preprocess → metrics → analysis → visualization, and wrap execution in a timer that records start/stop wall time, total halos processed, and sample‑size justification to `results/timing.json`. **Verification**: `python code/main.py --run-all` completes, regenerates all primary artifacts, and `results/timing.json` contains a numeric field `duration_s` with value < 21600. (FR‑007‑012)
 
-- [ ] T001 Create project structure per implementation plan: `mkdir -p code/data code/analysis data/raw data/processed results tests/unit tests/integration docs`
-- [ ] T002 Initialize Python 3.11 project with dependencies: Install pip, setuptools, wheel; then install pandas, numpy, scipy; then run `pip freeze` to generate `requirements.txt` with exact versions (pin to exact versions, generate via `pip freeze`)
-- [ ] T003 [P] Configure linting (flake8/pylint) and formatting (black) tools in `pyproject.toml` (black --line-length 88, flake8 max-line-length=100)
+- [ ] T109 [US1] **Document methodology constraints and data status**: Write `docs/architecture_constraints.md` covering (a) the subsampled Plummer‑softened potential approximation for FR‑005, (b) real‑data acquisition status and DATA_GAP fallback behavior, (c) synthetic‑generation parameters (seed, deviation magnitude) if the fallback fired, and (d) the memory‑mapped particle‑stream approach for FR‑003. **Verification**: the document exists and references actual constants/code paths. 
 
----
+- [ ] T110 **Methods / results write‑up**: Write `specs/001-dark-matter-halo-statistics/results.md` that cites `results/statistics.json`, `results/convergence_stats.json`, `results/bullock_comparison.json`, and each figure in `results/figures/`; report KS p‑values (raw and BH‑corrected), Spearman ρ, Bullock deviation statistics, and NFW convergence rate; describe any negative findings, failed fits, and the synthetic‑fallback limitation honestly. **Verification**: the markdown file exists and contains the required citations.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+### Additional tasks to close remaining gaps
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T111 [US1] **Missing‑column halt behavior**: Implement a check in `code/data/download.py` (or the preprocessing step) that verifies required columns (`mass`, `position`, `velocity`) are present in the loaded catalog; if any are absent, raise a `MissingColumnError` with an explicit error message and abort execution. Unit test added in `tests/unit/test_missing_column.py`. **Verification**: the test triggers the error when a synthetic catalog lacking `velocity` is processed.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T112 [US3] **Overdensity‑threshold sensitivity analysis**: Sweep the top‑hat radius R_TOP_HAT over a predefined range (e.g., 3, 5, 7 Mpc h⁻¹); for each radius compute environment classifications and record the fraction of halos classified as “high”. Write results to `results/overdensity_sweep.json` containing `{radius: float, high_fraction: float}` entries. **Verification**: the JSON file exists and contains at least three records with plausible fractions (0 ≤ f ≤ 1).
 
-- [ ] T004 [P] Create `code/config.py` with pinned random seeds, file paths, simulation box size (suitable for capturing large-scale structure), and critical density constants
-- [ ] T005A [P] Pre-register significance thresholds (α=0.05) and correction method (Benjamini-Hochberg) in `code/config.py` as mandated by Constitution VII (FR-009, SC-003); these values MUST be hard-coded and immutable during the run; this task is for configuration only, not implementation of the test logic (See T033)
-- [ ] T005B [P] Create `code/contracts/halo.schema.yaml` and `code/contracts/results.schema.yaml` for data validation
-- [X] T006 [P] Setup logging infrastructure in `code/utils/logging.py` (format: `%(asctime)s - %(levelname)s - %(message)s`, level: INFO, output: `logs/pipeline.log`)
-- [ ] T007A [P] Create `code/data/streaming.py` class `ChunkedHDF5Reader` with `__init__(path, chunk_size)` and `__iter__` methods
-- [ ] T007B [P] Create `code/data/streaming.py` function `stream_halos(chunk_size=10000)` returning generator of halo dictionaries
-- [ ] T007C [P] Create `code/data/streaming.py` function `subsample_particles(n=500, seed=42)` implementing the 'Subsampled Plummer-Softened Potential' logic (See Plan Phase 1, Complexity Tracking)
-- [ ] T008 [P] [US1] Implement synthetic data generator with controlled deviations in `code/data/synthetic_generator.py` as conditional fallback (triggered ONLY if API fails); output schema: HDF5, deviation: offset NFW concentration by a small magnitude, use a fixed random seed, path: `data/raw/synthetic_halos.h5`; note: synthetic generator is primary execution path for this stage as per Plan mandate
+- [ ] T113 [US1] **Data checksum artifact**: After any synthetic data generation or real download, compute SHA‑256 checksums for all files under `data/raw/` and `data/processed/` and write them to `results/data_checksums.json` as a mapping `{filepath: checksum}`. **Verification**: the JSON file exists and contains a checksum entry for each file in the two directories.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T114 [US3] **Pre‑register significance threshold**: Add a constant `ALPHA = 0.05` to `code/config.py`; modify the analysis scripts to compare corrected p‑values against this constant and set the `significance` field accordingly. Add a unit test `tests/unit/test_alpha_threshold.py` that asserts a known p‑value below 0.05 yields `significance: true`. **Verification**: the constant is importable and the test passes.
 
----
-
-## Phase 3: User Story 1 - Data Acquisition and Pre-processing (Priority: P1) 🎯 MVP
-
-**Goal**: Download and filter public cosmological simulation catalogs (IllustrisTNG TNG100-1 and Millennium) to produce a validated halo dataset ready for structural analysis. If real data is unavailable, generate synthetic data with controlled deviations.
-
-**Independent Test**: Can be fully tested by successfully downloading both catalogs (including particle data) or generating synthetic data, filtering for halos with ≥300 particles, and producing a consolidated dataset file that contains all required columns (mass, position, velocity, particle counts).
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T009A [P] [US1] Unit test `test_filter_halos_300_particles` in `tests/unit/test_preprocess.py`
-- [ ] T009B [P] [US1] Unit test `test_stream_halos_chunk_size` in `tests/unit/test_streaming.py`
-- [ ] T010A [P] [US1] Unit test `test_synthetic_data_deviation_injection` in `tests/unit/test_synthetic.py`
-- [ ] T010B [P] [US1] Unit test `test_synthetic_schema_validation` in `tests/unit/test_synthetic.py`
-- [ ] T011 [P] [US1] Integration test `test_full_data_pipeline` in `tests/integration/test_data_pipeline.py`
-
-### Implementation for User Story 1
-
-- [X] T012 Implement `code/data/download.py` to fetch IllustrisTNG TNG100-1 and Millennium catalogs via API; check API status; trigger synthetic fallback ONLY on failure (FR-001)
-- [X] T013 [US1] Implement halo filtering logic in `code/data/preprocess.py` to retain only halos with ≥300 particles and log filtered count (FR-002)
-- [X] T014 [US1] Implement chunked streaming writer in `code/data/preprocess.py` to save filtered data as `data/processed/filtered_halos_{timestamp}.parquet` (chunk_size=10k, compression=snappy)
-- [~] T015 [US1] Add validation against `code/contracts/halo.schema.yaml` after filtering in `code/data/preprocess.py`
-- [X] T016 [US1] Add logging for data gap detection in `code/data/download.py` (message: 'DATA_GAP: Real data unavailable, switching to synthetic'; trigger: HTTP 403/Timeout)
-- [X] T017 [US1] Implement local overdensity calculation in `code/data/compute_metrics.py` using cKDTree with periodic boundary wrapping, spherical top-hat of a characteristic radius, using simulation box size from T004; explicitly use Memory-Mapped Sparse Particle Stream and Subsampled strategy (% random sample) as defined in Plan Phase 1, Complexity Tracking; process on synthetic/filtered particle stream after filtering; document how the 5 Mpc radius calculation remains statistically valid on a subsample (FR-003)
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Structural Metric Computation (Priority: P2)
-
-**Goal**: Compute shape (s=c/a), spin parameter (λ), and concentration index (c) for each halo using validated physical formulas.
-
-**Independent Test**: Can be fully tested by running the metric computation on a a sample of halos and verifying that output distributions match expected physical ranges (shape s ∈ [0,1], spin λ ∈ [0,1], concentration c > 0).
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T018 [P] [US2] Unit test `test_inertia_tensor_shape` in `tests/unit/test_metrics.py`
-- [X] T019 [P] [US2] Unit test `test_spin_parameter_subsample` in `tests/unit/test_spin.py`
-- [X] T020 [P] [US2] Unit test `test_nfw_convergence` in `tests/unit/test_concentration.py`
-- [X] T021 [P] [US2] Integration test `test_full_metric_pipeline` in `tests/integration/test_metrics.py`
-
-### Implementation for User Story 2
-
-- [ ] T022 [P] [US2] Implement shape parameter s=c/a calculation from inertia tensor of particle positions in `code/data/compute_metrics.py` (FR-004)
-- [ ] T023 [US2] {{claim:c_dbac5b85}} in `code/data/compute_metrics.py` using Subsampled Plummer-Softened Potential (N=500 particles) via T007C; this is the ONLY valid implementation due to memory constraints (See Plan Phase 1, Complexity Tracking); document deviation from 'direct summation' in code comments and log in Data Gap Report (FR-005)
-- [ ] T023B [US2] Document deviation from 'direct summation' to 'Subsampled Plummer-Softened Potential' and validate that the subsampled approach satisfies the scientific intent of FR-005 in `docs/data_gap_report.md`
-- [ ] T024 [US2] Implement NFW profile fitting via scipy.optimize.curve_fit with convergence logging and exclusion logic in `code/data/compute_metrics.py` (FR-006)
-- [ ] T025 [US2] Add validation checks for metric ranges in `code/data/compute_metrics.py` (if not (0 <= s <= 1): raise ValueError; message: 'Shape out of range')
-- [ ] T026 [US2] Log convergence rates and failed fit counts in `code/data/compute_metrics.py` (message: 'CONVERGENCE: X% success, Y failed fits'; aggregate to `results/convergence_stats.json`)
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Hypothesis Testing (Priority: P3)
-
-**Goal**: Perform Kolmogorov-Smirnov tests and Spearman correlations to assess deviations from NFW/ΛCDM predictions across mass and environment bins.
-
-**Independent Test**: Can be fully tested by running the full statistical pipeline on the processed dataset and producing a results summary with p-values, effect sizes, and visualizations saved as PNG/PDF.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T027A [P] [US3] Unit test `test_mass_binning_ranges` in `tests/unit/test_binning.py`
-- [ ] T027B [P] [US3] Unit test `test_environment_binning_threshold` in `tests/unit/test_binning.py`
-- [ ] T028A [P] [US3] Unit test `test_ks_test_pvalue` in `tests/unit/test_stats.py`
-- [ ] T028B [P] [US3] Unit test `test_benjamini_hochberg_correction` in `tests/unit/test_stats.py`
-- [ ] T029A [P] [US3] Unit test `test_spearman_correlation` in `tests/unit/test_correlations.py`
-- [ ] T029B [P] [US3] Unit test `test_bullock_comparison` in `tests/unit/test_correlations.py`
-- [ ] T030 [P] [US3] Integration test `test_full_analysis_pipeline` in `tests/integration/test_analysis.py`
-
-### Implementation for User Story 3
-
-- [ ] T031 [US3] Implement mass binning spanning multiple orders of magnitude in solar mass units and environment binning (Δ < 200 vs ≥ 200) in `code/analysis/stats.py` (FR-007)
-- [ ] T032 [P] [US3] Implement two-sample KS tests between low/high environmental bins for shape, spin, and concentration in `code/analysis/stats.py` (FR-008)
-- [ ] T033 [P] [US3] Implement Benjamini-Hochberg correction for multiple hypothesis testing across ≥9 KS tests [UNRESOLVED-CLAIM: c_decadb70 — status=not_enough_info] in `code/analysis/stats.py` (FR-009); use threshold from `code/config.py`
-- [ ] T034 [P] [US3] Implement Spearman's ρ correlation between halo mass and each structural metric in `code/analysis/stats.py` (FR-010)
-- [ ] T035 [P] [US3] {{claim:c_0940b987}} (astro-ph/0402210, https://arxiv.org/abs/astro-ph/0402210) in `code/analysis/stats.py` (FR-011); include fallback behavior if citation validation fails: default to standard Bullock et al. 2001 parameters (c_200 = 10, alpha = -0.1) and log the fallback event
-- [ ] T035B [US3] Implement the actual Bullock comparison logic (deviation statistics calculation) in `code/analysis/stats.py` (FR-011)
-- [ ] T036 [US3] Implement Bullock et al. (2001) analytic fit using the standard form c(M) = c_200 * (M/M_200)^alpha with c_200=10 and alpha is set to a negative value.; validate these hardcoded parameters against the spec's intent; if the spec's citation year is ambiguous, use these default values and log the resolution; do NOT attempt to fetch external sources (FR-011)
-- [ ] T037 [US3] Implement visualization generation (scatter plots, KDE curves, heatmaps) using matplotlib/seaborn in `code/analysis/visualize.py` (FR-012)
-- [ ] T038 [US3] Save all results (p-values, effect sizes, convergence rates) to `results/statistics.json`
-- [ ] T039 [US3] Save visualizations as PNG/PDF in `results/figures/`
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T040A [P] Documentation updates in `docs/data_gap_report.md` including Data Source, Fallback Reason, Synthetic Parameters (FR-001, Plan Phase 0)
-- [ ] T040B [P] Code cleanup: Remove unused imports and optimize memory usage in `code/data/compute_metrics.py`
-- [ ] T041A [P] Performance optimization: Implement memory-mapped array access for particle stream in `code/data/compute_metrics.py` (target: reduce I/O by at least 50% or achieve high throughput)
-- [ ] T042A [P] Unit test `test_halo_300_particles_boundary` in `tests/unit/test_edge_cases.py`
-- [ ] T042B [P] Unit test `test_nfw_fit_failure_handling` in `tests/unit/test_edge_cases.py`
-- [ ] T042C [P] Unit test `test_empty_bin_handling` in `tests/unit/test_edge_cases.py`
-- [ ] T043 [US3] Run quickstart.md validation and verify pipeline execution within 6 hours on GitHub Actions free-tier runner (command: `python code/main.py --run-all`; output: `results/timing.json`)
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for data filtering logic in tests/unit/test_preprocess.py"
-Task: "Unit test for synthetic data generation and deviation injection in tests/unit/test_synthetic.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement halo filtering logic in code/data/preprocess.py"
-Task: "Implement chunked streaming writer in code/data/preprocess.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- [ ] T115 [US2] **Update specification FR-005**: Amend `specs/001-investigating-the-statistical-properties/spec.md` to explicitly sanction the subsampled Plummer‑softened potential approximation for total energy computation (see discussion in T109). This ensures the FR aligns with the implemented method. **Verification**: spec FR-005 mentions the subsampled approach and cites T109 documentation. 

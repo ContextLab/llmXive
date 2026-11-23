@@ -1,0 +1,55 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Constraints Schema
+description: Schema for spatial constraint data extracted from S-Agent scenes
+type: object
+required:
+  - scene_id
+  - constraints
+  - status
+properties:
+  scene_id:
+    type: string
+    description: Unique identifier for the scene
+    pattern: "^scene_\\d{3}$"
+  constraints:
+    type: array
+    description: List of spatial constraints for the scene
+    items:
+      type: object
+      required:
+        - type
+        - a
+        - b
+      properties:
+        type:
+          type: string
+          description: Type of spatial relationship
+          enum:
+            - left_of
+            - right_of
+            - above
+            - below
+            - inside
+            - outside
+            - touching
+            - overlapping
+        a:
+          type: string
+          description: First object in the relationship
+        b:
+          type: string
+          description: Second object in the relationship
+        distance:
+          type: number
+          description: Optional distance metric between objects
+        angle:
+          type: number
+          description: Optional angle metric between objects
+  status:
+    type: string
+    description: Validation status of the constraints
+    enum:
+      - valid
+      - invalid
+      - ambiguous
+additionalProperties: false

@@ -1,0 +1,17 @@
+{
+  "max_depth_sweep": [
+    {
+      "max_depth": 3,
+      "r2_score": 0.645
+    },
+    {
+      "max_depth": 5,
+      "r2_score": 0.712
+    },
+    {
+      "max_depth": 7,
+      "r2_score": 0.698
+    }
+  ],
+  "r2_variance": 0.00145
+}

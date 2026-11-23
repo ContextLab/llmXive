@@ -1,5 +1,8 @@
 """
-Dataset fetching from UCI/OpenML with checksum validation and PII scan.
+Dataset loading module for the llmXive statistical power reliability pipeline.
+
+This module handles fetching datasets from UCI/OpenML using the configuration
+defined in T004a (code/config.py). It includes checksum validation and PII scanning.
 """
 import hashlib
 import json
@@ -7,146 +10,160 @@ import os
 import re
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
-import logging
-import requests
+
 import pandas as pd
-import numpy as np
+from datasets import load_dataset
+import logging
 
-from config import ROOT_DIR
+from config import get_dataset_config
 
+# Configure logging
 logger = logging.getLogger(__name__)
 
+# PII patterns to scan for (basic regex patterns for potential sensitive data)
+PII_PATTERNS = [
+    r'\b\d{3}-\d{2}-\d{4}\b',  # SSN
+    r'\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b',  # IP addresses
+    r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b',  # Email
+    r'\b\d{3}[-.]?\d{3}[-.]?\d{4}\b',  # Phone numbers
+]
 
-def compute_checksum(data: bytes) -> str:
-    """Compute SHA256 checksum of data."""
-    return hashlib.sha256(data).hexdigest()
-
-
-def load_dataset(config: Dict[str, Any]) -> pd.DataFrame:
+def compute_checksum(data: Any) -> str:
     """
-    Load a dataset from UCI or OpenML based on configuration.
+    Compute a SHA-256 checksum of the provided data.
 
     Args:
-        config: Dictionary containing 'id', 'source', 'url', etc.
+        data: The data to compute the checksum for (can be a dict, list, or string).
 
     Returns:
-        A pandas DataFrame containing the dataset.
+        str: The hexadecimal checksum string.
     """
-    ds_id = config.get('id')
-    source = config.get('source')
-    url = config.get('url')
+    # Serialize data to JSON string for consistent hashing
+    if isinstance(data, (dict, list)):
+        json_str = json.dumps(data, sort_keys=True)
+    else:
+        json_str = str(data)
 
-    if not url:
-        raise ValueError(f"URL not specified for dataset {ds_id}")
+    return hashlib.sha256(json_str.encode('utf-8')).hexdigest()
 
-    logger.info(f"Downloading dataset {ds_id} from {source}...")
+def scan_for_pii(data: pd.DataFrame, threshold: int = 10) -> List[str]:
+    """
+    Scan a DataFrame for potential PII patterns.
+
+    Args:
+        data: The DataFrame to scan.
+        threshold: Minimum number of matches to flag a column as containing PII.
+
+    Returns:
+        List[str]: List of column names that contain potential PII.
+    """
+    flagged_columns = []
+
+    for col in data.columns:
+        # Convert column to string for regex matching
+        col_str = data[col].astype(str).str.cat(sep=' ')
+
+        for pattern in PII_PATTERNS:
+            matches = re.findall(pattern, col_str)
+            if len(matches) >= threshold:
+                flagged_columns.append(col)
+                logger.warning(f"Potential PII detected in column '{col}' with pattern '{pattern}'")
+                break  # No need to check other patterns for this column
+
+    return flagged_columns
+
+def load_dataset(dataset_id: str) -> Tuple[pd.DataFrame, str]:
+    """
+    Load a dataset from Hugging Face datasets (UCI/OpenML).
+
+    This function fetches the dataset, validates it, and returns the data as a DataFrame.
+
+    Args:
+        dataset_id: The ID of the dataset to load (e.g., 'iris', 'wine').
+
+    Returns:
+        Tuple[pd.DataFrame, str]: A tuple containing the loaded DataFrame and a checksum.
+
+    Raises:
+        ValueError: If the dataset cannot be loaded or contains PII.
+        RuntimeError: If the dataset fetch fails.
+    """
+    logger.info(f"Loading dataset: {dataset_id}")
 
     try:
-        response = requests.get(url, timeout=60)
-        response.raise_for_status()
-    except requests.RequestException as e:
-        raise RuntimeError(f"Failed to download dataset {ds_id}: {e}")
+        # Load dataset from Hugging Face
+        # Using streaming=False to ensure we get the full dataset for validation
+        dataset = load_dataset(dataset_id, split="train")
 
-    data = response.content
-    checksum = compute_checksum(data)
-    logger.info(f"Downloaded {ds_id}. Checksum: {checksum}")
+        # Convert to DataFrame
+        df = dataset.to_pandas()
 
-    # Parse based on source and content type (simplified)
-    if source == 'uci':
-        if 'csv' in url or ds_id in ['uci_adult', 'uci_iris', 'uci_titanic']:
-            # Try to parse as CSV
-            try:
-                df = pd.read_csv(pd.io.common.BytesIO(data))
-            except Exception:
-                # Fallback for adult dataset which has no header
-                if ds_id == 'uci_adult':
-                    cols = ['age', 'workclass', 'fnlwgt', 'education', 'education-num',
-                            'marital-status', 'occupation', 'relationship', 'race', 'sex',
-                            'capital-gain', 'capital-loss', 'hours-per-week', 'native-country', 'income']
-                    df = pd.read_csv(pd.io.common.BytesIO(data), header=None, names=cols)
-                else:
-                    raise
-        elif ds_id == 'uci_concrete':
-            # Excel file handling might require openpyxl, assuming CSV conversion or specific parsing
-            # For this implementation, we assume a CSV version or handle via pandas if available
-            # In a real scenario, we might download a pre-converted CSV or use a library
-            # Here we simulate reading as CSV for demonstration if the URL was CSV
-            # If the URL is Excel, we'd need pd.read_excel
-            # Assuming the provided URL is a placeholder and we handle the actual format
-            # For robustness, let's try to detect or assume CSV for simplicity in this snippet
-            # If it's really XLSX, we need to add openpyxl dependency or handle it differently
-            # Since we can't guarantee XLSX support without deps, we'll assume a CSV fallback or error
-            # For the purpose of this task, we assume the data is accessible as CSV or text
-            # If the real URL is XLSX, this might fail without pandas Excel support
-            # Let's assume it's a CSV for now or handle the specific case
-            # If the URL is indeed XLSX, we need to ensure openpyxl is installed.
-            # We will assume the file is accessible as text/CSV for this implementation.
-            df = pd.read_csv(pd.io.common.BytesIO(data))
-        elif ds_id == 'uci_breast_cancer':
-            # WDBC data has no header
-            df = pd.read_csv(pd.io.common.BytesIO(data), header=None)
-        elif ds_id == 'uci_fertility':
-            df = pd.read_csv(pd.io.common.BytesIO(data), sep='\t', header=None)
-        else:
-            df = pd.read_csv(pd.io.common.BytesIO(data))
-    elif source == 'openml':
-        # OpenML API usually returns JSON or specific formats
-        # For simplicity, assuming we get a CSV or can parse the response
-        # In a real implementation, we'd use openml library or parse the API response
-        # Here we assume the URL points to a CSV file for simplicity
-        # If it's an API endpoint, we need to parse JSON
-        if 'api' in url:
-            # Parse JSON response from OpenML API
-            json_data = json.loads(data)
-            # This is a simplification; real OpenML parsing is complex
-            # We assume a specific structure for demonstration
-            # For this task, we'll assume we can get a DataFrame from the JSON
-            # or we fall back to a CSV download link if available
-            # Since we can't implement full OpenML client here, we assume CSV fallback
-            # or that the URL provided in config is a direct CSV link
-            # If the URL is an API, we might need to extract the download URL
-            # Let's assume the config URL is a direct download link for CSV
-            df = pd.read_csv(pd.io.common.BytesIO(data))
-        else:
-            df = pd.read_csv(pd.io.common.BytesIO(data))
-    else:
-        raise ValueError(f"Unsupported source: {source}")
+        # Verify we have data
+        if df.empty:
+            raise ValueError(f"Dataset '{dataset_id}' is empty after loading.")
 
-    # PII Scan (Simple heuristic)
-    pii_columns = []
-    for col in df.columns:
-        if re.search(r'(?i)(name|ssn|phone|email|address|id_number)', str(col)):
-            pii_columns.append(col)
+        # Compute checksum of the data
+        checksum = compute_checksum(df.to_dict(orient='records'))
 
-    if pii_columns:
-        logger.warning(f"Potential PII columns found in {ds_id}: {pii_columns}")
-        # In a real scenario, we might drop these or flag them
-        # For this task, we just log and continue
+        # Scan for PII
+        pii_columns = scan_for_pii(df)
+        if pii_columns:
+            raise ValueError(
+                f"Dataset '{dataset_id}' contains potential PII in columns: {pii_columns}. "
+                "This dataset cannot be used due to privacy concerns."
+            )
 
-    return df
+        logger.info(f"Successfully loaded '{dataset_id}' with {len(df)} rows. Checksum: {checksum[:16]}...")
+        return df, checksum
 
+    except Exception as e:
+        # Fail loudly - do not fall back to synthetic data
+        error_msg = f"Failed to load dataset '{dataset_id}': {str(e)}"
+        logger.error(error_msg)
+        raise RuntimeError(error_msg) from e
 
-def load_all_datasets():
-    """Load all datasets defined in config."""
-    from config import DATASETS_CONFIG
-    datasets = []
-    for config in DATASETS_CONFIG:
+def load_all_datasets() -> Dict[str, Dict[str, Any]]:
+    """
+    Load all datasets defined in the configuration.
+
+    Returns:
+        Dict[str, Dict[str, Any]]: A dictionary mapping dataset IDs to their data and metadata.
+    """
+    datasets_config = get_dataset_config()
+    loaded_datasets = {}
+
+    for dataset_info in datasets_config:
+        dataset_id = dataset_info['id']
         try:
-            df = load_dataset(config)
-            datasets.append({
-                "config": config,
-                "data": df
-            })
+            df, checksum = load_dataset(dataset_id)
+            loaded_datasets[dataset_id] = {
+                'data': df,
+                'checksum': checksum,
+                'outcome_type': dataset_info['outcome_type'],
+                'url': dataset_info.get('url', 'N/A')
+            }
+            logger.info(f"Loaded dataset '{dataset_id}' successfully.")
         except Exception as e:
-            logger.error(f"Failed to load dataset {config.get('id')}: {e}")
-    return datasets
+            logger.error(f"Failed to load dataset '{dataset_id}': {e}")
+            # Continue with other datasets, but log the failure
 
+    return loaded_datasets
 
-def get_dataset_info(config: Dict[str, Any]) -> Dict[str, Any]:
-    """Get basic info about a dataset."""
-    return {
-        "id": config.get('id'),
-        "type": config.get('type'),
-        "source": config.get('source'),
-        "url": config.get('url')
-    }
+def get_dataset_info(dataset_id: str) -> Optional[Dict[str, Any]]:
+    """
+    Retrieve metadata for a specific dataset from the configuration.
+
+    Args:
+        dataset_id: The ID of the dataset to get info for.
+
+    Returns:
+        Optional[Dict[str, Any]]: Dictionary containing dataset metadata, or None if not found.
+    """
+    datasets_config = get_dataset_config()
+
+    for dataset_info in datasets_config:
+        if dataset_info['id'] == dataset_id:
+            return dataset_info
+
+    logger.warning(f"Dataset '{dataset_id}' not found in configuration.")
+    return None

@@ -1,109 +1,152 @@
-# Feature Specification: Predicting the Yield Strength of High-Entropy Alloys via Compositional Descriptors
+# Specification for Predicting the Yield Strength of High‑Entropy Alloys
 
-**Feature Branch**: `001-predict-hea-yield-strength`  
-**Created**: 2024-01-15  
-**Status**: Draft  
-**Input**: User description: "Predicting the Yield Strength of High-Entropy Alloys via Compositional Descriptors"
+## Research Question
+*How do elemental mixing parameters correlate with the yield strength of single‑phase high‑entropy alloys (HEAs), and can a composition‑only predictor achieve robust predictive performance (R² ≥ 0.6, |r| ≥ 0.5, p < 0.05) on an independent validation set?* (See US-1)
 
-## User Scenarios & Testing *(mandatory)*
+**Restated Idea:**
+The original proposal aims to develop a fast, composition‑only predictor of HEA yield strength to enable rapid screening of candidate alloys for experimental synthesis while also identifying the most informative compositional descriptors. Expected performance targets are a coefficient of determination **R² ≥ 0.6**, absolute Pearson correlation **|r| ≥ 0.5**, and statistical significance **p < 0.05** on an independent held‑out test set. Additionally, at least two descriptors must show **|r| > 0.5** with **p < 0.01** in descriptor‑target correlation analysis performed on the training data.
 
-### User Story 1 - Data Acquisition and Descriptor Engineering (Priority: P1)
+## User Scenarios & Testing
 
-Researcher downloads HEA composition and yield strength data from open repositories, calculates compositional descriptors (atomic size mismatch δ, electronegativity variance Δχ, valence electron concentration VEC, mixing entropy, melting temperature variance), and filters to single-phase alloys at room temperature.
+### User Story 1 – Predict HEA Yield Strength (Priority: P1) (See US-1)
 
-**Why this priority**: Without validated input data and correctly calculated descriptors, no downstream modeling is possible. This forms the foundational dataset for all subsequent analysis.
+**As a** materials scientist,
+**I want** to obtain a reliable prediction of the yield strength for a given HEA composition,
+**so that** I can prioritize experimental synthesis of promising candidates.
 
-**Independent Test**: Can be fully tested by executing the data pipeline and verifying that the system reports the count of available single-phase HEA compositions with complete descriptor values and yield strength measurements in a CSV file.
+**Why this priority**: Yield‑strength prediction directly accelerates alloy design cycles and reduces costly experiments.
 
-**Acceptance Scenarios**:
-
-1. **Given** access to Materials Project, NIST HEA database, or published Zenodo/figshare datasets, **When** the researcher runs the data acquisition script, **Then** a merged dataset is produced and the system reports the count of single-phase room-temperature HEA compositions
-2. **Given** elemental property data (atomic radii, electronegativity, valence electron counts), **When** the descriptor calculation module runs, **Then** each alloy composition has δ, Δχ, VEC, mixing entropy, and melting temperature variance computed with no missing values
-3. **Given** raw HEA data with phase and temperature annotations, **When** filtering criteria are applied, **Then** only single-phase alloys tested at room temperature (20-25°C) remain in the output dataset
-
----
-
-### User Story 2 - Model Training and Predictive Performance Evaluation (Priority: P2)
-
-Researcher trains random forest and gradient boosting models using 5-fold cross-validation with hyperparameter tuning (≤50 trees, depth ≤10), evaluates on a [deferred] random hold-out test set, and compares R², MAE, and RMSE against a baseline linear regression model.
-
-**Why this priority**: The core predictive capability determines whether compositional descriptors carry sufficient signal for practical alloy screening. This delivers the primary quantitative result.
-
-**Independent Test**: Can be fully tested by executing model training and evaluation scripts, then verifying that R², MAE, and RMSE values are recorded in a JSON report file at `output/metrics.json` with keys `R2`, `MAE`, `RMSE` for both tree-based models and the linear baseline on the held-out test set, and that the total runtime is ≤3 hours.
+**Independent Test**: Execute the end‑to‑end pipeline on a held‑out test set of HEA compositions of adequate size and verify that the reported performance metrics satisfy the Success Criteria.
 
 **Acceptance Scenarios**:
 
-1. **Given** the prepared dataset with descriptors and yield strength values, **When** random forest and gradient boosting models are trained with 5-fold cross-validation, **Then** both models complete within ≤3 hours on a CPU-only environment
-2. **Given** trained models, **When** evaluation runs on a [deferred] random hold-out test set, **Then** the tree-based model's R² is compared against the linear baseline R² to quantify improvement
-3. **Given** multiple model outputs, **When** performance metrics are compared, **Then** the best tree-based model's R², MAE, and RMSE are documented alongside the linear regression baseline for direct comparison
+1. **Given** a valid CSV file containing alloy compositions, **When** the pipeline is run with default settings, **Then** a markdown report is produced that includes model performance, descriptor‑target correlations (computed on training data), feature importances, VIF summary, provenance log, and the power‑analysis justification.
+2. **Given** a composition missing a required element fraction, **When** the pipeline validates the input, **Then** it aborts with a clear error message indicating the missing field.
 
----
+## Edge Cases
 
-### User Story 3 - Statistical Validation and Significance Reporting (Priority: P3)
-
-Researcher performs permutation importance testing with 1000 permutations, conducts bootstrap resampling for model stability, applies multiple-comparison correction for testing ≥5 descriptors, conducts sensitivity analysis on the significance threshold (α ∈ {0.01, 0.05, 0.1}), and documents collinearity diagnostics among predictors.
-
-**Why this priority**: Statistical rigor ensures findings are methodologically defensible and reproducible. This addresses the methodology panel's concerns about inference framing and threshold justification.
-
-**Independent Test**: Can be fully tested by executing statistical validation scripts and verifying that permutation p-values, bootstrap confidence intervals, multiple-comparison corrected significance levels, and threshold sensitivity results are all recorded in the output report.
-
-**Acceptance Scenarios**:
-
-1. **Given** fitted models with descriptor importance scores, **When** permutation testing runs with 1000 permutations, **Then** p-values are calculated for all descriptors
-2. **Given** ≥5 hypothesis tests across descriptors, **When** multiple-comparison correction applies (e.g., Bonferroni or Benjamini-Hochberg), **Then** corrected p-values are reported to control family-wise error rate
-3. **Given** the significance threshold α = 0.05 as the primary cutoff, **When** sensitivity analysis sweeps α ∈ {0.01, 0.05, 0.1}, **Then** the report documents how the count of significant descriptors and R² values vary across thresholds
-
----
-
-### Edge Cases
-
-- What happens when the downloaded dataset contains <500 single-phase room-temperature HEA compositions? The pipeline flags this as a data limitation and reports the actual N achieved; the model proceeds with available data but notes reduced statistical power.
-- How does the system handle missing elemental property values (e.g., electronegativity not available for a rare element)? The pipeline excludes compositions containing elements with incomplete property data and logs the count of excluded entries.
-- What happens when descriptor collinearity exceeds VIF > 10? The system flags the collinear descriptor pair, reports the variance inflation factor, and recommends joint descriptive reporting rather than claims of independent predictive effects.
-- How does the system handle yield strength values reported in different units (MPa vs. GPa)? The pipeline normalizes all yield strength values to MPa before model training, logging the conversion factor applied.
-
-## Requirements *(mandatory)*
-
-### Functional Requirements
-
-- **FR-001**: System MUST download HEA composition and yield strength data from at least one open repository (Materials Project, NIST HEA database, or Zenodo/figshare DOI), filter for single-phase room-temperature entries, and report the count of available entries; if count < 500, the system MUST flag a data limitation (See US-1)
-- **FR-002**: System MUST calculate five compositional descriptors per alloy: atomic size mismatch δ, electronegativity variance Δχ, valence electron concentration VEC, mixing entropy, and melting temperature variance (See US-1)
-- **FR-003**: System MUST filter the dataset to retain only single-phase high-entropy alloys tested at room temperature (20-25°C), excluding entries with missing yield strength values or non-standard testing conditions (See US-1)
-- **FR-004**: System MUST train random forest and gradient boosting models with 5-fold cross-validation, hyperparameter grid search constrained to ≤50 trees and depth ≤10, completing within ≤3 hours on CPU-only hardware (See US-2)
-- **FR-005**: System MUST evaluate model performance on a [deferred] random hold-out test set, reporting R², MAE, and RMSE for both tree-based models and a baseline linear regression model (See US-2)
-- **FR-006**: System MUST calculate permutation p-values for all descriptors using 1000 permutations to assess feature relevance (See US-3)
-- **FR-007**: System MUST apply multiple-comparison correction (Bonferroni or Benjamini-Hochberg) when testing ≥5 descriptors to control family-wise error rate (See US-3)
-- **FR-008**: System MUST conduct sensitivity analysis on the significance threshold by sweeping α ∈ {0.01, 0.05, 0.1} and reporting how the count of significant descriptors and R² values vary (See US-3)
-- **FR-009**: System MUST compute variance inflation factors (VIF) for each descriptor within the full multiple regression model and flag any VIF > 10 to prevent claims of independent predictive effects for collinear descriptors (See US-3)
-- **FR-010**: System MUST append a mandatory disclaimer string "Associational analysis only; no causal inference" to all generated plots and the final report summary (See US-3)
-- **FR-011**: System MUST perform bootstrap resampling (1000 resamples) of the full model to assess the stability of performance metrics and report 95% confidence intervals (See US-3)
-
-### Key Entities *(include if feature involves data)*
-
-- **HEA Composition**: Represents a high-entropy alloy with key attributes including elemental fractions (atomic percent for each element), phase structure (single-phase designation), and testing temperature
-- **Descriptor Set**: Represents the five compositional features calculated per alloy: δ (atomic size mismatch), Δχ (electronegativity variance), VEC (valence electron concentration), mixing entropy, and melting temperature variance
-- **Yield Strength Measurement**: Represents the experimentally measured mechanical property with units standardized to MPa, including metadata for testing protocol and source repository
-
-## Success Criteria *(mandatory)*
-
-### Measurable Outcomes
-
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
-
-- **SC-001**: Test-set R² is measured against the baseline linear regression R² to quantify improvement from tree-based models (See US-2)
-- **SC-002**: Descriptor correlation significance (p-values from permutation testing) is measured against the α = 0.05 threshold with multiple-comparison correction applied (See US-3)
-- **SC-003**: Threshold sensitivity results are measured against the headline R² and significant descriptor count to quantify stability across α ∈ {0.01, 0.05, 0.1} (See US-3)
-- **SC-004**: Collinearity diagnostics (VIF values) are measured against the VIF > 10 threshold to flag predictors that cannot claim independent effects (See US-3)
-- **SC-005**: Computational runtime is measured against the 6-hour GitHub Actions free-tier limit to confirm CPU-only feasibility (See US-2)
-- **SC-006**: Model stability is measured by the width of the 95% confidence interval for R² derived from 1000 bootstrap resamples (See US-3)
+- **Missing required fields**: The system aborts with a clear error if any input record lacks required fields. *(See FR‑009)*
+- **Dataset size insufficient**: Power analysis will flag insufficient sample size and abort execution. *(See FR‑015, FR‑023)*
 
 ## Assumptions
 
-- HEA datasets from Materials Project, NIST, or Zenodo contain ≥500 single-phase room-temperature compositions with complete elemental property data (atomic radii, electronegativity, valence electron counts) for all constituent elements
-- Yield strength values in source datasets are reported in standardized units or can be reliably converted to MPa with documented conversion factors
-- The observational dataset contains no random assignment of compositions; all reported relationships will be framed as associational rather than causal
-- CPU-only execution on GitHub Actions free-tier (2 cores, ~7 GB RAM) can complete model training and statistical validation within ≤6 hours total
-- The significance threshold α = 0.05 follows community standards for hypothesis testing in materials property prediction; sensitivity analysis will sweep {0.01, 0.05, 0.1} to assess robustness
-- Elemental property databases (e.g., WebElements, Materials Project) provide complete data for all elements appearing in the HEA dataset; any missing values result in composition exclusion
-- Multiple-comparison correction using Bonferroni or Benjamini-Hochberg is appropriate for the number of hypothesis tests (≥5 descriptors) conducted in this analysis
-- A tree-based model achieving R² > linear baseline R² is the primary research hypothesis; a target of R² ≥ 0.6 is a desired outcome but not a software acceptance criterion
+- The adaptive permutation count is allowed; the implementation will use a standard budget of permutations that provides sufficient statistical power.
+- The curated HEA yield‑strength dataset is publicly available at ** and contains experimentally measured `yield_strength` values for single‑phase alloys.
+- All alloys in the dataset have complete elemental composition information and no missing target values.
+- The computational environment provides at least several CPU cores and an adequate amount of RAM.
+- No external proprietary data are required; all inputs are open‑source.
+- All input and intermediate files are validated against their respective JSON schema contracts (`dataset.schema.yaml`, `elemental_properties.schema.yaml`, `hea_composition.schema.yaml`, `metrics.schema.yaml`, `importance.schema.yaml`, `manifest.schema.yaml`). *(see FR‑013)*
+- The dataset source is a publicly accessible Zenodo archive. *(See FR‑001)*
+
+## Methodology
+
+1. **Data Acquisition**
+ - Download the experimentally curated HEA yield‑strength dataset from Zenodo (**).
+ - Validate the raw dataset against `dataset.schema.yaml` (FR‑001).
+
+2. **Descriptor Calculation**
+ - For each alloy, compute composition‑based descriptors (e.g., atomic radius variance, electronegativity difference) using the `elemental_properties.schema.yaml`.
+ - Validate the descriptor table against `elemental_properties.schema.yaml`.
+
+3. **Statistical Power Analysis**
+ - Perform a power analysis targeting **power ≥ 0.80**, α = 0.05, to detect an effect size corresponding to **R² ≥ 0.6**.
+ - Compute the required minimum sample size; compare with the actual dataset size and record the achieved power. (FR‑015, FR‑022, FR‑023)
+
+4. **Train‑Test Split & Multicollinearity Assessment**
+ - Split the dataset into training ([deferred]) and held‑out test ([deferred]) sets using a fixed random seed.
+ - Compute Variance Inflation Factor (VIF) for each descriptor on the training set.
+ - Remove or regularize any descriptor with **VIF > 5** before model training. (FR‑016)
+
+5. **Model Training**
+ - Train a Random Forest regressor with a sufficiently large number of trees on the descriptor matrix after VIF handling.
+ - Perform k‑fold cross‑validation on the training set to estimate out‑of‑fold performance.
+
+6. **Descriptor‑Target Correlation Analysis**
+ - Compute Pearson correlation **r** and two‑tailed p‑value for each descriptor **using only the training data**.
+ - Report descriptors satisfying **|r| > 0.5** and **p < 0.01**. (FR‑014)
+
+7. **External Validation**
+ - Obtain an independent external validation dataset from a later Zenodo release (**).
+ - Document measurement protocols, processing conditions, and phase‑purity information for both training and external datasets to assess comparability. (FR‑024)
+ - Evaluate the trained model on this external set and record performance metrics. (FR‑017)
+
+8. **Performance Evaluation**
+ - Report coefficient of determination (R²), Pearson correlation coefficient (r), and two‑tailed p‑value on the held‑out test set.
+ - Success thresholds: **R² ≥ 0.6**, **|r| ≥ 0.5**, **p < 0.05** (SC‑001, SC‑002, SC‑003).
+
+9. **Permutation Importance**
+ - Compute feature importance via permutation importance using **A large set of permutations** per feature on the held‑out test set.
+ - Assess statistical significance with a non‑parametric permutation test and Holm‑Bonferroni correction (α = 0.05); flag features with **p < 0.05**. (FR‑005, FR‑006)
+
+10. **Stability Assessment**
+ - Run the entire training‑evaluation pipeline **three independent times** with distinct random seeds.
+ - Record the highest-ranked feature rankings for each run in `output/stability_rankings.json`.
+ - Compute the maximum rank difference across runs; require **≤ 1**. (FR‑021, SC‑006)
+
+11. **Reproducibility & Reporting**
+ - Record random seeds, hyperparameters, software versions, and execution timestamps to the console provenance log. (FR‑010)
+ - Generate a markdown report (`report.md`) summarizing dataset statistics, model performance, descriptor‑target correlations, feature importances, VIF summary, power‑analysis justification, external‑validation documentation, stability assessment, and provenance log. (FR‑008)
+ - Verify that every numeric value in `report.md` is generated programmatically and linked to a provenance ID, satisfying Principle IV (Single Source of Truth). (FR‑019)
+
+## Contract Validation Mapping
+
+| Contract File | Purpose | Mapped Requirement(s) |
+|-----------------------------------|--------------------------------------------|-----------------------|
+| `dataset.schema.yaml` | Validates raw HEA dataset records | FR‑001 |
+| `elemental_properties.schema.yaml`| Validates descriptor calculation inputs/outputs| FR‑002 |
+| `hea_composition.schema.yaml` | Validates composition CSV input format | FR‑009 |
+| `metrics.schema.yaml` | Validates model performance metrics (`r2`, `pearson_r`, `p_value`) | SC‑001, SC‑002, SC‑003 |
+| `importance.schema.yaml` | Validates permutation‑importance results (scores, p‑values) | FR‑006 |
+| `manifest.schema.yaml` | Validates provenance manifest (seeds, versions, checksums) | FR‑010 |
+
+## Expected Results
+
+| Metric | Target | Linked Success Criterion |
+|----------------------------------------|----------------------------------------|--------------------------|
+| R² | ≥ 0.6 | SC‑001 (See US‑1) |
+| |r| (test set) | ≥ 0.5 | SC‑002 (See US‑1) |
+| p‑value (test set) | < 0.05 | SC‑003 (See US‑1) |
+| Top‑5 feature rank stability | max rank difference ≤ 1 across three runs | SC‑006 (See US‑1) |
+| Descriptor‑target correlation | ≥ 2 descriptors with |r| > 0.5 and p < 0.01 (training data) | SC‑007 (See US‑1) |
+| External validation performance | R² ≥ 0.6, |r| ≥ 0.5, p < 0.05 | SC‑008 (See US‑1) |
+| Power analysis | Achieved power ≥ 0.80 | SC‑009 (See US‑1) |
+| VIF handling | No descriptor with VIF > 5 in final model| SC‑010 (See US‑1) |
+| Single source of truth | All numbers in report have provenance IDs| SC‑011 (See US‑1) |
+| CI pipeline success | All unit tests and linting pass (if present) | SC‑013 (removed as out‑of‑scope) |
+
+## Functional Requirements
+
+- **FR-001**: The system **MUST** download and validate the curated HEA yield‑strength dataset from the Zenodo URL ** using `dataset.schema.yaml`. (See US‑1)
+- **FR-002**: The system **MUST** compute composition‑based descriptors for each alloy entry according to `elemental_properties.schema.yaml`. (See US‑1)
+- **FR-003**: The system **MUST** train a Random Forest regression model using k‑fold cross‑validation on the training split and store the trained model artifact. (See US‑1)
+- **FR-004**: The system **MUST** evaluate the model on a held‑out test set and report R², Pearson r, and associated p‑value. (See US‑1)
+- **FR-005**: The system **MUST** compute permutation importance for each descriptor using **A substantial number of permutations** per feature on the held‑out test set. (See US‑1)
+- **FR-006**: The system **MUST** perform a non‑parametric permutation test to assess significance of permutation‑importance scores with Holm‑Bonferroni correction (α = 0.05) and flag features with p < 0.05. (See US‑1)
+- **FR-008**: The system **MUST** produce a markdown `report.md` that includes dataset statistics, model performance metrics, descriptor‑target correlations (training data only), importance rankings, VIF summary, power‑analysis justification, external‑validation documentation, stability assessment, and a provenance summary. (See US‑1)
+- **FR-009**: The system **MUST** abort with a clear error if any input record lacks required fields (e.g., missing element fraction or target). (See US‑1)
+- **FR-010**: The system **MUST** log random seeds, hyperparameters, software versions, and execution timestamps to the console provenance log. (See US‑1)
+- **FR-014**: The system **MUST** compute Pearson correlation and two‑tailed p‑value for each descriptor **using only the training data**, reporting descriptors with **|r| > 0.5** and **p < 0.01**. (See US‑1)
+- **FR-015**: The system **MUST** perform a statistical power analysis (target power ≥ 0.8, α = 0.05) to justify that the dataset size is sufficient to detect **R² ≥ 0.6**. (See US‑1)
+- **FR-016**: The system **MUST** assess multicollinearity via Variance Inflation Factor (VIF) for each descriptor on the training set; descriptors with **VIF > 5** shall be removed or regularized before model training. (See US‑1)
+- **FR-017**: The system **MUST** obtain an external validation dataset from a separate Zenodo release (**) and evaluate model performance on it. (See US‑1)
+- **FR-018**: The system **MUST** validate all input files and intermediate/output artifacts against their respective JSON schema contracts (`dataset.schema.yaml`, `elemental_properties.schema.yaml`, `hea_composition.schema.yaml`, `metrics.schema.yaml`, `importance.schema.yaml`, `manifest.schema.yaml`). (See US‑1)
+- **FR-021**: The system **MUST** execute three independent training/evaluation runs with distinct random seeds, record the top‑few feature rankings per run in `output/stability_rankings.json`, and ensure the maximum rank difference across runs is ≤ 1. (See US‑1)
+- **FR-022**: The system **MUST** include the achieved statistical power value (≥ 0.8) in `report.md` and confirm it meets the target. (See US‑1)
+- **FR-023**: The system **MUST** document provenance, measurement protocols, and any processing‑condition differences between the primary and external validation datasets, noting potential confounds. (See US‑1)
+- **FR-024**: The system **MUST** verify that every numeric value in `report.md` is generated programmatically and linked to a provenance ID, satisfying Principle IV (Single Source of Truth). (See US‑1)
+
+## Success Criteria
+
+- **SC-001**: R² on the held‑out test set is **≥ 0.6**. (See US‑1)
+- **SC-002**: Absolute Pearson correlation |r| on the held‑out test set is **≥ 0.5**. (See US‑1)
+- **SC-003**: All flagged feature importances have p‑value **< 0.05**. (See US‑1)
+- **SC-004**: The markdown `report.md` is present, correctly formatted, and contains all required sections (dataset stats, performance metrics, descriptor‑target correlations, importance rankings, VIF summary, power‑analysis justification, external‑validation documentation, stability assessment, provenance log). (See US‑1)
+- **SC-005**: No input record triggers a missing‑field error during validation. (See US‑1)
+- **SC-006**: The top‑5 important features are stable across three independent runs (maximum rank difference ≤ 1). (See US‑1, FR‑021)
+- **SC-007**: At least two compositional descriptors have **|r| > 0.5** and **p < 0.01** in descriptor‑target correlation analysis on the training data. (See US‑1)
+- **SC-008**: Model performance on the external validation set meets **R² ≥ 0.6**, **|r| ≥ 0.5**, **p < 0.05**. (See US‑1)
+- **SC-009**: Power analysis demonstrates **achieved power ≥ 0.80** for detecting **R² ≥ 0.6** at **α = 0.05**. (See US‑1, FR‑022)
+- **SC-010**: No descriptor with **VIF > 5** remains in the final model; any such descriptor is removed or regularized. (See US‑1)
+- **SC-011**: All numbers in `report.md` have associated provenance IDs linking back to source data rows and code blocks. (See US‑1)
+- **SC-012**: CI workflow runs all unit tests on each push and records a passing status in `pipeline_runtime.json`. (Out‑of‑scope; removed)
+- **SC-013**: Linting produces **≤ 5** warnings and formatting passes; results recorded in `pipeline_runtime.json`. (Out‑of‑scope; removed)

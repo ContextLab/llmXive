@@ -1,0 +1,1 @@
+"""Integration tests package for the muon-temp-correlation project."""

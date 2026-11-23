@@ -1,0 +1,40 @@
+T002:
+  c: false
+  h: 44a37569844910b1c8183a926144c5c5efb333388a3f0269f93da30bfab422c8
+  r: The provided `requirements.txt` is present but does not pin versions for any
+    package, omits the required `langdetect` entry, and adds unrelated packages (`pytest`,
+    `ruff`, `black`). To meet the task, the file must list exactly the requested packages
+    with explicit version specifiers (e.g., `pandas==1.5.3`).
+  sig: 8a7814248e42f83aa03017b4e7d12cd90eedebb2a799535bca8afd8cd38e0104
+T003:
+  c: false
+  h: 9c378b2e4d59cec0d937ca1b9514167e8b82c367b514e4aae25d9541d5d9a10b
+  r: "`docs/quickstart.md` contains the required one\u2011line command, but the expected\
+    \ output file `data/results/sample_run.csv` is missing, so the documented command\u2019\
+    s result is not demonstrated."
+  sig: 3047a00f5b8a4f17a848911a019d418576f3ac74afd20ba7c3f5b8d7f7ac6dca
+T019:
+  c: false
+  h: 92c06802de23737232483c0480b05438cf609539f13fb465ed5af74f95d52a7b
+  r: The provided `validation.py` is truncated and does not show code that logs the
+    total/percentage of valid threads nor writes the resulting DataFrame to `data/processed/valid_threads.csv`.
+    Moreover, the required output file `data/processed/valid_threads.csv` is missing
+    from the repository. The implementer must complete the script (including the missing
+    logic and CSV export) and ensure the CSV file is generated.
+T024:
+  c: false
+  h: 23114e9c970b84b1167e8c46fd633d070934fe3343d8b8345b60f97611d1aa92
+  r: "The required output file `data/processed/external_validation_correlation.csv`\
+    \ does not exist, and the provided `code/data/modeling.py` (truncated) contains\
+    \ no implementation that computes the correlation between the external validation\
+    \ score and contagion index/decision\u2011quality metrics nor writes the results\
+    \ to that CSV. Both the artifact and the expected functionality are missing."
+T030:
+  c: false
+  h: dfe8ef5ed9689d69f191b5e3479962a9c6a78c9ea3103bab3d093d2693aea396
+  r: "The repository contains a partially\u2011implemented `compute_collinearity_diagnostics`\
+    \ function, but the required output file `data/processed/collinearity_diagnostics.json`\
+    \ does not exist, and the code shown does not demonstrate that the four specified\
+    \ predictors are actually processed and saved. The missing JSON file (and lack\
+    \ of evidence that the function is invoked for those predictors) means the task\u2019\
+    s requirement is not fulfilled."

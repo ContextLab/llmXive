@@ -1,225 +1,177 @@
-"""
-Writer module for T011: Write filtered dataset to CSV with checksums.
-
-Consumes the processed data from the ingestion pipeline (via preprocessing.py)
-and writes the final `data/processed/filtered_sequences.csv` file.
-"""
 import os
 import json
 import csv
 import hashlib
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple, Union
-import numpy as np
-import pandas as pd
+from typing import List, Dict, Any, Optional
 
-from data.models import GridFrame, CameraPose
-from data.preprocessing import extract_grid_frames_from_dataframe, pair_ground_truth
+import numpy as np
+
+# Import existing helpers from ingestion if needed, though we define serialization here
+from data.ingestion import parse_grid_points_2d, parse_matrix_column, parse_vector_column
 
 logger = logging.getLogger(__name__)
 
-OUTPUT_PATH = Path("data/processed/filtered_sequences.csv")
-CHECKSUM_PATH = Path("data/processed/filtered_sequences.csv.sha256")
+def serialize_grid_points(grid_points: Any) -> str:
+    """
+    Serializes a list of 2D grid points (list of lists or numpy array) to a JSON string.
+    Input: [[x1, y1], [x2, y2], ...] or np.array
+    Output: JSON string representation.
+    """
+    if isinstance(grid_points, np.ndarray):
+        grid_points = grid_points.tolist()
+    return json.dumps(grid_points)
 
-def serialize_grid_points(points: np.ndarray) -> str:
+def parse_grid_points_2d(json_str: str) -> List[List[float]]:
     """
-    Serializes a 2D array of grid points (N, 2) into a JSON string list.
-    Format: [[x1, y1], [x2, y2], ...]
+    Parses a JSON string back into a list of 2D points.
     """
-    if points is None or len(points) == 0:
-        return "[]"
-    return json.dumps(points.tolist())
+    if not json_str:
+        return []
+    return json.loads(json_str)
 
-def serialize_matrix(matrix: np.ndarray) -> str:
+def serialize_matrix(matrix: Any) -> str:
     """
-    Serializes a 3x3 rotation matrix or 3x1 vector into a JSON string.
+    Serializes a 3x3 rotation matrix (list of lists or numpy array) to a JSON string.
     """
-    if matrix is None or matrix.size == 0:
-        return "[]"
-    return json.dumps(matrix.tolist())
+    if isinstance(matrix, np.ndarray):
+        matrix = matrix.tolist()
+    return json.dumps(matrix)
 
-def calculate_sha256(filepath: Path) -> str:
-    """Calculates the SHA256 checksum of a file."""
+def parse_matrix_column(json_str: str) -> List[List[float]]:
+    """
+    Parses a JSON string back into a 3x3 matrix.
+    """
+    if not json_str:
+        return [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0], [0.0, 0.0, 0.0]]
+    return json.loads(json_str)
+
+def serialize_vector(vector: Any) -> str:
+    """
+    Serializes a 3-element translation vector (list or numpy array) to a JSON string.
+    """
+    if isinstance(vector, np.ndarray):
+        vector = vector.tolist()
+    return json.dumps(vector)
+
+def parse_vector_column(json_str: str) -> List[float]:
+    """
+    Parses a JSON string back into a 3-element vector.
+    """
+    if not json_str:
+        return [0.0, 0.0, 0.0]
+    return json.loads(json_str)
+
+def calculate_sha256(file_path: Path) -> str:
+    """
+    Calculates the SHA256 checksum of a file.
+    """
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
+    with open(file_path, "rb") as f:
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
 def write_filtered_dataset(
-    input_df: pd.DataFrame,
-    output_path: Optional[Path] = None
-) -> Tuple[Path, str]:
+    data: List[Dict[str, Any]],
+    output_path: Path,
+    checksum_path: Optional[Path] = None
+) -> None:
     """
-    Writes the filtered dataset to CSV with the required schema and generates a checksum.
+    Writes the filtered dataset to a CSV file at `output_path`.
     
-    Schema: sequence_id, frame_id, radial_motion_deg, z_velocity, grid_points_2d, R_matrix, t_vector, randomized_depth
+    Schema:
+    - sequence_id
+    - frame_id
+    - radial_motion_deg
+    - z_velocity
+    - grid_points_2d (JSON string)
+    - R_matrix (JSON string)
+    - t_vector (JSON string)
+    - randomized_depth (boolean)
     
-    Args:
-        input_df: DataFrame containing the filtered sequences (output of apply_geometric_filter).
-        output_path: Path to write the CSV. Defaults to OUTPUT_PATH.
-        
-    Returns:
-        Tuple of (output_path, checksum_string)
+    Also writes a checksum file if `checksum_path` is provided.
     """
-    if output_path is None:
-        output_path = OUTPUT_PATH
-        
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if not output_path.parent.exists():
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    logger.info(f"Writing filtered dataset to {output_path}")
     
-    if input_df.empty:
-        logger.warning("Input DataFrame is empty. Writing empty CSV with headers.")
-        df_output = pd.DataFrame(columns=[
-            'sequence_id', 'frame_id', 'radial_motion_deg', 'z_velocity',
-            'grid_points_2d', 'R_matrix', 't_vector', 'randomized_depth'
-        ])
-        df_output.to_csv(output_path, index=False)
-    else:
-        # Ensure we have the necessary columns, applying defaults if missing
-        # The input_df from T009/T010 should have these, but we safeguard.
-        required_cols = ['sequence_id', 'frame_id', 'radial_motion_deg', 'z_velocity']
-        if not all(col in input_df.columns for col in required_cols):
-            raise ValueError(f"Input DataFrame missing required columns: {required_cols}")
-        
-        # Handle optional columns with defaults if they don't exist yet
-        if 'grid_points_2d' not in input_df.columns:
-            input_df['grid_points_2d'] = [[] for _ in range(len(input_df))]
-        if 'R_matrix' not in input_df.columns:
-            # Default identity or empty if not provided yet
-            input_df['R_matrix'] = [np.eye(3).tolist() for _ in range(len(input_df))]
-        if 't_vector' not in input_df.columns:
-            input_df['t_vector'] = [[0.0, 0.0, 0.0] for _ in range(len(input_df))]
-        if 'randomized_depth' not in input_df.columns:
-            input_df['randomized_depth'] = False
+    fieldnames = [
+        "sequence_id",
+        "frame_id",
+        "radial_motion_deg",
+        "z_velocity",
+        "grid_points_2d",
+        "R_matrix",
+        "t_vector",
+        "randomized_depth"
+    ]
 
-        # Process rows for serialization
-        rows = []
-        for _, row in input_df.iterrows():
-            grid_pts = row.get('grid_points_2d')
-            if isinstance(grid_pts, np.ndarray):
-                grid_pts_str = serialize_grid_points(grid_pts)
-            elif isinstance(grid_pts, list):
-                grid_pts_str = json.dumps(grid_pts)
-            else:
-                grid_pts_str = "[]"
+    with open(output_path, 'w', newline='', encoding='utf-8') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
 
-            r_mat = row.get('R_matrix')
-            if isinstance(r_mat, np.ndarray):
-                r_mat_str = serialize_matrix(r_mat)
-            elif isinstance(r_mat, list):
-                r_mat_str = json.dumps(r_mat)
-            else:
-                r_mat_str = "[]"
+        for row in data:
+            # Ensure serialization of complex types
+            row_data = {
+                "sequence_id": row.get("sequence_id", ""),
+                "frame_id": row.get("frame_id", 0),
+                "radial_motion_deg": row.get("radial_motion_deg", 0.0),
+                "z_velocity": row.get("z_velocity", 0.0),
+                "randomized_depth": row.get("randomized_depth", False),
+            }
 
-            t_vec = row.get('t_vector')
-            if isinstance(t_vec, np.ndarray):
-                t_vec_str = serialize_matrix(t_vec)
-            elif isinstance(t_vec, list):
-                t_vec_str = json.dumps(t_vec)
-            else:
-                t_vec_str = "[]"
+            # Serialize grid_points_2d
+            gp = row.get("grid_points_2d", [])
+            row_data["grid_points_2d"] = serialize_grid_points(gp)
 
-            rows.append({
-                'sequence_id': row['sequence_id'],
-                'frame_id': row['frame_id'],
-                'radial_motion_deg': float(row['radial_motion_deg']),
-                'z_velocity': float(row['z_velocity']),
-                'grid_points_2d': grid_pts_str,
-                'R_matrix': r_mat_str,
-                't_vector': t_vec_str,
-                'randomized_depth': bool(row.get('randomized_depth', False))
-            })
+            # Serialize R_matrix
+            rm = row.get("R_matrix", np.zeros((3, 3)))
+            row_data["R_matrix"] = serialize_matrix(rm)
 
-        df_output = pd.DataFrame(rows)
-        df_output.to_csv(output_path, index=False)
+            # Serialize t_vector
+            tv = row.get("t_vector", np.zeros(3))
+            row_data["t_vector"] = serialize_vector(tv)
 
-    # Calculate checksum
-    checksum = calculate_sha256(output_path)
-    
-    # Write checksum file
-    with open(CHECKSUM_PATH, 'w') as f:
-        f.write(checksum)
-        
-    logger.info(f"Written filtered dataset to {output_path} (Checksum: {checksum})")
-    return output_path, checksum
+            writer.writerow(row_data)
+
+    logger.info(f"Successfully wrote {len(data)} rows to {output_path}")
+
+    if checksum_path:
+        checksum = calculate_sha256(output_path)
+        checksum_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(checksum_path, 'w', encoding='utf-8') as f:
+            f.write(f"{checksum}  {output_path.name}\n")
+        logger.info(f"Checksum written to {checksum_path}: {checksum}")
 
 def main():
     """
-    Entry point to execute the T011 writer task.
-    This assumes the data has been processed by T008-T010 and is available
-    in the intermediate state or we re-run the filter logic on the raw data.
-    
-    For this specific task, we assume the pipeline flow:
-    1. T007 generates raw data.
-    2. T008 loads it.
-    3. T009 applies geometric filter.
-    4. T010 extracts grid frames.
-    
-    Since T011 is the writer, we need to orchestrate the flow from the raw data
-    to the final CSV. We will re-use the ingestion logic to load and filter,
-    then write.
+    Entry point for testing or running the writer directly if needed.
+    In the pipeline, this is called by the ingestion or preprocessing stage.
     """
-    logging.basicConfig(level=logging.INFO)
+    import sys
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    from data.ingestion import load_and_extract_dataset, apply_geometric_filter
+    # Example usage for verification
+    sample_data = [
+        {
+            "sequence_id": "seq_001",
+            "frame_id": 0,
+            "radial_motion_deg": 15.5,
+            "z_velocity": 0.15,
+            "grid_points_2d": [[10, 10], [20, 20]],
+            "R_matrix": np.eye(3),
+            "t_vector": [0.1, 0.2, 0.3],
+            "randomized_depth": False
+        }
+    ]
     
-    # 1. Load dataset (T008)
-    logger.info("Loading dataset...")
-    # This function handles the zip loading and initial schema validation
-    raw_df = load_and_extract_dataset()
+    output_file = Path("data/processed/filtered_sequences.csv")
+    checksum_file = Path("data/processed/filtered_sequences.csv.sha256")
     
-    if raw_df is None or raw_df.empty:
-        logger.error("Failed to load dataset. Aborting T011.")
-        return
-
-    # 2. Apply Geometric Filter (T009)
-    logger.info("Applying geometric filter...")
-    filtered_df = apply_geometric_filter(raw_df)
-    
-    if filtered_df is None or filtered_df.empty:
-        logger.warning("No sequences retained after geometric filtering.")
-        # Still write an empty CSV to satisfy the schema requirement
-        write_filtered_dataset(pd.DataFrame(columns=[
-            'sequence_id', 'frame_id', 'radial_motion_deg', 'z_velocity',
-            'grid_points_2d', 'R_matrix', 't_vector', 'randomized_depth'
-        ]))
-        return
-
-    # 3. Extract Grid Frames and Pair Ground Truth (T010)
-    # The ingestion.py logic might not have populated grid_points_2d/R/t for the final output
-    # We need to ensure the DataFrame has these columns populated.
-    # Assuming T010 logic (pair_ground_truth) enriches the dataframe.
-    
-    # Re-using the logic from preprocessing to ensure data is ready
-    # Note: T010 description says "Output: Ensure grid_points_2d are extracted".
-    # We assume the dataframe returned by load_and_extract_dataset + apply_geometric_filter
-    # might need the grid extraction step if it wasn't done in the ingestion step.
-    # However, looking at the API, `extract_grid_video_pairs` returns a list of GridFrames.
-    # T011 needs a CSV. So we likely need to convert the GridFrame objects back to rows
-    # or assume the dataframe already has the data.
-    
-    # Let's assume the dataframe from `load_and_extract_dataset` has the raw data
-    # and `apply_geometric_filter` filters it.
-    # We need to ensure `grid_points_2d`, `R_matrix`, `t_vector` are present.
-    # If T010 was run separately, it might have saved a temp file. 
-    # But to keep T011 self-contained as a writer, we perform the extraction here
-    # if the columns are missing, or assume they are present.
-    
-    # Check if columns exist, if not, we might need to run the extraction logic.
-    # Since T010 is "Implement grid frame extraction", and T011 is "Write filtered dataset",
-    # T011 depends on T010's output.
-    # We will assume the dataframe passed to T011 already has the data from T010.
-    # If not, we try to infer or leave as default (which might fail validation later, but T011 is the writer).
-    
-    # To be safe and "implement" the writing of the *filtered* dataset, we ensure the schema.
-    # If T010 logic is needed here to populate the columns, we should call it.
-    # But T010 is a separate task. T011 assumes T010 is done.
-    # So we just write what we have, ensuring types are correct.
-    
-    write_filtered_dataset(filtered_df)
-    logger.info("T011 completed successfully.")
+    write_filtered_dataset(sample_data, output_file, checksum_file)
 
 if __name__ == "__main__":
     main()

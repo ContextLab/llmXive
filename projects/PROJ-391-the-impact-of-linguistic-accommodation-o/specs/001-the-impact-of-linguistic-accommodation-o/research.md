@@ -1,92 +1,88 @@
-# Research: Association between Linguistic Accommodation and Perceived Empathy
+# Research: Linguistic Accommodation and Speaker Emotional Intensity
 
-## 1. Dataset Strategy
+## Overview
 
-The study relies on **two data sources**:
+This research document defines the data strategy, methodological approach, and statistical rigor for analyzing the relationship between linguistic accommodation and emotional intensity in the DailyDialog dataset. It addresses the pivot from AI empathy (unavailable data) to human-human dialogue dynamics (available data). The study now investigates the association between **turn-level accommodation** and **dialogue-level emotional intensity**.
 
-1. **DailyDialog (Human‑Human)** – `https://huggingface.co/datasets/pixelsandpointers/daily_dialog_w_turn_templates/resolve/main/data/test-00000-of-00001.parquet` (verified).  
-   - Provides extensive multi‑turn dialogues, emotion annotations, and raw text needed to compute accommodation metrics.  
-   - **Limitation**: No AI‑assistant turns and no explicit empathy ratings. DailyDialog will be used **only** to compute linguistic accommodation proxies.
+## Dataset Strategy
 
-2. **Human‑Collected AI‑Assistant Empathy Dataset** – a new dataset created in‑house (see Phase 0a).  
-   - Consists of ≥30 AI‑assistant responses (generated via a standard open‑source chatbot) paired with human‑rated empathy scores on a 1‑5 Likert scale.  
-   - Collected under IRB‑approved protocol, with informed consent and anonymization, satisfying Constitution Principle VI.  
-   - This dataset provides the **required `empathy_rating`** variable for the primary analysis.
+### Primary Dataset: DailyDialog (Canonical)
+- **Source**: DailyDialog (Human-Human Dialogue)
+- **Verified URLs**:
+ - `
+- **Selection Rationale**: DailyDialog is the only verified dataset in the source list containing human-human dialogue with explicit emotion labels. While labels are per-dialogue (not per-turn), this can be aggregated.
+- **Access Method**: Programmatic loading via `datasets.load_dataset("dailydialog", split="test")` (using the HuggingFace `datasets` library) or direct download of the zip file.
+- **Variable Fit Verification**:
+ - **Required Variables**: `text` (utterances), `emotion` (label per dialogue).
+ - **Dataset Availability**: DailyDialog provides `text` (utterances) and `emotion` (labels: 0-7 mapped to Joy, Sadness, Anger, Fear, Surprise, Disgust, Neutral).
+ - **Fit**: **Confirmed** with Aggregation Strategy. The dataset contains all necessary variables. The study unit of analysis is the **dialogue** for emotion, and **turn-pairs** for accommodation. We compute accommodation metrics between adjacent turns and associate them with the single emotion label of the containing dialogue.
 
-### Data Fit & Variable Verification
+### Data Exclusion Criteria
+- Turns with empty strings after Unicode NFKC normalization.
+- Dialogue pairs where either the turn or partner turn is missing.
+- Records with missing emotion labels (excluded from analysis).
 
-| Required Variable | DailyDialog | Human‑Collected Dataset |
-|-------------------|-------------|--------------------------|
-| `user_turn` | ✔ (human turn) | ✔ (human prompt) |
-| `ai_response` | **Missing** – we treat the second speaker as a proxy only for metric computation, **not** for primary analysis. | ✔ (generated AI response) |
-| `empathy_rating` | **Missing** – DailyDialog has only emotion labels. | ✔ (human‑rated Likert score) |
-| `topic` | **Missing** – generated via LDA (see Phase 5). | ✔ (LDA‑derived `lda_topic_id`) |
+## Methodological Approach
 
-Because DailyDialog lacks the core `empathy_rating`, the **human‑collected dataset** is essential to meet FR‑010 and the research question. The two datasets are merged on shared metric fields after metric computation.
+### 1. Data Preprocessing & Metric Computation
+- **Normalization**: All text inputs will undergo Unicode NFKC normalization to handle non-ASCII characters and emojis consistently (FR-008).
+- **Lexical Overlap (FR-001)**: Computed as Jaccard similarity of token sets (lowercased, stripped of punctuation) between `turn_i` and `turn_{i+1}`.
+ - $J(A, B) = \frac{|A \cap B|}{|A \cup B|}$
+- **Syntactic Similarity (FR-002)**: Computed as Jaccard similarity of Part-of-Speech (POS) tag sets (using NLTK's `pos_tag`) between the two turns.
+- **Bigram Overlap (Sensitivity)**: Jaccard similarity of bigram sets to capture word order.
+- **Positional Overlap (Sensitivity)**: Proportion of tokens in the same relative position (for short turns).
+- **Sentence Length Variance**: Standard deviation of sentence lengths (in words) within the turn.
 
-### Scope Constraints & Ethical Handling
+### 2. Emotional Intensity Mapping & Validation (FR-003, FR-010)
+- **Mapping Rule**:
+ - Joy: 5
+ - Sadness: 2
+ - Anger: 1
+ - Fear: 2
+ - Surprise: 4
+ - Disgust: 1
+ - Neutral: 3
+- **Validation Protocol (Phase 1)**:
+ 1. **Literature Grounding**: Perform a **Chi-Square Goodness-of-Fit test** comparing the observed emotion distribution in DailyDialog against the known distribution in the ISEAR corpus. A p-value > 0.05 indicates statistical similarity.
+ 2. **Human Annotation**: Select a stratified random sample of dialogues. Annotate with multiple independent raters for 'Emotional Intensity' (1-5 scale).
+ 3. **Reliability Check**: Compute **Krippendorff's Alpha**. If Alpha < 0.6, the subset is rejected and re-sampled.
+ 4. **Mapping Validation**: Correlate the mapped scores (Joy=5, etc.) against the mean human ratings. If r < 0.3, the mapping is flagged as invalid, and the study proceeds using only the human-rated subset for the main analysis.
 
-- The human‑collected dataset will be **released** only in aggregated form (summary statistics) to respect participant privacy.  
-- No external participants beyond the consenting annotators are recruited; all annotators are project members who have provided written consent.  
-- All data transformations produce new files; original raw files are preserved unchanged.
+### 3. Statistical Analysis (FR-004, FR-005, FR-006, FR-009, SC-001, SC-002, SC-005)
+- **Correlation Tests**:
+ - **Spearman Rank Correlation** is the primary test (non-parametric, suitable for ordinal intensity).
+ - **Pearson correlation** is **excluded** from primary tests due to the ordinal nature of the dependent variable.
+ - **Multiple Comparison Correction**: Bonferroni correction applied to the primary tests (Spearman on Lexical, Syntactic, Bigram, Positional). $\alpha_{adj} = 0.05 / 4 = 0.0125$.
+- **Regression Model (FR-007)**:
+ - Model: **Ordinal Logistic Regression** (Proportional Odds Model).
+ - Outcome: `emotional_intensity` (1-5 ordinal).
+ - Predictors: `lexical_overlap`, `syntactic_similarity`.
+ - **Covariates**: Conversation length (word count), Topic (LDA cluster ID, k=10). **One-Hot Encoding** is applied to Topic to avoid false ordinal assumptions.
+ - **Output**: Odds Ratios and **McFadden's Pseudo-R2** (replacing R-squared).
+- **Bootstrap Resampling (FR-006)**:
+ - Procedure: Resample the dataset with replacement a sufficient number of times to ensure robust statistical inference.
+ - Stopping Condition: Continue until the confidence interval width reaches a pre-specified threshold OR a maximum number of iterations is reached.
+ - Output: Bootstrap distribution of Spearman correlation coefficients, 95% CI.
+- **Sensitivity Analysis (FR-009)**:
+ - Compare POS-based metrics against dependency-parse-based metrics (using `spaCy` on CPU) to validate construct validity.
 
-## 2. Metric Definitions & Methodology
+### 4. Visualization (FR-005)
+- Scatter plots of Accommodation Score vs. Emotional Intensity (jittered for ordinal values).
+- Regression line with 95% confidence interval shading (derived from bootstrap).
+- Effect size distribution histograms.
 
-### Accommodation Metrics (FR‑001, FR‑002, FR‑008)
+## Statistical Rigor & Assumptions
 
-- **Lexical Overlap**: Jaccard similarity of token sets (4‑decimal precision).  
-- **Syntactic Similarity**: Jaccard similarity of POS tag sets (spaCy `en_core_web_sm`).  
-- **Dependency Similarity**: Jaccard similarity of dependency relation labels (spaCy).  
-- **Sentence Length Variance**: Variance of sentence lengths within the AI response.  
+- **Observational Nature**: The study is observational. Findings will be framed as **associational**, not causal. No random assignment of linguistic styles occurred.
+- **Power & Sample Size**: DailyDialog (~13k dialogues) provides ample power for correlation detection ($r > 0.05$) at $\alpha = 0.05$. Power limitations are acknowledged only if the effective sample size (after filtering) drops significantly.
+- **Collinearity**: Lexical and syntactic overlap are definitionally related. The plan will report their individual correlations but will acknowledge potential collinearity in the regression model (VIF check). Independent effects will not be claimed if collinearity is high ($VIF > 5$).
+- **Measurement Validity**: POS-tag overlap is a standard proxy for syntactic accommodation. Sensitivity analysis (FR-009) validates this proxy.
+- **Multiple Comparisons**: Bonferroni correction is explicitly planned to control Family-Wise Error Rate (FWER) across the 4 primary hypothesis tests.
+- **Unit of Analysis**: The unit of analysis for emotion is the **dialogue**, while accommodation is computed at the **turn-pair** level. This aggregation is explicitly documented.
 
-All text is normalized to Unicode NFKC; records with empty or non‑text after normalization are dropped.
+## Decision Rationale: CPU-First Feasibility
 
-### Empathy Rating (FR‑010)
-
-- Human annotators assign a **1‑5 Likert rating** to each AI response reflecting perceived empathy.  
-- Ratings are stored in `human_empathy.csv` and merged with accommodation metrics for analysis.  
-- Inter‑rater reliability (Cohen’s κ) is computed on the validation subset (see Phase 8).
-
-### Statistical Analysis (FR‑004, FR‑005, FR‑006, SC‑001‑005)
-
-1. **Correlation Tests**: Pearson and Spearman correlations between each accommodation metric (`lexical_overlap`, `syntactic_similarity`, `dependency_similarity`) and `empathy_rating`.  
-2. **Multiple‑Comparison Correction**: Bonferroni correction applied to the **four primary tests** (Pearson & Spearman for lexical and syntactic metrics). Corrected α = 0.05 / 4 = 0.0125, stored in `correlation_summary.json`.  
-3. **Bootstrap Resampling**: Adaptive loop starting at 1 000 iterations, *continuing until* the 95 % CI width < 0.01. No early‑stop fallback; if convergence is not achieved after 50 000 iterations, the pipeline aborts with an error (ensuring FR‑006 compliance).  
-4. **False Discovery Rate**: Benjamini‑Hochberg FDR computed across the four tests and recorded.  
-5. **Power Analysis**: With α = 0.0125 and target effect size r = 0.15, a two‑tailed test requires ≈ 600 valid pairs. The combined dataset (DailyDialog + human‑collected) provides > 90 k pairs, comfortably exceeding the requirement.
-
-### Regression Control (FR‑007)
-
-- **Covariates**: Total word count and dominant LDA topic ID (k = 10).  
-- Topics are generated in Phase 5, residualized from accommodation metrics, and VIF is checked (threshold < 5).  
-- Linear regression estimates the unique contribution of each accommodation metric to empathy ratings, reporting R² and standardized coefficients.
-
-### Sensitivity Analysis (FR‑009)
-
-- Compute correlations using **dependency similarity** as an alternative accommodation proxy.  
-- Success criterion: |Δr| ≤ 0.05 between POS‑based and dependency‑based correlation coefficients. Results are stored in `sensitivity_results.json`.
-
-### Validation Strategy (FR‑010)
-
-- **Phase 0a** collects ≥30 human empathy ratings for AI responses.  
-- **Phase 8** computes inter‑rater reliability (Cohen’s κ) and compares the averaged human rating to any proxy scores (e.g., emotion‑to‑Likert mapping) for consistency checks.  
-- The validation subset is **stratified by emotion** to ensure balanced coverage.
-
-## 3. Compute Feasibility & Rationale
-
-- All scripts are CPU‑only; spaCy `en_core_web_sm` runs comfortably on 2 cores.  
-- LDA uses Gensim with sparse matrices (< 1 GB RAM).  
-- Bootstrap convergence typically achieved within 5 000 iterations (< 2 h).  
-- Total pipeline runtime on GitHub Actions is expected ≤ 5 h.
-
-## 4. Decision Log
-
-| Decision | Rationale |
-| :--- | :--- |
-| **Collect human empathy ratings** | No public dataset satisfies FR‑010; ethical collection fulfills the requirement and Principle VI. |
-| **Use DailyDialog for metric computation** | Large, verified corpus provides robust accommodation measures; later merged with human‑rated empathy data. |
-| **Bonferroni α = 0.0125** | Explicitly matches the four primary hypothesis tests, satisfying SC‑005. |
-| **Bootstrap convergence** | Guarantees FR‑006 compliance; safety guard prevents infinite loops while still enforcing CI < 0.01. |
-| **Mandatory sensitivity analysis** | Ensures construct validity of accommodation proxies per FR‑009. |
-| **LDA topic control** | Meets FR‑007 specification; residualization prevents collider bias. |
-| **VIF checks** | Guarantees regression covariates are not collinear, preserving interpretability. |
+- **Method**: All planned methods (Jaccard similarity, POS tagging, Spearman correlation, Ordinal Logistic Regression, bootstrap resampling) are computationally lightweight.
+- **Feasibility**: These methods run efficiently on the target GitHub Actions CPU runner (a small-scale instance with limited cores and memory).
+- **No GPU Required**: No deep learning models (transformers, embeddings) are needed for the core metrics. Dependency parsing (for sensitivity analysis) is CPU-tractable for this dataset size.
+- **Conclusion**: The **CPU-first** strategy is selected. No GPU escape hatch is needed.

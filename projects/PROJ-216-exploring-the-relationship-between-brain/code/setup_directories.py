@@ -1,82 +1,77 @@
 import os
 import sys
+from pathlib import Path
+from typing import List
+import datetime
 
-def create_directories():
+def create_directories(base_dirs: List[str]) -> bool:
     """
-    Creates the necessary directory structure for the project.
-    This function is called by the main entry point to ensure
-    data, code, tests, and reports directories exist.
+    Creates the required directory structure atomically.
+    Returns True if all directories were created successfully, False otherwise.
     """
-    # Define the project root (assuming script is run from root or code/)
-    # We use the directory of this script as the anchor to find the project root
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(script_dir)
+    for d in base_dirs:
+        try:
+            os.makedirs(d, exist_ok=True)
+        except Exception as e:
+            print(f"Error creating directory {d}: {e}", file=sys.stderr)
+            return False
+    return True
 
-    # Directories to create relative to project root
-    dirs_to_create = [
-        "data/raw",
-        "data/interim",
-        "data/processed",
-        "code/tests",
-        "tests/unit",
-        "tests/integration",
-        "reports"
-    ]
-
-    created_count = 0
-    for dir_path in dirs_to_create:
-        full_path = os.path.join(project_root, dir_path)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {full_path}")
-
-    return created_count
-
-def create_init_files():
+def verify_directories(base_dirs: List[str]) -> List[str]:
     """
-    Creates __init__.py files in code/ and tests/ to ensure they are
-    treated as Python packages.
+    Verifies that all directories exist.
+    Returns a list of directory paths that were successfully found.
     """
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    project_root = os.path.dirname(script_dir)
+    found = []
+    for d in base_dirs:
+        if os.path.isdir(d):
+            found.append(d)
+    return found
 
-    init_paths = [
-        "code/__init__.py",
-        "code/tests/__init__.py",
-        "tests/unit/__init__.py",
-        "tests/integration/__init__.py"
-    ]
-
-    created_count = 0
-    for init_path in init_paths:
-        full_path = os.path.join(project_root, init_path)
-        # Ensure parent directory exists before creating __init__.py
-        parent_dir = os.path.dirname(full_path)
-        if not os.path.exists(parent_dir):
-            os.makedirs(parent_dir)
-
-        if not os.path.exists(full_path):
-            with open(full_path, 'w') as f:
-                f.write("# Package initialization\n")
-            print(f"Created init file: {full_path}")
-            created_count += 1
-        else:
-            print(f"Init file already exists: {full_path}")
-
-    return created_count
+def generate_verification_log(found_dirs: List[str], log_path: str = "data/.verify_structure.log") -> None:
+    """
+    Writes the verification log file with 'OK' prefix for each directory.
+    """
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    with open(log_path, 'w') as log:
+        for d in found_dirs:
+            log.write(f'OK {d}\n')
+        log.flush()
 
 def main():
     """
-    Main entry point to set up the project directory structure.
+    Main entry point for T001: Initialize Data Directory Structure.
+    Creates directories, verifies them, and writes the log file.
     """
-    print("Starting directory setup...")
-    dir_count = create_directories()
-    init_count = create_init_files()
-    print(f"Setup complete. Created {dir_count} directories and {init_count} init files.")
-    return 0
+    expected_dirs = [
+        'data/raw',
+        'data/interim',
+        'data/processed',
+        'data/external',
+        'tests/unit',
+        'tests/integration',
+        'reports'
+    ]
+
+    print("Creating directories...")
+    if not create_directories(expected_dirs):
+        print("Failed to create one or more directories.", file=sys.stderr)
+        sys.exit(1)
+
+    print("Verifying directories...")
+    found_dirs = verify_directories(expected_dirs)
+    
+    if len(found_dirs) != len(expected_dirs):
+        missing = set(expected_dirs) - set(found_dirs)
+        print(f"Verification failed. Missing directories: {missing}", file=sys.stderr)
+        sys.exit(1)
+
+    print("Generating verification log...")
+    log_path = "data/.verify_structure.log"
+    generate_verification_log(found_dirs, log_path)
+
+    print(f"Directories created and verified. Log written to {log_path}")
+    sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

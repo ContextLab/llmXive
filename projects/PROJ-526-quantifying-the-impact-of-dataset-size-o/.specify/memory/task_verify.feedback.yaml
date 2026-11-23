@@ -1,0 +1,108 @@
+T001a:
+  task: da9c10468bf95be136fe6630d9da04e041c3a2d0b9f6d45ec09bcaf3253c2258
+T001b:
+  task: 5116435f1f914103beca0a8c8d68e20840e953323a2033d58c1147231eedb5fd
+T001c:
+  reason: The evidence provides only the project root location; no `.git` directory,
+    no `.gitignore` file, and no other indication that a Git repository was initialized.
+    Consequently the required artifacts for task T001c are missing.
+  task: bcacbb0ef81ba709f1e2dfff99f7024eee6173855177f8500ac922f75dd0257a
+T002:
+  task: 02d66843d315f80da18b38735dba3247a5608d7a74783c3cc08dbfe9da8c1b0c
+T003:
+  reason: "The evidence only shows the project root path; no linting configuration\
+    \ files (e.g.,\u202F`.flake8`, `pyproject.toml` with Black settings, or a pre\u2011\
+    commit hook) are present or referenced. Without these artifacts the requirement\
+    \ to \u201Cconfigure linting (flake8/black) and formatting tools\u201D is not\
+    \ satisfied. Adding the appropriate config files and confirming they are non\u2011\
+    empty will be needed."
+  task: 8b1c6529ddcdf661b2eb411c0fd735b2f646d5a6be12a762963e97fa54eb5632
+T004:
+  task: b2df9bac48225a17b423dc55d660b26058909ec269635774bf96b765d14cc9fb
+T005:
+  task: dad1aedbd935bed625ee8ffe89205846a85f7dfe89b68792668f1ac95af93e71
+T006:
+  task: f5f85edfde9fff91b9d0722a4be16cc4aa0a8e7a617a799ec42dbfc5f5defaa6
+T007:
+  task: 7681870379fda2c29dc6bf8874c0802c10351b7ba99e7c4b41ee7caddeb98526
+T008:
+  task: 47d4b69d58aa8dee3a60d31a828e8f6fee0ba3f310c52bfded84409a04f88db7
+T009:
+  task: 572ad7eb2da41e9575448a0b9c9a701b3feaba3b0677c62c581404095a1a0f27
+T010:
+  task: 4e21ed2a11eb584fd2050b65bfd1bb24052cf2639924bbe78719bebd62df51d0
+T011:
+  task: 7375ea961a86cb8a13fabfa75c643a1e32daff89ecc9170730ded46e8cc0bf90
+T012:
+  task: 1803001fed9838b5e3b51974640c194ef31d14c4e909d9fbcde692ddcfc07dd9
+T013:
+  task: 97549bb911a2909da0c586cdac49caa7534d057f8b4aba333887cb1989c7dae0
+T014:
+  task: c5fbf8a49391c46ba5b072792c7974d498b65ee49495728cc16786f6d878bdf2
+T015:
+  task: c3e56bbdc952ab0b29edb5c47839c915d4c87740663775a9f1e7e4c2ead4efc2
+T016:
+  task: cfdea69700e47aa92bf2598657593779e6bdab75458329341de9b6cf954581d1
+T017:
+  task: 8ed34acc78ef09463863ea387445f8a992ae0ee420795ec1646d7a027db1caff
+T018:
+  task: 8d91456100670fa19cb68debe4a3ec273dad10befa19a545038d17276da5df63
+T019:
+  task: 5b18997a12dbe8ee63ef69c0565d24f2fa3b1704fcfca34a3f6e2c3b127557e8
+T020:
+  task: 08e92af358cdbeccf8379a110094412a3764007c2d0ff64707e62973ed2a26c8
+T021:
+  task: ed1d61d740aaf5e8bbc4c296c092ed06d8e4f303093d01679cc2938d27f2169b
+T022:
+  task: 0883cda93a83a79061517dfaf1a8b5b5ec852e190b5459b3ac8f8fb201f1fd77
+T023:
+  task: a7e7b8a4e1c60f5e37f769001354bb8ca8194d9d5dae50dda95e0173199c7919
+T024:
+  task: cdd96bb7c5617e849c0068729d70ad1fd385af3560e099e091f20f56bf7f20c0
+T025:
+  task: 223b414bb528a71675a81a9faabe5626a9c109f4515a752ed8fbf5ec05b58f28
+T026:
+  task: 602b6796442edde6fcb508afa5576e53df732c220b0759020f32fecde62ba75d
+T027:
+  task: cc42a7d63d72b4b6565de8e564f2a57d0006e6701b7414ede376e70768f12f5d
+T028:
+  task: 48eab617108908782114caebf18429bd13b84bd5b085153bed1019a0076b9501
+T029:
+  task: 97f38098d922bd98462deb3ca2220c3836af72ee3064e9188027cb2d9e48cf4f
+T030:
+  task: 37e3902f5abf4bf0572c07a2f84e90f62fa43fbb8bb8ecc94abe1d40f862ccab
+T031:
+  task: e253113a0ba453fd6368b07f90bd528e35346ebbc30036b77ef195181a08bd76
+T032:
+  task: e0834d47592b7afb74b6c539b825c4a61849ee0898f008b6f99e9abbfdd8e5ff
+T033:
+  task: cdeb037bc5161b4e7f4c58852f315d4ab80afea1e86cb8f4c3d179eb01186e6e
+T034:
+  task: 63570a854359223c8ef24a7e45123d3f841153c97f3bb2258a5cda1d6ea9f4a6
+T035:
+  task: 042bd8a1532265f474176c2a84673aa66617666491a9c560606c15c6e0bcf8cb
+T036:
+  task: 88d45cdc50c3e699397487258968434619e94aa51c2b433065780f5736ff28d7
+T037:
+  task: e83c98807bd308072372c3c4c63d8d32e257e776d6a23796b2519e848be27f20
+T037.0:
+  task: 27a38e88256c08c0d59d32f591239f336a08afb510296c6192b83a6574276058
+T038:
+  task: a3cc5f195eb6d5ab66c5c64ca6a448b60577d196eb5424a8ca209ed54af416be
+T039:
+  task: ab3d6a11ada749404986955c5ef588a3a0c12c63f5712696f0fd59166558b666
+T040:
+  task: a7026c4a5a33cb21df41bdd5343f169199986bbfd7d23b0f775bb74071748e0d
+T041:
+  task: 1c1ecf981a2fba50b5f1159921ef69d0fce4294f864f34075596c7517e309e84
+T042:
+  task: 98c96dadc82b4adf26b045c96cf33c0d3831defdfbfbfc6f11e2ab61bf7c282c
+T043:
+  reason: 'declared artifact(s) missing/empty/invalid: state/audit_report.md'
+  task: 39d8b937555985fc5f4c6835ce520121c36a662559bc1b7c9a8d87bc7aa18794
+T045:
+  task: 71f3f1b111f8ee7d40eaa3cea613134383817b09135c8b4016b7a0d0d2ebbd13
+T046:
+  task: b60217fc10124668dac4792fb090f278a87bd04b4f5954a99273406a3d3295cd
+T047:
+  task: 305c91f1c52ac29d52a6643a70ecfd8a040aadfabd8be3c785137331b8eab235

@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Experimental bulk property records"
+description: "Schema for the processed bulk property CSV used in the DFT‑D3 IL workflow."
+type: "array"
+items:
+  type: "object"
+  required:
+    - "pair_id"
+    - "density"
+    - "viscosity"
+  properties:
+    pair_id:
+      type: "string"
+      description: "Unique identifier for the ion‑pair (e.g., EMIM_BF4)."
+    density:
+      type: "number"
+      description: "Experimental density in g · cm⁻³."
+    viscosity:
+      type: "number"
+      description: "Experimental viscosity in centipoise (cP)."
+  additionalProperties: false

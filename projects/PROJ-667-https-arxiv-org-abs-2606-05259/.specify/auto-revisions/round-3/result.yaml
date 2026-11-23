@@ -1,0 +1,207 @@
+project_id: PROJ-667-https-arxiv-org-abs-2606-05259
+round: 3
+revision_kind: paper_writing
+from_stage: paper_review
+to_stage: paper_tasked
+worst_severity: writing
+seed_action_items:
+- id: auditdef00000
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b9", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00001
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00002
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b9", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00003
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00004
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b9", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00005
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b9", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00006
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b9", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00007
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00008
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b3", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00009
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u2079", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00010
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u2070", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00011
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u2074", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00012
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00013
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00014
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u2075", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00015
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00016
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00017
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u2075", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00018
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u2074", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+- id: auditdef00019
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b2", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 23}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+  location: page 23
+kickback_reason: 'spec 023 / FR-023: compile/audit repair round'
+kickback_artifact_links:
+- projects/PROJ-667-https-arxiv-org-abs-2606-05259/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 20 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-07-16T13:47:04.267682+00:00'

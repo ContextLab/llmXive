@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "astro-ph/0309273",
+  "judged_at": "2026-10-22T12:26:53Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the statistical significance of fine-structure constant variations physics",
+  "rationale": "The paper investigates variations of the fine‑structure constant (α) across cosmological environments, directly measuring the same dependent variable (α variation) that the user’s question concerns, satisfying inclusion criterion (b). It provides theoretical and observational context for α fluctuations, making it a relevant reference for a literature review on the statistical significance of such variations.",
+  "relevant": true
+}

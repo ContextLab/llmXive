@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Scoring Results Schema"
+description: "Schema for ambiguity scores and routing categories derived from prompts."
+type: object
+properties:
+  prompt_id:
+    type: string
+  parse_depth:
+    type: number
+    description: "Maximum depth of the syntactic parse tree."
+  clause_count:
+    type: integer
+    description: "Number of clauses detected."
+  mtld:
+    type: number
+    description: "Measure of Lexical Diversity."
+  ambiguity_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Weighted average ambiguity score."
+  routing_category:
+    type: string
+    enum:
+      - "low"
+      - "medium"
+      - "high"
+    description: "Routing category based on thresholds."
+  error_flag:
+    type: boolean
+    description: "True if parsing failed."
+required:
+  - prompt_id
+  - parse_depth
+  - clause_count
+  - mtld
+  - ambiguity_score
+  - routing_category

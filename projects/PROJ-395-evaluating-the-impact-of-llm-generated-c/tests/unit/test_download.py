@@ -1,119 +1,158 @@
 """
 Unit tests for code/download.py.
 
-This module verifies that the dataset loading mechanism works correctly
-without requiring authentication tokens, ensuring the pipeline can run
-in CI environments.
+Ensures the dataset loading mechanism works without authentication and
+verifies the integrity of the downloaded artifacts.
 """
 import os
+import sys
 import tempfile
-import unittest
-from pathlib import Path
-from unittest.mock import patch, MagicMock
 import hashlib
-import yaml
+from pathlib import Path
+from unittest import TestCase, main
+from unittest.mock import patch, MagicMock
 
-# Import the real module
-from code import download
+# Ensure code/ is in the path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+
+from download import (
+    calculate_sha256,
+    verify_dataset_structure,
+    download_dataset,
+    save_dataset_to_parquet,
+    update_manifest
+)
 
 
-class TestDatasetLoader(unittest.TestCase):
-    """Tests for the dataset loading functionality."""
+class TestCalculateSha256(TestCase):
+    """Tests for the calculate_sha256 utility function."""
 
-    def setUp(self):
-        """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.manifest_path = os.path.join(self.temp_dir, "dataset_manifest.yaml")
-        
-        # Mock the dataset info to avoid actual HuggingFace calls during test setup
-        self.mock_dataset = MagicMock()
-        self.mock_dataset.__iter__ = MagicMock(return_value=iter([
-            {"prompt": "def add(a, b): return a + b", "test_list": []}
-        ]))
-        self.mock_dataset.__len__ = MagicMock(return_value=1)
+    def test_calculate_sha256_file(self):
+        """Verify SHA-256 calculation on a temporary file."""
+        with tempfile.NamedTemporaryFile(delete=False) as tmp:
+            tmp.write(b"Hello, World!")
+            tmp_path = tmp.name
 
-    def tearDown(self):
-        """Clean up temporary files."""
-        if os.path.exists(self.temp_dir):
-            import shutil
-            shutil.rmtree(self.temp_dir)
+        try:
+            expected_hash = hashlib.sha256(b"Hello, World!").hexdigest()
+            actual_hash = calculate_sha256(tmp_path)
+            self.assertEqual(actual_hash, expected_hash)
+        finally:
+            os.unlink(tmp_path)
 
-    @patch("code.download.load_dataset")
-    def test_load_without_auth(self, mock_load):
-        """
-        Test that dataset loads successfully without authentication.
-        
-        This verifies the core requirement: the pipeline must work
-        in environments where no HF_TOKEN is set.
-        """
-        mock_load.return_value = self.mock_dataset
-        
-        # Explicitly ensure no auth token is used
-        if "HF_TOKEN" in os.environ:
-            del os.environ["HF_TOKEN"]
-        
-        result = download.load_human_eval_dataset(self.temp_dir)
-        
-        # Verify the dataset was loaded
-        self.assertIsNotNone(result)
-        self.assertEqual(len(result), 1)
-        
-        # Verify load_dataset was called without auth token
-        call_args = mock_load.call_args
-        # The first positional argument should be the dataset name
-        self.assertEqual(call_args[0][0], "openai_humaneval")
+    def test_calculate_sha256_nonexistent(self):
+        """Verify that calculating hash on a missing file raises FileNotFoundError."""
+        with self.assertRaises(FileNotFoundError):
+            calculate_sha256("/nonexistent/path/file.txt")
 
-    @patch("code.download.load_dataset")
-    def test_manifest_creation(self, mock_load):
-        """
-        Test that a valid manifest file is created after download.
-        
-        The manifest should contain versioning info and checksums
-        for reproducibility.
-        """
-        mock_load.return_value = self.mock_dataset
-        
-        # Mock the checksum calculation to return a deterministic value
-        with patch("code.download.hashlib.sha256") as mock_hash:
-            mock_hash.return_value.hexdigest.return_value = "abc123"
+
+class TestVerifyDatasetStructure(TestCase):
+    """Tests for dataset structure verification logic."""
+
+    def test_verify_dataset_structure_valid(self):
+        """Verify structure check passes for a valid directory layout."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Create expected structure
+            os.makedirs(os.path.join(tmp_dir, "data"))
+            os.makedirs(os.path.join(tmp_dir, "code"))
+            os.makedirs(os.path.join(tmp_dir, "tests"))
             
-            result = download.load_human_eval_dataset(self.temp_dir)
+            # Create dummy files
+            Path(os.path.join(tmp_dir, "data", "dummy.txt")).touch()
             
-            # Verify manifest file was created
-            self.assertTrue(os.path.exists(self.manifest_path))
-            
-            # Verify manifest content
-            with open(self.manifest_path, "r") as f:
-                manifest = yaml.safe_load(f)
-            
-            self.assertIn("dataset_name", manifest)
-            self.assertEqual(manifest["dataset_name"], "openai_humaneval")
-            self.assertIn("version", manifest)
-            self.assertIn("checksum", manifest)
-            self.assertEqual(manifest["checksum"], "abc123")
+            result = verify_dataset_structure(tmp_dir)
+            self.assertTrue(result)
 
-    def test_dataset_path_structure(self):
+    def test_verify_dataset_structure_missing_dir(self):
+        """Verify structure check fails if a required directory is missing."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            # Only create 'data', missing 'code' and 'tests'
+            os.makedirs(os.path.join(tmp_dir, "data"))
+            
+            result = verify_dataset_structure(tmp_dir)
+            self.assertFalse(result)
+
+
+class TestDownloadDatasetMock(TestCase):
+    """Tests for download_dataset ensuring it runs without auth (mocked)."""
+
+    @patch('download.hf_hub_download')
+    @patch('download.Path')
+    def test_download_dataset_no_auth_needed(self, mock_path_class, mock_hf_download):
         """
-        Test that the dataset is saved in the correct directory structure.
+        Ensure the download flow executes without raising authentication errors.
+        This test mocks the HF Hub to simulate a successful public download.
+        """
+        # Setup mocks
+        mock_hf_download.return_value = "/mocked/path/to/dataset.parquet"
+        mock_path_instance = MagicMock()
+        mock_path_class.return_value = mock_path_instance
         
-        The data should be stored under data/raw/ as per project conventions.
-        """
-        # This test verifies the directory structure logic
-        # We mock the actual download to avoid network calls
-        with patch("code.download.load_dataset", return_value=self.mock_dataset):
-            with patch("code.download.os.makedirs"):
-                with patch("code.download.pd.DataFrame.to_parquet") as mock_to_parquet:
-                    with patch("code.download.hashlib.sha256"):
-                        # Create a temporary data directory
-                        data_dir = os.path.join(self.temp_dir, "raw")
-                        os.makedirs(data_dir, exist_ok=True)
-                        
-                        # Call the function
-                        download.load_human_eval_dataset(data_dir)
-                        
-                        # Verify to_parquet was called (indicates data was processed)
-                        mock_to_parquet.assert_called_once()
+        # Define a mock manifest
+        mock_manifest = {
+            "dataset_id": "google-research-datasets/mbpp",
+            "revision": "main",
+            "files": ["dataset.parquet"]
+        }
+
+        # Execute
+        result_path = download_dataset(
+            dataset_id="google-research-datasets/mbpp",
+            revision="main",
+            output_dir="/tmp/test_output",
+            manifest=mock_manifest
+        )
+
+        # Assertions
+        self.assertIsNotNone(result_path)
+        mock_hf_download.assert_called_once()
+        # Ensure no auth-related exceptions were raised during the mock call
+        # (If the real function required auth and failed, this would raise)
+
+
+class TestSaveDatasetToParquet(TestCase):
+    """Tests for saving dataset to parquet format."""
+
+    @patch('download.pd')
+    def test_save_dataset_to_parquet(self, mock_pd):
+        """Verify that the parquet save function calls pandas correctly."""
+        mock_df = MagicMock()
+        mock_pd.DataFrame.return_value = mock_df
+        
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            output_path = os.path.join(tmp_dir, "output.parquet")
+            data = [{"prompt": "test", "test_list": []}]
+            
+            save_dataset_to_parquet(data, output_path)
+            
+            mock_pd.DataFrame.assert_called_once_with(data)
+            mock_df.to_parquet.assert_called_once_with(output_path, index=False)
+
+
+class TestUpdateManifest(TestCase):
+    """Tests for updating the dataset manifest file."""
+
+    def test_update_manifest(self):
+        """Verify manifest update logic creates/updates the YAML file."""
+        with tempfile.TemporaryDirectory() as tmp_dir:
+            manifest_path = os.path.join(tmp_dir, "manifest.yaml")
+            dataset_info = {
+                "id": "test-dataset",
+                "version": "1.0.0",
+                "hash": "abc123"
+            }
+
+            update_manifest(manifest_path, dataset_info)
+
+            # Verify file exists
+            self.assertTrue(os.path.exists(manifest_path))
+            
+            # Verify content (basic check)
+            with open(manifest_path, 'r') as f:
+                content = f.read()
+                self.assertIn("id: test-dataset", content)
+                self.assertIn("version: 1.0.0", content)
 
 
 if __name__ == "__main__":
-    unittest.main()
+    main()

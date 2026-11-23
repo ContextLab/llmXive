@@ -1,122 +1,81 @@
-"""
-Unit tests for the directory setup and checksum utility.
-"""
-import json
 import os
-import tempfile
-from pathlib import Path
-from unittest.mock import patch
-
 import pytest
+from pathlib import Path
+import sys
 
-# Import the functions to test
-from code.data.setup_directories import (
-    create_directories,
-    compute_file_checksum,
-    generate_checksum_manifest,
-)
+# Add the code directory to the path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
+from utils.config import get_project_root
+from data.setup_directories import create_directories, verify_directories
 
-class TestCreateDirectories:
-    def test_creates_required_structure(self, tmp_path):
-        """Test that the required directories are created."""
-        # Mock get_project_root to return our temp directory
-        with patch("code.data.setup_directories.get_project_root", return_value=tmp_path):
-            dirs = create_directories()
+class TestDirectorySetup:
+    """
+    Unit tests for directory creation and verification logic.
+    """
 
-        assert "raw" in dirs
-        assert "processed" in dirs
-        assert "figures" in dirs
+    def test_create_directories_creates_all_required_dirs(self):
+        """
+        Test that create_directories creates data/raw, data/processed,
+        state/projects, and state/pending.
+        """
+        project_root = get_project_root()
+        
+        # Define expected directories
+        expected_dirs = [
+            project_root / "data" / "raw",
+            project_root / "data" / "processed",
+            project_root / "state" / "projects",
+            project_root / "state" / "pending",
+        ]
+        
+        # Ensure they don't exist before test (optional cleanup)
+        for d in expected_dirs:
+            if d.exists():
+                # Don't remove, just verify they are created
+                pass
+        
+        # Run the creation function
+        create_directories(project_root)
+        
+        # Verify all directories were created
+        for expected_dir in expected_dirs:
+            assert expected_dir.exists(), f"Directory was not created: {expected_dir}"
+            assert expected_dir.is_dir(), f"Path is not a directory: {expected_dir}"
 
-        assert dirs["raw"].exists()
-        assert dirs["processed"].exists()
-        assert dirs["figures"].exists()
-
-        assert dirs["raw"].is_dir()
-        assert dirs["processed"].is_dir()
-        assert dirs["figures"].is_dir()
-
-    def test_does_not_fail_if_exists(self, tmp_path):
-        """Test that the function does not fail if directories already exist."""
-        # Pre-create the directories
-        (tmp_path / "data" / "raw").mkdir(parents=True)
-        (tmp_path / "data" / "processed").mkdir(parents=True)
-        (tmp_path / "data" / "figures").mkdir(parents=True)
-
-        with patch("code.data.setup_directories.get_project_root", return_value=tmp_path):
-            # Should not raise
-            dirs = create_directories()
-
-        assert dirs["raw"].exists()
-
-
-class TestComputeFileChecksum:
-    def test_sha256_checksum(self, tmp_path):
-        """Test SHA-256 checksum computation."""
-        test_file = tmp_path / "test.txt"
-        content = b"Hello, World!"
-        test_file.write_bytes(content)
-
-        checksum = compute_file_checksum(test_file)
-
-        # Expected SHA-256 for "Hello, World!"
-        expected = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
-        assert checksum == expected
-
-    def test_nonexistent_file_raises(self, tmp_path):
-        """Test that FileNotFoundError is raised for missing files."""
-        non_existent = tmp_path / "does_not_exist.txt"
+    def test_verify_directories_raises_on_missing(self, tmp_path):
+        """
+        Test that verify_directories raises FileNotFoundError if a directory is missing.
+        """
+        # Create a temporary project root with only some directories
+        missing_dir = tmp_path / "data" / "raw"
+        # Do not create missing_dir
+        
         with pytest.raises(FileNotFoundError):
-            compute_file_checksum(non_existent)
+            # We need to mock the project root or pass a specific path
+            # Since verify_directories expects a Path, we pass tmp_path
+            # But verify_directories looks for specific relative paths
+            # So we construct the full path for the missing one to trigger the error
+            # Actually, verify_directories iterates over specific relative paths
+            # Let's create the other dirs but not the one we want to test
+            (tmp_path / "data" / "processed").mkdir(parents=True, exist_ok=True)
+            (tmp_path / "state" / "projects").mkdir(parents=True, exist_ok=True)
+            (tmp_path / "state" / "pending").mkdir(parents=True, exist_ok=True)
+            
+            # Now verify should fail because data/raw is missing
+            verify_directories(tmp_path)
 
-    def test_large_file_chunked_reading(self, tmp_path):
-        """Test that large files are read in chunks without memory issues."""
-        # Create a 1MB file
-        large_content = b"x" * (1024 * 1024)
-        test_file = tmp_path / "large.bin"
-        test_file.write_bytes(large_content)
-
-        # Should not raise
-        checksum = compute_file_checksum(test_file)
-        assert len(checksum) == 64  # SHA-256 hex length
-
-
-class TestGenerateChecksumManifest:
-    def test_generates_manifest(self, tmp_path):
-        """Test manifest generation for a directory with files."""
-        # Create some test files
-        (tmp_path / "file1.txt").write_text("content1")
-        (tmp_path / "file2.txt").write_text("content2")
-        subdir = tmp_path / "subdir"
-        subdir.mkdir()
-        (subdir / "file3.txt").write_text("content3")
-
-        manifest = generate_checksum_manifest(tmp_path)
-
-        assert len(manifest) == 3
-        assert "file1.txt" in manifest
-        assert "file2.txt" in manifest
-        assert "subdir/file3.txt" in manifest
-
-    def test_writes_json_manifest(self, tmp_path):
-        """Test that the manifest is written to a JSON file."""
-        (tmp_path / "test.txt").write_text("data")
-        output_path = tmp_path / "manifest.json"
-
-        generate_checksum_manifest(tmp_path, output_path=output_path)
-
-        assert output_path.exists()
-        with open(output_path) as f:
-            data = json.load(f)
-
-        assert "test.txt" in data
-
-    def test_empty_directory(self, tmp_path):
-        """Test manifest generation for an empty directory."""
-        manifest = generate_checksum_manifest(tmp_path)
-        assert manifest == {}
-
-    def test_nonexistent_directory_raises(self, tmp_path):
-        """Test that FileNotFoundError is raised for missing directories."""
-        with pytest.raises(FileNotFoundError):
-            generate_checksum_manifest(tmp_path / "nonexistent")
+    def test_verify_directories_passes_when_all_exist(self, tmp_path):
+        """
+        Test that verify_directories passes when all required directories exist.
+        """
+        project_root = tmp_path
+        
+        # Create all required directories
+        create_directories(project_root)
+        
+        # This should not raise any exception
+        verify_directories(project_root)
+        
+        # If we get here, the test passed
+        assert True

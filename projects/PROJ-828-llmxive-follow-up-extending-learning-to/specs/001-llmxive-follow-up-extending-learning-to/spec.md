@@ -52,7 +52,7 @@ The researcher must be able to compare the sample efficiency (steps to [deferred
 
 ### Edge Cases
 
-- **What happens when** the SVD of the OPD trajectory yields a flat spectrum (no clear low-rank structure)? The system must default to a fixed $k$ (e.g., a representative number of top components) or a variance threshold (e.g., 90% explained variance) to prevent the projection matrix from being ill-defined.
+- **What happens when** the SVD of the OPD trajectory yields a flat spectrum (no clear low-rank structure)? The system must default to a fixed $k$ (e.g., a representative number of top components) or a variance threshold (e.g., a high proportion of explained variance) to prevent the projection matrix from being ill-defined.
 - **How does the system handle** memory exhaustion during SVD on a 300M model? The system must perform SVD on a subset of layers (e.g., only attention projections) or use randomized SVD to ensure the operation fits within the available memory constraint.
 - **What happens when** the Low-Rank RL variant fails to converge due to over-constraining the update space? The system must log the stagnation and allow for a sensitivity analysis on the rank $k$ (e.g., testing a range of low to high values) to find a feasible operating point.
 
@@ -66,7 +66,7 @@ The researcher must be able to compare the sample efficiency (steps to [deferred
 - **FR-004**: System MUST track the number of training steps required for each variant (Standard RL, Low-Rank RL, OPD) to reach a fixed accuracy threshold on the GSM8K subset. (See US-3)
 - **FR-005**: System MUST compute the cosine similarity between the final accumulated update direction of each variant and the direction of the standard PPO baseline (used as the proxy for the optimal solution). (See US-3)
 - **FR-006**: System MUST perform a statistical significance test (paired t-test or Wilcoxon signed-rank) on the steps-to-convergence metric across three independent runs for each variant. (See US-3)
-- **FR-007**: System MUST ensure all training and analysis operations run on CPU-only hardware with a maximum memory footprint of 7 GB, a total execution time of ≤ 6 hours, and use a 300M parameter model (e.g., TinyLlama-300M) with mixed precision (FP16) and layer-wise SVD (attention projections only). (See US-4)
+- **FR-007**: System MUST ensure all training and analysis operations run on CPU-only hardware with a memory footprint within standard computational limits., a total execution time of ≤ 6 hours, and use a 300M parameter model (e.g., TinyLlama-300M) with mixed precision (FP16) and layer-wise SVD (attention projections only). (See US-4)
 - **FR-008**: System MUST measure the cosine similarity between the Low-Rank RL trajectory and the OPD trajectory specifically during the first [deferred] of the training steps to validate early geometric alignment (foresight). (See US-3)
 
 ### Key Entities

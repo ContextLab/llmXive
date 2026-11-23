@@ -1,80 +1,92 @@
-# Quickstart: llmXive Follow-up: Extending AgentDoG 1.5 with Zero-Shot Drift Detection
+# Quickstart: Centroid‑Based Drift Detection for AgentDoG 1.5
 
 ## Prerequisites
-
-- Python 3.11 or higher
-- `pip` or `poetry`
-- Access to HuggingFace Hub (for model and dataset download)
+- Python 3.11+, `git`, internet access (Hugging  Face + GitHub API).  
+- GitHub Actions free‑tier runner (or equivalent local environment) with ≤ 7 GB RAM.
 
 ## Installation
-
-1. **Clone the repository** and navigate to the project directory:
-   ```bash
-   cd projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5
-   ```
-
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-   *Note: `requirements.txt` pins `sentence-transformers`, `scikit-learn`, `pandas`, `numpy`, `datasets`, `jsonschema`, and `statsmodels`.*
-
-## Running the Pipeline
-
-### 1. Generate Taxonomy Centroids
-This step creates the fixed embeddings for the AgentDoG 1.5 safety taxonomy.
 ```bash
-python code/taxonomy_builder.py
-```
-*Output*: `data/processed/centroids.npy` and `data/processed/taxonomy_metadata.json`.
-
-### 2. Compute Drift Scores
-Process a batch of agent logs and calculate their drift scores.
-```bash
-python code/main.py --input data/raw/logs.jsonl --output data/processed/drift_scores.csv
-```
-*Output*: `data/processed/drift_scores.csv` containing `log_id`, `drift_score`, `nearest_category_id`.
-
-### 3. Prepare Annotator Data (Blinded)
-Generate stratified CSVs for human annotation, ensuring the `drift_score` is removed.
-```bash
-python code/annotator_interface.py --scores data/processed/drift_scores.csv --output data/processed/blind_annotations.csv
-```
-*Output*: `data/processed/blind_annotations.csv` (columns: `log_id`, `text`, `label` - no score).
-
-### 4. Validate Results (Simulation)
-Run the statistical validation against a simulated ground truth (or load real annotations).
-```bash
-python code/validation.py --scores data/processed/drift_scores.csv --labels data/raw/annotations_gold.csv
-```
-*Output*: Console report with Mann-Whitney U p-value, Odds Ratio, and AUC-ROC.
-
-### 5. Compare with Baseline (Optional)
-Compare drift scores against a zero-shot LLM classifier (requires API key).
-```bash
-python code/comparison.py --scores data/processed/drift_scores.csv --labels data/raw/annotations_gold.csv --api-key $LLM_API_KEY
+git clone <repo‑url>
+cd projects/PROJ-924-llmxive-follow-up-extending-agentdog-1-5
+python -m venv venv && source venv/bin/activate
+pip install -r code/requirements.txt
 ```
 
-## Verifying Reproducibility
-
-To ensure the results are reproducible, run the end-to-end test:
+## Verify Setup (T010d evidence)
 ```bash
-pytest tests/integration/test_end_to_end.py -v
+pytest tests/unit/ -v | tee data/processed/test_results.log
 ```
-This test verifies that:
-- The same inputs produce the same outputs (deterministic seeds).
-- The Drift Score distribution matches the expected range.
-- Statistical tests return the expected p-values (within tolerance).
-- Contract validation passes (`test_contracts.py`).
+*Expected:* `test_config.py` asserts `RANDOM_SEED == 42`, `MAX_RAM_GB == 7`, `BATCH_SIZE == 64`, `DRIFT_THRESHOLD == 0.5`; `test_tooling.py` confirms presence of `pyproject.toml` with a `[tool.ruff]` section. The tee‑ed log is the committed proof of passing tests.
+
+## Run the Pipeline
+
+### 1. Data loading (HF taxonomy + GitHub novel corpus)
+```bash
+python code/data_loader.py --download
+```
+- Downloads `agentdog/safety-v1`.  
+- Fetches ≥ 500 post‑2025 GitHub issue logs, scrubs PII, stores in `data/raw/novel_corpus.jsonl`.  
+
+### 2. Build centroids & compute drift scores (US‑01)
+```bash
+python code/embeddings.py --generate-centroids
+python code/embeddings.py --score
+```
+Outputs: `data/processed/centroids.json` and `data/processed/drift_scores.parquet`.
+
+### 3. Prepare annotation batches (US‑02 part 1)
+```bash
+python code/main.py --prepare-annotation
+```
+Creates blinded JSONL files under `data/processed/annotation_batches/` and a uniform random sample of ≥ 100 logs spanning the full drift range.
+
+### 4. **Manual step** – Human annotation
+Three independent annotators label the files in `annotation_batches/`.  
+Collect the results into `data/human_annotations.json` (exact schema required).
+
+### 5. Statistical validation (US‑02) – requires `human_annotations.json`
+```bash
+python code/validation.py --validate
+```
+Produces `data/processed/metrics.json` and prints κ, Mann‑Whitney, logistic regression, chi‑squared results.
+
+### 6. Baseline LLM comparison (US‑03)
+```bash
+python code/baseline_llm.py --baseline
+```
+Computes Flan‑T5 AUC‑ROC, checks baseline AUC ≥ 0.70, measures latency, performs **DeLong’s test** for AUC equivalence, and stores results in `metrics.json`.
+
+### 7. Final report (US‑03 AC5)
+```bash
+python code/report.py --generate
+```
+Generates `data/processed/report.md` and `data/processed/metrics.json` with all required tables, ROC curves, and resource usage.
+
+### One‑shot run (all steps except manual annotation)
+```bash
+python code/main.py --all
+```
+*Note:* The pipeline will stop with status `Incomplete` if `human_annotations.json` is missing or κ < 0.6, per Constitution Principle VI.
+
+## Configuration (`code/config.py`)
+```python
+RANDOM_SEED = 42
+MAX_RAM_GB = 7
+BATCH_SIZE = 64          # verified fact, arXiv:2410.21676
+DRIFT_THRESHOLD = 0.5    # pre‑registered operating point (calibrated in Phase 4)
+HIGH_DRIFT_QUANTILE = None   # determined at runtime
+LOW_DRIFT_QUANTILE = None    # determined at runtime
+```
+
+## Outputs
+- `data/processed/drift_scores.parquet` – per‑log `drift_score` & `review_flag`.  
+- `data/processed/centroids.json` – taxonomy centroids.  
+- `data/processed/annotation_batches/` – blinded batches for annotators (include `log_length` and `source` for confound control).  
+- `data/processed/metrics.json` – all statistical and resource metrics.  
+- `data/processed/report.md` – human‑readable final report with figures.
 
 ## Troubleshooting
-
-- **Memory Error**: If you encounter OOM errors, reduce the batch size in `config.py` (default: 100).
-- **Dataset Not Found**: Ensure you are logged into HuggingFace (`huggingface-cli login`) if the dataset is gated (though the verified sources here are public).
-- **Model Loading Failure**: The `all-MiniLM-L6-v2` model is cached after the first download. If it fails, check your internet connection.
+- **`agentdog/safety-v1` load failure**: blocking data‑availability gap; raise an issue – do **not** substitute another dataset.  
+- **Missing `human_annotations.json`**: pipeline exits with `Incomplete`; obtain real annotations.  
+- **Out‑of‑memory**: only reduce `BATCH_SIZE` *with documented justification* (deviates from the verified batch size).  
+- **GitHub API rate limit** (60 req/h unauthenticated): the loader caches raw responses; rerun will resume where it left off.

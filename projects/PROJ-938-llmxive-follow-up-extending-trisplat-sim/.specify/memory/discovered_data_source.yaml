@@ -1,0 +1,15 @@
+status: none
+intent: RealEstate10K validation split Alternative PSNR data download python package
+  dataset
+required_fields:
+- video_id
+- frame_index
+- rgb_image
+- depth_map
+- camera_intrinsics
+- camera_extrinsics
+- invalid_pixel_mask
+- timestamp
+cache_key: bf45293bdd157ccbecfb9841a3039169e5c6677917b6b3d18c8939919372ef29
+searched_at: '2026-10-01T04:16:14.323696+00:00'
+retry_count: 1

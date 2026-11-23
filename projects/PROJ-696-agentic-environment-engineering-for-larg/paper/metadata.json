@@ -207,5 +207,15 @@
     "sections/appendix.tex",
     "sections/environment_taxonomy.tex",
     "sections/evolution_taxonomy.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "fa72bb7a84f769ccbe0ec3044adc60fcb28836fa5cafaa0e485415459aacbab7",
+      "bytes": 18547611
+    },
+    "original.pdf": {
+      "sha256": "9235b5fa15fef3b98257624de403df18219c79ea9d660d0cf77b9d70882d69c6",
+      "bytes": 18542383
+    }
+  }
 }

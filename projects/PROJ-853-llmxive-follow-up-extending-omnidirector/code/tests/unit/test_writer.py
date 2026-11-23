@@ -1,5 +1,6 @@
 """
-Unit tests for T011: Writer module.
+Unit tests for the writer module.
+Tests serialization and CSV writing functionality.
 """
 import os
 import json
@@ -9,84 +10,88 @@ import numpy as np
 import pytest
 from pathlib import Path
 
-from data.writer import write_filtered_dataset, serialize_grid_points, serialize_matrix, calculate_sha256
+from data.writer import (
+    serialize_grid_points,
+    serialize_matrix,
+    calculate_sha256,
+    write_filtered_dataset
+)
+from data.models import GridFrame
 
 def test_serialize_grid_points():
-    points = np.array([[10, 20], [30, 40]])
-    result = serialize_grid_points(points)
-    expected = json.dumps(points.tolist())
-    assert result == expected
+    """Test serialization of grid points."""
+    points = [[1.0, 2.0], [3.0, 4.0], [5.0, 6.0]]
+    serialized = serialize_grid_points(points)
+    deserialized = json.loads(serialized)
+    assert deserialized == points
 
 def test_serialize_grid_points_empty():
-    result = serialize_grid_points(np.array([]).reshape(0, 2))
-    assert result == "[]"
+    """Test serialization of empty grid points."""
+    serialized = serialize_grid_points([])
+    assert json.loads(serialized) == []
+    
+    serialized_none = serialize_grid_points(None)
+    assert json.loads(serialized_none) == []
 
 def test_serialize_matrix():
-    mat = np.eye(3)
-    result = serialize_matrix(mat)
-    expected = json.dumps(mat.tolist())
-    assert result == expected
+    """Test serialization of rotation matrix."""
+    matrix = np.eye(3)
+    serialized = serialize_matrix(matrix)
+    deserialized = np.array(json.loads(serialized))
+    np.testing.assert_array_almost_equal(deserialized, matrix)
 
 def test_write_filtered_dataset_creates_file():
+    """Test that write_filtered_dataset creates the output file."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "test_output.csv"
-        checksum_path = Path(tmpdir) / "test_output.csv.sha256"
+        output_path = os.path.join(tmpdir, "test_output.csv")
         
-        df = pd.DataFrame({
-            'sequence_id': ['seq1'],
-            'frame_id': [1],
-            'radial_motion_deg': [20.0],
-            'z_velocity': [0.2],
-            'grid_points_2d': [[10, 10]],
-            'R_matrix': [[1, 0, 0], [0, 1, 0], [0, 0, 1]],
-            't_vector': [0.0, 0.0, 0.0],
-            'randomized_depth': [True]
-        })
+        # Create test grid frames
+        frames = [
+            GridFrame(
+                sequence_id="seq1",
+                frame_id=1,
+                radial_motion_deg=20.0,
+                z_velocity=0.2,
+                grid_points_2d=[[10, 10], [20, 20]],
+                R_matrix=np.eye(3),
+                t_vector=np.array([0, 0, 1]),
+                randomized_depth=False
+            ),
+            GridFrame(
+                sequence_id="seq1",
+                frame_id=2,
+                radial_motion_deg=10.0,
+                z_velocity=0.05,
+                grid_points_2d=[[15, 15], [25, 25]],
+                R_matrix=np.eye(3),
+                t_vector=np.array([0, 0, 2]),
+                randomized_depth=True
+            )
+        ]
         
-        # Temporarily override global paths for test
-        import data.writer as writer_module
-        original_output = writer_module.OUTPUT_PATH
-        original_checksum = writer_module.CHECKSUM_PATH
+        result = write_filtered_dataset(frames, output_path)
         
-        writer_module.OUTPUT_PATH = output_path
-        writer_module.CHECKSUM_PATH = checksum_path
+        assert os.path.exists(output_path)
+        assert result['rows_written'] == 2
+        assert 'checksum' in result
         
-        try:
-            write_filtered_dataset(df)
-            assert output_path.exists()
-            assert checksum_path.exists()
-            
-            # Verify content
-            loaded_df = pd.read_csv(output_path)
-            assert len(loaded_df) == 1
-            assert loaded_df.iloc[0]['sequence_id'] == 'seq1'
-            assert loaded_df.iloc[0]['randomized_depth'] == True
-        finally:
-            writer_module.OUTPUT_PATH = original_output
-            writer_module.CHECKSUM_PATH = original_checksum
+        # Verify CSV content
+        df = pd.read_csv(output_path)
+        assert len(df) == 2
+        assert 'sequence_id' in df.columns
+        assert 'grid_points_2d' in df.columns
 
 def test_write_empty_dataset():
+    """Test writing an empty dataset."""
     with tempfile.TemporaryDirectory() as tmpdir:
-        output_path = Path(tmpdir) / "empty.csv"
-        checksum_path = Path(tmpdir) / "empty.csv.sha256"
+        output_path = os.path.join(tmpdir, "empty_output.csv")
         
-        import data.writer as writer_module
-        original_output = writer_module.OUTPUT_PATH
-        original_checksum = writer_module.CHECKSUM_PATH
+        result = write_filtered_dataset([], output_path)
         
-        writer_module.OUTPUT_PATH = output_path
-        writer_module.CHECKSUM_PATH = checksum_path
+        assert os.path.exists(output_path)
+        assert result['rows_written'] == 0
         
-        try:
-            empty_df = pd.DataFrame()
-            write_filtered_dataset(empty_df)
-            
-            assert output_path.exists()
-            loaded_df = pd.read_csv(output_path)
-            assert len(loaded_df) == 0
-            # Check headers exist
-            expected_cols = ['sequence_id', 'frame_id', 'radial_motion_deg', 'z_velocity', 'grid_points_2d', 'R_matrix', 't_vector', 'randomized_depth']
-            assert list(loaded_df.columns) == expected_cols
-        finally:
-            writer_module.OUTPUT_PATH = original_output
-            writer_module.CHECKSUM_PATH = original_checksum
+        # Verify CSV has headers only
+        df = pd.read_csv(output_path)
+        assert len(df) == 0
+        assert 'sequence_id' in df.columns

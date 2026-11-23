@@ -1,0 +1,12 @@
+status: none
+intent: Human Connectome Project diffusion tractography resting state fMRI python
+  package dataset
+required_fields:
+- subject_id
+- structural_connectome_binary
+- rsfc_matrix
+- schaefer_parcellation_name
+- schaefer_parcel_count
+cache_key: eb3bd84902a3bd1c766fcbfbc662fc4c66a70c0e8083b74164947a909f3b7ca4
+searched_at: '2026-10-23T02:39:30.406580+00:00'
+retry_count: 1

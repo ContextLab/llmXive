@@ -1,74 +1,59 @@
 # Quickstart: Predicting Molecular Surface Area from Graph Convolutional Networks
 
 ## Prerequisites
-
 - Python 3.11+
 - Git
-- Access to GitHub Actions (for CI) or local environment with 7 GB+ RAM.
+- 14 GB Disk Space (for dataset caching)
+- 7 GB+ RAM
 
-## Installation
-
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-412-predicting-molecular-surface-area-from-g
-    ```
-
-2.  **Create Virtual Environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install Dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: Ensure `torch` is installed as the CPU-only wheel.*
-
-## Running the Pipeline
-
-### 1. Data Ingestion & Preprocessing
-Generates the 2D graph features and 3D surface area labels.
+## 1. Clone and Setup
 ```bash
-python code/data/ingest.py --source zircon15 --output data/processed/molecules.parquet
-python code/data/preprocess.py --input data/processed/molecules.parquet --output data/processed/graphs.parquet
+git clone <repo-url>
+cd projects/PROJ-412-predicting-molecular-surface-area-from-g
+python -m venv venv
+source venv/bin/activate
+pip install -r code/requirements.txt
 ```
-*Output: `data/processed/graphs.parquet` containing SMILES, graph features, and surface area labels.*
 
-### 2. Data Splitting
-Splits data into train/test sets stratified by molecular weight.
+## 2. Data Ingestion
+Run the ingestion script to download and process the ZINC15 dataset.
 ```bash
-python code/data/split.py --input data/processed/graphs.parquet --output data/splits/
+python code/data/ingest.py --source zinc15 --output data/processed/molecules.parquet
 ```
-*Output: `data/splits/train.parquet`, `data/splits/test.parquet`.*
+*This script will:*
+- Stream data from HuggingFace.
+- Validate SMILES.
+- Generate 3D conformers and surface area labels.
+- Exclude invalid molecules.
+- Save checksums to `data/checksums.json`.
 
-### 3. Model Training
-Trains the GCN and the Geometry-Based Baseline.
+## 3. Split Data
 ```bash
-python code/models/train.py --train data/splits/train.parquet --test data/splits/test.parquet
+python code/data/split.py --input data/processed/molecules.parquet --output data/processed/splits/
 ```
-*Output: `results/gcn_model.pt`, `results/baseline_model.pkl`.*
+*This script ensures the KS test p-value > 0.05 for molecular weight distributions.*
 
-### 4. Evaluation & Sensitivity Analysis
-Evaluates models, performs t-tests, and runs the threshold sweep.
+## 4. Train Models
 ```bash
-python code/eval/metrics.py --model-gcn results/gcn_model.pt --model-baseline results/baseline_model.pkl --test data/splits/test.parquet
-python code/eval/sensitivity.py --predictions data/processed/predictions.parquet
+# Train GCN
+python code/train.py --model gcn --config code/config.py
+
+# Train Baseline
+python code/train.py --model baseline --config code/config.py
 ```
-*Output: `results/report.md`, `data/processed/sensitivity_results.parquet`.*
+*Training runs on CPU. Max 50 epochs with early stopping.*
 
-## Verification
-
-To verify the pipeline integrity:
+## 5. Evaluate & Analyze
 ```bash
-pytest tests/contract/ -v
-pytest tests/unit/ -v
+# Evaluate both models
+python code/eval.py --models artifacts/gcn_model.pt artifacts/baseline_model.pt --test data/processed/splits/test.parquet
+
+# Sensitivity Analysis
+python code/sensitivity.py --results artifacts/results.json --thresholds 0.01 0.05 0.1
 ```
-*Ensure all contract tests pass against the defined YAML schemas.*
 
-## Troubleshooting
-
-- **OOM (Out of Memory)**: Reduce `batch_size` in `code/models/train.py` or filter molecules with > 80 atoms in `preprocess.py`.
-- **Conformer Failure**: If >10% of molecules fail 3D generation, check `preprocess.py` parameters (increase `num_attempts` or switch to `ETKDGv3`).
-- **CUDA Error**: Ensure `torch` is the CPU version. Run `pip install torch --index-url https://download.pytorch.org/whl/cpu`.
+## 6. Verify Results
+Check `artifacts/final_report.json` for:
+- MAE, RMSE, R² for both models.
+- Paired t-test p-value and Cohen's d.
+- Sensitivity analysis with corrected p-values.

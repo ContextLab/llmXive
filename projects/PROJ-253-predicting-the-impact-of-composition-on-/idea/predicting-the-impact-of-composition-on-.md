@@ -3,52 +3,97 @@ field: materials science
 submitter: google.gemma-3-27b-it
 ---
 
-# Predicting the Impact of Composition on the Band Gap of Perovskite Materials  
+# Predicting the Impact of Composition on the Band Gap of Perovskite Materials
 
-**Field**: materials science  
+**Field**: materials science
 
-## Research question  
+## Research question
 
-Can a machine‑learning model trained only on compositional descriptors accurately predict the electronic band gap of perovskite crystals across a diverse chemical space?  
+Which compositional descriptors govern the electronic band gap of perovskite crystals, and how accurately can a composition‑only machine‑learning model predict this property across a chemically diverse perovskite dataset?
 
-## Motivation  
+## Motivation
 
-Band‑gap engineering is central to optimizing perovskite photovoltaics, yet high‑throughput first‑principles calculations remain costly. A compositional‑only predictor would enable rapid virtual screening of millions of candidate formulas, accelerating discovery while bypassing expensive DFT runs.  
+Band‑gap engineering is central to optimizing perovskite photovoltaics, yet high‑throughput first‑principles calculations remain computationally expensive. A robust, composition‑only predictor would enable rapid virtual screening of millions of candidate formulas, accelerating the discovery of lead‑free and stable variants while bypassing the need for repeated density functional theory (DFT) runs.
 
-## Related work  
+## Related work
 
-- [Chemist versus Machine: Traditional Knowledge versus Machine Learning Techniques (2020)](https://doi.org/10.1016/j.trechm.2020.10.007) — Reviews the transition from expert‑driven heuristics to data‑driven models for materials discovery, highlighting the need for robust ML pipelines.  
-- [Crystal Graph Convolutional Neural Networks for an Accurate and Interpretable Prediction of Material Properties (2018)](https://doi.org/10.1103/physrevlett.120.145301) — Demonstrates that graph‑based neural networks can predict material properties, motivating the exploration of simpler compositional feature sets for band‑gap regression.  
+- [Machine learning insights into band gap properties in halide-based perovskites (2026)](https://arxiv.org/abs/2606.17186) — Highlights the growing interest in lead‑free perovskites and the specific role of machine learning in exploring band gap properties for optoelectronic applications.
+- [A thermodynamic band gap model for photoinduced phase segregation in mixed-halide perovskites (2023)](https://arxiv.org/abs/2307.06268) — Provides a thermodynamic framework for predicting band gaps in mixed‑halide systems, offering a physics‑based baseline for comparison against purely data‑driven compositional models.
+- [Steric engineering of metal-halide perovskites with tunable optical band gaps (2014)](https://arxiv.org/abs/1409.6478) — Demonstrates how steric effects and cation engineering directly tune optical band gaps, validating the use of structural/compositional descriptors as predictive features.
+- [First-principles Study On The Electronic And Optical Properties Of Cubic ABX3 Halide Perovskites (2013)](https://arxiv.org/abs/1309.0070) — Systematically establishes the relationship between specific elemental choices (A, B, X) and electronic properties in cubic phases, serving as a foundational dataset for feature relevance.
 
-## Expected results  
+## Expected results
 
-A regression model (e.g., random forest or a shallow neural network) achieving a test‑set RMSE ≤ 0.3 eV on the Materials Project perovskite subset, significantly better than a baseline constant‑mean predictor (RMSE ≈ 0.8 eV). Statistical significance will be assessed via a paired t‑test across 5‑fold cross‑validation folds (p < 0.05).  
+The study will identify a subset of elemental and stoichiometric descriptors (e.g., electronegativity variance, Goldschmidt tolerance factor) that explain >80% of the variance in band gaps. A composition‑only regression model is expected to achieve a test‑set RMSE ≤ 0.35 eV, significantly outperforming a mean‑baseline, with the most significant gains observed in lead‑free candidate predictions where DFT data is sparse.
 
-## Methodology sketch  
+## Methodology sketch
 
-- **Data acquisition**:  
-  - Download the “Perovskite” subset from the Materials Project (public CSV via their API or Zenodo mirror).  
-  - Retrieve associated band‑gap values (experimental when available, otherwise DFT‑calculated).  
-- **Feature engineering**:  
-  - Use `matminer` to compute compositional descriptors (e.g., mean/variance of elemental electronegativity, atomic radius, oxidation state, stoichiometric ratios).  
-  - Append simple stoichiometric ratios (A:B:C) as explicit features.  
-- **Data preprocessing**:  
-  - Remove entries with missing band‑gap data.  
-  - Standardize features (zero mean, unit variance).  
-  - Split into stratified train/validation/test sets (80/10/10 %).  
-- **Model training**:  
-  - Train a Random Forest Regressor (scikit‑learn, 200 trees) and a shallow feed‑forward neural network (2 hidden layers, ≤ 64 units each) on the training set.  
-  - Perform hyper‑parameter tuning via grid search on the validation set (max depth, min samples leaf, learning rate).  
-- **Evaluation**:  
-  - Compute RMSE, MAE, and R² on the held‑out test set.  
-  - Conduct 5‑fold cross‑validation; compare each model’s RMSE to the baseline using a paired t‑test.  
-- **Interpretability**:  
-  - Extract feature importances from the Random Forest and SHAP values for the neural net to identify key compositional drivers of band gap.  
-- **Reproducibility**:  
-  - All code written in Python (≤ 2 GB RAM), using only CPU‑friendly libraries; the full pipeline can run on a GitHub Actions runner in < 4 h.  
+- **Data acquisition**:
+  - Download the perovskite subset from the Materials Project (via API or Zenodo mirror) containing chemical formulas and DFT-calculated band gaps.
+  - Filter for entries with complete elemental composition and valid band gap values (experimental or DFT).
+- **Feature engineering**:
+  - Use `matminer` to generate compositional descriptors: mean/variance of electronegativity, atomic radius, ionization energy, and oxidation states.
+  - Calculate structural proxies from composition only: Goldschmidt tolerance factor and octahedral factor using ionic radii.
+- **Data preprocessing**:
+  - Remove outliers with physically impossible band gaps (<0 eV or >6 eV).
+  - Standardize all features (zero mean, unit variance).
+  - Split data into stratified training (70%), validation (15%), and test (15%) sets to ensure diverse chemical representation in each.
+- **Model training**:
+  - Train a Random Forest Regressor and a Gradient Boosting Regressor (scikit-learn) on the training set.
+  - Perform hyperparameter tuning (number of trees, max depth, learning rate) using 5-fold cross-validation on the training set.
+- **Evaluation**:
+  - Assess performance on the held-out test set using RMSE, MAE, and R².
+  - Compare model performance against a baseline (mean predictor) using a paired t-test on cross-validation folds.
+  - **Independent Validation**: Validate the model's predictive power not just against the held-out DFT data, but by testing its ability to rank-order known experimental band gaps from a separate, held-out experimental dataset (e.g., from the NREL PV database) to ensure the model captures physical trends rather than DFT artifacts.
+- **Interpretability**:
+  - Extract feature importances from the Random Forest and generate SHAP summary plots to identify which compositional descriptors most strongly influence the band gap.
+- **Reproducibility**:
+  - Implement the full pipeline in Python using CPU-friendly libraries (scikit-learn, pandas, numpy) to ensure execution within the 6-hour GitHub Actions limit (<7 GB RAM).
 
-## Duplicate-check  
+## Duplicate-check
 
-- Reviewed existing ideas: none.  
-- Closest match: N/A.  
+- Reviewed existing ideas: none.
+- Closest match: N/A.
 - Verdict: **NOT a duplicate**.
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-05T21:47:22Z
+**Outcome**: success_after_expansion
+**Original term**: Predicting the Impact of Composition on the Band Gap of Perovskite Materials materials science
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | Predicting the Impact of Composition on the Band Gap of Perovskite Materials materials science | 0 |
+| 1 | compositional engineering of perovskite band gaps | 1 |
+| 2 | band gap tuning in halide perovskites | 3 |
+| 3 | composition-property relationships in perovskite semiconductors | 0 |
+| 4 | machine learning prediction of perovskite electronic structure | 0 |
+| 5 | high-throughput screening of perovskite band gaps | 0 |
+| 6 | A-site and B-site cation effects on perovskite band structure | 0 |
+| 7 | predicting optical band gaps of metal halide perovskites | 0 |
+| 8 | density functional theory calculation of perovskite band gaps | 0 |
+| 9 | structure-property mapping in hybrid perovskites | 0 |
+| 10 | data-driven discovery of perovskite optoelectronic properties | 0 |
+| 11 | compositional disorder effects on perovskite band edges | 0 |
+| 12 | virtual screening of lead-free perovskite band gaps | 0 |
+| 13 | band gap engineering via halide mixing in perovskites | 0 |
+| 14 | computational prediction of perovskite absorption onset | 0 |
+| 15 | composition-dependent electronic properties of ABX3 perovskites | 0 |
+| 16 | neural network models for perovskite band gap estimation | 0 |
+| 17 | quantum chemical modeling of perovskite composition effects | 0 |
+| 18 | correlating crystal structure and band gap in perovskites | 0 |
+| 19 | predictive modeling of ternary and quaternary perovskite band gaps | 0 |
+| 20 | electronic structure prediction for perovskite solar cell materials | 0 |
+
+### Verified citations
+
+1. **To study the structural, electronic and optical properties of predicted stable halide perovskites ABX3** (2021). Kashif Murad, G. Murtaza, Muhammad Noman, Shamim Khan. arXiv. [2102.11577](https://arxiv.org/abs/2102.11577). PDF-sampled: No.
+2. **First-principles Study On The Electronic And Optical Properties Of Cubic ABX3 Halide Perovskites** (2013). Li Lang, Ji-Hui Yang, Heng-Rui Liu, H. J. Xiang, X. G. Gong. arXiv. [1309.0070](https://arxiv.org/abs/1309.0070). PDF-sampled: No.
+3. **Machine learning insights into band gap properties in halide-based perovskites** (2026). Chadawan Khamdang, Mengen Wang. arXiv. [2606.17186](https://arxiv.org/abs/2606.17186). PDF-sampled: No.
+4. **Steric engineering of metal-halide perovskites with tunable optical band gaps** (2014). Marina R. Filip, Giles E. Eperon, Henry J. Snaith, Feliciano Giustino. arXiv. [1409.6478](https://arxiv.org/abs/1409.6478). PDF-sampled: No.
+5. **A thermodynamic band gap model for photoinduced phase segregation in mixed-halide perovskites** (2023). Anthony Ruth, Halyna Okrepka, Prashant Kamat, Masaru Kuno. arXiv. [2307.06268](https://arxiv.org/abs/2307.06268). PDF-sampled: No.

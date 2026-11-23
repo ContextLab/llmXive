@@ -1,6 +1,10 @@
-? '|add check checksum ci code compute config csv differ fail generated generator
-  if py reproducibility run same script seed sha256 they twice util verification'
-: quote: SHA-256
-  source_id: Q110651361
-  url: https://www.wikidata.org/wiki/Q110651361
-  value: SHA-256
+'|batch size':
+  quote: 1 4 16 64 256 1024 4096
+  source_id: '2507.07101'
+  url: https://arxiv.org/abs/2507.07101
+  value: '16'
+'|patience':
+  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+  source_id: pi
+  url: https://en.wikipedia.org/wiki/Pi
+  value: '3.141592653589793'

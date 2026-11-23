@@ -1,17 +1,18 @@
-# Quickstart: Phenomenological AI: First-Person Experience Modeling
+# Quickstart: Phenomenological AI: First-Person Experience Modeling in Language Models
 
 ## Prerequisites
 
-- Python 3.11+
-- Sufficient RAM (for `TinyLlama-1.1B` via GGUF)
-- CPU-only environment (no GPU required)
+- Python 3.11 or higher.
+- Git.
+- HuggingFace account (for model access).
+- (Optional) Philosophy graduate students for qualitative validation.
 
 ## Installation
 
 1. **Clone the repository**:
  ```bash
  git clone
- cd projects/PROJ-592-phenomenological-ai-first-person-experie
+ cd phenomenological-ai
  ```
 
 2. **Create a virtual environment**:
@@ -22,72 +23,86 @@
 
 3. **Install dependencies**:
  ```bash
- pip install -r code/requirements.txt
+ pip install -r requirements.txt
+ ```
+
+4. **Authenticate with HuggingFace** (if needed):
+ ```bash
+ huggingface-cli login
  ```
 
 ## Running the Pipeline
 
-### 1. Generate Reports
-Execute the generation script. This will run `TinyLlama-1.1B` (CPU-safe).
-*Note: Larger models are excluded from the automated pipeline due to RAM constraints. Use `code/generation/runner_local.py` for local 7B inference if you have ≥16GB RAM.*
-```bash
-python code/main.py --task generate --config code/config.py
-```
-*Output*: `data/raw/generations.jsonl` (Target: A sufficiently large sample size to ensure statistical power and representativeness.)
+### Step 1: Generate Reports
 
-### 2. Generate Control Corpus
-Generate the control set for discriminant validity.
-```bash
-python code/main.py --task generate_control --config code/config.py
-```
-*Output*: `data/raw/control_corpus.jsonl`
+Run the generation script to create the phenomenological corpus.
 
-### 3. Select Validation Sample
-Automatically select a representative subset of reports per condition for human rating (SC-002).
 ```bash
-python code/main.py --task select_validation_sample --config code/config.py
+python -m src.generation.runner --strategy all --samples 80 --model mistralai/Mistral-7B-Instruct-v0.2
 ```
-*Output*: `data/qualitative/sampling_ids.csv`
 
-### 4. Compute Metrics
-Run the analysis pipeline.
+- `--strategy`: Prompting strategy (`Direct`, `Hypothetical`, `Comparative`, `Role-play`, or `all`).
+- `--samples`: Number of samples per strategy.
+- `--model`: Model checkpoint ID.
+
+**Output**: Reports saved in `data/raw/reports/`.
+
+### Step 2: Compute Validity Metrics
+
+Run the metrics computation script.
+
 ```bash
-python code/main.py --task analyze
+python -m src.analysis.metrics --input data/raw/reports/ --output data/derived/validity_scores.csv
 ```
-*Output*: `data/processed/validity_scores.csv`, `data/processed/metrics.csv`
 
-### 5. Human Validation (Manual Step)
-1. Open `data/qualitative/rating_sheet_template.csv`.
-2. Distribute to raters (blind to strategy/model).
-3. Collect ratings and save to `data/qualitative/ratings_collected.csv`.
-4. Run reliability check:
- ```bash
- python code/main.py --task validate_human
- ```
+**Output**: Validity scores saved in `data/derived/validity_scores.csv`.
 
-### 6. Statistical Analysis
-Run the final statistical tests (ANOVA, FDR, Tukey HSD).
+### Step 3: Perform Statistical Analysis
+
+Run the statistical analysis script.
+
 ```bash
-python code/main.py --task stats
+python -m src.analysis.statistics --input data/derived/validity_scores.csv --output data/derived/statistical_results.json
 ```
-*Output*: `data/processed/statistical_results.json`
 
-### 7. Sensitivity Analysis (κ Thresholds)
-Automate the sensitivity analysis across κ thresholds {0.5, 0.6, 0.7} (FR-011).
+**Output**: Statistical results saved in `data/derived/statistical_results.json`.
+
+### Step 4: Human Qualitative Validation (Optional)
+
+Distribute reports to human raters. They should fill out the rating sheet and save it as `data/qualitative/ratings.csv`.
+
+Run the qualitative analysis script.
+
 ```bash
-python code/main.py --task sensitivity-kappa
+python -m src.analysis.qualitative --input data/qualitative/ratings.csv --output data/derived/qualitative_results.json
 ```
-*Output*: `data/processed/sensitivity_kappa.csv`
+
+**Output**: Inter-rater reliability (Cohen's κ) and other metrics saved in `data/derived/qualitative_results.json`.
+
+## Testing
+
+Run the test suite to ensure everything is working.
+
+```bash
+pytest tests/
+```
 
 ## Reproducibility
 
-To reproduce the exact results:
-1. Set `SEED=42` in `code/config.py`.
-2. Ensure `data/raw/generations.jsonl` matches the checksum in `state/...yaml`.
-3. Run `python code/main.py --task full-pipeline`.
+To reproduce the results:
+
+1. Ensure the same random seeds are used (pinned in `code/`).
+2. Use the same model checkpoints and prompt templates.
+3. Re-run the pipeline from `Step 1`.
+
+All data and code are versioned. Check the `state/` directory for artifact hashes.
 
 ## Troubleshooting
 
-- **OOM Error**: If the script crashes with "Out of Memory", check that you are not attempting to run 7B models in the CI environment. The pipeline uses `TinyLlama-1.1B` by default.
-- **NLI Timeout**: Warnings are logged; the pipeline continues.
-- **Low Cohen's κ**: The script will output a warning and flag the condition for re-evaluation.
+- **Memory Error**: If you run out of memory, reduce the number of samples or use a smaller model (e.g., `Q4_K` quantization).
+- **Rate Limits**: If HuggingFace rate limits you, wait and retry or use a local model cache.
+- **NLI Model Failure**: If the NLI model fails on a long sentence, it will be skipped and logged. Check `logs/` for details.
+
+## Support
+
+For issues, open a GitHub issue or contact the project maintainers.

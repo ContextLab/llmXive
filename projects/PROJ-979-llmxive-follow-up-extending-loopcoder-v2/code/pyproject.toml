@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-follow-up-extending-loopcoder-v2"
+version = "0.1.0"
+description = "Extending LoopCoder-v2: Only Loop Once for Efficient Test-Time Computation Scaling"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "transformers",
+    "torch",
+    "scikit-learn",
+    "pandas",
+    "datasets",
+    "pytest",
+    "docker",
+    "astunparse",
+    "psutil",
+    "numpy",
+    "scipy",
+    "ruff",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["code*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+select = ["E", "F", "W", "I"]
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+python_files = ["test_*.py"]
+addopts = "-v"

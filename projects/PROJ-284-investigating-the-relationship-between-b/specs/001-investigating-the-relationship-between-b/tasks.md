@@ -1,9 +1,13 @@
+---
+description: "Task list template for feature implementation"
+---
+
 # Tasks: Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Sensorimotor Performance
 
 **Input**: Design documents from `/specs/001-brain-proprioception-correlation/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification. **Note: No test tasks are included in this list as they were not explicitly requested.**
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
@@ -24,9 +28,9 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per implementation plan: `mkdir -p code/data code/analysis code/viz code/report code/tests data/raw data/processed data/analysis logs docs`
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing: `nibabel==5.2.0`, `numpy==1.26.0`, `pandas==2.2.0`, `scikit-learn==1.4.0`, `networkx==3.2.1`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `nilearn==0.10.2`, `requests==2.31.0`, `pytest==7.4.0`, `statsmodels==0.14.1`
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T001 Create project structure per implementation plan: `mkdir -p code/data code/analysis code/viz code/report code/tests data/raw data/processed data/analysis logs docs`
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing: `nibabel==5.2.0`, `numpy==1.26.0`, `pandas==2.2.0`, `scikit-learn==1.4.0`, `networkx==3.2.1`, `matplotlib==3.8.0`, `seaborn==0.13.0`, `nilearn==0.10.2`, `requests==2.31.0`, `pytest==7.4.0`, `statsmodels==0.14.1`, `bctpy==1.0.2`, `openneuro-py==2.0.0`, `hcp==0.0.1`
+- [ ] T003 [P] Configure linting (ruff) and formatting tools
 
 ---
 
@@ -36,12 +40,17 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Setup configuration management (`code/config.py`) with keys: `HCP_CREDENTIALS`, `BATCH_SIZE`, `MEMORY_LIMIT` (7GB), `HCP_API_VERSION`, `SCHAEFER_ATLAS_URL`
+- [ ] T004 Setup configuration management (`code/config.py`) with keys: `HCP_CREDENTIALS`, `BATCH_SIZE`, `MEMORY_LIMIT` (7GB), `HCP_API_VERSION`, `SCHAEFER_ATLAS_URL`, `PCA_COMPONENTS` (2)
+- [ ] T004a [P] Generate `pipeline_config.yaml` documenting the 'QC Only' workflow (skipped steps: motion correction, slice-time, normalization) and checksums for Minimal Preprocessed data to satisfy Constitution Principle VI. **Output**: `pipeline_config.yaml`.
 - [X] T005 [P] Implement memory profiling and dynamic batch sizing utility (`code/utils/memory_monitor.py`)
-- [X] T006 [P] Setup logging infrastructure with structured logging to `logs/pipeline.log`
-- [X] T007 Create base data models (`code/models.py`) with attributes: `Subject` (id, age, sex, motor_score, fd), `ConnectivityMatrix` (data: 400x400 array, atlas_id), `NetworkMetric` (name, value, subject_id), `CorrelationResult` (metric_name, r, p, q, significant, covariate_controlled)
-- [X] T008 Setup data directory structure (`data/raw`, `data/processed`, `data/analysis`) with `.gitignore` rules
-- [X] T009 Configure retry logic with exponential backoff for HCP API requests
+- [ ] T006 [P] Setup logging infrastructure with structured logging to `logs/pipeline.log`
+- [~] T007 Create base data models (`code/models.py`) with attributes: `Subject` (id, age, sex, motor_score, fd), `ConnectivityMatrix` (data: 400x400 array, atlas_id), `NetworkMetric` (name, value, subject_id), `CorrelationResult` (metric_name, r, p, q, significant, covariate_controlled)
+- [~] T008 Setup data directory structure (`data/raw`, `data/processed`, `data/analysis`) with `.gitignore` rules
+- [~] T009 Configure retry logic with exponential backoff for HCP API requests
+- [ ] T056 [P] Implement `pipeline_dag.yaml` defining the strict execution order of all tasks to ensure data flow validity. **Output**: `code/utils/pipeline_dag.yaml`. **DEPENDS ON**: T004, T006.
+- [~] T057 [P] Implement `DAGExecutor` class in `code/main_pipeline.py` to enforce the DAG defined in T056, ensuring tasks run only when dependencies are met. **Output**: `code/main_pipeline.py` (DAGExecutor). **DEPENDS ON**: T056.
+- [~] T058 [P] Implement dependency verification logic in `code/main_pipeline.py` to validate that `data/analysis/` outputs are generated only after `data/raw` and `data/processed` tasks complete. **Output**: `code/main_pipeline.py` (validation logic). **DEPENDS ON**: T057. <!-- FAILED: unspecified -->
+- [ ] T073 [P] Implement CPU-only scaled-down fallback logic in `code/utils/gpu_offload.py`. **CRITICAL**: Must detect `MemoryError` during volume loading, reduce batch size to 1 (or minimal), and re-run the current subject's analysis on the same CPU runner (no external GPU). **Output**: `code/utils/gpu_offload.py`. **DEPENDS ON**: T005.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -49,28 +58,19 @@
 
 ## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Download and preprocess HCP data (prioritizing ICA-FIX derived data) to generate clean time-series. **Must include full raw pipeline execution on CI for validation (FR-007).**
+**Goal**: Download and preprocess HCP data (prioritizing ICA-FIX derived data) to generate clean time-series. **Must include full raw pipeline execution on CI for validation (FR-007) using preprocessed ICA-FIX data for the analysis path; raw preprocessing is local-only.**
 
 **Independent Test**: The pipeline can be fully tested by executing the download and preprocessing scripts on a small subset of HCP data and verifying that output NIfTI files exist with the expected dimensions and that no preprocessing errors are logged.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE**: T010 is a contract test (mocks). T011 is an integration test (requires implementation).
-
-- [X] T010 [P] [US1] Contract test in `tests/unit/test_download.py::test_fetch_returns_nifti_on_success` (mocks HCP API, verifies NIfTI return)
-- [X] T011 [US1] Integration test in `tests/integration/test_preprocessing.py::test_preprocessing_quality_tSNR_motion` (runs T013-T015 on subset, verifies tSNR >= 50 and motion < 0.5mm). **DEPENDS ON**: T013, T014, T015 implementation. <!-- ATOMIZE: requested -->
-
 ### Implementation for User Story 1
 
-- [X] T012 [P] [US1] Implement HCP data fetcher in `code/data/download.py` (supports ICA-FIX verified URLs and raw API fallback). **DEPENDS ON**: T012a. <!-- ATOMIZE: requested -->
-- [X] T012a [US1] Implement Data Availability Switch logic in `code/data/download.py` to detect ICA-FIX availability. **CRITICAL**: Must include a validation step that executes the FULL raw preprocessing pipeline logic (T013-T015) on a subset of subjects on the CI runner to satisfy FR-007's requirement that the entire pipeline is executable. **IF ICA-FIX is available**, use it for the main run. **IF ICA-FIX is NOT available**, switch to raw. **CI VALIDATION**: Since standard `ubuntu-latest` runners lack FSL/AFNI, this task MUST validate the pipeline logic using **synthetic NIfTI data** and mock tool invocations on CI. If the fallback path is triggered on CI, it must run the synthetic validation, not the actual FSL/AFNI binaries. **DEPENDS ON**: T004, T009.
-- [X] T013a [US1] Implement Motion Correction in `code/data/preprocess.py` (fallback-only, subset validation): Use FSL `mcflirt` for motion correction. **LOCAL ONLY**: This task requires FSL installation and Docker or local machine execution; it cannot run on standard `ubuntu-latest` CI. **Output**: `data/processed/sub-XXX_motion_corrected.nii.gz`. **Constraint**: Implement dynamic batch sizing to respect 7GB RAM limit. **DEPENDS ON**: T012a.
-- [X] T013b [US1] Implement Slice-Time Correction & Normalization in `code/data/preprocess.py` (fallback-only, subset validation): Use AFNI `3dTshift` and `3dQwarp` for slice-time correction and normalization to MNI space. **LOCAL ONLY**: Requires AFNI/FSL. **Output**: `data/processed/sub-XXX_normalized.nii.gz`. **Constraint**: Implement dynamic batch sizing to respect 7GB RAM limit. **DEPENDS ON**: T013a.
-- [X] T013c [US1] Implement Smoothing in `code/data/preprocess.py` (fallback-only, subset validation): Use FSL `fslmaths` for smoothing (mm FWHM). **LOCAL ONLY**: Requires FSL. **Output**: `data/processed/sub-XXX_preproc.nii.gz`. **Constraint**: Implement dynamic batch sizing to respect 7GB RAM limit. **DEPENDS ON**: T013b.
-- [X] T014 [US1] Implement tSNR calculator in `code/data/preprocess.py` (mean signal / std dev, excluding initial volumes). **DEPENDS ON**: T013a.
-- [X] T015 [US1] Implement motion parameter validator in `code/data/preprocess.py` (threshold < 0.5mm). **DEPENDS ON**: T013a.
-- [X] T016 [US1] Implement subject exclusion logic for missing behavioral data in `code/data/download.py`. **DEPENDS ON**: T012.
-- [X] T017 [US1] Extract time-series using the Schaefer high-resolution parcellation atlas in `code/data/metrics.py` (apply motion regression). **CRITICAL**: Must explicitly aggregate node-level vectors for Participation Coefficient and Within-Module Degree into a **single scalar per subject** (mean across nodes) as required by FR-003. **Output**: Time-series matrix AND aggregated scalar values for Participation Coefficient and Within-Module Degree. **DEPENDS ON**: T013a (cleaned NIfTI) AND T015 (motion validation).
+- [~] T012 [P] [US1] Implement HCP data fetcher in `code/data/download.py` (supports ICA-FIX verified URLs). **CRITICAL**: Must use streaming for N=5 subset on CI to prevent OOM. **DEPENDS ON**: T004, T009.
+- [~] T014 [US1] Implement tSNR calculator in `code/data/preprocess.py` (mean signal / std dev, excluding the initial volumes). **DEPENDS ON**: T012 (for ICA-FIX data). **Note**: Preprocessing steps (motion correction, etc.) are SKIPPED per Plan; this task performs QC only.
+- [~] T014b [US1] Implement tSNR Evidence Recorder and Subject Filter in `code/data/preprocess.py`. **CRITICAL**: Must calculate tSNR for all subjects, determine the percentage of voxels with tSNR ≥ 50, and **filter** subjects failing the "≥ 90% of voxels" threshold. **Output**: `data/analysis/qc_summary.csv` (counts) AND `data/analysis/subjects_included.csv` (list of valid subject IDs). **DEPENDS ON**: T014.
+- [~] T014a [US1] Implement tSNR threshold enforcement and sample size validation in `code/data/preprocess.py`. **CRITICAL**: Must read `subjects_included.csv` (from T014b). If N < 30, set `validation_status.json` state to 'insufficient_data' and exit with error. If 30 ≤ N < 50, set to 'degraded'. If N ≥ 50, set to 'passed'. **Output**: `validation_status.json`. **DEPENDS ON**: T014b.
+- [~] T015 [US1] Implement motion parameter validator in `code/data/preprocess.py` (threshold < 0.5mm). **Output**: Always write `validation_status.json` with status 'passed', 'failed', or 'skipped'. **DEPENDS ON**: T012 (for ICA-FIX data).
+- [~] T016 [US1] Implement subject exclusion logic for missing behavioral data in `code/data/download.py`. **DEPENDS ON**: T012.
+- [~] T017 [US1] Extract time-series using the Schaefer high-resolution parcellation atlas in `code/data/metrics.py`. **CRITICAL**: Must output the raw time-series matrix (N×T) for each subject. **Output**: Raw time-series matrix (N×T). **DEPENDS ON**: T014b (for valid subject list). **Note**: Data is pre-denoised; no motion regression applied.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -82,23 +82,18 @@
 
 **Independent Test**: The analysis can be tested by running the metric extraction and correlation code on a synthetic dataset with known correlations and verifying that the output statistics match the ground truth within an acceptable tolerance.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T018 [P] [US2] Unit test in `tests/unit/test_metrics.py::test_graph_metrics_match_synthetic_ground_truth` (synthetic matrices, verifies modularity/efficiency) <!-- FAILED: unspecified -->
-- [X] T019 [P] [US2] Integration test in `tests/integration/test_correlations.py::test_correlation_with_synthetic_data` (synthetic data, verifies r, p, q values) <!-- FAILED: unspecified -->
-
 ### Implementation for User Story 2
 
-- [X] T020 [P] [US2] Implement functional connectivity matrix builder (400x400 Pearson) in `code/data/metrics.py`
-- [X] T021 [US2] Implement graph metric extractor (Modularity, Global Efficiency, Participation Coeff, Within-Module Degree) in `code/data/metrics.py`
-- [X] T022 [US2] Implement aggregation logic for node-level metrics (mean across nodes) in `code/data/metrics.py`
-- [ ] T023a [US2] Implement PCA on network metrics in `code/analysis/correlations.py`. **Input**: DataFrame with columns [modularity, global_efficiency, participation_coef, within_module_degree]. **Output**: `data/analysis/pca_loadings.csv` (columns: component_1, component_2) AND `data/analysis/factor_scores.csv` (columns: subject_id, pca_factor_1). **DEPENDS ON**: T021, T022. <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T023b [US2] Implement File Output & Metric Preservation in `code/analysis/correlations.py`. **Logic**: Merge individual metric columns (from T021/T022) with PCA factor scores into a single output DataFrame. **Output**: `data/analysis/full_metrics.csv` containing all raw metrics AND PCA factors to ensure FR-005 (FDR on individual metrics) and FR-004 (report generation) have access to all data. **DEPENDS ON**: T023a, T021, T022. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T024 [US2] Implement Spearman/Pearson correlation with Framewise Displacement (FD) covariate in `code/analysis/correlations.py`. **CRITICAL**: Apply to **individual metrics** (from T021/T022) for FDR correction as required by FR-005. PCA factors are for exploratory multivariate analysis only. **DEPENDS ON**: T021, T022, T023b. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
-- [ ] T025 [US2] Implement Benjamini-Hochberg FDR correction in `code/analysis/correlations.py`. **DEPENDS ON**: T024. <!-- FAILED: unspecified -->
-- [X] T026 [US2] Implement % Confidence Interval calculation in `code/analysis/power.py` to calculate detectable effect size (r) for achieved N at 80% power (α=0.05, FDR corrected). **NOTE**: This replaces the Spec's FR-008 "post-hoc power analysis" per the Implementation Plan's approved technical strategy. **DEPENDS ON**: T024.
-- [ ] T027 [US2] Implement correlation threshold logging (r > 0.3) in `code/analysis/correlations.py` <!-- FAILED: unspecified -->
-- [ ] T028 [US2] Implement dynamic batch sizing for matrix computation to respect memory capacity constraints. in `code/analysis/correlations.py`
+- [~] T020 [P] [US2] Implement functional connectivity matrix builder (400x400 Pearson) in `code/data/metrics.py`. **DEPENDS ON**: T017. <!-- FAILED: unspecified -->
+- [~] T021 [US2] Implement graph metric extractor (Modularity, Participation Coeff, Within-Module Degree, Global Efficiency) in `code/data/metrics.py`. **CRITICAL**: Must explicitly calculate and output Modularity, Participation Coefficient, Within-Module Degree, and **Global Efficiency** (using `bctpy.global_efficiency`). All must be output as scalars or aggregated vectors. **Output**: `data/analysis/metrics_raw.csv` containing these four metrics. **DEPENDS ON**: T020.
+- [~] T022 [US2] Implement aggregation logic for node-level metrics (mean across nodes) in `code/data/metrics.py`. **CRITICAL**: Must read `metrics_raw.csv`, aggregate Participation Coefficient and Within-Module Degree (node-level) into scalars, and pass Modularity, Global Efficiency (already scalars) through unchanged. **CRITICAL**: Must **preserve** the original node-level Participation Coefficient and Within-Module Degree vectors in a separate file `data/analysis/node_metrics_raw.csv` before aggregation to support visualization (T032). **Output**: `data/analysis/aggregated_metrics.csv` (scalar metrics) and `data/analysis/node_metrics_raw.csv` (node-level data). **DEPENDS ON**: T021. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [~] T023a [US2] Implement PCA on network metrics in `code/analysis/correlations.py`. **Input**: `data/analysis/aggregated_metrics.csv`. **Output**: `data/analysis/pca_loadings.csv` and `data/analysis/factor_scores.csv`. **VERIFICATION**: Must assert `pca_loadings.csv` contains exactly 2 components and log variance explained. **DEPENDS ON**: T022.
+- [~] T023b [US2] Implement File Output & Metric Preservation in `code/analysis/correlations.py`. **Input**: `pca_loadings.csv`, `factor_scores.csv`, `aggregated_metrics.csv`. **Output**: `data/analysis/full_metrics.csv`. **SCHEMA**: Must contain columns: `subject_id`, `modularity`, `global_efficiency`, `pc_mean`, `wmd_mean`, `pca_factor_1`, `pca_factor_2`. **DEPENDS ON**: T023a.
+- [~] T024 [US2] Implement Spearman/Pearson correlation with Framewise Displacement (FD) covariate in `code/analysis/correlations.py`. **CRITICAL**: Must control for FD by **regressing out FD** (residualization) from the metrics before correlation, satisfying FR-004 without violating the Plan's rejection of partial correlation. **Output**: Correlation results with r, p, and method logged. **DEPENDS ON**: T023b. <!-- ATOMIZE: requested -->
+- [~] T025 [US2] Implement Benjamini-Hochberg FDR correction in `code/analysis/correlations.py`. **CRITICAL**: Must merge all p-values (from individual metrics and PCA factors) into a single set, apply FDR correction, and output a single `data/analysis/fdr_corrected_results.csv`. **OUTPUT SCHEMA**: Must include `q` (corrected p-value) and **`significant` (boolean, true if q < 0.05)** columns. **DEPENDS ON**: T024. <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
+- [ ] T026 [US2] Implement post-hoc power analysis in `code/analysis/power.py`. **CRITICAL**: Must output `data/analysis/power_analysis.json` containing detectable effect size (r) for N subjects at 80% power, α=0.05, FDR corrected. **DEPENDS ON**: T025. <!-- FAILED-IN-EXECUTION: code/analysis/power.py exit=1 -->
+- [~] T027 [US2] Implement correlation threshold logging (r > 0.3) in `code/analysis/correlations.py`. <!-- ATOMIZE: requested -->
+- [ ] T028 [US2] Implement dynamic batch sizing for matrix computation to respect memory capacity constraints. **CRITICAL**: Must implement **CPU-first** logic with a **CPU fallback**: if `MemoryError` is detected during fMRI volume loading, trigger the scaled-down fallback script (`code/utils/gpu_offload.py` - T073) to process a scaled-down subset on the same runner. **DEPENDS ON**: T005, T073.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -110,18 +105,16 @@
 
 **Independent Test**: The visualization module can be tested by running the plotting code on a dummy correlation result and verifying that the output image files (PNG/PDF) are generated, labeled correctly with axis titles and p-values, and saved to the designated output directory.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T029 [P] [US3] Unit test in `tests/unit/test_viz.py::test_scatter_plot_generates_png_with_annotations` (dummy data, verifies file output and labels)
-- [X] T030 [P] [US3] Integration test in `tests/integration/test_report.py::test_report_generates_markdown_with_all_sections` (dummy results, verifies template injection)
-
 ### Implementation for User Story 3
 
-- [ ] T031 [US3] Implement scatter plot generator (metric vs. score, regression line, annotated r/q) in `code/viz/scatter.py`. **DEPENDS ON**: T024, T025. <!-- FAILED: unspecified -->
-- [ ] T032 [US3] Implement network diagram generator (module coloring, significant edges) in `code/viz/network.py`. **DEPENDS ON**: T024, T025. <!-- FAILED: unspecified -->
-- [X] T033 [US3] Implement report generator in `code/report/generate.py` (Markdown/PDF assembly). **Template**: `templates/report_template.md`. **Variables**: `{{correlation_table}}`, `{{power_analysis}}`, `{{plots}}`, `{{limitations}}`. **Sections**: Must include explicit "Limitation Statement" text: "Motor Task Performance is a proxy for proprioceptive accuracy." Must include "Associational Relationship" phrase: "associational relationship" OR "correlational evidence" in conclusion. **CRITICAL**: Ensure correlation results (from T024) trigger the "associational relationship" phrasing in the conclusion. **DEPENDS ON**: T031, T032, T026, T025. <!-- FAILED: unspecified -->
-
-**Checkpoint**: All user stories should now be independently functional
+- [~] T031 [US3] Implement scatter plot generator (metric vs. score, regression line, annotated r/q) in `code/viz/scatter.py`.
+- [~] T032 [US3] Implement network diagram generator (module coloring, significant edges) in `code/viz/network.py`. **CRITICAL**: Must load `data/analysis/fdr_corrected_results.csv` (T025) to identify significant *metrics* and highlight the corresponding sensorimotor modules in the network diagram (using `data/analysis/node_metrics_raw.csv` for node colors). **Output**: `reports/plots/network_significant.png`. **DEPENDS ON**: T025, T021, T022.
+- [~] T033 [US3] Implement report generator in `code/report/generate.py` (Markdown/PDF assembly). **CRITICAL**: Must programmatically:
+ 1. Load `data/analysis/power_analysis.json` (from T026) and format the 'detectable effect size' into the report text.
+ 2. Inject the phrase "associational relationship" or "correlational evidence" into the conclusion.
+ 3. Include the limitation statement regarding Motor Task Performance as a proxy.
+ 4. **Assert** that the phrase "associational relationship" or "correlational evidence" is present in the final string before writing `reports/summary.md`. If absent, raise an error.
+ **Output**: `reports/summary.md`. **DEPENDS ON**: T025, T026.
 
 ---
 
@@ -129,101 +122,35 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T037 [P] Documentation updates in `docs/` and `README.md`
-- [X] T038 Code cleanup and refactoring
-- [X] T039 Performance optimization (batching logic verification)
-- [X] T040 [P] Additional unit tests (if requested) in `tests/unit/`
-- [X] T041 Security hardening (API credential handling)
-- [X] T042 Run quickstart.md validation
+- [~] T037 [P] Documentation updates in `docs/` and `README.md`
+- [~] T038 Code cleanup and refactoring
+- [~] T039 Performance optimization (batching logic verification)
+- [~] T041 Security hardening (API credential handling)
+- [~] T042 Run quickstart.md validation
+- [~] T055 [US2] Implement FDR threshold logging in `code/analysis/correlations.py` to log `q < 0.05` used in analysis log and report. **DEPENDS ON**: T025. <!-- FAILED: unspecified -->
 
 ---
 
-## Dependencies & Execution Order
+## Phase X: Testing (Optional)
 
-### Phase Dependencies
+**Purpose**: Test tasks are included here for reference. They are OPTIONAL and should only be uncommented if tests are explicitly requested. **Note: No test tasks are included in this list.**
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
+- [~] T061 Reconcile run-book vs implementation for `code/download/fetch_openneuro.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/download/fetch_openneuro.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [~] T062 Reconcile run-book vs implementation for `code/download/fetch_hcp_behavioral.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/download/fetch_hcp_behavioral.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [~] T063 Reconcile run-book vs implementation for `code/preprocess/run_qc_only.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/preprocess/run_qc_only.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [~] T064 Reconcile run-book vs implementation for `code/viz/generate_report.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/viz/generate_report.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [~] T065 Reconcile run-book vs implementation for `code/utils/checksums.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/utils/checksums.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
 
-### User Story Dependencies
+<!-- New tasks to create the missing scripts referenced in T061-T065 -->
+- [~] T066 Create `code/download/fetch_openneuro.py` to implement the OpenNeuro download logic referenced in the run-book. **Functional Requirements**: Must implement `fetch_subject_data(subject_id)` returning NIfTI path and checksum. **Input**: `subject_id`. **Output**: `NIfTI` file path, `checksum`. **DEPENDS ON**: T012.
+- [~] T067 Create `code/download/fetch_hcp_behavioral.py` to implement the HCP behavioral download logic referenced in the run-book. **Functional Requirements**: Must implement `fetch_behavioral_data(subject_id)` returning dict of scores. **Input**: `subject_id`. **Output**: `dict` of behavioral scores. **DEPENDS ON**: T012.
+- [~] T068 Create `code/preprocess/run_qc_only.py` to implement the QC-only pipeline referenced in the run-book. **Functional Requirements**: Must implement `run_qc(nifti_path)` returning tSNR and FD. **Input**: `NIfTI` path. **Output**: `dict` of QC metrics. **DEPENDS ON**: T014, T015.
+- [~] T069 Create `code/viz/generate_report.py` to implement the report generation logic referenced in the run-book. **Functional Requirements**: Must implement `generate_report(results)` returning Markdown string. **Input**: `dict` of analysis results. **Output**: `str` (Markdown). **DEPENDS ON**: T033.
+- [~] T070 Create `code/utils/checksums.py` to implement the checksum utility referenced in the run-book. **Functional Requirements**: Must implement `calculate_checksum(file_path)` returning SHA-256 hash. **Input**: `file_path`. **Output**: `str` (hash). **DEPENDS ON**: T008.
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 analysis output
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for HCP data fetch in tests/unit/test_download.py::test_fetch_returns_nifti_on_success"
-
-# Launch all models for User Story 1 together:
-Task: "Create base data models in code/models.py"
-Task: "Implement HCP data fetcher in code/data/download.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (including T012a validation)
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+<!-- Revision Round 1: Addressing Data Flow and Resource Constraints -->
+- [~] T071 [US1] Implement robust HCP credential validation and rate-limiting handler in `code/data/download.py`. **CRITICAL**: Must implement exponential backoff (2s, 4s, 8s) on 403/429 errors as per Edge Cases. Must raise a clear error if credentials are invalid rather than silently failing. **DEPENDS ON**: T012. <!-- FAILED: unspecified -->
+- [~] T072 [US2] Implement strict memory guardrails in `code/analysis/correlations.py` to prevent OOM during matrix operations. **CRITICAL**: Must enforce `float32` precision for all intermediate arrays and explicitly call `gc.collect()` after each subject's matrix is processed. **DEPENDS ON**: T020.
+- [~] T074 [US3] Implement dynamic sample size reporting in `code/report/generate.py`. **CRITICAL**: Must read `validation_status.json` and `qc_summary.csv` to dynamically insert the actual N (subjects processed) and the number of excluded subjects into the final report, ensuring transparency as per FR-001. **DEPENDS ON**: T033.
+- [~] T075 [US1] Implement explicit "No Data" handling in `code/data/download.py`. **CRITICAL**: If the HCP API returns no subjects matching the criteria after retries, the script must log a clear "NO_DATA_FOUND" error and exit gracefully with status code 1, rather than proceeding with an empty dataset which would cause downstream failures. **DEPENDS ON**: T012. <!-- FAILED: unspecified -->

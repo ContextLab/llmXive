@@ -1,0 +1,142 @@
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `code/models/` directory or any schema files for `SegregationProfile`, `AlloySystem`,\
+    \ or `RegressionModel` are present in the provided evidence; the task\u2019s core\
+    \ deliverable is missing."
+T010:
+  c: false
+  h: 3606952983627e0ead819890fe893b919d5c09c14580d54aff21887c1ab0e2cc
+  r: The required file `tests/unit/test_mclean.py` does not exist in the repository,
+    so no unit test for the McLean isotherm calculation is present. The implementer
+    must add this test file with appropriate test cases.
+T013:
+  c: false
+  h: 8d534252cb2540b65102cac7363f9675fe3c033b5f878bfd435b9c469021a447
+  r: "The required artifact `data/raw/dft_energies.json` is missing entirely, so the\
+    \ implementer cannot verify that it lacks `MISSING_SOURCE: true` nor demonstrate\
+    \ the abort behavior. The task\u2019s core requirement is therefore unmet."
+T013b:
+  c: false
+  h: 6aaef090a006442e35a76c1e19ddb47104f740b35239c5b38a1faaddba64e67b
+  r: "The `load_dft_energies.py` script is present, but the required source file `data/raw/dft_energies.json`\
+    \ does not exist, so the function cannot actually load any DFT energies (it would\
+    \ raise `DataLoadError`). No placeholder file is provided either, meaning the\
+    \ implementation cannot satisfy the task\u2019s core requirement."
+T021a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or result files were provided that show interaction terms were\
+    \ generated, a regression model was built, or statistical metrics (p\u2011values,\
+    \ MSE reduction) were computed. Consequently the required evidence for User Story\u202F\
+    2 is missing."
+T028:
+  c: false
+  h: fe59c307b21ee5c6d11197581059e6a75a03b838e0ce1a26078573942a8db113
+  r: "The required artifact `tests/integration/test_us3_validation.py` does not exist\
+    \ in the repository, so the integration test for cross\u2011validation metrics\
+    \ is missing. The task cannot be considered completed until this file is added\
+    \ with the appropriate test implementation."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No log or data file showing per\u2011fold R\xB2 and MSE values, nor the computed\
+    \ mean and standard deviation, was provided. Consequently the required output\
+    \ (\u201CMean R\xB2: X, Std Dev: Y\u201D with a flag for Std\u202FDev\u202F>\u202F\
+    0.05) cannot be verified. The implementer must supply the actual calculation results\
+    \ and the corresponding log entry."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, logs, or result reports were presented showing that a model\
+    \ was trained on the Fe\u2011Cr\u2011Mo dataset and evaluated on a held\u2011\
+    out Fe\u2011Cr\u2011V subset. The required transferability check artifact is missing,\
+    \ so the task\u2019s requirement is not satisfied."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, configuration, or documentation implementing overfitting detection\
+    \ (high training / low validation score) and flagging was provided. The only artifacts\
+    \ shown are the unrelated grain\u2011boundary segregation specifications, so the\
+    \ required logic is missing."
+T045a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only the task description and user stories but no actual\
+    \ artifacts\u2014no list, table, or report confirming the NIST APT accession IDs\
+    \ for the specified binary systems, nor any evidence of verification steps. Consequently,\
+    \ the requirement to verify and document those accession IDs is unmet."
+T045c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No list of peer\u2011reviewed literature sources or DOIs for ternary APT datasets\
+    \ (e.g., Fe\u2011Cr\u2011Mo) was provided; the response contains only the task\
+    \ description and no actual artifact fulfilling the requirement."
+T045e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CALPHAD database file, download logs, checksum verification, or any other\
+    \ artifact was presented. The implementer did not supply the required TCFE9 (or\
+    \ open subset) file nor evidence that it was fetched and verified, so the task\u2019\
+    s core requirement is unmet."
+T045f:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact containing the fetched DFT segregation energies (e.g., a data file,\
+    \ table, or documented list with citations and verification checks) was provided.\
+    \ Consequently, the requirement to fetch and verify pre\u2011computed DFT segregation\
+    \ energies from the literature is not satisfied. The implementer must supply the\
+    \ actual energy values and evidence of their verification."
+T047b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or output manifest was provided that demonstrates handling of
+    missing ternary interaction parameters, performing linear interpolation with `sklearn.linear_model.LinearRegression`,
+    raising the required warning, and setting the `"NO_TERNARY_DATA"` flag. The evidence
+    consists only of the task description and project spec, without any concrete implementation
+    artifact.
+T049b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or output artifacts were provided to demonstrate that the\
+    \ supercell metadata has been linked to a DFT energy lookup, nor any evidence\
+    \ that the required segregation\u2011energy calculations or McLean isotherm outputs\
+    \ were generated. The implementer must supply the implementation (e.g., a script\
+    \ or module) and example output files showing successful extraction of DFT energies\
+    \ and computed segregation profiles."
+T055b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides only the task description and no actual artifact (e.g., a
+    results file, script, or notebook) showing computed RMSE and MAE for the binary
+    validation. Without any concrete output or code, the requirement cannot be verified.
+    The missing deliverable is the evidence of the computed metrics.
+T091:
+  c: false
+  h: 8ec0f7e17e3a841b74d93560efbd95a495a86fc3ad2711cc82ead93c6fa946c9
+  r: "The script `data/generate_ground_truth.py` is present, but the required output\
+    \ file `data/raw/generated_ground_truth.csv` does not exist, and there is no evidence\
+    \ that the script was executed or that a checksum was verified. The task\u2019\
+    s core deliverable is therefore missing."
+T095b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only a textual description of the task and its context;\
+    \ there is no actual artifact (e.g., script, notebook, results file, or figure)\
+    \ showing regression coefficients being compared to the injected ground\u2011\
+    truth from T091. Consequently, the required output for pipeline validation is\
+    \ missing."
+T095f:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, data files, or generated reports were provided; the claim lacks any
+    tangible artifact (e.g., segregation energy output, equilibrium concentration
+    file, error handling logs, or analysis results) required by the user stories.
+    Consequently, the task requirements are not demonstrably met.
+T096:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `research/validation_report.md` file was presented or described, and no summary
+    of the required validation results is available. The implementer must provide
+    the markdown report containing the parameter recovery, experimental validation,
+    statistical significance, and surrogate model confirmation.

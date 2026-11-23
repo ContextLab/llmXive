@@ -146,3 +146,1306 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-13T09:35:22Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Baseline agent uses Llama-3-8B-Quantized with max_tokens=512 and temperature=0.7
+  claim_id: c_4e1a4d37
+  context: 'T012 [US1] Implement baseline agent in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/baseline.py`
+    using internal LLM reasoning only (no external index access). **Model**: Llama-3-8B-Quantized
+    (4-bit if available on CPU, else 8-bit), **Params**: max_tokens=512, temperature=0.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses Llama-3-8B-Quantized (4-bit if available on CPU, else
+    8-bit) with max_tokens=512 and temperature=0.7 for the baseline agent.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:36:09Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Synthetic failure injection uses random seed 42
+  claim_id: c_21a9b753
+  context: 'T009a [P] Implement synthetic failure injection in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/injector.py`:
+    Load raw data, select a subset of tasks with ''success'' ground truth (using random
+    seed 42, targeting a significant proportion of success tasks), inject deterministic
+    error patterns...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic failure injection uses random seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:36:49Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Dependencies pinned to datasets 2.14.0, transformers 4.35.0, torch 2.1.0,
+    scikit-learn 1.3.0, pandas 2.1.0, pytest 7.4.0, requests 2.31.0
+  claim_id: c_26185305
+  context: 'T001b Create `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt`
+    with pinned versions: `datasets==2.14.0`, `transformers==4.35.0`, `torch==2.1.0`,
+    `scikit-learn==1.3.0`, `pandas==2.1.0`, `pytest==7.4.0`, `requests==2.31.0`'
+  evidence:
+    asserted: '2.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins datasets==2.14.0, transformers==4.35.0,
+    torch==2.1.0, scikit-learn==1.3.0, pandas==2.1.0, pytest==7.4.0, and requests==2.31.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-19T18:36:49Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Statistical analysis uses Fisher's Exact test for n < 30, otherwise two-proportion
+    z-test
+  claim_id: c_9184b4e1
+  context: 'T023 [P] [US3] Implement statistical analysis module in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/analysis/stats.py`:
+    **Logic**: Count events from logs. If n < 30, use `scipy.stats.fisher_exact`;
+    otherwise, use `scipy.stats.proportions_ztest`. Output p-value and test type.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis uses Fisher's Exact test if n < 30, otherwise
+    a two-proportion z-test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:36:49Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Augmented agent requires 100% match threshold to trigger recovery
+  claim_id: c_2ce74bcc
+  context: 'T018 [US2] Implement augmented agent in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/augmented.py`
+    with string-matching check against `data/derived/failure_signatures.json` post-invocation.
+    **Matching**: Exact string match or regex if pattern contains wildcards. **Threshold**:
+    100% match required to trigger recovery.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The augmented agent requires a 100% match threshold to trigger recovery.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:36:49Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: LLM inference constrained to 7GB RAM limit
+  claim_id: c_c33eba2c
+  context: '**CRITICAL**: Ensure the LLM used for agents is CPU-tractable (e.g., quantized
+    4-bit/8-bit if available on CPU, or a smaller model like Llama-3-8B on CPU) to
+    fit within 7GB RAM and 6-hour runtime.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/LLM_inference_constrained_to_7GB_RAM_limit
+  kind: entity_fact
+  raw_text: The LLM inference must fit within a 7GB RAM limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:37:16Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: End-to-end reproducibility validation within 6 hours
+  claim_id: c_06504add
+  context: 'T032 Run `quickstart.md` validation to ensure end-to-end reproducibility
+    within 6 hours <!-- ATOMIZE: requested -->'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The end-to-end reproducibility validation must complete within 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-19T18:37:36Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: PlanBench-XL source is HuggingFace repository PlanBench/planbench-xl
+  claim_id: c_611bf60c
+  context: Implement data loader in projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/loader.py
+    to download PlanBench-XL from the official HuggingFace repository PlanBench/planbench-xl.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PlanBench-XL_source_is_HuggingFace_repository_PlanBench/plan
+  kind: entity_fact
+  raw_text: Download PlanBench-XL from the official HuggingFace repository PlanBench/planbench-xl.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:32:27Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: PlanBench-XL dataset lacks implicit failure labels
+  claim_id: c_de01180c
+  context: 'Constraint: Do NOT attempt to extract ''real'' failures; the subset is
+    created by injection to simulate the condition, as the dataset lacks explicit
+    ''implicit failure'' labels.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PlanBench-XL_dataset_lacks_implicit_failure_labels
+  kind: entity_fact
+  raw_text: The dataset PlanBench-XL lacks explicit implicit failure labels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:33:09Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Select first 50 success tasks for synthetic failure injection
+  claim_id: c_ee49bab5
+  context: 'Implement synthetic failure injection in projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/injector.py:
+    Load raw data from data/raw/ (buffering only the selected subset), select the
+    first N tasks (N=50) where ground_truth == success using a fixed random seed and
+    deterministic iteration order.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Select the first 50 tasks where ground_truth equals success for synthetic
+    failure injection.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:33:30Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Deterministic selection uses seed 42 for tasks T009a and T009b
+  claim_id: c_8ebbf320
+  context: 'CRITICAL: Tasks T009a and T009b must use a deterministic selection rule
+    (seed=42) to ensure reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a fixed random seed of 42 for deterministic selection in tasks T009a
+    and T009b.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:34:00Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Fisher's Exact Test used if n < 30
+  claim_id: c_e43b2e21
+  context: 'Implement statistical analysis module in projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/analysis/stats.py:
+    IF n < 30, perform Fisher''s Exact Test using scipy.stats.fisher_exact.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fisher's_Exact_Test_used_if_n_%3C_30
+  kind: magnitude
+  raw_text: Perform Fisher's Exact Test if the number of tasks n is less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:35:07Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Experiment duration limit is 6 hours
+  claim_id: c_d21daa75
+  context: 'Constraint: This task must execute T013 and T020 to generate the logs
+    required by T024/T025. Timing: Must measure total duration, log it, and compare
+    against the 6-hour SC-004 limit.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Duration: 6 hours (8 pm \u2013 2 am)."
+      source_id: Rhythm 0
+      url: https://en.wikipedia.org/wiki/Rhythm_0
+      value: 6 hours
+    filled: true
+  kind: numeric
+  raw_text: The experiment must complete within a 6-hour limit.
+  resolved_value: 6 hours
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T12:35:48Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Peak RAM usage limit is 7GB
+  claim_id: c_5f6b5189
+  context: 'Constraint: Must explicitly measure peak memory, log the specific value
+    (e.g., ''Peak RAM: 6.2 GB''), and validate against the 7GB SC-005 limit.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RAM_usage_limit_is_7GB
+  kind: entity_fact
+  raw_text: The peak RAM usage must stay within a 7GB limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:36:21Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: 'Dependency versions: datasets 2.14.0, transformers 4.35.0, torch 2.1.0,
+    scikit-learn 1.3.0, pandas 2.1.0, pytest 7.4.0, requests 2.31.0, scipy 1.11.0,
+    bitsandbytes 0.41.0'
+  claim_id: c_a77e42a8
+  context: 'Create projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt
+    with pinned versions: datasets==2.14.0, transformers==4.35.0, torch==2.1.0, scikit-learn==1.3.0,
+    pandas==2.1.0, pytest==7.4.0, requests==2.31.0, scipy==1.11.0, bitsandbytes==0.41.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use datasets==2.14.0, transformers==4.35.0, torch==2.1.0, scikit-learn==1.3.0,
+    pandas==2.1.0, pytest==7.4.0, requests==2.31.0, scipy==1.11.0, and bitsandbytes==0.41.0
+    as dependencies.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:37:02Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Execution environment provides access to PlanBench/planbench-xl dataset
+  claim_id: c_9dabea47
+  context: 'T008 requires downloading PlanBench-XL from the official HuggingFace repository
+    PlanBench/planbench-xl. Note: The execution environment must provide access to
+    this verified real data source.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Execution_environment_provides_access_to_PlanBench/planbench
+  kind: entity_fact
+  raw_text: The execution environment must provide access to the verified real data
+    source PlanBench/planbench-xl.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:44:36Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Synthetic failure injection selects first 50 success tasks
+  claim_id: c_4cfc1c37
+  context: 'T009a: Load raw data, select the first N tasks (N=50) where ground_truth
+    == success using a fixed random seed and deterministic iteration order, and programmatically
+    inject specific error patterns.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic failure injection selects the first N tasks (N=50) where
+    ground_truth == success.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:44:36Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Baseline agent uses meta-llama/Meta-Llama-3-8B model
+  claim_id: c_1c429fa9
+  context: 'T012: Implement baseline agent using internal LLM reasoning only. Model:
+    meta-llama/Meta-Llama-3-8B with bitsandbytes quantization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline agent uses the meta-llama/Meta-Llama-3-8B model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:44:58Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Fisher's Exact Test used when n < 30
+  claim_id: c_52f09a40
+  context: 'T023: IF n < 30, perform Fisher''s Exact Test using scipy.stats.fisher_exact.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis performs Fisher's Exact Test if n < 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:44:59Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Two-proportion z-test used when n >= 30
+  claim_id: c_0d91bda7
+  context: 'T023: ELSE, perform two-proportion z-test using scipy.stats.proportions_ztest.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis performs a two-proportion z-test if n >= 30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:45:20Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Experiment execution time limit is 6 hours
+  claim_id: c_0a9ca699
+  context: 'T026a: Compare against the 6-hour SC-004 limit. T033: Compare against
+    the 6-hour SC-004 limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The experiment execution time must be validated against a 6-hour limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:45:40Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Memory usage limit is 7 GB
+  claim_id: c_744ca580
+  context: 'T030a: Validate against the 7GB SC-005 limit. T030b: Verify memory usage
+    stays within 7GB limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The memory usage must be validated against a 7GB limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:45:57Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Synthetic injection uses random seed 42
+  claim_id: c_1aeb0d65
+  context: 'Notes: Tasks T009a and T009b must use a deterministic selection rule (seed=42)
+    to ensure reproducibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic injection logic uses a fixed random seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:46:24Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: PlanBench-XL hosted at PlanBench/planbench-xl on HuggingFace
+  claim_id: c_cfcf1fef
+  context: 'T008: Implement data loader to download PlanBench-XL from the official
+    HuggingFace repository PlanBench/planbench-xl.'
+  evidence:
+    entailment_evidence: PlanBench-XL hosted at PlanBench/planbench-xl on HuggingFace
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/PlanBench-XL_hosted_at_PlanBench/planbench-xl_on_HuggingFace
+  kind: entity_fact
+  raw_text: The dataset PlanBench-XL is hosted on HuggingFace under the repository
+    name PlanBench/planbench-xl.
+  resolved_value: PlanBench-XL hosted at PlanBench/planbench-xl on HuggingFace
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T12:46:26Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 0
+  canonical: Experiment time limit is 6 hours
+  claim_id: c_43620613
+  context: 'Constraint: This task must execute T013 and T020 to generate the logs
+    required by T024/T025. Timing: Must measure total duration, log it, and compare
+    against the 6-hour SC-004 limit.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Duration: 6 hours (8 pm \u2013 2 am)."
+      source_id: Rhythm 0
+      url: https://en.wikipedia.org/wiki/Rhythm_0
+      value: 6 hours
+    filled: true
+  kind: numeric
+  raw_text: The experiment must complete within a 6-hour limit.
+  resolved_value: 6 hours
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T12:49:07Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: PlanBench-XL source is PlanBench/planbench-xl on HuggingFace
+  claim_id: c_db7b5fed
+  context: Implement data loader in projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/loader.py
+    to download PlanBench-XL from the official HuggingFace repository PlanBench/planbench-xl.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PlanBench-XL_source_is_PlanBench/planbench-xl_on_HuggingFace
+  kind: entity_fact
+  raw_text: Download PlanBench-XL from the official HuggingFace repository PlanBench/planbench-xl.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:49:12Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 2
+  canonical: Baseline agent uses meta-llama/Meta-Llama-3-8B model
+  claim_id: c_dc5a94e0
+  context: 'Implement baseline agent in projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/baseline.py
+    using internal LLM reasoning only (no external index access). Model: meta-llama/Meta-Llama-3-8B
+    with bitsandbytes quantization (load_in_bit=True) for CPU feasibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use the model meta-llama/Meta-Llama-3-8B with bitsandbytes quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:49:12Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: 'Baseline agent parameters: max_tokens=512, temperature=0.7'
+  claim_id: c_721172f0
+  context: 'Model: meta-llama/Meta-Llama-3-8B with bitsandbytes quantization (load_in_bit=True)
+    for CPU feasibility. Params: max_tokens=512, temperature=0.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline agent is configured with max_tokens=512 and temperature=0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:49:29Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: System memory limit is 7 GB
+  claim_id: c_e8442893
+  context: 'Constraint: Must explicitly measure peak memory, log the specific value
+    (e.g., ''Peak RAM: 6.2 GB''), and validate against the 7GB SC-005 limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must operate within a 7GB RAM limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:49:55Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Synthetic failure injection selects 50 tasks
+  claim_id: c_f92da3c6
+  context: 'Implement synthetic failure injection in projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/injector.py:
+    Load raw data from data/raw/ (buffering only the selected subset), select the
+    first N tasks (N=50) where ground_truth == success using a fixed random seed and
+    deterministic iteration order...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic failure injection selects the first 50 tasks where ground_truth
+    equals success.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:49:55Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Synthetic failure injection uses random seed 42
+  claim_id: c_f92519a9
+  context: Tasks T009a and T009b must use a deterministic selection rule (seed=42)
+    to ensure reproducibility.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Synthetic failure injection uses a fixed random seed of 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:50:21Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Fisher's Exact Test used when task count < 30
+  claim_id: c_e967a3a4
+  context: 'Logic: Count events from logs. Let n = total number of tasks in the subset.
+    IF n < 30, perform Fisher''s Exact Test using scipy.stats.fisher_exact.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fisher's_Exact_Test_used_when_task_count_%3C_30
+  kind: magnitude
+  raw_text: Statistical analysis uses Fisher's Exact Test if the number of tasks is
+    less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:50:48Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Two-proportion z-test used when task count >= 30
+  claim_id: c_6c8f80aa
+  context: IF n < 30, perform Fisher's Exact Test using scipy.stats.fisher_exact.
+    ELSE, perform two-proportion z-test using scipy.stats.proportions_ztest.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical analysis uses a two-proportion z-test if the number of tasks
+    is 30 or more.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:52:57Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Data loader uses streaming mode
+  claim_id: c_4214f479
+  context: 'Constraint: Must use datasets.load_dataset(..., streaming=True) to handle
+    large datasets within RAM limits.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loader_uses_streaming_mode
+  kind: entity_fact
+  raw_text: The data loader uses streaming=True to handle large datasets within RAM
+    limits.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T12:53:52Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: datasets version is 2.14.0
+  claim_id: c_9bbd49da
+  context: 'Create projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt
+    with pinned versions: datasets==2.14.0...'
+  evidence:
+    asserted: '2.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins datasets to version 2.14.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T12:53:52Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: transformers version is 4.35.0
+  claim_id: c_c0da2ebd
+  context: 'Create projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt
+    with pinned versions: ...transformers==4.35.0...'
+  evidence:
+    asserted: '4.35'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins transformers to version 4.35.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T12:53:52Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: torch version is 2.1.0
+  claim_id: c_e3f1eeca
+  context: 'Create projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt
+    with pinned versions: ...torch==2.1.0...'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins torch to version 2.1.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T12:53:53Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: scikit-learn version is 1.3.0
+  claim_id: c_035c19df
+  context: 'Create projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt
+    with pinned versions: ...scikit-learn==1.3.0...'
+  evidence:
+    asserted: '1.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins scikit-learn to version 1.3.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T12:53:53Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: pandas version is 2.1.0
+  claim_id: c_9ff34664
+  context: 'Create projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt
+    with pinned versions: ...pandas==2.1.0...'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins pandas to version 2.1.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T12:53:53Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: pytest version is 7.4.0
+  claim_id: c_e3a906c5
+  context: 'Create projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt
+    with pinned versions: ...pytest==7.4.0...'
+  evidence:
+    asserted: '7.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins pytest to version 7.4.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T12:53:53Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: requests version is 2.31.0
+  claim_id: c_b9e4fc10
+  context: 'Create projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt
+    with pinned versions: ...requests==2.31.0...'
+  evidence:
+    asserted: '2.31'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins requests to version 2.31.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T12:53:53Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: scipy version is 1.11.0
+  claim_id: c_127994e2
+  context: 'Create projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt
+    with pinned versions: ...scipy==1.11.0...'
+  evidence:
+    asserted: '1.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins scipy to version 1.11.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T12:53:53Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: bitsandbytes version is 0.41.0
+  claim_id: c_5a6aabf3
+  context: 'Create projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt
+    with pinned versions: ...bitsandbytes==0.41.0'
+  evidence:
+    asserted: '0.41'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The requirements.txt file pins bitsandbytes to version 0.41.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T12:53:53Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: PlanBench-XL dataset location HuggingFace PlanBench/planbench-xl
+  claim_id: c_ef2bdb47
+  context: Implement data loader in code/dataset/loader.py to download PlanBench-XL
+    from the official HuggingFace repository PlanBench/planbench-xl.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PlanBench-XL_dataset_location_HuggingFace_PlanBench/planbenc
+  kind: entity_fact
+  raw_text: The PlanBench-XL dataset is available from the official HuggingFace repository
+    PlanBench/planbench-xl.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T21:59:22Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: meta-llama/Meta-Llama-3-8B model usage
+  claim_id: c_cf18a5b0
+  context: 'Implement baseline agent in code/agents/baseline.py using internal LLM
+    reasoning only (no external index access). Model: meta-llama/Meta-Llama-3-8B with
+    bitsandbytes quantization (load_in_bit=True) for CPU feasibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The experiment uses the meta-llama/Meta-Llama-3-8B model.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T21:59:47Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Fisher's Exact Test condition n < 30
+  claim_id: c_4b60af98
+  context: IF n < 30, perform Fisher's Exact Test using scipy.stats.fisher_exact.
+    ELSE, perform two-proportion z-test using scipy.stats.proportions_ztest.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fisher's_Exact_Test_condition_n_%3C_30
+  kind: magnitude
+  raw_text: The statistical analysis logic uses Fisher's Exact Test if the number
+    of tasks is less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:00:34Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: two-proportion z-test condition n >= 30
+  claim_id: c_8cadf867
+  context: IF n < 30, perform Fisher's Exact Test using scipy.stats.fisher_exact.
+    ELSE, perform two-proportion z-test using scipy.stats.proportions_ztest.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis logic uses a two-proportion z-test if the number
+    of tasks is 30 or greater.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:01:25Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: 6-hour experiment runtime limit
+  claim_id: c_2de02705
+  context: 'This task must execute T013 and T020 to generate the logs required by
+    T024/T025. Timing: Must measure total duration, log it, and compare against the
+    6-hour SC-004 limit.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The experiment execution is constrained to a 6-hour runtime limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:01:52Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: 7GB RAM experiment limit
+  claim_id: c_156fd8d0
+  context: 'Must explicitly measure peak memory, log the specific value (e.g., ''Peak
+    RAM: 6.2 GB''), and validate against the 7GB SC-005 limit.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/7GB_RAM_experiment_limit
+  kind: entity_fact
+  raw_text: The experiment execution is constrained to a 7GB RAM limit.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:02:26Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: synthetic failure injection selects first 50 success tasks
+  claim_id: c_46fec8b9
+  context: Load raw data from data/raw/ (buffering only the selected subset), select
+    the first N tasks (N=50) where ground_truth == success using a fixed random seed
+    and deterministic iteration order.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic failure injection selects the first 50 tasks where ground_truth
+    equals success.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:02:55Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: PlanBench-XL lacks implicit failure labels
+  claim_id: c_dcc8912f
+  context: Do NOT attempt to extract 'real' failures; the subset is created by injection
+    to simulate the condition, as the dataset lacks explicit 'implicit failure' labels.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PlanBench-XL_lacks_implicit_failure_labels
+  kind: entity_fact
+  raw_text: The PlanBench-XL dataset lacks explicit 'implicit failure' labels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:03:28Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: baseline agent max_tokens 512 temperature 0.7
+  claim_id: c_8bd85f14
+  context: 'Params: max_tokens=512, temperature=0.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline agent model parameters include max_tokens=512 and temperature=0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:04:00Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: baseline agent temperature 0.7
+  claim_id: c_a8662a07
+  context: 'Params: max_tokens=512, temperature=0.7.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: ent temperatures (0.2, 0.5, and 0.7). This allows
+      source_id: '2402.11651'
+      url: https://arxiv.org/abs/2402.11651
+      value: '0.7'
+    filled: true
+  kind: numeric
+  raw_text: The baseline agent model parameters include temperature=0.7.
+  resolved_value: '0.7'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-05T22:04:32Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: PlanBench-XL available on HuggingFace under PlanBench/planbench-xl
+  claim_id: c_180d2556
+  context: Implement data loader in code/dataset/loader.py to download PlanBench-XL
+    from the official HuggingFace repository PlanBench/planbench-xl.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PlanBench-XL_available_on_HuggingFace_under_PlanBench/planbe
+  kind: entity_fact
+  raw_text: The dataset PlanBench-XL is available from the official HuggingFace repository
+    PlanBench/planbench-xl.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:05:16Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: meta-llama/Meta-Llama-3-8B used with bitsandbytes quantization
+  claim_id: c_c37edc9c
+  context: 'Model: meta-llama/Meta-Llama-3-8B with bitsandbytes quantization (load_in_bit=True)
+    for CPU feasibility.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model meta-llama/Meta-Llama-3-8B is used with bitsandbytes quantization
+    for CPU feasibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:05:40Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Experiment execution time limit is 6 hours
+  claim_id: c_b4ac3a59
+  context: Must measure total duration, log it, and compare against the 6-hour SC-004
+    limit.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The experiment execution time limit is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:06:00Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Memory usage limit is 7GB
+  claim_id: c_fe6c080d
+  context: Must explicitly measure peak memory, log the specific value, and validate
+    against the 7GB SC-005 limit.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_limit_is_7GB
+  kind: entity_fact
+  raw_text: The memory usage limit for the experiment is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:06:23Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: PlanBench-XL lacks explicit implicit failure labels
+  claim_id: c_17f58ea2
+  context: The subset is created by injection to simulate the condition, as the dataset
+    lacks explicit 'implicit failure' labels.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/PlanBench-XL_lacks_explicit_implicit_failure_labels
+  kind: entity_fact
+  raw_text: The PlanBench-XL dataset lacks explicit 'implicit failure' labels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:06:25Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Synthetic failure injection selects first 50 success tasks
+  claim_id: c_281e0eb8
+  context: Select the first N tasks (N=50) where ground_truth == success using a fixed
+    random seed and deterministic iteration order.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic failure injection selects the first 50 tasks where ground_truth
+    equals success.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:06:26Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Fisher's Exact Test used if n < 30
+  claim_id: c_dfc88691
+  context: IF n < 30, perform Fisher's Exact Test using scipy.stats.fisher_exact.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fisher's_Exact_Test_used_if_n_%3C_30
+  kind: magnitude
+  raw_text: The statistical analysis uses Fisher's Exact Test if the number of tasks
+    is less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:07:04Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 2
+  canonical: Two-proportion z-test used if n >= 30
+  claim_id: c_fb56d581
+  context: ELSE, perform two-proportion z-test using scipy.stats.proportions_ztest.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform a two-proportion z-test if the number of tasks n is 30 or greater.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:07:40Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: Baseline agent max_tokens=512 and temperature=0.7
+  claim_id: c_f6990750
+  context: 'Params: max_tokens=512, temperature=0.7.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline agent model parameters are max_tokens=512 and temperature=0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:07:59Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: datasets version 2.14.0 required
+  claim_id: c_29a48b09
+  context: 'Create requirements.txt with pinned versions: datasets==2.14.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_version_2.14.0_required
+  kind: entity_fact
+  raw_text: The Python library datasets version 2.14.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:08:27Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: transformers version 4.35.0 required
+  claim_id: c_ca40bb45
+  context: 'Create requirements.txt with pinned versions: ...transformers==4.35.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Transformers_version_4.35.0_required
+  kind: entity_fact
+  raw_text: The Python library transformers version 4.35.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:08:55Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: torch version 2.1.0 required
+  claim_id: c_45da9b7e
+  context: 'Create requirements.txt with pinned versions: ...torch==2.1.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Torch_version_2.1.0_required
+  kind: entity_fact
+  raw_text: The Python library torch version 2.1.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:09:22Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.3.0 required
+  claim_id: c_9b4cd026
+  context: 'Create requirements.txt with pinned versions: ...scikit-learn==1.3.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scikit-learn_version_1.3.0_required
+  kind: entity_fact
+  raw_text: The Python library scikit-learn version 1.3.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:09:54Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: pandas version 2.1.0 required
+  claim_id: c_8b985cbf
+  context: 'Create requirements.txt with pinned versions: ...pandas==2.1.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pandas_version_2.1.0_required
+  kind: entity_fact
+  raw_text: The Python library pandas version 2.1.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:10:26Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0 required
+  claim_id: c_f0ca43cd
+  context: 'Create requirements.txt with pinned versions: ...pytest==7.4.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pytest_version_7.4.0_required
+  kind: entity_fact
+  raw_text: The Python library pytest version 7.4.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:10:53Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0 required
+  claim_id: c_147c07aa
+  context: 'Create requirements.txt with pinned versions: ...requests==2.31.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Requests_version_2.31.0_required
+  kind: entity_fact
+  raw_text: The Python library requests version 2.31.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:11:17Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: scipy version 1.11.0 required
+  claim_id: c_9420de5c
+  context: 'Create requirements.txt with pinned versions: ...scipy==1.11.0...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Scipy_version_1.11.0_required
+  kind: entity_fact
+  raw_text: The Python library scipy version 1.11.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:11:45Z'
+- artifact_path: projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/specs/001-llmxive-follow-up-extending-planbench-xl/tasks.md
+  attempts: 1
+  canonical: bitsandbytes version 0.41.0 required
+  claim_id: c_a19a70b9
+  context: 'Create requirements.txt with pinned versions: ...bitsandbytes==0.41.0'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bitsandbytes_version_0.41.0_required
+  kind: entity_fact
+  raw_text: The Python library bitsandbytes version 0.41.0 is a required dependency.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T22:12:12Z'

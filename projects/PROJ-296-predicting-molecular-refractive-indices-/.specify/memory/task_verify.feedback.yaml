@@ -1,0 +1,42 @@
+T001:
+  reason: 'Requested task execution failed; rerun successfully: code/data/download.py
+    exit=1; code/data/preprocess.py exit=1'
+  task: 52881fca63392498c3cb5ecb322aa16f84b57ee216728405d0066cf71090eff0
+T002:
+  reason: "Checked `code/data/preprocess.py` (implements all required steps) and `data/processed/filtered.csv`\
+    \ (contains rows that conform to `contracts/dataset.schema.yaml`). However, the\
+    \ required log file `logs/preprocess_summary.log` is not present in the provided\
+    \ artifacts, so the task\u2019s verification requirement is not satisfied. Adding\
+    \ this summary log (with total, filtered, and excluded row counts) is needed to\
+    \ complete the task."
+  task: e4b925233fff0b876f23138ceade509dd2a43b335a44cce20b9c7b4ccd6d4bc5
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/data/split.py
+    exit=1'
+  task: cf3fb1e6349ad1df71b7143565265e407e2ebedc5cb9d199e4e93126480d4a29
+T004:
+  task: d445676ae7b44eca24b46ebfd15e2cb4e8ace17b4d10cdb459158d62b6fca52a
+T005:
+  task: f5db141b0e2e83bba938a421f0dd22fadeebe218602e7f11b59cae5b2a3d3b29
+T006:
+  task: d80cdcdb1b22ef6e184439c0fcffebcd2bb79c933a273721779d571cae30d40c
+T007:
+  task: f7eeae7c9e27e6d768e6760589fb5a6e21994f411266ddfff0738cd83736a27e
+T008:
+  task: 10ffc960c69445ea522a22e7aecde1ebeeb553c25155970751e25d8a758a7c0e
+T009:
+  task: 44e217993a6366d081e69e72214221475cd68eef859caef432fabd748a2a809c
+T010:
+  task: fc4c45eadeb52e32edb67b62d01e97fb8c4288c0fe117f8cb80104f566bc8abd
+T011:
+  task: c700c195a3746882cc2fbef0be5f11e1c1e141c8924358a11e0c30fb119fa377
+T012:
+  task: e4ac22cc88eda5e95e926e4527a713d546fb7b82108fe8aac5327cbd5e7ce634
+T013:
+  task: 9652151c5b1e8e9feef005d95761b97602afdabce1de11802aa1123504c6e05d
+T014:
+  task: b2208a72942924d66df2b8ee9c2eb97b576559b69ed1074d68ec813d422094ac
+T015:
+  task: 9aeeeac071e5ecf6d3e056c0d64e79a3e1432a39ee5aefbf2698c45e562bb08f
+T016:
+  task: 20bbe20d14b5a939a6f22e3f46b2869587aebf052607f21ae371a6881e497a09

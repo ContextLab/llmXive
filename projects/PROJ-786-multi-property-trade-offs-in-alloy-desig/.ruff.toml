@@ -1,0 +1,2 @@
+# Extends pyproject.toml but allows CLI overrides for specific runs
+extend = "pyproject.toml"

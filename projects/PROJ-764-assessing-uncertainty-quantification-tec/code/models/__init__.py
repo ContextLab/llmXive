@@ -1,3 +1,1 @@
-"""
-Model training and inference module.
-"""
+# Models package

@@ -1,0 +1,9 @@
+- after_count: 950
+  before_count: 1000
+  step: breeding_filter
+- after_count: 940
+  before_count: 950
+  step: duplicate_removal
+- after_count: 800
+  before_count: 940
+  step: spatial_thinning

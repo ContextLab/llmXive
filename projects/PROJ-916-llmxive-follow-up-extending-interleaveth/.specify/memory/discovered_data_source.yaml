@@ -1,0 +1,9 @@
+status: none
+intent: CLEVR and Visual Genome scene graph datasets pip install python package
+required_fields:
+- objects
+- attributes
+- spatial_relationships
+cache_key: 74e8801aedc37e56db25c12122dfc02ff0d20c5f0b49efbfc21a3cbb1a166c4c
+searched_at: '2026-08-03T20:44:29.673011+00:00'
+retry_count: 1

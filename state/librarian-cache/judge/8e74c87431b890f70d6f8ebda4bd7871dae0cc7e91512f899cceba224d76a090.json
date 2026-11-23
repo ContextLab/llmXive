@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.11180",
+  "judged_at": "2026-10-22T12:27:08Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "exploring the statistical significance of fine-structure constant variations physics",
+  "rationale": "The paper directly measures constraints on variations of the electromagnetic fine‑structure constant (α) using astrophysical reaction data, thus providing same‑mechanism evidence for α‑variation studies (criterion a).",
+  "relevant": true
+}

@@ -1,49 +1,27 @@
-# Quickstart: Quantifying Correlations Between Solar Wind Composition and Geomagnetic Indices
-
-## Prerequisites
-- Python 3.11+
-- `pip`
-- Access to a GitHub Actions runner (or a local machine with ≤ 7 GB RAM).
-
-## Installation
+# Quickstart
 
 ```bash
-git clone <repo-url>
-cd projects/PROJ-476-quantifying-correlations-between-solar-w
-pip install -r code/requirements.txt
+# Install pinned dependencies
+python -m pip install -r requirements.txt
+
+# Run the full pipeline (defaults cover the entire 1998‑2020 span)
+python -m src.code.main --stage all \
+    --start-date 1998-01-01 \
+    --end-date 2020-12-31
 ```
 
-## Running the Pipeline
+### Stage‑by‑Stage Commands
 
-> **Important**: The NOAA Kp/Dst dataset currently lacks a verified download URL. The pipeline will abort with a clear error until a verified source is added (see Constitution Principle II).
+| Stage | Command | Description |
+|-------|---------|-------------|
+| **fetch** | `python -m src.code.main --stage fetch --start-date YYYY-MM-DD --end-date YYYY-MM-DD` | Downloads ACE composition and NOAA/Kyoto indices; validates required variables. |
+| **sync** | `python -m src.code.main --stage sync` | Aligns to 1‑h UTC grid, interpolates gaps ≤ 6 h, writes `data/processed/synced.csv`. |
+| **analyze** | `python -m src.code.main --stage analyze` | Full‑dataset lagged Pearson & Spearman correlations; writes `results/full_correlations.csv`. |
+| **storm** | `python -m src.code.main --stage storm` | Optional storm‑filtered analysis (`Dst < -50 nT`); writes `results/storm_correlations.csv` with disclaimer. |
+| **validate** | `python -m src.code.main --stage validate` | Runs analysis on 2018‑2020 hold‑out, creates `validation_report.md`. |
+| **report** | `python -m src.code.main --stage report` | Generates PNG visualisations (`figures/`) and updates the Markdown report. |
+| **test** | `python -m pytest tests/ -v` | Executes unit, integration, and contract tests. |
 
-### 1. Fetch & Validate
-```bash
-python code/main.py fetch --start 1998-01-01 --end 2020-12-31
-```
-Creates `data/processed/synced.csv` (no NaNs).
+If any fetch step fails, the pipeline aborts with a clear error naming the missing variable or unreachable source (SC‑002). No synthetic fall‑backs are used – real data are required for scientific validity.
 
-### 2. Compute Global Thresholds
-```bash
-python code/main.py compute-thresholds
-```
-Generates `artifacts/thresholds/global_threshold.json`.
-
-### 3. Correlation Analysis
-```bash
-python code/main.py analyze --data data/processed/synced.csv --lags 0,1,2,3,6
-```
-Outputs `artifacts/correlations.csv`.
-
-### 4. Validation (held‑out 2018‑2020)
-```bash
-python code/main.py validate --data data/processed/synced.csv --test-start 2018-01-01 --test-end 2020-12-31
-```
-Produces PNGs under `artifacts/plots/` (≤ 5 MB each) and `artifacts/reports/validation_report.md`.
-
-## Expected Outputs
-- `data/processed/synced.csv` – aligned, gap‑filled (no NaNs).  
-- `artifacts/thresholds/global_threshold.json` – Neff & Bonferroni α_adj.  
-- `artifacts/correlations.csv` – 30 rows of results.  
-- PNG heatmaps & time‑series overlays (≤ 5 MB).  
-- `validation_report.md` – summary of effect‑size and significance.
+---

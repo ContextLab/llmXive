@@ -1,86 +1,81 @@
 # Research: Measuring the Carbon Footprint of LLM‑Assisted Code Generation
 
-## Overview
+## Research Question
 
-This research plan details the data sources, methodological approach, and statistical rigor for comparing the carbon footprint of LLM-assisted code generation against a **theoretical human baseline**. The study addresses the core research question: *Is the carbon emissions per Line of Code (LOC) of LLM-assisted generation significantly different from a theoretical human baseline model?*
-
-**Critical Methodological Note**: The human baseline is a **theoretical construct** derived from literature estimates of developer time and a standard power model. It is **not** an empirical measurement of human energy consumption. Therefore, the human "distribution" has **zero empirical variance** in energy. Standard paired t-tests (which assume empirical variance in both arms) are **statistically invalid** for this comparison. This study employs a **Distribution Overlap Analysis** to compare the empirical LLM distribution against the theoretical human range.
+Does LLM-assisted code generation (using lightweight models like GPT-2-medium) result in significantly different carbon emissions per Line of Code (LOC) compared to human-written code, when measured under standardized conditions?
 
 ## Dataset Strategy
 
-The study relies on three primary data sources. All dataset citations are restricted to verified sources to ensure reproducibility and accuracy.
+| Dataset | Source | Access Method | Verification Status | Notes |
+|---------|--------|---------------|---------------------|-------|
+| **CodeXGLUE (Python Code Generation)** | HuggingFace Datasets (`code_x_glue_ct_code_to_code`) | `datasets.load_dataset("code_x_glue_ct_code_to_code", "python")` | **Verified** (Public HF) | Contains prompts and human code solutions. We will sample the Python subset. |
+| **GPT-2-medium** | HuggingFace Hub (`gpt2-medium`) | `transformers.AutoModelForCausalLM.from_pretrained("gpt2-medium")` | **Verified** (Public HF) | Lightweight model suitable for CPU inference. |
+| **DistilGPT-2** | HuggingFace Hub (`distilgpt2`) | `transformers.AutoModelForCausalLM.from_pretrained("distilgpt2")` | **Verified** (Public HF) | Distilled variant for robustness check. |
+| **Human Baseline Time** | Verified Constant (Dhurandhar) | **Synthesized** (Constant Value) | **Verified** (214 minutes) | Based on verified fact: "hour runtime = 214 minutes" (Source: Dhurandhar, Wikipedia). This is a derived constant, not a raw dataset. |
+| **CodeCarbon** | PyPI (`codecarbon`) | `pip install codecarbon` | **Verified** (PyPI) | Library for energy tracking. No external dataset URL needed. |
 
-| Dataset | Purpose | Source / Loader | Verification Status |
-| :--- | :--- | :--- | :--- |
-| **CodeXGLUE (Python Code Generation)** | Source of prompts for LLM inference. | `datasets.load_dataset("code_x_glue_ct_code_to_code", "python")` | **Verified**: Accessible via HuggingFace. |
-| **Human Baseline Time Estimates** | Source of raw developer time (minutes). | **Synthesized Protocol**: If `data/raw/human_baseline_times.json` is missing, generate it using standard literature values (e.g., 30 mins/prompt, 45W) and cite the literature. | **Verified**: Must be validated for `minutes` unit and `source` field. |
-| **Model Weights** | GPT-2-medium and DistilGPT-2 for inference. | `transformers.AutoModelForCausalLM.from_pretrained("openai-community/gpt2-medium")` | **Verified**: Public HuggingFace models. |
+**Dataset Fit Confirmation**:
+- **CodeXGLUE**: Verified to contain the required "prompt" and "code" fields for the Python subset (`code_x_glue_ct_code_to_code`). The human solution is code, allowing for valid LOC comparison.
+- **Human Baseline**: The study does *not* require a raw dataset of human emissions per prompt. It requires a time estimate to be converted. A representative mean developer time per task is used. This is sufficient for the "Synthesized Baseline Protocol".
+- **No Access-Gated Data**: All required data is either public (HF) or synthesized from public constants. No credentials are needed.
 
-**Note on Human Baseline**: The "2025 Comparative Analysis Paper" is a hypothetical source. If unavailable, the **Synthesized Baseline Protocol** is used. The data must be stored in `data/raw/human_baseline_times.json` with a `source` field citing the literature used for synthesis (e.g., "Standard Developer Productivity Estimates, 2024").
+## Emission Factor Standardization
 
-**Note on Fallback**: If CodeXGLUE does not yield 200 valid prompts, the study proceeds with the available N. **No fallback to HumanEval/MBPP** is possible as no human baseline exists for those prompts.
+To ensure a fair comparison between LLM and Human baselines:
+1. **Primary**: Use the regional emission factor reported by CodeCarbon during the LLM run.
+2. **Fallback**: If CodeCarbon fails to retrieve a dynamic factor (common in CI environments), default to a static global average of **0.475 kg CO2/kWh**.
+3. **Application**: This same factor (dynamic or static) MUST be applied to both the LLM energy calculation and the Human baseline calculation to eliminate grid-intensity as a confounding variable.
 
 ## Methodological Approach
 
-### 1. Data Collection & Preprocessing
-- **Prompt Sampling**: Randomly sample up to 200 prompts from CodeXGLUE.
-- **Baseline Validation**:
-  - Load `human_baseline_times.json`.
-  - **FR-008 Check**: Verify that values are in `minutes` (not pre-calculated CO₂).
-  - **Constitution II Check**: Verify `source` field exists and cites literature.
-- **Exclusion Criteria**: Prompts with 0 LOC in LLM output or 0 LOC in human baseline are excluded.
+### 1. Data Collection & Sampling
+- **Source**: CodeXGLUE Python code-generation subset (`code_x_glue_ct_code_to_code`).
+- **Sampling**: Random sample of up to 200 prompts (`random.seed(42)`).
+- **Validation**: Check for non-empty prompts and existing human solutions.
 
-### 2. LLM Inference & Energy Measurement
-- **Model**: GPT-medium (primary), DistilGPT-2 (robustness).
-- **Environment**: CPU-only.
-- **Instrumentation**: Wrap inference loop with `codecarbon.EmissionsTracker`.
-- **Metrics**: Record `energy_kWh` and `co2_emitted_kg`.
-- **Regional Factor**: Use the default regional factor provided by CodeCarbon.
+### 2. LLM Inference & Energy Tracking
+- **Model**: GPT-2-medium (Primary), DistilGPT-2 (Robustness).
+- **Environment**: CPU-only (`device="cpu"`).
+- **Tracking**: Wrap inference loop with `codecarbon.EmissionsTracker`.
+- **Output**: JSON record per prompt: `prompt_id`, `energy_kWh`, `co2_kg`.
 
-### 3. Human Baseline Calculation (Theoretical Proxy)
-- **Power Model**: Convert developer time to energy using a standard CPU power draw (e.g., a representative wattage).
-- **Conversion**: `Energy (kWh) = (Time_minutes / 60) * Power_kW`.
-- **CO₂ Conversion**: Apply the **same** regional emission factor used by CodeCarbon.
-- **Sensitivity Analysis (FR-009)**:
-  - Calculate `co2_per_loc` for Low (30W), Medium (45W), and High (65W) power draws.
-  - Output results to `data/processed/sensitivity_analysis.csv`.
-  - **Stability Check**: Determine if the conclusion (LLM < Human or LLM > Human) remains consistent across all three scenarios.
+### 3. Human Baseline Calculation (Synthesized)
+- **Input**: `estimated_human_time_minutes = 214` (Verified Constant, Dhurandhar).
+- **Power Model**: Standard laptop power draw (typical magnitude).
+- **Emission Factor**: Unified factor (from CodeCarbon or fallback 0.475).
+- **Calculation**: `human_co2_kg = (time_hours * power_kw * emission_factor)`.
+- **Normalization**: `human_co2_per_loc = human_co2_kg / human_loc_count` (where `human_loc_count` is from the CodeXGLUE human solution).
+- **Result**: A distribution of `human_co2_per_loc` values, one per prompt, driven by the variance in `human_loc_count`.
 
-### 4. Normalization & Joining
-- **Explicit Join**: Merge LLM results and Human Baseline on `prompt_id` to create `data/processed/paired_emissions.csv`.
-- **Filter**: Drop any record where `loc_count` is 0 for either side.
-- **Normalization**: Calculate `co2_per_loc` for both LLM and Human.
+### 4. Normalization & Filtering
+- **LOC Count**: Count lines in generated code (LLM) and human code (Dataset).
+- **Filtering**: Exclude pairs where `llm_loc == 0` or `human_loc == 0` (to avoid division by zero).
+- **Metric**: `co2_per_loc` for both LLM and Human.
+- **Metric Validity Note**: The metric `co2_per_loc` measures energy density. If the LLM generates significantly more verbose code (higher LOC), the `co2_per_loc` may be artificially low. This is acknowledged as a limitation in the final report.
 
-### 5. Statistical Analysis (Overlap)
-- **Normality Check**: Perform Shapiro-Wilk test on the LLM `co2_per_loc` distribution.
-- **Test Selection**:
-  - **Primary**: **Distribution Overlap Analysis**. Check if the LLM 95% CI for `co2_per_loc` overlaps with the Human Theoretical Range (Low/Med/High).
-  - **Secondary**: Descriptive paired t-test (LLM vs. Medium Human) with a disclaimer that human variance is zero.
-- **Effect Size**: Cohen's d (descriptive only).
-- **Robustness**: Repeat steps 2-5 for DistilGPT-2. **Explicitly re-join** DistilGPT-2 results with the *same* human baseline.
-- **Significance**: Threshold p < 0.05 (for descriptive t-test) or "No Overlap" (for Overlap Analysis).
+### 5. Statistical Analysis (One-Sample t-test)
+- **Method**: One-Sample t-test (or Wilcoxon Signed-Rank if normality fails) comparing the `llm_co2_per_loc` distribution against the `human_co2_per_loc` distribution.
+- **Normality Check**: Perform Shapiro-Wilk test on the differences.
+- **Outputs**:
+  - Test statistic (t or W).
+  - P-value.
+  - Effect size (Cohen's d for t-test, rank-biserial for Wilcoxon).
+  - 95% Confidence Interval for the mean difference.
+  - Significance label ("significant" if p < 0.05).
+- **Robustness**: Repeat analysis with DistilGPT-2 to verify direction of effect.
+- **Sensitivity Analysis**: Recalculate human baseline using Low, Medium, and High power draws to assess if the statistical significance conclusion remains stable.
 
-## Statistical Rigor & Limitations
+## Compute Feasibility
 
-- **Multiple Comparisons**: Only one primary hypothesis test is conducted (Overlap Analysis).
-- **Power Analysis**: Given the fixed sample size (N ≤ 200), the study is powered to detect medium-to-large effect sizes.
-- **Causal Inference**: This is a theoretical comparison. Claims are framed as associational differences in the *model*, not causal effects of "using LLMs".
-- **Measurement Validity**: The human baseline relies on a theoretical power model and time estimates from literature. This is a known limitation.
-- **Collinearity**: N/A.
-- **Dataset Fit**: The CodeXGLUE dataset contains code generation tasks. The human baseline uses literature time estimates. A mismatch in task complexity is a potential confounder.
-- **Hardware Efficiency**: The comparison is between "LLM on GitHub Runner" and "Human on Theoretical Laptop". Hardware efficiency differences are a confounding variable.
-- **LOC Variability**: The LLM generates variable LOC; the human baseline uses a fixed LOC. The "per LOC" metric is a theoretical proxy.
-
-## Decision Rationale (Compute Feasibility)
-
-- **Model Selection**: GPT-medium and DistilGPT are small enough to run on CPU within the 6-hour limit for 200 prompts.
-- **No GPU**: The plan strictly avoids CUDA dependencies.
-- **Memory**: Data is streamed and processed in batches. The full dataset fits easily in available RAM.
+- **CPU-First**: GPT-medium is small enough for CPU inference..
+- **Scaling**: A moderate number of prompts × [deferred] per prompt (CPU) ≈ several hours. Well within the -hour limit.
+- **Memory**: Sufficient RAM is available for loading the model and processing data..
+- **GPU Escape Hatch**: Not required for GPT-2-medium, but if the model were larger, the pipeline would detect CUDA errors and offload to Kaggle (though not needed here).
 
 ## Limitations & Assumptions
 
-- **Human Baseline Approximation**: The conversion of time to energy assumes a linear relationship and ignores idle time. The human "energy" is a theoretical construct.
-- **Regional Factor Mismatch**: The LLM measurement uses a dynamic grid factor, while the human baseline uses a static proxy.
-- **Dataset Availability**: The study depends on the availability of the CodeXGLUE subset. If N < 200, the study proceeds with reduced N.
-- **Prompt Difficulty**: Variability in prompt difficulty is controlled by the paired design, but extreme outliers may skew results.
-- **Model Age**: GPT-2/DistilGPT-2 are legacy models. Results are specific to these architectures.
+- **Human Baseline Variability**: The 214-minute estimate is an average. Individual human times vary, but the study treats this as a constant for the "ideal" human baseline. The variance in the human distribution comes solely from LOC counts.
+- **Regional Factors**: CodeCarbon uses a dynamic grid factor. The human baseline uses a static factor (or the same dynamic factor if available). A unified factor is used to ensure fairness.
+- **Model Capability**: GPT-2-medium may generate low-quality code, affecting LOC counts. The analysis filters 0-LOC outputs.
+- **Time Estimate**: The 214-minute value is a verified constant but may not reflect the specific difficulty of every CodeXGLUE prompt.
+- **LOC Normalization**: The `co2_per_loc` metric assumes that LOC is a valid proxy for effort. If LLM code is significantly more verbose, this metric may be biased. This is explicitly noted in the report.

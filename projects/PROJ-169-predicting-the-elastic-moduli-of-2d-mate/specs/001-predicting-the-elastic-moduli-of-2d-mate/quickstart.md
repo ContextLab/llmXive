@@ -1,74 +1,50 @@
-# Quickstart: Predicting the Elastic Moduli of 2D Materials
+# Quickstart: Structure-Only Surrogate Model for 2D Material Elastic Moduli
 
-## Prerequisites
+## 1. Prerequisites
+- Python 3.11+ (≥ 7 GB RAM, ≥ 14 GB disk, internet access).  
+- GitHub Actions free‑tier runner or equivalent local environment.
 
-- Python 3.11+
-- 7GB+ RAM available (for local testing; CI enforces this limit)
-- Internet connection (to download datasets from Materials Project API)
-
-## Installation
-
-1.  **Clone the repository** and navigate to the project directory:
-    ```bash
-    cd projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    # Install CPU-only PyTorch
-    pip install torch --index-url https://download.pytorch.org/whl/cpu
-
-    # Install other dependencies
-    pip install -r code/requirements.txt
-    ```
-
-## Running the Pipeline
-
-The pipeline is executed in three main stages: Ingestion, Training, and Analysis.
-
-### Step 1: Data Ingestion & Graph Construction
-Download and process the data. This step filters for 2D materials with complete elastic tensors and performs a bias check.
+## 2. Installation
 ```bash
-python code/ingest/download.py --output data/raw
-python code/ingest/bias_check.py --input data/raw --output data/bias_report.json
-python code/ingest/parse_cif.py --input data/raw --output data/processed
-python code/ingest/filter.py --input data/processed --output data/filtered
-```
-*Expected Output*: `data/filtered/materials.csv`, `data/processed/graphs/`, and `data/bias_report.json`.
-
-### Step 2: Model Training
-Train the lightweight GNN with 5-fold cross-validation and Early Stopping.
-```bash
-python code/model/train.py --data-dir data/filtered --epochs 100 --patience 3 --split-strategy family
-```
-*Note*: The `--epochs` flag is set to a high value (100) but training will stop early based on validation loss.
-*Expected Output*: `code/model/checkpoints/`, `code/model/metrics_report.json`.
-
-### Step 3: Evaluation & Analysis
-Compute SHAP interaction values and ablation study results.
-```bash
-python code/analysis/importance.py --model-path code/model/checkpoints/best.pt --data-dir data/filtered
-python code/analysis/ablation.py --model-path code/model/checkpoints/best.pt --data-dir data/filtered
-```
-*Expected Output*: `code/analysis/shap_results.csv`, `code/analysis/ablation_report.json`.
-
-## Verification
-
-To verify the installation and data pipeline without full training:
-```bash
-pytest tests/unit/test_parse_cif.py -v
-pytest tests/integration/test_pipeline.py --max-samples 10
+# Clone the repository (assumed already done)
+python -m venv .venv
+source .venv/bin/activate
+pip install -r code/requirements.txt
 ```
 
-## Troubleshooting
+## 3. Run the Full Pipeline
+```bash
+python src/main_pipeline.py
+```
+The orchestrator executes the stages in order, halting on any non‑zero exit code.
 
-- **DataUnavailableError**: If the dataset contains fewer than 5 unique material families with complete tensors, the pipeline will halt. This is expected behavior per the Data Availability Gate.
-- **Memory Error**: If you encounter `RuntimeError: CUDA out of memory` (unexpected on CPU) or `MemoryError`, ensure you are using the CPU-only PyTorch build and that the dataset has been filtered to < 1000 samples.
-- **Missing Elastic Tensors**: The unified source ensures this does not happen. If it does, check the `ingest/filter.py` logs.
-- **Data Download Fails**: Ensure your network allows access to `materialsproject.org` or the configured API endpoint.
+| # | Script | Output | Hard Gate |
+|---|--------|--------|-----------|
+| 0 | `src/utils/verify_constitution_title.py` | `data/results/constitution_title_audit.json` | Exit 1 on any forbidden term. |
+| 1 | `src/data/loader.py` | `data/raw/raw_dataset.parquet`, `data/raw/metadata.json` | Abort if < 1 000 valid 2D entries or missing columns (scope‑revision). |
+| 2 | `src/data/graph_builder.py` | `data/processed/graphs_v1.parquet` | — |
+| 3 | `src/data/split_generator.py` | `data/processed/split_indices.json` (atomic write) | — |
+| 4 | `src/model/splitter.py` | `data/results/split_validation.json` | Exit 1 if any family appears in multiple splits. |
+| 5 | `src/model/train.py` (+ `cross_validation.py`) | `data/processed/model_v1.pt`, `data/results/training_logs.json` | Exit 1 if peak memory > 16 GB. |
+| 6 | `src/model/eval_runner.py` | `data/results/predictions.json`, `data/results/generalization_metrics.json` | Exit 1 if any SC gate fails (accuracy, reduction, etc.). |
+| 7 | `src/model/inference_benchmark.py` | Updates `generalization_metrics.json` with timing | Exit 1 if median inference > 200 ms. |
+| 8 | `src/analysis/feature_importance.py` | `data/results/feature_importance_report.md` | Exit 1 if < 3 qualifying descriptors. |
+| 9 | `src/utils/compute_hashes.py` | Updates project state hashes | — |
+
+## 4. Verification
+```bash
+# Verify constitution audit
+python src/utils/verify_constitution_title.py   # should exit 0
+
+# Run contract tests
+pytest tests/contract/ tests/integration/ -q
+```
+
+## 5. Troubleshooting
+- **MemoryError**: Reduce `batch_size` in `src/model/train.py` (default 16).  
+- **Loader aborts**: Indicates none of the verified sources contain the required columns; edit `src/data/loader.py` to point to a new open dataset and/or adjust the research question.  
+- **Title audit fails**: Rename offending titles to remove “First‑Principles” (see Section 4b of the spec).  
+- **Slow inference**: Ensure `torch.set_num_threads(2)` and that no code forces GPU usage.  
+
+---
+

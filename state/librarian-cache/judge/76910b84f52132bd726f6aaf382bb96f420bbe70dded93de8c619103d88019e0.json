@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.04525",
+  "judged_at": "2026-07-19T21:48:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"geneb: why genomic models are hard to compare\" linguistics",
+  "rationale": "This paper is the foundational reference (category d) and empirical baseline (category c) for the user's question, as the user explicitly asks for a \"follow-up\" to the work titled \"GENEB: Why Genomic Models Are Hard to Compare,\" making the original paper the canonical prior work required for any literature review on this topic.",
+  "relevant": true
+}

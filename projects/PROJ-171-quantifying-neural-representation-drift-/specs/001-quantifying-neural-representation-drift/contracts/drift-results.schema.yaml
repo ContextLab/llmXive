@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DriftResults"
+description: "Schema for the final drift rate and correlation results."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+  drift_rate:
+    type: "number"
+    description: "Slope 'b' of the linear drift model."
+  drift_se:
+    type: "number"
+    description: "Standard error of the drift rate."
+  model_type:
+    type: "string"
+    enum: ["linear", "exponential", "non_drifting"]
+  r_squared:
+    type: "number"
+  learning_speed:
+    type: "number"
+    description: "Time to reach success threshold."
+  correlation_r:
+    type: "number"
+    description: "Pearson correlation between drift and learning speed (across subjects)."
+  p_value:
+    type: "number"
+    description: "P-value from permutation test."
+  is_significant:
+    type: "boolean"
+    description: "True if p < 0.05 (after correction)."
+  power_warning:
+    type: "string"
+    description: "Warning message if N < 15."
+required:
+  - subject_id
+  - drift_rate
+  - drift_se
+  - model_type
+  - r_squared
+  - learning_speed
+  - correlation_r
+  - p_value
+  - is_significant

@@ -1,44 +1,45 @@
+"""
+Data loading module for genomic datasets.
+Fetches from GEO, TCGA, ENCODE via manifest and verifies checksums.
+"""
 import hashlib
 import json
 import os
 import shutil
 import tempfile
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
-
-from src.config import DATA_ROOT, ensure_directories
-
-MANIFEST_FILE: Path = DATA_ROOT / "manifest.json"
+from src.config import ensure_directories, DATA_DIR
 
 def ensure_directories_for_data() -> None:
+    """Ensure data directory structure exists."""
     ensure_directories()
-    (DATA_ROOT / "raw").mkdir(exist_ok=True)
-    (DATA_ROOT / "processed").mkdir(exist_ok=True)
 
-def create_default_manifest() -> None:
-    """Create a default manifest file if one does not exist."""
-    ensure_directories_for_data()
-    if not MANIFEST_FILE.exists():
+def create_default_manifest() -> Path:
+    """Create a default manifest file if one doesn't exist."""
+    manifest_path = DATA_DIR / "manifest.json"
+    if not manifest_path.exists():
         default_manifest = {
             "datasets": [
                 {
                     "id": "GSE12345",
                     "source": "GEO",
-                    "url": "https://example.com/fake_dataset.csv",
-                    "checksum": "d41d8cd98f00b204e9800998ecf8427e",
-                    "description": "Placeholder for GEO dataset"
+                    "url": "https://example.com/GSE12345.tar.gz",
+                    "checksum": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                    "description": "Example RNA-seq dataset"
                 }
             ]
         }
-        with open(MANIFEST_FILE, 'w') as f:
+        with open(manifest_path, "w") as f:
             json.dump(default_manifest, f, indent=2)
+    return manifest_path
 
-def load_manifest() -> Dict:
+def load_manifest(manifest_path: Optional[Path] = None) -> dict:
     """Load the dataset manifest."""
-    ensure_directories_for_data()
-    if not MANIFEST_FILE.exists():
+    if manifest_path is None:
+        manifest_path = DATA_DIR / "manifest.json"
+    if not manifest_path.exists():
         create_default_manifest()
-    with open(MANIFEST_FILE, 'r') as f:
+    with open(manifest_path, "r") as f:
         return json.load(f)
 
 def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
@@ -50,67 +51,63 @@ def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
     return sha256_hash.hexdigest() == expected_checksum
 
 def download_file(url: str, dest_path: Path) -> Path:
-    """Download a file from a URL."""
-    # Placeholder implementation - in real scenario use requests
+    """Download a file from a URL to a destination path."""
+    import requests
     ensure_directories_for_data()
-    # Simulate download for structure creation
-    if not dest_path.parent.exists():
-        dest_path.parent.mkdir(parents=True, exist_ok=True)
-    # Create a dummy file if real download not possible in this context
-    if not dest_path.exists():
-        dest_path.touch()
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    response = requests.get(url, stream=True)
+    response.raise_for_status()
+    with open(dest_path, "wb") as f:
+        for chunk in response.iter_content(chunk_size=8192):
+            f.write(chunk)
     return dest_path
 
-def fetch_dataset(dataset_id: str) -> Optional[Path]:
-    """Fetch a dataset by ID from the manifest."""
+def fetch_dataset(dataset_id: str) -> Path:
+    """Fetch a specific dataset by ID from the manifest."""
     manifest = load_manifest()
-    for dataset in manifest["datasets"]:
-        if dataset["id"] == dataset_id:
-            dest_path = DATA_ROOT / "raw" / f"{dataset_id}.csv"
-            if not dest_path.exists():
-                download_file(dataset["url"], dest_path)
-            if verify_checksum(dest_path, dataset["checksum"]):
-                return dest_path
-            else:
-                raise ValueError(f"Checksum mismatch for {dataset_id}")
-    return None
+    dataset_info = None
+    for ds in manifest.get("datasets", []):
+        if ds["id"] == dataset_id:
+            dataset_info = ds
+            break
+    
+    if not dataset_info:
+        raise ValueError(f"Dataset {dataset_id} not found in manifest")
+    
+    local_path = DATA_DIR / f"{dataset_id}.tar.gz"
+    if not local_path.exists():
+        download_file(dataset_info["url"], local_path)
+        if not verify_checksum(local_path, dataset_info["checksum"]):
+            raise RuntimeError(f"Checksum verification failed for {dataset_id}")
+    return local_path
 
-def fetch_datasets_by_source(source: str) -> List[Path]:
-    """Fetch all datasets from a specific source."""
+def fetch_datasets_by_source(source: str) -> list:
+    """Fetch all datasets from a specific source (GEO, TCGA, ENCODE)."""
     manifest = load_manifest()
-    paths = []
-    for dataset in manifest["datasets"]:
-        if dataset["source"] == source:
-            path = fetch_dataset(dataset["id"])
-            if path:
-                paths.append(path)
-    return paths
+    return [ds for ds in manifest.get("datasets", []) if ds.get("source") == source]
 
-def validate_manifest() -> bool:
-    """Validate the structure of the manifest."""
+def validate_manifest(manifest_path: Optional[Path] = None) -> bool:
+    """Validate the manifest structure."""
     try:
-        manifest = load_manifest()
-        if "datasets" not in manifest:
+        data = load_manifest(manifest_path)
+        if "datasets" not in data:
             return False
-        for ds in manifest["datasets"]:
+        for ds in data["datasets"]:
             if not all(k in ds for k in ["id", "source", "url", "checksum"]):
                 return False
         return True
     except Exception:
         return False
 
-def get_cached_datasets() -> List[Path]:
-    """Get list of all cached dataset paths."""
+def get_cached_datasets() -> list:
+    """List all cached datasets in the data directory."""
     ensure_directories_for_data()
-    raw_dir = DATA_ROOT / "raw"
-    if not raw_dir.exists():
-        return []
-    return list(raw_dir.glob("*.csv"))
+    return [f.name for f in DATA_DIR.glob("*.tar.gz") if f.is_file()]
 
-def clear_cache() -> None:
-    """Clear all cached datasets."""
+def clear_cache() -> int:
+    """Remove all cached datasets. Returns count of removed files."""
     ensure_directories_for_data()
-    raw_dir = DATA_ROOT / "raw"
-    if raw_dir.exists():
-        shutil.rmtree(raw_dir)
-        raw_dir.mkdir(exist_ok=True)
+    files = list(DATA_DIR.glob("*.tar.gz"))
+    for f in files:
+        f.unlink()
+    return len(files)

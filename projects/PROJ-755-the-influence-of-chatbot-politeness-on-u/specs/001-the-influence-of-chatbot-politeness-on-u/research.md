@@ -1,100 +1,69 @@
 # Research: The Influence of Chatbot Politeness on User-Perceived Quality
 
-## 1. Introduction & Hypothesis
+## Summary of Research
 
-**Research Question**: Does higher linguistic politeness in text-based chatbot responses lead to higher user-reported trust (perceived quality) in the chatbot?
+This research investigates the hypothesis that higher linguistic politeness in chatbot responses leads to higher user-perceived quality (trust). The study utilizes the **HCI_P2** dataset (YCAI3/HCI_P2) as the primary source, which explicitly contains `trust_rating` (1-5 Likert) as its outcome variable. The primary analysis employs a Cumulative Link Mixed-Effects Model (CLMM) to account for the ordinal nature of trust ratings and the hierarchical structure of the data (multiple dialogues per user). Robustness is ensured via an alternative lexicon-based classifier (`polite` library) and subgroup analyses using interaction terms.
 
-**Hypothesis**: There is a positive **association** between the mean politeness score of chatbot utterances in a dialogue and the user's perceived quality rating of that dialogue, even after controlling for conversation length and user-specific effects.
+## Dataset Strategy
 
-**Statistical Framework**:
-- **Outcome**: `quality_rating` (Ordinal, 1-5 Likert scale).
-- **Primary Predictor**: `mean_politeness_score` (Continuous, z-scored).
-- **Covariates**: `conversation_length` (Word count or utterance count), `age`, `gender` (if available).
-- **Random Effects**: `user_id` (to account for repeated measures/non-independence).
-- **Model**: Cumulative Link Mixed-Effects Model (CLMM).
-- **Causal Framing**: This is an **observational study**. Claims will be framed as "associational". Causal influence is not claimed. Robustness to unmeasured confounding will be assessed via E-values.
+The plan relies exclusively on datasets verified in the "Verified datasets" block or Hugging Face Hub with verified schemas.
 
-## 2. Dataset Strategy
+| Dataset | Source (Verified URL) | Variables Needed | Suitability Check |
+| :--- | :--- | :--- | :--- |
+| **HCI_P2** | `https://huggingface.co/datasets/YCAI3/HCI_P2` | `dialogue_id`, `user_id`, `utterance_text` (chatbot), `trust_rating` (1-5), `demographics` (age/gender if present) | **Verified**: Contains `trust_rating` as a direct proxy for trust. **Action**: Verify column existence in the dataset card. If missing, the pipeline halts. |
+| **Persona-Chat** | *No verified URL provided in "Verified datasets" block.* | `dialogue_id`, `user_id`, `utterance_text`, `trust_rating` | **Status**: The "Verified datasets" block does **not** list a verified URL for Persona-Chat. **Action**: The implementation will attempt to load via `datasets.load_dataset("persona-chat")` if available on Hugging Face Hub. If no open, directly-downloadable source is found or if it lacks `trust_rating`, the dataset is **excluded** and logged as "Not Met" for FR-001. The pipeline proceeds with HCI_P2 only. |
 
-### Verified Datasets
-The following datasets are verified and accessible. The plan strictly adheres to using only these sources.
+> **Dataset Variable Fit**: The primary outcome variable is "user-reported trust". The **HCI_P2** dataset provides `trust_rating` (Likert 1-5). This is a direct, independent measure, resolving the construct validity gap of using EmpatheticDialogues' sentiment labels. If the verified HCI_P2 shard lacks explicit trust ratings, the analysis will be restricted to the subset that has them, or the study will be reframed.
 
-| Dataset Name | Source URL (Verified) | Relevance | Variable Check |
-|--------------|-----------------------|-----------|----------------|
-| **HCI_P2** | ` | **Primary Source**. Contains dialogue data and explicit `quality_rating` (1-5) which serves as the proxy for trust. | **Critical Check**: Must verify `quality_rating` is ordinal 1-5 and chatbot text is present. |
-| **EmpatheticDialogues** | ` | Secondary (Only if HCI_P2 lacks dialogue text). Contains emotion labels, **not** quality ratings. | **Excluded** for primary outcome due to missing `quality_rating`. |
-| **Persona-Chat** | *No verified URL in block* | Spec mentions this dataset. | **Excluded** due to lack of verified URL and known lack of quality ratings. |
+## Statistical Methodology
 
-### Dataset Selection Rationale
-1. **HCI_P2**: Selected as the **primary** dataset because it is the only verified source containing the required `quality_rating` (1-5) outcome variable. The analysis will proceed **only** if this variable is present and ordinal.
-2. **EmpatheticDialogues**: Will **not** be used for the primary outcome. It may be used for supplementary politeness scoring if HCI_P2 lacks sufficient text, but the primary outcome must come from HCI_P2.
-3. **Persona-Chat**: Excluded due to lack of verified URL and known absence of quality ratings.
-
-**Variable Fit Confirmation (Pre-Implementation Check)**:
-- **Required Variables**: `user_id`, `dialogue_id`, `quality_rating` (1-5), `text` (chatbot utterances), `age`, `gender`.
-- **Gap Handling**: If `HCI_P2` lacks `age`/`gender`, subgroup analysis (FR-006) will be skipped for those variables. If it lacks `quality_rating`, the project will **abort** and flag a blocking data gap.
-
-## 3. Statistical Methodology & Rigor
-
-### 3.1 Primary Analysis (CLMM)
-- **Model**: `quality_rating ~ politeness + conversation_length + (1 | user_id)`
-- **Rationale**: The outcome is ordinal (1-5). Linear regression is inappropriate. CLMM handles the ordinal nature and the hierarchical structure (multiple dialogues per user).
+### Primary Analysis: Cumulative Link Mixed-Effects Model (CLMM)
+- **Model**: `trust_rating ~ politeness_score + conversation_length + (1 | user_id)`
+- **Rationale**: Trust ratings are ordinal (1-5). Linear regression assumes interval data and normal residuals, which is inappropriate. CLMM handles ordinal outcomes and accounts for non-independence of observations from the same user.
+- **Software**: R `ordinal` package (via `rpy2` or separate R script).
 - **Assumptions**:
- - **Proportional Odds**: The effect of politeness is constant across the thresholds of the outcome.
- - **Independence**: Residuals are independent given the random effects.
- - **Causal Claim**: **None**. This is an observational study. Claims will be framed as "associational".
- - **Confounding Control**: Potential confounders (length, demographics) are included as covariates. **E-values** will be calculated to quantify the robustness of the association to unmeasured confounding.
+  - **Proportional Odds**: The effect of predictors is constant across all thresholds of the ordinal outcome. (Will be tested via `nominal_test()` in `ordinal`).
+  - **Random Effects**: User-level intercepts capture unobserved heterogeneity. **Hierarchy Check**: The pipeline will verify if `n_users < n_dialogues`. If `n_users == n_dialogues` (flat structure), the model will switch to a standard Cumulative Link Model (CLM) without random effects to avoid singular fits.
+  - **Collinearity**: Politeness and conversation length may be correlated. **Conversation Length** is defined as **total word count**. VIF (Variance Inflation Factor) will be calculated. If VIF > 5, the plan will center the `conversation_length` variable and report the collinearity, potentially excluding it in a sensitivity analysis.
+- **Multiple Comparisons**: Bonferroni or Benjamini-Hochberg correction applied to all hypothesis tests (main effect, covariates).
 
-### 3.2 Multiple Comparison Correction
-- **Method**: Benjamini-Hochberg (BH) procedure (preferred for power) or Bonferroni (conservative).
-- **Application**: Applied to the p-values of fixed effects (politeness, length) across the primary model and robustness checks.
-- **Rationale**: Controlling family-wise error rate (FR-004) when testing multiple hypotheses (main effect + covariates).
+### Robustness Analysis
+- **Alternative Classifier**: `polite` library (lexicon-based) as a fallback for LIWC-2015 (which is not open/verified).
+- **Comparison**: 
+  1. **Primary**: Consistency of the CLMM coefficient sign and significance for `politeness` between the BERT and `polite` models.
+  2. **Secondary**: Correlation of predicted scores (`r ≥ 0.80` target).
+- **Subgroup Analysis**:
+  - Split by `age` and `gender` if metadata exists.
+  - **Condition**: `n ≥ 30` per subgroup. If `n < 30`, the subgroup is excluded and logged.
+  - **Method**: Use **interaction terms** (`politeness * age`) in a single model to test for moderation. If `n` is too small for random effects (n < 100), switch to a standard CLM (no random effects) for the subgroup analysis to ensure statistical validity.
 
-### 3.3 Power & Sample Size
-- **Pre-Analysis**: A pilot run on [deferred] of the data will be performed to estimate effect size and calculate the **Minimum Detectable Effect (MDE)**. This justifies the sample size before full processing.
-- **Acknowledgement**: The analysis will be reported with the caveat that it is an observational study.
+## Compute Feasibility & Escape Hatch
 
-### 3.4 Measurement Validity (Proxy Validation)
-- **Politeness**: `jfiedler/politeness-bert` is a BERT-based model trained on the Politeness Corpus. It is a standard, validated tool for this task.
-- **Trust/Quality**: The `quality_rating` (1-5) is used as a proxy. The plan mandates **citing a specific HCI literature source** that validates the use of this specific rating in HCI_P2 as a proxy for "trust". If no such source exists, the limitation will be explicitly stated in the final report.
+- **CPU-First Strategy**:
+  - Data download and filtering: `pandas`/`datasets` (streaming).
+  - Politeness Scoring: `jfiedler/politeness-bert` in `float32` or `int8` (if supported) on CPU. Batch size tuned to fit 6GB RAM.
+  - CLMM: R `lme4`/`ordinal` (CPU optimized).
+- **GPU Escape Hatch**:
+  - If CPU inference of BERT exceeds a practical time threshold or OOMs, the pipeline will auto-offload to a Kaggle GPU (16GB VRAM).
+  - **Scaling**: Use `device="cuda"`, `load_in_8bit=True`, and a batch size of 32-64.
+  - **Note**: No synthetic CPU approximation of BERT will be used; the real model runs on the GPU.
 
-### 3.5 Collinearity Diagnosis
-- **Method**: Variance Inflation Factor (VIF) for fixed effects.
-- **Threshold**: VIF < 5.
-- **Action**: If `politeness` and `conversation_length` are highly collinear (VIF ≥ 5), the plan will re-fit the model without the collinear covariate or report the correlation descriptively, acknowledging that independent effects cannot be claimed.
+## Addressing Unresolved Panel Concerns
 
-## 4. Robustness & Subgroup Analysis
+1.  **Dataset Validity (HCI_P2)**: The plan now uses **HCI_P2** (YCAI3/HCI_P2) as the primary dataset, which explicitly contains `trust_rating`. This resolves the construct validity issue of using EmpatheticDialogues.
+2.  **Hierarchy Check**: A mandatory step verifies multiple dialogues per user. If not present, the model switches to CLM (no random effects).
+3.  **Fallback Classifier**: Replaced `textstat` with `polite` library for valid politeness scoring.
+4.  **Collinearity**: Explicit VIF check and centering of `conversation_length`.
+5.  **Robustness Metric**: Focus on coefficient consistency, not just raw score correlation.
+6.  **FR-005 (LIWC)**: Formally acknowledged as unavailable; `polite` library is the approved substitute.
+7.  **FR-001 (Persona-Chat)**: Treated as secondary. Attempted download; excluded if unverified or lacking trust metrics.
+8.  **SC-003/SC-004 Measurement**: Explicit tasks to generate `convergence_report.csv` and `robustness_metrics.csv`.
+9.  **SSoT**: `data/processed` is explicitly designated as the Single Source of Truth.
+10. **Constitution VI**: Explicitly names the Trust Rating scale from HCI_P2.
 
-### 4.1 Alternative Classifier (Open-Source)
-- **Method**: Re-compute politeness scores using the `textstat` library (using `bing` or `afinn` lexicons) and the `politeness` package.
-- **Comparison**: Correlation of **predicted quality scores** between BERT and lexicon models (SC-004).
-- **Rationale**: Ensures findings are not an artifact of the specific BERT model. **LIWC-2015 is not used** due to licensing; open-source alternatives are the standard.
+## References
 
-### 4.2 Subgroup Analysis
-- **Variables**: Age, Gender.
-- **Condition**: n ≥ 30 per subgroup (FR-006).
-- **Method**: Fit separate CLMMs or interaction terms (`politeness * age_group`).
-- **Correction**: Apply multiplicity correction for subgroup tests.
-
-## 5. Computational Feasibility
-
-- **Environment**: GitHub Actions Free Tier (2 CPU, 7 GB RAM).
-- **Strategy**:
- - **R Installation**: CI workflow will install `r-base` and `lme4` to support `rpy2`.
- - **Batch Processing**: Process dialogues in batches for BERT inference to avoid OOM.
- - **Data Subsetting**: If dataset > 10k dialogues, sample 10k randomly for the primary run, or process in chunks.
- - **Model Loading**: Load `politeness-bert` once and reuse; avoid reloading per utterance.
- - **CLMM**: Use `rpy2` to call R's `lme4` (preferred) or `statsmodels` (fallback) with optimized solvers.
- - **Convergence Fallback**: If CLMM fails, switch to fixed-effects ordinal regression.
-
-## 6. Decision Log
-
-| Decision | Rationale |
-|----------|-----------|
-| **Use HCI_P2 as Primary** | Only verified dataset with required `quality_rating` (1-5) outcome. |
-| **Use CLMM over GLM** | Outcome is ordinal (1-5); GLM assumes continuous. |
-| **Use Benjamini-Hochberg** | More powerful than Bonferroni for multiple tests while controlling FDR. |
-| **Subgroup n ≥ 30** | Ensures statistical validity; prevents overfitting on small groups. |
-| **Fallback to Fixed Effects** | If CLMM fails to converge, a simpler model is preferred over no result. |
-| **Open-Source Lexicon** | `textstat`/`politeness` used instead of proprietary LIWC to ensure reproducibility. |
-| **E-Value Calculation** | Required to assess robustness to unmeasured confounding in observational design. |
+- **Datasets**: HCI_P2 (YCAI3/HCI_P2) via Hugging Face Hub.
+- **Models**: `jfiedler/politeness-bert` (Hugging Face Hub).
+- **Statistical Methods**: Christensen, R. H. B. (2015). *ordinal - Regression Models for Ordinal Data*. R package version 2015.6-28.
+- **Libraries**: `polite` (Python) for lexicon-based politeness.

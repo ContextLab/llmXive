@@ -89,13 +89,13 @@ As a researcher, I want to run a Linear Mixed Effects (LME) model on the collect
 
 - **SC-001**: The difference in mean BISS scores between AI and Human image conditions is measured against the null hypothesis of no difference (p < 0.05) to determine statistical significance. (See US-3)
 - **SC-002**: The effect size (Cohen's d or partial eta-squared equivalent) of the "Image Type" factor is measured against the LME output to quantify the magnitude of the synthetic perfection effect. (See US-3)
-- **SC-003**: The family-wise error rate is measured against the alpha level of 0.05 after applying the Bonferroni correction to ensure valid inference across multiple tests. (See US-3)
+- **SC-003**: The family-wise error rate is measured against a conventional alpha level after applying the Bonferroni correction to ensure valid inference across multiple tests. (See US-3)
 - **SC-004**: The completion rate of the full image sequence is measured against the target of [deferred] of enrolled participants to ensure sufficient power for the within-subjects design. (See US-1)
 - **SC-005**: The runtime of the full analysis pipeline (from data ingestion to result generation) is measured against the specific threshold of ≤ 3600 seconds on the `ubuntu-latest` runner configuration to confirm CPU feasibility. (See Assumptions)
 
 ## Assumptions
 
-- **Dataset-variable fit**: The curated set of 20 human images and the generated set of 20 AI images are assumed to be matched for body type, pose, and lighting, such that "Image Type" is the only systematic difference. This matching is verified by FR-008 (metadata) and FR-009 (blind pre-test).
+- **Dataset-variable fit**: The curated set of human images and the generated set of AI images are assumed to be matched for body type, pose, and lighting., such that "Image Type" is the only systematic difference. This matching is verified by FR-008 (metadata) and FR-009 (blind pre-test).
 - **Inference framing**: Since this is an experimental design with random assignment to image order, findings regarding the "Image Type" effect will be framed as causal regarding the *stimulus origin*, provided the within-subjects design holds.
 - **Compute feasibility**: The analysis assumes that the statistical computations (LME) will fit within the RAM (≤ 7GB) and CPU time limits (≤ 3600 seconds) of the GitHub Actions free tier. AI images are PRE-GENERATED and stored as static assets; no runtime generation occurs.
 - **Measurement validity**: The BISS and INCOM instruments are assumed to be valid and reliable for the target population (university students/public volunteers) without requiring re-validation for this specific context.

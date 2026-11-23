@@ -1,93 +1,88 @@
 # Research: llmXive follow-up: extending "Kairos: A Native World Model Stack for Physical AI"
 
-## Research Question
+## 1. Problem Definition & Hypothesis
 
-How does the minimum information density required for stable long-horizon forecasting in embodied agents scale as input modality shifts from continuous visual streams to sparse, discrete sensor streams, and what architectural properties are necessary to preserve error bounds under these constraints?
+**Research Question**: How does the minimum information density required for stable long-horizon forecasting in embodied agents scale as input modality shifts from continuous visual streams to sparse, discrete sensor streams?
 
-## Dataset Strategy
+**Hypothesis**: There exists a critical quantization threshold (likely between 6-bit and 8-bit for proprioceptive data) where the Total MSE of the discrete modality exceeds the continuous baseline by a statistically significant margin (p < 0.05), indicating a breakdown in the Hybrid Linear Temporal Attention mechanism's ability to preserve error bounds under sparse input.
 
-The primary dataset for this study is the **LIBERO** benchmark, which provides continuous RGB frames and proprioceptive states for embodied agents. The study will not use the raw visual streams for the discrete modality analysis but will use the underlying state vectors (object positions, velocities, etc.) to generate the quantized inputs.
+**Key Variables**:
+- **Independent**: Quantization Level (4, 6, 8, 16-bit), Noise Level (0.1 * step), Horizon (100, 500, 1000), Modality (Continuous vs Discrete).
+- **Dependent**: Total MSE (normalized by dimensionality), Cumulative Error Rate, MSE Ratio (Discrete/Continuous).
+- **Control**: Frozen Continuous Baseline (evaluated on quantized ground truth), Random Seed.
 
-| Dataset Component | Source URL (Verified) | Usage in Plan |
-|:--- |:--- |:--- |
-| **LIBERO State Data** | ` (Note: Actual format is HDF5) | Primary source for continuous proprioceptive states and object positions. Will be parsed using `h5py` or `lerobot` library to extract state vectors for quantization. |
-| **LIBERO Episode Data** | ` (Note: Actual format is HDF5) | Used to verify episode structure and temporal consistency of state sequences. |
-| **Baseline Visual Data** | *Same as above* | The continuous visual modality baseline will be derived from the same dataset by *not* applying quantization, ensuring architectural consistency. |
+## 2. Dataset Strategy
 
-**Note**: No verified source was found for pre-existing "JSON-serialized" discrete datasets. Therefore, the `data/quantize.py` script will generate the discrete JSON vectors from the verified LIBERO sources, ensuring data hygiene (Principle III) and reproducibility (Principle I). The plan explicitly handles the HDF5 format of the source data.
+### 2.1 Source Verification
+The study requires the `lerobot/libero_plus` dataset.
+- **Status**: **NO VERIFIED SOURCE FOUND** in the provided "Verified datasets" block.
+- **Action**: The spec assumes `lerobot/libero_plus` is available. However, the "Verified datasets" block only lists:
+  - `gokulraja17/rice-rgb-demo`
+  - `maderix/flickr_bw_rgb`
+  - `gokulraja17/rice-rgb-demo2`
+  - `AdityaMayukhSom/MixSub-LLaMA-3.2-Text-Only-Overlap-CPU-Score`
+  
+  **CRITICAL GAP**: The spec explicitly requires `lerobot/libero_plus` (robotic manipulation data with `observations.positions` and `observations.ee_pos`). None of the verified URLs correspond to this dataset. The `rice-rgb` datasets are image-only; the `MixSub` dataset is text-only.
+  
+  **Decision**: Since the "Verified datasets" block does not contain `lerobot/libero_plus`, and the plan **cannot** fabricate a URL, we must:
+  1.  **Attempt Standard Load**: Use `datasets.load_dataset("lerobot/libero_plus")` assuming it is publicly available on Hugging Face Hub (standard for LeRobot). If this fails due to access restrictions or non-existence, the pipeline must halt.
+  2.  **Schema Verification**: Explicitly verify the presence of `observations.ee_pos` and `observations.positions` (or `joint_positions` depending on the specific task subset). If keys are missing, the run fails.
+  3.  **Fallback**: If `lerobot/libero_plus` is inaccessible, the study **cannot** proceed as specified because no verified substitute exists in the provided list that contains robotic state vectors (`positions`, `ee_pos`). The plan will proceed with the assumption that the standard HF load works, but the implementation must include a hard fail if the dataset is not found, rather than switching to a fake dataset.
+  
+  *Note: The plan explicitly relies on the assumption that `lerobot/libero_plus` is publicly fetchable via the `datasets` library, as no verified URL was provided in the input block.*
 
-**Dataset Variable Fit**:
-- **Required Variables**: Object positions (x, y, z), velocities (vx, vy, vz), binary collision flags, gripper state.
-- **Source Fit**: The LIBERO HDF5 files contain `states` arrays with proprioceptive data (e.g., `robot0_eef_pos`, `robot0_eef_quat`, `robot0_gripper_qpos`).
-- **Gap Analysis**: The spec requires "RGB frames" for the continuous baseline, but the *discrete* analysis relies on the *state vectors*. The plan explicitly extracts state vectors from the HDF5 files. If the HDF5 files lack specific velocity fields (e.g., only position is stored), the plan will compute finite differences from position data. **Warning**: Finite differences amplify noise; this will be explicitly logged and the resulting error growth rate will be interpreted with caution.
+### 2.2 Data Processing Strategy: 2x2 Factorial Design
+To isolate "modality shift" from "telemetry noise," we implement a 2x2 factorial design:
+1.  **Continuous + NoNoise**: Raw continuous data (no noise).
+2.  **Continuous + Noise**: Continuous data + Gaussian noise (before quantization).
+3.  **Discrete + NoNoise**: Quantized data (no noise).
+4.  **Discrete + Noise**: Quantized data + Gaussian noise (before quantization).
 
-## Methodology
+**Ground Truth Definition**: For a fair comparison, **both** the Continuous and Discrete models are evaluated against the **Quantized Ground Truth** (derived from continuous data). This ensures the MSE measures the model's ability to predict the quantized state, not the impossibility of reconstructing continuous values from discrete inputs.
 
-### Phase 1: Data Construction & Quantization (US-1)
-1. **Ingestion**: Download verified LIBERO HDF5 files. Parse using `h5py` to extract `states` arrays.
-2. **Extraction**: Parse `states` arrays to extract continuous vectors (position, quaternion, gripper).
-3. **Quantization**: Apply uniform quantization to target bit-depths (4-bit: -15, 8-bit: -255, 16-bit: 0-65535).
- - *Formula*: `discrete_val = floor((val - min) / (max - min) * (2^bits - 1))`
- - *Clamping*: Ensure all values fall within valid integer ranges.
-4. **Noise Injection**: Add Gaussian noise ($\mathcal{N}(\mu, \sigma)$) with varying noise levels.
- - *Clamping*: Post-noise values are clamped to the nearest valid discrete bin to prevent "floating-point leakage" (Edge Case).
-5. **Serialization**: Save as JSON-serialized state vectors.
+- **Source Schema**: `observations.positions` (orientation), `observations.ee_pos` (position).
+- **Transformation**:
+  1.  **Derivation**: Calculate velocity and acceleration via finite differencing on *continuous* float32 arrays.
+  2.  **Noise Injection**: Add Gaussian noise ($\sigma = 0.1 \times \text{quantization\_step}$) to continuous values.
+  3.  **Quantization**: Map to integer bins [0, $2^N - 1$] for $N \in \{4, 6, 8, 16\}$.
+  4.  **Validation**: Check for 1-bit collapse (all values identical).
+- **Streaming**: Use `streaming=True` to avoid loading full dataset into RAM; process in chunks.
 
-### Phase 2: Model Adaptation & CPU Training (US-2)
-**Two-Stage Training Protocol** (Resolved Construct Validity):
-1. **Stage 1 (Encoder Pre-training)**: Train the *discrete projection layer* (encoder) on the quantized data to learn the mapping from discrete bins to the latent embedding space. This ensures the encoder can represent the input.
-2. **Stage 2 (Freeze & Train)**: Freeze the trained discrete projection layer. Load the pre-trained Kairos Hybrid Linear Temporal Attention weights. Train *only* the temporal attention module on the quantized sequences.
- - *Constraint*: No gradient updates to the encoder (Stage 2).
- - *Rationale*: This isolates the stability of the *attention mechanism* (the research target) from the encoder's ability to represent the input.
+### 2.3 Compute Feasibility (CPU vs. GPU)
+- **Constraint**: GitHub Actions Free Tier (2-core, 7GB RAM, 6h).
+- **Method**: 
+  - **CPU-First**: All training and inference must run on `device="cpu"`. No CUDA, no mixed precision.
+  - **Model Size**: The Kairos Hybrid Linear Temporal Attention module must be loaded in full precision (float32) but with a **heuristic-initialized** discrete projection layer. The model size must be constrained (e.g., limited hidden dimensions or subset of layers) to fit within 7GB RAM.
+  - **Sampling**: If the full `lerobot` dataset exceeds 7GB, the plan will sample a fixed number of episodes (e.g., 50-100) to fit the memory budget while maintaining statistical power.
+  - **No GPU Escape Hatch Needed**: The spec explicitly forbids GPU acceleration for this study ("CPU-only environment"). The "GPU escape hatch" is not applicable here as the method is designed to be CPU-tractable.
 
-**Training Loop**: Execute on CPU-only PyTorch.
- - *Input*: Quantized sequences.
- - *Loss*: Mean Squared Error (MSE) between predicted and ground-truth discrete sequences (decoded to continuous space for comparison, see Phase 3).
- - *Constraints*:
- - Batch size tuned to fit < 7GB RAM.
- - Max epochs: a predetermined limit (or graceful exit after a reasonable time duration).
- - Checkpointing: Save model state every epoch.
+## 3. Statistical Methodology
 
-### Phase 3: Stability Analysis & Threshold Mapping (US-3)
-**Revised Validation Target** (Resolved Tautology):
-- **Ground Truth**: The original continuous state vector.
-- **Prediction**: The model predicts a sequence of discrete states. These are *decoded* back to continuous space (using the inverse quantization mapping) before calculating error.
-- **Metric**: MSE between the *decoded* prediction and the *original* continuous ground truth. This measures the information loss of the discrete bottleneck, not just the model's ability to invert a deterministic function.
+### 3.1 Power Analysis
+- **Goal**: Determine $N$ (number of independent runs) to detect Cohen's $d = 0.5$ with Power $\ge 0.8$, $\alpha = 0.05$.
+- **Method**: **LMM-based Simulation**. We will simulate data with the expected variance structure (including random effects for `episode_id` and temporal autocorrelation) to estimate the effective sample size required. This replaces the t-test approximation.
+- **Output**: `power_analysis_report.json` with calculated $N$.
 
-1. **Error Calculation**: Compute MSE for each prediction horizon across a range of short, medium, and long steps.
-2. **Scaling Law**: Plot MSE vs. Quantization Level (4, 8, 16-bit).
-3. **Statistical Validation**:
- - Perform multiple independent runs with different noise seeds.
- - **Test**: Bayesian Hierarchical Modeling (BHM) with partial pooling. This allows for robust estimation of effect sizes even with low N (N=10), mitigating Type II error risks.
- - **Metric**: Posterior distribution of the difference in error rates between Discrete and Continuous modalities. A credible interval excluding zero indicates a significant degradation.
-4. **Threshold Identification**: Identify the bit-depth where the normalized MSE exceeds **[deferred]** of the continuous baseline MSE (as per US-3 Acceptance Scenario 1). This explicitly defines the threshold determination strategy.
+### 3.2 Error Analysis
+- **Metric**: Total MSE (Discrete) vs. Total MSE (Continuous), both normalized by state space dimensionality ($MSE / D$).
+- **Ratio**: $R = \text{MSE}_{\text{discrete}} / \text{MSE}_{\text{continuous}}$.
+- **Threshold**: Stability is lost if the 95% CI of $R$ excludes 1.0 (upper bound > 1.0).
 
-## Statistical Rigor & Feasibility
+### 3.3 Significance Testing
+- **Model**: Linear Mixed-Effects Model (LMM).
+  - **Fixed Effect**: `modality` (Discrete vs. Continuous).
+  - **Random Effect**: `episode_id` (to account for temporal autocorrelation).
+  - **Alternative**: Block-bootstrap if LMM convergence fails.
+- **Output**: `stats_results.json` with p-values, coefficients, and confidence intervals.
 
-### Statistical Rigor (Quantitative Studies)
-- **Multiple Comparisons**: Since 3 quantization levels are tested, a correction factor is applied in the BHM model structure (hierarchical priors) to control for family-wise error rate.
-- **Power Justification**: 10 independent runs are planned. To mitigate the risk of Type II error with low N, the plan uses **Bayesian Hierarchical Modeling** (BHM) instead of frequentist t-tests. BHM allows for partial pooling across runs, borrowing strength to estimate effects more robustly and providing credible intervals that better characterize uncertainty.
-- **Causal Inference**: Claims are framed as **associational** (relative degradation due to quantization). No causal claims are made about the "true" physical world, as the ground truth for the discrete modality is synthetic (derived from continuous).
-- **Collinearity**: Predictors (quantization level, noise level) are orthogonal by design (sweeping one while holding the other constant). However, position and velocity are definitionally related; the analysis will report them descriptively and acknowledge the collinearity in the error growth rate.
-- **Measurement Validity**: The "discrete sensor" is a simulation. Validity relies on the assumption that uniform quantization + Gaussian noise approximates real-world sensor degradation. This is a standard assumption in robust control literature.
-
-### Compute Feasibility (GitHub Actions Free Tier)
-- **Hardware**: 2 CPU cores, ~7 GB RAM, ~14 GB disk.
-- **Strategy**:
- - **Data Subset**: Only a subset of LIBERO episodes (e.g., 50 episodes) will be used to ensure the dataset fits in RAM after quantization.
- - **Model Size**: The Kairos adapter will use a reduced hidden dimension if the full model exceeds memory (documented in `data-model.md`).
- - **Training**: CPU training is slow. The plan targets a feasible duration for 100 epochs on a *sampled* dataset. If runtime exceeds 6 hours, the loop exits gracefully, and the checkpoint is used for analysis (SC-003).
- - **Libraries**: `torch` (CPU wheel), `numpy`, `pandas`, `h5py`, `arviz` are all compatible with CPU-only environments. No `bitsandbytes` or CUDA-specific code.
-
-## Decision Rationale
+## 4. Decision Rationale
 
 | Decision | Rationale |
-|:--- |:--- |
-| **Use LIBERO HDF5** | Verified source available. Contains necessary state vectors. Plan updated to parse HDF5 correctly. |
-| **Custom Quantization Script** | No verified pre-quantized dataset exists. Custom script ensures reproducibility and exact control over bit-depth. |
-| **Two-Stage Training** | Isolates the effect of modality shift from architectural changes (FR-002) and ensures the encoder can represent the discrete input. |
-| **CPU-Only Execution** | Directly addresses the "resource-constrained" research question and ensures runnability on free CI. |
-| **10 Independent Runs + BHM** | Minimum required for a valid analysis within time limits; BHM mitigates low-N power issues. |
-| **Graceful Exit at 6h** | Prevents job failure and allows partial results to be analyzed, ensuring the study can proceed even if training is slower than expected. |
-| **20% Threshold** | Explicitly defined in US-3 and adopted as the stability boundary criterion. |
-| **Decoded MSE** | Measures information loss against the original continuous ground truth, avoiding tautological validation. |
+|----------|-----------|
+| **Pre-quantization Derivation** | Prevents amplification of quantization noise in velocity fields. |
+| **Heuristic Initialization** | Ensures convergence within 6h; isolates modality shift from initialization artifacts. |
+| **LMM over T-test** | Accounts for non-independence of time-series errors within episodes. **Requires Constitution Amendment**. |
+| **Total MSE (No Subtraction)** | Adheres to FR-004; avoids theoretical noise floor assumptions. |
+| **CPU-Only** | Hard constraint for edge simulation; ensures reproducibility on free-tier CI. |
+| **Dataset Source** | `lerobot/libero_plus` is required. No verified URL exists in input; standard HF load attempted. If unavailable, study halts. |
+| **Fair Baseline** | Uses **frozen** pre-trained weights evaluated on **quantized ground truth** to ensure valid comparison and CPU feasibility. |

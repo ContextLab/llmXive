@@ -11,8 +11,6 @@ import json
 from datetime import UTC, datetime
 from pathlib import Path
 
-import yaml
-
 from llmxive.paper_reprocess.branch_nocode import spawn_followup_project
 from llmxive.types import Project, Stage
 

@@ -1,3 +1,1 @@
-# This file will be populated by code/ingest.py upon successful execution.
-# It contains SHA256 checksums for generated data artifacts.
-# Format: <sha256_hash>  <filename>
+01ba4719c75b6742a81340758583707967651711541875548940603692877126  merged_drugs.csv

@@ -1,123 +1,150 @@
 """
-Reproducible logging infrastructure for the Corrosion Potential Pipeline.
-
-Implements FR-010:
-- Configurable log levels (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-- Timestamped log entries with ISO 8601 format
-- Dual output: console (stdout) and file (data/logs/pipeline.log)
-- Consistent formatter across all pipeline components
-- Thread-safe logging via standard library handlers
+Logging infrastructure setup for the corrosion prediction pipeline.
+Implements FR-010: Reproducible logging with timestamps, levels, and structured JSON‑line output.
 """
+import json
 import logging
 import os
 import sys
-from datetime import datetime
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
-# Ensure log directory exists
-LOG_DIR = Path("data/logs")
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+# Global logger registry to prevent duplicate handlers
+_loggers = {}
+_log_level = logging.INFO
 
-# Define log file path
-LOG_FILE = LOG_DIR / "pipeline.log"
+# Default log directory (relative to project root)
+# This aligns with T001 setup: data/logs/
+DEFAULT_LOG_DIR = Path("data/logs")
+DEFAULT_LOG_FILE = "pipeline.log"
 
-# Cache to prevent duplicate handlers
-_logger_initialized = False
+
+class JsonLogFormatter(logging.Formatter):
+    """
+    Formatter that outputs a JSON object per log record.
+    Fields:
+        timestamp: ISO‑8601 UTC timestamp
+        logger:   logger name
+        level:    log level name (e.g., INFO)
+        message:  the log message
+    """
+
+    def format(self, record: logging.LogRecord) -> str:
+        # Ensure timestamp is in UTC ISO format with seconds precision
+        ts = datetime.fromtimestamp(record.created, tz=timezone.utc).isoformat()
+        log_entry = {
+            "timestamp": ts,
+            "logger": record.name,
+            "level": record.levelname,
+            "message": record.getMessage(),
+        }
+        return json.dumps(log_entry, ensure_ascii=False)
 
 
 def setup_logger(
-    name: str = "corrosion_pipeline",
+    name: str,
+    log_file: Optional[str] = None,
     level: int = logging.INFO,
-    log_file: Optional[Path] = None,
-    console_output: bool = True,
+    console: bool = True,
 ) -> logging.Logger:
     """
-    Configure and return a reproducible logger instance.
+    Setup a logger with optional file and console handlers.
+    Ensures reproducible formatting and prevents duplicate handlers.
 
     Args:
-        name: Logger name (default: "corrosion_pipeline")
-        level: Logging level (default: logging.INFO)
-        log_file: Path to log file (default: data/logs/pipeline.log)
-        console_output: Whether to log to console (default: True)
+        name: Logger name (usually __name__).
+        log_file: Path to log file relative to project root.
+                  If None, no file handler is added.
+        level: Logging level.
+        console: Whether to also log to stdout.
 
     Returns:
-        Configured logging.Logger instance
+        Configured logger instance.
     """
-    global _logger_initialized
+    if name in _loggers:
+        return _loggers[name]
 
     logger = logging.getLogger(name)
     logger.setLevel(level)
+    logger.propagate = False
 
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
+    # Remove any existing handlers (important for re‑runs in tests)
+    logger.handlers.clear()
 
-    # Create formatter with ISO 8601 timestamp and level
-    formatter = logging.Formatter(
-        fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-        datefmt="%Y-%m-%dT%H:%M:%S",
-    )
-
-    # File handler
-    file_path = log_file if log_file else LOG_FILE
-    try:
-        file_handler = logging.FileHandler(file_path, mode="a", encoding="utf-8")
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-    except (PermissionError, OSError) as e:
-        # Fallback to console only if file write fails
-        sys.stderr.write(f"Warning: Could not create log file {file_path}: {e}\n")
+    # Use JSON formatter for both console and file to keep output consistent
+    json_formatter = JsonLogFormatter()
 
     # Console handler
-    if console_output:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
+    if console:
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setLevel(level)
+        ch.setFormatter(json_formatter)
+        logger.addHandler(ch)
 
-    # Mark as initialized to avoid reconfiguration
-    _logger_initialized = True
+    # File handler
+    if log_file:
+        # Resolve relative paths against the current working directory (project root)
+        log_path = Path(log_file)
+        if not log_path.is_absolute():
+            log_path = Path.cwd() / log_path
+        # Ensure parent directory exists
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        fh = logging.FileHandler(str(log_path), encoding="utf-8")
+        fh.setLevel(level)
+        fh.setFormatter(json_formatter)
+        logger.addHandler(fh)
 
+    _loggers[name] = logger
     return logger
 
 
-def get_logger(name: str = "corrosion_pipeline") -> logging.Logger:
+def get_logger(name: str) -> logging.Logger:
     """
-    Retrieve an existing logger or create a new one with default settings.
+    Retrieve a logger, creating it with default settings if necessary.
+    Default settings log to ``data/logs/pipeline.log`` and to the console.
 
     Args:
-        name: Logger name
+        name: Logger name.
 
     Returns:
-        logging.Logger instance
+        Logger instance.
     """
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        return setup_logger(name=name)
-    return logger
+    if name in _loggers:
+        return _loggers[name]
+
+    default_log_path = DEFAULT_LOG_DIR / DEFAULT_LOG_FILE
+    return setup_logger(
+        name,
+        log_file=str(default_log_path),
+        console=True,
+        level=_log_level,
+    )
 
 
-# Convenience function for quick logging without explicit setup
 def log_message(
+    logger_name: str,
     message: str,
     level: int = logging.INFO,
-    logger_name: str = "corrosion_pipeline",
 ) -> None:
     """
-    Log a message using the default logger configuration.
+    Convenience wrapper to log a message using the named logger.
 
     Args:
-        message: Message to log
-        level: Logging level
-        logger_name: Name of the logger to use
+        logger_name: Name of the logger.
+        message: Message to log.
+        level: Logging level (e.g., ``logging.INFO``).
     """
     logger = get_logger(logger_name)
     logger.log(level, message)
 
 
-# Initialize default logger on import if needed
-# This ensures logging is available immediately when module is imported
-if not _logger_initialized:
-    setup_logger()
+def set_global_log_level(level: int) -> None:
+    """
+    Set the global logging level for all subsequently created loggers.
+
+    Args:
+        level: Logging level (e.g., ``logging.DEBUG``).
+    """
+    global _log_level
+    _log_level = level

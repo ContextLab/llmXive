@@ -1,0 +1,58 @@
+{
+  "nodes": [
+    {
+      "id": 0,
+      "type": "module",
+      "start_point": { "row": 0, "column": 0 },
+      "end_point": { "row": 2, "column": 13 }
+    },
+    {
+      "id": 1,
+      "type": "import_statement",
+      "start_point": { "row": 0, "column": 0 },
+      "end_point": { "row": 0, "column": 10 }
+    },
+    {
+      "id": 2,
+      "type": "identifier",
+      "start_point": { "row": 0, "column": 7 },
+      "end_point": { "row": 0, "column": 9 }
+    },
+    {
+      "id": 3,
+      "type": "expression_statement",
+      "start_point": { "row": 1, "column": 0 },
+      "end_point": { "row": 1, "column": 13 }
+    },
+    {
+      "id": 4,
+      "type": "call",
+      "start_point": { "row": 1, "column": 0 },
+      "end_point": { "row": 1, "column": 13 }
+    },
+    {
+      "id": 5,
+      "type": "identifier",
+      "start_point": { "row": 1, "column": 0 },
+      "end_point": { "row": 1, "column": 5 }
+    },
+    {
+      "id": 6,
+      "type": "string",
+      "start_point": { "row": 1, "column": 6 },
+      "end_point": { "row": 1, "column": 13 }
+    }
+  ],
+  "edges": [
+    { "from": 0, "to": 1 },
+    { "from": 1, "to": 2 },
+    { "from": 0, "to": 3 },
+    { "from": 3, "to": 4 },
+    { "from": 4, "to": 5 },
+    { "from": 4, "to": 6 }
+  ],
+  "metadata": {
+    "has_semantic_nodes": true,
+    "fallback_active": false
+  }
+}

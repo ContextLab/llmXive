@@ -1,0 +1,4 @@
+# Checksums for project artifacts
+# The 'filtered_dataset_sha256' entry will be populated automatically
+# after the first successful download & filter run.
+filtered_dataset_sha256: ""

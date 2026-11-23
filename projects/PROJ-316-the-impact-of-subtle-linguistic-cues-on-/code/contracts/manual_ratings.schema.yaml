@@ -1,0 +1,35 @@
+# Contract definition for manual authenticity ratings
+# Generated for Project PROJ-316
+# This schema defines the expected structure of data/processed/manual_ratings.csv
+
+version: "1.0"
+description: "Schema for human-annotated authenticity ratings"
+source: "Phase 0 Manual Annotation Protocol (T001b, T001k)"
+
+columns:
+  conversation_id:
+    type: string
+    description: "Unique identifier linking to the raw conversation"
+    nullable: false
+
+  text_content:
+    type: string
+    description: "The text snippet that was rated"
+    nullable: false
+
+  authenticity_score:
+    type: integer
+    description: "Likert scale rating of perceived authenticity (1-5)"
+    nullable: false
+    min: 1
+    max: 5
+
+  rater_id:
+    type: string
+    description: "Identifier for the human rater"
+    nullable: false
+
+  timestamp:
+    type: string
+    description: "ISO 8601 timestamp of the rating"
+    nullable: false

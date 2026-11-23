@@ -1,62 +1,128 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Merged BCC Steel Dataset
-description: Schema for the merged experimental and DFT dataset used in yield strength prediction.
+title: Merged BCC Steel Dataset Schema
+description: >
+  Schema for the merged dataset containing experimental yield strength data
+  and DFT-derived elastic constants for BCC steels.
 type: object
 required:
+  - meta
   - columns
   - data
 properties:
+  meta:
+    type: object
+    required:
+      - generated_at
+      - source_experimental
+      - source_dft
+      - row_count
+      - filter_criteria
+    properties:
+      generated_at:
+        type: string
+        format: date-time
+      source_experimental:
+        type: string
+        description: URL or identifier for the experimental data source
+      source_dft:
+        type: string
+        description: API or identifier for the DFT data source (e.g., Materials Project)
+      row_count:
+        type: integer
+        minimum: 20
+        description: Number of rows in the dataset (must be >= 20 per spec)
+      filter_criteria:
+        type: object
+        required:
+          - crystal_structure
+          - space_group
+        properties:
+          crystal_structure:
+            type: string
+            enum: [BCC]
+          space_group:
+            type: integer
+            enum: [229]
   columns:
     type: array
-    description: List of column names in the dataset.
-    items:
-      type: string
-    minItems: 8
-    contains:
-      const: "yield_strength_MPa"
-  data:
-    type: array
-    description: List of records (rows) in the dataset.
+    description: List of column definitions
     items:
       type: object
       required:
-        - composition
-        - yield_strength_MPa
+        - name
+        - dtype
+        - description
       properties:
+        name:
+          type: string
+        dtype:
+          type: string
+          enum: [float64, int64, object, bool]
+        description:
+          type: string
+        nullable:
+          type: boolean
+          default: false
+  data:
+    type: array
+    description: Array of records matching the columns definition
+    items:
+      type: object
+      additionalProperties: false
+      properties:
+        material_id:
+          type: string
+          description: Unique identifier for the material
         composition:
+          type: string
+          description: Chemical composition string (e.g., "Fe-0.1C-2.0Mn")
+        yield_strength_MPa:
+          type: number
+          minimum: 0
+          description: Experimental yield strength in MPa
+        uncertainty_MPa:
+          type: number
+          minimum: 0
+          description: Uncertainty or range midpoint flag
+        shear_modulus_GPa:
+          type: number
+          minimum: 0
+          description: DFT-derived shear modulus in GPa
+        bulk_modulus_GPa:
+          type: number
+          minimum: 0
+          description: DFT-derived bulk modulus in GPa
+        elastic_stiffness_C11:
+          type: number
+          description: C11 elastic constant
+        elastic_stiffness_C12:
+          type: number
+          description: C12 elastic constant
+        elastic_stiffness_C44:
+          type: number
+          description: C44 elastic constant
+        space_group_number:
+          type: integer
+          enum: [229]
+        crystal_system:
+          type: string
+          enum: [cubic]
+        elements:
+          type: array
+          items:
+            type: string
+          description: List of element symbols present
+        atomic_fractions:
           type: object
-          description: Chemical composition with element symbols as keys and atomic fractions as values.
+          description: Map of element symbol to atomic fraction
           additionalProperties:
             type: number
             minimum: 0
             maximum: 1
-        yield_strength_MPa:
-          type: number
-          description: Yield strength in MPa.
-          minimum: 0
-        shear_modulus_GPa:
-          type: number
-          description: Shear modulus in GPa from DFT.
-          minimum: 0
-        bulk_modulus_GPa:
-          type: number
-          description: Bulk modulus in GPa from DFT.
-          minimum: 0
-        space_group:
-          type: integer
-          description: Space group number.
-          minimum: 1
-          maximum: 230
-        dft_id:
+        dft_source_id:
           type: string
-          description: Materials Project ID or source identifier.
-        source:
+          description: Materials Project ID or similar
+        experimental_source:
           type: string
-          description: Source of the experimental data (e.g., MatNavi, NIST).
-        uncertainty_flag:
-          type: boolean
-          description: True if the yield strength was derived from a range.
-  row_count:
-    type: integer
-    description: Total number of rows in the dataset.
-    minimum: 20
+          description: Source of experimental data
+additionalProperties: false

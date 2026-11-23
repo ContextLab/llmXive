@@ -1,100 +1,93 @@
 $schema: http://json-schema.org/draft-07/schema#
-$id: https://llmxive.org/schemas/output.schema.yaml
-title: Morphological Metrics Output Schema
+title: Regression Analysis Output Schema
 description: |
-  Schema for the structured output of the morphological analysis pipeline.
-  Contains quantitative metrics extracted from microglial images.
+  Schema for the output of the multivariate regression analysis.
+  Includes model coefficients, statistical significance, and validation metrics.
+  This schema defines the structure of `reports/regression_results.json` and
+  intermediate artifacts like `data/intermediates/vif_check.json` and
+  `data/intermediates/sensitivity_analysis.json`.
 type: object
 required:
-  - version
-  - analysis_timestamp
-  - results
+  - regression_results
+  - validation_metrics
 properties:
-  version:
-    type: string
-    pattern: "^\\d+\\.\\d+\\.\\d+$"
-    description: Semantic version of the output schema.
-  analysis_timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of when the analysis was run.
-  pipeline_info:
+  regression_results:
     type: object
-    description: Information about the pipeline execution.
+    description: Results from the multiple linear regression model.
+    required:
+      - coefficients
+      - p_values
+      - interaction_terms
+      - vif_scores
     properties:
-      code_version:
-        type: string
-      parameters:
+      coefficients:
         type: object
-        description: Key parameters used (e.g., Sholl radii, denoising strength).
-  results:
-    type: array
-    description: List of metric records per image/subject.
-    items:
-      type: object
-      required:
-        - image_id
-        - subject_id
-        - brain_region
-        - branch_points
-        - total_length_um
-        - soma_area_um2
-      properties:
-        image_id:
-          type: string
-          description: Reference to the source image.
-        subject_id:
-          type: string
-          description: Reference to the subject.
-        brain_region:
-          type: string
-          description: Brain region of the subject (inherited from metadata).
-        cognitive_status:
-          type: string
-          description: Cognitive status of the subject (inherited from metadata).
-        branch_points:
-          type: integer
-          minimum: 0
-          description: Count of branch points in the skeletonized neurites.
-        total_length_um:
+        description: Estimated regression coefficients for each predictor and intercept.
+        additionalProperties:
+          type: number
+        example:
+          "Intercept": 0.542
+          "branch_points": -0.012
+          "total_length": 0.003
+          "soma_area": 0.001
+          "sholl_intersections": -0.005
+          "PathologyStatus_EarlyAD": 0.150
+          "BrainRegion_Hippocampus": -0.080
+      p_values:
+        type: object
+        description: P-values associated with each coefficient.
+        additionalProperties:
           type: number
           minimum: 0
-          description: Total length of processes in micrometers.
-        soma_area_um2:
+          maximum: 1
+        example:
+          "Intercept": 0.001
+          "branch_points": 0.032
+          "total_length": 0.450
+          "soma_area": 0.810
+          "sholl_intersections": 0.120
+          "PathologyStatus_EarlyAD": 0.008
+          "BrainRegion_Hippocampus": 0.045
+      interaction_terms:
+        type: array
+        description: List of interaction term names included in the model.
+        items:
+          type: string
+        example:
+          - "PathologyStatus_EarlyAD:BrainRegion_Hippocampus"
+      vif_scores:
+        type: object
+        description: Variance Inflation Factor scores for each predictor.
+        additionalProperties:
           type: number
-          minimum: 0
-          description: Area of the cell soma in square micrometers.
-        sholl_intersections:
-          type: array
-          description: Sholl analysis results (intersections per radius).
-          items:
-            type: object
-            required:
-              - radius_um
-              - intersection_count
-            properties:
-              radius_um:
-                type: number
-                minimum: 0
-              intersection_count:
-                type: integer
-                minimum: 0
-        processing_status:
-          type: string
-          enum:
-            - success
-            - skipped_empty
-            - failed
-          description: Status of the processing for this image.
-        error_message:
-          type: string
-          description: Error message if processing_status is 'failed'.
-        quality_metrics:
-          type: object
-          description: Optional quality control metrics (e.g., SNR, contrast).
-          properties:
-            snr:
-              type: number
-            contrast_ratio:
-              type: number
+          minimum: 1
+        example:
+          "branch_points": 1.05
+          "total_length": 1.02
+          "soma_area": 1.08
+          "sholl_intersections": 1.03
+  validation_metrics:
+    type: object
+    description: Metrics evaluating model performance and stability.
+    required:
+      - r2_mean
+      - r2_std
+      - sensitivity_variation
+    properties:
+      r2_mean:
+        type: number
+        description: Mean R-squared value across cross-validation folds.
+        minimum: 0
+        maximum: 1
+        example: 0.65
+      r2_std:
+        type: number
+        description: Standard deviation of R-squared values across folds.
+        minimum: 0
+        example: 0.04
+      sensitivity_variation:
+        type: number
+        description: Variation in key p-values across Sholl radius sensitivity sweeps.
+        minimum: 0
+        example: 0.02
 additionalProperties: false

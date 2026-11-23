@@ -1,8 +1,8 @@
 """
 Descriptor calculation module for High-Entropy Alloys.
 
-Computes Miedema-derived features and standard descriptors,
-then applies ILR transformation for linear model compatibility.
+Computes Miedema-derived features ($MIEDEMA_FEATURES$) and standard descriptors.
+Applies Isometric Log-Ratio (ILR) transformation for compositional data.
 """
 import logging
 import numpy as np
@@ -10,377 +10,429 @@ import pandas as pd
 from typing import List, Tuple, Optional, Dict, Any
 from scipy import stats
 from pymatgen.core import Element, PeriodicTable
-from utils.logging_config import get_logger
-from features.coda import ilr_transform_dataframe
-from utils.validators import ValidationError
 
+from features.coda import ilr_transform_dataframe, ilr_inverse_dataframe
+from src.utils.logging_config import get_logger
+
+# Initialize logger
 logger = get_logger(__name__)
 
-# Miedema parameters for elements (simplified lookup)
-# These are representative values; in production, use a full database
+# Miedema Parameters (simplified dictionary for demonstration)
+# In a production environment, these should be loaded from a comprehensive database or file.
+# Values are approximations based on Miedema's model parameters (phi, n_ws, V).
+# Format: {'phi': electronegativity work function (V), 'n_ws': electron density parameter (d.u.), 'V': molar volume (cm^3/mol)}
 MIEDEMA_PARAMS = {
-    'H': {'phi': 3.30, 'n_ws': 1.24, 'r': 0.37},
-    'He': {'phi': 4.16, 'n_ws': 3.00, 'r': 0.31},
-    'Li': {'phi': 2.90, 'n_ws': 0.43, 'r': 1.52},
-    'Be': {'phi': 3.60, 'n_ws': 0.82, 'r': 1.12},
-    'B': {'phi': 5.30, 'n_ws': 1.70, 'r': 0.82},
-    'C': {'phi': 5.85, 'n_ws': 2.20, 'r': 0.77},
-    'N': {'phi': 4.80, 'n_ws': 1.40, 'r': 0.71},
-    'O': {'phi': 6.20, 'n_ws': 2.00, 'r': 0.66},
-    'F': {'phi': 6.50, 'n_ws': 2.50, 'r': 0.64},
-    'Ne': {'phi': 6.80, 'n_ws': 3.20, 'r': 0.58},
-    'Na': {'phi': 3.10, 'n_ws': 0.32, 'r': 1.86},
-    'Mg': {'phi': 3.40, 'n_ws': 0.54, 'r': 1.60},
-    'Al': {'phi': 4.20, 'n_ws': 0.93, 'r': 1.43},
-    'Si': {'phi': 4.80, 'n_ws': 1.30, 'r': 1.17},
-    'P': {'phi': 5.10, 'n_ws': 1.50, 'r': 1.10},
-    'S': {'phi': 5.40, 'n_ws': 1.70, 'r': 1.04},
-    'Cl': {'phi': 5.70, 'n_ws': 1.90, 'r': 0.99},
-    'Ar': {'phi': 6.00, 'n_ws': 2.20, 'r': 0.94},
-    'K': {'phi': 3.20, 'n_ws': 0.25, 'r': 2.27},
-    'Ca': {'phi': 3.30, 'n_ws': 0.38, 'r': 1.97},
-    'Sc': {'phi': 3.50, 'n_ws': 0.55, 'r': 1.64},
-    'Ti': {'phi': 3.70, 'n_ws': 0.66, 'r': 1.47},
-    'V': {'phi': 4.00, 'n_ws': 0.82, 'r': 1.34},
-    'Cr': {'phi': 4.20, 'n_ws': 0.93, 'r': 1.28},
-    'Mn': {'phi': 4.10, 'n_ws': 0.88, 'r': 1.27},
-    'Fe': {'phi': 4.30, 'n_ws': 1.00, 'r': 1.26},
-    'Co': {'phi': 4.40, 'n_ws': 1.05, 'r': 1.25},
-    'Ni': {'phi': 4.50, 'n_ws': 1.10, 'r': 1.24},
-    'Cu': {'phi': 4.60, 'n_ws': 1.20, 'r': 1.28},
-    'Zn': {'phi': 4.30, 'n_ws': 0.95, 'r': 1.33},
-    'Ga': {'phi': 4.10, 'n_ws': 0.85, 'r': 1.35},
-    'Ge': {'phi': 4.40, 'n_ws': 1.00, 'r': 1.22},
-    'As': {'phi': 4.60, 'n_ws': 1.10, 'r': 1.19},
-    'Se': {'phi': 4.80, 'n_ws': 1.20, 'r': 1.16},
-    'Br': {'phi': 5.00, 'n_ws': 1.30, 'r': 1.14},
-    'Kr': {'phi': 5.20, 'n_ws': 1.40, 'r': 1.10},
-    'Rb': {'phi': 3.30, 'n_ws': 0.20, 'r': 2.48},
-    'Sr': {'phi': 3.40, 'n_ws': 0.30, 'r': 2.15},
-    'Y': {'phi': 3.50, 'n_ws': 0.45, 'r': 1.80},
-    'Zr': {'phi': 3.60, 'n_ws': 0.55, 'r': 1.60},
-    'Nb': {'phi': 3.80, 'n_ws': 0.70, 'r': 1.46},
-    'Mo': {'phi': 4.00, 'n_ws': 0.85, 'r': 1.39},
-    'Tc': {'phi': 4.10, 'n_ws': 0.90, 'r': 1.36},
-    'Ru': {'phi': 4.20, 'n_ws': 0.95, 'r': 1.34},
-    'Rh': {'phi': 4.30, 'n_ws': 1.00, 'r': 1.34},
-    'Pd': {'phi': 4.40, 'n_ws': 1.05, 'r': 1.37},
-    'Ag': {'phi': 4.30, 'n_ws': 0.98, 'r': 1.44},
-    'Cd': {'phi': 4.20, 'n_ws': 0.92, 'r': 1.51},
-    'In': {'phi': 4.00, 'n_ws': 0.80, 'r': 1.66},
-    'Sn': {'phi': 4.10, 'n_ws': 0.85, 'r': 1.58},
-    'Sb': {'phi': 4.20, 'n_ws': 0.90, 'r': 1.53},
-    'Te': {'phi': 4.30, 'n_ws': 0.95, 'r': 1.48},
-    'I': {'phi': 4.40, 'n_ws': 1.00, 'r': 1.44},
-    'Xe': {'phi': 4.50, 'n_ws': 1.05, 'r': 1.40},
-    'Cs': {'phi': 3.40, 'n_ws': 0.18, 'r': 2.65},
-    'Ba': {'phi': 3.50, 'n_ws': 0.25, 'r': 2.22},
-    'La': {'phi': 3.60, 'n_ws': 0.35, 'r': 1.87},
-    'Ce': {'phi': 3.65, 'n_ws': 0.38, 'r': 1.83},
-    'Pr': {'phi': 3.70, 'n_ws': 0.40, 'r': 1.82},
-    'Nd': {'phi': 3.75, 'n_ws': 0.42, 'r': 1.81},
-    'Pm': {'phi': 3.80, 'n_ws': 0.44, 'r': 1.80},
-    'Sm': {'phi': 3.85, 'n_ws': 0.46, 'r': 1.80},
-    'Eu': {'phi': 3.90, 'n_ws': 0.48, 'r': 1.99},
-    'Gd': {'phi': 3.95, 'n_ws': 0.50, 'r': 1.80},
-    'Tb': {'phi': 4.00, 'n_ws': 0.52, 'r': 1.79},
-    'Dy': {'phi': 4.05, 'n_ws': 0.54, 'r': 1.78},
-    'Ho': {'phi': 4.10, 'n_ws': 0.56, 'r': 1.77},
-    'Er': {'phi': 4.15, 'n_ws': 0.58, 'r': 1.76},
-    'Tm': {'phi': 4.20, 'n_ws': 0.60, 'r': 1.76},
-    'Yb': {'phi': 4.25, 'n_ws': 0.62, 'r': 1.94},
-    'Lu': {'phi': 4.30, 'n_ws': 0.64, 'r': 1.74},
-    'Hf': {'phi': 4.40, 'n_ws': 0.70, 'r': 1.59},
-    'Ta': {'phi': 4.50, 'n_ws': 0.78, 'r': 1.46},
-    'W': {'phi': 4.60, 'n_ws': 0.86, 'r': 1.39},
-    'Re': {'phi': 4.70, 'n_ws': 0.92, 'r': 1.37},
-    'Os': {'phi': 4.80, 'n_ws': 0.98, 'r': 1.35},
-    'Ir': {'phi': 4.90, 'n_ws': 1.04, 'r': 1.36},
-    'Pt': {'phi': 5.00, 'n_ws': 1.10, 'r': 1.39},
-    'Au': {'phi': 4.90, 'n_ws': 1.05, 'r': 1.44},
-    'Hg': {'phi': 4.80, 'n_ws': 1.00, 'r': 1.51},
-    'Tl': {'phi': 4.60, 'n_ws': 0.90, 'r': 1.70},
-    'Pb': {'phi': 4.50, 'n_ws': 0.85, 'r': 1.75},
-    'Bi': {'phi': 4.40, 'n_ws': 0.80, 'r': 1.70},
-    'Po': {'phi': 4.30, 'n_ws': 0.75, 'r': 1.65},
-    'At': {'phi': 4.20, 'n_ws': 0.70, 'r': 1.60},
-    'Rn': {'phi': 4.10, 'n_ws': 0.65, 'r': 1.55},
+    'H': {'phi': 2.2, 'n_ws': 1.0, 'V': 4.6},
+    'He': {'phi': 4.6, 'n_ws': 2.0, 'V': 32.0},
+    'Li': {'phi': 2.9, 'n_ws': 0.6, 'V': 13.0},
+    'Be': {'phi': 3.6, 'n_ws': 1.2, 'V': 4.9},
+    'B': {'phi': 4.5, 'n_ws': 1.5, 'V': 4.6},
+    'C': {'phi': 4.8, 'n_ws': 1.6, 'V': 5.3},
+    'N': {'phi': 4.6, 'n_ws': 1.4, 'V': 13.6},
+    'O': {'phi': 4.5, 'n_ws': 1.4, 'V': 10.0},
+    'F': {'phi': 4.8, 'n_ws': 1.5, 'V': 12.0},
+    'Ne': {'phi': 5.0, 'n_ws': 1.8, 'V': 16.0},
+    'Na': {'phi': 3.1, 'n_ws': 0.5, 'V': 23.7},
+    'Mg': {'phi': 3.7, 'n_ws': 0.8, 'V': 14.0},
+    'Al': {'phi': 4.0, 'n_ws': 1.0, 'V': 10.0},
+    'Si': {'phi': 4.2, 'n_ws': 1.2, 'V': 12.1},
+    'P': {'phi': 4.4, 'n_ws': 1.3, 'V': 17.0},
+    'S': {'phi': 4.4, 'n_ws': 1.3, 'V': 15.5},
+    'Cl': {'phi': 4.5, 'n_ws': 1.4, 'V': 17.0},
+    'Ar': {'phi': 5.2, 'n_ws': 1.6, 'V': 24.0},
+    'K': {'phi': 3.2, 'n_ws': 0.4, 'V': 45.0},
+    'Ca': {'phi': 3.4, 'n_ws': 0.6, 'V': 29.9},
+    'Sc': {'phi': 3.5, 'n_ws': 0.7, 'V': 24.0},
+    'Ti': {'phi': 3.7, 'n_ws': 0.8, 'V': 17.6},
+    'V': {'phi': 3.9, 'n_ws': 0.9, 'V': 14.0},
+    'Cr': {'phi': 4.1, 'n_ws': 1.0, 'V': 12.3},
+    'Mn': {'phi': 4.0, 'n_ws': 0.9, 'V': 12.0},
+    'Fe': {'phi': 4.2, 'n_ws': 1.0, 'V': 11.8},
+    'Co': {'phi': 4.3, 'n_ws': 1.1, 'V': 11.2},
+    'Ni': {'phi': 4.4, 'n_ws': 1.2, 'V': 10.9},
+    'Cu': {'phi': 4.5, 'n_ws': 1.3, 'V': 11.8},
+    'Zn': {'phi': 4.3, 'n_ws': 1.1, 'V': 16.6},
+    'Ga': {'phi': 4.1, 'n_ws': 1.0, 'V': 18.0},
+    'Ge': {'phi': 4.2, 'n_ws': 1.1, 'V': 13.7},
+    'As': {'phi': 4.3, 'n_ws': 1.2, 'V': 16.0},
+    'Se': {'phi': 4.3, 'n_ws': 1.2, 'V': 16.5},
+    'Br': {'phi': 4.4, 'n_ws': 1.3, 'V': 22.0},
+    'Kr': {'phi': 4.8, 'n_ws': 1.5, 'V': 28.0},
+    'Rb': {'phi': 3.3, 'n_ws': 0.3, 'V': 55.0},
+    'Sr': {'phi': 3.5, 'n_ws': 0.5, 'V': 36.0},
+    'Y': {'phi': 3.6, 'n_ws': 0.6, 'V': 29.0},
+    'Zr': {'phi': 3.7, 'n_ws': 0.7, 'V': 21.0},
+    'Nb': {'phi': 3.8, 'n_ws': 0.8, 'V': 18.0},
+    'Mo': {'phi': 4.0, 'n_ws': 0.9, 'V': 15.0},
+    'Tc': {'phi': 4.1, 'n_ws': 1.0, 'V': 14.0},
+    'Ru': {'phi': 4.2, 'n_ws': 1.1, 'V': 13.0},
+    'Rh': {'phi': 4.3, 'n_ws': 1.2, 'V': 12.5},
+    'Pd': {'phi': 4.5, 'n_ws': 1.3, 'V': 12.0},
+    'Ag': {'phi': 4.4, 'n_ws': 1.2, 'V': 13.5},
+    'Cd': {'phi': 4.2, 'n_ws': 1.0, 'V': 19.0},
+    'In': {'phi': 4.0, 'n_ws': 0.9, 'V': 22.0},
+    'Sn': {'phi': 4.1, 'n_ws': 1.0, 'V': 16.0},
+    'Sb': {'phi': 4.2, 'n_ws': 1.1, 'V': 18.0},
+    'Te': {'phi': 4.3, 'n_ws': 1.2, 'V': 19.0},
+    'I': {'phi': 4.4, 'n_ws': 1.3, 'V': 25.0},
+    'Xe': {'phi': 4.7, 'n_ws': 1.4, 'V': 32.0},
+    'Cs': {'phi': 3.4, 'n_ws': 0.2, 'V': 70.0},
+    'Ba': {'phi': 3.6, 'n_ws': 0.4, 'V': 43.0},
+    'La': {'phi': 3.7, 'n_ws': 0.5, 'V': 35.0},
+    'Ce': {'phi': 3.7, 'n_ws': 0.5, 'V': 34.0},
+    'Pr': {'phi': 3.7, 'n_ws': 0.5, 'V': 33.0},
+    'Nd': {'phi': 3.7, 'n_ws': 0.5, 'V': 33.0},
+    'Pm': {'phi': 3.7, 'n_ws': 0.5, 'V': 33.0},
+    'Sm': {'phi': 3.7, 'n_ws': 0.5, 'V': 33.0},
+    'Eu': {'phi': 3.7, 'n_ws': 0.5, 'V': 33.0},
+    'Gd': {'phi': 3.7, 'n_ws': 0.5, 'V': 33.0},
+    'Tb': {'phi': 3.7, 'n_ws': 0.5, 'V': 33.0},
+    'Dy': {'phi': 3.7, 'n_ws': 0.5, 'V': 33.0},
+    'Ho': {'phi': 3.7, 'n_ws': 0.5, 'V': 33.0},
+    'Er': {'phi': 3.7, 'n_ws': 0.5, 'V': 33.0},
+    'Tm': {'phi': 3.7, 'n_ws': 0.5, 'V': 33.0},
+    'Yb': {'phi': 3.7, 'n_ws': 0.5, 'V': 33.0},
+    'Lu': {'phi': 3.7, 'n_ws': 0.5, 'V': 33.0},
+    'Hf': {'phi': 3.8, 'n_ws': 0.6, 'V': 23.0},
+    'Ta': {'phi': 3.9, 'n_ws': 0.7, 'V': 19.0},
+    'W': {'phi': 4.1, 'n_ws': 0.8, 'V': 16.0},
+    'Re': {'phi': 4.2, 'n_ws': 0.9, 'V': 15.0},
+    'Os': {'phi': 4.3, 'n_ws': 1.0, 'V': 14.0},
+    'Ir': {'phi': 4.4, 'n_ws': 1.1, 'V': 13.5},
+    'Pt': {'phi': 4.6, 'n_ws': 1.2, 'V': 13.0},
+    'Au': {'phi': 4.7, 'n_ws': 1.3, 'V': 13.0},
+    'Hg': {'phi': 4.5, 'n_ws': 1.1, 'V': 17.0},
+    'Tl': {'phi': 4.3, 'n_ws': 0.9, 'V': 21.0},
+    'Pb': {'phi': 4.3, 'n_ws': 1.0, 'V': 18.0},
+    'Bi': {'phi': 4.4, 'n_ws': 1.1, 'V': 19.0},
+    'Po': {'phi': 4.4, 'n_ws': 1.1, 'V': 20.0},
+    'At': {'phi': 4.5, 'n_ws': 1.2, 'V': 22.0},
+    'Rn': {'phi': 4.6, 'n_ws': 1.3, 'V': 25.0},
 }
 
-def get_miedema_param(element_symbol: str, param_name: str) -> float:
-    """Get a specific Miedema parameter for an element."""
-    symbol = element_symbol.upper()
-    if symbol not in MIEDEMA_PARAMS:
-        logger.warning(f"Missing Miedema parameters for element: {symbol}. Using defaults.")
-        return 1.0
-    return MIEDEMA_PARAMS[symbol].get(param_name, 1.0)
+# Atomic Radii (pm)
+ATOMIC_RADII = {
+    'H': 37, 'He': 32, 'Li': 152, 'Be': 112, 'B': 85, 'C': 77, 'N': 75, 'O': 73, 'F': 72, 'Ne': 71,
+    'Na': 186, 'Mg': 160, 'Al': 143, 'Si': 117, 'P': 110, 'S': 104, 'Cl': 99, 'Ar': 97,
+    'K': 227, 'Ca': 197, 'Sc': 162, 'Ti': 147, 'V': 134, 'Cr': 128, 'Mn': 127, 'Fe': 126, 'Co': 125, 'Ni': 124, 'Cu': 128, 'Zn': 134,
+    'Ga': 135, 'Ge': 122, 'As': 121, 'Se': 117, 'Br': 114, 'Kr': 110,
+    'Rb': 248, 'Sr': 215, 'Y': 180, 'Zr': 160, 'Nb': 146, 'Mo': 139, 'Tc': 136, 'Ru': 134, 'Rh': 134, 'Pd': 137, 'Ag': 144, 'Cd': 151,
+    'In': 167, 'Sn': 140, 'Sb': 140, 'Te': 136, 'I': 133, 'Xe': 130,
+    'Cs': 265, 'Ba': 222, 'La': 187, 'Ce': 182, 'Pr': 182, 'Nd': 181, 'Pm': 181, 'Sm': 180, 'Eu': 180, 'Gd': 180, 'Tb': 177, 'Dy': 178, 'Ho': 176, 'Er': 176, 'Tm': 176, 'Yb': 176, 'Lu': 174,
+    'Hf': 159, 'Ta': 146, 'W': 139, 'Re': 137, 'Os': 135, 'Ir': 136, 'Pt': 139, 'Au': 144, 'Hg': 151,
+    'Tl': 170, 'Pb': 175, 'Bi': 156, 'Po': 167, 'At': 145, 'Rn': 140
+}
 
-def calculate_miedema_features(row: pd.Series, composition_cols: List[str]) -> Dict[str, float]:
+# Electronegativity (Pauling scale)
+ELECTRONEGATIVITY = {
+    'H': 2.20, 'He': 0.00, 'Li': 0.98, 'Be': 1.57, 'B': 2.04, 'C': 2.55, 'N': 3.04, 'O': 3.44, 'F': 3.98, 'Ne': 0.00,
+    'Na': 0.93, 'Mg': 1.31, 'Al': 1.61, 'Si': 1.90, 'P': 2.19, 'S': 2.58, 'Cl': 3.16, 'Ar': 0.00,
+    'K': 0.82, 'Ca': 1.00, 'Sc': 1.36, 'Ti': 1.54, 'V': 1.63, 'Cr': 1.66, 'Mn': 1.55, 'Fe': 1.83, 'Co': 1.88, 'Ni': 1.91, 'Cu': 1.90, 'Zn': 1.65,
+    'Ga': 1.81, 'Ge': 2.01, 'As': 2.18, 'Se': 2.55, 'Br': 2.96, 'Kr': 3.00,
+    'Rb': 0.82, 'Sr': 0.95, 'Y': 1.22, 'Zr': 1.33, 'Nb': 1.6, 'Mo': 2.16, 'Tc': 1.9, 'Ru': 2.2, 'Rh': 2.28, 'Pd': 2.20, 'Ag': 1.93, 'Cd': 1.69,
+    'In': 1.78, 'Sn': 1.96, 'Sb': 2.05, 'Te': 2.1, 'I': 2.66, 'Xe': 2.60,
+    'Cs': 0.79, 'Ba': 0.89, 'La': 1.10, 'Ce': 1.12, 'Pr': 1.13, 'Nd': 1.14, 'Pm': 1.13, 'Sm': 1.17, 'Eu': 1.20, 'Gd': 1.20, 'Tb': 1.10, 'Dy': 1.22, 'Ho': 1.23, 'Er': 1.24, 'Tm': 1.25, 'Yb': 1.10, 'Lu': 1.27,
+    'Hf': 1.30, 'Ta': 1.5, 'W': 2.36, 'Re': 1.9, 'Os': 2.2, 'Ir': 2.20, 'Pt': 2.28, 'Au': 2.54, 'Hg': 2.00,
+    'Tl': 1.62, 'Pb': 2.33, 'Bi': 2.02, 'Po': 2.0, 'At': 2.2, 'Rn': 2.20
+}
+
+
+def get_miedema_param(element_symbol: str, param_type: str) -> float:
     """
-    Calculate Miedema-derived features for a single sample.
-    
+    Retrieve a Miedema parameter for a given element.
+
     Args:
-        row: DataFrame row containing composition data
-        composition_cols: List of columns representing element fractions
-        
+        element_symbol: Element symbol (e.g., 'Fe').
+        param_type: Parameter type ('phi', 'n_ws', 'V', 'radius', 'electronegativity').
+
     Returns:
-        Dictionary with Miedema feature names and values
+        The parameter value. Returns 0.0 if element not found.
     """
-    elements = []
-    fractions = []
-    
-    for col in composition_cols:
-        element = col.replace('_fraction', '').replace('_conc', '')
-        frac = row[col]
-        if pd.notna(frac) and frac > 0:
-            elements.append(element)
-            fractions.append(frac)
-    
-    if not elements:
+    if param_type == 'phi':
+        return MIEDEMA_PARAMS.get(element_symbol, {}).get('phi', 0.0)
+    elif param_type == 'n_ws':
+        return MIEDEMA_PARAMS.get(element_symbol, {}).get('n_ws', 0.0)
+    elif param_type == 'V':
+        return MIEDEMA_PARAMS.get(element_symbol, {}).get('V', 0.0)
+    elif param_type == 'radius':
+        return ATOMIC_RADII.get(element_symbol, 0.0)
+    elif param_type == 'electronegativity':
+        return ELECTRONEGATIVITY.get(element_symbol, 0.0)
+    else:
+        logger.warning(f"Unknown Miedema parameter type: {param_type}")
+        return 0.0
+
+
+def calculate_miedema_features(row: Dict[str, Any]) -> Dict[str, float]:
+    """
+    Calculate Miedema-derived features for a single alloy composition row.
+
+    Computes:
+    1. mixing_enthalpy_miedema
+    2. atomic_radius_variance_miedema
+    3. electronegativity_variance_miedema
+
+    Args:
+        row: Dictionary containing composition data (element keys) and other metadata.
+
+    Returns:
+        Dictionary of calculated Miedema features.
+    """
+    # Identify composition columns (assume keys that are valid element symbols)
+    composition_elements = []
+    composition_fractions = []
+
+    for key, value in row.items():
+        if key in ATOMIC_RADII and isinstance(value, (int, float)) and value > 0:
+            composition_elements.append(key)
+            composition_fractions.append(float(value))
+
+    if not composition_elements:
         return {
-            'mixing_enthalpy_miedema': np.nan,
-            'atomic_radius_variance_miedema': np.nan,
-            'electronegativity_variance_miedema': np.nan,
+            'mixing_enthalpy_miedema': 0.0,
+            'atomic_radius_variance_miedema': 0.0,
+            'electronegativity_variance_miedema': 0.0
         }
-    
-    # Normalize fractions to sum to 1.0 (defensive)
-    total = sum(fractions)
+
+    # Normalize fractions just in case
+    total = sum(composition_fractions)
     if total > 0:
-        fractions = [f / total for f in fractions]
-    
-    # Calculate weighted averages
-    phi_avg = sum(f * get_miedema_param(e, 'phi') for e, f in zip(elements, fractions))
-    n_ws_avg = sum(f * get_miedema_param(e, 'n_ws') for e, f in zip(elements, fractions))
-    r_avg = sum(f * get_miedema_param(e, 'r') for e, f in zip(elements, fractions))
-    
-    # 1. Mixing Enthalpy (simplified Miedema model)
+        composition_fractions = [f / total for f in composition_fractions]
+
+    # 1. Mixing Enthalpy (Simplified Miedema Model)
     # Delta H_mix = sum_i sum_j c_i c_j Delta H_ij
-    # Where Delta H_ij is approximated using Miedema parameters
+    # Delta H_ij = 2 * (V_i^2/3 * V_j^2/3) * (P * (Delta phi)^2 - Q * (Delta n_ws)^2)
+    # Simplified for this task: Use a weighted average of pairwise interactions
+    # Since full pairwise calculation is expensive, we approximate using variance of phi and n_ws
+    # A more robust implementation would use the full pairwise sum.
+    # For this implementation, we will calculate a simplified mixing enthalpy proxy:
+    # H_mix ~ - sum(c_i * c_j * (phi_i - phi_j)^2) * factor
+    
     mixing_enthalpy = 0.0
-    for i, (e1, f1) in enumerate(zip(elements, fractions)):
-        for j, (e2, f2) in enumerate(zip(elements, fractions)):
-            if i >= j:
-                continue
+    n = len(composition_elements)
+    factor = 10.0 # Arbitrary scaling factor for the simplified model
+
+    for i in range(n):
+        for j in range(i + 1, n):
+            c_i = composition_fractions[i]
+            c_j = composition_fractions[j]
+            phi_i = get_miedema_param(composition_elements[i], 'phi')
+            phi_j = get_miedema_param(composition_elements[j], 'phi')
+            n_i = get_miedema_param(composition_elements[i], 'n_ws')
+            n_j = get_miedema_param(composition_elements[j], 'n_ws')
+            
             # Simplified interaction term
-            phi_diff = get_miedema_param(e1, 'phi') - get_miedema_param(e2, 'phi')
-            n_ws_diff = get_miedema_param(e1, 'n_ws') - get_miedema_param(e2, 'n_ws')
-            # Approximate interaction energy
-            interaction = -abs(phi_diff) * abs(n_ws_diff) * 100  # Scaling factor
-            mixing_enthalpy += 2 * f1 * f2 * interaction
-    
-    # 2. Atomic Radius Variance (weighted by Miedema parameters)
-    r_values = [get_miedema_param(e, 'r') for e in elements]
-    r_variance = sum(f * (r - r_avg)**2 for f, r in zip(fractions, r_values))
-    
-    # 3. Electronegativity Variance (using phi as proxy)
-    phi_values = [get_miedema_param(e, 'phi') for e in elements]
-    phi_variance = sum(f * (phi - phi_avg)**2 for f, phi in zip(fractions, phi_values))
-    
+            term = - (c_i * c_j) * ( (phi_i - phi_j)**2 + 0.5 * (n_i - n_j)**2 )
+            mixing_enthalpy += term * factor
+
+    # 2. Atomic Radius Variance (weighted by composition)
+    radii = [get_miedema_param(e, 'radius') for e in composition_elements]
+    mean_radius = sum(r * c for r, c in zip(radii, composition_fractions))
+    radius_variance = sum(c * (r - mean_radius)**2 for r, c in zip(radii, composition_fractions))
+
+    # 3. Electronegativity Variance (weighted by composition)
+    electronegativities = [get_miedema_param(e, 'electronegativity') for e in composition_elements]
+    mean_electronegativity = sum(e * c for e, c in zip(electronegativities, composition_fractions))
+    electronegativity_variance = sum(c * (e - mean_electronegativity)**2 for e, c in zip(electronegativities, composition_fractions))
+
     return {
-        'mixing_enthalpy_miedema': mixing_enthalpy,
-        'atomic_radius_variance_miedema': r_variance,
-        'electronegativity_variance_miedema': phi_variance,
+        'mixing_enthalpy_miedema': float(mixing_enthalpy),
+        'atomic_radius_variance_miedema': float(radius_variance),
+        'electronegativity_variance_miedema': float(electronegativity_variance)
     }
 
-def calculate_standard_descriptors(row: pd.Series, composition_cols: List[str]) -> Dict[str, float]:
+
+def calculate_standard_descriptors(row: Dict[str, Any]) -> Dict[str, float]:
     """
-    Calculate standard HEA descriptors.
-    
+    Calculate standard descriptors for a single alloy composition row.
+
+    Computes:
+    - Configurational Entropy (Delta S_mix)
+    - Valence Electron Concentration (VEC)
+    - Atomic Size Difference (delta)
+
     Args:
-        row: DataFrame row containing composition data
-        composition_cols: List of columns representing element fractions
-        
+        row: Dictionary containing composition data.
+
     Returns:
-        Dictionary with standard descriptor names and values
+        Dictionary of standard descriptors.
     """
-    elements = []
-    fractions = []
-    
-    for col in composition_cols:
-        element = col.replace('_fraction', '').replace('_conc', '')
-        frac = row[col]
-        if pd.notna(frac) and frac > 0:
-            elements.append(element)
-            fractions.append(frac)
-    
-    if not elements:
+    composition_elements = []
+    composition_fractions = []
+
+    for key, value in row.items():
+        if key in ATOMIC_RADII and isinstance(value, (int, float)) and value > 0:
+            composition_elements.append(key)
+            composition_fractions.append(float(value))
+
+    if not composition_elements:
         return {
-            'config_entropy': np.nan,
-            'VEC': np.nan,
-            'delta': np.nan,
-            'omega': np.nan,
+            'configurational_entropy': 0.0,
+            'valence_electron_concentration': 0.0,
+            'atomic_size_difference': 0.0
         }
-    
-    # Normalize fractions
-    total = sum(fractions)
+
+    total = sum(composition_fractions)
     if total > 0:
-        fractions = [f / total for f in fractions]
-    
-    # Configurational entropy: Delta S_mix = -R * sum(c_i * ln(c_i))
+        composition_fractions = [f / total for f in composition_fractions]
+
+    # 1. Configurational Entropy: Delta S_mix = -R * sum(c_i * ln(c_i))
+    # R = 8.314 J/(mol K)
     R = 8.314
     entropy = 0.0
-    for c in fractions:
+    for c in composition_fractions:
         if c > 0:
             entropy -= c * np.log(c)
-    config_entropy = R * entropy
+    entropy *= R
+
+    # 2. Valence Electron Concentration (VEC)
+    # Simplified: Assume valence electrons = group number for transition metals
+    # This is a rough approximation. A real implementation would use a lookup table.
+    valence_electrons = []
+    for e in composition_elements:
+        # Simple heuristic: Group number (for transition metals)
+        # H(1), He(2), Li(1), Be(2), B(3), C(4), N(5), O(6), F(7), Ne(8)
+        # Na(1), Mg(2), Al(3), Si(4), P(5), S(6), Cl(7), Ar(8)
+        # K(1), Ca(2), Sc(3), Ti(4), V(5), Cr(6), Mn(7), Fe(8), Co(9), Ni(10), Cu(11), Zn(12)
+        # ... This is too complex to hardcode all. Using a simplified mapping for common HEA elements.
+        # For this task, we will use a placeholder calculation based on atomic number modulo 10
+        # which is NOT physically accurate but serves as a placeholder for the structure.
+        # A real implementation MUST use a proper VEC lookup table.
+        # Let's use a more realistic approximation for common HEA elements (Sc-Zn, Y-Cd, La-Hg)
+        # VEC = sum(c_i * VEC_i)
+        # We'll use a simplified mapping for demonstration
+        vec_map = {
+            'Sc': 3, 'Ti': 4, 'V': 5, 'Cr': 6, 'Mn': 7, 'Fe': 8, 'Co': 9, 'Ni': 10, 'Cu': 11, 'Zn': 12,
+            'Y': 3, 'Zr': 4, 'Nb': 5, 'Mo': 6, 'Tc': 7, 'Ru': 8, 'Rh': 9, 'Pd': 10, 'Ag': 11, 'Cd': 12,
+            'La': 3, 'Hf': 4, 'Ta': 5, 'W': 6, 'Re': 7, 'Os': 8, 'Ir': 9, 'Pt': 10, 'Au': 11, 'Hg': 12,
+            'Al': 3, 'Si': 4, 'Ga': 3, 'Ge': 4, 'In': 3, 'Sn': 4, 'Tl': 3, 'Pb': 4, 'Bi': 5
+        }
+        vec_val = vec_map.get(e, 4.0) # Default to 4.0
+        valence_electrons.append(vec_val)
     
-    # Valence Electron Concentration (VEC)
-    # Simplified: use group number as proxy
-    vec_values = []
-    for e in elements:
-        try:
-            elem = Element(e)
-            # Use group number as VEC proxy (simplified)
-            vec_values.append(elem.group_number if elem.group_number else 0)
-        except Exception:
-            vec_values.append(0)
-    
-    vec_avg = sum(f * v for f, v in zip(fractions, vec_values))
-    vec_variance = sum(f * (v - vec_avg)**2 for f, v in zip(fractions, vec_values))
-    
-    # Atomic size difference (delta)
-    radii = []
-    for e in elements:
-        try:
-            elem = Element(e)
-            radii.append(elem.atomic_radius)
-        except Exception:
-            radii.append(get_miedema_param(e, 'r'))
-    
-    r_avg = sum(f * r for f, r in zip(fractions, radii))
-    delta = 100 * np.sqrt(sum(f * (r - r_avg)**2 for f, r in zip(fractions, radii))) / r_avg if r_avg > 0 else 0
-    
-    # Omega parameter: Omega = (T * Delta S_mix) / Delta H_mix
-    # Simplified: assume T=1000K
-    T = 1000
-    # Reuse mixing enthalpy calculation from Miedema features
-    mixing_enthalpy = 0.0
-    for i, (e1, f1) in enumerate(zip(elements, fractions)):
-        for j, (e2, f2) in enumerate(zip(elements, fractions)):
-            if i >= j:
-                continue
-            phi_diff = get_miedema_param(e1, 'phi') - get_miedema_param(e2, 'phi')
-            n_ws_diff = get_miedema_param(e1, 'n_ws') - get_miedema_param(e2, 'n_ws')
-            interaction = -abs(phi_diff) * abs(n_ws_diff) * 100
-            mixing_enthalpy += 2 * f1 * f2 * interaction
-    
-    omega = (T * config_entropy) / abs(mixing_enthalpy) if abs(mixing_enthalpy) > 1e-10 else 0
-    
+    vec = sum(v * c for v, c in zip(valence_electrons, composition_fractions))
+
+    # 3. Atomic Size Difference (delta)
+    # delta = sqrt( sum( c_i * (1 - r_i / r_avg)^2 ) ) * 100
+    radii = [get_miedema_param(e, 'radius') for e in composition_elements]
+    mean_radius = sum(r * c for r, c in zip(radii, composition_fractions))
+    delta = 0.0
+    for r, c in zip(radii, composition_fractions):
+        if mean_radius > 0:
+            delta += c * (1 - r / mean_radius)**2
+    delta = np.sqrt(delta) * 100
+
     return {
-        'config_entropy': config_entropy,
-        'VEC': vec_avg,
-        'delta': delta,
-        'omega': omega,
+        'configurational_entropy': float(entropy),
+        'valence_electron_concentration': float(vec),
+        'atomic_size_difference': float(delta)
     }
 
-def compute_descriptors(df: pd.DataFrame, composition_cols: List[str]) -> pd.DataFrame:
-    """
-    Compute all descriptors for a DataFrame of HEA samples.
-    
-    Args:
-        df: DataFrame with composition columns
-        composition_cols: List of composition column names
-        
-    Returns:
-        DataFrame with added descriptor columns
-    """
-    logger.info(f"Computing descriptors for {len(df)} samples with {len(composition_cols)} composition columns")
-    
-    # Initialize new columns
-    miedema_cols = ['mixing_enthalpy_miedema', 'atomic_radius_variance_miedema', 'electronegativity_variance_miedema']
-    standard_cols = ['config_entropy', 'VEC', 'delta', 'omega']
-    all_new_cols = miedema_cols + standard_cols
-    
-    for col in all_new_cols:
-        df[col] = np.nan
-    
-    # Calculate descriptors row by row (vectorization limited by complex logic)
-    for idx, row in df.iterrows():
-        # Miedema features
-        miedema_features = calculate_miedema_features(row, composition_cols)
-        for col, val in miedema_features.items():
-            df.at[idx, col] = val
-        
-        # Standard descriptors
-        standard_features = calculate_standard_descriptors(row, composition_cols)
-        for col, val in standard_features.items():
-            df.at[idx, col] = val
-    
-    logger.info(f"Descriptor calculation complete. Added {len(all_new_cols)} columns.")
-    
-    return df
 
-def apply_ilr_transformation(df: pd.DataFrame, composition_cols: List[str]) -> pd.DataFrame:
+def compute_descriptors(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Apply ILR transformation to composition data for linear model compatibility.
-    
+    Compute all descriptors (Miedema and standard) for a DataFrame.
+
     Args:
-        df: DataFrame with composition columns
-        composition_cols: List of composition column names
-        
+        df: DataFrame with composition columns.
+
     Returns:
-        DataFrame with ILR-transformed composition features
+        DataFrame with added descriptor columns.
     """
-    logger.info(f"Applying ILR transformation to {len(composition_cols)} composition columns")
+    logger.info("Computing descriptors for %d samples", len(df))
     
-    # Use the existing ILR transform function from coda module
-    ilr_df = ilr_transform_dataframe(df, composition_cols)
+    miedema_features = []
+    standard_features = []
+
+    for _, row in df.iterrows():
+        miedema = calculate_miedema_features(row.to_dict())
+        standard = calculate_standard_descriptors(row.to_dict())
+        miedema_features.append(miedema)
+        standard_features.append(standard)
+
+    miedema_df = pd.DataFrame(miedema_features)
+    standard_df = pd.DataFrame(standard_features)
+
+    # Concatenate to original DataFrame
+    result_df = pd.concat([df, miedema_df, standard_df], axis=1)
+    
+    logger.info("Descriptor computation complete. Added %d columns", len(miedema_df.columns) + len(standard_df.columns))
+    return result_df
+
+
+def apply_ilr_transformation(df: pd.DataFrame, composition_columns: List[str]) -> pd.DataFrame:
+    """
+    Apply Isometric Log-Ratio (ILR) transformation to composition columns.
+
+    Args:
+        df: DataFrame with composition columns.
+        composition_columns: List of column names representing composition.
+
+    Returns:
+        DataFrame with ILR-transformed columns appended.
+    """
+    logger.info("Applying ILR transformation to %d composition columns", len(composition_columns))
+    
+    if len(composition_columns) < 2:
+        logger.warning("ILR transformation requires at least 2 composition columns. Skipping.")
+        return df
+
+    # Use the existing coda module implementation
+    ilr_df = ilr_transform_dataframe(df, composition_columns)
     
     # Rename columns to indicate ILR transformation
-    ilr_cols = [col for col in ilr_df.columns if col not in df.columns]
-    logger.info(f"ILR transformation produced {len(ilr_cols)} new features")
-    
-    return ilr_df
+    new_columns = [f"ilr_{col}" for col in ilr_df.columns]
+    ilr_df.columns = new_columns
 
-def get_descriptor_columns() -> List[str]:
-    """Return the list of all computed descriptor column names."""
-    return [
-        'mixing_enthalpy_miedema',
-        'atomic_radius_variance_miedema',
-        'electronegativity_variance_miedema',
-        'config_entropy',
-        'VEC',
-        'delta',
-        'omega',
+    result_df = pd.concat([df, ilr_df], axis=1)
+    logger.info("ILR transformation complete. Added %d columns", len(ilr_df.columns))
+    return result_df
+
+
+def get_descriptor_columns(df: pd.DataFrame) -> List[str]:
+    """
+    Get list of all descriptor columns in the DataFrame.
+
+    Args:
+        df: DataFrame with descriptor columns.
+
+    Returns:
+        List of descriptor column names.
+    """
+    descriptor_names = [
+        'mixing_enthalpy_miedema', 'atomic_radius_variance_miedema', 'electronegativity_variance_miedema',
+        'configurational_entropy', 'valence_electron_concentration', 'atomic_size_difference'
     ]
+    return [col for col in descriptor_names if col in df.columns]
+
 
 def main():
-    """Main function for standalone testing of descriptor calculation."""
-    import sys
-    from pathlib import Path
+    """
+    Main function to demonstrate descriptor calculation.
+    This is a placeholder for integration with the pipeline.
+    """
+    logger.info("Starting descriptor calculation demonstration...")
     
-    # Add project root to path
-    project_root = Path(__file__).parent.parent.parent
-    sys.path.insert(0, str(project_root))
-    
-    # Create sample data for testing
-    sample_data = {
-        'Cr_fraction': [0.2, 0.25, 0.2],
-        'Mn_fraction': [0.2, 0.2, 0.25],
-        'Fe_fraction': [0.2, 0.2, 0.2],
-        'Co_fraction': [0.2, 0.2, 0.2],
-        'Ni_fraction': [0.2, 0.15, 0.15],
-        'Bulk_Modulus': [180, 175, 185],
+    # Create a sample DataFrame
+    data = {
+        'Fe': [0.3, 0.25],
+        'Co': [0.3, 0.25],
+        'Ni': [0.2, 0.25],
+        'Cr': [0.2, 0.25],
+        'Al': [0.0, 0.0] # Will be ignored if 0
     }
-    df = pd.DataFrame(sample_data)
-    
-    composition_cols = ['Cr_fraction', 'Mn_fraction', 'Fe_fraction', 'Co_fraction', 'Ni_fraction']
-    
-    print("Original DataFrame:")
-    print(df)
-    print("\n" + "="*50 + "\n")
+    df = pd.DataFrame(data)
     
     # Compute descriptors
-    df_with_desc = compute_descriptors(df, composition_cols)
-    print("DataFrame with descriptors:")
-    print(df_with_desc[get_descriptor_columns()])
-    print("\n" + "="*50 + "\n")
+    df_descriptors = compute_descriptors(df)
     
-    # Apply ILR transformation
-    df_ilr = apply_ilr_transformation(df_with_desc, composition_cols)
-    print("DataFrame with ILR features:")
-    ilr_cols = [col for col in df_ilr.columns if 'ilr' in col.lower() or col.startswith('comp_')]
-    print(df_ilr[ilr_cols])
+    # Apply ILR
+    composition_cols = ['Fe', 'Co', 'Ni', 'Cr', 'Al']
+    df_ilr = apply_ilr_transformation(df_descriptors, composition_cols)
+    
+    print(df_ilr.head())
+    logger.info("Demonstration complete.")
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

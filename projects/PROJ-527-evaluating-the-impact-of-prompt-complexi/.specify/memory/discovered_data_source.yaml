@@ -1,0 +1,34 @@
+status: verified
+kind: pypi_package
+ref: human-eval
+access_python: "import json, sys\nfrom human_eval import data\n# Load the problem\
+  \ dict mapping ids to problem dicts\nproblems = data.read_problems()\nrecords =\
+  \ list(problems.values())\nprint(f\"RECORDS={len(records)}\")\n# Map native keys\
+  \ to the required field names\nnative_map = {\n    \"task_id\": \"problem_id\",\n\
+  \    \"prompt\": \"prompt\",\n    \"canonical_solution\": \"solution_code\",\n \
+  \   \"test\": \"unit_tests\",\n}\n# Determine which of the target fields are actually\
+  \ present\ntarget_order = [\"problem_id\",\"prompt\",\"starter_code\",\"solution_code\"\
+  ,\"unit_tests\",\"language\"]\navailable = []\nif records:\n    first = records[0]\n\
+  \    for native, target in native_map.items():\n        if native in first:\n  \
+  \          available.append(target)\n    # starter_code is not provided in this\
+  \ dataset\n    # language can be inferred as Python for all entries\n    available.append(\"\
+  language\")\n    # Preserve the requested order\n    available = [f for f in target_order\
+  \ if f in available]\nprint(\"FIELDS=\" + \",\".join(available))"
+record_count: 164
+sample_fields:
+- problem_id
+- prompt
+- solution_code
+- unit_tests
+- language
+field_coverage: 1.0
+required_fields:
+- problem_id
+- prompt
+- starter_code
+- solution_code
+- unit_tests
+- language
+intent: download HumanEval programming problems dataset pip install openai_humaneval
+  python package dataset
+cache_key: fded9f52376bad94f5086b4148d58738c579c02deb3a21a24f567286fda2679d

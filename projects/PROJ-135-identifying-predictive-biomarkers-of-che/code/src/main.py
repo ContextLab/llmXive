@@ -1,130 +1,183 @@
 """
-Main Orchestrator for the Chemo-Biomarker Discovery Pipeline.
-
-This script serves as the entry point for the entire research pipeline.
-It initializes configuration, sets up logging, and executes the phases
-defined in the project plan.
+Main orchestrator for the biomarker discovery pipeline.
+Coordinates data acquisition, preprocessing, and downstream analysis stages.
 """
 import sys
 import argparse
 import json
+import logging
+import time
 from pathlib import Path
 
-# Import project components
-# Note: Using relative imports assuming execution via `python -m` or proper PYTHONPATH
-# Fallback to absolute imports if executed directly in code/src
-try:
-    from .config import get_config
-    from .utils import setup_logging, watchdog, ensure_path_exists
-    from .data_acquisition import run_acquisition
-    from .preprocessing import run_preprocessing
-    from .differential_expression import run_differential_expression
-    from .meta_analysis import run_meta_analysis
-    from .modeling import run_modeling
-    from .validation import run_validation
-except ImportError:
-    # Fallback for direct execution if PYTHONPATH is not set correctly
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from src.config import get_config
-    from src.utils import setup_logging, watchdog, ensure_path_exists
-    from src.data_acquisition import run_acquisition
-    from src.preprocessing import run_preprocessing
-    from src.differential_expression import run_differential_expression
-    from src.meta_analysis import run_meta_analysis
-    from src.modeling import run_modeling
-    from src.validation import run_validation
+from .config import get_project_root, ensure_directories
+from .utils import setup_logging, check_limits, resource_monitor, ResourceLimitExceeded
 
-def main():
-    parser = argparse.ArgumentParser(description="Chemo-Biomarker Discovery Pipeline")
-    parser.add_argument(
-        "--config",
-        type=str,
-        default="code/config.yaml",
-        help="Path to configuration file",
+logger = logging.getLogger(__name__)
+
+
+def parse_args():
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(
+        description="Biomarker Discovery Pipeline Orchestrator"
     )
     parser.add_argument(
-        "--phase",
-        type=str,
+        "--mode",
+        choices=["real", "test"],
+        default="real",
+        help="Execution mode: 'real' for production data, 'test' for minimal subset",
+    )
+    parser.add_argument(
+        "--subset-size",
+        type=int,
+        default=None,
+        help="Limit number of samples per tumor type for testing (optional)",
+    )
+    parser.add_argument(
+        "--stage",
         choices=["all", "acquisition", "preprocessing", "de", "meta", "modeling", "validation"],
         default="all",
-        help="Specific phase to run (default: all)",
+        help="Specific stage to execute",
     )
-    parser.add_argument(
-        "--debug",
-        action="store_true",
-        help="Enable debug logging",
-    )
-    args = parser.parse_args()
+    return parser.parse_args()
 
-    # Initialize Configuration
-    config = get_config(args.config)
-    
-    # Ensure output directories exist
-    for dir_path in [
-        config.get("paths", {}).get("raw_data"),
-        config.get("paths", {}).get("processed_data"),
-        config.get("paths", {}).get("results"),
-        config.get("paths", {}).get("figures"),
-    ]:
-        if dir_path:
-            ensure_path_exists(dir_path)
 
-    # Setup Logging
-    logger = setup_logging(
-        level="DEBUG" if args.debug else "INFO",
-        log_file=config.get("paths", {}).get("log_file") or "results/pipeline.log"
+def run_acquisition_stage(args):
+    """Execute data acquisition and feasibility gate."""
+    logger.info("Starting Data Acquisition Stage...")
+    from .data_acquisition import main as acquisition_main
+
+    # Prepare args for the acquisition module
+    acq_args = argparse.Namespace(
+        mode=args.mode,
+        subset_size=args.subset_size,
     )
-    logger.info("Starting Chemo-Biomarker Discovery Pipeline")
-    logger.info(f"Configuration loaded from: {args.config}")
+    try:
+        acquisition_main(acq_args)
+        logger.info("Data Acquisition Stage completed successfully.")
+    except Exception as e:
+        logger.error(f"Data Acquisition Stage failed: {e}")
+        raise
+
+
+def run_preprocessing_stage(args):
+    """Execute preprocessing: filtering, normalization, batch correction, splitting."""
+    logger.info("Starting Preprocessing Stage...")
+    from .preprocessing import main as preprocessing_main
 
     try:
-        # Phase 2: Data Acquisition (US1)
-        if args.phase in ["all", "acquisition"]:
-            logger.info("Phase 1: Data Acquisition")
-            # Placeholder for actual acquisition logic
-            # run_acquisition(config, logger)
-            logger.warning("Data Acquisition phase skipped (T012-T019 not implemented yet)")
-
-        # Phase 3: Preprocessing (US1)
-        if args.phase in ["all", "preprocessing"]:
-            logger.info("Phase 2: Preprocessing")
-            # Placeholder for actual preprocessing logic
-            # run_preprocessing(config, logger)
-            logger.warning("Preprocessing phase skipped (T015-T020 not implemented yet)")
-
-        # Phase 4: Differential Expression (US2)
-        if args.phase in ["all", "de"]:
-            logger.info("Phase 3: Differential Expression")
-            # Placeholder for DE logic
-            # run_differential_expression(config, logger)
-            logger.warning("Differential Expression phase skipped (T023-T024 not implemented yet)")
-
-        # Phase 5: Meta Analysis (US2)
-        if args.phase in ["all", "meta"]:
-            logger.info("Phase 4: Meta Analysis")
-            # Placeholder for Meta Analysis logic
-            # run_meta_analysis(config, logger)
-            logger.warning("Meta Analysis phase skipped (T025-T028 not implemented yet)")
-
-        # Phase 6: Modeling (US3)
-        if args.phase in ["all", "modeling"]:
-            logger.info("Phase 5: Modeling")
-            # Placeholder for Modeling logic
-            # run_modeling(config, logger)
-            logger.warning("Modeling phase skipped (T031-T033 not implemented yet)")
-
-        # Phase 7: Validation (US3)
-        if args.phase in ["all", "validation"]:
-            logger.info("Phase 6: Validation")
-            # Placeholder for Validation logic
-            # run_validation(config, logger)
-            logger.warning("Validation phase skipped (T034-T040 not implemented yet)")
-
-        logger.info("Pipeline execution completed successfully.")
-
+        preprocessing_main()
+        logger.info("Preprocessing Stage completed successfully.")
     except Exception as e:
-        logger.error(f"Pipeline execution failed: {str(e)}", exc_info=True)
+        logger.error(f"Preprocessing Stage failed: {e}")
+        raise
+
+
+def run_de_stage(args):
+    """Execute differential expression analysis."""
+    logger.info("Starting Differential Expression Stage...")
+    from .differential_expression import main as de_main
+
+    try:
+        de_main()
+        logger.info("Differential Expression Stage completed successfully.")
+    except Exception as e:
+        logger.error(f"Differential Expression Stage failed: {e}")
+        raise
+
+
+def run_meta_analysis_stage(args):
+    """Execute meta-analysis and gene panel selection."""
+    logger.info("Starting Meta-Analysis Stage...")
+    from .meta_analysis import main as meta_main
+
+    try:
+        meta_main()
+        logger.info("Meta-Analysis Stage completed successfully.")
+    except Exception as e:
+        logger.error(f"Meta-Analysis Stage failed: {e}")
+        raise
+
+
+def run_modeling_stage(args):
+    """Execute model training and validation."""
+    logger.info("Starting Modeling Stage...")
+    # Note: The specific modeling controller is imported dynamically if it exists
+    # or we assume the main entry point handles the full flow if split differently.
+    # Based on tasks.md, T031-T043 cover modeling.
+    try:
+        # Placeholder for specific modeling orchestrator if it exists separately
+        # Currently, we assume the main flow might handle it or it's called here.
+        # If a specific file like modeling.py exists, import it.
+        from .model_training import main as modeling_main
+        modeling_main()
+        logger.info("Modeling Stage completed successfully.")
+    except ImportError:
+        logger.warning("Modeling module not found or not fully implemented yet.")
+    except Exception as e:
+        logger.error(f"Modeling Stage failed: {e}")
+        raise
+
+
+def run_validation_stage(args):
+    """Execute LOO and external validation."""
+    logger.info("Starting Validation Stage...")
+    # Placeholder for validation logic
+    try:
+        # If a specific validation controller exists
+        from .validation_controller import main as validation_main
+        validation_main()
+        logger.info("Validation Stage completed successfully.")
+    except ImportError:
+        logger.warning("Validation module not found or not fully implemented yet.")
+    except Exception as e:
+        logger.error(f"Validation Stage failed: {e}")
+        raise
+
+
+def main():
+    """Main entry point for the pipeline."""
+    args = parse_args()
+    root = get_project_root()
+    ensure_directories(root)
+
+    # Setup logging
+    log_file = root / "results" / "pipeline.log"
+    setup_logging(log_file)
+
+    logger.info(f"Pipeline started in mode: {args.mode}")
+    logger.info(f"Project root: {root}")
+
+    start_time = time.time()
+
+    try:
+        if args.stage in ["all", "acquisition"]:
+            run_acquisition_stage(args)
+
+        if args.stage in ["all", "preprocessing"]:
+            run_preprocessing_stage(args)
+
+        if args.stage in ["all", "de"]:
+            run_de_stage(args)
+
+        if args.stage in ["all", "meta"]:
+            run_meta_analysis_stage(args)
+
+        if args.stage in ["all", "modeling"]:
+            run_modeling_stage(args)
+
+        if args.stage in ["all", "validation"]:
+            run_validation_stage(args)
+
+        elapsed = time.time() - start_time
+        logger.info(f"Pipeline completed successfully in {elapsed:.2f} seconds.")
+
+    except ResourceLimitExceeded as e:
+        logger.critical(f"Resource limit exceeded: {e}")
         sys.exit(1)
+    except Exception as e:
+        logger.critical(f"Pipeline execution failed: {e}")
+        sys.exit(1)
+
 
 if __name__ == "__main__":
     main()

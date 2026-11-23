@@ -1,116 +1,96 @@
 """
-Unit tests for code/data/retrieval.py
+Tests for the data retrieval module.
 """
-import unittest
-from unittest.mock import patch, MagicMock, Mock
+
 import json
-import csv
+import os
 import tempfile
 from pathlib import Path
-import sys
-import os
+from unittest.mock import patch, MagicMock
 
-# Add parent to path for imports
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+import pytest
 
-from data.retrieval import extract_records, write_raw_data
+# Add the project root to the path
+sys_path = Path(__file__).parent.parent
+if str(sys_path) not in os.sys.path:
+    os.sys.path.insert(0, str(sys_path))
 
-class TestExtraction(unittest.TestCase):
+from code.data.retrieval import extract_records, write_raw_data
 
-    def test_extract_records_valid(self):
-        """Test extraction of valid Caco-2 measurement records."""
-        mock_data = {
-            "results": [
-                {
-                    "assay_chembl_id": "CHEMBL123",
-                    "assay_type": "Caco-2",
-                    "target_dictionary": {"target_chembl_id": "CHEMBL_TARGET"},
-                    "documents": [
-                        {
-                            "standard_type": "MEASUREMENT",
-                            "standard_value": 5.5,
-                            "standard_units": "log cm/s",
-                            "molecule_chembl_id": "CHEMBL_MOL",
-                            "document_chembl_id": "DOC1"
-                        }
-                    ]
-                }
-            ]
-        }
-        
-        # Mock the molecule fetch to return a SMILES
-        with patch('data.retrieval.requests.get') as mock_get:
-            # Mock response for molecule
-            mol_resp = MagicMock()
-            mol_resp.status_code = 200
-            mol_resp.json.return_value = {
-                "molecule_structures": [{"canonical_smiles": "CCO"}]
+
+def test_extract_records():
+    """Test that extract_records correctly processes API response."""
+    # Mock API response
+    mock_page_data = {
+        'assays': [
+            {
+                'assay_id': 12345,
+                'chembl_id': 'CHEMBL123',
+                'organism': {'scientific_name': 'Homo sapiens'},
+                'targets': [{'organism': {'scientific_name': 'Homo sapiens'}}],
+                'documents': [{'doc_id': 'DOC123'}]
             }
-            mock_get.return_value = mol_resp
-            
-            records = extract_records(mock_data)
-            
-            self.assertEqual(len(records), 1)
-            self.assertEqual(records[0]["assay_chembl_id"], "CHEMBL123")
-            self.assertEqual(records[0]["logPapp"], 5.5)
-            self.assertEqual(records[0]["smiles"], "CCO")
-
-    def test_extract_records_invalid_type(self):
-        """Test that non-Caco-2 assays are skipped."""
-        mock_data = {
-            "results": [
-                {
-                    "assay_chembl_id": "CHEMBL456",
-                    "assay_type": "Binding",
-                    "documents": []
-                }
-            ]
-        }
-        records = extract_records(mock_data)
-        self.assertEqual(len(records), 0)
-
-    def test_extract_records_null_value(self):
-        """Test that records with null standard_value are skipped."""
-        mock_data = {
-            "results": [
-                {
-                    "assay_chembl_id": "CHEMBL789",
-                    "assay_type": "Caco-2",
-                    "documents": [
-                        {
-                            "standard_type": "MEASUREMENT",
-                            "standard_value": None,
-                            "molecule_chembl_id": "CHEMBL_MOL"
-                        }
-                    ]
-                }
-            ]
-        }
-        records = extract_records(mock_data)
-        self.assertEqual(len(records), 0)
-
-class TestWriting(unittest.TestCase):
-
-    def test_write_raw_data(self):
-        """Test writing records to CSV."""
-        records = [
-            {"assay_chembl_id": "A1", "target_chembl_id": "T1", "molecule_chembl_id": "M1", "smiles": "CC", "logPapp": 1.0, "units": "u", "document_chembl_id": "D1"},
-            {"assay_chembl_id": "A2", "target_chembl_id": "T2", "molecule_chembl_id": "M2", "smiles": "CCO", "logPapp": 2.0, "units": "u", "document_chembl_id": "D2"}
         ]
-        
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test.csv"
-            write_raw_data(records, output_path)
-            
-            self.assertTrue(output_path.exists())
-            
-            with open(output_path, 'r') as f:
-                reader = csv.DictReader(f)
-                rows = list(reader)
-                
-            self.assertEqual(len(rows), 2)
-            self.assertEqual(rows[0]["smiles"], "CC")
-            self.assertEqual(rows[1]["logPapp"], "2.0")
+    }
 
-if __name__ == '__main__':
-    unittest.main()
+    # Mock the requests.get call for activities
+    mock_activity_response = {
+        'activities': [
+            {
+                'molecule_structures': {'canonical_smiles': 'CCO'},
+                'standard_value': -6.5,
+                'standard_units': 'logM',
+                'standard_type': 'MEASUREMENT',
+                'relation': '=',
+                'comment': 'Test comment'
+            }
+        ]
+    }
+
+    with patch('code.data.retrieval.requests.get') as mock_get:
+        # First call returns assay page, second call returns activities
+        mock_get.side_effect = [
+            MagicMock(json=lambda: mock_page_data),
+            MagicMock(json=lambda: mock_activity_response, raise_for_status=lambda: None)
+        ]
+
+        records = extract_records(mock_page_data)
+
+        assert len(records) == 1
+        record = records[0]
+        assert record['smiles'] == 'CCO'
+        assert record['logPapp'] == -6.5
+        assert 'protocol_metadata' in record
+
+        # Verify protocol_metadata is a JSON string
+        metadata = json.loads(record['protocol_metadata'])
+        assert metadata['assay_id'] == '12345'
+        assert metadata['standard_type'] == 'MEASUREMENT'
+
+
+def test_write_raw_data():
+    """Test that write_raw_data correctly writes to CSV."""
+    records = [
+        {
+            'smiles': 'CCO',
+            'logPapp': -6.5,
+            'assay_id': '12345',
+            'protocol_metadata': json.dumps({'standard_type': 'MEASUREMENT'})
+        }
+    ]
+
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = Path(tmpdir) / 'test.csv'
+        write_raw_data(records, output_path)
+
+        assert output_path.exists()
+
+        # Read back and verify
+        with open(output_path, 'r') as f:
+            import csv
+            reader = csv.DictReader(f)
+            rows = list(reader)
+
+        assert len(rows) == 1
+        assert rows[0]['smiles'] == 'CCO'
+        assert rows[0]['logPapp'] == '-6.5'

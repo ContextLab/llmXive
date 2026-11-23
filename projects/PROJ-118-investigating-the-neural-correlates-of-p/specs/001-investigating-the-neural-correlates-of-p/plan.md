@@ -110,13 +110,13 @@ projects/PROJ-118-investigating-the-neural-correlates-of-p/
     *   **Output**: `results/statistics.json` (p-values, Cohen's d, cluster results, mixed-effects results).
 
 5.  **Phase 4: Visualization & Reporting (FR-007)**
-    *   **Task**: Generate ERP plots (Standard, Deviant, Difference) with 95% CI.
+    *   **Task**: Generate ERP plots (Standard, Deviant, Difference) with confidence intervals.
     *   **Task**: Generate Topographic maps of the Difference Wave at peak latency.
     *   **Output**: `results/plots/` (PNG).
 
 ## Compute Feasibility Plan
 
-*   **Memory**: Subsampling to 32 channels reduces data size significantly. ICA will be run on the subsampled data.
+*   **Memory**: Subsampling to a reduced number of channels reduces data size significantly.. ICA will be run on the subsampled data.
 *   **Runtime**: A large number of permutations on a small sample (N~small) is CPU-tractable. Cluster-based permutation is computationally intensive but feasible on a limited number of CPU cores for this sample size and time window.
 *   **Libraries**: `mne`, `numpy`, `scipy`, `matplotlib`, `pingouin` are all CPU-native. No GPU code.
 *   **Data Size**: The dataset is approximately a few gigabytes in raw size. Fits within 14 GB disk limit.

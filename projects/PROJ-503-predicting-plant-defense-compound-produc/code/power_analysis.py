@@ -1,198 +1,255 @@
 """
-Power analysis utility for Phase 0.
+Power analysis module for determining sample size sufficiency.
 
-Calculates required sample size for detecting a correlation effect size (r)
-with specified alpha and power. Aborts with E-POWER if required n < 28.
+Performs power analysis on the final paired set using F-test parameters.
+Enforces abort criteria if N < 40 (Minimum Viable N for SC-001).
 """
 import json
 import logging
 import sys
+import math
 from pathlib import Path
-from typing import Dict, Any
+from typing import Dict, Any, Optional
+import numpy as np
 
-# Import from project API surface
+# Import local exception
 from exceptions import E_POWER
-from error_handler import raise_power_error
 
-# Setup logging to match project standards
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler(Path(__file__).parent.parent / 'logs' / 'power_analysis.log')
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Project root path
-PROJECT_ROOT = Path(__file__).parent.parent
-LOGS_DIR = PROJECT_ROOT / 'logs'
-OUTPUT_FILE = LOGS_DIR / 'power_analysis.json'
 
-def calculate_required_n(effect_size: float = 0.5, alpha: float = 0.05, power: float = 0.8) -> int:
+def calculate_z_score(effect_size: float) -> float:
     """
-    Calculate required sample size for Pearson correlation test.
+    Calculate z-score approximation for effect size in correlation context.
+    Uses Fisher's z-transformation approximation for power calculation.
     
-    Uses the approximation:
-    n = (Z_alpha + Z_beta)^2 / (0.5 * ln((1+r)/(1-r)))^2 + 3
-    
-    Where:
-    - Z_alpha is the critical value for the significance level (one-tailed)
-    - Z_beta is the critical value for the desired power
-    - r is the effect size (correlation coefficient)
-    
-    Parameters:
-    -----------
-    effect_size : float
-        Expected correlation coefficient (r). Default 0.5.
-    alpha : float
-        Significance level. Default 0.05.
-    power : float
-        Desired statistical power (1 - beta). Default 0.8.
+    Args:
+        effect_size: The expected effect size (correlation coefficient r)
         
     Returns:
-    --------
-    int
-        Required sample size n.
+        float: z-score corresponding to the effect size
     """
-    from scipy import stats
-    
-    # Calculate Z values
-    z_alpha = stats.norm.ppf(1 - alpha)
-    z_beta = stats.norm.ppf(power)
-    
-    # Fisher's z-transformation of correlation
-    # z_r = 0.5 * ln((1+r)/(1-r))
-    # Variance of z_r is approximately 1/(n-3)
-    # n = (z_alpha + z_beta)^2 / z_r^2 + 3
-    
+    # Fisher's z-transformation
     if abs(effect_size) >= 1.0:
-        raise ValueError("Effect size must be between -1 and 1 (exclusive)")
+        raise ValueError("Effect size must be strictly between -1 and 1")
+    z = 0.5 * math.log((1 + effect_size) / (1 - effect_size))
+    return z
+
+
+def calculate_required_n(effect_size: float, alpha: float = 0.05, power: float = 0.8) -> int:
+    """
+    Calculate the required sample size for a given effect size, alpha, and power.
+    Uses the standard formula for correlation power analysis.
+    
+    Formula: N = ((Z_alpha + Z_beta) / z_r)^2 + 3
+    Where z_r is Fisher's z-transformed correlation.
+    
+    Args:
+        effect_size: Expected correlation coefficient (r)
+        alpha: Significance level (default 0.05)
+        power: Desired statistical power (default 0.8)
         
-    z_r = 0.5 * ((1 + effect_size) / (1 - effect_size)).__float__()
-    # Proper calculation using log
-    import math
-    z_r = 0.5 * math.log((1 + effect_size) / (1 - effect_size))
+    Returns:
+        int: Required sample size N
+    """
+    if not 0 < effect_size < 1:
+        raise ValueError("Effect size must be between 0 and 1 (exclusive)")
+    if not 0 < alpha < 1:
+        raise ValueError("Alpha must be between 0 and 1")
+    if not 0 < power < 1:
+        raise ValueError("Power must be between 0 and 1")
+        
+    # Z-scores for alpha and power
+    # Using scipy.stats.norm.ppf would be ideal, but using numpy approximation
+    # Z_alpha for two-tailed test:
+    z_alpha = np.abs(np.percentile(np.random.randn(1000000), alpha * 100 / 2))
+    # More precise calculation using scipy if available, else approximation
+    try:
+        from scipy.stats import norm
+        z_alpha = norm.ppf(1 - alpha / 2)
+        z_beta = norm.ppf(power)
+    except ImportError:
+        # Fallback approximation if scipy not available
+        # For alpha=0.05, z_alpha ~ 1.96
+        # For power=0.8, z_beta ~ 0.84
+        z_alpha = 1.96
+        z_beta = 0.84
+        
+    z_r = calculate_z_score(effect_size)
     
-    # Calculate n
-    numerator = (z_alpha + z_beta) ** 2
-    denominator = z_r ** 2
-    n = (numerator / denominator) + 3
-    
+    if z_r == 0:
+        raise ValueError("Effect size results in zero z-score, cannot calculate N")
+        
+    n = ((z_alpha + z_beta) / z_r) ** 2 + 3
     return int(math.ceil(n))
 
-def run_power_analysis(
-    effect_size: float = 0.5,
-    alpha: float = 0.05,
-    power: float = 0.8,
-    min_required_n: int = 28
-) -> Dict[str, Any]:
+
+def calculate_power(n: int, effect_size: float, alpha: float = 0.05) -> float:
     """
-    Run power analysis and enforce minimum sample size constraint.
+    Calculate statistical power given sample size, effect size, and alpha.
     
-    Parameters:
-    -----------
-    effect_size : float
-        Target effect size (r).
-    alpha : float
-        Significance level.
-    power : float
-        Desired power.
-    min_required_n : int
-        Minimum required sample size (default 28 per plan.md).
+    Args:
+        n: Sample size
+        effect_size: Expected correlation coefficient (r)
+        alpha: Significance level
         
     Returns:
-    --------
-    Dict[str, Any]
-        Analysis results including calculated n and status.
+        float: Statistical power (0 to 1)
+    """
+    if n < 3:
+        return 0.0
+        
+    z_r = calculate_z_score(effect_size)
+    
+    try:
+        from scipy.stats import norm
+        z_alpha = norm.ppf(1 - alpha / 2)
+        z_beta = z_r * math.sqrt(n - 3) - z_alpha
+        power = norm.cdf(z_beta)
+    except ImportError:
+        # Fallback approximation
+        z_alpha = 1.96
+        z_beta = z_r * math.sqrt(n - 3) - z_alpha
+        # Approximate CDF
+        power = 0.5 * (1 + math.erf(z_beta / math.sqrt(2)))
+        
+    return max(0.0, min(1.0, power))
+
+
+def run_power_analysis(
+    n_samples: int,
+    effect_size: float = 0.5,
+    alpha: float = 0.05,
+    target_power: float = 0.8,
+    min_viable_n: int = 40
+) -> Dict[str, Any]:
+    """
+    Run power analysis on the paired dataset.
+    
+    Args:
+        n_samples: Number of paired samples available
+        effect_size: Expected effect size (default 0.5)
+        alpha: Significance level (default 0.05)
+        target_power: Target statistical power (default 0.8)
+        min_viable_n: Minimum viable sample size threshold (default 40)
+        
+    Returns:
+        dict: Power analysis results including N, power, effect_size, alpha, test_type
         
     Raises:
-    -------
-    E_POWER
-        If calculated n < min_required_n.
+        E_POWER: If sample size is below minimum viable N
     """
-    logger.info(f"Running power analysis: effect_size={effect_size}, alpha={alpha}, power={power}")
+    logger.info(f"Running power analysis with N={n_samples}, effect_size={effect_size}")
     
-    required_n = calculate_required_n(effect_size, alpha, power)
+    # Calculate achieved power
+    achieved_power = calculate_power(n_samples, effect_size, alpha)
     
-    logger.info(f"Calculated required sample size: n = {required_n}")
+    # Calculate required N for target power
+    required_n = calculate_required_n(effect_size, alpha, target_power)
     
     result = {
+        "N": n_samples,
+        "power": round(achieved_power, 4),
         "effect_size": effect_size,
         "alpha": alpha,
-        "power": power,
-        "calculated_n": required_n,
-        "min_required_n": min_required_n,
-        "status": "PASS",
-        "message": "Sample size sufficient for planned analysis"
+        "test_type": "F-test (correlation)",
+        "target_power": target_power,
+        "required_n_for_target": required_n,
+        "min_viable_n": min_viable_n,
+        "meets_minimum_viable": n_samples >= min_viable_n,
+        "meets_target_power": achieved_power >= target_power
     }
     
-    if required_n < min_required_n:
-        result["status"] = "FAIL"
-        result["message"] = f"Insufficient sample size: calculated n={required_n} < min_required_n={min_required_n}"
-        
-        # Prepare error details
-        error_details = {
-            "code": "E-POWER",
-            "message": f"Power analysis failed: required n={required_n} is below minimum threshold of {min_required_n}",
-            "parameters": {
-                "effect_size": effect_size,
-                "alpha": alpha,
-                "power": power,
-                "calculated_n": required_n,
-                "min_required_n": min_required_n
-            }
-        }
-        
-        logger.error(error_details["message"])
-        
-        # Ensure logs directory exists
-        LOGS_DIR.mkdir(parents=True, exist_ok=True)
-        
-        # Write partial results before raising
-        with open(OUTPUT_FILE, 'w') as f:
-            json.dump(result, f, indent=2)
-        
-        raise_power_error(
-            message=error_details["message"],
-            details=error_details
+    logger.info(f"Power analysis result: N={n_samples}, Power={achieved_power:.4f}")
+    
+    # Check abort criteria
+    if n_samples < min_viable_n:
+        error_msg = (
+            f"E-POWER: Sample size N={n_samples} is below minimum viable N={min_viable_n}. "
+            f"Project aborted per SC-001. Required N for target power: {required_n}."
         )
-    
-    # Ensure logs directory exists
-    LOGS_DIR.mkdir(parents=True, exist_ok=True)
-    
-    # Write results to JSON
-    with open(OUTPUT_FILE, 'w') as f:
-        json.dump(result, f, indent=2)
+        logger.error(error_msg)
+        raise E_POWER(error_msg)
         
-    logger.info(f"Power analysis results written to {OUTPUT_FILE}")
+    if achieved_power < target_power:
+        logger.warning(
+            f"Power {achieved_power:.4f} is below target {target_power}. "
+            f"Consider collecting more samples (required: {required_n})."
+        )
     
     return result
 
+
 def main():
-    """Main entry point for power analysis."""
+    """
+    Main entry point for power analysis script.
+    Reads paired sample count from data/processed/paired_samples.csv
+    and writes report to logs/power_analysis_report.json.
+    """
+    # Paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent
+    paired_samples_path = project_root / "data" / "processed" / "paired_samples.csv"
+    output_path = project_root / "logs" / "power_analysis_report.json"
+    
+    # Ensure logs directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load paired sample count
+    if not paired_samples_path.exists():
+        error_msg = f"Paired samples file not found: {paired_samples_path}"
+        logger.error(error_msg)
+        raise FileNotFoundError(error_msg)
+        
+    # Count samples from CSV (skip header)
+    with open(paired_samples_path, 'r') as f:
+        # Count lines excluding header
+        lines = f.readlines()
+        n_samples = len(lines) - 1 if len(lines) > 1 else 0
+        
+    if n_samples == 0:
+        error_msg = "No paired samples found in paired_samples.csv"
+        logger.error(error_msg)
+        raise ValueError(error_msg)
+        
+    logger.info(f"Found {n_samples} paired samples")
+    
+    # Run power analysis
     try:
         result = run_power_analysis(
+            n_samples=n_samples,
             effect_size=0.5,
             alpha=0.05,
-            power=0.8,
-            min_required_n=28
+            target_power=0.8,
+            min_viable_n=40
         )
-        
-        print(f"Power analysis completed successfully.")
-        print(f"Required sample size: n = {result['calculated_n']}")
-        print(f"Status: {result['status']}")
-        print(f"Output: {OUTPUT_FILE}")
-        
-        return 0
-        
     except E_POWER as e:
-        print(f"Power analysis failed: {e}")
-        return 1
-    except Exception as e:
-        logger.exception(f"Unexpected error during power analysis: {e}")
-        return 1
+        # Re-raise to trigger abort
+        raise
+        
+    # Write report
+    with open(output_path, 'w') as f:
+        json.dump(result, f, indent=2)
+        
+    logger.info(f"Power analysis report written to {output_path}")
+    
+    # Print summary
+    print(f"Power Analysis Summary:")
+    print(f"  N: {result['N']}")
+    print(f"  Achieved Power: {result['power']}")
+    print(f"  Target Power: {result['target_power']}")
+    print(f"  Meets Minimum Viable N: {result['meets_minimum_viable']}")
+    print(f"  Meets Target Power: {result['meets_target_power']}")
+    
+    if not result['meets_minimum_viable']:
+        print("\nABORT: E-POWER triggered - sample size below minimum threshold")
+        sys.exit(1)
+        
+    return result
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

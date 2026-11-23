@@ -24,6 +24,9 @@ properties:
   relevance_label:
     type: integer
     description: "Ground truth relevance score (0, 1, 2)."
+  validation_score:
+    type: number
+    description: "Cosine similarity to original text for injected docs (optional)."
 required:
   - document_id
   - text

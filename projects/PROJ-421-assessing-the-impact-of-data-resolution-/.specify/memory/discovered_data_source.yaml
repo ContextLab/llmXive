@@ -1,0 +1,12 @@
+status: none
+intent: download NLCD 2021 land cover raster via USGS EarthExplorer API python package
+  dataset
+required_fields:
+- land_cover_class
+- pixel_x_coordinate
+- pixel_y_coordinate
+- spatial_reference_system
+- pixel_resolution
+cache_key: 0b11e79c77196cf3551e49c77ef5146f1aae8d4167ce690556372d30f3fa5620
+searched_at: '2026-10-15T16:28:38.809494+00:00'
+retry_count: 1

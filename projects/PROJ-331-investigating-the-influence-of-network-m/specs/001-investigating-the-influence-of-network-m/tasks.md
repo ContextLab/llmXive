@@ -39,13 +39,29 @@
  ============================================================================
 -->
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 1: Setup & Data Contracts (Shared Infrastructure)
 
-**Purpose**: Project initialization and basic structure
+**Purpose**: Project initialization, basic structure, and defining data contracts (schemas) as required by Plan Phase 1.
 
 - [ ] T001 [P] Create project directory structure: `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/logs/`, `results/`, `state/`
-- [ ] T002 [P] Initialize Python 3.11 project with `requirements.txt` (numpy, scipy, pandas, networkx, matplotlib, seaborn, nibabel, requests, reportlab, tqdm, joblib, dipy)
+- [X] T002 [P] Initialize Python project with `requirements.txt` (numpy, scipy, pandas, networkx, matplotlib, seaborn, nibabel, requests, reportlab, tqdm, joblib, dipy, statsmodels, weasyprint)
 - [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+- [ ] T009 [P] **Generate** `specs/feature/motif-rsfc/data-model.md` defining all data entities (Subject, StructuralConnectome, MotifProfile, rsFCMatrix, CorrelationResult) and their relationships. **Deliverable**: `data-model.md` with explicit field definitions for each entity. **Dependency**: T001.
+- [ ] T010 [P] Create `specs/feature/motif-rsfc/contracts/dataset.schema.yaml` defining the schema for raw input metadata. **Deliverable**: `dataset.schema.yaml`. **Dependency**: T009.
+- [ ] T011 [P] Create `specs/feature/motif-rsfc/contracts/motif_profile.schema.yaml` defining the schema for motif z-scores. **Deliverable**: `motif_profile.schema.yaml`. **Dependency**: T009.
+- [ ] T012 [P] Create `specs/feature/motif-rsfc/contracts/results.schema.yaml` defining the schema for correlation results. **Deliverable**: `results.schema.yaml`. **Dependency**: T009.
+- [ ] T013 [P] Create `specs/feature/motif-rsfc/contracts/analysis_results.schema.yaml` defining the schema for statistical outputs (power analysis, permutation). **Deliverable**: `analysis_results.schema.yaml`. **Dependency**: T009.
+- [ ] T014 [P] Create `specs/feature/motif-rsfc/contracts/structural_connectome.schema.yaml` defining the schema for subject processing status and derived matrices. **Deliverable**: `structural_connectome.schema.yaml`. **Dependency**: T009.
+- [ ] T015 [P] [US1] Implement `quickstart.md` with step-by-step guide to run the full pipeline on a fresh environment. **Deliverable**: `quickstart.md`. **Content**: Include installation, configuration, execution command, and expected outputs. **Dependency**: T001, T002.
+- [ ] T016 [P] [Docs] Implement `README.md` at repository root with project overview, installation instructions, and usage guide. **Deliverable**: `README.md`. **Content**: Include dependency list, quick start, and contribution guide. **Dependency**: T001, T002.
+- [X] T004 [P] Implement `code/config.py` with paths, seeds, `EXPECTED_COHORT_SIZE`, and constants. **Add**: `N_MOTIF_NODES` (default 3) to allow configurable motif size per FR-004.
+- [X] T005 [P] Implement `code/utils.py` for logging (to `pipeline.log`), error handling, and file I/O
+- [X] T006 [P] Create `scripts/hash_artifacts.sh` to generate SHA checksums and update `state/...yaml`
+- [X] T007 [P] Setup `tests/conftest.py` and mock data fixtures for CI-safe testing
+- [ ] T008 [P] [US1] Implement `code/download.py` function `def load_subject_list(subject_ids_file)` to load the list of subject IDs, validate the file exists, and write `data/processed/subject_list_manifest.json` containing `{"total_subjects": int, "subject_ids": [str], "subjects_attempted": int}`. **Purpose**: Establish the denominator for SC-001 success rate verification. **Dependency**: T004.
+- [ ] T008_validate [US1] Implement `code/download.py` function `def validate_subject_manifest(manifest_path)` to verify the manifest. **Behavior**: If the count in the manifest differs from `config.EXPECTED_COHORT_SIZE`, log a WARNING (e.g., "Manifest count mismatch: expected X, found Y. Proceeding with available subjects.") and update the manifest with the actual count, then continue. **DO NOT raise an error** or abort the pipeline. **Output**: Updated manifest. **Dependency**: T008.
+
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
@@ -55,10 +71,7 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 [P] Implement `code/config.py` with paths, seeds (42), and constants
-- [ ] T005 [P] Implement `code/utils.py` for logging (to `pipeline.log`), error handling, and file I/O
-- [ ] T006 [P] Create `scripts/hash_artifacts.sh` to generate SHA256 checksums and update `state/...yaml`
-- [X] T007 [P] Setup `tests/conftest.py` and mock data fixtures for CI-safe testing
+- [ ] T017_setup [P] [US1] Implement `code/utils.py` logging wrapper infrastructure to ensure all processing steps, warnings, and errors are logged to `data/logs/pipeline.log` as per FR-008. **Note**: This task sets up the logger but does not yet log statistical parameters (which are generated in Phase 5). **Dependency**: T005.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -72,19 +85,31 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [~] T010 [P] [US1] Unit test for data download logic in `tests/unit/test_download.py`: **Contract**: Verify `download_subject_data(subject_id)` returns a dict with keys `{'dwi_path', 'rsfmri_path'}` or raises `FileNotFoundError` if missing; assert SHA256 checksums match `data/raw/.checksums.json` for valid files.
-- [X] T011 [P] [US1] Unit test for parcellation logic in `tests/unit/test_preprocess.py`: **Contract**: Verify `parcellate_connectome(streamlines_path, atlas_path)` returns a numpy array of shape (N, N) with a floating-point data type, where N corresponds to the number of regions in the specified atlas.; assert values are non-negative and density is within the expected valid range.
-- [~] T012 [P] [US1] Integration test for full pipeline on 2 subjects in `tests/integration/test_pipeline.py`: **Contract**: Run end-to-end on 2 mock subjects; assert `data/processed/` contains `structural.npy` and `rsfc.npy` for both; assert `data/logs/pipeline.log` contains "Processed 2/2 subjects" without errors. <!-- ATOMIZE: requested -->
+- [ ] T018 [P] [US1] Unit test for data download logic in `tests/unit/test_download.py`: **Contract**: Verify `download_subject_data(subject_id)` returns a dict with keys `{'dwi_path', 'rsfmri_path'}` or raises `FileNotFoundError` if missing; assert SHA checksums match `data/raw/.checksums.json` for valid files.
+- [ ] T019 [P] [US1] Unit test for parcellation logic in `tests/unit/test_preprocess.py`: **Contract**: Verify `parcellate_connectome(streamlines_path, atlas_path)` returns a numpy array of shape (N, N) with a floating-point data type, where N corresponds to the number of regions in the specified atlas.; assert values are non-negative and density is within the expected valid range.
+- [ ] T020 [P] [US1] Integration test for full pipeline on 2 subjects in `tests/integration/test_pipeline.py`: **Contract**: Run end-end on mock subjects; assert `data/processed/` contains `structural.npy` and `rsfc.npy` for each subject.; assert `data/logs/pipeline.log` contains "Processed all subjects" without errors.
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/download.py` to fetch HCP DWI (.trk/.tck) and rs-fMRI data (or verify pre-seeded data in `data/raw/`); include graceful handling for missing subjects (log warning, skip, continue); **FAIL LOUDLY** on real fetch errors (no synthetic fallback)
-- [ ] T014 [US1] Implement `code/preprocess.py` to apply Schaefer‑100 parcellation to DWI streamlines -> Binary Adjacency (density thresholded) AND Weighted Adjacency (streamline count); input:.trk/.tck streamlines,.nii.gz atlas; output: `data/processed/binary_adjacency.npy`, `data/processed/weighted_adjacency.npy`
-- [ ] T015 [US1] Implement `code/preprocess.py` to compute rsFC (Pearson correlation of BOLD time‑series) and Global Efficiency (on the **weighted adjacency matrix** `data/processed/weighted_adjacency.npy` from T014); input: `data/processed/weighted_adjacency.npy`; output: `data/processed/rsfc.npy`, `data/processed/global_efficiency.json`
-- [ ] T016 [US1] Implement logging of all processing steps, warnings, and errors to `data/logs/pipeline.log`
-- [ ] T017 [US1] Save processed matrices (`structural.npy`, `rsfc.npy`) to `data/processed/` with provenance metadata
+- [ ] T013_stream [US1] Implement `code/download.py` function `def stream_and_process_subject(subject_id)` that:
+ 1. Downloads the subject's DWI data in chunks using `requests` with `stream=True` to a **temporary file**.
+ 2. **Retry Logic**: If HCP S3 is inaccessible (network error), retry up to 3 times with exponential backoff. Track cumulative retry time; if total retry time exceeds a significant fraction of the total pipeline budget (min), log a warning and skip the subject.
+ 3. If data is missing (404), log warning and **skip subject**.
+ 4. **Process**: Apply Schaefer parcellation to generate the weighted adjacency matrix from the temporary file.
+ 5. **Persist**: Save the derived `.npy` to `data/processed/` and generate a SHA checksum recorded in `data/processed/.checksums.json`.
+ 6. **Delete**: **Immediately delete the temporary raw file** after successful processing and checksumming to fit CI disk limits. **Note**: This task prioritizes the Plan's "Compute Feasibility" constraint (streaming raw data) over Constitution Principle VI's requirement to store raw data unchanged, as storing raw HCP data in CI is infeasible. Derived matrices are the primary artifact stored and checksummed.
+ 7. **FAIL LOUDLY** only on unrecoverable local errors (e.g., disk full, permission denied).
+ **Constraint**: Ensure disk usage never exceeds runner limits by deleting raw files immediately. **Note**: Raw HCP data is ephemeral; derived matrices are stored in `data/processed/` and checksummed. **Dependency**: T008_validate.
+- [ ] T013_retry_monitor [US1] Implement `code/download.py` function `def monitor_retry_budget(total_retry_time, budget_threshold)` to track and enforce the retry budget. **Output**: Log warning if budget exceeded. **Dependency**: T013_stream.
+- [ ] T014_func [P] [US1] Implement `code/preprocess.py` function `def parcellate_to_weighted(streamlines_path, atlas_path)` to apply Schaefer parcellation to DWI streamlines -> **Weighted Adjacency** (streamline count). Input: `.trk/.tck` (from T013_stream), `.nii.gz` atlas. Output: in-memory numpy array. **Explicit Constraint**: This task produces the weighted matrix only. Binarization is handled in T014_bin. **Dependency**: T013_stream.
+- [ ] T014_orchestrate [US1] Implement `code/preprocess.py` orchestration to iterate T014_func for all subjects and save `data/processed/*/weighted_adjacency.npy` for each. **Dependency**: T014_func, T013_stream.
+- [ ] T014_agg [US1] Implement `code/preprocess.py` function `def aggregate_weighted_matrices()` to iterate over all `data/processed/*/weighted_adjacency.npy` files (using `glob.glob`) generated by **T014_orchestrate** for **all subjects**, compute the **median graph density** across the entire cohort, and save the result to `data/processed/cohort_threshold.json` (`{"median_density": float}`). **Purpose**: Provide the cohort-level threshold required for T014_bin. **Constraint**: Ensure all weighted matrices generated by T014_orchestrate are retained in `data/processed/` until this aggregation is complete; do not delete intermediates before this step. **Dependency**: T014_orchestrate.
+- [ ] T014_bin [US1] Implement `code/preprocess.py` function `def binarize_by_median_density()` to apply the cohort-level threshold from T014_agg to binarize **each subject's matrix**. **Plan Compliance**: This task explicitly implements the "median graph density threshold" strategy required by Plan Phase 2. **Clarification**: This threshold applies to structural binarization. The z-score sensitivity sweep (, 2.0, 2.5) applies to motif significance (T025c_loop), NOT structural binarization. **Orchestration**: This is a single task that iterates over all subjects' weighted matrices after T014_agg completes. **Input**: `data/processed/weighted_adjacency.npy` (for all subjects), `data/processed/cohort_threshold.json`. Output: `data/processed/canonical_binary_adj.npy` (binary) and `data/processed/structural_connectome_metadata.json` (status flags: 'complete', 'skipped'). **Dependency**: T014_agg, T014_orchestrate.
+- [ ] T014_bin_validate [US1] Implement `code/preprocess.py` function `def validate_binary_connectome(binary_adj_path)` to verify the binary nature of the input for T015b against the weighted output of T014, ensuring **FR-002 compliance**. **Dependency**: T014_bin.
+- [ ] T015b [US1] Implement `code/preprocess.py` function `def compute_global_efficiency(binary_adj_path)` to compute **Global Efficiency** on the **binary structural connectome** (`data/processed/canonical_binary_adj.npy`). **Formula**: E = (1/(N*(N-1))) * sum(1/d_ij) for i!=j. Use `networkx.global_efficiency`. **Justification**: Global efficiency is calculated on the binary graph to maintain consistency with the motif analysis (FR-004) and FR-002's binary connectome requirement. **Schema**: `data/processed/global_efficiency.json` = `{'subject_id': str, 'global_efficiency': float}`. **Output**: `data/processed/global_efficiency.json`. **Dependency**: T014_bin_validate, T014_bin.
+- [ ] T015a [US1] Implement `code/preprocess.py` function `def compute_rsfc(rsfmri_path)` to compute rsFC (Pearson correlation of BOLD time‑series) and save `data/processed/rsfc.npy`. **Independent**: This task does NOT depend on structural data. **Dependency**: T013_stream.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -92,26 +117,29 @@
 
 ## Phase 4: User Story 2 - Motif Quantification (Priority: P2)
 
-**Goal**: Enumerate all 3-node subgraphs in each structural connectome, compute z‑score prevalence against degree‑preserving null models, and store the motif profile.
+**Goal**: Enumerate all 3‑node subgraphs in each structural connectome, compute z‑score prevalence against degree‑preserving null models, and store the motif profile.
 
 **Independent Test**: Run the motif‑counting script on a single preprocessed structural matrix; verify that a JSON file containing z‑scores for each motif type is produced and matches a reference output.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T019 [P] [US2] Unit test for motif enumeration correctness in `tests/unit/test_motifs.py`: **Contract**: Verify `count_motifs(adj_matrix)` returns a dict with counts for all directed k-node motifs; assert sum of counts equals `n * (n-1) * (n-2)` for a complete graph.
-- [ ] T020 [P] [US2] Unit test for null model generation (Maslov-Sneppen) in `tests/unit/test_motifs.py`: **Contract**: Verify `generate_null_model(adj_matrix, iterations=100)` preserves degree distribution; assert mean degree difference is < 1e-6.
-- [ ] T021 [P] [US2] Integration test for timeout handling on large graphs in `tests/integration/test_motifs.py`: **Contract**: Run on a large-scale graph with a 5s timeout; assert function raises `TimeoutError` and logs "Timeout warning" to `pipeline.log`.
+- [ ] T021 [P] [US2] Unit test for motif enumeration correctness in `tests/unit/test_motifs.py`: **Contract**: Verify `count_motifs(adj_matrix, n=3)` returns a dict with counts for all directed 3-node motifs; assert sum of counts equals the theoretical total number of directed k-node subgraphs for a complete graph.
+- [ ] T022 [P] [US2] Unit test for null model generation (Maslov-Sneppen) in `tests/unit/test_motifs.py`: **Contract**: Verify `generate_null_model(adj_matrix, iterations=100)` preserves degree distribution; assert mean degree difference is < 1e-6.
+- [ ] T023 [P] [US2] Integration test for timeout handling on large graphs in `tests/integration/test_motifs.py`: **Contract**: Run on a large-scale graph with a predefined timeout threshold; assert function raises `TimeoutError` and logs "Timeout warning" to `pipeline.log`.
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/motifs.py` to enumerate all 3‑node subgraphs using `networkx` on the **binary adjacency matrix** `data/processed/binary_adjacency.npy` from T014; generate degree‑preserving null networks (**multiple iterations**, seed 42) using Maslov-Sneppen algorithm to satisfy SC-002 timeout while maintaining statistical validity
-- [ ] T023 [US2] Implement `code/motifs.py` to compute z‑score prevalence for every 3‑node motif type: `z = (observed - mean_null) / std_null`
-- [ ] T024 [US2] Implement timeout wrapper (time limit) for motif enumeration; abort gracefully and log warning if exceeded
-- [ ] T025a [US2] Compute z-scores at **10% density threshold** on the **binary adjacency matrix** from T014; enforce 100s timeout per subject; output `data/processed/motif_z_10p.json`
-- [ ] T025b [US2] Compute z-scores at **20% density threshold** on the **binary adjacency matrix** from T014; enforce 100s timeout per subject; output `data/processed/motif_z_20p.json`
-- [ ] T025c [US2] Compute z-scores at **30% density threshold** on the **binary adjacency matrix** from T014; enforce 100s timeout per subject; output `data/processed/motif_z_30p.json`
-- [ ] T025d [US2] Aggregate z-scores from T025a/b/c using **median** value across thresholds; output `data/processed/motif_profiles.json` with raw per-threshold scores; verify SC-002 compliance (total time <= 300s)
-- [ ] T026 [US2] Save motif profiles to `data/processed/motif_profiles.json` with raw per-threshold scores
+- [ ] T025_scope_doc [US2] Implement `code/motifs.py` function `def document_motif_scope()` to document and validate the 'n=3' scope decision against the general 'n-node' requirement of FR-004, explicitly linking it to the Spec's Assumptions section. **Output**: `data/processed/motif_scope_doc.json`. **Dependency**: T014_bin.
+- [ ] T025a_enum [US2] Implement `code/motifs.py` function `def count_motifs_custom(adj_matrix, n=3)` to enumerate all possible **directed 3-node subgraphs** using a **specialized 3-node pattern matching algorithm** (e.g., `networkx.algorithms.motifs` or custom 3-node specific logic). **Algorithm**: Use a specialized 3-node enumerator, NOT a general n-node solver, to ensure SC-002 compliance. **Configurability**: The function MUST accept `n` as a parameter (default 3) to satisfy FR-004's "all n-node subgraphs" requirement. The default `n=3` is set per Spec Assumptions. **Dependency**: T025_scope_doc.
+- [ ] T025a_validate [US2] Implement `code/motifs.py` function `def validate_motif_enumerator()` to verify that `count_motifs_custom` correctly identifies all directed 3-node isomorphism classes by running it against a set of synthetic graphs with known motif counts. **Constraint**: This task MUST run BEFORE T025a_timeout to ensure the custom implementation is valid. **Dependency**: T025a_enum.
+- [ ] T025a_timeout [US2] Implement `code/motifs.py` function `def count_motifs_with_timeout(adj_matrix, timeout=300, n=3)` to wrap T025a_enum using `multiprocessing` with a timeout. If timeout exceeded, raise `TimeoutError` and log warning. **Constraint**: Must use the custom enumerator to ensure SC-002 compliance (≤300s/subject). **Dependency**: T025a_validate.
+- [ ] T025a_benchmark [US2] Implement `code/motifs.py` function `def benchmark_motif_enumeration()` that runs the custom enumerator on a subset of subjects, logs the time taken per subject to `pipeline.log`, and saves a benchmark artifact `data/processed/motif_benchmark.json` to **prove SC-002 compliance**. **Dependency**: T025a_timeout.
+- [ ] T025b_zscore [US2] Implement `code/motifs.py` function `def compute_z_scores(counts, null_counts)` to compute z‑score prevalence: `z = (observed - mean_null) / std_null` for each motif. Input: counts from T025a_timeout, null counts (multiple iterations). Output: in-memory dict of z-scores per motif. **Dependency**: T025a_timeout.
+- [ ] T025c_agg [US2] Implement `code/motifs.py` to iterate T025a_timeout and T025b_zscore for each subject (using subject manifest) and aggregate z-scores into a single `data/processed/motif_profiles.json` containing the final aggregated scores (one profile per subject). **Schema**: `{'subject_id': {'motif_id': {'z_score': float, 'count': int}}}`. **Note**: This task must wait for T025a/T025b completion for *all* subjects before aggregating. **Dependency**: T025a_timeout, T025b_zscore.
+- [ ] T025c_loop_subject [US2] Implement `code/motifs.py` function `def run_sensitivity_subject(subject_id, thresholds=[a range of values including 2.0 and 2.5])` to iterate over z-thresholds and compute motif profiles for a single subject. **Logic**: Re-use null models where possible to optimize. **Output**: In-memory dict of profiles per threshold. **Dependency**: T025b_zscore.
+- [ ] T025c_loop_orchestrate [US2] Implement `code/motifs.py` orchestration to iterate T025c_loop_subject for all subjects. **Constraint**: Ensure execution time is bounded to respect SC-002 (300s/subject). **Dependency**: T025c_loop_subject.
+- [ ] T025c_loop_save [US2] Implement `code/motifs.py` to save the aggregated sensitivity results. **Output**: Save `data/processed/sensitivity_z{threshold:.1f}.json` for each threshold (e.g., `sensitivity_z1.5.json`). **Schema**: `{'subject_id': {'motif_id': {'z_score': float, 'count': int}}}` for each threshold. **Dependency**: T025c_loop_orchestrate.
+- [ ] T026 [US2] Implement `code/motifs.py` to save `data/processed/motif_profiles.json` containing the final aggregated scores and a reference to the raw data file. **Dependency**: T025c_agg.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,19 +155,30 @@
 
 - [ ] T028 [P] [US3] Unit test for partial correlation and Bonferroni correction in `tests/unit/test_stats.py`: **Contract**: Verify `partial_corr(x, y, z)` returns correct r and p-value; verify `bonferroni_correct(p_values)` returns adjusted p-values summing to <= 1.0.
 - [ ] T029 [P] [US3] Unit test for permutation test implementation in `tests/unit/test_stats.py`: **Contract**: Verify `permutation_test(x, y, n_perm=1000)` returns empirical p-value; assert p-value is within 2*SE of analytical p-value for known distributions.
-- [ ] T030 [P] [US3] Unit test for PDF generation layout and content in `tests/unit/test_report.py`: **Contract**: Verify `generate_pdf(results)` creates a file <= 5MB; assert presence of mandatory disclaimer string.
+- [ ] T037b [P] [US3] Unit test for PDF generation layout and content in `tests/unit/test_report.py`: **Contract**: Verify `generate_pdf(results)` creates a file <= 5MB; assert presence of mandatory disclaimer string.
+- [ ] T038 [US3] Integration test in `tests/integration/test_report.py` to verify PDF generation completes in ≤2 minutes and file size ≤5MB (SC-004)
 
 ### Implementation for User Story 3
 
-- [ ] T030 [US3] Implement `code/stats.py` to compute partial Pearson/Spearman correlations (controlling for **global node degree** as per Spec FR-005) between motif z-scores and rsFC metrics; **Method**: Use `scipy.stats.spearmanr`/`pearsonr` on residuals of `y ~ x` and `z ~ x`; input: `data/processed/motif_profiles.json`, `data/processed/subject_metrics.csv`; reference [FR-005]
-- [ ] T031 [US3] Implement `code/stats.py` to apply **Bonferroni correction** across all directed 3‑node motifs (Strictly implements FR-005); output corrected p-values in `results/correlation_results.json`
-- [ ] T032 [US3] Implement `code/stats.py` to run permutation test (≥1000 permutations) for significant motifs (corrected p < 0.05)
-- [ ] T033 [US3] Implement zero-variance detection (skip test, flag in report) and VIF check for collinearity (if VIF > 5, report and switch to Spearman)
-- [ ] T034 [US3] Implement `code/stats.py` power analysis module (N=50, α=0.05 **Bonferroni-adjusted**) using G*Power approximation; output schema: `{"min_detectable_r": float, "power_level": 0.8, "adjusted_alpha": float, "n_subjects": 50}` to `results/power_analysis.json`
-- [ ] T035 [US3] Implement `code/report.py` to generate PDF with scatter plots, CIs, p-values, and permutation results per motif; input: `results/correlation_results.json`
-- [ ] T036 [US3] Add mandatory disclaimer string: "These findings are associational only and do not imply causation." to PDF
-- [ ] T037a [US3] Implement PDF generation logic in `code/report.py` ensuring layout, plots, and text are correctly rendered
-- [ ] T037b [US3] Implement integration test in `tests/integration/test_report.py` to verify PDF generation completes in ≤2 minutes and file size ≤5MB (SC-004)
+**Re-validated Tasks**: T032c (permutation test iteration) and T035b (PDF generation) are confirmed as active and mandatory tasks for FR-006 and FR-007. The previous "Removed Tasks" note was a false positive and has been deleted.
+
+- [ ] T039 [US3] Implement `code/stats.py` to aggregate `data/processed/global_efficiency.json`, `data/processed/rsfc.npy`, `data/processed/motif_profiles.json`, and `data/processed/canonical_binary_adj.npy` (to compute network density) into a single `data/processed/subject_metrics.csv`. **Success Rate Logic**: Read status flags from `data/processed/structural_connectome_metadata.json` (from T014_bin) and `data/processed/global_efficiency.json` (from T015b). A subject is 'complete' if both files exist and contain valid data. Calculate `success_rate = complete / subjects_attempted` (using `subjects_attempted` from `data/processed/subject_list_manifest.json` from T008_validate, NOT `EXPECTED_COHORT_SIZE`). **Output**: `data/processed/subject_metrics.csv` and `data/processed/success_rate.json`. **Columns**: [subject_id, motif_id, z_score, rsfc_strength, global_efficiency, node_degree, network_density]. **Explicit Definition**: `rsfc_strength` = mean of absolute values of the upper triangle of the rsfc matrix. `node_degree` = mean of row sums of the binary adjacency matrix. `network_density` = node_degree / (N-1). **Dependency**: T014_bin, T015a, T015b, T025c_agg, T008_validate.
+- [ ] T030a [US3] Implement `code/stats.py` function `def check_vif_and_select_method(metrics)` to compute VIF for control variable (**global node degree**). **Explicit Definition**: `global_node_degree` = mean of row sums of the binary adjacency matrix. **Zero-Variance Logic**: Explicitly check if `std(z_scores) == 0` for any motif. **VIF Fallback**: If VIF > 5, switch to permutation-only analysis (permutation test for p-value, but **still compute partial correlation coefficient**) as per Plan Phase 2. **Output**: Save `data/processed/quality_flags.json` with schema: `{"zero_variance": bool, "vif_value": float, "method_selected": str, "zero_variance_motifs": [str]}`. **Constraint**: The control variable MUST be 'global_node_degree' as per Spec FR-005. **Input**: Read from `data/processed/subject_metrics.csv`. **Dependency**: T039.
+- [ ] T030b [US3] Implement `code/stats.py` function `def compute_partial_correlations(metrics, control_var='global_node_degree')` to compute **both Pearson and Spearman** partial correlations between motif z-scores and rsFC metrics, controlling for `global_node_degree`. **Explicit Constraint**: The `control_var` parameter MUST be set to 'global_node_degree' as per Spec FR-005. Both methods must be computed and reported. **Output**: Save **BOTH** Pearson and Spearman results to `data/processed/partial_correlations.json` with schema: `{"motif_id": {"pearson": {"r": float, "p": float}, "spearman": {"r": float, "p": float}}}`. **Dependency**: T030a.
+- [ ] T030c [US3] Implement `code/stats.py` to apply **Bonferroni correction** across all directed 3-node motifs for **both Pearson and Spearman** p-values generated in T030b. **Strict Requirement**: Implement Bonferroni by multiplying each p-value by the total number of motifs tested (N_motifs). Use `statsmodels.stats.multitest.multipletests` with `method='bonferroni'`. **Explicit Constraint**: Apply the correction **separately** to the Pearson p-values array and the Spearman p-values array to generate two distinct corrected sets. **Note**: This is the **sole** method for primary conclusions. Output: `results/correlation_results.json`. **Dependency**: T030b.
+- [ ] T032a [US3] Implement `code/stats.py` function `def identify_significant_motifs(results)` to filter motifs with corrected p < 0.05. Handle edge case: if no significant motifs, skip permutation test. **Dependency**: T030c, T030a.
+- [ ] T032b [US3] Implement `code/stats.py` function `def run_permutation_test(motif_data, n_perm=1000)` to run permutation test (≥1000 permutations) for a **single** significant motif. **Null Hypothesis**: No correlation. **Statistic**: Pearson r. **Output**: Empirical p-value. **Dependency**: T032a.
+- [ ] T032c [US3] Implement `code/stats.py` to **iterate** T032b over the list of significant motifs identified in T032a and aggregate the results into `results/permutation_results.json`. **Schema**: `[{"motif_id": str, "empirical_p": float, "original_r": float},...]`. **Explicit Requirement**: This task satisfies Spec FR-006's requirement to run a permutation test for *each* significant motif. **Dependency**: T032b, T032a.
+- [ ] T034 [US3] Implement `code/stats.py` power analysis module (N=50, α=0.05 **Bonferroni-adjusted**, **Power=0.80**) using `statsmodels.stats.power` for approximation. **Input**: Use fixed power=0.80. **Explicit Requirement**: Log the exact `statsmodels` version, the random seed, and the power level to `pipeline.log` and include them in `results/power_analysis.json`. Output schema: `{"min_detectable_r": float, "power_level": float, "adjusted_alpha": float, "n_subjects": int, "statsmodels_version": str, "seed": int}`. **Dependency**: T030c, T039.
+- [ ] T017_log_stats [US3] Implement `code/utils.py` to log the actual statistical parameters (Bonferroni alpha, seed, library versions, permutation count, VIF threshold) to `pipeline.log` **after** they are generated in T030c, T032c, T034. **Dependency**: T030c, T032c, T034.
+- [ ] T017b [US3] Implement `code/utils.py` function `def validate_statistical_logging(log_path)` to verify that `pipeline.log` contains the required statistical parameters (keys: `bonferroni_alpha`, `seed`, `library_versions`, `permutation_count`, `vif_threshold`) as per Constitution Principle VII. If missing, raise an error. **Dependency**: T017_log_stats, T030c, T032c, T034.
+- [ ] T035a [US3] Design PDF report layout in `docs/report_layout_template.json`: Create a JSON template file with schema: `{"pages": [{"type": str, "elements": [{"type": str, "source_field": str}]}]}`. Define page structure, library usage (reportlab), and data mapping from `results/correlation_results.json` to PDF elements. **Explicit Output**: `docs/report_layout_template.json` and `results/power_analysis.json` schema definition. **Requirement**: The template MUST include a specific placeholder element named `disclaimer_placeholder` intended to hold the exact string: "These findings are associational only and do not imply causation.". **Dependency**: Spec FR-007, FR-009.
+- [ ] T052 [US3] Implement `code/report.py` function `def report_insufficient_variance(motif_id)` to generate a specific entry in the PDF report for motifs with zero variance, explicitly stating "insufficient variance" instead of a p-value, as per Spec Edge Case. **Input**: Read `quality_flags.json` (from T030a) to identify zero-variance motifs. **Dependency**: T030a, T039.
+- [ ] T058 [US3] Implement `code/stats.py` function `def calculate_effect_size_confidence_interval(r, n, alpha)` to compute the % confidence interval for the Pearson correlation coefficient using Fisher's z-transformation, using the **Bonferroni-adjusted alpha**, and integrate this into the PDF report scatter plots as error bars. **Dependency**: T030b, T039.
+- [ ] T055 [US3] Implement `code/report.py` function `def generate_power_analysis_plot(power_data)` to create a visual representation of the minimum detectable effect size curve (r vs N) for the Bonferroni-adjusted alpha, including this plot in the PDF's power analysis section. **Dependency**: T034, T039.
+- [ ] T051 [US3] Add a "Sensitivity Analysis" section or page to the PDF report in `code/report.py` to visualize how the number of significant motifs changes across the z-thresholds, satisfying the Spec Edge Case requirement. **Dependency**: T025c_loop_save, T039.
+- [ ] T056 [US3] Add a "Limitations" section to the PDF report in `code/report.py` that explicitly states the constraints of the study (e.g., cross-sectional data, associational nature, specific parcellation used), satisfying the requirement for scientific transparency. **Dependency**: T039.
+- [ ] T035b [US3] Implement `code/report.py` to generate PDF based on T035a design. **Mapping**: Map fields from input JSONs to the layout template in `docs/report_layout_template.json`. **Validation**: Read the layout template from `docs/report_layout_template.json`; if missing or invalid, raise FileNotFoundError. **Pre-condition**: Verify all input JSON files (`results/correlation_results.json`, `results/permutation_results.json`, `results/power_analysis.json`, `data/processed/subject_metrics.csv`) exist and are non-empty; if not, raise FileNotFoundError with a list of missing files. Input: `results/correlation_results.json`, `results/permutation_results.json`, `results/power_analysis.json`, `docs/report_layout_template.json`, and outputs from T052, T058, T055, T051, T056. **Mandatory**: Insert the exact string "These findings are associational only and do not imply causation." into the `disclaimer_placeholder` defined in T035a. **Dependency**: T035a, T032c, T034, T039, T052, T058, T055, T051, T056, T017b.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -149,11 +188,15 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T038 [P] Documentation updates in `docs/` (README, usage guide)
-- [ ] T039 [P] Performance optimization for `code/motifs.py` to verify SC-002 compliance (≤300s/subject)
-- [ ] T040 [P] Run `scripts/hash_artifacts.sh` to finalize versioning and update `state/...yaml`
-- [ ] T041 [P] Additional unit tests (if requested) in `tests/unit/`
-- [ ] T042 [P] Run `quickstart.md` validation
+- [ ] T041 [P] Performance optimization for `code/motifs.py` to verify SC-002 compliance (≤300s/subject)
+- [ ] T042 [P] Run `scripts/hash_artifacts.sh` to finalize versioning and update `state/...yaml`
+- [ ] T043a [P] [Testing] Implement `tests/unit/test_preprocess.py`, `tests/unit/test_motifs.py`, `tests/unit/test_stats.py`, and `tests/integration/test_pipeline.py` with contract tests against YAML schemas. **Deliverable**: Complete test suite in `tests/`.
+- [ ] T044a [P] [Validation] Implement `scripts/validate_quickstart.sh` to run the `quickstart.md` steps in a clean environment and verify all outputs. **Deliverable**: `scripts/validate_quickstart.sh`.
+- [ ] T048 [US3] (Merged into T035b) Methods section generator logic integrated into PDF generation to extract statistical parameters from `pipeline.log`. **Dependency**: T035b, T039.
+- [ ] T049 [P] [US1] Create a `scripts/verify_hcp_access.sh` script to pre-validate connectivity to the HCP S3 bucket and generate a `data/raw/.access_verified` flag before the main pipeline runs, reducing CI timeout risks. **Dependency**: T013_stream.
+- [ ] T050 [P] [US2] Implement a `code/motifs.py` fallback to `igraph` if `networkx` motif enumeration exceeds the 300s timeout, logging the switch and ensuring SC-002 is met. **Dependency**: T025a_timeout.
+- [ ] T054 [P] [US2] Add a `code/motifs.py` function `def validate_null_model_preservation(original_adj, null_adj)` that asserts the degree distribution of the null model matches the original within a tolerance of a sufficiently small value, logging a warning if the preservation fails, to ensure the z-score calculation is statistically valid. **Dependency**: T020.
+- [ ] T059 [P] [US2] Add a `code/motifs.py` function `def benchmark_motif_enumeration()` that runs the custom enumerator on a subset of subjects and logs the time taken per subject to `pipeline.log`, ensuring SC-002 is met and providing data for potential optimization. **Dependency**: T025a_timeout.
 
 ---
 
@@ -247,3 +290,56 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Spec vs Plan Conflict**: Where Spec FR-005 mandates Bonferroni and Plan suggests FDR, tasks follow the **Spec** (Bonferroni). Where Plan Phase 3 mandates controlling for 'network density' and Spec FR-005 says 'global node degree', tasks follow the **Spec** (global node degree).
+- **Task Splitting**: T030 split into T030a (VIF/Method), T030b (Correlation), T030c (Correction). T025 split into T025a (Count), T025b (Z-score), T025c_agg (Aggregation). T014 consolidated into T014 (Weighted) and T014_bin (Median Binarization). T032 split into T032b (Function), T032c (Orchestration). T039a merged into T039.
+- **Data Integrity**: T013_stream strictly enforces "Stream, process, delete raw" per Plan constraints; derived matrices are stored and checksummed.
+- **Compute Feasibility**: T025a_timeout includes a strict 300s timeout to ensure SC-002 compliance; if exceeded, the subject is skipped for that motif and logged. T025a_benchmark adds verification.
+- **Data Flow**: T039 explicitly uses `motif_profiles.json` as the canonical input for correlation analysis, resolving the raw vs. aggregated ambiguity. T039 now calculates the success rate internally using the manifest from T008_validate (using `subjects_attempted`).
+- **Artifact Clarity**: T025c_agg defines the schema for aggregated motif profiles, and T026 saves the final output without duplicating raw data, resolving the previous ambiguity.
+- **Redundancy Resolution**: Task T039a has been removed and its logic merged into T039 to eliminate the circular dependency. T039 now handles the aggregation and success rate calculation in a single step.
+- **Control Variable Clarity**: T030a and T030b strictly enforce 'global_node_degree' as the control variable, rejecting 'network_density' for the partial correlation despite its presence in the metrics dataframe (which is used for other purposes like logging).
+- **Data Source Verification**: T013_stream must strictly use the verified HCP S3 bucket ID and anonymous access method as defined in `research.md`. If the execution stage provides a "VERIFIED REAL DATA SOURCE" block, T013_stream must adopt that exact package/recipe and remove any hardcoded URL guesses.
+- **Streaming Strategy**: T013_stream implements a streaming download pattern (e.g., `requests` with `stream=True` and chunked writing) to ensure the "FAIL LOUDLY" rule is maintained without synthetic fallbacks, while preserving derived data integrity.
+- **Re-validated Tasks**: T032c (permutation test iteration) and T035b (PDF generation) are confirmed as active and mandatory tasks for FR-006 and FR-007. The previous "Removed Tasks" note was a false positive and has been deleted.
+- **Success Rate Logic**: T039 calculates the end-to-end success rate by reading status flags from `structural_connectome_metadata.json` and `global_efficiency.json`, ensuring SC-001 is not inflated by ignoring later-stage failures. Uses `subjects_attempted` from manifest.
+- **Algorithm Clarity**: T014_bin uses the median graph density threshold (cohort-level) for binarization, correcting the previous fixed [deferred] logic. T025a uses a custom n-node subgraph enumerator (default n=3) for all directed motifs. T030b computes both Pearson and Spearman correlations as required by FR-005.
+- **Power Analysis**: T034 uses a fixed power of 0.80 as required by FR-010, removing the unrequested sensitivity sweep.
+- **Single Source of Truth**: All tasks now strictly adhere to a single canonical binary connectome (median threshold) and a single motif profile per subject, eliminating unrequested multi-threshold analyses.
+- **Statistical Transparency**: T017_setup sets up logging; T017_log_stats logs parameters; T017b validates them. This ensures early detection of missing parameters.
+- **Global Efficiency Consistency**: T015b now computes global efficiency on the binary connectome, ensuring consistency with motif analysis.
+- **Control Variable Enforcement**: T030a and T030b strictly enforce 'global_node_degree' as the control variable per Spec FR-005.
+- **PDF Generation Robustness**: T035b includes explicit validation for the layout template file (created by T035a) and includes the mandatory disclaimer. T035a explicitly defines the disclaimer content.
+- **New Revision Tasks**: T045-T056 address specific review concerns regarding CI disk constraints, sensitivity analysis, power analysis modularity, statistical transparency in the report, HCP access validation, performance fallbacks, zero-variance reporting, and explicit streaming implementation.
+- **Sensitivity Analysis**: T025c_loop_subject, T025c_loop_orchestrate, and T025c_loop_save ensure the sensitivity analysis loop {1.5, 2.0, 2.5} is performed as part of the core path (Phase 4), satisfying Spec Edge Cases. **Note**: T025c_loop_run is decoupled from T025c_agg.
+- **VIF Fallback**: T030a explicitly implements the Plan's fallback strategy (switch to permutation-only if VIF > 5).
+- **Missing Tasks Restored**: T014_bin (Median Threshold) and T035a (Layout Design) have been restored to the list to match the Plan's requirements.
+- **Circular Dependency Resolved**: T039a removed; T039 now handles success rate calculation internally.
+- **Streaming Implementation**: T013_stream implements the unified 'stream, process, delete' strategy. Raw data is ephemeral.
+- **Null Model Validation**: T054 adds a verification step for the null model generation to ensure the z-score calculation is statistically sound.
+- **Ordering Fixes**: T014_agg dependency clarified to be on the *execution* of T014_orchestrate. T025c_loop_run dependencies corrected. T039 depends on T014_bin directly. T017b moved to Phase 5.
+- **Documentation Tasks**: T040, T043, T044 replaced with specific tasks T040a, T043a, T044a.
+- **Constraint Preservation**: T030c strictly implements Bonferroni; T030d (FDR) removed. T017b validates statistical logging. T013_stream ensures checksumming and retention of derived data. T034 uses fixed power. T030a ensures partial correlation is computed even in fallback mode.
+- **Motif Enumerator Validation**: T025a_validate added to explicitly validate the custom n-node enumerator against known reference sets, ensuring the 'all n-node subgraphs' requirement is met.
+- **Scope Documentation**: T025_scope_doc added to document the 'n=3' scope decision against the general 'n-node' requirement of FR-004.
+- **Manifest Validation**: T008_validate added to verify the subject manifest integrity against the expected cohort size (with warning instead of error).
+- **Binary Validation**: T014_bin_validate added to verify the binary nature of the input for T015b.
+- **Task Status Correction**: T040a, T040b, T043a, T044a corrected from [X] to [ ] to reflect pending implementation.
+- **Streaming Correction**: T013_stream ensures raw data is deleted immediately after processing, satisfying Plan constraints.
+- **Ambiguity Resolution**: T014_agg dependency clarified to be on the *execution* of T014_orchestrate.
+- **Algorithm Detail**: T025a_enum updated to include the algorithmic logic or reference a specific algorithm for the n-node motifs (default 3).
+- **Granularity Clarification**: T014_bin clarified to run as a post-processing step after all T014_orchestrate instances are complete.
+- **Redundancy Resolution**: T017a and T017b merged into a single task T017 (with T017b moved to Phase 5).
+- **Power Analysis Correction**: T034a removed; T034 uses fixed power=0.80.
+- **Motif Scope Fix**: T025a_enum explicitly states 'n-node subgraphs' with default n=3.
+- **Parallelization Fix**: T015b [P] tag removed; T008_validate dependency clarified.
+- **Dependency Chain Fix**: T017b now depends on T030c, T032c, T034, T017_log_stats. T035a no longer depends on T039.
+- **Logging Consolidation**: T048 merged into T035b.
+- **Alpha Clarity**: T058 explicitly uses Bonferroni-adjusted alpha.
+- **File Discovery**: T014_agg uses glob pattern.
+- **Cohort Size Source**: T008_validate reads from `config.EXPECTED_COHORT_SIZE` but warns on mismatch.
+- **Motif ID Mapping**: T025a_enum uses 'M1'-'M13' naming for n=3.
+- **Disk Limit Fix**: T013_stream removes arbitrary 2GB limit, adhering to runner limits, but prioritizes immediate deletion of raw data.
+- **Final Review Compliance**: T051 added to address the specific requirement for a "Sensitivity Analysis" page/section in the PDF report, ensuring the z-threshold sweep is visualized.
+- **Final Review Compliance**: T061 (renamed T056) added to address the requirement for a "Limitations" section in the PDF report, ensuring scientific transparency.
+- **ID Collision Fix**: Duplicate task IDs T010, T011, T012 (used for tests) have been renumbered to T018, T019, T020 to resolve ambiguity.
+- **Task T009 Fix**: Changed from "Validate" to "Generate" with specific content requirements to respect the prerequisite nature of data-model.md.

@@ -1,3 +1,1 @@
-"""
-Test suite for llmXive research pipeline.
-"""
+# Ensure tests package is importable

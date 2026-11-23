@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Report Schema"
+description: "Schema for the final analysis report."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of model used (Logistic Regression or Random Forest)."
+    enum:
+      - "Logistic Regression"
+      - "Random Forest"
+  auc_score:
+    type: "number"
+    description: "Area Under the Curve score from 5-fold cross-validation."
+    minimum: 0.0
+    maximum: 1.0
+  auc_std:
+    type: "number"
+    description: "Standard deviation of AUC across folds."
+    minimum: 0.0
+  p_value:
+    type: "number"
+    description: "P-value from the permutation test."
+    minimum: 0.0
+    maximum: 1.0
+  feature_importance:
+    type: "array"
+    description: "List of feature importance values (coefficients or SHAP values)."
+    items:
+      type: "number"
+  permutation_iterations:
+    type: "integer"
+    description: "Number of permutations performed."
+    minimum: 1
+  runtime_seconds:
+    type: "number"
+    description: "Total runtime of the pipeline in seconds."
+    minimum: 0
+  bootstrap_ci_lower:
+    type: "number"
+    description: "Lower bound of the bootstrap confidence interval for AUC (if applicable)."
+    minimum: 0.0
+  bootstrap_ci_upper:
+    type: "number"
+    description: "Upper bound of the bootstrap confidence interval for AUC (if applicable)."
+    maximum: 1.0
+  dataset_source:
+    type: "string"
+    description: "Source of the dataset (e.g., 'AI for Auto-Research Benchmark' or 'Synthetic Generator')."
+required:
+  - model_type
+  - auc_score
+  - p_value
+  - feature_importance
+  - permutation_iterations
+  - dataset_source
+additionalProperties: false

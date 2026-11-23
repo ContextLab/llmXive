@@ -1,0 +1,605 @@
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0
+  claim_id: c_880598ed
+  context: Create requirements.txt with pinned versions
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: scikit-learn==1.4.0
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T21:21:32Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: cascades with more than 2000 nodes skipped and logged
+  claim_id: c_a8ffeac4
+  context: Add node-limit validation task
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cascades_with_more_than_2000_nodes_skipped_and_logged
+  kind: magnitude
+  raw_text: cascades with > 2,000 nodes are logged to skipped_cascades.log and skipped
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:21:55Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: pipeline aborts if RAM exceeds 7 GB
+  claim_id: c_1c93b070
+  context: Add memory-monitoring hook
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: abort if RAM > 7 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:21:57Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: random seed pinned to 12345
+  claim_id: c_20f5ae71
+  context: Add explicit random-seed pinning in all code modules
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: call set_global_seed(12345) at script start
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:22:02Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: citation verification requires title-token-overlap of at least 0.7
+  claim_id: c_f67915ec
+  context: Run citation verification checking reachable URLs and title-token-overlap
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Citation_verification_requires_title-token-overlap_of_at_lea
+  kind: magnitude
+  raw_text: "title-token-overlap \u2265 0.7"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:22:07Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: synthetic dataset includes cascade_id, node_id, timestamp, cascade_label,
+    historical_degree, historical_shares, user_id, message_id, platform_id
+  claim_id: c_9df1725a
+  context: Generate synthetic benchmark dataset
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_includes_cascade_id,_node_id,_timestamp,_c
+  kind: entity_fact
+  raw_text: 'Dataset MUST include: cascade_id, node_id, timestamp, cascade_label,
+    historical_degree, historical_shares, user_id, message_id, platform_id'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:22:11Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: synthetic dataset defined as 50 cascades with 2000 nodes each
+  claim_id: c_1c444075
+  context: Define small benchmark dataset size
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Define 'small' as \u226450 cascades with \u22642,000 nodes each"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:22:11Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: monitor divergent transitions exceeding 5 percent
+  claim_id: c_089c6c04
+  context: Implement HMC/NUTS sampling with divergence monitoring
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Monitor divergent transitions (> 5 %)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:22:11Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: step size retry limit is 3
+  claim_id: c_4e7e2553
+  context: Auto-reduce step size and retry up to 3 times on divergence
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: retry up to 3 times
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:22:16Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: posterior_summary.csv contains predictor, mean, sd, lower_95, upper_95,
+    prob_nonzero, direction_consistent
+  claim_id: c_abf520bb
+  context: Contract test ensuring posterior_summary.csv contains required columns
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Posterior_summary.csv_contains_predictor,_mean,_sd,_lower_95
+  kind: entity_fact
+  raw_text: 'posterior_summary.csv contains required columns: predictor, mean, sd,
+    lower_95, upper_95, prob_nonzero, direction_consistent'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:22:20Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: at least 3 predictors have prob_nonzero greater than 0.95 and direction_consistent
+    true
+  claim_id: c_27a228b8
+  context: Verify predictor consistency across folds
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_3_predictors_have_prob_nonzero_greater_than_0.95_an
+  kind: magnitude
+  raw_text: at least three predictors have prob_nonzero > 0.95 and direction_consistent
+    == TRUE across folds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:22:25Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: flag predictor pairs with absolute correlation greater than 0.8
+  claim_id: c_b4e37cc7
+  context: Flag any predictor pair with |r| > 0.8 in collinearity_report.txt
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_predictor_pairs_with_absolute_correlation_greater_than
+  kind: magnitude
+  raw_text: flag any predictor pair with |r| > 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:22:59Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: peak memory usage verified to be less than or equal to 7 GB
+  claim_id: c_2ed47347
+  context: Verify peak memory usage using psutil
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_memory_usage_verified_to_be_less_than_or_equal_to_7_GB
+  kind: magnitude
+  raw_text: "Verify peak \u2264 7 GB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:23:08Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: CI runs on 2 cores with 7 GB RAM and 6 hour limit
+  claim_id: c_5a14c3d1
+  context: All tasks are designed to run on CPU-only CI
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "2 cores, \u2264 7 GB RAM, \u2264 6 h"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:23:12Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 2
+  canonical: numpy version 1.26.4
+  claim_id: c_cc4c9dca
+  context: Create requirements.txt with pinned versions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:24:26Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 2
+  canonical: pandas version 2.2.1
+  claim_id: c_e3915369
+  context: Create requirements.txt with pinned versions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.2.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:24:27Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 2
+  canonical: numpyro version 0.13.2
+  claim_id: c_46f54635
+  context: Create requirements.txt with pinned versions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpyro==0.13.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:24:27Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 2
+  canonical: cmdstanpy version 1.2.0
+  claim_id: c_660911a8
+  context: Create requirements.txt with pinned versions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: cmdstanpy==1.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:24:27Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 2
+  canonical: networkx version 3.2
+  claim_id: c_0b38001d
+  context: Create requirements.txt with pinned versions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: networkx==3.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:24:27Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 2
+  canonical: pyyaml version 6.0.1
+  claim_id: c_aa1ccb6b
+  context: Create requirements.txt with pinned versions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:24:27Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 2
+  canonical: jsonschema version 4.20.0
+  claim_id: c_95d62286
+  context: Create requirements.txt with pinned versions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: jsonschema==4.20.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:24:27Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 2
+  canonical: pytest version 8.0.0
+  claim_id: c_9cc13a50
+  context: Create requirements.txt with pinned versions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==8.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:24:27Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 2
+  canonical: ruff version 0.3.0
+  claim_id: c_98e3c49a
+  context: Create requirements.txt with pinned versions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ruff==0.3.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:24:27Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 2
+  canonical: black version 24.2.0
+  claim_id: c_25600816
+  context: Create requirements.txt with pinned versions
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: black==24.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:24:27Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 2
+  canonical: OMP_NUM_THREADS set to 2
+  claim_id: c_73356c0f
+  context: Set OMP_NUM_THREADS=2 in run_pipeline.sh skeleton
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: OMP_NUM_THREADS=2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:24:27Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: Memory monitoring hook aborts if RAM exceeds 7 GB
+  claim_id: c_49f2b256
+  context: "Add memory\u2011monitoring hook (abort if RAM > 7 GB)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Abort if RAM > 7 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:24:27Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: SHA-256 checksum calculation function implemented
+  claim_id: c_9f16457a
+  context: "Helper for SHA\u2011256 checksum calculation (compute_checksum(path))"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "SHA\u2011256 checksum calculation"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:24:59Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: Cascades with more than 2000 nodes are skipped and logged
+  claim_id: c_412503e3
+  context: "Add node\u2011limit validation task: cascades with > 2,000 nodes are logged\
+    \ to skipped_cascades.log and skipped"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cascades_with_more_than_2000_nodes_are_skipped_and_logged
+  kind: magnitude
+  raw_text: cascades with > 2,000 nodes are logged to skipped_cascades.log and skipped
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:25:01Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: Random seed pinned to 12345 at script start
+  claim_id: c_19b4d36a
+  context: "Add explicit random\u2011seed pinning in all code modules (call set_global_seed(12345)\
+    \ at script start)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: call set_global_seed(12345) at script start
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:25:01Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: Citation verification requires title-token-overlap of at least 0.7
+  claim_id: c_c5471852
+  context: "Run citation verification using python code/pipeline/verify_citations.py\
+    \ which checks each markdown file for reachable URLs and title-token-overlap \u2265\
+    \ 0.7"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Citation_verification_requires_title-token-overlap_of_at_lea
+  kind: magnitude
+  raw_text: "title-token-overlap \u2265 0.7"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:25:02Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset schema includes specific required fields
+  claim_id: c_479b4c40
+  context: 'Generate synthetic dataset for testing. Dataset MUST include: cascade_id,
+    node_id, timestamp, cascade_label, historical_degree, historical_shares, user_id,
+    message_id, platform_id'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_schema_includes_specific_required_fields
+  kind: entity_fact
+  raw_text: 'Dataset MUST include: cascade_id, node_id, timestamp, cascade_label,
+    historical_degree, historical_shares, user_id, message_id, platform_id'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:25:03Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset contains at most 50 cascades
+  claim_id: c_e05d20a3
+  context: "Define 'small' as \u226450 cascades with \u22642,000 nodes each"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_contains_at_most_50_cascades
+  kind: magnitude
+  raw_text: "\u226450 cascades"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:25:11Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset cascades contain at most 2000 nodes each
+  claim_id: c_1eaca8db
+  context: "Define 'small' as \u226450 cascades with \u22642,000 nodes each"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Synthetic_dataset_cascades_contain_at_most_2000_nodes_each
+  kind: magnitude
+  raw_text: "\u22642,000 nodes each"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:25:22Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: HMC/NUTS sampling monitors divergent transitions exceeding 5%
+  claim_id: c_c295c824
+  context: Monitor divergent transitions (> 5 %)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Monitor divergent transitions (> 5 %)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:25:22Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: Sampling retries up to 3 times on step size reduction
+  claim_id: c_bd0d6da7
+  context: "Auto\u2011reduce step size and retry up to 3 times"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: retry up to 3 times
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:25:23Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: At least three predictors show prob_nonzero > 0.95 and consistent direction
+    across folds
+  claim_id: c_c6e0ab0e
+  context: Verify that at least three predictors have prob_nonzero > 0.95 and direction_consistent
+    == TRUE across folds
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/At_least_three_predictors_show_prob_nonzero_%3E_0.95_and_consi
+  kind: magnitude
+  raw_text: at least three predictors have prob_nonzero > 0.95 and direction_consistent
+    == TRUE across folds
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:25:23Z'
+- artifact_path: projects/PROJ-074-statistical-modeling-of-network-propagat/specs/001-statistical-modeling-of-network-propagat/tasks.md
+  attempts: 1
+  canonical: CI environment configured for 7 GB RAM
+  claim_id: c_311777d7
+  context: "All tasks are designed to run on CPU\u2011only CI (2 cores, \u2264 7 GB\
+    \ RAM, \u2264 6 h)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u2264 7 GB RAM"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T21:25:23Z'

@@ -1,0 +1,18 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisOutput"
+type: object
+properties:
+  analysis_results:
+    type: object
+    description: "Statistical results from the main analysis"
+  runtime_report:
+    type: object
+    description: "Runtime statistics for the pipeline"
+  summary:
+    type: string
+    description: "Path to a concise summary document (e.g., a markdown file)"
+required:
+  - analysis_results
+  - runtime_report
+  - summary
+additionalProperties: false

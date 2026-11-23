@@ -54,7 +54,7 @@ def save(
     project: Project,
     *,
     repo_root: Path | None = None,
-    expected_mtime_ns: int | None | _Unset = _UNSET,
+    expected_mtime_ns: int | _Unset | None = _UNSET,
 ) -> Path:
     """Persist the canonical project state to ``state/projects/<id>.yaml``.
 

@@ -1,87 +1,59 @@
 # Research: Investigating the Correlation Between Gut Microbiome Composition and Sleep Quality
 
-## Overview
+## Summary
 
-This research document outlines the data strategy, dataset verification, and methodological approach for investigating the correlation between gut microbiome composition and sleep quality. It adheres to the project constitution's requirement for verified accuracy and data hygiene.
-
-**CRITICAL FINDING**: The project is **BLOCKED** because the provided "# Verified datasets" block contains **NO** dataset that includes both 16S rRNA OTU data AND sleep quality metrics (efficiency, duration). The American Gut Project (AGP) is assumed in the spec, but no verified URL for AGP with sleep metadata exists in the provided list.
+This research document investigates the feasibility of correlating gut microbiome composition with sleep quality using public datasets. The primary source for microbiome data is the American Gut Project (AGP). The analysis requires specific variables: OTU count tables, `antibiotic_use_last_3m`, `sleep_efficiency`, and `sleep_duration_hours`.
 
 ## Dataset Strategy
 
-### Primary Data Source: American Gut Project (AGP)
+### Verified Datasets Analysis
 
-The American Gut Project is the primary source for 16S rRNA OTU count tables and associated metadata. It is a large-scale, citizen-science project that provides open access to gut microbiome data from thousands of participants.
+The `# Verified datasets` block provided for this project revision was analyzed against the requirements of FR-001 and FR-002.
 
-**Verification Status**: The AGP dataset is a well-known public resource. However, the specific URL for the pre-processed OTU tables and sleep metadata must be confirmed against the "# Verified datasets" block provided in the prompt.
+| Dataset Name | Source URL | Contains Required Variables? | Status |
+|:--- |:--- |:--- |:--- |
+| **American Gut Project (AGP)** | *Not found in verified block* | **NO** (No verified URL provided) | **BLOCKED** |
+| OTU (tsv) | ` | No (OTU counts only, no sleep metadata) | Incompatible |
+| OTU (csv) | ` | No (Generic OTU data, no sleep metadata) | Incompatible |
+| BMI (csv) | ` | No (BMI only, no microbiome) | Incompatible |
+| CPU-only (parquet) | ` | No (LLM benchmark data) | Incompatible |
 
-**Constraint Check**: The prompt's "# Verified datasets" block does **not** list a verified URL for the American Gut Project or any dataset containing specific "sleep efficiency" or "sleep duration" variables linked to 16S rRNA data. The listed datasets are:
-- `turkishloyd` (OTU parquet) - No sleep metadata.
-- `kali-ai/otus` (OTU json) - No sleep metadata.
-- `karan451/BMI-labeled-faced` (BMI csv) - No microbiome or sleep data.
-- `NurlanAliyevofficial/Brain-tumor...` (BMI csv) - **Invalid URL (HTTP 404)**. This dataset is unreachable and cannot be used.
-- `minhthong/flashdeal_data_BMI_historical_signal` (BMI parquet) - No microbiome or sleep data.
-- `AdityaMayukhSom/MixSub-LLaMA-3.2...` (CPU-only parquet) - No microbiome or sleep data.
+### Conclusion: Dataset Unavailability
 
-**Critical Finding**: **No verified dataset in the provided list contains both 16S rRNA OTU data AND sleep quality metrics (efficiency, duration).** The spec assumes the existence of such a dataset in the American Gut Project, but the "Verified datasets" block provided for this planning phase does not contain a valid, reachable URL for it.
+**There is no verified, programmatic URL in the provided `# Verified datasets` block that contains the American Gut Project data with the required sleep metadata.**
 
-**Action Plan**:
-1.  **Primary Attempt**: The ingestion script will attempt to fetch the AGP data from the canonical public repository (as per FR-001). If the specific URL is not provided in the "Verified datasets" block, the script will fail gracefully with a clear error message indicating that the required dataset (AGP with sleep metadata) is not available in the verified list.
-2.  **Fallback**: If the AGP data is unavailable, the pipeline will halt. The spec's assumption that "The American Gut Project public repository contains... self-reported sleep questions" cannot be validated against the provided verified sources.
-3.  **Dataset Substitution**: No substitution is possible with the provided verified datasets, as none contain the necessary combination of variables (OTU counts + sleep metrics). Using a dataset with only BMI or only OTUs would violate the research question.
+Consequently:
+1. **FR-001 (Download)** cannot be executed as a "Happy Path" task.
+2. **FR-002 (Filter)** cannot be executed as the input data does not exist.
+3. The project **MUST** execute the **Feasibility Termination** path.
 
-**Decision**: The plan proceeds with the assumption that the AGP data will be fetched from its canonical source (as per FR-001), but the `research.md` explicitly flags the **lack of a verified URL** in the provided list. If the canonical source is unreachable or lacks the specific sleep variables, the study cannot proceed as specified. The project is currently **BLOCKED** until a verified source is identified.
+### Rationale for Feasibility Termination Execution
 
-### Variable Mapping
+Attempting to use the generic OTU datasets (e.g., `otus-fw`) would constitute **fabrication** of the sleep-microbiome link, as these datasets do not contain sleep variables. The Constitution (Principle III: Data Hygiene) and the "No Fabrication" rule strictly prohibit this. Therefore, the only valid implementation is to:
+1. Verify the absence of the required URL.
+2. Generate a "Feasibility Report" (a single file documenting the failure).
+3. Generate a final report explicitly stating "Analysis not performed due to data unavailability".
 
-| Variable | Source Field | Description | Availability Status |
-|----------|--------------|-------------|---------------------|
-| `sleep_efficiency` | `sleep_efficiency` | Self-reported sleep efficiency (%) | **MISSING** in all verified sources |
-| `sleep_duration_hours` | `sleep_duration_hours` | Self-reported sleep duration (hours) | **MISSING** in all verified sources |
-| `antibiotic_use_last_3m` | `antibiotic_use_last_3m` | Antibiotic use in last 3 months (True/False) | **MISSING** in all verified sources |
-| `shannon_diversity` | Computed | Shannon index of alpha-diversity | N/A (requires OTU data) |
-| `simpson_diversity` | Computed | Simpson index of alpha-diversity | N/A (requires OTU data) |
-| `observed_otus` | Computed | Observed OTUs count | N/A (requires OTU data) |
-| `age` | `age` | Participant age | **MISSING** in all verified sources |
-| `bmi` | `bmi` | Body Mass Index | Present in some, but no OTU data |
+## Statistical Methodology (If Unblocked)
 
-**Note**: If the actual AGP dataset uses different field names, the ingestion script must include a mapping step. However, the primary issue is the **absence of the dataset itself** in the verified list.
+*Note: This section describes the method to be used if a verified AGP URL becomes available. In the current blocked state, these steps are skipped.*
 
-## Methodological Approach
+1. **Alpha-Diversity**: Compute Shannon, Simpson, and Observed OTUs using `scikit-bio`.
+ * *Justification*: Non-parametric, robust to compositional data.
+2. **Correlation**: Spearman rank correlation between diversity indices and sleep metrics.
+ * *Justification*: Sleep and diversity distributions are often non-normal; Spearman detects monotonic trends.
+3. **Multiple Comparison Correction**: Benjamini-Hochberg (BH) procedure.
+ * *Justification*: Controls False Discovery Rate (FDR) for the set of ~6 tests (3 diversity x 2 sleep metrics).
+4. **Significance Threshold**: q-value < 0.05.
+5. **Effect Size**: |r| > 0.3 defined as "moderate".
 
-### Data Preprocessing
+## Compute Feasibility
 
-1.  **Download**: Fetch OTU tables and metadata from the AGP repository. **If the dataset is not found in the verified list, the pipeline halts.**
-2.  **Filter**:
-    - Exclude samples where `antibiotic_use_last_3m` is True.
-    - Exclude samples where `sleep_efficiency` or `sleep_duration_hours` are missing.
-    - Exclude samples with missing `age` or `bmi` for multivariate analysis (optional, per edge cases).
-3.  **Compute Diversity**: Calculate Shannon, Simpson, and Observed OTUs indices from the OTU count tables using `scikit-bio`. **A rarefaction step is mandatory to normalize sequencing depth before computing diversity indices to prevent artifacts.**
+- **CPU-First**: The planned analysis (Spearman correlation on a large-scale dataset) is computationally trivial for a 2-core CPU. No GPU is required.
+- **Memory**: The full AGP dataset may exceed a significant amount of RAM. The implementation must use `pandas` chunking or `datasets` streaming to stay within limits.
+- **Time**: Correlation and diversity calculations are O(N) or O(N log N) and will complete well within the allocated time limit.
 
-### Statistical Analysis
+## Decision: Feasibility Termination Execution
 
-1.  **Correlation**: Perform Spearman rank correlation between each diversity index (Shannon, Simpson, Observed OTUs) and each sleep metric (efficiency, duration).
-2.  **Multiple Comparison Correction**: Apply Benjamini-Hochberg (BH) correction to the raw p-values to control the False Discovery Rate (FDR).
-3.  **Significance Threshold**: Flag correlations with adjusted p-value (q-value) < 0.05 as significant.
-4.  **Effect Size**: Report correlations with |r| > 0.3 as "moderate" (per FR-004).
-
-### Visualization
-
-1.  **Scatterplots**: Generate scatterplots with regression lines for significant correlations.
-2.  **Boxplots**: Generate boxplots of diversity indices grouped by sleep efficiency quartiles (Q1-Q4).
-
-## Assumptions & Limitations
-
-- **Observational Nature**: The study is observational; no causal claims will be made.
-- **Data Availability**: **The study is currently BLOCKED.** The success of the pipeline depends on the availability of the AGP dataset with the required sleep metadata. If the dataset is unavailable or lacks the necessary variables (as confirmed by the verified sources), the study cannot be completed as specified.
-- **Power**: The statistical power depends on the final sample size after filtering. If the filtered dataset is too small, the study may be underpowered to detect moderate correlations.
-- **Collinearity**: Diversity indices are inherently correlated. The analysis will report them descriptively without claiming independent effects.
-- **Sequencing Depth**: Without a rarefaction step, diversity indices may be biased by sequencing depth. The plan includes this step to ensure methodological soundness.
-
-## Ethical Considerations
-
-- **Privacy**: The AGP dataset is public and anonymized. No personally identifiable information (PII) will be handled.
-- **Data Usage**: The data will be used strictly for the purposes outlined in the AGP's terms of service.
-
-## Conclusion
-
-This research plan outlines a rigorous approach to investigating the gut-sleep axis. However, it explicitly identifies a **critical gap**: the provided "# Verified datasets" block does not contain a valid, reachable URL for the American Gut Project dataset with sleep metadata. The pipeline will attempt to fetch from the canonical source, but if that fails or the variables are missing, the study will halt with a clear error. **No alternative dataset from the verified list can substitute for the required data.** The project is currently **BLOCKED** until a verified source is identified.
+**Decision**: Execute the "Feasibility Termination" workflow defined in the plan.
+**Rationale**: The absence of a verified AGP URL in the `# Verified datasets` block makes the "Happy Path" impossible without violating the "No Fabrication" rule. The Feasibility Termination ensures the pipeline produces a valid, reproducible artifact (the report of unavailability) rather than crashing or generating fake data.

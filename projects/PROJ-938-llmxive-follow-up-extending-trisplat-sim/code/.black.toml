@@ -1,0 +1,20 @@
+# Black configuration for llmXive TriSplat extension
+# This file acts as a backup if pyproject.toml is not found in the root
+# but the primary config is in pyproject.toml.
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''

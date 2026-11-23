@@ -1,0 +1,41 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: SquarefreeSequence
+description: >
+  Schema for the sequence of squarefree numbers generated up to a cutoff N.
+  Matches the SquarefreeSequence entity in data-model.md.
+type: object
+required:
+  - metadata
+  - sequence
+properties:
+  metadata:
+    type: object
+    required:
+      - N_cutoff
+      - count
+      - generation_timestamp
+      - algorithm
+    properties:
+      N_cutoff:
+        type: integer
+        description: The upper bound N used for sieving (exclusive or inclusive as per implementation).
+      count:
+        type: integer
+        description: Total number of squarefree integers found up to N.
+      generation_timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of when the sequence was generated.
+      algorithm:
+        type: string
+        description: Name/version of the algorithm used (e.g., "linear_sieve_v1").
+      source_code_ref:
+        type: string
+        description: Git commit hash or file path of the code used.
+  sequence:
+    type: array
+    description: List of squarefree integers in ascending order.
+    items:
+      type: integer
+      minimum: 1
+additionalProperties: false

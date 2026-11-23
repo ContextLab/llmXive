@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2109.03044",
+  "judged_at": "2026-08-10T06:41:51Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "quantifying the impact of network proximity on epidemic spreading in scale-free networks physics",
+  "rationale": "This paper directly addresses the user's question by providing a theoretical proof of how a specific network structural property (diagonal degree correlations, a form of network proximity) affects the epidemic threshold in scale-free networks, satisfying criteria (a) for measuring the same mechanism and (b) for analyzing the dependent variable (epidemic threshold) on the user's specified domain (scale-free networks).",
+  "relevant": true
+}

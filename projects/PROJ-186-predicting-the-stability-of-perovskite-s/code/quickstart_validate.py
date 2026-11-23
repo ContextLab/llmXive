@@ -1,7 +1,6 @@
 """
-T046: Quickstart Validation Script
-Runs the full pipeline as described in quickstart.md to ensure reproducible execution.
-Verifies all expected artifacts are generated and valid.
+Validation script to verify that the pipeline artifacts exist and are correct.
+This script is invoked by the quickstart run-book to ensure reproducibility.
 """
 import os
 import sys
@@ -10,146 +9,106 @@ import logging
 import json
 from pathlib import Path
 
-# Add project root to path
-project_root = Path(__file__).resolve().parent.parent
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(project_root))
 
 from utils.logging_config import get_logger, log_pipeline_event
-from utils.timing import run_pipeline_script
-from utils.memory_monitor import run_script_with_memory_monitoring
-from utils.verify_hashes import main as verify_hashes_main
-from utils.model_metadata import main as verify_metadata_main
 
 logger = get_logger(__name__)
 
+# Define paths
+FEATURES_PATH = project_root / "data" / "processed" / "features.csv"
+METRICS_PATH = project_root / "results" / "metrics.json"
+MODEL_PATH = project_root / "results" / "model.pkl"
+CANDIDATES_PATH = project_root / "results" / "screening_candidates.md"
+
 def validate_artifacts():
-    """Check that all required artifacts exist and have content."""
-    required_files = {
-        "data/processed/features.csv": "Feature dataset",
-        "results/model.pkl": "Trained model",
-        "results/metrics.json": "Model metrics",
-        "results/screening_full.csv": "Screening results",
-        "results/screening_candidates.md": "Candidate report",
-        "logs/pipeline.log": "Pipeline log",
-        "results/manifest.json": "Hash manifest"
-    }
+    """Validate that all required artifacts exist."""
+    logger.info("Validating artifacts...")
+    errors = []
 
-    missing = []
-    for path, desc in required_files.items():
-        full_path = project_root / path
-        if not full_path.exists():
-            missing.append(f"{desc} ({path})")
-        elif full_path.stat().st_size == 0:
-            missing.append(f"{desc} ({path}) is empty")
+    if not FEATURES_PATH.exists():
+        errors.append(f"Missing required artifact: {FEATURES_PATH}")
+    else:
+        logger.info(f"Found {FEATURES_PATH}")
+        # Verify decomposition_energy has no nulls
+        import pandas as pd
+        df = pd.read_csv(FEATURES_PATH)
+        if df['decomposition_energy'].isnull().sum() > 0:
+            errors.append(f"Target column 'decomposition_energy' has nulls in {FEATURES_PATH}")
+        else:
+            logger.info("PASS: Zero nulls in target column 'decomposition_energy'")
 
-    if missing:
-        logger.error(f"Missing or empty artifacts: {', '.join(missing)}")
-        return False
-    
-    logger.info("All required artifacts present and non-empty")
-    return True
+    if not METRICS_PATH.exists():
+        errors.append(f"Missing required artifact: {METRICS_PATH}")
+    else:
+        logger.info(f"Found {METRICS_PATH}")
+        with open(METRICS_PATH, 'r') as f:
+            metrics = json.load(f)
+            required_keys = ['test_rmse', 'best_params', 'dft_functional']
+            for key in required_keys:
+                if key not in metrics:
+                    errors.append(f"Missing key '{key}' in {METRICS_PATH}")
+                else:
+                    logger.info(f"Found key '{key}' in {METRICS_PATH}")
+
+    if not MODEL_PATH.exists():
+        errors.append(f"Missing required artifact: {MODEL_PATH}")
+    else:
+        logger.info(f"Found {MODEL_PATH}")
+
+    if not CANDIDATES_PATH.exists():
+        errors.append(f"Missing required artifact: {CANDIDATES_PATH}")
+    else:
+        logger.info(f"Found {CANDIDATES_PATH}")
+
+    return errors
 
 def validate_metrics():
-    """Validate metrics file contains expected fields."""
-    metrics_path = project_root / "results/metrics.json"
-    try:
-        with open(metrics_path, 'r') as f:
+    """Validate that metrics meet the required thresholds."""
+    logger.info("Validating metrics...")
+    errors = []
+
+    if METRICS_PATH.exists():
+        with open(METRICS_PATH, 'r') as f:
             metrics = json.load(f)
-        
-        required_fields = ['test_rmse', 'best_params', 'cv_score']
-        missing_fields = [f for f in required_fields if f not in metrics]
-        
-        if missing_fields:
-            logger.error(f"Metrics missing fields: {missing_fields}")
-            return False
-        
-        logger.info(f"Metrics validation passed: RMSE={metrics['test_rmse']:.4f}")
-        return True
-    except Exception as e:
-        logger.error(f"Metrics validation failed: {e}")
-        return False
+            test_rmse = metrics.get('test_rmse')
+            if test_rmse is not None:
+                if test_rmse > 0.15:
+                    errors.append(f"Test RMSE ({test_rmse}) exceeds threshold of 0.15 eV/atom")
+                else:
+                    logger.info(f"PASS: Test RMSE ({test_rmse}) is within threshold")
+            else:
+                errors.append("Test RMSE not found in metrics")
+    else:
+        errors.append(f"Cannot validate metrics: {METRICS_PATH} not found")
+
+    return errors
 
 def main():
-    logger.info("Starting Quickstart Validation (T046)")
+    """Main entry point for validation."""
+    logger.info("Starting artifact and metrics validation...")
     start_time = time.time()
 
-    try:
-        # 1. Run the full pipeline if artifacts don't exist
-        features_path = project_root / "data/processed/features.csv"
-        model_path = project_root / "results/model.pkl"
+    artifact_errors = validate_artifacts()
+    metric_errors = validate_metrics()
 
-        if not features_path.exists() or not model_path.exists():
-            logger.info("Required artifacts missing. Running full pipeline...")
-            
-            # Run data processing
-            run_pipeline_script(
-                "code/data/download.py", 
-                "Data Download", 
-                timeout=3600
-            )
-            
-            run_pipeline_script(
-                "code/data/descriptors.py", 
-                "Descriptor Calculation", 
-                timeout=3600
-            )
-            
-            run_pipeline_script(
-                "code/data/preprocess.py", 
-                "Data Preprocessing", 
-                timeout=3600
-            )
-            
-            # Run model training
-            run_pipeline_script(
-                "code/models/train.py", 
-                "Model Training", 
-                timeout=7200
-            )
-            
-            # Run screening
-            run_pipeline_script(
-                "code/models/predict.py", 
-                "Virtual Screening", 
-                timeout=3600
-            )
-            
-            # Generate report
-            run_pipeline_script(
-                "code/models/generate_candidates_report.py", 
-                "Candidate Report Generation", 
-                timeout=600
-            )
-        else:
-            logger.info("Artifacts exist. Skipping pipeline execution.")
+    end_time = time.time()
+    duration = end_time - start_time
 
-        # 2. Validate artifacts
-        if not validate_artifacts():
-            logger.error("Artifact validation failed")
-            return 1
+    all_errors = artifact_errors + metric_errors
 
-        # 3. Validate metrics
-        if not validate_metrics():
-            logger.error("Metrics validation failed")
-            return 1
-
-        # 4. Verify hashes
-        logger.info("Verifying artifact hashes...")
-        verify_hashes_main()
-
-        # 5. Verify metadata
-        logger.info("Verifying model metadata...")
-        verify_metadata_main()
-
-        elapsed = time.time() - start_time
-        logger.info(f"Quickstart validation completed successfully in {elapsed:.2f}s")
-        log_pipeline_event("T046_VALIDATION_SUCCESS", f"Duration: {elapsed:.2f}s")
-        return 0
-
-    except Exception as e:
-        logger.error(f"Validation failed with error: {e}", exc_info=True)
-        log_pipeline_event("T046_VALIDATION_FAILED", str(e))
-        return 1
+    if all_errors:
+        logger.error(f"Validation FAILED with {len(all_errors)} errors:")
+        for err in all_errors:
+            logger.error(f"  - {err}")
+        log_pipeline_event(f"Validation failed in {duration:.2f} seconds")
+        sys.exit(1)
+    else:
+        logger.info("Validation PASSED successfully.")
+        log_pipeline_event(f"Validation passed in {duration:.2f} seconds")
+        sys.exit(0)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

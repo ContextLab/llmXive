@@ -1,0 +1,49 @@
+T012a:
+  c: false
+  h: 121d618fdd86cceb0d4e92781a448e12008ac707355c332d9a60e65d59b0fd07
+  r: "The repository lacks the required `data/raw/il_thermo.parquet` and `data/raw/sapt.parquet`\
+    \ files, and the posted `download_il_thermo_sapt` implementation is truncated\
+    \ (no code that actually downloads, saves, or checks the required columns). Consequently\
+    \ the task\u2019s core output and verification steps are not present."
+T015a:
+  c: false
+  h: 567dcaf3956ab8cf3a7d305f66503c4e91b62dd99032e32809e30af502a60639
+  r: The provided `code/data_ingestion.py` does not contain a `calculate_partial_charges_internal_only(df)`
+    function (or any implementation of Gasteiger charge calculation), and the required
+    `data/processed/internal_consistency_checks.parquet` file is absent. Both the
+    function implementation and the saved parquet file are needed to satisfy the task.
+T017b:
+  c: false
+  h: 5727d48fae8475579b0187c481125617f1e71d5883f6f81f9dd4ee91aea9dc1d
+  r: "The repository lacks the required `data/processed/unified_dataset.parquet` file,\
+    \ the `contracts/ion_pair.schema.yaml` schema, and the `write_unified_dataset(df,\
+    \ path)` function is not present (or not visible) in `code/data_ingestion.py`.\
+    \ Consequently the task\u2019s core requirements are unmet."
+T017c:
+  c: false
+  h: 7c7ae6ddc5ffdbd63f26f8808f128f842990bead6f4b3eaf8d0daac3212ca2c8
+  r: "The repository contains `code/data_ingestion.py`, but the provided excerpt does\
+    \ not show a `filter_raw_sapt(df)` function, nor any code that writes `data/processed/raw_sapt_subset.parquet`.\
+    \ Moreover, the required parquet file is absent from the `data/processed` directory.\
+    \ The task\u2019s core output is therefore missing."
+T017e:
+  c: false
+  h: ea77dce394661e9c3885db61a66876009a50734af4a341e5b7bbc5ca0c998e4d
+  r: The provided `code/data_ingestion.py` does not contain a `write_unified_dataset(df,
+    path)` implementation (the file is truncated before any such function appears),
+    and the expected output file `data/processed/unified_dataset.parquet` is absent.
+    Both the required function and its resulting artifact are missing.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging code, configuration, or example log output was provided; the claim
+    that logging for ingestion steps and a synthetic generation fallback was added
+    cannot be verified because the required artifacts are missing. The next implementer
+    must add the logging implementation and supply the corresponding source files
+    and sample logs.
+T021b:
+  c: true
+  h: add136ca139c2298d1687493aacc5d1a0e184ba24276a8d3e6f1db0c8f121187
+  r: "The `code/model_training.py` file contains a non\u2011placeholder implementation\
+    \ of `save_splits` that creates `data/processed` and writes the three DataFrames\
+    \ to `train.parquet`, `val.parquet`, and `test.parquet` as required."

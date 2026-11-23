@@ -1,37 +1,51 @@
 """
-Setup script to create the project directory structure for PROJ-527.
-Creates required directories for code, tests, data, and state management.
+Task T002: Create project structure per implementation plan.
+
+Creates the following directories at the repository root:
+- code/
+- tests/
+- data/raw/
+- data/processed/
+- data/results/
+- state/projects/
 """
 import os
 from pathlib import Path
 
-def main():
+def create_project_structure():
     """Create the standard project directory structure."""
-    # Define the root directory (current working directory)
-    root = Path.cwd()
-
-    # Define the required directories relative to root
+    # Define the directories to create relative to the project root
+    # We assume the script is run from the project root or the path is relative to cwd
+    # However, to be robust, we create them relative to the current working directory
+    # which should be the project root when run via the quickstart.
+    
+    base_path = Path.cwd()
+    
     directories = [
-        "code",
-        "tests",
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "state",
+        base_path / "code",
+        base_path / "tests",
+        base_path / "data" / "raw",
+        base_path / "data" / "processed",
+        base_path / "data" / "results",
+        base_path / "state" / "projects",
     ]
-
+    
     created_count = 0
-    for dir_path in directories:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
+    for directory in directories:
+        if not directory.exists():
+            directory.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {directory}")
             created_count += 1
         else:
-            print(f"Directory already exists: {full_path}")
+            print(f"Directory already exists: {directory}")
+    
+    return created_count
 
-    print(f"\nProject structure setup complete. Created {created_count} new directories.")
-    return 0
+def main():
+    """Entry point for the script."""
+    print("Creating project structure...")
+    count = create_project_structure()
+    print(f"Project structure creation complete. Created {count} new directories.")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

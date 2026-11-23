@@ -1,60 +1,65 @@
 # Quickstart: Self-improving LLM: recursive architecture refinement and re‑training
 
-## Prerequisites
+## 1. Prerequisites
 
--   Python 3.11+
--   Git
--   GitHub Actions Runner (or local machine with sufficient RAM and CPU cores)
+- Python +
+- pip
+- Git
 
-## Installation
+## 2. Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-561-self-improving-llm-recursive-architectur
-    ```
+1. **Clone the repository** (if not already done):
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-561-self-improving-llm-recursive-architectur
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins `torch` to a CPU-only build to ensure compatibility with constrained RAM resources.*
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-## Running the Pipeline
+## 3. Configuration
 
-### Single Cycle (Debug Mode)
+Edit `code/config.py` if you need to adjust:
+- `TRAINING_SAMPLES`: Number of samples to use from OpenWebText (default: [deferred], fallback to 1000 if time-constrained).
+- `MAX_CYCLES`: Number of refinement cycles (default: 3).
+- `BENCHMARK_SUBSETS`: Size of evaluation subsets (GSM8K: 100, ARC: 100, BoolQ: 1000).
 
-To test the pipeline with a single cycle:
+## 4. Running the Pipeline
 
+Execute the main script:
 ```bash
-python code/main.py --cycles 1
+python code/main.py
 ```
 
-### Full Experiment (3 Cycles)
+**What happens**:
+1. Downloads and checksums datasets (OpenWebText, GSM8K, ARC, BoolQ).
+2. Loads the GPT 124M baseline.
+3. Runs up to 3 refinement cycles:
+   - Prompts model for modification.
+   - Validates with Oracle and Distinctness Checker.
+   - Retrains on CPU (with fallback to 1k samples if time-constrained).
+   - Evaluates on benchmarks.
+   - Logs results.
+4. Generates `results/trajectory.json` with performance trends, trade-off metrics, and capacity analysis.
 
-To run the full multi-cycle experiment:
+## 5. Verifying Results
 
-```bash
-python code/main.py --cycles 3
-```
+Check the output files:
+- **Logs**: `results/logs/cycle_1.log`, `results/logs/cycle_2.log`, etc.
+- **Trajectory**: `results/trajectory.json` (contains regression slope, R-squared, trend direction, and capacity analysis).
+- **Models**: `data/processed/cycle_1_checkpoint.pt` (if successful).
 
-*Note: If real datasets are unavailable, the system will terminate immediately. No synthetic data is permitted.*
+## 6. Troubleshooting
 
-### Output
-
-Results are saved to:
--   `results/trajectory.json`: Main performance and resource metrics.
--   `results/logs/`: Detailed logs for each cycle.
--   `data/models/`: Checkpoints for each cycle (if not deleted).
-
-## Troubleshooting
-
--   **RAM Error**: If you encounter `MemoryError`, try reducing the `batch_size` in `code/config.py` (default value) to a smaller integer (e.g., 2 or 1).
--   **Dataset Load Error**: If the pipeline fails to load a dataset, it will terminate immediately. Check `results/trajectory.json` for the `dataset_status` field.
--   **Timeout**: The default timeout is set to a predefined duration. If the job times out, reduce the number of cycles or the size of the dataset in `code/config.py`.
+- **OOM Error**: Reduce `TRAINING_SAMPLES` or `BATCH_SIZE` in `config.py`.
+- **API Rate Limit**: The script automatically implements exponential backoff (FR-011). If it fails, wait and retry.
+- **Modification Rejection**: If the model proposes an invalid change, the script will prompt for a new one automatically.
+- **Time Exceeded**: The script will automatically reduce the training subset to [deferred] samples to ensure completion.

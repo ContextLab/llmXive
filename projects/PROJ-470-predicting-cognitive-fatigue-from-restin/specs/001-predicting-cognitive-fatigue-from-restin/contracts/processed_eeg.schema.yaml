@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Processed EEG Metadata Schema"
+description: "Schema for metadata accompanying processed .fif files"
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Unique participant identifier"
+  segment_type:
+    type: string
+    enum:
+      - "pre"
+      - "post"
+    description: "Whether this is pre-task or post-task data"
+  channels_rejected:
+    type: array
+    items:
+      type: string
+    description: "List of channel names rejected due to artifacts"
+  epochs_rejected:
+    type: integer
+    minimum: 0
+    description: "Number of epochs rejected"
+  filter_applied:
+    type: string
+    description: "Description of filter (e.g., '1-40Hz bandpass, 50Hz notch')"
+  re_reference:
+    type: string
+    description: "Re-referencing method (e.g., 'average')"
+  duration_sec:
+    type: number
+    minimum: 120.0
+    description: "Duration of the processed segment in seconds"
+required:
+  - participant_id
+  - segment_type
+  - channels_rejected
+  - epochs_rejected
+  - filter_applied
+  - re_reference
+  - duration_sec
+additionalProperties: false

@@ -1,0 +1,10 @@
+{
+  "action": "comment",
+  "reason": "A historical record in the pre-redesign reply shape.",
+  "target": {
+    "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
+    "artifact_kind": "spec",
+    "artifact_path": "projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin/specs/001-mechanistic-interpretability-of-ctcf-bin/spec.md"
+  },
+  "content": "System 1 reads the accuracy and concludes the model learned the motif; System 2 asks for an intervention."
+}

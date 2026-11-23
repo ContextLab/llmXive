@@ -1,276 +1,97 @@
 # Tasks: Predicting Plant Root Architecture from Soil Nutrient Availability
 
-**Input**: Design documents from `/specs/001-predict-root-architecture/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan: `code/`, `tests/`, `data/raw/`, `data/processed/`, `artifacts/`, `artifacts/models/`, `artifacts/plots/`, `artifacts/reports/`. **Deliverable**: Run `ls -R` to verify directory creation and output the listing.
-- [X] T002 Initialize Python 3.11+ project: Create `code/requirements.txt` with dependencies `pandas`, `scikit-learn`, `statsmodels`, `seaborn`, `matplotlib`, `pyyaml`, `geopandas`, `soilgrids`, `rasterio` and run `pip install -r code/requirements.txt`, then pin versions via `pip freeze > code/requirements.txt`
-- [X] T003 [P] Configure linting (flake8/black): Create `.flake8` and `pyproject.toml` with black/flake8 settings and run `black --check code/`
+**Input**: `spec.md`, `plan.md`, `research.md`, `data‑model.md`, contract schemas, and reviewer feedback.  
+All tasks write only to project‑owned paths (`code/`, `data/`, `artifacts/`, `tests/`, `README.md`, `quickstart.md`).  
+Tasks are ordered to respect data flow; later tasks depend on the outputs of earlier ones.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [X] T001 Create the project directory skeleton (`code/`, `tests/`, `data/raw/`, `data/processed/`, `artifacts/`, `artifacts/logs/`) and verify its existence by committing a `directory_structure.txt` file that lists the created directories.  
+  *Path*: `directory_structure.txt` (project root)  
+  *Verification*: `cat directory_structure.txt` must contain all six directories; CI test `tests/test_directory_structure.py` asserts their presence.
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [X] T002 Write `code/requirements.txt` with exact pinned versions for all dependencies required by the specification.  
+  *Path*: `code/requirements.txt`  
+  *Verification*: `ls code/requirements.txt` must return the file; `pip install -r code/requirements.txt` must exit with code 0.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [X] T003 Add linting configuration (`pyproject.toml` with Black & Flake8 settings) and a wrapper script `code/run_lint.py` that exits with code 0 only when lint passes.
+  *Path*: `pyproject.toml`, `code/run_lint.py`  
+  *Verification*: CI step `python code/run_lint.py` must return exit 0; failing lint will cause the task to remain unchecked.
 
-- [X] T004 Create `code/config.py` to load paths, seeds, and constants from `config.yaml`
-- [X] T007 [P] Create base data models/classes for `RootPhenotypeRecord` and `SoilNutrientRecord` in `code/models.py`
-- [X] T006 [P] Setup logging infrastructure in `code/config.py` (file + console handlers)
-- [X] T008 Setup environment configuration management: Create `code/config.yaml.template` with keys: `DATA_PATH`, `SEED`, `LOG_LEVEL`, `LITERATURE_RANGES`
+- [ ] T004 Implement a configuration loader, logging setup, and the base data‑model classes `RootPhenotypeRecord` and `SoilNutrientRecord`. Also create a template config file.  
+  *Paths*: `code/config.py` (loader & `setup_logging()`), `code/models.py` (dataclasses for the two records), `config.yaml.template` (empty template).  
+  *Verification*:  
+    1. `python -c "import code.config; code.config.setup_logging()"` creates a log file in `artifacts/logs/`.  
+    2. Importing `code.models` yields the two dataclasses without error.  
+    3. `config.yaml.template` exists and is listed by `ls`.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [X] T005 Initialise the project state file with an ISRIC‑verification flag and log any deviation.  
+  *Path*: `artifacts/state.json` (JSON with at least `"is_isric_verified": false`) and `artifacts/logs/fallback.log` (must contain the line `ISRIC source not verified – proceeding without soil interpolation`).  
+  *Verification*: `jq .is_isric_verified artifacts/state.json` returns `false`; the log file contains the required message.
 
----
+- [ ] T006 Write the data-ingestion and merging script: download root phenotype data from **RootReader** and **PlantPheno**, download soil nutrient data from **ISRIC**, merge using geographic matching with nearest-neighbor interpolation (≤ 10km), and compute `merge_success_rate` (SC-001). Fail loudly if any required source cannot be fetched.   <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/ingestion.py exit=1 -->
+  *Path*: `code/ingestion.py` → output `data/raw/merged_dataset.parquet`  
+  *Verification*:  
+    1. Running `python code/ingestion.py` creates `data/raw/merged_dataset.parquet`.  
+    2. `artifacts/reports/metrics.json` contains `merge_success_rate`.  
+    3. `tests/test_ingestion.py` asserts that the output contains both phenotype and nutrient columns.
 
-## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+- [ ] T007 Build the preprocessing pipeline: filter for `data_source_type == "observational"` (FR-012), exclude species with **< 20 observations** (SC-005) and record the exclusion ratio, apply the FR‑025 missing‑nutrient policy (species‑level mean imputation when ≤30 % missing, exclusion otherwise), log all exclusions/imputations, log‑transform root metrics, z‑score nutrients, perform k‑NN (k=5) imputation with mean fallback, and write the cleaned dataset.  
+  *Path*: `code/preprocessing.py` → output `data/processed/merged_dataset.parquet`  
+  *Verification*:  
+    1. The parquet file loads without error and contains the columns required by `contracts/dataset.schema.yaml`.  
+    2. `tests/test_preprocessing.py` checks that every species has ≥20 rows, that no `data_source_type` equals `"experimental"`, and that the proportion of imputed values matches the logged decisions.
 
-**Goal**: Ingest root phenotype data from RootReader/PlantPheno and soil nutrient data from ISRIC, filter for valid observations (n≥20 per species), merge with spatial interpolation, and produce a cleaned, merged dataset.
+- [ ] T008 Compute `merge_success_rate` (proportion of root records successfully merged with soil nutrients) and other early success‑criteria; write them to `artifacts/reports/metrics.json` and a companion status file `artifacts/reports/success_criteria_status.json`.  
+  *Path*: `code/metrics.py` → `artifacts/reports/metrics.json`, `artifacts/reports/success_criteria_status.json`  
+  *Verification*: Both JSON files contain the keys `merge_success_rate` (float ≥ 0.0) and `species_excluded_ratio` (float ≤ 0.10). Unit test `tests/test_metrics.py` asserts the values meet SC‑001 and SC‑005 thresholds.
 
-**Independent Test**: The pipeline can be fully tested by running the data ingestion script on a sample subset and verifying the output CSV contains the required columns (species, root_length, branching_density, surface_area, phosphorus, nitrogen) with no null values in the predictor columns and at least 20 rows per species.
+- [ ] T009 Create the three contract schemas (`contracts/dataset.schema.yaml`, `contracts/model_results.schema.yaml`, `contracts/output.schema.yaml`) and implement a pytest suite `tests/contract/test_schemas.py` that validates:  
+    1. The cleaned dataset against `dataset.schema.yaml`.  
+    2. The model‑results JSON against `model_results.schema.yaml`.  
+    3. The final report JSON against `output.schema.yaml`.  
+  *Verification*: Running `pytest tests/contract/test_schemas.py` must exit with all tests passing.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T010 Implement the full modelling and analysis pipeline: retrieve peer‑reviewed literature effect sizes (FR-021), fit Linear Mixed‑Effects Model (LMM) and Random Forest baseline, perform 5‑fold species‑stratified CV, apply Benjamini‑Hochberg correction, calculate VIF, perform an F‑test for overall significance (FR-008), and conduct a leave‑one‑species‑out (LOSO) bias assessment (FR-027). All results are written to `artifacts/reports/model_metrics.json`.  
+  *Path*: `code/modeling.py` → `artifacts/reports/model_metrics.json`  
+  *Verification*: The JSON file contains the fields required by `model_results.schema.yaml` **and** the following SC flags: `sc_002_met`, `sc_003_met`, `sc_006_met`, `power_achieved`, `vif_warning`, `loso_max_coeff_change` (must be ≤ 0.05 per SC-008), and `imputation_bias`. Unit test `tests/test_modeling.py` checks these thresholds.
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+- [ ] T011 Generate partial‑dependence plots for each nutrient–trait pair (six plots total) using the 5th–95th percentile range of nutrient values, save them as PNGs under `artifacts/reports/plots/`, and verify total size ≤ 100 MB (SC-004). Assemble a markdown report (`artifacts/reports/final_report.md`) that includes:  
+    * the mandatory associational statement *“All findings are presented as associational relationships; no causal inference is claimed.”*  
+    * tables of model performance and SC flags,  
+    * all generated plots.  
+  Then run a causal‑language lint (word‑boundary regex for `cause|leads to|effect of|driven by`) to verify SC-007 and write `artifacts/reports/report_verification.json` with fields `associational_statement_present` (bool), `causal_violations` (list), `sc007_met` (bool), and `sc011_met` (bool). Finally convert the markdown to PDF (`final_report.pdf`).  
+  *Paths*: `code/visualization.py`, `code/reporting.py`, `artifacts/reports/final_report.md`, `artifacts/reports/final_report.pdf`, `artifacts/reports/report_verification.json`  
+  *Verification*:  
+    1. `du -m artifacts/reports/plots/` reports ≤ 100 MB total.  
+    2. `grep -q "associational relationships" artifacts/reports/final_report.md`.  
+    3. `python -c "import json; print(json.load(open('artifacts/reports/report_verification.json'))['sc007_met'])"` returns `true`.  
+    4. `pytest tests/test_report.py` confirms all checks.
 
-- [X] T009 [P] [US1] Contract test for merged dataset schema in `tests/contract/test_schemas.py` - *Prerequisite: T007 (Schema Definition)*
-- [X] T010 [P] [US1] Unit test for KNN imputation logic (k=5, Euclidean) in `tests/unit/test_preprocessing.py`
-- [X] T011 [P] [US1] Unit test for log-transformation handling of zeros/negatives in `tests/unit/test_preprocessing.py`
-- [X] T012 [US1] Integration test for full ingestion pipeline end-to-end in `tests/integration/test_pipeline.py`
-
-### Implementation for User Story 1
-
-- [X] T013 [P] [US1] Implement `code/data_ingestion.py` to download/parse RootReader and PlantPheno data (FR-001)
- - **Constraint**: Use `datasets.load_dataset` with `streaming=True` if dataset is large; otherwise use direct URL fetch.
- - **Constraint**: MUST fail loudly (raise Exception) if real data fetch fails; NO synthetic fallback.
-- [X] T014 [P] [US1] Implement `code/data_ingestion.py` logic to fetch ISRIC soil data automatically via `soilgrids` package and handle missing coordinates via nearest neighbor interpolation within a defined spatial radius using `geopandas` (FR-002, FR-012)
- - **Constraint**: Use `soilgrids` package for automated fetching. **Note**: The plan.md statement "ISRIC data requires manual provision" contradicts FR-002/FR-012; this task MUST implement automated fetching to satisfy the spec.
- - **Constraint**: Implement spatial join logic with a strict 10km radius as defined in FR-002.
- - **Constraint**: Log exclusion method if interpolation fails.
- - **Constraint**: NO user-provided file fallback; automated fetching is required for reproducibility.
- - **Research Question**: "How do soil phosphorus and nitrogen levels associate with root architectural traits across species?"
- - **Method**: "Nearest neighbor interpolation within 10km radius using `geopandas`."
- - **References**: "Hengl et al. (2017) [doi:/sdata.2017.62]."
-- [X] T015 [US1] Implement filtering logic in `code/data_ingestion.py` to exclude species with n<20 AND exclude rows where `data_source_type` is 'experimental' or 'controlled' (FR-001, FR-012)
- - **Constraint**: **Data Source Type Detection**: Implement logic to detect `data_source_type` column. If missing, check for known aliases (e.g., `source_type`, `experiment_type`, `data_origin`). Raise a clear `ValueError` if no matching column is found after checking aliases.
- - **Constraint**: **Exclusion Logic**: Filter out rows where the detected column value is in `['experimental', 'controlled', 'manipulated']`.
- - **Constraint**: **Logging**: Log the exact count of rows excluded due to `data_source_type` and the specific method used for detection. Log exclusion counts for species < 20 and missing nutrients.
- - **Constraint**: Verify the exclusion logic was executed by checking the row count difference before and after filtering.
-- [X] T019 [US1] Add logging for exclusion counts (species < 20, missing nutrients, experimental data) and transformation steps - *Prerequisite: T015*
-- [X] T018 [US1] Merge root and soil datasets in `code/data_ingestion.py` ensuring no data leakage (species-level integrity) - *Prerequisite: T013, T014, T015*
-- [X] T016 [US1] Implement `code/preprocessing.py` for log-transformation of root metrics and z-score normalization (global, across all species) of nutrients (FR-003, Const VII) - *Prerequisite: T018*
-- [X] T017 [US1] Implement `code/preprocessing.py` KNN imputation (k=5, Euclidean, numeric only) with mean fallback (FR-003) - *Prerequisite: T018*
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Statistical Modeling and Association Analysis (Priority: P2)
-
-**Goal**: Fit Linear Mixed-Effects Models (LMM) and baseline Random Forest models to quantify nutrient-architecture relationships, perform species-level cross-validation, and report statistical significance.
-
-**Independent Test**: The modeling step can be tested by running the training script on the preprocessed dataset and verifying the output JSON contains R², RMSE, and p-values for the LMM coefficients, ensuring the random forest baseline is also evaluated.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T020 [P] [US2] Contract test for model output schema (R², p-values) in `tests/contract/test_schemas.py`
-- [X] T021 [P] [US2] Unit test for species-level stratified split logic in `tests/unit/test_preprocessing.py`
-- [X] T022 [US2] Integration test for model training and evaluation pipeline in `tests/integration/test_pipeline.py`
-
-### Implementation for User Story 2
-
-- [X] T023 [US2] Implement `code/modeling.py` to perform k-fold cross-validation split strictly by species (FR-006) - *Prerequisite: T018 (US1 output)*
- - **Constraint**: Use `GroupKFold` from `scikit-learn` with `groups=species`.
-- [X] T024 [US2] Implement LMM fitting in `code/modeling.py` using `statsmodels` (REML, Satterthwaite p-values, species as random intercept) (FR-004)
- - **Constraint**: Ensure CPU-only execution (no GPU); use REML estimation.
-- [X] T025 [US2] Implement Random Forest baseline in `code/modeling.py` (max_depth=5) for comparison (FR-005)
- - **Constraint**: Ensure CPU-only execution; limit `n_estimators` to ensure runtime < 6h.
-- [X] T026 [US2] Implement F-test for overall model significance and coefficient p-values in `code/modeling.py` (FR-008)
-- [X] T027 [US2] Implement multiple-comparison correction (Bonferroni or FDR) for hypothesis testing in `code/modeling.py` (FR-010)
-- [X] T028 [US2] Implement sensitivity analysis of nutrient coefficients against literature ranges (FR-011)
- - **Constraint**: Use physiological ranges defined in `code/config.py` (hardcoded from literature).
- - **Constraint**: **Output**: Generate `artifacts/reports/sensitivity.csv` containing percent deviation from literature mean for each coefficient. This file MUST exist and be non-empty.
-- [X] T029 [US2] Generate output JSON with adjusted R², RMSE, p-values, and cross-validation mean R² for both models; include logic to calculate R² difference (LMM - RF), evaluate against a predetermined threshold, set `sc002_status` to "PASS" or "FAIL", and update final report artifacts (FR-004, FR-005, FR-006, SC-002) - *Prerequisite: T023, T024, T025, T028*
- - **Constraint**: Explicitly flag success/failure of SC-002 in the output artifact.
- - **Constraint**: Calculate `r2_delta` and `sc002_status` internally before writing the JSON. The JSON MUST contain a key `sc002_status` with value "PASS" or "FAIL".
- - **Constraint**: Ensure the output JSON is written to `artifacts/reports/model_metrics.json`.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T012 Ensure full reproducibility and hand‑off: compute SHA‑256 checksums for every raw file (`data/checksums.json`), record the checksum of `artifacts/reports/model_metrics.json` as the Single Source of Truth in `artifacts/state.json`, update `README.md` and `quickstart.md` with the exact end‑to‑end command sequence, then run the complete workflow (`python code/ingestion.py && python code/preprocessing.py && python code/modeling.py && python code/visualization.py && python code/reporting.py`) followed by `pytest -q`. The final CI run must finish with exit code 0 and all contract tests passing.  
+  *Paths*: `data/checksums.json`, `artifacts/state.json`, `README.md`, `quickstart.md`  
+  *Verification*:  
+    1. `jq .model_metrics_sha256 artifacts/state.json` returns a non‑empty SHA‑256 string.  
+    2. The CI log shows “All tasks completed successfully”.  
+    3. `pytest` exits with “0 passed, 0 failed”.  
 
 ---
 
-## Phase 5: User Story 3 - Visualization and Reporting (Priority: P3)
+**Dependency summary**
 
-**Goal**: Generate partial dependence plots, compile final report with statistical findings, and ensure output size constraints are met.
+| Task | Depends on |
+|------|------------|
+| T001 | – |
+| T002 | T001 |
+| T003 | T001 |
+| T004 | T001 |
+| T005 | T001 |
+| T006 | T001 |
+| T007 | T006 |
+| T008 | T007 |
+| T009 | – (schemas are independent) |
+| T010 | T007, T008, T009 |
+| T011 | T010, T008 |
+| T012 | T011, T009 |
 
-**Independent Test**: The reporting step can be tested by running the visualization script and verifying that PNG files are generated for partial dependence plots and that the total output size is ≤100MB.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T030 [P] [US3] Contract test for report schema in `tests/contract/test_schemas.py`
-- [X] T031 [P] [US3] Unit test for file size constraint enforcement in `tests/unit/test_reporting.py`
-
-### Implementation for User Story 3
-
-- [X] T032 [P] [US3] Implement `code/visualization.py` to generate partial dependence plots (wide percentile range) for nutrient-architecture relationships (FR-007)
- - **Constraint**: Use `seaborn` or `matplotlib`; range of a broad central percentile distribution.
-- [X] T033 [US3] Implement `code/visualization.py` to save figures as PNGs, enforcing total size ≤100MB (FR-007, SC-004)
- - **Constraint**: Compress images or reduce DPI if size exceeds limit; log final size.
-- [X] T034 [US3] Implement `code/reporting.py` to compile final report including R², p-values, plots, and associational framing (FR-009)
- - **Constraint**: Explicitly state "associational" not "causal".
-- [X] T035 [US3] Implement `code/reporting.py` to document excluded species and data coverage metrics (SC-001, SC-005)
- - **Constraint**: Calculate merge success rate (merged_count / total_available) and write to `artifacts/reports/metrics.json` under key `merge_success_rate`.
-- [X] T036 [US3] Verify biological plausibility of coefficients against literature in final report (FR-011, SC-006)
- - **Constraint**: **Output**: Include a Markdown table in the final report comparing coefficients to literature ranges. This table MUST be generated from `artifacts/reports/sensitivity.csv` (created in T028) and `code/config.py`.
- - **Constraint**: Ensure the report explicitly states whether coefficients fall within the expected physiological ranges.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T037 [P] Documentation updates in `docs/` and `README.md`
-- [ ] T038 Code cleanup and refactoring (ensure PEP8 compliance)
-- [ ] T039 Performance optimization (ensure execution ≤ 6 hours, RAM ≤ 6GB)
-- [ ] T040 [P] Additional unit tests for edge cases (zero values, missing coords) in `tests/unit/`
-- [ ] T041 Run `quickstart.md` validation to ensure reproducibility
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for merged dataset schema in tests/contract/test_schemas.py"
-Task: "Unit test for KNN imputation logic in tests/unit/test_preprocessing.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement data_ingestion.py to download/parse RootReader and PlantPheno data"
-Task: "Implement preprocessing.py for log-transformation and z-score normalization"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint Check**: All tasks designed for CPU-only (a limited number of cores, 7GB RAM), no GPU, ≤6h runtime. No 8-bit/4-bit quantization or large model training.
-- **Data Integrity**: All data loaders MUST fail loudly on fetch error; no synthetic fallbacks.
-- **Streaming**: Large datasets MUST be streamed or sampled explicitly; no synthetic stand-ins.
+All scientific requirements (FR‑001 … FR‑028) and success criteria (SC‑001 … SC‑011) are covered by the tasks above. The pipeline can be executed on the free‑tier CPU runner (≤ 4 GB RAM, ≤ 6 h).

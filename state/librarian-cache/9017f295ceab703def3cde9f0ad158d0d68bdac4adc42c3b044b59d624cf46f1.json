@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-09T19:00:27Z",
+  "fetched_at": "2026-09-05T23:09:19Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,105 +9,105 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D with Language Instru\"",
       "target_n": 5
     },
-    "duration_seconds": 59.469,
-    "ended_at": "2026-07-09T19:00:27Z",
+    "duration_seconds": 49.178,
+    "ended_at": "2026-09-05T23:09:19Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "language-conditioned 3D motion forecasting"
+          "Language-conditioned 3D trajectory prediction"
         ],
         [
           2,
-          "multimodal point trajectory prediction"
+          "Vision-language models for motion forecasting"
         ],
         [
           3,
-          "text-guided 3D motion generation"
+          "Text-guided point cloud motion estimation"
         ],
         [
           4,
-          "large language models for 3D trajectory inference"
+          "Multimodal 3D action forecasting with natural language"
         ],
         [
           5,
-          "semantic 3D motion forecasting"
+          "Language-instructed dynamic scene understanding"
         ],
         [
           6,
-          "vision-language models for motion prediction"
+          "Neural 3D motion prediction using language prompts"
         ],
         [
           7,
-          "3D point cloud trajectory estimation with natural language"
+          "Cross-modal 3D trajectory generation from text"
         ],
         [
           8,
-          "language-instructed dynamic scene understanding"
+          "Language-driven point cloud sequence forecasting"
         ],
         [
           9,
-          "multimodal forecasting of 3D object motion"
+          "Instruction-based 3D motion modeling"
         ],
         [
           10,
-          "text-driven 3D kinematic prediction"
+          "Vision-language pretraining for 3D dynamics"
         ],
         [
           11,
-          "integrating LLMs with 3D motion models"
+          "Text-to-3D motion synthesis"
         ],
         [
           12,
-          "natural language interfaces for 3D motion synthesis"
+          "Semantic 3D trajectory prediction"
         ],
         [
           13,
-          "semantic trajectory prediction in 3D environments"
+          "Language-guided spatiotemporal forecasting"
         ],
         [
           14,
-          "language-embedded 3D motion forecasting"
+          "Multimodal deep learning for 3D motion"
         ],
         [
           15,
-          "multimodal point cloud motion analysis"
+          "Text-conditioned point cloud dynamics"
         ],
         [
           16,
-          "instruction-following 3D motion models"
+          "Natural language interfaces for 3D motion prediction"
         ],
         [
           17,
-          "cross-modal 3D motion forecasting"
+          "Vision-language transformers for 3D trajectory estimation"
         ],
         [
           18,
-          "language-conditioned point cloud dynamics"
+          "Instruction-following 3D motion forecasting models"
         ],
         [
           19,
-          "text-to-motion 3D trajectory generation"
+          "Language-aware 3D point cloud prediction"
         ],
         [
           20,
-          "semantic 3D motion understanding with transformers"
+          "Generative models for language-conditioned 3D motion"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "language-conditioned 3D motion forecasting": 0,
-        "llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D with Language Instru\" computer science": 0,
-        "multimodal point trajectory prediction": 5
+        "Language-conditioned 3D trajectory prediction": 4,
+        "Vision-language models for motion forecasting": 3,
+        "llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D with Language Instru\" computer science": 0
       },
       "total_queries_issued": 2
     },
     "extracted_queries": [
-      "text-driven 3D motion synthesis trajectory prediction",
-      "MolmoMotion benchmark language conditioned pose generation",
-      "semantic motion prior vision-language pretraining",
-      "trajectory forecasting accuracy 3D human pose metrics",
-      "cross-modal alignment text-to-motion generative models"
+      "language conditioned motion forecasting trajectory prediction",
+      "MolmoMotion dataset 3D point cloud generation",
+      "video diffusion transformer language trajectory alignment",
+      "multimodal motion synthesis evaluation benchmark metrics",
+      "embodied AI instruction following kinematic consistency"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -125,42 +125,47 @@
       ]
     },
     "per_query_hit_count": {
-      "MolmoMotion benchmark language conditioned pose generation": 3,
-      "cross-modal alignment text-to-motion generative models": 3,
+      "MolmoMotion dataset 3D point cloud generation": 3,
+      "embodied AI instruction following kinematic consistency": 3,
+      "language conditioned motion forecasting trajectory prediction": 3,
       "llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D with Language Instru\" computer science": 3,
-      "semantic motion prior vision-language pretraining": 3,
-      "text-driven 3D motion synthesis trajectory prediction": 3,
-      "trajectory forecasting accuracy 3D human pose metrics": 3
+      "multimodal motion synthesis evaluation benchmark metrics": 3,
+      "video diffusion transformer language trajectory alignment": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": false,
-      "rejected_count": 4,
+      "rejected_count": 5,
       "rejections": [
+        {
+          "primary_pointer": "1807.07006",
+          "rationale": "The paper focuses on missile guidance and control systems using classical filtering and optimization algorithms, which is an off-domain application of \"trajectory prediction\" compared to the user's question about Large Language Models (LLMs) and computer vision for human motion forecasting. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (specifically the word \"trajectory\") and \"Off-domain entirely,\" as the mechanisms (Kalman filters vs. LLMs) and popul",
+          "title": "Cruise Missile Target Trajectory Movement Prediction based on Optimal 3D Kalman Filter with Firefly Algorithm"
+        },
         {
           "primary_pointer": "2205.14230",
           "rationale": "The paper focuses on adversarial robustness and defense mechanisms for trajectory prediction in autonomous driving, which is a distinct research problem from the user's question about extending a specific language-conditioned 3D point trajectory forecasting model (MolmoMotion). While both involve \"trajectory prediction,\" the candidate paper does not address the core mechanism of language instruction conditioning, the specific 3D point trajectory forecasting task, or the architectural extensions ",
           "title": "Semi-supervised Semantics-guided Adversarial Training for Trajectory Prediction"
         },
         {
-          "primary_pointer": "2412.18619",
-          "rationale": "The paper is a general survey on Next Token Prediction (NTP) for multimodal intelligence and does not address the specific mechanism of \"forecasting point trajectories in 3D\" or the \"MolmoMotion\" architecture mentioned in the user's question. While it covers the broad domain of multimodal LLMs, it lacks the specific empirical focus on 3D trajectory prediction required to serve as a canonical reference for this specific research follow-up.",
-          "title": "Next Token Prediction Towards Multimodal Intelligence: A Comprehensive Survey"
+          "primary_pointer": "2604.00086",
+          "rationale": "The paper focuses on hierarchical pre-training and feature fusion for general vision-language tasks (e.g., image classification, VQA), which does not address the specific mechanism of \"forecasting point trajectories in 3D\" or the \"MolmoMotion\" architecture mentioned in the user's query. While both involve LLMs and vision, the candidate paper lacks the specific domain (3D motion forecasting) and the core task (trajectory prediction) required to be considered relevant prior work for this specific ",
+          "title": "Hierarchical Pre-Training of Vision Encoders with Large Language Model"
         },
         {
-          "primary_pointer": "2201.07606",
-          "rationale": "The paper focuses on vessel trajectory prediction using maritime AIS data and LSTM architectures, which is an off-domain application (maritime navigation) compared to the user's question regarding 3D point trajectory forecasting for human motion guided by language instructions. While both involve \"trajectory prediction,\" the underlying mechanisms (vessel physics vs. human kinematics), data modalities (AIS vs. 3D pose/language), and specific research goals (collision avoidance vs. language-condit",
-          "title": "FRA-LSTM: A Vessel Trajectory Prediction Method Based on Fusion of the Forward and Reverse Sub-Network"
+          "primary_pointer": "2508.19294",
+          "rationale": "The candidate paper is a general review of Large Vision-Language Models (LVLMs) for object detection and localization, which does not address the specific mechanism of \"forecasting point trajectories in 3D\" or the \"MolmoMotion\" architecture mentioned in the user's question. While both fields involve vision and language, the paper fails to meet criteria (a) or (b) as it does not measure trajectory forecasting, 3D motion prediction, or the specific causal mechanisms of the user's target paper, and",
+          "title": "Object Detection with Multimodal Large Vision-Language Models: An In-depth Review"
         },
         {
-          "primary_pointer": "2505.03543",
-          "rationale": "The paper focuses on click-through rate (CTR) prediction in recommender systems using multimodal embeddings, which is a distinct domain and mechanism from the user's question about 3D point trajectory forecasting with language instructions. It fails to satisfy any inclusion criteria (a-f) as it does not measure the same biological/physical/algorithmic mechanism, share variables in the same domain, or serve as a foundational reference for 3D motion forecasting.",
-          "title": "1$^{st}$ Place Solution of WWW 2025 EReL@MIR Workshop Multimodal CTR Prediction Challenge"
+          "primary_pointer": "2502.19086",
+          "rationale": "The paper focuses on statistical forecasting of intermittent time series using Gaussian Processes and Tweedie distributions, which is a distinct methodological domain from the user's question about 3D point trajectory forecasting in computer vision and language models. There is no overlap in the specific mechanism (3D motion vs. count time series), the empirical population (visual trajectories vs. generic time series data), or the canonical vocabulary clusters required for inclusion.",
+          "title": "Forecasting intermittent time series with Gaussian Processes and Tweedie likelihood"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-09T18:59:27Z",
+    "started_at": "2026-09-05T23:08:30Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"molmomotion: forecasting point trajectories in 3d with language instru\" computer science",
       "raw": "llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D with Language Instru\" computer science"
@@ -179,7 +184,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-09T18:59:56Z",
+        "failed_at": "2026-09-05T23:08:57Z",
         "reason": "query_irrelevant"
       },
       {
@@ -198,7 +203,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-09T18:59:56Z",
+        "failed_at": "2026-09-05T23:08:57Z",
         "reason": "query_irrelevant"
       },
       {
@@ -216,43 +221,25 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-09T18:59:56Z",
+        "failed_at": "2026-09-05T23:08:57Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Comprehending natural language instructions is a charming property for both 2D and 3D layout synthesis systems. Existing methods implicitly model object joint distributions and express object relations, hindering generation's controllability. We introduce InstructLayout, a novel generative framework that integrates a semantic graph prior and a layout decoder to improve controllability and fidelity for 2D and 3D layout synthesis. The proposed semantic graph prior learns layout appearances and object distributions simultaneously, demonstrating versatility across various downstream tasks in a zero-shot manner. To facilitate the benchmarking for text-driven 2D and 3D scene synthesis, we respectively curate two high-quality datasets of layout-instruction pairs from public Internet resources with large language and multimodal models. Extensive experimental results reveal that the proposed method outperforms existing state-of-the-art approaches by a large margin in both 2D and 3D layout synthesis tasks. Thorough ablation studies confirm the efficacy of crucial design components.",
+          "claimed_abstract": "Forecasting precise future motion of surrounding agents is essential for reliable autonomous vehicles. However, as the demand for longer prediction horizons increases, existing endpoint-completion or iterative-refine methods increasingly struggle with weak guidance and compounding errors. To tackle the long-horizon prediction challenge, we propose Pivot-Centric Trajectory Prediction (PCTP). By introducing ``pivots'' and focusing on predicting pivot points along extended trajectories, we divide the long-term prediction task into short-term sub-tasks at various scales. Specifically, PCTP decouples the long-term trajectory predicting process into two processes: pivot prediction and pivot-based trajectory refinement. The pivot prediction process aims to utilize global map context and agent-to-agent interactions to identify these ``pivot points'', while the pivot-based trajectory refinement process focuses on local map details and refines the short-term trajectory based on predicted ``pivot points''. Compared with existing methods, PCTP provides more intermediate guidance while reducing compounding errors. Moreover, PCTP is a flexible approach that can be integrated into most state-of-the-art trajectory prediction models. Experimental results show that PCTP improves the prediction accuracy of leading models on both Argoverse I and Argoverse II datasets with minimal impact on model size. Specifically, PCTP combined with QCNet outperforms all published ensemble-free methods on the Argoverse II leaderboard at submission.",
           "claimed_authors": [
-            "Chenguo Lin",
-            "Yuchen Lin",
-            "Panwang Pan",
-            "Xuanyang Zhang",
-            "Yadong Mu"
+            "Xiucong Zhao",
+            "Jindong Tian",
+            "Hao Miao"
           ],
-          "claimed_title": "InstructLayout: Instruction-Driven 2D and 3D Layout Synthesis with Semantic Graph Prior",
+          "claimed_title": "Pivot-Centric Trajectory Prediction: Bridging Long Horizons via Dynamical Guidance",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2407.07580"
+          "claimed_year": 2026,
+          "primary_pointer": "2608.03521"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='InstructLayout: Instruction-Driven 2D and 3D Layout Synthesis with Semantic Graph Prior')",
-        "failed_at": "2026-07-09T18:59:56Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "It is hoped that there will never be a war in the world, but one of the defensive requirements of any country during the war is the missiles used for destruction and defense. Todays, missiles movement from origin to destination is an important problem due to abundant application of missiles in wars. This is important because of the range of some missiles is low and other are very high. Parametric indeterminacy are several factors in missile movement prediction and trajectory such as speed, movement angle, accuracy, movement time, and situation and direct control. So this research trying to provide a method based on LQR controller with 3d Kalman filter and then set motion and specify path without deviations based on Firefly Algorithm. It is expected that the results of an appropriate evaluation can be obtained by simulating the MATLAB environment and graphic display of a cruise missile.",
-          "claimed_authors": [
-            "Mahdi Mir"
-          ],
-          "claimed_title": "Cruise Missile Target Trajectory Movement Prediction based on Optimal 3D Kalman Filter with Firefly Algorithm",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2018,
-          "primary_pointer": "1807.07006"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Cruise Missile Target Trajectory Movement Prediction based on Optimal 3D Kalman Filter with Firefly Algorithm')",
-        "failed_at": "2026-07-09T18:59:56Z",
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Pivot-Centric Trajectory Prediction: Bridging Long Horizons via Dynamical Guidance')",
+        "failed_at": "2026-09-05T23:08:57Z",
         "reason": "query_irrelevant"
       },
       {
@@ -275,249 +262,302 @@
           "primary_pointer": "2506.03408"
         },
         "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Trajectory Prediction Meets Large Language Models: A Survey')",
-        "failed_at": "2026-07-09T18:59:56Z",
+        "failed_at": "2026-09-05T23:08:57Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The growing dependence on Large Language Models (LLMs) for finishing user instructions necessitates a comprehensive understanding of their robustness to complex task completion in real-world situations. To address this critical need, we propose the PowerPoint Task Completion Robustness benchmark (PPTC-R) to measure LLMs' robustness to the user PPT task instruction and software version. Specifically, we construct adversarial user instructions by attacking user instructions at sentence, semantic, and multi-language levels. To assess the robustness of Language Models to software versions, we vary the number of provided APIs to simulate both the newest version and earlier version settings. Subsequently, we test 3 closed-source and 4 open-source LLMs using a benchmark that incorporates these robustness settings, aiming to evaluate how deviations impact LLMs' API calls for task completion. We find that GPT-4 exhibits the highest performance and strong robustness in our benchmark, particularly in the version update and the multilingual settings. However, we find that all LLMs lose their robustness when confronted with multiple challenges (e.g., multi-turn) simultaneously, leading to significant performance drops. We further analyze the robustness behavior and error reasons of LLMs in our benchmark, which provide valuable insights for researchers to understand the LLM's robustness in task completion and develop more robust LLMs and agents. We release the code and data at \\url{https://github.com/ZekaiGalaxy/PPTCR}.",
+          "claimed_abstract": "We adopt Gaussian Processes (GPs) as latent functions for probabilistic forecasting of intermittent time series. The model is trained in a Bayesian framework that accounts for the uncertainty about the latent function. We couple the latent GP variable with two types of forecast distributions: the negative binomial (NegBinGP) and the Tweedie distribution (TweedieGP). While the negative binomial has already been used in forecasting intermittent time series, this is the first time in which a fully parameterized Tweedie density is used for intermittent time series. We properly evaluate the Tweedie density, which has both a point mass at zero and heavy tails, avoiding simplifying assumptions made in existing models. We test our models on thousands of intermittent count time series. Results show that our models provide consistently better probabilistic forecasts than the competitors. In particular, TweedieGP obtains the best estimates of the highest quantiles, thus showing that it is more flexible than NegBinGP.",
           "claimed_authors": [
-            "Zekai Zhang",
-            "Yiduo Guo",
-            "Yaobo Liang",
-            "Dongyan Zhao",
-            "Nan Duan"
+            "Stefano Damato",
+            "Dario Azzimonti",
+            "Giorgio Corani"
           ],
-          "claimed_title": "PPTC-R benchmark: Towards Evaluating the Robustness of Large Language Models for PowerPoint Task Completion",
+          "claimed_title": "Forecasting intermittent time series with Gaussian Processes and Tweedie likelihood",
           "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2403.03788"
+          "claimed_year": 2025,
+          "primary_pointer": "2502.19086"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='PPTC-R benchmark: Towards Evaluating the Robustness of Large Language Models for PowerPoint Task Completion')",
-        "failed_at": "2026-07-09T18:59:56Z",
+        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Forecasting intermittent time series with Gaussian Processes and Tweedie likelihood')",
+        "failed_at": "2026-09-05T23:08:57Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "We propose a new benchmark corpus to be used for measuring progress in statistical language modeling. With almost one billion words of training data, we hope this benchmark will be useful to quickly evaluate novel language modeling techniques, and to compare their contribution when combined with other advanced techniques. We show performance of several well-known types of language models, with the best results achieved with a recurrent neural network based language model. The baseline unpruned Kneser-Ney 5-gram model achieves perplexity 67.6; a combination of techniques leads to 35% reduction in perplexity, or 10% reduction in cross-entropy (bits), over that baseline.\n  The benchmark is available as a code.google.com project; besides the scripts needed to rebuild the training/held-out data, it also makes available log-probability values for each word in each of ten held-out data sets, for each of the baseline n-gram models.",
+          "claimed_abstract": "Recent satellite data have revealed a surprising correlation between galactic cosmic ray (GCR) intensity and the fraction of the Earth covered by clouds. If this correlation were to be established by a causal mechanism, it could provide a crucial step in understanding the long-sought mechanism connecting solar and climate variability. The Earth's climate seems to be remarkably sensitive to solar activity, but variations of the Sun's electromagnetic radiation appear to be too small to account for the observed climate variability. However, since the GCR intensity is strongly modulated by the solar wind, a GCR-cloud link may provide a sufficient amplifying mechanism. Moreover if this connection were to be confirmed, it could have profound consequences for our understanding of the solar contributions to the current global warming. The CLOUD (Cosmics Leaving OUtdoor Droplets) project proposes to test experimentally the existence a link between cosmic rays and cloud formation, and to understand the microphysical mechanism. CLOUD plans to perform detailed laboratory measurements in a particle beam at CERN, where all the parameters can be precisely controlled and measured. The beam will pass through an expansion cloud chamber and a reactor chamber where the atmosphere is to be duplicated by moist air charged with selected aerosols and trace condensable vapours. An array of external detectors and mass spectrometers is used to analyse the physical and chemical characteristics of the aerosols and trace gases during beam exposure. Where beam effects are found, the experiment will seek to evaluate their significance in the atmosphere by incorporating them into aerosol and cloud models.",
           "claimed_authors": [
-            "Ciprian Chelba",
-            "Tomas Mikolov",
-            "Mike Schuster",
-            "Qi Ge",
-            "Thorsten Brants",
-            "Phillipp Koehn",
-            "Tony Robinson"
+            " The Cloud Collaboration"
           ],
-          "claimed_title": "One Billion Word Benchmark for Measuring Progress in Statistical Language Modeling",
+          "claimed_title": "A study of the link between cosmic rays and clouds with a cloud chamber at the CERN PS",
           "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1312.3005"
+          "claimed_year": 2001,
+          "primary_pointer": "physics/0104048"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='One Billion Word Benchmark for Measuring Progress in Statistical Language Modeling')",
-        "failed_at": "2026-07-09T18:59:56Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='A study of the link between cosmic rays and clouds with a cloud chamber at the CERN PS')",
+        "failed_at": "2026-09-05T23:08:57Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Recent advances in deep neural language models combined with the capacity of large scale datasets have accelerated the development of natural language generation systems that produce fluent and coherent texts (to various degrees of success) in a multitude of tasks and application contexts. However, controlling the output of these models for desired user and task needs is still an open challenge. This is crucial not only to customizing the content and style of the generated language, but also to their safe and reliable deployment in the real world. We present an extensive survey on the emerging topic of constrained neural language generation in which we formally define and categorize the problems of natural language generation by distinguishing between conditions and constraints (the latter being testable conditions on the output text instead of the input), present constrained text generation tasks, and review existing methods and evaluation metrics for constrained text generation. Our aim is to highlight recent progress and trends in this emerging field, informing on the most promising directions and limitations towards advancing the state-of-the-art of constrained neural language generation research.",
+          "claimed_abstract": "This report is the second of two addenda to the CLOUD proposal at CERN (physics/0104048), which aims to test experimentally the existence a link between cosmic rays and cloud formation, and to understand the microphysical mechanism. The document places CLOUD in the framework of a CERN facility for atmospheric research, and provides further details on the particle beam requirements.",
           "claimed_authors": [
-            "Cristina Garbacea",
-            "Qiaozhu Mei"
+            " The Cloud Collaboration"
           ],
-          "claimed_title": "Why is constrained neural language generation particularly challenging?",
+          "claimed_title": "CLOUD: an atmospheric research facility at CERN",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "physics/0104076"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='CLOUD: an atmospheric research facility at CERN')",
+        "failed_at": "2026-09-05T23:08:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This report is the first of two addenda to the CLOUD proposal at CERN (physics/0104048), which aims to test experimentally the existence a link between cosmic rays and cloud formation, and to understand the microphysical mechanism. The document provides further details on the detector design, scientific motivation and experimental programme.",
+          "claimed_authors": [
+            " The Cloud Collaboration"
+          ],
+          "claimed_title": "Addendum to the CLOUD proposal",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2001,
+          "primary_pointer": "physics/0104068"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Addendum to the CLOUD proposal')",
+        "failed_at": "2026-09-05T23:08:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Exploiting similar and sharper scene patches in spatio-temporal neighborhoods is critical for video deblurring. However, CNN-based methods show limitations in capturing long-range dependencies and modeling non-local self-similarity. In this paper, we propose a novel framework, Flow-Guided Sparse Transformer (FGST), for video deblurring. In FGST, we customize a self-attention module, Flow-Guided Sparse Window-based Multi-head Self-Attention (FGSW-MSA). For each $query$ element on the blurry reference frame, FGSW-MSA enjoys the guidance of the estimated optical flow to globally sample spatially sparse yet highly related $key$ elements corresponding to the same scene patch in neighboring frames. Besides, we present a Recurrent Embedding (RE) mechanism to transfer information from past frames and strengthen long-range temporal dependencies. Comprehensive experiments demonstrate that our proposed FGST outperforms state-of-the-art (SOTA) methods on both DVD and GOPRO datasets and even yields more visually pleasing results in real video deblurring. Code and pre-trained models are publicly available at https://github.com/linjing7/VR-Baseline",
+          "claimed_authors": [
+            "Jing Lin",
+            "Yuanhao Cai",
+            "Xiaowan Hu",
+            "Haoqian Wang",
+            "Youliang Yan",
+            "Xueyi Zou",
+            "Henghui Ding",
+            "Yulun Zhang",
+            "Radu Timofte",
+            "Luc Van Gool"
+          ],
+          "claimed_title": "Flow-Guided Sparse Transformer for Video Deblurring",
           "claimed_venue": "arXiv",
           "claimed_year": 2022,
-          "primary_pointer": "2206.05395"
+          "primary_pointer": "2201.01893"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Why is constrained neural language generation particularly challenging?')",
-        "failed_at": "2026-07-09T18:59:56Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Flow-Guided Sparse Transformer for Video Deblurring')",
+        "failed_at": "2026-09-05T23:08:57Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Why do pretrained diffusion or flow-matching policies fail when the same task is performed near an obstacle, on a shifted support surface, or amid mild clutter? Such failures rarely reflect missing motor skills; instead, they expose a limitation of imitation learning under train-test shifts, where action generation is tightly coupled to training-specific spatial configurations and task specifications. Retraining or fine-tuning to address these failures is costly and conceptually misaligned, as the required behaviors already exist but cannot be selectively adapted at test time. We propose Vision-Language Steering (VLS), a training-free framework for inference-time adaptation of frozen generative robot policies. VLS treats adaptation as an inference-time control problem, steering the sampling process of a pretrained diffusion or flow-matching policy in response to out-of-distribution observation-language inputs without modifying policy parameters. By leveraging vision-language models to synthesize trajectory-differentiable reward functions, VLS guides denoising toward action trajectories that satisfy test-time spatial and task requirements. Across simulation and real-world evaluations, VLS consistently outperforms prior steering methods, achieving a 31% improvement on CALVIN and a 13% gain on LIBERO-PRO. Real-world deployment on a Franka robot further demonstrates robust inference-time adaptation under test-time spatial and semantic shifts. Project page: https://vision-language-steering.github.io/webpage/",
+          "claimed_abstract": "Diffusion generative models have recently become a powerful technique for creating and modifying high-quality, coherent video content. This survey provides a comprehensive overview of the critical components of diffusion models for video generation, including their applications, architectural design, and temporal dynamics modeling. The paper begins by discussing the core principles and mathematical formulations, then explores various architectural choices and methods for maintaining temporal consistency. A taxonomy of applications is presented, categorizing models based on input modalities such as text prompts, images, videos, and audio signals. Advancements in text-to-video generation are discussed to illustrate the state-of-the-art capabilities and limitations of current approaches. Additionally, the survey summarizes recent developments in training and evaluation practices, including the use of diverse video and image datasets and the adoption of various evaluation metrics to assess model performance. The survey concludes with an examination of ongoing challenges, such as generating longer videos and managing computational costs, and offers insights into potential future directions for the field. By consolidating the latest research and developments, this survey aims to serve as a valuable resource for researchers and practitioners working with video diffusion models. Website: https://github.com/ndrwmlnk/Awesome-Video-Diffusion-Models",
           "claimed_authors": [
-            "Shuo Liu",
-            "Ishneet Sukhvinder Singh",
-            "Yiqing Xu",
-            "Jiafei Duan",
-            "Ranjay Krishna"
+            "Andrew Melnik",
+            "Michal Ljubljanac",
+            "Cong Lu",
+            "Qi Yan",
+            "Weiming Ren",
+            "Helge Ritter"
           ],
-          "claimed_title": "VLS: Steering Pretrained Robot Policies via Vision-Language Models",
+          "claimed_title": "Video Diffusion Models: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.03150"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Video Diffusion Models: A Survey')",
+        "failed_at": "2026-09-05T23:08:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reasoning is a cognitive process of using evidence to reach a sound conclusion. The reasoning capability is essential for large language models (LLMs) to serve as the brain of the artificial general intelligence agent. Recent studies reveal that fine-tuning LLMs on data with the chain of thought (COT) reasoning process can significantly enhance their reasoning capabilities. However, we find that the fine-tuned LLMs suffer from an \\textit{Assessment Misalignment} problem, i.e., they frequently assign higher scores to subpar COTs, leading to potential limitations in their reasoning abilities. To address this problem, we introduce an \\textit{Alignment Fine-Tuning (AFT)} paradigm, which involves three steps: 1) fine-tuning LLMs with COT training data; 2) generating multiple COT responses for each question, and categorizing them into positive and negative ones based on whether they achieve the correct answer; 3) calibrating the scores of positive and negative responses given by LLMs with a novel constraint alignment loss. Specifically, the constraint alignment loss has two objectives: a) Alignment, which guarantees that positive scores surpass negative scores to encourage answers with high-quality COTs; b) Constraint, which keeps the negative scores confined to a reasonable range to prevent the model degradation. Beyond just the binary positive and negative feedback, the constraint alignment loss can be seamlessly adapted to the ranking situations when ranking feedback is accessible. Furthermore, we also delve deeply into recent ranking-based alignment methods, such as DPO, RRHF, and PRO, and discover that the constraint, which has been overlooked by these approaches, is also crucial for their performance. Extensive experiments on four reasoning benchmarks with both binary and ranking feedback demonstrate the effectiveness of AFT.",
+          "claimed_authors": [
+            "Peiyi Wang",
+            "Lei Li",
+            "Liang Chen",
+            "Feifan Song",
+            "Binghuai Lin",
+            "Yunbo Cao",
+            "Tianyu Liu",
+            "Zhifang Sui"
+          ],
+          "claimed_title": "Making Large Language Models Better Reasoners with Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2309.02144"
+        },
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Making Large Language Models Better Reasoners with Alignment')",
+        "failed_at": "2026-09-05T23:08:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: AI-driven prediction algorithms have the potential to enhance emergency medicine by enabling rapid and accurate decision-making regarding patient status and potential deterioration. However, the integration of multimodal data, including raw waveform signals, remains underexplored in clinical decision support. Methods: We present a dataset and benchmarking protocol designed to advance multimodal decision support in emergency care. Our models utilize demographics, biometrics, vital signs, laboratory values, and electrocardiogram (ECG) waveforms as inputs to predict both discharge diagnoses and patient deterioration. Results: The diagnostic model achieves area under the receiver operating curve (AUROC) scores above 0.8 for 609 out of 1,428 conditions, covering both cardiac (e.g., myocardial infarction) and non-cardiac (e.g., renal disease, diabetes) diagnoses. The deterioration model attains AUROC scores above 0.8 for 14 out of 15 targets, accurately predicting critical events such as cardiac arrest, mechanical ventilation, ICU admission, and mortality. Conclusions: Our study highlights the positive impact of incorporating raw waveform data into decision support models, improving predictive performance. By introducing a unique, publicly available dataset and baseline models, we provide a foundation for measurable progress in AI-driven decision support for emergency care.",
+          "claimed_authors": [
+            "Juan Miguel Lopez Alcaraz",
+            "Hjalmar Bouma",
+            "Nils Strodthoff"
+          ],
+          "claimed_title": "Enhancing clinical decision support with physiological waveforms -- a multimodal benchmark in emergency care",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.17856"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Enhancing clinical decision support with physiological waveforms -- a multimodal benchmark in emergency care')",
+        "failed_at": "2026-09-05T23:08:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The emergence of unified multimodal understanding and generation models is rapidly attracting attention because of their ability to enhance instruction-following capabilities while minimizing model redundancy. However, there is a lack of a unified evaluation framework for these models, which would enable an elegant, simplified, and overall evaluation. Current models conduct evaluations on multiple task-specific benchmarks, but there are significant limitations, such as the lack of overall results, errors from extra evaluation models, reliance on extensive labeled images, benchmarks that lack diversity, and metrics with limited capacity for instruction-following evaluation. To tackle these challenges, we introduce UniEval, the first evaluation framework designed for unified multimodal models without extra models, images, or annotations. This facilitates a simplified and unified evaluation process. The UniEval framework contains a holistic benchmark, UniBench (supports both unified and visual generation models), along with the corresponding UniScore metric. UniBench includes 81 fine-grained tags contributing to high diversity. Experimental results indicate that UniBench is more challenging than existing benchmarks, and UniScore aligns closely with human evaluations, surpassing current metrics. Moreover, we extensively evaluated SoTA unified and visual generation models, uncovering new insights into Univeral's unique values.",
+          "claimed_authors": [
+            "Yi Li",
+            "Haonan Wang",
+            "Qixiang Zhang",
+            "Boyu Xiao",
+            "Chenchang Hu",
+            "Hualiang Wang",
+            "Xiaomeng Li"
+          ],
+          "claimed_title": "UniEval: Unified Holistic Evaluation for Unified Multimodal Understanding and Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2505.10483"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='UniEval: Unified Holistic Evaluation for Unified Multimodal Understanding and Generation')",
+        "failed_at": "2026-09-05T23:08:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Evaluation methodologies for language models increasingly combine multiple signals, from automated metrics and LLM-as-judge ratings to human assessments and benchmark suite results. When these signals are aggregated via averaging, evaluation confidence can then substantially exceed the reliability of the weakest signal: a phenomenon we call trust inflation in evaluation. We argue that evaluation scores should be treated as epistemic claims with three properties: formality (human evaluation provides stronger evidence than an automated metric), scope (a benchmark result applies to the tested distribution, not universally), and validity windows (benchmark results expire as contamination accumulates and distributions shift). Several converging research traditions (chain-of-thought analysis, possibilistic logic, and algebraic theory) establish weakest-link aggregation as the conservative endpoint of a parameterized operator family controlled by a single pessimism parameter. Drawing on those traditions, and on concrete lessons from building an evaluation harness for agentic AI, we propose that evaluation results carry explicit metadata (formality tier, scope declaration, and expiration date) to make their epistemic status transparent. We illustrate the cost of mean aggregation on the public HELM leaderboard: across 54 frontier models on ten scenarios, the top-five models ranked by mean score and by weakest-link are completely disjoint.",
+          "claimed_authors": [
+            "Sankalp Gilda",
+            "Shlok Gilda"
+          ],
+          "claimed_title": "Position: Evaluation Scores Are Perishable Knowledge Claims",
           "claimed_venue": "arXiv",
           "claimed_year": 2026,
-          "primary_pointer": "2602.03973"
+          "primary_pointer": "2607.26191"
         },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='VLS: Steering Pretrained Robot Policies via Vision-Language Models')",
-        "failed_at": "2026-07-09T18:59:56Z",
+        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Position: Evaluation Scores Are Perishable Knowledge Claims')",
+        "failed_at": "2026-09-05T23:08:57Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Building state-of-the-art Vision-Language Models (VLMs) with strong captioning capabilities typically necessitates training on billions of high-quality image-text pairs, requiring millions of GPU hours. This paper introduces the Vision-Language-Vision (VLV) auto-encoder framework, which strategically leverages key pretrained components: a vision encoder, the decoder of a Text-to-Image (T2I) diffusion model, and subsequently, a Large Language Model (LLM). Specifically, we establish an information bottleneck by regularizing the language representation space, achieved through freezing the pretrained T2I diffusion decoder. Our VLV pipeline effectively distills knowledge from the text-conditioned diffusion model using continuous embeddings, demonstrating comprehensive semantic understanding via high-quality reconstructions. Furthermore, by fine-tuning a pretrained LLM to decode the intermediate language representations into detailed descriptions, we construct a state-of-the-art (SoTA) captioner comparable to leading models like GPT-4o and Gemini 2.0 Flash. Our method demonstrates exceptional cost-efficiency and significantly reduces data requirements; by primarily utilizing single-modal images for training and maximizing the utility of existing pretrained models (image encoder, T2I diffusion model, and LLM), it circumvents the need for massive paired image-text datasets, keeping the total training expenditure under $1,000 USD.",
+          "claimed_abstract": "Embodied Artificial Intelligence (Embodied AI) is crucial for achieving Artificial General Intelligence (AGI) and serves as a foundation for various applications (e.g., intelligent mechatronics systems, smart manufacturing) that bridge cyberspace and the physical world. Recently, the emergence of Multi-modal Large Models (MLMs) and World Models (WMs) have attracted significant attention due to their remarkable perception, interaction, and reasoning capabilities, making them a promising architecture for embodied agents. In this survey, we give a comprehensive exploration of the latest advancements in Embodied AI. Our analysis firstly navigates through the forefront of representative works of embodied robots and simulators, to fully understand the research focuses and their limitations. Then, we analyze four main research targets: 1) embodied perception, 2) embodied interaction, 3) embodied agent, and 4) sim-to-real adaptation, covering state-of-the-art methods, essential paradigms, and comprehensive datasets. Additionally, we explore the complexities of MLMs in virtual and real embodied agents, highlighting their significance in facilitating interactions in digital and physical environments. Finally, we summarize the challenges and limitations of embodied AI and discuss potential future directions. We hope this survey will serve as a foundational reference for the research community. The associated project can be found at https://github.com/HCPLab-SYSU/Embodied_AI_Paper_List.",
           "claimed_authors": [
-            "Tiezheng Zhang",
-            "Yitong Li",
-            "Yu-cheng Chou",
-            "Jieneng Chen",
-            "Alan Yuille",
-            "Chen Wei",
-            "Junfei Xiao"
+            "Yang Liu",
+            "Weixing Chen",
+            "Yongjie Bai",
+            "Xiaodan Liang",
+            "Guanbin Li",
+            "Wen Gao",
+            "Liang Lin"
           ],
-          "claimed_title": "Vision-Language-Vision Auto-Encoder: Scalable Knowledge Distillation from Diffusion Models",
+          "claimed_title": "Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.06886"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Aligning Cyber Space with Physical World: A Comprehensive Survey on Embodied AI')",
+        "failed_at": "2026-09-05T23:08:57Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Omnidirectional vision, using 360-degree vision to understand the environment, has become increasingly critical across domains like robotics, industrial inspection, and environmental monitoring. Compared to traditional pinhole vision, omnidirectional vision provides holistic environmental awareness, significantly enhancing the completeness of scene perception and the reliability of decision-making. However, foundational research in this area has historically lagged behind traditional pinhole vision. This talk presents an emerging trend in the embodied AI era: the rapid development of omnidirectional vision, driven by growing industrial demand and academic interest. We highlight recent breakthroughs in omnidirectional generation, omnidirectional perception, omnidirectional understanding, and related datasets. Drawing on insights from both academia and industry, we propose an ideal panoramic system architecture in the embodied AI era, PANORAMA, which consists of four key subsystems. Moreover, we offer in-depth opinions related to emerging trends and cross-community impacts at the intersection of panoramic vision and embodied AI, along with the future roadmap and open challenges. This overview synthesizes state-of-the-art advancements and outlines challenges and opportunities for future research in building robust, general-purpose omnidirectional AI systems in the embodied AI era.",
+          "claimed_authors": [
+            "Xu Zheng",
+            "Chenfei Liao",
+            "Ziqiao Weng",
+            "Kaiyu Lei",
+            "Zihao Dongfang",
+            "Haocong He",
+            "Yuanhuiyi Lyu",
+            "Lutao Jiang",
+            "Lu Qi",
+            "Li Chen",
+            "Danda Pani Paudel",
+            "Kailun Yang",
+            "Linfeng Zhang",
+            "Luc Van Gool",
+            "Xuming Hu"
+          ],
+          "claimed_title": "PANORAMA: The Rise of Omnidirectional Vision in the Embodied AI Era",
           "claimed_venue": "arXiv",
           "claimed_year": 2025,
-          "primary_pointer": "2507.07104"
+          "primary_pointer": "2509.12989"
         },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Vision-Language-Vision Auto-Encoder: Scalable Knowledge Distillation from Diffusion Models')",
-        "failed_at": "2026-07-09T18:59:56Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='PANORAMA: The Rise of Omnidirectional Vision in the Embodied AI Era')",
+        "failed_at": "2026-09-05T23:08:57Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "In the past few years, the emergence of pre-training models has brought uni-modal fields such as computer vision (CV) and natural language processing (NLP) to a new era. Substantial works have shown they are beneficial for downstream uni-modal tasks and avoid training a new model from scratch. So can such pre-trained models be applied to multi-modal tasks? Researchers have explored this problem and made significant progress. This paper surveys recent advances and new frontiers in vision-language pre-training (VLP), including image-text and video-text pre-training. To give readers a better overall grasp of VLP, we first review its recent advances from five aspects: feature extraction, model architecture, pre-training objectives, pre-training datasets, and downstream tasks. Then, we summarize the specific VLP models in detail. Finally, we discuss the new frontiers in VLP. To the best of our knowledge, this is the first survey focused on VLP. We hope that this survey can shed light on future research in the VLP field.",
+          "claimed_abstract": "We propose a maturity-based framework for certifying embodied AI systems through explicit measurement mechanisms. We argue that certifiable embodied AI requires structured assessment frameworks, quantitative scoring mechanisms, and methods for navigating multi-objective trade-offs inherent in trustworthiness evaluation. We demonstrate this approach using uncertainty quantification as an exemplar measurement mechanism and illustrate feasibility through an Uncrewed Aircraft System (UAS) detection case study.",
           "claimed_authors": [
-            "Feilong Chen",
-            "Duzhen Zhang",
-            "Minglun Han",
-            "Xiuyi Chen",
-            "Jing Shi",
-            "Shuang Xu",
-            "Bo Xu"
+            "Michael C. Darling",
+            "Alan H. Hesu",
+            "Michael A. Mardikes",
+            "Brian C. McGuigan",
+            "Reed M. Milewicz"
           ],
-          "claimed_title": "VLP: A Survey on Vision-Language Pre-training",
+          "claimed_title": "Toward Maturity-Based Certification of Embodied AI: Quantifying Trustworthiness Through Measurement Mechanisms",
           "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2202.09061"
+          "claimed_year": 2026,
+          "primary_pointer": "2601.03470"
         },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='VLP: A Survey on Vision-Language Pre-training')",
-        "failed_at": "2026-07-09T18:59:56Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Human pose forecasting is inherently multimodal since multiple futures exist for an observed pose sequence. However, evaluating multimodality is challenging since the task is ill-posed. Therefore, we first propose an alternative paradigm to make the task well-posed. Next, while state-of-the-art methods predict multimodality, this requires oversampling a large volume of predictions. This raises key questions: (1) Can we capture multimodality by efficiently sampling a smaller number of predictions? (2) Subsequently, which of the predicted futures is more likely for an observed pose sequence? We address these questions with MotionMap, a simple yet effective heatmap based representation for multimodality. We extend heatmaps to represent a spatial distribution over the space of all possible motions, where different local maxima correspond to different forecasts for a given observation. MotionMap can capture a variable number of modes per observation and provide confidence measures for different modes. Further, MotionMap allows us to introduce the notion of uncertainty and controllability over the forecasted pose sequence. Finally, MotionMap captures rare modes that are non-trivial to evaluate yet critical for safety. We support our claims through multiple qualitative and quantitative experiments using popular 3D human pose datasets: Human3.6M and AMASS, highlighting the strengths and limitations of our proposed method. Project Page: https://vita-epfl.github.io/MotionMap",
-          "claimed_authors": [
-            "Reyhaneh Hosseininejad",
-            "Megh Shukla",
-            "Saeed Saadatnejad",
-            "Mathieu Salzmann",
-            "Alexandre Alahi"
-          ],
-          "claimed_title": "MotionMap: Representing Multimodality in Human Pose Forecasting",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2412.18883"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='MotionMap: Representing Multimodality in Human Pose Forecasting')",
-        "failed_at": "2026-07-09T18:59:56Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "3D human pose estimation captures the human joint points in three-dimensional space while keeping the depth information and physical structure. That is essential for applications that require precise pose information, such as human-computer interaction, scene understanding, and rehabilitation training. Due to the challenges in data collection, mainstream datasets of 3D human pose estimation are primarily composed of multi-view video data collected in laboratory environments, which contains rich spatial-temporal correlation information besides the image frame content. Given the remarkable self-attention mechanism of transformers, capable of capturing the spatial-temporal correlation from multi-view video datasets, we propose a multi-stage framework for 3D sequence-to-sequence (seq2seq) human pose detection. Firstly, the spatial module represents the human pose feature by intra-image content, while the frame-image relation module extracts temporal relationships and 3D spatial positional relationship features between the multi-perspective images. Secondly, the self-attention mechanism is adopted to eliminate the interference from non-human body parts and reduce computing resources. Our method is evaluated on Human3.6M, a popular 3D human pose detection dataset. Experimental results demonstrate that our approach achieves state-of-the-art performance on this dataset. The source code will be available at https://github.com/WUJINHUAN/3D-human-pose.",
-          "claimed_authors": [
-            "Jianbin Jiao",
-            "Xina Cheng",
-            "Weijie Chen",
-            "Xiaoting Yin",
-            "Hao Shi",
-            "Kailun Yang"
-          ],
-          "claimed_title": "Towards Precise 3D Human Pose Estimation with Multi-Perspective Spatial-Temporal Relational Transformers",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2401.16700"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Towards Precise 3D Human Pose Estimation with Multi-Perspective Spatial-Temporal Relational Transformers')",
-        "failed_at": "2026-07-09T18:59:56Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "3D human pose estimation is frequently seen as the task of estimating 3D poses relative to the root body joint. Alternatively, we propose a 3D human pose estimation method in camera coordinates, which allows effective combination of 2D annotated data and 3D poses and a straightforward multi-view generalization. To that end, we cast the problem as a view frustum space pose estimation, where absolute depth prediction and joint relative depth estimations are disentangled. Final 3D predictions are obtained in camera coordinates by the inverse camera projection. Based on this, we also present a consensus-based optimization algorithm for multi-view predictions from uncalibrated images, which requires a single monocular training procedure. Although our method is indirectly tied to the training camera intrinsics, it still converges for cameras with different intrinsic parameters, resulting in coherent estimations up to a scale factor. Our method improves the state of the art on well known 3D human pose datasets, reducing the prediction error by 32% in the most common benchmark. We also reported our results in absolute pose position error, achieving 80~mm for monocular estimations and 51~mm for multi-view, on average.",
-          "claimed_authors": [
-            "Diogo C Luvizon",
-            "Hedi Tabia",
-            "David Picard"
-          ],
-          "claimed_title": "Consensus-based Optimization for 3D Human Pose Estimation in Camera Coordinates",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2019,
-          "primary_pointer": "1911.09245"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Consensus-based Optimization for 3D Human Pose Estimation in Camera Coordinates')",
-        "failed_at": "2026-07-09T18:59:56Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Recent large vision-language models (LVLMs) have advanced capabilities in visual question answering (VQA). However, interpreting where LVLMs direct their visual attention remains a significant challenge, yet is essential for understanding model behavior. We introduce GLIMPSE (Gradient-Layer Importance Mapping for Prompted Visual Saliency Explanation), a lightweight, model-agnostic framework that jointly attributes LVLM outputs to the most relevant visual evidence and textual signals that support open-ended generation. GLIMPSE fuses gradient-weighted attention, adaptive layer propagation, and relevance-weighted token aggregation to produce holistic response-level heat maps for interpreting cross-modal reasoning, outperforming prior methods in faithfulness and pushing the state-of-the-art in human-attention alignment. We demonstrate an analytic approach to uncover fine-grained insights into LVLM cross-modal attribution, trace reasoning dynamics, analyze systematic misalignment, diagnose hallucination and bias, and ensure transparency.",
-          "claimed_authors": [
-            "Guanxi Shen"
-          ],
-          "claimed_title": "GLIMPSE: Holistic Cross-Modal Explainability for Large Vision-Language Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2506.18985"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='GLIMPSE: Holistic Cross-Modal Explainability for Large Vision-Language Models')",
-        "failed_at": "2026-07-09T18:59:56Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "With the flourishing of social media platforms, vision-language pre-training (VLP) recently has received great attention and many remarkable progresses have been achieved. The success of VLP largely benefits from the information complementation and enhancement between different modalities. However, most of recent studies focus on cross-modal contrastive learning (CMCL) to promote image-text alignment by pulling embeddings of positive sample pairs together while pushing those of negative pairs apart, which ignores the natural asymmetry property between different modalities and requires large-scale image-text corpus to achieve arduous progress. To mitigate this predicament, we propose CMAL, a Cross-Modal Associative Learning framework with anchor points detection and cross-modal associative learning for VLP. Specifically, we first respectively embed visual objects and textual tokens into separate hypersphere spaces to learn intra-modal hidden features, and then design a cross-modal associative prompt layer to perform anchor point masking and swap feature filling for constructing a hybrid cross-modal associative prompt. Afterwards, we exploit a unified semantic encoder to learn their cross-modal interactive features for context adaptation. Finally, we design an associative mapping classification layer to learn potential associative mappings between modalities at anchor points, within which we develop a fresh self-supervised associative mapping classification task to boost CMAL's performance. Experimental results verify the effectiveness of CMAL, showing that it achieves competitive performance against previous CMCL-based methods on four common downstream vision-and-language tasks, with significantly fewer corpus. Especially, CMAL obtains new state-of-the-art results on SNLI-VE and REC (testA).",
-          "claimed_authors": [
-            "Zhiyuan Ma",
-            "Jianjun Li",
-            "Guohui Li",
-            "Kaiyan Huang"
-          ],
-          "claimed_title": "CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2024,
-          "primary_pointer": "2410.12595"
-        },
-        "details": "query-relevance 0.182 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='CMAL: A Novel Cross-Modal Associative Learning Framework for Vision-Language Pre-Training')",
-        "failed_at": "2026-07-09T18:59:56Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Building a universal Video-Language model for solving various video understanding tasks (\\emph{e.g.}, text-video retrieval, video question answering) is an open challenge to the machine learning field. Towards this goal, most recent works build the model by stacking uni-modal and cross-modal feature encoders and train it with pair-wise contrastive pre-text tasks. Though offering attractive generality, the resulted models have to compromise between efficiency and performance. They mostly adopt different architectures to deal with different downstream tasks. We find this is because the pair-wise training cannot well \\emph{align} and \\emph{fuse} features from different modalities. We then introduce \\textbf{Clover}\\textemdash a Correlated Video-Language pre-training method\\textemdash towards a universal Video-Language model for solving multiple video understanding tasks with neither performance nor efficiency compromise. It improves cross-modal feature alignment and fusion via a novel tri-modal alignment pre-training task. Additionally, we propose to enhance the tri-modal alignment via incorporating learning from semantic masked samples and a new pair-wise ranking loss. Clover establishes new state-of-the-arts on multiple downstream tasks, including three retrieval tasks for both zero-shot and fine-tuning settings, and eight video question answering tasks. Codes and pre-trained models will be released at \\url{https://github.com/LeeYN-43/Clover}.",
-          "claimed_authors": [
-            "Jingjia Huang",
-            "Yinan Li",
-            "Jiashi Feng",
-            "Xinglong Wu",
-            "Xiaoshuai Sun",
-            "Rongrong Ji"
-          ],
-          "claimed_title": "Clover: Towards A Unified Video-Language Alignment and Fusion Model",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2207.07885"
-        },
-        "details": "query-relevance 0.091 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Clover: Towards A Unified Video-Language Alignment and Fusion Model')",
-        "failed_at": "2026-07-09T18:59:56Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"MolmoMotion: Forecasting Point Trajectories in 3D ', candidate_title='Toward Maturity-Based Certification of Embodied AI: Quantifying Trustworthiness Through Measurement Mechanisms')",
+        "failed_at": "2026-09-05T23:08:57Z",
         "reason": "query_irrelevant"
       }
     ],
     "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Xiucong Zhao",
+            "Jindong Tian",
+            "Hao Miao"
+          ],
+          "title": "Pivot-Centric Trajectory Prediction: Bridging Long Horizons via Dynamical Guidance",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2608.03521",
+        "summary": "Forecasting precise future motion of surrounding agents is essential for reliable autonomous vehicles. However, as the demand for longer prediction horizons increases, existing endpoint-completion or iterative-refine methods increasingly struggle with weak guidance and compounding errors. To tackle the long-horizon prediction challenge, we propose Pivot-Centric Trajectory Prediction (PCTP). By introducing ``pivots'' and focusing on predicting pivot points along extended trajectories, we divide the long-term prediction task into short-term sub-tasks at various scales. Specifically, PCTP decouples the long-term trajectory predicting process into two processes: pivot prediction and pivot-based trajectory refinement. The pivot prediction process aims to utilize global map context and agent-to-agent interactions to identify these ``pivot points'', while the pivot-based trajectory refinement process focuses on local map details and refines the short-term trajectory based on predicted ``pivot points''. Compared with existing methods, PCTP provides more intermediate guidance while reducing compounding errors. Moreover, PCTP is a flexible approach that can be integrated into most state-of-the-art trajectory prediction models. Experimental results show that PCTP improves the prediction accuracy of leading models on both Argoverse I and Argoverse II datasets with minimal impact on model size. Specifically, PCTP combined with QCNet outperforms all published ensemble-free methods on the Argoverse II leaderboard at submission.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2608.03521",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.3333,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-05T23:09:03Z"
+        }
+      },
       {
         "bibliographic_info": {
           "authors": [
@@ -542,12 +582,12 @@
           "final_url": "https://arxiv.org/abs/2506.03408",
           "http_status": 200,
           "pdf_sample_score": 0.1626,
-          "query_relevance_score": 0.3333,
+          "query_relevance_score": 0.6667,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-09T19:00:07Z"
+          "verified_at": "2026-09-05T23:09:03Z"
         }
       }
     ]

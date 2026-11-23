@@ -1,0 +1,24 @@
+status: verified
+kind: pypi_package
+ref: PubChemPy
+access_python: "import pubchempy as pcp\n\ncids = [2244, 5957, 1115]\nprops = pcp.get_properties(\n\
+  \    [\"MolecularFormula\", \"IsomericSMILES\", \"InChIKey\"], cids\n)\n\nrecords\
+  \ = [p for p in props if p]\nprint(f\"RECORDS={len(records)}\")\nif records:\n \
+  \   fields = sorted(records[0].keys())\n    print(\"FIELDS=\" + \",\".join(fields))"
+record_count: 3
+sample_fields:
+- CID
+- InChIKey
+- MolecularFormula
+- SMILES
+field_coverage: 0.5
+required_fields:
+- CID
+- InChIKey
+- SMILES
+- Experimental logP
+- Experimental solubility
+- Boiling point
+intent: PubChem and NIST experimental logP solubility boiling point dataset download
+  python package dataset
+cache_key: eb042060a80886830fd69c1c8f4d2dd74f06873f2a0b346ff53255ecd833548e

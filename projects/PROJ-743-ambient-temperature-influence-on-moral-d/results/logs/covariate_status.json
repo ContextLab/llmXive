@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-06-21T12:00:00.000000",
+  "status": "complete",
+  "missing_countries": [],
+  "available_indicators": [
+    "SP.DYN.LE00.IN",
+    "SP.POP.TOTL"
+  ]
+}

@@ -1,77 +1,122 @@
 # Data Model: Predicting Species Distribution Shifts
 
-## 1. Entity Definitions
+## 1. Entity Relationship Overview
+The model comprises six primary entities: `OccurrenceRecord`, `ClimateVariable`, `BiasLayer`, `ModelArtifact`, `ModelMetrics`, and `DataSufficiency`. Relationships are anchored on spatial coordinates and temporal metadata.
 
-### 1.1 Occurrence Record
-Represents a single species sighting.
-* **Attributes**:
-  * `species_name` (string): Scientific name.
-  * `latitude` (float): Decimal degrees.
-  * `longitude` (float): Decimal degrees.
-  * `event_date` (date): ISO 8601.
-  * `source` (string): "GBIF" or "eBird".
-  * `dataset_id` (string): Source dataset identifier.
-  * `breeding_season` (boolean): True if date falls within breeding months.
-  * `thinned` (boolean): True if record survived spatial thinning.
-  * `bias_weight` (float): Relative sampling effort weight from bias raster (≥ 0).
+```mermaid
+erDiagram
+    OccurrenceRecord ||--o{ ClimateVariable : "has"
+    OccurrenceRecord ||--o{ ModelPrediction : "used_for"
+    ModelArtifact ||--o{ ModelPrediction : "generates"
+    ClimateRaster ||--o{ ClimateVariable : "contains"
+    ModelArtifact ||--o{ ModelMetrics : "evaluated_by"
+    ModelArtifact ||--o{ DataSufficiency : "checked_by"
+    BiasLayer ||--o{ OccurrenceRecord : "informs"
+```
 
-### 1.2 Climate Variable
-Environmental data at a grid cell.
-* **Attributes**:
-  * `variable_code` (string): e.g., "bio1" (Annual Mean Temp).
-  * `value` (float): Scaled value (e.g., temp × 10).
-  * `resolution` (string): "2.5 arc‑min".
-  * `source` (string): "WorldClim v2" or "CMIP6".
-  * `time_period` (string): "1970‑2000" or "2050‑SSP2‑4.5".
+## 2. Data Entities
 
-### 1.3 Model Artifact
-Trained model instance.
-* **Attributes**:
-  * `algorithm` (string): "Random Forest", "Bioclim", **"Regularized Logistic Regression (PB)"**.
-  * `species` (string).
-  * `training_data_version` (string): Checksum of processed data.
-  * `hyperparams` (json): Dictionary of parameters.
-  * `metrics` (json): AUC, TSS, CV scores.
+### 2.1 OccurrenceRecord
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | UUID (string) | Unique identifier generated during preprocessing. |
+| `species_name` | string | Latin name of the bird species. |
+| `latitude` | float | WGS84 latitude (‑90 → 90). |
+| `longitude` | float | WGS84 longitude (‑180 → 180). |
+| `event_date` | date (YYYY‑MM‑DD) | Observation date. |
+| `source_id` | string | Original GBIF/eBird identifier. |
+| `download_timestamp` | datetime (ISO‑8601) | Timestamp of data download (Constitution VI). |
+| `breeding_season` | boolean | True if record falls within species‑specific breeding months. |
+| `thinned` | boolean | True if the record survived spatial thinning. |
+| `bias_weight` | float | Weight from the bias‑layer raster (higher where observer effort is higher). |
+| `dataset_name` | string | Name of the original dataset (e.g., “GBIF”). |
 
-### 1.4 Bias Layer (new)
-Raster representing spatial sampling effort.
-* **Attributes**:
-  * `layer_path` (string): File path to `.tif`.
-  * `resolution` (string): Same as climate rasters.
-  * `source` (string): Derived from eBird/GBIF effort records.
-  * `creation_timestamp` (string, ISO 8601).
+### 2.2 ClimateVariable
+| Field | Type | Description |
+|-------|------|-------------|
+| `occurrence_id` | string (FK → `OccurrenceRecord.id`) | Link to occurrence. |
+| `variable_name` | string (e.g., `bio1`) | Bioclim variable name. |
+| `value` | float | Extracted climate value. |
+| `raster_source` | string (URL/identifier) | Provenance of the raster. |
+| `year` | integer | Year of the climate data (e.g., 2000, 2050). |
 
-### 1.5 Preprocess Log (new)
-Machine‑readable log of thinning counts.
-* **Attributes**:
-  * `species` (string)
-  * `before_count` (integer): Count of records before thinning/filtering.
-  * `after_count` (integer): Count of records after thinning/filtering.
-  * `timestamp` (string, ISO 8601)
-* **Location**: `logs/preprocess_counts.yaml`
-* **Format**: YAML list of objects.
+### 2.3 BiasLayer
+| Field | Type | Description |
+|-------|------|-------------|
+| `layer_id` | string | Unique identifier. |
+| `description` | string | Kernel‑density raster of observation effort used for bias‑corrected background sampling. |
+| `period` | string | Either `historic` (1970‑2000) **or** `recent` (2005‑2020). |
+| `file_path` | string | Relative path to the raster file. |
+| `checksum_sha256` | string | SHA‑256 checksum for integrity verification. |
 
-## 2. Data Flow
+### 2.4 ModelArtifact
+| Field | Type | Description |
+|-------|------|-------------|
+| `modelID` | string | Unique model identifier (matches `model_artifact.schema.yaml`). |
+| `species` | string | Target species name. |
+| `algorithm` | string | Model algorithm (e.g., `RF`, `Bioclim`, `MaxEnt`). |
+| `trainPeriod` | string | Temporal window of training data (e.g., `1970-2000`). |
+| `testPeriod` | string | Temporal window of validation data (`2005-2020`). |
+| `auc` | number | Area Under the ROC Curve (recorded at training time). |
+| `tss` | number | True Skill Statistic (recorded at training time). |
+| `filePath` | string | Relative path under `models/`. |
+| `seed` | integer | Random seed for reproducibility. |
+| `checksum` | string | SHA‑256 hash of the model file. |
 
-1. **Raw Ingestion**: `data/raw/occurrence_*.csv`, `data/raw/climate_*.tif`.  
-2. **Bias Generation**: `bias_correction.py` → `data/processed/bias_layer.tif`.  
-3. **Processed**: `data/processed/filtered_thinned.csv` (joined with climate + bias weights).  
-4. **Artifacts**: `data/artifacts/model_{species}_{algo}.pkl`.  
-5. **Metrics**: `metrics/performance_summary.csv`, `metrics/baseline_performance.csv`, `metrics/sensitivity_report.csv`.  
-6. **Logs**: `logs/preprocess_counts.yaml`.
+### 2.5 ModelMetrics
+| Field | Type | Description |
+|-------|------|-------------|
+| `model_id` | string (FK → `ModelArtifact.modelID`) | Associated model. |
+| `species` | string | Target species. |
+| `algorithm` | string (`RF`, `Bioclim`, `MaxEnt`) | Algorithm used. |
+| `test_set_period` | string (`2005-2020`) | Validation period. |
+| `auc` | number (0 → 1) | Area Under the ROC Curve (recent test set). |
+| `tss` | number (‑1 → 1) | True Skill Statistic (recent test set). |
+| `threshold` | number | Probability cutoff used for TSS calculation. |
+| `sample_size` | integer | Number of validation records. |
+| `status` | string (`PASS` / `INSUFFICIENT_DATA`) | Sufficiency flag per FR‑018. |
+| `delta_auc` | number | Calibrated difference between historic CV AUC and recent test‑set AUC. |
+| `calibration_brier` | number | Brier score on recent test set. |
+| `mop_proportion` | number | Proportion of future pixels within analogous climate space (MESS). |
+| `composite_stability` | number | Weighted combination of calibrated ΔAUC and MOP proportion. |
+| `p_value` | number (0 → 1) | P‑value from hierarchical bootstrap (FR‑018). |
+| `effect_size` | number | Effect size (Cohen’s h = 0.50, source verified). |
+| `corrected_p_value` | number (0 → 1) | After Benjamini‑Hochberg correction (FR‑009). |
 
-## 3. Constraints & Validation Rules
+### 2.6 DataSufficiency
+| Field | Type | Description |
+|-------|------|-------------|
+| `species` | string | Species name. |
+| `period` | string (`1970-2000` or `2005-2020`) | Temporal window. |
+| `recordCount` | integer | Number of records after thinning. |
+| `status` | string (`SUFFICIENT` / `INSUFFICIENT_DATA`) | Flag per FR‑018. |
+| `power_value` | number | Calculated power to detect a minimum AUC difference of 0.05 (source: statistical power analysis). |
 
-* **Coordinate Range**: Lat [-90, 90], Lon [-180, 180].  
-* **Date Range**: 1970‑01‑01 to 2020‑12‑31.  
-* **Null Handling**: No nulls in `latitude`, `longitude`, `species_name`, or climate predictors. Rows with nulls are dropped and logged.  
-* **Thinning**: Minimum Euclidean distance ≥ 10 km between any two retained points (FR‑002).  
-* **Record Count**: Species with < 100 records after thinning are excluded from training/evaluation (FR‑006).  
-* **Bias Weights**: Must be ≥ 0; a weight of 0 indicates exclusion from background sampling.  
-* **Preprocess Log**: Every species processed MUST have an entry in `logs/preprocess_counts.yaml` with `before_count` ≥ `after_count`.
+## 3. File Formats
 
-## 4. Schema Versioning
+| Artifact | Format | Validation |
+|----------|--------|------------|
+| Raw occurrence CSVs | UTF‑8, comma‑separated, Darwin Core fields | `contracts/occurrence.schema.yaml` |
+| Processed features CSV | UTF‑8, comma‑separated (one row per thinned occurrence + selected climate vars) | `contracts/occurrence_record.schema.yaml` |
+| Climate rasters | GeoTIFF (LZW compressed) | `contracts/climate_raster.schema.yaml` |
+| Bias layer raster | GeoTIFF | `contracts/climate_raster.schema.yaml` (re‑used for metadata) |
+| Model files | Pickle (`.pkl`) | `contracts/model_artifact.schema.yaml` |
+| Metric JSONs | JSON | `contracts/model_metrics.schema.yaml` |
+| Data sufficiency JSON | JSON | `contracts/data_sufficiency.schema.yaml` |
+| Data acquisition completeness JSON | JSON | No separate schema required (SC‑004 metric). |
+| Logging counts YAML | YAML (`logs/preprocess_counts.yaml`) – a **list of objects** each matching `contracts/log_counts.schema.yaml` | `contracts/log_counts.schema.yaml` |
+| Logging configuration | YAML (`logs/logging_config.yaml`) | Stored as `logs/logging_config.yaml`; validated by implementation. |
 
-* **v1.0**: Initial schema for occurrence, climate, and model artifacts.  
-* **v1.1**: Added `bias_weight` to occurrence, `Bias Layer` entity, and `Preprocess Log`.  
+## 4. Data Flow
+1. **Download** (`code/download.py`) → `data/raw/` (occurrence CSVs, climate GeoTIFFs).  
+2. **Preprocess** (`code/preprocess.py`) → `data/processed/features.csv`, `data/processed/bias_layer_historic.tif`, `data/processed/bias_layer_recent.tif`, `metrics/data_sufficiency.json`, `metrics/data_acquisition_completeness.json`, `logs/preprocess_counts.yaml`.  
+3. **Train** (`code/train.py`) → `models/*.pkl`.  
+4. **Evaluate & Project** (`code/evaluate.py`) → `metrics/model_performance.json`, `results/summary_table.csv`, `logs/evaluate.log`.  
+5. **Report** (`code/report.py`) → `reports/findings.md`.  
+
+All intermediate files are immutable; each transformation writes a new file with a documented checksum and provenance (Constitution III).
+
+---
+
+
 

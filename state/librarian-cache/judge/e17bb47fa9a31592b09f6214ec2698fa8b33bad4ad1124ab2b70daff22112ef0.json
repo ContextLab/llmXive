@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.21725",
+  "judged_at": "2026-08-11T10:13:19Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scalable visual pretraining for language intelligence\" computer science",
+  "rationale": "This paper qualifies under category (a) and (b) as it investigates the same core mechanism of \"visual/structured pretraining\" (using abstract procedural data) to improve language model capabilities, which is the central topic of the user's referenced work \"Scalable Visual Pretraining for Language Intelligence.\" Even though the candidate paper uses \"procedural data\" rather than \"visual\" data, it addresses the same domain (LLM pretraining strategies) and measures the same dependent variables (perf",
+  "relevant": true
+}

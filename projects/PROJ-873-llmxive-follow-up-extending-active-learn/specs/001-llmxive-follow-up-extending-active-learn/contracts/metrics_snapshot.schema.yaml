@@ -1,0 +1,76 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metrics Snapshot"
+description: "Schema for a single run's aggregated metrics"
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Random seed identifier"
+  dataset:
+    type: "string"
+    description: "Dataset name (e.g., scifact)"
+  redundancy_level:
+    type: "number"
+    description: "Percentage of near-duplicates injected"
+    minimum: 0.0
+    maximum: 1.0
+  total_calls:
+    type: "integer"
+    description: "Total number of LLM calls made"
+    minimum: 0
+  wasted_calls:
+    type: "integer"
+    description: "Number of calls classified as wasted"
+    minimum: 0
+  wasted_ratio:
+    type: "number"
+    description: "Ratio of wasted calls to total calls"
+    minimum: 0.0
+    maximum: 1.0
+  ndcg_at_10:
+    type: "number"
+    description: "NDCG@10 score"
+    minimum: 0.0
+    maximum: 1.0
+  execution_time_seconds:
+    type: "number"
+    description: "Total execution time in seconds"
+    minimum: 0.0
+  peak_memory_mb:
+    type: "number"
+    description: "Peak memory usage in MB"
+    minimum: 0.0
+  validation_method:
+    type: "string"
+    enum:
+      - "proxy_only"
+      - "llm_consensus"
+      - "hybrid"
+    description: "Method used for validation"
+  proxy_accuracy:
+    type: "object"
+    description: "Precision and Recall of the proxy if validated"
+    properties:
+      precision:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+      recall:
+        type: "number"
+        minimum: 0.0
+        maximum: 1.0
+  unvalidated_flag:
+    type: "boolean"
+    description: "True if proxy-only due to resource constraints"
+required:
+  - run_id
+  - dataset
+  - redundancy_level
+  - total_calls
+  - wasted_calls
+  - wasted_ratio
+  - ndcg_at_10
+  - execution_time_seconds
+  - peak_memory_mb
+  - validation_method
+  - unvalidated_flag

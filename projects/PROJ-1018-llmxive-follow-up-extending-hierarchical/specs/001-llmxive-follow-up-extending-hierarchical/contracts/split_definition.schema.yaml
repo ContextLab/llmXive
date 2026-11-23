@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: SplitDefinition
+description: JSON definition of validation and test splits for PG‑19, including a checksum for reproducibility.
+type: object
+properties:
+  validation_ids:
+    type: array
+    items:
+      type: string
+    description: "List of document IDs assigned to the validation split."
+  test_ids:
+    type: array
+    items:
+      type: string
+    description: "List of document IDs assigned to the test split."
+  checksum:
+    type: string
+    description: "SHA‑256 checksum of the concatenated ID lists."
+required:
+  - validation_ids
+  - test_ids
+  - checksum
+additionalProperties: false

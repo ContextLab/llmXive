@@ -1,252 +1,119 @@
+---
+description: "Task list for Evaluating the Impact of Code Generation Models on Code Security"
+---
+
 # Tasks: Evaluating the Impact of Code Generation Models on Code Security
 
-**Input**: Design documents from `/specs/001-code-security-evaluation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 0: Spec & Plan Alignment (CRITICAL GATE)
-
-**Purpose**: Resolve requirement conflicts and formally amend scope before implementation begins.
-
-- [X] T000a [P] **AMEND SPEC**: Update `spec.md` (FR-002, SC-005) to explicitly reflect the amended scope of N=30 prompts (10 CodeXGLUE + 20 handcrafted) and N=90 snippets. Document the resource constraints (GitHub Actions GB RAM, 6h limit) as the justification for this amendment.
-- [X] T000b [P] **ALIGN PLAN**: Update `plan.md` (Summary) to reflect the N=30 scope and ensure consistency with the amended `spec.md`.
-
----
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001a [P] Create `projects/PROJ-152-evaluating-the-impact-of-code-generation/` directory structure (`code/`, `data/`, `tests/`, `docs/`)
-- [X] T001b [P] Create `projects/PROJ-152-evaluating-the-impact-of-code-generation/requirements.txt` with pinned versions (transformers, torch-cpu, bitsandbytes-cpu, scikit-learn, scipy, statsmodels, pandas, matplotlib, seaborn, bandit, semgrep, codeql)
-- [X] T001c [P] Initialize Python 3.11 virtual environment configuration <!-- FAILED: unspecified -->
-- [X] T002 [P] Configure linting (ruff/flake8) and formatting (black) tools
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T003 [P] Create `code/config.py` with pinned random seeds, path constants, and model hyperparameters (max_tokens=256, batch_size=1)
-- [ ] T004 [P] Create `code/update_state.py` to manage `state.yaml` and artifact hashing per Constitution Principle V
-- [ ] T005 [P] Implement `code/download.py` to fetch CodeXGLUE prompts from HuggingFace datasets, filter for security keywords (SQL, XSS, auth, injection, sanitize, password, token), **select a subset of top candidates by relevance score**, and generate `data/prompts/raw_manifest.json` with checksums. Justification: Resource constraints (N=30 total) require this reduction from the original FR-002 scope.
-- [ ] T006 [P] Create `data/prompts/handcrafted.json` with 20 web-security prompts: **5 prompts each for database access, HTML rendering, authentication, and injection **
-- [ ] T007 [P] Create `data/mappings/nist_severity_map.yaml` with explicit NIST-based mapping rules (e.g., "High" -> 4, "Medium" -> 3) for severity conversion
-- [ ] T008 [P] Implement `code/generate.py` with **120s timeout ** handling for generation and CPU-only 4-bit quantization loading for StarCoder-Base, CodeGen, GPT-NeoX (model loader logic)
-- [X] T009 [P] Implement `code/analyze.py` to orchestrate Bandit, Semgrep, and CodeQL with **A timeout per scan is established.** (scanner infrastructure setup)
-- [~] T010 [P] Implement `code/prompts.py` to combine `raw_manifest.json` (T005) and `handcrafted.json` (T006) into a final `data/prompts/manifest.json` with source attribution and checksums. **Note**: This task is parallel-safe relative to other Phase 2 tasks but requires T005 and T006 completion.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Generate and analyze code snippets (Priority: P1) 🎯 MVP
-
-**Goal**: Download three models, generate code from 30 standardized prompts, and run static analysis to collect vulnerability findings.
-
-**Independent Test**: Run the generation and analysis pipeline on a subset of 5 prompts and verify the output CSV contains model, prompt, code, and vulnerability findings for each combination.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T011 [P] [US1] Integration test for generation pipeline with timeout handling in `tests/integration/test_generate.py`
-- [X] T012 [P] [US1] Contract test for scanner output format in `tests/contract/test_scanner_output.py`
-
-### Implementation for User Story 1
-
-- [ ] T013 [P] [US1] Implement model loader in `code/generate.py` to load multiple models (StarCoder-Base 7B, CodeGen 2B, GPT-NeoX 1.3B) with 4-bit quantization (bitsandbytes CPU-compatible)
-- [ ] T014 [US1] Implement generation loop in `code/generate.py` to process 30 prompts (N=90 snippets total) using `data/prompts/manifest.json`, logging failures to `data/failures.log`
-- [ ] T015 [US1] Implement scanner runner in `code/analyze.py` to pipe snippets through Bandit (Python), Semgrep (security rules), CodeQL (Java/JS)
-- [ ] T016 [US1] Implement severity mapping in `code/metrics.py` to convert raw scanner labels to NIST-based ordinal rank using `data/mappings/nist_severity_map.yaml`
-- [ ] T017 [US1] Implement failure logging in `code/analyze.py` for empty snippets, unsupported languages, and scanner errors per Edge Cases
-- [ ] T018 [US1] Generate `data/generated/snippets.csv` with columns: snippet_id, model, prompt_id, code, line_count, timestamp (N=90 rows expected)
-- [ ] T019 [US1] Generate `data/findings/raw_findings.csv` with columns: finding_id, snippet_id, scanner, cwe_id, raw_severity, mapped_ordinal_rank, finding_text
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Compute metrics and statistical comparison (Priority: P2)
-
-**Goal**: Compute V/100LOC and mean severity, apply Kruskal-Wallis/Dunn tests, perform ZINB robustness check, and run sensitivity analysis.
-
-**Independent Test**: Feed a synthetic dataset with known differences and verify Kruskal-Wallis detects significance (p < 0.05) and ZINB converges on zero-inflated data.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T020 [P] [US2] Unit test for V/100LOC calculation in `tests/unit/test_metrics.py`
-- [ ] T021 [P] [US2] Unit test for Bonferroni correction in `tests/unit/test_stats.py`
-
-### Implementation for User Story 2
-
-- [ ] T022 [US2] Implement `code/calibration.py` to perform **Manual Calibration**: **Select exactly 10 snippets per model ** (N=30 total) from `raw_findings.csv` using stratified sampling. Calculate Inter-Rater Reliability (Kappa) against human expert labels and generate `data/calibration/fpr_results.csv` (FPR per scanner/model).
-- [ ] T023 [US2] Implement `code/calibration.py` to compute **Descriptive Stats**: Read `raw_findings.csv` and `fpr_results.csv`. **Output `data/results/descriptive_stats.csv` containing RAW vulnerability counts and V/100LOC. Include FPR results as metadata only (PROXY ONLY, NO algorithmic correction applied to counts)**. Explicitly document that statistical tests (T024/T025) consume RAW counts, not adjusted values, per FR-004b.
-- [ ] T024 [US2] Implement `code/stats.py` to run Kruskal-Wallis test on RAW V/100LOC (from T023 output) across models
-- [ ] T025 [US2] Implement `code/stats.py` to run Dunn's post-hoc with Bonferroni correction (α = 0.0167) if KW p < 0.05
-- [ ] T026 [US2] Implement `code/stats.py` to run Zero-Inflated Negative Binomial (ZINB) regression **ONLY IF** the zero-vulnerability percentage (calculated from T019/T023) is ≥ 20.0%. **Logic**: Calculate `zero_vuln_pct`; if `zero_vuln_pct < 20.0`, log "Condition not met (X% < 20%): ZINB skipped" and output a 'skipped' record in `data/results/statistical_summary.csv`. If met, run `statsmodels` with formula `vuln_count ~ model + offset(log(LOC))` and zero-inflation `zero_inflated ~ model`.
-- [ ] T027 [US2] Implement `code/sensitivity.py` to sweep high-severity cutoffs across a range of thresholds and report proportion of "high risk" snippets per FR-009
-- [ ] T028 [US2] Generate `data/results/statistical_summary.csv` with test name, statistic, p-value, adjusted p-value, conclusion
-- [ ] T029 [US2] Generate `data/results/sensitivity_analysis.csv` with cutoff threshold, high-risk proportion per model
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Generate visualizations and summary reports (Priority: P3)
-
-**Goal**: Produce box-plots of vulnerability density, heat-maps of CWE distribution, and a summary table of statistical results.
-
-**Independent Test**: Run the visualization module on summary statistics and verify three output files: box-plot PNG, heat-map PNG, summary CSV.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T030 [P] [US3] Integration test for visualization generation in `tests/integration/test_viz.py`
-
-### Implementation for User Story 3
-
-- [ ] T031 [US3] Implement `code/viz.py` to generate box-plot PNG of V/100LOC per model with median, quartiles, outliers
-- [ ] T032 [US3] Implement `code/viz.py` to generate heat-map PNG of CWE frequency per prompt category
-- [ ] T033 [US3] Implement `code/viz.py` to generate `data/results/statistical_summary.csv` with all test results
-- [ ] T034 [US3] Generate `data/results/run_summary.csv` with completion rate, total snippets (N=90), failure counts per SC-005 (amended scope)
-- [ ] T035 [US3] Update `state.yaml` with artifact hashes and `updated_at` timestamp per Constitution Principle V
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T036a [P] Update `README.md` with project overview, setup instructions, and scope (N=30 prompts)
-- [ ] T036b [P] Update `docs/quickstart.md` with detailed execution guide
-- [ ] T036c [P] Update `docs/research.md` with methodology, limitations, and FPR proxy justification
-- [ ] T037a [P] Code cleanup: Remove unused imports in `code/` modules
-- [ ] T037b [P] Code cleanup: Enforce black formatting across `code/`
-- [ ] T037c [P] Code cleanup: Add docstrings to all public functions in `code/`
-- [ ] T038 [P] Performance optimization for model loading/unloading sequence
-- [ ] T039 [P] Additional unit tests in `tests/unit/` for edge cases
-- [ ] T040 Security hardening of generated code handling (ensure no execution)
-- [ ] T041 Run `quickstart.md` validation
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Phase 0 (T000a, T000b)**: No dependencies - MUST be completed first to resolve spec conflicts and amend scope.
-- **Setup (Phase 1)**: No dependencies - can start after Phase 0.
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories.
- - T005, T006, T007 must complete before T010.
- - T013 must complete before T014.
- - T008, T009 must complete before T015.
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion.
- - US1 (Phase 3) depends on Foundational.
- - US2 (Phase 4) depends on US1 output (findings) and T022 (calibration).
- - US3 (Phase 5) depends on US2 output (statistics).
-- **Polish (Final Phase)**: Depends on all desired user stories being complete.
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories.
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (findings) and T022 (calibration).
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 output (statistics).
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation.
-- Models before services.
-- Services before endpoints.
-- Core implementation before integration.
-- Story complete before moving to next priority.
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel.
-- All Foundational tasks marked [P] can run in parallel (within Phase 2), noting T010 requires T005/T006.
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows).
-- All tests for a user story marked [P] can run in parallel.
-- Models within a story marked [P] can run in parallel.
-- Different user stories can be worked on in parallel by different team members.
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Integration test for generation pipeline with timeout handling in tests/integration/test_generate.py"
-Task: "Contract test for scanner output format in tests/contract/test_scanner_output.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement model loader in code/generate.py to load 3 models..."
-Task: "Implement generation loop in code/generate.py to process 30 prompts..."
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 0: Spec Alignment (T000a, T000b)
-2. Complete Phase 1: Setup
-3. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-4. Complete Phase 3: User Story 1
-5. **STOP and VALIDATE**: Test User Story 1 independently
-6. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All model loading MUST use 4-bit quantization on CPU only (no CUDA/bitsandbytes GPU requirements).
-- **CRITICAL**: Dataset N=30 prompts (10 CodeXGLUE + 20 handcrafted) to fit 6h/7GB budget; A large number of prompts is infeasible. (amended in T000a).
-- **CRITICAL**: FPR data is used for descriptive reporting only (PROXY), NOT for algorithmic correction of vulnerability counts (FR-004b).
+**Input**: Design documents from `/specs/001-code-security-evaluation/`  
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
+
+**Tests**: Optional – include only if explicitly required in the specification.
+
+**Organization**: Tasks are grouped by phase.  
+`- [ ] T### [P] [USx] description (file path)`  
+
+* `[P]` = may run in parallel (different files, no dependencies)  
+* `[USx]` = user‑story identifier (e.g., US1, US2, US3) – omitted for foundational tasks.
+
+## Phase 0 – Spec & Plan Alignment (CRITICAL GATE)
+
+- [X] T000b [P] **ALIGN PLAN** – Update the summary section of `plan.md` so it matches the amended `spec.md`. *(plan.md)*
+- [X] T000c [P] **UPDATE COVERAGE MAP** – Revise the FR/SC coverage map in `plan.md` to remove undefined FR‑006‑FR‑009 and SC‑001‑SC‑004 entries, and ensure all referenced IDs exist in `spec.md`. *(plan.md)*
+- [ ] T000d [P] **VERIFY PLAN ALIGNMENT** – Confirm that the plan’s coverage map aligns with `spec.md`; edit `plan.md` to eliminate any undefined FR or SC identifiers and obtain reviewer sign‑off. *(plan.md)*
+- [ ] T042 [P] **CONSTITUTION PROMPT SET AMENDMENT** – Propose and document an amendment to Constitution Principle VII to reflect the approved pilot prompt set of 30 prompts (10 CodeXGLUE + 20 handcrafted) and obtain reviewer approval. *(constitution.md)*
+
+## Phase 1 – Project Setup & Core Infrastructure
+
+- [X] T001a [P] Create project root `projects/PROJ-152-evaluating-the-impact-of-code-generation/` with sub‑directories `code/`, `data/`, `tests/`, `docs/`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/)*
+- [X] T001b [P] Add `requirements.txt` (pinned versions of `transformers`, `torch‑cpu`, `bitsandbytes‑cpu`, `scikit‑learn`, `scipy`, `statsmodels`, `pandas`, `matplotlib`, `seaborn`, `bandit`, `semgrep`, `codeql`). *(projects/PROJ-152-evaluating-the-impact-of-code-generation/requirements.txt)*
+- [ ] T001c [P] Initialise a Python 3.11 virtual environment (`python -m venv venv`) and install `requirements.txt`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/)*
+- [ ] T002 [P] Configure linting (ruff) and formatting (black) via `pyproject.toml`. *(projects/PROJ-152-evaluating-the-impact-of-code-generation/pyproject.toml)*
+- [ ] T003 [P] Create `code/config.py` with global seeds, path constants (`DATA_ROOT`, `PROMPT_MANIFEST`, …), and model hyper‑parameters (`max_tokens=256`, `batch_size=1`). *(code/config.py)*
+- [ ] T004 [P] Implement `code/update_state.py` to manage `state.yaml` and compute SHA‑256 hashes for all artefacts (Constitution Principle V). *(code/update_state.py)*
+- [ ] T005 [P] Implement `code/download.py` that:
+  1. Downloads the CodeXGLUE *code‑to‑text* dataset via `datasets.load_dataset`,
+  2. Filters prompts containing any of the security keywords list `["SQL","XSS","auth","injection","sanitize","password","token"]`,
+  3. Ranks filtered prompts by the total number of keyword occurrences and selects the **top 10** most relevant prompts,
+  4. Writes `data/prompts/filtered_codexglue.json` and records its checksum. *(code/download.py)*
+- [ ] T006 [P] Create `data/prompts/handcrafted.json` containing **20 handcrafted web‑security prompts** (5 each for Database Access, HTML Rendering, Authentication, Injection) and generate its checksum. *(data/prompts/handcrafted.json)*
+- [ ] T007 [P] Add `data/mappings/nist_severity_map.yaml` mapping textual severity levels to an ordinal scale (e.g., `HIGH: 4`, `MEDIUM: 3`, `LOW: 2`, `INFO: 1`). *(data/mappings/nist_severity_map.yaml)*
+- [ ] T008a [P] Implement `code/generate.py` that:
+  - Loads StarCoder‑Base, CodeGen‑2B, and GPT‑NeoX‑1.3B with **4‑bit CPU quantization** via `bitsandbytes`,
+  - Enforces a per‑snippet generation timeout of 120 s using `signal.alarm`,
+  - Logs timeouts or generation failures to `data/failures.log`. *(code/generate.py)*
+- [ ] T008b [P] Implement `code/orchestrator.py` that:
+  - Tracks cumulative wall‑clock time,
+  - Stops the pipeline early if `elapsed + estimated_remaining > 6 h` and writes a “Time Budget Exceeded” warning to `data/failures.log`,
+  - Emits `data/runtime_log.json` with start/end timestamps and status flags. *(code/orchestrator.py)*
+- [ ] T009 [P] Implement `code/analyze.py` that:
+  - Invokes Bandit (Python), Semgrep (security‑best‑practices ruleset), and CodeQL (Java/JS) on each generated snippet,
+  - Enforces a configurable per‑scanner timeout (e.g., 60 s) via `subprocess.run(..., timeout=…)`,
+  - Writes raw scanner outputs to `data/findings/raw/<model>_<scanner>.jsonl`. *(code/analyze.py)*
+- [ ] T010 [P] Implement `code/prompts.py` that merges `filtered_codexglue.json` (T005) and `handcrafted.json` (T006) into a single `data/prompts/manifest.json`, adds source attribution, and records a checksum. *(code/prompts.py)*
+- [ ] T011 [P] [US1] Integration test for the generation pipeline with timeout handling (`tests/integration/test_generate.py`). *(tests/integration/test_generate.py)*
+- [ ] T012 [P] [US1] Contract test asserting the CSV schema of scanner outputs (`tests/contract/test_scanner_output.py`). *(tests/contract/test_scanner_output.py)*
+- [ ] T013 [P] Extend `code/generate.py` with a **model‑loader** that:
+  - Instantiates each model once,
+  - Keeps them in memory (≈ 4 GB total) using 4‑bit quantization,
+  - Monitors system RAM via `psutil.virtual_memory()` and, if used RAM exceeds **80 %**, unloads the currently idle model before loading the next to keep peak usage below the threshold. *(code/generate.py)*
+- [ ] T018 [P] **ARCHIVE ARTIFACTS** – After pipeline completion, compress all `data/` sub‑directories into `artifacts/run_<run_id>.tar.gz` and record its checksum. *(code/archive.py)*
+- [ ] T019 [P] **GENERATE FINAL REPORT** – Assemble a markdown `reports/final_report.md` summarizing methods, results, and compliance with all FR/SC, referencing the generated CSVs and figures. *(reports/final_report.md)*
+
+## Phase 2 – Core Data Production (User Story 1)
+
+- [ ] T014 [US1] **Generation Loop** – In `code/generate.py`, iterate over `data/prompts/manifest.json` (30 prompts) and generate code for each model (total 90 snippets). Write a CSV `data/generated/snippets.csv` with columns  
+  `snippet_id, model_name, prompt_id, code, loc, generation_time, status, error_message`.  
+  Produce a SHA‑256 checksum file `snippets.csv.sha256` and log any generation failures to `data/failures.log`. *(data/generated/snippets.csv)*
+- [ ] T015 [US1] **Scanner Runner** – In `code/analyze.py`, read `snippets.csv` and pipe each snippet through Bandit, Semgrep, and CodeQL, respecting the per‑scanner timeout. Store a unified CSV `data/findings/raw_findings.csv` with columns  
+  `finding_id, snippet_id, model_name, scanner, cwe_id, raw_severity, finding_text`. *(data/findings/raw_findings.csv)*
+- [ ] T016a [US1] **Severity Mapping** – Implement `code/metrics.py` to translate scanner‑specific severity labels to the NIST ordinal scale defined in `nist_severity_map.yaml`. *(code/metrics.py)*
+- [ ] T016b [US1] **CWE Extraction** – Extend `code/metrics.py` to reliably parse CWE identifiers from each scanner’s output (Bandit, Semgrep, CodeQL) and add a `cwe_id` column to `raw_findings.csv`. *(code/metrics.py & data/findings/raw_findings.csv)*
+- [ ] T017 [US1] **Failure Logging** – Ensure `code/analyze.py` logs empty snippets, unsupported languages, and scanner crashes to `data/failures.log` with clear error codes. *(code/analyze.py)*
+
+## Phase 3 – Calibration & Metric Computation (User Story 2)
+
+- [ ] T022a [US2] **Calibration Template** – In `code/calibration.py`, generate `data/calibration/calibration_template.csv` containing `snippet_id, model_name, prompt_id, human_label (empty)`. Also create `data/calibration/instructions.md` that guides human experts on labeling true vulnerabilities. *(code/calibration.py, data/calibration/calibration_template.csv, data/calibration/instructions.md)*
+- [ ] T022b [US2] **Manual Annotation** – Human experts label the **30 calibration snippets** (10 per model) using the template from T022a. Output stored as `data/calibration/human_labels.csv`. *(data/calibration/human_labels.csv)*
+- [ ] T022c [US2] **FPR Computation** – Extend `code/calibration.py` to read `raw_findings.csv` and `human_labels.csv`, compute per‑scanner & per‑model Inter‑Rater Reliability (Cohen’s κ) and **False Positive Rate (FPR)**. Write `data/calibration/fpr_stats.csv`. *(code/calibration.py, data/calibration/fpr_stats.csv)*
+- [ ] T022d [US2] **Label Validation** – Add a validation step in `code/calibration.py` that checks `human_labels.csv` for required columns, non‑empty rows, and consistent `snippet_id`s. Emit `data/calibration/validation_report.json`; abort the pipeline if validation fails. *(code/calibration.py, data/calibration/validation_report.json)*
+- [ ] T023 [US2] **Raw Metrics** – In `code/metrics.py`, join `raw_findings.csv` with `snippets.csv` to compute:
+  - Vulnerabilities per 100 LOC (V/100 LOC),
+  - Mean severity (using the ordinal scale from T016a).  
+  Output `data/results/raw_metrics.csv`. *(data/results/raw_metrics.csv)*
+- [ ] T023b [US2] **FPR‑Corrected Metrics** – Using `fpr_stats.csv` (T022c), adjust vulnerability counts to compensate for scanner false positives. Write `data/results/corrected_metrics.csv`. *(data/results/corrected_metrics.csv)*
+- [ ] T020 [P] [US2] Unit test for V/100 LOC calculation (`tests/unit/test_metrics.py`). *(tests/unit/test_metrics.py)*
+- [ ] T021 [P] [US2] Unit test for Bonferroni‑adjusted p‑values (`tests/unit/test_stats.py`). *(tests/unit/test_stats.py)*
+- [ ] T024 [US2] **Kruskal‑Wallis Test** – Implement `code/stats.py` to run a Kruskal‑Wallis test on **raw** V/100 LOC across the three models (input `raw_metrics.csv`). Store results in `data/results/kw_results.csv`. *(data/results/kw_results.csv)*
+- [ ] T025 [US2] **Dunn Post‑hoc** – If the KW p‑value < 0.05, run Dunn’s test with Bonferroni correction (α = 0.0167). Write `data/results/dunn_results.csv`. *(data/results/dunn_results.csv)*
+- [ ] T026 [US2] **Zero‑Inflated Negative Binomial (ZINB)** – Conditional execution: if the proportion of zero V/100 LOC observations > 50 % (computed from `raw_metrics.csv`), fit a ZINB model (`statsmodels.discrete.ZeroInflatedNegativeBinomialP`) with formula  
+  `vuln_count ~ C(model_name) + offset(log(loc))`. Output `data/results/zinb_results.csv`. *(data/results/zinb_results.csv)*
+- [ ] T027 [US2] **Sensitivity Sweep** – In `code/sensitivity.py`, vary the high‑severity cutoff (e.g., severity ≥ 4, ≥ 5) and recompute the proportion of “high‑risk” snippets using `corrected_metrics.csv`. Store results in `data/results/sensitivity_analysis.csv`. *(data/results/sensitivity_analysis.csv)*
+- [ ] T028 [US2] **Statistical Summary** – Consolidate all test outputs (`kw_results.csv`, `dunn_results.csv`, optional `zinb_results.csv`) into a single `data/results/statistical_summary.csv` containing: test name, statistic, raw p‑value, adjusted p‑value, and a pass/fail conclusion. *(data/results/statistical_summary.csv)*
+- [ ] T029 [US2] **Final Sensitivity Table** – Produce `data/results/sensitivity_table.csv` summarising each severity cutoff, the corresponding high‑risk proportion per model, and confidence intervals. *(data/results/sensitivity_table.csv)*
+- [ ] T034 [US3] **Run Summary Generation** – Create `data/results/run_summary.csv` containing:
+  - Total snippets (90),
+  - Completion rate (≥ 90 % as required by SC‑005),
+  - Number of generation failures,
+  - Number of analysis failures,
+  - Wall‑clock time (from `runtime_log.json`). *(data/results/run_summary.csv)*
+- [ ] T034a [US3] **Completion‑Rate Assertion** – Add a verification step that reads `run_summary.csv` and asserts `completion_rate_generation >= 0.90` and `completion_rate_analysis >= 0.90`; fail the pipeline if the condition is not met. *(code/verify_completion.py)*
+
+## Phase 4 – Visualisations & Reporting (User Story 3)
+
+- [ ] T031 [US3] In `code/viz.py`, generate a **box‑plot** (`figures/boxplot_vuln_density.png`) of V/100 LOC per model (median, quartiles, outliers). *(code/viz.py)*
+- [ ] T032 [US3] In `code/viz.py`, generate a **CWE heat‑map** (`figures/cwe_heatmap.png`) showing frequency of each CWE across prompt categories and models. *(code/viz.py)*
+- [ ] T030 [P] [US3] Integration test that runs the full visualization pipeline and checks that three output files are produced (`figures/boxplot_vuln_density.png`, `figures/cwe_heatmap.png`, `data/results/run_summary.csv`). *(tests/integration/test_viz.py)*
+- [ ] T035 [US3] Update `state.yaml` (via `code/update_state.py`) with SHA‑256 hashes for all new artefacts and a fresh `updated_at` timestamp. *(state.yaml)*
+
+## Phase 5 – Polish & Cross‑Cutting Concerns
+
+- [ ] T036a [P] Refresh `README.md` with an overview, installation steps, and a clear statement of the **N = 30 prompt** scope. *(README.md)*
+- [ ] T036b [P] Populate `docs/quickstart.md` with a step‑by‑step guide to run the entire pipeline on the GitHub‑Actions runner. *(docs/quickstart.md)*
+- [ ] T036c [P] Update `docs/research.md` with the finalized methodology, limitations, and justification of the FPR‑correction approach. *(docs/research.md)*
+- [ ] T037a [P] Code cleanup – remove any unused imports across all modules in `code/`. *(code/*)*
+- [ ] T037b [P] Run `black` (and `ruff` lint) across the repository to enforce formatting standards. *(.)*
+- [ ] T037c [P] Add docstrings to every public function and class in `code/`. *(code/*)*
+- [ ] T038 [P] **Optimise model loading/unloading** – Implement a deterministic loading order (StarCoder → generate → unload, then CodeGen → generate → unload, then NeoX → generate → unload) and verify that peak RAM usage is reduced by at least **10 %** compared to a naïve sequential load; record peak usage in `runtime_log.json`. *(code/generate.py)*
+- [ ] T039 [P] Add edge‑case unit tests in `tests/unit/` (e.g., empty prompt, unsupported language). *(tests/unit/*)*
+- [ ] T040 [P] Harden handling of generated code: ensure snippets are never executed, only written to disk and analysed statically. *(code/generate.py, code/analyze.py)*
+- [ ] T041 [P] Execute `quickstart.md` validation script to confirm the documentation matches the actual pipeline behaviour. *(docs/quickstart.md)*

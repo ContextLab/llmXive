@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-979-llmxive-follow-up-extending-loopcoder-v2",
+  "ok": false,
+  "reason": "5 command(s) failed: python code/src/entropy.py --output data/processed/entropy_results.csv --sample-size 50 (rc=1); python code/src/inference.py --output data/processed/convergence_results.csv --sample-size 50 (rc=1); python code/src/entropy.py --output data/processed/entropy_results.csv (rc=1); 5 declared deliverable(s) absent: data/processed/convergence_results.csv; data/processed/entropy_results.csv; data/processed/filtered_splits.json",
+  "artifacts": [],
+  "failures": [
+    "python code/src/entropy.py --output data/processed/entropy_results.csv --sample-size 50 -> rc=1\n    ^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/.venv/lib/python3.11/site-packages/transformers/configuration_utils.py\", line 776, in _get_config_dict\n    resolved_config_file = cached_file(\n                           ^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/.venv/lib/python3.11/site-packages/transformers/utils/hub.py\", line 293, in cached_file\n    f",
+    "python code/src/inference.py --output data/processed/convergence_results.csv --sample-size 50 -> rc=1\n    ^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/.venv/lib/python3.11/site-packages/transformers/configuration_utils.py\", line 776, in _get_config_dict\n    resolved_config_file = cached_file(\n                           ^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/.venv/lib/python3.11/site-packages/transformers/utils/hub.py\", line 293, in cached_file",
+    "python code/src/entropy.py --output data/processed/entropy_results.csv -> rc=1\n    ^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/.venv/lib/python3.11/site-packages/transformers/configuration_utils.py\", line 776, in _get_config_dict\n    resolved_config_file = cached_file(\n                           ^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/.venv/lib/python3.11/site-packages/transformers/utils/hub.py\", line 293, in cached_file\n    file = cached_file",
+    "python code/src/inference.py --output data/processed/convergence_results.csv -> rc=1\n    ^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/.venv/lib/python3.11/site-packages/transformers/configuration_utils.py\", line 776, in _get_config_dict\n    resolved_config_file = cached_file(\n                           ^^^^^^^^^^^^\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/.venv/lib/python3.11/site-packages/transformers/utils/hub.py\", line 293, in cached_file\n    file = cache",
+    "python code/src/analysis.py --entropy data/processed/entropy_results.csv  --convergence data/processed/convergence_results.csv  --output data/processed/router_simulation.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/src/analysis.py\", line 222, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-979-llmxive-follow-up-extending-loopcoder-v2/code/src/analysis.py\", line 218, in main\n    rho, p_value = run_analysis(args.entropy, args.convergence)\n                "
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-27T17:26:32Z"
+}

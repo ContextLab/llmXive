@@ -1,0 +1,134 @@
+- artifact_path: projects/PROJ-021-understanding-oceanic-phytoplankton-comm/specs/001-understanding-oceanic-phytoplankton-comm/tasks.md
+  attempts: 1
+  canonical: Pipeline output has less than 5 percent missing values and uses less
+    than 7 GB memory
+  claim_id: c_9c5a1d4d
+  context: 'Independent Test: Run the pipeline script on a sample subset; verify output
+    is a single aligned CSV/NetCDF with <5% missing values, correct basin stratification,
+    and memory usage <7GB.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_output_has_less_than_5_percent_missing_values_and_u
+  kind: magnitude
+  raw_text: Verify output is a single aligned CSV/NetCDF with <5% missing values,
+    correct basin stratification, and memory usage <7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:25:19Z'
+- artifact_path: projects/PROJ-021-understanding-oceanic-phytoplankton-comm/specs/001-understanding-oceanic-phytoplankton-comm/tasks.md
+  attempts: 1
+  canonical: Random Forest baseline completes in less than 2 hours and VLM completes
+    in less than 4 hours
+  claim_id: c_ed343594
+  context: "Independent Test: Execute training script; verify RF completes <2h, VLM\
+    \ completes <4h with early stopping if needed, and output metrics (RMSE, R\xB2\
+    , MAE) for both."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_baseline_completes_in_less_than_2_hours_and_VL
+  kind: magnitude
+  raw_text: "verify RF completes <2h, VLM completes <4h with early stopping if needed,\
+    \ and output metrics (RMSE, R\xB2, MAE) for both."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:26:04Z'
+- artifact_path: projects/PROJ-021-understanding-oceanic-phytoplankton-comm/specs/001-understanding-oceanic-phytoplankton-comm/tasks.md
+  attempts: 1
+  canonical: Full training runtime is less than 6 hours and RAM usage is less than
+    7 GB
+  claim_id: c_c737e8c8
+  context: Integration test for CPU feasibility in tests/integration/test_pipeline.py
+    (verifies runtime <6h and RAM <7GB for full training)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Full_training_runtime_is_less_than_6_hours_and_RAM_usage_is
+  kind: magnitude
+  raw_text: verifies runtime <6h and RAM <7GB for full training
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:26:34Z'
+- artifact_path: projects/PROJ-021-understanding-oceanic-phytoplankton-comm/specs/001-understanding-oceanic-phytoplankton-comm/tasks.md
+  attempts: 1
+  canonical: The CLIP-based VLM model has fewer than 500 million parameters
+  claim_id: c_dcf6862e
+  context: 'Implement lightweight CLIP-based VLM fine-tuning in code/03_model_training.py
+    (concatenated image/text inputs). Model: facebook/clip-vit-base-patch32 (or similar
+    <500M).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/The_CLIP-based_VLM_model_has_fewer_than_500_million_paramete
+  kind: magnitude
+  raw_text: 'Model: facebook/clip-vit-base-patch32 (or similar <500M).'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:27:15Z'
+- artifact_path: projects/PROJ-021-understanding-oceanic-phytoplankton-comm/specs/001-understanding-oceanic-phytoplankton-comm/tasks.md
+  attempts: 1
+  canonical: Early stopping triggers after 3 epochs without loss decrease
+  claim_id: c_7750c618
+  context: 'Early Stopping: If loss does not decrease for patience=3 epochs, set vlm_fallback=True
+    in state/projects/PROJ-021-understanding-oceanic-phytoplankton-comm.yaml'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If loss does not decrease for patience=3 epochs, set vlm_fallback=True
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:27:43Z'
+- artifact_path: projects/PROJ-021-understanding-oceanic-phytoplankton-comm/specs/001-understanding-oceanic-phytoplankton-comm/tasks.md
+  attempts: 1
+  canonical: Permutation importance scores are normalized to sum to 1.0
+  claim_id: c_3f7b5bb6
+  context: Implement permutation importance analysis in code/04_evaluation.py (rank
+    drivers, normalize scores to sum=1.0 using L1 norm, verify sum equals unity within
+    a specified tolerance
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: rank drivers, normalize scores to sum=1.0 using L1 norm, verify sum equals
+    unity within a specified tolerance
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:28:02Z'
+- artifact_path: projects/PROJ-021-understanding-oceanic-phytoplankton-comm/specs/001-understanding-oceanic-phytoplankton-comm/tasks.md
+  attempts: 1
+  canonical: Multicollinearity is handled using Variance Inflation Factor greater
+    than 5
+  claim_id: c_3d1e497d
+  context: Handle multicollinearity using scikit-learn's VIF implementation (VIF >
+    5); if triggered, log warning and proceed without PCA to preserve spec assumptions.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Multicollinearity_is_handled_using_Variance_Inflation_Factor
+  kind: magnitude
+  raw_text: Handle multicollinearity using scikit-learn's VIF implementation (VIF
+    > 5)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T09:28:33Z'

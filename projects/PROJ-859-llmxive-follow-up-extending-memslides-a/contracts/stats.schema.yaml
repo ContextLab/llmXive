@@ -1,0 +1,135 @@
+# Schema for Beta Regression Analysis Results
+# Used to validate the output of code/evaluation/stats.py (T035)
+# This ensures the Single Source of Truth principle for statistical artifacts
+
+type: object
+required:
+  - analysis_type
+  - description
+  - summary
+  - data_info
+
+properties:
+  analysis_type:
+    type: string
+    const: "Beta_Regression_Fidelity_Loss"
+    description: "Identifier for the analysis type"
+
+  description:
+    type: string
+    description: "Human-readable description of the analysis"
+
+  config:
+    type: object
+    description: "Configuration used for the analysis"
+    properties:
+      seed:
+        type: integer
+      paths:
+        type: object
+
+  summary:
+    type: object
+    required:
+      - method
+      - coefficients
+      - p_values
+      - n_obs
+    properties:
+      method:
+        type: string
+        enum:
+          - "GLM_Beta"
+          - "WLS_LogitApprox"
+        description: "Regression method used"
+      
+      coefficients:
+        type: object
+        additionalProperties:
+          type: number
+        description: "Regression coefficients for each predictor"
+      
+      p_values:
+        type: object
+        additionalProperties:
+          type: number
+          minimum: 0
+          maximum: 1
+        description: "P-values for each coefficient"
+      
+      deviance:
+        type: number
+        description: "Model deviance (for GLM)"
+      
+      pearson_chi2:
+        type: number
+        description: "Pearson chi-squared statistic"
+      
+      r_squared:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "R-squared (for WLS approximation)"
+      
+      adj_r_squared:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "Adjusted R-squared"
+      
+      f_pvalue:
+        type: number
+        minimum: 0
+        maximum: 1
+        description: "F-test p-value"
+      
+      aic:
+        type: number
+        description: "Akaike Information Criterion"
+      
+      bic:
+        type: number
+        description: "Bayesian Information Criterion"
+      
+      n_obs:
+        type: integer
+        minimum: 1
+        description: "Number of observations"
+      
+      converged:
+        type: boolean
+        description: "Whether the model converged"
+
+  correlations:
+    type: object
+    description: "Spearman correlation results"
+    additionalProperties:
+      type: object
+      properties:
+        spearman_rho:
+          type: number
+          minimum: -1
+          maximum: 1
+        p_value:
+          type: number
+          minimum: 0
+          maximum: 1
+
+  data_info:
+    type: object
+    required:
+      - n_samples
+      - columns
+    properties:
+      n_samples:
+        type: integer
+        minimum: 0
+        description: "Number of samples analyzed"
+      
+      columns:
+        type: array
+        items:
+          type: string
+        description: "Column names in the input data"
+
+additionalProperties: false

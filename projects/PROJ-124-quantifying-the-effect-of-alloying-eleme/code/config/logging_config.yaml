@@ -1,0 +1,30 @@
+# Logging Configuration
+# Used to define log levels and rotation policies if needed in future
+# Current implementation uses standard Python logging with file and console handlers
+
+version: 1.0
+log_level: INFO
+file_log_level: DEBUG
+console_log_level: INFO
+
+log_directory: "logs"
+log_file_pattern: "pipeline_{timestamp}.log"
+
+handlers:
+  file:
+    class: logging.FileHandler
+    level: DEBUG
+    formatter: detailed
+  console:
+    class: logging.StreamHandler
+    level: INFO
+    formatter: detailed
+
+formatters:
+  detailed:
+    format: "%(asctime)s | %(levelname)-8s | %(name)s | %(message)s"
+    datefmt: "%Y-%m-%d %H:%M:%S"
+
+pipeline_errors:
+  base_class: "code.utils.logger.PipelineError"
+  auto_log: true

@@ -1,10 +1,10 @@
 """
-Train a Cycle-Agnostic fallback model for TSI reconstruction.
+Train_fallback module for the Solar Irradiance Reconstruction pipeline.
 
-This module implements Task T019:
-1. Trains a single Random Forest model on GSN data only (no Cycle ID features).
-2. Calculates per-cycle baseline offsets (mean residuals) for satellite-era cycles.
-3. Saves the model and offsets to disk.
+This module implements the Cycle-Agnostic fallback model training (Task T019).
+It trains a Random Forest model on GSN data only (no Cycle ID features) using
+the satellite-era dataset (2003–present) to serve as a fallback for cycles
+not present in the primary training set.
 """
 
 import os
@@ -12,197 +12,229 @@ import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, Tuple
-
 import pandas as pd
-import numpy as np
-from sklearn.ensemble import RandomForestRegressor
-from sklearn.metrics import mean_squared_error, r2_score
 import joblib
+import numpy as np
 
-# Import project configuration and data utilities
-# Note: Using relative imports compatible with the project structure
-try:
-    from config import ensure_directories
-    from data.preprocessing import load_raw_data
-except ImportError:
-    # Fallback for direct execution if path setup differs
-    import sys
-    sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
-    from config import ensure_directories
-    from data.preprocessing import load_raw_data
+from config import ensure_directories
+from env_config import get_processed_data_path, get_models_artifacts_path
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 # Constants
-GAP_FILL_THRESHOLD_YEARS = 1.0
-RANDOM_SEED = 42
-RF_MAX_DEPTH = 10
-RF_N_ESTIMATORS = 100
-
+SAT_EPOCH_START = 2003
+FALLBACK_MODEL_PATH = "fallback_model.joblib"
+FALLBACK_FEATURES = ["gsn"]  # Cycle-agnostic: only GSN, no Cycle ID
 
 def load_preprocessed_data() -> pd.DataFrame:
     """
-    Load the preprocessed dataset containing GSN, TSI, and Cycle ID.
-    Expects `data/processed/preprocessed_data.parquet` to exist (output of T014/T015).
+    Load the preprocessed data from the processed data directory.
+    
+    Returns:
+        pd.DataFrame: The preprocessed dataset containing GSN and TSI data.
+        
+    Raises:
+        FileNotFoundError: If the preprocessed data file does not exist.
     """
-    data_path = Path("data/processed/preprocessed_data.parquet")
-    if not data_path.exists():
+    data_path = get_processed_data_path()
+    file_path = data_path / "preprocessed_data.parquet"
+    
+    if not file_path.exists():
         raise FileNotFoundError(
-            f"Preprocessed data not found at {data_path}. "
-            "Please run the preprocessing pipeline (Task T014) first."
+            f"Preprocessed data file not found at {file_path}. "
+            "Please ensure T014c (preprocessing) has been completed."
         )
-    logger.info(f"Loading preprocessed data from {data_path}")
-    df = pd.read_parquet(data_path)
+    
+    logger.info(f"Loading preprocessed data from {file_path}")
+    df = pd.read_parquet(file_path)
+    
+    # Ensure required columns exist
+    required_cols = ['date', 'gsn', 'tsi', 'cycle_id']
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise ValueError(f"Missing required columns in preprocessed data: {missing_cols}")
+    
     return df
-
 
 def prepare_fallback_features(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.Series]:
     """
-    Prepare features for the Cycle-Agnostic model.
-    Features: GSN only.
-    Target: TSI.
-    Filters to satellite-era data (approx 2003-present) where TSI is available.
+    Prepare features and target for the fallback model.
+    
+    Filters the dataset to the satellite era (>= 2003) and selects only
+    GSN as the feature (Cycle-Agnostic).
+    
+    Args:
+        df (pd.DataFrame): The full preprocessed dataset.
+        
+    Returns:
+        Tuple[pd.DataFrame, pd.Series]: Features (GSN only) and target (TSI).
     """
-    # Filter for satellite era (where TSI measurements exist)
-    # Assuming TSI column is present and non-null in satellite era
-    satellite_mask = df['tsi'].notna()
-    df_sat = df[satellite_mask].copy()
+    logger.info(f"Filtering data to satellite era (>= {SAT_EPOCH_START})")
+    
+    # Extract year from date column if it's a datetime or string
+    if pd.api.types.is_datetime64_any_dtype(df['date']):
+        df = df.copy()
+        df['year'] = df['date'].dt.year
+    else:
+        # Try to parse as datetime
+        df = df.copy()
+        df['date'] = pd.to_datetime(df['date'], errors='coerce')
+        df['year'] = df['date'].dt.year
+    
+    # Filter for satellite era
+    satellite_mask = df['year'] >= SAT_EPOCH_START
+    satellite_df = df[satellite_mask].copy()
+    
+    if satellite_df.empty:
+        raise ValueError(f"No data found for satellite era (>= {SAT_EPOCH_START}).")
+    
+    logger.info(f"Satellite era data shape: {satellite_df.shape}")
+    logger.info(f"Date range: {satellite_df['date'].min()} to {satellite_df['date'].max()}")
+    
+    # Prepare features: GSN only (Cycle-Agnostic)
+    X = satellite_df[FALLBACK_FEATURES].copy()
+    y = satellite_df['tsi']
+    
+    # Drop rows with missing values
+    mask = X.notna().all(axis=1) & y.notna()
+    X_clean = X[mask]
+    y_clean = y[mask]
+    
+    logger.info(f"Final training set size (after dropping NaNs): {X_clean.shape[0]}")
+    
+    if X_clean.empty:
+        raise ValueError("No valid data points remaining after cleaning.")
+        
+    return X_clean, y_clean
 
-    if df_sat.empty:
-        raise ValueError("No satellite-era data found for training fallback model.")
-
-    # Features: Only GSN (Cycle-Agnostic)
-    # We assume 'gsn' is the preprocessed sunspot number column
-    feature_cols = ['gsn']
-    X = df_sat[feature_cols]
-    y = df_sat['tsi']
-
-    # Handle any remaining NaNs in GSN (should be filled by T014, but safety check)
-    if X.isnull().any().any():
-        logger.warning("NaN values found in GSN features. Dropping rows.")
-        valid_mask = ~X.isnull().any(axis=1)
-        X = X[valid_mask]
-        y = y[valid_mask]
-
-    logger.info(f"Prepared {len(X)} samples for fallback model training.")
-    return X, y
-
-
-def calculate_cycle_offsets(df: pd.DataFrame, model: RandomForestRegressor) -> Dict[str, float]:
+def train_fallback_model(X: pd.DataFrame, y: pd.Series) -> object:
     """
-    Calculate the mean residual (baseline offset) for each cycle.
-    This quantifies the systematic bias of the global model per cycle.
+    Train the Cycle-Agnostic fallback model.
+    
+    Uses a Random Forest regressor with parameters optimized for robustness
+    and CPU-only execution (max_depth=10, n_estimators=100).
+    
+    Args:
+        X (pd.DataFrame): Feature matrix (GSN only).
+        y (pd.Series): Target vector (TSI).
+        
+    Returns:
+        object: The trained Random Forest model.
     """
-    # Ensure we have cycle information
-    if 'cycle_id' not in df.columns:
-        raise ValueError("Dataset missing 'cycle_id' column required for offset calculation.")
-
-    # Filter to satellite era for offset calculation
-    satellite_mask = df['tsi'].notna()
-    df_sat = df[satellite_mask].copy()
-
-    # Predict using the global fallback model
-    X_pred = df_sat[['gsn']]
-    # Drop rows with NaN GSN if any
-    valid_pred_mask = ~X_pred.isnull().any(axis=1)
-    X_pred = X_pred[valid_pred_mask]
-    y_true = df_sat.loc[valid_pred_mask, 'tsi']
-    cycle_ids = df_sat.loc[valid_pred_mask, 'cycle_id']
-
-    y_pred = model.predict(X_pred)
-    residuals = y_true - y_pred
-
-    # Group by cycle_id and calculate mean residual
-    offsets = residuals.groupby(cycle_ids).mean()
-
-    # Convert to dictionary, handling potential NaN cycle_ids if any
-    result = {}
-    for cycle_id, offset in offsets.items():
-        if pd.notna(cycle_id):
-            result[str(cycle_id)] = float(offset)
-
-    logger.info(f"Calculated offsets for {len(result)} cycles.")
-    return result
-
-
-def train_fallback_model(X: pd.DataFrame, y: pd.Series) -> RandomForestRegressor:
-    """
-    Train a Random Forest regressor on GSN data only.
-    """
-    logger.info(f"Training Cycle-Agnostic Random Forest (max_depth={RF_MAX_DEPTH}, n_estimators={RF_N_ESTIMATORS})...")
+    logger.info("Training Cycle-Agnostic fallback model (Random Forest)...")
+    logger.info(f"Model parameters: max_depth=10, n_estimators=100, random_state=42")
+    
+    from sklearn.ensemble import RandomForestRegressor
     
     model = RandomForestRegressor(
-        n_estimators=RF_N_ESTIMATORS,
-        max_depth=RF_MAX_DEPTH,
-        random_state=RANDOM_SEED,
-        n_jobs=-1
+        max_depth=10,
+        n_estimators=100,
+        random_state=42,
+        n_jobs=-1  # Use all available CPU cores
     )
     
     model.fit(X, y)
     
-    # In-sample evaluation for logging
+    # Calculate training metrics for logging
     y_pred = model.predict(X)
-    rmse = np.sqrt(mean_squared_error(y, y_pred))
-    r2 = r2_score(y, y_pred)
+    mse = np.mean((y - y_pred) ** 2)
+    rmse = np.sqrt(mse)
+    r2 = 1 - (np.sum((y - y_pred) ** 2) / np.sum((y - y.mean()) ** 2))
     
-    logger.info(f"Training complete. In-sample RMSE: {rmse:.4f}, R²: {r2:.4f}")
+    logger.info(f"Training RMSE: {rmse:.4f} W/m²")
+    logger.info(f"Training R²: {r2:.4f}")
+    
     return model
 
+def save_model_artifact(model: object, output_path: Path) -> None:
+    """
+    Save the trained model to disk.
+    
+    Args:
+        model (object): The trained model instance.
+        output_path (Path): The path where the model artifact will be saved.
+    """
+    logger.info(f"Saving fallback model to {output_path}")
+    
+    # Ensure directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    joblib.dump(model, output_path)
+    
+    if output_path.exists():
+        size_mb = output_path.stat().st_size / (1024 * 1024)
+        logger.info(f"Model saved successfully. Size: {size_mb:.2f} MB")
+    else:
+        raise RuntimeError(f"Failed to save model to {output_path}")
 
-def run_fallback_training_pipeline() -> Tuple[RandomForestRegressor, Dict[str, float]]:
+def run_fallback_training_pipeline() -> Dict[str, Any]:
     """
-    Orchestrates the full fallback training pipeline:
-    1. Load data.
-    2. Prepare features.
-    3. Train model.
-    4. Calculate offsets.
-    5. Save artifacts.
+    Execute the full fallback model training pipeline.
+    
+    Steps:
+        1. Load preprocessed data.
+        2. Prepare features (GSN only) and target (TSI) for satellite era.
+        3. Train the Cycle-Agnostic Random Forest model.
+        4. Save the model artifact.
+        
+    Returns:
+        Dict[str, Any]: A dictionary containing training metrics and paths.
     """
-    # Ensure output directories exist
     ensure_directories()
-
-    # 1. Load Data
-    df = load_preprocessed_data()
-
-    # 2. Prepare Features (GSN only)
-    X, y = prepare_fallback_features(df)
-
-    # 3. Train Model
-    model = train_fallback_model(X, y)
-
-    # 4. Calculate Offsets
-    # We need the original df with cycle_ids to calculate offsets correctly
-    # The df from load_preprocessed_data includes cycle_id
-    offsets = calculate_cycle_offsets(df, model)
-
-    # 5. Save Artifacts
-    model_path = Path("code/models/artifacts/fallback_model.joblib")
-    offsets_path = Path("data/processed/cycle_specific_coefficients.json")
-
-    # Save model
-    os.makedirs(model_path.parent, exist_ok=True)
-    joblib.dump(model, model_path)
-    logger.info(f"Saved fallback model to {model_path}")
-
-    # Save offsets
-    os.makedirs(offsets_path.parent, exist_ok=True)
-    with open(offsets_path, 'w') as f:
-        json.dump(offsets, f, indent=2)
-    logger.info(f"Saved cycle offsets to {offsets_path}")
-
-    return model, offsets
-
-
-def main():
-    """Entry point for the fallback training script."""
+    
     try:
-        model, offsets = run_fallback_training_pipeline()
-        logger.info("T019 Fallback Training Pipeline completed successfully.")
+        # 1. Load Data
+        df = load_preprocessed_data()
+        
+        # 2. Prepare Features
+        X, y = prepare_fallback_features(df)
+        
+        # 3. Train Model
+        model = train_fallback_model(X, y)
+        
+        # 4. Save Artifact
+        artifacts_dir = get_models_artifacts_path()
+        model_path = artifacts_dir / FALLBACK_MODEL_PATH
+        save_model_artifact(model, model_path)
+        
+        # 5. Return Summary
+        summary = {
+            "status": "success",
+            "model_path": str(model_path),
+            "model_type": "RandomForestRegressor",
+            "parameters": {
+                "max_depth": 10,
+                "n_estimators": 100,
+                "features": FALLBACK_FEATURES,
+                "satellite_era_start": SAT_EPOCH_START
+            },
+            "training_samples": int(X.shape[0]),
+            "message": "Cycle-Agnostic fallback model trained and saved successfully."
+        }
+        
+        logger.info("Fallback training pipeline completed successfully.")
+        return summary
+        
     except Exception as e:
-        logger.error(f"T019 Fallback Training Pipeline failed: {e}")
+        logger.error(f"Fallback training pipeline failed: {e}")
         raise
 
+def main():
+    """Main entry point for the fallback training script."""
+    logger.info("Starting Fallback Model Training (Task T019)...")
+    
+    try:
+        result = run_fallback_training_pipeline()
+        print(json.dumps(result, indent=2))
+    except Exception as e:
+        logger.error(f"Execution failed: {e}")
+        # Re-raise to ensure the runner knows the task failed
+        raise
 
 if __name__ == "__main__":
     main()

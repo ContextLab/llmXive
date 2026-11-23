@@ -1,0 +1,34 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Weekly Aggregates Schema
+description: >
+  Weekly aggregated usage metrics per user. Used for downstream feature
+  engineering and modeling.
+type: object
+required:
+  - user_id
+  - week_start
+  - usage_frequency
+  - session_duration
+properties:
+  user_id:
+    type: string
+    pattern: "^[a-f0-9]{64}$"
+    description: "Hashed Reddit username (SHA‑256)."
+  week_start:
+    type: string
+    format: date
+    description: "ISO‑8601 date representing the start of the week (Monday)."
+  usage_frequency:
+    type: integer
+    minimum: 0
+    description: "Number of AI‑companion interactions in the week."
+  session_duration:
+    type: number
+    minimum: 0
+    description: "Total session duration in seconds for the week (capped per session)."
+  additional_metrics:
+    type: object
+    description: "Optional extra metrics; keys are strings, values are numbers."
+    additionalProperties:
+      type: number
+additionalProperties: false

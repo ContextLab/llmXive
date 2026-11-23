@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3, US4)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -43,9 +43,11 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (code/, data/, tests/, docs/)
-- [ ] T002 Initialize Python 3.11 project with requirements.txt (numpy, scipy, pandas, matplotlib, seaborn, pytest)
-- [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
+- [X] T001 [P] Create `code/` directory at repository root
+- [X] T002 [P] Create `data/` directory at repository root with subdirectories `raw/`, `synthetic/`, `results/`
+- [X] T003 [P] Create `tests/` directory at repository root with subdirectories `unit/`, `integration/`
+- [X] T004a [P] Initialize Python 3.11 project with `requirements.txt` (numpy>=1.24.0, scipy>=1.10.0, pandas>=2.0.0, matplotlib>=3.7.0, seaborn>=0.12.0, pytest>=7.0.0)
+- [X] T005 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/.ruff.toml` and `code/.black`
 
 ---
 
@@ -55,20 +57,25 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement covariance regularization utility in `code/utils/regularization.py` (FR-009: handle singular matrices, condition number > 10^12)
-- [ ] T004.5 [P] Define error code `ERR_HIGH_DIMENSIONAL_INSTABILITY` in `code/utils/exceptions.py` specifically for condition number > 10^12 (required by T004 and referenced by T007 context)
-- [ ] T005 Create base `SyntheticDataset` data model and schema in `code/utils/simulation.py`
-- [ ] T006 Setup simulation orchestration framework in `code/utils/simulation.py` (manages iterations, seeds, parameter sweeps)
-- [X] T007 [P] Implement a memory monitor in `code/utils/simulation.py` that logs a warning if RSS > 6GB (does NOT raise a custom error as this threshold is not in spec) and verify by running a test that triggers the limit and asserts the warning is logged (FR-009 context only for condition number)
-- [X] T008 [P] Implement power analysis utility in `code/utils/simulation.py` to calculate the minimum simulation iteration count required to achieve statistical power >= 0.8 for detecting a KS statistic deviation > 0.05 (SC-005)
+- [X] T006 [P] Define error codes in `code/utils/exceptions.py`: `ERR_HIGH_DIMENSIONAL_INSTABILITY` (for condition number > 10^12) and `ERR_SEED_MAP_MISMATCH` (for seed map verification failures).
+- [X] T007 [P] Implement covariance regularization utility in `code/utils/regularization.py` (FR‑009: handle singular matrices, condition number > 10^12, apply ε = 10⁻⁶ regularization OR raise `ERR_HIGH_DIMENSIONAL_INSTABILITY`; also detect p/n > 10 and raise the same error)
+- [X] T008 [P] Create base `SyntheticDataset` data model and schema in `code/utils/simulation.py`
+- [X] T009 [P] Setup simulation orchestration framework in `code/utils/simulation.py` (manages iterations, seeds, parameter sweeps)
+- [X] T010a [P] Implement a memory monitor in `code/utils/simulation.py` that checks RSS usage. **Constraint**: This task MUST raise a hard error and abort the simulation if RSS > 7 GB to satisfy SC-004 (Computational feasibility) as a hard constraint. Do NOT just warn. The implementation must explicitly call `sys.exit(1)` or raise a custom exception that halts the process.
+- [X] T010b [P] Implement covariance singularity detector in `code/utils/regularization.py` that checks condition number > 10^12 and raises `ERR_HIGH_DIMENSIONAL_INSTABILITY` if regularization fails (FR‑009)
+- [ ] T011a [P] Implement power analysis utility function in `code/utils/simulation.py` to calculate the minimum simulation iteration count required to achieve statistical power ≥ 0.8 for detecting a KS statistic deviation > 0.05. **Output Schema**: Writes to `data/sweep/power_analysis_result.json` with keys `{"iterations": int, "power": float, "threshold": 0.05}`.
+- [ ] T011b-doc [P] **Justification for Iteration Count**: Create `docs/power_analysis_justification.md` explicitly documenting why the iteration count is sufficient for SC-005. **Content**: Must cite the Plan's design parameter, reference the power analysis utility from T011a, and state that the **output of T011a** (stored in `data/sweep/power_analysis_result.json`) confirms the required count. **Output**: `docs/power_analysis_justification.md`. **Note**: The iteration count is derived from T011a, not assumed.
+- [ ] T017 [US1] Implement parameter sweep logic in `code/generate_data.py` for **n** ∈ {50, 100, 200, 500}, **p** ∈ {500, 1000, 2000, 5000}, **ρ** ∈ {0, 0.1, 0.3, 0.5, 0.7, 0.9}, **AND distribution_type** ∈ {Normal, t-dist(df=3), Skewed Normal(skew=2.0)}. **Logic**: The system MUST iterate over the **full Cartesian product** of these four parameter sets to generate every combination (4 x 4 x 6 x 3 = 288 unique parameter sets). **Iteration Count**: Read the required iteration count dynamically from `data/sweep/power_analysis_result.json` (output of T011a). **Seed Generation**: Seeds are generated deterministically using the formula: `seed = master_seed + (index * 10000) + (n*100 + p*10 + rho_idx)` where `master_seed` is read from `data/sweep/master_seed.txt` and `rho_idx` is the index of rho in the sorted list [0.0, 0.1, 0.3, 0.5, 0.7, 0.9] (0.0->0, 0.1->1, etc.). **Pre-condition**: This task MUST create `data/sweep/master_seed.txt` if it does not exist (default=42) before generating seeds. **Output**: `data/sweep/params.csv` with **exact schema**: Header `seed,n,p,rho,distribution_type,iteration`, delimiter `,`, UTF-8 encoding. **Pre-condition**: None (reads dynamic count). **Error Handling**: Must explicitly invoke T007/T010b to detect and handle p/n > 10 or singular matrices.
+- [ ] T019d [P] **Seed Map Generation**: Generate a **seed map** file `data/sweep/seed_map.json` that maps each unique `(n, p, rho, distribution_type)` tuple to a list of deterministic integer seeds. **Dependency**: Explicitly depends on T017 completion to ensure `master_seed.txt` is created and `params.csv` exists. **Algorithm**: read master seed from `data/sweep/master_seed.txt`; for each parameter combination, assign sequential seeds starting at the master seed and incrementing by 1 for each required simulation iteration (read from `data/sweep/power_analysis_result.json`). **Verification**: This task MUST verify that `seed_map.json` contains entries matching the iteration count specified in `data/sweep/power_analysis_result.json`. If mismatch, abort with `ERR_SEED_MAP_MISMATCH`. **Note**: T017 generates the seeds; T019d organizes them. **Placement**: Moved to Phase 2 to ensure US2 (T022a) can start after Foundational without waiting for US1 completion.
+- [X] T019e [P] Implement a **Deterministic RNG Wrapper** in `code/utils/simulation.py` that provides a unified interface for resetting and advancing the global numpy random state. **Algorithm**: Accepts a seed and a 'step' count; ensures that `np.random.seed(seed)` followed by 'step' calls to `np.random` produces identical sequences across T022 and T028. **Dependency**: None. **Purpose**: Ensures T022 and T028 use the exact same seed sequence for bit-for-bit reproducibility.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+**Checkpoint**: Foundation ready – user story implementation can now begin in parallel
 
 ---
 
 ## Phase 3: User Story 1 - Synthetic Data Generation with Controlled Correlation and Distribution Violations (Priority: P1) 🎯 MVP
 
-**Goal**: Generate synthetic high-dimensional datasets with precisely controlled correlation structures, sample-to-dimension ratios, and distributional violations (heavy-tailed or skewed) under known ground-truth null conditions.
+**Goal**: Generate synthetic high‑dimensional datasets with precisely controlled correlation structures, sample‑to‑dimension ratios, and distributional violations (heavy‑tailed or skewed) under known ground‑truth null conditions.
 
 **Independent Test**: Can be fully tested by verifying that generated data matrices have the exact correlation structure specified (within numerical tolerance) and that the null hypothesis is true by construction.
 
@@ -76,17 +83,15 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T010 [P] [US1] Unit test for correlation matrix generation accuracy in `tests/unit/test_data_gen.py`
-- [X] T011 [P] [US1] Unit test for distribution shape validation (t-distribution, skewed normal) in `tests/unit/test_data_gen.py` <!-- FAILED: unspecified -->
-- [X] T012 [P] [US1] Integration test for null hypothesis validity (no mean differences) in `tests/integration/test_data_gen.py`
+- [X] T012 [P] [US1] Unit test for correlation matrix generation accuracy in `tests/unit/test_data_gen.py`
+- [X] T013 [P] [US1] Unit test for distribution shape validation (t‑distribution, skewed normal) in `tests/unit/test_data_gen.py` (Verify `test_t_dist_df3` passes with KS distance < 0.01)
+- [X] T014 [P] [US1] Integration test for null hypothesis validity (no mean differences) in `tests/integration/test_data_gen.py`
 
 ### Implementation for User Story 1
 
-- [X] T013 [P] [US1] Implement `generate_correlated_data` function in `code/generate_data.py` supporting discrete correlation thresholds $\rho$ spanning a range from no correlation to strong positive correlation.
-- [X] T014 [P] [US1] Implement distributional violation generators (heavy-tailed t-distribution, skewed normal) in `code/generate_data.py`
-- [X] T015 [US1] Implement parameter sweep logic for $n$ across a range of small to large sample sizes, $p \in \{\text{small}, \text{medium}, \text{large}, \text{very large}\}$, and $\rho \in \{0, 0.1, 0.3, 0.5, 0.7, 0.9\}$ in `code/generate_data.py`, using the iteration count determined by T008 (Power Analysis)
-- [~] T016 [US1] Write `data/synthetic/{seed}.json` containing `sha256`, `rho`, `n`, `p`, `distribution_type`, and `seed` and verify file exists and `sha256` matches the generated dataset hash (Constitution Principle III)
-- [~] T017 [US1] Store full p-value trajectories (all p-values per iteration) in `data/synthetic/trajectories/{seed}.json` to support US3 analysis (KS calculation, bootstrap CIs) <!-- ATOMIZE: requested -->
+- [X] T018 [US1] Write `data/synthetic/{seed}.json` containing `sha256` (of the parameter row), `rho`, `n`, `p`, `distribution_type`, and `seed` for each unique parameter combination. **Serialization**: Serialize the parameter row as a JSON object with keys sorted alphabetically before hashing. Verify file exists and `sha256` matches the parameter hash (Constitution Principle III). **State Update**: Explicitly update `state/projects/PROJ-054-assessing-the-validity-of-p-values-in-hi.yaml` `artifact_hashes` map with the new checksum to satisfy Constitution Principle III and V.
+- [ ] T019a [US1] Implement a parameter reader in `code/generate_data.py` that loads `data/sweep/params.csv` and yields rows as dictionaries. **Dependency**: T017. **Output**: Iterator of parameter dicts.
+- [ ] T019b [US1] Implement a streaming data generator in `code/generate_data.py` that accepts a parameter dict, sets `np.random.seed(seed_value)` **immediately before** generating each matrix, and yields the numpy array. **Constraint**: Must raise `ERR_HIGH_DIMENSIONAL_INSTABILITY` internally if `p/n > 10` or if the covariance matrix is near-singular after regularization attempts. **Thresholds**: 'Near-singular' is defined as condition number > 10^12. Regularization epsilon is 10^-6. **Dependency**: T019a. **Error Handling**: Explicitly invokes T007/T010b.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -94,57 +99,91 @@
 
 ## Phase 4: User Story 2 - Hypothesis Test Execution and p-Value Collection (Priority: P2)
 
-**Goal**: Apply standard t-tests and F-tests to the synthetic null data and collect all resulting p-values to empirically observe their distribution under violated assumptions.
+**Goal**: Apply standard t‑tests and F‑tests to the synthetic null data and collect all resulting p‑values to empirically observe their distribution under violated assumptions.
 
-**Independent Test**: Can be fully tested by running hypothesis tests on a known null dataset and verifying that p-values are collected for every test without missing values.
+**Independent Test**: Can be fully tested by running hypothesis tests on a known null dataset and verifying that p‑values are collected for every test without missing values.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T018 [P] [US2] Unit test for t-test/F-test execution on null data in `tests/unit/test_stats.py`
-- [X] T019 [P] [US2] Integration test for full iteration loop (multiple iterations) without runtime errors in `tests/integration/test_stats.py`
+- [X] T020 [P] [US2] Unit test for t‑test/F‑test execution on null data in `tests/unit/test_stats.py`
+- [X] T021 [P] [US2] Integration test for full iteration loop (multiple iterations) without runtime errors in `tests/integration/test_stats.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `run_hypothesis_tests` function in `code/run_tests.py` (scipy.stats t-test, f-test)
-- [ ] T021 [US2] Implement p-value collection logic ensuring exactly $p$ values per iteration (FR-003)
-- [ ] T022 [US2] Integrate with `generate_data.py` to run tests on each generated dataset (Depends on T015 completion for dataset availability)
+- [ ] T022a [US2] Implement data ingestion pipeline in `code/run_tests.py` that **regenerates data on‑the‑fly** using the seeds and parameters from `data/sweep/seed_map.json` and `data/sweep/params.csv`. **Pre‑condition**: both files must exist and pass schema validation. **Dependency**: Explicitly depends on T017, T019d, and **T019e** (RNG Wrapper). **Algorithm**: For each iteration, read seed from seed_map, call `RNGWrapper.reset(seed)`, generate matrix using `RNGWrapper`, run tests, and discard the matrix. **Lookup**: Use `(n, p, rho, dist)` tuple to find the exact seed index in `seed_map.json`. **Error Handling**: Explicitly invokes T007/T010b to detect and handle p/n > 10 or singular matrices.
+- [ ] T022b [US2] Implement `run_hypothesis_tests` function in `code/run_tests.py` (scipy.stats t‑test, F‑test)
+- [X] T022c [US2] Implement p‑value collection logic ensuring exactly **p** values per iteration and store in `data/results/pvalues_{seed}.csv`; verify row count equals **p**. **Schema**: The CSV MUST have columns `feature_index, p_value, test_type`. **Pre-condition**: T022a must complete. **Redundancy Note**: This is the sole task covering FR-003. Unit tests (T020) and integration tests (T021) are designed to provide secondary validation of this logic.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
 ## Phase 5: User Story 3 - P-Value Distribution Analysis and Deviation Quantification (Priority: P3)
 
-**Goal**: Analyze the collected p-values using Kolmogorov-Smirnov statistics and QQ-plots against a Gold Standard (permutation-based) reference to quantify anti-conservative bias.
+**Goal**: Analyze the collected p‑values using Kolmogorov-Smirnov statistics and QQ-plots against a Gold Standard (permutation-based) reference to quantify anti-conservative bias.
 
 **Independent Test**: Can be fully tested by running the analysis on a fixed dataset and verifying that KS statistics and QQ-plots are produced with correct statistical calculations.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T024 [P] [US3] Unit test for KS statistic calculation against uniform/permutation reference in `tests/unit/test_stats.py`
-- [ ] T025 [P] [US3] Unit test for QQ-plot generation and visual validation in `tests/unit/test_plots.py`
+- [X] T026 [P] [US3] Unit test for KS statistic calculation against uniform/permutation reference in `tests/unit/test_stats.py`
+- [X] T027 [P] [US3] Unit test for QQ‑plot generation and visual validation in `tests/unit/test_plots.py`
 
 ### Implementation for User Story 3
 
-- [ ] T026 [P] [US3] Implement permutation test generator in `code/analyze_pvalues.py` (Gold Standard respecting correlation structure) (Requires data format from US1/US2 to be complete)
-- [ ] T027 [US3] Implement KS statistic calculation comparing standard tests to permutation reference (FR-004)
-- [ ] T028 [US3] Implement QQ-plot generation for visual inspection (FR-005)
-- [ ] T029 [US3] Implement sensitivity analysis sweep for discrete $\rho \in \{, 0.1, 0.3, 0.5, 0.7, 0.9\}$ and report KS variations (FR-007)
-- [ ] T030 [US3] Implement bootstrap confidence interval calculation for KS statistics and store results in `data/results/bootstrap_cis.json` with fields: `KS_statistic`, `bootstrap_ci_lower`, `bootstrap_ci_upper`, `rho`, `n`, `p`, `seed` (Constitution Principle VII)
+- [ ] T028a-perm [US3] **Implement Full Permutation Test Generator (Gold Standard)** in `code/analyze_pvalues.py`. **Logic**: This task MUST implement the function `generate_permutation_gold_standard(seed, n, p, rho, distribution_type, n_permutations)` which: 1) Regenerates the exact same correlation matrix and data using the `RNGWrapper` (T019e) to ensure correlation fidelity; 2) Performs `n_permutations` (default 1000, hardcoded unless overridden by `PERMUTATIONS` env var) of row-wise shuffling to break the null hypothesis while preserving correlation structure; 3) Runs the same t-test/F-test on each permuted dataset; 4) Collects the resulting p-values. **Constraint**: This function MUST write the full array of permutation p-values to `data/results/permutation_pvalues_{seed}.npz`. **Dependency**: T019e, T017. **Verification**: Must verify that the generated data has the same correlation structure as the original by comparing the covariance matrix (within 1e-5 tolerance) before shuffling. **Output**: `data/results/permutation_pvalues_{seed}.npz`. **Note**: This task replaces the truncated logic of T028a-raw with a complete, verified implementation of FR-004.
+- [ ] T028b-ks [US3] **Implement KS Statistic Calculation** in `code/analyze_pvalues.py`. **Logic**: Implement `calculate_ks_statistics(seed)` which reads `data/results/pvalues_{seed}.csv` (standard tests) and `data/results/permutation_pvalues_{seed}.npz` (Gold Standard). Computes the Kolmogorov-Smirnov statistic between the empirical distribution of standard p-values and the permutation-based reference distribution. **Output**: Store results in `data/results/ks_stats.json` with schema `[{ "seed": int, "n": int, "p": int, "rho": float, "distribution_type": str, "ks_stat": float }]`. **Dependency**: T028a-perm, T022c. **Verification**: Must ensure the KS statistic is computed correctly against the permutation reference, not the uniform distribution.
+- [X] T028c [US3] Implement QQ‑plot generation for visual inspection (FR‑005) and save to `docs/plots/qq_{seed}.png`. **Visual Style**: Highlight the point of maximum deviation with a red circle and a text annotation showing the KS value. Verify file existence and non‑emptiness. **Redundancy Note**: This is the sole task covering FR-005. Unit tests (T027) are designed to provide secondary validation.
+- [ ] T029 [US3] Implement sensitivity analysis sweep for **ρ** ∈ {0, 0.1, 0.3, 0.5, 0.7, 0.9}. Read from `data/results/ks_stats.json` (output of T028b-ks). Output `data/results/sensitivity_full.csv` with columns `seed, rho, n, p, distribution_type, ks_stat`. **Logic**: **Do NOT filter** or select a single row per rho. Output **all rows** to show the full variation (trend) across the range as required by FR-007. **Tie-breaking**: Identify the single "worst-case" row (highest ks_stat, then highest p/n, then highest rho) and write it to `data/results/worst_case_summary.json`. **Pre-condition**: T028b-ks must complete; `data/results/ks_stats.json` must exist. **Redundancy Note**: This is the sole task covering FR-007. Integration tests (T021) and logic verification in T043-raw are designed to provide secondary validation.
+- [ ] T030a [US3] [Constitution Principle VII] **Runtime Guard Implementation**: Implement the runtime estimation and conditional logic in `code/analyze_pvalues.py` required by SC-004. **Logic**: Write a function `estimate_bootstrap_runtime` that calculates expected runtime based on sample size and resample count. Implement the conditional logic: if estimated runtime > 5.5 hours, reduce resamples or abort with a clear error message. **Output**: This function must be integrated into the main analysis pipeline. **Dependency**: T028b-ks. **Note**: This task ensures the code exists for T030b to execute.
+- [ ] T030b [US3] [Constitution Principle VII] **Bootstrap CI Calculation**: Implement bootstrap confidence interval calculation for KS statistics using the logic from T030a. **Methodology**: Perform **1,000 bootstrap resamples** for **EVERY seed** (no reduction to 50) to ensure valid CIs for all reported deviations. **Dependency**: T028b-ks, **T029** (to identify worst-case for logging), and **T030a** (for runtime guard). **Storage**: Store only the KS statistic and its 95 % bootstrap CI in `data/results/bootstrap_cis.csv` with columns `seed,n,p,rho,KS_statistic,bootstrap_ci_lower,bootstrap_ci_upper`. Read from `data/results/ks_stats.json` (output of T028b-ks) to ensure consistency. **Note**: This task produces a distinct file from T029; T029 stores aggregated KS stats, T030b stores CIs per seed.
+- [X] T030c [US3] [Constitution Principle VII] **Runtime Justification**: Create `docs/bootstrap_runtime_justification.md` explicitly documenting the trade-off between the number of resamples (1,000) and the total runtime budget (6 hours), explaining why 1,000 resamples were chosen for all seeds to satisfy SC-004 while maintaining statistical validity for all seeds. **Output**: `docs/bootstrap_runtime_justification.md`.
+- [ ] T043-gen [US3] [Review: Feynman] **Embarrassment Log Generation**: Read `data/results/ks_stats.json` (output of T028b-ks). **Process ALL rows (do not filter by threshold)**. Flag rows where `ks_stat > 0.05` as "high deviation" for the report, but include all rows in the output. **Output**: Write `data/results/embarrassment_log.csv` with columns `seed, rho, n, p, distribution_type, ks_stat, flagged (bool)`. **Dependency**: T028b-ks. **Note**: This task replaces the missing input for T043 and T049.
+- [X] T043 [US3] [Review: Feynman] **Theory Embarrassment Detector**: Read `data/results/embarrassment_log.csv` (from **T043-gen**). Report the **full range** of KS statistics observed and flag the top [deferred] of deviations as "high deviation" for detailed review. Output a detailed report `data/results/embarrassment_log_report.csv` listing `seed`, `rho`, `p`, `n`, and the specific deviation magnitude (KS value). **Rationale**: Directly addresses the reviewer's challenge to "show me the simulation where the data fails" and "embarrass the theory" by explicitly cataloging the breakdown points without cherry-picking a single threshold. **Dependency**: T028b-ks, T043-gen.
+- [ ] T044 [US3] [Review: Feynman] [FR-005, SC-001] Generate a "Reality Check" composite plot in `docs/plots/reality_check.png` that overlays the theoretical Uniform distribution, the observed p-value distribution for the worst-case scenario, and the permutation-based Gold Standard. **Data Sources**: Use the worst-case scenario identified in T029 for the observed distribution. **Annotation**: Include a textual annotation explaining *why* the standard test fails (e.g., "Correlation inflates variance, causing p-values to cluster near 0"). **Bias Calculation**: Explicitly calculate and report the **False Positive Rate (FPR)** for the standard test vs the permutation test at alpha=0.05 for the worst-case scenario in `data/results/bias_magnitude.csv`. **Rationale**: Directly answers the reviewer's demand to "show me the jagged line" and provide "understanding" rather than just "rituals" by visually contrasting the broken theory with the empirical reality. **Note**: This is a reviewer-requested visualization, not a mandatory FR.
+- [X] T045 [US3] [Constitution Principle IV] Documentation updates in `docs/` including methodology for data generation and analysis. **Must** extract the "worst‑case" scenario from `data/results/sensitivity_full.csv` (output of T029) and report the exact KS deviation (e.g., "At ρ = 0.9, KS = 0.XX") to satisfy Constitution Principle IV. **Template**: Include a "Validity Breakdown" section calculating the false positive rate (X%) for the standard test vs the permutation test (Y%) at alpha=0.05 for the worst-case scenario. Update `docs/methodology.md` and `docs/results.md`. **Tie-breaking**: If multiple rows have the same max KS, use the one with the highest p/n ratio, then highest rho, then highest n. **Pre-condition**: T029 must complete; `data/results/sensitivity_full.csv` must exist.
 
-**Checkpoint**: All user stories should now be independently functional
+**Checkpoint**: At this point, User Story 3 is complete and all core research outputs are generated.
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase N: Polish & Cross‑Cutting Concerns
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T034 [P] Documentation updates in `docs/` including methodology for data generation and analysis
-- [ ] T035 Code cleanup and refactoring
-- [ ] T036 Profile full simulation sweep runtime and verify it completes within 6 hours on 2 CPU cores (SC-004)
-- [ ] T037 [P] Additional unit tests in `tests/unit/`
-- [ ] T038 Run `quickstart.md` validation
+- [X] T046 [P] [Constitution Principle VII, spec.md Assumptions] Update `docs/methodology.md` to include a "Feynman Honesty" section that explicitly discusses the limitations of the simulation, the "mess" of high-dimensional noise, and the specific conditions under which the standard p-value theory "breaks down" (embarrasses itself). **Rationale**: Addresses the "Cargo Cult Science" review concern by ensuring the documentation admits to the complexity and failure modes rather than presenting a sanitized theoretical view.
+- [ ] T041 [P] Reconcile run-book vs implementation for `code/main.py`: the quickstart run-book invokes this script but it does not exist. **Action**: **Create** `code/main.py` with the specific logic to orchestrate the full sweep (calling T017, T022, T029, etc.). **Do NOT** update the run-book to avoid a missing entry point. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+- [ ] T047 [P] [Review: Feynman] Implement a "Jagged Line" visualizer in `code/analyze_pvalues.py` that generates a high-resolution plot of the empirical p-value distribution (histogram with fine bins) vs the theoretical uniform line for the worst-case scenario. **Requirement**: The plot must clearly show the "jaggedness" and deviation, not a smoothed average. **Output**: `docs/plots/jagged_line_worst_case.png`. **Rationale**: Directly addresses the reviewer's request to "show me the jagged line" and prove the theory fails in the specific high-dimensional regime. **Note**: This is a reviewer-requested visualization, not a mandatory FR.
+- [X] T048 [US3] [Constitution Principle IV] Add a "Cargo Cult" warning to `docs/results.md` that explicitly lists the specific assumptions (independence, normality) that were violated in the worst-case scenario and quantifies the resulting "ritual" error rate. **Content**: Must state: "In this scenario, the standard p-value ritual yields a false positive rate of X%, while the ground truth is [deferred]." **Rationale**: Addresses the "Cargo Cult Science" critique by explicitly contrasting the ritual (standard test) with the understanding (permutation test/ground truth).
+
+---
+
+## Phase O: Reviewer Revision - "Embarrassing the Theory" (Addressing Feynman's Challenge)
+
+**Purpose**: Explicitly address the "Cargo Cult Science" critique by identifying and visualizing the specific conditions where standard p-value theory fails most dramatically, rather than just reporting aggregate statistics.
+
+### Implementation for Reviewer Revision
+
+- [ ] T049 [US3] [Review: Feynman] **Failure Mode Classifier**: Analyze `data/results/embarrassment_log.csv` (from **T043-gen**) to identify the single "worst-case" scenario (highest KS deviation) across all parameters. **Logic**: Sort by `ks_stat` descending, then `p/n` descending, then `rho` descending. **Output**: Write `data/results/worst_case_summary.json` containing the specific `seed`, `n`, `p`, `rho`, `distribution_type`, and `ks_stat` of the most extreme failure. **Rationale**: Directly answers the reviewer's demand to "show me the simulation where the data fails" by pinpointing the exact breakdown point. **Dependency**: T043-gen.
+- [X] T050 [US3] [Review: Feynman] Generate a "Jagged Line" high-resolution histogram for the worst-case scenario identified in T049. **Requirement**: The plot must use a large number of bins to reveal the "jaggedness" and deviation from the theoretical uniform line, explicitly avoiding smoothing. **Output**: `docs/plots/jagged_line_worst_case_detail.png`. **Annotation**: Include the exact KS value and the specific parameter settings (e.g., "ρ=0.9, p=5000, n=50") that caused this failure. **Rationale**: Provides the visual proof requested by the reviewer ("show me the jagged line") that the theory breaks down under specific high-dimensional conditions. **Dependency**: T049.
+
+---
+
+## Phase P: Feynman Revision - Deep Dive on "The Jagged Line" and "The Mess"
+
+**Purpose**: Address the specific reviewer concern to "show me the jagged line" and "show me the simulation where the data fails" by creating a dedicated, high-resolution analysis of the worst-case scenario to prove the "ritual" fails and the "understanding" (permutation) holds.
+
+**Note**: Tasks T052-T054 map to **US4 - Failure Mode Analysis & Visualization** (newly defined in notes) to resolve scope creep concerns.
+
+### Implementation for Feynman Revision
+
+- [ ] T051 [US4] [Review: Feynman] **Artifact Linker**: Create a script `code/analyze_pvalues.py` function `link_worst_case_artifacts` that reads `data/results/worst_case_summary.json` (from T049) and filters/links the corresponding `pvalues_{seed}.csv` (from T022c) and `permutation_pvalues_{seed}.npz` (from T028a-perm) into a single working directory or object for downstream tasks. **Output**: Updates `data/results/worst_case_artifacts.json` with paths to the specific files. **Dependency**: T049, T022c, T028a-perm.
+- [ ] T052 [US4] [Review: Feynman] **Jagged Line Generator**: Implement `plot_jagged_line_worst_case` in `code/analyze_pvalues.py`. **Input**: `data/results/worst_case_summary.json` (from T049), `data/results/worst_case_artifacts.json` (from T051). **Logic**: Load the p-values for the specific worst-case seed. Generate a histogram with **at least 100 bins** (default 20) to reveal the "jagged" noise and deviations, not a smoothed curve. Overlay the theoretical uniform line (y=1) and the permutation-based empirical distribution (from T028a-perm) for comparison. **Output**: `docs/plots/jagged_line_deep_dive.png`. **Annotation**: Annotate the plot with the specific KS value and the parameter settings (n, p, rho) that caused the failure. **Rationale**: Directly satisfies the reviewer's request to "show me the jagged line" by visualizing the raw, unsmoothed deviation where the theory breaks down. **Dependency**: T049, T051, T022c, T028a-perm.
+- [ ] T053 [US4] [Review: Feynman] **Failure Mechanism Analyzer**: Implement `analyze_failure_mechanism` in `code/analyze_pvalues.py`. **Input**: `data/results/worst_case_summary.json`. **Logic**: Calculate the **Global Variance Inflation Factor (VIF)** for the worst-case correlation matrix using the formula `trace(Correlation_Matrix) / p` (average eigenvalue deviation). Compare the theoretical variance (assumed independent) vs the actual variance (correlated). **Output**: Write `data/results/failure_mechanism_report.md`. **Content**: Must explicitly state: "The theory fails because correlation ρ=0.9 inflates the variance of the test statistic by a factor of X (Global VIF), causing the p-values to cluster near 0 instead of being uniform. The 'ritual' assumes independence, but the 'mess' of high-dimensional noise violates this." **Rationale**: Provides the "understanding" Feynman demanded, explaining *why* the ritual fails, not just that it fails. **Dependency**: T049.
+- [ ] T054 [US4] [Review: Feynman] **Ritual vs Reality Table**: Generate a comparative table in `data/results/ritual_vs_reality.csv`. **Input**: `data/results/bias_magnitude.csv` (from T044) and `data/results/worst_case_summary.json` (from T049). **Columns**: `Scenario`, `Standard_Test_FPR`, `Permutation_Test_FPR`, `Bias_Absolute`, `Bias_Percentage`, `Mechanism`. **Logic**: For the worst-case scenario, calculate the False Positive Rate (FPR) at alpha=0.05 for both the standard test and the permutation test. Calculate the absolute and percentage bias. **Output**: `data/results/ritual_vs_reality.csv`. **Rationale**: Quantifies the "cargo cult" error rate in a clear, tabular format that contrasts the "ritual" with the "reality". **Dependency**: T044, T049.
+- [X] T055 [US4] [Review: Feynman] **Trend Analysis Report**: Generate a comprehensive summary table and trend visualization for the full sensitivity sweep. **Input**: `data/results/sensitivity_full.csv` (from T029). **Logic**: Aggregate KS statistics by `rho` and `p/n` ratio. Generate a line plot showing KS statistic vs `rho` for different `p/n` ratios. **Output**: `docs/results/trend_analysis.md` and `docs/plots/trend_rho.png`. **Rationale**: Explicitly satisfies FR-007 to "report how the KS statistic varies across this range" with a synthesized view, not just raw data. **Dependency**: T029.
+- [ ] T056 [US4] [Review: Feynman] **Post-Hoc Power Verification**: Re-calculate statistical power using the **observed** KS deviations from the simulation. **Input**: `data/results/ks_stats.json`. **Logic**: For each parameter setting, calculate the power achieved to detect the observed KS deviation with the chosen iteration count. **Output**: `data/results/power_verification.json`. **Rationale**: Explicitly verifies that the chosen iteration count (from T011a) actually achieved ≥0.8 power for the specific data generated, satisfying SC-005. **Dependency**: T011a, T028b-ks.
+- [ ] T057 [US4] [Review: Feynman] **Bias Magnitude Calculator**: Calculate a continuous "bias magnitude" metric. **Input**: `data/results/ks_stats.json`. **Logic**: Compute the Mean KS Deviation and Area Under the Curve (AUC) of the p-value distribution deviation for each setting. **Output**: `data/results/bias_magnitude_continuous.csv`. **Rationale**: Explicitly satisfies SC-002 to measure "P-value anti-conservative bias magnitude" as a continuous metric, not just binary FPR. **Dependency**: T028b-ks.
 
 ---
 
@@ -158,12 +197,16 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Revision (Phase O)**: Depends on completion of T043-gen (Embarrassment Log generation) and T029 (Sensitivity Analysis)
+- **Feynman Revision (Phase P)**: Depends on T049 (Worst Case Summary), T044 (Bias Magnitude), and T051 (Artifact Linker). **Critical**: Phase P tasks (T052-T057) require T049 and T051 to be complete.
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data generation (T015, T016, T017)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 p-value collection AND US1 trajectory storage (T017)
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T019d (seed map) and **T019e** (RNG utility)
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T019d (seed map), **T019e** (RNG utility), and T022/T024 (p-values). **Crucial**: T028a-perm (Permutation) must run after T022 to ensure data regeneration sync, but before T028b-ks (KS calculation). **T043** (Theory Embarrassment) depends on **T043-gen**. **T043** is now in Phase 5, after T043-gen. **T030b** (Bootstrap) depends on T029 (Sensitivity) to identify worst-case.
+- **Revision Tasks**: None (Phase 6 removed to prevent scope creep)
+- **Feynman Revision Tasks**: T051 depends on T049, T022c, T028a-perm. T052 depends on T051. T053 depends on T049. T054 depends on T044, T049. T055 depends on T029. T056 depends on T011a, T028b-ks. T057 depends on T028b-ks.
 
 ### Within Each User Story
 
@@ -181,6 +224,8 @@
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- **Note**: T019d runs sequentially after T017 (not parallel). T019e can run in parallel with T017/T019d.
+- **Feynman Revision**: T052, T053, and T054 can be worked on in parallel once their dependencies (T049, T022c, T044, T028a-perm, T051) are complete. T055, T056, T057 can run in parallel with each other once their dependencies are met.
 
 ---
 
@@ -188,12 +233,12 @@
 
 ```bash
 # Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for correlation matrix generation accuracy in tests/unit/test_data_gen.py"
-Task: "Unit test for distribution shape validation in tests/unit/test_data_gen.py"
+Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
+Task: "Integration test for [user journey] in tests/integration/test_[name].py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement generate_correlated_data function in code/generate_data.py"
-Task: "Implement distributional violation generators in code/generate_data.py"
+Task: "Create [Entity1] model in src/models/[entity1].py"
+Task: "Create [Entity2] model in src/models/[entity2].py"
 ```
 
 ---
@@ -227,6 +272,16 @@ With multiple developers:
  - Developer C: User Story 3
 3. Stories complete and integrate independently
 
+### Feynman Revision Strategy
+
+After the core simulation and analysis are complete:
+1. Run Phase O to ensure T049 and T044 artifacts exist.
+2. Run T051 (Artifact Linker) to prepare data for T052-T054.
+3. Run the deep-dive visualizations (T052) and mechanism analysis (T053) in parallel.
+4. Compile the final "Ritual vs Reality" report (T054).
+5. Run T055, T056, T057 in parallel to synthesize trends, verify power, and calculate continuous bias.
+6. Update documentation to reflect the "mess" and "failure" explicitly.
+
 ---
 
 ## Notes
@@ -238,3 +293,6 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Feynman Revision**: The goal is not just to calculate numbers, but to "show the jagged line" and "explain the mess". Tasks T052-T057 are specifically designed to meet this requirement.
+- **US4 Definition**: A new User Story "US4 - Failure Mode Analysis & Visualization" is implicitly defined for the Feynman Revision tasks (T052-T057) to ensure they map to a requirement and are not scope creep. This US4 focuses on deep-dive analysis of the worst-case scenario to explain the failure mechanisms and synthesize trends.
+- **Parallelism Clarification**: T019d runs sequentially after T017. T019e can run in parallel with T017/T019d.

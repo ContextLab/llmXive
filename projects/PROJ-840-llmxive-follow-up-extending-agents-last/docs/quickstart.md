@@ -1,121 +1,236 @@
-# Quickstart Guide - llmXive ALE Extension
+# llmXive Automated Science Pipeline: Quick Start Guide
+
+This guide provides a step-by-step walkthrough to set up, run, and validate the
+llmXive automated science pipeline for the "Agents' Last Exam" (ALE) extension.
 
 ## Prerequisites
 
-- Python 3.9+
-- pip package manager
-- 8GB+ RAM (for model loading)
-- 20GB+ disk space
+- Python 3.10 or higher
+- pip (Python package manager)
+- At least 14GB of free disk space
+- At least 7GB of available RAM
 
-## Installation
+## 1. Project Setup
 
-1. **Clone the repository**
- ```bash
- git clone <repository-url>
- cd PROJ-840-llmxive-follow-up-extending-agents-last
- ```
-
-2. **Create virtual environment**
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-
-3. **Install dependencies**
- ```bash
- pip install -r requirements.txt
- ```
-
-4. **Verify installation**
- ```bash
- python code/validate_quickstart.py
- ```
-
-## Project Structure
-
-```
-.
-├── code/
-│ ├── analysis/ # Statistical analysis (T026-T029)
-│ ├── classification/ # Failure classification (T010-T016)
-│ ├── data/ # Data generation (T015)
-│ ├── intervention/ # Context checkpointing (T019-T023)
-│ ├── utils/ # Utilities (T004-T005, T007)
-│ └── validate_quickstart.py # Validation script (T035)
-├── data/
-│ ├── raw/ # Raw generated data
-│ └── processed/ # Processed results
-├── docs/
-│ ├── specs/ # Specification documents
-│ └── quickstart.md # This file
-├── tests/
-│ ├── unit/ # Unit tests
-│ └── integration/ # Integration tests
-├── requirements.txt # Python dependencies
-├── pyproject.toml # Project configuration
-└── README.md # Project overview
-```
-
-## Running the Pipeline
-
-### Step 1: Generate Synthetic Data (T015)
+The project structure is defined in `specs/001-llmxive-ale-extension/plan.md`.
+Run the setup script to create the necessary directories:
 
 ```bash
-python code/data/generator.py --output data/raw/golden_subset.json --n-traces 10
+cd PROJ-840-llmxive-follow-up-extending-agents-last
+python code/setup_project.py
 ```
 
-### Step 2: Classify Failures (T010-T016)
+This creates the following structure:
+- `code/`: Source code modules
+- `tests/`: Unit and integration tests
+- `data/`: Raw and processed data files
+- `docs/`: Documentation
+- `specs/`: Feature specifications
+
+## 2. Environment Configuration
+
+Install the required dependencies:
 
 ```bash
-python code/classification/parser.py --input data/raw/golden_subset.json
-python code/classification/heuristics.py --input data/raw/golden_subset.json
-python code/classification/state_validator.py --input data/raw/golden_subset.json
-python code/classification/semantic_classifier.py --input data/raw/golden_subset.json
+pip install -r requirements.txt
 ```
 
-### Step 3: Run Intervention (T019-T023)
+**Required Dependencies**:
+- `llama-cpp-python`: For local LLM inference
+- `datasets`: For data loading and processing
+- `scikit-learn`: For statistical analysis
+- `pandas`: For data manipulation
+- `pyyaml`: For configuration loading
+- `pytest`: For testing
+- `statsmodels`: For advanced statistical tests
+
+Configure your environment variables (optional but recommended):
 
 ```bash
-python code/intervention/runner.py --baseline --output data/processed/baseline_results.json
-python code/intervention/runner.py --intervention --output data/processed/intervention_results.json
+export PYTHONPATH="${PYTHONPATH}:$(pwd)/code"
 ```
 
-### Step 4: Statistical Analysis (T026-T029)
+## 3. Configuration
+
+The pipeline uses a YAML configuration file located at `code/utils/config_schema.yaml`.
+Key configuration sections include:
+
+- **ModelConfig**: Path to the local LLM checkpoint (Q4_K_M quantized)
+- **CheckpointConfig**: Interval N for context checkpointing
+- **DataPathsConfig**: Paths to raw and processed data directories
+- **NormalizationConfig**: Float tolerance (default: 1e-6)
+- **StatsConfig**: Parameters for statistical significance testing
+
+Example configuration snippet:
+
+```yaml
+model:
+ path: "models/llama-7b-q4_k_m.gguf"
+ quantization: "Q4_K_M"
+
+checkpoint:
+ interval_n: 3 # Regenerate state summary every N steps
+
+data:
+ raw_dir: "data/raw"
+ processed_dir: "data/processed"
+
+normalization:
+ float_tolerance: 1.0e-6
+```
+
+## 4. Running the Pipeline
+
+The pipeline consists of three main user stories that can be executed independently.
+
+### Phase 1: Data Generation (US1 Prerequisite)
+
+Generate synthetic ALE execution traces with known ground truth:
 
 ```bash
-python code/analysis/stats.py --baseline data/processed/baseline_results.json \
- --intervention data/processed/intervention_results.json
-python code/analysis/sensitivity.py --n-values 1,3,5
-python code/analysis/report_generator.py --output docs/report.md
+python code/data/generator.py
 ```
 
-## Validation
+This produces `data/raw/golden_subset.json` containing traces with verified failure modes.
+The generator uses deterministic seed pinning (T004) and verifies pairing (T004b) to
+ensure reproducibility.
 
-Run the quickstart validation to ensure everything is working:
+### Phase 2: Failure Mode Classification (US1)
+
+Parse logs, reconstruct state, and classify failures:
+
+```bash
+# Step 1: Validate state reconstruction (Gate T013b)
+python code/classification/state_validator.py
+
+# Step 2: Run semantic classification
+python code/classification/semantic_classifier.py
+
+# Step 3: Generate classification report
+python code/classification/report_generator.py
+```
+
+The classifier uses a local LLM (Q4_K_M) with deterministic seed pinning to label
+failures as either "State Persistence Error" or "Reasoning Deficit".
+
+### Phase 3: Context Checkpointing Intervention (US2)
+
+Run baseline and intervention experiments:
+
+```bash
+# Run baseline tasks (no wrapper)
+python code/intervention/runner.py --mode baseline
+
+# Run intervention tasks (with checkpointing wrapper)
+python code/intervention/runner.py --mode intervention --interval 3
+```
+
+Results are saved to:
+- `data/processed/baseline_results.json`
+- `data/processed/intervention_results.json`
+
+### Phase 4: Statistical Analysis & Reporting (US3)
+
+Perform statistical significance testing and generate the final report:
+
+```bash
+# Run McNemar's test and calculate pass rates
+python code/analysis/stats.py
+
+# Run sensitivity analysis for N=1, N=3, N=5
+python code/analysis/sensitivity.py
+
+# Generate final report
+python code/analysis/report_generator.py
+```
+
+The final report is saved to `docs/report.md` and includes:
+- Pass rates for baseline vs. intervention
+- McNemar's test p-value
+- Sensitivity analysis across different checkpoint intervals
+- Bonferroni/FDR corrected significance values
+
+## 5. Validation
+
+Validate the entire quickstart process:
 
 ```bash
 python code/validate_quickstart.py
 ```
 
-This script will:
-1. Verify directory structure
-2. Check requirements.txt
-3. Validate pyproject.toml configuration
-4. Test seed utilities
-5. Test configuration loading
-6. Verify module imports
-7. Test data generation flow
+This script checks:
+- Directory structure integrity
+- Requirements installation
+- Pyproject.toml configuration
+- Seed utility functionality
+- Configuration loading
+- Module imports
+- Data generation and file creation
 
-## Troubleshooting
+## 6. Testing
+
+Run the test suite to verify all components:
+
+```bash
+# Unit tests
+pytest tests/unit/ -v
+
+# Integration tests
+pytest tests/integration/ -v
+
+# Full test suite
+pytest tests/ -v
+```
+
+Key tests include:
+- T008/T009: Parser normalization and classification accuracy on golden set
+- T017/T018: Checkpoint injection and memory limit compliance
+- T024/T025: Statistical significance and sensitivity analysis
+
+## 7. Troubleshooting
 
 ### Common Issues
 
-- **Import errors**: Ensure you're in the project root and virtual environment is activated
-- **Model loading failures**: Verify model path in `code/utils/config_schema.yaml`
-- **Memory errors**: Reduce batch size or use smaller model quantization
+**Issue**: `ImportError: No module named 'llama_cpp'`
+**Solution**: Ensure `llama-cpp-python` is installed with GPU support if needed:
+```bash
+pip install llama-cpp-python --force-reinstall --no-cache-dir
+```
 
-### Getting Help
+**Issue**: `FileNotFoundError: data/raw/golden_subset.json`
+**Solution**: Run the data generator first:
+```bash
+python code/data/generator.py
+```
 
-- Check `docs/specs/001-llmxive-ale-extension/plan.md` for detailed architecture
-- Review task descriptions in `tasks.md`
-- Run tests: `pytest tests/`
+**Issue**: `State Reconstruction Accuracy < 0.95`
+**Solution**: The pipeline will halt at T013b. Check:
+- Normalization tolerance (default: 1e-6)
+- Seed pairing verification (T004b)
+- Golden subset generation completeness
+
+**Issue**: Memory usage exceeds 7GB
+**Solution**: Ensure Q4_K_M quantization is used and context window limits are enforced
+in `code/intervention/wrapper.py`.
+
+## 8. Output Artifacts
+
+After successful execution, the following artifacts will be available:
+
+| Artifact | Path | Description |
+|----------|------|-------------|
+| Golden Subset | `data/raw/golden_subset.json` | Synthetic traces with ground truth |
+| Baseline Results | `data/processed/baseline_results.json` | Pass/fail outcomes without intervention |
+| Intervention Results | `data/processed/intervention_results.json` | Pass/fail outcomes with checkpointing |
+| Classification Report | `data/processed/classification_report.json` | Failure mode breakdown |
+| Statistical Report | `data/processed/stats_report.json` | McNemar's test results |
+| Final Report | `docs/report.md` | Comprehensive analysis summary |
+
+## 9. Next Steps
+
+- Review the final report in `docs/report.md`
+- Analyze sensitivity results to determine optimal checkpoint interval
+- Extend the pipeline with additional user stories as defined in `specs/`
+- Contribute to the project by implementing remaining tasks (T034, T035)
+
+For more details, refer to the feature specifications in `specs/001-llmxive-ale-extension/`.

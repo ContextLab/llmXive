@@ -59,7 +59,7 @@
 - [X] T005 [P] Implement `src/utils/validators.py` for schema validation of raw and processed data
 - [X] T006 [P] Create `src/data/loader.py` utilities for CSV/Parquet loading and memory monitoring
 - [ ] T007 Setup `data/raw/`, `data/processed/`, and `data/results/` directory structure with `.gitkeep` files in each (verify existence of `.gitkeep` files to mark complete).
-- [ ] T008 Implement `src/main.py` orchestration script with CLI entry points for each pipeline stage
+- [X] T008 Implement `src/main.py` orchestration script with CLI entry points for each pipeline stage
 - [ ] T039 [P] **Amend `specs/001-predicting-the-yield-strength-of-steel-a/spec.md` Assumptions block**: Specifically edit the 'Assumptions' section in `specs/001-predicting-the-yield-strength-of-steel-a/spec.md` to align resource limits (≤4h runtime, ≤6GB RAM) with Constitution VI, resolving contradiction with Plan.md.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -85,10 +85,10 @@
 ### Implementation for User Story 1
 
 - [ ] T011 [US1] Implement `src/data/ingest.py`: Fetch data from NIST/Materials Project URLs (real sources), remove rows with missing yield strength (FR-001)
-- [ ] T012 [US1] Implement `src/data/ingest.py`: Normalize thermal parameters (temp, cooling rate) to [0.0, 1.0] and one-hot encode heat treatment types (FR-002)
+- [ ] T012 [US1] Implement `src/data/ingest.py`: Normalize thermal parameters (temp, cooling rate) to [0.0, 1.0] and one-hot encode heat treatment types (FR-002) <!-- FAILED: unspecified -->
 - [ ] T013 [P] [US1] Implement `src/data/features.py`: Calculate elemental ratios (C/Mn, Cr/Ni) and pairwise interactions (specifically **cooling rate × holding time** and C × Cooling Rate) (FR-003)
 - [ ] T014 [US1] Implement `src/data/features.py`: Orthogonalize interaction features against their constituent main effects using **non-linear orthogonalization (regressing interactions against a natural spline basis, degree=3, knots=5)**; implement helper function `orthogonalize_spline` within `src/data/features.py` (FR-010)
-- [ ] T015 [US1] Implement fallback logic in `src/data/ingest.py` to trigger literature mining if <100 samples found; use **BeautifulSoup4 with lxml parser** to scrape open-access metallurgy journals (defined in `config.py`), extracting schema (Title: str, Composition: dict/str, Yield Strength: float, Heat Treatment: str) into `data/raw/literature_mined.csv` (FR-012, Assumptions) <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
+- [ ] T015 [US1] Implement fallback logic in `src/data/ingest.py` to trigger literature mining if <100 samples found; use **BeautifulSoup4 with lxml parser** to scrape open-access metallurgy journals (defined in `config.py`), extracting schema (Title: str, Composition: dict/str, Yield Strength: float, Heat Treatment: str) into `data/raw/literature_mined.csv` (FR-012, Assumptions) <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
  in "<unicode string>", line 9, column 1:
  The code is ready to run and wil...
  ^
@@ -110,17 +110,17 @@ could not find expected ':'
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T017 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py` validating against `contracts/output.schema.yaml`
+- [ ] T017 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py` validating against `contracts/output.schema.yaml`
 - [X] T018 [P] [US2] Integration test for nested permutation test in `tests/integration/test_nested_permutation.py`
 
 ### Implementation for User Story 2
 
 - [ ] T019 [P] [US2] Implement `src/models/train.py`: Train GAM with splines and Regularized Linear Regression; **Use 3-fold CV by default; if dataset size < 100, switch to 10-Fold Repeated CV** (Note: This deviates from FR-004 text to satisfy Plan.md Stability requirement). (FR-004)
 - [ ] T020 [P] [US2] Implement `src/models/train.py`: Train Random Forest and XGBoost models; **Use 3-fold CV by default; if dataset size < 100, switch to 10-Fold Repeated CV** (CPU-only, no CUDA) (Note: This deviates from FR-004 text to satisfy Plan.md Stability requirement). (FR-004)
-- [ ] T021a [US2] Implement `src/models/evaluate.py`: Compute SHAP interaction values and rank features by mean absolute SHAP (FR-005)
-- [ ] T021b [US2] Implement `src/models/evaluate.py`: **Generate and save SHAP summary plot artifacts** in `.png` format with naming convention `model_<name>_shap_summary.png` to `data/results/shap_summary_plots/` (FR-005) <!-- FAILED: unspecified -->
-- [ ] T022 [US2] Implement `src/models/evaluate.py`: Perform nested permutation tests on top interaction terms (**perform feature selection on the training fold only, then test on the validation fold** to prevent leakage). **Specifically: shuffle the raw interaction term relative to the target to generate a null distribution; verify observed R² improvement exceeds the 95th percentile of this null distribution** (SC-002, FR-009)
-- [ ] T023 [US2] Implement `src/models/evaluate.py`: Apply Benjamini-Hochberg FDR correction (alpha ≤ 0.05) to p-values (FR-008)
+- [X] T021a [US2] Implement `src/models/evaluate.py`: Compute SHAP interaction values and rank features by mean absolute SHAP (FR-005)
+- [X] T021b [US2] Implement `src/models/evaluate.py`: **Generate and save SHAP summary plot artifacts** in `.png` format with naming convention `model_<name>_shap_summary.png` to `data/results/shap_summary_plots/` (FR-005) <!-- FAILED: unspecified -->
+- [X] T022 [US2] Implement `src/models/evaluate.py`: Perform nested permutation tests on top interaction terms (**perform feature selection on the training fold only, then test on the validation fold** to prevent leakage). **Specifically: shuffle the raw interaction term relative to the target to generate a null distribution; verify observed R² improvement exceeds the 95th percentile of this null distribution** (SC-002, FR-009)
+- [X] T023 [US2] Implement `src/models/evaluate.py`: Apply Benjamini-Hochberg FDR correction (alpha ≤ 0.05) to p-values (FR-008)
 - [ ] T024 [US2] Implement `src/models/evaluate.py`: Compare R² of best model (XGBoost/RF) against GAM baseline to quantify interaction value (FR-004, US2)
 - [ ] T025 [US2] Implement `src/models/evaluate.py`: Generate Partial Dependence Plots (PDPs) for top interaction terms (FR-011)
 - [ ] T026 [US2] Add explicit associational framing in `src/models/evaluate.py` output (FR-007)
@@ -137,7 +137,7 @@ could not find expected ':'
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [~] T027 [P] [US3] Contract test for sensitivity report schema in `tests/contract/test_sensitivity_report.py` validating against `contracts/output.schema.yaml`
+- [ ] T027 [P] [US3] Contract test for sensitivity report schema in `tests/contract/test_sensitivity_report.py` validating against `contracts/output.schema.yaml`
 - [X] T028 [P] [US3] Integration test for threshold sweep in `tests/integration/test_sensitivity_sweep.py`
 
 ### Implementation for User Story 3

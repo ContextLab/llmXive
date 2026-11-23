@@ -1,7 +1,153 @@
-T017:
+T000a:
+  c: false
+  h: fdc9ab8e02fd53ec371b1d6ae62b31cea34f822c224570f2be4f5f7ed7ad4bbd
+  r: "The required file `scripts/verify_spec.py` is missing, and the specification\
+    \ still contains the phrase \u201Cca-AstroPh\u201D within FR\u2011001, so the\
+    \ second assertion would fail even if the script existed. Both the script implementation\
+    \ and the spec amendment need to be corrected."
+  sig: 089858fe55a621792fbb8e0c1c998f739bd0cf5f365ffd39582f3c05c18cfda8
+T001:
+  c: false
+  h: d3b218e71cf503fe2b16928443fd94d0cedf79253abfae0b79f0e33a762f6bbb
+  r: The required directories are present, and `data/checksums.txt` exists, but its
+    contents are only header comments and do not contain the recursive `ls -R data/
+    code/ tests/ state/` output that the task mandates as a log of the directory structure.
+    The file must be populated with the actual `ls` listing to satisfy the verification
+    requirement.
+  sig: 0b957a29be303d865dad4f22a9348a8a20f9ecb5dd4679191c726c6415dc5cc4
+T002a:
+  c: true
+  h: b08182822092ab3ec3334caad9e7a50a0158cb91f6565c994b62b8e2033e8971
+  r: "The `code/requirements.txt` file exists at the expected location, is non\u2011\
+    empty, and contains the exact five required package specifications with the correct\
+    \ version constraints, including the `networkx` entry verified by grep."
+  sig: 341a66441c66c175fb1ca39bb1220a2ebaf954324188d0cae27e361ccceced60
+T002b:
+  c: false
+  h: 054350f94eac00a3fd4d9c9324b891a9f4b3472c414a8525ea15738446687eed
+  r: The evidence only includes the `requirements.txt` file; there is no `code/.venv`
+    directory, no installation logs, and no output showing that `networkx` is installed
+    in the virtual environment. The required virtual environment and its populated
+    packages are missing.
+  sig: 1b63d158a3e5f986a171d9b5f57179d7269437f02b6a28397d9a63867d65b453
+T003a:
+  c: false
+  h: 50767615e1ab7501b8e93911203c933d0cb7a2ce36b23432e1c9f023cc9a14c6
+  r: The repository contains a correct `pyproject.toml` with `line-length = 88`, but
+    there is no `.flake8` file present (or it is missing/empty), so the required flake8
+    configuration (`max-line-length=88`, `ignore=E203,W503`) is not provided. Adding
+    a properly populated `.flake8` file will satisfy the task.
+  sig: b03ccb5fd027c28da385ebca3999f1ebff6b29050bbf9148358570b3db7b70a1
+T003b:
+  c: false
+  h: a257ab1ad308173f5f0acf498aa37403b71efe3b83e7d6afc08f1e9ebb53afc6
+  r: The `code/__init__.py` file exists, but there is no evidence that `black --check
+    code/` and `flake8 code/` were actually run, nor that their output was appended
+    to `data/checksums.txt`. The `checksums.txt` file only contains header comments
+    and does not show any linting results. Provide logs of the linting commands (or
+    the updated `checksums.txt` with the appended output) to satisfy the task.
+  sig: 7ddfd1de7c3ace155bea8626e6c1ef1fe0ec6944982766f948587871b10cfee5
+T003c:
+  c: false
+  h: b1b13f5dd3e6a5a398992c7dca3c5347dcc5dc873194e865e53561784d4e2521
+  r: The provided `.pre-commit-config.yaml` exists but does not include an `autoflake`
+    hook as required, and there is no evidence that `pre-commit install` was run (no
+    installed hook scripts). The task therefore fails to meet the specification.
+  sig: f2948718e54c4c4b58f608c8c8dbeb4fdacdbd349cfdec329631e2179cf42c11
+T004:
+  c: false
+  h: 91f0b08b70a74dbff01b9602851fae1c5af4fd942597dba9734c6ef5bd63b064
+  r: The file `code/utils/graph_utils.py` exists, but it only provides `is_connected`.
+    It lacks the required `average_degree` and `clustering_coefficient` functions
+    (the clustering function is named `calculate_clustering_coefficient`). Consequently
+    the verification import will fail. Implement the missing functions (or rename
+    the existing ones) to match the task specification.
+  sig: 37d366219e4d0cc21b1c4ab2ec11259f602295a6c5664d8af4168ce4c4e9a80d
+T005:
+  c: false
+  h: 141d79f207896103921c95bdd112f294a564cfbac7c8c2ea54d950be3b8acaff
+  r: The file `code/utils/stats_utils.py` exists but does not define the required
+    functions `spearman_corr` and `p_value`, and its `bonferroni_correction` signature
+    and return type differ from the specification. Consequently the verification import
+    will fail.
+  sig: 08a49d72c3f3c7bf272698a89e7b009c186e0be447590417af078d4c8f103fe4
+T006:
+  c: false
+  h: b90b05960fe34030312d11e13e1cd7cc383b25d9efd392b5427f3bfeb5496f6d
+  r: "The `docs/data_model.md` correctly defines the required schema, and the `data/processed/`\
+    \ and `data/raw/` directories exist, but `data/checksums.txt` contains only comment\
+    \ lines and no SHA256\u202Fhash entries for any data artifacts, violating the\
+    \ required checksum format (and there are no `.gpickle` files present to be listed).\
+    \ The task therefore remains unfinished."
+  sig: 0e2eebf235e3ba5f8076bbec857b949dcd5fdd39cb07db46354c61bb78b6f2fe
+T009b:
+  c: false
+  h: 13bf40463558579d361cc92cfe80b9afc2bbcab068a0629fd5b7de483de1f4ca
+  r: "The required `data/processed/config.json` file is missing, so the condition\
+    \ (`SC_003_VIOLATION=true` or an `error` field) cannot be verified; consequently\
+    \ the generation of `compute_contingency.md` does not satisfy the task\u2019s\
+    \ conditional requirement. The existing markdown file alone is insufficient."
+T010:
+  c: false
+  h: 03f0d32fca10131dda9f0d73f0887b7c73778b64a42679d82f175ea940b71d4e
+  r: "The `tests/test_topology.py` file is present, but it does not correctly implement\
+    \ the required contract test: it uses undefined constants (`NUM_NODES`, `K_NEIGHBORS`),\
+    \ calls `validate_graph` with the wrong signature, and only checks N=100 in some\
+    \ cases. Consequently it does not reliably verify that generated graphs have N\u202F\
+    =\u202F500, are connected, and preserve the average degree. The test must be fixed\
+    \ to import or define the correct constants, call the validation function correctly,\
+    \ and assert the N=500 contract."
+  sig: b8be13758e638e62b5713676667d7efd79a7ba8ca09fadc6d1dd88d2be1c105f
+T011:
+  c: false
+  h: 53e8f5da1ea7c91e3e96b0aa4d09998b088cc7ce52a1c5cc9dd581326ff57484
+  r: "The provided `tests/test_topology.py` contains integration\u2011style checks,\
+    \ but it never reads or validates the central `graph_metadata.json` produced by\
+    \ the batch generation. It only inspects per\u2011graph JSON files created by\
+    \ `save_graph_and_metadata` and even calls that function with mismatched arguments,\
+    \ so the test would fail or not exercise the intended logging. Consequently the\
+    \ requirement \u201Cverify seed and p saved to `graph_metadata.json`\u201D is\
+    \ not satisfied."
+  sig: df73615921430fb69315e4966b6a2b4b5f95721b6101f3ea929841627b27c931
+T016:
+  c: false
+  h: 5e410fac2c67b14c650f361a292d0beb15921f3d8b8d09978a85953f232ddc00
+  r: The repository lacks `data/processed/config.json`, so the script cannot read
+    the required N value. Moreover, the provided portion of `code/generate_topology.py`
+    shows only helper functions and does not contain the requested batch generation
+    loop over p from 0.0 to 1.0 in 50 steps. Both the missing configuration file and
+    the absent loop mean the task is not genuinely fulfilled.
+T021:
+  c: false
+  h: 6b09f0c82207e80330e2616dd0b33f666d115b05506b64d9835669491fea809e
+  r: "The `kuramoto_derivative` function is present, but the script does not actually\
+    \ read `data/processed/config.json` for `time_steps`, the required config file\
+    \ is missing, and the code lacks the specified error\u2011handling logic (warning\
+    \ and fallback when `time_steps` is 0 or an `error` key exists, or when `SC_003_VIOLATION`\
+    \ is set)."
+T025:
+  c: false
+  h: d791a5b4117ee14eacf23990e932dc254cf1906f201f30b1c929cc842339fde6
+  r: "The required `data/processed/config.json` file is missing, so the time\u2011\
+    step parameters cannot be read, and there is no evidence of a simulation batch\
+    \ having been executed or results saved. The task\u2019s core requirement is therefore\
+    \ not satisfied."
+T041:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No `.gpickle` graph files nor accompanying `.json` metadata were provided in\
-    \ `data/processed/` (or any other location) for the generated networks, so the\
-    \ required artifacts do not exist or are empty. The task\u2019s core requirement\u2014\
-    persisting the graphs and their metadata\u2014is therefore unmet."
+  r: No evidence of a `quickstart.md` validation run (e.g., log file, validation report,
+    or updated documentation) is present; the implementer provided no artifact demonstrating
+    that the quickstart guide was executed and validated. The required output is missing.
+T050:
+  c: false
+  h: bf86112e6d337e43ffec473e049ee2753be05cae2c60079412727629a0d8c3da
+  r: "The required artifact `data/processed/analysis_report.md` does not exist, so\
+    \ no documentation of reference\u2011frame invariance can be verified. The task\u2019\
+    s deliverable is missing entirely."
+T054:
+  c: false
+  h: bf86112e6d337e43ffec473e049ee2753be05cae2c60079412727629a0d8c3da
+  r: The required artifact `data/processed/analysis_report.md` does not exist, so
+    no review was performed and the task cannot be considered completed. The missing
+    file must be created and contain the final review ensuring no unsupported physical
+    reality claims.

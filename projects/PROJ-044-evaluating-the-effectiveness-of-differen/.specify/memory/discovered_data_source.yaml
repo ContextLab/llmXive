@@ -1,0 +1,10 @@
+status: none
+intent: FEMNIST LEAF benchmark parquet download python package dataset
+required_fields:
+- pixel_values
+- label
+- client_id
+- split
+cache_key: 3052d6542ca36fe1229f50b63e1e96907d0bd10450fdf3d8053681493e1a3849
+searched_at: '2026-10-24T17:39:43.069371+00:00'
+retry_count: 1

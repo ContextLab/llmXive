@@ -1,270 +1,301 @@
 """
-Synthetic data generator for alloy compositions.
+Synthetic data generator for CI reproducibility fallback.
 
-This module generates valid alloy compositions with realistic descriptors
-to serve as a fallback when the canonical Zenodo DOI source is unavailable.
-It ensures reproducibility per plan.md Constitution Check.
+Generates valid alloy compositions with realistic descriptors when
+the canonical Zenodo DOI is inaccessible.
 
-The generator creates compositions based on known glass-forming alloy systems
-(e.g., Zr-based, Ti-based, Pd-based) and computes descriptors using the
-established features pipeline.
+This module is used ONLY as a fallback mechanism and does not
+replace real experimental data.
 """
-import numpy as np
-import pandas as pd
-from typing import List, Dict, Any, Optional
+import os
+import sys
 import logging
+import random
 from pathlib import Path
+from typing import List, Dict, Any, Optional, Tuple
+import pandas as pd
+import numpy as np
 
-# Import from local project modules
-from features.descriptors import compute_all_descriptors
-from config import ensure_data_directories, get_data_path
+# Import from existing project modules
+from features.descriptors import (
+    compute_atomic_radius,
+    compute_electronegativity,
+    compute_valence_electron_concentration,
+    compute_atomic_size_mismatch,
+    compute_electronegativity_difference,
+    compute_mixing_enthalpy,
+    parse_composition
+)
+from utils.config import get_raw_data_path, ensure_data_directories
 
-# Set up logging
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# Define common glass-forming alloy systems with base elements and typical ranges
-# Based on literature: Zr-based, Ti-based, Pd-based, Mg-based, La-based, Fe-based
-GLASS_FORMING_SYSTEMS = [
-    {
-        "name": "Zr-based",
-        "base_elements": ["Zr", "Cu", "Ni", "Al", "Ti", "Be"],
-        "element_frequencies": {"Zr": 0.4, "Cu": 0.25, "Ni": 0.15, "Al": 0.1, "Ti": 0.07, "Be": 0.03},
-        "atomic_fraction_range": (0.1, 0.6),
-        "num_elements_range": (3, 5),
-        "phase_label": "amorphous"
-    },
-    {
-        "name": "Ti-based",
-        "base_elements": ["Ti", "Cu", "Ni", "Zr", "Be", "Al"],
-        "element_frequencies": {"Ti": 0.45, "Cu": 0.2, "Ni": 0.15, "Zr": 0.1, "Be": 0.05, "Al": 0.05},
-        "atomic_fraction_range": (0.1, 0.55),
-        "num_elements_range": (3, 5),
-        "phase_label": "amorphous"
-    },
-    {
-        "name": "Pd-based",
-        "base_elements": ["Pd", "Cu", "Ni", "P", "Si", "Ge"],
-        "element_frequencies": {"Pd": 0.4, "Cu": 0.25, "Ni": 0.15, "P": 0.1, "Si": 0.07, "Ge": 0.03},
-        "atomic_fraction_range": (0.1, 0.5),
-        "num_elements_range": (3, 5),
-        "phase_label": "amorphous"
-    },
-    {
-        "name": "Mg-based",
-        "base_elements": ["Mg", "Cu", "Ni", "Zn", "Y", "Gd"],
-        "element_frequencies": {"Mg": 0.5, "Cu": 0.2, "Ni": 0.15, "Zn": 0.08, "Y": 0.04, "Gd": 0.03},
-        "atomic_fraction_range": (0.15, 0.6),
-        "num_elements_range": (3, 4),
-        "phase_label": "amorphous"
-    },
-    {
-        "name": "La-based",
-        "base_elements": ["La", "Al", "Ni", "Cu", "Co", "Fe"],
-        "element_frequencies": {"La": 0.45, "Al": 0.2, "Ni": 0.15, "Cu": 0.1, "Co": 0.06, "Fe": 0.04},
-        "atomic_fraction_range": (0.15, 0.55),
-        "num_elements_range": (3, 5),
-        "phase_label": "amorphous"
-    },
-    {
-        "name": "Fe-based",
-        "base_elements": ["Fe", "B", "Si", "P", "C", "Cr", "Mo"],
-        "element_frequencies": {"Fe": 0.6, "B": 0.15, "Si": 0.1, "P": 0.08, "C": 0.04, "Cr": 0.02, "Mo": 0.01},
-        "atomic_fraction_range": (0.05, 0.7),
-        "num_elements_range": (3, 6),
-        "phase_label": "amorphous"
-    }
+# Common alloy systems for metallic glasses
+COMMON_ALLOY_SYSTEMS = [
+    ['Zr', 'Cu', 'Al'],
+    ['Zr', 'Cu', 'Ni'],
+    ['Zr', 'Ti', 'Cu'],
+    ['Pd', 'Cu', 'Si'],
+    ['Pd', 'Ni', 'P'],
+    ['Mg', 'Cu', 'Y'],
+    ['La', 'Al', 'Ni'],
+    ['Fe', 'B', 'Si'],
+    ['Co', 'Fe', 'B'],
+    ['Ti', 'Cu', 'Ni'],
+    ['Zr', 'Al', 'Ni'],
+    ['Cu', 'Zr', 'Ti'],
+    ['Ni', 'Nb', 'Zr'],
+    ['Fe', 'B', 'C'],
+    ['Zr', 'Cu', 'Ag', 'Al']
 ]
 
-# Additional crystalline phase samples for balanced dataset
-CRYSTALLINE_SYSTEMS = [
-    {
-        "name": "Simple_Alloys",
-        "base_elements": ["Fe", "Cu", "Al", "Ni", "Zn", "Pb"],
-        "element_frequencies": {"Fe": 0.3, "Cu": 0.25, "Al": 0.2, "Ni": 0.15, "Zn": 0.07, "Pb": 0.03},
-        "atomic_fraction_range": (0.2, 0.8),
-        "num_elements_range": (2, 4),
-        "phase_label": "crystalline"
-    }
-]
+# Common phases
+PHASES = ['amorphous', 'crystalline']
 
-def generate_composition_from_system(system_config: Dict[str, Any], 
-                                    rng: np.random.Generator) -> Dict[str, Any]:
+# Element properties for synthetic generation (simplified periodic table data)
+ELEMENT_PROPERTIES = {
+    'Zr': {'atomic_radius': 160.0, 'electronegativity': 1.33, 'valence_electrons': 4, 'atomic_number': 40},
+    'Cu': {'atomic_radius': 128.0, 'electronegativity': 1.90, 'valence_electrons': 11, 'atomic_number': 29},
+    'Al': {'atomic_radius': 143.0, 'electronegativity': 1.61, 'valence_electrons': 3, 'atomic_number': 13},
+    'Ni': {'atomic_radius': 124.0, 'electronegativity': 1.91, 'valence_electrons': 10, 'atomic_number': 28},
+    'Ti': {'atomic_radius': 147.0, 'electronegativity': 1.54, 'valence_electrons': 4, 'atomic_number': 22},
+    'Pd': {'atomic_radius': 137.0, 'electronegativity': 2.20, 'valence_electrons': 10, 'atomic_number': 46},
+    'Si': {'atomic_radius': 117.0, 'electronegativity': 1.90, 'valence_electrons': 4, 'atomic_number': 14},
+    'P': {'atomic_radius': 110.0, 'electronegativity': 2.19, 'valence_electrons': 5, 'atomic_number': 15},
+    'Mg': {'atomic_radius': 160.0, 'electronegativity': 1.31, 'valence_electrons': 2, 'atomic_number': 12},
+    'Y': {'atomic_radius': 180.0, 'electronegativity': 1.22, 'valence_electrons': 3, 'atomic_number': 39},
+    'La': {'atomic_radius': 187.0, 'electronegativity': 1.10, 'valence_electrons': 3, 'atomic_number': 57},
+    'Fe': {'atomic_radius': 126.0, 'electronegativity': 1.83, 'valence_electrons': 8, 'atomic_number': 26},
+    'B': {'atomic_radius': 85.0, 'electronegativity': 2.04, 'valence_electrons': 3, 'atomic_number': 5},
+    'Co': {'atomic_radius': 125.0, 'electronegativity': 1.88, 'valence_electrons': 9, 'atomic_number': 27},
+    'Ag': {'atomic_radius': 144.0, 'electronegativity': 1.93, 'valence_electrons': 11, 'atomic_number': 47},
+    'Nb': {'atomic_radius': 146.0, 'electronegativity': 1.60, 'valence_electrons': 5, 'atomic_number': 41},
+    'C': {'atomic_radius': 77.0, 'electronegativity': 2.55, 'valence_electrons': 4, 'atomic_number': 6},
+    'Be': {'atomic_radius': 112.0, 'electronegativity': 1.57, 'valence_electrons': 2, 'atomic_number': 4},
+    'Gd': {'atomic_radius': 180.0, 'electronegativity': 1.20, 'valence_electrons': 3, 'atomic_number': 64},
+    'Dy': {'atomic_radius': 178.0, 'electronegativity': 1.22, 'valence_electrons': 3, 'atomic_number': 66}
+}
+
+def generate_composition_from_system(elements: List[str], rng: Optional[np.random.Generator] = None) -> str:
     """
-    Generate a single alloy composition from a system configuration.
+    Generate a random composition from a given set of elements.
     
     Args:
-        system_config: Dictionary containing system parameters
+        elements: List of element symbols
         rng: NumPy random generator for reproducibility
         
     Returns:
-        Dictionary with composition string, atomic fractions, and phase label
+        Composition string in format "Element1_x1Element2_x2..."
     """
-    # Select number of elements
-    num_elements = rng.integers(
-        system_config["num_elements_range"][0], 
-        system_config["num_elements_range"][1] + 1
-    )
+    if rng is None:
+        rng = np.random.default_rng()
     
-    # Select elements based on frequencies
-    elements = []
-    weights = []
-    for elem in system_config["base_elements"]:
-        if elem in system_config["element_frequencies"]:
-            elements.append(elem)
-            weights.append(system_config["element_frequencies"][elem])
+    num_elements = len(elements)
     
-    # Normalize weights
-    weights = np.array(weights) / np.sum(weights)
+    # Generate random fractions that sum to 1
+    fractions = rng.random(num_elements)
+    fractions = fractions / fractions.sum()
     
-    # Sample unique elements
-    selected_elements = rng.choice(
-        elements, 
-        size=min(num_elements, len(elements)), 
-        replace=False, 
-        p=weights
-    )
+    # Convert to atomic percentages (integers summing to 100)
+    percentages = (fractions * 100).astype(int)
     
-    # Generate atomic fractions that sum to 1
-    num_selected = len(selected_elements)
-    raw_fractions = rng.uniform(
-        system_config["atomic_fraction_range"][0],
-        system_config["atomic_fraction_range"][1],
-        size=num_selected
-    )
+    # Ensure sum is exactly 100
+    diff = 100 - percentages.sum()
+    if diff != 0:
+        percentages[0] += diff
     
-    # Normalize to sum to 1
-    atomic_fractions = raw_fractions / np.sum(raw_fractions)
+    # Build composition string
+    parts = []
+    for elem, pct in zip(elements, percentages):
+        if pct > 0:
+            parts.append(f"{elem}{pct}")
     
-    # Round to 2 decimal places and renormalize
-    atomic_fractions = np.round(atomic_fractions, 2)
-    atomic_fractions = atomic_fractions / np.sum(atomic_fractions)
-    
-    # Build composition string (e.g., "Zr50Cu30Ni20")
-    composition_parts = []
-    for elem, frac in zip(selected_elements, atomic_fractions):
-        count = int(round(frac * 100))
-        if count > 0:
-            composition_parts.append(f"{elem}{count}")
-    
-    composition_str = "".join(composition_parts)
-    
-    # Create element-fraction mapping
-    element_map = {elem: float(frac) for elem, frac in zip(selected_elements, atomic_fractions)}
-    
-    return {
-        "composition": composition_str,
-        "element_fractions": element_map,
-        "phase": system_config["phase_label"],
-        "system": system_config["name"]
-    }
+    return "".join(parts)
 
-def generate_synthetic_dataset(
-    num_samples: int = 1000,
-    amorphous_ratio: float = 0.7,
-    seed: int = 42
-) -> pd.DataFrame:
+def generate_synthetic_phase(rng: Optional[np.random.Generator] = None) -> str:
     """
-    Generate a synthetic dataset of alloy compositions with realistic properties.
+    Generate a synthetic phase label with realistic distribution.
     
     Args:
-        num_samples: Total number of samples to generate
-        amorphous_ratio: Proportion of amorphous (glass) samples
-        seed: Random seed for reproducibility
+        rng: NumPy random generator for reproducibility
         
     Returns:
-        DataFrame with compositions and pre-computed descriptors
+        Phase label ('amorphous' or 'crystalline')
     """
+    if rng is None:
+        rng = np.random.default_rng()
+    
+    # Metallic glass datasets typically have ~30-40% amorphous samples
+    # Use a realistic distribution
+    prob_amorphous = 0.35
+    return 'amorphous' if rng.random() < prob_amorphous else 'crystalline'
+
+def generate_synthetic_dataset(
+    n_samples: int = 1000,
+    seed: int = 42,
+    systems: Optional[List[List[str]]] = None
+) -> pd.DataFrame:
+    """
+    Generate a synthetic dataset of alloy compositions with descriptors.
+    
+    Args:
+        n_samples: Number of samples to generate
+        seed: Random seed for reproducibility
+        systems: List of element systems to sample from (defaults to COMMON_ALLOY_SYSTEMS)
+        
+    Returns:
+        DataFrame with compositions and computed descriptors
+    """
+    if systems is None:
+        systems = COMMON_ALLOY_SYSTEMS
+    
     rng = np.random.default_rng(seed)
     
-    # Calculate sample counts
-    num_amorphous = int(num_samples * amorphous_ratio)
-    num_crystalline = num_samples - num_amorphous
+    data = []
     
-    all_samples = []
+    for _ in range(n_samples):
+        # Select a random alloy system
+        system = rng.choice(systems)
+        
+        # Generate composition
+        composition = generate_composition_from_system(system, rng)
+        
+        # Generate phase
+        phase = generate_synthetic_phase(rng)
+        
+        # Parse composition to get element fractions
+        elem_fractions = parse_composition(composition)
+        
+        # Compute descriptors using the real descriptor functions
+        try:
+            atomic_radius = compute_atomic_radius(elem_fractions)
+            electronegativity = compute_electronegativity(elem_fractions)
+            vec = compute_valence_electron_concentration(elem_fractions)
+            size_mismatch = compute_atomic_size_mismatch(elem_fractions)
+            electronegativity_diff = compute_electronegativity_difference(elem_fractions)
+            mixing_enthalpy = compute_mixing_enthalpy(elem_fractions)
+            
+            # Add some realistic noise to descriptors
+            atomic_radius = max(100.0, min(200.0, atomic_radius + rng.normal(0, 2)))
+            electronegativity = max(0.5, min(3.0, electronegativity + rng.normal(0, 0.05)))
+            vec = max(1.0, min(12.0, vec + rng.normal(0, 0.1)))
+            size_mismatch = max(0.0, min(15.0, size_mismatch + rng.normal(0, 0.5)))
+            electronegativity_diff = max(0.0, min(1.5, electronegativity_diff + rng.normal(0, 0.02)))
+            mixing_enthalpy = max(-30.0, min(10.0, mixing_enthalpy + rng.normal(0, 1.0)))
+            
+            record = {
+                'composition': composition,
+                'phase': phase,
+                'alloy_system': '-'.join(sorted(set(system))),
+                'atomic_radius': round(atomic_radius, 4),
+                'electronegativity': round(electronegativity, 4),
+                'vec': round(vec, 4),
+                'size_mismatch': round(size_mismatch, 4),
+                'electronegativity_diff': round(electronegativity_diff, 4),
+                'mixing_enthalpy': round(mixing_enthalpy, 4),
+                'source': 'synthetic_fallback',
+                'is_synthetic': True
+            }
+            
+            data.append(record)
+            
+        except Exception as e:
+            logger.warning(f"Skipping composition {composition} due to descriptor computation error: {e}")
+            continue
     
-    # Generate amorphous samples
-    logger.info(f"Generating {num_amorphous} amorphous samples...")
-    for _ in range(num_amorphous):
-        # Randomly select a glass-forming system
-        system = rng.choice(GLASS_FORMING_SYSTEMS)
-        sample = generate_composition_from_system(system, rng)
-        all_samples.append(sample)
+    df = pd.DataFrame(data)
     
-    # Generate crystalline samples
-    logger.info(f"Generating {num_crystalline} crystalline samples...")
-    for _ in range(num_crystalline):
-        # Randomly select a crystalline system
-        system = rng.choice(CRYSTALLINE_SYSTEMS)
-        sample = generate_composition_from_system(system, rng)
-        all_samples.append(sample)
+    # Ensure we have at least some samples
+    if len(df) < n_samples:
+        logger.warning(f"Generated {len(df)} samples, requested {n_samples}. Some compositions failed validation.")
     
-    # Convert to DataFrame
-    df = pd.DataFrame(all_samples)
-    
-    # Compute descriptors
-    logger.info("Computing atomic descriptors...")
-    df = compute_all_descriptors(df)
-    
-    # Add metadata
-    df["source"] = "synthetic"
-    df["generation_seed"] = seed
-    df["timestamp"] = pd.Timestamp.now().isoformat()
-    
-    logger.info(f"Generated {len(df)} samples with {len(df.columns)} columns")
+    logger.info(f"Generated {len(df)} synthetic alloy compositions")
     
     return df
 
-def save_synthetic_dataset(
-    df: pd.DataFrame,
-    output_path: Optional[str] = None
-) -> Path:
+def apply_descriptors_to_dataframe(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Save the synthetic dataset to a CSV file.
+    Apply descriptor computation to an existing DataFrame.
     
     Args:
-        df: DataFrame containing the synthetic dataset
-        output_path: Optional custom output path
+        df: DataFrame with 'composition' column
         
     Returns:
-        Path to the saved file
+        DataFrame with added descriptor columns
+    """
+    descriptors = []
+    
+    for _, row in df.iterrows():
+        composition = row['composition']
+        elem_fractions = parse_composition(composition)
+        
+        descriptors.append({
+            'atomic_radius': compute_atomic_radius(elem_fractions),
+            'electronegativity': compute_electronegativity(elem_fractions),
+            'vec': compute_valence_electron_concentration(elem_fractions),
+            'size_mismatch': compute_atomic_size_mismatch(elem_fractions),
+            'electronegativity_diff': compute_electronegativity_difference(elem_fractions),
+            'mixing_enthalpy': compute_mixing_enthalpy(elem_fractions)
+        })
+    
+    desc_df = pd.DataFrame(descriptors)
+    return pd.concat([df.reset_index(drop=True), desc_df], axis=1)
+
+def save_synthetic_dataset(df: pd.DataFrame, output_path: Optional[Path] = None) -> Path:
+    """
+    Save synthetic dataset to CSV.
+    
+    Args:
+        df: DataFrame to save
+        output_path: Optional output path (defaults to data/raw/synthetic_fallback.csv)
+        
+    Returns:
+        Path to saved file
     """
     if output_path is None:
-        ensure_data_directories()
-        data_path = get_data_path()
-        output_path = str(Path(data_path) / "processed" / "synthetic_dataset.csv")
+        output_path = get_raw_data_path() / "synthetic_fallback.csv"
     
     # Ensure directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
     # Save to CSV
     df.to_csv(output_path, index=False)
+    
     logger.info(f"Saved synthetic dataset to {output_path}")
     
-    return Path(output_path)
+    return output_path
 
 def main():
-    """Main entry point for synthetic data generation."""
-    logging.basicConfig(level=logging.INFO)
+    """
+    Main entry point for synthetic data generation.
     
-    logger.info("Starting synthetic data generation...")
+    Generates a fallback dataset for CI reproducibility when
+    the primary Zenodo source is unavailable.
+    """
+    logger.info("Starting synthetic data generation for CI fallback...")
+    
+    # Ensure directories exist
+    ensure_data_directories()
     
     # Generate dataset
-    df = generate_synthetic_dataset(
-        num_samples=1500,
-        amorphous_ratio=0.7,
-        seed=42
-    )
+    df = generate_synthetic_dataset(n_samples=1000, seed=42)
     
     # Save dataset
     output_path = save_synthetic_dataset(df)
     
-    # Print summary
-    print(f"\nSynthetic Dataset Summary:")
-    print(f"  Total samples: {len(df)}")
-    print(f"  Amorphous: {sum(df['phase'] == 'amorphous')}")
-    print(f"  Crystalline: {sum(df['phase'] == 'crystalline')}")
-    print(f"  Features: {len(df.columns)}")
-    print(f"  Output: {output_path}")
+    # Verify output
+    if output_path.exists():
+        logger.info(f"Successfully generated {len(df)} samples to {output_path}")
+        logger.info(f"Columns: {list(df.columns)}")
+        logger.info(f"Phase distribution: {df['phase'].value_counts().to_dict()}")
+    else:
+        logger.error("Failed to write synthetic dataset")
+        sys.exit(1)
     
     return df
 

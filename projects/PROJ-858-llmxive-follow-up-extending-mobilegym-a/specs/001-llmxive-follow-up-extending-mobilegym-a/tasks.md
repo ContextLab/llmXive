@@ -61,10 +61,10 @@
 - [X] T007 Create `code/utils/data_loader.py` to fetch and checksum MobileGym tasks (raw data preservation)
 - [X] T008 Implement `code/scheduler/state_coverage.py` skeleton for binary vector initialization
 - [X] T009 Implement `code/scheduler/curriculum_scheduler.py` skeleton with two-phase logic stubs
-- [ ] T010 Setup `data/raw/.checksums.txt` and `data/processed/` directory structure
-- [ ] T011 Initialize `data/processed/scheduler_trace.json` schema and directory structure (required before T020).
+- [X] T010 Setup `data/raw/.checksums.txt` and `data/processed/` directory structure
+- [X] T011 Initialize `data/processed/scheduler_trace.json` schema and directory structure (required before T020).
 - [ ] T012 [P] Define "semantic state proxies" (e.g., `dark_mode`, `unread_count`) in `code/utils/constants.py` by reading the full list from `contracts/coverage.schema.yaml` key `semantic_proxies` to ensure US1 has necessary constants.
-- [ ] T013 [US1] Implement hard wall-clock time limit enforcement (watchdog) in `code/training/runner.py` to satisfy FR-004.
+- [X] T013 [US1] Implement hard wall-clock time limit enforcement (watchdog) in `code/training/runner.py` to satisfy FR-004.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -78,11 +78,11 @@
 
 ### Implementation for User Story 1 (Must precede tests)
 
-- [ ] T014 [US1] Implement Phase 1 logic (target coverage < 5%) in `code/scheduler/curriculum_scheduler.py`
-- [ ] T015 [US1] Implement Phase logic (target moderate success rate) with dynamic range expansion (10-90%) in `code/scheduler/curriculum_scheduler.py`
+- [X] T014 [US1] Implement Phase 1 logic (target coverage < 5%) in `code/scheduler/curriculum_scheduler.py`
+- [X] T015 [US1] Implement Phase logic (target moderate success rate) with dynamic range expansion (10-90%) in `code/scheduler/curriculum_scheduler.py`
 - [X] T016 [US1] Implement fallback to maximum entropy if no tasks meet criteria (including after a range of expansion) in `code/scheduler/curriculum_scheduler.py`.
 - [X] T017 [US1] Implement 'Static Random' baseline scheduler logic (random sampling) in `code/scheduler/curriculum_scheduler.py` to satisfy FR-003 experimental control.
-- [ ] T018 [US1] Add logging for `metrics_triggered` to `data/processed/scheduler_trace.json` (Constitution Principle VI), ensuring the log entry includes the specific state variable names (e.g., 'dark_mode') and their transition values that triggered the selection.
+- [X] T018 [US1] Add logging for `metrics_triggered` to `data/processed/scheduler_trace.json` (Constitution Principle VI), ensuring the log entry includes the specific state variable names (e.g., 'dark_mode') and their transition values that triggered the selection.
 - [X] T019 [US1] Implement deadlock prevention (random selection if all states covered) in `code/scheduler/curriculum_scheduler.py`
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
@@ -110,8 +110,8 @@
 - [X] T025 [US2] Implement state transition detection logic in `code/scheduler/state_coverage.py`
 - [X] T026 [US2] Implement parallel rollout aggregation logic to merge vectors safely in `code/scheduler/state_coverage.py`
 - [X] T027 [US2] Add error handling to skip malformed JSON rollouts without crashing the batch in `code/scheduler/state_coverage.py`
-- [ ] T028 [US2] Write aggregated coverage vectors to `data/processed/coverage_vectors.json` with checksums
-- [~] T029 [US2] Generate the 'held-out test set' containing state variables NOT present in the training-time State Coverage Vector to satisfy FR-005 transfer evaluation requirements.
+- [X] T028 [US2] Write aggregated coverage vectors to `data/processed/coverage_vectors.json` with checksums
+- [ ] T029 [US2] Generate the 'held-out test set' containing state variables NOT present in the training-time State Coverage Vector to satisfy FR-005 transfer evaluation requirements.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
@@ -134,7 +134,7 @@
 - [X] T033 [US3] Implement `code/analysis/convergence.py` to calculate steps-to-target (read success rate threshold from config file) and report absolute/percentage difference.
 - [X] T034 [US3] Implement `code/analysis/transfer.py` to evaluate on held-out test set (with state variables NOT present in the training-time State Coverage Vector).
 - [X] T035 [US3] Implement variance calculation of success rates across high state-dependency apps in `code/analysis/transfer.py`
-- [~] T036 [US3] Generate "Success Rate vs. Steps" plots and save to `data/processed/`
+- [ ] T036 [US3] Generate "Success Rate vs. Steps" plots and save to `data/processed/`
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
@@ -156,11 +156,11 @@
 - [X] T039 [US4] Implement `code/analysis/sensitivity.py` to compute **Pearson correlation coefficient (r)** between the **scalar count (sum of 1s) derived from the binary State Coverage Vector** and success rate on a held-out validation set.
 - [ ] T040 [US4] Implement logic to flag "Invalid Proxy" if r < 0.3 and recommend expanding variable set
 - [ ] T041 [US4] Implement "Proxy Validated" logging if r ≥ 0.5
-- [ ] T042 [US4] Generate sensitivity analysis report in `data/processed/sensitivity_report.md`
+- [X] T042 [US4] Generate sensitivity analysis report in `data/processed/sensitivity_report.md`
 
 ### Tests for User Story 4 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T043 [P] [US4] Unit test for Pearson correlation calculation on mock data in `tests/unit/test_sensitivity.py`
+- [X] T043 [P] [US4] Unit test for Pearson correlation calculation on mock data in `tests/unit/test_sensitivity.py`
 
 **Checkpoint**: All user stories should now be independently functional
 

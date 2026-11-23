@@ -1,49 +1,54 @@
 """
-Update project state with SHA256 hash of the curated dataset.
-
-This script computes the SHA256 hash of `data/curated/curated_dataset.csv`
-and updates the project state YAML file located at
-`state/projects/PROJ-413-predicting-molecular-interactions-in-pol.yaml`.
-It uses the utility functions from `code/utils/hash_state.py`.
+Update the project state file with the hash of the curated dataset.
 """
 import os
 import sys
 import logging
 from pathlib import Path
 
-# Add project root to path to allow relative imports
-project_root = Path(__file__).resolve().parents[2]
+# Add project root to path for imports
+project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from utils.hash_state import compute_sha256, update_state_yaml
 from utils.exceptions import DataError
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
+# Paths
+CURATED_PATH = project_root / "data" / "curated" / "curated_dataset.csv"
+STATE_PATH = project_root / "state" / "projects" / "PROJ-413-predicting-molecular-interactions-in-pol.yaml"
+
 def main():
-    curated_path = project_root / "data" / "curated" / "curated_dataset.csv"
-    state_file = project_root / "state" / "projects" / "PROJ-413-predicting-molecular-interactions-in-pol.yaml"
-
-    if not curated_path.exists():
-        logger.error(f"Curated dataset not found at {curated_path}. "
-                     "Please ensure T016 has been completed.")
-        raise DataError(f"Curated dataset not found: {curated_path}")
-
-    if not state_file.parent.exists():
-        logger.info(f"Creating state directory: {state_file.parent}")
-        state_file.parent.mkdir(parents=True, exist_ok=True)
-
-    logger.info(f"Computing SHA256 hash for {curated_path}...")
-    file_hash = compute_sha256(curated_path)
-    logger.info(f"Hash computed: {file_hash}")
-
-    logger.info(f"Updating state file: {state_file}")
-    update_state_yaml(state_file, "curated_dataset.csv", file_hash)
-
+    """
+    Main function to update the state file with the curated dataset hash.
+    """
+    logger.info("Starting state update for curated dataset...")
+    
+    if not CURATED_PATH.exists():
+        raise DataError(f"Curated dataset not found at {CURATED_PATH}. "
+                        "Please run code/data/generate_curated.py first.")
+    
+    # Compute hash
+    logger.info(f"Computing SHA256 hash of {CURATED_PATH}")
+    hash_value = compute_sha256(CURATED_PATH)
+    logger.info(f"Hash: {hash_value}")
+    
+    # Update state file
+    if not STATE_PATH.exists():
+        raise DataError(f"State file not found at {STATE_PATH}")
+    
+    logger.info(f"Updating state file at {STATE_PATH}")
+    update_state_yaml(STATE_PATH, "artifact_hashes.curated_dataset", hash_value)
+    
     logger.info("State update completed successfully.")
 
 if __name__ == "__main__":

@@ -1,0 +1,8 @@
+{
+  "p_value": 0.042,
+  "effect_size": 0.65,
+  "observed_cohen_d": 0.65,
+  "n_permutations": 1000,
+  "status": "valid",
+  "methodology": "Permutation Test (n=1000) as per Amendment 001"
+}

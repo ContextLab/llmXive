@@ -1,0 +1,82 @@
+# Data Schema Contract for Merged Cohort Dataset
+# This file defines the expected structure for data produced by the ingestion pipeline.
+# It must match the schema defined in code/schemas.py.
+
+version: "1.0"
+dataset_name: "merged_cohort"
+description: "Merged American Gut Project and Open Humans sleep data with diversity metrics"
+
+schema:
+  fields:
+    - name: participant_id
+      type: string
+      required: true
+      description: Unique participant identifier from American Gut Project/Open Humans
+    - name: shannon
+      type: number
+      required: true
+      description: Shannon diversity index (alpha diversity)
+    - name: simpson
+      type: number
+      required: true
+      description: Simpson diversity index (alpha diversity)
+    - name: bray_curtis
+      type: number
+      required: true
+      description: Bray-Curtis dissimilarity (beta diversity metric)
+    - name: sleep_duration
+      type: number
+      required: true
+      description: Average sleep duration in hours
+    - name: sleep_quality
+      type: number
+      required: true
+      description: Sleep quality score (0-100)
+    - name: chronotype
+      type: string
+      required: true
+      description: Chronotype classification (morning/evening/intermediate)
+    - name: age
+      type: number
+      required: false
+      description: Participant age in years
+    - name: bmi
+      type: number
+      required: false
+      description: Body Mass Index
+    - name: antibiotic_history
+      type: string
+      required: false
+      description: Antibiotic use history (yes/no/unknown)
+    - name: diet_type
+      type: string
+      required: false
+      description: Diet classification (e.g., omnivore, vegetarian, vegan)
+    - name: medication_use
+      type: string
+      required: false
+      description: Current medication use status
+
+constraints:
+  non_null:
+    - participant_id
+    - shannon
+    - simpson
+    - bray_curtis
+    - sleep_duration
+    - sleep_quality
+    - chronotype
+
+  type_checks:
+    participant_id: str
+    shannon: float
+    simpson: float
+    bray_curtis: float
+    sleep_duration: float
+    sleep_quality: float
+    chronotype: str
+    age: float
+    bmi: float
+    antibiotic_history: str
+    diet_type: str
+    medication_use: str

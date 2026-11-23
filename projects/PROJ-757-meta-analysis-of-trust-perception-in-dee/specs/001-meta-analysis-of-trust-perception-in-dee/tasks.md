@@ -44,8 +44,8 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per `plan.md` (`code/`, `data/`, `results/`, `tests/`)
-- [ ] T002 Initialize Python 3.10 project with `requirements.txt` (including `requests`, `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `rpy2`, `pypdf`, `pdfplumber`)
-- [ ] T003 [P] Initialize R 4.3+ environment and create `renv.lock` for `metafor` and `esc` packages <!-- ATOMIZE: requested -->
+- [X] T002 Initialize Python 3.10 project with `requirements.txt` (including `requests`, `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `rpy2`, `pypdf`, `pdfplumber`)
+- [ ] T003 [P] Initialize R 4.3+ environment and create `renv.lock` for `metafor` and `esc` packages <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
 - [ ] T004 [P] Configure `pytest` and create `tests/unit/` and `tests/integration/` directories
 
 ---
@@ -58,8 +58,8 @@
 
 - [ ] T005 Create `data/search_results/`, `data/screening/`, `data/harmonized/`, and `results/` directories
 - [X] T006 [P] Implement `code/utils.py` with logging, config loading, checksum generation logic, AND a utility function to parse `data/screening/inclusion_criteria.yaml`. **Note**: This task depends on T017 completing first; do not execute T006 until T017 has generated the YAML file. <!-- FAILED: unspecified -->
-- [~] T008 Implement mock API response fixtures for OpenAlex, Semantic Scholar, and arXiv in `tests/unit/`
-- [~] T009 Implement synthetic data generator for effect size math verification in `tests/unit/`
+- [ ] T008 Implement mock API response fixtures for OpenAlex, Semantic Scholar, and arXiv in `tests/unit/`
+- [ ] T009 Implement synthetic data generator for effect size math verification in `tests/unit/`
 - [ ] T017 [P] Generate `data/screening/inclusion_criteria.yaml` programmatically. The YAML MUST contain keys for exclusion codes: `NO_TRUST_METRIC`, `NO_CONTROL_CONDITION`, `NO_MODERATOR_DATA`, and `NOT_PEER_REVIEWED`, mapping to the specific logic defined in `plan.md` Phase 1.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
@@ -80,7 +80,7 @@
 
 ### Implementation for User Story 1
 
-- [ ] T013 [US1] Implement `code/01_search_and_screen.py` to query OpenAlex, Semantic Scholar, and arXiv with `"deepfake" AND "trust"` and `"AI‑generated face" AND "trustworthiness"` queries <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
+- [X] T013 [US1] Implement `code/01_search_and_screen.py` to query OpenAlex, Semantic Scholar, and arXiv with `"deepfake" AND "trust"` and `"AI‑generated face" AND "trustworthiness"` queries <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
  in "<unicode string>", line 3, column 1:
  **Task ID**: T013
  ^
@@ -106,9 +106,9 @@ expected alphabetic or numeric character, but found '*'
 
 ### Tests for User Story 2
 
-- [ ] T019 [P] [US2] Unit test for Cohen's d calculation from means/SDs in `tests/unit/test_effect_size.py`
-- [ ] T020 [P] [US2] Unit test for log-odds conversion from odds ratio and CI in `tests/unit/test_effect_size.py`
-- [ ] T021 [P] [US2] Unit test for SD reconstruction logic (exact t/p vs rounded p) and imputation logic in `tests/unit/test_effect_size.py`
+- [X] T019 [P] [US2] Unit test for Cohen's d calculation from means/SDs in `tests/unit/test_effect_size.py`
+- [X] T020 [P] [US2] Unit test for log-odds conversion from odds ratio and CI in `tests/unit/test_effect_size.py`
+- [X] T021 [P] [US2] Unit test for SD reconstruction logic (exact t/p vs rounded p) and imputation logic in `tests/unit/test_effect_size.py`
 
 ### Implementation for User Story 2
 

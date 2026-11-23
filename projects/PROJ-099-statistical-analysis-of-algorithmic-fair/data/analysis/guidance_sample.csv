@@ -1,0 +1,3 @@
+characteristic,associated_metric,association_strength,interpretation,disclaimer
+high_class_imbalance,demographic_parity_difference,medium,High class imbalance is associated with higher demographic parity difference,Findings are associational only; no causal claims are made.
+high_feature_dimensionality,equalized_odds_difference,small,High feature dimensionality is associated with higher equalized odds difference,Findings are associational only; no causal claims are made.

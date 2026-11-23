@@ -1,0 +1,46 @@
+{
+  "status": "success",
+  "metrics_source": "data/pilot/calibration_metrics.json",
+  "parameters_source": "code/simulate/bkt_params.yaml",
+  "original_params": {
+    "P_G": 0.1,
+    "P_L0": 0.55,
+    "P_S": 0.18,
+    "P_T": 0.1
+  },
+  "adjusted_params": {
+    "P_G": 0.1,
+    "P_L0": 0.55,
+    "P_S": 0.18,
+    "P_T": 0.1
+  },
+  "adjustments": {
+    "P_L0": {
+      "old": 0.55,
+      "new": 0.55,
+      "delta": 0.0
+    },
+    "P_S": {
+      "old": 0.18,
+      "new": 0.18,
+      "delta": 0.0
+    },
+    "P_T": {
+      "old": 0.1,
+      "new": 0.1,
+      "delta": 0.0
+    },
+    "P_G": {
+      "old": 0.1,
+      "new": 0.1,
+      "delta": 0.0
+    }
+  },
+  "metrics_summary": {
+    "rmse_difference": 0.0,
+    "absolute_rmse": 0.0,
+    "target_rmse": 0.0
+  },
+  "validation_passed": true,
+  "timestamp": "2026-01-01T00:00:00+00:00"
+}

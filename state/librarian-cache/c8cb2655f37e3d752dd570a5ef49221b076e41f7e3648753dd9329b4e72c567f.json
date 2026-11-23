@@ -1,0 +1,395 @@
+{
+  "fetched_at": "2026-09-30T18:39:51Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Polymer Glass Transition Temperatures with Graph Neural Networks",
+      "target_n": 5
+    },
+    "duration_seconds": 47.876,
+    "ended_at": "2026-09-30T18:39:51Z",
+    "expansion": null,
+    "extracted_queries": [
+      "glass transition prediction GNN polymer dataset",
+      "Tg polymer property prediction molecular representation",
+      "polymer graph topology homophily molecular GNN",
+      "Tg regression benchmark accuracy molecular graph learning",
+      "polymer chain conformation Tg mechanism graph embedding"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2007.08663"
+      ]
+    },
+    "per_query_hit_count": {
+      "Predicting Polymer Glass Transition Temperatures with Graph Neural Networks chemistry": 3,
+      "Tg polymer property prediction molecular representation": 2,
+      "Tg regression benchmark accuracy molecular graph learning": 3,
+      "glass transition prediction GNN polymer dataset": 3,
+      "polymer chain conformation Tg mechanism graph embedding": 3,
+      "polymer graph topology homophily molecular GNN": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2211.12792",
+          "rationale": "The paper focuses on a general methodological framework for heterogeneous graphs (node classification and link prediction on generic datasets) and does not address the specific domain of polymer chemistry, the glass transition temperature property, or the application of GNNs to molecular structures. It fails to meet criteria (a) or (b) as it lacks the specific biological/chemical mechanism or domain variables, and it is not the foundational method for molecular GNNs (criterion (d)), which would ",
+          "title": "MECCH: Metapath Context Convolution-based Heterogeneous Graph Neural Networks"
+        },
+        {
+          "primary_pointer": "2203.07969",
+          "rationale": "The paper focuses on a dataset for malicious domain classification in heterogeneous graphs, which is entirely off-domain from the user's question regarding polymer glass transition temperatures in chemistry. It shares no measurable connection to the specific biological/chemical mechanism, the polymer domain, or the property (glass transition temperature) being studied, and the shared term \"graph\" refers to a distinct construct (network security) rather than the molecular topology relevant to the",
+          "title": "PDNS-Net: A Large Heterogeneous Graph Benchmark Dataset of Network Resolutions for Graph Learning"
+        },
+        {
+          "primary_pointer": "2203.00836",
+          "rationale": "The paper focuses on Drug Target Interaction (DTI) prediction for cancer drug discovery, which is a distinct biological construct and application domain from predicting polymer glass transition temperatures. While both involve graph neural networks on molecules, the paper does not measure the specific physical observable (glass transition temperature) or address the polymer domain required by the user's question, failing to meet criteria (a) or (b).",
+          "title": "CandidateDrug4Cancer: An Open Molecular Graph Learning Benchmark on Drug Discovery for Cancer"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-09-30T18:39:03Z",
+    "term_input": {
+      "normalized": "predicting polymer glass transition temperatures with graph neural networks chemistry",
+      "raw": "Predicting Polymer Glass Transition Temperatures with Graph Neural Networks chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Artificial Intelligence and Machine learning have been widely used in various fields of mathematical computing, physical modeling, computational science, communication science, and stochastic analysis. Approaches based on Deep Artificial Neural Networks (DANN) are very popular in our days. Depending on the learning task, the exact form of DANNs is determined via their multi-layer architecture, activation functions and the so-called loss function. However, for a majority of deep learning approaches based on DANNs, the kernel structure of neural signal processing remains the same, where the node response is encoded as a linear superposition of neural activity, while the non-linearity is triggered by the activation functions. In the current paper, we suggest to analyze the neural signal processing in DANNs from the point of view of homogeneous chaos theory as known from polynomial chaos expansion (PCE). From the PCE perspective, the (linear) response on each node of a DANN could be seen as a $1^{st}$ degree multi-variate polynomial of single neurons from the previous layer, i.e. linear weighted sum of monomials. From this point of view, the conventional DANN structure relies implicitly (but erroneously) on a Gaussian distribution of neural signals. Additionally, this view revels that by design DANNs do not necessarily fulfill any orthogonality or orthonormality condition for a majority of data-driven applications. Therefore, the prevailing handling of neural signals in DANNs could lead to redundant representation as any neural signal could contain some partial information from other neural signals. To tackle that challenge, we suggest to employ the data-driven generalization of PCE theory known as arbitrary polynomial chaos (aPC) to construct a corresponding multi-variate orthonormal representations on each node of a DANN to obtain Deep arbitrary polynomial chaos neural networks.",
+          "claimed_authors": [
+            "Sergey Oladyshkin",
+            "Timothy Praditia",
+            "Ilja Kröker",
+            "Farid Mohammadi",
+            "Wolfgang Nowak",
+            "Sebastian Otte"
+          ],
+          "claimed_title": "The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.14753"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Polymer Glass Transition Temperatures with Graph Neural Networks chem', candidate_title='The Deep Arbitrary Polynomial Chaos Neural Network or how Deep Artificial Neural Networks could benefit from Data-Driven Homogeneous Chaos Theory')",
+        "failed_at": "2026-09-30T18:39:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Providing a model that achieves a strong predictive performance and is simultaneously interpretable by humans is one of the most difficult challenges in machine learning research due to the conflicting nature of these two objectives. To address this challenge, we propose a modification of the radial basis function neural network model by equipping its Gaussian kernel with a learnable precision matrix. We show that precious information is contained in the spectrum of the precision matrix that can be extracted once the training of the model is completed. In particular, the eigenvectors explain the directions of maximum sensitivity of the model revealing the active subspace and suggesting potential applications for supervised dimensionality reduction. At the same time, the eigenvectors highlight the relationship in terms of absolute variation between the input and the latent variables, thereby allowing us to extract a ranking of the input variables based on their importance to the prediction task enhancing the model interpretability. We conducted numerical experiments for regression, classification, and feature selection tasks, comparing our model against popular machine learning models, the state-of-the-art deep learning-based embedding feature selection techniques, and a transformer model for tabular data. Our results demonstrate that the proposed model does not only yield an attractive prediction performance compared to the competitors but also provides meaningful and interpretable results that potentially could assist the decision-making process in real-world applications. A PyTorch implementation of the model is available on GitHub at the following link. https://github.com/dannyzx/Gaussian-RBFNN",
+          "claimed_authors": [
+            "Danny D'Agostino",
+            "Ilija Ilievski",
+            "Christine Annette Shoemaker"
+          ],
+          "claimed_title": "Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2307.05639"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Polymer Glass Transition Temperatures with Graph Neural Networks chem', candidate_title='Learning Active Subspaces and Discovering Important Features with Gaussian Radial Basis Functions Neural Networks')",
+        "failed_at": "2026-09-30T18:39:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Polymer Glass Transition Temperatures with Graph Neural Networks chem', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-09-30T18:39:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We provide here a brief perspective on the glass transition field. It is an assessment, written from the point of view of theory, of where the field is and where it seems to be heading. We first give an overview of the main phenomenological characteristics, or \"stylised facts\", of the glass transition problem, i.e. the central observations that a theory of the physics of glass formation should aim to explain in a unified manner. We describe recent developments, with a particular focus on real space properties, including dynamical heterogeneity and facilitation, the search for underlying spatial or structural correlations, and the relation between the thermal glass transition and athermal jamming. We then discuss briefly how competing theories of the glass transition have adapted and evolved to account for such real space issues. We consider in detail two conceptual and methodological approaches put forward recently, that aim to access the fundamental critical phenomenon underlying the glass transition, be it thermodynamic or dynamic in origin, by means of biasing of ensembles, of configurations in the thermodynamic case, or of trajectories in the dynamic case. We end with a short outlook.",
+          "claimed_authors": [
+            "Giulio Biroli",
+            "Juan P. Garrahan"
+          ],
+          "claimed_title": "Perspective: The Glass Transition",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.3542"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Polymer Glass Transition Temperatures with Graph Neural Networks chem', candidate_title='Perspective: The Glass Transition')",
+        "failed_at": "2026-09-30T18:39:33Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "AI-assisted molecular property prediction has become a promising technique in early-stage drug discovery and materials design in recent years. However, due to high-cost and complex wet-lab experiments, real-world molecules usually experience the issue of scarce annotations, leading to limited labeled data for effective supervised AI model learning. In light of this, few-shot molecular property prediction (FSMPP) has emerged as an expressive paradigm that enables learning from only a few labeled examples. Despite rapidly growing attention, existing FSMPP studies remain fragmented, without a coherent framework to capture methodological advances and domain-specific challenges. In this work, we present the first comprehensive and systematic survey of few-shot molecular property prediction. We begin by analyzing the few-shot phenomenon in molecular datasets and highlighting two core challenges: (1) cross-property generalization under distribution shifts, where each task corresponding to each property, may follow a different data distribution or even be inherently weakly related to others from a biochemical perspective, requiring the model to transfer knowledge across heterogeneous prediction tasks, and (2) cross-molecule generalization under structural heterogeneity, where molecules involved in different or same properties may exhibit significant structural diversity, making model difficult to achieve generalization. Then, we introduce a unified taxonomy that organizes existing methods into data, model, and learning paradigm levels, reflecting their strategies for extracting knowledge from scarce supervision in few-shot molecular property prediction. Next, we compare representative methods, summarize benchmark datasets and evaluation protocols. In the end, we identify key trends and future directions for advancing the continued research on FSMPP.",
+          "claimed_authors": [
+            "Zeyu Wang",
+            "Tianyi Jiang",
+            "Huanchang Ma",
+            "Yao Lu",
+            "Xiaoze Bao",
+            "Shanqing Yu",
+            "Qi Xuan",
+            "Shirui Pan",
+            "Xin Zheng"
+          ],
+          "claimed_title": "Few-shot Molecular Property Prediction: A Survey",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.08900"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Polymer Glass Transition Temperatures with Graph Neural Networks chem', candidate_title='Few-shot Molecular Property Prediction: A Survey')",
+        "failed_at": "2026-09-30T18:39:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            " Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Polymer Glass Transition Temperatures with Graph Neural Networks chem', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-09-30T18:39:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "For the combinatorial graph alignment problem (GAP) -- finding the node correspondence that maximizes the number of common edges (nce) between two unlabeled graphs -- properly initialized FAQ remains a strong classical baseline, while existing GNN approaches struggle in the purely structural setting. We introduce a chaining procedure: a sequence of Folklore-type (2-FWL) GNNs in which each network is trained with cross-entropy after decoding the previous network's similarity matrix and ranking nodes by their current alignment quality. This non-differentiable ranking step injects discrete combinatorial feedback at every link; at inference, we iterate the final network and keep the candidate with highest observed nce. On sparse Erdos-Renyi graphs at noise level 0.25, chained FGNNs with FAQ post-processing reach 85% accuracy versus 13% for FAQ initialized from the convex relaxation, and essentially 0% for prior GNN methods. On correlated regular graphs, where MPNNs with constant features produce identical node embeddings (1-WL fails to refine) and FAQ's convex initialization is degenerate, chaining is the only method we know that recovers a non-trivial alignment. On three real-world benchmarks (yeast PPI, coauthorship, and road networks), we show that recent comparisons underestimate FAQ by initializing it from a uniform doubly stochastic matrix; once FAQ is initialized from the convex relaxation it already surpasses prior reported numbers, and dataset-specific chained FGNNs further improve on this strengthened baseline.",
+          "claimed_authors": [
+            "Marc Lelarge"
+          ],
+          "claimed_title": "Chaining 2-FWL GNNs for Combinatorial Graph Alignment",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.03086"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Polymer Glass Transition Temperatures with Graph Neural Networks chem', candidate_title='Chaining 2-FWL GNNs for Combinatorial Graph Alignment')",
+        "failed_at": "2026-09-30T18:39:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Persistence modules are a central algebraic object arising in topological data analysis. The notion of interleaving provides a natural way to measure distances between persistence modules. We consider various classes of persistence modules, including many of those that have been previously studied, and describe the relationships between them. In the cases where these classes are sets, interleaving distance induces a topology. We undertake a systematic study the resulting topological spaces and their basic topological properties.",
+          "claimed_authors": [
+            "Peter Bubenik",
+            "Tane Vergili"
+          ],
+          "claimed_title": "Topological spaces of persistence modules and their properties",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.08117"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Polymer Glass Transition Temperatures with Graph Neural Networks chem', candidate_title='Topological spaces of persistence modules and their properties')",
+        "failed_at": "2026-09-30T18:39:34Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We propose a novel graph clustering method guided by additional information on the underlying structure of the clusters (or communities). The problem is formulated as the matching of a graph to a template with smaller dimension, hence matching $n$ vertices of the observed graph (to be clustered) to the $k$ vertices of a template graph, using its edges as support information, and relaxed on the set of orthonormal matrices in order to find a $k$ dimensional embedding. With relevant priors that encode the density of the clusters and their relationships, our method outperforms classical methods, especially for challenging cases.",
+          "claimed_authors": [
+            "Mateus Riva",
+            "Florian Yger",
+            "Pietro Gori",
+            "Roberto M. Cesar",
+            "Isabelle Bloch"
+          ],
+          "claimed_title": "Template-Based Graph Clustering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2107.01994"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Polymer Glass Transition Temperatures with Graph Neural Networks chem', candidate_title='Template-Based Graph Clustering')",
+        "failed_at": "2026-09-30T18:39:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Molecular dynamics simulations are used to investigate the conformations of a single polymer chain, represented by the Kremer-Grest bead-spring model, in a solution with a Lennard-Jones liquid as the solvent when the interaction strength between the polymer and solvent is varied. Results show that when the polymer-solvent interaction is unfavorable, the chain collapses as one would expect in a poor solvent. For more attractive polymer-solvent interactions, the solvent quality improves and the chain is increasingly solvated and exhibits ideal and then swollen conformations. However, as the polymer-solvent interaction strength is increased further to be more than about twice of the strength of the polymer-polymer and solvent-solvent interactions, the chain exhibits an unexpected collapsing behavior. Correspondingly, for strong polymer-solvent attractions, phase separation is observed in the solutions of multiple chains. These results indicate that the solvent becomes effectively poor again with very attractive polymer-solvent interactions. Nonetheless, the mechanism of chain collapsing and phase separation in this limit differs from the case with a poor solvent rendered by unfavorable polymer-solvent interactions. In the latter, the solvent is excluded from the domain of the collapsed chains while in the former, the solvent is still present in the pervaded volume of a collapsed chain or in the polymer-rich domain that phase separates from the pure solvent. In the limit of strong polymer-solvent attractions, the solvent behaves as a glue to stick monomers together, causing a single chain to collapse and multiple chains to aggregate and phase separate.",
+          "claimed_authors": [
+            "Yisheng Huang",
+            "Shengfeng Cheng"
+          ],
+          "claimed_title": "Chain Conformations and Phase Separation in Polymer Solutions with Varying Solvent Quality",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.08055"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Polymer Glass Transition Temperatures with Graph Neural Networks chem', candidate_title='Chain Conformations and Phase Separation in Polymer Solutions with Varying Solvent Quality')",
+        "failed_at": "2026-09-30T18:39:35Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It has long been known for elastomers that the velocity of crack propagation jumps as a function of strain. On the other hand, such a jump has not been reported in the literature for polymers which do not exhibit a rubbery plateau in the storage-modulus plot. Here, we report observation of jumps in crack propagation for semi-crystalline polymer sheets without the rubbery plateau, as a result of pulling the sheets at a constant speed. We discuss the advantages of this crack-propagation test under constant-speed stretching and provide physical interpretation of the velocity jump observed for non-elastomer sheets on the basis of a recently proposed theory for the velocity jump in crack propagation.",
+          "claimed_authors": [
+            "Takako Tomizawa",
+            "Ko Okumura"
+          ],
+          "claimed_title": "Velocity jump in the crack propagation induced on a semi-crystalline polymer sheet by constant-speed stretching",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1904.03250"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Polymer Glass Transition Temperatures with Graph Neural Networks chem', candidate_title='Velocity jump in the crack propagation induced on a semi-crystalline polymer sheet by constant-speed stretching')",
+        "failed_at": "2026-09-30T18:39:35Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Gang Liu",
+            "Sobin Alosious",
+            "Subhamoy Mahajan",
+            "Eric Inae",
+            "Yihan Zhu",
+            "Yuhan Liu",
+            "Renzheng Zhang",
+            "Jiaxin Xu",
+            "Addison Howard",
+            "Ying Li",
+            "Tengfei Luo",
+            "Meng Jiang"
+          ],
+          "title": "Open Polymer Challenge: Post-Competition Report",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2512.08896",
+        "summary": "Machine learning (ML) offers a powerful path toward discovering sustainable polymer materials, but progress has been limited by the lack of large, high-quality, and openly accessible polymer datasets. The Open Polymer Challenge (OPC) addresses this gap by releasing the first community-developed benchmark for polymer informatics, featuring a dataset with 10K polymers and 5 properties: thermal conductivity, radius of gyration, density, fractional free volume, and glass transition temperature. The challenge centers on multi-task polymer property prediction, a core step in virtual screening pipelines for materials discovery. Participants developed models under realistic constraints that include small data, label imbalance, and heterogeneous simulation sources, using techniques such as feature-based augmentation, transfer learning, self-supervised pretraining, and targeted ensemble strategies. The competition also revealed important lessons about data preparation, distribution shifts, and cross-group simulation consistency, informing best practices for future large-scale polymer datasets. The resulting models, analysis, and released data create a new foundation for molecular AI in polymer science and are expected to accelerate the development of sustainable and energy-efficient materials. Along with the competition, we release the test dataset at https://www.kaggle.com/datasets/alexliu99/neurips-open-polymer-prediction-2025-test-data. We also release the data generation pipeline at https://github.com/sobinalosious/ADEPT, which simulates more than 25 properties, including thermal conductivity, radius of gyration, and density.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2512.08896",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-30T18:39:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Christopher Morris",
+            "Nils M. Kriege",
+            "Franka Bause",
+            "Kristian Kersting",
+            "Petra Mutzel",
+            "Marion Neumann"
+          ],
+          "title": "TUDataset: A collection of benchmark datasets for learning with graphs",
+          "venue": "arXiv",
+          "year": 2020
+        },
+        "primary_pointer": "2007.08663",
+        "summary": "Recently, there has been an increasing interest in (supervised) learning with graph data, especially using graph neural networks. However, the development of meaningful benchmark datasets and standardized evaluation procedures is lagging, consequently hindering advancements in this area. To address this, we introduce the TUDataset for graph classification and regression. The collection consists of over 120 datasets of varying sizes from a wide range of applications. We provide Python-based data loaders, kernel and graph neural network baseline implementations, and evaluation tools. Here, we give an overview of the datasets, standardized evaluation procedures, and provide baseline experiments. All datasets are available at www.graphlearning.io. The experiments are fully reproducible from the code available at www.github.com/chrsmrrs/tudataset.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2007.08663",
+          "http_status": 200,
+          "pdf_sample_score": 0.1734,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-09-30T18:39:34Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting polymer glass transition temperatures with graph neural networks chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

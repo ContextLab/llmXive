@@ -1,107 +1,217 @@
-# Data Model: Predicting the Yield Strength of High-Entropy Alloys via Compositional Descriptors
+# Data Model: Predicting the Yield Strength of High‑Entropy Alloys
 
 ## Overview
+The pipeline exchanges a small set of well‑defined JSON/YAML artifacts. Each artifact is validated against a schema in `contracts/`. Schemas are version‑controlled and referenced throughout the CI workflow.
 
-This document defines the schema for the input data, derived descriptors, and output metrics. It ensures data integrity and type safety throughout the pipeline.
+## Schemas
 
-## Input Data Schemas
-
-### 1. Elemental Properties (Reference)
-Source: `WebElements` (Verified URL: `)
-
-| Field | Type | Description |
-|:--- |:--- |:--- |
-| `element_symbol` | string | Element symbol (e.g., "Fe", "Cr") |
-| `atomic_radius` | float | Atomic radius in pm |
-| `electronegativity` | float | Pauling electronegativity |
-| `valence_electrons` | integer | Number of valence electrons |
-| `melting_point` | float | Melting point in Kelvin |
-
-### 2. HEA Composition (Target)
-Source: **Verified HEA Dataset** (URL to be determined from "Verified datasets" block)
-
-| Field | Type | Description |
-|:--- |:--- |:--- |
-| `alloy_id` | string | Unique identifier for the alloy |
-| `elements` | string | JSON string of elemental fractions (e.g., `{"Fe": 0.3, "Cr": 0.2,...}`) |
-| `phase` | string | Phase structure (e.g., "FCC", "BCC", "Single-phase") |
-| `testing_temp` | float | Testing temperature in Celsius |
-| `yield_strength` | float | Yield strength in MPa |
-| `source` | string | Original data source (e.g., "Zenodo-12345") |
-
-## Derived Data Schemas
-
-### 3. Processed Dataset (Post-Descriptor Calculation)
-Source: `data/processed/hea_descriptors.csv`
-
-| Field | Type | Description |
-|:--- |:--- |:--- |
-| `alloy_id` | string | Unique identifier |
-| `delta` | float | Atomic size mismatch (δ) |
-| `delta_chi` | float | Electronegativity variance (Δχ) |
-| `vec` | float | Valence electron concentration (VEC) |
-| `mixing_entropy` | float | Configurational mixing entropy (R) |
-| `melting_var` | float | Melting temperature variance |
-| `yield_strength` | float | Target variable (MPa) |
-| `is_single_phase` | boolean | Filter flag (True if single-phase) |
-| `is_room_temp` | boolean | Filter flag (True if 20-25°C) |
-
-## Output Schemas
-
-### 4. Metrics Report
-Source: `output/metrics.json`
-
+### 1. `contracts/dataset.schema.yaml`
 ```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HEA Dataset Schema"
+type: object
+required:
+  - alloy_id
+  - composition
+  - yield_strength
+properties:
+  alloy_id:
+    type: string
+    description: "Unique identifier for the alloy."
+  composition:
+    type: object
+    description: "Elemental fractions; keys are element symbols, values sum to 1."
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 1
+  yield_strength:
+    type: number
+    description: "Measured yield strength in MPa."
+```
+
+### 2. `contracts/descriptor.schema.yaml`
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HEA Descriptor Table"
+description: "Row‑wise deterministic descriptors for each alloy composition."
 type: object
 properties:
- linear_regression:
- type: object
- properties:
- R2: { type: number }
- MAE: { type: number }
- RMSE: { type: number }
- VIF:
- type: object
- additionalProperties: { type: number }
- random_forest:
- type: object
- properties:
- R2: { type: number }
- MAE: { type: number }
- RMSE: { type: number }
- permutation_p_values:
- type: object
- additionalProperties: { type: number }
- gradient_boosting:
- type: object
- properties:
- R2: { type: number }
- MAE: { type: number }
- RMSE: { type: number }
- permutation_p_values:
- type: object
- additionalProperties: { type: number }
- bootstrap:
- type: object
- properties:
- R2_ci_95:
- type: array
- items: { type: number }
- minItems: 2
- maxItems: 2
- sensitivity:
- type: array
- items:
- type: object
- properties:
- alpha: { type: number }
- significant_count: { type: integer }
- R2: { type: number }
- data_status:
- type: object
- properties:
- N_total: { type: integer }
- N_single_phase: { type: integer }
- N_room_temp: { type: integer }
- power_flag: { type: string, enum: ["OK", "Insufficient Power"] }
+  composition:
+    type: string
+    description: "Alloy composition formula (e.g., 'CoCrFeMnNi')."
+  mixing_entropy:
+    type: number
+    description: "Configurational mixing entropy (J mol⁻¹ K⁻¹)."
+  atomic_size_mismatch:
+    type: number
+    description: "δ, atomic size mismatch (dimensionless)."
+  electronegativity_variance:
+    type: number
+    description: "Δχ, variance of Pauling electronegativities."
+  vec:
+    type: number
+    description: "Valence electron concentration (electrons per atom)."
+  tm_variance:
+    type: number
+    description: "Variance of melting temperatures of constituent elements."
+required:
+  - composition
+  - mixing_entropy
+  - atomic_size_mismatch
+  - electronegativity_variance
+  - vec
+  - tm_variance
+additionalProperties: false
 ```
+
+### 3. `contracts/elemental_properties.schema.yaml`
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Elemental Properties Schema"
+type: object
+required:
+  - element
+  - atomic_radius
+  - electronegativity
+  - valence_electrons
+  - melting_point
+properties:
+  element:
+    type: string
+    description: "Chemical symbol (e.g., Fe, Ni)."
+  atomic_radius:
+    type: number
+    description: "Atomic radius (pm)."
+  electronegativity:
+    type: number
+    description: "Pauling electronegativity."
+  valence_electrons:
+    type: integer
+    description: "Number of valence electrons."
+  melting_point:
+    type: number
+    description: "Melting temperature (K)."
+```
+
+### 4. `contracts/hea_composition.schema.yaml`
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "User‑Provided HEA Composition Record"
+type: object
+additionalProperties: false
+required:
+  - composition
+properties:
+  composition:
+    type: object
+    description: "Mapping from element symbol to atomic fraction (must sum to the overall composition)."
+    patternProperties:
+      "^[A-Z][a-z]?$":
+        type: number
+        minimum: 0
+        maximum: 1
+    minProperties: 1
+```
+
+### 5. `contracts/metrics.schema.yaml`
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Performance Metrics"
+type: object
+required:
+  - r2
+  - pearson_r
+  - p_value
+  - r2_ci
+  - pearson_r_ci
+properties:
+  r2:
+    type: number
+    description: "Coefficient of determination on the test set."
+  pearson_r:
+    type: number
+    description: "Pearson correlation coefficient on the test set."
+  p_value:
+    type: number
+    description: "Two‑tailed p‑value for Pearson r."
+  r2_ci:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "95 % bootstrap confidence interval for R²."
+  pearson_r_ci:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "95 % bootstrap confidence interval for Pearson r."
+```
+
+### 6. `contracts/importance.schema.yaml`
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Permutation Importance Results"
+type: object
+required:
+  - feature
+  - importance_score
+  - raw_p_value
+  - holm_bonferroni_p
+properties:
+  feature:
+    type: string
+    description: "Descriptor name."
+  importance_score:
+    type: number
+    description: "Mean decrease in score across permutations."
+  raw_p_value:
+    type: number
+    description: "Permutation test p‑value before correction."
+  holm_bonferroni_p:
+    type: number
+    description: "Holm‑Bonferroni corrected p‑value."
+```
+
+### 7. `contracts/manifest.schema.yaml`
+```yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Provenance Manifest"
+type: object
+required:
+  - run_id
+  - timestamp
+  - seeds
+  - package_versions
+  - checksums
+properties:
+  run_id:
+    type: string
+    description: "UUID for the pipeline execution."
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO‑8601 timestamp of run start."
+  seeds:
+    type: object
+    description: "All random seeds used."
+    additionalProperties:
+      type: integer
+  package_versions:
+    type: object
+    description: "Pinned versions of every Python package."
+    additionalProperties:
+      type: string
+  checksums:
+    type: object
+    description: "SHA256 checksums of all input and derived files."
+    additionalProperties:
+      type: string
+```
+
+All schemas are stored under `contracts/` and are referenced by the CI validation steps.
+
+---

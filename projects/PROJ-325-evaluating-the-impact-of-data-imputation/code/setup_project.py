@@ -1,35 +1,42 @@
-"""
-Setup script to initialize the project directory structure.
-Creates the required folders as per the implementation plan.
-"""
 import os
 from pathlib import Path
 
 def main():
+    """
+    Create the project directory structure as defined in the implementation plan.
+    Creates: code/, data/raw, data/processed, tests/, specs/contracts, figures/
+    """
     root = Path(".")
-    
-    # Define the directory structure to create
-    directories = [
+    dirs = [
         "code",
         "data/raw",
         "data/processed",
+        "data/figures",
         "tests",
+        "tests/contract",
+        "tests/integration",
+        "tests/unit",
         "specs/contracts",
-        "state",
-        "figures"
+        "figures",
+        "state"
     ]
 
-    created_count = 0
-    for dir_path in directories:
-        full_path = root / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
+    created = []
+    for d in dirs:
+        path = root / d
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            created.append(str(path))
+            print(f"Created directory: {path}")
         else:
-            print(f"Directory already exists: {dir_path}")
+            print(f"Directory already exists: {path}")
 
-    print(f"Setup complete. Created {created_count} new directories.")
+    if not created:
+        print("No new directories created. Structure already exists.")
+    else:
+        print(f"\nTotal directories created: {len(created)}")
+
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

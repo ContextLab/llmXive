@@ -1,63 +1,57 @@
 """
-SchNet-style Graph Neural Network for Transition State Barrier Prediction.
-
-Implements a continuous-filter convolutional neural network as described in:
-"SchNet: A Continuous-filter Convolutional Neural Network for Modeling Quantum Interactions"
-
-Compatible with PyTorch Geometric and CPU execution.
+SchNet-style GNN architecture for transition metal catalysis.
+CPU-compatible implementation using PyTorch Geometric.
 """
 import math
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Dict, Any, List
 
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 from torch_geometric.nn import MessagePassing
-from torch_geometric.utils import add_self_loops, radius_graph
-from torch_geometric.typing import Adj, OptTensor
+from torch_geometric.utils import add_self_loops
+from torch import Tensor
+
+# Import config for hyperparameters if needed, though defaults are provided here
+# from src.utils.config import get_config_value
+
 
 class GaussianSmearing(nn.Module):
     """
-    Gaussian Smearing for distance expansion.
-    
-    Converts scalar distances into a vector of Gaussian features.
+    Gaussian radial basis function expansion for edge distances.
+    Maps continuous distances to a fixed-size vector of Gaussian features.
     """
-    def __init__(
-        self,
-        start: float = 0.0,
-        stop: float = 10.0,
-        num_gaussians: int = 50
-    ):
+    def __init__(self, start: float = 0.0, stop: float = 5.0, num_gaussians: int = 50):
         super().__init__()
         self.start = start
         self.stop = stop
         self.num_gaussians = num_gaussians
-        self.register_buffer(
-            'offset',
-            torch.linspace(start, stop, num_gaussians)
-        )
-        self.register_buffer(
-            'delta',
-            torch.tensor((stop - start) / (num_gaussians - 1))
-        )
+        
+        # Create centers for Gaussians
+        offset = torch.linspace(start, stop, num_gaussians)
+        self.coeffs = -1.0 / (offset[1] - offset[0])**2
+        self.register_buffer('offset', offset)
 
-    def forward(self, dist: torch.Tensor) -> torch.Tensor:
+    def forward(self, dist: Tensor) -> Tensor:
         """
         Args:
-            dist: Tensor of shape (num_edges,) containing distances.
+            dist: Tensor of shape (E,) where E is number of edges.
         Returns:
-            Tensor of shape (num_edges, num_gaussians).
+            Tensor of shape (E, num_gaussians)
         """
-        dist = dist.unsqueeze(-1)
-        return torch.exp(-((dist - self.offset) / self.delta) ** 2)
+        # dist.unsqueeze(1) -> (E, 1)
+        # offset -> (num_gaussians,)
+        # diff -> (E, num_gaussians)
+        diff = dist.unsqueeze(1) - self.offset
+        # exp(coeffs * diff^2)
+        out = torch.exp(self.coeffs * (diff ** 2))
+        return out
 
 
 class ContinuousFilterConv(MessagePassing):
     """
-    Continuous-Filter Convolution Layer.
-    
-    Computes edge weights via a learned MLP on distance features,
-    then applies these weights to the message passing.
+    Continuous-filter convolution layer as described in SchNet.
+    Updates node embeddings based on edge distances and neighbor features.
     """
     def __init__(
         self,
@@ -65,297 +59,217 @@ class ContinuousFilterConv(MessagePassing):
         out_channels: int,
         num_gaussians: int,
         cutoff: float = 5.0,
-        activation: str = 'silu'
+        activation: Optional[nn.Module] = None,
     ):
-        super().__init__(aggr='add')
+        super().__init__(aggr='add')  # Sum aggregation
         self.in_channels = in_channels
         self.out_channels = out_channels
+        self.num_gaussians = num_gaussians
         self.cutoff = cutoff
 
-        # Distance expansion
-        self.distance_expansion = GaussianSmearing(
-            start=0.0, stop=cutoff, num_gaussians=num_gaussians
-        )
-
-        # Filter network (MLP)
+        self.lin = nn.Linear(in_channels, out_channels, bias=False)
+        
+        # Filter network: maps Gaussian features to (out_channels, in_channels)
         self.filter_net = nn.Sequential(
             nn.Linear(num_gaussians, num_gaussians),
-            nn.SiLU() if activation == 'silu' else nn.ReLU(),
-            nn.Linear(num_gaussians, out_channels)
+            nn.Softplus(),
+            nn.Linear(num_gaussians, out_channels * in_channels),
         )
 
-        # Node update network
-        self.update_net = nn.Sequential(
-            nn.Linear(in_channels + out_channels, out_channels),
-            nn.SiLU() if activation == 'silu' else nn.ReLU(),
-            nn.Linear(out_channels, out_channels)
-        )
+        self.activation = activation if activation else nn.Softplus()
 
     def forward(
         self,
-        x: torch.Tensor,
-        edge_index: Adj,
-        edge_attr: OptTensor = None,
-        pos: OptTensor = None
-    ) -> torch.Tensor:
-        # Calculate distances if not provided (assuming 3D positions)
-        if pos is not None:
-            row, col = edge_index
-            dist = (pos[row] - pos[col]).norm(dim=-1)
-            # Apply cutoff mask
-            mask = dist <= self.cutoff
-            # Expand distances for Gaussian smearing
-            dist_expanded = self.distance_expansion(dist)
-            # Filter network to get edge weights
-            edge_weights = self.filter_net(dist_expanded)
-            # Apply mask to edge weights (set to zero if beyond cutoff)
-            edge_weights = edge_weights * mask.unsqueeze(-1).to(edge_weights.dtype)
-        else:
-            # Fallback if edge_attr (pre-computed weights) is provided
-            # This path is less common in standard SchNet but handles pre-processed graphs
-            if edge_attr is None:
-                raise ValueError("Either pos or edge_attr must be provided")
-            edge_weights = edge_attr
-
-        # Propagate messages
-        out = self.propagate(
-            edge_index,
-            x=x,
-            edge_weight=edge_weights,
-            size=None
+        x: Tensor,
+        edge_index: Tensor,
+        edge_attr: Tensor,
+        edge_weight: Optional[Tensor] = None,
+    ) -> Tensor:
+        """
+        Args:
+            x: Node features (N, in_channels)
+            edge_index: (2, E)
+            edge_attr: Gaussian expansion of distances (E, num_gaussians)
+            edge_weight: Optional scalar weights for edges
+        """
+        # Project node features
+        x_proj = self.lin(x)
+        
+        # Generate filters from edge attributes
+        # filter_weights shape: (E, out_channels, in_channels)
+        filter_weights = self.filter_net(edge_attr).view(
+            -1, self.out_channels, self.in_channels
         )
 
-        # Update node features
-        out = self.update_net(torch.cat([x, out], dim=-1))
+        # Apply message passing
+        # We need to multiply x_proj[i] by filter_weights[j] for each edge j: i->k
+        # Message: x_proj[source] * filter
+        
+        # To do this efficiently with MessagePassing:
+        # We pass x_proj as x, and filter_weights as a secondary argument
+        # But standard MessagePassing doesn't support matrix mult in message directly.
+        # Alternative: Compute messages explicitly or use a custom implementation.
+        # Here we implement the message function manually to handle the tensor shapes.
+        
+        row, col = edge_index
+        
+        # Get source node features
+        x_source = x_proj[row] # (E, in_channels)
+        
+        # Expand filter weights to (E, out_channels, in_channels)
+        # We want to compute: sum_over_neighbors ( x_source * filter_weights )
+        # Result shape per node: (out_channels)
+        
+        # Reshape for batched matrix multiplication
+        # x_source: (E, in_channels, 1)
+        # filter_weights: (E, out_channels, in_channels)
+        # We want (E, out_channels) = sum over in_channels of (x_source * filter_weights)
+        
+        # Efficiently: (E, out_channels, in_channels) @ (E, in_channels, 1) -> (E, out_channels, 1)
+        # Then squeeze
+        messages = torch.bmm(filter_weights, x_source.unsqueeze(2)).squeeze(2) # (E, out_channels)
+        
+        # Update aggregation
+        out = self.propagate(edge_index, x=messages, edge_weight=edge_weight, size=(x.size(0), x.size(0)))
+        
         return out
 
-    def message(
-        self,
-        x_j: torch.Tensor,
-        edge_weight: torch.Tensor
-    ) -> torch.Tensor:
-        # Element-wise multiplication of node feature with edge weight
-        return x_j * edge_weight
+    def message(self, x_j: Tensor, edge_weight: Optional[Tensor]) -> Tensor:
+        if edge_weight is not None:
+            x_j = x_j * edge_weight.view(-1, 1)
+        return x_j
+
+    def update(self, aggr_out: Tensor) -> Tensor:
+        if self.activation is not None:
+            aggr_out = self.activation(aggr_out)
+        return aggr_out
 
 
 class SchNetBlock(nn.Module):
     """
-    A block of Continuous Filter Convolutions.
+    A block of SchNet layers.
     """
     def __init__(
         self,
-        hidden_channels: int,
+        in_channels: int,
+        out_channels: int,
         num_gaussians: int,
         cutoff: float = 5.0,
-        activation: str = 'silu'
+        activation: Optional[nn.Module] = None,
     ):
         super().__init__()
         self.conv = ContinuousFilterConv(
-            in_channels=hidden_channels,
-            out_channels=hidden_channels,
-            num_gaussians=num_gaussians,
-            cutoff=cutoff,
-            activation=activation
+            in_channels, out_channels, num_gaussians, cutoff, activation
         )
-        self.norm = nn.LayerNorm(hidden_channels)
+        self.act = activation if activation else nn.Softplus()
 
     def forward(
         self,
-        x: torch.Tensor,
-        edge_index: Adj,
-        pos: torch.Tensor
-    ) -> torch.Tensor:
-        x_res = x
-        x = self.conv(x, edge_index, pos=pos)
-        x = self.norm(x)
-        x = x + x_res
-        return F.silu(x)
+        x: Tensor,
+        edge_index: Tensor,
+        edge_attr: Tensor,
+    ) -> Tensor:
+        out = self.conv(x, edge_index, edge_attr)
+        return out
 
 
 class SchNet(nn.Module):
     """
-    SchNet Model for Transition State Barrier Prediction.
-    
-    Architecture:
-    1. Embedding layer for atomic numbers.
-    2. Stack of SchNetBlocks (Continuous Filter Convolutions).
-    3. Readout layer (sum pooling) to get graph-level representation.
-    4. Output MLP to predict energy/barrier.
-    
-    Args:
-        atomic_number_range: Tuple (min, max) of atomic numbers.
-        hidden_channels: Number of hidden channels in the GNN.
-        num_filters: Number of filters in the distance MLP (same as num_gaussians).
-        num_layers: Number of SchNet blocks.
-        cutoff: Cutoff radius for interactions (Angstroms).
-        output_dim: Dimension of the output (1 for scalar energy).
+    SchNet model for predicting scalar properties (e.g., barrier heights) from graphs.
     """
     def __init__(
         self,
-        atomic_number_range: Tuple[int, int] = (1, 30),
-        hidden_channels: int = 128,
-        num_filters: int = 50,
-        num_layers: int = 4,
+        num_atom_types: int = 100,
+        embedding_dim: int = 128,
+        num_filters: int = 128,
+        num_interactions: int = 3,
+        num_gaussians: int = 50,
         cutoff: float = 5.0,
-        output_dim: int = 1
+        output_dim: int = 1,
     ):
         super().__init__()
-        self.atomic_number_range = atomic_number_range
-        self.hidden_channels = hidden_channels
-        self.num_layers = num_layers
+        self.num_atom_types = num_atom_types
+        self.embedding_dim = embedding_dim
+        self.num_filters = num_filters
+        self.num_interactions = num_interactions
+        self.num_gaussians = num_gaussians
         self.cutoff = cutoff
+        self.output_dim = output_dim
 
-        # Embedding layer for atomic numbers
-        self.num_atomic_types = atomic_number_range[1] - atomic_number_range[0] + 1
-        self.embedding = nn.Embedding(self.num_atomic_types, hidden_channels)
+        # Atom embedding
+        self.embedding = nn.Embedding(num_atom_types, embedding_dim)
 
-        # SchNet blocks
-        self.blocks = nn.ModuleList([
-            SchNetBlock(
-                hidden_channels=hidden_channels,
-                num_gaussians=num_filters,
-                cutoff=cutoff
+        # Gaussian smearing
+        self.smearing = GaussianSmearing(0.0, cutoff, num_gaussians)
+
+        # Interaction blocks
+        self.interactions = nn.ModuleList()
+        for _ in range(num_interactions):
+            self.interactions.append(
+                SchNetBlock(embedding_dim, embedding_dim, num_gaussians, cutoff)
             )
-            for _ in range(num_layers)
-        ])
 
-        # Readout and prediction head
-        self.readout = nn.Sequential(
-            nn.Linear(hidden_channels, hidden_channels),
-            nn.SiLU(),
-            nn.Linear(hidden_channels, output_dim)
+        # Output network
+        self.output_net = nn.Sequential(
+            nn.Linear(embedding_dim, embedding_dim),
+            nn.Softplus(),
+            nn.Linear(embedding_dim, output_dim),
         )
 
     def forward(
         self,
-        x: torch.Tensor,
-        edge_index: Adj,
-        pos: torch.Tensor,
-        batch: OptTensor = None
-    ) -> torch.Tensor:
+        x: Tensor,
+        edge_index: Tensor,
+        edge_attr: Tensor,
+        batch: Optional[Tensor] = None,
+    ) -> Tensor:
         """
-        Forward pass.
-        
         Args:
-            x: Node features (atomic numbers as indices) of shape (num_nodes,).
-            edge_index: Edge indices of shape (2, num_edges).
-            pos: Node positions of shape (num_nodes, 3).
-            batch: Batch vector of shape (num_nodes,).
-        
+            x: Atomic numbers (N,) or node features
+            edge_index: (2, E)
+            edge_attr: Gaussian expanded distances (E, num_gaussians)
+            batch: Graph assignment vector (N,) for pooling
         Returns:
-            Predicted scalar values (e.g., barrier height) of shape (num_graphs,).
+            Predicted property (num_graphs,) or (num_graphs, output_dim)
         """
-        # Normalize atomic numbers to indices 0..N
-        atomic_indices = x - self.atomic_number_range[0]
-        x = self.embedding(atomic_indices)
+        # Embed atoms
+        if x.dim() == 1:
+            x = self.embedding(x)
+        else:
+            x = x.float() # Assume already embedded if 2D
 
-        # Pass through SchNet blocks
-        for block in self.blocks:
-            x = block(x, edge_index, pos)
+        # Apply interactions
+        for interaction in self.interactions:
+            x = x + interaction(x, edge_index, edge_attr)
 
-        # Readout (sum pooling)
+        # Global pooling
         if batch is None:
-            # If no batch vector, assume single graph
-            batch = torch.zeros(x.size(0), dtype=torch.long, device=x.device)
-        
-        graph_repr = torch_scatter.scatter(x, batch, dim=0, reduce='sum')
-        
-        # Predict
-        out = self.readout(graph_repr)
+            # If no batch provided, assume single graph
+            # Sum or mean over all nodes
+            out = x.sum(dim=0, keepdim=True)
+        else:
+            # Use scatter add for graph-level representation
+            # torch_geometric.nn.pool.global_add_pool is usually used, but here we do it manually
+            # to avoid extra imports if not available in strict environment
+            from torch_scatter import scatter_add
+            out = scatter_add(x, batch, dim=0)
+
+        # Predict property
+        out = self.output_net(out)
         return out
 
 
-# Helper for scatter if torch_scatter is not explicitly imported in environment
-# We will implement a simple fallback or assume torch_geometric provides it
-# torch_geometric.nn.pool usually relies on torch_scatter
-try:
-    from torch_scatter import scatter
-except ImportError:
-    # Fallback implementation if torch_scatter is missing (unlikely in standard GNN env)
-    def scatter(src: torch.Tensor, index: torch.Tensor, dim: int = 0, reduce: str = 'sum') -> torch.Tensor:
-        """Simple fallback scatter implementation for sum."""
-        if reduce != 'sum':
-            raise NotImplementedError("Fallback scatter only supports 'sum'")
-        out = torch.zeros(
-            index.max().item() + 1, src.size(-1),
-            device=src.device, dtype=src.dtype
-        )
-        out = out.index_add_(dim, index, src)
-        return out
-
-# Patch the module if needed, but usually torch_scatter is available with torch_geometric
-# For this implementation, we assume standard environment.
-# If torch_scatter is not found, the import above handles it.
-
-# Re-define the class to use the imported or fallback scatter
-class SchNet(nn.Module):
+def get_model_config() -> Dict[str, Any]:
     """
-    SchNet Model for Transition State Barrier Prediction.
-    """
-    def __init__(
-        self,
-        atomic_number_range: Tuple[int, int] = (1, 30),
-        hidden_channels: int = 128,
-        num_filters: int = 50,
-        num_layers: int = 4,
-        cutoff: float = 5.0,
-        output_dim: int = 1
-    ):
-        super().__init__()
-        self.atomic_number_range = atomic_number_range
-        self.hidden_channels = hidden_channels
-        self.num_layers = num_layers
-        self.cutoff = cutoff
-
-        self.num_atomic_types = atomic_number_range[1] - atomic_number_range[0] + 1
-        self.embedding = nn.Embedding(self.num_atomic_types, hidden_channels)
-
-        self.blocks = nn.ModuleList([
-            SchNetBlock(
-                hidden_channels=hidden_channels,
-                num_gaussians=num_filters,
-                cutoff=cutoff
-            )
-            for _ in range(num_layers)
-        ])
-
-        self.readout = nn.Sequential(
-            nn.Linear(hidden_channels, hidden_channels),
-            nn.SiLU(),
-            nn.Linear(hidden_channels, output_dim)
-        )
-
-    def forward(
-        self,
-        x: torch.Tensor,
-        edge_index: Adj,
-        pos: torch.Tensor,
-        batch: OptTensor = None
-    ) -> torch.Tensor:
-        atomic_indices = x - self.atomic_number_range[0]
-        x = self.embedding(atomic_indices)
-
-        for block in self.blocks:
-            x = block(x, edge_index, pos)
-
-        if batch is None:
-            batch = torch.zeros(x.size(0), dtype=torch.long, device=x.device)
-        
-        # Use the imported or fallback scatter
-        graph_repr = scatter(x, batch, dim=0, reduce='sum')
-        
-        out = self.readout(graph_repr)
-        return out
-
-def get_model_config(hidden_channels: int = 128) -> dict:
-    """
-    Returns a configuration dictionary for the SchNet model.
+    Returns default configuration for SchNet model.
+    These values can be overridden by loading config from YAML.
     """
     return {
-        "atomic_number_range": (1, 30),
-        "hidden_channels": hidden_channels,
-        "num_filters": 50,
-        "num_layers": 4,
+        "num_atom_types": 100,
+        "embedding_dim": 128,
+        "num_filters": 128,
+        "num_interactions": 3,
+        "num_gaussians": 50,
         "cutoff": 5.0,
-        "output_dim": 1
+        "output_dim": 1,
     }

@@ -1,0 +1,4227 @@
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: RAM watchdog terminates process if RAM exceeds 7.0GB
+  claim_id: c_3ac3ee99
+  context: 'Implement utils/memory.py with gradient checkpointing, batch size auto-scaling
+    and hard RAM watchdog: create utils/memory.py with function check_and_terminate_if_exceeds(limit_gb:
+    float=7.0) that kills process if RAM exceeds 7.0GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'create utils/memory.py with function check_and_terminate_if_exceeds(limit_gb:
+    float=7.0) that kills process if RAM exceeds 7.0GB'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:33:17Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Unit test mocks RAM > 6.5GB to trigger sys.exit
+  claim_id: c_3d912de0
+  context: 'Verification: Add a unit test in tests/unit/test_memory.py that mocks
+    psutil.virtual_memory using unittest.mock.patch to return a value > 6.5GB (read
+    from config.py) and asserts sys.exit is called.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Add a unit test in tests/unit/test_memory.py that mocks psutil.virtual_memory
+    using unittest.mock.patch to return a value > 6.5GB (read from config.py) and
+    asserts sys.exit is called
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:33:17Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Exponential backoff wrapper uses 30s initial delay and 5 max retries
+  claim_id: c_44e9b887
+  context: Implement exponential backoff wrapper in pipeline/loader.py with initial
+    delay=30s, max retries=5 for HuggingFace API calls.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement exponential backoff wrapper in pipeline/loader.py with initial
+    delay=30s, max retries=5 for HuggingFace API calls
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:33:46Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Initial delay verified as 30 seconds
+  claim_id: c_e247a9aa
+  context: 'Verification: Add unit test in tests/unit/test_loader.py that mocks time.sleep
+    and asserts retry count increments correctly on simulated failures, explicitly
+    verifying the initial delay is 30 seconds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: explicitly verifying the initial delay is 30 seconds
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:34:05Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Dataset loaders implemented for OpenWebText, GSM8K, ARC-Challenge, Wikitext-2
+  claim_id: c_e7bd108f
+  context: 'Implement dataset loaders in pipeline/loader.py for OpenWebText, GSM8K,
+    ARC-Challenge, Wikitext-2 with Fail-Fast logic: Logic: For transient network errors,
+    use T005b (backoff); for missing data files, raise FileNotFoundError immediately
+    (no synthetic fallback).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement dataset loaders in pipeline/loader.py for OpenWebText, GSM8K,
+    ARC-Challenge, Wikitext-2 with Fail-Fast logic
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:34:46Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Config includes learning rate 5e-5, batch size 4, and 30% parameter increase
+    constraint
+  claim_id: c_596ec944
+  context: "Create config.py with hyperparameters (lr=5e-5, bs=4, seed), constraints\
+    \ (\u226430% param increase), and path definitions."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Create config.py with hyperparameters (lr=5e-5, bs=4, seed), constraints\
+    \ (\u226430% param increase), and path definitions"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:35:07Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Timeout wrapper logs Timeout and records partial metrics to trajectory.json
+  claim_id: c_32b2ba4a
+  context: 'Implement per-cycle timeout enforcement in pipeline/trainer.py: add timeout
+    wrapper that terminates cycle if exceeded, logs "Timeout" to results/logs/cycle_N.log,
+    and records partial metrics to results/trajectory.json (spec Edge Cases).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Timeout_wrapper_logs_Timeout_and_records_partial_metrics_to
+  kind: entity_fact
+  raw_text: add timeout wrapper that terminates cycle if exceeded, logs "Timeout"
+    to results/logs/cycle_N.log, and records partial metrics to results/trajectory.json
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:35:24Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Batch size halved if RAM exceeds 6.5GB
+  claim_id: c_00eda73c
+  context: 'Implement pipeline/memory.py dynamic batch size reduction: If RAM > 6.5GB
+    during training, halve batch size and restart epoch. If batch size < 1, terminate
+    and log "OOM". Explicitly verify 7GB limit is respected; if not, terminate (SC-005
+    enforcement).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If RAM > 6.5GB during training, halve batch size and restart epoch
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:35:24Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: RAM limit of 7GB enforced
+  claim_id: c_97d44dbb
+  context: If batch size < 1, terminate and log "OOM". Explicitly verify 7GB limit
+    is respected; if not, terminate (SC-005 enforcement).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RAM_limit_of_7GB_enforced
+  kind: entity_fact
+  raw_text: verify 7GB limit is respected; if not, terminate
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:36:08Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Pipeline terminates if degradation is 5% or more from baseline
+  claim_id: c_b4230d6d
+  context: "Implement early-stop logic in main.py: if degradation \u22655% from baseline,\
+    \ record degradation cycle, log \"Early Stop\", increment cycle counter, and terminate\
+    \ gracefully."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "if degradation \u22655% from baseline, record degradation cycle, log\
+    \ \"Early Stop\", increment cycle counter, and terminate gracefully"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:36:08Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Single cycle CPU-only execution completes within 2 hours
+  claim_id: c_d023fed2
+  context: 'Independent Test: Execute pipeline once, verify metrics recorded in results/trajectory.json
+    and data/ artifacts, and confirm CPU-only execution completes within 2 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute pipeline once, verify metrics recorded in results/trajectory.json
+    and data/ artifacts, and confirm CPU-only execution completes within 2 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:36:27Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Pipeline terminates if performance degradation is 5% or more
+  claim_id: c_d3178d2a
+  context: "Implement \"Early Termination on Degradation\" in main.py: If a cycle\
+    \ results in performance degradation \u22655% from baseline, record the degradation\
+    \ cycle, log \"Early Stop\", increment cycle counter, and terminate the pipeline\
+    \ (spec Edge Cases)."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_terminates_if_performance_degradation_is_5%25_or_more
+  kind: causal
+  raw_text: "If a cycle results in performance degradation \u22655% from baseline,\
+    \ record the degradation cycle, log \"Early Stop\", increment cycle counter, and\
+    \ terminate the pipeline"
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:36:29Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Total runtime must be 6 hours or less and RAM 7GB or less
+  claim_id: c_3f72a8f7
+  context: "Goal: Compute cost-effectiveness metrics (performance per FLOP, performance\
+    \ per hour) and verify total runtime \u22646 hours, RAM \u22647GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify total runtime \u22646 hours, RAM \u22647GB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-28T23:36:29Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: GPT small model parameter count between 100M and 200M
+  claim_id: c_46c4e75d
+  context: Verify model loads without error and that the parameter count is within
+    a reasonable range for a 'GPT small' model (e.g., >100M and <200M) by adding a
+    unit test in tests/unit/test_model.py.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikipedia
+        source_id: Large language model
+        url: https://en.wikipedia.org/wiki/Large_language_model
+        value: 117M
+      quote: 'P348: 110M'
+      source_id: Q95726718
+      url: https://www.wikidata.org/wiki/Q95726718
+      value: 110M
+    filled: true
+  kind: entity_fact
+  raw_text: The parameter count is within a reasonable range for a 'GPT small' model
+    (e.g., >100M and <200M)
+  resolved_value: 110M
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T16:28:01Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Bootstrap resamples configurable via config.py
+  claim_id: c_393f9e79
+  context: The number of resamples MUST be configurable via config.py, allowing for
+    adjustment of statistical power.
+  evidence:
+    entailment_evidence: Bootstrap resamples configurable via config.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Bootstrap_resamples_configurable_via_config.py
+  kind: entity_fact
+  raw_text: The number of resamples MUST be configurable via config.py
+  resolved_value: Bootstrap resamples configurable via config.py
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-08-15T16:28:03Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Default bootstrap resamples 1000
+  claim_id: c_a6e1d449
+  context: The number of resamples MUST be read from config.py (default 1000).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of resamples is 1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:28:23Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: System executes limited number of attempts per spec
+  claim_id: c_d5f094cb
+  context: 'MANDATORY: Execute a limited number of attempts as per FR-007. The system
+    MUST complete a limited number of attempts (successful or failed) to satisfy the
+    spec.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_executes_limited_number_of_attempts_per_spec
+  kind: entity_fact
+  raw_text: The system must complete a limited number of attempts (successful or failed)
+    to satisfy the spec
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:28:42Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Pipeline executes 3 attempts
+  claim_id: c_1b61cf0b
+  context: 'MANDATORY: Must execute 3 attempts.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must execute 3 attempts
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:28:55Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training failures retried 2 times
+  claim_id: c_bcb09dae
+  context: retry failed training up to 2 times with the SAME modification; if still
+    failing, log failure, increment cycle counter directly (in-memory, no separate
+    global tracker), and proceed to next cycle number with a NEW modification proposal.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training failures are retried up to 2 times with the SAME modification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:29:19Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Prompt attempts limited to fixed number per cycle
+  claim_id: c_c89bec20
+  context: Limit prompt attempts to a small, fixed number per cycle; if still invalid
+    after a limited number of attempts, fail the cycle.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prompt_attempts_limited_to_fixed_number_per_cycle
+  kind: entity_fact
+  raw_text: Prompt attempts are limited to a small, fixed number per cycle
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:29:40Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Prompt retries limited to 3
+  claim_id: c_113f5f0f
+  context: 'Clarified: T015 now limits prompt retries to 3 and delegates execution
+    retries to T044.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Prompt retries are limited to 3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:29:58Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: CPU-only execution completes within 2 hours
+  claim_id: c_30bd7f0f
+  context: 'Independent Test: Execute pipeline once, verify metrics recorded in results/trajectory.json
+    and data/ artifacts, and confirm CPU-only execution completes within 2 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: CPU-only execution must complete within 2 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:30:23Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Total runtime less than or equal to 12 hours
+  claim_id: c_bcd8627d
+  context: "Goal: Compute cost-effectiveness metrics (performance per FLOP, performance\
+    \ per hour) and verify total runtime \u226412 hours, RAM \u22647GB."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1954: 342762'
+      source_id: Q2881721
+      url: https://www.wikidata.org/wiki/Q2881721
+      value: '342762'
+    filled: true
+  kind: magnitude
+  raw_text: Total runtime must be less than or equal to 12 hours
+  resolved_value: '342762'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T16:30:32Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: RAM usage less than or equal to 7GB
+  claim_id: c_5801feca
+  context: "Goal: Compute cost-effectiveness metrics (performance per FLOP, performance\
+    \ per hour) and verify total runtime \u226412 hours, RAM \u22647GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_less_than_or_equal_to_7GB
+  kind: magnitude
+  raw_text: RAM usage must be less than or equal to 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:30:53Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: check_ram_usage default limit 7.0GB
+  claim_id: c_6ff63928
+  context: 'create utils/memory.py with function check_ram_usage(limit_gb: float=7.0)
+    that logs a warning if peak RAM exceeds 7.0GB (per SC-005 target).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The function check_ram_usage has a default limit of 7.0GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:31:12Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Exponential backoff initial delay 30 seconds
+  claim_id: c_82ba406d
+  context: "Implement exponential backoff wrapper in pipeline/loader.py with initial\
+    \ delay=30s (\xB11s), max retries=5 for HuggingFace API calls."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Exponential backoff initial delay is 30 seconds (\xB11s)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:31:31Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Performance degradation threshold 5%
+  claim_id: c_43ba9514
+  context: "Create function check_termination(current_metrics, baseline_metrics) that\
+    \ terminates the pipeline if degradation \u22655% from baseline (FR-015)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Performance degradation threshold for termination is 5%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:31:46Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Paired bootstrap testing alpha 0.05
+  claim_id: c_91f77e2b
+  context: "Implement pipeline/stats.py with paired bootstrap testing (\u03B1=0.05\
+    \ strict) and linear regression trend analysis."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Paired bootstrap testing uses alpha=0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:32:32Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Parameter increase limit 30%
+  claim_id: c_22036ac7
+  context: "Create config.py with hyperparameters (lr=5e-5, bs=4, seed), constraints\
+    \ (\u226430% param increase limit defined here as the resolved value for FR-019's\
+    \ [deferred] limit), and path definitions."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Parameter increase limit is 30%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:32:32Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Theoretical FLOPs Linear(10,5) input 1 equals 100
+  claim_id: c_9530a38d
+  context: Add unit test in tests/unit/test_metrics.py that asserts FLOP count matches
+    theoretical calculation for a mock layer (e.g., Linear(10, 5) with input 1, expected
+    FLOPs = 2*10*5*1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Theoretical FLOPs for Linear(10, 5) with input 1 is 100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:33:05Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Datasets OpenWebText GSM8K ARC-Challenge BoolQ
+  claim_id: c_ee8fe9d1
+  context: Implement dataset loaders in pipeline/loader.py for OpenWebText (training),
+    GSM8K (test), ARC-Challenge (test), and BoolQ (test) with Fail-Fast logic
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Datasets_OpenWebText_GSM8K_ARC-Challenge_BoolQ
+  kind: entity_fact
+  raw_text: Datasets used are OpenWebText (training), GSM8K (test), ARC-Challenge
+    (test), and BoolQ (test)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:33:56Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: RAM warning logged if peak usage exceeds 7.0GB
+  claim_id: c_1020b9a2
+  context: 'Implement utils/memory.py with RAM monitoring: create utils/memory.py
+    with function check_ram_usage(limit_gb: float=7.0) that logs a warning if peak
+    RAM exceeds 7.0GB (per SC-005 target).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement utils/memory.py with function check_ram_usage(limit_gb: float=7.0)
+    that logs a warning if peak RAM exceeds 7.0GB'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:36:30Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Exponential backoff initial delay 30s with max 5 retries
+  claim_id: c_ec916eac
+  context: "Implement exponential backoff wrapper in pipeline/loader.py with initial\
+    \ delay=30s (\xB11s), max retries=5 for HuggingFace API calls."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement exponential backoff wrapper with initial delay=30s (\xB11s),\
+    \ max retries=5 for HuggingFace API calls"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:36:45Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Linear(10, 5) input 1 FLOPs calculation equals 100
+  claim_id: c_64961407
+  context: Add unit test in tests/unit/test_metrics.py that asserts FLOP count matches
+    theoretical calculation for a mock layer (e.g., Linear(10, 5) with input 1, expected
+    FLOPs = 2*10*5*1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Linear(10, 5) with input 1 has expected FLOPs = 2*10*5*1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:37:14Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Pipeline termination threshold at 5% performance degradation
+  claim_id: c_0556f37e
+  context: "Create function check_termination(current_metrics, baseline_metrics) that\
+    \ terminates the pipeline if degradation \u22655% from baseline (FR-015)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_termination_threshold_at_5%25_performance_degradation
+  kind: magnitude
+  raw_text: Terminate pipeline if degradation is greater than or equal to 5% from
+    baseline
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:37:33Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Prompt template excludes GSM8K ARC BoolQ and oracle outputs
+  claim_id: c_ed3b0d08
+  context: 'Create templates/modification_proposal.j2 containing the exact prompt
+    string: ... DO NOT use benchmark scores (GSM8K/ARC/BoolQ) or oracle outputs in
+    your reasoning.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prompt_template_excludes_GSM8K_ARC_BoolQ_and_oracle_outputs
+  kind: entity_fact
+  raw_text: Prompt template must exclude benchmark scores (GSM8K/ARC/BoolQ) or oracle
+    outputs in reasoning
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:37:52Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Bootstrap resamples default 1000 configurable in config.py
+  claim_id: c_e8b7bfd8
+  context: The number of resamples MUST be read from config.py (default 1000).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of resamples for bootstrap testing must be configurable via
+    config.py with default 1000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:38:07Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training failure retry limit is 2 attempts
+  claim_id: c_1298b363
+  context: 'Implement retry logic for training failures in main.py: retry failed training
+    up to 2 times with the SAME modification'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Retry failed training up to 2 times with the SAME modification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:38:30Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Total runtime constraint of 12 hours
+  claim_id: c_e632fe71
+  context: "Goal: Compute cost-effectiveness metrics (performance per FLOP, performance\
+    \ per hour) and verify total runtime \u226412 hours, RAM \u22647GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Total_runtime_constraint_of_12_hours
+  kind: magnitude
+  raw_text: Verify total runtime is less than or equal to 12 hours
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:38:49Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: RAM usage constraint of 7GB
+  claim_id: c_2dbf2042
+  context: "Goal: Compute cost-effectiveness metrics (performance per FLOP, performance\
+    \ per hour) and verify total runtime \u226412 hours, RAM \u22647GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_constraint_of_7GB
+  kind: magnitude
+  raw_text: Verify RAM usage is less than or equal to 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:39:12Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Prompt attempt limit of 3 for modification proposals
+  claim_id: c_bd45ef0a
+  context: 'Clarified: T015 now limits prompt retries to 3 and delegates execution
+    retries to T044.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Limit prompt attempts to 3 for architectural modification proposals
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:39:30Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: RAM warning logged if peak usage exceeds 7.0 GB
+  claim_id: c_31b8df0f
+  context: 'Implement utils/memory.py with RAM monitoring: create utils/memory.py
+    with function check_ram_usage(limit_gb: float=7.0) that logs a warning if peak
+    RAM exceeds 7.0GB (per SC-005 target).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'create utils/memory.py with function check_ram_usage(limit_gb: float=7.0)
+    that logs a warning if peak RAM exceeds 7.0GB'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:42:22Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Exponential backoff for HuggingFace API with 30s initial delay and 5
+    retries
+  claim_id: c_890be3c5
+  context: "Implement exponential backoff wrapper in pipeline/loader.py with initial\
+    \ delay=30s (\xB11s), max retries=5 for HuggingFace API calls."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement exponential backoff wrapper in pipeline/loader.py with initial\
+    \ delay=30s (\xB11s), max retries=5 for HuggingFace API calls"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:42:37Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: P-value exceeds 0.95 for identical distributions in bootstrap test
+  claim_id: c_73372b3d
+  context: Add unit test in tests/unit/test_stats.py that asserts p-value calculation
+    for known inputs (e.g., two identical distributions) expects p-value > 0.95, and
+    linear regression slope calculation for a known linear set.
+  evidence:
+    asserted: '0.95'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: p-value calculation for known inputs (e.g., two identical distributions)
+    expects p-value > 0.95
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-08-15T16:42:37Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Linear regression slope calculation verified on known linear set
+  claim_id: c_8743f152
+  context: Add unit test in tests/unit/test_stats.py that asserts p-value calculation
+    for known inputs (e.g., two identical distributions) expects p-value > 0.95, and
+    linear regression slope calculation for a known linear set.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_regression_slope_calculation_verified_on_known_linear
+  kind: entity_fact
+  raw_text: linear regression slope calculation for a known linear set
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:43:13Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: FLOP count for Linear(10,5) with input 1 equals 100
+  claim_id: c_8ccc7fda
+  context: Add unit test in tests/unit/test_metrics.py that asserts FLOP count matches
+    theoretical calculation for a mock layer (e.g., Linear(10, 5) with input 1, expected
+    FLOPs = 2*10*5*1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: FLOP count matches theoretical calculation for a mock layer (e.g., Linear(10,
+    5) with input 1, expected FLOPs = 2*10*5*1)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:43:59Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Pipeline terminates if performance degradation is 5% or more
+  claim_id: c_b050bd83
+  context: "Create function check_termination(current_metrics, baseline_metrics) that\
+    \ terminates the pipeline if degradation \u22655% from baseline (FR-015)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "terminates the pipeline if degradation \u22655% from baseline"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:44:00Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Fixed number of prompt attempts per cycle
+  claim_id: c_9ae3d5b5
+  context: Limit prompt attempts to a small, fixed number per cycle; if still invalid
+    after a limited number of attempts, fail the cycle.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fixed_number_of_prompt_attempts_per_cycle
+  kind: entity_fact
+  raw_text: Limit prompt attempts to a small, fixed number per cycle
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:44:25Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Bootstrap resample count defaults to 1000
+  claim_id: c_9a23817e
+  context: Add unit test in tests/unit/test_stats.py that asserts p-value is calculated
+    correctly for known distributions. The number of resamples MUST be read from config.py
+    (default 1000).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of resamples MUST be read from config.py (default 1000)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:44:41Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training retries up to 2 times for same modification
+  claim_id: c_79cc29ab
+  context: 'Implement retry logic for training failures in main.py: retry failed training
+    up to 2 times with the SAME modification; if still failing, log failure, increment
+    cycle counter directly (in-memory, no separate global tracker), and proceed to
+    next cycle number with a NEW modification proposal.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: retry failed training up to 2 times with the SAME modification
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:44:41Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Distinct modification constraint enforced across cycles
+  claim_id: c_833124b5
+  context: Implement main.py loop logic to execute a limited number of cycles (attempts),
+    ensuring each cycle's modification is distinct in type or magnitude from all previous
+    cycles by tracking modification history in memory and validating new proposals
+    against that history before application.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Distinct_modification_constraint_enforced_across_cycles
+  kind: entity_fact
+  raw_text: Ensure each cycle's modification is distinct in type or magnitude from
+    all previous cycles
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:45:03Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: 3 distinct attempts run before stopping
+  claim_id: c_6da1f01b
+  context: Add integration test in tests/integration/test_multi_cycle.py that asserts
+    3 attempts run with distinct modifications and stops after a predefined number
+    of iterations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: asserts 3 attempts run with distinct modifications and stops after a predefined
+    number of iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:45:20Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Total runtime under 12 hours and RAM under 7 GB
+  claim_id: c_e31fcecc
+  context: "Goal: Compute cost-effectiveness metrics (performance per FLOP, performance\
+    \ per hour) and verify total runtime \u226412 hours, RAM \u22647GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "verify total runtime \u226412 hours, RAM \u22647GB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:45:21Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Strict failure if runtime exceeds threshold
+  claim_id: c_03d7359b
+  context: Implement main.py resource monitoring to log peak RAM and total wall-clock
+    time; implement strict failure if total runtime exceeds a predefined threshold
+    (fail the job, record partial metrics, exit) instead of graceful continuation
+    (spec Edge Cases).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Strict_failure_if_runtime_exceeds_threshold
+  kind: entity_fact
+  raw_text: implement strict failure if total runtime exceeds a predefined threshold
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:45:39Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 2
+  canonical: System runs on CPU-only free-tier CI
+  claim_id: c_dba77746
+  context: 'CRITICAL: No task may use GPU, quantization, or synthetic data. All tasks
+    must run on CPU-only free-tier CI.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_runs_on_CPU-only_free-tier_CI
+  kind: entity_fact
+  raw_text: The system runs on CPU-only free-tier CI
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-15T16:45:41Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: GPT-2 124M model has 12 layers, 12 heads, and 768 embedding dimension
+  claim_id: c_84f459b2
+  context: 'Verification: Verify model loads without error, that next(model.parameters()).device
+    is ''cpu'', and that model.config matches GPT-2 124M parameters (n_layer=12, n_head=12,
+    n_embd=768).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model config matches GPT-2 124M parameters (n_layer=12, n_head=12,
+    n_embd=768).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:31:18Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Exponential backoff initial delay 30 seconds with 5 max retries
+  claim_id: c_e6ea34a8
+  context: "Implement exponential backoff wrapper in pipeline/loader.py with initial\
+    \ delay=30s (\xB11s), max retries=5 for HuggingFace API calls."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Exponential backoff wrapper has an initial delay of 30 seconds (\xB1\
+    1 second) and a maximum of 5 retries."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:31:31Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Default bootstrap resamples count is 1000
+  claim_id: c_08657e47
+  context: Create config.py with hyperparameters (lr=5e-5, bs=4, seed), constraints
+    (param increase limit = placeholder, to be resolved in research phase), and path
+    definitions. Include bootstrap_resamples=1000 as a default.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bootstrap resamples are set to a default of 1000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:31:52Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Linear(10, 5) with input 1 has 100 FLOPs
+  claim_id: c_4551ef1b
+  context: Add unit test in tests/unit/test_metrics.py that asserts FLOP count matches
+    theoretical calculation for a mock layer (e.g., Linear(10, 5) with input 1, expected
+    FLOPs = 2*10*5*1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical FLOP count for a Linear(10, 5) layer with input 1 is 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:32:26Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Pipeline terminates if performance degradation is 5% or more from baseline
+  claim_id: c_565cfadd
+  context: "Create function check_termination(current_metrics, baseline_metrics) that\
+    \ terminates the pipeline if degradation \u22655% from baseline (FR-015)."
+  evidence:
+    candidates:
+    - - ''
+      - 25.0
+    - - ''
+      - 5.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Pipeline_terminates_if_performance_degradation_is_5%25_or_more
+  kind: magnitude
+  raw_text: The system terminates the pipeline if performance degradation is greater
+    than or equal to 5% from baseline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-16T21:32:58Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: External oracle rejects proposals with parameter increase over 30%
+  claim_id: c_27bf4dea
+  context: 'Create pipeline/oracle.py with a fixed, external heuristic validator validate_external_oracle(proposal:
+    ModificationProposal) that checks for parameter efficiency (<=30% increase from
+    baseline)...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/External_oracle_rejects_proposals_with_parameter_increase_ov
+  kind: magnitude
+  raw_text: The external oracle rejects proposals with a parameter increase greater
+    than 30% from baseline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:33:53Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Distinctness validation requires >5% parameter change
+  claim_id: c_bf7a118f
+  context: 'Create function validate_modification_distinctness(proposal: ModificationProposal,
+    history: List[ModificationProposal]) in pipeline/model.py that returns True if
+    proposal is distinct in type (Hamming distance >= 1 on config vector) or magnitude
+    (>5% parameter change) from all items in history...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Distinctness_validation_requires_%3E5%25_parameter_change
+  kind: magnitude
+  raw_text: The modification distinctness check requires a parameter magnitude change
+    greater than 5% to be considered distinct.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:34:42Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Maximum 3 prompt attempts per cycle for modification proposal
+  claim_id: c_39e0854a
+  context: 'Limit prompt attempts to a fixed number per cycle; if still invalid after
+    that number of attempts, fail the cycle. ... Clarified: T015 now limits prompt
+    retries to 3...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system allows a maximum of 3 prompt attempts per cycle for generating
+    a valid modification proposal.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:34:59Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training failure retry limit is 2 times
+  claim_id: c_bfaa5b1e
+  context: 'Implement retry logic for training failures in main.py: retry failed training
+    up to 2 times with the SAME modification...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system retries failed training up to 2 times with the same modification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:35:21Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: System limited to 3 refinement cycles
+  claim_id: c_0596e7d3
+  context: The spec defines a linear 3-attempt sequence without requiring crash-recovery
+    persistence. ... The cycle counter is now handled in-memory within main.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system is constrained to a maximum of 3 refinement cycles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:35:37Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Target total runtime is 12 hours
+  claim_id: c_c528a386
+  context: "Goal: Compute cost-effectiveness metrics (performance per FLOP, performance\
+    \ per hour) and verify total runtime \u226412 hours, RAM \u22647GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_total_runtime_is_12_hours
+  kind: magnitude
+  raw_text: The target total runtime for the system is less than or equal to 12 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:36:02Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Target maximum RAM usage is 7GB
+  claim_id: c_079de69e
+  context: "Goal: Compute cost-effectiveness metrics (performance per FLOP, performance\
+    \ per hour) and verify total runtime \u226412 hours, RAM \u22647GB."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Target_maximum_RAM_usage_is_7GB
+  kind: entity_fact
+  raw_text: The target maximum RAM usage for the system is 7GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:36:23Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: System evaluates on GSM8K, ARC-Challenge, and BoolQ benchmarks
+  claim_id: c_b00742d8
+  context: Implement dataset loaders in pipeline/loader.py for OpenWebText (training),
+    GSM8K (test), ARC-Challenge (test), and BoolQ (test)...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_evaluates_on_GSM8K,_ARC-Challenge,_and_BoolQ_benchmar
+  kind: entity_fact
+  raw_text: The system evaluates performance on GSM8K, ARC-Challenge, and BoolQ benchmarks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:36:41Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Paired bootstrap test alpha is 0.05
+  claim_id: c_7ec82d0f
+  context: "Implement pipeline/stats.py with paired bootstrap testing (\u03B1=0.05\
+    \ strict) and linear regression trend analysis."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The paired bootstrap test uses a significance level (alpha) of 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:37:05Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: GPT-2 124M model configuration n_layer 12 n_head 12 n_embd 768
+  claim_id: c_986e4ee0
+  context: Verify model loads without error, that next(model.parameters()).device
+    is 'cpu', and that model.config matches GPT-2 124M parameters (n_layer=12, n_head=12,
+    n_embd=768).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The GPT-2 124M model has n_layer=12, n_head=12, and n_embd=768.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:39:49Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Learning rate 5e-5 for training
+  claim_id: c_1891edef
+  context: Create config.py with hyperparameters (lr=5e-5, bs=4, seed)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses a learning rate of 5e-5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:40:13Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Batch size 4 for training
+  claim_id: c_85dcf116
+  context: Create config.py with hyperparameters (lr=5e-5, bs=4, seed)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses a batch size of 4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:40:34Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Default bootstrap resamples 1000
+  claim_id: c_71d2eb47
+  context: Include bootstrap_resamples=1000 as a default.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses 1000 bootstrap resamples by default.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:40:56Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Exponential backoff initial delay 30 seconds
+  claim_id: c_2adbd52b
+  context: "Implement exponential backoff wrapper in pipeline/loader.py with initial\
+    \ delay=30s (\xB11s)..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The exponential backoff wrapper uses an initial delay of 30 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:41:09Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 2
+  canonical: Exponential backoff max retries 5
+  claim_id: c_68af0ec3
+  context: "Implement exponential backoff wrapper in pipeline/loader.py with initial\
+    \ delay=30s (\xB11s), max retries=5 for HuggingFace API calls."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exponential backoff max retries is 5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:41:29Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Pipeline termination threshold 5% degradation
+  claim_id: c_4a117530
+  context: "Create function check_termination(current_metrics, baseline_metrics) that\
+    \ terminates the pipeline if degradation \u22655% from baseline (FR-015)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_termination_threshold_5%25_degradation
+  kind: magnitude
+  raw_text: The system terminates the pipeline if performance degradation is greater
+    than or equal to 5% from baseline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:41:31Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: External oracle parameter increase limit 30%
+  claim_id: c_610d3f7d
+  context: 'Create pipeline/oracle.py with a fixed, external heuristic validator validate_external_oracle(proposal:
+    ModificationProposal) that checks for parameter efficiency (<=30% increase from
+    baseline)...'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/External_oracle_parameter_increase_limit_30%25
+  kind: magnitude
+  raw_text: The external oracle rejects proposals with a parameter increase greater
+    than 30% from baseline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:41:33Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Maximum refinement cycles 3
+  claim_id: c_e0d9b01e
+  context: 'Mandatory: Execute a limited number of attempts as per FR-007... The system
+    MUST complete a limited number of attempts (successful or failed) to satisfy the
+    spec.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system executes a maximum of 3 refinement cycles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:41:46Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Target total runtime 12 hours
+  claim_id: c_42875693
+  context: "Goal: Compute cost-effectiveness metrics (performance per FLOP, performance\
+    \ per hour) and verify total runtime \u226412 hours, RAM \u22647GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_total_runtime_12_hours
+  kind: magnitude
+  raw_text: The system targets a total runtime of less than or equal to 12 hours.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:41:48Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Target peak RAM usage 7GB
+  claim_id: c_763e263e
+  context: "Goal: Compute cost-effectiveness metrics (performance per FLOP, performance\
+    \ per hour) and verify total runtime \u226412 hours, RAM \u22647GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Target_peak_RAM_usage_7GB
+  kind: magnitude
+  raw_text: The system targets a peak RAM usage of less than or equal to 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:42:34Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 2
+  canonical: Gradient accumulation steps 4
+  claim_id: c_8390287a
+  context: Use gradient accumulation steps=4 to simulate batch.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Gradient accumulation steps are 4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:43:05Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Linear regression significance level 0.05
+  claim_id: c_fddc0474
+  context: "Implement pipeline/stats.py with paired bootstrap testing (\u03B1=0.05\
+    \ strict) and linear regression trend analysis."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: ". If the errors \u03B5 follow a normal distribution, t follows a Student-t\
+        \ distribution.  Under weaker conditions, t is asymptotically normal. Large\
+        \ values of t indicate that the null hypothesis can be rejected and that the\
+        \ corresponding coefficient is not zero. The second column, p-value, expresses\
+        \ the results of the hypothesis test as a significance level.  Conventionally,\
+        \ p-values smaller than 0.05 are taken as evidence that the population coefficient\
+        \ is nonzero."
+      source_id: Ordinary least squares
+      url: https://en.wikipedia.org/wiki/Ordinary_least_squares
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The linear regression analysis uses a significance level of alpha=0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T21:43:13Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Theoretical FLOPs Linear 10 5 input 1 equals 100
+  claim_id: c_b5f4f68e
+  context: Add unit test in tests/unit/test_metrics.py that asserts FLOP count matches
+    theoretical calculation for a mock layer (e.g., Linear(10, 5) with input 1, expected
+    FLOPs = 2*10*5*1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The theoretical FLOP calculation for a Linear(10, 5) layer with input
+    1 is 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:43:51Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training failure retries 2
+  claim_id: c_ed44e489
+  context: 'Implement retry logic for training failures in main.py: retry failed training
+    up to 2 times with the SAME modification...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system retries failed training up to 2 times with the same modification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:43:51Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Prompt attempts limit 3 per cycle
+  claim_id: c_5f74813b
+  context: 'Clarified: T015 now limits prompt retries to 3 and delegates execution
+    retries to T044.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system limits prompt attempts to 3 per cycle for modification proposals.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:44:14Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Exponential backoff for HuggingFace API with 30 second initial delay
+    and 5 max retries
+  claim_id: c_7baa87e8
+  context: "Implement exponential backoff wrapper in pipeline/loader.py with initial\
+    \ delay=30s (\xB11s), max retries=5 for HuggingFace API calls."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "initial delay=30s (\xB11s), max retries=5 for HuggingFace API calls"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:47:45Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Bootstrap resamples default set to 1000
+  claim_id: c_3773390f
+  context: Include bootstrap_resamples=1000 as a default.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: As an example, assume we are interested in the average (or mean) height
+        of people worldwide.  We cannot measure all the people in the global population,
+        so instead, we sample only a tiny part of it, and measure that.  Assume the
+        sample is of size N; that is, we measure the heights of N individuals.  From
+        that single sample, only one estimate of the mean can be obtained.  In order
+        to reason about the population, we need some sense of the variability of the
+        mean that we have computed. The simplest bootstrap method involves taking
+        the original data set of heights, and, using a computer, sampling from it
+        to form a new sample (called a 'resample' or bootstrap sample) that is also
+        of size N.  The bootstrap sample is taken from the original by using sampling
+        with replacement (e.g. we might 'resample' 5 times from [1,2,3,4,5] and get
+        [2,5,4,4,1]), so, assuming N is sufficiently large, for all practical purposes
+        there is virtually zero probability that it will be identical to the original
+        "real" sample.  This process is repeated a large number of times (typically
+        1,000 or 10,000 times), and for each of these bootstrap samples, we compute
+        its mean (each of these is called a "bootstrap estimate").  We now can create
+        a histogram of bootstrap means.  This histogram provides an estimate of the
+        shape of the distribution of the sample mean from which we can answer questions
+        about how much the mean varies across samples.  (The method here, described
+        for the mean, can be applied to almost any other statistic or estimator.)
+      source_id: Bootstrapping (statistics)
+      url: https://en.wikipedia.org/wiki/Bootstrapping_(statistics)
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: bootstrap_resamples=1000
+  resolved_value: '1000'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T21:47:59Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Pipeline termination condition when performance degradation is greater
+    than or equal to 5 percent from baseline
+  claim_id: c_6b8ba69d
+  context: "Create function check_termination(current_metrics, baseline_metrics) that\
+    \ terminates the pipeline if degradation \u22655% from baseline (FR-015)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_termination_condition_when_performance_degradation
+  kind: magnitude
+  raw_text: "degradation \u22655% from baseline"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:48:26Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: External oracle rejects proposals with parameter increase greater than
+    30 percent from baseline
+  claim_id: c_50b91308
+  context: 'Create pipeline/oracle.py with a fixed, external heuristic validator validate_external_oracle(proposal:
+    ModificationProposal) that checks for parameter efficiency (<=30% increase from
+    baseline) and structural validity BEFORE application.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/External_oracle_rejects_proposals_with_parameter_increase_gr
+  kind: magnitude
+  raw_text: parameter efficiency (<=30% increase from baseline)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:48:51Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Theoretical FLOP calculation for Linear layer with input 1, output 5,
+    and input dimension 10 equals 100
+  claim_id: c_037f6089
+  context: Add unit test in tests/unit/test_metrics.py that asserts FLOP count matches
+    theoretical calculation for a mock layer (e.g., Linear(10, 5) with input 1, expected
+    FLOPs = 2*10*5*1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: expected FLOPs = 2*10*5*1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:49:14Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 2
+  canonical: GPT-2 124M model configuration with 12 layers, 12 heads, and 768 embedding
+    size
+  claim_id: c_68439940
+  context: Verify model loads without error, that next(model.parameters()).device
+    is 'cpu', and that model.config matches GPT-2 124M parameters (n_layer=12, n_head=12,
+    n_embd=768).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPT-2 124M parameters (n_layer=12, n_head=12, n_embd=768)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:49:14Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training hyperparameters set to learning rate 5e-5 and batch size 4
+  claim_id: c_e3b680d8
+  context: Create config.py with hyperparameters (lr=5e-5, bs=4, seed), constraints
+    (param increase limit = placeholder, to be resolved in research phase), and path
+    definitions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: lr=5e-5, bs=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:49:27Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Distinctness validation requires Hamming distance at least 1 or parameter
+    change greater than 5 percent
+  claim_id: c_a58be775
+  context: 'Create function validate_modification_distinctness(proposal: ModificationProposal,
+    history: List[ModificationProposal]) in pipeline/model.py that returns True if
+    proposal is distinct in type (Hamming distance >= 1 on config vector) or magnitude
+    (>5% parameter change) from all items in history, False otherwise.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Distinctness_validation_requires_Hamming_distance_at_least_1
+  kind: magnitude
+  raw_text: Hamming distance >= 1 on config vector or >5% parameter change
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:50:05Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: GPT-2 124M parameters with 12 layers, 12 heads, and 768 embedding size
+  claim_id: c_cbca9bf8
+  context: Verify model loads without error, that next(model.parameters()).device
+    is 'cpu', and that model.config matches GPT-2 124M parameters (n_layer=12, n_head=12,
+    n_embd=768).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GPT-2 124M parameters (n_layer=12, n_head=12, n_embd=768)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:53:42Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Exponential backoff with 30s initial delay and 5 max retries for HuggingFace
+    API
+  claim_id: c_cca91522
+  context: "Implement exponential backoff wrapper in pipeline/loader.py with initial\
+    \ delay=30s (\xB11s), max retries=5 for HuggingFace API calls."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "initial delay=30s (\xB11s), max retries=5 for HuggingFace API calls"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:53:43Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Oracle validates parameter efficiency with maximum 30% increase from
+    baseline
+  claim_id: c_c4e4cd26
+  context: 'Create pipeline/oracle.py with a fixed, external heuristic validator validate_external_oracle(proposal:
+    ModificationProposal) that checks for parameter efficiency (<=30% increase from
+    baseline) and structural validity BEFORE application.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: parameter count <=30% increase from baseline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:53:43Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: System executes a limited number of 3 attempts
+  claim_id: c_bea51fbe
+  context: Task T090 (Global Attempt Counter) was removed as it decoupled the 3-cycle
+    constraint and was rejected. The cycle counter is now handled in-memory within
+    main.py.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 3 attempts
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:54:02Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Global 3-cycle limit for refinement attempts
+  claim_id: c_ed3ad388
+  context: retry failed training up to 2 times with the SAME modification; if still
+    failing, log failure, decrement 'remaining attempts' counter, increment cycle
+    counter directly (in-memory, feeding into global 3-cycle limit), and proceed to
+    next cycle number with a NEW modification proposal.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 3-cycle limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:54:17Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Pipeline terminates if performance degradation is 5% or greater from
+    baseline
+  claim_id: c_f807c68d
+  context: "Create function check_termination(current_metrics, baseline_metrics) that\
+    \ terminates the pipeline if degradation \u22655% from baseline (FR-015)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: performance degradation >=5% from baseline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:54:17Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Total runtime constraint of 12 hours
+  claim_id: c_9b68d91f
+  context: "Goal: Compute cost-effectiveness metrics (performance per FLOP, performance\
+    \ per hour) and verify total runtime \u226412 hours, RAM \u22647GB."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: total runtime <=12 hours
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:54:33Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Linear regression results include slope, intercept, r-squared, and trend
+    direction
+  claim_id: c_dc496032
+  context: 'Create results/trajectory_schema.py with Pydantic model TrajectoryEntry
+    (fields: cycle_number: int, param_count: int, GSMK_accuracy: float, ARC_Challenge_accuracy:
+    float, BoolQ_ECE: float, FLOPs: int, training_time: float, slope: float, intercept:
+    float, r_squared: float, trend_direction: str) and writer function write_trajectory()
+    capturing cycle_number, param_count, GSM8K_accuracy, ARC_Challenge_accuracy, BoolQ_ECE,
+    FLOPs, training_time, and linear regression results (slope, intercept, r_squared,
+    trend_direction).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_regression_results_include_slope,_intercept,_r-square
+  kind: entity_fact
+  raw_text: linear regression slope, intercept, r_squared, trend_direction
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:55:05Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Evaluation benchmarks include GSM8K, ARC-Challenge, and BoolQ
+  claim_id: c_a93c2b1b
+  context: Implement dataset loaders in pipeline/loader.py for OpenWebText (training),
+    GSM8K (test), ARC-Challenge (test), and BoolQ (test) with Fail-Fast logic
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Evaluation_benchmarks_include_GSM8K,_ARC-Challenge,_and_Bool
+  kind: entity_fact
+  raw_text: GSM8K, ARC-Challenge, BoolQ
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:55:26Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training dataset is OpenWebText
+  claim_id: c_b453bde1
+  context: Implement dataset loaders in pipeline/loader.py for OpenWebText (training),
+    GSM8K (test), ARC-Challenge (test), and BoolQ (test) with Fail-Fast logic
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_dataset_is_OpenWebText
+  kind: entity_fact
+  raw_text: OpenWebText
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:55:48Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Paired bootstrap p-value is a float between 0 and 1
+  claim_id: c_e15f970e
+  context: Add unit test in tests/unit/test_stats.py that asserts bootstrap p-value
+    calculation returns a float between 0 and 1 for a mock paired distribution, and
+    linear regression slope calculation for a known linear set.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paired_bootstrap_p-value_is_a_float_between_0_and_1
+  kind: entity_fact
+  raw_text: bootstrap p-value calculation returns a float between 0 and 1
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:56:29Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Gradient accumulation steps set to 4
+  claim_id: c_0cbdf188
+  context: Implement training loop in pipeline/trainer.py::train_epoch for a single
+    training epoch on an OpenWebText subset (AdamW, bs=4, lr=5e-5) with CPU offloading.
+    Use gradient accumulation steps=4 to simulate batch.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: gradient accumulation steps=4
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:56:29Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training failures are retried up to 2 times
+  claim_id: c_0f0904bf
+  context: 'Implement retry logic for training failures in main.py: retry failed training
+    up to 2 times with the SAME modification; if still failing, log failure, decrement
+    ''remaining attempts'' counter, increment cycle counter directly (in-memory, feeding
+    into global 3-cycle limit), and proceed to next cycle number with a NEW modification
+    proposal.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: retry failed training up to 2 times
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:56:54Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Theoretical FLOPs for Linear(10, 5) with input 1 is 100
+  claim_id: c_f491c10f
+  context: Add unit test in tests/unit/test_metrics.py that asserts FLOP count matches
+    theoretical calculation for a mock layer (e.g., Linear(10, 5) with input 1, expected
+    FLOPs = 2*10*5*1).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: linear(10, 5) with input 1, expected FLOPs = 2*10*5*1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T21:57:44Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
+  attempts: 1
+  canonical: Evaluation datasets include GSM8K, ARC-Challenge, and BoolQ
+  claim_id: c_43ac9d67
+  context: The Authority Source is defined as the set of external, immutable benchmark
+    datasets and evaluation metrics (GSM8K, ARC-Challenge, BoolQ) that exist independently
+    of the model being trained.
+  evidence:
+    entailment_evidence: Evaluation datasets include GSM8K, ARC-Challenge, and BoolQ
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Evaluation_datasets_include_GSM8K,_ARC-Challenge,_and_BoolQ
+  kind: entity_fact
+  raw_text: The evaluation datasets used are GSM8K, ARC-Challenge, and BoolQ.
+  resolved_value: Evaluation datasets include GSM8K, ARC-Challenge, and BoolQ
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: pending
+  updated_at: '2026-09-25T01:46:48Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
+  attempts: 1
+  canonical: Training data source is OpenWebText
+  claim_id: c_825f323f
+  context: 'Training: OpenWebText (streaming).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_data_source_is_OpenWebText
+  kind: entity_fact
+  raw_text: The training data source is OpenWebText.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T01:47:23Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
+  attempts: 1
+  canonical: Default maximum parameter increase ratio is 0.30
+  claim_id: c_2ce62e88
+  context: 'Variable: MAX_PARAM_INCREASE_RATIO. Default Value: 0.30 (30% increase
+    allowed per cycle).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default maximum parameter increase ratio per cycle is 30%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T01:47:23Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
+  attempts: 1
+  canonical: RAM usage limit is 7 GB
+  claim_id: c_157f0c04
+  context: 'SC-005: RAM usage must not exceed 7 GB (enforced by check_ram_usage).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RAM usage must not exceed 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T01:47:47Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
+  attempts: 1
+  canonical: Project ID is PROJ-561
+  claim_id: c_74a48486
+  context: 'This document outlines the research design, constraints, and verification
+    protocols for the ''Self-Improving LLM: Recursive Architecture Refinement and
+    Re-training'' project (PROJ-561).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project is identified as PROJ-561.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T01:48:04Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 2
+  canonical: exponential backoff initial delay 30 seconds max retries 5
+  claim_id: c_7cf5cafd
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005b'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement exponential backoff wrapper (exponential_backoff) with initial_delay=30
+    seconds and max_retries=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:00:19Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: dataset loaders OpenWebText GSMK ARC-Challenge BoolQ
+  claim_id: c_96e94631
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T005a'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_loaders_OpenWebText_GSMK_ARC-Challenge_BoolQ
+  kind: entity_fact
+  raw_text: "Implement dataset loaders for OpenWebText, GSMK, ARC\u2011Challenge,\
+    \ BoolQ with fail\u2011fast logic and streaming support."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:00:58Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: paired bootstrap statistical testing num resamples 1000
+  claim_id: c_f15c3e7f
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T007'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: calculations are based on B = 1000 bootstrap replications.
+      source_id: '1409.4317'
+      url: https://arxiv.org/abs/1409.4317
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Implement paired bootstrap statistical testing (run_bootstrap_test). Default
+    NUM_RESAMPLES=1000.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T02:01:30Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: RAM feasibility check logs warning if peak RAM greater than 7 GB
+  claim_id: c_fa442ab8
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004a'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_feasibility_check_logs_warning_if_peak_RAM_greater_than
+  kind: magnitude
+  raw_text: "Implement RAM feasibility check (enforce_ram_limit) that logs a warning\
+    \ and records the failure data point if peak RAM > 7 GB (per SC\u2011005), but\
+    \ does NOT abort the pipeline."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:02:24Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 2
+  canonical: training loop train epoch AdamW batch size 4 learning rate 5e-5 1 epoch
+  claim_id: c_dbb02ecc
+  context: "Phase 3: User Story 1 \u2013 Single Refinement Cycle (Priority P1) - T017a"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement training loop train_epoch (AdamW, bs=4, lr=5e-5, 1 epoch) on
+    OpenWebText subset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:02:48Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: training retry logic up to 2 retries per cycle
+  claim_id: c_cc8a1dde
+  context: "Phase 3: User Story 1 \u2013 Single Refinement Cycle (Priority P1) - T044"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement training retry logic: up to 2 retries per cycle; on 2nd failure,
+    log failure, increment cycle counter, and proceed to next cycle with a NEW modification.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:03:15Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: early stop based on performance degradation 5 percent from baseline
+  claim_id: c_24ee45a7
+  context: "Phase 3: User Story 1 \u2013 Single Refinement Cycle (Priority P1) - T036"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement early\u2011stop based on performance degradation \u22655\u202F\
+    % from baseline (uses check_termination)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:03:15Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: refinement loop repeat up to 3 attempted cycles
+  claim_id: c_494c1015
+  context: "Phase 4: User Story 2 \u2013 Three Refinement Cycles (Priority P2) - T049"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Extend orchestrator to repeat the refinement loop for up to three attempted\
+    \ cycles, respecting retry and early\u2011stop rules."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:03:15Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: MAX_PARAM_INCREASE_RATIO 0.30
+  claim_id: c_0435fd87
+  context: 'Phase 1: Setup (Shared Infrastructure) - T008'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define constraints (MAX_PARAM_INCREASE_RATIO=0.30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:03:34Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: 1000 resamples for paired bootstrap statistical testing
+  claim_id: c_f37b9c04
+  context: Implement paired bootstrap statistical testing (`run_bootstrap_test`).
+    Default `NUM_RESAMPLES=1000 (1409.4317, https://arxiv.org/abs/1409.4317)`.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: calculations are based on B = 1000 bootstrap replications.
+      source_id: '1409.4317'
+      url: https://arxiv.org/abs/1409.4317
+      value: '1000'
+    filled: true
+  kind: numeric
+  raw_text: Default `NUM_RESAMPLES=1000` for paired bootstrap statistical testing.
+  resolved_value: '1000'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T02:04:25Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: 2 retries allowed per training cycle
+  claim_id: c_1e37a21a
+  context: 'Implement training retry logic: up to 2 retries per cycle; on 2nd failure,
+    log failure, increment cycle counter, and proceed to next cycle with a NEW modification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Training retry logic allows up to 2 retries per cycle.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:04:44Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: 5% performance degradation threshold for early stopping
+  claim_id: c_13c75e73
+  context: "Implement early\u2011stop based on performance degradation \u22655\u202F\
+    % from baseline (uses `check_termination`)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Early stop triggered by performance degradation of 5% or more from baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:04:44Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: 7 GB peak RAM threshold for feasibility check
+  claim_id: c_d42e7db9
+  context: "Implement RAM feasibility check (`enforce_ram_limit`) that logs a warning\
+    \ and records the failure data point if peak RAM\u202F>\u202F7\u202FGB (per SC\u2011\
+    005), but does NOT abort the pipeline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RAM feasibility check triggers warning if peak RAM exceeds 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:05:13Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: 3 attempted cycles for refinement loop
+  claim_id: c_1a729f21
+  context: "Extend orchestrator to repeat the refinement loop for up to three attempted\
+    \ cycles, respecting retry and early\u2011stop rules."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refinement loop repeats for up to three attempted cycles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:05:13Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: 1000 bootstrap resamples for paired statistical testing
+  claim_id: c_806aa614
+  context: Implement paired bootstrap statistical testing (`run_bootstrap_test`).
+    Default `NUM_RESAMPLES=1000 (1409.4317, https://arxiv.org/abs/1409.4317)`.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Default `NUM_RESAMPLES=1000` (1409.4317, https://arxiv.org/abs/1409.4317)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:06:03Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
+  attempts: 1
+  canonical: LLM can propose architectural modifications leading to lasting benchmark
+    improvement under 7GB RAM constraint
+  claim_id: c_c95a8760
+  context: The core hypothesis is that an LLM, given sufficient context about its
+    own architecture and performance metrics, can identify structural inefficiencies
+    and propose modifications that lead to 'lasting improvement' in benchmark performance,
+    even under strict resource constraints (RAM < 7GB, parameter increase limits).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/LLM_can_propose_architectural_modifications_leading_to_lasti
+  kind: causal
+  raw_text: The core hypothesis is that an LLM, given sufficient context about its
+    own architecture and performance metrics, can identify structural inefficiencies
+    and propose modifications that lead to 'lasting improvement' in benchmark performance,
+    even under strict resource constraints (RAM < 7GB, parameter increase limits).
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:06:32Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
+  attempts: 1
+  canonical: Anticipated power-law decay of improvement gains vs iteration count based
+    on West Review
+  claim_id: c_365d4e8a
+  context: "Based on the West Review, we anticipate a power-law decay of improvement\
+    \ gains (\u0394performance vs. iteration count). The system is expected to exhibit\
+    \ diminishing returns as it approaches the local optimum of the current architectural\
+    \ manifold."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Anticipated_power-law_decay_of_improvement_gains_vs_iteratio
+  kind: entity_fact
+  raw_text: "We anticipate a power-law decay of improvement gains (\u0394performance\
+    \ vs. iteration count)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:06:56Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
+  attempts: 1
+  canonical: Computational Irreducibility implies no closed-form mathematical prediction
+    of improvement trajectory exists for the recursive system
+  claim_id: c_2de6cd36
+  context: Computational Irreducibility implies that for this recursive system, no
+    closed-form mathematical prediction of the improvement trajectory exists. One
+    cannot analytically solve for the optimal architecture after N cycles without
+    actually executing the N cycles.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Computational_Irreducibility_implies_no_closed-form_mathemat
+  kind: entity_fact
+  raw_text: Computational Irreducibility implies that for this recursive system, no
+    closed-form mathematical prediction of the improvement trajectory exists.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:07:31Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 2
+  canonical: paired bootstrap statistical testing uses 1000 resamples
+  claim_id: c_5e814178
+  context: Implement paired bootstrap statistical testing (`run_bootstrap_test`).
+    Default `NUM_RESAMPLES=1000 (1409.4317, https://arxiv.org/abs/1409.4317)`.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: Default `NUM_RESAMPLES=1000` (1409.4317, https://arxiv.org/abs/1409.4317)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:07:35Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: paired bootstrap statistical testing uses 1000 resamples
+  claim_id: c_070b8cf4
+  context: Implement paired bootstrap statistical testing (`run_bootstrap_test`).
+    Default `NUM_RESAMPLES=1000 (1409.4317, https://arxiv.org/abs/1409.4317)`. Verification
+    test added.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: Default `NUM_RESAMPLES=1000 (1409.4317, https://arxiv.org/abs/1409.4317)`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:07:53Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: exponential backoff initial delay is 30 seconds and max retries is 5
+  claim_id: c_e0a4f2a8
+  context: Implement exponential backoff wrapper (`exponential_backoff`) with `initial_delay=30`
+    seconds and `max_retries=5`. Verification test added.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement exponential backoff wrapper (`exponential_backoff`) with `initial_delay=30`
+    seconds and `max_retries=5`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:07:53Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: maximum parameter increase ratio is 0.30
+  claim_id: c_54a13460
+  context: Create `config.py` with hyperparameters (lr=5e-5, bs=4, seed), constraints
+    (MAX_PARAM_INCREASE_RATIO=0.30), and path definitions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: constraints (MAX_PARAM_INCREASE_RATIO=0.30)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:08:09Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: training loop uses AdamW with batch size 4, learning rate 5e-5, and 1
+    epoch
+  claim_id: c_825f482e
+  context: Implement training loop `train_epoch` (AdamW, bs=4, lr=5e-5, 1 epoch) on
+    OpenWebText subset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: AdamW, bs=4, lr=5e-5, 1 epoch
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:08:31Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: training retry logic allows up to 2 retries per cycle
+  claim_id: c_dcef8f2d
+  context: 'Implement training retry logic: up to 2 retries per cycle; on 2nd failure,
+    log failure, increment cycle counter, and proceed to next cycle with a NEW modification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: up to 2 retries per cycle
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:08:48Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: early stop triggered by performance degradation greater than or equal
+    to 5 percent from baseline
+  claim_id: c_626c72c2
+  context: "Implement early\u2011stop based on performance degradation \u22655\u202F\
+    % from baseline (uses `check_termination`). Verification test added."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Early_stop_triggered_by_performance_degradation_greater_than
+  kind: magnitude
+  raw_text: "performance degradation \u22655\u202F% from baseline"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:09:08Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: distinctness validator ensures Hamming distance greater than or equal
+    to 1 or greater than 5 percent parameter change against history
+  claim_id: c_752d12e5
+  context: "Implement Distinctness Validator (`validate_distinctness`) ensuring Hamming\
+    \ distance\u202F\u2265\u202F1 or >5\u202F% param change against history. Verification\
+    \ test added."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Distinctness_validator_ensures_Hamming_distance_greater_than
+  kind: magnitude
+  raw_text: "Hamming distance\u202F\u2265\u202F1 or >5\u202F% param change against\
+    \ history"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:09:33Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: RAM feasibility check logs warning if peak RAM is greater than 7 GB
+  claim_id: c_24226e12
+  context: "Implement RAM feasibility check (`enforce_ram_limit`) that logs a warning\
+    \ and records the failure data point if peak RAM\u202F>\u202F7\u202FGB (per SC\u2011\
+    005), but does NOT abort the pipeline."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_feasibility_check_logs_warning_if_peak_RAM_is_greater_th
+  kind: magnitude
+  raw_text: "peak RAM\u202F>\u202F7\u202FGB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:10:04Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: orchestrator repeats refinement loop for up to three attempted cycles
+  claim_id: c_a2af7c17
+  context: "Extend orchestrator to repeat the refinement loop for up to three attempted\
+    \ cycles, respecting retry and early\u2011stop rules. Verification integration\
+    \ test added."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Orchestrator_repeats_refinement_loop_for_up_to_three_attempt
+  kind: entity_fact
+  raw_text: repeat the refinement loop for up to three attempted cycles
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T02:10:25Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Maximum parameter increase ratio is 0.30
+  claim_id: c_ee7cadaa
+  context: Create `config.py` with hyperparameters (lr=5e-5, bs=4, seed), constraints
+    (MAX_PARAM_INCREASE_RATIO=0.30), and path definitions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Constraints (MAX_PARAM_INCREASE_RATIO=0.30)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:41:59Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Exponential backoff initial delay is 30 seconds with 5 max retries
+  claim_id: c_b00cee3f
+  context: Implement exponential backoff wrapper (`exponential_backoff`) with `initial_delay=30`
+    seconds and `max_retries=5`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: initial_delay=30 seconds and max_retries=5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:42:28Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training loop uses learning rate 5e-5, batch size 4, and 1 epoch
+  claim_id: c_ab81d272
+  context: Implement training loop `train_epoch` (AdamW, bs=4, lr=5e-5, 1 epoch) on
+    OpenWebText subset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: lr=5e-5, bs=4, 1 epoch
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:42:50Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Distinctness validator requires Hamming distance of at least 1 or greater
+    than 5 percent parameter change
+  claim_id: c_9f0481a2
+  context: "Implement Distinctness Validator (`validate_distinctness`) ensuring Hamming\
+    \ distance\u202F\u2265\u202F1 or >5\u202F% param change against history."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Distinctness_validator_requires_Hamming_distance_of_at_least
+  kind: magnitude
+  raw_text: "Hamming distance\u202F\u2265\u202F1 or >5\u202F% param change"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:44:04Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: RAM feasibility check triggers warning if peak RAM exceeds 7 GB
+  claim_id: c_4d1efe83
+  context: "Implement RAM feasibility check (`enforce_ram_limit`) that logs a warning\
+    \ and records the failure data point if peak RAM\u202F>\u202F7\u202FGB (per SC\u2011\
+    005), but does NOT abort the pipeline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "peak RAM\u202F>\u202F7\u202FGB"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:44:37Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Refinement loop repeats for up to three attempted cycles
+  claim_id: c_9cdc05f0
+  context: "Extend orchestrator to repeat the refinement loop for up to three attempted\
+    \ cycles, respecting retry and early\u2011stop rules."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Refinement_loop_repeats_for_up_to_three_attempted_cycles
+  kind: entity_fact
+  raw_text: extend orchestrator to repeat the refinement loop for up to three attempted
+    cycles
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:44:54Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Paired bootstrap statistical testing cites arXiv 1409.4317
+  claim_id: c_62d88b23
+  context: Implement paired bootstrap statistical testing (`run_bootstrap_test`).
+    {{claim:c_f37b9c04}} (1409.4317, https://arxiv.org/abs/1409.4317).
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: 1409.4317, https://arxiv.org/abs/1409.4317
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:46:08Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 2
+  canonical: Training retry logic allows up to 2 retries per cycle
+  claim_id: c_d1b68377
+  context: 'Implement training retry logic: up to 2 retries per cycle; on 2nd failure,
+    log failure, increment cycle counter, and proceed to next cycle with a NEW modification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: up to 2 retries per cycle
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:46:08Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 2
+  canonical: Early stop triggered by performance degradation of 5 percent or more
+    from baseline
+  claim_id: c_c11e21ad
+  context: "Implement early\u2011stop based on performance degradation \u22655\u202F\
+    % from baseline (uses `check_termination`)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "performance degradation \u22655\u202F% from baseline"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:46:09Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Orchestrator repeats refinement loop for up to 3 cycles
+  claim_id: c_5983fa72
+  context: "Extend orchestrator to repeat the refinement loop for up to three attempted\
+    \ cycles, respecting retry and early\u2011stop rules."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: repeat the refinement loop for up to three attempted cycles
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:46:09Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: exponential backoff wrapper used for dataset loaders
+  claim_id: c_d3b8e7a5
+  context: "Implement dataset loaders for OpenWebText, GSMK, ARC\u2011Challenge, BoolQ\
+    \ with fail\u2011fast logic and streaming support. Uses backoff from T005b."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Exponential_backoff_wrapper_used_for_dataset_loaders
+  kind: entity_fact
+  raw_text: Uses backoff from T005b.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:46:48Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: paired bootstrap statistical testing implementation referenced by arXiv
+    1409.4317
+  claim_id: c_99c183ae
+  context: Implement paired bootstrap statistical testing (`run_bootstrap_test`).
+    {{claim:c_f37b9c04}} (1409.4317, https://arxiv.org/abs/1409.4317). Verification
+    test added.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Implement paired bootstrap statistical testing (`run_bootstrap_test`).
+    {{claim:c_f37b9c04}} (1409.4317, https://arxiv.org/abs/1409.4317).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:46:59Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: RAM warning logged if peak RAM exceeds 7 GB
+  claim_id: c_d5ef3b0f
+  context: "Implement RAM feasibility check (`enforce_ram_limit`) that logs a warning\
+    \ and records the failure data point if peak RAM > 7 GB (per SC\u2011005), but\
+    \ does NOT abort the pipeline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: log a warning and records the failure data point if peak RAM > 7 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:46:59Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Paired bootstrap statistical testing implementation references arXiv:1409.4317
+  claim_id: c_7435114f
+  context: T007 [P] Implement paired bootstrap statistical testing (run_bootstrap_test).
+    {{claim:c_f37b9c04}} (1409.4317, https://arxiv.org/abs/1409.4317). Verification
+    test added.
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: Implement paired bootstrap statistical testing (run_bootstrap_test). {{claim:c_f37b9c04}}
+    (1409.4317, https://arxiv.org/abs/1409.4317).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-26T06:47:30Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: exponential backoff 30 seconds initial delay 5 max retries
+  claim_id: c_7bce6cf8
+  context: Implement exponential backoff wrapper (exponential_backoff) with initial_delay=30
+    seconds and max_retries=5. Verification test added.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation uses an exponential backoff wrapper with initial_delay=30
+    seconds and max_retries=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:48:04Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: max param increase ratio 0.30
+  claim_id: c_a4fb8c72
+  context: Create config.py with hyperparameters (lr=5e-5, bs=4, seed), constraints
+    (MAX_PARAM_INCREASE_RATIO=0.30), and path definitions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system enforces a parameter limit constraint of MAX_PARAM_INCREASE_RATIO=0.30.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:48:20Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: adamw batch size 4 learning rate 5e-5 1 epoch
+  claim_id: c_28cdf64a
+  context: Implement training loop train_epoch (AdamW, bs=4, lr=5e-5, 1 epoch) on
+    OpenWebText subset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training loop uses AdamW with a batch size of 4 and a learning rate
+    of 5e-5 for 1 epoch.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:48:44Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: paired bootstrap statistical testing 1409.4317
+  claim_id: c_0c108b83
+  context: Implement paired bootstrap statistical testing (run_bootstrap_test). {{claim:c_f37b9c04}}
+    (1409.4317, https://arxiv.org/abs/1409.4317). Verification test added.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system implements paired bootstrap statistical testing referencing
+    the work by DiCiccio and Romano (1409.4317).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:49:08Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: peak ram limit 7 GB
+  claim_id: c_ad75eca6
+  context: "Implement RAM feasibility check (enforce_ram_limit) that logs a warning\
+    \ and records the failure data point if peak RAM > 7 GB (per SC\u2011005), but\
+    \ does NOT abort the pipeline."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system triggers a RAM failure warning if peak RAM usage exceeds 7
+    GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:49:33Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: training retry limit 2 per cycle
+  claim_id: c_f5eb7cb2
+  context: 'Implement training retry logic: up to 2 retries per cycle; on 2nd failure,
+    log failure, increment cycle counter, and proceed to next cycle with a NEW modification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training retry logic allows up to 2 retries per cycle before proceeding
+    to a new modification.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:50:00Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: early stop performance degradation 5 percent
+  claim_id: c_f1cf2e0f
+  context: "Implement early\u2011stop based on performance degradation \u22655 % from\
+    \ baseline (uses check_termination). Verification test added."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Early_stop_performance_degradation_5_percent
+  kind: magnitude
+  raw_text: The system triggers early stopping if performance degradation is greater
+    than or equal to 5% from baseline.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:50:46Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: distinctness hamming distance 1 or param change 5 percent
+  claim_id: c_19fde9bb
+  context: "Implement Distinctness Validator (validate_distinctness) ensuring Hamming\
+    \ distance \u2265 1 or >5% param change against history. Verification test added."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Distinctness_hamming_distance_1_or_param_change_5_percent
+  kind: magnitude
+  raw_text: The distinctness validator ensures a Hamming distance of at least 1 or
+    a parameter change of more than 5% against history.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:52:00Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: project structure directories code tests data results state
+  claim_id: c_f3b2b68d
+  context: 'Create project structure per implementation plan: directories code/, code/tests/,
+    code/tests/unit/, code/tests/integration/, data/raw/, data/processed/, results/,
+    state/ and __init__.py files.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Project_structure_directories_code_tests_data_results_state
+  kind: entity_fact
+  raw_text: The project structure includes directories code/, code/tests/, code/tests/unit/,
+    code/tests/integration/, data/raw/, data/processed/, results/, state/ and __init__.py
+    files.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T06:52:33Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
+  attempts: 1
+  canonical: 'validation datasets: GSM8K, ARC-Challenge, BoolQ'
+  claim_id: c_eda61bff
+  context: 'Held-Out Benchmarks: The datasets used for validation (GSM8K, ARC-Challenge,
+    BoolQ) are strictly held-out from the training data and the proposal generation
+    context.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_datasets:_GSM8K,_ARC-Challenge,_BoolQ
+  kind: entity_fact
+  raw_text: The datasets used for validation are GSM8K, ARC-Challenge, and BoolQ.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T03:38:48Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: paired bootstrap statistical testing with Bonferroni correction at alpha
+    0.05 adjusted
+  claim_id: c_7fdc3047
+  context: "T007 [P] Implement paired bootstrap statistical testing (`run_bootstrap_test`)\
+    \ with Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "The task implements paired bootstrap with Bonferroni correction for multiple\
+    \ benchmark comparisons (\u03B1=0.05 adjusted). (1409.4317, https://arxiv.org/abs/1409.4317)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:47:34Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: peak RAM threshold of 7 GB triggers infeasible status
+  claim_id: c_613e203c
+  context: T004a [P] Implement RAM feasibility check (`enforce_ram_limit`) that records
+    peak RAM. If peak RAM > 7 GB, the system MUST write a 'infeasible' status to `results/feasibility_status.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If peak RAM > 7 GB, the system MUST write a 'infeasible' status to `results/feasibility_status.json`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:47:35Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: training retry limit of 2 attempts per cycle
+  claim_id: c_4636d0a5
+  context: 'T044 [P] Implement training retry logic: up to 2 retries per cycle; on
+    2nd failure, log failure, increment cycle counter, and proceed to next cycle with
+    a NEW modification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system is configured to attempt up to 2 retries per cycle.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:48:03Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: early stop threshold of 5 percent performance degradation from baseline
+  claim_id: c_8477d4ca
+  context: "T036 [P] Implement early\u2011stop based on performance degradation \u2265\
+    5 % from baseline (uses `check_termination`)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The system implements early\u2011stop based on performance degradation\
+    \ \u22655 % from baseline."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:48:04Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: refinement loop limit of 3 cycles
+  claim_id: c_37d24339
+  context: "T049 [P] Extend orchestrator to repeat the refinement loop for up to three\
+    \ attempted cycles, respecting retry and early\u2011stop rules."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system is designed to repeat the refinement loop for up to three attempted
+    cycles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:48:04Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: near-random performance threshold of 10 percent on GSM8K and ARC
+  claim_id: c_f3cd85ed
+  context: T002 [P] Implement Baseline Capability Check (`run_baseline_check`) that
+    evaluates the unmodified model on all benchmarks, writes Cycle 0 metrics to `results/trajectory.json`,
+    and explicitly flags if performance is near-random (<10% on GSM8K/ARC).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system flags performance as near-random if it is <10% on GSM8K/ARC.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:48:04Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 2
+  canonical: Dataset loaders use exponential backoff wrapper
+  claim_id: c_3280ee24
+  context: "Implement dataset loaders for OpenWebText, GSMK, ARC\u2011Challenge, BoolQ\
+    \ with fail\u2011fast logic and streaming support. Uses backoff from T005b."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_loaders_use_exponential_backoff_wrapper
+  kind: entity_fact
+  raw_text: Uses backoff from T005b.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:50:17Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Paired bootstrap statistical testing uses Bonferroni correction with
+    alpha 0.05 based on arXiv 1409.4317
+  claim_id: c_acc1c497
+  context: "Implement paired bootstrap statistical testing (run_bootstrap_test) with\
+    \ Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "with Bonferroni correction for multiple benchmark comparisons (\u03B1\
+    =0.05 adjusted). (1409.4317, https://arxiv.org/abs/1409.4317)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:50:32Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: paired bootstrap statistical testing with Bonferroni correction cited
+    as 1409.4317
+  claim_id: c_eec659d9
+  context: "T007 [P] Implement paired bootstrap statistical testing (run_bootstrap_test)\
+    \ with Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Implement paired bootstrap statistical testing (run_bootstrap_test) with\
+    \ Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:52:11Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: training loop uses AdamW with batch size 4 and learning rate 5e-5 for
+    1 epoch
+  claim_id: c_2c74e522
+  context: T017a [P] Implement training loop train_epoch (AdamW, bs=4, lr=5e-5, 1
+    epoch) on OpenWebText subset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement training loop train_epoch (AdamW, bs=4, lr=5e-5, 1 epoch) on
+    OpenWebText subset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:52:36Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: early stop triggered by performance degradation of 5 percent or more
+  claim_id: c_58da5884
+  context: "T036 [P] Implement early\u2011stop based on performance degradation \u2265\
+    5 % from baseline (uses check_termination)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement early\u2011stop based on performance degradation \u22655 %\
+    \ from baseline (uses check_termination)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:52:36Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: training retry logic allows up to 2 retries per cycle
+  claim_id: c_62847c92
+  context: 'T044 [P] Implement training retry logic: up to 2 retries per cycle; on
+    2nd failure, log failure, increment cycle counter, and proceed to next cycle with
+    a NEW modification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement training retry logic: up to 2 retries per cycle; on 2nd failure,
+    log failure, increment cycle counter, and proceed to next cycle with a NEW modification.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:53:00Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: refinement loop repeats for up to 3 attempted cycles
+  claim_id: c_94028a52
+  context: "T049 [P] Extend orchestrator to repeat the refinement loop for up to three\
+    \ attempted cycles, respecting retry and early\u2011stop rules."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Extend orchestrator to repeat the refinement loop for up to three attempted\
+    \ cycles, respecting retry and early\u2011stop rules."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:53:00Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: training subset reduced if estimated time exceeds 2 hours
+  claim_id: c_8e7c92ad
+  context: 'T017a [P] Implement training loop train_epoch (AdamW, bs=4, lr=5e-5, 1
+    epoch) on OpenWebText subset. Saves model to results/cycle_N/model.pt. Includes
+    Time-Estimation and Subset-Reduction Fallback: if estimated time > 2h, reduce
+    training subset to [deferred] samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated time > 2h, reduce training subset to [deferred] samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:53:00Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: exponential backoff wrapper with initial delay of 30 seconds and max
+    retries of 5
+  claim_id: c_c91a22de
+  context: T005b [P] Implement exponential backoff wrapper (exponential_backoff) with
+    initial_delay=30 seconds and max_retries=5. Verification test added.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement exponential backoff wrapper (exponential_backoff) with initial_delay=30
+    seconds and max_retries=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:53:17Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/final_report.md
+  attempts: 1
+  canonical: system did not reach fixed point in three-cycle run
+  claim_id: c_511efcfd
+  context: Empirical results from the three-cycle run indicate that the system did
+    not reach a fixed point within the experimental window.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_did_not_reach_fixed_point_in_three-cycle_run
+  kind: entity_fact
+  raw_text: The system did not reach a fixed point within the three-cycle experimental
+    window.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:55:31Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/final_report.md
+  attempts: 1
+  canonical: system explored activation functions layer depths attention heads
+  claim_id: c_7a0b4af6
+  context: The system explored a diverse set of architectural changes (activation
+    functions, layer depths, attention heads) without a deterministic path to the
+    optimal configuration.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_explored_activation_functions_layer_depths_attention
+  kind: entity_fact
+  raw_text: The system explored a diverse set of architectural changes including activation
+    functions, layer depths, and attention heads.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:56:16Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/final_report.md
+  attempts: 1
+  canonical: consistent gap between training loss and validation accuracy in three
+    cycles
+  claim_id: c_0a486255
+  context: In all three cycles, the model maintained a consistent gap between training
+    loss and validation accuracy, indicating that the architectural modifications
+    improved generalization capabilities rather than merely memorizing the training
+    subset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Consistent_gap_between_training_loss_and_validation_accuracy
+  kind: entity_fact
+  raw_text: In all three cycles, the model maintained a consistent gap between training
+    loss and validation accuracy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:56:47Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/final_report.md
+  attempts: 1
+  canonical: training loop used OpenWebText subset disjoint from benchmark data
+  claim_id: c_aff29d25
+  context: To mitigate this, we enforced a strict separation of training data (OpenWebText)
+    and evaluation data (GSM8K, ARC, BoolQ). The training loop uses a subset of OpenWebText
+    that is disjoint from the benchmark data.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Training_loop_used_OpenWebText_subset_disjoint_from_benchmar
+  kind: entity_fact
+  raw_text: The training loop used a subset of OpenWebText that is disjoint from the
+    benchmark data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:57:14Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/final_report.md
+  attempts: 1
+  canonical: system attempted minimal modifications before complex changes
+  claim_id: c_440ca68e
+  context: The logs confirm that the system attempted minimal modifications first.
+    When these failed to yield statistically significant improvement, the system escalated
+    to more complex topological changes.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_attempted_minimal_modifications_before_complex_change
+  kind: entity_fact
+  raw_text: The system attempted minimal modifications first before escalating to
+    complex topological changes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:57:49Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/final_report.md
+  attempts: 1
+  canonical: Cycle 1 high performance-per-FLOP ratio
+  claim_id: c_a7c55f34
+  context: While Cycle 1 achieved a high performance-per-FLOP ratio due to the efficiency
+    of small parameter adjustments, Cycle 3 saw a decline in this metric as the system
+    explored more computationally expensive architectural changes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cycle 1 achieved a high performance-per-FLOP ratio.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:58:18Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/final_report.md
+  attempts: 1
+  canonical: Cycle 3 decline in performance-per-FLOP metric
+  claim_id: c_87a497e9
+  context: While Cycle 1 achieved a high performance-per-FLOP ratio due to the efficiency
+    of small parameter adjustments, Cycle 3 saw a decline in this metric as the system
+    explored more computationally expensive architectural changes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cycle 3 saw a decline in the performance-per-FLOP metric.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:58:36Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Paired bootstrap statistical testing with Bonferroni correction uses
+    alpha 0.05 adjusted based on citation 1409.4317
+  claim_id: c_dfe8c838
+  context: "T007 [P] Implement paired bootstrap statistical testing (run_bootstrap_test)\
+    \ with Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317). **Note**: This task implements\
+    \ paired bootstrap with Bonferroni correction."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Implement paired bootstrap statistical testing (run_bootstrap_test) with\
+    \ Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T17:59:15Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Paired bootstrap with Bonferroni correction for benchmark comparisons
+    cited from arXiv 1409.4317
+  claim_id: c_0bfa8bd7
+  context: "T007 [P] Implement paired bootstrap statistical testing (run_bootstrap_test)\
+    \ with Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Implement paired bootstrap statistical testing (run_bootstrap_test) with\
+    \ Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:01:18Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Early stop triggered if performance degrades by 5% or more from baseline
+  claim_id: c_015528c7
+  context: "T036 [P] Implement early\u2011stop based on performance degradation \u2265\
+    5 % from baseline (uses check_termination)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement early\u2011stop based on performance degradation \u22655 %\
+    \ from baseline."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:01:19Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training allows up to 2 retries per cycle
+  claim_id: c_4cb27f63
+  context: 'T044 [P] Implement training retry logic: up to 2 retries per cycle; on
+    2nd failure, log failure, increment cycle counter, and proceed to next cycle with
+    a NEW modification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement training retry logic: up to 2 retries per cycle.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:01:44Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Exponential backoff configured with 30 second initial delay and 5 max
+    retries
+  claim_id: c_d9cc58d8
+  context: T005b [P] Implement exponential backoff wrapper (exponential_backoff) with
+    initial_delay=30 seconds and max_retries=5. Verification test added.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement exponential backoff wrapper (exponential_backoff) with initial_delay=30
+    seconds and max_retries=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:01:45Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Baseline check flags performance as near-random if below 10% on GSM8K
+    or ARC
+  claim_id: c_dbd0cfc6
+  context: T002 [P] Implement Baseline Capability Check (run_baseline_check) that
+    evaluates the unmodified model on all benchmarks, writes Cycle 0 metrics to results/trajectory.json,
+    and explicitly flags if performance is near-random (<10% on GSM8K/ARC).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system MUST explicitly flag if performance is near-random (<10% on
+    GSM8K/ARC) during baseline capability check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:01:45Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Distinctness validator requires Hamming distance of at least 1 or greater
+    than 5% parameter change
+  claim_id: c_6899214f
+  context: "T020 [P] Implement Distinctness Validator (validate_distinctness) ensuring\
+    \ Hamming distance \u2265 1 or >5% param change against history. Verification\
+    \ test added."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Distinctness_validator_requires_Hamming_distance_of_at_least
+  kind: magnitude
+  raw_text: "Implement Distinctness Validator (validate_distinctness) ensuring Hamming\
+    \ distance \u2265 1 or >5% param change against history."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:02:09Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Final report must reflect feasibility violation if peak RAM exceeds 7
+    GB
+  claim_id: c_338a218e
+  context: T004a [P] ... If peak RAM > 7 GB, the system MUST write a 'infeasible'
+    status to results/feasibility_status.json and flag the run as violating SC-005.
+    The pipeline may proceed to log data but the final report MUST reflect the feasibility
+    violation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline may proceed to log data but the final report MUST reflect
+    the feasibility violation if peak RAM exceeds 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:02:37Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Paired bootstrap statistical testing with Bonferroni correction uses
+    alpha 0.05 adjusted per arXiv 1409.4317
+  claim_id: c_0e17d840
+  context: "T007 [P] Implement paired bootstrap statistical testing (`run_bootstrap_test`)\
+    \ with Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Implement paired bootstrap statistical testing (run_bootstrap_test) with\
+    \ Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:04:33Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Peak RAM limit set to 7 GB for feasibility status
+  claim_id: c_2a3ace36
+  context: T004a [P] Implement RAM feasibility check (`enforce_ram_limit`) that records
+    peak RAM. If peak RAM > 7 GB, the system MUST write a 'infeasible' status to `results/feasibility_status.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If peak RAM > 7 GB, the system MUST write a 'infeasible' status to results/feasibility_status.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:04:33Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training retry limit set to 2 attempts per cycle
+  claim_id: c_290c5915
+  context: 'T044 [P] Implement training retry logic: up to 2 retries per cycle; on
+    2nd failure, log failure, increment cycle counter, and proceed to next cycle with
+    a NEW modification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement training retry logic: up to 2 retries per cycle.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:04:34Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Early stop triggered by 5 percent performance degradation from baseline
+  claim_id: c_93331cd9
+  context: "T036 [P] Implement early\u2011stop based on performance degradation \u2265\
+    5 % from baseline (uses `check_termination`)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement early\u2011stop based on performance degradation \u22655 %\
+    \ from baseline."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:04:34Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Minimality Search heuristic attempts simplest valid modification before
+    complex ones
+  claim_id: c_d3ee7c98
+  context: T129 [P] Implement "Minimality Search" heuristic in `models/modifier.py`.
+    Before applying a complex modification (e.g., adding layers), the system MUST
+    first attempt the simplest valid modification.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Minimality_Search_heuristic_attempts_simplest_valid_modifica
+  kind: entity_fact
+  raw_text: The system MUST first attempt the simplest valid modification before applying
+    a complex modification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:05:05Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Benchmark suite GSM8K ARC BoolQ loaded from read-only immutable source
+  claim_id: c_c0e7d0b5
+  context: T125 [P] Implement "Curriculum Lock" mechanism in `pipeline/evaluator.py`.
+    Ensure the benchmark suite (GSM8K, ARC, BoolQ) is loaded from a read-only, immutable
+    source.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Benchmark_suite_GSM8K_ARC_BoolQ_loaded_from_read-only_immuta
+  kind: entity_fact
+  raw_text: The benchmark suite (GSM8K, ARC, BoolQ) is loaded from a read-only, immutable
+    source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:05:36Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Rollback event logged for External Oracle Check failure or degradation
+    greater than 5 percent
+  claim_id: c_e448b654
+  context: T126 [P] Implement "Rollback & Verification" state machine in `pipeline/attempt_tracker.py`.
+    If a cycle fails the "External Oracle Check" or results in degradation > 5%, the
+    system MUST log a "Rollback Event".
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Rollback_event_logged_for_External_Oracle_Check_failure_or_d
+  kind: causal
+  raw_text: If a cycle fails the "External Oracle Check" or results in degradation
+    > 5%, the system MUST log a "Rollback Event" and proceed to the next cycle with
+    a NEW modification.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:05:38Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training subset reduced if estimated time exceeds 2 hours
+  claim_id: c_f3d662d2
+  context: 'T017a [P] Implement training loop `train_epoch` (AdamW, bs=4, lr=5e-5,
+    1 epoch) on OpenWebText subset. Includes **Time-Estimation and Subset-Reduction
+    Fallback**: if estimated time > 2h, reduce training subset to [deferred] samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated time > 2h, reduce training subset to [deferred] samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:05:39Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Near-random performance defined as less than 10 percent on GSM8K or ARC
+    benchmarks
+  claim_id: c_8ea183b0
+  context: T002 [P] Implement Baseline Capability Check (`run_baseline_check`) that
+    evaluates the unmodified model on all benchmarks, writes Cycle 0 metrics to `results/trajectory.json`,
+    and explicitly flags if performance is near-random (<10% on GSM8K/ARC).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Near-random_performance_defined_as_less_than_10_percent_on_G
+  kind: magnitude
+  raw_text: The system must evaluate the unmodified model and explicitly flag if performance
+    is near-random (<10% on GSM8K/ARC).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:06:24Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: paired bootstrap statistical testing with Bonferroni correction alpha
+    0.05 adjusted cited as 1409.4317
+  claim_id: c_b32aa61f
+  context: "T007 [P] Implement paired bootstrap statistical testing (run_bootstrap_test)\
+    \ with Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Implement paired bootstrap statistical testing (run_bootstrap_test) with\
+    \ Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:06:57Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Paired bootstrap statistical testing with Bonferroni correction uses
+    alpha 0.05 adjusted
+  claim_id: c_2b6437e5
+  context: "T007 [P] Implement paired bootstrap statistical testing (run_bootstrap_test)\
+    \ with Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317). **Note**: This task implements\
+    \ paired bootstrap with Bonferroni correction."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Implement paired bootstrap statistical testing (run_bootstrap_test) with\
+    \ Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:08:03Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Exponential backoff wrapper uses initial delay 30 seconds and max retries
+    5
+  claim_id: c_fcd51d9c
+  context: T005b [P] Implement exponential backoff wrapper (exponential_backoff) with
+    initial_delay=30 seconds and max_retries=5. Verification test added.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement exponential backoff wrapper (exponential_backoff) with initial_delay=30
+    seconds and max_retries=5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:08:03Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 2
+  canonical: Training loop uses AdamW with batch size 4 and learning rate 5e-5 for
+    1 epoch
+  claim_id: c_9c60628c
+  context: T017a [P] Implement training loop train_epoch (AdamW, bs=4, lr=5e-5, 1
+    epoch) on OpenWebText subset. Saves model to results/cycle_N/model.pt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement training loop train_epoch (AdamW, bs=4, lr=5e-5, 1 epoch) on
+    OpenWebText subset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:08:04Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training retry logic allows up to 2 retries per cycle
+  claim_id: c_9e72dc27
+  context: 'T044 [P] Implement training retry logic: up to 2 retries per cycle; on
+    2nd failure, log failure, increment cycle counter, and proceed to next cycle with
+    a NEW modification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement training retry logic: up to 2 retries per cycle; on 2nd failure,
+    log failure, increment cycle counter, and proceed to next cycle with a NEW modification.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:08:04Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Early stop triggers on performance degradation of 5 percent or more from
+    baseline
+  claim_id: c_7c36d4a4
+  context: "T036 [P] Implement early\u2011stop based on performance degradation \u2265\
+    5 % from baseline (uses check_termination). Verification test added."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Implement early\u2011stop based on performance degradation \u22655 %\
+    \ from baseline (uses check_termination)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:08:05Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: System flags performance as near-random if less than 10 percent on GSM8K
+    or ARC
+  claim_id: c_83535227
+  context: T002 [P] Implement Baseline Capability Check (run_baseline_check) that
+    evaluates the unmodified model on all benchmarks, writes Cycle 0 metrics to results/trajectory.json,
+    and explicitly flags if performance is near-random (<10% on GSM8K/ARC).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/System_flags_performance_as_near-random_if_less_than_10_perc
+  kind: magnitude
+  raw_text: Explicitly flags if performance is near-random (<10% on GSM8K/ARC).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T18:08:31Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: paired bootstrap statistical testing with Bonferroni correction uses
+    alpha 0.05 adjusted based on arXiv 1409.4317
+  claim_id: c_54087099
+  context: "T007 [P] Implement paired bootstrap statistical testing (run_bootstrap_test)\
+    \ with Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Implement paired bootstrap statistical testing (run_bootstrap_test) with\
+    \ Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:41:49Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: pipeline terminates if performance degradation is 5 percent or more from
+    baseline
+  claim_id: c_d0b240fb
+  context: T036 [S] Implement Early Termination Check (check_termination). This task
+    explicitly implements FR-015. If performance degradation >= 5% from baseline (Cycle
+    0), the system MUST terminate the pipeline immediately.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If performance degradation >= 5% from baseline (Cycle 0), the system MUST
+    terminate the pipeline immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:41:50Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: training allows up to 2 retries per cycle before proceeding to next modification
+  claim_id: c_7e442d40
+  context: 'T044 [S] Implement training retry logic: up to 2 retries per cycle; on
+    2nd failure, log failure, increment cycle counter, and proceed to next cycle with
+    a NEW modification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement training retry logic: up to 2 retries per cycle; on 2nd failure,
+    log failure, increment cycle counter, and proceed to next cycle with a NEW modification.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:42:24Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: refinement loop repeats for up to 3 attempted cycles
+  claim_id: c_f8dae3a5
+  context: "T049 [S] Extend orchestrator to repeat the refinement loop for up to three\
+    \ attempted cycles, respecting retry and early\u2011stop rules."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Extend orchestrator to repeat the refinement loop for up to three attempted\
+    \ cycles, respecting retry and early\u2011stop rules."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:42:25Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: training subset reduced if estimated time exceeds 2 hours
+  claim_id: c_aaf7b18b
+  context: 'T017a [S] Implement training loop train_epoch (AdamW, bs=4, lr=5e-5, 1
+    epoch) on OpenWebText subset. Includes Time-Estimation and Subset-Reduction Fallback:
+    if estimated time > 2h, reduce training subset to a dynamic sample count determined
+    by the research phase or a calculated fraction of the total dataset to fit within
+    the time budget.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If estimated time > 2h, reduce training subset to a dynamic sample count
+    determined by the research phase or a calculated fraction of the total dataset
+    to fit within the time budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:42:26Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Dataset loaders use exponential backoff
+  claim_id: c_54934791
+  context: "T005a [P] Implement dataset loaders for OpenWebText, GSMK, ARC\u2011Challenge,\
+    \ BoolQ with fail\u2011fast logic and streaming support. Uses backoff from T005b."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_loaders_use_exponential_backoff
+  kind: entity_fact
+  raw_text: Uses backoff from T005b.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:43:53Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Paired bootstrap statistical testing with Bonferroni correction cited
+    as 1409.4317
+  claim_id: c_5d14d93b
+  context: "T007 [P] Implement paired bootstrap statistical testing (run_bootstrap_test)\
+    \ with Bonferroni correction for multiple benchmark comparisons (\u03B1=0.05 adjusted).\
+    \ (1409.4317, https://arxiv.org/abs/1409.4317)."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "paired bootstrap statistical testing (run_bootstrap_test) with Bonferroni\
+    \ correction for multiple benchmark comparisons (\u03B1=0.05 adjusted). (1409.4317,\
+    \ https://arxiv.org/abs/1409.4317)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:44:13Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Baseline capability check flags performance near-random if below 10%
+    on GSM8K or ARC
+  claim_id: c_1e8188db
+  context: T002 [S] Implement Baseline Capability Check (run_baseline_check) that
+    evaluates the unmodified model on all benchmarks, writes Cycle 0 metrics to results/trajectory.json,
+    and explicitly flags if performance is near-random (<10% on GSM8K/ARC).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: explicitly flags if performance is near-random (<10% on GSM8K/ARC)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:44:14Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training subset reduced if estimated time exceeds 2 hours
+  claim_id: c_fa63739b
+  context: 'T017a [S] Implement training loop train_epoch (AdamW, bs=4, lr=5e-5, 1
+    epoch) on OpenWebText subset. Saves model to results/cycle_N/model.pt. Includes
+    Time-Estimation and Subset-Reduction Fallback: if estimated time > 2h, reduce
+    training subset to a dynamic sample count determined by the research phase or
+    a calculated fraction of the total dataset to fit within the time budget.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if estimated time > 2h, reduce training subset to a dynamic sample count
+    determined by the research phase or a calculated fraction of the total dataset
+    to fit within the time budget.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:44:14Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Training retry logic allows up to 2 retries per cycle
+  claim_id: c_1c2717a1
+  context: 'T044 [S] Implement training retry logic: up to 2 retries per cycle; on
+    2nd failure, log failure, increment cycle counter, and proceed to next cycle with
+    a NEW modification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: up to 2 retries per cycle
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:44:37Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Pipeline terminates immediately if performance degradation is 5% or more
+    from baseline
+  claim_id: c_74f28d5e
+  context: T036 [S] Implement Early Termination Check (check_termination). This task
+    explicitly implements FR-015. If performance degradation >= 5% from baseline (Cycle
+    0), the system MUST terminate the pipeline immediately.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If performance degradation >= 5% from baseline (Cycle 0), the system MUST
+    terminate the pipeline immediately.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:44:37Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/tasks.md
+  attempts: 1
+  canonical: Refinement loop repeats for up to three attempted cycles
+  claim_id: c_8def6bb1
+  context: "T049 [S] Extend orchestrator to repeat the refinement loop for up to three\
+    \ attempted cycles, respecting retry and early\u2011stop rules."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Refinement_loop_repeats_for_up_to_three_attempted_cycles
+  kind: entity_fact
+  raw_text: Extend orchestrator to repeat the refinement loop for up to three attempted
+    cycles
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T02:45:11Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
+  attempts: 1
+  canonical: GPT-2 124M has 124 million parameters
+  claim_id: c_000303b6
+  context: "Initial State: The baseline model (GPT\u20112 124M) defines the initial\
+    \ parameter count P0."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: Two other smaller releases of GPT-2 are available, including the small
+        version of 124M parameters and the medium size of 355M parameters. Both are
+        available to download from Huggingface.
+      source_id: GPT-2
+      url: https://en.wikipedia.org/wiki/GPT-2
+      value: 124M
+    filled: true
+  kind: numeric
+  raw_text: "The baseline model (GPT\u20112 124M) defines the initial parameter count\
+    \ P0."
+  resolved_value: 124M
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-10T20:20:40Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
+  attempts: 1
+  canonical: performance scales as a power law of parameters and compute
+  claim_id: c_3cf8ae97
+  context: "Scaling Laws: We assume that performance P scales with parameter count\
+    \ N and compute C according to established power laws (P \u221D N^\u03B1 C^\u03B2\
+    )."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "We assume that performance P scales with parameter count N and compute\
+    \ C according to established power laws (P \u221D N^\u03B1 C^\u03B2)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-10T20:21:07Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/research.md
+  attempts: 1
+  canonical: system improvement trajectory is computationally irreducible per Stephen
+    Wolfram
+  claim_id: c_a60d85b6
+  context: "Computational Irreducibility: As posited by Stephen Wolfram, the trajectory\
+    \ of this system's improvement cannot be predicted by a closed\u2011form equation."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q22980775
+        url: https://www.wikidata.org/wiki/Q22980775
+        value: '843'
+      - channel: wikidata
+        source_id: Q310798
+        url: https://www.wikidata.org/wiki/Q310798
+        value: Stephen Wolfram
+      quote: 'P437: Q3276244'
+      source_id: Q110188761
+      url: https://www.wikidata.org/wiki/Q110188761
+      value: Q3276244
+    filled: true
+  kind: entity_fact
+  raw_text: "As posited by Stephen Wolfram, the trajectory of this system's improvement\
+    \ cannot be predicted by a closed\u2011form equation; it must be simulated to\
+    \ be known."
+  resolved_value: Q3276244
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-10T20:21:31Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/download_and_checksum.md
+  attempts: 1
+  canonical: 64-character SHA-256 hex digest is returned
+  claim_id: c_7a710370
+  context: "The test_download_and_checksum_writes_sha256 verifies that a real HuggingFace\
+    \ dataset is downloaded, a 64\u2011character SHA\u2011256 hex digest is returned,\
+    \ the SHA256SUM file is created, and its contents match an independently computed\
+    \ directory checksum."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "a 64\u2011character SHA\u2011256 hex digest is returned"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:52:51Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/download_and_checksum.md
+  attempts: 1
+  canonical: SHA256SUM file is created
+  claim_id: c_7032fa0b
+  context: "The test_download_and_checksum_writes_sha256 verifies that a real HuggingFace\
+    \ dataset is downloaded, a 64\u2011character SHA\u2011256 hex digest is returned,\
+    \ the SHA256SUM file is created, and its contents match an independently computed\
+    \ directory checksum."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the SHA256SUM file is created
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:52:51Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/download_and_checksum.md
+  attempts: 1
+  canonical: SHA256SUM file contents match independently computed directory checksum
+  claim_id: c_e8842a1e
+  context: "The test_download_and_checksum_writes_sha256 verifies that a real HuggingFace\
+    \ dataset is downloaded, a 64\u2011character SHA\u2011256 hex digest is returned,\
+    \ the SHA256SUM file is created, and its contents match an independently computed\
+    \ directory checksum."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: its contents match an independently computed directory checksum
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:52:52Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/download_and_checksum.md
+  attempts: 1
+  canonical: second call reuses existing checksum file without re-downloading data
+  claim_id: c_4d9ea99d
+  context: "The test_download_and_checksum_is_idempotent confirms that a second call\
+    \ re\u2011uses the existing checksum file without re\u2011downloading the data."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "a second call re\u2011uses the existing checksum file without re\u2011\
+    downloading the data"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:52:53Z'
+- artifact_path: projects/PROJ-561-self-improving-llm-recursive-architectur/docs/download_and_checksum.md
+  attempts: 1
+  canonical: real HuggingFace dataset is downloaded
+  claim_id: c_bbfe9f15
+  context: "The test_download_and_checksum_writes_sha256 verifies that a real HuggingFace\
+    \ dataset is downloaded, a 64\u2011character SHA\u2011256 hex digest is returned,\
+    \ the SHA256SUM file is created, and its contents match an independently computed\
+    \ directory checksum."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: a real HuggingFace dataset is downloaded
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-17T00:52:53Z'

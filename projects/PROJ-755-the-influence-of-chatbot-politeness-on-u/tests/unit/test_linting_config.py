@@ -1,91 +1,72 @@
 """
-Unit tests for linting configuration generation (Task T003).
+Unit tests for linting configuration validation.
 """
 import os
-import tempfile
+import sys
+import tomllib
+import configparser
 from pathlib import Path
 import pytest
 
-# Import the function we are testing
-from code.setup_linting import create_ruff_config, create_black_config, main
+# Add parent to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from code.setup_linting import (
+    validate_ruff_config,
+    validate_pyproject_black,
+    validate_flake8_config,
+    PROJECT_ROOT,
+    PYPROJECT_PATH,
+    RUFF_CONFIG_PATH,
+    FLAKE8_CONFIG_PATH,
+)
 
-class TestLintingConfig:
-    """Tests for the linting configuration generation."""
 
-    def test_ruff_config_content(self):
-        """Verify ruff.toml content contains expected sections."""
-        content = create_ruff_config()
-        
-        assert "[lint]" in content
-        assert "select" in content
-        assert "E" in content  # pycodestyle
-        assert "F" in content  # Pyflakes
-        assert "target-version" in content
-        assert "py311" in content
+class TestLintingConfigValidation:
+    """Tests for linting configuration validation functions."""
 
-    def test_black_config_content(self):
-        """Verify black config content contains expected settings."""
-        content = create_black_config()
-        
-        assert "[tool.black]" in content
-        assert "line-length" in content
-        assert "88" in content
-        assert "target-version" in content
-        assert "py311" in content
+    def test_ruff_config_exists(self):
+        """Test that ruff.toml exists after setup."""
+        assert RUFF_CONFIG_PATH.exists(), "ruff.toml should exist"
 
-    def test_main_creates_files(self):
-        """Verify that main() creates the necessary files."""
-        # Create a temporary directory to simulate the project root
-        with tempfile.TemporaryDirectory() as tmpdir:
-            original_cwd = os.getcwd()
-            try:
-                os.chdir(tmpdir)
-                
-                # Run the main function
-                main()
-                
-                # Check that files were created
-                assert os.path.exists("ruff.toml"), "ruff.toml was not created"
-                assert os.path.exists("pyproject.toml"), "pyproject.toml was not created"
-                assert os.path.exists("requirements.txt"), "requirements.txt was not updated"
-                
-                # Verify content
-                with open("ruff.toml", "r") as f:
-                    ruff_content = f.read()
-                    assert "[lint]" in ruff_content
-                
-                with open("pyproject.toml", "r") as f:
-                    pyproject_content = f.read()
-                    assert "[tool.black]" in pyproject_content
-                
-                with open("requirements.txt", "r") as f:
-                    req_content = f.read()
-                    assert "ruff" in req_content.lower()
-                    assert "black" in req_content.lower()
-                    
-            finally:
-                os.chdir(original_cwd)
+    def test_ruff_config_valid_toml(self):
+        """Test that ruff.toml is valid TOML."""
+        assert RUFF_CONFIG_PATH.exists()
+        with open(RUFF_CONFIG_PATH, "rb") as f:
+            config = tomllib.load(f)
+        assert "lint" in config or "select" in config
 
-    def test_pyproject_append_logic(self):
-        """Verify that black config is appended correctly to existing pyproject.toml."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            original_cwd = os.getcwd()
-            try:
-                os.chdir(tmpdir)
-                
-                # Create a dummy pyproject.toml with existing content
-                with open("pyproject.toml", "w") as f:
-                    f.write("# Existing content\n[tool.some_other]\nkey = 'value'\n")
-                
-                # Run main
-                main()
-                
-                # Read the file and ensure it has both old and new content
-                with open("pyproject.toml", "r") as f:
-                    content = f.read()
-                    
-                assert "# Existing content" in content
-                assert "[tool.black]" in content
-                
-            finally:
-                os.chdir(original_cwd)
+    def test_pyproject_black_section(self):
+        """Test that pyproject.toml contains [tool.black]."""
+        assert PYPROJECT_PATH.exists(), "pyproject.toml should exist"
+        with open(PYPROJECT_PATH, "rb") as f:
+            config = tomllib.load(f)
+        assert "tool" in config
+        assert "black" in config["tool"]
+        assert config["tool"]["black"]["line-length"] == 88
+
+    def test_flake8_config_exists(self):
+        """Test that .flake8 exists after setup."""
+        assert FLAKE8_CONFIG_PATH.exists(), ".flake8 should exist"
+
+    def test_flake8_config_valid(self):
+        """Test that .flake8 is valid and contains [flake8] section."""
+        assert FLAKE8_CONFIG_PATH.exists()
+        config = configparser.ConfigParser()
+        config.read(FLAKE8_CONFIG_PATH)
+        assert "flake8" in config
+        assert "max-line-length" in config["flake8"]
+
+    def test_validate_ruff_config_returns_true(self):
+        """Test that validate_ruff_config returns True when config is valid."""
+        result = validate_ruff_config()
+        assert result is True
+
+    def test_validate_pyproject_black_returns_true(self):
+        """Test that validate_pyproject_black returns True when config is valid."""
+        result = validate_pyproject_black()
+        assert result is True
+
+    def test_validate_flake8_config_returns_true(self):
+        """Test that validate_flake8_config returns True when config is valid."""
+        result = validate_flake8_config()
+        assert result is True

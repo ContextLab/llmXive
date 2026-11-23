@@ -1,0 +1,16 @@
+[flake8]
+max-line-length = 88
+extend-ignore = E203, E501
+exclude =
+    .git,
+    __pycache__,
+    data/,
+    docs/,
+    .venv,
+    build,
+    dist
+per-file-ignores =
+    code/main.py: ARG
+    code/setup_directories.py: ARG
+    code/quickstart_validator.py: ARG
+    tests/*: ARG, B018

@@ -44,6 +44,9 @@ properties:
   causal_limitation_note:
     type: string
     description: "Disclaimer that results are associational and not causal."
+  power_limitation_note:
+    type: string
+    description: "Note on post-hoc power analysis if power is <80%."
 required:
   - stress_condition
   - total_peaks
@@ -57,3 +60,4 @@ required:
   - summit_match_pct_top10
   - atac_validation_status
   - causal_limitation_note
+  - power_limitation_note

@@ -13,6 +13,7 @@ required:
   - chi_square_statistic
   - effect_size
   - sensitivity_to_noise
+  - total_runtime_seconds
 properties:
   threshold:
     type: "number"
@@ -28,7 +29,7 @@ properties:
     maximum: 1.0
   recall:
     type: "number"
-    description: "Recall of LLM detection"
+    description: "Recall of LLM detection relative to triangulated ground truth or manual validation set"
     minimum: 0.0
     maximum: 1.0
   f1_score:
@@ -38,24 +39,28 @@ properties:
     maximum: 1.0
   llm_only_recall:
     type: "number"
-    description: "Recall of bugs found ONLY by LLM (not by humans)"
+    description: "Proportion of LLM‑only detections that are confirmed in the manual validation set (0.0 when no manual set is available)"
     minimum: 0.0
     maximum: 1.0
   mcnemar_p_value:
     type: "number"
-    description: "P-value from McNemar's test"
+    description: "P‑value from McNemar's test (or exact binomial fallback)"
   chi_square_p_value:
     type: "number"
-    description: "P-value from Chi-square test"
+    description: "P‑value from Chi‑square test (or Fisher's exact fallback)"
   chi_square_statistic:
     type: "number"
-    description: "Chi-square statistic"
+    description: "Chi‑square statistic"
   effect_size:
     type: "number"
-    description: "Effect size (e.g., Cohen's h or Phi)"
+    description: "Effect size (e.g., Cohen's h or Cramér's V)"
+  total_runtime_seconds:
+    type: "integer"
+    description: "Total wall‑clock runtime of the entire pipeline in seconds (SC‑004)"
+    minimum: 0
   sensitivity_to_noise:
     type: "object"
-    description: "Results from high-confidence vs full-set analysis"
+    description: "Results from high‑confidence vs full‑set analysis"
     properties:
       high_confidence_p_value:
         type: "number"

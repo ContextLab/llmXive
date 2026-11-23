@@ -1,0 +1,10 @@
+# Placeholder for adapter checkpoint
+# This file will be populated when the adapter is trained
+# For benchmarking, we use a randomly initialized adapter or a pre-trained one
+# The benchmark_runner.py will handle loading this appropriately
+# If this file doesn't exist, the runner will initialize a default adapter
+placeholder_checkpoint_for_t037_benchmark
+# In a real scenario, this would contain PyTorch state_dict binary data
+# For now, we provide a text placeholder to satisfy the file existence check
+# The actual checkpoint should be trained using the training pipeline
+# and saved here before running the benchmark

@@ -4,45 +4,35 @@ from pathlib import Path
 
 def main():
     """
-    Creates the required data directory structure for the project:
-    - data/raw/
-    - data/processed/
-    - data/cache/
-    - data/checksums/
-    
-    Each directory is created with a .gitkeep file to ensure they are tracked
-    by version control even when empty.
+    Creates the required data directory structure for the project.
+    This script ensures that 'raw', 'processed', 'cache', and 'checksums'
+    directories exist under the project's 'data' folder, creating .gitkeep
+    files to preserve the directory structure in version control.
     """
-    # Determine the project root relative to this script's location
-    # Script is at: projects/PROJ-438-the-effect-of-personalized-feedback-timi/code/setup_data_dirs.py
-    # Project root is: projects/PROJ-438-the-effect-of-personalized-feedback-timi/
+    # Determine the project root based on the script's location
+    # The script is expected to be run from the project root or the code directory
     script_dir = Path(__file__).resolve().parent
     project_root = script_dir.parent
-    
-    data_dirs = [
-        "data/raw",
-        "data/processed",
-        "data/cache",
-        "data/checksums"
-    ]
-    
-    for dir_path in data_dirs:
-        full_path = project_root / dir_path
+
+    data_dir = project_root / "data"
+    subdirs = ["raw", "processed", "cache", "checksums"]
+
+    for subdir_name in subdirs:
+        subdir_path = data_dir / subdir_name
+        subdir_path.mkdir(parents=True, exist_ok=True)
         
-        # Create directory if it doesn't exist
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory already exists: {full_path}")
-        
-        # Create .gitkeep file
-        gitkeep_path = full_path / ".gitkeep"
+        gitkeep_path = subdir_path / ".gitkeep"
         if not gitkeep_path.exists():
             gitkeep_path.touch()
-            print(f"Created .gitkeep in: {full_path}")
+            # Add a descriptive comment to the .gitkeep file
+            with open(gitkeep_path, "w") as f:
+                f.write(f"# This directory stores {subdir_name} data.\n")
+                f.write("# .gitkeep ensures the directory exists in git.\n")
+            print(f"Created directory: {subdir_path}")
         else:
-            print(f".gitkeep already exists in: {full_path}")
+            print(f"Directory already exists: {subdir_path}")
+
+    print("Data directory setup complete.")
 
 if __name__ == "__main__":
     main()

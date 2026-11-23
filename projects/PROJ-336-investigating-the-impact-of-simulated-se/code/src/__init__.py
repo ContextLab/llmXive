@@ -1,3 +1,1 @@
-"""
-Source package initialization.
-"""
+"""Source code package for llmXive research pipeline."""

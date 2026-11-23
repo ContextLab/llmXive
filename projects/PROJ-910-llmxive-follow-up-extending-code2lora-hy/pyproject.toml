@@ -6,88 +6,94 @@ build-backend = "setuptools.build_meta"
 name = "llmxive-follow-up-extending-code2lora-hy"
 version = "0.1.0"
 description = "Extending Code2LoRA: Hypernetwork-Generated Adapters for Code Language Models under Software Evolution"
-readme = "README.md"
 requires-python = ">=3.9"
 dependencies = [
-    "transformers",
-    "peft",
-    "torch",
-    "scikit-learn",
-    "networkx",
-    "pytest",
-    "pytest-cov",
-    "scipy",
-    "pyyaml",
-    "safetensors",
-    "datasets",
-    "psutil"
+    "transformers>=4.40.0",
+    "peft>=0.11.0",
+    "torch>=2.2.0",
+    "scikit-learn>=1.4.0",
+    "networkx>=3.2",
+    "pytest>=8.0.0",
+    "pytest-cov>=4.1.0",
+    "datasets>=2.18.0",
+    "psutil>=5.9.0",
+    "scipy>=1.12.0",
+    "pyyaml>=6.0.1",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff",
-    "black",
-    "isort"
+    "ruff>=0.3.0",
+    "black>=24.3.0",
+    "mypy>=1.9.0",
 ]
 
 [tool.setuptools.packages.find]
 where = ["code"]
+include = ["code*"]
 
-[tool.setuptools.package-dir]
-"" = "code"
-
-# Ruff configuration
-[tool.ruff]
-line-length = 100
-target-version = "py39"
-src = ["code"]
-
-# Lint rules
-[tool.ruff.lint]
-select = [
-    "E",      # pycodestyle errors
-    "W",      # pycodestyle warnings
-    "F",      # Pyflakes
-    "I",      # isort
-    "C",      # flake8-comprehensions
-    "B",      # flake8-bugbear
-    "UP",     # pyupgrade
-    "ARG",    # flake8-unused-arguments
-    "PTH",    # flake8-use-pathlib
-]
-ignore = [
-    "E501",   # line too long (handled by black)
-    "B008",   # do not perform function calls in argument defaults
-    "C901",   # too complex
-]
-
-# Per-file ignores
-[tool.ruff.lint.per-file-ignores]
-"code/__init__.py" = ["F401"]
-"tests/*" = ["ARG", "B018"]
-
-# Black configuration
 [tool.black]
 line-length = 100
-target-version = ['py39', 'py310', 'py311']
+target-version = ['py39']
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | node_modules
 )/
 '''
 
-# Isort configuration (compatible with Black)
-[tool.isort]
-profile = "black"
-line_length = 100
-known_first_party = ["utils", "feature_extractor", "hypernetwork", "evaluation"]
-sections = ["FUTURE", "STDLIB", "THIRDPARTY", "FIRSTPARTY", "LOCALFOLDER"]
+[tool.ruff]
+# Same as Black.
+line-length = 100
+target-version = "py39"
+src = ["code", "tests"]
+exclude = [
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"] # assert allowed in tests
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["code"]
+addopts = "-v --cov=code --cov-report=term-missing"
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true

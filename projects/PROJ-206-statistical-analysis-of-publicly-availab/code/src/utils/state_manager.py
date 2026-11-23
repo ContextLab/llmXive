@@ -5,76 +5,122 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 
-def compute_file_hash(filepath: Path) -> str:
+from src.utils.config import get_state_root, get_project_root
+
+def compute_file_hash(file_path: Path) -> str:
     """Compute SHA-256 hash of a file."""
-    if not filepath.exists():
-        raise FileNotFoundError(f"File not found: {filepath}")
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
     sha256_hash = hashlib.sha256()
-    with open(filepath, "rb") as f:
+    with open(file_path, "rb") as f:
+        # Read in chunks to handle large files
         for byte_block in iter(lambda: f.read(4096), b""):
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def get_state_file_path(project_id: str) -> Path:
-    """Get the path to the state file for a project."""
-    state_dir = Path("state/projects")
-    state_dir.mkdir(parents=True, exist_ok=True)
-    return state_dir / f"{project_id}.yaml"
+def get_state_file_path() -> Path:
+    """Get the path to the project state YAML file."""
+    project_root = get_project_root()
+    project_id = project_root.name.replace(" ", "-")
+    state_root = get_state_root()
+    state_file = state_root / f"{project_id}.yaml"
+    return state_file
 
-def load_state(project_id: str) -> Dict[str, Any]:
-    """Load state file for a project."""
-    state_path = get_state_file_path(project_id)
-    if not state_path.exists():
-        return {"artifacts": []}
-    with open(state_path, 'r') as f:
-        return yaml.safe_load(f) or {"artifacts": []}
+def load_state() -> Dict[str, Any]:
+    """Load existing state from YAML file or return empty state."""
+    state_file = get_state_file_path()
+    if state_file.exists():
+        with open(state_file, "r") as f:
+            return yaml.safe_load(f) or {}
+    return {
+        "project_id": project_root.name.replace(" ", "-"),
+        "artifacts": {},
+        "last_updated": None
+    }
 
-def update_state_artifact(project_id: str, artifact_path: str, hash_value: str, timestamp: str) -> None:
-    """Update the state file with a new artifact entry."""
-    state = load_state(project_id)
+def update_state_artifact(artifact_name: str, artifact_path: Path, description: Optional[str] = None) -> None:
+    """
+    Update the state file with a new artifact hash.
+    
+    Args:
+        artifact_name: Name of the artifact (e.g., 'poll_data_cleaned.csv')
+        artifact_path: Path to the artifact file
+        description: Optional description of the artifact
+    """
+    if not artifact_path.exists():
+        raise FileNotFoundError(f"Cannot hash non-existent file: {artifact_path}")
+    
+    state = load_state()
+    file_hash = compute_file_hash(artifact_path)
+    
     if "artifacts" not in state:
-        state["artifacts"] = []
+        state["artifacts"] = {}
     
-    # Check if artifact already exists and update, or add new
-    found = False
-    for artifact in state["artifacts"]:
-        if artifact.get("path") == artifact_path:
-            artifact["hash"] = hash_value
-            artifact["updated_at"] = timestamp
-            found = True
-            break
+    state["artifacts"][artifact_name] = {
+        "path": str(artifact_path),
+        "hash": file_hash,
+        "updated_at": datetime.now().isoformat(),
+        "description": description or f"Generated artifact: {artifact_name}"
+    }
     
-    if not found:
-        state["artifacts"].append({
-            "path": artifact_path,
-            "hash": hash_value,
-            "created_at": timestamp,
-            "updated_at": timestamp
-        })
+    state["last_updated"] = datetime.now().isoformat()
     
-    state_path = get_state_file_path(project_id)
-    with open(state_path, 'w') as f:
-        yaml.dump(state, f, default_flow_style=False)
+    # Ensure state directory exists
+    state_file = get_state_file_path()
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(state_file, "w") as f:
+        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
 
-def verify_artifact_integrity(project_id: str, artifact_path: str) -> bool:
-    """Verify the integrity of an artifact by comparing its hash."""
-    state = load_state(project_id)
-    full_path = Path.cwd() / artifact_path
-    if not full_path.exists():
+def verify_artifact_integrity(artifact_name: str) -> bool:
+    """
+    Verify that an artifact's current hash matches the stored hash.
+    
+    Returns:
+        True if verification passes, False otherwise
+    """
+    state = load_state()
+    if "artifacts" not in state or artifact_name not in state["artifacts"]:
         return False
     
-    current_hash = compute_file_hash(full_path)
+    stored_hash = state["artifacts"][artifact_name]["hash"]
+    artifact_path = Path(state["artifacts"][artifact_name]["path"])
     
-    for artifact in state.get("artifacts", []):
-        if artifact.get("path") == artifact_path:
-            stored_hash = artifact.get("hash")
-            return current_hash == stored_hash
+    if not artifact_path.exists():
+        return False
     
-    return False
+    current_hash = compute_file_hash(artifact_path)
+    return stored_hash == current_hash
 
 def main():
-    """Main entry point for state manager (for testing)."""
-    pass
+    """CLI entry point for state management utilities."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="State management utilities")
+    parser.add_argument("command", choices=["hash", "verify", "list"], help="Command to execute")
+    parser.add_argument("--artifact", help="Artifact name for hash/verify commands")
+    parser.add_argument("--path", help="Path to file for hash command")
+    
+    args = parser.parse_args()
+    
+    if args.command == "hash":
+        if not args.path:
+            parser.error("--path is required for hash command")
+        file_path = Path(args.path)
+        print(f"Hash: {compute_file_hash(file_path)}")
+    
+    elif args.command == "verify":
+        if not args.artifact:
+            parser.error("--artifact is required for verify command")
+        is_valid = verify_artifact_integrity(args.artifact)
+        print(f"Verification {'passed' if is_valid else 'failed'} for {args.artifact}")
+    
+    elif args.command == "list":
+        state = load_state()
+        print("Registered artifacts:")
+        for name, info in state.get("artifacts", {}).items():
+            print(f"  - {name}: {info['hash'][:16]}... ({info['updated_at']})")
 
 if __name__ == "__main__":
     main()

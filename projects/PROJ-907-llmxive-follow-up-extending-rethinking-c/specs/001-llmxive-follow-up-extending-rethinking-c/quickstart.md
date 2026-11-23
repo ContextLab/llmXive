@@ -2,66 +2,66 @@
 
 ## Prerequisites
 
-- Python 3.11+
-- Git
-- Access to a GitHub Actions runner (or local machine with sufficient RAM).
+-   Python 3.11+
+-   Git
+-   (Optional) Kaggle CLI for GPU offload (if CPU fails)
 
 ## Installation
 
-1. **Clone the repository** (if not already done):
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-907-llmxive-follow-up-extending-rethinking-c
-   ```
+1.  **Clone the repository**:
+    ```bash
+    git clone <repo-url>
+    cd projects/PROJ-907-llmxive-follow-up-extending-rethinking-c
+    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r code/requirements.txt
+    ```
 
 ## Running the Pipeline
 
-The pipeline consists of three sequential scripts.
+The pipeline is executed in three main phases. Ensure you have sufficient disk space for intermediate traces.
 
-### Step 1: Trace Dynamic Routing
-Executes the dynamic model on a representative Trace Set of images one-by-one and saves the aggregated routing patterns.
+### Phase 1: Tracing & Clustering
+This phase records routing weights and derives the canonical map.
 ```bash
-python code/src/tracing.py --images 60 --timesteps 100 --batch-size 1
+python code/src/tracing.py --images 100 --batch-size 10
+python code/src/clustering.py --input data/routing_cache/
+python code/src/canonical_map.py --input data/routing_cache/cluster_centers.json --output data/routing_cache/canonical_map.json
 ```
-*Output*: `data/routing_cache/trace_patterns.npy`
 
-### Step 2: Derive Static Map
-Clusters the aggregated patterns and generates the static routing map.
+### Phase 2: Benchmarking
+This phase compares the dynamic and static models.
 ```bash
-python code/src/clustering.py --input data/routing_cache/trace_patterns.npy
+python code/src/benchmark.py --mode dynamic --seed 42 --images 500 --output data/results/benchmark_results.json
+python code/src/benchmark.py --mode static --seed 42 --images 500 --output data/results/benchmark_results.json
+# Repeat for 5 seeds (script can handle loop)
 ```
-*Output*: `data/routing_cache/static_routing_map.pt` (and logs of silhouette scores).
 
-### Step 3: Benchmark & Analyze
-Compares dynamic vs. static models across multiple seeds and performs sensitivity analysis.
+### Phase 3: Statistical Analysis
+This phase performs the bootstrap and sensitivity sweep.
 ```bash
-python code/src/benchmark.py --static-map data/routing_cache/static_routing_map.pt --seeds 5 --benchmark-images 40
+python code/src/stats_analysis.py --input data/results/benchmark_results.json --output data/results/statistical_analysis.json --sweep
 ```
-*Output*: `data/benchmarks/benchmark_results.csv`, `data/benchmarks/sensitivity_analysis.json`.
 
 ## Verification
 
-To verify the results:
-1. Check the `benchmark_results.csv` for the latency reduction and FID difference.
-2. Confirm the silhouette score in the clustering logs (should be > 0.25 for distinct phases).
-3. Run the unit tests:
-   ```bash
-   pytest code/tests/
-   ```
+1.  **Check Schemas**:
+    ```bash
+    python -m json.tool data/routing_cache/canonical_map.json | grep -q "static_weights" && echo "Valid"
+    ```
+2.  **Verify Memory**: Check `data/results/memory_report.json` to ensure `peak_gb` < 7.0 and `status` is "PASS".
+3.  **Check FID**: Ensure `statistical_analysis.json` reports a `significant` flag and `p_value`.
 
 ## Troubleshooting
 
-- **OOM Error**: The script defaults to `--batch-size 1`. If OOM occurs, reduce `--batch-size` to 1 (already default) and ensure no other processes are using memory.
-- **Model Load Error**: Ensure the `google/sit-xl-2` or `llmXive` fork is accessible. Check internet connection. If the model is not found, the pipeline will halt with "Data Unavailable".
-- **Clustering Null Result**: This is a valid outcome. The script will automatically fall back to global averaging. Check the logs for the "Null Hypothesis" flag.
+-   **OOM Error**: If you encounter `RuntimeError: CUDA out of memory` or CPU OOM, reduce `--batch-size` in the tracing step or enable the GPU offload flag (if configured).
+-   **Dataset 404**: Ensure you are using the `ILSVRC/imagenetk` dataset ID.
+-   **Clustering Failure**: If `null_hypothesis` is true, the system automatically falls back to a global average. Check `data/routing_cache/cluster_centers.json` for the `silhouette_score`.

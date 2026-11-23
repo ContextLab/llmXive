@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [ ] T001 Create project structure per implementation plan: `src/`, `tests/`, `data/`, `data/logs/`, `data/results/`, `data/reports/`, `specs/001-evaluate-prompting-strategies/contracts/`, `state/projects/`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` (transformers, torch[cpu], datasets, scipy, pytest, psutil)
+- [X] T002 Initialize Python 3.11 project with `requirements.txt` (transformers, torch[cpu], datasets, scipy, pytest, psutil)
 - [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -77,20 +77,20 @@
 
 > **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [X] T011 [P] [US1] Contract test for result schema validation in `tests/contract/test_result_schema.py`
-- [~] T012 [P] [US1] Integration test for sandbox timeout handling in `tests/integration/test_sandbox_timeout.py`
-- [X] T013 [P] [US1] Unit test for code block extraction regex in `tests/unit/test_prompt_parser.py`
+- [ ] T011 [P] [US1] Contract test for result schema validation in `tests/contract/test_result_schema.py`
+- [ ] T012 [P] [US1] Integration test for sandbox timeout handling in `tests/integration/test_sandbox_timeout.py`
+- [ ] T013 [P] [US1] Unit test for code block extraction regex in `tests/unit/test_prompt_parser.py`
 
 ### Implementation for User Story 1
 
-- [X] T014 [US1] Implement `src/evaluation/runner.py` core loop: load task -> prompt (Zero-shot) -> generate -> execute -> record result
-- [X] T014b [US1] **Instrument execution logic** in `src/evaluation/runner.py` (or `sandbox.py`) to explicitly count and log **execution timeouts** and **parsing failures** for every task, ensuring data is available for SC-004/SC-005 reporting.
-- [X] T015 [US1] Integrate random seed management into `src/evaluation/runner.py` execution flow
+- [ ] T014 [US1] Implement `src/evaluation/runner.py` core loop: load task -> prompt (Zero-shot) -> generate -> execute -> record result
+- [ ] T014b [US1] **Instrument execution logic** in `src/evaluation/runner.py` (or `sandbox.py`) to explicitly count and log **execution timeouts** and **parsing failures** for every task, ensuring data is available for SC-004/SC-005 reporting.
+- [~] T015 [US1] Integrate random seed management into `src/evaluation/runner.py` execution flow
 - [~] T015b [US1] **Orchestrate 3 independent random seed runs** for Zero-shot strategy, ensuring the pipeline executes 3 distinct iterations and outputs to `data/results/zero_shot_seed_{seed}.json`
-- [X] T016 [US1] Implement error handling in `src/evaluation/runner.py` to catch runtime errors in generated code and mark as failed without crashing
-- [X] T017 [US1] Add memory monitoring hook in `src/evaluation/runner.py` to trigger GC or precision switch if RAM > 6.5GB
+- [~] T016 [US1] Implement error handling in `src/evaluation/runner.py` to catch runtime errors in generated code and mark as failed without crashing
+- [~] T017 [US1] Add memory monitoring hook in `src/evaluation/runner.py` to trigger GC or precision switch if RAM > 6.5GB
 - [~] T018 [US1] Write results to `data/results/zero_shot_seed_{seed}.json` (for each of multiple seeds) with pass/fail status, execution time, and error logs <!-- ATOMIZE: requested -->
-- [X] T021b [US1] **Implement k=10 sample generation for Zero-shot** in `src/evaluation/runner.py` to ensure `pass@10` calculation is possible for the baseline strategy as per FR-003. This is a mandatory requirement, not optional.
+- [~] T021b [US1] **Implement k=10 sample generation for Zero-shot** in `src/evaluation/runner.py` to ensure `pass@10` calculation is possible for the baseline strategy as per FR-003. This is a mandatory requirement, not optional.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,14 +104,14 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T019 [P] [US2] Contract test for Few-shot prompt structure in `tests/unit/test_fewshot_prompt.py`
-- [X] T020 [P] [US2] Integration test for CoT reasoning extraction in `tests/integration/test_cot_extraction.py`
+- [~] T019 [P] [US2] Contract test for Few-shot prompt structure in `tests/unit/test_fewshot_prompt.py`
+- [~] T020 [P] [US2] Integration test for CoT reasoning extraction in `tests/integration/test_cot_extraction.py`
 
 ### Implementation for User Story 2
 
 - [~] T021 [P] [US2] Update `src/evaluation/prompts.py` to inject a small set of examples for Few-shot and reasoning instructions for CoT
-- [X] T022 [US2] Modify `src/evaluation/runner.py` to generate **k=10 independent samples** per task for **all strategies** (Zero-shot, Few-shot, and CoT) to enable `pass@10` comparison
-- [X] T022b [US2] **Instrument execution logic** in `src/evaluation/runner.py` (or `sandbox.py`) to explicitly count and log **execution timeouts** and **parsing failures** for every task in Few-shot and CoT runs, ensuring data is available for SC-004/SC-005 reporting.
+- [~] T022 [US2] Modify `src/evaluation/runner.py` to generate **k=10 independent samples** per task for **all strategies** (Zero-shot, Few-shot, and CoT) to enable `pass@10` comparison
+- [~] T022b [US2] **Instrument execution logic** in `src/evaluation/runner.py` (or `sandbox.py`) to explicitly count and log **execution timeouts** and **parsing failures** for every task in Few-shot and CoT runs, ensuring data is available for SC-004/SC-005 reporting.
 - [ ] T023 [US2] Implement code block extraction logic in `src/evaluation/prompts.py` to handle CoT outputs (extract final code block) <!-- SKIPPED: non-mapping output -->
 - [ ] T024 [US2] Update `src/evaluation/metrics.py` to calculate `pass@k` (at least one of k samples passed) for each task
 - [ ] T025 [US2] Write results to `data/results/few_shot_seed_{seed}.json` and `data/results/cot_seed_{seed}.json`

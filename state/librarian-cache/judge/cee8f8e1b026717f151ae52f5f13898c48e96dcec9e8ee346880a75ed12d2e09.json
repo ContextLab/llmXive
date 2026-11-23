@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2507.19261",
+  "judged_at": "2026-08-13T12:37:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"embodied.cpp: a portable inference runtime of embodied ai models on he\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the core mechanism of optimizing AI model deployment for resource-constrained environments (edge computing), which is the central challenge of the user's \"Embodied.cpp\" runtime project. Although it uses the specific technique of \"knowledge grafting\" rather than the user's specific runtime implementation, it provides canonical prior work on the same domain (deploying large models on limited hardware) and the same mechanism (model size redu",
+  "relevant": true
+}

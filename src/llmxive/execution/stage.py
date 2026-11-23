@@ -137,30 +137,68 @@ def _runbook_cli_mismatches(res: AnalysisRunResult) -> list[tuple[str, str, str]
     return out
 
 
-def _needs_verified_source(res: AnalysisRunResult, failures: list[str]) -> bool:
-    """True when the failure signals the project lacks a REAL, programmatically
-    reachable data source — the exact case data-source discovery exists to fix.
+# These failures can prevent the producer from starting. Missing output files
+# then do not establish a missing external dataset. Keep this narrow: unknown
+# errors and missing input files still use the existing discovery behavior.
+_CODE_SETUP_FAILURE_RE = re.compile(
+    r"\b(?:ModuleNotFoundError|ImportError|SyntaxError|IndentationError|"
+    r"NameError|UnboundLocalError):|\bNo module named\b"
+)
 
-    Fires not only when a declared ``data/`` deliverable is MISSING, but also
-    when the run FABRICATED input data, produced HOLLOW (null/NaN/empty)
-    results, or a command failed with a data-unavailable signature. Those are
-    the failure modes a project falls into *because* it has no real source to
-    load — yet the fabricated/hollow files EXIST on disk, so the narrow
-    missing-deliverable check never fired and the implementer was told "don't
-    fake it" without ever being handed a real source to use instead (it then
-    churns to the re-plan cap). A project that genuinely needs no external data
-    (a self-generated simulation study) distils no data intent, so discovery
-    returns "none" and no block is injected — over-firing here is safe + cheap
-    (the result is cached per project)."""
+#: A failing command's captured tail holds MORE than the error it died of: a
+#: handled exception printed as a warning, and — for a chained traceback —
+#: every non-terminal link ("During handling of the above exception ..."). So
+#: ``_CODE_SETUP_FAILURE_RE`` is matched against the TERMINAL error line only.
+#: Scanning the whole tail misclassified a real data failure as a setup failure
+#: whenever an import/name error appeared ANYWHERE above it (the observed shape:
+#: a printed ``ImportError`` fallback notice, then a terminal
+#: ``FileNotFoundError`` on a ``data/`` input).
+_TRACEBACK_START_RE = re.compile(r"Traceback \(most recent call last\):")
+#: A traceback's exception line: a (dotted) name, a colon, then the message.
+#: Source/frame lines (``File "x.py", line 3``, ``df = pd.read_csv(...)``) and
+#: interpreter messages (``/usr/bin/python: No module named x``) do not match.
+_ERROR_LINE_RE = re.compile(
+    r"^[ \t]*(?:[A-Za-z_]\w*\.)*[A-Za-z_]\w*:(?:[ \t].*)?$", re.MULTILINE,
+)
+
+
+def _terminal_error_line(failure: str) -> str:
+    """The line a failing command DIED of, from its captured tail.
+
+    Narrows the tail to the LAST traceback (so a handled exception and every
+    non-terminal link of an exception chain are excluded), then takes that
+    segment's last exception line. Falls back to the segment's last non-empty
+    line when no exception line is present — which is how the interpreter's own
+    ``<python>: No module named <pkg>`` launch failure stays classified.
+    """
+    starts = [m.start() for m in _TRACEBACK_START_RE.finditer(failure)]
+    final = failure[starts[-1]:] if starts else failure
+    errors = [line.strip() for line in _ERROR_LINE_RE.findall(final) if line.strip()]
+    if errors:
+        return errors[-1]
+    lines = [line.strip() for line in final.splitlines() if line.strip()]
+    return lines[-1] if lines else ""
+
+
+def _needs_verified_source(res: AnalysisRunResult, failures: list[str]) -> bool:
+    """Discover data for positive data signals or unexplained missing outputs.
+
+    A failed import/setup command commonly leaves every declared output absent.
+    Fix that error first instead of distilling a dataset query from a numerical
+    experiment's description. Fabrication, hollow results, and explicit source
+    failures retain priority; no execution or scientific acceptance gate changes.
+    """
+    if getattr(res, "fabrication", None) or getattr(res, "hollow", None):
+        return True
+    if _data_unavailable_failures(failures):
+        return True
+    if failures and all(
+        _CODE_SETUP_FAILURE_RE.search(_terminal_error_line(f)) for f in failures
+    ):
+        return False
     if any(str(d).startswith("data/") for d in res.declared_missing):
         return True
-    if not res.artifacts_produced and "data" in (res.reason or "").lower():
-        return True
-    if getattr(res, "fabrication", None):
-        return True
-    if getattr(res, "hollow", None):
-        return True
-    return bool(_data_unavailable_failures(failures))
+    return not res.artifacts_produced and "data" in (res.reason or "").lower()
 
 #: Import name → PyPI distribution name, for the common cases where they differ
 #: (a bare ``pip install <import-name>`` would 404). Unmapped names install as-is.
@@ -178,7 +216,7 @@ _IMPORT_TO_PIP = {
 
 def _declare_missing_imports(project_dir: Path, failures: list[str]) -> list[str]:
     """Add third-party modules the run-book imports-but-can't-find to
-    ``code/requirements.txt`` so the next ``ensure_venv`` installs them.
+    the project's requirements manifest so the next ``ensure_venv`` installs them.
 
     Generalizable self-heal for the implementer dropping deps from
     requirements.txt. Skips the stdlib and the project's OWN ``code/`` modules
@@ -190,24 +228,28 @@ def _declare_missing_imports(project_dir: Path, failures: list[str]) -> list[str
     import os
     import sys
 
-    code = project_dir / "code"
+    from llmxive.project_files import SOURCE_DIRS, requirements_path, source_files
+
     # All module/package names defined ANYWHERE under code/ (not just the top
     # level): scripts in code/analysis/ import siblings by bare name, so
     # `data_quality` (code/analysis/data_quality.py) is LOCAL, not a pip dep.
     # Include directory (package) names too — even empty ones — and prune .venv.
-    local_names: set[str] = set()
-    for root, dirs, files in os.walk(code):
-        if ".venv" in Path(root).parts:
-            dirs[:] = []
-            continue
-        local_names.add(Path(root).name)
-        local_names.update(dirs)
-        local_names.update(f[:-3] for f in files if f.endswith(".py"))
+    local_names: set[str] = set(SOURCE_DIRS)
+    for directory in SOURCE_DIRS:
+        for _, dirs, _ in os.walk(project_dir / directory):
+            dirs[:] = [d for d in dirs if d not in {".venv", "__pycache__", ".tasks", ".git"}]
+            local_names.update(dirs)
+    for source in source_files(project_dir):
+        local_names.update(source.relative_to(project_dir).parts[:-1])
+        local_names.add(source.stem)
 
     def _third_party(mod: str) -> str | None:
         """Top-level pip-installable module name, or None for stdlib/local."""
         top = mod.split(".")[0]
-        if not top or top in sys.stdlib_module_names or top in local_names:
+        # llmxive_toolkit is the platform's, on every project's path already;
+        # it is not on PyPI and must never be written into requirements.
+        if (not top or top in sys.stdlib_module_names or top in local_names
+                or top == "llmxive_toolkit"):
             return None
         return top
 
@@ -220,9 +262,7 @@ def _declare_missing_imports(project_dir: Path, failures: list[str]) -> list[str
     # (b) STATIC scan of every code/*.py import — declares the whole third-party
     # stack in ONE pass so deps don't peel one-failed-import-per-round (which
     # would burn the bounded fix-round budget). ast only, no execution.
-    for py in code.rglob("*.py"):
-        if "/.venv/" in str(py):
-            continue
+    for py in source_files(project_dir):
         try:
             tree = ast.parse(py.read_text(encoding="utf-8", errors="replace"))
         except (SyntaxError, ValueError, OSError):
@@ -239,7 +279,7 @@ def _declare_missing_imports(project_dir: Path, failures: list[str]) -> list[str
                     candidates.add(top)
     if not candidates:
         return []
-    req = code / "requirements.txt"
+    req = requirements_path(project_dir)
     existing = req.read_text(encoding="utf-8") if req.is_file() else ""
 
     def _bare(line: str) -> str:
@@ -253,7 +293,7 @@ def _declare_missing_imports(project_dir: Path, failures: list[str]) -> list[str
             added.append(pip)
     if not added:
         return []
-    code.mkdir(parents=True, exist_ok=True)
+    req.parent.mkdir(parents=True, exist_ok=True)
     sep = "" if (not existing or existing.endswith("\n")) else "\n"
     block = "\n".join(f"{pip}  # auto-added: imported by run-book but missing from venv" for pip in added)
     req.write_text(existing + sep + block + "\n", encoding="utf-8")
@@ -272,15 +312,14 @@ def _deliverable_repair_feedback(project_dir: Path, res: AnalysisRunResult) -> s
     """
     if not res.declared_missing:
         return ""
-    code = project_dir / "code"
-    if not code.is_dir():
+    from llmxive.project_files import source_files
+
+    py_files = list(source_files(project_dir))
+    if not py_files:
         return ""
     runbook: set[str] = set()
     for c in res.commands:
-        m = re.search(r"\b(code/[\w./-]+\.py)\b", c.command)
-        if m:
-            runbook.add(m.group(1))
-    py_files = [p for p in code.rglob("*.py") if "/.venv/" not in str(p)]
+        runbook.update(_code_paths_in_text(c.command))
 
     blocks: list[str] = []
     for d in res.declared_missing:
@@ -293,14 +332,14 @@ def _deliverable_repair_feedback(project_dir: Path, res: AnalysisRunResult) -> s
                 continue
             if base in txt or (stem and stem in txt):
                 rel = str(p.relative_to(project_dir))
-                refs.append((rel, ("code/" + str(p.relative_to(code))) in runbook))
+                refs.append((rel, rel in runbook))
         if refs:
             ln = [f"- `{d}` is declared but was NOT written. Scripts referencing it:"]
             for rel, in_rb in refs[:8]:
                 ln.append(f"    - `{rel}` — {'IS a run-book command' if in_rb else 'NOT invoked by the run-book'}")
             ln.append(
                 f"  Make ONE of these WRITE `{d}` to that EXACT path. If its producing "
-                "script is not a run-book command, ADD `python code/<script>.py` to "
+                "script is not a run-book command, ADD `python <source-path>.py` to "
                 "quickstart.md so the run-book invokes it."
             )
             blocks.append("\n".join(ln))
@@ -322,6 +361,36 @@ def _deliverable_repair_feedback(project_dir: Path, res: AnalysisRunResult) -> s
         "",
         *blocks,
     ])
+
+
+def run_implementation_preview(project_dir: Path) -> None:
+    """Produce execution evidence before verifying output-producing tasks.
+
+    Waiting for all task checkboxes before running their generators deadlocks:
+    the verifier correctly rejects the absent outputs. Run the evolving run-book
+    once per implementation batch, with a short budget. This is feedback only;
+    it never marks execution accepted, consumes final-gate fix rounds, or opens
+    tasks that the implementer has not reached yet.
+    """
+    from llmxive.project_files import source_files
+
+    if not any(source_files(project_dir)):
+        return
+    res = run_analysis(project_dir, per_cmd_timeout_s=120, overall_deadline_s=300)
+    mem = project_dir / ".specify" / "memory"
+    failures = [
+        f"{r.command} -> rc={r.returncode}\n{r.tail}"
+        for r in res.commands if not r.ok
+    ]
+    if not res.ok:
+        _write_execution_feedback(mem, res, failures)
+    else:
+        # Output-writing tasks need authenticated evidence before final task
+        # acceptance. A receipt records this successful computation, not a
+        # project-stage promotion or final execution approval.
+        _mint_artifact_receipts(project_dir, res, project_dir.resolve().parent.parent,
+                                stage="implementation_preview")
+        (mem / _FEEDBACK_FILENAME).unlink(missing_ok=True)
 
 
 def execute_and_gate(project_dir: Path, *, repo_root: Path | None = None) -> bool:
@@ -856,6 +925,19 @@ def _write_execution_feedback(
         except Exception as exc:
             logger.warning("data-contract feedback skipped: %s", exc)
 
+    # A run can leave a project-local SHADOW of a platform directory behind even
+    # when no task declared the path, because the script wrote it at runtime.
+    # Report it: the shadow is what later rejects honest work (see
+    # llmxive.execution.platform_paths).
+    try:
+        from llmxive.execution.platform_paths import shadow_feedback
+
+        block = shadow_feedback(mem_dir.parent.parent)
+        if block:
+            lines.append(block)
+    except Exception as exc:  # never block feedback on this best-effort section
+        logger.warning("platform-shadow feedback skipped: %s", exc)
+
     (mem_dir / _FEEDBACK_FILENAME).write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 
@@ -886,14 +968,14 @@ def _code_paths_in_text(text: str) -> set[str]:
     #    path separator is fine; a preceding WORD char (``decode/x.py``,
     #    ``encode/...``) would make ``code`` part of another identifier, so reject
     #    that with a word-char lookbehind.
-    for m in re.finditer(r"(?<!\w)(code/[\w./-]+\.py)", text):
+    for m in re.finditer(r"(?<!\w)((?:code|src|scripts)/[\w./-]+\.py)", text):
         rel = m.group(1)
         if not any(mark in rel for mark in _VENV_PATH_MARKERS):
             out.add(rel)
     # b) dotted-module form — ``code.<pkg>.<mod>`` → ``code/<pkg>/<mod>.py``. Not
     #    preceded by a word char or dot (so ``mypkg.code.x`` is not mistaken for
     #    our top-level ``code`` package).
-    for m in re.finditer(r"(?<![\w.])(code(?:\.[A-Za-z_]\w*)+)", text):
+    for m in re.finditer(r"(?<![\w.])((?:code|src|scripts)(?:\.[A-Za-z_]\w*)+)", text):
         rel = m.group(1).replace(".", "/") + ".py"
         if not any(mark in rel for mark in _VENV_PATH_MARKERS):
             out.add(rel)
@@ -1066,7 +1148,8 @@ def _reopen_failing_tasks(
 
 
 def _mint_artifact_receipts(
-    project_dir: Path, res: AnalysisRunResult, repo: Path
+    project_dir: Path, res: AnalysisRunResult, repo: Path,
+    *, stage: str = "research_executing",
 ) -> None:
     """Best-effort: mint a harness receipt per produced artifact so report
     numbers can trace to receipts (Constitution: no hallucinated results).
@@ -1083,7 +1166,7 @@ def _mint_artifact_receipts(
             digest = hashlib.sha256(p.read_bytes()).hexdigest()
             mint_receipt(
                 value=rel, kind=kind,
-                producer={"stage": "research_executing", "artifact": rel},
+                producer={"stage": stage, "artifact": rel},
                 inputs={"command": "quickstart run-book"},
                 env_sha=digest[:16],
                 captured={"path": rel, "sha256": digest},

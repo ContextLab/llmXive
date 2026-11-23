@@ -1,101 +1,50 @@
-# Quickstart: Investigating the Correlation Between Circadian Gene Expression and Metabolic Syndrome Risk
+# Quickstart: Investigating Circadian Gene Expression & Metabolic Syndrome Risk
+
+This guide describes how to execute the exploratory pipeline on a CPU‑only environment.
 
 ## Prerequisites
+- Python 3.11
+- 2 CPU cores, ≥ 6 GB RAM
+- Internet access for verified HuggingFace datasets (when URLs become available)
 
-- Python 3.11+
-- Git
-- Access to GitHub Actions (for CI) or local environment.
-- **GTEx v8 Phenotype and RNA-seq Data**: The pipeline requires the specific GTEx v8 files containing clinical variables (BMI, Glucose, BP, Lipids). If these are not available in the `data/raw/` directory, the pipeline will halt with a "Data Gap" error.
-
-## Installation
-
-1. **Clone the repository** (or navigate to the project directory):
-   ```bash
-   cd projects/PROJ-110-investigating-the-correlation-between-ci
-   ```
-
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: `requirements.txt` will pin specific versions of `pandas`, `scipy`, `scikit-learn`, etc.*
-
-## Data Setup
-
-The pipeline attempts to download data from the verified HuggingFace URLs defined in `research.md`. **Note**: If the verified URLs do not contain the required clinical variables, the pipeline will halt.
-
-1. **Run the data download script**:
-   ```bash
-   python code/data/loader.py --download
-   ```
-   - This will fetch the GTEx phenotype and expression files from the verified URLs.
-   - Files are saved to `data/raw/`.
-   - Checksums are recorded in `state/.../artifact_hashes.yaml`.
-
-2. **Verify Data Integrity**:
-   ```bash
-   python code/data/loader.py --verify
-   ```
-   - Ensures required columns (BMI, Glucose, BP, Lipids) are present.
-   - **If columns are missing**: The script will halt and report "Data Gap - Study Invalid for Primary Hypothesis".
-
-## Running the Analysis
-
-Execute the full pipeline:
-
+## Setup
 ```bash
-python code/main.py
+git clone https://github.com/your-org/circadian-metabolic-correlation.git
+cd circadian-metabolic-correlation
+python -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
 ```
 
-This script will:
-1. Load and clean data.
-2. **Power Analysis**: Estimate complete case count (N) and perform formal power analysis.
-3. Classify donors (ATP-III).
-4. Run Differential Expression (Wilcoxon + FDR).
-5. Fit Logistic Regression (5-fold CV, global model with tissue covariate).
-6. **Correlation Analysis**: Compute correlations with continuous traits.
-7. **Sensitivity Analysis**: Vary ATP-III thresholds.
-8. Generate plots (Heatmap, ROC, Scatter).
-9. Save results to `data/processed/`.
-10. **Versioning**: Update state file with content hashes.
-
-## Generating Reports
-
-To generate the summary report (JSON/CSV) and plots:
+## Running the Pipeline
+The pipeline is executed via a single entry point. It will automatically perform the CPU‑only check and then proceed through data acquisition and analysis.
 
 ```bash
-python code/main.py --report
+# Execute the full pipeline
+python src/pipelines/run_pipeline.py --seed 42
 ```
 
-Output files:
-- `data/processed/results/differential_expression.csv`
-- `data/processed/results/correlation_results.csv`
-- `data/processed/results/sensitivity_analysis.csv`
-- `data/processed/results/model_metrics.json`
-- `data/processed/plots/heatmap.png`
-- `data/processed/plots/roc_curve.png`
-- `data/processed/plots/correlation_scatter.png`
+### Pipeline Steps:
+1. **T060 CPU Check**: Runs `src/scripts/cpu_check.py` to ensure no GPU is present.  
+   *Note*: In the CI environment a GitHub Actions workflow (see CI Enforcement section) will invoke this script as a blocking step.
+2. **Phenotype & Expression Load**: Attempts to fetch a **single open dataset** that provides both TPM matrices and the five ATP‑III clinical variables. If such a dataset is not yet available, the pipeline logs a warning and proceeds in exploratory mode using GTEx expression only.  
+3. **MetS Binary Classification (FR‑002)**: For donors with complete ATP‑III data, apply ATP‑III thresholds (≥ 3 criteria) → `MetS` or `Control`. Donors missing any variable are excluded from binary analyses. Output written to `classification.csv`.  
+4. **PMI Residualization (FR‑031)**: Fit `TPM ~ PMI` per gene‑tissue and replace TPM with residuals.  
+5. **Statistical Analysis**: 
+   - ANCOVA (with hierarchical pooling fallback) comparing gene expression between MetS and Control groups (FR‑003, FR‑013, FR‑020).  
+   - Mixed‑effects linear models for gene‑trait correlations (FR‑007, FR‑014).  
+   - Univariate logistic odds ratios for metabolic traits (FR‑009).  
+   - Batch‑effect sensitivity analysis (FR‑015).  
+   - Multivariate logistic regression with 5‑fold CV **if** ≥ 100 donors have binary labels (FR‑005, FR‑006).  
+6. **Correction**: Applies global Benjamini‑Hochberg FDR.  
+7. **Validation**: Validates all resulting CSVs against the schemas in `contracts/`.  
+   *External validation on MESA is skipped until a verified dataset is available (FR‑010).*
+8. **Diagnostics & Figures**: Generates heatmaps, ROC curves (when applicable), and scatter plots for significant findings.  
 
-## Testing
-
-Run the test suite:
-
-```bash
-pytest tests/
-```
-
-- **Unit Tests**: Verify ATP-III classification logic.
-- **Integration Tests**: Verify end-to-end pipeline execution on a small sample subset.
-
-## Troubleshooting
-
-- **Missing Columns**: If the pipeline fails with "Missing Phenotype Variables", check `research.md` for the current status of the verified GTEx URLs. The specific files listed may not contain the required clinical data. In this case, the study cannot proceed with the primary hypothesis.
-- **Memory Error**: If running out of RAM, ensure the gene filtering step (to ~15 core genes) is active. The pipeline is designed to load only these genes.
-- **No Significant Genes**: This is a valid result. Check `data/processed/results/differential_expression.csv` for raw p-values.
-- **Power Warning**: If N < 100, the pipeline will log a warning but proceed in "Exploratory" mode.
+## Expected Outputs
+- `data/processed/de_results.csv`: ANCOVA coefficients and adjusted p‑values for core circadian genes.  
+- `data/processed/correlation_results.csv`: Gene‑trait correlation coefficients and significance.  
+- `data/processed/univariate_logistic_results.csv`: Odds ratios for each metabolic trait.  
+- `data/processed/batch_sensitivity.csv`: Coefficient stability metrics.  
+- `data/processed/success_metrics.csv`: Consolidated SC metrics.  
+- Figures in `src/results/figures/`: Heatmaps, ROC curves (when applicable), and scatter plots.

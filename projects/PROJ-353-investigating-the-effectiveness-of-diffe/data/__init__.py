@@ -1,1 +1,1 @@
-# Data package for llmXive research pipeline
+# llmXive Project 353: Data artifacts package

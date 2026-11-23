@@ -1,163 +1,113 @@
 """
-Retry utilities for external API calls with exponential backoff.
-
-This module provides a decorator and a helper function to handle transient
-failures when accessing external services (e.g., MAST archive via astroquery).
-It implements exponential backoff with jitter to prevent thundering herd
-issues and respect rate limits.
+Retry logic with exponential backoff for external API calls.
 """
-
 import time
 import random
 import logging
 from functools import wraps
 from typing import Callable, Type, Tuple, Any, Optional, Union
 from requests.exceptions import RequestException, Timeout, ConnectionError
-from urllib3.exceptions import MaxRetryError, ProtocolError
+import os
 
-# Import logger from the project's existing logging infrastructure
-from utils.logging_config import get_logger
-
-logger = get_logger(__name__)
-
-# Default configuration for retry logic
-DEFAULT_MAX_RETRIES = 5
-DEFAULT_BASE_DELAY = 1.0  # seconds
-DEFAULT_MAX_DELAY = 60.0  # seconds
-DEFAULT_JITTER_FACTOR = 0.1  # 10% jitter
-
-# Specific exceptions to catch and retry
-RETRYABLE_EXCEPTIONS = (
-    RequestException,
-    Timeout,
-    ConnectionError,
-    MaxRetryError,
-    ProtocolError,
-    # astroquery specific network issues often bubble up as these
-    OSError,
-)
+logger = logging.getLogger(__name__)
 
 
-def calculate_backoff(
-    attempt: int,
-    base_delay: float = DEFAULT_BASE_DELAY,
-    max_delay: float = DEFAULT_MAX_DELAY,
-    jitter_factor: float = DEFAULT_JITTER_FACTOR,
-) -> float:
+def calculate_backoff(retry_count: int, backoff_factor: float = 2.0, max_backoff: float = 60.0) -> float:
     """
-    Calculate the delay before the next retry attempt using exponential backoff
-    with jitter.
-
+    Calculate the backoff time for a given retry count.
+    
     Args:
-        attempt: The current attempt number (0-indexed).
-        base_delay: The initial delay in seconds.
-        max_delay: The maximum delay cap in seconds.
-        jitter_factor: Factor to multiply random jitter by (0.0 to 1.0).
-
+        retry_count: The current retry attempt number (0-indexed).
+        backoff_factor: The base factor for exponential backoff.
+        max_backoff: Maximum seconds to wait.
+        
     Returns:
-        The delay in seconds before the next attempt.
+        float: The number of seconds to wait.
     """
-    # Exponential backoff: base_delay * (2 ^ attempt)
-    exp_delay = base_delay * (2 ** attempt)
-    
-    # Cap at max_delay
-    capped_delay = min(exp_delay, max_delay)
-    
-    # Add jitter: random value between 0 and jitter_factor * capped_delay
-    jitter = random.uniform(0, jitter_factor * capped_delay)
-    
-    return capped_delay + jitter
+    # Exponential backoff: base * (2 ^ retry_count)
+    # Add jitter to prevent thundering herd
+    jitter = random.uniform(0.1, 0.5)
+    wait_time = backoff_factor * (2 ** retry_count) + jitter
+    return min(wait_time, max_backoff)
 
 
 def retry_with_backoff(
-    max_retries: int = DEFAULT_MAX_RETRIES,
-    exceptions: Tuple[Type[Exception], ...] = RETRYABLE_EXCEPTIONS,
-    base_delay: float = DEFAULT_BASE_DELAY,
-    max_delay: float = DEFAULT_MAX_DELAY,
-    jitter_factor: float = DEFAULT_JITTER_FACTOR,
-    log_level: int = logging.WARNING,
+    func: Callable,
+    exceptions: Tuple[Type[Exception], ...] = (Exception,),
+    max_retries: int = 3,
+    backoff_factor: float = 2.0,
+    max_backoff: float = 60.0,
+    logger_name: Optional[str] = None
 ) -> Callable:
     """
-    Decorator to retry a function with exponential backoff on specified exceptions.
-
+    Decorator to retry a function with exponential backoff.
+    
     Args:
-        max_retries: Maximum number of retry attempts (total attempts = max_retries + 1).
+        func: The function to wrap.
         exceptions: Tuple of exception types to catch and retry.
-        base_delay: Initial delay in seconds.
-        max_delay: Maximum delay cap in seconds.
-        jitter_factor: Factor for random jitter.
-        log_level: Logging level for retry events (default WARNING).
-
-    Returns:
-        A decorator function.
-    """
-    def decorator(func: Callable) -> Callable:
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> Any:
-            last_exception = None
-            
-            for attempt in range(max_retries + 1):
-                try:
-                    return func(*args, **kwargs)
-                except exceptions as e:
-                    last_exception = e
-                    
-                    if attempt == max_retries:
-                        logger.error(
-                            f"Function {func.__name__} failed after {max_retries + 1} attempts: {e}",
-                            exc_info=True,
-                        )
-                        raise
-                    
-                    delay = calculate_backoff(
-                        attempt, base_delay, max_delay, jitter_factor
-                    )
-                    
-                    logger.log(
-                        log_level,
-                        f"Attempt {attempt + 1}/{max_retries + 1} failed for {func.__name__}. "
-                        f"Retrying in {delay:.2f}s... (Error: {e})",
-                    )
-                    time.sleep(delay)
-            
-            # Should technically never reach here due to the raise in the loop
-            raise last_exception if last_exception else RuntimeError("Unknown retry failure")
+        max_retries: Maximum number of retry attempts.
+        backoff_factor: Base factor for exponential backoff.
+        max_backoff: Maximum seconds to wait between retries.
+        logger_name: Name of the logger to use. Defaults to module logger.
         
-        return wrapper
-    return decorator
+    Returns:
+        Callable: The wrapped function.
+    """
+    log = logging.getLogger(logger_name) if logger_name else logger
+
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> Any:
+        last_exception = None
+        
+        for attempt in range(max_retries + 1):
+            try:
+                return func(*args, **kwargs)
+            except exceptions as e:
+                last_exception = e
+                if attempt == max_retries:
+                    log.error(f"Function {func.__name__} failed after {max_retries} retries: {e}")
+                    raise
+                
+                wait_time = calculate_backoff(attempt, backoff_factor, max_backoff)
+                log.warning(
+                    f"Function {func.__name__} failed (attempt {attempt + 1}/{max_retries + 1}): {e}. "
+                    f"Retrying in {wait_time:.2f} seconds..."
+                )
+                time.sleep(wait_time)
+                
+        # Should not reach here, but just in case
+        raise last_exception
+
+    return wrapper
 
 
 def retry_call(
     func: Callable,
-    *args: Any,
-    max_retries: int = DEFAULT_MAX_RETRIES,
-    exceptions: Tuple[Type[Exception], ...] = RETRYABLE_EXCEPTIONS,
-    base_delay: float = DEFAULT_BASE_DELAY,
-    max_delay: float = DEFAULT_MAX_DELAY,
-    jitter_factor: float = DEFAULT_JITTER_FACTOR,
-    **kwargs: Any,
+    args: Tuple = (),
+    kwargs: Optional[Dict[str, Any]] = None,
+    exceptions: Tuple[Type[Exception], ...] = (Exception,),
+    max_retries: int = 3,
+    backoff_factor: float = 2.0,
+    max_backoff: float = 60.0
 ) -> Any:
     """
-    Execute a function with retry logic and exponential backoff.
+    Helper to call a function with retry logic without using the decorator.
     
-    This is a non-decorator alternative for one-off calls.
-
     Args:
-        func: The function to execute.
-        *args: Positional arguments to pass to func.
+        func: The function to call.
+        args: Positional arguments for the function.
+        kwargs: Keyword arguments for the function.
+        exceptions: Tuple of exception types to catch and retry.
         max_retries: Maximum number of retry attempts.
-        exceptions: Tuple of exception types to catch.
-        base_delay: Initial delay in seconds.
-        max_delay: Maximum delay cap in seconds.
-        jitter_factor: Factor for random jitter.
-        **kwargs: Keyword arguments to pass to func.
-
+        backoff_factor: Base factor for exponential backoff.
+        max_backoff: Maximum seconds to wait between retries.
+        
     Returns:
-        The return value of func if successful.
-
-    Raises:
-        The last exception encountered if all retries fail.
+        Any: The result of the function call.
     """
+    if kwargs is None:
+        kwargs = {}
+        
     last_exception = None
     
     for attempt in range(max_retries + 1):
@@ -165,23 +115,15 @@ def retry_call(
             return func(*args, **kwargs)
         except exceptions as e:
             last_exception = e
-            
             if attempt == max_retries:
-                logger.error(
-                    f"Function {func.__name__} failed after {max_retries + 1} attempts: {e}",
-                    exc_info=True,
-                )
+                logger.error(f"Function {func.__name__} failed after {max_retries} retries: {e}")
                 raise
             
-            delay = calculate_backoff(
-                attempt, base_delay, max_delay, jitter_factor
+            wait_time = calculate_backoff(attempt, backoff_factor, max_backoff)
+            logger.warning(
+                f"Function {func.__name__} failed (attempt {attempt + 1}/{max_retries + 1}): {e}. "
+                f"Retrying in {wait_time:.2f} seconds..."
             )
+            time.sleep(wait_time)
             
-            logger.log(
-                logging.WARNING,
-                f"Attempt {attempt + 1}/{max_retries + 1} failed for {func.__name__}. "
-                f"Retrying in {delay:.2f}s... (Error: {e})",
-            )
-            time.sleep(delay)
-    
-    raise last_exception if last_exception else RuntimeError("Unknown retry failure")
+    raise last_exception

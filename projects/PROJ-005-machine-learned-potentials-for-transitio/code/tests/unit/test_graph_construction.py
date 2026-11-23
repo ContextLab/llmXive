@@ -1,149 +1,122 @@
-"""
-Unit tests for graph construction module.
-"""
+import json
+import tempfile
+from pathlib import Path
 import numpy as np
+import pandas as pd
 import pytest
+from unittest.mock import patch, MagicMock
 
 from src.data.graph_construction import (
-    calculate_coordination_number,
+    calculate_distance_matrix,
     build_adjacency_matrix,
-    extract_edge_attributes,
-    construct_transition_state_graph,
-    filter_outliers
+    calculate_graph_metrics,
+    analyze_cutoff,
+    run_sensitivity_analysis,
+    save_results
 )
 
+class TestGraphConstructionUtils:
+    def test_calculate_distance_matrix(self):
+        # Simple 3 points in 2D
+        positions = [[0.0, 0.0], [3.0, 0.0], [0.0, 4.0]]
+        dists = calculate_distance_matrix(positions)
+        
+        assert dists.shape == (3, 3)
+        assert np.isclose(dists[0, 1], 3.0)
+        assert np.isclose(dists[0, 2], 4.0)
+        assert np.isclose(dists[1, 2], 5.0) # 3-4-5 triangle
+        assert np.allclose(np.diag(dists), 0.0)
 
-class TestCalculateCoordinationNumber:
-    def test_empty_input(self):
-        positions = np.zeros((0, 3))
-        atomic_numbers = np.array([])
-        result = calculate_coordination_number(positions, atomic_numbers)
-        assert result == []
-
-    def test_single_atom(self):
-        positions = np.array([[0.0, 0.0, 0.0]])
-        atomic_numbers = np.array([1])
-        result = calculate_coordination_number(positions, atomic_numbers)
-        assert result == [0]
-
-    def test_two_atoms_within_cutoff(self):
-        positions = np.array([[0.0, 0.0, 0.0], [2.0, 0.0, 0.0]])
-        atomic_numbers = np.array([1, 1])
-        result = calculate_coordination_number(positions, atomic_numbers)
-        assert result == [1, 1]
-
-    def test_two_atoms_outside_cutoff(self):
-        positions = np.array([[0.0, 0.0, 0.0], [5.0, 0.0, 0.0]])
-        atomic_numbers = np.array([1, 1])
-        result = calculate_coordination_number(positions, atomic_numbers)
-        assert result == [0, 0]
-
-    def test_triple_coordination(self):
-        # Central atom with 3 neighbors
-        positions = np.array([
-            [0.0, 0.0, 0.0],
-            [2.0, 0.0, 0.0],
-            [-2.0, 0.0, 0.0],
-            [0.0, 2.0, 0.0]
+    def test_build_adjacency_matrix(self):
+        dists = np.array([
+            [0.0, 2.5, 5.0],
+            [2.5, 0.0, 3.0],
+            [5.0, 3.0, 0.0]
         ])
-        atomic_numbers = np.array([6, 1, 1, 1])
-        result = calculate_coordination_number(positions, atomic_numbers)
-        assert result[0] == 3  # Central atom has 3 neighbors
-        assert all(r == 1 for r in result[1:])  # Hydrogens have 1 neighbor
+        
+        # Cutoff 3.0
+        adj = build_adjacency_matrix(dists, 3.0)
+        expected = np.array([
+            [0, 1, 0],
+            [1, 0, 1],
+            [0, 1, 0]
+        ])
+        np.testing.assert_array_equal(adj, expected)
 
+    def test_calculate_graph_metrics(self):
+        adj = np.array([
+            [0, 1, 1],
+            [1, 0, 0],
+            [1, 0, 0]
+        ])
+        num_nodes = 3
+        edge_count = 2 # (0,1) and (0,2)
+        
+        metrics = calculate_graph_metrics(adj, edge_count, num_nodes)
+        
+        assert metrics['avg_degree'] == 4.0 / 3.0
+        assert metrics['edge_count'] == 2
+        assert metrics['density'] == 2.0 / 9.0
+        assert metrics['num_nodes'] == 3
 
-class TestBuildAdjacencyMatrix:
-    def test_empty_input(self):
-        positions = np.zeros((0, 3))
-        adj = build_adjacency_matrix(positions)
-        assert adj.shape == (0, 0)
-
-    def test_single_atom(self):
-        positions = np.array([[0.0, 0.0, 0.0]])
-        adj = build_adjacency_matrix(positions)
-        assert adj.shape == (1, 1)
-        assert adj[0, 0] == False
-
-    def test_symmetric(self):
-        positions = np.array([[0.0, 0.0, 0.0], [2.0, 0.0, 0.0]])
-        adj = build_adjacency_matrix(positions)
-        assert adj[0, 1] == adj[1, 0]
-
-    def test_no_self_loops(self):
-        positions = np.array([[0.0, 0.0, 0.0], [2.0, 0.0, 0.0]])
-        adj = build_adjacency_matrix(positions)
-        assert not np.any(np.diag(adj))
-
-
-class TestConstructTransitionStateGraph:
-    def test_valid_reaction(self):
-        row = {
-            "atomic_numbers": [6, 1, 1, 1],
-            "positions": [
-                [0.0, 0.0, 0.0],
-                [2.0, 0.0, 0.0],
-                [-2.0, 0.0, 0.0],
-                [0.0, 2.0, 0.0]
-            ],
-            "energy_dft": -100.5,
-            "barrier_height": 15.2,
-            "reaction_id": "test_001",
-            "ligand_class": "Group 13"
+class TestAnalyzeCutoff:
+    @pytest.fixture
+    def mock_df(self):
+        # Create a mock dataframe with one simple graph
+        data = {
+            'atomic_numbers': [[6, 6, 6]],
+            'positions': [[[0.0, 0.0, 0.0], [1.5, 0.0, 0.0], [3.0, 0.0, 0.0]]]
         }
-        graph = construct_transition_state_graph(row)
+        return pd.DataFrame(data)
 
-        assert graph is not None
-        assert graph["reaction_id"] == "test_001"
-        assert graph["energy_dft"] == -100.5
-        assert graph["barrier_height"] == 15.2
-        assert graph["ligand_class"] == "Group 13"
-        assert graph["num_atoms"] == 4
-        assert len(graph["nodes"]) == 4
-        assert len(graph["edges"]) > 0
+    def test_analyze_cutoff_single_graph(self, mock_df):
+        # Cutoff 2.0: Only 0-1 connected
+        # Cutoff 3.5: 0-1 and 1-2 connected (0-2 is 3.0, so also connected if cutoff >= 3.0)
+        
+        # Test with cutoff 2.0
+        metrics = analyze_cutoff(mock_df, 2.0)
+        assert metrics['cutoff'] == 2.0
+        assert metrics['total_nodes'] == 3
+        # 0-1 is 1.5, 1-2 is 1.5. 0-2 is 3.0.
+        # Edges: (0,1), (1,2). Total 2 edges.
+        assert metrics['total_edges'] == 2
+        
+        # Test with cutoff 3.5
+        metrics = analyze_cutoff(mock_df, 3.5)
+        # Edges: (0,1), (1,2), (0,2). Total 3 edges.
+        assert metrics['total_edges'] == 3
 
-    def test_empty_atomic_numbers(self):
-        row = {
-            "atomic_numbers": [],
-            "positions": [],
-            "energy_dft": 0.0,
-            "barrier_height": 0.0,
-            "reaction_id": "empty_001"
-        }
-        graph = construct_transition_state_graph(row)
-        assert graph is None
+class TestRunSensitivityAnalysis:
+    @patch('src.data.graph_construction.load_processed_graphs_intermediate')
+    def test_run_sensitivity_analysis(self, mock_load):
+        # Mock data
+        mock_df = pd.DataFrame({
+            'atomic_numbers': [[1, 1]],
+            'positions': [[[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]]]
+        })
+        mock_load.return_value = mock_df
 
-    def test_invalid_position_dimensions(self):
-        row = {
-            "atomic_numbers": [6, 1],
-            "positions": [[0.0, 0.0], [1.0, 1.0]],  # 2D instead of 3D
-            "energy_dft": 0.0,
-            "barrier_height": 0.0,
-            "reaction_id": "bad_dim_001"
-        }
-        graph = construct_transition_state_graph(row)
-        assert graph is None
+        results = run_sensitivity_analysis(cutoffs=[1.0, 2.0])
+        
+        assert 'cutoffs_analyzed' in results
+        assert results['cutoffs_analyzed'] == [1.0, 2.0]
+        assert len(results['results']) == 2
+        
+        # Check structure of first result
+        r1 = results['results'][0]
+        assert 'cutoff' in r1
+        assert 'avg_degree' in r1
+        assert 'density' in r1
 
-
-class TestFilterOutliers:
-    def test_no_outliers(self):
-        graphs = [
-            {"max_coordination": 3},
-            {"max_coordination": 4},
-            {"max_coordination": 5}
-        ]
-        training, test = filter_outliers(graphs)
-        assert len(training) == 3
-        assert len(test) == 0
-
-    def test_with_outliers(self):
-        graphs = [
-            {"max_coordination": 3},
-            {"max_coordination": 7},
-            {"max_coordination": 5},
-            {"max_coordination": 8}
-        ]
-        training, test = filter_outliers(graphs)
-        assert len(training) == 2
-        assert len(test) == 2
-        assert all(g["max_coordination"] <= 6 for g in training)
-        assert all(g["max_coordination"] > 6 for g in test)
+class TestSaveResults:
+    def test_save_results(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "test_output.json"
+            data = {"test": 123}
+            
+            save_results(data, output_path)
+            
+            assert output_path.exists()
+            with open(output_path, 'r') as f:
+                loaded = json.load(f)
+            assert loaded == data

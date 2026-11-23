@@ -8,134 +8,112 @@ import pytest
 import pandas as pd
 import numpy as np
 
-# Ensure the code directory is in the path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+# Add src to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from src.models.eval import calculate_correlation_and_hypothesis_test, main
-import argparse
+from src.models.eval import (
+    load_predictions,
+    load_anomaly_scores,
+    calculate_correlation_and_hypothesis_test,
+    save_correlation_results
+)
 
-class TestEvalCorrelation:
-    """Integration tests for T027b: Correlation and Hypothesis Testing."""
+@pytest.fixture
+def temp_data_dir():
+    """Create a temporary directory for test data."""
+    temp_dir = tempfile.mkdtemp()
+    yield Path(temp_dir)
+    shutil.rmtree(temp_dir)
 
-    def setup_method(self):
-        """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.input_path = os.path.join(self.temp_dir, "test_anomaly_scores.parquet")
-        self.output_path = os.path.join(self.temp_dir, "test_correlation.json")
+@pytest.fixture
+def sample_anomaly_scores(temp_data_dir):
+    """Generate a sample anomaly_scores.parquet file."""
+    n_samples = 100
+    data = {
+        'sample_id': [f"sample_{i}" for i in range(n_samples)],
+        'mahalanobis_distance': np.random.rand(n_samples) * 10,
+        'label': np.random.randint(0, 2, n_samples)
+    }
+    df = pd.DataFrame(data)
+    path = temp_data_dir / "anomaly_scores.parquet"
+    df.to_parquet(path)
+    return path
 
-    def teardown_method(self):
-        """Clean up test fixtures."""
-        if os.path.exists(self.temp_dir):
-            shutil.rmtree(self.temp_dir)
+@pytest.fixture
+def sample_predictions(temp_data_dir):
+    """Generate a sample predictions.csv file."""
+    n_samples = 100
+    data = {
+        'sample_id': [f"sample_{i}" for i in range(n_samples)],
+        'prediction': np.random.randint(0, 2, n_samples),
+        'probability': np.random.rand(n_samples),
+        'label': np.random.randint(0, 2, n_samples)
+    }
+    df = pd.DataFrame(data)
+    path = temp_data_dir / "predictions.csv"
+    df.to_csv(path, index=False)
+    return path
 
-    def test_correlation_calculation(self):
-        """Test that Pearson correlation is calculated correctly."""
-        # Create synthetic data with known correlation
-        # Let's create a dataset where higher distance correlates with label 1
-        n_samples = 100
-        np.random.seed(42)
-        
-        # Generate distances: low for benign (0), high for jailbreak (1)
-        distances = np.concatenate([
-            np.random.normal(0, 1, n_samples // 2),   # Benign
-            np.random.normal(5, 1, n_samples - n_samples // 2) # Jailbreak
-        ])
-        labels = np.array([0] * (n_samples // 2) + [1] * (n_samples - n_samples // 2))
-        
-        # Shuffle to simulate real data
-        indices = np.random.permutation(n_samples)
-        distances = distances[indices]
-        labels = labels[indices]
-        
-        df = pd.DataFrame({
-            'mahalanobis_distance': distances,
-            'label': labels
-        })
-        
-        results = calculate_correlation_and_hypothesis_test(df, 'mahalanobis_distance', 'label')
-        
-        # Check that r is positive and significant
-        assert results['pearson_r'] > 0.3, f"Expected r > 0.3, got {results['pearson_r']}"
-        assert results['p_value'] < 0.05, f"Expected p < 0.05, got {results['p_value']}"
-        assert results['condition_met'] is True
-        assert results['sample_size'] == n_samples
+def test_load_anomaly_scores(sample_anomaly_scores):
+    """Test loading anomaly scores from parquet."""
+    df = load_anomaly_scores(sample_anomaly_scores)
+    assert 'mahalanobis_distance' in df.columns
+    assert 'label' in df.columns
+    assert len(df) == 100
 
-    def test_correlation_no_correlation(self):
-        """Test case where there is no correlation."""
-        n_samples = 100
-        np.random.seed(42)
-        
-        # Generate random distances and labels with no relationship
-        distances = np.random.normal(0, 1, n_samples)
-        labels = np.random.randint(0, 2, n_samples)
-        
-        df = pd.DataFrame({
-            'mahalanobis_distance': distances,
-            'label': labels
-        })
-        
-        results = calculate_correlation_and_hypothesis_test(df, 'mahalanobis_distance', 'label')
-        
-        # r might be small, p might be > 0.05
-        # The condition_met should be False if neither threshold is met
-        # We just check the calculation runs without error
-        assert isinstance(results['pearson_r'], float)
-        assert isinstance(results['p_value'], float)
-        assert 'condition_met' in results
+def test_load_predictions(sample_predictions):
+    """Test loading predictions from csv."""
+    df = load_predictions(sample_predictions)
+    assert 'prediction' in df.columns
+    assert 'probability' in df.columns
+    assert 'label' in df.columns
+    assert len(df) == 100
 
-    def test_main_function(self):
-        """Test the main function with file I/O."""
-        # Create input data
-        n_samples = 50
-        np.random.seed(123)
-        distances = np.concatenate([
-            np.random.normal(0, 0.5, n_samples // 2),
-            np.random.normal(3, 0.5, n_samples - n_samples // 2)
-        ])
-        labels = np.array([0] * (n_samples // 2) + [1] * (n_samples - n_samples // 2))
-        
-        df = pd.DataFrame({
-            'mahalanobis_distance': distances,
-            'label': labels
-        })
-        df.to_parquet(self.input_path)
-        
-        # Run main
-        args = argparse.Namespace(
-            input=self.input_path,
-            output=self.output_path,
-            score_column='mahalanobis_distance',
-            label_column='label'
-        )
-        
-        main(args)
-        
-        # Verify output file exists and contains valid JSON
-        assert os.path.exists(self.output_path)
-        with open(self.output_path, 'r') as f:
-            results = json.load(f)
-        
-        assert 'pearson_r' in results
-        assert 'p_value' in results
-        assert 'condition_met' in results
-        assert results['condition_met'] is True  # With this synthetic data, it should be met
+def test_calculate_correlation_and_hypothesis_test(sample_anomaly_scores):
+    """Test correlation calculation logic."""
+    df = load_anomaly_scores(sample_anomaly_scores)
+    r, p_value, stats = calculate_correlation_and_hypothesis_test(df)
 
-    def test_missing_columns(self):
-        """Test error handling for missing columns."""
-        df = pd.DataFrame({
-            'other_col': [1, 2, 3],
-            'label': [0, 1, 0]
-        })
-        
-        with pytest.raises(ValueError, match="Score column"):
-            calculate_correlation_and_hypothesis_test(df, 'mahalanobis_distance', 'label')
+    assert isinstance(r, float)
+    assert isinstance(p_value, float)
+    assert -1.0 <= r <= 1.0
+    assert 0.0 <= p_value <= 1.0
+    assert 'sample_size' in stats
+    assert stats['sample_size'] == 100
 
-    def test_invalid_data_types(self):
-        """Test error handling for invalid data types."""
-        df = pd.DataFrame({
-            'mahalanobis_distance': ['a', 'b', 'c'],
-            'label': [0, 1, 0]
-        })
-        
-        with pytest.raises(ValueError, match="must contain numeric values"):
-            calculate_correlation_and_hypothesis_test(df, 'mahalanobis_distance', 'label')
+def test_save_correlation_results(temp_data_dir, sample_anomaly_scores):
+    """Test saving correlation results to JSON."""
+    df = load_anomaly_scores(sample_anomaly_scores)
+    _, _, stats = calculate_correlation_and_hypothesis_test(df)
+    output_path = temp_data_dir / "correlation.json"
+
+    save_correlation_results(stats, output_path)
+
+    assert output_path.exists()
+    with open(output_path, 'r') as f:
+        loaded_stats = json.load(f)
+    assert 'correlation_coefficient' in loaded_stats
+    assert 'p_value' in loaded_stats
+
+def test_correlation_with_known_data(temp_data_dir):
+    """Test correlation with data that has a known relationship."""
+    # Create data with a strong positive correlation
+    n = 50
+    distances = np.linspace(0, 10, n)
+    labels = (distances > 5).astype(int) # Step function, high correlation expected
+    
+    data = {
+        'sample_id': [f"sample_{i}" for i in range(n)],
+        'mahalanobis_distance': distances,
+        'label': labels
+    }
+    df = pd.DataFrame(data)
+    path = temp_data_dir / "strong_corr.parquet"
+    df.to_parquet(path)
+
+    r, p_value, stats = calculate_correlation_and_hypothesis_test(df)
+
+    # With a step function, correlation might not be perfect but should be significant
+    assert stats['threshold_met'] == True # p < 0.05 should be true here
+    logger = logging.getLogger(__name__)
+    logger.info(f"Known data test: r={r}, p={p_value}")

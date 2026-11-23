@@ -1,0 +1,126 @@
+T001:
+  task: 51d43fd0cea3f7732698c4aef17e40ade8a878ff4c86c40adc2f3ba913884187
+T002:
+  task: 8e02370f54195818416664ea27433d689b7384f82a36edd03b6762141f981d07
+T003:
+  task: 871c127e6d5f097d3dbad2624b95d0b1a9b280189596305860eac2874f6ee7c3
+T004:
+  task: bde37148687e453b7224ce7761d633c16f15567381dba0b3ed9d90a81bb816cd
+T005:
+  task: d6366c8dacf72b19b97f9776cbffa0c1e5cbf8b9ea384bf1f8b11f1b3ba72dbc
+T006:
+  task: 1d06665f0944eeef433e3b3b73cbd44c274a9005ad1349c64b8be8b6d715726f
+T007:
+  reason: "Checked `src/data/download.py` \u2013 it defines SHA\u2011256 calculation\
+    \ and writes a metadata YAML, but it writes to `data/raw/metadata.yaml` (via `raw_dir\
+    \ / \"metadata.yaml\"`), not to the required `data/metadata.yaml`. Moreover, the\
+    \ repository contains no `data/metadata.yaml` file, so the required output artifact\
+    \ is missing. The task\u2019s core deliverable is therefore not satisfied."
+  task: 9bf93af9808514eaef445317109b8c356ed9dc94622470eaa8cf7b486bcf312c
+T008:
+  task: 566903da626e4edc53221b0ee59a456f1912074a2b7b7020d368bc5d55c7e1c4
+T009a:
+  task: 8c5c35aa588022b3ac1a617de8edcf7a6abf25179045272a5cf015182303e67a
+T009b:
+  reason: "The provided `src/cli/run_analysis.py` only contains placeholder phase\
+    \ routing and uses a config that limits processing to a regional domain (20\xB0\
+    \u201160\xB0\u202FN, 100\xB0\u2011300\xB0\u202FE). It does not implement any domain\u2011\
+    filtering logic, nor does it perform streaming or chunked processing of the full\
+    \ global grid (90\xB0\u202FS\u201190\xB0\u202FN, 180\xB0\u202FW\u2011180\xB0\u202F\
+    E) required by FR\u2011009. The task\u2019s core functionality is therefore missing."
+  task: 3f2bf32f8d88b2b9cfa7086a108ab902fb120501dd9275280e0332a8722b3299
+T010:
+  task: 15800f187945d22a1696ef82efbf2e8a2e2e4e3105a27b08e17ba9b6c4222fd7
+T011:
+  task: 48ffbe752cdb59851794667c97247328c328dc6f91ea6e75ae0c41f109be09dd
+T012:
+  task: 1331088dc277dbd805a11c6655ebcf9c4aad44166c83eb6d0e94dceb0de3e054
+T013:
+  task: 9403b27272bf7471a22d009a86ab49af298256ab67580303fb5ae7eb406967f7
+T014:
+  task: 63324b0b48b108dd57014102dc1ca467b0ac072abae1c74dedf26562a1466001
+T015:
+  task: e7a2f25843a11d911498aee3c8044993ca700e2ca3415cd13ecdafccc3f58337
+T016a:
+  task: 92bc760b4a7f72f9bb599382dbf462ac4344478712c268493bd33dbed00977b6
+T017:
+  task: 1b98a6a97e4210bb5daaaa208000cec82579217aad935c1b566cd9dd1f935654
+T018:
+  task: a0bfe8519a4eb3c9faf60e8a4516c82edb2ae273f8f07272690d58ae8262bfa3
+T019:
+  reason: 'declared artifact(s) missing/empty/invalid: src/data/analysis.py'
+  task: 1209ba6412abfb8b61dc1c844959de8324afea01d0aa2b7913efa44dcbf315c9
+T020:
+  reason: 'declared artifact(s) missing/empty/invalid: src/data/analysis.py'
+  task: fd6c3993397912f0c903822a56264f477756e510a67d46edcd96e8caf8135fba
+T022:
+  reason: 'declared artifact(s) missing/empty/invalid: src/data/analysis.py'
+  task: 2ac5ff77c6f7f7424653cb2fc658d1d14b2498babfe9d2481d50202486070cda
+T023a:
+  reason: 'declared artifact(s) missing/empty/invalid: src/data/analysis.py'
+  task: fb40f5aacdd913459d6c87527e1b17e99bf71b47477905752e7eb5ea86eee9af
+T023b:
+  reason: 'declared artifact(s) missing/empty/invalid: src/data/analysis.py'
+  task: 6df5074bb5afb427870623dc9e72b5e76fdbefa71c32ee1fb7e814d55b66fd13
+T024:
+  task: 656b9b997ec0c66443299f595b1a771dc287ecb915ad4660d832083a0e250465
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_viz.py'
+  task: 2d22f7e904b37185193fe24ba70f6b73ded8001a5030245562a5bf07033841de
+T026:
+  reason: 'declared artifact(s) missing/empty/invalid: src/viz/maps.py'
+  task: f4fc72a53eef7abdaf2b43f0b217db8eeeea2949680cfe0cb58586a5ebda21dd
+T027:
+  reason: 'declared artifact(s) missing/empty/invalid: src/viz/maps.py'
+  task: badc83c939558b04a7a5d392c75740288e5dd6f92ccd5d10962d37b853d69dcb
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: src/viz/maps.py'
+  task: a0b1ecde815191293f7bf196051370f3dc07f84a04289b77f099b809fb4924dc
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: src/viz/maps.py'
+  task: 5a9c099f32054e4fcc7d29607be26b689612739c5ec90ed63a1060e39b52ce75
+T030:
+  task: d1ef040c67d5f9d1bd1327c689021ba7e78e7bdcfe4972a5eb148a783620a8b6
+T031:
+  reason: 'declared artifact(s) missing/empty/invalid: src/data/analysis.py'
+  task: af1ec17f48ba411ce4a5c58b0b3a93e549e31737d828c46041b2f584965a90ab
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: src/data/analysis.py'
+  task: 4c1faf33a214e911312ab5a747fda98cbb3be3a9caeeb1433b85b7ee71a451b7
+T033:
+  reason: 'declared artifact(s) missing/empty/invalid: src/data/analysis.py'
+  task: 60d838028f7f1dbcb71228275dfac705fda9158e2c0eb96d4b4b874a297c0abc
+T034:
+  reason: 'declared artifact(s) missing/empty/invalid: src/data/analysis.py'
+  task: 4050b397ee8547a3d9e4097f9a618278ce46391ea38aa2d4d188851892ecaac8
+T035:
+  reason: 'declared artifact(s) missing/empty/invalid: src/data/analysis.py'
+  task: 61c58234c2c09ac3bbab57f30f27d6ef9f0af49e47a6b9105284bfd365f03c9a
+T036:
+  reason: 'declared artifact(s) missing/empty/invalid: src/data/analysis.py, data/processed/sensitivity_summary.csv'
+  task: a3c42b7c4e76d59c5f2580fae5699b90be4668c6e521014a58445335707d03a9
+T037:
+  task: 098a39aa44cc35818413f736d27c008f9aa7191a970dd0b5d6f34468c55bc88c
+T038:
+  reason: 'declared artifact(s) missing/empty/invalid: logs/performance.yaml'
+  task: 0a719b5121cab783fcdd81e04aeb8f6373b6026f1202566062bd6db0ba42ae9c
+T039:
+  task: c2dbf6fb93a2b9d974e6e8308ce6b7fe380aa35821840e71431a7c7dd4289136
+T040:
+  task: b8dc2c54ad475742b9f7a55ccc1e1b97d6fe3255147220ed612ccc277d68bd22
+T041:
+  task: fb419b0bd96b274bcdab0e5daaede3828dd1f55372eb9c7e185e5534c03de7ad
+T042:
+  task: 8430c39febbfc2d4d841b427e5d3ac70bf545baa879fa2905ef208d8405dceee
+T043:
+  task: 51669c2a9c6bd4f0430241bd51113298ffeba5dde3978c53aa7a99b1a780b215
+T044:
+  task: 616fc5f3663751a3fe55e0adede6b4d0e0f0ecda6e9da5a3988a6ebc96d75da6
+T045:
+  reason: 'declared artifact(s) missing/empty/invalid: src/data/analysis.py'
+  task: f0cfab36f4edeee5232a7f968908375a3f633be043af06d1fdb9e1e23a0865e3
+T046:
+  reason: 'declared artifact(s) missing/empty/invalid: src/data/analysis.py'
+  task: 06daba28a7603d9ef128fba05e15993e80c9455fa3a64e5ae0b1493d67f84d04
+T047:
+  task: 31f4ba9ce8d806270cd19daa6bec4c0d9c05735ec8734c7a23d9520253bc5039

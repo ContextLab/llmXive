@@ -1,0 +1,16 @@
+status: none
+intent: EvalVerse video dataset human expert annotated subdimension scores download
+  python package dataset
+required_fields:
+- video_id
+- video_path
+- camera_smoothness_score
+- lighting_consistency_score
+- other_subdimension_scores
+- vlm_reference_score_optional
+- duration_seconds
+- resolution_width
+- resolution_height
+cache_key: 61c9835080b515e1c6de9d4a0b36714421fd4f6d09f9fea301a75aab065d86f0
+searched_at: '2026-09-01T22:24:59.197627+00:00'
+retry_count: 1

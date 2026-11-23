@@ -1,240 +1,344 @@
-import os
-import sys
-import time
-import logging
+"""
+Main entry point for the llmXive automated science pipeline.
+Orchestrates simulation, real‑world data processing, analysis, and visualization.
+"""
+
+from __future__ import annotations
+
+import argparse
 import csv
 import json
+import logging
+import time
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple, Callable
-from datetime import datetime
+from typing import Any, Dict, List, Optional
 
-# Local imports based on provided API surface
-from simulation.config import SimulationConfig
+import numpy as np
+import pandas as pd
+
+from simulation.config import CONFIG_MATRIX, SimulationConfig
 from simulation.generator import generate_synthetic_data
+from simulation.logger import setup_logger
 from simulation.persistence import save_synthetic_data
 from preprocessing.scaling import standardize_data, min_max_scale, robust_scale
-from analysis.tests import ScalingMethod, TestResult, run_pipeline
-from utils.env import configure_cpu_only
+from analysis.tests import (
+    run_scaled_t_test,
+    run_scaled_anova,
+    run_scaled_chi_squared,
+    ScalingMethod,
+    TestResult,
+)
 
-# Configure logging
-from simulation.logger import setup_logger
+# Constants for iteration logic (T028d)
+TARGET_ITERATIONS = 10000
+MAX_RUNTIME_SECONDS = 5.5 * 3600  # 5.5 hours
+
 logger = setup_logger("main")
 
-# Constants
-RESULTS_DIR = Path("results")
-DATA_DIR = Path("data")
-CHECKPOINT_FILE = RESULTS_DIR / "checkpoint.json"
-PARTIAL_RESULTS_FILE = RESULTS_DIR / "simulation_results_partial.csv"
-FINAL_RESULTS_FILE = RESULTS_DIR / "simulation_results.csv"
-SUMMARY_REPORT_FILE = RESULTS_DIR / "execution_summary.json"
 
-# Time threshold for hard stop (in seconds) - Configurable
-DEFAULT_TIME_THRESHOLD_SECONDS = 300  # 5 minutes default for safety
-
-def ensure_directories():
-    """Ensure all required directories exist."""
-    dirs = [
-        RESULTS_DIR,
-        DATA_DIR / "raw",
-        DATA_DIR / "scaled",
-        DATA_DIR / "scaled" / "standardized",
-        DATA_DIR / "scaled" / "minmax",
-        DATA_DIR / "scaled" / "robust",
-        DATA_DIR / "synthetic",
-        DATA_DIR / "config",
-        RESULTS_DIR / "figures",
-        Path("logs")
-    ]
-    for d in dirs:
-        d.mkdir(parents=True, exist_ok=True)
-    logger.info("Directories ensured.")
-
-def get_scaling_functions() -> Dict[str, Callable]:
-    """Map scaling method names to their functions."""
-    return {
+def get_scaling_function(method: str):
+    """Return the scaling function corresponding to the method name."""
+    mapping = {
         "standardize": standardize_data,
         "minmax": min_max_scale,
-        "robust": robust_scale
+        "robust": robust_scale,
     }
+    if method not in mapping:
+        raise ValueError(f"Unknown scaling method: {method}")
+    return mapping[method]
 
-def save_checkpoint(iteration_count: int, start_time: float, config: Dict[str, Any]):
-    """Save partial results and checkpoint state."""
-    checkpoint_data = {
-        "completed_iterations": iteration_count,
-        "start_time": start_time,
-        "config_snapshot": config,
-        "timestamp": datetime.now().isoformat(),
-        "status": "interrupted"
+
+def get_test_function(test_type: str):
+    """Return the test function corresponding to the test type."""
+    mapping = {
+        "t_test": run_scaled_t_test,
+        "anova": run_scaled_anova,
+        "chi_squared": run_scaled_chi_squared,
     }
-    with open(CHECKPOINT_FILE, 'w') as f:
-        json.dump(checkpoint_data, f, indent=2)
-    logger.info(f"Checkpoint saved: {iteration_count} iterations completed.")
+    if test_type not in mapping:
+        raise ValueError(f"Unknown test type: {test_type}")
+    return mapping[test_type]
 
-def save_partial_results(results: List[TestResult], filename: str):
-    """Save current batch of results to CSV."""
+
+def save_checkpoint(
+    results: List[Dict],
+    iteration_count: int,
+    checkpoint_path: str = "results/partial_checkpoint.csv",
+):
+    """Save partial results to a CSV file."""
+    logger.info(f"Saving checkpoint at iteration {iteration_count}")
+    Path(checkpoint_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(checkpoint_path, "w", newline="") as f:
+        if results:
+            writer = csv.DictWriter(f, fieldnames=results[0].keys())
+            writer.writeheader()
+            writer.writerows(results)
+        else:
+            f.write("")  # Empty file if no results yet
+
+
+def write_simulation_results(results: List[Dict], output_path: str):
+    """
+    Aggregate results and write to a CSV file.
+    Schema: iteration_id, config_id, scaling_method, test_type, p_value, statistic, ground_truth, scaling_params, seed
+    """
+    logger.info(f"Writing {len(results)} results to {output_path}")
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
     if not results:
+        logger.warning("No results to write.")
+        # Create empty file with headers to ensure schema exists
+        with open(output_path, "w", newline="") as f:
+            writer = csv.DictWriter(
+                f,
+                fieldnames=[
+                    "iteration_id",
+                    "config_id",
+                    "scaling_method",
+                    "test_type",
+                    "p_value",
+                    "statistic",
+                    "ground_truth",
+                    "scaling_params",
+                    "seed",
+                ],
+            )
+            writer.writeheader()
         return
-    
-    fieldnames = [
-        "iteration", "scaling_method", "distribution_type", 
-        "sample_size", "mean_diff", "p_value", "test_type", 
-        "is_significant", "timestamp"
+
+    required_fields = [
+        "iteration_id",
+        "config_id",
+        "scaling_method",
+        "test_type",
+        "p_value",
+        "statistic",
+        "ground_truth",
+        "scaling_params",
+        "seed",
     ]
-    
-    with open(filename, 'w', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+
+    cleaned_results = []
+    for r in results:
+        cleaned = {}
+        for field in required_fields:
+            val = r.get(field)
+            if val is None:
+                val = ""
+            cleaned[field] = val
+        cleaned_results.append(cleaned)
+
+    with open(output_path, "w", newline="") as f:
+        writer = csv.DictWriter(f, fieldnames=required_fields)
         writer.writeheader()
-        for r in results:
-            writer.writerow({
-                "iteration": r.iteration,
-                "scaling_method": r.scaling_method,
-                "distribution_type": r.distribution_type,
-                "sample_size": r.sample_size,
-                "mean_diff": r.mean_diff,
-                "p_value": r.p_value,
-                "test_type": r.test_type,
-                "is_significant": r.is_significant,
-                "timestamp": r.timestamp.isoformat() if hasattr(r, 'timestamp') else str(datetime.now())
-            })
-    logger.info(f"Partial results saved to {filename}")
+        writer.writerows(cleaned_results)
 
-def generate_summary_report(iteration_count: int, start_time: float, elapsed: float, reason: str):
-    """Generate and save the execution summary report."""
-    report = {
-        "total_completed_iterations": iteration_count,
-        "start_time": datetime.fromtimestamp(start_time).isoformat(),
-        "stop_time": datetime.now().isoformat(),
-        "elapsed_seconds": elapsed,
-        "stop_reason": reason,
-        "partial_results_file": str(PARTIAL_RESULTS_FILE),
-        "checkpoint_file": str(CHECKPOINT_FILE)
-    }
-    
-    with open(SUMMARY_REPORT_FILE, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    # Print summary to stdout as requested
-    print(f"=== EXECUTION SUMMARY ===")
-    print(f"Completed Iterations: {iteration_count}")
-    print(f"Reason for Stop: {reason}")
-    print(f"Elapsed Time: {elapsed:.2f} seconds")
-    print(f"Partial Results: {PARTIAL_RESULTS_FILE}")
-    print("=========================")
-    
-    logger.info(f"Summary report generated: {iteration_count} iterations completed due to {reason}")
 
-def run_simulation_loop(config: SimulationConfig, time_threshold: int = DEFAULT_TIME_THRESHOLD_SECONDS):
-    """
-    Run the simulation loop with checkpointing and time-based hard stop.
-    
-    Args:
-        config: Simulation configuration object
-        time_threshold: Maximum seconds to run before hard stop
-    
-    Returns:
-        Tuple of (completed_iterations, results_list)
-    """
-    ensure_directories()
-    start_time = time.time()
-    all_results: List[TestResult] = []
-    iteration = 0
-    scaling_funcs = get_scaling_functions()
-    
-    logger.info(f"Starting simulation loop with time threshold: {time_threshold}s")
-    
-    # Define iteration batches for checkpointing
-    batch_size = 10
-    
+def run_single_iteration(
+    config: SimulationConfig,
+    iteration_id: int,
+    scaling_method: str,
+    test_type: str,
+    seed: int,
+) -> Dict[str, Any] | None:
+    """Run a single simulation iteration."""
     try:
-        while True:
-            # Check time threshold
-            elapsed = time.time() - start_time
-            if elapsed >= time_threshold:
-                logger.warning(f"Time threshold ({time_threshold}s) exceeded. Initiating hard stop.")
-                save_checkpoint(iteration, start_time, config.to_dict() if hasattr(config, 'to_dict') else vars(config))
-                save_partial_results(all_results, str(PARTIAL_RESULTS_FILE))
-                generate_summary_report(iteration, start_time, elapsed, "Time threshold exceeded")
-                return iteration, all_results
-            
-            # Run a batch of iterations
-            batch_results = []
-            for _ in range(batch_size):
-                iteration += 1
-                
-                # Generate synthetic data
-                try:
-                    data, mean_diff, is_valid, error_msg = generate_synthetic_data(config)
-                    if not is_valid:
-                        logger.warning(f"Iteration {iteration}: {error_msg}")
-                        continue
-                    
-                    # Run pipeline for each scaling method
-                    for method_name, scale_func in scaling_funcs.items():
-                        try:
-                            result = run_pipeline(data, scale_func, method_name, iteration)
-                            batch_results.append(result)
-                            all_results.append(result)
-                        except Exception as e:
-                            logger.error(f"Pipeline failed for {method_name} at iter {iteration}: {e}")
-                            
-                except Exception as e:
-                    logger.error(f"Data generation failed at iter {iteration}: {e}")
-                    continue
-                
-                # Check time again after batch
-                if time.time() - start_time >= time_threshold:
+        # Generate data
+        data, ground_truth = generate_synthetic_data(config, seed=seed)
+
+        # Apply scaling
+        scale_func = get_scaling_function(scaling_method)
+        try:
+            scaled_data, scaling_params = scale_func(data)
+        except ValueError as e:
+            logger.warning(f"Scaling failed for {scaling_method}: {e}. Skipping.")
+            return None  # Skip this iteration
+
+        # Run test
+        test_func = get_test_function(test_type)
+        try:
+            result: TestResult = test_func(scaled_data)
+        except ValueError as e:
+            logger.warning(f"Test failed for {test_type}: {e}. Skipping.")
+            return None  # Skip this iteration
+
+        return {
+            "iteration_id": iteration_id,
+            "config_id": f"config_{config.distribution_type}_{seed}",
+            "scaling_method": scaling_method,
+            "test_type": test_type,
+            "p_value": float(result.p_value),
+            "statistic": float(result.statistic),
+            "ground_truth": ground_truth,
+            "scaling_params": json.dumps(scaling_params),
+            "seed": seed,
+        }
+    except Exception as e:
+        logger.error(f"Iteration {iteration_id} failed: {e}", exc_info=True)
+        return None
+
+
+def enforce_iteration_logic(current_iterations: int, start_time: float) -> int:
+    """
+    Enforce minimum iteration threshold.
+    Returns target iterations if successful, or raises an error if time limit hit before target.
+    """
+    elapsed = time.time() - start_time
+    if elapsed > MAX_RUNTIME_SECONDS:
+        if current_iterations < TARGET_ITERATIONS:
+            msg = (
+                f"FIDELITY VIOLATION: Insufficient iterations ({current_iterations} < {TARGET_ITERATIONS}) "
+                f"due to time limit ({elapsed:.1f}s > {MAX_RUNTIME_SECONDS}s)"
+            )
+            logger.error(msg)
+            raise RuntimeError(msg)
+    return TARGET_ITERATIONS
+
+
+def run_simulation_loop(
+    target_iterations: int = TARGET_ITERATIONS,
+    config_matrix: Optional[List[SimulationConfig]] = None,
+    scaling_methods: Optional[List[str]] = None,
+    test_types: Optional[List[str]] = None,
+    output_path: str = "results/simulation_results.csv",
+    checkpoint_path: str = "results/partial_checkpoint.csv",
+    checkpoint_interval: int = 1000,
+) -> pd.DataFrame:
+    """
+    Orchestrate the simulation loop over all configurations, scaling methods, and test types.
+    Aggregates results and writes to CSV.
+    """
+    logger.info(f"Starting simulation loop for {target_iterations} iterations")
+
+    if config_matrix is None:
+        config_matrix = CONFIG_MATRIX
+    if scaling_methods is None:
+        scaling_methods = ["standardize", "minmax", "robust"]
+    if test_types is None:
+        test_types = ["t_test", "anova", "chi_squared"]
+
+    all_results: List[Dict[str, Any]] = []
+    iteration_counter = 0
+    start_time = time.time()
+
+    total_runs_needed = target_iterations
+    current_runs = 0
+    seed = 42
+
+    while current_runs < total_runs_needed:
+        if current_runs > 0 and current_runs % 100 == 0:
+            enforce_iteration_logic(current_runs, start_time)
+            if current_runs % checkpoint_interval == 0:
+                save_checkpoint(all_results, current_runs, checkpoint_path)
+
+        for config in config_matrix:
+            for scale in scaling_methods:
+                for test in test_types:
+                    if current_runs >= total_runs_needed:
+                        break
+
+                    result = run_single_iteration(
+                        config, current_runs, scale, test, seed
+                    )
+                    if result is not None:
+                        all_results.append(result)
+                        current_runs += 1
+
+                    seed += 1
+                if current_runs >= total_runs_needed:
                     break
-            
-            # Save checkpoint periodically if we have results
-            if batch_results and iteration % (batch_size * 5) == 0:
-                save_checkpoint(iteration, start_time, config.to_dict() if hasattr(config, 'to_dict') else vars(config))
-                
-    except KeyboardInterrupt:
-        elapsed = time.time() - start_time
-        logger.info("Interrupted by user.")
-        save_checkpoint(iteration, start_time, config.to_dict() if hasattr(config, 'to_dict') else vars(config))
-        save_partial_results(all_results, str(PARTIAL_RESULTS_FILE))
-        generate_summary_report(iteration, start_time, elapsed, "KeyboardInterrupt")
-        return iteration, all_results
-        
-    return iteration, all_results
+            if current_runs >= total_runs_needed:
+                break
+
+    enforce_iteration_logic(current_runs, start_time)
+    write_simulation_results(all_results, output_path)
+
+    logger.info(
+        f"Simulation loop completed. {len(all_results)} results written to {output_path}"
+    )
+    return pd.DataFrame(all_results)
+
+
+def run_real_world_mode():
+    """Placeholder for real‑world data processing."""
+    logger.info("Running real-world mode")
+    # Implementation would go here (T038)
+
+
+def run_analyze_mode():
+    """Placeholder for analysis."""
+    logger.info("Running analysis mode")
+    # Implementation would go here (T029)
+
+
+def run_visualize_mode():
+    """Placeholder for visualization."""
+    logger.info("Running visualization mode")
+    # Implementation would go here (T030)
+
 
 def main():
-    """Main entry point for the simulation pipeline."""
-    # Configure CPU constraints
-    configure_cpu_only()
-    
-    # Create a default config for demonstration
-    # In a real scenario, this would be loaded from a YAML file
-    config = SimulationConfig(
-        n_iterations=1000,
-        sample_size=100,
-        distribution_types=["normal", "skewed", "heteroscedastic"],
-        scaling_methods=["standardize", "minmax", "robust"],
-        alpha=0.05
+    """
+    CLI entry point.
+
+    The original implementation used sub‑parsers with positional sub‑commands.
+    Quickstart scripts (and the CI run‑book) invoke the script with a ``--mode`` flag.
+    To maintain backward compatibility we accept both styles.
+    """
+    parser = argparse.ArgumentParser(description="llmXive Automated Science Pipeline")
+
+    # New ``--mode`` flag – mirrors the sub‑command names.
+    parser.add_argument(
+        "--mode",
+        choices=["simulation", "real_world", "analyze", "visualize"],
+        help="Mode to run (alternative to sub‑command syntax)",
     )
-    
-    logger.info("Starting main simulation pipeline...")
-    
-    # Run with a time threshold (default 300s, but can be adjusted)
-    # For testing purposes, we might use a shorter threshold
-    iterations, results = run_simulation_loop(config, time_threshold=300)
-    
-    # If the loop finished without a hard stop, save final results
-    if len(results) > 0:
-        save_partial_results(results, str(FINAL_RESULTS_FILE))
-        logger.info(f"Simulation complete. {len(results)} results saved to {FINAL_RESULTS_FILE}")
-        
-        # Generate final summary if not already done
-        if not SUMMARY_REPORT_FILE.exists():
-            generate_summary_report(
-                iterations, 
-                time.time() - (300 if iterations > 0 else 0), 
-                time.time() - (time.time() - 300 if iterations > 0 else time.time()),
-                "Completed normally"
-            )
+
+    subparsers = parser.add_subparsers(
+        dest="subcommand", help="Mode to run (sub‑command syntax)"
+    )
+
+    # Simulation mode
+    sim_parser = subparsers.add_parser("simulation", help="Run simulation loop")
+    sim_parser.add_argument(
+        "--iterations",
+        type=int,
+        default=TARGET_ITERATIONS,
+        help="Number of iterations",
+    )
+    sim_parser.add_argument(
+        "--output",
+        type=str,
+        default="results/simulation_results.csv",
+        help="Output CSV path",
+    )
+
+    # Real world mode
+    subparsers.add_parser("real_world", help="Run real‑world data pipeline")
+
+    # Analyze mode
+    subparsers.add_parser("analyze", help="Run analysis pipeline")
+
+    # Visualize mode
+    subparsers.add_parser("visualize", help="Run visualization pipeline")
+
+    args = parser.parse_args()
+
+    # Resolve which mode the user requested.
+    mode = args.mode or args.subcommand
+
+    if mode == "simulation":
+        run_simulation_loop(target_iterations=args.iterations, output_path=args.output)
+    elif mode == "real_world":
+        run_real_world_mode()
+    elif mode == "analyze":
+        run_analyze_mode()
+    elif mode == "visualize":
+        run_visualize_mode()
     else:
-        logger.warning("No results were generated.")
+        parser.print_help()
+        raise SystemExit(1)
+
 
 if __name__ == "__main__":
     main()

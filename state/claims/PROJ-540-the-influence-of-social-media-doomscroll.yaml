@@ -1,0 +1,171 @@
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/outputs/final_report.md
+  attempts: 1
+  canonical: Multiple linear regression model R-squared is 0.485
+  claim_id: c_26e57bd2
+  context: 'Regression Analysis Results section listing Model R-squared: 0.485.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The multiple linear regression model had an R-squared of 0.485.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T15:28:20Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/outputs/final_report.md
+  attempts: 1
+  canonical: Multiple linear regression model adjusted R-squared is 0.472
+  claim_id: c_6c9cedac
+  context: 'Regression Analysis Results section listing Adjusted R-squared: 0.472.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The adjusted R-squared for the multiple linear regression model was 0.472.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T15:29:02Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/outputs/final_report.md
+  attempts: 1
+  canonical: Maximum Variance Inflation Factor is 1.85
+  claim_id: c_cd7e40da
+  context: 'Regression Assumption Checks section stating Max VIF: 1.85.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum Variance Inflation Factor (VIF) for multicollinearity was
+    1.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T15:29:16Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/outputs/final_report.md
+  attempts: 1
+  canonical: High-engagement subset size is 125
+  claim_id: c_f832b13d
+  context: 'Robustness Check section stating Subset Size: 125 (Top 25% engagement).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The high-engagement subset size was 125 participants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T15:29:39Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/outputs/final_report.md
+  attempts: 1
+  canonical: Full sample size is 500
+  claim_id: c_8735fef8
+  context: 'Robustness Check section stating Full Sample N: 500.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full sample size was 500 participants.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T15:30:16Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/outputs/final_report.md
+  attempts: 1
+  canonical: Regression coefficient for news exposure frequency in high-engagement
+    subset is 0.2103
+  claim_id: c_875fce68
+  context: 'Robustness Check section stating Subset Model Coefficient (news_exposure_freq):
+    0.2103.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The regression coefficient for news exposure frequency in the high-engagement
+    subset model was 0.2103.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-24T15:30:31Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/docs/FAQ.md
+  attempts: 1
+  canonical: minimum sample size of 130 after cleaning
+  claim_id: c_49aa4117
+  context: The pipeline requires a minimum sample size of N=130 after cleaning. If
+    the dataset is too small or too many rows are dropped due to missing values, the
+    process halts to ensure statistical power.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline requires a minimum sample size of N=130 after cleaning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T23:21:02Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/README.md
+  attempts: 1
+  canonical: news exposure frequency is a significant predictor of anxiety controlling
+    for age gender and baseline anxiety
+  claim_id: c_0f9a39e9
+  context: 'Key Findings: Regression: Multiple linear regression indicates that news
+    exposure frequency is a significant predictor of anxiety, controlling for age,
+    gender, and baseline anxiety.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/News_exposure_frequency_is_a_significant_predictor_of_anxiet
+  kind: entity_fact
+  raw_text: Multiple linear regression indicates that news exposure frequency is a
+    significant predictor of anxiety, controlling for age, gender, and baseline anxiety.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T05:43:42Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/README.md
+  attempts: 1
+  canonical: relationship holds within high-engagement subset top 25th percentile
+  claim_id: c_d1f98cbb
+  context: 'Key Findings: Robustness: The relationship holds within the high-engagement
+    subset (top 25th percentile), confirming the stability of the effect.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Relationship_holds_within_high-engagement_subset_top_25th_pe
+  kind: entity_fact
+  raw_text: The relationship holds within the high-engagement subset (top 25th percentile),
+    confirming the stability of the effect.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T05:44:04Z'
+- artifact_path: projects/PROJ-540-the-influence-of-social-media-doomscroll/README.md
+  attempts: 1
+  canonical: analysis utilized general anxiety as proxy for anticipatory anxiety due
+    to data availability constraints
+  claim_id: c_55bc6183
+  context: 'Key Findings: Limitations: The analysis utilized "general anxiety" as
+    a proxy for "anticipatory anxiety" due to data availability constraints (FR-008).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Analysis_utilized_general_anxiety_as_proxy_for_anticipatory
+  kind: entity_fact
+  raw_text: The analysis utilized "general anxiety" as a proxy for "anticipatory anxiety"
+    due to data availability constraints.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-30T05:44:25Z'

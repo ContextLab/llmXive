@@ -1,2 +1,1 @@
-# This file ensures the directory exists in version control.
-# Model metrics, reports, and figures will be stored here.
+# This file ensures the results directory is tracked by git.

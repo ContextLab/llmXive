@@ -1,64 +1,40 @@
-"""
-setup_data_directories.py
-
-This script creates the required data directory structure for the project:
-
-    data/
-        stimuli/
-        processed/
-        measurements/
-        raw/
-
-It is intended to be run as a one‑off setup step and can be safely re‑executed;
-existing directories will be left untouched.
-"""
-
 import os
 from pathlib import Path
-from typing import Iterable
+from typing import Union
 
-# Public API -----------------------------------------------------------------
-
-def ensure_directory(dir_path: str) -> Path:
+def ensure_directory(path: Union[str, Path]) -> None:
     """
-    Ensure that a directory exists.
-
-    Parameters
-    ----------
-    dir_path: str
-        The directory path to create (relative to the project root).
-
-    Returns
-    -------
-    pathlib.Path
-        The Path object for the created (or already existing) directory.
+    Ensure the given directory path exists. Creates it if it doesn't.
+    
+    Args:
+        path: The directory path to ensure exists.
     """
-    path = Path(dir_path).resolve()
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    dir_path = Path(path)
+    if not dir_path.exists():
+        dir_path.mkdir(parents=True, exist_ok=True)
 
 def main() -> None:
     """
-    Create the four top‑level data sub‑directories required by the project.
+    Main function to create the required data directory structure.
+    Creates: data/stimuli/, data/processed/, data/measurements/, data/raw/
     """
-    # Define the required sub‑directories relative to the project root.
-    required_dirs: Iterable[str] = (
-        "data/stimuli",
-        "data/processed",
-        "data/measurements",
-        "data/raw",
-    )
-
-    created: list[Path] = []
-    for d in required_dirs:
-        created.append(ensure_directory(d))
-
-    # Simple feedback for the user.
-    print("Created/verified the following data directories:")
-    for p in created:
-        print(f" - {p}")
-
-# Entry point ----------------------------------------------------------------
+    base_data_dir = Path("data")
+    
+    # Ensure the base data directory exists first
+    ensure_directory(base_data_dir)
+    
+    # Define the required subdirectories
+    subdirectories = [
+        "stimuli",
+        "processed",
+        "measurements",
+        "raw"
+    ]
+    
+    for subdir in subdirectories:
+        dir_path = base_data_dir / subdir
+        ensure_directory(dir_path)
+        print(f"Ensured directory: {dir_path}")
 
 if __name__ == "__main__":
     main()

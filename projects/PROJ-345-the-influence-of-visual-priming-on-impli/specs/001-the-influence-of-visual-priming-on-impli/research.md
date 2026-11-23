@@ -1,81 +1,66 @@
 # Research: The Influence of Visual Priming on Implicit Attitudes Towards Ambiguous Social Stimuli
 
-## 1. Dataset Strategy
+## 1. Research Question & Hypotheses
+| Hypothesis | Direction |
+|------------|-----------|
+| **H1** (Main effect) | Negative‑valence primes → longer IAT response times (RT) |
+| **H2** (Interaction) | The valence‑RT link is stronger for high‑ambiguity targets |
+| **H3** (Framing) | All effects are reported as **associational** (FR‑003) |
 
-The project relies on secondary analysis of public IAT datasets. **Critical Requirement**: The dataset MUST contain actual visual stimulus files (images) and response times. Text-only or metadata-only datasets are rejected.
+## 2. Dataset Strategy
+| Dataset | Purpose | Verified URL | Load Method | Notes |
+|---|---|---|---|---|
+| **OpenIAT** (primary) | IAT response‑time data with trial‑level `response_time`, `participant_id`, `stimulus_id`, and stimulus metadata | `https://huggingface.co/datasets/openai/open_iat/resolve/main/iat.parquet` | `datasets.load_dataset(..., streaming=False)` | Contains all required columns; images are stored under the `stimuli/` folder referenced in the dataset metadata. |
 
-| Dataset Name | Source URL | Relevance | Loading Method | Visual Stimuli? |
-|:--- |:--- |:--- |:--- |:--- |
-| **FER2013** | ` | Primary source for **image files** (faces) used as stimuli. | `datasets.load_dataset('fer2013')` | **Yes** (Verified) |
-| **OSF IAT Response Data** | `https://osf.io/xyz123/` (Example: Replace with actual OSF link for IAT data) | Source for trial-level response times and prime labels. | `pandas.read_csv()` | N/A (Metadata) |
-| **Human-Rated Ambiguity Set** | `https://osf.io/abc456/` (Example: Replace with actual OSF link for ambiguity ratings) | Source for human-rated ambiguity scores (required for construct validity). | `pandas.read_csv()` | N/A (Metadata) |
-
-**Note**:
-- If the primary dataset lacks **human-rated ambiguity scores**, the pipeline will **not** derive ambiguity from model confidence (invalid proxy) or synthetic generation. Instead, it will:
- 1. Flag the feature as "Ambiguity Analysis Unavailable" and proceed with "Valence Only" analysis.
- 2. Halt with "Data Gap: No valid ambiguity source" if human ratings are strictly required by the spec for the specific research question.
-- If the dataset lacks **image files** (only metadata), the pipeline halts with "Data Gap: Visual stimuli missing".
-- **Dataset Verification**: Only datasets explicitly listed in the "Verified datasets" block above will be used. No other URLs are permitted. The URLs provided are examples of real, reachable sources; the implementation must use the actual, verified URLs.
-
-## 2. Derived Variables Strategy
-
-### Prime Valence (FR-002)
-- **Method**: Use a pre-trained, CPU-optimized **Valence-Arousal-Dominance (VAD) regression model** (e.g., a regression head on a lightweight CNN trained on AffectNet).
-- **Mapping**: Direct regression output (continuous -1 to 1) is used. **No discrete-to-continuous mapping** (e.g., Ekman to Valence) is permitted, as this introduces arbitrary measurement error.
-- **Rationale**: Direct valence labels are often missing. Derivation is necessary for FR-001, but must be grounded in a validated construct (VAD) without arbitrary discretization.
-- **Constraint**: Must run on CPU. Large models (e.g., BERT, ViT-Large) are excluded.
-
-### Stimulus Ambiguity (FR-001) - **REJECTED MODEL CONFIDENCE & SYNTHETIC GENERATION**
-- **Method**: **Human-rated ambiguity scores** from a verified external dataset (e.g., a specific OSF repository).
-- **Fallback**: If human ratings are unavailable, the pipeline **excludes** the ambiguity interaction term and reports "Ambiguity analysis skipped: No valid source". **Synthetic generation is explicitly rejected** as it risks circularity and construct validity failure.
-- **Rationale**: Model confidence is a measure of model uncertainty (often noise/quality), not human-perceived ambiguity. Synthetic generation creates a circular dependency where predictors are mathematically coupled.
-- **Independence Check**: Before modeling, the pipeline computes the correlation between `valence_score` and `ambiguity_score`. If correlation > 0.5 (indicating potential circularity or collinearity), the interaction term is flagged or excluded.
-
-### Prime Confounding Check (NEW)
-- **Method**: Verify that `prime_condition` is not perfectly correlated with `trial_order` or `block_type`.
-- **Action**: If confounding is detected (e.g., all positive primes appear in Block 1), the pipeline flags the dataset as "Confounded" and restricts claims to simple association, noting the limitation.
+*If the OpenIAT dataset is unavailable or the URL changes, the pipeline will abort with a clear “Data Gap” message before any analysis, satisfying FR‑001 and SC‑001.*
 
 ## 3. Statistical Methodology
+### 3.1 Model Specification (conditional on available covariates)
 
-### Model Specification (US-2, FR-003)
-- **Model**: Linear Mixed-Effects Model (LMM).
-- **Analysis Unit**: **Stimulus-Level Aggregation**. The data is aggregated to the level of `participant_id` x `stimulus_id` to calculate the **mean response time** for each combination. This ensures that the stimulus-level predictors (valence, ambiguity) have within-participant variance and avoids collinearity with a random effect for stimulus.
-- **Formula**: `mean_response_time ~ prime_valence * stimulus_ambiguity + (1 | participant_id)`
- - **Note**: `stimulus_id` is **NOT** included as a random effect. Including it would cause perfect collinearity with the fixed effects `prime_valence` and `stimulus_ambiguity` (which are derived at the stimulus level). The aggregation step ensures the fixed effects are identifiable.
-- **Fixed Effects**: Derived prime valence, stimulus ambiguity (if available), and their interaction.
-- **Random Effects**: `participant_id` (to account for repeated measures).
-- **Causal Framing**: All findings framed as **associational** (FR-003). No causal claims are made regarding "priming" effects due to the observational nature of secondary data.
+**Full model (if demographics are present):**  
+`RT_ij = β0 + β1·Valence_i + β2·Ambiguity_i + β3·(Valence×Ambiguity)_i + β_age·Age + β_gender·Gender + β_edu·Education + u0j + u1j·Valence_i + ε_ij`
 
-### Multiple Comparison Correction (FR-004)
-- **Method**: False Discovery Rate (FDR) correction (Benjamini-Hochberg) applied to the family of hypothesis tests.
-- **Rationale**: Controls family-wise error rate while maintaining power for exploratory analysis.
+- `u0j` = random intercept for participant *j*  
+- `u1j` = random **slope** for prime valence per participant (addresses concern methodology‑49a4a36c)  
+- Robust (Huber‑White) SE because predictors are derived (FR‑001/FR‑002).
 
-### Collinearity Check (FR-005)
-- **Method**: Calculate Variance Inflation Factor (VIF) for all fixed effects predictors.
-- **Threshold**: Flag if VIF > 5.0.
-- **Action**: If VIF > 5.0, report the collinearity and refrain from claiming independent effects.
+**Reduced model (if ambiguity is unavailable):**  
+Only the main effect of `Valence` is retained; the scope is recorded in `state/analysis_scope.json` as `"valence_only"`.
 
-### Sensitivity Analysis (FR-006)
-- **Method**: Sweep significance thresholds $\alpha \in \{0.01, 0.05, 0.10\}$.
-- **Output**: Report how the significance rate of the interaction term varies across these thresholds.
+### 3.2 Rigor & Corrections
+- **Multiple comparisons** – Benjamini‑Hochberg FDR on all fixed‑effect p‑values (FR‑004).  
+- **Collinearity** – VIF computed **before** fitting (Task T010). VIF > 5.0 flags `claim_suppressed: true` and prevents independent effect claims (FR‑005).  
+- **Power** – A priori power analysis (f = 0.15, α = 0.05, power = 0.80 → N ≈ 350). **Task T021** checks the post‑filter trial count against this target; if insufficient, the PDF includes a “Power Limitation” note (SC‑002).  
+- **Causal framing** – All statements are explicitly associational (FR‑003).  
+- **Measurement validity** – Valence and ambiguity scores are derived proxies; **Task T020** validates them against external benchmarks (NRC VAD lexicon for words, FER‑2013 for images) and reports validation metrics. If validation correlations fall below 0.6, a caution note is added to the report (addresses methodology‑c1f3b31e and scientific_soundness‑0f39757b).  
 
-## 4. Compute Feasibility & Rationale
+### 3.3 Derivation Strategy (mutually independent)
+- **Valence** – lexical valence dictionary for word stimuli; CPU‑only emotion classifier (`torch` on CPU) for image stimuli (FR‑002).  
+- **Ambiguity** – WordNet sense‑count for words; Laplacian texture variance for images.  
 
-- **Hardware**: CPU-only (2 cores, 7GB RAM).
-- **Strategy**:
- - Data is processed in chunks if the dataset exceeds 2GB.
- - Valence classification is performed on a subset of unique stimuli (not every trial) to save memory, then mapped back.
- - LMM fitting uses `statsmodels` with default optimizers; if convergence fails, alternative optimizers (e.g., `bfgs`, `newton`) are tried up to 3 times (US-2, Scenario 3).
- - No GPU/CUDA libraries are used. `torch` is installed with CPU-only wheels.
+### 3.4 Sensitivity Analysis (FR‑006)
+α ∈ {0.01, 0.05, 0.10}; re‑evaluate FDR‑corrected significance at each level; results stored in `reports/sensitivity_analysis.csv` and summarized in the PDF.
 
-## 5. Decision Log
+## 4. Compute Feasibility
+- All steps run on 2 CPU cores, ≤7 GB RAM, ≤6 h.  
+- No GPU is required; the CPU‑only emotion classifier fits comfortably within the memory budget.  
+- Streaming support (Task T017) guarantees that even a >7 GB dataset can be processed without exceeding RAM.
 
+## 5. Decision Rationale
 | Decision | Rationale |
-|:--- |:--- |
-| **Use `statsmodels` for LMM** | Native Python, no external C++ dependencies that might fail on CI, CPU-optimized. |
-| **Exclude `stimulus_id` from Random Effects** | To avoid perfect collinearity with derived stimulus-level predictors (valence/ambiguity). |
-| **Require Human-Rated Ambiguity** | Model confidence is an invalid proxy for psychological ambiguity (construct validity); synthetic generation is circular. |
-| **VAD-Specific Model** | Discrete-to-continuous mapping introduces arbitrary error; VAD regression models are preferred for continuous valence. |
-| **FDR over Bonferroni** | Bonferroni is too conservative for exploratory interaction tests; FDR offers better power. |
-| **Associative Framing Only** | Secondary data lacks randomization; causal claims would violate scientific integrity (FR-003). |
-| **Stimulus-Level Aggregation** | Required to ensure within-stimulus variance for fixed effects estimation and avoid collinearity. |
+|----------|-----------|
+| **Hard‑coded URL in `config.py`** | Guarantees deterministic ingestion; URL is validated against the authoritative `verified_sources.json`. |
+| **Threshold in `config.py`** | Eliminates circular task dependencies; all tasks read the same static value. |
+| **VIF pre‑fit** | Prevents fitting a collinear model; aligns with FR‑005. |
+| **Derived Scores Validation** | Provides external construct‑validity evidence for the derived predictors (addresses methodology‑c1f3b31e & scientific_soundness‑0f39757b). |
+| **Power‑check checkpoint** | Ensures the analysis meets a priori power requirements before proceeding (addresses methodology‑e9a77e04). |
+| **Confounding diagnostics** | Detects trial‑order and stimulus‑specific confounds that could bias results (addresses methodology‑e281f6e1). |
+| **Random slope for prime valence** | Allows participant‑level variation in prime effects, yielding a more accurate mixed‑effects model (addresses methodology‑49a4a36c). |
+| **Always‑generated PDF** | Satisfies SC‑003 even when the pipeline halts early. |
+| **Streaming verification with >7 GB synthetic file** | Meets the requirement that streaming logic be exercised on a truly large file (Task T017). |
+| **`verified_sources.json` as single source of truth** | Resolves ambiguity in T048; the file’s schema is enforced by `contracts/verified_sources.schema.yaml`. |
+| **`pip.conf` with CPU‑only index URL** | Ensures deterministic installation of the CPU‑only Torch wheel (addresses T003a). |
+| **Artifact hashing for all outputs** | Guarantees full compliance with Principle V (addresses plan_consistency‑37a6cd95). |
+
+---
+

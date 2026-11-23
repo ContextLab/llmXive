@@ -1,10 +1,9 @@
 """
-Report generation module for User Story 2.
+Report Generator Module for PROJ-263.
 
-Generates aggregate reports that explicitly state findings are associational,
-contrasting the scope of multiple UCI datasets against previous synthetic approaches.
-
-Implements FR-007: Report generation that explicitly states findings are associational.
+Generates the aggregate report (outputs/aggregate_report.md) summarizing
+coverage rates across multiple UCI datasets, applying Bonferroni correction,
+and explicitly contrasting the scope of real data against synthetic approaches.
 """
 import json
 import logging
@@ -12,9 +11,9 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional
 
-# Import from existing API surface
+from config import get_output_dir, get_processed_data_dir, get_random_seed
 from aggregation import (
     load_coverage_records,
     load_population_means,
@@ -23,286 +22,292 @@ from aggregation import (
     is_practically_significant,
     create_aggregate_report,
     save_aggregate_report,
-    run_aggregation_workflow
 )
-from config import get_output_dir, get_data_dir
-from data_models.schemas import AggregateReport, validate_aggregate_report
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
 
-def _format_associational_warning() -> str:
+def generate_aggregate_report(output_dir: Optional[Path] = None) -> str:
     """
-    Generate the explicit associational language required by FR-007.
-    
-    Returns a standardized warning text that must appear in all reports.
-    """
-    return (
-        "IMPORTANT: FINDINGS ARE ASSOCIATIONAL\n"
-        "--------------------------------------\n"
-        "The results presented in this report are based on observational analysis "
-        "of multiple UCI datasets. These findings demonstrate associations between "
-        "sample size, interval method, and empirical coverage rates across the "
-        "specific datasets examined.\n\n"
-        "CAUTIONS ON GENERALIZATION:\n"
-        "- These results are derived from a finite set of UCI Machine Learning "
-        "Repository datasets and may not generalize to all possible data distributions.\n"
-        "- The analysis contrasts real-world UCI datasets against previous synthetic "
-        "approaches, highlighting the importance of using empirical data for validation.\n"
-        "- Deviations from nominal coverage rates observed here are associational "
-        "findings that require further investigation before causal claims can be made.\n"
-        "- The operational ground truth (full dataset mean) is specific to each "
-        "dataset examined and does not represent a universal population parameter.\n\n"
-        "This study adheres to the principle that Monte Carlo simulations with real "
-        "datasets provide evidence of coverage validity within the scope of the "
-        "examined data, not universal guarantees."
-    )
+    Generate the aggregate report markdown file.
 
+    This function:
+    1. Loads coverage records from data/processed/coverage_records.json
+    2. Loads population means from data/processed/population_means.json
+    3. Calculates mean deviations from nominal coverage (95%)
+    4. Applies Bonferroni correction for multiple comparisons
+    5. Flags practically significant deviations (>1.0%)
+    6. Generates a markdown report contrasting real UCI results with synthetic approaches
 
-def _generate_methodology_section() -> str:
-    """
-    Generate the methodology section explaining the UCI dataset scope.
-    
-    Explicitly contrasts the scope of multiple UCI datasets against synthetic approaches.
-    """
-    return (
-        "METHODOLOGY\n"
-        "-----------\n"
-        "This analysis employs a Monte Carlo simulation framework using REAL datasets "
-        "from the UCI Machine Learning Repository. Unlike previous studies that rely "
-        "on synthetic data generated from theoretical distributions, this work uses "
-        "empirical datasets to assess the validity of frequentist confidence intervals.\n\n"
-        "DATASET SCOPE:\n"
-        "- Datasets examined: Wine, Wine Quality Red, Wine Quality White, Ionosphere, "
-        "Heart Disease (Cleveland)\n"
-        "- Sample sizes: n=10, n=20, n=30 (drawn with replacement)\n"
-        "- Interval methods: Student's t-interval, Bootstrap percentile interval\n"
-        "- Ground truth: Mean of the FULL UCI DATASET ARRAY for each variable\n\n"
-        "CONTRAST WITH SYNTHETIC APPROACHES:\n"
-        "Previous validation studies often generate data from idealized distributions "
-        "(e.g., Normal, Exponential) where theoretical properties are known. This "
-        "approach, while useful for theoretical verification, may not capture the "
-        "complexities of real-world data including:\n"
-        "- Non-normal distributions\n"
-        "- Outliers and edge cases\n"
-        "- Mixed variable types\n"
-        "- Missing data patterns\n\n"
-        "By using multiple UCI datasets, this study provides evidence of interval "
-        "coverage performance in realistic, heterogeneous data scenarios."
-    )
-
-
-def _generate_results_summary(
-    aggregate_data: Dict[str, Any],
-    bonferroni_results: Dict[str, Any],
-    practical_significance: Dict[str, bool]
-) -> str:
-    """
-    Generate a summary of the results with explicit associational framing.
-    
     Args:
-        aggregate_data: Aggregated coverage statistics
-        bonferroni_results: Bonferroni-corrected p-values
-        practical_significance: Flags for practically significant deviations
-        
+        output_dir: Optional override for output directory. Defaults to project output dir.
+
     Returns:
-        Formatted results summary string
+        Path to the generated report file as a string.
     """
-    lines = [
-        "RESULTS SUMMARY",
-        "---------------",
-        "",
-        "The following table presents the mean deviation from nominal coverage rates "
-        "across multiple UCI datasets, with Bonferroni-corrected significance testing.",
-        "",
-    ]
-    
-    # Header
-    lines.append(f"{'Dataset':<20} {'Sample Size':<12} {'Method':<15} "
-                f"{'Deviation':<12} {'Significant':<12} {'Practically Sig':<15}")
-    lines.append("-" * 80)
-    
-    # Data rows
-    for record in aggregate_data.get('records', []):
-        dataset_id = record.get('dataset_id', 'Unknown')
-        sample_size = record.get('sample_size', 'N/A')
-        method = record.get('interval_method', 'Unknown')
-        deviation = record.get('mean_deviation', 0.0)
-        
-        # Get significance flags
-        stat_sig = bonferroni_results.get(f"{dataset_id}_{sample_size}_{method}", {}).get('is_significant', False)
-        prac_sig = practical_significance.get(f"{dataset_id}_{sample_size}_{method}", False)
-        
-        sig_str = "Yes" if stat_sig else "No"
-        prac_str = "Yes" if prac_sig else "No"
-        
-        lines.append(
-            f"{dataset_id:<20} {str(sample_size):<12} {method:<15} "
-            f"{deviation:<12.4f} {sig_str:<12} {prac_str:<15}"
-        )
-    
-    lines.append("")
-    lines.append(
-        "NOTE: Statistical significance is determined using Bonferroni-corrected "
-        "p-values (family-wise error rate control). Practical significance is defined "
-        "as |deviation| > 1.0% (FR-011).\n"
+    if output_dir is None:
+        output_dir = get_output_dir()
+
+    output_dir = Path(output_dir)
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    logger.info(f"Loading coverage records from {get_processed_data_dir()}")
+    coverage_records = load_coverage_records()
+
+    if not coverage_records:
+        logger.error("No coverage records found. Cannot generate report.")
+        raise ValueError("No coverage records found. Run simulation first.")
+
+    logger.info(f"Loaded {len(coverage_records)} coverage records")
+
+    logger.info(f"Loading population means from {get_processed_data_dir()}")
+    population_means = load_population_means()
+
+    # Aggregate by dataset, sample size, and interval type
+    # Structure: {dataset_id: {sample_size: {interval_type: [records]}}}
+    aggregated_data: Dict[str, Dict[str, Dict[str, List[Any]]]] = {}
+
+    for record in coverage_records:
+        dataset_id = record['dataset_id']
+        sample_size = record['sample_size']
+        interval_type = record['interval_type']
+
+        if dataset_id not in aggregated_data:
+            aggregated_data[dataset_id] = {}
+        if sample_size not in aggregated_data[dataset_id]:
+            aggregated_data[dataset_id][sample_size] = {}
+        if interval_type not in aggregated_data[dataset_id][sample_size]:
+            aggregated_data[dataset_id][sample_size][interval_type] = []
+
+        aggregated_data[dataset_id][sample_size][interval_type].append(record)
+
+    # Calculate statistics for each combination
+    report_data = []
+
+    for dataset_id in sorted(aggregated_data.keys()):
+        for sample_size in sorted(aggregated_data[dataset_id].keys(), key=int):
+            for interval_type in aggregated_data[dataset_id][sample_size]:
+                records = aggregated_data[dataset_id][sample_size][interval_type]
+
+                # Calculate coverage rate
+                total = len(records)
+                covered = sum(1 for r in records if r['contains_mean'])
+                coverage_rate = covered / total if total > 0 else 0.0
+
+                # Calculate mean deviation from nominal (95%)
+                nominal_coverage = 0.95
+                deviation = coverage_rate - nominal_coverage
+
+                # Check practical significance
+                is_sig = is_practically_significant(deviation)
+
+                # Bonferroni correction will be applied at the report level
+                # based on the total number of tests (datasets * sample sizes * interval types)
+
+                report_data.append({
+                    'dataset_id': dataset_id,
+                    'sample_size': int(sample_size),
+                    'interval_type': interval_type,
+                    'total_replications': total,
+                    'coverage_rate': coverage_rate,
+                    'deviation': deviation,
+                    'is_practically_significant': is_sig
+                })
+
+    # Apply Bonferroni correction across all tests
+    num_tests = len(report_data)
+    if num_tests == 0:
+        logger.warning("No tests to correct. Cannot apply Bonferroni.")
+        return str(output_dir / "aggregate_report.md")
+
+    corrected_results = apply_bonferroni_correction(report_data, num_tests)
+
+    # Create aggregate report structure
+    aggregate_report = create_aggregate_report(
+        seed=get_random_seed(),
+        timestamp=datetime.utcnow().isoformat(),
+        total_datasets=len(aggregated_data),
+        total_tests=num_tests,
+        nominal_coverage=0.95,
+        bonferroni_corrected=True,
+        results=corrected_results
     )
-    
+
+    # Save structured report to JSON
+    save_aggregate_report(aggregate_report, output_dir / "aggregate_report.json")
+
+    # Generate Markdown report
+    md_content = _generate_markdown_report(aggregate_report)
+
+    report_path = output_dir / "aggregate_report.md"
+    report_path.write_text(md_content, encoding='utf-8')
+
+    logger.info(f"Aggregate report generated: {report_path}")
+    return str(report_path)
+
+
+def _generate_markdown_report(aggregate_report: Dict[str, Any]) -> str:
+    """
+    Generate the markdown content for the aggregate report.
+
+    Explicitly contrasts the scope of multiple UCI datasets against
+    previous synthetic approaches to ensure clarity on generalization.
+    """
+    lines = []
+    lines.append("# Aggregate Report: Validity of Frequentist Confidence Intervals")
+    lines.append("")
+    lines.append(f"**Generated:** {aggregate_report['timestamp']}")
+    lines.append(f"**Random Seed:** {aggregate_report['seed']}")
+    lines.append(f"**Total Datasets Analyzed:** {aggregate_report['total_datasets']}")
+    lines.append(f"**Total Statistical Tests:** {aggregate_report['total_tests']}")
+    lines.append(f"**Nominal Coverage Level:** {aggregate_report['nominal_coverage']*100:.1f}%")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+
+    # Executive Summary
+    lines.append("## Executive Summary")
+    lines.append("")
+    lines.append("This report presents the results of a Monte Carlo simulation assessing the empirical coverage rates")
+    lines.append("of frequentist confidence intervals (t-intervals and bootstrap percentile intervals) across **multiple")
+    lines.append("real-world UCI Machine Learning datasets**. Unlike previous studies that relied on synthetic data")
+    lines.append("generated from idealized distributions, this analysis uses **actual empirical data** to evaluate")
+    lines.append("interval validity under realistic conditions.")
+    lines.append("")
+    lines.append("### Key Findings")
+    lines.append("")
+
+    # Count significant deviations
+    significant_count = sum(1 for r in aggregate_report['results'] if r['is_practically_significant'])
+    lines.append(f"- **Total Tests Performed:** {aggregate_report['total_tests']}")
+    lines.append(f"- **Practically Significant Deviations (>1.0%):** {significant_count}")
+    lines.append(f"- **Bonferroni Correction Applied:** Yes (Family-wise error rate controlled at α=0.05)")
+    lines.append("")
+
+    if significant_count > 0:
+        lines.append(f"⚠️ **Warning:** {significant_count} configuration(s) showed practically significant deviations from")
+        lines.append("the nominal 95% coverage level. These deviations suggest that the t-interval or bootstrap")
+        lines.append("methods may not achieve their nominal coverage for certain small-sample configurations")
+        lines.append("when applied to real-world data distributions.")
+    else:
+        lines.append("✅ **Result:** No configurations showed practically significant deviations from the nominal")
+        lines.append("95% coverage level across all tested datasets and sample sizes.")
+    lines.append("")
+
+    # Scope Contrast Section (Critical for FR-007)
+    lines.append("## Scope and Generalization: Real UCI Data vs. Synthetic Approaches")
+    lines.append("")
+    lines.append("### Distinction from Synthetic Studies")
+    lines.append("")
+    lines.append("Previous research on confidence interval validity has predominantly relied on **synthetic data")
+    lines.append("generated from known parametric distributions** (e.g., Normal, t-distribution, Uniform). While")
+    lines.append("these studies provide theoretical insights, they often fail to capture the complexities of")
+    lines.append("real-world data, including:")
+    lines.append("")
+    lines.append("- **Non-normality and skewness** in empirical distributions")
+    lines.append("- **Outliers and heavy tails** present in real measurements")
+    lines.append("- **Discrete or mixed variable types** that violate continuous assumptions")
+    lines.append("- **Complex dependencies** between variables that are not captured in simple models")
+    lines.append("")
+    lines.append("### Generalization to Real-World Applications")
+    lines.append("")
+    lines.append(f"This study explicitly addresses these limitations by analyzing **{aggregate_report['total_datasets']}")
+    lines.append("real UCI datasets** spanning diverse domains (chemistry, biology, health, physics). The findings")
+    lines.append("here are **associational** in nature: they describe the performance of confidence interval methods")
+    lines.append("when applied to this specific set of real-world datasets, but **do not claim universal validity")
+    lines.append("for all possible data distributions**.")
+    lines.append("")
+    lines.append("### Implications")
+    lines.append("")
+    lines.append("The results presented in this report should be interpreted as evidence of how well standard")
+    lines.append("confidence interval procedures perform on **real, messy data** rather than idealized theoretical")
+    lines.append("distributions. Practitioners should exercise caution when applying these methods to small samples")
+    lines.append("from non-normal populations, as the empirical coverage rates may deviate from nominal levels.")
+    lines.append("")
+
+    # Detailed Results Table
+    lines.append("---")
+    lines.append("")
+    lines.append("## Detailed Results")
+    lines.append("")
+    lines.append("The following table summarizes the empirical coverage rates for each dataset, sample size,")
+    lines.append("and interval type combination. Deviations are calculated as (Empirical Coverage - 0.95).")
+    lines.append("")
+    lines.append("| Dataset | Sample Size | Interval Type | Replications | Coverage Rate | Deviation | Sig? | Bonferroni p-value |")
+    lines.append("|---------|-------------|---------------|--------------|---------------|-----------|------|--------------------|")
+
+    for result in aggregate_report['results']:
+        sig_marker = "Yes" if result['is_practically_significant'] else "No"
+        lines.append(
+            f"| {result['dataset_id']} | {result['sample_size']} | {result['interval_type']} | "
+            f"{result['total_replications']} | {result['coverage_rate']:.4f} | "
+            f"{result['deviation']:.4f} | {sig_marker} | {result['bonferroni_p_value']:.6f} |"
+        )
+    lines.append("")
+
+    # Methodology Section
+    lines.append("---")
+    lines.append("")
+    lines.append("## Methodology")
+    lines.append("")
+    lines.append("### Data Sources")
+    lines.append("")
+    lines.append("Five UCI Machine Learning Repository datasets were analyzed:")
+    lines.append("")
+    datasets_list = sorted(list(set(r['dataset_id'] for r in aggregate_report['results'])))
+    for ds in datasets_list:
+        lines.append(f"- **{ds}**")
+    lines.append("")
+    lines.append("### Simulation Parameters")
+    lines.append("")
+    lines.append("- **Sample Sizes:** n = 10, 20, 30")
+    lines.append("- **Interval Types:** Student's t-interval, Bootstrap percentile interval")
+    lines.append("- **Nominal Coverage:** 95%")
+    lines.append("- **Replications:** 1,000 per configuration (configurable)")
+    lines.append("- **Ground Truth:** Mean of the full dataset array (operational population mean)")
+    lines.append("")
+    lines.append("### Statistical Corrections")
+    lines.append("")
+    lines.append("Bonferroni correction was applied to control the family-wise error rate across all")
+    lines.append(f"{aggregate_report['total_tests']} statistical tests. The corrected significance threshold is")
+    lines.append(f"α / {aggregate_report['total_tests']}.")
+    lines.append("")
+
+    # Conclusion
+    lines.append("---")
+    lines.append("")
+    lines.append("## Conclusion")
+    lines.append("")
+    lines.append("This analysis provides empirical evidence on the validity of frequentist confidence intervals")
+    lines.append("when applied to real-world datasets with small sample sizes. The findings highlight the importance")
+    lines.append("of verifying interval performance under realistic conditions rather than relying solely on")
+    lines.append("theoretical guarantees derived from synthetic data.")
+    lines.append("")
+    lines.append("Practitioners are advised to consider these results when designing studies with limited sample")
+    lines.append("sizes and to complement standard interval methods with diagnostic checks or alternative approaches")
+    lines.append("(e.g., robust standard errors, transformation-based methods) when appropriate.")
+    lines.append("")
+    lines.append("---")
+    lines.append("")
+    lines.append("*Report generated by the llmXive automated science pipeline.*")
+
     return "\n".join(lines)
 
 
-def generate_aggregate_report(
-    output_path: Optional[Path] = None,
-    force_regenerate: bool = False
-) -> Path:
-    """
-    Generate the aggregate report with explicit associational language.
-    
-    This function:
-    1. Loads coverage records and population means
-    2. Runs the aggregation workflow
-    3. Generates a markdown report with FR-007 compliant language
-    4. Saves the report to the specified output path
-    
-    Args:
-        output_path: Optional path for the output file. Defaults to 
-                    outputs/aggregate_report.md in the project root.
-        force_regenerate: If True, regenerate the report even if it exists.
-        
-    Returns:
-        Path to the generated report file.
-        
-    Raises:
-        FileNotFoundError: If required input files are missing.
-        ValueError: If aggregation data is invalid.
-    """
-    # Determine output path
-    if output_path is None:
-        output_dir = get_output_dir()
-        output_path = Path(output_dir) / "aggregate_report.md"
-    else:
-        output_path = Path(output_path)
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Check if report already exists
-    if output_path.exists() and not force_regenerate:
-        logger.info(f"Report already exists at {output_path}. Skipping generation.")
-        return output_path
-    
-    # Load data
-    logger.info("Loading coverage records...")
-    coverage_records = load_coverage_records()
-    
-    if not coverage_records:
-        raise FileNotFoundError(
-            "No coverage records found. Run the simulation workflow first."
-        )
-    
-    logger.info("Loading population means...")
-    population_means = load_population_means()
-    
-    # Run aggregation workflow
-    logger.info("Running aggregation workflow...")
-    aggregate_data = run_aggregation_workflow(coverage_records, population_means)
-    
-    # Apply Bonferroni correction
-    logger.info("Applying Bonferroni correction...")
-    bonferroni_results = apply_bonferroni_correction(aggregate_data)
-    
-    # Check practical significance
-    logger.info("Checking practical significance...")
-    practical_significance = {}
-    for record in aggregate_data.get('records', []):
-        key = f"{record['dataset_id']}_{record['sample_size']}_{record['interval_method']}"
-        deviation = abs(record.get('mean_deviation', 0.0))
-        practical_significance[key] = is_practically_significant(deviation)
-    
-    # Build report content
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    
-    report_content = f"""# Aggregate Coverage Analysis Report
-
-**Generated:** {timestamp}
-**Project:** PROJ-263 - Assessing the Validity of Frequentist Confidence Intervals
-
-{ _format_associational_warning() }
-
-{ _generate_methodology_section() }
-
-{ _generate_results_summary(aggregate_data, bonferroni_results, practical_significance) }
-
-## CONCLUSIONS
-
-The analysis above demonstrates the empirical coverage performance of frequentist confidence 
-intervals across multiple UCI datasets. Key observations:
-
-1. **Associational Nature**: The deviations observed are associational findings specific to 
-   the datasets examined. They provide evidence of coverage validity within this scope but 
-   do not constitute universal guarantees.
-
-2. **Sample Size Impact**: As expected, smaller sample sizes (n=10) show greater deviation 
-   from nominal coverage compared to larger samples (n=30), particularly for the t-interval 
-   method.
-
-3. **Dataset Heterogeneity**: Different UCI datasets exhibit varying degrees of deviation, 
-   highlighting the importance of using diverse, real-world data for validation rather than 
-   relying solely on synthetic datasets.
-
-4. **Method Comparison**: The bootstrap percentile interval shows different coverage 
-   characteristics compared to the t-interval, with performance varying by dataset and 
-   sample size.
-
-## LIMITATIONS
-
-- This analysis is limited to the specific UCI datasets examined. Results may differ for 
-  other data distributions or domains.
-- The operational ground truth (full dataset mean) is dataset-specific and does not 
-  represent a universal population parameter.
-- The Monte Carlo simulation approximates the super-population distribution through 
-  sampling with replacement, which may not perfectly capture all real-world sampling 
-  scenarios.
-
-## REFERENCES
-
-- FR-007: Report generation with explicit associational language
-- FR-010: Use of full dataset mean as operational ground truth
-- Constitution Principle VII: Ground truth validation
-"""
-    
-    # Save report
-    with open(output_path, 'w', encoding='utf-8') as f:
-        f.write(report_content)
-    
-    logger.info(f"Report generated successfully: {output_path}")
-    
-    # Also save the structured aggregate data
-    structured_output_path = output_path.parent / "aggregate_data.json"
-    save_aggregate_report(aggregate_data, structured_output_path)
-    logger.info(f"Structured data saved: {structured_output_path}")
-    
-    return output_path
-
-
-def main() -> int:
-    """
-    Main entry point for report generation.
-    
-    Returns:
-        0 on success, non-zero on failure.
-    """
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
+def main():
+    """Main entry point for the report generation workflow."""
     try:
         report_path = generate_aggregate_report()
-        print(f"Report generated: {report_path}")
+        print(f"Aggregate report successfully generated at: {report_path}")
         return 0
     except Exception as e:
-        logger.error(f"Failed to generate report: {e}", exc_info=True)
+        logger.error(f"Failed to generate aggregate report: {e}")
+        print(f"Error: {e}", file=sys.stderr)
         return 1
 
 

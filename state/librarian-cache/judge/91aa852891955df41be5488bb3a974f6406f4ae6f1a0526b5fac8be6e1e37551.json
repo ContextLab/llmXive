@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2604.00086",
+  "judged_at": "2026-08-11T10:13:12Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scalable visual pretraining for language intelligence\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (d) as it presents a foundational methodology (HIVE framework) for the specific mechanism of hierarchical visual pre-training and vision-language alignment, which is the core technical domain of the user's follow-up question on extending \"Scalable Visual Pretraining for Language Intelligence.\"",
+  "relevant": true
+}

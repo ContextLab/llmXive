@@ -1,0 +1,14 @@
+datasets
+scikit-learn
+statsmodels
+sentence-transformers
+llama-cpp-python
+pandas
+numpy
+tqdm
+biopython
+firth-logistic
+reference-validator
+pyyaml
+pytest
+requests

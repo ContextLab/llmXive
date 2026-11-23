@@ -1,57 +1,77 @@
+"""
+Script to setup the data directory structure for the project.
+This script creates the necessary directories for storing raw, intermediate,
+processed data, as well as reports and reference sets.
+"""
 import os
 import sys
 from pathlib import Path
 from utils.logger import get_logger
+from utils.config import get_project_root
+
+logger = get_logger(__name__)
 
 def setup_data_directories():
     """
-    Creates the required data directory structure for the project.
-    This includes raw, intermediate, and processed data folders,
-    as well as specific subdirectories for human and LLM samples.
+    Creates the required data directory structure relative to the project root.
     
-    Returns:
-        bool: True if all directories were created successfully, False otherwise.
+    Directories created:
+    - data/raw/human_samples
+    - data/raw/llm_samples
+    - data/raw/reference_set
+    - data/intermediate
+    - data/processed
+    - reports
     """
-    logger = get_logger(__name__)
-    project_root = Path.cwd()
+    project_root = get_project_root()
+    data_root = project_root / "data"
     
-    # Define the relative paths required by the task
-    data_dirs = [
-        "data/raw/human_samples",
-        "data/raw/llm_samples",
-        "data/intermediate",
-        "data/processed"
+    # Define the directory structure to create
+    directories = [
+        data_root / "raw" / "human_samples",
+        data_root / "raw" / "llm_samples",
+        data_root / "raw" / "reference_set",
+        data_root / "intermediate",
+        data_root / "processed",
+        project_root / "reports",
     ]
     
-    success = True
+    created_count = 0
+    existing_count = 0
     
-    for dir_path in data_dirs:
-        full_path = project_root / dir_path
+    for directory in directories:
         try:
-            full_path.mkdir(parents=True, exist_ok=True)
-            logger.info(f"Ensured directory exists: {full_path}")
-        except OSError as e:
-            logger.error(f"Failed to create directory {full_path}: {e}")
-            success = False
+            # Create directory with parents if they don't exist
+            directory.mkdir(parents=True, exist_ok=True)
+            
+            # Verify the directory is writable
+            test_file = directory / ".write_test"
+            try:
+                test_file.touch()
+                test_file.unlink()
+                created_count += 1
+                logger.info(f"Successfully created and verified writable: {directory}")
+            except (OSError, PermissionError) as e:
+                logger.error(f"Directory {directory} created but not writable: {e}")
+                # Don't count as successfully created if not writable
+                if directory.exists():
+                    directory.rmdir() # Clean up empty directory
+        except Exception as e:
+            logger.error(f"Failed to create directory {directory}: {e}")
     
-    if success:
-        logger.info("Data directory structure setup complete.")
-    else:
-        logger.warning("Some directories could not be created. Check logs for details.")
-        
-    return success
+    logger.info(f"Data directory setup complete. Created: {created_count}, Existing: {existing_count}")
+    return created_count == len(directories)
 
 def main():
-    """
-    Entry point for the script.
-    """
-    # Ensure we are running from the project root or code directory
-    # If running from code/, we need to adjust path resolution if necessary
-    # but mkdir parents=True handles relative paths from cwd generally.
-    # However, to be robust, we assume the script is run as `python code/01_setup_data_dirs.py`
-    # from the repo root.
+    """Main entry point for the script."""
+    logger.info("Starting data directory setup...")
+    success = setup_data_directories()
     
-    if not setup_data_directories():
+    if success:
+        logger.info("Data directory structure is ready.")
+        sys.exit(0)
+    else:
+        logger.error("Data directory setup failed. Please check permissions.")
         sys.exit(1)
 
 if __name__ == "__main__":

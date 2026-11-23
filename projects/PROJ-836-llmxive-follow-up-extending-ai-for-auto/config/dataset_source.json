@@ -1,0 +1,7 @@
+{
+  "name": "ai-auto-research-benchmark",
+  "url": "https://huggingface.co/datasets/llmXive/ai-auto-research-benchmark/resolve/main/data.zip",
+  "description": "Benchmark dataset for AI auto-research evaluation containing literature reviews and experimental outcomes",
+  "version": "1.0.0",
+  "license": "MIT"
+}

@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mesh-network-supercomputer"
+version = "0.1.0"
+description = "Mesh Network Supercomputer Using Pooled Idle Computing Resources"
+requires-python = ">=3.11"
+dependencies = [
+    "paramiko",
+    "scikit-learn",
+    "pandas",
+    "pygam",
+    "statsmodels",
+    "pytest",
+    "pyyaml",
+    "numpy",
+    "simpy",
+    "scipy",
+    "jsonschema",
+    "tomli; python_version < '3.11'"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+# Same as Black.
+line-length = 88
+target-version = "py311"
+
+# Exclude a few directories
+exclude = [
+    ".eggs",
+    ".git",
+    ".mypy_cache",
+    ".tox",
+    ".venv",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), isort (`I`), and flake8 (`W`)
+select = ["E", "W", "F", "I"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix` is provided)
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.lint.per-file-ignores]
+# Ignore specific rules in test files if necessary
+"code/tests/**/*.py" = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+pythonpath = ["code"]
+addopts = "-v --tb=short"

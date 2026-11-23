@@ -1,0 +1,27 @@
+{
+  "project_id": "PROJ-461-predicting-the-impact-of-composition-on-",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "No directory listing or evidence of the required folders (`code/data`, `code/features`, `code/models`, `code/analysis`, `data`, `models`, `reports`, `tests/unit`, `tests/contract`, `tests/integration`) is provided, so we cannot confirm that the project structure was actually created. The implementer must supply a file\u2011tree snapshot or similar proof that these directories exist and are non\u2011empty.",
+      "first_seen": "2026-09-07T14:49:47.078180+00:00",
+      "last_seen": "2026-09-07T14:49:47.078180+00:00"
+    },
+    {
+      "task_key": "T003",
+      "reject_count": 1,
+      "last_reason": "The `pyproject.toml` correctly contains the required Black configuration and a Ruff section, but the task explicitly required a separate `.ruff.toml` file with `line-length = 88` and `target-version = \"py310\"`. The `.ruff.toml` file is missing, so the requirement is not fully satisfied.",
+      "first_seen": "2026-09-07T14:49:52.349811+00:00",
+      "last_seen": "2026-09-07T14:49:52.349811+00:00"
+    },
+    {
+      "task_key": "T004",
+      "reject_count": 1,
+      "last_reason": "No evidence of a `data/`, `models/`, or `reports/` directory, nor a `.gitignore` file with the required exclusion patterns, was provided. The required artifacts are missing, so the task is not satisfied.",
+      "first_seen": "2026-09-07T14:49:52.351333+00:00",
+      "last_seen": "2026-09-07T14:49:52.351333+00:00"
+    }
+  ],
+  "updated_at": "2026-09-07T14:49:52.351333+00:00"
+}

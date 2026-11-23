@@ -1,0 +1,75 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Results Schema"
+description: "Schema for output of correlation and regression analysis."
+type: "object"
+properties:
+  correlation_rho:
+    type: "number"
+    description: "Spearman correlation coefficient between delay variance and cohesion."
+  p_value:
+    type: "number"
+    description: "P-value for the correlation test."
+  regression_coeffs:
+    type: "object"
+    description: "Coefficients from the OLS regression model."
+    properties:
+      response_time_variance:
+        type: "number"
+      team_size:
+        type: "number"
+      project_age:
+        type: "number"
+      total_comment_count:
+        type: "number"
+      intercept:
+        type: "number"
+    required:
+      - response_time_variance
+      - team_size
+      - project_age
+      - total_comment_count
+      - intercept
+  vif_values:
+    type: "object"
+    description: "Variance Inflation Factors for control variables."
+    properties:
+      team_size:
+        type: "number"
+      project_age:
+        type: "number"
+      total_comment_count:
+        type: "number"
+    required:
+      - team_size
+      - project_age
+      - total_comment_count
+  corrected_p_values:
+    type: "object"
+    description: "Benjamini-Hochberg corrected p-values for stratified tests."
+    additionalProperties:
+      type: "number"
+  stratified_analysis:
+    type: "array"
+    description: "Results for stratified correlations (by language/size)."
+    items:
+      type: "object"
+      properties:
+        group_name:
+          type: "string"
+        rho:
+          type: "number"
+        p_value:
+          type: "number"
+        corrected_p_value:
+          type: "number"
+  status:
+    type: "string"
+    enum: ["success", "halted_vif", "insufficient_data"]
+    description: "Status of the analysis."
+required:
+  - correlation_rho
+  - p_value
+  - regression_coeffs
+  - vif_values
+  - status
+additionalProperties: false

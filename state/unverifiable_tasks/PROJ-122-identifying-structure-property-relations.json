@@ -1,0 +1,48 @@
+{
+  "project_id": "PROJ-122-identifying-structure-property-relations",
+  "tasks": [
+    {
+      "task_key": "T001a",
+      "reject_count": 1,
+      "last_reason": "No directory structure (`code/`, `data/raw/`, `data/processed/`, `data/features/`, `tests/`, `state/projects/`) is present in the provided artifacts; there is no file or listing showing these folders were created. The claim cannot be verified without concrete evidence.",
+      "first_seen": "2026-08-05T01:23:02.769466+00:00",
+      "last_seen": "2026-08-05T01:23:02.769466+00:00"
+    },
+    {
+      "task_key": "T003",
+      "reject_count": 1,
+      "last_reason": "No linting or formatting configuration files (e.g., `.flake8`, `pyproject.toml` with Black settings, or CI scripts invoking flake8/black) are present in the provided evidence, nor any documentation showing that these tools have been set up and integrated into the project. The required artifacts to demonstrate that linting and formatting are configured are missing.",
+      "first_seen": "2026-08-05T01:23:02.770443+00:00",
+      "last_seen": "2026-08-05T01:23:02.770443+00:00"
+    },
+    {
+      "task_key": "T004",
+      "reject_count": 1,
+      "last_reason": "No `.gitignore` file or `pytest` configuration (e.g., `pytest.ini`, `conftest.py`, or test directory) was presented in the evidence, so the required artifacts are missing. The implementer must add these files with appropriate content to satisfy the task.",
+      "first_seen": "2026-08-05T01:23:02.771137+00:00",
+      "last_seen": "2026-08-05T01:23:02.771137+00:00"
+    },
+    {
+      "task_key": "T005",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-08-05T01:23:02.771963+00:00",
+      "last_seen": "2026-08-05T01:23:02.771963+00:00"
+    },
+    {
+      "task_key": "T006",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: schema.yaml",
+      "first_seen": "2026-08-05T01:23:02.772742+00:00",
+      "last_seen": "2026-08-05T01:23:02.772742+00:00"
+    },
+    {
+      "task_key": "T010",
+      "reject_count": 1,
+      "last_reason": "The `tests/test_contract.py` file exists, but it relies on `dataset.schema.yaml` (and `output.schema.yaml`) which are missing from the repository, causing the fixtures to fail. Without these schema files the contract tests cannot actually validate any data, so the required dependency tasks (T005, T006) are not satisfied. The missing schema files must be added for the task to be complete.",
+      "first_seen": "2026-08-05T01:23:02.773697+00:00",
+      "last_seen": "2026-08-05T01:23:02.773697+00:00"
+    }
+  ],
+  "updated_at": "2026-08-05T01:23:02.773697+00:00"
+}

@@ -1,0 +1,23 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EvaluationMetrics"
+description: "Schema for the evaluation metrics on the test set."
+type: object
+properties:
+  auc:
+    type: number
+    description: "AUC on test set."
+  precision:
+    type: number
+    description: "Precision."
+  recall:
+    type: number
+    description: "Recall."
+  calibration_error:
+    type: number
+    description: "Mean absolute error from ideal diagonal."
+required:
+  - auc
+  - precision
+  - recall
+  - calibration_error
+additionalProperties: false

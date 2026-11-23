@@ -1,0 +1,27 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "EvolutionMetrics",
+  "type": "object",
+  "properties": {
+    "condition": {
+      "type": "string",
+      "enum": ["baseline", "counterfactual"]
+    },
+    "env_id": {
+      "type": "string"
+    },
+    "seed": {
+      "type": "integer"
+    },
+    "reward": {
+      "type": "number"
+    },
+    "complexity": {
+      "type": "number"
+    },
+    "success": {
+      "type": "boolean"
+    }
+  },
+  "required": ["condition", "env_id", "seed", "reward", "complexity", "success"]
+}

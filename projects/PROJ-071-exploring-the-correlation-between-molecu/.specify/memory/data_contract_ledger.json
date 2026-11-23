@@ -1,0 +1,8 @@
+[
+  {
+    "data_file": "merged_drugs.csv",
+    "required": [
+      "train"
+    ]
+  }
+]

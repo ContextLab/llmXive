@@ -1,230 +1,240 @@
 import os
 import logging
 from pathlib import Path
-from typing import Optional, Tuple, Union
+from typing import Optional, Tuple, Union, Iterator, Dict, Any
 import pandas as pd
 import numpy as np
 
+# Attempt to import optional dependencies
+try:
+    import miceforest
+    MICEFOREST_AVAILABLE = True
+except ImportError:
+    MICEFOREST_AVAILABLE = False
+    logging.warning("miceforest not found. Falling back to sklearn.impute.IterativeImputer.")
+
+try:
+    from sklearn.impute import IterativeImputer
+    SKLEARN_IMPUTE_AVAILABLE = True
+except ImportError:
+    SKLEARN_IMPUTE_AVAILABLE = False
+    logging.error("Neither miceforest nor sklearn.impute.IterativeImputer available. Cannot impute.")
+
 from utils.logger import get_logger, log_execution_start, log_execution_end
-from utils.validators import validate_dataframe_schema, load_schema
 from data.config import get_config
 
 logger = get_logger(__name__)
 
-def calculate_missing_ratio(df: pd.DataFrame, column: str) -> float:
-    """
-    Calculate the ratio of missing values for a specific column.
+def get_available_ram_gb() -> float:
+    """Estimate available RAM in GB."""
+    try:
+        import psutil
+        available = psutil.virtual_memory().available
+        return available / (1024 ** 3)
+    except ImportError:
+        logger.warning("psutil not installed. Cannot estimate RAM. Defaulting to 4GB assumption.")
+        return 4.0
 
-    Args:
-        df: Input DataFrame
-        column: Column name to check
+def estimate_dataframe_memory(df: pd.DataFrame) -> float:
+    """Estimate memory usage of a DataFrame in GB."""
+    # Rough estimate: bytes / (1024^3)
+    return df.memory_usage(deep=True).sum() / (1024 ** 3)
 
-    Returns:
-        Float between 0.0 and 1.0 representing missing ratio
-    """
-    if column not in df.columns:
-        raise ValueError(f"Column '{column}' not found in DataFrame")
-    return df[column].isna().sum() / len(df)
+def load_data_streaming(path: Union[str, Path], batch_size: int = 1000) -> Iterator[pd.DataFrame]:
+    """Load data in chunks if the file is large."""
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"Data file not found: {path}")
 
-def _normalize_binary_column(df: pd.DataFrame, col_name: str) -> pd.DataFrame:
+    # Check file size roughly
+    size_gb = path.stat().st_size / (1024 ** 3)
+    if size_gb > 0.5: # Arbitrary threshold for streaming
+        logger.info(f"Loading {path} in streaming mode (size > 0.5GB)")
+        for chunk in pd.read_csv(path, chunksize=batch_size):
+            yield chunk
+    else:
+        logger.info(f"Loading {path} into memory (size <= 0.5GB)")
+        yield pd.read_csv(path)
+
+def calculate_missing_ratio(df: pd.DataFrame, subset: Optional[list] = None) -> pd.Series:
+    """Calculate missing ratio per row."""
+    if subset:
+        return df[subset].isna().mean(axis=1)
+    return df.isna().mean(axis=1)
+
+def preprocess_data(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Normalize a binary column to 0/1 integer representation.
-    
-    Handles various binary encodings:
-    - Strings: 'yes'/'no', 'true'/'false', 'high'/'low', 'treatment'/'control'
-    - Mixed case strings
-    - Numeric 0/1 or 1/0 (already normalized)
-    
-    Args:
-        df: Input DataFrame
-        col_name: Name of the column to normalize
-        
-    Returns:
-        DataFrame with normalized column
+    Basic preprocessing:
+    1. Ensure numeric types for key variables.
+    2. Normalize avatar_condition to 0/1 if binary.
+    3. Log descriptive stats (but do not use change scores as outcome).
     """
     df = df.copy()
+    key_vars = ['pre_self_esteem', 'post_self_esteem', 'comparison_tendency', 'avatar_condition']
     
-    if col_name not in df.columns:
-        logger.warning(f"Column '{col_name}' not found in DataFrame, skipping normalization")
-        return df
-    
-    series = df[col_name]
-    
-    # Check if already numeric 0/1
-    if pd.api.types.is_numeric_dtype(series):
-        unique_vals = series.unique()
-        if set(unique_vals).issubset({0, 1, np.nan}):
-            logger.info(f"Column '{col_name}' already normalized to 0/1")
-            return df
-        elif set(unique_vals).issubset({0, 1, 2, np.nan}):
-            # Might be multi-class, check if it's actually binary encoded oddly
-            logger.warning(f"Column '{col_name}' has numeric values {unique_vals}, not strictly 0/1")
-            return df
-    
-    # Convert to string for uniform processing
-    str_series = series.astype(str).str.lower().str.strip()
-    
-    # Define mapping for common binary representations
-    # Format: (positive_value, negative_value)
-    binary_mappings = [
-        (['yes', 'true', 't', '1', 'high', 'treatment', 'high_avatar', 'social'], 
-         ['no', 'false', 'f', '0', 'low', 'control', 'low_avatar', 'non_social']),
-        (['high', 'treatment'], ['low', 'control']),
-        (['1', 'true', 'yes'], ['0', 'false', 'no']),
-    ]
-    
-    # Try to find a mapping that fits the data
-    unique_lower = set(str_series.dropna().unique())
-    
-    normalized_map = {}
-    found_mapping = False
-    
-    for pos_vals, neg_vals in binary_mappings:
-        pos_set = set(pos_vals)
-        neg_set = set(neg_vals)
-        
-        # Check if all unique values (excluding nan) are in either pos or neg sets
-        if unique_lower.issubset(pos_set | neg_set):
-            # Found a valid mapping
-            for val in pos_vals:
-                if val in unique_lower:
-                    normalized_map[val] = 1
-            for val in neg_vals:
-                if val in unique_lower:
-                    normalized_map[val] = 0
-            found_mapping = True
-            logger.info(f"Applied binary mapping to '{col_name}': {unique_lower} -> 0/1")
-            break
-    
-    if not found_mapping:
-        # If we can't map it, check if it's already 0/1 numerically (handled above)
-        # or if it has exactly 2 unique non-null values that we can map arbitrarily
-        if len(unique_lower) == 2:
-            vals = sorted(list(unique_lower))
-            normalized_map[vals[0]] = 0
-            normalized_map[vals[1]] = 1
-            logger.info(f"Arbitrarily mapped binary values for '{col_name}': {vals} -> 0/1")
-            found_mapping = True
-        else:
-            logger.error(f"Cannot normalize column '{col_name}' to binary. Unique values: {unique_lower}")
-            raise ValueError(f"Column '{col_name}' cannot be normalized to binary 0/1. "
-                           f"Unique values found: {unique_lower}")
-    
-    # Apply mapping
-    def map_val(x):
-        if pd.isna(x):
-            return np.nan
-        s = str(x).lower().strip()
-        return normalized_map.get(s, np.nan)
-    
-    df[col_name] = str_series.map(map_val).astype('Int64')
-    
-    return df
-
-def preprocess_data(
-    df: pd.DataFrame, 
-    config: Optional[dict] = None,
-    schema_path: Optional[Union[str, Path]] = None
-) -> pd.DataFrame:
-    """
-    Main preprocessing pipeline for the analysis.
-    
-    Steps:
-    1. Validate required columns exist
-    2. Handle missing data (delegation to T016 logic if needed)
-    3. Normalize binary variables (avatar_condition)
-    4. Ensure numeric types for analysis variables
-    
-    Args:
-        df: Input DataFrame from raw data
-        config: Configuration dictionary (optional, uses global config if None)
-        schema_path: Path to validation schema (optional)
-        
-    Returns:
-        Preprocessed DataFrame ready for ANCOVA
-    """
-    if config is None:
-        config = get_config()
-    
-    logger.info("Starting data preprocessing")
-    
-    # 1. Validate required columns
-    required_cols = [
-        'avatar_condition', 
-        'pre_self_esteem', 
-        'post_self_esteem', 
-        'comparison_tendency'
-    ]
-    
-    missing_cols = [c for c in required_cols if c not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns: {missing_cols}")
-    
-    # 2. Normalize binary variables
-    # Specifically normalize avatar_condition to 0/1
-    df = _normalize_binary_column(df, 'avatar_condition')
-    
-    # 3. Ensure numeric types for analysis variables
-    numeric_cols = ['pre_self_esteem', 'post_self_esteem', 'comparison_tendency']
-    for col in numeric_cols:
-        if not pd.api.types.is_numeric_dtype(df[col]):
-            logger.info(f"Converting '{col}' to numeric")
+    # Ensure numeric
+    for col in key_vars:
+        if col in df.columns:
             df[col] = pd.to_numeric(df[col], errors='coerce')
-    
-    # 4. Validate schema if provided
-    if schema_path:
-        schema = load_schema(schema_path)
-        validate_dataframe_schema(df, schema)
-        logger.info("Schema validation passed")
-    
-    logger.info(f"Preprocessing complete. Shape: {df.shape}")
+
+    # Normalize avatar_condition
+    if 'avatar_condition' in df.columns:
+        # If it has values like 0, 1, 2... but we expect binary 0/1
+        # If it's already 0/1, no change. If it's 1/2, map to 0/1? 
+        # Spec says: "avatar_condition to 0/1 if binary"
+        unique_vals = df['avatar_condition'].dropna().unique()
+        if len(unique_vals) == 2 and set(unique_vals) == {0, 1}:
+            logger.info("avatar_condition is already binary (0, 1).")
+        elif len(unique_vals) == 2:
+            # Map to 0, 1 preserving order
+            sorted_vals = sorted(unique_vals)
+            mapping = {sorted_vals[0]: 0, sorted_vals[1]: 1}
+            df['avatar_condition'] = df['avatar_condition'].map(mapping)
+            logger.info(f"Normalized avatar_condition from {sorted_vals} to [0, 1].")
+        else:
+            logger.warning(f"avatar_condition has {len(unique_vals)} unique values: {unique_vals}. Cannot normalize to binary.")
+
+    # Log change scores for diagnostics ONLY (FR-017)
+    if 'pre_self_esteem' in df.columns and 'post_self_esteem' in df.columns:
+        change = df['post_self_esteem'] - df['pre_self_esteem']
+        logger.info(f"Change score stats (diagnostic only): mean={change.mean():.4f}, std={change.std():.4f}")
+        logger.warning("Change scores are for descriptive use only. Do NOT use as outcome in ANCOVA.")
+
     return df
 
-def run_preprocess(
-    input_path: Union[str, Path], 
-    output_path: Union[str, Path],
-    schema_path: Optional[Union[str, Path]] = None
-) -> None:
+def impute_data(df: pd.DataFrame, subset: Optional[list] = None) -> Tuple[pd.DataFrame, str]:
     """
-    CLI-style entry point for preprocessing.
+    Perform MICE imputation.
+    Priority: miceforest > sklearn.impute.IterativeImputer.
+    Excludes rows with > 20% missingness.
     
-    Loads data from input_path, preprocesses it, and saves to output_path.
-    
-    Args:
-        input_path: Path to input CSV/Parquet file
-        output_path: Path to save preprocessed CSV
-        schema_path: Optional path to schema for validation
+    Returns:
+        Tuple[imputed_df, method_used]
     """
-    log_execution_start("run_preprocess", {"input": str(input_path), "output": str(output_path)})
+    if subset is None:
+        subset = ['pre_self_esteem', 'post_self_esteem', 'comparison_tendency', 'avatar_condition']
     
+    # Filter to only relevant columns for imputation logic, but keep index
+    # We need to track which rows are excluded
+    missing_ratio = calculate_missing_ratio(df, subset)
+    excluded_mask = missing_ratio > 0.20
+    excluded_count = excluded_mask.sum()
+    
+    if excluded_count > 0:
+        logger.warning(f"Excluding {excluded_count} rows with > 20% missingness.")
+        df_clean = df[~excluded_mask].copy()
+    else:
+        df_clean = df.copy()
+
+    if df_clean.empty:
+        raise ValueError("No rows remaining after excluding high-missingness rows.")
+
+    # Check for any remaining missingness
+    if df_clean[subset].isna().sum().sum() == 0:
+        logger.info("No missing values remaining in key variables.")
+        return df_clean, "none_needed"
+
+    method_used = ""
+
+    if MICEFOREST_AVAILABLE:
+        logger.info("Using miceforest for MICE imputation.")
+        try:
+            kernel = miceforest.ImputationKernel(df_clean[subset], datasets=1, save_all_iterations=False)
+            # Impute all missing values
+            imputed_ds = kernel.complete_data()
+            method_used = "miceforest"
+            logger.info("miceforest imputation completed successfully.")
+        except Exception as e:
+            logger.error(f"miceforest failed: {e}")
+            # Fallback logic handled below if we catch it, but let's try sklearn next
+            if not SKLEARN_IMPUTE_AVAILABLE:
+                raise
+            MICEFOREST_AVAILABLE = False # Force fallback
+
+    if not MICEFOREST_AVAILABLE and SKLEARN_IMPUTE_AVAILABLE:
+        logger.info("Falling back to sklearn.impute.IterativeImputer.")
+        logger.warning("miceforest is unavailable or failed. Using sklearn.impute.IterativeImputer as fallback.")
+        logger.warning("This is a fallback mechanism. Ensure results are interpreted with caution if miceforest was expected.")
+        
+        imp = IterativeImputer(random_state=42, max_iter=10, tol=1e-3)
+        try:
+            imputed_array = imp.fit_transform(df_clean[subset])
+            imputed_df = df_clean.copy()
+            imputed_df[subset] = imputed_array
+            method_used = "sklearn_iterative"
+            logger.info("sklearn.impute.IterativeImputer completed successfully.")
+        except Exception as e:
+            logger.error(f"sklearn.impute.IterativeImputer failed: {e}")
+            raise
+
+    if not MICEFOREST_AVAILABLE and not SKLEARN_IMPUTE_AVAILABLE:
+        raise RuntimeError("No imputation library available (miceforest or sklearn).")
+
+    return imputed_df, method_used
+
+def run_preprocess(input_path: Union[str, Path], output_path: Union[str, Path]) -> Dict[str, Any]:
+    """
+    Main entry point for preprocessing.
+    1. Load data.
+    2. Preprocess (types, normalization).
+    3. Impute (MICE).
+    4. Save results.
+    """
     input_path = Path(input_path)
     output_path = Path(output_path)
     
+    log_execution_start(logger, "preprocess", input_path)
+
     if not input_path.exists():
         raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    # Load data (handle streaming if needed, though for imputation we usually need full df)
+    # For simplicity in this runner, we load full if < 1GB, else warn
+    if input_path.stat().st_size > 1 * 1024 * 1024 * 1024:
+        logger.warning("File is large (>1GB). Attempting to load into memory. If OOM, streaming imputation is required.")
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Load data
-    logger.info(f"Loading data from {input_path}")
-    if input_path.suffix == '.csv':
-        df = pd.read_csv(input_path)
-    elif input_path.suffix in ['.parquet', '.pq']:
-        df = pd.read_parquet(input_path)
-    else:
-        raise ValueError(f"Unsupported file format: {input_path.suffix}")
-    
-    logger.info(f"Loaded {len(df)} rows")
+    df = pd.read_csv(input_path)
     
     # Preprocess
-    config = get_config()
-    df_clean = preprocess_data(df, config=config, schema_path=schema_path)
+    df = preprocess_data(df)
+    
+    # Impute
+    df_imputed, method = impute_data(df)
     
     # Save
-    logger.info(f"Saving preprocessed data to {output_path}")
-    df_clean.to_csv(output_path, index=False)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df_imputed.to_csv(output_path, index=False)
     
-    log_execution_end("run_preprocess", {"rows_processed": len(df_clean)})
+    logger.info(f"Imputed data saved to {output_path} using {method}.")
     
-    logger.info("Preprocessing pipeline completed successfully")
+    log_execution_end(logger, "preprocess", output_path)
+    
+    return {
+        "status": "success",
+        "rows_in": len(df),
+        "rows_out": len(df_imputed),
+        "imputation_method": method,
+        "output_path": str(output_path)
+    }
+
+def main():
+    """CLI entry point."""
+    config = get_config()
+    input_path = config.get("raw_data_path", "data/raw/synthetic_data.csv") # Default fallback
+    output_path = config.get("imputed_data_path", "data/processed/imputed_data.csv")
+    
+    # Override with args if provided (simplified)
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", type=str, help="Input CSV path")
+    parser.add_argument("--output", type=str, help="Output CSV path")
+    args = parser.parse_args()
+    
+    if args.input: input_path = args.input
+    if args.output: output_path = args.output
+    
+    result = run_preprocess(input_path, output_path)
+    print(result)
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,42 @@
+T001:
+  reason: "The `data/raw/nist_refs.json.sha256` file records a hash that does **not**\
+    \ match the actual contents of `nist_refs.json` (computed hash\u202F=\u202Fa81b3f2b\u2026\
+    , recorded\u202F=\u202F6c9f020e\u2026). Consequently `load_refs()` raises a checksum\u2011\
+    mismatch error, causing the `test_load_valid` and `test_checksum_matches` unit\
+    \ tests to fail. Moreover, `loader.py` raises a `FileNotFoundError` when a temporary\
+    \ JSON file lacks a `.sha256` file, contradicting the `test_malformed_schema`\
+    \ expectation that checksum verification be skipped. Fix the checksum file and\
+    \ adjust the loader\u2019s checksum logic (or test expectations) so that al"
+  task: 544ce9c31ab8633dc71cc7959af8be4943f3e18f999019d8d58b34c1d558033d
+T002:
+  reason: 'Requested task execution failed; rerun successfully: code/tests/test_simulation.py
+    exit=1'
+  task: 0210874b3d30163c5e8bb57dcdaf84434ac81d1632cc9153ca6b7ee676de585b
+T003:
+  task: c23e5190e4c7bcb71b02fdd59d24e5358d19a8b22a59b533e700294420d6c7aa
+T004:
+  task: 132d8dd50b5aa94a47d282b967c6c3d0366cf9fe7b080297a0a1a33828d1c072
+T005:
+  task: 84e2bb605fe57a60786127c06eada9dcd61cd0f0c6b45a0ee3f7e72d8ad66690
+T006:
+  task: c2ea41efec9c89b295da085bdcb7e364288ce0c0108c6e06d8b0bd2051710a7a
+T007:
+  task: b07c000cde72a317a3ce364f38502ee8ac3cd8a9787333ac516e680e2f77e7d7
+T008:
+  task: cf1dc52e2c6cda77fbad53f03a9330bcfb07a89b4c60c46fa12f1303b729c6df
+T009:
+  task: f545a5c698a9fb1972fee036c14193db26be22adc02fb2b7be44dd91379f966b
+T010:
+  task: e953c2b3a997a1b3b8d1377ba28dd1cc6ae21a1f379eec3a7b96231b8e41e0e6
+T011:
+  task: 5dc8e71a5cc67a673ff373af3d4aea94674d2adadca80f0d1f177ca523b0f061
+T012:
+  task: 8cf05d175a75ed8d5e29dbade89acc2b925a919cb0d9f69d483c3dc13cbe55cf
+T013:
+  task: f4b12368ada9a0f1f01390b1546f3892a511ef02772f5718e7b83f6f60c67927
+T014:
+  task: b8958c6298174a25ea9183c1195f24299cdacd55da8502c4f6f07afeb6c76c22
+T015:
+  task: 5ba444590f85ec324bff5b6d1893d76e058aac031cffde7d5a073f534a630b0f
+T017:
+  task: 5fcb0a5bd719c4ffe4b6986e7f2fc606a9091593761d57c8ed3a51be7d0b5708

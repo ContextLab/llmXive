@@ -26,10 +26,7 @@ except ImportError:
     # and runnable if the import fails, but the test itself should fail
     # if the function is missing.
     def test_hypothesis_s_equals_1(
-        s_opt: float,
-        ci_lower: float,
-        ci_upper: float,
-        alpha: float = 0.05
+        s_opt: float, ci_lower: float, ci_upper: float, alpha: float = 0.05
     ) -> Tuple[bool, str]:
         """
         Stub for test_hypothesis_s_equals_1.
@@ -43,7 +40,10 @@ except ImportError:
         Returns:
             Tuple of (is_significant, message).
         """
-        raise NotImplementedError("Implementation of test_hypothesis_s_equals_1 is pending in code/derive_scaling.py")
+        raise NotImplementedError(
+            "Implementation of test_hypothesis_s_equals_1 is pending in code/derive_scaling.py"
+        )
+
 
 def test_hypothesis_rejects_null_when_ci_excludes_one():
     """
@@ -70,6 +70,7 @@ def test_hypothesis_rejects_null_when_ci_excludes_one():
     assert "1.0" in message or "1.00" in message
     assert "reject" in message.lower()
 
+
 def test_hypothesis_fails_to_reject_null_when_ci_includes_one():
     """
     Test that the hypothesis test fails to reject the null hypothesis (s=1.0)
@@ -93,6 +94,7 @@ def test_hypothesis_fails_to_reject_null_when_ci_includes_one():
 
     assert is_significant is False
 
+
 def test_hypothesis_edge_cases():
     """
     Test edge cases such as CI boundaries exactly at 1.0.
@@ -112,6 +114,7 @@ def test_hypothesis_edge_cases():
     ci_upper = 1.0
     is_significant, message = test_hypothesis_s_equals_1(s_opt, ci_lower, ci_upper)
     assert is_significant is False
+
 
 def test_hypothesis_message_format():
     """

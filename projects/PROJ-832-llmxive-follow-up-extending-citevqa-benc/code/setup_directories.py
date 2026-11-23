@@ -1,7 +1,3 @@
-"""
-Directory structure setup for the CiteVQA benchmark extension project.
-Creates the required directory hierarchy as per the implementation plan.
-"""
 import os
 import sys
 from pathlib import Path
@@ -9,65 +5,58 @@ from pathlib import Path
 
 def create_directory_structure():
     """
-    Creates the standard project directory structure:
-    - code/
-    - tests/
-    - data/
-      - raw/
-      - processed/
-      - results/
-      - logs/
-    - scripts/
-    
-    Ensures all directories exist and handles any existing paths gracefully.
+    Creates the required directory structure for the llmXive project.
+    Directories created:
+        - code/
+        - tests/
+        - data/
+        - data/raw/
+        - data/processed/
+        - data/results/
+        - data/logs/
+        - scripts/
     """
-    # Define the base directory (project root)
-    base_dir = Path(__file__).resolve().parent.parent
-    
-    # Define the directory structure relative to the base
+    # Define the base project root (assuming script is run from project root or code/)
+    # We use the parent of this file's directory to ensure we are at project root
+    current_file = Path(__file__)
+    project_root = current_file.parent.parent
+
     directories = [
-        "code",
-        "tests",
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "data/logs",
-        "scripts"
+        project_root / "code",
+        project_root / "tests",
+        project_root / "data",
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "results",
+        project_root / "data" / "logs",
+        project_root / "scripts",
     ]
-    
+
     created_count = 0
-    skipped_count = 0
-    
     for dir_path in directories:
-        full_path = base_dir / dir_path
-        
-        if full_path.exists():
-            if full_path.is_dir():
-                skipped_count += 1
-                print(f"Directory already exists: {full_path}")
-            else:
-                raise FileExistsError(f"Path exists but is not a directory: {full_path}")
-        else:
-            full_path.mkdir(parents=True, exist_ok=True)
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
             created_count += 1
-            print(f"Created directory: {full_path}")
-    
-    print(f"\nDirectory setup complete.")
-    print(f"Created: {created_count} directories")
-    print(f"Skipped (already existed): {skipped_count} directories")
-    
+        else:
+            print(f"Directory already exists: {dir_path}")
+
+    print(f"Directory setup complete. {created_count} new directories created.")
     return True
 
 
 def main():
-    """Entry point for the directory setup script."""
-    print("Initializing directory structure for CiteVQA project...")
+    """Entry point for script execution."""
     try:
-        create_directory_structure()
-        print("Success.")
-        sys.exit(0)
+        success = create_directory_structure()
+        if success:
+            print("Success: Directory structure verified.")
+            sys.exit(0)
+        else:
+            print("Error: Directory structure creation failed.")
+            sys.exit(1)
     except Exception as e:
-        print(f"Error during directory creation: {e}")
+        print(f"Fatal error during directory setup: {e}")
         sys.exit(1)
 
 

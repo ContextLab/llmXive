@@ -80,7 +80,7 @@ def setup_test_env():
 def test_logging_tags_appear_in_log(setup_test_env):
     """
     Asserts that the tags [MISSING_DATA_EXCLUDED] and [ERROR_SMILES] appear
-    in data/logs/ingestion.log after processing a mixed-validity scenario.
+    in data/logs/ingestion.log after processing a mixed‑validity scenario.
     """
     temp_root = setup_test_env
 

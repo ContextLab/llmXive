@@ -1,0 +1,19 @@
+status: none
+intent: download MedMisBench dataset with Authority-framed and Exception-poisoning
+  subsets python package dataset
+required_fields:
+- prompt_id
+- prompt_text
+- label
+- modal_verb_count
+- total_word_count
+- modal_verb_frequency
+- imperative_verb_count
+- declarative_sentence_count
+- imperative_declarative_ratio
+- citation_count
+- total_sentence_count
+- citation_density
+cache_key: c3438b19cf81d619d10a137bf03b03684915e0f9a71b6833584dd1bed4fbf2b0
+searched_at: '2026-10-12T12:51:01.188870+00:00'
+retry_count: 1

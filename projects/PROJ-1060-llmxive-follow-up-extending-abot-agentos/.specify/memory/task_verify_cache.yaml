@@ -1,0 +1,113 @@
+T001:
+  c: true
+  h: 2a0d158826e69f91a9fe11221482ae9068620986e1ddab66aff2285e6a3a83e4
+  r: Checked that all required directories (`code/`, `tests/`, `data/`, `data/raw/`,
+    `data/processed/`, `data/results/`, `tests/unit/`, `tests/integration/`, `tests/contract/`,
+    `specs/001-symbolic-memory-edge-robotics/contracts/`) exist and each contains
+    an `__init__.py` file as listed in the collected artifact tree.
+  sig: cf818e0c6bb3b2c8764f48177ded4681ffdaa786b01394ac7125403f2527c04d
+T002:
+  c: true
+  h: f69bb37c394d42d68551610e2c381a62553640155f39a8638e0a44b850ab590e
+  r: "Checked `code/requirements.txt` (resolved path `code/requirements.txt`) which\
+    \ contains all listed packages with the exact pinned versions and includes the\
+    \ `tracemalloc` entry for the stdlib module. The file is present, non\u2011empty,\
+    \ and matches the task specification."
+  sig: 0dce2f8735bf87513bd55db7ce8e26e180e16333e0ce9c2fb61332767a54a526
+T003:
+  c: true
+  h: 8728fcc97c4645faff2e12b6821e4f8301251bcbc7ee21f75e257d2e14dae720
+  r: "Checked `code/.ruff.toml` (contains the required line-length\u202F=\u202F88\
+    \ and select list) and `code/pyproject.toml` (includes a `[tool.black]` section\
+    \ with line-length\u202F=\u202F88). Both files exist and match the task specifications."
+  sig: 266c20f1fcbeddcd6990cec7e6a0098a9b030a46ca4e4c964c4847e619ec7be2
+T004:
+  c: true
+  h: f37cc9513dfc497f690e50faeacf5137ad441e7a8323895131eb4e9dfd501edc
+  r: "Checked the `code/config.py` file (563\u202Fbytes) and confirmed it defines\
+    \ all required constants with the exact values: `RANDOM_SEED = 42`, `GRANULARITY\
+    \ = \"coarse\"`, `PREDICATE_SET = \"spatial\"`, `MODEL_ID = \"google/vit-base-patch16-224\"\
+    `, `MAX_TRACES = 500`, and `BASELINE_HASH = \"sha:abc123...\"`. The file is non\u2011\
+    empty and matches the task specification."
+  sig: 72ce04f0e95db24c400cb1aa884e62cf2cc7b2386ca749af2a39d04456198a75
+T005:
+  c: false
+  h: e33541a258073203933881d8c07da0f3f4084345dae5db80431e2ac631f29b6d
+  r: The `code/data_loader.py` file exists and streams the ALFWorld dataset using
+    `datasets.load_dataset(..., streaming=True)`, but it does **not** implement any
+    checksum verification of the downloaded data, which is a core requirement of the
+    task. Adding hash/checksum validation for the streamed files is needed to satisfy
+    the specification.
+  sig: d61c60d988113f710ac4cde153871a09adf536607b98e6019fc8048415145cb7
+T006:
+  c: true
+  h: ec1f782d5f2c274a24f6562026985b8312fb9d862464cec0afa363d7d5399a6d
+  r: Checked `code/data_loader.py` which contains a try/except that falls back to
+    loading JSON files from `data/raw/` when the remote `datasets` download fails,
+    and raises a RuntimeError if neither source is available. The required file and
+    directory exist and the logic matches the task specification.
+  sig: 9720f489837aa69411d1396291f0a3e33620eb5cf722e436bc283ad93ecee365
+T007:
+  c: true
+  h: c090fedcafbf9c7aa47c857ed41964e0042065444eb51288f32186775ae65077
+  r: "Checked the `code/metrics.py` file (10\u202FKB) which defines a `MetricsLogger`\
+    \ class with the required methods `log_success(bool)`, `log_latency(float)`, `log_memory(float)`,\
+    \ and `save_report(str)`. The `save_report` method writes the logged entries to\
+    \ a JSON file, satisfying the \u201CJSON/CSV\u201D output format requirement.\
+    \ All methods are implemented and the file is non\u2011empty."
+  sig: c86dfcea94c3fa006959c47b9a2a9dce9379fa98ddd220085ab5291593ace2a2
+T008:
+  c: false
+  h: ebbeab9fab81a299231d007b01ed55f6686fd85cf8bcdf9a6b44dcbdd30be97d
+  r: The `tests/conftest.py` file exists, but it does not define the required pytest
+    configuration variables `pythonpath = ["code"]` and `addopts = "-v"`; it only
+    adds a fixture that manipulates `sys.path`. The task explicitly asked for those
+    settings to be present in the conftest file, so the implementation is incomplete.
+  sig: 835dc7e170d3816031684676eddc3381900cf3fcfb0a24350a856ebb60315dd9
+T009b:
+  c: false
+  h: b4911b5bd8e426d279fddcb5eee45bcedd523693b1092b7777427b0a95996d35
+  r: The provided `code/validator.py` is truncated and contains a syntax error (unfinished
+    `f.write` line) and never writes the computed result to `data/results/reconstruction_error.json`.
+    The required `validation_warnings.log` file is absent, and the existing `reconstruction_error.json`
+    does not match the format the task specifies. The implementation therefore does
+    not fulfill the task requirements.
+T017:
+  c: false
+  h: bec86ca34f481e17c30d538300559f8981d46636710602aeba110814d86229f4
+  r: "The provided `code/graph_builder.py` lacks any logic that measures the memory\
+    \ usage of a graph built from 500 traces, does not perform a \u2264\u202F2\u202F\
+    GB check, and never writes a `memory_check.json` file. Moreover, the required\
+    \ `data/results/memory_check.json` does not exist. The artifact is therefore missing\
+    \ the core validation and output stipulated by the task."
+T023:
+  c: false
+  h: e54f18fc60b21461ade48742aa9868c403ecc8cdae030e1165ad9c978e4561a9
+  r: "The provided `code/latency_guard.py` is truncated and does not raise `LatencyExceededError`\
+    \ inside the decorator nor correctly log violations to `data/results/latency_violations.json`.\
+    \ The required JSON log file is missing entirely. The implementation therefore\
+    \ does not meet the task\u2019s specifications."
+T026:
+  c: false
+  h: 4aa3e702bd126887370ace5374977859aab50f0a131b2aaad50129063225fcc5
+  r: The integration test expects `data/results/final_report.md` to be created with
+    substantive content, but the file is missing. The only produced artifact, `data/results/deltas.json`,
+    contains placeholder zero values and does not demonstrate a real pipeline run.
+    The required output files are therefore not present or valid, so the task is not
+    genuinely completed.
+T030a:
+  c: false
+  h: 1612ce0ea2c3ce3a011c5b9071592ad4372e17e0f41432cc35c688d5dfb65926
+  r: "The `code/error_analysis.py` file is truncated and its `save_log` method is\
+    \ unfinished, so it never writes a JSON file containing only the `total_failures`\
+    \ key. Moreover, the required `data/results/error_analysis_log.json` does not\
+    \ exist. The task\u2019s core requirement\u2014to log the total failure count\
+    \ before categorization to that JSON file\u2014is therefore not satisfied."
+T030b:
+  c: false
+  h: 8569f46b4a46a8999c95879c46551fb1b4c4e68cc0f3ba102a39817768a0b2e4
+  r: "The repository contains `code/error_analysis.py`, but the shown implementation\
+    \ stops at categorizing failures and does not include logic to compute `coverage_percentage`\
+    \ or write it to `data/results/error_coverage.json`. Moreover, the required JSON\
+    \ report file is absent. The task\u2019s core requirement\u2014calculating and\
+    \ persisting the coverage metric\u2014is not satisfied."

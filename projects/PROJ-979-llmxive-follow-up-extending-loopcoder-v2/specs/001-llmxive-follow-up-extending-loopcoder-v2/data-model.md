@@ -1,62 +1,73 @@
-# Data Model: llmXive follow-up: extending "LoopCoder-v2: Only Loop Once for Efficient Test-Time Computation Scali"
+# Data Model: llmXive follow-up
 
 ## Overview
 
-This document defines the data structures used to store raw inputs, computed metrics, and analysis results. All data is stored in CSV/Parquet formats for efficient I/O and version control.
+This document defines the schema for all data artifacts produced and consumed by the project. All data is stored in `data/` with strict checksumming.
 
-## Entities
+## Entity Definitions
 
 ### 1. InputProblem
-Represents a single code generation problem from the dataset.
-- `problem_id`: Unique identifier (e.g., "humaneval_0").
-- `source`: Dataset name (e.g., "HumanEval", "MBPP").
-- `prompt`: The natural language prompt.
-- `canonical_solution`: The reference code solution.
-- `difficulty`: (Optional) Difficulty label if available in the dataset.
+Represents a code generation or reasoning problem from HumanEval/MBPP, containing the prompt and the reference solution.
+- **Source**: HumanEval / MBPP raw parquet.
+- **Fields**:
+  - `problem_id`: Unique identifier for the problem.
+  - `prompt`: String (the input prompt).
+  - `canonical_solution`: String (reference solution, for verification).
+  - `test_suite`: String (code to execute tests).
+  - `difficulty_stratum`: String (pre-defined based on baseline pass@1 rates from literature).
 
 ### 2. EntropyProxy
-Stores the semantic entropy calculation for a specific problem.
-- `problem_id`: FK to `InputProblem`.
-- `entropy_value`: Scalar float (Shannon entropy).
-- `num_clusters`: Number of semantic clusters found.
-- `num_samples`: Total samples generated (should be 10).
-- `exclusion_reason`: String if sample was excluded (e.g., "zero_entropy", "underpowered").
-- `execution_failed_count`: Integer count of samples that failed execution (for debugging).
+Scalar uncertainty metric derived from $N=10$ samples.
+- **Source**: `code/src/entropy.py`.
+- **Fields**:
+  - `problem_id`: FK to InputProblem.
+  - `entropy_value`: Float (Shannon entropy).
+  - `num_clusters`: Integer (number of semantic clusters).
+  - `exclusion_flag`: Boolean (true if entropy undefined/excluded).
 
 ### 3. ConvergenceTrajectory
-Stores the iterative refinement results.
-- `problem_id`: FK to `InputProblem`.
-- `loop_count`: Integer ($k \in \{1, 2, 3\}$).
-- `is_correct`: Boolean (True if output matches canonical solution).
-- `converged_at`: Integer (The first $k$ where `is_correct` is True, or `null` if never).
-- `output_hash`: SHA256 hash of the generated output (for reproducibility).
+Step-by-step convergence data.
+- **Source**: `code/src/inference.py`.
+- **Fields**:
+  - `problem_id`: FK to InputProblem.
+  - `loop_count`: Integer ($k \in \{1, 2, 3\}$).
+  - `passed`: Boolean (did the output pass tests?).
+  - `is_censored`: Boolean (true if $k_{max}$ reached).
+  - `convergence_step`: Integer (first $k$ where `passed` is true, else null).
 
-### 4. RouterResult
-Stores the output of the dynamic routing simulation.
-- `problem_id`: FK to `InputProblem`.
-- `predicted_k`: Integer predicted by the logistic regression model.
-- `actual_k`: Integer (ground truth convergence step, mapped to 4 if non-convergence).
-- `flops_saved`: Integer (FLOPs saved by predicting `predicted_k` vs static baseline).
-- `accuracy_delta`: Float (Change in accuracy vs baseline).
-- `is_underpowered`: Boolean (True if the stratum size was < 50).
+### 4. RouterPrediction
+Output of the logistic regression model.
+- **Source**: `code/src/analysis.py`.
+- **Fields**:
+  - `problem_id`: FK to InputProblem.
+  - `predicted_k`: Integer (predicted optimal loop count).
+  - `probability_k1`: Float (probability of converging at $k=1$).
+  - `flops_savings`: Float (relative to static $k=2$).
 
-## File Layout
+### 5. StatisticalResults
+Aggregated analysis results.
+- **Source**: `code/src/analysis.py` / `robustness.py`.
+- **Fields**:
+  - `metric_name`: String (e.g., 'spearman_rho', 'p_value', 'holm_adjusted_p').
+  - `value`: Float.
+  - `stratum`: String (if applicable).
+  - `confidence_interval`: List(Float, Float).
 
-```text
-data/
-├── raw/
-│   ├── humaneval.parquet       # Raw HumanEval dataset
-│   └── mbpp.parquet            # Raw MBPP dataset
-├── processed/
-│   ├── entropy_results.csv     # Aggregated entropy per problem
-│   ├── convergence_results.csv # Aggregated convergence per problem
-│   └── router_simulation.csv   # Router predictions and metrics
-└── checksums.txt               # SHA256 checksums for all files
-```
+## File Paths & Checksums
+
+| File | Path | Format | Checksum Method |
+| :--- | :--- | :--- | :--- |
+| Raw HumanEval | `data/raw/humaneval.parquet` | Parquet | SHA-256 |
+| Raw MBPP | `data/raw/mbpp.parquet` | Parquet | SHA-256 |
+| Entropy Data | `data/processed/entropy_proxies.csv` | CSV | SHA-256 |
+| Convergence Data | `data/processed/convergence_results_core.csv` | CSV | SHA-256 |
+| Router Model | `data/processed/router_model.pkl` | Pickle | SHA-256 |
+| Final Results | `data/processed/correlation_results_final.json` | JSON | SHA-256 |
 
 ## Data Flow
 
-1. **Ingestion**: Raw datasets are downloaded and stored in `data/raw/`.
-2. **Entropy Calculation**: `code/src/entropy.py` reads `raw/`, generates samples, and writes `entropy_results.csv`. **Strictly separates** from convergence tracking.
-3. **Convergence Tracking**: `code/src/inference.py` reads `raw/`, runs iterative loops, and writes `convergence_results.csv`.
-4. **Analysis**: `code/src/analysis.py` joins `entropy_results.csv` and `convergence_results.csv` to compute correlations and train the router, writing `router_simulation.csv`.
+1. **Ingestion**: `data_loader.py` fetches raw parquet, validates checksums, writes to `data/raw/`.
+2. **Entropy**: `entropy.py` reads raw, generates `entropy_proxies.csv`.
+3. **Inference**: `inference.py` reads raw + entropy, runs loops, writes `convergence_results_core.csv`.
+4. **Analysis**: `analysis.py` reads both, produces `correlation_results_final.json` and `router_model.pkl`.
+5. **Robustness**: `robustness.py` reads results, produces `adjusted_pvalues.json`.

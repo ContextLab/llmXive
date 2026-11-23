@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-1060-llmxive-follow-up-extending-abot-agentos",
+  "ok": false,
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/data_loader.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026t MAX_TRACES, RAW_DIR  # Mock dataset loading for T005/T006 to\u2026\u201d; code/mock_baseline.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026a fallback mechanism to generate deterministic synthetic task traces and success\u2026\u201d; 3 command(s) failed: python code/main.py --config config/default.yaml (rc=1); python code/main.py --granularity fine --predicates spatial+temporal (rc=1); python code/experiment_runner.py --mode baseline-only (rc=1); 2 declared deliverable(s) absent: data/results/error_analysis_log.json; data/results/latency_violations.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --config config/default.yaml -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/code/main.py\", line 7, in <module>\n    from graph_builder import SymbolicGraphBuilder, save_graph\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/code/graph_builder.py\", line 13, in <module>\n    from validator import load_ground_truth, calculate_reconstruction_error\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1060-llmxive-follow-up-ex",
+    "python code/main.py --granularity fine --predicates spatial+temporal -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/code/main.py\", line 7, in <module>\n    from graph_builder import SymbolicGraphBuilder, save_graph\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/code/graph_builder.py\", line 13, in <module>\n    from validator import load_ground_truth, calculate_reconstruction_error\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1060-",
+    "python code/experiment_runner.py --mode baseline-only -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/code/experiment_runner.py\", line 14, in <module>\n    from graph_builder import build_graph_from_traces, save_graph, validate_memory_footprint\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-1060-llmxive-follow-up-extending-abot-agentos/code/graph_builder.py\", line 13, in <module>\n    from validator import load_ground_truth, calculate_reconstruction_error\n  File \"/home/runner/work/llmXiv"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-19T11:30:43Z"
+}

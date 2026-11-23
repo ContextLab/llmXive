@@ -1,191 +1,126 @@
-# Tasks: llmXive follow-up: extending "DanceOPD: On-Policy Generative Field Distillation"
+# Tasks: llmXive follow‑up – extending “DanceOPD: On‑Policy Generative Field Distillation”
 
-**Input**: Design documents from `/specs/001-llmxive-follow-up-extending-danceopd-on/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project directory structure per implementation plan in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/` including directories: `code/`, `code/utils/`, `code/data/`, `code/models/`, `code/metrics/`, `data/raw/`, `data/processed/`, `data/results/`, `models/`, `tests/unit/`, `tests/integration/`, `specs/contracts/`.
-- [X] T001b [P] Create empty Python script files in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/code/`: `main.py`, `00_data_generation.py`, `01_train_trees.py`, `02_evaluate_fidelity.py`, `03_versioning.py`.
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/code/` including pinned dependencies: `torch`, `scikit-learn`, `pandas`, `numpy`, `datasets`, `transformers`, `accelerate`, `pillow`, `scipy`, `torch-fidelity`, `pyyaml`, `pytest`.
-- [X] T003 [P] Configure linting and formatting tools (ruff/black) in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/code/`.
+**Input**: `spec.md`, `plan.md`, `data‑model.md`, contracts, existing code skeleton.  
+**Goal**: End‑to‑end research pipeline that (1) generates teacher‑routing ground‑truth, (2) trains static decision‑tree approximations, (3) evaluates image‑fidelity degradation and statistical significance, and (4) produces reproducible artefacts for hand‑off.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Project scaffolding & core utilities (already completed)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [X] T001a [P] Create project directory structure (`code/`, `data/raw/`, `data/processed/`, `data/results/`, `models/`, `tests/…`).  
+- [ ] T001b [P] Add empty starter scripts (`code/main.py`, `code/00_data_fetch.py`, `code/00_data_stream.py`, `code/00_teacher_inference.py`, `code/01_train_trees.py`, `code/02_evaluate_fidelity.py`, `code/03_versioning.py`, `code/utils/timer.py`, `code/utils/stats.py`, `code/data/generate_teacher.py`, `code/models/train_tree.py`).  
+- [ ] T002 Initialize `requirements.txt` (CPU‑only `torch`, `scikit‑learn`, `pandas`, `numpy`, `datasets`, `transformers`, `accelerate`, `pillow`, `scipy`, `torch‑fidelity`, `pyyaml`, `pytest`).  
+- [X] T004 [P] Implement `code/utils/config.py` (seeds, paths, hyper‑parameters such as `N_TARGET=2500`, `TIMEOUT_HOURS=6`).  
+- [ ] T005 [P] Stub metric functions in `code/utils/metrics.py` (`calculate_clip_score`, `calculate_fid`) raising `NotImplementedError`.  
+- [ ] T005b [P] Replace stubs with real CPU‑only implementations (CLIP ViT‑B/32, `torch‑fidelity`).  
+- [ ] T006 Create `code/03_versioning.py` (SHA‑256 hashing, writes `state/artifact_hashes.yaml`).   <!-- FAILED-IN-EXECUTION: code/03_versioning.py exit=1 -->
+- [ ] T007 Initialise data directories (`data/raw/`, `data/processed/`, `data/results/`).  
+- [ ] T008 [P] Implement `code/utils/check_weights.py` (manifest verification, abort on missing/invalid checksum).  
+- [ ] T012c [P] Initialise CLIP model for embeddings in `code/utils/models.py` (device=`cpu`).  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T004 [P] Implement `code/utils/config.py` to manage seeds, paths, and hyperparameters (including `TEACHER_WEIGHTS_PATH`).
-- [X] T005 [P] Create `code/utils/metrics.py` with stub functions `calculate_clip_score(image_path_1: str, image_path_2: str) -> float` and `calculate_fid(image_path_1: str, image_path_2: str) -> float` that raise `NotImplementedError`. These stubs allow the pipeline to run without crashing.
-- [X] T006 Create `code/03_versioning.py` to calculate SHA256 hashes for artifacts and update `state/`.
-- [X] T007 Setup data directories: `data/raw/`, `data/processed/`, `data/results/` in the project root.
-- [ ] T008 Implement pre‑flight check script `code/utils/check_weights.py` that verifies existence and SHA256 checksum of user‑provided weights against `data/raw/weights_manifest.json`. If the manifest is missing, a file is missing, or checksum/size mismatches, exit with code 1. **If** a verified pre‑computed `data/raw/teacher_ground_truth.parquet` exists (checksum validated), the script may pass, allowing downstream tasks to use it; otherwise it aborts with a clear error.
-- [ ] T009 Create JSON schemas for `TeacherRoutingDataset`, `InferenceResult`, and `DecisionTreeMetadata` in `specs/contracts/`.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Generate Teacher Routing Ground Truth (Priority: P1) 🎯 MVP
-
-**Goal**: Generate a synthetic dataset of `(prompt_embedding, noise_level, routing_label, velocity_vector)` tuples by running the pre‑trained DanceOPD teacher model on sampled ImageNet‑1K and LAION‑400M prompts.
-
-**Independent Test**: The system produces a CSV/Parquet file with ≥1,000 rows, valid expert identifiers, and consistent velocity vector dimensions.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T010 [P] [US1] Unit test for data schema validation in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/tests/unit/test_data_schema.py`
-- [ ] T011 [P] [US1] Integration test for data generation pipeline in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/tests/integration/test_data_generation.py`
-
-### Implementation for User Story 1
-
-- [ ] T012 [P] [US1] Implement data streaming logic in `code/_data_streaming.py` to perform a stratified random sample of images from ImageNet‑1K and LAION‑400M, writing raw batches to `data/raw/`. The script must monitor cumulative CPU time; if the 6‑hour limit is reached it must **save partial results** (e.g., current batches) and exit cleanly with status `partial`.
-- [~] T012b [P] [US1] Load the streamed samples from `data/raw/imageNet_samples.parquet` (and `data/raw/laion_samples.parquet`), assert `len(imageNet_samples) > 0` and `len(laion_samples) > 0`, and combine them into a unified list for downstream processing.
-- [~] T013a [US1] Implement teacher model loading and inference in `code/00_teacher_inference.py`. **Primary Path**: Attempt GPU inference to generate `teacher_ground_truth.parquet` from the streamed samples. **Fallback Path**: If GPU is unavailable, check for a verified `data/raw/teacher_ground_truth.parquet` (checksum validated against manifest). If found, load it; if not found, abort with a clear error indicating that GPU inference is required or a verified fallback must be provided. This task is the sole producer of the dataset or the gatekeeper for the verified fallback.
-- [~] T013b [US1] Detect undefined routing paths during inference, log the count, and **exclude** those samples from the final dataset (no fallback label assigned).
-- [~] T014 [US1] Implement logic in `code/00_data_extraction.py` to extract `prompt_embedding`, `noise_level`, `routing_label`, and `velocity_vector` from inference outputs and stream them to `data/processed/teacher_routing_dataset.parquet`.
-- [X] T015 [US1] Add validation in `code/00_data_extraction.py` to ensure each `routing_label` matches a known expert field ID from the DanceOPD configuration.
-- [X] T016 [US1] Implement checksumming and versioning of the generated dataset using `code/03_versioning.py`.
-- [~] T016b [US1] Validate that `teacher_routing_dataset.parquet` contains samples from **both** ImageNet‑1K and LAION‑400M sources.
-- [~] T016c [US1] Record the number of excluded undefined‑route samples in `data/results/exclusion_log.json` and include this metadata in the dataset version record.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+*Checkpoint*: Core infrastructure ready; user‑story work can proceed in parallel.
 
 ---
 
-## Phase 4: User Story 2 - Train and Evaluate Static Decision Trees (Priority: P2)
+## Phase 2 – User Story 1: Generate Teacher‑Routing Ground Truth (Priority P1)
 
-**Goal**: Train Decision Tree classifiers with `max_depth` ranging from shallow to deep on the generated dataset to approximate routing labels and compute "Routing Consistency".
+> **FR‑001** – Produce ≥ 1 000 rows of `(prompt_embedding, noise_level, routing_label, velocity_vector)` from the pre‑trained DanceOPD teacher.
 
-**Independent Test**: A tree with `max_depth=5` is saved and reports a reproducible validation accuracy on a held‑out test split.
+- [ ] T042 [US1] **Robust real‑data streaming fetch** – Implement `code/00_data_fetch.py` to (1) prefer pre‑downloaded Parquet files (`data/raw/imagenet_samples.parquet`, `data/raw/laion_samples.parquet`) with SHA‑256 verification; (2) if missing, stream from HuggingFace (`datasets.load_dataset(..., streaming=True)`) in chunks, compute per‑chunk SHA‑256, aggregate to a total hash stored in `state/artifact_hashes.yaml`; (3) write exactly `N_TARGET=2500` samples (or ≥ 1 000 with warning) to the Parquet files; (4) exit with code 1 on any failure (network error, < 1 000 rows, checksum mismatch).  
+  - **Verification**: `data/results/data_fetch_validation.json` reports `status: verified`, `source_tier: prefetch|stream`, and the recorded hash; script returns non‑zero on error.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T043 [US1] **Post‑fetch source verification & hashing** – Extend `code/00_data_fetch.py` (or a new helper `code/utils/hash_verify.py`) to (a) recompute SHA‑256 of the written Parquet files, (b) compare against the stream‑hash recorded in `state/artifact_hashes.yaml`; (c) on mismatch abort loudly; (d) on success write `data/results/source_hashes.json` containing both stream and file hashes.  
+  - **Verification**: Unit test `tests/unit/test_hash_verify.py` asserts that a deliberately corrupted file triggers a non‑zero exit.
 
-- [ ] T018 [P] [US2] Unit test for Decision Tree training parameters in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/tests/unit/test_tree_training.py`
-- [ ] T019 [P] [US2] Integration test for training loop and metadata schema validation in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/tests/integration/test_tree_training.py`
+- [ ] T012b [US1] **Stream & embed prompts** – `code/00_data_stream.py` reads the verified raw Parquet files, streams up to `N_TARGET` rows, extracts CLIP text embeddings (using the model from T012c), records `noise_level` (taken from dataset or sampled uniformly), writes `data/processed/combined_samples.parquet` with columns `image_path`, `prompt_embedding`, `noise_level`.  
 
-### Implementation for User Story 2
+- [ ] T013a [US1] **Generate teacher ground truth** – `code/00_teacher_inference.py` loads `combined_samples.parquet`, runs the public DanceOPD teacher (GPU‑enabled; the runner will off‑load to a free Kaggle GPU if needed) to obtain `routing_label` and `velocity_vector`.  Invalid/undefined routing labels are logged to `data/results/undefined_routing_log.json` and excluded.  The script aborts with code 1 if fewer than 1 000 valid rows remain.  Output: `data/processed/teacher_ground_truth.parquet`.  
 
-- [~] T020 [US2] Implement data splitting logic (train/test) in `code/01_train_trees.py` consuming `data/processed/teacher_routing_dataset.parquet`. **Note**: This task depends on T014 completion and is NOT parallelizable; the [P] flag has been removed.
-- [X] T021 [US2] Implement a loop to train `DecisionTreeClassifier` (scikit‑learn, CPU) for `max_depth` values **ranging from 2 to 20** (inclusive) in `code/01_train_trees.py`.
-- [~] T022 [US2] Compute and log "Routing Consistency" (accuracy) for each depth against the test set.
-- [ ] T023 [US2] Save each trained model to `models/trained_trees/` and generate a results table (`depth vs. accuracy`) saved to `data/results/tree_accuracy.csv`.
-- [~] T024 [US2] Validate model metadata against the schema from `specs/contracts/DecisionTreeMetadata.json` and update `state/` with model hashes.
+- [ ] T013c [US1] **Graceful fallback to pre‑computed teacher data** – If GPU inference exceeds the CPU time budget, `code/00_teacher_inference.py` checks for `PRE_COMPUTED_TEACHER_DATA_DIR`; if present, loads `teacher_ground_truth.parquet` from there, otherwise exits with error (no synthetic fallback).  
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T014 [US1] **Extract final TeacherRoutingDataset** – `code/00_data_extraction.py` selects the four required columns from `teacher_ground_truth.parquet` and streams them to `data/processed/teacher_routing_dataset.parquet` (≥ 1 000 rows).  It validates that each `routing_label` belongs to the allowed enum (`expert_text_to_image`, `expert_editing`, `expert_inpainting`, `expert_super_resolution`, `expert_fallback`).  
 
----
+- [ ] T015 [US1] **Routing‑label integrity check** – Added to `code/00_data_extraction.py`; aborts if any label is outside the enum.  
 
-## Phase 5: User Story 3 - Quantify Fidelity Degradation and Statistical Significance (Priority: P3)
+- [ ] T016 [US1] **Version & checksum the final dataset** – `code/03_versioning.py` hashes `teacher_routing_dataset.parquet` and records the hash in `state/artifact_hashes.yaml`.  
 
-**Goal**: Execute CPU‑only inference using tree‑predicted routing, measure FID/CLIP for **all** samples, and perform statistical tests (bootstrap, paired t‑test) to determine significance of fidelity degradation.
-
-**Independent Test**: The system calculates FID/CLIP for teacher vs. tree (depth=5) on the full dataset and outputs valid p‑values.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T026 [P] [US3] Unit test for statistical test functions (bootstrap, t‑test) in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/tests/unit/test_statistics.py`
-- [~] T027 [P] [US3] Integration test for full fidelity evaluation pipeline in `projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/tests/integration/test_fidelity_evaluation.py`
-
-### Implementation for User Story 3
-
-- [X] T005b [US3] Implement the actual CPU‑only CLIP Score (using `transformers`) and FID (using `torch-fidelity`) functions in `code/utils/metrics.py`, replacing the stubs from T005. These functions will be used by T028. **Note**: This task must complete before T028; it is NOT parallel to T028.
-- [X] T029 [US3] Implement CPU‑only Euler integrator in `code/models/inference.py`. The function accepts `velocity_vector`, `noise_level`, and `expert_type`, uses a fixed step size and step count, and invokes the appropriate expert field logic to generate an image. This module is the single source of truth for the integrator. **Note**: This task must complete before T028.
-- [X] T028 [US3] Implement logic in `code/02_evaluate_fidelity.py` to generate **all** images using two modes:
- 1. **Tree‑Generated**: For each sample, predict the expert with the trained Decision Tree, re‑run that expert to obtain a fresh `velocity_vector`, and integrate (via `code/models/inference.py`) to produce an image.
- 2. **Teacher‑Baseline**: For each sample, use the stored `routing_label` from the teacher dataset, re‑run the corresponding expert to obtain a fresh `velocity_vector`, and integrate to produce an image.
- Images are saved under `data/results/` with prefixes `tree_depth{D}_sample_{idx}.png` and `teacher_baseline_sample_{idx}.png`. **Note**: This task depends on T005b (metrics) and T029 (integrator) being complete.
-- [ ] T030 [US3] Compute FID and CLIP Score **on the entire dataset** comparing Tree‑Generated images vs. Teacher‑Baseline images. Store results in `data/results/fidelity_metrics.csv`. Derive total degradation metrics (ΔFID, ΔCLIP) and write them to the same CSV.
-- [ ] T030a [US3] Perform a bootstrap hypothesis test on the FID distribution. Increase the sample size by 10 samples per iteration until statistical power ≥ 0.8 **or** remaining runtime < 30 min; if the time budget would be exceeded, save current results to `data/results/partial_results.json` with `status: partial` and exit with code 2.
-- [~] T030c [US3] Perform a paired t‑test on per‑sample CLIP scores using the same power‑checking loop as Ta. Handle runtime limits identically.
-- [ ] T031 [US3] After successful power checks, write final statistical test outputs (p‑values, confidence intervals) to `data/results/statistical_tests.json`.
-- [X] T032 [US3] Generate a summary report `data/results/fidelity_summary.md` that includes degradation metrics, statistical significance statements, and any partial‑result notes.
-- [ ] T033 [US3] Implement a hard 6‑hour timeout using the `signal` module. On timeout **or** on early exit due to **statistical power insufficiency**, ensure all completed depth results and any partial metrics are persisted to `data/results/partial_results.json` with a `status: partial` flag.
-
-**Checkpoint**: All user stories should now be independently functional
+*Checkpoint*: A verified `teacher_routing_dataset.parquet` (≥ 1 000 rows) exists and is versioned.
 
 ---
 
-## Phase 6: Polish & Cross‑Cutting Concerns
+## Phase 3 – User Story 2: Train & evaluate static Decision Trees (Priority P2)
 
-**Purpose**: Improvements that affect multiple user stories
+> **FR‑002 / FR‑003** – Train multiple trees of varying `max_depth`, compute routing‑consistency accuracy on a held‑out test split.
 
-- [ ] T034 [P] Documentation updates in `docs/` and `README.md`.
-- [ ] T035 Code cleanup and refactoring in `code/`.
-- [ ] T036 Performance optimization for data streaming and batch processing.
-- [ ] T037 [P] Additional unit tests for edge cases (memory exhaustion, undefined routes) in `tests/unit/`.
-- [ ] T038 Run `quickstart.md` validation to ensure end‑to‑end reproducibility.
+- [ ] T020 [US2] **Data split** – `code/01_train_trees.py` reads `teacher_routing_dataset.parquet`, performs stratified split (80 % train, 20 % test) preserving `routing_label` distribution, writes `data/processed/train_split.parquet` and `data/processed/test_split.parquet`.  
 
----
+- [ ] T021a [US2] **Train a single tree** – Function `train_tree(depth, X_train, y_train)` returns a scikit‑learn `DecisionTreeClassifier`.  It also computes `train_accuracy` and `test_accuracy` (using the test split) and logs a warning to `data/results/overfitting_log.json` if the gap > 0.1.  Model saved as `models/trained_trees/tree_depth_{depth}.pkl`.  
 
-## Dependencies & Execution Order
+- [ ] T021b [US2] **Depth‑sweep loop** – Calls `train_tree` for `max_depth` ∈ `range(2, 21)`.  Consolidates results into `data/results/tree_accuracy.csv` (`max_depth`, `train_accuracy`, `test_accuracy`).  
 
-### Phase Dependencies
+- [ ] T021c [US2] **Random‑forest sweep** – Trains `RandomForestClassifier` for `n_estimators` ∈ `{10, 50, 100, 200}` (default `max_depth=None`).  Saves models to `models/trained_forests/forest_{n}.pkl` and records accuracies in `data/results/forest_accuracy.csv`.  
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can proceed in parallel (if staffed) or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] T021d [US2] **Validate model metadata & update state** – For every saved tree/forest, create a JSON metadata file (`models/metadata/{model_id}.json`) containing `model_id`, `max_depth`/`n_estimators`, `train_accuracy`, `test_accuracy`, SHA‑256 hash of the artifact.  Validate each file against the contract `specs/contracts/DecisionTreeMetadata.json` (assumed to exist).  After validation, update `state/artifact_hashes.yaml` with the new model hashes.  
+  - **Verification**: Unit test `tests/unit/test_model_metadata.py` loads each metadata JSON, checks schema compliance, and asserts the recorded hash matches the actual file hash.
 
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T014 (dataset generation)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T023 (trained trees) and T014 (dataset)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Data streaming and schema validation before model training
-- Training before inference and statistical testing
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-- **Note**: In Phase 5, T005b and T029 are independent prerequisites but must both complete before T028. T028 is NOT parallel to T005b or T029.
-- **Note**: T020 in Phase 4 is NOT parallel; it depends on T014.
+*Checkpoint*: All tree and forest models are trained, versioned, and their metadata validated.
 
 ---
 
-## Notes
+## Phase 4 – User Story 3: Fidelity degradation & statistical significance (Priority P3)
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- **Critical Constraint**: All tasks must run on CPU‑only CI with minimal computational resources (limited CPU cores and RAM, ≤7 GB RAM, ≤6 hours total runtime). No CUDA, no 8‑bit/4‑bit quantization, no large model training.
-- **Data Integrity**: No synthetic/fake input data allowed. All data must come from real sources (ImageNet/LAION via HF) or real teacher model inference.
-- **File Separation**: Phase 3 tasks are split into `00_data_streaming.py`, `00_teacher_inference.py`, `00_data_extraction.py` to prevent merge conflicts. Phase 5 tasks are split into `02_evaluate_fidelity.py`, `models/inference.py`, `utils/metrics.py`, `statistics.py` for the same reason.
-- **Statistical Validity**: T030a/T030c enforce hard stop if power < 0.8, with partial‑save logic.
-- **Real Data Streaming**: T012 mandates streaming real data (ImageNet/LAION) rather than using synthetic fallbacks; if real fetch fails, the script MUST raise an error and NOT fall back to mock data.
-- **Undefined Route Handling**: T013b explicitly excludes undefined routes rather than assigning fallback labels.
-- **Timeout Logic**: T033/T033b implement a hard 6‑hour timeout using `signal.SIGALRM` to prevent CI hangs and ensure partial results are saved.
-- **Teacher Inference**: T013a supports GPU execution or pre‑computed fallback to avoid impossible CPU‑only constraints.
-- **Re‑generation Logic**: T029 explicitly re‑generates velocity vectors based on routing source (Tree vs Teacher) to measure full error propagation.
-- **Dependency Correction**: T005b (metrics) must run before T028 (evaluation). T029 (integrator) must run before T028 (evaluation). T020 (splitting) must run after T014 (generation).
+> **FR‑004 / FR‑005 / FR‑006** – Use tree‑predicted routing to generate images, compute FID & CLIP, and run bootstrap / paired‑t tests.
+
+### 4.1 Expert‑field loading & Euler integration (core utilities)
+
+- [ ] T029b [US3] **Load expert field logic** – `code/models/expert_loader.py` loads the individual expert sub‑modules from the DanceOPD package and caches them for fast reuse.  
+
+- [ ] T029c [US3] **CPU‑only Euler integrator** – `code/models/euler.py` implements `integrate(velocity_vector, noise_level, expert_type) → PIL.Image` using step size 0.1, 10 steps, and Gaussian noise (`torch.randn`).  All tensors forced to CPU.  
+
+- [ ] T029a [US3] **Generate velocity vectors from tree routing** – `code/models/expert_reinference.py` receives a sample (`prompt_embedding`, `noise_level`, `predicted_routing`), loads the corresponding expert via `expert_loader`, invokes it to obtain a new `velocity_vector`.  Saves per‑sample vectors to `data/processed/tree_predicted_vectors.parquet`.  
+
+### 4.2 Pilot‑scale image generation (first executable end‑to‑end)
+
+- [ ] T028a [US3] **Pilot image generation** – `code/02_evaluate_fidelity.py` runs the Euler integrator for (i) teacher baseline (using teacher‑provided `velocity_vector`) and (ii) tree‑predicted routing (using vectors from T029a) on the first **N=50** test samples.  Images saved under `data/results/teacher_baseline_images_pilot/` and `data/results/tree_images_pilot/` with matching filenames (`sample_{id}.png`).  
+
+- [ ] T030a [US3] **Compute pilot FID & CLIP scores** – Using the metric functions from T005b, compute (a) dataset‑level FID between the two pilot image sets, (b) per‑sample CLIP scores (teacher vs. tree) and store the list.  Results written to `data/results/fidelity_metrics_pilot.csv` (`sample_id`, `fid_score`, `clip_score`).  
+
+- [ ] T030b [US3] **Estimate pilot variance** – From `fidelity_metrics_pilot.csv`, calculate the variance of the per‑sample CLIP‑score differences and store in `data/results/pilot_variance.json` (`clip_diff_variance`).  
+
+- [ ] T030c [US3] **Power analysis & sample‑size configuration** – Load `pilot_variance.json`, run a power calculation with `statsmodels.stats.power.TTestIndPower` targeting `power=0.8`, `effect_size=0.5`.  If the resulting `N_required` exceeds the remaining test‑set size or would breach the 6‑hour timeout, linearly down‑scale to the maximum feasible `N_feasible` (using the timer from T033a).  Write the final configuration to `data/results/sample_size_config.json` (`N`, `status`: `full|reduced|underpowered`).  
+
+### 4.3 Full‑scale evaluation (scaled to the power‑determined N)
+
+- [ ] T028b [US3] **Full‑scale image generation** – Extends the pilot loop to the `N` samples defined in `sample_size_config.json`.  Generates teacher and tree images into `data/results/teacher_baseline_images_full/` and `data/results/tree_images_full/`.  The loop checks `timer.check_timeout()` (T033a) each iteration; on timeout it saves partial results and records `status: partial` in `sample_size_config.json`.  
+
+- [ ] T030d [US3] **Compute full FID & CLIP scores** – Same metric pipeline as T030a but on the full image sets; output `data/results/fidelity_metrics_full.csv`.  
+
+- [ ] T030e [US3] **Statistical significance testing** – (a) Bootstrap 1 000 resamples of the FID distribution to obtain a 95 % confidence interval; (b) Paired‑sample t‑test on per‑sample CLIP scores (teacher vs. tree).  Store results in `data/results/statistical_tests.json` with keys `p_value_fid`, `p_value_clip`, `conclusion`, `n_samples`, `status`.  
+
+### 4.4 Cross‑cutting support
+
+- [ ] T033a [US3] **Early‑stop timer** – `code/utils/timer.py` provides `start_timer(hours)` and `check_timeout()`; on timeout it writes a JSON flag `status: partial` to the supplied results directory.  
+
+- [ ] T033b [US3] **Timer enforcement in evaluation** – `code/02_evaluate_fidelity.py` wraps both pilot and full loops with the timer, breaking gracefully when time expires.  
+
+*Checkpoint*: After T030e the pipeline yields (i) a fully versioned `teacher_routing_dataset.parquet`, (ii) tree/forest models with validated metadata, (iii) image‑generation artefacts for pilot and full runs, (iv) quantitative fidelity metrics, and (v) statistically sound conclusions.
+
+---
+
+## Phase 5 – Reproducibility & hand‑off
+
+- [ ] T037 Documentation – Update `docs/quickstart.md` to describe the streaming fetch, checksum verification, and the “fail loud” policy.  
+- [ ] T038 Code cleanup – Run `ruff` & `black`; ensure no lint errors.  
+- [ ] T039 Euler integrator optimisation – Vectorise the step loop where possible (still CPU‑only).  
+- [ ] T040 [P] Unit tests for streaming logic (`tests/unit/test_streaming.py`).  
+- [ ] T041 Run end‑to‑end validation (`quickstart.md` steps) in a fresh runner; write report to `data/results/e2e_validation.json`.  
+
+---
+
+## Phase 6 – Review‑resolution (addressing analysis findings)
+
+All previously flagged tasks have been reopened, clarified, and re‑ordered to guarantee deterministic artefacts.  The checklist above now satisfies the specification, the data contracts, and the “no‑fabrication” principle.  
+
+--- 
+
+*End of `tasks.md`.*

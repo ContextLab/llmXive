@@ -1,82 +1,86 @@
-# Data Model: llmXive follow-up: extending "Active Learners as Efficient PRP Rerankers"
+# Data Model: Active Learners as Efficient PRP Rerankers
 
 ## Overview
+This document defines the schema and flow of data artifacts for the redundancy analysis pipeline. All data is derived from real BEIR datasets or explicitly labeled synthetic injections.
 
-This document defines the data structures used throughout the pipeline, from raw BEIR ingestion to final statistical outputs. All data is stored in `data/` with strict versioning.
+## Input Data
 
-## Entities
+### BEIR Dataset (Raw)
+-   **Source**: HuggingFace (via `beir` library).
+-   **Format**: JSON/Parquet (converted to internal JSON).
+-   **Fields**:
+    -   `query_id`: string
+    -   `query`: string
+    -   `doc_id`: string
+    -   `document`: string
+    -   `relevance`: integer (0 or 1)
 
-### 1. Document
-Represents a single passage in the retrieval candidate list.
-- **id**: `str` (Unique identifier, e.g., `scifact_123`)
-- **text**: `str` (The full text of the passage)
-- **source**: `str` (e.g., `scifact`, `synthetic_cluster_1`)
-- **is_synthetic**: `bool` (True if generated via synonym/shuffling)
-- **parent_document_id**: `str` (Optional. ID of the original document if this is a synthetic variant; null otherwise. Used to track lineage.)
-- **cluster_id**: `str` (Optional. Cluster ID assigned by MinHash-LSH; null if not clustered yet. Used for flat schema representation.)
+## Intermediate Artifacts
 
-### 2. ComparisonPair
-Represents a pairwise comparison made by the active ranker.
-- **id**: `str` (UUID)
-- **doc_a_id**: `str`
-- **doc_b_id**: `str`
-- **ranker_decision**: `str` ("a_wins", "b_wins", "tie")
-- **cosine_similarity**: `float` (0.0 to 1.0)
-- **is_wasted**: `bool` (True if `cosine_similarity` > 0.95. This is the operational classification.)
-- **llm_consensus_label**: `str` (Optional. Ground truth label from stratified sampling: "wasted" if tie/low-conf, "informative" otherwise.)
+### 1. Injected Datasets (`data/processed/injected_datasets.json`)
+-   **Description**: Original BEIR documents plus synthetic duplicates generated via Exact Copy Perturbation.
+-   **Source**: `code/injection.py` (FR-001).
+-   **Fields**:
+    -   `doc_id`: string (unique ID, original or synthetic).
+    -   `original_doc_id`: string (link to source, null for originals).
+    -   `document`: string (text).
+    -   `is_synthetic`: boolean.
+    -   `cluster_id`: string (assigned by MinHash-LSH).
 
-### 3. Cluster
-Represents a group of near-duplicate documents identified by MinHash-LSH.
-- **cluster_id**: `str` (e.g., `cluster_1`)
-- **member_ids**: `List[str]`
-- **representative_id**: `str` (The document chosen to represent the cluster, selected by highest similarity to centroid.)
-- **representative_selection_strategy**: `str` (e.g., "centroid_similarity", "relevance_score")
-- **minhash_jaccard_score**: `float` (Internal consistency score)
+### 2. Clusters (`data/processed/clusters.json`)
+-   **Description**: Mapping of documents to MinHash-LSH clusters.
+-   **Source**: `cluster_engine.py` (FR-005).
+-   **Fields**:
+    -   `cluster_id`: string.
+    -   `members`: list of `doc_id`.
+    -   `representative`: string (first member).
+    -   `similarity_score`: float (min pairwise similarity in cluster).
 
-### 4. RunMetric
-Aggregated metrics for a single execution run.
-- **run_id**: `str` (UUID)
-- **seed**: `int`
-- **variant**: `str` ("baseline", "clustering_aided", "unique_baseline")
-- **n_calls**: `int`
-- **n_wasted**: `int`
-- **wasted_ratio**: `float`
-- **ndcg_at_10**: `float`
-- **runtime_seconds**: `float`
-- **peak_memory_mb**: `float`
+### 3. Comparison Log (`data/processed/comparison_log.jsonl`)
+-   **Description**: Log of every pairwise comparison made by the active learner.
+-   **Source**: `redundancy_detector.py` (FR-004).
+-   **Fields** (per line):
+    -   `pair_id`: string.
+    -   `doc_a_id`: string.
+    -   `doc_b_id`: string.
+    -   `similarity`: float (Cosine similarity).
+    -   `is_wasted`: boolean (true if `similarity > 0.95`).
+    -   `outcome`: string (e.g., "ranked", "skipped").
 
-### 5. StatisticalTestResult
-Results of hypothesis testing.
-- **test_id**: `str`
-- **test_type**: `str` ("wilcoxon_ndcg", "wilcoxon_wasted")
-- **variant_a**: `str`
-- **variant_b**: `str`
-- **p_value**: `float`
-- **statistic**: `float`
-- **is_significant**: `bool` (p < 0.05)
+### 4. Unique Subset (`data/processed/unique_subset.json`)
+-   **Description**: The set of unique documents (no synthetic duplicates) used for baseline.
+-   **Source**: `data_loader.py`.
+-   **Fields**: Same as `injected_datasets.json` but `is_synthetic=false` and `cluster_id=null`.
 
-### 6. CorrelationResult
-Results of the correlation analysis between MinHash and Cosine similarity.
-- **analysis_id**: `str`
-- **sample_size**: `int`
-- **correlation_coefficient**: `float` (Pearson or Spearman)
-- **p_value**: `float`
-- **description**: `str` (Summary of the correlation strength)
+## Output Artifacts
 
-## Data Flow
+### 1. Flagged Pairs Count (`data/results/flagged_pairs_count.json`)
+-   **Description**: Count of wasted calls per seed.
+-   **Fields**:
+    -   `seed`: integer.
+    -   `total_calls`: integer.
+    -   `wasted_calls`: integer.
+    -   `wasted_ratio`: float.
 
-1. **Ingestion**: `data/raw/beir_scifact.parquet` -> `Document` objects.
-2. **Synthesis**: `Document` objects -> `Document` (with synthetic variants, `parent_document_id` set) -> `data/processed/redundant_scifact.parquet`.
-3. **Clustering**: `redundant_scifact.parquet` -> `Cluster` objects (via MinHash-LSH).
-4. **Ranking**: `Cluster` or `Redundant` list -> `ComparisonPair` objects (via Active Ranker).
-5. **Aggregation**: `ComparisonPair` objects -> `RunMetric` objects.
-6. **Analysis**: `RunMetric` objects (across seeds) -> `StatisticalTestResult`.
-7. **Correlation**: Labeled subset of `ComparisonPair` objects -> `CorrelationResult`.
+### 2. NDCG Results (`data/results/us1_baseline_ndcg.json`, `data/results/us1_redundant_ndcg.json`)
+-   **Description**: NDCG@10 scores.
+-   **Fields**:
+    -   `seed`: integer.
+    -   `ndcg_at_10`: float.
 
-## Storage Format
+### 3. Statistical Test Results (`data/results/wilcoxon_wasted_calls.json`)
+-   **Description**: Wilcoxon signed-rank test results on **Wasted Call Ratio**.
+-   **Fields**:
+    -   `statistic`: float.
+    -   `p_value`: float.
+    -   `bonferroni_adjusted_p`: float.
+    -   `significant`: boolean.
 
-- **Raw Data**: Parquet (BEIR native format).
-- **Processed Data**: Parquet (for fast I/O).
-- **Intermediate/Logs**: JSONL (for streaming analysis).
-- **Final Results**: CSV (for statistical analysis and plotting).
-- **Correlation Analysis**: JSON (`data/results/correlation_analysis.json`).
+### 4. Statistical Report (`data/results/statistical_report.md`)
+-   **Description**: Human-readable summary of findings.
+-   **Content**: Markdown report with tables, charts (if generated), and interpretation.
+
+## Data Integrity & Traceability
+-   **Checksums**: Every intermediate file (`injected_datasets.json`, `clusters.json`) is checksummed (SHA-256) in `state/` before downstream use (FR-008).
+-   **Traceability**: `comparison_log.jsonl` contains `pair_id` which links back to `doc_id` in `injected_datasets.json`.
+-   **No Fabrication**: All `similarity` scores are computed on-the-fly using `sentence-transformers`. No pre-computed or hardcoded values are used.

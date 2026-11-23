@@ -1,86 +1,90 @@
-# Feature Specification: llmXive Follow-up: Interdisciplinary Bridging Coefficient Analysis
+# Specification: Interdisciplinary Bridging Coefficient Analysis
 
-**Feature Branch**: `001-bridging-coefficient-analysis`  
-**Created**: 2026-07-13  
-**Status**: Draft  
-**Input**: User description: "Does the density of cross-disciplinary connections (interdisciplinary bridging coefficient) in a scientific knowledge graph predict the future citation impact and novelty of research nodes?"
+## Overview
+This project analyzes the relationship between topological bridging in scientific collaboration networks and research outcomes (citations, novelty). The data source is an **OpenAlex-derived Subgraph** of scientific works. OpenAlex is used as the primary source to replace PubGraph due to API accessibility and data freshness requirements, maintaining the subgraph extraction methodology.
 
-## User Scenarios & Testing
+## Functional Requirements
 
-### User Story 1 - Data Ingestion and Topological Metric Computation (Priority: P1)
+### FR-001: Data Ingestion (See US-001)
+The system MUST ingest data from an **OpenAlex-derived Subgraph** stored in `data/processed/subgraph.parquet`. The data must include:
+- `id`: Unique work identifier
+- `title`: Work title
+- `cited_by_count`: Citation count
+- `publication_date`: Date of publication
+- `field`: Disciplinary field identifier
 
-The researcher downloads the PubGraph dataset, assigns primary disciplines to nodes via community detection on the graph structure, and computes the "bridging coefficient" for each node based on edge distribution across these structural clusters.
+The system MUST validate the ingested data against the schema defined in `data/schema/openalex_works.json` and reject any records failing validation.
 
-**Why this priority**: This is the foundational step; without the computed metric, no correlation analysis can occur. It directly addresses the core predictor variable of the research question.
+### FR-002: Clustering
+The system MUST assign `primary_cluster` IDs using Louvain community detection on the graph topology.
 
-**Independent Test**: Can be fully tested by running the ingestion pipeline on a [deferred]-node subset and verifying that every node has a valid `bridging_coefficient` value (0.0 to 1.0) and a `primary_cluster` label, with no memory errors on a standard CPU environment.
+### FR-003: Bridging Coefficient
+The system MUST calculate `bridging_coefficient` for each node as: (inter-cluster edges) / (total degree).
+- **Edge Case**: Nodes with degree 0 MUST be assigned `bridging_coefficient = 0.0`.
+- **Edge Case**: Purely Intra-Cluster Nodes (degree > 0, 0 inter-cluster edges) MUST be assigned `bridging_coefficient = 0.0`.
+
+### FR-004: Embeddings (See US-002)
+The system MUST generate title embeddings using `sentence-transformers/all-MiniLM-L6-v2` (v2).
+
+### FR-005: Novelty Score (See US-002)
+The system MUST compute `novelty_score` as the cosine distance between a node's embedding and the **GLOBAL centroid** of all work embeddings in the dataset.
+- **Edge Case**: Singleton clusters MUST be calculated naturally (distance to global centroid), allowing for non-zero novelty scores. No artificial suppression of the signal is permitted.
+
+### FR-006: Statistical Analysis (See US-003)
+The system MUST perform Spearman correlation and Linear Regression with covariates.
+- **Mandatory Covariates**: The regression model MUST include `publication_date` and `field` to control for confounding.
+- **Multiple-comparison correction**: MUST be configurable (Bonferroni or Benjamini-Hochberg), defaulting to Benjamini-Hochberg. Configuration is exposed via the `--correction-method` CLI flag.
+
+### FR-007: Reporting
+The final report MUST explicitly label results as "associational" and NOT "causal".
+
+### FR-008: Validation Independence (See US-002)
+The system MUST ensure novelty scores are derived strictly from text embeddings and global statistics, with no dependency on graph topology or cluster assignments. This prevents circular validation between the bridging metric and the novelty metric.
+
+## Assumptions
+1. The **OpenAlex** API is accessible and returns consistent data structures.
+2. The graph fits in memory when sampled (target size < 100k nodes).
+3. CPU-only execution is sufficient for embedding generation and clustering, constrained to **2-CPU** cores and **7GB RAM** with a **6-hour** maximum runtime.
+4. The `sentence-transformers/all-MiniLM-L6-v2` model is available locally or via the specified API.
+
+## Edge Cases
+1. **Isolated Nodes**: Assigned bridging coefficient of 0.0.
+2. **Purely Intra-Cluster Nodes**: Assigned bridging coefficient of 0.0.
+3. **Null Titles**: Excluded from embedding generation; logged to `excluded_nodes.json`.
+4. **Missing Data**: If a node lacks a `cited_by_count`, it defaults to 0.
+5. **Singleton Clusters**: Novelty score is calculated naturally against the global centroid (no artificial 0.0 assignment).
+
+## User Scenarios
+
+### US-001: Data Ingestion and Integrity Verification (Priority: P1)
+A researcher wants to ingest a subgraph from **OpenAlex**, compute topological metrics, and verify data integrity.
+
+**Why this priority**: Data integrity is the foundation of all subsequent analysis; without verified data, results are invalid.
+**Independent Test**: Can be fully tested by running the ingestion pipeline on a known-good sample and verifying the schema validation report.
 
 **Acceptance Scenarios**:
+1. **Given** a valid OpenAlex subgraph file, **When** the ingestion pipeline runs, **Then** the system validates the schema and proceeds.
+2. **Given** a malformed subgraph file, **When** the ingestion pipeline runs, **Then** the system rejects the file and logs the specific schema violations.
 
-1. **Given** the PubGraph dataset is available, **When** the system extracts a [deferred]-node subgraph and runs the Louvain algorithm, **Then** every node in the subgraph is assigned a `primary_cluster` ID.
-2. **Given** nodes are clustered, **When** the system calculates the bridging coefficient for a node, **Then** the value is strictly the ratio of edges connecting to different clusters divided by total degree, with no division-by-zero errors (nodes with degree 0 are flagged or excluded).
-3. **Given** a node acts as a gatekeeper between two distinct clusters, **When** the coefficient is computed, **Then** the system correctly calculates the ratio of inter-cluster edges to total degree without error.
+### US-002: Topology-Independent Novelty Computation (Priority: P2)
+A researcher wants to compute novelty scores based on text embeddings independent of graph topology.
 
----
-
-### User Story 2 - Outcome Variable Derivation (Citations and Novelty) (Priority: P2)
-
-The system extracts historical citation counts from metadata and computes a novelty score for each node by measuring the cosine distance between its title embedding and the centroid of its **text-based topic cluster** (independent of graph topology), ensuring no circular validation.
-
-**Why this priority**: These are the outcome variables required to test the hypothesis. Separating text-based novelty (derived from semantic similarity) from topology-based bridging (derived from graph structure) is critical for the study's validity and independence of variables.
-
-**Independent Test**: Can be tested by processing a batch of [deferred] nodes, verifying that citation counts are non-negative integers, and that novelty scores are positive floats, with a check confirming that nodes with identical titles have zero novelty distance.
+**Why this priority**: Ensures the novelty metric is not circularly dependent on the clustering used for bridging, preserving scientific validity.
+**Independent Test**: Can be tested by computing novelty on a dataset where cluster assignments are shuffled; the novelty scores must remain unchanged.
 
 **Acceptance Scenarios**:
+1. **Given** a set of work embeddings, **When** the novelty score is computed, **Then** the score is based solely on the distance to the global centroid.
+2. **Given** a node assigned to a singleton cluster, **When** the novelty score is computed, **Then** the score reflects its distance to the global centroid (not 0.0).
 
-1. **Given** a node with a title and metadata, **When** the system retrieves citation counts, **Then** the value is a non-negative integer derived strictly from the graph metadata, not inferred.
-2. **Given** a node's title, **When** the system generates an embedding using `sentence-transformers/all-MiniLM-L6-v2`, **Then** the embedding vector is correctly normalized and stored.
-3. **Given** a cluster of nodes defined by text similarity, **When** the novelty score is calculated, **Then** it is the cosine distance between the node's embedding and the cluster centroid, ensuring the predictor (topology) and outcome (novelty) are mathematically independent.
+### US-003: Confounding-Controlled Correlation Analysis (Priority: P3)
+A researcher wants to analyze the correlation between bridging and citations, controlling for confounds.
 
----
-
-### User Story 3 - Statistical Validation and Correlation Analysis (Priority: P3)
-
-The system performs Spearman rank correlation and linear regression to test the relationship between the bridging coefficient (topology) and citation/novelty metrics (text/outcome), applying corrections for multiple comparisons.
-
-**Why this priority**: This delivers the final scientific result, confirming or refuting the hypothesis. It includes necessary statistical rigor (multiplicity correction) to ensure the findings are methodologically sound.
-
-**Independent Test**: Can be tested by running the analysis on the computed dataset, verifying that a p-value is returned for the correlation, and that a Bonferroni or FDR correction is applied to the significance threshold.
+**Why this priority**: Essential for distinguishing true bridging effects from spurious correlations caused by publication age or field-specific citation rates.
+**Independent Test**: Can be tested by verifying the regression model includes `publication_date` and `field` covariates.
 
 **Acceptance Scenarios**:
-
-1. **Given** the predictor (bridging coefficient) and outcomes (citations, novelty), **When** the system runs Spearman correlation, **Then** a correlation coefficient (rho) and p-value are output for both relationships.
-2. **Given** multiple hypothesis tests are performed, **When** the system applies multiple-comparison correction, **Then** the adjusted p-value threshold is strictly lower than the raw alpha (0.05) to control family-wise error.
-3. **Given** a significant correlation is found, **When** the system generates the report, **Then** the findings are explicitly framed as "associational" rather than "causal" due to the observational nature of the data.
-
----
-
-### Edge Cases
-
-- What happens when a node has a degree of zero (isolated node)? The system must exclude it from the bridging coefficient calculation or assign a value of 0.0, preventing division by zero.
-- How does the system handle nodes with titles that are missing or empty? The system must exclude these nodes from the novelty score calculation but retain them for citation analysis if metadata exists.
-- How does the system handle clusters with only one node? The system must handle the centroid calculation for single-node clusters (distance = 0) without error.
-
-## Requirements
-
-### Functional Requirements
-
-- **FR-001**: System MUST download and parse the PubGraph dataset, extracting a representative subgraph of [deferred] nodes, serving the Data Acquisition goal (See US-1).
-- **FR-002**: System MUST apply the Louvain community detection algorithm to assign a `primary_cluster` label to every node based on local connectivity, serving the Cluster Definition goal (See US-1).
-- **FR-003**: System MUST calculate the `bridging_coefficient` for each node as the ratio of inter-cluster edges to total degree, serving the Metric Computation goal (See US-1).
-- **FR-004**: System MUST compute a `novelty_score` for each node using cosine distance between title embeddings and the centroid of its **text-based topic cluster** (computed via k-means on embeddings only), serving the Outcome Retrieval goal (See US-2).
-- **FR-005**: System MUST perform Spearman rank correlation and linear regression between the `bridging_coefficient` and `citation_count`/`novelty_score`, serving the Statistical Analysis goal (See US-3).
-- **FR-006**: System MUST apply a multiple-comparison correction (e.g., Bonferroni or Benjamini-Hochberg) to all hypothesis test p-values, serving the Methodological Soundness goal regarding multiplicity (See US-3).
-- **FR-007**: System MUST explicitly label all reported correlations as "associational" in the final output, avoiding causal claims due to the lack of random assignment, serving the Inference Framing goal (See US-3).
-- **FR-008**: System MUST perform k-means clustering (k=100) on title embeddings to assign a `topic_cluster` ID to every node, independent of graph topology, serving the Independence of Variables goal (See US-2).
-
-### Key Entities
-
-- **Node**: Represents a scientific publication; attributes include `id`, `title`, `citation_count`, `embedding_vector`, `primary_cluster`, `topic_cluster`.
-- **Edge**: Represents a relationship between publications; attributes include `source_id`, `target_id`, `type`.
-- **Primary Cluster**: A community of nodes identified by Louvain (topology); attributes include `cluster_id`, `node_count`.
-- **Topic Cluster**: A community of nodes identified by k-means on embeddings (text); attributes include `cluster_id`, `centroid_embedding`, `node_count`.
-- **Metric**: A derived value for a node; attributes include `bridging_coefficient`, `novelty_score`.
+1. **Given** the computed bridging and citation data, **When** the regression model runs, **Then** it includes `publication_date` and `field` as covariates.
+2. **Given** the regression output, **When** the results are reported, **Then** they are labeled as "associational".
 
 ## Success Criteria
 
@@ -88,18 +92,12 @@ The system performs Spearman rank correlation and linear regression to test the 
 
 > Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: The correlation coefficient (Spearman's rho) between the `bridging_coefficient` and `citation_count` is measured against the null hypothesis of zero correlation (See FR-005).
-- **SC-002**: The statistical significance (p-value) of the correlation is measured against the corrected alpha threshold (e.g., 0.05 / number of tests) to account for multiplicity (See FR-006).
-- **SC-003**: The pipeline runtime is ≤ 6 hours on the specified 2-CPU, 7GB RAM runner (See FR-001, Constitution Principle VI).
-- **SC-004**: Peak memory usage is ≤ 7GB during graph processing (See FR-001, Constitution Principle VI).
-- **SC-005**: The embedding computation completes within 50ms per node on a 2-core CPU (See FR-004).
+- **SC-001**: Schema validation error rate is measured against [deferred] (zero tolerated errors) for US-001.
+- **SC-002**: Novelty score variance is measured against the global centroid distribution to confirm independence from cluster topology for US-002.
+- **SC-003**: Regression model R-squared improvement is measured against a baseline model without covariates for US-003.
+- **SC-004**: Runtime performance is measured against the 6-hour limit on 2-CPU, 7GB RAM hardware.
 
-## Assumptions
-
-- The PubGraph dataset is publicly accessible via the provided arXiv link and can be downloaded within the CI runner's time limits.
-- The `sentence-transformers/all-MiniLM-L6-v2` model can be loaded and executed entirely on CPU within the 6-hour limit for [deferred] nodes.
-- The "primary cluster" assignment via Louvain is a valid proxy for "discipline" for the purpose of defining cross-disciplinary connections, as no explicit discipline metadata is guaranteed in the raw graph.
-- Citation counts in the PubGraph metadata are up-to-date and accurate enough to serve as a proxy for "future citation impact" relative to the graph's publication date.
-- The relationship between bridging coefficient and impact is linear or monotonic, justifying the use of Spearman correlation and linear regression.
-- The [deferred]-node subgraph is representative of the broader scientific landscape regarding interdisciplinary dynamics.
-- Text-based clustering (k-means on embeddings) provides a sufficiently distinct definition of "topic" to serve as an independent baseline for novelty calculation against topological clusters.
+## Non-Functional Requirements
+- **Memory**: Peak RAM usage must not exceed 7GB to ensure resource efficiency.
+- **Reproducibility**: All random seeds must be pinned (default).
+- **Performance**: Embedding generation latency must be < 50ms per node.

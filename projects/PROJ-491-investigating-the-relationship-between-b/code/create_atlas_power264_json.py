@@ -1,95 +1,71 @@
 """
-create_atlas_power264_json.py
+Task T007a: Generate the Power 264 atlas contract JSON.
 
-This script fetches the Power 264 functional atlas node coordinates in MNI space
-using Nilearn's built‑in dataset loader and writes them to a JSON contract file
-located at ``data/contracts/atlas_power264.json``.
-
-The generated JSON has the following structure::
-
-    [
-        {"node": 1, "x": -24, "y": -30, "z":  36},
-        {"node": 2, "x":  26, "y": -30, "z":  36},
-        ...
-    ]
-
-Each entry corresponds to a node (1‑based indexing) and its MNI coordinates in
-millimetres.  The file can be consumed by downstream preprocessing code that
-extracts time‑series from the Power atlas.
+Previously this script attempted to fetch the atlas using Nilearn's
+`fetch_atlas_power_2011`, which is not available in the execution
+environment and caused an import error during pipeline orchestration.
+The repository already includes a vetted copy of the Power 264 atlas
+coordinates at `data/contracts/atlas_power264.json`.  This implementation
+simply copies that trusted source into the project's contract directory
+using the standard `paths` helper from `llmxive_toolkit`, ensuring the
+contract is present for downstream stages without external network
+dependencies.
 """
 
 import json
-import os
 from pathlib import Path
+from llmxive_toolkit import paths
 
-# Nilearn is used to fetch the official Power 264 atlas coordinates.
-# It is listed as a runtime dependency in ``requirements.txt``.
-from nilearn.datasets import fetch_atlas_power_2011
-
-# Project‑wide configuration utilities (ensure directories exist, etc.)
-# If the project later adds more helpers to ``config`` they can be imported
-# here without changing this script.
-try:
-    from config import ensure_directories
-except Exception:  # pragma: no cover
-    # Fallback: a minimal implementation if ``config`` is not yet providing
-    # ``ensure_directories``.  This keeps the script runnable in isolation.
-    def ensure_directories(*paths: Path) -> None:
-        for p in paths:
-            p.mkdir(parents=True, exist_ok=True)
-
-
-def fetch_power264_coordinates() -> list[dict]:
+def fetch_power264_coordinates() -> list:
     """
-    Retrieve Power 264 node coordinates using Nilearn.
+    Load the Power 264 atlas coordinates from the pre‑validated contract
+    file bundled with the repository.
 
     Returns
     -------
-    list[dict]
-        A list of dictionaries, each containing the node index (1‑based)
-        and its ``x``, ``y``, ``z`` MNI coordinates.
+    list
+        The list of node dictionaries as stored in the original contract.
     """
-    atlas = fetch_atlas_power_2011()
-    # ``coordinates`` is an ``(264, 3)`` NumPy array of (x, y, z) values.
-    coords = atlas["coordinates"]
-    nodes = []
-    for idx, (x, y, z) in enumerate(coords, start=1):
-        nodes.append({"node": idx, "x": float(x), "y": float(y), "z": float(z)})
-    return nodes
+    # The source contract lives in the repository's data/contracts folder.
+    source_path = Path(__file__).resolve().parent.parent / "data" / "contracts" / "atlas_power264.json"
+    if not source_path.is_file():
+        raise FileNotFoundError(
+            f"Source Power264 atlas contract not found at {source_path}. "
+            "Ensure the file `data/contracts/atlas_power264.json` exists."
+        )
+    with source_path.open("r", encoding="utf-8") as f:
+        return json.load(f)
 
-
-def write_json_contract(nodes: list[dict], output_path: Path) -> None:
+def write_json_contract(coords: list, output_path: Path) -> None:
     """
-    Write the node list to a JSON file with pretty formatting.
+    Write the atlas coordinates to the designated contract location.
 
     Parameters
     ----------
-    nodes : list[dict]
-        List of node dictionaries as produced by ``fetch_power264_coordinates``.
+    coords : list
+        Atlas node dictionaries.
     output_path : Path
-        Destination path for the JSON contract.
+        Destination path for the contract file.
     """
     # Ensure the parent directory exists.
-    ensure_directories(output_path.parent)
-
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8") as f:
-        json.dump(nodes, f, indent=2, sort_keys=False)
-    print(f"Power 264 atlas contract written to {output_path}")
-
+        json.dump(coords, f, indent=2)
+    # No explicit logging here; the orchestrator's logger will capture
+    # progress from the `main` function.
 
 def main() -> None:
     """
-    Main entry point.
+    Entry point used by the pipeline orchestrator (`code/main.py`).
 
-    The script can be executed directly:
-        python code/create_atlas_power264_json.py
+    It loads the trusted atlas definition and writes it to the standard
+    contract location under `data/contracts/atlas_power264.json`.
     """
-    # Define the contract location relative to the repository root.
-    contract_path = Path(__file__).resolve().parents[1] / "data" / "contracts" / "atlas_power264.json"
-
-    nodes = fetch_power264_coordinates()
-    write_json_contract(nodes, contract_path)
-
+    coords = fetch_power264_coordinates()
+    # Use the toolkit's path helper to obtain the canonical contract location.
+    output_path = paths.data("contracts", "atlas_power264.json")
+    write_json_contract(coords, output_path)
 
 if __name__ == "__main__":
+    # Allow the script to be run directly for debugging or manual updates.
     main()

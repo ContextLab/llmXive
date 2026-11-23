@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Forecast Record"
+description: "Represents a single ensemble forecast instance."
+type: "object"
+properties:
+  grid_id:
+    type: "string"
+    description: "Unique identifier for the grid point."
+  lead_time:
+    type: "integer"
+    description: "Forecast lead time in hours (e.g., 24, 48)."
+  forecast_date:
+    type: "string"
+    format: "date-time"
+    description: "Date and time of the forecast issue."
+  probability_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Probability of the event (0.0 to 1.0)."
+  precip_prob:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Alternative field name for probability (NOAA GFS compatibility)"
+  raw_ensemble_mean:
+    type: "number"
+    description: "Mean of the ensemble members (optional)."
+required:
+  - grid_id
+  - lead_time
+  - forecast_date
+oneOf:
+  - required: ["probability_value"]
+  - required: ["precip_prob"]
+additionalProperties: false

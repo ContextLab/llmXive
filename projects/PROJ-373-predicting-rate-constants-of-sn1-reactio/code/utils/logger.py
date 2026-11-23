@@ -1,29 +1,44 @@
+"""
+code/utils/logger.py
+
+Logging utilities for the SN1 rate constant prediction pipeline.
+"""
+
 import logging
-import sys
+import os
 from pathlib import Path
 from typing import Optional
 
-def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
-    """Configure logging for the project."""
-    logger = logging.getLogger("sn1_pipeline")
-    logger.setLevel(level)
+def get_logger(name: str, log_file: Optional[str] = None) -> logging.Logger:
+    """
+    Creates and configures a logger.
+    If log_file is provided, logs are written to the file.
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.DEBUG)
 
-    if not logger.handlers:
-        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    # Clear existing handlers to avoid duplicates
+    if logger.handlers:
+        logger.handlers.clear()
 
-        # Console handler
-        ch = logging.StreamHandler(sys.stdout)
-        ch.setFormatter(formatter)
-        logger.addHandler(ch)
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_formatter)
+    logger.addHandler(console_handler)
 
-        # File handler if specified
-        if log_file:
-            fh = logging.FileHandler(log_file)
-            fh.setFormatter(formatter)
-            logger.addHandler(fh)
+    # File handler
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(logging.DEBUG)
+        file_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
 
     return logger
 
-def get_logger(name: Optional[str] = None) -> logging.Logger:
-    """Get a logger instance."""
-    return logging.getLogger(name if name else "sn1_pipeline")
+# Placeholder for other logger utilities if needed
+# This file is extended to support the needs of the pipeline

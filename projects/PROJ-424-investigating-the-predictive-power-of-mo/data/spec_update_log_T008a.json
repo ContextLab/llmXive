@@ -1,0 +1,14 @@
+{
+  "task_id": "T008a",
+  "description": "Update FR-008 MSD linearity threshold from R² ≥ 0.99 to R² ≥ 0.95",
+  "timestamp": "2023-10-27T10:00:00Z",
+  "action": "Spec Kickback Implementation",
+  "status": "completed",
+  "details": {
+    "original_threshold": "R² ≥ 0.99",
+    "new_threshold": "R² ≥ 0.95",
+    "rationale": "Aligns with Constitution Principle VI to prevent excessive false negatives on N=3 solvent systems.",
+    "source_file": "spec.md",
+    "implementation_script": "code/spec_update_t008a.py"
+  }
+}

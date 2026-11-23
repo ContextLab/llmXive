@@ -1,0 +1,73 @@
+T004:
+  c: true
+  h: cdf93744ce336dccb95d759ed0fa8c0e647ea4236ac509dc4ece7e73d5b60640
+  r: "The `code/config.py` file exists, is non\u2011empty, defines `PRIMARY_MATCHING_THRESHOLD\
+    \ = 0.30` and `GOLD_STANDARD_ANNOTATIONS_PATH = \"data/raw/gold_standard_annotations.csv\"\
+    `, sets a NumPy random seed, and provides path\u2011related configuration and\
+    \ logging setup as required. The missing CSV file is not part of the task specification."
+T015:
+  c: false
+  h: d020ef62320c795317856ac2a79227aab091021ec857b534810e90424a60f9a1
+  r: "The repository contains `code/extraction.py`, but the function defined is `extract_perspective_features(input_dir,\
+    \ output_path)` (different signature) and its body is truncated, so edge\u2011\
+    case handling is not shown. Moreover, the required log file `data/logs/extraction.log`\
+    \ does not exist. The task\u2019s specific `extract_perspective_features(file_path)`\
+    \ implementation with the described logging and skipping logic is missing."
+T016:
+  c: false
+  h: 845fcec77903640a6e699691064dad7c346584c157accd1667a9a3877b4fa05e
+  r: "The repository contains a `code/main.py` file, but it does not provide a complete\
+    \ CLI (no shown `if __name__ == \"__main__\"` block or sub\u2011command handling)\
+    \ and the required output file `data/processed/perspective_features.json` is missing.\
+    \ Consequently the extraction step cannot be verified to produce the correctly\u2011\
+    structured JSON records. The missing file and incomplete script must be added/fixed."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration file, or log output showing the added \u201Cdata_quality_insufficient\u201D\
+    \ warning logging was provided. Without an artifact demonstrating that the extraction\
+    \ pipeline now emits the required quality\u2011warning logs, the task\u2019s requirement\
+    \ is not satisfied. The next implementer must add and commit the logging implementation\
+    \ (e.g., a log statement in the extraction script and a sample log file) and provide\
+    \ the corresponding artifact."
+T025#1:
+  c: false
+  h: 17b699e4569c0414ef51903bdf61cc296b0ff9d7a68c5ca33ff5d0f68924bbc5
+  r: "The repository contains a `code/main.py` file, but it is truncated and does\
+    \ not show a complete CLI with a `match` sub\u2011command nor the logic to write\
+    \ `data/processed/matching_results.json`. Moreover, the required input files (`data/processed/perspective_features.json`,\
+    \ `data/raw/moral_judgement_local.csv`) and the expected output file (`data/processed/matching_results.json`)\
+    \ are absent. The task\u2019s core deliverable \u2013 a runnable matching sub\u2011\
+    command that produces the specified JSON output \u2013 is therefore not present."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log files were provided to demonstrate that the similarity\u2011\
+    threshold check (excluding stories with similarity\u202F<\u202F0.3) and the corresponding\
+    \ \u201Cunmatched\u201D logging were actually implemented. Without concrete artifacts,\
+    \ the requirement cannot be confirmed as met."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the deterministic tie\u2011breaking\
+    \ rule (selecting the highest raw score) is present; the claim lacks any concrete\
+    \ artifact (e.g., function, unit test, or example output) to demonstrate that\
+    \ the rule has been added to the similarity matcher. The required implementation\
+    \ is therefore missing."
+T032:
+  c: false
+  h: 98a89cc223e0e4754826a666352529883446cf4752b1ced5b1411cde0a7373d4
+  r: The repository lacks the required input files (`perspective_features.json`, `aligned_reader_response.csv`)
+    and the output CSV (`aligned_dataset.csv`). The `aggregate_reader_scores` implementation
+    is truncated, does not compute mean IRI scores per story, and its signature differs
+    from the task specification. The function also never writes the resulting DataFrame
+    to the specified output path. These missing/incorrect elements prevent the task
+    from being fulfilled.
+T041:
+  c: false
+  h: 75dbeb06682f92eb675e42747d87ca4be49af4541cedcf8c5425caf697a4e97c
+  r: "The repository lacks the required output file `data/processed/analysis_results.json`\
+    \ (and the input `aligned_dataset.csv`), and the provided `code/main.py` snippet\
+    \ shows no implementation of an `analyze` sub\u2011command that would generate\
+    \ the JSON with the specified keys. Consequently the task\u2019s CLI, output schema,\
+    \ and verification steps are not satisfied."

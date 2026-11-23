@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2012.10394",
+  "judged_at": "2026-07-19T04:55:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available climate model output ensembles statistics",
+  "rationale": "This paper addresses the user's question by providing a canonical study on \"Model Output Statistics\" (MOS) applied to climate model ensembles, satisfying criteria (b) and (d) as it establishes the methodological framework and empirical application for statistically correcting climate model outputs. Although the user's query mentions \"statistical analysis\" broadly and the paper focuses on a specific deep learning technique, the paper is foundational to the domain of statistical post-processing of",
+  "relevant": true
+}

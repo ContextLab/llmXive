@@ -1,128 +1,204 @@
-import pytest
+"""
+Unit tests for code/dataset/verifier.py.
+Focus: Known valid/invalid solutions and rejection logic.
+"""
 import json
-import os
+import pytest
 import sys
+import os
 from pathlib import Path
 
-# Ensure code directory is in path for imports
+# Ensure code/ is on path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from code.dataset.verifier import verify_solution, SolutionResult
-from code.exceptions import VERIFIER_ERROR
+from code.dataset.verifier import PuzzleVerifier, ErrorCodes, SolutionResult, DataVerificationError
 
-# Test fixtures
-VALID_SUDOKU_SOLUTION = {
-    "puzzle_id": "test_001",
-    "type": "sudoku",
-    "grid": [
-        [5, 3, 4, 6, 7, 8, 9, 1, 2],
-        [6, 7, 2, 1, 9, 5, 3, 4, 8],
-        [1, 9, 8, 3, 4, 2, 5, 6, 7],
-        [8, 5, 9, 7, 6, 1, 4, 2, 3],
-        [4, 2, 6, 8, 5, 3, 7, 9, 1],
-        [7, 1, 3, 9, 2, 4, 8, 5, 6],
-        [9, 6, 1, 5, 3, 7, 2, 8, 4],
-        [2, 8, 7, 4, 1, 9, 6, 3, 5],
-        [3, 4, 5, 2, 8, 6, 1, 7, 9]
-    ],
-    "solution_path": ["step1", "step2", "step3"]
-}
 
-INVALID_SUDOKU_DUPLICATE_ROW = {
-    "puzzle_id": "test_002",
-    "type": "sudoku",
-    "grid": [
-        [5, 3, 4, 6, 7, 8, 9, 1, 2],
-        [6, 7, 2, 1, 9, 5, 3, 4, 8],
-        [1, 9, 8, 3, 4, 2, 5, 6, 7],
-        [8, 5, 9, 7, 6, 1, 4, 2, 3],
-        [4, 2, 6, 8, 5, 3, 7, 9, 1],
-        [7, 1, 3, 9, 2, 4, 8, 5, 6],
-        [9, 6, 1, 5, 3, 7, 2, 8, 4],
-        [2, 8, 7, 4, 1, 9, 6, 3, 5],
-        [3, 4, 5, 2, 8, 6, 1, 7, 9]  # Correct
-    ],
-    "solution_path": ["step1"],
-    "error_type": "duplicate_row"
-}
+@pytest.fixture
+def verifier():
+    """Instantiate the PuzzleVerifier."""
+    return PuzzleVerifier()
 
-# Intentionally create an invalid grid for testing duplicate detection
-INVALID_SUDOKU_GRID = [
-    [5, 3, 4, 6, 7, 8, 9, 1, 2],
-    [6, 7, 2, 1, 9, 5, 3, 4, 8],
-    [1, 9, 8, 3, 4, 2, 5, 6, 7],
-    [8, 5, 9, 7, 6, 1, 4, 2, 3],
-    [4, 2, 6, 8, 5, 3, 7, 9, 1],
-    [7, 1, 3, 9, 2, 4, 8, 5, 6],
-    [9, 6, 1, 5, 3, 7, 2, 8, 4],
-    [2, 8, 7, 4, 1, 9, 6, 3, 5],
-    [3, 4, 5, 2, 8, 6, 1, 7, 9]
-]
-# Modify to create a duplicate row (row 0 and row 1 are now identical in logic for testing)
-INVALID_SUDOKU_GRID[1] = INVALID_SUDOKU_GRID[0].copy()
 
-INVALID_SOLUTION_DATA = {
-    "puzzle_id": "test_003",
-    "type": "sudoku",
-    "grid": INVALID_SUDOKU_GRID,
-    "solution_path": []
-}
-
-INVALID_PATH_SOLUTION = {
-    "puzzle_id": "test_004",
-    "type": "pathfinding",
-    "path": [
-        {"x": 0, "y": 0},
-        {"x": 0, "y": 0},  # Duplicate point (invalid for simple path)
-        {"x": 0, "y": 1}
-    ],
-    "solution_path": ["step1"]
-}
-
-def test_verifier_rejects_invalid_solution():
+@pytest.fixture
+def valid_puzzle():
     """
-    Unit test for code/dataset/verifier.py with known invalid solutions.
-    Specifically tests that the verifier rejects a solution with a duplicate row
-    and returns the correct error code DUPLICATE_ROW.
+    Return a valid puzzle instance (Sudoku variant) with a known correct solution.
+    This fixture defines the ground truth for validation.
     """
-    # Test 1: Valid solution should pass
-    result = verify_solution(VALID_SUDOKU_SOLUTION)
-    assert result.is_valid is True
-    assert result.error_code is None
-
-    # Test 2: Invalid solution with duplicate row should fail
-    result = verify_solution(INVALID_SOLUTION_DATA)
-    assert result.is_valid is False
-    assert result.error_code == "DUPLICATE_ROW"
-    
-    # Test 3: Invalid path solution
-    result = verify_solution(INVALID_PATH_SOLUTION)
-    assert result.is_valid is False
-    assert result.error_code == "INVALID_PATH"
-
-def test_verifier_handles_missing_fields():
-    """
-    Test that verifier raises appropriate errors for missing required fields.
-    """
-    incomplete_solution = {
-        "puzzle_id": "test_005",
-        "type": "sudoku"
-        # Missing 'grid' and 'solution_path'
+    # Simple 4x4 Sudoku-like puzzle for speed
+    return {
+        "constraints": [
+            "Each row must contain distinct integers from 1 to 4.",
+            "Each column must contain distinct integers from 1 to 4.",
+            "Each 2x2 block must contain distinct integers from 1 to 4."
+        ],
+        "initial_state": {
+            "grid": [
+                [1, 2, 0, 0],
+                [3, 4, 0, 0],
+                [0, 0, 1, 2],
+                [0, 0, 3, 4]
+            ]
+        },
+        "target_state": {
+            "grid": [
+                [1, 2, 3, 4],
+                [3, 4, 1, 2],
+                [2, 1, 4, 3],
+                [4, 3, 2, 1]
+            ]
+        },
+        "metadata": {
+            "source_id": "test_valid_001",
+            "generation_seed": 42
+        }
     }
-    
-    with pytest.raises(VERIFIER_ERROR):
-        verify_solution(incomplete_solution)
 
-def test_verifier_unsupported_type():
+
+@pytest.fixture
+def invalid_puzzle():
     """
-    Test verifier behavior with unsupported puzzle types.
+    Return a puzzle instance where the provided solution violates constraints.
     """
-    unsupported_solution = {
-        "puzzle_id": "test_006",
-        "type": "unsupported_type",
-        "data": {}
+    return {
+        "constraints": [
+            "Each row must contain distinct integers from 1 to 4.",
+            "Each column must contain distinct integers from 1 to 4."
+        ],
+        "initial_state": {
+            "grid": [
+                [1, 2, 0, 0],
+                [3, 4, 0, 0],
+                [0, 0, 1, 2],
+                [0, 0, 3, 4]
+            ]
+        },
+        "target_state": {
+            "grid": [
+                [1, 2, 3, 4],
+                [3, 4, 1, 2],
+                [2, 1, 4, 3],
+                [4, 3, 2, 1]
+            ]
+        },
+        "provided_solution": {
+            "grid": [
+                [1, 2, 3, 4],
+                [3, 4, 1, 2],
+                [2, 1, 4, 3],
+                [4, 3, 1, 1]  # Violation: Duplicate '1' in last row, also '1' in col 3
+            ]
+        },
+        "metadata": {
+            "source_id": "test_invalid_001",
+            "generation_seed": 43
+        }
     }
-    
-    result = verify_solution(unsupported_solution)
-    assert result.is_valid is False
-    assert result.error_code == "UNSUPPORTED_TYPE"
+
+
+@pytest.fixture
+def malformed_solution_puzzle():
+    """
+    Return a puzzle where the solution structure is missing required fields.
+    """
+    return {
+        "constraints": ["Row sum must be 10."],
+        "initial_state": {"grid": [[1, 2, 3, 4]]},
+        "target_state": {"grid": [[10, 0, 0, 0]]},
+        "provided_solution": {
+            "grid": [[1, 2, 3]]  # Missing a column
+        },
+        "metadata": {"source_id": "test_malformed", "generation_seed": 44}
+    }
+
+
+class TestVerifierRejectsInvalidSolution:
+    """
+    Test suite specifically for T010: Unit test for verifier with known invalid solutions.
+    """
+
+    def test_verifier_accepts_valid_solution(self, verifier, valid_puzzle):
+        """
+        Verify that the verifier returns True for a solution that satisfies all constraints.
+        """
+        result = verifier.verify(valid_puzzle)
+        assert result.is_valid is True
+        assert result.error_code is None
+
+    def test_verifier_rejects_invalid_solution(self, verifier, invalid_puzzle):
+        """
+        T010 Core Test: Verify that the verifier rejects a solution that violates constraints.
+        Specifically checks for duplicate values in rows/cols as defined in the puzzle.
+        """
+        result = verifier.verify(invalid_puzzle)
+        assert result.is_valid is False
+        # The verifier should identify a specific error code, e.g., DUPLICATE_ROW or DUPLICATE_COL
+        assert result.error_code in [ErrorCodes.DUPLICATE_ROW, ErrorCodes.DUPLICATE_COL, ErrorCodes.CONSTRAINT_VIOLATION]
+        assert result.message is not None
+        assert "invalid" in result.message.lower() or "violation" in result.message.lower()
+
+    def test_verifier_rejects_malformed_solution(self, verifier, malformed_solution_puzzle):
+        """
+        Verify that the verifier rejects a solution with incorrect structure (dimension mismatch).
+        """
+        result = verifier.verify(malformed_solution_puzzle)
+        assert result.is_valid is False
+        assert result.error_code == ErrorCodes.MALFORMED_SOLUTION
+        assert "dimension" in result.message.lower() or "shape" in result.message.lower()
+
+    def test_verifier_handles_missing_solution(self, verifier, valid_puzzle):
+        """
+        Verify behavior when 'provided_solution' key is missing from the puzzle instance.
+        """
+        puzzle_no_sol = {k: v for k, v in valid_puzzle.items() if k != 'provided_solution'}
+        result = verifier.verify(puzzle_no_sol)
+        assert result.is_valid is False
+        assert result.error_code == ErrorCodes.MISSING_SOLUTION
+
+    def test_verifier_handles_empty_grid(self, verifier):
+        """
+        Verify behavior when the solution grid is empty.
+        """
+        puzzle = {
+            "constraints": ["Grid must be 2x2."],
+            "initial_state": {"grid": []},
+            "provided_solution": {"grid": []},
+            "metadata": {"source_id": "test_empty"}
+        }
+        result = verifier.verify(puzzle)
+        assert result.is_valid is False
+        assert result.error_code == ErrorCodes.INVALID_DIMENSIONS
+
+class TestVerifierEdgeCases:
+    """
+    Additional edge case tests to ensure robustness of the verifier.
+    """
+
+    def test_verifier_handles_non_integer_values(self, verifier):
+        """
+        Verify that the verifier rejects solutions containing non-integer values if integers are expected.
+        """
+        puzzle = {
+            "constraints": ["Grid must contain integers."],
+            "initial_state": {"grid": [[1, 2]]},
+            "provided_solution": {"grid": [[1, "a"]]},
+            "metadata": {"source_id": "test_non_int"}
+        }
+        result = verifier.verify(puzzle)
+        assert result.is_valid is False
+        assert result.error_code == ErrorCodes.TYPE_MISMATCH
+
+    def test_verifier_handles_null_values(self, verifier):
+        """
+        Verify that the verifier rejects solutions containing null/None where values are expected.
+        """
+        puzzle = {
+            "constraints": ["Grid must be fully filled."],
+            "initial_state": {"grid": [[1, 2]]},
+            "provided_solution": {"grid": [[1, None]]},
+            "metadata": {"source_id": "test_null"}
+        }
+        result = verifier.verify(puzzle)
+        assert result.is_valid is False
+        assert result.error_code == ErrorCodes.INCOMPLETE_SOLUTION

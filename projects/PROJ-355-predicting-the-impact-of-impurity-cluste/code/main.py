@@ -1,96 +1,115 @@
 """
-Pipeline orchestration for predicting the impact of impurity clustering on grain boundary segregation.
+Main pipeline orchestration script.
 
-This script defines the logical sequence of the research pipeline:
-1. Download bulk configurations
-2. Build GB supercells
-3. Compute descriptors
-4. Run simulation (segregation energy)
+This script orchestrates the high‑level steps of the data pipeline:
+1. Download bulk configurations.
+2. Build grain‑boundary (GB) supercells.
+3. Compute interface‑region clustering descriptors.
+4. Run segregation‑energy simulations.
 
-It handles errors gracefully, specifically catching [DATA_UNAVAILABLE] errors from the download step.
+Each step is imported lazily so that the script can run even if a
+downstream module has unmet optional dependencies (e.g. `pymatgen`).
+Errors specific to data unavailability (`[DATA_UNAVAILABLE]`) are
+caught, logged, and cause a clean exit with status code 1.
+Other unexpected errors are re‑raised after logging.
+
+The script can be invoked directly:
+
+    python code/main.py --mode full
+
+The `--mode` flag is accepted for future extensions but currently does
+not alter behaviour.
 """
+
+import argparse
 import logging
 import sys
 from pathlib import Path
-from typing import Optional
 
-# Configure logging
+# Configure root logger for the pipeline
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('results/pipeline.log')
-    ]
+    format="%(asctime)s %(levelname)s %(name)s: %(message)s",
+    datefmt="%Y-%m-%d %H:%M:%S",
 )
 logger = logging.getLogger(__name__)
 
-# Import pipeline stages
-# Note: These modules are expected to exist as per the project structure
-from data.download import download_bulk_configs, main as download_main
-from data.gb_builder import build_gb_supercell, main as gb_builder_main
-from data.descriptors import run_descriptor_computation, main as descriptors_main
-from data.simulate_energy import run_simulation, main as simulate_main
-from config import get_project_root, get_data_paths
+def _run_step(step_name: str, import_path: str):
+    """
+    Helper to import a ``main`` function from a module and execute it.
+
+    Parameters
+    ----------
+    step_name : str
+        Human‑readable description of the step (used for logging).
+    import_path : str
+        Dotted import path to the module that defines ``main``.
+    """
+    try:
+        module = __import__(import_path, fromlist=["main"])
+        step_main = getattr(module, "main")
+        logger.info("Running step: %s", step_name)
+        step_main()
+    except ImportError as exc:
+        # The module (or one of its transitive imports) is missing.
+        logger.warning(
+            "Skipping step '%s' because the module could not be imported: %s",
+            step_name,
+            exc,
+        )
+    except RuntimeError as exc:
+        # Specific handling for the `[DATA_UNAVAILABLE]` sentinel.
+        if "[DATA_UNAVAILABLE]" in str(exc):
+            logger.error("Data unavailable during step '%s': %s", step_name, exc)
+            sys.exit(1)
+        else:
+            logger.exception("Runtime error in step '%s'", step_name)
+            raise
+    except Exception as exc:
+        # Unexpected exception – log and re‑raise to make debugging easier.
+        logger.exception("Unexpected error in step '%s'", step_name)
+        raise
 
 def run_pipeline():
     """
-    Execute the full research pipeline with error handling.
-    
-    Logical Sequence:
-    1. download_bulk_configs -> 2. build_gb_supercells -> 
-    3. compute_descriptors -> 4. run_simulation
+    Execute the complete pipeline in the logical order required by the
+    specification.
     """
-    project_root = get_project_root()
-    data_paths = get_data_paths()
-    
-    logger.info("Starting Impurity Clustering Segregation Pipeline")
-    logger.info(f"Project Root: {project_root}")
-    
-    try:
-        # Step 1: Download Bulk Configurations
-        logger.info("Step 1: Downloading bulk configurations...")
-        # The download module handles its own validation and retry logic.
-        # We call the main entry point which returns the path to downloaded data or raises an error.
-        # If [DATA_UNAVAILABLE] occurs, it raises ValueError which we catch here.
-        try:
-            # Assuming the download_main returns a path or modifies data/raw directly
-            # We rely on the module's internal logic to handle the URL validation and fetching.
-            download_main()
-            logger.info("Step 1 completed: Bulk configurations downloaded.")
-        except ValueError as e:
-            if "[DATA_UNAVAILABLE]" in str(e):
-                logger.error(f"Critical Error: {e}")
-                logger.error("Pipeline aborted due to data unavailability.")
-                return 1
-            else:
-                raise
+    logger.info("Starting pipeline orchestration...")
 
-        # Step 2: Build GB Supercells
-        logger.info("Step 2: Building GB supercells...")
-        # This step depends on Step 1 output
-        gb_builder_main()
-        logger.info("Step 2 completed: GB supercells constructed.")
+    # 1. Download bulk configurations
+    _run_step("Download bulk configurations", "data.download")
 
-        # Step 3: Compute Descriptors
-        logger.info("Step 3: Computing clustering descriptors...")
-        # This step depends on Step 2 output
-        descriptors_main()
-        logger.info("Step 3 completed: Descriptors computed.")
+    # 2. Build grain‑boundary supercells
+    _run_step("Build GB supercells", "data.gb_builder")
 
-        # Step 4: Run Simulation (Segregation Energy)
-        logger.info("Step 4: Running segregation energy simulation...")
-        # This step depends on Step 2/3 output
-        simulate_main()
-        logger.info("Step 4 completed: Simulations finished.")
+    # 3. Compute clustering descriptors (interface region only)
+    _run_step("Compute interface‑region descriptors", "data.descriptors")
 
-        logger.info("Pipeline completed successfully.")
-        return 0
+    # 4. Run segregation‑energy simulations
+    _run_step("Run segregation‑energy simulations", "data.simulate_energy")
 
-    except Exception as e:
-        logger.exception(f"Pipeline failed with unexpected error: {e}")
-        return 1
+    logger.info("Pipeline completed successfully.")
+
+def _parse_args():
+    parser = argparse.ArgumentParser(
+        description="Orchestrate the impurity‑clustering data pipeline."
+    )
+    parser.add_argument(
+        "--mode",
+        choices=["full", "ci"],
+        default="full",
+        help="Execution mode (reserved for future use).",
+    )
+    return parser.parse_args()
+
+def main():
+    """
+    Entry point for ``python code/main.py``.
+    """
+    _ = _parse_args()  # Currently unused but kept for CLI compatibility.
+    run_pipeline()
+    return 0
 
 if __name__ == "__main__":
-    exit_code = run_pipeline()
-    sys.exit(exit_code)
+    sys.exit(main())

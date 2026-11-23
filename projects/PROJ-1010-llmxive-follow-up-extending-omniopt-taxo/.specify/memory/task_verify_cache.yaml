@@ -1,0 +1,148 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure is shown in the provided evidence; the required `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/`
+    folder and its subfolders (`code/`, `data/`, `tests/`, `state/`) are not present
+    or documented. The implementer must create and list these directories (and ensure
+    they are not empty placeholders).
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required subdirectories (`code/utils/`, `code/data/`, `code/analysis/`)
+    being present was provided; the claim lacks any artifact showing that these folders
+    exist or contain files. The implementer must create the three directories (and
+    optionally add placeholder files) and supply a directory listing as proof.
+T001c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `tests/unit/` and `tests/integration/` directories
+    was provided; the artifact list is empty, so the task of creating those test subdirectories
+    has not been demonstrated.
+T002a:
+  c: false
+  h: 3f199242c3f6278c2653b52ad63649802f8861682f9f4bd3037aaec3f88afe06
+  r: "The required file at `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/requirements.txt`\
+    \ does not exist, and the only `requirements.txt` found is in a different location\
+    \ and uses non\u2011pinned \u201C>=\u201D version specifiers plus extra packages\
+    \ not requested. The task\u2019s specific artifact is missing."
+T002b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., a script, CI configuration, README note, or runtime check\
+    \ output) was provided that demonstrates Python\u202F3.11+ is available in `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/`.\
+    \ The implementer\u2019s claim lacks concrete evidence, so the requirement is\
+    \ not satisfied."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting/formatting configuration files (e.g., `pyproject.toml` entries for\
+    \ ruff and black, a `.ruff.toml`, or a pre\u2011commit hook) or any evidence of\
+    \ them being added to `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/`\
+    \ were provided. The required artifacts are missing, so the task is not satisfied."
+T004:
+  c: true
+  h: 785fa3053bc4a06f3d1c267e8ff09d78cfc323dbe4b55ef9186d784282fb0fd4
+  r: "Checked the `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/utils/seeds.py`\
+    \ file (852\u202Fbytes) which implements `set_seed`, `get_seed_from_hash`, and\
+    \ `restore_seed` functions along with a demonstration `main`. The utility is fully\
+    \ implemented, non\u2011empty, and provides deterministic seed handling as required."
+  sig: 511990dde088d4587358dbb95a38c86ec489343441870c2e7590ddfca6387d41
+T005:
+  c: true
+  h: 680fbf0273ebe09d0191f52e77675da177b7d04f00a9fe7aec7bbd0e55d602ce
+  r: "Checked `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/utils/logging.py`\
+    \ (3494\u202Fbytes) which defines JSON and text formatters, correlation\u2011\
+    ID handling, logger configuration, and convenience logging functions, fulfilling\
+    \ a structured logging utility."
+  sig: 05a398067490448f80479190542c8acdfd28795f4d1975bf879340c85e0e0648
+T006:
+  c: true
+  h: 4a2203238d058bf976f01300e2069d85bd9cb274fd35358c00fc686ac1cb7f99
+  r: "Checked the file `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/utils/memory_monitor.py`,\
+    \ which exists (3\u202FKB) and implements a `MemoryMonitor` class, background\
+    \ monitoring, limit enforcement, a context manager, and helper functions \u2013\
+    \ fulfilling the memory\u2011monitoring utility requirement."
+  sig: 9519822aa181a99c13e53e8cca13dccdbfeb07a4c87f4e7b6a6202fcff8bfa46
+T007:
+  c: true
+  h: e380249485e342a429820545e0776989f9a65ff62bfc586bca8bf10e3a45d4c4
+  r: "The `data/raw/` and `data/processed/` directories (each containing a `.gitkeep`\
+    \ placeholder) exist, the `data/omniopt_lookup.json` file is present with valid\
+    \ JSON content, and a `state/` directory is present under the project root, fulfilling\
+    \ the required base structure and state\u2011tracking component."
+  sig: 3efdb67ae2987c6eb10a9d889cf0d284b093073f7f40cd6eb36c9ac6cb8263a7
+T009:
+  c: true
+  h: 006ebc2b039866db07ea41b9af4c4b8a863813d787d543d673bbe23e76326ffb
+  r: "Checked `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/utils/data_loader.py`,\
+    \ which defines `load_tinyimagenet_streaming` and `load_c4_streaming` using `datasets.load_dataset(...,\
+    \ streaming=True)` and raises `DataLoaderError` on any failure, fulfilling the\
+    \ \u201Cfail loudly on missing real source\u201D requirement. The file is non\u2011\
+    empty and implements the requested streaming loaders for both datasets."
+  sig: ad6e07a3ba0e0eebf9127bc336421f9b175f9776f12c2c89431417e28206f017
+T010:
+  c: true
+  h: 1b1cdb2fc7047adc9abeaa124f77e260409ef2cb30fe96e8ac228b2285de5c0e
+  r: "Checked the `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/tests/unit/test_spectral_extractor.py`\
+    \ file (14\u202FKB) which contains a full suite of pytest unit tests exercising\
+    \ eigenvalue decomposition on well\u2011conditioned, singular, ill\u2011conditioned,\
+    \ zero, large\u2011value, small\u2011value, asymmetric, non\u2011square, empty,\
+    \ and rank\u2011deficient matrices, plus feature extraction checks. The tests\
+    \ are concrete, runnable, and address numerical stability and singular\u2011matrix\
+    \ handling as required."
+  sig: ffaf02cea4b212f9f229b09679a7f8742653559d5a0deeb348ec048a1ec0ebb2
+T011:
+  c: false
+  h: ace595a2b116037cf799d84a962591e24fe728e70ed4ca396479adfcaef1d9e5
+  r: "The required unit test file `tests/unit/test_data_loader.py` is missing from\
+    \ the repository, so no test code exists to verify the streaming data loader\u2019\
+    s failure behavior. The task cannot be considered done until the file is present\
+    \ and contains the appropriate test implementation."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `spectral_extractor.py` file or any related code, data, or output was provided
+    for inspection, and there is no evidence that models were selected from HuggingFace
+    or that gradient covariance was computed on TinyImageNet. The required artifact
+    is missing, so the task is not satisfied.
+T013:
+  c: false
+  h: 44febe21ebd89a75f790ad3b56b305fa4a240c6ccde019cb2b3ee890c39ab6c9
+  r: "The file `code/spectral_extractor.py` defines `compute_spectral_features` and\
+    \ `compute_tail_decay_exponent`, which calculate spectral radius, condition number,\
+    \ and tail\u2011decay exponent as required, but the surrounding pipeline is broken\
+    \ (it calls `load_tinyimagenet_streaming` with arguments that the function does\
+    \ not accept, causing a runtime error) and the handling of singular matrices is\
+    \ only a crude \u201Cignore near\u2011zero eigenvalues\u201D check rather than\
+    \ explicit regularization. The script therefore cannot be executed to produce\
+    \ the required CSV of spectral features. Fix the data\u2011loader call (or pr"
+  sig: 855eaf0eecfc49dd80d6c44110148c2e60a0103e38bdbf0a9e6e83cbeb9cb5d0
+T013b:
+  c: true
+  h: ade9883c0202649495245f9ab3925af09d9f8ba1ae0440efcad2892eeb341b1c
+  r: "Checked `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/spectral_extractor.py`\
+    \ \u2013 it defines `compute_spectral_entropy` that normalizes eigenvalues, computes\
+    \ `-np.sum(p * np.log2(p))`, and integrates the result into the feature dict returned\
+    \ by `compute_spectral_features`. The implementation is concrete, non\u2011placeholder,\
+    \ and matches the required formula."
+  sig: 5cbebb03ee560916e5d60947d3d7b72d34a53b99f6f90344956994f58a53ea76
+T014:
+  c: true
+  h: 98b90268f3980924ca2c7fc3d99e506c3b70d076de703f6dcdcbd171d8d221d0
+  r: "Checked `projects/PROJ-1010-llmxive-follow-up-extending-omniopt-taxo/code/spectral_extractor.py`\
+    \ \u2013 it contains try/except blocks, timeout handling, NaN/Inf checks, logs\
+    \ errors/warnings, returns\u202FNone for failed runs, and the main loop records\
+    \ and logs excluded samples. All required error\u2011handling behavior is present."
+  sig: 17f7b80f8e75db1084b521cf5f1cac3f134bccefd6c04e592a6a97813968804d
+T015:
+  c: false
+  h: 2262a0acdec77b05598d0710c2ccec5771763a0fee27172c9646c0a275099c9a
+  r: "The `spectral_extractor.py` allocates a full `(steps, total_params)` NumPy array\
+    \ (`gradient_accumulator = np.zeros((steps, total_params))`) which for typical\
+    \ models (e.g., ResNet\u201118 \u2248\u202F11\u202FM parameters) would require\
+    \ >\u202F8\u202FGB of RAM, violating the <\u202F7\u202FGB limit. Moreover, the\
+    \ code calls `check_memory_usage(MEMORY_LIMIT_GB * 1e9)`, but `check_memory_usage`\
+    \ is defined without parameters, so the memory\u2011limit enforcement never runs.\
+    \ These issues mean the implementation does not provide the required memory\u2011\
+    efficient gradient accumulation and covariance computation."
+  sig: 195387e30f609f5a21d3ae93d76aacd9c5eb9071a4be56760554368f5710cc71

@@ -1,53 +1,61 @@
 import os
-import tempfile
-import hashlib
-import pytest
-from pathlib import Path
-import yaml
-
-# Import the functions to test
-# We assume the test runs from project root or we adjust imports accordingly
-# For unit testing isolated functions, we import the logic directly
 import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent / "code"))
+import hashlib
+import tempfile
+import yaml
+from pathlib import Path
+import pytest
 
-from compute_checksum import compute_sha256, ensure_state_file_exists, update_state_file
+# Add parent directory to path to import the module
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-def test_compute_sha256(tmp_path):
-    """Test SHA-256 computation on a known file."""
-    test_file = tmp_path / "test.txt"
-    content = b"Hello, World!"
+from compute_checksum import compute_sha256, update_state_file, ensure_state_file_exists
+
+@pytest.fixture
+def temp_dir():
+    with tempfile.TemporaryDirectory() as tmp:
+        yield Path(tmp)
+
+def test_compute_sha256(temp_dir):
+    test_file = temp_dir / "test.txt"
+    content = b"Hello, world!"
     test_file.write_bytes(content)
-
+    
     expected_hash = hashlib.sha256(content).hexdigest()
     actual_hash = compute_sha256(test_file)
-
+    
     assert actual_hash == expected_hash
 
-def test_compute_sha256_missing_file():
-    """Test that computing checksum on a missing file raises an error."""
+def test_compute_sha256_missing_file(temp_dir):
+    missing_file = temp_dir / "nonexistent.txt"
     with pytest.raises(FileNotFoundError):
-        compute_sha256(Path("/nonexistent/path/file.txt"))
+        compute_sha256(missing_file)
 
-def test_ensure_state_file_exists(tmp_path):
-    """Test that ensure_state_file_exists creates the file if missing."""
-    state_file = tmp_path / "state.yaml"
-    ensure_state_file_exists(state_file)
-    assert state_file.exists()
-
-def test_update_state_file(tmp_path):
-    """Test updating the state file with a checksum."""
-    state_file = tmp_path / "state.yaml"
-    file_key = "test/file.txt"
-    checksum = "abc123"
-
-    update_state_file(state_file, file_key, checksum)
-
+def test_update_state_file(temp_dir):
+    state_file = temp_dir / "state.yaml"
+    key = "test_key"
+    value = "test_value"
+    
+    update_state_file(state_file, key, value)
+    
     assert state_file.exists()
     with open(state_file, 'r') as f:
-        state = yaml.safe_load(f)
+        data = yaml.safe_load(f)
+    
+    assert "artifact_hashes" in data
+    assert data["artifact_hashes"][key] == value
+    assert "updated_at" in data
+    assert data["updated_at"] is not None
 
-    assert "checksums" in state
-    assert file_key in state["checksums"]
-    assert state["checksums"][file_key]["hash"] == checksum
-    assert "timestamp" in state["checksums"][file_key]
+def test_ensure_state_file_exists_creates_file(temp_dir):
+    state_file = temp_dir / "new_state.yaml"
+    assert not state_file.exists()
+    
+    ensure_state_file_exists(state_file)
+    
+    assert state_file.exists()
+    with open(state_file, 'r') as f:
+        data = yaml.safe_load(f)
+    
+    assert "artifact_hashes" in data
+    assert "updated_at" in data

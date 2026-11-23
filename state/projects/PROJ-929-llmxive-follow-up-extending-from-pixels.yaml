@@ -1,12 +1,12 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-07-03T06:15:23.867166Z'
-current_stage: brainstormed
+current_stage: flesh_out_complete
 failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-929-llmxive-follow-up-extending-from-pixels
-last_run_id: null
+last_run_id: ca0ddef8-7b15-4472-8ffb-8b89f2dd6a99
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: null
 title: 'llmXive follow-up: extending "From Pixels to Words -- Towards Native One-Vision
   Models at Scale"'
-updated_at: '2026-07-03T06:15:23.867166Z'
+updated_at: '2026-08-29T18:43:01.672333Z'

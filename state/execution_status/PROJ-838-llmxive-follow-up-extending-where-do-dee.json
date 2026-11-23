@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-838-llmxive-follow-up-extending-where-do-dee",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/pipeline.py --config code/config.py; 13 declared deliverable(s) absent: data/processed/baseline_report.json; data/processed/comparative_report.json; data/processed/f1_max_threshold.json",
+  "artifacts": [],
+  "failures": [
+    "python code/pipeline.py --config code/config.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-838-llmxive-follow-up-extending-where-do-dee/code/pipeline.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-26T19:32:15Z"
+}

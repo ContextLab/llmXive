@@ -1,72 +1,51 @@
-# Data Model: Predicting Molecular Halide Binding Affinities with Machine Learning
+# Data Model: Predicting Molecular Halide Binding Affinities
+
+## Overview
+The data model defines the schema for all intermediate and final artifacts produced by the pipeline. Each artifact is validated against a JSON Schema located in `contracts/`.
 
 ## Entity Definitions
 
-### HostMolecule
-Represents an organic host compound.
-- `host_id`: Unique identifier (hash of SMILES).
-- `smiles`: Canonical SMILES string (required).
-- `inchi`: InChI string (optional, for validation).
-- `descriptors`: Dictionary of RDKit descriptors (charge_density, cavity_volume, hbd_count, etc.).
-- `ecfp4`: Binary vector (1024 bits) representing ECFP4 fingerprint.
+### 1. HostMolecule
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `host_id` | string | Unique identifier (e.g., `HOST_001`). |
+| `smiles` | string | Canonical SMILES string (RDKit‑parsable). |
+| `inchi` | string (optional) | InChI representation. |
+| `source` | string (`"NIST"`, `"PubChem"`, `"Simulated"`) | Origin of the record. |
 
-### BindingMeasurement
-Represents a single experimental measurement.
-- `measurement_id`: Unique identifier.
-- `host_id`: Foreign key to `HostMolecule`.
-- `halide_identity`: Enum {F⁻, Cl⁻, Br⁻, I⁻}.
-- `binding_constant`: Float (log K or ΔG in kcal/mol).
-- `units`: Enum {log_K, kcal_mol}.
-- `solvent`: Enum {acetonitrile, chloroform, dichloromethane}.
-- `source`: Enum {NIST, PubChem, Simulated}.
-- `reference_doi`: DOI of the source publication (if available).
+### 2. BindingMeasurement
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `measurement_id` | string | Unique identifier. |
+| `host_id` | string | FK to `HostMolecule`. |
+| `halide_identity` | string (`"F-"`, `"Cl-"`, `"Br-"`, `"I-"`) | Halide ion. |
+| `binding_constant` | number | Log K or ΔG (simulated if needed). |
+| `solvent` | string (`"acetonitrile", "chloroform", "dichloromethane"`) | Solvent used. |
+| `reference_doi` | string | DOI of source or `"SIMULATED"`. |
 
-### ModelRun
-Represents a trained model instance.
-- `run_id`: Unique identifier.
-- `model_type`: Enum {random_forest, gradient_boosting}.
-- `cross_validation_folds`: Integer (5).
-- `r2_mean`: Float.
-- `r2_std`: Float.
-- `rmse_mean`: Float.
-- `rmse_std`: Float.
-- `feature_stability_ranking`: List of (feature_name, cv_score).
+### 3. ModelRun
+| Attribute | Type | Description |
+|-----------|------|-------------|
+| `run_id` | string | Unique identifier for the model‑run. |
+| `model_type` | string (`"random_forest"` or `"gradient_boosting"`) | Algorithm used. |
+| `data_mode` | string (`"Real"` or `"Simulated"`) | Data provenance. |
+| `metrics` | object | `{r2_mean, r2_std, rmse_mean, rmse_std}` (see `contracts/model_output.schema.yaml`). |
+| `fold_metrics` | list of objects | Each object: `{fold:int, r2:number, rmse:number}`. |
+| `feature_stability` | list of objects | `{feature_name:string, cv:number, is_stable:boolean}`. |
 
-## Data Flow
+## Data Flow & File Layout
+- **CSV Implementation**: The pipeline writes **single wide‑format CSV** (`halide_binding_data.csv`) where **each row corresponds to a single measurement** and **contains both host‑level fields** (`host_id`, `smiles`, `charge_density`, `cavity_volume`, `source`) **and measurement‑level fields** (`halide_identity`, `binding_constant`, `solvent`). Additionally, **four one‑hot encoded columns** (`halide_F`, `halide_Cl`, `halide_Br`, `halide_I`) are added to serve as explicit predictor features for the models. This CSV directly implements the combined entity described by `HostMolecule` + `BindingMeasurement` and conforms to `contracts/dataset.schema.yaml`.  
+- In Simulated mode, each host row carries exactly one halide measurement (single‑halide mode per the applicable functional requirement).  
+- The logical separation into `HostMolecule` and `BindingMeasurement` is retained in documentation for clarity and future extensibility; **no separate physical files are produced** for these entities.
 
-1. **Ingestion**: Raw data downloaded from NIST/PubChem (or simulated) → `data/raw/`.
-2. **Cleaning**: Filter by solvent, halide identity, valid SMILES → `data/processed/cleaned.csv`.
-3. **Feature Engineering**: Generate descriptors, ECFP4 → `data/processed/features.csv`.
-4. **Model Training**: Split by host_id → train RF/GB → `data/processed/models/`.
-5. **Analysis**: Feature stability, PDPs, bootstrap CIs → `data/processed/results/`.
+## Data Files
+1. `data/processed/halide_binding_data.csv` – validated against `dataset.schema.yaml`.  
+2. `data/processed/independent_eval_logp.csv` – independent evaluation set, also validated against `dataset.schema.yaml`.  
+3. `data/processed/model_runs.json` – list of `ModelRun` objects, validated against `model_output.schema.yaml`.  
+4. `data/processed/feature_analysis.json` – feature‑stability results.  
+5. `data/processed/report.md` – final narrative report (structure checked against `output.schema.yaml`).  
+6. **`data/processed/results_master.json`** – **designated Single Source of Truth (SSoT)** aggregating per‑halide metrics, feature rankings, bootstrap CI results, and training logs; all downstream figures and tables reference keys in this file (Principle IV compliance).  
 
-## Constraints & Validation
+---
 
-- **Solvent Filter**: Only acetonitrile, chloroform, DCM allowed.
-- **Halide Filter**: Only F⁻, Cl⁻, Br⁻, I⁻ allowed.
-- **Host Filter**: Retain only hosts with ≥3 halide measurements.
-- **SMILES Validation**: Exclude records with invalid SMILES (RDKit parsing failure).
-- **Unit Standardization**: Convert ΔG to log K if necessary; exclude ambiguous units.
-- **Duplicate Handling**: If duplicate host-halide pairs exist, aggregate by taking the **mean binding constant** and logging the variance. The split strategy groups by (host_id, halide_identity) to ensure no intra-host variance leaks between train/test sets.
 
-## Simulated Data Schema (FR-011)
-
-If real data is insufficient:
-- `log K_sim = 0.5 * charge_density + 0.3 * cavity_volume + N(0, 0.2)`
-- `charge_density`: Sum of Gasteiger charges (computed from SMILES).
-- `cavity_volume`: Molecular volume (Å³) via RDKit.
-- `halide_identity`: Assigned based on most abundant halide in available data (or simulated uniformly).
-- `source`: "Simulated".
-- **Note**: This formula is hardcoded. In this mode, the model's recovery of coefficients is a trivial verification of the generation script, not an empirical discovery. **Comparative analysis is strictly prohibited.**
-
-## File Formats
-
-- **CSV**: `host_id, smiles, halide_identity, binding_constant, solvent, source`
-- **Parquet**: For large descriptor matrices (ECFP4).
-- **YAML**: Model metadata, configuration.
-
-## Data Integrity
-
-- **Checksums**: All raw data files checksummed (SHA-256) and recorded in `state.yaml`.
-- **Versioning**: Each processed file includes a timestamp and source hash.
-- **Audit Trail**: Logs of excluded records (invalid SMILES, wrong solvent, etc.) maintained.

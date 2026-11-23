@@ -1,126 +1,207 @@
-# Feature Specification: Quantifying the Impact of Data Cleaning on Statistical Inference
+# Specification for Quantifying the Impact of Data Cleaning
 
-**Feature Branch**: `001-quantify-cleaning-impact`
-**Created**: 2024-01-15
-**Status**: Draft
-**Input**: User description: "How do different data cleaning strategies (outlier removal, missing value imputation, data type correction) quantitatively affect p-values, confidence intervals, and effect sizes in common statistical tests?"
+## Overview
+This document defines the functional requirements, success criteria, and research hypotheses for the project **Quantifying the Impact of Data Cleaning on Statistical Inference**.
 
-## User Scenarios & Testing *(mandatory)*
+## User Stories & Testing
 
-### User Story 1 - Dataset Acquisition and Baseline Analysis (Priority: P1)
-
-Researcher downloads a small number of public datasets from UCI Machine Learning Repository and OpenML.
-
-The research question is: How do different data cleaning strategies (outlier removal, missing value imputation, data type correction) quantitatively affect p-values, confidence intervals, and effect sizes in common statistical tests?
-
-The method is: We will evaluate the impact of systematic data cleaning on statistical inference by applying outlier removal, missing value imputation, and data type correction to public datasets. Performance will be measured by comparing p-values, confidence intervals, and effect sizes before and after cleaning.
-
-**Hypothesis**: We predict that outlier removal will result in a statistically significant reduction in p-values and an increase in effect sizes compared to the baseline, particularly in datasets with n < 50.
-
-References: (as of 2024‑01‑26), then runs baseline statistical analyses (t‑tests, linear regressions) on raw, uncleaned data to establish reference metrics.
-
-**Why this priority**: Without a baseline comparison, no cleaning‑induced shifts can be measured. This is the foundation for all downstream analysis.
-
-**Independent Test**: Can be fully tested by executing the dataset download and baseline analysis script against a single dataset, producing a report with p‑values, confidence intervals, and effect sizes for that dataset.
-
+### User Story US-001 – Assess Impact of Cleaning (Priority: P1)
+**Why this priority**: Understanding how common cleaning operations affect statistical inference is the core scientific question and drives all downstream analyses.
+**Independent Test**: Run the full pipeline on a single verified dataset and verify that all delta metrics, assumption checks, and robustness fall‑backs are produced as specified.
 **Acceptance Scenarios**:
+1. **Given** a dataset with a documented outcome variable, **When** the baseline analysis and each cleaned variant are executed, **Then** a `cleaned_metrics.json` entry containing numeric `effect_size_change` (3‑decimal), `direction` (“increase” or “decrease”), `ci_overlap` (0‑1), and `p_value_delta` (numeric) is written for that dataset.
+2. **Given** the same dataset, **When** assumption checks detect violations, **Then** the pipeline automatically switches to robust tests and records the fallback in `cleaned_metrics.json` with a `robust_test_used` field.
 
-1. **Given** a public dataset URL from UCI or OpenML, **When** the acquisition script runs, **Then** the dataset downloads successfully and baseline t‑test/linear regression metrics (p‑value, CI, Cohen's d/R²) are recorded for at least 1 dataset
-2. **Given** 10‑15 datasets selected, **When** baseline analysis completes, **Then** a baseline metrics table is generated with ≥10 datasets containing valid p‑values (0 < p < 1) and finite confidence intervals
-
-### User Story 2 - Systematic Cleaning Strategy Application (Priority: P1)
-
-Researcher applies three cleaning strategies systematically: (a) IQR‑based outlier removal, (b) mean/median/KNN imputation for missing values, (c) categorical recoding, then re‑runs identical statistical tests on each cleaned variant.
-
-**Why this priority**: This is the core intervention being studied. Without systematic cleaning application, the research question cannot be answered.
-
-**Independent Test**: Can be fully tested by applying one cleaning strategy (e.g., IQR outlier removal with k=1.5) to a single dataset and comparing before/after p‑values, which delivers the primary research outcome for that strategy.
-
+### User Story US-002 – Sensitivity to Size & Missingness (Priority: P2)
+**Why this priority**: The effect of cleaning may depend on dataset size and missingness; quantifying this sensitivity is required for generalizable conclusions.
+**Independent Test**: For each size‑bin (n < 50, 50‑200, >200) and missingness level (no missingness, MCAR, MAR, MNAR), run the pipeline on at least one dataset and verify that stratified reports are produced.
 **Acceptance Scenarios**:
+1. **Given** a dataset in the “50‑200” size bin with MCAR missingness artificially introduced, **When** the sensitivity analysis runs, **Then** the results appear in `sensitivity_metrics.json` and include the bin identifier and missingness level.
 
-1. **Given** a dataset with ≥5% missing values, **When** mean imputation is applied, **Then** the cleaned dataset has zero missing values in the imputed columns and the same number of rows as the original
-2. **Given** a dataset with outliers defined by IQR (k=1.5), **When** outlier removal is applied, **Then** at least 1 outlier is removed and the cleaned dataset has ≤original row count
-3. **Given** a dataset with mixed data types, **When** categorical recoding is applied, **Then** all categorical columns are properly encoded as factors for statistical testing
-
-### User Story 3 - Metrics Comparison and Sensitivity Analysis (Priority: P2)
-
-Researcher computes absolute and relative differences between baseline and cleaned results, performs sensitivity analysis across dataset sizes (n<50, 50‑200, >200) and missingness rate bins (0‑[deferred], 5‑[deferred], 10‑[deferred], >20%), and generates summary visualizations.
-
-**Why this priority**: This delivers the quantitative conclusions about cleaning‑induced bias magnitude and conditions. Lower priority because it depends on US‑1 and US‑2 completing first.
-
-**Independent Test**: Can be fully tested by running the comparison script on 2 datasets (one cleaned, one baseline) and verifying the difference report contains p‑value shifts, CI width changes, and effect size variations with valid numeric values.
-
+### User Story US-003 – Reproducibility & Contract Compliance (Priority: P3)
+**Why this priority**: Guarantees that all artefacts conform to agreed‑upon schemas, enabling downstream validation and reuse.
+**Independent Test**: Execute the validation script; it must pass without errors for dataset, baseline, cleaned, delta, and bootstrap artefacts.
 **Acceptance Scenarios**:
+1. **Given** the downloaded raw datasets, **When** the schema validator runs, **Then** it confirms compliance with `contracts/dataset.schema.yaml`.
+2. **Given** the generated `baseline_metrics.json`, **When** the result validator runs, **Then** it confirms compliance with `contracts/baseline_metrics.schema.yaml`.
 
-1. **Given** baseline and cleaned metrics for the same dataset, **When** the comparison script runs, **Then** absolute p‑value difference is calculated with ≥3 decimal precision (e.g., 0.047)
-2. **Given** all three cleaning strategies applied, **When** sensitivity analysis runs, **Then** results are stratified by dataset size bins (n<50, 50‑200, >200) with ≥1 dataset per bin and by missingness bins (0‑[deferred], 5‑[deferred], 10‑[deferred], >20%)
-3. **Given** multiple hypothesis tests across datasets, **When** the analysis completes, **Then** a multiple‑comparison correction (Benjamini‑Hochberg) is applied to control family‑wise error rate at α≤0.05
+## Functional Requirements
 
-### Edge Cases
+### FR-001 – Baseline Analysis (See US-001)
+- Download **10–15** public datasets that have a clearly documented **binary or continuous** outcome variable (see dataset list below). The collection must include at least one dataset in each size bin (n < 50, 50‑200, >200). Multi‑class categorical outcomes are excluded unless transformed to a binary indicator.
+- Run two‑sample t‑tests (or Welch’s t‑test when variances differ) and linear regressions on the raw (uncleaned) data.
+- Store p‑values, 95 % confidence intervals, effect‑size metrics, and dataset‑level metadata in `data/processed/baseline_metrics.json`.
+- Validate each raw dataset against `contracts/dataset.schema.yaml` before analysis.
+- Validate `baseline_metrics.json` against `contracts/baseline_metrics.schema.yaml` after generation.
+- Generate `data/processed/dataset_metadata.json` containing the verified outcome column name, sample size, and missingness proportion for every dataset and validate it against `contracts/dataset.schema.yaml`.
 
-- **Missing outcome >80%**: If a dataset has >80% missing values in the outcome variable, the script logs a warning and skips the dataset, recording it as excluded.
-- **No outliers**: If no values lie outside the IQR bounds, the script reports “0 outliers removed” and proceeds with analysis.
-- **Variance reduction ≥20% after imputation**: The script flags a warning when post‑imputation standard deviation decreases by ≥20% relative to pre‑imputation.
-- **Row removal ≥50%**: When cleaning removes ≥50% of rows, results are reported both *with* the dataset (noting the high‑impact removal) and *without* it, and a bias note is added to the final report.
+**Verified Datasets (examples)**
+- UCI Wine Quality – outcome: `quality` – https://archive.ics.uci.edu/ml/datasets/Wine+Quality
+- UCI Breast Cancer Wisconsin Diagnostic – outcome: `diagnosis`
+- UCI Heart Disease – outcome: `target` – https://archive.ics.uci.edu/ml/datasets/Heart+Disease
+- UCI Parkinsons Telemonitoring – outcome: `total_UPDRS`
+- UCI Diabetes – outcome: `progression`
+- UCI Statlog (German Credit Data) – outcome: `credit_risk`
+- UCI Adult Income – outcome: `income`
+- UCI Student Performance – outcome: `G`
+- UCI Car Evaluation – outcome: `class_value`
+- UCI Ionosphere – outcome: `target`
 
-## Requirements *(mandatory)*
+*All listed datasets provide clear documentation of the dependent variable and are freely downloadable.*
 
-### Functional Requirements
+### FR-002 – Outlier Removal (See US-001)
+- Implement IQR‑based outlier detection with configurable threshold *k* (default **k = 1.5**).
+- Log the number of rows removed and warn if **≥ 50 %** of rows are removed.
 
-- **FR-001**: System MUST download a representative subset of datasets by sample size from the OpenML Small Datasets collection.
+### FR-003 – Imputation (See US-001)
+- Provide mean, median, and K‑nearest‑neighbour imputation strategies.
+- Ensure no missing values remain after imputation and warn if variance reduction **≥ 20 %**.
 
-The research question is: Can large language models effectively generate data quality reports for diverse datasets?
+### FR-004 – Categorical Recoding (See US-001)
+- Encode **nominal** variables with ≤ 10 distinct categories using **one‑hot encoding**.
+- Encode **ordinal** variables or nominal variables with > 10 categories using **integer label encoding** that preserves order where applicable.
+- All encoded columns must be numeric and suitable for downstream tests.
 
-The method is: We will evaluate the performance of a large language model in generating data quality reports for a collection of datasets, comparing the generated reports to established data quality metrics.
+### FR-005 – Outcome Variable Definition (See US-001)
+- For each dataset, verify that a column is explicitly designated as the dependent variable in the dataset’s documentation.
+- Record the name of this column in `data/processed/dataset_metadata.json`.
+- **Do not** infer the outcome column by variance; it must be documented.
 
-References: (DOI/arXiv/author-year) (as of 2024‑01‑26) that have n ≥ 20 and at least one numeric outcome variable (See US‑1)
-- **FR-002**: System MUST apply IQR‑based outlier removal with k=1.5 threshold (standard community default per Tukey) and record the number of rows removed per dataset (See US‑2)
-- **FR-003**: System MUST implement 3 missing‑value imputation strategies (mean, median, KNN with k=5) and allow selection of which to apply per dataset; after imputation, targeted columns must contain zero missing values (See US‑2)
-- **FR-004**: System MUST execute t‑tests and linear regressions using scipy/statsmodels on both raw and cleaned data, recording p‑values (rounded to ≥3 decimal places), % confidence intervals, and effect sizes (Cohen's d for t‑tests, R² for regression) (See US‑2)
-- **FR-005**: System MUST compute absolute p‑value difference (|p_cleaned − p_baseline|, rounded to decimal places), relative CI width change ((CI_width_cleaned − CI_width_baseline)/CI_width_baseline × 100, rounded to 2 decimal places), and effect‑size delta for each cleaning strategy (See US‑3)
-- **FR-006**: System MUST sweep multiple outlier threshold values (k ∈ {1.5, 2.0}) and, for each, report (a) false‑positive rate estimated via A substantial number of permutation null datasets will be generated.
+### FR-006 – Sensitivity Analysis (See US-002)
+- Stratify analyses by dataset size bins (**n < 50**, **50‑200**, **>200**) and missingness levels (**no missingness**, **MCAR**, **MAR**, **MNAR**).
+- Ensure at least **one** dataset appears in each bin; if a bin is empty, acquire an additional public dataset that satisfies the missingness and size criteria.
+- Store stratified results in `data/processed/sensitivity_metrics.json`.
 
-The research question is: Can we identify robust biomarkers for predicting treatment response in patients with glioblastoma using multi-omics data integration? ()
+### FR-007 – Dataset Schema Validation (See US-003)
+- Validate each downloaded raw dataset against `contracts/dataset.schema.yaml`.
+- Abort processing with a clear error if validation fails.
 
-The method will involve integrating genomic, transcriptomic, and proteomic data, followed by feature selection using a permutation-based approach to assess biomarker stability and predictive power. (Lee et al., recent) per original dataset (outcome variable permuted within the dataset) and (b) inconsistency rate defined as the proportion of datasets where significance status (p ≤ 0.05 vs. p > 0.05) changes between baseline and cleaned analysis (See US‑3)
-- **FR-007**: System MUST apply multiple‑comparison correction (Benjamini‑Hochberg) when >1 hypothesis test is run across datasets, controlling family‑wise error rate at α ≤ 0.05 (See US‑3)
-- **FR-008**: System MUST stratify results by dataset size bins (n<50, 50‑200, >200) and missingness rate bins (0‑[deferred], 5‑[deferred], 10‑[deferred], >20%) with ≥1 dataset per bin (See US‑3)
-- **FR-009**: System MUST compute bootstrap variance estimates for each metric shift using a minimum of 1000 resamples per dataset and report a 95 % confidence interval for the shift (See US‑3, Constitution Principle VI)
-- **FR-010**: System MUST generate summary visualizations (forest plot of p‑value shifts, heatmap of CI‑width changes across strategies and dataset bins) and save them as PNG files (See US‑3)
-- **FR-011**: System MUST estimate false‑positive rates for each outlier threshold by generating multiple permutation null datasets per original dataset (shuffling the outcome variable while keeping predictors fixed), applying the same outlier removal, and calculating the proportion of tests with p ≤ 0.05 (See FR‑006)
+### FR-008 – Baseline Metrics Schema Validation (See US-003)
+- Validate `baseline_metrics.json` against `contracts/baseline_metrics.schema.yaml` after generation.
 
-### Key Entities *(include if feature involves data)*
+### FR-009 – Cleaned Metrics Schema Validation (See US-003)
+- Validate `cleaned_metrics.json` against `contracts/cleaned_metrics.schema.yaml` after generation.
+- The schema must require the fields: `rows_removed`, `missing_before`, `missing_after`, `variance_reduction`, `ci_overlap`, `effect_size_change`, `p_value_delta`, `direction`, **and** `robust_test_used` (when applicable).
 
-- **Dataset**: Represents a public dataset from UCI/OpenML with attributes: source_url, sample_size, missingness_rate, predictor_variables, outcome_variable
-- **CleaningStrategy**: Represents a cleaning intervention with attributes: strategy_type (outlier_removal, imputation, recoding), parameters (e.g., k=1.5 for IQR), rows_affected
-- **AnalysisResult**: Represents statistical output with attributes: dataset_id, strategy_id, p_value, ci_lower, ci_upper, effect_size, sample_size
-- **ComparisonReport**: Represents cleaned‑vs‑baseline difference with attributes: baseline_metrics, cleaned_metrics, absolute_diff, relative_diff, sensitivity_analysis
+### FR-010 – Cleaning Metadata Capture (See US-001)
+- Each cleaning function returns a metadata dict containing `rows_removed`, `missing_before`, `missing_after`, `variance_reduction`, **and** `robust_test_used` when applicable.
+- These fields are written to `cleaned_metrics.json` for every variant.
 
-## Success Criteria *(mandatory)*
+### FR-011 – Cleaning Metadata Schema Validation (See US-003)
+- Validate the cleaning‑metadata fields in `cleaned_metrics.json` against `contracts/cleaned_metrics.schema.yaml`.
 
-### Measurable Outcomes
+### FR-012 – Bootstrap Variance Estimation (See US-002)
+- Perform a sufficient number of bootstrap iterations for each cleaned variant; store bootstrap confidence intervals in `bootstrap_metrics.json`.
+- The iteration count is **mandatory** and taken from `config.BOOTSTRAP_ITERATIONS` (default **1000**). No fallback to fewer iterations is permitted.
 
-- **SC-001**: Median absolute p‑value shift across datasets per cleaning strategy is reported with its inter‑quartile range (IQR); shift is defined as |p_cleaned − p_baseline| (See US‑)
-- **SC-002**: Median percentage change in confidence‑interval width from baseline per cleaning strategy is reported with IQR (See US‑3)
-- **SC-003**: Median effect‑size change (Cohen's d or ΔR²) per cleaning strategy and dataset‑size bin is reported with IQR (See US‑3)
-- **SC-004**: Family‑wise error rate is controlled at α ≤ 0.05 using Benjamini‑Hochberg correction across all hypothesis tests (See US‑3)
-- **SC-005**: Sensitivity analysis across the three outlier thresholds (k ∈ {1.0, 1.5, 2.0}) reports the false‑positive rate variation (median across datasets) (See US‑3)
-- **SC-006**: Baseline metrics (p‑value, 95 % CI, effect size) are recorded for the available datasets (current n=2) with valid numeric values (≥3 decimal places for p‑values). If n≥10 datasets become available in future expansion, report median and IQR; otherwise, report per-dataset deltas with a limitation note (See US‑1)
-- **SC-007**: Cleaning application is validated: outlier removal logs rows removed; each imputation strategy results in zero missing values in the imputed columns; categorical recoding yields factor‑encoded columns (See US‑2)
-- **SC-008**: Bootstrap variance estimates (≥1000 iterations) are provided for each metric shift with a 95 % confidence interval (See US‑3, Constitution Principle VI)
-- **SC-009**: Summary visualizations (forest plot of p‑value shifts, heatmap of CI‑width changes) are generated and saved as PNG files (See US‑3)
+### FR-013 – Bin‑Coverage Dataset Acquisition (See US-002)
+- If any size‑bin or missingness‑level bin lacks a dataset, automatically trigger a download of a public dataset that satisfies the missingness and size requirements, updating the dataset list accordingly.
+
+### FR-014 – Dataset Metadata Generation & Validation (See US-001)
+- Create `data/processed/dataset_metadata.json` containing, for each dataset, the outcome column name, sample size, and missingness proportion.
+- Validate this file against `contracts/dataset.schema.yaml`.
+
+### FR-015 – Comparison Report Generation (See US-003)
+- Produce a final `comparison_report.json` conforming to `contracts/comparison_report.schema.yaml` that aggregates all delta metrics, CI overlap, effect‑size changes, and (where applicable) assumption‑check flags across datasets.
+
+### FR-016 – Principle II Verification Step (See US-003)
+- Run the citation‑validation script defined in the project constitution to verify that all external claims (e.g., dataset provenance, statistical method citations) are accurately referenced. Log the verification outcome.
+
+### FR-017 – Hypothesis‑Testing on Δ Metrics (See US-001)
+- Compute paired statistical tests **(Wilcoxon signed‑rank)** on the vector of `effect_size_change` across all datasets for each cleaning operation. Record the test statistic and p‑value in `hypothesis_test_results.json`. Report results alongside `p_value_delta` to aid interpretation.
+
+### FR-018 – Assumption Checks & Robust Fallback (See US-001)
+- For **continuous** outcomes, assess before each test:
+ * Normality via **Shapiro‑Wilk** (α = 0.05).
+ * Homoscedasticity via **Levene’s test** (α = 0.05).
+ * Linearity via residual‑scatter inspection (automated R‑squared check ≥ 0.7).
+- If any violation is detected, automatically switch to robust alternatives (Welch’s t‑test for means, rank‑based regression for linear models) and flag the change in `cleaned_metrics.json` with `assumptions_met: false` **and** record the specific robust test used in a new field `robust_test_used`.
+
+### FR-019 – Interaction Modeling for Sensitivity (See US-002)
+- Fit a two‑way ANOVA (or mixed‑effects model) on the `effect_size_change` (and optionally `p_value_delta`) with factors *size bin* and *missingness level* to test for interaction effects. Record interaction F‑statistics and p‑values in `sensitivity_metrics.json`.
+
+### FR-020 – Factorial Cleaning Design (See US-001)
+- Implement a factorial experimental design that isolates each preprocessing component (outlier removal, imputation, recoding). Run pipelines for each factor individually and for all combinations, enabling attribution of observed metric changes to specific steps.
+
+### FR-021 – Separate Effect‑Size Metrics per Test Type (See US-001)
+- For two‑sample t‑tests report **Cohen’s d** as the primary effect‑size metric.
+- For linear regressions report **R²** as the primary effect‑size metric.
+- Both metrics must be stored (to three‑decimal precision) in `cleaned_metrics.json` with explicit field names (`cohens_d` or `r_squared`) alongside `effect_size_change` for consistency.
+
+### FR-022 – Effect‑Size Stability Metric (See US-001)
+- Compute the coefficient of variation (CV) of the primary effect‑size metric across all cleaning variants for each dataset. Store this `effect_size_cv` in `cleaned_metrics.json` as an independent validation of stability, separate from hypothesis testing.
+
+### FR-023 – Sample Size Justification (See US-001)
+- Provide a concise justification (≤ 150 words) for the chosen 10–15 dataset range based on prior meta‑analyses that indicate this quantity is sufficient to observe systematic cleaning effects in comparable studies. Document the rationale in `sample_size_justification.md`.
+
+### FR-024 – Bootstrap Configuration Enforcement (See US-002)
+- The pipeline must read `BOOTSTRAP_ITERATIONS` from `config.py` and pass it explicitly to all bootstrap functions. No automatic reduction of iterations is allowed; if the variable is missing, the pipeline aborts with an error.
+
+### FR-025 – Cleaned Metrics Schema Definition (See US-001)
+- Provide `contracts/cleaned_metrics.schema.yaml` defining the required fields: `rows_removed`, `missing_before`, `missing_after`, `variance_reduction`, `ci_overlap`, `effect_size_change`, `p_value_delta`, `direction`, `robust_test_used` (optional), `cohens_d` (optional), `r_squared` (optional), `effect_size_cv` (optional). Validation of `cleaned_metrics.json` against this schema is performed in FR‑009 and FR‑011.
+
+### FR-026 – Bootstrap Metrics Schema Validation (See US-002)
+- Validate `bootstrap_metrics.json` against `contracts/bootstrap_metrics.schema.yaml` after generation.
+
+### FR-027 – Sensitivity Metrics Schema Validation (See US-002)
+- Validate `sensitivity_metrics.json` against `contracts/sensitivity_metrics.schema.yaml` after generation.
+
+### FR-028 – Hypothesis Test Results Generation & Validation (See US-001)
+- Generate `hypothesis_test_results.json` containing Wilcoxon test statistics and Bonferroni‑adjusted p‑values. Validate this artifact against `contracts/hypothesis_test_results.schema.yaml`.
+
+## Success Criteria
+
+- **SC-001** – Per‑dataset delta reporting (See US-001)  
+  Each dataset’s output must include a JSON object in `cleaned_metrics.json` with fields `p_value_delta` (numeric, three‑decimal precision), `effect_size_change` (numeric, three‑decimal precision), `direction` (string “increase” or “decrease”), `ci_overlap` (numeric 0‑1), and `robust_test_used` (when applicable). Validation script asserts presence, type, and precision.
+
+- **SC-002** – Metric precision (See US-001)  
+  All numeric metrics (p‑values, confidence intervals, effect sizes, ci_overlap, effect_size_change) are stored with ≥ 3‑decimal precision.
+
+- **SC-003** – Visualizations (See US-001)  
+  Forest plot saved as `output/figures/forest_plot.png` (PNG, 300 dpi) and heatmap saved as `output/figures/heatmap.svg` (SVG). Both files must be referenced in the final report.
+
+- **SC-004** – Bootstrap variance estimation (See US-002)  
+  Perform **≥ 1000** bootstrap iterations for each cleaned variant; store bootstrap confidence intervals in `bootstrap_metrics.json`.
+
+- **SC-005** – Outcome variable verification (See US-001)  
+  `dataset_metadata.json` contains the verified outcome column name for every dataset; validation ensures the column exists, is numeric, and matches documentation.
+
+- **SC-006** – Assumption checks and robust fallback (See US-001)  
+  For each test, a boolean flag `assumptions_met` is recorded; if false, the robust alternative’s results are stored, the specific robust test is recorded in `robust_test_used`, and the permutation‑based FPR requirement has been removed per scope.
+
+- **SC-007** – Reporting without multiple‑testing correction (See US-001)  
+  Raw p‑values are reported for each cleaning variant; no family‑wise error correction is applied, and the rationale for this choice is documented in the methods section.
+
+- **SC-008** – Stratified analysis coverage (See US-002)  
+  Each size‑bin (n < 50, 50‑200, >200) and each missingness level (no missingness, MCAR, MAR, MNAR) contains **≥ 1** dataset; the report includes a table summarizing bin counts.
+
+- **SC-009** – Reproducibility & contract compliance (See US-003)  
+  All schema validation steps (FR‑007, FR‑008, FR‑009, FR‑011, FR‑014, FR‑026, FR‑027, FR‑028) must pass without errors for every artifact.
+
+- **SC-010** – Sample size justification (See US-001)  
+  The `sample_size_justification.md` artifact demonstrates that the selected dataset collection is justified based on prior literature.
+
+- **SC-011** – Hypothesis‑testing of cleaning impact (See US-001)  
+  The paired Wilcoxon test on `effect_size_change` (FR‑017) must be performed and its test statistic and Bonferroni‑adjusted p‑value reported in `hypothesis_test_results.json`. No significance threshold is imposed; results are interpreted in context.
+
+- **SC-012** – Effect‑size stability metric (See US-001)  
+  The `effect_size_cv` reported in `cleaned_metrics.json` must be ≤ 0.2 for a variant to be considered stable; this threshold is justified in the methods.
+
+- **SC-013** – Principle II verification (See US-003)  
+  The citation‑validation script must run without errors and produce a log confirming that all external claims are properly referenced.
+
+- **SC-014** – Robust test identification (See US-001)  
+  Every entry in `cleaned_metrics.json` includes a `robust_test_used` field when robust alternatives are invoked; validation ensures the field is present and non‑empty in such cases.
+
+## Research Hypotheses
+- **H1 (Associative)**: Data cleaning operations are *associated* with systematic changes in **effect‑size** estimates (direction and magnitude), as detected by the paired Wilcoxon test on `effect_size_change` (SC‑011).  
+- **H2 (Associative)**: Imputation and categorical recoding are *associated* with increased stability of effect‑size estimates, reflected by higher `ci_overlap` and lower `effect_size_cv` (SC‑012).
 
 ## Assumptions
-
-- Datasets from UCI Machine Learning Repository and OpenML are publicly accessible without authentication and fit within standard RAM and disk constraints. (sample if needed)
-- Analysis runs on GitHub Actions free‑tier runner (Multiple CPU cores, ~7 GB RAM, ~14 GB disk, NO GPU, ≤6 h per job)
-- Python environment with scipy, statsmodels, scikit‑learn, pandas, numpy is available via standard package installation
-- IQR‑based outlier removal uses k=1.5 threshold as community standard (Tukey, 1977); sensitivity analysis sweeps k ∈ {1.0, 1.5, 2.0}
-- Multiple‑comparison correction uses Benjamini‑Hochberg method as appropriate for the number of tests
-- Findings are framed as ASSOCIATIONAL (not causal) because this is an observational study without random assignment to cleaning strategies
-- Sample size/power considerations are recorded as [deferred] with acknowledgment that small‑sample datasets (n<50) may have limited power to detect cleaning‑induced shifts
-- Validated statistical instruments are not required (this study uses existing public datasets, not new questionnaires)
-- Predictor collinearity diagnostics (VIF) are required when multiple predictors are included in regression models; if predictors are definitionally related, independent effects are NOT claimed
-- No GPU/CUDA/accelerators are used; all methods are CPU‑tractable (classical statistics, scikit‑learn on modest data, exact/closed‑form computation)
-- Total compute time must not exceed a reasonable limit on free‑tier runner; if exceeded, dataset sampling or method simplification is applied
-- Bootstrap resampling (with a sufficient number of iterations) is CPU‑tractable for the dataset sizes studied; if not, iteration count is reduced to a predefined threshold or method is replaced with closed‑form approximation
+- Public datasets listed are freely downloadable and contain a clearly documented binary or continuous outcome variable.
+- All statistical tests assume independent observations; if this is violated, robust methods are applied as per FR‑018.
+- The computational environment provides Python 3.11 with `scipy`, `statsmodels`, and `pandas`.
+- Bootstrap iterations are set to **1 000** by default; this number provides stable variance estimates for the sample sizes considered.
+- Normality, homoscedasticity, and linearity checks use significance level **α = 0.05**.
+- Missingness levels for sensitivity analysis are: no missingness (baseline), MCAR, MAR, MNAR.
+- Sample size justification is based on prior meta‑analyses rather than a formal a‑priori power calculation.

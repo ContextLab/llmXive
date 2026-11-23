@@ -9,7 +9,7 @@
 
 ### User Story 1 - Generate Physics-Constrained Prompts (Priority: P1)
 
-**Journey**: A researcher prepares a dataset of 500 complex scene descriptions and uses the system to generate corresponding "Symbolic-Physics" prompts. The system simulates basic physics (gravity, collision) on a CPU to create JSON constraints, then appends natural language descriptors of these constraints to the original text prompts.
+**Journey**: A researcher prepares a dataset of complex scene descriptions and uses the system to generate corresponding "Symbolic-Physics" prompts. The system simulates basic physics (gravity, collision) on a CPU to create JSON constraints, then appends natural language descriptors of these constraints to the original text prompts.
 
 **Why this priority**: This is the core data preparation step. Without the ability to generate the experimental condition prompts (Text + Physics), the comparative study cannot exist. It is the foundation for all downstream generation and analysis.
 

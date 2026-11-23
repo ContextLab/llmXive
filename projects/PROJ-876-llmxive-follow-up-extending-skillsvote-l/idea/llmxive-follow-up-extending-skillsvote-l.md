@@ -9,32 +9,32 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Does a drift-aware gating mechanism, which quantifies semantic and environmental divergence between a skill's original context and current deployment conditions, significantly reduce the accumulation of brittle, context-specific skills and improve long-term performance stability in evolving LLM agent libraries compared to binary success/failure gating?
+To what extent does the correlation between pre-execution semantic-environmental divergence scores and post-execution failure rates predict the long-term stability of agent skill libraries, and does explicitly penalizing high-divergence skills reduce regression more effectively than relying solely on execution success metrics?
 
 ## Motivation
 
-Current lifecycle governance frameworks like SkillsVote rely on binary execution signals to update agent skill libraries, which risks admitting skills that succeed in specific edge cases but fail under slight environmental shifts (catastrophic forgetting or regression). A mechanism that proactively detects and penalizes "skill drift" before execution would enable more robust long-term library stability, reducing the need for expensive re-evaluation of every candidate in dynamic deployment environments.
+Current lifecycle governance frameworks like SkillsVote rely on binary execution signals to update agent skill libraries, which risks admitting skills that succeed in specific edge cases but fail under slight environmental shifts. A mechanism that quantifies and penalizes "skill drift" before execution would enable more robust long-term library stability, reducing the need for expensive re-evaluation of every candidate in dynamic deployment environments.
 
 ## Related work
 
 - [SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution](https://arxiv.org/abs/2605.18401) — Establishes the baseline framework for governing agent skills through evidence-gated updates and trajectory attribution, which this project seeks to extend with drift detection.
-- [Memento-Skills: Let Agents Design Agents](https://arxiv.org/abs/2603.18743) — Demonstrates autonomous adaptation and improvement of task-specific agents, providing a precedent for systems that must evolve over time, though it focuses on construction rather than drift governance.
-- [SkCC: Portable and Secure Skill Compilation for Cross-Framework LLM Agents](https://arxiv.org/abs/2605.03353) — Addresses the critical issue of skill portability across sensitive frameworks, highlighting the fragility of skills when environments change, a key motivation for drift detection.
 - [Agent Skills for Large Language Models: Architecture, Acquisition, Security, and the Path Forward](https://arxiv.org/abs/2602.12430) — Contextualizes the shift toward modular, skill-equipped agents and the emerging challenges in maintaining their reliability as deployment conditions evolve.
+- [Auto-Policy, not Auto-Skill: Compiled Agent Skills for the Physical World](https://arxiv.org/abs/2608.25091) — Highlights the gap between efficiency-focused skill generation and the need for safety/stability governance in dynamic environments.
+- [AI Governance Control Stack for Operational Stability: Achieving Hardened Governance in AI Systems](https://arxiv.org/abs/2604.03262) — Discusses the need for operational stability mechanisms rather than just policy guidance, supporting the shift from binary to continuous governance metrics.
 
 ## Expected results
 
-We expect the drift-aware policy to demonstrate a statistically significant reduction in long-term performance variance across a rolling window of perturbed environments compared to the binary gating baseline. While the binary baseline may achieve higher immediate success rates on specific edge-case tasks, the drift-aware approach will show lower regression rates when the environment shifts, confirming that proactive divergence detection prevents the accumulation of brittle skills.
+We expect a strong negative correlation between pre-execution divergence scores and post-execution success rates in perturbed environments, indicating that semantic drift is a viable predictor of failure. Furthermore, we anticipate that a policy explicitly penalizing high-divergence skills will demonstrate significantly lower long-term performance variance and fewer catastrophic regressions compared to a baseline relying only on immediate execution success.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the million-scale open-source corpus and specific skill trajectories from the original SkillsVote evaluation (via the provided arXiv links and associated data repositories).
-- **Drift Injection**: Systematically perturb test environments to simulate "environmental drift," including changing library versions, altering file system permissions, and modifying CLI argument defaults to create a spectrum of compatibility levels.
-- **Drift Scorer Implementation**: Develop a lightweight, CPU-tractable scorer combining static code analysis (AST comparison) and pre-computed sentence embedding similarity (e.g., using a frozen SentenceTransformer model) to measure the distance between a skill's recorded context metadata and the current execution environment state.
-- **Ablation Study Setup**: Configure two experimental arms: (A) the original binary success/failure gating policy, and (B) the proposed drift-aware policy that rejects or down-weights skills exceeding a predefined divergence threshold, regardless of immediate test success.
-- **Execution & Logging**: Run both policies on the perturbed test suite, logging immediate success rates, long-term average performance scores, and the frequency of "brittle skill" acceptance (skills that pass initially but fail in subsequent drifted contexts).
-- **Statistical Analysis**: Apply a paired t-test or Wilcoxon signed-rank test to compare the rolling average performance scores and variance metrics between the binary and drift-aware arms across multiple random seeds of environmental perturbations.
-- **Validation Independence**: Evaluate the drift-aware policy against a held-out set of "future" environment configurations that were not used during the training or threshold-tuning phase, ensuring the validation target is independent of the drift scorer's input features.
+- **Data Acquisition**: Download the open-source skill corpus and execution traces from the SkillsVote repository (arXiv 2605.18401) and associated data links.
+- **Environment Perturbation**: Systematically generate "drifted" test environments by altering library versions, modifying file system permissions, and changing CLI defaults to simulate real-world deployment shifts.
+- **Divergence Scoring**: Implement a CPU-tractable scorer combining static code analysis (AST comparison) and frozen sentence embedding similarity to calculate the semantic distance between a skill's original context metadata and the current environment state.
+- **Policy Comparison**: Execute two experimental arms: (A) Binary Gating (accept if immediate test passes) and (B) Drift-Aware Gating (accept only if test passes AND divergence score is below a dynamic threshold).
+- **Execution & Logging**: Run both policies across multiple random seeds of environmental perturbations, logging immediate success rates, long-term average performance, and the frequency of "brittle skill" acceptance (skills passing initially but failing later).
+- **Statistical Analysis**: Compute Pearson/Spearman correlations between divergence scores and failure rates. Apply paired t-tests or Wilcoxon signed-rank tests to compare the rolling average performance and variance metrics between the two arms.
+- **Independent Validation**: Evaluate the final model performance on a held-out set of "future" environment configurations that were not used during threshold tuning or divergence score calibration, ensuring the validation target is independent of the training features.
 
 ## Duplicate-check
 
@@ -45,7 +45,7 @@ We expect the drift-aware policy to demonstrate a statistically significant redu
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-04T05:13:01Z
+**Generated by**: librarian (prompt v1.6.0) on 2026-09-01T12:44:52Z
 **Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Reco" linguistics
 **Verified citation count**: 5
@@ -55,31 +55,31 @@ We expect the drift-aware policy to demonstrate a statistically significant redu
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | llmXive follow-up: extending "SkillsVote: Lifecycle Governance of Agent Skills from Collection, Reco" linguistics | 0 |
-| 1 | lifecycle governance of LLM agent skills | 5 |
-| 2 | dynamic skill acquisition in language agents | 0 |
-| 3 | LLM agent capability curation and management | 0 |
-| 4 | automated skill validation for conversational agents | 0 |
-| 5 | evolution of agent competencies in NLP systems | 0 |
-| 6 | skill collection and recommendation frameworks for agents | 0 |
-| 7 | governance mechanisms for autonomous AI agents | 0 |
-| 8 | continuous learning and skill refinement in LLMs | 0 |
-| 9 | agent skill ontology and lifecycle management | 0 |
-| 10 | human-in-the-loop skill governance for language models | 0 |
-| 11 | adaptive skill selection in multi-agent systems | 0 |
-| 12 | benchmarking and rating agent linguistic skills | 0 |
-| 13 | skill-based routing and governance in LLM applications | 0 |
-| 14 | lifecycle management of AI agent capabilities | 0 |
-| 15 | community-driven skill curation for language agents | 0 |
-| 16 | skill degradation and maintenance in generative AI | 0 |
-| 17 | structured skill retrieval for LLM-based assistants | 0 |
-| 18 | dynamic skill weighting in agent decision-making | 0 |
-| 19 | provenance tracking for agent-generated skills | 0 |
-| 20 | skill transferability and governance across LLM domains | 0 |
+| 1 | lifecycle governance of AI agent skills | 4 |
+| 2 | collection and recognition of LLM agent capabilities | 0 |
+| 3 | agent skill lifecycle management in linguistics | 0 |
+| 4 | governance frameworks for generative AI agents | 0 |
+| 5 | dynamic skill evaluation for language agents | 0 |
+| 6 | agent capability taxonomy and lifecycle | 0 |
+| 7 | lifecycle phases of AI agent competence | 0 |
+| 8 | skill collection protocols for language models | 0 |
+| 9 | recognition and curation of LLM skills | 0 |
+| 10 | governance of emergent agent abilities | 0 |
+| 11 | lifecycle of linguistic agent competencies | 0 |
+| 12 | AI agent skill acquisition and retirement | 0 |
+| 13 | managing the lifecycle of NLP agent skills | 0 |
+| 14 | framework for agent skill lifecycle in NLP | 0 |
+| 15 | continuous evaluation of LLM agent capabilities | 0 |
+| 16 | agent skill governance in computational linguistics | 0 |
+| 17 | lifecycle management of autonomous language agents | 0 |
+| 18 | skill recognition mechanisms for AI agents | 0 |
+| 19 | governance models for evolving agent skills | 0 |
+| 20 | lifecycle of specialized capabilities in language models | 0 |
 
 ### Verified citations
 
-1. **Agent Skills for Large Language Models: Architecture, Acquisition, Security, and the Path Forward** (2026). Renjun Xu, Yang Yan. arXiv. [2602.12430](https://arxiv.org/abs/2602.12430). PDF-sampled: No.
-2. **ClawTrace: Cost-Aware Tracing for LLM Agent Skill Distillation** (2026). Boqin Yuan, Yue Su, Renchu Song, Sen Yang, Jing Qin. arXiv. [2604.23853](https://arxiv.org/abs/2604.23853). PDF-sampled: No.
-3. **SkCC: Portable and Secure Skill Compilation for Cross-Framework LLM Agents** (2026). Yipeng Ouyang, Yi Xiao, Yuhao Gu, Xianwei Zhang. arXiv. [2605.03353](https://arxiv.org/abs/2605.03353). PDF-sampled: No.
-4. **Memento-Skills: Let Agents Design Agents** (2026). Huichi Zhou, Siyuan Guo, Anjie Liu, Zhongwei Yu, Ziqin Gong, et al.. arXiv. [2603.18743](https://arxiv.org/abs/2603.18743). PDF-sampled: No.
-5. **SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution** (2026). Hongyi Liu, Haoyan Yang, Tao Jiang, Bo Tang, Feiyu Xiong, et al.. arXiv. [2605.18401](https://arxiv.org/abs/2605.18401). PDF-sampled: No.
+1. **SkillsVote: Lifecycle Governance of Agent Skills from Collection, Recommendation to Evolution** (2026). Hongyi Liu, Haoyan Yang, Tao Jiang, Bo Tang, Feiyu Xiong, et al.. arXiv. [2605.18401](https://arxiv.org/abs/2605.18401). PDF-sampled: No.
+2. **Agent Skills for Large Language Models: Architecture, Acquisition, Security, and the Path Forward** (2026). Renjun Xu, Yang Yan. arXiv. [2602.12430](https://arxiv.org/abs/2602.12430). PDF-sampled: No.
+3. **Auto-Policy, not Auto-Skill: Compiled Agent Skills for the Physical World** (2026). Zhonghao Zhan, Hamed Haddadi. arXiv. [2608.25091](https://arxiv.org/abs/2608.25091). PDF-sampled: No.
+4. **AI Governance Control Stack for Operational Stability: Achieving Hardened Governance in AI Systems** (2026). Horatio Morgan. arXiv. [2604.03262](https://arxiv.org/abs/2604.03262). PDF-sampled: No.
+5. **Operational AI Deployment Assurance: Governance-State Orchestration Under Threshold-Sensitive Deployment Conditions -- A Governance Framework for High-Stakes AI Systems** (2026). Khalid Adnan Alsayed. arXiv. [2605.27827](https://arxiv.org/abs/2605.27827). PDF-sampled: No.

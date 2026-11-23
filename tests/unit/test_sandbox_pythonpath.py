@@ -64,3 +64,79 @@ def test_both_import_styles_run_end_to_end(tmp_path: Path) -> None:
     assert r1.ok and "prefix 42" in r1.stdout, (r1.returncode, r1.stderr[-400:])
     r2 = sandbox.run_in_venv(project_dir=proj, args=["code/run_bare.py"], timeout_s=120)
     assert r2.ok and "bare 42" in r2.stdout, (r2.returncode, r2.stderr[-400:])
+
+
+def test_code_script_imports_implementation_despite_root_scaffolding(tmp_path):
+    """Reproduce the canary collision with real Python package resolution."""
+    project = tmp_path / "project"
+    for directory in ("src", "code/src"):
+        package = project / directory
+        package.mkdir(parents=True)
+        (package / "__init__.py").write_text("")
+        (package / "utils").mkdir()
+        (package / "utils/__init__.py").write_text("")
+    (project / "code/src/utils/calculation.py").write_text("VALUE = 42\n")
+    (project / "code/src/run.py").write_text(
+        "from src.utils.calculation import VALUE\nprint(VALUE)\n"
+    )
+    result = sandbox.run_python_script(
+        project_dir=project, script_relpath="code/src/run.py", timeout_s=120,
+    )
+    assert result.ok, result.stderr
+    assert result.stdout.strip() == "42"
+
+
+def test_explicit_root_package_script_ignores_deprecated_code_package(tmp_path):
+    """Real subprocess mirrors T006: selected src/cli.py must load root/src."""
+    project = tmp_path / "project"
+    for rel in ("src", "code/src"):
+        package = project / rel
+        package.mkdir(parents=True)
+        (package / "__init__.py").write_text("")
+    (project / "code/src/phi_sieve.py").write_text('"""Deprecated stub."""\n')
+    (project / "src/phi_sieve.py").write_text("VALUE = 42\n")
+    (project / "src/cli.py").write_text(
+        "import json\nfrom pathlib import Path\nfrom src.phi_sieve import VALUE\n"
+        "Path('result.json').write_text(json.dumps({'value': VALUE}))\n"
+    )
+    result = sandbox.run_python_script(
+        project_dir=project, script_relpath="src/cli.py", timeout_s=120,
+    )
+    assert result.ok, result.stderr
+    assert (project / "result.json").read_text() == '{"value": 42}'
+    assert (project / "code/src/phi_sieve.py").read_text() == '"""Deprecated stub."""\n'
+
+
+def test_runbook_explicit_nested_script_preserves_selected_package(tmp_path):
+    project = tmp_path / "project"
+    for rel in ("src", "src/jobs", "code/src"):
+        package = project / rel
+        package.mkdir(parents=True, exist_ok=True)
+        (package / "__init__.py").write_text("")
+    (project / "code/src/calculation.py").write_text("VALUE = 'wrong package'\n")
+    (project / "src/calculation.py").write_text("VALUE = 'selected package'\n")
+    (project / "src/jobs/run.py").write_text("from src.calculation import VALUE\nprint(VALUE)\n")
+    result = sandbox.run_in_venv(
+        project_dir=project, args=["src/jobs/run.py"], timeout_s=120,
+    )
+    assert result.ok, result.stderr
+    assert result.stdout.strip() == "selected package"
+
+
+def test_generic_invocations_keep_code_workspace_first(tmp_path):
+    """-c/-m carry no explicit file selection; preserve their existing lookup."""
+    project = tmp_path / "project"
+    for rel, value in (("src", "root"), ("code/src", "code")):
+        package = project / rel
+        package.mkdir(parents=True)
+        (package / "__init__.py").write_text("")
+        (package / "choice.py").write_text(f"VALUE = {value!r}\n")
+        (package / "main.py").write_text("from src.choice import VALUE\nprint(VALUE)\n")
+    # A neutral cwd keeps Python's automatic cwd insertion from choosing a
+    # package before PYTHONPATH, so this observes the actual source-root order.
+    neutral = project / "working"
+    neutral.mkdir()
+    for args in (["-c", "from src.choice import VALUE; print(VALUE)"], ["-m", "src.main"]):
+        result = sandbox.run_in_venv(project_dir=project, args=args, cwd=neutral, timeout_s=120)
+        assert result.ok, result.stderr
+        assert result.stdout.strip() == "code"

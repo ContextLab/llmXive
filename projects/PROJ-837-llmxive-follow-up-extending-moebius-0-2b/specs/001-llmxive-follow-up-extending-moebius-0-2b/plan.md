@@ -7,7 +7,7 @@
 This project implements a dynamic rank-adjustment mechanism for image inpainting, extending the "Moebius" framework. The core innovation is a lightweight convolutional gating head that predicts the structural complexity of a masked region (based on human-rated ground truth) and dynamically modulates the rank of $L\lambda MI$ linear matrices during the forward pass. The system is designed to reduce inference latency on low-complexity regions by up to 30-40% on CPU-only edge devices while maintaining fidelity comparable to static high-capacity baselines.
 
 **Critical Constraint & Mode Distinction**:
-- **CI Mode (Simulation)**: Runs on GitHub Actions free-tier (multi-core CPU, 7GB RAM). Uses a "Moebius-Tiny" model (~15M params) and a **Decoupled Synthetic Ground Truth** (randomly generated labels independent of training metrics) to validate the *mechanism* without circularity. Results are labeled "Simulation-Only".
+- **CI Mode (Simulation)**: Runs on GitHub Actions free-tier (multi-core CPU, limited RAM). Uses a "Moebius-Tiny" model (~15M params) and a **Decoupled Synthetic Ground Truth** (randomly generated labels independent of training metrics) to validate the *mechanism* without circularity. Results are labeled "Simulation-Only".
 - **Research Mode (Human-Grounded)**: Requires external human-annotated data (N=50+). Uses the full architecture (or a larger variant) and real human labels. This mode is **not** guaranteed to run in CI due to resource constraints but is the only mode that supports the "Human-Grounded" claim.
 
 The plan strictly adheres to the constraint that all CI training and evaluation must run on a GitHub Actions free-tier runner without GPU acceleration.

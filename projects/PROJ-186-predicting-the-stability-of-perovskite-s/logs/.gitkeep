@@ -1,2 +1,1 @@
 # This file ensures the logs directory is tracked by git.
-# Logs will be written to logs/pipeline.log by the pipeline.

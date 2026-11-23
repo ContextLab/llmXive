@@ -1,0 +1,17 @@
+status: none
+intent: download NOAA GHCN-Daily climate data for US stations as python package dataset
+required_fields:
+- station_id
+- date
+- element
+- data_value
+- measurement_flag
+- quality_flag
+- source_flag
+- observation_time
+- latitude
+- longitude
+- elevation
+cache_key: 8465803268024f4738e43ad09102e1a40483691fd95469d4fbb718e4a5b0a6bf
+searched_at: '2026-10-14T15:33:20.246897+00:00'
+retry_count: 1

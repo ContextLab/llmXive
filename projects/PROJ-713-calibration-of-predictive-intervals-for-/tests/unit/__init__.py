@@ -1,3 +1,2 @@
-"""
-Unit tests for individual components.
-"""
+"""Unit tests package."""
+pass

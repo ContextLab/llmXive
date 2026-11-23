@@ -1,0 +1,39 @@
+# JSON Schema for CompositionRecord (Dataset)
+$schema: "http://json-schema.org/draft-07/schema#"
+title: CompositionRecord
+type: object
+properties:
+  id:
+    type: string
+    description: Unique identifier (UUID or hash)
+  composition:
+    type: string
+    description: Chemical formula in Hill notation (e.g., "Zr50Cu40Al10")
+  chemical_family:
+    type: string
+    description: Derived from majority element (e.g., "Zr-based")
+  dc:
+    type: [number, "null"]
+    description: Critical casting thickness (mm), nullable if not regression
+  label:
+    type: [integer, "null"]
+    description: Binary label (0=Crystal, 1=Glass), nullable if not classification
+  target_type:
+    type: string
+    enum: ["regression", "classification"]
+    description: Indicates whether the record is for regression or classification
+  source:
+    type: string
+    description: Origin of the record (e.g., "Figshare-EXPERIMENTAL")
+  checksum:
+    type: string
+    pattern: "^[a-fA-F0-9]{64}$"
+    description: SHA‑256 checksum of the row data
+required:
+  - id
+  - composition
+  - chemical_family
+  - target_type
+  - source
+  - checksum
+additionalProperties: false

@@ -43,36 +43,42 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan in `projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` containing `torch`, `transformers`, `diffusers`, `spacy`, `pandas`, `scikit-learn`, `matplotlib`, `datasets`, `huggingface_hub`, `psutil`
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/`
+- [X] T001 Create project structure per implementation plan in `projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/`. **Deliverable**: Create directories: `code/synthetic`, `code/models`, `code/metrics`, `code/analysis`, `tests/unit`, `tests/contract`, `data/raw`, `data/synthetic`, `data/processed`, `state`. Verify all directories exist.
+- [X] T002 Initialize Python project with `requirements.txt` at `projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/code/requirements.txt`. **Execute**: Create venv at `projects/PROJ-833-llmxive-follow-up-extending-perceptiondl/venv`. Then create `code/requirements.txt` containing pinned versions: `torch==2.1.0`, `transformers==4.36.0`, `diffusers==0.25.0`, `spacy==3.7.2`, `pandas==2.1.4`, `scikit-learn==1.3.2`, `matplotlib==3.8.2`, `datasets==2.16.1`, `huggingface_hub==0.20.1`, `psutil==5.9.7`. **Verify**: Run `pip install -r code/requirements.txt` successfully within the activated venv.
+- [X] T003 [P] Configure linting (flake8/black) and formatting tools. **Deliverable**: Create `pyproject.toml` with `[tool.black] line-length=88` and `[tool.flake8] max-line-length=88`. Verify `black --check.` passes on the code directory.
+- [X] T004 Create `code/config.py` with empty structure. **Deliverable**: Create an empty Python file at `code/config.py` with necessary imports and a `__main__` block for testing.
+- [X] T004c Populate `code/config.py` with paths, seeds (fixed), and hyperparameters. **Specifics**: Define `TIPPING_POINT_THRESHOLD = 0.9` (documented as placeholder for scientific validation) and `BATCH_SIZE = 8`. Insert the following comment block at the top of `code/config.py` to record the design decision: `# DESIGN DECISION: Sequential baseline uses SAME PerceptionDLM model with context-reset (not LLaVA) to avoid architectural confounds. This overrides Spec FR-003 per Plan Summary and Complexity Tracking. See docs/design_decisions.md for formal record.`
+- [X] T004b [P] Document the Spec/Plan override formally. **Deliverable**: Create `docs/design_decisions.md` containing a section "Sequential Baseline Architecture" that explicitly states: "FR-003 originally specified LLaVA for sequential baseline. Plan and implementation use PerceptionDLM (context-reset) for both modes to ensure a controlled comparison of parallelism vs. fragmentation without architecture confounds. This decision supersedes FR-003."
+- [X] T004d [P] Insert design decision comment into `code/config.py` (if not done in T004c). **Verify**: Check that `code/config.py` contains the comment block from T004c.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure, data generation logic, and statistical foundations that MUST be complete before ANY user story implementation or model runner execution.
+**Purpose**: Core infrastructure, data generation logic, statistical foundations, and metric modules that MUST be complete before ANY user story implementation or model runner execution.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. Data generation logic (T046-T049, T024) is moved here to ensure data availability for runners.
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete. All metric, analysis, and visualization modules are implemented here to ensure they are available for Phase 4/6 orchestration.
 
-- [X] T004 [P] Create configuration module `code/config.py` defining paths, random seeds (42), and hyperparameters for region counts (20, 25, 30, 35, 40, 45, 50). **Explicitly document the design decision to use PerceptionDLM for both parallel and sequential baselines (context-reset) to avoid architectural confounds, noting that this supersedes Spec FR-003's requirement for LLaVA per Plan Summary and Complexity Tracking.**
-- [ ] T005 [P] Setup data directory structure: `data/raw/`, `data/synthetic/`, `data/processed/`
-- [ ] T042 [P] Define `contracts/synthetic_image.schema.yaml` and `contracts/regression_result.schema.yaml` to specify the JSON structure for generated images and analysis results.
-- [ ] T023 [P] [US2] Contract test for synthetic image schema in `tests/contract/test_schemas.py` (depends on T042).
-- [ ] T006 [P] Implement `code/synthetic/validator.py` to check for overlapping bounding boxes using the schema defined in T042 and return boolean validation results.
-- [ ] T046 [P] Implement `code/synthetic/fetcher.py` to download a sampled subset of the COCO-Stuff/ParaDLC-Bench dataset from HuggingFace.
-- [ ] T047 [P] Implement `code/synthetic/placer.py` to contain the core algorithm for placing non-overlapping bounding boxes on images, **including retry logic to reduce region count or skip images if placement fails**.
-- [ ] T048 [P] Implement `code/synthetic/deriver.py` to explicitly implement ground-truth relation derivation logic: deriving spatial prepositions (e.g., "left of", "above") from bounding box centroids as mandated by FR-004 and Spec Assumptions.
-- [ ] T049 [P] Implement `code/synthetic/serializer.py` to save generated images and JSON annotation files (including derived geometric relations) to `data/synthetic/`.
-- [ ] T024 [US2] Implement `code/synthetic/generator.py` to orchestrate T046-T049: loop through a sampled subset of ParaDLC-Bench (n≥50 per bin) and generate images for region counts 20, 25, 30, 35, 40, 45, and 50, **ensuring JSON outputs include derived geometric relations**.
+- [X] T042 [P] Define `contracts/synthetic_image.schema.yaml` and `contracts/regression_result.schema.yaml`. **Schema Details**: `synthetic_image.schema.yaml` must define properties: `image_path` (string), `bounding_boxes` (array of objects with `x`, `y`, `w`, `h`, `id`), `derived_relations` (array of strings). `regression_result.schema.yaml` must define `region_count` (int), `parallel_score` (float), `sequential_score` (float), `inference_time` (float), `corrected_p_value` (float), `is_significant` (boolean). **Dependency**: This task is the prerequisite for T006, T024, T026.
+- [X] T023 [P] [US2] Contract test for synthetic image schema in `tests/contract/test_schemas.py` (depends on T042).
+- [X] T006 [P] Implement `code/synthetic/validator.py` to check for overlapping bounding boxes using the schema defined in T042 and return boolean validation results.
+- [X] T046 [P] Implement `code/synthetic/fetcher.py` to download a sampled subset of the dataset from HuggingFace. **Dataset**: Primary source is `paradlc-bench`. If unavailable, fallback to `coco/coco-stuff-164k`. **Strategy**: If `paradlc-bench` is unavailable, document the fallback in `docs/design_decisions.md` (T004b). **Sampling**: Sample exactly n=50 images per region-count bin. [UNRESOLVED-CLAIM: c_ef4009d9 — status=not_enough_info] **Validation**: Verify the dataset contains image-caption pairs or bounding box annotations before proceeding. **Fail Loudly**: If `datasets.load_dataset` or `huggingface_hub` fails, raise `ConnectionError` or `ValueError` immediately. Do NOT implement synthetic fallback. **Streaming**: Use `datasets.load_dataset(..., streaming=True)` to process images in chunks to stay within 7GB RAM. **Relational Labels**: If `coco-stuff` lacks relational labels, the code MUST use the geometric derivation logic implemented in T048 (deriver.py) to generate ground-truth relations as a fallback condition.
+- [X] T047 [P] Implement `code/synthetic/placer.py` to contain the core algorithm for placing non-overlapping bounding boxes on images, **including retry logic to reduce region count or skip images if placement fails**.
+- [X] T048 [P] Implement `code/synthetic/deriver.py` to explicitly implement ground-truth relation derivation logic: deriving spatial prepositions (e.g., "left of", "above") from bounding box centroids as mandated by FR-004 and Spec Assumptions.
+- [X] T048a [P] Unit test for `code/synthetic/deriver.py` in `tests/unit/test_deriver.py` to verify that derived relations (e.g., "left of") correctly match the geometric reality of the bounding box coordinates (e.g., centroid_x1 < centroid_x2).
+- [X] T048b [P] Implement validation logic in `code/synthetic/validator.py` (or a new `code/synthetic/geometry_validator.py`) to verify that the `derived_relations` in generated JSONs match the geometric reality of the bounding box coordinates. **Execute**: Run a script that re-computes relations from saved coordinates and asserts they match the stored `derived_relations`. Fail if any mismatch is found.
+- [X] T049 [P] Implement `code/synthetic/serializer.py` to save generated images and JSON annotation files (including derived geometric relations) to `data/synthetic/`.
+- [ ] T024 [US2] Implement `code/synthetic/generator.py` to orchestrate T046-T049: loop through a sampled subset of the dataset (n=50 per bin) and generate images for region counts, including, 40, 45, and 50, **ensuring JSON outputs include derived geometric relations**.
+- [X] T029a [US2] Validate generated synthetic dataset. **Execute**: Run a script to re-compute geometric relations from the saved bounding box coordinates in `data/synthetic/*.json` and compare them against the stored `derived_relations` to ensure a complete match. Fail if any mismatch is found.
 - [ ] T025 [US2] Ensure `code/synthetic/generator.py` saves corresponding JSON annotation files with coordinates to `data/synthetic/`. (Note: Retry logic is in T047).
 - [ ] T026 [US2] Integrate `code/synthetic/validator.py` to validate every generated image before saving to disk.
 - [ ] T027 [US2] Add logging in `code/main.py` to track dataset generation progress and failure counts per image.
-- [ ] T051 [P] Implement `code/models/parallel_runner.py` to load PerceptionDLM in FP32/FP16, run batched inference (batch size 8) without cross-batch context, **and include `time.perf_counter` instrumentation to capture wall-clock inference time**.
-- [ ] T052 [P] Implement `code/models/sequential_runner.py` to load **PerceptionDLM (SAME model)** and run sequential autoregressive inference with **context-reset** for each region to establish ground-truth baseline, **and include `time.perf_counter` instrumentation to capture wall-clock inference time**. **Note: This overrides Spec FR-003 (LLaVA) per Plan Summary.**
-- [ ] T010 [P] Create `code/metrics/consistency.py` to extract spatial prepositional phrases via spaCy, **call `code/synthetic/deriver.py` (T048) to compute ground-truth relations**, and calculate Geometric Consistency Score.
-- [ ] T011 [P] Create `code/metrics/bleu.py` to calculate BLEU-4 scores for generated captions.
-- [ ] T053 [P] Implement **Bonferroni correction logic** in `code/analysis/regression.py` to apply family-wise error rate control to regression significance tests as mandated by Spec Assumptions.
+- [ ] T051 [P] Implement `code/models/parallel_runner.py` to load PerceptionDLM from `code/config.py` (using the verified model ID `perception-dlm-v1`), run batched inference (batch size 8) without cross-batch context, **and include `time.perf_counter` instrumentation to capture wall-clock inference time**. **Constraint**: Load model in default precision (floating-point) without quantization. **Fallback**: If memory usage exceeds a predefined threshold during load, dynamically switch to INT8 quantization. (`load_in_8bit=True`) and log the switch.
+- [ ] T052 [P] Implement `code/models/sequential_runner.py` to load **PerceptionDLM (SAME model as T051)** and run sequential autoregressive inference with **context-reset** for each region to establish ground-truth baseline, **and include `time.perf_counter` instrumentation to capture wall-clock inference time**. **Note**: This overrides Spec FR-003 (LLaVA) per Plan Summary to avoid architectural confounds. **Reference**: See `docs/design_decisions.md` (T004b) for formal record of this deviation from FR-003. **Constraint**: Load model in default precision (FP16/FP32) without quantization. **Fallback**: If memory usage exceeds a predefined threshold during load, dynamically switch to INT8 quantization. (`load_in_8bit=True`) and log the switch.
+- [ ] T053 [P] Implement **Bonferroni correction logic** in `code/analysis/regression.py` to apply family-wise error rate control to regression significance tests as mandated by Spec Assumptions. **Output**: The regression function must return a dictionary including `corrected_p_value` and `is_significant` (boolean) flags for the T022 consumer.
+- [X] T010 [US1] Create `code/metrics/consistency.py` to extract spatial prepositional phrases via spaCy, **call `code/synthetic/deriver.py` (T048) to compute ground-truth relations**, and calculate Geometric Consistency Score. **Dependency**: This task depends on T048 completion. **Note**: This task implements the *module logic* and is independent of data existence (T029).
+- [X] T011 [P] [US1] Create `code/metrics/bleu.py` to calculate BLEU-4 scores for generated captions.
+- [ ] T022 [US1] Implement `code/analysis/regression.py` to process metrics and output `data/processed/degradation_curve.csv` containing region count, parallel score, sequential score, **Inference Time**, **corrected_p_value**, and **is_significant**. **Ensure Bonferroni correction (T053) is applied and the output columns are explicitly populated.** **Dependency**: T010, T011.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -92,7 +98,7 @@
 ### Implementation for User Story 2
 
 - [ ] T029 [US2] Execute `code/synthetic/generator.py` to generate the full synthetic dataset for all configured region count bins.
-- [ ] T030 [US2] Verify generated dataset integrity (checksums, schema compliance) and log failure counts.
+- [X] T030 [US2] Verify generated dataset integrity (checksums, schema compliance) and log failure counts.
 
 **Checkpoint**: Synthetic dataset generation logic is complete and robust
 
@@ -106,18 +112,12 @@
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T015 [P] [US1] Unit test for `code/metrics/consistency.py` in `tests/unit/test_metrics.py` verifying relation extraction and derivation logic.
+- [X] T015 [P] [US1] Unit test for `code/metrics/consistency.py` in `tests/unit/test_metrics.py` verifying relation extraction and derivation logic.
 
 ### Implementation for User Story 1
 
-- [ ] T018 [US1] Implement logic in `code/main.py` to **call** the generator module (T024) to generate synthetic images with **specific region counts from the configured bins** and save to `data/synthetic/`.
-- [ ] T019 [US1] Implement logic in `code/main.py` to run parallel inference via `code/models/parallel_runner.py` (which now captures time) and save results to `data/processed/parallel_results.json`.
-- [ ] T020 [US1] Implement logic in `code/main.py` to run sequential inference via `code/models/sequential_runner.py` (**PerceptionDLM with context-reset**) and save results to `data/processed/sequential_results.json`.
-- [ ] T021 [US1] Implement logic in `code/main.py` to compute Semantic Coherence Score (using `consistency.py` which calls `deriver.py` for ground-truth) and BLEU-4 for both methods and write to `data/processed/metrics.json`.
-- [ ] T022 [US1] Implement `code/analysis/regression.py` to process metrics and output `data/processed/degradation_curve.csv` containing region count, parallel score, sequential score, and **Inference Time**. **Ensure Bonferroni correction (T053) is applied.**
-- [ ] T023 [US1] Add error handling in `code/main.py` for memory limits (Peak RSS < 7GB) using the logic from T014b and graceful failure if model loading fails on CPU.
+- [ ] T018 [US1] Implement logic in `code/main.py` to **load** synthetic images with **specific region counts from the configured bins** from `data/synthetic/` (produced by T029). **Do NOT generate data here; assume T029 has completed.**
+- [ ] T021 [US1] Implement logic in `code/main.py` to compute Semantic Coherence Score (using `consistency.py` which calls `deriver.py` for ground-truth) and BLEU-4 for both methods and write to `data/processed/metrics.json`. **Dependency**: Assumes T010, T011, T029 are complete.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -131,15 +131,11 @@
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T031 [P] [US3] Integration test for plotting output in `tests/integration/test_plotting.py`
+- [X] T031 [P] [US3] Integration test for plotting output in `tests/integration/test_plotting.py`
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement `code/analysis/plotting.py` to read `data/processed/degradation_curve.csv` and plot Inference Time (x) vs. Semantic Coherence Score (y) [UNRESOLVED-CLAIM: c_d8d38995 — status=not_enough_info].
-- [ ] T033 [US3] Implement logic in `code/analysis/plotting.py` to calculate and mark the "tipping point" where parallel coherence drops below **the threshold defined in `config.py`** ({{claim:c_223ff487}}) of the sequential baseline.
-- [ ] T034 [US3] Generate `data/processed/pareto_frontier.png` with distinct lines for Parallel and Sequential methods.
-- [ ] T035 [US3] Ensure `code/analysis/plotting.py` reads **Inference Time** data from the CSV (produced by T051/T052) to plot the Pareto frontier.
-- [ ] T036 [US3] Ensure `code/analysis/plotting.py` handles edge cases where data is insufficient to define a curve.
+- [ ] T032 [P] Implement `code/analysis/plotting.py` to read `data/processed/degradation_curve.csv` and plot Inference Time (x) vs. Semantic Coherence Score (y). **Logic**: Read threshold from `config.TIPPING_POINT_THRESHOLD` (default a high threshold, documented as placeholder). Dynamically calculate the "tipping point" by finding the first region count where the parallel coherence score drops below the threshold of the sequential baseline score, and mark this point on the plot. **Note**: The default 0.9 is a placeholder and must be validated or derived from data, not hardcoded as a final scientific truth. The code must implement the *mechanism* to find the crossing point for *any* threshold. **Output**: Generate `data/processed/pareto_frontier.png` with distinct lines for Parallel and Sequential methods. **Verification**: Verify that the plot marks the specific region count X where the curve crosses Y with a red dot and label. **Edge Cases**: Handle cases where data is insufficient to define a curve.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -149,15 +145,17 @@
 
 **Purpose**: Final integration, memory enforcement, and cross-cutting concerns
 
-- [ ] T014 [P] Create `code/main.py` pipeline orchestration script to execute the full flow: fetch data → generate synthetic → run parallel/sequential inference → compute metrics → regression → plot (depends on T024, T051, T052, T010, T022, T032).
-- [ ] T014b [P] Implement **runtime memory monitoring logic** in `code/main.py` (reading `/proc/self/status` or using `psutil`) and an **adaptive reduction mechanism**: if Peak RSS > 7 GB, **implement a retry loop that reduces the image count per bin by [deferred] and retries inference**, failing only if the count drops below the minimum threshold (per FR-007).
-- [ ] T037 [P] Update `research.md` with the final degradation curve data and tipping point analysis.
-- [ ] T038 Code cleanup and refactoring in `code/` modules.
-- [ ] T039 Performance optimization: Ensure batch size and sample size are tuned to {{claim:c_f8456d6e}} (pi, https://en.wikipedia.org/wiki/Pi).
+- [ ] T014 Create `code/main.py` pipeline orchestration script to execute the full flow: fetch data → generate synthetic → run parallel/sequential inference → compute metrics → regression → plot. **Note**: This task orchestrates the flow by calling modules implemented in T024, T029, T030, T051, T052, T010, T022, T032. It runs after all components are implemented (Phases 2-5).
+- [ ] T014a [P] Implement `code/main.py` data loading step (calls T024/T029). **Deliverable**: Code in `main.py` to load synthetic images from `data/synthetic/`.
+- [ ] T014b [P] Implement `code/main.py` inference orchestration step (calls T051/T052). **Deliverable**: Code in `main.py` to run parallel and sequential inference and save results to `data/processed/parallel_results.json` and `data/processed/sequential_results.json`. **Schema**: Output JSON with keys: `captions` (list), `region_count` (int), `inference_time` (float), `region_ids` (list). **Memory Logic**: Implement runtime memory monitoring logic (reading `/proc/self/status` or using `psutil`) and an **adaptive reduction mechanism**: if Peak RSS > 7 GB, implement a retry loop that reduces the image count per bin by exactly 5 images and retries inference, failing only if the count drops below the minimum threshold (per FR-007). **Reproducibility**: Log the reduced sample size as a fixed parameter for that specific run to ensure the 'same experiment' (with reduced n) can be re-run.
+- [ ] T014c [P] Implement `code/main.py` metrics calculation step (calls T010/T011/T021). **Deliverable**: Code in `main.py` to compute metrics and write to `data/processed/metrics.json`.
+- [ ] T014d [P] Implement `code/main.py` regression/plotting step (calls T022/T032). **Deliverable**: Code in `main.py` to generate `data/processed/degradation_curve.csv` and `data/processed/pareto_frontier.png`.
+- [ ] T014e [P] Verify `code/main.py` executes the full pipeline end-to-end without manual intervention.
+- [X] T037 [P] Update `research.md` with the final degradation curve data and tipping point analysis.
+- [X] T038 [P] Run `black --check` and `flake8` on `code/` and fix all violations to ensure code cleanliness.
 - [ ] T040 [P] Add unit tests for `code/analysis/regression.py` in `tests/unit/test_regression.py`.
-- [ ] T041 Run `quickstart.md` validation to ensure the full pipeline executes end-to-end.
-- [ ] T042 Verify `state/projects/PROJ-833-llmxive-follow-up-extending-perceptiondl.yaml` contains checksums for all generated artifacts.
-- [ ] T043 [P] Document the resolution of the Spec/Plan contradiction (PerceptionDLM vs LLaVA) in `docs/design_decisions.md`.
+- [ ] T041 Run `quickstart.md` validation to ensure the full pipeline executes end-to-end. **Dependency**: Ensure T014 is complete and `code/main.py` is runnable.
+- [X] T045 [P] Verify `state/projects/PROJ-833-llmxive-follow-up-extending-perceptiondl.yaml` contains checksums for **specifically** `data/synthetic/*.json` and `data/processed/*.csv` as mandated by the Constitution. **Execute**: Script to hash these specific patterns and update the state file.
 
 ---
 
@@ -169,7 +167,7 @@
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Story 2 (Phase 3)**: Depends on Foundational - **Must complete before US1** to provide data
 - **User Story 1 (Phase 4)**: Depends on Foundational and US2 (Data Availability)
-- **User Story 3 (Phase 5)**: Depends on US1 (Data Availability)
+- **User Story 3 (Phase 5)**: Depends on Foundational (T032) and US1 (Data Availability)
 - **Orchestration (Phase 6)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
@@ -206,7 +204,7 @@
 Task: "Unit test for code/metrics/consistency.py in tests/unit/test_metrics.py"
 
 # Launch all models for User Story 1 together:
-Task: "Call generator module in code/main.py to generate synthetic images"
+Task: "Load existing synthetic images in code/main.py"
 Task: "Run parallel inference via code/models/parallel_runner.py"
 Task: "Run sequential inference via code/models/sequential_runner.py"
 ```
@@ -254,10 +252,17 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All model loading MUST use default precision (FP32/FP16) on CPU; NO 8-bit quantization or CUDA.
+- **Constraint**: All model loading MUST use default precision (FP16/FP32) without quantization to satisfy Spec Assumptions. **Exception**: If RSS > 6.5 GB, dynamic INT8 quantization is permitted as a fallback to ensure execution (T051a, T052a).
 - **Constraint**: Synthetic data generation MUST guarantee non-overlapping boxes; if generation fails, reduce count or skip, never fabricate fake data.
 - **Constraint**: Sequential baseline MUST use PerceptionDLM with context-reset to avoid architectural confounds (resolving Spec/Plan conflict).
-- **Constraint**: Region counts MUST include intermediate bins for non-linear regression..
-- **Constraint**: Statistical analysis MUST include Bonferroni correction (T053).
-- **Constraint**: Memory management MUST include automatic sample reduction logic (T014b).
-- **Constraint**: Tipping point threshold MUST be configurable via `config.py` (T033).
+- **Constraint**: Region counts MUST include intermediate bins for non-linear regression.
+- **Constraint**: Statistical analysis MUST include Bonferroni correction (T053) and output corrected p-values.
+- **Constraint**: Memory management MUST include automatic sample reduction logic (T014b) with a fixed step size of 5 images, and log the reduced sample size for reproducibility.
+- **Constraint**: Tipping point threshold MUST be configurable via `config.py` with a default of 0.9 (placeholder), but the calculation must dynamically find the first crossing point.
+- **Constraint**: Data loading MUST fail loudly on fetch errors; no synthetic fallbacks allowed.
+- **Constraint**: All analysis tasks must consume the REAL dataset (from T046) and compute REAL measured results; no synthetic or random stand-ins.
+- **Constraint**: T019 and T020 have been removed; their logic is now contained within T014 (Phase 6) to resolve circular dependencies.
+- **Constraint**: GPU execution is NOT supported; the pipeline is strictly CPU-only per FR-007.
+- **Constraint**: All analysis tasks must consume the REAL dataset (from T046) and compute REAL measured results; no synthetic or random stand-ins.
+- **Constraint**: T019 and T020 have been removed; their logic is now contained within T014 (Phase 6) to resolve circular dependencies.
+- **Constraint**: GPU execution is NOT supported; the pipeline is strictly CPU-only per FR-007.

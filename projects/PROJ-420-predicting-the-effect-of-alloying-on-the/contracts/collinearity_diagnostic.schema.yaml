@@ -1,0 +1,28 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Collinearity Diagnostic Schema
+description: Schema for results/collinearity_diagnostic.json containing VIF analysis results.
+type: object
+required:
+  - raw_vif
+  - ilr_vif
+  - pass_flag
+properties:
+  raw_vif:
+    type: object
+    description: Variance Inflation Factors calculated on raw compositional features (Cu, Mg, Si, Zn, Mn).
+    additionalProperties:
+      oneOf:
+        - type: number
+        - type: string
+          enum: ["inf"]
+    propertyNames:
+      pattern: "^(Cu|Mg|Si|Zn|Mn)$"
+  ilr_vif:
+    type: object
+    description: Variance Inflation Factors calculated on ILR-transformed features.
+    additionalProperties:
+      type: number
+  pass_flag:
+    type: boolean
+    description: True if all raw VIF values are finite and <= 5, False otherwise.
+additionalProperties: false

@@ -1,0 +1,41 @@
+T001b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a Git repository being created nor a `.gitignore` file containing
+    Python/data artifact exclusions is provided; the claim lacks any actual artifact
+    to verify. The required repository initialization and ignore configuration are
+    missing.
+T002a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a Python\u202F3.11 virtual environment (e.g., a `venv` directory,\
+    \ `pyvenv.cfg`, or activation scripts) was provided in the specified `projects/PROJ-543-predicting-molecular-interactions-in-pro/code/`\
+    \ location. The implementer\u2019s claim lacks any tangible artifact confirming\
+    \ the environment was created."
+T002b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., requirements.txt, environment.yml, installation script, or
+    pip/conda freeze output) is provided to demonstrate that the listed packages have
+    been installed into a virtual environment. Without such evidence, we cannot verify
+    that the dependencies are actually present. The task therefore remains incomplete.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `setup.cfg`, `.flake8`, `pyproject.toml`
+    with Black settings) or documentation of their integration were provided. Without
+    these artifacts, the requirement to configure flake8/black cannot be verified
+    as satisfied.
+T009:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the directories `data/raw/`, `data/processed/`,
+    or `data/results/` actually exist in the repository; the artifact list is empty,
+    so the required folder structure has not been demonstrated. The implementer must
+    create these directories (or show a file tree confirming their presence).
+T011:
+  c: false
+  h: dac57507bed25b27004e3cba9b123eb35496390e58d3522d0576baa52ae60d42
+  r: The required artifact `tests/integration/test_graph_memory.py` does not exist
+    in the repository, so no integration test for graph construction memory footprint
+    is present. The task is therefore not satisfied.

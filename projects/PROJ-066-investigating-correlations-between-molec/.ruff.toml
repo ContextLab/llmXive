@@ -1,0 +1,23 @@
+# Ruff configuration for linting
+# This file is a duplicate of settings in pyproject.toml for IDE compatibility
+line-length = 88
+target-version = "py310"
+
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long (handled by black)
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[isort]
+known-first-party = ["utils", "data", "models"]
+force-sort-within-sections = true
+combine-as-imports = true

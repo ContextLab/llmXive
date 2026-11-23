@@ -1,0 +1,15 @@
+status: none
+intent: download VRSBench validation dataset and COCO 2017 validation via huggingface
+  datasets python package dataset
+required_fields:
+- image_id
+- file_name
+- width
+- height
+- bbox (xmin,ymin,xmax,ymax)
+- category_id
+- category_name
+- annotation_id
+cache_key: f7721382f089351c2b93fa11c7dbb01a3ea8e1a21c18afae1e1452fe59a0becf
+searched_at: '2026-10-25T06:49:41.198538+00:00'
+retry_count: 1

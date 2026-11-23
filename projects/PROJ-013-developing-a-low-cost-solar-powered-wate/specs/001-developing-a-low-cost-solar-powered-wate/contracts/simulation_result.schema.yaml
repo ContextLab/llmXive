@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SimulationResult"
+description: "Schema for simulation output results."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique run identifier."
+  material_id:
+    type: "string"
+    description: "Foreign key to MaterialProfile."
+  geometry_id:
+    type: "string"
+    description: "Foreign key to GeometryConfig."
+  steady_state_efficiency:
+    type: "number"
+    description: "Time-averaged thermal efficiency (η)."
+    minimum: 0.0
+    maximum: 1.0
+  total_cost:
+    type: "number"
+    description: "Total cost in USD."
+    minimum: 0.0
+  energy_balance_error:
+    type: "number"
+    description: "Percentage error in energy balance (Input - Output - Losses)."
+    minimum: -100.0
+    maximum: 100.0
+  convergence_status:
+    type: "string"
+    description: "Status of the simulation run."
+    enum:
+      - "success"
+      - "failed"
+      - "invalid_balance"
+  time_to_convergence:
+    type: "number"
+    description: "Time to reach steady state in minutes."
+    minimum: 0.0
+  plausibility_flag:
+    type: "string"
+    description: "Secondary check against literature range [0.30, 0.60]."
+    enum:
+      - "ok"
+      - "warning"
+  calibration_factor:
+    type: "number"
+    description: "Calibration factor applied to convection coefficients."
+    minimum: 0.0
+    maximum: 2.0
+required:
+  - run_id
+  - material_id
+  - geometry_id
+  - steady_state_efficiency
+  - total_cost
+  - energy_balance_error
+  - convergence_status
+  - time_to_convergence
+  - plausibility_flag
+  - calibration_factor
+additionalProperties: false

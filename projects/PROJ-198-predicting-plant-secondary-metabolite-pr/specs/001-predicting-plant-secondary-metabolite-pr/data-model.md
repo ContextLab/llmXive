@@ -1,68 +1,35 @@
 # Data Model: Predicting Plant Secondary Metabolite Profiles from Genomic Data
 
 ## Overview
+Defines the entities, transformations, and JSON schemas that govern every artifact produced by the pipeline. All files are validated against the schemas in `contracts/` using Pydantic models; failures abort the run, guaranteeing Constitution Principle III (Data Hygiene).
 
-This document defines the data entities, transformations, and schemas required for the project. All data artifacts must conform to the schemas defined in `contracts/`. Runtime validation will be enforced via Pydantic models.
+## Core Entities
 
-## Entities
+| Entity | Fields | Description |
+|--------|--------|-------------|
+| **Species** | `species_name` (str), `phylogenetic_clade` (str), `genome_status` (str), `metabolome_status` (str), `genome_size_mb` (float) | Metadata for each plant; used for filtering and stratification. |
+| **BGCFeature** | `species_name` (str), `bgc_type` (str), `count` (int), `presence` (bool), `mapping_source` (str) | One row per BGC type per species; counts derived from antiSMASH JSON. |
+| **MetaboliteTarget** | `species_name` (str), `inchikey` (str), `abundance_raw` (float), `abundance_log` (float), `compound_class` (str) | Harmonized metabolite data; log‑transformed for modeling. |
+| **Covariate** | `species_name` (str), `ecological_niche` (str, optional), `tissue_type` (str, optional), `growth_habit` (str, optional) | Additional non‑phylogenetic covariates retrieved from the TRY Plant Trait Database. |
+| **AlignedRecord** | `species_id` (str), `clade` (str), `bgc_features` (dict\<bgc_type → int\>), `metabolite_targets` (dict\<InChIKey → float\>), `covariates` (dict\<cov_name → value\>) | Single row of the final feature‑target matrix (output of alignment). |
+| **ModelOutput** | `model_type` (str), `r_squared` (float), `pearson_r` (float), `p_value` (float), `feature_importance` (dict\<feature → score\>), `cross_val_scores` (list\<float\>), `cv_method` (str) | Results from each regression model, ready for SSoT. |
 
-### 1. Species
-The fundamental unit of analysis.
-- **Attributes**:
-    - `species_name` (str): Scientific name (e.g., "Arabidopsis thaliana").
-    - `phylogenetic_clade` (str): Clade identifier for stratification (e.g., "Brassicales").
-    - `genome_status` (str): "available" or "missing".
-    - `metabolome_status` (str): "available" or "missing".
-    - `genome_size_mb` (float): Size of genome assembly (used for filtering >500MB).
+## Data Flow Diagram
+1. **Raw Input** – FASTA/GFF (genomes) + CSV/TSV (metabolites) + TSV (covariates).  
+2. **Intermediate** – `bgc_predictions.json`, `metabolite_harmonized.csv`, `covariates.tsv`, `tree_pruned.nwk`.  
+3. **Processed** – `aligned_matrix.csv` (conforms to `aligned_dataset.schema.yaml`).  
+4. **Final** – `model_metrics.json` (conforms to `model_output.schema.yaml`).  
 
-### 2. BGC Feature
-Predicted biosynthetic gene cluster.
-- **Attributes**:
-    - `species_name` (str): Foreign key to Species.
-    - `bgc_type` (str): Predicted class (e.g., "terpenoid", "alkaloid", "unknown").
-    - `count` (int): Number of BGCs of this type in the genome.
-    - `presence` (bool): 1 if count > 0, else 0.
-    - `mapping_source` (str): "MIBiG" or "Pfam" (to track fallback usage).
+## Validation & Hygiene
+- **Schema Validation** – After each major step (`download`, `antismash`, `align`, `train`, `evaluate`) the produced file is validated against its corresponding schema in `contracts/`.  
+- **Checksums** – SHA‑256 checksums are computed for all raw and derived files; stored in project state (`state/projects/...yaml`).  
+- **Zero‑BGC Handling** – Species with zero predicted BGCs are retained (`count = 0`, `presence = false`).  
+- **Missing Modality** – Species lacking genome **or** metabolite data are excluded; a warning is logged.  
+- **Numeric Ranges** – R² ∈ [‑1, 1]; counts ≥ 0; log‑abundances bounded by realistic limits (‑1000 → 1000).  
 
-### 3. Metabolite Target
-Quantitative metabolite abundance.
-- **Attributes**:
-    - `species_name` (str): Foreign key to Species.
-    - `inchikey` (str): Unique chemical identifier.
-    - `abundance_raw` (float): Raw abundance value.
-    - `abundance_log` (float): Log-transformed value (log(raw + 1)).
-    - `compound_class` (str): Chemical class (e.g., "flavonoid").
+## Contracts Referenced
+- `contracts/aligned_dataset.schema.yaml` – validates the final aligned matrix.  
+- `contracts/model_output.schema.yaml` – validates each model’s result object.  
 
-### 4. Model Output
-Results of the regression analysis.
-- **Attributes**:
-    - `model_type` (str): "RF", "ElasticNet", "GradientBoosting", "PGLS".
-    - `r_squared` (float): Coefficient of determination.
-    - `pearson_r` (float): Correlation coefficient.
-    - `p_value` (float): Significance against null.
-    - `feature_importance` (dict): Map of feature name to importance score.
-    - `cv_method` (str): "LOO" or "Bootstrap".
+---
 
-## Data Flow
-
-1.  **Raw**: Downloaded FASTA, GFF, and CSV/TSV from NCBI/PMDB.
-2.  **Intermediate**:
-    - `bgc_predictions.json`: Output from antiSMASH wrapper.
-    - `metabolite_harmonized.csv`: InChIKey-mapped abundance.
-    - `tree_pruned.nwk`: Pruned phylogenetic tree.
-3.  **Processed**:
-    - `aligned_matrix.csv`: Final feature-target matrix (Species x Features).
-    - `pca_components.csv`: Reduced dimensionality features (optional).
-4.  **Final**:
-    - `model_metrics.json`: Aggregated results.
-    - `sensitivity_analysis.csv`: Results of threshold sweep.
-
-## Schemas (Contracts)
-
-The following schemas are defined in `contracts/` to ensure data integrity. All data loading functions will use Pydantic models to enforce these schemas at runtime.
-
-- `dataset.schema.yaml`: Defines the structure of the aligned input matrix.
-- `feature_matrix.schema.yaml`: Defines the BGC feature matrix.
-- `model_output.schema.yaml`: Defines the structure of the regression results.
-
-**Note**: All numeric fields must be validated for range (e.g., R² between -1 and 1, counts >= 0). Missing values must be explicitly handled (e.g., filtered or imputed with documented method).

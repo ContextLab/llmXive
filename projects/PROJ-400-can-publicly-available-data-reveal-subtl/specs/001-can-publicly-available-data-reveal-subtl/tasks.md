@@ -43,7 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-400-can-publicly-available-data-reveal-subtl/`)
+- [ ] T001a Create directory structure for `code/`, `data/`, `tests/`, `docs/`
+- [ ] T001b Create `requirements.txt` with initial dependencies
+- [ ] T001c Initialize Git repository and add `.gitignore`
+
 - [ ] T002 Initialize Python 3.11 project with dependencies (`requests`, `pandas`, `scipy`, `pyyaml`, `numpy`, `pytest`) in `requirements.txt`
 - [ ] T003 [P] Configure linting (flake8/ruff) and formatting (black) tools
 
@@ -51,11 +54,13 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [ ] T004 Implement data schema definitions in `specs/001-t-violation-beta-decay/contracts/` (d_measurement.schema.yaml, meta_analysis_result.schema.yaml)
+- [ ] T004a Implement `d_measurement.schema.yaml` in `specs/001-t-violation-beta-decay/contracts/`
+- [ ] T004b Implement `meta_analysis_result.schema.yaml` in `specs/001-t-violation-beta-decay/contracts/`
+- [ ] T004c Implement `fusion_result.schema.yaml` in `specs/001-t-violation-beta-decay/contracts/`
 - [ ] T005 [P] Create directory structure for `data/raw/` and `data/processed/` with `.gitkeep` and checksum placeholder logic
 - [ ] T006 [P] Implement base configuration loader in `code/config.py` to handle random seed pinning and environment vars
 - [ ] T007 [Depends on T004] Create base entity classes `Nucleus` and `DMeasurement` in `code/models.py` matching `data-model.md`
@@ -66,11 +71,11 @@
 
 ---
 
-## Phase 3: User Story 1 - Archival Data Retrieval and Harmonization (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Archival Raw Data Retrieval and Validation (Priority: P1) 🎯 MVP
 
-**Goal**: Retrieve published T-violation D-coefficients and uncertainties from NNDC ENSDF and harmonize them into a single CSV.
+**Goal**: Retrieve raw or semi-raw momentum spectra and polarization asymmetry coefficients for specific nuclei (e.g., 6He, 19Ne) from the NNDC ENSDF database and validate that the data format supports cross-modal covariance analysis.
 
-**Independent Test**: Can be fully tested by executing the data extraction script against the ENSDF API/website and verifying the output CSV contains rows with D-coefficient values and uncertainties for a target nucleus.
+**Independent Test**: Can be fully tested by executing the data extraction script against the ENSDF API/website and verifying the output contains raw/semi-raw spectra or asymmetry coefficients (not just pre-calculated D-coefficients) for a target nucleus.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
@@ -81,58 +86,59 @@
 
 ### Implementation for User Story 1
 
-- [ ] T012 [P] [US1] Implement `retrieval.py` in `code/retrieval.py` to fetch D-coefficients from NNDC ENSDF API (https://www.nndc.bnl.gov/ensdf/getrefs.jsp) with exponential backoff retry logic and parse ENSDF XML/JSON response
-- [ ] T013 [P] [US1] Implement `harmonization.py` in `code/harmonization.py` to align data by nuclear state and handle range/point-estimate edge cases
-- [ ] T014 [US1] Implement the main data pipeline orchestrator in `code/main.py` (US1 section) to save harmonized data to `data/processed/harmonized_d_coefficients.csv`, ensuring the output CSV is validated by running a schema check to assert columns `value`, `uncertainty`, and `source_id` exist and are non-null before saving, satisfying the Independent Test criteria
-- [ ] T015 [US1] Add validation logic to flag nuclei with "insufficient data" and write to a missing_nuclei list in the output CSV or separate log file
-- [ ] T016 [US1] Add logging for data retrieval success rates to `logs/retrieval.log` with specific failure reasons (404, timeout, missing D-coeff)
+- [ ] T012 [P] [US1] Implement `retrieval.py` in `code/retrieval.py` to fetch raw or semi-raw momentum spectra and polarization asymmetry coefficients from NNDC ENSDF using specific data retrieval endpoints (e.g., 'getdata' for specific evaluations) with exponential backoff retry logic. Parse ENSDF XML/JSON response to extract energy/momentum bins, asymmetry values, and uncertainties. Validate that the retrieved data contains the necessary modalities (momentum AND polarization) for fusion.
+- [ ] T013 [P] [US1] Implement `harmonization.py` in `code/harmonization.py` to align data by nuclear state and handle range/point-estimate edge cases. Convert range estimates to point estimates with propagated uncertainty.
+- [ ] T014 [US1] Implement the main data pipeline orchestrator in `code/main.py` (US1 section) to save harmonized raw observables to `data/processed/harmonized_raw_observables.csv`, ensuring the output CSV is validated by running a schema check to assert columns `nucleus`, `modality_type`, `value`, `uncertainty`, `source_id` exist and are non-null before saving, satisfying the Independent Test criteria.
+- [ ] T015 [US1] Add validation logic to flag nuclei as "fusion impossible" if only pre-calculated D-coefficients are available (no raw spectra or asymmetry data) and write this flag to a separate log file or metadata field in the output CSV.
+- [ ] T016 [US1] Add logging for data retrieval success rates to `logs/retrieval.log` with specific failure reasons (404, timeout, missing raw data, missing asymmetry data).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
 ---
 
-## Phase 4: User Story 2 - Meta-Analysis and Upper Bound Calculation (Priority: P2)
+## Phase 4: User Story 2 - Cross-Modal Data Fusion and Permutation Testing (Priority: P2)
 
-**Goal**: Perform inverse-variance weighted meta-analysis to calculate combined D-coefficient and 95% confidence interval upper bound.
+**Goal**: Perform a cross-modal data fusion by computing the covariance matrix between momentum distribution and polarization coefficients for each nucleus, and use permutation testing (minimum 10,000 shuffles) to establish the null distribution and calculate a 95% confidence interval upper bound on the D-coefficient.
 
-**Independent Test**: Can be fully tested by running the statistical analysis module on a mock dataset with known injected D-coefficients.
+**Independent Test**: Can be fully tested by running the statistical analysis module on a mock dataset with known injected correlations, verifying the permutation p-value is stable (variance < 0.01) when the number of shuffles is doubled.
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T018 [P] [US2] Unit test for inverse-variance weighting accuracy against mock data in `tests/unit/test_meta_analysis.py`
-- [ ] T019 [P] [US2] Integration test for Z-test against zero hypothesis in `tests/integration/test_hypothesis_test.py`
+- [ ] T018 [P] [US2] Unit test for cross-modal covariance calculation accuracy against mock data in `tests/unit/test_fusion.py`
+- [ ] T019 [P] [US2] Integration test for permutation test stability in `tests/integration/test_permutation_stability.py`
 
 ### Implementation for User Story 2
 
-- [ ] T020 [P] [US2] Implement `meta_analysis.py` in `code/meta_analysis.py` to calculate weighted average and combined uncertainty
-- [ ] T021 [US2] Implement the 95% confidence interval upper bound calculation logic in `code/meta_analysis.py` to explicitly calculate and output the 95% CI upper bound as a distinct numerical value, saving the result as the field `d_upper_bound_95ci` in `data/processed/meta_analysis_results.json`, handling cases where the mean is indistinguishable from zero
-- [ ] T022 [US2] Implement the Z-test logic in `code/meta_analysis.py` to test the combined mean against the Standard Model prediction (D=0) as the primary hypothesis test, including verification logic to compare the Z-score against the null hypothesis and calculate the p-value, replacing any permutation-based approach
-- [ ] T023 [US2] Integrate with User Story 1 components: Read the artifact `data/processed/harmonized_d_coefficients.csv` produced by T014 in `code/main.py` to consume the harmonized data for analysis
-- [ ] T024 [US2] Save `MetaAnalysisResult` to `data/processed/meta_analysis_results.json` with schema validation
+- [ ] T020 [P] [US2] Implement `fusion.py` in `code/fusion.py` to compute the cross-modal covariance matrix between the retrieved momentum distributions and polarization coefficients for each nucleus. Derive the D-coefficient estimate from the covariance matrix. Add validation to flag if the data structure (independent runs) makes the covariance calculation physically invalid (i.e., if the data does not represent simultaneous measurements).
+- [ ] T021 [US2] Implement the 95% confidence interval upper bound calculation logic in `code/fusion.py` to explicitly calculate and output the 95% CI upper bound as a distinct numerical value, saving the result as the field `d_upper_bound_95ci` in `data/processed/fusion_results.json`, handling cases where the mean is indistinguishable from zero.
+- [ ] T022 [US2] Implement the permutation testing logic in `code/fusion.py` to perform a minimum of 10,000 shuffles of the polarization values relative to momentum bins. Generate the null distribution for the D-coefficient and calculate the p-value. Clamp p-values to [1e-10, 1-1e-10] to avoid floating-point precision issues.
+- [ ] T023 [US2] Integrate with User Story 1 components: Read the artifact `data/processed/harmonized_raw_observables.csv` produced by T014 in `code/main.py` to consume the harmonized data for analysis.
+- [ ] T024 [US2] Save `FusionResult` to `data/processed/fusion_results.json` with schema validation.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
 ---
 
-## Phase 5: User Story 3 - Consistency Testing and Sensitivity Validation (Priority: P3)
+## Phase 5: User Story 3 - Sensitivity Validation and PDG Comparison (Priority: P3)
 
-**Goal**: Perform Cochran's Q consistency test, calculate sensitivity limits, and cross-reference with PDG constraints.
+**Goal**: Calculate the sensitivity limit of the derived bound for each nucleus and compare it against the best single-experiment sensitivity and the Particle Data Group (PDG) review limits to validate the results.
 
-**Independent Test**: Can be fully tested by running the validation module on the processed data and verifying the generation of a heterogeneity p-value and PDG comparison table.
+**Independent Test**: Can be fully tested by running the validation module on the processed data and verifying the generation of a sensitivity limit (per nucleus) and a comparison table against the 2024 PDG Review.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T026 [P] [US3] Unit test for Cochran's Q statistic calculation in `tests/unit/test_consistency.py`
-- [ ] T027 [P] [US3] Unit test for sensitivity limit calculation (inverse-variance weighted average of uncertainties) in `tests/unit/test_sensitivity.py`
+- [ ] T026 [P] [US3] Unit test for sensitivity limit calculation (standard error of weighted mean) in `tests/unit/test_sensitivity.py`
+- [ ] T027 [P] [US3] Unit test for PDG comparison logic in `tests/unit/test_pdg_comparison.py`
 
 ### Implementation for User Story 3
 
-- [ ] T028 [P] [US3] Implement `consistency.py` in `code/consistency.py` to calculate Cochran's Q statistic and p-value (use permutation engine for fallback if n < 5, but NOT for primary test)
-- [ ] T029 [US3] Implement sensitivity limit calculation in `code/consistency.py` as the inverse-variance weighted average of individual uncertainties and verify it matches the weighted average of uncertainties per SC-003
-- [ ] T030 [US3] Implement `validation.py` in `code/validation.py` to dynamically fetch the current PDG Review limits by invoking the Reference-Validator Agent to verify the source URL and extract the current limits, cross-referencing derived bounds, ensuring no hardcoded values are used
-- [ ] T031 [US3] Add logic to flag results that are looser than the current world average
-- [ ] T031a [US3] Implement explicit p-value threshold check in `code/consistency.py` to compare Cochran's Q p-value against 0.05 and flag consistency status
-- [ ] T032 [US3] Generate final validation report in `data/processed/validation_report.json`
+- [ ] T028 [P] [US3] Implement `consistency.py` in `code/consistency.py` to calculate Cochran's Q statistic and p-value for heterogeneity. Use permutation engine for fallback if n < 5, but ensure the primary significance testing for the D-coefficient (as required by FR-003/Constitution VII) remains permutation-based.
+- [ ] T029 [US3] Implement sensitivity limit calculation in `code/consistency.py` as the standard error of the weighted mean of measurements for that specific nucleus and verify it matches the weighted average of uncertainties per SC-003.
+- [ ] T030a [US3] Implement `pdg_fetcher.py` in `code/data/pdg_fetcher.py` to explicitly retrieve and parse the 2024 PDG Review limits for the target nuclei from the PDG website or a defined CSV source. Store the parsed limits in `data/processed/pdg_limits.json` and validate the citation source.
+- [ ] T030 [US3] Implement `validation.py` in `code/validation.py` to cross-reference derived bounds with the PDG limits stored in `data/processed/pdg_limits.json`, ensuring no hardcoded values are used.
+- [ ] T031 [US3] Add logic to flag results that are looser than the current world average.
+- [ ] T031a [US3] Implement explicit p-value threshold check in `code/consistency.py` to compare Cochran's Q p-value against a predetermined significance threshold and flag consistency status.
+- [ ] T032 [US3] Generate final validation report in `data/processed/validation_report.json`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -148,6 +154,7 @@
 - [ ] T036 [P] Additional unit tests for edge cases (single measurement, p-value clamping) in `tests/unit/`
 - [ ] T037 Security hardening (Add regex validation for nuclei names in `code/retrieval.py`)
 - [ ] T038 Run quickstart.md validation (Execute quickstart.md and verify exit code 0)
+- [ ] T039 [US2] Implement stability check for permutation test p-value variance < 0.01 by running the test with doubled shuffles and comparing results, as required by SC-004.
 
 ---
 

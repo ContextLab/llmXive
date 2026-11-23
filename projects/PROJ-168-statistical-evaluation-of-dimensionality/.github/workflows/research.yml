@@ -1,0 +1,39 @@
+name: Research Pipeline CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install -r code/requirements.txt
+          pip install snakemake
+
+      - name: Run Data Gap Resolution
+        run: |
+          python code/data_gap_resolver.py
+          echo "Data gap resolution completed"
+
+      - name: Run Pipeline
+        run: |
+          python code/main.py
+
+      - name: Enforce CI limits
+        run: |
+          python code/ci_limits.py

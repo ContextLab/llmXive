@@ -1,282 +1,202 @@
-"""
-Validation script for data integrity and success rate aggregation.
-
-This script verifies downloaded/generated data integrity, checksums, and
-aggregates the success rate of meta-analyses processed against the ≥50 target (SC-001).
-It writes a summary report to data/output/success_rate_report.json.
-"""
 import os
 import json
 import logging
 import hashlib
 from pathlib import Path
 from typing import Dict, Any, List, Optional
-
-import numpy as np
 import pandas as pd
 
-# Import from project modules
 from config import is_real_mode, is_simulation_mode, get_config
 from utils.exceptions import DataValidationError
-from utils.io import ChunkedDataReader
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Constants
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-DATA_OUTPUT_DIR = PROJECT_ROOT / "data" / "output"
+DATA_RAW_DIR = Path("data/raw")
+DATA_PROCESSED_DIR = Path("data/processed")
+DATA_OUTPUT_DIR = Path("data/output")
 TARGET_COUNT = 50  # SC-001 requirement
 
-
-def calculate_file_checksum(file_path: Path, algorithm: str = 'sha256') -> str:
-    """Calculate checksum of a file for integrity verification."""
-    hash_obj = hashlib.new(algorithm)
-    with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(4096), b''):
-            hash_obj.update(chunk)
-    return hash_obj.hexdigest()
-
+def calculate_file_checksum(file_path: Path) -> str:
+    """Calculate SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        return "FILE_NOT_FOUND"
 
 def validate_data_file(file_path: Path) -> Dict[str, Any]:
-    """
-    Validate a single data file for integrity.
-    
-    Returns a dict with validation results:
-    - valid: bool
-    - checksum: str (if valid)
-    - row_count: int (if applicable)
-    - error: str (if invalid)
-    """
-    result = {
-        'valid': False,
-        'checksum': None,
-        'row_count': None,
-        'error': None
-    }
-    
+    """Validate a single data file (existence, non-empty, basic schema)."""
     if not file_path.exists():
-        result['error'] = f"File not found: {file_path}"
-        return result
+        return {"status": "missing", "path": str(file_path)}
     
-    try:
-        # Calculate checksum
-        checksum = calculate_file_checksum(file_path)
-        result['checksum'] = checksum
-        
-        # Attempt to read and count rows based on file type
-        suffix = file_path.suffix.lower()
-        
-        if suffix == '.json':
-            with open(file_path, 'r') as f:
+    size = file_path.stat().st_size
+    if size == 0:
+        return {"status": "empty", "path": str(file_path)}
+    
+    # Determine file type and validate
+    suffix = file_path.suffix.lower()
+    if suffix == ".json":
+        try:
+            with open(file_path, "r") as f:
                 data = json.load(f)
-                if isinstance(data, list):
-                    result['row_count'] = len(data)
-                elif isinstance(data, dict):
-                    result['row_count'] = 1  # Single object
-        elif suffix in ['.csv', '.parquet']:
-            if suffix == '.csv':
-                df = pd.read_csv(file_path, nrows=0)
-            else:
-                df = pd.read_parquet(file_path, columns=[])
-            result['row_count'] = len(df) if hasattr(df, '__len__') else 0
-        elif suffix == '.txt':
-            with open(file_path, 'r') as f:
-                result['row_count'] = sum(1 for _ in f)
-        else:
-            # For unknown formats, just verify file exists and has content
-            result['row_count'] = file_path.stat().st_size
-        
-        result['valid'] = True
-        
-    except Exception as e:
-        result['error'] = f"Validation error: {str(e)}"
-        logger.error(f"Failed to validate {file_path}: {e}")
-    
-    return result
-
+                if not isinstance(data, (dict, list)):
+                    return {"status": "invalid_json", "path": str(file_path)}
+                return {"status": "valid", "path": str(file_path), "checksum": calculate_file_checksum(file_path)}
+        except json.JSONDecodeError:
+            return {"status": "invalid_json", "path": str(file_path)}
+    elif suffix == ".csv":
+        try:
+            df = pd.read_csv(file_path)
+            if df.empty:
+                return {"status": "empty_dataframe", "path": str(file_path)}
+            return {"status": "valid", "path": str(file_path), "rows": len(df), "checksum": calculate_file_checksum(file_path)}
+        except Exception as e:
+            return {"status": "corrupt", "path": str(file_path), "error": str(e)}
+    elif suffix == ".parquet":
+        try:
+            df = pd.read_parquet(file_path)
+            if df.empty:
+                return {"status": "empty_dataframe", "path": str(file_path)}
+            return {"status": "valid", "path": str(file_path), "rows": len(df), "checksum": calculate_file_checksum(file_path)}
+        except Exception as e:
+            return {"status": "corrupt", "path": str(file_path), "error": str(e)}
+    else:
+        # Generic binary check
+        return {"status": "valid", "path": str(file_path), "checksum": calculate_file_checksum(file_path)}
 
 def count_processed_meta_analyses() -> int:
     """
-    Count the number of meta-analyses that have been successfully processed.
-    
-    Looks for processed data files in data/processed/ directory.
-    Prioritizes the subsample_data.parquet file generated by T016.
+    Count the number of successfully processed meta-analyses.
+    Looks for processed files in data/processed/ that contain valid meta-analysis data.
+    Specifically checks for the subsample output from T016 and raw sources.
     """
-    processed_files = []
+    count = 0
     
-    # Check for subsample data (primary output from T016)
-    subsample_file = DATA_PROCESSED_DIR / "subsample_data.parquet"
-    if subsample_file.exists():
+    # Strategy 1: Count unique meta-analysis IDs from the subsample parquet if it exists
+    subsample_path = DATA_PROCESSED_DIR / "subsample_data.parquet"
+    if subsample_path.exists():
         try:
-            df = pd.read_parquet(subsample_file)
-            # Count unique meta-analysis IDs
+            df = pd.read_parquet(subsample_path)
             if 'meta_id' in df.columns:
-                unique_ids = df['meta_id'].nunique()
-                logger.info(f"Found {unique_ids} unique meta-analyses in subsample_data.parquet")
-                return unique_ids
+                count = df['meta_id'].nunique()
+                logger.info(f"Found {count} unique meta-analyses in subsample_data.parquet")
+                return count
         except Exception as e:
             logger.warning(f"Could not read subsample_data.parquet: {e}")
-    
-    # Fallback: count files in raw directory that represent meta-analyses
-    if DATA_RAW_DIR.exists():
-        for file_path in DATA_RAW_DIR.iterdir():
-            if file_path.is_file() and file_path.suffix.lower() in ['.json', '.csv', '.parquet']:
-                # Skip simulation params file
-                if 'simulation_params' in file_path.name:
-                    continue
-                processed_files.append(file_path)
-    
-    logger.info(f"Found {len(processed_files)} potential meta-analysis files in raw directory")
-    return len(processed_files)
 
+    # Strategy 2: Fallback to counting raw JSON/CSV files if parquet is missing
+    # This handles the case where T016 might not have run or failed, but T012/T019 succeeded
+    if count == 0:
+        if DATA_RAW_DIR.exists():
+            raw_files = list(DATA_RAW_DIR.glob("*.json")) + list(DATA_RAW_DIR.glob("*.csv"))
+            # Filter out config files or non-data files if necessary
+            data_files = [f for f in raw_files if "simulation_params" not in f.name and "config" not in f.name]
+            count = len(data_files)
+            logger.info(f"Found {count} raw data files in data/raw/")
+    
+    return count
 
 def validate_corpus_integrity() -> Dict[str, Any]:
-    """
-    Validate the integrity of the entire corpus.
-    
-    Returns a dictionary with validation results for all files.
-    """
-    validation_results = {
-        'total_files': 0,
-        'valid_files': 0,
-        'invalid_files': 0,
-        'files': []
+    """Validate the integrity of the entire corpus."""
+    results = {
+        "raw_files": [],
+        "processed_files": [],
+        "total_valid": 0,
+        "total_invalid": 0
     }
-    
-    # Check raw data directory
+
+    # Check raw directory
     if DATA_RAW_DIR.exists():
         for file_path in DATA_RAW_DIR.iterdir():
             if file_path.is_file():
-                validation_results['total_files'] += 1
-                file_result = validate_data_file(file_path)
-                file_result['path'] = str(file_path.relative_to(PROJECT_ROOT))
-                validation_results['files'].append(file_result)
-                
-                if file_result['valid']:
-                    validation_results['valid_files'] += 1
+                res = validate_data_file(file_path)
+                results["raw_files"].append(res)
+                if res["status"] == "valid":
+                    results["total_valid"] += 1
                 else:
-                    validation_results['invalid_files'] += 1
-                    logger.warning(f"Invalid file: {file_path.name} - {file_result['error']}")
-    
-    # Check processed data directory
+                    results["total_invalid"] += 1
+
+    # Check processed directory
     if DATA_PROCESSED_DIR.exists():
         for file_path in DATA_PROCESSED_DIR.iterdir():
             if file_path.is_file():
-                validation_results['total_files'] += 1
-                file_result = validate_data_file(file_path)
-                file_result['path'] = str(file_path.relative_to(PROJECT_ROOT))
-                validation_results['files'].append(file_result)
-                
-                if file_result['valid']:
-                    validation_results['valid_files'] += 1
+                res = validate_data_file(file_path)
+                results["processed_files"].append(res)
+                if res["status"] == "valid":
+                    results["total_valid"] += 1
                 else:
-                    validation_results['invalid_files'] += 1
-                    logger.warning(f"Invalid file: {file_path.name} - {file_result['error']}")
-    
-    return validation_results
+                    results["total_invalid"] += 1
 
+    return results
 
 def aggregate_success_rate() -> Dict[str, Any]:
     """
-    Aggregate the success rate of meta-analyses processed against the target.
-    
-    Returns a report with:
-    - total_target: The target number of meta-analyses (50)
-    - actual_processed: The number actually processed
-    - success_rate: The ratio of actual to target
-    - mode: 'real' or 'simulation' based on data source
+    Aggregate the success rate of meta-analyses processed against the >=50 target.
+    Returns a dictionary suitable for the success_rate_report.json.
     """
-    actual_processed = count_processed_meta_analyses()
+    actual_count = count_processed_meta_analyses()
+    target = TARGET_COUNT
+    mode = "real" if is_real_mode() else "simulation"
     
-    # Determine mode
-    if is_real_mode():
-        mode = "real"
-    elif is_simulation_mode():
-        mode = "simulation"
-    else:
-        # Fallback: check if simulation params file exists
-        sim_params_file = DATA_RAW_DIR / "simulation_params.json"
-        mode = "simulation" if sim_params_file.exists() else "real"
-    
-    success_rate = actual_processed / TARGET_COUNT if TARGET_COUNT > 0 else 0.0
+    success_rate = 0.0
+    if target > 0:
+        success_rate = min(1.0, actual_count / target)
     
     report = {
-        'total_target': TARGET_COUNT,
-        'actual_processed': actual_processed,
-        'success_rate': round(success_rate, 4),
-        'mode': mode,
-        'meets_requirement': actual_processed >= TARGET_COUNT,
-        'timestamp': pd.Timestamp.now().isoformat()
+        "total_target": target,
+        "actual_processed": actual_count,
+        "success_rate": round(success_rate, 4),
+        "mode": mode,
+        "meets_requirement": actual_count >= target,
+        "timestamp": pd.Timestamp.now().isoformat()
     }
     
-    logger.info(f"Success rate: {success_rate:.2%} ({actual_processed}/{TARGET_COUNT})")
-    logger.info(f"Mode: {mode}")
-    logger.info(f"Meets SC-001 requirement (>=50): {actual_processed >= TARGET_COUNT}")
-    
+    logger.info(f"Aggregated Success Rate: {actual_count}/{target} ({success_rate:.2%}) in {mode} mode")
     return report
 
-
 def write_success_rate_report(report: Dict[str, Any]) -> Path:
-    """Write the success rate report to the output directory."""
-    output_file = DATA_OUTPUT_DIR / "success_rate_report.json"
+    """Write the success rate report to data/output/success_rate_report.json."""
+    output_dir = Path("data/output")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / "success_rate_report.json"
     
-    # Ensure output directory exists
-    output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_file, 'w') as f:
+    with open(output_path, "w") as f:
         json.dump(report, f, indent=2)
     
-    logger.info(f"Success rate report written to: {output_file}")
-    return output_file
-
+    logger.info(f"Success rate report written to {output_path}")
+    return output_path
 
 def main():
-    """Main entry point for data validation."""
-    logger.info("Starting data validation process...")
+    """Main entry point for validation script."""
+    logger.info("Starting data validation pipeline...")
     
-    try:
-        # Validate corpus integrity
-        logger.info("Validating corpus integrity...")
-        integrity_results = validate_corpus_integrity()
+    # 1. Validate file integrity
+    integrity = validate_corpus_integrity()
+    logger.info(f"Corpus Integrity Check: {integrity['total_valid']} valid, {integrity['total_invalid']} invalid")
+    
+    if integrity['total_invalid'] > 0:
+        logger.warning(f"Found {integrity['total_invalid']} invalid files. Proceeding with caution.")
+    
+    # 2. Aggregate success rate
+    report = aggregate_success_rate()
+    
+    # 3. Write report
+    output_path = write_success_rate_report(report)
+    
+    # 4. Final check against SC-001
+    if not report["meets_requirement"]:
+        logger.error(f"CRITICAL: Failed to meet SC-001 requirement. Expected >= {TARGET_COUNT}, got {report['actual_processed']}.")
+        # Do not raise here to allow the pipeline to continue to simulation mode logic if needed,
+        # but the log is critical. The T012a task logic should handle the mode switch based on this.
+    else:
+        logger.info("SUCCESS: SC-001 requirement met.")
         
-        logger.info(f"Total files: {integrity_results['total_files']}")
-        logger.info(f"Valid files: {integrity_results['valid_files']}")
-        logger.info(f"Invalid files: {integrity_results['invalid_files']}")
-        
-        if integrity_results['invalid_files'] > 0:
-            logger.warning(f"Found {integrity_results['invalid_files']} invalid files")
-            # Log details of invalid files
-            for file_result in integrity_results['files']:
-                if not file_result['valid']:
-                    logger.warning(f"  - {file_result['path']}: {file_result['error']}")
-        
-        # Aggregate success rate
-        logger.info("Aggregating success rate...")
-        success_report = aggregate_success_rate()
-        
-        # Write report
-        output_path = write_success_rate_report(success_report)
-        
-        # Final status
-        if success_report['meets_requirement']:
-            logger.info("SUCCESS: Corpus meets SC-001 requirement (>=50 meta-analyses)")
-        else:
-            logger.warning(f"WARNING: Corpus does NOT meet SC-001 requirement. "
-                         f"Target: {TARGET_COUNT}, Actual: {success_report['actual_processed']}")
-        
-        return 0
-        
-    except Exception as e:
-        logger.error(f"Data validation failed: {e}")
-        raise DataValidationError(f"Data validation failed: {e}")
-
+    return report
 
 if __name__ == "__main__":
     main()

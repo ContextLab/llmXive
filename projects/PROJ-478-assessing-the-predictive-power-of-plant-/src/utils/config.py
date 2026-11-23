@@ -1,65 +1,66 @@
 """
-Configuration constants and resource limits for the plant traits SDM pipeline.
+Project configuration constants and resource limits.
 
-This module centralizes hyperparameters, random seeds, and resource constraints
-to ensure reproducibility and compliance with CPU-only runner limits.
+This module provides centralized configuration values used throughout the project,
+including random seeds, model hyperparameters, and resource constraints.
 """
 import os
 from typing import Final
 
-# Reproducibility
+# Random seeds for reproducibility
 RANDOM_SEED: Final[int] = 42
-"""Global random seed for all stochastic processes."""
+NEST_SEED: Final[int] = 42
 
-# Resource Limits (CPU-only runner constraints)
+# Model hyperparameters (CPU-optimized)
 MAX_DEPTH: Final[int] = 10
-"""Maximum depth for Random Forest trees to prevent memory explosion."""
-
 N_ESTIMATORS: Final[int] = 100
-"""Number of trees in the Random Forest ensemble."""
+MIN_SAMPLES_SPLIT: Final[int] = 5
+MIN_SAMPLES_LEAF: Final[int] = 2
 
-# Spatial Processing Defaults
+# Cross-validation settings
+N_FOLDS: Final[int] = 5
+
+# Data processing settings
 SPATIAL_THINNING_KM: Final[float] = 10.0
-"""Default minimum distance (km) between occurrence records."""
+MIN_SPATIAL_THINNING_KM: Final[float] = 1.0
+BACKGROUND_POINTS_DEFERRED: Final[int] = 10000  # Placeholder, to be configured
 
-MIN_THINNING_KM: Final[float] = 1.0
-"""Minimum allowed thinning distance (km) to prevent over-filtering."""
+# Variance Inflation Factor threshold
+VIF_THRESHOLD: Final[float] = 5.0
 
-# Model Evaluation Defaults
-N_CV_FOLDS: Final[int] = 5
-"""Number of folds for cross-validation."""
+# Sensitivity analysis thresholds
+SENSITIVITY_THRESHOLDS: Final[list] = [0.01, 0.02, 0.05]
+SENSITIVITY_CONSISTENCY_THRESHOLD: Final[float] = 0.67  # 67%
 
-# Data Processing Constants
-MIN_RECORDS_PER_SPECIES: Final[int] = 10
-"""Minimum number of occurrence records required to train a model."""
-
-# File Paths (Relative to project root)
+# File paths
 DATA_RAW_DIR: Final[str] = "data/raw"
 DATA_PROCESSED_DIR: Final[str] = "data/processed"
 DATA_METADATA_DIR: Final[str] = "data/metadata"
 RESULTS_DIR: Final[str] = "results"
-SRC_DIR: Final[str] = "src"
 
-# Logging Configuration
-LOG_LEVEL: Final[str] = "INFO"
-LOG_FORMAT: Final[str] = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-LOG_FILE: Final[str] = "pipeline.log"
+# Logging
+LOG_LEVEL: Final[str] = os.getenv("LOG_LEVEL", "INFO")
+PROVENANCE_FILE: Final[str] = "provenance.json"
 
-# External Data Sources
-WORLDCCLIM_VERSION: Final[str] = "2.1"
-WORLDCCLIM_RESOLUTION: Final[str] = "30s"
-GBIF_API_BASE: Final[str] = "https://api.gbif.org/v1"
-TRY_DB_VERSION: Final[str] = "2023-01"
+# Checksum verification
+CHECKSUM_ALGORITHM: Final[str] = "sha256"
+MANIFEST_FILENAME: Final[str] = "download_manifest.json"
 
-# Statistical Analysis Constants
-VIF_THRESHOLD: Final[float] = 5.0
-"""Variance Inflation Factor threshold for multicollinearity flagging."""
+# Species list for analysis (can be overridden via config)
+FOCAL_SPECIES: Final[list] = [
+    "Helianthus_annuus",
+    "Zea_mays",
+    "Glycine_max",
+    "Triticum_aestivum",
+    "Oryza_sativa"
+]
 
-P_VALUE_THRESHOLD: Final[float] = 0.05
-"""Standard alpha level for statistical significance."""
+# Trait columns
+REQUIRED_TRAITS: Final[list] = ["SLA", "seed_mass", "plant_height"]
 
-SENSITIVITY_THRESHOLDS: Final[list] = [0.01, 0.02, 0.05]
-"""Thresholds for sensitivity analysis sweep."""
-
-SENSITIVITY_CONSISTENCY_TARGET: Final[float] = 0.67
-"""Target consistency rate (2 out of 3) for sensitivity analysis."""
+# Climate variables (WorldClim v2.1)
+CLIMATE_VARIABLES: Final[list] = [
+    "bio1", "bio2", "bio3", "bio4", "bio5", "bio6", "bio7", "bio8",
+    "bio9", "bio10", "bio11", "bio12", "bio13", "bio14", "bio15",
+    "bio16", "bio17", "bio18", "bio19"
+]

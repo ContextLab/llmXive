@@ -1,13 +1,10 @@
-# Re-plan: task(s) could not be made to pass verification — adjust the approach
+# Unresolved panel concerns (address in this revision)
 
-The implementer repeatedly failed the verification checks for the task(s) below. They were NOT force-accepted (that fail-open was removed in issue #1139); instead the project re-plans so a DIFFERENT approach (simpler method, different tooling, or a decomposition into individually verifiable steps) can produce checkable artifacts.
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
 
-## Repeatedly-unverifiable tasks
+**Why it was kicked back**: 2 concern(s) remained unresolved after 3 round(s) at stage 'planned'; worst unresolved severity = 'methodology'. Routing to 'specified' with full provenance so the next worker can address the root cause.
 
-- `T001a` (rejected 1x): No directory tree or listing of the required folders (`projects/PROJ-110-investigating-the-correlation-between-ci/`, `code/`, `data/`, `tests/`, `docs/`) was provided; therefore the claimed creation cannot be verified. The implementer must supply evidence (e.g., a file‑system snapshot, `tree` output, or a zip archive) showing that these directories exist and are non‑empty where appropriate.
-- `T004` (rejected 1x): No evidence of the required `data/raw`, `data/processed` directories or any files under a `contracts/` folder defining schema definitions was provided. Without these artifacts present and visible, the task’s requirement cannot be confirmed as satisfied.
+## Unresolved concerns
 
-## Required change
-
-Re-plan so each promised deliverable is produced by a step whose output can be deterministically verified (a real file with the expected schema/content). Avoid the approach that produced the unverifiable work above.
-
+- Potential double-correction for PMI. Phase 5 fits 'Expression ~ ... + PMI', but research.md (Section 2) and spec.md (FR-031) mandate 'linear regression residualization' of expression for PMI. Residualizing the dependent variable and then including the same variable as a covariate in the model is statistically unsound and leads to over-correction.
+- Category error in correlation analysis. The plan states 'select Spearman/Pearson -> fit mixed-effects model' to 'aggregate these correlations'. A mixed-effects model is fit to raw data (or rank-transformed data for Spearman equivalence), not to correlation coefficients. One does not 'aggregate correlations' via a mixed-effects model; the model itself estimates the global fixed effect.

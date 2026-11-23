@@ -1,60 +1,74 @@
 """
-Task T004: Setup data directory structure.
+Data Directory Setup Script.
 
-Creates the required directory hierarchy for the project's data storage:
-- data/raw: For original, unmodified data downloads
-- data/processed: For cleaned, transformed, and model-ready data
-- data/interim: For intermediate data states during processing pipelines
+Creates the required directory structure for the molecular chirality project
+and places .gitkeep files to ensure the directories are tracked by git.
 
-Creates .gitkeep files in each directory to ensure they are tracked by git
-even if they are empty.
+This script fulfills task T004: Setup data directory structure.
 """
 import os
 from pathlib import Path
 
-def setup_data_directories():
-    """Create the project data directory structure."""
-    # Define the base project root (assumed to be the parent of 'code')
-    # Since this script lives in 'code/', we go up one level to find 'data/'
-    project_root = Path(__file__).resolve().parent.parent
-    data_base = project_root / "data"
 
-    # Define the required subdirectories
-    directories = [
-        data_base / "raw",
-        data_base / "processed",
-        data_base / "interim"
+def setup_data_directories():
+    """
+    Create the standard project data directory structure.
+
+    Creates the following directories relative to the project root:
+    - data/raw: For original, unprocessed data sources
+    - data/processed: For cleaned, aggregated, and analysis-ready data
+    - data/interim: For intermediate data transformations
+
+    Also ensures .gitkeep files exist in each directory to preserve
+    directory structure in version control.
+    """
+    # Determine project root based on script location
+    # Assuming this script is in code/04_setup_data_dirs.py
+    script_dir = Path(__file__).resolve().parent
+    project_root = script_dir.parent
+
+    # Define data directories
+    data_dirs = [
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "data" / "interim",
+        # Also ensure logs directory exists for T008
+        project_root / "data" / "logs",
+        # Ensure figures directory exists for output plots
+        project_root / "figures",
     ]
 
-    created_dirs = []
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(directory.relative_to(project_root)))
-            print(f"Created directory: {directory.relative_to(project_root)}")
+    created_count = 0
+    for dir_path in data_dirs:
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+            print(f"Created directory: {dir_path}")
         else:
-            print(f"Directory already exists: {directory.relative_to(project_root)}")
+            print(f"Directory already exists: {dir_path}")
 
-        # Create .gitkeep file to ensure directory is tracked by git
-        gitkeep_path = directory / ".gitkeep"
+        # Create .gitkeep file to ensure directory is tracked
+        gitkeep_path = dir_path / ".gitkeep"
         if not gitkeep_path.exists():
             gitkeep_path.touch()
-            print(f"Created .gitkeep in: {directory.relative_to(project_root)}")
+            print(f"Created .gitkeep in: {dir_path}")
         else:
-            print(f".gitkeep already exists in: {directory.relative_to(project_root)}")
+            print(f".gitkeep already exists in: {dir_path}")
 
-    return created_dirs
+    print(f"\nSetup complete. Created/verified {created_count} new directories.")
+    return True
+
 
 def main():
     """Entry point for the script."""
-    print("Setting up data directory structure...")
-    try:
-        created = setup_data_directories()
-        print(f"\nSuccessfully set up {len(created)} directories.")
-        print("Data structure is ready for use.")
-    except Exception as e:
-        print(f"Error during setup: {e}")
-        raise
+    print("Starting data directory setup...")
+    success = setup_data_directories()
+    if success:
+        print("Data directory structure is ready.")
+    else:
+        print("Failed to set up data directory structure.")
+        exit(1)
+
 
 if __name__ == "__main__":
     main()

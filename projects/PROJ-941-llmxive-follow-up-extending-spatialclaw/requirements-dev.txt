@@ -1,0 +1,16 @@
+# Development dependencies for llmXive
+# Includes linting, formatting, and testing tools
+
+# Linting and Formatting
+ruff>=0.1.0
+black>=23.0.0
+
+# Testing
+pytest>=7.0.0
+pytest-cov>=4.0.0
+
+# TOML parsing for config validation (Python 3.11 has tomllib, but for older envs)
+# Note: Python 3.11+ has tomllib in stdlib, so this is optional if running 3.11+
+# Keeping for compatibility if tests run on older versions, though plan says 3.11
+# If strictly 3.11, this can be removed.
+# tomli>=2.0.0; python_version < "3.11"

@@ -234,3 +234,113 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-04T14:26:04Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: exclude courses with fewer than 50 learners
+  claim_id: c_dab1f550
+  context: Preprocessing logic excludes learners with no forum interactions and courses
+    with fewer than 50 learners.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_courses_with_fewer_than_50_learners
+  kind: magnitude
+  raw_text: Filter courses with <50 learners.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:58:03Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: feedback timing bins are less than 2 hours, 2 to 48 hours, and greater
+    than 48 hours
+  claim_id: c_fe5ff7db
+  context: Binning logic assigns students to groups based on median feedback intervals
+    with specific hour thresholds.
+  evidence:
+    entailment_evidence: Feedback timing bins are less than 2 hours, 2 to 48 hours,
+      a
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Feedback_timing_bins_are_less_than_2_hours,_2_to_48_hours,_a
+  kind: magnitude
+  raw_text: "Assign 'Immediate' (<2h), 'Delayed' (2h\u201348h), or 'Variable' (>48h)\
+    \ groups."
+  resolved_value: feedback timing bins are less than 2 hours, 2 to 48 hours, and greater
+    than 48 hours
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-08T14:58:06Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: pipeline execution duration is less than 21600 seconds
+  claim_id: c_22b32d96
+  context: Performance optimization task requires the main pipeline to complete within
+    6 hours.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_duration_is_less_than_21600_seconds
+  kind: magnitude
+  raw_text: Run `time python -m code.main` and assert exit code 0 and duration < 21600s
+    (6h).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:58:22Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: effect size target is at least 0.3
+  claim_id: c_54c6d28b
+  context: Task T038 compares calculated Cohen's d effect sizes against a specific
+    target value.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Effect_size_target_is_at_least_0.3
+  kind: magnitude
+  raw_text: "Compare calculated effect sizes against the \u22650.3 target."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:58:53Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: interval calculation precision is at least 0.1 hours
+  claim_id: c_c08ea6c7
+  context: Unit test requirements for User Story 2 specify a minimum precision for
+    interval calculations.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Interval_calculation_precision_is_at_least_0.1_hours
+  kind: magnitude
+  raw_text: "Test for interval calculation precision (\u22650.1h)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:59:23Z'
+- artifact_path: projects/PROJ-438-the-effect-of-personalized-feedback-timi/specs/001-the-effect-of-personalized-feedback-timi/tasks.md
+  attempts: 1
+  canonical: integration test sample size is 100 learners
+  claim_id: c_66459af3
+  context: User Story 1 includes an integration test run on a sample of 100 learners.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Integrate test for full data pipeline on a small sample (N=100).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T14:59:51Z'

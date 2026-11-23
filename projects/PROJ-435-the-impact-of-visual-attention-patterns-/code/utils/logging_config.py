@@ -4,205 +4,217 @@ import sys
 from pathlib import Path
 from typing import Optional, Dict, Any
 import yaml
+import json
 
-# Ensure the code directory is in the path for relative imports if run as script
-_code_root = Path(__file__).resolve().parent.parent
-if str(_code_root) not in sys.path:
-    sys.path.insert(0, str(_code_root))
+def get_project_root() -> Path:
+    """Return the project root directory."""
+    # Assumes code/ is at root or one level down
+    current = Path(__file__).resolve()
+    if current.name == 'logging_config.py':
+        return current.parent.parent
+    return current.parent.parent.parent
 
-# Constants for log levels and formats
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-LOG_DIR = Path("logs")
-
-# Global loggers registry
-_loggers: Dict[str, logging.Logger] = {}
-
-def _ensure_log_dir():
-    """Create the logs directory if it doesn't exist."""
-    if not LOG_DIR.exists():
-        LOG_DIR.mkdir(parents=True, exist_ok=True)
-
-def setup_logging(
-    log_level: str = "INFO",
-    log_file: Optional[str] = None,
-    console_output: bool = True
-) -> None:
+def setup_logging() -> None:
     """
-    Configure the root logger and ensure log directory exists.
+    Configure the root logger and create specialized handlers for:
+    - General pipeline progress
+    - Data quality warnings
+    - Exclusion counts
     
-    Args:
-        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
-        log_file: Optional filename to write logs to (relative to project root)
-        console_output: Whether to output logs to stdout
+    This function reads configuration from `code/config.yaml` if present,
+    otherwise uses sensible defaults.
     """
-    _ensure_log_dir()
+    root = get_project_root()
+    config_path = root / 'code' / 'config.yaml'
     
+    log_dir = root / 'output'
+    log_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Default configuration
+    log_config = {
+        'level': logging.INFO,
+        'format': '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        'handlers': {
+            'pipeline': {
+                'file': str(log_dir / 'pipeline.log'),
+                'level': logging.INFO
+            },
+            'quality': {
+                'file': str(log_dir / 'data_quality.log'),
+                'level': logging.WARNING
+            },
+            'exclusion': {
+                'file': str(log_dir / 'exclusions.log'),
+                'level': logging.INFO
+            }
+        }
+    }
+    
+    # Try to load custom config
+    if config_path.exists():
+        try:
+            with open(config_path, 'r') as f:
+                user_config = yaml.safe_load(f)
+            if user_config and 'logging' in user_config:
+                # Merge user config with defaults
+                log_config.update(user_config['logging'])
+        except Exception as e:
+            print(f"Warning: Could not load logging config from {config_path}: {e}")
+
+    # Configure root logger
     root_logger = logging.getLogger()
-    root_logger.setLevel(getattr(logging, log_level.upper()))
+    root_logger.setLevel(log_config.get('level', logging.INFO))
     
-    # Clear existing handlers to avoid duplicates on re-call
-    if root_logger.handlers:
-        root_logger.handlers.clear()
+    # Clear existing handlers
+    root_logger.handlers.clear()
     
-    formatter = logging.Formatter(LOG_FORMAT, datefmt=DATE_FORMAT)
+    # Create formatters
+    formatter = logging.Formatter(log_config.get('format', '%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
     
-    if console_output:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setFormatter(formatter)
-        root_logger.addHandler(console_handler)
+    # Create and configure handlers
+    handlers = log_config.get('handlers', {})
     
-    if log_file:
-        log_path = Path(log_file)
-        if not log_path.is_absolute():
-            log_path = Path(log_file)
+    if 'pipeline' in handlers:
+        p_handler = logging.FileHandler(handlers['pipeline']['file'])
+        p_handler.setLevel(handlers['pipeline'].get('level', logging.INFO))
+        p_handler.setFormatter(formatter)
+        root_logger.addHandler(p_handler)
         
-        # Ensure parent dir exists
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        file_handler = logging.FileHandler(log_path)
-        file_handler.setFormatter(formatter)
-        root_logger.addHandler(file_handler)
-
-def get_quality_logger() -> logging.Logger:
-    """
-    Returns a logger specifically for data quality warnings.
-    This logger writes to 'logs/data_quality.log'.
-    """
-    logger_name = "data_quality"
-    if logger_name not in _loggers:
-        _ensure_log_dir()
-        logger = logging.getLogger(logger_name)
-        logger.setLevel(logging.WARNING)
-        
-        if not logger.handlers:
-            handler = logging.FileHandler(LOG_DIR / "data_quality.log")
-            handler.setFormatter(logging.Formatter(LOG_FORMAT))
-            logger.addHandler(handler)
-        
-        # Prevent propagation to root to avoid double logging if root also has handlers
-        logger.propagate = False
-        _loggers[logger_name] = logger
+        # Also add to stdout for visibility
+        p_stdout = logging.StreamHandler(sys.stdout)
+        p_stdout.setLevel(handlers['pipeline'].get('level', logging.INFO))
+        p_stdout.setFormatter(formatter)
+        root_logger.addHandler(p_stdout)
     
-    return _loggers[logger_name]
-
-def get_exclusion_logger() -> logging.Logger:
-    """
-    Returns a logger specifically for participant/trial exclusion events.
-    This logger writes to 'logs/exclusions.log'.
-    """
-    logger_name = "exclusions"
-    if logger_name not in _loggers:
-        _ensure_log_dir()
-        logger = logging.getLogger(logger_name)
-        logger.setLevel(logging.INFO)
-        
-        if not logger.handlers:
-            handler = logging.FileHandler(LOG_DIR / "exclusions.log")
-            handler.setFormatter(logging.Formatter(LOG_FORMAT))
-            logger.addHandler(handler)
-        
-        logger.propagate = False
-        _loggers[logger_name] = logger
+    if 'quality' in handlers:
+        q_handler = logging.FileHandler(handlers['quality']['file'])
+        q_handler.setLevel(handlers['quality'].get('level', logging.WARNING))
+        q_handler.setFormatter(formatter)
+        root_logger.addHandler(q_handler)
     
-    return _loggers[logger_name]
+    if 'exclusion' in handlers:
+        e_handler = logging.FileHandler(handlers['exclusion']['file'])
+        e_handler.setLevel(handlers['exclusion'].get('level', logging.INFO))
+        e_handler.setFormatter(formatter)
+        root_logger.addHandler(e_handler)
 
 def get_pipeline_logger() -> logging.Logger:
-    """
-    Returns a logger for general pipeline progress and errors.
-    This logger writes to 'logs/pipeline.log'.
-    """
-    logger_name = "pipeline"
-    if logger_name not in _loggers:
-        _ensure_log_dir()
-        logger = logging.getLogger(logger_name)
-        logger.setLevel(logging.INFO)
-        
-        if not logger.handlers:
-            handler = logging.FileHandler(LOG_DIR / "pipeline.log")
-            handler.setFormatter(logging.Formatter(LOG_FORMAT))
-            logger.addHandler(handler)
-        
-        logger.propagate = False
-        _loggers[logger_name] = logger
-    
-    return _loggers[logger_name]
+    """Get the logger for general pipeline progress."""
+    logger = logging.getLogger('pipeline')
+    if not logger.handlers:
+        # Ensure logging is set up
+        setup_logging()
+    return logger
 
-def log_data_quality_warning(message: str, context: Optional[Dict[str, Any]] = None) -> None:
+def get_quality_logger() -> logging.Logger:
+    """Get the logger for data quality warnings."""
+    logger = logging.getLogger('quality')
+    if not logger.handlers:
+        setup_logging()
+    return logger
+
+def get_exclusion_logger() -> logging.Logger:
+    """Get the logger for exclusion events and counts."""
+    logger = logging.getLogger('exclusion')
+    if not logger.handlers:
+        setup_logging()
+    return logger
+
+def log_data_quality_warning(message: str, details: Optional[Dict[str, Any]] = None) -> None:
     """
-    Log a data quality warning with optional context.
+    Log a data quality warning.
     
     Args:
         message: The warning message
-        context: Optional dictionary of context (e.g., participant_id, column_name)
+        details: Optional dictionary with additional context (e.g., participant_id, reason)
     """
     logger = get_quality_logger()
-    if context:
-        context_str = ", ".join(f"{k}={v}" for k, v in context.items())
-        message = f"{message} [{context_str}]"
-    logger.warning(message)
+    if details:
+        logger.warning(f"{message} | Details: {json.dumps(details)}")
+    else:
+        logger.warning(message)
 
-def log_exclusion(reason: str, entity_id: str, entity_type: str = "participant") -> None:
+def log_exclusion(participant_id: Optional[str] = None, 
+                 headline_id: Optional[str] = None, 
+                 reason: str = "", 
+                 data_loss_percent: Optional[float] = None) -> None:
     """
-    Log an exclusion event.
+    Log an exclusion event with structured details.
     
     Args:
-        reason: The reason for exclusion
-        entity_id: The ID of the excluded entity
-        entity_type: Type of entity ('participant', 'trial', 'headline')
+        participant_id: ID of the excluded participant
+        headline_id: ID of the excluded headline (if applicable)
+        reason: Reason for exclusion
+        data_loss_percent: Percentage of data lost (if applicable)
     """
     logger = get_exclusion_logger()
-    logger.info(f"EXCLUSION: {entity_type}={entity_id} | Reason: {reason}")
+    exclusion_data = {
+        'participant_id': participant_id,
+        'headline_id': headline_id,
+        'reason': reason,
+        'data_loss_percent': data_loss_percent
+    }
+    # Filter out None values
+    exclusion_data = {k: v for k, v in exclusion_data.items() if v is not None}
+    logger.info(f"EXCLUSION: {json.dumps(exclusion_data)}")
 
-def log_pipeline_progress(step: str, details: Optional[str] = None) -> None:
+def log_pipeline_progress(step: str, status: str, details: Optional[str] = None) -> None:
     """
-    Log general pipeline progress.
+    Log pipeline execution progress.
     
     Args:
         step: The current step name
-        details: Optional detailed description
+        status: Status (e.g., 'STARTED', 'COMPLETED', 'FAILED')
+        details: Optional additional details
     """
     logger = get_pipeline_logger()
-    msg = f"PROGRESS: {step}"
+    msg = f"PIPELINE: {step} - {status}"
     if details:
         msg += f" | {details}"
     logger.info(msg)
 
-def log_pipeline_error(step: str, error_message: str) -> None:
-    """
-    Log a pipeline error.
+def load_logging_config() -> Dict[str, Any]:
+    """Load and return the current logging configuration."""
+    root = get_project_root()
+    config_path = root / 'code' / 'config.yaml'
     
-    Args:
-        step: The step where the error occurred
-        error_message: The error description
-    """
-    logger = get_pipeline_logger()
-    logger.error(f"ERROR: {step} | {error_message}")
-    # Also log to quality logger for visibility
-    get_quality_logger().error(f"PIPELINE_ERROR: {step} - {error_message}")
-
-def load_logging_config(config_path: str = "code/config.yaml") -> None:
-    """
-    Load logging configuration from a YAML file if it exists.
+    default_config = {
+        'level': 'INFO',
+        'handlers': ['pipeline', 'quality', 'exclusion']
+    }
     
-    Args:
-        config_path: Path to the config file
-    """
-    path = Path(config_path)
-    if path.exists():
+    if config_path.exists():
         try:
-            with open(path, 'r') as f:
+            with open(config_path, 'r') as f:
                 config = yaml.safe_load(f)
-            
-            if 'logging' in config:
-                log_config = config['logging']
-                level = log_config.get('level', 'INFO')
-                file_log = log_config.get('file')
-                console = log_config.get('console', True)
-                setup_logging(level, file_log, console)
-        except Exception as e:
-            # Fallback to default if config is invalid
-            setup_logging()
-            get_pipeline_logger().warning(f"Failed to load logging config: {e}")
-    else:
-        setup_logging()
+            if config and 'logging' in config:
+                return config['logging']
+        except Exception:
+            pass
+    
+    return default_config
+
+def main():
+    """Demonstrate logging setup and functionality."""
+    setup_logging()
+    
+    # Test pipeline logger
+    pipeline_logger = get_pipeline_logger()
+    pipeline_logger.info("Pipeline initialization started")
+    log_pipeline_progress("Data Loading", "STARTED")
+    log_pipeline_progress("Data Loading", "COMPLETED", "Loaded 1000 records")
+    
+    # Test quality logger
+    quality_logger = get_quality_logger()
+    log_data_quality_warning("Missing values detected in fixation_duration", 
+                           {'count': 5, 'column': 'fixation_duration'})
+    
+    # Test exclusion logger
+    exclusion_logger = get_exclusion_logger()
+    log_exclusion(participant_id="P001", reason="High data loss", data_loss_percent=25.5)
+    log_exclusion(participant_id="P002", reason="Missing ROI data")
+    
+    print("Logging configuration test completed. Check output/ directory for log files.")
+
+if __name__ == "__main__":
+    main()

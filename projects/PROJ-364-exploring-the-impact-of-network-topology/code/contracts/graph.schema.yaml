@@ -1,0 +1,128 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: Graph Schema
+description: Schema for network graphs constructed from defect coordinates.
+type: object
+required:
+  - metadata
+  - nodes
+  - edges
+  - topology_metrics
+properties:
+  metadata:
+    type: object
+    required:
+      - graph_id
+      - source_dataset
+      - threshold
+      - material
+      - timestamp
+    properties:
+      graph_id:
+        type: string
+        description: Unique identifier for the graph.
+      source_dataset:
+        type: string
+        description: Reference to the source dataset.
+      threshold:
+        type: number
+        description: Distance threshold used for edge creation (nm).
+      material:
+        type: string
+        description: Material name.
+      timestamp:
+        type: string
+        format: date-time
+        description: ISO 8601 timestamp of graph construction.
+      is_connected:
+        type: boolean
+        description: Whether the graph is fully connected.
+      node_count:
+        type: integer
+        description: Total number of nodes.
+      edge_count:
+        type: integer
+        description: Total number of edges.
+  nodes:
+    type: array
+    description: List of node attributes.
+    items:
+      type: object
+      required:
+        - id
+        - x
+        - y
+      properties:
+        id:
+          type: integer
+          description: Unique node identifier.
+        x:
+          type: number
+          description: X coordinate.
+        y:
+          type: number
+          description: Y coordinate.
+        degree:
+          type: integer
+          description: Node degree.
+  edges:
+    type: array
+    description: List of edge definitions.
+    items:
+      type: object
+      required:
+        - source
+        - target
+        - distance
+      properties:
+        source:
+          type: integer
+          description: Source node ID.
+        target:
+          type: integer
+          description: Target node ID.
+        distance:
+          type: number
+          description: Euclidean distance between nodes.
+  topology_metrics:
+    type: object
+    required:
+      - clustering_coefficient
+      - lcc_fraction
+      - average_path_length
+      - percolation_threshold
+      - degree_distribution
+    properties:
+      clustering_coefficient:
+        type: number
+        nullable: true
+        description: Global clustering coefficient. Null if zero defects.
+      lcc_fraction:
+        type: number
+        description: Fraction of nodes in the Largest Connected Component.
+      average_path_length:
+        type: number
+        nullable: true
+        description: Average shortest path length in LCC. Null/Inf if zero defects or disconnected.
+      percolation_threshold:
+        type: number
+        description: Critical distance d_c where LCC fraction exceeds threshold.
+      degree_distribution:
+        type: array
+        description: Histogram-ready degree distribution.
+        items:
+          type: object
+          properties:
+            degree:
+              type: integer
+            frequency:
+              type: number
+      zero_defect_flag:
+        type: boolean
+        description: True if the graph has zero nodes.
+      lattice_corrected_metrics:
+        type: object
+        description: Metrics after lattice correction (optional).
+        additionalProperties: true
+additionalProperties: false

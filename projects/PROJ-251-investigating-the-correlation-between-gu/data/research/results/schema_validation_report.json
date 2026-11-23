@@ -1,0 +1,9 @@
+{
+  "data_path": "data/processed/cleared_final.csv",
+  "schema_path": "specs/001-investigating-the-correlation-between-gu/contracts/dataset.schema.yaml",
+  "valid": true,
+  "errors": [],
+  "warnings": [],
+  "row_count": 150,
+  "column_count": 25
+}

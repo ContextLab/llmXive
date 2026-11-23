@@ -1,59 +1,65 @@
 """
-Script to initialize the project directory structure for PROJ-455.
-Creates all necessary directories for code, tests, contracts, and data.
+Project structure setup script for llmXive PROJ-455.
+Creates the required directory tree relative to the project root.
 """
 import os
 import sys
-
-# Define the relative paths to create based on the task description
-# All paths are relative to the project root
-directories = [
-    "code/data",
-    "code/models",
-    "code/analysis",
-    "tests/unit",
-    "tests/integration",
-    "tests/contract",
-    "tests/benchmark",
-    "contracts",
-    "data/raw",
-    "data/processed",
-    "data/results",
-]
+from pathlib import Path
 
 def main():
-    # Determine the project root. 
-    # If run as `python code/setup_project.py`, the root is the parent of 'code'.
-    # If run as `python code/setup_project.py` from root, we handle both.
-    # We assume the script is executed from the repository root or the project root.
-    # To be safe, we resolve the directory containing the script and go up one level 
-    # if the script is inside 'code', or stay if it's at root (though this script is in code/).
+    """Create the project directory structure."""
+    # Determine project root (assuming script runs from project root or parent)
+    # The task specifies paths relative to project root
+    project_root = Path.cwd()
     
-    script_dir = os.path.dirname(os.path.abspath(__file__))
-    # Since this script is in code/, the project root is the parent of code/
-    project_root = os.path.dirname(script_dir)
-
+    # Define the base path for this specific project instance
+    # The task mentions `projects/PROJ-455-predicting-plant-stress-resilience/`
+    # We will create the structure inside this specific folder to isolate the project
+    base_path = project_root / "projects" / "PROJ-455-predicting-plant-stress-resilience"
+    
+    directories = [
+        "code/data",
+        "code/models",
+        "code/analysis",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
+        "tests/benchmark",
+        "contracts",
+        "data/raw",
+        "data/processed",
+        "data/results",
+    ]
+    
     created_count = 0
-    skipped_count = 0
-
-    print(f"Project root detected at: {project_root}")
-
-    for dir_path in directories:
-        full_path = os.path.join(project_root, dir_path)
-        
-        if os.path.exists(full_path):
-            print(f"[SKIP] Directory exists: {dir_path}")
-            skipped_count += 1
+    for dir_name in directories:
+        full_path = base_path / dir_name
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_count += 1
+            print(f"Created directory: {full_path}")
         else:
-            try:
-                os.makedirs(full_path, exist_ok=True)
-                print(f"[CREATED] {dir_path}")
-                created_count += 1
-            except OSError as e:
-                print(f"[ERROR] Failed to create {dir_path}: {e}", file=sys.stderr)
-                sys.exit(1)
-
-    print(f"\nSetup complete. Created {created_count} directories, skipped {skipped_count}.")
+            print(f"Directory exists: {full_path}")
+    
+    # Create __init__.py files to make them Python packages where appropriate
+    init_dirs = [
+        "code/data",
+        "code/models",
+        "code/analysis",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
+        "tests/benchmark",
+    ]
+    
+    for dir_name in init_dirs:
+        full_path = base_path / dir_name / "__init__.py"
+        if not full_path.exists():
+            full_path.write_text("")
+            print(f"Created package init: {full_path}")
+        
+    print(f"\nProject structure creation complete. {created_count} new directories created.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

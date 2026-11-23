@@ -25,6 +25,7 @@ class SupernovaRecord:
         mu_th: Theoretical distance modulus calculated from the flat LambdaCDM model.
         residual: The difference mu_obs - mu_th.
     """
+
     id: str
     ra: float
     dec: float
@@ -48,7 +49,7 @@ class SupernovaRecord:
 
         # Compute residual if theoretical modulus is provided
         if self.mu_th is not None:
-            object.__setattr__(self, 'residual', self.mu_obs - self.mu_th)
+            object.__setattr__(self, "residual", self.mu_obs - self.mu_th)
 
 
 @dataclass(frozen=True)
@@ -65,6 +66,7 @@ class HealpixPixel:
         mean_residual: Mean residual of supernovae in this pixel.
         mean_sigma: Mean uncertainty of supernovae in this pixel.
     """
+
     nside: int
     pixel_index: int
     ra_center: float
@@ -77,9 +79,11 @@ class HealpixPixel:
         """Validate HEALPix constraints."""
         if self.nside <= 0:
             raise ValueError(f"Nside must be positive, got {self.nside}")
-        max_index = 12 * (self.nside ** 2)
+        max_index = 12 * (self.nside**2)
         if not (0 <= self.pixel_index < max_index):
-            raise ValueError(f"Pixel index {self.pixel_index} out of range for nside={self.nside}")
+            raise ValueError(
+                f"Pixel index {self.pixel_index} out of range for nside={self.nside}"
+            )
 
     def update_stats(self, residual: float, sigma: float) -> None:
         """
@@ -92,7 +96,9 @@ class HealpixPixel:
             new_mean_res = residual
             new_mean_sig = sigma
         else:
-            new_mean_res = self.mean_residual + (residual - self.mean_residual) / new_count
+            new_mean_res = (
+                self.mean_residual + (residual - self.mean_residual) / new_count
+            )
             new_mean_sig = self.mean_sigma + (sigma - self.mean_sigma) / new_count
 
         return HealpixPixel(
@@ -102,7 +108,7 @@ class HealpixPixel:
             dec_center=self.dec_center,
             count=new_count,
             mean_residual=new_mean_res,
-            mean_sigma=new_mean_sig
+            mean_sigma=new_mean_sig,
         )
 
 
@@ -119,6 +125,7 @@ class HarmonicCoefficient:
         amplitude: Magnitude sqrt(real^2 + imag^2).
         phase: Phase angle atan2(imag, real) in radians.
     """
+
     l: int
     m: int
     real_part: float

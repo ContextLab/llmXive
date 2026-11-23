@@ -1,42 +1,112 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Statistical Test Result Schema
-description: Schema for KS test results and sensitivity analysis
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Test Result Schema"
+description: "Schema for KS test results, including sensitivity, power analysis, joint test, and performance metrics."
+type: "object"
 properties:
   parameter_name:
-    type: string
-    description: "Parameter being tested (mass_ratio or effective_spin)"
-  ks_statistic:
-    type: number
-    description: "Kolmogorov-Smirnov statistic"
-  p_value:
-    type: number
-    description: "Raw p-value from the test"
-  bonferroni_adjusted_p_value:
-    type: number
-    description: "P-value after Bonferroni correction"
-  significance_flag:
-    type: boolean
-    description: "True if p-value < alpha threshold"
-  borderline_flag:
-    type: boolean
-    description: "True if significance status flips across alpha sweep"
-  alpha_threshold:
-    type: number
-    description: "Alpha threshold used for this result"
-  scope:
-    type: string
-    description: "Scope of the analysis (e.g., 'detection_space', 'intrinsic_space')"
+    type: "string"
+    description: "Parameter being tested (mass_ratio, effective_spin, or joint)."
     enum:
-      - detection_space
-      - intrinsic_space
+      - "mass_ratio"
+      - "effective_spin"
+      - "joint"
+  ks_statistic:
+    type: "number"
+    description: "Kolmogorov‑Smirnov D statistic (null for joint test)."
+    minimum: 0
+    maximum: 1
+  energy_distance:
+    type: "number"
+    description: "Energy‑distance statistic for joint test (null for marginal tests)."
+    minimum: 0
+  p_value:
+    type: "number"
+    description: "Empirical p‑value from bootstrap or permutation distribution."
+    minimum: 0
+    maximum: 1
+  bonferroni_adjusted_p_value:
+    type: "number"
+    description: "P‑value after Bonferroni correction (null for joint test)."
+    minimum: 0
+    maximum: 1
+  significance_flag:
+    type: "boolean"
+    description: "True if adjusted p‑value < α."
+  borderline_flag:
+    type: "boolean"
+    description: "True if significance flips across the α sweep {0.01, 0.02, … 0.10}."
+  alpha_sweep_results:
+    type: "array"
+    description: "Significance status for each α in the sweep."
+    items:
+      type: "object"
+      properties:
+        alpha:
+          type: "number"
+        is_significant:
+          type: "boolean"
+      required:
+        - alpha
+        - is_significant
+      additionalProperties: false
+  scope:
+    type: "string"
+    description: "Selection‑bias correction scope."
+    enum:
+      - "detection_space"
+      - "intrinsic_space"
+  data_status:
+    type: "string"
+    description: "Provenance of the observational input."
+    enum:
+      - "real"
+      - "synthetic"
+  power_analysis:
+    type: "object"
+    description: "Power‑analysis details for the KS test."
+    properties:
+      observational_sample_size:
+        type: "integer"
+        minimum: 0
+      simulation_sample_size:
+        type: "integer"
+        minimum: 0
+      power_limitation_flag:
+        type: "boolean"
+        description: "True if simulation sample size < 50 % of observational."
+      monte_carlo_mdes:
+        type: "number"
+        description: "Monte‑Carlo estimated minimum detectable KS distance at [deferred] power."
+      limitation_note:
+        type: "string"
+        description: "Human‑readable warning about Type II error risk."
+    required:
+      - observational_sample_size
+      - simulation_sample_size
+      - power_limitation_flag
+      - limitation_note
+    additionalProperties: false
+  performance_metrics:
+    type: "object"
+    description: "Optional performance metrics for the analysis run."
+    properties:
+      runtime_seconds:
+        type: "number"
+        description: "Wall‑clock runtime in seconds."
+      peak_memory_gb:
+        type: "number"
+        description: "Peak RSS memory usage in gigabytes."
+      peak_disk_gb:
+        type: "number"
+        description: "Peak disk usage in gigabytes."
+    additionalProperties: false
 required:
   - parameter_name
-  - ks_statistic
   - p_value
-  - bonferroni_adjusted_p_value
   - significance_flag
   - borderline_flag
-  - alpha_threshold
+  - alpha_sweep_results
   - scope
+  - data_status
+  - power_analysis
 additionalProperties: false

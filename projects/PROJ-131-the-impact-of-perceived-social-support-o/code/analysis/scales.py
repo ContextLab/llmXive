@@ -1,8 +1,11 @@
 """
-Scoring logic for psychological scales (CES-D, GAD-7, PCL-5).
+Scale Scoring Module
 
-This module implements the scoring functions defined in config/scales.yaml.
-It handles reverse coding and total score calculation.
+This module handles the loading of scale configurations and the application
+of scoring logic for CES-D, GAD-7, and PCL-5.
+
+Since the dataset is expected to provide aggregate scores, this module primarily
+validates and renames columns as per the configuration in config/scales.yaml.
 """
 import pandas as pd
 import numpy as np
@@ -10,134 +13,163 @@ from pathlib import Path
 from typing import Dict, Any, Optional
 import yaml
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
 def load_scale_config(config_path: Optional[str] = None) -> Dict[str, Any]:
-    """Load scale configuration from YAML file."""
+    """
+    Load the scale configuration from a YAML file.
+    
+    Args:
+        config_path: Path to the scales.yaml file. Defaults to code/config/scales.yaml.
+        
+    Returns:
+        Dictionary containing scale configurations.
+    """
     if config_path is None:
-        config_path = "config/scales.yaml"
+        # Determine project root relative to this file
+        current_dir = Path(__file__).resolve().parent
+        project_root = current_dir.parent.parent
+        config_path = project_root / "code" / "config" / "scales.yaml"
     
-    path = Path(config_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Scale config not found at {config_path}")
+    config_file = Path(config_path)
     
-    with open(path, "r") as f:
-        return yaml.safe_load(f)
+    if not config_file.exists():
+        raise FileNotFoundError(f"Scale configuration file not found at {config_file}")
+    
+    with open(config_file, 'r') as f:
+        config = yaml.safe_load(f)
+    
+    logger.info(f"Loaded scale configuration from {config_file}")
+    return config
 
-
-def score_cesd(df: pd.DataFrame, config: Dict[str, Any]) -> Dict[str, Any]:
+def score_cesd(df: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
     """
-    Score the CES-D scale.
+    Process CES-D (Depression) scores.
     
     Args:
-        df: DataFrame containing CES-D items (depressed1 to depressed20).
-        config: Configuration dictionary for CES-D.
+        df: Input DataFrame.
+        config: Scale configuration dictionary.
         
     Returns:
-        Dictionary with 'total_score' and 'n_items'.
+        DataFrame with standardized depression column.
     """
-    items = config["items"]
-    reverse_items = config.get("reverse_items", [])
-    max_score_per_item = 3  # 0-3 scale
+    scale_config = config.get('CES-D', {})
+    target_var = scale_config.get('variable', 'depression')
     
-    # Ensure all items are present
-    missing_items = [item for item in items if item not in df.columns]
-    if missing_items:
-        raise ValueError(f"Missing CES-D items in data: {missing_items}")
+    # Check if the column exists
+    if target_var in df.columns:
+        logger.info(f"CES-D column '{target_var}' found. Using as-is.")
+        # Ensure it's numeric
+        df[target_var] = pd.to_numeric(df[target_var], errors='coerce')
+    else:
+        # Try to find a common alternative name if the exact one is missing
+        # This handles cases where the raw data might use a slightly different name
+        possible_names = ['cesd', 'cesd_total', 'depression_score', 'depression_raw']
+        found = False
+        for name in possible_names:
+            if name in df.columns:
+                logger.warning(f"CES-D column '{target_var}' not found, but '{name}' found. Mapping '{name}' to '{target_var}'.")
+                df[target_var] = pd.to_numeric(df[name], errors='coerce')
+                found = True
+                break
+        
+        if not found:
+            logger.warning(f"CES-D column '{target_var}' not found in dataset. No depression scores will be generated.")
     
-    scores = []
-    for item in items:
-        val = df[item].iloc[0]
-        
-        if pd.isna(val):
-            # Handle missing values: return NaN or raise error based on policy
-            # Here we return NaN for the total if any item is missing
-            return {"total_score": np.nan, "n_items": len(items), "status": "missing_data"}
-        
-        if item in reverse_items:
-            # Reverse score: max - val
-            score = max_score_per_item - val
-        else:
-            score = val
-        
-        scores.append(score)
-    
-    total = sum(scores)
-    return {"total_score": total, "n_items": len(items), "status": "complete"}
+    return df
 
-
-def score_gad7(df: pd.DataFrame, config: Dict[str, Any]) -> Dict[str, Any]:
+def score_gad7(df: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
     """
-    Score the GAD-7 scale.
+    Process GAD-7 (Anxiety) scores.
     
     Args:
-        df: DataFrame containing GAD-7 items (gad1 to gad7).
-        config: Configuration dictionary for GAD-7.
+        df: Input DataFrame.
+        config: Scale configuration dictionary.
         
     Returns:
-        Dictionary with 'total_score' and 'n_items'.
+        DataFrame with standardized anxiety column.
     """
-    items = config["items"]
-    reverse_items = config.get("reverse_items", [])
-    max_score_per_item = 3
+    scale_config = config.get('GAD-7', {})
+    target_var = scale_config.get('variable', 'anxiety')
     
-    missing_items = [item for item in items if item not in df.columns]
-    if missing_items:
-        raise ValueError(f"Missing GAD-7 items in data: {missing_items}")
+    if target_var in df.columns:
+        logger.info(f"GAD-7 column '{target_var}' found. Using as-is.")
+        df[target_var] = pd.to_numeric(df[target_var], errors='coerce')
+    else:
+        possible_names = ['gad7', 'gad7_total', 'anxiety_score', 'anxiety_raw']
+        found = False
+        for name in possible_names:
+            if name in df.columns:
+                logger.warning(f"GAD-7 column '{target_var}' not found, but '{name}' found. Mapping '{name}' to '{target_var}'.")
+                df[target_var] = pd.to_numeric(df[name], errors='coerce')
+                found = True
+                break
+        
+        if not found:
+            logger.warning(f"GAD-7 column '{target_var}' not found in dataset. No anxiety scores will be generated.")
     
-    scores = []
-    for item in items:
-        val = df[item].iloc[0]
-        
-        if pd.isna(val):
-            return {"total_score": np.nan, "n_items": len(items), "status": "missing_data"}
-        
-        if item in reverse_items:
-            score = max_score_per_item - val
-        else:
-            score = val
-        
-        scores.append(score)
-    
-    total = sum(scores)
-    return {"total_score": total, "n_items": len(items), "status": "complete"}
+    return df
 
-
-def score_pcl5(df: pd.DataFrame, config: Dict[str, Any]) -> Dict[str, Any]:
+def score_pcl5(df: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
     """
-    Score the PCL-5 scale.
+    Process PCL-5 (PTSD) scores.
     
     Args:
-        df: DataFrame containing PCL-5 items (pcl1 to pcl25).
-        config: Configuration dictionary for PCL-5.
+        df: Input DataFrame.
+        config: Scale configuration dictionary.
         
     Returns:
-        Dictionary with 'total_score' and 'n_items'.
+        DataFrame with standardized ptsd column.
     """
-    items = config["items"]
-    reverse_items = config.get("reverse_items", [])
-    max_score_per_item = 4
+    scale_config = config.get('PCL-5', {})
+    target_var = scale_config.get('variable', 'ptsd')
     
-    missing_items = [item for item in items if item not in df.columns]
-    if missing_items:
-        # PCL-5 might have conditional items. Log warning but proceed if possible.
-        logger.warning(f"Missing PCL-5 items in data: {missing_items}. Returning NaN.")
-        return {"total_score": np.nan, "n_items": len(items), "status": "missing_data"}
+    if target_var in df.columns:
+        logger.info(f"PCL-5 column '{target_var}' found. Using as-is.")
+        df[target_var] = pd.to_numeric(df[target_var], errors='coerce')
+    else:
+        possible_names = ['pcl5', 'pcl5_total', 'ptsd_score', 'ptsd_raw']
+        found = False
+        for name in possible_names:
+            if name in df.columns:
+                logger.warning(f"PCL-5 column '{target_var}' not found, but '{name}' found. Mapping '{name}' to '{target_var}'.")
+                df[target_var] = pd.to_numeric(df[name], errors='coerce')
+                found = True
+                break
+        
+        if not found:
+            logger.warning(f"PCL-5 column '{target_var}' not found in dataset. No PTSD scores will be generated.")
     
-    scores = []
-    for item in items:
-        val = df[item].iloc[0]
-        
-        if pd.isna(val):
-            return {"total_score": np.nan, "n_items": len(items), "status": "missing_data"}
-        
-        if item in reverse_items:
-            score = max_score_per_item - val
-        else:
-            score = val
-        
-        scores.append(score)
+    return df
+
+def apply_scale_scoring(df: pd.DataFrame, config_path: Optional[str] = None) -> pd.DataFrame:
+    """
+    Apply all scale scoring logic to the DataFrame.
     
-    total = sum(scores)
-    return {"total_score": total, "n_items": len(items), "status": "complete"}
+    Args:
+        df: Input DataFrame.
+        config_path: Optional path to config file.
+        
+    Returns:
+        Processed DataFrame with standardized score columns.
+    """
+    config = load_scale_config(config_path)
+    
+    df = score_cesd(df, config)
+    df = score_gad7(df, config)
+    df = score_pcl5(df, config)
+    
+    return df
+
+def main():
+    """
+    Main entry point for testing scale scoring logic.
+    """
+    logging.basicConfig(level=logging.INFO)
+    logger.info("Scale scoring module loaded successfully.")
+    logger.info("To use, import apply_scale_scoring and pass a DataFrame.")
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,27 @@
+status: verified
+kind: pypi_package
+ref: PubChemPy
+access_python: "import pubchempy as pcp\n\ncids = [2244, 2519, 1983]\nrecords = []\n\
+  for cid in cids:\n    comp = pcp.Compound.from_cid(cid)\n    smiles = getattr(comp,\
+  \ \"connectivity_smiles\", None) or getattr(comp, \"canonical_smiles\", None)\n\
+  \    name = comp.iupac_name\n    if not name:\n        name = comp.synonyms[0] if\
+  \ getattr(comp, \"synonyms\", None) else None\n    records.append({\n        \"\
+  smiles\": smiles,\n        \"compound_name\": name,\n        \"source_database\"\
+  : \"PubChem\",\n        \"molecule_id\": cid,\n    })\n\nprint(f\"RECORDS={len(records)}\"\
+  )\nprint(\"FIELDS=\" + \",\".join(records[0].keys()) if records else \"FIELDS=\"\
+  )"
+record_count: 3
+sample_fields:
+- smiles
+- compound_name
+- source_database
+- molecule_id
+field_coverage: 0.8
+required_fields:
+- smiles
+- lambda_max_nm
+- compound_name
+- source_database
+- molecule_id
+intent: PubChem UV-Vis spectra and SDBS downloadable python package dataset
+cache_key: 84c77d32edbc7f907cd0c24d6fba17c71cc8619cc1b90fa77f7a7546953b3efc

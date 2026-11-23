@@ -1,1 +1,1 @@
-"""Unit tests for individual components."""
+# Unit test package initialization

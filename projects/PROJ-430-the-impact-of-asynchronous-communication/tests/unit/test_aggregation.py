@@ -1,171 +1,92 @@
 """
-Unit tests for T015: Project-level aggregation of pair-level variances.
-
-Tests the weighted mean aggregation logic to ensure statistical instability
-is addressed correctly as per FR-010.
+Unit tests for T015 aggregation logic.
 """
 import pytest
-import pandas as pd
-import numpy as np
-from pathlib import Path
-import tempfile
-import os
-
-# Import the function to test
-from aggregation import aggregate_pair_metrics_to_project_level
+import math
+from code.aggregation import calculate_weighted_mean_variance, aggregate_project_level_metrics
 
 
-class TestAggregationWeightedMean:
-    """Tests for the weighted mean aggregation logic."""
+class TestWeightedMeanVariance:
+    def test_basic_calculation(self):
+        """Test basic weighted mean calculation."""
+        data = [
+            {"response_time_variance": 10.0, "interaction_count": 2},
+            {"response_time_variance": 20.0, "interaction_count": 3}
+        ]
+        # Weighted sum: (10*2 + 20*3) = 20 + 60 = 80
+        # Total weight: 2 + 3 = 5
+        # Result: 80 / 5 = 16.0
+        result = calculate_weighted_mean_variance(data)
+        assert math.isclose(result, 16.0, rel_tol=1e-9)
 
-    def test_basic_weighted_mean_calculation(self):
-        """Test that weighted mean is calculated correctly with simple data."""
-        # Create test data: 2 pairs, 1 project
-        # Pair 1: variance=10, events=5
-        # Pair 2: variance=20, events=15
-        # Expected weighted mean = (10*5 + 20*15) / (5+15) = 350/20 = 17.5
-        data = {
-            'project_id': ['P1', 'P1'],
-            'pair_id': ['pair1', 'pair2'],
-            'response_time_variance': [10.0, 20.0],
-            'mean_delay': [100.0, 200.0],
-            'event_count': [5, 15]
-        }
-        df = pd.DataFrame(data)
+    def test_empty_list(self):
+        """Test handling of empty input."""
+        result = calculate_weighted_mean_variance([])
+        assert result == 0.0
 
-        result_df, stats = aggregate_pair_metrics_to_project_level(df)
+    def test_zero_weights_ignored(self):
+        """Test that zero weights are ignored."""
+        data = [
+            {"response_time_variance": 10.0, "interaction_count": 0},
+            {"response_time_variance": 20.0, "interaction_count": 2}
+        ]
+        # Only second pair counts: 20.0 * 2 / 2 = 20.0
+        result = calculate_weighted_mean_variance(data)
+        assert math.isclose(result, 20.0, rel_tol=1e-9)
 
-        assert len(result_df) == 1
-        assert result_df.iloc[0]['project_id'] == 'P1'
-        assert result_df.iloc[0]['pair_count'] == 2
-        assert result_df.iloc[0]['total_events'] == 20
+    def test_missing_fields(self):
+        """Test handling of missing fields."""
+        data = [
+            {"response_time_variance": 10.0},  # Missing weight
+            {"interaction_count": 2},  # Missing variance
+            {"response_time_variance": 30.0, "interaction_count": 1}
+        ]
+        # Only third pair counts: 30.0 * 1 / 1 = 30.0
+        result = calculate_weighted_mean_variance(data)
+        assert math.isclose(result, 30.0, rel_tol=1e-9)
 
-        # Check weighted mean calculation
-        expected_variance = (10.0 * 5 + 20.0 * 15) / 20.0
-        assert abs(result_df.iloc[0]['project_variance_weighted_mean'] - expected_variance) < 0.001
+    def test_custom_weight_field(self):
+        """Test using a custom weight field."""
+        data = [
+            {"response_time_variance": 100.0, "custom_weight": 1},
+            {"response_time_variance": 200.0, "custom_weight": 1}
+        ]
+        # (100*1 + 200*1) / 2 = 150.0
+        result = calculate_weighted_mean_variance(data, weight_field="custom_weight")
+        assert math.isclose(result, 150.0, rel_tol=1e-9)
 
-        # Check weighted mean for delay
-        expected_delay = (100.0 * 5 + 200.0 * 15) / 20.0
-        assert abs(result_df.iloc[0]['project_mean_delay_weighted_mean'] - expected_delay) < 0.001
 
-    def test_multiple_projects(self):
-        """Test aggregation across multiple projects."""
-        data = {
-            'project_id': ['P1', 'P1', 'P2', 'P2'],
-            'pair_id': ['p1_1', 'p1_2', 'p2_1', 'p2_2'],
-            'response_time_variance': [10.0, 30.0, 5.0, 15.0],
-            'mean_delay': [100.0, 300.0, 50.0, 150.0],
-            'event_count': [10, 10, 20, 20]
-        }
-        df = pd.DataFrame(data)
+class TestAggregateProjectLevelMetrics:
+    def test_aggregation_structure(self):
+        """Test that aggregation returns correct structure."""
+        data = [
+            {"response_time_variance": 10.0, "interaction_count": 2},
+            {"response_time_variance": 20.0, "interaction_count": 3}
+        ]
+        result = aggregate_project_level_metrics(data, "proj-001")
 
-        result_df, stats = aggregate_pair_metrics_to_project_level(df)
+        assert result["project_id"] == "proj-001"
+        assert "weighted_mean_variance" in result
+        assert "simple_mean_variance" in result
+        assert result["pair_count"] == 2
+        assert result["aggregation_method"] == "weighted_mean"
 
-        assert len(result_df) == 2
+    def test_aggregation_values(self):
+        """Test calculated values in aggregation."""
+        data = [
+            {"response_time_variance": 10.0, "interaction_count": 2},
+            {"response_time_variance": 20.0, "interaction_count": 3}
+        ]
+        result = aggregate_project_level_metrics(data, "proj-001")
 
-        # P1: (10*10 + 30*10) / 20 = 20
-        p1_row = result_df[result_df['project_id'] == 'P1'].iloc[0]
-        assert abs(p1_row['project_variance_weighted_mean'] - 20.0) < 0.001
+        # Weighted mean: 16.0
+        assert math.isclose(result["weighted_mean_variance"], 16.0, rel_tol=1e-9)
 
-        # P2: (5*20 + 15*20) / 40 = 10
-        p2_row = result_df[result_df['project_id'] == 'P2'].iloc[0]
-        assert abs(p2_row['project_variance_weighted_mean'] - 10.0) < 0.001
+        # Simple mean: (10 + 20) / 2 = 15.0
+        assert math.isclose(result["simple_mean_variance"], 15.0, rel_tol=1e-9)
 
-    def test_handles_nan_values(self):
-        """Test that NaN values in variance are handled correctly."""
-        data = {
-            'project_id': ['P1', 'P1', 'P1'],
-            'pair_id': ['p1', 'p2', 'p3'],
-            'response_time_variance': [10.0, np.nan, 20.0],
-            'mean_delay': [100.0, 150.0, 200.0],
-            'event_count': [5, 10, 15]
-        }
-        df = pd.DataFrame(data)
-
-        result_df, stats = aggregate_pair_metrics_to_project_level(df)
-
-        # Should only use valid values: (10*5 + 20*15) / (5+15) = 350/20 = 17.5
-        assert len(result_df) == 1
-        assert abs(result_df.iloc[0]['project_variance_weighted_mean'] - 17.5) < 0.001
-
-    def test_empty_dataframe(self):
-        """Test handling of empty input dataframe."""
-        df = pd.DataFrame(columns=['project_id', 'pair_id', 'response_time_variance', 'event_count'])
-        result_df, stats = aggregate_pair_metrics_to_project_level(df)
-
-        assert result_df.empty
-        assert stats['projects_processed'] == 0
-
-    def test_below_threshold_filtering(self):
-        """Test that projects below min_events threshold are excluded."""
-        data = {
-            'project_id': ['P1', 'P1', 'P2', 'P2'],
-            'pair_id': ['p1_1', 'p1_2', 'p2_1', 'p2_2'],
-            'response_time_variance': [10.0, 20.0, 15.0, 25.0],
-            'mean_delay': [100.0, 200.0, 150.0, 250.0],
-            'event_count': [2, 2, 10, 10]  # P1 total=4, P2 total=20
-        }
-        df = pd.DataFrame(data)
-
-        # Temporarily override config to set threshold
-        import config
-        original_get_config = config.get_config
-        config.get_config = lambda: {'sample_size': 10}
-
-        try:
-            result_df, stats = aggregate_pair_metrics_to_project_level(df)
-            assert len(result_df) == 1
-            assert result_df.iloc[0]['project_id'] == 'P2'
-            assert stats['projects_below_threshold'] == 1
-        finally:
-            config.get_config = original_get_config
-
-    def test_output_file_creation(self):
-        """Test that output file is created correctly."""
-        data = {
-            'project_id': ['P1'],
-            'pair_id': ['p1'],
-            'response_time_variance': [15.0],
-            'mean_delay': [120.0],
-            'event_count': [10]
-        }
-        df = pd.DataFrame(data)
-
-        with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = Path(tmpdir) / "test_output.csv"
-            result_df, stats = aggregate_pair_metrics_to_project_level(df, output_path=str(output_path))
-
-            assert output_path.exists()
-            saved_df = pd.read_csv(output_path)
-            assert len(saved_df) == 1
-            assert saved_df.iloc[0]['project_id'] == 'P1'
-
-    def test_missing_required_columns(self):
-        """Test that missing required columns raise an error."""
-        data = {
-            'project_id': ['P1'],
-            'pair_id': ['p1'],
-            'response_time_variance': [15.0]
-            # Missing 'event_count'
-        }
-        df = pd.DataFrame(data)
-
-        with pytest.raises(ValueError, match="Missing required columns"):
-            aggregate_pair_metrics_to_project_level(df)
-
-    def test_inf_values_handling(self):
-        """Test that infinite values are handled correctly."""
-        data = {
-            'project_id': ['P1', 'P1'],
-            'pair_id': ['p1', 'p2'],
-            'response_time_variance': [10.0, float('inf')],
-            'mean_delay': [100.0, 200.0],
-            'event_count': [5, 15]
-        }
-        df = pd.DataFrame(data)
-
-        result_df, stats = aggregate_pair_metrics_to_project_level(df)
-
-        # Should only use the valid value
-        assert len(result_df) == 1
-        assert abs(result_df.iloc[0]['project_variance_weighted_mean'] - 10.0) < 0.001
+    def test_empty_data(self):
+        """Test aggregation with no data."""
+        result = aggregate_project_level_metrics([], "proj-empty")
+        assert result["weighted_mean_variance"] == 0.0
+        assert result["pair_count"] == 0

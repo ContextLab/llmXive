@@ -6,10 +6,10 @@
 ## Summary
 
 This feature implements a rigorous, CPU-feasible experimental pipeline to test the hypothesis of "modality-specific attention saturation" in long-context Vision-Language Models (VLMs). The system generates a synthetic dataset using a **Dual-Arm** design, as mandated by the revised specification:
-1.  **Arm A (Constant Text)**: Text token count is held constant while image count varies (0–20). This serves as the baseline control to replicate the original spec requirement but acknowledges the confounding variable of total context length.
+1.  **Arm A (Constant Text)**: Text token count is held constant while image count varies across a range starting from zero.. This serves as the baseline control to replicate the original spec requirement but acknowledges the confounding variable of total context length.
 2.  **Arm B (Constant Total)**: Total context length (Text + Visual tokens) is held constant. As image count increases, text token count is reduced proportionally. This arm isolates the "modality density" effect from the "total sequence length" effect. **This is the PRIMARY arm for the hypothesis test.**
 
-The system executes "needle-in-a-haystack" retrieval tasks using the **Qwen/Qwen2-VL-7B-Instruct** model (verified source) quantized to 4-bit via `llama.cpp` or `ONNX Runtime`. A **Feasibility Gate** (pilot run) ensures the model fits within the 7GB RAM limit; if 128K context fails, the pipeline automatically reduces the target context to 64K. Finally, it performs statistical analysis (Logistic Regression with quadratic terms and Jonckheere-Terpstra tests) separately for each arm to detect non-linear degradation cliffs.
+The system executes "needle-in-a-haystack" retrieval tasks using the **Qwen/Qwen2-VL-7B-Instruct** model (verified source) quantized to 4-bit via `llama.cpp` or `ONNX Runtime`. A **Feasibility Gate** (pilot run) ensures the model fits within the 7GB RAM limit; If the maximum supported context fails, the pipeline automatically reduces the target context to a lower supported tier.. Finally, it performs statistical analysis (Logistic Regression with quadratic terms and Jonckheere-Terpstra tests) separately for each arm to detect non-linear degradation cliffs.
 
 ## Technical Context
 
@@ -111,4 +111,4 @@ tests/
 | **Dual-Arm Data Generator** | Required to isolate "modality density" from "total context length" (Constitution Principle VI, Scientific Soundness concerns). | Single-arm (Constant Text) design confounds the variables, making it impossible to distinguish modality saturation from general long-context degradation. |
 | **Feasibility Gate (Pilot Run)** | Required to ensure the 6-hour CI limit is not exceeded by memory swapping or OOM crashes (Constitution Principle VII). | Blindly running 256K context on 7GB RAM risks immediate failure or excessive swapping, violating runtime constraints. |
 | **Quadratic/Non-Parametric Analysis** | Required to detect "cliffs" (non-linear drops) rather than assuming linear trends (Methodology concerns). | Standard linear regression cannot distinguish a sharp saturation cliff from a gradual decline. |
-| **4-bit Quantization Wrapper** | Required to fit the 7B model into 7GB RAM on CPU (FR-002). | Standard 16-bit loading would exceed memory limits immediately. |
+| **4-bit Quantization Wrapper** | Required to fit the 7B model into 7GB RAM on CPU (FR-002). | Standard high-bit loading would exceed memory limits immediately. |

@@ -1,61 +1,80 @@
 # Data Model: Evaluating the Impact of Prompt Complexity on LLM Code Generation Performance
 
-## Entities & Relationships
+## 1. Entity Relationship Overview
 
-### 1. HumanEvalProblem
-Represents a single programming problem from the HumanEval dataset.
-- **problem_id**: `string` (Primary Key)
-- **description_text**: `string` (The problem statement)
-- **test_code**: `string` (Unit tests)
-- **canonical_solution**: `string` (Reference solution, optional for validation)
-- **canonical_solution_length**: `integer` (Proxy for problem difficulty, used as control variable)
+The data model tracks the flow from raw HumanEval problems to generated code, execution results, and statistical analysis.
 
-### 2. PromptVariant
-Represents a specific prompt generated for a HumanEvalProblem.
-- **variant_id**: `string` (Primary Key, e.g., `problem_id_complexity`)
-- **problem_id**: `string` (Foreign Key -> HumanEvalProblem)
-- **complexity_label**: `enum` (simple, moderate, complex, very_complex, degenerate)
-- **prompt_text**: `string` (The full prompt sent to the LLM)
-- **token_count**: `integer` (Count via tiktoken)
-- **structural_element_count**: `integer` (Count of examples, constraints, etc.)
-- **structural_complexity_score**: `float` (Weighted score: examples=1, constraints=2, etc.)
-- **residualized_structure_score**: `float` (Residual of structural_count regressed on token_count, for collinearity control)
+```mermaid
+erDiagram
+    HumanEvalProblem ||--|{ PromptVariant : generates
+    PromptVariant ||--|{ GeneratedCode : produces
+    GeneratedCode ||--|{ ExecutionOutcome : yields
+    GeneratedCode ||--|{ StaticAnalysisMetrics : yields
+    ExecutionOutcome ||--|{ AnalysisResult : aggregates
+```
 
-### 3. GeneratedCode
-Represents the code output from an LLM query for a specific PromptVariant.
-- **generation_id**: `string` (Primary Key)
-- **variant_id**: `string` (Foreign Key -> PromptVariant)
-- **code_text**: `string` (The generated code)
-- **execution_status**: `enum` (success, syntax_error, runtime_error, timeout)
-- **exception_message**: `string` (If failed)
-- **pass_count**: `integer` (Number of passed unit tests)
-- **fail_count**: `integer` (Number of failed unit tests)
-- **lines_of_code**: `integer` (From static analysis)
-- **cyclomatic_complexity**: `float` (From static analysis)
-- **readability_score**: `float` (Aggregated score from ruff/pylint)
+## 2. Entity Definitions
 
-### 4. AnalysisResult
-Represents the aggregated statistical findings.
-- **analysis_id**: `string` (Primary Key)
-- **test_type**: `string` (e.g., "Linear Mixed Model", "LMM")
-- **fixed_effects_coefficients**: `json` (Coefficients for complexity, token count, residualized structure)
-- **random_effects_variance**: `json` (Variance attributed to problem_id)
-- **p_value_fixed**: `float`
-- **effect_size**: `float` (Marginal R2 or Cohen's f2)
-- **corrected_significance_threshold**: `float`
-- **covariate_adjusted_p_value**: `float` (If applicable)
-- **inflection_point**: `string` (Complexity label where performance peaks/declines)
+### HumanEvalProblem
+*Source: `data/raw/humaneval_problems.jsonl`*
+- `problem_id` (string): Unique identifier (e.g., "HumanEval/0").
+- `prompt` (string): Original problem statement.
+- `canonical_solution` (string): Reference solution code.
+- `unit_tests` (string): Test suite code.
+- `language` (string): "python".
 
-## Data Flow
+### PromptVariant
+*Source: `data/processed/prompt_variants.parquet`*
+- `variant_id` (string): Unique ID (e.g., "HumanEval/0_simple").
+- `problem_id` (string): FK to HumanEvalProblem.
+- `complexity_level` (string): One of {simple, moderate, complex, very_complex, degenerate}. **Defined by structural elements.**
+- `prompt_text` (string): The full prompt text.
+- `token_count` (integer): Count via `tiktoken`. **Covariate.**
+- `structural_elements` (integer): Count of examples, constraints, steps. **Primary predictor.**
 
-1.  **Ingestion**: `HumanEvalProblem` loaded from HuggingFace.
-2.  **Generation**: `PromptVariant` created for each problem; `GeneratedCode` created after LLM query.
-3.  **Execution**: `GeneratedCode` tested; metrics (pass/fail, complexity) stored.
-4.  **Collinearity Resolution**: `residualized_structure_score` calculated from `token_count` and `structural_element_count`.
-5.  **Aggregation**: `AnalysisResult` computed from `GeneratedCode` table using LMM.
+### GeneratedCode
+*Source: `data/processed/generated_code.parquet`*
+- `code_id` (string): Unique ID.
+- `variant_id` (string): FK to PromptVariant.
+- `generated_code` (string): The LLM output.
+- `generation_latency` (float): Time in seconds.
+- `model_version` (string): Model identifier.
 
-## Storage Format
+### ExecutionOutcome
+*Source: `data/results/execution_results.parquet`*
+- `outcome_id` (string): Unique ID.
+- `code_id` (string): FK to GeneratedCode.
+- `pass_count` (integer): Number of passed tests.
+- `fail_count` (integer): Number of failed tests.
+- `status` (string): One of {pass, fail, timeout, error}.
+- `error_message` (string): Details if failed.
 
-- **Raw Data**: Parquet/JSONL in `data/raw/`.
-- **Processed Data**: CSV/Parquet in `data/processed/` (checksummed).
-- **Artifacts**: Checksums recorded in `state/projects/...yaml`.
+### StaticAnalysisMetrics
+*Source: `data/results/static_analysis.parquet`*
+- `code_id` (string): FK to GeneratedCode.
+- `cyclomatic_complexity` (integer): McCabe metric.
+- `lines_of_code` (integer).
+- `security_vulnerabilities` (integer): Count from `ruff`.
+- `readability_score` (float).
+
+### AnalysisResult
+*Source: `data/results/analysis_summary.json`*
+- `metric_name` (string): e.g., "pass_rate", "complexity_effect".
+- `value` (number).
+- `confidence_interval` (array).
+- `p_value` (float).
+- `method` (string): e.g., "LMM", "Tukey".
+
+## 3. Data Flow & Transformation
+
+1.  **Load**: `code/data/loader.py` reads `human-eval` package data -> `data/raw/humaneval_problems.jsonl`.
+2.  **Transform**: `code/data/preprocessing.py` generates variants (structural definition) -> `data/processed/prompt_variants.parquet`.
+3.  **Process**: `code/services/executor.py` runs code -> `data/results/execution_results.parquet`.
+4.  **Analyze**: `code/analysis/stats.py` fits models (with collinearity check) -> `data/results/analysis_summary.json`.
+5.  **Review**: `code/analysis/manual_review.py` flags issues -> `data/results/manual_review_queue.csv`.
+
+## 4. Versioning & Integrity
+
+- All files in `data/` are checksummed (SHA-256).
+- Checksums are stored in `state/projects/PROJ-527-evaluating-the-impact-of-prompt-complexi.yaml`.
+- No file in `data/` is overwritten; new derivations create new filenames with timestamps.

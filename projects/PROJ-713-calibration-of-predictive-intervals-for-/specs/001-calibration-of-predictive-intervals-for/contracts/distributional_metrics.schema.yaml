@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Distributional Metrics Schema"
+type: "object"
+description: "Schema for results/distributional_metrics.csv containing PIT and CRPS metrics."
+properties:
+  series_id:
+    type: "string"
+    description: "Unique identifier for the time series."
+  model:
+    type: "string"
+    description: "Model name (ARIMA, Prophet, LSTM)."
+    enum:
+      - "ARIMA"
+      - "Prophet"
+      - "LSTM"
+  pit_p_value_ks:
+    type: "number"
+    description: "Kolmogorov–Smirnov test p‑value for PIT uniformity."
+    minimum: 0.0
+    maximum: 1.0
+  pit_p_value_lb:
+    type: "number"
+    description: "Ljung‑Box test p‑value for PIT uniformity (primary metric)."
+    minimum: 0.0
+    maximum: 1.0
+  crps_score:
+    type: "number"
+    description: "Continuous Ranked Probability Score."
+    minimum: 0.0
+required:
+  - "series_id"
+  - "model"
+  - "pit_p_value_ks"
+  - "pit_p_value_lb"
+  - "crps_score"
+additionalProperties: false

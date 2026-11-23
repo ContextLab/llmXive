@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2010.08864",
+  "judged_at": "2026-07-16T18:42:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the sensitivity of regression coefficients to dataset subset selection statistics",
+  "rationale": "This paper qualifies under category (a) and (b) because it explicitly investigates the construction of confidence intervals and p-values for regression coefficients by regressing on a specific \"subset of variables\" (the Markov neighborhood), which directly addresses the user's interest in how regression coefficients are affected by dataset subset selection. Although the paper focuses on high-dimensional variable selection rather than general data subset sampling, it provides canonical evidence o",
+  "relevant": true
+}

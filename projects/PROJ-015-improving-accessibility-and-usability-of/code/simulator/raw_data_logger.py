@@ -1,205 +1,210 @@
 """
-Raw Data Logger Module for PROJ-015.
+Raw data logging module for the accessibility usability study.
 
-This module implements the `RawDataLogger` class to persist session data to
-`data/raw/session_{id}.json` upon session completion. It enforces strict
-schema validation using the `contracts/session.schema.yaml` file before
-writing any data to disk, ensuring data integrity as per EC-001 and FR-006.
+This module implements the `RawDataLogger` class which is responsible for
+writing session data to `data/raw/` as JSON files. It enforces strict
+schema validation (via T019c) and aborts if the schema file is missing
+or if validation fails.
 
-Key Responsibilities:
-1. Validate incoming session data against the schema.
-2. Log complete sessions with status 'complete'.
-3. Log partial/dropped sessions with status 'incomplete' and `dropout_reason`.
-4. Ensure `contracts/session.schema.yaml` exists before operation.
+Per the project's "No Synthetic Data" policy, this logger is designed
+to write real data collected from the web simulator. It does NOT generate
+synthetic data.
 """
-
 import json
 import hashlib
 import uuid
 import os
+import sys
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
+# Import the validator from the existing API surface
+from simulator.validator import validate_session
 from utils.logger import get_logger
-from config.settings import get_settings
-from simulator.data_validator import DataValidator
 
 logger = get_logger(__name__)
 
 class RawDataLogger:
     """
-    Handles the persistence of session data to JSON files in data/raw/.
+    Handles writing raw session data to disk with schema validation.
 
-    This class acts as the final sink for the simulator's data collection.
-    It requires the `contracts/session.schema.yaml` to be present.
+    This logger ensures that:
+    1. The schema file (`contracts/session.schema.yaml`) exists.
+    2. The data is validated against the schema before writing.
+    3. Files are written to `data/raw/` with the naming convention
+       `session_{session_id}.json`.
+    4. The process aborts (raises exception) if validation fails.
     """
 
-    def __init__(self):
-        settings = get_settings()
-        self.project_root = settings.project_root
-        self.raw_data_dir = self.project_root / "data" / "raw"
-        
-        # Ensure directory exists
-        self.raw_data_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Initialize validator
-        self.validator = DataValidator()
-        
-        logger.info(f"RawDataLogger initialized. Output directory: {self.raw_data_dir}")
+    def __init__(self, output_dir: Optional[str] = None):
+        """
+        Initialize the RawDataLogger.
 
-    def _validate_schema_exists(self) -> bool:
+        Args:
+            output_dir: Directory to write raw session files. Defaults to 'data/raw'.
         """
-        Checks if the required schema file exists.
-        Returns True if found, raises FileNotFoundError if missing.
+        self.project_root = Path(__file__).resolve().parent.parent.parent
+        self.output_dir = self.project_root / (output_dir or "data/raw")
+        self.schema_path = self.project_root / "contracts" / "session.schema.yaml"
+
+        # Ensure output directory exists
+        self.output_dir.mkdir(parents=True, exist_ok=True)
+
+        # Verify schema file exists (T019b requirement)
+        if not self.schema_path.exists():
+            raise FileNotFoundError(
+                f"Schema file missing at {self.schema_path}. "
+                "Task T019b (schema generation) must be completed before logging data."
+            )
+
+        logger.info(f"RawDataLogger initialized. Output dir: {self.output_dir}, Schema: {self.schema_path}")
+
+    def _generate_session_id(self, participant_id: str, timestamp: datetime) -> str:
         """
-        schema_path = self.project_root / "contracts" / "session.schema.yaml"
-        if not schema_path.exists():
-            error_msg = f"CRITICAL: Schema file missing at {schema_path}. T019 cannot proceed without T009b."
-            logger.error(error_msg)
-            raise FileNotFoundError(error_msg)
-        return True
+        Generate a unique session ID based on participant ID and timestamp.
+
+        Args:
+            participant_id: The unique identifier for the participant.
+            timestamp: The timestamp of the session.
+
+        Returns:
+            A unique session ID string.
+        """
+        unique_str = f"{participant_id}_{timestamp.isoformat()}_{uuid.uuid4()}"
+        return hashlib.md5(unique_str.encode()).hexdigest()[:12]
 
     def log_session(self, session_data: Dict[str, Any]) -> str:
         """
-        Validates and logs a session to a JSON file.
+        Validate and log a session to a JSON file.
+
+        This method performs the following steps:
+        1. Validates the session data against the schema using `validate_session`.
+        2. If validation fails, raises a ValueError (abort).
+        3. Generates a session ID.
+        4. Adds metadata (logged_at) if not present.
+        5. Writes the JSON to `data/raw/session_{session_id}.json`.
 
         Args:
-            session_data: Dictionary containing session metrics. Must include:
-                - participant_id
-                - disability_type
-                - interface_type
-                - sequence
-                - start_time
-                - end_time
-                - error_count
-                - explanation_engagement_time_seconds
-                - sus_score
-                - status ('complete' or 'incomplete')
-                - dropout_reason (optional, required if status is 'incomplete')
+            session_data: Dictionary containing session data conforming to the schema.
 
         Returns:
-            str: The path to the created JSON file.
+            The path to the written file.
 
         Raises:
-            ValueError: If schema validation fails.
-            FileNotFoundError: If the schema file is missing.
+            ValueError: If session data fails schema validation.
+            FileNotFoundError: If the schema file is missing (checked in __init__).
+            IOError: If writing to disk fails.
         """
-        # 1. Enforce Schema Existence
-        self._validate_schema_exists()
-
-        # 2. Validate Data against Schema
-        # The validator will raise ValueError if data is malformed or missing required fields
-        is_valid, errors = self.validator.validate_session(session_data)
+        # Step 1: Validate data (T019c enforcement)
+        # The validator function returns True if valid, but we need to ensure it
+        # raises or we handle the failure. Based on T019c description:
+        # "If validation fails, raise an exception and do NOT write to data/raw/."
+        is_valid = validate_session(session_data)
         
         if not is_valid:
-            error_details = f"Session validation failed: {errors}"
-            logger.error(error_details)
-            # Fail loudly as per constraints: do not log invalid data
-            raise ValueError(error_details)
+            # This path should theoretically be unreachable if validate_session
+            # raises on failure, but we enforce the abort here explicitly.
+            raise ValueError(
+                "Session data failed schema validation. Aborting write to data/raw/."
+            )
 
-        # 3. Generate Filename
-        # Use participant_id or a generated UUID if not present (though schema requires participant_id)
-        session_id = session_data.get("participant_id", str(uuid.uuid4()))
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"session_{session_id}_{timestamp}.json"
-        file_path = self.raw_data_dir / filename
+        # Step 2: Generate Session ID
+        participant_id = session_data.get("participant_id", "unknown")
+        start_time = session_data.get("start_time")
+        
+        # Parse start_time if it's a string, otherwise use current time
+        if isinstance(start_time, str):
+            try:
+                ts = datetime.fromisoformat(start_time.replace('Z', '+00:00'))
+            except ValueError:
+                ts = datetime.now()
+        else:
+            ts = datetime.now()
 
-        # 4. Add Metadata
-        session_data["logged_at"] = datetime.now().isoformat()
-        session_data["file_checksum"] = self._compute_checksum(session_data)
+        session_id = self._generate_session_id(participant_id, ts)
+        filename = f"session_{session_id}.json"
+        file_path = self.output_dir / filename
 
-        # 5. Write to Disk
+        # Step 3: Prepare data for writing
+        # Ensure all required fields are present and types are correct
+        # (Schema validation already checked this, but we ensure JSON serializability)
+        output_data = session_data.copy()
+        output_data["logged_at"] = datetime.now().isoformat()
+        output_data["session_id"] = session_id
+
+        # Step 4: Write to disk
         try:
             with open(file_path, 'w', encoding='utf-8') as f:
-                json.dump(session_data, f, indent=2, default=str)
-            
+                json.dump(output_data, f, indent=2, default=str)
             logger.info(f"Successfully logged session to {file_path}")
             return str(file_path)
         except IOError as e:
             logger.error(f"Failed to write session data to {file_path}: {e}")
-            raise e
+            raise
 
-    def _compute_checksum(self, data: Dict[str, Any]) -> str:
+    def log_sessions_batch(self, sessions: List[Dict[str, Any]]) -> List[str]:
         """
-        Computes a SHA-256 checksum of the session data for integrity.
-        """
-        # Sort keys to ensure deterministic checksum
-        json_str = json.dumps(data, sort_keys=True, default=str)
-        return hashlib.sha256(json_str.encode('utf-8')).hexdigest()
-
-    def log_dropout(self, participant_id: str, interface_type: str, 
-                    sequence: str, dropout_reason: str, 
-                    start_time: datetime, end_time: datetime,
-                    metrics_partial: Optional[Dict[str, Any]] = None) -> str:
-        """
-        Helper method to log a session that ended prematurely (dropout).
-        Sets status to 'incomplete' and includes the dropout reason.
+        Log multiple sessions.
 
         Args:
-            participant_id: Unique ID for the participant.
-            interface_type: The interface used (Traditional/Explainable).
-            sequence: The order of interfaces (e.g., "Traditional->Explainable").
-            dropout_reason: Reason for leaving (e.g., "Frustration", "Technical Issue").
-            start_time: Session start datetime.
-            end_time: Session end datetime.
-            metrics_partial: Any partial metrics collected before dropout.
+            sessions: List of session data dictionaries.
 
         Returns:
-            str: Path to the logged JSON file.
-        """
-        session_data = {
-            "participant_id": participant_id,
-            "disability_type": metrics_partial.get("disability_type", "unknown") if metrics_partial else "unknown",
-            "interface_type": interface_type,
-            "sequence": sequence,
-            "start_time": start_time.isoformat() if isinstance(start_time, datetime) else str(start_time),
-            "end_time": end_time.isoformat() if isinstance(end_time, datetime) else str(end_time),
-            "error_count": metrics_partial.get("error_count", 0) if metrics_partial else 0,
-            "explanation_engagement_time_seconds": metrics_partial.get("explanation_engagement_time_seconds", 0) if metrics_partial else 0,
-            "sus_score": metrics_partial.get("sus_score", None),
-            "status": "incomplete",
-            "dropout_reason": dropout_reason,
-            "metrics_snapshot": metrics_partial or {}
-        }
+            List of paths to written files.
 
-        return self.log_session(session_data)
+        Raises:
+            ValueError: If any session fails validation.
+        """
+        paths = []
+        for i, session in enumerate(sessions):
+            try:
+                path = self.log_session(session)
+                paths.append(path)
+            except ValueError as e:
+                logger.error(f"Batch log failed at index {i}: {e}")
+                raise
+        return paths
 
 def main():
     """
-    CLI entry point for testing the logger independently.
+    CLI entry point for testing the RawDataLogger.
+    This is primarily for verification that the logger works with valid data.
     """
-    import sys
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Test RawDataLogger")
+    parser.add_argument("--participant_id", type=str, default="test_001", help="Participant ID")
+    parser.add_argument("--disability_type", type=str, default="visual", help="Disability type")
+    parser.add_argument("--interface_type", type=str, default="explainable", help="Interface type")
+    parser.add_argument("--sequence", type=str, default="traditional_explainable", help="Sequence")
     
-    # Mock data for testing
-    test_session = {
-        "participant_id": "P-TEST-001",
-        "disability_type": "visual_impairment",
-        "interface_type": "Explainable",
-        "sequence": "Explainable->Traditional",
-        "start_time": datetime.now().isoformat(),
-        "end_time": datetime.now().isoformat(),
-        "error_count": 2,
-        "explanation_engagement_time_seconds": 15.5,
-        "sus_score": 85.0,
-        "status": "complete",
-        "dropout_reason": None
+    args = parser.parse_args()
+
+    logger.info("Running RawDataLogger test...")
+
+    # Construct a valid session data dict based on the schema
+    now = datetime.now().isoformat()
+    test_data = {
+        "participant_id": args.participant_id,
+        "disability_type": args.disability_type,
+        "interface_type": args.interface_type,
+        "sequence": args.sequence,
+        "start_time": now,
+        "end_time": now,
+        "error_count": 0,
+        "explanation_engagement_time_seconds": 5.0,
+        "sus_score": 100,
+        "status": "complete"
     }
 
-    logger = get_logger(__name__)
-    logger.info("Starting RawDataLogger self-test...")
-    
     try:
-        logger_instance = RawDataLogger()
-        path = logger_instance.log_session(test_session)
-        logger.info(f"Self-test passed. File created at: {path}")
-        return 0
-    except FileNotFoundError as e:
-        logger.error(f"Schema missing (Expected if T009b not run): {e}")
-        return 1
+        logger = RawDataLogger()
+        path = logger.log_session(test_data)
+        print(f"Success: Session logged to {path}")
     except Exception as e:
-        logger.error(f"Self-test failed: {e}")
-        return 1
+        print(f"Failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

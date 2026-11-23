@@ -1,0 +1,116 @@
+T001a:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 586029fe4f5209e3f60bcca1703d7fd6499cd4f14587041a3a318fb8f71a0b9b
+T001b:
+  reason: "The `code/__init__.py` and `code/utils/__init__.py` files are present,\
+    \ but the provided evidence does not show their contents, so we cannot confirm\
+    \ they are truly empty as required. Add verification (e.g., file size\u202F0\u202F\
+    bytes or displayed empty content) to prove they are empty."
+  task: fe218c35e17a1f8deb2b4fc47f213fdab19935fa38b69edeb86221dd9b8d0784
+T002a:
+  reason: The `code/requirements.txt` file exists, but it lists version ranges using
+    `>=` and adds an extra `seaborn` entry, whereas the task demanded *pinned* versions
+    (e.g., `pandas==X.Y.Z`) for exactly the eight specified packages. The artifact
+    therefore does not satisfy the requirement.
+  task: 789deaa205e478435516f9e304ee3299350e731b3ea328019a62ca0610ac733b
+T002b:
+  task: cc4567b4653bfe0d65ae9b42e1f5cb8d55537fc22115b7763b68dc8042eebff0
+T003:
+  reason: No linting or formatting configuration files (e.g., `.ruff.toml`, `pyproject.toml`
+    with Black settings, or a `.pre-commit-config.yaml` invoking ruff/black) were
+    found in the project root or any subdirectory, and no evidence of these tools
+    being installed or run is present. The task therefore lacks the required artifacts
+    to demonstrate that linting (ruff) and formatting (black) have been configured.
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T004:
+  task: 1e944dc27c5c0f3bf34c2744b826462e3b86cc50e54178a72c994fc1315d9760
+T005:
+  task: 2c2e3f37dac709291b073f3a76e42075c8bab2da9e1f1327f614989f1a5ddd28
+T006:
+  task: ee27dcd6ee896f851d9f00f286a249bd33d6e115e5cd22295838019bb5b2b50a
+T007:
+  task: ecfa7960ee3ffbe500cb4e8f6d17aa6de34f991cac5b8285ebdfde1c3d492256
+T008:
+  task: cba3f4a20da6d01492aa5b5d20bc3da84e873600a2ce82ab0c76f7a8ff0656d2
+T009:
+  task: 12c453fd93eead13fffb88d0c7494c8185a5df701b95a915c092a2a63b009a82
+T010:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`), `state/projects/PROJ-374-predicting-the-influence-of-alloying-on-.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: f99789f5ec3f7cfa0ba54418ebbb48298ec47ef2cd2d0183accfebb7ba58d887
+T011:
+  task: c25b74e3b84d71562113d95649517e5458d65edf06650667b8a668dbfe8dfcb5
+T012:
+  task: a880f46c6c99d1b3647a1e6fe5f0eba1d5bb6ffa4a7e2b329939a1ac682c3aba
+T013:
+  task: a11546081da7aff8d7e55e958ed838b2683edcd8315b7529fbfde70021d11e27
+T014:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/retention_log.json`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: eef9bcc93877a669961af57f1b6f39d20b5eae978cb96badc320ce1d22312bf8
+T015:
+  task: 866be0360b0eecd0734f8219e54b21f2f0ce396b7df937b7ab5f5963d33cc104
+T016:
+  task: 750f91ad118d666258a7cae969cc8258281df721067a52ed3d5cdc769fdda5be
+T017:
+  task: 567f7f2fcdff490b4cf85048b4ab3d7fba6354b59820f6f83ecac376685d4658
+T018:
+  task: 5d27f0fa24f7e5eed11d0a8db1f20e281f520441acb9fbda9f09f38806d6dd6e
+T019:
+  task: af410737642b51203232045bb3ed852d21b087fc95121ca04ad4d79e6c75492e
+T020:
+  task: 4a356b1edafb740ca3d6b8b4744e1c75c3a2c2ab6dcf1601815fbae57457689c
+T021:
+  task: d0f02835c9191c166ae729fd465924e05cca7b5f00b0337648c0e4ce651da623
+T022:
+  task: 1cd77db936b898f43444c2b641701d7807994d8e6696b3c724576053e4590e3b
+T023:
+  task: fb038c98c38b80f8cd24f584a5dbf0880d85e21b9beee48769c59cc283c48246
+T024:
+  task: d36b4f01fe869db76372166e2290c6e6f3fb5b53d18b94f14c6eafcea21f66ad
+T025:
+  task: 6b25a7c9c52a7e98a161626dbe9f0abe6cb7c53a6eaafcad987f54ab1d2a5e0e
+T026a:
+  task: ef9ec93af10a8a74f7c82bb2033b98b6c697e5bd45496861b0ab6202ee7a0294
+T026b:
+  task: 51b149cfaa2ef14f616ae064b92a21f68b75ea918ed6f49ccd8c9d5a61262557
+T027:
+  task: 67120d11cac7b6af066bda5f19afa3f529afeb25da30c64386fd3435c5da2341
+T028:
+  task: a4ec7db5622aa5765b758b693fb965e6fa46ad4aa0b34d1aa1a7f5fb1d7bb34d
+T029:
+  task: 8305cece80832f68e05cc30c169e702bc4431aec94f741998d550368d3785dd4
+T030:
+  task: dd5463a22d6cfd64cfc0538d7d2678e9d9282f12e6d9ce035bec53d5283f9941
+T031:
+  task: d78ef592ac4aecd7e8e5ce1755180ccd5ca74a00ff7bc42ab30710b655704a8c
+T032:
+  task: 181dfa5a8909b3f980d117e76412ff80c1c054edc8cafd68394acbce6cc8b47a
+T033:
+  task: f91c6ee6599cbc83d230d8c5f74775d1ba230e129b13e8c2857ac3f28317cd98
+T034:
+  task: be5f2ab3432568128fe80fe1622eacd016d1d44c38e8af296ad84bbd3c5704bd
+T035:
+  task: 03460e8f6ca5615cdc3abb29f8f98470cc88b1e3308d4ac0db5ea2054f0b7d2c
+T036:
+  task: ae9a957232f7b8cf56e84745a4cb111bcd90177efa2069647499631b56f232f2
+T037a:
+  task: 2eb2798155f8f0794a3f3deca8d16946818fff17d5dfe8670782c8627d162f9e
+T037b:
+  task: 4169206fd8f55d79e3415b78ce61ca664c6ae4b69eec00e30db8e18b85947e75
+T037c:
+  task: 55b7b78a0969bf9e8dedbeed0786cbfe94a2b69d95b862e8571bd412eac63502
+T038:
+  task: 3b2eadb5cf686944346ae6b974200ce9376e07245a19fd26c3eebfeaf9be2d0e
+T039:
+  task: 609d017bc9449906fe2c90c58c7aafec54e2d70b509c7f658d74fa5eea22f3d5
+T040:
+  task: 065f1be9aa63a340d7189c7a24cffb2b3e0ebaba0fcced27ead46155b9c0be81

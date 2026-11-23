@@ -1,222 +1,164 @@
-# Output Schema for Gut Microbiome - Sleep Architecture Correlation Analysis
-# Defines the structure of the CorrelationResult artifact produced by the pipeline.
-#
-# This schema ensures reproducibility, auditability, and strict adherence to
-# associational (non-causal) language requirements (Constitution Principle II).
-#
-# Version: 1.0.0
-# Last Updated: 2023-10-27
-
-$schema: http://json-schema.org/draft-07/schema#
-title: CorrelationResult
-description: >
-  The final structured output of the correlation analysis pipeline,
-  containing method selection details, statistical results, and metadata.
-
-type: object
-required:
-  - metadata
-  - method_selection
-  - correlations
-  - diagnostics
-  - limitations
-
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrelationAnalysisOutput"
+type: "object"
 properties:
-  metadata:
-    type: object
-    description: "High-level information about the analysis run."
-    required:
-      - analysis_id
-      - timestamp
-      - pipeline_version
-      - data_source
-      - sample_size
-      - total_tests
-    properties:
-      analysis_id:
-        type: string
-        description: "Unique identifier for this specific analysis run."
-      timestamp:
-        type: string
-        format: date-time
-        description: "ISO 8601 timestamp of when the analysis was completed."
-      pipeline_version:
-        type: string
-        description: "Version of the analysis pipeline used."
-      data_source:
-        type: string
-        description: "Path or identifier of the input data file (e.g., filtered_data.parquet)."
-      sample_size:
-        type: integer
-        minimum: 1
-        description: "Number of samples (N) included in the final analysis."
-      total_tests:
-        type: integer
-        minimum: 1
-        description: "Total number of correlation tests performed (before FDR)."
-
-  method_selection:
-    type: object
-    description: "Details on how the correlation method was selected per variable pair."
-    required:
-      - global_method
-      - criteria
-    properties:
-      global_method:
-        type: string
-        enum:
-          - pearson
-          - spearman
-          - zinb
-          - sparcc
-          - spiec_easi
-        description: "The primary correlation method applied across the dataset."
-      criteria:
-        type: object
-        description: "The specific conditions that triggered the method selection."
-        required:
-          - zero_inflation_threshold
-          - normality_threshold
-          - compositionality_detected
-        properties:
-          zero_inflation_threshold:
-            type: number
-            minimum: 0.0
-            maximum: 1.0
-            description: "Proportion of zeros above which ZINB is triggered."
-          normality_threshold:
-            type: number
-            minimum: 0.0
-            maximum: 1.0
-            description: "Shapiro-Wilk p-value threshold below which non-normality is assumed."
-          compositionality_detected:
-            type: boolean
-            description: "Whether compositional constraints required SparCC/SpiecEasi."
-
-  correlations:
-    type: array
-    description: "List of all pairwise correlation results."
+  correlation_results:
+    type: "array"
     items:
-      type: object
-      required:
-        - predictor
-        - outcome
-        - method
-        - coefficient
-        - p_value
-        - q_value
-        - significant
+      type: "object"
       properties:
-        predictor:
-          type: string
-          description: "Name of the gut microbiome taxa (e.g., 'Bacteroides_fragilis')."
-        outcome:
-          type: string
-          description: "Name of the sleep metric (e.g., 'SWS_duration')."
-        method:
-          type: string
-          enum:
-            - pearson
-            - spearman
-            - zinb
-            - sparcc
-          description: "Specific method used for this pair."
-        coefficient:
-          type: number
-          description: "Correlation coefficient (r) or ZINB incidence rate ratio (IRR)."
-        p_value:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-          description: "Raw p-value from the statistical test."
-        q_value:
-          type: number
-          minimum: 0.0
-          maximum: 1.0
-          description: "Benjamini-Hochberg adjusted p-value (FDR)."
-        significant:
-          type: boolean
-          description: "True if q_value <= 0.05."
-        ci_lower:
-          type: number
-          description: "Lower bound of the 95% confidence interval."
-        ci_upper:
-          type: number
-          description: "Upper bound of the 95% confidence interval."
-        interpretation:
-          type: string
-          description: "Associational interpretation text (e.g., 'Higher abundance of X is associated with...')."
-
+        taxon:
+          type: "string"
+          description: "Name of the microbial taxon."
+        sleep_metric:
+          type: "string"
+          description: "Name of the sleep metric."
+        correlation_coefficient:
+          type: ["number", "null"]
+          description: "Estimated correlation value (r for Pearson/Spearman/SparCC). Null for ZINB."
+        effect_size_beta:
+          type: ["number", "null"]
+          description: "Log-rate ratio (beta) for ZINB. Null for correlation methods."
+        p_value_raw:
+          type: "number"
+          description: "Raw p-value."
+        p_value_adjusted:
+          type: "number"
+          description: "Benjamini-Hochberg adjusted p-value."
+        is_significant:
+          type: "boolean"
+          description: "True if adjusted p < 0.05."
+        method_used:
+          type: "string"
+          enum: ["ZINB", "SparCC", "SpiecEasi", "Spearman", "Pearson"]
+          description: "Statistical method used for this pair."
+        direction:
+          type: "string"
+          enum: ["positive", "negative"]
+          description: "Direction of the relationship."
+        effect_size_category:
+          type: "string"
+          enum: ["negligible", "weak", "moderate", "strong"]
+          description: "Categorization of the absolute correlation coefficient (or absolute beta for ZINB)."
+      required:
+        - "taxon"
+        - "sleep_metric"
+        - "p_value_raw"
+        - "p_value_adjusted"
+        - "is_significant"
+        - "method_used"
+        - "direction"
+        - "effect_size_category"
   diagnostics:
-    type: object
-    description: "Collinearity and stability diagnostics."
-    required:
-      - multicollinearity_check
-      - stability_metrics
+    type: "object"
     properties:
-      multicollinearity_check:
-        type: object
-        description: "Results of the multicollinearity detection."
+      collinearity_flags:
+        type: "array"
+        items:
+          type: "string"
+          description: "Pairs of taxa flagged for perfect multicollinearity."
+      vif_results:
+        type: "object"
+        additionalProperties:
+          type: "number"
+          description: "VIF score for each taxon (calculated on Top-N subset)."
+      power_analysis:
+        type: "object"
+        properties:
+          required_n:
+            type: "integer"
+            description: "Minimum sample size required for power >= 0.80."
+          observed_n:
+            type: "integer"
+            description: "Actual sample size."
+          is_underpowered:
+            type: "boolean"
+            description: "True if observed_n < required_n."
+          metric_used:
+            type: "string"
+            description: "The effect metric used for power calculation (e.g., 'r', 'log_rate_ratio')."
         required:
-          - perfect_multicollinearity_found
-          - vif_max
+          - "required_n"
+          - "observed_n"
+          - "is_underpowered"
+          - "metric_used"
+      sensitivity_analysis:
+        type: "object"
         properties:
-          perfect_multicollinearity_found:
-            type: boolean
-            description: "True if definitionally related taxa caused rank deficiency."
-          vif_max:
-            type: number
-            description: "Maximum Variance Inflation Factor observed among predictors."
-      stability_metrics:
-        type: object
-        description: "Results from the sensitivity analysis."
+          p_0.01:
+            type: "integer"
+            description: "Number of significant findings at p < 0.01."
+          p_0.05:
+            type: "integer"
+            description: "Number of significant findings at p < 0.05."
+          p_0.10:
+            type: "integer"
+            description: "Number of significant findings at p < 0.10."
+        required:
+          - "p_0.01"
+          - "p_0.05"
+          - "p_0.10"
+      zero_inflation_warning:
+        type: "boolean"
+        description: "True if zero-inflation warning was triggered."
+      method_selection_log:
+        type: "object"
+        description: "Log of the method selection process."
         properties:
-          threshold_variations:
-            type: array
-            items:
-              type: object
-              properties:
-                threshold:
-                  type: number
-                significant_count:
-                  type: integer
-                change_percent:
-                  type: number
-
-  limitations:
-    type: array
-    description: "List of known limitations and warnings (mandatory for report generation)."
-    items:
-      type: object
-      required:
-        - type
-        - message
-      properties:
-        type:
-          type: string
-          enum:
-            - causal_language_warning
-            - sample_size_warning
-            - power_limitation
-            - data_quality_warning
-        message:
-          type: string
-          description: "Detailed warning message (e.g., 'Power analysis indicates N < required for r=0.3')."
-
-  provenance:
-    type: object
-    description: "Chain of custody and reproducibility metadata."
+          method_used:
+            type: "string"
+            description: "The method selected (ZINB, SparCC, etc.)."
+          reason:
+            type: "string"
+            description: "Reason for selection."
+        required:
+          - "method_used"
+          - "reason"
+      pre_screen_summary:
+        type: "object"
+        properties:
+          total_taxa:
+            type: "integer"
+          passed_taxa:
+            type: "integer"
+        required:
+          - "total_taxa"
+          - "passed_taxa"
     required:
-      - code_hash
-      - config_snapshot
-      - coc_log_ref
+      - "collinearity_flags"
+      - "vif_results"
+      - "power_analysis"
+      - "sensitivity_analysis"
+      - "zero_inflation_warning"
+      - "method_selection_log"
+      - "pre_screen_summary"
+  report_summary:
+    type: "object"
     properties:
-      code_hash:
-        type: string
-        description: "SHA-256 hash of the analysis code version used."
-      config_snapshot:
-        type: object
-        description: "Snapshot of configuration parameters used."
-      coc_log_ref:
-        type: string
-        description: "Reference to the chain-of-custody log file (e.g., data/metadata/coc_log.json)."
+      associational_statement:
+        type: "string"
+        description: "Explicit statement that results are associational."
+      causal_language_prohibited:
+        type: "boolean"
+        description: "True if no causal language was detected in the report."
+    required:
+      - "associational_statement"
+      - "causal_language_prohibited"
+  artifacts:
+    type: "object"
+    properties:
+      power_analysis_report:
+        type: "string"
+        description: "Path to the detailed power analysis report JSON."
+      causal_scan_report:
+        type: "string"
+        description: "Path to the causal language scan report JSON."
+    required:
+      - "power_analysis_report"
+      - "causal_scan_report"
+required:
+  - "correlation_results"
+  - "diagnostics"
+  - "report_summary"
+  - "artifacts"
+additionalProperties: false

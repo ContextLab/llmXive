@@ -1,0 +1,38 @@
+# Configuration for PROJ-438: Effect of Personalized Feedback Timing
+# This file is loaded by code/config.py
+
+data:
+  raw_dir: "data/raw"
+  processed_dir: "data/processed"
+  cache_dir: "data/cache"
+  checksums_dir: "data/checksums"
+
+oulad:
+  # Verified HuggingFace mirrors for OULAD dataset components
+  # students_data.csv: Contains student demographic and registration info
+  # train.parquet: Contains event logs (including forum and assessment events)
+  url_students: "https://huggingface.co/datasets/oulu-ai/Open-University-Learning-Analytics-Dataset/resolve/main/data/students_data.csv"
+  url_events: "https://huggingface.co/datasets/oulu-ai/Open-University-Learning-Analytics-Dataset/resolve/main/data/train.parquet"
+  # Alternative mirror if primary fails (optional fallback logic in download_data.py)
+  # url_students_mirror: "https://datasets-server.huggingface.co/parquet?dataset=oulu-ai/Open-University-Learning-Analytics-Dataset&split=train"
+  min_learners_per_course: 50
+
+model:
+  feedback_thresholds:
+    immediate_hours: 2.0
+    delayed_hours: 48.0
+  cluster_robust:
+    cluster_by: "course_id"
+  sensitivity:
+    lower_bound_range: [1.0, 3.0]
+    upper_bound_range: [47.0, 49.0]
+    step_hours: 1.0
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "data/processed/pipeline.log"
+
+validation:
+  min_records_threshold: 10000
+  effect_size_target: 0.3

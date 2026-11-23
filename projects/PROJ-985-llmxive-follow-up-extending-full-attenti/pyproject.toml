@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-research"
+version = "0.1.0"
+description = "llmXive Automated Science Pipeline - Full Attention Follow-up"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "transformers",
+    "torch",
+    "datasets",
+    "scikit-learn",
+    "spacy",
+    "kenlm",
+    "numpy",
+    "pandas",
+    "bitsandbytes",
+    "h5py",
+    "pytest",
+    "ruff",
+    "black",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "black",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+  # directories
+  \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | build
+  | dist
+)/
+'''
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+pythonpath = ["code"]
+addopts = "-v --tb=short"

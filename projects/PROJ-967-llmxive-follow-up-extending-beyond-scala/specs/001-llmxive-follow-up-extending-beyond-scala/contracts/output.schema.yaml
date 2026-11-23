@@ -1,49 +1,64 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Analysis Results Schema
-description: Schema for the final output metrics from the Random Forest analysis.
-type: object
-required:
-  - r2_score
-  - mae
-  - p_value
-  - n_samples
-  - timestamp
-properties:
-  r2_score:
-    type: number
-    description: "Coefficient of determination from 5-fold cross-validation."
-  mae:
-    type: number
-    description: "Mean Absolute Error from 5-fold cross-validation."
-  p_value:
-    type: number
-    description: "P-value from the permutation test."
-    minimum: 0
-    maximum: 1
-  cv_std:
-    type: number
-    description: "Standard deviation of R² across folds."
-  feature_importance:
-    type: object
-    description: "Map of feature names to their importance scores (after PCA)."
-    additionalProperties:
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Schema"
+description: "Schema for data/processed/features.json containing per-sample entanglement metrics and target variable."
+type: array
+items:
+  type: object
+  properties:
+    sample_id:
+      type: string
+      description: "Unique identifier for the data sample"
+    variance:
       type: number
-  n_samples:
-    type: integer
-    description: "Number of samples used in the training set."
-    minimum: 1
-  timestamp:
-    type: string
-    format: date-time
-    description: "ISO 8601 timestamp of the execution."
-  config:
-    type: object
-    description: "Configuration used for the run."
-    properties:
-      n_estimators:
-        type: integer
-      random_state:
-        type: integer
-      cv_folds:
-        type: integer
-      default: 5
+      description: "Variance of the teacher scores across the four rubric dimensions"
+    entropy:
+      type: number
+      description: "Entropy of the teacher score distribution"
+    skewness:
+      type: number
+      description: "Skewness of the teacher score distribution"
+    kurtosis:
+      type: number
+      description: "Kurtosis of the teacher score distribution"
+    mean_teacher_score:
+      type: number
+      description: "Mean of the teacher scores"
+    theoretical_baseline_error:
+      type: number
+      description: "Theoretical MAE derived from the known distillation function"
+    observed_mae:
+      type: number
+      description: "Observed MAE between student and target dimension"
+    residual_error:
+      type: number
+      description: "Target variable: Observed MAE - Theoretical Baseline"
+    mahalanobis_distance:
+      type: number
+      description: "Mahalanobis distance from the global mean in teacher-score space"
+    global_eigenvalue:
+      type: number
+      description: "Dominant eigenvalue of the global covariance matrix (global feature injection)"
+    primary_dimension:
+      type: integer
+      description: "Index (0-3) of the primary quality dimension for this sample"
+    target_dimension:
+      type: integer
+      description: "Index (0-3) of the target dimension for fidelity loss calculation"
+    fidelity_loss:
+      type: number
+      description: "MAE between student scalar and human annotation for the target dimension"
+  required:
+    - sample_id
+    - variance
+    - entropy
+    - skewness
+    - kurtosis
+    - mean_teacher_score
+    - theoretical_baseline_error
+    - observed_mae
+    - residual_error
+    - mahalanobis_distance
+    - global_eigenvalue
+    - primary_dimension
+    - target_dimension
+    - fidelity_loss

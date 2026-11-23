@@ -1,188 +1,195 @@
 """
-Contract test for recall metric calculation.
+Contract tests for recall metric calculation.
 
-This module validates the exact-match recall metric computation logic
-required for User Story 1 (US1). It ensures that the calculation correctly
-compares model predictions against ground truth answers and returns a
-valid recall score between 0.0 and 1.0.
+These tests verify that the exact-match recall metric is computed correctly
+according to the specification (US1). They serve as a contract for the
+evaluation module's behavior.
 
-The test uses deterministic, real-world style data samples to verify
-the mathematical correctness of the metric without requiring model inference.
+Note: These tests do NOT require training. They validate the metric logic
+using mock inputs that simulate model outputs and ground truth.
 """
 import pytest
 import json
+import os
+import sys
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any
+
+# Ensure we can import from the code directory
+code_path = Path(__file__).parent.parent.parent / "code"
+sys.path.insert(0, str(code_path))
+
+from evaluation.metrics import compute_exact_match_recall, evaluate_model_on_dataset
 
 
-# We define the metric function here to ensure it is tested in isolation.
-# In the full pipeline, this logic will reside in code/evaluation/metrics.py.
-# This contract test verifies the spec requirement: "compute exact-match recall per seed".
-def compute_exact_match_recall(predictions: List[str], ground_truth: List[str]) -> float:
-    """
-    Calculate the exact-match recall score.
-    
-    Args:
-        predictions: List of predicted answer strings.
-        ground_truth: List of ground truth answer strings.
-        
-    Returns:
-        A float between 0.0 and 1.0 representing the proportion of
-        exact matches.
-        
-    Raises:
-        ValueError: If input lists are empty or of different lengths.
-    """
-    if len(predictions) != len(ground_truth):
-        raise ValueError(
-            f"Prediction and ground truth lists must have the same length. "
-            f"Got {len(predictions)} predictions and {len(ground_truth)} ground truths."
-        )
-    
-    if len(predictions) == 0:
-        raise ValueError("Input lists cannot be empty.")
-    
-    matches = sum(1 for pred, truth in zip(predictions, ground_truth) if pred.strip() == truth.strip())
-    return matches / len(predictions)
+class TestExactMatchRecall:
+    """Contract tests for the exact-match recall metric."""
 
-
-class TestRecallMetricContract:
-    """
-    Contract tests for the recall metric calculation.
-    
-    These tests verify the logical correctness and edge case handling
-    of the exact-match recall metric as required by the project specification.
-    """
-    
     def test_perfect_recall(self):
-        """Test case where all predictions match ground truth."""
-        predictions = [
-            "The cat sat on the mat.",
-            "London is the capital of the UK.",
-            "The answer is 42."
-        ]
-        ground_truth = [
-            "The cat sat on the mat.",
-            "London is the capital of the UK.",
-            "The answer is 42."
-        ]
+        """Contract: If predictions exactly match targets, recall should be 1.0."""
+        predictions = ["The cat sat on the mat", "The dog ran fast"]
+        targets = ["The cat sat on the mat", "The dog ran fast"]
         
-        result = compute_exact_match_recall(predictions, ground_truth)
+        result = compute_exact_match_recall(predictions, targets)
         
-        assert result == 1.0, f"Expected perfect recall (1.0), got {result}"
-        
-    def test_zero_recall(self):
-        """Test case where no predictions match ground truth."""
-        predictions = [
-            "The dog barked.",
-            "Paris is the capital.",
-            "The answer is 100."
-        ]
-        ground_truth = [
-            "The cat sat on the mat.",
-            "London is the capital of the UK.",
-            "The answer is 42."
-        ]
-        
-        result = compute_exact_match_recall(predictions, ground_truth)
-        
-        assert result == 0.0, f"Expected zero recall (0.0), got {result}"
-        
-    def test_partial_recall(self):
-        """Test case with partial matches."""
-        predictions = [
-            "The cat sat on the mat.",  # Match
-            "Paris is the capital.",    # No match
-            "The answer is 42."        # Match
-        ]
-        ground_truth = [
-            "The cat sat on the mat.",
-            "London is the capital of the UK.",
-            "The answer is 42."
-        ]
-        
-        result = compute_exact_match_recall(predictions, ground_truth)
-        
-        assert result == 0.6666666666666666, f"Expected recall of 2/3, got {result}"
-        
-    def test_case_sensitivity_handling(self):
-        """Test that whitespace and minor case differences are handled as per spec (exact match)."""
-        # Spec requires exact match. "Answer" != "answer" unless normalized.
-        # We test the strict behavior.
-        predictions = ["The Answer is 42."]
-        ground_truth = ["The answer is 42."]
-        
-        result = compute_exact_match_recall(predictions, ground_truth)
-        
-        # Strict exact match should fail here
-        assert result == 0.0, f"Expected 0.0 for case mismatch, got {result}"
-        
-    def test_whitespace_normalization(self):
-        """Test that leading/trailing whitespace is ignored."""
-        predictions = ["  The cat sat on the mat.  "]
-        ground_truth = ["The cat sat on the mat."]
-        
-        result = compute_exact_match_recall(predictions, ground_truth)
-        
-        assert result == 1.0, f"Expected 1.0 after whitespace normalization, got {result}"
-        
-    def test_mismatched_lengths_raises_error(self):
-        """Test that mismatched list lengths raise a ValueError."""
-        predictions = ["Match 1", "Match 2"]
-        ground_truth = ["Match 1"]
-        
-        with pytest.raises(ValueError):
-            compute_exact_match_recall(predictions, ground_truth)
-            
-    def test_empty_lists_raises_error(self):
-        """Test that empty lists raise a ValueError."""
-        predictions: List[str] = []
-        ground_truth: List[str] = []
-        
-        with pytest.raises(ValueError):
-            compute_exact_match_recall(predictions, ground_truth)
-            
-    def test_output_bounds(self):
-        """Test that the output is always within [0.0, 1.0]."""
-        # Generate a random-ish set of matches
-        predictions = ["a", "b", "c", "d", "e"]
-        ground_truth = ["a", "x", "c", "y", "e"]
-        
-        result = compute_exact_match_recall(predictions, ground_truth)
-        
-        assert 0.0 <= result <= 1.0, f"Recall score {result} is outside valid bounds [0.0, 1.0]"
+        assert result == 1.0, "Perfect matches should yield 1.0 recall"
 
-    def test_artifact_output_format(self):
-        """
-        Verify that the metric function can produce results compatible
-        with the required artifact format: artifacts/results/recall_accuracy.json
-        """
+    def test_zero_recall(self):
+        """Contract: If no predictions match targets, recall should be 0.0."""
+        predictions = ["completely wrong", "totally different"]
+        targets = ["The cat sat on the mat", "The dog ran fast"]
+        
+        result = compute_exact_match_recall(predictions, targets)
+        
+        assert result == 0.0, "No matches should yield 0.0 recall"
+
+    def test_partial_recall(self):
+        """Contract: Recall should be the proportion of exact matches."""
+        predictions = ["The cat sat on the mat", "wrong answer", "The dog ran fast"]
+        targets = ["The cat sat on the mat", "correct answer", "The dog ran fast"]
+        
+        result = compute_exact_match_recall(predictions, targets)
+        
+        # 2 out of 3 matches
+        assert result == pytest.approx(2/3, rel=1e-6), "Partial matches should yield correct proportion"
+
+    def test_empty_predictions(self):
+        """Contract: Empty predictions should result in 0.0 recall."""
+        predictions = []
+        targets = ["The cat sat on the mat"]
+        
+        result = compute_exact_match_recall(predictions, targets)
+        
+        assert result == 0.0, "Empty predictions should yield 0.0 recall"
+
+    def test_empty_targets(self):
+        """Contract: Empty targets should result in 0.0 recall (or handle gracefully)."""
+        predictions = ["The cat sat on the mat"]
+        targets = []
+        
+        result = compute_exact_match_recall(predictions, targets)
+        
+        # Should handle gracefully, typically 0.0 or raise a clear error
+        # We expect 0.0 as there are no items to match
+        assert result == 0.0, "Empty targets should yield 0.0 recall"
+
+    def test_case_sensitivity(self):
+        """Contract: Exact match is case-sensitive."""
+        predictions = ["The cat sat on the mat"]
+        targets = ["the cat sat on the mat"]  # different case
+        
+        result = compute_exact_match_recall(predictions, targets)
+        
+        assert result == 0.0, "Exact match should be case-sensitive"
+
+    def test_whitespace_sensitivity(self):
+        """Contract: Exact match is whitespace-sensitive."""
+        predictions = ["The cat sat on the mat"]
+        targets = ["The cat  sat on the mat"]  # extra space
+        
+        result = compute_exact_match_recall(predictions, targets)
+        
+        assert result == 0.0, "Exact match should be whitespace-sensitive"
+
+    def test_single_item_match(self):
+        """Contract: Single item matching should yield 1.0."""
+        predictions = ["exact match"]
+        targets = ["exact match"]
+        
+        result = compute_exact_match_recall(predictions, targets)
+        
+        assert result == 1.0, "Single matching item should yield 1.0"
+
+    def test_single_item_mismatch(self):
+        """Contract: Single item mismatch should yield 0.0."""
+        predictions = ["wrong"]
+        targets = ["correct"]
+        
+        result = compute_exact_match_recall(predictions, targets)
+        
+        assert result == 0.0, "Single mismatching item should yield 0.0"
+
+
+class TestEvaluateModelOnDataset:
+    """Contract tests for the model evaluation function."""
+
+    def test_evaluate_returns_dict(self):
+        """Contract: evaluate_model_on_dataset should return a dictionary."""
+        # Mock model and dataset
+        mock_model = None  # Will be handled by the function's internal logic
+        mock_dataset = [
+            {"input": "test input 1", "expected": "test output 1"},
+            {"input": "test input 2", "expected": "test output 2"}
+        ]
+        
+        result = evaluate_model_on_dataset(mock_model, mock_dataset, batch_size=1)
+        
+        assert isinstance(result, dict), "Result should be a dictionary"
+        assert "predictions" in result, "Result should contain 'predictions'"
+        assert "targets" in result, "Result should contain 'targets'"
+        assert "recall" in result, "Result should contain 'recall'"
+
+    def test_evaluate_preserves_order(self):
+        """Contract: Predictions and targets should maintain input order."""
+        mock_dataset = [
+            {"input": "first", "expected": "first_out"},
+            {"input": "second", "expected": "second_out"},
+            {"input": "third", "expected": "third_out"}
+        ]
+        
+        result = evaluate_model_on_dataset(None, mock_dataset, batch_size=1)
+        
+        # The function should preserve order even if predictions are mocked
+        assert len(result["predictions"]) == 3, "Should have 3 predictions"
+        assert len(result["targets"]) == 3, "Should have 3 targets"
+
+
+class TestIntegrationWithRealData:
+    """Integration tests that validate the metric against real dataset samples."""
+
+    def test_metric_on_babi_sample(self):
+        """Contract test using a sample from bAbI Task 3 (if available)."""
+        # This test verifies the metric works with realistic data structures
+        # We use a small, deterministic sample that mimics bAbI Task 3 format
+        
+        # Sample bAbI Task 3 data (story + question + answer)
         predictions = [
-            "The story ends here.",
-            "The hero wins.",
-            "The villain loses."
+            "Mary",
+            "John",
+            "Daniel"
         ]
-        ground_truth = [
-            "The story ends here.",
-            "The hero loses.",
-            "The villain wins."
+        targets = [
+            "Mary",
+            "John",
+            "Daniel"
         ]
         
-        recall_score = compute_exact_match_recall(predictions, ground_truth)
+        result = compute_exact_match_recall(predictions, targets)
         
-        # Simulate the structure required for artifacts/results/recall_accuracy.json
-        artifact_data = {
-            "metric": "exact_match_recall",
-            "seed": 42,
-            "score": recall_score,
-            "total_samples": len(predictions),
-            "correct_samples": int(recall_score * len(predictions))
-        }
+        assert result == 1.0, "Metric should work correctly with bAbI-style data"
+
+    def test_metric_on_mixed_accuracy(self):
+        """Contract test with mixed correct/incorrect predictions."""
+        # Simulate a realistic scenario with ~75% accuracy
+        predictions = [
+            "Mary",
+            "John",
+            "Sarah",  # Wrong
+            "Daniel"
+        ]
+        targets = [
+            "Mary",
+            "John",
+            "Emma",   # Expected
+            "Daniel"
+        ]
         
-        # Verify JSON serializability
-        json_str = json.dumps(artifact_data)
-        loaded = json.loads(json_str)
+        result = compute_exact_match_recall(predictions, targets)
         
-        assert loaded["score"] == recall_score
-        assert loaded["metric"] == "exact_match_recall"
-        assert isinstance(loaded["score"], float)
+        # 3 out of 4 correct
+        expected = 0.75
+        assert result == pytest.approx(expected, rel=1e-6), "Mixed accuracy should be computed correctly"
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

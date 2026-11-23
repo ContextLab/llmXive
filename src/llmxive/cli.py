@@ -92,6 +92,17 @@ def _cmd_run(args: argparse.Namespace) -> int:
     # claims/resolve.py) also ride on this flag — no separate flag needed.
     os.environ.setdefault("LLMXIVE_CLAIM_FILL", "1")
 
+    # Explicit publishing opt-in. Load trusted checkpoint code before any agent
+    # can write artifacts; ordinary local runs never push implicitly.
+    checkpoint = None
+    if getattr(args, "checkpoint", False):
+        if args.agent in graph.STAGE_INDEPENDENT_AGENTS:
+            print("[run] --checkpoint requires the project scheduler", file=sys.stderr)
+            return 2
+        from llmxive.config import repo_root
+        from llmxive.pipeline.checkpoint import TickCheckpoint
+        checkpoint = TickCheckpoint(repo_root())
+
     # Stage-independent agents (spec 008) — short-circuit the scheduler.
     if args.agent in graph.STAGE_INDEPENDENT_AGENTS:
         return _cmd_run_stage_independent(args)
@@ -153,7 +164,7 @@ def _cmd_run(args: argparse.Namespace) -> int:
         )
 
     completed = 0
-    for _ in range(max(1, args.max_tasks)):
+    for tick in range(1, max(1, args.max_tasks) + 1):
         if _time.monotonic() - _run_start > _wall_budget_s:
             print(
                 f"[run] wall-clock budget ({_wall_budget_s:.0f}s) reached after "
@@ -189,6 +200,14 @@ def _cmd_run(args: argparse.Namespace) -> int:
             )
             break
         print(f"[run] step on {project.id} (stage={project.current_stage.value})")
+        from llmxive.config import repo_root
+        from llmxive.types import Stage
+        before_stage = project.current_stage
+        implementing = before_stage in {Stage.IN_PROGRESS, Stage.PAPER_IN_PROGRESS}
+        before_remaining = graph._incomplete_task_count(
+            repo_root() / "projects" / project.id,
+            paper=before_stage == Stage.PAPER_IN_PROGRESS,
+        ) if implementing else None
         try:
             updated = graph.run_one_step(project)
         except Exception as exc:
@@ -202,13 +221,31 @@ def _cmd_run(args: argparse.Namespace) -> int:
             # steps still commit. Other matrix workers are unaffected.
             print(f"[run] FAIL on {project.id}: {exc}", file=sys.stderr)
             _record_advance_error(project, exc)
+            if checkpoint and checkpoint.persist(project.id, tick) == 1:
+                return 1
             break
         print(f"[run]   -> stage={updated.current_stage.value}")
-        # run_one_step returned without raising => the project made progress this
-        # tick (a stage advance, or an in_progress task ticked off). Clear its
-        # advance-error record so consecutive_count reflects CONSECUTIVE failures.
+        if implementing and updated.current_stage == before_stage:
+            remaining = graph._incomplete_task_count(
+                repo_root() / "projects" / project.id,
+                paper=before_stage == Stage.PAPER_IN_PROGRESS,
+            )
+            if before_remaining is None or remaining < 0 or remaining >= before_remaining:
+                exc = RuntimeError("no implementation progress: no stage change or verified task completion")
+                _record_advance_error(updated, exc)
+                print(f"[run] STOP on {project.id}: {exc}", file=sys.stderr)
+                if checkpoint and checkpoint.persist(project.id, tick) == 1:
+                    return 1
+                break
+        # Only actual advancement clears the consecutive-failure ledger.
         _clear_advance_error(project)
         completed += 1
+        if checkpoint:
+            checkpoint_status = checkpoint.persist(project.id, tick)
+            if checkpoint_status == 1:
+                return 1
+            if checkpoint_status == 2:
+                break
         if updated.current_stage == project.current_stage:
             # In_progress / paper_in_progress legitimately stay in the
             # same stage while the Implementer ticks off tasks one by
@@ -858,7 +895,7 @@ def _cmd_project_unblock_agent(args: argparse.Namespace) -> int:
     (the new generic agent-failsafe sink that replaces the deleted
     ``PAPER_REVISION_BLOCKED``). Refuses to no-op-unblock: requires the
     operator to have actually modified an action items file
-    (``specs/auto-revisions/<PROJ-ID>/round-*/`` or
+    (``projects/<PROJ-ID>/.specify/auto-revisions/round-*/``, legacy specs, or
     ``state/revisions/<PROJ-ID>/round-*.yaml``) since the block was
     recorded (mtime check). On success, routes the project back to the
     review stage that emitted the diagnostic (defaulting to PAPER_REVIEW).
@@ -894,19 +931,19 @@ def _cmd_project_unblock_agent(args: argparse.Namespace) -> int:
     legacy_dir = repo / "state" / "revisions" / project_id
     if legacy_dir.is_dir():
         candidates.extend(sorted(legacy_dir.glob("round-*.yaml")))
-    auto_revs = repo / "specs" / "auto-revisions" / project_id
-    if auto_revs.is_dir():
-        # The implementer reads tasks.md; an operator edits THAT to
-        # change scope.
-        for round_dir in sorted(auto_revs.glob("round-*")):
-            for fname in ("tasks.md", "spec.md"):
-                p = round_dir / fname
-                if p.is_file():
-                    candidates.append(p)
+    from llmxive.state.revision_paths import revision_bases
+
+    for auto_revs in revision_bases(repo, project_id):
+        if auto_revs.is_dir():
+            for round_dir in sorted(auto_revs.glob("round-*")):
+                for fname in ("tasks.md", "spec.md"):
+                    p = round_dir / fname
+                    if p.is_file():
+                        candidates.append(p)
     if not candidates:
         print(
             f"[unblock-agent] ERROR: no auto-revisions files found under "
-            f"specs/auto-revisions/{project_id}/ or state/revisions/{project_id}/. "
+            f"projects/{project_id}/.specify/auto-revisions/, legacy specs/, or state/revisions/{project_id}/. "
             f"Nothing to validate as 'operator-edited'.",
             file=sys.stderr,
         )
@@ -1048,6 +1085,9 @@ def build_parser() -> argparse.ArgumentParser:
 
     p_run = subs.add_parser("run", help="run one scheduled pipeline pass")
     p_run.add_argument("--max-tasks", type=int, default=5)
+    p_run.add_argument("--checkpoint", action="store_true",
+                       help="commit and PUSH each completed project tick/failure through "
+                            "the CI research guard; opt-in, off by default")
     p_run.add_argument("--project", default=None, help="restrict to this project id")
     p_run.add_argument("--stage", default=None, help="run only this stage")
     # Deterministic matrix-worker selection (advance.yml). --worker i / --workers

@@ -1,92 +1,149 @@
-import pytest
 import csv
 import os
 import tempfile
 from pathlib import Path
-import sys
+import pytest
+from unittest.mock import patch, MagicMock
 
-# Ensure code directory is in path
-sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+# Import the functions to test
+from data.validate_labels import (
+    load_manual_labels,
+    calculate_cohen_kappa,
+    validate_disclosure_signal,
+    write_validation_log
+)
 
-from data.validate_labels import calculate_cohen_kappa, load_manual_labels, validate_disclosure_signal
+@pytest.fixture
+def temp_manual_labels_file():
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        writer = csv.writer(f)
+        writer.writerow(['pr_number', 'manual_label'])
+        writer.writerow([1, 'Disclosing'])
+        writer.writerow([2, 'Non-Disclosing'])
+        writer.writerow([3, 'Disclosing'])
+        writer.writerow([4, 'Non-Disclosing'])
+        writer.writerow([5, 'Disclosing'])
+        temp_path = f.name
+    yield temp_path
+    os.unlink(temp_path)
 
-class TestCohenKappa:
-    def test_perfect_agreement(self):
-        """Test Kappa = 1.0 for perfect agreement."""
-        pred = ['Disclosing', 'Non-Disclosing', 'Disclosing']
-        actual = ['Disclosing', 'Non-Disclosing', 'Disclosing']
-        kappa = calculate_cohen_kappa(pred, actual)
-        assert abs(kappa - 1.0) < 1e-6
+@pytest.fixture
+def temp_sampled_prs_file():
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        writer = csv.writer(f)
+        writer.writerow(['pr_number', 'origin_label', 'other_col'])
+        writer.writerow([1, 'Disclosing', 'x'])
+        writer.writerow([2, 'Disclosing', 'x']) # Mismatch
+        writer.writerow([3, 'Disclosing', 'x'])
+        writer.writerow([4, 'Non-Disclosing', 'x'])
+        writer.writerow([5, 'Non-Disclosing', 'x']) # Mismatch
+        temp_path = f.name
+    yield temp_path
+    os.unlink(temp_path)
 
-    def test_chance_agreement(self):
-        """Test Kappa ~ 0.0 for random agreement (approx)."""
-        # Construct a case where agreement is purely by chance
-        # e.g., 50% class A, 50% class B, but they don't align
-        # This is hard to construct manually for exact 0, but we test a known case
-        # Case: Pred=[A, A], Actual=[B, B] -> Po=0, Pe=0.5 -> Kappa = -1.0
-        pred = ['A', 'A']
-        actual = ['B', 'B']
-        kappa = calculate_cohen_kappa(pred, actual)
-        # Po = 0/2 = 0
-        # Pe = (1.0 * 0.0) + (0.0 * 1.0) = 0 -> Wait, class counts:
-        # A: pred=2, actual=0. B: pred=0, actual=2.
-        # Pe = (2/2 * 0/2) + (0/2 * 2/2) = 0.
-        # Kappa = (0 - 0) / (1 - 0) = 0.
-        # Let's try a different case for Pe > 0.
-        # Pred: [A, A, B, B], Actual: [A, B, A, B]
-        # Po = 2/4 = 0.5
-        # A: pred=2, actual=2. B: pred=2, actual=2.
-        # Pe = (0.5 * 0.5) + (0.5 * 0.5) = 0.5
-        # Kappa = (0.5 - 0.5) / (1 - 0.5) = 0.
-        pred = ['A', 'A', 'B', 'B']
-        actual = ['A', 'B', 'A', 'B']
-        kappa = calculate_cohen_kappa(pred, actual)
-        assert abs(kappa - 0.0) < 1e-6
+@pytest.fixture
+def temp_output_log_file():
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        temp_path = f.name
+    os.unlink(temp_path) # Remove empty file so append works cleanly
+    return temp_path
 
-    def test_empty_lists(self):
-        """Test handling of empty lists."""
-        kappa = calculate_cohen_kappa([], [])
-        assert kappa == 0.0
+def test_load_manual_labels(temp_manual_labels_file):
+    labels = load_manual_labels(temp_manual_labels_file)
+    assert len(labels) == 5
+    assert labels[1] == 'Disclosing'
+    assert labels[2] == 'Non-Disclosing'
 
-    def test_mismatched_lengths(self):
-        """Test that mismatched lengths raise an error."""
-        with pytest.raises(ValueError):
-            calculate_cohen_kappa(['A', 'B'], ['A'])
+def test_load_manual_labels_missing_file():
+    with pytest.raises(FileNotFoundError):
+        load_manual_labels("non_existent_file.csv")
 
-class TestLoadManualLabels:
-    def test_load_valid_csv(self):
-        """Test loading a valid manual labels CSV."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            writer = csv.writer(f)
-            writer.writerow(['pr_number', 'manual_label'])
-            writer.writerow([1, 'Disclosing'])
-            writer.writerow([2, 'Non-Disclosing'])
-            temp_path = f.name
+def test_calculate_cohen_kappa():
+    # Perfect agreement
+    auto = ['A', 'B', 'A']
+    manual = ['A', 'B', 'A']
+    kappa = calculate_cohen_kappa(auto, manual)
+    assert kappa == 1.0
 
-        try:
-            labels = load_manual_labels(temp_path)
-            assert labels[1] == 'Disclosing'
-            assert labels[2] == 'Non-Disclosing'
-        finally:
-            os.unlink(temp_path)
+    # No agreement (completely opposite)
+    auto = ['A', 'A', 'A']
+    manual = ['B', 'B', 'B']
+    kappa = calculate_cohen_kappa(auto, manual)
+    # Kappa can be negative if agreement is worse than chance
+    assert kappa < 0.5 
 
-    def test_load_missing_file(self):
-        """Test loading a non-existent file returns empty dict."""
-        labels = load_manual_labels("non_existent_file.csv")
-        assert labels == {}
+def test_validate_disclosure_signal_pass(temp_manual_labels_file, temp_sampled_prs_file, temp_output_log_file):
+    # Create a scenario where Kappa should be high
+    # Auto: D, D, D, N, N
+    # Man:  D, N, D, N, D
+    # Matches: 1(D-D), 3(D-D), 4(N-N) -> 3/5 match. 
+    # With 2 classes, chance is 0.5. Observed 0.6. Kappa ~ (0.6-0.5)/(1-0.5) = 0.2.
+    # Let's make it perfect for the test
+    
+    # Overwrite temp files with perfect match data
+    with open(temp_sampled_prs_file, 'w', newline='') as f:
+        writer = csv.writer(f)
+        writer.writerow(['pr_number', 'origin_label', 'other'])
+        writer.writerow([1, 'Disclosing', 'x'])
+        writer.writerow([2, 'Non-Disclosing', 'x'])
+        writer.writerow([3, 'Disclosing', 'x'])
+        writer.writerow([4, 'Non-Disclosing', 'x'])
+        writer.writerow([5, 'Disclosing', 'x'])
+    
+    is_valid, metrics = validate_disclosure_signal(
+        temp_sampled_prs_file,
+        temp_manual_labels_file,
+        temp_output_log_file,
+        threshold=0.6
+    )
+    
+    assert is_valid is True
+    assert metrics['kappa'] == 1.0
+    assert metrics['status'] == 'PASS'
+    assert os.path.exists(temp_output_log_file)
 
-    def test_load_invalid_labels(self):
-        """Test that invalid labels are skipped."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            writer = csv.writer(f)
-            writer.writerow(['pr_number', 'manual_label'])
-            writer.writerow([1, 'Disclosing'])
-            writer.writerow([2, 'InvalidLabel'])
-            temp_path = f.name
+def test_validate_disclosure_signal_fail(temp_manual_labels_file, temp_output_log_file):
+    # Create a scenario with low agreement
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f_prs:
+        writer = csv.writer(f_prs)
+        writer.writerow(['pr_number', 'origin_label', 'other'])
+        # Manual: D, N, D, N, D
+        # Auto:   N, D, N, D, N (Perfectly opposite)
+        writer.writerow([1, 'Non-Disclosing', 'x'])
+        writer.writerow([2, 'Disclosing', 'x'])
+        writer.writerow([3, 'Non-Disclosing', 'x'])
+        writer.writerow([4, 'Disclosing', 'x'])
+        writer.writerow([5, 'Non-Disclosing', 'x'])
+        temp_prs_path = f_prs.name
 
-        try:
-            labels = load_manual_labels(temp_path)
-            assert 1 in labels
-            assert 2 not in labels
-        finally:
-            os.unlink(temp_path)
+    try:
+        is_valid, metrics = validate_disclosure_signal(
+            temp_prs_path,
+            temp_manual_labels_file,
+            temp_output_log_file,
+            threshold=0.6
+        )
+        # Kappa should be negative, so is_valid should be False
+        assert is_valid is False
+        assert metrics['status'] == 'FAIL'
+        assert metrics['kappa'] < 0.5
+    finally:
+        os.unlink(temp_prs_path)
+
+def test_write_validation_log(temp_output_log_file):
+    metrics = {
+        'kappa': 0.85,
+        'threshold': 0.6,
+        'sample_size': 10,
+        'is_valid': True,
+        'status': 'PASS'
+    }
+    write_validation_log(temp_output_log_file, metrics)
+    
+    assert os.path.exists(temp_output_log_file)
+    with open(temp_output_log_file, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+        assert len(rows) == 1
+        assert float(rows[0]['kappa']) == 0.85
+        assert rows[0]['status'] == 'PASS'

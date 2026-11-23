@@ -1,0 +1,34 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Network Metrics Output
+description: Schema for computed brain network metrics per subject.
+type: object
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the participant.
+  metric_name:
+    type: string
+    enum:
+      - modularity
+      - global_efficiency
+      - local_efficiency
+    description: Type of network metric.
+  value:
+    type: number
+    description: Computed value. Must be non-negative and finite.
+  atlas:
+    type: string
+    description: Parcellation atlas used (e.g., Schaefer-100).
+  valid:
+    type: boolean
+    description: True if the metric is valid (not NaN, within bounds).
+  exclusion_reason:
+    type: string
+    description: Reason for exclusion if valid is false.
+required:
+  - subject_id
+  - metric_name
+  - value
+  - atlas
+  - valid
+additionalProperties: false

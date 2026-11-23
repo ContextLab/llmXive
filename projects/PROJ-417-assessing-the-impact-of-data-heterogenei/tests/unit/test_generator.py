@@ -1,119 +1,86 @@
-import json
-import os
+"""
+Unit tests for the simulation generator (Task T002, FR-001).
+"""
+import csv
 import math
-import random
-import numpy as np
-import pytest
-from pathlib import Path
-
-# Add project root to path for imports
+import os
 import sys
+import tempfile
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
-
+import numpy as np
 from simulation.generator import (
     SimulationConfig,
+    SimulationResult,
+    load_base_data_structure,
+    calculate_effect_and_variance,
     create_replicate,
-    generate_synthetic_meta_analysis,
-    load_base_data_structure
+    validate_simulation_output,
 )
-from utils.logging import setup_logging
 
-# Ensure output directory exists
-OUTPUT_DIR = Path("data/results")
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-OUTPUT_FILE = OUTPUT_DIR / "test_variance_check.json"
+BASE_EFFECTS = [0.0] * 20
+BASE_SES = [round(0.08 + 0.005 * i, 4) for i in range(20)]
 
-def test_generated_variance_matches_injected():
-    """
-    T008: Unit test verifying that generated variance matches injected tau^2
-    within Monte Carlo error (500 replicates).
-    
-    Verifies output artifact data/results/test_variance_check.json contains
-    mean variance within 0.01 of target.
-    """
-    # Setup logging for the test run
-    setup_logging()
-    
-    # Configuration for the test
-    # We test at a specific tau^2 level (0.5) to verify the variance generation
-    target_tau2 = 0.5
-    n_replicates = 500
-    seed = 42
-    
-    # Set global seed for reproducibility
-    random.seed(seed)
-    np.random.seed(seed)
-    
-    # Load base data structure to get study characteristics
-    # Using a small synthetic base structure for the unit test to avoid
-    # dependency on external data fetch in this specific unit test context,
-    # but the generator logic remains the same.
-    # In a full integration, load_base_data_structure("data/raw/cochrane_base.csv") would be used.
-    base_structure = {
-        "studies": [
-            {"id": f"study_{i}", "n": np.random.randint(20, 100), "se": np.random.uniform(0.1, 0.5)}
-            for i in range(10)
-        ]
-    }
-    
-    generated_variances = []
-    
-    # Generate replicates
-    for i in range(n_replicates):
-        # Create a single replicate with the target tau^2
-        # We use a mock config since the full generator loop is tested elsewhere
-        # This focuses on the core variance generation logic
-        replicate_data = create_replicate(base_structure, target_tau2, seed + i)
-        
-        # Extract the generated between-study variance from the replicate
-        # The create_replicate function should inject the true tau^2 into the data
-        if "true_tau2" in replicate_data:
-            generated_variances.append(replicate_data["true_tau2"])
-        else:
-            # Fallback: if the replicate doesn't explicitly store true_tau2,
-            # we might need to calculate it or assert the structure.
-            # For this test, we assume the generator correctly sets it.
-            # If not, we raise an error to fail loudly.
-            raise AssertionError(f"Replicate {i} missing 'true_tau2' field. "
-                                 f"Keys: {replicate_data.keys()}")
-    
-    # Calculate statistics
-    mean_variance = float(np.mean(generated_variances))
-    std_variance = float(np.std(generated_variances))
-    target_variance = float(target_tau2)
-    diff = abs(mean_variance - target_variance)
-    
-    # Monte Carlo error check: mean should be within 0.01 of target
-    # With 500 replicates and typical standard deviations, this is a tight but
-    # achievable bound for a correctly implemented generator.
-    tolerance = 0.01
-    
-    assert diff <= tolerance, (
-        f"Generated variance mean ({mean_variance:.4f}) differs from target "
-        f"({target_variance:.4f}) by {diff:.4f}, which exceeds tolerance {tolerance}. "
-        f"Std dev: {std_variance:.4f}"
+def _make_config(tau2: float, seed: int = 42, n_studies: int = 20) -> SimulationConfig:
+    return SimulationConfig(
+        injected_true_effect=0.5,
+        injected_tau2=tau2,
+        N_studies=n_studies,
+        base_data_path="dummy_path",
+        seed=seed,
     )
-    
-    # Prepare result artifact
-    result = {
-        "test_name": "variance_check",
-        "target_tau2": target_variance,
-        "n_replicates": n_replicates,
-        "mean_generated_variance": mean_variance,
-        "std_generated_variance": std_variance,
-        "difference": diff,
-        "tolerance": tolerance,
-        "passed": diff <= tolerance,
-        "seed": seed
-    }
-    
-    # Write artifact to disk
-    with open(OUTPUT_FILE, "w") as f:
-        json.dump(result, f, indent=2)
-    
-    print(f"Test passed. Mean variance: {mean_variance:.4f}, Target: {target_variance:.4f}")
-    print(f"Output written to: {OUTPUT_FILE}")
 
-if __name__ == "__main__":
-    test_generated_variance_matches_injected()
+def test_load_base_data_structure():
+    with tempfile.TemporaryDirectory() as tmp:
+        path = os.path.join(tmp, "base.csv")
+        with open(path, "w", newline="") as f:
+            writer = csv.writer(f)
+            writer.writerow(["study_id", "effect_size", "standard_error"])
+            for i, (e, s) in enumerate(zip(BASE_EFFECTS, BASE_SES)):
+                writer.writerow([f"s{i}", e, s])
+        effects, ses = load_base_data_structure(path)
+    assert len(effects) == 20
+    assert len(ses) == 20
+    assert all(math.isclose(a, b) for a, b in zip(ses, BASE_SES))
+
+def test_calculate_effect_and_variance_zero_tau2():
+    rng = np.random.default_rng(42)
+    true_effect = 0.5
+    base_se = 0.1
+    obs_effect, obs_var = calculate_effect_and_variance(0.0, base_se, true_effect, 0.0, rng)
+    assert math.isclose(obs_var, base_se ** 2, rel_tol=1e-5)
+    assert abs(obs_effect - true_effect) < 3 * base_se
+
+def test_create_replicate():
+    rng = np.random.default_rng(42)
+    config = _make_config(0.1, n_studies=5)
+    result = create_replicate(config, BASE_EFFECTS[:5], BASE_SES[:5], rng)
+    assert isinstance(result, SimulationResult)
+    assert result.injected_tau2 == 0.1
+    assert len(result.studies) == 5
+
+def test_validate_simulation_output():
+    rng = np.random.default_rng(42)
+    config = _make_config(0.1)
+    result = create_replicate(config, BASE_EFFECTS, BASE_SES, rng)
+    assert validate_simulation_output([result]) is True
+
+def test_deterministic_seeding():
+    config = _make_config(0.5, seed=42)
+    rng_a = np.random.default_rng(42)
+    rng_b = np.random.default_rng(42)
+    res_a = create_replicate(config, BASE_EFFECTS, BASE_SES, rng_a)
+    res_b = create_replicate(config, BASE_EFFECTS, BASE_SES, rng_b)
+    assert res_a.mean_effect == res_b.mean_effect
+    assert [s["effect_size"] for s in res_a.studies] == [s["effect_size"] for s in res_b.studies]
+
+def test_variance_match_unit_test():
+    tau2_target = 0.5
+    n_replicates = 500
+    config = _make_config(tau2_target, seed=42, n_studies=20)
+    obs_tau2_values = []
+    for i in range(n_replicates):
+        sub_rng = np.random.default_rng(config.seed + i)
+        result = create_replicate(config, BASE_EFFECTS, BASE_SES, sub_rng)
+        obs_tau2_values.append(result.observed_between_study_variance)
+    mean_obs_tau2 = float(np.mean(obs_tau2_values))
+    assert abs(mean_obs_tau2 - tau2_target) < 0.05

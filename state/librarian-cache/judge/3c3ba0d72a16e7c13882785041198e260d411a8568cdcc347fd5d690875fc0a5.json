@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1510.04195",
+  "judged_at": "2026-07-17T09:45:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the impact of data scaling on statistical test sensitivity statistics",
+  "rationale": "This paper qualifies under category (a) and (d) because it investigates the asymptotic behavior and performance of statistical test statistics under local alternatives, which directly addresses the mechanism of \"test sensitivity\" (statistical power) for a specific class of nonparametric tests. As a foundational methodology paper proposing a new family of tests, it provides the canonical reference for how these specific statistics behave as data conditions change, which is essential for a literat",
+  "relevant": true
+}

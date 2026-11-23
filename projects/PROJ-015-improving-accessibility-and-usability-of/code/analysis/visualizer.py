@@ -1,129 +1,179 @@
 import matplotlib.pyplot as plt
 import pandas as pd
-from utils.logger import get_logger
-import os
-from pathlib import Path
 import numpy as np
+import os
+import sys
+from pathlib import Path
+from typing import Optional
 
-logger = get_logger(__name__)
+# Ensure we can import from the project root if run as a script
+# This is a safeguard for local execution
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
-class Visualizer:
-    def __init__(self, output_dir: Path):
-        self.output_dir = output_dir
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-        plt.style.use('seaborn-v0_8-whitegrid')
+def plot_completion_time(df: pd.DataFrame, output_path: Optional[str] = None) -> None:
+    """
+    Generates a box-plot visualization for Completion Time.
     
-    def create_boxplot(self, data: pd.DataFrame, metric: str, x_col: str = 'interface_type', 
-                     y_col: str = None, title: str = None, output_file: str = None):
-        """Create a box plot with error bars for a given metric."""
-        if y_col is None:
-            y_col = metric
-        
-        if metric not in data.columns or x_col not in data.columns:
-            raise ValueError(f"Required columns not found. Available: {data.columns.tolist()}")
-        
-        fig, ax = plt.subplots(figsize=(10, 6))
-        
-        # Group data by interface type
-        groups = data.groupby(x_col)[y_col]
-        
-        # Extract data for each group
-        box_data = [group.dropna().values for name, group in groups]
-        labels = [name for name, _ in groups]
-        
-        # Create box plot
-        bp = ax.boxplot(box_data, labels=labels, patch_artist=True, showmeans=True)
-        
-        # Color the boxes
-        colors = ['#3498db', '#e74c3c']
-        for patch, color in zip(bp['boxes'], colors):
-            patch.set_facecolor(color)
-            patch.set_alpha(0.7)
-        
-        # Add mean points
-        for i, group in enumerate(groups):
-            mean_val = group.mean()
-            ax.plot(i + 1, mean_val, 'g^', markersize=10, label='Mean' if i == 0 else "")
-        
-        # Labels and title
-        if title is None:
-            title = f"{metric.replace('_', ' ').title()} by Interface Type"
-        ax.set_title(title, fontsize=14, fontweight='bold')
-        ax.set_xlabel('Interface Type', fontsize=12)
-        ax.set_ylabel(metric.replace('_', ' ').title(), fontsize=12)
-        
-        # Add legend if means are plotted
-        if any(bp['fliers']):
-            ax.legend(loc='upper right')
-        
-        plt.tight_layout()
-        
-        # Save plot
-        if output_file is None:
-            output_file = f"boxplot_{metric}.png"
-        
-        output_path = self.output_dir / output_file
-        plt.savefig(output_path, dpi=300, bbox_inches='tight')
-        plt.close()
-        
-        logger.info(f"Box plot saved: {output_path}")
-        return output_path
+    Args:
+        df: DataFrame containing 'completion_time' and 'interface_type' columns.
+        output_path: Path to save the figure. Defaults to 'figures/completion_time.png'.
+    """
+    if output_path is None:
+        output_path = str(PROJECT_ROOT / "figures" / "completion_time.png")
     
-    def create_comparison_plot(self, data: pd.DataFrame, metrics: list, output_prefix: str = None):
-        """Create box plots for multiple metrics."""
-        if output_prefix is None:
-            output_prefix = "boxplot"
-        
-        output_files = []
-        for metric in metrics:
-            if metric in data.columns:
-                output_file = f"{output_prefix}_{metric}.png"
-                try:
-                    path = self.create_boxplot(data, metric, output_file=output_file)
-                    output_files.append(path)
-                except Exception as e:
-                    logger.error(f"Failed to create plot for {metric}: {e}")
-            else:
-                logger.warning(f"Metric {metric} not found in data, skipping plot.")
-        
-        return output_files
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    plt.figure(figsize=(10, 6))
+    
+    # Group by interface type for boxplot
+    data_to_plot = [
+        df[df['interface_type'] == 'Traditional']['completion_time'].dropna(),
+        df[df['interface_type'] == 'Explainable']['completion_time'].dropna()
+    ]
+    
+    labels = ['Traditional', 'Explainable']
+    
+    bp = plt.boxplot(data_to_plot, labels=labels, patch_artist=True)
+    
+    # Color coding
+    colors = ['#4C72B0', '#55A868']
+    for patch, color in zip(bp['boxes'], colors):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.7)
+    
+    plt.ylabel('Completion Time (seconds)')
+    plt.title('Completion Time by Interface Type')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+    
+    print(f"Saved completion time plot to {output_path}")
+
+def plot_error_count(df: pd.DataFrame, output_path: Optional[str] = None) -> None:
+    """
+    Generates a box-plot visualization for Error Count.
+    
+    Args:
+        df: DataFrame containing 'error_count' and 'interface_type' columns.
+        output_path: Path to save the figure. Defaults to 'figures/error_count.png'.
+    """
+    if output_path is None:
+        output_path = str(PROJECT_ROOT / "figures" / "error_count.png")
+    
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    plt.figure(figsize=(10, 6))
+    
+    data_to_plot = [
+        df[df['interface_type'] == 'Traditional']['error_count'].dropna(),
+        df[df['interface_type'] == 'Explainable']['error_count'].dropna()
+    ]
+    
+    labels = ['Traditional', 'Explainable']
+    
+    bp = plt.boxplot(data_to_plot, labels=labels, patch_artist=True)
+    
+    colors = ['#4C72B0', '#55A868']
+    for patch, color in zip(bp['boxes'], colors):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.7)
+    
+    plt.ylabel('Error Count')
+    plt.title('Error Count by Interface Type')
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+    
+    print(f"Saved error count plot to {output_path}")
+
+def plot_sus_score(df: pd.DataFrame, output_path: Optional[str] = None) -> None:
+    """
+    Generates a box-plot visualization for SUS (System Usability Scale) scores.
+    
+    Args:
+        df: DataFrame containing 'sus_score' and 'interface_type' columns.
+        output_path: Path to save the figure. Defaults to 'figures/sus_score.png'.
+    """
+    if output_path is None:
+        output_path = str(PROJECT_ROOT / "figures" / "sus_score.png")
+    
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    plt.figure(figsize=(10, 6))
+    
+    # Prepare data for boxplot
+    data_to_plot = [
+        df[df['interface_type'] == 'Traditional']['sus_score'].dropna(),
+        df[df['interface_type'] == 'Explainable']['sus_score'].dropna()
+    ]
+    
+    labels = ['Traditional', 'Explainable']
+    
+    bp = plt.boxplot(data_to_plot, labels=labels, patch_artist=True,
+                     whis=1.5)  # Standard boxplot whiskers
+    
+    # Color coding
+    colors = ['#4C72B0', '#55A868']
+    for patch, color in zip(bp['boxes'], colors):
+        patch.set_facecolor(color)
+        patch.set_alpha(0.7)
+    
+    plt.ylabel('SUS Score (0-100)')
+    plt.title('System Usability Scale (SUS) Score by Interface Type')
+    plt.ylim(0, 105)  # SUS scores are 0-100
+    plt.grid(axis='y', linestyle='--', alpha=0.7)
+    
+    plt.tight_layout()
+    plt.savefig(output_path, dpi=300)
+    plt.close()
+    
+    print(f"Saved SUS score plot to {output_path}")
 
 def main():
-    """Main entry point for visualization generation."""
-    project_root = Path(__file__).resolve().parent.parent
-    input_path = project_root / 'data' / 'processed' / 'cleaned_sessions.csv'
-    output_dir = project_root / 'data' / 'processed'
+    """
+    Main entry point to generate all visualizations.
+    Reads from data/processed/cleaned_sessions.csv and generates figures.
+    """
+    # Determine paths
+    input_path = PROJECT_ROOT / "data" / "processed" / "cleaned_sessions.csv"
     
     if not input_path.exists():
-        print(f"Error: Input file not found: {input_path}")
-        return 1
+        print(f"Error: Input file not found at {input_path}")
+        print("Please run the cleaning pipeline first (T021c-cli).")
+        sys.exit(1)
     
+    print(f"Loading data from {input_path}...")
     try:
-        # Load data
         df = pd.read_csv(input_path)
-        logger.info(f"Loaded {len(df)} rows for visualization")
-        
-        # Create visualizer
-        visualizer = Visualizer(output_dir)
-        
-        # Generate plots for key metrics
-        metrics = ['completion_time', 'error_count', 'sus_score']
-        output_files = visualizer.create_comparison_plot(df, metrics)
-        
-        if output_files:
-            print(f"Generated {len(output_files)} plots:")
-            for f in output_files:
-                print(f"  - {f}")
-            return 0
-        else:
-            print("No plots were generated.")
-            return 1
-            
     except Exception as e:
-        logger.error(f"Visualization failed: {e}")
-        print(f"Error: {e}")
-        return 1
+        print(f"Error reading CSV: {e}")
+        sys.exit(1)
+    
+    # Verify required columns exist
+    required_cols = ['interface_type', 'completion_time', 'error_count', 'sus_score']
+    missing = [c for c in required_cols if c not in df.columns]
+    if missing:
+        print(f"Error: Missing required columns in data: {missing}")
+        sys.exit(1)
+    
+    print(f"Loaded {len(df)} records.")
+    
+    # Generate plots
+    print("Generating Completion Time plot...")
+    plot_completion_time(df)
+    
+    print("Generating Error Count plot...")
+    plot_error_count(df)
+    
+    print("Generating SUS Score plot...")
+    plot_sus_score(df)
+    
+    print("All visualizations generated successfully.")
 
-if __name__ == '__main__':
-    import sys
-    sys.exit(main())
+if __name__ == "__main__":
+    main()

@@ -1,248 +1,239 @@
-"""
-PMD CLI Wrapper for Cyclomatic Complexity Calculation.
-
-This module provides functionality to calculate Cyclomatic Complexity (CC)
-for Java files using the PMD static analysis tool via its CLI interface.
-It wraps the PMD command to extract CC metrics for every Java file in a
-given directory structure.
-"""
 import os
 import subprocess
 import tempfile
 import json
+import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import logging
+import xml.etree.ElementTree as ET
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+from src.config import validate_pmd_path
+
 logger = logging.getLogger(__name__)
 
-def get_pmd_path() -> Path:
+def get_pmd_path() -> str:
     """
-    Retrieve the PMD installation path from environment variables.
-    
-    Returns:
-        Path: The path to the PMD installation directory.
-        
-    Raises:
-        EnvironmentError: If PMD_PATH is not set or PMD binary is not found.
+    Retrieve the path to the PMD executable.
+    Uses the PMD_PATH environment variable or defaults to 'pmd'.
     """
-    pmd_path_str = os.environ.get('PMD_PATH')
-    if not pmd_path_str:
-        raise EnvironmentError(
-            "PMD_PATH environment variable is not set. "
-            "Please install PMD and set the PMD_PATH variable."
-        )
-    
-    pmd_path = Path(pmd_path_str)
-    pmd_bin = pmd_path / 'bin' / 'pmd'
-    
-    if not pmd_bin.exists():
-        # Try alternative path structure
-        pmd_bin = pmd_path / 'pmd-bin' / 'bin' / 'pmd'
-        if not pmd_bin.exists():
-            raise EnvironmentError(
-                f"PMD binary not found at {pmd_path}/bin/pmd or {pmd_path}/pmd-bin/bin/pmd. "
-                "Please ensure PMD is correctly installed and PMD_PATH points to the installation directory."
-            )
-    
+    pmd_path = os.environ.get('PMD_PATH', 'pmd')
+    if not shutil.which(pmd_path):
+        raise FileNotFoundError(f"PMD executable not found at '{pmd_path}'. "
+                                "Please set PMD_PATH environment variable or install PMD.")
     return pmd_path
 
-def calculate_cc_single_file(file_path: Path, pmd_path: Optional[Path] = None) -> Optional[int]:
+def load_file_list(file_paths: List[str]) -> List[str]:
     """
-    Calculate Cyclomatic Complexity for a single Java file using PMD.
+    Filter and return a list of valid file paths.
+    """
+    valid_files = []
+    for p in file_paths:
+        if os.path.isfile(p):
+            valid_files.append(p)
+        else:
+            logger.warning(f"Skipping non-existent file: {p}")
+    return valid_files
+
+def validate_java_syntax(file_path: str) -> bool:
+    """
+    Basic validation that the file exists and has a .java extension.
+    PMD will handle actual syntax parsing errors during analysis.
+    """
+    if not file_path.endswith('.java'):
+        return False
+    return os.path.isfile(file_path)
+
+def calculate_cc_single_file(file_path: str, pmd_path: Optional[str] = None) -> int:
+    """
+    Calculate Cyclomatic Complexity for a single Java file using PMD CLI.
+    
+    Logic:
+    1. Run PMD CLI: `pmd -f xml -d <file> -rulesets rulesets/java/complexity.xml`
+    2. Parse the XML output.
+    3. Sum the 'complexity' attribute of all <violation> tags.
+    4. If PMD returns no output or no violations, return 0.
+    5. If PMD fails to parse (syntax error), log and raise an exception or return -1 
+       (depending on caller strategy, here we log and raise DataParseError equivalent).
     
     Args:
         file_path: Path to the Java file.
-        pmd_path: Optional path to PMD installation (uses env var if not provided).
+        pmd_path: Optional path to PMD executable.
         
     Returns:
-        int: Cyclomatic Complexity value, or None if calculation fails.
+        Integer Cyclomatic Complexity score.
+        
+    Raises:
+        subprocess.CalledProcessError: If PMD command fails unexpectedly.
+        RuntimeError: If PMD cannot parse the file (syntax error).
     """
-    if not file_path.exists():
-        logger.warning(f"File not found: {file_path}")
-        return None
+    if pmd_path is None:
+        pmd_path = get_pmd_path()
         
-    if not file_path.suffix == '.java':
-        logger.warning(f"Not a Java file: {file_path}")
-        return None
-        
-    try:
-        pmd_path = pmd_path or get_pmd_path()
-        pmd_bin = pmd_path / 'bin' / 'pmd'
-        if not pmd_bin.exists():
-            pmd_bin = pmd_path / 'pmd-bin' / 'bin' / 'pmd'
-        
-        # Create temporary ruleset file for CC extraction
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.xml', delete=False) as ruleset_file:
-            ruleset_content = f"""<?xml version="1.0"?>
-<ruleset name="CC-Ruleset" xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 https://pmd.sourceforge.io/ruleset_2_0_0.xsd">
-    <description>Ruleset to extract Cyclomatic Complexity</description>
-    <rule ref="category/java/design.xml/CyclomaticComplexity">
-  <properties>
-      <property name="classReportLevel" value="false"/>
-      <property name="methodReportLevel" value="true"/>
-      <property name="showOnlyHighComplexity" value="false"/>
-  </properties>
-    </rule>
-</ruleset>"""
-            ruleset_file.write(ruleset_content)
-            ruleset_path = ruleset_file.name
-        
-        try:
-            # Run PMD CLI
-            cmd = [
-                str(pmd_bin),
-                'check',
-                '--rulesets', ruleset_path,
-                '--file-list', str(file_path),
-                '--format', 'json',
-                '--no-cache',
-                '--fail-on-violation', 'false'
-            ]
-            
-            result = subprocess.run(
-                cmd,
-                capture_output=True,
-                text=True,
-                timeout=60,
-                check=False
-            )
-            
-            if result.returncode != 0 and result.returncode != 4:
-                # 4 is often returned for violations, which is expected
-                logger.debug(f"PMD returned code {result.returncode} for {file_path}")
-            
-            # Parse JSON output
-            try:
-                output = json.loads(result.stdout)
-                violations = output.get('violations', [])
-                
-                if not violations:
-                    # If no violations reported, complexity is likely 0 or 1
-                    return 1
-                
-                # Extract CC from violations
-                # PMD reports CC as a property in violations
-                max_cc = 1
-                for violation in violations:
-                    if violation.get('rule') == 'CyclomaticComplexity':
-                        # Try to get priority or other indicators
-                        # If we have violations, at least one method has CC > 1
-                        # We'll estimate based on the count and typical distribution
-                        # For a more accurate approach, we'd need to parse the actual complexity values
-                        # which PMD might not expose directly in this format
-                        pass
-                
-                # Fallback: Count violations as a proxy (not ideal, but works for now)
-                # A better approach would be to use PMD's design rules more directly
-                # or parse the source code manually for CC calculation
-                return max(1, len(violations))
-                
-            except json.JSONDecodeError:
-                logger.debug(f"Could not parse PMD output as JSON for {file_path}: {result.stdout[:200]}")
-                return 1
-                
-        except subprocess.TimeoutExpired:
-            logger.warning(f"PMD timed out for {file_path}")
-            return None
-        except Exception as e:
-            logger.error(f"Error running PMD on {file_path}: {str(e)}")
-            return None
-            
-    finally:
-        # Clean up temporary ruleset file
-        try:
-            os.unlink(ruleset_path)
-        except OSError:
-            pass
+    if not validate_java_syntax(file_path):
+        logger.error(f"Invalid Java file: {file_path}")
+        raise ValueError(f"Invalid Java file: {file_path}")
 
-def calculate_cc_batch(file_paths: List[Path], pmd_path: Optional[Path] = None) -> Dict[str, int]:
+    cmd = [
+        pmd_path,
+        '-f', 'xml',
+        '-d', file_path,
+        '-R', 'rulesets/java/complexity.xml'
+    ]
+
+    try:
+        # Run PMD with a timeout to prevent hanging on large files
+        result = subprocess.run(
+            cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            timeout=60, # 60 seconds per file
+            check=False
+        )
+    except subprocess.TimeoutExpired:
+        logger.error(f"PMD timed out for file: {file_path}")
+        raise RuntimeError(f"PMD timed out for file: {file_path}")
+
+    stdout = result.stdout.decode('utf-8', errors='ignore')
+    stderr = result.stderr.decode('utf-8', errors='ignore')
+
+    # Check for PMD specific error codes or messages indicating parse failure
+    # PMD usually returns exit code 0 even with violations, but non-zero on critical errors.
+    # However, syntax errors often result in violations with specific rules or just empty output if skipped.
+    if result.returncode != 0:
+        # Check if it's a parse error
+        if "Cannot parse" in stderr or "ParseException" in stderr:
+            logger.warning(f"PMD failed to parse file (syntax error): {file_path}")
+            raise RuntimeError(f"PMD parse error: {file_path} - {stderr}")
+        # If it's a different error, log it but maybe not fail the whole batch immediately
+        logger.warning(f"PMD returned non-zero for {file_path}: {stderr}")
+
+    # Parse XML
+    if not stdout.strip():
+        # No output means no violations found (CC = 0) or empty file
+        logger.debug(f"No PMD output for {file_path}, assuming CC=0")
+        return 0
+
+    try:
+        root = ET.fromstring(stdout)
+    except ET.ParseError as e:
+        # This might happen if PMD outputs something other than valid XML due to a crash
+        logger.error(f"Failed to parse PMD XML output for {file_path}: {e}")
+        raise RuntimeError(f"Invalid PMD XML output for {file_path}")
+
+    total_complexity = 0
+    violations = root.findall('.//violation')
+    
+    for v in violations:
+        complexity_attr = v.get('complexity')
+        if complexity_attr:
+            try:
+                total_complexity += int(complexity_attr)
+            except ValueError:
+                logger.warning(f"Invalid complexity value in PMD output for {file_path}: {complexity_attr}")
+
+    logger.debug(f"Calculated CC for {file_path}: {total_complexity}")
+    return total_complexity
+
+def calculate_cc_batch(file_paths: List[str], pmd_path: Optional[str] = None) -> Dict[str, int]:
     """
-    Calculate Cyclomatic Complexity for multiple Java files.
+    Calculate Cyclomatic Complexity for a list of Java files.
     
     Args:
         file_paths: List of paths to Java files.
-        pmd_path: Optional path to PMD installation.
+        pmd_path: Optional path to PMD executable.
         
     Returns:
-        Dict mapping file paths (as strings) to their CC values.
+        Dictionary mapping file_path -> CC score.
+        Files that fail to parse are skipped and logged.
     """
+    if pmd_path is None:
+        pmd_path = get_pmd_path()
+        
     results = {}
-    logger.info(f"Calculating CC for {len(file_paths)} files...")
-    
-    for i, file_path in enumerate(file_paths):
-        if i % 100 == 0:
-            logger.info(f"Processed {i}/{len(file_paths)} files")
-            
-        cc = calculate_cc_single_file(file_path, pmd_path)
-        if cc is not None:
-            results[str(file_path)] = cc
-        else:
-            # Default to 1 if calculation fails
-            results[str(file_path)] = 1
-            
+    exclusion_count = 0
+
+    for f_path in file_paths:
+        try:
+            cc = calculate_cc_single_file(f_path, pmd_path)
+            results[f_path] = cc
+        except RuntimeError as e:
+            # Handle parse errors gracefully as per task requirement
+            logger.warning(f"Skipping file due to PMD error: {f_path} - {e}")
+            exclusion_count += 1
+        except Exception as e:
+            logger.error(f"Unexpected error processing {f_path}: {e}")
+            exclusion_count += 1
+
+    if exclusion_count > 0:
+        logger.info(f"Excluded {exclusion_count} files from CC calculation due to errors.")
+        
     return results
 
-def calculate_cc_for_directory(directory: Path, pmd_path: Optional[Path] = None) -> Dict[str, int]:
+def calculate_cc_for_directory(directory_path: str, pmd_path: Optional[str] = None) -> Dict[str, int]:
     """
-    Calculate Cyclomatic Complexity for all Java files in a directory.
+    Calculate Cyclomatic Complexity for all .java files in a directory.
     
     Args:
-        directory: Root directory to search for Java files.
-        pmd_path: Optional path to PMD installation.
+        directory_path: Path to the directory containing Java files.
+        pmd_path: Optional path to PMD executable.
         
     Returns:
-        Dict mapping file paths (as strings) to their CC values.
+        Dictionary mapping file_path -> CC score.
     """
+    directory = Path(directory_path)
     java_files = list(directory.rglob('*.java'))
-    logger.info(f"Found {len(java_files)} Java files in {directory}")
-    return calculate_cc_batch(java_files, pmd_path)
+    file_paths = [str(f) for f in java_files]
+    
+    if not file_paths:
+        logger.warning(f"No Java files found in {directory_path}")
+        return {}
+        
+    return calculate_cc_batch(file_paths, pmd_path)
+
+def save_results(results: Dict[str, int], output_path: str) -> None:
+    """
+    Save the CC results to a JSON file.
+    
+    Args:
+        results: Dictionary of file_path -> CC.
+        output_path: Path to the output JSON file.
+    """
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Results saved to {output_path}")
 
 def main():
     """
-    Main entry point for CLI execution.
-    
-    This function:
-    1. Reads the list of Java files from data/processed/java_files.json
-    2. Calculates CC for each file using PMD
-    3. Saves results to data/processed/cc_metrics.json
+    CLI entry point for calculating Cyclomatic Complexity.
+    Usage: python -m src.metrics_pmd --input <path> --output <path> [--directory]
     """
-    logger.info("Starting Cyclomatic Complexity calculation with PMD")
+    import argparse
     
-    # Define paths
-    project_root = Path(__file__).parent.parent
-    files_list_path = project_root / 'data' / 'processed' / 'java_files.json'
-    output_path = project_root / 'data' / 'processed' / 'cc_metrics.json'
+    parser = argparse.ArgumentParser(description='Calculate Cyclomatic Complexity using PMD')
+    parser.add_argument('--input', '-i', required=True, help='Input file path or directory')
+    parser.add_argument('--output', '-o', required=True, help='Output JSON file path')
+    parser.add_argument('--directory', '-d', action='store_true', help='Treat input as a directory')
     
-    if not files_list_path.exists():
-        logger.error(f"Java files list not found at {files_list_path}. "
-                    "Please run ingest.py first to generate this file.")
-        return
+    args = parser.parse_args()
     
-    # Load Java files list
-    with open(files_list_path, 'r') as f:
-        java_files = [Path(p) for p in json.load(f)]
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     
-    logger.info(f"Loaded {len(java_files)} Java files")
-    
-    # Calculate CC
-    cc_results = calculate_cc_batch(java_files)
-    
-    # Save results
-    with open(output_path, 'w') as f:
-        json.dump(cc_results, f, indent=2)
-    
-    logger.info(f"Saved CC metrics for {len(cc_results)} files to {output_path}")
-    
-    # Print summary statistics
-    if cc_results:
-        values = list(cc_results.values())
-        logger.info(f"CC Statistics - Min: {min(values)}, Max: {max(values)}, "
-                   f"Mean: {sum(values)/len(values):.2f}")
+    try:
+        if args.directory:
+            results = calculate_cc_for_directory(args.input)
+        else:
+            results = calculate_cc_single_file(args.input)
+            results = {args.input: results}
+        
+        save_results(results, args.output)
+        print(f"Successfully processed {len(results)} files.")
+        
+    except FileNotFoundError as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

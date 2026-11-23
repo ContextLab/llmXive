@@ -1,0 +1,8 @@
+[lint]
+# Ignore line length errors as we use Black for formatting
+ignore = ["E501"]
+
+[format]
+# Ruff formatter configuration (optional, Black is used for formatting)
+# Line length is controlled by .black.toml or pyproject.toml
+line-length = 100

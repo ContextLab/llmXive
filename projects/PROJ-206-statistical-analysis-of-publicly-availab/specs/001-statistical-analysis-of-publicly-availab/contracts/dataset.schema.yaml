@@ -1,103 +1,202 @@
-%YAML 1.2
----
 # Dataset Schema for Poll Aggregation Pipeline
-# Defines the structure for raw and cleaned poll data
-# Used for validation in src/data/harmonize.py
-
+# Defines the structure and validation rules for the harmonized poll data
 $schema: http://json-schema.org/draft-07/schema#
-title: Poll Dataset Schema
-description: >
-  Schema for the harmonized poll dataset produced by src/data/harmonize.py.
-  Defines the structure of data/processed/poll_data_cleaned.csv.
+title: PollDatasetSchema
+description: Schema for the harmonized election poll dataset
 type: object
 required:
-  - columns
-  - column_types
-  - constraints
-properties:
-  columns:
-    type: array
-    description: Ordered list of column names in the final dataset.
-    items:
-      type: string
-    example:
-      - date
-      - pollster
-      - candidate
-      - vote_share
-      - sample_size
-      - mode
-      - historical_rmse
-  column_types:
-    type: object
-    description: Mapping of column name to expected data type.
-    properties:
-      date:
-        type: string
-        format: date
-        description: ISO 8601 date string (YYYY-MM-DD).
-      pollster:
-        type: string
-        description: Name of the polling organization.
-      candidate:
-        type: string
-        description: Candidate name (e.g., 'Democrat', 'Republican', 'Other').
-      vote_share:
-        type: number
-        description: Percentage of vote share (0.0 to 100.0).
-      sample_size:
-        type: integer
-        description: Number of respondents.
-      mode:
-        type: string
-        description: Polling mode (e.g., 'Live Phone', 'Online').
-      historical_rmse:
-        type: number
-        description: Historical RMSE weight for this pollster (non-negative).
-    required:
-      - date
-      - pollster
-      - candidate
-      - vote_share
-      - sample_size
-      - historical_rmse
-  constraints:
-    type: object
-    description: Business logic constraints enforced during validation.
-    properties:
-      unique_pollster_date:
-        type: boolean
-        description: True if (pollster, date) must be unique.
-        default: true
-      vote_share_range:
-        type: array
-        minItems: 2
-        maxItems: 2
-        items:
-          type: number
-        description: Allowed range [min, max] for vote_share.
-        example: [0.0, 100.0]
-      sample_size_positive:
-        type: boolean
-        description: True if sample_size must be > 0.
-        default: true
-      rmse_non_negative:
-        type: boolean
-        description: True if historical_rmse must be >= 0.
-        default: true
-  metadata:
-    type: object
-    description: Provenance and generation metadata.
-    properties:
-      poll_id:
-        type: string
-        description: Original data source (e.g., 'FiveThirtyEight').
-      generated_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of generation.
-      version:
-        type: string
-        description: Schema version.
-        default: "1.0.0"
-additionalProperties: false
+  - fields
+  - validation_rules
+fields:
+  type: object
+  properties:
+    date:
+      type: object
+      description: Date of the poll (ISO 8601 format YYYY-MM-DD)
+      required:
+        - type
+        - format
+      properties:
+        type:
+          const: string
+        format:
+          const: date
+        description:
+          const: "Date the poll was conducted (ISO 8601)"
+    pollster:
+      type: object
+      description: Name of the polling organization
+      required:
+        - type
+      properties:
+        type:
+          const: string
+        minLength:
+          const: 1
+    candidate:
+      type: object
+      description: Name of the candidate being polled
+      required:
+        - type
+      properties:
+        type:
+          const: string
+        minLength:
+          const: 1
+    state:
+      type: object
+      description: US State code (e.g., 'US' for national, 'CA' for California)
+      required:
+        - type
+        - pattern
+      properties:
+        type:
+          const: string
+        pattern:
+          const: "^[A-Z]{2}$"
+    vote_share:
+      type: object
+      description: Percentage of vote share for the candidate (0-100)
+      required:
+        - type
+        - minimum
+        - maximum
+      properties:
+        type:
+          const: number
+        minimum:
+          const: 0
+        maximum:
+          const: 100
+    sample_size:
+      type: object
+      description: Number of respondents in the poll
+      required:
+        - type
+        - minimum
+      properties:
+        type:
+          const: integer
+        minimum:
+          const: 1
+    mode:
+      type: object
+      description: Polling mode (e.g., 'Live Phone', 'Online', 'Mixed')
+      required:
+        - type
+      properties:
+        type:
+          const: string
+        minLength:
+          const: 1
+    party:
+      type: object
+      description: Political party affiliation of the candidate
+      required:
+        - type
+      properties:
+        type:
+          const: string
+        enum:
+          - Democrat
+          - Republican
+          - Independent
+          - Other
+    historical_rmse:
+      type: object
+      description: Historical Root Mean Square Error for this pollster (calculated in src/data/weights.py)
+      required:
+        - type
+        - minimum
+      properties:
+        type:
+          const: number
+        minimum:
+          const: 0
+    week_bin:
+      type: object
+      description: Week number binning the poll (for temporal aggregation)
+      required:
+        - type
+        - minimum
+      properties:
+        type:
+          const: integer
+        minimum:
+          const: 1
+  required:
+    - date
+    - pollster
+    - vote_share
+    - sample_size
+validation_rules:
+  type: object
+  description: Business logic validation rules enforced during harmonization
+  properties:
+    unique_pollster_date:
+      type: object
+      description: No duplicate dates allowed per pollster
+      required:
+        - rule
+        - severity
+      properties:
+        rule:
+          const: "unique_per_pollster"
+        severity:
+          const: error
+    min_poll_count:
+      type: object
+      description: Minimum global poll count requirement
+      required:
+        - threshold
+        - severity
+      properties:
+        threshold:
+          const: 500
+        severity:
+          const: error
+        description:
+          const: "Global poll count must be >= 500"
+    min_recent_polls:
+      type: object
+      description: Minimum polls in 30 days before election
+      required:
+        - threshold
+        - window_days
+        - severity
+      properties:
+        threshold:
+          const: 5
+        window_days:
+          const: 30
+        severity:
+          const: warning
+    min_cycles:
+      type: object
+      description: Minimum distinct election cycles required
+      required:
+        - threshold
+        - severity
+      properties:
+        threshold:
+          const: 3
+        severity:
+          const: warning
+    vote_share_range:
+      type: object
+      description: Vote share must be within valid percentage range
+      required:
+        - min
+        - max
+        - severity
+      properties:
+        min:
+          const: 0
+        max:
+          const: 100
+        severity:
+          const: error
+metadata:
+  version: "1.0.0"
+  source: "specs/001-statistical-analysis-of-publicly-availab/contracts/dataset.schema.yaml"
+  created_by: "T005"

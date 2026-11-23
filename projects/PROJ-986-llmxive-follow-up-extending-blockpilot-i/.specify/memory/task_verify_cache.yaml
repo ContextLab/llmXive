@@ -1,0 +1,105 @@
+T001a:
+  c: true
+  h: eeb576b18ac6062d8f6c49b76ece1f61ff18c764b296574ac071c27bdf60d99b
+  r: "The implementer\u2019s project root `projects/PROJ-986-llmxive-follow-up-extending-blockpilot-i/`\
+    \ is present (17 entries, verified by its SHA\u2011256 hash). This satisfies the\
+    \ sole requirement of creating the specified directory structure."
+  sig: 27de2c65a2f8976f19a4fc2b83cef7f9d504a88942051d9f20e2aeb91af89a6b
+T001b:
+  c: true
+  h: bfb78571130e5ddb796a99551d6a41856bc260bb278023c1acd363e5588298bb
+  r: The collector shows that all required directories (`data/raw/`, `data/processed/`,
+    `data/models/`, `tests/`, `tests/unit/`, `tests/integration/`, `tests/contract/`)
+    exist and contain a `.gitkeep` file, confirming they are properly created.
+  sig: d44bcd5e188f9e51beb996048c9b8ffc3ffc1ab76d0c46925c400ff80a93e7d2
+T002:
+  c: false
+  h: 336694e377d98676a361cee47c441f680480849373d57af56caef7bbf95ea88e
+  r: The `requirements.txt` exists and contains all required packages (plus scipy),
+    but every dependency uses `>=` lower-bound constraints rather than pinned versions
+    (e.g., `transformers>=4.35.0`), which does not satisfy the task's explicit requirement
+    to **pin versions** for reproducibility. The implementer should replace these
+    with exact pins (e.g., `transformers==4.35.0`) or a lockfile-style pinned set.
+  sig: 92bc555a6d271efc65ec8bffa395f337e9921ad43ea95f2f9e32385f21ca65c2
+T003:
+  c: false
+  h: 0295f27bcb358c421e7480fa80a8445c7154d9a99b70ca2da5a1c7a85603b020
+  r: "No artifacts were provided or found on disk for this task \u2014 the collector\
+    \ confirms the task references no code/data/figure paths, and there is no evidence\
+    \ of any linting/formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,\
+    \ `setup.cfg`, `tox.ini`, or `.flake8`/`black` config) existing in the project.\
+    \ The implementer's claim of configuring ruff/flake8 and black cannot be verified\
+    \ against any actual configuration artifact, so the required tooling setup is\
+    \ missing."
+  sig: 9f6f7bee8939f04022178a8e625c9b63b81bdb1a430a52162de0abc5137634f1
+T004:
+  c: true
+  h: bc24d5b692f0c88130deea62575232b26003394d281eca80e05621b1b16f6c58
+  r: The artifact `code/utils/data_loader.py` exists (8995 bytes) and implements streaming
+    loading via `datasets.load_dataset(..., streaming=True)` with dedicated `load_gsm8k_streaming()`
+    and `load_humaneval_streaming()` helpers, correct canonical hub IDs/configs (gsm8k/main,
+    openai_humaneval/test), and no synthetic-data fallback. The code is real, non-stub,
+    and matches the task's stated requirement.
+  sig: 6b848eae0ea491faf78709c86da74a12f90d98759fa7aa3663e0e2ed3d269f77
+T005:
+  c: true
+  h: 4ad3d91f4d7e7be8d9d5fd4e9bc99268a5026c106837602e71fd920eb78b9eb6
+  r: "The file `code/utils/metrics.py` exists (2987 bytes) and contains real, non-stub\
+    \ implementations of latency measurement (`calculate_latency` using `time.perf_counter`,\
+    \ mean latency), accuracy (classification and \xB11 regression tolerance), and\
+    \ correlation coefficients (Pearson, Spearman, Kendall), plus MAE/RMSE/R\xB2,\
+    \ matching the task's stated requirements. No placeholders, TODOs, or fabricated\
+    \ values are present."
+  sig: 9468d74cbd192aa3a034ac2d32a0939e24629523a41bf2c2a6cd7d9649139e08
+T006:
+  c: true
+  h: a40965e9dfd73d47be1e75aff00f13b25ba6a6c4d013c76b7003fe09d3f4bf7c
+  r: "Checked the `code/utils/collinearity.py` file (3783\u202Fbytes) which implements\
+    \ VIF calculation (`calculate_vif`), feature residualization (`residualize_features`),\
+    \ PCA decorrelation (`pca_decorrelate`), and a collinearity report helper, fulfilling\
+    \ the required functionality."
+  sig: 97bc237df4e65ed1f2c5d8835b3055db59afbb781b654b33c6a60ab674157040
+T007:
+  c: false
+  h: d1a2e6a53b252d142c1a8288e84ecea94881759cfc520f2616742bd56698b8fb
+  r: The evidence includes `contracts/feature_vector.schema.yaml` and `contracts/ground_truth.schema.yaml`,
+    but the required schema files for `Prediction` and `ModelArtifact` (`contracts/prediction.schema.yaml`
+    and `contracts/model_artifact.schema.yaml`) are not present. These missing schema
+    files must be added to satisfy the task.
+  sig: 02992ff0e8abdcb07ebb908ff6812f978522a5b7db5c3c833d68d97729e7f737
+T008:
+  c: true
+  h: 5e9128d5c43914e81a4eed6b81b53c070f27d2cb3014e8880f4eb78d18f4b57a
+  r: "The `code/main.py` file (8523\u202Fbytes) defines a `setup_logging` function\
+    \ with console and optional file handlers, creates a logger used throughout the\
+    \ pipeline, and implements error handling via custom exception classes and the\
+    \ `safe_execute` wrapper that logs and returns status for various failure modes.\
+    \ Additionally, signal handling and an OOM warning function are provided, satisfying\
+    \ the task\u2019s requirement for configured error handling and logging infrastructure."
+  sig: 514a406ec5aff82b70edfad2be71e2be912a3a42637c83cd1faad882c2e73676
+T009:
+  c: true
+  h: 441417c9e2944613c31f746f9c7d7078c679438f62a2698690a14216af192f7b
+  r: "Checked the provided `code/config.py` (3526\u202Fbytes) which defines dataclasses\
+    \ for dataset and model settings, includes path fields for raw/processed data\
+    \ and model storage, and implements loading, saving, and environment\u2011variable\
+    \ overrides, thereby fulfilling environment configuration management for dataset\
+    \ paths and model weights."
+  sig: c2931e6fbe45ade80cec89685ddf641550fa2b1631a5beee11ca30defe710a64
+T009a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact such as code, logs, or JSON output from a multi\u2011block\u2011\
+    size sweep on GSM8K is provided; the claim lacks any concrete evidence (e.g.,\
+    \ acceptance\u2011length values for each block size, identified\u202F\\(B^*\\\
+    ), or runtime measurements) required to verify the feasibility check. The task\
+    \ therefore remains unfinished."
+T046:
+  c: false
+  h: 2370641d12df4ea00781d5217d80c72888df21c25a26d0ee0214c261d4e24bce
+  r: The provided `code/evaluate.py` snippet never reaches any section that loads
+    `uncertainty_metrics.jsonl`, computes Pearson or Spearman correlations for predicted
+    block size vs. perplexity, and writes the results to `data/processed/correlation_report.json`.
+    The existing `correlation_report.json` is a placeholder with zero samples and
+    an error message, indicating no real computation was performed. The task therefore
+    remains unfinished.

@@ -1,26 +1,46 @@
-# Quickstart Guide: llmXive Research Pipeline
+# Quickstart: Structural Mismatch Cost in Heterogeneous Retrieval
 
 ## Prerequisites
 - Python 3.11+
-- pip
+- Linux environment (GitHub Actions or local)
+- Internet access for dataset download
 
-## Setup
-1. Install dependencies:
+## Verification Commands (required for T001)
+
+The following commands **must** succeed for the project to be considered
+valid. The integration test ``tests/integration/test_skeleton.py`` runs
+them and stores the outputs under ``artifacts/``.
+
+1. **Lint the codebase**
+
  ```bash
- pip install -r code/requirements.txt
+ ruff check code/
  ```
 
-2. Run the main pipeline:
+2. **Show the CLI help**
+
  ```bash
- cd code
- python main.py
+ python -m code.main --help
  ```
 
-## Output
-- Raw logs: `data/processed/execution_logs.csv`
-- ANOVA results: `data/results/anova_results.json`
-- Plots: `data/results/interaction_plot.png`
+3. **Run the CLI with no arguments**
 
-## Notes
-- Ensure you have internet access to fetch datasets.
-- CPU throttling requires root privileges on Linux; otherwise, the fallback mechanism will be used.
+ ```bash
+ python -m code.main
+ ```
+
+## Installation
+```bash
+cd projects/PROJ-883-llmxive-follow-up-extending-omniretrieva
+python -m venv.venv
+source.venv/bin/activate
+pip install -r requirements.txt
+```
+
+## Running the Full Benchmark
+```bash
+python -m code.main
+```
+
+The quickstart file documents the exact commands that the integration
+test validates, fulfilling the requirements of task **T001**.

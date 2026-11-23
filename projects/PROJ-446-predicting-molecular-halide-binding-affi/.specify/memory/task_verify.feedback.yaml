@@ -1,0 +1,33 @@
+T001:
+  task: 6fc85c67a890179250d7ef70ec3ef06cbeb60406f86019c72fd3769863f09581
+T002:
+  reason: "The `code/02_feature_engineering.py` script and the output CSV `data/raw/descriptors_added.csv`\
+    \ exist and contain the required descriptor and fingerprint columns, but the accompanying\
+    \ unit test `code/tests/test_feature_engineering.py` fails to import the module\
+    \ (FileNotFoundError) and therefore does not verify the descriptor values as required.\
+    \ The broken test means the task\u2019s verification step is not satisfied. Fix\
+    \ the test\u2019s import path (or adjust the project layout) so the test can run\
+    \ and confirm the computed descriptors."
+  task: 5783bf0aa9574d60d08368290da99823d955926db8f650c45db374542b2418ec
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/01_data_ingestion.py
+    exit=1'
+  task: 8e0bcc9b6612e190d6935acce2d91fe718c36a12c2d2483ef6629899b0ecb964
+T004:
+  task: 1edd468c6f645abe97682067d36bf20a89a6e4e066ba117d130ae043b5a8a442
+T005:
+  task: 6221a52fc40985a9da9aa39731b1d42011703b673e6fd9b63548d1652b28406b
+T006:
+  task: 03e87e690dadaf6e6459e98a3f5e4fe8b238aa19877ec3ea742acc0454c4b495
+T007:
+  task: 526be816e22417ae4fb5841da7f5a2700565964fff36e5111422479931885ef1
+T008:
+  task: bf5b4e79dce89f53f9a8877d007ec390e9e7a2251efe36f3eafa010819a95294
+T009:
+  task: 8efa327d09578ba2c5e0a20dcf87d50544a4632fd9c7c82d4481499b6ae2f891
+T010:
+  task: 94202af878abff73a650eba6fa29ffecded100505a36e211c643738d45b0f0cf
+T011:
+  task: 455616f3dc8b1dcdaefb21bace9e4d34f260b01f9dccdb9f7fc11392f17e48e9
+T012:
+  task: 562690f6abe5ecc9ddd73a448caf0e7340422673b063dbbdbda5c2cc0b8e3721

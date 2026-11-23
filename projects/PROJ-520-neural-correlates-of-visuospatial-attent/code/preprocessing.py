@@ -1,405 +1,323 @@
+import mne
 import os
 import json
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
-import numpy as np
+from typing import List, Dict, Any, Optional
 
-# Third-party dependencies for EEG processing
-try:
-    import mne
-    from mne.datasets import testing
-except ImportError:
-    raise ImportError(
-        "MNE-Python is required for this task. "
-        "Install it via: pip install mne"
-    )
+from logger import get_logger
+from config import get_config, get_paths
 
-from config import get_paths, get_seed
-from ci_limits import get_cpu_count, get_memory_limit_gb
-from logging_config import get_pipeline_logger, log_stage_start, log_stage_end
+logger = get_logger(__name__)
 
-# Initialize logger
-logger = get_pipeline_logger(__name__)
+class EpochingError(Exception):
+    """Custom exception for epoching failures."""
+    pass
 
-def download_and_validate_dataset(
-    dataset_name: str = "sample-ica",
-    output_dir: Optional[Path] = None,
-    force_download: bool = False
-) -> Tuple[Path, Dict[str, Any]]:
+def load_raw(path: str) -> mne.io.Raw:
     """
-    Downloads a dataset from MNE/OpenNeuro and validates BIDS compliance.
-    
-    This function implements FR-001 by:
-    1. Fetching the dataset (using MNE's built-in sample data for reproducibility)
-    2. Validating the directory structure matches BIDS standards
-    3. Verifying the presence of event markers
+    Load raw EEG data from a file path.
     
     Args:
-        dataset_name: Name of the dataset to download (e.g., 'sample-ica')
-        output_dir: Optional custom output directory
-        force_download: If True, re-download even if cache exists
-    
+        path: Path to the raw data file (BIDS format preferred).
+        
     Returns:
-        Tuple of (dataset_path, validation_report)
-    
+        mne.io.Raw object.
+        
     Raises:
-        FileNotFoundError: If dataset cannot be found after download
-        ValueError: If BIDS validation fails
+        FileNotFoundError: If the file does not exist.
+        RuntimeError: If loading fails.
     """
-    log_stage_start(logger, "download_and_validate_dataset", dataset_name)
-    
-    paths = get_paths()
-    if output_dir is None:
-        raw_data_dir = paths.get("raw_data_dir", Path("data/raw"))
-        output_dir = Path(raw_data_dir) / dataset_name
-    
-    output_dir.mkdir(parents=True, exist_ok=True)
-    
-    validation_report = {
-        "dataset_name": dataset_name,
-        "source": "mne.datasets",
-        "download_path": str(output_dir),
-        "bids_compliant": False,
-        "event_markers_found": False,
-        "files_found": [],
-        "errors": [],
-        "warnings": []
-    }
+    logger.info(f"Loading raw data from: {path}")
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Raw data file not found: {path}")
     
     try:
-        # Use MNE's sample dataset which is BIDS-compliant and available locally or via download
-        # This simulates downloading from OpenNeuro for the purpose of the pipeline
-        logger.info(f"Fetching dataset: {dataset_name}")
-        
-        # For this implementation, we use the 'sample' dataset which is standard
-        # In a real scenario, this would point to an OpenNeuro dataset ID
-        if dataset_name == "sample-ica":
-            # MNE sample data is standard for testing pipelines
-            data_path = mne.datasets.sample.data_path(download=force_download)
-            raw_file = Path(data_path) / "MEG" / "sample" / "sample_audvis_raw.fif"
-            
-            # Copy to our raw directory to simulate the download structure
-            # Create a BIDS-like structure
-            bids_subj_dir = output_dir / "sub-01" / "meg"
-            bids_subj_dir.mkdir(parents=True, exist_ok=True)
-            
-            # Copy the raw file
-            import shutil
-            dest_file = bids_subj_dir / "sub-01_meg.fif"
-            shutil.copy2(raw_file, dest_file)
-            
-            # Create events file if not present (MNE sample data has events in the raw file)
-            # We will extract events during epoching, but for validation we check existence
-            # Create a minimal events.tsv for BIDS compliance check
-            events_tsv = bids_subj_dir / "sub-01_events.tsv"
-            if not events_tsv.exists():
-                # Create a placeholder events file
-                with open(events_tsv, 'w') as f:
-                    f.write("onset\tduration\ttrial_type\n")
-                    f.write("0\t0\tignore\n") # Placeholder
-                
-            validation_report["files_found"] = [str(dest_file), str(events_tsv)]
-            validation_report["bids_compliant"] = True
-            validation_report["event_markers_found"] = True # MNE sample data has events
-            
+        # Attempt to load as FIF first, fallback to generic loading
+        if path.endswith('.fif'):
+            raw = mne.io.read_raw_fif(path, preload=True)
+        elif path.endswith('.edf'):
+            raw = mne.io.read_raw_edf(path, preload=True)
         else:
-            # Fallback for other potential dataset names
-            raise ValueError(f"Dataset '{dataset_name}' not configured for this demo. Use 'sample-ica'.")
+            # Try generic loader or raise if unsupported
+            raw = mne.io.read_raw_brainvision(path, preload=True) if 'eeg' in path.lower() else mne.io.read_raw_bids(path, preload=True)
         
-        # Validate structure
-        if not validation_report["bids_compliant"]:
-            raise ValueError("BIDS structure validation failed")
-            
-        if not validation_report["event_markers_found"]:
-            logger.warning("Event markers not found in dataset")
-            validation_report["warnings"].append("No event markers found")
-        
-        # Save validation report
-        report_path = output_dir / "validation_report.json"
-        with open(report_path, 'w') as f:
-            json.dump(validation_report, f, indent=2, default=str)
-        
-        logger.info(f"Dataset downloaded and validated: {output_dir}")
-        log_stage_end(logger, "download_and_validate_dataset", "Success")
-        return output_dir, validation_report
-        
+        logger.info(f"Loaded raw data: {raw.info['nchan']} channels, {raw.info['sfreq']} Hz")
+        return raw
     except Exception as e:
-        logger.error(f"Failed to download or validate dataset: {e}")
-        validation_report["errors"].append(str(e))
-        validation_report["bids_compliant"] = False
-        # Save partial report
-        report_path = output_dir / "validation_report.json"
-        with open(report_path, 'w') as f:
-            json.dump(validation_report, f, indent=2, default=str)
-        raise
+        logger.error(f"Failed to load raw data: {e}")
+        raise RuntimeError(f"Failed to load raw data: {e}")
 
-def apply_filters(
-    raw_data: mne.io.Raw,
-    l_freq: float = 1.0,
-    h_freq: float = 40.0,
-    notch_freqs: Optional[List[float]] = None
-) -> mne.io.Raw:
+def filter_data(raw: mne.io.Raw, lowcut: float = 1.0, highcut: float = 40.0, notch_freq: float = 50.0) -> mne.io.Raw:
     """
-    Apply bandpass and notch filters to raw EEG data.
+    Apply bandpass and notch filters to the raw data.
     
     Args:
-        raw_data: MNE Raw object
-        l_freq: Low frequency cutoff (Hz)
-        h_freq: High frequency cutoff (Hz)
-        notch_freqs: List of frequencies to notch (e.g., [50, 100])
+        raw: Raw MNE object.
+        lowcut: Low cutoff frequency for bandpass.
+        highcut: High cutoff frequency for bandpass.
+        notch_freq: Frequency for notch filter (50 or 60 Hz).
         
     Returns:
-        Filtered MNE Raw object
+        Filtered mne.io.Raw object.
     """
-    log_stage_start(logger, "apply_filters", f"l={l_freq}, h={h_freq}")
+    logger.info(f"Applying bandpass filter: {lowcut}-{highcut} Hz and notch filter: {notch_freq} Hz")
+    raw_filtered = raw.copy()
     
-    if notch_freqs is None:
-        notch_freqs = [50.0] # Default 50Hz mains
-        
-    logger.info(f"Applying bandpass filter: {l_freq}-{h_freq} Hz")
-    raw_filtered = raw_data.copy().filter(l_freq=l_freq, h_freq=h_freq)
+    # Notch filter
+    raw_filtered.notch_filter(notch_freq)
     
-    for freq in notch_freqs:
-        logger.info(f"Applying notch filter: {freq} Hz")
-        raw_filtered = mne.preprocessing.notch_filter(
-            raw_filtered, 
-            freq=freq, 
-            notch_widths=2.0
-        )
-        
-    log_stage_end(logger, "apply_filters", "Success")
+    # Bandpass filter
+    raw_filtered.filter(lowcut, highcut)
+    
+    logger.info("Filtering complete")
     return raw_filtered
 
-def run_ica(
-    raw_data: mne.io.Raw,
-    method: str = "fastica",
-    n_components: Optional[float] = None,
-    random_state: Optional[int] = None
-) -> Tuple[mne.preprocessing.ICA, List[int]]:
+def run_ica(raw: mne.io.Raw, n_components: int = 20) -> mne.preprocessing.ICA:
     """
-    Run Independent Component Analysis for artifact removal.
+    Run ICA for artifact removal.
     
     Args:
-        raw_data: Filtered MNE Raw object
-        method: ICA method ('fastica' or 'picard')
-        n_components: Number of components (default: auto)
-        random_state: Random seed for reproducibility
+        raw: Filtered raw MNE object.
+        n_components: Number of ICA components to compute.
         
     Returns:
-        Tuple of (ICA object, list of rejected component indices)
+        Fitted ICA object.
     """
-    log_stage_start(logger, "run_ica", method)
-    
-    if random_state is None:
-        random_state = get_seed()
-        
-    ica = mne.preprocessing.ICA(
-        method=method,
-        random_state=random_state,
-        n_components=n_components
-    )
-    
-    logger.info("Fitting ICA model...")
-    ica.fit(raw_data)
-    
-    # Find bad components (EOG, ECG)
-    rejected_components = []
-    try:
-        eog_indices, eog_scores = ica.find_bads_eog(raw_data)
-        rejected_components.extend(eog_indices)
-        logger.info(f"Found {len(eog_indices)} EOG artifacts: {eog_indices}")
-        
-        ecg_indices, ecg_scores = ica.find_bads_ecg(raw_data)
-        rejected_components.extend(ecg_indices)
-        logger.info(f"Found {len(ecg_indices)} ECG artifacts: {ecg_indices}")
-    except Exception as e:
-        logger.warning(f"Could not automatically detect artifacts: {e}")
-        
-    rejected_components = list(set(rejected_components))
-    logger.info(f"Total components to reject: {rejected_components}")
-    
-    log_stage_end(logger, "run_ica", "Success")
-    return ica, rejected_components
+    logger.info(f"Running ICA with {n_components} components")
+    ica = mne.preprocessing.ICA(n_components=n_components, random_state=42)
+    ica.fit(raw)
+    logger.info("ICA fitting complete")
+    return ica
 
-def segment_epochs(
-    raw_data: mne.io.Raw,
-    events: np.ndarray,
-    event_id: Dict[str, int],
-    tmin: float = -1.0,
-    tmax: float = 1.0,
-    proj: bool = False
-) -> mne.Epochs:
+def find_and_remove_artifacts(ica: mne.preprocessing.ICA, raw: mne.io.Raw, 
+                              eog_ch: Optional[str] = None, ecg_ch: Optional[str] = None) -> List[int]:
+    """
+    Find and identify bad components using EOG and ECG.
+    
+    Args:
+        ica: Fitted ICA object.
+        raw: Raw MNE object.
+        eog_ch: Name of EOG channel.
+        ecg_ch: Name of ECG channel.
+        
+    Returns:
+        List of indices of bad components.
+    """
+    logger.info("Identifying bad components")
+    bad_components = []
+    
+    # Find EOG artifacts
+    if eog_ch:
+        try:
+            eog_inds, scores = ica.find_bads_eog(raw, ch_name=eog_ch)
+            bad_components.extend(eog_inds)
+            logger.info(f"Found {len(eog_inds)} EOG artifacts")
+        except Exception as e:
+            logger.warning(f"EOG artifact detection failed: {e}")
+    
+    # Find ECG artifacts
+    if ecg_ch:
+        try:
+            ecg_inds, scores = ica.find_bads_ecg(raw, ch_name=ecg_ch)
+            bad_components.extend(ecg_inds)
+            logger.info(f"Found {len(ecg_inds)} ECG artifacts")
+        except Exception as e:
+            logger.warning(f"ECG artifact detection failed: {e}")
+    
+    # Unique sorted list
+    bad_components = sorted(list(set(bad_components)))
+    logger.info(f"Total bad components identified: {len(bad_components)}")
+    return bad_components
+
+def apply_ica_cleaning(raw: mne.io.Raw, ica: mne.preprocessing.ICA, bad_components: List[int]) -> mne.io.Raw:
+    """
+    Apply ICA cleaning by removing bad components.
+    
+    Args:
+        raw: Raw MNE object.
+        ica: Fitted ICA object.
+        bad_components: List of component indices to remove.
+        
+    Returns:
+        Cleaned raw MNE object.
+    """
+    if not bad_components:
+        logger.info("No bad components to remove")
+        return raw
+    
+    logger.info(f"Applying ICA cleaning, removing {len(bad_components)} components")
+    ica.exclude = bad_components
+    raw_clean = ica.apply(raw)
+    logger.info("ICA cleaning complete")
+    return raw_clean
+
+def generate_manual_review_log(raw: mne.io.Raw, bad_components: List[int], log_path: str) -> None:
+    """
+    Generate a log file for manual review of rejected components.
+    
+    Args:
+        raw: Raw MNE object.
+        bad_components: List of rejected component indices.
+        log_path: Path to save the log file.
+    """
+    logger.info(f"Generating manual review log at: {log_path}")
+    with open(log_path, 'w') as f:
+        f.write("Manual Review Log for ICA Components\n")
+        f.write("=" * 40 + "\n\n")
+        f.write(f"Total components rejected: {len(bad_components)}\n")
+        f.write(f"Rejected component indices: {bad_components}\n\n")
+        f.write("Recommendation: Inspect these components visually using mne.viz.plot_ica_components()\n")
+        f.write("to confirm they represent artifacts before finalizing the cleaning.\n")
+    logger.info("Manual review log generated")
+
+def handle_missing_electrodes(raw: mne.io.Raw, metadata_path: str) -> List[str]:
+    """
+    Identify and skip electrodes with missing data (NaN or constant).
+    Updates metadata.json with the list of skipped electrodes.
+    
+    Args:
+        raw: Raw MNE object (can be pre- or post-filtering).
+        metadata_path: Path to the metadata.json file.
+        
+    Returns:
+        List of skipped electrode names.
+    """
+    logger.info("Checking for missing electrode data...")
+    skipped_electrodes = []
+    
+    # Ensure metadata file exists
+    metadata_dir = Path(metadata_path).parent
+    metadata_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Load existing metadata or initialize
+    if os.path.exists(metadata_path):
+        try:
+            with open(metadata_path, 'r') as f:
+                metadata = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            metadata = {'skipped_electrodes': [], 'assumptions': {}, 'data_source_url': None, 'fetch_method': None}
+    else:
+        metadata = {'skipped_electrodes': [], 'assumptions': {}, 'data_source_url': None, 'fetch_method': None}
+    
+    # Check each channel
+    ch_names = raw.info['ch_names']
+    data = raw.get_data()
+    sfreq = raw.info['sfreq']
+    
+    for i, ch_name in enumerate(ch_names):
+        ch_data = data[i, :]
+        
+        # Check for all NaN
+        if np.all(np.isnan(ch_data)):
+            skipped_electrodes.append(ch_name)
+            logger.warning(f"Electrode {ch_name} contains only NaN values. Skipping.")
+            continue
+        
+        # Check for constant (zero variance) - indicates dead channel
+        if np.std(ch_data) < 1e-10:
+            skipped_electrodes.append(ch_name)
+            logger.warning(f"Electrode {ch_name} has near-zero variance (dead channel). Skipping.")
+            continue
+        
+        # Check for excessive NaN ratio (e.g., > 50% missing)
+        nan_ratio = np.sum(np.isnan(ch_data)) / len(ch_data)
+        if nan_ratio > 0.5:
+            skipped_electrodes.append(ch_name)
+            logger.warning(f"Electrode {ch_name} has {nan_ratio:.2%} missing values. Skipping.")
+            continue
+    
+    # Update metadata
+    if skipped_electrodes:
+        existing_skipped = set(metadata.get('skipped_electrodes', []))
+        new_skipped = set(skipped_electrodes)
+        combined_skipped = list(existing_skipped | new_skipped)
+        metadata['skipped_electrodes'] = combined_skipped
+        logger.info(f"Updated skipped electrodes list: {combined_skipped}")
+    else:
+        logger.info("No missing electrodes detected.")
+    
+    # Save updated metadata
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata, f, indent=2)
+    
+    # Drop bad channels from raw if any
+    if skipped_electrodes:
+        logger.info(f"Dropping {len(skipped_electrodes)} channels from raw data...")
+        raw.drop_channels(skipped_electrodes)
+        logger.info("Channel dropping complete.")
+    
+    return skipped_electrodes
+
+def epoch_segmentation(raw: mne.io.Raw, events: np.ndarray, event_id: Dict[str, int], 
+                       tmin: float = -1.0, tmax: float = 1.0, sfreq: float = 1000.0) -> mne.Epochs:
     """
     Segment data into epochs around events.
     
     Args:
-        raw_data: MNE Raw object
-        events: Event array (n_events, 3)
-        event_id: Dictionary mapping event names to IDs
-        tmin: Start time relative to event (s)
-        tmax: End time relative to event (s)
-        proj: Whether to apply SSP projectors
+        raw: Raw MNE object.
+        events: Array of events (n_events, 3).
+        event_id: Dictionary mapping event names to IDs.
+        tmin: Start time relative to event (seconds).
+        tmax: End time relative to event (seconds).
+        sfreq: Sampling frequency.
         
     Returns:
-        MNE Epochs object
+        MNE Epochs object.
     """
-    log_stage_start(logger, "segment_epochs", f"tmin={tmin}, tmax={tmax}")
-    
-    epochs = mne.Epochs(
-        raw_data,
-        events,
-        event_id=event_id,
-        tmin=tmin,
-        tmax=tmax,
-        baseline=(tmin, 0),
-        proj=proj,
-        reject_by_annotation=True,
-        verbose=False
-    )
-    
-    log_stage_end(logger, "segment_epochs", f"Total epochs: {len(epochs)}")
-    return epochs
+    logger.info(f"Segmenting data into epochs: {tmin}s to {tmax}s")
+    try:
+        epochs = mne.Epochs(raw, events, event_id, tmin, tmax, baseline=None, preload=True)
+        logger.info(f"Created {len(epochs)} epochs")
+        return epochs
+    except Exception as e:
+        logger.error(f"Epoching failed: {e}")
+        raise EpochingError(f"Epoching failed: {e}")
 
-def validate_sample_size(
-    epochs: mne.Epochs,
-    min_epochs: int = 50,
-    warning_threshold: int = 100
-) -> Dict[str, Any]:
+def preprocess_pipeline_with_ica(raw: mne.io.Raw, metadata_path: str, 
+                                 eog_ch: Optional[str] = None, ecg_ch: Optional[str] = None) -> mne.io.Raw:
     """
-    Validate that the number of epochs meets statistical power requirements.
+    Full preprocessing pipeline: Filter -> ICA -> Clean -> Handle Missing Electrodes.
     
     Args:
-        epochs: MNE Epochs object
-        min_epochs: Minimum required epochs per condition
-        warning_threshold: Threshold for underpowered warning
+        raw: Raw MNE object.
+        metadata_path: Path to metadata.json.
+        eog_ch: EOG channel name.
+        ecg_ch: ECG channel name.
         
     Returns:
-        Validation report dictionary
+        Preprocessed raw MNE object.
     """
-    log_stage_start(logger, "validate_sample_size", f"min={min_epochs}")
+    # 1. Filter
+    raw = filter_data(raw)
     
-    report = {
-        "total_epochs": len(epochs),
-        "conditions": {},
-        "is_valid": True,
-        "is_underpowered": False,
-        "warnings": []
-    }
+    # 2. Handle missing electrodes BEFORE ICA to avoid fitting on bad channels
+    handle_missing_electrodes(raw, metadata_path)
     
-    # Count epochs per condition
-    for condition in epochs.event_id.keys():
-        count = np.sum(epochs.events[:, 2] == epochs.event_id[condition])
-        report["conditions"][condition] = int(count)
-        
-        if count < min_epochs:
-            report["is_valid"] = False
-            report["warnings"].append(f"Condition '{condition}' has only {count} epochs (min: {min_epochs})")
-        elif count < warning_threshold:
-            report["is_underpowered"] = True
-            report["warnings"].append(f"Condition '{condition}' has {count} epochs (underpowered, <{warning_threshold})")
+    # 3. ICA
+    ica = run_ica(raw)
     
-    if not report["is_valid"]:
-        logger.error("Sample size validation failed")
-        raise ValueError("Insufficient epochs per condition")
-        
-    if report["is_underpowered"]:
-        logger.warning("Dataset is underpowered")
-        
-    log_stage_end(logger, "validate_sample_size", "Success")
-    return report
-
-def preprocess_pipeline(
-    dataset_name: str = "sample-ica",
-    output_dir: Optional[Path] = None
-) -> Dict[str, Any]:
-    """
-    Main preprocessing pipeline entry point.
+    # 4. Find artifacts
+    bad_components = find_and_remove_artifacts(ica, raw, eog_ch, ecg_ch)
     
-    Orchestrates download, validation, filtering, ICA, and epoching.
+    # 5. Manual review log
+    log_path = str(Path(metadata_path).parent / "ica_review.log")
+    generate_manual_review_log(raw, bad_components, log_path)
     
-    Args:
-        dataset_name: Name of the dataset to process
-        output_dir: Optional output directory for intermediate files
-        
-    Returns:
-        Dictionary containing pipeline results and metadata
-    """
-    log_stage_start(logger, "preprocess_pipeline", dataset_name)
+    # 6. Apply cleaning
+    raw = apply_ica_cleaning(raw, ica, bad_components)
     
-    # Step 1: Download and Validate
-    data_path, validation_report = download_and_validate_dataset(
-        dataset_name=dataset_name,
-        output_dir=output_dir
-    )
-    
-    # Load raw data
-    raw_file = list(data_path.rglob("*.fif"))[0]
-    raw = mne.io.read_raw_fif(raw_file, preload=True)
-    
-    # Step 2: Apply Filters
-    raw_filtered = apply_filters(raw, l_freq=1.0, h_freq=40.0)
-    
-    # Step 3: Run ICA
-    ica, rejected_components = run_ica(raw_filtered)
-    
-    # Apply ICA
-    ica.apply(raw_filtered, exclude=rejected_components)
-    
-    # Step 4: Segment Epochs
-    # For MNE sample data, events are embedded in the raw file
-    events = mne.find_events(raw_filtered)
-    event_id = mne.read_events_from_file(raw_file) if False else None # Simplified
-    
-    # Use standard event IDs for sample data if not found
-    if not event_id:
-        event_id = {'auditory/left': 1, 'auditory/right': 2, 'visual/left': 3, 'visual/right': 4}
-        
-    epochs = segment_epochs(raw_filtered, events, event_id)
-    
-    # Step 5: Validate Sample Size
-    sample_report = validate_sample_size(epochs)
-    
-    pipeline_report = {
-        "status": "success",
-        "dataset": dataset_name,
-        "data_path": str(data_path),
-        "validation": validation_report,
-        "ica_components_rejected": rejected_components,
-        "sample_validation": sample_report,
-        "epochs_count": len(epochs),
-        "epochs_path": str(data_path / "epochs.fif")
-    }
-    
-    # Save epochs
-    epochs.save(data_path / "epochs.fif", overwrite=True)
-    
-    log_stage_end(logger, "preprocess_pipeline", "Success")
-    return pipeline_report
+    return raw
 
 def main():
-    """CLI entry point for preprocessing."""
-    import argparse
+    """Main entry point for preprocessing."""
+    config = get_config()
+    paths = get_paths()
+    metadata_path = paths['output_path'] / 'metadata.json'
     
-    parser = argparse.ArgumentParser(description="Preprocessing Pipeline")
-    parser.add_argument("--dataset", type=str, default="sample-ica", help="Dataset name")
-    parser.add_argument("--output", type=str, default=None, help="Output directory")
-    
-    args = parser.parse_args()
-    
-    try:
-        result = preprocess_pipeline(
-            dataset_name=args.dataset,
-            output_dir=Path(args.output) if args.output else None
-        )
-        print(json.dumps(result, indent=2, default=str))
-    except Exception as e:
-        logger.exception("Pipeline failed")
-        print(f"Error: {e}")
-        return 1
-        
-    return 0
+    # Example usage (to be replaced by actual pipeline integration)
+    logger.info("Preprocessing module initialized.")
+    logger.info(f"Metadata path: {metadata_path}")
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

@@ -1,0 +1,56 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: "CompositionRecord Schema"
+description: "Schema for the processed metallic glass composition dataset."
+type: object
+properties:
+  id:
+    type: string
+    description: "Unique identifier for the record."
+  composition:
+    type: string
+    description: "Chemical formula in Hill notation."
+    pattern: "^[A-Z][a-z]?[0-9.]*[A-Z][a-z]?[0-9.]*$"
+  chemical_family:
+    type: string
+    description: "Derived chemical family based on majority element (e.g., 'Zr-based')."
+    pattern: "^[A-Z][a-z]?-based$|Multi-Component$"
+  dc:
+    type: ["number", "null"]
+    description: "Critical casting thickness in mm. Null if not available."
+  label:
+    type: ["integer", "null"]
+    description: "Binary label (0 or 1). Null if not available."
+  target_type:
+    type: string
+    enum:
+      - "regression"
+      - "classification"
+    description: "Type of target variable."
+  delta_atomic_size:
+    type: number
+    description: "Computed atomic size mismatch (Std Dev of radii)."
+    minimum: 0
+  delta_enthalpy:
+    type: number
+    description: "Computed mixing enthalpy."
+  delta_electronegativity:
+    type: number
+    description: "Computed electronegativity difference (Variance)."
+    minimum: 0
+  source:
+    type: string
+    description: "Source dataset identifier."
+  checksum:
+    type: string
+    description: "SHA-256 checksum of the row."
+required:
+  - id
+  - composition
+  - chemical_family
+  - target_type
+  - delta_atomic_size
+  - delta_enthalpy
+  - delta_electronegativity
+  - source
+  - checksum
+additionalProperties: false

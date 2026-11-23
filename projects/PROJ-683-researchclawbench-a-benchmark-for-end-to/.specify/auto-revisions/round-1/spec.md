@@ -1,0 +1,67 @@
+# Revision Specification: Paper Science Revision — PROJ-683-researchclawbench-a-benchmark-for-end-to round 1
+
+**Generated**: 2026-06-12T19:54:39.775284+00:00
+**Kind**: paper_science
+**Project**: PROJ-683-researchclawbench-a-benchmark-for-end-to
+**Round**: 1
+
+## Input
+
+Address the following reviewer-raised action items:
+
+- **[03898fb51a22] (severity: writing)** Clarify rubric construction methodology: explain how expert-annotated rubrics were derived from hidden target papers, including the rubric item selection criteria and weighting rationale.
+- **[4a2417fcedff] (severity: writing)** Address LLM-as-judge evaluation bias: expand discussion on using GPT-5.1 to score all 280 runs, including potential systematic biases and any human validation performed.
+- **[76a8dbd8f50d] (severity: writing)** Distinguish real vs synthetic task data: clarify which tasks use authentic published paper data versus synthetic benchmarks (e.g., Astronomy_003 uses synthetic waveform differences) to ensure reproducibility claims are accurate.
+- **[c7b0168a09e0] (severity: writing)** Complete appendix task listings: include all 40 tasks in appendix tables rather than showing '... 37 rows omitted' for full verification.
+- **[bbd74ee56e8f] (severity: writing)** Abstract and Section 4.2 cite Physics_002 case study with score 27.45, but Appendix case study (e003) shows Physics_003 with score 49. Verify task ID and score consistency between main text and appendix.
+- **[c3b71cf64eba] (severity: science)** Multiple citations reference 2025-2026 dated papers (e.g., anthropic2026claudecode, qwen2026qwen37max). For arXiv:2606.07591 (June 2026), verify these sources actually exist and support the claims made about them. Some may be unreleased or non-existent.
+- **[8150e6b40b35] (severity: writing)** Claim seventeen native LLM baselines in Section 4.1 lists 17 models but verify all are independently evaluable and not conflated with agent systems (e.g., Claude Code is an agent, not a native LLM). Table 1 separates these correctly but text should clarify.
+- **[5e21da4f6469] (severity: science)** Provide access to the ResearchHarness and task implementation code for independent verification of test coverage, dependency hygiene, and modularity.
+- **[f84190ebc66a] (severity: writing)** No explicit license statement for the ResearchClawBench benchmark data/code. Add LICENSE file and specify in README/paper (e.g., MIT, CC-BY-4.0) to clarify reuse permissions for the 40 tasks and rubrics.
+- **[f1975b3279a2] (severity: writing)** Data provenance incomplete. External datasets (NASA PCoE, Oxford Battery Degradation, SXS catalog) are named but lack direct URLs, access instructions, or version identifiers in Section 3.2 or Appendix A.
+- **[8de65979425c] (severity: writing)** Schema documentation missing. Task metadata table (Appendix) lists data names but omits formal schema (data types, field constraints, expected formats, units). Add schema.json or equivalent for each task type.
+- **[c677632fcd1d] (severity: writing)** Version control not specified. GitHub/HuggingFace repository URLs lack commit hashes, release tags, or snapshot dates. For reproducibility, pin exact versions (e.g., git commit SHA) for all external artifacts.
+- **[5f9b83eb2eb7] (severity: writing)** Link rot risk for 15+ external URLs in bibliography (arXiv preprints, GitHub repos, model cards). Add archive links (e.g., Wayback Machine) or DOIs where available to ensure long-term accessibility.
+- **[c7c133c8dbae] (severity: writing)** Add alt text to all \includegraphics commands for accessibility compliance (e.g., alt={Overall framework diagram}).
+- **[36c89e6fef1d] (severity: writing)** Increase font size in Figure 4 subcaptions; \scriptsize may be illegible at print scale.
+- **[d4f5fae9fc95] (severity: writing)** Verify colorblind-safe palettes for error distribution and score heatmaps (rcbScorePurple may lack contrast).
+- **[2bd37416580f] (severity: writing)** Define 'LLM' at first use in Abstract (Line 15).
+- **[7eae2a426710] (severity: writing)** Replace 'Pareto frontiers' and 'efficient knee' with plain language in Section 4.3.
+- **[28de7a272d0e] (severity: writing)** Define domain acronyms (XEB, MB, P2D, PyBaMM) in Case Study and Appendix.
+- **[df5b7d3e3bcb] (severity: writing)** Simplify 'rubric-critical' and 'end-to-end' throughout.
+- **[1c0bc90fecde] (severity: writing)** Replace 'dry-lab'/'wet-lab' with 'computational'/'experimental' in Limitations.
+- **[d6b3aaa13f3f] (severity: science)** Clarify the logical basis for scoring 'discovery' (>50) given the rubric is constructed around existing target papers, as noted in the Limitations section.
+- **[804ef3171276] (severity: writing)** Ensure consistent distinction between autonomous agents and LLM baselines across all tables and text to avoid ambiguity in evaluation protocols.
+- **[9f17a29ee8e5] (severity: science)** The paper claims scores above 50 indicate discoveries beyond existing work (Section 4.3), but rubrics are constructed around hidden target papers. This is logically contradictory and must be reconciled or retracted.
+- **[d5f620f15d20] (severity: writing)** The benchmark is framed as End-to-End Autonomous Scientific Research, but Limitations admit tasks only evaluate dry-lab research and cannot assess wet-lab research. This scope limitation contradicts the end-to-end claim.
+- **[d7665a436281] (severity: science)** The 50-point threshold is presented as a definitive boundary between re-discovery and discovery without empirical justification. This calibration claim needs methodological support.
+- **[9d8d7c325957] (severity: writing)** Task Life_001 references 'Patient-specific sequencing data'. The paper must explicitly confirm if this data is from public repositories (e.g., TCGA) with de-identification or if IRB/consent was obtained. Private patient data without consent is a privacy violation.
+- **[aab1182ee209] (severity: writing)** Add a dedicated Safety and Ethics section. The benchmark evaluates autonomous research agents, a dual-use capability. Discuss potential misuse risks (e.g., pathogen design) and why current tasks mitigate them.
+- **[b833bce8c60a] (severity: writing)** Disclose conflicts of interest regarding the benchmark name 'ResearchClawBench' and the evaluated system 'ResearchClaw'. Clarify independence of task selection to prevent bias.
+- **[796b4b032e24] (severity: science)** Add statistical significance testing (confidence intervals, standard errors, or p-values) for all reported score differences between systems. Current mean-only reporting (e.g., Claude Code 21.5 vs Codex CLI 18.4) cannot establish whether differences exceed noise.
+- **[ee81f1282a67] (severity: science)** Report inter-rater reliability for expert rubric scoring. The paper states expert-curated rubrics are used, but no Kappa or correlation metrics between multiple expert raters are provided to validate rubric consistency.
+- **[4301d5fe7297] (severity: science)** Address LLM-as-judge scoring bias. Section 4.1 states GPT-5.1 scores all reports against rubrics. This introduces circularity risk if the scoring model shares architecture/training with evaluated models. Provide ablation or cross-model scoring validation.
+- **[cd6a83acbc80] (severity: science)** Report within-system variance (multiple runs per task) or justify single-run design. Current 280 runs (7 agents × 40 tasks) lack replication to assess system stability on individual tasks.
+- **[6d7410fb2b5b] (severity: science)** Report 95% confidence intervals and p-values for pairwise model score comparisons in Table 1 to validate significance of differences.
+- **[54195c32c6fe] (severity: science)** Provide inter-rater reliability metrics (e.g., Cohen's Kappa) for the GPT-5.1 scoring judge to quantify measurement noise.
+- **[5087dc0fc3e1] (severity: science)** Apply multiple-comparisons correction (e.g., Bonferroni) when ranking 24 systems to control Type I error rates in frontier claims.
+- **[78255a0082a9] (severity: writing)** Resolve the document class conflict between 'llmxive' (e000) and 'googledeepmind' (main.tex). Ensure a single consistent class is used for compilation.
+- **[f6f4d9bbab1e] (severity: writing)** Move all \label commands to appear after \caption or \TableCaption commands in tables (e.g., tab:main-results, tab:benchmark-comparison) to ensure cross-references resolve correctly.
+- **[8117adc15d83] (severity: writing)** Standardize figure captions in the appendix (e.g., sections/appendix_case_studies.tex). Use \captionof{figure} consistently for all standalone images instead of mixing with manual \par\footnotesize text.
+- **[eea84923ce56] (severity: writing)** Fix typo in Limitations section: 'Thrd' should be 'Third' (line ~580). This is a basic proofreading error that undermines credibility.
+- **[05b6fcd4294d] (severity: writing)** Standardize abbreviation usage: paper alternates between 'ResearchClawBench', 'RCBench', and 'RC Bench'. Choose one primary form and use consistently throughout (e.g., define 'RCBench' at first mention).
+- **[8b3fbdece329] (severity: writing)** Break up long sentences in Introduction section (lines ~60-100). Several sentences exceed 40 words and reduce readability. Consider splitting compound statements for clarity.
+- **[4c28922b1237] (severity: writing)** Review LaTeX llowbreak usage in text. Many instances (e.g., 'IRAS 09149-llowbreak{}6206') appear in running prose where they may be unnecessary and create visual clutter.
+- **[981f00a326d6] (severity: writing)** Improve table captions for better standalone readability. Some captions (e.g., Table 1) reference '8 rows omitted' without explaining what those rows represent.
+
+
+## Success Criterion
+
+After the implementer applies this revision, the project returns to
+``paper_review`` and the per-specialist re-review protocol confirms
+each of the 44 action item(s) above as ADEQUATELY ADDRESSED.
+
+## Out of scope
+
+- New experiments not directly required by a ``science``-severity item above.
+- Refactors / cleanups not required by an action item.

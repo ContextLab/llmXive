@@ -603,3 +603,2946 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-16T15:03:41Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 10 synthetic expert profiles generated with 2 per domain
+  claim_id: c_7b8afc8e
+  context: Implement `code/data_generation/profiles.py` to generate 10 synthetic expert
+    profiles (2 per domain).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 10 synthetic expert profiles (2 per domain)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:39:47Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 50 stratified task scenarios generated across domains
+  claim_id: c_57ead6bd
+  context: Implement `code/data_generation/tasks.py` to generate a global pool of
+    50 stratified task scenarios (reused across all profiles).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 50 stratified task scenarios
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:40:10Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: inference_outputs.jsonl contains exactly 1500 rows
+  claim_id: c_acd5d27e
+  context: 'Save outputs to `data/interim/inference_outputs.jsonl`... Verification:
+    File exists and contains exactly 1500 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exactly 1500 rows
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:40:30Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: evaluation_scores.jsonl contains exactly 1500 rows
+  claim_id: c_d784f62f
+  context: 'Generate `data/interim/evaluation_scores.jsonl`... Verification: File
+    exists and contains exactly 1500 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exactly 1500 rows
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:40:30Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: aggregated_data.csv contains exactly 1500 rows
+  claim_id: c_ab0671d6
+  context: 'Aggregate into a DataFrame... Verification: File exists and contains exactly
+    1500 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: exactly 1500 rows
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:40:30Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: inference engine implements a 300-second timeout handler
+  claim_id: c_898b944a
+  context: Implement a strict 300-second timeout handler (configurable, default 300s
+    as per spec US-1) and OOM exception catching for CPU runs
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 300-second timeout handler
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:40:50Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: CPU feasibility check attempts loading model with n_ctx 512 and n_threads
+    2
+  claim_id: c_6c143424
+  context: Implement `code/scripts/cpu_feasibility_check.py` to attempt loading the
+    quantized model with `n_ctx=512` and `n_threads=2`
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_ctx=512 and n_threads=2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:41:12Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: non-inferiority margin is set to 0.05
+  claim_id: c_7be10f23
+  context: Define `NON_INFERIORITY_MARGIN = 0.05` (5 percentage points) as per SC-002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: NON_INFERIORITY_MARGIN = 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:41:45Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: non-inferiority margin check uses margin 0.05
+  claim_id: c_0240e76c
+  context: Must include logic to calculate and output the non-inferiority margin check
+    for Style Consistency as per SC-002, using margin = 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: margin = 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:42:07Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: GLMM convergence flagged as unreliable if any level has fewer than 5
+    observations
+  claim_id: c_a429337c
+  context: If any level has < 5 observations, flag the GLMM convergence as 'UNRELIABLE'
+    in `data/processed/glm_results.json`.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLMM_convergence_flagged_as_unreliable_if_any_level_has_fewe
+  kind: magnitude
+  raw_text: less than 5 observations
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:42:34Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: parallel jobs segmented to fit within 3600s CI limits
+  claim_id: c_af221a28
+  context: Implement `code/scripts/run_inference.py` to segment workload into parallel
+    jobs... to fit within 3600s CI limits.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Parallel_jobs_segmented_to_fit_within_3600s_CI_limits
+  kind: entity_fact
+  raw_text: 3600s CI limits
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:42:54Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'inference runs cover 3 conditions: Monolithic Separated Generic'
+  claim_id: c_66073443
+  context: "10 profiles \xD7 50 tasks \xD7 3 conditions (Monolithic, Separated, Generic)\
+    \ = 1500 runs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 3 conditions
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:43:14Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 2 expert profiles generated per domain
+  claim_id: c_2a9f97e7
+  context: '10 synthetic expert profiles (2 per domain). Domains: coding, math, logic,
+    creative, factual (2 profiles each).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2 per domain
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:43:28Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Generate 10 synthetic expert profiles
+  claim_id: c_3a58a652
+  context: 'Implement code/data_generation/profiles.py to generate 10 synthetic expert
+    profiles (2 per domain). Schema: {"id": str, "domain": str, "capability_rules":
+    str, "behavior_keywords": [str]}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate 10 synthetic expert profiles (2 per domain).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:44:59Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Generate 50 stratified task scenarios
+  claim_id: c_08d8c0fb
+  context: Implement code/data_generation/tasks.py to generate a global pool of 50
+    stratified task scenarios (reused across all profiles).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a global pool of 50 stratified task scenarios.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:45:23Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 1500 inference runs
+  claim_id: c_adff554b
+  context: "Scale: 10 profiles \xD7 50 tasks \xD7 3 conditions (Monolithic, Separated,\
+    \ Generic) = 1500 runs. Save outputs to data/interim/inference_outputs.jsonl with\
+    \ schema {profile_id, task_id, condition, latency, success_flag, output_text}."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Process 1500 runs (10 profiles \xD7 50 tasks \xD7 3 conditions)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:45:40Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Inference outputs file contains exactly 1500 rows
+  claim_id: c_4074c1a4
+  context: 'Verification: File exists and contains exactly 1500 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the inference outputs file contains exactly 1500 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:46:03Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Evaluation scores file contains exactly 1500 rows
+  claim_id: c_0c52f504
+  context: 'Verification: File exists and contains exactly 1500 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the evaluation scores file contains exactly 1500 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:46:21Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Aggregated data file contains exactly 1500 rows
+  claim_id: c_a304d413
+  context: 'Verification: File exists and contains exactly 1500 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the aggregated data file contains exactly 1500 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:46:45Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Non-inferiority margin of 0.05 for Style Consistency
+  claim_id: c_85efca6f
+  context: Define NON_INFERIORITY_MARGIN = 0.05 (5 percentage points) as per SC-002.
+    Must include logic to calculate and output the non-inferiority margin check for
+    Style Consistency using margin = 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a non-inferiority margin of 0.05 for Style Consistency.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:47:08Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Apply Holm-Bonferroni correction for multiple comparisons
+  claim_id: c_bca93a99
+  context: Implement Holm-Bonferroni correction for multiple comparisons across metrics
+    (FR-007) for all 3 conditions.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Apply_Holm-Bonferroni_correction_for_multiple_comparisons
+  kind: entity_fact
+  raw_text: Apply Holm-Bonferroni correction for multiple comparisons across metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:47:24Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Flag GLMM convergence as UNRELIABLE if any level has < 5 observations
+  claim_id: c_c3bd69ad
+  context: Implement code/analysis/stats.py to calculate the effective sample size
+    per random effect level (Profile/Task) after exclusions. If any level has < 5
+    observations, flag the GLMM convergence as "UNRELIABLE".
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_GLMM_convergence_as_UNRELIABLE_if_any_level_has_%3C_5_obs
+  kind: magnitude
+  raw_text: Flag GLMM convergence as UNRELIABLE if any random effect level has fewer
+    than 5 observations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:47:47Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 300-second timeout for CPU inference
+  claim_id: c_1495ab74
+  context: Implement a strict 300-second timeout handler (configurable, default 300s
+    as per spec US-1) and OOM exception catching for CPU runs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use a strict 300-second timeout handler for CPU inference.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:48:04Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: transformers version 4.40.0
+  claim_id: c_7b7c6256
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70...'
+  evidence:
+    asserted: '4.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin transformers version to 4.40.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T17:48:05Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: torch version 2.2.0+cpu
+  claim_id: c_d6ad0f8a
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70...'
+  evidence:
+    asserted: '2.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin torch version to 2.2.0+cpu.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T17:48:05Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: llama-cpp-python version 0.2.70
+  claim_id: c_2c7c0975
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1...'
+  evidence:
+    asserted: '0.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin llama-cpp-python version to 0.2.70.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T17:48:05Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1
+  claim_id: c_b2c8bff4
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0...'
+  evidence:
+    asserted: '0.14'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin statsmodels version to 0.14.1.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T17:48:05Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.0
+  claim_id: c_f4e5f520
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0...'
+  evidence:
+    asserted: '2.2'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin pandas version to 2.2.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T17:48:05Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0
+  claim_id: c_3d1a5071
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0...'
+  evidence:
+    asserted: '1.26'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin numpy version to 1.26.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T17:48:05Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: pytest version 8.0.0
+  claim_id: c_dda74cbc
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1...'
+  evidence:
+    asserted: '8.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin pytest version to 8.0.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T17:48:05Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_3b4116dd
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1, sympy==1.12...'
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin pyyaml version to 6.0.1.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T17:48:05Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: sympy version 1.12
+  claim_id: c_5b1d587c
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1, sympy==1.12, z3-solver==4.12.0...'
+  evidence:
+    asserted: '1.12'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin sympy version to 1.12.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T17:48:06Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: z3-solver version 4.12.0
+  claim_id: c_2bd6c451
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1, sympy==1.12, z3-solver==4.12.0, scikit-learn==1.4.0...'
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin z3-solver version to 4.12.0.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T17:48:06Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0
+  claim_id: c_4c3c2059
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1, sympy==1.12, z3-solver==4.12.0, scikit-learn==1.4.0, datasets==2.18.0'
+  evidence:
+    asserted: '1.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin scikit-learn version to 1.4.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T17:48:06Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: datasets version 2.18.0
+  claim_id: c_5266d6d5
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1, sympy==1.12, z3-solver==4.12.0, scikit-learn==1.4.0, datasets==2.18.0'
+  evidence:
+    asserted: '2.18'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pin datasets version to 2.18.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T17:48:06Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 10 synthetic expert profiles generated with 2 per domain
+  claim_id: c_f436f38b
+  context: T006 [P] [FR-002] Implement code/data_generation/profiles.py to generate
+    10 synthetic expert profiles (2 per domain).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system generates 10 synthetic expert profiles (2 per domain).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:48:50Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 50 stratified task scenarios generated
+  claim_id: c_ad2bec44
+  context: T007 [US1] [FR-002] Implement code/data_generation/tasks.py to generate
+    a global pool of 50 stratified task scenarios (reused across all profiles).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system generates a global pool of 50 stratified task scenarios.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:49:13Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 1500 inference runs calculated from 10 profiles, 50 tasks, and 3 conditions
+  claim_id: c_f5cd1494
+  context: "T014b [US1] [FR-002] ... Scale: 10 profiles \xD7 50 tasks \xD7 3 conditions\
+    \ (Monolithic, Separated, Generic) = 1500 runs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The inference workload consists of 1500 runs (10 profiles \xD7 50 tasks\
+    \ \xD7 3 conditions)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:49:30Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: inference_outputs.jsonl contains exactly 1500 rows
+  claim_id: c_29f9dc9a
+  context: 'T014b [US1] [FR-002] ... Verification: File exists and contains exactly
+    1500 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inference output file contains exactly 1500 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:49:54Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: evaluation_scores.jsonl contains exactly 1500 rows
+  claim_id: c_d2713a52
+  context: 'T023 [US2] ... Verification: File exists and contains exactly 1500 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The evaluation scores file contains exactly 1500 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:50:12Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: aggregated_data.csv contains exactly 1500 rows
+  claim_id: c_ac081db0
+  context: 'T027 [US3] ... Verification: File exists and contains exactly 1500 rows.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The aggregated data file contains exactly 1500 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:50:31Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: non-inferiority margin set to 0.05
+  claim_id: c_199f9a0e
+  context: 'T004 [P] ... Parameters: Define NON_INFERIORITY_MARGIN = 0.05 (5 percentage
+    points) as per SC-002.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Non-inferiority_margin_set_to_0.05
+  kind: entity_fact
+  raw_text: The non-inferiority margin for Style Consistency is defined as 0.05.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:50:52Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 2
+  canonical: CPU feasibility check uses n_ctx 512 and n_threads 2
+  claim_id: c_3e9c71bc
+  context: T039 [P] [FR-001] ... implement code/scripts/cpu_feasibility_check.py to
+    attempt loading the quantized model with n_ctx=512 and n_threads=2...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CPU feasibility check simulates a strict CI runner with n_ctx=512
+    and n_threads=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:51:09Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: project scale reduced to 10 profiles, 50 tasks, 3 conditions
+  claim_id: c_49fcf42f
+  context: "Notes: ... Scale Note: This project uses a reduced scale of 10 profiles\
+    \ \xD7 50 tasks \xD7 3 conditions = 1,500 runs for CI feasibility, as defined\
+    \ in the Plan's Statistical Power section."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses a reduced scale of 10 profiles, 50 tasks, and 3 conditions
+    for CI feasibility.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:51:33Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: GLMM convergence flagged UNRELIABLE if sample size < 5 observations
+  claim_id: c_a5a2f3b3
+  context: T041 [US3] [FR-006] ... If any level has < 5 observations, flag the GLMM
+    convergence as 'UNRELIABLE'...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLMM_convergence_flagged_UNRELIABLE_if_sample_size_%3C_5_obser
+  kind: magnitude
+  raw_text: The effective sample size per random effect level is flagged as UNRELIABLE
+    if any level has fewer than 5 observations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T17:52:05Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 1500 runs from 500 combinations and 3 conditions
+  claim_id: c_6c111215
+  context: "Amend Assumptions (Scale): Update the assumption regarding sample size\
+    \ from '50 profiles \xD7 200 tasks' to '10 profiles \xD7 50 tasks' (500 combinations\
+    \ \xD7 3 conditions = 1,500 runs) to ensure GLMM convergence within CI limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "500 combinations \xD7 3 conditions = 1,500 runs"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:16:30Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 1500 runs from 10 profiles, 50 tasks, and 3 conditions
+  claim_id: c_470bac92
+  context: "Scale: 10 profiles \xD7 50 tasks \xD7 3 conditions = 1500 runs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "10 profiles \xD7 50 tasks \xD7 3 conditions = 1500 runs"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:16:50Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Task distribution: coding 10, math 5, logic 5, creative 15, factual
+    15'
+  claim_id: c_023beb5e
+  context: 'Domains: Enforce exact proportional distribution based on total 50 tasks:
+    coding ([deferred] = 10 tasks), math ([deferred] = 5 tasks), logic ([deferred]
+    = 5 tasks), creative ([deferred] = 15 tasks), factual ([deferred] = 15 tasks).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: coding ([deferred] = 10 tasks), math ([deferred] = 5 tasks), logic ([deferred]
+    = 5 tasks), creative ([deferred] = 15 tasks), factual ([deferred] = 15 tasks)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:17:04Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 2 profiles per domain
+  claim_id: c_7fb07ba8
+  context: 'Domains: coding, math, logic, creative, factual (2 profiles each).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 2 profiles each
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:17:20Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Model loaded with n_ctx 512 and n_threads 2
+  claim_id: c_66bc0c98
+  context: Implement code/scripts/cpu_feasibility_check.py to attempt loading the
+    quantized model with n_ctx=512 and n_threads=2 (simulating strictest CI runner).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_ctx=512 and n_threads=2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:17:21Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Inference timeout set to 300 seconds
+  claim_id: c_a582be34
+  context: 'Implement code/inference/engine.py logic to: ... 2) Implement a strict
+    300-second timeout handler (configurable, default 300s as per spec US-1) and OOM
+    exception catching for CPU runs;'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: strict 300-second timeout
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:17:46Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: transformers version 4.40.0
+  claim_id: c_30cf9dd0
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1, sympy==1.12, z3-solver==4.12.0, scikit-learn==1.4.0, datasets==2.18.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: transformers==4.40.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:18:11Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: torch version 2.2.0+cpu
+  claim_id: c_aba736e4
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1, sympy==1.12, z3-solver==4.12.0, scikit-learn==1.4.0, datasets==2.18.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: torch==2.2.0+cpu
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:18:28Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: llama-cpp-python version 0.2.70
+  claim_id: c_53fa4f89
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1, sympy==1.12, z3-solver==4.12.0, scikit-learn==1.4.0, datasets==2.18.0'
+  evidence:
+    fill:
+      channel: constants
+      conflicts: []
+      quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+      source_id: pi
+      url: https://en.wikipedia.org/wiki/Pi
+      value: '3.141592653589793'
+    filled: true
+  kind: numeric
+  raw_text: llama-cpp-python==0.2.70
+  resolved_value: '3.141592653589793'
+  resolver: fill:constants
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T18:18:31Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1
+  claim_id: c_6c95f7eb
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1, sympy==1.12, z3-solver==4.12.0, scikit-learn==1.4.0, datasets==2.18.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels==0.14.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:18:47Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.0
+  claim_id: c_606f78d3
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1, sympy==1.12, z3-solver==4.12.0, scikit-learn==1.4.0, datasets==2.18.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.2.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:19:12Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0
+  claim_id: c_43320db4
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1, sympy==1.12, z3-solver==4.12.0, scikit-learn==1.4.0, datasets==2.18.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:19:44Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: pytest version 8.0.0
+  claim_id: c_c4f3f714
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1, sympy==1.12, z3-solver==4.12.0, scikit-learn==1.4.0, datasets==2.18.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==8.0.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:19:47Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_5753b34c
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1, sympy==1.12, z3-solver==4.12.0, scikit-learn==1.4.0, datasets==2.18.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:19:51Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: sympy version 1.12
+  claim_id: c_286eb9b4
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1, sympy==1.12, z3-solver==4.12.0, scikit-learn==1.4.0, datasets==2.18.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: sympy==1.12
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:19:56Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: z3-solver version 4.12.0
+  claim_id: c_2a5c29f6
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    llama-cpp-python==0.2.70, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1, sympy==1.12, z3-solver==4.12.0, scikit-learn==1.4.0, datasets==2.18.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: z3-solver==4.12.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:20:01Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Global random seed set to 42
+  claim_id: c_796d4dfb
+  context: Implement code/utils/config.py for seed pinning (global seed=42), path
+    management, and environment configuration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: global seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:20:06Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: GPU layers set to 0
+  claim_id: c_b63ee023
+  context: 'Implement code/inference/engine.py logic to: 1) Load quantized model using
+    llama-cpp-python with device=''cpu'', n_gpu_layers=0;'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_gpu_layers=0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:20:09Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: GLMM convergence flagged as unreliable if any level has fewer than 5
+    observations
+  claim_id: c_0bac6625
+  context: If any level has < 5 observations, flag the GLMM convergence as 'UNRELIABLE'
+    in data/processed/glm_results.json AND trigger a 'CONVERGENCE_FAILURE' report
+    in data/processed/convergence_report.md, halting further analysis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLMM_convergence_flagged_as_unreliable_if_any_level_has_fewe
+  kind: magnitude
+  raw_text: if any level has < 5 observations
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:20:15Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Full matrix exceeds free-tier runner runtime and RAM constraints
+  claim_id: c_37fb3871
+  context: 'Rationale for reducing scale: The full matrix (a comprehensive set of
+    runs) exceeds the runtime and RAM constraints of the free-tier runner.; the reduced
+    scale is statistically powered for a moderate effect size (Cohen''s d) with sufficient
+    random-effect levels.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Full_matrix_exceeds_free-tier_runner_runtime_and_RAM_constra
+  kind: entity_fact
+  raw_text: The full matrix exceeds the runtime and RAM constraints of the free-tier
+    runner.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:21:42Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Reduced scale statistically powered for moderate Cohen's d effect size
+  claim_id: c_ea13423a
+  context: 'Rationale for reducing scale: The full matrix (a comprehensive set of
+    runs) exceeds the runtime and RAM constraints of the free-tier runner.; the reduced
+    scale is statistically powered for a moderate effect size (Cohen''s d) with sufficient
+    random-effect levels.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reduced_scale_statistically_powered_for_moderate_Cohen's_d_e
+  kind: entity_fact
+  raw_text: The reduced scale is statistically powered for a moderate effect size
+    (Cohen's d) with sufficient random-effect levels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:21:52Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 1500 runs using 10 profiles, 50 tasks, and 3 conditions
+  claim_id: c_5e4c78b9
+  context: "Scale Note: This project uses a reduced scale of 10 profiles \xD7 50 tasks\
+    \ \xD7 3 conditions = 1,500 runs for CI feasibility, as defined in the Plan's\
+    \ Statistical Power section and authorized by T000b."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project uses a reduced scale of 10 profiles \xD7 50 tasks \xD7 3\
+    \ conditions = 1,500 runs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:21:57Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Reduced scale of 10 profiles and 50 tasks
+  claim_id: c_a5dd6fbe
+  context: "Amend Assumptions (Scale): Update the assumption regarding sample size\
+    \ from '50 profiles \xD7 200 tasks' to '10 profiles \xD7 50 tasks' (500 combinations\
+    \ \xD7 3 conditions = 1,500 runs) to ensure GLMM convergence within CI limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The reduced scale is 10 profiles \xD7 50 tasks."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:22:04Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Task distribution: coding 10, math 5, logic 5, creative 15, factual
+    15'
+  claim_id: c_d376a11e
+  context: 'Enforce exact proportional distribution based on total 50 tasks: coding
+    ([deferred] = 10 tasks), math ([deferred] = 5 tasks), logic ([deferred] = 5 tasks),
+    creative ([deferred] = 15 tasks), factual ([deferred] = 15 tasks).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The task distribution for 50 tasks is: coding (10 tasks), math (5 tasks),
+    logic (5 tasks), creative (15 tasks), factual (15 tasks).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:22:10Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Model generates text within 300 seconds without CUDA errors or OOM crashes
+  claim_id: c_8a9905f6
+  context: The system can be tested by running a single profile-task pair through
+    all three conditions and verifying that the model generates text within 300 seconds
+    without CUDA errors or OOM crashes.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test verifies the model generates text within 300 seconds
+    without CUDA errors or OOM crashes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:22:12Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: CPU feasibility check uses n_ctx 512 and n_threads 2
+  claim_id: c_040b9e25
+  context: Implement `code/scripts/cpu_feasibility_check.py` to attempt loading the
+    quantized model with `n_ctx=512` and `n_threads=2` (simulating strictest CI runner).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CPU feasibility check uses n_ctx=512 and n_threads=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:22:14Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Global seed pinned to 42
+  claim_id: c_e58e75d4
+  context: Implement `code/utils/config.py` for seed pinning (global seed=42), path
+    management, and environment configuration.
+  evidence:
+    asserted: '42.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The global seed is pinned to 42.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T18:22:15Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Expert profile domains: coding, math, logic, creative, factual'
+  claim_id: c_7947af47
+  context: 'Domains: coding, math, logic, creative, factual (2 profiles each).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Expert_profile_domains:_coding,_math,_logic,_creative,_factu
+  kind: entity_fact
+  raw_text: The domains for expert profiles are coding, math, logic, creative, and
+    factual.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:22:23Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'GLMM formula: metric ~ condition + (1 | profile_id) + (1 | task_id)'
+  claim_id: c_d29b3546
+  context: 'Formula: `metric ~ condition + (1 | profile_id) + (1 | task_id)`'
+  evidence:
+    entailment_evidence: 'GLMM formula: metric ~ condition + (1 profile id) + (1 task'
+    entailment_status: grounded
+    object: task_id)
+    relation: profile_id) + (1
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/GLMM_formula:_metric_~_condition_%2B_(1_profile_id)_%2B_(1_task
+    source_value: https://en.wikipedia.org/wiki/GLMM_formula:_metric_~_condition_+_(1_profile_id)_+_(1_task_
+    subject: 'GLMM formula: metric ~ condition + (1'
+  kind: relational
+  raw_text: The GLMM formula is metric ~ condition + (1 | profile_id) + (1 | task_id).
+  resolved_value: 'GLMM formula: metric ~ condition + (1 | profile_id) + (1 | task_id)'
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-22T18:22:25Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: GLMM convergence flagged as UNRELIABLE if level has fewer than 5 observations
+  claim_id: c_483a55ff
+  context: If any level has < 5 observations, flag the GLMM convergence as 'UNRELIABLE'
+    in `data/processed/glm_results.json` AND trigger a 'CONVERGENCE_FAILURE' report.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLMM_convergence_flagged_as_UNRELIABLE_if_level_has_fewer_th
+  kind: magnitude
+  raw_text: If any random effect level has fewer than 5 observations, the GLMM convergence
+    is flagged as UNRELIABLE.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:22:30Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: GLMM fitting uses statsmodels library
+  claim_id: c_195546f3
+  context: Implement `code/analysis/stats.py` GLMM fitting using `statsmodels` library.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GLMM_fitting_uses_statsmodels_library
+  kind: entity_fact
+  raw_text: The project uses the statsmodels library for GLMM fitting.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:22:36Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Holm-Bonferroni correction used for multiple comparisons
+  claim_id: c_27dbeb9c
+  context: Implement Holm-Bonferroni correction for multiple comparisons across metrics
+    (FR-007) for all 3 conditions.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Holm-Bonferroni_correction_used_for_multiple_comparisons
+  kind: entity_fact
+  raw_text: The project uses Holm-Bonferroni correction for multiple comparisons.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:23:11Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Task distribution ratios: coding 20%, math 10%, logic 10%, creative
+    30%, factual 30%'
+  claim_id: c_93a09fec
+  context: 'Script logs the actual distribution ratios (e.g., ''Distribution: coding=20%,
+    math=10%...'') and exits 0 only if ratios match the spec.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The task distribution for 50 tasks is: coding 20%, math 10%, logic 10%,
+    creative 30%, factual 30%.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:23:17Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Full matrix exceeds free-tier runner runtime and RAM constraints
+  claim_id: c_4b84eac6
+  context: "Amend Assumptions (Scale): Update the assumption regarding sample size\
+    \ from '50 profiles \xD7 200 tasks' to '10 profiles \xD7 50 tasks' (500 combinations\
+    \ \xD7 3 conditions = 1,500 runs) to ensure GLMM convergence within CI limits.\
+    \ Rationale: The full matrix (a comprehensive set of runs) exceeds the runtime\
+    \ and RAM constraints of the free-tier runner."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Full_matrix_exceeds_free-tier_runner_runtime_and_RAM_constra
+  kind: entity_fact
+  raw_text: The full matrix exceeds the runtime and RAM constraints of the free-tier
+    runner.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:23:49Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Reduced scale statistically powered for moderate Cohen's d effect size
+  claim_id: c_444bcf9b
+  context: 'Rationale: The full matrix (a comprehensive set of runs) exceeds the runtime
+    and RAM constraints of the free-tier runner.; the reduced scale is statistically
+    powered for a moderate effect size (Cohen''s d) with sufficient random-effect
+    levels.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Reduced_scale_statistically_powered_for_moderate_Cohen's_d_e
+  kind: entity_fact
+  raw_text: The reduced scale is statistically powered for a moderate effect size
+    (Cohen's d) with sufficient random-effect levels.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:23:51Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 1500 runs using 10 profiles 50 tasks and 3 conditions
+  claim_id: c_e2430f87
+  context: "Scale: 10 profiles \xD7 50 tasks \xD7 3 conditions = 1500 runs. ... This\
+    \ project uses a reduced scale of 10 profiles \xD7 50 tasks \xD7 3 conditions\
+    \ = 1,500 runs for CI feasibility, as defined in the Plan's Statistical Power\
+    \ section and authorized by T000b."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project uses a reduced scale of 10 profiles \xD7 50 tasks \xD7 3\
+    \ conditions = 1,500 runs for CI feasibility."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:23:56Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Task distribution: 10 coding, 5 math, 5 logic, 15 creative, 15 factual'
+  claim_id: c_807b73b5
+  context: 'Domains: Enforce exact proportional distribution based on total 50 tasks:
+    coding ([deferred] = 10 tasks), math ([deferred] = 5 tasks), logic ([deferred]
+    = 5 tasks), creative ([deferred] = 15 tasks), factual ([deferred] = 15 tasks).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The task distribution for 50 tasks is: coding 10 tasks, math 5 tasks,
+    logic 5 tasks, creative 15 tasks, factual 15 tasks.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:24:02Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Non-inferiority margin is 0.05
+  claim_id: c_601b570c
+  context: Create/Update code/utils/config.py to explicitly define NON_INFERIORITY_MARGIN
+    = 0.05 (5 percentage points) as per SC-002. ... using margin = 0.05 (from code/utils/config.py).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The predefined non-inferiority margin for Style Consistency is 0.05 (5
+    percentage points).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:24:08Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Default CPU timeout is 300 seconds
+  claim_id: c_1d6cdede
+  context: Implement a strict 300-second timeout handler (configurable, default 300s
+    as per spec US-1) and OOM exception catching for CPU runs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default timeout handler for CPU runs is 300 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:24:40Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Independent test verifies text generation within 300 seconds without
+    CUDA errors or OOM
+  claim_id: c_d7c4c83b
+  context: 'Independent Test: The system can be tested by running a single profile-task
+    pair through all three conditions and verifying that the model generates text
+    within 300 seconds without CUDA errors or OOM crashes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The independent test for User Story 1 verifies model generates text within
+    300 seconds without CUDA errors or OOM crashes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:24:44Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: GLMM convergence flagged as UNRELIABLE if any level has fewer than 5
+    observations
+  claim_id: c_ba9cf901
+  context: If any level has < 5 observations, flag the GLMM convergence as 'UNRELIABLE'
+    in data/processed/glm_results.json AND trigger a 'CONVERGENCE_FAILURE' report.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLMM_convergence_flagged_as_UNRELIABLE_if_any_level_has_fewe
+  kind: magnitude
+  raw_text: If any random effect level has fewer than 5 observations, the GLMM convergence
+    is flagged as UNRELIABLE.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:24:46Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 1500 runs using 10 profiles and 50 tasks across 3 conditions
+  claim_id: c_eeb0bde6
+  context: "Amend Assumptions (Scale): Update the assumption regarding sample size\
+    \ from \"50 profiles \xD7 200 tasks\" to \"10 profiles \xD7 50 tasks\" (500 combinations\
+    \ \xD7 3 conditions = 1,500 runs) to ensure GLMM convergence within CI limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "10 profiles \xD7 50 tasks (500 combinations \xD7 3 conditions = 1,500\
+    \ runs)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:25:09Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Stratified task distribution: 10 coding, 5 math, 5 logic, 15 creative,
+    15 factual'
+  claim_id: c_92ff6f25
+  context: 'Domains: Enforce exact proportional distribution based on total 50 tasks:
+    coding ([deferred] = 10 tasks), math ([deferred] = 5 tasks), logic ([deferred]
+    = 5 tasks), creative ([deferred] = 15 tasks), factual ([deferred] = 15 tasks).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: coding ([deferred] = 10 tasks), math ([deferred] = 5 tasks), logic ([deferred]
+    = 5 tasks), creative ([deferred] = 15 tasks), factual ([deferred] = 15 tasks)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:25:09Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 1500 inference runs across 10 profiles, 50 tasks, and 3 conditions
+  claim_id: c_fe04139a
+  context: "Scale: 10 profiles \xD7 50 tasks \xD7 3 conditions = 1500 runs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "10 profiles \xD7 50 tasks \xD7 3 conditions = 1500 runs"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:25:09Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Non-inferiority margin set to 0.05
+  claim_id: c_048efd81
+  context: Must include logic to calculate and output the non-inferiority margin check
+    for Style Consistency as per SC-002, using margin = 0.05 (from code/utils/config.py).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: non-inferiority margin = 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:25:09Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: GLMM convergence flagged as UNRELIABLE if random effect level has fewer
+    than 5 observations
+  claim_id: c_7134ff97
+  context: If any level has < 5 observations, flag the GLMM convergence as "UNRELIABLE"
+    in data/processed/glm_results.json AND trigger a "CONVERGENCE_FAILURE" report
+    in data/processed/convergence_report.md, halting further analysis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLMM_convergence_flagged_as_UNRELIABLE_if_random_effect_leve
+  kind: magnitude
+  raw_text: If any level has < 5 observations, flag the GLMM convergence as "UNRELIABLE"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T18:25:15Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/spec.md
+  attempts: 1
+  canonical: Study scale of 1,500 runs across 10 profiles, 50 tasks, and 3 conditions
+  claim_id: c_666c7f75
+  context: "The study is conducted on a reduced scale of 10 profiles \xD7 50 tasks\
+    \ \xD7 3 conditions = 1,500 runs. This reduction is necessary to ensure GLMM convergence\
+    \ within the computational limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The study is conducted on a reduced scale of 10 profiles \xD7 50 tasks\
+    \ \xD7 3 conditions = 1,500 runs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:35:49Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/spec.md
+  attempts: 1
+  canonical: Non-inferiority margin of 0.05 applied to Style Consistency comparisons
+  claim_id: c_f3e95ccd
+  context: 'Non-Inferiority: A non-inferiority margin of 0.05 (5 percentage points)
+    is applied to Style Consistency comparisons as per SC-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A non-inferiority margin of 0.05 (5 percentage points) is applied to Style
+    Consistency comparisons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:36:09Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/spec.md
+  attempts: 1
+  canonical: Reproducibility with fixed random seed 42
+  claim_id: c_848854f5
+  context: 'NFR-002: The system must be reproducible with a fixed random seed (42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must be reproducible with a fixed random seed (42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:36:28Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/spec.md
+  attempts: 1
+  canonical: Inference runs complete within 300 seconds per task on CPU-only runner
+  claim_id: c_5878fec2
+  context: 'NFR-001: All inference runs must complete within 300 seconds per task
+    on a CPU-only runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All inference runs must complete within 300 seconds per task on a CPU-only
+    runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:36:47Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/spec.md
+  attempts: 1
+  canonical: Reduced scale of 1,500 runs powered to detect moderate effect size (Cohen's
+    d)
+  claim_id: c_7be798b1
+  context: "The reduced scale (500 combinations \xD7 3 conditions) is statistically\
+    \ powered to detect a moderate effect size (Cohen's d) with sufficient random-effect\
+    \ levels (10 profiles, 50 tasks) for the intended analysis."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The reduced scale of 500 combinations \xD7 3 conditions is statistically\
+    \ powered to detect a moderate effect size (Cohen's d)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:38:44Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Reduced scale of 10 profiles x 50 tasks powered for moderate effect size
+  claim_id: c_173251a4
+  context: "Amend Assumptions (Scale): Update the assumption regarding sample size\
+    \ from '50 profiles \xD7 200 tasks' to '10 profiles \xD7 50 tasks' (500 combinations\
+    \ \xD7 3 conditions = 1,500 runs) to ensure GLMM convergence within CI limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full matrix exceeds the runtime and RAM constraints of the free-tier
+    runner; the reduced scale is statistically powered for a moderate effect size
+    (Cohen's d) with sufficient random-effect levels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:39:10Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 1500 runs for 500 combinations and 3 conditions
+  claim_id: c_de187e93
+  context: "Update the assumption regarding sample size from '50 profiles \xD7 200\
+    \ tasks' to '10 profiles \xD7 50 tasks' (500 combinations \xD7 3 conditions =\
+    \ 1,500 runs) to ensure GLMM convergence within CI limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "500 combinations \xD7 3 conditions = 1,500 runs"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:39:25Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Task distribution: 10 coding, 5 math, 5 logic, 15 creative, 15 factual'
+  claim_id: c_afcab224
+  context: 'Enforce exact proportional distribution based on total 50 tasks: coding
+    ([deferred] = 10 tasks), math ([deferred] = 5 tasks), logic ([deferred] = 5 tasks),
+    creative ([deferred] = 15 tasks), factual ([deferred] = 15 tasks).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: coding ([deferred] = 10 tasks), math ([deferred] = 5 tasks), logic ([deferred]
+    = 5 tasks), creative ([deferred] = 15 tasks), factual ([deferred] = 15 tasks)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:39:37Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Total experiment scale of 1500 runs
+  claim_id: c_940cb956
+  context: "Batch Processing: Group tasks into batches of appropriate size... Scale:\
+    \ 10 profiles \xD7 50 tasks \xD7 3 conditions = 1500 runs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Scale: 10 profiles \xD7 50 tasks \xD7 3 conditions = 1500 runs"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:39:51Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Inference test requirement: 300 seconds timeout'
+  claim_id: c_b0876163
+  context: 'Independent Test: The system can be tested by running a single profile-task
+    pair through all three conditions and verifying that the model generates text
+    within 300 seconds without CUDA errors or OOM crashes.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system can be tested by running a single profile-task pair through
+    all three conditions and verifying that the model generates text within 300 seconds
+    without CUDA errors or OOM crashes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:40:04Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Inference call timeout set to 300 seconds
+  claim_id: c_02aea128
+  context: 'For each condition in [''Monolithic'', ''Separated'', ''Generic'']: a.
+    Build prompt... b. Call code/inference/engine.py with timeout=300s.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Call code/inference/engine.py with timeout=300s.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:40:33Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Non-inferiority margin is 0.05
+  claim_id: c_04a893cc
+  context: Create/Update code/utils/config.py to explicitly define NON_INFERIORITY_MARGIN
+    = 0.05 (5 percentage points) as per SC-002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: NON_INFERIORITY_MARGIN = 0.05 (5 percentage points)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:40:38Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Non-inferiority margin check uses 0.05
+  claim_id: c_3a8b4393
+  context: Must include logic to calculate and output the non-inferiority margin check
+    for Style Consistency as per SC-002, using margin = 0.05 (from code/utils/config.py).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use margin = 0.05 (from code/utils/config.py) for the non-inferiority
+    margin check for Style Consistency.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:40:40Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: GLMM convergence flagged unreliable if random effect level has fewer
+    than 5 observations
+  claim_id: c_76ead429
+  context: If any level has < 5 observations, flag the GLMM convergence as 'UNRELIABLE'
+    in data/processed/glm_results.json AND trigger a 'CONVERGENCE_FAILURE' report...
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLMM_convergence_flagged_unreliable_if_random_effect_level_h
+  kind: magnitude
+  raw_text: If any level has < 5 observations, flag the GLMM convergence as 'UNRELIABLE'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:40:45Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Project scale is 1500 runs (10 profiles, 50 tasks, 3 conditions)
+  claim_id: c_167fc726
+  context: "Scale Note: This project uses a reduced scale of 10 profiles \xD7 50 tasks\
+    \ \xD7 3 conditions = 1,500 runs for CI feasibility, as defined in the Plan's\
+    \ Statistical Power section and authorized by T000b."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "This project uses a reduced scale of 10 profiles \xD7 50 tasks \xD7 3\
+    \ conditions = 1,500 runs for CI feasibility."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:40:50Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 1500 runs from 10 profiles and 50 tasks across 3 conditions
+  claim_id: c_cb153a9e
+  context: "Amend Assumptions (Scale): Update the assumption regarding sample size\
+    \ from '50 profiles \xD7 200 tasks' to '10 profiles \xD7 50 tasks' (500 combinations\
+    \ \xD7 3 conditions = 1,500 runs) to ensure GLMM convergence within CI limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "10 profiles \xD7 50 tasks (500 combinations \xD7 3 conditions = 1,500\
+    \ runs)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:41:18Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Task distribution: 10 coding, 5 math, 5 logic, 15 creative, 15 factual
+    out of 50 total'
+  claim_id: c_f762c9df
+  context: 'Domains: Enforce exact proportional distribution based on total 50 tasks:
+    coding ([deferred] = 10 tasks), math ([deferred] = 5 tasks), logic ([deferred]
+    = 5 tasks), creative ([deferred] = 15 tasks), factual ([deferred] = 15 tasks).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: coding ([deferred] = 10 tasks), math ([deferred] = 5 tasks), logic ([deferred]
+    = 5 tasks), creative ([deferred] = 15 tasks), factual ([deferred] = 15 tasks)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:41:19Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Global seed set to 42
+  claim_id: c_3840d7a4
+  context: Implement code/utils/config.py for seed pinning (global seed=42), path
+    management, and environment configuration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: global seed=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:41:23Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 2
+  canonical: Non-inferiority margin set to 0.05
+  claim_id: c_50198e52
+  context: Create/Update code/utils/config.py to explicitly define NON_INFERIORITY_MARGIN
+    = 0.05 (5 percentage points) as per SC-002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: NON_INFERIORITY_MARGIN = 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:41:23Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Thread count set to 2
+  claim_id: c_af7a7558
+  context: Implement code/scripts/cpu_feasibility_check.py to attempt loading the
+    quantized model with n_ctx=512 and n_threads=2 (simulating strictest CI runner).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: n_threads=2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:41:28Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Inference timeout set to 300 seconds
+  claim_id: c_211c641d
+  context: Implement a strict 300-second timeout handler (configurable, default 300s
+    as per spec US-1) and OOM exception catching for CPU runs
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: strict 300-second timeout
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:42:06Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Total execution scale is 1500 runs
+  claim_id: c_ef4450bd
+  context: "Scale: 10 profiles \xD7 50 tasks \xD7 3 conditions = 1500 runs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "10 profiles \xD7 50 tasks \xD7 3 conditions = 1500 runs"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:42:13Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Non-inferiority margin for GLMM is 0.05
+  claim_id: c_dd74e198
+  context: Must include logic to calculate and output the non-inferiority margin check
+    for Style Consistency as per SC-002, using margin = 0.05 (from code/utils/config.py).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: margin = 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:42:17Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: GLMM convergence flagged as unreliable if random effect level has less
+    than 5 observations
+  claim_id: c_6521da42
+  context: If any level has < 5 observations, flag the GLMM convergence as 'UNRELIABLE'
+    in data/processed/glm_results.json
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLMM_convergence_flagged_as_unreliable_if_random_effect_leve
+  kind: magnitude
+  raw_text: < 5 observations
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:42:22Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Full matrix run exceeds free-tier runner runtime and RAM constraints
+  claim_id: c_58beaede
+  context: 'Rationale: The full matrix (a comprehensive set of runs) exceeds the runtime
+    and RAM constraints of the free-tier runner.; the reduced scale is statistically
+    powered for a moderate effect size (Cohen''s d) with sufficient random-effect
+    levels.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Full_matrix_run_exceeds_free-tier_runner_runtime_and_RAM_con
+  kind: entity_fact
+  raw_text: The full matrix (a comprehensive set of runs) exceeds the runtime and
+    RAM constraints of the free-tier runner.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:44:05Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Reduced scale (10 profiles x 50 tasks) powered for moderate effect size
+    Cohen's d
+  claim_id: c_97087156
+  context: 'Rationale: The full matrix (a comprehensive set of runs) exceeds the runtime
+    and RAM constraints of the free-tier runner.; the reduced scale is statistically
+    powered for a moderate effect size (Cohen''s d) with sufficient random-effect
+    levels.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The reduced scale is statistically powered for a moderate effect size
+    (Cohen's d) with sufficient random-effect levels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:44:06Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Synthetic expert profiles generated for 5 domains with 2 profiles each
+  claim_id: c_bdd4d3d9
+  context: '**Domains**: coding, math, logic, creative, factual (2 profiles each).
+    **Rules**: Capability rules define heuristic constraints. Behavior keywords define
+    a set of style markers.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Domains: coding, math, logic, creative, factual (2 profiles each).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:44:12Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Task distribution: 10 coding, 5 math, 5 logic, 15 creative, 15 factual
+    out of 50 total'
+  claim_id: c_6ee4174c
+  context: 'Enforce exact proportional distribution based on total 50 tasks: coding
+    ([deferred] = 10 tasks), math ([deferred] = 5 tasks), logic ([deferred] = 5 tasks),
+    creative ([deferred] = 15 tasks), factual ([deferred] = 15 tasks).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Enforce exact proportional distribution based on total 50 tasks: coding
+    ([deferred] = 10 tasks), math ([deferred] = 5 tasks), logic ([deferred] = 5 tasks),
+    creative ([deferred] = 15 tasks), factual ([deferred] = 15 tasks).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:44:17Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Total inference runs: 1500 (10 profiles x 50 tasks x 3 conditions)'
+  claim_id: c_9df72639
+  context: "**Scale**: 10 profiles \xD7 50 tasks \xD7 **3 conditions ** = **1500 runs**."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Scale: 10 profiles \xD7 50 tasks \xD7 3 conditions = 1500 runs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:44:17Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Validation mapping: Code to AST, Math to SymPy, Logic to Z solver, Creative/Factual
+    to Regex/NLI'
+  claim_id: c_fd71f849
+  context: 'Implement `code/evaluation/validators.py` with specific mapping: Code
+    tasks -> AST parser; Math tasks -> SymPy evaluator; Logic tasks -> Z solver; Creative/Factual
+    -> Regex/NLI checks.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validation_mapping:_Code_to_AST,_Math_to_SymPy,_Logic_to_Z_s
+  kind: entity_fact
+  raw_text: Code tasks -> AST parser; Math tasks -> SymPy evaluator; Logic tasks ->
+    Z solver; Creative/Factual -> Regex/NLI checks.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:44:26Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Non-inferiority margin set to 0.05
+  claim_id: c_85bfd879
+  context: Create/Update `code/utils/config.py` to explicitly define `NON_INFERIORITY_MARGIN
+    = 0.05 ` (5 percentage points) as per SC-002.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: NON_INFERIORITY_MARGIN = 0.05 (5 percentage points).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:44:27Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: GLMM convergence flagged as unreliable if random effect level has less
+    than 5 observations
+  claim_id: c_8b9cedfd
+  context: If any level has **< 5 observations **, flag the GLMM convergence as 'UNRELIABLE'
+    in `data/processed/glm_results.json` **AND** trigger a 'CONVERGENCE_FAILURE' report
+    in `data/processed/convergence_report.md`, halting further analysis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLMM_convergence_flagged_as_unreliable_if_random_effect_leve
+  kind: magnitude
+  raw_text: If any level has < 5 observations, flag the GLMM convergence as 'UNRELIABLE'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:44:28Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Statistical method amended from Linear Mixed-Effects Model to Generalized
+    Linear Mixed Model
+  claim_id: c_97d27437
+  context: 'Amend FR-006: Replace ''Linear Mixed-Effects Model (LMM)'' with ''Generalized
+    Linear Mixed Model (GLMM)'' to support binary/continuous mixed outcomes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_method_amended_from_Linear_Mixed-Effects_Model_t
+  kind: entity_fact
+  raw_text: Replace 'Linear Mixed-Effects Model (LMM)' with 'Generalized Linear Mixed
+    Model (GLMM)' to support binary/continuous mixed outcomes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:44:36Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: Sample size reduced from 50 profiles x 200 tasks to 10 profiles x 50
+    tasks
+  claim_id: c_299781b9
+  context: "Update the assumption regarding sample size from '50 profiles \xD7 200\
+    \ tasks' to '10 profiles \xD7 50 tasks' (500 combinations \xD7 3 conditions =\
+    \ 1,500 runs) to ensure GLMM convergence within CI limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Update the assumption regarding sample size from '50 profiles \xD7 200\
+    \ tasks' to '10 profiles \xD7 50 tasks' (500 combinations \xD7 3 conditions =\
+    \ 1,500 runs)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-26T12:44:40Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/spec.md
+  attempts: 1
+  canonical: study scale 10 profiles 50 tasks 3 conditions 1500 runs
+  claim_id: c_93c0aaf0
+  context: "Scale Assumption: The study is conducted on a reduced scale of 10 profiles\
+    \ \xD7 50 tasks \xD7 3 conditions = 1,500 runs. The original assumption of 50\
+    \ profiles \xD7 200 tasks is replaced with 10 profiles \xD7 50 tasks."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The study is conducted on a reduced scale of 10 profiles \xD7 50 tasks\
+    \ \xD7 3 conditions = 1,500 runs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:47:18Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/spec.md
+  attempts: 1
+  canonical: original assumption 50 profiles 200 tasks replaced with 10 profiles 50
+    tasks
+  claim_id: c_479cae76
+  context: "Amendment from T000a: The original assumption of 50 profiles \xD7 200\
+    \ tasks is replaced with 10 profiles \xD7 50 tasks. This reduction is necessary\
+    \ to ensure GLMM convergence within the computational limits."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The original assumption of 50 profiles \xD7 200 tasks is replaced with\
+    \ 10 profiles \xD7 50 tasks."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:47:51Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/spec.md
+  attempts: 1
+  canonical: non-inferiority margin 0.05 5 percentage points style consistency
+  claim_id: c_b4121384
+  context: 'Non-Inferiority: A non-inferiority margin of 0.05 (5 percentage points)
+    is applied to Style Consistency comparisons as per SC-002.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A non-inferiority margin of 0.05 (5 percentage points) is applied to Style
+    Consistency comparisons.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:48:25Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 0
+  canonical: 'Global seed: 42'
+  claim_id: c_6f759cd9
+  context: Implement code/utils/config.py for seed pinning (global seed=42), path
+    management, and environment configuration.
+  evidence:
+    asserted: '42.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The global seed is pinned to 42.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T00:48:56Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Study scale: 10 profiles, 50 tasks, 3 conditions, 1500 runs'
+  claim_id: c_df64ec3d
+  context: "Amendment from T000a: The original assumption of \"50 profiles \xD7 200\
+    \ tasks\" is replaced with \"10 profiles \xD7 50 tasks\". This reduction is necessary\
+    \ to ensure GLMM convergence within the computational limits (RAM and runtime)\
+    \ of the free-tier CI runner (CPU-only)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The study is conducted on a reduced scale of 10 profiles \xD7 50 tasks\
+    \ \xD7 3 conditions = 1,500 runs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:49:00Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Reduced scale study: 10 profiles, 50 tasks, 3 conditions'
+  claim_id: c_f336f7ba
+  context: The full matrix (a comprehensive set of runs) exceeds the runtime and RAM
+    constraints of the free-tier runner; the reduced scale is statistically powered
+    for a moderate effect size (Cohen's d) with sufficient random-effect levels.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The study uses a reduced scale of 10 profiles \xD7 50 tasks (500 combinations)\
+    \ \xD7 3 conditions."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:49:26Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Task distribution: 100 per domain across 5 domains'
+  claim_id: c_be664886
+  context: 'Domains: Enforce exact proportional distribution based on total tasks:
+    coding (100), math (100), logic (100), creative (100), and factual (100).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task pool distribution is 100 tasks per domain for coding, math, logic,
+    creative, and factual.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:49:46Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Sampling: 50 tasks per profile'
+  claim_id: c_99009409
+  context: "Sampling Logic: For each profile, sample exactly 50 unique tasks from\
+    \ the global pool of 500 tasks (from T007). This ensures the total run count is\
+    \ 10 profiles \xD7 50 tasks \xD7 3 conditions = 1,500 runs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Each profile samples exactly 50 unique tasks from the global pool.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:50:23Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Inference timeout: 300 seconds'
+  claim_id: c_b56a7da3
+  context: 'Implement code/inference/engine.py logic to: 1) Load quantized model using
+    llama-cpp-python with device="cpu", n_gpu_layers=0; 2) Implement a strict 300-second
+    timeout handler (configurable, default 300s as per spec US-1) and OOM exception
+    catching for CPU runs.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inference engine implements a strict 300-second timeout handler.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:50:55Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'CPU feasibility check: n_ctx 512, n_threads 2'
+  claim_id: c_646ba319
+  context: Implement code/scripts/cpu_feasibility_check.py to attempt loading the
+    quantized model with n_ctx=512 and n_threads=2 (simulating strictest CI runner).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The CPU feasibility check simulates strictest CI runner conditions with
+    n_ctx=512 and n_threads=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:51:13Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Statistical method: Generalized Linear Mixed Model (GLMM)'
+  claim_id: c_de2c4071
+  context: The statistical method is explicitly defined as a Generalized Linear Mixed
+    Model (GLMM) to accommodate binary outcomes (Heuristic Adherence, Hallucination
+    Rate) and continuous outcomes (Style Consistency) simultaneously within a unified
+    framework. This replaces the previously specified Linear Mixed-Effects Model (LMM)
+    to ensure statistical validity for the mixed data types generated by the evaluation
+    pipeline.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_method:_Generalized_Linear_Mixed_Model_(GLMM)
+  kind: entity_fact
+  raw_text: The statistical method is defined as a Generalized Linear Mixed Model
+    (GLMM) to handle binary/continuous mixed outcomes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:51:52Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'GLMM formula: metric ~ condition + (1|profile) + (1|task)'
+  claim_id: c_429454cb
+  context: 'Formula: metric ~ condition + (1 | profile_id) + (1 | task_id) Random
+    Intercepts: Profile and Task. Metrics: Heuristic Adherence (binomial), Hallucination
+    Rate (binomial), Style Consistency (gaussian).'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: task)
+    relation: profile) + (1
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/GLMM_formula:_metric_~_condition_+_(1_profile)_+_(1_task)
+    source_value: https://en.wikipedia.org/wiki/GLMM_formula:_metric_~_condition_+_(1_profile)_+_(1_task)
+    subject: 'GLMM formula: metric ~ condition + (1'
+  kind: relational
+  raw_text: The GLMM formula uses metric ~ condition + (1 | profile_id) + (1 | task_id)
+    with random intercepts for profile and task.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:52:23Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Correction method: Holm-Bonferroni for 3 conditions'
+  claim_id: c_a70769ec
+  context: Implement Holm-Bonferroni correction for multiple comparisons across metrics
+    (FR-007) for all 3 conditions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Holm-Bonferroni correction is applied for multiple comparisons across
+    metrics for all 3 conditions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:52:41Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Convergence flag: UNRELIABLE if < 5 observations per level'
+  claim_id: c_d0e86b01
+  context: Implement code/analysis/stats.py to calculate the effective sample size
+    per random effect level (Profile/Task) after exclusions. If any level has < 5
+    observations, flag the GLMM convergence as "UNRELIABLE" in data/processed/glm_results.json
+    AND trigger a "CONVERGENCE_FAILURE" report in data/processed/convergence_report.md,
+    halting further analysis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Convergence_flag:_UNRELIABLE_if_%3C_5_observations_per_level
+  kind: magnitude
+  raw_text: If any random effect level has fewer than 5 observations, the GLMM convergence
+    is flagged as UNRELIABLE.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:53:14Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: 'Hallucination flag: Z3 unsat or unknown'
+  claim_id: c_aacacabc
+  context: 'Interpret solver result: - If unsat (contradiction between inferred facts
+    and context) -> Flag as Hallucination. - If unknown (solver cannot prove entailment)
+    -> Flag as Hallucination. - If sat (consistent with context) -> Not Hallucination.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Hallucination_flag:_Z3_unsat_or_unknown
+  kind: entity_fact
+  raw_text: The Z3 solver flags a fact as a hallucination if the result is unsat or
+    unknown.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:53:40Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: study scale 10 profiles 50 tasks 3 conditions 1500 runs
+  claim_id: c_afbb1a37
+  context: "Amendment from T000a: The original assumption of '50 profiles \xD7 200\
+    \ tasks' is replaced with '10 profiles \xD7 50 tasks'. This reduction is necessary\
+    \ to ensure GLMM convergence within the computational limits (RAM and runtime)\
+    \ of the free-tier CI runner (CPU-only)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The study is conducted on a reduced scale of 10 profiles \xD7 50 tasks\
+    \ \xD7 3 conditions = 1,500 runs."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:55:45Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: non-inferiority margin 0.05
+  claim_id: c_eebf2597
+  context: Create/Update code/utils/config.py to explicitly define NON_INFERIORITY_MARGIN
+    = 0.05 (5 percentage points) as per SC-002.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Non-inferiority_margin_0.05
+  kind: entity_fact
+  raw_text: The non-inferiority margin is defined as 0.05 (5 percentage points).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:56:23Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: global task pool 500 unique scenarios
+  claim_id: c_e4aaa323
+  context: Implement code/data_generation/tasks.py to generate a global pool of exactly
+    500 unique task scenarios (reused across all 10 profiles).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The global pool of tasks contains exactly 500 unique task scenarios.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:56:55Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: task distribution 100 per domain 5 domains
+  claim_id: c_3a074b6e
+  context: 'Domains: Enforce exact proportional distribution based on total tasks:
+    coding (100), math (100), logic (100), creative (100), and factual (100).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The task pool distribution is exactly 100 tasks per domain for coding,
+    math, logic, creative, and factual.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:56:56Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: sample 50 tasks per profile
+  claim_id: c_63e92242
+  context: "Sampling Logic: For each profile, sample exactly 50 unique tasks from\
+    \ the global pool of 500 tasks (from T007). This ensures the total run count is\
+    \ 10 profiles \xD7 50 tasks \xD7 3 conditions = 1,500 runs."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inference pipeline samples exactly 50 unique tasks per profile.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:57:31Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: inference timeout 300 seconds
+  claim_id: c_8c5511bb
+  context: Implement a strict 300-second timeout handler (configurable, default 300s
+    as per spec US-1) and OOM exception catching for CPU runs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system uses a strict 300-second timeout handler for CPU inference
+    runs.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:58:01Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: feasibility check n_ctx 512 n_threads 2
+  claim_id: c_5039c1e7
+  context: Implement code/scripts/cpu_feasibility_check.py to attempt loading the
+    quantized model with n_ctx=512 and n_threads=2 (simulating strictest CI runner).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inference engine is configured with n_ctx=512 and n_threads=2 for
+    the CPU feasibility check.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:58:34Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: statistical method GLMM replaces LMM
+  claim_id: c_edc6c83d
+  context: 'Amend FR-006: Replace ''Linear Mixed-Effects Model (LMM)'' with ''Generalized
+    Linear Mixed Model (GLMM)'' to support binary/continuous mixed outcomes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Statistical_method_GLMM_replaces_LMM
+  kind: entity_fact
+  raw_text: The statistical analysis uses a Generalized Linear Mixed Model (GLMM)
+    instead of a Linear Mixed-Effects Model (LMM).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:59:03Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: GLMM formula random intercepts profile task
+  claim_id: c_29dddd6f
+  context: 'Formula: metric ~ condition + (1 | profile_id) + (1 | task_id). Random
+    Intercepts: Profile and Task.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GLMM_formula_random_intercepts_profile_task
+  kind: entity_fact
+  raw_text: The GLMM formula includes random intercepts for profile_id and task_id.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T00:59:37Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: holm-bonferroni correction applied
+  claim_id: c_6d9eade6
+  context: Implement Holm-Bonferroni correction for multiple comparisons across metrics
+    (FR-007) for all 3 conditions.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Holm-bonferroni_correction_applied
+  kind: entity_fact
+  raw_text: The analysis applies Holm-Bonferroni correction for multiple comparisons
+    across metrics.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:00:04Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: GLMM unreliable if level < 5 observations
+  claim_id: c_e3bf65db
+  context: If any level has < 5 observations, flag the GLMM convergence as 'UNRELIABLE'
+    in data/processed/glm_results.json AND trigger a 'CONVERGENCE_FAILURE' report.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/GLMM_unreliable_if_level_%3C_5_observations
+  kind: magnitude
+  raw_text: A GLMM convergence is flagged as UNRELIABLE if any random effect level
+    has fewer than 5 observations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:00:05Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: z3 unsat unknown flagged as hallucination
+  claim_id: c_ec7ec688
+  context: If unsat (contradiction between inferred facts and context) -> Flag as
+    Hallucination. If unknown (solver cannot prove entailment) -> Flag as Hallucination.
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Z3_unsat_unknown_flagged_as_hallucination
+  kind: entity_fact
+  raw_text: The Z3 solver flags a fact as a hallucination if the result is 'unsat'
+    or 'unknown'.
+  resolved_value: z3 unsat unknown flagged as hallucination
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-29T01:00:08Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: transformers version 4.40.0
+  claim_id: c_87a0ec22
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    scikit-learn==1.4.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses transformers version 4.40.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:03:19Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: torch version 2.2.0+cpu
+  claim_id: c_402b7931
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    scikit-learn==1.4.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses torch version 2.2.0+cpu.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:03:31Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0
+  claim_id: c_74e76e1b
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    scikit-learn==1.4.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses scikit-learn version 1.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:03:41Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1
+  claim_id: c_052f55b9
+  context: 'Create code/requirements.txt pinning: transformers==4.40.0, torch==2.2.0+cpu,
+    scikit-learn==1.4.0, statsmodels==0.14.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses statsmodels version 0.14.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:03:57Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.0
+  claim_id: c_05bc60a6
+  context: 'Create code/requirements.txt pinning: ... statsmodels==0.14.1, pandas==2.2.0,
+    numpy==1.26.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pandas version 2.2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:04:07Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0
+  claim_id: c_c3b3c7ac
+  context: 'Create code/requirements.txt pinning: ... pandas==2.2.0, numpy==1.26.0,
+    pytest==8.0.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses numpy version 1.26.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:04:14Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: pytest version 8.0.0
+  claim_id: c_4f68be22
+  context: 'Create code/requirements.txt pinning: ... numpy==1.26.0, pytest==8.0.0,
+    pyyaml==6.0.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pytest version 8.0.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:06:23Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_ca9b8d95
+  context: 'Create code/requirements.txt pinning: ... pytest==8.0.0, pyyaml==6.0.1,
+    sympy==1.12...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pyyaml version 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:06:41Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: sympy version 1.12
+  claim_id: c_7e6bfa47
+  context: 'Create code/requirements.txt pinning: ... pyyaml==6.0.1, sympy==1.12,
+    z3-solver==4.12.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses sympy version 1.12.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:06:53Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: z3-solver version 4.12.0
+  claim_id: c_b6d5eb51
+  context: 'Create code/requirements.txt pinning: ... sympy==1.12, z3-solver==4.12.0,
+    loguru==0.7.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses z3-solver version 4.12.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:07:08Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: loguru version 0.7.2
+  claim_id: c_2835612e
+  context: 'Create code/requirements.txt pinning: ... z3-solver==4.12.0, loguru==0.7.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses loguru version 0.7.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:07:13Z'
+- artifact_path: projects/PROJ-922-llmxive-follow-up-extending-colleague-sk/specs/001-llmxive-follow-up-extending-colleague-sk/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_94e3832c
+  context: 'Create code/requirements.txt pinning: ... pytest==8.0.0, pyyaml==6.0.1,
+    sympy==1.12, z3-solver==4.12.0, loguru==0.7.2'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses pyyaml version 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-29T01:07:14Z'

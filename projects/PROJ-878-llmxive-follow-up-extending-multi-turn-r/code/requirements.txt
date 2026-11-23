@@ -1,0 +1,11 @@
+torch==2.2.0
+transformers
+datasets
+networkx
+lifelines
+scikit-learn
+pandas
+numpy==1.24.3
+pytest
+ruff
+black

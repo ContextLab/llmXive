@@ -1,2 +1,2 @@
-# This directory stores raw downloaded data.
-# Ensure .gitkeep is present if the directory is empty in git.
+# This file ensures the data/raw directory is tracked by Git.
+# Raw data files will be downloaded or placed here during pipeline execution.

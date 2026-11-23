@@ -1,0 +1,7 @@
+{
+  "task_id": "T004",
+  "fingerprint": "c6152030a33af6bd761faf304ec04cfe318ad8f07e853bf229769bf3de5af8f4",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/main.py': imports nonexistent names from sibling files: `from metrics import main` (available: Any, Dict, List, Optional, Tuple, Union, coherence, logging...). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

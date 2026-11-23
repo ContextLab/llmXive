@@ -1,331 +1,252 @@
-"""
-Metallic Glass Descriptor Calculation Module.
-
-Computes atomic descriptors including radius mismatch, electronegativity difference,
-valence electron concentration (VEC), and weighted mean radius for diagnostic logging.
-"""
-
 import os
 import sys
 import logging
+import json
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple, Any
+from typing import Dict, List, Optional, Tuple, Any, Union
 import pandas as pd
+import numpy as np
 
-# Import mendeleev for elemental properties
-# Note: mendeleev==0.31.0 is required per FR-002
+# Mendeleev is required for element properties
 try:
     from mendeleev import element
-    from mendeleev.models import Element
 except ImportError:
-    raise ImportError(
-        "The 'mendeleev' package is required for descriptor calculation. "
-        "Please install it with: pip install mendeleev==0.31.0"
+    raise ImportError("mendeleev package is required. Install with: pip install mendeleev==0.31.0")
+
+from resource_monitor import resource_monitor, ResourceLimitExceeded, limit_resources
+
+def setup_logging():
+    """Configure logging for the descriptors module."""
+    project_root = get_project_root()
+    logs_dir = project_root / "logs"
+    logs_dir.mkdir(exist_ok=True)
+    log_file = logs_dir / "descriptors.log"
+
+    logging.basicConfig(
+        level=logging.INFO,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.FileHandler(log_file),
+            logging.StreamHandler(sys.stdout)
+        ]
     )
+    return logging.getLogger(__name__)
 
-# Configure logging
-logger = logging.getLogger(__name__)
+def get_project_root():
+    """Return the project root directory."""
+    return Path(__file__).resolve().parent.parent
 
-# Constants for atomic radius calculation
-# Using covalent radii as the primary metric for metallic glasses
-RADIUS_TYPE = 'covalent_radius' 
-
-def get_element_properties(symbol: str) -> Dict[str, Any]:
+def get_element_properties(symbol: str) -> Tuple[Optional[float], Optional[float], Optional[float]]:
     """
-    Retrieve atomic properties for a given element symbol.
-    
-    Args:
-        symbol: Chemical symbol (e.g., 'Fe', 'Zr')
-        
-    Returns:
-        Dictionary containing atomic number, radius, electronegativity, and VEC.
-        
-    Raises:
-        ValueError: If the element symbol is invalid.
+    Get atomic radius, electronegativity, and valence electrons for an element.
+    Returns (radius, electronegativity, VEC).
     """
-    symbol = symbol.strip().capitalize()
     try:
         el = element(symbol)
-        # Mendeleev returns None for some properties if not available
-        radius = getattr(el, RADIUS_TYPE, None)
-        if radius is None:
-            # Fallback to atomic_radius if covalent is missing
-            radius = getattr(el, 'atomic_radius', None)
-            
-        electronegativity = getattr(el, 'electronegativity', None)
-        
-        # VEC (Valence Electron Concentration) calculation
-        # For transition metals, VEC is often approximated by group number
-        # Mendeleev doesn't have a direct VEC property, so we calculate it
-        # based on the electron configuration
-        vec = None
-        if el is not None:
-            # Use group number as a proxy for VEC for transition metals
-            # This is a common approximation in MG research
-            vec = el.group
-            if vec is None:
-                # Fallback for elements without a clear group
-                vec = el.n_valence if hasattr(el, 'n_valence') else 0
-                
-        return {
-            'symbol': symbol,
-            'atomic_number': el.atomic_number,
-            'radius': radius,
-            'electronegativity': electronegativity,
-            'vec': vec,
-            'element': el
-        }
-    except Exception as e:
-        raise ValueError(f"Invalid element symbol '{symbol}': {e}")
+        radius = el.atomic_radius
+        electronegativity = el.electronegativity
+        # Use group number as a simple proxy for VEC
+        vec = el.group
+        return radius, electronegativity, float(vec)
+    except Exception:
+        return None, None, None
 
-def calculate_weighted_mean_radius(row: pd.Series, composition_col: str = 'composition') -> float:
+def parse_composition(composition_str: str) -> Dict[str, float]:
     """
-    Calculate the weighted mean atomic radius for a given composition.
-    
-    This is a diagnostic metric only (FR-002) and is excluded from model training.
-    It represents the average atomic size of the alloy weighted by atomic fraction.
-    
-    Args:
-        row: A row from the DataFrame containing the composition string.
-        composition_col: Name of the column containing the composition string.
-        
-    Returns:
-        Weighted mean radius in Angstroms.
-        
-    Raises:
-        ValueError: If composition parsing fails or an element is not found.
+    Parse a composition string like 'Fe50Ni50' into {'Fe': 0.5, 'Ni': 0.5}.
+    Assumes format: ElementSymbolNumber...
     """
-    comp_str = row[composition_col]
-    if not isinstance(comp_str, str) or not comp_str.strip():
-        raise ValueError(f"Invalid composition string: {comp_str}")
-        
-    # Parse composition string (e.g., "Zr40Cu60" -> {"Zr": 0.4, "Cu": 0.6})
-    # Expected format: ElementSymbol followed by percentage (no separator)
     import re
-    pattern = r'([A-Z][a-z]?)(\d+\.?\d*)'
-    matches = re.findall(pattern, comp_str)
-    
-    if not matches:
-        raise ValueError(f"Could not parse composition: {comp_str}")
-        
+    if not composition_str:
+        return {}
+
+    # Regex to match Element and Number
+    pattern = re.compile(r'([A-Z][a-z]?)(\d+(?:\.\d+)?)')
+    matches = pattern.findall(composition_str)
+
+    comp = {}
+    total = 0.0
+    for symbol, count in matches:
+        val = float(count)
+        comp[symbol] = val
+        total += val
+
+    # Normalize to fractions
+    if total > 0:
+        comp = {k: v/total for k, v in comp.items()}
+    return comp
+
+def calculate_weighted_mean_radius(composition_str: str, logger: logging.Logger) -> Optional[float]:
+    """
+    Calculate weighted mean radius for diagnostic logging.
+    """
+    comp = parse_composition(composition_str)
+    if not comp:
+        return None
+
+    total_radius = 0.0
     total_weight = 0.0
-    weighted_radius_sum = 0.0
-    
-    for symbol, amount in matches:
-        try:
-            props = get_element_properties(symbol)
-            radius = props['radius']
-            if radius is None:
-                logger.warning(f"Radius not found for {symbol}, skipping in weighted mean.")
-                continue
-                
-            weight = float(amount)
-            total_weight += weight
-            weighted_radius_sum += weight * radius
-        except ValueError as e:
-            logger.warning(f"Skipping element {symbol} in weighted mean calculation: {e}")
-            continue
-            
-    if total_weight == 0:
-        raise ValueError("No valid elements found in composition for weighted mean radius.")
-        
-    return weighted_radius_sum / total_weight
 
-def calculate_radius_mismatch(row: pd.Series, composition_col: str = 'composition') -> float:
+    for symbol, weight in comp.items():
+        radius, _, _ = get_element_properties(symbol)
+        if radius is not None:
+            total_radius += radius * weight
+            total_weight += weight
+        else:
+            logger.warning(f"Unknown element {symbol} in composition {composition_str}")
+
+    if total_weight == 0:
+        return None
+    return total_radius
+
+def calculate_radius_mismatch(composition_str: str) -> float:
     """
-    Calculate the atomic radius mismatch (δ) for a metallic glass.
-    
-    δ = sqrt(Σ c_i (1 - r_i / r_avg)^2) * 100
-    where c_i is the atomic fraction and r_i is the atomic radius.
-    
-    Args:
-        row: A row from the DataFrame.
-        composition_col: Name of the composition column.
-        
-    Returns:
-        Radius mismatch percentage.
+    Calculate atomic radius mismatch (delta_r).
+    Formula: sqrt(sum(ci * (1 - ri/r_bar)^2))
     """
-    comp_str = row[composition_col]
-    import re
-    pattern = r'([A-Z][a-z]?)(\d+\.?\d*)'
-    matches = re.findall(pattern, comp_str)
-    
+    comp = parse_composition(composition_str)
+    if not comp:
+        return 0.0
+
     radii = []
     weights = []
-    
-    for symbol, amount in matches:
-        try:
-            props = get_element_properties(symbol)
-            radius = props['radius']
-            if radius is not None:
-                radii.append(radius)
-                weights.append(float(amount))
-        except ValueError:
-            continue
-            
+    for symbol, weight in comp.items():
+        radius, _, _ = get_element_properties(symbol)
+        if radius is not None:
+            radii.append(radius)
+            weights.append(weight)
+
     if not radii:
         return 0.0
-        
-    # Normalize weights to fractions
-    total_weight = sum(weights)
-    fractions = [w / total_weight for w in weights]
-    
-    # Calculate weighted mean radius
-    r_avg = sum(f * r for f, r in zip(fractions, radii))
-    
-    if r_avg == 0:
-        return 0.0
-        
-    # Calculate mismatch
-    mismatch_sum = sum(
-        f * ((1 - (r / r_avg)) ** 2) 
-        for f, r in zip(fractions, radii)
-    )
-    
-    return (mismatch_sum ** 0.5) * 100
 
-def calculate_electronegativity_difference(row: pd.Series, composition_col: str = 'composition') -> float:
+    r_bar = sum(r * w for r, w in zip(radii, weights))
+    if r_bar == 0:
+        return 0.0
+
+    delta = 0.0
+    for r, w in zip(radii, weights):
+        delta += w * ((1 - r / r_bar) ** 2)
+
+    return np.sqrt(delta)
+
+def calculate_electronegativity_difference(composition_str: str) -> float:
     """
-    Calculate the electronegativity difference (Δχ) for a metallic glass.
-    
-    Δχ = sqrt(Σ c_i c_j (χ_i - χ_j)^2) for i < j
-    where c_i is the atomic fraction and χ_i is the electronegativity.
-    
-    Args:
-        row: A row from the DataFrame.
-        composition_col: Name of the composition column.
-        
-    Returns:
-        Electronegativity difference.
+    Calculate electronegativity difference (delta_chi).
+    Formula: sqrt(sum(ci * (chi_i - chi_bar)^2))
     """
-    comp_str = row[composition_col]
-    import re
-    pattern = r'([A-Z][a-z]?)(\d+\.?\d*)'
-    matches = re.findall(pattern, comp_str)
-    
-    electronegativities = []
+    comp = parse_composition(composition_str)
+    if not comp:
+        return 0.0
+
+    chis = []
     weights = []
-    
-    for symbol, amount in matches:
-        try:
-            props = get_element_properties(symbol)
-            en = props['electronegativity']
-            if en is not None:
-                electronegativities.append(en)
-                weights.append(float(amount))
-        except ValueError:
-            continue
-            
-    if len(electronegativities) < 2:
-        return 0.0
-        
-    # Normalize weights
-    total_weight = sum(weights)
-    fractions = [w / total_weight for w in weights]
-    
-    # Calculate pairwise difference
-    diff_sum = 0.0
-    for i in range(len(fractions)):
-        for j in range(i + 1, len(fractions)):
-            diff_sum += fractions[i] * fractions[j] * (electronegativities[i] - electronegativities[j]) ** 2
-            
-    return diff_sum ** 0.5
+    for symbol, weight in comp.items():
+        _, chi, _ = get_element_properties(symbol)
+        if chi is not None:
+            chis.append(chi)
+            weights.append(weight)
 
-def calculate_vec(row: pd.Series, composition_col: str = 'composition') -> float:
+    if not chis:
+        return 0.0
+
+    chi_bar = sum(c * w for c, w in zip(chis, weights))
+    delta = 0.0
+    for c, w in zip(chis, weights):
+        delta += w * ((c - chi_bar) ** 2)
+
+    return np.sqrt(delta)
+
+def calculate_vec(composition_str: str) -> float:
     """
-    Calculate the Valence Electron Concentration (VEC) for a metallic glass.
-    
-    VEC = Σ c_i * VEC_i
-    where c_i is the atomic fraction and VEC_i is the valence electron count.
-    
-    Args:
-        row: A row from the DataFrame.
-        composition_col: Name of the composition column.
-        
-    Returns:
-        Weighted average VEC.
+    Calculate average Valence Electron Concentration (VEC).
+    Formula: sum(ci * VEC_i)
     """
-    comp_str = row[composition_col]
-    import re
-    pattern = r'([A-Z][a-z]?)(\d+\.?\d*)'
-    matches = re.findall(pattern, comp_str)
-    
+    comp = parse_composition(composition_str)
+    if not comp:
+        return 0.0
+
     vecs = []
     weights = []
-    
-    for symbol, amount in matches:
-        try:
-            props = get_element_properties(symbol)
-            vec = props['vec']
-            if vec is not None:
-                vecs.append(vec)
-                weights.append(float(amount))
-        except ValueError:
-            continue
-            
+    for symbol, weight in comp.items():
+        _, _, vec = get_element_properties(symbol)
+        if vec is not None:
+            vecs.append(vec)
+            weights.append(weight)
+
     if not vecs:
         return 0.0
-        
-    total_weight = sum(weights)
-    fractions = [w / total_weight for w in weights]
-    
-    return sum(f * v for f, v in zip(fractions, vecs))
 
-def compute_descriptors(df: pd.DataFrame, composition_col: str = 'composition') -> pd.DataFrame:
-    """
-    Compute all descriptors for a DataFrame of metallic glass compositions.
-    
-    Args:
-        df: Input DataFrame with a composition column.
-        composition_col: Name of the composition column.
-        
-    Returns:
-        DataFrame with added descriptor columns.
-    """
-    df = df.copy()
-    
-    logger.info(f"Computing descriptors for {len(df)} records...")
-    
-    # Calculate descriptors
-    df['radius_mismatch'] = df.apply(calculate_radius_mismatch, axis=1, args=(composition_col,))
-    df['electronegativity_diff'] = df.apply(calculate_electronegativity_difference, axis=1, args=(composition_col,))
-    df['vec'] = df.apply(calculate_vec, axis=1, args=(composition_col,))
-    
-    # Calculate weighted mean radius (DIAGNOSTIC ONLY - FR-002)
-    # This is excluded from model training but logged for diagnostics
-    logger.info("Calculating weighted mean radius for diagnostic logging...")
-    df['weighted_mean_radius'] = df.apply(calculate_weighted_mean_radius, axis=1, args=(composition_col,))
-    
-    # Log summary statistics for the diagnostic metric
-    wmr_stats = df['weighted_mean_radius'].describe()
-    logger.info(f"Weighted Mean Radius Statistics:\n{wmr_stats}")
-    
-    return df
+    return sum(v * w for v, w in zip(vecs, weights))
 
-def process_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+def compute_descriptors(df: pd.DataFrame, logger: logging.Logger) -> pd.DataFrame:
     """
-    Process a DataFrame to add all necessary descriptors.
-    
-    This is a convenience wrapper around compute_descriptors.
-    
-    Args:
-        df: Input DataFrame.
-        
-    Returns:
-        Processed DataFrame with descriptors.
+    Compute descriptors for the dataframe.
     """
-    return compute_descriptors(df)
+    logger.info("Computing descriptors...")
+
+    # Apply calculations
+    df['radius_mismatch'] = df['composition'].apply(calculate_radius_mismatch)
+    df['electronegativity_diff'] = df['composition'].apply(calculate_electronegativity_difference)
+    df['VEC'] = df['composition'].apply(calculate_vec)
+
+    # Diagnostic: weighted mean radius (for logging only, not model)
+    logger.info("Calculating weighted mean radius for diagnostic...")
+    weighted_radii = df['composition'].apply(lambda x: calculate_weighted_mean_radius(x, logger))
+    avg_weighted_radius = weighted_radii.dropna().mean()
+
+    if not np.isnan(avg_weighted_radius):
+        logger.info(f"Average weighted mean radius: {avg_weighted_radius:.4f} Å")
+    else:
+        logger.warning("Could not calculate average weighted mean radius.")
+
+    return df, avg_weighted_radius
+
+def save_diagnostic_log(avg_radius: float, project_root: Path):
+    """Save diagnostic log to JSON."""
+    diag = {"weighted_mean_radius": float(avg_radius) if not np.isnan(avg_radius) else 0.0}
+    path = project_root / "data" / "processed" / "diagnostic_log.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, 'w') as f:
+        json.dump(diag, f, indent=2)
+
+    # Archive to artifacts
+    archive_path = project_root / "artifacts" / "reports" / "diagnostic_log.json"
+    archive_path.parent.mkdir(parents=True, exist_ok=True)
+    import shutil
+    shutil.copy(path, archive_path)
+    logging.getLogger(__name__).info(f"Diagnostic log saved and archived to {archive_path}")
+
+def save_descriptors(df: pd.DataFrame, project_root: Path):
+    """Save computed descriptors to CSV, dropping diagnostic-only columns."""
+    # Ensure diagnostic column is not persisted
+    if 'weighted_mean_radius' in df.columns:
+        df = df.drop(columns=['weighted_mean_radius'])
+
+    output_path = project_root / "data" / "processed" / "descriptors.csv"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logging.getLogger(__name__).info(f"Descriptors saved to {output_path}")
+
+@resource_monitor(runtime_limit_h=2.0, memory_limit_gb=7.0)
+def run_descriptors():
+    """Main descriptors pipeline."""
+    logger = setup_logging()
+    project_root = get_project_root()
+
+    input_path = project_root / "data" / "processed" / "cleaned_mg.csv"
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    df = pd.read_csv(input_path)
+    df, avg_radius = compute_descriptors(df, logger)
+
+    save_descriptors(df, project_root)
+    save_diagnostic_log(avg_radius, project_root)
+
+    logger.info("Descriptors pipeline complete.")
 
 def main():
-    """
-    Main entry point for running descriptor calculation as a script.
-    """
-    logging.basicConfig(level=logging.INFO)
-    
-    # Example usage:
-    # This would typically be called by the training pipeline
-    logger.info("Descriptor calculation module loaded successfully.")
-    logger.info("Use compute_descriptors(df) to calculate descriptors for a DataFrame.")
+    run_descriptors()
 
 if __name__ == "__main__":
     main()

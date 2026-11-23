@@ -1,10 +1,3 @@
-"""
-Aggregator for final results and Pareto frontier generation.
-
-This module orchestrates the generation of the final aggregated CSV
-and the final Pareto frontier plot by combining latency data from
-the executor and stability metrics from the stability analysis.
-"""
 import os
 import logging
 import pandas as pd
@@ -12,159 +5,126 @@ import numpy as np
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Import from existing API surface
-from analysis.viz import load_stability_metrics, plot_pareto_frontier
-from analysis.stats import load_latency_data
+from analysis.stability_check import load_raw_logs
+from analysis.stats import load_latency_data, compute_block_averages
+from analysis.viz import load_stability_metrics, generate_pareto_final
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-def aggregate_results(
-    latency_data_path: str,
-    stability_metrics_path: str,
-    output_csv_path: str
-) -> pd.DataFrame:
+def aggregate_results() -> pd.DataFrame:
     """
-    Aggregate latency and stability data into a single CSV file.
+    Aggregates latency and stability data into a single DataFrame.
     
-    Args:
-        latency_data_path: Path to the latency data JSONL/CSV
-        stability_metrics_path: Path to the stability metrics CSV
-        output_csv_path: Path for the output aggregated CSV
-        
+    Reads:
+      - data/intermediates/raw_logs/*.jsonl (latency)
+      - data/results/stability_metrics.csv (stability)
+    
     Returns:
-        DataFrame containing the aggregated results
+      DataFrame with columns: config_id, kernel_type, median_latency, 
+      p95_latency, l2_error, max_diff, status, is_stable
     """
-    logger.info(f"Loading latency data from {latency_data_path}")
-    latency_df = load_latency_data(latency_data_path)
+    raw_logs_path = Path("data/intermediates/raw_logs")
+    stability_path = Path("data/results/stability_metrics.csv")
     
-    logger.info(f"Loading stability metrics from {stability_metrics_path}")
-    stability_df = load_stability_metrics(stability_metrics_path)
+    if not raw_logs_path.exists() or not list(raw_logs_path.glob("*.jsonl")):
+        raise FileNotFoundError(f"Raw logs not found in {raw_logs_path}. Run T015 first.")
+    if not stability_path.exists():
+        raise FileNotFoundError(f"Stability metrics not found at {stability_path}. Run T023 first.")
     
-    if latency_df is None or stability_df is None:
-        logger.error("Failed to load required data files")
-        return pd.DataFrame()
+    # Load stability metrics
+    stability_df = pd.read_csv(stability_path)
+    stability_df['config_id'] = stability_df['config_id'].astype(str)
     
-    # Ensure we have common columns for merging
-    # Expected columns in latency_df: config_id, kernel_type, median, p95, iterations
-    # Expected columns in stability_df: config_id, kernel_type, l2_error, max_diff, status
+    # Load latency data from raw logs
+    latency_data = []
+    for log_file in raw_logs_path.glob("*.jsonl"):
+        try:
+            df = load_latency_data(log_file)
+            if df is not None and not df.empty:
+                latency_data.append(df)
+        except Exception as e:
+            logger.warning(f"Could not load {log_file}: {e}")
     
-    # Merge on config_id and kernel_type
-    merged_df = pd.merge(
+    if not latency_data:
+        raise RuntimeError("No valid latency data found in raw logs.")
+    
+    latency_df = pd.concat(latency_data, ignore_index=True)
+    latency_df['config_id'] = latency_df['config_id'].astype(str)
+    
+    # Merge on config_id
+    merged = pd.merge(
         latency_df,
-        stability_df,
+        stability_df[['config_id', 'kernel_type', 'l2_error', 'max_diff', 'status']],
         on=['config_id', 'kernel_type'],
         how='inner'
     )
     
-    if merged_df.empty:
-        logger.warning("No matching records found after merging latency and stability data")
-        return pd.DataFrame()
+    # Compute is_stable flag
+    merged['is_stable'] = merged['status'] == 'stable'
     
-    # Ensure numerical columns are correct type
-    numeric_cols = ['median', 'p95', 'l2_error', 'max_diff']
+    # Ensure numeric types
+    numeric_cols = ['median_latency', 'p95_latency', 'l2_error', 'max_diff']
     for col in numeric_cols:
-        if col in merged_df.columns:
-            merged_df[col] = pd.to_numeric(merged_df[col], errors='coerce')
+        merged[col] = pd.to_numeric(merged[col], errors='coerce')
     
-    # Filter out rows with NaN in critical columns for aggregation
-    # We keep rows for the final CSV even if they have errors, 
-    # but the Pareto plot logic will handle filtering
-    logger.info(f"Aggregated {len(merged_df)} records")
-    
-    # Save to CSV
-    output_path = Path(output_csv_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    merged_df.to_csv(output_csv_path, index=False)
-    logger.info(f"Saved aggregated results to {output_csv_path}")
-    
-    return merged_df
+    logger.info(f"Aggregated {len(merged)} rows into aggregated.csv")
+    return merged
 
-def generate_final_pareto(
-    aggregated_csv_path: str,
-    output_plot_path: str,
-    error_threshold: float = 1e-5
-) -> None:
+def generate_final_pareto(agg_df: pd.DataFrame, output_path: Optional[str] = None):
     """
-    Generate the final Pareto frontier plot excluding unstable configurations.
+    Generates the final Pareto frontier plot and saves the aggregated CSV.
     
     Args:
-        aggregated_csv_path: Path to the aggregated CSV file
-        output_plot_path: Path for the output PNG plot
-        error_threshold: Maximum allowed error for inclusion in final plot
+        agg_df: The aggregated DataFrame from aggregate_results()
+        output_path: Optional path for the aggregated CSV. Defaults to data/results/aggregated.csv
     """
-    logger.info(f"Generating final Pareto frontier from {aggregated_csv_path}")
+    if output_path is None:
+        output_path = "data/results/aggregated.csv"
     
-    df = pd.read_csv(aggregated_csv_path)
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    if df.empty:
-        logger.error("Aggregated CSV is empty, cannot generate plot")
-        return
+    # Save aggregated CSV
+    agg_df.to_csv(output_path, index=False)
+    logger.info(f"Saved aggregated results to {output_path}")
     
-    # Filter for stable configurations (error <= threshold)
-    # According to T031 and Constitution Principle VI
-    stable_df = df[df['max_diff'] <= error_threshold].copy()
+    # Generate Pareto Final Plot
+    # Filter for stable configurations only (error <= 1e-5)
+    stable_df = agg_df[agg_df['is_stable'] == True]
     
     if stable_df.empty:
-        logger.warning("No stable configurations found for final Pareto plot")
-        # Still generate an empty plot or a placeholder
-        # But ideally we should have data
-    else:
-        logger.info(f"Found {len(stable_df)} stable configurations for final Pareto plot")
+        logger.warning("No stable configurations found. Skipping Pareto Final plot.")
+        return
     
-    # Generate the plot using the existing viz module
-    # plot_pareto_frontier expects a DataFrame and output path
-    plot_pareto_frontier(
-        df=stable_df,
-        x_col='median',
-        y_col='max_diff',
-        output_path=output_plot_path,
-        title='Final Pareto Frontier (Stable Configurations Only)',
-        xlabel='Median Latency (s)',
-        ylabel='Max Absolute Difference'
-    )
+    plot_path = Path("data/results/pareto_frontier_final.png")
+    plot_path.parent.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"Saved final Pareto frontier plot to {output_plot_path}")
+    generate_pareto_final(stable_df, str(plot_path))
+    logger.info(f"Saved final Pareto frontier to {plot_path}")
 
 def main():
-    """
-    Main entry point for T032: Generate final aggregated.csv and pareto_frontier_final.png
-    """
-    # Define paths based on project structure
-    base_dir = Path(__file__).parent.parent.parent
-    latency_path = base_dir / "data" / "intermediates" / "raw_logs"
-    stability_path = base_dir / "data" / "results" / "stability_metrics.csv"
-    aggregated_output = base_dir / "data" / "results" / "aggregated.csv"
-    pareto_output = base_dir / "data" / "results" / "pareto_frontier_final.png"
+    """Main entry point for T032."""
+    setup_logger = logging.getLogger(__name__)
+    setup_logger.setLevel(logging.INFO)
+    handler = logging.StreamHandler()
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    handler.setFormatter(formatter)
+    setup_logger.addHandler(handler)
     
-    # If raw_logs is a directory, we need to find the JSONL files
-    # The load_latency_data function in stats.py handles directory input
-    latency_input = str(latency_path) if latency_path.is_dir() else str(latency_path)
-    
-    # Step 1: Aggregate results
-    aggregated_df = aggregate_results(
-        latency_data_path=latency_input,
-        stability_metrics_path=str(stability_path),
-        output_csv_path=str(aggregated_output)
-    )
-    
-    if aggregated_df.empty:
-        logger.error("Aggregation failed. Cannot proceed to Pareto plot.")
-        return 1
-    
-    # Step 2: Generate final Pareto frontier
-    generate_final_pareto(
-        aggregated_csv_path=str(aggregated_output),
-        output_plot_path=str(pareto_output),
-        error_threshold=1e-5
-    )
-    
-    logger.info("T032 completed successfully.")
-    return 0
+    try:
+        logger.info("Starting T032: Aggregation and Final Pareto Generation")
+        
+        # Step 1: Aggregate results
+        agg_df = aggregate_results()
+        
+        # Step 2: Generate outputs
+        generate_final_pareto(agg_df)
+        
+        logger.info("T032 completed successfully.")
+        
+    except Exception as e:
+        logger.error(f"T032 failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    exit(main())
+    main()

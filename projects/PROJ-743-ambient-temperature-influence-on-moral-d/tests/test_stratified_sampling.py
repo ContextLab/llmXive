@@ -1,115 +1,74 @@
 """
-Tests for stratified sampling functionality.
-
-These tests verify that the stratified sampling logic works correctly
-for CPU-only execution scenarios with memory constraints.
+Unit tests for stratified sampling functionality.
+Verifies that sampling preserves distribution across strata.
 """
 import pytest
 import pandas as pd
 import numpy as np
-from pathlib import Path
 
-from tests.conftest import stratified_sample
+def test_stratified_sampling_basic(stratified_sampler):
+    """
+    Test basic stratified sampling on a simple DataFrame.
+    """
+    # Create a synthetic dataset with known strata distribution
+    data = {
+        'value': range(100),
+        'group': ['A'] * 40 + ['B'] * 30 + ['C'] * 30
+    }
+    df = pd.DataFrame(data)
 
+    # Sample 20 items
+    sample = stratified_sampler(df, 'group', sample_size=20, random_state=42)
 
-class TestStratifiedSampling:
-    """Test suite for stratified sampling functionality."""
+    # Check total size
+    assert len(sample) == 20
 
-    def test_stratified_sample_by_fraction(self):
-        """Test stratified sampling with a fraction parameter."""
-        # Create a simple dataset with known distribution
-        data = {
-            'group': ['A'] * 100 + ['B'] * 100 + ['C'] * 100,
-            'value': list(range(300))
-        }
-        df = pd.DataFrame(data)
+    # Check that strata are represented
+    counts = sample['group'].value_counts()
+    assert 'A' in counts.index
+    assert 'B' in counts.index
+    assert 'C' in counts.index
 
-        # Sample 50% of each group
-        sampled = stratified_sample(df, stratify_col='group', fraction=0.5, random_state=42)
+    # Check approximate proportions (allowing for rounding)
+    # Original: A=40%, B=30%, C=30%
+    # Expected: A=8, B=6, C=6
+    assert counts['A'] == 8
+    assert counts['B'] == 6
+    assert counts['C'] == 6
 
-        # Verify that each group has approximately 50 samples
-        assert len(sampled) == 150, f"Expected 150 samples, got {len(sampled)}"
-        assert sampled['group'].value_counts()['A'] == 50
-        assert sampled['group'].value_counts()['B'] == 50
-        assert sampled['group'].value_counts()['C'] == 50
+def test_stratified_sampling_small_strata(stratified_sampler):
+    """
+    Test stratified sampling when a stratum is smaller than the requested sample size.
+    """
+    data = {
+        'value': range(20),
+        'group': ['A'] * 15 + ['B'] * 5
+    }
+    df = pd.DataFrame(data)
 
-    def test_stratified_sample_by_count(self):
-        """Test stratified sampling with a sample_size parameter."""
-        data = {
-            'group': ['A'] * 100 + ['B'] * 100 + ['C'] * 100,
-            'value': list(range(300))
-        }
-        df = pd.DataFrame(data)
+    # Request 10 samples, but 'B' only has 5
+    sample = stratified_sampler(df, 'group', sample_size=10, random_state=42)
 
-        # Sample 30 from each group (total 90)
-        sampled = stratified_sample(df, stratify_col='group', sample_size=90, random_state=42)
+    # Should take all of 'B'
+    assert sample[sample['group'] == 'B'].shape[0] == 5
 
-        # Verify total count and distribution
-        assert len(sampled) == 90
-        assert sampled['group'].value_counts()['A'] == 30
-        assert sampled['group'].value_counts()['B'] == 30
-        assert sampled['group'].value_counts()['C'] == 30
+    # Total should be 10
+    assert len(sample) == 10
 
-    def test_stratified_sample_reproducibility(self):
-        """Test that stratified sampling is reproducible with the same seed."""
-        data = {
-            'group': ['A'] * 50 + ['B'] * 50,
-            'value': list(range(100))
-        }
-        df = pd.DataFrame(data)
+def test_stratified_sampling_missing_column(stratified_sampler):
+    """
+    Test that sampling raises an error if the strata column is missing.
+    """
+    df = pd.DataFrame({'value': [1, 2, 3]})
 
-        # Run twice with same seed
-        sampled1 = stratified_sample(df, stratify_col='group', fraction=0.2, random_state=123)
-        sampled2 = stratified_sample(df, stratify_col='group', fraction=0.2, random_state=123)
+    with pytest.raises(ValueError, match="Strata column 'nonexistent' not found"):
+        stratified_sampler(df, 'nonexistent', sample_size=2)
 
-        # Results should be identical
-        pd.testing.assert_frame_equal(sampled1.sort_values('value').reset_index(drop=True),
-                                    sampled2.sort_values('value').reset_index(drop=True))
-
-    def test_stratified_sample_error_no_parameter(self):
-        """Test that an error is raised when neither sample_size nor fraction is provided."""
-        data = {'group': ['A'] * 10, 'value': list(range(10))}
-        df = pd.DataFrame(data)
-
-        with pytest.raises(ValueError, match="Either sample_size or fraction must be provided"):
-            stratified_sample(df, stratify_col='group')
-
-    def test_stratified_sample_error_both_parameters(self):
-        """Test that an error is raised when both sample_size and fraction are provided."""
-        data = {'group': ['A'] * 10, 'value': list(range(10))}
-        df = pd.DataFrame(data)
-
-        with pytest.raises(ValueError, match="Only one of sample_size or fraction should be provided"):
-            stratified_sample(df, stratify_col='group', sample_size=5, fraction=0.5)
-
-    def test_stratified_sample_preserves_groups(self):
-        """Test that stratified sampling preserves all groups in the original data."""
-        data = {
-            'group': ['A'] * 20 + ['B'] * 20 + ['C'] * 20 + ['D'] * 20,
-            'value': list(range(80))
-        }
-        df = pd.DataFrame(data)
-
-        # Sample 25%
-        sampled = stratified_sample(df, stratify_col='group', fraction=0.25, random_state=42)
-
-        # All groups should still be present
-        assert set(sampled['group'].unique()) == {'A', 'B', 'C', 'D'}
-
-    def test_stratified_sample_with_moral_machine_structure(self, sample_moral_machine_data):
-        """Test stratified sampling on data with Moral Machine structure."""
-        # This tests the fixture data structure
-        assert 'country' in sample_moral_machine_data.columns
-        assert 'dilemma_type' in sample_moral_machine_data.columns
-        assert len(sample_moral_machine_data) > 0
-
-        # Perform stratified sampling by dilemma_type
-        sampled = stratified_sample(
-            sample_moral_machine_data,
-            stratify_col='dilemma_type',
-            fraction=0.5,
-            random_state=42
-        )
-
-        # Verify all dilemma types are still represented
-        assert set(sampled['dilemma_type'].unique()) == set(sample_moral_machine_data['dilemma_type'].unique())
+def test_cpu_only_enforcement():
+    """
+    Test that CPU-only environment is enforced.
+    """
+    import os
+    # This test relies on the conftest.py hook setting CUDA_VISIBLE_DEVICES
+    # We verify it is set to empty string
+    assert os.environ.get("CUDA_VISIBLE_DEVICES") == "", "CPU-only enforcement failed."

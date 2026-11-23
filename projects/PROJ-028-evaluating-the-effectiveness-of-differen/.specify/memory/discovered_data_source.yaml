@@ -1,0 +1,11 @@
+status: none
+intent: download MBPP dataset python package from huggingface datasets python package
+  dataset
+required_fields:
+- task_id
+- prompt
+- canonical_solution
+- test_cases
+cache_key: cb0a4d89916d0fe6ca3aa2500506c6bbafc5fccb21c650006b4b6377342da7b3
+searched_at: '2026-10-18T03:42:24.165615+00:00'
+retry_count: 1

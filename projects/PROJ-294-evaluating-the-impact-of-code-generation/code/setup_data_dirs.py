@@ -1,25 +1,29 @@
 import os
 import sys
-from utils import get_logger, set_task_id, get_task_id
+import logging
+from utils import setup_logging, get_logger, set_task_id, get_task_id
+
+def create_directories():
+    """
+    T008: Create data directory structure: data/raw/, data/generated/, data/analysis/
+    """
+    logger = setup_logging(task_id="T008")
+    logger.info("Creating data directory structure...")
+
+    base_data_dir = "data"
+    sub_dirs = ["raw", "generated", "analysis"]
+
+    for subdir in sub_dirs:
+        full_path = os.path.join(base_data_dir, subdir)
+        try:
+            os.makedirs(full_path, exist_ok=True)
+            logger.info(f"Created directory: {full_path}")
+        except OSError as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            raise
 
 def main():
-    set_task_id("T001")
-    logger = get_logger()
-    
-    dirs = [
-        "data/raw",
-        "data/generated",
-        "data/analysis",
-        "results/figures",
-        "state"
-    ]
-    
-    for d in dirs:
-        os.makedirs(d, exist_ok=True)
-        if logger:
-            logger.info(f"Created directory: {d}")
-        else:
-            print(f"Created directory: {d}")
+    create_directories()
 
 if __name__ == "__main__":
     main()

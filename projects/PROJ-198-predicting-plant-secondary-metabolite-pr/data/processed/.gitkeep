@@ -1,1 +1,2 @@
-# Keep this directory for processed datasets
+# This directory is for processed and aligned data files.
+# It is created automatically by the setup script.

@@ -1,2 +1,2 @@
-# This directory stores raw data downloaded from external sources (Materials Project, AFLOWlib).
-# Files here are not modified and serve as the single source of truth for ingestion.
+# This directory stores raw data files fetched from external sources.
+# Do not commit large binary files here.

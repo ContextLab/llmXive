@@ -79,7 +79,7 @@ As a researcher, I need the system to perform permutation testing (1000 shuffles
 
 - **FR-001**: System MUST download the HCP large-scale resting-state fMRI and behavioral datasets from the public release and store them locally, ensuring data integrity via checksum verification (See US-1).
 - **FR-002**: System MUST preprocess fMRI data using fMRIPrep in distributed/single-CPU mode as available, performing motion correction, slice-timing correction, normalization to MNI space, and nuisance regression, ensuring output files are valid NIfTI format (See US-1).
-- **FR-003**: System MUST compute sliding-window functional connectivity matrices using a fixed-duration window and a stepped step size for 200 cortical parcels defined by the Schaefer atlas (See US-2).
+- **FR-003**: System MUST compute sliding-window functional connectivity matrices using a fixed-duration window and a stepped step size for a set of cortical parcels defined by the Schaefer atlas (See US-2).
 - **FR-004**: System MUST extract the network reconfigurability metric: number of community state transitions using the Louvain algorithm. If the algorithm fails to converge after a predefined number of retries, the system MUST exclude the subject and log the reason. (See US-2).
 - **FR-005**: System MUST perform Spearman rank correlations between the extracted reconfigurability metrics and behavioral cognitive scores (Digit Symbol Substitution Test) ONLY for subjects where both metrics and behavioral scores are present; otherwise, exclude and log (See US-3).
 - **FR-006**: System MUST apply Bonferroni correction for multiple comparisons across connectivity metrics and behavioral measures, reporting adjusted p-values (See US-3).

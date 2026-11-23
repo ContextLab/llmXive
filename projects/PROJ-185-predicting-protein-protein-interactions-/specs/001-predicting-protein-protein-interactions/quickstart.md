@@ -1,87 +1,50 @@
-# Quickstart: Predict Protein‑Protein Interactions from Co‑expression Networks
+# Quickstart: Predict Plant PPIs from Co‑expression
 
 ## Prerequisites
-- Python 3.11 (installed via `python -m venv venv && source venv/bin/activate`)
-- R 4.2 with Bioconductor (installed automatically by the `install_r_deps.sh` script)
-- Internet access (to download GEO and STRING data)
-- GitHub Actions runner (or local Linux environment with ≥ 2 CPU, 7 GB RAM)
-
-## Setup
-
 ```bash
-# 1. Clone the repository (already done in CI)
+# Clone the repository
 git clone
 cd ppi-coexpression
 
-# 2. Create a Python virtual environment and install dependencies
+# Create a virtualenv and install dependencies
 python -m venv.venv
 source.venv/bin/activate
 pip install -r requirements.txt
 
-# 3. Install R dependencies (run once)
-bash scripts/install_r_deps.sh
+# Install R packages (run once)
+Rscript scripts/install_bioconductor.R # installs DESeq2, org.At.tair.db, limma, sva
 ```
 
 ## Configuration
-Edit `config/species_gse.yaml` to list GEO series per species, e.g.:
+Edit `src/config/species.yaml` to list GEO series per species (default includes Arabidopsis GSE152416).
+Edit `src/config/parameters.yaml` to change thresholds, normalization mode, or random seed.
 
-```yaml
-Arabidopsis thaliana:
- - GSE12345
- - GSE67890
-# add more species as needed
-```
-
-Optional flags (default values shown):
-
-| Flag | Description | Default |
-|------|-------------|---------|
-| `--norm {vst, tpm}` | Normalization method | `vst` |
-| `--threshold FLOAT` | Correlation threshold (must be ≥ 0.75) | `0.80` |
-| `--seed INT` | Global random seed for reproducibility | `42` |
-| `--max-genes INT` | Upper bound on retained genes after variance filtering | `5000` |
-
-## Running the Pipeline
-
-### Full end‑to‑end execution
+## Run the Full Pipeline
 ```bash
 make all SEED=12345 NORM=vst THRESHOLD=0.80
 ```
-- Downloads data, builds the network, evaluates against STRING, runs GO enrichment, and writes per‑species summaries plus `final_report.txt`.
+*What happens*:
+1. Downloads GEO series, skips those with < 30 samples, checks total ≥ 50.
+2. Normalizes (VST), filters low‑expression genes, keeps the most variable genes (high‑variance genes).
+3. Batch‑corrects across series, regresses out expression‑level and gene‑length confounds.
+4. Computes Pearson correlations, writes `raw_correlations_Arabidopsis.tsv.gz`.
+5. Maps genes to STRING proteins, writes edge list `predicted_ppi_Arabidopsis.tsv`.
+6. **Evaluation** uses a [deferred]/A train‑test split proportion will be determined based on standard practice.; the test set is scored against STRING experimental + database edges (combined ≥ 700). Baseline random‑graph results and `baseline_p` are reported.
+7. Runs GO enrichment → `go_enrichment_Arabidopsis.tsv`.
+8. Generates per‑species summary and `final_report.txt`.
+9. All per‑species metrics are collated into `master_results.json`, the project’s Single Source of Truth.
 
-### Individual targets (useful for debugging)
+## Individual Targets
+| Target | Description |
+|--------|-------------|
+| `make evaluate` | Runs only the evaluation phase (FR‑006‑FR‑019) on the held‑out test set. |
+| `make enrich` | Runs GO enrichment (FR‑008‑FR‑023). |
+| `make summary` | Generates summary reports (FR‑021‑FR‑028). |
+| `make clean` | Removes all intermediate files. |
 
-| Target | What it does |
-|--------|--------------|
-| `make download` | Download GEO series only. |
-| `make normalize` | Normalize and filter genes. |
-| `make corr` | Compute raw correlations (`raw_correlations_*.tsv.gz`). |
-| `make map` | Map genes to STRING IDs. |
-| `make edges` | Apply threshold & write predicted edges. |
-| `make evaluate` | Perform evaluation against STRING and write `evaluation_metrics.json`. |
-| `make enrich` | Run GO enrichment (`go_enrichment_*.tsv`). |
-| `make summary` | Generate per‑species and final reports. |
-| `make clean` | Remove all intermediate files. |
-
-## Verifying Results
-After each target, the verification script runs automatically and will abort if any schema validation fails. To manually validate:
-
+## Validation
+After any target, the verification step runs automatically:
 ```bash
-python scripts/validate.py results/predicted_ppi_Arabidopsis.tsv contracts/predicted_edges.schema.yaml
-python scripts/validate.py results/evaluation_metrics.json contracts/evaluation.schema.yaml
-python scripts/validate.py results/threshold_sensitivity_Arabidopsis.tsv contracts/threshold_sensitivity.schema.yaml
+python scripts/verify_outputs.py
 ```
-
-All logs are in `logs/pipeline.log`. Re‑run the pipeline with the same seed to obtain identical outputs (SC‑004).
-
-## Expected Outputs (per species)
-
-- `results/predicted_ppi_<species>.tsv` – predicted edges (≥ 10 000 rows for typical species).
-- `results/evaluation_metrics.json` – AUROC, AUPRC, baseline metrics, `baseline_p`.
-- `results/go_enrichment_<species>.tsv` – GO terms with adjusted p‑values (or “No significant enrichment”).
-- `results/summary_<species>.txt` – concise report with construct‑validity justification.
-- `results/final_report.txt` – aggregated report across all species.
-
-Enjoy reproducible PPI prediction!
-
----
+It checks all contract files (`predicted_edges.schema.yaml`, `evaluation.schema.yaml`, etc.) and aborts on failure, satisfying FR‑017, FR‑019, FR‑030, FR‑034.

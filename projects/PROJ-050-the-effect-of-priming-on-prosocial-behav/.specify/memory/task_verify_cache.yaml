@@ -1,0 +1,91 @@
+T001:
+  c: true
+  h: f72b920d146455f481bec4954c03c7ad49b45d99adeb2f873f2e0ea4497ba2b4
+  r: "Checked the existence of `projects/PROJ-050-the-effect-of-priming-on-prosocial-behav/`\
+    \ with its full set of sub\u2011directories (code, data, docs, results, etc.)\
+    \ and the creation log `code/.tasks/T001.code_setup_project_layout.py.log` showing\
+    \ the layout script exited successfully. The required directory structure is present."
+  sig: f9e7527af2b116f875e7cf048a16be14d173b2fc336be7568efe7dc9c47a7a36
+T002:
+  c: true
+  h: d638f8620f58f115a4b302d4c0e58ee8bad37edd74ef3006a367d02562927268
+  r: "Checked the `code/requirements.txt` file (689\u202Fbytes) which lists pinned\
+    \ versions for pandas, numpy, scikit\u2011learn, statsmodels, vaderSentiment,\
+    \ datasets, pyyaml, tqdm and notes that hashlib is part of the Python\u202F3.11\
+    \ standard library, satisfying the task\u2019s dependency\u2011pinning requirement."
+  sig: dfb7e6f0d09ab02b8f7554183decd3fe9c38a22444cc4503b172d00ab9d29798
+T003:
+  c: true
+  h: 92d0c5ede08abf6914c87be2bdbb0bf8e31d066b65da6c14655ccf2d24d92854
+  r: "Checked `quickstart.md` (specs/001-the-effect-on-priming-on-prosocial-behav/quickstart.md)\
+    \ which contains the documented entry\u2011point command `python -m pipeline.run`\
+    \ as required."
+  sig: e3642d5ecad62afc95002e8d011168643bcde6fb0947f41524b490523ef86a0a
+T005:
+  c: true
+  h: cc0e0ceccc689dc536e199a028ee9f701098097924b9af6eaede806b955fc968
+  r: "Checked the `code/utils/checksum.py` file (8563\u202Fbytes) which implements\
+    \ SHA\u2011256 checksum computation, saving/loading of checksum JSON, verification\
+    \ of individual and all files, and a CLI for generating and verifying checksums,\
+    \ fulfilling the required utility for raw\u2011data integrity verification."
+  sig: 8607261df253a1097b1f7258fd64dc243dca9589d697028f0d2955b9d9c073fe
+T006:
+  c: true
+  h: fce90875c979309d5c209cf0b15ccf0b1d47fea41587fb8a422ea56c75b0bedd
+  r: "Checked `code/utils/schema_validator.py` (8840\u202Fbytes) which defines loading\
+    \ of the three YAML schemas and provides `validate_dataset_schema`, `validate_scored_schema`,\
+    \ and `validate_model_results_schema` helper functions as required. The file is\
+    \ non\u2011empty and implements the requested validation utilities."
+  sig: 05b70dbb8247f7ca2b3f6cd589dc01e98f35d29222cd4242cd412396492dc64f
+T007:
+  c: true
+  h: cc4c6f90fc36ebb74796b019e79d1029df5fbc556967ec264b63fd4d9ba271c1
+  r: "Checked `code/config.py` (3417\u202Fbytes) which defines `TARGET_N`, dataset\
+    \ identifiers (`DATASET_NAME`, `DATASET_SPLIT`, `DATASET_STREAMING`), and output\
+    \ directory paths (`RAW_DATA_DIR`, `PROCESSED_DATA_DIR`, `VALIDATION_DATA_DIR`,\
+    \ `RESULTS_DIR`, `FIGURES_DIR`), all reading defaults from environment variables.\
+    \ This matches the task\u2019s requirement."
+  sig: 9ed7ce8b45d560d1ad32a9ea7c511eb4218d4bb2acf9cb298951717f392a6d66
+T008:
+  c: true
+  h: cc6f53d046c2c1b2dfc9aebbf74d35642500fc7b583c4ffc7f92926b3d36afbb
+  r: "Checked `code/utils/logger.py` (3895\u202Fbytes) which defines `setup_logger`\
+    \ that creates a per\u2011process log file named with the PID (and timestamp)\
+    \ under the project\u2019s `logs/` directory, and provides helper functions for\
+    \ project\u2011wide logger access. The implementation matches the task\u2019s\
+    \ specification."
+  sig: 4b8ed156841a36551b50872009f2cf13bc522662226c8975913810f5f8ff6a12
+T009:
+  c: true
+  h: 3a1f90a266b0e811b373302b859d1733c742ff7e838bf5b41c0cacd0316ab6e0
+  r: "The `pytest.ini` file is present at the project root with appropriate configuration\
+    \ content, and the three required test directories (`tests/unit/`, `tests/integration/`,\
+    \ `tests/contract/`) exist with multiple test files inside each. This evidence\
+    \ confirms the task\u2019s deliverables are fully provided."
+  sig: 2b55d88e969a2834eed531aaaeb26490cfa77247c62c3e5c8658e2eb90fcec7e
+T010:
+  c: true
+  h: b5aa6aac90e32ae1766f0c48b17ddabe4a677da53047673581236955ea8c6cc2
+  r: Checked `docs/dataset_acquisition.md`, which documents the public `pushshift/reddit`
+    Hugging Face dataset, provides its URL, identifier, and access method, and confirms
+    the presence of a `title` field for thread titles, fulfilling T010.
+  sig: 15c1ce125d33736199db13fbffb2711877f7d1288b18989fa772fd907c0a2778
+T020:
+  c: false
+  h: c9eafd40438f6e734dfdfa1a0fb8df710ad8e0938fbfab951b2b956c085c1f4e
+  r: The required file `tests/unit/test_lexicon.py` does not exist, so no unit test
+    for the `prosocial_action_count` lexicon logic is present. The task cannot be
+    considered done until the test file is created with appropriate test cases.
+T021:
+  c: false
+  h: 33c48265482ab05e7c8d9ba392333a4e61643c4a642a35b97142b056181b8cda
+  r: The required artifact `tests/unit/test_vader.py` does not exist on disk, so no
+    unit test for VADER `neg_score` extraction and range validation is present. The
+    task cannot be considered completed until this file is created with appropriate
+    tests.
+T022:
+  c: false
+  h: 419c01a2d98097d78217ca47a0f710863e9d5501ece1aacd88edb2035fb0d261
+  r: "The required file `tests/unit/test_sampling.py` does not exist, so no unit test\
+    \ for the stratified sampling logic is present. The task\u2019s deliverable is\
+    \ missing entirely."

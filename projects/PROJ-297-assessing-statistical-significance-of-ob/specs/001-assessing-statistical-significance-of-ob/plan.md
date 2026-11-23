@@ -117,7 +117,7 @@ projects/PROJ-297-assessing-statistical-significance-of-ob/
         *   Drop rows with missing values.
         *   Drop constant variables.
         *   Count remaining continuous variables.
-    *   **Fallback Strategy**: If a dataset has < 20 continuous variables, it is excluded. If the primary list yields < 3 valid datasets, the pipeline automatically queries the UCI repository for the next available multivariate datasets with >=20 continuous variables (e.g., 'Parkinsons', 'Libras', 'Isolet') until 3 valid datasets are found.
+    *   **Fallback Strategy**: If a dataset has < 20 continuous variables, it is excluded. If the primary list yields < 3 valid datasets, the pipeline automatically queries the UCI repository for the next available multivariate datasets with >=20 continuous variables (e.g., 'Parkinsons', 'Libras', 'Isolet') until valid datasets are found.
     *   **Gate**: If an insufficient number of valid datasets remain after fallback, the pipeline halts with an error. The study cannot proceed with insufficient data.
 
 ### Phase 1: Primary Analysis (Pearson Correlation)

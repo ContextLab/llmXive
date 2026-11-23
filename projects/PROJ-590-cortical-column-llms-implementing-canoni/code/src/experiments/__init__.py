@@ -1,1 +1,3 @@
-# Experiments package
+"""
+experiments subpackage initializer.
+"""

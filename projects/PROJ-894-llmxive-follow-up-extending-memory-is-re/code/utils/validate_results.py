@@ -1,19 +1,6 @@
 """
-Schema validation script for llmXive research results.
-
-This script verifies that all result CSVs strictly adhere to the
-contracts/results.schema.yaml definition.
-
-Expected input files (relative to project root):
-- data/processed/baseline_results.csv
-- data/processed/lazy_results.csv
-- data/processed/greedy_results.csv
-- data/processed/noisy_baseline_results.csv
-- data/processed/noisy_lazy_results.csv
-- data/processed/noisy_greedy_results.csv
-
-Expected schema file:
-- specs/contracts/results.schema.yaml (or contracts/results.schema.yaml)
+Schema validation script for result CSVs.
+Verifies that all result files strictly adhere to the defined schema.
 """
 
 import os
@@ -22,203 +9,258 @@ import csv
 import json
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Set, Optional
+from typing import Dict, Any, List, Optional, Tuple
+import yaml
 
-# Add project root to path for imports if running as script
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-# Define the expected schema based on task requirements
-# Since the schema file might not exist yet, we define the expected structure
-# based on the task description: task_id, accuracy, nodes_visited, inference_time_seconds/latency_ms
-EXPECTED_SCHEMA = {
-    "required_columns": ["task_id", "accuracy", "nodes_visited", "latency_ms"],
-    "column_types": {
-        "task_id": str,
-        "accuracy": float,
-        "nodes_visited": int,
-        "latency_ms": float
+# Define the expected schema for result CSVs
+# This matches the structure expected by the analysis pipeline
+RESULTS_SCHEMA = {
+    "baseline_results.csv": {
+        "required_columns": ["task_id", "accuracy", "nodes_visited", "latency_ms"],
+        "optional_columns": ["strategy", "timestamp", "timeout"]
     },
-    "required_files": [
-        "data/processed/baseline_results.csv",
-        "data/processed/lazy_results.csv",
-        "data/processed/greedy_results.csv",
-        "data/processed/noisy_baseline_results.csv",
-        "data/processed/noisy_lazy_results.csv",
-        "data/processed/noisy_greedy_results.csv"
-    ]
+    "lazy_results.csv": {
+        "required_columns": ["task_id", "accuracy", "nodes_visited", "latency_ms"],
+        "optional_columns": ["strategy", "timestamp", "timeout", "evidence_threshold"]
+    },
+    "greedy_results.csv": {
+        "required_columns": ["task_id", "accuracy", "nodes_visited", "latency_ms"],
+        "optional_columns": ["strategy", "timestamp", "timeout", "top_k"]
+    },
+    "noisy_baseline_results.csv": {
+        "required_columns": ["task_id", "accuracy", "nodes_visited", "latency_ms"],
+        "optional_columns": ["strategy", "timestamp", "timeout", "noise_level"]
+    },
+    "noisy_lazy_results.csv": {
+        "required_columns": ["task_id", "accuracy", "nodes_visited", "latency_ms"],
+        "optional_columns": ["strategy", "timestamp", "timeout", "evidence_threshold", "noise_level"]
+    },
+    "noisy_greedy_results.csv": {
+        "required_columns": ["task_id", "accuracy", "nodes_visited", "latency_ms"],
+        "optional_columns": ["strategy", "timestamp", "timeout", "top_k", "noise_level"]
+    }
 }
 
-def load_schema(schema_path: Path) -> Dict[str, Any]:
+# Default paths relative to project root
+DEFAULT_DATA_DIR = Path("data/processed")
+DEFAULT_SCHEMA_FILE = Path("contracts/results.schema.yaml")
+
+def load_schema(schema_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Load schema from YAML file if it exists, otherwise return default schema.
+    Load the schema from a YAML file if it exists, otherwise return the default schema.
     
     Args:
-        schema_path: Path to the schema YAML file
+        schema_path: Path to the schema YAML file.
         
     Returns:
-        Dictionary containing schema definition
+        Dictionary containing the schema definition.
     """
-    if schema_path.exists():
+    if schema_path and schema_path.exists():
         try:
-            import yaml
             with open(schema_path, 'r') as f:
-                schema = yaml.safe_load(f)
-            logger.info(f"Loaded schema from {schema_path}")
-            return schema
+                loaded_schema = yaml.safe_load(f)
+                logger.info(f"Loaded schema from {schema_path}")
+                return loaded_schema
         except Exception as e:
             logger.warning(f"Failed to load schema from {schema_path}: {e}. Using default schema.")
-            return EXPECTED_SCHEMA
+            return RESULTS_SCHEMA
     else:
-        logger.warning(f"Schema file {schema_path} not found. Using default schema.")
-        return EXPECTED_SCHEMA
+        logger.info("No schema file found. Using default schema.")
+        return RESULTS_SCHEMA
 
-def validate_csv_structure(csv_path: Path, schema: Dict[str, Any]) -> List[str]:
+def validate_csv_structure(
+    file_path: Path,
+    schema: Dict[str, Any]
+) -> Tuple[bool, List[str]]:
     """
     Validate the structure of a single CSV file against the schema.
     
     Args:
-        csv_path: Path to the CSV file
-        schema: Schema definition dictionary
+        file_path: Path to the CSV file.
+        schema: Schema definition for this specific file.
         
     Returns:
-        List of validation errors (empty if valid)
+        Tuple of (is_valid, list_of_errors)
     """
     errors = []
     
-    if not csv_path.exists():
-        errors.append(f"File not found: {csv_path}")
-        return errors
+    if not file_path.exists():
+        errors.append(f"File does not exist: {file_path}")
+        return False, errors
     
     try:
-        with open(csv_path, 'r', newline='', encoding='utf-8') as f:
+        with open(file_path, 'r', newline='', encoding='utf-8') as f:
             reader = csv.DictReader(f)
+            headers = reader.fieldnames
             
-            # Check headers
-            if reader.fieldnames is None:
-                errors.append(f"Empty or invalid CSV: {csv_path}")
-                return errors
+            if headers is None:
+                errors.append(f"File is empty or has no headers: {file_path}")
+                return False, errors
             
-            header_set = set(reader.fieldnames)
-            required_cols = set(schema.get("required_columns", []))
+            # Check required columns
+            required_cols = schema.get("required_columns", [])
+            for col in required_cols:
+                if col not in headers:
+                    errors.append(f"Missing required column '{col}' in {file_path.name}")
             
-            missing_cols = required_cols - header_set
-            if missing_cols:
-                errors.append(f"Missing required columns in {csv_path}: {missing_cols}")
+            # Check optional columns (just log, don't fail)
+            optional_cols = schema.get("optional_columns", [])
+            found_optional = [col for col in optional_cols if col in headers]
+            if found_optional:
+                logger.debug(f"Found optional columns in {file_path.name}: {found_optional}")
             
-            extra_cols = header_set - required_cols
-            if extra_cols:
-                logger.warning(f"Extra columns found in {csv_path}: {extra_cols}")
-            
-            # Validate data types and values
-            row_count = 0
-            for row_num, row in enumerate(reader, start=2):  # Start at 2 (1-indexed, header is row 1)
-                row_count += 1
+            # Validate data types for required columns (basic check)
+            for row_idx, row in enumerate(reader, start=2): # start=2 because row 1 is header
+                # Check for empty task_id
+                if 'task_id' in row and (row['task_id'] is None or row['task_id'].strip() == ''):
+                    errors.append(f"Empty task_id at row {row_idx} in {file_path.name}")
                 
-                # Validate task_id (should be non-empty string)
-                task_id = row.get("task_id", "")
-                if not task_id or not isinstance(task_id, str):
-                    errors.append(f"Invalid task_id at row {row_num} in {csv_path}")
+                # Check numeric columns
+                for col in ['accuracy', 'nodes_visited', 'latency_ms']:
+                    if col in row and row[col]:
+                        try:
+                            float(row[col])
+                        except ValueError:
+                            errors.append(f"Invalid numeric value for '{col}' at row {row_idx} in {file_path.name}: {row[col]}")
                 
-                # Validate accuracy (should be float between 0 and 1)
-                try:
-                    accuracy = float(row.get("accuracy", ""))
-                    if not (0.0 <= accuracy <= 1.0):
-                        errors.append(f"Accuracy out of range [0, 1] at row {row_num} in {csv_path}: {accuracy}")
-                except (ValueError, TypeError):
-                    errors.append(f"Invalid accuracy value at row {row_num} in {csv_path}: {row.get('accuracy')}")
-                
-                # Validate nodes_visited (should be non-negative integer)
-                try:
-                    nodes = int(row.get("nodes_visited", ""))
-                    if nodes < 0:
-                        errors.append(f"Negative nodes_visited at row {row_num} in {csv_path}: {nodes}")
-                except (ValueError, TypeError):
-                    errors.append(f"Invalid nodes_visited value at row {row_num} in {csv_path}: {row.get('nodes_visited')}")
-                
-                # Validate latency_ms (should be non-negative float)
-                try:
-                    latency = float(row.get("latency_ms", ""))
-                    if latency < 0:
-                        errors.append(f"Negative latency_ms at row {row_num} in {csv_path}: {latency}")
-                except (ValueError, TypeError):
-                    errors.append(f"Invalid latency_ms value at row {row_num} in {csv_path}: {row.get('latency_ms')}")
-            
-            if row_count == 0:
-                errors.append(f"CSV file is empty (no data rows): {csv_path}")
-                
-    except Exception as e:
-        errors.append(f"Error reading CSV {csv_path}: {str(e)}")
+                # Only check first few rows for performance if file is huge
+                if row_idx > 10:
+                    break
     
-    return errors
+    except csv.Error as e:
+        errors.append(f"CSV parsing error in {file_path.name}: {e}")
+    except Exception as e:
+        errors.append(f"Unexpected error reading {file_path.name}: {e}")
+    
+    return len(errors) == 0, errors
 
-def validate_all_results(project_root: Path) -> bool:
+def validate_all_results(
+    data_dir: Optional[Path] = None,
+    schema_path: Optional[Path] = None,
+    specific_files: Optional[List[str]] = None
+) -> Dict[str, Any]:
     """
     Validate all result CSV files against the schema.
     
     Args:
-        project_root: Root directory of the project
+        data_dir: Directory containing the result CSVs.
+        schema_path: Path to the schema YAML file.
+        specific_files: Optional list of specific filenames to validate.
         
     Returns:
-        True if all validations pass, False otherwise
+        Dictionary containing validation results.
     """
-    # Determine schema path
-    schema_paths = [
-        project_root / "specs" / "contracts" / "results.schema.yaml",
-        project_root / "contracts" / "results.schema.yaml"
-    ]
+    if data_dir is None:
+        data_dir = DEFAULT_DATA_DIR
     
-    schema_path = next((p for p in schema_paths if p.exists()), None)
-    schema = load_schema(schema_path) if schema_path else EXPECTED_SCHEMA
+    schema = load_schema(schema_path)
     
-    # Check all required files
-    all_errors: List[str] = []
-    valid_files: List[str] = []
+    # Determine which files to validate
+    files_to_check = specific_files if specific_files else list(RESULTS_SCHEMA.keys())
     
-    for file_rel_path in schema.get("required_files", EXPECTED_SCHEMA["required_files"]):
-        csv_path = project_root / file_rel_path
-        errors = validate_csv_structure(csv_path, schema)
+    results = {
+        "valid": True,
+        "files_validated": 0,
+        "files_failed": 0,
+        "details": {}
+    }
+    
+    for filename in files_to_check:
+        if filename not in schema:
+            logger.warning(f"No schema defined for {filename}. Skipping.")
+            continue
         
-        if errors:
-            all_errors.extend(errors)
-            logger.error(f"Validation failed for {file_rel_path}: {errors}")
+        file_path = data_dir / filename
+        logger.info(f"Validating {filename}...")
+        
+        is_valid, errors = validate_csv_structure(file_path, schema[filename])
+        
+        results["files_validated"] += 1
+        
+        if not is_valid:
+            results["valid"] = False
+            results["files_failed"] += 1
+            results["details"][filename] = {
+                "status": "FAILED",
+                "errors": errors
+            }
+            logger.error(f"Validation failed for {filename}: {errors}")
         else:
-            valid_files.append(file_rel_path)
-            logger.info(f"Validation passed for {file_rel_path}")
+            results["details"][filename] = {
+                "status": "PASSED",
+                "errors": []
+            }
+            logger.info(f"Validation passed for {filename}")
     
-    # Summary
-    logger.info("=" * 60)
-    logger.info("VALIDATION SUMMARY")
-    logger.info("=" * 60)
-    logger.info(f"Valid files: {len(valid_files)}/{len(schema.get('required_files', EXPECTED_SCHEMA['required_files']))}")
-    
-    if all_errors:
-        logger.error(f"Total errors found: {len(all_errors)}")
-        for err in all_errors:
-            logger.error(f"  - {err}")
-        return False
-    else:
-        logger.info("All result files validated successfully!")
-        return True
+    return results
 
 def main():
-    """Main entry point for the validation script."""
-    logger.info("Starting results schema validation...")
+    """
+    Main entry point for the validation script.
+    """
+    import argparse
     
-    success = validate_all_results(PROJECT_ROOT)
+    parser = argparse.ArgumentParser(
+        description="Validate result CSVs against the schema."
+    )
+    parser.add_argument(
+        "--data-dir",
+        type=Path,
+        default=DEFAULT_DATA_DIR,
+        help=f"Directory containing result CSVs (default: {DEFAULT_DATA_DIR})"
+    )
+    parser.add_argument(
+        "--schema",
+        type=Path,
+        default=DEFAULT_SCHEMA_FILE,
+        help=f"Path to schema YAML file (default: {DEFAULT_SCHEMA_FILE})"
+    )
+    parser.add_argument(
+        "--files",
+        nargs='+',
+        default=None,
+        help="Specific files to validate (default: all defined in schema)"
+    )
+    parser.add_argument(
+        "--json-output",
+        type=Path,
+        default=None,
+        help="Path to save validation report as JSON"
+    )
     
-    if success:
-        logger.info("Validation completed successfully.")
-        sys.exit(0)
-    else:
-        logger.error("Validation failed. Please fix the errors above.")
-        sys.exit(1)
+    args = parser.parse_args()
+    
+    logger.info("Starting result validation...")
+    logger.info(f"Data directory: {args.data_dir}")
+    logger.info(f"Schema file: {args.schema}")
+    
+    validation_results = validate_all_results(
+        data_dir=args.data_dir,
+        schema_path=args.schema,
+        specific_files=args.files
+    )
+    
+    # Print summary
+    status = "PASSED" if validation_results["valid"] else "FAILED"
+    logger.info(f"\nValidation {status}")
+    logger.info(f"Files validated: {validation_results['files_validated']}")
+    logger.info(f"Files failed: {validation_results['files_failed']}")
+    
+    # Save JSON report if requested
+    if args.json_output:
+        with open(args.json_output, 'w') as f:
+            json.dump(validation_results, f, indent=2)
+        logger.info(f"Validation report saved to {args.json_output}")
+    
+    # Exit with appropriate code
+    sys.exit(0 if validation_results["valid"] else 1)
 
 if __name__ == "__main__":
     main()

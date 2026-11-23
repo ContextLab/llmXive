@@ -1,0 +1,5 @@
+# Extend the configuration from pyproject.toml if needed, or define overrides here.
+# This file is kept for explicit ruff configuration visibility.
+extend = "pyproject.toml"
+line-length = 100
+target-version = "py39"

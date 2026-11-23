@@ -1,0 +1,130 @@
+T001:
+  c: false
+  h: dea58618ae5f0a0d50f7869df1277bac8e411ff32e96afccd2c0f819277a26a1
+  r: The evidence shows `src/__init__.py`, `tests/__init__.py`, and the three `.gitkeep`
+    files under `data/raw`, `data/processed`, and `data/traits`, but there is no confirmed
+    presence of `data/manifests/.gitkeep`, `data/synthetic/.gitkeep`, nor the required
+    flag file `data/.dir_setup_complete`. These missing files prevent the task from
+    being fully satisfied.
+  sig: f8b6569672ff81855bceaffea2a61a6a1d5de733eaffd2ac1945a233d4a5091f
+T002:
+  c: true
+  h: f03c8b2f6f1767cdbd59544b687b5d1f2e1696effcd005d274af9abcb8d1c309
+  r: "The `requirements.txt` file was found at `projects/PROJ-463-predicting-plant-defense-allocation-from/requirements.txt`\
+    \ (841\u202Fbytes) and contains pinned versions of all required packages (`rpy2`,\
+    \ `biopython`, `scikit-learn`, `seaborn`, `matplotlib`, `ete3`, `pydantic`, `requests`,\
+    \ `tqdm`, `pyyaml`). No missing or placeholder entries were detected."
+  sig: 376a4ad52584809c7ee9647692bea8459d6917bb42e903d1525bbda68eab753c
+T003a-fix:
+  c: false
+  h: 89c9338c112da3405ddf9b240cc4ee21638c738f342167ac65fa0272f7906008
+  r: The `pyproject.toml` file with `[tool.ruff]` and `[tool.black]` sections is present,
+    but there is no provided evidence that `ruff check .` and `black --check .` were
+    actually run and passed. Execution logs or command output confirming successful
+    linting/formatting are required.
+  sig: 200f30fea82ed81d22ae4d75fee35141169a172f7529283389a2e2ebad7c89c6
+T003b-install-deps:
+  c: false
+  h: 450994f61b04d27aca59c78d96d6a71f575c127205d350223be56d15a5cf9dce
+  r: "No artifact (e.g., a shell script, log file, or captured command output) showing\
+    \ that the specified `conda install \u2026` command was run, nor any evidence\
+    \ that the subsequent version checks (`fastp --version`, etc.) were executed and\
+    \ returned exit code\u202F0. Without such execution evidence, the task\u2019s\
+    \ installation and verification requirements are not satisfied."
+  sig: 719d8cddbbc6d10b3fc77688939c77f01592d3fffe943438553ac32815e91945
+T004-fix:
+  c: true
+  h: 62dbe4ae2e72c2122621eb3b44813335970f6468f77aea05a4c7ad50d3ddaf41
+  r: "Checked `src/utils/config.py` which defines path strings, seed, threshold values,\
+    \ and hard\u2011codes the exact housekeeping gene list specified (the 49 genes\
+    \ listed in the task). The file is non\u2011empty and implements the required\
+    \ configuration utilities."
+  sig: cc2e368f8e595ec217517af7ecbd8ee82c50729fd27f3423bec0a3c0bce11cdb
+T005-fix:
+  c: true
+  h: 63a8b34e0c69620913a856d9f39648cca0afe7000495dfecce370df4e35c9762
+  r: "The `src/utils/logger.py` file provides a full logging setup with singleton\
+    \ access, configurable log directory, level, and handlers, while `src/utils/provenance.py`\
+    \ implements a comprehensive provenance tracking system (records, runs, tracker,\
+    \ and convenience functions). Both artifacts exist, are non\u2011empty, and contain\
+    \ functional code matching the task\u2019s logging and provenance requirements."
+  sig: ee53675641c315fd8d980354005ff77cc67369000753b1466778db0d0b521390
+T006-fix:
+  c: true
+  h: ad6fd1ede936fd8e62db6b78ff2e65bd769d140d41c031f85252842b2506c88e
+  r: "The `src/utils/schemas.py` file exists (6417\u202Fbytes) and defines the four\
+    \ required Pydantic models\u2014`RNASeqStudy`, `HerbivoreResponseVector`, `DefenseAllocationIndex`,\
+    \ and `Species`\u2014with exactly the specified field names and types (str, int,\
+    \ float, List[str]), matching the task specification. No required schema is missing\
+    \ or incorrectly defined."
+  sig: 53f586b1f8d7cc0d045f21bcacdb044e837183041eeaa8758e85e0413b55be67
+T008:
+  c: false
+  h: b0a631edefc21db36e45b09015a306a2d51723d9de89463659e39db3589e2a46
+  r: "The `tests/unit/test_download.py` file exists, but it imports a non\u2011existent\
+    \ function `validate_fastq_download` (no such function is defined in either `src/data/download.py`\
+    \ or `code/src/data/download.py`) and uses a `ManifestEntry` schema that does\
+    \ not match the actual `ManifestEntry` model in `src/utils/schemas.py`. Consequently\
+    \ the unit test cannot run or validate FASTQ downloads as required. The missing/incorrect\
+    \ implementation must be added and the test adjusted to the real schema."
+  sig: 87d0a0496a45c9975d873bbcb32fddcdf3c4339c2c816eebcdaf331f17209a20
+T009:
+  c: false
+  h: 79dda34a707e5ad4c0488cebd74c8ac076b99b250edc8b132f2eebd8df382a96
+  r: "The `tests/unit/test_batch_correction.py` file exists and contains many relevant\
+    \ test cases, but it is not a runnable unit test because it references `os.path.exists`\
+    \ without importing the `os` module, causing a `NameError` during execution. This\
+    \ missing import prevents the test suite from actually verifying the batch\u2011\
+    correction metric calculations. Adding the missing `import os` (and ensuring the\
+    \ test runs without errors) is required to satisfy the task."
+  sig: 5da7ee9e78effeb2f57628fb001a6826d3109357d1392b082eddabbd23323b77
+T010:
+  c: false
+  h: 11227b2ae003c60fa82afa7bc5f77168d4a1a478bf2a602c59951667004daa91
+  r: "The `tests/integration/test_preprocess.py` file is present, but it never generates\
+    \ synthetic FASTQ files nor invokes the full `run_preprocessing_pipeline` function;\
+    \ it manually creates a counts matrix and computes TPM, so the test does not actually\
+    \ exercise the complete preprocessing pipeline as required. The integration test\
+    \ therefore fails to satisfy the \u201Cfull preprocessing pipeline\u201D requirement\
+    \ (step\u202F1) and is incomplete."
+  sig: e4956c171e1c398e3d5301cea3299b80fb733fb9b3859892fcb9dd656218d696
+T011a:
+  c: false
+  h: 4453c61b2dd66745b5c0b9a2118c82c58cbe1bb4da052861fe3000a2483e648b
+  r: "The repository contains a non\u2011empty `src/data/verify_metadata.py`, but\
+    \ the required output file `data/processed/metadata_verification_report.json`\
+    \ is absent, and the shown code is truncated before any logic that writes such\
+    \ a report. Without the JSON report the task\u2019s output requirement is not\
+    \ satisfied."
+T012a:
+  c: true
+  h: ad04fa7bb0894eef1cf2f3334e42ed196f160d90b91e82ba9c9b963681ec23d4
+  r: "The repository contains a non\u2011empty `src/data/preprocess_fastp.py` implementing\
+    \ a fastp wrapper, checking for fastp availability, handling the synthetic\u2011\
+    mode flag, constructing the required fastp command (including `--thread 4` and\
+    \ `--json`), and creating output directories so trimmed FASTQ files can be saved\
+    \ to the specified location. No required artifact is missing."
+T015:
+  c: false
+  h: 6754b7f5a9722f5f3e59c9ff6cd324c6f8899a5b02a46df373715e63e43db7c8
+  r: "The repository contains `src/data/synthetic_generator.py`, but the file is truncated\
+    \ and shows no logic that actually writes the TPM matrix or creates the required\
+    \ `data/manifests/synthetic_manifest.json`. Moreover, the manifest file is absent\
+    \ from the filesystem. The task\u2019s core requirement\u2014a manifest with the\
+    \ specified schema and checksums\u2014is not satisfied."
+T036:
+  c: false
+  h: c57ad0c3c516cec45ef05d4cd27642d750d33ff6ded9c67703b5e1cd934fc7e5
+  r: "The repository contains `src/data/kegg_mapper.py` and a fallback JSON, but the\
+    \ required output file `data/processed/pathway_mappings.json` does not exist,\
+    \ and the provided script excerpt does not show any code that writes the mappings\
+    \ to that path. Without the generated `pathway_mappings.json` the task\u2019s\
+    \ output requirement is unmet."
+T039:
+  c: false
+  h: d6cef207b83bd921ad7be6c1aab7d148bdde7426e32b2df318bdabc99952e25f
+  r: "The provided `src/analysis/defense_index.py` is truncated (e.g., the `extract_trait_values`\
+    \ function ends abruptly with `physical_values[trait_n`), indicating the implementation\
+    \ is incomplete and likely contains syntax errors. Moreover, the required output\
+    \ file `data/processed/defense_allocation_index.csv` does not exist. The task\u2019\
+    s core requirements are therefore not satisfied."

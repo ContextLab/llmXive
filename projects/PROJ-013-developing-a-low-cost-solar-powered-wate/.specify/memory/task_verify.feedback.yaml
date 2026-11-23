@@ -1,0 +1,106 @@
+T001:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/...yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 8eed7d0609d6d198712e4648303e127edf0d3f906371a5ea15ba810f71fa298d
+T004:
+  task: 3d1d88968906b1f90d6bb4e51deb7120178ca93142d6527c07306068713e25a3
+T005:
+  task: fedd1de08d15c6c1966cf979923e3095b5c25f0106eb9ba35b203317d5b38fe9
+T006:
+  reason: The `code/config.py` file is present and loads an API key, but it does not
+    provide any mechanism for loading simulation parameters (e.g., time step, duration,
+    geometry settings) as required by the task. Consequently the base configuration
+    loader is only partially implemented.
+  task: c86c89933b3ba6b972825b5a7c628a88bc9ecc51fb2f48ad622b303f2c10642f
+T007:
+  reason: "I examined the repository under `projects/PROJ-013-developing-a-low-cost-solar-powered-wate`\
+    \ and found no `.env` file, no Python code using `python-dotenv` or similar to\
+    \ load NASA POWER API keys, and no documentation of environment variable handling.\
+    \ The required artifact for task T007\u2014environment configuration management\
+    \ supporting `.env` for NASA POWER keys\u2014is absent, so the task is not satisfied."
+  task: 11d6645ff227a62393aae66e8607c8370ecb5cf2e3470c7c2400e4f62d418fa0
+T008:
+  reason: "The `code/data_ingestion.py` file exists but its `fetch_solar_irradiance`\
+    \ function merely returns the hard\u2011coded value\u202F550\u202FW/m\xB2 and\
+    \ contains no logic to call the NASA POWER API, construct the required query parameters,\
+    \ or evaluate the length of returned data for the <\u202F30\u2011day fallback.\
+    \ Consequently the task\u2019s core requirement\u2014fetching real solar irradiance\
+    \ profiles with proper endpoint and fallback handling\u2014is not fulfilled."
+  task: a11667435077c27b8f00b08b92c476cf94bf9d964d4e43878e514436528d1a2a
+T009:
+  task: ce22c8a6d044b0e2a71efdae62372b6d1d7f996b138e1299630863a288e8c361
+T010:
+  task: aad92442d645395956db3d876ea2b75b79e3a2c84f1a02c6c558c6354df3216f
+T011:
+  task: ae148d171e24f3b5cc6305e19a0f00ad52e7236a8ab892dc4f8c3965e94d533c
+T012:
+  task: eac22f60394263b56b9e2eeb0c42d594011af178c5a60a6e84b828996f1b4af9
+T013:
+  reason: 'Requested task execution failed; rerun successfully: code/data_ingestion.py
+    exit=1'
+  task: b48077bdf9979a863afab5a387dd5e519dd94f344b60c78082418cefed1e0131
+T014:
+  task: 685491e2849478a49fa3cbf8e88f0cb07a376897da24b9d60060f80fab6110b8
+T015:
+  task: 68c1e4125bd6d8229e8a5e6b6b1bbe4da336e14d79435ae073f637bfe7725bff
+T016:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/materials_validation.json'
+  task: 18d573bc865182c5bf03b4ccb39d4d97194384918c9ee3306dd089471eacb23e
+T017:
+  task: 94ae6a7af179a3619f2583a6934c08febd442b19818a337acac75f812c6bcf56
+T018:
+  task: a78481143c69382556f08f54804fe7e008d506967ed9fc32c867bc15d6898516
+T019:
+  task: 05a78cd7417e041f616a91d9581d7bb6a22cc8b86b12b9b224eea22a9fa9eb42
+T020:
+  task: 9ddcea8582334e5c500bb4c733dc353dcfccc2a1935782e36e29312175ca0ade
+T020b:
+  reason: "The `specs/.../spec.md` still contains the original wording \u201Cmodeling\
+    \ slope variations via effective projected area\u201D instead of the required\
+    \ \u201Cmodeling slope variations via angle-dependent view factors and convective\
+    \ heat transfer coefficients\u201D, and the required `specs/.../deviations.md`\
+    \ file is missing."
+  task: fe0e438800653d70b12c0a844ffd0a4d606127056aea0daf7bb5572338e0807a
+T021:
+  task: e394d932675a80977c4f4fcb7cddd8f50abb8fd096453a7f62c6794b60f8c279
+T023a:
+  task: 18ec574e4ebb145430f2c3023769c0a4bae3f9da49a88d1578a1c6d09f74cc16
+T023b:
+  task: 51ff64daeb58cce812b54bbcb1a9f7eb4b2fd0e0f9c1c6bd1b4c64e60b99c0be
+T025:
+  task: e3e13ba359251df3c739eb3f8e06ea2adae43f5ef9761573faa5fe9236ed53e7
+T026:
+  task: d90949f43ad1a0b2cd9d0b337a08a8df190f34dbeac6cca6887c0f1cfee75640
+T027:
+  task: 5cc15ac37897e150ab2b83c64b1ea85892e5ee595f13101c3e8a2db53e12f6e6
+T028:
+  task: a35385a27bfcc92b7136382be69035e418a7003a104dc22dbdb1957239ec0952
+T029:
+  task: 325e3aefc3afbdf517be626a045e6f0ecae017a44b859d5376483bc89979edff
+T030:
+  task: 79683189b69419d9de6d0af5a2d55ab402d4fbd5bc394ac6a16e6f0dccdcbc16
+T031:
+  task: c8dd215dbaed6562e19319cec362d5e9bb298f1f306414324335ccab887dd24b
+T032a:
+  task: d4b49553311946d7b1660e654c477181588fcbc12535ebb3835055c312c11154
+T033:
+  task: dc3938bee00e7690d6d6bf3c732abd364bad7c8c94490c2e1a6271f44b4ef0a0
+T034:
+  reason: 'declared artifact(s) missing/empty/invalid: data/plots/pareto_frontier.png'
+  task: 504b346e211fd2780e527a492f983bcc5bc50b329a56f735885601e67b966137
+T035:
+  task: a98fbcd6908a6181d637f76e7e8b2de214e2e47a15abe481c92174d237e10271
+T038:
+  task: ae8d937f10a85a4e1040ffbdf8d46298fc826758c8fa98235c83b05e6e926ac9
+T039:
+  task: 1193915968c1e7a52c1d13c93f976e7874b12820b8a82e687875feae3f8e8aaf
+T040:
+  task: 54587475324a2d1afcaf2dcd3764f6f927f1440cb964e03ca11557ce4c4fc26f
+T041:
+  task: 849c35fcb9b9ccf8f2e6e1cc9b03fbf8955ab8edb1a85514bb3d8024ce1dca99
+T042:
+  task: b79991554ec4fba5013f761be2bd0032874f8fb0cf9f4342e5536e5cf9ab00d2
+T043:
+  task: a02948f49f6b67803bca6c2ce097624ec2d335d5d70d375d029f38432e723674

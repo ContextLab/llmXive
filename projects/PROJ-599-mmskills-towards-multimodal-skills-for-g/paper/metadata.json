@@ -54,5 +54,15 @@
     "paper/appendix.tex",
     "references.bib",
     "selfevolagent.cls"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "c311a4c744f4e5e54c68d95d17ca0841d7529da82485784c34c7877cfeb0e8f5",
+      "bytes": 8034001
+    },
+    "original.pdf": {
+      "sha256": "40610b5ae03b38e65af0711a8fb8302202a32a84c08dac71545cfcfc9a775ad7",
+      "bytes": 7983592
+    }
+  }
 }

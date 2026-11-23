@@ -2,6 +2,6 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T011 [P] [US1] Contract test for downloaded metadata schema in `tests/contract/test_metadata_schema.py`** — No evidence of a `tests/contract/test_metadata_schema.py` file was provided, nor any content showing a contract test for the downloaded metadata schema. The required test artifact is missing, so the task is not satisfied.
-- **T012 [P] [US1] Unit test for memory monitor threshold violation in `tests/unit/test_memory_monitor.py`** — No test file `tests/unit/test_memory_monitor.py` or any unit‑test code was provided; the only evidence is a unrelated project specification. The required unit test for the memory monitor threshold violation is missing.
-- **T013 [P] [US1] Unit test for FD calculation and exclusion logic in `tests/unit/test_preprocess.py`** — No `tests/unit/test_preprocess.py` file or its contents were provided, so there is no evidence of a unit test for FD calculation and exclusion logic. The required artifact is missing, preventing verification that the task was completed.
+- **T003** — The provided `code/requirements.txt` exists but lists the required packages without version pins and adds extra packages (`jsonschema`, `pyyaml`) that were not requested. The task explicitly required *pinned* dependencies, which is not satisfied. The file must include exact version specifications for each listed package and omit unrelated entries.
+- **T015** — Requested task execution failed; rerun successfully: code/data/filter_subjects.py exit=1
+- **T031** — declared artifact(s) missing/empty/invalid: data/metrics/subject_metrics.csv

@@ -1,0 +1,22 @@
+# Explicit ruff configuration for immediate tool discovery
+# This file mirrors settings in pyproject.toml for tools that prefer standalone config
+line-length = 88
+target-version = "py311"
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+]
+ignore = ["E501", "B008"]
+extend-exclude = [
+    "__pycache__",
+    ".git",
+    ".venv",
+    "build",
+    "dist",
+    "data",
+]

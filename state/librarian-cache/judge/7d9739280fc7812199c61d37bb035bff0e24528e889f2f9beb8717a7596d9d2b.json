@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "0808.2401",
+  "judged_at": "2026-08-04T19:00:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting avian migration patterns from publicly available ebird data biology",
+  "rationale": "The paper investigates the biophysical mechanism of magnetoreception (radical-pair model) and the effects of radio-frequency fields on bird orientation, which is a distinct construct from the user's question about predicting migration patterns using statistical models on eBird occurrence data. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (both involve birds and navigation/migration concepts but address fundamentally different scientific problems: bio",
+  "relevant": false
+}

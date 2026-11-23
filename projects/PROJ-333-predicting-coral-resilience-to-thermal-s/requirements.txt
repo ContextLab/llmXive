@@ -1,21 +1,12 @@
-# Core Data & Bioinformatics
-biopython>=1.81
-pysam>=0.21.0
-scipy>=1.11.0
-pandas>=2.0.0
-matplotlib>=3.7.0
-gprofiler-official>=1.0.0
-rpy2>=3.5.0
-
-# Linting & Formatting Tools (T003)
-flake8>=6.1.0
-pylint>=3.0.0
-black>=23.0.0
-isort>=5.12.0
-
-# Utilities
-requests>=2.31.0
-tomlkit>=0.12.0
-tomli-w>=1.0.0
-tomli>=2.0.0
-numpy>=1.24.0
+# Existing dependencies
+biopython
+pysam
+scipy
+pandas
+matplotlib
+gprofiler-official
+rpy2
+requests
+# T018 Dependencies
+# requests is added for robust HTTP handling during download and checksum verification.
+# Salmon is expected to be installed via system package manager (conda/apt) and available in PATH.

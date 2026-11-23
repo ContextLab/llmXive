@@ -1,152 +1,120 @@
 """
-Integration test for NASA Exoplanet Archive API download.
-Verifies that the download module returns valid metadata with required fields.
+Integration tests for the NASA Exoplanet Archive data download pipeline.
+This module verifies that the download logic correctly fetches and validates
+metadata from the real API, ensuring data integrity before processing.
 """
+
 import os
 import sys
-import logging
-import unittest
+import json
+import pytest
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 import pandas as pd
-import numpy as np
 
-# Add project root to path to allow imports from code/
+# Add project root to path for imports
 project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root))
+sys.path.insert(0, str(project_root / "code"))
 
-from code.download import fetch_metadata, parse_spectrum_metadata
-from code.api_config import QUERY_PARAMS
-from code.utils import setup_logging
+from download import fetch_raw_metadata, process_metadata, save_metadata_csv
+from config import get_config
+from data_models import PlanetCategory
+from utils import setup_logging
 
-# Configure logging for tests
-setup_logging(level=logging.INFO)
-logger = logging.getLogger(__name__)
+# Setup logging for tests
+logger = setup_logging("tests/integration/test_download.log")
 
-class TestDownloadIntegration(unittest.TestCase):
+
+@pytest.mark.integration
+def test_download_returns_valid_metadata():
     """
-    Integration test for API download functionality.
-    Validates that the download process returns metadata matching the expected schema.
+    Integration test: Verify that the download pipeline returns valid metadata
+    with non-null values for required fields.
+
+    This test performs a real fetch from the NASA Exoplanet Archive API (or a
+    verified local cache if configured) and validates the schema and data quality.
+    It depends on T007 (data models) being implemented.
+
+    Validates:
+    1. The fetch function returns a non-empty list of records.
+    2. The processed DataFrame contains required columns.
+    3. Critical fields (temperature, metallicity, snr, resolution, planet_category)
+       are populated (non-null) for the majority of rows.
+    4. The output file `data/processed/metadata.csv` is created and readable.
     """
+    # Ensure output directory exists
+    output_dir = project_root / "data" / "processed"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / "metadata.csv"
 
-    @patch('code.download.requests.get')
-    def test_download_returns_valid_metadata(self, mock_get):
-        """
-        Test that the download function returns valid metadata with required fields.
-        
-        Mocks the API response to simulate a successful fetch from NASA Exoplanet Archive.
-        Verifies that the output DataFrame contains non-null values for:
-        - equilibrium_temperature
-        - host_star_metallicity
-        - spectral_resolution
-        - signal_to_noise_ratio
-        - planet_category
-        """
-        # Simulate API response
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {
-            "results": [
-                {
-                    "pl_name": "HD 209458 b",
-                    "pl_orbsper": 3.525,
-                    "pl_eqt": 1359.0,
-                    "st_met": 0.02,
-                    "pl_resol": 100000,
-                    "pl_snr": 45.5,
-                    "pl_cat": "Hot Jupiter"
-                },
-                {
-                    "pl_name": "Kepler-11 b",
-                    "pl_orbsper": 10.3,
-                    "pl_eqt": 900.0,
-                    "st_met": -0.1,
-                    "pl_resol": 50000,
-                    "pl_snr": 32.1,
-                    "pl_cat": "Super-Earth"
-                }
-            ]
-        }
-        mock_get.return_value = mock_response
+    # Remove existing file to ensure we are testing a fresh run
+    if output_file.exists():
+        output_file.unlink()
 
-        # Execute download
-        result_df = fetch_metadata()
+    try:
+        # 1. Fetch raw metadata
+        # Note: In a real CI environment with no network, this would fail.
+        # However, per task requirements, we must use real data sources.
+        # We catch the exception if the network is truly unreachable to provide
+        # a meaningful test result rather than a generic import error.
+        raw_data = fetch_raw_metadata()
 
-        # Assertions
-        self.assertIsInstance(result_df, pd.DataFrame)
-        self.assertGreater(len(result_df), 0, "Expected non-empty DataFrame")
+        assert raw_data is not None, "fetch_raw_metadata returned None"
+        assert len(raw_data) > 0, "fetch_raw_metadata returned empty list"
 
-        # Check required columns exist
+        logger.info(f"Fetched {len(raw_data)} raw records from NASA Exoplanet Archive.")
+
+        # 2. Process metadata
+        df = process_metadata(raw_data)
+
+        assert isinstance(df, pd.DataFrame), "process_metadata did not return a DataFrame"
+        assert len(df) > 0, "process_metadata returned empty DataFrame"
+
+        # 3. Verify required columns exist
         required_columns = [
-            'planet_name',
-            'equilibrium_temperature',
-            'host_star_metallicity',
-            'spectral_resolution',
-            'signal_to_noise_ratio',
-            'planet_category'
+            'planet_name', 'temperature', 'metallicity', 'snr',
+            'resolution', 'planet_category', 'instrument', 'wavelength_range'
         ]
-        for col in required_columns:
-            self.assertIn(col, result_df.columns, f"Missing required column: {col}")
 
-        # Check for non-null values in critical fields
-        for col in ['equilibrium_temperature', 'host_star_metallicity', 
-                    'spectral_resolution', 'signal_to_noise_ratio', 'planet_category']:
-            self.assertFalse(result_df[col].isnull().all(), 
-                             f"All values in {col} are null")
+        missing_cols = [col for col in required_columns if col not in df.columns]
+        assert not missing_cols, f"Missing required columns: {missing_cols}"
 
-        # Verify specific values from mock data
-        hd_209458 = result_df[result_df['planet_name'] == 'HD 209458 b']
-        self.assertEqual(len(hd_209458), 1)
-        self.assertAlmostEqual(hd_209458['equilibrium_temperature'].iloc[0], 1359.0)
-        self.assertAlmostEqual(hd_209458['host_star_metallicity'].iloc[0], 0.02)
-        self.assertEqual(hd_209458['planet_category'].iloc[0], 'Hot Jupiter')
+        # 4. Verify data quality (non-null values for critical fields)
+        # We allow a small tolerance for missing data in real-world APIs,
+        # but the majority must be present.
+        critical_fields = ['temperature', 'metallicity', 'snr', 'resolution', 'planet_category']
 
-    def test_parse_spectrum_metadata_extraction(self):
-        """
-        Test that the parsing logic correctly extracts metadata fields from raw data.
-        """
-        raw_data = {
-            "pl_name": "WASP-12 b",
-            "pl_eqt": 2500.0,
-            "st_met": 0.15,
-            "pl_resol": 200000,
-            "pl_snr": 60.0,
-            "pl_cat": "Hot Jupiter"
-        }
-        
-        parsed = parse_spectrum_metadata(raw_data)
-        
-        self.assertEqual(parsed['planet_name'], 'WASP-12 b')
-        self.assertEqual(parsed['equilibrium_temperature'], 2500.0)
-        self.assertEqual(parsed['host_star_metallicity'], 0.15)
-        self.assertEqual(parsed['spectral_resolution'], 200000)
-        self.assertEqual(parsed['signal_to_noise_ratio'], 60.0)
-        self.assertEqual(parsed['planet_category'], 'Hot Jupiter')
+        for field in critical_fields:
+            non_null_count = df[field].notna().sum()
+            total_count = len(df)
+            fill_rate = non_null_count / total_count if total_count > 0 else 0
 
-    @patch('code.download.requests.get')
-    def test_download_handles_empty_response(self, mock_get):
-        """
-        Test that the download function handles empty API responses gracefully.
-        """
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_response.json.return_value = {"results": []}
-        mock_get.return_value = mock_response
+            # Require at least 80% fill rate for critical fields
+            assert fill_rate >= 0.80, (
+                f"Field '{field}' has too many null values: "
+                f"{non_null_count}/{total_count} ({fill_rate:.2%})"
+            )
+            logger.info(f"Field '{field}' fill rate: {fill_rate:.2%}")
 
-        result_df = fetch_metadata()
-        
-        self.assertIsInstance(result_df, pd.DataFrame)
-        self.assertEqual(len(result_df), 0)
+        # 5. Verify planet_category values are valid enum members
+        valid_categories = [cat.value for cat in PlanetCategory]
+        invalid_cats = df[~df['planet_category'].isin(valid_categories)]
+        assert len(invalid_cats) == 0, (
+            f"Found invalid planet categories: {invalid_cats['planet_category'].unique()}"
+        )
 
-    @patch('code.download.requests.get')
-    def test_download_handles_api_error(self, mock_get):
-        """
-        Test that the download function raises appropriate error on API failure.
-        """
-        mock_get.side_effect = Exception("API Connection Failed")
-        
-        with self.assertRaises(Exception):
-            fetch_metadata()
+        # 6. Save to CSV (T012 implementation check)
+        save_metadata_csv(df, str(output_file))
 
-if __name__ == '__main__':
-    unittest.main()
+        assert output_file.exists(), "save_metadata_csv failed to create output file"
+
+        # 7. Verify saved file is readable
+        saved_df = pd.read_csv(output_file)
+        assert len(saved_df) == len(df), "Saved file row count mismatch"
+        assert list(saved_df.columns) == list(df.columns), "Saved file column mismatch"
+
+        logger.info("Integration test passed: Metadata schema and data quality validated.")
+
+    except Exception as e:
+        # Log the error but fail the test explicitly
+        logger.error(f"Integration test failed with error: {e}", exc_info=True)
+        raise e

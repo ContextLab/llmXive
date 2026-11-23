@@ -1,3 +1,1 @@
-"""
-Initialization file for the tests module.
-"""
+# Tests package root

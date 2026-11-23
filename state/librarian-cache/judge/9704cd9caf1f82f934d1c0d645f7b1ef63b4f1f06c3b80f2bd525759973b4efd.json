@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.12836",
+  "judged_at": "2026-08-04T19:00:46Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting avian migration patterns from publicly available ebird data biology",
+  "rationale": "The paper focuses on Natural Language Processing (NLP) and the methodology of using citizen science for text annotation, which is a distinct domain from the user's question about predicting biological avian migration patterns using eBird data. While both involve \"citizen science\" and \"eBird\" (as a potential data source), the paper does not measure migration mechanisms, analyze bird movement data, or establish baselines for the biological variables in question, failing to meet any of the inclusio",
+  "relevant": false
+}

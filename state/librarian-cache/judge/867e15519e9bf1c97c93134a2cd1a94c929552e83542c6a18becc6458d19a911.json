@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1311.3723",
+  "judged_at": "2026-08-13T09:48:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "computational screening of deep eutectic solvent mixtures for co2 capture chemistry",
+  "rationale": "This paper qualifies under category (d) as a foundational methodology reference for the \"computational screening\" aspect of the user's question, providing the canonical framework (fragment descriptors, QSAR/QSPR) used to screen chemical mixtures for specific properties like CO2 capture. Additionally, it satisfies category (b) by addressing the independent variable (computational screening methods) within the user's domain of chemistry and molecular property prediction.",
+  "relevant": true
+}

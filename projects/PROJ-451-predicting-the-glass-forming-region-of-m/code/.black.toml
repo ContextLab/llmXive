@@ -1,0 +1,23 @@
+# Black configuration file
+# Explicit configuration for tools that read .toml files directly
+# (pyproject.toml is preferred, but this ensures compatibility)
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | notebooks
+)/
+'''

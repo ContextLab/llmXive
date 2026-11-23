@@ -1,0 +1,67 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Results Schema
+description: Schema for results of statistical analysis and validation steps.
+type: object
+required:
+  - permutation_test
+  - ks_test
+  - sensitivity_analysis
+properties:
+  permutation_test:
+    type: object
+    required:
+      - statistic
+      - p_value
+      - n_permutations
+    properties:
+      statistic:
+        type: number
+      p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+      n_permutations:
+        type: integer
+        minimum: 1000
+  ks_test:
+    type: object
+    required:
+      - statistic
+      - p_value
+    properties:
+      statistic:
+        type: number
+      p_value:
+        type: number
+        minimum: 0
+        maximum: 1
+  sensitivity_analysis:
+    type: object
+    required:
+      - thresholds
+    properties:
+      thresholds:
+        type: array
+        items:
+          type: object
+          required:
+            - threshold
+            - fpr
+            - fnr
+            - f1_score
+          properties:
+            threshold:
+              type: number
+            fpr:
+              type: number
+              minimum: 0
+              maximum: 1
+            fnr:
+              type: number
+              minimum: 0
+              maximum: 1
+            f1_score:
+              type: number
+              minimum: 0
+              maximum: 1
+additionalProperties: false

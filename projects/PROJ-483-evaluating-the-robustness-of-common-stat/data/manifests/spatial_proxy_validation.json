@@ -1,0 +1,11 @@
+{
+  "adult_income": {
+    "valid": true,
+    "errors": [],
+    "warnings": [],
+    "n_samples": 32561,
+    "n_clusters": 3,
+    "min_cluster_size": 4806,
+    "inertia": 81733187608289.23
+  }
+}

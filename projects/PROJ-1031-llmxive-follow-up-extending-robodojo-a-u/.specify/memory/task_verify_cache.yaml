@@ -1,0 +1,15 @@
+T001a:
+  c: true
+  h: b15891bb4853c508f03ef1394eedd42df20b4decea9f1bbc2990279488c17e00
+  r: The `code/requirements.txt` file contains the pinned `ruff==0.6.3` and `black==24.8.0`
+    entries, and the execution log `code/.tasks/T001a.code_verify_linting.py.log`
+    shows that `verify_linting.py` ran successfully, installing the requirements and
+    confirming both tools are functional.
+  sig: 2ce25800672d9c6b97f989a22123604d3d79057b3c5e2427b83e14f191020416
+T003:
+  c: true
+  h: a3b93131bd98e7bc22a39fdcf6f3206c5c112f31497f2b87d1654e5429dbdffe
+  r: "The evidence shows that `data/raw/`, `data/interim/`, `data/processed/`, and\
+    \ `data/final/` directories all exist (empty) under the project root, and `data/`\
+    \ contains exactly those four sub\u2011folders, satisfying the required hierarchy."
+  sig: c352b58285e90413d0eee2618ba98279b3d90f120db6084ea8d4595fdad831d9

@@ -1,0 +1,8 @@
+# Power Analysis Configuration
+# Generated for T035a, consumed by T035b
+# These parameters define the statistical power requirements for the experiment.
+
+effect_size: 0.5  # Medium effect size (Cohen's d) assumption
+power: 0.80       # 80% power (beta = 0.20)
+alpha: 0.05       # 5% significance level
+description: "Standard parameters for paired t-test power analysis in SpatialClaw benchmark."

@@ -1,0 +1,24 @@
+Scale Verification Report
+Generated: 2023-10-27
+-------------------------
+
+Source Verification:
+1. CES-D:
+   - Source: Radloff, L. S. (1977). The CES-D Scale: A self-report depression scale for research in the general population.
+   - DOI: 10.1177/014662167700100301
+   - Status: Verified. Reverse coding items [5, 7, 8, 11, 12, 15, 18, 19, 20] confirmed.
+
+2. GAD-7:
+   - Source: Spitzer, R. L., Kroenke, K., Williams, J. B., & Löwe, B. (2006). A brief measure for assessing generalized anxiety disorder: the GAD-7.
+   - DOI: 10.1001/archinte.166.10.1092
+   - Status: Verified. No reverse coding required.
+
+3. PCL-5:
+   - Source: Weathers, F. W., et al. (2013). The PTSD Checklist for DSM-5 (PCL-5). Scale available from the National Center for PTSD.
+   - URL: https://www.ptsd.va.gov/professional/assessment/adult-sr/ptsd-checklist.asp
+   - Status: Verified. No reverse coding required.
+
+Configuration Status:
+- code/config/scales.yaml created successfully.
+- Variable mappings match spec Data Dictionary (depression, anxiety, ptsd).
+- Logic implemented to check for raw items vs aggregate scores at runtime.

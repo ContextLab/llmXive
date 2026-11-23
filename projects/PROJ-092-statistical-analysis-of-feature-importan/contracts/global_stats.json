@@ -1,0 +1,24 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:llmxive:contract:global_stats:v1",
+  "title": "Global Statistics Schema",
+  "description": "Aggregated statistics summarizing the entire drift analysis pipeline.",
+  "type": "object",
+  "properties": {
+    "total_windows_processed": { "type": "integer", "minimum": 0 },
+    "valid_windows_count": { "type": "integer", "minimum": 0 },
+    "stable_window_count": { "type": "integer", "minimum": 0 },
+    "mean_rho": { "type": ["number", "null"] },
+    "trend_direction": {
+      "type": ["string", "null"],
+      "enum": ["monotonic increase", "monotonic decrease", "stable", null]
+    },
+    "p_value": { "type": ["number", "null"] },
+    "max_drift_magnitude": {
+      "type": ["string", "null"],
+      "enum": ["none", "low", "medium", "high", null]
+    },
+    "analysis_timestamp": { "type": "string", "format": "date-time" }
+  },
+  "required": ["total_windows_processed", "valid_windows_count", "stable_window_count", "analysis_timestamp"]
+}

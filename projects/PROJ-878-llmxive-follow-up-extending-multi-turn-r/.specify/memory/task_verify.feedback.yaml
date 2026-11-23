@@ -1,0 +1,50 @@
+T001:
+  reason: "The directory tree and `code/requirements.txt` exist and contain the required\
+    \ entries, and three `__init__.py` files are present, but there is no provided\
+    \ evidence (e.g., command output or logs) that `pip install -r code/requirements.txt`\
+    \ actually succeeded or that `ruff check --output-format=concise` exited with\
+    \ status\u202F0. These execution confirmations are required to complete the task."
+  task: 2f5f07791fe223aae3ef29f8ea363979ebe6bcf6e1b02e83a38b7fe62a1c8406
+T002:
+  reason: "The `graph_generator.py` correctly avoids heavy imports, but the test suite\
+    \ does not pass: `test_nx_set_seed_compatibility` fails (NetworkX has no `set_seed`),\
+    \ and the integration test (`test_cli_generation_integration`) fails because the\
+    \ generated data shows a Pearson |r|\u202F\u2248\u202F0.96, far above the required\u202F\
+    <\u202F0.2. Moreover, the integration test that should run the generator on a\
+    \ tiny seed is skipped (dataset files missing) and does not actually validate\
+    \ a freshly\u2011generated JSONL file. The required lightweight integration test\
+    \ is therefore missing or incorrect."
+  task: 82f2231cf66b96a2ad030fad64e7aa0fb5d3fd08616c3bd89f7f31270de25b4b
+T003:
+  reason: "The log shows the generation script ran and claimed to write checksum files,\
+    \ but the actual checksum files (`data/checksums_primary.txt`, `data/checksums_aux.txt`)\
+    \ are not present in the evidence, nor is there any proof that subtasks T014\u2011\
+    T016 were executed or that the checksums were validated. Provide the checksum\
+    \ files and verification output (or logs) to satisfy the task."
+  task: 6f4784464d5297a831e45758553d8805228043b0b35f3348a0cea45f6dfe4237
+T004:
+  task: 2909717203fc1c35a7ca4a5f4dcef9db2f614db17df0e8016deb8c847f110c71
+T005:
+  task: 739c37391e29fdbd55215529a0422c4bcea43f00e1472ef126be5f93004c1d8a
+T006:
+  task: 3aa9bcfed328465757d9f930cbd13a340532291cd064e17a032bdf3d9c77af13
+T007:
+  task: 50b42a67a2822648de548c24ddfc893da156079d569133df4261c4aaf64ccaa2
+T008:
+  task: b0b79010ca12365e3693fc1d985b6f07926ebd585b32651149082110a5c8dd43
+T009:
+  task: a9faf3fc13344bba355b5dd8533e9e7dbf2d441fc55442488b8c713f65d49f60
+T010:
+  task: 67ba73587a4d4b601f2b517644be53cddea4747ef647c49b3f265baacd713ebd
+T011:
+  task: 0bdac8e23665f6b01c0457e897ead8b627b0e7395046cd664d4ba2523e5a8f42
+T012:
+  task: 2e9cb0fb4c37d567c304c44c40c2dda27ae4c43f29d3245208b4161da0185f40
+T013:
+  task: a1ebd20bd4d050892bb30ce1f8740e7abe887db0584bf909941ada1981900940
+T014:
+  task: fcd75a335e5f6d640f5d2881395a74afa08eb5bf28db5bad4f6a4ad65274e042
+T015:
+  task: 11e092afef1970df57697b263e46cbb166547f72eede1576e1f71e9d28686574
+T016:
+  task: 5ac59ba7d815370a6e8a251b9c9ec70d654ca10f3aa9b79e1037f6c01a9abf3a

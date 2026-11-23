@@ -9,11 +9,11 @@ This project implements a Monte Carlo simulation engine to quantify the inflatio
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `numpy`, `scipy`, `statsmodels`, `pandas`  
 **Storage**: Local CSV/Parquet files in `data/` (derived from UCI Online Retail structure simulation)  
 **Testing**: `pytest` (unit tests for generators, integration tests for simulation loops)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: standard CPU allocation, 7 GB RAM, No GPU)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: standard CPU allocation, sufficient RAM for typical workloads, No GPU.)  
 **Project Type**: Statistical Simulation / Research Tool  
 **Performance Goals**: Complete [deferred] iterations across ICC range [0.0, 0.5] within 6 hours.
 **Constraints**: No GPU/CUDA; no deep learning libraries; memory usage < 7 GB; strict reproducibility via pinned seeds.  

@@ -1,0 +1,6 @@
+'|confidence interval':
+  quote: A ratio within one confidence interval (such as 0.95 to 1.05) is indicative
+    that the hash function evaluated has an expected uniform distribution.
+  source_id: Hash function
+  url: https://en.wikipedia.org/wiki/Hash_function
+  value: 0.95 to 1.05

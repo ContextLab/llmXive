@@ -1,0 +1,4 @@
+# Black configuration file
+# Extends settings from pyproject.toml if needed
+line-length = 88
+target-version = ['py39']

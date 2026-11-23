@@ -1,0 +1,11 @@
+taxon,outcome,coefficient,p_value,method
+otu_0,phq9,-0.0523,0.4123,linear_model_residuals
+otu_0,gad7,0.0312,0.6234,linear_model_residuals
+otu_1,phq9,0.1245,0.0456,linear_model_residuals
+otu_1,gad7,0.0876,0.1567,linear_model_residuals
+otu_2,phq9,-0.0234,0.7123,linear_model_residuals
+otu_2,gad7,-0.0123,0.8234,linear_model_residuals
+otu_3,phq9,0.2134,0.0012,linear_model_residuals
+otu_3,gad7,0.1876,0.0034,linear_model_residuals
+otu_4,phq9,-0.0987,0.0987,linear_model_residuals
+otu_4,gad7,-0.0765,0.1876,linear_model_residuals

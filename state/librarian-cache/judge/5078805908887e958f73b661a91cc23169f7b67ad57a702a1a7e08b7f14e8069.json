@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2505.02567",
+  "judged_at": "2026-08-26T12:50:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"lance: unified multimodal modeling by multi-task synergy\" computer science",
+  "rationale": "This paper is a canonical survey on unified multimodal modeling, directly addressing the core mechanism (unifying understanding and generation tasks) and architectural paradigms (autoregressive, diffusion, hybrid) relevant to the user's question about extending \"Lance\" in this domain. It satisfies criteria (d) as a foundational reference for the field and (f) as a cross-vocabulary cluster covering the specific research area of unified multimodal models.",
+  "relevant": true
+}

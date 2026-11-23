@@ -1,70 +1,78 @@
 # Quickstart: Mindfulness Components and Delivery Formats in ASD Social Skills
 
 ## Prerequisites
+- Python 3.11 or newer
+- `git`
+- CPU‑only environment (≤ 7 GB RAM)
 
-*   Python 3.11+
-*   `pip` (package manager)
-*   Access to the GitHub Actions runner (or local environment matching specs: CPU-only, 7 GB RAM).
-
-## Installation
-
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-008-psychology-research
-    ```
-
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `requirements.txt` pins versions compatible with CPU-only execution (e.g., `torch` CPU wheel if needed, though not used here).*
-
-## Running the Pipeline
-
-### 1. Data Collection
-Fetch raw data from ClinicalTrials.gov and OSF.
+## Setup
 ```bash
-python code/data/collector.py --start-year 2015 --end-year 2024
-```
-*Output*: `data/raw/clinical_trials.json`, `data/raw/osf_studies.json`.
+# 1️⃣ Clone the repository
+git clone <REPO_URL>
+cd projects/PROJ-008-psychology-research
 
-### 2. Data Cleaning & Extraction
-Validate, tag, and clean the data.
-```bash
-python code/data/cleaner.py --input data/raw/ --output data/processed/
-```
-*Output*: `data/processed/clean_studies.csv`, `excluded_studies.log`.
+# 2️⃣ Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate
 
-### 3. Effect Size Calculation
-Compute Hedges' *g* for all included studies.
-```bash
-python code/analysis/effect_sizes.py --input data/processed/clean_studies.csv --output data/processed/effect_sizes.csv
+# 3️⃣ Install pinned dependencies
+pip install -r code/requirements.txt
 ```
 
-### 4. Meta-Analysis & Visualization
-Run the meta-analysis and generate plots.
+## Run the Full Pipeline
 ```bash
-python code/analysis/meta_analysis.py --input data/processed/effect_sizes.csv --output data/processed/results.json --plots-dir viz/
-```
-*Output*: `viz/forest_plot.png`, `viz/funnel_plot.png` (if N >= 10), `data/processed/results.json`.
+# Step 1: Collect raw registry data and DOIs
+python code/data/collector.py \
+    --output data/raw/registry_snapshot_$(date +%Y%m%d).json
 
-## Verification
+# Step 2: Supplement with **open‑access** PubMed Central articles for outcome statistics;
+# if no open‑access full text is available, the pipeline falls back to abstract extraction.
+python code/data/pubmed_fetcher.py \
+    --registry data/raw/registry_snapshot_*.json \
+    --output data/raw/pubmed_articles.json
 
-Run the test suite to ensure reproducibility and schema compliance.
-```bash
+# Step 3: Clean & tag studies (includes RoB2 extraction, DOI validation)
+python code/data/cleaner.py \
+    --input data/raw/registry_snapshot_*.json \
+    --pubmed data/raw/pubmed_articles.json \
+    --output data/processed/cleaned_studies.csv \
+    --log data/raw/excluded_studies.log
+
+# Step 4: Compute effect sizes (uses change scores when available; otherwise
+# performs a sensitivity analysis over r = 0.3, 0.5, 0.7)
+python code/analysis/effect_sizes.py \
+    --input data/processed/cleaned_studies.csv \
+    --output data/processed/effect_sizes.csv
+
+# Step 5: Meta‑analysis & subgroup models (REML + Hartung‑Knapp; always random‑effects)
+python code/analysis/meta_analysis.py \
+    --input data/processed/effect_sizes.csv \
+    --output data/results/meta_analysis.json \
+    --plots-dir data/results/plots
+
+# Step 6: Verify schemas & checksums
 pytest tests/
 ```
-*Expected*: All tests pass, including contract validation against `contracts/*.schema.yaml`.
+
+## Expected Outputs
+| Path | Description |
+|------|-------------|
+| `data/processed/cleaned_studies.csv` | Standardized study table (validated against `contracts/cleaned_study.schema.yaml`). |
+| `data/processed/effect_sizes.csv` | Hedges’ g per study (validated against `contracts/effect_size.schema.yaml`). |
+| `data/results/meta_analysis.json` | Pooled effect, heterogeneity, subgroup results, and power report. |
+| `data/results/plots/forest.png` | Forest plot with study CIs and pooled diamond. |
+| `data/results/plots/funnel.png` | Funnel plot (only if N ≥ 10). |
+| `data/*.sha256` | SHA‑256 checksums for reproducibility (Principle III). |
+| `data/metadata/registry_log.json` | Registry query strings, timestamps, DOI validation status, and checksums. |
+| `data/metadata/pubmed_log.json` | PubMed Central query logs and extracted outcome statistics. |
+| `data/metadata/rob_log.json` | Risk‑of‑bias (`rob_rating`) ratings per study. |
 
 ## Troubleshooting
+- **API Rate Limits**: The collector implements exponential backoff; if it still fails, simply re‑run the command – it will resume from the last successful page.  
+- **Missing Outcome Statistics**: Check `data/raw/excluded_studies.log` for reasons; the PubMed Central step often fills gaps; if not, abstract fallback will be used.  
+- **Abstract‑Only Tags**: Records flagged `abstract_only=True` are **included** in primary analyses; a dedicated sensitivity analysis will compare results with and without these records.  
+- **No Included Studies**: Review `data/raw/excluded_studies.log` for exclusion reasons (e.g., non‑RCT, no outcome, ambiguous delivery).  
+- **N < 10**: The pipeline automatically skips funnel plot/Egger’s test and produces a descriptive synthesis note in `meta_analysis.json`.  
 
-*   **API Rate Limits**: The collector automatically implements exponential backoff. If the pipeline hangs, check network connectivity.
-*   **Missing Variables**: If `clean_studies.csv` is empty, check `excluded_studies.log` for common exclusion reasons (e.g., age range, non-RCT).
-*   **Small Sample Size**: If `N < 20`, the pipeline will automatically suppress subgroup analyses and Q-tests, logging a warning and performing descriptive or Bayesian analysis.
+---
+

@@ -1,0 +1,18 @@
+schema_version: "1.0"
+fields:
+- name: prompt
+  type: string
+- name: image_url
+  type: string
+- name: teacher_scores
+  type: object
+- name: student_scalar
+  type: float
+- name: human_annotations
+  type: object
+- name: primary_dimension
+  type: string
+discovery_notes:
+  type_mismatches: []
+  total_fields: 6
+  validated: true

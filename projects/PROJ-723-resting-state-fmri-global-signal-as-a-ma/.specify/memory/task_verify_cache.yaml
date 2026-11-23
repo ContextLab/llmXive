@@ -1,0 +1,57 @@
+T001a:
+  c: true
+  h: 4353bdad810983e587c3b6fcc7c4a73c58573b01fd145c4e6e67e54889f29c8a
+  r: "The evidence shows a `code/` directory at the repository root (33 entries, confirmed\
+    \ by the collector) containing Python modules such as `ingestion.py`, `modeling.py`,\
+    \ and others, satisfying the task\u2019s requirement."
+  sig: ebfea16cf148bca7adf4978dd7a412b29d13574b6d2c8ce85b386db0dd5d7812
+T001b:
+  c: true
+  h: 697f7237ec7cc693ceb86832107362cf2c865c5b20099f42a1b4ae8a1849e66e
+  r: Checked the `data/raw/` directory (resolved path shows it exists with a `.gitkeep`
+    file). The required directory is present, satisfying the task.
+  sig: dd234c2be6032b95f96fcb4999bf8f117e249e8ad219ac5e002daa4f187c190c
+T001c:
+  c: true
+  h: 421c72c8e7607ee1660655b44e744b1caad9d7babd345796455bd8ede27dd835
+  r: The collector confirms that the `data/processed/` directory exists at the repository
+    root (contains a `.gitkeep` file). This satisfies the sole requirement of task
+    T001c.
+  sig: d4a75daf70c14e525cac89c488e297afdd49ec2f467cc62563e4df682b157c1a
+T001d:
+  c: false
+  h: 2c12e00fab474571f6459d8733af1dd6c16345be98354937b7a681813c117f55
+  r: "The evidence shows a `data/results/` directory with files, but it exists inside\
+    \ the project subdirectory (`projects/PROJ-723\u2011.../data/results/`), not at\
+    \ the repository\u2019s top\u2011level as the task requires. A top\u2011level\
+    \ `data/results/` directory is missing."
+  sig: 96dc62d3eb3037b6bedd2b0a3970b9f1290f48d8ac48e6f5a0e93cb15da4caf5
+T001e:
+  c: true
+  h: 61a2d3fc79a19974aaedff403a4a098d980b81d3ed31dc5c2d244cc111571216
+  r: "The `tests/` directory is present at the repository root (31 entries, confirmed\
+    \ by its SHA\u2011256 hash) and contains numerous test files, satisfying the task\u2019\
+    s sole requirement."
+  sig: ebb183cef37e809eba108ad477234fe53876d6491ef356edf85851ff302509da
+T002:
+  c: false
+  h: 6b4c5d4e953183e3ace3d5437cfac735eeb1f4055086d6591f126d9b3f38798b
+  r: The provided `requirements.txt` exists and contains the required pinned packages
+    (plus extra ones), but there is no evidence (e.g., install logs or command output)
+    showing that `pip install -r requirements.txt` actually succeeded in a clean environment.
+    The verification step is missing.
+  sig: 291613a791407f18876b1976be46aea3d6e6f12a8d321af275ff01592e0be14f
+T024:
+  c: false
+  h: 90ccf1afb57b5f1e9974ced57178ce53909dccfeb94c9681654d5b6ed98811be
+  r: The required input file `data/processed/cleaned_data.csv` is missing, so the
+    script could not have processed real data. Moreover, `data/results/diagnostics.json`
+    does not contain the required `collinearity_flag` boolean (it only has `high_vif_features`
+    and other fields). Consequently the implementation does not fully meet the task
+    specifications.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, data file, or result showing a partial correlation analysis\
+    \ controlling for mean FD is provided, nor any evidence that a p\u2011value\u202F\
+    <\u202F0.05 was obtained. The required artifact is missing."

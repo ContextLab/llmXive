@@ -1,3 +1,3 @@
 """
-Test package for the emotional valence decoding pipeline.
+llmXive Research Pipeline: Test Suite
 """

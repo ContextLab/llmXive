@@ -1,0 +1,86 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Results Schema
+description: Schema for the final model results.
+type: object
+properties:
+  r_squared:
+    type: number
+    description: R² score of the model.
+  r_squared_ci:
+    type: array
+    description: 95% Confidence Interval for R² [lower, upper].
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+  mae:
+    type: number
+    description: Mean Absolute Error.
+  mae_ci:
+    type: array
+    description: 95% Confidence Interval for MAE [lower, upper].
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+  p_value:
+    type: number
+    description: P-value from permutation test.
+  n_samples:
+    type: integer
+    description: Number of samples used.
+  n_features:
+    type: integer
+    description: Number of features used.
+  timestamp:
+    type: string
+    format: date-time
+    description: Timestamp of the run.
+  data_source:
+    type: string
+    description: "real" or "synthetic" (if synthetic data was used).
+  power_status:
+    type: string
+    description: "ok" or "low" (if N < 100).
+  global_entanglement_path:
+    type: string
+    description: Path to the saved global covariance matrix file.
+  exclusion_log_path:
+    type: string
+    description: Path to the exclusion log file.
+  lineage_report_path:
+    type: string
+    description: Path to the per-sample lineage verification report.
+  target_variable_source:
+    type: string
+    description: The metadata field used for target selection (aggregated).
+  global_hypothesis_correlation:
+    type: number
+    description: Correlation coefficient for the global hypothesis test (eigenvalue vs mean loss).
+  global_hypothesis_p_value:
+    type: number
+    description: P-value for the global hypothesis test.
+  partial_corr_entanglement:
+    type: number
+    description: Partial correlation between entanglement features and residual error, controlling for mean_teacher_score.
+  vif_status:
+    type: string
+    description: "passed" or "filtered" (if features were dropped due to VIF > 5).
+required:
+  - r_squared
+  - mae
+  - p_value
+  - n_samples
+  - n_features
+  - timestamp
+  - data_source
+  - power_status
+  - global_entanglement_path
+  - exclusion_log_path
+  - lineage_report_path
+  - target_variable_source
+  - global_hypothesis_correlation
+  - global_hypothesis_p_value
+  - partial_corr_entanglement
+  - vif_status
+additionalProperties: false

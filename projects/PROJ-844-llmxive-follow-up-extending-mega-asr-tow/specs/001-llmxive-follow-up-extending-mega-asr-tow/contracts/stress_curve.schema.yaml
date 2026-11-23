@@ -1,48 +1,53 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Stress Curve Record Schema
-description: Schema for a single record in the stress curve dataset, linking a clip, distortion vector, and ASR result.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StressCurve"
 type: object
+required:
+  - curve_id
+  - audio_id
+  - model_id
+  - vector_id
+  - snr_db
+  - rt60_sec
+  - ss_score
+  - wer
+  - hypothesis
+  - reference_transcript
+  - timestamp
 properties:
-  record_id:
+  curve_id:
     type: string
-    description: Unique identifier for the record.
-  clip_id:
+    description: "Unique identifier for the stress‑curve record"
+  audio_id:
     type: string
-    description: Foreign key to the AudioClip table.
+    description: "Foreign key to the original audio clip"
+  model_id:
+    type: string
+    description: "ASR model identifier (e.g., whisper_tiny)"
   vector_id:
     type: string
-    description: Foreign key to the DistortionVector table.
-  model_name:
-    type: string
-    description: Name of the ASR model used (e.g., 'whisper-tiny').
-  asr_hypothesis:
-    type: string
-    description: The transcribed text output from the ASR model.
+    description: "Composite key for the distortion vector"
+  snr_db:
+    type: number
+    description: "Signal‑to‑Noise Ratio in dB"
+  rt60_sec:
+    type: number
+    description: "Reverberation time in seconds"
+  ss_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Semantic Similarity Score (0‑1)"
   wer:
     type: number
-    description: Word Error Rate calculated against the clean transcript.
-    minimum: 0.0
-  sss_raw:
-    type: number
-    description: Raw cosine similarity score between clean transcript and ASR hypothesis.
-    minimum: -1.0
-    maximum: 1.0
-  sss_normalized:
-    type: number
-    description: SSS normalized to the clean baseline (0.0 to 1.0).
-    minimum: 0.0
-    maximum: 1.0
-  is_collapsed:
-    type: boolean
-    description: True if sss_normalized < 0.5 AND wer > 2 * baseline_wer.
-required:
-  - record_id
-  - clip_id
-  - vector_id
-  - model_name
-  - asr_hypothesis
-  - wer
-  - sss_raw
-  - sss_normalized
-  - is_collapsed
+    description: "Word Error Rate (0‑1)"
+  hypothesis:
+    type: string
+    description: "ASR hypothesis text"
+  reference_transcript:
+    type: string
+    description: "Ground‑truth transcript"
+  timestamp:
+    type: string
+    format: date-time
+    description: "Timestamp of record creation"
 additionalProperties: false

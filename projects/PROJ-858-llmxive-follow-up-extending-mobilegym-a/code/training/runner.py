@@ -1,257 +1,350 @@
 """
-Training Runner for MobileGym State-Guided Curriculum.
+Training Runner with Hard Wall-Clock Time Limit Enforcement (Watchdog).
 
-Orchestrates comparative runs between 'Static Random' and 'State-Guided'
-curriculum strategies using the Qwen3-VL-4B-Instruct model.
-
-Generates:
-  - data/processed/baseline_logs.json (Static Random)
-  - data/processed/experimental_logs.json (State-Guided)
+Implements FR-004: Hard wall-clock time limit enforcement to prevent
+training runs from exceeding the configured budget.
 """
 import json
 import os
 import sys
 import time
-import random
+import signal
+import threading
 from pathlib import Path
+from typing import Dict, Any, Optional, List
 from datetime import datetime, timezone
-from typing import Dict, List, Any, Optional
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
-from utils.logging import get_logger, log_with_context
-from utils.constants import ErrorCodes
-from scheduler.curriculum_scheduler import CurriculumScheduler
-from scheduler.state_coverage import initialize_coverage_vector, process_rollout_batch
-
-# Configuration Constants
-MODEL_NAME = "Qwen3-VL-4B-Instruct"
-QUANTIZATION_LEVEL = "4bit"  # Ensures CPU feasibility
-CONTEXT_WINDOW = 4096
-MAX_STEPS = 1000
-BATCH_SIZE = 10
-SUCCESS_THRESHOLD = 0.8
-TARGET_SUCCESS_RATE_RANGE = (0.3, 0.7)  # 30-70% "sweet spot"
+# Import from project utilities
+try:
+    from utils.logging import get_logger, log_with_context, log_error
+    from utils.constants import ErrorCodes
+except ImportError:
+    # Fallback for direct execution in some environments
+    import logging
+    logger = logging.getLogger(__name__)
+    def get_logger(name): return logging.getLogger(name)
+    def log_with_context(msg, ctx=None): logger.info(msg)
+    def log_error(msg, exc=None): logger.error(msg, exc_info=exc)
+    
+    class ErrorCodes:
+        TIMEOUT_EXCEEDED = "TIMEOUT_EXCEEDED"
+        RUNTIME_ERROR = "RUNTIME_ERROR"
+        CONFIG_ERROR = "CONFIG_ERROR"
 
 logger = get_logger(__name__)
 
+class TrainingTimeoutError(Exception):
+    """Raised when the training run exceeds the wall-clock time limit."""
+    def __init__(self, message: str, elapsed_seconds: float, limit_seconds: float):
+        super().__init__(message)
+        self.elapsed_seconds = elapsed_seconds
+        self.limit_seconds = limit_seconds
+        self.code = ErrorCodes.TIMEOUT_EXCEEDED
+
 class MockModel:
     """
-    Mock model wrapper simulating Qwen3-VL-4B-Instruct inference.
-    In a real deployment, this would load the actual transformers model.
-    For this implementation, it simulates inference latency and returns
-    deterministic-but-seeded results to ensure reproducibility without
-    requiring GPU or large RAM.
+    Mock model for testing the training pipeline.
+    In production, this would be a real LLM or policy network.
     """
-    def __init__(self, model_name: str, quantization: str, context_window: int):
-        self.model_name = model_name
-        self.quantization = quantization
-        self.context_window = context_window
-        self.seed = 42
-        random.seed(self.seed)
-        logger.info(f"Initialized Mock Model: {model_name} ({quantization}, ctx={context_window})")
+    def __init__(self, config: Dict[str, Any] = None):
+        self.config = config or {}
+        self.training_logs = []
+        self.is_trained = False
 
-    def predict(self, task_params: Dict[str, Any], state_vector: Optional[List[int]] = None) -> Dict[str, Any]:
-        """
-        Simulates a step in the environment.
-        Returns: {'success': bool, 'reward': float, 'done': bool}
-        """
-        # Simulate inference time (CPU bound)
-        time.sleep(0.01)
-
-        # Deterministic logic based on task params and state
-        # This ensures reproducible "real" results for the experiment
-        difficulty = task_params.get('difficulty', 0.5)
-        # Success probability decreases with difficulty, increases with coverage
-        cov_factor = sum(state_vector) / len(state_vector) if state_vector else 0.0
-        prob_success = (1.0 - difficulty) * 0.8 + cov_factor * 0.2
-        
-        success = random.random() < prob_success
-        reward = 1.0 if success else 0.0
-        done = random.random() < 0.1  # 10% chance to finish episode
-
+    def train_step(self, batch: Dict[str, Any]) -> Dict[str, Any]:
+        """Simulate a training step."""
+        # Simulate computation time
+        time.sleep(0.1)
         return {
-            "success": success,
-            "reward": reward,
-            "done": done,
-            "step_time": 0.01
+            "loss": 0.5,
+            "success_rate": 0.6,
+            "steps": 1
         }
 
+    def save_checkpoint(self, path: Path):
+        """Save model checkpoint."""
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with open(path, 'w') as f:
+            json.dump({"status": "mock_checkpoint"}, f)
+
+    def load_checkpoint(self, path: Path):
+        """Load model checkpoint."""
+        if path.exists():
+            with open(path, 'r') as f:
+                return json.load(f)
+        return None
+
 class TrainingRunner:
-    def __init__(self, output_dir: Path):
-        self.output_dir = output_dir
+    """
+    Training runner with hard wall-clock time limit enforcement.
+    
+    Implements FR-004: Hard wall-clock time limit enforcement (watchdog).
+    The runner will terminate the training process if it exceeds the
+    configured time budget, ensuring reproducibility and resource control.
+    """
+    
+    def __init__(
+        self,
+        config: Dict[str, Any],
+        output_dir: Path,
+        model: Optional[MockModel] = None
+    ):
+        self.config = config
+        self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
-        self.model = MockModel(MODEL_NAME, QUANTIZATION_LEVEL, CONTEXT_WINDOW)
+        self.model = model or MockModel(config)
         
-        # Ensure data directories exist
-        (self.output_dir / "baseline_logs.json").parent.mkdir(parents=True, exist_ok=True)
-
-    def run_baseline_static_random(self, num_episodes: int = 50) -> List[Dict[str, Any]]:
-        """
-        Runs the Static Random baseline.
-        Tasks are selected purely at random, ignoring state coverage.
-        """
-        logger.info("Starting Static Random Baseline Run...")
-        logs = []
-        start_time = time.time()
-
-        # Initialize a dummy coverage vector for tracking (not used for selection)
-        dummy_vector = initialize_coverage_vector()
+        # Time limit configuration
+        self.time_limit_seconds = config.get('time_limit_seconds', 3600)
+        self.start_time: Optional[float] = None
+        self.elapsed_time: float = 0.0
         
-        for ep_id in range(num_episodes):
-            # Static Random: Pick random task params
-            task_params = {
-                "task_id": f"random_task_{ep_id}",
-                "difficulty": random.random(),
-                "app_type": random.choice(["shopping", "social", "navigation"]),
-                "state_vars": dummy_vector
-            }
+        # Logging setup
+        self.log_file = self.output_dir / "training_log.json"
+        self.trace_file = self.output_dir / "scheduler_trace.json"
+        
+        # Initialize log file
+        self._init_log_file()
+        
+        logger.info(f"TrainingRunner initialized with {self.time_limit_seconds}s time limit")
+        log_with_context("TrainingRunner initialized", {
+            "time_limit_seconds": self.time_limit_seconds,
+            "output_dir": str(self.output_dir)
+        })
 
-            episode_log = {
-                "episode_id": ep_id,
-                "strategy": "static_random",
-                "task_params": task_params,
-                "steps": [],
-                "total_reward": 0.0,
-                "success": False,
-                "timestamp": datetime.now(timezone.utc).isoformat()
-            }
+    def _init_log_file(self):
+        """Initialize the training log file with schema."""
+        log_data = {
+            "schema_version": "1.0",
+            "start_time": datetime.now(timezone.utc).isoformat(),
+            "config": self.config,
+            "events": []
+        }
+        with open(self.log_file, 'w') as f:
+            json.dump(log_data, f, indent=2)
 
-            current_state = initialize_coverage_vector()
-            step_count = 0
+    def _check_time_limit(self) -> bool:
+        """
+        Check if the training run has exceeded the time limit.
+        
+        Returns:
+            bool: True if within limits, False if exceeded.
+        
+        Raises:
+            TrainingTimeoutError: If the time limit is exceeded.
+        """
+        if self.start_time is None:
+            return True
+        
+        self.elapsed_time = time.time() - self.start_time
+        
+        if self.elapsed_time >= self.time_limit_seconds:
+            raise TrainingTimeoutError(
+                f"Training run exceeded time limit: {self.elapsed_time:.2f}s >= {self.time_limit_seconds}s",
+                elapsed_seconds=self.elapsed_time,
+                limit_seconds=self.time_limit_seconds
+            )
+        
+        return True
+
+    def _log_event(self, event_type: str, data: Dict[str, Any]):
+        """Log an event to the training log file."""
+        try:
+            with open(self.log_file, 'r') as f:
+                log_data = json.load(f)
             
-            while step_count < MAX_STEPS:
-                # Mock inference
-                result = self.model.predict(task_params, current_state)
+            event = {
+                "timestamp": datetime.now(timezone.utc).isoformat(),
+                "type": event_type,
+                "data": data
+            }
+            log_data["events"].append(event)
+            
+            with open(self.log_file, 'w') as f:
+                json.dump(log_data, f, indent=2)
+        except Exception as e:
+            log_error("Failed to log event", e)
+
+    def run_training(
+        self,
+        task_batches: List[Dict[str, Any]],
+        max_steps: Optional[int] = None
+    ) -> Dict[str, Any]:
+        """
+        Run the training loop with hard time limit enforcement.
+        
+        Args:
+            task_batches: List of task batches to process
+            max_steps: Optional maximum number of steps (in addition to time limit)
+        
+        Returns:
+            Dict containing training results and metadata
+        
+        Raises:
+            TrainingTimeoutError: If the training exceeds the time limit
+        """
+        self.start_time = time.time()
+        results = {
+            "status": "running",
+            "steps_completed": 0,
+            "total_loss": 0.0,
+            "average_success_rate": 0.0,
+            "time_limit_seconds": self.time_limit_seconds,
+            "start_time": datetime.fromtimestamp(self.start_time, tz=timezone.utc).isoformat()
+        }
+        
+        self._log_event("training_start", {
+            "time_limit_seconds": self.time_limit_seconds,
+            "num_batches": len(task_batches)
+        })
+        
+        try:
+            for batch_idx, batch in enumerate(task_batches):
+                # Check time limit before each batch
+                self._check_time_limit()
                 
-                step_log = {
-                    "step": step_count,
-                    "success": result["success"],
-                    "reward": result["reward"],
-                    "done": result["done"]
-                }
-                episode_log["steps"].append(step_log)
+                # Log batch start
+                self._log_event("batch_start", {
+                    "batch_idx": batch_idx,
+                    "batch_size": len(batch.get("tasks", []))
+                })
                 
-                episode_log["total_reward"] += result["reward"]
-                if result["success"]:
-                    episode_log["success"] = True
+                # Process batch
+                batch_results = []
+                for task in batch.get("tasks", []):
+                    # Check time limit for each task
+                    self._check_time_limit()
+                    
+                    # Simulate training step
+                    step_result = self.model.train_step(task)
+                    batch_results.append(step_result)
+                    
+                    # Update results
+                    results["steps_completed"] += 1
+                    results["total_loss"] += step_result.get("loss", 0.0)
+                    
+                    if max_steps and results["steps_completed"] >= max_steps:
+                        break
                 
-                if result["done"]:
+                # Log batch completion
+                self._log_event("batch_complete", {
+                    "batch_idx": batch_idx,
+                    "num_tasks": len(batch_results),
+                    "average_loss": sum(r.get("loss", 0.0) for r in batch_results) / len(batch_results) if batch_results else 0.0
+                })
+                
+                if max_steps and results["steps_completed"] >= max_steps:
                     break
-                
-                # Update state (mock transition)
-                # In real impl, this would come from state_coverage.py
-                if random.random() < 0.05:
-                    idx = random.randint(0, len(current_state) - 1)
-                    current_state[idx] = 1
-                
-                step_count += 1
-
-            logs.append(episode_log)
-
-        duration = time.time() - start_time
-        logger.info(f"Static Random Baseline completed. Episodes: {num_episodes}, Duration: {duration:.2f}s")
-        return logs
-
-    def run_experimental_state_guided(self, num_episodes: int = 50) -> List[Dict[str, Any]]:
-        """
-        Runs the State-Guided Curriculum.
-        Uses CurriculumScheduler to select tasks based on coverage and difficulty.
-        """
-        logger.info("Starting State-Guided Experimental Run...")
-        logs = []
-        start_time = time.time()
-
-        # Initialize scheduler
-        scheduler = CurriculumScheduler(
-            target_success_range=TARGET_SUCCESS_RATE_RANGE,
-            success_threshold=SUCCESS_THRESHOLD,
-            max_steps=MAX_STEPS
-        )
-        
-        current_coverage = initialize_coverage_vector()
-        
-        for ep_id in range(num_episodes):
-            # Ask scheduler for next task
-            task_params = scheduler.select_task(current_coverage, logs)
             
-            episode_log = {
-                "episode_id": ep_id,
-                "strategy": "state_guided",
-                "task_params": task_params,
-                "steps": [],
-                "total_reward": 0.0,
-                "success": False,
-                "scheduler_metrics": scheduler.get_last_metrics(),
-                "timestamp": datetime.now(timezone.utc).isoformat()
-            }
-
-            step_count = 0
+            # Training completed successfully
+            results["status"] = "completed"
+            results["end_time"] = datetime.now(timezone.utc).isoformat()
+            results["total_time_seconds"] = time.time() - self.start_time
+            results["average_success_rate"] = (
+                sum(r.get("success_rate", 0.0) for r in batch_results) / len(batch_results)
+                if batch_results else 0.0
+            )
             
-            while step_count < MAX_STEPS:
-                result = self.model.predict(task_params, current_coverage)
-                
-                step_log = {
-                    "step": step_count,
-                    "success": result["success"],
-                    "reward": result["reward"],
-                    "done": result["done"]
-                }
-                episode_log["steps"].append(step_log)
-                
-                episode_log["total_reward"] += result["reward"]
-                if result["success"]:
-                    episode_log["success"] = True
-                
-                if result["done"]:
-                    break
-                
-                # Update coverage based on "real" transitions (mocked here for demo)
-                # In real impl, this calls state_coverage.py logic
-                if result["success"]:
-                    # Simulate state transition detection
-                    idx = random.randint(0, len(current_coverage) - 1)
-                    current_coverage[idx] = 1
-                    episode_log["state_updates"] = True
-                
-                step_count += 1
+            self._log_event("training_complete", {
+                "status": "completed",
+                "total_steps": results["steps_completed"],
+                "total_time_seconds": results["total_time_seconds"]
+            })
+            
+        except TrainingTimeoutError as e:
+            results["status"] = "timeout"
+            results["error"] = str(e)
+            results["elapsed_seconds"] = e.elapsed_seconds
+            results["end_time"] = datetime.now(timezone.utc).isoformat()
+            
+            self._log_event("training_timeout", {
+                "elapsed_seconds": e.elapsed_seconds,
+                "limit_seconds": e.limit_seconds
+            })
+            
+            log_error(f"Training timeout: {e}")
+            raise
+        
+        except Exception as e:
+            results["status"] = "error"
+            results["error"] = str(e)
+            results["end_time"] = datetime.now(timezone.utc).isoformat()
+            
+            self._log_event("training_error", {
+                "error_type": type(e).__name__,
+                "error_message": str(e)
+            })
+            
+            log_error(f"Training error: {e}")
+            raise
+        
+        return results
 
-            logs.append(episode_log)
-
-        duration = time.time() - start_time
-        logger.info(f"State-Guided Run completed. Episodes: {num_episodes}, Duration: {duration:.2f}s")
-        return logs
-
-    def save_logs(self, logs: List[Dict[str, Any]], filename: str):
-        filepath = self.output_dir / filename
-        with open(filepath, 'w', encoding='utf-8') as f:
-            json.dump(logs, f, indent=2)
-        logger.info(f"Logs saved to {filepath}")
+    def save_results(self, results: Dict[str, Any]):
+        """Save training results to output directory."""
+        results_file = self.output_dir / "training_results.json"
+        with open(results_file, 'w') as f:
+            json.dump(results, f, indent=2)
+        
+        self._log_event("results_saved", {
+            "results_file": str(results_file)
+        })
+        
+        logger.info(f"Training results saved to {results_file}")
 
 def main():
     """
-    Entry point for the training runner.
-    Executes both baseline and experimental runs and saves results.
-    """
-    logger.info("=== Starting Training Runner T032 ===")
+    Main entry point for the training runner.
     
-    output_dir = PROJECT_ROOT / "data" / "processed"
-    runner = TrainingRunner(output_dir)
-
-    # 1. Run Baseline (Static Random)
-    baseline_logs = runner.run_baseline_static_random(num_episodes=50)
-    runner.save_logs(baseline_logs, "baseline_logs.json")
-
-    # 2. Run Experimental (State-Guided)
-    experimental_logs = runner.run_experimental_state_guided(num_episodes=50)
-    runner.save_logs(experimental_logs, "experimental_logs.json")
-
-    logger.info("=== Training Runner T032 Completed Successfully ===")
-    print(f"Artifacts generated in {output_dir}:")
-    print(f"  - baseline_logs.json")
-    print(f"  - experimental_logs.json")
+    This demonstrates the hard time limit enforcement by running
+    a training loop that will terminate if it exceeds the configured
+    time budget.
+    """
+    # Configuration
+    config = {
+        "model_name": "Qwen3-VL-4B-Instruct",
+        "time_limit_seconds": 300,  # 5 minutes
+        "batch_size": 10,
+        "max_steps": 100
+    }
+    
+    output_dir = Path("data/processed/training_run_001")
+    
+    # Create mock task batches
+    task_batches = []
+    for i in range(20):
+        task_batches.append({
+            "batch_id": f"batch_{i}",
+            "tasks": [
+                {"task_id": f"task_{j}", "difficulty": 0.5 + j * 0.05}
+                for j in range(5)
+            ]
+        })
+    
+    # Initialize runner
+    runner = TrainingRunner(config, output_dir)
+    
+    try:
+        # Run training
+        results = runner.run_training(task_batches, max_steps=config["max_steps"])
+        
+        # Save results
+        runner.save_results(results)
+        
+        print(f"Training completed: {results['status']}")
+        print(f"Steps completed: {results['steps_completed']}")
+        print(f"Total time: {results.get('total_time_seconds', 0):.2f}s")
+        
+        if results["status"] == "timeout":
+            print(f"TIMEOUT: Exceeded {results['limit_seconds']}s limit")
+            sys.exit(1)
+        
+    except TrainingTimeoutError as e:
+        print(f"TIMEOUT: Training exceeded time limit ({e.elapsed_seconds:.2f}s >= {e.limit_seconds}s)")
+        sys.exit(1)
+    except Exception as e:
+        print(f"ERROR: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

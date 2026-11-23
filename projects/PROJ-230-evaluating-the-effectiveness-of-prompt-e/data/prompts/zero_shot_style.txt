@@ -1,4 +1,7 @@
-Translate the following Python code to JavaScript. Adhere to modern JavaScript best practices (ES6+), use strict mode, and ensure variable naming conventions are adapted appropriately (e.g., snake_case to camelCase).
+Translate the following Python code into equivalent JavaScript code.
+Adhere to modern JavaScript (ES6+) best practices, including the use of `const` or `let` for variable declarations, arrow functions where appropriate, and standard naming conventions.
+Maintain the original logic and structure.
+Do not include any explanation or comments outside the code block.
 
 Python Code:
 {python_code}

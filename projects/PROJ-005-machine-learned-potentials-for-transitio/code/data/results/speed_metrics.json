@@ -1,0 +1,6 @@
+{
+  "dft_reference_time_seconds": 12.5,
+  "gnn_time_per_sample_seconds": 0.004,
+  "speedup_factor": 3125.0,
+  "status": "PASS"
+}

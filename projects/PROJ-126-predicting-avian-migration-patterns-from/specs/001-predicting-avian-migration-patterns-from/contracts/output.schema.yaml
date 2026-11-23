@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformanceMetric"
+description: "Schema for the aggregated model performance metrics and statistical test results."
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    enum:
+      - "TempOnly"
+      - "NDVIOnly"
+      - "Combined"
+    description: "The predictor set used for the model."
+  split:
+    type: "string"
+    enum:
+      - "Train"
+      - "Validation"
+      - "Test"
+    description: "The data split used for evaluation."
+  rmse:
+    type: "number"
+    minimum: 0
+    description: "Root Mean Squared Error of the prediction."
+  pearson_r:
+    type: "number"
+    minimum: -1
+    maximum: 1
+    description: "Pearson correlation coefficient between predicted and actual arrival dates."
+  p_value_lmm:
+    type:
+      - "number"
+      - "null"
+    description: "P-value from the Linear Mixed-Effects Model comparing this model to others. Null if not applicable."
+  feature_importance_shap:
+    type: "object"
+    description: "Dictionary of feature names to their mean absolute SHAP values."
+    additionalProperties:
+      type: "number"
+  feature_importance_permutation:
+    type: "object"
+    description: "Dictionary of feature names to their permutation importance scores."
+    additionalProperties:
+      type: "number"
+required:
+  - "model_type"
+  - "split"
+  - "rmse"
+  - "pearson_r"
+  - "feature_importance_shap"
+  - "feature_importance_permutation"
+additionalProperties: false

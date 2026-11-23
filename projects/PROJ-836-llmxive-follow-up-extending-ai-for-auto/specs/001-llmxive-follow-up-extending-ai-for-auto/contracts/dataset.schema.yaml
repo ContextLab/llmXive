@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Schema"
+description: "Schema for the raw and processed dataset files."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique identifier for the research idea."
+  literature_review_text:
+    type: "string"
+    description: "The text of the AI-generated literature review."
+  failure_label:
+    type: "integer"
+    description: "Binary label: 0 for Valid, 1 for Failure/Novelty Degradation."
+    minimum: 0
+    maximum: 1
+  cycle_density:
+    type: "number"
+    description: "Ratio of actual cycles to maximum possible cycles in the graph."
+    minimum: 0.0
+    maximum: 1.0
+  isolation_ratio:
+    type: "number"
+    description: "Fraction of nodes with in-degree zero in the graph."
+    minimum: 0.0
+    maximum: 1.0
+  semantic_distance:
+    type: "number"
+    description: "Mean pairwise cosine distance between concept embeddings within connected components."
+    minimum: 0.0
+  num_nodes:
+    type: "integer"
+    description: "Number of nodes in the graph."
+    minimum: 0
+  num_edges:
+    type: "integer"
+    description: "Number of edges in the graph."
+    minimum: 0
+required:
+  - id
+  - literature_review_text
+  - failure_label
+additionalProperties: false

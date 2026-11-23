@@ -1,0 +1,5 @@
+4|alpha apply bonferroni correction hypothesi multiple test:
+  quote: '0.0125'
+  source_id: "Holm\u2013Bonferroni method"
+  url: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
+  value: '0.0125'

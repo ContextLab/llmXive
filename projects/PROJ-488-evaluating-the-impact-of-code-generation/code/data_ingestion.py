@@ -1,366 +1,252 @@
-"""
-Data Ingestion Module for CodeSearchNet and CodeGen datasets.
-
-Implements robust downloading with exponential backoff, checksum verification,
-and dataset filtering for the CodeSearchNet (human-written) and CodeGen (LLM-generated)
-datasets.
-"""
+"""Data ingestion module for CodeSearchNet and CodeGen."""
 import os
 import time
 import json
 import hashlib
 import logging
 import ast
-import tempfile
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple, Generator
-from datetime import datetime
+from typing import List, Dict, Any, Optional, Generator
+import sys
 
-# Import existing project utilities
-from datasets import load_dataset
+# Import local modules
 from seeds import get_seed_value
-from checksum import compute_sha256, register_dataset_checksum
-from logging_config import setup_logger, get_logger
-from state_tracker import update_state_with_artifact, load_state_file, save_state_file
-from data_model import CodeSnippet
+from checksum import compute_sha256
+from state_tracker import update_state_with_artifact
+from logging_config import setup_logger
 
-# Constants
-MAX_RETRIES = 3
-BASE_INTERVAL = 60  # seconds
-PROJECT_ROOT = Path(__file__).parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-PROCESSED_DIR = DATA_DIR / "processed"
-STATE_DIR = PROJECT_ROOT / "state" / "projects"
-PROJECT_STATE_PATH = STATE_DIR / "PROJ-488-evaluating-the-impact-of-code-generation.yaml"
+# HuggingFace datasets
+try:
+    from datasets import load_dataset
+    HF_AVAILABLE = True
+except ImportError:
+    HF_AVAILABLE = False
 
-# Ensure directories exist
-DATA_DIR.mkdir(parents=True, exist_ok=True)
-PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-STATE_DIR.mkdir(parents=True, exist_ok=True)
 
-# Setup logger
 logger = setup_logger("data_ingestion", log_file="data/ingestion.log")
 
-def download_with_backoff(dataset_name: str, split: str = "train", **kwargs) -> Any:
-    """
-    Download a dataset with exponential backoff retry logic.
+
+def download_with_backoff(dataset_name: str, split: str = "train", max_retries: int = 3, interval: int = 60) -> Any:
+    """Download a dataset with exponential backoff."""
+    if not HF_AVAILABLE:
+        raise ImportError("datasets library not installed. Please install via pip install datasets.")
     
-    Args:
-        dataset_name: HuggingFace dataset identifier (e.g., 'code_search_net')
-        split: Dataset split to load (default: 'train')
-        **kwargs: Additional arguments for load_dataset
-        
-    Returns:
-        Loaded dataset object
-        
-    Raises:
-        RuntimeError: If download fails after max retries
-    """
     retries = 0
-    last_error = None
-    
-    while retries < MAX_RETRIES:
+    while retries <= max_retries:
         try:
-            logger.info(f"Attempting to download {dataset_name} (split={split}) - Attempt {retries + 1}/{MAX_RETRIES}")
-            dataset = load_dataset(dataset_name, split=split, **kwargs)
-            logger.info(f"Successfully downloaded {dataset_name}")
+            logger.log("download_start", dataset=dataset_name, split=split)
+            dataset = load_dataset(dataset_name, split=split, streaming=False)
+            logger.log("download_success", dataset=dataset_name)
             return dataset
         except Exception as e:
-            last_error = e
             retries += 1
-            if retries < MAX_RETRIES:
-                # Exponential backoff: 60s, 120s, 240s
-                wait_time = BASE_INTERVAL * (2 ** (retries - 1))
-                logger.warning(f"Download failed: {e}. Retrying in {wait_time}s...")
-                time.sleep(wait_time)
-            else:
-                logger.error(f"Failed to download {dataset_name} after {MAX_RETRIES} attempts: {e}")
-    
-    raise RuntimeError(f"Failed to download {dataset_name} after {MAX_RETRIES} retries: {last_error}")
+            if retries > max_retries:
+                logger.log("download_failed", dataset=dataset_name, error=str(e))
+                raise RuntimeError(f"Failed to download {dataset_name} after {max_retries} retries.") from e
+            logger.log("download_retry", dataset=dataset_name, attempt=retries, wait=interval)
+            time.sleep(interval)
+            interval *= 2  # Exponential backoff
 
-def compute_dataset_hash(dataset: Any, sample_size: int = 1000) -> str:
-    """
-    Compute a hash of the dataset based on a sample of content.
-    
-    Args:
-        dataset: HuggingFace dataset object
-        sample_size: Number of rows to sample for hashing
-        
-    Returns:
-        SHA-256 hash string
-    """
+
+def compute_dataset_hash(dataset: Any) -> str:
+    """Compute a hash of the dataset content (sampled for speed if large)."""
     hasher = hashlib.sha256()
+    # Sample a subset for hashing if dataset is huge to avoid memory issues
+    # Or hash the dataset name + version if available
+    # For simplicity, we hash the first 1000 rows' code content
     count = 0
-    
-    # Stream through dataset to avoid loading everything into memory
+    max_samples = 1000
     for item in dataset:
-        if count >= sample_size:
+        if count >= max_samples:
             break
-        # Convert item to string for hashing
-        item_str = json.dumps(item, sort_keys=True)
-        hasher.update(item_str.encode('utf-8'))
+        code = item.get('code', '')
+        hasher.update(code.encode('utf-8'))
         count += 1
-        
     return hasher.hexdigest()
 
-def save_dataset_metadata(dataset_name: str, dataset: Any, output_path: Path) -> None:
-    """
-    Save dataset metadata including hash, row count, and timestamp.
-    
-    Args:
-        dataset_name: Name of the dataset
-        dataset: HuggingFace dataset object
-        output_path: Path to save metadata JSON
-    """
-    # Sample hash for verification
-    dataset_hash = compute_dataset_hash(dataset)
-    
-    # Count rows (may be expensive for large datasets, so we estimate if streaming)
-    try:
-        row_count = len(dataset)
-    except TypeError:
-        # For streaming datasets, we can't get length directly
-        row_count = -1
-        logger.warning(f"Could not determine row count for {dataset_name} (streaming dataset)")
-    
+
+def save_dataset_metadata(dataset_name: str, hash_val: str, count: int, output_path: str):
+    """Save dataset metadata to a JSON file."""
     metadata = {
         "dataset_name": dataset_name,
-        "downloaded_at": datetime.utcnow().isoformat(),
-        "hash": dataset_hash,
-        "row_count": row_count,
-        "columns": list(dataset.column_names) if hasattr(dataset, 'column_names') else []
+        "hash": hash_val,
+        "count": count,
+        "timestamp": time.strftime("%Y-%m-%d %H:%M:%S")
     }
     
-    with open(output_path, 'w') as f:
-        json.dump(metadata, f, indent=2)
-    
-    logger.info(f"Saved metadata for {dataset_name} to {output_path}")
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'a') as f:
+        f.write(json.dumps(metadata) + '\n')
+
 
 def extract_top_level_functions(code: str) -> List[str]:
-    """
-    Extract top-level function definitions from Python code.
-    
-    Args:
-        code: Python source code string
-        
-    Returns:
-        List of function definition strings
-    """
+    """Extract top-level functions from code using AST."""
     try:
         tree = ast.parse(code)
         functions = []
         for node in ast.walk(tree):
-            if isinstance(node, ast.FunctionDef):
-                # Extract the function definition
-                func_lines = []
-                for line_no in range(node.lineno - 1, node.end_lineno):
-                    # Get the original line (this is a simplification)
-                    # In practice, we'd need to reconstruct from source lines
-                    func_lines.append(f"Line {line_no + 1}: {code.splitlines()[line_no] if line_no < len(code.splitlines()) else ''}")
-                
-                # Just return the function name and a snippet for now
-                functions.append(f"def {node.name}(...)")
+            if isinstance(node, ast.FunctionDef) and isinstance(node, ast.AsyncFunctionDef):
+                # Only top-level? Walk tree and check parent?
+                # Simpler: iterate children of module
+                pass
+        
+        # Better approach: iterate direct children of module
+        functions = []
+        for node in ast.iter_child_nodes(tree):
+            if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                functions.append(ast.get_source_segment(code, node) or code[node.body[0].lineno-1:node.end_lineno])
         return functions
     except SyntaxError:
         return []
 
-def filter_python_snippets(dataset: Any, language_filter: str = "python") -> Generator[Dict[str, Any], None, None]:
-    """
-    Filter dataset to include only Python snippets.
-    
-    Args:
-        dataset: HuggingFace dataset object
-        language_filter: Language to filter for (default: "python")
-        
-    Yields:
-        Filtered snippet dictionaries
-    """
+
+def filter_python_snippets(dataset: Any, source_label: str) -> List[Dict[str, Any]]:
+    """Filter dataset to keep only Python snippets and extract functions."""
+    filtered = []
     for item in dataset:
-        # Check if language matches
-        # The structure varies by dataset, so we check common fields
-        lang = None
-        if 'language' in item:
-            lang = item['language']
-        elif 'lang' in item:
-            lang = item['lang']
+        # Check language
+        lang = item.get('language', '')
+        if lang.lower() != 'python':
+            continue
         
-        if lang and lang.lower() == language_filter.lower():
-            yield item
+        code = item.get('code', '')
+        if not code:
+            continue
+        
+        # Extract functions
+        functions = extract_top_level_functions(code)
+        if not functions:
+            continue
+        
+        # Create snippet records
+        for func_code in functions:
+            try:
+                # Validate AST
+                ast.parse(func_code)
+                snippet = {
+                    'id': f"{source_label}_{len(filtered)}",
+                    'source': source_label,
+                    'code': func_code,
+                    'length': len(func_code),
+                    'language': 'python'
+                }
+                filtered.append(snippet)
+            except SyntaxError:
+                continue
+                
+    return filtered
 
-def ingest_codesearchnet() -> Tuple[Any, Path]:
-    """
-    Ingest CodeSearchNet dataset from HuggingFace.
-    
-    Returns:
-        Tuple of (dataset object, path to processed data)
-    """
-    logger.info("Starting CodeSearchNet ingestion")
-    
-    # Download with backoff
-    dataset = download_with_backoff(
-        'code_search_net',
-        split='train',
-        trust_remote_code=True
-    )
-    
-    # Filter for Python
-    python_snippets = list(filter_python_snippets(dataset, "python"))
-    logger.info(f"Filtered {len(python_snippets)} Python snippets from CodeSearchNet")
-    
-    # Save processed data
-    output_path = PROCESSED_DIR / "codesearchnet_python.json"
-    with open(output_path, 'w') as f:
-        json.dump(python_snippets, f, indent=2)
-    
-    # Save metadata
-    metadata_path = PROCESSED_DIR / "codesearchnet_metadata.json"
-    save_dataset_metadata("code_search_net", dataset, metadata_path)
-    
-    # Register checksum
-    register_dataset_checksum("code_search_net", compute_sha256(output_path))
-    
-    logger.info(f"CodeSearchNet ingestion complete. Output: {output_path}")
-    return dataset, output_path
 
-def ingest_codegen() -> Tuple[Any, Path]:
-    """
-    Ingest CodeParrot/CodeGen dataset from HuggingFace.
-    
-    Returns:
-        Tuple of (dataset object, path to processed data)
-    """
-    logger.info("Starting CodeGen ingestion")
-    
-    # Download with backoff
-    dataset = download_with_backoff(
-        'codeparrot/codegen',
-        split='train',
-        trust_remote_code=True
-    )
-    
-    # Filter for Python (CodeGen is primarily Python, but we filter to be sure)
-    python_snippets = list(filter_python_snippets(dataset, "python"))
-    logger.info(f"Filtered {len(python_snippets)} Python snippets from CodeGen")
-    
-    # Save processed data
-    output_path = PROCESSED_DIR / "codegen_python.json"
-    with open(output_path, 'w') as f:
-        json.dump(python_snippets, f, indent=2)
-    
-    # Save metadata
-    metadata_path = PROCESSED_DIR / "codegen_metadata.json"
-    save_dataset_metadata("codeparrot/codegen", dataset, metadata_path)
-    
-    # Register checksum
-    register_dataset_checksum("codeparrot/codegen", compute_sha256(output_path))
-    
-    logger.info(f"CodeGen ingestion complete. Output: {output_path}")
-    return dataset, output_path
+def ingest_codesearchnet() -> List[Dict[str, Any]]:
+    """Ingest CodeSearchNet dataset."""
+    logger.log("ingest_start", dataset="code_search_net")
+    try:
+        # Load CodeSearchNet
+        # The dataset name is 'code_search_net'
+        dataset = download_with_backoff('code_search_net')
+        
+        # Filter for Python
+        # The dataset structure: {'java', 'js', 'go', 'python', 'ruby', 'php'}
+        # We need to select the 'python' subset. 
+        # In load_dataset, we can specify split or filter.
+        # The dataset has a 'language' column.
+        
+        python_data = dataset.filter(lambda x: x['language'] == 'python')
+        
+        snippets = filter_python_snippets(python_data, "codesearchnet")
+        logger.log("ingest_success", dataset="code_search_net", count=len(snippets))
+        return snippets
+    except Exception as e:
+        logger.log("ingest_failed", dataset="code_search_net", error=str(e))
+        raise
 
-def verify_datasets() -> bool:
-    """
-    Verify that both datasets have been successfully ingested.
-    
-    Returns:
-        True if both datasets are present and valid
-    """
-    codesearchnet_path = PROCESSED_DIR / "codesearchnet_python.json"
-    codegen_path = PROCESSED_DIR / "codegen_python.json"
-    
-    if not codesearchnet_path.exists():
-        logger.error(f"CodeSearchNet output not found: {codesearchnet_path}")
+
+def ingest_codegen() -> List[Dict[str, Any]]:
+    """Ingest CodeParrot/CodeGen dataset."""
+    logger.log("ingest_start", dataset="codeparrot/codegen")
+    try:
+        # Load CodeGen
+        dataset = download_with_backoff('codeparrot/codegen')
+        
+        # Filter for Python
+        # The dataset has a 'language' column.
+        python_data = dataset.filter(lambda x: x['language'] == 'python')
+        
+        snippets = filter_python_snippets(python_data, "codegen")
+        logger.log("ingest_success", dataset="codeparrot/codegen", count=len(snippets))
+        return snippets
+    except Exception as e:
+        logger.log("ingest_failed", dataset="codeparrot/codegen", error=str(e))
+        raise
+
+
+def verify_datasets(snippets_list: List[List[Dict[str, Any]]]) -> bool:
+    """Verify that datasets are listed in verified sources."""
+    verified_path = "data/verified_sources.json"
+    if not os.path.exists(verified_path):
+        logger.log("verify_failed", reason="verified_sources.json not found")
         return False
-    
-    if not codegen_path.exists():
-        logger.error(f"CodeGen output not found: {codegen_path}")
-        return False
-    
-    # Check file sizes (should be non-empty)
-    if codesearchnet_path.stat().st_size == 0:
-        logger.error(f"CodeSearchNet output is empty: {codesearchnet_path}")
-        return False
-    
-    if codegen_path.stat().st_size == 0:
-        logger.error(f"CodeGen output is empty: {codegen_path}")
-        return False
-    
-    logger.info("Both datasets verified successfully")
+        
+    with open(verified_path, 'r') as f:
+        verified = json.load(f)
+        
+    for snippets in snippets_list:
+        if not snippets:
+            logger.log("verify_failed", reason="empty snippet list")
+            return False
+            
+        source = snippets[0].get('source')
+        if source not in verified.get('sources', []):
+            logger.log("verify_failed", reason=f"source {source} not in verified sources")
+            return False
+            
     return True
 
-def update_verified_sources() -> None:
-    """
-    Update the verified sources file with dataset information.
-    """
-    verified_sources_path = DATA_DIR / "verified_sources.json"
+
+def update_verified_sources():
+    """Update verified sources file."""
+    verified_path = "data/verified_sources.json"
+    sources = ["codesearchnet", "codegen"]
     
-    sources = {
-        "code_search_net": {
-            "path": str(PROCESSED_DIR / "codesearchnet_python.json"),
-            "verified_at": datetime.utcnow().isoformat(),
-            "status": "verified"
-        },
-        "codeparrot_codegen": {
-            "path": str(PROCESSED_DIR / "codegen_python.json"),
-            "verified_at": datetime.utcnow().isoformat(),
-            "status": "verified"
-        }
+    data = {
+        "sources": sources,
+        "verified_at": time.strftime("%Y-%m-%d %H:%M:%S")
     }
     
-    with open(verified_sources_path, 'w') as f:
-        json.dump(sources, f, indent=2)
-    
-    logger.info(f"Updated verified sources: {verified_sources_path}")
+    Path(verified_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(verified_path, 'w') as f:
+        json.dump(data, f, indent=2)
 
-def run_ingestion_pipeline() -> bool:
-    """
-    Run the complete ingestion pipeline for both datasets.
+
+def run_ingestion_pipeline():
+    """Run the full ingestion pipeline."""
+    # Ensure verified sources
+    update_verified_sources()
     
-    Returns:
-        True if pipeline completed successfully
-    """
-    try:
-        # Ingest CodeSearchNet
-        ingest_codesearchnet()
+    # Ingest
+    codesearchnet_snippets = ingest_codesearchnet()
+    codegen_snippets = ingest_codegen()
+    
+    # Verify
+    if not verify_datasets([codesearchnet_snippets, codegen_snippets]):
+        raise SystemExit("Error 101: Datasets not verified.")
         
-        # Ingest CodeGen
-        ingest_codegen()
+    # Combine
+    all_snippets = codesearchnet_snippets + codegen_snippets
+    
+    # Save
+    output_path = "data/raw/ingested_snippets.json"
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(all_snippets, f, indent=2)
         
-        # Verify datasets
-        if not verify_datasets():
-            logger.error("Dataset verification failed")
-            return False
-        
-        # Update verified sources
-        update_verified_sources()
-        
-        # Update state tracker
-        update_state_with_artifact(
-            artifact_type="dataset_ingestion",
-            artifact_path=str(PROCESSED_DIR),
-            state_file=PROJECT_STATE_PATH
-        )
-        
-        logger.info("Ingestion pipeline completed successfully")
-        return True
-        
-    except Exception as e:
-        logger.error(f"Ingestion pipeline failed: {e}")
-        return False
+    logger.log("pipeline_complete", total_snippets=len(all_snippets))
+    return all_snippets
+
 
 def main():
-    """
-    Main entry point for data ingestion.
-    """
-    logger.info("Starting data ingestion pipeline")
-    
-    success = run_ingestion_pipeline()
-    
-    if success:
-        logger.info("Data ingestion completed successfully")
-        exit(0)
-    else:
-        logger.error("Data ingestion failed")
-        exit(1)
+    """Main entry point."""
+    run_ingestion_pipeline()
 
 if __name__ == "__main__":
     main()

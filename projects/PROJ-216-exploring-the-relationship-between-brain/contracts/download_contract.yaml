@@ -1,0 +1,7 @@
+input:
+  dataset_id: string
+  output_dir: string
+  n_subjects: integer
+output:
+  valid_subjects_json: path
+  error_log: path

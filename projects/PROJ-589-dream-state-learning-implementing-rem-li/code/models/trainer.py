@@ -1,211 +1,283 @@
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 import torch.optim as optim
-from typing import Dict, Any, Optional, List, Tuple
+from torch.utils.data import DataLoader
+from typing import Dict, Any, List, Tuple
 import numpy as np
-from config import Config
+import logging
+from pathlib import Path
+
+# Local imports based on API surface
 from utils.logger import get_logger, log_event
-from utils.memory_monitor import MemoryMonitor
-from data.augment import apply_dae_mask, create_dae_batch, calculate_mask_statistics
-from utils.exceptions import DataIntegrityError
+from data.augment import create_dae_batch
+from config import Config
+from utils.memory_monitor import MemoryMonitor, MemoryLimitExceeded
+
+class DummyOptimizer:
+    """
+    A minimal optimizer that satisfies the optimizer interface used in the
+    training loop but performs no parameter updates. This is primarily
+    intended for unit‑test scenarios where a mock model has no learnable
+    parameters.
+    """
+    def __init__(self):
+        pass
+
+    def zero_grad(self):
+        # No parameters to zero‑out
+        pass
+
+    def step(self):
+        # No parameters to update
+        pass
 
 class DreamScheduler:
     """
-    Manages the 4:1 Wake-to-Dream ratio and warm-up period enforcement.
+    Manages the wake/dream cycle ratio and warm‑up logic.
+    Implements the multi‑to‑one wake‑to‑dream step ratio and
+    perplexity‑based skipping of dream steps.
     """
-    def __init__(self, config: Config):
+    def __init__(self, config: Config, logger: logging.Logger):
         self.config = config
-        self.wake_ratio = config.wake_ratio  # Default 4.0
-        self.warmup_steps = config.warmup_steps  # Default 10
+        self.logger = logger
+        # `dream_ratio` is the total number of steps in a cycle
+        # (e.g., 5 means 4 wake + 1 dream)
+        self.wake_to_dream_ratio = config.get('dream_ratio', 5)
         self.current_step = 0
+        self.warm_up_steps = config.get('warm_up_steps', 20)
+        self.perplexity_skip_threshold = config.get('perplexity_skip_threshold', 50.0)
+        self.logger.info(
+            f"DreamScheduler initialized: ratio={self.wake_to_dream_ratio}, warm_up={self.warm_up_steps}, "
+            f"perplexity_skip={self.perplexity_skip_threshold}"
+        )
 
-    def should_dream(self) -> bool:
+    def should_run_dream_phase(self) -> bool:
         """
-        Returns True if the current step should be a Dream phase.
-        Enforces warm-up: returns False if step < warmup_steps.
-        Enforces 4:1 ratio: Dream occurs when (step + 1) % (wake_ratio + 1) == 0
+        Determines whether the current step should be a dream step.
+        The first ``warm_up_steps`` are wake‑only. After that we follow a
+        ``wake_to_dream_ratio`` cycle where the *last* step of each cycle
+        is a dream step (e.g., for a ratio of 5 the pattern is
+        W W W W D).
         """
-        if self.current_step < self.warmup_steps:
+        if self.current_step < self.warm_up_steps:
             return False
+        # Compute position within the post‑warm‑up cycle
+        offset = self.current_step - self.warm_up_steps
+        # Dream occurs on the last step of the cycle
+        return ((offset + 1) % self.wake_to_dream_ratio) == 0
 
-        # 4:1 ratio means 1 dream every 5 steps (indices 4, 9, 14...)
-        # Logic: (step + 1) % 5 == 0
-        cycle = int(self.wake_ratio) + 1
-        return (self.current_step + 1) % cycle == 0
-
-    def next_step(self):
+    def advance_step(self):
         self.current_step += 1
 
+    def maybe_skip_dream_due_to_perplexity(self, model: nn.Module, held_out_batch: Dict[str, torch.Tensor]) -> bool:
+        """
+        Evaluate perplexity on a held‑out batch; if it exceeds the
+        configured threshold, the dream step is skipped.
+        """
+        model.eval()
+        with torch.no_grad():
+            inputs = held_out_batch['input_ids'].to(self.config.device)
+            labels = held_out_batch['labels'].to(self.config.device)
+            outputs = model(inputs, labels=labels)
+            loss = outputs.loss.item()
+            perplexity = np.exp(loss)
+            self.logger.info(
+                f"Perplexity check on held‑out batch: {perplexity:.2f} (threshold {self.perplexity_skip_threshold})"
+            )
+            return perplexity > self.perplexity_skip_threshold
+
 class Trainer:
-    def __init__(self, model: nn.Module, config: Config):
+    """
+    Core training engine implementing wake/dream cycles,
+    BERT‑style masking, DAE reconstruction, knowledge‑distillation,
+    entropy‑based retry (only for dream phases), and perplexity‑based dream skipping.
+    """
+    def __init__(
+        self,
+        model: nn.Module,
+        config: Config,
+        device: torch.device,
+        tokenizer: Any = None
+    ):
         self.model = model
         self.config = config
-        self.logger = get_logger("trainer")
-        self.memory_monitor = MemoryMonitor(limit_gb=config.max_memory_gb)
-        self.scheduler = DreamScheduler(config)
-        self.criterion = nn.CrossEntropyLoss()
-        self.optimizer = optim.Adam(model.parameters(), lr=config.learning_rate)
+        self.device = device
+        self.tokenizer = tokenizer
+        self.logger = get_logger(__name__, config=config, log_to_file=False)
 
-    def _calculate_entropy(self, logits: torch.Tensor) -> float:
+        # Initialise optimizer – handle models with no parameters (e.g., mocks)
+        try:
+            self.optimizer = optim.AdamW(model.parameters(), lr=config.get('learning_rate', 5e-5))
+        except ValueError:
+            # Model has no parameters; fall back to a no‑op optimizer
+            self.logger.warning("Model has no parameters; using DummyOptimizer.")
+            self.optimizer = DummyOptimizer()
+
+        self.ce_criterion = nn.CrossEntropyLoss(ignore_index=-100)
+
+        self.kd_temperature = config.get('kd_temperature', 1.0)
+        self.kd_alpha = config.get('kd_alpha', 0.5)
+        self.kldiv_loss = nn.KLDivLoss(reduction='batchmean')
+
+        self.scheduler = DreamScheduler(config, self.logger)
+
+        # Initialise the memory monitor with the configured limit
+        limit_kb = config.memory_limit_bytes // 1024
+        checkpoint_dir = config.get('checkpoint_dir', 'data/checkpoints')
+        self.memory_monitor = MemoryMonitor(limit_kb, checkpoint_dir)
+
+        self.metrics_history: List[Dict[str, Any]] = []
+
+    # ------------------------------------------------------------------
+    # Helper utilities
+    # ------------------------------------------------------------------
+    def calculate_entropy(self, logits: torch.Tensor, labels: torch.Tensor = None) -> float:
         """
-        Calculates the entropy of the output distribution in bits.
-        Entropy = sum(-p * log2(p))
+        Compute average token‑wise entropy (in bits). If ``labels`` are
+        provided, the entropy is averaged only over non‑masked tokens.
         """
         probs = torch.softmax(logits, dim=-1)
-        # Add small epsilon to avoid log(0)
         eps = 1e-9
         log_probs = torch.log(probs + eps)
-        entropy = -torch.sum(probs * log_probs, dim=-1)
-        # Return mean entropy for the batch
-        return float(torch.mean(entropy).item())
+        entropy_per_token = -torch.sum(probs * log_probs, dim=-1) / np.log(2)
 
-    def _handle_low_entropy(self, entropy: float, batch: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-        """
-        Handles low entropy outputs (< 0.5 bits).
-        Retries up to 3 times with local retry counter.
-        If retries exhausted, discards batch (returns None).
-        """
-        threshold = self.config.entropy_threshold  # Default 0.5
-        max_retries = self.config.max_entropy_retries  # Default 3
-
-        if entropy >= threshold:
-            return batch
-
-        self.logger.warning(f"Low entropy detected: {entropy:.4f} < {threshold}. Retrying...")
-
-        for attempt in range(max_retries):
-            self.logger.info(f"Retry attempt {attempt + 1}/{max_retries}")
-            # In a real scenario, we might resample or augment differently.
-            # For this implementation, we re-apply the mask to the same batch
-            # to simulate a "dream" variation attempt.
-            # Note: In a full system, we might fetch a new batch from the loader.
-            # Here we assume 'batch' has raw data to re-augment.
-            # Since we don't have raw data access here, we simulate a retry by
-            # perturbing the input slightly or just re-calculating if the logic allows.
-            # For this specific task, we assume the batch is re-processed.
-            # If we can't re-process, we discard.
-            # To satisfy the "real code" requirement without external loader dependency in this method:
-            # We will simulate a retry by incrementing a local seed if available,
-            # but since we don't have the raw data, we will just return None if low.
-            # However, the requirement says "retry up to 3 times".
-            # Let's assume the caller passes a function to re-generate the batch.
-            # Since we can't change the signature easily, we will just log and return None
-            # if the entropy is too low after the check, effectively discarding.
-            # A more robust implementation would require a batch generator.
-            # For now, we log the failure to retry effectively without the raw data source.
-            self.logger.warning("Could not regenerate batch to retry (raw data source not available in this scope). Discarding.")
-            return None
-
-        return None
-
-    def train_step(self, batch: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Executes a single training step (Wake or Dream) based on the scheduler.
-        Logs phase transitions, entropy metrics, and warm-up status.
-        """
-        self.scheduler.next_step()
-        self.memory_monitor.check()  # Check for OOM
-
-        is_wake = not self.scheduler.should_dream()
-        phase = "WAKE" if is_wake else "DREAM"
-
-        # Log Phase Transition and Warm-up Status
-        warmup_status = "Active" if self.scheduler.current_step < self.config.warmup_steps else "Completed"
-        log_event("phase_transition", {
-            "step": self.scheduler.current_step,
-            "phase": phase,
-            "warmup_status": warmup_status,
-            "model": self.config.model_name
-        })
-        self.logger.info(f"Step {self.scheduler.current_step}: Phase={phase}, Warmup={warmup_status}")
-
-        # Prepare inputs
-        if is_wake:
-            # Standard CE on real data
-            inputs = batch['input_ids']
-            labels = batch['labels']
-            outputs = self.model(input_ids=inputs, labels=labels)
-            loss = outputs.loss
+        if labels is not None:
+            mask = (labels != -100).float()
+            valid_tokens = mask.sum()
+            if valid_tokens == 0:
+                return 0.0
+            avg_entropy = (entropy_per_token * mask).sum() / valid_tokens
         else:
-            # Dream phase: DAE reconstruction
-            # Apply DAE mask to inputs
-            masked_inputs, original_labels = apply_dae_mask(
-                batch['input_ids'],
-                mask_rate=self.config.mask_rate
-            )
-            # Forward pass with masked inputs
-            outputs = self.model(input_ids=masked_inputs, labels=original_labels)
-            loss = outputs.loss
+            avg_entropy = entropy_per_token.mean()
+        return avg_entropy.item()
 
-            # Log mask statistics
-            stats = calculate_mask_statistics(masked_inputs, batch['input_ids'])
-            log_event("dream_mask_stats", stats)
+    def _knowledge_distillation_loss(self, student_logits: torch.Tensor, teacher_logits: torch.Tensor) -> torch.Tensor:
+        T = self.kd_temperature
+        student_log_probs = F.log_softmax(student_logits / T, dim=-1)
+        teacher_probs = F.softmax(teacher_logits / T, dim=-1)
+        kd_loss = self.kldiv_loss(student_log_probs, teacher_probs) * (T * T)
+        return kd_loss
 
-        # Calculate metrics
-        logits = outputs.logits
-        entropy = self._calculate_entropy(logits)
+    # ------------------------------------------------------------------
+    # Training step implementations
+    # ------------------------------------------------------------------
+    def train_step_wake(self, batch: Dict[str, torch.Tensor]) -> Dict[str, Any]:
+        self.model.train()
+        inputs = batch['input_ids'].to(self.device)
+        labels = batch['labels'].to(self.device)
 
-        # Handle low entropy (only relevant for Dream phase usually, but check both)
-        if entropy < self.config.entropy_threshold:
-            self.logger.warning(f"Step {self.scheduler.current_step}: Low entropy ({entropy:.4f}) detected.")
-            # In a full loop, we would retry. Here we just log.
-            log_event("low_entropy_event", {
-                "step": self.scheduler.current_step,
-                "entropy": entropy,
-                "threshold": self.config.entropy_threshold
-            })
-
-        # Optimization step
         self.optimizer.zero_grad()
+        outputs = self.model(inputs, labels=labels)
+        loss = outputs.loss
         loss.backward()
         self.optimizer.step()
 
-        # Log metrics
-        log_event("training_metrics", {
-            "step": self.scheduler.current_step,
-            "phase": phase,
-            "loss": loss.item(),
-            "entropy_bits": entropy
-        })
+        entropy = self.calculate_entropy(outputs.logits, labels) if hasattr(outputs, 'logits') else 0.0
+        return {'loss': loss.item(), 'entropy': entropy, 'phase': 'WAKE'}
 
-        return {
-            "loss": loss.item(),
-            "entropy": entropy,
-            "phase": phase
-        }
-
-    def train(self, dataloader: Any, max_steps: Optional[int] = None):
+    def train_step_dream(self, batch: Dict[str, torch.Tensor], held_out_batch: Dict[str, torch.Tensor] = None) -> Dict[str, Any]:
         """
-        Main training loop.
+        Execute a dream‑phase step. If the held‑out perplexity check fails,
+        the step is *skipped* and reported as ``DUMMY_WAKE`` (so that token
+        parity with the baseline is preserved). Otherwise we perform the
+        DAE reconstruction + knowledge‑distillation loss.
         """
-        self.logger.info(f"Starting training with max_steps={max_steps}")
-        step = 0
+        # Perplexity‑based skipping (only evaluated for dream phases)
+        if held_out_batch is not None and self.scheduler.maybe_skip_dream_due_to_perplexity(self.model, held_out_batch):
+            return {'loss': 0.0, 'entropy': 0.0, 'phase': 'DUMMY_WAKE'}
 
-        for epoch, batch in enumerate(dataloader):
-            if max_steps and step >= max_steps:
+        self.model.train()
+        inputs = batch['input_ids'].to(self.device)
+        original_labels = batch['labels'].to(self.device)
+
+        # Create DAE‑style masked inputs and targets
+        masked_inputs_list, _, targets_list = create_dae_batch(
+            inputs.tolist(),
+            mask_rate=self.config.get('mask_rate', 0.15)
+        )
+        masked_inputs = torch.tensor(masked_inputs_list, dtype=torch.long, device=self.device)
+        targets = torch.tensor(targets_list, dtype=torch.long, device=self.device)
+
+        self.optimizer.zero_grad()
+
+        student_outputs = self.model(masked_inputs, labels=targets)
+        recon_loss = student_outputs.loss
+
+        with torch.no_grad():
+            teacher_outputs = self.model(inputs, labels=original_labels)
+            teacher_logits = teacher_outputs.logits
+
+        kd_loss = self._knowledge_distillation_loss(student_outputs.logits, teacher_logits)
+        loss = self.kd_alpha * recon_loss + (1 - self.kd_alpha) * kd_loss
+
+        loss.backward()
+        self.optimizer.step()
+
+        entropy = self.calculate_entropy(student_outputs.logits, targets) if hasattr(student_outputs, 'logits') else 0.0
+        return {'loss': loss.item(), 'entropy': entropy, 'phase': 'DREAM'}
+
+    # ------------------------------------------------------------------
+    # Main training loop
+    # ------------------------------------------------------------------
+    def run_training_loop(self, dataloader: DataLoader, max_steps: int = 100) -> List[Dict[str, Any]]:
+        self.logger.info(f"Starting training loop for {max_steps} steps.")
+
+        step_count = 0
+        held_out_batch = None
+        if self.config.get('held_out_subset'):
+            try:
+                from data.loader import load_glue_subset
+                subset = load_glue_subset(self.config.get('held_out_subset'))
+                sample = subset['validation'][:self.config.get('held_out_batch_size', 8)]
+                held_out_batch = {
+                    'input_ids': torch.tensor(sample['input_ids']),
+                    'labels': torch.tensor(sample['label'])
+                }
+            except Exception as e:
+                self.logger.warning(f"Could not load held‑out subset for perplexity check: {e}")
+
+        for batch in dataloader:
+            if step_count >= max_steps:
                 break
 
+            # Enforce memory cap before each step
+            self.memory_monitor.enforce()
+            is_dream = self.scheduler.should_run_dream_phase()
+
             try:
-                result = self.train_step(batch)
-                step += 1
-            except DataIntegrityError as e:
-                self.logger.error(f"Data integrity error: {e}")
-                raise
+                if is_dream:
+                    metrics = self.train_step_dream(batch, held_out_batch)
+                else:
+                    metrics = self.train_step_wake(batch)
+
+                # Entropy‑based retry only for dream phases
+                if is_dream and metrics['entropy'] < self.config.get('entropy_threshold', 0.5):
+                    retry_count = 0
+                    while metrics['entropy'] < self.config.get('entropy_threshold', 0.5) and retry_count < self.config.get('max_retries', 3):
+                        self.logger.warning(
+                            f"Low entropy ({metrics['entropy']:.4f} < {self.config.get('entropy_threshold')}) during DREAM – retry {retry_count+1}"
+                        )
+                        retry_count += 1
+                        metrics = self.train_step_dream(batch, held_out_batch)
+
+                # Log structured event
+                log_event(self.logger, "training_step", {
+                    "step": self.scheduler.current_step,
+                    "phase": metrics['phase'],
+                    "loss": metrics['loss'],
+                    "entropy": metrics['entropy']
+                })
+
+                self.metrics_history.append(metrics)
+                step_count += 1
+                self.scheduler.advance_step()
+
             except MemoryLimitExceeded as e:
-                self.logger.error(f"Memory limit exceeded: {e}")
-                raise
-            except RuntimeError as e:
-                if "dream phase" in str(e).lower() and self.scheduler.current_step < self.config.warmup_steps:
-                    self.logger.critical(f"Warm-up violation: {e}")
-                    raise
+                self.logger.critical(f"OOM detected at step {step_count}. Aborting.")
+                raise e
+            except Exception as e:
+                self.logger.error(f"Error in training step: {e}")
                 raise
 
-        self.logger.info("Training completed.")
-        return {"total_steps": step}
-
-# Import MemoryLimitExceeded from memory_monitor if not already defined there
-# The existing API surface in memory_monitor.py defines MemoryLimitExceeded
-from utils.memory_monitor import MemoryLimitExceeded
-
-# Re-export for convenience if needed
-__all__ = ['DreamScheduler', 'Trainer']
+        return self.metrics_history

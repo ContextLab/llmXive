@@ -1,0 +1,101 @@
+name: CI Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  # Constitution Principle I: Reproducibility & Resource Limits
+  # Hard constraints for the CI runner environment to ensure
+  # experiments are comparable and fit within the budget.
+  CI_CPU_CORES: "2"
+  CI_MAX_RAM_GB: "7"
+  CI_MAX_TIME_HOURS: "6"
+  PYTORCH_NO_CUDA_MEMORY_CACHING: "1"
+  OMP_NUM_THREADS: "2"
+  MKL_NUM_THREADS: "2"
+  TF_CPP_MIN_LOG_LEVEL: "3"
+  HF_DATASETS_OFFLINE: "0"
+  HF_DATASETS_DISABLE_PROGRESSBAR: "1"
+
+jobs:
+  lint-and-format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          pip install -r code/requirements.txt
+          pip install ruff black
+      - name: Check Linting (Ruff)
+        run: |
+          cd code
+          ruff check .
+      - name: Check Formatting (Black)
+        run: |
+          cd code
+          black --check .
+
+  unit-tests:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10']
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install dependencies
+        run: |
+          pip install -r code/requirements.txt
+          pip install pytest pytest-cov
+      - name: Run Unit Tests
+        run: |
+          cd code
+          pytest tests/unit/ -v --cov=. --cov-report=xml
+      - name: Upload coverage reports
+        uses: codecov/codecov-action@v3
+
+  integration-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install dependencies
+        run: |
+          pip install -r code/requirements.txt
+          pip install pytest
+      - name: Run Integration Tests
+        run: |
+          cd code
+          pytest tests/integration/ -v
+
+  resource-constraint-check:
+    # Explicitly verifies that the environment variables set above
+    # are correctly propagated and respected by the runner.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify Environment Variables
+        run: |
+          echo "Checking CI Resource Constraints..."
+          if [ "$CI_CPU_CORES" != "2" ]; then
+            echo "ERROR: CI_CPU_CORES is not set to 2. Found: $CI_CPU_CORES"
+            exit 1
+          fi
+          if [ "$CI_MAX_RAM_GB" != "7" ]; then
+            echo "ERROR: CI_MAX_RAM_GB is not set to 7. Found: $CI_MAX_RAM_GB"
+            exit 1
+          fi
+          echo "Resource constraints verified: CPU=$CI_CPU_CORES, RAM=$CI_MAX_RAM_GB GB"

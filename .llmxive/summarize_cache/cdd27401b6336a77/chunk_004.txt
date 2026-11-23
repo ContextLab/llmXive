@@ -1,0 +1,3 @@
+The manuscript correctly notes the importance of reproducing MAE and R² values, but it fails to specify the number of experimental replicates per reaction and the precise conditions (temperature, solvent, catalyst loading) under which yields were measured. Without such detail, the claim of reproducibility is unsubstantiated. Moreover, what is the typical standard deviation of reported yields across the datasets you surveyed? Providing these quantitative descriptors would bring the work into alig
+
+*[truncated]*

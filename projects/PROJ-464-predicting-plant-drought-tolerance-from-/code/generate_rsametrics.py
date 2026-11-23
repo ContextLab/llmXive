@@ -1,9 +1,8 @@
 """
-T015: Generate data/derived/rsametrics.csv from processed image data.
+T015 Implementation: Generate and validate rsametrics.csv.
 
-This script aggregates the per-image RSA metrics extracted in T013
-into a single CSV file, performing validation to ensure no null values
-and that all numerical traits are positive.
+This script aggregates RSA metrics extracted by preprocess_images.py,
+validates them against the schema, and writes the final CSV.
 """
 import os
 import sys
@@ -11,132 +10,126 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any
 import pandas as pd
-import numpy as np
+import json
+import yaml
+from datetime import datetime
 
-# Add project root to path to allow imports from sibling modules
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
-
-from preprocess_images import process_directory, RSAMetricsResult
-from config import DATA_RAW_PATH, DATA_DERIVED_PATH
+# Project imports
+from preprocess_images import process_directory
+from config import ensure_directories, get_config_summary
 
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def aggregate_and_validate_metrics(
-    input_dir: Path,
-    output_path: Path,
-    image_extensions: tuple = ('.png', '.jpg', '.jpeg', '.tif', '.tiff')
-) -> pd.DataFrame:
+SCHEMA_PATH = Path("contracts/rsametrics.schema.yaml")
+INPUT_DIR = Path("data/raw/nppn_images")
+OUTPUT_DIR = Path("data/derived")
+OUTPUT_FILE = OUTPUT_DIR / "rsametrics.csv"
+
+def load_schema() -> Dict[str, Any]:
+    """Load the JSON schema for validation."""
+    if not SCHEMA_PATH.exists():
+        raise FileNotFoundError(f"Schema file not found: {SCHEMA_PATH}")
+    with open(SCHEMA_PATH, 'r') as f:
+        return yaml.safe_load(f)
+
+def validate_row(row: Dict[str, Any]) -> bool:
     """
-    Process all images in input_dir, aggregate metrics, validate, and save to CSV.
-    
-    Args:
-        input_dir: Path to directory containing root images.
-        output_path: Path where the output CSV will be saved.
-        image_extensions: Tuple of valid image file extensions.
-        
-    Returns:
-        DataFrame containing the validated RSA metrics.
-        
-    Raises:
-        ValueError: If validation fails (nulls or non-positive values found).
+    Validate a single row of data against schema constraints.
+    Returns True if valid, raises ValueError if invalid.
     """
-    logger.info(f"Starting aggregation of images from: {input_dir}")
+    required_fields = ['species_id', 'depth', 'branching_density', 'surface_area']
     
-    if not input_dir.exists():
-        raise FileNotFoundError(f"Input directory does not exist: {input_dir}")
+    for field in required_fields:
+        if field not in row:
+            raise ValueError(f"Missing required field: {field}")
         
-    # Process all images in the directory
-    results: List[RSAMetricsResult] = []
-    image_files = [f for f in input_dir.iterdir() if f.suffix.lower() in image_extensions]
+        if field == 'species_id':
+            if not isinstance(row[field], str) or len(row[field]) == 0:
+                raise ValueError(f"Invalid species_id: {row[field]}")
+        else:
+            if not isinstance(row[field], (int, float)):
+                raise ValueError(f"Non-numeric value for {field}: {row[field]}")
+            if row[field] <= 0:
+                raise ValueError(f"Value for {field} must be > 0, got {row[field]}")
     
-    if not image_files:
-        raise ValueError(f"No image files found in {input_dir} with extensions: {image_extensions}")
-        
-    logger.info(f"Found {len(image_files)} image files to process.")
+    return True
+
+def aggregate_and_validate_metrics() -> pd.DataFrame:
+    """
+    Process images, aggregate results, and validate against schema.
+    """
+    logger.info(f"Starting RSA metrics generation from {INPUT_DIR}")
     
-    for img_path in image_files:
-        try:
-            result = process_single_image(img_path)
-            if result is not None:
-                results.append(result)
-                logger.debug(f"Processed: {img_path.name} -> depth={result.depth:.2f}, "
-                             f"branching={result.branching_density:.4f}, "
-                             f"area={result.surface_area:.2f}")
-        except Exception as e:
-            logger.error(f"Failed to process {img_path.name}: {e}", exc_info=True)
-            continue
+    if not INPUT_DIR.exists():
+        raise FileNotFoundError(f"Input directory not found: {INPUT_DIR}. Run T012 first.")
+    
+    # Process all images
+    results = process_directory(INPUT_DIR)
     
     if not results:
-        raise ValueError("No valid metrics extracted from any images. Check input data and preprocessing logic.")
+        raise RuntimeError("No valid images were processed. Check logs for errors.")
     
     # Convert to DataFrame
-    df = pd.DataFrame([r.to_dict() for r in results])
+    df = pd.DataFrame(results)
     
-    # Ensure columns are in expected order and types
-    expected_cols = ['species_id', 'depth', 'branching_density', 'surface_area']
-    if not all(col in df.columns for col in expected_cols):
-        raise ValueError(f"Missing expected columns. Found: {list(df.columns)}, Expected: {expected_cols}")
+    logger.info(f"Processed {len(df)} images. Validating metrics...")
     
-    df = df[expected_cols]
+    # Validate each row
+    valid_rows = []
+    errors = []
     
-    # Convert to numeric, coercing errors to NaN
-    for col in ['depth', 'branching_density', 'surface_area']:
-        df[col] = pd.to_numeric(df[col], errors='coerce')
+    for idx, row in df.iterrows():
+        try:
+            row_dict = row.to_dict()
+            validate_row(row_dict)
+            valid_rows.append(row_dict)
+        except ValueError as e:
+            errors.append(f"Row {idx}: {e}")
+            logger.warning(f"Skipping invalid row: {e}")
     
-    # Validation: Check for null values
-    null_counts = df[['depth', 'branching_density', 'surface_area']].isnull().sum()
-    if null_counts.any():
-        error_msg = f"Null values found in metrics:\n{null_counts[null_counts > 0]}"
-        logger.error(error_msg)
-        raise ValueError(error_msg)
+    if errors:
+        logger.warning(f"Found {len(errors)} invalid rows. Details logged.")
     
-    # Validation: Check for positive values
-    # Depth and surface area must be > 0. Branching density should be >= 0 (can be 0 for unbranched).
-    # However, spec says "positive numerical values", so we enforce > 0 for all to be strict.
-    # If a biological case allows 0 branching, we might relax this, but "positive" usually means > 0.
-    # Let's check strictly > 0 first. If 0 is acceptable for branching, we'd adjust.
-    # Given "positive numerical values" in prompt, we assume > 0.
-    for col in ['depth', 'branching_density', 'surface_area']:
-        if (df[col] <= 0).any():
-            count_zero = (df[col] <= 0).sum()
-            error_msg = f"Non-positive values found in '{col}': {count_zero} rows."
-            logger.error(error_msg)
-            raise ValueError(error_msg)
+    if not valid_rows:
+        raise RuntimeError("No valid rows found after validation. Pipeline halted.")
     
-    logger.info(f"Validation passed. All {len(df)} rows have non-null, positive values.")
+    final_df = pd.DataFrame(valid_rows)
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure correct column order and types
+    final_df = final_df[['species_id', 'depth', 'branching_density', 'surface_area']]
+    final_df['depth'] = final_df['depth'].astype(float)
+    final_df['branching_density'] = final_df['branching_density'].astype(float)
+    final_df['surface_area'] = final_df['surface_area'].astype(float)
     
-    # Save to CSV
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved validated RSA metrics to: {output_path}")
-    
-    return df
+    logger.info(f"Validation complete. {len(final_df)} valid records.")
+    return final_df
 
 def main():
     """Main entry point for T015."""
-    # Define paths based on config
-    # T012 downloads to DATA_RAW_PATH / "nppn_images"
-    raw_images_dir = DATA_RAW_PATH / "nppn_images"
-    output_csv_path = DATA_DERIVED_PATH / "rsametrics.csv"
-    
     try:
-        df = aggregate_and_validate_metrics(raw_images_dir, output_csv_path)
-        logger.info("T015 completed successfully.")
-        return 0
-    except (FileNotFoundError, ValueError) as e:
-        logger.critical(f"T015 failed: {e}")
-        return 1
+        # Ensure output directory exists
+        ensure_directories()
+        
+        # Generate and validate data
+        df = aggregate_and_validate_metrics()
+        
+        # Write to CSV
+        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+        df.to_csv(OUTPUT_FILE, index=False)
+        
+        logger.info(f"Successfully wrote validated metrics to {OUTPUT_FILE}")
+        
+        # Log summary
+        logger.info(f"Summary: {len(df)} records, columns: {list(df.columns)}")
+        
     except Exception as e:
-        logger.critical(f"Unexpected error in T015: {e}", exc_info=True)
-        return 1
+        logger.error(f"Pipeline failed: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

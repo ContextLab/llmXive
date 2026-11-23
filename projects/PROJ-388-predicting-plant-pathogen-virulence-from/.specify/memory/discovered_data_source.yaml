@@ -1,0 +1,15 @@
+status: none
+intent: download NCBI genomes Fusarium graminearum Pseudomonas syringae Xanthomonas
+  PHI-base phenotypes Pfam TF sites python package dataset
+required_fields:
+- isolate_id
+- species_name
+- ncbi_assembly_accession
+- virulence_gene_presence_matrix
+- tf_binding_site_counts_matrix
+- disease_severity_score
+- genome_source_url
+- phenotype_source_url
+cache_key: 4695920e5cd5c9fb8a38d0de77f7815e2d7d41103b64a65afa4cd43cf1d9d75c
+searched_at: '2026-07-23T03:17:08.001691+00:00'
+retry_count: 1

@@ -1,0 +1,8 @@
+[flake8]
+max-line-length = 88
+exclude = .git,__pycache__,build,dist
+extend-ignore = E203, E501
+# E203: Whitespace before ':' (conflicts with black)
+# E501: Line too long (handled by black)
+per-file-ignores =
+    __init__.py:F401

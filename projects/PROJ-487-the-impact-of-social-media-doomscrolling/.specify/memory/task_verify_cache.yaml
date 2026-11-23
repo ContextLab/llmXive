@@ -1,0 +1,78 @@
+T000-BOOTSTRAP:
+  c: false
+  h: 0db536877cc2d0671d5a3c195e86bcc2961538a044d58c39da67b7ccf7f90608
+  r: "The `research.md` does not contain the exact \u201CSummary\u201D text from `spec.md`\
+    \ (the spec has no explicit Summary section) nor the exact \u201CTechnical Context\u201D\
+    \ text from `plan.md` (the file lacks a Technical Context section). Additionally,\
+    \ the state file uses `last_updated` instead of the required `updated_at` field,\
+    \ so the timestamp was not correctly updated. These missing/incorrect artifacts\
+    \ prevent the task from being considered complete."
+  sig: bea3f8a333d2383eb1bea1683ea6726479296f4ba6a134c83ae3c130fc91c22f
+T000-VERIFY-SPEC:
+  c: false
+  h: 81193f5cb14bf1c7142be101a0c684c9c66f935eb908fdbe88cc7b255706ba96
+  r: "The required script `code/utils/verify_spec.py` is missing; without this file\
+    \ the spec cannot be programmatically checked for the presence of the string `\"\
+    {1, 2, 3, 7, 14}\"` in FR\u2011005."
+  sig: e1071b47d7d404e0117a0f90dc691226883c558ddd3f173e3a1c647efd8dbd65
+T001:
+  c: false
+  h: e12a15ee6c8e3691ef921cc1a12db779afb36b90424f48c91ab5f0528c183b73
+  r: "The directory contains a `.project_init.json` file, but the provided evidence\
+    \ does not show its contents, so we cannot confirm it matches the required JSON\
+    \ (`{\"project_id\": \"PROJ-487\", \"branch\": \"001-news-volume-anxiety\", \"\
+    created\": \"2026-06-27\"}`). The task remains incomplete until the file\u2019\
+    s exact content is verified."
+  sig: 1967e5786d44c6637499aeed5d50db0f77d6c2e1a88e44ecab857a61d942da56
+T002:
+  c: true
+  h: a4b96d6cf42fb3f24cbf0f2e375807c1ce8bce8f03f3c918478f016c41399371
+  r: "Checked the three required directories under `projects/PROJ-487-the-impact-of-social-media-doomscrolling/data/`\
+    \ \u2013 `raw/`, `processed/`, and `reports/` \u2013 each contains a `.gitkeep`\
+    \ file (and `raw/` also has a README), confirming the task\u2019s directory and\
+    \ placeholder file creation was fulfilled."
+  sig: 638119a3454ab0b8fccf581319f29e200775da385070678a7809072ea0536a75
+T003:
+  c: true
+  h: c3f042f7966807b493549d522a297afcb2751fd25cae3f2a3c179f3b385a2738
+  r: "The collector shows that `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/`,\
+    \ `code/tests/`, and `code/utils/` all exist and each contains an `__init__.py`\
+    \ file (along with additional module files), fulfilling the task\u2019s requirement\
+    \ to create the directories and make them Python packages."
+  sig: 0fdde820ecdf356aa5a3fe101bae015d7aba1a1ba86222c98ed949d00044f60f
+T004a:
+  c: false
+  h: f0ed587ec48ec1a4fe95ee599bba39ba3ec24e5144542e0515c19e7e9b99b8b8
+  r: The project contains a hidden directory `.venv/` but no `venv/` directory created
+    by `python -m venv venv`, nor any logs or scripts showing that exact command was
+    run. The task specifically requires a `venv` folder at `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/`;
+    this artifact is missing.
+  sig: c65b95b02b87e903371d25903990ded075046826c2bb9c489d57f12463e29679
+T007a:
+  c: true
+  h: d838f12221c9a5856f636988e08d13d93267c769e6a546f7ea811f0fe9e6962f
+  r: "The provided `code/contracts/dataset.schema.yaml` file exists, is non\u2011\
+    empty, and contains a valid JSON\u2011Schema definition matching the expected\
+    \ structure. No required files are missing, and the artifact fulfills the task\u2019\
+    s specification."
+T010:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `test_fetch_gdelt.py` file was found in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/tests/`,\
+    \ nor any accompanying T015d real\u2011call verification artifact. Without these\
+    \ files the required test and its supporting verification are missing."
+T017:
+  c: false
+  h: b78606058de20d14f4ad7e37a37235c1b876985bfd7a9a6cb7fca3521208d944
+  r: The `preprocess.py` file is only partially shown (truncated) and we cannot confirm
+    that the alignment logic fully implements the required behavior. Moreover, the
+    required input files `data/raw/gdelt_events.csv` and `data/raw/google_trends.csv`
+    are missing, so the script cannot be executed as specified. The missing data and
+    incomplete code mean the task is not genuinely completed.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md or quickstart.md files (or their updated contents) were provided
+    for the `projects/PROJ-487-the-impact-of-social-media-doomscrolling/` directory,
+    so we cannot verify that CLI usage and environment setup steps were added as required.
+    The necessary documentation artifacts are missing.

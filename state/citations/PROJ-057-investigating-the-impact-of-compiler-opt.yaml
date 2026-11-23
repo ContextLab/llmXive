@@ -20,3 +20,47 @@
   verification_status: verified
   verified_against_url: https://semver.org/spec/v2.0.0.html
   verified_at: '2026-07-04T01:32:14.331244Z'
+- artifact_hash: 8d1bea4846e87988453b62f5e68c2b60ded1bc7c16d080c5ac605000ad21a34a
+  artifact_path: projects/PROJ-057-investigating-the-impact-of-compiler-opt/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: '![Python 3.9+'
+  fetched_title: 'python: 3.9+'
+  kind: url
+  value: https://img.shields.io/badge/python-3.9+-blue.svg
+  verification_status: verified
+  verified_against_url: https://img.shields.io/badge/python-3.9+-blue.svg
+  verified_at: '2026-07-18T04:35:48.631782Z'
+- artifact_hash: 8d1bea4846e87988453b62f5e68c2b60ded1bc7c16d080c5ac605000ad21a34a
+  artifact_path: projects/PROJ-057-investigating-the-impact-of-compiler-opt/README.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: '![License: MIT'
+  fetched_title: 'License: MIT'
+  kind: url
+  value: https://img.shields.io/badge/License-MIT-yellow.svg
+  verification_status: verified
+  verified_against_url: https://img.shields.io/badge/License-MIT-yellow.svg
+  verified_at: '2026-07-18T04:35:48.631782Z'
+- artifact_hash: 8d1bea4846e87988453b62f5e68c2b60ded1bc7c16d080c5ac605000ad21a34a
+  artifact_path: projects/PROJ-057-investigating-the-impact-of-compiler-opt/README.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Download Python | Python.org
+  kind: url
+  value: https://www.python.org/downloads/
+  verification_status: pending
+  verified_against_url: https://www.python.org/downloads/
+  verified_at: '2026-07-18T04:35:48.631782Z'
+- artifact_hash: 8d1bea4846e87988453b62f5e68c2b60ded1bc7c16d080c5ac605000ad21a34a
+  artifact_path: projects/PROJ-057-investigating-the-impact-of-compiler-opt/README.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: The MIT License &#8211; Open Source Initiative
+  kind: url
+  value: https://opensource.org/licenses/MIT
+  verification_status: pending
+  verified_against_url: https://opensource.org/license/MIT
+  verified_at: '2026-07-18T04:35:48.631782Z'

@@ -1,9 +1,11 @@
 status: none
-intent: deepchem download preprocess QM9 dataset as python package dataset
+intent: download QM9 dataset via Hugging Face datasets python package dataset
 required_fields:
 - molecule_id
-- atom_positions_3d
+- atom_coordinates_3d
 - atom_types
 - bond_connectivity
-- morgan_fingerprint
-- coulomb_matrix
+- dipole_moment
+cache_key: 7e2c912c96c5e6a2bcfbf81899933d9303ddc0ce75fafc780c149404c89278f4
+searched_at: '2026-08-29T07:31:03.084432+00:00'
+retry_count: 1

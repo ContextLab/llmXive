@@ -5,15 +5,15 @@
   "artifacts": [],
   "failures": [
     "python code/data/extract_metrics.py -> rc=2\n    usage: extract_metrics.py [-h] --input INPUT --output OUTPUT\n                          [--extension EXTENSION] [--chunk-size CHUNK_SIZE]\n                          [--seed SEED]\nextract_metrics.py: error: the following arguments are required: --input, --output",
-    "python code/data/preprocess.py -> rc=2\n    usage: preprocess.py [-h] --input INPUT --output OUTPUT\n                     [--ground-truth GROUND_TRUTH]\n                     [--min-precision MIN_PRECISION]\npreprocess.py: error: the following arguments are required: --input, --output",
+    "python code/data/preprocess.py -> rc=2\n    usage: preprocess.py [-h] --input INPUT --output OUTPUT\n                     [--ground-truth GROUND_TRUTH]\n                     [--min-precision MIN_PRECISION] [--seed SEED]\npreprocess.py: error: the following arguments are required: --input, --output",
     "python code/modeling/train.py -> rc=2\n    usage: train.py [-h] --data-dir DATA_DIR [--model-dir MODEL_DIR] [--seed SEED]\n                [--alpha ALPHA]\ntrain.py: error: the following arguments are required: --data-dir",
-    "python code/modeling/evaluate.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/modeling/evaluate.py\", line 14, in <module>\n    from sklearn.metrics import (\nImportError: cannot import name 'calibration_curve' from 'sklearn.metrics' (/home/runner/work/llmXive/llmXive/projects/PROJ-148-statistical-analysis-of-code-complexity-/code/.venv/lib/python3.11/site-packages/sklearn/metrics/__init__.py)"
+    "python code/modeling/evaluate.py -> rc=2\n    usage: evaluate.py [-h] --data-dir DATA_DIR --model-path MODEL_PATH\n                   --output-dir OUTPUT_DIR\nevaluate.py: error: the following arguments are required: --data-dir, --model-path, --output-dir"
   ],
-  "fix_rounds": 7,
+  "fix_rounds": 8,
   "model_tier": 0,
-  "total_attempts": 7,
+  "total_attempts": 8,
   "replan_rounds": 0,
-  "updated_at": "2026-07-15T11:33:10Z",
   "failure_class": "fabrication",
-  "evidence": []
+  "evidence": [],
+  "updated_at": "2026-08-09T12:41:08Z"
 }

@@ -1,187 +1,239 @@
 import os
 import sys
 import logging
+import json
+import yaml
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-import math
 
 import pandas as pd
-import numpy as np
-from datasets import load_dataset
-import geopandas as gpd
-from shapely.geometry import Point
 
-# Import config utilities
-try:
-    from config import get_config, setup_logging
-except ImportError:
-    # Fallback for standalone execution context if config isn't in path yet
-    import yaml
-    def get_config():
-        return {"SEED": 42, "DATA_PATH": "data"}
-    def setup_logging():
-        logging.basicConfig(level=logging.INFO)
-        return logging.getLogger(__name__)
+from config import get_config, setup_logging
 
-logger = setup_logging()
 
-def load_root_phenotype_data() -> pd.DataFrame:
-    """
-    Load root phenotype data from a real source (RootReader/PlantPheno via HuggingFace).
-    Uses streaming to handle large datasets.
-    """
-    logger.info("Loading root phenotype data from HuggingFace datasets...")
-    try:
-        # Using a real, accessible dataset as a proxy for RootReader/PlantPheno
-        # In a production environment, this would be the specific dataset ID.
-        # We use 'plant_pheno_sample' or similar. If specific ID fails, we raise.
-        # For this implementation, we assume a dataset exists or we fetch a known public one.
-        # Attempting to load a generic plant phenotyping dataset structure.
-        dataset = load_dataset("plant_pheno/root_reader_sample", split="train", streaming=True)
-        df = pd.DataFrame(dataset)
-        logger.info(f"Successfully loaded {len(df)} rows of root phenotype data.")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load root phenotype data: {e}")
-        raise RuntimeError("Could not load real root phenotype data. No synthetic fallback.")
+def get_config() -> Dict[str, Any]:
+    """Load configuration from config.yaml."""
+    config_path = Path(__file__).parent.parent / "code" / "config.yaml"
+    if not config_path.exists():
+        raise FileNotFoundError(f"Configuration file not found: {config_path}")
+    with open(config_path, "r") as f:
+        return yaml.safe_load(f)
 
-def load_soil_data_isric_streaming() -> pd.DataFrame:
-    """
-    Load soil nutrient data from ISRIC via HuggingFace.
-    """
-    logger.info("Loading ISRIC soil nutrient data...")
-    try:
-        # Using a real ISRIC dataset
-        dataset = load_dataset("isric/soil_nutrients", split="train", streaming=True)
-        df = pd.DataFrame(dataset)
-        logger.info(f"Successfully loaded {len(df)} rows of soil data.")
-        return df
-    except Exception as e:
-        logger.error(f"Failed to load ISRIC soil data: {e}")
-        raise RuntimeError("Could not load real ISRIC soil data. No synthetic fallback.")
 
-def interpolate_missing_nutrients(df: pd.DataFrame, radius_km: float = 50.0) -> pd.DataFrame:
+def get_data_source_type_column(df: pd.DataFrame) -> str:
     """
-    Interpolate missing nutrients using nearest neighbor within a radius.
+    Detect the data source type column.
+    Checks for 'data_source_type' or known aliases.
+    Raises ValueError if not found.
     """
-    logger.info("Interpolating missing nutrients...")
-    # Convert to GeoDataFrame for spatial operations
-    gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df['longitude'], df['latitude']))
-    gdf = gdf.set_crs(epsg=4326)
-    
-    # Simple nearest neighbor logic for missing values
-    # In a real scenario, this would use KDTree or similar for efficiency
-    missing_mask = gdf['phosphorus'].isna()
-    if not missing_mask.any():
-        logger.info("No missing nutrients to interpolate.")
-        return df
+    aliases = ["data_source_type", "source_type", "experiment_type", "data_origin"]
+    for col in aliases:
+        if col in df.columns:
+            return col
+    raise ValueError(
+        f"Could not detect data source type column. "
+        f"Expected one of: {aliases}. "
+        f"Available columns: {list(df.columns)}"
+    )
 
-    logger.info(f"Found {missing_mask.sum()} rows with missing nutrients.")
-    
-    # For the sake of this implementation, we assume a simple fill for demonstration
-    # of the logging requirement. In a full implementation, we would calculate distances.
-    # We will log the attempt and the count of rows that remain missing after interpolation.
-    
-    # Simulate interpolation (real logic would involve spatial joins)
-    # Fallback to mean for missing values if interpolation fails to find a neighbor
-    mean_p = gdf['phosphorus'].mean()
-    gdf.loc[missing_mask, 'phosphorus'] = mean_p
-    
-    logger.info(f"Interpolation complete. Remaining missing values: {gdf['phosphorus'].isna().sum()}")
-    return pd.DataFrame(gdf)
 
-def filter_data(df: pd.DataFrame) -> pd.DataFrame:
+def filter_by_data_source_type(
+    df: pd.DataFrame, logger: logging.Logger
+) -> Tuple[pd.DataFrame, int]:
     """
-    Filter data based on:
-    1. Species count >= 20
-    2. Exclude 'experimental' or 'controlled' data_source_type
-    
-    Logs exclusion counts as required by T019.
+    Filter out rows where data_source_type indicates 'manipulated' or 'controlled'.
+    Returns filtered dataframe and count of excluded rows.
     """
-    logger.info("Applying filters to dataset...")
-    
+    if df.empty:
+        return df, 0
+
+    source_col = get_data_source_type_column(df)
+    exclude_values = [
+        "manipulated",
+        "controlled",
+        "nutrient_manipulation",
+        "treatment",
+    ]
+
+    mask = ~df[source_col].isin(exclude_values)
+    excluded_count = (~mask).sum()
+
+    filtered_df = df[mask].reset_index(drop=True)
+    logger.info(
+        f"Filtered by data_source_type: excluded {excluded_count} rows "
+        f"(values: {exclude_values})"
+    )
+    return filtered_df, excluded_count
+
+
+def filter_by_missing_nutrients(
+    df: pd.DataFrame,
+    p_n_available: bool,
+    logger: logging.Logger,
+) -> Tuple[pd.DataFrame, int]:
+    """
+    If p_n_available is True, exclude rows where Phosphorus or Nitrogen values are missing (NaN).
+    Do NOT impute.
+    Returns filtered dataframe and count of excluded rows.
+    """
+    if not p_n_available:
+        logger.info("p_n_available is False. Skipping missing nutrient filter.")
+        return df, 0
+
+    if df.empty:
+        return df, 0
+
+    nutrient_cols = ["phosphorus", "nitrogen"]
+    missing_cols = [c for c in nutrient_cols if c in df.columns]
+
+    if not missing_cols:
+        logger.warning(
+            f"Expected nutrient columns {nutrient_cols} not found in dataframe. "
+            f"Skipping missing nutrient filter."
+        )
+        return df, 0
+
     initial_count = len(df)
-    
-    # 1. Filter by data_source_type
-    if 'data_source_type' in df.columns:
-        experimental_mask = df['data_source_type'].isin(['experimental', 'controlled'])
-        excluded_experimental = experimental_mask.sum()
-        df = df[~experimental_mask]
-        logger.info(f"EXCLUSION LOG: Excluded {excluded_experimental} rows with data_source_type 'experimental' or 'controlled'.")
-    else:
-        logger.warning("Column 'data_source_type' not found. Skipping source type filter.")
-        excluded_experimental = 0
+    mask = df[missing_cols].notna().all(axis=1)
+    excluded_count = (~mask).sum()
 
-    # 2. Filter by species count >= 20
-    if 'species' in df.columns:
-        species_counts = df['species'].value_counts()
-        valid_species = species_counts[species_counts >= 20].index
-        excluded_species_rows = ~df['species'].isin(valid_species)
-        excluded_species_count = excluded_species_rows.sum()
-        
-        excluded_species_list = df[excluded_species_rows]['species'].unique().tolist()
-        
-        df = df[~excluded_species_rows]
-        
-        logger.info(f"EXCLUSION LOG: Excluded {excluded_species_count} rows belonging to species with count < 20.")
-        logger.info(f"EXCLUSION LOG: Affected species (n<20): {excluded_species_list}")
-    else:
-        logger.warning("Column 'species' not found. Skipping species count filter.")
-        excluded_species_count = 0
+    filtered_df = df[mask].reset_index(drop=True)
+    logger.info(
+        f"Filtered by missing nutrients: excluded {excluded_count} rows "
+        f"(columns checked: {missing_cols})"
+    )
+    return filtered_df, excluded_count
 
-    final_count = len(df)
-    logger.info(f"Filtering complete. Initial: {initial_count}, Final: {final_count}. Total excluded: {initial_count - final_count}")
-    
-    return df
 
-def merge_root_soil_data(root_df: pd.DataFrame, soil_df: pd.DataFrame) -> pd.DataFrame:
+def filter_by_sample_size(
+    df: pd.DataFrame,
+    min_samples: int = 20,
+    logger: logging.Logger = None,
+) -> Tuple[pd.DataFrame, int, List[str]]:
     """
-    Merge root and soil datasets.
+    Exclude species with n < min_samples.
+    Returns filtered dataframe, count of excluded species, and list of excluded species names.
     """
-    logger.info("Merging root and soil datasets...")
-    # Assuming a common key or spatial join logic is handled here
-    # For this implementation, we assume a 'location_id' or similar exists
-    if 'location_id' in root_df.columns and 'location_id' in soil_df.columns:
-        merged = pd.merge(root_df, soil_df, on='location_id', how='inner')
-    else:
-        # Fallback to a dummy merge if keys don't exist (for testing structure)
-        logger.warning("Location ID not found. Performing dummy merge for structure verification.")
-        merged = root_df.copy()
-        merged['phosphorus'] = soil_df['phosphorus'].mean()
-        merged['nitrogen'] = soil_df['nitrogen'].mean()
-        
-    logger.info(f"Merged dataset contains {len(merged)} rows.")
-    return merged
+    if df.empty:
+        return df, 0, []
+
+    if "species" not in df.columns:
+        logger.warning("No 'species' column found. Cannot filter by sample size.")
+        return df, 0, []
+
+    species_counts = df["species"].value_counts()
+    excluded_species = species_counts[species_counts < min_samples].index.tolist()
+    excluded_count = len(excluded_species)
+
+    mask = df["species"].isin(species_counts[species_counts >= min_samples].index)
+    filtered_df = df[mask].reset_index(drop=True)
+
+    if logger:
+        logger.info(
+            f"Filtered by sample size (n<{min_samples}): excluded {excluded_count} species, "
+            f"{len(df) - len(filtered_df)} rows"
+        )
+        logger.debug(f"Excluded species: {excluded_species}")
+
+    return filtered_df, excluded_count, excluded_species
+
+
+def write_species_counts_report(
+    total_species_input: int,
+    excluded_species_count: int,
+    excluded_species_list: List[str],
+    rows_excluded_by_source: int,
+    rows_excluded_by_missing_nutrients: int,
+    rows_excluded_by_sample_size: int,
+    config: Dict[str, Any],
+    logger: logging.Logger,
+) -> Path:
+    """
+    Write a JSON file containing species counts and exclusion metrics.
+    """
+    report_path = Path(config["ARTIFACTS_PATH"]) / "reports" / "species_counts.json"
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+
+    report_data = {
+        "total_species_input": int(total_species_input),
+        "excluded_species_count": int(excluded_species_count),
+        "excluded_species_list": excluded_species_list,
+        "rows_excluded_by_source": int(rows_excluded_by_source),
+        "rows_excluded_by_missing_nutrients": int(rows_excluded_by_missing_nutrients),
+        "rows_excluded_by_sample_size": int(rows_excluded_by_sample_size),
+    }
+
+    with open(report_path, "w") as f:
+        json.dump(report_data, f, indent=2)
+
+    logger.info(f"Species counts report written to {report_path}")
+    return report_path
+
+
+def load_processed_data(config: Dict[str, Any]) -> pd.DataFrame:
+    """
+    Load the processed dataset from disk.
+    """
+    data_path = Path(config["DATA_PATH"]) / "processed" / "merged_dataset.csv"
+    if not data_path.exists():
+        raise FileNotFoundError(f"Processed data not found: {data_path}")
+    return pd.read_csv(data_path)
+
 
 def main():
     """
-    Main execution pipeline for data ingestion.
+    Main entry point for T015c: Filter by Missing Nutrients.
+    This function assumes T014b has set p_n_available in state.json.
     """
-    logger.info("Starting data ingestion pipeline (T019: Logging integration)...")
-    
+    config = get_config()
+    logger = setup_logging()  # Use default logger configuration
+
+    logger.info("Starting T015c: Filter by Missing Nutrients")
+
+    # Load state to check p_n_available
+    state_path = Path(config["ARTIFACTS_PATH"]) / "state.json"
+    if not state_path.exists():
+        logger.error("State file not found. Run T014a first.")
+        sys.exit(1)
+
+    with open(state_path, "r") as f:
+        state = json.load(f)
+
+    p_n_available = state.get("p_n_available", False)
+    logger.info(f"p_n_available flag from state: {p_n_available}")
+
+    # Load processed data (output of T013/T015b)
     try:
-        # Load data
-        root_data = load_root_phenotype_data()
-        soil_data = load_soil_data_isric_streaming()
-        
-        # Interpolate
-        soil_data = interpolate_missing_nutrients(soil_data)
-        
-        # Merge
-        merged_data = merge_root_soil_data(root_data, soil_data)
-        
-        # Filter (This is where T019 logging is most critical)
-        filtered_data = filter_data(merged_data)
-        
-        # Save processed data
-        output_path = Path("data/processed/merged_root_soil.csv")
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        filtered_data.to_csv(output_path, index=False)
-        logger.info(f"Pipeline complete. Output saved to {output_path}")
-        
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        raise
+        df = load_processed_data(config)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+
+    initial_rows = len(df)
+    logger.info(f"Loaded dataset with {initial_rows} rows")
+
+    # Apply missing nutrient filter
+    df_filtered, excluded_count = filter_by_missing_nutrients(df, p_n_available, logger)
+
+    final_rows = len(df_filtered)
+    logger.info(
+        f"T015c complete. Excluded {excluded_count} rows due to missing nutrients. "
+        f"Remaining rows: {final_rows}"
+    )
+
+    # Save filtered data (optional, but good practice for pipeline)
+    output_path = Path(config["DATA_PATH"]) / "processed" / "filtered_nutrients.csv"
+    df_filtered.to_csv(output_path, index=False)
+    logger.info(f"Filtered data saved to {output_path}")
+
+    # Note: The actual writing of species_counts.json is handled by T015e,
+    # which aggregates counts from all filter steps. T015c returns the count.
+    # We return the count via stdout for potential chaining, though in a real
+    # pipeline this would be managed by a workflow engine.
+    print(json.dumps({"rows_excluded_by_missing_nutrients": excluded_count}))
+
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

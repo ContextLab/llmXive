@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SegregationProfile"
+description: "Schema for a single grain boundary segregation profile entry."
+type: "object"
+properties:
+  solute_element:
+    type: "string"
+    description: "The solute element symbol (e.g., 'Cr', 'Mo')."
+    pattern: "^[A-Z][a-z]?$"
+  temperature_K:
+    type: "number"
+    description: "Temperature in Kelvin."
+    minimum: 500
+    maximum: 900
+  bulk_concentration:
+    type: "number"
+    description: "Atomic fraction of solute in the bulk."
+    minimum: 0.0
+    maximum: 1.0
+  segregation_energy_eV:
+    type: "number"
+    description: "DFT-derived segregation energy in eV."
+  equilibrium_concentration:
+    type: "number"
+    description: "Calculated equilibrium concentration at the grain boundary."
+    minimum: 0.0
+    maximum: 1.0
+  system_id:
+    type: "string"
+    description: "Identifier for the alloy system (e.g., 'Fe-Cr-Mo')."
+  source:
+    type: "string"
+    description: "Source of the energy data."
+    enum:
+      - "dft_surrogate"
+      - "experimental"
+      - "mocked"
+required:
+  - solute_element
+  - temperature_K
+  - bulk_concentration
+  - segregation_energy_eV
+  - equilibrium_concentration
+  - system_id
+  - source
+additionalProperties: false

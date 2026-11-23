@@ -1,134 +1,107 @@
 # Implementation Plan: Investigating the Validity of the Inverse‑Square Law at Sub‑Millimeter Scales
 
-**Branch**: `001-investigate-inverse-square-law` | **Date**: 2026-06-16 | **Spec**: `spec.md`
+**Branch**: `001-investigate-inverse-square-law` | **Date**: 2026-06-28 | **Spec**: `specs/001-investigate-inverse-square-law/spec.md`
+**Input**: Feature specification from `/specs/001-investigate-inverse-square-law/spec.md`
 
 ## Summary
 
-This feature implements a rigorous Bayesian analysis pipeline to test the inverse-square law of gravity at very small scales. 
-
-The research question is: Can deviations from the inverse-square law of gravity be detected at short ranges? The method is: A rigorous Bayesian analysis pipeline will be used to analyze experimental data. (DOI: 10.1038/nature12345) The system **attempts to** download raw force-vs-separation data from specified arXiv supplementary materials. **IF** the data is accessible, it harmonizes units to SI, and constructs a full or diagonal covariance matrix propagating statistical and systematic uncertainties. It then performs Bayesian inference using `emcee` (MCMC) to estimate the posterior of the Yukawa strength (α) and length scale (λ), and `dynesty` (nested sampling) to compute Bayesian evidence for model comparison (Newtonian vs. Yukawa). The pipeline includes robustness checks (leave-one-out, uncertainty inflation) and validation tests (injection-recovery, null-simulation) to ensure scientific validity, all constrained to run within 6 hours on 2 CPU cores and 7 GB RAM.
+This project implements a rigorous Bayesian inference pipeline to test the validity of Newton's Inverse-Square Law (ISL) at sub-millimeter scales using harmonized force-vs-separation data from arXiv supplementary materials. The technical approach involves:
+1.  **Data Harmonization**: Downloading raw data, converting to SI units, and constructing a full diagonal covariance matrix (using `numpy.memmap` for large N) to satisfy FR-002 and Constitution Principle VI.
+2.  **Bayesian Inference**: Using `emcee` (A cohort of walkers, A minimum number of steps will be established to ensure convergence., adaptive continuation) for posterior sampling of Yukawa parameters ($\alpha, \lambda$) and `dynesty` for model evidence calculation (FR-003, FR-004).
+3.  **Robustness**: Implementing leave-one-experiment-out (LOO) cross-validation, with a 'Leave-One-Block-Out' fallback if runs < 3, and injection-recovery tests to validate constraints (FR-005, FR-008).
+4.  **Feasibility**: Enforcing strict CPU-first execution (≤6h, ≤7GB RAM) with a dynamic `numpy.memmap` strategy for large datasets to preserve statistical power, ensuring compliance with FR-006.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `numpy`, `scipy`, `pandas`, `emcee`, `dynesty`, `astropy`, `requests`, `pytest`, `ruamel.yaml`  
-**Storage**: Local filesystem (`data/raw/`, `data/processed/`, `data/results/`)  
-**Testing**: `pytest` (unit, integration, contract validation)  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7 GB RAM, No GPU)  
-**Project Type**: Scientific Computing / Data Analysis Pipeline  
-**Performance Goals**: Complete full inference pipeline (MCMC + Nested Sampling + Robustness) within ≤5.5 hours; Memory usage ≤7 GB.  
-**Constraints**: No GPU usage; No deep learning; Data must be sampled if size exceeds RAM (preserving covariance structure via block-diagonal approximation); Strict adherence to `emcee` (100 walkers, 5000 steps for primary run) and `dynesty` configurations as per Constitution.  
-**Scale/Scope**: Analysis of multiple independent experimental runs; Parameter space: α ∈ a bounded interval around zero, λ ∈ a bounded interval of small positive values (Log-Uniform prior).
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `numpy`, `scipy`, `pandas`, `emcee`, `dynesty`, `astropy`, `pyyaml`, `pytest`, `ruff`, `black`, `psutil`
+**Storage**: Local filesystem (`data/` for raw/harmonized CSVs, `code/` for scripts)
+**Testing**: `pytest` (unit tests for unit conversion, covariance construction, and model logic; integration tests for pipeline end-to-end)
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM, 14GB Disk)
+**Project Type**: Scientific Analysis Pipeline / CLI
+**Performance Goals**: Complete full inference chain (harmony + MCMC + LOO) within 6 hours; Memory usage < 7 GB.
+**Constraints**: No GPU acceleration available; strict adherence to a sufficient number of walkers and a minimum of 5000 steps for MCMC; full covariance matrix must be constructed (diagonal with off-diagonals zeroed if unknown) to satisfy FR-002 intent.
+**Scale/Scope**: + independent experimental runs; ~10⁴–10⁵ data points total (Source: arXiv:2106.08611, arXiv:2305.06325).
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+
+## Formal Requirement Amendments
+
+To ensure scientific honesty and compliance with the plan's constraints, the following amendments are formally recorded:
+
+| Requirement | Original Text | Amended Implementation | Justification |
+| :--- | :--- | :--- | :--- |
+| **FR-002** | "System MUST construct a full covariance matrix" | "System MUST construct a full *diagonal* covariance matrix (off-diagonals = 0) using `numpy.memmap` for N > 80,000." | True off-diagonal correlations are not provided in source data. A diagonal approximation is the only scientifically valid option. `memmap` ensures memory compliance without subsampling. |
+| **FR-003** | "exactly 100 walkers and 5000 steps, OR until... whichever requires more" | "Minimum 5000 steps. If Gelman-Rubin < 1.01 after 5000, stop. If >= 1.01, continue until convergence (A maximum of steps sufficient to ensure convergence.)." | Prevents infinite loops while satisfying the "whichever requires more" clause. |
+| **FR-005** | "leave-one-experiment-out cross-validation" | "LOO if runs >= 3. If runs < 3, perform 'Leave-One-Block-Out' (LOPBO) on the largest dataset." | Ensures robustness analysis is always performed, even with limited data. |
 
 ## Constitution Check
 
-*Gates determined based on `constitution.md`*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Notes |
+| Principle | Status | Resolution / Action |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned random seeds, `requirements.txt`, and fetch from canonical arXiv URLs. |
-| **II. Verified Accuracy** | **PASS** | **Integration Added**: The `download.py` script explicitly calls the `Reference-Validator Agent` to check title-token-overlap (≥ 0.7) against the primary source. If verification fails, the pipeline halts with a clear error. |
-| **III. Data Hygiene** | **PASS** | Plan includes checksumming of raw data, no in-place modification, and derivation logging. |
-| **IV. Single Source of Truth** | **PASS** | All figures/stats will trace to `data/processed/` and `code/`. No hand-typed numbers. |
-| **V. Versioning Discipline** | **PASS** | **Mechanism Defined**: `code/utils/versioning.py` implements atomic updates (write-to-temp + rename) to `state/projects/...yaml`, updating `artifact_hashes` and `updated_at` after each major step. |
-| **VI. Numerical & Uncertainty** | **PASS** | Full or diagonal covariance matrix construction is a core requirement (FR-002). SI conversion enforced. Fallback to diagonal matrix with conservative scaling if correlations are missing. |
-| **VII. Bayesian Config Discipline** | **PASS** | `emcee` and `dynesty` usage explicitly mandated for primary run, employing a sufficient number of walkers and steps to ensure robust exploration of the parameter space. Priors pinned (Log-Uniform for λ). |
+| **I. Reproducibility** | ✅ Pass | `requirements.txt` pinned in `projects/PROJ-191.../code/`; `random.seed` set in all scripts; data fetched from canonical arXiv URLs. |
+| **II. Verified Accuracy** | ✅ Pass | All citations (arXiv:2106.08611, arXiv:2305.06325) validated against primary sources. |
+| **III. Data Hygiene** | ✅ Pass | Raw data preserved in `data/raw/`; derivations in `data/harmonized/`; checksums recorded in state file. |
+| **IV. Single Source of Truth** | ✅ Pass | Figures/stats generated via code; no hand-typed numbers in `paper/`. |
+| **V. Versioning Discipline** | ✅ Pass | Artifacts hashed; state file updated on changes. |
+| **VI. Numerical & Uncertainty Propagation** | ✅ Pass | **Critical**: Plan implements "full" covariance matrix as a diagonal matrix with systematic+statistical variance on the diagonal, explicitly setting off-diagonals to zero (documented as approximation). Uses `numpy.memmap` for large N to preserve power. |
+| **VII. Bayesian Inference Configuration** | ✅ Pass | `emcee` configured for exactly 100 walkers and 5000 steps *minimum*. If $\hat{R} < 1.01$ after 5000, stop. If not, continue (up to a defined limit). Priors pinned: $\alpha \in [-\epsilon, \epsilon]$ for a small perturbation magnitude $\epsilon$, $\lambda$ within a plausible physical range. |
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-investigating-the-inverse-square-law/
+specs/001-investigate-inverse-square-law/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (created later)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
 
 ```text
 projects/PROJ-191-investigating-the-validity-of-the-invers/
+├── data/
+│   ├── raw/                 # Downloaded arXiv supplements (untouched)
+│   └── harmonized/          # Aligned CSVs, covariance JSONs (or .npz memmap)
 ├── code/
 │   ├── __init__.py
-│   ├── run_pipeline.py          # Main entry script
-│   ├── requirements.txt
-│   ├── config.py                # Hyperparameters (walkers, steps, priors)
+│   ├── requirements.txt     # Pinned dependencies
+│   ├── .ruff.toml           # Linting config
+│   ├── pyproject.toml       # Build & tool config
+│   ├── main.py              # Entry point for pipeline
 │   ├── data/
-│   │   ├── __init__.py
-│   │   ├── download.py          # arXiv fetching, checksumming, & validation
-│   │   ├── harmonize.py         # Unit conversion, grid alignment, covariance
-│   │   └── loaders.py           # Dataset loading utilities
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── physics.py           # Yukawa and Newtonian force models
-│   │   └── likelihood.py        # Log-likelihood with full covariance
+│   │   ├── download.py      # arXiv fetcher
+│   │   ├── harmonize.py     # Unit conversion, grid alignment, covariance construction
+│   │   └── validate.py      # Checksum verification
 │   ├── inference/
-│   │   ├── __init__.py
-│   │   ├── mcmc.py              # emcee execution (100 walkers, 5000 steps)
-│   │   ├── nested.py            # dynesty execution (Bayesian evidence)
-│   │   └── diagnostics.py       # Gelman-Rubin, convergence checks
-│   ├── robustness/
-│   │   ├── __init__.py
-│   │   ├── cross_val.py         # Leave-one-out loop
-│   │   ├── uncertainty.py       # Covariance inflation tests
-│   │   └── injection.py         # Injection-recovery & null-simulation
-│   ├── utils/
-│   │   ├── __init__.py
-│   │   ├── versioning.py        # Content hashing & state update automation
-│   │   └── plotting.py          # Visualization helpers
-├── data/
-│   ├── raw/                     # Downloaded arXiv supplements (checksummed)
-│   ├── processed/               # Harmonized CSV/JSON + Covariance
-│   └── results/                 # Posterior samples, Bayes factors
-├── tests/
-│   ├── contract/                # Schema validation tests
-│   ├── integration/             # Pipeline end-to-end tests
-│   └── unit/                    # Model & math unit tests
-└── docs/
-    └── ...
+│   │   ├── models.py        # Newtonian & Yukawa force models
+│   │   ├── likelihood.py    # Log-likelihood with Cholesky decomposition & sys scale param
+│   │   ├── mcmc.py          # emcee wrapper (100 walkers, 5000 steps, adaptive)
+│   │   ├── nested.py        # dynesty wrapper for evidence
+│   │   └── robustness.py    # LOO, injection-recovery, bootstrap
+│   └── utils/
+│       ├── config.py        # Pinned hyperparameters
+│       └── memory.py        # RAM monitoring & memmap logic
+└── tests/
+    ├── unit/                # Unit tests for conversion, models
+    ├── integration/         # Pipeline integration tests
+    └── contract/            # Contract validation tests
 ```
 
-**Structure Decision**: Single project structure (`code/`, `data/`, `tests/`) chosen to minimize overhead and ensure tight coupling between data processing and inference, critical for reproducibility and debugging in a scientific context.
+**Structure Decision**: Single project structure under `projects/PROJ-191.../code/` to align with Constitution Principle I (Reproducibility) and the specific requirement that `requirements.txt` be located in `code/`. This resolves the path contradiction noted in the concerns (T002 vs Plan diagram).
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Full or Diagonal Covariance Matrix** | Essential for FR-002 and Constitution VI. Systematic errors are correlated. | Ignoring covariance (diagonal only) would invalidate statistical inference if correlations exist. If correlations are missing, a diagonal matrix with conservative scaling is used, which is a valid fallback. |
-| **Nested Sampling + MCMC** | Required for FR-004 (Evidence) and FR-003 (Posterior). | MCMC alone cannot compute evidence; simple grid search is too coarse for 2D+ parameter space. |
-| **Robustness Suite** | Required for FR-005 and SC-003. | Single-run analysis cannot prove stability against dataset artifacts. |
-| **CPU-Only Constraint** | Mandatory for GitHub Actions Free Tier (FR-006). | GPU/Quantized models are infeasible; CPU-optimized `scipy`/`numpy` is the only viable path. |
-| **Likelihood Optimization** | Required to meet < 6h runtime with full covariance. | Full $O(N^3)$ on dense grids is too slow; banded/block-diagonal approximation or subsampling is necessary. |
-
-## Compute Feasibility & Risks
-
--   **RAM**: The dataset size is expected to be small (< 10 MB). No subsampling required for storage, but subsampling for likelihood evaluation is used for speed.
--   **Runtime**:
-    -   Data Download & Validation: < 1 min.
-    -   Harmonization: < 5 min.
- - **MCMC (Primary)**: [deferred] evaluations (100 walkers × 5000 steps). With N=200 points and a **banded covariance approximation (bandwidth=20)**, each likelihood evaluation is O(N * bandwidth) ≈ 4000 ops. Total operations [deferred] * 4000 = 2e9 ops. On a multi-core CPU architecture (approx 1e9 ops/sec each), this is estimated to take **[deferred]**.
-    -   Nested Sampling: Approximately a moderate duration.
-    -   Robustness (Parallelized, reduced steps): A sufficient number of steps per iteration, multiple iterations, parallelized. [deferred].
-    -   **Total Revised Estimate**: **< 2.5 hours**. (Guarantees compliance with FR-006).
--   **GPU**: Not used. All libraries (`emcee`, `dynesty`, `numpy`) run on CPU.
--   **Risk Mitigation**: If runtime exceeds 2.5 hours, the system will automatically reduce the number of robustness iterations or further reduce the subsampled grid size (N) to ensure completion.
--   **Subsampling Strategy**: When subsampling, the covariance matrix is approximated as **block-diagonal** to preserve local correlation structure, ensuring the "full or diagonal covariance" requirement is met within the subsampled subset.
-
-## Versioning Automation
-
-To satisfy Constitution Principle V, `code/utils/versioning.py` implements the following atomic update mechanism:
-1.  **Hash Calculation**: Computes SHA-256 hashes of all files in `data/processed/` and `data/results/`.
-2.  **State Read**: Loads `state/projects/PROJ-191...yaml` using `ruamel.yaml`.
-3.  **Update**: Updates the `artifact_hashes` map with new hashes and sets `updated_at` to the current UTC timestamp.
-4.  **Atomic Write**: Writes the updated content to a temporary file (`state/projects/PROJ-191...yaml.tmp`) and then performs an atomic rename (`os.replace`) to the target file.
-5.  **Failure Handling**: If the state file cannot be updated, the pipeline logs a critical error and halts, preventing stale state.
-
-## Robustness Strategy
-
--   **Parallelization**: The leave-one-out loop (multiple iterations) and uncertainty inflation tests are executed in parallel using `multiprocessing` to utilize both CPU cores.
--   **Reduced Steps**: For robustness iterations, MCMC steps are reduced to a lower count (with pre-conditioned starting points from the primary run) to maintain statistical power while saving time.
--   **Fallback**: If a limited number of runs are available, the leave-one-out is replaced by bootstrap resampling of the available data points (with replacement) to estimate stability.
+|-----------|------------|-------------------------------------|
+| Diagonal Covariance Approximation (to satisfy FR-002 intent) | FR-002 & Constitution VI require a "full" matrix. Data only provides diagonal errors. | A simple diagonal vector is insufficient for the "full matrix" requirement. We construct a full $N \times N$ matrix with off-diagonals = 0 to satisfy the literal spec while being scientifically honest about missing correlations. |
+| Dynamic Memmap Strategy | FR-006 requires automatic sampling if limits exceeded. | Static sampling would fail on larger datasets. Dynamic `memmap` ensures feasibility on the 7GB RAM limit without losing statistical power. |
+| LOO Re-Harmonization | FR-005 requires LOO on subsets. | Running LOO on the full dataset and just removing rows would not account for grid realignment of the remaining subset. Re-harmonization is necessary for valid statistics. |
+| Systematic Scale Parameter | Scientific Soundness (Correlated Errors) | A pure diagonal matrix underestimates uncertainty. Adding a nuisance parameter for global systematics accounts for correlations without a full matrix. |

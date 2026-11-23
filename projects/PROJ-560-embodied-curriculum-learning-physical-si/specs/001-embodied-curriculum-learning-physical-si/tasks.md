@@ -1,250 +1,78 @@
 # Tasks: Embodied Curriculum Learning: Physical Simulation for Abstract Concept Teaching
 
-**Input**: Design documents from `/specs/[###-feature]/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure: `code/src/`, `code/tests/`, `data/raw/`, `data/processed/`, `data/synthetic/`, `data/derivation_logs/`, `state/projects/PROJ-560-embodied-curriculum-learning-physical-si/`
-- [ ] T002 Initialize Python 3.11 project with `pandas`, `scipy`, `statsmodels`, `numpy`, `pyyaml`, `json` dependencies in `code/requirements.txt` (pin exact versions)
-- [ ] T003 [P] Configure linting (`ruff` or `flake8`) and formatting (`black`) tools in `code/`
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T004 Setup directory structure for `data/raw`, `data/processed`, `data/synthetic`, `data/derivation_logs`
-- [X] T005 [P] Implement `code/src/__init__.py` and basic logging configuration in `code/src/logging_config.py`
-- [X] T006 [P] Create `DatasetRecord` dataclass in `code/src/models.py` with `pre_test_score`, `post_test_score`, `instruction_type`, `covariates` (static data structure only)
-- [X] T007 Create `AnalysisResult` and `SensitivitySweep` dataclasses in `code/src/models.py`
-- [X] T008 Implement CLI argument parser in `code/src/cli.py` supporting `--mode`, `--input`, `--sweep_thresholds`, and `--seed`
-- [X] T009 Setup deterministic random seed management in `code/src/utils.py` for reproducibility (numpy, python)
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Processing and Synthetic Data Generation (Priority: P1) 🎯 MVP
-
-**Goal**: Provide a deterministic, CPU-tractable environment that loads public data or generates synthetic data for validation.
-
-**Independent Test**: The system can be tested by either (a) loading a sample of the OpenML math reasoning dataset and outputting a processed CSV, or (b) invoking the synthetic data generator to create a labeled dataset, all without requiring external network calls or GPU resources.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T010 [P] [US1] Unit test for `DatasetRecord` validation in `code/tests/test_models.py`
-- [X] T011 [P] [US1] Unit test for `SyntheticDataGenerator` output schema in `code/tests/test_synthetic_gen.py`
-
-### Implementation for User Story 1
-
-- [X] T012 [US1] Implement `load_public_dataset` in `code/src/data_loader.py` to read CSV/JSON, validate required columns (`pre_test_score`, `post_test_score`, `instruction_type`), and **automatically invoke** `SyntheticDataGenerator.generate()` if `instruction_type` is missing (FR-008). The fallback must be a hard-coded code path, not an error or manual trigger.
-- [~] T013 [US1] Implement `calculate_gain_scores` in `code/src/data_loader.py` to compute `post - pre`, excluding rows with missing values and logging them to `data/derivation_logs/skipped_records.log` (FR-001).
-- [X] T014 [US1] Implement `SyntheticDataGenerator` class in `code/src/synthetic_gen.py` to generate datasets with configurable mean differences, sample sizes, and ground truths for statistical validation (FR-009).
-- [ ] T014.1 [US1] Implement `generate_mapping_log` in `code/src/synthetic_gen.py` to create `data/synthetic/mapping_log.json` (for Synthetic Mode only) documenting the causal chain: `Physics_Action` -> `Virtual_Object_State` -> `Abstract_Principle_Inference`, satisfying Constitution Principle VI. This must be executed as part of the synthetic generation flow.
-- [X] T016 [US1] Add validation logic in `code/src/data_loader.py` to detect missing critical columns and **automatically invoke** `SyntheticDataGenerator.generate()` if `instruction_type` is missing in public data, ensuring the fallback is deterministic and requires no manual intervention (FR-008).
-- [X] T015 [US1] Implement CLI entry point logic in `code/src/cli.py` to switch between `--mode=secondary_analysis` and `--mode=synthetic` and write output to `data/processed/` or `data/synthetic/` (depends on T008, T012, T014, T016).
-- [~] T017 [US1] Add logging for data loading, skipped records, and synthetic generation parameters.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Statistical Comparison and Inference (Priority: P2)
-
-**Goal**: Perform independent samples t-tests comparing mean gain scores, framing results as associational, and applying corrections.
-
-**Independent Test**: The system can be tested by running the analysis script on a synthetic dataset where the "embodied" group has a known mean gain and the "static" group has a known mean gain., verifying that the output reports a t-statistic and p-value consistent with these inputs.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T018 [P] [US2] Unit test for Welch's t-test logic in `code/tests/test_stats_engine.py`
-- [X] T019 [P] [US2] Unit test for Bonferroni correction logic in `code/tests/test_stats_engine.py`
-
-### Implementation for User Story 2
-
-- [X] T020 [US2] Implement `run_t_test` in `code/src/stats_engine.py` to perform Student's or Welch's t-test on gain scores based on Levene's test result (FR-002).
-- [X] T021 [US2] Implement `calculate_effect_size` (Cohen's d) and `confidence_interval` in `code/src/stats_engine.py` (FR-002).
-- [X] T022 [US2] Implement `apply_bonferroni_correction` in `code/src/stats_engine.py` to adjust alpha based on number of concepts tested (FR-004).
-- [X] T023 [US2] Implement `frame_inference` in `code/src/stats_engine.py` to explicitly label all findings as "associational" and include methodological caveats (FR-003).
-- [X] T024 [US2] Implement `check_collinearity` in `code/src/stats_engine.py` to detect |r| > 0.8 between predictors and report diagnostics (FR-006).
-- [X] T025 [US2] Implement `calculate_power` in `code/src/stats_engine.py` to compute achieved power and flag "underpowered" results if < 0.80 (FR-007).
-- [ ] T026 [US2] Aggregate all statistical results into an `AnalysisResult` object and write to JSON output in `data/processed/results.json`.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Sensitivity Analysis for Thresholds (Priority: P3)
-
-**Goal**: Execute a sensitivity analysis sweeping inclusion thresholds to demonstrate robustness of the headline effect size.
-
-**Independent Test**: The system can be tested by running the analysis with the `--sweep` flag on a dataset with N ≥ 30 and verifying that the output contains a table of effect sizes corresponding to each threshold value.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T027 [P] [US3] Unit test for sensitivity sweep logic in `code/tests/test_sensitivity.py`
-
-### Implementation for User Story 3
-
-- [X] T028 [US3] Implement `run_sensitivity_sweep` in `code/src/sensitivity.py` to iterate over thresholds representing small, moderate, and large significance levels (FR-005).
-- [~] T029 [US3] Implement logic to skip sweep and flag "insufficient data for robustness check" if N < 30 (FR-005).
-- [X] T030 [US3] Implement `check_robustness_warning` in `code/src/sensitivity.py` to flag `robustness_warning: true` if effect size drops below a substantively meaningful threshold at any threshold (FR-005).
-- [~] T031 [US3] Aggregate sweep results into `SensitivitySweep` objects and append to the main JSON report.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T037 [P] Documentation updates in `quickstart.md` and `docs/` explaining the data processing, statistical methods, and the associational framing of results.
-- [ ] T038 Code cleanup and refactoring to ensure type hinting and docstrings are complete.
-- [ ] T039 [P] Performance verification: Run `code/src/cli.py` with N=10,000 synthetic records and verify exit time < 600s (10 minutes) **wall-clock time on a 2-core CPU, 7GB RAM** (SC-001).
-- [ ] T040 [P] Additional unit tests for edge cases (N < 30, missing columns, collinearity).
-- [ ] T041 Security hardening (ensure no arbitrary code execution in data loading).
-- [ ] T042 Run `quickstart.md` validation to ensure end-to-end flow works.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 for data input
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1/US2 for data and base stats
-- **Polish (Final Phase)**: Depends on all user stories being complete
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for DatasetRecord validation in code/tests/test_models.py"
-Task: "Unit test for SyntheticDataGenerator output schema in code/tests/test_synthetic_gen.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement load_public_dataset in code/src/data_loader.py"
-Task: "Implement SyntheticDataGenerator class in code/src/synthetic_gen.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data/Synthetic)
- - Developer B: User Story 2 (Stats/Inference)
- - Developer C: User Story 3 (Sensitivity)
-3. Stories complete and integrate independently.
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All statistical tasks must run on CPU-only CI with a minimal core count and constrained memory allocation. No GPU, no 8-bit quantization, no large model training.
-- **Data Integrity**: Never fabricate input data. Use real public datasets or synthetic data *only* for pipeline validation as per FR-009.
-- **Constitution Principle VI**: The `mapping_log` is required ONLY for Synthetic Data Generation Mode to document the physics-to-math mapping. Secondary Analysis Mode is exempt.
-- **FR-008 Compliance**: If `instruction_type` is missing in public data, the system MUST automatically invoke the Synthetic Data Generator. No manual intervention or error-only fallback is permitted.
-- **Associational Framing**: All statistical findings MUST be framed as "associational" (FR-003). No causal claims (e.g., "teaching" vs "training") are permitted in the output.
+**Inputs**: Active `spec.md`, `plan.md`, data model and contracts in `specs/001-embodied-curriculum-learning-physical-si/`, and existing verified artifacts.
+
+This is a research implementation plan. Verified work from the prior task list is preserved with its checked status; all pending work is regrouped into canonical, individually verifiable tasks. The prior list's duplicate `T026c` identity and malformed format are repaired by consolidating the US2 partial-report, US3 robustness flag, and final integration into a single, deterministically checkable final-report task (T090).
+
+**Primary-analysis labeling**: Per spec FR-002, the independent-samples t-test is the PRIMARY analysis and ANCOVA is a supplementary baseline-adjusted check. (The plan/contract's ANCOVA-primary designation is a plan-root drift flagged for kickback; tasks follow the spec.)
+
+**Format scope**: All data I/O is CSV (input) and JSON (results). The plan/data-model mention of Parquet is narrowed to CSV with justification: a single self-describing interchange format avoids the extra `pyarrow` dependency on the CPU-only runner and no dataset in scope exceeds CSV-tractable size. (Plan/data-model Parquet claim flagged for kickback.)
+
+**Checksums**: Per Constitution III, SHA-256 checksums of every file under `data/` are recorded in `data/derivation_logs/artifact_hashes.json` (project-owned path; the canonical `state/...` hash map is platform-owned and must not be written by project scripts). The plan's `state/.../artifact_hashes.yaml` path is a plan-root drift flagged for kickback.
+
+## Phase 1: Setup and first end-to-end analysis
+
+**Goal**: A runnable, deterministic pipeline on real or synthetic-validation inputs, producing a schema-conformant result file early.
+
+- [X] T001 [P] [US1] Establish project layout and pinned dependencies: `code/src/`, `code/tests/`, `data/raw/`, `data/processed/`, `data/synthetic/`, `data/results/`, `data/derivation_logs/`, and `code/requirements.txt` with exact pinned versions of `pandas`, `scipy`, `statsmodels`, `numpy`, `pyyaml`, `pytest` (FR-001; Constitution I, III).
+- [ ] T002 [P] [US1] Define core data structures and configuration: `DatasetRecord`, `AnalysisResult`, `SensitivitySweep` dataclasses in `code/src/models.py`; `INFERENTIAL_FRAMING_STRING` constant in `code/src/config.py`; deterministic seed management in `code/src/utils.py`; CLI argument parser in `code/src/cli.py` supporting `--mode`, `--input`, `--sweep_thresholds`, `--seed`, `--n`, `--mean_diff_embodied`, `--mean_diff_static` (FR-003, FR-009). (The plan's project-structure tree omits `models.py`, `config.py`, `utils.py` and `data/results/`; plan-root drift flagged for kickback.) <!-- FAILED-IN-EXECUTION: code/src/cli.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/cli.py exit=1 -->
+- [ ] T003 [US1] Implement data loading and gain-score pipeline in `code/src/data_loader.py`: `load_public_dataset` (CSV validation of `pre_test_score`, `post_test_score`, `instruction_type`), `calculate_gain_scores` excluding missing rows with reason `missing_pre_test` logged to `data/derivation_logs/skipped_records.log` as PLAIN-TEXT lines (format: `<row_index>\t<reason>`, one per skipped row, matching spec US-1 Acceptance 3 and data-model File Formats), and `handle_fallback_logic` implementing BOTH FR-008 paths: (a) success path — when `instruction_type` is missing from public data, AUTO-INVOKE the `SyntheticDataGenerator` (FR-009) with the configured defaults and continue processing on the generated dataset; (b) terminal path — exit code 1 with stderr message `Primary research question cannot be answered: missing instruction_type and synthetic generation failed` only if synthetic generation also fails (FR-001, FR-008).
+- [ ] T004 [US1] Implement `SyntheticDataGenerator` in `code/src/synthetic_gen.py` with deterministic seed, configurable mean differences and sample sizes, output CSV at `data/synthetic/generated_data.csv` matching the `DatasetRecord` schema, and a `mapping_log.json` (synthetic mode only) linking physics parameters to abstract concept variables using defaults when parameters are not provided (FR-009; Constitution VI).
+- [ ] T005 [US1] Implement the CLI mode dispatch in `code/src/cli.py` routing `--mode=secondary_analysis` and `--mode=synthetic` to the loaders above, including the FR-008 auto-invoke-synthetic fallback when public data lacks `instruction_type` (calling `handle_fallback_logic` from T003), with logging handlers writing plain-text skipped-record lines to `data/derivation_logs/skipped_records.log` (FR-001, FR-008).
+- [ ] T006 [US2] Implement the statistical engine in `code/src/stats_engine.py`: `run_t_test` (Student's or Welch's selected by Levene's test, reporting adjusted degrees of freedom) as the PRIMARY analysis per FR-002, `run_ancova` (supplementary baseline-adjusted check controlling for pre-test scores), `calculate_effect_size` (Cohen's d and 95% CI), `detect_multiple_concepts`, `apply_bonferroni_correction` (α_adj = 0.05 / N_concepts), `frame_inference` (retrieving `INFERENTIAL_FRAMING_STRING` from `code/src/config.py`), `check_collinearity` (|r| > 0.8), `calculate_power` (flagging power < 0.80 as underpowered), and `aggregate_stats_results` (FR-002, FR-003, FR-004, FR-006, FR-007).
+- [ ] T007 [US3] Implement `run_sensitivity_sweep` in `code/src/sensitivity.py`: skip with `insufficient_data: true` and the exact string `insufficient data for robustness check` when N < 30; otherwise sweep thresholds from `--sweep_thresholds` (default {0.01, 0.05, 0.10}), producing entries with `threshold_value`, `n_participants_retained`, `effect_size_cohen_d`, `robustness_flag` (FR-005).
+- [ ] T008 [US2] [US3] Implement `finalize_results` in `code/src/stats_engine.py` and wire it into the CLI so a single documented run produces the final report at `data/results/results.json` conforming exactly to `specs/001-embodied-curriculum-learning-physical-si/contracts/analysis_result.schema.yaml` — required keys are exactly the schema's `required` list (`ancova_f_statistic`, `ancova_p_value`, `ancova_effect_size`, `t_statistic`, `p_value`, `corrected_p_value`, `effect_size_cohen_d`, `confidence_interval`, `inference_framing` = "associational", `test_type`, `degrees_of_freedom`, `power_achieved`, `power_flag`, `collinearity_warnings`), with `sensitivity_analysis` and `concept_id` as optional schema-listed properties. NO top-level `robustness_warning` key is emitted (the contract declares `additionalProperties: false` and does not list it); instead, the SC-003 robustness warning is surfaced by the per-entry `robustness_flag` fields within `sensitivity_analysis` (true when that threshold's effect size drops below 0.2), and T013/T014 report the aggregate warning in the summary table, figure caption and results.md derived from those entries. (If the panel amends the contract to add a top-level `robustness_warning` property, that amendment is flagged for kickback and T008 will add the key then.)
+  - This task replaces the prior partial/integration split (former T026b/T026c) with one step whose output is deterministically verifiable against the contract schema.
+  - **Verification**: run `python -m code.src.cli --mode=synthetic --n=1000 --mean_diff_embodied=10.0 --mean_diff_static=5.0 --sweep_thresholds=0.01,0.05,0.10` and validate `data/results/results.json` against the schema with `jsonschema` (validation must PASS, including the `additionalProperties: false` check); check the t-statistic sign and p-value are consistent with the known ground-truth mean difference (US-2 independent test).
+  - **Dependencies**: T006, T007.
+
+**Checkpoint**: The documented command executes end-to-end and `data/results/results.json` validates against the contract. No report writing from expected or invented numbers.
+
+## Phase 2: Complete the study and validate its evidence
+
+- [ ] T009 [US1] Attempt the real-data path with a NAMED dataset and access recipe: fetch the UCI Student Performance dataset via `ucimlrepo.fetch_ucirepo(id=320)` into `data/raw/` (CSV export; Parquet is out of scope per the format decision above), run `--mode=secondary_analysis`, and record in `data/derivation_logs/data_source_log.json` the exact package call (`ucimlrepo.fetch_ucirepo(id=320)`, UCI Student Performance dataset) and whether `instruction_type` was present. If the variable is absent, the loader must auto-invoke the synthetic-validation path per FR-008 (T003/T005) and the log must state that the primary research question cannot be answered from public data — never impute or fabricate condition labels.
+  - **Verification**: `data/processed/` contains a gain-score CSV from whichever path executed, and the source log names the exact dataset package/call and the outcome of the `instruction_type` check.
+- [ ] T010 [US2] [US1] Add focused unit tests covering ALL THREE planned test modules: (a) `code/tests/test_stats_engine.py`: `test_t_test_underpowered` (N < 30 case verifying the underpowered flag), `test_collinearity_detection` (constructed predictor pair with |r| > 0.8 verifying the diagnostic), and a Welch-switch test (unequal variances, Levene p < 0.05, verifying adjusted degrees of freedom); (b) `code/tests/test_data_loader.py`: a missing-`instruction_type` test verifying the FR-008 auto-invoke-synthetic fallback fires, a missing-pre-test test verifying exclusion with the `missing_pre_test` plain-text log line, and a schema-validation test on loaded records; (c) `code/tests/test_synthetic_gen.py`: a determinism test (same seed → identical CSV) and a `DatasetRecord`-schema conformance test. Execute `pytest code/tests/` and record the actual pass/fail output in `code/tests/pytest_results.txt` (FR-002, FR-006, FR-007, FR-008, FR-009).
+- [ ] T011 [US2] [US3] Run the complete specified analysis domain on the working dataset: full t-test (primary, per FR-002) + supplementary ANCOVA + Bonferroni correction across all detected concepts, power analysis, collinearity diagnostics, and the full threshold sweep {0.01, 0.05, 0.10}, writing the final report to `data/results/results.json` and per-concept results (if N_concepts > 1) to `data/results/by_concept/<sanitized_concept_id>.json` (concept_id lowercased, non-alphanumerics replaced with `_`), where EACH per-concept file is a complete `AnalysisResult` document that independently validates against the same `specs/001-embodied-curriculum-learning-physical-si/contracts/analysis_result.schema.yaml` schema. Preserve every constraint from the specification, including the N ≥ 30 gate on the sweep and the associational framing on every result (FR-002–FR-007, SC-001–SC-005).
+  - **Verification**: every required schema key is present and populated from real computed values; every file in `data/results/by_concept/` passes `jsonschema` validation against the contract; the sweep is skipped with the exact insufficiency string if N < 30.
+- [ ] T012 [US1] Performance verification per SC-001: run the pipeline with `--mode=synthetic --n=10000` writing its outputs to the SEPARATE path `data/results/perf_run/` (so it cannot clobber T011's deliverable at `data/results/results.json`) on the CI runner (≥ 2 cores, verified via `nproc`) and write `data/results/perf_log.json` with schema `{ "timestamp": "<ISO8601>", "n_records": int, "duration_seconds": float, "command_executed": "<string>" }`; pass requires duration ≤ 600 s wall-clock and the log file present. **Sequenced after T011** (not parallel) to guarantee T011's report is finalized first.
+
+**Checkpoint**: All required runs complete; artifacts match actual computations, not expectations.
+
+## Phase 3: Reproducible results and paper handoff
+
+- [ ] T013 [US2] [US3] Generate result tables and figures directly from `data/results/results.json` using a script at `code/src/report_figures.py`: a summary table of t-test/ANCOVA statistics, effect sizes, corrected p-values and power per concept, plus an aggregate `robustness_warning` column derived from the `sensitivity_analysis` entries' `robustness_flag` fields (true when any swept effect size drops below 0.2, per SC-003) (CSV at `data/results/summary_table.csv`), and a figure showing Cohen's d across the threshold sweep (PNG at `figures/sensitivity_sweep.png`), with the robustness warning stated in the figure caption when triggered (SC-002, SC-003).
+- [ ] T014 Write a concise methods and results account in `specs/001-embodied-curriculum-learning-physical-si/results.md`, linked cell-for-cell to `data/results/results.json`, `data/results/summary_table.csv` and `figures/sensitivity_sweep.png`. State honestly: (a) whether public data contained `instruction_type` and therefore whether the finding is a secondary analysis of real data or a pipeline validation on synthetic data; (b) the associational framing and its rationale; (c) any underpowered conditions, collinearity diagnostics, and robustness warnings; (d) negative or null findings without over-interpretation (FR-003, SC-002, SC-005).
+  - **Verification (Constitution IV traceability)**: implement `code/src/verify_results_traceability.py` which extracts every numeric literal from `results.md` and asserts each appears (to printed precision) in `data/results/results.json` or `data/results/summary_table.csv`; the task passes only when the script exits 0, proving no hand-typed statistics.
+- [ ] T015 Re-run the documented workflow from its declared inputs (fresh clone semantics: pinned `requirements.txt`, fixed seeds, the commands in `quickstart.md`), confirm `pytest code/tests/` passes, the schema validation of `data/results/results.json` succeeds, and the performance gate holds; then record SHA-256 checksums of every file under `data/` in `data/derivation_logs/artifact_hashes.json` (Constitution III data-hygiene record; the canonical `state/` hash map is platform-owned) and document the paper-stage handoff in `specs/001-embodied-curriculum-learning-physical-si/results.md` (paper layout, PDF compilation and publication belong to the subsequent paper pipeline and are not duplicated here).
+
+## Dependencies and requirement coverage
+
+| Requirement | Tasks | Demonstrating command |
+|---|---|---|
+| FR-001 data loading / gain scores | T003, T005, T009 | `python -m code.src.cli --mode=secondary_analysis --input data/raw/<file>` |
+| FR-002 t-test (primary), ANCOVA (supplementary) | T006, T008, T011 | `python -m code.src.cli --mode=synthetic --n=1000 ...` |
+| FR-003 associational framing | T002, T006, T008, T014 | schema check on `inference_framing` |
+| FR-004 Bonferroni correction | T006, T011 | `corrected_p_value` in `results.json` |
+| FR-005 sensitivity sweep | T007, T008, T011, T013 | `--sweep_thresholds=0.01,0.05,0.10` |
+| FR-006 collinearity detection | T006, T010, T011 | `collinearity_warnings` in `results.json` |
+| FR-007 power analysis | T006, T010, T011 | `power_achieved` / `power_flag` |
+| FR-008 fallback validation (incl. auto-invoke synthetic) | T003, T005, T009, T010 | missing-column test + source log |
+| FR-009 synthetic generator | T004, T010 | `--mode=synthetic --n=... --seed=...` |
+| SC-001 performance | T012 | perf log ≤ 600 s |
+| SC-002–SC-005 reporting | T008, T011, T013, T014 | schema + summary table + figure |
+
+Execution order: T008 requires T006–T007; T009–T011 follow the Phase 1 checkpoint; T012 runs AFTER T011 (sequential, to protect T011's deliverable); T013–T015 follow Phase 2.
+
+## Revision behavior
+
+- Verified work (T001–T007, formerly the completed setup, loader, generator, stats-engine and sweep tasks) is preserved with checked status; their acceptance criteria are unchanged except where noted below.
+- The prior duplicate `T026c` and the partial-report/integration split are collapsed into T008, whose single deliverable (`data/results/results.json`) is deterministically verifiable against the contract schema — resolving the `task-format` rejection.
+- The prior pending robustness-flag task (former T030) and the missing unit tests (former T040a/T040c) are folded into T008 and T010 respectively; no acceptance criterion was dropped. The SC-003 robustness warning is now delivered via the contract-conformant per-entry `robustness_flag` fields (T008) and surfaced in the summary table, figure caption and results.md (T013/T014).
+- T010 now owns all three planned test modules (`test_stats_engine.py`, `test_data_loader.py`, `test_synthetic_gen.py`), closing the plan-coverage gap.
+- T009 names the concrete dataset (`ucimlrepo.fetch_ucirepo(id=320)`) so the source log is deterministically checkable.
+- T012 is retargeted to `data/results/perf_run/` and sequenced after T011, removing the output-clobber hazard.
+- T014 gains a numeric-traceability verification script (Constitution IV).
+- Skipped-record logging is plain text (spec US-1 Acceptance 3 / data-model File Formats), and the FR-008 auto-invoke-synthetic success path is an explicit verifiable step in T003/T005/T010.
+- Plan/spec/contract-rooted drifts flagged for kickback (not fixable in tasks.md): (1) plan/contract designate ANCOVA primary while spec FR-002 makes the t-test primary — tasks follow the spec; (2) contract lacks a top-level `robustness_warning` property while spec US-3/SC-003 mention a `summary_report` warning — tasks derive it from per-entry flags; (3) spec `SensitivitySweep.n_participants` vs contract/data-model `n_participants_retained`; (4) plan project-structure tree omits `models.py`, `config.py`, `utils.py`, `data/results/`; (5) plan Constitution Check III records hashes at `state/.../artifact_hashes.yaml` vs the constitution's `state/projects/PROJ-560-....yaml` map — tasks record project-owned checksums in `data/derivation_logs/artifact_hashes.json`; (6) plan/data-model Parquet claim narrowed to CSV with justification above.
+- Philosophical framing comments on the original idea (training vs. teaching, definition of abstract concepts) remain out of scope for the statistical engine per the spec's Assumptions and Risks, and are addressed only as honest limitations prose in T014.

@@ -1,60 +1,91 @@
-# Quickstart: Exploring the Mechanisms of Gene Regulation Across Different Cell Types
+# Quickstart Guide: Gene Regulation Pipeline
 
 ## Prerequisites
-
-*   Python 3.11+
-*   `memsuite` (for FIMO) installed in PATH or via `conda`
-*   `pybedtools` installed (via pip)
-*   Access to a Linux environment (GitHub Actions or local)
+- Python 3.11+
+- ≥16GB RAM (SC-004 requirement)
+- ≥14GB free disk space (FR-002 requirement)
+- FIMO (MEME suite) installed and in PATH
+- Internet connection for data download
 
 ## Installation
-
-1.  **Clone the repository** and navigate to the project directory.
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate
-    ```
-3.  **Install dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    ```
-    *Note: Ensure `fimo` is available in your PATH. If not, install via `conda install -c bioconda fimo`.*
-
-## Configuration
-
-Set the `TMP_DIR` environment variable if you need to use a non-default temporary directory (default is `/tmp`). Ensure at least 14GB of free space is available in the chosen directory.
-
 ```bash
-export TMP_DIR="/tmp/gene-regulation"
+# Install dependencies
+pip install -r requirements.txt
+
+# Verify FIMO installation
+fimo --version
 ```
 
 ## Running the Pipeline
-
-Execute the main orchestrator script:
-
+Execute the complete pipeline end-to-end:
 ```bash
-python code/main.py
+python -m code.main
 ```
 
-This will:
-1.  Download peak data from ENCODE (with retry logic).
-2.  Parse and annotate peaks.
-3.  Generate GC-matched background regions.
-4.  Scan for motifs using FIMO.
-5.  Compute enrichment and apply BH correction.
-6.  Generate visualizations and validation reports.
+This command will:
+1. Run pre-flight checks (RAM, disk, time)
+2. Download ENCODE peak data for 5 cell types
+3. Parse and annotate peaks with gene symbols
+4. Scan peaks for TF motifs using FIMO
+5. Calculate motif enrichment against dynamic background
+6. Generate heatmaps and validation reports
+7. Produce final summary table
 
-## Output
+## Expected Output Artifacts
+Upon successful completion, the following files will be created in `data/processed/`:
 
-Results are stored in `data/processed/`:
-*   `enrichment_matrix.parquet`: Motif enrichment scores per cell type.
-*   `heatmap.png`: Clustering visualization.
-*   `validation_report.json`: Cross-validation statistics.
-*   `provenance.json`: Checksums and version info.
+### 1. ingestion_summary.json
+```json
+{
+ "total_peaks": 123456,
+ "cell_types": ["GM12878", "K562", "HepG2", "H1-hESC", "IMR90"],
+ "parsed_count": 5
+}
+```
+
+### 2. enrichment_matrix.csv
+Columns:
+- `motif_id`: JASPAR ID format (e.g., 'MA0001.1')
+- `cell_type`: One of ['GM12878', 'K562', 'HepG2', 'H1-hESC', 'IMR90']
+- `p_value`: Raw p-value from Fisher's exact test
+- `q_value`: Benjamini-Hochberg adjusted q-value
+
+### 3. validation_report.json
+```json
+{
+ "overlap_pct": 65.50,
+ "top_motifs": [
+ {
+ "motif_id": "MA0001.1",
+ "q_value": 0.0001,
+ "overlap_pct": 70.25
+ }
+ ],
+ "silhouette_score": 0.45,
+ "silhouette_test_passed": true,
+ "overlap_test_passed": true,
+ "validation_passed": true
+}
+```
+
+### 4. summary_table.csv
+Columns:
+- `motif_id`: JASPAR ID
+- `p_value_raw`: Raw p-value
+- `q_value_adj`: Adjusted q-value
+- `chip_overlap_pct`: Percentage overlap with ChIP-seq data (2 decimal places)
+
+### 5. heatmap.png
+Visual heatmap of motif enrichment across cell types.
+
+## Resource Requirements
+- **RAM**: ≥16GB required (SC-004). The pipeline will exit with an error if less is available.
+- **Disk**: ≥14GB free space required (FR-002). Intermediate files are stored in TMP_DIR (default: /tmp).
+- **Time**: Pipeline should complete within 6 hours on CPU-only hardware.
+- **Note**: Plan.md targets ~7GB RAM usage during execution, but SC-004 mandates 16GB minimum.
 
 ## Troubleshooting
-
-*   **ENCODE 403 Error**: The script will retry with exponential backoff. If it fails after 3 retries, check your network or ENCODE status.
-*   **Disk Space**: If the script fails due to low disk space, increase `TMP_DIR` space or clean up `/tmp`.
-*   **FIMO Not Found**: Ensure `fimo` is installed and in your `PATH`.
+- **RAM error**: Ensure system has ≥16GB available memory
+- **Disk error**: Free up disk space or configure TMP_DIR to a larger partition
+- **FIMO not found**: Install MEME suite and ensure `fimo` is in PATH
+- **Network errors**: Check internet connection; the pipeline uses exponential backoff for retries

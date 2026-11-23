@@ -1,3 +1,3 @@
 """
-Contract tests initialization.
+Contract tests for data schema compliance.
 """

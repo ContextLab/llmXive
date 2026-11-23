@@ -1,0 +1,18 @@
+status: none
+intent: OpenNeuro ds003542 EEG dataset download via MNE-Python python package dataset
+required_fields:
+- participant_id
+- eeg_signal
+- heat_pain_threshold_celsius
+- microstate_duration_1
+- microstate_duration_2
+- microstate_duration_3
+- microstate_duration_4
+- microstate_occurrence_1
+- microstate_occurrence_2
+- microstate_occurrence_3
+- microstate_occurrence_4
+- microstate_transition_1_2
+cache_key: 2a165c9cd6fd938df11ea35e4aa4026e616cc2287a363b7008e6b975244b7ea9
+searched_at: '2026-10-23T06:29:00.464367+00:00'
+retry_count: 1

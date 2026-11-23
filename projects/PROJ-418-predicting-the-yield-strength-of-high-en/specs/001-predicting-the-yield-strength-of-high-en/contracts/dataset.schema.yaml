@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HEA Dataset Schema"
+type: object
+required:
+  - alloy_id
+  - composition
+  - yield_strength
+properties:
+  alloy_id:
+    type: string
+    description: "Unique identifier for the alloy."
+  composition:
+    type: object
+    description: "Elemental fractions; keys are element symbols, values sum to 1."
+    additionalProperties:
+      type: number
+      minimum: 0
+      maximum: 1
+  yield_strength:
+    type: number
+    description: "Measured yield strength in MPa."

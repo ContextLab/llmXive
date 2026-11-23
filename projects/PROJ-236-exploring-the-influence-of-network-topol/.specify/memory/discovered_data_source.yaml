@@ -1,0 +1,17 @@
+status: none
+intent: disordered alloy crystal structures Materials Project OQMD AFLOWLIB NOMAD
+  python package dataset
+required_fields:
+- structure_id
+- chemical_formula
+- lattice_vectors
+- cell_parameters
+- atomic_positions
+- element_symbols
+- site_occupancies
+- spacegroup
+- total_energy
+- metadata
+cache_key: 2869e26655b7708135357eb8fbc4ccb8eed68b15dfa897f23ae7b0b5384f2bcf
+searched_at: '2026-11-05T03:16:16.608247+00:00'
+retry_count: 1

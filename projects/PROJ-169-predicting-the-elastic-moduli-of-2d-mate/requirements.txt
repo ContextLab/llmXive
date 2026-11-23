@@ -1,0 +1,12 @@
+pymatgen
+torch
+torch-geometric
+shap
+pandas
+numpy
+scikit-learn
+ruff
+black
+matminer
+pyarrow
+rich

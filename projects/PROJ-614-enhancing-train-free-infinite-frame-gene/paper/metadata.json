@@ -46,5 +46,15 @@
     "images/fig1_3.pdf",
     "images/fig2_v3.pdf",
     "images/module_2_insight.pdf"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "9f93f50fe03c639478a6f95d00fc9c6ed88cdfe4582d61444eb483f0532c42d3",
+      "bytes": 14868362
+    },
+    "original.pdf": {
+      "sha256": "35427e3b0f00d1a8e5bd073c51edd4337a879bf47a2dadf0241ca9e4cbecb980",
+      "bytes": 14825764
+    }
+  }
 }

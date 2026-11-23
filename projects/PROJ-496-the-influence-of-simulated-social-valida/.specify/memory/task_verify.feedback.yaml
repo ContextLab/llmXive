@@ -1,0 +1,160 @@
+T001:
+  reason: "The top\u2011level `projects/PROJ-496-the-influence-of-simulated-social-valida/`\
+    \ directory exists, but there is no evidence that `.gitkeep` files were created\
+    \ inside `code/`, `tests/`, `docs/`, `data/raw/`, `data/processed/`, and `data/results/`\
+    \ as required by the task. These files are missing or not shown."
+  task: 655a51696db62fa6c42bc97a08c372ae3f40c261e3429d7646d2fb2eaca36b77
+T002a:
+  reason: "The `requirements.txt` file is present, but it uses \u201C>=\u201D version\
+    \ specifiers instead of exact pinned versions (e.g., `mne==1.5.0`). The task explicitly\
+    \ required pinned versions for all listed packages, which is not satisfied."
+  task: 864c0b66730e659ba37c84332977dd23073de01cf95b15df665a45d39f8f9ea7
+T003:
+  reason: "The provided `.github/workflows/lint.yml` does not match the required specification:\
+    \ it has a different workflow name, uses branch\u2011filtered triggers, different\
+    \ action versions, Python\u202F3.10 instead of 3.11, installs extra tools, and\
+    \ runs flake8/black with different arguments (different line length, extra options,\
+    \ different paths). Consequently the task\u2019s exact linting configuration is\
+    \ not fulfilled."
+  task: 1b79d65c6f7b3d119d62dd8a8fd82b4fa9aea5a15bc9751f2021fdedac060ddb
+T004:
+  reason: "The provided `data/` directory contains a top\u2011level `.gitkeep` but\
+    \ does not include the required `.gitkeep` files inside the `raw`, `processed`,\
+    \ and `results` subfolders, so the exact directory\u2011structure verification\
+    \ fails."
+  task: 2f99e9c2f55307c3602a84d94d6ff47a051e32ba61466182eb2abcbfb1d2616c
+T005:
+  task: 138f4fd8227ecb9d80fa155d6f0e0d3b784cba3e4f39d6af74a149dde3d56169
+T006:
+  task: 96667f10b853a817009ac4e10226a4afc3c9e4f5e94a5d26a10858a5e72baff0
+T007:
+  reason: "Both required schema files (`eeg_dataset.schema.yaml` and `p300_measure.schema.yaml`)\
+    \ are reported as missing from the `specs/main-feature-sim-social-validation/contracts/`\
+    \ directory, so the task\u2019s deliverables are not present."
+  task: d29cabd6139a43abe803d9c614c09acc8dcf56dd64f00c52a5fcfab37c3c1f9f
+T008:
+  task: 37a03c191d2d586247f8549f5522afeb84fd5adc8c7a9140d91a367dba277e29
+T009a:
+  task: 4af01ba3804cb5649b8ff3767a9d2de8c6b7a4f890369369abd2786d66022c8d
+T009b:
+  task: 48d57a8fa839d82cac8a7df52e4c172ebff092cb10c2761d687f5048e667f9a4
+T009c:
+  task: eb31397804607dba50b9232755f6067be94fe2a5a9d5b532a53adc18e27200d2
+T010:
+  task: 31a027896a0f6af8ef42ede519f55af4852c71c314629e170bb1b7e79915cd74
+T011:
+  task: b07dbb16f552c230a199d7cbca76f7c7e988bad3ddbf6001673dffcac997d9ca
+T012:
+  task: 5c792bdd70cff3b6d8ee500b5cd742db52ae11b3eaa3d3cd2526e995bb74882d
+T012b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/categorization_log.json'
+  task: aebfcdccd682f8ca8c3197b4ff2c5a107ac5ee51fb3fea362f7769d52623bb66
+T013:
+  task: 2d01a7559214f2df2236548064470483b41ce3659cc91c70c603bd6eedeb23dd
+T013b:
+  task: 9bdec11c33edacae9ca99412cf21d2e800ec03b363335ed03ef032ccea447cbb
+T014:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/categorization_log.json'
+  task: f7710480cd1a4c19822420249ec3f0c35a8bb512e4fc8a8c0781a69cc4c0a159
+T015:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/categorization_log.json'
+  task: d3ea2f8a5b3640a06ac3b2cb79a3398e389955e47f17da1b0e19115bb3eb6ff8
+T016a:
+  task: 7d7528e74847877867408c4bde288515b8186b38b876c8b307caedffde2bdd31
+T016b:
+  task: 526cd3767dfb2718219639b4a5224161b71456a8bcf030b5ee1bb4ee499eea57
+T016d:
+  task: a9d0138bcaecd98837f8e1bb5782d4e8aa09c7054e9978af13e8b58c07b81b61
+T020:
+  task: 5421192ac1a0611640b06047e3e2a432ff1cd34f0542105aed32033b1c200dbc
+T021:
+  task: c60f995429088ecf00f09ccdfc88864c8cd205223ff97675a6604988ed898fd1
+T022:
+  task: 08f8005d5365a8f5e605f71bf97035d9963f4b40d4393cbb31cead045fbfbddb
+T023:
+  task: 442ded1524fa4d6c621c2ce49e496f6e45b7a319b055f75ff7db077706256664
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/epochs_raw.fif'
+  task: 78a011a6d06bebe8b13d754d82d004da52fc33fb4250ef35ac841b593b6a1bab
+T025:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/p300_measures.csv'
+  task: 683efab4ea09fc1574981b2fe155fdeda4b85726e9ffa53e8718bd5cc55bfba9
+T026:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/qc_failures.log'
+  task: c2c5c938494068b819bf81af506517ac2773acd84abc0db2ead238e66f581a97
+T027:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/p300_measures.csv'
+  task: 121e09a2cdf90fd4ef94bf1c7855be8f233a98f3e0fb084a007e4b6507b46897
+T028a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/qc_failures.log'
+  task: 5f90cd43357d79c27dce574afb2513b832e72c99b5dd1d35d939c0106db11cb5
+T029:
+  task: 14277a97cfbedfa2cbb486e72f61026d34a56fbaf6633604677d01947a6be10e
+T030:
+  task: 09bf26b0205f956ba3df252b0100dd929d02b3bb1473b5d765720c1620689aaf
+T030b:
+  task: 6c440124c8922cfc5f434149455b3448d7fc78b2027363d9bc6e1e699111ecc1
+T031:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/model_summary.csv'
+  task: ab6de04d7e2b987f0c0681ad6e45be3f5bb39de07409b593dd2079c6f2b5a3b3
+T033b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/model_summary.csv'
+  task: 80a6702cac2bd64b399ce6cca053b09871bb6dc30f8aa1e44eb4d910f6bbf772
+T034:
+  task: 0a8292c990da508b153f201e0aaea5bb119c84916db8c77b5e5833a5b7652ff9
+T035:
+  task: ef44f9a2dbbadd60ddcf85bf8e9282b7c2ac35cbbcd86366459c81f9e9c7c0ad
+T036:
+  task: c85d87cb1c1329a5f410b7aa6f874c118c320713976b0c257c3e762eda7a57e7
+T037:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/report.html, data/results/report.pdf'
+  task: a8bbbf04624ee9a11906c6bc59b1c2d734cc2960dea441618ae8c2ac92f78803
+T038b:
+  task: 53e41c898770ac4142c0baefca832c35d9c6fd85eca6ad5629232c3355fd9b94
+T040:
+  task: 7bdc7f999f2dea66c93636aeeb116769ef14061ffdc08c32b30d4652344d8eb8
+T041:
+  task: f8e0eef4bb32d0006fb2f89cfaa7eb0681f2e2f31d9ac075af98c7a85dfaa03a
+T043b:
+  task: 55a7d8f9d89b4d157c94c6d9e02d60e5ad24a2e669e75f72f5588bed498e6ce6
+T044:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/sensitivity_comparison.csv'
+  task: 95a5858ce33724e7a885263151b6c199b0ad409a3414e3f3853aa90b3ec19876
+T046:
+  task: 60963039c16cd1f9623d7e5e9ff3ffdce39d1a6726d4f02c076ec9a31e4f6fe9
+T051:
+  reason: 'Requested task execution failed; rerun successfully: code/analyze.py exit=1'
+  task: 225d0c9a36babd17204d759df5234f558c1ee8c35781e25f40274bce4e36972f
+T052:
+  task: 711d19b78741163dcdac2d590c7f64b17258561bd56138fbcf60f4ea8bfa70e8
+T055:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/'
+  task: 494db442c2ece6a824d9ceb381ec3879779860021442fdd1fa8e299989cf582e
+T056:
+  task: 42dd0cbe1cac78fc61e3da9d0eedb6e6f09862cb68a2a4b2997db132f9073a16
+T057:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils.py'
+  task: 995c40e6c4ba1025f63c2bff1a0d0ff2e6b32e297fa6134850c19f4cfdeaf4a0
+T058:
+  task: 136d8c26eab3b42e0b65c24a3502a22ce517bdca8d93120deb47fd5993469895
+T061:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/threshold_justification.md'
+  task: 1f07f54fc327816a534160106182ee8e8b3cf63ed3d24a32b3004b636d87798d
+T062:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/sensitivity_comparison.csv'
+  task: 4066dccad8c8b9300f1214b857f80d69e4b1c4f3d14055c3626d7a0af57a71b3
+T063:
+  task: e9544c0fd5b7f4f758b919e819af4c1462b9850872bb1699792bcad2ae3d4b0f
+T064:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/reproducibility_checklist.md'
+  task: c532397641b932e7e186f28f8156ac6cdcaa3d4fea771e31b402a9a666955189
+T065:
+  task: ecdca0f53144356cddd3fd021379b4ab50a02b1049ebcca777fa3d99feee5d62
+T066:
+  task: 77a9f88c3c43292ecf3932799aa13bba70cb8fb178a816a5e63a6b4f6ab43fab
+T067:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/sample_size_justification.md'
+  task: f9a4e1f19b51975079bd087e4426efb2482a25bceb6f5fb170280fe4d5202d72
+T068:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/NEGATIVE_FINDING_PROTOCOL.md'
+  task: d5ed31107ea42b63b20df90832527cd8494974a08c01c1f3b072eeb0632f9356

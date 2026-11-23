@@ -9,3 +9,4 @@ dwgsim
 pyyaml
 requests
 scipy
+urllib3  # auto-added: imported by run-book but missing from venv

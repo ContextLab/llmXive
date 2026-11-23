@@ -123,12 +123,12 @@ No violations of the constitution were found that require justification. The mod
 
 ## Compute Feasibility
 
-- **Hardware**: 2 CPU cores, 7 GB RAM.
+- **Hardware**: CPU cores, 7 GB RAM.
 - **Strategy**:
   - **Feature Extraction**: Process in batches of a manageable size. (as per spec). Use `spaCy` in `en_core_web_sm` (small model) for syntactic parsing to minimize memory.
   - **Analysis**: Use `scikit-learn`'s `pearsonr` and `scipy.stats` for correlation tests. These are CPU-optimized and fit within memory.
   - **Data Size**: Limit dataset to a large-scale sample size.. If larger, sample down to fit RAM.
-  - **Runtime**: Total estimated time < 4 hours (leaving 2h buffer).
+  - **Runtime**: Total estimated time < 4 hours (leaving a buffer).
 
 ## Risk Mitigation
 

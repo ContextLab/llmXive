@@ -1,12 +1,8 @@
-? T010 [P] [US1] Implement `code/data_download/download_openneuro.py` to fetch ds000246
-  (Exclusion) and ds004738 (Reward) separately with BIDS validation. **Do not** attempt
-  to merge here.
-: 1
-? 'T010b [US1] Implement `code/data_download/harmonize_datasets.py` to execute the
-  ''Merged Dataset Strategy'': map participant IDs across datasets, align condition
-  labels, and apply confound controls (e.g., adding ''Dataset ID'' as a covariate
-  tag) to prepare for analysis. (Addresses FR-001 and Plan''s Critical Design Pivot).'
-: 1
-? T011 [P] [US1] Implement `code/manipulation/generate_condition_labels.py` to extract
-  exclusion/inclusion labels from `participants.tsv` or task JSON for each dataset.
-: 1
+T014: 1
+T015: 1
+T018: 1
+T019: 1
+T020: 1
+T022: 1
+T027: 1
+T030: 1

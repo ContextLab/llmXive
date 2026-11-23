@@ -18,7 +18,7 @@ This project investigates the quantitative relationship between specific defect 
 - Defect data from OBELiX will be used where available; otherwise, DFT-computed values will be generated.
 
 ### 3.2 Computational Framework
-- **High-Fidelity Subset**: The first 3 compositions with complete data will be analyzed using Density Functional Theory (DFT) via Quantum ESPRESSO.
+- **High-Fidelity Subset**: The initial compositions with complete data will be analyzed using Density Functional Theory (DFT) via Quantum ESPRESSO.
  - **Supercell Expansion**: To ensure convergence and minimize spurious defect interactions, a minimum **2x2x2 supercell expansion** will be applied to the conventional unit cell for the high-fidelity subset. This allows for systems with >8 atoms, resolving the previous constraint limitation.
  - **Convergence Criteria**: Forces must converge to ≤ 0.05 eV/Å.
  - **Validation**: Bond-Valence Sum (BVS) deviation must be < 10% from ideal oxidation states. Li-O distances must fall within 1.95–2.15 Å.
@@ -51,7 +51,7 @@ This project investigates the quantitative relationship between specific defect 
 
 - **NFR-001**: All code must be Python 3.11+.
 - **NFR-002**: The pipeline must handle datasets with n ≥ 12 compositions.
-- **NFR-003**: Execution must be compatible with CPU-only environments with limited RAM (7GB) and a 6-hour timeout.
+- **NFR-003**: Execution must be compatible with CPU-only environments with limited RAM and a timeout of sufficient duration to allow for full task completion without premature termination.
 - **NFR-004**: All data artifacts must be checksummed and stored in `data/raw/` and `data/processed/`.
 
 ## 5. Data Model

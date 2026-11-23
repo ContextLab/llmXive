@@ -17,19 +17,19 @@ The implementation must run entirely on CPU within 6 hours and 7 GB RAM.
 
 ## Technical Context
 
-**Language/Version**: Python 3.10+  
+**Language/Version**: Python +  
 **Primary Dependencies**: `numpy`, `pandas`, `scipy`, `statsmodels`, `scikit-learn` (all CPU-compatible, no CUDA).  
 **Storage**: Local filesystem (`data/` for raw/synthetic data, `artifacts/` for results); no external database.  
 **Testing**: `pytest` (unit tests for DP noise calibration, CI construction, and GLM setup).  
 **Target Platform**: GitHub Actions free-tier runner (Linux, 2 CPU, ~7 GB RAM).  
 **Project Type**: Computational research / Simulation pipeline.  
-**Performance Goals**: Total runtime $\le$ a practical threshold suitable for standard workloads; memory usage $\le$ 7 GB.  
+**Performance Goals**: Total runtime $\le$ a practical threshold suitable for standard workloads; memory usage within acceptable system limits.  
 **Constraints**: No GPU; no 8-bit/4-bit quantization; strict adherence to synthetic population generation.
 
 > **Single Source of Truth (SSoT)**: Per Constitution Principle IV, all coverage rates, GLM results, and threshold sweep metrics are derived exclusively from `artifacts/coverage_results.csv` and `artifacts/sensitivity_analysis.csv`.
 
 **Computational Feasibility Check**:
-*   **Conditions**: 3 datasets $\times$ 5 $\epsilon$ values $\times$ 2 noise types = 30 combinations.
+*   **Conditions**: Several datasets $\times$ 5 $\epsilon$ values $\times$ 2 noise types = combinations.
 * **Outer Loop**: [deferred] independent samples per condition = total noisy samples.
 *   **Inner Loop**: 1,000 bootstrap resamples per sample = total bootstrap draws.
 *   **Operations**: Vectorized numpy operations for noise and resampling. 30M draws is feasible in <6 hours on 2 cores if optimized (e.g., batched resampling).
@@ -47,7 +47,7 @@ The implementation must run entirely on CPU within 6 hours and 7 GB RAM.
 | **IV. Single Source of Truth** | PASS | All results trace to `artifacts/coverage_results.csv`. Explicitly declared in Technical Context. |
 | **V. Versioning Discipline** | PASS | **Workflow**: Post-run script `code/utils/update_state.py` computes content hashes of `artifacts/` and updates `state/projects/PROJ-710-...yaml` `updated_at` and `artifact_hashes`. |
 | **VI. Privacy-Utility Tradeoff** | PASS | Every result row includes $\epsilon$, noise_type, and coverage rate. |
-| **VII. Simulation Convergence** | PASS | **Workflow**: `code/analysis/convergence_check.py` runs simulation with 3 different seeds. If standard error of coverage across seeds > 0.5%, it triggers a warning and requires increased $N_{sim}$. |
+| **VII. Simulation Convergence** | PASS | **Workflow**: `code/analysis/convergence_check.py` runs simulation with different seeds. If standard error of coverage across seeds > 0.5%, it triggers a warning and requires increased $N_{sim}$. |
 
 ## Project Structure
 

@@ -45,7 +45,7 @@ The system must calculate permutation feature importance and generate SHAP value
 
 **Why this priority**: This provides the scientific insight—identifying *which* genes and environmental factors drive VOC emissions—fulfilling the "gap" in understanding predictive determinants.
 
-**Independent Test**: The analysis script can be run on the trained model, producing a ranked list of top 10 features (genes and environmental variables) and a SHAP summary plot, which can be cross-referenced with existing literature.
+**Independent Test**: The analysis script can be run on the trained model, producing a ranked list of top features (genes and environmental variables) and a SHAP summary plot, which can be cross-referenced with existing literature.
 
 **Acceptance Scenarios**:
 
@@ -101,7 +101,7 @@ The system must calculate permutation feature importance and generate SHAP value
 ## Assumptions
 
 - Publicly available datasets (NCBI GEO, Metabolomics Workbench) contain sufficient paired RNA-seq and VOC data for *Arabidopsis thaliana* under stress conditions to support a sample size of ≥50.
-- The Random Forest Regressor, when trained on the full dataset, is expected to complete within a reasonable timeframe (e.g., 6 hours) on standard CPU hardware, though specific hardware constraints are deferred.
+- The Random Forest Regressor, when trained on the full dataset, is expected to complete within a reasonable timeframe on standard CPU hardware, though specific hardware constraints are deferred.
 - Missing values in the dataset can be adequately handled via median imputation without introducing significant bias.
 - The relationship between genomic/environmental features and VOC emissions is primarily linear or monotonic, suitable for Random Forest modeling.
 - The dataset contains at least one known VOC-related gene family (e.g., terpene synthases) for validation purposes.

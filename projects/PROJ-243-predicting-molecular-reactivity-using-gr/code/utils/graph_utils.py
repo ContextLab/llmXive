@@ -1,65 +1,67 @@
 """
 Graph construction utilities for molecular data.
 
-Converts SMILES strings into graph structures with node and edge features
+Converts SMILES strings to graph representations (nodes and edges)
 suitable for Graph Neural Networks.
 
-Node Features:
-  - Atomic number
-  - Hybridization (One-hot: sp, sp2, sp3, sp3d, sp3d2, other)
-  - Formal charge
-  - Number of hydrogens attached
-  - Aromaticity flag
-
-Edge Features:
-  - Bond type (One-hot: single, double, triple, aromatic)
-  - Conjugation flag
-  - In ring flag
+Dependencies: rdkit, numpy
 """
 
-from typing import List, Dict, Tuple, Any, Optional
+from typing import List, Dict, Tuple, Any, Optional, Set
 import logging
-
 import numpy as np
 from rdkit import Chem
-from rdkit.Chem import rdchem
+from rdkit.Chem import rdchem, Descriptors, rdMolDescriptors
+from rdkit import RDLogger
+
+# Suppress RDKit warnings for cleaner logs
+RDLogger.DisableLog('rdApp.*')
 
 logger = logging.getLogger(__name__)
 
-# Constants for one-hot encoding
-HYBRIDIZATION_MAP = {
-    rdchem.HybridizationType.SP: 0,
-    rdchem.HybridizationType.SP2: 1,
-    rdchem.HybridizationType.SP3: 2,
-    rdchem.HybridizationType.SP3D: 3,
-    rdchem.HybridizationType.SP3D2: 4,
-    rdchem.HybridizationType.OTHER: 5,
-}
+# Feature dimensions (must match model expectations)
+# Node features: [atom_type, degree, num_h, hybridization, is_aromatic, charge, chiral]
+# Edge features: [bond_type, is_conjugated, is_in_ring, stereo]
 
-BOND_TYPE_MAP = {
-    rdchem.BondType.SINGLE: 0,
-    rdchem.BondType.DOUBLE: 1,
-    rdchem.BondType.TRIPLE: 2,
-    rdchem.BondType.AROMATIC: 3,
-}
+ATOM_FEATURE_DIM = 7
+BOND_FEATURE_DIM = 4
 
-# Default values for unmapped types
-DEFAULT_HYBRIDIZATION_IDX = 5  # OTHER
-DEFAULT_BOND_TYPE_IDX = 0      # SINGLE
+# Atom type mapping (simplified periodic table)
+ATOM_TYPES = [
+    'C', 'N', 'O', 'S', 'P', 'F', 'Cl', 'Br', 'I', 'B', 'Si', 'As',
+    'Se', 'Te', 'At', 'He', 'Ne', 'Ar', 'Kr', 'Xe', 'Rn', 'Li', 'Na',
+    'K', 'Rb', 'Cs', 'Mg', 'Ca', 'Sr', 'Ba', 'Ti', 'Fe', 'Cu', 'Zn',
+    'Ag', 'Au', 'Pd', 'Pt', 'Hg', 'Cd', 'Co', 'Ni', 'Mn', 'Cr', 'V',
+    'Other'
+]
 
-# Feature dimensions
-NUM_HYBRIDIZATION_TYPES = len(HYBRIDIZATION_MAP)
-NUM_BOND_TYPES = len(BOND_TYPE_MAP)
+# Bond type mapping
+BOND_TYPES = [
+    Chem.rdchem.BondType.SINGLE,
+    Chem.rdchem.BondType.DOUBLE,
+    Chem.rdchem.BondType.TRIPLE,
+    Chem.rdchem.BondType.AROMATIC
+]
+
+# Hybridization mapping
+HYBRIDIZATION_TYPES = [
+    Chem.rdchem.HybridizationType.SP,
+    Chem.rdchem.HybridizationType.SP2,
+    Chem.rdchem.HybridizationType.SP3,
+    Chem.rdchem.HybridizationType.SP3D,
+    Chem.rdchem.HybridizationType.SP3D2,
+    Chem.rdchem.HybridizationType.OTHER
+]
 
 def smiles_to_molecule(smiles: str) -> Optional[Chem.Mol]:
     """
     Convert a SMILES string to an RDKit molecule object.
     
     Args:
-        smiles: SMILES string representation of a molecule.
+        smiles: SMILES string representation of a molecule
         
     Returns:
-        RDKit Mol object, or None if parsing fails.
+        RDKit Mol object or None if parsing fails
     """
     try:
         mol = Chem.MolFromSmiles(smiles)
@@ -67,196 +69,264 @@ def smiles_to_molecule(smiles: str) -> Optional[Chem.Mol]:
             logger.warning(f"Failed to parse SMILES: {smiles}")
             return None
         
-        # Add hydrogens to ensure correct hydrogen counts
+        # Add hydrogens for accurate feature extraction
         mol = Chem.AddHs(mol)
         return mol
     except Exception as e:
         logger.error(f"Error parsing SMILES '{smiles}': {e}")
         return None
 
-def get_node_features(atom: Chem.Atom) -> np.ndarray:
+def get_atom_feature(atom: Chem.Atom) -> np.ndarray:
     """
-    Extract node features for a single atom.
-    
-    Features:
-      - Atomic number (integer)
-      - Hybridization (one-hot)
-      - Formal charge (integer)
-      - Number of hydrogens (integer)
-      - Aromaticity (binary)
+    Extract feature vector for a single atom.
     
     Args:
-        atom: RDKit Atom object.
+        atom: RDKit Atom object
         
     Returns:
-        Numpy array of node features.
+        Feature vector of length ATOM_FEATURE_DIM
     """
-    atomic_num = atom.GetAtomicNum()
+    features = np.zeros(ATOM_FEATURE_DIM, dtype=np.float32)
     
-    # Hybridization one-hot
-    hyb_type = atom.GetHybridization()
-    hyb_idx = HYBRIDIZATION_MAP.get(hyb_type, DEFAULT_HYBRIDIZATION_IDX)
-    hyb_one_hot = np.zeros(NUM_HYBRIDIZATION_TYPES, dtype=np.int32)
-    hyb_one_hot[hyb_idx] = 1
+    # 1. Atom type (one-hot encoded index)
+    symbol = atom.GetSymbol()
+    try:
+        features[0] = ATOM_TYPES.index(symbol)
+    except ValueError:
+        features[0] = ATOM_TYPES.index('Other')
     
-    formal_charge = atom.GetFormalCharge()
-    num_hydrogens = atom.GetTotalNumHs()
-    is_aromatic = 1 if atom.GetIsAromatic() else 0
+    # 2. Degree (number of bonds)
+    degree = atom.GetDegree()
+    features[1] = min(degree, 10) / 10.0  # Normalize to [0, 1]
     
-    # Concatenate all features
-    # [atomic_num, hyb_one_hot..., formal_charge, num_h, aromatic]
-    features = np.concatenate([
-        np.array([atomic_num], dtype=np.int32),
-        hyb_one_hot,
-        np.array([formal_charge], dtype=np.int32),
-        np.array([num_hydrogens], dtype=np.int32),
-        np.array([is_aromatic], dtype=np.int32),
-    ])
+    # 3. Number of implicit hydrogens
+    num_h = atom.GetTotalNumHs()
+    features[2] = min(num_h, 5) / 5.0  # Normalize
+    
+    # 4. Hybridization
+    hybridization = atom.GetHybridization()
+    try:
+        features[3] = HYBRIDIZATION_TYPES.index(hybridization) / len(HYBRIDIZATION_TYPES)
+    except ValueError:
+        features[3] = 0.5  # Default for unknown
+    
+    # 5. Is aromatic
+    features[4] = 1.0 if atom.GetIsAromatic() else 0.0
+    
+    # 6. Formal charge
+    charge = atom.GetFormalCharge()
+    features[5] = min(max(charge / 5.0, -1.0), 1.0)  # Clamp to [-1, 1]
+    
+    # 7. Chirality
+    chiral_tag = atom.GetChiralTag()
+    features[6] = 1.0 if chiral_tag != Chem.rdchem.ChiralType.CHI_UNSPECIFIED else 0.0
     
     return features
 
-def get_edge_features(bond: Chem.Bond) -> np.ndarray:
+def get_node_features(mol: Chem.Mol) -> np.ndarray:
     """
-    Extract edge features for a single bond.
-    
-    Features:
-      - Bond type (one-hot)
-      - Conjugation (binary)
-      - In ring (binary)
+    Extract node features for all atoms in a molecule.
     
     Args:
-        bond: RDKit Bond object.
+        mol: RDKit Mol object
         
     Returns:
-        Numpy array of edge features.
+        2D array of shape (num_atoms, ATOM_FEATURE_DIM)
     """
-    bond_type = bond.GetBondType()
-    type_idx = BOND_TYPE_MAP.get(bond_type, DEFAULT_BOND_TYPE_IDX)
-    type_one_hot = np.zeros(NUM_BOND_TYPES, dtype=np.int32)
-    type_one_hot[type_idx] = 1
+    atoms = mol.GetAtoms()
+    num_atoms = mol.GetNumAtoms()
     
-    is_conjugated = 1 if bond.GetIsConjugated() else 0
-    in_ring = 1 if bond.IsInRing() else 0
+    if num_atoms == 0:
+        return np.zeros((0, ATOM_FEATURE_DIM), dtype=np.float32)
     
-    features = np.concatenate([
-        type_one_hot,
-        np.array([is_conjugated], dtype=np.int32),
-        np.array([in_ring], dtype=np.int32),
-    ])
+    features = np.zeros((num_atoms, ATOM_FEATURE_DIM), dtype=np.float32)
+    for i, atom in enumerate(atoms):
+        features[i] = get_atom_feature(atom)
     
     return features
+
+def get_bond_feature(bond: Chem.Bond) -> np.ndarray:
+    """
+    Extract feature vector for a single bond.
+    
+    Args:
+        bond: RDKit Bond object
+        
+    Returns:
+        Feature vector of length BOND_FEATURE_DIM
+    """
+    features = np.zeros(BOND_FEATURE_DIM, dtype=np.float32)
+    
+    # 1. Bond type
+    bond_type = bond.GetBondType()
+    try:
+        features[0] = BOND_TYPES.index(bond_type) / len(BOND_TYPES)
+    except ValueError:
+        features[0] = 0.0  # Default for unknown
+    
+    # 2. Is conjugated
+    features[1] = 1.0 if bond.GetIsConjugated() else 0.0
+    
+    # 3. Is in ring
+    features[2] = 1.0 if bond.IsInRing() else 0.0
+    
+    # 4. Stereo configuration
+    stereo = bond.GetStereo()
+    # Map stereo to a normalized value
+    if stereo == Chem.rdchem.BondStereo.STEREONONE:
+        features[3] = 0.0
+    elif stereo == Chem.rdchem.BondStereo.STEREOANY:
+        features[3] = 0.33
+    elif stereo == Chem.rdchem.BondStereo.STEREOZ:
+        features[3] = 0.66
+    elif stereo == Chem.rdchem.BondStereo.STEREOE:
+        features[3] = 1.0
+    else:
+        features[3] = 0.0
+    
+    return features
+
+def get_edge_features(mol: Chem.Mol) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Extract edge features and adjacency for a molecule.
+    
+    Args:
+        mol: RDKit Mol object
+        
+    Returns:
+        Tuple of (edge_index, edge_features)
+        - edge_index: 2D array of shape (2, num_edges) with source and target nodes
+        - edge_features: 2D array of shape (num_edges, BOND_FEATURE_DIM)
+    """
+    bonds = mol.GetBonds()
+    num_bonds = mol.GetNumBonds()
+    
+    if num_bonds == 0:
+        return np.zeros((2, 0), dtype=np.int64), np.zeros((0, BOND_FEATURE_DIM), dtype=np.float32)
+    
+    edge_index = np.zeros((2, num_bonds), dtype=np.int64)
+    edge_features = np.zeros((num_bonds, BOND_FEATURE_DIM), dtype=np.float32)
+    
+    for i, bond in enumerate(bonds):
+        edge_index[0, i] = bond.GetBeginAtomIdx()
+        edge_index[1, i] = bond.GetEndAtomIdx()
+        edge_features[i] = get_bond_feature(bond)
+    
+    return edge_index, edge_features
 
 def smiles_to_graph(smiles: str) -> Optional[Dict[str, Any]]:
     """
-    Convert a SMILES string to a graph dictionary.
-    
-    The graph dictionary contains:
-      - 'nodes': List of node feature vectors
-      - 'edges': List of (src_idx, dst_idx, edge_features) tuples
-      - 'smiles': Original SMILES string
-      - 'num_nodes': Number of nodes
-      - 'num_edges': Number of edges
+    Convert a SMILES string to a graph representation.
     
     Args:
-        smiles: SMILES string.
+        smiles: SMILES string
         
     Returns:
-        Graph dictionary, or None if conversion fails.
+        Dictionary with keys:
+            - 'smiles': original SMILES string
+            - 'num_nodes': number of atoms
+            - 'num_edges': number of bonds
+            - 'node_features': 2D numpy array (num_nodes, ATOM_FEATURE_DIM)
+            - 'edge_index': 2D numpy array (2, num_edges)
+            - 'edge_features': 2D numpy array (num_edges, BOND_FEATURE_DIM)
+            - 'is_valid': boolean flag
+        Returns None if SMILES parsing fails.
     """
     mol = smiles_to_molecule(smiles)
     if mol is None:
         return None
     
-    num_atoms = mol.GetNumAtoms()
-    nodes = []
-    edges = []
-    
-    # Extract node features
-    for atom in mol.GetAtoms():
-        node_feat = get_node_features(atom)
-        nodes.append(node_feat)
-    
-    # Extract edge features
-    for bond in mol.GetBonds():
-        src_idx = bond.GetBeginAtomIdx()
-        dst_idx = bond.GetEndAtomIdx()
-        edge_feat = get_edge_features(bond)
-        edges.append((src_idx, dst_idx, edge_feat))
-        
-        # RDKit bonds are undirected, but we might want to add reverse edges
-        # depending on the GNN implementation. For now, we store one direction.
-        # If bidirectional edges are needed, uncomment below:
-        # edges.append((dst_idx, src_idx, edge_feat))
+    node_features = get_node_features(mol)
+    edge_index, edge_features = get_edge_features(mol)
     
     graph = {
         'smiles': smiles,
-        'nodes': nodes,
-        'edges': edges,
-        'num_nodes': num_atoms,
-        'num_edges': len(edges),
+        'num_nodes': mol.GetNumAtoms(),
+        'num_edges': mol.GetNumBonds(),
+        'node_features': node_features,
+        'edge_index': edge_index,
+        'edge_features': edge_features,
+        'is_valid': True
     }
     
     return graph
 
-def batch_smiles_to_graphs(smiles_list: List[str]) -> List[Optional[Dict[str, Any]]]:
+def batch_smiles_to_graphs(smiles_list: List[str]) -> Tuple[List[Dict[str, Any]], List[str]]:
     """
-    Convert a list of SMILES strings to a list of graph dictionaries.
+    Convert a batch of SMILES strings to graph representations.
     
     Args:
-        smiles_list: List of SMILES strings.
+        smiles_list: List of SMILES strings
         
     Returns:
-        List of graph dictionaries (None for invalid SMILES).
+        Tuple of (valid_graphs, invalid_smiles)
+        - valid_graphs: List of graph dictionaries
+        - invalid_smiles: List of SMILES strings that failed to parse
     """
-    graphs = []
+    valid_graphs = []
+    invalid_smiles = []
+    
     for smiles in smiles_list:
         graph = smiles_to_graph(smiles)
-        graphs.append(graph)
-    return graphs
+        if graph is not None:
+            valid_graphs.append(graph)
+        else:
+            invalid_smiles.append(smiles)
+    
+    return valid_graphs, invalid_smiles
 
 def validate_graph(graph: Dict[str, Any]) -> bool:
     """
-    Validate a graph dictionary structure.
+    Validate that a graph dictionary has all required fields and correct shapes.
     
     Args:
-        graph: Graph dictionary.
+        graph: Graph dictionary as produced by smiles_to_graph
         
     Returns:
-        True if valid, False otherwise.
+        True if valid, False otherwise
     """
-    required_keys = ['nodes', 'edges', 'num_nodes', 'num_edges', 'smiles']
-    if not all(key in graph for key in required_keys):
-        return False
+    required_keys = ['smiles', 'num_nodes', 'num_edges', 'node_features', 
+                    'edge_index', 'edge_features', 'is_valid']
     
-    if not isinstance(graph['nodes'], list) or len(graph['nodes']) != graph['num_nodes']:
-        return False
-    
-    if not isinstance(graph['edges'], list) or len(graph['edges']) != graph['num_edges']:
-        return False
-    
-    # Check node feature dimensions (assuming fixed feature size)
-    if graph['num_nodes'] > 0:
-        first_node = graph['nodes'][0]
-        if not isinstance(first_node, np.ndarray):
+    for key in required_keys:
+        if key not in graph:
+            logger.error(f"Missing required key: {key}")
             return False
+    
+    # Validate shapes
+    if graph['num_nodes'] != graph['node_features'].shape[0]:
+        logger.error(f"Node count mismatch: {graph['num_nodes']} vs {graph['node_features'].shape[0]}")
+        return False
+    
+    if graph['node_features'].shape[1] != ATOM_FEATURE_DIM:
+        logger.error(f"Node feature dimension mismatch: {graph['node_features'].shape[1]} vs {ATOM_FEATURE_DIM}")
+        return False
+    
+    if graph['num_edges'] != graph['edge_index'].shape[1]:
+        logger.error(f"Edge count mismatch: {graph['num_edges']} vs {graph['edge_index'].shape[1]}")
+        return False
+    
+    if graph['edge_features'].shape[0] != graph['num_edges']:
+        logger.error(f"Edge feature count mismatch: {graph['edge_features'].shape[0]} vs {graph['num_edges']}")
+        return False
+    
+    if graph['edge_features'].shape[1] != BOND_FEATURE_DIM:
+        logger.error(f"Edge feature dimension mismatch: {graph['edge_features'].shape[1]} vs {BOND_FEATURE_DIM}")
+        return False
     
     return True
 
 def get_feature_dimensions() -> Dict[str, int]:
     """
-    Return the dimensions of node and edge features.
+    Return the expected feature dimensions for the graph representation.
     
     Returns:
-        Dictionary with 'node_dim' and 'edge_dim'.
+        Dictionary with feature dimension information
     """
-    # Node features: atomic_num(1) + hyb_one_hot(NUM_HYBRIDIZATION_TYPES) + 
-    #                 formal_charge(1) + num_h(1) + aromatic(1)
-    node_dim = 1 + NUM_HYBRIDIZATION_TYPES + 1 + 1 + 1
-    
-    # Edge features: type_one_hot(NUM_BOND_TYPES) + conjugated(1) + in_ring(1)
-    edge_dim = NUM_BOND_TYPES + 1 + 1
-    
     return {
-        'node_dim': node_dim,
-        'edge_dim': edge_dim,
+        'node_feature_dim': ATOM_FEATURE_DIM,
+        'edge_feature_dim': BOND_FEATURE_DIM,
+        'atom_types': len(ATOM_TYPES),
+        'bond_types': len(BOND_TYPES),
+        'hybridization_types': len(HYBRIDIZATION_TYPES)
     }

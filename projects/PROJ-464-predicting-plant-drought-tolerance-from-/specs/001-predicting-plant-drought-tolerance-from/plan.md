@@ -13,7 +13,7 @@ This feature implements a CPU-tractable pipeline to predict plant drought tolera
 3.  **Species-Level Stratification**: All Cross-Validation (CV) loops (with a k-fold configuration) MUST use `GroupKFold` or a custom `GroupShuffleSplit` where the `groups` parameter is the `species_name`. This prevents data leakage where the same species appears in both training and test sets.
 4.  **Power Analysis Justification**: The minimum species count (N) is derived from a power analysis: Cohen's f2=0.15 (medium effect), alpha=0.05, power=0.80, k=3 predictors. This yields N=55. The pipeline halts if N < 55.
 
-The pipeline handles collinearity via PCA and phylogenetic non-independence via PGLS (strict tree requirement). It includes rigorous sensitivity analysis for classification thresholds (if proxy exists) and multiple-comparison corrections for hypothesis testing, all constrained to run on a GitHub Actions free-tier runner (limited CPU, 7GB RAM, 6h limit).
+The pipeline handles collinearity via PCA and phylogenetic non-independence via PGLS (strict tree requirement). It includes rigorous sensitivity analysis for classification thresholds (if proxy exists) and multiple-comparison corrections for hypothesis testing, all constrained to run on a GitHub Actions free-tier runner with limited CPU and memory resources within a standard time limit.
 
 ## Technical Context
 
@@ -25,7 +25,7 @@ The pipeline handles collinearity via PCA and phylogenetic non-independence via 
 **Project Type**: Computational Research Pipeline  
 **Performance Goals**: Process [deferred] images in <6h; Memory <7GB; Disk <14GB
 **Constraints**: No GPU/CUDA; No heavy LLM training; Strict adherence to verified dataset URLs; Reproducible random seeds.  
-**Scale/Scope**: ~10k images (NPPN/MGB3), ~50-100 species overlap with TRY (Minimum 55 for Power Analysis).
+**Scale/Scope**: A large-scale dataset (NPPN/MGB3), A substantial number of species overlap with TRY. (Minimum 55 for Power Analysis).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

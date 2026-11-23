@@ -1,11 +1,46 @@
-- artifact_hash: 7f3b3d4273994e57bdb16fd3d8271d5c92ea1a7f7b99b554f103c7807ed16e85
-  artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/quickstart.md
+- artifact_hash: 4ac99e90fa9ee45e16d307e53afa508801ef6ae7dc26eabcfee9947aabef66f6
+  artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Vif - Wikidata
+  fetched_title: Redirecting
   kind: url
-  value: https://www.wikidata.org/wiki/Q113106917
-  verification_status: verified
-  verified_against_url: https://www.wikidata.org/wiki/Q113106917
-  verified_at: '2026-07-07T13:21:54.944396Z'
+  value: https://doi.org/10.1016/j.jrp.2006.07.001
+  verification_status: pending
+  verified_against_url: https://linkinghub.elsevier.com/retrieve/pii/S0092656606000882
+  verified_at: '2026-07-29T11:41:47.353989Z'
+- artifact_hash: 4ac99e90fa9ee45e16d307e53afa508801ef6ae7dc26eabcfee9947aabef66f6
+  artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Redirecting
+  kind: url
+  value: https://doi.org/10.1016/j.chb.2016.12.033
+  verification_status: pending
+  verified_against_url: https://linkinghub.elsevier.com/retrieve/pii/S074756321630855X
+  verified_at: '2026-07-29T11:41:47.353989Z'
+- artifact_hash: 4ac99e90fa9ee45e16d307e53afa508801ef6ae7dc26eabcfee9947aabef66f6
+  artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'Change and stability of sense of coherence in adulthood: Longitudinal
+    evidence from the Healthy Child study'
+  kind: doi
+  value: 10.1016/j.jrp.2006.07.001
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1016/j.jrp.2006.07.001
+  verified_at: '2026-07-29T11:41:47.353989Z'
+- artifact_hash: 4ac99e90fa9ee45e16d307e53afa508801ef6ae7dc26eabcfee9947aabef66f6
+  artifact_path: projects/PROJ-138-the-effects-of-gamified-habit-tracking-o/specs/001-the-effects-of-gamified-habit-tracking-o/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'How gamification motivates: An experimental study of the effects
+    of specific game design elements on psychological need satisfaction'
+  kind: doi
+  value: 10.1016/j.chb.2016.12.033
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1016/j.chb.2016.12.033
+  verified_at: '2026-07-29T11:41:47.353989Z'

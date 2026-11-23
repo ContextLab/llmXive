@@ -1,3 +1,2 @@
-# Raw data directory
-# This directory stores raw datasets downloaded from external sources (e.g., HuggingFace).
-# Do not commit large binary files here.
+# This directory stores raw dataset files (e.g., HumanEval, MBPP)
+# Do not commit large files here; add them via .gitignore or LFS

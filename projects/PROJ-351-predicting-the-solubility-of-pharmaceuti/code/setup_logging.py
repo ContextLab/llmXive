@@ -1,3 +1,8 @@
+"""
+Logging Setup (Task T008)
+
+Configures logging infrastructure for the project.
+"""
 import os
 import sys
 import logging
@@ -5,108 +10,86 @@ import json
 from pathlib import Path
 from datetime import datetime
 
-# Ensure the log directory exists
-LOG_DIR = Path("data/logs")
-LOG_DIR.mkdir(parents=True, exist_ok=True)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+LOG_DIR = PROJECT_ROOT / "data" / "logs"
 
-def setup_logger(name: str, log_file: str = None, level: int = logging.INFO) -> logging.Logger:
+def setup_logger(name: str, log_file: str = "pipeline.log", level: int = logging.INFO) -> logging.Logger:
     """
-    Sets up a logger with console and optional file output.
+    Sets up a logger with console and file handlers.
     
     Args:
-        name: The name of the logger.
-        log_file: Relative path to the log file within data/logs/. 
-                  If None, only console output is used.
-        level: Logging level (e.g., logging.INFO).
+        name: Logger name.
+        log_file: Name of the log file (relative to data/logs/).
+        level: Logging level.
     
     Returns:
-        A configured logging.Logger instance.
+        Configured logger.
     """
+    log_dir = Path(LOG_DIR)
+    log_dir.mkdir(parents=True, exist_ok=True)
+    
+    full_log_path = log_dir / log_file
+    
     logger = logging.getLogger(name)
     logger.setLevel(level)
-
-    # Avoid adding handlers multiple times if called repeatedly
+    
+    # Prevent duplicate handlers
     if logger.handlers:
         return logger
 
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-
-    # Console handler
-    ch = logging.StreamHandler(sys.stdout)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
-
-    # File handler
-    if log_file:
-        log_path = LOG_DIR / log_file
-        fh = logging.FileHandler(log_path)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
-
+    # Console Handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(level)
+    console_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_format)
+    
+    # File Handler
+    file_handler = logging.FileHandler(full_log_path)
+    file_handler.setLevel(level)
+    file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(file_format)
+    
+    logger.addHandler(console_handler)
+    logger.addHandler(file_handler)
+    
     return logger
 
-def log_exclusion_counts(logger: logging.Logger, total_count: int, excluded_count: int, reason: str = "Invalid SMILES"):
+def log_exclusion_counts(exclusion_counts: dict) -> None:
     """
-    Logs the count of excluded items (e.g., invalid SMILES) to the logger.
+    Logs exclusion counts to a JSON file.
     
     Args:
-        logger: The logger instance.
-        total_count: Total number of items processed.
-        excluded_count: Number of items excluded.
-        reason: The reason for exclusion.
+        exclusion_counts: Dictionary of exclusion counts.
     """
-    if excluded_count > 0:
-        logger.warning(f"Exclusion Summary: {excluded_count}/{total_count} items excluded due to {reason}.")
-    else:
-        logger.info(f"Exclusion Summary: {excluded_count}/{total_count} items excluded due to {reason}.")
+    log_dir = Path(LOG_DIR)
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "exclusions.json"
+    
+    with open(log_file, 'w') as f:
+        json.dump(exclusion_counts, f, indent=2)
+    logging.info(f"Exclusion counts logged to {log_file}")
 
-def log_training_metrics(logger: logging.Logger, metrics: dict, epoch: int = -1):
+def log_training_metrics(metrics: dict) -> None:
     """
-    Logs training metrics (e.g., RMSE, R2) to the logger and optionally to a JSON file.
+    Logs training metrics to a JSON file.
     
     Args:
-        logger: The logger instance.
-        metrics: Dictionary of metric names to values.
-        epoch: Current epoch number (optional, -1 if not applicable).
+        metrics: Dictionary of training metrics.
     """
-    if epoch >= 0:
-        logger.info(f"Epoch {epoch} Metrics: {metrics}")
-    else:
-        logger.info(f"Final Training Metrics: {metrics}")
+    log_dir = Path(LOG_DIR)
+    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = log_dir / "training_metrics.json"
     
-    # Also save a snapshot of metrics to a JSON file for easy parsing
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    metrics_file = LOG_DIR / f"training_metrics_{timestamp}.json"
-    with open(metrics_file, 'w') as f:
-        json.dump(metrics, f, indent=4)
-    logger.info(f"Metrics saved to {metrics_file}")
+    with open(log_file, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    logging.info(f"Training metrics logged to {log_file}")
 
 def main():
     """
-    Main function to demonstrate logging setup and usage.
-    This script ensures the logging infrastructure is configured
-    and logs a sample exclusion count and training metric.
+    Main entry point for logging setup (T008).
     """
-    # Setup logger
-    logger = setup_logger("PipelineLogger", "pipeline_run.log")
-    
-    logger.info("Logging infrastructure initialized.")
-    
-    # Simulate exclusion logging
-    log_exclusion_counts(logger, total_count=1000, excluded_count=42, reason="Invalid SMILES or NaN logS")
-    
-    # Simulate training metrics logging
-    sample_metrics = {
-        "rmse": 0.85,
-        "r_squared": 0.72,
-        "mae": 0.65
-    }
-    log_training_metrics(logger, sample_metrics)
-
-    logger.info("Logging demonstration complete.")
+    logger = setup_logger("setup_logging")
+    logger.info("Logging infrastructure configured successfully.")
 
 if __name__ == "__main__":
     main()

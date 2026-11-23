@@ -25,22 +25,21 @@ venv/
 ENV/
 env/
 
-# Data
-data/raw/*.csv
-data/raw/*.tar.gz
-data/processed/*.csv
-data/models/*.pkl
-data/models/*.joblib
-
-# Logs
-*.log
-logs/
-
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
+
+# Data & Logs
+data/*.csv
+data/*.tar.gz
+data/*.xyz
+data/optimized_geometries/*
+logs/*.log
+reports/*.json
+reports/*.csv
+reports/*.md
 
 # OS
 .DS_Store

@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Validation Schema
+type: object
+required:
+  - language_pair
+  - wals_correlation
+  - senteval_correlation
+properties:
+  language_pair:
+    type: string
+  wals_correlation:
+    type: object
+    required:
+      - r
+      - ci_low
+      - ci_high
+      - p_value
+    properties:
+      r: { type: number }
+      ci_low: { type: number }
+      ci_high: { type: number }
+      p_value: { type: number }
+  senteval_correlation:
+    type: object
+    required:
+      - r
+      - ci_low
+      - ci_high
+      - p_value
+    properties:
+      r: { type: number }
+      ci_low: { type: number }
+      ci_high: { type: number }
+      p_value: { type: number }

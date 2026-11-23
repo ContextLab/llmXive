@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: SingleRunResults
+description: Container for a single simulation run and its eigenvalue outcomes.
+type: object
+required:
+  - run_id
+  - simulation_run
+  - eigenvalue_results
+properties:
+  run_id:
+    type: string
+  simulation_run:
+    type: object
+    required:
+      - run_id
+      - timestamp
+      - N
+      - seed
+      - theta
+      - k
+      - pattern
+      - peak_memory_gb
+    properties:
+      run_id:
+        type: string
+      timestamp:
+        type: string
+        format: date-time
+      N:
+        type: integer
+      seed:
+        type: integer
+      theta:
+        type: number
+      k:
+        type: integer
+      pattern:
+        type: string
+      peak_memory_gb:
+        type: number
+  eigenvalue_results:
+    type: array
+    items:
+      type: object
+      required:
+        - index
+        - value
+        - is_outlier
+      properties:
+        index:
+          type: integer
+        value:
+          type: number
+        is_outlier:
+          type: boolean

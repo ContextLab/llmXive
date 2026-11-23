@@ -1,73 +1,159 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Analysis Result Schema
-description: Schema for statistical analysis results and permutation tests.
+$schema: http://json-schema.org/draft-07/schema#
+title: Result Schema
+description: Schema for statistical analysis results and visualizations
 type: object
-required:
-  - analysis_id
-  - timestamp
-  - metric_name
-  - behavior_name
-  - correlation
-  - p_value
-  - adjusted_p_value
-  - effect_size
-  - n_subjects
 properties:
   analysis_id:
     type: string
-    description: Unique identifier for the analysis run.
-  timestamp:
+    description: Unique identifier for this analysis run
+  analysis_timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of analysis execution.
-  metric_name:
-    type: string
-    description: Name of the network metric (e.g., "transition_count").
-  behavior_name:
-    type: string
-    description: Name of the behavioral measure (e.g., "DSST_score").
-  correlation:
-    type: number
-    description: Spearman correlation coefficient.
-  p_value:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: Raw p-value from the correlation test.
-  adjusted_p_value:
-    type: number
-    minimum: 0
-    maximum: 1
-    description: Bonferroni-corrected p-value.
-  effect_size:
-    type: number
-    description: Cohen's r effect size.
-  n_subjects:
-    type: integer
-    minimum: 2
-    description: Number of subjects included in the analysis.
-  permutation:
+    description: ISO 8601 timestamp of when analysis was performed
+  statistical_tests:
+    type: array
+    items:
+      type: object
+      properties:
+        test_type:
+          type: string
+          enum:
+            - spearman_correlation
+            - permutation_test
+          description: Type of statistical test performed
+        metric_pair:
+          type: string
+          description: Description of the metric-behavior pair tested (e.g., "transition_count_vs_dsst")
+        correlation_coefficient:
+          type: number
+          description: Spearman correlation coefficient (r)
+        p_value:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: Raw p-value from the test
+        adjusted_p_value:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: Bonferroni-adjusted p-value
+        effect_size:
+          type: number
+          description: Cohen's r or other effect size measure
+        significance_level:
+          type: number
+          minimum: 0.0
+          maximum: 1.0
+          description: Significance threshold used (e.g., 0.05)
+        is_significant:
+          type: boolean
+          description: Whether the result is statistically significant after correction
+        sample_size:
+          type: integer
+          minimum: 2
+          description: Number of subjects included in the analysis
+        excluded_subjects:
+          type: array
+          items:
+            type: string
+          description: List of subject IDs excluded from analysis
+      required:
+        - test_type
+        - metric_pair
+        - correlation_coefficient
+        - p_value
+        - adjusted_p_value
+        - effect_size
+        - significance_level
+        - is_significant
+        - sample_size
+  permutation_results:
     type: object
-    description: Optional permutation test results.
-    required:
-      - n_permutations
-      - observed_statistic
-      - p_value_perm
     properties:
-      n_permutations:
-        type: integer
-        minimum: 1
-        description: Number of permutations performed.
-      observed_statistic:
-        type: number
-        description: Observed correlation statistic.
-      p_value_perm:
-        type: number
-        minimum: 0
-        maximum: 1
-        description: P-value derived from the permutation distribution.
       null_distribution:
         type: array
         items:
           type: number
-        description: Array of correlation values from permuted data.
+        description: Array of correlation coefficients from permutation null distribution
+      observed_statistic:
+        type: number
+        description: Observed correlation coefficient from real data
+      permutation_p_value:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: P-value derived from permutation test
+      n_permutations:
+        type: integer
+        minimum: 1
+        description: Number of permutations performed
+    required:
+      - null_distribution
+      - observed_statistic
+      - permutation_p_value
+      - n_permutations
+  visualizations:
+    type: array
+    items:
+      type: object
+      properties:
+        plot_type:
+          type: string
+          enum:
+            - scatter_plot
+            - permutation_histogram
+            - qq_plot
+          description: Type of visualization generated
+        file_path:
+          type: string
+          format: uri
+          description: Relative path to the generated plot file (e.g., "data/results/plot_transition_count_vs_dsst.png")
+        title:
+          type: string
+          description: Title of the plot
+        x_label:
+          type: string
+          description: Label for the x-axis
+        y_label:
+          type: string
+          description: Label for the y-axis
+        annotations:
+          type: object
+          properties:
+            correlation:
+              type: string
+              description: Formatted correlation coefficient (e.g., "r = 0.42")
+            p_value:
+              type: string
+              description: Formatted p-value (e.g., "p = 0.032")
+            effect_size:
+              type: string
+              description: Formatted effect size (e.g., "r = 0.42")
+      required:
+        - plot_type
+        - file_path
+        - title
+  metadata:
+    type: object
+    properties:
+      software_version:
+        type: string
+        description: Version of the analysis pipeline
+      python_version:
+        type: string
+        description: Python version used for analysis
+      dependencies:
+        type: object
+        additionalProperties: true
+        description: Versions of key dependencies
+      notes:
+        type: string
+        description: Any additional notes about the analysis
+    required:
+      - software_version
+      - python_version
+required:
+  - analysis_id
+  - analysis_timestamp
+  - statistical_tests
+  - metadata

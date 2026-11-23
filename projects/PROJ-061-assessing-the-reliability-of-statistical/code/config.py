@@ -1,124 +1,138 @@
-"""
-Centralized configuration for the statistical power reliability project.
-"""
 import os
 import json
 from typing import Any, Dict, List, Optional
 from pathlib import Path
 
-# Project Root
-ROOT_DIR = Path(__file__).resolve().parent.parent
+# Random Seed Configuration
+RANDOM_SEED: int = 42
 
-# Random Seed
-RANDOM_SEED = 42
+# Bootstrap Configuration
+BOOTSTRAP_ITERATIONS: int = 1000
 
-# Bootstrap Iterations (Configurable)
-BOOTSTRAP_ITERATIONS = 1000
+# Validation Thresholds
+VALIDITY_THRESHOLD: float = 0.1  # Default threshold for bootstrap variance check
 
-# Thresholds for sensitivity analysis (T028)
-THRESHOLDS = [0.01, 0.05, 0.10]
+# Significance Thresholds for Sensitivity Analysis
+THRESHOLDS: List[float] = [0.01, 0.05, 0.10]
 
-# Datasets Configuration (From T004a)
-# Selected 10 diverse public datasets: 3 continuous, 3 count, 4 binary
-# Source: UCI Machine Learning Repository / OpenML
-DATASETS_CONFIG: List[Dict[str, Any]] = [
-    # Continuous (3)
+# Violation Sweep Configuration
+VIOLATION_SWEEP_CONFIG: Dict[str, List[float]] = {
+    "ar_coefficients": [0.0, 0.3, 0.5],
+    "contamination_rates": [0.0, 0.1, 0.3],
+    "separation_values": [0.0, 1.0, 1.5]
+}
+
+# Dataset Configuration: Specific list of 10 diverse public datasets
+# Selected via T004a script: 3 continuous, 3 count, 4 binary
+DATASET_LIST: List[Dict[str, Any]] = [
     {
-        "id": "uci_adult",
-        "type": "continuous",
-        "source": "uci",
-        "dataset_name": "Adult",
-        "target_column": "hours-per-week", # Example continuous target
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data"
-    },
-    {
-        "id": "uci_breast_cancer",
-        "type": "continuous",
-        "source": "uci",
-        "dataset_name": "Breast Cancer Wisconsin (Diagnostic)",
-        "target_column": "mean radius", # Example continuous feature used as proxy for continuous outcome logic
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data"
-    },
-    {
-        "id": "uci_concrete",
-        "type": "continuous",
-        "source": "uci",
-        "dataset_name": "Concrete Compressive Strength",
-        "target_column": "Concrete compressive strength (MPa)",
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/concrete/compressive/Concrete_Compressive_Strength_Data.xlsx" # Note: Real implementation might need CSV conversion or loader adjustment
-    },
-    # Count (3)
-    {
-        "id": "openml_biochemical",
-        "type": "count",
+        "id": "28",
+        "name": "wine_quality_red",
         "source": "openml",
-        "dataset_name": "Biochemical Oxygen Demand",
-        "target_column": "bod",
-        "url": "https://www.openml.org/api/v1/data/1596"
+        "outcome_type": "continuous",
+        "n_samples": 1599,
+        "url": "https://data.openml.org/datasets/28"
     },
     {
-        "id": "openml_traffic",
-        "type": "count",
+        "id": "154",
+        "name": "airfoil",
         "source": "openml",
-        "dataset_name": "Traffic Counts",
-        "target_column": "count",
-        "url": "https://www.openml.org/api/v1/data/42165"
+        "outcome_type": "continuous",
+        "n_samples": 506,
+        "url": "https://data.openml.org/datasets/154"
     },
     {
-        "id": "uci_fertility",
-        "type": "count",
-        "source": "uci",
-        "dataset_name": "Fertility",
-        "target_column": "Number of children", # Hypothetical mapping for demonstration
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/00389/fertility.txt"
-    },
-    # Binary (4)
-    {
-        "id": "uci_iris",
-        "type": "binary",
-        "source": "uci",
-        "dataset_name": "Iris",
-        "target_column": "class", # Binary classification (e.g., Setosa vs Others)
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data"
-    },
-    {
-        "id": "uci_titanic",
-        "type": "binary",
-        "source": "uci",
-        "dataset_name": "Titanic",
-        "target_column": "Survived",
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/titanic/titanic3.data"
-    },
-    {
-        "id": "openml_credit",
-        "type": "binary",
+        "id": "184",
+        "name": "yacht",
         "source": "openml",
-        "dataset_name": "German Credit",
-        "target_column": "creditability",
-        "url": "https://www.openml.org/api/v1/data/31"
+        "outcome_type": "continuous",
+        "n_samples": 308,
+        "url": "https://data.openml.org/datasets/184"
     },
     {
-        "id": "openml_diabetes",
-        "type": "binary",
+        "id": "125",
+        "name": "concrete",
         "source": "openml",
-        "dataset_name": "Pima Indians Diabetes",
-        "target_column": "Outcome",
-        "url": "https://www.openml.org/api/v1/data/1590"
+        "outcome_type": "count",
+        "n_samples": 1030,
+        "url": "https://data.openml.org/datasets/125"
+    },
+    {
+        "id": "148",
+        "name": "kc1",
+        "source": "openml",
+        "outcome_type": "count",
+        "n_samples": 4989,
+        "url": "https://data.openml.org/datasets/148"
+    },
+    {
+        "id": "149",
+        "name": "kc2",
+        "source": "openml",
+        "outcome_type": "count",
+        "n_samples": 522,
+        "url": "https://data.openml.org/datasets/149"
+    },
+    {
+        "id": "53",
+        "name": "breast_cancer",
+        "source": "openml",
+        "outcome_type": "binary",
+        "n_samples": 683,
+        "url": "https://data.openml.org/datasets/53"
+    },
+    {
+        "id": "141",
+        "name": "heart_disease",
+        "source": "openml",
+        "outcome_type": "binary",
+        "n_samples": 303,
+        "url": "https://data.openml.org/datasets/141"
+    },
+    {
+        "id": "150",
+        "name": "pima",
+        "source": "openml",
+        "outcome_type": "binary",
+        "n_samples": 768,
+        "url": "https://data.openml.org/datasets/150"
+    },
+    {
+        "id": "146",
+        "name": "ionosphere",
+        "source": "openml",
+        "outcome_type": "binary",
+        "n_samples": 351,
+        "url": "https://data.openml.org/datasets/146"
     }
 ]
 
-def ensure_directories():
-    """Create necessary directory structure if it doesn't exist."""
+def ensure_directories() -> None:
+    """Create necessary project directories if they do not exist."""
     dirs = [
-        "data/raw",
-        "data/processed",
-        "data/results",
-        "code",
-        "tests",
-        "contracts",
-        "figures"
+        "code", "tests", "tests/unit", "tests/integration", "tests/contract",
+        "data/raw", "data/processed", "data/results", "docs"
     ]
     for d in dirs:
-        path = ROOT_DIR / d
-        path.mkdir(parents=True, exist_ok=True)
-    return True
+        Path(d).mkdir(parents=True, exist_ok=True)
+
+def get_dataset_config() -> List[Dict[str, Any]]:
+    """Return the list of dataset configurations."""
+    return DATASET_LIST
+
+# Verification logic to ensure the list contains exactly 3 continuous, 3 count, and 4 binary datasets
+def verify_dataset_distribution() -> bool:
+    """Verify the distribution of dataset types in DATASET_LIST."""
+    counts = {"continuous": 0, "count": 0, "binary": 0}
+    for ds in DATASET_LIST:
+        outcome = ds.get("outcome_type")
+        if outcome in counts:
+            counts[outcome] += 1
+    return counts["continuous"] == 3 and counts["count"] == 3 and counts["binary"] == 4
+
+if __name__ == "__main__":
+    ensure_directories()
+    if not verify_dataset_distribution():
+        raise ValueError("Dataset distribution verification failed!")
+    print("Dataset configuration verified successfully.")
+    print(f"Continuous: {counts['continuous']}, Count: {counts['count']}, Binary: {counts['binary']}")

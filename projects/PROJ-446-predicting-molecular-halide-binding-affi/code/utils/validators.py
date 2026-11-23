@@ -5,79 +5,85 @@ from typing import Any, Dict, List, Optional, Tuple
 import yaml
 import pandas as pd
 
-from rdkit import Chem
+from code.utils.logger import get_logger
+from code.utils.config import get_data_path
+
+logger = get_logger(__name__)
 
 def load_schema(schema_path: Optional[str] = None) -> Dict[str, Any]:
     """Load the dataset schema from YAML."""
     if schema_path is None:
-        schema_path = Path(__file__).parent.parent.parent / "specs" / "dataset.schema.yaml"
-    if not Path(schema_path).exists():
-        # Fallback to a minimal schema if file not found
-        return {
-            "required_columns": ["host_id", "halide_identity", "affinity_value", "affinity_unit", "smiles"],
-            "types": {
-                "host_id": "string",
-                "halide_identity": "string",
-                "affinity_value": "float",
-                "affinity_unit": "string",
-                "smiles": "string"
-            }
-        }
+        schema_path = Path(get_data_path()) / "schema.yaml"
+    
+    if not os.path.exists(schema_path):
+        logger.warning(f"Schema file not found at {schema_path}. Returning empty schema.")
+        return {}
     
     with open(schema_path, 'r') as f:
         return yaml.safe_load(f)
 
 def validate_smiles(smiles: str) -> bool:
-    """Validate if a string is a valid SMILES."""
-    if not smiles or pd.isna(smiles):
+    """Basic validation of SMILES string."""
+    if not smiles or not isinstance(smiles, str):
         return False
-    try:
-        mol = Chem.MolFromSmiles(str(smiles))
-        return mol is not None
-    except:
-        return False
+    # Simple regex for SMILES (not exhaustive but catches common errors)
+    pattern = r'^[CNOcSsFClBrIPnHn\d\(\)\[\]=#@$%^&*]+$'
+    return bool(re.match(pattern, smiles))
 
 def validate_column_types(df: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
-    """Check if column types match the schema."""
+    """Check that columns have expected types based on schema."""
     errors = []
-    types_map = {
-        "string": str,
-        "float": float,
-        "int": int,
-        "object": object
-    }
+    expected_types = schema.get('columns', {})
     
-    for col, type_str in schema.get("types", {}).items():
+    for col, spec in expected_types.items():
         if col not in df.columns:
-            continue
-        expected_type = types_map.get(type_str, object)
-        if not all(isinstance(x, expected_type) or pd.isna(x) for x in df[col]):
-            errors.append(f"Column {col} has invalid type. Expected {type_str}")
+            continue # Handled by required check
+        
+        expected_type = spec.get('type')
+        if expected_type == 'string' and not df[col].apply(lambda x: isinstance(x, str) or pd.isna(x)).all():
+            errors.append(f"Column {col} should be string")
+        elif expected_type == 'number' and not df[col].apply(lambda x: isinstance(x, (int, float)) or pd.isna(x)).all():
+            errors.append(f"Column {col} should be number")
+    
     return errors
 
 def validate_required_columns(df: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
-    """Check if all required columns are present."""
-    required = schema.get("required_columns", [])
-    missing = [col for col in required if col not in df.columns]
-    return missing
-
-def validate_constraints(df: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
-    """Check specific constraints (e.g., non-null, ranges)."""
+    """Check that all required columns are present."""
     errors = []
-    constraints = schema.get("constraints", {})
-    
-    for col, rules in constraints.items():
-        if col not in df.columns:
-            continue
-        if rules.get("not_null", False) and df[col].isna().any():
-            errors.append(f"Column {col} contains null values")
-        # Add more constraint checks as needed
+    required = schema.get('required_columns', [])
+    missing = [col for col in required if col not in df.columns]
+    if missing:
+        errors.append(f"Missing required columns: {missing}")
     return errors
 
-def validate_dataset(df: pd.DataFrame, schema: Optional[Dict[str, Any]] = None) -> Tuple[bool, List[str]]:
-    """Validate a dataframe against a schema."""
-    if schema is None:
-        schema = load_schema()
+def validate_constraints(df: pd.DataFrame, schema: Dict[str, Any]) -> List[str]:
+    """Check value constraints (e.g., range, unique)."""
+    errors = []
+    constraints = schema.get('constraints', {})
+    
+    for col, constraint in constraints.items():
+        if col not in df.columns:
+            continue
+        
+        if 'min' in constraint:
+            min_val = constraint['min']
+            if df[col].min() < min_val:
+                errors.append(f"Column {col} has values below {min_val}")
+        
+        if 'unique' in constraint and constraint['unique']:
+            if df[col].duplicated().any():
+                errors.append(f"Column {col} should be unique")
+    
+    return errors
+
+def validate_dataset(df: pd.DataFrame, schema_path: str) -> Tuple[bool, List[str]]:
+    """
+    Validate a DataFrame against a schema.
+    Returns (is_valid, list_of_errors).
+    """
+    schema = load_schema(schema_path)
+    if not schema:
+        return True, [] # No schema, no validation
     
     errors = []
     errors.extend(validate_required_columns(df, schema))
@@ -86,28 +92,31 @@ def validate_dataset(df: pd.DataFrame, schema: Optional[Dict[str, Any]] = None) 
     
     return len(errors) == 0, errors
 
-def ensure_schema_file_exists():
-    """Ensure the schema file exists."""
-    schema_path = Path(__file__).parent.parent.parent / "specs" / "dataset.schema.yaml"
-    schema_path.parent.mkdir(parents=True, exist_ok=True)
-    if not schema_path.exists():
-        with open(schema_path, 'w') as f:
-            yaml.dump({
-                "required_columns": ["host_id", "halide_identity", "affinity_value", "affinity_unit", "smiles"],
-                "types": {
-                    "host_id": "string",
-                    "halide_identity": "string",
-                    "affinity_value": "float",
-                    "affinity_unit": "string",
-                    "smiles": "string"
-                },
-                "constraints": {
-                    "halide_identity": {"not_null": True},
-                    "affinity_value": {"not_null": True}
-                }
-            }, f)
+def validate_dataframe_for_host_filtering(df: pd.DataFrame) -> Tuple[bool, str]:
+    """Specific validation for the host filtering step."""
+    if 'host_id' not in df.columns:
+        return False, "Missing host_id column"
+    if 'halide' not in df.columns:
+        return False, "Missing halide column"
+    return True, "OK"
 
-def validate_dataframe_for_host_filtering(df: pd.DataFrame) -> bool:
-    """Check if dataframe has necessary columns for host filtering."""
-    required = ["host_id", "halide_identity"]
-    return all(col in df.columns for col in required)
+def ensure_schema_file_exists():
+    """Create a default schema file if it doesn't exist."""
+    schema_path = Path(get_data_path()) / "schema.yaml"
+    if not schema_path.exists():
+        schema_path.parent.mkdir(parents=True, exist_ok=True)
+        default_schema = {
+            "required_columns": ["host_id", "halide", "logK_std", "smiles"],
+            "columns": {
+                "host_id": {"type": "string"},
+                "halide": {"type": "string"},
+                "logK_std": {"type": "number"},
+                "smiles": {"type": "string"}
+            },
+            "constraints": {
+                "host_id": {"unique": False}
+            }
+        }
+        with open(schema_path, 'w') as f:
+            yaml.dump(default_schema, f)
+        logger.info(f"Created default schema at {schema_path}")

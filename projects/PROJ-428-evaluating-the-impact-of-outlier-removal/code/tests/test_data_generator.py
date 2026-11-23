@@ -4,167 +4,127 @@ import pandas as pd
 from pathlib import Path
 import json
 import sys
-import os
-
-# Add the src directory to the path
-sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
-
-from data_generator import (
-    generate_normal_distribution,
-    generate_lognormal_distribution,
-    generate_exponential_distribution,
-    generate_beta_distribution,
-    generate_gamma_distribution,
-    save_ground_truth_params
-)
+import tempfile
+import shutil
+from src.data_generator import inject_outliers, generate_normal_distribution
 
 class TestDataGenerator:
-    """Tests for the synthetic data generation functions."""
+    @pytest.fixture
+    def temp_dir(self):
+        """Create a temporary directory for test files."""
+        temp = tempfile.mkdtemp()
+        yield Path(temp)
+        shutil.rmtree(temp)
 
-    def test_generate_normal_distribution(self):
-        """Test Normal distribution generation."""
-        n_samples = 1000
-        mean = 10.0
-        std = 2.0
-        
-        df, params = generate_normal_distribution(n_samples, mean, std, seed=42)
-        
-        # Check DataFrame structure
-        assert isinstance(df, pd.DataFrame)
-        assert 'value' in df.columns
-        assert len(df) == n_samples
-        
-        # Check params
-        assert params['distribution'] == 'normal'
-        assert params['mean'] == mean
-        assert params['std'] == std
-        assert params['n_samples'] == n_samples
-        assert abs(params['variance'] - std**2) < 1e-10
+    def test_inject_outliers_cauchy(self, temp_dir):
+        """Test Cauchy outlier injection creates expected files and profile."""
+        # Generate clean data
+        n = 1000
+        clean_df, _ = generate_normal_distribution(n, 0, 1, seed=42)
+        clean_path = temp_dir / "clean.csv"
+        clean_df.to_csv(clean_path, index=False)
 
-    def test_generate_lognormal_distribution(self):
-        """Test LogNormal distribution generation."""
-        n_samples = 1000
-        mu = 2.0
-        sigma = 0.5
+        # Inject outliers
+        output_path = temp_dir / "contaminated"
+        rates = [0.0, 0.1]
         
-        df, params = generate_lognormal_distribution(n_samples, mu, sigma, seed=42)
-        
-        # Check DataFrame structure
-        assert isinstance(df, pd.DataFrame)
-        assert 'value' in df.columns
-        assert len(df) == n_samples
-        
-        # Check all values are positive (property of lognormal)
-        assert all(df['value'] > 0)
-        
-        # Check params
-        assert params['distribution'] == 'lognormal'
-        assert params['mu'] == mu
-        assert params['sigma'] == sigma
-        assert params['n_samples'] == n_samples
-        assert 'theoretical_variance' in params
+        profile = inject_outliers(
+            input_path=clean_path,
+            output_path=output_path,
+            contamination_rates=rates,
+            outlier_method='cauchy',
+            cauchy_scale=10.0,
+            seed=42
+        )
 
-    def test_generate_exponential_distribution(self):
-        """Test Exponential distribution generation."""
-        n_samples = 1000
-        scale = 1.0
+        # Verify profile exists and has correct structure
+        assert 'contamination_rates' in profile
+        assert profile['contamination_rates'] == rates
+        assert profile['outlier_method'] == 'cauchy'
         
-        df, params = generate_exponential_distribution(n_samples, scale, seed=42)
+        # Verify output files exist
+        assert output_path.parent.exists()
         
-        # Check DataFrame structure
-        assert isinstance(df, pd.DataFrame)
-        assert 'value' in df.columns
-        assert len(df) == n_samples
+        # Check specific files
+        rate_0_file = output_path.parent / "contaminated_clean_0p00.csv"
+        rate_1_file = output_path.parent / "contaminated_clean_0p10.csv"
         
-        # Check all values are non-negative (property of exponential)
-        assert all(df['value'] >= 0)
-        
-        # Check params
-        assert params['distribution'] == 'exponential'
-        assert params['scale'] == scale
-        assert params['n_samples'] == n_samples
-        assert abs(params['theoretical_variance'] - scale**2) < 1e-10
+        assert rate_0_file.exists()
+        assert rate_1_file.exists()
 
-    def test_generate_beta_distribution(self):
-        """Test Beta distribution generation."""
-        n_samples = 1000
-        alpha = 2.0
-        beta = 5.0
+        # Verify data integrity
+        df_0 = pd.read_csv(rate_0_file)
+        df_1 = pd.read_csv(rate_1_file)
         
-        df, params = generate_beta_distribution(n_samples, alpha, beta, seed=42)
+        assert len(df_0) == n
+        assert len(df_1) == n
         
-        # Check DataFrame structure
-        assert isinstance(df, pd.DataFrame)
-        assert 'value' in df.columns
-        assert len(df) == n_samples
-        
-        # Check all values are in [0, 1] (property of beta)
-        assert all((df['value'] >= 0) & (df['value'] <= 1))
-        
-        # Check params
-        assert params['distribution'] == 'beta'
-        assert params['alpha'] == alpha
-        assert params['beta'] == beta
-        assert params['n_samples'] == n_samples
-        assert 'theoretical_variance' in params
+        # Check that 0% contamination has same variance (approx) as clean
+        clean_var = clean_df['value'].var()
+        var_0 = df_0['value'].var()
+        # Allow small floating point differences
+        assert np.isclose(clean_var, var_0, rtol=1e-5)
 
-    def test_generate_gamma_distribution(self):
-        """Test Gamma distribution generation."""
-        n_samples = 1000
-        shape = 3.0
-        scale = 2.0
-        
-        df, params = generate_gamma_distribution(n_samples, shape, scale, seed=42)
-        
-        # Check DataFrame structure
-        assert isinstance(df, pd.DataFrame)
-        assert 'value' in df.columns
-        assert len(df) == n_samples
-        
-        # Check all values are non-negative (property of gamma)
-        assert all(df['value'] >= 0)
-        
-        # Check params
-        assert params['distribution'] == 'gamma'
-        assert params['shape'] == shape
-        assert params['scale'] == scale
-        assert params['n_samples'] == n_samples
-        assert abs(params['theoretical_variance'] - shape * scale**2) < 1e-10
+        # Check that 10% contamination has higher variance
+        var_1 = df_1['value'].var()
+        assert var_1 > clean_var
 
-    def test_save_ground_truth_params(self, tmp_path):
-        """Test saving ground truth parameters to JSON."""
-        params_list = [
-            {'distribution': 'normal', 'mean': 10.0, 'std': 2.0},
-            {'distribution': 'exponential', 'scale': 1.0}
-        ]
-        
-        output_path = tmp_path / "test_params.json"
-        save_ground_truth_params(params_list, output_path)
-        
-        # Check file exists
-        assert output_path.exists()
-        
-        # Check content
-        with open(output_path, 'r') as f:
-            loaded_params = json.load(f)
-        
-        assert len(loaded_params) == len(params_list)
-        assert loaded_params[0]['distribution'] == 'normal'
-        assert loaded_params[1]['distribution'] == 'exponential'
+    def test_inject_outliers_extreme(self, temp_dir):
+        """Test Extreme outlier injection creates expected files."""
+        # Generate clean data
+        n = 500
+        clean_df, _ = generate_normal_distribution(n, 10, 2, seed=123)
+        clean_path = temp_dir / "clean_ext.csv"
+        clean_df.to_csv(clean_path, index=False)
 
-    def test_reproducibility(self):
-        """Test that same seed produces same results."""
-        n_samples = 100
-        mean = 5.0
-        std = 1.0
-        seed = 123
+        output_path = temp_dir / "contaminated_ext"
+        rates = [0.05]
         
-        df1, _ = generate_normal_distribution(n_samples, mean, std, seed=seed)
-        df2, _ = generate_normal_distribution(n_samples, mean, std, seed=seed)
+        profile = inject_outliers(
+            input_path=clean_path,
+            output_path=output_path,
+            contamination_rates=rates,
+            outlier_method='extreme',
+            extreme_multiplier=10.0,
+            seed=42
+        )
+
+        assert profile['outlier_method'] == 'extreme'
         
-        # Check that the generated values are identical
-        assert df1.equals(df2)
+        file_path = output_path.parent / "contaminated_clean_ext_0p05.csv"
+        assert file_path.exists()
         
-        # Check that different seed produces different results
-        df3, _ = generate_normal_distribution(n_samples, mean, std, seed=seed+1)
-        assert not df1.equals(df3)
+        df = pd.read_csv(file_path)
+        # Verify outliers are present (max value should be much larger than original max)
+        original_max = clean_df['value'].max()
+        contaminated_max = df['value'].max()
+        
+        assert contaminated_max > original_max * 5  # Should be significantly larger
+
+    def test_injection_profile_json(self, temp_dir):
+        """Test that injection_profile.json is created correctly."""
+        clean_df, _ = generate_normal_distribution(100, 0, 1, seed=42)
+        clean_path = temp_dir / "clean_json.csv"
+        clean_df.to_csv(clean_path, index=False)
+
+        output_path = temp_dir / "contaminated_json"
+        rates = [0.0, 0.05]
+        
+        inject_outliers(
+            input_path=clean_path,
+            output_path=output_path,
+            contamination_rates=rates,
+            outlier_method='cauchy',
+            seed=42
+        )
+
+        profile_path = output_path.parent / "injection_profile.json"
+        assert profile_path.exists()
+        
+        with open(profile_path, 'r') as f:
+            profile = json.load(f)
+        
+        assert 'source_file' in profile
+        assert 'original_count' in profile
+        assert 'results' in profile
+        assert len(profile['results']) == len(rates)

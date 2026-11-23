@@ -1,0 +1,64 @@
+name: Full Pipeline Execution
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+
+jobs:
+  run-full-pipeline:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.10']
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install R
+      uses: r-lib/actions/setup-r@v2
+      with:
+        r-version: '4.3.0'
+
+    - name: Install R system dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y libcurl4-openssl-dev libssl-dev libxml2-dev
+
+    - name: Install R packages (lme4, ordinal)
+      run: |
+        Rscript -e "install.packages(c('lme4', 'ordinal'), repos = c('https://cloud.r-project.org'))"
+        Rscript -e "library(lme4); library(ordinal); cat('R packages installed successfully')"
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r code/requirements.txt
+
+    - name: Set up environment variables
+      run: |
+        echo "HF_TOKEN=${{ secrets.HF_TOKEN }}" >> $GITHUB_ENV
+
+    - name: Run Full Pipeline
+      run: |
+        python code/01_download_and_score.py
+        python code/02_fit_clmm.py
+        python code/03_robustness_analysis.py
+
+    - name: Upload Pipeline Results
+      uses: actions/upload-artifact@v3
+      with:
+        name: pipeline-results
+        path: data/processed/
+
+    - name: Upload Performance Metrics
+      uses: actions/upload-artifact@v3
+      with:
+        name: performance-metrics
+        path: data/processed/performance_metrics.json

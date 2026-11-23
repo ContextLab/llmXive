@@ -1,75 +1,79 @@
 # Data Model: Quantifying the Complexity of Knot Diagrams via Crossing Number and Braid Index
 
-## Entity-Relationship Overview
-
-The data model is designed to support a linear data pipeline: Raw Download -> Cleaned -> Validated -> Analyzed.
-
-### Core Entities
-
-1.  **KnotRecord**
-    - Represents a single prime knot.
-    - Contains raw and processed invariant values.
-    - Includes metadata for reproducibility (source, checksum, flags).
-    - **SSoT**: Defined by `contracts/knot_record.schema.yaml`.
-
-2.  **InvariantsDataset**
-    - Aggregation of `KnotRecord` entities.
-    - Derived fields: `is_hyperbolic`, `invariant_completeness_score`.
-
-3.  **RegressionModel**
-    - Represents a fitted statistical model.
-    - Stores coefficients, metrics, and residual analysis results.
-
-## Attribute Definitions
+## Entity Definitions
 
 ### KnotRecord
 
-| Attribute | Type | Description | Source | Constraints |
-| :--- | :--- | :--- | :--- | :--- |
-| `knot_id` | string | Unique identifier (e.g., "8_18") | Knot Atlas | Primary Key, Unique, Pattern: `^[0-9]+_[0-9]+$` (SSoT) |
-| `crossing_number` | integer | Number of crossings in minimal diagram | Knot Atlas | ≥ 1 |
-| `braid_index` | integer | Minimum number of strands in braid representation | Knot Atlas | ≥ 1, ≤ `crossing_number` |
-| `hyperbolic_volume` | float | Volume of hyperbolic complement | Knot Atlas | ≥ 0 (0 for non-hyperbolic) |
-| `alternating` | boolean | Is the knot alternating? | Knot Atlas | True/False/Null (if ambiguous) |
-| `source` | object | Metadata about the source record | Knot Atlas | See schema |
-| `data_quality_flags` | list | General data quality issues | Derived | e.g., "duplicate_id", "format_error" |
-| `missing_invariant_flags` | list | Specific missing invariants (Phase 2+) | Derived | e.g., "no_braid_word" |
-| `checksum_sha256` | string | SHA-256 of raw source record | Derived | 64-char hex string |
+Represents a single prime knot with attributes derived from KnotInfo.
 
-### Source Object (Nested in KnotRecord)
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `knot_id` | string | Unique identifier (e.g., "10_123") | Unique, non-null |
+| `crossing_number` | integer | Number of crossings in minimal diagram | ≥ 1, ≤ 13 |
+| `braid_index` | integer | Minimal braid index | ≥ 2, ≤ crossing_number |
+| `hyperbolic_volume` | float | Hyperbolic volume (0 if not hyperbolic) | ≥ 0 |
+| `alternating` | boolean | Is the knot alternating? | True/False/None |
+| `source` | object | Metadata about the data source | Non-null |
+| `source.database` | string | Name of source database | "KnotInfo" |
+| `source.version` | string | Version of the database | Non-null |
+| `source.url` | string | Canonical URL for the record | Valid URL |
+| `source.accessed_at` | string | ISO-8601 timestamp of access | Non-null |
+| `source.source_timestamp` | string | ISO-8601 timestamp of source record | Non-null |
+| `source.checksum_sha256` | string | SHA-256 of raw source record | Non-null |
+| `data_quality_flags` | array | General data quality issues (null, format, duplicate) | Optional |
+| `missing_invariant_flags` | array | Specific invariant computation failures | Optional |
 
-| Attribute | Type | Description |
+### InvariantsDataset
+
+Aggregated collection of `KnotRecord` entities with derived fields and metadata.
+
+| Field | Type | Description |
 | :--- | :--- | :--- |
-| `database` | string | "Knot Atlas" |
-| `version` | string | Version of the database accessed |
-| `url` | string | Canonical URL for the record |
-| `accessed_at` | string | ISO-8601 timestamp of download |
-| `source_timestamp` | string | ISO-8601 timestamp of source record |
-| `checksum_sha256` | string | SHA-256 of raw source record |
+| `records` | array[KnotRecord] | List of all knot records |
+| `metadata` | object | Dataset-level metadata |
+| `metadata.source` | string | Data source name |
+| `metadata.created_at` | string | ISO-8601 timestamp |
+| `metadata.record_count` | integer | Total number of records |
+| `metadata.hyperbolic_count` | integer | Count of hyperbolic knots (volume > 0) |
+| `metadata.alternating_count` | integer | Count of alternating knots |
 
 ### RegressionModel
 
-| Attribute | Type | Description |
+Represents a fitted regression model.
+
+| Field | Type | Description |
 | :--- | :--- | :--- |
-| `model_id` | string | Unique identifier for the model run |
-| `model_type` | string | "linear", "polynomial", "logarithmic", "ridge" |
-| `coefficients` | dict | Map of feature name to coefficient value |
-| `metrics` | dict | R², AIC, BIC, MAE |
-| `vif_scores` | dict | Variance Inflation Factor for each predictor |
-| `residual_outliers` | list | List of `knot_id`s with residuals ≥ 2 SD |
+| `model_type` | string | "linear", "polynomial", "logarithmic" |
+| `coefficients` | object | Model coefficients |
+| `r_squared` | float | R² goodness-of-fit |
+| `aic` | float | Akaike Information Criterion |
+| `bic` | float | Bayesian Information Criterion |
+| `mae` | float | Mean Absolute Error |
+| `vif_crossing` | float | VIF for crossing number predictor |
+| `vif_braid` | float | VIF for braid index predictor |
 
 ## Data Flow
 
-1.  **Raw**: `data/raw/knot_atlas_raw.json` (Immutable, checksummed).
-2.  **Cleaned**: `data/processed/knots_cleaned.csv` (Parsed, deduplicated, basic cleaning).
-    - *Normalization*: `knot_id` is normalized to the SSoT format `^[0-9]+_[0-9]+$` (e.g., "8_18") during this step.
-3.  **Validated**: `data/processed/knots_validated.csv` (Filtered for hyperbolic, flags applied, validated against KnotInfo).
-4.  **Analysis**: `docs/reproducibility/` (Reports, plots, model outputs).
+1.  **Raw Data**: `data/raw/knot_atlas_raw.json` (from `database-knotinfo`).
+2.  **Parsed Data**: `data/processed/knots_cleaned.csv` (validated `KnotRecord` objects).
+3.  **Filtered Data**: `data/processed/knots_hyperbolic.csv` (volume > 0).
+4.  **Analysis Output**: `data/analysis/regression_results.json`, `data/analysis/residuals.csv`.
+5.  **Reproducibility Artifacts**: `docs/reproducibility/` (checksums, logs, reports).
 
 ## Data Quality Rules
 
-- **Uniqueness**: `knot_id` must be unique.
-- **Completeness**: Required fields (`crossing_number`, `braid_index`, `hyperbolic_volume`) must have null percentage ≤ 5% in the validated subset.
-- **Consistency**: `braid_index` ≤ `crossing_number` must hold for all records.
-- **Validation**: Hyperbolic volume must match KnotInfo within 1e-6 tolerance where reference exists.
-- **SSoT**: `contracts/knot_record.schema.yaml` is the Single Source of Truth. Deprecated files (`knot-record.schema.yaml`, `knot_dataset.schema.yaml`) are not used.
+- **Null Percentage**: ≤ 5% for required fields (crossing number, braid index, hyperbolic volume) in validated subset.
+- **Format Validation**: ≥ 99% pass rate for all records against `knot_record.schema.yaml`.
+- **Duplicates**: 0 duplicate `knot_id`s allowed.
+- **Flagging**: Records failing validation are flagged, not excluded (unless critical).
+
+## File Paths
+
+- `data/raw/knot_atlas_raw.json`
+- `data/processed/knots_cleaned.csv`
+- `data/processed/knots_hyperbolic.csv`
+- `data/analysis/regression_results.json`
+- `data/analysis/residuals.csv`
+- `docs/reproducibility/data_quality_report.md`
+- `docs/reproducibility/excluded_knots.md`
+- `docs/reproducibility/random_seeds.md`

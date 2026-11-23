@@ -1,10 +1,3 @@
-"""
-Base utility modules for logging and error handling.
-
-This module provides standardized logging configuration and custom exception
-classes used throughout the neural correlates analysis pipeline.
-"""
-
 import logging
 import sys
 import os
@@ -12,137 +5,64 @@ import traceback
 from typing import Optional, Dict, Any
 from pathlib import Path
 
-
-# Custom Exception Classes
-class PipelineError(Exception):
-    """Base exception for pipeline-related errors."""
-    def __init__(self, message: str, code: str = "PIPELINE_ERR"):
-        super().__init__(f"[{code}] {message}")
-        self.code = code
-        self.message = message
-
-
-class DataUnavailableError(PipelineError):
-    """Raised when required data cannot be located or fetched."""
-    def __init__(self, message: str):
-        super().__init__(message, code="ERR_DATA_UNAVAILABLE")
-
-
-class InsufficientDataError(PipelineError):
-    """Raised when data volume is below required thresholds (e.g., subject count)."""
-    def __init__(self, message: str):
-        super().__init__(message, code="ERR_N_INSUFFICIENT")
-
-
-class ConfigError(PipelineError):
-    """Raised when configuration files are missing or invalid."""
-    def __init__(self, message: str):
-        super().__init__(message, code="ERR_CONFIG")
-
-
-class IntegrityError(PipelineError):
-    """Raised when data integrity checks (hashes) fail."""
-    def __init__(self, message: str):
-        super().__init__(message, code="ERR_INTEGRITY")
-
-
-# Logging Configuration
-_logger_instance: Optional[logging.Logger] = None
-_logging_setup = False
-
-
-def setup_logging(
-    log_level: int = logging.INFO,
-    log_file: Optional[Path] = None,
-    project_root: Optional[Path] = None
-) -> None:
+def setup_logging(log_file: Optional[Path] = None, level: int = logging.INFO) -> None:
     """
-    Configure the root logger for the pipeline.
-
-    Args:
-        log_level: Logging severity threshold (e.g., logging.DEBUG, logging.INFO).
-        log_file: Optional path to a log file. If None, logs to stderr only.
-        project_root: Optional base path for relative log file resolution.
+    Initialise a basic logger. If ``log_file`` is supplied the logs are also
+    written to that file, otherwise they are only emitted to ``stderr``.
     """
-    global _logging_setup
+    handlers = [logging.StreamHandler(sys.stderr)]
+    if log_file is not None:
+        handlers.append(logging.FileHandler(log_file))
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=handlers,
+    )
 
-    if _logging_setup:
-        return
-
-    # Define log format
-    log_format = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-
-    # Create root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(log_level)
-
-    # Clear existing handlers to avoid duplicates in repeated runs
-    root_logger.handlers.clear()
-
-    # Console Handler
-    console_handler = logging.StreamHandler(sys.stderr)
-    console_handler.setLevel(log_level)
-    console_formatter = logging.Formatter(log_format)
-    console_handler.setFormatter(console_formatter)
-    root_logger.addHandler(console_handler)
-
-    # File Handler (if specified)
-    if log_file:
-        # Resolve path relative to project_root if provided
-        if project_root and not log_file.is_absolute():
-            log_file = project_root / log_file
-        
-        # Ensure directory exists
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(log_level)
-        file_handler.setFormatter(console_formatter)
-        root_logger.addHandler(file_handler)
-
-    _logging_setup = True
-
-
-def get_logger(name: Optional[str] = None) -> logging.Logger:
+def get_logger(name: str = __name__) -> logging.Logger:
     """
-    Retrieve a logger instance, initializing logging if necessary.
-
-    Args:
-        name: Name for the logger (e.g., module name). Defaults to 'pipeline'.
-
-    Returns:
-        Configured logger instance.
+    Return a logger instance for the given ``name``.
     """
-    global _logger_instance
+    return logging.getLogger(name)
 
-    if not _logging_setup:
-        # Default setup if get_logger is called before explicit setup_logging
-        setup_logging()
-
-    logger_name = name if name else "pipeline"
-    return logging.getLogger(logger_name)
-
-
-def log_exception(
-    logger: logging.Logger,
-    exc: Exception,
-    msg: str = "An unexpected error occurred",
-    level: int = logging.ERROR
-) -> None:
+def log_exception(*args, **kwargs) -> None:
     """
-    Log an exception with full traceback information.
+    Log an exception in a very tolerant way.
 
-    Args:
-        logger: Logger instance to use.
-        exc: The exception object.
-        msg: Preceding message to log.
-        level: Log level for the error (default: ERROR).
+    The function is deliberately permissive because it is called from many
+    different places in the code base with slightly different signatures.
+    It accepts:
+
+    * ``log_exception(logger)`` – only a logger is supplied.
+    * ``log_exception(logger, exc)`` – a logger and an exception.
+    * ``log_exception(logger=..., exc=...)`` – keyword arguments.
+    * ``log_exception(exc=exc)`` – only an exception (logger defaults to root).
+    * ``log_exception()`` – nothing; a generic “exception occurred” message is logged.
+
+    Any combination of positional and keyword arguments is handled.
     """
-    exc_type = type(exc).__name__
-    exc_traceback = traceback.format_exc()
-    
-    error_detail = f"{msg}: {exc_type} - {str(exc)}"
-    
-    if logger.isEnabledFor(level):
-        logger.log(level, error_detail)
-        logger.log(level, "Traceback:\n%s", exc_traceback)
+    # Resolve logger
+    logger = None
+    if "logger" in kwargs:
+        logger = kwargs["logger"]
+    elif args:
+        logger = args[0]
+
+    if logger is None:
+        logger = logging.getLogger()
+
+    # Resolve exception
+    exc = kwargs.get("exc")
+    if exc is None and len(args) > 1:
+        exc = args[1]
+
+    # If an exception object is supplied, log its traceback; otherwise log a generic message.
+    if exc is not None:
+        if isinstance(exc, BaseException):
+            logger.error("Exception occurred:", exc_info=exc)
+        else:
+            # ``exc`` might be a string or other object – treat it as a message.
+            logger.error(f"Exception occurred: {exc}")
+    else:
+        # No explicit exception – log the current traceback (if any)
+        logger.exception("An exception occurred")

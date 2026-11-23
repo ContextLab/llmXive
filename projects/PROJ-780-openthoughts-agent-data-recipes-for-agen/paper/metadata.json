@@ -102,5 +102,15 @@
     "tables/8b_rl.tex",
     "tables/table1.tex",
     "tables/compute_controlled_filtering.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "5384f1878167dbed41adaae906dd2ceee6d35ff721cd669466c62c284dbb5f01",
+      "bytes": 2581506
+    },
+    "original.pdf": {
+      "sha256": "0ce7e6e5fe8e3d68c3cc134f97ff89e50ce0f484a9d5442279838e299433981a",
+      "bytes": 2550856
+    }
+  }
 }

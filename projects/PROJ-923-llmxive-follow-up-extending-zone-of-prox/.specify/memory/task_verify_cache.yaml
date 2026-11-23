@@ -1,0 +1,29 @@
+T009:
+  c: false
+  h: 9cf8876fecb2cf0190f032beb0a0837adaa2336d9a3c658d59ae770604353194
+  r: "The required file `code/utils/state_store.py` is missing entirely, so no State\
+    \ Store utility was provided to manage the specified YAML project file. Without\
+    \ this implementation the task\u2019s core requirement is unmet."
+T018:
+  c: false
+  h: 216a2c39677481752c6ecdf146ad4e9ef16033ca31a065bd27d1f00c2476ef7b
+  r: "The provided `code/main.py` is a batch\u2011runner that executes both baseline\
+    \ and CAP simulations and writes `data/metrics/batch_results.csv`; it does not\
+    \ serve as a simple entry\u2011point that runs only the baseline simulation and\
+    \ writes `data/metrics/baseline_results.csv`. Moreover, the required `data/metrics/baseline_results.csv`\
+    \ file is missing. The task\u2019s core requirement is therefore not satisfied."
+T025:
+  c: false
+  h: 2428b4b0e9f8848318e0fc8328863282d78a32164b9786450db2b21e52e2e138
+  r: "The provided `code/main.py` is a batch\u2011runner that executes both baseline\
+    \ and CAP simulations and writes `data/metrics/batch_results.csv`; it does not\
+    \ serve as a simple entry\u2011point script that runs only the CAP simulation\
+    \ and writes `data/metrics/cap_results.csv`. Moreover, the required `data/metrics/cap_results.csv`\
+    \ file is absent. The task\u2019s core requirement\u2014an entry point that runs\
+    \ the CAP simulation and produces the specified CSV\u2014is therefore not satisfied."
+T033:
+  c: false
+  h: a171dffefa1639578c25955eede05a554655c7128e206e9072477adfaba5187e
+  r: The required schema file `contracts/aggregated_metrics.schema.yaml` (or `schema.yaml`)
+    is missing, so no validation of results against the contract could be performed.
+    Without the schema, the task cannot be considered fulfilled.

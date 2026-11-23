@@ -1,0 +1,6 @@
+'|316l dataset fetche stainless steel':
+  quote: in order to obtain the required dataset, Stress316L, for training the neural
+    network. Moreover, instead of
+  source_id: '2102.02470'
+  url: https://arxiv.org/abs/2102.02470
+  value: Stress316L

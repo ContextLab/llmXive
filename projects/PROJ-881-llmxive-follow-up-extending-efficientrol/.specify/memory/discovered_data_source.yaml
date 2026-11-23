@@ -1,0 +1,13 @@
+status: none
+intent: download GSM8K and MiniGrid datasets from Hugging Face Datasets python package
+  dataset
+required_fields:
+- question
+- answer
+- solution
+- grid
+- mission
+- action_sequence
+cache_key: df5824a400d49e84e865c3ca6517e79be23c9fe7fb786a67d68aac976b22dfb1
+searched_at: '2026-10-09T21:46:56.803607+00:00'
+retry_count: 1

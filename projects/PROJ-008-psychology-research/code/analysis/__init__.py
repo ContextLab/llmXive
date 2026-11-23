@@ -1,1 +1,3 @@
-# Analysis modules (effect sizes, meta-analysis)
+"""
+Analysis module for psychology research pipeline.
+"""

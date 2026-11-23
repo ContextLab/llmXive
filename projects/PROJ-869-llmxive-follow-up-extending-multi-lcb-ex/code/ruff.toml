@@ -1,0 +1,39 @@
+[tool.ruff]
+# Target Python 3.10+
+target-version = "py310"
+
+# Line length matching Black
+line-length = 88
+
+# Exclude generated or large directories
+exclude = [
+    ".git",
+    "__pycache__",
+    ".mypy_cache",
+    ".pytest_cache",
+    "data",
+    "venv",
+    ".venv",
+    "build",
+    "dist"
+]
+
+[tool.ruff.lint]
+# Enable pycodestyle (E), Pyflakes (F), and isort (I)
+select = ["E", "F", "I", "W", "UP"]
+
+# Ignore specific rules if necessary
+ignore = [
+    "E501", # Line too long (handled by Black)
+    "F403", # 'from module import *' used (sometimes acceptable in __init__.py)
+    "F405"  # Name may be undefined (sometimes acceptable in __init__.py)
+]
+
+# Per-file ignores if needed
+[tool.ruff.lint.per-file-ignores]
+"__init__.py" = ["F401", "F403", "F405"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["code", "tests"]
+force-single-line = false
+lines-after-imports = 2

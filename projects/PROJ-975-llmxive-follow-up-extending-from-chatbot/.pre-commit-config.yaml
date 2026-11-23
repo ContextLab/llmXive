@@ -1,11 +1,44 @@
+# Pre-commit configuration for llmXive project
+# Enforces Black formatting and Ruff linting
+# Run 'pre-commit install' after adding this file
+# Run 'pre-commit run --all-files' to check all files
+
 repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: \.json$|\.yaml$|\.yml$
+      - id: end-of-file-fixer
+        exclude: \.json$|\.yaml$|\.yml$
+      - id: check-yaml
+      - id: check-json
+      - id: check-merge-conflict
+      - id: debug-statements
+
   - repo: https://github.com/psf/black
-    rev: 23.3.0
+    rev: 23.12.1
     hooks:
       - id: black
-        language_version: python3.9
+        language_version: python3
+        args: [--line-length=88]
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.0.275
+    rev: v0.1.9
     hooks:
       - id: ruff
         args: [--fix, --exit-non-zero-on-fix]
+      - id: ruff-format
+        # Black is the primary formatter, but ruff-format can be used as a fallback
+        # or if black is not available. We rely on the Black hook above primarily.
+        
+# Default settings can be overridden in pyproject.toml or setup.cfg
+# Ruff configuration example (uncomment to use inline config):
+# [tool.ruff]
+# line-length = 88
+# select = ["E", "W", "F", "I", "B", "C4", "UP"]
+# ignore = ["E501", "B008"]
+#
+# [tool.black]
+# line-length = 88
+# target-version = ['py38']

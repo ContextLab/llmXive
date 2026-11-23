@@ -1,0 +1,169 @@
+T001:
+  task: 0ff6c94d175887312f3075ac1d4f6967f3e2c752c254114fda738e23fb452891
+T002:
+  task: 89a67bddfb007cdb84502c2350b13b0fd5b0e0b2da22a11afcb05c2a342646b1
+T003:
+  task: d155cf82bb2bb9809081b4ce6d63349d1119c70721ca48152834f1a97538561f
+T004:
+  reason: '`code/config.py` exists and correctly defines `cutoff_depth=0.3`, `seed=42`,
+    `dataset_url="NJU-LINK/TELBench"`, and a `sensitivity_thresholds` list containing
+    the required [0.01, 0.05, 0.1]. However, the task explicitly requires `null_permutations=1000`,
+    while the file sets its default to 5000 (via `os.environ.get("LLMXIVE_NULL_PERMUTATIONS",
+    5000)`), contradicting the stated requirement. Fix: change the default to 1000
+    (or otherwise match the task''s specified value).'
+  task: 37312844b6ff256c60f45cb3b79a58ee5974edda9ec00f875d536a0f1ab6a774
+T004a:
+  reason: 'Requested task execution failed; rerun successfully: code/validator.py
+    exit=1'
+  task: 78f92b887d75407c0223a4a06267581cd7e0d49aa20d6487bb499dd28b444354
+T005:
+  reason: "`code/hasher.py` exists and implements real hashing logic (chunked sha256,\
+    \ directory hashing, manifest load/save), but `save_hash_manifest` calls `ensure_directories(output_path)`\
+    \ while `code/config.py` defines `ensure_directories()` with no parameters, so\
+    \ that function raises a `TypeError` whenever it is invoked \u2014 a required\
+    \ utility function is non-functional. Fix the call (e.g., call `ensure_directories()`\
+    \ and create the output file's parent directory separately) so the manifest-saving\
+    \ utility actually works."
+  task: 838389a191c9320537c356ff741a4c42c5a3ed09c06b126029ad13bc49a8f7c1
+T006:
+  reason: "The file exists and `validate_trajectory_record`/`validate_json_file` do\
+    \ handle missing fields with warnings and per-record skipping, but malformed JSON\
+    \ is NOT handled gracefully: `validate_json_file` calls `json.load(f)` with no\
+    \ try/except, so a corrupted JSON file raises an uncaught `JSONDecodeError` and\
+    \ crashes the batch \u2014 directly contradicting acceptance scenario 3 (\"logs\
+    \ a warning and skips that specific trajectory without crashing the entire batch\"\
+    ). Additionally, `fetch_tebench_streaming` references an undefined `dataset_id`\
+    \ variable (NameError at `logger.info(f\"Starting streaming fetc"
+  task: d1623fe161338b24b6f1bd3ce0dd0eb035c643c9834b37e8aff7d55147b981bc
+T007:
+  task: 35013e51a1e45bf566f38e2dedb655d929ef8429df65fa9a62799aa0ec4424cf
+T007a:
+  task: 0adb62ce8156a89f8a586638e873a5bc9941327d7514a3cd851cd3b2c953b33f
+T007b:
+  task: 1846e818c9277fa02cae50c0f0da5e36b2b0731b0e8ac8c2b997e25c816fbf05
+T008:
+  task: c94a311aae6a5936b05848c9ad1448a7228803cb5190baa6efbfea30be08f260
+T009:
+  task: e7dea0da488125eebba1df185b36985d384f506bc2b8b11e00270fec0902cc2d
+T010:
+  task: f09d4df1a43c401f16525b724168623bc82b7a778014dc432bbd6c4bcc7875fb
+T011:
+  task: 61a8ff556aee7d6a12bc70c5f3cec0917aa79093f3f509db62dd8ebad79a71d7
+T012:
+  task: d812435ea5b746d2f9dfb428ec706314d0169cfbadd6c75601dc0a78cdd1cf64
+T013:
+  task: 000bb3561221058e259b844b4996022d8889fa9fc2af14d9075e513f429e7ba4
+T014:
+  task: e151e8f132cbef40b39d8f29c3f19734350aa2b84db87d37899f81edc5b5bfc8
+T015:
+  task: 7234d9b307312d9263d73ac4d50ea71b50dff1eb02ea791beb14a32005421be3
+T016a:
+  task: da00f375493289a601abc9ca1604d9fec54a278cd57e8a47d50ca7e1c150fcb0
+T016b:
+  task: f4232d4d1f1fda18d65ddb17dd36289d89b9994c061ef76c7b7f67af257c92ce
+T017:
+  task: ccd44997fd0becf6423cd9bbffc86db347ec1d9636f42890afed6fd99607ac3b
+T018:
+  task: d2d8ad0f09f691ac8546ec1cea41789e82da680f8d5750f7962626ba6e857159
+T019:
+  task: 82287557b4cfd1714e897a01f9b86ada6789136fcb3831bbdd0671a780ed2f93
+T020:
+  task: 2a64b929e7c4844c4fe3e56019c5e9442a30c8ba5a8b5f570c696d28e660d01c
+T021:
+  task: d49cb1b73e931a75e91d74e5c951f0919f50580a2e67caeefcede2c6e7d5d578
+T023:
+  task: dc285728b8e14b33bd9e0ccbe7d5f16f3889465d4fa8202cfcf812a08e7772c8
+T024:
+  task: 8da863da687d77aa18c26b93489d8203062d98c09f7eb5a1765842ddd7ae2556
+T025:
+  task: 06a3e217ca5b5b050b3c6756faedd5bfeb9fc3417451de15191f325b1c54d1c9
+T026:
+  task: 85faddfce946de7d6a62b7fc6cfb954baf531dc5c12fd5372fc2f1fc938943f3
+T027:
+  task: a3623c35f9728d60d088f9b9987acb05985a5c1f3742a578fdbc1c1f34988cbd
+T028:
+  task: 47fab2dcba24bcc2dff4728666e36e7297e542460fda820522a8b3339fed2098
+T029:
+  task: 3a556a5f47257a553cdfb56f9a3a449502809933ab9254954982a04e7f8c2431
+T030:
+  task: 48e7e9138c6f9e0135f202910d4dc3150cc8d047ae2d331a784eb0ad89c0ea91
+T031:
+  task: cb1b83076bee752825bc4108f114266d442f57ed4d544a8c9e991e6b99782d86
+T032:
+  task: 8d07825291a5ef52dca20e215939fbc8601b3a0754925f67692f48b773040059
+T033:
+  task: e9513a57253b0a8b46cece45df50af10fdf950658b31be3cbf193cc48a6ab707
+T034:
+  task: a265428c716e4b6eb288ad582096dceef8538a8e9c3ddcf5a9c674186792eb03
+T035:
+  task: f418b1eef33a6066b991c15b8c7a46b1c466c64c8b5701afd1ec8b1dd16ad758
+T036a:
+  task: d9de579d9ef47ae3845127681c52e5488e253c94c83ae6592e8aefa479efe297
+T036b:
+  task: 6e73f9273d0c127c5b186b3833000a035fd03e1834927d6af6c01945208837ea
+T037a:
+  task: db694a619cc2e45baf4d6d3e6ddbb7fb362876a229fe657cc537dcc8d484fb30
+T037b-1:
+  task: e2f477bcb7ce44cbd12f0c50e0200b90d710a0c199d8aa126f3a47090f36e83e
+T037b-2:
+  task: 8f37b69d3e7cd66b745bedd190140d8306c299d616d30050eb84d7c60c36c7b4
+T037b-3:
+  task: cb1deb3b8ae8c519d6c48b7f460796e5e42c8342b970f79f17287216c461eef5
+T037b-4:
+  task: 943f3eb6b724ba20f2796a220264e482dc7a1784d9350f97299267e594bced81
+T039:
+  task: c349584167a6c9bd01fd4317649e01d892824ef063a3724ecd9592efb52d2ad2
+T040:
+  task: acc0af04b10288022bc02e49899be6ffe56f5651a1a7afcfc454e32a8e0a8bed
+T041:
+  task: 5a4717d53971ea41d06c3d91eb7e10a83c4aa71668d250db10b4f7a960629fd1
+T042:
+  task: 7db7015cc95b9bfa59b24ca6ac0d76f5ec99a5cf2233053bdb52606538f56fd6
+T042a:
+  task: 5fa656f85d7aa80f3ae869bcb06721e00ef18c4aac964bf95fee5702a48fdbe6
+T043:
+  task: 15380ca5e85c9f5a64a0231bfdfa79eff01d132d2652ccbf9c997f8639542f68
+T044:
+  task: 70284b923a69cb95b9eccd99f67643588b16e327d8ebb8e351d24fcd66ff724b
+T045-1:
+  task: a96ba4495f1f96070b3b34e9d49691aefd6d9c56015364f4eb727adbcff93a24
+T045-2:
+  task: 59c5933e2613fb8b5a865c994b0d9d7f1bdf00df5a8c98e1acb2817812f3eb0c
+T046:
+  task: c29cbb4dc00d3b39033b835c8c81a0ee01ae1c72d56712ced9b1e3065925d6f3
+T048:
+  task: b6d88b218371de59bc229536db6b7b37143ec87a972da950410b5c875853afdb
+T049:
+  task: 29896452cd3ba36f2bb68fb8522e53f36e241186b1cc735e9ffcef9e5f91f25d
+T050:
+  task: c2c90a4ad6036546279c90766102fc29747b37aedaf1d4914d1483c37c0a226e
+T050-1:
+  task: b2bffb12c8f1441033676d8c052dfcd071f87107dfedd2c1ddf4fab91a2e059b
+T051:
+  task: 4003fa1748a5b463f5ba1d25a08c2a743ecb5ca364634e40827bf4150e4be1f5
+T053:
+  task: 06530f131e7ba6d2176f73bc5526a20d0d72a9dd833f3022664078f7331461bb
+T054:
+  task: 6b4a2a24c9a2f9daa924587ac17607a26fc5e2adceaf4b03d832bee64ebb1b70
+T055:
+  task: 0d134026f430230301df9284673a14d672e62a4f81b7bf474311a5a87a066603
+T056:
+  task: 3db1059dabfe297ffbfa0fe2c571d41dc3f2a31aaab1ca62bd337126555fe108
+T057:
+  task: 7780f434c7c3da228dcea123c0ba29e658e8b8269d21227a13bea003fd0d9ee5
+T058:
+  task: f0891b5b56f00ef47125723d27f46ce98310b1e74b90e7de3903b0e5624c00a7
+T059:
+  reason: 'declared artifact(s) missing/empty/invalid: code/benchmark.py, tests/integration/test_benchmark.py,
+    data/processed/benchmark_report.json'
+  task: 2849420e4244dd4f5aabddc6aa2d18c5d876a081e94b65fd03435d61c0780680
+T060:
+  task: db2128b3b35877b9c02c9cf313e421a6d89e36ef8c711cb6ce352e06a080d499
+T061:
+  task: 723f79f11637dd3209a4cf47ef6962b0415a13ab0101dc130b97ce126a31f207
+T062:
+  task: 14fe35235083c55f06809a038b72e7f0489b0435058d6f82c06d29f5a2960b4f
+T063:
+  task: 32a4d783d03a6e9a180983c6102865ac6fc47a44f72741019e2ab3e47bbe376f
+T064:
+  task: da97cb930297579731cd0b3a60fb16568cfb4ed01957b5f08a606c28eeae73f0

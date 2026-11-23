@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2302.04304",
+  "judged_at": "2026-08-07T09:42:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"orbitquant: data-agnostic quantization for image and video diffusion t\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same mechanism (quantization of diffusion models) and addresses the same dependent variable (inference efficiency and generation quality) within the user's specific domain (image and video diffusion), serving as a foundational reference for the \"OrbitQuant\" follow-up work.",
+  "relevant": true
+}

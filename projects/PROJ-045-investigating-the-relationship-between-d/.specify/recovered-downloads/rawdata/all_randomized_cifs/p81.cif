@@ -1,0 +1,35 @@
+# generated using pymatgen
+data_LiAlCl4
+_symmetry_space_group_name_H-M   P2_1/c
+_cell_length_a   7.00400000
+_cell_length_b   6.50300000
+_cell_length_c   12.99600000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   93.30000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   14
+_chemical_formula_structural   LiAlCl4
+_chemical_formula_sum   'Li4 Al4 Cl16'
+_cell_volume   590.94744117
+_cell_formula_units_Z   4
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-x, y+1/2, -z+1/2'
+  4  'x, -y+1/2, z+1/2'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li0  4  0.15748461  0.51029789  0.85676667  1.0
+  Al  Al1  4  0.30616979  0.66638199  0.09169633  1.0
+  Cl  Cl2  4  0.08136804  0.68755085  0.69742670  1.0
+  Cl  Cl3  4  0.18148240  0.12251957  0.55599760  1.0
+  Cl  Cl4  4  0.30162016  0.70419626  0.45417072  1.0
+  Cl  Cl5  4  0.45439526  0.18867416  0.32222118  1.0

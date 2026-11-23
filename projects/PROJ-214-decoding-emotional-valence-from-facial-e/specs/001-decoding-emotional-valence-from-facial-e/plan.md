@@ -13,30 +13,32 @@ The pipeline employs **Nested Leave-One-Subject-Out (LOSO)** cross-validation:
 3.  **Prediction**: Window-level predictions are aggregated via **majority voting** to produce a single subject-level label, resolving temporal autocorrelation issues and defining the unit of analysis as the subject.
 
 Two models are trained per fold:
-*   **Random Forest (100 trees)**: Used for prediction accuracy, permutation importance, and SHAP analysis.
+*   **Random Forest (a forest of multiple decision trees)**: Used for prediction accuracy, permutation importance, and SHAP analysis.
 *   **Logistic Regression**: Used specifically to calculate **Nagelkerke’s R²** for hierarchical variance explanation (FR-007), as this metric is mathematically undefined for Random Forests. This dual-model strategy resolves the construct validity gap.
 
-Statistical validation includes a **Permutation Test (1000 shuffles)** AND a **Paired T-Test** against the label-shuffled baseline to satisfy Constitution Principle VII. All operations are constrained to run on CPU-only GitHub Actions runners (<7 GB RAM, <6 hours) via parallelized outer folds and sequential subject processing.
+Statistical validation includes a **Permutation Test (shuffles)** AND a **Paired T-Test** against the label-shuffled baseline to satisfy Constitution Principle VII. All operations are constrained to run on CPU-only GitHub Actions runners (<7 GB RAM, <6 hours) via parallelized outer folds and sequential subject processing.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `numpy`, `scipy`, `scikit-learn`, `pandas`, `joblib`, `shap` (CPU-optimized), `requests`, `scikit-learn-extra`  
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `data/models`), intermediate files deleted sequentially.  
 **Testing**: `pytest` (unit tests for signal processing, integration tests for pipeline flow), `pytest-cov` for coverage.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7 GB RAM, no GPU).  
+**Target Platform**: Linux (GitHub Actions free-tier runner: CPU, 7 GB RAM, no GPU).  
 **Project Type**: Data Science / Research Pipeline  
 **Performance Goals**: Complete nested LOSO and reporting within 6 hours; peak RAM < 7 GB.  
 **Constraints**: No GPU/CUDA; no large model training; **Parallelize outer LOSO folds** to meet time constraints; strict adherence to DEAP-EMG dataset structure.  
-**Scale/Scope**: 32 participants, ~30 trials each, 32 channels (subset to 3 EMG), [deferred] of data per subject.
+**Scale/Scope**: participants, A series of trials will be conducted for each condition to ensure sufficient data collection for analysis., A multichannel configuration will be employed. (subset to 3 EMG), [deferred] of data per subject.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ### Compute Optimization Strategy
-To guarantee the <6 hour runtime on a 2-CPU runner:
+To guarantee the <6 hour runtime on a Multi-CPU runner
+
+The research question is to evaluate the impact of parallel processing on execution efficiency. The method involves comparing single-threaded and multi-threaded implementations across varying core counts. (Author et al., 2023):
 1.  **Parallelization**: The 32 outer LOSO folds will be processed in parallel using `joblib` with `n_jobs=4`.
 2.  **Data Type**: All feature matrices stored as `float32` to halve memory footprint.
-3.  **Inner Loop**: Limited to 5 parameter combinations to reduce inner CV overhead.
+3.  **Inner Loop**: Limited to parameter combinations to reduce inner CV overhead.
 4.  **Memory**: Only the current subject's data is loaded into RAM; processed data is flushed immediately.
 5.  **Model Loading**: `train.py` saves a single `model_bundle.pkl` containing both RF and LogReg models. Subsequent scripts (`importance.py`, `validate.py`) load this bundle to avoid redundant training.
 
@@ -52,7 +54,7 @@ To guarantee the <6 hour runtime on a 2-CPU runner:
 | **IV. Single Source of Truth** | All statistics in reports generated programmatically from `code/` outputs. No hand-typed numbers in `paper/` or `plan.md`. | **PASS** |
 | **V. Versioning Discipline** | Artifacts hashed upon creation. `state` file updated on artifact change. | **PASS** |
 | **VI. Signal Processing Integrity** | Pipeline implements a low-frequency Butterworth band-pass and a power-line frequency notch filter. Baseline correction uses pre-stimulus interval. | **PASS** |
-| **VII. Statistical Validation Rigor** | **Both** Permutation test (1000 shuffles) **AND** Paired t-test against shuffled baseline implemented. Cohen’s d calculated. | **PASS** |
+| **VII. Statistical Validation Rigor** | **Both** Permutation test (sufficient shuffles) **AND** Paired t-test against shuffled baseline implemented. Cohen’s d calculated. | **PASS** |
 
 ## Project Structure
 
@@ -102,7 +104,7 @@ projects/PROJ-214-decoding-emotional-valence-from-facial-e/
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| Nested LOSO | Required to maximize test set representation (N=32) and prevent data leakage. 5-fold CV yields too few test subjects. | A simple k-fold cross-validation would have high variance in accuracy estimates due to small test sets (~6 subjects). |
+| Nested LOSO | Required to maximize test set representation (N=32) and prevent data leakage. 5-fold CV yields too few test subjects. | A simple k-fold cross-validation would have high variance in accuracy estimates due to small test sets. |
 | Dual Model (RF + LogReg) | RF is superior for non-linear prediction; LogReg is required for Nagelkerke's R². | Using only RF makes variance explanation mathematically invalid. Using only LogReg reduces predictive power. |
 | Parallelized Outer Loop | Required to meet 6-hour runtime on 2-CPU runner. | Sequential 32-fold LOSO would likely exceed time limits. |
 | Subject-Level Aggregation | Required to handle temporal autocorrelation in window data. | Evaluating per-window violates independence assumptions. |

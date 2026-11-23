@@ -1,0 +1,34 @@
+# Configuration for Real Data Pipeline (T048)
+# This config overrides the default synthetic data settings for real data execution.
+
+project:
+  id: PROJ-340
+  name: "Gut Microbiome and Sleep Architecture"
+
+data:
+  # Path to the real data source (URL or local file)
+  real_data_source: "https://raw.githubusercontent.com/luiscampos1992/GutMicrobiomeSleep/main/data/processed_data.csv"
+  # Local cache directory for downloaded data
+  cache_dir: "data/raw"
+  
+schema:
+  # Path to the dataset schema definition
+  path: "specs/001-gut-microbiome-sleep-architecture/contracts/dataset.schema.yaml"
+  
+analysis:
+  # Random seed for reproducibility
+  seed: 42
+  # Method selection strategy (auto, zinb, spearman, pearson)
+  method: "auto"
+  # FDR correction method
+  fdr_method: "bh"
+  
+output:
+  # Directory for analysis results
+  results_dir: "data/results"
+  # Directory for processed data
+  processed_dir: "data/processed"
+  
+logging:
+  level: "INFO"
+  file: "logs/pipeline_real_data.log"

@@ -4,142 +4,155 @@ from pathlib import Path
 from typing import List, Dict, Tuple, Any
 import numpy as np
 from scipy.stats import kruskal
-
 from config.loader import load_config
-from utils.logger import log_generation_error
 
 logger = logging.getLogger(__name__)
 
-def load_metrics_for_sensitivity(metrics_path: Path) -> Dict[str, List[float]]:
+def load_metrics_for_sensitivity(metrics_path: Path) -> List[Dict[str, Any]]:
     """
-    Load metrics from the valid metrics CSV and group by style.
-    Returns a dictionary: {style: [list of diversity scores]}
+    Load metrics from the valid samples CSV (metrics_valid.csv).
+    Returns a list of dictionaries containing task_id, style, and metric values.
     """
-    style_data: Dict[str, List[float]] = {}
-    
+    data = []
     if not metrics_path.exists():
         raise FileNotFoundError(f"Metrics file not found: {metrics_path}")
-
+    
     with open(metrics_path, 'r', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            style = row.get('style')
-            # Assuming the column for diversity score is 'ast_edit_distance' or similar
-            # We need to be flexible. Let's look for a numeric metric column.
-            # Based on T025, the file contains computed metrics.
-            # We will look for 'ast_edit_distance' as the primary metric for diversity.
-            score_str = row.get('ast_edit_distance')
-            if score_str is None:
-                # Fallback: try to find any numeric column if ast_edit_distance isn't present
-                for key, val in row.items():
-                    if key not in ['task_id', 'style', 'sample_id'] and val:
-                        try:
-                            score_str = val
-                            break
-                        except:
-                            continue
+            data.append({
+                'task_id': row['task_id'],
+                'style': row['style'],
+                'ast_distance': float(row['ast_distance']),
+                'ngram_entropy': float(row['ngram_entropy'])
+            })
+    return data
 
-            if score_str:
-                try:
-                    score = float(score_str)
-                    if style not in style_data:
-                        style_data[style] = []
-                    style_data[style].append(score)
-                except ValueError:
-                    continue
-    
-    return style_data
-
-def run_sweep_kruskal(style_data: Dict[str, List[float]], alpha_values: List[float]) -> List[Dict[str, Any]]:
+def run_sweep_kruskal(
+    data: List[Dict[str, Any]],
+    alpha_range: List[float],
+    metric: str = 'ast_distance'
+) -> List[Dict[str, Any]]:
     """
-    Perform Kruskal-Wallis test for a range of alpha values.
-    Returns a list of results for each alpha.
+    Perform Kruskal-Wallis H-test for each alpha in the range.
+    Returns a list of results: {alpha, significant_count, significant_tasks}.
     """
-    if len(style_data) < 2:
-        logger.warning("Not enough style groups to perform statistical test.")
-        return []
-
-    groups = list(style_data.values())
-    if any(len(g) == 0 for g in groups):
-        logger.warning("One or more style groups are empty.")
-        return []
-
     results = []
+    styles = sorted(list(set(d['style'] for d in data)))
     
-    # Perform the test once to get the statistic and p-value
-    # We assume the distribution doesn't change with alpha, only the significance decision.
-    try:
-        stat, p_value = kruskal(*groups)
-    except Exception as e:
-        log_generation_error("Sensitivity Analysis", "Kruskal-Wallis test failed", str(e))
-        return []
+    # Group data by task_id to check significance per task
+    tasks = {}
+    for row in data:
+        tid = row['task_id']
+        if tid not in tasks:
+            tasks[tid] = {}
+        if row['style'] not in tasks[tid]:
+            tasks[tid][row['style']] = []
+        tasks[tid][row['style']].append(row[metric])
+    
+    for alpha in alpha_range:
+        significant_tasks = []
+        
+        for tid, style_data in tasks.items():
+            if len(style_data) < 3:
+                continue # Need at least 3 groups for Kruskal-Wallis
+            
+            groups = [style_data[s] for s in styles if s in style_data]
+            if len(groups) < 3:
+                continue
+            
+            # Remove empty groups
+            groups = [g for g in groups if len(g) > 0]
+            if len(groups) < 3:
+                continue
 
-    for alpha in alpha_values:
-        is_significant = p_value < alpha
+            try:
+                h_stat, p_val = kruskal(*groups)
+                if p_val < alpha:
+                    significant_tasks.append(tid)
+            except Exception as e:
+                logger.warning(f"Kruskal-Wallis failed for task {tid}: {e}")
+                continue
+        
         results.append({
             'alpha': alpha,
-            'p_value': p_value,
-            'is_significant': is_significant,
-            'h_statistic': stat
+            'significant_count': len(significant_tasks),
+            'significant_tasks': significant_tasks,
+            'total_tasks': len(tasks)
         })
     
     return results
 
-def run_sensitivity_analysis(metrics_path: Path, output_path: Path, alpha_range: List[float] = None):
+def run_sensitivity_analysis(
+    metrics_path: Path,
+    output_path: Path,
+    alpha_range: List[float] = None
+) -> Dict[str, Any]:
     """
-    Main entry point for sensitivity analysis.
-    Sweeps alpha, determines significance, and writes results to CSV.
+    Main function to run sensitivity analysis.
+    Sweeps alpha, computes significant tasks, and saves results to CSV.
     """
     if alpha_range is None:
-        # Default range of small values as per task description
-        alpha_range = [0.001, 0.005, 0.01, 0.025, 0.05, 0.10]
-
-    logger.info(f"Starting sensitivity analysis with alpha range: {alpha_range}")
+        # Default small values as per spec
+        alpha_range = [0.001, 0.005, 0.01, 0.02, 0.05, 0.1]
     
-    try:
-        style_data = load_metrics_for_sensitivity(metrics_path)
-    except FileNotFoundError as e:
-        logger.error(str(e))
-        return
-
-    results = run_sweep_kruskal(style_data, alpha_range)
-
-    if not results:
-        logger.warning("No results generated from sensitivity analysis.")
-        return
-
-    # Write results to CSV
+    logger.info(f"Loading metrics from {metrics_path}")
+    data = load_metrics_for_sensitivity(metrics_path)
+    
+    logger.info(f"Running Kruskal-Wallis sweep for alphas: {alpha_range}")
+    sweep_results = run_sweep_kruskal(data, alpha_range, metric='ast_distance')
+    
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
+    # Write results to CSV
     with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        fieldnames = ['alpha', 'h_statistic', 'p_value', 'is_significant']
+        fieldnames = ['alpha', 'significant_count', 'total_tasks', 'significant_tasks']
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         
-        significant_count = 0
-        for res in results:
+        for res in sweep_results:
+            # Convert list to string for CSV
+            res['significant_tasks'] = ';'.join(res['significant_tasks'])
             writer.writerow(res)
-            if res['is_significant']:
-                significant_count += 1
+    
+    # Calculate summary statistics
+    significant_counts = [r['significant_count'] for r in sweep_results]
+    min_sig = min(significant_counts)
+    max_sig = max(significant_counts)
+    
+    summary = {
+        'alpha_range': alpha_range,
+        'significant_task_count_range': (min_sig, max_sig),
+        'output_file': str(output_path),
+        'total_tasks_analyzed': sweep_results[0]['total_tasks'] if sweep_results else 0
+    }
+    
+    logger.info(f"Sensitivity analysis complete. Significant tasks range: {min_sig} - {max_sig}")
+    return summary
 
-    logger.info(f"Sensitivity analysis complete. Results written to {output_path}")
-    logger.info(f"Significant tasks found in {significant_count}/{len(results)} alpha thresholds.")
-
-    return results
-
-def run_sensitivity_pipeline():
+def run_sensitivity_pipeline(
+    config_path: Path,
+    metrics_input_path: Path = None,
+    output_path: Path = None
+) -> Dict[str, Any]:
     """
     Orchestrates the sensitivity analysis pipeline.
+    Loads config, determines paths, and runs the analysis.
     """
-    config = load_config()
-    metrics_path = Path(config.get('paths', {}).get('metrics_valid', 'data/processed/metrics_valid.csv'))
-    output_path = Path(config.get('paths', {}).get('sensitivity_results', 'data/processed/sensitivity_analysis.csv'))
+    config = load_config(config_path)
     
-    # Extract alpha range from config if available, else use default
-    alpha_range = config.get('analysis', {}).get('alpha_sweep', [0.001, 0.005, 0.01, 0.025, 0.05, 0.10])
-
-    run_sensitivity_analysis(metrics_path, output_path, alpha_range)
-
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    run_sensitivity_pipeline()
+    # Determine paths from config if not provided
+    if metrics_input_path is None:
+        metrics_input_path = Path(config.get('paths', {}).get('metrics_valid', 'data/processed/metrics_valid.csv'))
+    if output_path is None:
+        output_path = Path(config.get('paths', {}).get('sensitivity_results', 'data/processed/sensitivity_analysis.csv'))
+    
+    # Determine alpha range from config or use default
+    alpha_range = config.get('analysis', {}).get('sensitivity_alpha_range', None)
+    
+    return run_sensitivity_analysis(
+        metrics_input_path,
+        output_path,
+        alpha_range=alpha_range
+    )

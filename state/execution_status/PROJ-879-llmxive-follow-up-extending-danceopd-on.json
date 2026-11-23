@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-879-llmxive-follow-up-extending-danceopd-on",
+  "ok": false,
+  "reason": "every produced artifact is gitignored (data/raw/weights_manifest.json) \u2014 the run left NO durable evidence: nothing is committed for a reviewer to inspect or a paper to cite. Write the results a reader needs (e.g. data/results/*, figures/*) outside the ignored data/raw + data/processed dataset caches.; 3 run-book script(s) missing (plan/impl path mismatch): python code/data/generate_teacher.py  --source imagenet  --samples a substantial cohort of participants  --batch-size  --output data/processed/teacher_routing_dataset.parquet; python code/models/train_tree.py  --input data/processed/teacher_routing_dataset.parquet  --depths 2,4,6,8,10,12,14,16,18,20  --output models/trained_trees/; python code/utils/stats.py  --input data/results/inference_results.parquet  --output data/results/statistical_tests.json; 1 command(s) failed: python code/utils/check_weights.py --path <path-to-weights> (rc=1); 8 declared deliverable(s) absent: data/processed/teacher_routing_dataset.parquet; data/processed/test_split.parquet; data/processed/train_split.parquet",
+  "artifacts": [
+    "data/raw/weights_manifest.json"
+  ],
+  "failures": [
+    "python code/utils/check_weights.py --path <path-to-weights> -> rc=1\n    WARNING: Manifest file not found at /home/runner/work/llmXive/llmXive/projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/data/raw/weights_manifest.json\nInitializing manifest with placeholder entries...\nWARNING: teacher_weights.pth not found. Please update manifest manually.\nManifest initialized at /home/runner/work/llmXive/llmXive/projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/data/raw/weights_manifest.json\nERROR: No weight files found and unable to initialize manifest with valid hashes.",
+    "python code/data/generate_teacher.py  --source imagenet  --samples a substantial cohort of participants  --batch-size  --output data/processed/teacher_routing_dataset.parquet -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/code/data/generate_teacher.py': [Errno 2] No such file or directory",
+    "python code/models/train_tree.py  --input data/processed/teacher_routing_dataset.parquet  --depths 2,4,6,8,10,12,14,16,18,20  --output models/trained_trees/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/code/models/train_tree.py': [Errno 2] No such file or directory",
+    "python code/utils/stats.py  --input data/results/inference_results.parquet  --output data/results/statistical_tests.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-879-llmxive-follow-up-extending-danceopd-on/code/utils/stats.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-24T10:06:21Z"
+}

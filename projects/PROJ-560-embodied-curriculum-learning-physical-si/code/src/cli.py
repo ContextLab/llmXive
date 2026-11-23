@@ -1,135 +1,263 @@
 import argparse
 import sys
 import json
-import os
-from typing import List, Optional
+import logging
+import time
 from pathlib import Path
 
-from .logging_config import setup_logging
-from .data_loader import load_public_dataset, calculate_gain_scores
-from .synthetic_gen import SyntheticDataGenerator
-from .stats_engine import run_t_test, calculate_effect_size, apply_bonferroni_correction, frame_inference, check_collinearity, calculate_power, aggregate_results
-from .sensitivity import run_sensitivity_sweep, aggregate_sweep_results
-from .models import AnalysisResult, SensitivitySweep
+# Absolute imports to ensure script execution works both as module and as script
+from logging_config import setup_logging, write_skipped_record_jsonl
+from synthetic_gen import SyntheticDataGenerator, generate_mapping_log
+from data_loader import (
+    load_public_dataset,
+    calculate_gain_scores,
+    write_processed_data,
+    handle_synthetic_fallback_failure,
+    log_skipped_record,
+)
+from stats_engine import finalize_results
+from sensitivity import run_sensitivity_sweep, check_robustness_warning, aggregate_results_for_report
+from utils import set_seed
+from config import INFERENTIAL_FRAMING_STRING
+
+logger = logging.getLogger(__name__)
 
 def parse_args():
-    parser = argparse.ArgumentParser(description="Embodied Curriculum Learning Analysis Pipeline")
-    parser.add_argument("--mode", type=str, choices=["secondary_analysis", "synthetic"], required=True,
-                        help="Mode of operation: 'secondary_analysis' or 'synthetic'")
-    parser.add_argument("--input", type=str, required=False, help="Input data file path (CSV/JSON)")
-    parser.add_argument("--sweep_thresholds", type=str, required=False, default="0.01,0.05,0.1",
-                        help="Comma-separated list of thresholds for sensitivity sweep (e.g., 0.01,0.05,0.1)")
-    parser.add_argument("--seed", type=int, required=False, default=42, help="Random seed for reproducibility")
-    parser.add_argument("--output", type=str, required=False, default="data/processed/results.json",
-                        help="Output file path for results")
+    parser = argparse.ArgumentParser(
+        description="Embodied Curriculum Learning Analysis Pipeline"
+    )
+    parser.add_argument(
+        "--mode",
+        type=str,
+        required=True,
+        choices=["secondary_analysis", "synthetic"],
+        help="Mode of operation: secondary_analysis (real data) or synthetic (generated data)",
+    )
+    parser.add_argument(
+        "--input",
+        type=str,
+        help="Path to input CSV/JSON file (required for secondary_analysis)",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Path to output JSON file (optional, defaults based on mode)",
+    )
+    parser.add_argument(
+        "--sweep_thresholds",
+        type=str,
+        help="Comma-separated list of thresholds for sensitivity analysis",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for reproducibility",
+    )
+    parser.add_argument(
+        "--n",
+        type=int,
+        default=1000,
+        help="Number of synthetic data points to generate (synthetic mode)",
+    )
+    parser.add_argument(
+        "--mean_diff_embodied",
+        type=float,
+        default=0.5,
+        help="Mean gain difference for embodied group (synthetic mode)",
+    )
+    parser.add_argument(
+        "--mean_diff_static",
+        type=float,
+        default=0.0,
+        help="Mean gain difference for static group (synthetic mode)",
+    )
+    # Aliases kept for backward compatibility
+    parser.add_argument(
+        "--n_participants",
+        type=int,
+        help="Alias for --n in synthetic mode",
+    )
+    parser.add_argument(
+        "--effect_size",
+        type=float,
+        help="Target effect size (used for parameter derivation if provided)",
+    )
     return parser.parse_args()
 
-def run_secondary_analysis(input_path: str, output_path: str, sweep_thresholds: List[float], seed: int):
-    """Run secondary analysis on public dataset."""
-    setup_logging()
-    
-    # Load data
-    records = load_public_dataset(input_path)
-    if not records:
-        print("Error: No records loaded.")
-        sys.exit(1)
-    
-    # Calculate gain scores
-    gain_embodied = [r.gain_score() for r in records if r.instruction_type == "embodied" and r.gain_score() is not None]
-    gain_static = [r.gain_score() for r in records if r.instruction_type == "static" and r.gain_score() is not None]
-    
-    if not gain_embodied or not gain_static:
-        print("Error: Insufficient data for one of the groups.")
-        sys.exit(1)
-    
-    # Run base stats
-    t_stat, p_val, df = run_t_test(gain_embodied, gain_static)
-    effect_size, ci_low, ci_high = calculate_effect_size(gain_embodied, gain_static)
-    
-    # Run sensitivity sweep if thresholds provided
-    sweep_results = []
-    if sweep_thresholds:
-        sweep_results = run_sensitivity_sweep(gain_embodied, gain_static, sweep_thresholds)
-        robustness_warning = any(s.robustness_warning for s in sweep_results) if sweep_results else False
-    else:
-        robustness_warning = False
-    
-    # Aggregate
-    base = aggregate_results(t_stat, p_val, effect_size, ci_low, ci_high, 
-                             calculate_power(effect_size, len(gain_embodied)+len(gain_static)),
-                             frame_inference(p_val, effect_size, 0.05),
-                             check_collinearity(), robustness_warning)
-    
-    final_result = aggregate_sweep_results(sweep_results, base)
-    
-    # Write output
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        f.write(final_result.to_json())
-    
-    print(f"Results written to {output_path}")
+def parse_thresholds(thresholds_str):
+    """
+    Convert a comma‑separated string into a list of floats.
+    Returns default thresholds if parsing fails or if the string is empty.
+    """
+    if not thresholds_str:
+        return [0.01, 0.05, 0.10]
+    try:
+        return [float(x.strip()) for x in thresholds_str.split(",")]
+    except ValueError:
+        logger.error(f"Invalid threshold format: {thresholds_str}")
+        return [0.01, 0.05, 0.10]
 
-def run_synthetic_generation(output_path: str, sweep_thresholds: List[float], seed: int):
-    """Run synthetic data generation and analysis."""
-    setup_logging()
-    
-    generator = SyntheticDataGenerator(seed=seed)
-    
-    # Generate data with known ground truth
-    records = generator.generate(
-        n_embodied=100,
-        n_static=100,
-        mean_diff=0.5,
-        std_dev=1.0
+def _determine_output_path(args, default_name):
+    """
+    Helper to resolve the output path, creating parent directories as needed.
+    """
+    out_path = Path(args.output) if args.output else Path(default_name)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    return out_path
+
+def run_synthetic_generation(args):
+    """
+    Generates synthetic data and immediately runs the full analysis pipeline
+    on that data.  All required artefacts are written to their canonical locations:
+    - data/synthetic/generated_data.csv
+    - data/synthetic/mapping_log.json
+    - data/processed/validated_fallback.csv (gain‑score CSV)
+    - data/processed/results.json (full analysis)
+    - data/processed/results_us2.json (US‑2 subset)
+    """
+    logger.info(
+        f"Starting synthetic data generation with n={args.n}, seed={args.seed}"
     )
-    
-    # Calculate gain scores
-    gain_embodied = [r.gain_score() for r in records if r.instruction_type == "embodied" and r.gain_score() is not None]
-    gain_static = [r.gain_score() for r in records if r.instruction_type == "static" and r.gain_score() is not None]
-    
-    if not gain_embodied or not gain_static:
-        print("Error: Insufficient synthetic data generated.")
+    set_seed(args.seed)
+
+    n = args.n_participants if args.n_participants else args.n
+    mean_diff_embodied = args.mean_diff_embodied
+    mean_diff_static = args.mean_diff_static
+
+    # 1. Generate synthetic dataset
+    generator = SyntheticDataGenerator()
+    df = generator.generate(
+        n=n,
+        seed=args.seed,
+        mean_diff_embodied=mean_diff_embodied,
+        mean_diff_static=mean_diff_static,
+    )
+
+    # 2. Write synthetic CSV
+    synthetic_dir = Path("data/synthetic")
+    synthetic_dir.mkdir(parents=True, exist_ok=True)
+    csv_path = synthetic_dir / "generated_data.csv"
+    df.to_csv(csv_path, index=False)
+    logger.info(f"Synthetic data written to {csv_path}")
+
+    # 3. Write mapping log (required by Constitution VI)
+    mapping_log_path = synthetic_dir / "mapping_log.json"
+    generate_mapping_log(
+        n=n,
+        seed=args.seed,
+        mean_diff_embodied=mean_diff_embodied,
+        mean_diff_static=mean_diff_static,
+        output_path=str(mapping_log_path),
+    )
+    logger.info(f"Mapping log written to {mapping_log_path}")
+
+    # 4. Run the analysis pipeline on the generated data
+    # Re‑use the secondary‑analysis logic to avoid code duplication
+    args.input = str(csv_path)
+    args.mode = "secondary_analysis"
+    if not args.output:
+        args.output = "data/processed/results.json"
+    return run_secondary_analysis(args)
+
+def run_secondary_analysis(args):
+    """
+    Executes the full analysis pipeline on a real or synthetic dataset.
+    The pipeline writes:
+    - data/processed/validated_fallback.csv  (gain‑score CSV)
+    - data/processed/results.json           (full report)
+    - data/processed/results_us2.json       (US‑2 subset)
+    - data/processed/perf_log.json          (performance log, written by perf_monitor)
+    """
+    logger.info(f"Starting secondary analysis on {args.input}")
+
+    # 1. Load dataset (will fallback to synthetic if instruction_type missing)
+    try:
+        df = load_public_dataset(args.input)
+    except Exception as exc:
+        logger.error(f"Failed to load dataset: {exc}")
         sys.exit(1)
-    
-    # Run base stats
-    t_stat, p_val, df = run_t_test(gain_embodied, gain_static)
-    effect_size, ci_low, ci_high = calculate_effect_size(gain_embodied, gain_static)
-    
-    # Run sensitivity sweep
-    sweep_results = []
-    if sweep_thresholds:
-        sweep_results = run_sensitivity_sweep(gain_embodied, gain_static, sweep_thresholds)
-        robustness_warning = any(s.robustness_warning for s in sweep_results) if sweep_results else False
+
+    # 2. Calculate gain scores (adds 'gain_score' column)
+    try:
+        df = calculate_gain_scores(df)
+    except Exception as exc:
+        logger.error(f"Gain‑score calculation failed: {exc}")
+        sys.exit(1)
+
+    # 3. Persist the processed dataframe (validated_fallback.csv)
+    fallback_path = Path("data/processed/validated_fallback.csv")
+    fallback_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(fallback_path, index=False)
+    logger.info(f"Validated fallback CSV written to {fallback_path}")
+
+    # 4. Sensitivity sweep (if enough participants)
+    thresholds = parse_thresholds(args.sweep_thresholds)
+    if len(df) >= 30:
+        logger.info(f"Running sensitivity sweep with thresholds: {thresholds}")
+        sweep_results = run_sensitivity_sweep(df, thresholds)
+        robustness_warning = check_robustness_warning(sweep_results)
     else:
+        logger.warning(
+            f"Insufficient data (N={len(df)}) for sensitivity sweep – skipping."
+        )
+        sweep_results = [
+            {"threshold_value": t, "insufficient_data": True, "message": "insufficient data for robustness check"}
+            for t in thresholds
+        ]
         robustness_warning = False
-    
-    # Aggregate
-    base = aggregate_results(t_stat, p_val, effect_size, ci_low, ci_high,
-                             calculate_power(effect_size, len(gain_embodied)+len(gain_static)),
-                             frame_inference(p_val, effect_size, 0.05),
-                             check_collinearity(), robustness_warning)
-    
-    final_result = aggregate_sweep_results(sweep_results, base)
-    
-    # Write output
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        f.write(final_result.to_json())
-    
-    print(f"Synthetic analysis results written to {output_path}")
+
+    # 5. Run statistical engine and aggregate results
+    try:
+        final_results = finalize_results(
+            df=df,
+            sensitivity_results=sweep_results,
+            robustness_warning=robustness_warning,
+        )
+    except Exception as exc:
+        logger.error(f"Statistical analysis failed: {exc}")
+        sys.exit(1)
+
+    # 6. Write the full results JSON
+    results_path = _determine_output_path(args, "data/processed/results.json")
+    with results_path.open("w") as f:
+        json.dump(final_results, f, indent=2)
+    logger.info(f"Full results written to {results_path}")
+
+    # 7. Write US‑2 subset (required by several downstream tasks)
+    us2_path = Path("data/processed/results_us2.json")
+    us2_keys = [
+        "t_statistic",
+        "p_value",
+        "corrected_p_value",
+        "effect_size_cohen_d",
+        "confidence_interval",
+        "inference_framing",
+        "ancova_results",
+        "power_analysis",
+        "collinearity_diagnostics",
+    ]
+    us2_data = {k: v for k, v in final_results.items() if k in us2_keys}
+    with us2_path.open("w") as f:
+        json.dump(us2_data, f, indent=2)
+    logger.info(f"US‑2 results written to {us2_path}")
+
+    return 0
 
 def main():
     args = parse_args()
-    
-    thresholds = [float(t) for t in args.sweep_thresholds.split(",")] if args.sweep_thresholds else []
-    
-    if args.mode == "secondary_analysis":
+    setup_logging()
+
+    if args.mode == "synthetic":
+        return run_synthetic_generation(args)
+    elif args.mode == "secondary_analysis":
         if not args.input:
-            print("Error: --input is required for secondary_analysis mode.")
+            logger.error("Input file required for secondary_analysis mode")
             sys.exit(1)
-        run_secondary_analysis(args.input, args.output, thresholds, args.seed)
-    elif args.mode == "synthetic":
-        run_synthetic_generation(args.output, thresholds, args.seed)
+        return run_secondary_analysis(args)
+    else:
+        logger.error(f"Unknown mode: {args.mode}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main() or 0)

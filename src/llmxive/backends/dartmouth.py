@@ -10,6 +10,7 @@ from __future__ import annotations
 import logging
 import os
 import random
+import threading
 import time
 from collections.abc import Callable, Iterable
 from datetime import UTC, datetime
@@ -21,6 +22,7 @@ from llmxive.backends.base import (
     BaseBackend,
     ChatMessage,
     ChatResponse,
+    DeadlineExceededError,
     EmptyReplyError,
     ModelDownError,
     PaidGuardDenied,
@@ -120,7 +122,7 @@ _DEFAULT_REASONING_DEADLINE_S = float(
 # Substrings (matched case-insensitively against the model id) that mark a model
 # as a REASONING model needing the longer deadline. Covers the qwen3.5 / qwen3
 # and gpt-oss families served on Dartmouth's vLLM cluster.
-_REASONING_MODELS: tuple[str, ...] = ("qwen3.5", "qwen3", "gpt-oss")
+_REASONING_MODELS: tuple[str, ...] = ("qwen3.5", "qwen3", "gpt-oss", "glm-5")
 
 
 def _is_reasoning_model(model: str) -> bool:
@@ -159,7 +161,12 @@ def _dartmouth_model_kwargs(model: str) -> dict[str, object]:
     for a stage that genuinely needs chain-of-thought. gpt-oss reasons far less and
     is left alone; non-reasoning peers (gemma/llama) ignore the kwarg.
     """
-    kwargs: dict[str, object] = {"timeout": _deadline_for_model(model)}
+    kwargs: dict[str, object] = {
+        "timeout": _deadline_for_model(model),
+        # The router/backend own bounded retries. SDK retries otherwise keep
+        # making requests after our outer deadline has abandoned this worker.
+        "max_retries": 0,
+    }
     if "qwen" in model.lower() and os.environ.get("LLMXIVE_QWEN_ENABLE_THINKING") != "1":
         kwargs["extra_body"] = {"chat_template_kwargs": {"enable_thinking": False}}
     return kwargs
@@ -185,6 +192,35 @@ _DEFAULT_BREAKER_WINDOW_S = float(
     os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_WINDOW_S", "1800.0")  # 30 min
 )
 
+_DEFAULT_BREAKER_COOLDOWN_S = float(
+    os.environ.get("LLMXIVE_DARTMOUTH_BREAKER_COOLDOWN_S", "900.0")
+)
+
+#: The open circuit's wait grows to at most this many base cooldowns (2 hours at
+#: the default 900 s).
+_MAX_COOLDOWN_FACTOR = 8
+
+# A recovery probe asks ONE question: is this model answering at all? Asking it
+# with the next real request made the answer cost a full request budget --
+# ``_DEFAULT_REASONING_DEADLINE_S`` (360s) for a model whose breaker was opened
+# by a deadline hang in the first place. Measured on the 2026-10-09 totient
+# canary: 7 deadline hangs burned 2160s of an 8171s run (26%), and roughly four
+# of them were probes re-hanging on a model already known to be sick. A tiny
+# bounded request answers the same question in seconds (openai.gpt-oss-120b
+# 2.62s, zai-org.glm-5.3 1.85s, qwen.qwen3.5-122b 0.85s, measured 2026-10-10),
+# and a real request keeps its full budget once the model is known to answer.
+_LIVENESS_DEADLINE_S = float(
+    os.environ.get("LLMXIVE_DARTMOUTH_LIVENESS_DEADLINE_S", "30.0")
+)
+# Reasoning-safe, NOT minimal. Measured live 2026-10-10 on the trivial probe
+# prompt: with max_tokens=16 both openai.gpt-oss-120b and google.gemma-4-31B-it
+# return an EMPTY reply (they spend the budget before emitting content — the
+# same flap EmptyReplyError documents), which a liveness check would read as
+# "model is down" and keep a healthy model's circuit open forever. With 512
+# both answer in ~1s. Still far cheaper than a real request.
+_LIVENESS_MAX_TOKENS = 512
+_LIVENESS_PROMPT = "Reply with exactly: OK"
+
 
 class _CircuitBreaker:
     """Trips OPEN on a sustained outage so callers abort fast.
@@ -199,7 +235,11 @@ class _CircuitBreaker:
 
     whichever comes first. When OPEN, :meth:`call` raises
     :class:`BackendUnavailable` immediately WITHOUT invoking the inner callable
-    (so the retry budget is not burned). ANY success resets the breaker fully.
+    (so the retry budget is not burned). After a cooldown, allow one recovery
+    probe while concurrent callers still fail fast. A failed probe restarts the
+    cooldown; success resets the breaker. The cooldown doubles each time a real
+    request is lost with no real answer in between (see ``_cooldown``). An explicit ModelDownError opens the
+    circuit immediately because its full request budget has already been spent.
 
     Only :class:`TransientBackendError` counts as a failure — a
     :class:`PermanentBackendError` (e.g. the paid-model guard) is not an outage
@@ -215,14 +255,44 @@ class _CircuitBreaker:
         max_consecutive: int = _DEFAULT_BREAKER_MAX_CONSECUTIVE,
         window_s: float = _DEFAULT_BREAKER_WINDOW_S,
         clock: Callable[[], float] = time.monotonic,
+        cooldown_s: float = _DEFAULT_BREAKER_COOLDOWN_S,
+        liveness: Callable[[str], bool | None] | None = None,
     ) -> None:
+        #: Optional cheap recovery check, called with :attr:`name` when the
+        #: cooldown expires. ``True`` closes the circuit and the caller's real
+        #: request proceeds with its FULL budget; ``False`` leaves it open and
+        #: restarts the cooldown without burning a request; ``None`` means "no
+        #: cheap check available" (a paid model, whose call must stay behind the
+        #: credit guard) and falls back to probing with the real request. Left
+        #: ``None`` by default, so a breaker constructed without it behaves
+        #: exactly as before.
+        self.liveness = liveness
+        #: The resolved model this breaker guards; set by ``_breaker_for``.
+        self.name = ""
         self._max_consecutive = max_consecutive
         self._window_s = window_s
         self._clock = clock
+        self._cooldown_s = cooldown_s
+        self._opened_at: float | None = None
+        self._probe_in_flight = False
+        self._lock = threading.Lock()
         self._consecutive_failures = 0
         self._first_failure_at: float | None = None
+        #: Real requests lost since the last real answer. A model that answers
+        #: the small liveness request and then hangs on the next real one would
+        #: otherwise cost a full deadline every cooldown, for as long as the
+        #: process runs; the wait doubles with each such loss instead.
+        self._relapses = 0
+
+    def _cooldown(self) -> float:
+        """How long the circuit stays open now: the base cooldown, doubled for
+        every real request lost since the last real answer, up to
+        :data:`_MAX_COOLDOWN_FACTOR` times."""
+        return self._cooldown_s * min(2 ** max(self._relapses - 1, 0), _MAX_COOLDOWN_FACTOR)
 
     def _is_open(self) -> bool:
+        if self._opened_at is not None:
+            return True
         if self._consecutive_failures >= self._max_consecutive:
             return True
         if (
@@ -246,17 +316,60 @@ class _CircuitBreaker:
         success. Other exceptions (PermanentBackendError, programming bugs)
         pass through unchanged and do NOT advance the breaker.
         """
-        if self._is_open():
-            raise self._open_error()
+        probe = False
+        with self._lock:
+            if self._is_open():
+                now = self._clock()
+                if self._opened_at is None:
+                    self._opened_at = now
+                if self._probe_in_flight or now - self._opened_at < self._cooldown():
+                    raise self._open_error()
+                self._probe_in_flight = probe = True
+        if probe and self.liveness is not None:
+            try:
+                alive = self.liveness(self.name)
+            except BaseException:  # a probe must never raise into the caller
+                alive = False
+            if alive is not None:
+                with self._lock:
+                    self._probe_in_flight = False
+                    if not alive:
+                        # Still sick. Restart the cooldown and fail fast, WITHOUT
+                        # spending the caller's full request budget to find out.
+                        self._opened_at = self._clock()
+                        raise self._open_error()
+                    self._reset()
+                # The model answers: this is now an ordinary call, not a probe,
+                # so it gets the full deadline and does not re-open the circuit
+                # on a single transient failure.
+                probe = False
         try:
             result = fn()
-        except TransientBackendError:
-            self._record_failure()
+        except TransientBackendError as exc:
+            with self._lock:
+                self._record_failure()
+                # A hard deadline / explicit model-down response has already
+                # consumed a full request budget. Route around it immediately.
+                if probe or isinstance(exc, ModelDownError) or self._is_open():
+                    self._opened_at = self._clock()
+                    self._relapses += 1
             raise
-        # PermanentBackendError / unrelated exceptions: not an outage signal —
-        # propagate without touching breaker state.
-        self._reset()
-        return result
+        except BaseException:
+            # A failed/cancelled recovery probe must not leave the circuit stuck
+            # half-open, nor cause all waiting callers to immediately retry it.
+            if probe:
+                with self._lock:
+                    self._opened_at = self._clock()
+            raise
+        else:
+            with self._lock:
+                self._reset()
+                self._relapses = 0  # a real answer, not a ping
+            return result
+        finally:
+            if probe:
+                with self._lock:
+                    self._probe_in_flight = False
 
     def _record_failure(self) -> None:
         if self._first_failure_at is None:
@@ -264,6 +377,7 @@ class _CircuitBreaker:
         self._consecutive_failures += 1
 
     def _reset(self) -> None:
+        self._opened_at = None
         self._consecutive_failures = 0
         self._first_failure_at = None
 
@@ -285,6 +399,7 @@ _TRANSIENT_ERROR_MARKERS: tuple[str, ...] = (
     "litellm.internalservererror",
     # A listed model can be transiently unloaded on the vLLM cluster.
     "not found", "no such model", "does not exist", "model_not_found",
+    "no available server",
     # Network-level transients:
     "temporary failure", "name resolution", "connection error",
     # HTTP 499: an upstream proxy/gateway closed the connection before the model
@@ -319,7 +434,9 @@ def _is_transient_error_text(text: str) -> bool:
 # it surfaces as a ModelDownError (fast-fail to a peer). Kept narrower than the
 # transient set on purpose (a bare ``<!doctype html`` error page from some other
 # cause stays a plain retryable transient).
-_MODEL_DOWN_MARKERS = ("outage.dartmouth.edu", "302 moved", "moved temporarily")
+_MODEL_DOWN_MARKERS = (
+    "outage.dartmouth.edu", "302 moved", "moved temporarily", "no available server",
+)
 
 
 def _is_model_down_text(text: str) -> bool:
@@ -437,6 +554,16 @@ def _raise_for_backend_error(text: str, exc: BaseException) -> NoReturn:
       to PERMANENT below, surfacing a loud, actionable engine-failure issue.
     * anything else                → :class:`PermanentBackendError` (no retry)
     """
+    # Explicit account budgets are hard limits even when costs/IDs happen to
+    # contain a transient marker such as "500". Never retry around this limit.
+    if "budget has been exceeded" in text.lower():
+        raise PermanentBackendError(str(exc)) from exc
+    if (
+        isinstance(exc, TimeoutError)
+        or "request timed out" in text.lower()
+        or "read timed out" in text.lower()
+    ):
+        raise ModelDownError(str(exc)) from exc
     if _is_model_down_text(text):
         raise ModelDownError(str(exc)) from exc
     if _is_transient_error_text(text):
@@ -452,12 +579,14 @@ def _retry_with_backoff(
     max_retries: int,
     base_delay_s: float,
     description: str = "Dartmouth call",
+    deadline_at: float | None = None,
 ) -> _T:
     """Call ``fn()``; on :class:`TransientBackendError`, retry with
     exponential backoff (capped per-attempt at ``_DEFAULT_RETRY_MAX_DELAY_S``)
     up to ``max_retries`` times. Permanent errors propagate immediately (no
-    point retrying them). Total wait at defaults: 5+10+20+40+60+60+60+60 ≈
-    5.25 min — long enough to ride out a typical few-minute Dartmouth flap.
+    point retrying them). ``deadline_at`` bounds all attempts and backoff
+    together; chat calls supply their model's total wall-clock budget.
+    Without a deadline, default backoff can wait up to about 5.25 minutes.
 
     The last transient exception is re-raised when retries exhaust, so
     the caller's existing TransientBackendError handling still triggers
@@ -465,6 +594,8 @@ def _retry_with_backoff(
     """
     last_exc: TransientBackendError | None = None
     for attempt in range(max_retries + 1):
+        if deadline_at is not None and time.monotonic() >= deadline_at:
+            raise DeadlineExceededError(f"{description} exhausted its total retry deadline")
         try:
             return fn()
         except TransientBackendError as exc:
@@ -496,6 +627,8 @@ def _retry_with_backoff(
             # jitter de-correlates them while keeping the per-attempt cap intact.
             half = computed / 2.0
             delay = half + random.uniform(0.0, half)
+            if deadline_at is not None:
+                delay = min(delay, max(0.0, deadline_at - time.monotonic()))
             _log.warning(
                 "%s transient error (attempt %d/%d): %s; sleeping %.1fs",
                 description, attempt + 1, max_retries + 1, exc, delay,
@@ -916,8 +1049,47 @@ class DartmouthBackend(BaseBackend):
         self._breakers: dict[str, _CircuitBreaker] = {}
 
     def _new_breaker(self) -> _CircuitBreaker:
-        """Factory for a fresh per-model breaker (overridable in tests)."""
-        return _CircuitBreaker()
+        """Factory for a fresh per-model breaker (overridable in tests).
+
+        Binds the cheap liveness check, so a recovery probe asks a bounded
+        question instead of spending a full request budget. A breaker built
+        without it (every test that constructs one directly) keeps the original
+        probe-with-the-real-request behavior.
+        """
+        return _CircuitBreaker(liveness=self._liveness_ok)
+
+    def _liveness_ok(self, model: str) -> bool | None:
+        """Is ``model`` answering at all? ``None`` when it cannot be asked cheaply.
+
+        A tiny request with its own short deadline, made OUTSIDE the breaker and
+        outside the retry budget: it never records a failure and never counts
+        toward tripping. Any exception means "not answering" — this decides
+        whether to reopen a circuit, so it must not raise.
+
+        A PAID model returns ``None`` rather than a verdict: its every call has
+        to pass the credit-managed opt-in guard (Constitution Principle IV), and
+        a liveness ping is not worth a credit. The breaker then falls back to
+        probing with the caller's real request, exactly as before.
+        """
+        if not is_free_model(model):
+            return None
+        from langchain_core.messages import HumanMessage
+
+        try:
+            client = self._client(model)
+            reply = invoke_with_deadline(
+                lambda: client.invoke(
+                    [HumanMessage(content=_LIVENESS_PROMPT)],
+                    max_tokens=_LIVENESS_MAX_TOKENS,
+                ),
+                timeout=_LIVENESS_DEADLINE_S,
+                description=f"Dartmouth liveness probe {model!r}",
+            )
+        except BaseException as exc:
+            _log.info("dartmouth: liveness probe for %s failed: %s", model, exc)
+            return False
+        content = getattr(reply, "content", "")
+        return bool(content if isinstance(content, str) else str(content).strip())
 
     def _breaker_for(self, model: str) -> _CircuitBreaker:
         """The circuit breaker guarding ``model`` on this backend (lazy-created).
@@ -927,6 +1099,7 @@ class DartmouthBackend(BaseBackend):
         br = self._breakers.get(model)
         if br is None:
             br = self._new_breaker()
+            br.name = model  # the liveness check needs to know WHICH model
             self._breakers[model] = br
         return br
 
@@ -937,17 +1110,10 @@ class DartmouthBackend(BaseBackend):
             raise PermanentBackendError(
                 "langchain-dartmouth is not installed; pip install -e ."
             ) from exc
-        # 3 min per-request timeout. The router can retry the same
-        # model 3x and walk through 3 fallback models, so worst-case
-        # per-stage delay is bounded at 6x3=18 min instead of 6x10=60.
-        # Healthy 32K-token completions on Dartmouth's vLLM cluster
-        # finish in 30s-2min; anything past 3 min is a sick connection
-        # we want to abandon and try a peer model on.
-        # ChatDartmouth.__init__ doesn't expose `timeout` directly but
-        # accepts it via model_kwargs (forwarded to underlying
-        # ChatOpenAI which DOES have a timeout field). Suppress the
-        # noisy "should be specified explicitly" warning since this
-        # is the intended escape hatch.
+        # ChatDartmouth exposes client settings through model_kwargs. The
+        # installed ChatOpenAI promotes timeout/max_retries to client fields;
+        # suppress its advisory warning about using explicit constructor args,
+        # which ChatDartmouth's narrower constructor does not expose.
         import warnings as _warnings
 
         model_kwargs = _dartmouth_model_kwargs(model)
@@ -1051,20 +1217,24 @@ class DartmouthBackend(BaseBackend):
         if temperature is not None:
             kwargs["temperature"] = temperature
 
+        deadline_at = time.monotonic() + effective_deadline
+
         def _invoke(call_kwargs: dict[str, object]):  # type: ignore[no-untyped-def]
-            # Hard-enforce a per-request wall-clock deadline. ChatDartmouth's
-            # nominal `timeout` model_kwarg is forwarded as a chat-completion
-            # body param, NOT as an HTTP/socket timeout, so a sick connection
-            # can block indefinitely (observed in CI as a ~54-min hang). Run
+            # Hard-enforce a total wall-clock deadline in addition to the SDK's
+            # transport timeout. Socket timeouts alone do not bound every kind
+            # of stalled request. Run
             # the call on a daemon thread and abandon it past the deadline so
-            # the router falls through to a peer model. The deadline is
-            # reasoning-aware (longer for qwen3.5/gpt-oss, which reason before
-            # answering) and matches the client's model_kwargs['timeout']. See
+            # the router falls through to a peer model. All attempts, including
+            # parameter correction and backoff, share one reasoning-aware
+            # model deadline instead of renewing it on each retry. See
             # invoke_with_deadline's docstring for why ThreadPoolExecutor would
             # re-create the hang.
+            remaining = deadline_at - time.monotonic()
+            if remaining <= 0:
+                raise DeadlineExceededError(f"Dartmouth model {model!r} exhausted its total retry deadline")
             return invoke_with_deadline(
                 lambda: client.invoke(msg_objs, **call_kwargs),
-                timeout=effective_deadline,
+                timeout=remaining,
                 description=f"Dartmouth model {model!r}",
             )
 
@@ -1115,6 +1285,13 @@ class DartmouthBackend(BaseBackend):
             # to a non-reasoning model.
             meta = getattr(reply, "response_metadata", {}) or {}
             finish_reason = meta.get("finish_reason")
+            if finish_reason == "length" and text_out.strip():
+                # A partial file or YAML verdict is not a successful response.
+                # Use the bounded empty-reply retry budget, then a peer model.
+                raise EmptyReplyError(
+                    f"Dartmouth model {model!r} truncated its response "
+                    "(finish_reason='length'); incomplete content discarded"
+                )
             if not text_out.strip():
                 reply_kwargs = getattr(reply, "additional_kwargs", {}) or {}
                 refusal = reply_kwargs.get("refusal")
@@ -1177,6 +1354,7 @@ class DartmouthBackend(BaseBackend):
                 max_retries=self._max_retries,
                 base_delay_s=self._retry_base_delay_s,
                 description=f"Dartmouth {model!r}",
+                deadline_at=deadline_at,
             )
         )
 

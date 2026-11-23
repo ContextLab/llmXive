@@ -1,4 +1,22 @@
+# Development and Linting dependencies
+# Generated for T003: Configure linting and formatting tools
+
+# Core dependencies (from requirements.txt)
+-r requirements.txt
+
+# Linting
 ruff>=0.1.0
+flake8>=6.0.0
+flake8-bugbear>=23.0.0
+flake8-comprehensions>=3.10.0
+
+# Formatting
 black>=23.0.0
+
+# Testing
 pytest>=7.0.0
 pytest-cov>=4.0.0
+pytest-mock>=3.10.0
+
+# Type checking (optional but recommended)
+mypy>=1.0.0

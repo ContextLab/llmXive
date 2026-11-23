@@ -1,0 +1,104 @@
+{
+  "trace_id": "training_42_02783",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 8,
+  "tool_sequence": [
+    "apply_theme",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "resize_element",
+    "resize_element",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 46.8433,
+        "saturation": 49.0646
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 74.8213,
+        "y": 23.6992,
+        "width": 65.3974,
+        "height": 88.0579,
+        "data_points": 59.4085
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 7.5546,
+        "y": 11.5726,
+        "width": 98.908,
+        "height": 92.2313,
+        "data_points": 11.3079
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 95.8768,
+        "y": 78.7294,
+        "width": 33.5919,
+        "height": 50.3899,
+        "data_points": 82.4949
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 85.5456,
+        "y": 68.1577,
+        "width": 90.2388,
+        "height": 28.0176,
+        "data_points": 34.6413
+      }
+    },
+    {
+      "step": 5,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 50.4605,
+        "height": 16.7608
+      }
+    },
+    {
+      "step": 6,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 96.265,
+        "height": 7.8122
+      }
+    },
+    {
+      "step": 7,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 95.9734,
+        "height": 40.6194
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.974315,
+    "tool_repetition_freq": 0.625,
+    "arg_semantic_variance": 937.222748
+  },
+  "final_state": {
+    "dominant_tool": "insert_chart",
+    "slide_element_count": 9,
+    "layout_hash": "42-2783-insert_chart"
+  }
+}

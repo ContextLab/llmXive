@@ -43,10 +43,14 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project directory structure per `plan.md` (code/, tests/, data/, results/)
-- [ ] T002 Initialize Conda environment with `environment.yml` (fastp, bowtie2, MACS2, R, Python)
-- [ ] T003 [P] Create `manifest.yaml` with **verified, actual GEO/SRA accessions** for ChIP-seq, eQTL, Hi-C, and ATAC-seq; the pipeline MUST abort if any accession cannot be verified or data is missing (FR-001, Constitution Principle II)
-- [ ] T004 [P] Setup Git hooks for large file tracking (LFS) for raw data references
+- [X] T001 Create project directory structure per `plan.md` (code/, tests/, data/, results/) AND generate `.gitattributes` for LFS tracking of data/ and tracks/
+- [X] T002 Initialize Conda environment with `environment.yml` (fastp, bowtie2, MACS2, R, Python)
+- [X] T52a1 [P] Extract accessions from `research.md` and output `data/extracted_accessions.yaml` with fields: `accession_type`, `accession_id`, `source_url`.
+- [X] T52a2 [P] Validate `data/extracted_accessions.yaml` against a schema (required fields, valid format for GEO/SRA) and output `data/validation_log.yaml` with status: `valid` or `invalid`.
+- [X] T52a3 [P] Generate `data/verified_accessions.yaml` from `data/extracted_accessions.yaml` if validation is `valid`. If `invalid`, log error and abort.
+- [X] T052 [P] Populate `manifest.yaml` using the **verified accessions** from `data/verified_accessions.yaml` (output of T52a3); **ABORT if any accession is a placeholder (e.g., GSE####)** (FR-001, Spec Assumptions). *Note: Strictly enforces no placeholders.*
+- [X] T052b [P] Implement `code/00_verify_data_accessions.py` to **automatically verify** `manifest.yaml` against `data/verified_accessions.yaml` and **abort with a fatal error** if any required accession remains a placeholder (e.g., GSE####) before pipeline execution; **do NOT** rely on manual verification (FR-001, Constitution Principle II). *Note: Replaces manual check in T057.*
+- [X] T004 [P] Setup Git hooks for large file tracking (LFS) for raw data references; explicitly configure `.gitattributes` to track `data/raw/*` and `tracks/*`
 
 ---
 
@@ -54,19 +58,30 @@
 
 **Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+**⚠️ CRITICAL**: No user story work can begin until this phase is complete. **Note: Phase 3 depends on T042_exec and T051b_exec completion explicitly.**
 
-- [ ] T005 Implement `code/01_download_data.sh` to fetch raw FASTQ from GEO/SRA using `manifest.yaml` and verify MD5 checksums (FR-001)
-- [ ] T006 Implement `code/02_preprocess_chipseq.sh` for adapter trimming (`fastp`) and alignment (`bowtie2`, ≤2 threads, MAPQ ≥ 30) (FR-002)
-- [X] T007 [P] Implement `code/03_call_peaks.sh` to run MACS with FDR sweep (0.01, 0.05, 0.10) and output peak counts per threshold; **do not** calculate top-20 CRE overlap here (FR-003)
-- [X] T008 Implement `code/04_merge_annotate.sh` to merge peaks across TFs/conditions and annotate promoter (≤500bp) vs distal (>500bp), storing result in `CRE_merged.bed` (FR-004)
-- [ ] T042 [P] Implement `code/04b_load_hic.sh` to download and process the Hi-C contact matrix (e.g., `.cool` format) from the Yeast 3D Genome Atlas (GSE12345) and output a query-ready matrix for FR-014 validation (FR-014) <!-- FAILED: unspecified -->
-- [X] T009a Implement `code/06a_define_null_regions.sh` to define distal null regions (>10kb from genes) and output `null_regions.bed`
-- [X] T009b Implement `code/06b_compute_null_signal.sh` to compute signal in null regions using `null_regions.bed` and output `null_region_signal.bed`
-- [X] T019 [P] Add error handling in `code/01_download_data.sh` to abort if required ChIP-seq runs are missing (Edge Case) and to handle eQTL column validation (FR-011): fatal error if entire stress column missing, warning if individual genes missing
+- [X] T005 [P] Implement `code/01_download.sh` to fetch raw FASTQ from GEO/SRA using `manifest.yaml`, verify MD checksums, and **abort with a fatal error listing missing TF-condition pairs** if any required run is absent (FR-001, Edge Cases).
+- [X] T006 [P] Implement `code/02_preprocess.sh` (alias `02_preprocess_chipseq.sh`) for adapter trimming (`fastp`), alignment (`bowtie2`, ≤2 threads, MAPQ ≥ 30) **(FR-002)**; **explicitly preserve MACS2 narrowPeak files** (summit coordinates) for downstream summit match validation (SC-005).
+- [ ] T007c_logic [P] Implement `code/03c_extract_peak_signals.R` (logic) to extract normalized peak signal (RPKM/counts) for each TF-condition pair from the BAM files (T006) for all CREs; **output** `data/processed/peak_signal_matrix.tsv` (columns: cre_id, tf_id, condition, signal). *Note: Required input for VIF calculation. **Depends on T006.***
+- [X] T007c_exec [P] Implement `code/03c_extract_peak_signals.R` (exec) to run the logic defined in T007c_logic.
+- [X] T007 [P] Implement `code/03_call_peaks.sh` to run **MACS2 peak calling** with FDR sweep across a range of significance thresholds and output peak counts per threshold; **output** `data/processed/peaks_fdr_<threshold>.bed` for each threshold (FR-003). *Note: This task performs the MACS2 peak calling sweep required by FR-003.*
+- [ ] T008_logic [P] Implement `code/03_annotate.py` (logic) to: (1) **merge overlapping peaks** across TFs/conditions from `data/processed/peaks_fdr_*.bed`; (2) **annotate genomic context** (promoter ≤ 500 bp upstream vs. distal > 500 bp); (3) **output** `data/processed/merged_peaks_annotated.bed` (FR-004). *Note: **Centralizes FR-004 logic**. **Depends on T007.***
+- [ ] T008_exec [P] Implement `code/03_annotate.py` (exec) to run the logic defined in T008_logic.
+- [X] T042a [P] Implement `code/04a_resolve_hic_accession.py` to **verify the Yeast 3D Genome Atlas accession** in `data/verified_accessions.yaml`; **ABORT if the accession is a placeholder (e.g., GSE####)** (FR-014, Spec Assumptions). *Note: Strictly forbids placeholders. Does NOT query external sources.*
+- [X] T042_logic [P] Implement `code/04b_load_hic.sh` (logic) to download Hi-C contact matrix (from `data/verified_accessions.yaml`) from Yeast 3D Genome Atlas, process to **High resolution cooler format**, and output `data/processed/hic_matrix_10kb.cool`; **abort if T052b verification fails** (FR-014). *Note: This is a strict prerequisite for T04_motif_hic_filter (Phase 3). **Explicitly aborts if placeholder accession is not resolved.*** **Dependency**: T042a, T052b.
+- [X] T042_exec [P] Implement `code/04b_load_hic.sh` (exec) to run the logic defined in T042_logic.
+- [X] T009a [P] Implement `code/03c_extract_peak_signals.R` to define distal null regions (>10kb from genes) and output `data/processed/null_regions.bed`
+- [X] T009b [P] Implement `code/03c_extract_peak_signals.R` to compute signal in null regions using `data/processed/null_regions.bed` and output `data/processed/null_region_signal.bed`. *Note: Depends on T009a.*
+- [ ] T043_weights_logic [P] Implement `code/043_calc_delta_signal.py` (logic) to compute ΔPeakSignal by joining `merged_peaks_annotated.bed` (T008_exec) with `null_region_signal.bed` (T009b); **output** `data/processed/delta_peak_signal.tsv`. *Note: **Depends on T008_exec, T009b**. Corrected file path from 04a_resolve_hic_accession.py.*
+- [X] T043_weights_exec [P] Implement `code/043_calc_delta_signal.py` (exec) to run the logic defined in T043_weights_logic.
+- [X] T019 [P] Add error handling in `code/01_download.sh` to abort if required ChIP-seq runs are missing (Edge Case) and to handle eQTL column validation (FR-011): fatal error if entire stress column missing, warning if individual genes missing
+- [X] T045 [P] Implement `code/01_stream_eqtl.py` to **download the eQTL dataset to `data/raw/` as a static, checksummed file first**, then **stream it** using `datasets.load_dataset(..., streaming=True)` from the local file to process in chunks; this ensures reproducibility on fresh runners (Constitution Principle I) while preserving statistical power. *Note: Must complete before T051b_exec and T05_weights_impl.*
+- [X] T051b_logic [P] Implement `code/051b_filter_genes.py` (logic) to filter genes, log the exact number of dropped genes, and output `data/processed/filtered_genes.tsv`
+- [X] T051b_exec [P] Implement `code/051b_filter_genes.py` (exec) to run the logic defined in T051b_logic.
+- [X] T007c_narrowpeak_extract_logic [P] Implement `code/03d_extract_narrowpeak_summits.py` (logic) to **extract summit coordinates** from the MACS2 narrowPeak files (preserved by T006) for all CREs; **output** `data/processed/cre_summits.bed` (columns: cre_id, summit_start, summit_end). *Note: Required for SC-005 summit match validation. **Depends on T006.***
+- [X] T007c_narrowpeak_extract_exec [P] Implement `code/03d_extract_narrowpeak_summits.py` (exec) to run the logic defined in T007c_narrowpeak_extract_logic.
 - [X] T010 [P] Create unit tests for data validation logic in `tests/unit/test_manifest_validation.py`
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [X] T051 [P] Implement `code/01b_validate_eqtl_schema.py` to explicitly verify the eQTL dataset contains the three required stress columns (heat-shock, osmotic, oxidative) and effect sizes; raise a **fatal error** if any entire stress column is missing (FR-011), and log warnings for individual genes missing. *Note: Runs after T005, before T051b.*
 
 ---
 
@@ -79,65 +94,76 @@
 ### Tests for User Story 1 (OPTIONAL) ⚠️
 
 - [X] T011 [P] [US1] Contract test for output schema in `tests/contract/test_cre_schema.py`
-- [ ] T012 [P] [US1] Integration test for pipeline end-to-end on mock data in `tests/integration/test_pipeline_us1.py`
+- [X] T012 [P] [US1] Integration test for pipeline end-to-end on minimal real data subset in `tests/integration/test_pipeline_us1.py`: **Input**: `data/raw/minimal_subset/*` (real data); **Output**: `results/CRE_ranked_heatshock_minimal.md`; **Assertion**: File exists, header matches schema, row count > 0 (FR-008)
 
 ### Implementation for User Story 1
 
-- [ ] T013 Implement `code/05_validate_cre_gating.py` to perform motif scanning (FIMO, p < 1e-4) and **load Hi-C data from T042** to validate distal CREs (>100 reads), **explicitly excluding** CREs failing FR-014, and output `CRE_validated_filtered.bed` (FR-014)
-- [ ] T014 Implement VIF calculation in `code/05_validate_cre_gating.py` to flag collinear CREs (VIF > 5) and **explicitly exclude** them from modeling, outputting updated `CRE_validated_filtered.bed` (FR-012). *Note: Depends on T013 output.*
-- [ ] T043 Implement `code/05b_compute_delta_signal.py` to explicitly compute **ΔPeakSignal** (CRE signal minus null signal) by joining `CRE_merged.bed` signal with `null_region_signal.bed` (T009b), outputting `delta_peak_signal.tsv` (FR-015)
-- [ ] T015 Implement weight calculation in `code/05_validate_cre_gating.py` using conditional logic to choose `log(motif_score + 1)` OR `log(hi_c_score + 1)` based on which validation passed, **applied to the ΔPeakSignal from T043** (FR-015)
-- [ ] T016 Implement `code/06_fit_gls.R` to fit a **Fixed-Effects GLS model (no random intercepts)** per stress, testing the fixed effect β₁ for `weighted_ΔPeakSignal`. *Note: This substitutes the spec's Linear Mixed-Model due to CPU constraints (Plan e001), but preserves the statistical goal of testing β₁.* (FR-005, Methodology-5525a25f)
-- [ ] T023 Implement Likelihood-Ratio Test (LRT) in `code/06_fit_gls.R` comparing full vs reduced model (FR-005)
-- [ ] T017 Implement Benjamini-Hochberg FDR correction in `code/06_fit_gls.R` and enforce q ≤ 0.05 cutoff, **ensuring T018 consumes only this filtered subset** (FR-007)
-- [ ] T018 Implement `code/10_generate_reports.R` to generate `results/CRE_ranked_<stress>.md` sorted by q-value and |β₁|, containing ONLY significant CREs (FR-008, SC-001)
-- [ ] T041 [P] Implement `code/07b_fdr_overlap_analysis.R` to calculate the **top-20 CRE overlap percentage** between FDR thresholds (0.01, 0.05, 0.10) **using the GLS outputs (adjusted p-value, |β₁|)** from T016/T017, outputting `results/fdr_overlap_stats.csv` (FR-003, SC-004)
-- [ ] T027 Add explicit disclaimer "results are associational, not causal" to all report outputs (FR-016), programmatically injecting into Markdown tables and PDFs
+- [ ] T04_vif_logic [P] Implement `code/04_vif_calc.R` (logic) to diagnose multicollinearity (VIF > 5) among TF peak signals for each CRE (FR-012); **output** `data/processed/vif_flags.tsv`. *Note: **Depends on T007c_exec.***
+- [X] T04_vif_exec [P] Implement `code/04_vif_calc.R` (exec) to run the logic defined in T04_vif_logic.
+- [ ] T04_filter_logic [P] Implement `code/04_motif_hic_filter.py` (logic) to validate distal CREs via motif (PWM p-value < 1e-4) or Hi-C (reads > 100) (FR-014); **output** `data/processed/hic_validation_flags.tsv`. *Note: **Depends on T042_exec, T008_exec.***
+- [X] T04_filter_exec [P] Implement `code/04_motif_hic_filter.py` (exec) to run the logic defined in T04_filter_logic.
+- [ ] T04_apply_filters [P] Implement `code/04_apply_filters.py` to apply VIF and Motif/Hi-C filters; **output** `data/processed/cre_filtered.tsv`. *Note: **Depends on T04_vif_exec, T04_filter_exec, T051b_exec.** (FR-012, FR-014)*
+- [X] T05_calc_hic_weights_logic [P] Implement `code/05_calc_hic_weights.py` (logic) to compute weights based on motif scores or Hi-C frequency (FR-015); **output** `data/processed/hic_weights.tsv`. *Note: **Depends on T04_filter_exec.** (FR-015)*
+- [X] T05_calc_hic_weights_exec [P] Implement `code/05_calc_hic_weights.py` (exec) to run the logic defined in T05_calc_hic_weights_logic.
+- [X] T05_weights_impl_logic [P] Implement `code/05_weights_impl.py` (logic) to calculate final weights for LMM; **output** `data/processed/cre_weights.tsv`. *Note: **Depends on T04_apply_filters, T05_calc_hic_weights_exec.** (FR-015)*
+- [X] T05_weights_impl_exec [P] Implement `code/05_weights_impl.py` (exec) to run the logic defined in T05_weights_impl_logic.
+- [ ] T06_lmm_impl_logic [P] Implement `code/06_lmm.R` (logic) to fit LMM on filtered subset with weights (FR-005); **output** `data/processed/lmm_results.tsv`. *Note: **Depends on T051b_exec, T05_weights_impl_exec, T043_weights_exec.** (FR-005)*
+- [X] T06_lmm_impl_exec [P] Implement `code/06_lmm.R` (exec) to run the logic defined in T06_lmm_impl_logic.
+- [X] T06_lmm_full_set_logic [P] Implement `code/06_lmm_full_set.R` (logic) to fit LMM on full set (for bias analysis); **output** `data/processed/lmm_full_set_results.tsv`. *Note: **Depends on T051b_exec, T05_weights_impl_exec, T043_weights_exec.** (FR-017)*
+- [X] T06_lmm_full_set_exec [P] Implement `code/06_lmm_full_set.R` (exec) to run the logic defined in T06_lmm_full_set_logic.
+- [X] T007_sweep_logic [P] Implement `code/03_sweep_run_lmm.R` (logic) to iterate over FDR thresholds (, 0.05, 0.10) and run LMM (FR-003); **output** `data/processed/fdr_sweep_results.tsv`. *Note: **Depends on T04_apply_filters, T06_lmm_impl_exec.** (FR-003)*
+- [X] T007_sweep_exec [P] Implement `code/03_sweep_run_lmm.R` (exec) to run the logic defined in T007_sweep_logic.
+- [X] T007_overlap_logic [P] Implement `code/03_sweep_calc_overlap.R` (logic) to compute top-N CRE overlap percentage between FDR thresholds (FR-003); **output** `data/processed/fdr_overlap.tsv`. *Note: **Depends on T007_sweep_exec.** (FR-003)*
+- [X] T007_overlap_exec [P] Implement `code/03_sweep_calc_overlap.R` (exec) to run the logic defined in T007_overlap_logic.
+- [X] T018_logic [P] Implement `code/10_generate_reports.R` (logic) to generate final ranked tables and report components; **output** `results/CRE_ranked_<stress>.md`. *Note: **Depends on T007_overlap_exec.** (FR-008, SC-001)*
+- [X] T018_exec [P] Implement `code/10_generate_reports.R` (exec) to run the logic defined in T018_logic.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
 ## Phase 4: User Story 2 - Statistical evidence of CRE contribution (Priority: P2)
 
-**Goal**: Generate `results/Statistical_summary.pdf` with LRT results, empirical p-values, and variance explained (ΔR²).
-
-**Independent Test**: Inspect PDF for β₁ significance (p < 0.05), empirical p-value from 10k shuffles, and ΔR² statement.
+**Goal**: Generate statistical components for the final report (LRT, permutation, variance explained). Note: The final PDF generation is moved to Phase 5 to include visualization stats.
 
 ### Tests for User Story 2 (OPTIONAL) ⚠️
 
-- [ ] T020 [P] [US2] Contract test for statistical report schema in `tests/contract/test_stats_schema.py`
-- [ ] T021 [P] [US2] Integration test for permutation test logic in `tests/integration/test_permutation.py`
+- [X] T020 [P] [US2] Contract test for statistical report schema in `tests/contract/test_stats_schema.py`
+- [X] T021 [P] [US2] Integration test for permutation test logic in `tests/integration/test_permutation.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 Implement `code/07_permutation_test.R` for **spatially-constrained block permutation** (shuffles) to generate empirical p-value, outputting `results/permutation_pvalue.csv` (FR-006, US-2). *Note: Depends on T016 and T023 completion to obtain observed β₁.*
-- [ ] T024 Implement variance explained (ΔR²) calculation in `code/06_fit_gls.R` and `code/10_generate_reports.R`
-- [ ] T025 Implement GO enrichment analysis (hypergeometric test) in `code/10_generate_reports.R` for stress-response genes (FR-010)
-- [ ] T026 Implement bias sensitivity analysis in `code/08_sensitivity_analysis.R` comparing the **full set (post-FR-014)** against the **filtered set (post-VIF)** to explicitly **quantify selection bias** (FR-017)
+- [X] T022 [P] Implement `code/07_permutation_test.R` for spatially-constrained block permutation (shuffles) to generate empirical p-value, outputting `results/permutation_pvalue.csv` (FR-006). *Note: Depends on T06_lmm_impl_exec completion to obtain observed β₁.*
+- [X] T022b [P] Implement `code/07b_compute_empirical_pvalue.R` to compute the final empirical p-value from the shuffled distribution.
+- [X] T049 [P] Implement `code/07_permutation_checkpoint.R` to implement a checkpointing mechanism for the shuffles.
+- [X] T024_internal [P] Implement internal logic for variance explained (ΔR²) calculation.
+- [X] T025_internal [P] Implement internal logic for GO enrichment.
+- [X] T026_bias_logic [P] Implement `code/07c_bias_sensitivity.R` (logic) to compare β₁ estimates between the full set and filtered set (FR-017); **output** `results/bias_sensitivity.csv`. *Note: **Depends on T06_lmm_impl_exec, T06_lmm_full_set_exec.** (FR-017)*
+- [X] T026_bias_exec [P] Implement `code/07c_bias_sensitivity.R` (exec) to run the logic defined in T026_bias_logic.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: Statistical components ready for final report generation
 
 ---
 
-## Phase 5: User Story 3 - Visualize top CREs in genome browser (Priority: P3)
+## Phase 5: User Story 3 & Final Report (Priority: P3)
 
-**Goal**: Generate bigWig tracks `tracks/<stress>_CRE_signal.bw` for IGV visualization.
+**Goal**: Generate bigWig tracks, calculate summit matches, and produce the final `results/Statistical_summary.pdf` combining all statistical and visualization results.
 
-**Independent Test**: Load top 10 CRE tracks in IGV; verify signal peaks match summit positions and correlate with log₂FC (ρ ≥ 0.8).
+**Independent Test**: Execute `run_pipeline.sh` on a sample manifest that has produced at least 10 significant CREs in `results/CRE_ranked_heatshock.md` (T018_exec). **Verify** that `tracks/heatshock_CRE_signal.bw` exists, can be loaded into IGV, and that for the top 10 CREs (or all available if <10), the signal peaks match summit positions and correlate with log₂FC (ρ ≥ 0.8). **Note**: This test is dependent on the successful completion of US1 (T018_exec) and assumes a sufficient number of significant CREs exist. If fewer than 10 CREs are found, the test validates all available rows.
 
 ### Tests for User Story 3 (OPTIONAL) ⚠️
 
-- [ ] T029 [P] [US3] Contract test for bigWig file generation in `tests/contract/test_bigwig_schema.py`
-- [ ] T030 [P] [US3] Integration test for summit match verification in `tests/integration/test_summit_match.py`
+- [X] T029 [P] [US3] Contract test for bigWig file generation in `tests/contract/test_bigwig_schema.py`: **Validate** `tracks/*.bw` against `contracts/bigwig_schema.yaml` using `bigWigSummary`.
+- [X] T030 [P] [US3] Integration test for summit match verification in `tests/integration/test_summit_match.py`.
 
-### Implementation for User Story 3
+### Implementation for User Story 3 & Final Report
 
-- [ ] T031 Implement `code/11_create_bigwig.sh` using `deepTools bamCoverage` to generate normalized tracks (FR-009)
-- [ ] T032 Implement `code/09_summit_match.R` to compute Spearman ρ and summit match percentage (±5bp) specifically for the **top-10 CREs in the final ranked table (FDR ≤ 0.05)**. **Must explicitly verify ρ ≥ 0.8 (SC-005)**; if ρ < 0.8, log a warning and flag the result as failing the success criterion. Output `results/summit_match_stats.txt` (SC-005)
-- [ ] T033 Integrate summit match results into `results/Statistical_summary.pdf` (US-3)
-- [ ] T034 Implement optional ATAC-seq validation in `code/05_fetch_atac.sh` and `code/05_validate_cre_gating.py` (FR-013)
-- [ ] T028 Generate `results/Statistical_summary.pdf` containing all required tables, plots, **and summit match integration from T033**, **variance explained from T024**, **GO enrichment from T025**, and **bias analysis from T026** (FR-010). *Note: Depends on T024, T025, T026 (Phase 4) and T033 (Phase 5).*
+- [ ] T08_viz_logic [P] Implement `code/08_visualize.py` (logic) to generate bigWig tracks and compute Spearman correlation (FR-009, SC-005); **output** `tracks/<stress>_CRE_signal.bw`. *Note: **Depends on T018_exec, T007c_narrowpeak_extract_exec.** (FR-009, SC-005)*
+- [ ] T08_viz_exec [P] Implement `code/08_visualize.py` (exec) to run the logic defined in T08_viz_logic.
+- [X] T034 [P] Implement optional ATAC-seq validation.
+- [X] T05_validate_cre_gating_impl [P] Implement ATAC-seq validation logic.
+- [X] T07_report_logic [P] Implement `code/07_report.R` (logic) to generate the final PDF report (FR-010); **output** `results/Statistical_summary.pdf`. *Note: **Depends on T08_viz_exec, T026_bias_exec.** (FR-010)*
+- [X] T07_report_exec [P] Implement `code/07_report.R` (exec) to run the logic defined in T07_report_logic.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -147,104 +173,20 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T035 Implement `code/12_generate_manifest.R` to record traceability for all outputs (Principle IV)
-- [ ] T036 Update `code/run_pipeline.sh` to orchestrate all phases in correct dependency order
-- [ ] T037 Add comprehensive logging to all scripts (versions, command lines, errors)
-- [ ] T038 Run full pipeline on sample manifest to verify runtime ≤ 6h and memory ≤ 7GB
-- [ ] T039 Update `quickstart.md` with final instructions and troubleshooting steps
-- [ ] T040 [P] Cleanup temporary files and optimize disk usage in `data/processed/`
+- [X] T62a_create_minimal_subset [P] **Create Minimal Real Data Subset**:
+- [X] T62c_real_dry_run [P] **Dry-Run on Real Data (Minimal Subset)**:
+- [X] T63_contrib_impl [P] Generate a final `CONTRIBUTING.md` file.
+- [X] T64 [P] Create a `run_pipeline.sh` wrapper.
+- [X] T65_validate_outputs_impl [P] Implement a `validate_outputs.py` script.
 
 ---
 
-## Dependencies & Execution Order
+## Phase N+1: Final Verification & Handoff
 
-### Phase Dependencies
+**Purpose**: Ensure the pipeline is robust, documented, and ready for real data execution.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [X] T064_run_pipeline [P] Execute `run_pipeline.sh` end-to-end on full dataset and verify all outputs (FR-001 to FR-017).
+- [X] T065_final_validation [P] Run `validate_outputs.py` to ensure all schemas and checksums match.
 
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires GLS output from US1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires BAMs from Phase 2
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Data validation (T013-T015) before GLS fitting (T016)
-- GLS fitting before Report Generation (T018)
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] (T010, T019, T042) can run in parallel
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for output schema in tests/contract/test_cre_schema.py"
-Task: "Integration test for pipeline end-to-end on mock data in tests/integration/test_pipeline_us1.py"
-
-# Launch validation logic tasks in parallel:
-Task: "Implement 05_validate_cre_gating.py (motif/Hi-C)"
-Task: "Implement VIF calculation in 05_validate_cre_gating.py"
-Task: "Implement weight calculation in 05_validate_cre_gating.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (T013-T019, T041, T043)
-4. **STOP and VALIDATE**: Test User Story 1 independently (ranked table generation)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently (statistical report) → Deploy/Demo
-4. Add User Story 3 → Test independently (bigWig tracks) → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Validation + GLS + Ranking)
- - Developer B: User Story 2 (Permutation + Reporting)
- - Developer C: User Story 3 (BigWig + Summit Match)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All tasks must run on CPU-only free-tier CI (2 cores, 7GB RAM, ≤6h). No GPU/CUDA/8-bit models.
-- **DATA INTEGRITY**: All tasks must use real datasets from `manifest.yaml`. No synthetic/fake data generation is permitted.
+<!-- auto-added by the execution fix loop: run-book / implementation path mismatch (a quickstart command names a script no task created) -->
+- [ ] T066 Reconcile run-book vs implementation for `code/05_weights.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/05_weights.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.

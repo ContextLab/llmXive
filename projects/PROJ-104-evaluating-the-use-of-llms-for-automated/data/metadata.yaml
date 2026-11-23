@@ -1,0 +1,8 @@
+{
+  "data/raw/commit_pairs.csv": {
+    "sha256": "cd660364627ccb24a2f44374540e61c76fe262c10a544c85af6f022fec828f3d"
+  },
+  "data/processed/fidelity_metrics.csv": {
+    "sha256": "2faa8630ecd0fc832e543c38724a115aa4fdd34dcb98cb6c365628e1f32c1d17"
+  }
+}

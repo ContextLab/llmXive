@@ -1,0 +1,46 @@
+T007a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission contains no `data_version.json` (or schema definition) file, nor
+    any description of its fields. Consequently the required schema with `source_url`,
+    `checksum_sha256`, and `timestamp` is missing. The next implementer must create
+    and provide the JSON schema file (or equivalent documentation) containing those
+    three fields.
+T012:
+  c: false
+  h: 27c49bfb038b448d9f4b767f0f77b1d44dc3629e69282de8bdf857a248f6795f
+  r: "The required artifact `tests/integration/test_data.py` does not exist, so no\
+    \ integration test is present to verify end\u2011to\u2011end fetching and descriptor\
+    \ calculation. The task cannot be considered fulfilled until this file is created\
+    \ with a functional test."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer did not provide a `data/processed/merge_metrics.json` file, nor
+    any content showing the required `total_requested`, `matches`, and `fraction`
+    fields. Without the actual JSON artifact, the task requirement is unmet.
+T023b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `clustering_results.json` file (or any other artifact) containing a logged
+    silhouette score for the UMAP embedding is present. The implementer did not provide
+    evidence that the score was calculated or recorded, so the task requirement is
+    unmet.
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or output file implementing the \u201Cexclude clusters with\
+    \ <10 samples and flag as\u202F\u2018insufficient power\u2019\u201D was provided.\
+    \ The evidence consists only of the task description and specification excerpt,\
+    \ without any concrete artifact (e.g., updated clustering/enrichment module, unit\
+    \ tests, or example results) demonstrating that the required logic has been added.\
+    \ The implementer must supply the actual implementation and proof (e.g., source\
+    \ file changes, test logs, or generated ranking output) showing the new exclusion\
+    \ behavior."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `clustering_results.json` file or its contents were presented; the claim\
+    \ provides only a description without the required JSON artifact containing cluster\
+    \ IDs, enrichment and permutation p\u2011values, and diagnostic messages. Consequently\
+    \ the task\u2019s deliverable is missing."

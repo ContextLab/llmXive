@@ -1,0 +1,87 @@
+- artifact_path: projects/PROJ-220-predicting-amine-reactivity-using-graph-/specs/001-predicting-amine-reactivity-using-graph/descriptor-spec.md
+  attempts: 1
+  canonical: non-NaN values for valid inputs
+  claim_id: c_55cb03bf
+  context: 'Validation: Values must be non-NaN for all valid inputs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Non-NaN_values_for_valid_inputs
+  kind: entity_fact
+  raw_text: Values must be non-NaN for all valid inputs.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:23:04Z'
+- artifact_path: projects/PROJ-220-predicting-amine-reactivity-using-graph-/specs/001-predicting-amine-reactivity-using-graph/descriptor-spec.md
+  attempts: 1
+  canonical: unit tests verify correct dictionary structure
+  claim_id: c_4316077e
+  context: 'Unit tests must verify: Correct dictionary structure.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_tests_verify_correct_dictionary_structure
+  kind: entity_fact
+  raw_text: 'Unit tests must verify: Correct dictionary structure.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:23:26Z'
+- artifact_path: projects/PROJ-220-predicting-amine-reactivity-using-graph-/specs/001-predicting-amine-reactivity-using-graph/descriptor-spec.md
+  attempts: 1
+  canonical: unit tests verify non-NaN values for all descriptors
+  claim_id: c_c28789c0
+  context: 'Unit tests must verify: Non-NaN values for all descriptors.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_tests_verify_non-NaN_values_for_all_descriptors
+  kind: entity_fact
+  raw_text: 'Unit tests must verify: Non-NaN values for all descriptors.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:23:54Z'
+- artifact_path: projects/PROJ-220-predicting-amine-reactivity-using-graph-/specs/001-predicting-amine-reactivity-using-graph/descriptor-spec.md
+  attempts: 1
+  canonical: unit tests verify accuracy against literature values
+  claim_id: c_d85cdde1
+  context: 'Unit tests must verify: Accuracy against known literature values for common
+    substituents.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_tests_verify_accuracy_against_literature_values
+  kind: entity_fact
+  raw_text: 'Unit tests must verify: Accuracy against known literature values for
+    common substituents.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:24:19Z'
+- artifact_path: projects/PROJ-220-predicting-amine-reactivity-using-graph-/specs/001-predicting-amine-reactivity-using-graph/descriptor-spec.md
+  attempts: 1
+  canonical: unit tests verify proper handling of invalid inputs
+  claim_id: c_19adc9c0
+  context: 'Unit tests must verify: Proper handling of invalid inputs.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Unit_tests_verify_proper_handling_of_invalid_inputs
+  kind: entity_fact
+  raw_text: 'Unit tests must verify: Proper handling of invalid inputs.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-02T17:24:45Z'

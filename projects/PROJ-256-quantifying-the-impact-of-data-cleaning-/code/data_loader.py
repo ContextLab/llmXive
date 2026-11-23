@@ -1,120 +1,262 @@
-import os
+"""
+Data acquisition utilities for T005.
+Downloads a set of verified datasets (via OpenML or direct URLs),
+writes each to CSV in the raw data directory, computes SHA‑256 checksums,
+validates the generated metadata against ``contracts/dataset.schema.yaml``,
+and writes a consolidated ``dataset_metadata.json`` file to the processed
+data directory.
+"""
 import json
 import logging
-import hashlib
-from typing import Optional, Tuple, Dict, Any, List
-from urllib.request import urlopen, Request
+from pathlib import Path
+from typing import List, Dict
+
+import openml
 import pandas as pd
-from utils import setup_logging, compute_file_checksum
+import jsonschema
 
-logger = setup_logging("INFO")
+# Import utilities; if they are missing, provide minimal fallbacks.
+try:
+    from utils import setup_logging, compute_file_checksum
+except ImportError:  # pragma: no cover
+    # Minimal logger setup
+    logging.basicConfig(level=logging.INFO)
+    logger = logging.getLogger(__name__)
 
-def download_dataset(url: str, output_path: str) -> bool:
-    """
-    Download a dataset from a URL.
-    
-    Args:
-        url: URL to download from
-        output_path: Local path to save the file
-    
-    Returns:
-        True if successful, False otherwise
-    """
-    try:
-        logger.info(f"Downloading from {url} to {output_path}")
-        req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
-        with urlopen(req, timeout=30) as response:
-            data = response.read()
-        
-        with open(output_path, 'wb') as f:
-            f.write(data)
-        
-        logger.info(f"Downloaded {len(data)} bytes")
-        return True
-    except Exception as e:
-        logger.error(f"Download failed: {e}")
-        return False
+    def setup_logging(log_level: str = "INFO"):
+        """Fallback logger that returns the root logger."""
+        logging.basicConfig(level=getattr(logging, log_level.upper(), logging.INFO))
+        return logging.getLogger(__name__)
 
-def load_datasets_from_raw(raw_dir: str) -> List[pd.DataFrame]:
-    """Load all CSV files from a directory."""
-    dfs = []
-    if not os.path.exists(raw_dir):
-        logger.warning(f"Raw directory does not exist: {raw_dir}")
-        return dfs
-    
-    for file in os.listdir(raw_dir):
-        if file.endswith('.csv'):
-            path = os.path.join(raw_dir, file)
-            try:
-                df = pd.read_csv(path)
-                dfs.append(df)
-                logger.info(f"Loaded {file}: {len(df)} rows")
-            except Exception as e:
-                logger.warning(f"Failed to load {file}: {e}")
-    return dfs
+    import hashlib
 
-def ensure_data_exists() -> bool:
+    def compute_file_checksum(file_path: str) -> str:
+        """Compute SHA‑256 checksum of a file."""
+        sha256 = hashlib.sha256()
+        with open(file_path, "rb") as f:
+            for chunk in iter(lambda: f.read(8192), b""):
+                sha256.update(chunk)
+        return sha256.hexdigest()
+else:
+    logger = setup_logging(log_level="INFO")
+
+from config import get_config
+
+# ----------------------------------------------------------------------
+# Dataset specifications
+# ----------------------------------------------------------------------
+# Each entry defines:
+#   - name: human‑readable identifier
+#   - openml_id: OpenML dataset identifier (or None if a direct URL is used)
+#   - outcome_column: documented outcome variable name
+#   - url: optional direct download URL for CSV datasets
+# ----------------------------------------------------------------------
+DATASET_SPECS: List[Dict] = [
+    {
+        "name": "Iris",
+        "openml_id": 61,
+        "outcome_column": "class",
+        "url": None,
+    },
+    {
+        "name": "Wine Quality",
+        "openml_id": 1862,
+        "outcome_column": "quality",
+        "url": None,
+    },
+    {
+        "name": "Breast Cancer Wisconsin Diagnostic",
+        "openml_id": 151,
+        "outcome_column": "diagnosis",
+        "url": None,
+    },
+    {
+        "name": "Heart Disease",
+        "openml_id": 53,
+        "outcome_column": "target",
+        "url": None,
+    },
+    {
+        "name": "Parkinsons Telemonitoring",
+        "openml_id": 167124,
+        "outcome_column": "total_UPDRS",
+        "url": None,
+    },
+    {
+        "name": "Diabetes",
+        "openml_id": 531,
+        "outcome_column": "progression",
+        "url": None,
+    },
+    {
+        "name": "German Credit",
+        "openml_id": 31,
+        "outcome_column": "credit_risk",
+        "url": None,
+    },
+    {
+        "name": "Adult Income",
+        "openml_id": 1590,
+        "outcome_column": "income",
+        "url": None,
+    },
+    {
+        "name": "Student Performance",
+        "openml_id": 40945,
+        "outcome_column": "G",
+        "url": None,
+    },
+    # Two additional example CSV datasets from UCI (direct URLs)
+    {
+        "name": "Ionosphere",
+        "openml_id": None,
+        "outcome_column": "target",
+        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/ionosphere/ionosphere.data",
+    },
+    {
+        "name": "Car Evaluation",
+        "openml_id": None,
+        "outcome_column": "class_value",
+        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/car/car.data",
+    },
+]
+
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def _download_openml_dataset(openml_id: int, raw_dir: Path) -> Path:
     """
-    Ensure that required data exists.
-    Downloads full datasets (not headers) from verified UCI URLs.
-    Verifies data/raw/ files are >10KB before proceeding.
+    Download a dataset from OpenML, store it as ``<openml_id>.csv`` in ``raw_dir``,
+    and return the path to the written CSV file.
     """
-    raw_dir = "data/raw"
-    os.makedirs(raw_dir, exist_ok=True)
-    
-    # Verified UCI HAR Dataset CSV URL (direct download link)
-    # This URL points to the full dataset, not just headers
-    har_url = "https://archive.ics.uci.edu/static/public/235/human+activity+recognition+with+smartphones.zip"
-    har_file = os.path.join(raw_dir, "UCI_HAR.csv")
-    
-    # Check if file exists and is large enough (>10KB = 10240 bytes)
-    if os.path.exists(har_file):
-        file_size = os.path.getsize(har_file)
-        if file_size > 10240:
-            logger.info(f"Data exists and is valid (>10KB): {har_file} ({file_size} bytes)")
-            return True
+    logger.info(f"Downloading OpenML dataset ID {openml_id}")
+    dataset = openml.datasets.get_dataset(openml_id)
+    X, y, _, _ = dataset.get_data(dataset_format="dataframe")
+    df = X.copy()
+    # Ensure the target column exists; name it according to the spec if missing.
+    if y.name not in df.columns:
+        df[y.name] = y
+    csv_path = raw_dir / f"{openml_id}.csv"
+    df.to_csv(csv_path, index=False)
+    logger.info(f"OpenML dataset {openml_id} written to {csv_path}")
+    return csv_path
+
+def _download_csv_from_url(url: str, dest_path: Path) -> Path:
+    """
+    Download a raw CSV file from ``url`` and write it to ``dest_path``.
+    """
+    logger.info(f"Downloading CSV from URL: {url}")
+    # pandas can read directly from HTTP URLs.
+    df = pd.read_csv(url, header=None)
+    df.to_csv(dest_path, index=False, header=False)
+    logger.info(f"CSV downloaded to {dest_path}")
+    return dest_path
+
+def _load_schema() -> Dict:
+    """
+    Load the JSON‑Schema for dataset metadata.
+    The schema lives under the project ``specs`` directory.
+    """
+    schema_path = (
+        Path("specs")
+        / "001-quantifying-the-impact-of-data-cleaning"
+        / "contracts"
+        / "dataset.schema.yaml"
+    )
+    if not schema_path.is_file():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
+    import yaml  # PyYAML is available in the base environment.
+
+    with schema_path.open("r", encoding="utf-8") as f:
+        schema = yaml.safe_load(f)
+    return schema
+
+def _validate_metadata(metadata: Dict, schema: Dict) -> None:
+    """
+    Validate a single metadata dictionary against the dataset schema.
+    Raises ``jsonschema.ValidationError`` on failure.
+    """
+    jsonschema.validate(instance=metadata, schema=schema)
+
+# ----------------------------------------------------------------------
+# Core acquisition routine
+# ----------------------------------------------------------------------
+def ensure_data_exists() -> None:
+    """
+    Ensure that all datasets defined in ``DATASET_SPECS`` exist in the raw
+    data directory. For each dataset:
+    * Download (OpenML or direct URL) if missing.
+    * Compute SHA‑256 checksum.
+    * Build a metadata entry and validate it against the JSON‑Schema.
+    * Append the entry to the consolidated ``dataset_metadata.json`` file.
+    """
+    config = get_config()
+    raw_dir = Path(config.get("RAW_DATA_PATH", "data/raw"))
+    processed_dir = Path(config.get("PROCESSED_DATA_PATH", "data/processed"))
+
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
+
+    schema = _load_schema()
+    metadata_entries: List[Dict] = []
+
+    for spec in DATASET_SPECS:
+        name = spec["name"]
+        outcome_col = spec["outcome_column"]
+        csv_path: Path
+
+        if spec["openml_id"] is not None:
+            csv_path = raw_dir / f"{spec['openml_id']}.csv"
+            if not csv_path.is_file():
+                csv_path = _download_openml_dataset(spec["openml_id"], raw_dir)
         else:
-            logger.warning(f"Data file exists but is too small (<10KB): {har_file} ({file_size} bytes). Re-downloading.")
-            os.remove(har_file)
-    
-    # Note: The UCI link is a ZIP. We need to handle extraction or find a direct CSV.
-    # For this revision, we use a verified direct CSV link for a representative dataset
-    # that is known to be >10KB to satisfy the constraint.
-    # Using the 'Adult' dataset or similar large CSV if HAR zip extraction is complex.
-    # Here we use a direct CSV link for a substantial dataset to ensure >10KB.
-    verified_csv_url = "https://archive.ics.uci.edu/static/public/2/credit+card+applications.zip"
-    # Since direct CSV links for large UCI datasets often require zip extraction,
-    # we will implement a robust check: attempt download, verify size > 10KB.
-    # If the URL is a ZIP, the current download_dataset saves it as .csv which is wrong.
-    # We switch to a known direct CSV for a large dataset to ensure correctness.
-    # Using a direct link to a substantial CSV file from UCI or similar repository.
-    # Fallback to a known large CSV: Heart Disease (UCI) - direct CSV
-    fallback_url = "https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data"
-    fallback_file = os.path.join(raw_dir, "cleveland_heart.csv")
-    
-    logger.info(f"Attempting to download verified dataset from {fallback_url}")
-    if download_dataset(fallback_url, fallback_file):
-        file_size = os.path.getsize(fallback_file)
-        if file_size > 10240:
-            logger.info(f"Download successful and size verified (>10KB): {fallback_file} ({file_size} bytes)")
-            return True
-        else:
-            logger.error(f"Downloaded file is too small (<10KB): {fallback_file} ({file_size} bytes)")
-            os.remove(fallback_file)
-    
-    logger.error("Failed to download or verify any dataset (>10KB)")
-    return False
+            # Direct URL case – derive a safe filename from the dataset name.
+            safe_name = name.lower().replace(" ", "_")
+            csv_path = raw_dir / f"{safe_name}.csv"
+            if not csv_path.is_file():
+                csv_path = _download_csv_from_url(spec["url"], csv_path)
 
-def compute_checksum(filepath: str) -> str:
-    """Compute SHA256 checksum of a file."""
-    return compute_file_checksum(filepath)
+        # Load the CSV to compute metadata.
+        df = pd.read_csv(csv_path)
 
-def main():
-    """Entry point."""
-    if ensure_data_exists():
-        logger.info("Data ready.")
-    else:
-        logger.error("Data not ready.")
+        # Verify that the documented outcome column exists.
+        if outcome_col not in df.columns:
+            raise ValueError(
+                f"Outcome column '{outcome_col}' not found in dataset '{name}' (file {csv_path})"
+            )
+
+        n_samples = int(len(df))
+        missing_outcome = int(df[outcome_col].isna().sum())
+        missingness_proportion = (
+            missing_outcome / n_samples if n_samples > 0 else 0.0
+        )
+        checksum = compute_file_checksum(str(csv_path))
+
+        metadata = {
+            "name": name,
+            "outcome_column": outcome_col,
+            "n_samples": n_samples,
+            "missingness_proportion": round(missingness_proportion, 6),
+            "checksum": checksum,
+        }
+
+        # Validate against schema (will raise if invalid)
+        _validate_metadata(metadata, schema)
+
+        metadata_entries.append(metadata)
+        logger.info(f"Metadata for dataset '{name}' validated and recorded.")
+
+    # Write consolidated metadata JSON.
+    metadata_path = processed_dir / "dataset_metadata.json"
+    with metadata_path.open("w", encoding="utf-8") as f:
+        json.dump(metadata_entries, f, indent=2)
+    logger.info(f"Consolidated dataset metadata written to {metadata_path}")
+
+def main() -> None:
+    """
+    CLI entry point for manual data acquisition.
+    """
+    ensure_data_exists()
 
 if __name__ == "__main__":
     main()

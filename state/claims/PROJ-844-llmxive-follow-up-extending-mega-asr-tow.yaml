@@ -1,0 +1,1512 @@
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: cosine similarity across 5 ASR models
+  claim_id: c_31f6986b
+  context: 'T028 [US3] Implement cross-model comparison logic to calculate cosine
+    similarity of critical vectors across a set of small ASR models: whisper-tiny,
+    whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h (Depends on
+    T026)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate cosine similarity of critical vectors across whisper-tiny, whisper-small,
+    distil-whisper-base, stt-small-en, wavvec2-base-960h
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:42:34Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: peak RSS less than 7GB
+  claim_id: c_f86ae3cd
+  context: T032 Generate data/derived/resource_monitoring_report.json and verify peak
+    RSS < 7GB as a gate before proceeding (SC-004)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_less_than_7GB
+  kind: magnitude
+  raw_text: Verify peak RSS < 7GB as a gate
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:43:16Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Generate human-annotated transcript dataset for validation subset
+  claim_id: c_6f03f666
+  context: 'T030a [US1/US2/US3] Generate a human-annotated transcript dataset for
+    the validation subset.: Implement script in code/human_validation.py to select
+    a representative sample (using the same stratification logic as T007a/b), define
+    annotation protocol (intelligibility score 0-1), and generate data/validation/human_annotations.csv
+    (Mandatory per FR-011; Depends on T007a/b)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_human-annotated_transcript_dataset_for_validation_s
+  kind: entity_fact
+  raw_text: Generate a human-annotated transcript dataset for the validation subset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:52:40Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Verify dataset coverage for 54 compound distortion scenarios
+  claim_id: c_fc6e9657
+  context: T007c [P] Verify dataset coverage for 54 compound distortion scenarios
+    in code/data_loader.py; generate all 54 vectors or log a critical failure if the
+    dataset lacks specific combinations, acting as a gate before T012 (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify dataset coverage for 54 compound distortion scenarios
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:52:41Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Calculate cosine similarity of critical vectors across whisper-tiny,
+    whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h
+  claim_id: c_0e6d1c99
+  context: 'T028 [US3] Implement cross-model comparison logic to calculate cosine
+    similarity of critical vectors across a set of small ASR models: whisper-tiny,
+    whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h (Depends on
+    T026)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_cosine_similarity_of_critical_vectors_across_whisp
+  kind: entity_fact
+  raw_text: 'Implement cross-model comparison logic to calculate cosine similarity
+    of critical vectors across a set of small ASR models: whisper-tiny, whisper-small,
+    distil-whisper-base, stt-small-en, wavvec2-base-960h'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:52:59Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: train regression with polynomial degree less than or equal to 3 or decision
+    tree max depth less than or equal to 5
+  claim_id: c_a5fb8bcb
+  context: "T026 [US3] Implement code/models.py to train CPU-tractable regression\
+    \ (Linear/Polynomial degree\u22643 or DT max_depth\u22645) using features from\
+    \ T025a and target HVCM from T030b per FR-005"
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Train_regression_with_polynomial_degree_less_than_or_equal_t
+  kind: magnitude
+  raw_text: "Train CPU-tractable regression (Linear/Polynomial degree\u22643 or DT\
+    \ max_depth\u22645)"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:54:17Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: calculate cosine similarity of critical vectors across whisper-tiny,
+    whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h
+  claim_id: c_77921f7a
+  context: 'T028 [US3] Implement cross-model comparison logic to calculate cosine
+    similarity of critical vectors across a set of small ASR models: whisper-tiny,
+    whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h (Depends on
+    T026)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_cosine_similarity_of_critical_vectors_across_whisp
+  kind: entity_fact
+  raw_text: 'Calculate cosine similarity of critical vectors across a set of small
+    ASR models: whisper-tiny, whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:54:31Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: 54 compound distortion scenarios in dataset
+  claim_id: c_f2ee03e7
+  context: T007c [P] Verify dataset coverage for 54 compound distortion scenarios
+    in code/data_loader.py; generate all 54 vectors or log a critical failure if the
+    dataset lacks specific combinations, acting as a gate before T012 (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify dataset coverage for 54 compound distortion scenarios in code/data_loader.py;
+    generate all 54 vectors or log a critical failure if the dataset lacks specific
+    combinations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:59:21Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Cross-model comparison of critical vectors across whisper-tiny, whisper-small,
+    distil-whisper-base, stt-small-en, wavvec2-base-960h
+  claim_id: c_adb6b84e
+  context: 'T028 [US3] Implement cross-model comparison logic to calculate cosine
+    similarity of critical vectors across a set of small ASR models: whisper-tiny,
+    whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h (Depends on
+    T026)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cross-model_comparison_of_critical_vectors_across_whisper-ti
+  kind: entity_fact
+  raw_text: 'Implement cross-model comparison logic to calculate cosine similarity
+    of critical vectors across a set of small ASR models: whisper-tiny, whisper-small,
+    distil-whisper-base, stt-small-en, wavvec2-base-960h'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T10:59:23Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: SSS < 0.5 and WER > 2x baseline for collapse detection
+  claim_id: c_d736e640
+  context: 'T019 [US2] Extend code/metrics.py to add collapse detection: Identify
+    intensity where SSS < 0.5 (normalized to baseline) AND WER > 2x baseline per FR-004,
+    FR-009 (Depends on T020b, T020c)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify intensity where SSS < 0.5 (normalized to baseline) AND WER >
+    2x baseline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:00:19Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Polynomial degree <= 3 or DT max_depth <= 5 for regression
+  claim_id: c_a94a2dcf
+  context: "T026 [US3] Implement code/models.py to train CPU-tractable regression\
+    \ (Linear/Polynomial degree\u22643 or DT max_depth\u22645) using features from\
+    \ T025a and target HVCM from T030b per FR-005"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train CPU-tractable regression (Linear/Polynomial degree\u22643 or DT\
+    \ max_depth\u22645)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:00:19Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: peak RSS < 7GB
+  claim_id: c_b7f93848
+  context: T032 Generate data/derived/resource_monitoring_report.json and verify peak
+    RSS < 7GB as a gate before proceeding (SC-004)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/peak_RSS_%3C_7GB
+  kind: entity_fact
+  raw_text: Verify peak RSS < 7GB as a gate before proceeding
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:00:57Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Cosine similarity of critical vectors across 5 specific ASR models
+  claim_id: c_9fbb9973
+  context: 'T028 [US3] Implement cross-model comparison logic to calculate cosine
+    similarity of critical vectors across a set of small ASR models: whisper-tiny,
+    whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h (Depends on
+    T026)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate cosine similarity of critical vectors across whisper-tiny, whisper-small,
+    distil-whisper-base, stt-small-en, wavvec2-base-960h
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:00:57Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Generate human_annotations.csv for validation subset
+  claim_id: c_75fe5c40
+  context: 'T030a [US1/US2/US3] Generate a human-annotated transcript dataset for
+    the validation subset.: Implement script in code/human_validation.py to select
+    a representative sample (using the same stratification logic as T007a/b), define
+    annotation protocol (intelligibility score 0-1), and generate data/validation/human_annotations.csv
+    (Mandatory per FR-011; Depends on T007a/b)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_human_annotations.csv_for_validation_subset
+  kind: entity_fact
+  raw_text: Implement script to select a representative sample and generate data/validation/human_annotations.csv
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:01:44Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: dataset covers 54 compound distortion scenarios
+  claim_id: c_ea1dbef4
+  context: T007c [P] Verify dataset coverage for 54 compound distortion scenarios
+    in `code/data_loader.py`; generate all 54 vectors or log a critical failure if
+    the dataset lacks specific combinations, acting as a gate before T012 (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify dataset coverage for 54 compound distortion scenarios
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:02:00Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 2
+  canonical: list of ASR models for cross-model comparison
+  claim_id: c_d5ceb917
+  context: 'T028 [US3] Implement cross-model comparison logic to calculate cosine
+    similarity of critical vectors across a set of small ASR models: whisper-tiny,
+    whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/List_of_ASR_models_for_cross-model_comparison
+  kind: entity_fact
+  raw_text: whisper-tiny, whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:02:01Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 2
+  canonical: peak RSS less than 7GB
+  claim_id: c_368043d9
+  context: T032 Generate `data/derived/resource_monitoring_report.json` and verify
+    peak RSS < 7GB as a gate before proceeding (SC-004)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_less_than_7GB
+  kind: magnitude
+  raw_text: Verify peak RSS < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:02:03Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: semantic similarity score less than 0.5 and word error rate greater than
+    2 times baseline
+  claim_id: c_0ba1c1f6
+  context: 'T019 [US2] Extend `code/metrics.py` to add collapse detection: Identify
+    intensity where SSS < 0.5 (normalized to baseline) AND WER > 2x baseline per FR-004,
+    FR-009'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Semantic_similarity_score_less_than_0.5_and_word_error_rate
+  kind: magnitude
+  raw_text: SSS < 0.5 (normalized to baseline) AND WER > 2x baseline
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:02:22Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: polynomial degree less than or equal to 3 or decision tree max depth
+    less than or equal to 5
+  claim_id: c_a141402c
+  context: "T026 [US3] Implement `code/models.py` to train CPU-tractable regression\
+    \ (Linear/Polynomial degree\u22643 or DT max_depth\u22645) using features from\
+    \ T025a and target HVCM from T030b per FR-005"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Polynomial_degree_less_than_or_equal_to_3_or_decision_tree_m
+  kind: magnitude
+  raw_text: "Polynomial degree\u22643 or DT max_depth\u22645"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:02:38Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 2
+  canonical: 54 compound distortion scenarios
+  claim_id: c_d9c252fd
+  context: T007c [P] Verify dataset coverage for 54 compound distortion scenarios
+    in `code/data_loader.py`; generate all 54 vectors or log a critical failure if
+    the dataset lacks specific combinations, acting as a gate before T012 (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify dataset coverage for 54 compound distortion scenarios
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:03:51Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Use whisper-tiny and all-MiniLM-L-v2 models
+  claim_id: c_20c0e51f
+  context: 'Critical Constraint: All ASR and embedding models MUST run on CPU (no
+    CUDA/GPU). Use `whisper-tiny` and `all-MiniLM-L-v2`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_whisper-tiny_and_all-MiniLM-L-v2_models
+  kind: entity_fact
+  raw_text: Use `whisper-tiny` and `all-MiniLM-L-v2` models
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:04:05Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: peak RSS less than 7GB
+  claim_id: c_476250e3
+  context: T032 Generate `data/derived/resource_monitoring_report.json` and Verify
+    peak RSS < 7GB as a gate before proceeding (SC-004)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_less_than_7GB
+  kind: magnitude
+  raw_text: Verify peak RSS < 7GB as a gate before proceeding
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:04:06Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Linear/Polynomial degree less than or equal to 3 or DT max depth less
+    than or equal to 5
+  claim_id: c_6e8e8437
+  context: "T026 [US3] Implement `code/models.py` to train CPU-tractable regression\
+    \ (Linear/Polynomial degree\u22643 or DT max_depth\u22645) using features from\
+    \ T025a and target HVCM from T030b per FR-005"
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Linear/Polynomial_degree_less_than_or_equal_to_3_or_DT_max_d
+  kind: magnitude
+  raw_text: "Train CPU-tractable regression using Linear/Polynomial degree\u22643\
+    \ or DT max_depth\u22645"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:04:20Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Semantic Similarity Score less than 0.5 normalized to baseline
+  claim_id: c_2d737dd1
+  context: 'T019 [US2] Extend `code/metrics.py` to add collapse detection: Identify
+    intensity where SSS < 0.5 (normalized to baseline) AND WER > 2x baseline per FR-004,
+    FR-009 (Depends on T020b, T020c)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Semantic_Similarity_Score_less_than_0.5_normalized_to_baseli
+  kind: magnitude
+  raw_text: Identify intensity where SSS < 0.5 (normalized to baseline)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:04:38Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Word Error Rate greater than 2 times baseline
+  claim_id: c_7fcbe315
+  context: 'T019 [US2] Extend `code/metrics.py` to add collapse detection: Identify
+    intensity where SSS < 0.5 (normalized to baseline) AND WER > 2x baseline per FR-004,
+    FR-009 (Depends on T020b, T020c)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Word_Error_Rate_greater_than_2_times_baseline
+  kind: magnitude
+  raw_text: Identify intensity where WER > 2x baseline
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:04:51Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Use all-MiniLM-L6-v2 for Semantic Similarity Score
+  claim_id: c_b40ce4ec
+  context: T013 [US1] Implement `code/metrics.py` to compute SSS using `all-MiniLM-L6-v2`
+    (CPU-only) per FR-003
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_all-MiniLM-L6-v2_for_Semantic_Similarity_Score
+  kind: entity_fact
+  raw_text: Use `all-MiniLM-L6-v2` for computing SSS
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:05:09Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Compare critical vectors across whisper-tiny, whisper-small, distil-whisper-base,
+    stt-small-en, wavvec2-base-960h
+  claim_id: c_451c85b2
+  context: 'T028 [US3] Implement cross-model comparison logic to calculate cosine
+    similarity of critical vectors across a set of small ASR models: whisper-tiny,
+    whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h (Depends on
+    T026)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compare_critical_vectors_across_whisper-tiny,_whisper-small,
+  kind: entity_fact
+  raw_text: Compare cosine similarity of critical vectors across whisper-tiny, whisper-small,
+    distil-whisper-base, stt-small-en, wavvec2-base-960h
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:05:22Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: 54 compound distortion scenarios
+  claim_id: c_1210de2a
+  context: Verify dataset coverage for 54 compound distortion scenarios in code/data_loader.py;
+    generate all 54 vectors or log a critical failure if the dataset lacks specific
+    combinations, acting as a gate before T012 (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify dataset coverage for 54 compound distortion scenarios
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:05:37Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Cross-model comparison of whisper-tiny, whisper-small, distil-whisper-base,
+    stt-small-en, wavvec2-base-960h
+  claim_id: c_93a6270f
+  context: 'Implement cross-model comparison logic to calculate cosine similarity
+    of critical vectors across a set of small ASR models: whisper-tiny, whisper-small,
+    distil-whisper-base, stt-small-en, wavvec2-base-960h (Depends on T026)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cross-model_comparison_of_whisper-tiny,_whisper-small,_disti
+  kind: entity_fact
+  raw_text: whisper-tiny, whisper-small, distil-whisper-base, stt-small-en, and wavvec2-base-960h
+    are the ASR models for cross-model comparison
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:05:52Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Peak RSS limit of 7GB
+  claim_id: c_f828eeb2
+  context: Generate data/derived/resource_monitoring_report.json and Verify peak RSS
+    < 7GB as a gate before proceeding (SC-004)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_limit_of_7GB
+  kind: entity_fact
+  raw_text: Verify peak RSS < 7GB as a gate before proceeding
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:05:54Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: SSS computation using all-MiniLM-L6-v2
+  claim_id: c_9530b01c
+  context: Implement code/metrics.py to compute SSS using all-MiniLM-L6-v2 (CPU-only)
+    per FR-003
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SSS_computation_using_all-MiniLM-L6-v2
+  kind: entity_fact
+  raw_text: Use all-MiniLM-L6-v2 model for SSS computation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:06:14Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: WER computation using jiwer
+  claim_id: c_16bb5fb3
+  context: Implement code/metrics.py to compute WER using jiwer for baseline and distorted
+    hypotheses per FR-009
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/WER_computation_using_jiwer
+  kind: entity_fact
+  raw_text: Use jiwer library for WER computation
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:06:32Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Use of LibriSpeech and CORAA-MUPE-ASR datasets
+  claim_id: c_b611480d
+  context: 'Data Integrity: Use real data from LibriSpeech/CORAA-MUPE-ASR. No synthetic
+    data fabrication.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_of_LibriSpeech_and_CORAA-MUPE-ASR_datasets
+  kind: entity_fact
+  raw_text: Use LibriSpeech and CORAA-MUPE-ASR datasets
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:06:48Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 3
+  canonical: 54 compound distortion scenarios
+  claim_id: c_80d555af
+  context: T007c [P] Verify dataset coverage for 54 compound distortion scenarios
+    in code/data_loader.py; generate all 54 vectors or log a critical failure if the
+    dataset lacks specific combinations, acting as a gate before T012 (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify dataset coverage for 54 compound distortion scenarios
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:09:27Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: 500 human annotations
+  claim_id: c_99781658
+  context: 'Critical Constraint: All ASR and embedding models MUST run on CPU (no
+    CUDA/GPU). Use whisper-tiny and all-MiniLM-L-v2. ... Human Validation: FR-011
+    requires generating exactly 500 human annotations (T030a) before US2/US3 validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate exactly 500 human annotations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:09:40Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: SSS < 0.5 normalized baseline and WER > 2x baseline collapse criteria
+  claim_id: c_596a36c6
+  context: 'T019 [US2] Extend code/metrics.py to add collapse detection: Identify
+    intensity where SSS < 0.5 (normalized to baseline) AND WER > 2x baseline per FR-004,
+    FR-009 (Depends on T020b, T020c)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify intensity where SSS < 0.5 (normalized to baseline) AND WER >
+    2x baseline
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:09:40Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: peak RSS < 7GB resource limit
+  claim_id: c_66053385
+  context: T032 Generate data/derived/resource_monitoring_report.json and Verify peak
+    RSS < 7GB as a gate before proceeding (SC-004)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/peak_RSS_%3C_7GB_resource_limit
+  kind: entity_fact
+  raw_text: Verify peak RSS < 7GB as a gate before proceeding
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:09:41Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: "Polynomial degree \u2264 3 or Decision Tree max_depth \u2264 5 regression\
+    \ constraints"
+  claim_id: c_315f1bc2
+  context: "T026 [US3] Implement code/models.py to train CPU-tractable regression\
+    \ (Linear/Polynomial degree\u22643 or DT max_depth\u22645) using features from\
+    \ T025a and target HVCM from T030b per FR-005"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Train CPU-tractable regression (Linear/Polynomial degree\u22643 or DT\
+    \ max_depth\u22645)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:09:41Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Cosine similarity of critical vectors across 5 ASR models (whisper-tiny,
+    whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h)
+  claim_id: c_811e936d
+  context: 'T028 [US3] Implement cross-model comparison logic to calculate cosine
+    similarity of critical vectors across a set of small ASR models: whisper-tiny,
+    whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h (Depends on
+    T026)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Calculate cosine similarity of critical vectors across a set of small
+    ASR models: whisper-tiny, whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:09:41Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 2
+  canonical: dataset coverage for 54 compound distortion scenarios
+  claim_id: c_9d89fda1
+  context: T007c [P] Verify dataset coverage for 54 compound distortion scenarios
+    in code/data_loader.py; generate all 54 vectors or log a critical failure if the
+    dataset lacks specific combinations, acting as a gate before T012 (FR-002)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify dataset coverage for 54 compound distortion scenarios in code/data_loader.py
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:10:56Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: apply 54 compound distortion vectors (SNR/RT60 combinations)
+  claim_id: c_b081c6c1
+  context: T012 [US1] Implement code/distortion_engine.py to apply 54 compound distortion
+    vectors (SNR/RT60 combinations) incrementally per FR-002
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply 54 compound distortion vectors (SNR/RT60 combinations) incrementally
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:11:13Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: generate exactly 500 human annotations
+  claim_id: c_a9b6fe89
+  context: 'Critical Constraint: Human Validation: FR-011 requires generating exactly
+    500 human annotations (T030a) before US2/US3 validation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate exactly 500 human annotations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:11:13Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: verify peak RSS less than 7GB
+  claim_id: c_f7a70517
+  context: T032 Generate data/derived/resource_monitoring_report.json and Verify peak
+    RSS < 7GB as a gate before proceeding (SC-004)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_peak_RSS_less_than_7GB
+  kind: magnitude
+  raw_text: Verify peak RSS < 7GB as a gate before proceeding
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:11:15Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: correlate SSS-based collapse with Human-Validated Collapse Margin (HVCM)
+  claim_id: c_a2f90411
+  context: 'T029 [US3] Implement validation against held-out human-annotated subset:
+    Correlate SSS-based collapse with Human-Validated Collapse Margin (HVCM) from
+    data/validation/human_annotations.csv per FR-011'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Correlate_SSS-based_collapse_with_Human-Validated_Collapse_M
+  kind: entity_fact
+  raw_text: Correlate SSS-based collapse with Human-Validated Collapse Margin (HVCM)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:11:32Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: cross-model comparison using whisper-tiny, whisper-small, distil-whisper-base,
+    stt-small-en, wavvec2-base-960h
+  claim_id: c_5f9774f0
+  context: 'T028 [US3] Implement cross-model comparison logic to calculate cosine
+    similarity of critical vectors across a set of small ASR models: whisper-tiny,
+    whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h (Depends on
+    T026)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cross-model_comparison_using_whisper-tiny,_whisper-small,_di
+  kind: entity_fact
+  raw_text: Use whisper-tiny, whisper-small, distil-whisper-base, stt-small-en, wavvec2-base-960h
+    for cross-model comparison
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:11:48Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Data sources include LibriSpeech and CORAA-MUPE-ASR subsets
+  claim_id: c_33449603
+  context: Fetch and verify checksums for LibriSpeech subset... Fetch and verify checksums
+    for CORAA-MUPE-ASR subset
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_sources_include_LibriSpeech_and_CORAA-MUPE-ASR_subsets
+  kind: entity_fact
+  raw_text: The project utilizes a LibriSpeech subset and a CORAA-MUPE-ASR subset
+    for data.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:13:33Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: 54 compound distortion scenarios generated
+  claim_id: c_6f971a63
+  context: Verify dataset coverage for 54 compound distortion scenarios... apply 54
+    compound distortion vectors (SNR/RT60 combinations)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system generates 54 compound distortion scenarios involving SNR and
+    RT60 combinations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:13:48Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: SSS computed using all-MiniLM-L6-v2 model
+  claim_id: c_18e6b56a
+  context: Implement code/metrics.py to compute SSS using all-MiniLM-L6-v2 (CPU-only)
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P296: SSS'
+      source_id: Q801455
+      url: https://www.wikidata.org/wiki/Q801455
+      value: SSS
+    filled: true
+  kind: entity_fact
+  raw_text: The Semantic Similarity Score (SSS) is computed using the all-MiniLM-L6-v2
+    model.
+  resolved_value: SSS
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T11:13:55Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: WER computed using jiwer library
+  claim_id: c_0c6c8bad
+  context: Implement code/metrics.py to compute WER using jiwer for baseline and distorted
+    hypotheses
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/WER_computed_using_jiwer_library
+  kind: entity_fact
+  raw_text: The Word Error Rate (WER) is computed using the jiwer library.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:14:16Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Collapse defined as SSS < 0.5 and WER > 2x baseline
+  claim_id: c_03a58037
+  context: Identify intensity where SSS < 0.5 (normalized to baseline) AND WER > 2x
+    baseline
+  evidence:
+    asserted: '0.5'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: Semantic collapse is defined as the point where SSS drops below 0.5 (normalized
+    to baseline) and WER spikes greater than 2x the baseline.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-07-17T11:14:16Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Interaction terms SNRxRT60, SNR^2, RT60^2 included
+  claim_id: c_a978807b
+  context: "Implement code/models.py function generate_interaction_terms to explicitly\
+    \ create engineered interaction terms (SNR\xD7RT60, SNR\xB2, RT60\xB2)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The regression model features include interaction terms SNR\xD7RT60,\
+    \ SNR\xB2, and RT60\xB2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:14:29Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Regression model limited to Linear, Poly degree 3, or DT depth 5
+  claim_id: c_9d4ce604
+  context: "Implement code/models.py to train CPU-tractable regression (Linear/Polynomial\
+    \ degree\u22643 or DT max_depth\u22645)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The regression model is constrained to Linear, Polynomial degree \u2264\
+    \ 3, or Decision Tree max_depth \u2264 5."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:14:29Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: 'Models compared: whisper-tiny, whisper-small, distil-whisper-base, stt-small-en,
+    wavvec2-base-960h'
+  claim_id: c_899fe544
+  context: 'Implement cross-model comparison logic to calculate cosine similarity
+    of critical vectors across a set of small ASR models: whisper-tiny, whisper-small,
+    distil-whisper-base, stt-small-en, wavvec2-base-960h'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Models_compared:_whisper-tiny,_whisper-small,_distil-whisper
+  kind: entity_fact
+  raw_text: The cross-model comparison includes whisper-tiny, whisper-small, distil-whisper-base,
+    stt-small-en, and wavvec2-base-960h.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:14:46Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: 500 human annotations required
+  claim_id: c_82b1c988
+  context: FR-011 requires generating exactly 500 human annotations (T030a) before
+    US2/US3 validation
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires exactly 500 human annotations for the validation
+    subset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:15:03Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Peak RSS must be less than 7GB
+  claim_id: c_2b1ea1c4
+  context: Verify peak RSS < 7GB as a gate before proceeding
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Peak_RSS_must_be_less_than_7GB
+  kind: magnitude
+  raw_text: The peak RSS resource usage must be less than 7GB.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-17T11:15:24Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: hysteresis requires 3 consecutive steps below threshold for oscillating
+    SSS
+  claim_id: c_0b9809e8
+  context: 'Implement validation logic in code/metrics.py to handle edge cases: hysteresis
+    requires K=3 consecutive steps below threshold for oscillating SSS, empty ASR
+    output maps to lowest intensity vector with warning, and missing distortion scenarios
+    (FR-001 edge cases)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: hysteresis requires K=3 consecutive steps below threshold for oscillating
+    SSS
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:22:30Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: HVCM calculation uses linear interpolation between 2 and 3 on 0-5 Likert
+    scale
+  claim_id: c_d17aec29
+  context: 'Implement Human-Validated Collapse Margin (HVCM) calculation in code/metrics.py
+    to derive the primary regression target from data/validation/human_annotations.csv
+    and data/derived/stress_curves.parquet, breaking circularity per plan.md. Logic:
+    HVCM = SSS-based collapse point - human-annotated collapse point (derived from
+    0-5 Likert scores using linear interpolation between scores 2 and 3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: HVCM = SSS-based collapse point - human-annotated collapse point (derived
+    from 0-5 Likert scores using linear interpolation between scores 2 and 3)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:23:14Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: interaction terms SNR times RT60 SNR squared and RT60 squared passed
+    as features
+  claim_id: c_36d2dbab
+  context: "Implement code/models.py to train CPU-tractable regression (Linear/Polynomial\
+    \ degree\u22643 or DT max_depth\u22645) using features from T025a and target HVCM\
+    \ from T030b per FR-005; Explicitly verify that generated interaction terms are\
+    \ passed as features to the model (Merged T025b into T026) (Depends on T030b,\
+    \ T025a)"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Interaction_terms_SNR_times_RT60_SNR_squared_and_RT60_square
+  kind: entity_fact
+  raw_text: verify that generated interaction terms are passed as features to the
+    model
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:23:43Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: threshold stability verification raises error if variance exceeds 10
+    percent between 0.40 and 0.60
+  claim_id: c_6bf8a48e
+  context: 'Threshold Stability Verification (FR-006 Sensitivity Analysis): Implement
+    code/analysis.py function verify_threshold_stability that runs the regression
+    model multiple times with thresholds ranging from 0.40 to 0.60, extracts the critical
+    interaction vector for each, calculates the sign/magnitude variance, and raises
+    a RuntimeError if variance > 10% (Resolves FR-006 and SC-002; Depends on T026)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: calculate the sign/magnitude variance, and raises a RuntimeError if variance
+    > 10% when thresholds range from 0.40 to 0.60
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:23:43Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: assert runtime less than 6 hours and RSS less than 7GB
+  claim_id: c_6fdc5527
+  context: 'Constraint Verification: Add a check in code/monitor_resources.py to explicitly
+    assert that runtime < 6 hours and RSS < 7GB, raising an error if violated (Resolves
+    SC-004 incompleteness)'
+  evidence:
+    candidates:
+    - - RSS less than
+      - 7.0
+    - - Assert runtime less than
+      - 6.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Assert_runtime_less_than_6_hours_and_RSS_less_than_7GB
+  kind: magnitude
+  raw_text: assert that runtime < 6 hours and RSS < 7GB, raising an error if violated
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-23T09:24:05Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: verify critical interaction vector change less than 10 percent between
+    thresholds 0.40 and 0.60
+  claim_id: c_d787f837
+  context: Implement a Threshold Stability check in code/analysis.py that verifies
+    the critical interaction vector does not change sign or magnitude by >10% when
+    the collapse threshold is swept from 0.40 to 0.60 (Validates FR-006 and SC-002;
+    Replaced by T053)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_critical_interaction_vector_change_less_than_10_perce
+  kind: magnitude
+  raw_text: Verify the critical interaction vector does not change sign or magnitude
+    by >10% when the collapse threshold is swept from 0.40 to 0.60
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:24:51Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: raise warning if statistical power less than 0.8
+  claim_id: c_4c44b939
+  context: 'Implement Power Analysis for Sample Size: Add a unit test in tests/unit/test_statistics.py
+    that calculates the statistical power of the regression model given the final
+    sample size and expected effect size. Raise a warning if power < 0.8. (Resolves
+    statistical rigor requirement; Depends on T024, T059)'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_warning_if_statistical_power_less_than_0.8
+  kind: magnitude
+  raw_text: Raise a warning if power < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:26:07Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: use real data from LibriSpeech and CORAA-MUPE-ASR without synthetic data
+    fabrication
+  claim_id: c_f23d46cc
+  context: 'Data Integrity: Use real data from LibriSpeech/CORAA-MUPE-ASR. No synthetic
+    data fabrication.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_real_data_from_LibriSpeech_and_CORAA-MUPE-ASR_without_sy
+  kind: entity_fact
+  raw_text: Use real data from LibriSpeech/CORAA-MUPE-ASR. No synthetic data fabrication.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:26:32Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: use whisper-tiny and all-MiniLM-L-v2 models
+  claim_id: c_94e9f03d
+  context: 'Critical Constraint: All ASR and embedding models MUST run on CPU (no
+    CUDA/GPU). Use whisper-tiny and all-MiniLM-L-v2.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_whisper-tiny_and_all-MiniLM-L-v2_models
+  kind: entity_fact
+  raw_text: Use whisper-tiny and all-MiniLM-L-v2
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:26:53Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: define 0-5 Likert scale criteria with 0 as unintelligible 3 as moderate
+    distortion and 5 as perfect
+  claim_id: c_5c8f819f
+  context: 'Human Annotation Protocol Finalization: Draft a detailed docs/annotation_protocol.md
+    defining the exact 0-5 Likert scale criteria (e.g., 0=Unintelligible, 3=Moderate
+    distortion, 5=Perfect) and generate a code/annotation_tool.py script that presents
+    distorted clips to a human annotator via a simple CLI or web interface.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define the exact 0-5 Likert scale criteria (e.g., 0=Unintelligible, 3=Moderate
+    distortion, 5=Perfect)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:27:21Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: schema includes clip_id distortion_vector_id and human_intelligibility_score_0_5
+  claim_id: c_9df104e0
+  context: 'Annotation Tool Implementation: Implement code/annotation_tool.py to load
+    a stratified sample of clips from data/derived/stress_curves.parquet and present
+    them to a human annotator via a CLI interface, collecting data/validation/human_annotations.csv.
+    Schema: clip_id, distortion_vector_id, human_intelligibility_score_0_5. (Depends
+    on T050)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Schema_includes_clip_id_distortion_vector_id_and_human_intel
+  kind: entity_fact
+  raw_text: 'schema: clip_id, distortion_vector_id, human_intelligibility_score_0_5'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:27:48Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Prevent out of memory errors with over 7GB RAM usage via streaming and
+    chunked iteration
+  claim_id: c_8e79c191
+  context: Fetch and verify checksums for LibriSpeech subset in code/data_loader.py;
+    implement streaming=True and chunked iteration to prevent OOM (>7GB RAM) as per
+    FR-001
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prevent_out_of_memory_errors_with_over_7GB_RAM_usage_via_str
+  kind: entity_fact
+  raw_text: Implement streaming=True and chunked iteration to prevent OOM (>7GB RAM)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:33:34Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Hysteresis logic requires 3 consecutive steps below threshold for oscillating
+    semantic similarity score
+  claim_id: c_1e78550c
+  context: 'Implement validation logic in code/metrics.py to handle edge cases: hysteresis
+    requires K=3 consecutive steps below threshold for oscillating SSS'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: hysteresis requires K=3 consecutive steps below threshold for oscillating
+    SSS
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:33:34Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Identify collapse intensity where word error rate is greater than 2 times
+    the baseline
+  claim_id: c_57c04395
+  context: Identify intensity where SSS < 0.5 (normalized to baseline) AND WER > 2x
+    baseline per FR-004, FR-009
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Identify_collapse_intensity_where_word_error_rate_is_greater
+  kind: magnitude
+  raw_text: WER > 2x baseline
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:34:13Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Human annotation uses a 0 to 5 Likert scale for intelligibility
+  claim_id: c_c0512dba
+  context: 'Schema: clip_id, distortion_vector_id, human_intelligibility_score_0_5'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: human_intelligibility_score_0_5
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:34:30Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Derive human-annotated collapse point using linear interpolation between
+    scores 2 and 3
+  claim_id: c_f91cd822
+  context: 'Logic: HVCM = SSS-based collapse point - human-annotated collapse point
+    (derived from 0-5 Likert scores using linear interpolation between scores 2 and
+    3)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: linear interpolation between scores 2 and 3
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:34:51Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Verify interaction terms SNR times RT60, SNR squared, and RT60 squared
+    are passed as features
+  claim_id: c_d98b8b34
+  context: Implement code/models.py to train CPU-tractable regression... Explicitly
+    verify that generated interaction terms are passed as features to the model
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_interaction_terms_SNR_times_RT60,_SNR_squared,_and_RT
+  kind: entity_fact
+  raw_text: verify that generated interaction terms are passed as features to the
+    model
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:34:53Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Raise RuntimeError if sign or magnitude variance of critical interaction
+    vector exceeds 10 percent
+  claim_id: c_64e7a308
+  context: calculates the sign/magnitude variance, and raises a RuntimeError if variance
+    > 10%
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: variance > 10%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:34:53Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Run regression model with thresholds ranging from 0.40 to 0.60 for stability
+    verification
+  claim_id: c_dff4e845
+  context: runs the regression model multiple times with thresholds ranging from 0.40
+    to 0.60
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: thresholds ranging from 0.40 to 0.60
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:35:21Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Assert runtime is less than 6 hours and peak RSS is less than 7GB
+  claim_id: c_56a3a69f
+  context: Add a check in code/monitor_resources.py to explicitly assert that runtime
+    < 6 hours and RSS < 7GB
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Assert_runtime_is_less_than_6_hours_and_peak_RSS_is_less_tha
+  kind: magnitude
+  raw_text: runtime < 6 hours and RSS < 7GB
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:36:04Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/specs/001-llmxive-follow-up-extending-mega-asr-tow/tasks.md
+  attempts: 1
+  canonical: Raise a warning if statistical power is less than 0.8
+  claim_id: c_ca60d04c
+  context: calculates the statistical power of the regression model given the final
+    sample size and expected effect size. Raise a warning if power < 0.8
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_a_warning_if_statistical_power_is_less_than_0.8
+  kind: magnitude
+  raw_text: power < 0.8
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T09:36:35Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/docs/quickstart.md
+  attempts: 1
+  canonical: 10 real audio clips downloaded
+  claim_id: c_fd47341e
+  context: The quickstart runs a minimal pilot that downloads real audio clips from
+    the public dataset.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Downloads 10 real audio clips (and their transcripts) from the public\
+    \ dataset Voices\u2011in\u2011the\u2011Wild\u20112M"
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T00:34:44Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/docs/quickstart.md
+  attempts: 1
+  canonical: Semantic Similarity Score is 1.0 for each clip
+  claim_id: c_9c984024
+  context: "Computes a Semantic Similarity Score (SSS) for each clip using the sentence\u2011\
+    transformers model."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: the SSS is deterministically 1.0 for every clip
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T00:34:45Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/docs/quickstart.md
+  attempts: 1
+  canonical: Word Error Rate is 0.0 for each clip
+  claim_id: c_bc4fc695
+  context: Computes WER (Word Error Rate) using jiwer; with identical reference and
+    hypothesis it is 0.0.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: WER ... it is 0.0
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T00:34:45Z'
+- artifact_path: projects/PROJ-844-llmxive-follow-up-extending-mega-asr-tow/docs/quickstart.md
+  attempts: 1
+  canonical: three Parquet artifacts generated each with at least one row
+  claim_id: c_a3f9db1d
+  context: The pipeline creates stress_curves.parquet, collapse_points.parquet, and
+    critical_vector.parquet.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Generates three Parquet artifacts ... each containing at least one row
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-22T00:34:45Z'

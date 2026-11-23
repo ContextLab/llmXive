@@ -27,7 +27,7 @@ This project implements a **Pipeline Validation** for predicting plant drought t
 - Memory usage < 7 GB.
 - **Data Constraint**: Genomic features and target labels are synthetic placeholders due to lack of verified sources.
 - Strict reproducibility (random seeds pinned).
-**Scale/Scope**: A diverse set of species (input list), A set of synthetic genomic features, ~-20 physiological traits.
+**Scale/Scope**: A diverse set of species (input list), A set of synthetic genomic features, ~ physiological traits.
 
 ## Constitution Check
 
@@ -91,7 +91,7 @@ projects/PROJ-197-predicting-plant-drought-tolerance-from-/
 ## Complexity Tracking
 
 No violations detected. Complexity managed by:
-1.  Limiting species list to 50.
+1.  Limiting the species list to a manageable subset.
 2.  Using CPU-optimized tree-based models.
 3.  Using synthetic data for genomic/label components to ensure pipeline logic is testable.
 

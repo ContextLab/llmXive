@@ -25,18 +25,17 @@ properties:
     description: "Text summary of detection overlap"
   sensitivity_analysis:
     type: "object"
-    description: "Sensitivity analysis results"
+    description: "Proportion of static‑only detections per LOC threshold"
     additionalProperties:
       type: "object"
       properties:
-        false_positive_rate:
+        static_only_proportion:
           type: "number"
           minimum: 0
           maximum: 1
-        false_negative_rate:
-          type: "number"
-          minimum: 0
-          maximum: 1
+      required:
+        - static_only_proportion
+      additionalProperties: false
   vif_scores:
     type: "object"
     description: "Variance Inflation Factor scores"

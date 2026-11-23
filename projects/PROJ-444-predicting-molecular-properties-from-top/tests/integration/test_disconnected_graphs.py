@@ -1,239 +1,188 @@
-"""
-Integration test for disconnected graph handling in molecular TDA pipeline.
-
-This test verifies that the pipeline correctly handles molecules that result in
-disconnected graphs (e.g., salts, mixtures, or invalid SMILES that split into
-multiple components) during the shortest-path filtration process.
-
-Expected behavior:
-1. The graph builder should detect disconnected components.
-2. The persistence computation should either:
-   a) Handle each component separately and merge results, OR
-   b) Raise a specific error/warning that is caught and logged.
-3. The output should not crash the pipeline.
-4. Topological features should be computed or a zero-vector fallback used.
-"""
-
-import os
-import sys
-import logging
-import tempfile
-from pathlib import Path
-from typing import List, Tuple, Dict, Any
-
+import pytest
 import numpy as np
 import pandas as pd
+from pathlib import Path
+import sys
+import logging
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root))
+# Add code directory to path
+project_root = Path("projects/PROJ-444-predicting-molecular-properties-from-top")
+sys.path.insert(0, str(project_root / "code"))
 
-from utils.graph_builder import build_molecular_graph, is_valid_molecule, log_invalid_smiles
-from utils.persistence_utils import (
-    compute_shortest_path_matrix,
-    build_shortest_path_filtration,
-    compute_persistence_diagram,
-    handle_empty_diagram,
-    get_topological_features
-)
+from utils.graph_builder import build_molecular_graph, is_valid_molecule
+from utils.persistence_utils import compute_persistence_diagram, handle_empty_diagram, vectorize
+import networkx as nx
 
-# Configure logging for the test
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+# Configure logging to see debug info during tests if needed
+logging.basicConfig(level=logging.INFO)
 
-# Sample SMILES strings that may result in disconnected graphs
-# These include salts (e.g., sodium chloride), mixtures, and potentially invalid structures
-DISCONNECTED_SMILES_CASES = [
-    ("Na.[Cl]", "Sodium chloride (ionic salt, likely disconnected in graph representation)"),
-    ("CCO.CN", "Ethanol and Methylamine mixture"),
-    ("CC(=O)O.[Na+]", "Sodium acetate (salt)"),
-    ("O=C(O)C.[Na+]", "Sodium formate (salt)"),
-    ("c1ccccc1.c1ccccc1", "Biphenyl (should be connected, but included for contrast)"),
-    ("C1CC1.C1CC1", "Two cyclopropane molecules (disconnected)"),
-]
-
-def test_disconnected_graph_handling() -> None:
+def test_disconnected_graph_handling():
     """
-    Integration test to verify handling of disconnected molecular graphs.
-
-    This test:
-    1. Iterates through known disconnected SMILES cases.
-    2. Attempts to build molecular graphs.
-    3. Computes persistence diagrams.
-    4. Verifies that the pipeline handles these cases gracefully.
+    Test that disconnected graphs (e.g., mixtures) are handled gracefully.
+    RDKit may return a graph with multiple components for mixture SMILES.
     """
-    logger.info("Starting integration test for disconnected graph handling...")
+    # SMILES representing a mixture (two separate molecules)
+    mixture_smiles = "CCO.CC(=O)O"  # Ethanol + Acetic acid
 
-    results = []
-    failed_cases = []
+    mol = is_valid_molecule(mixture_smiles)
+    assert mol is not None, "Mixture SMILES should be valid in RDKit"
 
-    for smiles, description in DISCONNECTED_SMILES_CASES:
-        logger.info(f"Testing: {description} ({smiles})")
+    graph = build_molecular_graph(mol)
+    assert graph is not None, "Graph should be built for mixture"
 
-        try:
-            # Step 1: Validate and build graph
-            if not is_valid_molecule(smiles):
-                logger.warning(f"SMILES {smiles} is not valid according to RDKit.")
-                # Log invalid and skip
-                log_invalid_smiles(smiles, "Invalid SMILES format")
-                results.append({
-                    "smiles": smiles,
-                    "description": description,
-                    "status": "skipped_invalid",
-                    "error": "Invalid SMILES"
-                })
-                continue
+    # Check if graph is disconnected
+    num_components = nx.number_connected_components(graph)
+    assert num_components > 1, "Mixture should produce a disconnected graph"
 
-            graph = build_molecular_graph(smiles)
+    # Compute persistence diagram - should handle disconnected components
+    try:
+        diagram = compute_persistence_diagram(graph)
+        # Diagram might be empty or have features from all components
+        assert isinstance(diagram, list), "Diagram should be a list"
+        # If there are features, verify structure
+        if len(diagram) > 0:
+            for point in diagram:
+                assert len(point) == 2, "Each point in diagram must have 2 values (birth, death)"
+                assert point[0] <= point[1], "Birth must be <= death"
+    except Exception as e:
+        pytest.fail(f"Failed to compute persistence diagram for disconnected graph: {e}")
 
-            if graph is None:
-                logger.warning(f"Failed to build graph for {smiles}")
-                results.append({
-                    "smiles": smiles,
-                    "description": description,
-                    "status": "failed_build",
-                    "error": "Graph build returned None"
-                })
-                continue
+def test_empty_graph_handling():
+    """Test handling of invalid molecules that result in empty graphs."""
+    invalid_smiles = "invalid_smiles_string_123"
+    mol = is_valid_molecule(invalid_smiles)
+    assert mol is None, "Invalid SMILES should return None"
 
-            # Check for disconnected components
-            num_components = nx.number_connected_components(graph)
-            logger.info(f"Graph for {smiles} has {num_components} connected components.")
+    # Should not crash when handling None
+    try:
+        diagram = handle_empty_diagram(None)
+        assert diagram == [], "Empty diagram should return empty list"
+    except Exception as e:
+        pytest.fail(f"Failed to handle empty graph: {e}")
 
-            if num_components > 1:
-                logger.info(f"Discovered disconnected graph with {num_components} components for {smiles}")
+def test_single_node_graph():
+    """Test handling of a molecule with only one atom (rare but possible)."""
+    # RDKit typically rejects single atom molecules as invalid organic molecules
+    # We test the logic flow by explicitly creating a graph with one node if possible,
+    # or verifying the robustness of the diagram computation on small graphs.
+    # For this test, we verify that a minimal valid graph (e.g., a single bond) works.
+    smiles = "CC"  # Ethane (minimal non-trivial)
+    mol = is_valid_molecule(smiles)
+    assert mol is not None
+    graph = build_molecular_graph(mol)
+    assert graph is not None
 
-                # Step 2: Handle disconnected components
-                # Strategy: Process largest component only, or merge diagrams
-                # For this test, we will process the largest component
-                largest_cc = max(nx.connected_components(graph), key=len)
-                largest_subgraph = graph.subgraph(largest_cc)
+    # Ensure the graph is connected (single component)
+    assert nx.number_connected_components(graph) == 1, "Ethane should be connected"
 
-                logger.info(f"Processing largest component of size {len(largest_subgraph.nodes)}")
+    diagram = compute_persistence_diagram(graph)
+    assert isinstance(diagram, list)
+    if len(diagram) > 0:
+        for point in diagram:
+            assert len(point) == 2
+            assert point[0] <= point[1]
 
-                # Step 3: Compute shortest path matrix on largest component
-                try:
-                    dist_matrix = compute_shortest_path_matrix(largest_subgraph)
-                    if dist_matrix is None or len(dist_matrix) == 0:
-                        logger.warning(f"Empty distance matrix for {smiles}")
-                        # Fallback to empty diagram handling
-                        features = handle_empty_diagram()
-                    else:
-                        # Step 4: Build filtration and compute diagram
-                        filtration = build_shortest_path_filtration(dist_matrix)
-                        diagram = compute_persistence_diagram(filtration)
+def test_persistence_diagram_structure():
+    """Test that persistence diagrams have the expected structure."""
+    # Create a simple valid molecule
+    smiles = "CCO"  # Ethanol
+    mol = is_valid_molecule(smiles)
+    graph = build_molecular_graph(mol)
 
-                        # Step 5: Get topological features
-                        features = get_topological_features(diagram)
+    diagram = compute_persistence_diagram(graph)
 
-                    results.append({
-                        "smiles": smiles,
-                        "description": description,
-                        "status": "success_disconnected_handled",
-                        "num_components": num_components,
-                        "largest_component_size": len(largest_subgraph.nodes),
-                        "features": features
-                    })
+    # Diagram should be a list of (birth, death) tuples
+    assert isinstance(diagram, list), "Diagram must be a list"
+    if len(diagram) > 0:
+        for point in diagram:
+            assert len(point) == 2, "Each point in diagram must have 2 values (birth, death)"
+            assert point[0] <= point[1], "Birth must be <= death"
 
-                except Exception as e:
-                    logger.error(f"Error in TDA computation for {smiles}: {str(e)}")
-                    failed_cases.append({
-                        "smiles": smiles,
-                        "description": description,
-                        "error": str(e),
-                        "traceback": sys.exc_info()[2]
-                    })
-                    results.append({
-                        "smiles": smiles,
-                        "description": description,
-                        "status": "failed_tda_computation",
-                        "error": str(e)
-                    })
-
-            else:
-                # Connected graph - standard processing
-                dist_matrix = compute_shortest_path_matrix(graph)
-                if dist_matrix is None or len(dist_matrix) == 0:
-                    features = handle_empty_diagram()
-                else:
-                    filtration = build_shortest_path_filtration(dist_matrix)
-                    diagram = compute_persistence_diagram(filtration)
-                    features = get_topological_features(diagram)
-
-                results.append({
-                    "smiles": smiles,
-                    "description": description,
-                    "status": "success_connected",
-                    "num_components": num_components,
-                    "features": features
-                })
-
-        except Exception as e:
-            logger.error(f"Unexpected error processing {smiles}: {str(e)}")
-            failed_cases.append({
-                "smiles": smiles,
-                "description": description,
-                "error": str(e)
-            })
-            results.append({
-                "smiles": smiles,
-                "description": description,
-                "status": "unexpected_error",
-                "error": str(e)
-            })
-
-    # Summary
-    logger.info(f"Test completed. Total cases: {len(DISCONNECTED_SMILES_CASES)}")
-    logger.info(f"Successful (including disconnected handled): {sum(1 for r in results if 'success' in r['status'])}")
-    logger.info(f"Skipped (invalid): {sum(1 for r in results if r['status'] == 'skipped_invalid')}")
-    logger.info(f"Failed: {len(failed_cases)}")
-
-    # Assertions
-    assert len(results) > 0, "No results were generated"
-
-    # We expect at least some disconnected cases to be handled successfully
-    # If all disconnected cases fail, the integration test fails
-    disconnected_handled = [r for r in results if r['status'] == 'success_disconnected_handled']
-    if len(disconnected_handled) > 0:
-        logger.info("SUCCESS: Disconnected graphs were handled correctly.")
-    else:
-        # Check if there were any disconnected cases to handle
-        disconnected_attempted = [r for r in results if r['status'] in ['failed_tda_computation', 'unexpected_error']
-                                  and any('disconnected' in d.lower() or 'salt' in d.lower() or 'mixture' in d.lower()
-                                          for _, d in DISCONNECTED_SMILES_CASES if r['smiles'] in _)]
-
-        # If we had disconnected cases but none were handled, it's a failure
-        # However, if all cases were invalid or connected, it's not necessarily a failure
-        logger.warning("No disconnected graphs were successfully handled. Check input cases.")
-
-    # Ensure that the pipeline doesn't crash on disconnected graphs
-    # If any case resulted in a crash (unhandled exception), the test fails
-    # (This is implicitly checked by the try/except blocks above)
-
-    logger.info("Integration test for disconnected graphs completed.")
-
-def test_empty_diagram_fallback() -> None:
+def test_disconnected_components_individual_features():
     """
-    Test that the empty diagram fallback returns valid features.
+    Verify that when a graph has multiple components, the persistence diagram
+    aggregates features from all components correctly.
     """
-    logger.info("Testing empty diagram fallback...")
-    features = handle_empty_diagram()
+    # A mixture of two distinct molecules
+    mixture_smiles = "CC.CCO"  # Ethane + Ethanol
 
-    assert features is not None, "Empty diagram fallback returned None"
-    assert isinstance(features, dict), "Empty diagram fallback should return a dict"
+    mol = is_valid_molecule(mixture_smiles)
+    assert mol is not None
 
-    # Check for expected keys (based on get_topological_features output structure)
-    expected_keys = ['persistence_entropy', 'persistence_euclidean', 'betti_0_sum', 'betti_1_sum']
-    for key in expected_keys:
-        assert key in features, f"Missing expected key in empty diagram features: {key}"
+    graph = build_molecular_graph(mol)
+    assert graph is not None
 
-    logger.info("Empty diagram fallback test passed.")
+    num_components = nx.number_connected_components(graph)
+    assert num_components == 2, "Mixture should produce exactly 2 components"
 
-if __name__ == "__main__":
-    test_empty_diagram_fallback()
-    test_disconnected_graph_handling()
-    logger.info("All integration tests passed.")
-    sys.exit(0)
+    # Compute diagram
+    diagram = compute_persistence_diagram(graph)
+
+    # The diagram should contain features from both components.
+    # While we can't easily predict exact counts without running the algorithm,
+    # we verify that the result is not empty and has valid structure.
+    assert isinstance(diagram, list)
+    assert len(diagram) > 0, "Disconnected graph should still produce features"
+
+    for point in diagram:
+        assert len(point) == 2
+        assert point[0] <= point[1]
+
+def test_tda_vector_is_zero_for_disconnected_molecules():
+    """
+    Integration test for disconnected graph handling.
+    Input: data/raw/test_disconnected.csv (contains known disconnected SMILES).
+    Assertion: assert tda_vector == [0.0]*100 for disconnected IDs.
+    Verification: Run test and confirm zero-vector output.
+    
+    NOTE: This test assumes that the persistence_utils.vectorize function
+    returns a zero-vector when the input graph is disconnected or has no
+    persistent features (empty diagram).
+    """
+    input_file = project_root / "data" / "raw" / "test_disconnected.csv"
+    
+    if not input_file.exists():
+        pytest.fail(f"Input file {input_file} not found. Ensure test_disconnected.csv exists.")
+    
+    df = pd.read_csv(input_file)
+    
+    resolution = 100  # 10x10 grid flattened
+    expected_zero_vector = [0.0] * resolution
+
+    for _, row in df.iterrows():
+        smiles = row['smiles']
+        mol_id = row['molecule_id']
+        
+        mol = is_valid_molecule(smiles)
+        if mol is None:
+            pytest.fail(f"Invalid SMILES in test file: {smiles}")
+        
+        graph = build_molecular_graph(mol)
+        if graph is None:
+            pytest.fail(f"Failed to build graph for: {smiles}")
+        
+        # Check if disconnected
+        num_components = nx.number_connected_components(graph)
+        if num_components <= 1:
+            # If the test data claims to be disconnected but isn't, fail
+            pytest.fail(f"SMILES {smiles} (ID: {mol_id}) is not disconnected. Components: {num_components}")
+        
+        # Compute persistence diagram
+        diagram = compute_persistence_diagram(graph)
+        
+        # Vectorize
+        # If diagram is empty, vectorize should return zeros
+        # If diagram is not empty, we check if the vector is zero (which implies 
+        # the vectorization logic for disconnected graphs returns zeros as per spec)
+        tda_vector = vectorize(diagram, resolution=10)
+        
+        # The task spec explicitly requires: assert tda_vector == [0.0]*100
+        # This implies that for disconnected graphs, the vectorization must yield zeros.
+        # We convert to list for comparison
+        tda_list = tda_vector.flatten().tolist()
+        
+        assert tda_list == expected_zero_vector, \
+            f"Expected zero vector for disconnected molecule {mol_id} ({smiles}), but got {tda_list}"
+    
+    # If we get here, all disconnected molecules produced zero vectors
+    assert True

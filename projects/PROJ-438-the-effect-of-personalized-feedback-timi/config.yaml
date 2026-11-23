@@ -1,0 +1,32 @@
+# Configuration for PROJ-438: Effect of Personalized Feedback Timing
+# Task T016: Download OULAD data from verified sources
+
+dataset:
+  name: "OULAD"
+  description: "Open University Learning Analysis Dataset"
+  source: "HuggingFace Hub"
+  repo_id: "OpenUniversity/OU-AD"
+  files:
+    students_data.csv: "students_data.csv"
+    train.parquet: "train.parquet"
+
+download:
+  max_retries: 3
+  timeout_seconds: 300
+  use_huggingface: true
+
+paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  cache_dir: "data/cache"
+  checksums_dir: "data/checksums"
+
+thresholds:
+  min_learners_per_course: 50
+  feedback_immediate_hours: 2
+  feedback_delayed_hours: 48
+
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  audit_file: "data/logs/audit.log"

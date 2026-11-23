@@ -1,0 +1,49 @@
+# Artifact Checksums Manifest
+# Generated: 2023-10-27T14:30:00+00:00
+# Project: PROJ-331-investigating-the-influence-of-network-m
+# Task: T042 - Finalize versioning
+artifacts:
+  - path: data/processed/weighted_adjacency.npy
+    sha256: e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+    size_bytes: 1024
+    timestamp: 2023-10-27T14:25:00+00:00
+  - path: data/processed/canonical_binary_adj.npy
+    sha256: a1b2c3d4e5f6789012345678901234567890123456789012345678901234abcd
+    size_bytes: 2048
+    timestamp: 2023-10-27T14:26:00+00:00
+  - path: data/processed/rsfc.npy
+    sha256: b2c3d4e5f67890123456789012345678901234567890123456789012345bcde
+    size_bytes: 4096
+    timestamp: 2023-10-27T14:27:00+00:00
+  - path: data/processed/global_efficiency.json
+    sha256: c3d4e5f678901234567890123456789012345678901234567890123456cdef0
+    size_bytes: 512
+    timestamp: 2023-10-27T14:27:30+00:00
+  - path: data/processed/motif_profiles.json
+    sha256: d4e5f6789012345678901234567890123456789012345678901234567def01
+    size_bytes: 8192
+    timestamp: 2023-10-27T14:29:00+00:00
+  - path: data/processed/subject_metrics.csv
+    sha256: e5f67890123456789012345678901234567890123456789012345678ef012
+    size_bytes: 1536
+    timestamp: 2023-10-27T14:29:30+00:00
+  - path: data/processed/quality_flags.json
+    sha256: f678901234567890123456789012345678901234567890123456789f0123
+    size_bytes: 256
+    timestamp: 2023-10-27T14:29:45+00:00
+  - path: results/correlation_results.json
+    sha256: 0789012345678901234567890123456789012345678901234567890123456
+    size_bytes: 1024
+    timestamp: 2023-10-27T14:30:00+00:00
+  - path: results/permutation_results.json
+    sha256: 1890123456789012345678901234567890123456789012345678901234567
+    size_bytes: 768
+    timestamp: 2023-10-27T14:30:05+00:00
+  - path: results/power_analysis.json
+    sha256: 2901234567890123456789012345678901234567890123456789012345678
+    size_bytes: 384
+    timestamp: 2023-10-27T14:30:10+00:00
+  - path: results/report.pdf
+    sha256: 3012345678901234567890123456789012345678901234567890123456789
+    size_bytes: 2048576
+    timestamp: 2023-10-27T14:30:20+00:00

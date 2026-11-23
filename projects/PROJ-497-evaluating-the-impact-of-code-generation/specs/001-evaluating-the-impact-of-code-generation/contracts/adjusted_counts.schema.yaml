@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AdjustedCounts"
+description: "Schema for vulnerability counts adjusted for false positive rates."
+type: object
+properties:
+  file_path:
+    type: string
+    description: "Path to the code file."
+  source_type:
+    type: string
+    enum:
+      - "LLM"
+      - "Human"
+    description: "Source of the code (LLM-generated or Human-written)."
+  model_name:
+    type: string
+    description: "Name of the model (if source_type is LLM)."
+  benchmark_name:
+    type: string
+    description: "Benchmark dataset used (e.g., 'humaneval', 'mbpp')."
+  task_id:
+    type: string
+    description: "Task identifier from the benchmark."
+  lines_of_code:
+    type: integer
+    description: "Number of lines of code in the file."
+  raw_vulnerability_count:
+    type: integer
+    description: "Raw vulnerability count from static analysis."
+  adjusted_vulnerability_count:
+    type: number
+    description: "Vulnerability count adjusted for false positive rate."
+  is_valid:
+    type: boolean
+    description: "Whether the sample passed benchmark tests."
+
+required:
+  - file_path
+  - source_type
+  - model_name
+  - benchmark_name
+  - task_id
+  - lines_of_code
+  - is_valid
+  - raw_vulnerability_count
+  - adjusted_vulnerability_count

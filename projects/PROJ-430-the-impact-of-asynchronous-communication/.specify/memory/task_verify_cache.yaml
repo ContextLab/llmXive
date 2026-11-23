@@ -1,0 +1,94 @@
+T001:
+  c: false
+  h: 1bc42b062a2219acf8690d1a0568a3eb956e8deef943166257afd30b468ee2dd
+  r: "The project root contains `code/`, `data/`, and `tests/` but the required `docs/`\
+    \ and `config/` sub\u2011directories are absent, and the provided test script\
+    \ fails because it looks for `projects/code/init_project_structure.py` instead\
+    \ of the correct path. The directory structure does not fully meet the task specification."
+  sig: 5b800ddd4e3ba3e6d3b4381bafa74e5a8dc5b98fb4b7a0e12104866f5ce191d3
+T001c:
+  c: false
+  h: 6c01c2c668683aeb961c6792060085985c055fb12fbed3c09cbb2c4a8d66cea3
+  r: The evidence shows the `data/raw/` and `data/derived/` directories but no `.gitignore`
+    file at `projects/PROJ-430-the-impact-of-asynchronous-communication/.gitignore`,
+    nor any content confirming the required exclusion patterns. The required artifact
+    is missing.
+  sig: 6cf03682cf6d7511ba5ce2f0f38d0fd7fa337851624d90b4709fb6bdc0688f6a
+T001d:
+  c: true
+  h: 802d53eb1463a2c41f781d806844b0558ad73dc402522c6b485608510e270cce
+  r: "Checked the `requirements.txt` file (215\u202Fbytes) at `projects/PROJ-430-the-impact-of-asynchronous-communication/requirements.txt`;\
+    \ it contains pinned versions for all listed dependencies (pandas, scikit-learn,\
+    \ nltk, requests, matplotlib, seaborn, pyyaml, langdetect, networkx, pytest, ruff,\
+    \ black, statsmodels, pylmm)."
+  sig: 45cbb35a41e6c5af67c2f2f5ff49badbbe840218967b50f8d4d0a65784a262d1
+T002a:
+  c: true
+  h: c706cc02d303bb5cd9db20dbeb7fb4056dd6bb54b01f25afb13b16b6db860b68
+  r: "Checked the execution log `code/.tasks/T002a.code_create_venv.py.log`, which\
+    \ shows the `python3.11 -m venv venv` command ran successfully, created the `venv/`\
+    \ directory, and reports `venv/bin/python` version `Python 3.11.17`. This fulfills\
+    \ the task\u2019s requirement for a Python\u202F3.11 virtual environment."
+  sig: 55b463b2f93b8aca8db05c554310c5d788ad0a558177714ba7ed6bbcb753e03c
+T002b:
+  c: false
+  h: b95e63ad8b4052da0eb3a8d3d614ec7931eb4a0d1c417b51737ec79c5e1da092
+  r: Checked the presence of `requirements.txt`, which exists and lists packages,
+    but there is no evidence that `pip install -r requirements.txt` was actually executed
+    in a virtual environment nor any captured output showing the installed packages.
+    The required execution log/output is missing.
+  sig: 22338abf8b3f5ae13609f56a17689e840cfc146502308ab3bea05668f781c4fd
+T003:
+  c: false
+  h: 3ec37e915c77d56b37393208b3f215b339781aad9e44db728b8e21ea7a95cc67
+  r: "The `.ruff.toml` and `pyproject.toml` files exist and contain reasonable configurations,\
+    \ but there is no provided evidence (e.g., command output, log file, CI step)\
+    \ that an initial lint/formatting check was actually executed. The task\u2019\
+    s requirement to \u201Crun initial lint check\u201D is therefore unmet."
+  sig: 1257261442470be034febb54132ad44c80cd848fcbf04b8913c6f134b8671edd
+T004:
+  c: false
+  h: 13a2d0beb50ff3532a930a763c26934014a50cc8328d67b73d3684473606e1a2
+  r: The `code/config.py` file is present and defines paths and the deferred thresholds
+    (`sample_size`, `min_events`, `deferred_threshold`), but it does not provide any
+    mechanism for configuring or loading API keys as required by the task. Adding
+    support for API key storage (e.g., reading from environment variables or a `config.json`
+    entry) is needed to satisfy the specification.
+  sig: 1bfb78ae680dff78f45c37f8ab685f513c2efbeff90aa47c793b18185083f9da
+T005:
+  c: true
+  h: 21561460f41b05e8c62d63374726fcdd737942461472ad47fef7e4ffaf347561
+  r: "Checked the `code/utils/hygiene.py` file (resolved path `projects/PROJ-430-the-impact-of-asynchronous-communication/code/utils/hygiene.py`).\
+    \ It contains a functional `compute_sha256` implementation and an `update_state_manifest`\
+    \ routine that records the file\u2019s SHA\u2011256 hash, size, and modification\
+    \ time in a JSON manifest, fulfilling the required SHA\u2011256 hashing and state\u2011\
+    update behavior."
+  sig: 6b4ac6e4135fc1832c0ad56c5c8b4c028f647b063067004d1542de9d4fbe9731
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data/` folder, its subdirectories, a `.gitignore` with the
+    specified patterns, or a `.gitkeep` file in `validation/` was provided; without
+    these artifacts the requirement cannot be confirmed as met.
+T010:
+  c: false
+  h: efbfe78de3206169ae8c933250ed2f17a8ac9241015cf30d9892ee32bf6709fb
+  r: "The required output file `data/raw/events.json` does not exist, and the provided\
+    \ `code/data_ingestion.py` is only partially shown (truncated) with no visible\
+    \ logic that writes the JSON file, handles the `--fetch` CLI flag, uses the specified\
+    \ sample repo IDs, or computes the inter\u2011arrival time variance. Consequently\
+    \ the task\u2019s core deliverables are missing."
+T012:
+  c: false
+  h: c1d9001660ed2cd6cfb0b49cb445d1bf31d15fa62e9376e1effd40e8c358b5d3
+  r: The provided `code/metrics.py` defines `identify_pairs_and_calculate_metrics`
+    instead of the required `calculate_and_persist_pair_metrics`, and the file `data/derived/timestamp_features.parquet`
+    does not exist, so the expected output artifact is missing. The implementation
+    does not demonstrably produce the required schema or persist the results.
+T015:
+  c: false
+  h: 29453d0cdee41454fb8cab9327e64ee9469d24002a2368f01e602f89c37cf0af
+  r: "The required output file `data/derived/project_metrics.csv` does not exist,\
+    \ so there is no evidence of a `median_variance` column or any aggregated project\u2011\
+    level metrics. Consequently the verification test cannot be run. The task needs\
+    \ the CSV file with the correct median aggregation."

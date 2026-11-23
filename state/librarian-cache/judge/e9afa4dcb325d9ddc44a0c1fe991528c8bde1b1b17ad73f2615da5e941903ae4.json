@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2012.11854",
+  "judged_at": "2026-08-29T00:57:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the statistical validity of crowdsourced labels statistics",
+  "rationale": "This paper satisfies criterion (a) and (b) because it empirically analyzes the statistical properties of \"human-annotated labels\" (the crowdsourced population) and specifically investigates \"second-order statistics\" (covariance terms) to characterize the validity and noise structure of these labels, which directly addresses the user's query about evaluating the statistical validity of such data.",
+  "relevant": true
+}

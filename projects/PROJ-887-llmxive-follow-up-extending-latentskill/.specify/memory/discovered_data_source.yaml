@@ -1,0 +1,17 @@
+status: none
+intent: download peft examples LoRA weight dataset HuggingFace datasets python package
+  dataset
+required_fields:
+- adapter_id
+- skill_name
+- task_description
+- a_matrix
+- b_matrix
+- a_shape
+- b_shape
+- flattened_vector
+- vector_norm
+- metadata
+cache_key: 7b3b29c5cda0e5988295bb0056cfe7b6838f7c41c57002f6eda4ea514104836b
+searched_at: '2026-10-16T02:32:39.753829+00:00'
+retry_count: 1

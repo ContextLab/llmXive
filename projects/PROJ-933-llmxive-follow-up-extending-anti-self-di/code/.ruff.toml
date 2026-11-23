@@ -1,0 +1,21 @@
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults (common in dataclasses)
+]
+
+[lint.per-file-ignores]
+"code/data/streaming_loader.py" = ["C408"] # allow tuple() calls for readability in streaming
+"code/analysis/statistical_test.py" = ["E741"] # allow 'l' as variable name in math contexts
+
+[format]
+line-length = 100
+indent-width = 4

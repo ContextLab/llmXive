@@ -84,8 +84,8 @@ The system must fit a linear regression model to predict song variation from cli
 
 - **SC-001**: The proportion of song recordings successfully matched with climate data is measured against the total number of recordings in the input dataset. (See FR-001)
 - **SC-002**: The model's predictive performance (R²) is measured against a null model (intercept-only), requiring a quantifiable improvement in R² to validate the hypothesis. (See FR-003)
-- **SC-003**: The stability of the model's variable selection is measured against the threshold sweep, requiring that the Jaccard index of significant predictors is calculated and reported across the {0.01, 0.05, 0.10} range. (See FR-004)
-- **SC-004**: The multicollinearity diagnostic is measured against the VIF threshold of 5, requiring that no predictor pair exceeds this limit without a descriptive joint interpretation. (See FR-005)
+- **SC-003**: The stability of the model's variable selection is measured against the threshold sweep, requiring that the Jaccard index of significant predictors is calculated and reported across a representative range of significance thresholds. (See FR-004)
+- **SC-004**: The multicollinearity diagnostic is measured against a standard VIF threshold, requiring that no predictor pair exceeds this limit without a descriptive joint interpretation. (See FR-005)
 - **SC-005**: The computational execution time is measured against the 6-hour free-tier runner limit, requiring the entire pipeline (ingestion to sensitivity analysis) to complete within 1 hour to ensure feasibility. (See Assumptions)
 
 ## Assumptions

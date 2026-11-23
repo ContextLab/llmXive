@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-978-llmxive-follow-up-extending-transitlm-a",
+  "tasks": [
+    {
+      "task_key": "T001",
+      "reject_count": 1,
+      "last_reason": "No directory structure is presented; the claim provides no evidence (e.g., a file tree or screenshots) that the required folders (`code/`, `data/raw/`, `data/processed/`, `data/analysis/`, `models/`, `analysis/`, `tests/`, `docs/`) actually exist. The task remains undone until the project hierarchy is created and demonstrated.",
+      "first_seen": "2026-09-05T19:48:10.852552+00:00",
+      "last_seen": "2026-09-05T19:48:10.852552+00:00"
+    },
+    {
+      "task_key": "T003",
+      "reject_count": 1,
+      "last_reason": "The implementer provided only the feature specification and no linting/formatting configuration files, scripts, or documentation (e.g., no `pyproject.toml` or `.ruff.toml` settings, no Black configuration, no pre\u2011commit hook setup). Consequently, the required artifacts to configure ruff and Black are missing.",
+      "first_seen": "2026-09-05T19:48:10.853639+00:00",
+      "last_seen": "2026-09-05T19:48:10.853639+00:00"
+    }
+  ],
+  "updated_at": "2026-09-05T19:48:10.853639+00:00"
+}

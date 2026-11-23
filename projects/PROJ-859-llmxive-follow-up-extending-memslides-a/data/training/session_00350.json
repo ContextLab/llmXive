@@ -1,0 +1,214 @@
+{
+  "trace_id": "training_42_00350",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "apply_theme",
+    "apply_theme",
+    "insert_chart",
+    "insert_chart",
+    "apply_theme",
+    "apply_theme",
+    "insert_text",
+    "insert_text",
+    "update_layout",
+    "insert_text",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "insert_text",
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "insert_chart",
+    "insert_chart",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 95.7612,
+        "saturation": 66.1917
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 13.2403,
+        "saturation": 5.2119
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 37.33,
+        "y": 43.9347,
+        "width": 87.8674,
+        "height": 41.3587,
+        "data_points": 83.1325
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 66.0554,
+        "y": 54.6465,
+        "width": 72.9647,
+        "height": 95.8441,
+        "data_points": 83.1697
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 47.6287,
+        "saturation": 63.6062
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 49.5192,
+        "saturation": 82.484
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 41.392,
+        "y": 62.2299,
+        "length": 83.2405
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 93.5715,
+        "y": 18.2877,
+        "length": 26.371
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 38.6317,
+        "padding": 63.9819
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 22.739,
+        "y": 87.2397,
+        "length": 44.0706
+      }
+    },
+    {
+      "step": 10,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 78.862
+      }
+    },
+    {
+      "step": 11,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 46.9161
+      }
+    },
+    {
+      "step": 12,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 14.8338
+      }
+    },
+    {
+      "step": 13,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 50.5789,
+        "y": 93.1134,
+        "length": 17.9879
+      }
+    },
+    {
+      "step": 14,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 31.6658,
+        "padding": 4.0103
+      }
+    },
+    {
+      "step": 15,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 95.5785,
+        "padding": 78.1941
+      }
+    },
+    {
+      "step": 16,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 34.3242,
+        "padding": 39.4203
+      }
+    },
+    {
+      "step": 17,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 53.3776,
+        "y": 71.2612,
+        "width": 91.4858,
+        "height": 72.4707,
+        "data_points": 14.7433
+      }
+    },
+    {
+      "step": 18,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 24.7405,
+        "y": 24.9104,
+        "width": 18.7626,
+        "height": 57.3403,
+        "data_points": 94.0489
+      }
+    },
+    {
+      "step": 19,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 79.4429,
+        "y": 9.973,
+        "length": 8.4536
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.596804,
+    "tool_repetition_freq": 0.75,
+    "arg_semantic_variance": 805.079032
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 5,
+    "layout_hash": "42-350-insert_text"
+  }
+}

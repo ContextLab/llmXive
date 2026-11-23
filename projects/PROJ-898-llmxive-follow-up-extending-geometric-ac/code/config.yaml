@@ -1,0 +1,17 @@
+# Experiment configuration for llmXive follow-up project.
+# This configuration uses a flat structure to satisfy the verification schema in tests/unit/test_config_schema.py.
+
+topology_counts: [3, 10]
+max_attempts: 5
+target_count: 100
+timeout_limits: 300.0
+stiffness_range: [0.1, 0.5]
+max_iterations: 1000
+seed: 42
+trial_count: 100
+sim_fps: 240
+target_zone:
+  center: [0.0, 0.0, 0.0]
+  radius: 0.1
+baseline_model_url: "https://download.pytorch.org/models/resnet18-f37072fd.pth"
+MAX_TASKS: 200

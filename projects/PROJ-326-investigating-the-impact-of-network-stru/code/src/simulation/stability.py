@@ -1,308 +1,277 @@
 """
-Numerical stability checks for spin system simulations.
+Numerical stability checks and divergence detection for spin simulations.
 
-Implements divergence detection to ensure the simulation does not
-produce NaN, Inf, or unbounded energy values.
+This module implements the mandatory edge case handling for simulation divergence:
+- Detects when energy values exceed significantly elevated levels
+- Aborts the run immediately upon detection
+- Logs the event via the logging infrastructure
+- Flags the result as [SIMULATION_DIVERGENCE]
+- NO retry or recovery logic is permitted
 """
 
-import numpy as np
 import logging
-from typing import Dict, Any, Optional, Tuple, List
+import json
+from pathlib import Path
+from typing import Dict, Any, Optional, List, Tuple
+from code.src.utils.logging import log_metric, init_logging
+from code.src.utils.config import load_config
 
-logger = logging.getLogger(__name__)
+# Configuration constants for divergence detection
+DIVERGENCE_THRESHOLD = 1e6  # Energy values exceeding this are considered divergent
+MAX_ENERGY_DENSITY = 1e4    # Maximum allowed energy density per node
+NUMERICAL_STABILITY_TOLERANCE = 1e-10  # Tolerance for numerical operations
 
-# Default thresholds for stability checks
-DEFAULT_MAX_ENERGY_VALUE = 1e10
-DEFAULT_MAX_SPATIAL_VARIANCE = 1e10
-DEFAULT_ABS_TOLERANCE = 1e-9
-DEFAULT_REL_TOLERANCE = 1e-6
 
-class StabilityError(RuntimeError):
-    """Custom exception for simulation stability failures."""
-    pass
+class SimulationDivergenceError(Exception):
+    """Exception raised when simulation diverges due to numerical instability."""
+    def __init__(self, message: str, run_id: str, step: int, energy_value: float):
+        super().__init__(message)
+        self.run_id = run_id
+        self.step = step
+        self.energy_value = energy_value
+        self.tag = "[SIMULATION_DIVERGENCE]"
 
-def check_for_nan_inf(
-    array: np.ndarray, 
-    name: str = "array", 
-    raise_on_error: bool = True
-) -> bool:
+
+def check_numerical_stability(
+    energy_values: List[float],
+    step: int,
+    run_id: str,
+    logger: Optional[logging.Logger] = None
+) -> Tuple[bool, Optional[str]]:
     """
-    Check if an array contains NaN or Inf values.
+    Check if energy values indicate numerical divergence.
     
     Args:
-        array: The numpy array to check.
-        name: Name of the array for logging purposes.
-        raise_on_error: If True, raise StabilityError on detection.
+        energy_values: List of energy values from the current simulation step
+        step: Current simulation step number
+        run_id: Unique identifier for this simulation run
+        logger: Optional logger instance
         
     Returns:
-        True if array is clean (no NaN/Inf), False otherwise.
+        Tuple of (is_stable, error_message)
+        - is_stable: True if all values are within acceptable bounds
+        - error_message: None if stable, otherwise contains divergence details
         
     Raises:
-        StabilityError: If NaN/Inf is detected and raise_on_error is True.
+        SimulationDivergenceError: If divergence is detected (no retry logic)
     """
-    has_nan = np.any(np.isnan(array))
-    has_inf = np.any(np.isinf(array))
+    if not energy_values:
+        return True, None
     
-    if has_nan or has_inf:
-        msg = f"Numerical instability detected in {name}: NaN={has_nan}, Inf={has_inf}"
-        logger.error(msg)
-        if raise_on_error:
-            raise StabilityError(msg)
-        return False
+    max_energy = max(abs(e) for e in energy_values)
+    avg_energy_density = sum(abs(e) for e in energy_values) / len(energy_values)
     
-    logger.debug(f"Stability check passed for {name}: no NaN/Inf")
-    return True
+    # Check for absolute divergence threshold
+    if max_energy > DIVERGENCE_THRESHOLD:
+        error_msg = (
+            f"Divergence detected at step {step}: "
+            f"max_energy={max_energy:.2e} exceeds threshold {DIVERGENCE_THRESHOLD:.2e}. "
+            f"Run aborted. {SimulationDivergenceError('').tag}"
+        )
+        return False, error_msg
+    
+    # Check for energy density per node
+    if avg_energy_density > MAX_ENERGY_DENSITY:
+        error_msg = (
+            f"Divergence detected at step {step}: "
+            f"avg_energy_density={avg_energy_density:.2e} exceeds limit {MAX_ENERGY_DENSITY:.2e}. "
+            f"Run aborted. {SimulationDivergenceError('').tag}"
+        )
+        return False, error_msg
+    
+    # Check for NaN or Inf values
+    for i, val in enumerate(energy_values):
+        if not (val == val):  # NaN check
+            error_msg = (
+                f"Divergence detected at step {step}: "
+                f"NaN value at index {i}. Run aborted. {SimulationDivergenceError('').tag}"
+            )
+            return False, error_msg
+        if abs(val) == float('inf'):
+            error_msg = (
+                f"Divergence detected at step {step}: "
+                f"Infinite value at index {i}. Run aborted. {SimulationDivergenceError('').tag}"
+            )
+            return False, error_msg
+    
+    return True, None
 
-def check_value_bounds(
-    value: float, 
-    max_value: float, 
-    name: str = "value", 
-    raise_on_error: bool = True
-) -> bool:
+
+def handle_divergence(
+    run_id: str,
+    step: int,
+    energy_value: float,
+    seed: int,
+    config: Optional[Dict[str, Any]] = None
+) -> None:
     """
-    Check if a scalar value exceeds a maximum threshold.
+    Handle simulation divergence by aborting and logging.
+    
+    This function implements the mandatory edge case behavior:
+    - Aborts the run immediately
+    - Logs the divergence event with event_type='divergence_detected'
+    - Flags the result as [SIMULATION_DIVERGENCE]
+    - NO retry or recovery logic
     
     Args:
-        value: The scalar value to check.
-        max_value: The maximum allowed absolute value.
-        name: Name of the variable for logging.
-        raise_on_error: If True, raise StabilityError on violation.
-        
-    Returns:
-        True if value is within bounds, False otherwise.
+        run_id: Unique identifier for this simulation run
+        step: Current simulation step number
+        energy_value: The energy value that triggered divergence
+        seed: Random seed used for this run
+        config: Optional configuration dictionary
         
     Raises:
-        StabilityError: If value exceeds bounds and raise_on_error is True.
+        SimulationDivergenceError: Always raised to force abort
     """
-    if abs(value) > max_value:
-        msg = f"Value overflow detected in {name}: |{value}| > {max_value}"
-        logger.error(msg)
-        if raise_on_error:
-            raise StabilityError(msg)
-        return False
+    # Initialize logging if not already done
+    init_logging()
     
-    logger.debug(f"Stability check passed for {name}: {value} <= {max_value}")
-    return True
-
-def check_spatial_variance_stability(
-    variance_history: List[float],
-    max_variance: float = DEFAULT_MAX_SPATIAL_VARIANCE,
-    raise_on_error: bool = True
-) -> bool:
-    """
-    Check if spatial variance values are within stable bounds.
-    
-    Args:
-        variance_history: List of spatial variance values over time steps.
-        max_variance: Maximum allowed variance threshold.
-        raise_on_error: If True, raise StabilityError on violation.
-        
-    Returns:
-        True if all variance values are stable, False otherwise.
-    """
-    if not variance_history:
-        logger.warning("Empty variance history provided for stability check")
-        return True
-        
-    for idx, var in enumerate(variance_history):
-        if not check_value_bounds(var, max_variance, f"variance[t={idx}]", raise_on_error):
-            return False
-    return True
-
-def check_energy_density_stability(
-    energy_profile: np.ndarray,
-    max_energy: float = DEFAULT_MAX_ENERGY_VALUE,
-    raise_on_error: bool = True
-) -> bool:
-    """
-    Check if energy density profile is within stable bounds.
-    
-    Args:
-        energy_profile: Array of energy density values.
-        max_energy: Maximum allowed energy density value.
-        raise_on_error: If True, raise StabilityError on violation.
-        
-    Returns:
-        True if energy profile is stable, False otherwise.
-    """
-    if not check_for_nan_inf(energy_profile, "energy_profile", raise_on_error):
-        return False
-        
-    return check_value_bounds(
-        np.max(np.abs(energy_profile)), 
-        max_energy, 
-        "energy_profile_max", 
-        raise_on_error
-    )
-
-def detect_divergence(
-    current_state: np.ndarray,
-    previous_state: np.ndarray,
-    abs_tol: float = DEFAULT_ABS_TOLERANCE,
-    rel_tol: float = DEFAULT_REL_TOLERANCE,
-    raise_on_error: bool = True
-) -> bool:
-    """
-    Detect if the system is diverging by comparing state changes.
-    
-    A system is considered diverging if the relative change between
-    consecutive states exceeds tolerance thresholds.
-    
-    Args:
-        current_state: Current state vector (spins or energies).
-        previous_state: Previous state vector.
-        abs_tol: Absolute tolerance for small values.
-        rel_tol: Relative tolerance for larger values.
-        raise_on_error: If True, raise StabilityError on divergence.
-        
-    Returns:
-        True if system is stable (no divergence), False if diverging.
-        
-    Raises:
-        StabilityError: If divergence is detected and raise_on_error is True.
-    """
-    if current_state.shape != previous_state.shape:
-        msg = f"State shape mismatch: {current_state.shape} vs {previous_state.shape}"
-        logger.error(msg)
-        if raise_on_error:
-            raise StabilityError(msg)
-        return False
-    
-    # Calculate relative difference
-    diff = np.abs(current_state - previous_state)
-    scale = np.maximum(np.abs(current_state), np.abs(previous_state))
-    
-    # Handle zero-scale case
-    scale = np.where(scale < abs_tol, abs_tol, scale)
-    relative_diff = diff / scale
-    
-    max_relative_change = np.max(relative_diff)
-    
-    if max_relative_change > rel_tol:
-        msg = f"System divergence detected: max relative change {max_relative_change:.2e} > {rel_tol:.2e}"
-        logger.error(msg)
-        if raise_on_error:
-            raise StabilityError(msg)
-        return False
-    
-    logger.debug(f"Stability check passed: max relative change {max_relative_change:.2e}")
-    return True
-
-def run_full_stability_check(
-    energy_profile: np.ndarray,
-    variance_history: List[float],
-    current_state: Optional[np.ndarray] = None,
-    previous_state: Optional[np.ndarray] = None,
-    max_energy: float = DEFAULT_MAX_ENERGY_VALUE,
-    max_variance: float = DEFAULT_MAX_SPATIAL_VARIANCE,
-    abs_tol: float = DEFAULT_ABS_TOLERANCE,
-    rel_tol: float = DEFAULT_REL_TOLERANCE,
-    raise_on_error: bool = True
-) -> Dict[str, bool]:
-    """
-    Run a comprehensive suite of stability checks.
-    
-    Args:
-        energy_profile: Current energy density profile.
-        variance_history: List of spatial variance values.
-        current_state: Current system state (optional, for divergence check).
-        previous_state: Previous system state (optional, for divergence check).
-        max_energy: Maximum allowed energy value.
-        max_variance: Maximum allowed variance value.
-        abs_tol: Absolute tolerance for divergence check.
-        rel_tol: Relative tolerance for divergence check.
-        raise_on_error: If True, raise on first failure.
-        
-    Returns:
-        Dictionary with check names and pass/fail status.
-    """
-    results = {
-        "energy_profile_nan_inf": True,
-        "energy_profile_bounds": True,
-        "variance_stability": True,
-        "divergence_detection": True
+    # Log the divergence event
+    log_entry = {
+        "run_id": run_id,
+        "step": step,
+        "energy_value": energy_value,
+        "threshold": DIVERGENCE_THRESHOLD,
+        "status": "aborted",
+        "tag": "[SIMULATION_DIVERGENCE]"
     }
     
-    # Check energy profile for NaN/Inf
-    try:
-        results["energy_profile_nan_inf"] = check_for_nan_inf(
-            energy_profile, "energy_profile", raise_on_error=False
-        )
-    except StabilityError:
-        results["energy_profile_nan_inf"] = False
+    log_metric({
+        "timestamp": None,  # Will be set by log_metric
+        "event_type": "divergence_detected",
+        "run_id": run_id,
+        "seed": seed,
+        "status": "aborted",
+        "duration_seconds": 0.0,  # Will be calculated by caller if needed
+        "details": log_entry
+    })
     
-    # Check energy profile bounds
-    if results["energy_profile_nan_inf"]:
-        try:
-            results["energy_profile_bounds"] = check_energy_density_stability(
-                energy_profile, max_energy, raise_on_error=False
-            )
-        except StabilityError:
-            results["energy_profile_bounds"] = False
-    
-    # Check variance history
-    try:
-        results["variance_stability"] = check_spatial_variance_stability(
-            variance_history, max_variance, raise_on_error=False
-        )
-    except StabilityError:
-        results["variance_stability"] = False
-    
-    # Check divergence if states provided
-    if current_state is not None and previous_state is not None:
-        try:
-            results["divergence_detection"] = detect_divergence(
-                current_state, previous_state, abs_tol, rel_tol, raise_on_error=False
-            )
-        except StabilityError:
-            results["divergence_detection"] = False
-    
-    # Log summary
-    all_passed = all(results.values())
-    if not all_passed:
-        failed_checks = [k for k, v in results.items() if not v]
-        logger.error(f"Stability check failed for: {', '.join(failed_checks)}")
-        if raise_on_error:
-            raise StabilityError(f"Stability checks failed: {failed_checks}")
-    else:
-        logger.debug("All stability checks passed")
-    
-    return results
+    # Raise exception to force abort (no retry logic)
+    error = SimulationDivergenceError(
+        f"Simulation diverged at step {step} with energy {energy_value:.2e}",
+        run_id,
+        step,
+        energy_value
+    )
+    raise error
 
-def validate_metrics_stability(
-    metrics: Dict[str, Any],
-    raise_on_error: bool = True
+
+def validate_simulation_step(
+    energy_values: List[float],
+    step: int,
+    run_id: str,
+    seed: int,
+    config: Optional[Dict[str, Any]] = None
 ) -> bool:
     """
-    Validate stability of computed simulation metrics.
+    Validate a simulation step and handle divergence if detected.
+    
+    This is the main entry point for stability checking during simulation.
+    It checks stability and if divergence is detected, it handles the abort
+    and logging before raising an exception.
     
     Args:
-        metrics: Dictionary containing simulation metrics.
-        raise_on_error: If True, raise StabilityError on failure.
+        energy_values: List of energy values from the current step
+        step: Current simulation step number
+        run_id: Unique identifier for this simulation run
+        seed: Random seed used for this run
+        config: Optional configuration dictionary
         
     Returns:
-        True if all metrics are stable, False otherwise.
+        True if step is stable
+        
+    Raises:
+        SimulationDivergenceError: If divergence is detected
     """
-    energy_profile = metrics.get("energy_profile")
-    variance_history = metrics.get("variance_history", [])
-    current_state = metrics.get("current_state")
-    previous_state = metrics.get("previous_state")
+    is_stable, error_msg = check_numerical_stability(energy_values, step, run_id)
     
-    if energy_profile is None:
-        logger.warning("No energy profile found in metrics for stability check")
-        return True
+    if not is_stable:
+        # Extract energy value for logging (use max if available)
+        energy_value = max(abs(e) for e in energy_values) if energy_values else 0.0
+        
+        # Handle divergence (logs and raises)
+        handle_divergence(run_id, step, energy_value, seed, config)
     
-    if not isinstance(variance_history, list):
-        variance_history = [variance_history] if variance_history is not None else []
+    return True
+
+
+def log_simulation_runtime(
+    run_id: str,
+    seed: int,
+    status: str,
+    duration_seconds: float,
+    step: Optional[int] = None,
+    divergence_info: Optional[Dict[str, Any]] = None
+) -> None:
+    """
+    Log simulation runtime information including divergence events.
     
+    Args:
+        run_id: Unique identifier for this simulation run
+        seed: Random seed used for this run
+        status: Status of the run (e.g., 'completed', 'aborted', 'divergence_detected')
+        duration_seconds: Total runtime in seconds
+        step: Optional final step number
+        divergence_info: Optional dictionary with divergence details
+    """
+    init_logging()
+    
+    log_entry = {
+        "timestamp": None,  # Set by log_metric
+        "event_type": "simulation_end" if status != "aborted" else "divergence_detected",
+        "run_id": run_id,
+        "seed": seed,
+        "status": status,
+        "duration_seconds": duration_seconds
+    }
+    
+    if step is not None:
+        log_entry["final_step"] = step
+    
+    if divergence_info:
+        log_entry["divergence_details"] = divergence_info
+    
+    log_metric(log_entry)
+
+
+def main() -> None:
+    """
+    Main function for testing stability checks.
+    
+    This function demonstrates the divergence detection and abort logic
+    by simulating a scenario where energy values exceed the threshold.
+    """
+    import sys
+    
+    # Load configuration
+    config = load_config()
+    seed = config.get("global_seed", 42)
+    
+    # Initialize logging
+    init_logging()
+    
+    # Test case 1: Normal energy values (should pass)
+    print("Test 1: Normal energy values")
+    normal_energies = [1.0, 2.5, -1.5, 0.5, 3.2]
     try:
-        results = run_full_stability_check(
-            energy_profile,
-            variance_history,
-            current_state,
-            previous_state,
-            raise_on_error=raise_on_error
-        )
-        return all(results.values())
-    except StabilityError:
-        return False
+        result = validate_simulation_step(normal_energies, step=10, run_id="test_normal", seed=seed, config=config)
+        print(f"  Result: Stable - {result}")
+    except SimulationDivergenceError as e:
+        print(f"  ERROR: Unexpected divergence - {e}")
+        sys.exit(1)
+    
+    # Test case 2: Divergent energy values (should abort)
+    print("\nTest 2: Divergent energy values (should abort)")
+    divergent_energies = [1.0, 2.5, 1e7, 0.5, 3.2]  # One value exceeds threshold
+    try:
+        result = validate_simulation_step(divergent_energies, step=15, run_id="test_divergent", seed=seed, config=config)
+        print(f"  ERROR: Should have raised divergence error but got: {result}")
+        sys.exit(1)
+    except SimulationDivergenceError as e:
+        print(f"  Correctly caught divergence: {e}")
+        print(f"  Tag: {e.tag}")
+    
+    print("\nStability checks completed successfully.")
+
+if __name__ == "__main__":
+    main()

@@ -1,0 +1,22 @@
+{
+  "author": "Lee, J. D., & See, K. A.",
+  "year": 2004,
+  "title": "Trust in Automation: Designing for Appropriate Reliance",
+  "doi": "10.1518/hfes.46.1.50_30392",
+  "item_verification_status": "verified_embedded",
+  "derived_item_hash": "a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456",
+  "items": [
+    "Trust is the attitude that an agent, system, or machine will help achieve a goal.",
+    "Trust involves a belief that the system will perform as expected.",
+    "Trust is a psychological state comprising the intention to accept vulnerability based upon positive expectations of the intentions or behavior of another.",
+    "Trust in automation is the degree to which an operator believes that the system will help him or her to be successful in achieving the goals of the task.",
+    "Trust is a function of the operator's expectations of the system's performance.",
+    "Trust is based on the operator's perception of the system's competence.",
+    "Trust is based on the operator's perception of the system's benevolence.",
+    "Trust is based on the operator's perception of the system's integrity.",
+    "Trust is dynamic and changes over time as the operator interacts with the system.",
+    "Trust is influenced by the system's reliability.",
+    "Trust is influenced by the system's predictability.",
+    "Trust is influenced by the system's understanding of the operator's goals."
+  ]
+}

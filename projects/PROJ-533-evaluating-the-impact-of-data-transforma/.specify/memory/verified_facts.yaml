@@ -1,5 +1,7 @@
-'|hour less runtime than':
-  quote: 'P1954: 342762'
-  source_id: Q2881721
-  url: https://www.wikidata.org/wiki/Q2881721
-  value: '342762'
+'|6gb memory usage':
+  quote: Both devices use the Qualcomm Snapdragon 675 SoC, and are sold in 4 GB or
+    6 GB RAM versions, and have 64 GB or 128 GB of internal storage that is expandable
+    to 512 GB via the microSD card slot.
+  source_id: Samsung Galaxy A60
+  url: https://en.wikipedia.org/wiki/Samsung_Galaxy_A60
+  value: 4 GB or 6 GB

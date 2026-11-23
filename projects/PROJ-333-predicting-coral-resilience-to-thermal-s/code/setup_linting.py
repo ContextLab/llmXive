@@ -1,76 +1,125 @@
 """
-Script to install and verify linting and formatting tools.
-This script ensures flake8, pylint, black, and isort are available.
+Setup script for linting and formatting tools.
+Installs and verifies ruff, black, and isort.
 """
 import subprocess
 import sys
 import os
-
-TOOLS = [
-    {"name": "flake8", "pkg": "flake8", "cmd": ["flake8", "--version"]},
-    {"name": "pylint", "pkg": "pylint", "cmd": ["pylint", "--version"]},
-    {"name": "black", "pkg": "black", "cmd": ["black", "--version"]},
-    {"name": "isort", "pkg": "isort", "cmd": ["isort", "--version"]},
-]
+from pathlib import Path
 
 def run_command(cmd, check=True):
-    """Run a shell command and return the result."""
+    """
+    Runs a shell command and returns the result.
+    """
+    print(f"Running: {' '.join(cmd) if isinstance(cmd, list) else cmd}")
     try:
-        result = subprocess.run(cmd, check=check, capture_output=True, text=True)
-        return result
+        result = subprocess.run(
+            cmd,
+            shell=isinstance(cmd, str),
+            check=check,
+            capture_output=True,
+            text=True
+        )
+        if result.stdout:
+            print(result.stdout)
+        if result.stderr:
+            print(result.stderr, file=sys.stderr)
+        return result.returncode == 0
     except subprocess.CalledProcessError as e:
-        print(f"Error running command: {e}")
-        return None
+        print(f"Error running command: {e}", file=sys.stderr)
+        if e.stdout:
+            print(e.stdout)
+        if e.stderr:
+            print(e.stderr)
+        if check:
+            sys.exit(1)
+        return False
 
 def install_tools():
-    """Install all required linting and formatting tools."""
+    """
+    Installs the required linting and formatting tools.
+    """
+    tools = [
+        "ruff",
+        "black",
+        "isort",
+        "tomli",
+        "tomli-w",
+        "tomlkit"
+    ]
+    
     print("Installing linting and formatting tools...")
-    for tool in TOOLS:
-        print(f"  Installing {tool['name']}...")
-        result = run_command([sys.executable, "-m", "pip", "install", tool["pkg"]])
-        if result and result.returncode == 0:
-            print(f"    Success: {tool['name']} installed.")
-        else:
-            print(f"    Failed to install {tool['name']}.")
+    for tool in tools:
+        print(f"Installing {tool}...")
+        if not run_command([sys.executable, "-m", "pip", "install", tool]):
+            print(f"Failed to install {tool}", file=sys.stderr)
             return False
+    
+    print("All tools installed successfully.")
     return True
 
 def verify_tools():
-    """Verify that all tools are installed and working."""
-    print("\nVerifying tools...")
-    all_good = True
-    for tool in TOOLS:
-        print(f"  Checking {tool['name']}...")
-        result = run_command(tool["cmd"], check=False)
-        if result and result.returncode == 0:
-            # Print first line of version output
-            version_line = result.stdout.strip().split('\n')[0]
-            print(f"    OK: {version_line}")
-        else:
-            print(f"    Missing or failed: {tool['name']}")
-            all_good = False
-    return all_good
+    """
+    Verifies that all required tools are installed and accessible.
+    """
+    tools = ["ruff", "black", "isort"]
+    print("\nVerifying tool installation...")
+    
+    for tool in tools:
+        try:
+            result = subprocess.run(
+                [tool, "--version"],
+                capture_output=True,
+                text=True,
+                check=True
+            )
+            print(f"  {tool}: {result.stdout.strip()}")
+        except subprocess.CalledProcessError:
+            print(f"  {tool}: NOT FOUND", file=sys.stderr)
+            return False
+        except FileNotFoundError:
+            print(f"  {tool}: NOT FOUND (command not found)", file=sys.stderr)
+            return False
+    
+    print("All tools verified.")
+    return True
+
+def generate_configs():
+    """
+    Generates the configuration files for the tools.
+    """
+    print("\nGenerating configuration files...")
+    try:
+        from lint_config import main as generate_main
+        generate_main()
+        return True
+    except ImportError as e:
+        print(f"Error importing lint_config: {e}", file=sys.stderr)
+        return False
 
 def main():
-    """Main entry point."""
-    print("Setting up linting and formatting environment...")
+    """
+    Main entry point for setting up the linting environment.
+    """
+    print("Setting up linting environment for llmXive project...")
     
-    # Check if tools are already installed
+    if not install_tools():
+        print("Installation failed. Exiting.", file=sys.stderr)
+        sys.exit(1)
+    
     if not verify_tools():
-        print("\nSome tools are missing. Attempting installation...")
-        if not install_tools():
-            print("\nInstallation failed. Please install tools manually.")
-            sys.exit(1)
-        
-        # Verify again after installation
-        if not verify_tools():
-            print("\nVerification failed after installation.")
-            sys.exit(1)
+        print("Verification failed. Exiting.", file=sys.stderr)
+        sys.exit(1)
     
-    print("\nLinting and formatting tools are ready.")
-    print("Configuration files (.flake8, .pylintrc, pyproject.toml) are present in the project root.")
-    print("Run 'black . --check' and 'isort . --check' to verify formatting.")
-    print("Run 'flake8 code/' and 'pylint code/' to check for linting issues.")
+    if not generate_configs():
+        print("Configuration generation failed. Exiting.", file=sys.stderr)
+        sys.exit(1)
+    
+    print("\nLinting environment setup complete.")
+    print("Next steps:")
+    print("  1. Run 'ruff check .' to lint the codebase")
+    print("  2. Run 'black .' to format the codebase")
+    print("  3. Run 'ruff check --select I .' to check import sorting")
 
 if __name__ == "__main__":
     main()

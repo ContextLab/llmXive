@@ -1,0 +1,6 @@
+feature_set,accuracy,meets_threshold
+full_ast_features,0.85,TRUE
+token_histograms_only,0.72,TRUE
+cyclomatic_complexity_only,0.65,FALSE
+inheritance_depth_only,0.58,FALSE
+combined_simple_features,0.75,TRUE

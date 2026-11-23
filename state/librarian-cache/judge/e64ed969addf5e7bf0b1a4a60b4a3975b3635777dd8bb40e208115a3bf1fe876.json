@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2012.10386",
+  "judged_at": "2026-07-19T04:55:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "statistical analysis of publicly available climate model output ensembles statistics",
+  "rationale": "This paper satisfies criteria (b) and (e) as it provides an empirical study of a specific climate model output ensemble (ICTP-RegCM4 driven by CMIP5 GCMs) and discusses the statistical necessity of using multi-model ensembles to capture uncertainty, which is the core domain of the user's question regarding the analysis of such ensembles.",
+  "relevant": true
+}

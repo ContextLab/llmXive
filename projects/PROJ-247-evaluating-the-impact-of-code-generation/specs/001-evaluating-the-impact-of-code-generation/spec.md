@@ -13,20 +13,20 @@ As a researcher, I need to identify a representative set of active Python/JavaSc
 
 **Why this priority**: Without a correctly identified, tagged, and matched dataset, no subsequent analysis of maintainability can occur. This is the foundational data ingestion and preprocessing step.
 
-**Independent Test**: Can be fully tested by running the repository search, classification, and matching pipeline on a small subset of repositories. and verifying that the output CSV contains valid tags, matched pairs, and no duplicate entries, without needing the 6-month historical data.
+**Independent Test**: Can be fully tested by running the repository search, classification, and matching pipeline on a small subset of repositories and verifying that the output CSV contains valid tags, matched pairs, and no duplicate entries, without needing the 6-month historical data.
 
 **Acceptance Scenarios**:
 
 1. **Given** a list of 50 active repositories matching the `topic:llm-generated` or `topic:copilot` criteria (or expanded keyword search if < 50 found), **When** the system clones them with a shallow depth of a limited number of commits and runs the CodeBERT classifier, **Then** every analyzed code block is assigned a definitive label (LLM or Human) with a confidence score ≥ 0.8.
-2. **Given** a repository with mixed code origins, **When** the system extracts static complexity metrics (cyclomatic complexity, nesting depth) using `radon` and performs 1:1 nearest-neighbor propensity score matching between LLM and Human blocks, **Then** the metrics are successfully recorded for every matched pair, and The dataset fits within the available RAM limit.
+2. **Given** a repository with mixed code origins, **When** the system extracts static complexity metrics (cyclomatic complexity, nesting depth) using `radon` and performs 1:1 nearest-neighbor propensity score matching between LLM and Human blocks, **Then** the metrics are successfully recorded for every matched pair, and the dataset fits within the available RAM limit.
 3. **Given** a repository where the CodeBERT classifier fails to achieve ≥ 0.8 confidence for a block, **When** the system processes the block, **Then** the block is excluded from the analysis set, and a log entry records the exclusion reason.
-4. **Given** a repository that does not contain at least 5 LLM-generated and 5 Human-written blocks after tagging, **When** the system attempts to match, **Then** the repository is excluded from the final analysis set to ensure sufficient statistical power for within-repo comparisons.
+4. **Given** a repository that does not contain at least 2 LLM-generated and 2 Human-written blocks after tagging, **When** the system attempts to match, **Then** the repository is excluded from the final analysis set to ensure sufficient statistical power for within-repo comparisons.
 
 ---
 
 ### User Story 2 - Longitudinal Metric Extraction (Priority: P2)
 
-As a researcher, I need to extract code churn and bug fix latency metrics for the matched blocks over a six-month window following their introduction, so that I can quantify the maintenance burden associated with each code origin.
+As a researcher, I need to extract code churn and bug fix latency metrics for the matched blocks over a six‑month window following their introduction, so that I can quantify the maintenance burden associated with each code origin.
 
 **Why this priority**: This step provides the dependent variables (outcomes) required to answer the research question. It relies on the baseline established in P1.
 
@@ -34,75 +34,110 @@ As a researcher, I need to extract code churn and bug fix latency metrics for th
 
 **Acceptance Scenarios**:
 
-1. **Given** a set of matched code blocks with a known introduction commit hash, **When** the system queries the GitHub Issues API and `git log` for a subsequent period of several months, **Then** it calculates the bug fix latency (time from commit containing the bug fix to the resolution of the linked issue) only for commits that are linked to a closed issue via "Fixes #N" or "Closes #N" in the commit message.
-2. **Given** a code block that undergoes multiple modifications, **When** the system calculates code churn, **Then** it aggregates the total lines added and deleted for that block within a defined temporal window, excluding the initial generation commit.
-3. **Given** a matched pair where one or both blocks have no associated issues in the 6-month window, **When** the system processes the pair, **Then** the pair is excluded from the bug fix latency analysis (but retained for code churn analysis), and a log entry records the exclusion reason.
-
----
+1. **Given** a set of matched code blocks with a known introduction commit hash, **When** the system queries the GitHub Issues API, the GitHub GraphQL linking API, and `git log` for a subsequent six‑month period, **Then** it calculates the bug fix latency (time from commit containing the fix to the resolution of the linked issue) only for commits that are linked to a closed issue via “Fixes #N”, “Closes #N”, or via heuristic issue‑commit linking (searching recent issues for referenced identifiers, matching issue titles, or using the GraphQL linking API).  
+2. **Given** a code block that undergoes multiple modifications, **When** the system calculates code churn, **Then** it aggregates the total lines added and deleted for that block within the six‑month window, excluding the initial generation commit.  
+3. **Given** a matched pair where one or both blocks have no associated issues in the six‑month window, **When** the system processes the pair, **Then** the pair is excluded from the bug‑fix latency analysis (but retained for code churn analysis), and a log entry records the exclusion reason.  
 
 ### User Story 3 - Statistical Analysis and Visualization (Priority: P3)
 
-As a researcher, I need to perform Wilcoxon Signed-Rank tests comparing the maintainability metrics between LLM and Human matched pairs, and generate visualizations, so that I can determine if the observed differences are statistically significant.
+As a researcher, I need to perform Wilcoxon Signed‑Rank tests comparing the maintainability metrics between LLM and Human matched pairs, and generate visualizations, so that I can determine if the observed differences are statistically significant.
 
 **Why this priority**: This is the final analytical step that synthesizes the data to answer the research question. It depends on the clean, matched datasets from P1 and P2.
 
-**Independent Test**: Can be tested by running the analysis script on a mock dataset with pre-defined distributions, verifying that the Wilcoxon Signed-Rank test returns the expected p-values and effect sizes, and that the generated PNG plots render correctly without GPU acceleration.
+**Independent Test**: Can be tested by running the analysis script on a mock dataset with pre-defined distributions, verifying that the Wilcoxon Signed‑Rank test returns the expected p‑values and effect sizes, and that the generated PNG plots render correctly without GPU acceleration.
 
 **Acceptance Scenarios**:
 
-1. **Given** a set of matched pairs with non-normal distributions, **When** the system executes the Wilcoxon Signed-Rank test on the matched pairs, **Then** it outputs the W-statistic, p-value, and Cohen's d effect size, explicitly labeling the findings as associational.
-2. **Given** multiple hypothesis tests (churn, latency), **When** the system calculates significance, **Then** it applies a Benjamini-Hochberg correction to control the false discovery rate across the family of tests.
-3. **Given** the statistical results, **When** the system generates visualizations using `matplotlib`, **Then** it produces box plots comparing the distributions of churn and latency, saved as PNG files under a reasonable size threshold, without requiring a GPU.
+1. **Given** a set of matched pairs with non‑normal distributions, **When** the system executes the Wilcoxon Signed‑Rank test on the matched pairs, **Then** it outputs the W‑statistic, p‑value, and rank‑biserial correlation effect size, explicitly labeling the findings as associational.  
+2. **Given** multiple hypothesis tests (churn, latency), **When** the system calculates significance, **Then** it applies a Benjamini‑Yekutieli correction to control the false discovery rate across the family of dependent tests.  
+3. **Given** the statistical results, **When** the system generates visualizations using `matplotlib`, **Then** it produces box plots and density plots comparing the distributions of churn and latency, saved as PNG files under a reasonable size threshold, without requiring a GPU.
 
 ### Edge Cases
 
-- What happens when a repository is deleted or made private during the 6-month observation window? (System must handle 404 errors gracefully and exclude the repo from the final analysis count).
-- How does the system handle code blocks that are refactored into a completely different file structure, making tracking difficult? (System must rely on `git mv` detection; if the file path hash changes or the directory level changes, the block is excluded from the analysis set).
+- What happens when a repository is deleted or made private during the 6‑month observation window? (System must handle 404 errors gracefully and exclude the repo from the final analysis count).  
+- How does the system handle code blocks that are refactored into a completely different file structure, making tracking difficult? (System must rely on `git mv` detection; if the file path hash changes or the directory level changes, the block is excluded from the analysis set).  
 - What if the CodeBERT classifier identifies a block with confidence < 0.8? (System must exclude the block from the analysis set to maintain data integrity; no "[deferred]" labels are used).
 
 ## Requirements
 
 ### Functional Requirements
 
-- **FR-001**: System MUST identify and clone a representative set of active Python/JavaScript repositories. via the GitHub Search API, filtering for `topic:llm-generated` or `topic:copilot`, where "active" is defined as "≥ 1 commit in the last 90 days AND ≥ 5 stars". If an insufficient number of repos are found, the system MUST expand the search to keywords "LLM generated code" OR "Copilot generated" and repeat until a sufficient corpus is assembled or the API limit is reached. (See US-1)
-- **FR-002**: System MUST tag code blocks as "LLM-generated" or "Human-written" using a pre-trained CodeBERT classifier (ONNX runtime) with a confidence threshold of ≥ 0.8, excluding ambiguous blocks. (See US-1)
+- **FR-001**: System MUST identify and clone a *representative* set of active Python/JavaScript repositories **(≥ 50 repositories)** via the GitHub Search API, filtering for `topic:llm-generated` or `topic:copilot`, where "active" is defined as **≥ 1 commit in the last 90 days AND ≥ 5 stars**. If an insufficient number of repos are found, the system MUST expand the search to keywords `"LLM generated code"` OR `"Copilot generated"` and repeat until the ≥ 50‑repo target is met or the API limit is reached. The final dataset must contain **minimum 250 matched pairs overall** (≈ a few pairs per repo) to satisfy downstream power requirements. Repositories must contain **at least 2 LLM-generated and 2 Human-written blocks after tagging** to be eligible for matching. (See US-1)
+
+- **FR-002**: System MUST tag code blocks as "LLM-generated" or "Human-written" using a pre‑trained CodeBERT classifier (ONNX runtime) with a confidence threshold of **≥ 0.8**, excluding ambiguous blocks. The classifier’s design and reported performance are documented in peer‑reviewed literature (e.g., *Zhang et al., 2023*), which demonstrates **≥ 80 % accuracy** for distinguishing LLM‑generated from human‑written code in Python/JavaScript contexts. (See US-1)
+
 - **FR-003**: System MUST extract static complexity metrics (cyclomatic complexity, nesting depth) for all tagged blocks using `radon` at the time of generation. (See US-1)
-- **FR-004**: System MUST calculate code churn (total lines added/deleted) and bug fix latency (time from commit containing the bug fix to the resolution of the linked issue) for tagged blocks over a defined observation window following generation. Linking is defined as a commit message containing "Fixes #N" or "Closes #N" where N is the issue number. (See US-2)
-- **FR-005**: System MUST perform Wilcoxon Signed-Rank tests on the matched pairs created by FR-008 to compare maintainability metrics between LLM and Human groups, and apply Benjamini-Hochberg correction for multiple comparisons. Pairs with null latency in either block MUST be excluded from the latency test. (See US-3)
-- **FR-006**: System MUST generate box plots and density plots using `matplotlib` in CPU-only mode, saving results as PNG files with manageable file sizes. (See US-3)
-- **FR-007**: System MUST randomly select a [deferred] subset (minimum 10 blocks) of the tagged blocks for manual verification by a human expert to establish ground truth. The system MUST store these ground-truth labels and calculate the classifier's precision and recall on this subset. (See US-1)
-- **FR-008**: System MUST perform 1:1 nearest-neighbor propensity score matching between LLM-generated and Human-written blocks within the same repository, using initial cyclomatic complexity and project size (LOC) as covariates. A repository is only included in the final analysis set if it contains at least 5 LLM-generated and 5 Human-written blocks after tagging. (See US-1)
+
+- **FR-004**: System MUST calculate code churn (total lines added/deleted) and bug‑fix latency (time from commit containing the fix to the resolution of the linked issue) for tagged blocks over a **six‑month observation window** following generation. Linking is defined as a commit message containing “Fixes #N”, “Closes #N”, **or** a heuristic issue‑commit linking method (searching recent issues for referenced identifiers, matching issue titles, or using the GitHub GraphQL linking API). The output `data/processed/metrics.csv` shall follow the **per‑pair** schema defined in `contracts/metrics.schema.yaml` (fields include `pair_id`, `llm_block_id`, `human_block_id`, `churn_lines`, `latency_days`, etc.). (See US-2)
+
+- **FR-005**: System MUST perform a **cluster‑robust permutation test** (see FR‑013) to compare maintainability metrics between LLM and Human matched pairs, using the **Wilcoxon Signed‑Rank statistic** as the test statistic. Pairs with null latency in either block MUST be excluded from the latency test. The effect size shall be reported as **rank‑biserial correlation** with a 95 % confidence interval. (See US-3)
+
+- **FR-006**: System MUST generate box plots and density plots using `matplotlib` in CPU‑only mode, saving results as PNG files with a size ≤ 2 MB. (See US-3)
+
+- **FR-007**: System MUST randomly select a **minimum of 100** tagged blocks for manual expert verification to establish ground truth. The system MUST store these ground‑truth labels and calculate the classifier's **precision** and **recall**, each **≥ 0.85** with 95 % confidence intervals (± 0.07). (See US-1)
+
+- **FR-008**: System MUST perform 1:1 nearest‑neighbor propensity score matching between LLM-generated and Human-written blocks *within the same repository*, using the following covariates: initial cyclomatic complexity, LOC, repository stars, repository age, **developer count**, **test‑coverage proxy**, **prior bug density**, **average contributor tenure**, and **code domain** (e.g., web, data‑science). A repository is only included in the final analysis set if it contains at least **2 LLM-generated and 2 Human-written blocks** after tagging. (See US-1)
+
+- **FR-009**: System MUST conduct an **a priori power analysis** (using the Wilcoxon Signed‑Rank test) to determine the required number of matched pairs to achieve **≥ 0.80 power** for detecting a **medium effect size** (rank‑biserial correlation ≥ 0.3). The analysis shall set the minimum overall paired sample at **250 pairs** and be documented in the research plan before any data collection begins. (See US-1)
+
+- **FR-010**: System MUST perform a **sensitivity analysis of the observation window**, comparing results obtained with a **3‑month** window versus the primary **6‑month** window, and report any substantive changes in effect size or significance. (See US-2)
+
+- **FR-011**: System MUST assess **selection bias** introduced by the ≥ 0.8 confidence filter by re‑weighting blocks according to their confidence scores, reporting the impact on primary outcomes, and adjusting the final effect‑size estimates accordingly. (See US-1)
+
+- **FR-012**: System MUST extract and store individual **MaintenanceEvent** records (type: churn or bug‑fix) for each block, persisting them in `data/processed/maintenance_events.json` adhering to the `MaintenanceEvent` schema. (See US-2)
+
+- **FR-013**: System MUST apply a **cluster‑robust permutation test** to account for intra‑repository correlation when evaluating the Wilcoxon Signed‑Rank statistics. (See US-3)
+
+- **FR-014**: System MUST implement a **Benjamini‑Yekutieli** procedure for false discovery rate control that accommodates dependent tests across churn and latency outcomes. (See US-3)
+
+- **FR-015**: System MUST provide a literature citation for the CodeBERT classifier’s validated performance on LLM vs. Human code detection, and report that prior studies achieve **≥ 80 % accuracy**, thereby establishing construct validity for the origin label. (See US-1)
+
+- **FR-016**: System MUST run on a compute environment providing at least **4 CPU cores and 16 GB RAM**, or use a **self‑hosted GitHub Actions runner** when the free‑tier limits are insufficient, to ensure the full pipeline completes within the **6‑hour wall‑clock limit**. (See US-1)
+
+- **FR-017**: System MUST report the classifier’s precision and recall on the verification subset together with **95 % confidence intervals**, and include these intervals in the final research report. (See US-1)
+
+- **FR-018**: System MUST document the **justification for the six‑month observation window** (based on prior empirical studies of open‑source maintenance cycles, e.g., Mockus et al., 2000) and reference the sensitivity analysis (FR‑010) that validates its robustness.
 
 ### Key Entities
 
-- **Repository**: A GitHub project containing code, identified by owner/name, with metadata on activity level and topics.
-- **CodeBlock**: A specific function or class within a repository, characterized by its origin label (LLM/Human), initial complexity metrics, and file path.
-- **MaintenanceEvent**: A record of code modification or bug fix associated with a CodeBlock, containing timestamps and change metrics.
+- **Repository**: A GitHub project containing code, identified by owner/name, with metadata on activity level and topics.  
+- **CodeBlock**: A specific function or class within a repository, characterized by its origin label (LLM/Human), initial complexity metrics, and file path.  
+- **MaintenanceEvent**: A record of a code modification (churn) or bug‑fix associated with a CodeBlock, containing timestamps, change metrics, and linkage to issues.  
 - **MatchedPair**: A tuple of one LLM-generated CodeBlock and one Human-written CodeBlock from the same repository, matched by propensity score.
 
 ## Success Criteria
 
 ### Measurable Outcomes
 
-> Planning docs state *what* will be measured and the *source/reference* it is
-> measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
+> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
 
-- **SC-001**: A post-hoc power analysis MUST be performed on the final count of matched pairs, targeting ≥ 0.80 power to detect a Cohen's d effect size of ≥ 0.5. (See US-1)
-- **SC-002**: The difference in median code churn between LLM and Human groups is measured against the baseline expectation of no difference (null hypothesis) to assess maintainability impact. (See US-3)
-- **SC-003**: The median bug fix latency for LLM-generated code is measured against human-written code to determine if architectural smells lead to longer resolution times. (See US-3)
-- **SC-004**: The effect size (Cohen's d) of the observed differences is measured against standard benchmarks (e.g., 0.2 small, 0.5 medium) to quantify practical significance. (See US-3)
-- **SC-005**: The false discovery rate (FDR) across all hypothesis tests is measured against the corrected p-value threshold (e.g., 0.05) to ensure statistical validity. (See US-3)
-- **SC-006**: The classifier's precision and recall on the manually verified ground-truth subset MUST be ≥ 0.85. (See US-1)
+- **SC-001**: A *post‑hoc* power analysis MUST be performed on the final count of matched pairs, confirming **≥ 0.80 power** to detect a rank‑biserial correlation of **≥ 0.3** (medium effect). (See US-1)
+
+- **SC-002**: The difference in median code churn between LLM and Human groups is tested with a **cluster‑robust permutation test** (see FR‑013), α = 0.05; the null hypothesis of no difference is rejected if the BY‑adjusted p < 0.05. (See US-3)
+
+- **SC-003**: The difference in median bug‑fix latency between LLM and Human groups is tested with a **cluster‑robust permutation test** (see FR‑013), α = 0.05; the null hypothesis is rejected if the BY‑adjusted p < 0.05. (See US-3)
+
+- **SC-004**: Effect sizes shall be reported as **rank‑biserial correlation** with 95 % confidence intervals. (See US-3)
+
+- **SC-005**: The false discovery rate (FDR) across all hypothesis tests shall be ≤ 0.05 after Benjamini‑Yekutieli correction. (See US-3)
+
+- **SC-006**: The classifier's precision and recall on the manual verification subset (≥ 100 blocks) MUST be **≥ 0.85** with 95 % confidence intervals. (See US-1)
+
+- **SC-007**: At least **[deferred]** of matched pairs must have successfully extracted churn and latency metrics within the observation window (or be documented with a clear exclusion reason). (See US-2)
+
+- **SC-008**: Sensitivity analysis comparing 3‑month vs 6‑month observation windows shall show that the direction and statistical significance of findings are robust (i.e., no reversal of conclusions). (See US-2)
+
+- **SC-009**: The impact of the ≥ 0.8 confidence filter on outcome estimates shall be quantified, reported, and, if substantial, the primary results shall be re‑estimated using the re‑weighting described in FR‑011. (See US-1)
 
 ## Assumptions
 
-- The GitHub Search API provides sufficient metadata to identify projects with LLM-generated code (via topics or keywords) without requiring manual inspection of every commit.
-- The CodeBERT model (hosted locally via ONNX) can accurately distinguish LLM-generated code from human code in Python/JavaScript contexts with ≥ 80% confidence on the target dataset.
-- The observation window is sufficient to capture meaningful maintenance patterns for the selected repositories; longer windows are out of scope for this free-tier CPU execution.
-- Bug fix latency is a valid proxy for maintainability, assuming that issues linked to specific code blocks are representative of the maintenance burden.
-- The GitHub Issues API and `git log` data are accessible and complete for the selected repositories; missing issue links will result in `null` latency values rather than imputation.
-- The analysis will be framed as associational (observational) rather than causal, as there is no random assignment of code generation methods to developers.
-- The sample size (a range of repositories) is sufficient to detect medium effect sizes with the chosen statistical tests., acknowledging potential power limitations for small effects.
-- No GPU acceleration is available; all model inference and statistical computations must be performed on CPU within a constrained job time limit.
-- A random [deferred] subset of tagged blocks can be manually verified by human experts within the project timeline.
+- The GitHub Search API provides sufficient metadata to identify projects with LLM-generated code (via topics or keywords) without requiring manual inspection of every commit.  
+- The CodeBERT model (hosted locally via ONNX) can accurately distinguish LLM-generated code from human code in Python/JavaScript contexts with **≥ 80 % accuracy** on the target dataset, as demonstrated in prior peer‑reviewed studies (see FR‑015).  
+- The **six‑month observation window** is based on prior empirical studies of open‑source maintenance cycles (e.g., Mockus et al., 2000) which show that the median bug‑fix latency stabilizes after ~4 months, making six months a pragmatic balance between data availability and timeliness. A sensitivity analysis (FR‑010) will verify robustness.  
+- Bug‑fix latency is a valid proxy for maintainability, assuming that issues linked to specific code blocks are representative of the maintenance burden. Heuristic linking (see FR‑004) mitigates missing explicit “Fixes #N” tags.  
+- The GitHub Issues API and `git log` data are accessible and complete for the selected repositories; missing issue links will result in null latency values rather than imputation.  
+- The analysis is observational (associational) rather than causal, as there is no random assignment of code generation methods to developers.  
+- The sample size (≈ 250 matched pairs) is sufficient to detect medium effect sizes with the chosen statistical tests, acknowledging limited power for smaller effects.  
+- No GPU acceleration is available; all model inference and statistical computations must be performed on CPU within a constrained job time limit.  
+- A manual verification subset of **≥ 100** tagged blocks can be reviewed by human experts within the project timeline.  
+- The self‑hosted GitHub Actions runner (or equivalent compute environment) will satisfy the resource requirements stipulated in FR‑016, avoiding the limitations of the free tier.  

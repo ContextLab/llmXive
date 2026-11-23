@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Log Entry"
+type: "object"
+properties:
+  trajectory_id:
+    type: "string"
+    description: "ID of the trajectory"
+  density:
+    type: "number"
+    description: "Final composite density of the critical evidence (0.6*entropy + 0.4*tech_ratio)"
+  horizon:
+    type: "integer"
+    description: "Retention horizon used (1 to T turns)"
+  evidence_age:
+    type: "integer"
+    description: "Age of the evidence relative to the current turn"
+  success:
+    type: "integer"
+    enum:
+      - 0
+      - 1
+    description: "Binary outcome: 1 if success, 0 if failure"
+  retrieval_prob:
+    type: "number"
+    description: "Probability of retrieval under the sigmoid solver: sigmoid(α * (density - threshold))"
+  clamped_entropy:
+    type: "boolean"
+    description: "True if entropy was clamped to 1e-6 due to zero-entropy condition; false otherwise"
+required:
+  - trajectory_id
+  - density
+  - horizon
+  - evidence_age
+  - success
+  - retrieval_prob
+  - clamped_entropy
+additionalProperties: false

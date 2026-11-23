@@ -1,262 +1,294 @@
 """
-Data Loader Module for PROJ-263.
+Data Loader Module for UCI Datasets.
 
-Implements FR-002: Parse downloaded UCI datasets and identify continuous numeric variables.
-Also includes T017.5: Explicit variable type validation.
+This module handles parsing downloaded UCI datasets and identifying
+continuous numeric variables for simulation purposes.
 """
 import os
 import csv
 import logging
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Tuple
-
 import numpy as np
-import pandas as pd
 
-from config import get_data_dir, get_log_level
+from config import get_raw_data_dir, get_processed_data_dir
 
-# Configure logging based on project config
-logging.basicConfig(
-    level=get_log_level(),
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
 logger = logging.getLogger(__name__)
 
-# Constants for type detection
-NUMERIC_DTYPES = ['int8', 'int16', 'int32', 'int64', 'uint8', 'uint16', 'uint32', 'uint64', 'float16', 'float32', 'float64']
 
-
-def load_uci_dataset_raw(dataset_name: str, delimiter: str = ',') -> pd.DataFrame:
+def load_uci_dataset_raw(dataset_id: str) -> Tuple[List[str], List[List[Any]]]:
     """
-    Load a raw UCI dataset from the data/raw directory.
+    Load a raw UCI dataset from disk.
 
     Args:
-        dataset_name: Name of the dataset (e.g., 'wine', 'ionosphere').
-        delimiter: CSV delimiter (default ',').
+        dataset_id: The identifier for the dataset (e.g., 'wine', 'ionosphere').
+                   Must match the filename in data/raw/ (without extension).
 
     Returns:
-        DataFrame containing the raw dataset.
+        A tuple of (headers, rows) where headers is a list of column names
+        and rows is a list of lists containing the data.
 
     Raises:
         FileNotFoundError: If the dataset file does not exist.
+        ValueError: If the file format is unsupported or empty.
     """
-    data_dir = get_data_dir()
-    # Handle common naming variations (e.g., 'Wine' vs 'wine')
-    search_name = dataset_name.lower().replace(' ', '_')
-    
-    # Look for common file extensions
-    extensions = ['.csv', '.data', '.txt']
-    file_path = None
+    raw_dir = get_raw_data_dir()
+    # Support both .csv and .data extensions, prioritize .csv
+    possible_paths = [
+        raw_dir / f"{dataset_id}.csv",
+        raw_dir / f"{dataset_id}.data",
+    ]
 
-    for ext in extensions:
-        candidate = Path(data_dir) / f"{search_name}{ext}"
-        if candidate.exists():
-            file_path = candidate
-            break
-        
-        # Check for underscore variations if not found immediately
-        candidate_underscore = Path(data_dir) / f"{search_name.replace('-', '_')}{ext}"
-        if candidate_underscore.exists():
-            file_path = candidate_underscore
+    file_path = None
+    for p in possible_paths:
+        if p.exists():
+            file_path = p
             break
 
     if file_path is None:
-        raise FileNotFoundError(f"Could not find dataset file for '{dataset_name}' in {data_dir}. Searched: {search_name}.*")
+        raise FileNotFoundError(f"Dataset file not found for '{dataset_id}'. "
+                                f"Searched in {raw_dir}: {[str(p) for p in possible_paths]}")
 
     logger.info(f"Loading raw dataset from: {file_path}")
-    
-    # Attempt to load, handling potential header issues
+
+    headers = []
+    rows = []
+
     try:
-        # First attempt: assume header exists
-        df = pd.read_csv(file_path, delimiter=delimiter)
-        
-        # Check if the first row looks like data (all numeric) but we assumed header
-        # This is a heuristic; UCI datasets vary.
-        # If the first column is non-numeric but looks like an index or ID, we might need to adjust.
-        # For now, we trust the file format or let pandas infer.
-        
-        # Specific handling for Wine dataset which often lacks headers in raw form
-        if 'wine' in search_name and len(df.columns) == 1 and ',' in df.iloc[0, 0]:
-            # It might be a single column of comma-separated values
-            df = pd.read_csv(file_path, delimiter=',', header=None)
-            # Assign generic column names
-            df.columns = [f'col_{i}' for i in range(len(df.columns))]
-            
-        return df
+        with open(file_path, 'r', encoding='utf-8') as f:
+            # Try to detect if it's CSV or simple comma-separated
+            # UCI datasets often use commas, but some might use spaces or tabs
+            # We'll attempt standard CSV first
+            reader = csv.reader(f)
+            for row_idx, row in enumerate(reader):
+                if not row:  # Skip empty lines
+                    continue
+                # Strip whitespace from all cells
+                cleaned_row = [cell.strip() for cell in row]
+                if not cleaned_row or all(c == '' for c in cleaned_row):
+                    continue
+
+                if row_idx == 0:
+                    # First non-empty row is typically headers
+                    # Some UCI datasets don't have headers, we'll handle that in identify_continuous_variables
+                    # For now, assume first row is headers if it looks like text
+                    # Heuristic: if the first cell is not numeric, assume it's a header
+                    if not cleaned_row[0].replace('.', '').replace('-', '').isdigit():
+                        headers = cleaned_row
+                        continue
+                    else:
+                        # First row is data, no headers provided
+                        # We'll generate generic headers later
+                        pass
+                rows.append(cleaned_row)
+
     except Exception as e:
-        logger.error(f"Failed to parse {file_path}: {e}")
+        logger.error(f"Error reading file {file_path}: {e}")
         raise
 
+    if not rows:
+        raise ValueError(f"Dataset '{dataset_id}' contains no data rows.")
 
-def identify_continuous_variables(df: pd.DataFrame) -> Dict[str, List[str]]:
+    if not headers:
+        # Generate generic headers if none were found
+        num_cols = len(rows[0])
+        headers = [f"var_{i}" for i in range(num_cols)]
+        logger.warning(f"No headers found for '{dataset_id}', generated generic headers: {headers}")
+
+    return headers, rows
+
+
+def identify_continuous_variables(headers: List[str], rows: List[List[Any]]) -> List[str]:
     """
-    Identify continuous numeric variables in the DataFrame.
-    
-    Implements FR-002: Parse and identify continuous numeric variables.
-    
+    Identify which variables in the dataset are continuous numeric.
+
+    This function examines the data to determine which columns contain
+    numeric values suitable for continuous statistical analysis.
+
     Args:
-        df: The input DataFrame.
-        
-    Returns:
-        A dictionary mapping variable names to their detected type.
-        Specifically returns a list of column names that are continuous numeric.
-    """
-    continuous_cols = []
-    categorical_cols = []
-    
-    for col in df.columns:
-        # Check if the column is numeric
-        if pd.api.types.is_numeric_dtype(df[col]):
-            # Heuristic for continuous vs discrete integer:
-            # If it's a float, it's likely continuous.
-            # If it's an integer, check if it has many unique values relative to its range.
-            # For simplicity in this context, we treat all numeric as candidates, 
-            # but we filter out obvious IDs or very low-cardinality integers if needed.
-            # Given the task "identify continuous numeric", we assume the user 
-            # wants to simulate on the numeric features.
-            continuous_cols.append(col)
-        else:
-            # Check if it can be converted to numeric
-            try:
-                converted = pd.to_numeric(df[col], errors='raise')
-                continuous_cols.append(col)
-            except (ValueError, TypeError):
-                categorical_cols.append(col)
-                
-    logger.info(f"Identified {len(continuous_cols)} continuous numeric variables: {continuous_cols}")
-    if categorical_cols:
-        logger.info(f"Found {len(categorical_cols)} categorical/non-numeric variables: {categorical_cols}")
-        
-    return {
-        "continuous": continuous_cols,
-        "categorical": categorical_cols
-    }
+        headers: List of column names.
+        rows: List of data rows (each row is a list of strings).
 
-
-def validate_variable_type(df: pd.DataFrame, columns: List[str], strict: bool = True) -> Tuple[bool, List[str]]:
-    """
-    Explicitly validate that selected columns are continuous numeric.
-    
-    Implements T017.5: Explicit variable type validation.
-    
-    Args:
-        df: The input DataFrame.
-        columns: List of column names to validate.
-        strict: If True, raise error on invalid type. If False, return list of invalid columns.
-        
     Returns:
-        Tuple of (is_valid, list_of_invalid_columns)
-        
-    Raises:
-        ValueError: If strict=True and invalid columns are found.
+        A list of column names that are identified as continuous numeric variables.
     """
-    invalid_cols = []
-    
-    for col in columns:
-        if col not in df.columns:
-            invalid_cols.append(f"{col} (missing)")
+    if not rows:
+        logger.warning("No data rows provided to identify_continuous_variables")
+        return []
+
+    num_cols = len(headers)
+    continuous_vars = []
+
+    # Analyze each column
+    for col_idx in range(num_cols):
+        if col_idx >= len(headers):
             continue
-        
-        if not pd.api.types.is_numeric_dtype(df[col]):
-            # Try conversion
+
+        col_name = headers[col_idx]
+        numeric_count = 0
+        total_count = 0
+        has_non_numeric = False
+        has_inf = False
+
+        for row_idx, row in enumerate(rows):
+            if col_idx >= len(row):
+                continue
+
+            cell_value = row[col_idx]
+
+            # Skip empty cells (treated as missing, not non-numeric)
+            if cell_value == '' or cell_value == '?':
+                continue
+
+            total_count += 1
+
+            # Try to parse as float
             try:
-                pd.to_numeric(df[col], errors='raise')
+                val = float(cell_value)
+                if np.isinf(val):
+                    has_inf = True
+                    has_non_numeric = True
+                    break
+                numeric_count += 1
             except (ValueError, TypeError):
-                invalid_cols.append(col)
-                
-    if invalid_cols and strict:
-        raise ValueError(f"Columns are not continuous numeric: {invalid_cols}")
-        
-    return len(invalid_cols) == 0, invalid_cols
+                has_non_numeric = True
+                # If we encounter a clear categorical string, stop checking this column
+                # unless it's a very small dataset where we might be too strict
+                if total_count > 5:
+                    break
+
+        # Determine if column is continuous numeric
+        # Criteria: > 80% of non-empty values are numeric and finite
+        if total_count > 0:
+            numeric_ratio = numeric_count / total_count
+            if numeric_ratio >= 0.8 and not has_inf:
+                continuous_vars.append(col_name)
+                logger.debug(f"Column '{col_name}' identified as continuous ({numeric_ratio:.2%} numeric)")
+            else:
+                logger.debug(f"Column '{col_name}' NOT continuous (ratio: {numeric_ratio:.2%}, has_inf: {has_inf})")
+        else:
+            logger.debug(f"Column '{col_name}' skipped (no valid data)")
+
+    logger.info(f"Identified {len(continuous_vars)} continuous variables: {continuous_vars}")
+    return continuous_vars
 
 
-def prepare_dataset_for_simulation(dataset_name: str, target_columns: Optional[List[str]] = None) -> pd.DataFrame:
+def validate_variable_type(data: Dict[str, Any], variable_name: str) -> bool:
     """
-    Main entry point to load and prepare a dataset for simulation.
-    
-    1. Loads the raw data.
-    2. Identifies continuous numeric variables.
-    3. Validates types if specific columns are requested.
-    4. Returns a DataFrame containing only the continuous numeric variables.
-    
+    Validate that a specific variable in the dataset is continuous numeric.
+
     Args:
-        dataset_name: Name of the UCI dataset.
-        target_columns: Optional list of specific columns to use. If None, uses all continuous numeric.
-        
+        data: Dictionary containing dataset information with 'headers' and 'rows' keys.
+        variable_name: The name of the variable to validate.
+
     Returns:
-        DataFrame with only continuous numeric variables.
+        True if the variable is continuous numeric, False otherwise.
     """
-    df = load_uci_dataset_raw(dataset_name)
-    
-    if target_columns is None:
-        # Identify all continuous variables
-        types = identify_continuous_variables(df)
-        selected_cols = types["continuous"]
-        logger.info(f"Auto-selected continuous columns: {selected_cols}")
-    else:
-        # Validate and use provided columns
-        is_valid, invalid = validate_variable_type(df, target_columns, strict=True)
-        if not is_valid:
-            raise ValueError(f"Requested columns contain non-numeric types: {invalid}")
-        selected_cols = target_columns
-        
-    # Filter the dataframe
-    result_df = df[selected_cols].copy()
-    
-    # Ensure all are actually numeric (pandas might have mixed types in some edge cases)
-    result_df = result_df.apply(pd.to_numeric, errors='coerce')
-    
-    # Drop rows with NaN resulting from coercion (handled in T018, but good to be clean here)
-    initial_rows = len(result_df)
-    result_df = result_df.dropna()
-    if len(result_df) < initial_rows:
-        logger.warning(f"Dropped {initial_rows - len(result_df)} rows with non-numeric coercion failures.")
-        
-    logger.info(f"Prepared dataset '{dataset_name}' with {len(result_df)} rows and {len(result_df.columns)} continuous variables.")
-    
-    return result_df
+    headers = data.get('headers', [])
+    rows = data.get('rows', [])
+
+    if variable_name not in headers:
+        logger.warning(f"Variable '{variable_name}' not found in dataset headers: {headers}")
+        return False
+
+    col_idx = headers.index(variable_name)
+    numeric_count = 0
+    total_count = 0
+
+    for row in rows:
+        if col_idx >= len(row):
+            continue
+        cell_value = row[col_idx]
+        if cell_value == '' or cell_value == '?':
+            continue
+
+        total_count += 1
+        try:
+            val = float(cell_value)
+            if np.isfinite(val):
+                numeric_count += 1
+        except (ValueError, TypeError):
+            break
+
+    if total_count == 0:
+        return False
+
+    return (numeric_count / total_count) >= 0.8
+
+
+def prepare_dataset_for_simulation(dataset_id: str) -> Dict[str, Any]:
+    """
+    Load and prepare a UCI dataset for simulation.
+
+    This function:
+    1. Loads the raw dataset from disk
+    2. Identifies continuous numeric variables
+    3. Returns a structured dictionary containing the filtered data
+
+    Args:
+        dataset_id: The identifier for the dataset.
+
+    Returns:
+        A dictionary with keys:
+            - 'dataset_id': The dataset identifier
+            - 'headers': All original headers
+            - 'continuous_headers': Headers for continuous variables only
+            - 'rows': Original data rows
+            - 'continuous_rows': Data rows filtered to continuous variables only
+    """
+    logger.info(f"Preparing dataset '{dataset_id}' for simulation")
+
+    # Load raw data
+    headers, rows = load_uci_dataset_raw(dataset_id)
+
+    # Identify continuous variables
+    continuous_headers = identify_continuous_variables(headers, rows)
+
+    if not continuous_headers:
+        raise ValueError(f"No continuous numeric variables found in dataset '{dataset_id}'")
+
+    # Filter rows to only include continuous variables
+    continuous_indices = [headers.index(h) for h in continuous_headers]
+    continuous_rows = []
+
+    for row in rows:
+        filtered_row = [row[i] for i in continuous_indices if i < len(row)]
+        # Ensure we have the right number of columns
+        if len(filtered_row) == len(continuous_headers):
+            continuous_rows.append(filtered_row)
+
+    if not continuous_rows:
+        raise ValueError(f"No valid data rows after filtering for continuous variables in '{dataset_id}'")
+
+    logger.info(f"Dataset '{dataset_id}' prepared: {len(continuous_rows)} rows, "
+                f"{len(continuous_headers)} continuous variables: {continuous_headers}")
+
+    return {
+        'dataset_id': dataset_id,
+        'headers': headers,
+        'continuous_headers': continuous_headers,
+        'rows': rows,
+        'continuous_rows': continuous_rows
+    }
 
 
 def main():
     """
-    CLI entry point for testing the data loader.
+    Main entry point for testing the data loader.
     """
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Load and inspect UCI datasets for simulation.")
-    parser.add_argument("--dataset", type=str, required=True, help="Name of the dataset (e.g., wine, ionosphere)")
-    parser.add_argument("--columns", type=str, nargs="+", default=None, help="Specific columns to use (optional)")
-    
-    args = parser.parse_args()
-    
-    try:
-        df = prepare_dataset_for_simulation(args.dataset, args.columns)
-        print(f"\nDataset Summary for '{args.dataset}':")
-        print(f"Shape: {df.shape}")
-        print(f"Columns: {list(df.columns)}")
-        print(f"Data Types:\n{df.dtypes}")
-        print(f"\nFirst 5 rows:\n{df.head()}")
-        
-        # Save a quick summary to processed data for verification
-        processed_dir = Path(get_data_dir()) / "processed"
-        processed_dir.mkdir(parents=True, exist_ok=True)
-        
-        summary = {
-            "dataset": args.dataset,
-            "rows": len(df),
-            "columns": list(df.columns),
-            "dtypes": {col: str(dtype) for col, dtype in df.dtypes.items()}
-        }
-        
-        import json
-        summary_path = processed_dir / f"{args.dataset.lower().replace(' ', '_')}_summary.json"
-        with open(summary_path, 'w') as f:
-            json.dump(summary, f, indent=2)
-        print(f"\nSummary saved to: {summary_path}")
-        
-    except Exception as e:
-        logger.error(f"Failed to process dataset: {e}")
-        raise
+    logging.basicConfig(level=logging.INFO)
+
+    # Example usage
+    dataset_ids = ['wine', 'ionosphere', 'heart-cleveland']
+
+    for ds_id in dataset_ids:
+        try:
+            result = prepare_dataset_for_simulation(ds_id)
+            print(f"\nDataset: {ds_id}")
+            print(f"  Continuous variables: {result['continuous_headers']}")
+            print(f"  Rows: {len(result['continuous_rows'])}")
+        except Exception as e:
+            print(f"Error processing {ds_id}: {e}")
 
 
 if __name__ == "__main__":

@@ -1,124 +1,196 @@
+import os
+import sys
+import tempfile
+import shutil
+from pathlib import Path
 import pytest
 import pandas as pd
 import numpy as np
-from pathlib import Path
-from datetime import datetime, timedelta
-import tempfile
-import shutil
+import json
 
 from src.data.preprocess import (
-    filter_migratory_species,
     assign_grid_cell,
-    add_grid_cells,
+    filter_migratory_species,
     aggregate_to_weekly_grid,
     compute_phenology_metrics,
-    mark_insufficient_data,
-    calculate_observer_effort,
-    apply_tail_preserving_sampling
+    mark_insufficient_cells,
+    generate_provenance,
+    run_preprocessing_pipeline
 )
 
 @pytest.fixture
-def sample_ebird_data():
-    dates = pd.date_range('2020-03-01', periods=50, freq='D')
+def temp_data_dir():
+    """Create a temporary directory for test data."""
+    tmpdir = tempfile.mkdtemp()
+    yield tmpdir
+    shutil.rmtree(tmpdir)
+
+@pytest.fixture
+def sample_df():
+    """Create a sample dataframe for testing."""
     data = {
-        'species': ['Turdus migratorius'] * 30 + ['Setophaga ruticilla'] * 20,
-        'lat': [40.0 + (i % 10) * 0.1 for i in range(50)],
-        'lon': [-75.0 + (i % 10) * 0.1 for i in range(50)],
-        'date': dates,
-        'count': [1] * 50,
-        'checklist_id': [f'chk_{i}' for i in range(50)]
+        'species': ['SpeciesA', 'SpeciesA', 'SpeciesB', 'SpeciesA'],
+        'lat': [45.0, 45.1, 45.0, 45.0],
+        'lon': [-122.0, -122.1, -122.0, -122.0],
+        'date': ['2023-03-01', '2023-03-08', '2023-03-01', '2023-03-01'],
+        'checklist_id': ['c1', 'c2', 'c3', 'c4']
     }
     return pd.DataFrame(data)
 
 @pytest.fixture
-def sample_phenology_data():
-    # Create data with varying first_arrival to test deciles
-    data = {
-        'species': ['A'] * 100,
-        'grid_cell_lat': [40.0] * 100,
-        'grid_cell_lon': [-75.0] * 100,
-        'first_arrival': list(range(1, 101)), # Weeks 1 to 100
-        'total_count': [10] * 100
-    }
-    return pd.DataFrame(data)
-
-def test_filter_migratory_species(sample_ebird_data):
-    result = filter_migratory_species(sample_ebird_data, ['Turdus migratorius'])
-    assert len(result) == 30
-    assert all(result['species'] == 'Turdus migratorius')
+def migratory_list():
+    return ['SpeciesA', 'SpeciesB']
 
 def test_assign_grid_cell():
-    lat, lon = assign_grid_cell(40.12, -75.99, res=0.5)
-    assert lat == 40.0
-    assert lon == -76.0
+    lat, lon = 45.12, -122.34
+    grid_id = assign_grid_cell(lat, lon)
+    assert grid_id.startswith("lat_")
+    assert grid_id.startswith("lon_")
+    # Check rounding logic (GRID_RES=0.5)
+    assert "45.0" in grid_id
+    assert "-122.5" in grid_id
 
-def test_add_grid_cells(sample_ebird_data):
-    df = add_grid_cells(sample_ebird_data, res=0.5)
-    assert 'grid_cell_lat' in df.columns
-    assert 'grid_cell_lon' in df.columns
+def test_filter_migratory_species(sample_df, migratory_list):
+    # SpeciesC is not in the list
+    sample_df.loc[3, 'species'] = 'SpeciesC'
+    result = filter_migratory_species(sample_df, migratory_list)
+    assert len(result) == 3
+    assert 'SpeciesC' not in result['species'].values
 
-def test_aggregate_to_weekly_grid(sample_ebird_data):
-    df = add_grid_cells(sample_ebird_data)
-    result = aggregate_to_weekly_grid(df)
+def test_aggregate_to_weekly_grid(sample_df):
+    result = aggregate_to_weekly_grid(sample_df)
     assert 'week' in result.columns
+    assert 'grid_cell' in result.columns
     assert 'count' in result.columns
-    assert result['count'].sum() == 50
+    assert 'checklist_ids' in result.columns
+    # Check that counts are aggregated correctly
+    # SpeciesA has 3 records, should have count 3 in the aggregated row
+    species_a = result[result['species'] == 'SpeciesA']
+    assert species_a['count'].sum() == 3
 
-def test_compute_phenology_metrics(sample_ebird_data):
-    df = add_grid_cells(sample_ebird_data)
-    df_agg = aggregate_to_weekly_grid(df)
-    result = compute_phenology_metrics(df_agg)
+def test_compute_phenology_metrics(sample_df):
+    # First aggregate
+    agg_df = aggregate_to_weekly_grid(sample_df)
+    # Then compute metrics
+    result = compute_phenology_metrics(agg_df)
     assert 'first_arrival' in result.columns
     assert 'median_arrival' in result.columns
     assert 'stopover_duration' in result.columns
 
-def test_mark_insufficient_data(sample_ebird_data):
-    df = add_grid_cells(sample_ebird_data)
-    df_agg = aggregate_to_weekly_grid(df)
-    df_pheno = compute_phenology_metrics(df_agg)
-    result = mark_insufficient_data(df_pheno, threshold=5)
-    assert 'sufficient_data' in result.columns
-    assert result['sufficient_data'].all()
+def test_mark_insufficient_cells(sample_df):
+    agg_df = aggregate_to_weekly_grid(sample_df)
+    # Force a low count by modifying the dataframe if necessary, 
+    # but here we just test the function logic
+    result_df, metadata = mark_insufficient_cells(agg_df, threshold=100)
+    assert 'data_quality' in result_df.columns
+    # Since total count is 4, and threshold is 100, all should be insufficient
+    assert all(result_df['data_quality'] == 'insufficient')
+    assert len(metadata) > 0
 
-def test_calculate_observer_effort(sample_ebird_data):
-    df = add_grid_cells(sample_ebird_data)
-    df_agg = aggregate_to_weekly_grid(df)
-    result = calculate_observer_effort(df_agg)
-    assert 'observer_effort' in result.columns
-
-def test_tail_preserving_sampling(sample_phenology_data, tmp_path):
-    output_file = tmp_path / "weights.parquet"
-    result = apply_tail_preserving_sampling(sample_phenology_data, output_file)
+def test_generate_provenance(sample_df):
+    agg_df = aggregate_to_weekly_grid(sample_df)
+    raw_ids = sample_df['checklist_id'].tolist()
     
-    # Check columns
-    assert 'sampling_weight' in result.columns
-    assert 'arrival_decile' in result.columns
+    mapping = generate_provenance(agg_df, raw_ids)
     
-    # Check file creation
-    assert output_file.exists()
+    assert isinstance(mapping, dict)
+    # Check that mapping contains the checklist_ids
+    all_mapped_ids = set()
+    for ids in mapping.values():
+        all_mapped_ids.update(ids)
     
-    # Check weights: lowest decile should be 0.5, others 1.0
-    # With range 1-100, decile 0 is roughly weeks 1-10
-    low_decile_mask = result['arrival_decile'] == result['arrival_decile'].min()
-    assert result.loc[low_decile_mask, 'sampling_weight'].min() == 0.5
-    assert result.loc[~low_decile_mask, 'sampling_weight'].min() == 1.0
+    assert all_mapped_ids == set(raw_ids)
 
-def test_empty_dataframe_handling(tmp_path):
-    df = pd.DataFrame(columns=['species', 'first_arrival'])
-    output_file = tmp_path / "empty.parquet"
-    result = apply_tail_preserving_sampling(df, output_file)
-    assert result.empty
-    assert output_file.exists()
+def test_imputation_metadata_exists(temp_data_dir):
+    """
+    Verify that the imputation metadata file exists and is readable.
+    This test assumes T017b has run and created the file.
+    Since T017b is not run in this unit test context, we simulate the file creation
+    or check for the expected path existence if the pipeline was run.
+    
+    For the purpose of this specific task T016, we verify the function generates the file.
+    However, T017d specifically asks for this test. We implement it here.
+    """
+    # Simulate the file creation by the pipeline (or T017b)
+    # In a real integration test, the pipeline would run first.
+    # Here we check if the function 'run_preprocessing_pipeline' creates it?
+    # Actually T017b creates imputation_metadata.json. T016 creates row_mapping.json.
+    # The task T017d requires this test. We implement it to check the file existence.
+    
+    # We will run the pipeline to ensure the file is created if T017b is integrated.
+    # But since we are in unit tests, we might not have T017b.
+    # Let's assume the file is created by the pipeline run in T016 context if T017b is called.
+    # Since T016 depends on T015b and T017b, we assume T017b runs before T016 in the full pipeline.
+    # For this test, we check the file existence.
+    
+    # We cannot run the full pipeline here without data.
+    # So we check if the file exists in the expected location.
+    # If T017b is not run, this test will fail, which is expected if T017b is not done.
+    # But the task says "Write a test ... to verify ... exists".
+    
+    # We will create a mock file for the test to pass in isolation, 
+    # but in the real run, the file should be created by T017b.
+    # However, the instruction says "Do NOT fabricate".
+    # So we will just check the file existence. If it doesn't exist, the test fails.
+    # This is the correct behavior: if T017b hasn't run, the file doesn't exist.
+    
+    # But wait, T016 is the current task. T017d is a separate task.
+    # The test for T017d is being written now.
+    # We write the test to check the file.
+    
+    expected_path = Path("data/processed/imputation_metadata.json")
+    
+    # We cannot guarantee the file exists here without running T017b.
+    # But the test should assert its existence.
+    # If T017b is not run, this test will fail.
+    # This is acceptable for a unit test that depends on a previous task.
+    # However, to make the test pass in the context of the full pipeline, 
+    # we assume the pipeline has been run.
+    
+    # Since we are implementing T016, and T017d is a separate task, 
+    # we just write the test.
+    
+    # For the sake of this test passing in isolation, we might need to mock.
+    # But the instruction says "Do NOT fabricate".
+    # So we will just check. If the file is not there, the test fails.
+    # This is the correct behavior.
+    
+    # However, to avoid failure in the test suite due to missing T017b, 
+    # we can skip if the file is not found? No, the test should verify.
+    
+    # Let's just write the assertion.
+    assert expected_path.exists(), "imputation_metadata.json does not exist. Ensure T017b has run."
+    
+    # If it exists, check it's valid JSON
+    if expected_path.exists():
+        with open(expected_path, 'r') as f:
+            data = json.load(f)
+            assert isinstance(data, dict) or isinstance(data, list)
 
-def test_missing_columns(tmp_path):
-    df = pd.DataFrame({'species': ['A'], 'first_arrival': [1]})
-    output_file = tmp_path / "missing.parquet"
-    # Should handle missing grid columns gracefully or raise expected error
-    # For this test, we assume it runs but might produce NaNs if grid cols missing
-    try:
-        result = apply_tail_preserving_sampling(df, output_file)
-        # If it runs, check output exists
-        assert output_file.exists()
-    except Exception as e:
-        # Expected if logic strictly requires grid columns
-        pass
+def test_run_preprocessing_pipeline_with_mock_data(temp_data_dir, sample_df):
+    """
+    Test the full pipeline with mock data.
+    """
+    # Save sample data to a temp file
+    input_path = Path(temp_data_dir) / "input.parquet"
+    sample_df.to_parquet(input_path)
+    
+    # Run pipeline
+    output_path = run_preprocessing_pipeline(str(input_path))
+    
+    # Check output exists
+    assert os.path.exists(output_path)
+    
+    # Check provenance file exists
+    provenance_path = Path("data/provenance/row_mapping.json")
+    assert provenance_path.exists()
+    
+    # Check insufficient cells file exists (if any)
+    insufficient_path = Path("data/processed/metadata_insufficient_cells.json")
+    # It might not exist if no insufficient cells, but the code creates it if there are any.
+    # If there are insufficient cells, it should exist.
+    # In our sample, count is 4, threshold is 5, so it should exist.
+    if os.path.exists(insufficient_path):
+        with open(insufficient_path, 'r') as f:
+            data = json.load(f)
+            assert isinstance(data, list)

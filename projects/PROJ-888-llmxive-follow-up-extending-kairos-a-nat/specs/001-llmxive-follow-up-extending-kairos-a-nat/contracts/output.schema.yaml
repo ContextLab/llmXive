@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StabilityReport"
+description: "Aggregated results of the stability analysis across independent runs."
+type: "object"
+properties:
+  bit_depth:
+    type: "integer"
+    enum:
+      - 4
+      - 8
+      - 16
+    description: "The quantization level analyzed."
+  n_runs:
+    type: "integer"
+    minimum: 10
+    description: "Number of independent runs (must be >= 10)."
+  mean_model_error:
+    type: "number"
+    description: "Average model error across runs."
+  std_model_error:
+    type: "number"
+    description: "Standard deviation of model error."
+  p_value:
+    type: "number"
+    description: "Result of mixed-effects model or block-bootstrap test vs. baseline."
+  is_significant:
+    type: "boolean"
+    description: "True if p_value < 0.05."
+  stability_threshold_met:
+    type: "boolean"
+    description: "True if mean degradation ratio < 1.20."
+  stability_claim_framing:
+    type: "string"
+    description: "Text description of the relative degradation."
+required:
+  - bit_depth
+  - n_runs
+  - mean_model_error
+  - p_value
+  - stability_threshold_met
+  - stability_claim_framing
+additionalProperties: false

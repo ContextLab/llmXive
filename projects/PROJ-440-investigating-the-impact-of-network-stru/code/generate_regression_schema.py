@@ -1,0 +1,196 @@
+"""
+Generate the regression schema for PLS results.
+Creates contracts/regression_schema.schema.yaml
+"""
+import json
+import yaml
+from pathlib import Path
+from typing import Dict, Any
+
+SCHEMA_PATH = Path("contracts/regression_schema.schema.yaml")
+
+def create_schema() -> Dict[str, Any]:
+    """
+    Define the JSON Schema for regression_results.json.
+    This schema validates the output of the PLS regression analysis.
+    """
+    schema = {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "description": "Schema for Partial Least Squares (PLS) regression results correlating network topology with energy dissipation.",
+        "properties": {
+            "metadata": {
+                "type": "object",
+                "description": "Run metadata and configuration",
+                "properties": {
+                    "project_id": {"type": "string", "const": "PROJ-440-investigating-the-impact-of-network-stru"},
+                    "task_id": {"type": "string", "const": "T006c"},
+                    "timestamp": {"type": "string", "format": "date-time"},
+                    "method": {"type": "string", "const": "PLS"},
+                    "software_versions": {
+                        "type": "object",
+                        "properties": {
+                            "python": {"type": "string"},
+                            "numpy": {"type": "string"},
+                            "sklearn": {"type": "string"},
+                            "scipy": {"type": "string"}
+                        },
+                        "required": ["python", "numpy", "sklearn", "scipy"]
+                    }
+                },
+                "required": ["project_id", "task_id", "timestamp", "method", "software_versions"]
+            },
+            "data_summary": {
+                "type": "object",
+                "description": "Summary of the input data used for regression",
+                "properties": {
+                    "total_instances": {"type": "integer", "minimum": 0},
+                    "filtered_instances": {"type": "integer", "minimum": 0},
+                    "resonant_excluded": {"type": "integer", "minimum": 0},
+                    "predictors": {"type": "array", "items": {"type": "string"}},
+                    "response": {"type": "string", "const": "decay_rate"},
+                    "vif_flags": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "predictor": {"type": "string"},
+                                "vif_score": {"type": "number", "minimum": 0},
+                                "flagged": {"type": "boolean"}
+                            },
+                            "required": ["predictor", "vif_score", "flagged"]
+                        }
+                    }
+                },
+                "required": ["total_instances", "filtered_instances", "resonant_excluded", "predictors", "response"]
+            },
+            "pls_model": {
+                "type": "object",
+                "description": "PLS Regression model parameters",
+                "properties": {
+                    "n_components": {"type": "integer", "minimum": 1},
+                    "x_weights": {"type": "array", "description": "Weights of predictors in latent components", "items": {"type": "array", "items": {"type": "number"}}},
+                    "y_weights": {"type": "array", "description": "Weights of response in latent components", "items": {"type": "array", "items": {"type": "number"}}},
+                    "x_loadings": {"type": "array", "description": "Loadings of predictors on latent components (PC1, PC2, etc.)", "items": {"type": "array", "items": {"type": "number"}}},
+                    "y_loadings": {"type": "array", "description": "Loadings of response on latent components", "items": {"type": "array", "items": {"type": "number"}}},
+                    "coef": {"type": "array", "description": "Regression coefficients for original predictors", "items": {"type": "number"}},
+                    "intercept": {"type": "number"},
+                    "r2_x": {"type": "number", "minimum": 0, "maximum": 1, "description": "Explained variance in X"},
+                    "r2_y": {"type": "number", "minimum": 0, "maximum": 1, "description": "Explained variance in Y (decay rate)"}
+                },
+                "required": ["n_components", "x_weights", "y_weights", "x_loadings", "y_loadings", "coef", "intercept", "r2_x", "r2_y"]
+            },
+            "statistical_inference": {
+                "type": "object",
+                "description": "Statistical significance and correction results",
+                "properties": {
+                    "coefficients": {
+                        "type": "array",
+                        "description": "List of coefficient objects with stats",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "predictor": {"type": "string"},
+                                "coef": {"type": "number"},
+                                "std_error": {"type": "number", "minimum": 0},
+                                "t_statistic": {"type": "number"},
+                                "p_value_raw": {"type": "number", "minimum": 0, "maximum": 1},
+                                "p_value_corrected": {"type": "number", "minimum": 0, "maximum": 1},
+                                "is_significant": {"type": "boolean"}
+                            },
+                            "required": ["predictor", "coef", "std_error", "t_statistic", "p_value_raw", "p_value_corrected", "is_significant"]
+                        }
+                    },
+                    "correction_method": {"type": "string", "enum": ["bonferroni", "holm-bonferroni"]},
+                    "significance_threshold": {"type": "number", "minimum": 0, "maximum": 1}
+                },
+                "required": ["coefficients", "correction_method", "significance_threshold"]
+            },
+            "vip_scores": {
+                "type": "array",
+                "description": "Variable Importance in Projection scores for each predictor",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "predictor": {"type": "string"},
+                        "vip_score": {"type": "number", "minimum": 0}
+                    },
+                    "required": ["predictor", "vip_score"]
+                }
+            },
+            "null_model_validation": {
+                "type": "object",
+                "description": "Permutation test results against null distribution",
+                "properties": {
+                    "n_permutations": {"type": "integer", "minimum": 1},
+                    "observed_r2": {"type": "number", "minimum": 0, "maximum": 1},
+                    "null_mean_r2": {"type": "number"},
+                    "null_std_r2": {"type": "number"},
+                    "p_value": {"type": "number", "minimum": 0, "maximum": 1},
+                    "is_significant": {"type": "boolean"}
+                },
+                "required": ["n_permutations", "observed_r2", "null_mean_r2", "null_std_r2", "p_value", "is_significant"]
+            },
+            "sensitivity_analysis": {
+                "type": "array",
+                "description": "Results of sensitivity sweep across thresholds",
+                "items": {
+                    "type": "object",
+                    "properties": {
+                        "threshold": {"type": "number", "minimum": 0, "maximum": 1},
+                        "significant_count": {"type": "integer", "minimum": 0}
+                    },
+                    "required": ["threshold", "significant_count"]
+                }
+            },
+            "pca_loadings": {
+                "type": "object",
+                "description": "PCA loadings for PC1 and PC2 derived from predictors (for FR-009)",
+                "properties": {
+                    "pc1": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "metric": {"type": "string"},
+                                "loading": {"type": "number"}
+                            },
+                            "required": ["metric", "loading"]
+                        }
+                    },
+                    "pc2": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "metric": {"type": "string"},
+                                "loading": {"type": "number"}
+                            },
+                            "required": ["metric", "loading"]
+                        }
+                    }
+                },
+                "required": ["pc1", "pc2"]
+            }
+        },
+        "required": [
+            "metadata", "data_summary", "pls_model", "statistical_inference",
+            "vip_scores", "null_model_validation", "sensitivity_analysis", "pca_loadings"
+        ]
+    }
+    return schema
+
+def write_schema(schema: Dict[str, Any], path: Path) -> None:
+    """Write the schema to a YAML file."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w", encoding="utf-8") as f:
+        yaml.dump(schema, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
+
+def main() -> None:
+    """Entry point to generate the schema."""
+    schema = create_schema()
+    write_schema(schema, SCHEMA_PATH)
+    print(f"Schema written to {SCHEMA_PATH}")
+
+if __name__ == "__main__":
+    main()

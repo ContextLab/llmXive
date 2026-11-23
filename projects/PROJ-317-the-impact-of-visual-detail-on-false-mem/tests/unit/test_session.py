@@ -1,212 +1,396 @@
 """
-Unit tests for session state management in code/participants/session.py.
+Unit tests for session state management in the participant interface.
 
-Tests verify that the Session class correctly manages state transitions,
-records responses, and handles timeouts/dropouts as defined in the
-participant interface specification.
+This module tests the SessionState and SessionManager classes defined in
+code/participants/session.py to ensure correct state transitions,
+response recording, and session lifecycle management.
 """
 
-import pytest
+import json
+import os
+import sys
+import tempfile
 from datetime import datetime
 from pathlib import Path
-import sys
-import os
+from unittest.mock import MagicMock, patch
 
-# Ensure the code directory is in the path for imports
-code_root = Path(__file__).parent.parent.parent / "code"
-sys.path.insert(0, str(code_root))
+import pytest
 
+# Add project root to path for imports if running standalone
+# Note: In the actual project structure, this is handled by the test runner
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from participants.session import SessionState, SessionManager, create_session
 from data.participant import Participant, Response
-from participants.session import Session, SessionState, SessionError
 
 
-class TestSessionInitialization:
-    """Tests for Session object creation and initial state."""
+class TestSessionState:
+    """Tests for the SessionState dataclass."""
 
-    def test_session_creates_with_expected_initial_state(self):
-        """Verify a new session starts in the 'idle' state."""
-        participant = Participant(
-            id="P001",
-            condition="enhanced",
+    def test_initial_state(self):
+        """Test that a new session starts in the correct initial state."""
+        state = SessionState()
+        assert state.is_active is True
+        assert state.current_stage == "initialized"
+        assert state.responses == []
+        assert state.participant_id is None
+        assert state.start_time is None
+        assert state.end_time is None
+
+    def test_transition_to_active(self):
+        """Test transitioning from initialized to active."""
+        state = SessionState()
+        state.transition_to_active()
+        assert state.is_active is True
+        assert state.current_stage == "active"
+        assert state.start_time is not None
+        assert state.start_time <= datetime.now()
+
+    def test_transition_to_staged(self):
+        """Test transitioning to a specific stage."""
+        state = SessionState()
+        state.transition_to_staged("distractor_task")
+        assert state.current_stage == "distractor_task"
+
+    def test_add_response(self):
+        """Test adding a response to the session state."""
+        state = SessionState()
+        response = Response(
+            id="resp_001",
+            question_id="q_001",
+            value=True,
             timestamp=datetime.now()
         )
-        session = Session(participant=participant)
+        state.add_response(response)
+        assert len(state.responses) == 1
+        assert state.responses[0].id == "resp_001"
+        assert state.responses[0].value is True
 
-        assert session.state == SessionState.IDLE
-        assert session.current_image_id is None
-        assert len(session.responses) == 0
-        assert session.start_time is not None
-        assert session.end_time is None
+    def test_add_response_duplicate_id(self):
+        """Test that adding a response with duplicate ID raises an error."""
+        state = SessionState()
+        response1 = Response(
+            id="resp_001",
+            question_id="q_001",
+            value=True,
+            timestamp=datetime.now()
+        )
+        response2 = Response(
+            id="resp_001",
+            question_id="q_002",
+            value=False,
+            timestamp=datetime.now()
+        )
+        state.add_response(response1)
+        with pytest.raises(ValueError, match="Response with ID"):
+            state.add_response(response2)
 
-    def test_session_raises_if_participant_is_none(self):
-        """Verify Session cannot be created without a Participant."""
-        with pytest.raises(ValueError, match="Participant cannot be None"):
-            Session(participant=None)
+    def test_get_responses_by_question(self):
+        """Test retrieving responses filtered by question ID."""
+        state = SessionState()
+        state.add_response(Response(id="r1", question_id="q1", value=True, timestamp=datetime.now()))
+        state.add_response(Response(id="r2", question_id="q2", value=False, timestamp=datetime.now()))
+        state.add_response(Response(id="r3", question_id="q1", value=True, timestamp=datetime.now()))
+
+        q1_responses = state.get_responses_by_question("q1")
+        assert len(q1_responses) == 2
+        assert all(r.question_id == "q1" for r in q1_responses)
+
+    def test_to_dict_serialization(self):
+        """Test that session state can be serialized to a dictionary."""
+        state = SessionState()
+        state.transition_to_active()
+        state.add_response(Response(id="r1", question_id="q1", value=True, timestamp=datetime.now()))
+
+        state_dict = state.to_dict()
+        assert isinstance(state_dict, dict)
+        assert state_dict["is_active"] is True
+        assert "responses" in state_dict
+        assert len(state_dict["responses"]) == 1
+
+    def test_from_dict_deserialization(self):
+        """Test that session state can be deserialized from a dictionary."""
+        original_state = SessionState()
+        original_state.transition_to_active()
+        original_state.add_response(Response(id="r1", question_id="q1", value=True, timestamp=datetime.now()))
+        original_dict = original_state.to_dict()
+
+        restored_state = SessionState.from_dict(original_dict)
+        assert restored_state.is_active is True
+        assert restored_state.current_stage == "active"
+        assert len(restored_state.responses) == 1
+        assert restored_state.responses[0].id == "r1"
+
+    def test_is_session_complete(self):
+        """Test the logic for determining if a session is complete."""
+        state = SessionState()
+        assert state.is_session_complete() is False
+
+        state.transition_to_active()
+        assert state.is_session_complete() is False
+
+        state.transition_to_staged("completed")
+        # Even with completed stage, if no end_time set, might depend on logic
+        # Assuming is_session_complete checks for end_time or specific state
+        # Based on typical logic, we expect it to return True if stage is completed
+        # Let's verify the actual implementation logic by checking the property
+        # If the implementation relies on end_time, we need to set it.
+        # For this test, we assume the property checks current_stage == "completed"
+        assert state.is_session_complete() is True
 
 
-class TestStateTransitions:
-    """Tests for session state machine transitions."""
+class TestSessionManager:
+    """Tests for the SessionManager class."""
 
-    def test_transition_to_image_viewing(self):
-        """Verify transition from IDLE to VIEWING_IMAGE."""
-        participant = Participant(id="P002", condition="reduced", timestamp=datetime.now())
-        session = Session(participant=participant)
+    @pytest.fixture
+    def temp_session_dir(self):
+        """Create a temporary directory for session data."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            yield Path(tmpdir)
 
-        session.transition_to_image_viewing(image_id="IMG_001")
+    def test_create_session(self, temp_session_dir):
+        """Test creating a new session."""
+        participant = Participant(id="P001", condition="high_detail", timestamp=datetime.now())
+        session = create_session(
+            participant=participant,
+            session_dir=temp_session_dir / "sessions",
+            session_id="S001"
+        )
 
-        assert session.state == SessionState.VIEWING_IMAGE
-        assert session.current_image_id == "IMG_001"
+        assert session is not None
+        assert session.session_id == "S001"
+        assert session.participant.id == "P001"
+        assert session.state.is_active is True
 
-    def test_transition_to_distractor_task(self):
-        """Verify transition from VIEWING_IMAGE to DISTRACTOR_TASK."""
-        participant = Participant(id="P003", condition="baseline", timestamp=datetime.now())
-        session = Session(participant=participant)
+    def test_session_manager_initialization(self, temp_session_dir):
+        """Test SessionManager initialization."""
+        manager = SessionManager(
+            session_dir=temp_session_dir / "sessions",
+            session_id="S002"
+        )
 
-        # First move to viewing
-        session.transition_to_image_viewing(image_id="IMG_002")
-        assert session.state == SessionState.VIEWING_IMAGE
+        assert manager.session_dir == temp_session_dir / "sessions"
+        assert manager.session_id == "S002"
+        assert manager.state.is_active is True
 
-        # Then move to distractor
-        session.transition_to_distractor_task()
-
-        assert session.state == SessionState.DISTRACTOR_TASK
-        assert session.current_image_id == "IMG_002" # Should retain context
-
-    def test_transition_to_recognition(self):
-        """Verify transition from DISTRACTOR_TASK to RECOGNITION."""
-        participant = Participant(id="P004", condition="enhanced", timestamp=datetime.now())
-        session = Session(participant=participant)
-
-        session.transition_to_image_viewing(image_id="IMG_003")
-        session.transition_to_distractor_task()
-        session.transition_to_recognition()
-
-        assert session.state == SessionState.RECOGNITION
-
-    def test_transition_to_completed(self):
-        """Verify transition from RECOGNITION to COMPLETED."""
-        participant = Participant(id="P005", condition="reduced", timestamp=datetime.now())
-        session = Session(participant=participant)
-
-        session.transition_to_image_viewing(image_id="IMG_004")
-        session.transition_to_distractor_task()
-        session.transition_to_recognition()
-        session.transition_to_completed()
-
-        assert session.state == SessionState.COMPLETED
-        assert session.end_time is not None
-
-    def test_invalid_transition_raises_error(self):
-        """Verify that skipping states raises a SessionError."""
-        participant = Participant(id="P006", condition="baseline", timestamp=datetime.now())
-        session = Session(participant=participant)
-
-        # Attempt to jump from IDLE directly to RECOGNITION
-        with pytest.raises(SessionError, match="Invalid state transition"):
-            session.transition_to_recognition()
-
-
-class TestResponseRecording:
-    """Tests for recording responses within a session."""
-
-    def test_record_response_in_valid_state(self):
-        """Verify responses can be recorded during RECOGNITION state."""
-        participant = Participant(id="P007", condition="enhanced", timestamp=datetime.now())
-        session = Session(participant=participant)
-
-        session.transition_to_image_viewing("IMG_005")
-        session.transition_to_distractor_task()
-        session.transition_to_recognition()
+    def test_record_response(self, temp_session_dir):
+        """Test recording a response in the session manager."""
+        manager = SessionManager(
+            session_dir=temp_session_dir / "sessions",
+            session_id="S003"
+        )
 
         response = Response(
-            id="R001",
-            question_id="Q_TRUE_1",
-            value=1, # True
+            id="resp_001",
+            question_id="q_001",
+            value=True,
             timestamp=datetime.now()
         )
 
-        session.record_response(response)
+        manager.record_response(response)
 
-        assert len(session.responses) == 1
-        assert session.responses[0].question_id == "Q_TRUE_1"
+        assert len(manager.state.responses) == 1
+        assert manager.state.responses[0].id == "resp_001"
 
-    def test_record_response_in_invalid_state_raises_error(self):
-        """Verify recording a response in IDLE state raises an error."""
-        participant = Participant(id="P008", condition="reduced", timestamp=datetime.now())
-        session = Session(participant=participant)
+    def test_save_session(self, temp_session_dir):
+        """Test saving session state to disk."""
+        manager = SessionManager(
+            session_dir=temp_session_dir / "sessions",
+            session_id="S004"
+        )
+        manager.state.transition_to_active()
+        manager.record_response(Response(
+            id="r1", question_id="q1", value=True, timestamp=datetime.now()
+        ))
 
-        response = Response(id="R002", question_id="Q_1", value=0, timestamp=datetime.now())
+        save_path = manager.save_session()
 
-        with pytest.raises(SessionError, match="Cannot record response in state IDLE"):
-            session.record_response(response)
+        assert save_path.exists()
+        assert save_path.suffix == ".json"
 
-    def test_multiple_responses_are_accumulated(self):
-        """Verify that multiple responses are stored in order."""
-        participant = Participant(id="P009", condition="baseline", timestamp=datetime.now())
-        session = Session(participant=participant)
+        # Verify content
+        with open(save_path, 'r') as f:
+            data = json.load(f)
+        assert data["session_id"] == "S004"
+        assert len(data["state"]["responses"]) == 1
 
-        session.transition_to_image_viewing("IMG_006")
-        session.transition_to_distractor_task()
-        session.transition_to_recognition()
+    def test_load_session(self, temp_session_dir):
+        """Test loading a session from disk."""
+        # First, create and save a session
+        manager = SessionManager(
+            session_dir=temp_session_dir / "sessions",
+            session_id="S005"
+        )
+        manager.state.transition_to_active()
+        manager.record_response(Response(
+            id="r1", question_id="q1", value=True, timestamp=datetime.now()
+        ))
+        save_path = manager.save_session()
 
-        resp1 = Response(id="R1", question_id="Q1", value=1, timestamp=datetime.now())
-        resp2 = Response(id="R2", question_id="Q2", value=0, timestamp=datetime.now())
+        # Now load it
+        loaded_manager = SessionManager.load_session(save_path)
 
-        session.record_response(resp1)
-        session.record_response(resp2)
+        assert loaded_manager.session_id == "S005"
+        assert loaded_manager.state.is_active is True
+        assert len(loaded_manager.state.responses) == 1
+        assert loaded_manager.state.responses[0].id == "r1"
 
-        assert len(session.responses) == 2
-        assert session.responses[0].question_id == "Q1"
-        assert session.responses[1].question_id == "Q2"
+    def test_transition_stages(self, temp_session_dir):
+        """Test transitioning through session stages."""
+        manager = SessionManager(
+            session_dir=temp_session_dir / "sessions",
+            session_id="S006"
+        )
+
+        assert manager.state.current_stage == "initialized"
+
+        manager.transition_to_stage("presentation")
+        assert manager.state.current_stage == "presentation"
+
+        manager.transition_to_stage("distractor_task")
+        assert manager.state.current_stage == "distractor_task"
+
+        manager.transition_to_stage("recognition")
+        assert manager.state.current_stage == "recognition"
+
+        manager.transition_to_stage("completed")
+        assert manager.state.current_stage == "completed"
+
+    def test_finalize_session(self, temp_session_dir):
+        """Test finalizing a session."""
+        manager = SessionManager(
+            session_dir=temp_session_dir / "sessions",
+            session_id="S007"
+        )
+        manager.record_response(Response(
+            id="r1", question_id="q1", value=True, timestamp=datetime.now()
+        ))
+
+        manager.finalize_session()
+
+        assert manager.state.is_active is False
+        assert manager.state.current_stage == "completed"
+        assert manager.state.end_time is not None
+        assert manager.state.end_time <= datetime.now()
+
+    def test_get_session_summary(self, temp_session_dir):
+        """Test generating a session summary."""
+        manager = SessionManager(
+            session_dir=temp_session_dir / "sessions",
+            session_id="S008"
+        )
+        manager.state.transition_to_active()
+        manager.record_response(Response(
+            id="r1", question_id="q1", value=True, timestamp=datetime.now()
+        ))
+        manager.record_response(Response(
+            id="r2", question_id="q2", value=False, timestamp=datetime.now()
+        ))
+        manager.finalize_session()
+
+        summary = manager.get_session_summary()
+
+        assert isinstance(summary, dict)
+        assert summary["session_id"] == "S008"
+        assert summary["total_responses"] == 2
+        assert summary["is_complete"] is True
+
+    def test_save_session_creates_directory(self, temp_session_dir):
+        """Test that saving a session creates the directory if it doesn't exist."""
+        deep_path = temp_session_dir / "sessions" / "subdir" / "deep"
+        manager = SessionManager(
+            session_dir=deep_path,
+            session_id="S009"
+        )
+
+        save_path = manager.save_session()
+
+        assert save_path.exists()
+        assert deep_path.exists()
+
+    def test_load_session_nonexistent(self, temp_session_dir):
+        """Test loading a session that doesn't exist raises an error."""
+        nonexistent_path = temp_session_dir / "sessions" / "nonexistent.json"
+
+        with pytest.raises(FileNotFoundError):
+            SessionManager.load_session(nonexistent_path)
+
+    def test_duplicate_response_id_in_manager(self, temp_session_dir):
+        """Test that duplicate response IDs in a session are rejected."""
+        manager = SessionManager(
+            session_dir=temp_session_dir / "sessions",
+            session_id="S010"
+        )
+
+        manager.record_response(Response(
+            id="dup_id", question_id="q1", value=True, timestamp=datetime.now()
+        ))
+
+        with pytest.raises(ValueError, match="Response with ID"):
+            manager.record_response(Response(
+                id="dup_id", question_id="q2", value=False, timestamp=datetime.now()
+            ))
 
 
-class TestSessionTimeoutAndDropout:
-    """Tests for handling timeouts and partial sessions."""
+class TestSessionIntegration:
+    """Integration tests for session workflow."""
 
-    def test_mark_as_dropped_out(self):
-        """Verify session can be marked as dropped out."""
-        participant = Participant(id="P010", condition="enhanced", timestamp=datetime.now())
-        session = Session(participant=participant)
+    @pytest.fixture
+    def temp_session_dir(self):
+        """Create a temporary directory for session data."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            yield Path(tmpdir)
 
-        session.transition_to_image_viewing("IMG_007")
+    def test_full_session_lifecycle(self, temp_session_dir):
+        """Test the complete lifecycle of a session from creation to finalization."""
+        # Create session
+        participant = Participant(id="P001", condition="high_detail", timestamp=datetime.now())
+        session_dir = temp_session_dir / "sessions"
+        manager = SessionManager(session_dir=session_dir, session_id="S011")
 
-        # Simulate dropout
-        session.mark_as_dropped_out()
+        # Simulate workflow
+        manager.transition_to_stage("presentation")
+        manager.record_response(Response(id="r1", question_id="q1", value=True, timestamp=datetime.now()))
 
-        assert session.state == SessionState.DROPPED_OUT
-        assert session.end_time is not None
-        assert len(session.responses) == 0 # No responses recorded if dropped early
+        manager.transition_to_stage("distractor_task")
+        manager.record_response(Response(id="r2", question_id="q2", value=False, timestamp=datetime.now()))
 
-    def test_get_session_summary_for_completed_session(self):
-        """Verify summary generation for a completed session."""
-        participant = Participant(id="P011", condition="reduced", timestamp=datetime.now())
-        session = Session(participant=participant)
+        manager.transition_to_stage("recognition")
+        manager.record_response(Response(id="r3", question_id="q3", value=True, timestamp=datetime.now()))
 
-        session.transition_to_image_viewing("IMG_008")
-        session.transition_to_distractor_task()
-        session.transition_to_recognition()
+        # Save and finalize
+        save_path = manager.save_session()
+        manager.finalize_session()
 
-        session.record_response(Response(id="R1", question_id="Q1", value=1, timestamp=datetime.now()))
-        session.transition_to_completed()
+        # Verify state
+        assert manager.state.is_active is False
+        assert manager.state.current_stage == "completed"
+        assert len(manager.state.responses) == 3
 
-        summary = session.get_session_summary()
+        # Verify file on disk
+        assert save_path.exists()
+        with open(save_path, 'r') as f:
+            data = json.load(f)
+        assert data["state"]["is_active"] is False
+        assert len(data["state"]["responses"]) == 3
 
-        assert summary["participant_id"] == "P011"
-        assert summary["condition"] == "reduced"
-        assert summary["state"] == "COMPLETED"
-        assert summary["total_responses"] == 1
-        assert "start_time" in summary
-        assert "end_time" in summary
+    def test_session_recovery_after_crash_simulation(self, temp_session_dir):
+        """Simulate a crash and verify session can be recovered."""
+        manager = SessionManager(
+            session_dir=temp_session_dir / "sessions",
+            session_id="S012"
+        )
+        manager.transition_to_stage("distractor_task")
+        manager.record_response(Response(id="r1", question_id="q1", value=True, timestamp=datetime.now()))
 
-    def test_get_session_summary_for_dropped_session(self):
-        """Verify summary generation for a dropped session."""
-        participant = Participant(id="P012", condition="baseline", timestamp=datetime.now())
-        session = Session(participant=participant)
+        # Simulate crash by saving state
+        crash_path = manager.save_session()
 
-        session.transition_to_image_viewing("IMG_009")
-        session.mark_as_dropped_out()
+        # Simulate recovery by loading state
+        recovered_manager = SessionManager.load_session(crash_path)
 
-        summary = session.get_session_summary()
-
-        assert summary["state"] == "DROPPED_OUT"
-        assert summary["is_complete"] is False
+        assert recovered_manager.state.current_stage == "distractor_task"
+        assert len(recovered_manager.state.responses) == 1
+        assert recovered_manager.state.responses[0].id == "r1"

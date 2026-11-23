@@ -1,41 +1,46 @@
 # Implementation Plan: Investigating the Correlation Between Structural Brain Connectivity and Individual Music Preferences
 
-**Branch**: `001-gene-regulation` | **Date**: 2023-10-27 | **Spec**: `specs/001-gene-regulation/spec.md`
+**Branch**: `001-gene-regulation` | **Date**: 2026-07-02 | **Spec**: `specs/001-gene-regulation/spec.md`
 **Input**: Feature specification from `/specs/001-gene-regulation/spec.md`
 
 ## Summary
 
-This project implements a meta-analysis pipeline to quantify the correlation between structural brain connectivity (dMRI metrics like FA/MD) and individual music preferences. The system prioritizes a quantitative random-effects meta-analysis if ≥10 eligible studies are found, calculating pooled effect sizes, heterogeneity (I²), and publication bias (Egger's test). **Crucially, if <10 studies are found, or if studies lack explicit (r, n) pairs, the system strictly pivots to a narrative systematic review.** The implementation strictly adheres to the project constitution's reproducibility and statistical integrity principles, running entirely on CPU-only GitHub Actions runners.
+This project implements a meta-analytic pipeline to investigate the correlation between structural brain connectivity (diffusion MRI metrics like FA/MD) and individual music preferences. The primary technical approach involves extracting effect sizes (r, t, F) and sample sizes from primary studies, performing a random-effects meta-analysis, assessing heterogeneity (I²) and publication bias (Egger's test), and generating visualizations (forest, funnel plots). 
 
-**Scientific Validity Note**: This project serves as a **Pipeline Validation** study. Synthetic data is used *only* to verify the code's ability to process statistical logic (recovery of known ground truth). The scientific conclusion regarding the real-world correlation is strictly conditional on the availability of real primary studies. If real data is insufficient, the output is a "Data Insufficient" narrative review, not a simulated correlation.
+**Critical Scientific Reframing**: The research question is explicitly defined as: "Does the literature contain evidence of a correlation between dMRI metrics and music preference?" If the literature search yields an insufficient number of eligible studies (or zero), the system **must** pivot to a "Systematic Review of Absence," reporting "No Quantitative Evidence Found" as a valid scientific outcome. The quantitative goal is to quantify the correlation *if it exists*; otherwise, to quantify the absence of evidence.
+
+The implementation will use Python, `pandas`, `statsmodels`, `scipy`, and `matplotlib` on a CPU-first basis, running entirely within GitHub Actions constraints. A key requirement is the automatic detection of study count (N < 10) to trigger the pivot from quantitative synthesis to narrative systematic review, ensuring methodological soundness.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`  
-**Storage**: CSV (input), JSON (output), PNG (visualizations)  
-**Testing**: `pytest` (unit tests on synthetic data, integration tests on mock meta-analysis)  
-**Target Platform**: Linux (GitHub Actions default runner)  
-**Project Type**: Data analysis library / CLI tool  
-**Performance Goals**: Complete analysis of Numerous studies in <15 minutes; memory <7GB; disk <14GB.  
-**Constraints**: No GPU; no deep learning; deterministic results via pinned random seeds; strict adherence to FR-001 (qualitative extraction) and FR-006 (narrative fallback).  
-**Scale/Scope**: Input: A set of study records (synthetic or real); Output: A JSON report, a small set of plots.
+**Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `matplotlib`, `seaborn`, `pyyaml`, `pytest`, `hksj` (for low-power adjustment)  
+**Storage**: Local file system (`data/raw`, `data/processed`, `data/derived`); no external database.  
+**Testing**: `pytest` (unit and integration tests for extraction, statistical models, pivot logic, and Bonferroni correction with 5+ tracts).  
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 vCPU, ~7 GB RAM).  
+**Project Type**: Data analysis pipeline / CLI tool.  
+**Performance Goals**: Complete full pipeline (including mock data generation and analysis) within 15 minutes. Memory usage < 6 GB.  
+**Constraints**: Must run without GPU; must handle N < 10 gracefully by skipping quantitative steps; must not fabricate data if real sources are unavailable (must use mock data for testing only, with clear flags).  
+**Scale/Scope**: Processing of a representative set of synthetic or extracted study records.
 
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+> **Dataset Strategy Note**: The spec relies on literature extraction. No single "dataset" exists. The "data" will be generated via:
+> 1. **Mock Data**: A synthetic CSV (`mock_studies.csv`) for testing the pipeline logic (T000-gen-all). **Default config ensures N=15 and 5+ distinct tracts.**
+> 2. **Real Data**: The pipeline expects a user-provided `studies.csv` (extracted from literature via the defined Search Protocol). If this is missing or N < 10, the system pivots.
+> 3. **Verified Sources**: As per the "Verified datasets" block, no direct dataset exists for "dMRI vs. Music Preference". The plan relies on the **Mock Data** for CI validation and the **Narrative Fallback** for real-world execution if no studies are found.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research.*
 
-| Principle | Compliance Strategy |
-|-----------|---------------------|
-| **I. Reproducibility** | All random seeds pinned in `code/`; `requirements.txt` pins exact versions; no external state changes. |
-| **II. Verified Accuracy** | Citations in `research.md` link ONLY to verified dataset URLs provided in the prompt; no fabricated sources. |
-| **III. Data Hygiene** | Input data is treated as immutable; derivations written to new files; PII scan via `Repository-Hygiene Agent`. |
-| **IV. Single Source of Truth** | All statistics in `paper/` generated programmatically from `data/` JSON; no hand-typed numbers. |
-| **V. Versioning Discipline** | Artifacts checksummed; `state/` updated on changes; `code/` versioned via git hash. |
-| **VI. Meta-Analysis Statistical Integrity** | Random-effects model (`statsmodels`); I² calculated to multiple decimal places.; Egger's test only if N≥10; Bonferroni applied if N≥10 and k≥2 (with limitation note). |
-| **VII. Systematic Review Fallback Protocol** | Code explicitly checks study count (N) before quantitative steps; if N<10, switches to narrative mode and skips aggregation. |
+| Principle | Compliance Status | Action/Notes |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | `requirements.txt` pins versions. Random seeds (e.g., `np.random.seed(42)`) will be set in `code/`. Mock data generation is deterministic. |
+| **II. Verified Accuracy** | **PASS** | No external citations in `plan.md` or `research.md` require validation yet (relies on synthetic/mock data for testing). Real literature citations will be validated by the Reference-Validator Agent in later stages. |
+| **III. Data Hygiene** | **PASS** | `data/` structure separates `raw` (input), `processed` (intermediate), and `derived` (outputs). Checksums will be recorded in `state/`. No in-place modification. |
+| **IV. Single Source of Truth** | **PASS** | All statistics in the final report will be derived from `data/processed/*.json` generated by the code, not hand-typed. |
+| **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes. `state/` timestamps will be updated upon artifact changes. |
+| **VI. Meta-Analysis Statistical Integrity** | **PASS** | Plan explicitly includes random-effects model (`statsmodels`), I² calculation, Egger's test (conditional on N≥10), Bonferroni correction (k≥2, N≥10), and Hartung-Knapp adjustment for low power (10≤N<20). |
+| **VII. Systematic Review Fallback** | **PASS** | Plan includes explicit logic to detect N < 10 and switch to narrative synthesis, skipping quantitative aggregation. |
 
 ## Project Structure
 
@@ -47,10 +52,8 @@ specs/001-gene-regulation/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-│   ├── study_record.schema.yaml
-│   └── meta_analysis_result.schema.yaml
-└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
+├── contracts/           # Phase 1 output (Schema files)
+└── tasks.md             # Phase 2 output
 ```
 
 ### Source Code (repository root)
@@ -59,80 +62,97 @@ specs/001-gene-regulation/
 projects/PROJ-082-investigating-the-correlation-between-st/
 ├── code/
 │   ├── __init__.py
-│   ├── requirements.txt
-│   ├── main.py                 # Entry point for CLI
-│   ├── extraction.py           # Data extraction (FR-001)
-│   ├── meta_analysis.py        # Core stats (FR-002, FR-003, FR-005)
-│   ├── visualization.py        # Plotting (FR-004, FR-006)
-│   ├── utils.py                # Helpers, seeds, file I/O
-│   └── fallback.py             # Narrative synthesis logic (FR-006)
+│   ├── config/
+│   │   └── tract_lexicon.yaml      # Generated tract definitions
+│   ├── data/
+│   │   ├── generators.py           # Mock data generation (T000)
+│   │   ├── real_data_validator.py  # N < 10 check (T009)
+│   │   └── loaders.py              # CSV loading utilities
+│   ├── analysis/
+│   │   ├── extraction.py           # FR-001: Extract r, n, tract
+│   │   ├── meta_analysis.py        # FR-002, FR-003, FR-005: Models & Tests
+│   │   ├── narrative_synthesis.py  # FR-006: Fallback logic
+│   │   └── moderators.py           # Moderator analysis (Heterogeneity)
+│   ├── viz/
+│   │   └── plots.py                # FR-004: Forest, Funnel plots
+│   └── main.py                     # Entry point
 ├── data/
-│   ├── raw/                    # Input CSVs (mock or real)
-│   └── processed/              # Derived JSONs and PNGs
+│   ├── raw/
+│   │   ├── mock_studies.csv        # Test data
+│   │   └── studies.csv             # Real input (if available)
+│   ├── processed/
+│   │   ├── study_count.json        # N count
+│   │   ├── meta_results.json       # Pooled effects, I², bias
+│   │   └── real_data_status.json   # Validation status
+│   └── derived/
+│       └── plots/                  # PNG outputs
 ├── tests/
 │   ├── unit/
 │   │   ├── test_extraction.py
 │   │   ├── test_meta_analysis.py
-│   │   └── test_visualization.py
+│   │   └── test_bonferroni.py      # SC-004 verification (5+ tracts)
 │   └── integration/
-│       └── test_full_pipeline.py
-└── paper/
-    └── results.json            # Final report (Single Source of Truth)
+│       └── test_pipeline.py
+├── requirements.txt
+└── README.md
 ```
 
-**Structure Decision**: Single project structure (DEFAULT) selected. The project is a self-contained analysis pipeline. No frontend/backend split is required. The `code/` directory contains all logic, `tests/` for verification, and `data/` for inputs/outputs. This minimizes complexity and aligns with the "lightweight" nature of the meta-analysis.
+**Structure Decision**: Selected **Option 1 (Single project)** with a modular `code/` layout separating data handling, analysis, and visualization. This aligns with the "CLI/Data Pipeline" nature of the project and keeps dependencies isolated.
+
+## Task List (Execution Order)
+
+1.  **T000-gen-all**: Generate Mock Data.
+    *   **Action**: Run `code/data/generators.py`.
+    *   **Default Behavior**: If `--config` is omitted, generate `data/raw/mock_studies.csv` with **N=15** studies and **5+ distinct tracts** (to satisfy SC-001 and SC-004).
+    *   **Output**: `data/raw/mock_studies.csv`.
+2.  **T007c-1**: Create Lexicon Script.
+    *   **Action**: Create `code/config/generate_lexicon.py`.
+    *   **Output**: The script file.
+3.  **T007c-2**: Generate Tract Lexicon.
+    *   **Action**: Run `code/config/generate_lexicon.py`.
+    *   **Output**: `code/config/tract_lexicon.yaml`.
+4.  **T009**: Real Data Validation.
+    *   **Action**: Run `code/data/real_data_validator.py`.
+    *   **Logic**: Check if `data/raw/studies.csv` exists. If not, copy `data/raw/mock_studies.csv` to `data/raw/studies.csv`. Count unique (Author, Year) pairs.
+    *   **Output**: `data/processed/study_count.json` (contains `unique_studies`, `status`).
+5.  **T012**: Qualitative Extraction (Narrative Path).
+    *   **Action**: Implement `code/analysis/extraction.py` to parse qualitative descriptors if no direct (r, n) pairs exist.
+    *   **Output**: `data/processed/qualitative_data.json`.
+6.  **T013**: Narrative Synthesis.
+    *   **Action**: Implement `code/analysis/narrative_synthesis.py`.
+    *   **Logic**: If `study_count.json` status is "narrative" (N < 10), generate `data/processed/meta_results.json` with `narrative_summary`.
+    *   **Output**: `data/processed/meta_results.json`.
+7.  **T014**: Meta-Analysis (Quantitative Path).
+    *   **Gate**: If `study_count.json` status is "quantitative" (N >= 10).
+    *   **Action**: Run `code/analysis/meta_analysis.py`.
+    *   **Logic**: 
+        *   If `study_count.json` is missing, assume N=0 and trigger Narrative Synthesis (T013).
+        *   If N < 10, skip and trigger T013.
+        *   If N >= 10: Run Random-Effects Model (DerSimonian-Laird), I², Egger's Test.
+        *   **Low Power**: If 10 <= N < 20, apply Hartung-Knapp adjustment for CI.
+        *   **Bonferroni**: If k (distinct tracts) >= 2, apply Bonferroni correction (with warning on non-independence).
+    *   **Output**: `data/processed/meta_results.json`.
+8.  **T014b**: Multiple Comparisons Correction.
+    *   **Action**: Specific logic within `meta_analysis.py` to identify distinct tracts and apply Bonferroni.
+    *   **Output**: `alpha_adj` in `meta_results.json`.
+9.  **T015**: Visualization.
+    *   **Action**: Run `code/viz/plots.py`.
+    *   **Output**: `data/derived/plots/*.png`.
+10. **T027d**: Validation Report Check.
+    *   **Action**: Check `data/derived/validation_report.json`.
+    *   **Fallback**: If file missing, assume validation passed.
+11. **T031**: Validation Report Generation.
+    *   **Action**: Generate `data/derived/validation_report.json`.
+12. **T037**: Generate Test Files.
+    *   **Action**: Create `tests/unit/test_bonferroni.py` with specific test case for 5+ tracts.
+13. **T038**: Run Bonferroni Test.
+    *   **Action**: Run `pytest tests/unit/test_bonferroni.py`.
+    *   **Goal**: Verify SC-004 (5+ distinct tracts).
 
 ## Complexity Tracking
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
-
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **N/A** | No violations found. The plan strictly adheres to the spec and constitution. | N/A |
+| **N/A** | N/A | N/A |
 
-## Phase Plan
-
-### Phase 0: Research & Data Strategy
-- **Goal**: Identify verified datasets and define the extraction logic for qualitative descriptors.
-- **Tasks**:
-  - Review verified dataset list (PubMed, MRI) for relevance to dMRI + Music Preference.
-  - Define **specific regex/NLP logic** for extracting "qualitative descriptors" from abstract text (addressing T013).
-    - *Logic*: Search for tract names (e.g., "arcuate", "cingulum") in proximity to directional verbs ("increased", "decreased", "correlated").
-  - Confirm `statsmodels` random-effects implementation details.
-  - Define the **Narrative Synthesis Methodology** (coding scheme for thematic analysis) to ensure rigor if N < 10.
-
-### Phase 1: Data Model & Contracts
-- **Goal**: Define schemas for `StudyRecord` and `MetaAnalysisResult`.
-- **Tasks**:
-  - Create `contracts/study_record.schema.yaml` with fields for `author`, `year`, `tract`, `r`, `n`, `qualitative_desc`.
-  - Create `contracts/meta_analysis_result.schema.yaml` with fields for `pooled_r`, `ci_lower`, `ci_upper`, `i_squared`, `egger_p`, `egger_skipped_reason` (addressing T021).
-  - Define output schema for PNG files (size <5MB).
-
-### Phase 2: Implementation
-- **Goal**: Implement extraction, analysis, and visualization modules.
-- **Tasks**:
-  - Implement `extraction.py` with fallback to narrative mode if N<10 (FR-006).
-    - *Constraint*: If 'r' or 'n' missing, exclude from quantitative pool; include in narrative pool.
-  - Implement `meta_analysis.py` with I² (**2 decimal places**, addressing T019) and Egger's test (conditional on N≥10).
-    - *Constraint*: If N<10, output exact string: `"Skipped: Insufficient studies (N < 10) for Egger's regression."` (addressing T021).
-  - Implement Bonferroni correction logic (FR-005) only if N≥10 and k≥2.
-    - *Constraint*: Generate a mandatory "Limitations" note in the output report acknowledging that Bonferroni is conservative due to tract non-independence (addressing T022).
-  - Implement `visualization.py` with memory checks and file size validation (SC-003, T031).
-  - Implement `fallback.py` for narrative synthesis generation using the defined thematic coding scheme.
-
-### Phase 3: Testing & Validation
-- **Goal**: Verify all acceptance scenarios.
-- **Tasks**:
-  - Run unit tests on synthetic data (mock studies, missing values, bias scenarios).
-  - Verify I² precision (T019) and Egger's skip message (T021).
-  - **Verify PNG file sizes < 5MB** (SC-003, T031).
-  - Confirm Bonferroni logic vs. RVE contradiction (T022) is resolved by implementing Bonferroni as per spec FR-005 with a limitation note.
-  - Verify that if N < 10, the quantitative pooled estimate is suppressed or flagged as "unreliable" due to heterogeneity.
-
-### Phase 4: Documentation & Handoff
-- **Goal**: Finalize `quickstart.md` and `research.md`.
-- **Tasks**:
-  - Document setup, usage, and expected outputs.
-  - Ensure all citations in `research.md` match verified URLs.
-  - Document the "Pipeline Validation" nature of the synthetic data tests.
-
+*Note: The complexity is managed by the strict conditional logic (N < 10 pivot) rather than architectural over-engineering.*

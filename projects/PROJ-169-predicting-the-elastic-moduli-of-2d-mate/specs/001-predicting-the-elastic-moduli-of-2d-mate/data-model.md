@@ -1,84 +1,87 @@
-# Data Model: Predicting the Elastic Moduli of 2D Materials
+# Data Model: Structure-Only Surrogate Model for 2D Material Elastic Moduli
 
-## Overview
+## 1. Overview
+All artifacts are versioned, checksummed, and validated against JSON/YAML schemas in `contracts/`. Raw inputs are immutable; each transformation writes a new file with documented provenance.
 
-This document defines the data schemas and transformations required for the project. All data flows from raw public repositories to processed graph representations, then to model inputs/outputs.
+## 2. Raw Data (`data/raw/`)
+- **File**: `raw_dataset.parquet` (downloaded via Matminer).  
+- **Checksum**: SHA‑256 recorded in `data/raw/metadata.json`.  
+- **Required columns** (validated in `src/data/loader.py`):
 
-## Entity Definitions
+| Field | Type | Description |
+|---|---|---|
+| `material_id` | string | Unique identifier (e.g., `mp-12345`). |
+| `structure` | string | CIF representation of the crystal structure. |
+| `elastic_tensor` | list[float] | Six Voigt components `[C11, C12, C22, C66, C13, C33]`. |
+| `formula` | string | Chemical formula (e.g., `MoS2`). |
+| `space_group` | integer | Space‑group number. |
+| `is_2d` | boolean | Flag indicating the material is two‑dimensional. |
 
-### 1. MaterialGraph (Core Entity)
-A graph representation of a 2D crystal structure.
-*   **Nodes**: Atoms in the unit cell.
-*   **Edges**: Bonds between atoms (based on distance cutoff).
-*   **Global Features**: Composition statistics, symmetry class.
+## 3. Processed Data (`data/processed/`)
 
-### 2. ElasticTensor
-The target variable derived from DFT.
-*   **Components**: 6 independent components (Voigt notation: $C_{11}, C_{12}, C_{13}, C_{22}, C_{23}, C_{33}$).
-*   **Derived Properties**: Young's Modulus ($E$), Shear Modulus ($G$), Poisson's Ratio ($\nu$).
+### 3.1 `graphs_v1.parquet` (schema `contracts/dataset_schema.yaml`)
+Each row contains:
+- `material_id`
+- `num_nodes`, `num_edges`
+- `node_features` (5‑dimensional array per node)
+- `edge_index` (source‑target pairs)
+- `edge_features` (2‑dimensional per edge)
+- `target_young`, `target_shear`, `target_poisson`
+- `family` (space‑group + stoichiometry)
+- Full 6‑component elastic tensor
+- `eligible` flag (True if the four in‑plane components are finite).
 
-### 3. DescriptorSet
-Computed features for the GNN input.
-*   **Node Features**: Element atomic number, electronegativity, coordination number, atomic radius.
-*   **Edge Features**: Bond distance, bond angle (if applicable), bond type (covalent/ionic metric).
-*   **Global Features**: Density, volume per atom, stoichiometry ratios.
+### 3.2 `split_indices.json` (schema `contracts/split_indices_schema.yaml`)
+Contains deterministic train/val/test splits:
+```json
+{
+  "train_ids": [...],
+  "val_ids": [...],
+  "test_ids": [...],
+  "train_families": [...],
+  "val_families": [...],
+  "test_families": [...],
+  "split_seed": 42,
+  "timestamp": "2026-10-25T12:00:00Z"
+}
+```
 
-## Data Flow & Transformations
+### 3.3 `model_v1.pt`
+Torch checkpoint with:
+- `state_dict`
+- `hyperparameters`
+- `seed`
+- `target_normalization`
+- Embedded `DISCLAIMER_TEXT` from `code/utils/disclaimer_template.py`.
 
-1.  **Raw Ingestion**:
-    *   Input: Unified dataset (CIFs + Elastic Tensors) from Materials Project API.
-    *   Action: Download and checksum verification.
-2.  **Bias Detection**:
-    *   Input: Raw data.
-    *   Action: Compare distributions of structural descriptors between available and hypothetical excluded entries (if applicable).
-    *   Output: `bias_report.json`.
-3.  **Parsing & Filtering**:
-    *   Input: Raw data.
-    *   Action: Parse CIF to `pymatgen.Structure`. Filter for 2D (layered) designation and complete elastic tensor.
-    *   Output: `filtered_materials.csv` (ID, Formula, SpaceGroup, ElasticTensor).
-4.  **Graph Construction**:
-    *   Input: `filtered_materials.csv`.
-    *   Action: Convert `Structure` to `torch_geometric.data.Data`. Compute node/edge features.
-    *   Output: `graphs/` directory containing `.pt` (PyTorch) files or JSON.
-5.  **Splitting**:
-    *   Input: Graphs.
-    *   Action: Stratified split by Material Family (e.g., TMDs, MXenes) and 5-fold CV. **Exclude families with < 20 entries from inter-family test.**
-    *   Output: `splits/train_idx.json`, `splits/val_idx.json`, `splits/test_idx.json`.
-6.  **Model Output**:
-    *   Input: Trained Model + Test Graphs.
-    *   Action: Predict $E, G, \nu$.
-    *   Output: `predictions.csv` (ID, True_E, Pred_E, True_G, Pred_G, True_nu, Pred_nu).
+## 4. Results (`data/results/`)
 
-## Schemas
+| File | Purpose | Schema |
+|---|---|---|
+| `constitution_title_audit.json` | Terminology audit (FR‑006/FR‑009) | `contracts/constitution_audit_schema.yaml` |
+| `training_logs.json` | Epoch losses, peak memory, 5‑fold CV stats, MEGNet benchmark flag, disclaimer | `contracts/training_logs_schema.yaml` |
+| `split_validation.json` | Validation of family disjointness and split sizes | `contracts/split_validation_schema.yaml` |
+| `generalization_metrics.json` | Surrogate & baseline metrics, relative reductions, statistical significance, intra/inter‑family MAPE, inference timing, SC gates | `contracts/results_schema.yaml` |
+| `predictions.json` | True vs. predicted values for test set, per‑record errors | `contracts/predictions_schema.yaml` |
+| `feature_importance_report.md` | Ranked structural descriptors, permutation deltas, SHAP values, statistical tests (no schema). |
+| `model_v1.pt` | Saved model weights (binary torch file). |
+| `split_indices.json` | Already listed under Processed Data. |
+| `graph_validation.json` | Summary of per‑graph validation against `graph.schema.yaml`. |
+| `split_indices.json` | Already listed under Processed Data. |
+| `split_validation.json` | Already listed under Results. |
 
-### Input Schema: `filtered_materials.csv`
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `material_id` | string | Unique identifier (e.g., `mp-12345`) |
-| `formula` | string | Chemical formula (e.g., `MoS2`) |
-| `space_group` | int | Space group number |
-| `elastic_tensor` | string | JSON string of 6-component tensor |
-| `family` | string | Material family (e.g., `TMD`, `MXene`) |
-| `is_2d` | boolean | Flag for 2D designation |
-| `sample_count` | int | Count of entries in family (for filtering) |
+## 5. Data Flow Diagram
+1. **Loader** → `data/raw/raw_dataset.parquet` (checksum)  
+2. **Graph Builder** → `graphs_v1.parquet`  
+3. **Split Generator** → `split_indices.json` (with element‑overlap check)  
+4. **Splitter Validation** → `split_validation.json`  
+5. **Graph Validation** → `graph_validation.json`  
+6. **Training + CV** → `model_v1.pt`, `training_logs.json`  
+7. **Evaluation + Baseline** → `predictions.json`, `generalization_metrics.json`  
+8. **Feature Importance** → `feature_importance_report.md`  
+9. **Title Audit** → `constitution_title_audit.json`  
 
-### Graph Schema: `graph_data.pt` (PyTorch Geometric)
-*   **`x` (Node Features)**: Tensor of shape `[N_nodes, 10]` (Element, Coord, Radius, etc.)
-*   **`edge_index`**: Tensor of shape `[2, N_edges]`
-*   **`edge_attr`**: Tensor of shape `[N_edges, 5]` (Distance, Angle, Type, etc.)
-*   **`y` (Target)**: Tensor of shape `[3]` (Young's, Shear, Poisson's)
-*   **`material_id`**: string
+Orchestrated by `src/main_pipeline.py`; each stage must exit 0 before the next begins.
 
-### Output Schema: `predictions.csv`
-| Column | Type | Description |
-| :--- | :--- | :--- |
-| `material_id` | string | Material ID |
-| `family` | string | Material Family |
-| `true_young` | float | True Young's Modulus (GPa) |
-| `pred_young` | float | Predicted Young's Modulus (GPa) |
-| `true_shear` | float | True Shear Modulus (GPa) |
-| `pred_shear` | float | Predicted Shear Modulus (GPa) |
-| `true_poisson` | float | True Poisson's Ratio |
-| `pred_poisson` | float | Predicted Poisson's Ratio |
-| `error_young` | float | Absolute Error (Young's) |
-| `mape_young` | float | MAPE (Young's) |
+---
+

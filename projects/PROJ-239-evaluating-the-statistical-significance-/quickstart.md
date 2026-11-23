@@ -1,95 +1,70 @@
-# Quickstart Guide
+# Quickstart Guide: Evaluating Statistical Significance with Non-Independent Observations
 
 ## Prerequisites
 
 - Python 3.11+
-- pip
+- `pip` or `conda`
+- Git
 
-## Setup
+## Installation
 
-1. Clone the repository and navigate to the project directory:
- ```bash
- cd projects/PROJ-239-evaluating-the-statistical-significance-
- ```
-
-2. Create a virtual environment and activate it:
+1. **Clone the repository** (if applicable) or navigate to the project directory.
+2. **Create a virtual environment**:
  ```bash
  python -m venv venv
  source venv/bin/activate # On Windows: venv\Scripts\activate
  ```
-
-3. Install dependencies:
+3. **Install dependencies**:
  ```bash
  pip install -r requirements.txt
  ```
+ *Dependencies include: `numpy`, `pandas`, `scipy`, `statsmodels`, `pytest`, `pyyaml`, `ucimlrepo`.*
 
-## Running the Simulation
+## Running the Simulation End‑to‑End
 
-### Baseline Simulation (Naive T-Test)
+The command below runs a **reduced** simulation that is quick enough for the quickstart
+while still exercising the full pipeline (data generation, baseline & robust methods,
+aggregation, and final report).
 
-Run the baseline simulation with default parameters:
 ```bash
-python code/run_simulation_baseline.py
+python code/simulation_runner.py \
+ --icc-range 0.0,0.1 \
+ --iterations 20
 ```
 
-This generates `data/derived/baseline_results.csv`.
+**Outputs** (generated in the `data/derived/` folder):
+- `simulation_results_raw.csv` – detailed per‑iteration results.
+- `final_report.csv` – aggregated Type I error rates with 95 % Clopper‑Pearson CIs.
 
-### Robust Simulation (Cluster-Aware Methods)
+You can inspect the final report with:
 
-Run the robust simulation with default parameters:
 ```bash
-python code/run_simulation_robust.py
+head data/derived/final_report.csv
 ```
 
-This generates `data/derived/robustResults.csv`.
+The reduced configuration finishes in under a minute on a standard CPU. [UNRESOLVED-CLAIM: c_0d09012b — status=not_enough_info]
 
-## Generating the Final Report
+## Running the Full Simulation (optional)
 
-After running both simulations, generate the final report:
+For a complete analysis (may take several minutes to hours depending on hardware):
+
 ```bash
-python code/generate_final_report.py
+python code/simulation_runner.py \
+ --icc-range 0.0,0.1,0.2,0.3,0.4,0.5 \
+ --iterations 1000
 ```
-
-This produces `specs/001-evaluating-the-statistical-significance/research.md` with results, tables, and plots.
 
 ## Running Tests
 
-Execute the full test suite:
-```bash
-pytest tests/
-```
+Ensure the simulation logic is correct before running the full suite.
 
-To run with verbose output:
 ```bash
 pytest tests/ -v
 ```
 
-## Configuration
+## Interpreting Results
 
-You can customize simulation parameters via CLI arguments:
-
-- `--icc-range`: Comma-separated list of ICC values (e.g., `0.0,0.1,0.2`)
-- `--icc-step`: Step size for ICC values (default: 0.1)
-- `--alpha-list`: Comma-separated list of significance levels (e.g., `0.01,0.05,0.10`)
-- `--iterations`: Number of simulation iterations (default: 1000)
-- `--seed`: Random seed for reproducibility (default: 42)
-
-Example:
-```bash
-python code/run_simulation_robust.py --icc-range 0.0,0.1,0.2 --alpha-list 0.01,0.05 --iterations 500
-```
-
-## Data Ingestion (Optional)
-
-To download and validate the UCI Online Retail dataset:
-```bash
-python code/uci_ingest.py
-```
-
-This downloads the dataset to `data/raw/uci_online_retail.csv`, computes a SHA-256 checksum, and scans for PII.
-
-## Troubleshooting
-
-- **Memory Error**: If you encounter memory errors, reduce the number of iterations or observations per cluster.
-- **Import Errors**: Ensure all dependencies are installed via `requirements.txt`.
-- **Test Failures**: Check that the simulation scripts have been run to generate required data files.
+- **Standard T‑Test**: If the `Empirical_Error_Rate` is significantly higher than `Alpha`
+ (e.g., 0.15 when `Alpha=0.05`), it indicates Type I error inflation due to ICC.
+- **Robust Methods**: If `cluster_robust` or `block_permutation` error rates are close to
+ `Alpha` (e.g., 0.05 ± 0.01), the method successfully corrects for the correlation.

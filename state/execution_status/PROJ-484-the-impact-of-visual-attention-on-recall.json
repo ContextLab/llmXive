@@ -1,0 +1,22 @@
+{
+  "project_id": "PROJ-484-the-impact-of-visual-attention-on-recall",
+  "ok": false,
+  "reason": "2 run-book script(s) missing (plan/impl path mismatch): python code/visualize.py; python code/run_pipeline.py; 3 command(s) failed: python code/download_data.py (rc=1); python code/preprocess.py (rc=1); python code/model_fit.py (rc=1); 1 declared deliverable(s) absent: data/processed/analysis.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/download_data.py -> rc=1\n    {\"timestamp\": \"2026-09-02T16:00:53.187430\", \"level\": \"INFO\", \"logger\": \"download_data\", \"message\": \"Starting download for dataset: openneuro/ds001435\"}\n{\"timestamp\": \"2026-09-02T16:00:53.187611\", \"level\": \"INFO\", \"logger\": \"download_data\", \"message\": \"Attempting to connect to HuggingFace Hub for openneuro/ds001435...\"}\n{\"timestamp\": \"2026-09-02T16:00:53.287264\", \"level\": \"ERROR\", \"logger\": \"download_data\", \"message\": \"Failed to download dataset: 401 Client Error. (Request ID: Root=1-6a984835-603e0f2713242b1b1f35ee09;e59fba24-f8b0-4363-8d67-014178c19722)",
+    "python code/preprocess.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/preprocess.py\", line 14, in <module>\n    from config import get_config, get_data_path, get_random_seed\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/config.py\", line 9, in <module>\n    from dotenv import load_dotenv\nModuleNotFoundError: No module named 'dotenv'",
+    "python code/model_fit.py -> rc=1\n    76, in <module>\n    from . import datasets, distributions, iolib, regression, robust, tools\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/.venv/lib/python3.11/site-packages/statsmodels/distributions/__init__.py\", line 7, in <module>\n    from .discrete import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/.venv/lib/python3.11/site-packages/statsmodels/distributions/discrete.py\", line 5, in <module>\n    from scipy._lib._util import _lazywhe",
+    "python code/visualize.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/visualize.py': [Errno 2] No such file or directory",
+    "python code/run_pipeline.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-484-the-impact-of-visual-attention-on-recall/code/run_pipeline.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "data_unreachable",
+  "evidence": [
+    "python code/download_data.py"
+  ],
+  "updated_at": "2026-09-02T16:00:56Z"
+}

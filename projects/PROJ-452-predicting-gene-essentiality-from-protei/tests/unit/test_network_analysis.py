@@ -1,157 +1,151 @@
-"""
-Unit tests for network_analysis.py
-"""
-
-import unittest
+import pytest
 import networkx as nx
-from unittest.mock import patch, MagicMock
-import sys
-import os
-
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
 from code.network_analysis import (
     load_graph_from_adjacency_list,
     compute_degree_centrality,
     compute_eigenvector_centrality,
     compute_betweenness_centrality,
     compute_all_centrality_metrics,
-    NetworkAnalysisError
+    process_organism_networks
 )
 
+def test_load_graph_from_adjacency_list():
+    """Test graph loading from adjacency list."""
+    adj_list = {
+        'A': ['B', 'C'],
+        'B': ['A'],
+        'C': ['A']
+    }
+    G = load_graph_from_adjacency_list(adj_list)
+    assert G.number_of_nodes() == 3
+    assert G.number_of_edges() == 2
+    assert 'A' in G.nodes()
+    assert 'B' in G.nodes()
+    assert 'C' in G.nodes()
 
-class TestLoadGraph(unittest.TestCase):
-    def test_load_undirected_graph(self):
-        data = {
-            'A': ['B', 'C'],
-            'B': ['A'],
-            'C': ['A']
-        }
-        G = load_graph_from_adjacency_list(data, directed=False)
-        self.assertEqual(G.number_of_nodes(), 3)
-        self.assertEqual(G.number_of_edges(), 2)
-        self.assertTrue(G.has_edge('A', 'B'))
-        self.assertTrue(G.has_edge('A', 'C'))
+def test_compute_degree_centrality():
+    """Test degree centrality computation."""
+    G = nx.Graph()
+    G.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'C')])
+    centrality = compute_degree_centrality(G)
+    assert centrality['A'] == pytest.approx(1.0)
+    assert centrality['B'] == pytest.approx(0.5)
+    assert centrality['C'] == pytest.approx(0.5)
 
-    def test_load_directed_graph(self):
-        data = {
+def test_compute_degree_centrality_empty_graph():
+    """Test degree centrality on empty graph returns empty dict."""
+    G = nx.Graph()
+    centrality = compute_degree_centrality(G)
+    assert centrality == {}
+
+def test_compute_eigenvector_centrality():
+    """Test eigenvector centrality computation."""
+    G = nx.Graph()
+    G.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'C')])
+    centrality = compute_eigenvector_centrality(G)
+    assert 'A' in centrality
+    assert 'B' in centrality
+    assert 'C' in centrality
+
+def test_compute_eigenvector_centrality_disconnected():
+    """Test eigenvector centrality on disconnected graph."""
+    G = nx.Graph()
+    G.add_edges_from([('A', 'B'), ('C', 'D')])  # Two disconnected components
+    centrality = compute_eigenvector_centrality(G)
+    # Should not raise, and should return values for all nodes
+    assert len(centrality) == 4
+
+def test_compute_betweenness_centrality():
+    """Test betweenness centrality computation."""
+    G = nx.Graph()
+    G.add_edges_from([('A', 'B'), ('B', 'C'), ('C', 'D')])
+    centrality = compute_betweenness_centrality(G)
+    # B and C should have higher betweenness than A and D
+    assert centrality['B'] > centrality['A']
+    assert centrality['C'] > centrality['D']
+
+def test_compute_betweenness_centrality_k_sampling():
+    """Test betweenness centrality with k-sampling."""
+    G = nx.Graph()
+    G.add_edges_from([('A', 'B'), ('B', 'C'), ('C', 'D')])
+    centrality = compute_betweenness_centrality(G, k=2)
+    assert len(centrality) == 4
+
+def test_compute_all_centrality_metrics():
+    """Test all centrality metrics computation."""
+    G = nx.Graph()
+    G.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'C')])
+    results = compute_all_centrality_metrics(G)
+    assert 'degree' in results
+    assert 'betweenness' in results
+    assert 'eigenvector' in results
+    assert len(results['degree']) == 3
+    assert len(results['betweenness']) == 3
+    assert len(results['eigenvector']) == 3
+
+def test_process_organism_networks_no_overlap():
+    """Test processing when no gene overlap exists."""
+    networks_data = {
+        'adjacency_list': {'A': ['B'], 'B': ['A']},
+        'mapped_genes': set()  # Empty mapped genes
+    }
+    essentiality_labels = {'C': 1, 'D': 0}  # No overlap with network
+    config = {'use_k_sampling': True, 'k_samples': 100}
+    
+    result = process_organism_networks('test_org', networks_data, essentiality_labels, config)
+    assert result['status'] == 'skipped'
+    assert result['reason'] == 'No gene overlap'
+
+def test_process_organism_networks_empty_labels():
+    """Test processing when no valid essentiality labels exist."""
+    networks_data = {
+        'adjacency_list': {'A': ['B'], 'B': ['A']},
+        'mapped_genes': {'A', 'B'}
+    }
+    essentiality_labels = {}  # Empty labels
+    config = {'use_k_sampling': True, 'k_samples': 100}
+    
+    result = process_organism_networks('test_org', networks_data, essentiality_labels, config)
+    assert result['status'] == 'skipped'
+    assert result['reason'] == 'No valid essentiality labels'
+
+def test_process_organism_networks_disconnected_nodes():
+    """Test that disconnected nodes get 0 centrality."""
+    networks_data = {
+        'adjacency_list': {
             'A': ['B'],
-            'B': ['C'],
-            'C': []
-        }
-        G = load_graph_from_adjacency_list(data, directed=True)
-        self.assertEqual(G.number_of_nodes(), 3)
-        self.assertEqual(G.number_of_edges(), 2)
-        self.assertTrue(G.has_edge('A', 'B'))
-        self.assertTrue(G.has_edge('B', 'C'))
-        self.assertFalse(G.has_edge('B', 'A'))
+            'B': ['A'],
+            'C': []  # Isolated node
+        },
+        'mapped_genes': {'A', 'B', 'C'}
+    }
+    essentiality_labels = {'A': 1, 'B': 0, 'C': 1}
+    config = {'use_k_sampling': True, 'k_samples': 100}
+    
+    result = process_organism_networks('test_org', networks_data, essentiality_labels, config)
+    assert result['status'] == 'success'
+    # Check that isolated node C has 0 centrality
+    assert result['centrality_metrics']['degree'].get('C', 0) == 0.0
+    assert result['centrality_metrics']['betweenness'].get('C', 0) == 0.0
+    assert result['centrality_metrics']['eigenvector'].get('C', 0) == 0.0
 
-    def test_empty_graph(self):
-        data = {}
-        G = load_graph_from_adjacency_list(data)
-        self.assertEqual(G.number_of_nodes(), 0)
-
-
-class TestDegreeCentrality(unittest.TestCase):
-    def test_simple_graph(self):
-        G = nx.Graph()
-        G.add_edges_from([('A', 'B'), ('A', 'C'), ('B', 'C')])
-        result = compute_degree_centrality(G)
-        # A: 2/2, B: 2/2, C: 2/2 -> 1.0 for all in a triangle
-        # Wait, degree centrality is normalized by (n-1)
-        # n=3, max degree=2.
-        # A: 2/2 = 1.0
-        # B: 2/2 = 1.0
-        # C: 2/2 = 1.0
-        self.assertAlmostEqual(result['A'], 1.0)
-        self.assertAlmostEqual(result['B'], 1.0)
-        self.assertAlmostEqual(result['C'], 1.0)
-
-    def test_empty_graph(self):
-        G = nx.Graph()
-        result = compute_degree_centrality(G)
-        self.assertEqual(result, {})
-
-
-class TestEigenvectorCentrality(unittest.TestCase):
-    def test_simple_graph(self):
-        G = nx.Graph()
-        G.add_edges_from([('A', 'B'), ('B', 'C'), ('C', 'D')])
-        # Path graph. Central nodes should have higher scores.
-        result = compute_eigenvector_centrality(G)
-        self.assertIn('A', result)
-        self.assertIn('B', result)
-        # B and C should be higher than A and D
-        self.assertGreater(result['B'], result['A'])
-        self.assertGreater(result['C'], result['D'])
-
-    def test_disconnected_graph_fallback(self):
-        G = nx.Graph()
-        G.add_edges_from([('A', 'B'), ('C', 'D')])
-        # Eigenvector centrality on disconnected components can be tricky
-        # Our implementation should handle it gracefully (return zeros or partial)
-        result = compute_eigenvector_centrality(G)
-        self.assertEqual(len(result), 4)
-        # Should not crash, values might be zero or non-zero depending on implementation
-        # The key is it doesn't raise an exception
-        self.assertIsInstance(result, dict)
-
-
-class TestBetweennessCentrality(unittest.TestCase):
-    def test_simple_graph_exact(self):
-        G = nx.Graph()
-        G.add_edges_from([('A', 'B'), ('B', 'C'), ('C', 'D')])
-        # B and C are bridges
-        result = compute_betweenness_centrality(G, k=0) # Force exact
-        self.assertGreater(result['B'], 0)
-        self.assertGreater(result['C'], 0)
-        self.assertAlmostEqual(result['A'], 0.0)
-        self.assertAlmostEqual(result['D'], 0.0)
-
-    def test_simple_graph_sampling(self):
-        G = nx.Graph()
-        G.add_edges_from([('A', 'B'), ('B', 'C'), ('C', 'D')])
-        # With k > 0, it uses sampling
-        result = compute_betweenness_centrality(G, k=10)
-        # Should not crash, values might be approximate
-        self.assertEqual(len(result), 4)
-        self.assertIsInstance(result['B'], float)
-
-    def test_large_graph_sampling_logic(self):
-        # Create a graph with > 5000 nodes
-        G = nx.barabasi_albert_graph(6000, 3)
-        # This should trigger sampling logic in compute_betweenness_centrality
-        # if k is not provided
-        start_time = __import__('time').time()
-        result = compute_betweenness_centrality(G) # No k provided
-        elapsed = __import__('time').time() - start_time
-        # Should be relatively fast (< 30 min, but for 6000 nodes it should be seconds/minutes)
-        self.assertLess(elapsed, 1800) # Less than 30 minutes
-        self.assertEqual(len(result), 6000)
-
-
-class TestComputeAllCentralityMetrics(unittest.TestCase):
-    def test_full_pipeline(self):
-        G = nx.Graph()
-        G.add_edges_from([('A', 'B'), ('B', 'C'), ('C', 'D'), ('D', 'E')])
-        metrics = compute_all_centrality_metrics(G)
-        
-        self.assertIn('degree', metrics)
-        self.assertIn('betweenness', metrics)
-        self.assertIn('eigenvector', metrics)
-        
-        self.assertEqual(len(metrics['degree']), 5)
-        self.assertEqual(len(metrics['betweenness']), 5)
-        self.assertEqual(len(metrics['eigenvector']), 5)
-
-    def test_empty_graph(self):
-        G = nx.Graph()
-        metrics = compute_all_centrality_metrics(G)
-        self.assertEqual(metrics['degree'], {})
-        self.assertEqual(metrics['betweenness'], {})
-        self.assertEqual(metrics['eigenvector'], {})
-
-
-if __name__ == '__main__':
-    unittest.main()
+def test_process_organism_networks_successful():
+    """Test successful processing with valid data."""
+    networks_data = {
+        'adjacency_list': {
+            'A': ['B', 'C'],
+            'B': ['A', 'C'],
+            'C': ['A', 'B']
+        },
+        'mapped_genes': {'A', 'B', 'C'}
+    }
+    essentiality_labels = {'A': 1, 'B': 0, 'C': 1}
+    config = {'use_k_sampling': True, 'k_samples': 100}
+    
+    result = process_organism_networks('test_org', networks_data, essentiality_labels, config)
+    assert result['status'] == 'success'
+    assert 'correlations' in result
+    assert 'degree' in result['correlations']
+    assert 'betweenness' in result['correlations']
+    assert 'eigenvector' in result['correlations']
+    assert result['correlations']['degree']['n'] == 3

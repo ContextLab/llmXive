@@ -1,32 +1,27 @@
 """
-Project initialization module for llmXive pipeline.
-Handles the creation of the standard directory structure.
+Module to initialize the project directory structure.
+Creates required directories for code, tests, data, and results.
 """
 import os
 from pathlib import Path
+from config import get_project_root
 
 
 def initialize_project_structure() -> None:
     """
-    Creates the required project directory structure.
-    
-    Creates the following directories relative to the project root:
+    Create the standard project directory structure:
     - code/
     - tests/
     - data/raw/
     - data/processed/
     - results/
-    
-    This function is idempotent; it will not raise errors if directories
-    already exist.
+
+    This function ensures all necessary directories exist for the project.
+    It uses the project root defined in config.py.
     """
-    # Define the base project root (assuming this script is in code/, go up one level)
-    # However, to be safe and flexible, we assume the current working directory
-    # is the project root when this is executed, or we define relative paths explicitly.
-    # The safest approach for a setup script is to create relative paths from cwd.
+    project_root = get_project_root()
     
-    base_path = Path.cwd()
-    
+    # Define the directories to create relative to project root
     directories = [
         "code",
         "tests",
@@ -36,17 +31,19 @@ def initialize_project_structure() -> None:
     ]
     
     created_count = 0
-    existing_count = 0
-    
     for dir_name in directories:
-        dir_path = base_path / dir_name
+        dir_path = project_root / dir_name
         if not dir_path.exists():
             dir_path.mkdir(parents=True, exist_ok=True)
             created_count += 1
-            print(f"Created directory: {dir_path}")
-        else:
-            existing_count += 1
-            print(f"Directory already exists: {dir_path}")
+        # else: Directory already exists, no action needed
     
-    print(f"Project structure initialization complete. "
-          f"Created: {created_count}, Existing: {existing_count}")
+    # Log the result
+    if created_count > 0:
+        print(f"Created {created_count} directories under {project_root}")
+    else:
+        print(f"All required directories already exist under {project_root}")
+
+
+if __name__ == "__main__":
+    initialize_project_structure()

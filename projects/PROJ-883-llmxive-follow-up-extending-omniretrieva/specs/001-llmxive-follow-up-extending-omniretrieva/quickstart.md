@@ -1,65 +1,84 @@
-# Quickstart: llmXive Follow-up: Structural Mismatch Cost in Heterogeneous Retrieval
+# Quickstart: Structural Mismatch Cost in Heterogeneous Retrieval
 
 ## Prerequisites
-
-- Python 3.11+
-- Linux environment (required for `resource` module CPU accounting)
-- Sufficient free disk space is required to accommodate the data and computational artifacts generated during the study.
+- Python 3.11 or newer
+- Linux environment (GitHub Actions runner or local Linux VM)
+- Internet access (to download the open datasets)
 
 ## Installation
-
-1. **Clone and Setup Environment**
-   ```bash
-   cd projects/PROJ-883-llmxive-follow-up-extending-omniretrieva/code/
-   python -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   ```
-
-2. **Download Datasets**
-   Run the data preparation script to fetch verified datasets:
-   ```bash
-   python scripts/download_data.py
-   ```
-   *This downloads MS MARCO and DBpedia subsets to `data/raw/`.*
-
-## Running the Experiment
-
-Execute the full pipeline (Generation -> Execution -> Analysis):
 ```bash
-python main.py
+# Clone the repository (if not already)
+git clone https://github.com/your-org/llmxive-follow-up-extending-omniretrieva.git
+cd llmxive-follow-up-extending-omniretrieva
+
+# Create a virtual environment
+python -m venv .venv
+source .venv/bin/activate
+
+# Install exact dependencies
+pip install -r requirements.txt
 ```
 
-**What this does:**
-1. Generates a set of synthetic queries (Text, Relational, Graph) with varying complexity.
-2. Simulates CPU throttling via `resource` accounting and I/O throttling via delay queues.
-3. Executes queries against simulated engines (Optimal vs. Mismatched routing).
-4. Runs Segmented Regression and ANOVA.
-5. Saves results to `data/results/` and updates `state/state.yaml`.
+## Verify the Environment
+These commands must succeed; the integration test `tests/integration/test_skeleton.py` checks them and stores the outputs under `artifacts/`.
 
-## Expected Outputs
+1. **Lint the codebase**
+   ```bash
+   ruff check code/
+   ```
+   *Expected:* exit code 0 and a non‑empty `artifacts/ruff_output.txt`.
 
-- `data/results/raw_logs.jsonl`: Individual query metrics.
-- `data/results/analysis_summary.csv`: Aggregated statistics.
-- `data/results/figures/latency_interaction.png`: The key visualization.
-- `data/results/stats_report.txt`: ANOVA F-statistics, p-values, and knee points.
-- `state/state.yaml`: Artifact hashes for reproducibility.
+2. **Show the CLI help**
+   ```bash
+   python -m code.main --help
+   ```
+   *Expected:* help text printed and saved to `artifacts/help_output.txt`.
 
-## Verification
+3. **Run the CLI with no arguments (defaults to full benchmark)**
+   ```bash
+   python -m code.main
+   ```
+   *Expected:* the full pipeline runs (datasets download, query generation, benchmark, analysis, plot) and finishes within the CI time limit.
 
-To verify the run completed successfully:
+If any of the above steps fail, re‑run the command manually to see the error; the `.ruff.toml` file has been corrected to a valid TOML configuration.
+
+## Full Benchmark Execution
 ```bash
-python scripts/verify_results.py
+# Run the entire study (includes optimal planner on sampled subset)
+python -m code.main --run-optimal-planner --baseline-reps=5
 ```
-*Checks for:*
-- Presence of all query records.
-- Segmented Regression p-value < 0.05 (if hypothesis holds).
-- Plot file existence.
-- `state/state.yaml` update.
+- `--run-optimal-planner` enables Phase 0 (exhaustive optimal planning on the sampled subset).  
+- `--baseline-reps=5` repeats the trivial‑query baseline measurement five times (default is five).  
 
-## Troubleshooting
+All outputs are written under `data/processed/` and `data/results/`. The interaction plot will appear at `data/results/interaction_plot.png`.
 
-- **Error: `resource` module not available**: Ensure you are running on Linux. macOS/Windows do not support `getrusage` in the same way.
-- **Error: Dataset download failed**: Check network connection. URLs are verified in `research.md`.
-- **Error: Timeout on all queries**: The CPU limit might be too strict. Check `config.py` for `CPU_TIME_LIMIT_SEC`.
-- **Error: State file missing**: Ensure `state/` directory exists.
+## Re‑Running Specific Phases (optional)
+- **Only data download & checksum**
+  ```bash
+  python -m code.main --stage data_download
+  ```
+- **Only query generation**
+  ```bash
+  python -m code.main --stage generate_queries
+  ```
+- **Only statistical analysis (after execution logs exist)**
+  ```bash
+  python -m code.main --stage analyze
+  ```
+
+## Expected Artifacts
+| Artifact | Location |
+|----------|----------|
+| Raw datasets (`ms_marco.parquet`, `dbpedia_triples.parquet`) | `data/raw/` |
+| Checksums | `data/raw/checksums.txt` |
+| Generated queries | `data/processed/generation_log.json` |
+| Optimal ground‑truth (sampled) | `data/processed/optimal_ground_truth.json` |
+| Baseline overhead | `data/processed/baseline_overhead.json` |
+| Execution logs (CSV) | `data/processed/execution_logs.csv` |
+| Aggregated execution metric (JSON) | `data/processed/execution_metric.json` |
+| Statistical results (JSON) | `data/results/*.json` |
+| Interaction plot | `data/results/interaction_plot.png` |
+
+All files are version‑hashed and reproducible on a fresh runner, satisfying Constitution Principle I.
+
+---

@@ -1,0 +1,140 @@
+{
+  "trace_id": "held_out_43_02458",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 13,
+  "tool_sequence": [
+    "insert_image",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 72.9184,
+        "y": 18.2923,
+        "width": 18.8556,
+        "height": 29.3361
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 56.4254,
+        "saturation": 40.7118
+      }
+    },
+    {
+      "step": 2,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 70.0522,
+        "saturation": 34.0399
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 28.7678,
+        "saturation": 48.1414
+      }
+    },
+    {
+      "step": 4,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 64.7239,
+        "saturation": 29.312
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 7.602,
+        "saturation": 40.7361
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 17.0714,
+        "saturation": 70.2037
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 32.2416,
+        "saturation": 7.9568
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 19.8099,
+        "saturation": 44.5986
+      }
+    },
+    {
+      "step": 9,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 37.5393,
+        "saturation": 57.062
+      }
+    },
+    {
+      "step": 10,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 41.4617,
+        "saturation": 14.8719
+      }
+    },
+    {
+      "step": 11,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 52.8001,
+        "saturation": 16.7757
+      }
+    },
+    {
+      "step": 12,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 89.3121,
+        "saturation": 17.8014
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.271189,
+    "tool_repetition_freq": 0.846154,
+    "arg_semantic_variance": 455.215994
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 2,
+    "layout_hash": "43-2458-apply_theme"
+  },
+  "variance_multiplier": 1.5
+}

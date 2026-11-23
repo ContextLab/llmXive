@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.07675",
+  "judged_at": "2026-07-31T13:15:58Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scaling mixture-of-experts video pretraining for embodied intelligence\" computer science",
+  "rationale": "The candidate paper is the foundational work (\"Scaling Mixture-of-Experts Video Pretraining for Embodied Intelligence\") that the user's follow-up question explicitly references, making it the canonical prior work required for any literature review on this specific topic (Category d). It establishes the baseline architecture, data strategy, and training paradigm that the user's new research intends to extend.",
+  "relevant": true
+}

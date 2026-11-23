@@ -1,0 +1,74 @@
+[project]
+name = "predicting-diffusion-carbon-bcc"
+version = "0.1.0"
+description = "Predicting the Diffusion of Carbon in BCC Metals from Compositional Data"
+requires-python = ">=3.11"
+dependencies = [
+    "pandas",
+    "numpy",
+    "scikit-learn",
+    "xgboost",
+    "shap",
+    "pymatgen",
+    "requests",
+    "pyarrow",
+    "pytest",
+    "psutil",
+    "ruff",
+    "black",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+  | contracts
+  | docs
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+]
+
+[tool.ruff]
+# This file is also referenced by code/.ruff.toml, but we can duplicate settings here
+# for IDE integration if needed. The primary config is in code/.ruff.toml for
+# project-local specificity.
+src = ["code", "tests"]
+line-length = 88
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
+ignore = ["E501"]
+fixable = ["ALL"]
+unfixable = []
+exclude = [
+    ".git",
+    "__pycache__",
+    "data",
+    "contracts",
+    "docs",
+    "build",
+    "dist",
+]

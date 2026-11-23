@@ -1,0 +1,20 @@
+[
+  {
+    "id": "NOAA-AR-Catalog",
+    "title": "NOAA CPC Atmospheric River Catalog",
+    "url": "https://www.ncei.noaa.gov/access/monitoring/climate-atlas/atmospheric-rivers/",
+    "description": "Official catalog of Atmospheric River events from NOAA."
+  },
+  {
+    "id": "GRACE-FO-Mascons",
+    "title": "GRACE-FO Mascon Solutions",
+    "url": "https://grace.jpl.nasa.gov/data/get-data/monthly-mass-grids-level-3/",
+    "description": "Level-3 Mascon solutions for gravity field measurements."
+  },
+  {
+    "id": "USGS-Gravity",
+    "title": "USGS Global Gravity Model",
+    "url": "https://www.usgs.gov/centers/national-geospatial-intelligence-agency-science-center",
+    "description": "Reference gravity model for anomaly calculations."
+  }
+]

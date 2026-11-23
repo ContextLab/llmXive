@@ -1,0 +1,77 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+type: "object"
+properties:
+  model_type:
+    type: "string"
+    description: "Type of statistical model used (e.g., 'GLMM', 'Beta Regression')."
+  fixed_effects:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of fixed effect variables."
+  random_effects:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of random effect variables."
+  coefficients:
+    type: "object"
+    additionalProperties:
+      type: "object"
+      properties:
+        estimate:
+          type: "number"
+        std_error:
+          type: "number"
+        p_value:
+          type: "number"
+        confidence_interval:
+          type: "array"
+          items:
+            type: "number"
+          minItems: 2
+          maxItems: 2
+    description: "Model coefficients and statistics."
+  permutation_test:
+    type: "object"
+    properties:
+      p_value:
+        type: "number"
+      n_permutations:
+        type: "integer"
+      description: "Results of the permutation test."
+  ancom_results:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        taxon_id:
+          type: "string"
+        q_value:
+          type: "number"
+        is_enriched:
+          type: "boolean"
+    description: "Differential abundance results from ANCOM."
+  network_metrics:
+    type: "object"
+    properties:
+      n_nodes:
+        type: "integer"
+      n_edges:
+        type: "integer"
+      keystone_taxa:
+        type: "array"
+        items:
+          type: "string"
+    description: "Co-occurrence network metrics."
+  validity_flags:
+    type: "array"
+    items:
+      type: "string"
+    description: "Flags indicating data validity (e.g., 'MISSING_VARIABLE', 'INSUFFICIENT_DATA')."
+required:
+  - model_type
+  - coefficients
+  - permutation_test
+  - validity_flags

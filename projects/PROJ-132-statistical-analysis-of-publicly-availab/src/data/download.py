@@ -1,249 +1,212 @@
-"""
-Data download and verification module for bird migration and climate data.
-
-This module provides functionality to:
-- Check for real eBird/NOAA data files
-- Generate synthetic data for development (if real data missing)
-- Archive existing data and compute checksums
-- Manage state tracking of data artifacts
-"""
-
 import os
 import sys
 import hashlib
 import shutil
 import logging
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, List
+import time
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+from datasets import load_dataset
+from src.config import setup_logging
 
+# Ensure logging is configured before use
+logger = setup_logging(__name__)
+
+# Constants for data paths
+DATA_RAW_DIR = Path("data/raw")
+DATA_ARCHIVE_DIR = DATA_RAW_DIR / "archive"
+DATA_PROVENANCE_DIR = Path("data/provenance")
+STATE_DIR = Path("state/projects")
+
+# Dataset identifiers
+FULL_EBD_DATASET_ID = "ebird/ebd-full"  # Hypothetical verified ID if available
+SAMPLE_DATASET_ID = "vvud/eb-data"
 
 def compute_sha256(file_path: Path) -> str:
     """Compute SHA-256 checksum of a file."""
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except FileNotFoundError:
+        logger.error(f"File not found for checksum: {file_path}")
+        raise
 
-
-def check_data_availability(
-    ebird_dir: Path,
-    climate_dir: Path
-) -> Dict[str, bool]:
+def check_real_data_available(dataset_id: str) -> bool:
     """
-    Check for presence of real eBird and climate data files.
-
-    Args:
-        ebird_dir: Path to eBird raw data directory
-        climate_dir: Path to climate raw data directory
-
-    Returns:
-        Dictionary with 'ebird' and 'climate' keys indicating availability
+    Verify if a real dataset is available on HuggingFace.
+    This function attempts to list the dataset to confirm existence.
     """
-    ebird_files = list(ebird_dir.glob("*.csv")) if ebird_dir.exists() else []
-    climate_files = list(climate_dir.glob("*.parquet")) if climate_dir.exists() else []
+    try:
+        logger.info(f"Checking availability of dataset: {dataset_id}")
+        # Attempt to load metadata only to verify existence without downloading full data
+        ds = load_dataset(dataset_id, split="train", streaming=True)
+        # If we can get an iterator, it exists
+        next(iter(ds))
+        logger.info(f"Dataset {dataset_id} is available.")
+        return True
+    except Exception as e:
+        logger.warning(f"Dataset {dataset_id} not available or inaccessible: {e}")
+        return False
 
-    return {
-        'ebird': len(ebird_files) > 0,
-        'climate': len(climate_files) > 0
-    }
-
-
-def generate_synthetic_data(
+def download_and_verify_data(
+    dataset_id: str,
     output_dir: Path,
-    seed: int = 42
-) -> Dict[str, Path]:
+    expected_checksum: Optional[str] = None
+) -> Dict[str, Any]:
     """
-    Generate synthetic eBird and climate data for development purposes.
-
-    Args:
-        output_dir: Directory to write synthetic data files
-        seed: Random seed for reproducibility
-
-    Returns:
-        Dictionary mapping data type to generated file path
+    Download dataset from HuggingFace and verify checksums.
+    Returns metadata about the download.
     """
-    import numpy as np
-    import pandas as pd
-
-    np.random.seed(seed)
     output_dir.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Starting download of {dataset_id} to {output_dir}")
 
-    # Generate synthetic eBird data
-    n_records = 1000
-    species_list = ['Turdus migratorius', 'Setophaga coronata', 'Cardinalis cardinalis']
-    ebird_data = {
-        'species': np.random.choice(species_list, n_records),
-        'lat': np.random.uniform(25, 50, n_records),
-        'lon': np.random.uniform(-125, -70, n_records),
-        'date': pd.date_range('2020-01-01', periods=n_records, freq='D'),
-        'count': np.random.randint(1, 50, n_records),
-        'checklist_id': [f'CHK_{i:06d}' for i in range(n_records)]
-    }
-    ebird_df = pd.DataFrame(ebird_data)
-    ebird_path = output_dir / 'synthetic_ebird.csv'
-    ebird_df.to_csv(ebird_path, index=False)
+    try:
+        # Load dataset with streaming=False to download to cache then copy
+        # We use streaming=True to avoid OOM, but for the specific task of
+        # "downloading and verifying", we need the physical files.
+        # Since HuggingFace datasets are often cached, we can try to save them.
+        # However, for large datasets, we might need to process chunks.
+        # For this task, we assume the dataset is small enough or we download a subset
+        # if it's the sample dataset.
+        
+        # If it's the sample dataset, we might download the whole thing.
+        # If it's the full EBD, we might need to stream and save chunks.
+        
+        # Strategy: Use load_dataset with streaming=True, iterate and save to parquet/arrow
+        # This satisfies "download" by persisting the data to disk.
+        
+        ds = load_dataset(dataset_id, split="train", streaming=True)
+        
+        # Save to a temporary parquet file in the output directory
+        # We will iterate through the dataset and save it in chunks
+        output_file = output_dir / "ebird_data.parquet"
+        
+        # If the file already exists and checksum matches, skip download
+        if output_file.exists():
+            current_checksum = compute_sha256(output_file)
+            if expected_checksum and current_checksum == expected_checksum:
+                logger.info("Data already downloaded and checksum verified.")
+                return {
+                    "status": "skipped",
+                    "file": str(output_file),
+                    "checksum": current_checksum
+                }
 
-    # Generate synthetic climate data
-    n_climate = 500
-    climate_data = {
-        'lat': np.random.uniform(25, 50, n_climate),
-        'lon': np.random.uniform(-125, -70, n_climate),
-        'temp': np.random.normal(15, 10, n_climate),
-        'week': np.random.randint(1, 53, n_climate),
-        'precip': np.random.exponential(5, n_climate)
-    }
-    climate_df = pd.DataFrame(climate_data)
-    climate_path = output_dir / 'synthetic_climate.parquet'
-    climate_df.to_parquet(climate_path, index=False)
+        # Download and save
+        logger.info("Downloading and saving data...")
+        import pyarrow as pa
+        import pyarrow.parquet as pq
+        
+        # Collect batches and write to parquet
+        writer = None
+        total_rows = 0
+        
+        for batch in ds:
+            if writer is None:
+                # Infer schema from first batch
+                table = pa.Table.from_pydict(batch)
+                writer = pq.ParquetWriter(output_file, table.schema)
+            table = pa.Table.from_pydict(batch)
+            writer.write_table(table)
+            total_rows += len(table)
+            if total_rows % 100000 == 0:
+                logger.info(f"Downloaded {total_rows} rows...")
+        
+        if writer:
+            writer.close()
+        
+        logger.info(f"Download complete. Total rows: {total_rows}")
+        
+        # Compute checksum
+        final_checksum = compute_sha256(output_file)
+        
+        if expected_checksum and final_checksum != expected_checksum:
+            logger.error(f"Checksum mismatch! Expected: {expected_checksum}, Got: {final_checksum}")
+            raise ValueError("Checksum mismatch after download")
+        
+        return {
+            "status": "downloaded",
+            "file": str(output_file),
+            "checksum": final_checksum,
+            "rows": total_rows
+        }
 
-    return {
-        'ebird': ebird_path,
-        'climate': climate_path
-    }
+    except Exception as e:
+        logger.error(f"Failed to download or verify data: {e}")
+        raise
 
-
-def archive_data(
-    source_dir: Path,
-    archive_dir: Path,
-    checksums: Optional[Dict[str, str]] = None
-) -> None:
+def archive_data(source_dir: Path, archive_dir: Path) -> List[Dict[str, str]]:
     """
-    Archive existing data files without modification.
-
-    Args:
-        source_dir: Source directory containing data files
-        archive_dir: Destination directory for archived files
-        checksums: Optional dictionary to store checksums
+    Copy downloaded data to archive directory and compute checksums.
+    Returns list of checksum records.
     """
-    if not source_dir.exists():
-        logger.warning(f"Source directory {source_dir} does not exist")
-        return
-
     archive_dir.mkdir(parents=True, exist_ok=True)
-
-    for file_path in source_dir.iterdir():
+    checksums = []
+    
+    for file_path in source_dir.glob("*"):
         if file_path.is_file():
             dest_path = archive_dir / file_path.name
             shutil.copy2(file_path, dest_path)
-            logger.info(f"Archived: {file_path} -> {dest_path}")
+            checksum = compute_sha256(dest_path)
+            checksums.append({
+                "file": str(dest_path),
+                "checksum": checksum
+            })
+            logger.info(f"Archived {file_path.name} with checksum {checksum}")
+    
+    return checksums
 
-            if checksums is not None:
-                checksums[file_path.name] = compute_sha256(file_path)
-
-
-def update_state_file(
-    state_path: Path,
-    artifact_hashes: Dict[str, str],
-    updated_at: str
-) -> None:
+def ensure_data_available() -> bool:
     """
-    Update the project state file with artifact checksums and timestamp.
-
-    Args:
-        state_path: Path to the state YAML file
-        artifact_hashes: Dictionary of artifact name to SHA-256 hash
-        updated_at: ISO format timestamp
+    Check if data is available in the expected location.
     """
-    import yaml
+    expected_files = [DATA_RAW_DIR / "ebird_data.parquet"]
+    return all(f.exists() for f in expected_files)
 
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-
-    state_data = {
-        'artifact_hashes': artifact_hashes,
-        'updated_at': updated_at
-    }
-
-    with open(state_path, 'w') as f:
-        yaml.dump(state_data, f, default_flow_style=False)
-
-    logger.info(f"Updated state file: {state_path}")
-
-
-def run_download_pipeline(
-    mode: str = 'production',
-    seed: int = 42
-) -> bool:
+def run_download_pipeline():
     """
-    Main entry point for data download and preparation.
-
-    Args:
-        mode: 'production' (abort if no real data) or 'development' (generate synthetic)
-        seed: Random seed for synthetic data generation
-
-    Returns:
-        True if data preparation succeeded, False otherwise
+    Main pipeline for downloading and verifying canonical data.
+    Implements T005b.
     """
-    project_root = Path(__file__).parent.parent.parent
-    data_raw_dir = project_root / 'data' / 'raw'
-    ebird_dir = data_raw_dir / 'ebird'
-    climate_dir = data_raw_dir / 'climate'
-    archive_dir = data_raw_dir / 'archive'
-    state_dir = project_root / 'state' / 'projects'
-
-    # Check for real data
-    availability = check_data_availability(ebird_dir, climate_dir)
-    logger.info(f"Data availability: {availability}")
-
-    if not (availability['ebird'] and availability['climate']):
-        if mode == 'production':
-            logger.error("Real data required for production run")
-            sys.exit(1)
-        else:
-            logger.info("Real data missing, generating synthetic data for development")
-            generate_synthetic_data(data_raw_dir, seed=seed)
-            logger.info("Synthetic data generation complete")
-
-    # Archive existing real data
-    all_checksums = {}
-    if ebird_dir.exists():
-        archive_data(ebird_dir, archive_dir, all_checksums)
-    if climate_dir.exists():
-        archive_data(climate_dir, archive_dir, all_checksums)
-
-    # Update state file
-    if all_checksums:
-        from datetime import datetime
-        state_path = state_dir / 'PROJ-132-statistical-analysis-of-publicly-availab.yaml'
-        update_state_file(
-            state_path,
-            artifact_hashes=all_checksums,
-            updated_at=datetime.now().isoformat()
-        )
-
-    return True
-
-
-if __name__ == '__main__':
-    import argparse
-
-    parser = argparse.ArgumentParser(description='Data download and preparation pipeline')
-    parser.add_argument(
-        '--mode',
-        choices=['production', 'development'],
-        default='production',
-        help='Operation mode: production (requires real data) or development (synthetic data)'
+    logger.info("Starting download pipeline (T005b)")
+    
+    # 1. Check for full EBD availability (T005a result is assumed from previous step)
+    # We prioritize the sample dataset if full EBD is not available
+    # Based on plan, if full EBD is unavailable, we use vvud/eb-data
+    
+    dataset_to_use = SAMPLE_DATASET_ID
+    logger.info(f"Using dataset: {dataset_to_use}")
+    
+    # 2. Verify dataset existence
+    if not check_real_data_available(dataset_to_use):
+        raise RuntimeError(f"Dataset {dataset_to_use} is not available. Cannot proceed.")
+    
+    # 3. Download and verify
+    download_result = download_and_verify_data(
+        dataset_id=dataset_to_use,
+        output_dir=DATA_RAW_DIR,
+        expected_checksum=None  # Checksums would be provided if known
     )
-    parser.add_argument(
-        '--seed',
-        type=int,
-        default=42,
-        help='Random seed for synthetic data generation'
-    )
+    
+    # 4. Archive data
+    checksums = archive_data(DATA_RAW_DIR, DATA_ARCHIVE_DIR)
+    
+    # 5. Write checksum manifest
+    manifest_path = DATA_ARCHIVE_DIR / "checksums.json"
+    import json
+    with open(manifest_path, "w") as f:
+        json.dump({"checksums": checksums, "dataset": dataset_to_use}, f, indent=2)
+    
+    logger.info(f"Download pipeline complete. Manifest written to {manifest_path}")
+    return checksums
 
-    args = parser.parse_args()
-    success = run_download_pipeline(mode=args.mode, seed=args.seed)
+def main():
+    """Entry point for the download script."""
+    run_download_pipeline()
 
-    if success:
-        logger.info("Data pipeline completed successfully")
-        sys.exit(0)
-    else:
-        logger.error("Data pipeline failed")
-        sys.exit(1)
+if __name__ == "__main__":
+    main()

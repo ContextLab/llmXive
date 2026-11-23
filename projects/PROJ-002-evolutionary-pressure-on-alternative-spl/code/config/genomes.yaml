@@ -1,0 +1,61 @@
+# Genome assembly configurations for primate species
+# Used by download, alignment, and annotation pipelines
+
+assemblies:
+  human:
+    species: "Homo sapiens"
+    assembly: "GRCh38"
+    genome_fasta: "data/raw/genomes/GRCh38.fa"
+    gtf: "data/raw/annotations/GRCh38.gtf"
+    phyloP_bigwig: "data/raw/conservation/100way/hg38.phyloP100way.bw"
+    sra_accession: "SRP010775"
+
+  chimp:
+    species: "Pan troglodytes"
+    assembly: "panTro6"
+    genome_fasta: "data/raw/genomes/panTro6.fa"
+    gtf: "data/raw/annotations/panTro6.gtf"
+    phyloP_bigwig: "data/raw/conservation/100way/panTro6.phyloP100way.bw"
+    sra_accession: "SRP009050"
+
+  macaque:
+    species: "Macaca mulatta"
+    assembly: "rheMac10"
+    genome_fasta: "data/raw/genomes/rheMac10.fa"
+    gtf: "data/raw/annotations/rheMac10.gtf"
+    phyloP_bigwig: "data/raw/conservation/100way/rheMac10.phyloP100way.bw"
+    sra_accession: "SRP009051"
+
+  marmoset:
+    species: "Callithrix jacchus"
+    assembly: "calJac4"
+    genome_fasta: "data/raw/genomes/calJac4.fa"
+    gtf: "data/raw/annotations/calJac4.gtf"
+    phyloP_bigwig: "data/raw/conservation/100way/calJac4.phyloP100way.bw"
+    sra_accession: "SRP009052"
+
+# Phylogenetic tree for comparative analysis
+phylogenetic_tree: "data/raw/trees/primate_tree.nwk"
+
+# Pipeline parameters
+parameters:
+  star:
+    out_filter_multimap_nmax: 20
+    out_filter_score_min_over_len: 0.5
+    alignSJoverhangMin: 8
+    alignSJDBoverhangMin: 1
+
+  suppa:
+    psi_threshold: 0.1
+    fdr_threshold: 0.05
+
+  replication:
+    min_replicates: 3
+    max_replicates: 5
+
+# Retention policy
+retention:
+  fastq_days: 30
+  bam_days: 90
+  intermediate_days: 7
+  final_days: 365

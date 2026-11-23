@@ -1,0 +1,14 @@
+{
+  "baseline_prompt": "invalid truncated JSON",
+  "raw_evidence_characters": 45811,
+  "bounded_prompt_characters": 7229,
+  "retained_issue_numbers": [
+    1475,
+    1474,
+    1242,
+    1139,
+    262
+  ],
+  "focused_tests_passed": 12,
+  "real_model_acceptance": "not exercised by this prompt regression"
+}

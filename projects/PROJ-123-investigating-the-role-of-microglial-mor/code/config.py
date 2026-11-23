@@ -1,139 +1,140 @@
-"""
-Configuration Module for the Microglial Morphology Project.
-
-Centralizes all configuration parameters including paths, random seeds,
-and constants for CPU-only execution.
-"""
-
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional
-
 import yaml
+import random
+import numpy as np
 
+# Project Root
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+# Configuration Defaults
+DEFAULT_CONFIG = {
+    "seed": 42,
+    "cpu_only": True,
+    "paths": {
+        "data_root": "data",
+        "model_root": "models",
+        "reports": "reports",
+        "specs": "specs",
+        "code": "code",
+        "tests": "tests"
+    },
+    "morphometry": {
+        "sholl_radii": [2, 5, 10],
+        "denoise_sigma": 1.0,
+        "background_subtract": True
+    },
+    "analysis": {
+        "vif_threshold": 5.0,
+        "cv_folds": 5,
+        "random_state": 42
+    }
+}
+
+CONFIG: Dict[str, Any] = {}
+
+# T004: Explicit constants for paths, seeds, and CPU-only execution
+# These are defined at module level for immediate access by other modules
+DATA_ROOT = Path(os.getcwd()) / DEFAULT_CONFIG["paths"]["data_root"]
+MODEL_ROOT = Path(os.getcwd()) / DEFAULT_CONFIG["paths"]["model_root"]
+SEED = DEFAULT_CONFIG["seed"]
+CPU_ONLY = DEFAULT_CONFIG["cpu_only"]
+
+# T004: Statistical thresholds
+VIF_THRESHOLD = 5.0
+SENSITIVITY_THRESHOLD = 0.05
+
+# T004: Approved morphology metrics list (FR-003)
+# This list defines the operational definition of morphological complexity
+# used throughout the pipeline (T013-T016).
+MORPHOLOGY_METRICS = [
+    "branch_points",
+    "total_length",
+    "soma_area",
+    "sholl_intersections"
+]
 
 def get_project_root() -> Path:
-    """
-    Get the project root directory.
-
-    Assumes the project structure is:
-    projects/PROJ-123-.../
-
-    Returns:
-        Path to the project root.
-    """
-    # Try to find the project root by looking for a known file
-    current = Path(__file__).resolve()
-    for parent in current.parents:
-        if (parent / 'tasks.md').exists():
-            return parent
-    # Fallback to current directory
-    return Path.cwd()
-
-
-def load_config(config_path: Optional[Path] = None) -> Dict[str, Any]:
-    """
-    Load configuration from a YAML file.
-
-    Args:
-        config_path: Path to the config file. Defaults to config.yaml in project root.
-
-    Returns:
-        Dictionary containing configuration parameters.
-    """
-    if config_path is None:
-        config_path = get_project_root() / 'config.yaml'
-
-    if not config_path.exists():
-        # Return default configuration
-        return get_default_config()
-
-    with open(config_path, 'r', encoding='utf-8') as f:
-        return yaml.safe_load(f)
-
+    """Get the project root directory."""
+    return _PROJECT_ROOT
 
 def get_default_config() -> Dict[str, Any]:
+    """Return the default configuration dictionary."""
+    return DEFAULT_CONFIG.copy()
+
+def load_config(config_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Get default configuration parameters.
-
-    Returns:
-        Dictionary with default configuration values.
-    """
-    project_root = get_project_root()
-
-    return {
-        # Paths
-        'project_root': str(project_root),
-        'data_dir': str(project_root / 'data'),
-        'raw_data_dir': str(project_root / 'data' / 'raw'),
-        'processed_data_dir': str(project_root / 'data' / 'processed'),
-        'intermediate_data_dir': str(project_root / 'data' / 'intermediates'),
-        'figures_dir': str(project_root / 'figures'),
-        'reports_dir': str(project_root / 'reports'),
-        'specs_dir': str(project_root / 'specs'),
-
-        # Random seeds for reproducibility
-        'random_seed': 42,
-        'numpy_seed': 42,
-        'python_seed': 42,
-
-        # Execution settings
-        'cpu_only': True,
-        'max_workers': 4,  # Conservative for CPU-only execution
-        'memory_limit_gb': 8,
-
-        # Image processing parameters
-        'image_pixel_size_um': 0.325,  # Example: microns per pixel
-        'denoise_strength': 1.0,
-        'background_subtraction_radius': 50,
-
-        # Morphology analysis parameters
-        'sholl_radius_start': 0,
-        'sholl_radius_step': 5,  # microns
-        'sholl_radius_end': 100,
-        'branch_point_threshold': 3,  # pixels
-
-        # Statistical analysis parameters
-        'p_value_threshold': 0.05,
-        'vif_threshold': 5.0,
-
-        # Logging
-        'log_level': 'INFO',
-        'log_to_file': True,
-    }
-
-
-# Global configuration instance
-CONFIG = load_config()
-
-
-def get_path(key: str) -> Path:
-    """
-    Get a configuration path as a Path object.
-
+    Load configuration from a YAML file or return defaults.
+    
     Args:
-        key: Configuration key for the path (e.g., 'raw_data_dir').
-
+        config_path: Path to config file. If None, uses default.
+    
     Returns:
-        Path object for the configured directory.
+        Dict: Configuration dictionary.
     """
-    path_str = CONFIG.get(key, '')
-    return Path(path_str)
+    global CONFIG
+    if config_path and os.path.exists(config_path):
+        with open(config_path, 'r') as f:
+            CONFIG = yaml.safe_load(f)
+    else:
+        CONFIG = DEFAULT_CONFIG
+    return CONFIG
 
-
-def ensure_dirs() -> None:
+def get_path(*relative_parts: str) -> Path:
     """
-    Ensure all configured directories exist.
+    Construct an absolute path relative to the project root.
+    
+    Args:
+        relative_parts: Path components relative to project root.
+    
+    Returns:
+        Path: Absolute path.
     """
-    dirs = [
-        'data_dir',
-        'raw_data_dir',
-        'processed_data_dir',
-        'intermediate_data_dir',
-        'figures_dir',
-        'reports_dir',
-    ]
+    return _PROJECT_ROOT / os.path.join(*relative_parts)
 
-    for dir_key in dirs:
-        dir_path = get_path(dir_key)
-        dir_path.mkdir(parents=True, exist_ok=True)
+def ensure_dirs(*path_strs: str) -> Path:
+    """
+    Ensure directories exist for the given paths.
+    
+    Args:
+        path_strs: Path strings to ensure exist.
+    
+    Returns:
+        Path: The last path created/checked.
+    """
+    for p_str in path_strs:
+        p = get_path(p_str)
+        p.mkdir(parents=True, exist_ok=True)
+    return get_path(*path_strs)
+
+def set_seed(seed: Optional[int] = None) -> None:
+    """Set random seeds for reproducibility."""
+    if seed is None:
+        seed = DEFAULT_CONFIG.get("seed", 42)
+    random.seed(seed)
+    np.random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
+
+def get_morphometry_config() -> Dict[str, Any]:
+    """Get morphometry specific configuration."""
+    return DEFAULT_CONFIG.get("morphometry", {})
+
+def get_analysis_config() -> Dict[str, Any]:
+    """Get analysis specific configuration."""
+    return DEFAULT_CONFIG.get("analysis", {})
+
+def get_data_paths() -> Dict[str, str]:
+    """Get data directory paths."""
+    return DEFAULT_CONFIG.get("paths", {})
+
+# Ensure required directories exist on import (idempotent)
+ensure_dirs(
+    DEFAULT_CONFIG["paths"]["data_root"],
+    os.path.join(DEFAULT_CONFIG["paths"]["data_root"], "raw"),
+    os.path.join(DEFAULT_CONFIG["paths"]["data_root"], "processed"),
+    os.path.join(DEFAULT_CONFIG["paths"]["data_root"], "intermediates"),
+    DEFAULT_CONFIG["paths"]["reports"],
+    DEFAULT_CONFIG["paths"]["specs"],
+    DEFAULT_CONFIG["paths"]["tests"]
+)

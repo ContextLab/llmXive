@@ -1,0 +1,6 @@
+records:
+  - id: "TEST-RECORD-001"
+    artifact: "data/processed/encoded_alloys.csv"
+    status: "approved"
+    created_at: "2024-01-01T00:00:00"
+    reviewer: "system"

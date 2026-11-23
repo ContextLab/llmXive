@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Topology Metrics Schema"
+description: "Schema for the topology metrics output file (data/processed/topology_metrics_raw.json)"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique subject identifier (e.g., 'sub-001')"
+  modularity:
+    type: "number"
+    description: "Modularity (Q) of the network"
+  path_length:
+    type: "number"
+    description: "Characteristic path length (L)"
+  clustering:
+    type: "number"
+    description: "Clustering coefficient (C)"
+  efficiency:
+    type: "number"
+    description: "Global efficiency (E_glob)"
+required:
+  - subject_id
+  - modularity
+  - path_length
+  - clustering
+  - efficiency
+additionalProperties: false

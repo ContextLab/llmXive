@@ -1,0 +1,878 @@
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: hyperparameters k=100 and n_bootstrap=1000
+  claim_id: c_97bf7e3f
+  context: 'Phase 2: Foundational (Blocking Prerequisites) - T004'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/config.py` with paths, seeds, and hyperparameters (k=100,
+    n_bootstrap=1000)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:32:18Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: dependency versions torch 2.1.0, transformers 4.36.0, numpy 1.24.3, scipy
+    1.11.4, pandas 2.1.4, huggingface_hub 0.20.3, datasets 2.16.1
+  claim_id: c_ace17937
+  context: 'Phase 1: Setup (Shared Infrastructure) - T002'
+  evidence:
+    asserted: '2.1'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Initialize a Python project with `requirements.txt` pinning exact versions:
+    `torch==2.1.0`, `transformers==4.36.0`, `numpy==1.24.3`, `scipy==1.11.4`, `pandas==2.1.4`,
+    `huggingface_hub==0.20.3`, `datasets==2.16.1`'
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-01T00:32:18Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: compute top 100 singular vectors of full unembedding matrix
+  claim_id: c_014b4163
+  context: 'Phase 3: User Story 1 - T012'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute **top-k (k=100) singular vectors of the FULL unembedding matrix
+    (W_U)**
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:32:48Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: memory footprint calculation matrix size times 4 bytes times 2
+  claim_id: c_a8245dc8
+  context: 'Phase 3: User Story 1 - T012b-PRECHECK'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate theoretical memory footprint (matrix size * 4 bytes * 2)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:33:18Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: feasibility warning raised if memory exceeds 6 GB
+  claim_id: c_42f95e5b
+  context: 'Phase 3: User Story 1 - T012b-PRECHECK'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If memory > 6GB for ANY of the three models, raise a `FeasibilityWarning`
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:33:18Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: singular values less than 1e-12 detected during SVD
+  claim_id: c_329fb88d
+  context: 'Phase 3: User Story 1 - T038'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Singular_values_less_than_1e-12_detected_during_SVD
+  kind: magnitude
+  raw_text: Detect and handle singular values < 1e-12 during SVD
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:33:48Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: frequency distributions computed from streamed RedPajama English dataset
+  claim_id: c_ed509faa
+  context: 'Phase 4: User Story 2 - T019a'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Frequency_distributions_computed_from_streamed_RedPajama_Eng
+  kind: entity_fact
+  raw_text: Compute the frequency distributions from the streamed RedPajama (English)
+    dataset
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:34:11Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: critical warning logged if vocabulary intersection size is less than
+    5000 tokens
+  claim_id: c_ce86cf51
+  context: 'Phase 4: User Story 2 - T042'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Critical_warning_logged_if_vocabulary_intersection_size_is_l
+  kind: magnitude
+  raw_text: If the intersection size is < 5,000 tokens, log a critical warning
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:34:51Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: null distribution generated using random orthogonal bases of same dimension
+    as observed subspace
+  claim_id: c_8f9994a1
+  context: 'Phase 5: User Story 3 - T026'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Null_distribution_generated_using_random_orthogonal_bases_of
+  kind: entity_fact
+  raw_text: Implement `code/statistical_test.py` to generate the null distribution
+    by generating **random orthogonal bases** of the same dimension as the observed
+    subspace
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:35:30Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: permutation test ensures CPU-only execution and runtime under 6 hours
+  claim_id: c_97cd9fa4
+  context: 'Phase 5: User Story 3 - T027'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure CPU-only execution and < 6h runtime, using a fixed random seed
+    from config
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:35:30Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: SVD optimized using scipy.linalg.svd with full_matrices false
+  claim_id: c_99764bc5
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T033a'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/SVD_optimized_using_scipy.linalg.svd_with_full_matrices_fals
+  kind: entity_fact
+  raw_text: Optimize SVD computation in `code/model_analyzer.py` using `scipy.linalg.svd`
+    with `full_matrices=False`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:36:04Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: optimized SVD and permutation loops verified to complete within 6 hours
+  claim_id: c_8ee1df11
+  context: 'Phase N: Polish & Cross-Cutting Concerns - T033b'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the optimized SVD and permutation loops complete within the
+    < 6h runtime constraint on the target runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:36:05Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: feasibility warning logged if theoretical RAM usage exceeds 6 GB
+  claim_id: c_4092f9c5
+  context: 'Phase N+1: Review Remediation & Feasibility Validation - T060'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If `matrix_size * 4 bytes * 2 > 6GB`, log a **Feasibility Warning**
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:36:26Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: critical warning logged if vocabulary intersection size is less than
+    10000 tokens
+  claim_id: c_1d39cdfa
+  context: 'Phase N+1: Review Remediation & Feasibility Validation - T065'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Critical_warning_logged_if_vocabulary_intersection_size_is_l
+  kind: magnitude
+  raw_text: If the intersection size is < 10,000 tokens, log a critical warning
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-01T00:36:28Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/docs/methodology.md
+  attempts: 1
+  canonical: Shared vocabulary intersection size must be at least 5000 for statistical
+    power
+  claim_id: c_5c809d05
+  context: Implementation Details section describing the threshold for vocabulary
+    intersection before the pipeline proceeds.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Shared_vocabulary_intersection_size_must_be_at_least_5000_fo
+  kind: magnitude
+  raw_text: We verify that |I| >= 5000. If the intersection is too small, the statistical
+    power of the comparison is insufficient, and the pipeline aborts.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:07:59Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/docs/methodology.md
+  attempts: 1
+  canonical: Cross-lingual edge spectrum similarity is indistinguishable from within-language
+    similarity
+  claim_id: c_2e49477f
+  context: Null Hypothesis definition in Section 4.1 stating the baseline for statistical
+    testing.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cross-lingual_edge_spectrum_similarity_is_indistinguishable
+  kind: entity_fact
+  raw_text: The observed cosine similarity between the edge spectrum subspaces of
+    two different languages (e.g., English and French) is indistinguishable from the
+    similarity observed between subspaces of models trained on the same language (e.g.,
+    English vs. English).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:08:24Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/docs/methodology.md
+  attempts: 1
+  canonical: P-value threshold of 0.05 used to reject null hypothesis of cross-lingual
+    similarity
+  claim_id: c_b1547269
+  context: P-Value calculation section describing the criterion for statistical significance.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A low p-value (< 0.05) allows us to reject H0, confirming a statistically
+    significant cross-lingual shift.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:08:24Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/docs/methodology.md
+  attempts: 1
+  canonical: k set to 100 based on rapid decay of singular values
+  claim_id: c_4235d3f4
+  context: The edge spectrum subspace Sk is defined as the span of the first k columns
+    of U... We set k=100 based on the rapid decay of singular values observed in preliminary
+    experiments
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: We set k=100 based on the rapid decay of singular values observed in preliminary
+    experiments, capturing the dominant geometric structure of the vocabulary space.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:09:34Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/docs/methodology.md
+  attempts: 1
+  canonical: WALS features include word order, morphology, and phonology
+  claim_id: c_20abcbc1
+  context: We compute the Spearman correlation between the shift vector and features
+    from the World Atlas of Language Structures (WALS), such as word order, morphology,
+    and phonology.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/WALS_features_include_word_order,_morphology,_and_phonology
+  kind: entity_fact
+  raw_text: The World Atlas of Language Structures (WALS) features include word order,
+    morphology, and phonology.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:10:35Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/docs/methodology.md
+  attempts: 1
+  canonical: Conneau et al. 2018 published Sentence Embeddings are Not Enough
+  claim_id: c_9222737a
+  context: 'References section listing [SentEval]: Conneau, A. et al. (2018). Sentence
+    Embeddings are Not Enough: Evaluating Multilingual Sentence Encoders.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Conneau, A. et al. (2018) published ''Sentence Embeddings are Not Enough:
+    Evaluating Multilingual Sentence Encoders''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:10:45Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Compute edge spectrum subspace for Llama-3, Mistral, and BLOOM
+  claim_id: c_04d7ac1f
+  context: "Phase 3: User Story 1 - Extract and Compare Edge Spectrum Subspaces (Priority:\
+    \ P1) Goal: Compute the 'edge spectrum' subspace (top\u2011k singular vectors)\
+    \ of $W_U$ for Llama\u20113, Mistral, and BLOOM and calculate cosine similarity\
+    \ between subspaces to quantify geometric rotation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute the 'edge spectrum' subspace (top\u2011k singular vectors) of\
+    \ $W_U$ for Llama\u20113, Mistral, and BLOOM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:12:05Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Use MUSE library for alignment if token overlap is less than 5000
+  claim_id: c_b9c78687
+  context: "[X] T044\u2011Fallback Implement translation\u2011map\u2011based alignment\
+    \ using the **muse library (MUSE) from facebookresearch/MUSE** if `vocab_status.json`\
+    \ reports 'INSUFFICIENT_OVERLAP' (< 5000 tokens)."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P12071: 11200'
+      source_id: Q136293754
+      url: https://www.wikidata.org/wiki/Q136293754
+      value: '11200'
+    filled: true
+  kind: magnitude
+  raw_text: "If vocab_status.json reports 'INSUFFICIENT_OVERLAP' (< 5000 tokens),\
+    \ implement translation\u2011map\u2011based alignment using the muse library (MUSE)\
+    \ from facebookresearch/MUSE."
+  resolved_value: '11200'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T17:12:11Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Compute top 100 singular vectors
+  claim_id: c_32b7107a
+  context: "[X] T012 Implement SVD extraction to compute **top\u2011k (k=100) singular\
+    \ vectors** of the **projected unembedding matrix** (after T044 or T044\u2011\
+    Fallback) using `scipy.sparse.linalg.svds`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute top\u2011k (k=100) singular vectors of the projected unembedding\
+    \ matrix."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:13:49Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Abort SVD if memory estimate exceeds 6 GB
+  claim_id: c_4aa03b8f
+  context: "[X] T012b **Feasibility Pre\u2011check & Hard Abort**: Estimate memory\
+    \ usage for the full\u2011matrix SVD. If the estimate exceeds 6 GB, **raise `PipelineAbortError`\
+    \ immediately** and write `data/processed/feasibility_report.json` with status\
+    \ `ABORTED`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If memory usage estimate for full\u2011matrix SVD exceeds 6 GB, raise\
+    \ PipelineAbortError immediately."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:14:07Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Enforce minimum 1 million tokens for RedPajama frequency distribution
+  claim_id: c_1bfc24ff
+  context: "[X] T019a Compute English frequency distribution from RedPajama, processing\
+    \ in streaming chunks, log total token count, and write `data/processed/frequency_distributions_en.json`.\
+    \ Enforce \u2265 1,000,000 tokens; otherwise raise `DataValidationError`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a minimum of 1,000,000 tokens for English frequency distribution
+    from RedPajama; otherwise raise DataValidationError.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:14:24Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Enforce minimum 1 million tokens for French and Chinese frequency distributions
+  claim_id: c_80ad766b
+  context: "[X] T041 Frequency Distribution Validation: Verify each frequency file\
+    \ contains \u2265 1,000,000 tokens; write `data/processed/frequency_validation_report.json`\
+    \ with per\u2011language status."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce a minimum of 1,000,000 tokens for French and Chinese frequency
+    distributions; write validation report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:14:45Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Implement permutation test with at least 1000 iterations
+  claim_id: c_1bf35786
+  context: '[X] T027 Implement permutation test loop with fixed seed, at least 1,000
+    iterations, early convergence detection (change < 0.001).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Implement_permutation_test_with_at_least_1000_iterations
+  kind: magnitude
+  raw_text: Implement permutation test loop with at least 1,000 iterations.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:15:12Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Compute Spearman correlation between full shift vector and WALS features
+  claim_id: c_e513f3ca
+  context: '[X] T029 **External Validation**: Compute Spearman correlation between
+    the **full shift vector** (NO PCA reduction) and WALS feature differences, and
+    between the shift vector and SentEval performance drop.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_Spearman_correlation_between_full_shift_vector_and_W
+  kind: entity_fact
+  raw_text: Compute Spearman correlation between the full shift vector (NO PCA reduction)
+    and WALS feature differences.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:15:33Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Apply PCA to shift vector to retain 20 components
+  claim_id: c_f3feb091
+  context: '[X] T030 **Dimensionality Reduction for Visualization**: Apply PCA to
+    the shift vector (difference between English and target language mean embeddings)
+    to retain N components (e.g., N=20) for visualization only.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply PCA to the shift vector to retain 20 components for visualization
+    only.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:15:57Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Request runner with 4 vCPU and 16 GB RAM
+  claim_id: c_2ef2d558
+  context: '[X] T080 **Runner Specification Update**: Modify `.github/workflows/full_pipeline.yml`
+    to request a runner that satisfies the spec''s 4 vCPU and 16 GB RAM requirement.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Request a runner that satisfies the spec's 4 vCPU and 16 GB RAM requirement.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:16:14Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Verify SVD and permutation loops complete within 6 hours
+  claim_id: c_7f2fc576
+  context: '[X] T033b **Runtime Verification**: Verify that the optimized SVD and
+    permutation loops complete within the < 6 h runtime constraint on the target runner.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify that the optimized SVD and permutation loops complete within the
+    < 6 h runtime constraint on the target runner.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:16:14Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Abort pipeline if vocabulary intersection size is less than 5000
+  claim_id: c_efebc358
+  context: "[X] T065 **Cross\u2011Lingual Vocabulary Alignment Robustness** ... If\
+    \ `intersection_size < 5000`, raise `PipelineAbortError` to stop further processing."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Abort_pipeline_if_vocabulary_intersection_size_is_less_than
+  kind: magnitude
+  raw_text: If intersection_size < 5000, raise PipelineAbortError to stop further
+    processing.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:17:17Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Halt pipeline if streaming token count is less than 1 million
+  claim_id: c_05248f2c
+  context: '[X] T091 [P] [US2] **Token Count Verification**: Add a hard guard in `code/data_loader.py`
+    that halts the pipeline if the total token count (sum of token counts) from a
+    streaming source (RedPajama/OSCAR) is < 1,000,000 after processing the entire
+    available stream.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_pipeline_if_streaming_token_count_is_less_than_1_millio
+  kind: magnitude
+  raw_text: Halt the pipeline if the total token count from a streaming source is
+    < 1,000,000 after processing the entire available stream.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:17:56Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Verify frequency distribution determinism on 10k token subset
+  claim_id: c_c9e20442
+  context: '[X] T092 [P] [US2] **Cross-Lingual Frequency Distribution Stability Test**:
+    Implement `tests/unit/test_freq_stability.py` that runs the frequency distribution
+    computation multiple times on a small fixed seed subset (e.g., 10k tokens) to
+    verify that the resulting distribution vectors are bitwise identical.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the frequency distribution computation on a small fixed seed subset
+    (e.g., 10k tokens) to verify bitwise identical results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:18:01Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Use French OSCAR dataset unshuffled_deduplicated_fr
+  claim_id: c_8522f2b8
+  context: '[X] T039 Update `code/data_loader.py` to use exact Hugging Face identifiers:
+    - French: `datasets.load_dataset("oscar", "unshuffled_deduplicated_fr", streaming=True)`'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_French_OSCAR_dataset_unshuffled_deduplicated_fr
+  kind: entity_fact
+  raw_text: Use the French OSCAR dataset identifier 'oscar', 'unshuffled_deduplicated_fr'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:18:09Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Use Chinese OSCAR dataset unshuffled_deduplicated_zh
+  claim_id: c_5f3b2a32
+  context: '[X] T039 Update `code/data_loader.py` to use exact Hugging Face identifiers:
+    - Chinese: `datasets.load_dataset("oscar", "unshuffled_deduplicated_zh", streaming=True)`'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Chinese_OSCAR_dataset_unshuffled_deduplicated_zh
+  kind: entity_fact
+  raw_text: Use the Chinese OSCAR dataset identifier 'oscar', 'unshuffled_deduplicated_zh'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:18:16Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Use RedPajama dataset togethercomputer/RedPajama-Data-1T default
+  claim_id: c_7261b393
+  context: '[X] T039 Update `code/data_loader.py` to use exact Hugging Face identifiers:
+    - English RedPajama: `datasets.load_dataset("togethercomputer/RedPajama-Data-1T",
+    "default", streaming=True, split="train", trust_remote_code=True)`'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_RedPajama_dataset_togethercomputer/RedPajama-Data-1T_def
+  kind: entity_fact
+  raw_text: Use the English RedPajama dataset identifier 'togethercomputer/RedPajama-Data-1T',
+    'default'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:18:23Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Use SentEval dataset multilingual-sts
+  claim_id: c_b156f017
+  context: '[X] T029c **SentEval Acquisition**: Download and checksum Multilingual
+    SentEval STS metrics from `datasets.load_dataset(''senteval'', ''multilingual-sts'')`
+    to `data/raw/senteval/`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_SentEval_dataset_multilingual-sts
+  kind: entity_fact
+  raw_text: Use the SentEval dataset identifier 'senteval', 'multilingual-sts'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:18:30Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Verify WALS CSV contains WordOrder Morphology and Phonology columns
+  claim_id: c_d512d065
+  context: '[X] T062 **WALS Data Integrity Check**: Verify that the downloaded WALS
+    CSV contains columns `WordOrder`, `Morphology`, `Phonology`. Raise `ValidationError`
+    if missing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_WALS_CSV_contains_WordOrder_Morphology_and_Phonology
+  kind: entity_fact
+  raw_text: Verify that the downloaded WALS CSV contains columns WordOrder, Morphology,
+    and Phonology.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:18:37Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: Define WALS feature set as WordOrder Morphology and Phonology
+  claim_id: c_2ee8d4c4
+  context: '[X] T029a **WALS Configuration**: Define required WALS feature set (e.g.,
+    WordOrder, Morphology, Phonology) and correlation method (Spearman).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Define_WALS_feature_set_as_WordOrder_Morphology_and_Phonolog
+  kind: entity_fact
+  raw_text: Define required WALS feature set as WordOrder, Morphology, and Phonology.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:18:48Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: system runs SVD on three models and outputs non-zero cosine similarity
+    scores
+  claim_id: c_6618967b
+  context: "User Story 1 aims to compute the edge\u2011spectrum subspace of W_U for\
+    \ Llama\u20113, Mistral, and BLOOM and then calculate cosine similarity between\
+    \ the subspaces."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_runs_SVD_on_three_models_and_outputs_non-zero_cosine
+  kind: entity_fact
+  raw_text: "The system runs SVD on three models and outputs a JSON report with non\u2011\
+    zero cosine similarity scores between model pairs."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:39:57Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: pipeline uses MUSE library from facebookresearch/MUSE for alignment
+  claim_id: c_da6aa5aa
+  context: "If vocab_status.json reports 'INSUFFICIENT_OVERLAP' (<\u202F5000 tokens),\
+    \ T044\u2011Fallback implements translation\u2011map\u2011based alignment using\
+    \ the MUSE library."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_uses_MUSE_library_from_facebookresearch/MUSE_for_al
+  kind: entity_fact
+  raw_text: "The pipeline uses the MUSE library from facebookresearch/MUSE for translation\u2011\
+    map\u2011based alignment when vocab overlap is insufficient."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:40:45Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: English frequency distribution from RedPajama contains at least 1,000,000
+    tokens
+  claim_id: c_e1bca2a8
+  context: T019a computes the English frequency distribution from the RedPajama dataset
+    and enforces a minimum of 1,000,000 tokens.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/English_frequency_distribution_from_RedPajama_contains_at_le
+  kind: magnitude
+  raw_text: The English frequency distribution is computed from the RedPajama dataset
+    and must contain at least 1,000,000 tokens.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:41:19Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: WALS dataset contains WordOrder, Morphology, Phonology columns
+  claim_id: c_5646542d
+  context: T062 validates the downloaded WALS CSV to ensure it includes the required
+    columns WordOrder, Morphology, and Phonology.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/WALS_dataset_contains_WordOrder,_Morphology,_Phonology_colum
+  kind: entity_fact
+  raw_text: The WALS dataset must contain columns WordOrder, Morphology, and Phonology.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:41:56Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: system outputs non-zero cosine similarity scores between model pairs
+    after SVD on three models
+  claim_id: c_557164ad
+  context: "Phase 3 describes an independent test where the system runs SVD on three\
+    \ models and outputs a JSON report with non\u2011zero cosine similarity scores\
+    \ between model pairs."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_outputs_non-zero_cosine_similarity_scores_between_mod
+  kind: entity_fact
+  raw_text: "The system runs SVD on three models and outputs a JSON report with non\u2011\
+    zero cosine similarity scores between model pairs."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:42:40Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: permutation test outputs p-value and flags statistically significant
+    shift
+  claim_id: c_4e230f2d
+  context: "Phase 5 specifies that the permutation test loop generates a p\u2011value\
+    \ and flags \"Statistically Significant Shift\" in permutation_result.json."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_outputs_p-value_and_flags_statistically_sig
+  kind: entity_fact
+  raw_text: "The permutation test computes a p\u2011value and flags \"Statistically\
+    \ Significant Shift\" in permutation_result.json."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:43:14Z'
+- artifact_path: projects/PROJ-880-llmxive-follow-up-extending-your-unembed/specs/001-llmxive-follow-up-extending-your-unembed/tasks.md
+  attempts: 1
+  canonical: external validation computes Spearman correlation between shift vector
+    and WALS features and SentEval drop
+  claim_id: c_b013bd7b
+  context: Phase 5 details that external validation computes Spearman correlation
+    between the full shift vector and WALS feature differences, and between the shift
+    vector and SentEval performance drop, outputting the results in wals_validation.json
+    and senteval_correlation.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/External_validation_computes_Spearman_correlation_between_sh
+  kind: entity_fact
+  raw_text: The external validation computes Spearman correlation between the full
+    shift vector and WALS feature differences (and SentEval performance drop), outputting
+    wals_validation.json and senteval_correlation.json.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T17:43:37Z'

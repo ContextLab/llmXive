@@ -1,0 +1,645 @@
+{
+  "fetched_at": "2026-08-02T12:54:48Z",
+  "field": "biology",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "biology",
+      "idea_body_excerpt": "Predicting Bacterial Antibiotic Resistance from Public Genomic Databases",
+      "target_n": 5
+    },
+    "duration_seconds": 52.604,
+    "ended_at": "2026-08-02T12:54:48Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "genomic prediction of antimicrobial resistance"
+        ],
+        [
+          2,
+          "machine learning for antibiotic resistance detection"
+        ],
+        [
+          3,
+          "antimicrobial resistance gene identification from sequencing data"
+        ],
+        [
+          4,
+          "whole-genome sequencing based resistance profiling"
+        ],
+        [
+          5,
+          "bioinformatics tools for bacterial resistance prediction"
+        ],
+        [
+          6,
+          "resistance phenotype prediction from bacterial genomes"
+        ],
+        [
+          7,
+          "public database mining for antibiotic resistance markers"
+        ],
+        [
+          8,
+          "deep learning models for bacterial AMR classification"
+        ],
+        [
+          9,
+          "correlation between genomic variants and antibiotic resistance"
+        ],
+        [
+          10,
+          "pan-genome analysis for resistance trait discovery"
+        ],
+        [
+          11,
+          "k-mer based approaches to predict drug resistance"
+        ],
+        [
+          12,
+          "automated detection of resistance genes in metagenomic data"
+        ],
+        [
+          13,
+          "computational prediction of multidrug resistance in bacteria"
+        ],
+        [
+          14,
+          "sequence-based antimicrobial susceptibility testing"
+        ],
+        [
+          15,
+          "phylogenetic analysis of antibiotic resistance evolution"
+        ],
+        [
+          16,
+          "functional annotation of resistance determinants in genomic databases"
+        ],
+        [
+          17,
+          "variant calling for antibiotic resistance prediction"
+        ],
+        [
+          18,
+          "in silico antimicrobial susceptibility testing"
+        ],
+        [
+          19,
+          "comparative genomics of resistant and susceptible bacterial strains"
+        ],
+        [
+          20,
+          "natural language processing of genomic literature for resistance insights"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology": 0,
+        "genomic prediction of antimicrobial resistance": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "resistome genome-wide association study plasmid",
+      "NCBI Pathogen Detection CARD ARDB",
+      "MIC prediction genomic resistance markers",
+      "minimum inhibitory concentration susceptibility phenotype",
+      "horizontal gene transfer mobile genetic elements"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "success_after_expansion",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2603.11141"
+      ]
+    },
+    "per_query_hit_count": {
+      "MIC prediction genomic resistance markers": 3,
+      "NCBI Pathogen Detection CARD ARDB": 3,
+      "Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology": 3,
+      "horizontal gene transfer mobile genetic elements": 3,
+      "minimum inhibitory concentration susceptibility phenotype": 3,
+      "resistome genome-wide association study plasmid": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 1,
+      "rejections": [
+        {
+          "primary_pointer": "1409.4238",
+          "rationale": "The paper focuses on mathematical modeling of population dynamics and treatment strategies involving anti-virulence drugs, rather than the computational prediction of resistance phenotypes from genomic sequence data. It does not measure the same mechanism (genomic-to-phenotype prediction), use the same domain (public genomic databases), or provide a baseline for the specific task of resistance prediction, thus failing criteria (a) through (f).",
+          "title": "Bacterial fitness shapes the population dynamics of antibiotic-resistant and -susceptible bacteria in a model of combined antibiotic and anti-virulence treatment"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-02T12:53:55Z",
+    "term_input": {
+      "normalized": "predicting bacterial antibiotic resistance from public genomic databases biology",
+      "raw": "Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In special coordinates (codon position--specific nucleotide frequencies) bacterial genomes form two straight lines in 9-dimensional space: one line for eubacterial genomes, another for archaeal genomes. All the 348 distinct bacterial genomes available in Genbank in April 2007, belong to these lines with high accuracy. The main challenge now is to explain the observed high accuracy. The new phenomenon of complementary symmetry for codon position--specific nucleotide frequencies is observed. The results of analysis of several codon usage models are presented. We demonstrate that the mean--field approximation, which is also known as context--free, or complete independence model, or Segre variety, can serve as a reasonable approximation to the real codon usage. The first two principal components of codon usage correlate strongly with genomic G+C content and the optimal growth temperature respectively. The variation of codon usage along the third component is related to the curvature of the mean-field approximation. First three eigenvalues in codon usage PCA explain 59.1%, 7.8% and 4.7% of variation. The eubacterial and archaeal genomes codon usage is clearly distributed along two third order curves with genomic G+C content as a parameter.",
+          "claimed_authors": [
+            "A. N. Gorban",
+            "A. Yu. Zinovyev"
+          ],
+          "claimed_title": "The Mystery of Two Straight Lines in Bacterial Genome Statistics. Release 2007",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "q-bio/0412015"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title='The Mystery of Two Straight Lines in Bacterial Genome Statistics. Release 2007')",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Background: Many mathematical models have now been employed across every area of systems biology. These models increasingly involve large numbers of unknown parameters, have complex structure which can result in substantial evaluation time relative to the needs of the analysis, and need to be compared to observed data. The correct analysis of such models usually requires a global parameter search, over a high dimensional parameter space, that incorporates and respects the most important sources of uncertainty. This can be an extremely difficult task, but it is essential for any meaningful inference or prediction to be made about any biological system. It hence represents a fundamental challenge for the whole of systems biology.\n  Results: Bayesian statistical methodology for the uncertainty analysis of complex models is introduced, which is designed to address the high dimensional global parameter search problem. Bayesian emulators that mimic the systems biology model but which are extremely fast to evaluate are embedded within an iterative history match: an efficient method to search high dimensional spaces within a more formal statistical setting, while incorporating major sources of uncertainty. The approach is demonstrated via application to two models of hormonal crosstalk in Arabidopsis root development, which have 32 rate parameters, for which we identify the sets of rate parameter values that lead to acceptable matches to observed trend data. The biological consequences of the resulting comparison, including the evaluation of gene functions, are described.",
+          "claimed_authors": [
+            "Ian Vernon",
+            "Junli Liu",
+            "Michael Goldstein",
+            "James Rowe",
+            "Jen Topping",
+            "Keith Lindsey"
+          ],
+          "claimed_title": "Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.06358"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title='Bayesian uncertainty analysis for complex systems biology models: emulation, global parameter searches and evaluation of gene functions')",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Introduction to the Special Issue: Genome-Wide Association Studies",
+          "claimed_authors": [
+            "Gang Zheng",
+            "Jonathan Marchini",
+            "Nancy L. Geller"
+          ],
+          "claimed_title": "Introduction to the Special Issue: Genome-Wide Association Studies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1010.4621"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title='Introduction to the Special Issue: Genome-Wide Association Studies')",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Replication helps ensure that a genotype-phenotype association observed in a genome-wide association (GWA) study represents a credible association and is not a chance finding or an artifact due to uncontrolled biases. We discuss prerequisites for exact replication, issues of heterogeneity, advantages and disadvantages of different methods of data synthesis across multiple studies, frequentist vs. Bayesian inferences for replication, and challenges that arise from multi-team collaborations. While consistent replication can greatly improve the credibility of a genotype-phenotype association, it may not eliminate spurious associations due to biases shared by many studies. Conversely, lack of replication in well-powered follow-up studies usually invalidates the initially proposed association, although occasionally it may point to differences in linkage disequilibrium or effect modifiers across studies.",
+          "claimed_authors": [
+            "Peter Kraft",
+            "Eleftheria Zeggini",
+            "John P. A. Ioannidis"
+          ],
+          "claimed_title": "Replication in Genome-Wide Association Studies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1010.5095"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title='Replication in Genome-Wide Association Studies')",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A structural genetic model incorporating a modern understanding of the genome and common practice in genome-wide association studies is derived mathematically. The model shows the Haldane map distance as a direct consequence of the structure of the genome. An expression for genetic correlation is derived under the model and compared to data resulting from the BSB mouse cross. A correlation test plot is introduced for this comparison and shows the close agreement of the model and empirical results. Noteworthy departures in this plot indicate regions which warrant further investigation.",
+          "claimed_authors": [
+            "Christopher Salahub"
+          ],
+          "claimed_title": "A structural model of genome-wide association studies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2205.10391"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title='A structural model of genome-wide association studies')",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Credit card fraud is a major cause of national concern in the Nigerian financial sector, affecting hundreds of transactions per second and impacting international ecommerce negatively. Despite the rapid spread and adoption of online marketing, millions of Nigerians are prevented from transacting in several countries with local credit cards due to bans and policies directed at restricting credit card fraud. Presently, a myriad of technologies exist to detect fraudulent transactions, a few of which are adopted by Nigerian financial institutions to proactively manage the situation. Fraud detection allows institutions to restrict offenders from networks and with a centralized banking identity management system, such as the Bank Verification Number used by the Central Bank of Nigeria, offenders who may have stolen other identities can be backtraced and their bank accounts frozen. This paper aims to compare the effectiveness of two fraud detection technologies that are projected to work fully independent of human intervention to possibly predict and detect fraudulent credit card transactions. Autoencoders as an unsupervised tensorflow based anomaly detection technique generally offers greater performance in dimensionality reduction than the Principal Component Analysis, and this theory was tested out on Nigerian credit card transaction data. Results demonstrate that autoencoders are better suited to analyzing complex and extensive datasets and offer more reliable results with minimal mislabeling than the PCA algorithm.",
+          "claimed_authors": [
+            "Jennifer Onyeama"
+          ],
+          "claimed_title": "Credit Card Fraud Detection in the Nigerian Financial Sector: A Comparison of Unsupervised TensorFlow-Based Anomaly Detection Techniques, Autoencoders and PCA Algorithm",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.08758"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title='Credit Card Fraud Detection in the Nigerian Financial Sector: A Comparison of Unsupervised TensorFlow-Based Anomaly Detection Techniques, Autoencoders and PCA Algorithm')",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Scientists at the Relativistic Heavy Ion Collider (RHIC, BNL) recently discovered, that the hottest known form of matter is not a gas, but acts like a fluid. Furthermore, this fluid of quarks expands and flows much more perfectly than water or any other well known fluid. This aspect of the RHIC discovery can be introduced even to primary levels of physics education, noting that the usual solid to liquid to gas sequence of phase transitions now are known to be followed by a transition to a nearly perfect fluid, a liquid of quarks, at the largest temperatures made by humans. The educational games described herein were invented by middle school students, members of a Science Club in Hungary. The games were invented for their entertainment, the educational applications in teaching high energy particle and nuclear physics to laypersons are quite unexpected but most welcomed. This manuscript describes games with a deck of cards called Quark Matter cards, where each card represents an elementary particle. The games include an important contribution by Angela Melocoton, an administrator of the Guests, Users and Visitors (GUV) Center at BNL. It describes in simple terms, how to play the Memory of Quark Matter style card games.",
+          "claimed_authors": [
+            "J. Csörgő",
+            "Cs. Török",
+            "T. Csörgő"
+          ],
+          "claimed_title": "Memory of Quark Matter Card Game",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1303.2798"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title='Memory of Quark Matter Card Game')",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Numerous studies have utilized NCBI data for genomic analysis, gene annotation, and identifying disease-associated variants, yet NCBI's epidemiological potential remains underexplored. This study demonstrates how NCBI datasets can be systematically leveraged to extract and interpret infectious disease patterns across spatial and temporal dimensions. Using Enterobacterales as a case study, we analyzed over 477,000 genomic records and metadata, including collection date, location, host species, and isolation source. We compared trends of Escherichia coli and Salmonella in NCBI data with CDC's National Outbreak Reporting System (NORS). While both datasets showed consistent seasonal peaks and foodborne sources, NCBI data revealed broader host species (e.g., wildlife, environmental reservoirs), greater isolate diversity, and finer spatial-temporal resolution. These insights were enabled by our open-source Python package, EpiNCBI_V1, developed for real-time downloading, filtering, and cleaning of pathogen genomic metadata from NCBI. This work highlights the value of integrating genomic repositories into public health analytics to enhance surveillance, outbreak detection, and cross-species transmission tracking globally.",
+          "claimed_authors": [
+            "Bryan Harris",
+            "Majid Bani-Yaghoub"
+          ],
+          "claimed_title": "Leveraging NCBI Genomic Metadata for Epidemiological Insights: Example of Enterobacterales",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.14826"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title='Leveraging NCBI Genomic Metadata for Epidemiological Insights: Example of Enterobacterales')",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Practical application of genomic-based risk stratification to clinical diagnosis is appealing yet performance varies widely depending on the disease and genomic risk score (GRS) method. Celiac disease (CD), a common immune-mediated illness, is strongly genetically determined and requires specific HLA haplotypes. HLA testing can exclude diagnosis but has low specificity, providing little information suitable for clinical risk stratification. Using six European CD cohorts, we provide a proof-of-concept that statistical learning approaches which simultaneously model all SNPs can generate robust and highly accurate predictive models based on genome-wide SNP profiles. The high predictive capacity replicated both in cross-validation within each cohort (AUC of 0.87-0.89) and in independent replication across cohorts (AUC of 0.86-0.9), despite differences in ethnicity. The models explained 30-35% of disease variance and up to $\\sim43\\%$ of heritability. The GRS's utility was assessed in different clinically relevant settings. Comparable to HLA typing, the GRS can be used to identify individuals without CD with $\\geq99.6\\%$ negative predictive value however, unlike HLA typing, patients can also be stratified into categories of higher-risk for CD who would benefit from more invasive and costly definitive testing. The GRS is flexible and its performance can be adapted to the clinical situation by adjusting the threshold cut-off. Despite explaining a minority of disease heritability, our findings indicate a predictive GRS provides clinically relevant information to improve upon current diagnostic pathways for CD, and support further studies evaluating the clinical utility of this approach in CD and other complex diseases.",
+          "claimed_authors": [
+            "Gad Abraham",
+            "Jason A. Tye-Din",
+            "Oneil G. Bhalala",
+            "Adam Kowalczyk",
+            "Justin Zobel",
+            "Michael Inouye"
+          ],
+          "claimed_title": "Accurate and robust genomic prediction of celiac disease using statistical learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1301.5948"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title='Accurate and robust genomic prediction of celiac disease using statistical learning')",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Over the last 20 years, there has been an explosion of genomic data collected for disease association, functional analyses, and other large-scale discoveries. At the same time, there have been revolutions in cloud computing that enable computational and data science research, while making data accessible to anyone with a web browser and an internet connection. However, students at institutions with limited resources have received relatively little exposure to curricula or professional development opportunities that lead to careers in genomic data science. To broaden participation in genomics research, the scientific community needs to support students, faculty, and administrators at Underserved Institutions (UIs) including Community Colleges, Historically Black Colleges and Universities, Hispanic-Serving Institutions, and Tribal Colleges and Universities in taking advantage of these tools in local educational and research programs. We have formed the Genomic Data Science Community Network (http://www.gdscn.org/) to identify opportunities and support broadening access to cloud-enabled genomic data science. Here, we provide a summary of the priorities for faculty members at UIs, as well as administrators, funders, and R1 researchers to consider as we create a more diverse genomic data science community.",
+          "claimed_authors": [
+            "The Genomic Data Science Community Network",
+            "Rosa Alcazar",
+            "Maria Alvarez",
+            "Rachel Arnold",
+            "Mentewab Ayalew",
+            "Lyle G. Best",
+            "Michael C. Campbell",
+            "Kamal Chowdhury",
+            "Katherine E. L. Cox",
+            "Christina Daulton",
+            "Youping Deng",
+            "Carla Easter",
+            "Karla Fuller",
+            "Shazia Tabassum Hakim",
+            "Ava M. Hoffman",
+            "Natalie Kucher",
+            "Andrew Lee",
+            "Joslynn Lee",
+            "Jeffrey T. Leek",
+            "Robert Meller",
+            "Loyda B. Méndez",
+            "Miguel P. Méndez-González",
+            "Stephen Mosher",
+            "Michele Nishiguchi",
+            "Siddharth Pratap",
+            "Tiffany Rolle",
+            "Sourav Roy",
+            "Rachel Saidi",
+            "Michael C. Schatz",
+            "Shurjo Sen",
+            "James Sniezek",
+            "Edu Suarez Martinez",
+            "Frederick Tan",
+            "Jennifer Vessio",
+            "Karriem Watson",
+            "Wendy Westbroek",
+            "Joseph Wilcox",
+            "Xianfa Xie"
+          ],
+          "claimed_title": "Diversifying the Genomic Data Science Research Community",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2201.08443"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title='Diversifying the Genomic Data Science Research Community')",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Schizophrenia (SZ) is a severe brain disorder marked by diverse cognitive impairments, abnormalities in brain structure, function, and genetic factors. Its complex symptoms and overlap with other psychiatric conditions challenge traditional diagnostic methods, necessitating advanced systems to improve precision. Existing research studies have mostly focused on imaging data, such as structural and functional MRI, for SZ diagnosis. There has been less focus on the integration of genomic features despite their potential in identifying heritable SZ traits. In this study, we introduce a Multi-modal Imaging Genomics Transformer (MIGTrans), that attentively integrates genomics with structural and functional imaging data to capture SZ-related neuroanatomical and connectome abnormalities. MIGTrans demonstrated improved SZ classification performance with an accuracy of 86.05% (+/- 0.02), offering clear interpretations and identifying significant genomic locations and brain morphological/connectivity patterns associated with SZ.",
+          "claimed_authors": [
+            "Nagur Shareef Shaik",
+            "Teja Krishna Cherukuri",
+            "Vince D. Calhoun",
+            "Dong Hye Ye"
+          ],
+          "claimed_title": "Multi-modal Imaging Genomics Transformer: Attentive Integration of Imaging with Genomic Biomarkers for Schizophrenia Classification",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.19385"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title='Multi-modal Imaging Genomics Transformer: Attentive Integration of Imaging with Genomic Biomarkers for Schizophrenia Classification')",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Nearly invariably, phenotypes are reported in the scientific literature in meticulous detail, utilizing the full expressivity of natural language. Often it is particularly these detailed observations (facts) that are of interest, and thus specific to the research questions that motivated observing and reporting them. However, research aiming to synthesize or integrate phenotype data across many studies or even fields is often faced with the need to abstract from detailed observations so as to construct phenotypic concepts that are common across many datasets rather than specific to a few. Yet, observations or facts that would fall under such abstracted concepts are typically not directly asserted by the original authors, usually because they are \"obvious\" according to common domain knowledge, and thus asserting them would be deemed redundant by anyone with sufficient domain knowledge. For example, a phenotype describing the length of a manual digit for an organism implicitly means that the organism must have had a hand, and thus a forelimb; the presence or absence of a forelimb may have supporting data across a far wider range of taxa than the length of a particular manual digit. Here we describe how within the Phenoscape project we use a pipeline of OWL axiom generation and reasoning steps to infer taxon-specific presence/absence of anatomical entities from anatomical phenotypes. Although presence/absence is all but one, and a seemingly simple way to abstract phenotypes across data sources, it can nonetheless be powerful for linking genotype to phenotype, and it is particularly relevant for constructing synthetic morphological supermatrices for comparative analysis; in fact presence/absence is one of the prevailing character observation types in published character matrices.",
+          "claimed_authors": [
+            "James P. Balhoff",
+            "T. Alexander Dececchi",
+            "Paula M. Mabee",
+            "Hilmar Lapp"
+          ],
+          "claimed_title": "Presence-absence reasoning for evolutionary phenotypes",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1410.3862"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title='Presence-absence reasoning for evolutionary phenotypes')",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Determination of the minimum inhibitory concentration (MIC) of a drug that prevents microbial growth is an important step for managing patients with infections. In this paper we present a novel probabilistic approach that accurately estimates MICs based on a panel of multiple curves reflecting features of bacterial growth. We develop a probabilistic model for determining whether a given dilution of an antimicrobial agent is the MIC given features of the growth curves over time. Because of the potentially large collection of features, we utilize Bayesian model selection to narrow the collection of predictors to the most important variables. In addition to point estimates of MICs, we are able to provide posterior probabilities that each dilution is the MIC based on the observed growth curves. The methods are easily automated and have been incorporated into the Becton--Dickinson PHOENIX automated susceptibility system that rapidly and accurately classifies the resistance of a large number of microorganisms in clinical samples. Over seventy-five studies to date have shown this new method provides improved estimation of MICs over existing approaches.",
+          "claimed_authors": [
+            "Xi Kathy Zhou",
+            "Merlise A. Clyde",
+            "James Garrett",
+            "Viridiana Lourdes",
+            "Michael O'Connell",
+            "Giovanni Parmigiani",
+            "David J. Turner",
+            "Tim Wiles"
+          ],
+          "claimed_title": "Statistical methods for automated drug susceptibility testing: Bayesian minimum inhibitory concentration prediction from growth curves",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2009,
+          "primary_pointer": "0908.2858"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title='Statistical methods for automated drug susceptibility testing: Bayesian minimum inhibitory concentration prediction from growth curves')",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We measured the minimum inhibitory concentration (MIC) of the antimicrobial peptide pexiganan acting on Escherichia coli, and report an intrinsic variability in such measurements. These results led to a detailed study of the effect of pexiganan on the growth curve of E. coli, using a plate reader and manual plating (i.e. time-kill curves). The measured growth curves, together with single-cell observations and peptide depletion assays, suggested that addition of a sub-MIC concentration of pexiganan to a population of this bacterium killed a fraction of the cells, reducing peptide activity during the process, while leaving the remaining cells unaffected. This pharmacodynamic hypothesis suggests a considerable inoculum effect, which we quantified. Our results cast doubt on the use of the MIC as 'a measure of the concentration needed for peptide action' and show how 'coarse-grained' studies at the population level give vital information for the correct planning and interpretation of MIC measurements.",
+          "claimed_authors": [
+            "Alys K Jepson",
+            "Jana Schwarz-Linek",
+            "Lloyd Ryan",
+            "Maxim G Ryadnov",
+            "Wilson C K Poon"
+          ],
+          "claimed_title": "What is the 'minimum inhibitory concentration' (MIC) of pexiganan acting on Escherichia coli? - A cautionary case study",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1606.00620"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title=\"What is the 'minimum inhibitory concentration' (MIC) of pexiganan acting on Escherichia coli? - A cautionary case study\")",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Reconstructing the tree of life from molecular sequences is a fundamental problem in computational biology. Modern data sets often contain a large number of genes, which can complicate the reconstruction problem due to the fact that different genes may undergo different evolutionary histories. This is the case in particular in the presence of horizontal genetic transfer (HGT), where a gene is inherited from a distant species rather than an immediate ancestor. Such an event produces a gene tree which is distinct from, but related to, the species phylogeny.\n  In previous work, a natural stochastic models of HGT was introduced and studied. It was shown, both in simulation and theoretical studies, that a species phylogeny can be reconstructed from gene trees despite surprisingly high rates of HGT under this model. Rigorous lower and upper bounds on this achievable rate were also obtained, but a large gap remained. Here we close this gap, up to a constant. Specifically we show that a species phylogeny can be reconstructed correctly from gene trees even when, on each gene, each edge of the species tree has a constant probability of being the location of an HGT event. Our new reconstruction algorithm, which relies only on unrooted gene tree topologies, builds the tree recursively from the leaves and runs in polynomial time.\n  We also provide a matching bound in the negative direction (up to a constant) and extend our results to some cases where gene trees are not perfectly known.",
+          "claimed_authors": [
+            "Constantinos Daskalakis",
+            "Sebastien Roch"
+          ],
+          "claimed_title": "Species Trees are Recoverable from Unrooted Gene Tree Topologies Under a Constant Rate of Horizontal Gene Transfer",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1508.01962"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title='Species Trees are Recoverable from Unrooted Gene Tree Topologies Under a Constant Rate of Horizontal Gene Transfer')",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Gene Ontology (GO) project is the largest resource for cataloguing gene function. The combination of solid conceptual underpinnings and a practical set of features have made the GO a widely adopted resource in the research community and an essential resource for data analysis. In this chapter, we provide a concise primer for all users of the GO. We briefly introduce the structure of the ontology and explain how to interpret annotations associated with the GO.",
+          "claimed_authors": [
+            "Pascale Gaudet",
+            "Nives Škunca",
+            "James C. Hu",
+            "Christophe Dessimoz"
+          ],
+          "claimed_title": "Primer on the Gene Ontology",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.01876"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title='Primer on the Gene Ontology')",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Gene Ontology (GO) is a formidable resource but there are several considerations about it that are essential to understand the data and interpret it correctly. The GO is sufficiently simple that it can be used without deep understanding of its structure or how it is developed, which is both a strength and a weakness. In this chapter, we discuss some common misinterpretations of the ontology and the annotations. A better understanding of the pitfalls and the biases in the GO should help users make the most of this very rich resource. We also review some of the misconceptions and misleading assumptions commonly made about GO, including the effect of data incompleteness, the importance of annotation qualifiers, and the transitivity or lack thereof associated with different ontology relations. We also discuss several biases that can confound aggregate analyses such as gene enrichment analyses. For each of these pitfalls and biases, we suggest remedies and best practices.",
+          "claimed_authors": [
+            "Pascale Gaudet",
+            "Christophe Dessimoz"
+          ],
+          "claimed_title": "Gene Ontology: Pitfalls, Biases, Remedies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1602.01875"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Bacterial Antibiotic Resistance from Public Genomic Databases biology', candidate_title='Gene Ontology: Pitfalls, Biases, Remedies')",
+        "failed_at": "2026-08-02T12:54:24Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Huilin Tai"
+          ],
+          "title": "Cross-Species Antimicrobial Resistance Prediction from Genomic Foundation Models",
+          "venue": "arXiv",
+          "year": 2026
+        },
+        "primary_pointer": "2603.11141",
+        "summary": "Cross-species antimicrobial resistance (AMR) prediction is fundamentally an out-of-distribution (OOD) generalization problem: models trained on one set of bacterial taxa must transfer to phylogenetically distinct genomes that may rely on different resistance mechanisms. Across species, resistance arises from a heterogeneous mixture of localized, horizontally transferred gene cassettes and diffuse species-specific genomic backgrounds, making successful transfer inherently mechanism-dependent. Using a strict species holdout protocol, we first establish an interpretable k-mer baseline with Kover and show that strong within-species performance collapses under true cross-species evaluation. This motivates representation-level approaches that preserve transferable biological signals rather than amplify phylogenetic shortcuts.  We investigate genomic foundation model embeddings derived from Evo-1-8k-base and introduce diagnostics for layer selection based on activation scale, isotropy, effective rank, and cross-seed stability under native bfloat16 inference. These analyses identify a stability boundary in deeper layers and reveal that embeddings extracted near this boundary provide more robust representations for downstream prediction. To preserve localized resistance signals, we treat per-window embeddings as an ordered multivariate signal and apply MiniRocket to summarize multi-scale local activation patterns instead of relying on global pooling. Our results show that aggregation strategy plays a central role in cross-species AMR prediction and that preserving local activation patterns substantially improves generalization when resistance mechanisms are localized.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2603.11141",
+          "http_status": 200,
+          "pdf_sample_score": 0.3786,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-02T12:54:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Anshul Bagaria"
+          ],
+          "title": "AMR-MoEGA: Antimicrobial Resistance Prediction using Mixture of Experts and Genetic Algorithms",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2511.12223",
+        "summary": "Antimicrobial resistance (AMR) poses a mounting global health crisis, requiring rapid and reliable prediction frameworks that capture its complex evolutionary dynamics. Traditional antimicrobial susceptibility testing (AST), while accurate, remains laborious and time-consuming, limiting its clinical scalability. Existing computational approaches, primarily reliant on single nucleotide polymorphism (SNP)-based analysis, fail to account for evolutionary drivers such as horizontal gene transfer (HGT) and genome-level interactions.\n  This study introduces a novel Evolutionary Mixture of Experts (Evo-MoE) framework that integrates genomic sequence analysis, machine learning, and evolutionary algorithms to model and predict AMR evolution. A Mixture of Experts model, trained on labeled genomic data for multiple antibiotics, serves as the predictive core, estimating the likelihood of resistance for each genome. This model is embedded as a fitness function within a Genetic Algorithm designed to simulate AMR development across generations. Each genome, encoded as an individual in the population, undergoes mutation, crossover, and selection guided by predicted resistance probabilities.\n  The resulting evolutionary trajectories reveal dynamic pathways of resistance acquisition, offering mechanistic insights into genomic evolution under selective antibiotic pressure. Sensitivity analysis of mutation rates and selection pressures demonstrates the model's robustness and biological plausibility. Validation against curated AMR databases and literature evidence further substantiates the framework's predictive fidelity.\n  This integrative approach bridges genomic prediction and evolutionary simulation, offering a powerful tool for understanding and anticipating AMR dynamics, and potentially guiding rational antibiotic design and policy interventions.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2511.12223",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-02T12:54:29Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Rianne C. Prins",
+            "Sonja Billerbeck"
+          ],
+          "title": "Small antimicrobial resistance proteins (SARPs): Small proteins conferring antimicrobial resistance",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2310.17905",
+        "summary": "Small open reading frames are understudied as they have been historically excluded from genome annotations. However, evidence for the functional significance of small proteins in various cellular processes accumulates. Proteins with less than 70 residues can also confer resistance to antimicrobial compounds, including intracellularly-acting protein toxins, membrane-acting antimicrobial peptides and various small-molecule antibiotics. Such herein coined Small Antimicrobial Resistance Proteins (SARPs) have emerged on evolutionary timescales or can be enriched from protein libraries using laboratory evolution. Our review consolidates existing knowledge on SARPs and highlights recent advancements in proteomics and genomics that reveal pervasive translation of unannotated genetic regions into small proteins that show features of known SARPs. The potential contribution of small proteins to antimicrobial resistance is awaiting exploration.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2310.17905",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-02T12:54:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Taiyao Wang",
+            "Kyle R. Hansen",
+            "Joshua Loving",
+            "Ioannis Ch. Paschalidis",
+            "Helen van Aggelen",
+            "Eran Simhon"
+          ],
+          "title": "Predicting Antimicrobial Resistance in the Intensive Care Unit",
+          "venue": "arXiv",
+          "year": 2021
+        },
+        "primary_pointer": "2111.03575",
+        "summary": "Antimicrobial resistance (AMR) is a risk for patients and a burden for the healthcare system. However, AMR assays typically take several days. This study develops predictive models for AMR based on easily available clinical and microbiological predictors, including patient demographics, hospital stay data, diagnoses, clinical features, and microbiological/antimicrobial characteristics and compares those models to a naive antibiogram based model using only microbiological/antimicrobial characteristics. The ability to predict the resistance accurately prior to culturing could inform clinical decision-making and shorten time to action. The machine learning algorithms employed here show improved classification performance (area under the receiver operating characteristic curve 0.88-0.89) versus the naive model (area under the receiver operating characteristic curve 0.86) for 6 organisms and 10 antibiotics using the Philips eICU Research Institute (eRI) database. This method can help guide antimicrobial treatment, with the objective of improving patient outcomes and reducing the usage of unnecessary or ineffective antibiotics.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2111.03575",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-02T12:54:30Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Md. Saiful Bari Siddiqui",
+            "Nowshin Tarannum"
+          ],
+          "title": "Fusing Sequence Motifs and Pan-Genomic Features: Antimicrobial Resistance Prediction using an Explainable Lightweight 1D CNN-XGBoost Ensemble",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2509.23552",
+        "summary": "Antimicrobial Resistance (AMR) is a rapidly escalating global health crisis. While genomic sequencing enables rapid prediction of resistance phenotypes, current computational methods have limitations. Standard machine learning models treat the genome as an unordered collection of features, ignoring the sequential context of Single Nucleotide Polymorphisms (SNPs). State-of-the-art sequence models like Transformers are often too data-hungry and computationally expensive for the moderately-sized datasets that are typical in this domain. To address these challenges, we propose AMR-EnsembleNet, an ensemble framework that synergistically combines sequence-based and feature-based learning. We developed a lightweight, custom 1D Convolutional Neural Network (CNN) to efficiently learn predictive sequence motifs from high-dimensional SNP data. This sequence-aware model was ensembled with an XGBoost model, a powerful gradient boosting system adept at capturing complex, non-local feature interactions. We trained and evaluated our framework on a benchmark dataset of 809 E. coli strains, predicting resistance across four antibiotics with varying class imbalance. Our 1D CNN-XGBoost ensemble consistently achieved top-tier performance across all the antibiotics, reaching a Matthews Correlation Coefficient (MCC) of 0.926 for Ciprofloxacin (CIP) and the highest Macro F1-score of 0.691 for the challenging Gentamicin (GEN) AMR prediction. We also show that our model consistently focuses on SNPs within well-known AMR genes like fusA and parC, confirming it learns the correct genetic signals for resistance. Our work demonstrates that fusing a sequence-aware 1D CNN with a feature-based XGBoost model creates a powerful ensemble, overcoming the limitations of using either an order-agnostic or a standalone sequence model.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2509.23552",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 1.0,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-02T12:54:31Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting bacterial antibiotic resistance from public genomic databases biology",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

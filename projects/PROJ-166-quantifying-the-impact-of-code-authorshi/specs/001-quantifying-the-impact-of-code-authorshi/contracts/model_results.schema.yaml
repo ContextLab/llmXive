@@ -5,7 +5,7 @@ type: "object"
 properties:
   model_type:
     type: "string"
-    enum: ["Poisson", "NegativeBinomial"]
+    enum: ["Poisson", "NegativeBinomial", "ZeroInflatedNegativeBinomial", "RidgeNegativeBinomial"]
     description: "Type of GLM family used."
   coef_author_count:
     type: "number"
@@ -39,7 +39,7 @@ properties:
     description: "Map of predictor names to their Variance Inflation Factor values."
   convergence_status:
     type: "string"
-    enum: ["OK", "FAILED"]
+    enum: ["OK", "FAILED", "ZINB_BETTER", "RIDGE_APPLIED"]
     description: "Status of the model fitting process."
   power_analysis:
     type: "object"
@@ -90,4 +90,3 @@ required:
   - vif_scores
   - convergence_status
   - power_analysis
-

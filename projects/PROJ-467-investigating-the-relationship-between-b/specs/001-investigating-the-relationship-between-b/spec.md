@@ -29,7 +29,7 @@ The researcher computes both **static** brain network metrics (functional connec
 
 **Why this priority**: These metrics constitute the primary predictor variables for the analysis. They must run within the 6‑hour GitHub Actions job constraint (≤3‑hour computation target + 3‑hour setup/teardown) and handle the data volume within 7 GB RAM (Target capacity with sufficient headroom).
 
-**Independent Test**: Can be fully tested by computing all metrics on a sample subset (e.g., 50 subjects) and verifying that:
+**Independent Test**: Can be fully tested by computing all metrics on a sample subset (e.g., a representative cohort of subjects) and verifying that:
 * all metrics are computed within ≤ 2 hours,
 * Peak memory usage stays below a moderate, acceptable threshold.,
 * dynamic metrics follow the expected O(n × w) scaling (n = subjects, w = window count).

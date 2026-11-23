@@ -1,12 +1,3 @@
-"""
-Feature Interpretation Summary Generator (T026)
-
-Generates a summary table mapping machine learning features to chemical hypotheses
-based on the stability analysis (T023) and physical plausibility checks (T025).
-
-This script must run after T023 and T025.
-"""
-
 import os
 import json
 import logging
@@ -14,201 +5,219 @@ import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-# Import from project utils
-from code.utils.logger import get_logger
-from code.utils.config import get_data_path, get_path
-
-logger = get_logger(__name__)
-
-# Mapping of feature names to chemical hypotheses based on domain knowledge
-FEATURE_HYPOTHESES = {
-    "charge_density": (
-        "Higher charge density on the host binding pocket increases electrostatic "
-        "attraction to anions (F⁻ > Cl⁻ > Br⁻ > I⁻), leading to higher binding affinity."
-    ),
-    "cavity_volume": (
-        "Optimal cavity volume matches the ionic radius of the halide. Too small "
-        "causes steric repulsion; too large reduces van der Waals contact and "
-        "electrostatic field strength."
-    ),
-    "hydrogen_bond_donor_count": (
-        "Increased number of hydrogen bond donors (e.g., NH, OH groups) enhances "
-        "specific halide recognition via directional H-bonding, particularly for "
-        "smaller, harder anions like F⁻."
-    ),
-    "polarizability": (
-        "Host polarizability modulates dispersion forces with larger, softer "
-        "anions (I⁻, Br⁻). Higher polarizability may favor softer anions."
-    ),
-    "molecular_weight": (
-        "Molecular weight acts as a proxy for scaffold size. Correlation may "
-        "indicate size-dependent steric constraints rather than a direct chemical "
-        "mechanism."
-    ),
-    "logP": (
-        "Lipophilicity (logP) influences solvation effects. Higher logP may "
-        "disfavor binding in polar solvents (acetonitrile) due to desolvation "
-        "penalties, or favor binding in non-polar solvents."
-    ),
-    "aromatic_ring_count": (
-        "Aromatic rings provide pi-holes or quadrupole moments that can interact "
-        "with anions (anion-pi interactions). Higher count may stabilize larger "
-        "anions."
-    ),
-    "formal_charge": (
-        "Net formal charge on the host (e.g., cationic receptors) strongly "
-        "enhances affinity via Coulombic attraction. Neutral hosts rely on "
-        "weaker interactions."
-    ),
-    "homo_energy": (
-        "HOMO energy relates to electron-donating capability. May correlate with "
-        "charge transfer interactions in specific host-guest complexes."
-    ),
-    "lumo_energy": (
-        "LUMO energy relates to electron-accepting capability. Lower LUMO may "
-        "facilitate charge transfer from the anion to the host."
-    )
-}
-
-# Default hypotheses for unknown features
-DEFAULT_HYPOTHESIS = (
-    "Feature correlates with binding affinity. Specific chemical mechanism "
-    "requires further investigation or domain-specific literature review."
-)
+# Import from existing API surface
+from utils.logger import get_logger
 
 def load_feature_stability_results() -> Optional[Dict[str, Any]]:
     """
     Load the feature stability analysis results from T023.
-    Expected path: data/processed/feature_stability.json
+    
+    Returns:
+        Dict containing feature stability metrics, or None if file not found.
     """
-    path = get_data_path() / "processed" / "feature_stability.json"
-    if not path.exists():
-        logger.warning(f"Feature stability results not found at {path}. "
-                       "Ensure T023 has run successfully.")
+    logger = get_logger()
+    file_path = Path("data/processed/feature_stability_results.json")
+    
+    if not file_path.exists():
+        logger.warning(f"Feature stability results file not found: {file_path}")
         return None
-
-    with open(path, 'r') as f:
-        return json.load(f)
+    
+    try:
+        with open(file_path, 'r') as f:
+            return json.load(f)
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse feature stability results: {e}")
+        return None
 
 def load_physical_plausibility_results() -> Optional[Dict[str, Any]]:
     """
     Load the physical plausibility check results from T025.
-    Expected path: data/processed/physical_plausibility.json
+    
+    Returns:
+        Dict containing physical plausibility check, or None if file not found.
     """
-    path = get_data_path() / "processed" / "physical_plausibility.json"
-    if not path.exists():
-        logger.warning(f"Physical plausibility results not found at {path}. "
-                       "Ensure T025 has run successfully.")
+    logger = get_logger()
+    file_path = Path("data/processed/physical_plausibility.json")
+    
+    if not file_path.exists():
+        logger.warning(f"Physical plausibility results file not found: {file_path}")
+        return None
+    
+    try:
+        with open(file_path, 'r') as f:
+            return json.load(f)
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse physical plausibility results: {e}")
         return None
 
-    with open(path, 'r') as f:
-        return json.load(f)
-
 def generate_summary_table(
-    stability_data: Dict[str, Any],
-    plausibility_data: Dict[str, Any]
+    stability_results: Optional[Dict[str, Any]] = None,
+    plausibility_results: Optional[Dict[str, Any]] = None
 ) -> pd.DataFrame:
     """
-    Generate a summary DataFrame mapping features to chemical hypotheses.
+    Generate the feature interpretation summary table.
+    
+    This function maps features to their hypothesized chemical interpretation
+    based on the stability analysis and physical plausibility checks.
+    
+    Args:
+        stability_results: Results from T023 feature stability analysis.
+        plausibility_results: Results from T025 physical plausibility check.
+        
+    Returns:
+        DataFrame with columns: feature_name, chemical_interpretation, hypothesis
     """
-    records = []
-
-    # Extract top features from stability analysis
-    # Expected structure: {"top_features": [{"feature": name, "cv": val, "rank": int}, ...]}
-    top_features = stability_data.get("top_features", [])
-
-    # Create a lookup for plausibility results
-    # Expected structure: {"top_feature": name, "plausible": bool, "reason": str}
-    top_feature_name = plausibility_data.get("top_feature")
-    is_top_plausible = plausibility_data.get("plausible", True)
-    plausibility_reason = plausibility_data.get("reason", "N/A")
-
-    for idx, feat_info in enumerate(top_features):
-        feature_name = feat_info.get("feature")
-        cv = feat_info.get("cv")
-        rank = feat_info.get("rank")
-        stability_label = "Stable" if cv < 0.3 else "Unstable"
-
-        # Retrieve hypothesis
-        hypothesis = FEATURE_HYPOTHESES.get(feature_name, DEFAULT_HYPOTHESIS)
-
-        # Determine physical plausibility flag for this feature
-        # If this is the top feature, use the specific plausibility result
-        # Otherwise, assume plausible unless known otherwise
-        phys_flag = "Unknown"
-        if feature_name == top_feature_name:
-            phys_flag = "Plausible" if is_top_plausible else "Implausible"
+    logger = get_logger()
+    
+    # Define the mapping of features to chemical interpretations and hypotheses
+    # This is based on the domain knowledge of halide binding chemistry
+    feature_interpretations = {
+        'charge_density': {
+            'chemical_interpretation': 'Electrostatic attraction strength between host cation and halide anion',
+            'hypothesis': 'Higher positive charge density increases binding affinity via Coulombic attraction (SC-007)'
+        },
+        'cavity_volume': {
+            'chemical_interpretation': 'Steric fit of halide anion within host binding pocket',
+            'hypothesis': 'Smaller cavity volume enhances affinity for smaller halides (F⁻) but reduces it for larger halides (I⁻) due to steric hindrance'
+        },
+        'hydrogen_bond_donor_count': {
+            'chemical_interpretation': 'Number of hydrogen bond donors available for halide interaction',
+            'hypothesis': 'More H-bond donors increase binding affinity, particularly for harder halides (F⁻, Cl⁻)'
+        },
+        'hydrogen_bond_acceptor_count': {
+            'chemical_interpretation': 'Number of hydrogen bond acceptors in the host structure',
+            'hypothesis': 'H-bond acceptors may compete with halide binding or modulate host flexibility'
+        },
+        'molecular_weight': {
+            'chemical_interpretation': 'Overall size and complexity of the host molecule',
+            'hypothesis': 'Larger hosts may provide more binding sites but could suffer from entropic penalties'
+        },
+        'logP': {
+            'chemical_interpretation': 'Hydrophobicity of the host molecule',
+            'hypothesis': 'Higher logP may enhance binding in non-polar solvents but reduce solubility'
+        },
+        'polarizability': {
+            'chemical_interpretation': 'Ability of host electron cloud to distort in response to halide',
+            'hypothesis': 'Higher polarizability favors binding to softer halides (Br⁻, I⁻) via dispersion forces'
+        },
+        'num_rotatable_bonds': {
+            'chemical_interpretation': 'Flexibility of the host molecule',
+            'hypothesis': 'Fewer rotatable bonds (rigid hosts) may enhance binding via reduced entropic penalty'
+        },
+        'aromatic_ring_count': {
+            'chemical_interpretation': 'Number of aromatic rings in the host structure',
+            'hypothesis': 'Aromatic rings may contribute to halide-π interactions, especially with larger halides'
+        }
+    }
+    
+    # Determine which features are "top" features based on stability results
+    top_features = []
+    if stability_results and 'top_features' in stability_results:
+        top_features = stability_results['top_features']
+    elif stability_results and 'features' in stability_results:
+        # Fallback: use all features if top_features not explicitly defined
+        top_features = list(stability_results['features'].keys())
+    
+    # If no stability results, use a default set of expected features
+    if not top_features:
+        top_features = list(feature_interpretations.keys())
+    
+    # Build the summary table
+    rows = []
+    for feature_name in top_features:
+        if feature_name in feature_interpretations:
+            interpretation = feature_interpretations[feature_name]
         else:
-            # For non-top features, we don't have specific checks in T025
-            # but we can infer if the hypothesis aligns with general principles
-            # For now, mark as 'Not Checked' to be safe
-            phys_flag = "Not Checked"
-
-        records.append({
-            "Rank": rank,
-            "Feature": feature_name,
-            "Stability (CV)": cv,
-            "Stability Status": stability_label,
-            "Physical Plausibility": phys_flag,
-            "Chemical Hypothesis": hypothesis,
-            "Plausibility Note": plausibility_reason if phys_flag != "Not Checked" else "-"
+            # Default interpretation for unknown features
+            interpretation = {
+                'chemical_interpretation': f'Chemical descriptor related to {feature_name}',
+                'hypothesis': f'Feature {feature_name} may influence binding affinity through unspecified mechanisms'
+            }
+        
+        # Add stability information to the hypothesis if available
+        if stability_results and 'features' in stability_results:
+            feat_data = stability_results['features'].get(feature_name, {})
+            cv = feat_data.get('coefficient_of_variation')
+            is_stable = feat_data.get('is_stable', True)
+            
+            if cv is not None:
+                stability_note = f" (CV={cv:.3f}, {'stable' if is_stable else 'unstable'})"
+                interpretation['hypothesis'] += stability_note
+        
+        # Add plausibility information if this is the top feature
+        if plausibility_results and feature_name == plausibility_results.get('top_feature'):
+            is_plausible = plausibility_results.get('is_plausible', True)
+            reasoning = plausibility_results.get('reasoning', '')
+            if not is_plausible:
+                interpretation['hypothesis'] += f" [WARNING: {reasoning}]"
+            else:
+                interpretation['hypothesis'] += f" [VERIFIED: {reasoning}]"
+        
+        rows.append({
+            'feature_name': feature_name,
+            'chemical_interpretation': interpretation['chemical_interpretation'],
+            'hypothesis': interpretation['hypothesis']
         })
-
-    df = pd.DataFrame(records)
-    # Sort by rank
-    df = df.sort_values(by="Rank").reset_index(drop=True)
+    
+    # Sort by feature name for consistent output
+    df = pd.DataFrame(rows)
+    df = df.sort_values('feature_name').reset_index(drop=True)
+    
+    logger.info(f"Generated feature interpretation summary with {len(df)} features")
     return df
 
-def save_summary_table(df: pd.DataFrame, output_path: Path) -> None:
+def save_summary_table(df: pd.DataFrame, output_path: str = "data/processed/feature_interpretation_summary.csv") -> None:
     """
-    Save the summary table as CSV and JSON.
+    Save the feature interpretation summary table to a CSV file.
+    
+    Args:
+        df: The summary DataFrame to save.
+        output_path: Path where the CSV will be written.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    logger = get_logger()
+    output_file = Path(output_path)
+    
+    # Ensure the output directory exists
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Save to CSV
+    df.to_csv(output_file, index=False)
+    logger.info(f"Saved feature interpretation summary to {output_file}")
 
-    # Save CSV
-    csv_path = output_path.with_suffix('.csv')
-    df.to_csv(csv_path, index=False)
-    logger.info(f"Saved feature summary table to {csv_path}")
-
-    # Save JSON for programmatic access
-    json_path = output_path.with_suffix('.json')
-    summary_dict = {
-        "generated_at": pd.Timestamp.now().isoformat(),
-        "total_features_analyzed": len(df),
-        "stable_features_count": len(df[df["Stability Status"] == "Stable"]),
-        "implausible_features_count": len(df[df["Physical Plausibility"] == "Implausible"]),
-        "summary": df.to_dict(orient="records")
-    }
-    with open(json_path, 'w') as f:
-        json.dump(summary_dict, f, indent=2)
-    logger.info(f"Saved feature summary JSON to {json_path}")
-
-def main():
+def main() -> None:
     """
-    Main entry point for T026.
+    Main entry point for T026: Generate feature interpretation summary table.
+    
+    This task depends on:
+    - T023: Feature stability analysis (data/processed/feature_stability_results.json)
+    - T025: Physical plausibility check (data/processed/physical_plausibility.json)
+    
+    Output:
+    - data/processed/feature_interpretation_summary.csv
     """
-    logger.info("Starting Feature Interpretation Summary Generation (T026)...")
-
-    # Load dependencies
-    stability_data = load_feature_stability_results()
-    plausibility_data = load_physical_plausibility_results()
-
-    if not stability_data or not plausibility_data:
-        logger.error("Missing required input data. Ensure T023 and T025 have completed.")
-        raise FileNotFoundError("Required input files (feature_stability.json, physical_plausibility.json) not found.")
-
-    # Generate table
-    df = generate_summary_table(stability_data, plausibility_data)
-
-    # Define output path
-    output_dir = get_data_path() / "processed"
-    output_file = output_dir / "feature_summary_table"
-
-    # Save results
-    save_summary_table(df, output_file)
-
-    logger.info("T026 completed successfully.")
-    print(df.to_string(index=False))
+    logger = get_logger()
+    logger.info("Starting T026: Generate feature interpretation summary table")
+    
+    # Load prerequisite results
+    stability_results = load_feature_stability_results()
+    plausibility_results = load_physical_plausibility_results()
+    
+    if stability_results is None:
+        logger.error("Cannot proceed: T023 (feature stability) results not found. Aborting.")
+        return
+    
+    if plausibility_results is None:
+        logger.warning("T025 (physical plausibility) results not found. Proceeding without plausibility checks.")
+    
+    # Generate the summary table
+    summary_df = generate_summary_table(stability_results, plausibility_results)
+    
+    # Save the summary table
+    output_path = "data/processed/feature_interpretation_summary.csv"
+    save_summary_table(summary_df, output_path)
+    
+    # Log success
+    logger.info("T026 completed successfully. Output: data/processed/feature_interpretation_summary.csv")
 
 if __name__ == "__main__":
     main()

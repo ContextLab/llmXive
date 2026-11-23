@@ -1,0 +1,162 @@
+[
+  {
+    "object_name": "cup",
+    "shape_type": "circle",
+    "x": 120.5,
+    "y": 240.1,
+    "radius/side": 15.0,
+    "color": [255, 0, 0, 255]
+  },
+  {
+    "object_name": "book",
+    "shape_type": "rectangle",
+    "x": 300.2,
+    "y": 150.8,
+    "radius/side": 20.0,
+    "color": [0, 255, 0, 255]
+  },
+  {
+    "object_name": "plant",
+    "shape_type": "circle",
+    "x": 450.0,
+    "y": 100.5,
+    "radius/side": 18.0,
+    "color": [0, 0, 255, 255]
+  },
+  {
+    "object_name": "lamp",
+    "shape_type": "rectangle",
+    "x": 50.0,
+    "y": 300.0,
+    "radius/side": 12.0,
+    "color": [255, 255, 0, 255]
+  },
+  {
+    "object_name": "chair",
+    "shape_type": "polygon",
+    "x": 200.0,
+    "y": 400.0,
+    "radius/side": 25.0,
+    "color": [255, 0, 255, 255]
+  },
+  {
+    "object_name": "table",
+    "shape_type": "rectangle",
+    "x": 350.0,
+    "y": 350.0,
+    "radius/side": 30.0,
+    "color": [0, 255, 255, 255]
+  },
+  {
+    "object_name": "phone",
+    "shape_type": "rectangle",
+    "x": 100.0,
+    "y": 200.0,
+    "radius/side": 10.0,
+    "color": [128, 128, 128, 255]
+  },
+  {
+    "object_name": "cat",
+    "shape_type": "circle",
+    "x": 250.0,
+    "y": 150.0,
+    "radius/side": 14.0,
+    "color": [255, 128, 0, 255]
+  },
+  {
+    "object_name": "dog",
+    "shape_type": "circle",
+    "x": 300.0,
+    "y": 200.0,
+    "radius/side": 16.0,
+    "color": [0, 128, 255, 255]
+  },
+  {
+    "object_name": "ball",
+    "shape_type": "circle",
+    "x": 400.0,
+    "y": 300.0,
+    "radius/side": 12.0,
+    "color": [255, 255, 255, 255]
+  },
+  {
+    "object_name": "key",
+    "shape_type": "polygon",
+    "x": 150.0,
+    "y": 250.0,
+    "radius/side": 8.0,
+    "color": [200, 200, 0, 255]
+  },
+  {
+    "object_name": "watch",
+    "shape_type": "circle",
+    "x": 500.0,
+    "y": 100.0,
+    "radius/side": 9.0,
+    "color": [100, 100, 100, 255]
+  },
+  {
+    "object_name": "bottle",
+    "shape_type": "rectangle",
+    "x": 550.0,
+    "y": 200.0,
+    "radius/side": 11.0,
+    "color": [0, 255, 128, 255]
+  },
+  {
+    "object_name": "shoe",
+    "shape_type": "polygon",
+    "x": 400.0,
+    "y": 450.0,
+    "radius/side": 22.0,
+    "color": [128, 0, 128, 255]
+  },
+  {
+    "object_name": "hat",
+    "shape_type": "circle",
+    "x": 200.0,
+    "y": 50.0,
+    "radius/side": 13.0,
+    "color": [255, 128, 128, 255]
+  },
+  {
+    "object_name": "glasses",
+    "shape_type": "circle",
+    "x": 300.0,
+    "y": 100.0,
+    "radius/side": 10.0,
+    "color": [0, 0, 128, 255]
+  },
+  {
+    "object_name": "pen",
+    "shape_type": "rectangle",
+    "x": 450.0,
+    "y": 300.0,
+    "radius/side": 5.0,
+    "color": [128, 255, 0, 255]
+  },
+  {
+    "object_name": "notebook",
+    "shape_type": "rectangle",
+    "x": 100.0,
+    "y": 400.0,
+    "radius/side": 18.0,
+    "color": [0, 128, 0, 255]
+  },
+  {
+    "object_name": "backpack",
+    "shape_type": "polygon",
+    "x": 500.0,
+    "y": 400.0,
+    "radius/side": 28.0,
+    "color": [128, 128, 0, 255]
+  },
+  {
+    "object_name": "umbrella",
+    "shape_type": "polygon",
+    "x": 350.0,
+    "y": 50.0,
+    "radius/side": 24.0,
+    "color": [255, 0, 0, 128]
+  }
+]

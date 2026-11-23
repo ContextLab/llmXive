@@ -66,8 +66,8 @@ The researcher needs to verify that the correlation results are robust to small 
 
 ### Functional Requirements
 
-- **FR-001**: System MUST download and parse ERA5 reanalysis data for water vapor transport and 500 hPa geopotential height for the period 1979–2023 (See US-1).
-- **FR-002**: System MUST implement an AR detection algorithm (e.g., SWHAT) using a baseline threshold of 250 kg m⁻¹ s⁻¹ for Integrated Water Vapor Transport (See US-1).
+- **FR-001**: System MUST download and parse ERA reanalysis data for water vapor transport and 500 hPa geopotential height for the period 1979–2023 (See US-1).
+- **FR-002**: System MUST implement an AR detection algorithm (e.g., SWHAT) using a baseline threshold for Integrated Water Vapor Transport. (See US-1).
 - **FR-003**: System MUST calculate Z500 anomalies by subtracting the 1979–2023 monthly climatology from the raw Z500 data (See US-1).
 - **FR-004**: System MUST compute Pearson correlation coefficients between the monthly AR frequency time-series and the Z500 anomaly time-series at *each individual grid cell* within the defined latitudinal band and season (See US-1).
 - **FR-005**: System MUST apply the Benjamini-Hochberg False Discovery Rate (FDR) procedure to control the expected proportion of false discoveries across all grid cells and seasons, using an adjusted p-value threshold of < 0.05 (See US-1).
@@ -99,6 +99,6 @@ The researcher needs to verify that the correlation results are robust to small 
 - The ERA5 reanalysis data on the Copernicus Climate Data Store contains complete, gap-free monthly aggregates for water vapor transport and Z500 from 1979 to 2023.
 - The "250 kg m⁻¹ s⁻¹" threshold for AR detection is a defensible community standard for this global study; if the dataset lacks the resolution to support this, the threshold will be adjusted based on the sensitivity analysis.
 - The analysis is observational; therefore, all reported correlations are strictly associational and do not imply causal direction without further experimental design.
-- The GitHub Actions 'ubuntu-latest' runner (multiple CPU cores, ~7 GB RAM) is sufficient to process the sampled ERA5 dataset using vectorized operations (e.g., xarray, numpy) without requiring GPU acceleration or distributed computing.
+- The GitHub Actions 'ubuntu-latest' runner (multiple CPU cores, sufficient RAM) is sufficient to process the sampled ERA5 dataset using vectorized operations (e.g., xarray, numpy) without requiring GPU acceleration or distributed computing.
 - The Benjamini-Hochberg FDR procedure is the chosen method for multiple comparison control, acknowledging its suitability for spatially autocorrelated data over the conservativeness of Bonferroni.
 - Latitudinal bands are defined as non-overlapping intervals of consistent width covering the globe from 90°S to 90°N, excluding the poles where grid cells degenerate.

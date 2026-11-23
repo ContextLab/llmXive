@@ -1,101 +1,76 @@
-"""
-Synthetic Failure Injection Module.
-Creates an implicit failure subset from the PlanBench-XL dataset.
-"""
 import json
 import os
 import random
 from pathlib import Path
 from typing import Any, Dict, List, Optional
-from utils.config import get_path, get_hyperparameter
+from utils.config import get_path, get_hyperparameter, set_deterministic_seed, ensure_dirs_exist
 
-def load_raw_planbench_xl() -> List[Dict[str, Any]]:
-    """
-    Loads the raw PlanBench-XL dataset.
-    In a real implementation, this would download/load from HuggingFace.
-    For this cleanup task, we assume the data exists or is loaded via the loader module.
-    """
-    raw_path = get_path("data_raw") / "planbench_xl.parquet"
-    if raw_path.exists():
-        # Placeholder for actual loading logic
-        return []
-    return []
+def load_raw_planbench_xl(input_path: Optional[Path] = None) -> List[Dict[str, Any]]:
+    """Load the raw PlanBench-XL dataset."""
+    if input_path is None:
+        input_path = get_path('data/raw/planbench_xl.jsonl')
+    
+    if not input_path.exists():
+        raise FileNotFoundError(f"Raw dataset not found at {input_path}")
+    
+    data = []
+    with open(input_path, 'r') as f:
+        for line in f:
+            if line.strip():
+                data.append(json.loads(line))
+    return data
 
-def inject_failures(
-    tasks: List[Dict[str, Any]],
-    seed: int = 42,
-    target_proportion: float = 0.3
-) -> List[Dict[str, Any]]:
-    """
-    Injects deterministic error patterns into a subset of tasks.
+def inject_failures(data: List[Dict[str, Any]], num_failures: int = 50, seed: int = 42) -> List[Dict[str, Any]]:
+    """Inject synthetic failure patterns into success tasks."""
+    set_deterministic_seed(seed)
     
-    Args:
-        tasks: List of task dictionaries.
-        seed: Random seed for reproducibility.
-        target_proportion: Proportion of success tasks to inject.
-        
-    Returns:
-        List of tasks with injected errors.
-    """
-    random.seed(seed)
-    injected_tasks = []
+    # Filter for success tasks
+    success_tasks = [task for task in data if task.get('ground_truth') == 'success']
     
-    # Filter for success tasks (assuming ground_truth indicates success)
-    # In real data, this logic would be more robust
-    success_tasks = [t for t in tasks if t.get("ground_truth", "").lower() in ["success", "completed"]]
+    if len(success_tasks) < num_failures:
+        raise ValueError(f"Not enough success tasks to inject {num_failures} failures")
     
-    # Select subset to inject
-    num_to_inject = int(len(success_tasks) * target_proportion)
-    selected_indices = random.sample(range(len(success_tasks)), min(num_to_inject, len(success_tasks)))
+    # Select first N tasks deterministically
+    selected_tasks = success_tasks[:num_failures]
     
-    for i, task in enumerate(tasks):
-        new_task = task.copy()
-        new_task["injected_error"] = False
-        
-        if i in selected_indices:
-            # Inject error pattern
-            new_task["injected_error"] = True
-            # Append error to tool outputs or response simulation
-            if "tool_outputs" in new_task:
-                new_task["tool_outputs"].append("ERROR: silent_tool_failure")
-            else:
-                new_task["tool_outputs"] = ["ERROR: silent_tool_failure"]
-        
-        injected_tasks.append(new_task)
+    injected_data = []
+    error_patterns = [
+        "ERROR: silent_tool_failure",
+        "ERROR: tool_timeout",
+        "ERROR: invalid_tool_response",
+        "ERROR: missing_tool_output"
+    ]
     
-    return injected_tasks
+    for task in selected_tasks:
+        injected_task = task.copy()
+        # Inject error pattern
+        error_pattern = random.choice(error_patterns)
+        injected_task['tool_output'] = f"{task.get('tool_output', '')}\n{error_pattern}"
+        injected_task['injected_error_pattern'] = True
+        injected_task['injected_error_type'] = error_pattern
+        injected_data.append(injected_task)
+    
+    return injected_data
 
-def save_injected_data(tasks: List[Dict[str, Any]], output_path: Optional[str] = None) -> str:
-    """
-    Saves the injected dataset to a JSONL file.
-    
-    Args:
-        tasks: List of injected task dictionaries.
-        output_path: Optional output path.
-        
-    Returns:
-        Path to the saved file.
-    """
+def save_injected_data(data: List[Dict[str, Any]], output_path: Optional[Path] = None) -> Path:
+    """Save the injected failure subset."""
     if output_path is None:
-        output_path = str(get_path("implicit_failure_subset"))
+        output_path = get_path('data/derived/implicit_failure_subset.jsonl')
     
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    ensure_dirs_exist(output_path.parent)
     
     with open(output_path, 'w') as f:
-        for task in tasks:
-            f.write(json.dumps(task) + "\n")
+        for item in data:
+            f.write(json.dumps(item) + '\n')
     
     return output_path
 
 def main():
-    """
-    Main entry point for data injection.
-    """
-    # Placeholder for loading data
-    tasks = [] 
-    injected = inject_failures(tasks)
-    path = save_injected_data(injected)
-    print(f"Injected data saved to {path}")
+    """Main entry point for data injector."""
+    raw_data = load_raw_planbench_xl()
+    injected_data = inject_failures(raw_data, num_failures=50, seed=42)
+    output_file = save_injected_data(injected_data)
+    print(f"Injected failure subset saved to: {output_file}")
 
 if __name__ == "__main__":
     main()

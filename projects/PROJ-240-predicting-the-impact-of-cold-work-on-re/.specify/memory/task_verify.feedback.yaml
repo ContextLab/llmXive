@@ -1,0 +1,157 @@
+T001:
+  reason: "The `PROJ-240-predicting-the-impact-of-cold-work-on-re.yaml` file is missing,\
+    \ and there is no evidence that the required directories (`code`, `tests`, `data/raw`,\
+    \ `data/processed`, `data/split`, `artifacts/models`, `artifacts/reports`, `artifacts/figures`)\
+    \ and their `.gitkeep` placeholder files have been created. The task\u2019s directory\u2011\
+    structure requirement is therefore not satisfied."
+  task: e170c68e10b41d00ff4012e4b433387897d0cd115b4ca02df74c9b61595a68ab
+T011:
+  task: ef84dbadef93d68ba64535ca55c2abcd6c3c08c591d9b0d0850a42bd92b4d8c2
+T012:
+  task: be1c03ae6fefc99e7b7216bef197b80e34bdd0e5d6df9ba25ad8af6f9b27121c
+T013:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1'
+  task: 8b871ee6408ef3f6680b7fdbf3c383375c2a9e33a9a499518658170d39e155a4
+T015:
+  reason: "The repository contains a `tests/unit/test_validation.py`, but it defines\
+    \ a class with many test methods (e.g., `test_cold_work_below_zero_fails`) rather\
+    \ than a single function named `test_physical_bounds_validation`. Moreover, the\
+    \ tests check boolean results from `validate_physical_bounds` instead of asserting\
+    \ that out\u2011of\u2011range cold\u2011work or negative time\u2011to\u2011peak\
+    \ values raise a `ValueError`, which is exactly what the task required. Consequently\
+    \ the required test function and its expected exception\u2011based assertion are\
+    \ missing."
+  task: 78d95b610d70200c98867d9bf8a28a8f98bd57a6fc70ce19942dc8d972ca3898
+T016:
+  task: 0530950185f30948ba91a1404e834ee31b5db2c7c5da1563df495af2ccb3f9e6
+T017:
+  task: 136d1f1897acbbc15b43d39e1a8cb2658075a5325b4132afaa3b683839cea5a3
+T018:
+  task: eef832a6475cff3a10291b8dbaffe5760df99ccf4a851d0922459b9285e3a959
+T019:
+  task: 6dd8f724ccaca703ae7e3962d3e5bdbfbb7c02b81ff0a2bb45db9ae06e5db1cd
+T020:
+  task: c22f93aa4d0c37191bb5c088d18eb6a93b891eecea9b286c915cd7300475aa68
+T021:
+  task: 64ca5f58352599f3b108e3a32f09427d7a501c3f743bcd84bfbf361c90b96d64
+T022:
+  task: c9f6d85be82707d690743e41fd5de3f147ba383760acedca3076eb95dffed10f
+T023:
+  task: baf4006d1277562dfd7f5087c3ed989fcb240f852c466f0d81f8785c4cf140bb
+T024:
+  task: 123fda7545e46a904eb6f29e7e40a5b1ac608baf36b2fbf5d190a3c2980595f6
+T025:
+  task: c2aeb16bacaa9bd80c1375009363d45e19dc9dd8c76dc907b4c1bc9813ffc136
+T026:
+  reason: The provided `tests/unit/test_vif.py` contains a class with several test
+    methods, but none is named `test_vif_calculation` as required. Consequently the
+    specific unit test the task demands is missing.
+  task: d27aa070111dd3b8759bf07dd217890b6a12266cf3abbb2d1e87a0731d592fe1
+T027:
+  reason: "The provided `tests/unit/test_train.py` does not contain a function named\
+    \ `test_model_training_small_subset`, and the sample data fixture creates 100\
+    \ rows instead of the required 10\u2011row subset. A correctly named test that\
+    \ trains on a 10\u2011row dataset and asserts no error is missing."
+  task: 3135e4d44f4790a0ec8c27bf87658a7f5d6725d0f20fe3fabd5985c70e1b2fd7
+T028:
+  reason: "The `code/train.py` only performs a plain `train_test_split` and does not\
+    \ stratify on binned `time_to_peak_min` as required, and the expected `data/split_indices.npy`\
+    \ file is absent. The task\u2019s core requirement\u2014implementing a stratified\
+    \ split with seed\u202F42 and persisting the indices\u2014is not met."
+  task: 4d2a54c30ef96eefbef5b2dcd8782c244f3311337dc414b1ab8fd4f34dbb9e3e
+T029:
+  task: 2d50b96bb54cecd9ec71d2ca4e5dd22926b0b5748999406893749569749761b3
+T030:
+  task: e2acf261916b286b3b632422802ba4383b11dfb7f891192819e2d1c4afbb0da5
+T031:
+  task: 459d7421b5088d7570c733339c3fe23bde6337f547d63e27d3e512cf32b587b8
+T032:
+  task: 8495540a6d8fc3523003c4b28338a4e2dd2f383740bbbdaa5eb839eeee2a6286
+T033:
+  task: 0869c50c98013d64ef50ea2441ce7f8a6734a59300dc716c59015bbf87f115a3
+T034:
+  task: b58ad99ac325f431c20fd24982ec2fee820a920f519ca465188967a451d958f5
+T035:
+  task: 63c8e4939f4377703c84a0e128f1a9bb1a77558041ec3492cfb53560e45a2af2
+T036:
+  task: 416bbab6ded88cf1e788de01e9be8adc74576de0668d1c6788ea213cbe4d9e8f
+T037:
+  task: 8c884555dac84f21ecf0ff76c2f1ad2069829928563f7d859cd3beb4bf18b398
+T038:
+  task: 2aac6f1589c6fa83ab24b8b0fed391924b4cbb2ecc035f69ed74d0505ace59a5
+T039:
+  task: af6edb4cba51173963a819d20d8d958449daf654364e1992726db94f33f036dd
+T040:
+  task: 76a89a7d90b3655fe5ee4b698dcaa8825277b0ef8bafd90c130e0dac98badd30
+T041:
+  task: bbc13fc29bbf366a2d8b40ae5c17f2e5c257a783a7a0e736156f5861114fc0aa
+T042:
+  task: aefb81830457338afd5cdcabe092839ad403d41d27c5c2ebb6c05fdbc091e964
+T043:
+  task: 03fa941e058a4766ed1eb3df10eae20c0373e0da00d9a91d6fa3f90a00f349a1
+T044:
+  task: 447424734fade068d6450879d6c764daca587edd476c59d381409b178ebed221
+T045:
+  task: 798bc4fdc9031e3e5e8bcc401be686565f59ab8ef222cb556f044bae4aa3473f
+T046:
+  task: b978239287c9f3c498717ff1dc3f860a4f8480194192da1d3f2200b2d1a32986
+T047:
+  task: 75a66aed348bf7834f0602e02bab578033c363010ee5a624ac445d1472404273
+T048:
+  task: 7df8a681a9913f0c78dd09844c88a1e6eb40df51070dfeb3dc1851e94f842946
+T049:
+  task: e87dfe97de79886c8a95271ded4bed7c0bf765ae14b436cf0e256c9807c79564
+T050:
+  task: d50f5b98f1714a90bb441a89d7427f7a6b85d6a953c68c5ec9dabe632a185b13
+T051:
+  task: 2d1a6928fb81195d13a38d8cc7b62f00758c4379b0ebb0418b8c8be0cae5f630
+T052:
+  task: 8869dddda247bd831627b878e559254f67ec22e8d3edbdb665b290e743fa5232
+T053:
+  task: d09f3e1bf69d29bc835d48c8c3ddbd77e1c23958ac8c5e1a7458feb0c22d7a3e
+T054:
+  task: 06b03bc09052e1d501fff112da4c00253e94208b8cfb0f07fc3af3b32e4365dc
+T055:
+  task: 3bedb0f3f3057bbaf37cbf12dd88bc8bbc95f3c7d5e8b2bb634b3bd5acb67b1b
+T056:
+  task: 5968622765c304652170dfbd38628ab07aac9cfef64811be5d314757cede87d8
+T057:
+  task: 5c44951f96d473428ee770bb2c5e6a726e21c4455f1378d98e2e3c2222c2aa4b
+T058:
+  task: db13c11a6d19a2799323daa7c0178e2ca9912374ceba2293505d800b4cac1a66
+T059:
+  task: d76a08249ebe85a03f0f1bea07375f9e9d45fcf57728e20094ff200035f7be4b
+T061:
+  task: 33fee14ba0bf3fa367864e1574bdb44bc6a82fb32ab57bde7fc036eec7665fe0
+T062:
+  task: f4890718cb5fe52bdc9f68a4606eae49309a13bc1d819aa4562872f2ad35db15
+T063:
+  task: 9b7df65a9a899befe19667cc1d290a640d1216ad7f25e7cea7bbe23162542f7e
+T069:
+  task: 761bf33a7fe566624240504c46ae9db57d2eef52e46bc36ccb361ea5fd0a79d3
+T070:
+  task: e208ffbe6b6e660538001d9be93c659b9ff974d7000535ef50942e8d41067fd0
+T072:
+  task: 920801c9f2327e08c9c1a4900b74a627143aa33bc95ca3d867b318b39b7590e8
+T073:
+  task: 3733f8a385d1849a3fb5f49672e3a028382a10daa71da5abc9221b6921af412c
+T074:
+  task: add42d8f8863f5d8f5aa98211c5cd4523f6425f3344b1f296bccbc3b35c4f1b2
+T075:
+  task: 4b6433c11457160585ba4cf87673b1ff81f27e20f944441cdeb61b50a538e5d1
+T076:
+  task: 0ad40bc21503ff1a8b488cdbd3380a606999e6c3ee992fd8dea4737b3563d4f5
+T078:
+  task: a05b51c61289c19d45f359008ba242da722d96671c16f7d915a116373dbe8034
+T079:
+  task: 8930f5027aa58fb40fdc2b01a4429c3fba19273b62b20a60083c5867e2ef0df5
+T081:
+  task: 56b48f94d7996103e10abb0d46d3ae1ddf94d67519c698006a9cded95517665b
+T082:
+  task: 9fe6b16bffe5a48474b1a40fffa9be923c42252e13d93547ba7c8e824e9f1398
+T083:
+  task: a794008c96a1a66092b7fabcaff360e675fa8f35fedb8c1a74d76d0290dfa409
+T084:
+  task: 05704626b5e0de1711675bea9e0c34d6521db8873d3c56b28b79ca2159e054ba
+T085:
+  task: 6c3a24968b4d92c39a532b1f5cfd14b9c74388687decb3a3397d86a3a67d89fd

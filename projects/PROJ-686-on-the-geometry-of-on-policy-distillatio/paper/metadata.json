@@ -51,5 +51,15 @@
     "sections/00_abstract.tex",
     "tables",
     "tables/sparsity.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "871a73028a84f110b80367ef066fd373f1e427a1b633ab523ae2ce23822a04a2",
+      "bytes": 4099460
+    },
+    "original.pdf": {
+      "sha256": "282e606beb5366f6f05444b4fcf0c32a80100318f8fbbd871b6e7031005a8e97",
+      "bytes": 4072247
+    }
+  }
 }

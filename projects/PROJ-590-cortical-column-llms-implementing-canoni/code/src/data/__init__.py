@@ -1,1 +1,3 @@
-# Data package
+"""
+data subpackage initializer.
+"""

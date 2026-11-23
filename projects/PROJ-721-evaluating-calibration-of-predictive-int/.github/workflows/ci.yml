@@ -1,0 +1,74 @@
+name: CI - Calibration Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+env:
+  MAX_RUNTIME_SECONDS: 21600
+  PYTHON_VERSION: '3.9'
+
+jobs:
+  run-pipeline:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360 # 6 hours
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run 1000-series pipeline
+        id: pipeline_run
+        run: |
+          echo "Starting pipeline execution..."
+          START_TIME=$(date +%s)
+          python code/run_pipeline.py --config config.yaml --series-file data/processed/sample_indices_1000.csv
+          END_TIME=$(date +%s)
+          DURATION=$((END_TIME - START_TIME))
+          echo "Pipeline completed in $DURATION seconds."
+          echo "duration=$DURATION" >> $GITHUB_OUTPUT
+
+          # Assert runtime constraint (SC-001)
+          if [ $DURATION -ge $MAX_RUNTIME_SECONDS ]; then
+            echo "❌ ERROR: Runtime ($DURATION s) exceeded limit ($MAX_RUNTIME_SECONDS s)."
+            exit 1
+          else
+            echo "✅ SUCCESS: Runtime ($DURATION s) is within limit ($MAX_RUNTIME_SECONDS s)."
+          fi
+
+      - name: Validate outputs
+        run: |
+          # Verify expected artifacts exist
+          if [ ! -f results/coverage.csv ]; then
+            echo "❌ ERROR: results/coverage.csv not found."
+            exit 1
+          fi
+          if [ ! -f results/coverage_intermediate.csv ]; then
+            echo "❌ ERROR: results/coverage_intermediate.csv not found."
+            exit 1
+          fi
+          if [ ! -f results/pvalues.json ]; then
+            echo "❌ ERROR: results/pvalues.json not found."
+            exit 1
+          fi
+          echo "✅ All required output artifacts validated."
+
+      - name: Upload results
+        uses: actions/upload-artifact@v3
+        with:
+          name: pipeline-results
+          path: |
+            results/
+            state/

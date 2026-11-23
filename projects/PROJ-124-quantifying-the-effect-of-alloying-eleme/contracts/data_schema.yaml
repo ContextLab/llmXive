@@ -1,0 +1,106 @@
+# Data Schema Definition for GFA Dataset
+# This file defines the expected schema for the raw and processed data files
+
+raw_data:
+  file: data/raw/gfa_dataset.csv
+  columns:
+    - name: composition
+      type: string
+      required: true
+      description: Chemical composition string (e.g., "Cu50Zr50")
+    - name: log10_Rc
+      type: float
+      required: true
+      description: Log10 of critical cooling rate
+    - name: source
+      type: string
+      required: false
+      description: Source dataset identifier
+    - name: author
+      type: string
+      required: false
+      description: Author of the study
+    - name: year
+      type: integer
+      required: false
+      description: Year of publication
+
+processed_features:
+  file: data/processed/features.csv
+  columns:
+    - name: composition
+      type: string
+      required: true
+      description: Original composition string
+    - name: source_row_id
+      type: integer
+      required: true
+      description: Original row index from raw data
+    - name: atomic_radius_mean
+      type: float
+      required: true
+      description: Weighted mean atomic radius
+    - name: electronegativity_mean
+      type: float
+      required: true
+      description: Weighted mean electronegativity
+    - name: VEC_raw
+      type: float
+      required: true
+      description: Valence electron count (raw)
+    - name: VEC_avg
+      type: float
+      required: true
+      description: Weighted mean valence electron count
+    - name: size_mismatch
+      type: float
+      required: true
+      description: Pairwise size mismatch descriptor
+    - name: log10_Rc
+      type: float
+      required: true
+      description: Target variable (log10 critical cooling rate)
+    - name: elements
+      type: string
+      required: true
+      description: Comma-separated list of elements in the alloy
+    - name: fractions
+      type: string
+      required: true
+      description: Comma-separated list of elemental fractions
+
+candidates:
+  file: output/candidates.csv
+  columns:
+    - name: composition
+      type: string
+      required: true
+      description: Predicted composition
+    - name: predicted_log10_Rc
+      type: float
+      required: true
+      description: Predicted log10 critical cooling rate
+    - name: ci_lower
+      type: float
+      required: true
+      description: Lower bound of confidence interval
+    - name: ci_upper
+      type: float
+      required: true
+      description: Upper bound of confidence interval
+    - name: novelty_status
+      type: string
+      required: true
+      description: "novel", "known", or "unverified_external"
+    - name: doa_status
+      type: string
+      required: true
+      description: "in_doa" or "out_doa"
+    - name: final_score
+      type: float
+      required: true
+      description: Final ranking score (prediction + penalty)
+    - name: rank
+      type: integer
+      required: true
+      description: Rank order (1 = best)

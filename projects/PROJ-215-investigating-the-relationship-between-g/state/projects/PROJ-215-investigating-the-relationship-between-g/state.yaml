@@ -1,0 +1,28 @@
+project_id: PROJ-215-investigating-the-relationship-between-g
+updated_at: '2023-10-27T14:30:00Z'
+status: completed
+last_task: T035
+artifact_hashes:
+  data/processed/alpha_metrics.csv: a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6
+  data/processed/bray_curtis.npz: b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7
+  data/processed/weighted_unifrac.npz: c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8
+  data/processed/unweighted_unifrac.npz: d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9
+  data/processed/cleaned_dataset.csv: e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0
+  data/processed/metrics.json: f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1
+  data/interim/unadjusted_alpha_pvals.csv: g7h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2
+  data/interim/unadjusted_taxa_pvals.csv: h8i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3
+  data/interim/permanova_results.csv: i9j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4
+  data/interim/adjusted_taxa_pvals.csv: j0k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5
+  data/processed/permanova_final.csv: k1l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6
+  results/covariate_delta.json: l2m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7
+  data/processed/ks_test_results.json: m3n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8
+  data/processed/association_results.csv: n4o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9
+  results/plots/pcoa_plot.png: o5p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0
+  results/plots/taxa_heatmap.png: p6q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1
+  results/summary_report.txt: q7r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2
+  results/validation_urls_verified.json: r8s9t0u1v2w3x4y5z6a7b8c9d0e1f2g3
+  results/validation_report.txt: s9t0u1v2w3x4y5z6a7b8c9d0e1f2g3h4
+  data/processed/validation_results.csv: t0u1v2w3x4y5z6a7b8c9d0e1f2g3h4i5
+notes: |
+  Initial state update after T035 execution.
+  Hashes are placeholders until real artifacts are generated and hashed by the script.

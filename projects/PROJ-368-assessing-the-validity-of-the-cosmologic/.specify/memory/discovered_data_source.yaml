@@ -1,0 +1,14 @@
+status: none
+intent: "Planck Legacy Archive download 2018 SMICA map Commander U73 mask \u039BCDM\
+  \ spectrum python package dataset"
+required_fields:
+- pixel_index
+- temperature_uK
+- mask_flag
+- multipole_l
+- Cl_TT
+- Cl_TE
+- Cl_EE
+cache_key: 52e84c88abb4b473b8d7f836c1bc12c2d8d5fe2c3127cbd34378ddcec25a78eb
+searched_at: '2026-08-10T22:53:54.310415+00:00'
+retry_count: 1

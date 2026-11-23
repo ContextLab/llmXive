@@ -1,0 +1,28 @@
+status: verified
+kind: pypi_package
+ref: kagglehub
+access_python: "import pathlib, csv, kagglehub\n\npath = kagglehub.dataset_download(\"\
+  hemishveeraboina/aime-problem-set-1983-2024\")\ncsv_files = list(pathlib.Path(path).rglob(\"\
+  *.csv\"))\nif not csv_files:\n    raise FileNotFoundError(\"No CSV file found in\
+  \ the downloaded dataset\")\n\nwith open(csv_files[0], newline=\"\", encoding=\"\
+  utf-8\") as f:\n    reader = csv.DictReader(f)\n    rows = list(reader)\n    record_count\
+  \ = len(rows)\n    fields = reader.fieldnames or []\n\nprint(f\"RECORDS={record_count}\"\
+  )\nprint(\"FIELDS=\" + \",\".join(fields))"
+record_count: 933
+sample_fields:
+- ID
+- Year
+- Problem Number
+- Question
+- Answer
+- Part
+field_coverage: 0.667
+required_fields:
+- problem_id
+- problem_text
+- solution_steps
+- answer
+- year
+- difficulty
+intent: download AIME 2024 problems dataset Kaggle python package dataset
+cache_key: a35e86eed317bc530cf276a8bb664743c4a93e942f5c13fe40b109f5c7f6f3e0

@@ -2,63 +2,50 @@
 
 ## Entity Definitions
 
-### 1. ExperimentRecord (Raw Input)
-Represents a single experimental observation.
+### 1. ExperimentRecord
+Represents a single experimental data point (raw or synthetic).
+- **cold_work_pct**: float (0.0 to 100.0) - Percentage of cold work deformation.
+- **mg_wt**: float (0.0 to 5.0) - Magnesium weight percentage.
+- **si_wt**: float (0.0 to 1.5) - Silicon weight percentage.
+- **cu_wt**: float (0.0 to 4.0) - Copper weight percentage.
+- **mn_wt**: float (0.0 to 1.5) - Manganese weight percentage.
+- **annealing_temp_k**: float (300.0 to 600.0) - Annealing temperature in Kelvin.
+- **time_to_peak_min**: float (>0) - Observed time to peak softening in minutes.
+- **source**: string - "synthetic" or "public".
+- **row_id**: string - Unique identifier (UUID or hash).
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `id` | string | Unique identifier (UUID or auto‑increment) | PK |
-| `alloy_series` | string | e.g., "5xxx", "6xxx" | Optional |
-| `cold_work_pct` | float | Percentage of cold work deformation | > 0, < 100 |
-| `mg_wt` | float | Magnesium weight percentage | ≥ 0 |
-| `si_wt` | float | Silicon weight percentage | ≥ 0 |
-| `cu_wt` | float | Copper weight percentage | ≥ 0 |
-| `mn_wt` | float | Manganese weight percentage | ≥ 0 |
-| `annealing_temp_k` | float | Annealing temperature in Kelvin | > 273 |
-| `time_to_peak` | float | Time to peak softening (minutes) – **raw target** |
-| `source` | string | Origin of the data point (e.g., "User", "Synthetic") |
+### 2. EngineeredFeatureSet
+Derived dataset used for model training. Extends `ExperimentRecord` with:
+- **interaction_cw_mg**: float - `cold_work_pct` * `mg_wt`
+- **interaction_cw_si**: float - `cold_work_pct` * `si_wt`
+- **interaction_cw_cu**: float - `cold_work_pct` * `cu_wt`
+- **interaction_cw_mn**: float - `cold_work_pct` * `mn_wt`
+- **is_outlier_clipped**: boolean - True if original `time_to_peak_min` was > 99th percentile.
 
-### 2. EngineeredFeatureSet (Processed Input)
-Derived from `ExperimentRecord` for model training.
-
-| Field | Type | Derivation | Description |
-| :--- | :--- | :--- | :--- |
-| `cold_work_mg` | float | `cold_work_pct * mg_wt` | Interaction term |
-| `cold_work_si` | float | `cold_work_pct * si_wt` | Interaction term |
-| `cold_work_cu` | float | `cold_work_pct * cu_wt` | Interaction term |
-| `cold_work_mn` | float | `cold_work_pct * mn_wt` | Interaction term |
-| `time_to_peak_norm` | float | `arrhenius_normalize(time_to_peak, annealing_temp_k, Q=140000)` (optional) | For exploratory plots **only**; **never used for training or success‑criteria**. |
-| `features_vector` | array | List of all predictor columns (including interactions) | Input to RF |
-| `raw_target` | float | Alias of `time_to_peak` (used for training) | |
-
-### 3. ModelPerformanceMetrics (Output)
-Results from the analysis pipeline.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `r2_score` | float | Coefficient of determination on the held‑out test set (raw target). |
-| `mae` | float | Mean Absolute Error on the held‑out test set (minutes). |
-| `cv_r2_mean` | float | Mean R² from 5‑fold cross‑validation (raw target). |
-| `cv_r2_std` | float | Standard deviation of R² from 5‑fold CV. |
-| `interaction_p_value` | float | Empirical p‑value from the permutation test comparing additive vs. interaction models. |
-| `feature_importance` | dict | Map of feature name to permutation‑importance score. |
-| `success_criteria_met` | object | Booleans indicating whether each success criterion was satisfied. |
-| `outlier_log_path` | string | Path to `results/outlier_log.txt` (if any clipping occurred). |
+### 3. ModelPerformanceMetrics
+Aggregated results from training and testing.
+- **r2_score**: float - Coefficient of determination on test set.
+- **mae**: float - Mean Absolute Error on test set.
+- **cv_r2_mean**: float - Mean R² from 5-fold cross-validation.
+- **cv_r2_std**: float - Standard deviation of R² from 5-fold cross-validation.
+- **permutation_p_value**: float - P-value from the Delta-Permutation Test (Additive vs. Interaction).
+- **shap_top_features**: list[string] - Top 5 feature names by Shapley value.
+- **timestamp**: string - ISO 8601 timestamp of generation.
 
 ## Data Flow
 
-1. **Ingestion**: Load `ExperimentRecord` from `data/raw/alloy_data.csv` (or generated synthetic file).  
-2. **Cleaning**: Impute missing composition values with column means; drop rows missing `cold_work_pct` or `time_to_peak`.  
-3. **Outlier Clipping**: Cap `time_to_peak` > 1000 h to the 99th percentile; log clipped rows.  
-4. **Engineering**: Create `EngineeredFeatureSet`. `time_to_peak_norm` is **optional** and **excluded** from any training or metric calculation.  
-5. **Split**: 80/20 train / test (seed = 42).  
-6. **Training & Validation**: Random Forest on `features_vector` → `raw_target`.  
-7. **Statistical Testing**: Permutation test comparing additive vs. interaction model (see research.md).  
-8. **Output**: Write `ModelPerformanceMetrics` to `results/metrics.json`.
+1. **Ingestion**: `generate_synthetic.py` -> `raw_synthetic.csv`
+2. **Cleaning**: `ingest.py` (imputation, outlier clipping) -> `cleaned_data.csv`
+3. **Engineering**: `engineer.py` (interaction terms) -> `engineered_features.csv`
+4. **Modeling**: `train.py` -> `model.pkl`, `metrics.json`
+5. **Analysis**: `evaluate.py` -> `shap_summary.json`, `permutation_test.json`
 
-## Assumptions & Constraints
+## Constraints & Validation Rules
 
-* **Units**: Time in minutes, temperature in Kelvin.  
-* **Missing Data**: Composition missing → mean imputation; `cold_work_pct` or `time_to_peak` missing → row removal.  
-* **Collinearity**: Interaction terms are derived from main effects; importance interpreted descriptively.  
-* **Normalization**: `time_to_peak_norm` is for visualization only; all success criteria are computed on the raw target to avoid leakage.  
+- **Null Handling**: No null values allowed in predictor columns. Rows with missing composition data must be imputed (mean) or dropped.
+- **Range Checks**:
+  - `cold_work_pct`: [0, 100]
+  - `time_to_peak_min`: > 0
+- **Minimum Size**: Dataset must have >= 50 rows before training (FR-008).
+- **Outlier Clipping**: Values > 99th percentile of `time_to_peak_min` must be capped and flagged.
+- **Sample Size**: Dataset must have >= 500 rows to ensure statistical power for the permutation test (Research Plan).

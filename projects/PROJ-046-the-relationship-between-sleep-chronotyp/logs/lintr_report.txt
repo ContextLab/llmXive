@@ -1,0 +1,7 @@
+Lintr Scan Report for /project
+==================================================
+
+Files scanned: 15
+Total issues found: 0
+
+No issues found. Code cleanup successful.

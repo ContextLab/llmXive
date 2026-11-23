@@ -17,7 +17,6 @@ properties:
   participant_id:
     type: string
     description: Unique identifier for the human participant.
-    type: string
   text_sample_id:
     type: string
     description: Reference to the text sample being rated.

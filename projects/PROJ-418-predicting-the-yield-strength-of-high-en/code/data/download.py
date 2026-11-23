@@ -1,69 +1,83 @@
 """
-Data downloader module for HEA compositions dataset.
+data/download.py
+-----------------
+Implements the strict "Fail Loudly" logic for acquiring the user‑provided
+HEA yield‑strength dataset.
+
+The script expects the raw dataset CSV to be present at
+``data/raw/heas_raw.csv``.  If the file is missing or unreadable, a
+``FileNotFoundError`` is raised with an explicit, user‑facing error
+message.  This message is documented verbatim in the project README
+(see ``README.md``) so that users know exactly what to look for.
+
+The function returns the string ``"SUCCESS"`` when the file exists.
 """
+
 import os
-import sys
-import pandas as pd
 from typing import Optional
 
-# Add project root to path
-_project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-if _project_root not in sys.path:
-    sys.path.insert(0, _project_root)
-
 from utils.logging import get_logger
-from utils.config import ensure_dataset_url_exists, get_config
+from utils.config import get_config
 
-logger = get_logger(__name__)
+# ----------------------------------------------------------------------
+# Constants
+# ----------------------------------------------------------------------
+DEFAULT_DATASET_REL_PATH = os.path.join("data", "raw", "heas_raw.csv")
+MISSING_DATASET_ERROR_MSG = (
+    f"FileNotFoundError: Required dataset file '{DEFAULT_DATASET_REL_PATH}' not found. "
+    "Please place the dataset at this path before running the pipeline."
+)
 
-def download_dataset() -> Optional[str]:
+# ----------------------------------------------------------------------
+# Public API
+# ----------------------------------------------------------------------
+def download_dataset(dataset_path: Optional[str] = None) -> str:
     """
-    Download the HEA compositions dataset from the verified URL.
-    
-    Returns:
-        Path to the downloaded CSV file, or None if download failed.
-    
-    Raises:
-        RuntimeError: If no verified URL is configured (DATA_SOURCE_MISSING).
-        RuntimeError: If download fails due to network or data issues.
+    Validate the presence of the user‑provided dataset.
+
+    Parameters
+    ----------
+    dataset_path : str, optional
+        Path to the raw CSV file.  If ``None`` the default location
+        ``data/raw/heas_raw.csv`` is used.
+
+    Returns
+    -------
+    str
+        ``"SUCCESS"`` if the file is present.
+
+    Raises
+    ------
+    FileNotFoundError
+        If the CSV file does not exist at the expected location.
     """
-    config = get_config()
-    paths = config.get('paths', {})
-    raw_data_dir = paths.get('raw_data', 'data/raw')
-    os.makedirs(raw_data_dir, exist_ok=True)
-    
-    dataset_name = 'hea_compositions'
-    
-    # CRITICAL: Strictly enforce verified URL existence. 
-    # No fallbacks, no local file loading, no public search.
-    try:
-        url = ensure_dataset_url_exists(dataset_name)
-    except RuntimeError as e:
-        # Log the specific missing requirement and raise with explicit error code context
-        logger.error(f"DATA_SOURCE_MISSING: {str(e)}")
-        raise RuntimeError(f"DATA_SOURCE_MISSING: {str(e)}") from e
-    
-    output_path = os.path.join(raw_data_dir, 'hea_raw.csv')
-    
-    try:
-        logger.info(f"Downloading dataset from verified source: {url}")
-        
-        # Fetch data from the real URL
-        df = pd.read_csv(url)
-        
-        # Verify we got data
-        if df.empty:
-            raise RuntimeError("Downloaded dataset is empty.")
-        
-        # Save to local raw directory
-        df.to_csv(output_path, index=False)
-        
-        logger.info(f"Dataset downloaded successfully to {output_path}")
-        logger.info(f"Dataset shape: {df.shape}")
-        logger.info(f"Columns: {list(df.columns)}")
-        
-        return output_path
-        
-    except Exception as e:
-        logger.error(f"Failed to download or process dataset: {e}")
-        raise RuntimeError(f"Failed to download dataset: {e}") from e
+    logger = get_logger(__name__)
+
+    # Resolve the path: honour an explicit argument, otherwise fall back to the
+    # default location used throughout the project.
+    path_to_check = dataset_path or DEFAULT_DATASET_REL_PATH
+    logger.debug("Checking for user‑provided dataset at %s", path_to_check)
+
+    if not os.path.isfile(path_to_check):
+        # Raising with the exact message required by the README.
+        raise FileNotFoundError(MISSING_DATASET_ERROR_MSG)
+
+    logger.info("User‑provided dataset found at %s", path_to_check)
+    return "SUCCESS"
+
+
+def main() -> None:
+    """
+    Entry‑point for ``python -m code.data.download``.
+
+    The function simply calls :func:`download_dataset` and prints the
+    returned status.  Any ``FileNotFoundError`` bubbles up, causing the
+    process to abort with a non‑zero exit code – exactly what the
+    verification step expects.
+    """
+    status = download_dataset()
+    print(status)
+
+
+if __name__ == "__main__":
+    main()

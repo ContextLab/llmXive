@@ -63,8 +63,8 @@ projects/PROJ-513-the-impact-of-social-comparison-on-self-/
 │   └── simulate_participant.py  # Mock data generation for testing
 ├── data/
 │   ├── stimuli/                 # AI and Human images (static assets)
-│   │   ├── ai/                  # 20 images
-│   │   ├── human/               # 20 images
+│   │   ├── ai/                  # a subset of images
+│   │   ├── human/               # a set of images
 │   │   └── metadata.json        # Match groups, pose, lighting info, generation prompts
 │   ├── pretest/                 # Blind pre-test results (FR-009)
 │   │   └── results.json         # Indistinguishability p-value
@@ -88,7 +88,7 @@ projects/PROJ-513-the-impact-of-social-comparison-on-self-/
 |-----------|------------|-------------------------------------|
 | **LME vs. ANOVA** | The design is within-subjects with nested covariates (Participant ID random intercept). ANOVA cannot handle missing data or unbalanced designs robustly. | ANOVA would require complete-case analysis, reducing power and violating FR-007 (missing data exclusion) by potentially discarding too much data. |
 | **Random Slopes** | Participant-specific responses to AI vs. Human images may vary. | A random intercept-only model assumes a fixed effect across all participants, which may inflate Type I error if slopes vary. We include random slopes for Image Type. |
-| **Pre-generated Assets** | FR-006 mandates no on-the-fly generation. | Real-time generation would exceed the 6-hour CI limit and require GPU, violating compute constraints. |
+| **Pre-generated Assets** | FR-006 mandates no on-the-fly generation. | Real-time generation would exceed the computational time limit and require GPU, violating compute constraints. |
 
 ## Phases
 

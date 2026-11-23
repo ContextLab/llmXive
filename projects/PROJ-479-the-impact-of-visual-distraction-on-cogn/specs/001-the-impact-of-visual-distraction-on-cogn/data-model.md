@@ -2,76 +2,60 @@
 
 ## Overview
 
-This document defines the data structures used throughout the project, from raw ingestion to final analysis output. The model is designed to support the synthetic data generation strategy while remaining compatible with real-world data if available.
+This document defines the data structures, schemas, and relationships used throughout the project. It ensures data integrity, reproducibility, and alignment with the functional requirements (FRs) and success criteria (SCs).
 
-## Entity-Relationship Diagram
+## Entities
 
-```mermaid
-erDiagram
-    PARTICIPANT ||--o{ VISUAL_METRIC : "has"
-    PARTICIPANT ||--o{ COGNITIVE_METRIC : "has"
-    VISUAL_METRIC {
-        string metric_name
-        float value
-        string image_source
-    }
-    COGNITIVE_METRIC {
-        string task_name
-        string metric_type
-        float value
-        int trial_count
-    }
-```
+### 1. Participant
+Represents an individual in the study (from OpenML).
+- **Attributes**:
+  - `participant_id` (int): Unique identifier.
+  - `reaction_time` (float): Mean reaction time in milliseconds.
+  - `accuracy` (float): Proportion of correct trials (0.0 - 1.0).
+  - `error_rate` (float): 1 - accuracy.
+  - `environment_tag` (str): Environment tag from OpenML (e.g., "Home", "Office").
 
-## Schema Definitions
+### 2. Image
+Represents a workspace image (from Unsplash).
+- **Attributes**:
+  - `image_id` (str): Unique identifier from Unsplash.
+  - `file_path` (str): Local path to the downloaded image (sanitized, e.g., `img_<hash>.jpg`).
+  - `environment_tag` (str): Environment tag from Unsplash (e.g., "Home Office", "Open Plan").
+  - `lighting_condition` (str): Lighting condition from Unsplash metadata.
+  - `layout_description` (str): Layout description from Unsplash metadata.
+  - **PII Note**: EXIF data is stripped and filename is hashed upon download to prevent PII leakage.
 
-### 1. Participant Record (Intermediate)
+### 3. VisualComplexityMetric
+Represents a computed visual complexity measure.
+- **Attributes**:
+  - `metric_name` (str): One of `edge_density`, `color_entropy`, `object_count`.
+  - `value` (float): The computed metric value.
+  - `image_id` (str): Foreign key to Image.
 
-Represents a single unit of analysis after data merging. Includes metadata required by Constitution Principle VII (Ecological Sampling Integrity).
+### 4. LinkedRecord
+Represents a participant-image pair linked via proxy.
+- **Attributes**:
+  - `participant_id` (int): Foreign key to Participant.
+  - `image_id` (str): Foreign key to Image.
+  - `link_method` (str): "Proxy" (based on environment_tag).
 
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `participant_id` | `string` | Unique identifier (e.g., "P001") | PK, Not Null |
-| `reaction_time` | `float` | Mean reaction time (ms) | ≥ 0, ≤ 5% missing |
-| `accuracy` | `float` | Mean accuracy (0.0 - 1.0) | [0.0, 1.0], ≤ 5% missing |
-| `error_rate` | `float` | 1 - accuracy | Derived |
-| `workspace_image_path` | `string` | Relative path to image | Not Null |
-| `lighting_condition` | `string` | Simulated lighting (low/medium/high) | Required for Principle VII |
-| `room_type` | `string` | Simulated room type | Required for Principle VII |
-| `demographic_group` | `string` | Simulated demographic group | Required for Principle VII |
-
-### 2. Visual Complexity Metrics (Derived)
-
-Computed per participant.
-
-| Field | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `participant_id` | `string` | FK to Participant | PK |
-| `edge_density` | `float` | Normalized edge proportion | [0.0, 1.0] |
-| `color_entropy` | `float` | Shannon entropy of color hist. | ≥ 0.0 |
-| `object_count` | `int` | Count of detected objects | ≥ 0, Can be NaN if detection fails |
-
-### 3. Analysis Output (Final)
-
-Results of the statistical pipeline.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `metric_pair` | `string` | e.g., "edge_density_vs_reaction_time" |
-| `correlation_r` | `float` | Pearson r value |
-| `p_value_raw` | `float` | Raw p-value |
-| `p_value_adj` | `float` | Holm-Bonferroni adjusted p-value |
-| `beta_coef` | `float` | Regression coefficient (if significant) |
-| `ci_lower` | `float` | 95% CI lower bound |
-| `ci_upper` | `float` | 95% CI upper bound |
-| `bootstrap_ci` | `list` | [lower, upper] from 1000 resamples |
-| `vif_score` | `float` | Variance Inflation Factor (if multi-reg) |
-| `pca_component_1` | `float` | First principal component score (if VIF ≥ 5) |
+### 5. CognitivePerformanceMetric
+Represents a cognitive task outcome.
+- **Attributes**:
+  - `task_name` (str): `Stroop` or `Flanker`.
+  - `metric_type` (str): `accuracy` or `reaction_time`.
+  - `value` (float): The measured value.
+  - `participant_id` (int): Foreign key to Participant.
 
 ## Data Flow
 
-1.  **Ingestion**: Synthetic generator creates `raw/participants.csv` and `raw/images/` (using Pillow).
-2.  **Processing**: `02_visual_metrics.py` reads images, computes metrics, writes `processed/visual_metrics.csv`.
-3.  **Merging**: `01_data_acquisition.py` merges participant cognitive data with visual metrics on `participant_id`.
-4.  **Analysis**: `03_analysis.py` consumes merged data, outputs `results/statistics.json`.
-5.  **Validation**: `tests/contract/` validates `results/statistics.json` against `contracts/analysis_output.schema.yaml`.
+1.  **Raw Data**: Download OpenML cognitive data and Unsplash images.
+2.  **Metadata Extraction**: Extract environment tags and lighting conditions from Unsplash API.
+3.  **Metrics Extraction**: `02_visual_metrics.py` processes images to generate `VisualComplexityMetric` records.
+4.  **Proxy Linkage**: `01_data_acquisition.py` links participants and images based on `environment_tag`.
+5.  **Analysis**: `03_analysis.py` and `04_sensitivity.py` process the linked dataset.
+6.  **Results**: Outputs are stored in `results/statistics/` and `results/figures/`.
+
+## Schema Definitions
+
+See `contracts/` for formal YAML schemas.

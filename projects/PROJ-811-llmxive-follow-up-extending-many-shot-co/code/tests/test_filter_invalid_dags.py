@@ -1,9 +1,10 @@
 """
-Tests for the filter_invalid_dags.py script functionality.
+Tests for filter_invalid_dags.py (T017 implementation).
 
-These tests verify that invalid traces (cycles, invalid flags) are 
-correctly removed from the DAG manifest.
+These tests verify that invalid traces (cycles, threshold violations) are
+correctly identified and excluded from the DAG manifest.
 """
+
 import json
 import tempfile
 from pathlib import Path
@@ -12,178 +13,241 @@ import pytest
 import sys
 import os
 
-# Add code directory to path
+# Add code directory to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from scripts.filter_invalid_dags import (
+from code.scripts.filter_invalid_dags import (
     load_manifest,
+    is_entry_valid,
     filter_invalid_entries,
-    save_manifest,
-    main
+    save_manifest
 )
-from src.parser_utils import load_json_file, save_json_file
 
 @pytest.fixture
 def sample_manifest():
     """Create a sample manifest with valid and invalid entries."""
     return {
-        "metadata": {
-            "version": "1.0",
-            "generated_by": "test"
+        'metadata': {
+            'total_entries': 5,
+            'generation_timestamp': '2024-01-01T00:00:00Z'
         },
-        "entries": [
+        'entries': [
             {
-                "trace_id": "valid_1",
-                "is_valid": True,
-                "cycle_detected": False,
-                "depth": 5,
-                "content": "valid trace 1"
+                'trace_id': 'valid_1',
+                'is_valid': True,
+                'dag': {
+                    'nodes': [{'id': '1', 'text': 'Step 1'}],
+                    'edges': []
+                }
             },
             {
-                "trace_id": "invalid_cycle",
-                "is_valid": True,  # Explicitly valid but has cycle
-                "cycle_detected": True,
-                "depth": 3,
-                "content": "trace with cycle"
+                'trace_id': 'invalid_cycle',
+                'has_cycle': True,
+                'invalid_reason': 'Cycle detected between nodes 2 and 3',
+                'dag': {
+                    'nodes': [
+                        {'id': '1', 'text': 'Step 1'},
+                        {'id': '2', 'text': 'Step 2'},
+                        {'id': '3', 'text': 'Step 3'}
+                    ],
+                    'edges': [
+                        {'from': '1', 'to': '2'},
+                        {'from': '2', 'to': '3'},
+                        {'from': '3', 'to': '2'}  # Cycle
+                    ]
+                }
             },
             {
-                "trace_id": "invalid_flag",
-                "is_valid": False,
-                "cycle_detected": False,
-                "depth": 4,
-                "content": "invalid trace"
+                'trace_id': 'valid_2',
+                'is_valid': True,
+                'dag': {
+                    'nodes': [{'id': '1', 'text': 'Step 1'}],
+                    'edges': []
+                }
             },
             {
-                "trace_id": "valid_2",
-                "is_valid": True,
-                "cycle_detected": False,
-                "depth": 6,
-                "content": "valid trace 2"
+                'trace_id': 'invalid_threshold',
+                'invalid_reason': 'Threshold violation: >3 incoming edges',
+                'dag': {
+                    'nodes': [{'id': '1', 'text': 'Step 1'}],
+                    'edges': []
+                }
             },
             {
-                "trace_id": "double_invalid",
-                "is_valid": False,
-                "cycle_detected": True,
-                "depth": 2,
-                "content": "double invalid"
+                'trace_id': 'valid_3',
+                'is_valid': True,
+                'dag': {
+                    'nodes': [
+                        {'id': '1', 'text': 'Step 1'},
+                        {'id': '2', 'text': 'Step 2'}
+                    ],
+                    'edges': [{'from': '1', 'to': '2'}]
+                }
             }
         ]
     }
 
 @pytest.fixture
 def temp_manifest_file(sample_manifest):
-    """Create a temporary manifest file."""
+    """Create a temporary file with the sample manifest."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
         json.dump(sample_manifest, f)
         temp_path = Path(f.name)
-    
     yield temp_path
-    
     # Cleanup
-    if temp_path.exists():
-        temp_path.unlink()
+    temp_path.unlink(missing_ok=True)
 
 def test_load_manifest_success(temp_manifest_file, sample_manifest):
-    """Test successful loading of manifest."""
+    """Test successful loading of a manifest."""
     manifest = load_manifest(temp_manifest_file)
     assert manifest == sample_manifest
-    assert len(manifest["entries"]) == 5
+    assert 'entries' in manifest
+    assert len(manifest['entries']) == 5
 
 def test_load_manifest_not_found():
-    """Test loading non-existent file raises error."""
-    non_existent = Path("/tmp/non_existent_manifest.json")
+    """Test loading a non-existent file raises FileNotFoundError."""
     with pytest.raises(FileNotFoundError):
-        load_manifest(non_existent)
+        load_manifest(Path('/nonexistent/path/manifest.json'))
 
 def test_filter_invalid_entries(sample_manifest):
-    """Test that invalid entries are correctly filtered."""
-    filtered_manifest, removed_ids = filter_invalid_entries(sample_manifest)
+    """Test that invalid entries are correctly filtered out."""
+    filtered_manifest, valid_count, invalid_count = filter_invalid_entries(sample_manifest)
     
-    # Should remove 3 invalid entries: invalid_cycle, invalid_flag, double_invalid
-    assert len(removed_ids) == 3
-    assert set(removed_ids) == {"invalid_cycle", "invalid_flag", "double_invalid"}
+    # Should have 3 valid entries (valid_1, valid_2, valid_3)
+    assert valid_count == 3
+    assert invalid_count == 2
     
-    # Remaining entries should be valid
-    assert len(filtered_manifest["entries"]) == 2
-    remaining_ids = {e["trace_id"] for e in filtered_manifest["entries"]}
-    assert remaining_ids == {"valid_1", "valid_2"}
+    # Check that valid entries are preserved
+    trace_ids = [entry['trace_id'] for entry in filtered_manifest['entries']]
+    assert 'valid_1' in trace_ids
+    assert 'valid_2' in trace_ids
+    assert 'valid_3' in trace_ids
     
-    # Metadata should be updated
-    assert filtered_manifest["metadata"]["filtered_count"] == 3
-    assert filtered_manifest["metadata"]["valid_count"] == 2
-    assert set(filtered_manifest["metadata"]["removed_trace_ids"]) == set(removed_ids)
+    # Check that invalid entries are excluded
+    assert 'invalid_cycle' not in trace_ids
+    assert 'invalid_threshold' not in trace_ids
+    
+    # Check metadata updates
+    assert filtered_manifest['metadata']['valid_entries'] == 3
+    assert filtered_manifest['metadata']['invalid_entries'] == 2
+    assert filtered_manifest['metadata']['total_entries'] == 5
 
 def test_filter_all_valid():
     """Test filtering when all entries are valid."""
     manifest = {
-        "metadata": {"version": "1.0"},
-        "entries": [
-            {"trace_id": "v1", "is_valid": True, "cycle_detected": False},
-            {"trace_id": "v2", "is_valid": True, "cycle_detected": False}
+        'metadata': {'total_entries': 2},
+        'entries': [
+            {'trace_id': 'v1', 'is_valid': True, 'dag': {'nodes': [], 'edges': []}},
+            {'trace_id': 'v2', 'is_valid': True, 'dag': {'nodes': [], 'edges': []}}
         ]
     }
     
-    filtered, removed = filter_invalid_entries(manifest)
-    
-    assert len(removed) == 0
-    assert len(filtered["entries"]) == 2
+    filtered, valid_count, invalid_count = filter_invalid_entries(manifest)
+    assert valid_count == 2
+    assert invalid_count == 0
+    assert len(filtered['entries']) == 2
 
 def test_filter_all_invalid():
     """Test filtering when all entries are invalid."""
     manifest = {
-        "metadata": {"version": "1.0"},
-        "entries": [
-            {"trace_id": "i1", "is_valid": False, "cycle_detected": False},
-            {"trace_id": "i2", "is_valid": True, "cycle_detected": True}
+        'metadata': {'total_entries': 2},
+        'entries': [
+            {'trace_id': 'i1', 'has_cycle': True},
+            {'trace_id': 'i2', 'invalid_reason': 'Threshold violation'}
         ]
     }
     
-    filtered, removed = filter_invalid_entries(manifest)
-    
-    assert len(removed) == 2
-    assert len(filtered["entries"]) == 0
-    assert filtered["metadata"]["valid_count"] == 0
+    filtered, valid_count, invalid_count = filter_invalid_entries(manifest)
+    assert valid_count == 0
+    assert invalid_count == 2
+    assert len(filtered['entries']) == 0
 
-def test_save_manifest(temp_manifest_file, sample_manifest):
-    """Test saving manifest to file."""
+def test_save_manifest(sample_manifest):
+    """Test saving a manifest to a file."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-        output_path = Path(f.name)
+        temp_path = Path(f.name)
     
     try:
-        save_manifest(sample_manifest, output_path)
-        assert output_path.exists()
+        save_manifest(sample_manifest, temp_path)
+        
+        # Verify file was created
+        assert temp_path.exists()
         
         # Verify content
-        loaded = load_json_file(output_path)
+        with open(temp_path, 'r') as f:
+            loaded = json.load(f)
+        
         assert loaded == sample_manifest
     finally:
-        if output_path.exists():
-            output_path.unlink()
+        temp_path.unlink(missing_ok=True)
 
-@patch('scripts.filter_invalid_dags.get_config')
-@patch('scripts.filter_invalid_dags.load_manifest')
-@patch('scripts.filter_invalid_dags.filter_invalid_entries')
-@patch('scripts.filter_invalid_dags.save_manifest')
-def test_main_success(mock_save, mock_filter, mock_load, mock_config, 
-                     sample_manifest, temp_manifest_file):
-    """Test main function successful execution."""
-    # Setup mocks
-    mock_config.return_value.get_processed_dir.return_value = temp_manifest_file.parent
-    mock_load.return_value = sample_manifest
-    mock_filter.return_value = (sample_manifest, [])
-    
-    result = main()
-    
-    assert result == 0
-    mock_load.assert_called_once()
-    mock_filter.assert_called_once()
-    mock_save.assert_called_once()
+def test_is_entry_valid_cycle_detection():
+    """Test that entries with cycles are marked invalid."""
+    entry = {
+        'trace_id': 'test',
+        'has_cycle': True,
+        'invalid_reason': 'Cycle detected'
+    }
+    is_valid, reason = is_entry_valid(entry)
+    assert not is_valid
+    assert 'cycle' in reason.lower()
 
-@patch('scripts.filter_invalid_dags.get_config')
-def test_main_file_not_found(mock_config, temp_manifest_file):
-    """Test main function when manifest not found."""
-    mock_config.return_value.get_processed_dir.return_value = Path("/nonexistent")
-    
-    result = main()
-    
-    assert result == 1
+def test_is_entry_valid_threshold_violation():
+    """Test that entries with threshold violations are marked invalid."""
+    entry = {
+        'trace_id': 'test',
+        'invalid_reason': 'Threshold violation: >3 incoming edges'
+    }
+    is_valid, reason = is_entry_valid(entry)
+    assert not is_valid
+    assert 'threshold' in reason.lower()
+
+def test_is_entry_valid_explicit_flag():
+    """Test that explicitly marked invalid entries are rejected."""
+    entry = {
+        'trace_id': 'test',
+        'is_valid': False,
+        'invalid_reason': 'Custom reason'
+    }
+    is_valid, reason = is_entry_valid(entry)
+    assert not is_valid
+
+def test_is_entry_valid_valid_entry():
+    """Test that valid entries are accepted."""
+    entry = {
+        'trace_id': 'test',
+        'is_valid': True,
+        'dag': {
+            'nodes': [{'id': '1', 'text': 'Step 1'}],
+            'edges': []
+        }
+    }
+    is_valid, reason = is_entry_valid(entry)
+    assert is_valid
+    assert reason == "Valid"
+
+def test_is_entry_valid_missing_structure():
+    """Test that entries missing DAG structure are rejected."""
+    entry = {
+        'trace_id': 'test',
+        'is_valid': True,
+        'dag': {}  # Missing nodes/edges
+    }
+    is_valid, reason = is_entry_valid(entry)
+    assert not is_valid
+    assert 'structure' in reason.lower()
+
+def test_is_entry_valid_empty_nodes():
+    """Test that entries with empty nodes in non-empty trace are rejected."""
+    entry = {
+        'trace_id': 'test',
+        'is_valid': True,
+        'dag': {
+            'nodes': [],
+            'edges': [],
+            'trace_length': 5
+        }
+    }
+    is_valid, reason = is_entry_valid(entry)
+    assert not is_valid
+    assert 'no nodes' in reason.lower()

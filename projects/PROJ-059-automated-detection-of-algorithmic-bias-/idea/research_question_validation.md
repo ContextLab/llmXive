@@ -1,25 +1,31 @@
 ## Research-question validation
 
 ### Phenomenon-vs-method check
+
 **Verdict**: pass
-The question asks about a substantive relationship between developer semantic choices (naming/comments) and algorithmic behavior (fairness metrics), independent of the specific NLP tools or static analysis methods used to measure them. While the methodology sketch mentions specific libraries (VADER, AIF360), the core inquiry is whether a predictive signal exists in the source code itself, not whether a specific tool can find it.
+
+The question asks about a substantive relationship between semantic choices in source code (naming conventions, comments) and downstream algorithmic behavior (fairness metrics). It does not frame the inquiry around whether a specific tool or architecture can perform the analysis within a budget, but rather whether the correlation exists as a phenomenon in software engineering.
 
 ### Circularity check
-**Verdict**: concern
-The predictor (textual artifacts like variable names) and the predicted variable (fairness metrics) are nominally distinct, but the construction of the ground truth introduces a risk of circularity. The methodology proposes "simulating" fairness metrics using synthetic data that "mimics the repository's domain." If the synthetic data generation logic inadvertently relies on the same semantic patterns found in the code (e.g., generating biased synthetic labels because the code *says* it handles a specific demographic), the correlation becomes mechanically guaranteed. The independence of the synthetic data generation from the code's textual content must be strictly verified to avoid this.
+
+**Verdict**: pass
+
+The predictor (textual bias score) is derived exclusively from static code artifacts (variable names and comments), while the predicted variable (fairness metrics) is computed by executing the code against synthetic, domain-neutral data generated independently. Since the synthetic data contains no information from the code's text, the predictive relationship is not mechanically guaranteed by shared signal sources.
 
 ### Triviality check
-**Verdict**: pass
-A positive result (textual bias correlates with algorithmic bias) would support the hypothesis that social biases in design are encoded in code semantics, validating early-warning systems. A null result (no correlation) would be equally informative, suggesting that algorithmic bias arises from mathematical implementation or data choices rather than developer semantics, thereby redirecting auditing efforts away from code review. Both outcomes challenge current assumptions in the field.
+
+**Verdict**: concern
+
+While a positive correlation would support the hypothesis that "soft" signals predict bias, a null result might be trivially explained by the fact that many biased algorithms use neutral variable names (e.g., `user_id`, `score`), and many biased outcomes stem from data distributions rather than code semantics. If the community already widely accepts that variable names are poor proxies for logic errors, a null result might be seen as "expected" rather than informative, though a strong positive result would be novel.
 
 ### Question-narrowing check
+
 **Verdict**: pass
-The question clearly names a domain relationship: the link between "textual artifacts" and "downstream algorithmic fairness metrics." It does not frame the inquiry around whether a specific model (e.g., "Can BERT detect...") works within a budget, but rather asks about the existence and strength of the correlation itself.
+
+The question names a clear domain relationship: the predictive power of textual artifacts for algorithmic fairness. It avoids implementation constraints like "Can tool X do this in Y minutes?" and instead asks "To what extent do X correlate with Y?", which is a valid scientific inquiry into software quality.
 
 ### Overall verdict
-**Verdict**: validator_revise
-The core idea is sound, but the methodology sketch contains a potential circularity flaw regarding how the "ground truth" fairness metrics are generated for the correlation analysis. To ensure the predictor and target are truly independent, the validation step must explicitly decouple the synthetic data generation from the code's textual semantics.
-[REVISED]
-To what extent do variable naming conventions and developer comments in open-source Python projects correlate with downstream algorithmic fairness metrics computed on independently generated, domain-neutral synthetic datasets, serving as reliable early signals of biased design choices?
-[/REVISED]
-This reframing explicitly mandates that the ground truth data be generated independently of the code's textual content, breaking the potential circular loop while preserving the original research goal.
+
+**Verdict**: validated
+
+The core research question is sound and addresses a genuine gap between static code analysis and dynamic fairness auditing. While the triviality check raises a minor concern about the informativeness of a null result (due to the likely prevalence of neutral-named biased code), the potential for discovering a strong, actionable early-warning signal makes the inquiry valuable. The project is cleared to proceed to initialization.

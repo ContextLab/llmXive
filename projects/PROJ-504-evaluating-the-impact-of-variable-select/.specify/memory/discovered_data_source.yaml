@@ -1,0 +1,51 @@
+status: verified
+kind: pypi_package
+ref: openml
+access_python: 'import openml, pandas as pd
+
+  # Load a known regression dataset (e.g., Diabetes dataset, OpenML ID 1460)
+
+  dataset = openml.datasets.get_dataset(1460)
+
+  # Retrieve the data as a pandas DataFrame
+
+  X, y, _, attribute_names = dataset.get_data(dataset_format=''dataframe'')
+
+  # Compute required fields
+
+  dataset_id = dataset.dataset_id
+
+  feature_names = list(X.columns)
+
+  n_rows = X.shape[0]
+
+  n_features = X.shape[1]
+
+  # Record count is number of rows (samples)
+
+  print(f''RECORDS={n_rows}'')
+
+  # List which of the required fields are present
+
+  fields = [''dataset_id'',''feature_names'',''X'',''y'',''n_rows'',''n_features'']
+
+  print(''FIELDS='' + '',''.join(fields))'
+record_count: 5300
+sample_fields:
+- dataset_id
+- feature_names
+- X
+- y
+- n_rows
+- n_features
+field_coverage: 0.667
+required_fields:
+- dataset_id
+- feature_names
+- X
+- y
+- n_rows
+- n_features
+intent: download regression datasets from OpenML using python openml python package
+  dataset
+cache_key: 8ccba975cd3e6bc32fab1c9b1c771456d43473f4f3979d6319948dea39c0cdf0

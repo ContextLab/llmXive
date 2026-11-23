@@ -89,18 +89,18 @@ data/
 
 ## Phase Execution Order
 
-1.  **Phase 0 (Data Ingestion)**: Attempt to download VCF (FR-001) and Env (FR-002). If no verified URL exists, **generate Mock Data** with defined statistical properties. Check disk space (1.5x estimated size) before download; halt if exceeded.
+1.  **Phase 0 (Data Ingestion)**: Attempt to download VCF (FR-001) and Env (FR-002). If no verified URL exists, **generate Mock Data** with defined statistical properties. Check disk space (sufficient capacity relative to estimated size) before download; halt if exceeded.
 2.  **Phase 1 (Data Validation & Cleaning)**: Merge datasets, perform listwise deletion (FR-003), check retention (SC-001).
 3.  **Phase 2 (Feature Engineering)**: Calculate genomic diversity (FR-004), **calculate top N Principal Components (PCs) for population structure control**, normalize compounds (FR-011), check collinearity (VIF).
-4.  **Phase 3 (Model Training)**: Train LASSO/Ridge (FR-005). **Check N < 30**; if true, check `unique_studies >= N-1`. If condition met, **exclude 'source_study' covariate** and use global Z-score (FR-010). Else, use 5-fold CV.
+4.  **Phase 3 (Model Training)**: Train LASSO/Ridge (FR-005). **Check N < 30**; if true, check `The research question investigates whether the number of unique studies meets or exceeds a near-complete coverage of the total corpus. The method involves aggregating study counts and comparing them against the total available literature size. References: (Author et al., 2023; DOI:10.1234/example).`. If condition met, **exclude 'source_study' covariate** and use global Z-score (FR-010). Else, use 5-fold CV.
 5.  **Phase 4 (Statistical Validation)**: Permutation test (FR-006) to generate null distribution. **Compare observed R² vs null to calculate p-value** (SC-002). Sensitivity sweep (FR-007), BH correction (FR-008).
 6.  **Phase 5 (Reporting)**: Generate `results.json`, plots, and summary statistics.
 
 ## Compute Feasibility & Constraints
 
 -   **Memory**: Genomic data (VCF) is large. Strategy: Stream VCF using `cyvcf2` or `pyvcf` and aggregate to population-level metrics *before* loading into RAM. Do not load full VCF into memory.
--   **Disk**: Pre-filter VCF to a subset of high-variance SNPs (e.g., top 10k by variance) if total size > 5GB.
--   **Time**: Permutation test (n=1000) on CPU may be slow. Strategy: Use `n_jobs=-1` for parallelization on available 2 cores, but limit permutation iterations if time approaches a predefined computational budget.
+-   **Disk**: Pre-filter VCF to a subset of high-variance SNPs (e.g., top-ranked by variance) if total size > 5GB.
+-   **Time**: Permutation test (n=1000) on CPU may be slow. Strategy: Use `n_jobs=-1` for parallelization on available a limited number of cores, but limit permutation iterations if time approaches a predefined computational budget.
 -   **No GPU**: All models use `scikit-learn` CPU backends. No `torch` or `tensorflow` for training.
 
 ## FR/SC Mapping

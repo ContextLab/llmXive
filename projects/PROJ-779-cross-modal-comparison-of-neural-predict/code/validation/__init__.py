@@ -1,14 +1,23 @@
 """
 Validation module for cross-modal comparison of neural prediction error signals.
 
-This module contains functions for data integrity checks, reliability analysis,
-and constitution compliance verification.
+This module contains functions for reliability analysis and data validation.
 """
 
-from typing import TYPE_CHECKING
+from .reliability import (
+    ReliabilityError,
+    split_half_reliability,
+    cronbachs_alpha,
+    compute_reliability_metrics,
+    save_reliability_results,
+    main as reliability_main
+)
 
-if TYPE_CHECKING:
-    # Avoid circular imports at runtime
-    pass
-
-__all__ = []
+__all__ = [
+    'ReliabilityError',
+    'split_half_reliability',
+    'cronbachs_alpha',
+    'compute_reliability_metrics',
+    'save_reliability_results',
+    'reliability_main'
+]

@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DatasetMetadata"
+description: "Metadata for a loaded dataset."
+type: "object"
+properties:
+  dataset_id:
+    type: "string"
+    description: "Unique identifier for the dataset."
+  source_url:
+    type: "string"
+    description: "Verified URL for the dataset source."
+    pattern: "^https://.*"
+  variable_names:
+    type: "object"
+    description: "Mapping of variable names to their type."
+    properties:
+      continuous:
+        type: "array"
+        description: "List of continuous variable names."
+        items:
+          type: "string"
+      categorical:
+        type: "array"
+        description: "List of categorical variable names."
+        items:
+          type: "string"
+    required:
+      - "continuous"
+      - "categorical"
+    additionalProperties: false
+  target_column:
+    type: "string"
+    description: "Name of the target/label column used for testing."
+  data_type:
+    type: "string"
+    description: "Overall data type classification."
+    enum:
+      - "mixed"
+      - "continuous"
+      - "categorical"
+required:
+  - "dataset_id"
+  - "source_url"
+  - "variable_names"
+  - "target_column"
+  - "data_type"
+additionalProperties: false

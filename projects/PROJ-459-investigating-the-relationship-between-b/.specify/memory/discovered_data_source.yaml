@@ -1,0 +1,14 @@
+status: none
+intent: download OpenNeuro ds000030 ds000208 resting-state fMRI with Schaefer-400
+  atlas python package dataset
+required_fields:
+- subject_id
+- resting_state_fmri_preprocessed_path
+- confound_regressors_path
+- schaefer_400_roi_timecourses_matrix
+- musical_genre_preference
+- STOMP_R_proxy
+- additional_behavioral_variables
+cache_key: 41eab8da8241dd7d710286ea1df36172c274965a71b1bb0b3cf6e8e41163571f
+searched_at: '2026-10-13T09:32:15.365251+00:00'
+retry_count: 1

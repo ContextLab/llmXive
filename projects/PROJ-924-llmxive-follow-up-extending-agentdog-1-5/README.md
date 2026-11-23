@@ -1,22 +1,24 @@
-# llmXive Follow-up: Extending AgentDoG 1.5 with Zero-Shot Drift Detection
+# PROJ-924: llmXive Follow-up - Extending AgentDoG 1.5 with Zero-Shot Drift Detection
 
-## Overview
-This project implements zero-shot drift detection for LLM interaction logs,
-extending the AgentDoG 1.5 framework to identify novel attack patterns.
+## Project Structure
 
-## Features
-- Zero-shot drift scoring using semantic distance to taxonomy centroids
-- Human-in-the-loop validation workflow
-- Statistical validation (p-values, Cohen's d, Kappa)
-- Baseline comparison with zero-shot LLM classifiers
+This project implements zero-shot drift detection for LLM safety logs.
 
-## Quick Start
-1. Install dependencies: `pip install -r requirements.txt`
-2. Run setup: `python code/main.py`
-3. View results in `data/processed/`
+- `code/`: Python source modules (drift scoring, taxonomy building, validation).
+- `data/`:
+ - `raw/`: Downloaded datasets (AdvBench, HF4, OWASP Taxonomy).
+ - `processed/`: Intermediate and final results (drift scores, merged annotations).
+ - `test/`: Static fixtures and mock data for unit testing.
+- `specs/`: Design documents and requirements.
+- `docs/`: User guides and API documentation.
+- `tests/`: Unit and integration tests.
 
-## Structure
-See `plan.md` for detailed project structure.
+## Setup
+
+1. Ensure Python 3.11 is installed.
+2. Install dependencies: `pip install -r requirements.txt`
+3. Run the pipeline: `python code/main.py`
 
 ## License
-MIT
+
+Internal use only.

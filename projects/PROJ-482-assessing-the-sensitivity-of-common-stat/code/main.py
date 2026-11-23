@@ -41,7 +41,7 @@ def run_pipeline(args: Optional[argparse.Namespace] = None) -> int:
         args: Optional parsed arguments. If None, defaults are used.
 
     Returns:
-        0 on success, non-zero on failure.
+        0 on success, 1 for validation failure, 2 for missing inputs.
     """
     logger.info("Starting llmXive Statistical Sensitivity Pipeline")
 
@@ -73,6 +73,9 @@ def run_pipeline(args: Optional[argparse.Namespace] = None) -> int:
         logger.info("Pipeline completed successfully.")
         return 0
 
+    except FileNotFoundError as e:
+        logger.error(f"Pipeline failed: Missing input files or directories. {e}", exc_info=True)
+        return 2
     except Exception as e:
         logger.error(f"Pipeline failed with error: {e}", exc_info=True)
         return 1
@@ -84,15 +87,36 @@ def main():
         description="Run the full statistical sensitivity analysis pipeline."
     )
     parser.add_argument(
-        "--debug",
+        "--config",
+        type=str,
+        default=None,
+        help="Configuration string for specific scenario (e.g., 'n=50,dist=normal')."
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/processed",
+        help="Output directory for results."
+    )
+    parser.add_argument(
+        "--verbose",
         action="store_true",
-        help="Enable debug logging verbosity."
+        help="Enable verbose (debug) logging."
+    )
+    parser.add_argument(
+        "--full",
+        action="store_true",
+        help="Run the full pipeline (default behavior)."
     )
     args = parser.parse_args()
 
-    if args.debug:
+    if args.verbose:
         logging.getLogger().setLevel(logging.DEBUG)
 
+    # If specific config is provided, we could theoretically narrow the run,
+    # but for this implementation, we run the full pipeline as the orchestrator.
+    # The underlying scripts can be modified to accept these args if needed.
+    
     exit_code = run_pipeline(args)
     sys.exit(exit_code)
 

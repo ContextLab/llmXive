@@ -1,6 +1,8 @@
+# DEPRECATED – not used in pipeline
+$comment: "Superseded by permutation_test.schema.yaml; kept only for historical reference."
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PermutationResultsSchema"
-description: "Schema for the output of the permutation test and statistical analysis using spherical noise."
+description: "Schema for the output of the permutation test and statistical analysis using label permutation."
 type: object
 required:
   - iterations
@@ -10,19 +12,19 @@ required:
 properties:
   iterations:
     type: integer
-    description: "Number of spherical noise iterations executed."
+    description: "Number of label permutation iterations executed."
     minimum: 1
   observed_statistic:
     type: number
-    description: "The observed difference between native and cross-lingual similarity."
+    description: "The observed difference between native and cross‑lingual similarity."
   null_distribution:
     type: array
-    description: "List of statistics generated from isotropic noise vectors projected onto spectra."
+    description: "List of statistics generated from label‑permuted frequency vectors."
     items:
       type: number
   p_value:
     type: number
-    description: "Calculated p-value for the observed statistic."
+    description: "Calculated p‑value for the observed statistic."
     minimum: 0
     maximum: 1
   sensitivity_sweep:
@@ -43,7 +45,7 @@ properties:
     description: "CPU cores and RAM used during execution."
   alignment_method:
     type: string
-    description: "Method used for cross-lingual alignment (e.g., 'procrustes_shared_vocab')."
+    description: "Method used for cross‑lingual alignment (e.g., 'procrustes_shared_vocab')."
     enum:
       - "procrustes_shared_vocab"
       - "none"
@@ -51,6 +53,6 @@ properties:
     type: string
     description: "Method used for null distribution generation."
     enum:
-      - "spherical_noise"
-      - "frequency_shuffle"
-    default: "spherical_noise"
+      - "label_permutation"
+    default: "label_permutation"
+additionalProperties: false

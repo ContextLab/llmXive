@@ -1,104 +1,70 @@
-# Data Model: llmXive Follow-up: Counterfactual Inspector Agent
+# Data Model: Counterfactual Inspector Agent
 
-## 1. Overview
+## Overview
 
-This document defines the data structures used throughout the `001-counterfactual-inspector` feature. It ensures type safety, traceability, and compatibility with the contract schemas defined in `contracts/`.
+This document defines the data structures, schemas, and flow for the Counterfactual Inspector Agent. All data artifacts are versioned and checksummed.
 
-## 2. Core Entities
+## Input Data Model
 
-### 2.1. Dataset Metadata
-Information about the input dataset, including source, checksum, and basic statistics.
+### Raw Dataset
+- **Source**: Verified public datasets (UCI HAR, etc.).
+- **Format**: CSV, Parquet, or JSON.
+- **Constraints**: Must contain at least 5 numeric variables and 30 rows (for statistical power).
+- **Handling**: Missing values are imputed (mean/median) or excluded per `llmXive` protocol.
 
-```python
-@dataclass
-class DatasetMetadata:
-    source_url: str
-    checksum: str
-    row_count: int
-    column_count: int
-    numeric_columns: List[str]
-    missing_values: Dict[str, int]
-    is_valid_for_analysis: bool  # True if n >= 30 and numeric_cols >= 5
+### Configuration
+- **File**: `code/config.py`
+- **Fields**:
+    - `RANDOM_SEED`: int (pinned)
+    - `P_THRESHOLD`: float (0.05)
+    - `R_THRESHOLD`: float (0.15)
+    - `MAX_LLM_TIMEOUT`: int (900 seconds)
+    - `LLM_FALLBACK_MODEL`: string ("phi-3-mini")
+
+## Output Data Models
+
+### 1. Baseline Narrative (JSON)
+```json
+{
+  "primary_narrative": "string",
+  "primary_correlation": {
+    "var_a": "string",
+    "var_b": "string",
+    "r_value": float,
+    "p_value": float
+  },
+  "dataset_id": "string",
+  "row_count": int
+}
 ```
 
-### 2.2. Baseline Narrative
-The output of the primary correlation search.
+### 2. Counterfactual Report (JSON)
+- **Schema**: `contracts/counterfactual_report.schema.yaml`
+- **Fields**:
+    - `threshold_config`: string (e.g., "p<0.05, |r|>0.15")
+    - `claim`: string OR "NO_SIGNIFICANT_COUNTERFACTUAL"
+    - `p_value`: float
+    - `partial_r`: float
+    - `stability_score`: float (optional, for future robustness checks)
+    - `validity_status`: string ("verified", "low_power", "failed")
+    - `query_executed`: string (the SQL/Python query)
+    - `low_power_flag`: boolean
 
-```python
-@dataclass
-class BaselineNarrative:
-    primary_variable_a: str
-    primary_variable_b: str
-    correlation_coefficient: float
-    p_value: float
-    narrative_text: str
-    query_executed: str  # The code used to find this correlation
-```
+### 3. Integrated Story (JSON)
+- **Schema**: `contracts/story_output.schema.yaml`
+- **Fields**:
+    - `title`: string
+    - `baseline_section`: string
+    - `counterfactual_section`: string (or "None found")
+    - `citations`: array of strings (e.g., "Data query: ... returned r=...")
+    - `caution_flags`: array of strings (e.g., "Low Power - Interpret with Caution")
+    - `neutrality_score`: float (internal metric)
 
-### 2.3. Counterfactual Insight
-A validated alternative explanation. Includes stability metrics from bootstrap analysis.
+## Data Flow
 
-```python
-@dataclass
-class CounterfactualInsight:
-    claim: str
-    alternative_variable: str
-    target_variable: str
-    control_variables: List[str]
-    partial_r: float
-    p_value: float
-    stability_score: float  # Proportion of bootstrap resamples where effect held (0.0 to 1.0)
-    validity_status: str  # Enum: "verified", "failed", "low_power", "confounded"
-    query_executed: str
-    is_valid: bool  # True if p < 0.05, |partial_r| > 0.15, and stability_score >= 0.8
-    validity_reason: str  # e.g., "Significant partial correlation with high stability" or "Low power"
-    is_distinct: bool  # True if not in top 3 baseline correlations
-```
-
-### 2.4. Integrated Story
-The final output combining baseline and counterfactuals.
-
-```python
-@dataclass
-class IntegratedStory:
-    title: str
-    baseline_section: str
-    counterfactual_section: str  # May be empty if no valid insights found
-    citations: List[str]  # List of query strings cited in the text
-    limitations: List[str]  # e.g., "Associational only", "Low power in variable X"
-    metadata: Dict[str, Any]
-```
-
-### 2.5. Evaluation Result
-The output of the blinded expert scoring.
-
-```python
-@dataclass
-class EvaluationResult:
-    story_id: str
-    expert_scores: List[int]  # 1-5
-    narrative_depth_score: float
-    confirmation_bias_score: float  # Proportion of valid & distinct counterfactuals
-    traceability_score: float  # % of claims with citations
-    kappa_coefficient: float
-    kappa_status: str  # "PASS" or "FAIL" (if Kappa < 0.6)
-    re_run_count: int  # Number of re-runs attempted
-    status: str  # "PASS" or "FAIL"
-```
-
-## 3. Data Flow
-
-1.  **Input**: `DatasetMetadata` (from `data/loader.py`).
-2.  **Processing**:
-    -   `BaselineNarrative` generated by `analysis/baseline.py`.
-    -   `CounterfactualInsight` list generated by `analysis/inspector.py` (includes bootstrap stability).
-3.  **Synthesis**: `IntegratedStory` created by `narrative/synthesizer.py`.
-4.  **Output**: `EvaluationResult` generated by `evaluation/rubric.py`.
-
-## 4. Constraints & Validation
-
--   **Numeric Precision**: All float values stored with 4 decimal places.
--   **Null Handling**: Missing values in numeric columns must be imputed (mean/median) or excluded before analysis.
--   **Causal Language**: The `IntegratedStory` must not contain words like "cause", "effect", or "proven" unless the `metadata` flag `is_randomized` is True.
--   **Traceability**: Every claim in `IntegratedStory` must map to a `query_executed` string in `BaselineNarrative` or a `CounterfactualInsight`.
--   **Stability Requirement**: A `CounterfactualInsight` is only marked `is_valid=True` if `stability_score >= 0.8`.
+1.  **Ingest**: `data_loader.py` fetches raw data -> `data/raw/`.
+2.  **Preprocess**: `data_loader.py` cleans/imputes -> `data/processed/`.
+3.  **Baseline**: `stats_engine.py` computes correlations -> `output/baseline_stories/`.
+4.  **Counterfactual**: `query_generator.py` + `stats_engine.py` (partial corr) -> `output/counterfactual_reports/`.
+5.  **Synthesis**: `synthesizer.py` merges -> `output/integrated_stories/`.
+6.  **Metrics**: `main.py` aggregates -> `output/metrics_report.json`.

@@ -1,0 +1,15 @@
+{
+  "topology_counts": 50,
+  "material_types": [
+    "soft_rope",
+    "cloth"
+  ],
+  "timeout_limit_seconds": 300.0,
+  "max_steps_per_trial": 100,
+  "random_seed": 42,
+  "batch_size": 1,
+  "output_dir": "data/generated",
+  "baseline_metadata_path": "data/raw/gam_baseline_metadata.json",
+  "enable_profiling": false,
+  "cpu_only": true
+}

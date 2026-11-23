@@ -17,7 +17,7 @@ As a computational chemist with limited hardware access, I need to download the 
 
 **Acceptance Scenarios**:
 
-1. **Given** a GitHub Actions free-tier runner (2 CPU, 7 GB RAM), **When** the system downloads the QM9 subset and converts SMILES to graphs using RDKit, **Then** the process completes without memory errors and outputs a serialized graph dataset containing node features (atomic number, hybridization, formal charge) and edge features (bond type, conjugation).
+1. **Given** a GitHub Actions free‑tier runner (multiple CPUs, 7 GB RAM), **When** the system downloads the QM9 subset and converts SMILES to graphs using RDKit, **Then** the process completes without memory errors and outputs a serialized graph dataset containing node features (atomic number, hybridization, formal charge) and edge features (bond type, conjugation).
 2. **Given** a raw SMILES string from the QM9 dataset, **When** the preprocessing step is applied, **Then** the resulting graph node features include the required chemical descriptors and edge features include bond types, ready for model ingestion.
 
 ---
@@ -32,7 +32,7 @@ As a researcher, I need to train a lightweight Spectral GNN and a Heterophily-aw
 
 **Acceptance Scenarios**:
 
-1. **Given** the preprocessed QM9 dataset split via Murcko scaffolds (80/20), **When** the Spectral GNN and Heterophily-aware GNN are trained for 50 epochs with early stopping on a CPU, **Then** both models converge and generate prediction files for the test set within the 6-hour time limit.
+1. **Given** the preprocessed Benchmark quantum chemistry dataset split via Murcko scaffolds (80/20), **When** The Spectral GNN and Heterophily-aware GNN are trained for a sufficient number of epochs to ensure convergence. with early stopping on a CPU, **Then** both models converge and generate prediction files for the test set within the allocated time limit.
 2. **Given** the test set predictions from the GNNs and a Random Forest baseline trained on Morgan fingerprints, **When** the evaluation script runs, **Then** it outputs MSE, MAE, and Pearson correlation coefficients for all three models, enabling a direct performance comparison.
 
 ---
@@ -48,7 +48,7 @@ As a domain expert, I need to identify which specific structural and electronic 
 **Acceptance Scenarios**:
 
 1. **Given** a trained GNN model and a set of test molecules, **When** the feature attribution module runs, **Then** it outputs a ranked list of node/edge features (e.g., specific bond types or atomic environments) with associated importance scores.
-2. **Given** the attribution results, **When** the system aggregates importance across the dataset, **Then** it identifies the top 5 structural/electronic features (e.g., frontier orbital energies, specific bond orders) as the dominant predictors of the target property.
+2. **Given** the attribution results, **When** the system aggregates importance across the dataset, **Then** it identifies the top structural/electronic features (e.g., frontier orbital energies, specific bond orders) as the dominant predictors of the target property.
 
 ---
 
@@ -56,20 +56,20 @@ As a domain expert, I need to identify which specific structural and electronic 
 
 - **What happens when** the QM9 dataset download fails or the HuggingFace API is unreachable? The system MUST retry up to 3 times with exponential backoff, and if all fail, MUST exit with a clear error code and log the specific failure reason.
 - **How does system handle** molecules in the dataset that fail RDKit parsing (e.g., invalid SMILES)? The system MUST log these molecules, exclude them from the training set, and report the exclusion count (target: < 0.1% of total) without crashing the pipeline.
-- **What happens when** the memory usage exceeds 4 GB during graph construction or training? The system MUST detect this (via monitoring) and automatically trigger a subset sampling strategy (e.g., reducing batch size or molecule count) to stay within the operational limit, logging the adjustment.
+- **What happens when** the memory usage exceeds a substantial threshold during graph construction or training? The system MUST detect this (via monitoring) and automatically trigger a subset sampling strategy (e.g., reducing batch size or molecule count) to stay within the operational limit, logging the adjustment.
 
 ## Requirements
 
 ### Functional Requirements
 
 - **FR-001**: System MUST download the QM9 dataset (subset of molecules) and preprocess SMILES into graph structures using RDKit on CPU, ensuring node features include atomic number, hybridization, and formal charge, and edge features include bond type and conjugation (See US-1).
-- **FR-002**: System MUST implement a lightweight Spectral GNN and a Heterophily-aware GNN (based on VR-GNN principles) using PyTorch in CPU-only mode (`device='cpu'`), ensuring memory usage stays under 4 GB during training (See US-2).
-- **FR-003**: System MUST train both GNN models for 50 epochs with early stopping on a scaffold-based (Murcko) 80/20 train/test split, targeting the prediction of DFT-derived properties (e.g., HOMO-LUMO gap) as a proxy for reactivity (See US-2).
+- **FR-002**: System MUST implement a lightweight Spectral GNN and a Heterophily-aware GNN (based on VR-GNN principles) using PyTorch in CPU-only mode (`device='cpu'`), ensuring memory usage stays within acceptable limits during training (See US-2).
+- **FR-003**: System MUST train both GNN models for an appropriate number of epochs with early stopping on a scaffold-based (Murcko) 80/20 train/test split, targeting the prediction of DFT-derived properties (e.g., HOMO-LUMO gap) as a proxy for reactivity (See US-2).
 - **FR-004**: System MUST implement a Random Forest baseline trained on hand-crafted molecular descriptors (Morgan fingerprints) to serve as a comparative benchmark for the GNNs (See US-2).
 - **FR-005**: System MUST perform feature attribution analysis using GNNExplainer or gradient-based methods to identify subgraphs or node features contributing most to predictions (See US-3).
 - **FR-006**: System MUST apply a paired t-test on the prediction errors of the GNNs vs. the Random Forest baseline using a scaffold-based split to statistically assess if the graph-based approach provides a significant improvement (See US-2).
 - **FR-007**: System MUST log all artifacts (model weights, attribution maps, metrics) to the repository for reproducibility (See US-2, US-3).
-- **FR-008**: System MUST include and utilize a curated reference set of 50 known reactive substructures (derived from public literature) to validate feature attribution results against an independent ground truth (See US-3).
+- **FR-008**: System MUST include and utilize a curated reference set of known reactive substructures (derived from public literature) to validate feature attribution results against an independent ground truth (See US-3).
 - **FR-009**: System MUST include a curated external dataset of at least 20 molecules with experimental reaction rates to validate the HOMO-LUMO gap proxy against kinetic data (See Assumptions).
 
 ### Key Entities
@@ -77,7 +77,7 @@ As a domain expert, I need to identify which specific structural and electronic 
 - **Molecular Graph**: A graph structure representing a molecule, with nodes as atoms (features: atomic number, hybridization, formal charge) and edges as bonds (features: bond type, conjugation).
 - **DFT Property**: The target variable derived from quantum-mechanical calculations (e.g., HOMO-LUMO gap, reaction yield proxy) used as the ground truth for training and evaluation.
 - **Feature Attribution Map**: A data structure mapping specific subgraphs or node features to their importance scores in predicting the target property.
-- **Curated Reference Set**: A static dataset of 50 known reactive substructures used for independent validation of feature importance.
+- **Curated Reference Set**: A static dataset of known reactive substructures used for independent validation of feature importance.
 - **External Kinetic Dataset**: A static dataset of ≥20 molecules with experimental reaction rates used to validate the HOMO-LUMO gap proxy.
 
 ## Success Criteria
@@ -88,7 +88,7 @@ As a domain expert, I need to identify which specific structural and electronic 
 
 - **SC-001**: Pearson correlation coefficient (R) of the GNN predictions against DFT ground truth is measured against the target threshold: [deferred] (See US-2).
 - **SC-002**: Prediction error (MSE/MAE) of the GNNs is measured against the Random Forest baseline using a paired t-test on a scaffold-based split; significance level: [deferred] (See US-2).
-- **SC-003**: Feature attribution results are measured against the curated reference set of 50 known reactive substructures, requiring an alignment score ≥ 0.7 (See US-3).
+- **SC-003**: Feature attribution results are measured against the curated reference set of numerous known reactive substructures, requiring an alignment score ≥ 0.7 (See US-3).
 - **SC-004**: Total runtime of the end-to-end pipeline (download, preprocess, train, evaluate) is measured against the constraint of Total runtime ≤ 6 hours. (See US-1, US-2).
 - **SC-005**: Memory usage during graph construction and training is measured against the operational limit of Memory usage ≤ 4 GB (See US-1, US-2).
 - **SC-006**: The correlation between predicted HOMO-LUMO gap and experimental reaction rates is measured against the external kinetic dataset (n ≥ 20) to validate the proxy (See Assumptions).

@@ -1,0 +1,113 @@
+{
+  "trace_id": "training_42_04723",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 10,
+  "tool_sequence": [
+    "delete_element",
+    "update_layout",
+    "insert_image",
+    "insert_chart",
+    "update_layout",
+    "update_layout",
+    "delete_element",
+    "insert_text",
+    "update_layout",
+    "delete_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 28.1278
+      }
+    },
+    {
+      "step": 1,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 18.4957,
+        "padding": 53.071
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 43.4715,
+        "y": 44.0288,
+        "width": 60.0304,
+        "height": 94.1133
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 18.1878,
+        "y": 99.3861,
+        "width": 63.9118,
+        "height": 59.1797,
+        "data_points": 14.6997
+      }
+    },
+    {
+      "step": 4,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 32.2331,
+        "padding": 75.7222
+      }
+    },
+    {
+      "step": 5,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 1.6844,
+        "padding": 0.4717
+      }
+    },
+    {
+      "step": 6,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 39.6766
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 79.7604,
+        "y": 85.9281,
+        "length": 60.193
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 75.0428,
+        "padding": 56.5465
+      }
+    },
+    {
+      "step": 9,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 22.3905
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.418484,
+    "tool_repetition_freq": 0.5,
+    "arg_semantic_variance": 788.688139
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 15,
+    "layout_hash": "42-4723-update_layout"
+  }
+}

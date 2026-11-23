@@ -2,51 +2,87 @@ import os
 import logging
 from pathlib import Path
 
-# Define base paths relative to project root
-# Assumes the project root is the directory containing 'code'
-BASE_DIR = Path(__file__).resolve().parent.parent
-CODE_DIR = BASE_DIR / "code"
-DATA_DIR = BASE_DIR / "code" / "data"
-LOGS_DIR = BASE_DIR / "code" / "logs"
-FIGURES_DIR = BASE_DIR / "paper" / "figures"
-
-# 1000 Genomes FTP URLs
-FTP_BASE = "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/20131030"
-MITO_VCF_URL = f"{FTP_BASE}/ALL.chr22.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz"
-# Note: Mitochondrial data is often on chrM. The 1000G FTP structure might vary.
-# Using a representative URL for mitochondrial VCF if available, or generic phase3.
-# For the purpose of this implementation, we define the URL that would be used.
-# In reality, chrM is often in a separate file or the same phase3 file.
-# Assuming a specific mito file path for the task context:
-MITO_VCF_REAL_URL = "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/20131030/ALL.chrM.phase3_shapeit2_mvncall_integrated_v5a.20130502.genotypes.vcf.gz"
-
-METADATA_URL = "ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/20131030/integrated_call_samples_v3.20130502.ALL.panel"
-
-def ensure_directories():
-    """Creates necessary directories if they do not exist."""
-    directories = [
-        DATA_DIR / "raw",
-        DATA_DIR / "processed",
-        LOGS_DIR,
-        FIGURES_DIR
-    ]
-    for d in directories:
-        d.mkdir(parents=True, exist_ok=True)
-        logging.info(f"Ensured directory: {d}")
-
-def get_ftp_urls():
-    """Returns a dictionary of FTP URLs for data retrieval."""
-    return {
-        "mito_vcf": MITO_VCF_REAL_URL,
-        "metadata": METADATA_URL
-    }
+logger = logging.getLogger(__name__)
 
 def get_local_paths():
-    """Returns a dictionary of local path objects."""
-    ensure_directories()
-    return {
-        "raw_dir": DATA_DIR / "raw",
-        "processed_dir": DATA_DIR / "processed",
-        "logs_dir": LOGS_DIR,
-        "figures_dir": FIGURES_DIR
+    """
+    Return a dictionary of all local file paths used by the analysis.
+    
+    All paths are relative to the project root (code/ directory).
+    """
+    # Project root is assumed to be the parent of 'code'
+    # When run from code/, we need to go up one level
+    try:
+        # Try to find project root by looking for 'tasks.md'
+        current = Path(__file__).resolve()
+        while current.parent != current:  # Stop at root
+            if (current / 'tasks.md').exists():
+                project_root = current
+                break
+            current = current.parent
+        else:
+            # Fallback: assume project root is parent of code/
+            project_root = Path(__file__).resolve().parent.parent
+    except Exception:
+        project_root = Path(__file__).resolve().parent.parent
+    
+    # Define all paths relative to project root
+    paths = {
+        # Raw data
+        'raw_vcf_dir': project_root / 'code' / 'data' / 'raw' / 'vcf',
+        'raw_metadata': project_root / 'code' / 'data' / 'raw' / 'metadata_panel.tsv',
+        
+        # Processed data
+        'processed_dataset': project_root / 'code' / 'data' / 'processed' / 'mito_aging_dataset.csv',
+        'spearman_results': project_root / 'code' / 'data' / 'processed' / 'spearman_results.csv',
+        'rank_ols_results': project_root / 'code' / 'data' / 'processed' / 'rank_ols_results.csv',
+        'secondary_ols_results': project_root / 'code' / 'data' / 'processed' / 'secondary_ols_results.csv',
+        'sensitivity_results': project_root / 'code' / 'data' / 'processed' / 'sensitivity_results.csv',
+        'subgroup_results': project_root / 'code' / 'data' / 'processed' / 'subgroup_results.csv',
+        'threshold_variation': project_root / 'code' / 'data' / 'processed' / 'threshold_variation.json',
+        'subgroup_variation': project_root / 'code' / 'data' / 'processed' / 'subgroup_variation.json',
+        'sensitivity_analysis': project_root / 'code' / 'data' / 'processed' / 'sensitivity_analysis.csv',
+        
+        # Logs
+        'log_dir': project_root / 'code' / 'logs',
+        'exclusion_report': project_root / 'code' / 'logs' / 'exclusion_report.txt',
+        'haplogroup_success_rate': project_root / 'code' / 'logs' / 'haplogroup_success_rate.txt',
+        'model_comparison': project_root / 'code' / 'logs' / 'model_comparison.log',
+        'memory_profile': project_root / 'code' / 'logs' / 'memory_profile.log',
+        'runtime_validation': project_root / 'code' / 'logs' / 'runtime_validation.log',
+        'age_column_validation': project_root / 'code' / 'logs' / 'log_age_column.json',
+        'source_verification': project_root / 'code' / 'logs' / 'source_verification.log',
+        
+        # Figures
+        'figures_dir': project_root / 'paper' / 'figures',
+        
+        # Contracts
+        'dataset_schema': project_root / 'code' / 'contracts' / 'dataset.schema.yaml',
+        'output_schema': project_root / 'code' / 'contracts' / 'output.schema.yaml',
     }
+    
+    return paths
+
+def get_ftp_urls():
+    """Return FTP URLs for 1000 Genomes data."""
+    return {
+        'vcf_base': 'ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/',
+        'metadata': 'ftp://ftp.1000genomes.ebi.ac.uk/vol1/ftp/phase3/20130602_sample_metadata/20130602_sample_metadata.tsv'
+    }
+
+def ensure_directories():
+    """Create all required directories if they don't exist."""
+    paths = get_local_paths()
+    
+    for path_name, path_obj in paths.items():
+        if isinstance(path_obj, Path):
+            if path_obj.suffix == '':  # It's a directory
+                path_obj.mkdir(parents=True, exist_ok=True)
+                logger.debug(f"Ensured directory: {path_obj}")
+    
+    logger.info("All required directories created/verified")
+    return True
+
+if __name__ == "__main__":
+    ensure_directories()
+    print("Directories ready")

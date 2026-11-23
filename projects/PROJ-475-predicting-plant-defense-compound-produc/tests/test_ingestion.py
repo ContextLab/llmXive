@@ -1,145 +1,162 @@
 """
-Unit tests for the ingestion module.
-
-Tests mocking of downloads and verification of output.
+Unit tests for data ingestion logic (T012).
 """
 import unittest
 import os
 import sys
 import tempfile
 import shutil
+import json
 from pathlib import Path
 from unittest.mock import patch, MagicMock
-import json
 
-# Add project root to path
+# Add parent to path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from data.ingestion import (
-    fetch_url_content, 
-    fetch_environmental_data, 
-    fetch_genomic_data, 
+    validate_compound_json_schema,
     fetch_compound_data,
-    save_data
+    ensure_directories,
+    update_manifest
 )
-from config import reset_config, get_config
+from data.mock_generator import generate_mock_compound_data
 
-class TestIngestion(unittest.TestCase):
+class TestFetchCompoundData(unittest.TestCase):
     
     def setUp(self):
         """Set up test fixtures."""
-        self.temp_dir = tempfile.mkdtemp()
-        self.original_cwd = os.getcwd()
-        os.chdir(self.temp_dir)
+        self.test_dir = tempfile.mkdtemp()
+        self.raw_dir = Path(self.test_dir) / "raw"
+        self.raw_dir.mkdir(parents=True, exist_ok=True)
         
-        # Reset config to ensure clean state
-        reset_config()
-        
-        # Create necessary directories
-        Path("data/raw").mkdir(parents=True, exist_ok=True)
-        
+        # Mock config
+        self.mock_config = {
+            'verified_urls': {
+                'compound': None
+            }
+        }
+    
     def tearDown(self):
         """Clean up test fixtures."""
-        os.chdir(self.original_cwd)
-        shutil.rmtree(self.temp_dir)
-        reset_config()
-
-    @patch('data.ingestion.requests.get')
-    def test_fetch_url_content_success(self, mock_get):
-        """Test successful URL fetch."""
-        mock_response = MagicMock()
-        mock_response.json.return_value = {"key": "value"}
-        mock_response.raise_for_status = MagicMock()
-        mock_get.return_value = mock_response
-        
-        result = fetch_url_content("http://example.com")
-        
-        self.assertEqual(result, {"key": "value"})
-        mock_get.assert_called_once_with("http://example.com", timeout=30)
-
-    @patch('data.ingestion.requests.get')
-    def test_fetch_url_content_failure(self, mock_get):
-        """Test failed URL fetch."""
-        mock_get.side_effect = Exception("Network error")
-        
-        result = fetch_url_content("http://example.com")
-        
-        self.assertIsNone(result)
-
-    @patch('data.ingestion.fetch_url_content')
-    @patch('data.ingestion.generate_mock_environmental_data')
-    def test_fetch_environmental_data_with_verified_url(self, mock_mock_gen, mock_fetch):
-        """Test environmental data fetch with verified URL."""
-        mock_fetch.return_value = {"env": "data"}
-        mock_mock_gen.return_value = {"env": "mock"}
-        
-        # Set up config with verified URL
-        config = get_config()
-        config.verified_urls['env'] = "http://example.com/env"
-        
-        result = fetch_environmental_data()
-        
-        self.assertEqual(result, {"env": "data"})
-        mock_fetch.assert_called_once()
-        mock_mock_gen.assert_not_called()
-
-    @patch('data.ingestion.fetch_url_content')
-    @patch('data.ingestion.generate_mock_environmental_data')
-    def test_fetch_environmental_data_fallback_to_mock(self, mock_mock_gen, mock_fetch):
-        """Test environmental data fetch falls back to mock when URL fails."""
-        mock_fetch.return_value = None
-        mock_mock_gen.return_value = {"env": "mock_data"}
-        
-        # Set up config without verified URL
-        config = get_config()
-        config.verified_urls['env'] = None
-        
-        result = fetch_environmental_data()
-        
-        self.assertEqual(result, {"env": "mock_data"})
-        mock_mock_gen.assert_called_once()
-
-    @patch('data.ingestion.fetch_url_content')
-    @patch('data.ingestion.generate_mock_genomic_data')
-    def test_fetch_genomic_data(self, mock_mock_gen, mock_fetch):
-        """Test genomic data fetch logic."""
-        mock_fetch.return_value = {"genomic": "real"}
-        mock_mock_gen.return_value = {"genomic": "mock"}
-        
-        config = get_config()
-        config.verified_urls['genomic'] = "http://example.com/genomic"
-        
-        result = fetch_genomic_data()
-        
-        self.assertEqual(result, {"genomic": "real"})
-
-    @patch('data.ingestion.fetch_url_content')
+        shutil.rmtree(self.test_dir, ignore_errors=True)
+    
+    @patch('data.ingestion.get_config')
     @patch('data.ingestion.generate_mock_compound_data')
-    def test_fetch_compound_data(self, mock_mock_gen, mock_fetch):
-        """Test compound data fetch logic."""
-        mock_fetch.return_value = {"compound": "real"}
-        mock_mock_gen.return_value = {"compound": "mock"}
+    def test_ingest_fails_on_missing_url_generates_mock(self, mock_gen, mock_get_config):
+        """Test that missing URL triggers mock generation."""
+        mock_get_config.return_value = self.mock_config
+        mock_gen.return_value = [
+            {
+                "population_id": "POP001",
+                "compound_name": "TestCompound",
+                "concentration": 10.5
+            }
+        ]
         
-        config = get_config()
-        config.verified_urls['compound'] = "http://example.com/compound"
+        # Temporarily change output paths for test
+        import data.ingestion
+        original_raw_dir = data.ingestion.RAW_DATA_DIR
+        data.ingestion.RAW_DATA_DIR = self.raw_dir
+        data.ingestion.MOCK_COMPOUND_OUTPUT_PATH = self.raw_dir / "mock_compounds.json"
         
-        result = fetch_compound_data()
+        try:
+            result = fetch_compound_data()
+            
+            self.assertTrue(result['is_mock'])
+            self.assertTrue(os.path.exists(result['path']))
+            
+            # Verify file content
+            with open(result['path'], 'r') as f:
+                data = json.load(f)
+            
+            self.assertIsInstance(data, list)
+            self.assertGreater(len(data), 0)
+            self.assertIn('population_id', data[0])
+            self.assertIn('compound_name', data[0])
+            self.assertIn('concentration', data[0])
+            
+        finally:
+            data.ingestion.RAW_DATA_DIR = original_raw_dir
+            data.ingestion.MOCK_COMPOUND_OUTPUT_PATH = Path("data/raw/mock_compounds.json")
+    
+    def test_validate_compound_json_schema_valid(self):
+        """Test validation with valid compound data."""
+        valid_data = [
+            {
+                "population_id": "POP001",
+                "compound_name": "TestCompound",
+                "concentration": 10.5
+            }
+        ]
         
-        self.assertEqual(result, {"compound": "real"})
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(valid_data, f)
+            temp_path = f.name
+        
+        try:
+            self.assertTrue(validate_compound_json_schema(temp_path))
+        finally:
+            os.unlink(temp_path)
+    
+    def test_validate_compound_json_schema_missing_keys(self):
+        """Test validation with missing required keys."""
+        invalid_data = [
+            {
+                "population_id": "POP001",
+                "compound_name": "TestCompound"
+                # Missing concentration
+            }
+        ]
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(invalid_data, f)
+            temp_path = f.name
+        
+        try:
+            self.assertFalse(validate_compound_json_schema(temp_path))
+        finally:
+            os.unlink(temp_path)
+    
+    def test_validate_compound_json_schema_empty_file(self):
+        """Test validation with empty list."""
+        empty_data = []
+        
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            json.dump(empty_data, f)
+            temp_path = f.name
+        
+        try:
+            self.assertFalse(validate_compound_json_schema(temp_path))
+        finally:
+            os.unlink(temp_path)
+    
+    def test_validate_compound_json_schema_invalid_json(self):
+        """Test validation with invalid JSON."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+            f.write("not valid json")
+            temp_path = f.name
+        
+        try:
+            self.assertFalse(validate_compound_json_schema(temp_path))
+        finally:
+            os.unlink(temp_path)
 
-    def test_save_data(self):
-        """Test saving data to file."""
-        test_data = {"test": "value", "number": 42}
-        output_path = Path("data/raw/test_output.json")
+class TestIngestionIntegration(unittest.TestCase):
+    
+    def test_mock_data_generation(self):
+        """Test that mock data generator produces valid structure."""
+        mock_data = generate_mock_compound_data()
         
-        save_data(test_data, output_path)
+        self.assertIsInstance(mock_data, list)
+        self.assertGreater(len(mock_data), 0)
         
-        self.assertTrue(output_path.exists())
-        
-        with open(output_path) as f:
-            saved_data = json.load(f)
-        
-        self.assertEqual(saved_data, test_data)
+        for record in mock_data:
+            self.assertIn('population_id', record)
+            self.assertIn('compound_name', record)
+            self.assertIn('concentration', record)
+            self.assertIsInstance(record['population_id'], str)
+            self.assertIsInstance(record['compound_name'], str)
+            self.assertIsInstance(record['concentration'], (int, float))
 
 if __name__ == '__main__':
     unittest.main()

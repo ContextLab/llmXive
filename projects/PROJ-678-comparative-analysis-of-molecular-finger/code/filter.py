@@ -1,121 +1,168 @@
+"""Filter the Tox21 dataset for organophosphates (User Story 1).
+
+Extends the filter log (T014) with:
+  - download_size_bytes (size of the raw download on disk),
+  - filtered_count (number of organophosphate matches),
+  - endpoint_distribution (per-endpoint label counts, as a JSON dict).
+"""
+import json
+import os
+from datetime import datetime
+from pathlib import Path
+
 import pandas as pd
 from rdkit import Chem
-from rdkit.Chem import rdMolDescriptors
-import logging
-from pathlib import Path
-from datetime import datetime
-import os
-import sys
 
-# Ensure sibling modules can be imported
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from utils import get_logger, setup_logging
 from constants import SMARTS_PATTERN
+from utils import setup_logging, init_random_seed, get_logger
 
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+
+init_random_seed(42)
 logger = get_logger(__name__)
 
-def load_compounds(csv_path: str) -> pd.DataFrame:
-    """Load the Tox21 dataset from CSV."""
-    logger.info(f"Loading compounds from {csv_path}")
-    df = pd.read_csv(csv_path)
-    # Ensure SMILES column exists
-    if 'SMILES' not in df.columns:
-        raise ValueError("Input CSV must contain a 'SMILES' column")
-    return df
 
-def apply_smarts_filter(df: pd.DataFrame, smarts: str) -> pd.DataFrame:
-    """Filter compounds that match the provided SMARTS pattern."""
-    logger.info(f"Applying SMARTS filter: {smarts}")
-    pattern = Chem.MolFromSmarts(smarts)
-    if pattern is None:
-        raise ValueError(f"Invalid SMARTS pattern: {smarts}")
+def load_compounds(input_path: str) -> pd.DataFrame:
+    """Load the raw dataset from the previous step (download.py)."""
+    logger.info(f"Loading compounds from {input_path}")
+    if not os.path.exists(input_path):
+        raise FileNotFoundError(f"Input file not found: {input_path}")
 
-    def matches(mol):
-        if mol is None:
-            return False
-        return mol.HasSubstructMatch(pattern)
+    df = pd.read_csv(input_path)
 
-    mols = [Chem.MolFromSmiles(smi) for smi in df['SMILES']]
-    mask = [matches(mol) for mol in mols]
-    filtered_df = df[mask].reset_index(drop=True)
-    logger.info(f"Filtered from {len(df)} to {len(filtered_df)} compounds")
-    return filtered_df
+    missing = [c for c in ["smiles"] if c not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
+
+    valid_indices = []
+    for idx, row in df.iterrows():
+        mol = Chem.MolFromSmiles(row["smiles"])
+        if mol is not None:
+            valid_indices.append(idx)
+
+    logger.info(f"Loaded {len(df)} rows, {len(valid_indices)} valid SMILES")
+    return df.loc[valid_indices].reset_index(drop=True)
+
+
+def apply_smarts_filter(df: pd.DataFrame, pattern: str = SMARTS_PATTERN) -> pd.DataFrame:
+    """Apply the SMARTS pattern to filter for organophosphates."""
+    logger.info(f"Applying SMARTS filter: {pattern}")
+    mol_pattern = Chem.MolFromSmarts(pattern)
+    if mol_pattern is None:
+        raise ValueError(f"Invalid SMARTS pattern: {pattern}")
+
+    filtered_indices = []
+    for idx, row in df.iterrows():
+        mol = Chem.MolFromSmiles(row["smiles"])
+        if mol is not None and mol.HasSubstructMatch(mol_pattern):
+            filtered_indices.append(idx)
+
+    logger.info(f"Filter matched {len(filtered_indices)} compounds")
+    return df.loc[filtered_indices].reset_index(drop=True)
+
 
 def validate_endpoints(df: pd.DataFrame) -> dict:
-    """Count non-null entries per toxicity endpoint column."""
-    # Identify endpoint columns (typically columns starting with 'Nuc' or specific names)
-    # In Tox21, endpoints are usually named like 'NR-AR', 'NR-AR-LBD', etc.
-    # We'll assume columns other than 'SMILES' and 'id' are endpoints.
-    endpoint_cols = [col for col in df.columns if col not in ['SMILES', 'id', 'Compound']]
+    """Count rows per toxicity endpoint to ensure data quality."""
     counts = {}
-    for col in endpoint_cols:
-        counts[col] = int(df[col].notna().sum())
+    for col in df.columns:
+        if col != "smiles":
+            counts[col] = int(df[col].notna().sum())
     return counts
 
-def save_filtered_data(df: pd.DataFrame, output_path: str, log_path: str) -> None:
-    """Save filtered data to CSV and write detailed log."""
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved filtered data to {output_path}")
 
-    # Write detailed log
-    os.makedirs(os.path.dirname(log_path), exist_ok=True)
-    with open(log_path, 'w') as f:
+def save_filtered_data(df: pd.DataFrame, output_path: str):
+    """Save the filtered dataframe to CSV."""
+    logger.info(f"Saving filtered data to {output_path}")
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_path, index=False)
+    logger.info(f"Saved {len(df)} rows to {output_path}")
+
+
+def write_filter_log(
+    output_dir: str,
+    total_input: int,
+    filtered_count: int,
+    endpoint_counts: dict,
+    download_size_bytes: int = None,
+):
+    """Write the filter log to data/processed/filter_log.txt (T014).
+
+    Logs download_size_bytes, filtered_count and the endpoint
+    distribution, and handles the sample size warning logic.
+    """
+    log_path = Path(output_dir) / "filter_log.txt"
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    with open(log_path, "w") as f:
         f.write(f"Filter Log - {datetime.now().isoformat()}\n")
-        f.write("=" * 50 + "\n\n")
-        
-        # Dataset download size (simulated as we don't have the raw size here, 
-        # but in a real pipeline this would be passed or measured)
-        # Since T011 handles download, we log the input file size if it exists
-        input_file = Path(output_path).parent / "tox21.csv" # Assumption based on pipeline
-        if input_file.exists():
-            size_kb = input_file.stat().st_size / 1024
-            f.write(f"Dataset Download Size: {size_kb:.2f} KB\n")
-        else:
-            f.write("Dataset Download Size: N/A (Input file not found at expected path)\n")
-        
-        f.write(f"Initial Compound Count: {len(df)}\n")
-        f.write(f"Filtered Compound Count: {len(df)}\n") # This is the filtered count
-        f.write(f"SMARTS Pattern Used: {SMARTS_PATTERN}\n\n")
-        
+        if download_size_bytes is not None:
+            f.write(f"download_size_bytes: {int(download_size_bytes)}\n")
+        f.write(f"Total input compounds: {total_input}\n")
+        f.write(f"filtered_count: {filtered_count}\n")
         f.write("Endpoint Distribution:\n")
-        endpoint_counts = validate_endpoints(df)
         for endpoint, count in endpoint_counts.items():
-            f.write(f"  {endpoint}: {count} non-null values\n")
-        
-        # Low sample size check
-        min_count = min(endpoint_counts.values()) if endpoint_counts else 0
-        if min_count < 50:
-            f.write(f"\nWARNING: Low Sample Size detected (min count: {min_count}).\n")
-            f.write("Statistical tests will be skipped as per validation logic.\n")
+            f.write(f"  {endpoint}: {count}\n")
+        f.write(f"endpoint_distribution: {json.dumps(endpoint_counts, sort_keys=True)}\n")
+
+        if filtered_count < 50:
+            f.write("\nWARNING: Low Sample Size (n < 50)\n")
+            logger.warning(f"Low sample size detected: {filtered_count} < 50")
+        else:
+            f.write("\nstatus: OK\n")
+            logger.info(f"Sample size OK: {filtered_count} >= 50")
+
+    logger.info(f"Filter log written to {log_path}")
+
+
+def write_sample_size_status(output_dir: str, count: int):
+    """Write sample_size_status.json based on the filtered count."""
+    status_path = Path(output_dir) / "sample_size_status.json"
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    status = "SKIP_STATS" if count < 50 else "OK"
+    with open(status_path, "w") as f:
+        json.dump({"status": status}, f)
+
+    logger.info(f"Wrote sample size status: {status} to {status_path}")
+
 
 def main():
     """Main entry point for the filtering pipeline."""
-    # Setup logging
-    log_file = Path("data/processed/filter_log.txt")
-    log_setup = setup_logging(log_file)
-    
-    input_csv = "data/raw/tox21.csv" # Assumed input from T011
-    output_csv = "data/processed/organophosphates_filtered.csv"
-    
-    if not Path(input_csv).exists():
-        logger.error(f"Input file {input_csv} not found. Run download.py first.")
-        sys.exit(1)
+    setup_logging()
+    input_path = str(PROJECT_ROOT / "data" / "raw" / "tox21_raw.csv")
+    output_dir = str(PROJECT_ROOT / "data" / "processed")
+    output_path = Path(output_dir) / "organophosphates_filtered.csv"
 
-    try:
-        df = load_compounds(input_csv)
-        # Apply the SMARTS pattern constant defined in constants.py
-        filtered_df = apply_smarts_filter(df, SMARTS_PATTERN)
-        
-        if len(filtered_df) == 0:
-            logger.warning("No compounds matched the SMARTS pattern.")
-        
-        save_filtered_data(filtered_df, output_csv, str(log_file))
-        logger.info("Filtering and logging completed successfully.")
-        
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        raise
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    # 1. Load compounds
+    df = load_compounds(input_path)
+    total_input = len(df)
+
+    # 2. Apply SMARTS filter
+    filtered_df = apply_smarts_filter(df)
+    filtered_count = len(filtered_df)
+
+    # 3. Validate endpoints
+    endpoint_counts = validate_endpoints(filtered_df)
+
+    # 4. Save filtered data
+    save_filtered_data(filtered_df, str(output_path))
+
+    # 5. Write logs and status (T014: include raw download size)
+    raw_file = Path(input_path)
+    download_size_bytes = raw_file.stat().st_size if raw_file.exists() else None
+    write_filter_log(
+        output_dir,
+        total_input,
+        filtered_count,
+        endpoint_counts,
+        download_size_bytes=download_size_bytes,
+    )
+    write_sample_size_status(output_dir, filtered_count)
+
+    logger.info("Filtering complete.")
+
 
 if __name__ == "__main__":
     main()

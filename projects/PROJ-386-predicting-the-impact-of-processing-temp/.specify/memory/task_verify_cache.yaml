@@ -1,0 +1,88 @@
+T001:
+  c: true
+  h: 5661725b4e8d170cda7dadb2acc898acd657184687563c46cc2e7fdf1046a9b4
+  r: Checked the listed directory tree under the project root, confirming that `code/`,
+    `data/raw/`, `data/processed/`, `data/artifacts/`, `tests/`, `state/`, and `state/projects/`
+    all exist as required.
+  sig: 4916ef9f6ace22e92c8272b2c902e94eec4a80c6215a90bf380dcf308ede9d57
+T002:
+  c: false
+  h: c0c22da0739be633f4004c23458baa7becdb190da0e15a72c6bdf990e4e50ada
+  r: "The `code/requirements.txt` file exists but contains additional packages (`torch`,\
+    \ `joblib`, `matplotlib`) beyond the exact list required (pandas, scikit-learn,\
+    \ numpy, requests, pyyaml, memory-profiler, seaborn, pytest). This does not satisfy\
+    \ the task\u2019s specification."
+  sig: 5e42a138e06a841ae543d592eb5928397291e139b979c3e1672bd8cbb335aec4
+T003:
+  c: true
+  h: fbe3c8008d91720d40be7d0a15c258595b0455a93d7e7333dac707be093e202c
+  r: "The `code/.pre-commit-config.yaml` file exists (502\u202Fbytes) at the required\
+    \ path and contains the ruff repository with `ruff` and `ruff-format` hooks as\
+    \ well as the black repository with the `black` hook, fulfilling the linting and\
+    \ formatting configuration. Additional standard pre\u2011commit hooks are present\
+    \ but do not violate the task."
+  sig: f2332e376cd04f0c61ece39ee889a381e1f6f849ac34ad6137f21bd299a585be
+T004:
+  c: true
+  h: 1d682c2f005f153f8ed8e96ca4351d32c730f8fe072b16b59e4cc7be3e063231
+  r: "The `code/config.py` file exists, defines project directory paths, sets `GITHUB_ACTIONS_TIMEOUT`\
+    \ to 5\u202Fhours (5\u202F*\u202F3600 seconds), and includes a `HYPERPARAMETER_GRIDS`\
+    \ dictionary with sample grids. All required elements are present and correctly\
+    \ implemented."
+  sig: 6d4c20e2945f402577795c5711a1c58975eb0ad595a7a5a2dacd72e3c8392795
+T006:
+  c: true
+  h: 5f62c202a3b626ac2e176287cc7ce291696322891d791ae160d692c717c0e557
+  r: "Both `code/__init__.py` (47\u202Fbytes with a docstring) and `tests/__init__.py`\
+    \ (37\u202Fbytes with a comment) are present at the expected locations and contain\
+    \ non\u2011empty content, satisfying the task\u2019s requirement to create these\
+    \ files."
+  sig: a1afe82a29d66c1642dac988658177e3224c66336d9317714612c7927c74c1a4
+T007:
+  c: false
+  h: 3ed65271a1768d1da4952e6ef489b89b515267271d0d348e128549c7fe995a0a
+  r: "The file `state/projects/PROJ-386-predicting-the-impact-of-processing-temp.yaml`\
+    \ exists, but its contents are a project metadata document and do not include\
+    \ the required top\u2011level keys `artifact_hashes` (a map) and `updated_at`\
+    \ (a timestamp). The schema specified for task T007 is therefore not satisfied.\
+    \ The implementer must replace or augment the YAML so that it contains those two\
+    \ keys with appropriate values."
+  sig: 048b7fdaf394e202115ad8c7faa37fc11369300ef34b311978babe239df014a4
+T009:
+  c: false
+  h: 0d2ebdc55da25c1f604d251285e3581fed9012c9f548dd49117df2ade323b119
+  r: "The required test file `tests/contract/test_ingestion_schema.py` is missing\
+    \ from the repository, so no test code exists to verify the schema pre\u2011check\
+    \ skip logic. The artifact must be added with appropriate test cases for the task\
+    \ to be considered complete."
+T032:
+  c: false
+  h: 5ef7080e350019ef5d46549bb782dcb72470d76c821599dd4607d29d1a9f9e0e
+  r: "The required output file `data/artifacts/sensitivity_report.json` does not exist,\
+    \ and the provided `code/analysis/diagnostics.py` is truncated and does not clearly\
+    \ implement the full threshold sweep, stability calculation, confounder refit,\
+    \ or JSON generation as specified. The task\u2019s deliverables are therefore\
+    \ not satisfied."
+T046:
+  c: false
+  h: 973902623d0f545c12e44e321239d4766a5cad30ee50bda6e4b1a63c781a006b
+  r: "The provided `code/analysis/reporting.py` does not contain the required `generate_confounder_report(df,\
+    \ model)` function (only collinearity\u2011related helpers are present), and the\
+    \ expected output file `data/artifacts/confounder_report.json` is absent. Both\
+    \ the core function and its artifact are missing, so the task is not fulfilled."
+T047:
+  c: false
+  h: a3dfd9112aefb89cbf5bc14b1c3a7454014ed645ec29a6a6ee2a17ac2e6d4165
+  r: The module defines `format_collinearity_message` with the correct phrasing (aside
+    from extra quotes) and a helper to load the JSON, but the required `data/artifacts/collinearity_report.json`
+    file is absent, so the function cannot be exercised and the verification step
+    cannot be performed. The missing JSON artifact must be provided (or generated)
+    for the task to be considered complete.
+T049:
+  c: false
+  h: e16dc56590354be593ea55e2d87131afb73c07c761aaebeae54a277564c1f5ac
+  r: The `code/data/ingestion.py` file is truncated and does not contain the required
+    `accumulate_streaming_stats` function (or any logic updating means/null counts).
+    The generated `streaming_stats.json` shows all zeros and a row count of 0, indicating
+    no real aggregation was performed. Additionally, the verification dataset `data/raw/test_sample.csv`
+    is missing, so the tolerance check cannot be run.

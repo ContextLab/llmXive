@@ -1,3 +1,2 @@
-"""
-Source package for llmXive project.
-"""
+# Source package initialization
+pass

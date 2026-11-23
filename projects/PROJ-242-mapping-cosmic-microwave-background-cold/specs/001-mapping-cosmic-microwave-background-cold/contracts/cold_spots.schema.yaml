@@ -1,0 +1,34 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Cold Spot Candidate List"
+description: "List of identified CMB cold‑spot candidates after top‑hat filtering."
+type: "object"
+required:
+  - spots
+properties:
+  spots:
+    type: "array"
+    description: "Array of spot records; may be empty if no candidates are found."
+    items:
+      type: "object"
+      required:
+        - ra_deg
+        - dec_deg
+        - temperature_deviation_uK
+        - sigma_level
+        - filter_radius_deg
+      properties:
+        ra_deg:
+          type: "number"
+          description: "Right‑ascension in decimal degrees."
+        dec_deg:
+          type: "number"
+          description: "Declination in decimal degrees."
+        temperature_deviation_uK:
+          type: "number"
+          description: "CMB temperature relative to map mean (micro‑Kelvin)."
+        sigma_level:
+          type: "number"
+          description: "Deviation in units of the map σ (negative for cold spots)."
+        filter_radius_deg:
+          type: "number"
+          description: "Radius of the top‑hat filter applied (degrees)."

@@ -1,0 +1,32 @@
+{
+  "timestamp": "2023-10-27T10:00:00Z",
+  "source_file": "data/processed/aggregated_clean.csv",
+  "record_counts": {
+    "total_count": 350,
+    "normalized_count": 310,
+    "raw_count": 40
+  },
+  "threshold_evaluation": {
+    "status": "PASS",
+    "threshold": 300,
+    "normalized_count": 310,
+    "is_sufficient": true,
+    "warnings": []
+  },
+  "data_quality_summary": {
+    "total_records": 350,
+    "normalized_records": 310,
+    "raw_records": 40,
+    "missing_predictor_count": 0,
+    "columns": [
+      "pulse_duration",
+      "power",
+      "scanning_speed",
+      "pattern_geometry",
+      "hardness",
+      "elastic_modulus",
+      "wear_rate",
+      "normalization_method"
+    ]
+  }
+}

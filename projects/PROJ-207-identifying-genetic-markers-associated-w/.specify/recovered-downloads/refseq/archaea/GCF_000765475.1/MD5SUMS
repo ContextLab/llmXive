@@ -1,0 +1,17 @@
+4d3282e54357ebc4202bf3fe3ee572de  ./annotation_hashes.txt
+3f6a68136941ecb59d70a5d1b0b4f6a2  ./GCF_000765475.1_Mmet_Version1_assembly_report.txt
+daded140eac6fad59547909e330b0143  ./GCF_000765475.1_Mmet_Version1_assembly_stats.txt
+f946e6442208bf931e2ee6b9014a1e0f  ./GCF_000765475.1_Mmet_Version1_cds_from_genomic.fna.gz
+5206a2e9ea685a9571c8bd1722953b33  ./GCF_000765475.1_Mmet_Version1_fcs_report.txt
+be79adee729a46fe78fded6670ffb440  ./GCF_000765475.1_Mmet_Version1_feature_count.txt
+5a1413009c77f4ff7eae1d2ac3dfcdb6  ./GCF_000765475.1_Mmet_Version1_feature_table.txt.gz
+96b4fbbbe34caa560e7e56bb77e1e278  ./GCF_000765475.1_Mmet_Version1_gene_ontology.gaf.gz
+0c0acb3784bde490679c774c50c62395  ./GCF_000765475.1_Mmet_Version1_genomic.fna.gz
+8ee8952bf725491ad50cec9cdc4f50c1  ./GCF_000765475.1_Mmet_Version1_genomic.gbff.gz
+977d31e668c9150a05fd0a8752cac2d1  ./GCF_000765475.1_Mmet_Version1_genomic.gff.gz
+7b4c0742524706da1598ef57644402cd  ./GCF_000765475.1_Mmet_Version1_genomic.gtf.gz
+baa517d50d3df3bf5b10a755ad8a12db  ./GCF_000765475.1_Mmet_Version1_protein.faa.gz
+9b1351f623a6be1250c30efc003adce8  ./GCF_000765475.1_Mmet_Version1_protein.gpff.gz
+ba76349356d589f9f7789a1b22791630  ./GCF_000765475.1_Mmet_Version1_rna_from_genomic.fna.gz
+aab66b25a95f571e7015e411e765e16b  ./GCF_000765475.1_Mmet_Version1_translated_cds.faa.gz
+ac210f280c186c67515f463835b9d71c  ./GCF_000765475.1_Mmet_Version1_wgsmaster.gbff.gz

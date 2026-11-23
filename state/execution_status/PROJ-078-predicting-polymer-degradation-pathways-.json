@@ -1,0 +1,21 @@
+{
+  "project_id": "PROJ-078-predicting-polymer-degradation-pathways-",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/model.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026led.\")          # Create dummy data         num_nodes = 20\u2026\u201d; 6 command(s) failed: python code/ingest.py --source nist --output data/raw/nist_polyesters.csv (rc=1); python code/ingest.py --source smiles --output data/raw/smiles_dataset.csv (rc=1); python code/preprocess.py --input data/raw/nist_polyesters.csv --output data/processed/graph_dataset.pt (rc=1); 1 declared deliverable(s) absent: data/processed/augmented_graph_dataset.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/ingest.py --source nist --output data/raw/nist_polyesters.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-078-predicting-polymer-degradation-pathways-/code/ingest.py\", line 48, in <module>\n    def validate_smiles_and_convert(smiles: str) -> Optional[Chem.Mol]:\n                                                             ^^^^\nNameError: name 'Chem' is not defined",
+    "python code/ingest.py --source smiles --output data/raw/smiles_dataset.csv -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-078-predicting-polymer-degradation-pathways-/code/ingest.py\", line 48, in <module>\n    def validate_smiles_and_convert(smiles: str) -> Optional[Chem.Mol]:\n                                                             ^^^^\nNameError: name 'Chem' is not defined",
+    "python code/preprocess.py --input data/raw/nist_polyesters.csv --output data/processed/graph_dataset.pt -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-078-predicting-polymer-degradation-pathways-/code/preprocess.py\", line 409, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-078-predicting-polymer-degradation-pathways-/code/preprocess.py\", line 353, in main\n    raw_data, processed_data, reports, state = get_project_paths()\n                                               ^^^^^^^^^^^^^^^^^^^\n  File \"/home/runner",
+    "python code/preprocess.py --augment --input data/processed/graph_dataset.pt --output data/processed/augmented_graph_dataset.pt -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-078-predicting-polymer-degradation-pathways-/code/preprocess.py\", line 409, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-078-predicting-polymer-degradation-pathways-/code/preprocess.py\", line 353, in main\n    raw_data, processed_data, reports, state = get_project_paths()\n                                               ^^^^^^^^^^^^^^^^^",
+    "python code/train.py --data data/processed/augmented_graph_dataset.pt --epochs 50 --cv 5 -> rc=1\n    2026-08-20 23:34:50,304 - llmXive.__main__ - INFO - Random seed set to 42\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-078-predicting-polymer-degradation-pathways-/code/train.py\", line 359, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-078-predicting-polymer-degradation-pathways-/code/train.py\", line 287, in main\n    raise FileNotFoundError(f\"Neither {paths['processed'] / 'final_augmented_dataset.csv'} nor {paths['pr",
+    "python code/evaluate.py --model models/gnn_model.pt --data data/processed/graph_dataset.pt --output reports/motif_report.yaml -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-078-predicting-polymer-degradation-pathways-/code/evaluate.py\", line 416, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-078-predicting-polymer-degradation-pathways-/code/evaluate.py\", line 384, in main\n    model_path = str(paths['data_reports'] / 'model_best.pth')\n                     ~~~~~^^^^^^^^^^^^^^^^\nKeyError: 'data_reports'"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-20T23:34:59Z"
+}

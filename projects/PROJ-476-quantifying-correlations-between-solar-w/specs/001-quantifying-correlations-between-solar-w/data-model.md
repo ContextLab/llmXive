@@ -2,45 +2,67 @@
 
 ## Entities
 
-### SolarWindRecord
-- `timestamp`: `datetime` (UTC, 1‑hour)
-- `proton_density`: `float` (cm⁻³) – from **N_p**
-- `temperature`: `float` (K) – from **T_p**
-- `helium_abundance`: `float` (dimensionless) – from **He2+_ratio**
+### SolarWindRecord (raw, ACE)
+| Field | Type | Description | Source |
+|---|---|---|---|
+| `timestamp` | `datetime` | UTC epoch of measurement | ACE SWEPAM / SWICS Level 2 |
+| `N_p` | `float` | Proton density (cm⁻³) | SWEPAM |
+| `T_p` | `float` | Proton temperature (K) | SWEPAM |
+| `He2+_ratio` | `float` | He²⁺/H⁺ abundance ratio | SWICS |
 
-### GeomagneticRecord
-- `timestamp`: `datetime` (UTC, 1‑hour)
-- `kp_index`: `float` (0‑9)
-- `dst_index`: `float` (nT)
+### GeomagneticRecord (raw, NOAA/Kyoto)
+| Field | Type | Description | Source |
+|---|---|---|---|
+| `timestamp` | `datetime` | UTC hour | NOAA SWPC / Kyoto WDC |
+| `Kp` | `float` | Planetary K‑index (0–9) | NOAA |
+| `Dst` | `float` | Disturbance Storm Time index (nT) | Kyoto |
 
-### SynchronizedRecord
-- `timestamp`: `datetime`
-- `proton_density`: `float`
-- `temperature`: `float`
-- `helium_abundance`: `float`
-- `kp_index`: `float`
-- `dst_index`: `float`
-- `interpolated`: `boolean` – true if any field was linearly interpolated (≤ 6 h).
+### SynchronizedRecord (`data/processed/synced.csv`)
+| Field | Type | Description |
+|---|---|---|
+| `timestamp` | `datetime` (ISO‑8601) | 1‑h UTC grid |
+| `proton_density` | `float` | `N_p`; interpolated if gap ≤ 6 h |
+| `temperature` | `float` | `T_p`; interpolated if gap ≤ 6 h |
+| `helium_abundance` | `float` | `He2+_ratio`; interpolated if gap ≤ 6 h |
+| `Kp` | `float` | Hourly Kp |
+| `Dst` | `float` | Hourly Dst |
+| `interpolated_flag` | `bool` | True if any column in the row was interpolated |
 
-### CorrelationResult
-- `composition_parameter`: `string`
-- `geomagnetic_index`: `string`
-- `lag_hours`: `int`
-- `pearson_r`: `float`
-- `spearman_rho`: `float`
-- `p_raw`: `float`
-- `p_bonferroni`: `float`
-- `significance_flag`: `boolean`
-- `effect_size_flag`: `boolean`
+### StormFilteredRecord (in‑memory)
+| Field | Type | Description |
+|---|---|---|
+| `timestamp` | `datetime` | Subset of `SynchronizedRecord` where `Dst < -50` nT |
+| *(inherits all other columns)* |  |  |
+
+### CorrelationResult (`results/*.csv`)
+| Field | Type | Description |
+|---|---|---|
+| `composition_parameter` | `str` | `proton_density` | `temperature` | `helium_abundance` |
+| `geomagnetic_index` | `str` | `Kp` | `Dst` |
+| `lag_hours` | `int` | 0 | 1 | 2 | 3 | 6 |
+| `pearson_r` | `float` | Pearson correlation coefficient |
+| `spearman_rho` | `float` | Spearman rank correlation |
+| `n_eff` | `float` | Effective sample size (Pyper & Peterman) |
+| `p_raw` | `float` | Raw p‑value (Pearson t‑approx or Spearman permutation) |
+| `p_bonferroni` | `float` | Bonferroni‑adjusted p‑value |
+| `significant` | `bool` | `p_bonferroni < 0.05` |
+| `effect_size_large` | `bool` | `|pearson_r| > 0.5` |
+| `evaluability_flag` | `bool` | False if valid observations < 30 or n_eff < 30 |
 
 ## Data Flow
+1. **Fetch** → `data/raw/` (ACE CSVs, Kp/Dst text files) + `checksums.json`.  
+2. **Sync** → `data/processed/synced.csv`.  
+3. **Storm filter** (optional) → in‑memory `StormFilteredRecord`.  
+4. **Analyze** → `results/full_correlations.csv` (full) and optionally `results/storm_correlations.csv`.  
+5. **Validate** → `results/validation_correlations.csv`, `validation_report.md`.  
+6. **Visualise** → `figures/*.png`.
 
-1. **Raw Ingestion** – `data/raw/ace_*.csv`, `data/raw/noaa_*.csv`.  
-2. **Validation** – `code/data/validate.py` checks for `N_p`, `T_p`, `He2+_ratio`; aborts with explicit missing‑variable message (SC‑002).  
-3. **Alignment** – `code/data/align.py` produces `SynchronizedRecord` rows; guarantees no NaNs (SC‑004).  
-4. **Analysis** – `code/analysis/neff.py` & `correlation.py` generate `CorrelationResult` rows (30 total).  
-5. **Output** – `artifacts/correlations.csv` (conforms to `contracts/analysis_schema.schema.yaml`).  
-6. **Visualization** – PNG artefacts (validated by `contracts/visual_artifact.schema.yaml`).  
-7. **Report** – Markdown report (`contracts/output.schema.yaml`).  
+## Constraints
+- **Missing variable** → abort with explicit error (SC‑002).  
+- **Interpolation** only for gaps ≤ 6 h; longer gaps are excluded.  
+- **Lag set** fixed to {0,1,2,3,6}.  
+- **Evaluability floor**: ≥ 30 valid observations **and** `n_eff ≥ 30`; otherwise `evaluability_flag = False`.  
+- **File size limits**: PNG ≤ 5 MB (FR‑008).  
 
-All artefacts are version‑hashed and recorded in `state/`.
+---
+

@@ -1,0 +1,6 @@
+input:
+  preprocessed_nifti: path
+  atlas_file: path
+output:
+  connectivity_matrix: path
+  graph_metrics_csv: path

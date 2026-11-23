@@ -1,52 +1,55 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: MetabolomicProfile
-description: >-
-  Schema for a single plant metabolomic profile containing pre-stress and
-  post-stress metabolite abundances along with metadata required for
-  resilience analysis.
+title: MetabolomicProfile Dataset
+description: Schema for the metabolomic profile dataset used in plant stress resilience prediction.
 type: object
-required:
-  - accession_id
-  - organism
-  - stress_type
-  - time_point
-  - metabolite_data
 properties:
+  sample_id:
+    type: string
+    description: Unique identifier for the sample.
   accession_id:
     type: string
-    description: Unique identifier for the sample (e.g., GEO accession).
-    minLength: 1
-  organism:
-    type: string
-    description: Scientific name of the plant (e.g., 'Arabidopsis thaliana').
-    minLength: 1
+    description: External dataset accession identifier.
   stress_type:
     type: string
-    description: Type of stress applied (e.g., 'drought', 'heat', 'salt').
-    enum:
-      - drought
-      - heat
-      - cold
-      - salt
-      - oxidative
-      - pathogen
-      - other
-  time_point:
-    type: string
-    description: Time relative to stress application (e.g., 'pre-stress', '7d_post', '14d_post').
-    minLength: 1
-  replicate_id:
-    type: string
-    description: Optional identifier for biological replicate.
-  metabolite_data:
+    enum: [drought, heat, cold, salinity, pathogen]
+    description: Type of stress applied.
+  pre_stress_metabolites:
     type: object
-    description: >-
-      Map of metabolite identifiers (KEGG ID or common name) to abundance values.
-      Values must be numeric.
     additionalProperties:
       type: number
-  metadata:
+    description: Dictionary of metabolite concentrations before stress.
+  post_stress_metabolites:
     type: object
-    description: Optional free-form metadata fields.
-    additionalProperties: true
-additionalProperties: false
+    additionalProperties:
+      type: number
+    description: Dictionary of metabolite concentrations after stress.
+  recovery_days:
+    type: number
+    description: Time in days for recovery.
+  recovery_index:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Normalized recovery metric (0-1 scale).
+  biomass_change:
+    type: number
+    description: Relative change in biomass.
+  survival_rate:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: Survival rate of the plant population.
+  experiment_date:
+    type: string
+    format: date-time
+    description: Date of the experiment.
+  source_dataset:
+    type: string
+    description: Name of the source dataset.
+required:
+  - sample_id
+  - stress_type
+  - pre_stress_metabolites
+  - post_stress_metabolites
+  - recovery_days
+  - recovery_index

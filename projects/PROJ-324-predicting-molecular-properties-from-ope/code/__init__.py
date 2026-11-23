@@ -1,4 +1,2 @@
-"""
-Molecular Property Prediction Pipeline.
-This package contains modules for data processing, model training, and analysis.
-"""
+# PROJ-324: Predicting Molecular Properties from Open Babel Fingerprints
+# This package contains the core logic for the research pipeline.

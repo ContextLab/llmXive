@@ -18,7 +18,7 @@ The core output is a JSON report containing ANCOVA results (primary), t-test res
 **Primary Dependencies**: `pandas`, `scipy`, `statsmodels`, `numpy`, `pyyaml`, `json`  
 **Storage**: Local CSV/Parquet files (read-only for public data, generated for synthetic); JSON output.  
 **Testing**: `pytest` (unit tests for data loaders, statistical functions; integration tests for end-to-end pipeline).  
-**Target Platform**: Linux (GitHub Actions free-tier: 2 CPU, 7GB RAM, no GPU).  
+**Target Platform**: Linux (GitHub Actions free-tier: standard CPU allocation, 7GB RAM, no GPU).  
 **Project Type**: CLI tool / Data Analysis Library  
 **Performance Goals**: < 10 minutes runtime for N=10,000 dataset; < 500MB RAM usage.  
 **Constraints**: No GPU usage; no external API calls during execution (except initial dataset fetch if permitted, otherwise local cache); strict adherence to `instruction_type` variable presence.  

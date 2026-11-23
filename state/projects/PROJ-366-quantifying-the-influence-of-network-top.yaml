@@ -6,7 +6,7 @@ failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-366-quantifying-the-influence-of-network-top
-last_run_id: 6cbcea8d-4ddd-4555-9b39-6b5e3cbd809f
+last_run_id: 47320417-8eaa-46c8-84ce-d2ce02c49b29
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-366-quantifying-the-influence-of-network-top/specs/001-quantifying-the-influence-of-network-top
 title: Quantifying the Influence of Network Topology on Thermal Conductivity in Amorphous
   Silicon
-updated_at: '2026-07-03T19:40:26.352495Z'
+updated_at: '2026-08-18T15:58:53.454779Z'

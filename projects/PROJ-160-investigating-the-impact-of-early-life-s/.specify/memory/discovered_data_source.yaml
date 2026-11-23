@@ -1,0 +1,17 @@
+status: none
+intent: ABCD Study Release 4.0 NIMH Data Archive phenotypic subcortical segmentation
+  python package dataset
+required_fields:
+- ACE_Score
+- Hippocampal_Subfield_Volume_CA3
+- Hippocampal_Subfield_Volume_DG
+- Hippocampal_Subfield_Volume_Subiculum
+- Intracranial_Volume
+- Age
+- Sex
+- Scanner_Site
+- Family_ID
+- MRI_Quality_Flag
+cache_key: 1ffc49e7c007b6df60c781450dd5f9cd2fbe2c89f9973a716379c4edac66fffd
+searched_at: '2026-10-11T06:21:29.259746+00:00'
+retry_count: 1

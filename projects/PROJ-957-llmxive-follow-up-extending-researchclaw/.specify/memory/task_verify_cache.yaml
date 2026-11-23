@@ -1,0 +1,24 @@
+T007b:
+  c: false
+  h: fbd756b67d9f0bb25229e5ac48081b87601c309d801723c227ac26a716c1a120
+  r: "The required `data/raw/checksum.txt` does not exist, and none of the expected\
+    \ result files (`results/verified_accuracy_gate.log`, `.failed`, `.done`) are\
+    \ present, nor is any implementation code shown that performs the checksum verification\
+    \ and gate logic. The task\u2019s core functionality is therefore missing."
+T008:
+  c: false
+  h: 69cb2e887704b68acbc247e80cf21c509c5f5443d7a1a7b591037a44ef6ef2cf
+  r: "The provided `src/data/filter.py` stops after filtering and does not write the\
+    \ subset to `data/processed/protocol_mismatch_subset.json`, does not generate\
+    \ the `results/failure_mode_audit.csv` when the count is <\u202F10 or the dominant\
+    \ mode differs, and does not compute or record the SHA\u2011256 checksum. Moreover,\
+    \ those output files are absent from the repository. The task\u2019s required\
+    \ artifacts are therefore missing."
+T043:
+  c: false
+  h: c57668ef427221b7096666b7bc9a00dc9a1c1328d700048d26ecd5c224c461fc
+  r: "The `results/statistical_report.json` file is absent, so the required warning\
+    \ cannot be recorded. Moreover, the provided `power_calculator.py` is truncated\
+    \ and shows no logic that fixes N\u202F=\u202F10, computes power, or writes a\
+    \ `power_warning` field when power\u202F<\u202F0.4. The task\u2019s core output\
+    \ is therefore missing."

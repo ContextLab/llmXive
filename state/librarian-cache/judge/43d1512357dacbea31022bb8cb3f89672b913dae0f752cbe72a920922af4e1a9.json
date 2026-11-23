@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2310.14025",
+  "judged_at": "2026-08-11T10:13:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scalable visual pretraining for language intelligence\" computer science",
+  "rationale": "The paper focuses on a specific downstream application (Visual Word Sense Disambiguation) using LLMs and multimodal retrieval, whereas the user's question targets the foundational methodology of \"Scalable Visual Pretraining\" for language intelligence. While both involve LLMs and vision, the candidate paper does not address the pretraining mechanism, scalability, or the specific architectural framework implied by the user's reference to the \"Scalable Visual Pretraining\" paper, failing to meet the",
+  "relevant": false
+}

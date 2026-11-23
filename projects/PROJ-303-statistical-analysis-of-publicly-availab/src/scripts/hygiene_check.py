@@ -1,178 +1,170 @@
 """
-Hygiene Check Script for llmXive Pipeline.
+Hygiene Check Script for NOAA GHCN-Daily Data
 
-Computes SHA-256 hashes for all raw data files in the project's data/raw directory
-and writes the results to a YAML file in state/projects/<project_id>/hygiene.yaml.
+Computes SHA-256 hashes for raw data files and writes a manifest to
+state/projects/hygiene_manifest.yaml.
 
-This script depends on T005-exec (citation validation) having passed, ensuring
-that the data sources are valid before hashing.
+Dependencies:
+- T005-exec must have completed successfully to ensure valid data exists.
+- T001 must have created the directory structure.
+
+Usage:
+    python src/scripts/hygiene_check.py
 """
 
-import hashlib
 import os
 import sys
+import hashlib
+import yaml
 from pathlib import Path
 from datetime import datetime
 from typing import Dict, List, Any
 
-import yaml
+# Add project root to path if running as script
+if __name__ == "__main__":
+    project_root = Path(__file__).resolve().parents[2]
+    sys.path.insert(0, str(project_root))
 
-# Import config from the project's src module
 from src.config import get_config
-
 
 def compute_sha256(file_path: Path) -> str:
     """
-    Compute the SHA-256 hash of a file.
-
+    Computes the SHA-256 hash of a file by reading it in chunks.
+    
     Args:
         file_path: Path to the file to hash.
-
+        
     Returns:
         Hexadecimal string of the SHA-256 hash.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        PermissionError: If the file cannot be read.
     """
     sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except IOError as e:
-        raise RuntimeError(f"Failed to read file {file_path}: {e}")
+    with open(file_path, "rb") as f:
+        # Read in chunks to handle large files efficiently
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
+    return sha256_hash.hexdigest()
 
-
-def scan_raw_data_directory(data_dir: Path) -> List[Path]:
+def scan_raw_data_directory(raw_data_dir: Path) -> List[Dict[str, Any]]:
     """
-    Recursively scan the raw data directory for all files.
-
+    Scans the raw data directory recursively for all files and computes their hashes.
+    
     Args:
-        data_dir: Path to the raw data directory.
-
+        raw_data_dir: Path to the raw data directory.
+        
     Returns:
-        List of paths to all files found.
+        List of dictionaries containing file metadata and hash.
+        
+    Raises:
+        FileNotFoundError: If the raw data directory does not exist.
     """
-    if not data_dir.exists():
-        raise FileNotFoundError(f"Raw data directory not found: {data_dir}")
-
-    files = []
-    for root, _, filenames in os.walk(data_dir):
-        for filename in filenames:
+    if not raw_data_dir.exists():
+        raise FileNotFoundError(f"Raw data directory not found: {raw_data_dir}")
+    
+    if not raw_data_dir.is_dir():
+        raise NotADirectoryError(f"Path is not a directory: {raw_data_dir}")
+    
+    file_hashes = []
+    
+    # Walk through all files in the directory
+    for root, _, files in os.walk(raw_data_dir):
+        for file_name in files:
+            file_path = Path(root) / file_name
+            
             # Skip hidden files or temporary files
-            if filename.startswith('.') or filename.endswith('.tmp'):
+            if file_name.startswith('.'):
                 continue
-            files.append(Path(root) / filename)
+            
+            try:
+                file_hash = compute_sha256(file_path)
+                relative_path = file_path.relative_to(project_root)
+                
+                file_hashes.append({
+                    "file_path": str(relative_path),
+                    "absolute_path": str(file_path),
+                    "size_bytes": file_path.stat().st_size,
+                    "sha256": file_hash,
+                    "last_modified": datetime.fromtimestamp(file_path.stat().st_mtime).isoformat()
+                })
+            except (PermissionError, OSError) as e:
+                # Log error but continue processing other files
+                print(f"Warning: Could not hash {file_path}: {e}", file=sys.stderr)
+    
+    return file_hashes
 
-    if not files:
-        raise ValueError(f"No files found in raw data directory: {data_dir}")
-
-    return files
-
-
-def generate_hygiene_report(file_paths: List[Path], project_id: str) -> Dict[str, Any]:
+def write_manifest(file_hashes: List[Dict[str, Any]], output_path: Path) -> None:
     """
-    Generate the hygiene report dictionary.
-
+    Writes the hygiene manifest to a YAML file.
+    
     Args:
-        file_paths: List of file paths to hash.
-        project_id: The project identifier.
-
-    Returns:
-        Dictionary containing the report structure.
+        file_hashes: List of file hash dictionaries.
+        output_path: Path to the output YAML file.
     """
-    report = {
-        "project_id": project_id,
-        "timestamp": datetime.utcnow().isoformat(),
-        "status": "success",
-        "files": []
-    }
-
-    for file_path in sorted(file_paths):
-        relative_path = file_path.relative_to(file_path.parents[2]) if len(file_path.parents) >= 3 else file_path
-        file_hash = compute_sha256(file_path)
-        file_size = file_path.stat().st_size
-
-        report["files"].append({
-            "path": str(relative_path),
-            "size_bytes": file_size,
-            "sha256": file_hash
-        })
-
-    # Calculate aggregate checksums for integrity verification
-    combined_hash_input = "".join([f["sha256"] for f in report["files"]])
-    report["aggregate_hash"] = hashlib.sha256(combined_hash_input.encode()).hexdigest()
-    report["total_files"] = len(report["files"])
-
-    return report
-
-
-def write_hygiene_report(report: Dict[str, Any], output_path: Path) -> None:
-    """
-    Write the hygiene report to a YAML file.
-
-    Args:
-        report: The report dictionary.
-        output_path: Path where the YAML file should be written.
-    """
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    manifest = {
+        "metadata": {
+            "generated_at": datetime.now().isoformat(),
+            "script": "src/scripts/hygiene_check.py",
+            "total_files": len(file_hashes),
+            "total_size_bytes": sum(f["size_bytes"] for f in file_hashes)
+        },
+        "files": file_hashes
+    }
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        yaml.dump(manifest, f, default_flow_style=False, sort_keys=False)
+    
+    print(f"Hygiene manifest written to: {output_path}")
+    print(f"Total files processed: {len(file_hashes)}")
+    print(f"Total data size: {manifest['metadata']['total_size_bytes']:,} bytes")
 
+def main():
+    """Main entry point for the hygiene check script."""
     try:
-        with open(output_path, "w", encoding="utf-8") as f:
-            yaml.dump(report, f, default_flow_style=False, sort_keys=False)
-        print(f"Hygiene report written to: {output_path}")
-    except IOError as e:
-        raise RuntimeError(f"Failed to write hygiene report: {e}")
-
-
-def main() -> int:
-    """
-    Main entry point for the hygiene check script.
-
-    Returns:
-        Exit code (0 for success, 1 for failure).
-    """
-    try:
+        # Load configuration
         config = get_config()
-        project_id = config.get("project_id", "unknown")
-        raw_data_dir = config.get("raw_data_dir", "data/raw")
-        state_dir = config.get("state_dir", "state/projects")
-
-        # Ensure paths are Path objects
-        raw_data_path = Path(raw_data_dir)
-        state_path = Path(state_dir)
-
-        print(f"Starting hygiene check for project: {project_id}")
-        print(f"Scanning raw data directory: {raw_data_path}")
-
-        # Scan for files
-        files = scan_raw_data_directory(raw_data_path)
-        print(f"Found {len(files)} files to hash.")
-
-        # Generate report
-        report = generate_hygiene_report(files, project_id)
-
-        # Determine output path
-        output_file_name = f"{project_id}_hygiene.yaml"
-        output_path = state_path / project_id / output_file_name
-
-        # Write report
-        write_hygiene_report(report, output_path)
-
+        
+        # Define paths based on config
+        project_root = config.project_root
+        raw_data_dir = project_root / config.paths.raw_data
+        state_dir = project_root / config.paths.state
+        
+        # Output path for hygiene manifest
+        output_path = state_dir / "projects" / "hygiene_manifest.yaml"
+        
+        print(f"Starting hygiene check...")
+        print(f"Raw data directory: {raw_data_dir}")
+        print(f"Output manifest: {output_path}")
+        
+        # Scan and hash files
+        file_hashes = scan_raw_data_directory(raw_data_dir)
+        
+        if not file_hashes:
+            print("Warning: No files found in raw data directory.", file=sys.stderr)
+            # Still write an empty manifest to indicate check was run
+            write_manifest([], output_path)
+            return 0
+        
+        # Write manifest
+        write_manifest(file_hashes, output_path)
+        
         print("Hygiene check completed successfully.")
         return 0
-
+        
     except FileNotFoundError as e:
         print(f"Error: {e}", file=sys.stderr)
-        return 1
-    except ValueError as e:
-        print(f"Error: {e}", file=sys.stderr)
-        return 1
-    except RuntimeError as e:
-        print(f"Critical Error: {e}", file=sys.stderr)
+        print("Ensure T005-exec has completed and raw data exists.", file=sys.stderr)
         return 1
     except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
+        print(f"Unexpected error during hygiene check: {e}", file=sys.stderr)
+        import traceback
+        traceback.print_exc()
         return 1
-
 
 if __name__ == "__main__":
     sys.exit(main())

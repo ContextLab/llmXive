@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Result Schema"
+description: "Schema for the output of the PyBullet simulation evaluation"
+type: "object"
+properties:
+  result_id:
+    type: "string"
+    description: "Unique identifier for the simulation result"
+  trajectory_id:
+    type: "string"
+    description: "Reference to the input trajectory"
+  task_type:
+    type: "string"
+    enum:
+      - "grasp"
+      - "navigate"
+      - "place"
+      - "other"
+  success:
+    type: "boolean"
+    description: "Whether the task was completed successfully"
+  collision_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of collisions detected during execution"
+  execution_time_ms:
+    type: "number"
+    description: "Time taken to execute the trajectory in milliseconds"
+  error_message:
+    type:
+      - "string"
+      - "null"
+    description: "Error message if the simulation failed, null otherwise"
+required:
+  - "result_id"
+  - "trajectory_id"
+  - "task_type"
+  - "success"
+  - "collision_count"
+  - "execution_time_ms"
+additionalProperties: false

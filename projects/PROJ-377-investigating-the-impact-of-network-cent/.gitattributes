@@ -1,0 +1,27 @@
+# Set default behavior for line endings
+* text=auto
+*.py text
+*.sh text
+*.md text
+*.txt text
+*.csv text
+*.tsv text
+*.json text
+*.xml text
+
+# Binary files should not be converted
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.nii binary
+*.nii.gz binary
+*.h5 binary
+*.pkl binary
+*.mat binary
+*.tar.gz binary
+*.zip binary
+
+# Large files should use Git LFS if present
+# *.nii.gz filter=lfs diff=lfs merge=lfs -text
+# *.h5 filter=lfs diff=lfs merge=lfs -text

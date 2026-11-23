@@ -1,0 +1,3 @@
+"""
+Documentation and design artifacts.
+"""

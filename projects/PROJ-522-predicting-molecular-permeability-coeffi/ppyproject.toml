@@ -1,0 +1,5 @@
+[tool.black]
+line-length = 88
+target-version = ["py39"]
+include = "code/"
+exclude = [".git", "__pycache__", "build", "dist", "venv", ".venv", "data"]

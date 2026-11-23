@@ -1,69 +1,93 @@
 """
 Main entry point for the llmXive pipeline.
-
-Orchestrates the execution of:
-1. Oracle Generation (US1)
-2. Rule Extraction (US2)
-3. Divergence Analysis (US3)
+Orchestrates the execution of various stages.
 """
 import logging
 import sys
 from pathlib import Path
+from typing import Dict, Any, Optional
+import json
+import argparse
+from utils.checksums import check_code_drift
 
-# Configure logging
+# Add project root to path if necessary
+PROJECT_ROOT = Path(__file__).parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from oracle.generator import build_oracle_graph, save_and_verify, main as oracle_main
+from rules.extractor import main as extractor_main
+from analysis.diverge import main as divergence_main
+from rules.metrics import main as metrics_main
+from rules.trace_loader import main as trace_loader_main
+from analysis.synthetic_trace_generator import main as synthetic_gen_main
+from analysis.reporter import main as reporter_main
+
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[logging.StreamHandler(sys.stdout)]
+    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
 )
 logger = logging.getLogger(__name__)
 
 def main():
-    logger.info("Starting llmXive pipeline...")
-    
-    # Check project structure
-    root = Path(__file__).parent.parent
-    required_dirs = [
-        "data/raw", "data/processed",
-        "specs/001-llmxive-followup/contracts",
-        "code/utils", "code/oracle", "code/rules", "code/analysis"
-    ]
-    
-    for d in required_dirs:
-        dir_path = root / d
-        if not dir_path.exists():
-            logger.error(f"Missing required directory: {dir_path}")
-            raise FileNotFoundError(f"Directory not found: {dir_path}")
-    
-    logger.info("Project structure validated.")
-    logger.info("Pipeline execution sequence:")
-    logger.info("  1. Generate Ground Truth Oracle (US1)")
-    logger.info("  2. Extract Rules from Traces (US2)")
-    logger.info("  3. Quantify Divergence (US3)")
-    
-    # Orchestration logic:
-    # Since US1, US2, and US3 modules are not yet fully implemented,
-    # we verify the existence of the expected output paths and check
-    # for code drift in the current implementation using checksums.
-    
-    # 1. Verify Code Drift (Self-check)
-    logger.info("Performing code drift check on current implementation...")
-    try:
-        # We check the current file's checksum against a hypothetical baseline
-        # In a real scenario, this would compare against a stored manifest.
-        # Here we just demonstrate the integration with checksums.py.
-        current_file = Path(__file__).resolve()
-        checksum = compute_file_sha256(current_file)
-        logger.info(f"Current main.py checksum: {checksum}")
-    except Exception as e:
-        logger.warning(f"Checksum verification skipped or failed: {e}")
+    parser = argparse.ArgumentParser(description="llmXive Pipeline")
+    parser.add_argument("--stage", type=str, default="all", 
+                        choices=["oracle", "rules", "diverge", "report", "all"],
+                        help="Stage to execute")
+    parser.add_argument("--output", type=str, default=None, help="Output file path")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    args = parser.parse_args()
 
-    # 2. Placeholder for Phase Execution
-    # In the next tasks, specific orchestration logic will be added here
-    # to call oracle.parser, rules.extractor, etc.
+    logger.info("Starting llmXive pipeline execution...")
     
-    logger.info("Pipeline initialization complete. Ready for user story implementation.")
-    return 0
+    # 1. Check Code Drift (Fixed to handle missing reference gracefully)
+    code_dir = str(PROJECT_ROOT / "code")
+    # We call check_code_drift with just the directory. 
+    # The function in checksums.py now handles the missing reference_checksum argument.
+    if not check_code_drift(code_dir):
+        logger.error("Code drift detected! Aborting pipeline.")
+        sys.exit(1)
+    logger.info("Code drift check passed.")
+
+    if args.stage in ["oracle", "all"]:
+        logger.info("Executing Oracle Generation Stage...")
+        # Ensure output path is set
+        output_path = args.output or str(PROJECT_ROOT / "data" / "processed" / "oracle_graph.json")
+        # Call the oracle generator main which handles the full pipeline for oracle
+        oracle_main(output_path=output_path, seed=args.seed)
+        
+        # Verify the output exists
+        if not Path(output_path).exists():
+            logger.error(f"Oracle generation failed: {output_path} not found.")
+            sys.exit(1)
+        logger.info(f"Oracle generated successfully at {output_path}")
+
+    if args.stage in ["rules", "all"]:
+        logger.info("Executing Rule Extraction Stage...")
+        extractor_main()
+        # Ensure output exists
+        rules_path = str(PROJECT_ROOT / "data" / "processed" / "extracted_rules.json")
+        if not Path(rules_path).exists():
+            logger.error(f"Rule extraction failed: {rules_path} not found.")
+            sys.exit(1)
+
+    if args.stage in ["diverge", "all"]:
+        logger.info("Executing Divergence Analysis Stage...")
+        divergence_main()
+        divergence_path = str(PROJECT_ROOT / "data" / "processed" / "divergence_report.json")
+        if not Path(divergence_path).exists():
+            logger.error(f"Divergence analysis failed: {divergence_path} not found.")
+            sys.exit(1)
+
+    if args.stage in ["report", "all"]:
+        logger.info("Executing Final Reporting Stage...")
+        reporter_main()
+        report_path = str(PROJECT_ROOT / "data" / "processed" / "final_report.json")
+        if not Path(report_path).exists():
+            logger.error(f"Final report generation failed: {report_path} not found.")
+            sys.exit(1)
+
+    logger.info("Pipeline execution completed successfully.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Data and Outputs (tracked in DVC or separate storage)
+data/raw/*
+!data/raw/.gitkeep
+data/filtered/*
+!data/filtered/.gitkeep
+data/scores/*
+!data/scores/.gitkeep
+outputs/*
+!outputs/.gitkeep
+figures/*
+!figures/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Local config
+.env
+*.local.yaml

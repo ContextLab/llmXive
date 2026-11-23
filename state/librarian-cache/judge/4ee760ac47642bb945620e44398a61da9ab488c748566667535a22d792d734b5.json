@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.06364",
+  "judged_at": "2026-09-22T01:20:40Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting gut microbiome response to dietary interventions using publicly available data biology",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the mechanism of microbial response to interventions and provides a rigorous statistical framework for analyzing the specific variables (dietary intervention effects on taxa) central to the user's question, even if it focuses on the analysis methodology rather than a specific predictive model.",
+  "relevant": true
+}

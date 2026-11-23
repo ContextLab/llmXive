@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.19586",
+  "judged_at": "2026-09-04T06:51:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"naturebench: can coding agents match the published sota of nature-fami\" linguistics",
+  "rationale": "This paper satisfies criterion (a) by measuring the same underlying mechanism (social-linguistic processing and the distinction between social vs. biological knowledge violations) in the user's domain of large language models, even though it uses audio-language models and EEG alignment rather than the specific \"NatureBench\" text-based coding agent framework. It also fits criterion (f) as a canonical study in the alternative-vocabulary cluster of \"model-brain alignment\" and \"surprisal/entropy met",
+  "relevant": true
+}

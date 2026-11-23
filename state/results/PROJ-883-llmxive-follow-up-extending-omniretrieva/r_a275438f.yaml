@@ -1,0 +1,15 @@
+captured:
+  path: data/processed/execution_logs.csv
+  sha256: 46feb68688f4f0956c2e591382d061aec9fcbbc48464848438da4abc0e0894bf
+created_at: '2026-10-14T08:17:51Z'
+env_sha: 46feb68688f4f095
+hmac: 8809149c9deec8dfb65dd965164f6abfed0b837e7a0c8593dbac2440c4575658
+inputs:
+  command: quickstart run-book
+kind: table
+output_sha256: a275438f8772e8cb414ad37e2e896606ca8b8aa802ec01e7258740dcd5413481
+producer:
+  artifact: data/processed/execution_logs.csv
+  stage: implementation_preview
+result_id: r_a275438f
+value: data/processed/execution_logs.csv

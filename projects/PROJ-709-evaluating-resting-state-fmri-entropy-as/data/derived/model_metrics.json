@@ -1,0 +1,10 @@
+{
+  "delta_r": 0.0,
+  "r_entropy": 0.0,
+  "r_connectivity": 0.0,
+  "p_value_permutation": null,
+  "delta_auc_ci_lower": null,
+  "sensitivity_variance_r": null,
+  "sensitivity_variance_auc": null,
+  "significant_parcels_count": 0
+}

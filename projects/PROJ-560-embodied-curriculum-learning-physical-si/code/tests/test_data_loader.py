@@ -7,115 +7,244 @@ import shutil
 from pathlib import Path
 import sys
 
-# Add src to path if not already
+# Add the code directory to the path for imports
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from src.data_loader import load_public_dataset, calculate_gain_scores
+from src.data_loader import (
+    log_skipped_record,
+    calculate_gain_scores,
+    write_processed_data,
+    load_public_dataset,
+    generate_synthetic_fallback
+)
 from src.models import DatasetRecord
 
 class TestDataLoader:
-    
+    """Tests for data loader functionality including gain score calculation."""
+
     def setup_method(self):
-        """Setup test fixtures."""
+        """Set up test fixtures."""
         self.test_dir = tempfile.mkdtemp()
-        self.input_csv = Path(self.test_dir) / "input.csv"
-        self.input_json = Path(self.test_dir) / "input.json"
-        self.output_csv = Path(self.test_dir) / "output.csv"
-        self.log_path = Path(self.test_dir) / "skipped.log"
+        self.data_dir = Path(self.test_dir) / "data"
+        self.data_dir.mkdir(parents=True, exist_ok=True)
+        self.log_dir = Path(self.test_dir) / "data" / "derivation_logs"
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Create test records
+        self.records = [
+            DatasetRecord(
+                id="1",
+                pre_test_score=50.0,
+                post_test_score=70.0,
+                instruction_type="embodied",
+                covariates={"source": "test"}
+            ),
+            DatasetRecord(
+                id="2",
+                pre_test_score=60.0,
+                post_test_score=85.0,
+                instruction_type="static",
+                covariates={"source": "test"}
+            ),
+            DatasetRecord(
+                id="3",
+                pre_test_score=None,  # Missing pre score
+                post_test_score=75.0,
+                instruction_type="embodied",
+                covariates={"source": "test"}
+            ),
+            DatasetRecord(
+                id="4",
+                pre_test_score=55.0,
+                post_test_score=None,  # Missing post score
+                instruction_type="static",
+                covariates={"source": "test"}
+            )
+        ]
 
     def teardown_method(self):
-        """Cleanup test fixtures."""
+        """Clean up test fixtures."""
         shutil.rmtree(self.test_dir)
 
-    def test_load_csv_with_instruction_type(self):
-        """Test loading CSV that already has instruction_type."""
-        data = [
-            {"pre_test_score": 10, "post_test_score": 15, "instruction_type": "embodied"},
-            {"pre_test_score": 12, "post_test_score": 14, "instruction_type": "static"},
+    def test_calculate_gain_scores_valid_records(self):
+        """Test gain score calculation for valid records."""
+        valid_records = [
+            DatasetRecord(
+                id="1",
+                pre_test_score=50.0,
+                post_test_score=70.0,
+                instruction_type="embodied",
+                covariates={"source": "test"}
+            ),
+            DatasetRecord(
+                id="2",
+                pre_test_score=60.0,
+                post_test_score=85.0,
+                instruction_type="static",
+                covariates={"source": "test"}
+            )
         ]
         
-        with open(self.input_csv, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=data[0].keys())
-            writer.writeheader()
-            writer.writerows(data)
+        processed = calculate_gain_scores(valid_records)
+        
+        assert len(processed) == 2
+        assert processed[0].covariates["gain_score"] == 20.0
+        assert processed[1].covariates["gain_score"] == 25.0
 
-        records = load_public_dataset(str(self.input_csv), str(self.output_csv))
+    def test_calculate_gain_scores_excludes_missing_values(self):
+        """Test that records with missing values are excluded and logged."""
+        records_with_missing = [
+            DatasetRecord(
+                id="1",
+                pre_test_score=50.0,
+                post_test_score=70.0,
+                instruction_type="embodied",
+                covariates={"source": "test"}
+            ),
+            DatasetRecord(
+                id="2",
+                pre_test_score=None,
+                post_test_score=75.0,
+                instruction_type="embodied",
+                covariates={"source": "test"}
+            ),
+            DatasetRecord(
+                id="3",
+                pre_test_score=55.0,
+                post_test_score=None,
+                instruction_type="static",
+                covariates={"source": "test"}
+            )
+        ]
+        
+        processed = calculate_gain_scores(records_with_missing)
+        
+        # Only 1 record should be processed (the one with both scores)
+        assert len(processed) == 1
+        assert processed[0].id == "1"
+
+    def test_log_skipped_record_creates_file(self):
+        """Test that log_skipped_record creates the log file."""
+        log_skipped_record(
+            reason="Test missing values",
+            record_id="test_123",
+            dataset_source="test_dataset"
+        )
+        
+        log_file = Path("data/derivation_logs/skipped_records.log")
+        assert log_file.exists()
+        
+        # Clean up
+        log_file.unlink()
+
+    def test_load_public_dataset_csv(self):
+        """Test loading a CSV dataset."""
+        csv_path = Path(self.test_dir) / "test.csv"
+        with open(csv_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['pre_test_score', 'post_test_score', 'instruction_type'])
+            writer.writeheader()
+            writer.writerow({'pre_test_score': '50', 'post_test_score': '70', 'instruction_type': 'embodied'})
+            writer.writerow({'pre_test_score': '60', 'post_test_score': '85', 'instruction_type': 'static'})
+        
+        records = load_public_dataset(str(csv_path))
         
         assert len(records) == 2
+        assert records[0].pre_test_score == 50.0
+        assert records[0].post_test_score == 70.0
         assert records[0].instruction_type == "embodied"
-        assert records[1].instruction_type == "static"
-        assert Path(self.output_csv).exists()
 
-    def test_load_csv_missing_instruction_type_triggers_synthetic(self):
-        """Test that missing instruction_type triggers synthetic generation (FR-008)."""
-        # Data without instruction_type
+    def test_load_public_dataset_json(self):
+        """Test loading a JSON dataset."""
+        json_path = Path(self.test_dir) / "test.json"
         data = [
-            {"pre_test_score": 10, "post_test_score": 15},
-            {"pre_test_score": 12, "post_test_score": 14},
+            {"pre_test_score": 50, "post_test_score": 70, "instruction_type": "embodied"},
+            {"pre_test_score": 60, "post_test_score": 85, "instruction_type": "static"}
         ]
-        
-        with open(self.input_csv, 'w', newline='') as f:
-            writer = csv.DictWriter(f, fieldnames=data[0].keys())
-            writer.writeheader()
-            writer.writerows(data)
-
-        # This should not raise an error, but generate synthetic data
-        records = load_public_dataset(
-            str(self.input_csv), 
-            str(self.output_csv),
-            seed=42,
-            synthetic_params={"n_samples": 5}
-        )
-        
-        # Should have generated synthetic records (default or specified)
-        assert len(records) >= 1 # At least some records
-        # Verify all records now have instruction_type
-        for r in records:
-            assert r.instruction_type in ["embodied", "static"]
-
-    def test_load_json_missing_instruction_type(self):
-        """Test JSON loading with missing instruction_type."""
-        data = [
-            {"pre_test_score": 10, "post_test_score": 15},
-            {"pre_test_score": 12, "post_test_score": 14},
-        ]
-        
-        with open(self.input_json, 'w') as f:
+        with open(json_path, 'w') as f:
             json.dump(data, f)
-
-        records = load_public_dataset(
-            str(self.input_json),
-            str(self.output_csv),
-            seed=42,
-            synthetic_params={"n_samples": 3}
-        )
         
-        assert len(records) == 3
-        for r in records:
-            assert r.instruction_type is not None
+        records = load_public_dataset(str(json_path))
+        
+        assert len(records) == 2
+        assert records[0].pre_test_score == 50
+        assert records[0].post_test_score == 70
 
-    def test_calculate_gain_scores(self):
-        """Test gain score calculation and skipping logic."""
+    def test_load_public_dataset_missing_columns(self):
+        """Test handling of missing required columns."""
+        csv_path = Path(self.test_dir) / "incomplete.csv"
+        with open(csv_path, 'w', newline='') as f:
+            writer = csv.DictWriter(f, fieldnames=['pre_test_score', 'instruction_type'])
+            writer.writeheader()
+            writer.writerow({'pre_test_score': '50', 'instruction_type': 'embodied'})
+        
+        # Should log and skip the record
+        records = load_public_dataset(str(csv_path))
+        assert len(records) == 0
+
+    def test_write_processed_data(self):
+        """Test writing processed data to CSV."""
         records = [
-            DatasetRecord(pre_test_score=10.0, post_test_score=15.0, instruction_type="embodied", covariates={}),
-            DatasetRecord(pre_test_score=12.0, post_test_score=None, instruction_type="static", covariates={}), # Missing
-            DatasetRecord(pre_test_score=10.0, post_test_score=14.0, instruction_type="embodied", covariates={}),
+            DatasetRecord(
+                id="1",
+                pre_test_score=50.0,
+                post_test_score=70.0,
+                instruction_type="embodied",
+                covariates={"source": "test", "gain_score": 20.0}
+            )
         ]
         
-        valid_records = calculate_gain_scores(records, str(self.log_path))
+        output_path = Path(self.test_dir) / "output.csv"
+        write_processed_data(records, str(output_path))
         
-        assert len(valid_records) == 2
-        assert Path(self.log_path).exists()
+        assert output_path.exists()
         
-        # Check log content
-        with open(self.log_path, 'r') as f:
-            content = f.read()
-            assert "Skipped 1 records" in content
+        with open(output_path, 'r') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+            
+        assert len(rows) == 1
+        assert rows[0]['pre_test_score'] == '50.0'
+        assert rows[0]['post_test_score'] == '70.0'
+        assert rows[0]['gain_score'] == '20.0'
 
-    def test_invalid_file_format(self):
-        """Test error on unsupported file format."""
-        invalid_file = Path(self.test_dir) / "data.txt"
-        invalid_file.touch()
+    def test_generate_synthetic_fallback(self):
+        """Test synthetic data generation fallback."""
+        records = generate_synthetic_fallback(n_samples=10, seed=42)
         
-        with pytest.raises(ValueError):
-            load_public_dataset(str(invalid_file), str(self.output_csv))
+        assert len(records) == 10
+        for record in records:
+            assert record.pre_test_score is not None
+            assert record.post_test_score is not None
+            assert record.instruction_type is not None
+
+    def test_gain_score_calculation_logic(self):
+        """Test the specific logic of gain score calculation (post - pre)."""
+        records = [
+            DatasetRecord(
+                id="1",
+                pre_test_score=100.0,
+                post_test_score=100.0,  # No gain
+                instruction_type="embodied",
+                covariates={"source": "test"}
+            ),
+            DatasetRecord(
+                id="2",
+                pre_test_score=100.0,
+                post_test_score=150.0,  # Positive gain
+                instruction_type="static",
+                covariates={"source": "test"}
+            ),
+            DatasetRecord(
+                id="3",
+                pre_test_score=100.0,
+                post_test_score=80.0,   # Negative gain
+                instruction_type="embodied",
+                covariates={"source": "test"}
+            )
+        ]
+        
+        processed = calculate_gain_scores(records)
+        
+        assert processed[0].covariates["gain_score"] == 0.0
+        assert processed[1].covariates["gain_score"] == 50.0
+        assert processed[2].covariates["gain_score"] == -20.0

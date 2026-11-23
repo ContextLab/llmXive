@@ -4,11 +4,13 @@ import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Optional
+from config import Config
 
 class JsonFormatter(logging.Formatter):
+    """Custom formatter that outputs log records as JSON."""
+    
     def format(self, record):
-        log_record = {
+        log_obj = {
             "timestamp": datetime.utcnow().isoformat(),
             "level": record.levelname,
             "logger": record.name,
@@ -17,59 +19,61 @@ class JsonFormatter(logging.Formatter):
             "function": record.funcName,
             "line": record.lineno
         }
-        if hasattr(record, 'extra_data'):
-            log_record.update(record.extra_data)
-        return json.dumps(log_record)
+        
+        if record.exc_info:
+            log_obj["exception"] = self.formatException(record.exc_info)
+        
+        return json.dumps(log_obj)
 
-def get_logger(name: str, log_dir: Optional[str] = None) -> logging.Logger:
+def get_logger(name: str, config: Config = None, log_to_file: bool = True) -> logging.Logger:
     """
-    Creates a logger that writes to both stdout and a file in the specified directory.
-    Uses JSON formatting for structured logs.
+    Creates and configures a logger.
+    
+    Args:
+        name: Name of the logger.
+        config: Config object for log paths.
+        log_to_file: If True, logs to data/logs/ as well as stdout.
+        
+    Returns:
+        Configured logger instance.
     """
     logger = logging.getLogger(name)
     logger.setLevel(logging.INFO)
-
+    
     if logger.handlers:
         return logger
-
-    # Create log directory if it doesn't exist
-    if log_dir is None:
-        log_dir = "data/logs"
     
-    log_path = Path(log_dir)
-    log_path.mkdir(parents=True, exist_ok=True)
-
-    # File handler
-    file_handler = logging.FileHandler(log_path / f"{name}.log")
-    file_handler.setLevel(logging.INFO)
-    file_handler.setFormatter(JsonFormatter())
-
     # Console handler
     console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(JsonFormatter())
-
-    logger.addHandler(file_handler)
+    console_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
-
+    
+    if log_to_file and config:
+        log_dir = Path(config.log_dir)
+        log_dir.mkdir(parents=True, exist_ok=True)
+        
+        file_handler = logging.FileHandler(
+            log_dir / f"{name}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"
+        )
+        file_handler.setLevel(logging.INFO)
+        file_formatter = JsonFormatter()
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
+    
     return logger
 
-def log_event(event_type: str, data: Dict[str, Any], logger_name: str = "trainer"):
+def log_event(logger: logging.Logger, event_type: str, data: dict):
     """
-    Logs a structured event to the specified logger.
+    Helper to log structured events.
+    
+    Args:
+        logger: The logger instance.
+        event_type: Type of event (e.g., 'phase_transition', 'metric_update').
+        data: Dictionary of event data.
     """
-    logger = get_logger(logger_name)
-    record = logger.makeRecord(
-        logger.name,
-        logging.INFO,
-        "",
-        0,
-        f"Event: {event_type}",
-        (),
-        None
-    )
-    record.extra_data = {
-        "event_type": event_type,
-        **data
-    }
-    logger.handle(record)
+    message = f"[{event_type}] {json.dumps(data)}"
+    logger.info(message)

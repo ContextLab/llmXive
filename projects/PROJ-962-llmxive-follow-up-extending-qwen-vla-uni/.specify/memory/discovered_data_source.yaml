@@ -1,0 +1,9 @@
+status: none
+intent: download Qwen-VLA instruction and action sequence dataset from HuggingFace
+  python package dataset
+required_fields:
+- instruction_text
+- action_sequence
+cache_key: c89023ed0861860db2d2f8ab14ef04d90c4e44f3d7fe580317d6bae1842db7bb
+searched_at: '2026-10-09T09:21:36.095715+00:00'
+retry_count: 1

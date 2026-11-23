@@ -1,0 +1,38 @@
+{
+  "dataset_name": "fddemarco/pushshift-reddit-comments",
+  "split": "train",
+  "required_fields_present": true,
+  "has_title": false,
+  "sample_records": [
+    {
+      "created_utc": 1325376000,
+      "subreddit": "news",
+      "body": "isn ' t this against the first amendment ? doesn ' t the first amendment give us the right to assemble and protest ?",
+      "author": "goishin"
+    },
+    {
+      "created_utc": 1325376000,
+      "subreddit": "AskReddit",
+      "body": "oil .",
+      "author": "irwinator"
+    },
+    {
+      "created_utc": 1325376000,
+      "subreddit": "politics",
+      "body": "yeah nice . . . except for the fact that everyone who contracted aids back then did not even know that the disease even existed . he is clearly alluding to gay sex as being the cause as this is what religious nuts like paul used to cry about .",
+      "author": "reed311"
+    },
+    {
+      "created_utc": 1325376000,
+      "subreddit": "gaming",
+      "body": "bro , i figuratively just watched that episode .",
+      "author": "sagapo3851"
+    },
+    {
+      "created_utc": 1325376000,
+      "subreddit": "politics",
+      "body": "this is why u can ' t vote",
+      "author": "filthgrinder"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Feature Matrix Schema"
+description: "Schema for the merged genomic-environmental feature matrix used in modeling."
+type: "object"
+properties:
+  header:
+    type: "array"
+    items:
+      type: "string"
+      description: "Column names including sample_id, species, and feature columns."
+  data:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        sample_id:
+          type: "string"
+          description: "Unique identifier for the sample."
+        species:
+          type: "string"
+          enum: ["Wheat", "Rice", "Maize", "Tomato", "Soybean"]
+          description: "Crop species."
+        disease_status:
+          type: "string"
+          description: "Target label: Susceptible, Resistant, or Unknown."
+        phenotype_source:
+          type: "string"
+          description: "Independent source of the disease label (e.g., Field Trial ID)."
+        features:
+          type: "object"
+          additionalProperties:
+            type: "number"
+            description: "Numeric values for genomic frequencies or environmental variables."
+          description: "All predictor variables (SNPs, temp, humidity, etc.)."
+      required:
+        - sample_id
+        - species
+        - disease_status
+        - phenotype_source
+        - features
+    minItems: 1
+    description: "Rows of the feature matrix."
+  metadata:
+    type: "object"
+    properties:
+      total_samples:
+        type: "integer"
+        description: "Total number of samples processed."
+      missing_values_before_imputation:
+        type: "integer"
+        description: "Count of missing values before imputation."
+      missing_values_after_imputation:
+        type: "integer"
+        description: "Must be 0."
+      missing_values_percentage_before:
+        type: "number"
+        description: "Percentage of missing values before imputation (SC-005)."
+      imputation_method:
+        type: "string"
+        description: "Method used (must be 'k-NN')."
+      collinearity_pruned_count:
+        type: "integer"
+        description: "Number of features removed due to LD pruning."
+      pca_components_count:
+        type: "integer"
+        description: "Number of PCA components if applied."
+    required:
+      - total_samples
+      - missing_values_after_imputation
+      - missing_values_percentage_before
+      - imputation_method
+      - collinearity_pruned_count
+required:
+  - header
+  - data
+  - metadata

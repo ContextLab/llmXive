@@ -1,11 +1,10 @@
 # Quickstart: Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes
 
 ## Prerequisites
-
 *   Python 3.11+
+*   `pip` (or `conda`)
 *   Git
-*   Sufficient free disk space (for raw data and processed matrices)
-*   Sufficient RAM (recommended for smooth operation, though a defined target limit is established)
+*   Access to the verified datasets (via Hugging Face or OpenNeuro).
 
 ## Installation
 
@@ -23,73 +22,52 @@
 
 3.  **Install dependencies**:
     ```bash
-    pip install -r requirements.txt
+    pip install -r code/requirements.txt
     ```
-    *Note: This installs CPU-only compatible versions of `numpy`, `scipy`, `networkx`, etc. `torch` is NOT included in the dependencies and is not used.*
+    *Note: `requirements.txt` includes `networkx`, `nilearn`, `scipy`, `pandas`, `matplotlib`, `huggingface_hub`.*
 
-## Data Setup
-
-The pipeline is designed to download data automatically. However, if you need to manually verify the source:
-
-1.  **Download Sample Data** (Optional, for testing):
-    The `code/download_data.py` script will fetch the first 5 subjects from the OpenNeuro ds000224 by default for testing.
+4.  **Verify environment**:
     ```bash
-    python code/download_data.py --subjects 5 --test-mode
+    python -c "import networkx; import nilearn; print('Environment OK')"
     ```
-
-2.  **Full Dataset**:
-    To run the full analysis (N=100):
-    ```bash
-    python code/download_data.py --subjects 100
-    ```
-    *Note: This may take significant time depending on your internet connection.*
 
 ## Running the Pipeline
 
-Execute the main pipeline script:
-
+### Option A: Full Analysis (If Data Available)
+Run the main orchestration script. This will attempt to download data, process it, and generate results.
 ```bash
-python code/main.py
+python code/main.py --mode full
+```
+*   **Output**: `data/results/validation_report.json`, `data/results/plots/` (Venn, Heatmap, Line).
+
+### Option B: Pre-computed Data Mode
+If raw data processing is not feasible, run with pre-computed matrices (if available in `data/raw/`).
+```bash
+python code/main.py --mode precomputed
 ```
 
-This script will:
-1.  Download/verify data.
-2.  Register data to MNI space if necessary.
-3.  Generate adjacency matrices for AAL and Schaefer parcellations.
-4.  Compute centrality metrics.
-5.  Define hubs and calculate overlap.
-6.  Run Spatial Spin Test.
-7.  Perform sensitivity analysis (threshold sweep).
-8.  Generate visualizations.
-
-### Output Location
-
-*   **Processed Data**: `data/processed/`
-*   **Results**: `data/results/`
-*   **Plots**: `data/results/plots/`
+### Option C: Methodological Demo (Synthetic Data)
+If no real data is available, run with synthetic data to demonstrate the pipeline logic.
+```bash
+python code/main.py --mode demo
+```
 
 ## Verification
-
-To verify the results:
-
-1.  **Check for missing values**:
+1.  **Check Artifacts**:
     ```bash
-    python -c "import pandas as pd; df = pd.read_csv('data/results/stats.csv'); print(df.isnull().sum())"
+    ls -l data/processed/
+    ls -l data/results/
     ```
-    *Expected: All zeros.*
-
-2.  **Verify Hub Counts**:
-    Ensure the number of hubs matches `floor(N * 0.10)`:
-    *   AAL-90: multiple hubs
-    *   Schaefer-200: a set of hubs
-    *   Schaefer-400: a set of hubs
-
-3.  **Run Unit Tests**:
+2.  **Run Tests**:
     ```bash
-    pytest tests/unit/
+    pytest tests/ -v
+    ```
+3.  **Validate Citations**:
+    ```bash
+    python code/validators/validate_citations.py
     ```
 
 ## Troubleshooting
-
-*   **Memory Error**: If you encounter `MemoryError`, reduce the number of subjects in `download_data.py` or ensure you are running in the virtual environment. The pipeline processes subjects sequentially to minimize memory usage.
-*   **Timeout**: If the Spatial Spin Test takes too long, edit `code/overlap.py` and reduce `n_permutations` from 1000 to 500.
+*   **Memory Error**: Ensure `streaming=True` is used in the loader. Reduce `N` in `config.py` if necessary.
+*   **Data Not Found**: Check the "Verified datasets" section in `research.md`. If the URL is invalid, the pipeline will switch to `demo` mode.
+*   **Time Out**: The Spatial Spin Test will automatically reduce iterations to 500 if the time limit is approached.

@@ -71,5 +71,15 @@
     "sec/01_intro.tex",
     "sec/05_experiment.tex",
     "sec/03_inference_infra.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "e7f87bbec04a7e5d720fa0cc116ff19eed6ede2fefecc975d7c318963f199fa4",
+      "bytes": 7323236
+    },
+    "original.pdf": {
+      "sha256": "6b15c7a74766bab77643c67a46d3a8df7bf55b8ed7e902b1b0518e4e71f8088f",
+      "bytes": 7286189
+    }
+  }
 }

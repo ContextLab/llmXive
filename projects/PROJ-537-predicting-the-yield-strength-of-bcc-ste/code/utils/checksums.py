@@ -1,75 +1,42 @@
 """
-Checksum utilities for data provenance tracking.
-
-Generates and verifies SHA-256 checksums for data artifacts.
+Helper utilities for generating SHA‑256 checksums of data artifacts.
+Used by the ingestion.generate_checksums module.
 """
 
 import hashlib
-import os
 from pathlib import Path
-from typing import Dict, List
-
-from .logging import get_logger
-
-logger = get_logger(__name__)
+from typing import Dict
 
 def generate_checksum(file_path: Path) -> str:
     """
-    Generate SHA-256 checksum for a file.
-    
-    Args:
-        file_path: Path to the file
-        
-    Returns:
-        Hexadecimal string of the SHA-256 hash
-    """
-    sha256_hash = hashlib.sha256()
-    
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except Exception as e:
-        logger.error(f"Error generating checksum for {file_path}: {e}")
-        raise
+    Compute the SHA‑256 checksum of the file at ``file_path`` and return the
+    hexadecimal digest.
 
-def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
-    """
-    Verify file checksum against expected value.
-    
-    Args:
-        file_path: Path to the file
-        expected_checksum: Expected SHA-256 hash
-        
-    Returns:
-        True if checksum matches, False otherwise
-    """
-    actual_checksum = generate_checksum(file_path)
-    return actual_checksum == expected_checksum
+    The function reads the file in 64 KB chunks to avoid loading large files
+    entirely into memory.
 
-def generate_all_checksums(data_dir: Path = None) -> Dict[str, str]:
+    Raises:
+        FileNotFoundError: If ``file_path`` does not exist.
     """
-    Generate checksums for all files in the data directory.
-    
-    Args:
-        data_dir: Directory to scan (defaults to PROJECT_ROOT/data)
-        
-    Returns:
-        Dictionary mapping relative file paths to checksums
+    if not file_path.is_file():
+        raise FileNotFoundError(f"Cannot compute checksum – file not found: {file_path}")
+
+    sha256 = hashlib.sha256()
+    with file_path.open("rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            sha256.update(chunk)
+    return sha256.hexdigest()
+
+def generate_checksums_for_directory(base_dir: Path) -> Dict[str, str]:
     """
-    from config import DATA_DIR
-    
-    if data_dir is None:
-        data_dir = DATA_DIR
-    
+    Walk ``base_dir`` recursively and return a mapping of relative file paths
+    (POSIX style) to their SHA‑256 checksums.
+
+    Only regular files are considered; directories are ignored.
+    """
     checksums = {}
-    
-    for file_path in data_dir.rglob("*"):
-        if file_path.is_file():
-            rel_path = file_path.relative_to(data_dir)
-            checksum = generate_checksum(file_path)
-            checksums[str(rel_path)] = checksum
-            logger.debug(f"Generated checksum for {rel_path}: {checksum[:16]}...")
-    
+    for path in base_dir.rglob("*"):
+        if path.is_file():
+            rel_path = path.relative_to(base_dir).as_posix()
+            checksums[rel_path] = generate_checksum(path)
     return checksums

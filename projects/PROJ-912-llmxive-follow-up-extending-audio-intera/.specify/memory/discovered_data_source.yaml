@@ -1,0 +1,13 @@
+status: none
+intent: HuggingFace datasets LibriSpeech Common Voice audio transcription python package
+  dataset
+required_fields:
+- audio
+- transcript
+- speaker_id
+- duration
+- language
+- sampling_rate
+cache_key: 5ca1e61fa7a43238ea77bd8f5194096062ff1276fc2f934439cd38ce776c0ff1
+searched_at: '2026-09-20T03:52:19.610155+00:00'
+retry_count: 1

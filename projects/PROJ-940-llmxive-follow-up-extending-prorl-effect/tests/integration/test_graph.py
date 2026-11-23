@@ -1,0 +1,303 @@
+"""
+Integration tests for disconnected graph handling in the ProRL pipeline.
+
+This module verifies that the graph builder and path generator correctly
+handle scenarios where items have no similar neighbors (disconnected components).
+
+Tests cover:
+1. Graph construction with zero-overlap neighbors (FR-009)
+2. Path generation truncation at disconnection points (FR-007)
+3. Graceful handling of fully disconnected seed items
+"""
+import pytest
+import numpy as np
+from typing import List, Dict, Any
+from unittest.mock import patch, MagicMock
+import sys
+import os
+
+# Add project root to path for imports
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
+
+from src.entities import ItemNode, SimilarityEdge, RecommendationPath
+from src.graph_builder import (
+    build_graph,
+    get_connected_component,
+    is_node_connected,
+    validate_path_connectivity,
+    truncate_path_at_disconnection
+)
+from src.path_generator import generate_greedy_paths
+from src.exceptions import GraphDisconnectionError
+
+
+class MockItem:
+    """Mock item for testing graph construction."""
+    def __init__(self, item_id: str, features: np.ndarray, genres: List[str]):
+        self.item_id = item_id
+        self.features = features
+        self.genres = genres
+
+def create_test_items() -> Dict[str, MockItem]:
+    """
+    Create a set of test items with controlled feature overlap.
+    
+    Returns:
+        Dict mapping item_id to MockItem with:
+        - Item A: Features [1,0,0], Genres ['SciFi']
+        - Item B: Features [1,0,0], Genres ['SciFi'] (high similarity to A)
+        - Item C: Features [0,1,0], Genres ['Drama'] (no similarity to A)
+        - Item D: Features [0,0,1], Genres ['Horror'] (isolated, no neighbors)
+    """
+    return {
+        'item_a': MockItem('item_a', np.array([1.0, 0.0, 0.0]), ['SciFi']),
+        'item_b': MockItem('item_b', np.array([1.0, 0.0, 0.0]), ['SciFi']),
+        'item_c': MockItem('item_c', np.array([0.0, 1.0, 0.0]), ['Drama']),
+        'item_d': MockItem('item_d', np.array([0.0, 0.0, 1.0]), ['Horror']),
+    }
+
+@pytest.fixture
+def connected_graph():
+    """Build a graph where all items have at least one neighbor."""
+    items = create_test_items()
+    # Remove item_d to ensure connectivity
+    connected_items = {k: v for k, v in items.items() if k != 'item_d'}
+    graph = build_graph(connected_items, similarity_threshold=0.0)
+    return graph, connected_items
+
+@pytest.fixture
+def disconnected_graph():
+    """Build a graph with a fully isolated node (item_d)."""
+    items = create_test_items()
+    graph = build_graph(items, similarity_threshold=0.0)
+    return graph, items
+
+def test_graph_construction_with_zero_overlap(disconnected_graph):
+    """
+    Test FR-009: Graph builder handles zero-overlap neighbors by assigning score 0.0.
+    
+    Verifies that:
+    1. The graph is built without crashing
+    2. Isolated nodes have empty neighbor lists
+    3. No edges are created for zero-similarity pairs
+    """
+    graph, items = disconnected_graph
+    
+    # Item D should be in the graph but have no edges
+    assert 'item_d' in graph['nodes']
+    assert len(graph['nodes']['item_d'].neighbors) == 0
+    
+    # Verify no edges connect to item_d
+    for edge in graph['edges']:
+        assert edge.source_id != 'item_d' and edge.target_id != 'item_d'
+
+def test_connected_component_detection(disconnected_graph):
+    """
+    Test that get_connected_component correctly identifies isolated nodes.
+    
+    Verifies:
+    1. Connected items (A, B, C) are in the same component
+    2. Isolated item (D) forms its own component
+    """
+    graph, items = disconnected_graph
+    
+    # Get component for connected item A
+    component_a = get_connected_component(graph, 'item_a')
+    assert 'item_a' in component_a
+    assert 'item_b' in component_a
+    assert 'item_c' in component_a
+    assert 'item_d' not in component_a
+    
+    # Get component for isolated item D
+    component_d = get_connected_component(graph, 'item_d')
+    assert component_d == ['item_d']
+
+def test_node_connectivity_check(disconnected_graph):
+    """
+    Test is_node_connected correctly identifies isolated nodes.
+    
+    Verifies:
+    1. Connected nodes return True
+    2. Isolated nodes return False
+    """
+    graph, items = disconnected_graph
+    
+    assert is_node_connected(graph, 'item_a') is True
+    assert is_node_connected(graph, 'item_b') is True
+    assert is_node_connected(graph, 'item_c') is True
+    assert is_node_connected(graph, 'item_d') is False
+
+def test_path_truncation_at_disconnection(disconnected_graph):
+    """
+    Test FR-007: Path generation truncates at disconnection points.
+    
+    Simulates a path that attempts to traverse from a connected node
+    to an isolated node, verifying the truncation logic.
+    """
+    graph, items = disconnected_graph
+    
+    # Create a path that tries to go from A to D (disconnected)
+    # In a real scenario, this would be generated by path_generator
+    # Here we test the truncation function directly
+    
+    # Simulate a path sequence that would fail at item_d
+    path_items = ['item_a', 'item_b', 'item_d']  # item_d is disconnected from B
+    
+    # Truncate the path
+    truncated_path = truncate_path_at_disconnection(graph, path_items)
+    
+    # Should stop before the disconnected node
+    assert 'item_d' not in truncated_path
+    assert len(truncated_path) < len(path_items)
+    assert 'item_a' in truncated_path
+    assert 'item_b' in truncated_path
+
+def test_validate_path_connectivity(disconnected_graph):
+    """
+    Test validate_path_connectivity correctly identifies broken paths.
+    
+    Verifies:
+    1. Valid paths return True
+    2. Paths with disconnections return False and identify the break point
+    """
+    graph, items = disconnected_graph
+    
+    # Valid path
+    valid_path = ['item_a', 'item_b']
+    assert validate_path_connectivity(graph, valid_path) is True
+    
+    # Invalid path (A -> B -> D, where B and D are disconnected)
+    invalid_path = ['item_a', 'item_b', 'item_d']
+    assert validate_path_connectivity(graph, invalid_path) is False
+
+def test_greedy_paths_with_isolated_seed(disconnected_graph):
+    """
+    Test that generate_greedy_paths handles a seed item with no neighbors.
+    
+    Verifies:
+    1. No crash when seed is isolated
+    2. Returns empty or minimal path list
+    3. Does not attempt to generate invalid paths
+    """
+    graph, items = disconnected_graph
+    
+    # Try to generate paths starting from isolated item_d
+    # This should not raise an exception
+    paths = generate_greedy_paths(
+        graph=graph,
+        seed_item_id='item_d',
+        path_length=5,
+        beam_width=10
+    )
+    
+    # Should return empty list or paths of length 1 (just the seed)
+    assert isinstance(paths, list)
+    if len(paths) > 0:
+        # If paths exist, they should only contain the seed
+        for path in paths:
+            assert len(path.items) == 1
+            assert path.items[0] == 'item_d'
+
+def test_greedy_paths_with_connected_seed(connected_graph):
+    """
+    Test that generate_greedy_paths works normally for connected seeds.
+    
+    Verifies:
+    1. Paths are generated successfully
+    2. Paths respect the graph connectivity
+    3. No disconnection errors occur
+    """
+    graph, items = connected_graph
+    
+    paths = generate_greedy_paths(
+        graph=graph,
+        seed_item_id='item_a',
+        path_length=3,
+        beam_width=10
+    )
+    
+    assert isinstance(paths, list)
+    assert len(paths) > 0
+    
+    # All paths should be valid and connected
+    for path in paths:
+        assert len(path.items) > 0
+        assert path.items[0] == 'item_a'
+        # Verify connectivity of the generated path
+        assert validate_path_connectivity(graph, path.items) is True
+
+def test_no_crash_on_fully_disconnected_graph():
+    """
+    Test that the system handles a graph where ALL items are isolated.
+    
+    Verifies:
+    1. Graph construction doesn't crash
+    2. Path generation returns empty results without error
+    3. No GraphDisconnectionError is raised
+    """
+    # Create items with completely different features
+    isolated_items = {
+        f'isolated_{i}': MockItem(f'isolated_{i}', np.array([1.0 if j == i else 0.0 for j in range(5)]), [f'Genre{i}'])
+        for i in range(5)
+    }
+    
+    # Build graph with high threshold to ensure no connections
+    graph = build_graph(isolated_items, similarity_threshold=0.99)
+    
+    # Verify all nodes are isolated
+    for item_id in isolated_items:
+        assert len(graph['nodes'][item_id].neighbors) == 0
+    
+    # Try to generate paths - should not crash
+    try:
+        paths = generate_greedy_paths(
+            graph=graph,
+            seed_item_id='isolated_0',
+            path_length=5,
+            beam_width=10
+        )
+        # Should return empty or minimal paths
+        assert isinstance(paths, list)
+    except GraphDisconnectionError:
+        pytest.fail("GraphDisconnectionError should not be raised for isolated seeds")
+
+def test_mixed_connectivity_scenario():
+    """
+    Test a complex scenario with multiple connected components and isolated nodes.
+    
+    Verifies:
+    1. System handles mixed connectivity correctly
+    2. Paths are generated only for valid components
+    3. Isolated nodes don't break the entire pipeline
+    """
+    # Create a mixed graph:
+    # Component 1: A-B (high similarity)
+    # Component 2: C-D (medium similarity)
+    # Isolated: E
+    items = {
+        'A': MockItem('A', np.array([1.0, 0.0, 0.0, 0.0]), ['SciFi']),
+        'B': MockItem('B', np.array([0.9, 0.0, 0.0, 0.0]), ['SciFi']),
+        'C': MockItem('C', np.array([0.0, 1.0, 0.0, 0.0]), ['Drama']),
+        'D': MockItem('D', np.array([0.0, 0.8, 0.0, 0.0]), ['Drama']),
+        'E': MockItem('E', np.array([0.0, 0.0, 0.0, 1.0]), ['Horror']),
+    }
+    
+    graph = build_graph(items, similarity_threshold=0.5)
+    
+    # Test path generation for each type of node
+    # Component 1 (A)
+    paths_a = generate_greedy_paths(graph, 'A', 3, 5)
+    assert len(paths_a) > 0
+    assert all(validate_path_connectivity(graph, p.items) for p in paths_a)
+    
+    # Component 2 (C)
+    paths_c = generate_greedy_paths(graph, 'C', 3, 5)
+    assert len(paths_c) > 0
+    assert all(validate_path_connectivity(graph, p.items) for p in paths_c)
+    
+    # Isolated (E)
+    paths_e = generate_greedy_paths(graph, 'E', 3, 5)
+    assert isinstance(paths_e, list)
+    if len(paths_e) > 0:
+        assert all(len(p.items) == 1 for p in paths_e)
+        assert all(p.items[0] == 'E' for p in paths_e)

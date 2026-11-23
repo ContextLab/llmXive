@@ -1,0 +1,10 @@
+status: none
+intent: download Defects4J v2.0 bug dataset as pip installable python package dataset
+required_fields:
+- buggy_source_files
+- test_suites
+- commit_messages
+- issue_descriptions
+cache_key: 41760e914813b61ca74532f31ff952796cfd4886dc82b76ea52f54639a498878
+searched_at: '2026-09-20T15:37:08.157738+00:00'
+retry_count: 1

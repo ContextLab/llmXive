@@ -1,3 +1,2 @@
-"""
-Data processing modules (Inertia, Shapes, Pipeline).
-"""
+# Processing module: Inertia tensors, shape metrics, and alignment.
+pass

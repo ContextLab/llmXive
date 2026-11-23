@@ -1,79 +1,88 @@
+"""Configure linting (ruff) and formatting (black) tools for the project.
+
+Creates/updates the configuration files at the project root:
+  - ruff.toml        (ruff linter configuration)
+  - pyproject.toml   (black formatter configuration)
+  - .pre-commit-config.yaml (git hook integration for ruff + black)
+
+Idempotent: re-running overwrites the config files with the canonical
+configuration used by this project.
 """
-Setup script for linting (ruff) and formatting (black) tools.
-This task creates the configuration files and ensures dependencies are listed.
-"""
-import os
+
 from pathlib import Path
 
-def create_config_files():
-    """Create .ruff.toml and .black.toml in the code/ directory."""
-    base_dir = Path(__file__).parent
-    
-    # Ensure base directory exists
-    base_dir.mkdir(parents=True, exist_ok=True)
+from llmxive_toolkit import paths
 
-    # Ruff configuration
-    ruff_config = base_dir / ".ruff.toml"
-    if not ruff_config.exists():
-        ruff_config.write_text(
-            "[lint]\n"
-            "select = [\"E\", \"F\", \"W\", \"I\", \"N\", \"UP\", \"B\", \"C4\", \"SIM\"]\n"
-            "ignore = [\"E501\", \"W292\"]\n"
-            "\n"
-            "[format]\n"
-            "quote-style = \"double\"\n"
-            "indent-style = \"space\"\n"
-            "line-length = 88\n"
-        )
-        print(f"Created {ruff_config}")
-    else:
-        print(f"{ruff_config} already exists.")
+RUFF_CONFIG = """\
+# Ruff linter configuration for the prompting-strategies evaluation project.
+# Docs: https://beta.ruff.rs/docs/configuration/
 
-    # Black configuration
-    black_config = base_dir / ".black.toml"
-    if not black_config.exists():
-        black_config.write_text(
-            "[tool.black]\n"
-            "line-length = 88\n"
-            "target-version = ['py311']\n"
-            "include = '\\.pyi?$'\n"
-            "extend-exclude = '''\n"
-            "/(\n"
-            "  \\.git\n"
-            "  | \\.hg\n"
-            "  | \\.mypy_cache\n"
-            "  | \\.tox\n"
-            "  | \\.venv\n"
-            "  | _build\n"
-            "  | buck-out\n"
-            "  | build\n"
-            "  | dist\n"
-            ")/\n"
-            "'''\n"
-        )
-        print(f"Created {black_config}")
-    else:
-        print(f"{black_config} already exists.")
+target-version = "py311"
+line-length = 100
 
-    # Update requirements.txt if necessary
-    req_file = base_dir / "requirements.txt"
-    if req_file.exists():
-        content = req_file.read_text()
-        new_deps = ["ruff", "black"]
-        updated = False
-        for dep in new_deps:
-            if dep not in content:
-                content += f"{dep}\n"
-                updated = True
-        if updated:
-            req_file.write_text(content)
-            print(f"Updated {req_file} with new dependencies.")
-        else:
-            print(f"{req_file} already contains required dependencies.")
-    else:
-        # If requirements.txt doesn't exist, create it with dependencies
-        req_file.write_text("ruff\nblack\n")
-        print(f"Created {req_file} with linting dependencies.")
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # pyflakes
+    "I",   # isort (import ordering)
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501",  # line length handled by black / line-length above where possible
+]
+
+[lint.isort]
+known-first-party = ["src", "tests"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+"""
+
+PYPROJECT_CONFIG = """\
+[tool.black]
+target-version = ["py311"]
+line-length = 100
+include = '\\.pyi?$'
+extend-exclude = '''(
+    /(\\.eggs|\\.git|\\.hg|\\.mypy_cache|\\.tox|\\.venv|venv|_build|buck-out|build|dist)/
+)'''
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100
+"""
+
+PRE_COMMIT_CONFIG = """\
+repos:
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.4
+    hooks:
+      - id: ruff
+        args: [--fix]
+  - repo: https://github.com/psf/black
+    rev: 24.4.2
+    hooks:
+      - id: black
+"""
+
+def create_config_files() -> None:
+    """Create ruff and black configuration files in the project root."""
+    root = Path(paths.root)
+
+    (root / "ruff.toml").write_text(RUFF_CONFIG, encoding="utf-8")
+    (root / "pyproject.toml").write_text(PYPROJECT_CONFIG, encoding="utf-8")
+    (root / ".pre-commit-config.yaml").write_text(PRE_COMMIT_CONFIG, encoding="utf-8")
+
+    print(f"Wrote {root / 'ruff.toml'}")
+    print(f"Wrote {root / 'pyproject.toml'}")
+    print(f"Wrote {root / '.pre-commit-config.yaml'}")
+
+def main() -> int:
+    create_config_files()
+    return 0
 
 if __name__ == "__main__":
-    create_config_files()
+    raise SystemExit(main())

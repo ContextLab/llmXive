@@ -1,0 +1,39 @@
+# Ruff configuration for llmXive project
+# Enforces strict linting rules for research code quality
+
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`) rules
+select = ["E", "F", "I", "W", "N", "UP", "B", "C4", "SIM"]
+
+# Ignore specific rules that are too strict for research code
+# (e.g., line length is handled by black, specific naming conventions)
+ignore = [
+    "E501",  # Line too long (handled by black)
+    "N806",  # Variable in function should be lowercase (research variables often use specific naming)
+    "N803",  # Argument name should be lowercase
+    "B008",  # Do not perform function call in argument default values (often used for config)
+]
+
+# Allow unused imports in __init__.py for API surface exposure
+[lint.per-file-ignores]
+"code/__init__.py" = ["F401"]
+"code/data/__init__.py" = ["F401"]
+"code/models/__init__.py" = ["F401"]
+"code/inference/__init__.py" = ["F401"]
+"code/evaluation/__init__.py" = ["F401"]
+"code/utils/__init__.py" = ["F401"]
+"code/tasks/__init__.py" = ["F401"]
+
+[lint.isort]
+known-first-party = ["config", "data", "models", "inference", "evaluation", "utils", "tasks"]
+force-single-line = true
+lines-after-imports = 2
+
+[format]
+# Black-compatible formatting settings
+line-length = 88
+indent-style = "space"
+quote-style = "double"
+skip-magic-trailing-comma = false
+docstring-code-format = true
+docstring-code-line-length = 80

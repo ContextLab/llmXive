@@ -1,8 +1,3 @@
-"""
-Optimized training loop for Memory Palaces project.
-Implements adaptive batch sizing, memory monitoring, and early stopping to reduce training time.
-Addresses John von Neumann concern on overhead by minimizing redundant computations.
-"""
 import gc
 import json
 import os
@@ -14,400 +9,272 @@ import torch
 from torch.utils.data import DataLoader, Dataset
 from transformers import AutoModelForCausalLM, AutoTokenizer
 
-# Local imports from project API surface
-from training.memory_monitor import get_current_memory_usage_gb, MemoryMonitor
-from models.loading import load_model
-from models.base import GPT2Baseline
-from models.base_fallback import DistilGPT2Fallback
-from utils.logger import ExperimentLogger
-from utils.hyperparams_logger import log_hyperparameters
+# Import from project API surface
+from models.loading import load_model, check_memory_budget
+from models.spatial import soft_addressed_retrieve, weighted_chunk_aggregation, spatial_attention_loss
+from models.memory_slot import MemoryGrid
+from models.episodic_chunk import EpisodicChunk
+from training.memory_monitor import MemoryMonitor, get_current_memory_usage_gb
+from data.capper import cap_dataset_by_memory
+from utils.logger import ExperimentLogger, get_logger_for_run
 
+# Enforce single-core execution as per project constraints
+os.environ["OMP_NUM_THREADS"] = "1"
+torch.set_num_threads(1)
 
 class OptimizedTrainingLoop:
     """
-    Training loop with optimizations to reduce training time:
-    1. Adaptive batch sizing based on memory monitoring
-    2. Gradient accumulation for stability with smaller effective batch sizes
-    3. Early stopping based on validation loss
-    4. Mixed precision training (AMP) when available
-    5. Optimized data loading with prefetching
+    Training loop skeleton for the Memory Palace experiment.
+    Implements basic forward/backward pass with integration points for
+    memory monitoring (T005a), dataset capping (T005b), and spatial logic (T013/T036).
     """
 
     def __init__(
         self,
-        model_name: str,
-        dataset: Dataset,
-        val_dataset: Optional[Dataset] = None,
-        max_epochs: int = 10,
-        initial_batch_size: int = 8,
-        learning_rate: float = 5e-5,
+        model_variant: str,
+        dataset_name: str,
+        seed: int,
+        max_epochs: int = 3,
+        initial_batch_size: int = 4,
         memory_threshold_gb: float = 6.0,
-        early_stopping_patience: int = 3,
-        use_amp: bool = True,
-        gradient_accumulation_steps: int = 1,
-        log_dir: Optional[str] = None
+        log_dir: Optional[Path] = None
     ):
-        self.model_name = model_name
-        self.dataset = dataset
-        self.val_dataset = val_dataset
+        self.model_variant = model_variant
+        self.dataset_name = dataset_name
+        self.seed = seed
         self.max_epochs = max_epochs
-        self.initial_batch_size = initial_batch_size
-        self.learning_rate = learning_rate
+        self.batch_size = initial_batch_size
         self.memory_threshold_gb = memory_threshold_gb
-        self.early_stopping_patience = early_stopping_patience
-        self.use_amp = use_amp and torch.cuda.is_available()
-        self.gradient_accumulation_steps = gradient_accumulation_steps
-        self.log_dir = Path(log_dir) if log_dir else Path("artifacts/results")
-        
+        self.log_dir = log_dir or Path("artifacts/results")
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+
         # Initialize components
-        self.memory_monitor = MemoryMonitor(threshold_gb=self.memory_threshold_gb)
-        self.logger = ExperimentLogger(output_dir=str(self.log_dir))
+        self.logger = get_logger_for_run(self.log_dir, f"{dataset_name}_{model_variant}_seed{seed}")
+        self.memory_monitor = MemoryMonitor(log_path=self.log_dir / "memory_log.json")
         
-        # Training state
-        self.current_batch_size = self.initial_batch_size
-        self.best_val_loss = float('inf')
-        self.patience_counter = 0
+        # Set device
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        
-        # Load model with memory monitoring
-        self.model, self.tokenizer, self.model_type = self._load_model_with_monitoring()
-        self.model.to(self.device)
-        
-        # Setup optimizer
-        self.optimizer = torch.optim.AdamW(self.model.parameters(), lr=self.learning_rate)
-        
-        # Setup mixed precision scaler
-        self.scaler = torch.cuda.amp.GradScaler() if self.use_amp else None
-        
-        # Log initial hyperparameters
-        self._log_initial_hyperparams()
+        self.logger.log_info(f"Running on device: {self.device}")
 
-    def _load_model_with_monitoring(self) -> Tuple[Any, Any, str]:
-        """Load model with memory monitoring to select appropriate architecture."""
-        try:
-            # Try loading the primary model (GPT2-medium)
-            model, tokenizer = load_model(self.model_name, max_memory_gb=self.memory_threshold_gb)
-            return model, tokenizer, "gpt2-medium"
-        except Exception as e:
-            # Fallback to smaller model if memory is insufficient
-            print(f"Primary model load failed: {e}. Falling back to DistilGPT2.")
-            model, tokenizer = load_model("distilgpt2", max_memory_gb=self.memory_threshold_gb)
-            return model, tokenizer, "distilgpt2"
-
-    def _log_initial_hyperparams(self):
-        """Log initial training hyperparameters."""
-        hyperparams = {
-            "model_name": self.model_name,
-            "actual_model": self.model_type,
-            "initial_batch_size": self.initial_batch_size,
-            "current_batch_size": self.current_batch_size,
-            "learning_rate": self.learning_rate,
-            "max_epochs": self.max_epochs,
-            "memory_threshold_gb": self.memory_threshold_gb,
-            "use_amp": self.use_amp,
-            "gradient_accumulation_steps": self.gradient_accumulation_steps,
-            "device": str(self.device),
-            "dataset_size": len(self.dataset),
-            "val_dataset_size": len(self.val_dataset) if self.val_dataset else 0
-        }
-        log_hyperparameters(hyperparams, self.log_dir / "hyperparams_log.json")
-
-    def _create_dataloader(self, dataset: Dataset, batch_size: int, shuffle: bool = True) -> DataLoader:
-        """Create optimized DataLoader with prefetching."""
-        return DataLoader(
-            dataset,
-            batch_size=batch_size,
-            shuffle=shuffle,
-            num_workers=2 if self.device.type == "cuda" else 0,
-            pin_memory=True if self.device.type == "cuda" else False,
-            prefetch_factor=2 if self.device.type == "cuda" else None,
-            persistent_workers=True if self.device.type == "cuda" else False
+        # Load model
+        self.model, self.tokenizer = self._load_model()
+        
+        # Prepare dataset (with capping logic)
+        self.train_dataset = self._prepare_dataset()
+        self.train_loader = DataLoader(
+            self.train_dataset, 
+            batch_size=self.batch_size, 
+            shuffle=True,
+            num_workers=0  # Single core constraint
         )
 
-    def _adapt_batch_size(self):
-        """Adapt batch size based on current memory usage."""
-        current_memory = get_current_memory_usage_gb()
-        
-        if current_memory > self.memory_threshold_gb:
-            if self.current_batch_size > 4:
-                self.current_batch_size = 4
-                print(f"Memory usage ({current_memory:.2f}GB) exceeds threshold. Reducing batch size to {self.current_batch_size}")
-            elif self.current_batch_size == 4:
-                # If still over threshold at batch size 4, we need to cap dataset
-                print(f"Memory usage ({current_memory:.2f}GB) still exceeds threshold at batch size 4. Dataset capping required.")
-                # Note: Dataset capping is handled by the caller or memory_monitor
-                raise MemoryError(f"Memory threshold exceeded at minimum batch size {self.current_batch_size}")
-        elif current_memory < self.memory_threshold_gb * 0.8 and self.current_batch_size < self.initial_batch_size:
-            # Try to increase batch size if memory is well below threshold
-            self.current_batch_size = min(self.current_batch_size * 2, self.initial_batch_size)
-            print(f"Memory usage ({current_memory:.2f}GB) is low. Increasing batch size to {self.current_batch_size}")
+        self.optimizer = torch.optim.AdamW(self.model.parameters(), lr=1e-5)
+        self.scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(self.optimizer, T_max=self.max_epochs)
 
-    def _train_epoch(self, epoch: int) -> float:
-        """Train for one epoch with optimizations."""
-        self.model.train()
-        total_loss = 0.0
-        num_batches = 0
+    def _load_model(self) -> Tuple[Any, Any]:
+        """Load model using the project's loading utility."""
+        try:
+            model, tokenizer = load_model(self.model_variant, self.device)
+            self.logger.log_info(f"Successfully loaded model: {self.model_variant}")
+            return model, tokenizer
+        except Exception as e:
+            self.logger.log_error(f"Failed to load model: {e}")
+            raise
+
+    def _prepare_dataset(self) -> Dataset:
+        """
+        Prepare dataset with memory-based capping.
+        This integrates T005b (capper) logic.
+        """
+        # Placeholder for actual dataset loading logic
+        # In a real implementation, this would call code/data/download.py logic
+        # and then apply cap_dataset_by_memory
+        from datasets import load_dataset
         
-        dataloader = self._create_dataloader(self.dataset, self.current_batch_size, shuffle=True)
-        
-        for batch_idx, batch in enumerate(dataloader):
-            # Move batch to device
-            input_ids = batch["input_ids"].to(self.device)
-            attention_mask = batch["attention_mask"].to(self.device)
-            labels = batch["labels"].to(self.device) if "labels" in batch else input_ids
-            
-            # Memory check before each batch
-            if batch_idx % 10 == 0:  # Check every 10 batches to reduce overhead
-                self._adapt_batch_size()
-                # Recreate dataloader if batch size changed
-                if batch_idx > 0:
-                    dataloader = self._create_dataloader(self.dataset, self.current_batch_size, shuffle=True)
-                    break  # Break to restart epoch with new batch size
-            
-            # Forward pass with mixed precision if available
-            if self.use_amp and self.scaler:
-                with torch.cuda.amp.autocast():
-                    outputs = self.model(
-                        input_ids=input_ids,
-                        attention_mask=attention_mask,
-                        labels=labels
-                    )
-                    loss = outputs.loss / self.gradient_accumulation_steps
-                    
-                    # Backward pass with gradient scaling
-                    self.scaler.scale(loss).backward()
-                    
-                    # Gradient accumulation
-                    if (batch_idx + 1) % self.gradient_accumulation_steps == 0:
-                        self.scaler.step(self.optimizer)
-                        self.scaler.update()
-                        self.optimizer.zero_grad()
+        try:
+            # Load real dataset
+            if self.dataset_name == "babi_task3":
+                raw_ds = load_dataset("babi", "task3_10k", split="train")
             else:
-                outputs = self.model(
-                    input_ids=input_ids,
-                    attention_mask=attention_mask,
-                    labels=labels
-                )
-                loss = outputs.loss / self.gradient_accumulation_steps
-                loss.backward()
-                
-                # Gradient accumulation
-                if (batch_idx + 1) % self.gradient_accumulation_steps == 0:
-                    self.optimizer.step()
-                    self.optimizer.zero_grad()
+                raise ValueError(f"Unsupported dataset: {self.dataset_name}")
             
-            total_loss += loss.item() * self.gradient_accumulation_steps
-            num_batches += 1
-            
-            # Clear GPU cache periodically
-            if batch_idx % 50 == 0 and self.device.type == "cuda":
-                torch.cuda.empty_cache()
-                gc.collect()
-        
-        avg_loss = total_loss / max(num_batches, 1)
-        return avg_loss
-
-    def _validate_epoch(self) -> float:
-        """Validate on validation dataset."""
-        if not self.val_dataset:
-            return float('inf')
-        
-        self.model.eval()
-        total_loss = 0.0
-        num_batches = 0
-        
-        dataloader = self._create_dataloader(self.val_dataset, self.current_batch_size, shuffle=False)
-        
-        with torch.no_grad():
-            for batch in dataloader:
-                input_ids = batch["input_ids"].to(self.device)
-                attention_mask = batch["attention_mask"].to(self.device)
-                labels = batch["labels"].to(self.device) if "labels" in batch else input_ids
-                
-                if self.use_amp and self.scaler:
-                    with torch.cuda.amp.autocast():
-                        outputs = self.model(
-                            input_ids=input_ids,
-                            attention_mask=attention_mask,
-                            labels=labels
-                        )
-                        loss = outputs.loss
-                else:
-                    outputs = self.model(
-                        input_ids=input_ids,
-                        attention_mask=attention_mask,
-                        labels=labels
-                    )
-                    loss = outputs.loss
-                
-                total_loss += loss.item()
-                num_batches += 1
-        
-        return total_loss / max(num_batches, 1)
-
-    def train(self) -> Dict[str, Any]:
-        """
-        Execute the full training loop with optimizations.
-        Returns training summary statistics.
-        """
-        start_time = time.time()
-        training_history = {
-            "train_losses": [],
-            "val_losses": [],
-            "batch_sizes": [],
-            "memory_usage_gb": []
-        }
-        
-        print(f"Starting training with model: {self.model_type}")
-        print(f"Initial batch size: {self.current_batch_size}, Device: {self.device}")
-        
-        for epoch in range(self.max_epochs):
-            epoch_start = time.time()
-            
-            # Train one epoch
-            train_loss = self._train_epoch(epoch)
-            training_history["train_losses"].append(train_loss)
-            
-            # Validate
-            val_loss = self._validate_epoch()
-            training_history["val_losses"].append(val_loss)
-            
-            # Log memory usage
-            current_memory = get_current_memory_usage_gb()
-            training_history["memory_usage_gb"].append(current_memory)
-            training_history["batch_sizes"].append(self.current_batch_size)
-            
-            # Log epoch results
-            epoch_time = time.time() - epoch_start
-            print(f"Epoch {epoch+1}/{self.max_epochs} - Train Loss: {train_loss:.4f}, Val Loss: {val_loss:.4f}, Time: {epoch_time:.2f}s, Memory: {current_memory:.2f}GB")
-            
-            self.logger.log_epoch(
-                epoch=epoch + 1,
-                train_loss=train_loss,
-                val_loss=val_loss,
-                batch_size=self.current_batch_size,
-                memory_usage_gb=current_memory,
-                elapsed_time=epoch_time
+            # Apply memory capping if RSS > threshold at initial batch size
+            capped_ds = cap_dataset_by_memory(
+                raw_ds, 
+                batch_size=self.batch_size,
+                memory_threshold_gb=self.memory_threshold_gb,
+                logger=self.logger
             )
             
-            # Early stopping check
-            if val_loss < self.best_val_loss:
-                self.best_val_loss = val_loss
-                self.patience_counter = 0
-                # Save best model
-                self._save_model_checkpoint(epoch, "best")
-            else:
-                self.patience_counter += 1
-                if self.patience_counter >= self.early_stopping_patience:
-                    print(f"Early stopping triggered at epoch {epoch+1}")
-                    break
+            self.logger.log_info(f"Dataset capped to {len(capped_ds)} samples")
+            return capped_ds
             
-            # Save checkpoint every 5 epochs
-            if (epoch + 1) % 5 == 0:
-                self._save_model_checkpoint(epoch, f"epoch_{epoch+1}")
+        except Exception as e:
+            self.logger.log_error(f"Dataset preparation failed: {e}")
+            raise
+
+    def _create_episodic_chunk(self, batch: Dict[str, torch.Tensor]) -> EpisodicChunk:
+        """Convert a batch into an EpisodicChunk for spatial processing."""
+        # Simplified chunk creation for the loop skeleton
+        # In full implementation, this would extract semantic features
+        return EpisodicChunk(
+            content=batch["input_ids"],
+            attention_mask=batch["attention_mask"],
+            metadata={"batch_size": batch["input_ids"].size(0)}
+        )
+
+    def train_epoch(self, epoch: int) -> Dict[str, float]:
+        """Train for one epoch with memory monitoring and spatial logic."""
+        self.model.train()
+        total_loss = 0.0
+        batch_count = 0
+        
+        for step, batch in enumerate(self.train_loader):
+            batch = {k: v.to(self.device) for k, v in batch.items()}
+            
+            # Memory check before forward pass
+            current_rss = get_current_memory_usage_gb()
+            if current_rss > self.memory_threshold_gb:
+                self.logger.log_warning(f"RSS {current_rss:.2f}GB > threshold. Reducing batch size.")
+                self._reduce_batch_size()
+                # Re-create loader with new batch size
+                self.train_loader = DataLoader(
+                    self.train_dataset,
+                    batch_size=self.batch_size,
+                    shuffle=True,
+                    num_workers=0
+                )
+                # Restart epoch with new loader
+                return self.train_epoch(epoch)
+            
+            self.optimizer.zero_grad()
+            
+            # Create episodic chunk for spatial processing
+            chunk = self._create_episodic_chunk(batch)
+            
+            # Forward pass with spatial memory integration
+            # This is where T013/T036 logic is invoked
+            try:
+                outputs = self.model(
+                    input_ids=batch["input_ids"],
+                    attention_mask=batch["attention_mask"],
+                    labels=batch.get("labels")  # bAbI task labels
+                )
+                loss = outputs.loss
+                
+                # Apply spatial attention loss if available
+                if hasattr(self.model, 'memory_grid') and self.model.memory_grid is not None:
+                    spatial_loss = spatial_attention_loss(
+                        self.model.memory_grid,
+                        chunk,
+                        self.tokenizer
+                    )
+                    loss = loss + 0.1 * spatial_loss  # Weighted combination
+                    
+            except Exception as e:
+                self.logger.log_error(f"Forward pass failed: {e}")
+                raise
+            
+            # Backward pass
+            loss.backward()
+            self.optimizer.step()
+            
+            total_loss += loss.item()
+            batch_count += 1
+            
+            # Log batch metrics
+            if step % 10 == 0:
+                self.logger.log_info(f"Epoch {epoch}, Batch {step}, Loss: {loss.item():.4f}")
+                
+                # Memory monitoring
+                self.memory_monitor.record_batch(batch_count, get_current_memory_usage_gb())
+                
+            # Garbage collection
+            if step % 50 == 0:
+                gc.collect()
+                if torch.cuda.is_available():
+                    torch.cuda.empty_cache()
+        
+        avg_loss = total_loss / batch_count if batch_count > 0 else 0.0
+        return {"epoch_loss": avg_loss, "batch_count": batch_count}
+
+    def _reduce_batch_size(self):
+        """Reduce batch size when memory threshold is exceeded."""
+        if self.batch_size > 1:
+            self.batch_size = max(1, self.batch_size // 2)
+            self.logger.log_info(f"Reduced batch size to {self.batch_size}")
+        else:
+            raise RuntimeError("Batch size already at minimum (1) but memory threshold exceeded.")
+
+    def run(self) -> Dict[str, Any]:
+        """Run the full training loop."""
+        self.logger.log_info(f"Starting training for {self.max_epochs} epochs")
+        start_time = time.time()
+        
+        epoch_results = []
+        for epoch in range(self.max_epochs):
+            self.logger.log_info(f"Starting epoch {epoch + 1}/{self.max_epochs}")
+            result = self.train_epoch(epoch + 1)
+            epoch_results.append(result)
+            self.scheduler.step()
+            
+            # Save checkpoint
+            checkpoint_path = self.log_dir / f"checkpoint_epoch_{epoch+1}.pt"
+            torch.save({
+                "epoch": epoch,
+                "model_state_dict": self.model.state_dict(),
+                "optimizer_state_dict": self.optimizer.state_dict(),
+                "batch_size": self.batch_size,
+            }, checkpoint_path)
+            self.logger.log_info(f"Saved checkpoint to {checkpoint_path}")
         
         total_time = time.time() - start_time
         
         # Final summary
         summary = {
-            "total_epochs": len(training_history["train_losses"]),
+            "model_variant": self.model_variant,
+            "dataset": self.dataset_name,
+            "seed": self.seed,
+            "epochs_completed": len(epoch_results),
+            "final_batch_size": self.batch_size,
             "total_time_seconds": total_time,
-            "final_train_loss": training_history["train_losses"][-1] if training_history["train_losses"] else None,
-            "final_val_loss": training_history["val_losses"][-1] if training_history["val_losses"] else None,
-            "best_val_loss": self.best_val_loss,
-            "final_batch_size": self.current_batch_size,
-            "early_stopped": self.patience_counter >= self.early_stopping_patience,
-            "history": training_history
+            "epoch_losses": [r["epoch_loss"] for r in epoch_results],
+            "memory_log_path": str(self.memory_monitor.log_path)
         }
         
-        # Save training summary
+        # Save summary
         summary_path = self.log_dir / "training_summary.json"
         with open(summary_path, "w") as f:
             json.dump(summary, f, indent=2)
         
-        print(f"Training completed in {total_time:.2f} seconds")
+        self.logger.log_info(f"Training complete. Summary saved to {summary_path}")
         return summary
 
-    def _save_model_checkpoint(self, epoch: int, checkpoint_name: str):
-        """Save model checkpoint."""
-        checkpoint_dir = self.log_dir / "checkpoints"
-        checkpoint_dir.mkdir(parents=True, exist_ok=True)
-        
-        checkpoint_path = checkpoint_dir / f"{checkpoint_name}.pt"
-        
-        torch.save({
-            "epoch": epoch,
-            "model_state_dict": self.model.state_dict(),
-            "optimizer_state_dict": self.optimizer.state_dict(),
-            "batch_size": self.current_batch_size,
-            "best_val_loss": self.best_val_loss
-        }, checkpoint_path)
-        
-        print(f"Checkpoint saved: {checkpoint_path}")
-
-
 def main():
-    """
-    Main entry point for the optimized training loop.
-    Demonstrates the training process with realistic parameters.
-    """
+    """Entry point for training loop execution."""
     import argparse
-    import sys
     
-    parser = argparse.ArgumentParser(description="Optimized Training Loop for Memory Palaces")
-    parser.add_argument("--model_name", type=str, default="gpt2-medium", help="Model name to use")
-    parser.add_argument("--dataset_path", type=str, required=True, help="Path to dataset directory")
-    parser.add_argument("--val_dataset_path", type=str, default=None, help="Path to validation dataset")
-    parser.add_argument("--max_epochs", type=int, default=10, help="Maximum number of epochs")
-    parser.add_argument("--batch_size", type=int, default=8, help="Initial batch size")
-    parser.add_argument("--learning_rate", type=float, default=5e-5, help="Learning rate")
-    parser.add_argument("--log_dir", type=str, default="artifacts/results", help="Directory for logs and artifacts")
+    parser = argparse.ArgumentParser(description="Train Memory Palace model")
+    parser.add_argument("--model_variant", type=str, default="spatial", help="Model variant to train")
+    parser.add_argument("--dataset", type=str, default="babi_task3", help="Dataset to use")
+    parser.add_argument("--seed", type=int, default=42, help="Random seed")
+    parser.add_argument("--epochs", type=int, default=3, help="Number of epochs")
+    parser.add_argument("--batch_size", type=int, default=4, help="Initial batch size")
+    parser.add_argument("--log_dir", type=str, default="artifacts/results", help="Logging directory")
     
     args = parser.parse_args()
     
-    # Mock dataset for demonstration - in real usage, load actual dataset
-    # This would be replaced with actual dataset loading from data/download.py
-    class MockDataset(Dataset):
-        def __init__(self, size=1000):
-            self.size = size
-            self.tokenizer = AutoTokenizer.from_pretrained("gpt2")
-            
-        def __len__(self):
-            return self.size
-        
-        def __getitem__(self, idx):
-            # Create a simple mock sequence
-            text = f"This is sample text number {idx} for training purposes."
-            encoding = self.tokenizer(text, return_tensors="pt", truncation=True, padding="max_length", max_length=128)
-            return {
-                "input_ids": encoding["input_ids"].squeeze(0),
-                "attention_mask": encoding["attention_mask"].squeeze(0),
-                "labels": encoding["input_ids"].squeeze(0)
-            }
-    
-    print("Loading datasets...")
-    train_dataset = MockDataset(size=1000)
-    val_dataset = MockDataset(size=200) if args.val_dataset_path else None
-    
-    print("Initializing optimized training loop...")
-    trainer = OptimizedTrainingLoop(
-        model_name=args.model_name,
-        dataset=train_dataset,
-        val_dataset=val_dataset,
-        max_epochs=args.max_epochs,
+    loop = OptimizedTrainingLoop(
+        model_variant=args.model_variant,
+        dataset_name=args.dataset,
+        seed=args.seed,
+        max_epochs=args.epochs,
         initial_batch_size=args.batch_size,
-        learning_rate=args.learning_rate,
-        log_dir=args.log_dir
+        log_dir=Path(args.log_dir)
     )
     
-    print("Starting training...")
-    summary = trainer.train()
-    
-    print("\nTraining Summary:")
+    summary = loop.run()
     print(json.dumps(summary, indent=2))
-    
-    return summary
-
 
 if __name__ == "__main__":
     main()

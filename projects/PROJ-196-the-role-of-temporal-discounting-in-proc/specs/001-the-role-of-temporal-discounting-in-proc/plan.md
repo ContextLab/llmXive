@@ -20,7 +20,7 @@ The pipeline is designed to run entirely on CPU within a time-efficient window a
 **Primary Dependencies**: `pandas`, `numpy`, `scipy`, `statsmodels`, `scikit-learn`  
 **Storage**: Local CSV/Parquet files (raw and derived), in-memory DataFrames  
 **Testing**: `pytest` (unit tests for data harmonization, regression diagnostics, DGP recovery)  
-**Target Platform**: Linux (GitHub Actions Free Tier: CPU, 7GB RAM)  
+**Target Platform**: Linux (GitHub Actions Free Tier: CPU, GB RAM)  
 **Project Type**: Research pipeline / CLI  
 **Performance Goals**: Complete full pipeline (ingestion → regression → bootstrap) in ≤6 hours  
 **Constraints**: No GPU usage; no large model training; strict memory footprint (<7GB); strict reproducibility (random seeds).  

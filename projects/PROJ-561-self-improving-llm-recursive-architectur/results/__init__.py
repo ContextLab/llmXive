@@ -1,1 +1,5 @@
-# Results storage for metrics, logs, and analysis outputs
+"""
+Results Package for llmXive Self-Improving LLM.
+
+Contains output metrics, trajectory logs, and final reports.
+"""

@@ -46,10 +46,11 @@ exactly one row in this project's `data/` and one block in this project's
 
 ### V. Versioning Discipline
 
-Every artifact under this project carries a content hash. The
-Advancement-Evaluator Agent invalidates stale review records when the
-hashed artifact changes. Every research-stage artifact change updates this
-project's `state/projects/{{project_id}}.yaml` `updated_at` timestamp.
+Review records are bound to the content of the artifact they reviewed; a
+record goes stale when that artifact changes. The platform does this
+bookkeeping. `state/projects/{{project_id}}.yaml` belongs to the platform:
+project code, tests and tasks MUST NOT read it, write it, or create a
+`state/` directory inside the project.
 
 ## Reproducibility Requirements
 
@@ -62,8 +63,10 @@ project's `state/projects/{{project_id}}.yaml` `updated_at` timestamp.
 
 ## Data Hygiene
 
-- Every file under `data/` is checksummed in the project's
-  `state/projects/{{project_id}}.yaml` `artifact_hashes` map.
+- When the analysis needs checksums of its own data (to verify a download
+  or detect a changed input), it writes them to a manifest under `data/`
+  (for example `data/checksums.sha256`). It never records hashes under
+  `state/`, which is the platform's.
 - Raw data is preserved unchanged; derivations are written to new
   filenames.
 - No commits are accepted that fail the Repository-Hygiene Agent's PII

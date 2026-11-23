@@ -1,0 +1,4 @@
+# Explicit black configuration file for IDE compatibility
+# Black reads from pyproject.toml by default, but this ensures IDEs pick it up
+line-length = 88
+target-version = ['py311']

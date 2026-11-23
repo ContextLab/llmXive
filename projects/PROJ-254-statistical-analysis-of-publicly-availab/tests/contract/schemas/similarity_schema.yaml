@@ -1,21 +1,25 @@
+# Schema definition for yearly_similarity.csv
+# Generated for T020 contract testing
 type: object
-required:
-  - year
-  - mean_off_diagonal_similarity
-  - intra_genre_variance
 properties:
   year:
     type: integer
-    description: Calendar year of the embedding
+    description: The calendar year of the embedding.
     minimum: 1900
-    maximum: 2100
+    maximum: 2030
   mean_off_diagonal_similarity:
     type: number
-    description: Mean cosine similarity between distinct genre vectors for the year
+    format: float
+    description: Mean cosine similarity between distinct genre vectors for the year.
     minimum: -1.0
     maximum: 1.0
   intra_genre_variance:
     type: number
-    description: Variance of similarity scores within genre clusters for the year
+    format: float
+    description: Variance of similarity scores within genre clusters.
     minimum: 0.0
+required:
+  - year
+  - mean_off_diagonal_similarity
+  - intra_genre_variance
 additionalProperties: false

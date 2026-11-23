@@ -1,39 +1,38 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Extracted Dataset Schema"
-description: "Schema for the time-series dataset containing latent deltas and turn-taking labels."
 type: object
+title: "Turn Taking Dataset Schema"
+description: "Schema for the extracted turn-taking dataset (parquet/CSV)"
+required:
+  - timestamp
+  - semantic_feature
+  - prosodic_feature
+  - latent_delta_magnitude
+  - turn_label
 properties:
   timestamp:
-    type: number
-    description: "Timestamp in seconds from the start of the clip."
-  turn_label:
-    type: string
-    enum:
-      - "interruption"
-      - "pause"
-      - "normal"
-    description: "Label indicating the type of turn-taking event."
+    type: integer
+    description: "Frame index or Unix timestamp"
   semantic_feature:
     type: array
     items:
       type: number
-    description: "Vector of semantic features (e.g., text embedding)."
+    description: "Vector of semantic features (e.g., ASR embeddings)"
   prosodic_feature:
     type: array
     items:
       type: number
-    description: "Vector of prosodic features (e.g., audio energy, pitch)."
+    description: "Vector of prosodic features (e.g., pitch, energy)"
   latent_delta_magnitude:
     type: number
-    description: "Euclidean distance of the latent vector between current and previous frame."
-  frame_id:
-    type: integer
-    description: "Unique identifier for the frame."
-required:
-  - timestamp
-  - turn_label
-  - semantic_feature
-  - prosodic_feature
-  - latent_delta_magnitude
-  - frame_id
+    description: "Euclidean distance of latent vector to previous frame"
+  turn_label:
+    type: string
+    enum:
+      - interruption
+      - pause
+      - normal
+    description: "Label for the turn-taking event"
+  event_id:
+    type: string
+    description: "Unique identifier for the event segment"
 additionalProperties: false

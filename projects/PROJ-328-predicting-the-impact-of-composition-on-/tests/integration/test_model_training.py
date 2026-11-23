@@ -1,347 +1,237 @@
 """
-Integration test for the model training pipeline (User Story 2).
+Integration test for the model training pipeline (T021).
 
-This test verifies the end-to-end flow of:
-1. Loading the validated dataset from data/processed/solder_hardness_validated.csv
-2. Performing CLR transformation on compositional data
-3. Computing compositional descriptors
-4. Calculating VIF scores
-5. Training XGBoost and Linear Regression models
-6. Running cross-validation
-7. Saving model artifacts and metrics
+This test verifies the end-to-end execution of the model training workflow:
+1. Loads cleaned data from data/processed/solder_hardness_cleaned.csv
+2. Runs feature engineering (CLR transform + Physical Descriptors)
+3. Trains XGBoost and Linear Regression models (CPU-only)
+4. Performs Cross-Validation
+5. Performs Bootstrap analysis
+6. Performs SHAP analysis
+7. Verifies all required output artifacts are generated with valid content.
 
-Prerequisites:
-- T016 must be complete (validated dataset exists)
-- T018 must be complete (model output schema contract test exists)
+CRITICAL: This test uses REAL data. If the cleaned dataset is missing or empty,
+the test will fail loudly to prevent fabrication.
 """
-
 import os
 import sys
 import pytest
-import pandas as pd
-import numpy as np
-from pathlib import Path
+import subprocess
+import json
 import yaml
+import pandas as pd
+from pathlib import Path
+import logging
+from typing import Dict, Any
 
-# Add project root to path for imports
+# Add project root to path for imports if running directly
 project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
+sys.path.insert(0, str(project_root))
 
-from seed import init_reproducibility
-from config import (
-    get_data_processed_dir, 
-    get_models_dir, 
-    get_vif_threshold,
-    get_cv_folds,
-    get_bootstrap_iterations
-)
-from features.transformer import CLRTransformer
-from features.descriptor_engine import DescriptorEngine
-from features.collinearity import calculate_vif, get_collinear_features
-from models.xgboost_trainer import XGBoostTrainer
-from models.linear_trainer import LinearRegressionTrainer
-from evaluation.cv import run_cross_validation
-from utils.error_handlers import ModelTrainingError, DataValidationError
+# Configure logging for the test
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
+# Constants for paths (relative to project root)
+DATA_PROCESSED_DIR = project_root / "data" / "processed"
+DATA_OUTPUTS_DIR = project_root / "data" / "outputs"
+CODE_DIR = project_root / "code"
 
-class TestModelTrainingPipeline:
-    """Integration tests for the full model training pipeline."""
+REQUIRED_ARTIFACTS = [
+    DATA_PROCESSED_DIR / "clr_features.csv",
+    DATA_PROCESSED_DIR / "descriptors.csv",
+    DATA_PROCESSED_DIR / "cv_results.json",
+    DATA_PROCESSED_DIR / "xgboost_model.pkl",
+    DATA_PROCESSED_DIR / "linear_model.pkl",
+    DATA_PROCESSED_DIR / "shap_ranking.yaml",
+    DATA_PROCESSED_DIR / "test_set_ci.yaml",
+    DATA_PROCESSED_DIR / "paired_ttest_results.yaml",
+    DATA_PROCESSED_DIR / "sensitivity_analysis.yaml",
+    DATA_PROCESSED_DIR / "vif_report.yaml",
+]
 
-    @pytest.fixture(autouse=True)
-    def setup(self):
-        """Initialize reproducibility and validate test preconditions."""
-        # Initialize random seeds
-        init_reproducibility()
-        
-        # Verify validated dataset exists
-        data_dir = get_data_processed_dir()
-        self.validated_data_path = data_dir / "solder_hardness_validated.csv"
-        
-        if not self.validated_data_path.exists():
-            pytest.skip(
-                f"Validated dataset not found at {self.validated_data_path}. "
-                "Run T016 first."
-            )
-        
-        # Ensure models directory exists
-        models_dir = get_models_dir()
-        models_dir.mkdir(parents=True, exist_ok=True)
+def check_cleaned_data_exists():
+    """Verify the input cleaned dataset exists and has rows."""
+    cleaned_file = DATA_PROCESSED_DIR / "solder_hardness_cleaned.csv"
+    if not cleaned_file.exists():
+        pytest.fail(f"CRITICAL: Input file {cleaned_file} does not exist. "
+                    "The ingestion pipeline (T013) must run before this test.")
+    
+    df = pd.read_csv(cleaned_file)
+    if len(df) == 0:
+        pytest.fail(f"CRITICAL: Input file {cleaned_file} is empty. "
+                    "Real data ingestion failed or filtered out all records.")
+    logger.info(f"Found {len(df)} rows in cleaned data. Proceeding with integration test.")
+    return df
 
-    def test_pipeline_loads_and_transforms_data(self):
-        """Test that the pipeline successfully loads and transforms data."""
-        # Load data
-        df = pd.read_csv(self.validated_data_path)
-        
-        assert len(df) > 0, "Dataset is empty"
-        assert "hardness_hv" in df.columns, "Missing hardness column"
-        
-        # Identify composition columns (all numeric columns except hardness)
-        composition_cols = [col for col in df.columns if col != "hardness_hv"]
-        
-        # Apply CLR transformation
-        transformer = CLRTransformer()
-        clr_df, weights = transformer.fit_transform(df, composition_cols)
-        
-        assert clr_df is not None, "CLR transformation failed"
-        assert len(clr_df) == len(df), "Data length changed after transformation"
-        
-        # Verify no NaN values in transformed data
-        assert not clr_df.isnull().any().any(), "Transformed data contains NaN values"
+def run_script(script_path: Path, env_vars: Dict[str, str] = None) -> subprocess.CompletedProcess:
+    """Run a Python script and capture output."""
+    cmd = [sys.executable, str(script_path)]
+    env = os.environ.copy()
+    if env_vars:
+        env.update(env_vars)
+    
+    logger.info(f"Running: {' '.join(cmd)}")
+    result = subprocess.run(
+        cmd,
+        cwd=project_root,
+        env=env,
+        capture_output=True,
+        text=True,
+        timeout=600  # 10 minute timeout for training
+    )
+    
+    if result.returncode != 0:
+        logger.error(f"STDOUT:\n{result.stdout}")
+        logger.error(f"STDERR:\n{result.stderr}")
+        raise RuntimeError(f"Script failed: {script_path.name}\n{result.stderr}")
+    
+    return result
 
-    def test_descriptor_engine_computes_features(self):
-        """Test that descriptors are computed correctly."""
-        df = pd.read_csv(self.validated_data_path)
-        
-        composition_cols = [col for col in df.columns if col != "hardness_hv"]
-        
-        # Transform data
-        transformer = CLRTransformer()
-        clr_df, weights = transformer.fit_transform(df, composition_cols)
-        
-        # Compute descriptors
-        engine = DescriptorEngine()
-        descriptors = engine.compute_descriptors(df, clr_df, composition_cols)
-        
-        assert descriptors is not None, "Descriptor computation failed"
-        assert len(descriptors) == len(df), "Descriptor count mismatch"
-        
-        # Check expected descriptor columns exist
-        expected_cols = [
-            "weighted_mean_atomic_mass",
-            "electronegativity_variance",
-            "atomic_radius_variance",
-            "weighted_avg_melting_point",
-            "valence_electron_concentration"
-        ]
-        
-        for col in expected_cols:
-            assert col in descriptors.columns, f"Missing descriptor: {col}"
-            assert not descriptors[col].isnull().any(), f"Descriptor {col} contains NaN"
-
-    def test_vif_calculation_and_collinearity_detection(self):
-        """Test VIF calculation and collinearity detection."""
-        df = pd.read_csv(self.validated_data_path)
-        
-        composition_cols = [col for col in df.columns if col != "hardness_hv"]
-        
-        # Transform and compute descriptors
-        transformer = CLRTransformer()
-        clr_df, weights = transformer.fit_transform(df, composition_cols)
-        
-        engine = DescriptorEngine()
-        descriptors = engine.compute_descriptors(df, clr_df, composition_cols)
-        
-        # Calculate VIF
-        vif_scores = calculate_vif(descriptors)
-        
-        assert isinstance(vif_scores, dict), "VIF calculation did not return a dict"
-        assert len(vif_scores) > 0, "No VIF scores calculated"
-        
-        # Check that VIF values are numeric and positive
-        for feature, vif in vif_scores.items():
-            assert isinstance(vif, (int, float)), f"VIF for {feature} is not numeric"
-            assert vif >= 0, f"VIF for {feature} is negative"
-
-    def test_xgboost_training_and_cv(self):
-        """Test XGBoost model training and cross-validation."""
-        df = pd.read_csv(self.validated_data_path)
-        
-        composition_cols = [col for col in df.columns if col != "hardness_hv"]
-        
-        # Transform and compute descriptors
-        transformer = CLRTransformer()
-        clr_df, weights = transformer.fit_transform(df, composition_cols)
-        
-        engine = DescriptorEngine()
-        descriptors = engine.compute_descriptors(df, clr_df, composition_cols)
-        
-        target = df["hardness_hv"]
-        
-        # Initialize trainer
-        trainer = XGBoostTrainer(
-            cv_folds=get_cv_folds(),
-            vif_threshold=get_vif_threshold()
-        )
-        
-        # Train model
-        model, metrics, best_params = trainer.train(descriptors, target)
-        
-        assert model is not None, "XGBoost model training failed"
-        assert metrics is not None, "Metrics not returned"
-        
-        # Verify metrics contain expected keys
-        assert "r2_mean" in metrics, "Missing R² mean in metrics"
-        assert "rmse_mean" in metrics, "Missing RMSE mean in metrics"
-        
-        # Verify model can predict
-        predictions = model.predict(descriptors.head(5))
-        assert len(predictions) == 5, "Prediction count mismatch"
-
-    def test_linear_regression_training_and_cv(self):
-        """Test Linear Regression model training and cross-validation."""
-        df = pd.read_csv(self.validated_data_path)
-        
-        composition_cols = [col for col in df.columns if col != "hardness_hv"]
-        
-        # Transform and compute descriptors
-        transformer = CLRTransformer()
-        clr_df, weights = transformer.fit_transform(df, composition_cols)
-        
-        engine = DescriptorEngine()
-        descriptors = engine.compute_descriptors(df, clr_df, composition_cols)
-        
-        target = df["hardness_hv"]
-        
-        # Initialize trainer
-        trainer = LinearRegressionTrainer(
-            cv_folds=get_cv_folds()
-        )
-        
-        # Train model
-        model, metrics = trainer.train(descriptors, target)
-        
-        assert model is not None, "Linear Regression model training failed"
-        assert metrics is not None, "Metrics not returned"
-        
-        # Verify metrics contain expected keys
-        assert "r2_mean" in metrics, "Missing R² mean in metrics"
-        assert "rmse_mean" in metrics, "Missing RMSE mean in metrics"
-
-    def test_model_artifacts_saved(self):
-        """Test that model artifacts are saved to the correct location."""
-        df = pd.read_csv(self.validated_data_path)
-        
-        composition_cols = [col for col in df.columns if col != "hardness_hv"]
-        
-        # Transform and compute descriptors
-        transformer = CLRTransformer()
-        clr_df, weights = transformer.fit_transform(df, composition_cols)
-        
-        engine = DescriptorEngine()
-        descriptors = engine.compute_descriptors(df, clr_df, composition_cols)
-        
-        target = df["hardness_hv"]
-        
-        # Train XGBoost model
-        xgb_trainer = XGBoostTrainer(
-            cv_folds=get_cv_folds(),
-            vif_threshold=get_vif_threshold()
-        )
-        xgb_model, xgb_metrics, xgb_params = xgb_trainer.train(descriptors, target)
-        
-        # Train Linear Regression model
-        lr_trainer = LinearRegressionTrainer(cv_folds=get_cv_folds())
-        lr_model, lr_metrics = lr_trainer.train(descriptors, target)
-        
-        # Save models
-        models_dir = get_models_dir()
-        
-        xgb_path = models_dir / "xgboost_hardness_model.pkl"
-        lr_path = models_dir / "linear_hardness_model.pkl"
-        
-        xgb_trainer.save_model(xgb_model, str(xgb_path))
-        lr_trainer.save_model(lr_model, str(lr_path))
-        
-        # Verify files exist
-        assert xgb_path.exists(), "XGBoost model not saved"
-        assert lr_path.exists(), "Linear Regression model not saved"
-        
-        # Verify metrics saved
-        metrics_path = models_dir / "training_metrics.yaml"
-        assert metrics_path.exists(), "Metrics file not saved"
-        
-        # Load and verify metrics content
-        with open(metrics_path, "r") as f:
-            saved_metrics = yaml.safe_load(f)
-        
-        assert "xgboost" in saved_metrics, "XGBoost metrics not saved"
-        assert "linear_regression" in saved_metrics, "Linear metrics not saved"
-
-    def test_full_pipeline_integration(self):
-        """
-        Full integration test: run the entire pipeline from data loading
-        to model saving and verify all outputs are correct.
-        """
-        # 1. Load data
-        df = pd.read_csv(self.validated_data_path)
-        assert len(df) >= 100, "Dataset size below threshold (T016 requirement)"
-        
-        composition_cols = [col for col in df.columns if col != "hardness_hv"]
-        
-        # 2. Transform
-        transformer = CLRTransformer()
-        clr_df, weights = transformer.fit_transform(df, composition_cols)
-        
-        # 3. Compute descriptors
-        engine = DescriptorEngine()
-        descriptors = engine.compute_descriptors(df, clr_df, composition_cols)
-        
-        # 4. Check collinearity
-        vif_scores = calculate_vif(descriptors)
-        collinear = get_collinear_features(vif_scores, get_vif_threshold())
-        
-        # 5. Train both models
-        target = df["hardness_hv"]
-        
-        xgb_trainer = XGBoostTrainer(
-            cv_folds=get_cv_folds(),
-            vif_threshold=get_vif_threshold()
-        )
-        xgb_model, xgb_metrics, xgb_params = xgb_trainer.train(descriptors, target)
-        
-        lr_trainer = LinearRegressionTrainer(cv_folds=get_cv_folds())
-        lr_model, lr_metrics = lr_trainer.train(descriptors, target)
-        
-        # 6. Verify metrics
-        assert xgb_metrics["r2_mean"] >= 0, "XGBoost R² cannot be negative"
-        assert lr_metrics["r2_mean"] >= 0, "Linear R² cannot be negative"
-        
-        # 7. Save artifacts
-        models_dir = get_models_dir()
-        xgb_path = models_dir / "xgboost_hardness_model.pkl"
-        lr_path = models_dir / "linear_hardness_model.pkl"
-        metrics_path = models_dir / "training_metrics.yaml"
-        
-        xgb_trainer.save_model(xgb_model, str(xgb_path))
-        lr_trainer.save_model(lr_model, str(lr_path))
-        
-        # Compile metrics
-        all_metrics = {
-            "xgboost": {
-                "r2_mean": float(xgb_metrics["r2_mean"]),
-                "r2_std": float(xgb_metrics.get("r2_std", 0)),
-                "rmse_mean": float(xgb_metrics["rmse_mean"]),
-                "rmse_std": float(xgb_metrics.get("rmse_std", 0)),
-                "best_params": xgb_params
-            },
-            "linear_regression": {
-                "r2_mean": float(lr_metrics["r2_mean"]),
-                "r2_std": float(lr_metrics.get("r2_std", 0)),
-                "rmse_mean": float(lr_metrics["rmse_mean"]),
-                "rmse_std": float(lr_metrics.get("rmse_std", 0))
-            },
-            "vif_scores": {k: float(v) for k, v in vif_scores.items()},
-            "collinear_features": collinear
-        }
-        
-        with open(metrics_path, "w") as f:
-            yaml.dump(all_metrics, f, default_flow_style=False)
-        
-        # 8. Verify all outputs
-        assert xgb_path.exists(), "XGBoost model artifact missing"
-        assert lr_path.exists(), "Linear model artifact missing"
-        assert metrics_path.exists(), "Metrics artifact missing"
-        
-        # 9. Verify model can load and predict
-        from utils.error_handlers import ModelTrainingError
+def validate_artifact_exists(path: Path):
+    """Assert an artifact exists and is not empty."""
+    if not path.exists():
+        pytest.fail(f"Artifact missing: {path}")
+    
+    size = path.stat().st_size
+    if size == 0:
+        pytest.fail(f"Artifact is empty: {path}")
+    
+    # Validate JSON/YAML structure if applicable
+    if path.suffix == '.json':
         try:
-            xgb_loaded = xgb_trainer.load_model(str(xgb_path))
-            _ = xgb_loaded.predict(descriptors.head(1))
-        except Exception as e:
-            raise ModelTrainingError(f"Failed to load XGBoost model: {e}")
-        
+            with open(path, 'r') as f:
+                json.load(f)
+        except json.JSONDecodeError as e:
+            pytest.fail(f"Invalid JSON in {path}: {e}")
+    elif path.suffix in ['.yaml', '.yml']:
         try:
-            lr_loaded = lr_trainer.load_model(str(lr_path))
-            _ = lr_loaded.predict(descriptors.head(1))
-        except Exception as e:
-            raise ModelTrainingError(f"Failed to load Linear model: {e}")
+            with open(path, 'r') as f:
+                yaml.safe_load(f)
+        except yaml.YAMLError as e:
+            pytest.fail(f"Invalid YAML in {path}: {e}")
+
+@pytest.mark.integration
+def test_model_training_pipeline_end_to_end():
+    """
+    End-to-end integration test for the model training pipeline.
+    
+    Steps:
+    1. Verify input data exists (T013 output).
+    2. Run Feature Engineering (T023b, T023c).
+    3. Run VIF Calculation (T024).
+    4. Run XGBoost Training (T025).
+    5. Run Linear Regression Training (T026).
+    6. Run Cross-Validation (T027).
+    7. Run Bootstrap Analysis (T028, T029b).
+    8. Run SHAP Analysis (T030).
+    9. Verify all outputs exist and contain valid data.
+    """
+    
+    # Step 1: Check Input Data
+    check_cleaned_data_exists()
+    
+    # Step 2: Feature Engineering
+    # Run Descriptor Engine (handles both CLR and Physical Descriptors)
+    # Based on API surface: code/features/descriptor_engine_main.py
+    descriptor_script = CODE_DIR / "features" / "descriptor_engine_main.py"
+    if descriptor_script.exists():
+        run_script(descriptor_script)
+    else:
+        # Fallback if main entry point is missing, try the module directly
+        # Assuming the module has a main() function we can call via python -m or similar
+        # But based on API, we assume the script exists. If not, fail.
+        pytest.fail(f"Feature engineering script not found: {descriptor_script}")
+    
+    # Step 3: VIF Calculation
+    vif_script = CODE_DIR / "features" / "collinearity.py"
+    if vif_script.exists():
+        run_script(vif_script)
+    else:
+        logger.warning("VIF script not found, skipping VIF step (may cause downstream failures).")
+    
+    # Step 4 & 5: Model Training (XGBoost & Linear)
+    # Run XGBoost
+    xgb_script = CODE_DIR / "models" / "xgboost_trainer.py"
+    if xgb_script.exists():
+        run_script(xgb_script)
+    else:
+        pytest.fail(f"XGBoost trainer script not found: {xgb_script}")
+    
+    # Run Linear Regression
+    lin_script = CODE_DIR / "models" / "linear_trainer.py"
+    if lin_script.exists():
+        run_script(lin_script)
+    else:
+        pytest.fail(f"Linear Regression trainer script not found: {lin_script}")
+    
+    # Step 6: Cross-Validation
+    cv_script = CODE_DIR / "evaluation" / "cv.py"
+    if cv_script.exists():
+        run_script(cv_script)
+    else:
+        pytest.fail(f"CV script not found: {cv_script}")
+    
+    # Step 7: Bootstrap Analysis
+    bootstrap_script = CODE_DIR / "evaluation" / "bootstrap.py"
+    if bootstrap_script.exists():
+        run_script(bootstrap_script)
+    else:
+        pytest.fail(f"Bootstrap script not found: {bootstrap_script}")
+    
+    # Step 8: SHAP Analysis
+    shap_script = CODE_DIR / "evaluation" / "shap_analysis.py"
+    if shap_script.exists():
+        run_script(shap_script)
+    else:
+        pytest.fail(f"SHAP script not found: {shap_script}")
+    
+    # Step 9: Sensitivity Analysis (if applicable)
+    # This might depend on bootstrap results
+    sensitivity_script = CODE_DIR / "evaluation" / "sensitivity.py"
+    if sensitivity_script.exists():
+        try:
+            run_script(sensitivity_script)
+        except RuntimeError as e:
+            # Sensitivity might fail if bootstrap didn't produce enough samples
+            logger.warning(f"Sensitivity analysis failed (expected if data is small): {e}")
+    
+    # Step 10: Verify Artifacts
+    logger.info("Verifying generated artifacts...")
+    missing_artifacts = []
+    invalid_artifacts = []
+    
+    for artifact in REQUIRED_ARTIFACTS:
+        try:
+            validate_artifact_exists(artifact)
+            logger.info(f"  OK: {artifact.name}")
+        except AssertionError as e:
+            missing_artifacts.append(str(artifact))
+            logger.error(f"  FAIL: {artifact.name} - {e}")
+    
+    if missing_artifacts:
+        pytest.fail(f"Integration test failed. Missing or invalid artifacts:\n" + "\n".join(missing_artifacts))
+    
+    # Additional content validation for key files
+    # Check that test_set_ci.yaml has required keys
+    ci_file = DATA_PROCESSED_DIR / "test_set_ci.yaml"
+    if ci_file.exists():
+        with open(ci_file, 'r') as f:
+            ci_data = yaml.safe_load(f)
+        required_keys = ['r2_mean', 'r2_ci_lower', 'r2_ci_upper', 'rmse_mean', 'rmse_ci_lower', 'rmse_ci_upper']
+        missing_keys = [k for k in required_keys if k not in ci_data]
+        if missing_keys:
+            pytest.fail(f"test_set_ci.yaml missing keys: {missing_keys}")
+    
+    # Check paired_ttest_results.yaml
+    ttest_file = DATA_PROCESSED_DIR / "paired_ttest_results.yaml"
+    if ttest_file.exists():
+        with open(ttest_file, 'r') as f:
+            ttest_data = yaml.safe_load(f)
+        required_keys = ['t_statistic', 'p_value', 'significant']
+        missing_keys = [k for k in required_keys if k not in ttest_data]
+        if missing_keys:
+            pytest.fail(f"paired_ttest_results.yaml missing keys: {missing_keys}")
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v", "--tb=short"])

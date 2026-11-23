@@ -1,0 +1,137 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelPerformanceSchema"
+description: "Schema for the model performance results JSON."
+type: object
+required:
+  - models
+  - baseline
+  - statistical_comparison
+properties:
+  models:
+    type: array
+    description: "List of ML model results."
+    items:
+      type: object
+      required:
+        - type
+        - hyperparameters
+        - metrics
+        - feature_importance
+      properties:
+        type:
+          type: string
+          enum:
+            - RandomForestRegressor
+            - GradientBoostingRegressor
+          description: "Model type."
+        hyperparameters:
+          type: object
+          description: "Hyperparameters used."
+          properties:
+            n_estimators:
+              type: integer
+            max_depth:
+              type: integer
+        metrics:
+          type: object
+          required:
+            - R2
+            - MAE
+            - RMSE
+          properties:
+            R2:
+              type: number
+            MAE:
+              type: number
+            RMSE:
+              type: number
+        feature_importance:
+          type: array
+          description: "List of importance objects (SHAP)."
+          items:
+            type: object
+            required:
+              - feature
+              - importance
+              - method
+            properties:
+              feature:
+                type: string
+              importance:
+                type: number
+              method:
+                type: string
+                enum:
+                  - shap
+                description: "Method used for importance calculation (SHAP only)."
+  baseline:
+    type: object
+    required:
+      - type
+      - metrics
+    properties:
+      type:
+        type: string
+        const: "LinearMixingBaseline"
+      metrics:
+        type: object
+        required:
+          - R2
+          - MAE
+          - RMSE
+        properties:
+          R2:
+            type: number
+          MAE:
+            type: number
+          RMSE:
+            type: number
+  statistical_comparison:
+    type: object
+    required:
+      - method
+      - p_value
+      - significant
+    properties:
+      method:
+        type: string
+        enum:
+          - paired_t_test_residuals
+          - bootstrap_ci
+        description: "Statistical method used (t-test if N>=50, Bootstrap if N<50)."
+      p_value:
+        type: number
+        description: "P-value from paired t-test on residuals (if applicable)."
+      significant:
+        type: boolean
+        description: "True if p_value < 0.05 (if applicable)."
+      confidence_intervals:
+        type: object
+        description: "95% CI for metrics (if Bootstrap method used)."
+        properties:
+          R2:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+          MAE:
+            type: array
+            items:
+              type: number
+            minItems: 2
+            maxItems: 2
+  robustness:
+    type: object
+    description: "Variance analysis across hyperparameters."
+    properties:
+      std_dev_MAE:
+        type: number
+        description: "Standard deviation of MAE across grid."
+      mean_MAE:
+        type: number
+        description: "Mean MAE across grid."
+      coefficient_of_variation:
+        type: number
+        description: "Std dev / Mean. Target <= 0.05."
+additionalProperties: false

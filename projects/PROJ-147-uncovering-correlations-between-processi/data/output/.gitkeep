@@ -1,0 +1,2 @@
+# This directory stores final model outputs and predictions.
+# Do not commit large binary files here; use .gitkeep to track the directory.

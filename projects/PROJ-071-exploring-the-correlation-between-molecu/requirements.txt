@@ -7,7 +7,5 @@ seaborn
 pyyaml
 requests
 datasets
+statsmodels
 scipy
-pydantic
-black
-ruff

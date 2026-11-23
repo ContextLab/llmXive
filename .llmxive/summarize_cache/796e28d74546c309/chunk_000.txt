@@ -1,0 +1,70 @@
+# Feature Specification: Predicting the Impact of Laser Surface Texturing on Wear Resistance
+
+**Feature Branch**: `001-predict-lst-wear`  
+**Created**: 2026-07-26  
+**Status**: Draft  
+**Input**: User description: "Predicting the Impact of Laser Surface Texturing on Wear Resistance"
+
+## User Scenarios & Testing *(mandatory)*
+
+### User Story 1 - Aggregate and Preprocess LST Wear Data (Priority: P1)
+
+The researcher needs to ingest raw tabular data from diverse sources (OpenML, HuggingFace, literature supplements), standardize the schema (process parameters vs. material properties vs. wear outcomes), and handle missing values to create a clean, analysis-ready dataset.
+
+**Why this priority**: Without a consolidated, clean dataset, no modeling or analysis can occur. This is the foundational step that enables all subsequent research activities.
+
+**Independent Test**: Can be fully tested by running the data ingestion pipeline on a mock dataset and verifying that the output CSV contains exactly the expected columns with no missing target variables and dropped records for missing predictors.
+
+**Acceptance Scenarios**:
+
+1. **Given** a set of raw CSV files from OpenML and literature supplements with varying column names, **When** the ingestion script runs, **Then** the output dataset contains standardized columns: `pulse_duration`, `power`, `scanning_speed`, `pattern_geometry`, `hardness`, `elastic_modulus`, and `wear_rate`. The system MUST map source columns to this canonical schema based on a provided `schema_map.json` or standard naming conventions (e.g., 'power' or 'laser_power' -> 'power'). If the source dataset (e.g., 'face-shape-rule-set') lacks these specific LST columns, the system MUST halt and report `data_schema_mismatch` error. (See FR-001, FR-002, FR-009)
+2. **Given** records with missing numerical values in predictor columns, **When** the preprocessing step runs, **Then** any record with a missing required predictor variable (excluding `contact_load` and `sliding_speed` which are handled by FR-009) is dropped from the analysis dataset, and the `missing_record_count` metric is incremented. (See FR-002)
+3. **Given** categorical `pattern_geometry` entries, **When** one-hot encoding is applied, **Then** the resulting feature matrix contains binary columns for each unique geometry type without data loss. (See FR-001)
+4. **Given** the aggregated dataset, **When** the validation step runs, **Then** the system MUST verify the presence of at least 3 distinct sources. If fewer than 3 sources are found, the system MUST log a `data_source_limitation` warning but proceed. If the dataset lacks the required `wear_rate` target or key LST predictors, the system MUST trigger a `data_insufficiency_error` and halt. (See FR-001, FR-012)
+
+---
+
+### User Story 2 - Train and Validate Regression Models (Priority: P2)
+
+The researcher needs to train multiple regression models (Linear, Random Forest, Gradient Boosting) on the processed data, perform hyperparameter tuning via grid search, and evaluate performance on a held-out test set to identify the best functional relationship.
+
+**Why this priority**: This is the core analytical engine. It directly addresses the research question by quantifying the relationship between inputs and wear resistance.
+
+**Independent Test**: Can be fully tested by executing the training pipeline on the preprocessed dataset and verifying that the model with the highest R² score on the test set is selected and saved.
+
+**Acceptance Scenarios**:
+
+1. **Given** the preprocessed dataset split into [deferred] training and [deferred] testing, **When** the grid search runs, **Then** the system generates a grid of at least 10 distinct total combinations of hyperparameters (e.g., crossing `n_estimators`, `max_depth`, and `learning_rate`) and records the best model parameters. (See FR-004)
+2. **Given** the trained models, **When** evaluated on the held-out test set, **Then** performance metrics (R², MAE, RMSE) are calculated and logged, and the system selects the model with the highest R² score, regardless of algorithm type. (See FR-003)
+3. **Given** a trained model, **When** a leave-one-material-class-out cross-validation is performed (e.g., train on steels, test on aluminum), **Then** the generalization error is computed and compared to the standard test error. The system MUST calculate the ratio `test_R²_loo / test_R²_standard`. If this ratio is < 0.8, the system MUST log a WARNING to stdout and record `transferability_failure_flag: true` in the `model_report.json`. If `test_R²_standard` is 0 or undefined, or if `test_R²_loo` is undefined, the ratio is set to 0 and a `ratio_undefined: true` flag is recorded. (See FR-006, SC-003)
+4. **Given** the full dataset, **When** the sensitivity analysis runs, **Then** the system trains a model on the 'normalized-only' subset and another on the 'full' (normalized + raw) subset. The system MUST report the difference in R² and MAE between these two models. If the 'raw' subset fails the statistical validity check (FR-017), the system MUST exclude it from this analysis and report `raw_subset_invalid`. (See FR-011, FR-017)
+
+---
+
+### User Story 3 - Interpret Feature Importance and Interactions (Priority: P3)
+
+The researcher needs to extract SHAP values from the best-performing model to rank feature importance and visualize non-linear dependencies, specifically to identify which LST parameters (e.g., scanning speed) dominate wear resistance and how they interact with material properties.
+
+**Why this priority**: This provides the scientific insight ("functional relationship") rather than just a prediction score. It answers *why* certain parameters matter, fulfilling the "virtual prototyping" goal.
+
+**Independent Test**: Can be fully tested by generating SHAP summary plots and dependency plots and verifying that `scanning_speed` and `pattern_geometry` appear as top contributors in the visualization.
+
+**Acceptance Scenarios**:
+
+1. **Given** the best-performing regression model, **When** SHAP values are computed, **Then** A summary plot is generated showing the top features ranked by mean absolute SHAP value. (See FR-005)
+2. **Given** the SHAP dependency plots, **When** visualized for `power` vs. `scanning_speed`, **Then** non-linear interaction effects are identified if the SHAP interaction value magnitude > 0.1 OR if a polynomial fit (degree 2) to the dependency plot yields an R² > 0.5. The system MUST validate these findings against permutation testing (FR-008) and VIF diagnostics (FR-010). (See FR-005, FR-008, FR-010, SC-008)
+3. **Given** the feature importance rankings, **When** analyzed, **Then** the report explicitly states whether `scanning_speed` or `pattern_geometry` is the dominant predictor, supporting the hypothesis of a non-linear relationship. (See FR-005)
+
+---
+
+### User Story 4 - Data Availability Validation (Priority: P1)
+
+The researcher needs to validate that the aggregated dataset meets the minimum requirements for the intended analysis. If the dataset is insufficient (N < 300 or missing targets), the system must gracefully degrade the scope rather than failing silently.
+
+**Why this priority**: Prevents the pipeline from producing meaningless results on invalid data and ensures the research question is reframed appropriately if data is scarce.
+
+**Independent Test**: Can be fully tested by providing a mock dataset with < 100 records and verifying the system halts with the correct error code, or providing a dataset with 150 records and verifying the system proceeds with a warning.
+
+**Acceptance Scenarios**:
+
+1. **Given** an aggregated dataset with < 100 records, **When** the validation step runs, **Then** the system MUST trigger a `data_insufficiency_error` and halt (exit code 1). (See SC-004, SC-006)

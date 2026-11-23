@@ -1,0 +1,391 @@
+project_id: PROJ-773-enterpriseclawbench-benchmarking-agents
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: b4f1ebc111d8
+  text: 'This review focuses on factual claim accuracy and citation validity. Citation
+    Accuracy Issues: The bibliography contains 12+ citations with 2026 publication
+    dates (e.g., workspacebench2026 arXiv:2605.03596, wildclawbench2026 arXiv:2605.10912,
+    clawbench2026 arXiv:2604.08523). These arXiv IDs follow a pattern suggesting fabrication
+    rather than actual papers. Claims about related benchmarks in Table 1 (Section:
+    Introduction) cannot be verified without access to these sources. Model Version
+    Claims:'
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 04c297918605
+  text: Code artifacts for the benchmark construction pipeline are not included in
+    the review package. For reproducibility, provide the pipeline code (fixture recovery,
+    prompt rewriting, rubric generation) with versioned dependencies.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: a08debe528a1
+  text: The paper references GitHub (https://github.com/FrontisAI/EnterpriseClawBench)
+    but no code is bundled. Include a minimal reproducible runner or at least a requirements.txt
+    and Dockerfile for the evaluation harness.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: ffa22d65832f
+  text: No test files are visible in the review package. For code quality review,
+    include unit tests for the pipeline gates (length filtering, fixture recovery,
+    network checks) and integration tests for the evaluation harness.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 4a0865fe1aed
+  text: Add formal schema documentation for benchmark task structure (task_id, fixtures,
+    rubrics, taxonomy fields) with field types and constraints.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 7a8b14775505
+  text: Document benchmark version number and construction pipeline version; include
+    changelog for any future releases.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 68b248870325
+  text: Provide inter-annotator agreement metrics for the 120-task Lite set human
+    audit (e.g., Cohen's kappa, percent agreement).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: edd820574ae6
+  text: Clarify the 2026-dated arXiv citations and provenance; ensure all external
+    links are stable or archived.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: e82c321ec8e8
+  text: Figure 8 label (ecblink:fig:radar-main) contradicts file name (fig7_dimension_profile_heatmap).
+    Update label to reflect heatmap or rename file to match 'radar' if applicable.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: c10897c1c023
+  text: Add alt text for all figures to ensure accessibility compliance for screen
+    readers.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 35ead586c686
+  text: Verify resolution of Figure 10 (24KB PDF). A 32-combo heatmap may be illegible
+    at print scale if rasterized at low DPI.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: bd8f087e61fc
+  text: 'Define all acronyms at first use: MAE, CNY, PRD, OKR, SPA, API, SDK, JSON,
+    HTML, PDF, DOCX, CSS, PPTX. These appear throughout Sections 1-4 without definition.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 7c97ca6054a8
+  text: 'Replace technical jargon with plain alternatives: fixture to required input
+    file, harness to agent system, sandbox to testing environment, rubric to evaluation
+    criteria, taxonomy to category system, delta to change, held-out to unseen/test,
+    in-domain to training.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: eb2e2d2eedbc
+  text: 'Explain statistical terms: Spearman correlation should include brief explanation;
+    rho should be labeled as correlation coefficient; MAE must be spelled out. These
+    appear in Section 4.4 and Table 5.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 713030c44723
+  text: 'Define model/harness names at first mention: Claude Code, Codex, DeepAgents,
+    Hermes, OpenClaw are introduced in Section 3.1 without context for non-specialist
+    readers.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: f22604e1eb3f
+  text: Clarify the distinction between Lite set (32 harness-model combinations) and
+    full set (4 DeepAgents combinations) when comparing model rankings. The 0.663
+    vs 0.766 score difference needs explicit explanation to avoid reader confusion
+    about evaluation settings.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 85ec2ae13fe3
+  text: The prescriptive claim that evaluation "must report" all six dimensions (harness-model,
+    artifact delivery, visual quality, cost, runtime, skill-transfer) is stronger
+    than the evidence supports. The paper shows these dimensions are informative,
+    but does not demonstrate that any single dimension is insufficient.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 21115f9b8704
+  text: In the skill evaluation section, the statement "Haiku 4.5 is a weak creator,
+    but DeepAgents/Haiku 4.5 is a capable consumer" conflates model and harness. The
+    consumer is the harness-model combination, not the model alone. This should be
+    clarified for logical precision.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: c9b0501072e5
+  text: Abstract claims 'enterprise agent evaluation must report...' as a prescriptive
+    conclusion. This overreaches beyond the single-enterprise data. Qualify as 'suggests'
+    or 'indicates' rather than 'must'.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 83c4e5d97e78
+  text: Section 5.3 skill evaluation generalizes from ONE task subclass (frontend
+    page generation, 10+5 tasks) to 'task-class-level skill evaluation' as a general
+    capability. This is unsupported extrapolation.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: ff0f32036b04
+  text: Section 5.2 claims full 852-task set 'preserves the broad model ranking' but
+    only 4 harness-model combinations were run. This is insufficient evidence for
+    the scalability claim.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 1f781af50ab2
+  text: Visual judge has negative human correlation (-0.259 Spearman, Table 5) yet
+    is used for main leaderboard scoring. The paper should not claim these scores
+    are valid without stronger caveats.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 42f225092a20
+  text: Add explicit statement about IRB/ethics committee approval or justification
+    for exemption when using employee workplace session data. Section 7 (Ethical Considerations)
+    is too brief and does not address consent or oversight.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 2e47b23bd590
+  text: Document the redaction and privacy protection process in detail. The pipeline
+    includes a 'redaction recovery' step (Section 3, Appendix) that could potentially
+    restore sensitive information. Explain how this is controlled and audited.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 65c60ca7b735
+  text: Clarify whether employees whose sessions were used provided informed consent
+    for research use. If not, explain the legal/ethical basis for using proprietary
+    employee data in public research.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 801623241a63
+  text: Add a conflict of interest statement. Authors are from Frontis.AI, and the
+    benchmark uses their internal enterprise deployment. This creates potential bias
+    in evaluation of their own or competitor products.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 81954bfde5b3
+  text: The visual judge shows negative human correlation (Spearman -0.259, Table
+    2). Main leaderboard scores relying on visual artifacts are scientifically invalid
+    until this is resolved or excluded.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: ba28efeb0671
+  text: Skill transfer experiment uses only 15 tasks (10 in-domain, 5 held-out). Report
+    confidence intervals or p-values for the reported deltas (e.g., +0.0681) to establish
+    statistical significance.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: f217d0909a79
+  text: The Lite set (120 tasks) selection process is not detailed. Provide stratification
+    details to rule out selection bias in the main leaderboard results.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 0ca69eb9c427
+  text: Report confidence intervals or standard errors for all leaderboard scores
+    (Figure 1, Table 1) to quantify uncertainty.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 859ec6c4b9c4
+  text: Address multiple comparisons correction for the 32 harness-model combinations
+    tested.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 5e2f929f9cde
+  text: Provide variance estimates (SE/CI) for skill transfer deltas; n=5 held-out
+    tasks is insufficient for robust claims without uncertainty metrics.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: baae7c317632
+  text: Include significance testing or CIs for judge reliability correlations (Table
+    2).
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 49fb1ba51d30
+  text: 'Line 107: Figure placement specifier [hb] is non-standard. Use [htbp] or
+    [!ht] for better float handling.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 4450d2912e7c
+  text: 'Lines 156, 303-311: Inconsistent figure placement specifiers ([H], [h], [!h]).
+    Standardize to [htbp] or [!ht] for consistent float behavior.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 8da4f8da804b
+  text: Tables use inconsistent sizing approaches (adjustbox vs. \small vs. \scriptsize).
+    Standardize table formatting across the paper.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 3fe1cbfb218b
+  text: Case study boxes contain very long lines (e.g., line 447) that may cause overfull
+    hbox warnings. Consider line breaks or smaller fonts.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 8031577a1b7a
+  text: Fix typo 'repair,while' to 'repair, while' in Section 3.2 (Harness--model
+    interaction).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: f123ed116626
+  text: Correct spelling 'senarios' to 'scenarios' in Appendix (Redaction recovery).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 824723b5c9f9
+  text: Improve phrasing 'high variance' to 'highly variable' in Section 3.5 (Skill
+    Evaluation).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 6af2ae241c49
+  text: Replace 'gives' with 'illustrates' in Section 2 (Construction pipeline) for
+    academic tone.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+- id: 7eb9b44adadb
+  text: Refine 'associated non-linearly' to 'has a non-linear association with' in
+    Section 3.2.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-773-enterpriseclawbench-benchmarking-agents/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 42 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-27T01:05:47.360622+00:00'

@@ -1,144 +1,153 @@
 """
-Tests for checksum management functionality.
+Tests for the checksum utilities.
 """
-
 import os
 import json
 import tempfile
 from pathlib import Path
 import pytest
-
 from src.data.checksums import (
+    compute_file_checksum,
     compute_directory_checksums,
     save_checksums,
     load_checksums,
     verify_checksums,
-    _get_checksum_file_path,
-    CHECKSUM_FILE_NAME
+    generate_checksums_for_directories,
+    verify_all_checksums,
+    CHECKSUM_FILE
 )
 
-
 @pytest.fixture
-def temp_data_dir(tmp_path):
-    """Create a temporary data directory with some test files."""
-    # Create subdirectories
-    raw_dir = tmp_path / "raw"
-    raw_dir.mkdir()
-    (raw_dir / "subdir").mkdir()
+def temp_data_dir():
+    """Create a temporary directory structure with test files."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        base = Path(tmpdir)
+        
+        # Create directory structure
+        raw_dir = base / "raw"
+        processed_dir = base / "processed"
+        raw_dir.mkdir()
+        processed_dir.mkdir()
+        
+        # Create test files
+        (raw_dir / "file1.txt").write_text("Hello World")
+        (raw_dir / "file2.csv").write_text("a,b,c\n1,2,3")
+        (processed_dir / "output.json").write_text('{"key": "value"}')
+        
+        # Create a .gitkeep file (should be excluded)
+        (raw_dir / ".gitkeep").write_text("")
+        
+        yield base
 
-    # Create test files
-    file1 = raw_dir / "test1.csv"
-    file1.write_text("col1,col2\n1,2\n3,4\n")
-
-    file2 = raw_dir / "subdir" / "test2.csv"
-    file2.write_text("col1,col2\n5,6\n7,8\n")
-
-    file3 = raw_dir / "test3.json"
-    file3.write_text('{"key": "value"}')
-
-    return tmp_path
-
-
-def test_compute_directory_checksums(temp_data_dir):
-    """Test that checksums are computed correctly for all files."""
-    checksums = compute_directory_checksums(temp_data_dir)
-
-    # Should find 3 files
-    assert len(checksums) == 3
-
-    # Check that all expected files are present
-    assert "test1.csv" in checksums
-    assert "subdir/test2.csv" in checksums
-    assert "test3.json" in checksums
-
-    # Check structure of each entry
-    for rel_path, info in checksums.items():
-        assert "sha256" in info
-        assert "size_bytes" in info
-        assert "timestamp" in info
-        assert len(info["sha256"]) == 64  # SHA-256 hex length
+def test_compute_file_checksum(temp_data_dir):
+    """Test computing checksum of a single file."""
+    file_path = temp_data_dir / "raw" / "file1.txt"
+    checksum = compute_file_checksum(file_path)
+    
+    assert len(checksum) == 64  # SHA-256 hex length
+    assert isinstance(checksum, str)
+    
+    # Verify consistency
+    checksum2 = compute_file_checksum(file_path)
+    assert checksum == checksum2
 
 def test_save_and_load_checksums(temp_data_dir):
     """Test saving and loading checksums to/from JSON."""
-    checksums = compute_directory_checksums(temp_data_dir)
-
-    # Save checksums
-    saved_path = save_checksums(checksums, temp_data_dir)
-    assert saved_path.exists()
-    assert saved_path.name == CHECKSUM_FILE_NAME
-
-    # Load checksums
-    loaded_checksums = load_checksums(temp_data_dir)
-    assert loaded_checksums is not None
-    assert len(loaded_checksums) == len(checksums)
-
-    # Verify checksums match
-    for rel_path, info in checksums.items():
-        assert rel_path in loaded_checksums
-        assert loaded_checksums[rel_path]["sha256"] == info["sha256"]
+    checksums = {"file1.txt": "abc123", "file2.txt": "def456"}
+    output_path = temp_data_dir / "test_checksums.json"
+    
+    save_checksums(checksums, output_path)
+    
+    assert output_path.exists()
+    
+    loaded = load_checksums(output_path)
+    assert loaded == checksums
 
 def test_save_checksums_excludes_itself(temp_data_dir):
-    """Test that the checksum file is excluded from checksums."""
-    checksums = compute_directory_checksums(temp_data_dir)
-    save_checksums(checksums, temp_data_dir)
-
-    # Recompute checksums - should still be 3 files, not 4
-    new_checksums = compute_directory_checksums(temp_data_dir)
-    assert len(new_checksums) == 3
-    assert CHECKSUM_FILE_NAME not in new_checksums
+    """Test that save_checksums doesn't include itself in the checksum file."""
+    raw_dir = temp_data_dir / "raw"
+    checksum_file = raw_dir / CHECKSUM_FILE
+    
+    checksums = compute_directory_checksums(raw_dir)
+    save_checksums(checksums, checksum_file)
+    
+    # Reload and verify the checksum file is not in the list
+    loaded = load_checksums(checksum_file)
+    assert CHECKSUM_FILE not in loaded
 
 def test_verify_checksums_valid(temp_data_dir):
-    """Test verification when files haven't changed."""
-    checksums = compute_directory_checksums(temp_data_dir)
-    save_checksums(checksums, temp_data_dir)
-
-    results = verify_checksums(temp_data_dir)
-
-    # All files should verify successfully
-    assert len(results) == 3
+    """Test verifying valid checksums."""
+    raw_dir = temp_data_dir / "raw"
+    checksums = compute_directory_checksums(raw_dir)
+    
+    results = verify_checksums(raw_dir, checksums)
+    
     assert all(results.values())
+    assert len(results) > 0
 
 def test_verify_checksums_modified_file(temp_data_dir):
-    """Test verification when a file has been modified."""
-    checksums = compute_directory_checksums(temp_data_dir)
-    save_checksums(checksums, temp_data_dir)
-
-    # Modify a file
-    file_path = temp_data_dir / "test1.csv"
-    file_path.write_text("modified content\n")
-
-    results = verify_checksums(temp_data_dir)
-
-    # The modified file should fail verification
-    assert results["test1.csv"] is False
-    assert results["subdir/test2.csv"] is True
-    assert results["test3.json"] is True
+    """Test verifying checksums with a modified file."""
+    raw_dir = temp_data_dir / "raw"
+    file_path = raw_dir / "file1.txt"
+    
+    # Get original checksums
+    original_checksums = compute_directory_checksums(raw_dir)
+    
+    # Modify the file
+    file_path.write_text("Modified content")
+    
+    # Verify - should fail for the modified file
+    results = verify_checksums(raw_dir, original_checksums)
+    
+    assert results["file1.txt"] is False
+    assert results["file2.csv"] is True
 
 def test_verify_checksums_missing_file(temp_data_dir):
-    """Test verification when a file is missing."""
-    checksums = compute_directory_checksums(temp_data_dir)
-    save_checksums(checksums, temp_data_dir)
-
-    # Delete a file
-    file_path = temp_data_dir / "test3.json"
-    file_path.unlink()
-
-    results = verify_checksums(temp_data_dir)
-
-    # The missing file should fail verification
-    assert results["test3.json"] is False
-    assert results["test1.csv"] is True
-    assert results["subdir/test2.csv"] is True
+    """Test verifying checksums with a missing file."""
+    raw_dir = temp_data_dir / "raw"
+    checksums = compute_directory_checksums(raw_dir)
+    
+    # Remove a file
+    (raw_dir / "file1.txt").unlink()
+    
+    results = verify_checksums(raw_dir, checksums)
+    
+    assert results["file1.txt"] is False
 
 def test_verify_checksums_no_stored(temp_data_dir):
-    """Test verification when no checksums are stored."""
-    results = verify_checksums(temp_data_dir)
-    assert results == {}
+    """Test verifying with empty stored checksums."""
+    raw_dir = temp_data_dir / "raw"
+    
+    results = verify_checksums(raw_dir, {})
+    
+    assert len(results) == 0
 
-def test_get_checksum_file_path():
-    """Test the checksum file path helper."""
-    data_dir = Path("/some/data/dir")
-    expected = data_dir / CHECKSUM_FILE_NAME
-    result = _get_checksum_file_path(data_dir)
-    assert result == expected
-    assert result.name == CHECKSUM_FILE_NAME
+def test_get_checksum_file_path(temp_data_dir):
+    """Test that checksum file is created in the correct location."""
+    raw_dir = temp_data_dir / "raw"
+    checksums = compute_directory_checksums(raw_dir)
+    checksum_file = raw_dir / CHECKSUM_FILE
+    
+    save_checksums(checksums, checksum_file)
+    
+    assert checksum_file.exists()
+    
+    # Verify the file is a valid JSON with the expected structure
+    with open(checksum_file, 'r') as f:
+        data = json.load(f)
+    
+    assert "checksums" in data
+    assert "created_at" in data
+    assert "algorithm" in data
+
+def test_compute_directory_checksums_excludes_patterns(temp_data_dir):
+    """Test that directory checksums exclude specified patterns."""
+    raw_dir = temp_data_dir / "raw"
+    checksums = compute_directory_checksums(raw_dir)
+    
+    # .gitkeep should be excluded
+    assert ".gitkeep" not in checksums
+    
+    # Regular files should be included
+    assert "file1.txt" in checksums
+    assert "file2.csv" in checksums

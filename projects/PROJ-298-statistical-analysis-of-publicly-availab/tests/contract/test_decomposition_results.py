@@ -1,197 +1,178 @@
-"""
-Contract test for decomposition output schema (US2).
-Validates the structure and types of data produced by the decomposition pipeline.
-Specifically checks for the presence and validity of the Ljung-Box test result.
-"""
 import json
-import pytest
-from pathlib import Path
-from typing import Any, Dict
-
-# Import the contract validation utilities used by the project
+import os
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
-from utils.contract_validation import (
-    ContractValidationError,
-    load_contract,
-    validate_schema,
-    enforce_contract
-)
+from pathlib import Path
+import pytest
 
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-DECOMPOSITION_RESULTS_PATH = PROJECT_ROOT / "data" / "processed" / "decomposition_results.json"
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-# Define the expected schema contract for decomposition results
-# This matches the requirements in FR-009 and SC-003
-DECOMPOSITION_CONTRACT = {
-    "type": "object",
-    "required": [
-        "tags",
-        "metadata",
-        "ljung_box_test",
-        "rayleigh_test",
-        "method_used"
-    ],
-    "properties": {
-        "metadata": {
-            "type": "object",
-            "required": ["timestamp", "version"],
-            "properties": {
-                "timestamp": {"type": "string"},
-                "version": {"type": "string"}
-            }
-        },
-        "tags": {
-            "type": "array",
-            "items": {
-                "type": "object",
-                "required": ["tag_name", "decomposition", "stats"],
-                "properties": {
-                    "tag_name": {"type": "string"},
-                    "decomposition": {
-                        "type": "object",
-                        "required": ["trend", "seasonal", "residual"],
-                        "properties": {
-                            "trend": {"type": "array", "items": {"type": "number"}},
-                            "seasonal": {"type": "array", "items": {"type": "number"}},
-                            "residual": {"type": "array", "items": {"type": "number"}}
-                        }
-                    },
-                    "stats": {
-                        "type": "object",
-                        "required": ["adf_statistic", "adf_pvalue", "seasonality_detected"],
-                        "properties": {
-                            "adf_statistic": {"type": "number"},
-                            "adf_pvalue": {"type": "number"},
-                            "seasonality_detected": {"type": "boolean"},
-                            "method_applied": {"type": "string", "enum": ["STL", "Hodrick-Prescott"]}
-                        }
-                    }
-                }
-            }
-        },
-        "ljung_box_test": {
-            "type": "object",
-            "description": "Results of the Ljung-Box test for residual independence",
-            "required": ["statistic", "p_value", "lag", "is_independent"],
-            "properties": {
-                "statistic": {"type": "number"},
-                "p_value": {"type": "number"},
-                "lag": {"type": "integer", "minimum": 1},
-                "is_independent": {"type": "boolean"}
-            }
-        },
-        "rayleigh_test": {
-            "type": "object",
-            "description": "Results of the Rayleigh test for event alignment",
-            "required": ["statistic", "p_value", "alignment_detected"],
-            "properties": {
-                "statistic": {"type": "number"},
-                "p_value": {"type": "number"},
-                "alignment_detected": {"type": "boolean"}
-            }
-        },
-        "method_used": {
-            "type": "string",
-            "enum": ["STL", "Hodrick-Prescott", "Mixed"]
-        }
-    }
-}
+from utils.contract_validation import validate_schema, load_contract, ContractValidationError
 
-def test_decomposition_schema_contract():
-    """
-    Validates that the decomposition_results.json file adheres to the defined schema.
-    This is the primary contract test for US2.
-    """
-    if not DECOMPOSITION_RESULTS_PATH.exists():
-        pytest.fail(f"Artifact not found: {DECOMPOSITION_RESULTS_PATH}. "
-                    "The decomposition pipeline has not been run or output is missing.")
-
-    try:
-        with open(DECOMPOSITION_RESULTS_PATH, 'r', encoding='utf-8') as f:
+class TestDecompositionResultsSchema:
+    """Contract test for decomposition output schema validating Ljung-Box result."""
+    
+    @pytest.fixture
+    def result_path(self):
+        """Path to decomposition_results.json"""
+        return project_root / "data" / "processed" / "decomposition_results.json"
+    
+    def test_file_exists(self, result_path):
+        """Test that the decomposition results file exists."""
+        assert result_path.exists(), f"File not found: {result_path}"
+    
+    def test_valid_json(self, result_path):
+        """Test that the file contains valid JSON."""
+        with open(result_path, 'r', encoding='utf-8') as f:
             data = json.load(f)
-    except json.JSONDecodeError as e:
-        pytest.fail(f"Invalid JSON in {DECOMPOSITION_RESULTS_PATH}: {e}")
-
-    # Validate against the schema
-    errors = validate_schema(data, DECOMPOSITION_CONTRACT)
-    if errors:
-        error_msg = "\n".join([f"- {err}" for err in errors])
-        pytest.fail(f"Schema validation failed:\n{error_msg}")
-
-    # Specific check for Ljung-Box result validity (FR-009)
-    lb = data.get("ljung_box_test", {})
-    if not isinstance(lb.get("p_value"), (int, float)):
-        pytest.fail("Ljung-Box p_value must be a number.")
-    if not isinstance(lb.get("is_independent"), bool):
-        pytest.fail("Ljung-Box is_independent must be a boolean.")
+        assert isinstance(data, dict), "Root element must be a dictionary"
     
-    # Ensure p-value logic is consistent (optional but good practice)
-    p_val = lb.get("p_value")
-    is_indep = lb.get("is_independent")
-    # Standard convention: p > alpha (0.05) implies independence (null hypothesis not rejected)
-    # Note: The specific threshold might vary, but the boolean should match the p-value logic
-    if p_val is not None and is_indep is not None:
-        # We don't enforce the specific alpha here as it might be configurable, 
-        # but we ensure the field exists and is the right type.
-        pass
-
-    # Specific check for Rayleigh test
-    ray = data.get("rayleigh_test", {})
-    if not isinstance(ray.get("p_value"), (int, float)):
-        pytest.fail("Rayleigh p_value must be a number.")
-
-def test_ljung_box_result_structure():
-    """
-    Detailed validation of the Ljung-Box test result specifically.
-    """
-    if not DECOMPOSITION_RESULTS_PATH.exists():
-        pytest.skip("Artifact missing, skipping detailed check.")
-
-    with open(DECOMPOSITION_RESULTS_PATH, 'r') as f:
-        data = json.load(f)
-
-    lb = data.get("ljung_box_test")
-    assert lb is not None, "Missing 'ljung_box_test' key in results."
-    assert "statistic" in lb, "Missing 'statistic' in ljung_box_test."
-    assert "p_value" in lb, "Missing 'p_value' in ljung_box_test."
-    assert "lag" in lb, "Missing 'lag' in ljung_box_test."
-    assert "is_independent" in lb, "Missing 'is_independent' in ljung_box_test."
+    def test_required_metadata(self, result_path):
+        """Test that metadata section contains required fields."""
+        with open(result_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        assert "metadata" in data, "Missing 'metadata' section"
+        metadata = data["metadata"]
+        
+        assert "generated_from" in metadata, "Missing 'generated_from' in metadata"
+        assert "description" in metadata, "Missing 'description' in metadata"
+        assert "fr_references" in metadata, "Missing 'fr_references' in metadata"
+        
+        # Verify FR references include FR-009 and FR-012
+        assert "FR-009" in metadata["fr_references"], "FR-009 reference missing"
+        assert "FR-012" in metadata["fr_references"], "FR-012 reference missing"
     
-    # Verify types
-    assert isinstance(lb["statistic"], (int, float)), "Statistic must be numeric."
-    assert isinstance(lb["p_value"], (int, float)), "P-value must be numeric."
-    assert isinstance(lb["lag"], int), "Lag must be an integer."
-    assert isinstance(lb["is_independent"], bool), "Independence flag must be boolean."
-
-def test_decomposition_tags_structure():
-    """
-    Validates that each tag entry in the decomposition results has the required fields.
-    """
-    if not DECOMPOSITION_RESULTS_PATH.exists():
-        pytest.skip("Artifact missing.")
-
-    with open(DECOMPOSITION_RESULTS_PATH, 'r') as f:
-        data = json.load(f)
-
-    tags = data.get("tags", [])
-    assert len(tags) > 0, "No tags found in decomposition results."
-
-    for tag_entry in tags:
-        assert "tag_name" in tag_entry, "Missing tag_name."
-        assert "decomposition" in tag_entry, "Missing decomposition data."
-        assert "stats" in tag_entry, "Missing stats data."
+    def test_results_structure(self, result_path):
+        """Test that results section exists and has expected structure."""
+        with open(result_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
         
-        decomp = tag_entry["decomposition"]
-        assert "trend" in decomp, "Missing trend series."
-        assert "seasonal" in decomp, "Missing seasonal series."
-        assert "residual" in decomp, "Missing residual series."
+        assert "results" in data, "Missing 'results' section"
+        assert isinstance(data["results"], dict), "'results' must be a dictionary"
+    
+    def test_ljung_box_tests_present(self, result_path):
+        """Test that Ljung-Box test results are present."""
+        with open(result_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
         
-        stats = tag_entry["stats"]
-        assert "adf_statistic" in stats, "Missing ADF statistic."
-        assert "adf_pvalue" in stats, "Missing ADF p-value."
-        assert "seasonality_detected" in stats, "Missing seasonality flag."
-        assert "method_applied" in stats, "Missing method applied."
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+        assert "ljung_box_tests" in data, "Missing 'ljung_box_tests' section"
+        assert isinstance(data["ljung_box_tests"], list), "'ljung_box_tests' must be a list"
+        
+        if len(data["ljung_box_tests"]) > 0:
+            # Check structure of first test result
+            first_test = data["ljung_box_tests"][0]
+            assert "tag" in first_test, "Missing 'tag' in Ljung-Box test result"
+            assert "statistic" in first_test, "Missing 'statistic' in Ljung-Box test result"
+            assert "p_value" in first_test, "Missing 'p_value' in Ljung-Box test result"
+            assert "lag" in first_test, "Missing 'lag' in Ljung-Box test result"
+    
+    def test_rayleigh_tests_present(self, result_path):
+        """Test that Rayleigh test results are present."""
+        with open(result_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        assert "rayleigh_tests" in data, "Missing 'rayleigh_tests' section"
+        assert isinstance(data["rayleigh_tests"], list), "'rayleigh_tests' must be a list"
+        
+        if len(data["rayleigh_tests"]) > 0:
+            # Check structure of first test result
+            first_test = data["rayleigh_tests"][0]
+            assert "tag" in first_test, "Missing 'tag' in Rayleigh test result"
+            assert "r_statistic" in first_test, "Missing 'r_statistic' in Rayleigh test result"
+            assert "p_value" in first_test, "Missing 'p_value' in Rayleigh test result"
+            assert "alignment" in first_test, "Missing 'alignment' in Rayleigh test result"
+    
+    def test_summary_statistics(self, result_path):
+        """Test that summary statistics are present and valid."""
+        with open(result_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        assert "summary" in data, "Missing 'summary' section"
+        summary = data["summary"]
+        
+        required_fields = [
+            "total_tags_analyzed",
+            "seasonal_tags",
+            "non_seasonal_tags",
+            "significant_ljung_box",
+            "significant_rayleigh_alignment"
+        ]
+        
+        for field in required_fields:
+            assert field in summary, f"Missing '{field}' in summary"
+            assert isinstance(summary[field], (int, float)), f"'{field}' must be numeric"
+        
+        # Verify counts make sense
+        assert summary["total_tags_analyzed"] >= 0, "Total tags cannot be negative"
+        assert summary["seasonal_tags"] + summary["non_seasonal_tags"] <= summary["total_tags_analyzed"], \
+            "Seasonal + non-seasonal cannot exceed total"
+    
+    def test_ljung_box_contract(self, result_path):
+        """Validate Ljung-Box test results against contract schema."""
+        with open(result_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        ljung_box_tests = data.get("ljung_box_tests", [])
+        
+        for test in ljung_box_tests:
+            # Each test must have valid structure
+            assert "tag" in test and isinstance(test["tag"], str), "Invalid tag format"
+            assert "statistic" in test and isinstance(test["statistic"], (int, float)), "Invalid statistic format"
+            assert "p_value" in test and isinstance(test["p_value"], (int, float)), "Invalid p_value format"
+            assert "lag" in test and isinstance(test["lag"], int), "Invalid lag format"
+            
+            # P-value must be between 0 and 1
+            assert 0 <= test["p_value"] <= 1, f"P-value out of range for tag {test['tag']}"
+            
+            # Lag should be 12 as per FR-009
+            assert test["lag"] == 12, f"Expected lag=12, got {test['lag']} for tag {test['tag']}"
+    
+    def test_rayleigh_contract(self, result_path):
+        """Validate Rayleigh test results against contract schema."""
+        with open(result_path, 'r', encoding='utf-8') as f:
+            data = json.load(f)
+        
+        rayleigh_tests = data.get("rayleigh_tests", [])
+        
+        for test in rayleigh_tests:
+            # Each test must have valid structure
+            assert "tag" in test and isinstance(test["tag"], str), "Invalid tag format"
+            assert "r_statistic" in test and isinstance(test["r_statistic"], (int, float)), "Invalid r_statistic format"
+            assert "p_value" in test and isinstance(test["p_value"], (int, float)), "Invalid p_value format"
+            assert "alignment" in test and isinstance(test["alignment"], str), "Invalid alignment format"
+            
+            # P-value must be between 0 and 1
+            assert 0 <= test["p_value"] <= 1, f"P-value out of range for tag {test['tag']}"
+            
+            # Alignment should be one of the expected values
+            valid_alignments = ["aligned", "not_aligned", "insufficient_data"]
+            assert test["alignment"] in valid_alignments, \
+                f"Invalid alignment '{test['alignment']}' for tag {test['tag']}"
+    
+    def test_sha256_in_state(self):
+        """Test that the decomposition_results.json hash is in the state file."""
+        result_path = project_root / "data" / "processed" / "decomposition_results.json"
+        state_path = project_root / "state" / "projects" / "PROJ-298-statistical-analysis-of-publicly-availab.yaml"
+        
+        assert result_path.exists(), "decomposition_results.json not found"
+        assert state_path.exists(), "State file not found"
+        
+        from utils.hygiene import calculate_sha256, load_state
+        
+        expected_hash = calculate_sha256(result_path)
+        state = load_state(state_path)
+        
+        assert "artifacts" in state, "Missing 'artifacts' in state file"
+        
+        # Check if our file is in the artifacts with correct hash
+        found = False
+        for artifact_path, artifact_hash in state["artifacts"].items():
+            if "decomposition_results.json" in artifact_path:
+                assert artifact_hash == expected_hash, \
+                    f"Hash mismatch for decomposition_results.json: expected {expected_hash}, got {artifact_hash}"
+                found = True
+                break
+        
+        assert found, "decomposition_results.json not found in state file artifacts"

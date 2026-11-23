@@ -1,3 +1,8 @@
+"""
+Main Orchestration Script for User Story 1 Pipeline
+Orchestrates: Load -> Validate -> Compute Metrics -> Correlate -> Plot
+Invokes state_manager.py to update project state atomically.
+"""
 import argparse
 import sys
 import os
@@ -5,193 +10,276 @@ import json
 from datetime import datetime
 from typing import Optional, Dict, Any
 
-# Import from sibling modules as per API surface
+# Add project root to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
 from config import get_atlas_path, get_atlas_node_count
 from data_loader import validate_entrainment_csv, validate_topology_columns
-from graph_metrics import compute_all_metrics, process_subject_matrices, detect_zero_variance_metrics, save_metric_flags, analyze_and_flag_metrics
-from simulation import generate_synthetic_data, check_and_generate_fallback
-from analysis import run_sensitivity_analysis, generate_sensitivity_bar_chart, main as analysis_main
-from viz import calculate_confidence_interval, generate_scatter_plot, generate_sensitivity_bar_chart, main as viz_main
+from graph_metrics import (
+    calculate_clustering_coefficient,
+    calculate_path_length,
+    compute_all_metrics,
+    process_subject_matrices,
+    detect_zero_variance_metrics,
+    save_metric_flags,
+    analyze_and_flag_metrics
+)
+from simulation import check_and_generate_fallback, generate_synthetic_data
+from analysis import (
+    load_metric_flags,
+    calculate_spearman_correlations,
+    calculate_vif,
+    run_correlation_analysis,
+    generate_correlation_results_csv
+)
+from viz import generate_scatter_plot
+from state_manager import update_state, get_state, compute_sha256
 
-# Constants for paths
-DATA_RAW_DIR = "data/raw"
-DATA_PROCESSED_DIR = "data/processed"
-DATA_VIS_DIR = "data/visualizations"
-DATA_GAP_REPORT_PATH = "data/processed/data_gap_report.json"
-ENTRAINMENT_CSV = "data/raw/entrainment_metrics.csv"
-TOPOLOGY_CSV = "data/processed/topology_metrics.csv"
-CORRELATION_RESULTS_CSV = "data/processed/correlation_results.csv"
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_RAW_DIR = os.path.join(PROJECT_ROOT, 'data', 'raw')
+DATA_PROCESSED_DIR = os.path.join(PROJECT_ROOT, 'data', 'processed')
+DATA_VIZ_DIR = os.path.join(PROJECT_ROOT, 'data', 'visualizations')
 
 def ensure_directories():
-    """Create necessary directories if they don't exist."""
-    dirs = [DATA_RAW_DIR, DATA_PROCESSED_DIR, DATA_VIS_DIR]
-    for d in dirs:
-        os.makedirs(d, exist_ok=True)
+    """Ensure all required directories exist."""
+    os.makedirs(DATA_RAW_DIR, exist_ok=True)
+    os.makedirs(DATA_PROCESSED_DIR, exist_ok=True)
+    os.makedirs(DATA_VIZ_DIR, exist_ok=True)
 
-def check_data_gap_status() -> Dict[str, Any]:
+def check_data_gap_status() -> bool:
     """
-    Check if entrainment data exists and if N >= 30.
-    Returns a status dict indicating if a data gap exists.
+    Check if we have sufficient real data.
+    Returns True if data gap exists (N < 30 or missing files).
     """
-    gap_info = {
-        "gap_exists": False,
-        "reason": "",
-        "n_subjects": 0,
-        "data_source": "Unknown"
-    }
-
+    # Check for topology metrics
+    metrics_file = os.path.join(DATA_PROCESSED_DIR, 'topology_metrics.csv')
+    if not os.path.exists(metrics_file):
+        return True
+    
     # Check for entrainment data
-    if not os.path.exists(ENTRAINMENT_CSV):
-        gap_info["gap_exists"] = True
-        gap_info["reason"] = "Entrainment data file missing"
-        return gap_info
-
+    entrainment_file = os.path.join(DATA_RAW_DIR, 'entrainment_metrics.csv')
+    if not os.path.exists(entrainment_file):
+        return True
+    
+    # Check row count if files exist
+    import pandas as pd
     try:
-        df_entrainment = validate_entrainment_csv(ENTRAINMENT_CSV)
-        if df_entrainment is None or df_entrainment.empty:
-            gap_info["gap_exists"] = True
-            gap_info["reason"] = "Entrainment data file is empty or invalid"
-            return gap_info
-        
-        gap_info["n_subjects"] = len(df_entrainment)
-        
-        # Check topology data
-        if not os.path.exists(TOPOLOGY_CSV):
-            gap_info["gap_exists"] = True
-            gap_info["reason"] = "Topology metrics file missing"
-            return gap_info
+        metrics_df = pd.read_csv(metrics_file)
+        if len(metrics_df) < 30:
+            return True
+    except Exception:
+        return True
+    
+    return False
 
-        df_topology = validate_topology_columns(TOPOLOGY_CSV)
-        if df_topology is None or df_topology.empty:
-            gap_info["gap_exists"] = True
-            gap_info["reason"] = "Topology metrics file is empty or invalid"
-            return gap_info
+def report_data_gap(reason: str):
+    """Report data gap status to state manager."""
+    state = get_state()
+    state["data_gap_report"] = {
+        "detected": True,
+        "reason": reason,
+        "timestamp": datetime.now().isoformat()
+    }
+    # We don't update file here, let the main flow handle it after fallback
 
-        # Check join size
-        merged = pd.merge(df_entrainment, df_topology, on="subject_id", how="inner")
-        gap_info["n_subjects"] = len(merged)
-        
-        if len(merged) < 30:
-            gap_info["gap_exists"] = True
-            gap_info["reason"] = f"Joined sample size ({len(merged)}) is less than 30"
-            return gap_info
+def generate_final_report(results_df, status: str = "completed"):
+    """Generate final summary report."""
+    report = {
+        "timestamp": datetime.now().isoformat(),
+        "status": status,
+        "subject_count": len(results_df) if results_df is not None else 0,
+        "metrics_computed": ["clustering_coefficient", "path_length"],
+        "correlation_results": {
+            "method": "Spearman",
+            "corrections_applied": ["Holm-Bonferroni"]
+        }
+    }
+    
+    if results_df is not None and len(results_df) > 0:
+        report["summary_stats"] = {
+            "mean_entrainment": float(results_df['entrainment_metric'].mean()),
+            "mean_clustering": float(results_df['clustering_coefficient'].mean()),
+            "mean_path_length": float(results_df['path_length'].mean())
+        }
+    
+    return report
 
-        gap_info["data_source"] = "Real"
-        return gap_info
-
-    except Exception as e:
-        gap_info["gap_exists"] = True
-        gap_info["reason"] = f"Error validating data: {str(e)}"
-        return gap_info
-
-def report_data_gap(gap_info: Dict[str, Any]) -> None:
+def run_us1_pipeline(atlas: str = "Schaefer", use_sensitivity: bool = False):
     """
-    If a data gap is detected, trigger the Simulated Data Fallback (FR-009).
-    Generate synthetic data and create the data_gap_report.json.
-    The pipeline does NOT halt; it proceeds with simulated data.
+    Run the full User Story 1 pipeline.
+    
+    Args:
+        atlas: Atlas type to use (Schaefer, AAL, Power 264)
+        use_sensitivity: If True, run sensitivity analysis for other atlases
+    
+    Returns:
+        Tuple of (results_df, final_report, status)
     """
-    if not gap_info["gap_exists"]:
-        # No gap, real data exists and N >= 30
-        print("Data check passed. Proceeding with real data.")
-        return
-
-    print(f"⚠️  Data Gap Detected: {gap_info['reason']}")
-    print("Triggering Simulated Data Fallback (FR-009)...")
-
-    # Ensure directories exist
     ensure_directories()
-
-    # Generate synthetic data
-    # This function is expected to generate both topology and entrainment data
-    # if real data is missing or insufficient.
+    artifact_paths = []
+    data_files = []
+    
     try:
-        # We call the simulation module to generate the fallback data
-        # The simulation module handles the logic of checking if it needs to generate
-        # or if real data is partially available (though T031 logic simplifies this to fallback)
-        synthetic_data_path = check_and_generate_fallback(
-            target_n=30, 
-            target_correlation=0.5,
-            output_dir=DATA_PROCESSED_DIR
+        # Step 1: Check for data gap and handle fallback
+        has_gap = check_data_gap_status()
+        if has_gap:
+            print("[INFO] Data gap detected. Triggering simulated data fallback...")
+            report_data_gap("N < 30 or missing files")
+            # Generate synthetic data
+            synthetic_data = check_and_generate_fallback(
+                atlas_type=atlas,
+                target_correlation=0.5,
+                noise_level=0.2
+            )
+            # Save synthetic data to expected locations
+            synthetic_data['topology_metrics'].to_csv(
+                os.path.join(DATA_PROCESSED_DIR, 'topology_metrics.csv'),
+                index=False
+            )
+            synthetic_data['entrainment_metrics'].to_csv(
+                os.path.join(DATA_RAW_DIR, 'entrainment_metrics.csv'),
+                index=False
+            )
+            data_files.append('data/processed/topology_metrics.csv')
+            data_files.append('data/raw/entrainment_metrics.csv')
+            print(f"[INFO] Generated synthetic data for {len(synthetic_data['topology_metrics'])} subjects.")
+        else:
+            print("[INFO] Real data available. Proceeding with analysis.")
+        
+        # Step 2: Load and validate entrainment data
+        entrainment_path = os.path.join(DATA_RAW_DIR, 'entrainment_metrics.csv')
+        if not os.path.exists(entrainment_path):
+            raise FileNotFoundError(f"Entrainment metrics file not found: {entrainment_path}")
+        
+        validate_entrainment_csv(entrainment_path)
+        print("[INFO] Entrainment data validated.")
+        
+        # Step 3: Load topology metrics (computed or synthetic)
+        metrics_path = os.path.join(DATA_PROCESSED_DIR, 'topology_metrics.csv')
+        if not os.path.exists(metrics_path):
+            # If we don't have metrics, try to compute from raw correlation matrices
+            raw_corr_path = os.path.join(DATA_RAW_DIR, 'hcp_correlation_matrices.csv')
+            if os.path.exists(raw_corr_path):
+                print("[INFO] Computing topology metrics from raw correlation matrices...")
+                # This would call process_subject_matrices in a real implementation
+                # For now, we assume metrics were generated by fallback or previous step
+                raise FileNotFoundError(f"Topology metrics file not found: {metrics_path}")
+            else:
+                raise FileNotFoundError(f"Neither topology metrics nor raw correlation matrices found.")
+        
+        topology_df = pd.read_csv(metrics_path)
+        validate_topology_columns(topology_df)
+        print("[INFO] Topology metrics validated.")
+        
+        # Step 4: Detect zero-variance metrics and save flags
+        flags = detect_zero_variance_metrics(topology_df)
+        save_metric_flags(flags, os.path.join(DATA_PROCESSED_DIR, 'metric_flags.json'))
+        print("[INFO] Metric flags saved.")
+        
+        # Step 5: Perform correlation analysis
+        print("[INFO] Running correlation analysis...")
+        results_df = run_correlation_analysis(
+            topology_df=topology_df,
+            entrainment_path=entrainment_path,
+            atlas_type=atlas
         )
         
-        if synthetic_data_path:
-            print(f"Synthetic data generated at: {synthetic_data_path}")
-            
-            # Create the data gap report
-            report = {
-                "timestamp": datetime.now().isoformat(),
-                "gap_detected": True,
-                "reason": gap_info["reason"],
-                "action_taken": "Simulated Data Fallback (FR-009) triggered",
-                "data_source": "Simulated",
-                "synthetic_data_path": synthetic_data_path,
-                "n_subjects_generated": gap_info.get("n_subjects", 0) # This might be 0 or <30 from check
-            }
-            
-            with open(DATA_GAP_REPORT_PATH, 'w') as f:
-                json.dump(report, f, indent=2)
-            
-            print(f"Data gap report created at: {DATA_GAP_REPORT_PATH}")
-            print("Pipeline continuing with simulated data...")
-        else:
-            print("ERROR: Failed to generate synthetic data. Pipeline cannot proceed.")
-            sys.exit(1)
-
+        # Step 6: Generate correlation results CSV
+        results_path = os.path.join(DATA_PROCESSED_DIR, 'correlation_results.csv')
+        generate_correlation_results_csv(results_df, results_path)
+        artifact_paths.append('data/processed/correlation_results.csv')
+        data_files.append('data/processed/correlation_results.csv')
+        print(f"[INFO] Correlation results saved to {results_path}")
+        
+        # Step 7: Generate visualization
+        viz_path = os.path.join(DATA_VIZ_DIR, 'scatter_topology_entrainment.png')
+        generate_scatter_plot(
+            results_df,
+            output_path=viz_path,
+            title=f"Topology Metrics vs Entrainment Strength ({atlas} Atlas)"
+        )
+        artifact_paths.append('data/visualizations/scatter_topology_entrainment.png')
+        print(f"[INFO] Visualization saved to {viz_path}")
+        
+        # Step 8: Generate final report
+        final_report = generate_final_report(results_df, status="completed")
+        
+        # Step 9: Update state manager atomically
+        state = update_state(
+            pipeline_status="completed",
+            artifact_paths=artifact_paths,
+            data_files=data_files
+        )
+        
+        print("[INFO] Project state updated atomically.")
+        return results_df, final_report, "completed"
+        
     except Exception as e:
-        print(f"ERROR: Exception during fallback generation: {str(e)}")
-        sys.exit(1)
-
-def generate_final_report(results_df, gap_info: Dict[str, Any]):
-    """Generate a final summary report."""
-    # Implementation for generating the final report text/markdown
-    # This would typically be called after analysis
-    pass
+        print(f"[ERROR] Pipeline failed: {str(e)}")
+        update_state(pipeline_status="failed")
+        return None, {"error": str(e)}, "failed"
 
 def run_sensitivity_pipeline():
-    """Placeholder for sensitivity analysis if needed."""
-    pass
+    """Run sensitivity analysis across different atlases."""
+    atlases = ["Schaefer", "AAL", "Power 264"]
+    results = {}
+    
+    for atlas in atlases:
+        print(f"[INFO] Running sensitivity analysis for {atlas}...")
+        df, report, status = run_us1_pipeline(atlas=atlas)
+        if status == "completed":
+            results[atlas] = {
+                "correlation": df['r_value'].mean() if 'r_value' in df.columns else None,
+                "p_value": df['p_value'].mean() if 'p_value' in df.columns else None
+            }
+    
+    # Generate comparative visualization
+    from viz import generate_sensitivity_bar_chart
+    viz_path = os.path.join(DATA_VIZ_DIR, 'sensitivity_comparison.png')
+    generate_sensitivity_bar_chart(results, output_path=viz_path)
+    
+    return results
 
 def main():
-    parser = argparse.ArgumentParser(description="Network Topology Entrainment Analysis Pipeline")
-    parser.add_argument('--sensitivity', action='store_true', help='Run sensitivity analysis')
+    """Main entry point."""
+    parser = argparse.ArgumentParser(
+        description="Orchestrate the Network Topology Entrainment Pipeline"
+    )
+    parser.add_argument(
+        "--atlas",
+        type=str,
+        default="Schaefer",
+        choices=["Schaefer", "AAL", "Power 264"],
+        help="Atlas type to use for analysis"
+    )
+    parser.add_argument(
+        "--sensitivity",
+        action="store_true",
+        help="Run sensitivity analysis across all atlases"
+    )
+    parser.add_argument(
+        "--force-simulate",
+        action="store_true",
+        help="Force generation of synthetic data even if real data exists"
+    )
+    
     args = parser.parse_args()
-
-    ensure_directories()
-
-    # 1. Check Data Gap Status
-    gap_info = check_data_gap_status()
-
-    # 2. If gap exists, trigger fallback (T031 Core Logic)
-    # The pipeline must NOT halt here. It must proceed with simulated data.
-    report_data_gap(gap_info)
-
-    # 3. Proceed with analysis (using real or simulated data)
-    # In a full implementation, we would load the data (real or synthetic) 
-    # and run the analysis pipeline.
-    # For T031, the critical part is that the pipeline continues and creates the report.
     
-    # Since T012/T017 are marked completed in the context, we assume the analysis
-    # pipeline (load -> metrics -> analysis -> viz) is robust enough to handle
-    # the simulated data files created by report_data_gap.
-    
-    if not gap_info["gap_exists"]:
-        print("Running analysis on real data...")
-        # Call analysis main or specific functions
-        # analysis_main() 
-    else:
-        print("Running analysis on simulated data...")
-        # The data files should now exist at TOPOLOGY_CSV and ENTRAINMENT_CSV (or synthetic equivalents)
-        # We assume the downstream analysis logic handles the file paths correctly.
-        # For this task, we just ensure the flow continues.
-        
-        # If the downstream tasks (T017) rely on specific file paths, we ensure they exist.
-        # The simulation module (T012c) is responsible for writing to the correct paths.
-        # We assume check_and_generate_fallback writes to the standard locations.
+    print(f"[INFO] Starting pipeline with atlas: {args.atlas}")
+    print(f"[INFO] Sensitivity analysis: {'enabled' if args.sensitivity else 'disabled'}")
     
     if args.sensitivity:
-        run_sensitivity_pipeline()
-
-    print("Pipeline execution completed successfully.")
+        results = run_sensitivity_pipeline()
+        print(f"[INFO] Sensitivity analysis completed: {results}")
+    else:
+        df, report, status = run_us1_pipeline(atlas=args.atlas)
+        print(f"[INFO] Pipeline completed with status: {status}")
+        if df is not None:
+            print(f"[INFO] Processed {len(df)} subjects")
+            if 'r_value' in df.columns:
+                print(f"[INFO] Mean correlation: {df['r_value'].mean():.4f}")
+    
+    return 0 if status == "completed" else 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

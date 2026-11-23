@@ -1,91 +1,62 @@
-# Data Model: Influence of Network Topology on Thermal Conductivity
+# Data Model: Influence of Network Topology on Thermal Conductivity in Nanomaterials
 
 ## Overview
 
-This document defines the data structures for the simulation pipeline. The primary data artifact is the `simulation_results.csv` file, which aggregates graph metrics, thermal properties, and regression outputs.
+This document defines the data structures used for simulation input, intermediate processing, and final output. All data is stored in CSV or JSON format to ensure reproducibility and ease of inspection.
 
-## Entity Definitions
+## Input Parameters
 
-### 1. NetworkGraph
-Represents a single synthetic nanowire network.
-- **Attributes**:
-  - `graph_id`: Unique identifier (UUID).
-  - `seed`: Random seed used for generation.
-  - `N`: Number of nodes.
-  - `p`: Connection probability.
-  - `avg_degree`: Measured average degree.
-  - `is_connected`: Boolean (True if source-sink path exists).
-  - `avg_path_length`: Average shortest path length (if connected).
-  - `clustering_coeff`: Global clustering coefficient.
-  - `percolation_status`: "Connected", "Disconnected", or "Critical".
+| Parameter | Type | Description | Default | Source |
+| :--- | :--- | :--- | :--- | :--- |
+| `N` | int | Number of nodes | 1000 | FR-001 |
+| `target_degree` | float | Target average degree | 4.0 | CLI |
+| `material` | str | Material name (Si, CNT, Ag, Au) | "Si" | CLI |
+| `diameter_nm` | float | Wire diameter in nm | 50.0 | CLI |
+| `length_um` | float | Wire length in µm | 1.0 | CLI |
+| `seed` | int | Random seed | Auto | CLI |
+| `scaling_factor` | float | Resistance multiplier | 1.0 | Sensitivity |
 
-### 2. ThermalResistorModel
-Represents the physical mapping of edges to resistances.
-- **Attributes**:
-  - `material`: String (e.g., "Si", "CNT").
-  - `bulk_k`: Bulk thermal conductivity (W/(m·K)).
-  - `diameter`: Wire diameter (nm).
-  - `length`: Wire length (nm).
-  - `size_correction_factor`: Fuchs-Sondheimer factor.
-  - `effective_k`: Conductivity after size correction.
-  - `edge_resistance`: Calculated resistance (K/W).
+## Intermediate Data: Graph Metrics
 
-### 3. SimulationResult
-Aggregated result for a single simulation run.
-- **Attributes**:
-  - `run_id`: Unique run identifier.
-  - `effective_k`: Effective thermal conductivity (W/(m·K)).
-  - `convergence_residual`: Solver residual norm.
-  - `solver_status`: "Converged", "Failed", "Disconnected".
-  - `scaling_factor`: Sensitivity scaling factor used.
-  - `regression_exponent`: $\alpha$ from log-log fit (if applicable).
-  - `regression_p_value`: p-value for $\alpha$.
-  - `regression_ci_lower`, `regression_ci_upper`: 95% CI.
+Stored per simulation run.
 
-### 4. MaterialProperty
-Lookup table for material constants.
-- **Attributes**:
-  - `name`: Material name.
-  - `bulk_k`: Value at 300K (W/(m·K)).
-  - `source`: "NIST" or "User".
+| Field | Type | Description |
+| :--- | :--- | :--- |
+| `run_id` | str | Unique identifier (seed + timestamp) |
+| `avg_degree` | float | Measured average degree |
+| `path_length` | float | Average shortest path (NaN if disconnected) |
+| `clustering` | float | Clustering coefficient |
+| `giant_component_ratio` | float | Fraction of nodes in largest component |
+| `is_connected` | bool | True if graph is fully connected |
+| `k_eff_iso` | float | Isotropic effective conductivity (avg of 4 directions) |
 
-## Data Flow
+## Output Data: Simulation Results
 
-1. **Input**: Parameters ($N, p, \text{material}, d, \ell$) → `generate_networks.py`.
-2. **Process**: Graph generation → Resistance assignment → Solver → Metrics calculation.
-3. **Aggregation**: `regression_analysis.py` reads CSV → computes scaling law → appends summary row. `sensitivity_analysis.py` reads CSV → computes deviation → appends summary row.
-4. **Checksum**: **After** all aggregation steps are complete, `update_state.py` generates the SHA-256 checksum of `simulation_results.csv`.
-5. **State Update**: `update_state.py` records the checksum in `state/projects/...yaml`.
+Stored in `data/processed/simulation_results.csv` (FR-009).
 
-## File Formats
+| Column | Type | Description |
+| :--- | :--- | :--- |
+| `seed` | int | Random seed |
+| `N` | int | Node count |
+| `p` | float | Connection probability |
+| `avg_degree` | float | Measured average degree |
+| `percolation_threshold` | float | **Batch-level** estimated threshold ($k_c$) for the current connectivity level group |
+| `connectivity_probability` | float | Fraction of connected graphs in the batch ($P_{\infty}$) |
+| `convergence_rate` | float | Solver convergence status (1.0=success) |
+| `total_runtime` | float | Execution time in seconds |
+| `k_eff` | float | Effective thermal conductivity (W/mK) (Isotropic average) |
+| `scaling_exponent_t` | float | Fitted exponent (only for batch analysis) |
+| `p_value` | float | P-value for regression (only for batch analysis) |
+| `k_eff_adj` | float | Adjusted conductivity ($k_{eff} \times P_{\infty}$) |
 
-### CSV Schema (`data/processed/simulation_results.csv`)
-- **Delimiter**: `,`
-- **Encoding**: UTF-8
-- **Columns**:
-  - `run_id` (int)
-  - `seed` (int)
-  - `N` (int)
-  - `p` (float)
-  - `avg_degree` (float)
-  - `is_connected` (bool)
-  - `effective_k` (float)
-  - `convergence_residual` (float)
-  - `solver_status` (string)
-  - `material` (string)
-  - `diameter` (float)
-  - `length` (float)
-  - `scaling_factor` (float)
+## Derived Aggregates
 
-### Log File (`logs/simulation.log`)
-- **Format**: JSON Lines (one JSON object per line).
-- **Content**: Detailed solver iterations, error messages, and parameter dumps.
+Stored in `data/processed/regression_summary.json`.
 
-## State Management (Constitution Principle V)
-
-- **Script**: `code/update_state.py`.
-- **Trigger**: Executed automatically at the end of `main.py` after all simulations and analyses are complete.
-- **Action**:
-  1. Calculates SHA-256 hash of `data/processed/simulation_results.csv`.
-  2. Updates `state/projects/PROJ-332-exploring-the-influence-of-network-topol.yaml` with the new hash and timestamp.
-  3. Logs the hash to `logs/simulation.log`.
+-   `exponent_t`: Best fit value.
+-   `ci_lower`: 95% CI lower bound.
+-   `ci_upper`: 95% CI upper bound.
+-   `r_squared`: Goodness of fit.
+-   `percolation_threshold_estimated`: Value used.
+-   `sensitivity_range`: {min_k, max_k} for scaling factors {0.9, 1.1}.
+-   `theoretical_deviation`: $|t_{fitted} - 1.3|$.

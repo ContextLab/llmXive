@@ -1,108 +1,130 @@
-"""Unit tests for configuration management."""
 import os
-import tempfile
 import pytest
 from pathlib import Path
-from code.utils.config import ConfigManager, get_config
+import tempfile
+import json
+
+from utils.config import ConfigManager, get_config
 
 
 class TestConfigManager:
-    """Tests for ConfigManager class."""
+    """Unit tests for the ConfigManager class."""
 
-    def test_default_values(self):
-        """Test that default values are set correctly."""
-        # Clear any existing env vars for clean test
-        for key in ['OPENML_API_KEY', 'RAW_DATA_DIR']:
-            os.environ.pop(key, None)
-        
-        config = ConfigManager()
-        assert config.get('RAW_DATA_DIR') == 'data/raw'
-        assert config.get('LOG_LEVEL') == 'INFO'
-        assert config.get('ENABLE_REAL_DATA') is False
+    @pytest.fixture
+    def temp_env_file(self, tmp_path):
+        """Create a temporary .env file for testing."""
+        env_content = """
+        TEST_VAR=test_value
+        DATA_PATH_RAW=test/raw
+        API_KEY_TEST=secret123
+        DEBUG_MODE=True
+        """
+        env_file = tmp_path / ".env"
+        env_file.write_text(env_content)
+        return env_file
 
-    def test_env_variable_override(self):
-        """Test that environment variables override defaults."""
-        os.environ['RAW_DATA_DIR'] = '/custom/path'
-        os.environ['LOG_LEVEL'] = 'DEBUG'
-        
-        config = ConfigManager()
-        assert config.get('RAW_DATA_DIR') == '/custom/path'
-        assert config.get('LOG_LEVEL') == 'DEBUG'
-        
-        # Cleanup
-        del os.environ['RAW_DATA_DIR']
-        del os.environ['LOG_LEVEL']
+    @pytest.fixture
+    def config_manager(self, temp_env_file):
+        """Create a ConfigManager instance with test env file."""
+        return ConfigManager(env_file=temp_env_file)
 
-    def test_env_file_loading(self):
-        """Test loading configuration from .env file."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.env', delete=False) as f:
-            f.write('RAW_DATA_DIR=/env/file/path\n')
-            f.write('LOG_LEVEL=WARNING\n')
-            env_file = f.name
-        
-        try:
-            config = ConfigManager(env_file=env_file)
-            assert config.get('RAW_DATA_DIR') == '/env/file/path'
-            assert config.get('LOG_LEVEL') == 'WARNING'
-        finally:
-            os.unlink(env_file)
+    def test_env_loading(self, config_manager):
+        """Test that environment variables are loaded from .env file."""
+        assert config_manager.get("TEST_VAR") == "test_value"
+        assert config_manager.get("DATA_PATH_RAW") == "test/raw"
+        assert config_manager.get("API_KEY_TEST") == "secret123"
+        assert config_manager.get("DEBUG_MODE") is True
 
-    def test_get_path(self):
-        """Test that get_path returns Path objects."""
-        config = ConfigManager()
-        path = config.get_path('RAW_DATA_DIR')
+    def test_default_values(self, temp_env_file):
+        """Test that default values are set when not in .env."""
+        config = ConfigManager(env_file=temp_env_file)
+        assert config.get("DATA_PATH_PROCESSED") == "data/processed"
+        assert config.get("RANDOM_SEED") == 42
+        assert config.get("FIGURES_PATH") == "data/results/plots"
+
+    def test_get_path_relative(self, config_manager):
+        """Test that relative paths are resolved correctly."""
+        path = config_manager.get_path("DATA_PATH_RAW")
         assert isinstance(path, Path)
-        assert str(path) == 'data/raw'
+        assert path.is_absolute()
+        assert "test" in str(path)
 
-    def test_ensure_dirs(self):
-        """Test that ensure_dirs creates directories."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            # Set a custom path in temp directory
-            test_dir = os.path.join(tmpdir, 'test_output')
-            os.environ['RAW_DATA_DIR'] = test_dir
-            
-            config = ConfigManager()
-            config.ensure_dirs()
-            
-            assert os.path.exists(test_dir)
-            assert os.path.isdir(test_dir)
-            
-            del os.environ['RAW_DATA_DIR']
+    def test_get_path_absolute(self, temp_env_file):
+        """Test that absolute paths are preserved."""
+        # Create env file with absolute path
+        abs_env = temp_env_file.parent / "abs.env"
+        abs_env.write_text(f"ABS_PATH={temp_env_file.parent}/absolute")
+        config = ConfigManager(env_file=abs_env)
+        path = config.get_path("ABS_PATH")
+        assert path.is_absolute()
+        assert str(path).endswith("absolute")
 
-    def test_is_real_data_available_false(self):
-        """Test is_real_data_available returns False when not configured."""
-        # Clear API keys
-        os.environ.pop('OPENML_API_KEY', None)
-        os.environ.pop('HF_TOKEN', None)
-        os.environ['ENABLE_REAL_DATA'] = 'false'
+    def test_ensure_dirs(self, temp_env_file):
+        """Test that ensure_dirs creates the required directories."""
+        config = ConfigManager(env_file=temp_env_file)
+        # Override paths to use temp directory
+        config._config["DATA_PATH_RAW"] = str(temp_env_file.parent / "new_raw")
+        config._config["DATA_PATH_PROCESSED"] = str(temp_env_file.parent / "new_processed")
         
-        config = ConfigManager()
-        assert config.is_real_data_available() is False
-
-    def test_is_real_data_available_true(self):
-        """Test is_real_data_available returns True when configured."""
-        os.environ['ENABLE_REAL_DATA'] = 'true'
-        os.environ['OPENML_API_KEY'] = 'test_key_123'
+        config.ensure_dirs()
         
-        config = ConfigManager()
-        assert config.is_real_data_available() is True
-        
-        # Cleanup
-        del os.environ['ENABLE_REAL_DATA']
-        del os.environ['OPENML_API_KEY']
+        assert (temp_env_file.parent / "new_raw").exists()
+        assert (temp_env_file.parent / "new_processed").exists()
 
-    def test_to_json(self):
-        """Test JSON export of configuration."""
-        config = ConfigManager()
-        json_str = config.to_json()
+    def test_validate_api_keys(self, temp_env_file):
+        """Test API key validation logic."""
+        config = ConfigManager(env_file=temp_env_file)
+        validation = config.validate_api_keys()
         
-        import json
-        parsed = json.loads(json_str)
-        assert 'RAW_DATA_DIR' in parsed
-        assert 'LOG_LEVEL' in parsed
+        # API_KEY_OPENML and API_KEY_HF should be False (not set in test env)
+        assert validation.get("API_KEY_OPENML") is False
+        assert validation.get("API_KEY_HF") is False
 
-def test_get_config_singleton():
-    """Test that get_config returns the singleton instance."""
-    config1 = get_config()
-    config2 = get_config()
-    assert config1 is config2
+    def test_to_dict(self, config_manager):
+        """Test that to_dict returns a complete configuration dictionary."""
+        config_dict = config_manager.to_dict()
+        
+        assert "project_root" in config_dict
+        assert "data_raw" in config_dict
+        assert "data_processed" in config_dict
+        assert "api_keys_valid" in config_dict
+        assert isinstance(config_dict["api_keys_valid"], dict)
+
+    def test_save_config(self, temp_env_file, tmp_path):
+        """Test that save_config writes a valid JSON file."""
+        config = ConfigManager(env_file=temp_env_file)
+        output_path = tmp_path / "config.json"
+        
+        saved_path = config.save_config(output_path)
+        
+        assert saved_path.exists()
+        with open(saved_path, "r") as f:
+            data = json.load(f)
+        
+        assert "project_root" in data
+        assert "data_raw" in data
+
+    def test_get_config_factory(self, temp_env_file):
+        """Test the get_config factory function."""
+        config = get_config(env_file=temp_env_file)
+        assert isinstance(config, ConfigManager)
+        assert config.get("TEST_VAR") == "test_value"
+
+    def test_missing_required_path(self, temp_env_file):
+        """Test that get_path raises error for missing key."""
+        config = ConfigManager(env_file=temp_env_file)
+        with pytest.raises(ValueError, match="Path configuration.*is not set"):
+            config.get_path("NON_EXISTENT_KEY")
+
+    def test_type_conversion(self, temp_env_file):
+        """Test automatic type conversion for common types."""
+        config = ConfigManager(env_file=temp_env_file)
+        
+        # Boolean conversion
+        assert config.get("DEBUG_MODE") is True
+        
+        # Integer conversion (default)
+        assert config.get("RANDOM_SEED") == 42
+        
+        # String conversion (when not convertible)
+        assert config.get("TEST_VAR") == "test_value"

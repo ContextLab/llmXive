@@ -1,234 +1,207 @@
 """
-writer.py - Save generated images and logs with checksums for reproducibility.
-
-Implements FR-008: Save generated images and logs with checksums.
-Ensures deterministic output by using fixed seeds and logging checksums.
+File writing utilities: FITS, JSON, manifests, and checksum‑aware saving.
 """
 import hashlib
 import json
 import logging
+import os
+import subprocess
+import sys
 from pathlib import Path
-from typing import Dict, Any, Optional, Union
+from typing import Dict, Any, Optional, List
 
 import numpy as np
 from astropy.io import fits
 
-from code.io.loader import MetadataValidationError
-
 logger = logging.getLogger(__name__)
 
 
-def compute_file_checksum(file_path: Union[str, Path]) -> str:
+def compute_file_checksum(filepath: Path) -> str:
     """
-    Compute SHA-256 checksum of a file.
-
-    Args:
-        file_path: Path to the file to checksum.
-
-    Returns:
-        Hexadecimal string of the SHA-256 hash.
+    Compute SHA256 checksum of a file.
     """
-    sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        # Read in chunks to handle large files
+    sha256 = hashlib.sha256()
+    with open(filepath, "rb") as f:
         for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
-    return sha256_hash.hexdigest()
+            sha256.update(chunk)
+    return sha256.hexdigest()
 
 
 def compute_array_checksum(array: np.ndarray) -> str:
     """
-    Compute SHA-256 checksum of a numpy array.
-
-    Args:
-        array: Numpy array to checksum.
-
-    Returns:
-        Hexadecimal string of the SHA-256 hash.
+    Compute SHA256 checksum of a numpy array.
     """
-    # Serialize array to bytes (including dtype and shape for uniqueness)
-    array_bytes = array.tobytes()
-    # Include shape and dtype in the hash to prevent collisions
-    meta_bytes = f"{array.shape}:{array.dtype}".encode('utf-8')
-    combined = meta_bytes + array_bytes
-    return hashlib.sha256(combined).hexdigest()
+    return hashlib.sha256(array.tobytes()).hexdigest()
+
+
+def get_git_commit_hash() -> str:
+    """
+    Get the current git commit hash.
+    """
+    try:
+        return (
+            subprocess.check_output(["git", "rev-parse", "HEAD"])
+            .decode("ascii")
+            .strip()
+        )
+    except Exception:
+        return "unknown"
+
+
+def get_environment_info() -> Dict[str, str]:
+    """
+    Get basic environment information.
+    """
+    return {
+        "python_version": sys.version,
+        "path": os.environ.get("PATH", ""),
+        "os": os.name,
+    }
 
 
 def save_fits_image(
-    image: np.ndarray,
-    output_path: Union[str, Path],
-    metadata: Optional[Dict[str, Any]] = None,
-    overwrite: bool = True
-) -> str:
-    """
-    Save a numpy array as a FITS file with optional metadata and compute checksum.
-
-    Args:
-        image: 2D numpy array representing the image.
-        output_path: Path where the FITS file will be saved.
-        metadata: Optional dictionary of metadata to store in the FITS header.
-        overwrite: Whether to overwrite existing files.
-
-    Returns:
-        The checksum of the saved file.
-
-    Raises:
-        ValueError: If image is not 2D.
-        IOError: If file cannot be written.
-    """
-    if image.ndim != 2:
-        raise ValueError(f"Expected 2D image array, got {image.ndim}D")
-
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Create HDU
-    hdu = fits.PrimaryHDU(image.astype(np.float32))
-
-    # Add metadata to header
-    if metadata:
-        for key, value in metadata.items():
-            # Truncate string values to FITS comment length if necessary
-            if isinstance(value, str) and len(value) > 72:
-                value = value[:72]
-            try:
-                hdu.header[key] = value
-            except ValueError:
-                # If key is too long or value invalid, skip or log
-                logger.warning(f"Skipping invalid metadata entry: {key}={value}")
-
-    # Add checksum keyword manually for reproducibility tracking
-    # Note: We compute our own checksum below and store it in a custom keyword
-    hdu.header['COMMENT'] = 'Checksum computed by writer.py'
-
-    # Write file
-    hdu.writeto(str(output_path), overwrite=overwrite)
-
-    # Compute and return checksum
-    checksum = compute_file_checksum(output_path)
-    logger.info(f"Saved FITS image to {output_path} (SHA-256: {checksum[:16]}...)")
-
-    return checksum
-
-
-def save_metadata_json(
-    data: Dict[str, Any],
-    output_path: Union[str, Path],
-    include_checksums: bool = True
-) -> str:
-    """
-    Save metadata dictionary to a JSON file with optional checksums.
-
-    Args:
-        data: Dictionary of metadata to save.
-        output_path: Path where the JSON file will be saved.
-        include_checksums: If True, compute and include checksums for any numpy arrays in the data.
-
-    Returns:
-        The checksum of the saved JSON file.
-    """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Prepare data for JSON serialization
-    serializable_data = {}
-    for key, value in data.items():
-        if isinstance(value, np.ndarray):
-            if include_checksums:
-                # Store checksum instead of the array
-                serializable_data[key] = {
-                    "_type": "numpy_array",
-                    "shape": list(value.shape),
-                    "dtype": str(value.dtype),
-                    "checksum": compute_array_checksum(value)
-                }
-            else:
-                # Convert to list (might be large)
-                serializable_data[key] = value.tolist()
-        elif isinstance(value, (list, dict, str, int, float, bool, type(None))):
-            serializable_data[key] = value
-        else:
-            # Convert other types to string
-            serializable_data[key] = str(value)
-
-    # Write JSON
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(serializable_data, f, indent=2, sort_keys=True)
-
-    checksum = compute_file_checksum(output_path)
-    logger.info(f"Saved metadata to {output_path} (SHA-256: {checksum[:16]}...)")
-
-    return checksum
-
-
-def save_run_log(
-    log_path: Union[str, Path],
-    config: Dict[str, Any],
-    results: Dict[str, Any],
-    checksums: Optional[Dict[str, str]] = None
+    filepath: Path,
+    data: np.ndarray,
+    header: Optional[Dict[str, Any]] = None,
 ) -> None:
     """
-    Save a structured log of a research run including config, results, and checksums.
-
-    Args:
-        log_path: Path to the log file.
-        config: Configuration used for the run.
-        results: Results dictionary.
-        checksums: Optional dictionary of checksums for output files.
+    Save a numpy array as a FITS file.
     """
-    log_path = Path(log_path)
-    log_path.parent.mkdir(parents=True, exist_ok=True)
+    hdu = fits.PrimaryHDU(data)
+    if header:
+        for k, v in header.items():
+            hdu.header[k] = v
+    hdu.writeto(filepath, overwrite=True)
 
-    log_entry = {
-        "run_id": results.get("run_id", "unknown"),
-        "config": config,
-        "results": results,
-        "checksums": checksums or {},
-        "status": "completed"
+
+def save_metadata_json(filepath: Path, metadata: Dict[str, Any]) -> None:
+    """
+    Save metadata as a JSON file.
+    """
+    with open(filepath, "w") as f:
+        json.dump(metadata, f, indent=2)
+
+
+def generate_run_manifest(root: Path) -> Dict[str, Any]:
+    """
+    Generate a run manifest capturing git hash, env, and config.
+    """
+    from code.config import get_config_summary
+
+    return {
+        "git_commit": get_git_commit_hash(),
+        "env_vars": get_environment_info(),
+        "artifact_params": get_config_summary(),
+        "timestamp": subprocess.check_output(
+            ["date", "-Iseconds"]
+        )
+        .decode("ascii")
+        .strip(),
     }
 
-    # Append to log file (or create new)
-    with open(log_path, 'a', encoding='utf-8') as f:
-        f.write(json.dumps(log_entry, indent=2) + "\n")
 
-    logger.info(f"Appended run log to {log_path}")
-
-
-def write_artifact_manifest(
-    artifacts: Dict[str, Dict[str, Any]],
-    output_path: Union[str, Path]
-) -> str:
+def write_run_manifest_for_pipeline(root: Path) -> None:
     """
-    Write a manifest of all artifacts produced in a run, including their checksums.
-
-    Args:
-        artifacts: Dictionary mapping artifact names to their metadata (path, type, checksum, etc.).
-        output_path: Path where the manifest will be saved.
-
-    Returns:
-        The checksum of the manifest file.
+    Write the run manifest to data/processed/run_manifest.json.
     """
-    output_path = Path(output_path)
+    root = Path(root)
+    manifest = generate_run_manifest(root)
+    output_path = root / "data" / "processed" / "run_manifest.json"
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w") as f:
+        json.dump(manifest, f, indent=2)
+    logger.info(f"Run manifest written to {output_path}")
 
-    manifest = {
-        "version": "1.0",
-        "artifacts": {}
-    }
 
-    for name, info in artifacts.items():
-        manifest["artifacts"][name] = {
-            "path": str(info.get("path", "")),
-            "type": info.get("type", "unknown"),
-            "checksum": info.get("checksum", ""),
-            "description": info.get("description", "")
-        }
+def save_run_log(filepath: Path, log_entries: List[str]) -> None:
+    """
+    Save run log entries to a file.
+    """
+    with open(filepath, "w") as f:
+        f.write("\n".join(log_entries))
 
-    # Compute manifest checksum
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(manifest, f, indent=2, sort_keys=True)
 
-    checksum = compute_file_checksum(output_path)
-    logger.info(f"Saved artifact manifest to {output_path} (SHA-256: {checksum[:16]}...)")
+def write_artifact_manifest(root: Path, artifacts: Dict[str, str]) -> None:
+    """
+    Write a manifest of artifacts produced in this run.
+    """
+    root = Path(root)
+    manifest_path = root / "data" / "processed" / "artifact_manifest.json"
+    with open(manifest_path, "w") as f:
+        json.dump(artifacts, f, indent=2)
 
-    return checksum
+
+def save_with_checksum(
+    filepath: Path,
+    data: Optional[np.ndarray] = None,
+    header: Optional[Dict[str, Any]] = None,
+    text: Optional[str] = None,
+) -> None:
+    """
+    Save either a FITS image (when ``data`` is provided) or a plain text
+    file (when ``text`` is provided) and write a sibling ``.sha256``
+    checksum file.
+
+    The checksum file is written to ``<filepath>.sha256`` and contains
+    the hexadecimal SHA‑256 digest of the written artifact.
+
+    Parameters
+    ----------
+    filepath : Path
+        Destination path for the primary artifact.
+    data : np.ndarray, optional
+        Image data to be saved as a FITS file. If supplied, ``text`` must be
+        ``None``.
+    header : dict, optional
+        Header dictionary to be added to the FITS file.
+    text : str, optional
+        Text content to be written verbatim. If supplied, ``data`` must be
+        ``None``.
+
+    Raises
+    ------
+    ValueError
+        If both ``data`` and ``text`` are ``None`` or both are supplied.
+    """
+    if (data is None and text is None) or (data is not None and text is not None):
+        raise ValueError(
+            "Provide exactly one of 'data' (for FITS) or 'text' (for plain file)."
+        )
+
+    # Ensure parent directory exists
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+
+    if data is not None:
+        # Save as FITS
+        save_fits_image(filepath, data, header)
+    else:
+        # Save plain text
+        with open(filepath, "w") as f:
+            f.write(text)
+
+    # Compute checksum of the written artifact
+    checksum = compute_file_checksum(filepath)
+
+    # Write checksum file alongside the artifact
+    checksum_path = filepath.with_suffix(filepath.suffix + ".sha256")
+    with open(checksum_path, "w") as f:
+        f.write(f"{checksum}  {filepath.name}")
+
+    logger.info(
+        f"Saved artifact '{filepath}' and checksum file '{checksum_path}'."
+    )
+
+# Exported symbols for ``from code.io.writer import *``
+__all__ = [
+    "compute_file_checksum",
+    "compute_array_checksum",
+    "get_git_commit_hash",
+    "get_environment_info",
+    "save_fits_image",
+    "save_metadata_json",
+    "generate_run_manifest",
+    "write_run_manifest_for_pipeline",
+    "save_run_log",
+    "write_artifact_manifest",
+    "save_with_checksum",
+]

@@ -1,0 +1,5 @@
+# Standalone Black config (redundant if using pyproject.toml but helpful for some editors)
+# Black primarily reads from pyproject.toml
+[tool.black]
+line-length = 88
+target-version = ['py311']

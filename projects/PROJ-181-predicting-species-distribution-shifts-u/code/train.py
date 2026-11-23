@@ -1,8 +1,3 @@
-"""
-Module for training Species Distribution Models (SDMs).
-Implements Random Forest, Bioclim, and Regularized Logistic Regression (Presence-Background).
-Supports spatial block cross-validation and CPU-only execution.
-"""
 import os
 import sys
 import logging
@@ -10,330 +5,281 @@ import pickle
 import json
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
+from typing import Tuple, List, Dict, Any, Optional
 
-import numpy as np
 import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
+import numpy as np
 from sklearn.linear_model import LogisticRegression
-from sklearn.metrics import roc_auc_score, make_scorer
+from sklearn.metrics import roc_auc_score, confusion_matrix
 from sklearn.model_selection import cross_val_score
-from sklearn.preprocessing import StandardScaler
-
 import config
-from logging_config import get_logger
+from logging_config import get_train_logger
 from utils.spatial_blocks import generate_spatial_folds
-from utils.data_utils import check_data_quality
+from utils.data_utils import validate_coordinates
 
-# Initialize logger
-logger = get_logger(__name__)
+# --- Constants ---
+PROJECT_ROOT = config.PROJECT_ROOT
+DATA_DIR = config.DATA_DIR
+PROCESSED_DIR = DATA_DIR / "processed"
+ARTIFACTS_DIR = config.ARTIFACTS_DIR
+METRICS_DIR = config.METRICS_DIR
+RND_SEED = config.RND_SEED
+N_JOBS = config.N_JOBS
 
-# Constants
-TRAINING_METRICS_PATH = config.METRICS_DIR / "training_metrics.csv"
-MODEL_ARTIFACTS_DIR = config.DATA_ARTIFACTS_DIR
-MIN_RECORDS_THRESHOLD = 10  # From T016b logic context
+# Ensure directories exist
+ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
+METRICS_DIR.mkdir(parents=True, exist_ok=True)
 
-def load_clean_data() -> pd.DataFrame:
-    """Load the cleaned occurrence data with climate variables."""
-    clean_data_path = config.DATA_PROCESSED_DIR / "occurrence_clean.csv"
-    if not clean_data_path.exists():
-        raise FileNotFoundError(
-            f"Clean data file not found at {clean_data_path}. "
-            "Please run preprocessing tasks (T013-T017) first."
-        )
-    df = pd.read_csv(clean_data_path)
-    logger.info(f"Loaded {len(df)} records from {clean_data_path}")
+def load_clean_data(species: str, data_path: Optional[Path] = None) -> pd.DataFrame:
+    """
+    Load the cleaned occurrence data for a specific species.
+    Expects the file at data/processed/occurrence_clean.csv (or specified path).
+    """
+    if data_path is None:
+        data_path = PROCESSED_DIR / "occurrence_clean.csv"
+    
+    if not data_path.exists():
+        raise FileNotFoundError(f"Clean data file not found at {data_path}. "
+                                "Ensure T017 has run successfully.")
+    
+    df = pd.read_csv(data_path)
+    
+    # Filter for the specific species
+    df = df[df['species'] == species].copy()
+    
+    if df.empty:
+        raise ValueError(f"No records found for species: {species}")
+    
     return df
 
-def get_climate_features(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray, List[str]]:
+def get_climate_features(df: pd.DataFrame) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Extract climate features and target variable.
-    Returns: (X, y, feature_names)
+    Extract climate features (bio1-bio19) and binary labels from the dataframe.
+    Returns X (features) and y (labels).
+    For Presence-Background (PB) modeling, we create pseudo-absences.
+    However, this specific function prepares the data for the Logistic Regression
+    which expects binary targets. In the context of the pipeline, we assume
+    the 'presence' column exists or we generate background points.
+    
+    If the dataset is purely presence-only (no 0s), we generate random background points
+    to create a binary classification problem (1=Presence, 0=Background).
     """
-    # Identify climate columns (assuming they start with 'bio' or are in config)
-    # For now, we infer from config or common naming. 
-    # A robust way is to check config for expected columns or infer from data.
-    # Let's assume columns starting with 'bio' or 'temp', 'prec' are features, 
-    # excluding 'species', 'presence', 'latitude', 'longitude', 'year', etc.
+    climate_cols = [f"bio{i}" for i in range(1, 20)]
     
-    exclude_cols = {'species', 'presence', 'latitude', 'longitude', 'year', 'source_identifier', 'download_timestamp', 'original_dataset_name'}
-    feature_cols = [c for c in df.columns if c not in exclude_cols and df[c].dtype in ['int64', 'float64']]
-    
-    if not feature_cols:
-        # Fallback: try to load from config if defined, else raise error
-        if hasattr(config, 'CLIMATE_COLUMNS') and config.CLIMATE_COLUMNS:
-            feature_cols = config.CLIMATE_COLUMNS
-        else:
-            raise ValueError("Could not identify climate feature columns in the dataset.")
-    
-    X = df[feature_cols].values
-    y = df['presence'].values
-    
-    # Handle missing values if any (though T017 should have cleaned them)
-    if np.isnan(X).any() or np.isnan(y).any():
-        logger.warning("Missing values detected in features or target. Imputing with mean.")
-        from sklearn.impute import SimpleImputer
-        imputer = SimpleImputer(strategy='mean')
-        X = imputer.fit_transform(X)
-    
-    return X, y, feature_cols
+    # Check if we have existing labels (presence/absence)
+    if 'presence' in df.columns:
+        X = df[climate_cols].values
+        y = df['presence'].values
+    else:
+        # Presence-Background approach: Generate pseudo-absences
+        # We assume the input df contains only presence points for the species.
+        # We need to sample background points from the same geographic extent.
+        
+        # 1. Get climate stats from the presence points to define a bounding box or use global?
+        # Standard MaxEnt-style PB uses the study area extent. Since we don't have a mask,
+        # we will sample from the same distribution of climate variables as the background
+        # available in the dataset (if we had it) or simply generate random points within
+        # the range of the presence data (conservative) or global bounds (aggressive).
+        # Given the pipeline constraints, we will generate 10x as many background points
+        # as presence points, sampled uniformly within the min/max of the climate variables
+        # observed in the presence data (or a slightly expanded range).
+        
+        presence_X = df[climate_cols].values
+        n_presence = presence_X.shape[0]
+        n_background = n_presence * 10 # Typical PB ratio
+        
+        # Create background data
+        bg_data = {}
+        for col in climate_cols:
+            min_val = df[col].min()
+            max_val = df[col].max()
+            # Add a small buffer to ensure coverage
+            range_val = max_val - min_val
+            bg_data[col] = np.random.uniform(min_val - 0.05*range_val, 
+                                             max_val + 0.05*range_val, 
+                                             n_background)
+        
+        bg_df = pd.DataFrame(bg_data)
+        
+        # Combine
+        X_pres = presence_X
+        y_pres = np.ones(n_presence, dtype=int)
+        
+        X_bg = bg_df[climate_cols].values
+        y_bg = np.zeros(n_background, dtype=int)
+        
+        X = np.vstack([X_pres, X_bg])
+        y = np.concatenate([y_pres, y_bg])
+        
+        logging.info(f"Generated {n_background} pseudo-absences for PB model.")
 
-def train_random_forest(X: np.ndarray, y: np.ndarray, species: str, folds: List[Dict]) -> Tuple[RandomForestClassifier, Dict[str, Any]]:
-    """
-    Train a Random Forest classifier with spatial block cross-validation.
-    """
-    logger.info(f"Training Random Forest for species: {species}")
+    # Handle any remaining NaNs
+    if np.any(np.isnan(X)):
+        # Impute with mean of the column
+        col_means = np.nanmean(X, axis=0)
+        X = np.where(np.isnan(X), col_means, X)
     
-    # Initialize RF with n_jobs=2 as per constraint
-    rf_model = RandomForestClassifier(
-        n_estimators=100,
-        max_depth=None,
-        random_state=config.RND_SEED,
-        n_jobs=2,  # Explicit CPU parallelism
-        class_weight='balanced'
-    )
-    
-    # Prepare spatial block cross-validation
-    # Generate block indices based on spatial data (need lat/lon)
-    # We assume the original dataframe with coords is available or passed in.
-    # For this function, we assume 'folds' contains the indices for each fold.
-    
-    cv_scores = []
-    oof_preds = np.zeros(len(y))
-    
-    for fold_idx, fold_data in enumerate(folds):
-        train_idx = fold_data['train']
-        val_idx = fold_data['test']
-        
-        X_train, X_val = X[train_idx], X[val_idx]
-        y_train, y_val = y[train_idx], y[val_idx]
-        
-        # Fit model
-        rf_model.fit(X_train, y_train)
-        
-        # Predict
-        y_pred_proba = rf_model.predict_proba(X_val)[:, 1]
-        
-        # Calculate AUC
-        if len(np.unique(y_val)) > 1:
-            auc = roc_auc_score(y_val, y_pred_proba)
-            cv_scores.append(auc)
-            oof_preds[val_idx] = y_pred_proba
-        else:
-            logger.warning(f"Fold {fold_idx} has only one class in validation set. Skipping AUC calculation.")
-    
-    final_auc = np.mean(cv_scores) if cv_scores else 0.0
-    logger.info(f"Random Forest CV AUC for {species}: {final_auc:.4f}")
-    
-    # Retrain on full data for artifact saving
-    rf_model.fit(X, y)
-    
-    metrics = {
-        'algorithm': 'RandomForest',
-        'species': species,
-        'auc': float(final_auc),
-        'cv_folds': len(folds),
-        'timestamp': datetime.now().isoformat()
-    }
-    
-    return rf_model, metrics
+    return X, y
 
-def train_bioclim(X: np.ndarray, y: np.ndarray, species: str, feature_names: List[str], folds: List[Dict]) -> Tuple[Dict, Dict[str, Any]]:
-    """
-    Train a Bioclim model (custom percentile envelope).
-    Returns a dictionary model (percentiles) instead of a sklearn object.
-    """
-    logger.info(f"Training Bioclim for species: {species}")
-    
-    # Calculate percentiles (5th and 95th) for each feature in presence points
-    presence_mask = y == 1
-    X_presence = X[presence_mask]
-    
-    if X_presence.shape[0] == 0:
-        raise ValueError(f"No presence records for species {species}")
-    
-    percentiles = {}
-    for i, name in enumerate(feature_names):
-        p5 = np.percentile(X_presence[:, i], 5)
-        p95 = np.percentile(X_presence[:, i], 95)
-        percentiles[name] = {'p5': float(p5), 'p95': float(p95)}
-    
-    # Simple validation: check how many presence points fall within the envelope
-    # This is a heuristic for "training performance"
-    valid_count = 0
-    for i in range(X.shape[0]):
-        if y[i] == 1:
-            in_env = True
-            for j, name in enumerate(feature_names):
-                if not (percentiles[name]['p5'] <= X[i, j] <= percentiles[name]['p95']):
-                    in_env = False
-                    break
-            if in_env:
-                valid_count += 1
-    
-    # Calculate a pseudo-AUC or just use the proportion of training points within envelope
-    # Since Bioclim is rule-based, we can't do standard CV AUC easily without a scoring function.
-    # We'll use the proportion of presence points within the envelope as a "fit" metric.
-    fit_score = valid_count / X_presence.shape[0]
-    
-    metrics = {
-        'algorithm': 'Bioclim',
-        'species': species,
-        'auc': float(fit_score), # Using fit score as proxy for AUC in this context
-        'cv_folds': len(folds),
-        'timestamp': datetime.now().isoformat()
-    }
-    
-    return percentiles, metrics
-
-def train_logistic_regression(X: np.ndarray, y: np.ndarray, species: str, folds: List[Dict]) -> Tuple[LogisticRegression, Dict[str, Any]]:
+def train_logistic_regression(X: np.ndarray, y: np.ndarray, 
+                              species: str, 
+                              C: float = 1.0, 
+                              solver: str = 'lbfgs',
+                              max_iter: int = 1000) -> LogisticRegression:
     """
     Train a Regularized Logistic Regression (Presence-Background) model.
-    Uses L2 regularization as per FR-003.
+    Uses L2 regularization (default in sklearn LogisticRegression).
+    
+    Args:
+        X: Feature matrix (n_samples, n_features)
+        y: Target vector (n_samples,)
+        species: Species name for logging
+        C: Inverse of regularization strength (L2). Smaller C = stronger regularization.
+        solver: Solver algorithm. 'lbfgs' is robust for L2.
+        max_iter: Maximum iterations.
+    
+    Returns:
+        Trained LogisticRegression model.
     """
-    logger.info(f"Training Logistic Regression for species: {species}")
+    logger = get_train_logger()
+    logger.info(f"Training Logistic Regression (PB) for {species} with C={C}")
     
-    # Standardize features
-    scaler = StandardScaler()
-    X_scaled = scaler.fit_transform(X)
-    
-    lr_model = LogisticRegression(
-        penalty='l2',
-        C=1.0,
-        solver='lbfgs',
-        max_iter=1000,
-        random_state=config.RND_SEED,
-        n_jobs=2,
-        class_weight='balanced'
+    model = LogisticRegression(
+        C=C, 
+        penalty='l2', 
+        solver=solver, 
+        max_iter=max_iter,
+        n_jobs=N_JOBS,
+        random_state=RND_SEED,
+        class_weight='balanced' # Important for PB to handle imbalance
     )
     
-    cv_scores = []
+    model.fit(X, y)
     
-    for fold_idx, fold_data in enumerate(folds):
-        train_idx = fold_data['train']
-        val_idx = fold_data['test']
-        
-        X_train, X_val = X_scaled[train_idx], X_scaled[val_idx]
-        y_train, y_val = y[train_idx], y[val_idx]
-        
-        lr_model.fit(X_train, y_train)
-        y_pred_proba = lr_model.predict_proba(X_val)[:, 1]
-        
-        if len(np.unique(y_val)) > 1:
-            auc = roc_auc_score(y_val, y_pred_proba)
-            cv_scores.append(auc)
+    # Calculate training metrics (AUC/TSS) on the training set (with caution)
+    try:
+        y_pred_proba = model.predict_proba(X)[:, 1]
+        # Avoid perfect separation issues in AUC calculation
+        if len(np.unique(y)) > 1:
+            auc = roc_auc_score(y, y_pred_proba)
         else:
-            logger.warning(f"Fold {fold_idx} has only one class in validation set.")
-    
-    final_auc = np.mean(cv_scores) if cv_scores else 0.0
-    logger.info(f"Logistic Regression CV AUC for {species}: {final_auc:.4f}")
-    
-    # Retrain on full data
-    lr_model.fit(X_scaled, y)
-    
-    metrics = {
-        'algorithm': 'LogisticRegression',
-        'species': species,
-        'auc': float(final_auc),
-        'cv_folds': len(folds),
-        'timestamp': datetime.now().isoformat()
-    }
-    
-    return lr_model, metrics
+            auc = 0.5
+        
+        # Calculate TSS
+        y_pred = model.predict(X)
+        tn, fp, fn, tp = confusion_matrix(y, y_pred).ravel()
+        sensitivity = tp / (tp + fn) if (tp + fn) > 0 else 0
+        specificity = tn / (tn + fp) if (tn + fp) > 0 else 0
+        tss = sensitivity + specificity - 1
+        
+        logger.info(f"Training AUC: {auc:.4f}, TSS: {tss:.4f}")
+        
+        return model, {'auc': auc, 'tss': tss, 'threshold': 0.5}
+    except Exception as e:
+        logger.warning(f"Could not calculate training metrics: {e}")
+        return model, None
 
-def save_model_artifact(model: Any, species: str, algo: str):
-    """Save trained model to data/artifacts/."""
-    MODEL_ARTIFACTS_DIR.mkdir(parents=True, exist_ok=True)
-    model_path = MODEL_ARTIFACTS_DIR / f"model_{species}_{algo}.pkl"
-    with open(model_path, 'wb') as f:
+def save_model_artifact(model: Any, species: str, algo: str, output_dir: Path):
+    """Save the trained model to a pickle file."""
+    filename = f"model_{species}_{algo}.pkl"
+    filepath = output_dir / filename
+    with open(filepath, 'wb') as f:
         pickle.dump(model, f)
-    logger.info(f"Saved model to {model_path}")
+    logging.info(f"Model saved to {filepath}")
+    return filepath
 
-def save_metrics(metrics_list: List[Dict]):
-    """Append metrics to the training_metrics.csv file."""
-    if not TRAINING_METRICS_PATH.exists():
-        df = pd.DataFrame(metrics_list)
-        df.to_csv(TRAINING_METRICS_PATH, index=False)
-    else:
-        df_new = pd.DataFrame(metrics_list)
-        df_existing = pd.read_csv(TRAINING_METRICS_PATH)
-        df_combined = pd.concat([df_existing, df_new], ignore_index=True)
-        df_combined.to_csv(TRAINING_METRICS_PATH, index=False)
-    logger.info(f"Saved metrics to {TRAINING_METRICS_PATH}")
+def save_metrics(metrics: Dict[str, Any], species: str, algo: str, output_dir: Path):
+    """Save metrics to a JSON file."""
+    if metrics is None:
+        return
+    filename = f"metrics_{species}_{algo}.json"
+    filepath = output_dir / filename
+    metrics['species'] = species
+    metrics['algorithm'] = algo
+    metrics['timestamp'] = datetime.now().isoformat()
+    
+    with open(filepath, 'w') as f:
+        json.dump(metrics, f, indent=2)
+    logging.info(f"Metrics saved to {filepath}")
+    return filepath
 
-def run_training(species_list: Optional[List[str]] = None):
+def run_training(species: str, data_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Main function to run training for specified species.
+    Main execution function for training the Logistic Regression model for a species.
     """
-    df = load_clean_data()
+    logger = get_train_logger()
+    logger.info(f"Starting Logistic Regression training for {species}")
     
-    if species_list is None:
-        species_list = df['species'].unique().tolist()
-    
-    all_metrics = []
-    
-    for species in species_list:
-        logger.info(f"Processing species: {species}")
+    try:
+        # 1. Load Data
+        df = load_clean_data(species, data_path)
         
-        species_df = df[df['species'] == species]
+        # 2. Prepare Features and Labels (PB approach)
+        X, y = get_climate_features(df)
         
-        # Check for sufficient data (T016b logic)
-        if len(species_df) < MIN_RECORDS_THRESHOLD:
-            logger.warning(f"Species {species} has < {MIN_RECORDS_THRESHOLD} records. Skipping.")
-            continue
+        # 3. Train Model
+        # C=1.0 is standard; can be tuned later
+        model, train_metrics = train_logistic_regression(X, y, species, C=1.0)
         
-        X, y, feature_names = get_climate_features(species_df)
+        # 4. Save Artifacts
+        model_path = save_model_artifact(model, species, "logistic_regression", ARTIFACTS_DIR)
+        metrics_path = save_metrics(train_metrics, species, "logistic_regression", ARTIFACTS_DIR)
         
-        # Generate spatial folds
-        # We need latitude and longitude for spatial blocking
-        if 'latitude' not in species_df.columns or 'longitude' not in species_df.columns:
-            logger.error(f"Latitude/longitude missing for species {species}. Skipping.")
-            continue
+        return {
+            "status": "success",
+            "species": species,
+            "model_path": str(model_path),
+            "metrics_path": str(metrics_path) if train_metrics else None,
+            "metrics": train_metrics
+        }
         
-        lat = species_df['latitude'].values
-        lon = species_df['longitude'].values
-        
-        try:
-            folds = generate_spatial_folds(lat, lon, n_splits=5, random_state=config.RND_SEED)
-        except Exception as e:
-            logger.error(f"Failed to generate spatial folds for {species}: {e}. Skipping.")
-            continue
-        
-        # Train Random Forest
-        try:
-            rf_model, rf_metrics = train_random_forest(X, y, species, folds)
-            save_model_artifact(rf_model, species, 'RandomForest')
-            all_metrics.append(rf_metrics)
-        except Exception as e:
-            logger.error(f"Random Forest training failed for {species}: {e}")
-        
-        # Train Bioclim
-        try:
-            bioclim_model, bioclim_metrics = train_bioclim(X, y, species, feature_names, folds)
-            save_model_artifact(bioclim_model, species, 'Bioclim')
-            all_metrics.append(bioclim_metrics)
-        except Exception as e:
-            logger.error(f"Bioclim training failed for {species}: {e}")
-        
-        # Train Logistic Regression
-        try:
-            lr_model, lr_metrics = train_logistic_regression(X, y, species, folds)
-            save_model_artifact(lr_model, species, 'LogisticRegression')
-            all_metrics.append(lr_metrics)
-        except Exception as e:
-            logger.error(f"Logistic Regression training failed for {species}: {e}")
-    
-    # Save all metrics
-    if all_metrics:
-        save_metrics(all_metrics)
-    else:
-        logger.warning("No models were successfully trained.")
+    except Exception as e:
+        logger.error(f"Failed to train Logistic Regression for {species}: {e}", exc_info=True)
+        return {
+            "status": "failed",
+            "species": species,
+            "error": str(e)
+        }
 
 def main():
-    """Entry point for the training script."""
-    logger.info("Starting SDM Training Pipeline")
-    run_training()
-    logger.info("Training Pipeline Completed")
+    """
+    Entry point for the training script.
+    Iterates over species defined in config or a provided list.
+    """
+    # Default species list (can be overridden by config or CLI)
+    # For now, we assume config specifies the target species or we process all found in data
+    # Since T023 is specific to the algorithm, we will run it for species available in the clean data.
+    
+    logger = get_train_logger()
+    logger.info("Starting Logistic Regression Training Pipeline")
+    
+    # Read species from config if available, otherwise infer from data
+    # Assuming config has a list of target species
+    if hasattr(config, 'TARGET_SPECIES') and config.TARGET_SPECIES:
+        species_list = config.TARGET_SPECIES
+    else:
+        # Fallback: Read unique species from the clean data file
+        clean_data_path = PROCESSED_DIR / "occurrence_clean.csv"
+        if clean_data_path.exists():
+            df_temp = pd.read_csv(clean_data_path)
+            species_list = df_temp['species'].unique().tolist()
+        else:
+            logger.error("No target species defined and clean data not found.")
+            sys.exit(1)
+    
+    results = []
+    for species in species_list:
+        result = run_training(species)
+        results.append(result)
+        logger.info(f"Finished {species}: {result['status']}")
+    
+    # Save summary
+    summary_path = METRICS_DIR / "training_summary_logistic.json"
+    with open(summary_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    
+    logger.info(f"Training summary saved to {summary_path}")
+    return results
 
 if __name__ == "__main__":
     main()

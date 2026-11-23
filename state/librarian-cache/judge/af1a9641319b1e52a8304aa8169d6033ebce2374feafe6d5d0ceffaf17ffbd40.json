@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1007.2003",
+  "judged_at": "2026-08-26T16:20:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting crystal structures from molecular fingerprints chemistry",
+  "rationale": "The paper addresses the general problem of crystal structure prediction but uses a physics-based global optimization method (Minima Hopping) rather than the specific mechanism of \"molecular fingerprints\" (chemical descriptors) requested by the user. It fails to measure the same biological/physical pathway or variable (fingerprint-based prediction) and does not belong to the alternative-vocabulary cluster for fingerprint-based methods, thus satisfying the rejection criteria for distinct construct",
+  "relevant": false
+}

@@ -1,35 +1,28 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "EBSD Dataset Manifest Schema"
-description: "Schema for the manifest.json file generated during data preprocessing."
+title: "Dataset Manifest Schema"
+description: "Schema for the manifest file mapping image filenames to yield strength values and metadata, including specimen ID for leakage prevention."
 type: "object"
 properties:
-  dataset_source:
-    type: "string"
-    description: "URL of the verified dataset source."
-    const: "https://huggingface.co/datasets/Rxzh/ebsd-synthetic/resolve/main/data_synth_ebsd.zip"
-  checksum:
-    type: "string"
-    description: "SHA256 checksum of the raw zip file."
-    pattern: "^[a-f0-9]{64}$"
-  split_config:
+  metadata:
     type: "object"
     properties:
-      train_ratio:
-        type: "number"
-        minimum: 0
-        maximum: 1
-      val_ratio:
-        type: "number"
-        minimum: 0
-        maximum: 1
-      test_ratio:
-        type: "number"
-        minimum: 0
-        maximum: 1
+      version:
+        type: "string"
+        description: "Version of the dataset processing pipeline."
+      source_type:
+        type: "string"
+        description: "Type of data source (e.g., 'synthetic_voronoi_hall_petch')."
+      checksum:
+        type: "string"
+        description: "SHA-256 checksum of the raw dataset file."
+      total_samples:
+        type: "integer"
+        description: "Total number of samples in the dataset."
     required:
-      - train_ratio
-      - val_ratio
-      - test_ratio
+      - version
+      - source_type
+      - checksum
+      - total_samples
   samples:
     type: "array"
     items:
@@ -38,31 +31,37 @@ properties:
         image_id:
           type: "string"
           description: "Unique identifier for the image."
-        filename:
+        specimen_id:
           type: "string"
-          description: "Filename of the processed image."
+          description: "Unique identifier for the parent specimen (used for splitting)."
+        image_path:
+          type: "string"
+          description: "Relative path to the image file."
+        yield_strength:
+          type: "number"
+          description: "Yield strength in MPa (inherited from specimen)."
         split:
           type: "string"
           enum:
             - train
-            - val
+            - validation
             - test
-        yield_strength_mpa:
+          description: "Data split assignment."
+        width:
+          type: "integer"
+          description: "Image width in pixels."
+        height:
+          type: "integer"
+          description: "Image height in pixels."
+        grain_size:
           type: "number"
-          description: "Yield strength value in MPa."
-          minimum: 0
-        grain_size_mean:
-          type: ["number", "null"]
-          description: "Average grain size in micrometers (if available)."
+          description: "Average grain size for this image."
       required:
         - image_id
-        - filename
+        - specimen_id
+        - image_path
+        - yield_strength
         - split
-        - yield_strength_mpa
-    description: "List of all samples in the dataset."
 required:
-  - dataset_source
-  - checksum
-  - split_config
+  - metadata
   - samples
-additionalProperties: false

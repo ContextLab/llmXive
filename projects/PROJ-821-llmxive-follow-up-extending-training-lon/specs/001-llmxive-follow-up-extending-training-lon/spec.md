@@ -77,8 +77,8 @@ The system must include and evaluate a subset of short-context visual grounding 
 
 ### Functional Requirements
 
-- **FR-001**: The system MUST generate a large-scale set of synthetic long-context samples (K–high-token text-only) with visual density varying from 0 to 20 images (fixed resolution) distributed evenly across density buckets, while holding total text-only token count constant (See US-1).
-- **FR-002**: The system MUST load the MMProLongB model (HuggingFace ID: mmpro/MMProLong-7B-1.0) using 4-bit quantization (via `llama.cpp` or `ONNX Runtime`) and freeze all parameters to prevent training (See US-2).
+- **FR-001**: The system MUST generate a large-scale set of synthetic long-context samples (K–high-token text-only) with visual density varying from absent to present (fixed resolution) distributed evenly across density buckets., while holding total text-only token count constant (See US-1).
+- **FR-002**: The system MUST load the MMProLongB model (HuggingFace ID: mmpro/MMProLongB-1.0) using 4-bit quantization (via `llama.cpp` or `ONNX Runtime`) and freeze all parameters to prevent training (See US-2).
 - **FR-003**: The system MUST execute "needle-in-a-haystack" retrieval tasks on every generated sample and record a binary success/failure outcome for the specific target token (See US-2).
 - **FR-004**: The system MUST aggregate retrieval accuracy results by visual density bucket and perform a logistic regression or ANOVA to test for interaction effects between visual density and text-only context length (See US-3).
 - **FR-005**: The system MUST implement a memory guardrail that detects OOM conditions and gracefully skips the current sample while logging the error, ensuring the total job does not exceed the 6-hour CI limit on the 2-core CPU runner with ≤7GB RAM (See US-2).

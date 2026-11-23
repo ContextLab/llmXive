@@ -1,0 +1,8 @@
+Spec Verification Log
+---------------------
+Task: T005 - Verify SC-009 in spec.md
+Target Text: "The report must explicitly state: 'Note: This study uses proxy metrics for cognitive load. Self-report measures (e.g., NASA-TLX) were not available.' "
+Status: PASSED
+Verification Time: 2026-07-03
+Result: The required text was successfully located in the specification document.
+Note: This verification ensures that the limitation regarding proxy metrics is formally authorized in the project requirements.

@@ -1,143 +1,48 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Model Output Schema
-description: |
-  Schema for model training results, including performance metrics, 
-  feature importances, and symbolic regression formulas.
-type: object
-required:
-  - metadata
-  - model_info
-  - performance_metrics
-  - feature_importance
-  - artifacts
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for model training results (e.g., model_results.json)"
+type: "object"
 properties:
-  metadata:
-    type: object
-    required:
-      - model_type
-      - timestamp
-      - config_snapshot
-    properties:
-      model_type:
-        type: string
-        description: Type of model (e.g., "RandomForest", "GradientBoosting", "PySR")
-      timestamp:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of training completion
-      config_snapshot:
-        type: object
-        description: Snapshot of hyperparameters and configuration used
-  model_info:
-    type: object
-    required:
-      - n_features
-      - n_samples_trained
-      - n_samples_validated
-    properties:
-      n_features:
-        type: integer
-        minimum: 0
-        description: Number of features used in training
-      n_samples_trained:
-        type: integer
-        minimum: 0
-        description: Number of samples in training set
-      n_samples_validated:
-        type: integer
-        minimum: 0
-        description: Number of samples in validation set
-  performance_metrics:
-    type: object
-    required:
-      - r2_score
-      - mean_squared_error
-      - mean_absolute_error
-    properties:
-      r2_score:
-        type: number
-        description: Coefficient of determination (R²)
-      mean_squared_error:
-        type: number
-        description: Mean Squared Error (MSE)
-      mean_absolute_error:
-        type: number
-        description: Mean Absolute Error (MAE)
-      rmse:
-        type: number
-        description: Root Mean Squared Error
-      training_time_seconds:
-        type: number
-        description: Total wall-clock time for training
+  model_id:
+    type: "string"
+    format: "uuid"
+    description: "Unique ID for the model run"
+  model_type:
+    type: "string"
+    enum:
+      - "Random Forest"
+      - "Gradient Boosting"
+      - "PySR"
+    description: "Type of model trained"
+  r2_score:
+    type: "number"
+    description: "Coefficient of determination on validation set"
+  mae:
+    type: "number"
+    description: "Mean Absolute Error"
   feature_importance:
-    type: array
-    description: Ranked list of feature importances (SHAP or model-based)
-    items:
-      type: object
-      required:
-        - feature_name
-        - importance_score
-        - rank
-      properties:
-        feature_name:
-          type: string
-          description: Name of the feature
-        importance_score:
-          type: number
-          description: Normalized importance score (0.0 to 1.0)
-        rank:
-          type: integer
-          minimum: 1
-          description: Rank order (1 = most important)
+    type: "object"
+    description: "Map of feature name to importance score"
+    additionalProperties:
+      type: "number"
   symbolic_formula:
-    type: object
-    nullable: true
-    description: Only present for PySR or symbolic regression models
-    required:
-      - expression
-      - complexity
-      - r2_on_test
-    properties:
-      expression:
-        type: string
-        description: Mathematical formula as a string (e.g., "x1 + 2*x2")
-      complexity:
-        type: integer
-        description: Number of nodes in the expression tree
-      r2_on_test:
-        type: number
-        description: R² score on the test set for this specific formula
-  artifacts:
-    type: object
-    required:
-      - model_path
-      - scaler_path
-      - shap_summary_path
-    properties:
-      model_path:
-        type: string
-        format: uri
-        description: Relative path to the saved model file (e.g., "data/results/model_rf.joblib")
-      scaler_path:
-        type: string
-        format: uri
-        description: Relative path to the saved scaler (e.g., "data/results/scaler.joblib")
-      shap_summary_path:
-        type: string
-        format: uri
-        nullable: true
-        description: Relative path to SHAP summary plot (e.g., "figures/shap_summary.png")
-  validation_summary:
-    type: object
-    nullable: true
-    description: Summary of external validation if performed
-    properties:
-      n_literature_tested:
-        type: integer
-        description: Number of literature PCMs tested
-      accuracy_top_n:
-        type: number
-        description: Accuracy on top-N PCMs
-      notes:
-        type: string
-        description: Any limitations or observations
+    type: ["string", "null"]
+    description: "Explicit mathematical formula if model is PySR"
+  training_timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of training completion"
+  status:
+    type: "string"
+    enum:
+      - "success"
+      - "timeout"
+      - "error"
+    description: "Status of the training run"
+required:
+  - model_id
+  - model_type
+  - r2_score
+  - training_timestamp
+  - status
+additionalProperties: false

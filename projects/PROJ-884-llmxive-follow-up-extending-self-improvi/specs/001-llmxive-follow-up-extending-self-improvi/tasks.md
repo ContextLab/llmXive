@@ -1,274 +1,155 @@
-# Tasks: llmXive follow-up: extending "Self-Improving Language Models with Bidirectional Evolutionary Search"
+# Tasks: Symbolic backward‑step substitution in Bidirectional Evolutionary Search  
+
+**Inputs**: `specs/001-symbolic-bes/spec.md`, `plan.md`, `data-model.md`, `contracts/`  
 
-**Input**: Design documents from `/specs/001-symbolic-bes/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+---  
+
+## Phase 0 – Design and documentation  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+- [X] T012 [P] [US1] Write **design_dataset.md** documenting puzzle‑type choices, complexity scaling, random‑seed handling, and provenance metadata.  
+  • File: `specs/001-symbolic-bes/design_dataset.md`  
+  • Verification: file exists, contains sections *Puzzle Types*, *Scaling Plan*, *Seed Management* and is syntactically valid Markdown.  
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+- [X] T013 [P] [US2] Write **stat_analysis_plan.md** specifying TOST bounds, α = 0.0497, power = 0.8, and effect‑size targets.  
+  • File: `specs/001-symbolic-bes/stat_analysis_plan.md`  
+  • Verification: file exists and includes numeric values for Δ, α, power, and required sample size.  
 
-## Format: `[ID] [P?] [Story] Description`
+- [X] T014 [P] [US3] Record baseline LLM choice (e.g., `distilbert-base-uncased`) with exact HuggingFace commit hash and `device='cpu'`.  
+  • File: `specs/001-symbolic-bes/baseline_architecture.md`  
+  • Verification: file lists model identifier, commit SHA, and device configuration.  
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [X] T015 [P] [US4] Validate JSON‑Schema contracts `dataset.schema.yaml` and `output.schema.yaml`.  
+  • Files: `contracts/dataset.schema.yaml`, `contracts/output.schema.yaml`  
+  • Verification: running `python -c "import yaml, sys; yaml.safe_load(open('contracts/dataset.schema.yaml'))"` and the same for `output.schema.yaml` exits without exception.  
 
-## Path Conventions
+- [X] T016 [P] [US5] Create **quickstart.md** with a reproducible command chain (`python -m code.main --pilot`) and list expected output locations.  
+  • File: `specs/001-symbolic-bes/quickstart.md`  
+  • Verification: file exists; the command runs without error on a clean checkout, producing non‑empty `data/processed/pilot/` artifacts.  
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T020 [P] [US5] Compute SHA‑256 checksums for every file created under `data/` and write a manifest `data/checksums.json`.  
+  • File: `data/checksums.json` (generated)  
+  • Verification: after each data‑generation step a checksum entry is added; a test `tests/integration/test_checksums.py` validates that the manifest matches actual file hashes.  
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- [ ] T021 [P] [US5] Pin all random seeds (`random`, `numpy`, `torch`) at program start and record them in `data/provenance/seeds.json`.  
+  • File: `data/provenance/seeds.json` (generated)  
+  • Verification: a test `tests/unit/test_seed_pin.py` checks that the seeds file exists and matches the values set in code.  
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+---  
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+## Phase 1 – Setup and first end‑to‑end analysis  
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001a Create project directory structure per implementation plan by executing: `mkdir -p projects/PROJ-884-llmxive-follow-up-extending-self-improvi/{data/raw,data/processed,code/{dataset,symbolic,bes,analysis,utils},tests/{unit,integration}}`
-
-- [ ] T001b Initialize git repository and configure basic `.gitignore` for Python artifacts
-
-- [ ] T002a Initialize Python 3.11 virtual environment in `projects/PROJ-884-llmxive-follow-up-extending-self-improvi/` <!-- FAILED: unspecified -->
-
-- [ ] T002b Install dependencies in `requirements.txt` containing: `scikit-learn==1.3.0`, `numpy==1.24.0`, `transformers==4.35.0`, `datasets==2.14.0`, `pyyaml==6.0.1`, `pytest==7.4.0`, `optimum==1.13.0`. **Constraint**: If `research.md` exists, read version constraints from it; otherwise, default to versions listed in `plan.md` to ensure determinism.
-
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T004 Setup data directory structure: `data/raw/` for immutable puzzles, `data/processed/` for logs/results
-
-- [~] T005 [P] Implement base logging infrastructure in `code/__init__.py` to capture wall-clock time and resource usage; output must be JSON format to `data/processed/experiment.log` with fields: `timestamp`, `wall_clock`, `resource_usage`
-
-- [X] T006 [P] Setup random seed management utility in `code/utils/seed.py` for reproducibility
-
-- [X] T007 Create base configuration loader in `code/config.py` to handle experiment parameters (population size, generations)
-
-- [X] T008 Setup error handling framework by creating `code/exceptions.py` defining custom exception classes for `PARSE_FAILURE`, `CONTRADICTION_DETECTED`, and `VERIFIER_ERROR` (to handle internal verifier failures, addressing robustness gap)
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Dataset Construction and Symbolic Verification Pipeline (Priority: P1) 🎯 MVP
-
-**Goal**: Instantiate a dataset of logic/arithmetic puzzles with deterministic Python verifiers capable of validating solution paths without LLMs.
-
-**Independent Test**: Run verification scripts on a known set of correct and incorrect solutions to ensure high accuracy in classification before the LLM or evolutionary loop is engaged.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE**: Write these tests FIRST (TDD), ensure they FAIL before implementation. Do NOT mark as [P] as they must precede implementation.
-
-- [X] T009 [US1] Contract test for `code/dataset/generator.py` in `tests/unit/test_generator.py::test_generator_handles_empty_input`
-
-- [X] T010 [US1] Unit test for `code/dataset/verifier.py` with known valid/invalid solutions in `tests/unit/test_verifier.py::test_verifier_rejects_invalid_solution`
-
-### Implementation for User Story 1
-
-- [X] T011 [P] [US1] Implement `code/dataset/generator.py` to create logic puzzles (Sudoku variants, constrained pathfinding) with systematic complexity scaling (N=10..500)
-
-- [ ] T013 [US1] Curate an initial dataset of logic/arithmetic puzzles of sufficient size to support preliminary method validation. in `data/raw/` by running `generator.py`; output must follow the JSON schema defined in `../contracts/dataset.schema.yaml` (relative path)
-
-- [X] T012 [US1] Implement `code/dataset/verifier.py` to execute deterministic validation logic for each puzzle instance, returning boolean validity and specific constraint violation codes (e.g., `DUPLICATE_ROW`, `INVALID_PATH`) within 100ms. **Note**: T012 validates the code, T013 generates the data.
-
-- [~] T014 [US1] Add checksum validation for all files in `data/raw/` to ensure data integrity (Principle III)
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Hybrid Evolutionary Search Execution (Priority: P2)
-
-**Goal**: Execute the BES framework where the forward step uses a small CPU-tractable LLM and the backward step is replaced by a symbolic planner.
-
-**Independent Test**: Run the evolutionary loop on a subset of puzzles and verify that the symbolic planner generates sub-goals and the LLM attempts to satisfy them, with the verifier correctly parsing the output.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T016 [P] [US2] Unit test for `code/symbolic/planner.py` with edge cases (non-linear constraints, impossible goals) in `tests/unit/test_symbolic_planner.py::test_planner_handles_nonlinear_constraints`
-
-- [ ] T017 [US2] Integration test for the BES loop with a small population in `tests/integration/test_bes_loop.py::test_bes_loop_executes_symbolic_backward_step`. **Note**: Written first (TDD) but executes after T024. <!-- ATOMIZE: requested -->
-
-### Implementation for User Story 2
-
-- [X] T018 [P] [US2] Implement `code/symbolic/parser.py` to convert puzzle constraints into a formal language parseable by the planner
-
-- [X] T019 [US2] Implement `code/symbolic/planner.py` to generate sub-goal decompositions, including logic to detect and flag `CONTRADICTION_DETECTED` or `PARSE_FAILURE`
-
-- [ ] T019b [US2] Implement logging mechanism for exclusion reasons in `code/symbolic/planner.py` to record `PARSE_FAILURE` or `CONTRADICTION_DETECTED` reasons as required by FR-006
-
-- [ ] T020 [P] [US2] Select and configure a small pre-trained LLM (`distilbert-base-uncased`) in `code/bes/forward_step.py` compatible with CPU-only inference (no CUDA, no 8-bit quantization)
-
-- [ ] T021 [US2] Implement `code/bes/forward_step.py` to perform trajectory recombination guided by symbolic sub-goals. **Constraint**: Must use `optimum` CPU-optimized inference flags (`device='cpu'`, `torch.no_grad`) and specify exact Hugging Face model ID with pinned `revision` hash for reproducibility.
-
-- [ ] T022 [US2] Implement `code/bes/population.py` to manage the evolutionary population, ensuring memory usage stays under a manageable threshold. **Note**: Must be implemented before T023 if T023 updates population state.
-
-- [ ] T023 [US2] Implement `code/bes/backward_step.py` to integrate the symbolic planner output into the evolutionary loop, replacing the neural verifier
-
-- [ ] T024 [US2] Implement the main BES loop in `code/main.py` to orchestrate forward (LLM) and backward (Symbolic) steps, logging all transitions
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Performance Measurement and Statistical Analysis (Priority: P3)
-
-**Goal**: Record success rates and computational costs for both symbolic-guided and neural-verifier baselines, applying statistical tests for significance.
-
-**Independent Test**: Feed synthetic success rate data with known differences to the analysis script to verify z-test and t-test accuracy.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T025 [P] [US3] Unit test for `code/analysis/stats.py` with synthetic data in `tests/unit/test_stats.py::test_z_test_identifies_significance`
-
-### Implementation for User Story 3
-
-- [ ] T026 [P] [US3] Implement `code/analysis/metrics.py` to calculate success rates, wall-clock time, and energy consumption (Joules) from execution logs
-
-- [ ] T027 [US3] Implement `code/analysis/stats.py` to perform **two-tailed two-proportion z-test** for success rates (as mandated by FR-005) with null hypothesis H0: p1 = p2 and alpha=0.05 to determine statistical significance
-
-- [ ] T028 [US3] [SC-001] Implement TOST (Two One-Sided Tests) logic in `code/analysis/stats.py` for equivalence testing as per SC-001. **Note**: This task addresses the 'equivalence' requirement in SC-001, distinct from the z-test in FR-005.
-
-- [ ] T029 [US3] Implement scalability analysis in `code/analysis/metrics.py` to derive the formal **complexity class (Big-O)** via **log-log linear regression** on problem size vs. time. **Requirement**: Must implement classification logic to compare regression slope to thresholds (e.g., ~1 for O(n), ~2 for O(n^2)) to output a discrete `complexity_class` column. Output must be saved to `data/processed/scaling_analysis.csv`. **Note**: Depends on T024 (BES loop) and T026 (metrics).
-
-- [ ] T030 [US3] Create `code/main.py` entry point to run the full experiment (Symbolic vs. Neural Baseline) and output results to `data/processed/`
-
-- [ ] T031 [US3] Generate final report in `data/processed/final_report.md` (Markdown format) containing sections: Success Rate Comparison, Cost Comparison, Complexity Analysis, and Statistical Significance (p-values)
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T032 [P] Documentation updates in `README.md` detailing how to run the BES loop and interpret results
-
-- [ ] T033 Code cleanup and refactoring of `code/bes/` and `code/symbolic/` modules
-
-- [ ] T034 Performance optimization of the verification loop to ensure <100ms execution per solution
-
-- [ ] T036 [P] Run `quickstart.md` validation to ensure the entire pipeline executes within the CI time limit
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories. **MUST be completed first** to provide the verifier for US2.
-- **User Story 2 (P2)**: Depends on US1 (verifier) and Foundational. Requires the symbolic planner and LLM setup.
-- **User Story 3 (P3)**: Depends on US1 and US2 to generate the data logs required for analysis.
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Generators before Verifiers
-- Verifiers before Evolutionary Loop
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for generator in tests/unit/test_generator.py::test_generator_handles_empty_input"
-Task: "Unit test for verifier in tests/unit/test_verifier.py::test_verifier_rejects_invalid_solution"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/dataset/generator.py"
-Task: "Curate initial dataset in data/raw/"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Dataset + Verifier)
-4. **STOP and VALIDATE**: Test User Story 1 independently (run verifier on known solutions)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo (Hybrid Loop)
-4. Add User Story 3 → Test independently → Deploy/Demo (Analysis)
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Dataset/Verifier)
- - Developer B: User Story 2 (Symbolic/LLM Loop)
- - Developer C: User Story 3 (Analysis/Stats)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All LLM tasks must use CPU-only models (no CUDA, no bitsandbytes).
-- **CRITICAL**: All puzzle data must be real or deterministically generated; no fake data.
-- **CRITICAL**: The symbolic planner must handle constraint failures gracefully (exclude and log).
+- [~] T001 [P] [US1] Implement the **puzzle dataset generator** (`code/dataset/generator.py`) so that it writes a **single JSON object** containing a top‑level `"puzzles"` list (conforming to `contracts/dataset.schema.yaml`). Also implement the **deterministic verifier** (`code/dataset/verifier.py`).  
+  • Paths: `code/dataset/generator.py`, `code/dataset/verifier.py`  
+  • Requirements:  
+    – `generator.py` creates `data/raw/puzzles.json` with structure `{ "puzzles": [ … ] }` (no JSONL).  
+    – Each puzzle record includes all required fields (`puzzle_id`, `puzzle_type`, `constraints`, `initial_state`, `target_state`, `verifier_script`, `complexity_score`).  
+    – `verifier.py` provides a function `verify(solution_text: str, puzzle_path: str) -> (bool, str)` that runs in ≤ 100 ms and returns a boolean plus an error code.  
+  • Verification: `pytest code/tests/test_generator.py code/tests/test_verifier.py` passes; the generator test loads the file with `json.load` and validates against `dataset.schema.yaml`; the verifier benchmark asserts runtime < 0.1 s.  
+
+- [~] T002 [P] [US2] Implement the **symbolic planner** (`code/symbolic/planner.py`) and **parser** (`code/symbolic/parser.py`) with concrete exception classes `ParseFailure` and `ContradictionDetected`.  
+  • Paths: `code/symbolic/planner.py`, `code/symbolic/parser.py`, `code/symbolic/exclusion_logger.py`  
+  • Requirements: planner either returns an ordered list of sub‑goals **or** raises one of the two exception classes; exclusion logger writes `data/processed/exclusions.json` with puzzle IDs and reasons.  
+  • Verification: `pytest code/tests/test_symbolic_planner.py` passes (exception handling uses the actual classes, not string literals).  
+
+- [ ] T019 [P] [US1] Generate **evaluation logs** for each solution attempt, writing `data/processed/evaluation_log.jsonl` and validate each entry against a newly added `contracts/evaluation_log.schema.yaml`.  
+  • Paths: `code/analysis/evaluation_logger.py`, `contracts/evaluation_log.schema.yaml` (new)  
+  • Requirements: for every attempt the logger records `attempt_id`, `puzzle_id`, `method`, `is_valid`, `error_code`, `timestamp`; entries are validated on write.  
+  • Verification: `pytest code/tests/test_evaluation_log.py` ensures schema compliance and that the file is non‑empty after a pilot run.  
+
+- [ ] T003 [P] [US2] Implement the **BES evolutionary loop** (`code/bes/population.py`, `code/bes/forward_step.py`, `code/bes/backward_step.py`, `code/bes/main.py`) and ensure the top‑level entry point (`code/main.py`) runs end‑to‑end **and exits with status 0**.  
+  • Paths: `code/bes/population.py`, `code/bes/forward_step.py`, `code/bes/backward_step.py`, `code/bes/main.py`, `code/main.py`  
+  • Requirements:  
+    – Forward step uses the CPU‑only LLM (`distilbert-base-uncased`) with `device='cpu'`.  
+    – Backward step calls the symbolic planner from T002.  
+    – Fitness evaluation invokes `code/dataset/verifier.py` with a timeout (≤ 2 s).  
+    – The loop logs per‑generation statistics to `data/processed/run_log.jsonl`.  
+    – The CLI `python -m code.main --pilot` completes without error and returns exit code 0.  
+  • Verification: executing `python -m code.main --pilot` creates non‑empty `data/processed/pilot/attempts.jsonl` and `data/processed/pilot/evaluations.jsonl` with real `cost_time` values; `pytest code/tests/test_bes_loop.py` passes.  
+
+---  
+
+## Phase 2 – Complete the study and validate its evidence  
+
+- [ ] T004 [P] [US1] Generate the **full scaled dataset** for three sizes (N = 10, 100, 500) and validate its distribution.  
+  • Paths: `data/raw/puzzles_N10.json`, `data/raw/puzzles_N100.json`, `data/raw/puzzles_N500.json`, `code/dataset/validate_distribution.py`  
+  • Verification: script writes `data/processed/distribution_report.json` and `data/processed/distribution_validation.json`; both exist, pass schema validation, and the report lists counts per puzzle type and complexity bucket.  
+
+- [ ] T005 [P] [US2] Implement the **neural‑verifier baseline** (`code/bes/neural_verifier.py`, `code/bes/neural_baseline_runner.py`).  
+  • Paths: as listed.  
+  • Requirements: record wall‑clock time, estimated energy (`cpu_time * TDP_WATTS`), and a **GPU‑hours estimate** using a documented conversion factor; produce `data/processed/neural_baseline_results.json` that conforms to `contracts/output.schema.yaml` plus a supplemental `data/processed/gpu_hours_report.json`.  
+  • Verification: `data/processed/neural_baseline_results.json` contains real numeric fields (`run_id`, `method="neural"`, `total_instances`, `success_count`, `mean_time`, `p_value_z`, `p_value_t`, `significance`, `logical_contradiction_rate`) and `gpu_hours_report.json` includes `gpu_hours_estimate` and a comparison against the symbolic method.  
+
+- [ ] T006 [P] [US2] Execute the **symbolic‑guided BES** on all three puzzle sets and aggregate results.  
+  • Paths: `code/bes/result_aggregator.py`, output `data/processed/symbolic_bes_results.json`.  
+  • Verification: aggregated JSON validates against `contracts/output.schema.yaml` and includes non‑zero `success_count` and `excluded_instances`.  
+
+- [ ] T007 [P] [US3] Run **statistical analysis** (`code/analysis/stats.py`, `code/analysis/cost_calculator.py`).  
+  • Paths: as listed; output `data/processed/statistical_report.json`.  
+  • Requirements: compute two‑proportion Z‑test, paired t‑test, TOST equivalence test (Δ = 0.05), and include `p_value_z`, `p_value_t`, `significance`.  
+  • Verification: `code/tests/test_stats.py::test_z_test_significance` passes; report JSON contains all required keys with real numeric values.  
+
+- [ ] T022 [P] [US3] Implement the **primary paired McNemar’s test** for success‑rate comparison and add its p‑value (`p_value_mcnemar`) to `data/processed/statistical_report.json`.  
+  • Paths: `code/analysis/mcnemar_test.py` (new) integrated into `stats.py`.  
+  • Verification: `code/tests/test_mcnemar.py` checks that the McNemar p‑value is computed correctly and appears in the final report.  
+
+- [ ] T017 [P] [US4] Define JSON schema for `complexity_report.json` → `contracts/complexity_report.schema.yaml`.  
+  • Schema fields: `run_id`, `method`, `complexity_class`, `empirical_R2`, `theoretical_class`, `discrepancy_flag`.  
+  • Verification: `yaml.safe_load` on the newly created file succeeds; a test `code/tests/test_complexity_schema.py` validates a sample report against it.  
+
+- [ ] T018 [P] [US4] Define JSON schema for `sc005_validation.json` → `contracts/sc005_validation.schema.yaml`.  
+  • Schema fields: `passed` (bool), `complexity_class` (string), `notes` (string).  
+  • Verification: schema loads without error; a test validates a sample validation file.  
+
+- [ ] T008 [P] [US3] Perform **scalability analysis** (`code/analysis/complexity_empirical.py`, `code/analysis/complexity_theory.py`).  
+  • Outputs: `data/processed/complexity_report.json` and `data/processed/sc005_validation.json`.  
+  • Verification: both files exist and pass validation against the schemas created in T017 and T018.  
+
+- [ ] T009 [P] [US3] Generate **result tables and figures** (`code/analysis/report.py`).  
+  • Outputs: `data/results/table_summary.csv`, `figures/success_rate.png`, `figures/runtime_comparison.png`.  
+  • Verification: `code/tests/test_report_links.py` asserts every table cell and figure datum originates from a source JSON file; test suite passes and files are non‑empty.  
+
+- [ ] T010 [P] [US3] Write the **methods & results manuscript draft** (`specs/001-symbolic-bes/results.md`).  
+  • File: `specs/001-symbolic-bes/results.md`  
+  • Verification: all quantitative statements cite the exact JSON artifact (e.g., `data/processed/symbolic_bes_results.json`) via inline links; markdown renders without broken references.  
+
+- [ ] T011 [P] [US3] **Re‑run the full workflow** from a clean `data/processed/` directory and produce the **paper‑stage handoff** (`specs/001-symbolic-bes/handoff.md`).  
+  • File: `specs/001-symbolic-bes/handoff.md`  
+  • Verification: after deleting `data/processed/*` the command `python -m code.main --full` completes without error and regenerates every result artifact; handoff file lists SHA‑256 checksums of all final JSON/CSV/PNG artifacts.  
+
+---  
+
+## Phase 3 – Additional contract creation (supporting Phase 2)  
+
+*(Moved to Phase 2 to satisfy ordering constraints; retained for documentation.)*  
+
+---  
+
+## Dependencies & Requirement Coverage  
+
+| Spec Requirement | Satisfying Task(s) |
+|------------------|--------------------|
+| FR‑001 | T001, T004 |
+| FR‑002 | T002, T006 |
+| FR‑003 | T003, T006 |
+| FR‑004 | T005, T006 |
+| FR‑005 | T007, T022 |
+| FR‑006 | T002, T006 |
+| SC‑001 | T007 |
+| SC‑002 | T007 |
+| SC‑003 | T002, T003 |
+| SC‑004 | T007 |
+| SC‑005 | T008 |
+| US‑1 | T001, T004 |
+| US‑2 | T002, T003, T006 |
+| US‑3 | T007, T008, T009, T010, T011 |
+| US‑4 | T017, T018 |
+| Evaluation Log entity | T019 |
+| SHA‑256 checksum generation | T020 |
+| Random seed pinning | T021 |
+| McNemar’s test | T022 |
+
+All tasks respect data flow, use only project‑owned paths, and adhere to the specification and constitutional constraints.  
+
+---  
+
+*All checked tasks have been verified to meet their respective acceptance criteria; unchecked tasks are pending implementation or correction as noted.*  

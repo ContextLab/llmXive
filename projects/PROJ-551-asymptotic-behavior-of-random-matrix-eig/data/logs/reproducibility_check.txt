@@ -1,0 +1,7 @@
+Reproducibility check (T003): N=1000, seed=42, theta=2.5
+stored top eigenvalue     = 2.703139682868358
+recomputed top eigenvalue = 2.703139682868358
+absolute difference       = 0.000e+00
+Sanity check Delta <= 1e-6: PASS
+outlier flag consistent with theoretical rule: PASS
+OVERALL: PASS

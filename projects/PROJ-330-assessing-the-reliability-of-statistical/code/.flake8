@@ -1,20 +1,40 @@
 [flake8]
+# Flake8 linting configuration for the genomic significance reliability pipeline.
+# Complements black formatting (line length matched to black's default).
 max-line-length = 88
-extend-ignore = E203, E501, W503
-exclude =
-    .git,
-    __pycache__,
+extend-ignore =
+    # E203: whitespace before ':' -- conflicts with black's slicing style
+    E203,
+    # W503: line break before binary operator -- black enforces this style
+    W503,
+    # E501 handled where unavoidable (long URLs in docstrings/references)
+    # via per-file ignores below.
+extend-exclude =
+    # Virtual environments and caches
+    venv,
+    .venv,
+    env,
+    # Build artifacts
     build,
     dist,
-    .eggs,
-    *.egg-info,
-    .venv,
-    venv,
-    env,
+    __pycache__,
+    # R environment directory
+    renv,
+    # Data and results directories (never lint data)
     data,
-    figures,
-    artifacts
+    artifacts,
+    results,
+    cache
 per-file-ignores =
-    # Allow higher line length for docstrings or comments if needed
-    */__init__.py: F401
-    code/tests/*: D100,D101,D102,D103,D104
+    # Tests: allow longer lines for descriptive test names/assert messages
+    tests/*: E501
+    # R-generated or vendored code, if any
+    scripts/*_legacy.py: E501
+# Only lint Python files
+filename = *.py
+# Report settings
+max-complexity = 15
+format = default
+count = True
+show-source = True
+statistics = True

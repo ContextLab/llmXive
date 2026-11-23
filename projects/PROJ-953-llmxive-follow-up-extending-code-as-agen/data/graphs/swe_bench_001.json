@@ -1,0 +1,44 @@
+{
+  "nodes": [
+    {
+      "id": 0,
+      "type": "module",
+      "start_point": { "row": 0, "column": 0 },
+      "end_point": { "row": 1, "column": 13 }
+    },
+    {
+      "id": 1,
+      "type": "function_definition",
+      "start_point": { "row": 0, "column": 0 },
+      "end_point": { "row": 1, "column": 13 }
+    },
+    {
+      "id": 2,
+      "type": "identifier",
+      "start_point": { "row": 0, "column": 4 },
+      "end_point": { "row": 0, "column": 11 }
+    },
+    {
+      "id": 3,
+      "type": "block",
+      "start_point": { "row": 1, "column": 4 },
+      "end_point": { "row": 1, "column": 13 }
+    },
+    {
+      "id": 4,
+      "type": "pass_statement",
+      "start_point": { "row": 1, "column": 4 },
+      "end_point": { "row": 1, "column": 13 }
+    }
+  ],
+  "edges": [
+    { "from": 0, "to": 1 },
+    { "from": 1, "to": 2 },
+    { "from": 1, "to": 3 },
+    { "from": 3, "to": 4 }
+  ],
+  "metadata": {
+    "has_semantic_nodes": true,
+    "fallback_active": false
+  }
+}

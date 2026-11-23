@@ -1,350 +1,299 @@
-"""
-Main entry point for the solar wind and geomagnetic tail reconnection analysis pipeline.
-This file orchestrates data ingestion, cleaning, lag calculation, correlation analysis,
-sensitivity analysis, and report generation.
-
-File path: projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py
-"""
-
 import json
 import os
 import sys
 import argparse
+import logging
 from datetime import datetime, timedelta
-from typing import Tuple, Dict, Any, Optional, List
 
-import pandas as pd
-import numpy as np
+# Ensure project root is in path for relative imports if run as script
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
-# Local imports
 from data.ingest import fetch_omni_sw, fetch_themis_ey
-from data.clean import clean_and_resample
-from data.lag import calculate_physics_lag, apply_lag_shift, calculate_and_apply_lag
+from data.clean import clean_and_resample, handle_gaps
+from data.lag import calculate_l_phys, apply_lag_shift, log_lag_derivation
 from analysis.correlation import calculate_correlation, circular_block_permutation, moving_block_bootstrap
 from analysis.lag_search import find_optimal_lag
-from analysis.sensitivity import analyze_thresholds, run_sensitivity_sweep
+from analysis.sensitivity import analyze_thresholds
 from viz.plots import plot_scatter, plot_timeseries
-from config import (
-    LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP, 
-    TAIL_DISTANCE_RE, BOOTSTRAP_ITERATIONS, PERMUTATION_ITERATIONS,
-    EARTH_RADIUS_KM, K_PROPAGATION
-)
+from config import LAG_WINDOW_MIN, LAG_WINDOW_MAX, LAG_STEP, TAIL_DISTANCE_RE, BOOTSTRAP_ITERATIONS
+import pandas as pd
+import portalocker
 
-# Ensure paths are relative to project root
-PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(PROJECT_ROOT, "data")
-PROCESSED_DIR = os.path.join(DATA_DIR, "processed")
-RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
+# Configure logging
+def setup_logging():
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        handlers=[
+            logging.StreamHandler(sys.stdout),
+            logging.FileHandler(os.path.join(project_root, 'data', 'processed', 'pipeline.log'))
+        ]
+    )
 
-# Ensure directories exist
-os.makedirs(PROCESSED_DIR, exist_ok=True)
-os.makedirs(RESULTS_DIR, exist_ok=True)
-
-def log_quality_warnings(warnings: List[Dict[str, Any]], output_path: Optional[str] = None) -> None:
+def log_data_quality_warnings(warnings: list) -> None:
     """
-    Log data-quality warnings to a JSON file.
-    
-    Args:
-        warnings: List of warning dictionaries with 'type', 'message', 'timestamp' keys.
-        output_path: Path to the output JSON file. Defaults to data/processed/quality_log.json.
+    Logs data-quality warnings to data/processed/quality_log.json.
+    Uses portalocker to prevent race conditions with T006c.
     """
-    if output_path is None:
-        output_path = os.path.join(PROCESSED_DIR, "quality_log.json")
+    log_path = os.path.join(project_root, 'data', 'processed', 'quality_log.json')
     
-    # Load existing warnings if file exists
-    existing_warnings = []
-    if os.path.exists(output_path):
+    # Ensure directory exists
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+
+    # Load existing entries or create new list
+    try:
+        with open(log_path, 'r') as f:
+            try:
+                entries = json.load(f)
+                if not isinstance(entries, list):
+                    entries = []
+            except json.JSONDecodeError:
+                entries = []
+    except FileNotFoundError:
+        entries = []
+
+    # Prepare new entries
+    now_iso = datetime.utcnow().isoformat() + "Z"
+    for w in warnings:
+        entry = {
+            "timestamp": now_iso,
+            "level": "WARN",
+            "source": w.get("source", "pipeline"),
+            "message": w.get("message", "Unknown warning")
+        }
+        entries.append(entry)
+
+    # Write with locking
+    with open(log_path, 'w') as f:
+        portalocker.lock(f, portalocker.LOCK_EX)
         try:
-            with open(output_path, 'r') as f:
-                existing_warnings = json.load(f)
-        except (json.JSONDecodeError, IOError):
-            existing_warnings = []
-    
-    # Append new warnings
-    all_warnings = existing_warnings + warnings
-    
-    # Write to file
-    with open(output_path, 'w') as f:
-        json.dump(all_warnings, f, indent=2, default=str)
-    
-    print(f"Quality warnings logged to {output_path}")
+            json.dump(entries, f, indent=2)
+        finally:
+            portalocker.unlock(f)
 
-def run_pipeline(start_date: str, end_date: str) -> Dict[str, Any]:
+    logging.info(f"Logged {len([e for e in entries if e.get('level') == 'WARN'])} warnings to {log_path}")
+
+def run_data_pipeline(start_date: str, end_date: str) -> str:
     """
-    Run the full analysis pipeline for the specified date range.
+    Orchestrates data ingestion and cleaning.
+    Saves cleaned data to data/processed/cleaned_data.csv.
+    """
+    logger = logging.getLogger(__name__)
+    logger.info(f"Starting data pipeline for {start_date} to {end_date}")
+
+    # Parse dates
+    start = datetime.fromisoformat(start_date)
+    end = datetime.fromisoformat(end_date)
+
+    # Fetch data
+    logger.info("Fetching OMNI SW data...")
+    df_sw = fetch_omni_sw((start, end))
     
-    Args:
-        start_date: Start date string (YYYY-MM-DD).
-        end_date: End date string (YYYY-MM-DD).
-        
-    Returns:
-        Dictionary containing all analysis results.
-    """
+    logger.info("Fetching THEMIS EY data...")
+    df_ey = fetch_themis_ey((start, end))
+
+    if df_sw.empty or df_ey.empty:
+        raise ValueError("One or both data sources returned empty DataFrames.")
+
+    # Clean and resample
+    logger.info("Cleaning and resampling data...")
+    df_sw_clean, df_ey_clean = clean_and_resample(df_sw, df_ey)
+
+    # Handle gaps
     warnings = []
-    results = {
-        "metadata": {
-            "start_date": start_date,
-            "end_date": end_date,
-            "timestamp": datetime.now().isoformat(),
-            "pipeline_version": "1.0.0"
-        },
-        "data_quality": [],
-        "lag_analysis": {},
-        "correlation_analysis": {},
-        "sensitivity_analysis": {},
-        "notes": []
-    }
+    if not df_sw_clean.empty:
+        df_sw_clean = handle_gaps(df_sw_clean)
+    if not df_ey_clean.empty:
+        df_ey_clean = handle_gaps(df_ey_clean)
+
+    # Log any warnings from gap handling if necessary (simplified here)
+    if len(df_sw_clean) == 0 or len(df_ey_clean) == 0:
+        warnings.append({"source": "clean", "message": "Data empty after gap handling"})
     
-    print(f"Starting pipeline for {start_date} to {end_date}")
-    
-    # 1. Fetch Data
-    print("Fetching OMNI solar wind data...")
-    try:
-        df_omni = fetch_omni_sw((start_date, end_date))
-        if df_omni.empty:
-            warnings.append({
-                "type": "data_fetch",
-                "message": f"OMNI data is empty for {start_date} to {end_date}",
-                "timestamp": datetime.now().isoformat()
-            })
-    except Exception as e:
-        warnings.append({
-            "type": "data_fetch_error",
-            "message": f"Failed to fetch OMNI data: {str(e)}",
-            "timestamp": datetime.now().isoformat()
-        })
-        raise
-    
-    print("Fetching THEMIS Ey data...")
-    try:
-        df_themis = fetch_themis_ey((start_date, end_date))
-        if df_themis.empty:
-            warnings.append({
-                "type": "data_fetch",
-                "message": f"THEMIS data is empty for {start_date} to {end_date}",
-                "timestamp": datetime.now().isoformat()
-            })
-    except Exception as e:
-        warnings.append({
-            "type": "data_fetch_error",
-            "message": f"Failed to fetch THEMIS data: {str(e)}",
-            "timestamp": datetime.now().isoformat()
-        })
-        raise
-    
-    # 2. Clean and Resample
-    print("Cleaning and resampling data...")
-    try:
-        df_omni_clean, df_themis_clean = clean_and_resample(df_omni, df_themis)
-    except Exception as e:
-        warnings.append({
-            "type": "data_cleaning_error",
-            "message": f"Failed to clean data: {str(e)}",
-            "timestamp": datetime.now().isoformat()
-        })
-        raise
-    
-    # Log quality warnings
     if warnings:
-        log_quality_warnings(warnings)
-        results["data_quality"] = warnings
+        log_data_quality_warnings(warnings)
+
+    # Save cleaned data
+    output_path = os.path.join(project_root, 'data', 'processed', 'cleaned_data.csv')
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    # 3. Calculate Physics-based Lag
-    print("Calculating physics-based lag...")
-    try:
-        vsw_mean = df_omni_clean['Vsw'].mean()
-        l_phys = calculate_physics_lag(vsw_mean)
-        results["lag_analysis"]["physics_lag_minutes"] = l_phys
-        print(f"Physics-based lag (L_phys): {l_phys:.2f} minutes")
-    except Exception as e:
-        warnings.append({
-            "type": "lag_calculation_error",
-            "message": f"Failed to calculate physics lag: {str(e)}",
-            "timestamp": datetime.now().isoformat()
-        })
-        results["lag_analysis"]["physics_lag_minutes"] = None
+    combined_df = pd.concat([
+        df_sw_clean.rename(columns={'Vsw': 'Vsw_raw'}),
+        df_ey_clean.rename(columns={'Ey': 'Ey_raw'}),
+    ], axis=1)
     
-    # 4. Find Optimal Lag
-    print("Searching for optimal lag...")
-    try:
-        optimal_lag, lag_correlation, lag_results = find_optimal_lag(
-            df_omni_clean, df_themis_clean,
-            min_lag=LAG_WINDOW_MIN,
-            max_lag=LAG_WINDOW_MAX,
-            step=LAG_STEP
-        )
-        results["lag_analysis"]["optimal_lag_minutes"] = optimal_lag
-        results["lag_analysis"]["optimal_lag_correlation"] = lag_correlation
-        results["lag_analysis"]["lag_sweep_results"] = lag_results
-        print(f"Optimal lag (L*): {optimal_lag:.2f} minutes (correlation: {lag_correlation:.4f})")
-        
-        # SC-002: Calculate |L* - L_phys|
-        if optimal_lag is not None and l_phys is not None:
-            lag_diff = abs(optimal_lag - l_phys)
-            results["lag_analysis"]["lag_difference"] = lag_diff
-            print(f"Absolute difference |L* - L_phys|: {lag_diff:.2f} minutes")
+    # Align indices explicitly
+    combined_df = combined_df.loc[combined_df.index.dropna()]
+    combined_df.to_csv(output_path)
+    logger.info(f"Cleaned data saved to {output_path}")
+
+    return output_path
+
+def run_analysis_pipeline(cleaned_data_path: str = None, start_date: str = None, end_date: str = None) -> dict:
+    """
+    Orchestrates the core analysis pipeline.
+    Loads cleaned data, calculates lag, performs correlation analysis,
+    sensitivity analysis, and generates plots.
+    """
+    logger = logging.getLogger(__name__)
+    
+    # If no path provided, run the ingestion pipeline first
+    if cleaned_data_path is None:
+        if not start_date or not end_date:
+            raise ValueError("Either cleaned_data_path or start/end dates must be provided.")
+        cleaned_data_path = run_data_pipeline(start_date, end_date)
+
+    logger.info(f"Loading cleaned data from {cleaned_data_path}")
+    df = pd.read_csv(cleaned_data_path, index_col=0, parse_dates=True)
+
+    if df.empty:
+        raise ValueError("Cleaned data is empty. Cannot proceed with analysis.")
+
+    # Extract series
+    # Assuming columns are aligned as Vsw_raw and Ey_raw after concat in run_data_pipeline
+    # If they are just Vsw and Ey, adjust accordingly. Based on T020a logic:
+    # df_sw_clean has 'Vsw', df_ey_clean has 'Ey'.
+    # Let's re-read carefully: run_data_pipeline does concat with rename.
+    # So columns should be 'Vsw_raw' and 'Ey_raw'.
+    
+    if 'Vsw_raw' not in df.columns or 'Ey_raw' not in df.columns:
+        # Fallback if column names are different
+        if 'Vsw' in df.columns and 'Ey' in df.columns:
+            vsw_series = df['Vsw']
+            ey_series = df['Ey']
         else:
-            results["lag_analysis"]["lag_difference"] = None
-            
-    except Exception as e:
-        warnings.append({
-            "type": "lag_search_error",
-            "message": f"Failed to find optimal lag: {str(e)}",
-            "timestamp": datetime.now().isoformat()
-        })
-        results["lag_analysis"]["optimal_lag_minutes"] = None
-        results["lag_analysis"]["optimal_lag_correlation"] = None
-        results["lag_analysis"]["lag_difference"] = None
+            raise KeyError(f"Expected 'Vsw_raw'/'Ey_raw' or 'Vsw'/'Ey' columns. Found: {df.columns.tolist()}")
+    else:
+        vsw_series = df['Vsw_raw']
+        ey_series = df['Ey_raw']
+
+    # Drop NaNs just in case
+    valid_mask = vsw_series.notna() & ey_series.notna()
+    vsw_series = vsw_series[valid_mask]
+    ey_series = ey_series[valid_mask]
+
+    if len(vsw_series) == 0:
+        raise ValueError("No valid data points after filtering NaNs.")
+
+    # 1. Calculate Physics-based Lag
+    vsw_mean = vsw_series.mean()
+    l_phys = calculate_l_phys(vsw_mean)
+    logger.info(f"Calculated physics-based lag (L_phys): {l_phys:.2f} minutes (Vsw mean: {vsw_mean:.2f} km/s)")
+
+    # 2. Log Lag Derivation
+    log_lag_derivation(vsw_mean, l_phys)
+
+    # 3. Find Optimal Lag
+    logger.info("Searching for optimal lag...")
+    lag_results = find_optimal_lag(
+        vsw_series, 
+        ey_series, 
+        min_lag=LAG_WINDOW_MIN, 
+        max_lag=LAG_WINDOW_MAX, 
+        step=LAG_STEP
+    )
+    optimal_lag = lag_results['optimal_lag']
+    max_corr = lag_results['max_correlation']
+    lag_diff = abs(optimal_lag - l_phys)
+    logger.info(f"Optimal lag found: {optimal_lag} min (Max Correlation: {max_corr:.4f}, |L* - L_phys|: {lag_diff:.2f})")
+
+    # 4. Apply Lag Shift for Final Correlation
+    vsw_lagged = apply_lag_shift(vsw_series, optimal_lag)
     
-    # 5. Apply Optimal Lag and Calculate Correlation
-    print("Applying optimal lag and calculating correlation...")
-    try:
-        if optimal_lag is not None:
-            df_omni_lagged = apply_lag_shift(df_omni_clean, optimal_lag)
-            df_themis_lagged = df_themis_clean  # Ey is the response, no lag needed on it usually, or shift depends on definition
-            # Note: Usually we shift the predictor (Vsw) by the lag to align with the response (Ey)
-            # If L* is the time it takes for Vsw to affect Ey, we shift Vsw forward by L*
-            # apply_lag_shift handles the direction based on config or convention
-            
-            pearson_r, spearman_r, p_val = calculate_correlation(
-                df_omni_lagged['Vsw'], 
-                df_themis_lagged['Ey'],
-                method='both'
-            )
-            
-            # Permutation test for significance
-            p_val_permutation = circular_block_permutation(
-                df_omni_lagged['Vsw'], 
-                df_themis_lagged['Ey'],
-                iterations=PERMUTATION_ITERATIONS
-            )
-            
-            results["correlation_analysis"]["pearson"] = pearson_r
-            results["correlation_analysis"]["spearman"] = spearman_r
-            results["correlation_analysis"]["p_value_pearson"] = p_val
-            results["correlation_analysis"]["p_value_permutation"] = p_val_permutation
-            results["correlation_analysis"]["significant_flag"] = p_val_permutation < 0.05
-            
-            print(f"Pearson: {pearson_r:.4f}, Spearman: {spearman_r:.4f}")
-            print(f"Permutation p-value: {p_val_permutation:.4f}, Significant: {results['correlation_analysis']['significant_flag']}")
-            
-            # FR-013: Add note if permutation test was successful
-            if p_val_permutation is not None:
-                results["notes"].append(
-                    "Note: Bonferroni correction is conservative for autocorrelated lag searches; "
-                    "the permutation test (FR-005) is the primary method for significance testing. "
-                    "Future work should consider adaptive FDR control."
-                )
-        else:
-            results["correlation_analysis"]["pearson"] = None
-            results["correlation_analysis"]["spearman"] = None
-            results["correlation_analysis"]["p_value_permutation"] = None
-            results["correlation_analysis"]["significant_flag"] = False
-            
-    except Exception as e:
-        warnings.append({
-            "type": "correlation_error",
-            "message": f"Failed to calculate correlation: {str(e)}",
-            "timestamp": datetime.now().isoformat()
-        })
-        results["correlation_analysis"]["pearson"] = None
-        results["correlation_analysis"]["spearman"] = None
-        results["correlation_analysis"]["p_value_permutation"] = None
-        results["correlation_analysis"]["significant_flag"] = False
+    # Re-align for correlation
+    valid_lag_mask = vsw_lagged.notna() & ey_series.notna()
+    vsw_final = vsw_lagged[valid_lag_mask]
+    ey_final = ey_series[valid_lag_mask]
+
+    if len(vsw_final) == 0:
+        raise ValueError("No valid data points after applying lag shift.")
+
+    # 5. Calculate Correlation
+    logger.info("Calculating correlations...")
+    corr_stats = calculate_correlation(vsw_final, ey_final)
+    pearson = corr_stats['pearson']
+    spearman = corr_stats['spearman']
+
+    # 6. Permutation Test for P-value
+    logger.info("Running permutation test...")
+    p_val = circular_block_permutation(vsw_final, ey_final)
+    logger.info(f"Permutation p-value: {p_val:.4f}")
+
+    # 7. Bootstrap Confidence Interval
+    logger.info("Running bootstrap for CI...")
+    ci_lower, ci_upper = moving_block_bootstrap(vsw_final, ey_final)
+    logger.info(f"Bootstrap 95% CI: [{ci_lower:.4f}, {ci_upper:.4f}]")
+
+    # 8. Sensitivity Analysis
+    logger.info("Running sensitivity analysis...")
+    thresholds = [400, 500, 600]
+    sensitivity_table = analyze_thresholds(vsw_series, ey_series, thresholds)
+
+    # 9. Generate Plots
+    results_dir = os.path.join(project_root, 'results')
+    os.makedirs(results_dir, exist_ok=True)
     
-    # 6. Sensitivity Analysis (SC-003)
-    print("Running sensitivity analysis...")
-    try:
-        # Thresholds in km/s as per spec (T011, T028)
-        thresholds = [400, 500, 600]
-        sensitivity_results = run_sensitivity_sweep(
-            df_omni_clean, df_themis_clean,
-            thresholds=thresholds,
-            min_lag=LAG_WINDOW_MIN,
-            max_lag=LAG_WINDOW_MAX,
-            step=LAG_STEP
-        )
-        
-        results["sensitivity_analysis"]["thresholds"] = thresholds
-        results["sensitivity_analysis"]["results"] = sensitivity_results
-        
-        # Format for JSON report
-        sensitivity_table = []
-        for res in sensitivity_results:
-            sensitivity_table.append({
-                "threshold_km_s": res["threshold"],
-                "n_samples": res["n_samples"],
-                "pearson": res["pearson"],
-                "spearman": res["spearman"],
-                "p_value_permutation": res["p_value_permutation"],
-                "significant": res["significant"]
-            })
-        
-        results["sensitivity_analysis"]["table"] = sensitivity_table
-        print(f"Sensitivity analysis complete. Found {len(sensitivity_results)} threshold results.")
-        
-    except Exception as e:
-        warnings.append({
-            "type": "sensitivity_error",
-            "message": f"Failed to run sensitivity analysis: {str(e)}",
-            "timestamp": datetime.now().isoformat()
-        })
-        results["sensitivity_analysis"]["table"] = []
+    scatter_path = os.path.join(results_dir, 'plot_scatter.png')
+    timeseries_path = os.path.join(results_dir, 'plot_timeseries.png')
     
-    # 7. Visualization
-    print("Generating plots...")
-    try:
-        if optimal_lag is not None:
-            # Ensure data is lagged for plotting
-            df_omni_plot = apply_lag_shift(df_omni_clean, optimal_lag)
-            df_themis_plot = df_themis_clean
-            
-            # Scatter plot
-            scatter_path = os.path.join(RESULTS_DIR, "plot_scatter.png")
-            plot_scatter(df_omni_plot['Vsw'], df_themis_plot['Ey'], optimal_lag, scatter_path)
-            print(f"Scatter plot saved to {scatter_path}")
-            
-            # Time series plot
-            ts_path = os.path.join(RESULTS_DIR, "plot_timeseries.png")
-            plot_timeseries(df_omni_clean, df_themis_clean, optimal_lag, ts_path)
-            print(f"Time series plot saved to {ts_path}")
-    except Exception as e:
-        warnings.append({
-            "type": "plotting_error",
-            "message": f"Failed to generate plots: {str(e)}",
-            "timestamp": datetime.now().isoformat()
-        })
+    logger.info("Generating plots...")
+    plot_scatter(vsw_final, ey_final, optimal_lag, scatter_path)
+    plot_timeseries(
+        pd.DataFrame({'Vsw': vsw_series}, index=vsw_series.index),
+        pd.DataFrame({'Ey': ey_series}, index=ey_series.index),
+        timeseries_path
+    )
+
+    # 10. Compile Results
+    results = {
+        "pearson": pearson,
+        "spearman": spearman,
+        "p_val_permutation": p_val,
+        "optimal_lag": optimal_lag,
+        "lag_difference": lag_diff,
+        "ci_bootstrap": {"lower": ci_lower, "upper": ci_upper},
+        "sensitivity_table": sensitivity_table,
+        "notes": [
+            f"Analysis performed on data from {start_date} to {end_date}.",
+            f"Physics-based lag (L_phys) calculated as {l_phys:.2f} min based on Vsw mean {vsw_mean:.2f} km/s.",
+            f"Optimal lag L* = {optimal_lag} min differs from L_phys by {lag_diff:.2f} min.",
+            f"Reference Frame: GSM for Ey, Solar Wind Rest Frame for Vsw (aligned via propagation model)."
+        ]
+    }
+
+    # Save results JSON
+    results_json_path = os.path.join(results_dir, 'us1_correlation.json')
+    with open(results_json_path, 'w') as f:
+        json.dump(results, f, indent=2)
     
-    # Finalize results
-    results["metadata"]["warnings_count"] = len(warnings)
+    logger.info(f"Analysis complete. Results saved to {results_json_path}")
     
     return results
 
+def run_pipeline(start_date: str, end_date: str) -> dict:
+    """
+    Full pipeline orchestration: Ingest -> Clean -> Analyze -> Plot.
+    """
+    cleaned_path = run_data_pipeline(start_date, end_date)
+    return run_analysis_pipeline(cleaned_data_path=cleaned_path, start_date=start_date, end_date=end_date)
+
 def main():
-    parser = argparse.ArgumentParser(description="Solar Wind and Geomagnetic Tail Reconnection Analysis")
+    parser = argparse.ArgumentParser(description="Solar Wind - Reconnection Analysis Pipeline")
     parser.add_argument("--start", required=True, help="Start date (YYYY-MM-DD)")
     parser.add_argument("--end", required=True, help="End date (YYYY-MM-DD)")
-    parser.add_argument("--output", default=None, help="Output JSON file path")
-    
     args = parser.parse_args()
-    
+
+    setup_logging()
+    logger = logging.getLogger(__name__)
+
     try:
         results = run_pipeline(args.start, args.end)
-        
-        # Save results to JSON
-        if args.output:
-            output_path = args.output
-        else:
-            output_path = os.path.join(RESULTS_DIR, "us1_correlation.json")
-        
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2, default=str)
-        
-        print(f"\nResults saved to {output_path}")
-        print("Pipeline completed successfully.")
-        
+        logger.info("Pipeline executed successfully.")
+        print(json.dumps(results, indent=2))
     except Exception as e:
-        print(f"Pipeline failed with error: {str(e)}", file=sys.stderr)
+        logger.error(f"Pipeline failed: {str(e)}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":

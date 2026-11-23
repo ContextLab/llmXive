@@ -68,5 +68,15 @@
     "Sections/5-bench.tex",
     "Sections/6-experiment.tex",
     "Sections/7-conclusion.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "7068750b92062b26abbfa0f4a25fc03f914566f207ff2744e8c77c065e669277",
+      "bytes": 3811369
+    },
+    "original.pdf": {
+      "sha256": "d0cd622493afa6d4e6f9495d9972a9911c95ac296c0c9c4b8e32b9f247a874aa",
+      "bytes": 3827321
+    }
+  }
 }

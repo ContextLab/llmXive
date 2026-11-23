@@ -1,3 +1,4 @@
+# Existing dependencies
 petitRADTRANS
 astropy
 statsmodels
@@ -9,6 +10,9 @@ tqdm
 lifelines
 synphot
 scikit-survival
+scikit-learn
+matplotlib
 pytest
-ruff
-black
+pyyaml
+# New dependencies for T047 (if any specific ones needed beyond base)
+# (pandas, numpy, matplotlib are already covered above)

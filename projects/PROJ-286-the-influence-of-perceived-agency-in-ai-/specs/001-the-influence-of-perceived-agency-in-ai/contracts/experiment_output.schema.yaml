@@ -1,0 +1,93 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Experiment Output Schema"
+description: "Schema for the final analysis results of the Perceived Agency experiment."
+type: object
+properties:
+  analysis_id:
+    type: string
+    description: "Unique identifier for the analysis run."
+  participant_count:
+    type: integer
+    description: "Total number of participants included in the analysis."
+  conditions:
+    type: array
+    items:
+      type: string
+      enum:
+        - "High"
+        - "Low"
+        - "Control"
+  contrasts:
+    type: array
+    description: "Results of planned directional contrasts."
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          description: "Name of the contrast (e.g., 'High vs Low')."
+        t_statistic:
+          type: number
+        p_value:
+          type: number
+        p_value_adj:
+          type: number
+          description: "Adjusted p-value (Holm-Bonferroni)."
+        significant:
+          type: boolean
+  pairwise_comparisons:
+    type: array
+    description: "All pairwise comparisons with Holm-Bonferroni correction."
+    items:
+      type: object
+      properties:
+        group1:
+          type: string
+        group2:
+          type: string
+        mean_diff:
+          type: number
+        p_value_adj:
+          type: number
+        cohen_d:
+          type: number
+          description: "Effect size."
+  sensitivity_analysis:
+    type: object
+    description: "Results of the threshold sweep."
+    properties:
+      thresholds_tested:
+        type: array
+        items:
+          type: number
+      stability_metric:
+        type: string
+        description: "Qualitative assessment of stability (e.g., 'Stable', 'Unstable')."
+  citations:
+    type: array
+    description: "List of verified citations used in the analysis."
+    items:
+      type: object
+      properties:
+        author:
+          type: string
+        year:
+          type: integer
+        title:
+          type: string
+        doi:
+          type: string
+      required:
+        - author
+        - year
+        - title
+        - doi
+required:
+  - analysis_id
+  - participant_count
+  - conditions
+  - contrasts
+  - pairwise_comparisons
+  - sensitivity_analysis
+  - citations
+additionalProperties: false

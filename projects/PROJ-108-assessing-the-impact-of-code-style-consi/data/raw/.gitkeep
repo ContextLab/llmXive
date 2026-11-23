@@ -1,2 +1,1 @@
-# This file ensures the data/raw directory is tracked by git.
-# Place raw dataset downloads here.
+# This directory holds raw data artifacts.

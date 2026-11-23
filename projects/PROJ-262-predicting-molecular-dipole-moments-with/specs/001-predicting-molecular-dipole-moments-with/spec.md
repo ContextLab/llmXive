@@ -63,31 +63,31 @@ A researcher can apply permutation importance to the Random Forest and saliency 
 - **FR-004**: System MUST implement a lightweight SchNet-style GNN using PyTorch Geometric in CPU-only mode
 - **FR-005**: System MUST train and evaluate both GNN and Random Forest models with identical train/test splits across multiple random seeds, using 50 epochs with early stopping (patience=10)
 - **FR-006**: System MUST compute MAE and RMSE metrics for dipole moment predictions on a held-out test set
-- **FR-007**: System MUST apply permutation importance to Random Forest features and saliency mapping to GNN node embeddings (2 methods total)
+- **FR-007**: System MUST apply permutation importance to Random Forest features and saliency mapping to GNN node embeddings (multiple methods)
 - **FR-008**: System MUST perform paired t-tests (α=0.05) comparing RMSE distributions between GNN and baseline
 - **FR-009**: System MUST visualize feature importance maps on representative molecules to correlate with chemical intuition
 - **FR-010**: System MUST complete execution within 6h on 2 CPU cores (constraint applies to entire pipeline from data download through final visualization)
-- **FR-011**: System MUST validate predictions against QM9 quantum calculation reference data (physical experimental measurements are out of scope for this computational feature; Dipole moments from a benchmark molecular dataset are derived from DFT calculations at the BLYP/-31G(2df,p) level per the dataset specification)
-- **FR-012**: System MUST report confidence intervals for both MAE and RMSE (95% CI computed across 5 random seeds)
+- **FR-011**: System MUST validate predictions against QM quantum calculation reference data (physical experimental measurements are out of scope for this computational feature; Dipole moments from a benchmark molecular dataset are derived from DFT calculations at the BLYP/level per the dataset specification)
+- **FR-012**: System MUST report confidence intervals for both MAE and RMSE (confidence intervals computed across multiple random seeds)
 - **FR-013**: System MUST operate within 8GB memory footprint throughout entire pipeline execution
 
 ## Success Criteria *(mandatory)*
 
 ### Measurable Outcomes
 
-- **SC-001**: GNN model achieves lower MAE than Random Forest baseline on held-out test set with 95% confidence intervals for both MAE and RMSE (statistically significant at α=0.05)
+- **SC-001**: GNN model achieves lower MAE than Random Forest baseline on held-out test set with confidence intervals for both MAE and RMSE (statistically significant at α=0.05)
 - **SC-002**: Feature attribution analysis identifies at least 3 structural features contributing to predictive variance (e.g., electronegative atom placement, local bond angles)
 - **SC-003**: All experiments complete within 6h runtime on 2 CPU cores (constraint applies to entire pipeline from data download through final visualization)
-- **SC-004**: Paired t-tests confirm performance delta between 3D GNN and 2D baseline across all 5 random seeds
-- **SC-005**: Reproducibility achieved with consistent results across the 5 random seeds (RMSE variance < 10%)
+- **SC-004**: Paired t-tests confirm performance delta between D GNN and D baseline across multiple random seeds
+- **SC-005**: Reproducibility achieved with consistent results across multiple random seeds (RMSE variance < 10%)
 
 ## Assumptions
 
 - The QM9 dataset is accessible via the specified DOI and contains dipole moment reference values
 - PyTorch Geometric is available in the execution environment with CPU-only mode support
 - A random subset of QM9 is representative of the full dataset for dipole moment prediction.
-- **Hydration state limitation**: QM9 molecules are gas-phase DFT calculations without explicit solvent; hydration effects are out-of-scope for this feature and documented as a known limitation
-- **Conformational ensembles**: Single lowest-energy conformer per molecule from QM9 is used; ensemble sampling is documented as future work in research.md
+- **Hydration state limitation**: QM molecules are gas-phase DFT calculations without explicit solvent; hydration effects are out-of-scope for this feature and documented as a known limitation
+- **Conformational ensembles**: Single lowest-energy conformer per molecule from a standard benchmark molecular dataset is used; ensemble sampling is documented as future work in research.md
 - Physical measurement validation is out of scope for this computational feature; validation will use QM9 quantum calculation reference data as the ground truth standard (experimental validation is a downstream research requirement, not a feature requirement)
 - The 6h execution time limit on 2 CPU cores is a hard constraint that cannot be exceeded and applies to the entire pipeline execution
 - All cited literature URLs from the idea markdown are valid and accessible for reference validation (validated by T053 in tasks.md)

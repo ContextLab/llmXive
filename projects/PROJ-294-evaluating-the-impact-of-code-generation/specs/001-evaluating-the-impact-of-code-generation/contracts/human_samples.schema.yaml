@@ -1,0 +1,19 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Human Samples"
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task"
+  code:
+    type: "string"
+    description: "The human reference solution"
+  source:
+    type: "string"
+    const: "human"
+    description: "Source of the code"
+required:
+  - task_id
+  - code
+  - source
+additionalProperties: false

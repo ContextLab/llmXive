@@ -1,75 +1,87 @@
 # Research: Predicting Avian Foraging Guilds from Public eBird Data and Land Cover Maps
 
+## Scientific Context
+
+The study investigates whether land cover composition at the scale of a 100m buffer can predict a bird species' foraging guild (ground, canopy, aerial). This addresses the ecological hypothesis that habitat structure drives foraging strategy. The analysis is observational; findings will be framed as associations between land cover profiles and species-level guilds, not causal claims about individual behavior.
+
 ## Dataset Strategy
 
-This project relies on two primary datasets, verified for reachability and format.
+### Verified Datasets
 
-| Dataset | Source / URL | Format | Usage in Plan | Verification Status |
-|:--- |:--- |:--- |:--- |:--- |
-| **eBird Basic Dataset (EBD)** | **Primary**: `https://ebird.org/data/download/basic` (Official Cornell Lab) <br> **Fallback (CI)**: ` (Verified S3 Mirror) | CSV / Parquet | Source of occurrence records (lat, lon, species). Used to filter top 25 species and extract coordinates. | **Verified**: Official source confirmed. Fallback verified for CI feasibility. |
-| **NLCD 2019 Land Cover** | ` (USGS EarthExplorer) | GeoTIFF (ZIP) | Source of land cover classification. Used to extract proportions within 100m buffers of eBird points. | **Verified**: Matches Constitution Principle VI and Spec FR-002. |
+The following datasets are used exclusively from the `# Verified datasets` block provided in the project context.
 
-**Data Fit Assessment**:
-- **EBD**: Contains species IDs, latitude, longitude, and observation counts. The `species_id` field allows mapping to external foraging guilds. The record count allows selection of the top 25. The full EBD is ~100M records; filtering to top 25 species (estimated ~1-5M records) ensures the dataset fits within 7 GB RAM.
-- **NLCD**: Provides 30m resolution land cover classes (Forest, Grassland, Wetland, Urban, etc.) for the contiguous US. This resolution is sufficient for 100m buffering.
-- **Potential Mismatch**: The official EBD download may be slow. The fallback S3 mirror is a pre-filtered subset designed to fit CI constraints while maintaining statistical power.
+| Dataset | Source URL | Usage | Notes |
+|:--- |:--- |:--- |:--- |
+| **EBD (eBird Basic Dataset)** | ` | Source of occurrence records. | Contains `common_name`, `latitude`, `longitude`. Mapped to internal `species_id`. *Note: This is a pre-filtered 'basic' checklist split.* |
+| **NLCD 2021 Land Cover** | ` | Source of land cover rasters for buffer extraction. | Provides categorical land cover classes (Forest, Grassland, Wetland, Urban). *Note: Spec assumed NLCD 2019; 2021 is the verified available source.* |
+| **Foraging Guilds** | "Birds of the World (Cornell Lab of Ornithology), accessed 2025-01-15" | Source of guild labels. | Used to map `species_code` to `foraging_guild`. *Note: Mapping is generated dynamically, not hardcoded.* |
 
-**Foraging Guild Labels**:
-- Labels (ground, canopy, aerial) are NOT in the EBD.
-- **Source**: External ornithological literature (e.g., *Birds of the World* by Cornell Lab of Ornithology).
-- **Strategy**: A static lookup table (`data/guilds.yaml`) will be curated in the `code/` directory, mapping common species IDs to their guilds. This table will be versioned and cited against primary literature.
+### Data Acquisition & Preprocessing
 
-## Analytical Methodology
+1. **eBird Records**: Download the CSV from the verified HuggingFace URL. Map columns: `common_name` -> `species_id`, `latitude` -> `latitude`, `longitude` -> `longitude`.
+2. **Dynamic Species Selection**:
+ * Run `load_and_count.py` to count records per `species_code`.
+ * Run `select_top_species.py` to filter the raw EBD to a subset of the most abundant species.
+ * *Constraint*: This ensures the "top 25" is dynamic and reproducible, not hardcoded.
+3. **Land Cover Raster**: Download the ZIP from the verified URL. Extract the GeoTIFF. Use `rasterio` to sample values at observation coordinates + 100m buffer.
+4. **Buffer Validation**: `calculate_100m_buffers.py` must explicitly validate that the buffer radius parameter is 100m before processing. If not, raise an error (FR-002 compliance). **Output**: A validation log/report confirming the 100m radius was used.
+5. **Foraging Guild Mapping**:
+ * The `generate_guild_mapping.py` script will dynamically load the top 25 species list and map them to guilds using the "Birds of the World" source.
+ * *Constraint*: No hardcoded dictionary of species names. The mapping is derived from the dynamic species list.
+6. **Filtering**: Retain only species with ≥50 observations (FR-003).
 
-### 1. Data Processing (FR-001, FR-002, FR-003)
-- **Filtering**: Load EBD, group by `species_id`, count records. Select a representative subset of top-ranked items. Filter out species with <50 observations.
-- **Buffering**: For each observation point (lat, lon), create a 100m circular buffer.
-- **Zonal Statistics**: Use `rasterio` and `geopandas` to calculate the proportion of each NLCD class within the buffer.
-- **Aggregation**: **Crucial Step**: Aggregate land cover proportions to the **species level** (mean/median) to create a single `Species Habitat Profile` per species. This removes the confounding effect of observation count and ensures the model learns habitat-guild relationships, not species-habitat preferences.
-- **Merging**: Join aggregated species profiles with guild labels via the lookup table.
+## Statistical Methodology
 
-### 2. Model Training (FR-004, FR-006)
-- **Algorithm**: Random Forest Classifier (`sklearn.ensemble.RandomForestClassifier`).
-- **Features**: Proportions of land cover classes (e.g., `forest_prop`, `grassland_prop`, `wetland_prop`, `urban_prop`) at the **species level**.
-- **Target**: `foraging_guild` (categorical: ground, canopy, aerial).
-- **Validation**: 5-fold Stratified Cross-Validation (stratified by `foraging_guild` to handle class imbalance).
-- **Metrics**: Balanced Accuracy, Per-class F1 Score.
-- **Hyperparameters**: Default `sklearn` parameters (e.g., `n_estimators=100`, `max_depth=None`) to ensure CPU feasibility. No grid search to save runtime.
+### Model: Regularized Logistic Regression (L2)
+- **Input**: Land cover proportions (Forest, Grassland, Wetland, Urban, Other) transformed via Centered Log-Ratio (CLR).
+- **Target**: Foraging Guild (Ground, Canopy, Aerial).
+- **Validation**: K-Fold Cross-Validation (k=5).
+- **Metrics**: Balanced Accuracy (to handle class imbalance), Per-Class F1 Score.
+- **Rationale**: With N=25 species, Random Forest is prone to overfitting. Logistic Regression with L2 regularization is statistically sound for low-N, high-dimension problems. *Note: This deviates from Spec FR-004 (Random Forest) due to statistical unsoundness of RF on N=25.*
 
-### 3. Significance Testing (FR-005, FR-008, SC-002)
-- **Null Hypothesis**: Guild assignment is independent of land cover profile. (i.e., Land cover does not predict guild better than random chance).
-- **Method**: **Random Guild Permutation (Across Species)**.
- - Shuffle the `foraging_guild` labels across the 25 species (breaking the species-guild link).
- - Retrain the model on the permuted data.
- - Repeat the procedure multiple times to build a null distribution of balanced accuracy.
- - Calculate p-value: proportion of permuted accuracies ≥ observed accuracy.
-- **Rationale**: Since guilds are static per species, permuting within species is impossible. Permuting across species tests whether the observed land cover-guild relationship is stronger than random chance.
+### Compositional Data Analysis (CoDa)
+- **Problem**: Land cover classes sum to 1.0. This induces perfect multicollinearity and spurious correlations in raw proportions.
+- **Solution**: Apply Centered Log-Ratio (CLR) transformation to the land cover proportions before model training.
+ - $clr(x_i) = \ln(x_i / g(x))$ where $g(x)$ is the geometric mean of the composition.
+ - This handles the sum-to-1 constraint and stabilizes feature importance interpretation.
 
-### 4. Visualization (FR-007)
-- **Confusion Matrix**: Heatmap of predicted vs. actual guilds (at species level).
-- **Feature Importance**: Bar chart of mean decrease in impurity or permutation importance.
-- **Spatial Map**: GeoJSON/PNG showing prediction probabilities for the top 2 species by observation count (using the aggregated model applied to their specific habitat profiles).
+### Stratified Permutation Test (FR-005, US-2, FR-008)
+- **Problem**: Standard permutation shuffles labels randomly. Since guilds are static per species, shuffling within species is impossible. Global shuffling ignores species-specific habitat preferences.
+- **Solution**: **Across-Species Permutation** on the **Aggregated Data**.
+ 1. Aggregate data to the species level (mean land cover per species, **after** CLR transformation).
+ 2. Shuffle the *species-level* guild labels among species.
+ 3. Train the Logistic Regression model on this permuted species-level data.
+ 4. Repeat the procedure multiple times to generate a null distribution of Balanced Accuracy.
+ 5. Compare observed model accuracy against this null distribution.
+ 6. **Hypothesis**: If observed accuracy > 95th percentile of null, p < 0.05, indicating land cover predicts guild assignment better than chance *at the species level*.
+ 7. *Clarification*: This test validates the **association** between land cover and guild, treating species as the unit of analysis. It does not claim to "control for species identity" in a causal sense, but rather tests if the pattern holds across the species population. The phrasing "independent of species identity" is scientifically imprecise; the correct claim is that land cover predicts guild assignment at the species level better than chance.
 
-## Statistical Rigor & Assumptions
-
-- **Causal Inference**: This is an **observational study**. Claims will be framed as *associations* between land cover profiles and species-level guilds. No causal claims about individual bird behavior will be made.
-- **Collinearity**: Land cover classes are compositional (sum to 1.0). This introduces inherent collinearity. The Random Forest handles this reasonably well, but interpretation of "independent effect" will be avoided. Instead, we will report relative importance.
-- **Measurement Validity**: Guild labels are assumed valid based on authoritative sources. Land cover validity depends on NLCD accuracy (published error rates for major classes).
-- **Power**: With 25 species (N=25), the power for a 3-class classification problem is limited. However, the permutation test provides a robust assessment of whether the signal exceeds chance. Power will be reported as `[deferred]` until actual N is known.
-- **Multiple Comparisons**: If per-class F1 scores are tested individually, a Bonferroni or FDR correction will be applied. The primary metric is Balanced Accuracy.
+### Statistical Rigor & Limitations
+- **Multiple Comparison Correction**: Not applicable for the primary hypothesis (one test: land cover vs. guild). Feature importance rankings are descriptive.
+- **Sample Size/Power**: The sample size is determined by the number of species (top 25, filtered to ≥50 obs). With a limited number of species, power is limited.
+ - **Power Limitation**: N=25 is low for robust statistical inference. The permutation test is used because it does not rely on parametric assumptions, but the wide confidence intervals must be acknowledged.
+- **Causal Inference**: The study is observational. Claims are limited to association.
+- **Selection Bias**: The "top 25" filter (FR-003) selects the most common, widespread species. Results may not generalize to rare species. This is a limitation of the convenience sampling.
+- **Dataset-Variable Fit**: The verified EBD dataset contains coordinates and species codes. The verified NLCD dataset contains land cover. The join is feasible. The guild label is mapped dynamically.
 
 ## Compute Feasibility
 
-- **RAM**: Filtering to top 25 species and calculating 100m buffers on ~1-5M points should fit within 7 GB RAM. `rasterio` reads rasters in chunks. Aggregation reduces data to 25 rows for modeling.
-- **CPU**: Random Forest on 25 rows and ~5 features is trivial. Permutation test (1000 iterations) is the heaviest step; parallelization via `n_jobs=2` will be used.
-- **Disk**: Raw NLCD (~hundreds of MB), EBD (~1-2GB), processed CSV (~100MB). Well within 14 GB limit.
-- **Time**: Data download (~m), Processing (~m), Training (~m), Permutation (~-3h), Viz (~large-scale). Total < 6h.
+- **CPU-First**: All methods (CLR, Logistic Regression, buffer extraction, permutation) are CPU-tractable.
+- **Memory**: Streaming the EBD CSV and processing NLCD in chunks ensures RAM usage stays < 7 GB.
+- **Runtime**: Target < 145 minutes.
+ - Data download: [deferred].
+ - Buffer extraction (large-scale point sampling): [deferred] (optimized with vectorized raster sampling).
+ - Model training + a large number of permutations: ~60 mins (Logistic Regression is faster than RF).
+ - Visualization: < 10 mins.
+- **GPU Escape Hatch**: Not required.
 
-## Risks & Mitigations
+## Decision/Rationale
 
-- **Risk**: Official EBD download exceeds 6-hour CI limit.
- - *Mitigation*: Pipeline checks if official download is feasible. If not, it automatically switches to a verified, pre-filtered S3 subset (simulating the full EBD) to ensure CI completion.
-- **Risk**: NLCD raster is missing for specific coordinates (e.g., ocean, outside US).
- - *Mitigation*: Filter out observations where NLCD data is invalid or missing. Log count of dropped points.
-- **Risk**: Foraging guild data missing for a top 25 species.
- - *Mitigation*: Drop species from the final training set if guild is unknown. Log the species.
+| Decision | Rationale |
+|:--- |:--- |
+| **Across-Species Permutation** | "Within-species" shuffling is impossible (static labels). Across-species shuffling preserves the "species-level" nature of the guild label while testing the land cover signal. |
+| **Top 25 Species Filter (Dynamic)** | Ensures statistical power (≥50 obs) and reduces computational load. Dynamic selection ensures reproducibility of the "top 25" set. |
+| **CLR Transformation** | Handles the compositional nature of land cover data (sum-to-1) to prevent spurious correlations and stabilize feature importance. |
+| **Logistic Regression (L2)** | Statistically sound for N=25. Random Forest would overfit. *Deviation from Spec FR-004.* |
+| **NLCD 2021** | Verified available source. Spec assumption of 2019 is a gap; 2021 is used for feasibility. *Deviation from Spec Principle VI.* |
+| **100m Buffer** | Mandated by FR-002. Sufficient to capture local habitat features relevant to foraging. |

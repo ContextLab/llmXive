@@ -3,14 +3,13 @@ Unit tests for the memory_guard utility module.
 """
 
 import unittest
-from unittest.mock import patch, MagicMock
 from code.utils.memory_guard import (
+    adjust_batch_size,
+    check_memory_sufficient,
     get_available_memory_gb,
     get_memory_usage_percent,
-    adjust_batch_size,
-    check_memory_sufficient
 )
-import psutil
+from unittest.mock import MagicMock, patch
 
 
 class TestMemoryGuard(unittest.TestCase):
@@ -20,7 +19,7 @@ class TestMemoryGuard(unittest.TestCase):
         """Test conversion of available bytes to GB."""
         # Mock return value: 4GB available
         mock_virtual_memory.return_value = MagicMock(available=4 * 1024**3)
-        
+
         result = get_available_memory_gb()
         self.assertAlmostEqual(result, 4.0, places=1)
 
@@ -28,7 +27,7 @@ class TestMemoryGuard(unittest.TestCase):
     def test_get_memory_usage_percent(self, mock_virtual_memory):
         """Test retrieval of memory usage percentage."""
         mock_virtual_memory.return_value = MagicMock(percent=75.5)
-        
+
         result = get_memory_usage_percent()
         self.assertEqual(result, 75.5)
 

@@ -10,7 +10,7 @@ import tempfile
 import time
 from typing import Dict, Any, Optional
 from enum import Enum
-
+from dataclasses import dataclass
 
 class ExecutionStatus(Enum):
     PASS = "pass"
@@ -56,6 +56,22 @@ class ExecutionResult:
             "execution_time": self.execution_time
         }
 
+    def __repr__(self) -> str:
+        return f"ExecutionResult(status={self.status}, output={self.output!r}, error={self.error!r}, execution_time={self.execution_time})"
+
+
+@dataclass
+class Result:
+    """Simple result object returned by the public API."""
+    status: str
+    output: str = ""
+    error: str = ""
+    execution_time: float = 0.0
+
+    def __repr__(self) -> str:
+        return (f"Result(status={self.status!r}, output={self.output!r}, "
+                f"error={self.error!r}, execution_time={self.execution_time})")
+
 
 def _check_security_violations(code: str) -> None:
     """Check for obvious security violations in the code."""
@@ -98,27 +114,21 @@ def execute_code(code: str, timeout: int = 5, memory_limit_mb: int = 512) -> Dic
     try:
         start_time = time.time()
 
-        # Set up resource limits
-        # Note: resource.setrlimit is Unix-only
+        # Set up resource limits (Unix only)
         if sys.platform != 'win32':
-            # Set memory limit (in bytes)
             memory_limit_bytes = memory_limit_mb * 1024 * 1024
             try:
                 soft, hard = resource.getrlimit(resource.RLIMIT_AS)
                 resource.setrlimit(resource.RLIMIT_AS, (memory_limit_bytes, hard))
             except (ValueError, resource.error):
-                # Some systems might not support RLIMIT_AS
                 pass
 
-            # Set CPU time limit (in seconds)
             try:
                 soft, hard = resource.getrlimit(resource.RLIMIT_CPU)
                 resource.setrlimit(resource.RLIMIT_CPU, (int(timeout), hard))
             except (ValueError, resource.error):
                 pass
 
-        # Execute the code using a subprocess to enforce timeout
-        # We use a separate process to handle the timeout cleanly
         proc = subprocess.Popen(
             [sys.executable, temp_path],
             stdout=subprocess.PIPE,
@@ -149,7 +159,6 @@ def execute_code(code: str, timeout: int = 5, memory_limit_mb: int = 512) -> Dic
                 }
 
         except subprocess.TimeoutExpired:
-            # Kill the process group on Unix
             if sys.platform != 'win32':
                 try:
                     os.killpg(os.getpgid(proc.pid), signal.SIGKILL)
@@ -157,7 +166,6 @@ def execute_code(code: str, timeout: int = 5, memory_limit_mb: int = 512) -> Dic
                     pass
             else:
                 proc.kill()
-
             proc.wait()
             raise TimeoutError(f"Execution timed out after {timeout} seconds")
 
@@ -166,7 +174,6 @@ def execute_code(code: str, timeout: int = 5, memory_limit_mb: int = 512) -> Dic
     except Exception as e:
         raise ExecutionError(f"Execution failed: {str(e)}")
     finally:
-        # Clean up temporary file
         if os.path.exists(temp_path):
             os.remove(temp_path)
 
@@ -195,19 +202,77 @@ def broken() -> None:
     pass
 
 
+# ----------------------------------------------------------------------
+# Public API required by task T005
+# ----------------------------------------------------------------------
+def _dict_to_result(d: Dict[str, Any]) -> Result:
+    """
+    Convert the dictionary returned by ``execute_code`` into a ``Result``.
+    """
+    return Result(
+        status=d.get("status", ExecutionStatus.ERROR.value),
+        output=d.get("output", ""),
+        error=d.get("error", ""),
+        execution_time=d.get("execution_time", 0.0)
+    )
+
+
+def run_in_sandbox(code: str) -> Result:
+    """
+    Execute ``code`` in the sandbox with the default timeout (5 seconds).
+
+    Returns:
+        Result: An object with ``status`` equal to ``'pass'`` when the
+        code runs without errors, otherwise ``'fail'``, ``'timeout'``,
+        or ``'error'`` depending on the failure mode.
+    """
+    try:
+        exec_dict = execute_code(code, timeout=5)
+        return _dict_to_result(exec_dict)
+    except SandboxError as e:
+        # Map sandbox‑specific exceptions to a generic error result
+        return Result(status=ExecutionStatus.ERROR.value, error=str(e))
+    except Exception as e:
+        # Any unexpected exception is also reported as an error
+        return Result(status=ExecutionStatus.ERROR.value, error=str(e))
+
+
+def execute_with_timeout(code: str, timeout: int) -> Result:
+    """
+    Execute ``code`` in the sandbox enforcing a custom ``timeout`` (seconds).
+
+    Args:
+        code: Python source code to run.
+        timeout: Maximum allowed execution time in seconds.
+
+    Returns:
+        Result instance mirroring the outcome of the execution.
+    """
+    if not isinstance(timeout, (int, float)) or timeout <= 0:
+        raise ValueError(f"Timeout must be a positive number, got {timeout}")
+
+    try:
+        exec_dict = execute_code(code, timeout=int(timeout))
+        return _dict_to_result(exec_dict)
+    except SandboxError as e:
+        return Result(status=ExecutionStatus.ERROR.value, error=str(e))
+    except Exception as e:
+        return Result(status=ExecutionStatus.ERROR.value, error=str(e))
+
+
 def main():
     """Main entry point for CLI usage."""
     # Example usage
-    code = """
-    print("Hello from sandbox")
-    result = sum(range(10))
-    print(f"Sum: {result}")
-    """
+    sample_code = """
+print("Hello from sandbox")
+result = sum(range(10))
+print(f"Sum: {result}")
+"""
     try:
-        result = execute_code(code, timeout=5)
-        print(f"Status: {result['status']}")
-        print(f"Output: {result['output']}")
-        print(f"Error: {result['error']}")
+        result = run_in_sandbox(sample_code)
+        print(f"Status: {result.status}")
+        print(f"Output: {result.output}")
+        print(f"Error: {result.error}")
     except SandboxError as e:
         print(f"Sandbox error: {e}")
 

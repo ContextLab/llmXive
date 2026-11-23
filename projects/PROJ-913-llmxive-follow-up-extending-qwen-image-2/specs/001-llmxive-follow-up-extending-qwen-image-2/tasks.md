@@ -10,7 +10,7 @@
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Story]**: Which user story this story belongs to (e.g., US1, US2, US3)
 - Include exact file paths in descriptions
 
 ## Path Conventions
@@ -24,8 +24,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/`)
-- [ ] T002 Initialize Python project with `diffusers`, `transformers`, `torch`, `scikit-learn`, `pandas`, `numpy`, `requests`, `huggingface_hub`, `seaborn`, `datasets`, `pytest`, `statsmodels` dependencies in `code/requirements.txt`
+- [ ] T001 Create root project directory structure (`projects/PROJ-913-llmxive-follow-up-extending-qwen-image-2/`) and `.gitignore`
+- [ ] T001a Create `code/` directory tree (`code/data/`, `code/inference/`, `code/analysis/`, `code/utils/`) and `__init__.py` files
+- [ ] T001b Create `tests/`, `data/`, `outputs/`, `state/` directory trees and `.gitkeep` files
+- [X] T002 Initialize Python project with `diffusers`, `transformers`, `torch`, `scikit-learn`, `pandas`, `numpy`, `requests`, `huggingface_hub`, `seaborn`, `datasets`, `pytest`, `statsmodels`, `robust` dependencies in `code/requirements.txt`
 - [ ] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools in `code/`
 
 ---
@@ -39,45 +41,47 @@
 Examples of foundational tasks (adjust based on your project):
 
 - [ ] T004 Setup data directory structure (`data/prompts/`, `data/models/`, `data/outputs/base/`, `data/outputs/rl_unified/`) and `.gitkeep` files
-- [ ] T005 [P] Implement global random seed pinning utility in `code/utils/seeding.py` (A fixed random seed will be used to ensure reproducibility.)
-- [ ] T006 [P] Setup configuration management for batch sizes and CPU offloading limits in `code/config.py`
-- [ ] T007 Create base data models (PromptSet, ModelWeights, GeneratedImage, EvaluationScore) in `code/models/entities.py`
-- [ ] T008 Configure logging infrastructure to `code/utils/logger.py` with file rotation for long-running jobs
-- [ ] T009 Setup environment configuration management for HF token and cache paths in `code/config.py`
+- [X] T005 [P] Implement global random seed pinning utility in `code/utils/seeding.py` (A fixed random seed will be used to ensure reproducibility.)
+- [X] T006 [P] Setup configuration management for batch sizes, CPU offloading limits, `MAX_RECURATION_ITERATIONS` (default 3), and `VARIANCE_THRESHOLD` key in `code/config.py`
+- [X] T007 Create base data models (PromptSet, ModelWeights, GeneratedImage, EvaluationScore) in `code/models/entities.py`
+- [X] T008 Configure logging infrastructure to `code/utils/logger.py` with file rotation for long-running jobs
+- [X] T009 Setup environment configuration management for HF token and cache paths in `code/config.py`
+- [X] T006a [US1] Implement `dependency_check.py` to verify `diffusers`/`transformers` compatibility with Qwen-Image-2.0 by loading the model config and checking for required ops; **MUST abort if specific unlisted ops are required** to mitigate the risk stated in the Spec's 'Assumptions' section. in `code/data/dependency_check.py`. **Note**: Assumes T002 and T006 are complete. **Depends on T006**.
+- [X] T006b [US1] Define and populate the `QWEN_IMAGE_2_0_SHA256` constant in `code/config.py` with the value from the official Qwen-Image-2.0 Technical Report. **Must be executed before T014**. in `code/config.py`.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
 ---
 
-## Phase 3: User Story 1 - Data Acquisition and Prompt Curation (Priority: P1) 🎯 MVP
+## Phase 3: User Story 1 - Data Acquisition & Pilot Curation (Priority: P1) 🎯 MVP
 
-**Goal**: Acquire model weights and curate leakage-free prompt sets (In-Distribution vs OOD)
+**Goal**: Acquire model weights and curate leakage-free *Pilot* prompt sets (In-Distribution vs OOD)
 
-**Independent Test**: Verify model weights exist with correct SHA-256 checksums and OOD prompts have < 0.3 cosine similarity to ID centroids.
+**Independent Test**: Verify model weights exist with correct SHA-256 checksums and Verify model weights exist with correct SHA-256 checksums and OOD prompts have < 0.3 cosine similarity to ID centroids.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Unit test for SHA-256 checksum verification in `tests/unit/test_data_acquisition.py`
-- [ ] T011 [P] [US1] Unit test for latent-space similarity check (< 0.3 threshold) in `tests/unit/test_prompt_curation.py`
-- [ ] T012 [P] [US1] Integration test for full download and validation flow in `tests/integration/test_data_pipeline.py`
+- [X] T010 [P] [US1] Unit test for SHA-256 checksum verification in `tests/unit/test_data_acquisition.py`
+- [X] T011 [P] [US1] Unit test for latent-space similarity check (< 0.3 threshold) in `tests/unit/test_prompt_curation.py`
+- [X] T012 [P] [US1] Integration test for full download and validation flow in `tests/integration/test_data_pipeline.py`
 
-### Implementation for User Story 1
+### Implementation for User Story 1 (Pilot Only)
 
-- [ ] T013 [P] [US1] Implement `download_models.py` to fetch `Qwen/Qwen-Image-2.0` and `Qwen/Qwen-Image-2.0-RL` from Hugging Face with retry logic (limited attempts, exponential backoff) in `code/data_acquisition.py`
-- [ ] T014 [US1] Implement `verify_checksums.py` to validate downloaded weights against repository manifest in `code/data_acquisition.py`
-- [ ] T015a [US1] Implement `curate_prompts.py` to generate the **Pilot** prompt sets (N=20 ID, N=20 OOD). **Must include**: (1) Dynamic scaling logic to measure runtime, (2) Abort if OOD contamination detected (integrated logic), (3) Logging for pilot stats. **Must run BEFORE T016**. Output: `data/prompts/pilot_in_distribution.csv`, `data/prompts/pilot_ood.csv` in `code/prompt_curation.py`.
-- [ ] T016 [US1] Implement `validate_ood.py` to compute cosine similarity between OOD embeddings and ID centroids. **Must include**: (1) Abort with `[CRITICAL: DATA LEAKAGE DETECTED]` if > 0.3 (integrated logic), (2) Logging for validation metrics. **Must run AFTER T015a**. Output: `data/prompts/validation_report.json` in `code/prompt_curation.py`.
-- [ ] T015b [US1] Implement `curate_prompts.py` (Full Run) to generate the **Target** prompt sets (N=500 or Max-Feasible). **Must run ONLY after T034_pilot_power_gate (Power Analysis) confirms feasibility**. Output: `data/prompts/in_distribution.csv`, `data/prompts/ood.csv` in `code/prompt_curation.py`.
+- [X] T013 [P] [US1] Implement `download_models.py` to fetch `Qwen/Qwen-Image-2.0` and `Qwen/Qwen-Image-2.0-RL` from Hugging Face with retry logic (limited attempts, exponential backoff) in `code/data/download_models.py`
+- [X] T014 [US1] Implement `verify_checksums.py` to **verify downloaded weights by computing local SHA-256 hashes and comparing them against the `QWEN_IMAGE_2_0_SHA256` constant defined in `code/config.py` (populated by T006b)**. **MUST abort with exit code 1 if mismatch**. in `code/data/verify_checksums.py`. **Depends on T006b**.
+- [X] T015a [US1] Implement `curate_pilot.py` to generate the **Pilot** prompt sets (N=20 ID, N=20 OOD). **Must include**: (1) Dynamic scaling logic to measure runtime, (2) **Strict Abort Logic**: If OOD contamination is detected or if the primary LAION-2B Physics/History shard is exhausted, **ABORT with exit code 1 (NO FALLBACK)**; (3) **Re-sampling Mechanism**: If re-curation is needed, **retry with a new random seed and fetch from an alternative shard if available**; (4) Logging for pilot stats. **Must run BEFORE T016**. **Function Name**: `curate_pilot_prompts`. Output: `data/prompts/pilot_in_distribution.csv`, `data/prompts/pilot_ood.csv` in `code/data/curate_pilot.py`.
+- [ ] T016 [US1] Implement `validate_ood.py` to compute cosine similarity between OOD embeddings and ID centroids. **Must include**: (1) Use `clip-vit-large-patch14` for embeddings, (2) Compute ID centroid mean, (3) **Abort with `[CRITICAL: DATA LEAKAGE DETECTED]` and exit code 1 if any OOD prompt has similarity > 0.3**, (4) Logging for validation metrics. **Must run AFTER T015a**. Output: `data/prompts/validation_report.json` in `code/data/validate_ood.py`.
+- [ ] T016a [US1] Implement `pipeline_gate.py` to implement the **orchestration logic** that halts the entire pipeline (exit code 1) if T016 (OOD validation) fails after 2 re-curation iterations. **MUST prevent execution of FR-003/FR-004** (T020/T020a) if the gate is not passed. in `code/utils/pipeline_gate.py`. **Depends on T016 output**.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Pilot only until T034_pilot_power_gate clears Full Run)
+**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (Pilot only until T034 (Power Gate) clears Full Run)
 
 ---
 
-## Phase 4: User Story 2 - CPU-Only Inference Execution (Priority: P2)
+## Phase 4: User Story 2 - Pilot Inference Execution (Priority: P2)
 
-**Goal**: Generate images for both models on CPU-only environment using diffusers with float16 and offloading
+**Goal**: Generate images for both models on CPU-only environment using diffusers with float16 and offloading (Pilot Run Only)
 
 **Independent Test**: Verify images are generated within time limits without OOM crashes.
 
@@ -86,17 +90,16 @@ Examples of foundational tasks (adjust based on your project):
 - [ ] T018 [P] [US2] Unit test for memory-batch calculation logic in `tests/unit/test_inference_batching.py`
 - [ ] T019 [P] [US2] Integration test for single-prompt generation on CPU in `tests/integration/test_cpu_inference.py`
 
-### Implementation for User Story 2
+### Implementation for User Story 2 (Pilot)
 
-- [ ] T020 [P] [US2] Implement `inference.py` to load Base and RL-Unified models with `torch_dtype=torch.float16` and `device_map="cpu"` (or CPU offloading) in `code/inference.py`
-- [ ] T020a [US2] Implement `generate_batch.py` (Pilot) to process **Pilot** prompts (from T015a) in dynamic batches. **Must include**: Memory monitoring, garbage collection, and runtime logging. Output: `data/outputs/pilot_base/`, `data/outputs/pilot_rl_unified/` in `code/inference.py`.
-- [ ] T020b [US2] Implement `generate_batch.py` (Full) to process **Target** prompts (from T015b) in dynamic batches. **Must run ONLY after T034_pilot_power_gate (Power Analysis) clears the sample size**. Output: `data/outputs/base/`, `data/outputs/rl_unified/` in `code/inference.py`.
-- [ ] T022 [US2] Implement `save_images.py` to save generated images to `data/outputs/base/` and `data/outputs/rl_unified/` with naming convention `{prompt_id}_{model}_{seed}.png` in `code/inference.py`
-- [ ] T023 [US2] Implement `monitor_memory.py` to trigger garbage collection and reduce batch size if RAM usage approaches a high magnitude. in `code/inference.py`
-- [ ] T024 [US2] Add retry logic for generation failures (e.g., transient model loading issues) in `code/inference.py`
-- [ ] T025 [US2] Add logging for batch progress, generation time, and memory stats in `code/inference.py`
+- [ ] T020 [P] [US2] Implement `inference.py` to load Base and RL-Unified models with `torch_dtype=torch.float16` and `device_map="cpu"` (or CPU offloading) in `code/inference/inference.py`
+- [ ] T020a [US2] Implement `generate_pilot.py` to process **Pilot** prompts (from T015a) in dynamic batches. **Must include**: Memory monitoring, garbage collection, and runtime logging. **Function Name**: `generate_pilot_images`. Output: `data/outputs/pilot_base/`, `data/outputs/pilot_rl_unified/` in `code/inference/generate_pilot.py`.
+- [ ] T022 [US2] Implement `save_images.py` to save generated images to `data/outputs/base/` and `data/outputs/rl_unified/` with naming convention `{prompt_id}_{model}_{seed}.png` in `code/inference/save_images.py`
+- [ ] T023 [US2] Implement `monitor_memory.py` to trigger garbage collection and reduce batch size if RAM usage approaches a high magnitude. in `code/inference/monitor_memory.py`
+- [ ] T024 [US2] Add retry logic for generation failures (e.g., transient model loading issues) in `code/inference/inference.py`
+- [ ] T025 [US2] Add logging for batch progress, generation time, and memory stats in `code/inference/inference.py`
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (Pilot images ready; Full images pending T034_pilot_power_gate)
+**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently (Pilot images ready; Full images pending T034 (Power Gate))
 
 ---
 
@@ -104,34 +107,45 @@ Examples of foundational tasks (adjust based on your project):
 
 **Goal**: Determine if full-scale generation is statistically feasible before proceeding.
 
-- [ ] T034_pilot_power_gate [US3] Implement `power_analysis.py` to calculate achieved statistical power and required sample size using `statsmodels` based on **Pilot** results (T020a). **CRITICAL GATE**: If required N > feasible N (prohibitively long runtime), output `STOP` and block T015b/T020b. If feasible, output `GO` and recommend N. Output: `data/results/power_analysis.json` in `code/analysis.py`. **Must run after T020a (Pilot Inference) and before T015b (Full Curation) / T020b (Full Inference)**.
+- [ ] T034 [US3] Implement `power_analysis.py` to calculate achieved statistical power, **Minimum Detectable Effect Size (MDES) at N=500 ** using **Cohen's d on the Generalization Gap and Pilot Degradation Variance** with ** (Wikipedia: Power (statistics), https://en.wikipedia.org/wiki/Power_(statistics))**, and a **"Variance Saturation Check" flag** (indicating if VLM score variance < 0.01) using `statsmodels` based on **Pilot** results (T020a). **CRITICAL GATE**: If required N > feasible N (prohibitively long runtime), output `STOP` and block T015b/T020b. If feasible, output `GO` and recommend N: **If Pilot variance allows, N=500; else, calculate N based on MDES and cap at Max-Feasible**. **Output**: `data/results/power_analysis_report.json` (containing power, MDES, Variance Saturation flag, and **recommended_N**) in `code/analysis/power_analysis.py`. **Must run after T020a (Pilot Inference) and before T015b (Full Curate) / T020b (Full Infer)**.
+
+- [ ] T015b [US1] Implement `curate_full.py` to generate the **Target** prompt sets (N=`recommended_N` from T034). **Must run ONLY after T034 (Power Gate) confirms feasibility and outputs 'GO'**. **Function Name**: `curate_full_prompts`. Output: `data/prompts/in_distribution.csv`, `data/prompts/ood.csv` in `code/data/curate_full.py`.
+
+- [ ] T020b [US2] Implement `generate_full.py` to process **Target** prompts (from T015b) in dynamic batches. **Must run ONLY after T034 (Power Gate) clears the sample size**. **Function Name**: `generate_full_images`. Output: `data/outputs/base/`, `data/outputs/rl_unified/` in `code/inference/generate_full.py`.
 
 ---
 
-## Phase 5: User Story 3 - Statistical Analysis of Generalization Gap (Priority: P3)
+## Phase 5: User Story 1 & 2 - Full Inference & User Story 3 - Statistical Analysis (Priority: P3)
 
-**Goal**: Compute score degradation and perform statistical tests on the Generalization Gap
+**Goal**: Generate full dataset (if feasible) and perform statistical analysis on the Generalization Gap
 
 **Independent Test**: Verify statistical test outputs correct p-values and gap metrics on synthetic data.
+
+### Implementation for Full Inference (Post-Power Gate)
+
+- [ ] T015b [US1] Implement `curate_full.py` to generate the **Target** prompt sets (N=500 or Max-Feasible). **Must run ONLY after T034 (Power Gate) confirms feasibility**. **Function Name**: `curate_full_prompts`. Output: `data/prompts/in_distribution.csv`, `data/prompts/ood.csv` in `code/data/curate_full.py`.
+- [ ] T020b [US2] Implement `generate_full.py` to process **Target** prompts (from T015b) in dynamic batches. **Must run ONLY after T034 (Power Gate) clears the sample size**. **Must integrate T023 (`monitor_memory.py`) to enforce <7GB RAM and Runtime constraints
+
+The research question, the method, and the references remain unchanged.**. **Function Name**: `generate_full_images`. Output: `data/outputs/base/`, `data/outputs/rl_unified/` in `code/inference/generate_full.py`.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [ ] T026 [P] [US3] Unit test for score calculation (Aesthetics, Prompt Adherence, Identity) in `tests/unit/test_scoring.py`
-- [ ] T027 [P] [US3] Unit test for Wilcoxon test implementation with mock data in `tests/unit/test_analysis.py`
-- [ ] T028 [P] [US3] Integration test for full analysis pipeline (scoring -> degradation -> Wilcoxon) in `tests/integration/test_analysis_pipeline.py`
+- [ ] T027 [P] [US3] Unit test for Paired T-Test with HC3 implementation with mock data in `tests/unit/test_analysis.py`
+- [ ] T028 [P] [US3] Integration test for full analysis pipeline (scoring -> degradation -> Paired T-Test) in `tests/integration/test_analysis_pipeline.py`
 
-### Implementation for User Story 3
+### Implementation for User Story 3 (Statistical Analysis)
 
-- [ ] T029 [P] [US3] Implement `score_images.py` to load INT8 quantized VLM reward models (Aesthetics, Prompt Adherence, Identity) and score all images (Pilot and Full) in `code/scoring.py`
-- [ ] T030 [US3] Implement `compute_degradation.py` to calculate mean score degradation (Base - RL) for ID and OOD sets separately. **Input**: VLM scores from T029. **Output**: `data/results/degradation_scores.csv` in `code/analysis.py`.
-- [ ] T031 [US3] Implement `calculate_gap.py` to compute the "Generalization Gap" (OOD degradation - ID degradation) for each prompt. **Input**: Degradation scores (T030) AND Human Ground Truth scores (T034_human_ground_truth) for validation. Output: `data/results/gap_scores.csv` in `code/analysis.py`.
-- [ ] T032 [US3] Implement `statistical_test.py` to perform **Wilcoxon signed-rank test** with **10,000 bootstrap resampling iterations** on the paired degradation values (Base vs RL) to determine significance (p < 0.05) as per FR-007. Output: `data/results/wilcoxon_results.json` in `code/analysis.py`.
-- [ ] T033 [US3] Implement `statistical_test.py` (Gap Test) to perform **Independent Samples T-Test (Welch's t-test)** on the gap distributions (ID gap vs OOD gap) to determine significance as per Plan. **Input**: Gap scores (T031) AND Human Ground Truth scores (T034_human_ground_truth) for validation. Output: `data/results/welch_results.json` in `code/analysis.py`.
-- [ ] T034_human_ground_truth [US3] Implement `human_proxy.py` to fetch and load a **static, human-annotated benchmark dataset** (e.g., from a public research repository) to serve as independent ground truth. **Output**: `data/results/human_ground_truth_scores.csv`. **Must run before T031/T033**. Note: This is for validation in T031/T033, NOT an input to T030. in `code/human_proxy.py`.
-- [ ] T035 [US3] Implement `variance_flagging.py` to calculate score variance per prompt (e.g., using IQR or Coefficient of Variation) and flag prompts exceeding a predefined threshold (defined in `code/config.py`) for manual review. Output: `data/results/variance_flags.csv` in `code/analysis.py`.
-- [ ] T036 [US3] Generate final report in `data/reports/generalization_gap_report.md` containing: (1) Mean degradation, (2) Wilcoxon statistic (T032), (3) Welch's statistic (T033), (4) Power analysis (T034_pilot_power_gate), (5) **Validation**: Comparison of calculated gap against Human Ground Truth (T034_human_ground_truth) to rule out circular dependency, (6) Variance flags (T035). in `code/analysis.py`.
-- [ ] T037 [US3] Add logging for scoring progress, statistical results, and report generation in `code/analysis.py`.
-- [ ] T038 [US3] Implement `power_limitation_report.py` to generate a specific "Power Limitation" section in the final report if T034_pilot_power_gate blocked the full run due to feasibility constraints. Output: `data/reports/power_limitation_notes.md` in `code/analysis.py`.
+- [ ] T029 [P] [US3] Implement `score_images.py` to load INT8 quantized VLM reward models (Aesthetics, Prompt Adherence, Identity) and score all images (Pilot and Full) in `code/analysis/scoring.py`
+- [ ] T030 [US3] Implement `compute_degradation.py` to calculate mean score degradation (Base - RL) for ID and OOD sets separately. **Input**: VLM scores from T029. **Output**: `data/results/degradation_scores.csv` in `code/analysis/compute_degradation.py`.
+- [ ] T031 [US3] Implement `calculate_gap.py` to compute the "Generalization Gap" (OOD degradation - ID degradation) for each prompt. **Input**: Degradation scores (T030). **Output**: `data/results/gap_scores.csv` in `code/analysis/calculate_gap.py`.
+- [ ] T032 [US3] Implement `statistical_test.py` to perform **Paired T-Test with Robust Standard Errors (HC3)** on the **Generalization Gap values (output of T031)** to determine significance (p < 0.05) as per FR-007. **Implementation**: Use `statsmodels.stats.weightstats.ttest_rel` for paired samples (NOT `ttest_ind`) and manually apply HC3 weights. **Output**: `data/results/paired_ttest_hc3_results.json` in `code/analysis/statistical_test.py`.
+- [ ] T033 [US3] Implement `statistical_test.py` (Bootstrap) to perform **Bootstrap Resampling** on the Generalization Gap distribution to ensure stability of the estimated confidence intervals as per FR-007. **Input**: Gap scores (T031). **Output**: `data/results/bootstrap_ci_results.json` in `code/analysis/statistical_test.py`.
+- [ ] T045 [US3] Implement `external_consistency.py` to load the **HuggingFaceH4/image-reward** model as a proxy. **Must**: (1) Calculate the Generalization Gap using the **same VLM metrics** (Aesthetics, Adherence, Identity) as T031, (2) Calculate a "Human Proxy Score" using `image-reward` for the same images, (3) **Calculate Pearson correlation (r)** between the VLM-derived Gap (T031) and the Proxy-derived Gap. **Output**: `data/results/proxy_correlation.json` in `code/analysis/external_consistency.py`. **Must run after T031**.
+- [ ] T035 [US3] Implement `variance_flagging.py` to calculate score variance per prompt (e.g., using IQR or Coefficient of Variation) and flag prompts exceeding a threshold defined in **`code/config.py` (key: `VARIANCE_THRESHOLD`)** for manual review. **Output**: `data/results/variance_flags.csv` (explicitly formatted for manual review workflow) in `code/analysis/variance_flagging.py`. **Depends on T006 for VARIANCE_THRESHOLD initialization**.
+- [ ] T036 [US3] Generate final report in `data/reports/generalization_gap_report.md` containing: (1) Mean degradation, (2) Paired T-Test with HC3 statistic (T032), (3) Bootstrap CI (T033), (4) Power analysis (T034), (5) **Validation**: **Pearson correlation (r)** between VLM-derived Gap and Proxy-derived Gap (T045) to assess robustness, (6) Variance flags (T035). in `code/analysis/report.py`.
+- [ ] T037 [US3] Add logging for scoring progress, statistical results, and report generation in `code/analysis/report.py`.
+- [ ] T038 [US3] Implement `power_limitation_report.py` to generate a specific "Power Limitation" section in the final report if T034 blocked the full run due to feasibility constraints. **Trigger**: Called only if T034 outputs 'STOP'. Output: `data/reports/power_limitation_notes.md` in `code/analysis/power_limitation_report.py`.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -142,10 +156,10 @@ Examples of foundational tasks (adjust based on your project):
 **Purpose**: Improvements that affect multiple user stories
 
 - [ ] T039 [P] Documentation updates in `docs/` (README, quickstart.md)
-- [ ] T040 Code cleanup and refactoring for memory efficiency
-- [ ] T041 Performance optimization: profile inference loop and optimize batch sizes
+- [ ] T040 [P] Profile inference loop and log batch size recommendations for memory efficiency in `code/inference/profiler.py`
+- [ ] T041 [P] Refactor `inference.py` to use generator expressions for batch loading to reduce peak RAM usage in `code/inference/inference.py`
 - [ ] T042 [P] Additional unit tests for edge cases (empty datasets, model load failures) in `tests/unit/`
-- [ ] T043 Security hardening: ensure no PII in logs or outputs
+- [ ] T043 [P] Additional security hardening: ensure no PII in logs or outputs (Secondary check, primary gate is T004b)
 - [ ] T044 Run `quickstart.md` validation to ensure full pipeline reproducibility
 
 ---
@@ -157,19 +171,19 @@ Examples of foundational tasks (adjust based on your project):
 - **Setup (Phase 1)**: No dependencies - can start immediately
 - **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
 - **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires prompt sets from US1
-  - **Pilot** (T020a) requires T015a
-  - **Full** (T020b) requires T034_pilot_power_gate (Power Analysis) and T015b
+ - **Pilot** (T020a) requires T015a-1, T015a, and **T016a (Pipeline Gate success)**
+ - **Full** (T020b) requires T034 (Power Gate) and T015b
 - **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires generated images from US2
-  - **Pilot Analysis** (T034_pilot_power_gate) requires T020a
-  - **Full Analysis** (T030-T036) requires T020b
+ - **Pilot Analysis** (T034) requires T020a
+ - **Full Analysis** (T030-T036, T045) requires T020b
 
 ### Within Each User Story
 
@@ -178,15 +192,16 @@ Examples of foundational tasks (adjust based on your project):
 - Services before endpoints
 - Core implementation before integration
 - Story complete before moving to next priority
-- **Critical Order (US1)**: T015a (Pilot Curate) -> T016 (Validate) -> T020a (Pilot Infer) -> T034_pilot_power_gate (Power Analysis) -> [Gate Check] -> T015b (Full Curate) -> T020b (Full Infer)
-- **Critical Order (US3)**: T034_human_ground_truth (Generate Ground Truth) -> T029 (Score) -> T030 (Degradation) -> T031 (Gap) -> T032 (Wilcoxon) & T033 (Welch) -> T036 (Report with Human Proxy Validation)
-- **Critical Order (Human Proxy)**: T034_human_ground_truth (Generate Ground Truth) -> T031/T033 (Validate against Ground Truth). T034_human_ground_truth does NOT feed T030.
+- **Critical Order (US1)**: T015a (Pilot Curate with Loop) -> T016 (Validate) -> T016a (Pipeline Gate) -> **T020a (Pilot Infer)** -> T034 (Power Gate) -> T015b (Full Curate) -> T020b (Full Infer). **Note**: T016a explicitly enforces the abort condition preventing FR-003/FR-004. T020a is NOT gated by T034; T034 consumes T020a results.
+- **Critical Order (US3)**: T029 (Score) -> T030 (Degradation) -> T031 (Gap) -> **Branch 1**: T032 (Paired T-Test on Gap, consumes T031 output) & T033 (Bootstrap) -> T036; **Branch 2**: T045 (Calculates Pearson r, consumes T031 output) -> T036. **Note**: T032 explicitly consumes the Generalization Gap from T031. T045 explicitly calculates Pearson r. T035 depends on T006 for VARIANCE_THRESHOLD.
+- **Critical Order (Human Proxy)**: T045 (Calculates Pearson r) -> T036 (Report). T045 does NOT feed T030.
+- **Critical Order (Full Run)**: T020a (Pilot Infer) -> T034 (Power Gate) -> T015b (Full Curate) -> T020b (Full Infer). **Note**: T034 is the gate for T015b/T020b. T034 relies on T020a.
 
 ### Parallel Opportunities
 
 - All Setup tasks marked [P] can run in parallel
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- Once Foundational phase completes, all user stories can start in parallel (if staffed)
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
@@ -201,8 +216,8 @@ Task: "Unit test for SHA-256 checksum verification in tests/unit/test_data_acqui
 Task: "Unit test for latent-space similarity check in tests/unit/test_prompt_curation.py"
 
 # Launch all models for User Story 1 together:
-Task: "Implement download_models.py in code/data_acquisition.py"
-# Note: T015a (Pilot) MUST run BEFORE T016 (Validate). T015b (Full) MUST wait for T034_pilot_power_gate.
+Task: "Implement download_models.py in code/data/download_models.py"
+# Note: T015a (Pilot) MUST run BEFORE T016 (Validate). T015b (Full) MUST wait for T034 (Power Gate).
 ```
 
 ---
@@ -213,9 +228,9 @@ Task: "Implement download_models.py in code/data_acquisition.py"
 
 1. Complete Phase 1: Setup
 2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Pilot only: T015a, T016)
+3. Complete Phase 3: User Story 1 (Pilot only: T015a-1, T015a, T016, T016a)
 4. **STOP and VALIDATE**: Test User Story 1 independently (Pilot)
-5. Run T034_pilot_power_gate (Power Analysis) to determine feasibility of Full Run
+5. Run T020a (Pilot Inference) -> T034 (Power Gate) to determine feasibility of Full Run
 6. If feasible, proceed to T015b/T020b. If not, document limitation (T038).
 
 ### Incremental Delivery
@@ -223,7 +238,7 @@ Task: "Implement download_models.py in code/data_acquisition.py"
 1. Complete Setup + Foundational → Foundation ready
 2. Add User Story 1 (Pilot) → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 (Pilot Inference) → Test independently → Deploy/Demo
-4. Run Power Analysis (T034_pilot_power_gate) → Decide on Full Run
+4. Run Power Analysis (T034) → Decide on Full Run
 5. Add User Story 1 (Full) & User Story 2 (Full) → Test independently → Deploy/Demo
 6. Add User Story 3 (Full Analysis) → Test independently → Deploy/Demo
 7. Each story adds value without breaking previous stories
@@ -234,11 +249,11 @@ With multiple developers:
 
 1. Team completes Setup + Foundational together
 2. Once Foundational is done:
-   - Developer A: User Story 1 (Pilot)
-   - Developer B: User Story 2 (Pilot Inference)
-   - Developer C: User Story 3 (Scoring/Analysis logic)
-3. Pilot completes → T034_pilot_power_gate runs → Decision made
-4. Team proceeds to Full Run (T015b, T020b, T030-T036)
+ - Developer A: User Story 1 (Pilot)
+ - Developer B: User Story 2 (Pilot Inference)
+ - Developer C: User Story 3 (Scoring/Analysis logic)
+3. Pilot completes → T034 (Power Gate) runs → Decision made
+4. Team proceeds to Full Run (T015b, T020b, T030-T036, T045)
 
 ---
 
@@ -251,9 +266,17 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All inference must run on CPU-only (no CUDA, no 8-bit base models) to meet free-tier constraints.
+- **Critical Constraint**: All inference must run on CPU-only (no CUDA, no quantized base models). to meet free-tier constraints.
 - **Critical Constraint**: OOD prompts must be validated for < 0.3 cosine similarity to ID centroids to ensure data integrity.
-- **Critical Constraint**: Statistical analysis must use **BOTH** Wilcoxon signed-rank test (paired) **AND** Welch's t-test (independent) as per Spec FR-007 and Plan.
-- **Critical Constraint**: Human Proxy must use **static human-annotated data**, not a VLM, to break circular dependency. It is used for validation in the Report (T031/T033/T036), not as an input to Degradation (T030).
-- **Critical Constraint**: Power Analysis (T034_pilot_power_gate) is a **GATE**. It must block Full Generation (T015b) if feasibility is not met.
+- **Critical Constraint**: Statistical analysis must use **Paired T-Test with HC3 Robust Errors** (using `ttest_rel`) and **A sufficient number of Bootstrap iterations ** as per Spec FR-007.
+- **Critical Constraint**: External consistency check (FR-008) MUST use the `HuggingFaceH4/image-reward` model (T045) as a proxy, while maintaining the same VLM metrics for the gap calculation.
+- **Critical Constraint**: Power Analysis (T034) is a **GATE**. It must block Full Generation (T015b) if feasibility is not met, and must output MDES, Variance Saturation flag, and **recommended_N**.
 - **Critical Constraint**: T015a (Pilot) and T015b (Full) are distinct tasks with distinct dependencies. Do not reuse IDs.
+- **Critical Constraint**: T015a includes a **Re-curation Loop** (up to 2 iterations) before aborting.
+- **Critical Constraint**: T016a explicitly enforces the abort condition preventing FR-003/FR-004 if OOD validation fails.
+- **Critical Constraint**: T032 explicitly consumes the **paired degradation scores** from T030 to test the mean difference.
+- **Critical Constraint**: T045 explicitly calculates Pearson r.
+- **Critical Constraint**: T035 depends on T006 for VARIANCE_THRESHOLD initialization.
+- **Critical Constraint**: T015b is now in Phase 4.5 and depends on T034.
+- **Critical Constraint**: T006b must be executed before T014.
+- **Critical Constraint**: T006a is NOT parallel; it depends on T006.

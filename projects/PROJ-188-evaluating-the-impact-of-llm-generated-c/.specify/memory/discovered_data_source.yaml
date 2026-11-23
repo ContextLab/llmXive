@@ -1,0 +1,15 @@
+status: none
+intent: CodeSearchNet Python functions dataset download via HuggingFace datasets python
+  package dataset
+required_fields:
+- code
+- docstring
+- function_name
+- language
+- repo
+- path
+- url
+- sha
+cache_key: 0888ccfc399ed8545951a24a6c2d02dfa42f2740ad9840bd2762bcf9ddc49bfc
+searched_at: '2026-08-01T07:56:12.127759+00:00'
+retry_count: 1

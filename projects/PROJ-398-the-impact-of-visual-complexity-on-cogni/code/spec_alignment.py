@@ -1,18 +1,18 @@
 """
 spec_alignment.py
 
-Implements the spec‑task alignment review required for task **T000**.
-The script compares the list of task identifiers present in ``tasks.md``
-with those mentioned in ``spec.md`` and produces a markdown report at
-``docs/spec_alignment_report.md`` detailing any mismatches.
+This module implements a simple spec‑task alignment reviewer.
+It reads the project's `spec.md` and `tasks.md`, extracts task identifiers,
+compares the two lists and generates a markdown report summarising any
+mismatches (tasks present in one file but not the other).
 
-Public API (as declared in the project’s API surface):
-  - load_file_content
-  - check_path_existence
-  - analyze_spec_tasks_alignment
-  - generate_report
-  - main
+The script can be executed directly:
+
+    python code/spec_alignment.py
+
+It will create/overwrite `docs/spec_alignment_report.md`.
 """
+
 import os
 import re
 from pathlib import Path
@@ -21,158 +21,193 @@ from typing import List, Dict, Tuple
 # ----------------------------------------------------------------------
 # Helper functions
 # ----------------------------------------------------------------------
+
+
 def load_file_content(file_path: Path) -> str:
     """
-    Load the full text content of ``file_path`` and return it as a string.
+    Load the full text content of a file.
 
     Parameters
     ----------
     file_path: Path
-        Path to the file to be read.
+        Path to the file to read.
 
     Returns
     -------
     str
-        File contents. If the file does not exist, an empty string is
-        returned.
-    """
-    try:
-        return file_path.read_text(encoding="utf-8")
-    except FileNotFoundError:
-        return ""
+        The file's content.
 
-def check_path_existence(paths: List[Path]) -> Dict[Path, bool]:
+    Raises
+    ------
+    FileNotFoundError
+        If the file does not exist.
     """
-    Return a dictionary mapping each supplied ``Path`` to a boolean indicating
-    whether the path exists on disk.
+    if not file_path.is_file():
+        raise FileNotFoundError(f"Required file not found: {file_path}")
+    return file_path.read_text(encoding="utf-8")
+
+
+def check_path_existence(paths: List[Path]) -> None:
+    """
+    Ensure that each path in ``paths`` exists and is a file.
 
     Parameters
     ----------
     paths: List[Path]
+        List of file paths to verify.
 
-    Returns
-    -------
-    Dict[Path, bool]
+    Raises
+    ------
+    FileNotFoundError
+        If any of the supplied paths does not exist.
     """
-    return {p: p.exists() for p in paths}
+    missing = [str(p) for p in paths if not p.is_file()]
+    if missing:
+        raise FileNotFoundError(f"The following required files are missing: {', '.join(missing)}")
 
-# ----------------------------------------------------------------------
-# Core analysis
-# ----------------------------------------------------------------------
-_TASK_ID_PATTERN = re.compile(r"\[([A-Z]\d{3})\]")
 
 def _extract_task_ids(text: str) -> List[str]:
     """
-    Extract all task identifiers of the form ``[Txxx]`` from the supplied text.
-    """
-    return list({match.group(1) for match in _TASK_ID_PATTERN.finditer(text)})
+    Extract all task identifiers (e.g., ``T000``) from a block of text.
 
-def analyze_spec_tasks_alignment(
-    spec_content: str, tasks_content: str
-) -> Tuple[List[str], List[str]]:
-    """
-    Compare task identifiers found in ``spec_content`` with those found in
-    ``tasks_content``.
+    The function looks for the pattern ``T`` followed by at least three digits.
+    It returns a **sorted** list of unique identifiers.
+
+    Parameters
+    ----------
+    text: str
+        Text to search.
 
     Returns
     -------
-    missing_in_spec: List[str]
-        Task IDs that appear in ``tasks.md`` but not in ``spec.md``.
-    extra_in_spec: List[str]
-        Task IDs that appear in ``spec.md`` but not in ``tasks.md``.
+    List[str]
+        Sorted list of unique task IDs.
+    """
+    ids = set(re.findall(r"\bT\d{3,}\b", text))
+    return sorted(ids)
+
+
+def analyze_spec_tasks_alignment(spec_content: str, tasks_content: str) -> Dict[str, List[str]]:
+    """
+    Compare the task IDs present in the specification and the tasks list.
+
+    Returns a dictionary with two keys:
+    - ``missing_in_spec``: task IDs that appear in ``tasks.md`` but not in ``spec.md``.
+    - ``missing_in_tasks``: task IDs that appear in ``spec.md`` but not in ``tasks.md``.
+
+    Parameters
+    ----------
+    spec_content: str
+        Content of ``spec.md``.
+    tasks_content: str
+        Content of ``tasks.md``.
+
+    Returns
+    -------
+    Dict[str, List[str]]
+        Mapping of mismatch categories to lists of task IDs.
     """
     spec_ids = set(_extract_task_ids(spec_content))
     tasks_ids = set(_extract_task_ids(tasks_content))
 
     missing_in_spec = sorted(tasks_ids - spec_ids)
-    extra_in_spec = sorted(spec_ids - tasks_ids)
+    missing_in_tasks = sorted(spec_ids - tasks_ids)
 
-    return missing_in_spec, extra_in_spec
+    return {
+        "missing_in_spec": missing_in_spec,
+        "missing_in_tasks": missing_in_tasks,
+    }
 
-# ----------------------------------------------------------------------
-# Report generation
-# ----------------------------------------------------------------------
-def generate_report(
-    missing_in_spec: List[str], extra_in_spec: List[str], spec_path: Path, tasks_path: Path
-) -> str:
+
+def generate_report(alignment: Dict[str, List[str]], output_path: Path) -> None:
     """
-    Produce a markdown report summarising the alignment check.
+    Write a markdown report describing the alignment results.
+
+    The report contains:
+    * A short description of the analysis.
+    * Lists of missing task IDs (if any).
+    * A summary status.
 
     Parameters
     ----------
-    missing_in_spec: List[str]
-        IDs present in ``tasks.md`` but absent from ``spec.md``.
-    extra_in_spec: List[str]
-        IDs present in ``spec.md`` but absent from ``tasks.md``.
-    spec_path: Path
-    tasks_path: Path
-
-    Returns
-    -------
-    str
-        Markdown formatted report.
+    alignment: Dict[str, List[str]]
+        Result of :func:`analyze_spec_tasks_alignment`.
+    output_path: Path
+        Destination file for the markdown report.
     """
     lines = [
         "# Spec‑Task Alignment Report",
         "",
-        f"**Spec file:** `{spec_path}`",
-        f"**Tasks file:** `{tasks_path}`",
+        "This report was automatically generated by `code/spec_alignment.py`.",
         "",
         "## Summary",
         "",
     ]
 
-    if not missing_in_spec and not extra_in_spec:
-        lines.append("✅ No contradictions detected – the task list in `tasks.md` aligns with the identifiers referenced in `spec.md`.")
+    missing_spec = alignment["missing_in_spec"]
+    missing_tasks = alignment["missing_in_tasks"]
+
+    if not missing_spec and not missing_tasks:
+        lines.append("- ✅ All task identifiers present in both `spec.md` and `tasks.md`.")
     else:
-        if missing_in_spec:
-            lines.append("### Tasks missing from spec.md")
+        lines.append("- ⚠️ Alignment issues detected.")
+        if missing_spec:
             lines.append("")
-            for tid in missing_in_spec:
-                lines.append(f"- `{tid}`")
+            lines.append("### Tasks present in `tasks.md` but **missing** from `spec.md`")
             lines.append("")
-        if extra_in_spec:
-            lines.append("### Task identifiers present in spec.md but not in tasks.md")
+            for tid in missing_spec:
+                lines.append(f"- {tid}")
+        if missing_tasks:
             lines.append("")
-            for tid in extra_in_spec:
-                lines.append(f"- `{tid}`")
+            lines.append("### Tasks present in `spec.md` but **missing** from `tasks.md`")
             lines.append("")
+            for tid in missing_tasks:
+                lines.append(f"- {tid}")
 
-    lines.append("---")
-    lines.append("_Report generated automatically by `code/spec_alignment.py`._")
-    return "\n".join(lines)
+    lines.append("")
+    lines.append("**Generated on:** " + __import__("datetime").datetime.utcnow().isoformat() + " UTC")
+    lines.append("")
+
+    # Ensure the parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    output_path.write_text("\n".join(lines), encoding="utf-8")
+
 
 # ----------------------------------------------------------------------
-# Main entry point
+# CLI entry point
 # ----------------------------------------------------------------------
+
+
 def main() -> None:
     """
-    Execute the alignment check and write the markdown report to
-    ``docs/spec_alignment_report.md``.
+    Entry point for the spec‑task alignment tool.
+
+    It expects the following files relative to the repository root:
+    - ``spec.md``
+    - ``tasks.md``
+
+    The generated report is written to ``docs/spec_alignment_report.md``.
     """
-    project_root = Path(__file__).resolve().parent.parent  # repository root
-    spec_path = project_root / "spec.md"
-    tasks_path = project_root / "tasks.md"
-    report_path = project_root / "docs" / "spec_alignment_report.md"
+    repo_root = Path(__file__).resolve().parents[1]  # repository root (one level above `code/`)
+    spec_path = repo_root / "spec.md"
+    tasks_path = repo_root / "tasks.md"
+    report_path = repo_root / "docs" / "spec_alignment_report.md"
 
-    # Ensure the ``docs`` directory exists
-    report_path.parent.mkdir(parents=True, exist_ok=True)
+    # Verify inputs exist
+    check_path_existence([spec_path, tasks_path])
 
-    # Load files
-    spec_content = load_file_content(spec_path)
-    tasks_content = load_file_content(tasks_path)
+    # Load contents
+    spec_text = load_file_content(spec_path)
+    tasks_text = load_file_content(tasks_path)
 
-    # Analyse
-    missing_in_spec, extra_in_spec = analyze_spec_tasks_alignment(
-        spec_content, tasks_content
-    )
+    # Analyse alignment
+    alignment = analyze_spec_tasks_alignment(spec_text, tasks_text)
 
-    # Generate report
-    report_md = generate_report(missing_in_spec, extra_in_spec, spec_path, tasks_path)
+    # Generate markdown report
+    generate_report(alignment, report_path)
 
-    # Write the report
-    report_path.write_text(report_md, encoding="utf-8")
     print(f"Spec‑task alignment report written to: {report_path}")
+
 
 if __name__ == "__main__":
     main()

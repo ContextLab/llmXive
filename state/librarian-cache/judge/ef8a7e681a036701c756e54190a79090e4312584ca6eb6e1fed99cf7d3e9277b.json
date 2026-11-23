@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.10400",
+  "judged_at": "2026-07-31T21:30:54Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"synthdocbench: controlled benchmark for long-context visual document u\" computer science",
+  "rationale": "This paper is the foundational methods and empirical baseline (Category d and c) for the specific benchmark \"SynthDocBench\" mentioned in the user's follow-up question, providing the necessary prior work on controlled long-context visual document understanding that the user's research intends to extend.",
+  "relevant": true
+}

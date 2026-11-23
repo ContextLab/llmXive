@@ -1,65 +1,77 @@
-"""
-Setup script to initialize the project directory structure.
-Creates the required data subdirectories (raw, processed, final)
-and ensures the code module structure is in place.
-"""
 import os
+import json
+from datetime import datetime
 from pathlib import Path
 
-def main():
-    # Define the project root relative to this script's location
-    # The script is at code/setup_directories.py, so root is parent of 'code'
-    script_dir = Path(__file__).parent
-    project_root = script_dir.parent
-
-    # Define the required directory structure
-    # Based on T004: data/ with raw/, processed/, final/
-    # Based on existing structure: code/, tests/ (already created in T001a/b conceptually, but we ensure existence)
-    
-    directories = [
+def ensure_directories():
+    """Create the required project directory structure."""
+    project_root = Path(__file__).parent.parent
+    base_dirs = [
+        project_root / "code",
+        project_root / "data",
         project_root / "data" / "raw",
         project_root / "data" / "processed",
         project_root / "data" / "final",
-        project_root / "code" / "data",
-        project_root / "code" / "models",
-        project_root / "code" / "evaluation",
-        project_root / "code" / "utils",
-        project_root / "tests" / "contract",
-        project_root / "tests" / "integration",
-        project_root / "tests" / "unit",
+        project_root / "data" / "logs",
+        project_root / "tests",
+        project_root / "docs",
+        project_root / "specs" / "001-statistical-analysis-of-recipe-data" / "contracts",
     ]
+    created = []
+    for d in base_dirs:
+        d.mkdir(parents=True, exist_ok=True)
+        created.append(str(d.relative_to(project_root)))
+    return created
 
-    created_count = 0
-    for dir_path in directories:
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path.relative_to(project_root)}")
-            created_count += 1
+def verify_directories(paths):
+    """Verify that the specified directories exist."""
+    project_root = Path(__file__).parent.parent
+    verified = []
+    for p in paths:
+        full_path = project_root / p
+        if full_path.exists() and full_path.is_dir():
+            verified.append(p)
         else:
-            print(f"Directory exists: {dir_path.relative_to(project_root)}")
+            verified.append(None)
+    return all(v is not None for v in verified), [v for v in verified if v is not None]
 
-    # Ensure __init__.py files exist in code subdirectories to make them packages
-    # This is crucial for imports like `from data.download import ...`
-    init_files = [
-        project_root / "code" / "__init__.py",
-        project_root / "code" / "data" / "__init__.py",
-        project_root / "code" / "models" / "__init__.py",
-        project_root / "code" / "evaluation" / "__init__.py",
-        project_root / "code" / "utils" / "__init__.py",
-        project_root / "tests" / "__init__.py",
-        project_root / "tests" / "contract" / "__init__.py",
-        project_root / "tests" / "integration" / "__init__.py",
-        project_root / "tests" / "unit" / "__init__.py",
-    ]
+def log_setup_status(output_path, status, paths_verified):
+    """Write the setup log to a JSON file."""
+    log_entry = {
+        "status": status,
+        "timestamp": datetime.utcnow().isoformat() + "Z",
+        "paths_verified": paths_verified
+    }
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(log_entry, f, indent=2)
 
-    for init_file in init_files:
-        if not init_file.exists():
-            init_file.touch()
-            print(f"Created empty __init__.py: {init_file.relative_to(project_root)}")
+def main():
+    """Main entry point for directory setup and verification."""
+    project_root = Path(__file__).parent.parent
+    output_file = project_root / "data" / "setup_log.json"
+    
+    try:
+        created_dirs = ensure_directories()
+        # Verify the core paths required by T001a
+        core_paths = [
+            "code",
+            "data",
+            "tests"
+        ]
+        success, verified = verify_directories(core_paths)
+        
+        if success:
+            log_setup_status(output_file, "SUCCESS", verified)
+            print(f"Setup successful. Log written to {output_file}")
         else:
-            print(f"__init__.py exists: {init_file.relative_to(project_root)}")
-
-    print(f"\nSetup complete. Created {created_count} new directories.")
+            log_setup_status(output_file, "FAILED", verified)
+            print(f"Setup failed. Missing directories.")
+            return 1
+    except Exception as e:
+        log_setup_status(output_file, "FAILED", [])
+        print(f"Setup failed with error: {e}")
+        return 1
+    
     return 0
 
 if __name__ == "__main__":

@@ -1,0 +1,21 @@
+{
+  "validation_status": "FAILED",
+  "dataset_shape": [0, 0],
+  "column_types": {},
+  "missing_variable_metrics": {
+    "total_required_variables": 4,
+    "variables_found": 0,
+    "variables_missing": 4,
+    "percentage_loaded": 0.0,
+    "missing_variables": [
+      "Bacteroides",
+      "Firmicutes",
+      "SWS duration",
+      "REM duration"
+    ],
+    "found_variables": []
+  },
+  "null_counts": {},
+  "timestamp": "2023-10-27T12:00:00.000000",
+  "error_details": "No verified dataset ID found in environment variable 'VERIFIED_DATASET_ID'. T049/T050 must identify a real dataset and configure it before T051 can proceed. To prevent fabrication, execution is halted."
+}

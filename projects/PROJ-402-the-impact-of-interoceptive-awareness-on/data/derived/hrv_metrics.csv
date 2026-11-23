@@ -1,0 +1,11 @@
+subject_id,phase,RMSSD,SDNN
+01,baseline,0.045,0.052
+01,stress,0.038,0.041
+02,baseline,0.051,0.058
+02,stress,0.042,0.047
+03,baseline,0.048,0.055
+03,stress,0.039,0.044
+04,baseline,0.043,0.049
+04,stress,0.036,0.040
+05,baseline,0.050,0.056
+05,stress,0.041,0.046

@@ -1,103 +1,142 @@
 """
-Tests for code/search.py functionality.
-
-Includes unit tests for dataset categorization and integration tests for 
-OpenNeuro API queries as specified in T010 and T011.
+Tests for the dataset search and categorization logic (User Story 1).
 """
 import pytest
 from pathlib import Path
 import sys
-import os
+import json
+from unittest.mock import patch, MagicMock
 
-# Add the project code directory to the path for imports
-# This assumes the test is run from the project root or similar context
-# In CI, the path setup will be handled by the test runner configuration.
+# Ensure we can import from the project code directory
+# The test runner or CI should set the path, but we add a fallback for local execution
+# Project root is 2 levels up from tests/test_search.py
 project_root = Path(__file__).parent.parent
 code_dir = project_root / "code"
 if str(code_dir) not in sys.path:
     sys.path.insert(0, str(code_dir))
 
-from search import categorize_dataset
+from search import categorize_dataset, search_openneuro
 
 
-class TestDatasetCategorization:
-    """Unit tests for the categorize_dataset function (T010)."""
-
-    def test_categorizes_eligible_dataset(self):
-        """Test that a dataset with both feedback and anxiety measures is 'Eligible'."""
-        dataset_info = {
+def test_categorizes_eligible_dataset():
+    """
+    Test that a dataset with both social feedback manipulation and
+    social anxiety measures is categorized as 'Eligible'.
+    """
+    dataset = {
+        "id": "ds_test_001",
+        "title": "Social Feedback and Anxiety Study",
+        "description": "A study involving simulated feedback and LSAS scores.",
+        "tags": ["social", "feedback", "anxiety", "EEG"],
+        "metadata": {
             "feedback_type": "simulated",
             "anxiety_measure": "LSAS"
         }
-        status = categorize_dataset(dataset_info)
-        assert status == "Eligible", f"Expected 'Eligible', got '{status}'"
+    }
+    category = categorize_dataset(dataset)
+    assert category == "Eligible", f"Expected 'Eligible', got '{category}'"
 
-    def test_categorizes_sim_only(self):
-        """Test that a dataset with only feedback is 'Sim-Only'."""
-        dataset_info = {
+
+def test_categorizes_sim_only():
+    """
+    Test that a dataset with feedback but no anxiety measure is 'Sim-Only'.
+    """
+    dataset = {
+        "id": "ds_test_002",
+        "title": "Social Feedback Only",
+        "description": "Study with simulated feedback but no anxiety metrics.",
+        "tags": ["social", "feedback", "EEG"],
+        "metadata": {
+            "feedback_type": "simulated",
+            "anxiety_measure": None
+        }
+    }
+    category = categorize_dataset(dataset)
+    assert category == "Sim-Only", f"Expected 'Sim-Only', got '{category}'"
+
+
+def test_categorizes_real_only():
+    """
+    Test that a dataset with real feedback but no anxiety measure is 'Real-Only'.
+    """
+    dataset = {
+        "id": "ds_test_003",
+        "title": "Real Feedback Only",
+        "description": "Study with real social feedback but no anxiety metrics.",
+        "tags": ["social", "feedback", "EEG"],
+        "metadata": {
             "feedback_type": "real",
             "anxiety_measure": None
         }
-        status = categorize_dataset(dataset_info)
-        assert status == "Real-Only", f"Expected 'Real-Only', got '{status}'"
+    }
+    category = categorize_dataset(dataset)
+    assert category == "Real-Only", f"Expected 'Real-Only', got '{category}'"
 
-    def test_categorizes_real_only(self):
-        """Test that a dataset with only anxiety is 'Sim-Only' (Wait, logic check)."""
-        # Based on T014 logic:
-        # "Sim-Only" = has feedback (simulated), no anxiety
-        # "Real-Only" = has feedback (real), no anxiety
-        # "Partial-Anxiety" = no feedback, has anxiety
-        # "Eligible" = both
-        # "None" = neither
 
-        dataset_info = {
-            "feedback_type": None,
-            "anxiety_measure": "SPIN"
-        }
-        status = categorize_dataset(dataset_info)
-        assert status == "Partial-Anxiety", f"Expected 'Partial-Anxiety', got '{status}'"
-
-    def test_categorizes_none(self):
-        """Test that a dataset with neither is 'None'."""
-        dataset_info = {
+def test_categorizes_none():
+    """
+    Test that a dataset lacking both key features is 'None'.
+    """
+    dataset = {
+        "id": "ds_test_004",
+        "title": "General EEG Study",
+        "description": "Standard EEG task without social components.",
+        "tags": ["EEG", "memory"],
+        "metadata": {
             "feedback_type": None,
             "anxiety_measure": None
         }
-        status = categorize_dataset(dataset_info)
-        assert status == "None", f"Expected 'None', got '{status}'"
+    }
+    category = categorize_dataset(dataset)
+    assert category == "None", f"Expected 'None', got '{category}'"
 
-    def test_categorizes_partial_eeg(self):
-        """Test categorization for missing EEG data (simulated scenario)."""
-        # Assuming feedback/anxiety present but EEG missing triggers Partial-EEG
-        # The categorize_dataset function might need extended params for this,
-        # but for now testing the core logic with available fields.
-        dataset_info = {
-            "feedback_type": "simulated",
-            "anxiety_measure": "LSAS",
-            "has_eeg": False
+
+@patch('search.requests.post')
+def test_integration_openneuro_api_query(mock_post):
+    """
+    Integration test for OpenNeuro API query logic.
+    Mocks the API response to verify the search function correctly parses
+    and returns dataset candidates.
+    """
+    # Mock API response
+    mock_response = MagicMock()
+    mock_response.status_code = 200
+    mock_response.json.return_value = {
+        "data": {
+            "datasets": [
+                {
+                    "id": "ds000001",
+                    "label": "Social EEG Study",
+                    "description": "A study on social feedback and anxiety.",
+                    "task": ["feedback"]
+                },
+                {
+                    "id": "ds000002",
+                    "label": "Memory Task",
+                    "description": "Simple memory task.",
+                    "task": ["memory"]
+                }
+            ]
         }
-        # If the function handles 'has_eeg', it should return 'Partial-EEG'
-        # If not, it falls back to Eligible. We test the logic as implemented.
-        status = categorize_dataset(dataset_info)
-        # If the implementation doesn't check 'has_eeg' yet, this might be 'Eligible'
-        # We assert based on the intended logic of T014.
-        # For now, assuming the function checks all keys if present.
-        if "has_eeg" in dataset_info and not dataset_info["has_eeg"]:
-            assert status == "Partial-EEG", f"Expected 'Partial-EEG' when EEG missing, got '{status}'"
-        else:
-            # Fallback if implementation doesn't support this flag yet
-            assert status == "Eligible"
+    }
+    mock_post.return_value = mock_response
 
-# Integration test placeholder (T011)
-# This would require mocking the OpenNeuro API or running against a small subset.
-# Given the constraints of this task (directory structure), we ensure the test file exists
-# and the unit tests pass. The integration test logic is scaffolded here.
+    # Execute search
+    results = search_openneuro(
+        modalities=["EEG"],
+        keywords=["social", "anxiety"]
+    )
 
-def test_openneuro_api_query_structure():
-    """
-    Integration test for OpenNeuro API query structure (T011).
-    This test verifies that the search function constructs valid queries.
-    Note: Actual API calls are mocked in a full CI environment.
-    """
-    # Placeholder for T011 logic verification
-    assert True  # Ensure the test file is valid and runnable
+    # Verify API was called
+    mock_post.assert_called_once()
+
+    # Verify results contain the expected dataset (ds000001)
+    assert len(results) >= 1
+    dataset_ids = [d["id"] for d in results]
+    assert "ds000001" in dataset_ids, "Expected ds000001 in results"
+    assert "ds000002" not in dataset_ids, "ds000002 should not be in results (no social/anxiety)"
+
+    # Verify structure of returned item
+    found_ds = next(d for d in results if d["id"] == "ds000001")
+    assert found_ds["label"] == "Social EEG Study"
+    assert "description" in found_ds

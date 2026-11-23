@@ -1,27 +1,32 @@
-name: model_output
-description: Schema for model performance metrics and coefficients.
+schema_name: model_output
+version: "1.0"
+description: "Schema for consolidated model metrics output"
 columns:
   - name: model_type
-    type: str
-    nullable: false
-    description: Type of model (e.g., 'GaussianGLM', 'Ridge').
+    type: string
+    required: true
+    description: "Type of model (Beta, Gaussian GLM, Ridge)"
   - name: coefficients
-    type: str
-    nullable: false
-    description: JSON string representation of model coefficients.
+    type: object
+    required: true
+    description: "Dictionary of feature names to coefficient values"
   - name: p_values
-    type: str
-    nullable: false
-    description: JSON string representation of p-values for coefficients.
+    type: object
+    required: true
+    description: "Dictionary of feature names to p-values"
   - name: r_squared
     type: float
-    nullable: false
-    description: R-squared value of the model.
+    required: true
+    description: "R-squared score of the model"
   - name: aic
     type: float
-    nullable: false
-    description: Akaike Information Criterion.
+    required: true
+    description: "Akaike Information Criterion"
   - name: cross_validation_scores
-    type: str
-    nullable: false
-    description: JSON string representation of cross-validation scores.
+    type: array
+    required: true
+    description: "List of R-squared scores from k-fold cross-validation"
+  - name: significant_predictors
+    type: array
+    required: true
+    description: "List of predictor names with corrected p-value < 0.01"

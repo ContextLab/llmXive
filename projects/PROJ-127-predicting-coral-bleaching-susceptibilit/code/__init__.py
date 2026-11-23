@@ -1,1 +1,3 @@
-# Code package for Coral Bleaching Susceptibility Project
+"""
+Coral Bleaching Susceptibility Prediction Package.
+"""

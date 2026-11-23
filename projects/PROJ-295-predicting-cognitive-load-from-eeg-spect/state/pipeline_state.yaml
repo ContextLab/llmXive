@@ -1,8 +1,15 @@
-pipeline_state:
-  version: '1.0'
-  last_updated: '2023-10-27T10:00:00+00:00'
-  artifacts:
-    manifest:
-      path: data/processed/manifest.yaml
-      checksum: a1b2c3d4e5f6
-      updated_at: '2023-10-27T10:00:00+00:00'
+last_updated: "2023-10-27T10:00:00.000000"
+datasets:
+  ds000246:
+    checksums:
+      sub-01/gaze.tsv: "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      dataset_description.json: "abc123..."
+    verified: true
+  fallback_spec:
+    target: ds003465
+    reason: "ds000246 missing gaze.tsv (if applicable)"
+    status: "flagged"
+tasks:
+  T008:
+    status: completed
+    timestamp: "2023-10-27T10:00:00.000000"

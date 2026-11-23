@@ -2,38 +2,65 @@
 
 ## Project Overview
 
-This project implements an automated pipeline for comparing neural prediction error signals across auditory and visual modalities. The pipeline downloads real neurophysiological data from OpenNeuro, preprocesses it, extracts prediction error metrics, performs source localization, and conducts statistical comparisons.
+This project implements an automated scientific pipeline to compare neural prediction error signals (MMN and VMM) across auditory and visual modalities. The pipeline downloads real EEG data from OpenNeuro, preprocesses it, extracts prediction error metrics, performs source localization, and conducts statistical comparisons.
 
-## Real Data Assumption
+## Data Source Policy
 
-**CRITICAL**: This project operates under a strict "Real Data Only" policy.
+**CRITICAL: REAL DATA ONLY**
 
-- **All data must originate from OpenNeuro datasets** (specifically `ds000246` for auditory and `ds000117` for visual modalities).
-- **No synthetic data generation is permitted** at any stage of the pipeline.
-- **No placeholder or simulated datasets** are allowed for testing or development.
-- **No fabrication of results** is permitted; all metrics must be computed from actual measured neural signals.
+This project strictly adheres to the "Real Data" assumption. All data must originate from **OpenNeuro datasets**:
 
-This policy is enforced by:
-1. **Data validation checks** in `code/config.py` that verify data origin and integrity.
-2. **Runtime validation** in `code/data/download.py` that halts execution if data cannot be verified as originating from the specified OpenNeuro sources.
-3. **Checksum verification** against a manifest (`data/manifest.json`) to ensure data integrity throughout the pipeline.
+- **Auditory Oddball**: `ds000246`
+- **Visual Oddball**: `ds000117`
 
-Violating this assumption will result in immediate pipeline failure with explicit error codes.
+**Synthetic data generation is strictly prohibited.** The pipeline is designed to:
+1. Fetch real datasets from OpenNeuro using `mne.datasets.fetch_openneuro_dataset()`
+2. Validate sampling rates (≥500 Hz) and trial counts (≥100 oddball, ≥300 standard)
+3. **HALT immediately** if validation fails or data cannot be fetched
+4. **NEVER** fall back to synthetic, mock, or simulated data
+
+Any attempt to use fabricated data will result in:
+- Immediate pipeline failure
+- Rejection by the execution gate
+- Violation of Constitution Principle VII (Validation Independence)
 
 ## Installation
 
-See `docs/quickstart.md` for detailed installation and setup instructions.
+1. Clone the repository
+2. Create a virtual environment: `python -m venv.venv && source.venv/bin/activate`
+3. Install dependencies: `pip install -r requirements.txt`
+4. Configure environment: Copy `.env.example` to `.env` and fill in required values
 
-## Requirements
+## Usage
 
-- Python 3.9+
-- Dependencies listed in `requirements.txt`
+Run the full pipeline:
+```bash
+python code/main.py --stage full_run
+```
 
-## Data Sources
+Run individual stages:
+```bash
+python code/main.py --stage download_preprocess
+python code/main.py --stage extract_metrics
+python code/main.py --stage localize_sources
+python code/main.py --stage statistical_analysis
+```
 
-- **Auditory Oddball**: OpenNeuro ds000246
-- **Visual Oddball**: OpenNeuro ds000117 (via Hugging Face snapshot)
+## Output Artifacts
+
+The pipeline produces the following artifacts:
+- `data/processed/cleaned_data.fif`: Preprocessed EEG data
+- `data/results/metrics_summary.json`: Peak latency and mean amplitude metrics
+- `data/results/sensitivity_analysis.csv`: Source localization sensitivity analysis
+- `data/results/bh_corrected_pvalues.json`: Benjamini-Hochberg corrected p-values
+- `data/results/reliability.json`: Split-half reliability scores
+- `data/results/sc002_compliance.json`: SC-002 compliance check results
+- `data/results/final_report.md`: Comprehensive final report
+
+## Constitution Compliance
+
+This project operates under Constitution Principles I-VI. Principle VII (Validation Independence) is currently **under review** via amendment PR (T055b). Until ratified, the pipeline logs a "Compliance Warning" and uses split-half reliability as a proxy measure.
 
 ## License
 
-[Project License]
+MIT License

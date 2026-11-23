@@ -1,0 +1,57 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Accommodation Metrics Dataset
+description: Schema for the processed dialogue pairs containing accommodation metrics and emotional intensity.
+type: object
+required:
+  - conversation_id
+  - turn_index
+  - speaker_a_text
+  - speaker_b_text
+  - normalized_speaker_a_text
+  - normalized_speaker_b_text
+  - lexical_overlap
+  - syntactic_similarity
+  - sentence_length_variance
+  - emotional_intensity
+properties:
+  conversation_id:
+    type: string
+    description: Unique identifier for the conversation.
+  turn_index:
+    type: integer
+    description: Index of the turn pair within the conversation.
+  speaker_a_text:
+    type: string
+    description: Raw text of Speaker A's turn.
+  speaker_b_text:
+    type: string
+    description: Raw text of Speaker B's turn.
+  normalized_speaker_a_text:
+    type: string
+    description: NFKC normalized text of Speaker A's turn.
+  normalized_speaker_b_text:
+    type: string
+    description: NFKC normalized text of Speaker B's turn.
+  lexical_overlap:
+    type: number
+    format: float
+    description: Jaccard similarity of token sets between Speaker A and Speaker B.
+    minimum: 0.0
+    maximum: 1.0
+  syntactic_similarity:
+    type: number
+    format: float
+    description: Jaccard similarity of POS tag sets between Speaker A and Speaker B.
+    minimum: 0.0
+    maximum: 1.0
+  sentence_length_variance:
+    type: number
+    format: float
+    description: Variance in sentence lengths between the two turns.
+    minimum: 0.0
+  emotional_intensity:
+    type: integer
+    description: Mapped emotional intensity score (1-5).
+    minimum: 1
+    maximum: 5
+additionalProperties: false

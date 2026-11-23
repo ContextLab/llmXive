@@ -1,0 +1,78 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Survival Analysis Output Schema"
+description: "Schema for the output of the Kaplan-Meier survival analysis and inflection point detection."
+type: "object"
+properties:
+  city:
+    type: "string"
+    description: "City for which the analysis was performed."
+  model_type:
+    type: "string"
+    enum:
+      - "lightweight"
+      - "baseline"
+    description: "Type of model used."
+  survival_curve:
+    type: "object"
+    description: "Mapping of route length to survival probability."
+    additionalProperties:
+      type: "number"
+  median_survival_length:
+    type: "number"
+    description: "The route length at which [deferred] of routes remain valid."
+  log_rank_p_value:
+    type: "number"
+    description: "P-value from the log-rank test comparing survival curves."
+  adjusted_p_value:
+    type: "number"
+    description: "Benjamini-Hochberg corrected p-value."
+  inflection_point:
+    type:
+      - "integer"
+      - "null"
+    description: "Route length where the lightweight model's validity drops significantly below the baseline, or null if not found or if baseline is missing."
+  inflection_confidence_interval:
+    type:
+      - "array"
+      - "null"
+    items:
+      type: "number"
+    description: "Confidence interval for the inflection point length."
+  effect_size_cohen_h:
+    type:
+      - "number"
+      - "null"
+    description: "Cohen's h effect size for the proportion difference at the inflection point."
+  inference_metrics:
+    type: "object"
+    description: "Performance metrics for the model."
+    properties:
+      avg_inference_time_ms:
+        type: "number"
+      peak_memory_mb:
+        type: "number"
+      status:
+        type: "string"
+        enum: ["success", "timeout", "oom"]
+        description: "Status of the inference run."
+    required:
+      - avg_inference_time_ms
+      - peak_memory_mb
+      - status
+  baseline_status:
+    type: "string"
+    enum: ["success", "timeout", "oom", "inconclusive"]
+    description: "Status of the baseline run; if 'inconclusive', inflection_point must be null."
+required:
+  - city
+  - model_type
+  - survival_curve
+  - median_survival_length
+  - log_rank_p_value
+  - adjusted_p_value
+  - inflection_point
+  - inflection_confidence_interval
+  - effect_size_cohen_h
+  - inference_metrics
+  - baseline_status
+additionalProperties: false

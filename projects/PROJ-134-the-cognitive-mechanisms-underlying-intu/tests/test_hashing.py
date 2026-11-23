@@ -1,159 +1,146 @@
 """
-Unit tests for the hashing utilities (T018).
-
-Tests the SHA-256 calculation, state file updates, and verification logic.
+Unit tests for the Hashing Utility (Task T006).
 """
 import os
 import tempfile
-from pathlib import Path
 import pytest
+from pathlib import Path
 import yaml
 
+# Import the module under test
 from code.utils.hashing import (
-    calculate_sha256,
-    update_state_yaml,
+    calculate_checksum,
+    update_state_file,
+    load_state_file,
     verify_artifact,
-    checksum_derived_datasets
+    STATE_FILE
 )
-from code.config import PROJECT_ROOT
+from code.config import get_path
 
 
-class TestHashingUtils:
-    """Tests for the hashing utility functions."""
+class TestHashingUtility:
+    """Tests for checksum calculation and state management."""
 
-    def test_calculate_sha256_simple(self, tmp_path):
-        """Test SHA-256 calculation on a simple file."""
-        # Create a test file with known content
-        test_file = tmp_path / "test.txt"
-        content = "Hello, World!"
-        test_file.write_text(content)
-        
-        # Calculate checksum
-        checksum = calculate_sha256(test_file)
-        
-        # Verify it's a valid hex string of correct length
-        assert len(checksum) == 64
-        assert all(c in '0123456789abcdef' for c in checksum)
+    def setup_method(self):
+        """Set up test fixtures."""
+        # Ensure state directory exists
+        get_path("state").mkdir(parents=True, exist_ok=True)
+        # Clear state file before each test to ensure isolation
+        state_path = get_path(STATE_FILE)
+        if state_path.exists():
+            state_path.unlink()
 
-    def test_calculate_sha256_file_not_found(self):
-        """Test that FileNotFoundError is raised for missing files."""
+    def teardown_method(self):
+        """Clean up after tests."""
+        # Optional: Clean up state file if desired for test isolation
+        pass
+
+    def test_calculate_checksum_file_exists(self):
+        """Test that calculate_checksum returns a valid hash for an existing file."""
+        # Create a temporary file
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt') as f:
+            f.write("Hello, World!")
+            temp_path = f.name
+
+        try:
+            checksum = calculate_checksum(temp_path)
+            assert len(checksum) == 64  # SHA-256 hex digest length
+            assert all(c in '0123456789abcdef' for c in checksum)
+        finally:
+            os.unlink(temp_path)
+
+    def test_calculate_checksum_file_not_found(self):
+        """Test that calculate_checksum raises FileNotFoundError for missing file."""
         with pytest.raises(FileNotFoundError):
-            calculate_sha256("/nonexistent/path/file.txt")
+            calculate_checksum("non_existent_file_12345.txt")
 
-    def test_calculate_sha256_directory(self, tmp_path):
-        """Test that ValueError is raised for directories."""
-        with pytest.raises(ValueError):
-            calculate_sha256(tmp_path)
+    def test_update_state_file(self):
+        """Test that update_state_file correctly writes to state/artifact_hashes.yaml."""
+        # Create a dummy file
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+            f.write("id,value\n")
+            temp_path = f.name
 
-    def test_update_state_yaml_creates_file(self, tmp_path):
-        """Test that update_state_yaml creates the state file if missing."""
-        state_file = tmp_path / "state" / "checksums.yaml"
-        state_file.parent.mkdir(parents=True, exist_ok=True)
-        
-        update_state_yaml(
-            artifact_path="data/processed/test.csv",
-            checksum="abc123",
-            state_file=state_file
-        )
-        
-        assert state_file.exists()
-        
-        with open(state_file, "r") as f:
-            data = yaml.safe_load(f)
-        
-        assert "artifacts" in data
-        assert "data/processed/test.csv" in data["artifacts"]
-        assert data["artifacts"]["data/processed/test.csv"]["checksum"] == "abc123"
+        try:
+            checksum = calculate_checksum(temp_path)
+            update_state_file(temp_path, checksum)
 
-    def test_update_state_yaml_updates_existing(self, tmp_path):
-        """Test that update_state_yaml updates existing entries."""
-        state_file = tmp_path / "state" / "checksums.yaml"
-        state_file.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Create initial state
-        initial_data = {
-            "artifacts": {
-                "data/processed/existing.csv": {"checksum": "old_hash"}
-            }
-        }
-        with open(state_file, "w") as f:
-            yaml.dump(initial_data, f)
-        
-        # Update with new artifact
-        update_state_yaml(
-            artifact_path="data/processed/new.csv",
-            checksum="new_hash",
-            state_file=state_file
-        )
-        
-        with open(state_file, "r") as f:
-            data = yaml.safe_load(f)
-        
-        assert "data/processed/existing.csv" in data["artifacts"]
-        assert "data/processed/new.csv" in data["artifacts"]
-        assert data["artifacts"]["data/processed/new.csv"]["checksum"] == "new_hash"
+            # Verify state file exists
+            state_path = get_path(STATE_FILE)
+            assert state_path.exists()
 
-    def test_verify_artifact_success(self, tmp_path):
-        """Test successful artifact verification."""
-        test_file = tmp_path / "verify_test.txt"
-        content = "Verification content"
-        test_file.write_text(content)
-        
-        checksum = calculate_sha256(test_file)
-        
-        assert verify_artifact(test_file, checksum) is True
+            # Verify content
+            state = load_state_file()
+            assert "artifact_hashes" in state
+            
+            key = os.path.basename(temp_path)
+            assert key in state["artifact_hashes"]
+            assert state["artifact_hashes"][key]["checksum"] == checksum
+            assert state["artifact_hashes"][key]["source_path"] == temp_path
+        finally:
+            os.unlink(temp_path)
 
-    def test_verify_artifact_failure(self, tmp_path):
-        """Test failed artifact verification with wrong checksum."""
-        test_file = tmp_path / "verify_test.txt"
-        test_file.write_text("Content")
-        
-        assert verify_artifact(test_file, "wrong_checksum") is False
+    def test_verify_artifact_match(self):
+        """Test verify_artifact returns True when checksum matches."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+            f.write("test data")
+            temp_path = f.name
 
-    def test_checksum_derived_datasets_empty(self, tmp_path, monkeypatch):
-        """Test checksumming when no datasets exist."""
-        # Mock PROJECT_ROOT to use tmp_path
-        monkeypatch.setattr("code.utils.hashing.PROJECT_ROOT", tmp_path)
-        
-        # Ensure processed dir exists but is empty
-        (tmp_path / "data" / "processed").mkdir(parents=True, exist_ok=True)
-        
-        results = checksum_derived_datasets()
-        assert results == {}
+        try:
+            checksum = calculate_checksum(temp_path)
+            update_state_file(temp_path, checksum)
+            
+            # Verify against stored checksum
+            assert verify_artifact(temp_path) is True
+            
+            # Verify against explicit checksum
+            assert verify_artifact(temp_path, expected_checksum=checksum) is True
+        finally:
+            os.unlink(temp_path)
 
-    def test_checksum_derived_datasets_with_files(self, tmp_path, monkeypatch):
-        """Test checksumming when datasets exist."""
-        monkeypatch.setattr("code.utils.hashing.PROJECT_ROOT", tmp_path)
-        
-        processed_dir = tmp_path / "data" / "processed"
-        processed_dir.mkdir(parents=True, exist_ok=True)
-        
-        # Create test CSV
-        test_csv = processed_dir / "test.csv"
-        test_csv.write_text("col1,col2\n1,2\n")
-        
-        results = checksum_derived_datasets()
-        
-        assert "data/processed/test.csv" in results
-        assert len(results["data/processed/test.csv"]) == 64
+    def test_verify_artifact_mismatch(self):
+        """Test verify_artifact returns False when checksum mismatches."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+            f.write("test data")
+            temp_path = f.name
 
-    def test_state_file_updated_after_checksum(self, tmp_path, monkeypatch):
-        """Test that state file is updated when checksumming datasets."""
-        monkeypatch.setattr("code.utils.hashing.PROJECT_ROOT", tmp_path)
-        
-        processed_dir = tmp_path / "data" / "processed"
-        processed_dir.mkdir(parents=True, exist_ok=True)
-        
-        test_csv = processed_dir / "test.csv"
-        test_csv.write_text("data")
-        
-        checksum_derived_datasets()
-        
-        state_file = tmp_path / "state" / "checksums.yaml"
-        assert state_file.exists()
-        
-        with open(state_file, "r") as f:
-            data = yaml.safe_load(f)
-        
-        assert "data/processed/test.csv" in data["artifacts"]
-        assert data["artifacts"]["data/processed/test.csv"]["status"] == "verified"
+        try:
+            update_state_file(temp_path, "wrong_checksum_1234567890abcdef")
+            
+            assert verify_artifact(temp_path) is False
+        finally:
+            os.unlink(temp_path)
+
+    def test_verify_artifact_missing_stored(self):
+        """Test verify_artifact raises error if no stored checksum exists."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+            f.write("test data")
+            temp_path = f.name
+
+        try:
+            with pytest.raises(FileNotFoundError):
+                verify_artifact(temp_path)
+        finally:
+            os.unlink(temp_path)
+
+    def test_update_state_file_overwrites(self):
+        """Test that updating a file twice overwrites the previous entry."""
+        with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+            f.write("version 1")
+            temp_path = f.name
+
+        try:
+            checksum1 = calculate_checksum(temp_path)
+            update_state_file(temp_path, checksum1)
+            
+            # Update file content
+            with open(temp_path, 'w') as f:
+                f.write("version 2")
+            checksum2 = calculate_checksum(temp_path)
+            update_state_file(temp_path, checksum2)
+            
+            state = load_state_file()
+            key = os.path.basename(temp_path)
+            assert state["artifact_hashes"][key]["checksum"] == checksum2
+        finally:
+            os.unlink(temp_path)

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1403.1523",
+  "judged_at": "2026-07-19T21:48:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"geneb: why genomic models are hard to compare\" linguistics",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference for the \"comparative analysis of genomic models\" aspect of the user's question, and criterion (b) by providing an alternative computational framework (alignment-free, frequency-domain) for measuring similarity in DNA sequences, which is the core domain of the user's inquiry into why genomic models are hard to compare.",
+  "relevant": true
+}

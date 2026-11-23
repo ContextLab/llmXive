@@ -1,0 +1,53 @@
+T003b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` file or excerpt showing the required change (replacing \u201CCohen's\
+    \ d\u201D with \u201CCohen's h\u201D in FR\u2011009 and SC\u2011006 and adding\
+    \ the note \u201CRatified: Cohen's h for binary data\u201D) was provided. Without\
+    \ the updated document, the task\u2019s deliverable cannot be verified."
+T012a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer did not provide any artifact (e.g., model file, parameter count\
+    \ report, or benchmark results) showing that the T012 model\u2019s size is \u2264\
+    0.5\u202FB parameters and that its inference time is \u2264500\u202Fms per pair.\
+    \ Without concrete metrics or logs, the task\u2019s validation requirement is\
+    \ not satisfied."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No validation script output, result logs, or precision/recall metrics are present;\
+    \ the claim provides no evidence that the synthetic dataset was run or that the\
+    \ \u226580% baseline was achieved. The required artifact\u2014a report or data\
+    \ confirming the precision/recall performance\u2014is missing."
+T018:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test code, data, or results were supplied to demonstrate that `EvoMem-Conflict`\
+    \ filters non\u2011conflict patches using the US1 heuristic, nor any indication\
+    \ that the required dependencies (T012, T020) were satisfied. The claim lacks\
+    \ any concrete artifact, so the task is not genuinely completed."
+T023:
+  c: false
+  h: 3a7e09ed2ab3eb4662a875760a4f1f7c111df58d92cf28f9d69d195d6a3058fe
+  r: "The required file `src/analysis/runner.py` does not exist in the repository,\
+    \ so no logging functionality can be verified. The task\u2019s core artifact is\
+    \ missing entirely."
+T024:
+  c: false
+  h: b2ea00f1e0046dd0b36558021a014377c7274b0695f42fc58d43a113960bca82
+  r: The required artifact `data/logs/full_run.csv` does not exist, so the existence,
+    content, column, and timing checks cannot be performed. The task therefore remains
+    unfinished.
+T024a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `config.json` file containing the runner time limit was provided, nor any
+    evidence that the implementer extracted the limit from a `plan.md` constraints
+    section. The required artifact is missing, so the task is not satisfied.
+T025:
+  c: false
+  h: c74884a751bb8b8496426a848fc14f950e454016f78ca6f34eeebb2cb145372a
+  r: The required file `tests/unit/test_stats.py` does not exist in the repository,
+    so no unit test code or mock data was provided to verify the statistical test
+    logic and metric calculations. The task remains undone.

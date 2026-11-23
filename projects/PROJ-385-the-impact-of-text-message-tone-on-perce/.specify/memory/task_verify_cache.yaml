@@ -1,0 +1,127 @@
+T002:
+  c: false
+  h: 4b9ce1bced36f6a6affa718fc91c6a2c12423eca118c3439ff2aa775060ab707
+  r: "The `code/requirements.txt` file is present, but it lists version ranges (e.g.,\
+    \ `pandas>=2.0.0`) rather than pinned exact versions, and there is no evidence\
+    \ that `pip install -r code/requirements.txt` was run successfully. The task requires\
+    \ pinned versions and verification of a conflict\u2011free install."
+  sig: f9f746b2cdbb704a7251f2ec51758a91d4cdb4001192c2072ffde4f2ffb511cf
+T003:
+  c: false
+  h: 74626e77af39f972325a416b4e282d40a39c2f663c01242a1d22e47ea2030200
+  r: "The `ruff.toml` and `pyproject.toml` files are present, but there is no provided\
+    \ evidence (e.g., command output, logs, or test results) showing that `ruff check.`\
+    \ and `black --check.` actually run and return zero exit codes. Without this verification,\
+    \ the task\u2019s requirement is not satisfied."
+  sig: aefa9f59daeab6bc2b6bf9c904060e28fce8d48918232463131320a0e1934201
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or `.gitkeep` files were presented as evidence; without
+    visible `data/raw/`, `data/processed/`, and `data/consent/` folders containing
+    a `.gitkeep` each, the requirement cannot be confirmed. The implementer must provide
+    the actual filesystem layout or a listing showing those directories and files.
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided showing any JSON or YAML schema files in the required
+    path `specs/001-the-impact-of-text-message-tone-on-perce/contracts/`. Without
+    actual files (or a directory listing) the claim cannot be verified. The implementer
+    must add the schema files (or a proof of their existence) in that location.
+T007:
+  c: true
+  h: fb65dcb4bbbc052ed5efb5092e967c75b111553228dd99b01a25419f68bb1219
+  r: "Checked `code/config.py` (defines `RANDOM_SEED` as an integer and `BASE_DATA_PATH`\
+    \ pointing to the existing `data/` directory) and confirmed that the `data/` directory\
+    \ is present, so the import\u2011time assertions succeed."
+  sig: ecb10721ad6e55d0b36bde920104bd646aa067d8a2b115d2c772d2fffcf0ed36
+T009:
+  c: false
+  h: 99027be1cb025e6fecb8089e5607f60de30fad554a1ac4bda8a8076d78097fe2
+  r: "The provided `code/00_verify_consent.py` is truncated and does not show a complete\
+    \ implementation (e.g., no `if __name__ == \"__main__\":` block to actually exit\
+    \ with the returned code, and no logic for detecting \u201Cinvalid keys\u201D\
+    \ to return exit code\u202F2). Consequently, we cannot verify that the script\
+    \ meets all required exit\u2011code behaviors. The missing parts must be added\
+    \ for the task to be considered complete."
+T014:
+  c: false
+  h: 0f0c4819a9210944088fea6bad295c03aacc97e869d26025387422027d6e8334
+  r: "The repository contains a `code/02_counterbalance.py` file, but its contents\
+    \ are truncated and do not include the full implementation (e.g., the `create_counterbalanced_trials`\
+    \ function is cut off and there is no code that writes `counterbalanced_trials.csv`).\
+    \ Moreover, the required output file `data/processed/counterbalanced_trials.csv`\
+    \ is absent. The task\u2019s core deliverables are therefore not present."
+T016a:
+  c: false
+  h: b16936c538cc1e79531635113b29b26d90ef9fd570489e7a061ef7d04e9336fe
+  r: The `code/03_clean_data.py` file defines a `detect_straight_lining` function
+    but does not contain any code that writes the flagged participant IDs to `data/processed/excluded_participants.csv`,
+    and the expected CSV file is absent from the repository. The required output artifact
+    is therefore missing.
+T016b:
+  c: false
+  h: 32a60f4889b796e01552d9ae11231212452c0465539da038c2c5f617269f44ba
+  r: "The required output file `data/processed/cleaned_ratings.csv` does not exist,\
+    \ so the listwise deletion and cleaned dataset were not produced. The task\u2019\
+    s core artifact is missing."
+T020:
+  c: false
+  h: 82ced958d419215e5f76bc17b3be9bd841b89c9ef6d7f71a1fa5c0d8b59f463a
+  r: "The repository contains `code/04_fit_lmm.py`, which is a model\u2011fitting\
+    \ script that reads `analysis_ready.csv`; it does not perform the required preprocessing\
+    \ (listwise deletion) nor read `data/processed/anonymised_ratings.csv`. Moreover,\
+    \ both `data/processed/anonymised_ratings.csv` and the expected output `data/processed/analysis_ready.csv`\
+    \ are absent from the file tree. The task\u2019s required input and output files\
+    \ are missing, and the script does not implement the specified preprocessing step."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of an updated `specs/001-text-tone-emotional-support/quickstart.md`
+    file is provided; the response contains only the specification text and no documentation
+    artifact, so we cannot confirm the required documentation changes were made.
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of an end\u2011to\u2011end pipeline execution with a fixed random\
+    \ seed is present\u2014no logs, output files, or reproducibility report were supplied,\
+    \ so the required artifact is missing."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of additional unit test files for edge cases (missing data handling,
+    randomization failure) was provided in the `tests/unit/` directory; the required
+    artifacts are missing.
+T084:
+  c: false
+  h: ee8f6eaab17d675ec587331ca567fa261d29d3ce04a7ec92f6d27f0020f46c50
+  r: The required files `data/processed/analysis_ready.csv` and `analysis_ready.schema.yaml`
+    are missing, so no validation could have been performed. Without these artifacts
+    the claimed test cannot be verified.
+T091:
+  c: false
+  h: d33e1c579b7a76e9e80f4c021113c65733bbee42a5ce26fd905c3b5390e2eb62
+  r: "The required output file `data/processed/power_analysis_results.json` does not\
+    \ exist, so the power\u2011analysis simulation was not completed. Additionally,\
+    \ the provided script is truncated (e.g., an unfinished `except Import` block),\
+    \ indicating it cannot be executed as\u2011is. The missing JSON result must be\
+    \ generated by running a complete script on synthetic data."
+T099:
+  c: false
+  h: 781ab4c635b327de24a32496f1c04cc1b9a712b1e40f1ca582a14e702f805d26
+  r: "The provided `code/run_pipeline.py` only defines `--mode` choices \u201Creal\u201D\
+    \ and \u201Cbenchmark\u201D and lacks any `--mode mock` handling or a `--generate-report`\
+    \ option, so it cannot produce the required exit\u2011code\u202F1 with the specified\
+    \ error message. Consequently the contract test `tests/contract/test_cli_guard.py`\
+    \ would fail. The CLI must be extended to accept `--mode mock` together with `--generate-report`\
+    \ and enforce the guard clause."
+  sig: fe12ee40cf5cec5c8e8db07d4837302b574b55d67c6f719bf1d72fff225927ff
+T099c:
+  c: false
+  h: 6e214c446da4c65c851e46ab7768ce0809c0f27474b02db6884b877656000bda
+  r: "The `plan.md` and `README.md` files contain \u201C\u2264\u202F6\u202Fh\u201D\
+    \ (using the abbreviation \u201Ch\u201D) but do not include the exact phrase \u201C\
+    \u2264 6 hours\u201D that `code/check_performance_phrase.py` searches for. Consequently\
+    \ the verification script would report a failure, so the required documentation\
+    \ update is not satisfied."
+  sig: 8b627e998023054336a01f0d97095a0c054253b28b4db05b047b0368ba2e3b46

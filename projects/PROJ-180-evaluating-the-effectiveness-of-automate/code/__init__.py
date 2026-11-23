@@ -1,2 +1,4 @@
-# llmXive project: Evaluating Automated Code Review Tools
-# This package contains the core implementation for the research pipeline.
+# llmXive research-implementer pipeline
+# This package contains the core scripts and utilities for evaluating
+# automated code review tools.
+pass

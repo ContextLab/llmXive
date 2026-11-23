@@ -1,59 +1,58 @@
 # Data Model: Investigating the Correlation Between Dietary Fiber Intake and Gut Microbiome Composition
 
-## Key Entities
+## Overview
+Four logical data states are persisted under `data/`:
 
-### Sample
-Represents an individual participant.
-- **Attributes**:
-  - `sample_id` (string): Unique identifier generated as `SHA256(cohort + original_sample_id)`. Enforced for Single Source of Truth traceability.
-  - `cohort` (string): "AGP" or "UKBB".
-  - `fiber_intake_g_day` (float): Self-reported fiber intake (0–200 g/day).
-  - `read_depth` (int): Total sequencing reads.
-  - `age` (int/float): Age in years.
-  - `bmi` (float): Body Mass Index.
-  - `antibiotic_use` (boolean): Recent antibiotic use (Yes/No).
-  - `sex` (string): "Male", "Female", "Other".
-  - `batch` (string): Sequencing batch ID.
+1. **Raw** – original AGP/UKBB (or user‑provided) 16S count tables and metadata (unchanged).
+2. **Harmonized** – after unit conversion, filtering, and covariate imputation.
+3. **Analysis Matrices** – (a) CLR‑transformed taxon abundances (for Spearman) and (b) CLR‑transformed count matrix (for MaAsLin2), each linked to sample metadata.
+4. **Results** – association tables, differential‑abundance tables, replication flags, measurement‑error bias summaries, power reports, and the final markdown report.
 
-### Taxon
-Represents a bacterial taxon (Genus/Species level).
-- **Attributes**:
-  - `taxon_id` (string): Taxonomic identifier (e.g., "g__Bacteroides").
-  - `raw_count` (int): Raw read count for the sample.
-  - `clr_value` (float): Centered Log-Ratio transformed value.
-  - `prevalence` (float): Fraction of samples where count > 0.
+## Schemas (referenced in `contracts/`)
 
-### Covariate
-Represents confounding variables used in models.
-- **Attributes**:
-  - `covariate_name` (string): e.g., "Age", "BMI".
-  - `value` (float/string): Normalized value.
-  - `missing_ratio` (float): Proportion of missing values in the cohort.
+### 1. Harmonized Sample Record (`dataset.schema.yaml`)
+| Field | Type | Constraints |
+|-------|------|-------------|
+| `sample_id` | string | Unique; SHA‑256 hash of original ID + cohort. |
+| `fiber_intake_g` | number | 0 ≤ value ≤ 200. |
+| `age` | number | Positive. |
+| `sex` | string | `"M"` or `"F"`. |
+| `bmi` | number | Positive. |
+| `antibiotic_use` | string | `"Yes"` or `"No"`. |
+| `batch` | string | Non‑empty sequencing batch identifier. |
+| `read_depth` | integer | ≥ 5 000. |
+| `cohort` | string | `"AGP"` or `"UKBB"` or `"User"`. |
 
-## Data Flow
+### 2. CLR‑Transformed Taxon Matrix (`analysis_matrix_clr.csv` – not a schema file)
+Columns: `sample_id`, `taxon_id`, `clr_value` (real number; zeros handled by Bayesian replacement).
 
-1.  **Raw Ingestion**:
-    - `data/raw/agp_raw.tsv` (AGP OTU table + metadata from Qiita 10160).
-    - `data/raw/ukbb_raw.tsv` (UKBB OTU table + metadata from Field 21003/22012).
-2.  **Filtering & Harmonization**:
-    - Filter: `read_depth >= 5000`, `0 <= fiber_intake <= 200`.
-    - Exclude: Missing fiber intake.
-    - Convert: All fiber units to `g/day`.
-    - **ID Generation**: `sample_id` = `SHA256(cohort + original_id)`.
-    - Output: `data/processed/merged_harmonized.tsv`.
-3.  **Transformation**:
-    - **Imputation**: Apply MICE (Multivariate Imputation by Chained Equations) for missing covariates if <20% missing. Exclude if >20%.
-    - Apply CLR (pseudocount=1) to taxon counts.
-    - Output: `data/processed/clr_transformed.tsv`.
-4.  **Analysis Output**:
-    - Correlation Results: `data/processed/results/correlation_maaslin2.tsv`.
-    - Cross-Cohort Validation: `data/processed/results/validation_summary.tsv`.
+### 3. Raw Count Taxon Matrix (`analysis_matrix_counts.csv` – not a schema file)
+Columns: `sample_id`, `taxon_id`, `count` (integer ≥ 0).
 
-## Schema Constraints
+### 4. Association Result (`correlation_result.schema.yaml`)
+| Field | Type | Description |
+|-------|------|-------------|
+| `taxon` | string | Taxon identifier (e.g., `g__Bacteroides`). |
+| `spearman_rho` | number | Spearman correlation coefficient (rounded to 3 dp). |
+| `spearman_se` | number | Standard error of Spearman ρ (via Fisher Z, rounded to 3 dp). |
+| `raw_p_value` | number | 0 ≤ p ≤ 1. |
+| `q_value` | number | BH‑adjusted q (0 ≤ q ≤ 1). |
+| `significant` | boolean | `q_value < 0.05`. |
+| `beta_coefficient` | number | Linear‑model β from MaAsLin2 on CLR data (rounded to 3 dp). |
+| `cohort` | string | `"AGP"`, `"UKBB"` or `"User"`. |
 
-- **Fiber Intake**: Must be `float` in range `[0.0, 200.0]`.
-- **Read Depth**: Must be `int` >= 5000.
-- **Taxon Abundance**: Non-negative `int` (raw) or `float` (CLR).
-- **Missing Data**: Samples with >20% missing covariates are excluded. MICE used for <20%.
-- **Zero Handling**: Pseudocount of 1 applied before log transformation.
-- **Unique ID**: `sample_id` must be a valid SHA256 hash string.
+### 5. Differential Abundance Result (`diff_abundance.schema.yaml`)
+| Field | Type | Description |
+|-------|------|-------------|
+| `taxon_id` | string | Taxonomic identifier. |
+| `method` | string | `"ANCOM-II"` or `"DESeq2"`. |
+| `q_value` | number | Adjusted p‑value. |
+| `effect_size` | number | Log‑fold change (DESeq2) or W‑statistic (ANCOM‑II). |
+| `direction` | string | `"Positive"` or `"Negative"`. |
+| `replicated` | boolean | `True` iff significant (q < 0.05) in **both** cohorts with identical direction. |
+
+## Validation Rules
+- All numeric fields respect the ranges noted above.  
+- `replicated` is `True` ⇔ (`q_value < 0.05` in both cohorts) **and** `direction` identical.  
+- Samples failing the >20 % missingness rule are excluded before schema validation.  
+- `batch` must be non‑empty; it is used as a covariate in association models.

@@ -1,0 +1,9 @@
+status: none
+intent: "System MUST download the OC20 dataset, Materials Project bulk descriptors,\
+  \ and the recent CO\u2082 hydrogenation study dataset (Doe et al., 2025,) via and\
+  \ parse them into a unified Pandas DataFrame (See US-1). Verification: and must\
+  \ match, and the DataFrame must contain the required columns . Dataset Pur"
+required_fields: []
+cache_key: eaf2fd6a87adba888a14eb0ee8b0d4d630fd20d63f06b74215519f4be5becc76
+searched_at: '2026-11-21T09:29:42.722671+00:00'
+retry_count: 2

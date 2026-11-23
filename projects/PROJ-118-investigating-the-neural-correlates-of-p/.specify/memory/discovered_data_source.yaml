@@ -1,0 +1,18 @@
+status: none
+intent: OpenNeuro ds003645 download via MNE Python package EEG python package dataset
+required_fields:
+- subject_id
+- session_id
+- run_id
+- eeg_signal_matrix
+- sampling_rate
+- channel_names
+- event_type (standard or deviant)
+- stimulus_onset_timestamp
+- epoch_start_time
+- epoch_end_time
+- epoch_data_matrix
+- age
+cache_key: d7066c5a3a07a5f788c5ce351e41a41e8e4c9a3dede3d1306faa312ef3d6f806
+searched_at: '2026-10-14T20:35:14.697408+00:00'
+retry_count: 1

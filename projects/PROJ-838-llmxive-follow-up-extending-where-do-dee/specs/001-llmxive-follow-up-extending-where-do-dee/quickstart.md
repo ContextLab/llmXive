@@ -1,73 +1,83 @@
-# Quickstart: llmXive follow-up: extending "Where Do Deep-Research Agents Go Wrong? Span-Level Error Localization"
+# Quickstart: 001-gene-regulation
 
 ## Prerequisites
+
 - Python 3.11+
-- pip
-- Access to HuggingFace (for dataset download)
+- Git
+- Hugging Face account (if dataset requires authentication)
 
 ## Installation
 
-1.  **Clone and Setup**:
-    ```bash
-    cd projects/PROJ-838-llmxive-follow-up-extending-where-do-dee
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd specs/001-llmxive-follow-up-extending-where-do-dee
+   ```
 
-2.  **Install Dependencies**:
-    ```bash
-    pip install -r requirements.txt
-    python -m spacy download en_core_web_sm
-    ```
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
 
-3.  **Verify Environment**:
-    Ensure you have access to the TELBench dataset URL. No GPU drivers are required.
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+4. **Verify environment**:
+   ```bash
+   python -c "import pandas, networkx, datasets; print('All imports successful')"
+   ```
 
 ## Running the Pipeline
 
+The pipeline is orchestrated via `code/pipeline.py`.
+
 ### 1. Download Data
-Fetch the raw TELBench dataset and verify checksums.
 ```bash
-python code/downloader.py --fetch
+python code/downloader.py --dataset NJU-LINK/TELBench --output data/raw/tebench_raw.json
 ```
-*Output*: `data/raw/telbench_trajectories.json`
+*Note: This step may require setting `HF_TOKEN` if the dataset is gated.*
 
-### 2. Build Graphs & Calculate Metrics
-Process trajectories, construct DAGs, and compute topological features.
+### 2. Run Full Analysis
 ```bash
-python code/main.py --mode process --cutoff-depth 0.30
+python code/pipeline.py --config code/config.py
 ```
-*Output*: `data/processed/metrics/trajectory_metrics.csv`
+This executes:
+- Parsing and graph construction.
+- Metric calculation.
+- Train/Test split.
+- Threshold optimization and prediction.
+- Evaluation report generation.
 
-### 3. Evaluate & Generate Report
-Apply the optimal F1-based threshold and generate the confusion matrix.
-```bash
-python code/main.py --mode evaluate --strategy f1-max
-```
-*Output*: `data/results/evaluation_report.json`
-
-### 4. Sensitivity Analysis (Optional)
-Run the threshold sweep to check robustness.
-```bash
-python code/main.py --mode sensitivity --thresholds 0.01 0.05 0.1 --percentiles 10 20 30
-```
-
-### 5. Versioning & Hashing
-Manually trigger hashing of all artifacts (or run after each phase).
-```bash
-python code/hasher.py
-```
-*Output*: Updates `state/projects/PROJ-838-llmxive-follow-up-extending-where-do-dee.yaml` with SHA-256 hashes.
+### 3. Inspect Results
+- **Metrics**: `data/processed/metrics.csv`
+- **Evaluation Report**: `data/processed/evaluation_results.json`
+- **Graphs**: `data/processed/graphs/`
 
 ## Testing
 
-Run the unit and integration test suite:
+Run the unit tests to verify correctness:
 ```bash
-pytest tests/
+pytest tests/unit/ -v
 ```
 
+Run integration tests:
+```bash
+pytest tests/integration/ -v
+```
+
+## Configuration
+
+Edit `code/config.py` to adjust:
+- `cutoff_depth`: Fraction of spans to use (default 0.30).
+- `seed`: Random seed for reproducibility.
+- `paths`: Input/output directories.
+
 ## Troubleshooting
-- **Memory Error**: If processing the full dataset fails, add `--sample-size 100` to the `process` command to test on a subset first.
-- **Missing Fields**: If `graph_builder.py` logs a warning about missing fields, check `data/raw/telbench_trajectories.json` for schema drift against the expected TELBench format.
-- **No Edges**: If a trajectory has zero edges, the connectivity metric is set to `0.0` by default. This is expected behavior for sparse reasoning paths.
-- **spaCy Model Missing**: Ensure `en_core_web_sm` is installed via `python -m spacy download en_core_web_sm`.
+
+- **Dataset Access Error**: Ensure `HF_TOKEN` is set if the dataset is gated. Check the `Verified datasets` block for the correct source.
+- **Memory Error**: The pipeline uses streaming. If issues persist, reduce the dataset size or increase RAM.
+- **Zero-Edge Graphs**: The system handles these by returning 0.0 for metrics. No action needed.
+- **Performance**: If the pipeline exceeds 30 minutes for 100 trajectories, check the `data/processed/metrics.csv` for unstable graphs and ensure streaming is enabled.

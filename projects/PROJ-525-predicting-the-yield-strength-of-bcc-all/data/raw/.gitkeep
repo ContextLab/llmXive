@@ -1,1 +1,2 @@
-# Keep this directory for raw data downloads (e.g., MPEA database)
+# This file ensures the data/raw directory is tracked by git.
+# Raw data files (e.g., MPEA database) will be downloaded here.

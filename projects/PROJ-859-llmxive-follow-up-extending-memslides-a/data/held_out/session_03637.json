@@ -1,0 +1,106 @@
+{
+  "trace_id": "held_out_43_03637",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "update_layout",
+    "insert_text",
+    "insert_text",
+    "resize_element",
+    "resize_element",
+    "insert_text",
+    "insert_text",
+    "resize_element",
+    "apply_theme"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 54.9544,
+        "padding": 72.4007
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 20.0606,
+        "y": 46.2185,
+        "length": 57.4874
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 61.5484,
+        "y": 49.248,
+        "length": 34.4727
+      }
+    },
+    {
+      "step": 3,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 14.0537,
+        "height": 72.9877
+      }
+    },
+    {
+      "step": 4,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 60.57,
+        "height": 76.3465
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 56.3632,
+        "y": 4.2175,
+        "length": 77.427
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 76.0782,
+        "y": 55.7205,
+        "length": 55.8066
+      }
+    },
+    {
+      "step": 7,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 58.3767,
+        "height": 30.31
+      }
+    },
+    {
+      "step": 8,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 71.9626,
+        "saturation": 26.1273
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.21489,
+    "tool_repetition_freq": 0.555556,
+    "arg_semantic_variance": 435.964463
+  },
+  "final_state": {
+    "dominant_tool": "insert_text",
+    "slide_element_count": 6,
+    "layout_hash": "43-3637-insert_text"
+  },
+  "variance_multiplier": 1.5
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2509.17439",
+  "judged_at": "2026-08-19T09:26:32Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "astrocyte-inspired meta-learning: glial modulation of neural networks neuroscience",
+  "rationale": "This paper satisfies criteria (a) and (d) as it proposes a meta-learning framework explicitly inspired by a biological mechanism (synaptic homeostasis) to achieve stability-plasticity balance, which is the core functional goal of astrocyte-mediated glial modulation in neural networks. Although it focuses on synaptic homeostasis rather than astrocytes specifically, it represents the canonical bio-inspired approach to the \"glial modulation\" problem in the context of continual learning and neural n",
+  "relevant": true
+}

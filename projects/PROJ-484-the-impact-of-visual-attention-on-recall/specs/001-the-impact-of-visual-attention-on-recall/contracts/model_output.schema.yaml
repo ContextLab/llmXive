@@ -1,0 +1,164 @@
+# Model Output Schema Validation Contract
+# Defines the expected structure for model results JSON and power analysis output
+# Used by validate_schemas.py to verify artifacts before downstream consumption
+#
+# Generated for Task T006b
+# Depends on: T006a (data-model.md)
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for model results and power analysis output artifacts"
+
+definitions:
+  model_results:
+    type: object
+    description: "Results from the mixed-effects logistic regression model"
+    required:
+      - model_convergence
+      - chi_squared_stat
+      - p_value
+      - fixed_effects
+      - random_effects_variance
+      - model_formula
+      - convergence_message
+    properties:
+      model_convergence:
+        type: boolean
+        description: "Whether the model converged successfully"
+      chi_squared_stat:
+        type: number
+        description: "Chi-squared statistic from the likelihood-ratio test"
+      p_value:
+        type: number
+        description: "P-value from the likelihood-ratio test (full vs reduced model)"
+      fixed_effects:
+        type: object
+        description: "Fixed effects coefficients and statistics"
+        additionalProperties:
+          type: object
+          properties:
+            estimate:
+              type: number
+            std_error:
+              type: number
+            z_value:
+              type: number
+            p_value:
+              type: number
+      random_effects_variance:
+        type: object
+        description: "Variance components for random effects"
+        properties:
+          participant:
+            type: number
+            description: "Variance for participant random intercept"
+          stimulus_id:
+            type: number
+            description: "Variance for stimulus random intercept"
+          residual:
+            type: number
+            description: "Residual variance"
+      model_formula:
+        type: string
+        description: "The formula used for the model"
+      convergence_message:
+        type: string
+        description: "Convergence status message from the optimizer"
+      overdispersion:
+        type: number
+        description: "Overdispersion parameter (if > 1.2, indicates potential issues)"
+      sample_size:
+        type: integer
+        description: "Number of observations used in the model"
+      n_participants:
+        type: integer
+        description: "Number of unique participants"
+      n_stimuli:
+        type: integer
+        description: "Number of unique stimuli"
+
+  power_analysis:
+    type: object
+    description: "Results from the Monte Carlo power analysis simulation"
+    required:
+      - power_estimate
+      - simulation_iterations
+      - alpha_level
+      - effect_size_used
+      - sample_size_used
+      - convergence_rate
+    properties:
+      power_estimate:
+        type: number
+        description: "Estimated statistical power (proportion of significant results)"
+      simulation_iterations:
+        type: integer
+        description: "Number of Monte Carlo simulation iterations"
+      alpha_level:
+        type: number
+        description: "Significance level used (typically 0.05)"
+      effect_size_used:
+        type: number
+        description: "Effect size (f²) used in the simulation"
+      sample_size_used:
+        type: integer
+        description: "Sample size used in the simulation"
+      convergence_rate:
+        type: number
+        description: "Proportion of bootstrap samples where model converged"
+      variance_components:
+        type: object
+        description: "Variance components extracted from the fitted model"
+        properties:
+          participant:
+            type: number
+          stimulus_id:
+            type: number
+          residual:
+            type: number
+      confidence_interval:
+        type: object
+        description: "95% confidence interval for the power estimate"
+        properties:
+          lower:
+            type: number
+          upper:
+            type: number
+
+# Main schema for model_results.json
+model_results_schema:
+  $ref: "#/definitions/model_results"
+
+# Main schema for power_analysis.json
+power_analysis_schema:
+  $ref: "#/definitions/power_analysis"
+
+# Combined output schema (if both are in one file)
+combined_schema:
+  type: object
+  required:
+    - model_results
+    - power_analysis
+  properties:
+    model_results:
+      $ref: "#/definitions/model_results"
+    power_analysis:
+      $ref: "#/definitions/power_analysis"
+
+# Validation rules
+validation_rules:
+  - rule: "p_value_range"
+    description: "P-value must be between 0 and 1"
+    condition: "0 <= p_value <= 1"
+  - rule: "chi_squared_non_negative"
+    description: "Chi-squared statistic must be non-negative"
+    condition: "chi_squared_stat >= 0"
+  - rule: "power_range"
+    description: "Power estimate must be between 0 and 1"
+    condition: "0 <= power_estimate <= 1"
+  - rule: "convergence_rate_range"
+    description: "Convergence rate must be between 0 and 1"
+    condition: "0 <= convergence_rate <= 1"
+  - rule: "alpha_range"
+    description: "Alpha level must be between 0 and 1"
+    condition: "0 < alpha_level < 1"

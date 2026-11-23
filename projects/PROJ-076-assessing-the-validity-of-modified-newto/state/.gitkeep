@@ -1,2 +1,1 @@
-# This directory stores pipeline state files
-# Used for checkpointing and resuming long-running tasks
+# This file exists to ensure the state directory is tracked by git.

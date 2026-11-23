@@ -25,7 +25,6 @@ MANIFEST
 venv/
 ENV/
 env/
-.venv/
 
 # IDE
 .idea/
@@ -34,34 +33,31 @@ env/
 *.swo
 *~
 
-# Jupyter
-.ipynb_checkpoints
-
-# Data and Artifacts (DO NOT COMMIT)
+# Data and Artifacts (Critical for Research)
+# Raw data must never be committed
 data/raw/
+
+# Processed data is large and derived; excluded from git
 data/processed/
+
+# Generated artifacts and figures
 data/artifacts/
-*.csv
-*.npy
-*.tsv
-*.json
 figures/
-*.png
-*.pdf
 
 # Logs
-*.log
 logs/
+*.log
+
+# Reproducibility report (generated)
+reproducibility_report.json
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Test coverage
-.coverage
-htmlcov/
-.pytest_cache/
+# Jupyter
+.ipynb_checkpoints/
 
-# Config (sensitive)
+# Local config (if any)
 .env
-config_secrets.json
+config.local.json

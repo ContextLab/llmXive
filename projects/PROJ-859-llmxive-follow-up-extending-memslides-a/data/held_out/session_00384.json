@@ -1,0 +1,83 @@
+{
+  "trace_id": "held_out_43_00384",
+  "dataset_split": "held_out",
+  "seed": 43,
+  "sequence_length": 7,
+  "tool_sequence": [
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "delete_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 7.7501,
+        "y": 48.8593,
+        "length": 50.4053
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 43.7939,
+        "y": 63.414,
+        "length": 43.3244
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 31.428,
+        "y": 56.202,
+        "length": 85.0701
+      }
+    },
+    {
+      "step": 3,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 19.9846
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 35.6742
+      }
+    },
+    {
+      "step": 5,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 48.486
+      }
+    },
+    {
+      "step": 6,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 88.9709
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 0.682908,
+    "tool_repetition_freq": 0.714286,
+    "arg_semantic_variance": 479.648163
+  },
+  "final_state": {
+    "dominant_tool": "delete_element",
+    "slide_element_count": 3,
+    "layout_hash": "43-384-delete_element"
+  },
+  "variance_multiplier": 1.5
+}

@@ -1,0 +1,17 @@
+a0dcec8200983a1429e4e47edb6281c9  ./annotation_hashes.txt
+34e786953b0851e64dbc496b4e2473de  ./GCF_042218505.1_DAL-Ass_37_98C3R_assembly_report.txt
+895118d108002076454b9a8a93987e82  ./GCF_042218505.1_DAL-Ass_37_98C3R_assembly_stats.txt
+5c09e010b8290484633f023d203162ac  ./GCF_042218505.1_DAL-Ass_37_98C3R_cds_from_genomic.fna.gz
+01b3fbe439c1c7dd5aaa7906b099ba33  ./GCF_042218505.1_DAL-Ass_37_98C3R_fcs_report.txt
+454bcf05463db3e1f83ab5701fa5120a  ./GCF_042218505.1_DAL-Ass_37_98C3R_feature_count.txt
+d6062b10636904f69ba5f517d43968e1  ./GCF_042218505.1_DAL-Ass_37_98C3R_feature_table.txt.gz
+81615fa32ee5975a8d5372e0c521fc4f  ./GCF_042218505.1_DAL-Ass_37_98C3R_genomic.fna.gz
+671cabeec6aa6cea4a53dbebf769d42d  ./GCF_042218505.1_DAL-Ass_37_98C3R_genomic_gaps.txt.gz
+0d5aff04b9566ae6a9b7789c9a809cd8  ./GCF_042218505.1_DAL-Ass_37_98C3R_genomic.gbff.gz
+ba7a0c08b8b04e6b87fb325b6cc53d29  ./GCF_042218505.1_DAL-Ass_37_98C3R_genomic.gff.gz
+35c60019a6666744b7d063b8c794d6d2  ./GCF_042218505.1_DAL-Ass_37_98C3R_genomic.gtf.gz
+2883dfa898ddba690ab9a2e226e0be0d  ./GCF_042218505.1_DAL-Ass_37_98C3R_protein.faa.gz
+997e743188412d6a8813f4a3cfb1ae50  ./GCF_042218505.1_DAL-Ass_37_98C3R_protein.gpff.gz
+29a966b561d49005a9e61c1f4ab28bff  ./GCF_042218505.1_DAL-Ass_37_98C3R_rna_from_genomic.fna.gz
+647d7bf138420ebbc91c4c5e190227a3  ./GCF_042218505.1_DAL-Ass_37_98C3R_translated_cds.faa.gz
+de8138b086742f7e928872bd4c57d042  ./GCF_042218505.1_DAL-Ass_37_98C3R_wgsmaster.gbff.gz

@@ -1,48 +1,47 @@
-# Schema definition for the HCP resting-state fMRI dataset
-# Used by ingestion.py to verify data integrity before processing
-required_columns:
-  - subject_id
-  - global_signal
-  - global_signal_sd
-  - mwq_score
-  - age
-  - sex
-  - fd
-  - dvars
-column_types:
-  subject_id: str
-  global_signal: float
-  global_signal_sd: float
-  mwq_score: float
-  age: int
-  sex: str
-  fd: float
-  dvars: float
-constraints:
-  subject_id:
-    unique: true
-    not_null: true
+# Dataset Schema for Resting-State fMRI Global Signal Analysis
+# This schema defines the required columns and data types for the cleaned dataset
+# Used by T010 for validation before downstream processing
+type: object
+properties:
+  Subject_ID:
+    type: integer
+    nullable: false
+    description: Unique identifier for the subject
+  global_signal:
+    type: number
+    nullable: true
+    description: Global signal mean time series (optional, for reference)
   global_signal_sd:
-    not_null: true
-    non_negative: true
-  mwq_score:
-    not_null: true
-    min: 0
-    max: 100
-  age:
-    not_null: true
-    min: 18
-    max: 100
-  sex:
-    not_null: true
-    allowed_values:
-      - "M"
-      - "F"
-      - "Male"
-      - "Female"
-  fd:
-    not_null: true
-    non_negative: true
-  dvars:
-    not_null: true
-    non_negative: true
+    type: number
+    nullable: false
+    description: Standard deviation of the global signal per subject
+  MWQ_Score:
+    type: number
+    nullable: false
+    description: Mind-Wandering Questionnaire total score
+  Age:
+    type: integer
+    nullable: false
+    description: Subject age in years
+  Sex:
+    type: string
+    nullable: false
+    enum: ["M", "F"]
+    description: Biological sex
+  Mean_FD:
+    type: number
+    nullable: false
+    description: Mean framewise displacement in mm
+  Mean_DVARS:
+    type: number
+    nullable: false
+    description: Mean DVARS (temporal derivative of RMS variance)
+required:
+  - Subject_ID
+  - global_signal_sd
+  - MWQ_Score
+  - Age
+  - Sex
+  - Mean_FD
+  - Mean_DVARS
+additionalProperties: true

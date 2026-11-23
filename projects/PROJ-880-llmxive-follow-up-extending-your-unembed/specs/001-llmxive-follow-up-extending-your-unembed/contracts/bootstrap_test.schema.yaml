@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Bootstrap Test Schema
+type: object
+required:
+  - metric_name
+  - replicate_count
+  - ci_lower
+  - ci_upper
+  - generated_at
+properties:
+  metric_name:
+    type: string
+    description: "Name of the metric bootstrapped (e.g., 'cosine_similarity')."
+  replicate_count:
+    type: integer
+    minimum: 1
+    description: "Number of bootstrap replicates performed."
+  ci_lower:
+    type: number
+    description: "Lower bound of a confidence interval at a conventional high confidence level."
+  ci_upper:
+    type: number
+    description: "Upper bound of a high-confidence interval."
+  generated_at:
+    type: string
+    format: date-time

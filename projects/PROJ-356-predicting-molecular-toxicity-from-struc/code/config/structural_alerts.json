@@ -1,66 +1,74 @@
 {
-  "version": "1.0.0",
-  "description": "Curated set of structural alerts with SMARTS patterns and toxicity weights for molecular toxicity prediction.",
-  "alerts": [
+  "patterns": [
     {
-      "id": "NitroAromatic",
-      "smarts": "[*;a]([N+](=O)[O-])",
+      "pattern_id": "NITRO_AROMATIC_01",
+      "smarts_string": "[*;a]([N+](=O)[O-])",
       "weight": 1.5,
-      "description": "Nitro aromatic compounds are known mutagens."
+      "source": "Brenk Set",
+      "description": "Nitroaromatic group"
     },
     {
-      "id": "Epoxide",
-      "smarts": "[C;D3]1[O;D1][C;D3]1",
+      "pattern_id": "EPOXIDE_01",
+      "smarts_string": "[C;D3]1[O;D1][C;D3]1",
       "weight": 2.0,
-      "description": "Epoxides are highly reactive electrophiles."
+      "source": "Brenk Set",
+      "description": "Epoxide ring"
     },
     {
-      "id": "PrimaryAromaticAmine",
-      "smarts": "[N;D1;H2][c]",
+      "pattern_id": "PRIMARY_ARI_AMINE_01",
+      "smarts_string": "[N;D1;H2][c]",
       "weight": 1.2,
-      "description": "Primary aromatic amines are common metabolic activation targets."
+      "source": "Brenk Set",
+      "description": "Primary aromatic amine"
     },
     {
-      "id": "SecondaryAromaticAmine",
-      "smarts": "[N;D2;H1][c]",
+      "pattern_id": "SECONDARY_ARI_AMINE_01",
+      "smarts_string": "[N;D2;H1][c]",
       "weight": 1.0,
-      "description": "Secondary aromatic amines exhibit moderate toxicity risk."
+      "source": "Brenk Set",
+      "description": "Secondary aromatic amine"
     },
     {
-      "id": "Azide",
-      "smarts": "[N;D1]=[N;D1]=[N;D1]",
+      "pattern_id": "AZIDE_01",
+      "smarts_string": "[N;D1]=[N;D1]=[N;D1]",
       "weight": 2.5,
-      "description": "Azides are unstable and potentially toxic."
+      "source": "Brenk Set",
+      "description": "Azide group"
     },
     {
-      "id": "Isocyanate",
-      "smarts": "[N;D1]=[C;D2]=[O;D1]",
+      "pattern_id": "ISOCYANATE_01",
+      "smarts_string": "[N;D1]=[C;D2]=[O;D1]",
       "weight": 2.0,
-      "description": "Isocyanates are reactive and respiratory sensitizers."
+      "source": "Brenk Set",
+      "description": "Isocyanate group"
     },
     {
-      "id": "Aldehyde",
-      "smarts": "[C;D2](=[O;D1])[H;D1]",
+      "pattern_id": "ALDEHYDE_01",
+      "smarts_string": "[C;D2](=[O;D1])[H;D1]",
       "weight": 0.8,
-      "description": "Aldehydes can form protein adducts."
+      "source": "Brenk Set",
+      "description": "Aldehyde group"
     },
     {
-      "id": "HalogenatedAliphatic",
-      "smarts": "[C;D4][Cl,Br,I,F]",
+      "pattern_id": "HALO_ALIPHATIC_01",
+      "smarts_string": "[C;D4][Cl,Br,I,F]",
       "weight": 0.5,
-      "description": "Halogenated aliphatic chains may indicate metabolic stability or toxicity."
+      "source": "Brenk Set",
+      "description": "Halogenated aliphatic"
     },
     {
-      "id": "Azo",
-      "smarts": "[N;D1]=[N;D1]",
+      "pattern_id": "AZO_01",
+      "smarts_string": "[N;D1]=[N;D1]",
       "weight": 1.8,
-      "description": "Azo compounds can be reduced to aromatic amines."
+      "source": "Brenk Set",
+      "description": "Azo group"
     },
     {
-      "id": "Hydrazine",
-      "smarts": "[N;D1][N;D1]",
+      "pattern_id": "HYDRAZINE_01",
+      "smarts_string": "[N;D1][N;D1]",
       "weight": 1.5,
-      "description": "Hydrazine derivatives are toxic and potentially carcinogenic."
+      "source": "Brenk Set",
+      "description": "Hydrazine group"
     }
   ]
 }

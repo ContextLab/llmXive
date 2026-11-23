@@ -1,4 +1,4 @@
-- artifact_hash: 1b586578533ebce296836627cd6284eaad66f7b415619f2b64c437c527ec5162
+- artifact_hash: a0779df8e3a8a3c9bd90e15b23bff21bc66f722baf4e759cbdb4a8a2fe8f723a
   artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/research.md
   cite_id: c-001
   cited_authors: []
@@ -6,17 +6,6 @@
   fetched_title: locomo.csv
   kind: url
   value: https://huggingface.co/datasets/Aman279/Locomo/resolve/main/locomo.csv
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://huggingface.co/api/resolve-cache/datasets/Aman279/Locomo/8cbcf5921b32d1338c91dd23774b04d598ee750e/locomo.csv?%2Fdatasets%2FAman279%2FLocomo%2Fresolve%2Fmain%2Flocomo.csv=&etag=%22572722272295c87fc51f4358d63d492f04bb068d%22
-  verified_at: '2026-07-15T11:02:24.566086Z'
-- artifact_hash: 7a545eeb616d9b5bacf37ed7c44450845160aafd40be1106807c3691b5a3e934
-  artifact_path: projects/PROJ-894-llmxive-follow-up-extending-memory-is-re/specs/001-llmxive-follow-up-extending-memory-is-re/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://github.com/your-org/llmxive-follow-up.git
-  verification_status: mismatch
-  verified_against_url: https://github.com/your-org/llmxive-follow-up
-  verified_at: '2026-07-15T11:02:46.255625Z'
+  verified_at: '2026-09-18T00:49:59.536490Z'

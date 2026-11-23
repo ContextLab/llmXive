@@ -1,0 +1,8 @@
+{
+  "flake8": {
+    "available": false
+  },
+  "black": {
+    "available": false
+  }
+}

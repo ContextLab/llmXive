@@ -1,0 +1,67 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directories, `__init__.py` files, or a `.gitignore` were presented; the claim
+    provides no tangible artifact to confirm the required project structure was created.
+    The necessary folder hierarchy and configuration file are missing.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml,\
+    \ .prettierrc, or CI scripts) are present, nor any output showing they were applied.\
+    \ The only material shown relates to alloy\u2011phase\u2011diagram data pipelines,\
+    \ which does not satisfy the \u201CConfigure Linting and Formatting\u201D requirement.\
+    \ The task therefore lacks the required artifacts."
+T011:
+  c: false
+  h: 6fe84ae9904124dfb9ee943884971dd882ebf7afd03017fc93c2b39ed61998bc
+  r: "The repository contains a `tests/test_features.py` file, but it is truncated,\
+    \ lacks a `test_descriptor_deviation` function, and relies on a temporary CSV\
+    \ rather than the required `data/raw/elemental_properties.csv`. Moreover, the\
+    \ `data/raw/elemental_properties.csv` file itself is missing, so the test cannot\
+    \ verify deviation against the real reference data. The task\u2019s core requirement\
+    \ is therefore not met."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or generated dataset was provided; the required filtering logic\
+    \ (data extraction, descriptor generation, temperature\u2011value filtering, and\
+    \ logging of excluded rows) is absent, so the task\u2019s deliverables cannot\
+    \ be verified."
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim provides only a high\u2011level feature specification and user stories;\
+    \ there are no code files, scripts, tests, or documentation that implement the\
+    \ \u201CProperty Range Extrapolation\u201D or \u201CNew Element\u201D checks.\
+    \ Consequently, the required artifacts are missing, so the task is not satisfied."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or output file implementing a global\u2011mean null\
+    \ model baseline or the performance\u2011comparison logic was provided. The claim\
+    \ cannot be verified because the required artifact is missing. The next implementer\
+    \ must add the null\u2011model implementation (e.g., a function that predicts\
+    \ the overall mean temperature) and a comparison routine that computes and reports\
+    \ metrics (MAE, R\xB2, statistical significance) against the trained model."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or output showing a permutation test on the fold\u2011\
+    level MAE differences between the Random Forest model and the null baseline was\
+    \ provided. The claim lacks any artifact (e.g., Python implementation, statistical\
+    \ results, or a report) that could verify the test was actually performed."
+T028:
+  c: false
+  h: 6f7afa001d3e4f64958cb923f002c67a55c62b12f3e29ad73994d1891b78c4c7
+  r: "The provided `resource_monitor.py` is truncated (ends mid\u2011line) and never\
+    \ writes the required `execution_time_seconds` and `peak_memory_gb` to `data/artifacts/resource_log.json`.\
+    \ Moreover, the `resource_log.json` file is missing entirely, so the enforcement\
+    \ and logging specifications are not satisfied."
+T055:
+  c: false
+  h: b581156e48d61d0b703a7737722ddb2bee7d961fe020bd0dc51659f05d9a07bb
+  r: "The required `data/artifacts/fidelity_report.json` file does not exist, and\
+    \ the provided `plot_phase_diagrams.py` is truncated and lacks any implementation\
+    \ that writes such a report. Consequently the task\u2019s core output and verification\
+    \ step are missing."

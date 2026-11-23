@@ -85,11 +85,11 @@
 - **SC-002**: Background stability (temporal consistency) is measured by the variance in SSIM and gradient variance between **consecutive frames ($t$ and $t-1$) in the edited output**, quantifying the trade-off and identifying the non-linear degradation point relative to optical flow magnitude. (See FR-005, FR-006)
 - **SC-003**: Statistical significance of the difference in performance is measured against the null hypothesis using a **Kolmogorov-Smirnov (K-S) test** to compare error distributions, with a significance level of α=0.05 to confirm the validity of the observed trade-offs. (See FR-006)
 - **SC-004**: Threshold robustness is measured by the variance in artifact rates across the swept cutoff values **{0.01, 0.05, 0.1}**, ensuring the identified boundary is not an artifact of a single arbitrary cutoff choice. (See FR-007)
-- **SC-005**: Computational feasibility is measured against the 6-hour GHA execution limit, ensuring the total pipeline (data prep, inference, analysis) completes within the time budget without GPU acceleration. (See FR-001, FR-004)
+- **SC-005**: Computational feasibility is measured against the GHA execution limit, ensuring the total pipeline (data prep, inference, analysis) completes within the time budget without GPU acceleration. (See FR-001, FR-004)
 
 ## Assumptions
 
-- **Assumption about data availability**: The DAVIS and YouTube-VOS datasets are publicly accessible and contain sufficient video clips with the required motion complexity (static, slow rigid, fast non-rigid) to populate the 500-clip dataset.
+- **Assumption about data availability**: The DAVIS and YouTube-VOS datasets are publicly accessible and contain sufficient video clips with the required motion complexity (static, slow rigid, fast non-rigid) to populate a comprehensive test dataset.
 - **Assumption about computational resources**: The GitHub Actions free-tier runner (multiple CPU cores, standard RAM allocation) is sufficient to run the lightweight optical flow algorithms (RAFT-small/Farneback) and the CPU-optimized diffusion model inference without exceeding memory limits, provided the dataset is processed in batches.
 - **Assumption about model compatibility**: The LiveEdit model architecture can be modified to replace the Mask Cache with a flow-warping module without requiring a complete retraining of the diffusion model weights, relying instead on the existing pre-trained weights.
 - **Assumption about measurement validity**: The Structural Similarity Index Measure (SSIM) and temporal gradient variance, calculated between consecutive frames in the edited output, are valid and accepted proxies for human-perceived background flickering and temporal consistency in this specific video editing context.

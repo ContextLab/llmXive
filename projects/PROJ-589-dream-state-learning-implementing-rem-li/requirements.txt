@@ -1,0 +1,22 @@
+# Core dependencies (already available in the base environment)
+numpy
+pandas
+scipy
+matplotlib
+scikit-learn
+statsmodels
+seaborn
+pytest
+PyYAML
+requests
+jsonschema
+psutil
+
+# Additional dependencies required for this project
+torch>=2.2.0
+transformers>=4.40.0
+datasets>=2.18.0
+accelerate>=0.28.0
+
+# Pin a pyarrow version compatible with the bundled numpy (1.24.x)
+pyarrow>=12.0.0,<15.0.0

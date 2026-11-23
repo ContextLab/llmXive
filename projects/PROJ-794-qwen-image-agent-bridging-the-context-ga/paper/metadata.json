@@ -75,5 +75,15 @@
     "tables/wise.tex",
     "tables/ours.tex",
     "tables/mindbench.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "5cc5ec7deee9cb4c0e1d1b67ee0471e6498b5cfd354a710879c6d2abaacc3594",
+      "bytes": 8483294
+    },
+    "original.pdf": {
+      "sha256": "66171df73bb8c02aad2b52ea41afdcbd20e58b69f558bbdc66a5a291c0e8a77f",
+      "bytes": 8445350
+    }
+  }
 }

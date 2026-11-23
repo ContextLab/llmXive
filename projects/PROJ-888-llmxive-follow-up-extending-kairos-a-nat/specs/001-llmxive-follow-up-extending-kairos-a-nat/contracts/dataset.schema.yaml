@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DiscreteStateVector"
+type: "object"
+properties:
+  timestamp:
+    type: "number"
+    description: "Relative step index or Unix timestamp."
+  position:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Quantized end-effector position."
+  orientation:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Quantized orientation values."
+  velocity:
+    type: "array"
+    items:
+      type: "number"
+    description: "Derived velocity (continuous derivation, then quantized)."
+  collision_flags:
+    type: "array"
+    items:
+      type: "integer"
+    description: "Binary collision flags."
+  is_dropped:
+    type: "boolean"
+    description: "True if state was dropped due to 1-bit collapse."
+  metadata:
+    type: "object"
+    properties:
+      source_schema:
+        type: "string"
+        description: "Source schema mapping info (e.g., 'lerobot/libero_plus')."
+    required:
+      - "source_schema"
+required:
+  - "timestamp"
+  - "position"
+  - "velocity"
+  - "is_dropped"
+  - "metadata"
+additionalProperties: false

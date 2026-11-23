@@ -1,0 +1,46 @@
+# generated using pymatgen
+data_Li17Sb13S28
+_symmetry_space_group_name_H-M   C2/m
+_cell_length_a   12.72980000
+_cell_length_b   11.58370000
+_cell_length_c   9.22510000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   119.55000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   12
+_chemical_formula_structural   Li17Sb13S28
+_chemical_formula_sum   'Li17 Sb13.0 S28'
+_cell_volume   1183.37420345
+_cell_formula_units_Z   1
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  '-x, y, -z'
+  4  'x, -y, z'
+  5  'x+1/2, y+1/2, z'
+  6  '-x+1/2, -y+1/2, -z'
+  7  '-x+1/2, y+1/2, -z'
+  8  'x+1/2, -y+1/2, z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li0  8  0.19759230  0.15220860  0.30168484  1.0
+  Li  Li1  4  0.00000000  0.13492012  0.50000000  1.0
+  Li  Li2  2  0.00000000  0.50000000  0.50000000  1.0
+  Sb  Sb3  4  0.09754727  0.00000000  0.91884103  0.25
+  Li  Li4  4  0.09754727  0.00000000  0.91884103  0.75
+  Sb  Sb5  8  0.07718552  0.30985198  0.92418931  0.345
+  Sb  Sb6  8  0.09549191  0.36299087  0.89445235  0.655
+  Sb  Sb7  4  0.20052112  0.50000000  0.32024864  1.0
+  S  S8  8  0.10343215  0.34930749  0.40565625  1.0
+  S  S9  8  0.18040265  0.19609787  0.80337734  1.0
+  S  S10  4  0.00000000  0.16451606  0.00000000  1.0
+  S  S11  4  0.12459884  0.00000000  0.44157097  1.0
+  S  S12  4  0.19615139  0.50000000  0.77592470  1.0

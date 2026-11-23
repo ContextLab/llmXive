@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-08-15T20:13:55.252065+00:00'
+issue_number: 1310
+project_id: PROJ-373-predicting-rate-constants-of-sn1-reactio

@@ -3,302 +3,382 @@ import json
 import random
 import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Dict, List, Any, Optional, Tuple, Union
 
 import torch
 import torch.nn as nn
-import torch.optim as optim
-from torch_geometric.data import DataLoader
-from torch_geometric.data import Data
+from torch.utils.data import DataLoader
+from torch_geometric.data import Data, Batch
 
 from src.models.schnet import SchNet, get_model_config
-from src.utils.logging import setup_logger, log_progress, log_metric, log_error_summary
-from src.utils.config import get_project_root, load_yaml_config
+from src.utils.config import load_config, get_project_root
+from src.utils.logging import setup_logger, get_logger, log_metric
 
-# Configure logging
-logger = setup_logger(__name__, level=logging.INFO)
+# Configure logger
+logger = get_logger(__name__)
 
 class GraphDataset(torch.utils.data.Dataset):
     """
-    PyTorch Dataset wrapper for graph data loaded from parquet or similar.
-    Expects a list of dicts or Data objects.
+    PyTorch Dataset wrapper for graph data loaded from parquet.
+    Expects a list of dictionaries with 'x', 'edge_index', 'edge_attr', 'y' keys.
     """
-    def __init__(self, graphs: List[Data]):
-        self.graphs = graphs
+    def __init__(self, data_list: List[Dict[str, Any]]):
+        self.data_list = data_list
 
     def __len__(self):
-        return len(self.graphs)
+        return len(self.data_list)
 
     def __getitem__(self, idx):
-        return self.graphs[idx]
+        item = self.data_list[idx]
+        # Ensure tensors are on correct device (handled in training loop usually, but good practice)
+        return Data(
+            x=torch.tensor(item['x'], dtype=torch.float),
+            edge_index=torch.tensor(item['edge_index'], dtype=torch.long),
+            edge_attr=torch.tensor(item['edge_attr'], dtype=torch.float),
+            y=torch.tensor(item['y'], dtype=torch.float).view(-1, 1)
+        )
 
 def set_seed(seed: int):
     """Set random seeds for reproducibility."""
     random.seed(seed)
+    os.environ['PYTHONHASHSEED'] = str(seed)
     torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
-    logger.info(f"Seed set to {seed}")
+    torch.cuda.manual_seed_all(seed)
+    torch.backends.cudnn.deterministic = True
+    torch.backends.cudnn.benchmark = False
 
 def train_model(
-    model: SchNet,
+    model: nn.Module,
     train_loader: DataLoader,
     val_loader: DataLoader,
+    device: torch.device,
     seed: int,
     max_epochs: int = 30,
+    patience: int = 5,
     lr: float = 1e-4,
-    device: str = "cpu",
     checkpoint_dir: Optional[Path] = None
-) -> Dict[str, float]:
+) -> Dict[str, Any]:
     """
-    Train a single SchNet model with a HARD CAP on epochs.
+    Train a single SchNet model with Early Stopping and Hard Cap.
     
     Args:
         model: The SchNet model instance.
         train_loader: DataLoader for training set.
         val_loader: DataLoader for validation set.
-        seed: Random seed for this run.
-        max_epochs: Maximum number of epochs (HARD CAP).
+        device: Torch device (cpu or cuda).
+        seed: Random seed for this training run.
+        max_epochs: Hard cap on number of epochs (default 30).
+        patience: Number of epochs to wait for improvement before stopping (default 5).
         lr: Learning rate.
-        device: Device to train on.
         checkpoint_dir: Directory to save checkpoints.
     
     Returns:
-        Dictionary containing final metrics.
+        Dictionary containing training history and best metrics.
     """
     set_seed(seed)
     
-    model = model.to(device)
     criterion = nn.MSELoss()
-    optimizer = optim.Adam(model.parameters(), lr=lr)
-    scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=5)
+    optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=2)
 
     best_val_loss = float('inf')
-    final_metrics = {}
-
-    logger.info(f"Starting training for seed {seed} with hard cap of {max_epochs} epochs.")
+    epochs_without_improvement = 0
+    history = {'train_loss': [], 'val_loss': []}
+    best_model_state = None
     
+    logger.info(f"Starting training for seed {seed} with max_epochs={max_epochs}, patience={patience}")
+
     for epoch in range(1, max_epochs + 1):
         model.train()
-        total_train_loss = 0.0
-        num_batches = 0
-
+        epoch_train_loss = 0.0
+        
         for batch in train_loader:
             batch = batch.to(device)
             optimizer.zero_grad()
             
-            # Predict energy (assuming target is 'y' in Data object)
-            out = model(batch)
+            out = model(batch.x, batch.edge_index, batch.edge_attr)
             loss = criterion(out, batch.y)
             
             loss.backward()
             optimizer.step()
             
-            total_train_loss += loss.item()
-            num_batches += 1
+            epoch_train_loss += loss.item() * batch.num_graphs
 
-        avg_train_loss = total_train_loss / num_batches if num_batches > 0 else 0.0
+        avg_train_loss = epoch_train_loss / len(train_loader.dataset)
+        history['train_loss'].append(avg_train_loss)
 
-        # Validation
+        # Validation phase
         model.eval()
-        total_val_loss = 0.0
-        val_num_batches = 0
+        epoch_val_loss = 0.0
         with torch.no_grad():
             for batch in val_loader:
                 batch = batch.to(device)
-                out = model(batch)
+                out = model(batch.x, batch.edge_index, batch.edge_attr)
                 loss = criterion(out, batch.y)
-                total_val_loss += loss.item()
-                val_num_batches += 1
+                epoch_val_loss += loss.item() * batch.num_graphs
 
-        avg_val_loss = total_val_loss / val_num_batches if val_num_batches > 0 else 0.0
+        avg_val_loss = epoch_val_loss / len(val_loader.dataset)
+        history['val_loss'].append(avg_val_loss)
         
         scheduler.step(avg_val_loss)
 
-        log_metric(logger, f"Epoch {epoch}/{max_epochs}", {
-            "train_loss": avg_train_loss,
-            "val_loss": avg_val_loss,
-            "lr": optimizer.param_groups[0]['lr']
-        })
+        log_metric(logger, "train_loss", avg_train_loss, epoch)
+        log_metric(logger, "val_loss", avg_val_loss, epoch)
 
-        # Save best model checkpoint
+        # Early Stopping Logic
         if avg_val_loss < best_val_loss:
             best_val_loss = avg_val_loss
+            epochs_without_improvement = 0
+            best_model_state = model.state_dict().copy()
+            logger.info(f"Epoch {epoch}: Improvement! Val Loss: {avg_val_loss:.6f}")
+            
+            # Save best checkpoint immediately upon improvement
             if checkpoint_dir:
+                checkpoint_dir.mkdir(parents=True, exist_ok=True)
                 checkpoint_path = checkpoint_dir / f"seed_{seed}_best.pt"
                 torch.save({
                     'epoch': epoch,
-                    'model_state_dict': model.state_dict(),
+                    'model_state_dict': best_model_state,
                     'optimizer_state_dict': optimizer.state_dict(),
-                    'val_loss': avg_val_loss,
+                    'val_loss': best_val_loss,
                     'seed': seed
                 }, checkpoint_path)
-                logger.info(f"Saved new best checkpoint to {checkpoint_path}")
+        else:
+            epochs_without_improvement += 1
+            logger.debug(f"Epoch {epoch}: No improvement ({epochs_without_improvement}/{patience})")
 
-        # Log progress
-        log_progress(logger, f"Epoch {epoch}/{max_epochs}", avg_val_loss)
+        # Hard Cap Check (explicitly at end of loop, though range handles it)
+        if epoch == max_epochs:
+            logger.info(f"Hard cap reached: {max_epochs} epochs completed.")
+            break
 
-    # Final checkpoint (last epoch)
+        # Early Stopping Trigger
+        if epochs_without_improvement >= patience:
+            logger.warning(f"Early stopping triggered at epoch {epoch} (patience={patience}).")
+            break
+
+    # Finalize: Load best model state if we have one
+    if best_model_state is not None:
+        model.load_state_dict(best_model_state)
+    
+    # Save final checkpoint (last state or best state depending on policy, here we save best)
     if checkpoint_dir:
-        final_path = checkpoint_dir / f"seed_{seed}.pt"
+        final_checkpoint_path = checkpoint_dir / f"seed_{seed}_final.pt"
         torch.save({
-            'epoch': max_epochs,
+            'epoch': epoch,
             'model_state_dict': model.state_dict(),
             'optimizer_state_dict': optimizer.state_dict(),
-            'val_loss': avg_val_loss,
-            'seed': seed
-        }, final_path)
-        logger.info(f"Saved final checkpoint to {final_path}")
+            'val_loss': best_val_loss,
+            'seed': seed,
+            'history': history
+        }, final_checkpoint_path)
+        logger.info(f"Final checkpoint saved to {final_checkpoint_path}")
 
-    final_metrics = {
-        "seed": seed,
-        "final_train_loss": avg_train_loss,
-        "final_val_loss": avg_val_loss,
-        "best_val_loss": best_val_loss,
-        "epochs_run": max_epochs
+    return {
+        'seed': seed,
+        'best_val_loss': best_val_loss,
+        'epochs_trained': epoch,
+        'history': history
     }
 
-    return final_metrics
+class EnsembleManager:
+    """
+    Manages the training and storage of an ensemble of models.
+    """
+    def __init__(self, num_models: int, config: Dict[str, Any], device: torch.device):
+        self.num_models = num_models
+        self.config = config
+        self.device = device
+        self.models: List[SchNet] = []
+        self.results: List[Dict[str, Any]] = []
+        self.checkpoint_dir = Path(get_project_root()) / "data" / "processed" / "models"
+        self.checkpoint_dir.mkdir(parents=True, exist_ok=True)
+
+    def train_ensemble(
+        self,
+        train_data: List[Dict[str, Any]],
+        val_data: List[Dict[str, Any]],
+        batch_size: int = 32,
+        max_epochs: int = 30,
+        patience: int = 5,
+        lr: float = 1e-4
+    ):
+        """
+        Train the full ensemble of models with different seeds.
+        
+        Args:
+            train_data: List of graph dictionaries for training.
+            val_data: List of graph dictionaries for validation.
+            batch_size: Batch size for DataLoader.
+            max_epochs: Hard cap on epochs (from task T024).
+            patience: Early stopping patience.
+            lr: Learning rate.
+        """
+        logger.info(f"Initializing ensemble training for {self.num_models} models.")
+        
+        # Create datasets and loaders
+        train_dataset = GraphDataset(train_data)
+        val_dataset = GraphDataset(val_data)
+        
+        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
+        val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
+
+        for i in range(self.num_models):
+            seed = 42 + i  # Distinct seeds
+            logger.info(f"--- Training Model {i+1}/{self.num_models} (Seed: {seed}) ---")
+            
+            # Initialize Model
+            model_cfg = get_model_config(self.config)
+            model = SchNet(**model_cfg)
+            model = model.to(self.device)
+            
+            # Train
+            result = train_model(
+                model=model,
+                train_loader=train_loader,
+                val_loader=val_loader,
+                device=self.device,
+                seed=seed,
+                max_epochs=max_epochs,
+                patience=patience,
+                lr=lr,
+                checkpoint_dir=self.checkpoint_dir
+            )
+            
+            self.results.append(result)
+            self.models.append(model)
+            
+            logger.info(f"Model {i+1} finished. Best Val Loss: {result['best_val_loss']:.6f}")
+
+        logger.info("Ensemble training complete.")
+        return self.results
 
 def run_ensemble_training(
-    config_path: Optional[Path] = None,
-    data_path: Optional[Path] = None
-) -> Dict[str, Any]:
+    graphs: List[Dict[str, Any]],
+    splits: Dict[str, List[int]],
+    num_models: int = 5,
+    batch_size: int = 32,
+    max_epochs: int = 30,
+    patience: int = 5,
+    lr: float = 1e-4
+) -> List[Dict[str, Any]]:
     """
-    Orchestrates the training of the 5-model ensemble.
+    Orchestrates the training of the ensemble using the provided graphs and splits.
     
     Args:
-        config_path: Path to YAML config file.
-        data_path: Path to processed graphs data.
-    
+        graphs: Full list of graph data dictionaries.
+        splits: Dictionary with 'train_indices' and 'val_indices' keys.
+        num_models: Number of models in the ensemble.
+        batch_size: Batch size.
+        max_epochs: Hard cap on epochs.
+        patience: Early stopping patience.
+        lr: Learning rate.
+        
     Returns:
-        Aggregated training results.
+        List of training result dictionaries.
     """
-    project_root = get_project_root()
-    if config_path is None:
-        config_path = project_root / "specs" / "model_config.yaml"
+    config = load_config()
+    device = torch.device("cpu") # Enforce CPU as per constraints
     
-    # Load config
-    if config_path.exists():
-        config = load_yaml_config(config_path)
-    else:
-        logger.warning(f"Config not found at {config_path}, using defaults.")
-        config = {
-            "max_epochs": 30,
-            "learning_rate": 1e-4,
-            "batch_size": 32,
-            "num_ensembles": 5,
-            "device": "cpu"
-        }
-
-    max_epochs = config.get("max_epochs", 30)
-    lr = config.get("learning_rate", 1e-4)
-    batch_size = config.get("batch_size", 32)
-    num_ensembles = config.get("num_ensembles", 5)
-    device = config.get("device", "cpu")
-
-    # Ensure data path is set (fallback to default if not provided)
-    if data_path is None:
-        data_path = project_root / "data" / "processed" / "graphs.parquet"
+    train_indices = splits.get('train_indices', [])
+    val_indices = splits.get('val_indices', [])
     
-    # In a real scenario, we would load the graphs from parquet here.
-    # Since T014/T016 are prerequisites, we assume the data exists or is simulated
-    # for the purpose of this specific task's code structure.
-    # However, per constraints, we must implement the logic to load REAL data.
-    # We will implement the loading logic assuming the parquet exists.
+    train_data = [graphs[i] for i in train_indices]
+    val_data = [graphs[i] for i in val_indices]
     
-    try:
-        import pandas as pd
-        import numpy as np
-        from torch_geometric.data import Data
-        
-        df = pd.read_parquet(data_path)
-        logger.info(f"Loaded {len(df)} graphs from {data_path}")
-        
-        # Convert DataFrame to PyTorch Geometric Data objects
-        # This assumes specific column naming from T016 graph_construction
-        graphs = []
-        for _, row in df.iterrows():
-            # Reconstruct Data object from row data
-            # This is a simplified reconstruction; real implementation depends on T016 schema
-            x = torch.tensor(row.get('node_features', []), dtype=torch.float)
-            edge_index = torch.tensor(row.get('edge_index', []), dtype=torch.long)
-            edge_attr = torch.tensor(row.get('edge_features', []), dtype=torch.float)
-            y = torch.tensor([row['energy_dft']], dtype=torch.float)
-            
-            graph = Data(x=x, edge_index=edge_index, edge_attr=edge_attr, y=y)
-            graphs.append(graph)
-            
-    except Exception as e:
-        logger.error(f"Failed to load data from {data_path}: {e}")
-        # If data is missing, we cannot proceed with training.
-        # We raise an error to satisfy "Fail loudly" constraint.
-        raise RuntimeError(f"Data loading failed. Ensure {data_path} exists and is valid.") from e
-
-    # Split data (assuming splits are already generated by T028)
-    splits_path = project_root / "data" / "processed" / "splits.json"
-    if splits_path.exists():
-        with open(splits_path, 'r') as f:
-            splits_data = json.load(f)
-        # Assuming splits_data has 'train_indices' and 'val_indices' for the first fold
-        train_indices = splits_data[0]['train_indices']
-        val_indices = splits_data[0]['val_indices']
-    else:
-        logger.warning("Splits file not found. Creating a random split.")
-        indices = list(range(len(graphs)))
-        random.shuffle(indices)
-        split_idx = int(0.8 * len(indices))
-        train_indices = indices[:split_idx]
-        val_indices = indices[split_idx:]
-
-    train_graphs = [graphs[i] for i in train_indices]
-    val_graphs = [graphs[i] for i in val_indices]
-
-    train_loader = DataLoader(train_graphs, batch_size=batch_size, shuffle=True)
-    val_loader = DataLoader(val_graphs, batch_size=batch_size, shuffle=False)
-
-    # Create checkpoint directory
-    checkpoint_dir = project_root / "data" / "processed" / "models"
-    checkpoint_dir.mkdir(parents=True, exist_ok=True)
-
-    ensemble_results = []
-
-    for i in range(num_ensembles):
-        seed = 42 + i  # Distinct seeds
-        logger.info(f"Training model {i+1}/{num_ensembles} with seed {seed}")
-        
-        model = SchNet(**get_model_config())
-        
-        metrics = train_model(
-            model=model,
-            train_loader=train_loader,
-            val_loader=val_loader,
-            seed=seed,
-            max_epochs=max_epochs,
-            lr=lr,
-            device=device,
-            checkpoint_dir=checkpoint_dir
-        )
-        
-        ensemble_results.append(metrics)
-        log_metric(logger, f"Model {i+1} Finished", metrics)
-
-    # Save ensemble summary
-    summary_path = project_root / "data" / "processed" / "training_summary.json"
-    with open(summary_path, 'w') as f:
-        json.dump(ensemble_results, f, indent=2)
+    manager = EnsembleManager(num_models, config, device)
+    results = manager.train_ensemble(
+        train_data=train_data,
+        val_data=val_data,
+        batch_size=batch_size,
+        max_epochs=max_epochs,
+        patience=patience,
+        lr=lr
+    )
     
-    logger.info(f"Ensemble training complete. Summary saved to {summary_path}")
-    return ensemble_results
+    return results
 
 def main():
-    """Entry point for ensemble training."""
-    try:
-        results = run_ensemble_training()
-        print(json.dumps(results, indent=2))
-    except Exception as e:
-        log_error_summary(logger, e)
-        raise
+    """
+    Entry point for standalone execution of ensemble training.
+    Expects `graphs.parquet` and `splits.json` to exist in the processed directory.
+    """
+    import pandas as pd
+    
+    logger.info("Starting Ensemble Training (T024)")
+    
+    # Load Data
+    project_root = get_project_root()
+    graphs_path = project_root / "data" / "processed" / "graphs.parquet"
+    splits_path = project_root / "data" / "processed" / "splits.json"
+    
+    if not graphs_path.exists():
+        raise FileNotFoundError(f"Required input {graphs_path} not found. Run data ingestion first.")
+    if not splits_path.exists():
+        raise FileNotFoundError(f"Required input {splits_path} not found. Run split generation first.")
+    
+    logger.info(f"Loading graphs from {graphs_path}")
+    df_graphs = pd.read_parquet(graphs_path)
+    
+    # Convert parquet rows to list of dicts (assuming columns match graph attributes)
+    # Note: In a real scenario, we might need to reconstruct edge_index/edge_attr if stored differently.
+    # Assuming the parquet stores flattened features or the ingestion step prepared this format.
+    # For this implementation, we assume the parquet contains necessary columns: 
+    # 'x', 'edge_index', 'edge_attr', 'y' (or similar mapping).
+    # If the parquet stores lists in cells, pandas handles them as objects.
+    
+    graphs_list = []
+    for _, row in df_graphs.iterrows():
+        # Handle potential numpy arrays or lists in cells
+        graph_entry = {
+            'x': row['x'] if isinstance(row['x'], (list, np.ndarray)) else row['x'].tolist(),
+            'edge_index': row['edge_index'] if isinstance(row['edge_index'], (list, np.ndarray)) else row['edge_index'].tolist(),
+            'edge_attr': row['edge_attr'] if isinstance(row['edge_attr'], (list, np.ndarray)) else row['edge_attr'].tolist(),
+            'y': row['y'] if isinstance(row['y'], (list, np.ndarray)) else row['y'].tolist()
+        }
+        graphs_list.append(graph_entry)
+    
+    logger.info(f"Loaded {len(graphs_list)} graphs.")
+    
+    import json
+    with open(splits_path, 'r') as f:
+        splits = json.load(f)
+    
+    # Assume splits structure: {"train_indices": [...], "val_indices": [...]}
+    # If splits.json has a different structure (e. g. fold-based), we adapt here.
+    # Based on T011, splits.json usually contains train/val/test lists.
+    # We will use the first fold defined or the global train/val if structured that way.
+    
+    if 'train_indices' not in splits:
+        # Fallback if structure is different, e.g., {"0": {"train": [...], "val": [...]}}
+        # For T024, we assume a simple split or the first fold is used for this demo.
+        # However, T029a handles the CV loop. T024 is the training loop implementation.
+        # We will assume `splits` contains the specific indices to use for this run.
+        # If the splits file has multiple folds, we might need to pick one.
+        # Let's assume the file structure is: {"train": [...], "val": [...]} or similar.
+        if 'train' in splits and 'val' in splits:
+            splits_indices = {'train_indices': splits['train'], 'val_indices': splits['val']}
+        else:
+            raise ValueError(f"Unexpected splits.json structure: {list(splits.keys())}")
+    else:
+        splits_indices = splits
+    
+    # Run Training
+    results = run_ensemble_training(
+        graphs=graphs_list,
+        splits=splits_indices,
+        num_models=5,
+        max_epochs=30,
+        patience=5
+    )
+    
+    # Save summary
+    summary_path = project_root / "data" / "processed" / "ensemble_training_summary.json"
+    with open(summary_path, 'w') as f:
+        json.dump(results, f, indent=2, default=str)
+    
+    logger.info(f"Training summary saved to {summary_path}")
+    logger.info("Ensemble Training (T024) completed successfully.")
 
 if __name__ == "__main__":
     main()

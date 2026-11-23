@@ -1,0 +1,10 @@
+[
+  {
+    "estimated_size_gb": 0.0,
+    "max_memory_gb": 7,
+    "action_taken": "none",
+    "original_size": "unknown",
+    "final_size": "unknown",
+    "sample_limit_applied": 500000
+  }
+]

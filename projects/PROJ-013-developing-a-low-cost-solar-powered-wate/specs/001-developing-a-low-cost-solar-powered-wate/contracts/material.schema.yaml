@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MaterialProfile"
+description: "Schema for material properties used in solar still simulations."
+type: "object"
+properties:
+  material_id:
+    type: "string"
+    description: "Unique identifier for the material."
+  name:
+    type: "string"
+    description: "Common name of the material."
+  thermal_conductivity:
+    type: "number"
+    description: "Thermal conductivity in W/m·K."
+    minimum: 0.0
+  emissivity:
+    type: "number"
+    description: "Emissivity value between 0.0 and 1.0."
+    minimum: 0.0
+    maximum: 1.0
+  specific_heat:
+    type: "number"
+    description: "Specific heat capacity in J/kg·K."
+    minimum: 0.0
+  density:
+    type: "number"
+    description: "Density in kg/m³."
+    minimum: 0.0
+  unit_price:
+    type: "number"
+    description: "Unit price in USD/kg."
+    minimum: 0.0
+required:
+  - material_id
+  - name
+  - thermal_conductivity
+  - emissivity
+  - specific_heat
+  - density
+  - unit_price
+additionalProperties: false

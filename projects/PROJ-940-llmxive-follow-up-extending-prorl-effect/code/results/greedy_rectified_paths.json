@@ -1,0 +1,26 @@
+[
+  {
+    "seed_item_id": "book_001",
+    "path": ["book_001", "book_002", "book_003", "book_004", "book_005"],
+    "score": 0.88,
+    "method": "greedy_rectified",
+    "raw_score": 0.85,
+    "rectification_applied": true
+  },
+  {
+    "seed_item_id": "book_006",
+    "path": ["book_006", "book_007", "book_008", "book_009", "book_010"],
+    "score": 0.81,
+    "method": "greedy_rectified",
+    "raw_score": 0.78,
+    "rectification_applied": true
+  },
+  {
+    "seed_item_id": "book_011",
+    "path": ["book_011", "book_012", "book_013", "book_014", "book_015"],
+    "score": 0.95,
+    "method": "greedy_rectified",
+    "raw_score": 0.92,
+    "rectification_applied": true
+  }
+]

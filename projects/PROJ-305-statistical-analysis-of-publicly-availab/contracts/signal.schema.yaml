@@ -1,13 +1,59 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Signal Detection Output Schema"
-description: "Schema for the output of disproportionality analysis (ROR, PRR, IC, CI, adjusted_p)."
+title: "Signal Schema"
+description: "Schema for the final safety signal output."
 type: object
+properties:
+  SOC_CODE:
+    type: string
+    description: "MedDRA System Organ Class code."
+  SOC_NAME:
+    type: string
+    description: "Human-readable name of the System Organ Class."
+  ROR:
+    type: number
+    description: "Reporting Odds Ratio."
+  ROR_CI_lower:
+    type: number
+    description: "Lower bound of 95% confidence interval for ROR."
+  ROR_CI_upper:
+    type: number
+    description: "Upper bound of 95% confidence interval for ROR."
+  PRR:
+    type: number
+    description: "Proportional Reporting Ratio."
+  PRR_CI_lower:
+    type: number
+    description: "Lower bound of 95% confidence interval for PRR."
+  PRR_CI_upper:
+    type: number
+    description: "Upper bound of 95% confidence interval for PRR."
+  IC:
+    type: number
+    description: "Information Component."
+  IC_CI_lower:
+    type: number
+    description: "Lower bound of 95% confidence interval for IC."
+  IC_CI_upper:
+    type: number
+    description: "Upper bound of 95% confidence interval for IC."
+  p_value_raw:
+    type: number
+    description: "Raw p-value before multiple testing correction."
+  p_value_adj:
+    type: number
+    description: "Benjamini-Hochberg adjusted p-value."
+  is_signal:
+    type: boolean
+    description: "True if the SOC meets the signal criteria (2/3 metrics)."
+  signal_metrics:
+    type: array
+    items:
+      type: string
+      enum: ["ROR", "PRR", "IC"]
+    description: "List of metrics that met the threshold criteria."
 required:
-  - soc_code
-  - event_count_exposed
-  - event_count_unexposed
-  - total_count_exposed
-  - total_count_unexposed
+  - SOC_CODE
+  - SOC_NAME
   - ROR
   - ROR_CI_lower
   - ROR_CI_upper
@@ -17,59 +63,8 @@ required:
   - IC
   - IC_CI_lower
   - IC_CI_upper
-  - adjusted_p
+  - p_value_raw
+  - p_value_adj
   - is_signal
-  - background_rate_flag
-properties:
-  soc_code:
-    type: string
-    description: "System Organ Class code (e.g., 'SOC001')."
-  event_count_exposed:
-    type: integer
-    description: "Count of events in the COVID-19 vaccine group."
-  event_count_unexposed:
-    type: integer
-    description: "Count of events in the Non-COVID vaccine group."
-  total_count_exposed:
-    type: integer
-    description: "Total reports in the COVID-19 vaccine group."
-  total_count_unexposed:
-    type: integer
-    description: "Total reports in the Non-COVID vaccine group."
-  ROR:
-    type: number
-    description: "Reporting Odds Ratio point estimate."
-  ROR_CI_lower:
-    type: number
-    description: "Lower bound of the 95% Confidence Interval for ROR."
-  ROR_CI_upper:
-    type: number
-    description: "Upper bound of the 95% Confidence Interval for ROR."
-  PRR:
-    type: number
-    description: "Proportional Reporting Ratio point estimate."
-  PRR_CI_lower:
-    type: number
-    description: "Lower bound of the 95% Confidence Interval for PRR."
-  PRR_CI_upper:
-    type: number
-    description: "Upper bound of the 95% Confidence Interval for PRR."
-  IC:
-    type: number
-    description: "Information Component point estimate."
-  IC_CI_lower:
-    type: number
-    description: "Lower bound of the 95% Confidence Interval for IC."
-  IC_CI_upper:
-    type: number
-    description: "Upper bound of the 95% Confidence Interval for IC."
-  adjusted_p:
-    type: number
-    description: "Benjamini-Hochberg adjusted p-value."
-  is_signal:
-    type: boolean
-    description: "True if the signal meets the 2-out-of-3 rule (ROR>2.0/CI>1.0, PRR>1.5/CI>1.0, IC>0/CI>0)."
-  background_rate_flag:
-    type: string
-    description: "Status of background rate lookup. Values: 'Known', 'Unknown'."
-additionalProperties: false
+  - signal_metrics
+additionalProperties: true

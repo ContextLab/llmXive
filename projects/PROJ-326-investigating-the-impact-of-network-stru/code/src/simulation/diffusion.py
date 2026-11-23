@@ -1,192 +1,346 @@
 """
-Diffusion rate calculator for spin system simulations.
+Diffusion rate calculator for spin network simulations.
 
-This module implements the calculation of the diffusion rate, defined as the
-rate of change of spatial variance over time (finite difference).
+This module implements the calculation of diffusion rates based on the
+spatial variance evolution over time steps. It provides functions to
+compute the rate of change and verify numerical stability.
 """
 
+import json
 import logging
-from typing import List, Dict, Any, Optional, Tuple
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 import numpy as np
 
-from code.src.simulation.metrics import compute_spatial_variance
-from code.src.simulation.stability import check_for_nan_inf, StabilityError
+from code.src.simulation.metrics import calculate_spatial_variance
 
 logger = logging.getLogger(__name__)
 
 
+class DiffusionError(Exception):
+    """Custom exception for diffusion calculation errors."""
+    pass
+
+
 def calculate_diffusion_rate(
-    variance_history: List[float],
-    time_steps: List[float],
-    method: str = "forward",
-    min_variance_increase: float = 0.0,
-    enforce_monotonicity: bool = True
+    spatial_variance_history: List[float],
+    time_steps: List[int]
 ) -> Dict[str, Any]:
     """
-    Calculate the rate of change of spatial variance (diffusion rate) using finite differences.
+    Calculate the diffusion rate as the rate of change of spatial variance over time.
 
-    The diffusion rate is defined as:
-        D = d(variance) / dt
+    This function computes the linear regression slope of spatial variance
+    against time steps to estimate the diffusion rate.
 
     Args:
-        variance_history: List of spatial variance values at each time step.
-        time_steps: List of time values corresponding to each variance measurement.
-        method: Finite difference method ('forward', 'backward', 'central').
-        min_variance_increase: Minimum required increase in variance to consider diffusion valid.
-        enforce_monotonicity: If True, assert that variance is non-decreasing (monotonic).
+        spatial_variance_history: List of spatial variance values at each time step.
+        time_steps: List of time step indices corresponding to the variance values.
 
     Returns:
         Dictionary containing:
-            - 'diffusion_rates': List of calculated diffusion rates.
-            - 'mean_diffusion_rate': Average diffusion rate over the simulation.
-            - 'max_diffusion_rate': Maximum instantaneous diffusion rate.
-            - 'min_diffusion_rate': Minimum instantaneous diffusion rate.
-            - 'is_monotonic': Boolean indicating if variance is monotonically increasing.
-            - 'monotonicity_violations': Number of times variance decreased.
-            - 'valid': Boolean indicating if the diffusion rate calculation is valid.
-            - 'error_message': Optional error message if calculation failed.
+            - diffusion_rate (float): The calculated diffusion rate (slope).
+            - r_squared (float): R² value of the linear fit (goodness of fit).
+            - intercept (float): Y-intercept of the linear fit.
+            - num_points (int): Number of data points used.
+            - is_monotonic (bool): Whether the variance increased monotonically.
 
     Raises:
-        StabilityError: If variance history contains NaN or Inf values.
-        ValueError: If input lists have mismatched lengths or are empty.
+        DiffusionError: If input validation fails or calculation cannot proceed.
     """
-    if len(variance_history) != len(time_steps):
-        raise ValueError(
-            f"variance_history and time_steps must have the same length. "
-            f"Got {len(variance_history)} and {len(time_steps)}."
+    if len(spatial_variance_history) != len(time_steps):
+        raise DiffusionError(
+            f"Mismatched lengths: spatial_variance_history ({len(spatial_variance_history)}) "
+            f"vs time_steps ({len(time_steps)})"
         )
 
-    if len(variance_history) < 2:
-        raise ValueError(
-            "At least 2 time steps are required to calculate diffusion rate."
+    if len(spatial_variance_history) < 2:
+        raise DiffusionError(
+            f"Insufficient data points for diffusion rate calculation. "
+            f"Expected at least 2, got {len(spatial_variance_history)}."
         )
 
-    variance_array = np.array(variance_history, dtype=np.float64)
+    # Convert to numpy arrays for calculation
+    variance_array = np.array(spatial_variance_history, dtype=np.float64)
     time_array = np.array(time_steps, dtype=np.float64)
 
-    # Check for numerical stability
-    nan_inf_check = check_for_nan_inf(variance_array, "variance_history")
-    if not nan_inf_check["valid"]:
-        raise StabilityError(
-            f"Invalid variance history detected: {nan_inf_check['error_message']}"
-        )
+    # Check for NaN or Inf values
+    if np.any(np.isnan(variance_array)) or np.any(np.isinf(variance_array)):
+        raise DiffusionError("Spatial variance history contains NaN or Inf values")
 
-    # Assert monotonicity if required
-    is_monotonic = True
-    monotonicity_violations = 0
-    if enforce_monotonicity:
-        differences = np.diff(variance_array)
-        violations_mask = differences < 0
-        monotonicity_violations = int(np.sum(violations_mask))
-        if monotonicity_violations > 0:
-            logger.warning(
-                f"Variance history is not monotonically increasing. "
-                f"Found {monotonicity_violations} violations. "
-                f"Variance values: {variance_array}"
-            )
-            is_monotonic = False
+    # Check for monotonicity (variance should generally increase)
+    # Allow small numerical tolerances for floating point comparisons
+    tolerance = 1e-10
+    diffs = np.diff(variance_array)
+    is_monotonic = bool(np.all(diffs >= -tolerance))
 
-    # Calculate finite differences based on method
-    if method == "forward":
-        # D_i = (V_{i+1} - V_i) / (t_{i+1} - t_i)
-        d_var = np.diff(variance_array)
-        d_time = np.diff(time_array)
-        # Avoid division by zero
-        d_time = np.where(d_time == 0, 1e-10, d_time)
-        diffusion_rates = d_var / d_time
-
-    elif method == "backward":
-        # D_i = (V_i - V_{i-1}) / (t_i - t_{i-1})
-        d_var = np.diff(variance_array)
-        d_time = np.diff(time_array)
-        d_time = np.where(d_time == 0, 1e-10, d_time)
-        # Shift to align with current time step (index 1 to end)
-        diffusion_rates = d_var / d_time
-
-    elif method == "central":
-        # D_i = (V_{i+1} - V_{i-1}) / (t_{i+1} - t_{i-1})
-        # Valid for indices 1 to N-2
-        if len(variance_array) < 3:
-            logger.warning(
-                "Central difference method requires at least 3 time steps. "
-                "Falling back to forward difference."
-            )
-            d_var = np.diff(variance_array)
-            d_time = np.diff(time_array)
-            d_time = np.where(d_time == 0, 1e-10, d_time)
-            diffusion_rates = d_var / d_time
-        else:
-            d_var = variance_array[2:] - variance_array[:-2]
-            d_time = time_array[2:] - time_array[:-2]
-            d_time = np.where(d_time == 0, 1e-10, d_time)
-            diffusion_rates = d_var / d_time
-    else:
-        raise ValueError(f"Unknown finite difference method: {method}")
-
-    # Calculate statistics
-    mean_rate = float(np.mean(diffusion_rates))
-    max_rate = float(np.max(diffusion_rates))
-    min_rate = float(np.min(diffusion_rates))
-
-    # Validate against minimum increase threshold
-    # If the total variance increase is less than min_variance_increase, mark as invalid
-    total_variance_change = variance_array[-1] - variance_array[0]
-    is_valid = total_variance_change >= min_variance_increase
-
-    if not is_valid:
+    if not is_monotonic:
         logger.warning(
-            f"Total variance change ({total_variance_change}) is less than "
-            f"minimum required ({min_variance_increase}). Diffusion rate may be invalid."
+            f"Spatial variance is not monotonically increasing. "
+            f"Negative differences detected: {diffs[diffs < -tolerance]}"
         )
+
+    # Perform linear regression to find the diffusion rate (slope)
+    # Using numpy's polyfit for linear fit (degree 1)
+    try:
+        coefficients = np.polyfit(time_array, variance_array, 1)
+        slope = coefficients[0]  # diffusion rate
+        intercept = coefficients[1]
+
+        # Calculate R-squared
+        # R² = 1 - (SS_res / SS_tot)
+        y_pred = np.polyval(coefficients, time_array)
+        ss_res = np.sum((variance_array - y_pred) ** 2)
+        ss_tot = np.sum((variance_array - np.mean(variance_array)) ** 2)
+
+        if ss_tot == 0:
+            r_squared = 0.0
+        else:
+            r_squared = float(1 - (ss_res / ss_tot))
+
+    except Exception as e:
+        raise DiffusionError(f"Linear regression failed: {str(e)}") from e
 
     return {
-        "diffusion_rates": diffusion_rates.tolist(),
-        "mean_diffusion_rate": mean_rate,
-        "max_diffusion_rate": max_rate,
-        "min_diffusion_rate": min_rate,
-        "is_monotonic": is_monotonic,
-        "monotonicity_violations": monotonicity_violations,
-        "valid": is_valid,
-        "error_message": None
+        "diffusion_rate": float(slope),
+        "r_squared": float(r_squared),
+        "intercept": float(intercept),
+        "num_points": len(time_steps),
+        "is_monotonic": is_monotonic
     }
 
 
-def compute_diffusion_from_simulation(
-    spin_states_history: List[np.ndarray],
-    graph: Any,
-    time_steps: List[float],
-    method: str = "forward"
+def verify_diffusion_stability(
+    spatial_variance_history: List[float],
+    tolerance: float = 0.01
 ) -> Dict[str, Any]:
     """
-    Compute diffusion rate directly from a history of spin states.
+    Verify numerical stability of the diffusion process.
+
+    Checks that the spatial variance evolution is stable and doesn't
+    exhibit unphysical oscillations or divergences.
 
     Args:
-        spin_states_history: List of 1D arrays, each representing spin states at a time step.
-        graph: NetworkX graph object (used for spatial variance calculation).
-        time_steps: List of time values corresponding to each spin state.
-        method: Finite difference method for rate calculation.
+        spatial_variance_history: List of spatial variance values over time.
+        tolerance: Maximum allowed relative change between consecutive steps.
 
     Returns:
-        Dictionary with diffusion rate metrics and intermediate variance history.
+        Dictionary containing:
+            - is_stable (bool): Whether the process passed stability checks.
+            - max_relative_change (float): Largest relative change observed.
+            - num_violations (int): Number of stability violations detected.
+            - violation_indices (List[int]): Indices where violations occurred.
     """
-    if len(spin_states_history) != len(time_steps):
-        raise ValueError(
-            f"spin_states_history and time_steps must have the same length. "
-            f"Got {len(spin_states_history)} and {len(time_steps)}."
+    if len(spatial_variance_history) < 2:
+        return {
+            "is_stable": True,
+            "max_relative_change": 0.0,
+            "num_violations": 0,
+            "violation_indices": [],
+            "message": "Insufficient data for stability check"
+        }
+
+    variance_array = np.array(spatial_variance_history, dtype=np.float64)
+
+    # Calculate relative changes
+    # Avoid division by zero by using a small epsilon
+    epsilon = 1e-10
+    base_values = np.abs(variance_array[:-1]) + epsilon
+    relative_changes = np.abs(np.diff(variance_array)) / base_values
+
+    max_relative_change = float(np.max(relative_changes))
+    violations = relative_changes > tolerance
+    violation_indices = np.where(violations)[0].tolist()
+    num_violations = len(violation_indices)
+
+    is_stable = num_violations == 0
+
+    result = {
+        "is_stable": is_stable,
+        "max_relative_change": max_relative_change,
+        "num_violations": num_violations,
+        "violation_indices": violation_indices
+    }
+
+    if not is_stable:
+        logger.warning(
+            f"Diffusion stability check failed: {num_violations} violations detected. "
+            f"Max relative change: {max_relative_change:.4f}"
+        )
+        result["message"] = f"Stability check failed with {num_violations} violations"
+    else:
+        result["message"] = "Stability check passed"
+
+    return result
+
+
+def compute_diffusion_metrics(
+    simulation_results: Dict[str, Any]
+) -> Dict[str, Any]:
+    """
+    Compute comprehensive diffusion metrics from simulation results.
+
+    This function extracts spatial variance history from simulation results,
+    calculates the diffusion rate, and performs stability verification.
+
+    Args:
+        simulation_results: Dictionary containing simulation output including
+                            'spatial_variance_history' and 'time_steps'.
+
+    Returns:
+        Dictionary containing:
+            - diffusion_rate (float): Calculated diffusion rate.
+            - r_squared (float): Goodness of fit for the linear model.
+            - is_monotonic (bool): Whether variance increased monotonically.
+            - is_stable (bool): Whether the process passed stability checks.
+            - stability_details (dict): Detailed stability verification results.
+            - diffusion_details (dict): Detailed diffusion rate calculation results.
+    """
+    if "spatial_variance_history" not in simulation_results:
+        raise DiffusionError(
+            "Missing 'spatial_variance_history' in simulation results"
         )
 
-    variance_history = []
-    for i, states in enumerate(spin_states_history):
-        try:
-            variance = compute_spatial_variance(states, graph)
-            variance_history.append(variance)
-        except Exception as e:
-            logger.error(f"Failed to compute variance at time step {i}: {e}")
-            raise
+    if "time_steps" not in simulation_results:
+        # Generate default time steps if not provided
+        n_steps = len(simulation_results["spatial_variance_history"])
+        simulation_results["time_steps"] = list(range(n_steps))
 
-    return calculate_diffusion_rate(
-        variance_history=variance_history,
-        time_steps=time_steps,
-        method=method
+    spatial_variance_history = simulation_results["spatial_variance_history"]
+    time_steps = simulation_results["time_steps"]
+
+    # Calculate diffusion rate
+    diffusion_details = calculate_diffusion_rate(
+        spatial_variance_history,
+        time_steps
     )
+
+    # Verify stability
+    stability_details = verify_diffusion_stability(
+        spatial_variance_history
+    )
+
+    return {
+        "diffusion_rate": diffusion_details["diffusion_rate"],
+        "r_squared": diffusion_details["r_squared"],
+        "is_monotonic": diffusion_details["is_monotonic"],
+        "is_stable": stability_details["is_stable"],
+        "stability_details": stability_details,
+        "diffusion_details": diffusion_details
+    }
+
+
+def save_diffusion_results(
+    results: Dict[str, Any],
+    output_path: Union[str, Path]
+) -> None:
+    """
+    Save diffusion calculation results to a JSON file.
+
+    Args:
+        results: Dictionary containing diffusion metrics and details.
+        output_path: Path to the output JSON file.
+    """
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(results, f, indent=2, default=str)
+
+    logger.info(f"Diffusion results saved to {output_path}")
+
+
+def load_simulation_results(
+    input_path: Union[str, Path]
+) -> Dict[str, Any]:
+    """
+    Load simulation results from a JSON file.
+
+    Args:
+        input_path: Path to the input JSON file.
+
+    Returns:
+        Dictionary containing simulation results.
+    """
+    input_path = Path(input_path)
+
+    if not input_path.exists():
+        raise FileNotFoundError(f"Simulation results file not found: {input_path}")
+
+    with open(input_path, 'r', encoding='utf-8') as f:
+        return json.load(f)
+
+
+def main() -> None:
+    """
+    Main entry point for diffusion verification script.
+
+    Loads simulation results, computes diffusion metrics, and saves
+    the verification output.
+    """
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Compute diffusion rate from simulation results"
+    )
+    parser.add_argument(
+        "--input",
+        type=str,
+        default="data/analysis/simulation_results.json",
+        help="Path to simulation results JSON file"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/analysis/diffusion_verification.json",
+        help="Path to output diffusion verification JSON file"
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Enable verbose logging"
+    )
+
+    args = parser.parse_args()
+
+    if args.verbose:
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+    else:
+        logging.basicConfig(
+            level=logging.WARNING,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        )
+
+    try:
+        # Load simulation results
+        logger.info(f"Loading simulation results from {args.input}")
+        simulation_results = load_simulation_results(args.input)
+
+        # Compute diffusion metrics
+        logger.info("Computing diffusion metrics...")
+        diffusion_metrics = compute_diffusion_metrics(simulation_results)
+
+        # Save results
+        logger.info(f"Saving diffusion verification results to {args.output}")
+        save_diffusion_results(diffusion_metrics, args.output)
+
+        # Print summary
+        print(f"\nDiffusion Rate Verification Summary:")
+        print(f"  Diffusion Rate: {diffusion_metrics['diffusion_rate']:.6f}")
+        print(f"  R-squared: {diffusion_metrics['r_squared']:.6f}")
+        print(f"  Is Monotonic: {diffusion_metrics['is_monotonic']}")
+        print(f"  Is Stable: {diffusion_metrics['is_stable']}")
+        print(f"\nResults saved to: {args.output}")
+
+    except FileNotFoundError as e:
+        logger.error(f"File not found: {e}")
+        raise
+    except DiffusionError as e:
+        logger.error(f"Diffusion calculation error: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        raise

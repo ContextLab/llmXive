@@ -1,0 +1,6 @@
+'|100mb file output size':
+  quote: model using ROBE Array of size 100MB on a single GPU to achieve AUC of 0.8025
+    or higher as
+  source_id: '2108.02191'
+  url: https://arxiv.org/abs/2108.02191
+  value: 100MB

@@ -1,0 +1,29 @@
+type: object
+required:
+  - sequence_id
+  - tokens
+  - source
+  - validity
+  - reason
+properties:
+  sequence_id:
+    type: string
+    description: Unique identifier for the sequence
+  tokens:
+    type: array
+    items:
+      type: string
+    description: List of generated tokens
+  source:
+    type: string
+    description: Source dataset (e.g., gsm8k, minigrid)
+  validity:
+    type: boolean
+    description: Whether the sequence is valid against ground truth
+  reason:
+    type: string
+    description: Reason for validity status (e.g., 'matched', 'ambiguous', 'mismatch')
+  metadata:
+    type: object
+    description: Additional metadata
+    additionalProperties: true

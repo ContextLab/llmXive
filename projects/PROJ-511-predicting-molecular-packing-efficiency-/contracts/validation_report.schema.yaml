@@ -1,85 +1,100 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: Validation Report Schema
-description: Schema for the validation report
+description: Schema for the comprehensive validation report generated after model training and evaluation.
 type: object
 required:
+  - primary_metrics
+  - diagnostics
   - dataset_info
   - model_info
-  - statistical_tests
-  - recommendations
 properties:
+  primary_metrics:
+    type: object
+    description: Core performance metrics on the validation set.
+    required:
+      - mae
+      - pearson_r
+      - spearman_rho
+    properties:
+      mae:
+        type: number
+        description: Mean Absolute Error.
+      pearson_r:
+        type: number
+        description: Pearson correlation coefficient.
+      spearman_rho:
+        type: number
+        description: Spearman rank correlation coefficient.
+  diagnostics:
+    type: object
+    description: Statistical diagnostics and robustness checks.
+    required:
+      - shapiro_wilk_p
+      - permutation_p_value
+      - vif_flags
+      - partial_corr_r
+      - partial_corr_p
+    properties:
+      shapiro_wilk_p:
+        type: number
+        description: P-value from Shapiro-Wilk test on residuals.
+      permutation_p_value:
+        type: number
+        description: P-value from permutation test (10000 shuffles).
+      vif_flags:
+        type: object
+        description: Variance Inflation Factor flags for predictors.
+        additionalProperties:
+          type: number
+      partial_corr_r:
+        type: number
+        description: Partial correlation controlling for atom-type composition.
+      partial_corr_p:
+        type: number
+        description: P-value for partial correlation.
   dataset_info:
     type: object
+    description: Information about the dataset used for validation.
     required:
       - total_samples
       - train_samples
-      - test_samples
-      - features_used
+      - val_samples
+      - source_url
+      - source_version
     properties:
       total_samples:
         type: integer
       train_samples:
         type: integer
-      test_samples:
+      val_samples:
         type: integer
-      features_used:
-        type: array
-        items:
-          type: string
+      source_url:
+        type: string
+        description: URL of the data source (e.g., COD).
+      source_version:
+        type: string
+        description: Version identifier of the data source.
   model_info:
     type: object
+    description: Information about the model architecture and training.
     required:
-      - model_type
-      - parameters
-      - architecture
+      - model_path
+      - architecture_summary
+      - parameter_count
     properties:
-      model_type:
+      model_path:
         type: string
-      parameters:
+        description: Relative path to the saved model artifact.
+      architecture_summary:
+        type: string
+        description: Human-readable summary of the model architecture.
+      parameter_count:
         type: integer
-      architecture:
-        type: string
-  statistical_tests:
-    type: object
-    required:
-      - shapiro_wilk
-      - permutation_test
-      - vif_analysis
-    properties:
-      shapiro_wilk:
-        type: object
-        required:
-          - statistic
-          - p_value
-        properties:
-          statistic:
-            type: number
-          p_value:
-            type: number
-      permutation_test:
-        type: object
-        required:
-          - p_value
-          - n_shuffles
-        properties:
-          p_value:
-            type: number
-          n_shuffles:
-            type: integer
-      vif_analysis:
-        type: array
-        items:
-          type: object
-          required:
-            - feature
-            - vif
-          properties:
-            feature:
-              type: string
-            vif:
-              type: number
-  recommendations:
-    type: array
-    items:
-      type: string
-additionalProperties: false
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of report generation.
+  version:
+    type: string
+    description: Version of the validation report schema.
+    default: "1.0.0"

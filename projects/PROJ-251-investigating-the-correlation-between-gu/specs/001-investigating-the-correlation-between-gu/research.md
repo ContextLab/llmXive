@@ -2,64 +2,91 @@
 
 ## Dataset Strategy
 
-The project relies on pre-processed 16S rRNA OTU tables and serology metadata from NCBI SRA. The following verified source is available:
+The project requires a dataset containing:
+1. **Microbiome Data**: 16S rRNA OTU tables (relative abundances or counts) at baseline.
+2. **Serology Data**: Antibody titers (e.g., HAI titers) pre- and post-vaccination.
+3. **Metadata**: Subject IDs linking the two, and potentially covariates (age, sex).
 
-| Dataset Name | Verified URL | Status | Usage Plan |
+### Verified Datasets
+
+Based on the "Verified datasets" block provided in the prompt, the available sources are:
+
+| Dataset Name | URL | Format | Suitability Assessment |
 |:--- |:--- |:--- |:--- |
-| **NCBI SRA SRP053178** | `https://www.ncbi.nlm.nih.gov/sra/?term=SRP053178` | Verified | **Primary**: This dataset contains the required 16S rRNA OTU tables and corresponding serology metadata (HAI titers) for subjects vaccinated against influenza. The pipeline will fetch the pre-processed data associated with this accession. |
-| **NCBI Disease (Dummy)** | ` | Verified | **Fallback**: Used only if the primary target dataset is unavailable. This is a dummy dataset and lacks the specific microbiome/serology pairing required for the primary analysis. If used, the pipeline will halt with a "Data Mismatch" error as it cannot satisfy FR-001. |
+| **NCBI Disease** | ` | ZIP | **NOT SUITABLE**. This dataset contains text/clinical entity data for disease extraction, not microbiome or serology time-series. |
+| **SRA (Wikipedia/BookCorpus)** | ` | Parquet | **NOT SUITABLE**. These are text corpora (Wikipedia/BookCorpus) mislabeled or misindexed in the verified list as "SRA". They contain no biological measurements. |
+| **SRA (Imagenet)** | ` | Parquet | **NOT SUITABLE**. Image data. |
+| **3D-CLR** | ` | JSON | **NOT SUITABLE**. Concept/semantic embeddings, not microbiome. |
+| **bw_spec_cls_4_00_s_clr** | ` | Parquet | **POTENTIAL SUBSTITUTE**. The name suggests "spec" (spectrum/species?) and "clr". However, without metadata confirmation of *influenza serology* columns, it cannot be assumed to contain the required outcome variable (antibody titers). |
+| **CLRS** | ` | Parquet | **NOT SUITABLE**. Algorithmic reasoning dataset (CLRS), not biological. |
+
+**Critical Gap Identification**:
+The provided "Verified datasets" block **does not contain a verified source** for the specific combination of *Gut Microbiome (16S)* and *Influenza Serology* required by the spec.
+- The spec assumes the existence of "pre-processed 16S rRNA OTU tables and corresponding serology metadata from NCBI SRA".
+- The verified list contains only text, image, or generic CLR concept data, none of which are known to contain the specific biological variables (taxa abundances + HAI titers) needed.
 
 **Resolution Strategy**:
-1. **Primary**: The implementation will fetch data from NCBI SRA accession SRP053178. This accession has been verified to contain the necessary paired microbiome and serology data.
-2. **Fallback**: If the primary source is unreachable, the pipeline will attempt to load a pre-processed mirror from a verified HuggingFace dataset (if available for SRP053178). If both fail, the pipeline raises `DataUnavailableError`.
-3. **Note**: The plan explicitly avoids using dummy/irrelevant datasets for the actual correlation analysis to prevent scientific invalidity. The `research.md` documents the *expected* schema of the target dataset (OTU counts, HAI titers, metadata) and verifies against it.
+1. **Project Scope Redefinition**: The project is explicitly scoped as a **Methodological Framework & Pipeline Validation** study. If no real data is found (T010), the pipeline will execute on a synthetic dataset to validate the *code and statistical logic*, but **will not make biological claims**.
+2. **Blocking Gate (T010)**: The implementation code will include a specific task (T010) to search for a real, open-access NCBI SRA study with paired 16S and serology data. If no such study is found, the pipeline proceeds to synthetic validation only.
+3. **Synthetic Fallback (CI Only)**: If T010 fails (no real data found), the `ingestion.py` script will generate a **synthetic dataset** that mimics the statistical properties of the expected real data *only* to validate the pipeline code.
+ - *Note*: Results derived from synthetic data are for **pipeline validation only** and cannot be used for scientific claims in the final paper. The Success Criteria (SC-003) are split: for synthetic data, the target is "Code Correctness"; for real data, the target is ">60% accuracy".
+4. **Documentation**: `research.md` and `quickstart.md` will explicitly state that the current run uses a synthetic fallback or a specific subset of the verified data, and that the scientific conclusions are limited to the pipeline's ability to process such data, not the biological reality of the specific dataset.
 
 ## Statistical Methodology
 
 ### 1. Data Preprocessing
-- **Normalization**: Convert OTU counts to relative abundance (sum to 1 per sample).
-- **Zero-Variance Exclusion**: **Mandatory**: Exclude any taxa with zero variance across all samples before CLR to avoid division by zero and undefined statistics.
-- **CLR Transformation**: Apply Centered Log-Ratio transformation to relative abundances to handle compositional constraints.
- - *Zero Handling*: Add a small pseudocount (e.g., 1e-6) before log transform.
- - *Sensitivity Analysis*: A **Pseudocount Sensitivity Analysis** (T020-B) will be performed by sweeping the pseudocount value (1e-6, 1e-4, 1e-2) to assess the stability of the resulting correlations. This addresses the critical confound of pseudocount choice.
-- **Log-Transform**: Log-transform antibody titers (e.g., `log2(HAI_titer + 1)`).
+- **Filtering**: Subjects with missing `titer_pre` or `titer_post` are excluded (FR-001).
+- **Zero-Replacement Strategy**: To handle zero-inflation in 16S data (which makes CLR undefined), a **multiplicative pseudo-count of 1e-6** is applied to all zero values before CLR transformation. This ensures the geometric mean is non-zero and the log-ratio is defined.
+- **Compositional Correction**: Microbiome data is converted to relative abundance, then a **Centered Log-Ratio (CLR)** transformation is applied.
+ - Formula: $clr(x_i) = \ln(\frac{x_i + \epsilon}{g(x + \epsilon)})$ where $g(x)$ is the geometric mean of the composition and $\epsilon = 1e-6$.
+ - *Rationale*: Addresses the "sum constraint" of microbiome data to prevent spurious correlations (FR-002) and handles zero-inflation (Methodology Concern).
+- **Outlier/Limit of Detection**: Titers below detection limit are imputed to $0.5 \times LOD$ (Assumption).
 
-### 2. Correlation Analysis
-- **Method**: Spearman rank correlation between each CLR-transformed taxon and log-transformed titer.
-- **Correction**: Benjamini-Hochberg (BH) procedure to control False Discovery Rate (FDR).
-- **Threshold**: Significant if adjusted p-value < 0.05.
-- **Diversity**: Calculate Shannon diversity index for each subject.
+### 2. Correlation Analysis (FR-004, FR-005)
+- **Test**: **Permutation-based Spearman Correlation**. Instead of relying solely on asymptotic p-values, the pipeline will generate an empirical null distribution by shuffling sample labels (1000 iterations) while preserving the compositional structure.
+- **Multiple Testing**: Benjamini-Hochberg (BH) correction applied to these empirical p-values to control FDR at $\alpha=0.05$.
+- **Significance**: Taxa are significant if $p_{adj} < 0.05$.
+- **Robustness**: A **Bootstrap Stability** analysis will be performed to assess the consistency of significant taxa across resampled datasets.
+- **Feature Selection**: Features for the model are selected based on BH-corrected p-values. If no taxa pass BH, the model falls back to a variance filter (unsupervised) to avoid selecting noise.
 
-### 3. Predictive Modeling
-- **Algorithm**: Random Forest Classifier (CPU-optimized).
-- **Target**: Binary responder status (High vs. Low).
- - *Definition*: Seroconversion (≥4-fold rise) OR absolute titer threshold (e.g., HAI ≥ 40).
- - *Fallback*: If pre-vaccination titers are missing, the system defaults to using the **Absolute Titer** threshold only, and logs this mode.
-- **Validation**: Nested 5-fold Cross-Validation.
- - *Outer Loop*: 5 folds for performance estimation.
- - *Inner Loop*: Feature selection (top correlated taxa) and hyperparameter tuning **strictly within** each outer training fold.
-- **Permutation Baseline**: The null distribution is generated by **permuting the microbiome rows relative to the serology labels** (breaking the association), NOT by shuffling labels. This correctly tests if the observed association is stronger than random noise.
- - *Baseline Comparison*: The model's accuracy is compared against this null distribution. If the model does not significantly outperform the baseline (p < 0.05), the result is flagged as "not statistically significant".
-- **Sensitivity Analysis**: A **Threshold Sweep** (±10%) will be performed. For each threshold, the model is re-trained and the permutation baseline p-value is calculated to assess the stability of the association across different responder definitions. This acknowledges that threshold sweeping alone tests class balance, but the permutation p-value adds a layer of robustness validation.
+### 3. Predictive Modeling (FR-006, FR-007)
+- **Model**: Random Forest Classifier (High vs. Low Responder).
+- **Validation**: Nested k-Fold Cross-Validation.
 
-### 4. Power & Generalization Warning
-- **Risk**: In a small N (50-100) observational study with high-dimensional features (taxa), achieving >60% accuracy is statistically fragile and prone to overfitting even with nested CV.
-- **Mitigation**: The success criterion SC-003 (>60% accuracy) is framed as a target. The primary validation metric is the **Permutation Baseline p-value**. If the model does not significantly outperform the baseline (p < 0.05), the accuracy claim is considered invalid regardless of the raw accuracy value.
+The research question is [Research Question]. The method is nested cross-validation [Citation].
+ - **Outer Loop**: 5 folds for performance estimation.
+ - **Inner Loop**: Feature selection and hyperparameter tuning *strictly within* the training set of each outer fold.
+- **Feature Selection Rigor**: To satisfy Constitution Principle VI and avoid tautology:
+ 1. **Global Unsupervised Filter**: A variance filter is applied to the *full* dataset (before splitting) to remove zero-variance taxa. This ensures a non-empty feature set for the model.
+ 2. **Supervised Selection**: Within each inner training fold, taxa are selected based on BH-corrected p-values from the correlation analysis.
+ 3. **Fallback**: If the inner fold yields zero significant features, the model falls back to the top-k taxa by raw magnitude from the *variance-filtered* set.
+ 4. **Primary Path**: The Random Forest is primarily trained on the **unsupervised variance-filtered features** to avoid data leakage from the outcome definition. The "top correlated taxa" approach is used only as a secondary exploratory analysis.
+- **Power Limitation**: With N=50 and high dimensionality, power to detect significant correlations within a single fold is low. The variance filter ensures the model remains trainable.
+
+### 4. Sensitivity Analysis (Threshold Sweep)
+- **Requirement**: The sensitivity analysis (threshold sweep) must **re-run the outer fold splits and the null distribution permutation for *each* threshold** to preserve statistical rigor and prevent data leakage.
+- **Outcome**: Stability of results (e.g., AUC) across thresholds is reported.
+
+## Power Analysis & Sample Size
+- **Limitation**: With N=50 and hundreds of taxa, the study is underpowered for definitive effect size estimation.
+- **Reporting**: Effect sizes will be reported with wide confidence intervals. The target accuracy (>60%) is framed as a proof-of-concept for the pipeline (if real data exists), not a definitive biological claim.
+- **Validation**: For synthetic data, the "Success Criterion" is "Code Correctness". For real data, it is ">60% accuracy".
+- **Synthetic Validation Metric**: The synthetic data success metric is **Pipeline Correctness** (successful execution, no leakage, correct statistical distribution of synthetic noise), distinct from biological accuracy.
 
 ## Compute Feasibility
 
-- **Memory**: Pipeline will sample data if > 5GB. OTU tables are typically sparse; `scipy.sparse` will be used where possible.
-- **Runtime**: Random Forest on N=500, P=500 is < 10 minutes. Nested CV adds a significant computational overhead. Total estimated time < 2 hours.
-- **Hardware**: CPU-only. No GPU dependencies. `scikit-learn` default precision.
+- **CPU-First**: The pipeline uses `scikit-learn` and `scipy` which are highly optimized for CPU.
+- **Memory**: Streaming the dataset (if large) and processing taxa one-by-one for correlation ensures memory usage stays < 2 GB.
+- **Runtime**: With N ≥ 50 and typical taxa counts (< 1000), the entire pipeline (ingestion -> correlation -> nested CV) is estimated to run in < 1 hour on a 2-core CPU.
+- **No GPU Required**: Random Forest and Spearman correlation do not benefit significantly from GPU acceleration at this scale; GPU usage is not planned.
 
-## Risk Assessment
+## Decision/Rationale
 
-- **Data Availability**: Low risk. SRP is a verified, accessible accession.
-
-The research question remains: How can we effectively utilize public genomic databases to identify novel biomarkers? The method involves a systematic review of existing datasets followed by meta-analysis. References: Smith et al. (2020);.
-- **Sample Size**: Medium risk. If N < 50, statistical power is insufficient.
- - *Mitigation*: Explicit check `if N < 50: raise InsufficientSampleSize`.
-- **Collinearity**: Taxa are compositional (sum to 1). CLR addresses this, but independent effects cannot be claimed.
- - *Mitigation*: Results framed as "associational".
-- **Circular Validation**: The Random Forest model predicts a thresholded version of the same titer used in correlation.
- - *Mitigation*: The model is framed as a **consistency check** for the correlation findings. The **Permutation Baseline** (microbiome shuffle) is the true test of whether the association is stronger than random noise, preventing the tautology from validating a false signal.
+- **Why CLR?** Standard normalization fails for compositional data; CLR is the standard for microbiome correlation analysis.
+- **Why Nested CV?** To prevent "double-dipping" where feature selection on the full dataset leaks information into the test fold, artificially inflating accuracy.
+- **Why BH Correction in Feature Selection?** The "Unresolved concerns" explicitly flagged that selecting top taxa based on raw p-values introduces bias. We will enforce BH correction *before* selecting features for the model.
+- **Why Synthetic Fallback?** No verified open dataset in the provided list contains the specific microbiome+serology pairing. The pipeline must be runnable on CI to validate the code, so a synthetic generator is used as a placeholder for the real data ingestion logic. **However, T010 is a blocking gate for real data.**
+- **Why Zero-Replacement?** CLR is undefined for zeros; pseudo-counts ensure mathematical validity.
+- **Why Variance Pre-filter?** To mitigate the risk of zero features selected in low-power folds and to ensure the model is trainable.
+- **Why Permutation Testing?** To address the bias of standard correlation on compositional data with external variables.
+- **Why Re-run Splits for Sensitivity?** To ensure that the sensitivity analysis does not reuse the same random seed or null distribution across different thresholds, which would invalidate the statistical comparison.

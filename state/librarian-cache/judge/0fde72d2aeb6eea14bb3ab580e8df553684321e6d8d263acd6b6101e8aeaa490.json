@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.11661",
+  "judged_at": "2026-07-26T07:30:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of laser surface texturing on wear resistance materials science",
+  "rationale": "This paper satisfies criterion (b) because it measures the independent variable (laser surface texturing on metal alloys) and characterizes the resulting surface properties (topography and chemistry) within the exact same domain as the user's question, providing a foundational empirical baseline for how laser texturing alters surface behavior even though the specific dependent variable studied is wettability rather than wear resistance. Additionally, it serves as a canonical reference (d) for th",
+  "relevant": true
+}

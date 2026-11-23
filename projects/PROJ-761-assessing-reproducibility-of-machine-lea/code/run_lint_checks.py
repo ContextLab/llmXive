@@ -1,59 +1,82 @@
 """
-Script to run initial linting (ruff) and formatting (black) checks.
-This task verifies the configuration validity on the project structure.
+Linting and Formatting Verification Script.
+
+This script configures and verifies ruff and black tools against the project
+structure. It ensures that the configuration files are valid and that the
+project passes the initial checks.
 """
 import subprocess
 import sys
 import os
+from pathlib import Path
 
-def run_command(cmd, description):
-    print(f"--- {description} ---")
-    print(f"Running: {' '.join(cmd)}")
+def run_command(cmd: list, description: str) -> bool:
+    """Run a command and return True if it succeeds (exit code 0)."""
+    print(f"Running: {description}")
+    print(f"Command: {' '.join(cmd)}")
+    
     try:
         result = subprocess.run(
             cmd,
-            check=False,
+            cwd=Path.cwd(),
             capture_output=True,
-            text=True
+            text=True,
+            timeout=60
         )
+        
         if result.returncode == 0:
-            print("✓ Passed")
+            print(f"✓ {description} passed.")
+            if result.stdout:
+                print(result.stdout)
             return True
         else:
-            print("✗ Failed")
+            print(f"✗ {description} failed.")
             if result.stdout:
                 print(result.stdout)
             if result.stderr:
                 print(result.stderr)
             return False
+    except subprocess.TimeoutExpired:
+        print(f"✗ {description} timed out.")
+        return False
     except FileNotFoundError:
-        print(f"✗ Command not found: {cmd[0]}")
-        print("Ensure 'ruff' and 'black' are installed in the environment.")
+        print(f"✗ {description} failed: Command not found. Ensure tools are installed.")
+        return False
+    except Exception as e:
+        print(f"✗ {description} failed with exception: {e}")
         return False
 
 def main():
-    print("Running initial linting and formatting configuration checks...")
-    print(f"Current directory: {os.getcwd()}")
-    print("-" * 40)
+    """Main entry point for lint and format verification."""
+    project_root = Path.cwd()
+    
+    # Ensure we are in the project root
+    if not (project_root / "code").exists():
+        print("Error: 'code' directory not found. Ensure this script runs from the project root.")
+        sys.exit(1)
 
-    # Check ruff configuration
+    # Check 1: Verify Ruff Configuration and Run Check
+    # We run 'ruff check .' which implicitly validates the config if it exists
+    # If no config exists, ruff uses defaults, which is acceptable for an empty/new project
+    # but the task asks to "verify configuration validity".
+    # We assume ruff.toml or pyproject.toml exists or defaults are used.
     ruff_success = run_command(
         ["ruff", "check", "."],
-        "Ruff Linting Check"
+        "Ruff Lint Check"
     )
 
-    # Check black configuration (format check only, no writing)
+    # Check 2: Verify Black Configuration and Run Check
+    # Similar to ruff, black --check validates formatting against config
     black_success = run_command(
         ["black", "--check", "."],
-        "Black Formatting Check"
+        "Black Format Check"
     )
 
-    print("-" * 40)
     if ruff_success and black_success:
-        print("All checks passed. Configuration is valid.")
+        print("\n✓ All linting and formatting checks passed.")
         sys.exit(0)
     else:
-        print("Some checks failed. Please review the output above.")
+        print("\n✗ One or more checks failed.")
         sys.exit(1)
 
 if __name__ == "__main__":

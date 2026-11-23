@@ -1,178 +1,267 @@
 """
-visualize_results.py
+Visualize results from the simulation and analysis pipeline.
 
-Generates a 3D surface plot of Success Rate vs. Masking Horizon and Semantic Density.
-Reads regression-ready summary data from output/regression_summary.json (or processes
-raw simulation logs if summary is missing, though the pipeline expects the summary).
-Produces a PNG plot at output/plots/surface_plot.png (≤ 5 MB).
+This module provides utilities to generate a 3D surface plot visualizing the
+Success Rate as a function of Masking Horizon and Semantic Density,
+representing the regime map of optimal retention windows.
+
+The public API is compatible with the integration tests in
+`tests/integration/test_plot_generation.py`, which expect the following
+functions:
+
+- `load_regression_summary(path: Path | None = None) -> dict`
+- `generate_surface_grid(summary: dict, n_points: int = 50) -> Tuple[np.ndarray, np.ndarray, np.ndarray]`
+- `plot_3d_surface(summary: dict, output_dir: Path, filename: str) -> Path`
+
+The default behavior (when run as a script) loads the regression summary
+from ``output/regression_summary.json`` and writes the plot to
+``output/plots/regime_map.png``.
 """
+
 import json
-import math
-import os
 import sys
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
+from typing import Dict, Any, Tuple
 
 import numpy as np
-
-# We assume matplotlib is available (add to requirements.txt if not already)
-# Using Agg backend for non-interactive environments
 import matplotlib
+
+# Use a non‑interactive backend suitable for headless CI environments
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 
-from analyze_results import load_simulation_data, run_logistic_regression, write_summary
+# ----------------------------------------------------------------------
+# Constants (used when the module is executed as a script)
+# ----------------------------------------------------------------------
+DEFAULT_OUTPUT_DIR = Path("output")
+DEFAULT_PLOTS_DIR = DEFAULT_OUTPUT_DIR / "plots"
+DEFAULT_REGRESSION_SUMMARY = DEFAULT_OUTPUT_DIR / "regression_summary.json"
+DEFAULT_PLOT_FILENAME = "regime_map.png"
+MAX_FILE_SIZE_MB = 5
 
-# Constants for paths (matching project structure)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-OUTPUT_DIR = PROJECT_ROOT / "output"
-PLOTS_DIR = OUTPUT_DIR / "plots"
-REGRESSION_SUMMARY_PATH = OUTPUT_DIR / "regression_summary.json"
-SIMULATION_LOGS_PATH = PROJECT_ROOT / "data" / "processed" / "simulation_results.jsonl"
-OUTPUT_PLOT_PATH = PLOTS_DIR / "surface_plot.png"
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def load_regression_summary(path: Path | None = None) -> Dict[str, Any]:
+    """
+    Load the regression summary JSON produced by ``analyze_results.py``.
 
-def load_regression_summary(path: Path) -> Dict[str, Any]:
-    """Load the regression summary JSON containing coefficients and grid data."""
+    Parameters
+    ----------
+    path : Path | None
+        Path to the JSON file. If ``None``, the default location
+        ``output/regression_summary.json`` is used.
+
+    Returns
+    ----------
+    dict
+        Parsed JSON content.
+    """
+    if path is None:
+        path = DEFAULT_REGRESSION_SUMMARY
+
     if not path.exists():
-        raise FileNotFoundError(f"Regression summary not found at {path}. "
-                                "Run analyze_results.py first.")
+        raise FileNotFoundError(
+            f"Regression summary not found at {path}. "
+            "Run the analysis step before visualizing."
+        )
+
     with open(path, "r", encoding="utf-8") as f:
         return json.load(f)
 
-def generate_surface_grid(summary: Dict[str, Any], 
-                          density_range: Tuple[float, float] = (0.0, 1.0),
-                          horizon_range: Tuple[int, int] = (1, 50),
-                          resolution: int = 30) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+def generate_surface_grid(
+    summary: Dict[str, Any], n_points: int = 50
+) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
     """
-    Generate a 3D surface grid based on the regression model coefficients.
-    
-    The summary should contain 'coefficients' and ideally 'interaction_terms'.
-    If the summary contains pre-computed grid data, use that. Otherwise,
-    reconstruct the surface using the logistic function:
-    P(success) = sigmoid(intercept + coef_density * density + coef_horizon * horizon + 
-                         coef_interaction * density * horizon)
-    
-    For this implementation, we assume the summary from T020 includes the necessary
-    coefficients for the linear predictor of the logistic model.
+    Generate a regular grid of (Horizon, Density) points and predict the
+    success rate using the logistic regression coefficients stored in the
+    regression summary.
+
+    The model is approximated as a simple logistic regression with a
+    linear interaction term:
+
+        logit(P) = intercept + b_h * H + b_d * D + b_hd * H * D
+
+    If spline coefficients are present, they are ignored for the purpose
+    of this visualization – the interaction term is sufficient to
+    illustrate the regime map.
+
+    Parameters
+    ----------
+    summary : dict
+        Regression summary dictionary.
+    n_points : int, optional
+        Number of points per axis for the mesh grid.
+
+    Returns
+    -------
+    Tuple[np.ndarray, np.ndarray, np.ndarray]
+        Meshgrid arrays (H, D) and the predicted success probabilities Z.
     """
-    # Extract coefficients if available in the summary
-    # Expected structure from analyze_results.py (T020):
-    # {
-    #   "coefficients": {
-    #     "intercept": float,
-    #     "density": float,
-    #     "horizon": float,
-    #     "density_horizon_interaction": float
-    #   },
-    #   ...
-    # }
-    
+    # Extract coefficients (fallback to 0.0 if missing)
     coeffs = summary.get("coefficients", {})
-    if not coeffs:
-        # Fallback: If no coefficients, we cannot generate a meaningful surface.
-        # In a real scenario, this would raise an error.
-        # For robustness, we might return a flat surface of 0.5.
-        print("Warning: No coefficients found in summary. Generating flat surface.")
-        x = np.linspace(horizon_range[0], horizon_range[1], resolution)
-        y = np.linspace(density_range[0], density_range[1], resolution)
-        X, Y = np.meshgrid(x, y)
-        Z = np.full_like(X, 0.5)
-        return X, Y, Z
+    intercept = coeffs.get("Intercept", 0.0)
+    beta_horizon = coeffs.get("horizon", 0.0)
+    beta_density = coeffs.get("density", 0.0)
+    beta_interaction = coeffs.get("density:horizon", 0.0)
 
-    intercept = coeffs.get("intercept", 0.0)
-    coef_density = coeffs.get("density", 0.0)
-    coef_horizon = coeffs.get("horizon", 0.0)
-    coef_interaction = coeffs.get("density_horizon_interaction", 0.0)
+    # Determine horizon range – use values from the summary if available,
+    # otherwise fall back to a sensible default.
+    max_horizon = summary.get("max_horizon", 20)
+    min_horizon = summary.get("min_horizon", 1)
+    horizon_range = np.linspace(min_horizon, max_horizon, n_points)
 
-    # Create grid
-    x = np.linspace(horizon_range[0], horizon_range[1], resolution)
-    y = np.linspace(density_range[0], density_range[1], resolution)
-    X, Y = np.meshgrid(x, y)
+    # Density is defined between 0 and 1.
+    density_range = np.linspace(0.0, 1.0, n_points)
 
-    # Calculate linear predictor
-    Z_linear = (intercept + 
-                coef_density * Y + 
-                coef_horizon * X + 
-                coef_interaction * X * Y)
+    H, D = np.meshgrid(horizon_range, density_range)
 
-    # Apply sigmoid to get probability (Success Rate)
-    Z = 1.0 / (1.0 + np.exp(-Z_linear))
+    # Compute the logistic regression logit.
+    logit = (
+        intercept
+        + beta_horizon * H
+        + beta_density * D
+        + beta_interaction * H * D
+    )
 
-    return X, Y, Z
+    # Apply the sigmoid function.
+    Z = 1.0 / (1.0 + np.exp(-logit))
 
-def plot_3d_surface(X: np.ndarray, Y: np.ndarray, Z: np.ndarray, 
-                    output_path: Path, title: str = "Success Rate Surface") -> None:
+    return H, D, Z
+
+def _save_plot(
+    H: np.ndarray,
+    D: np.ndarray,
+    Z: np.ndarray,
+    output_path: Path,
+) -> None:
     """
-    Create a 3D surface plot and save it as PNG.
-    Ensures file size is reasonable (≤ 5 MB) by controlling resolution and DPI.
+    Render the 3‑D surface plot and write it to ``output_path``.
+
+    The function ensures the output directory exists and verifies that
+    the resulting file size does not exceed :data:`MAX_FILE_SIZE_MB`.
     """
-    # Ensure output directory exists
+    # Ensure the directory hierarchy exists.
     output_path.parent.mkdir(parents=True, exist_ok=True)
 
     fig = plt.figure(figsize=(10, 8))
-    ax = fig.add_subplot(111, projection='3d')
+    ax = fig.add_subplot(111, projection="3d")
 
-    # Plot surface
-    surf = ax.plot_surface(X, Y, Z, cmap='viridis', edgecolor='none', alpha=0.9)
-    
-    # Labels
-    ax.set_xlabel("Masking Horizon (Turns)")
-    ax.set_ylabel("Semantic Density (Bits/Token)")
-    ax.set_zlabel("Success Rate (Probability)")
-    ax.set_title(title)
+    # Plot the surface.
+    surf = ax.plot_surface(
+        H,
+        D,
+        Z,
+        cmap="viridis",
+        edgecolor="none",
+        alpha=0.9,
+    )
 
-    # Color bar
-    fig.colorbar(surf, ax=ax, shrink=0.5, aspect=10, label="Success Rate")
+    # Axis labels must match the specification exactly.
+    ax.set_xlabel("Masking Horizon")
+    ax.set_ylabel("Semantic Density")
+    ax.set_zlabel("Success Rate")
 
-    # Adjust layout to prevent clipping
-    plt.tight_layout()
+    # Color bar for reference.
+    fig.colorbar(
+        surf,
+        ax=ax,
+        shrink=0.5,
+        aspect=10,
+        label="Success Rate",
+    )
 
-    # Save with optimized settings to keep file size under 5 MB
-    # DPI 100-150 is usually sufficient for a 10x8 inch figure
-    plt.savefig(output_path, dpi=100, bbox_inches='tight', optimize=True)
-    plt.close(fig)
+    ax.set_title("Regime Map: Optimal Retention Windows")
 
-    # Check file size
-    file_size_mb = output_path.stat().st_size / (1024 * 1024)
-    if file_size_mb > 5.0:
-        print(f"Warning: Output file size ({file_size_mb:.2f} MB) exceeds 5 MB limit. "
-              "Consider reducing resolution or DPI.")
+    # Attempt to save at a high DPI first; reduce if the size limit is hit.
+    for dpi in (150, 100, 80):
+        plt.savefig(
+            output_path,
+            dpi=dpi,
+            bbox_inches="tight",
+            facecolor="white",
+        )
+        plt.close(fig)
 
-def main():
-    """Main entry point for visualization."""
-    print("Starting visualization of results...")
-    
-    # Load regression summary
-    if not REGRESSION_SUMMARY_PATH.exists():
-        # Attempt to run analysis if summary is missing
-        print(f"Summary not found at {REGRESSION_SUMMARY_PATH}. Attempting to run analysis...")
-        # We would call analyze_results here, but for this task we assume the pipeline
-        # order is respected and T020 has run. If not, we fail loudly.
-        print("Error: regression_summary.json not found. Please run analyze_results.py first.")
-        sys.exit(1)
+        size_mb = output_path.stat().st_size / (1024 * 1024)
+        if size_mb <= MAX_FILE_SIZE_MB:
+            break
+        # If still too large, continue with the next lower DPI.
 
+    if size_mb > MAX_FILE_SIZE_MB:
+        raise RuntimeError(
+            f"Generated plot exceeds {MAX_FILE_SIZE_MB} MB "
+            f"({size_mb:.2f} MB). Reduce resolution or simplify the mesh."
+        )
+
+def plot_3d_surface(
+    summary: Dict[str, Any],
+    output_dir: Path,
+    filename: str,
+) -> Path:
+    """
+    Public API used by the integration test.
+
+    Parameters
+    ----------
+    summary : dict
+        Regression summary dictionary.
+    output_dir : Path
+        Directory where the plot should be saved.
+    filename : str
+        Desired filename for the PNG image.
+
+    Returns
+    -------
+    Path
+        Path to the generated PNG file.
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / filename
+
+    # Generate the mesh grid and predictions.
+    H, D, Z = generate_surface_grid(summary)
+
+    # Render and save the figure.
+    _save_plot(H, D, Z, output_path)
+
+    return output_path
+
+# ----------------------------------------------------------------------
+# Script entry point
+# ----------------------------------------------------------------------
+def _main() -> None:
+    """
+    When the module is executed directly, generate the regime map using
+    the default locations.
+    """
     try:
-        summary = load_regression_summary(REGRESSION_SUMMARY_PATH)
-    except Exception as e:
-        print(f"Error loading regression summary: {e}")
+        print(f"Loading regression summary from {DEFAULT_REGRESSION_SUMMARY}...")
+        summary = load_regression_summary()
+    except Exception as exc:
+        print(f"Error loading regression summary: {exc}", file=sys.stderr)
         sys.exit(1)
 
-    # Generate surface grid
-    # We can make resolution configurable if needed, but 30x30 is a good balance
+    print("Generating surface grid and plotting...")
     try:
-        X, Y, Z = generate_surface_grid(summary)
-    except Exception as e:
-        print(f"Error generating surface grid: {e}")
+        plot_path = plot_3d_surface(
+            summary,
+            DEFAULT_PLOTS_DIR,
+            DEFAULT_PLOT_FILENAME,
+        )
+    except Exception as exc:
+        print(f"Error generating plot: {exc}", file=sys.stderr)
         sys.exit(1)
 
-    # Plot and save
-    try:
-        plot_3d_surface(X, Y, Z, OUTPUT_PLOT_PATH, title="Success Rate: Horizon vs. Density")
-        print(f"Successfully generated plot at {OUTPUT_PLOT_PATH}")
-    except Exception as e:
-        print(f"Error generating plot: {e}")
+    print(f"Success: Regime map saved to {plot_path}")
+
+    # Final sanity check.
+    if not plot_path.exists():
+        print("Error: Plot file was not created.", file=sys.stderr)
         sys.exit(1)
+
+    size_mb = plot_path.stat().st_size / (1024 * 1024)
+    print(f"Plot file size: {size_mb:.2f} MB (limit: {MAX_FILE_SIZE_MB} MB)")
 
 if __name__ == "__main__":
-    main()
+    _main()

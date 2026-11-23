@@ -1,85 +1,67 @@
 # Data Model: Assessing the Stability of Statistical Model Performance Across Data Subsets
 
-## Overview
+## Entities and Attributes
 
-This document defines the data structures used to capture the input datasets, the raw evaluation results, and the aggregated statistical metrics. All data flows from `data/raw` -> `results/raw_evaluations.csv` -> `results/aggregated_metrics.csv` -> `results/statistical_tests.json`.
+### 1. Dataset
+Represents a single binary classification dataset used in the study.
+- `dataset_id`: Unique identifier (e.g., "openml-1590").
+- `source_url`: The URL or programmatic loader reference (e.g., `fetch_openml`).
+- `n_samples`: Total number of samples in the dataset.
+- `n_features`: Total number of features.
+- `binary_target`: Boolean, indicating if the target is binary.
+- `checksum`: SHA-256 hash of the raw file (for reproducibility).
 
-## Entities
+### 2. EvaluationRun
+Represents a single instance of model training and testing within a specific fold and repeat.
+- `dataset_id`: Foreign key to Dataset.
+- `model_name`: One of "LogisticRegression", "RandomForest", "LinearSVM".
+- `fold_id`: Integer (0-9).
+- `repeat_id`: Integer (0-9).
+- `accuracy`: Float (0.0 - 1.0).
+- `f1_score`: Float (0.0 - 1.0).
+- `runtime_seconds`: Float (execution time).
 
-### 1. Dataset (Input)
-Represents a single binary classification dataset from UCI/OpenML.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `dataset_id` | int | Unique OpenML dataset ID. |
-| `dataset_name` | str | Human-readable name. |
-| `n_samples` | int | Number of rows. |
-| `n_features` | int | Number of features (after encoding). |
-| `source` | str | "OpenML" or "UCI". |
-| `checksum` | str | SHA-256 hash of the raw file. |
-
-### 2. EvaluationRun (Raw Output)
-Represents a single model training/testing iteration within a specific fold and repeat.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `dataset_id` | int | FK to Dataset. |
-| `model_name` | str | "LogisticRegression", "RandomForest", "LinearSVM". |
-| `repeat_id` | int | 1-10. |
-| `fold_id` | int | 1-10. |
-| `accuracy` | float | Classification accuracy (0.0 to 1.0). |
-| `f1_score` | float | F1 score (0.0 to 1.0). |
-| `seed` | int | Random seed used for this run. |
-
-### 3. StabilityMetric (Aggregated)
-Represents the stability summary for a (Dataset, Model) pair.
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `dataset_id` | int | FK to Dataset. |
-| `model_name` | str | Model name. |
-| `n_samples` | int | Inherited from Dataset. |
-| `n_features` | int | Inherited from Dataset. |
-| `mean_accuracy` | float | Mean of 100 accuracy scores. |
-| `std_accuracy` | float | Std dev of 100 accuracy scores. |
-| `cv_accuracy` | float | Coefficient of Variation (std/mean). |
-| `mean_f1` | float | Mean of 100 F1 scores. |
-| `std_f1` | float | Std dev of 100 F1 scores. |
-| `cv_f1` | float | Coefficient of Variation (std/mean). |
+### 3. StabilityMetric
+Aggregated metrics for a (dataset, model) pair.
+- `dataset_id`: Foreign key to Dataset.
+- `model_name`: String.
+- `mean_accuracy`: Float (average of 100 runs).
+- `std_accuracy`: Float (standard deviation of 100 runs).
+- `cv_accuracy`: Float ($\frac{std}{mean}$).
+- `mean_f1`: Float.
+- `std_f1`: Float.
+- `cv_f1`: Float.
 
 ### 4. CorrelationResult
-Represents the result of a Pearson correlation test.
+Result of the log-log correlation analysis between stability and dataset properties.
+- `dataset_property`: "log_n_samples" or "log_n_features".
+- `metric_type`: "log_cv_accuracy" or "log_cv_f1".
+- `slope`: Float (beta_1 coefficient).
+- `p_value`: Float (raw).
+- `p_value_adjusted`: Float (Holm-Bonferroni adjusted).
+- `significant`: Boolean (adjusted p < 0.05).
+- `hypothesis_tested`: String (e.g., "H0: beta1 = -0.5").
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `test_id` | str | Unique identifier (e.g., "cv_acc_vs_n_samples"). |
-| `metric` | str | "cv_accuracy" or "cv_f1". |
-| `property` | str | "n_samples" or "n_features". |
-| `correlation` | float | Pearson r. |
-| `p_value` | float | Raw p-value. |
-| `p_value_adj` | float | Benjamini-Hochberg adjusted p-value. |
-| `significant` | bool | True if `p_value_adj < 0.05`. |
+### 5. PermutationResult
+Result of the variance comparison test for a dataset.
+- `dataset_id`: Foreign key to Dataset.
+- `comparison_pair`: String (e.g., "LR_vs_RF", "RF_vs_SVM").
+- `metric_type`: "accuracy" or "f1".
+- `test_statistic`: Float (observed difference in variances).
+- `p_value`: Float (raw).
+- `p_value_adjusted`: Float (Holm-Bonferroni adjusted).
+- `significant`: Boolean.
 
-### 5. VarianceTestResult
-Represents the result of the Permutation Test for variance differences.
+## Data Flow
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `dataset_id` | int | FK to Dataset. |
-| `metric` | str | "accuracy" or "f1". |
-| `p_value` | float | Raw p-value from permutation test. |
-| `p_value_adj` | float | Benjamini-Hochberg adjusted p-value. |
-| `significant` | bool | True if `p_value_adj < 0.05`. |
+1. **Ingestion**: `download_data.py` fetches datasets -> `data/raw/` (checksummed).
+2. **Evaluation**: `run_evaluation.py` iterates datasets/models -> generates `results/raw_evaluations.csv` (EvaluationRun).
+3. **Aggregation**: `analyze_stability.py` computes CVs -> `results/stability_metrics.csv` (StabilityMetric).
+4. **Analysis**: `analyze_stability.py` computes log-log correlations and permutation tests -> `results/correlation_results.csv` and `results/permutation_results.csv`.
+5. **Reporting**: `report_generator.py` aggregates all CSVs -> `docs/final_report.md`.
 
-## Data Flow Diagram
+## Constraints
 
-```mermaid
-graph TD
-    A[Data: Raw Datasets] -->|Load & Validate| B(Evaluator)
-    B -->|100 Runs| C[Raw: evaluations.csv]
-    C -->|Aggregate| D[Metrics: stability_metrics.csv]
-    D -->|Correlate| E[Stats: correlation_results.json]
-    D -->|Permutation Test| F[Stats: variance_tests.json]
-    E -->|Report| G[Final Report]
-    F -->|Report| G
-```
+- **No Data Leakage**: Imputation and scaling parameters are fit on the training fold only.
+- **Reproducibility**: All random seeds (numpy, sklearn) are set to a fixed integer (e.g., 42) at the start of the script.
+- **Schema Validation**: Output CSVs must match the schema defined in `contracts/`.

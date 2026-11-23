@@ -1,0 +1,41 @@
+T007:
+  c: false
+  h: 48659c687c23220ef36f8f00ecf43fde4c05ed3e7d0202686b43f70d102bb560
+  r: "The provided `code/data_loader.py` contains only checksum and S3\u2011download\
+    \ utilities; there is no implementation of motion\u2011scrubbing, FD\u2011based\
+    \ filtering, subject exclusion logic, or NaN\u2011counting, nor any logging to\
+    \ the required log files. Moreover, the three log files (`missing_data.log`, `motion_exclusions.log`,\
+    \ `parcel_quality.log`) do not exist. The task\u2019s core requirements are therefore\
+    \ unmet."
+T015b:
+  c: false
+  h: 4e356e8d73e24671784f75a3dec114944445df0f2bcb04b21180616035d062ae
+  r: "The provided `code/entropy.py` excerpt only defines `compute_sample_entropy`\
+    \ and shows no logic that counts NaN parcels, checks the >10\u202F% threshold,\
+    \ or writes to `data/logs/invalid_parcels.log`. Moreover, the required log file\
+    \ `data/logs/invalid_parcels.log` does not exist on disk. The task\u2019s core\
+    \ requirement\u2014flagging subjects with >10\u202F% invalid parcels and logging\
+    \ them\u2014is therefore not satisfied."
+T017:
+  c: false
+  h: 2d9c2d919ca6a2e687d2ec72e058586c5d0546ee339f76f4d23978dfca9112f0
+  r: "The repository contains a partially shown `code/entropy.py`, but the file is\
+    \ truncated and does not demonstrate the required orchestration, subject looping,\
+    \ or memory\u2011chunking logic. Moreover, the required output `data/processed/entropy_metrics.csv`\
+    \ is absent. The task\u2019s core deliverables are therefore not present."
+T017b:
+  c: false
+  h: 9d4d06ca8745aa23fc9d4584e57d8e803262b60df8f54d056012a5d597e76787
+  r: "The `code/entropy.py` file defines helper functions for RAM tracking but the\
+    \ provided excerpt (and the truncated remainder) shows no invocation of `_reset_peak_ram`,\
+    \ `_update_peak_ram`, or `_log_peak_ram` during the actual entropy computation,\
+    \ nor is the required `data/logs/ram_usage.log` file present. Consequently the\
+    \ task\u2019s requirement to log peak RAM usage for the full run is not satisfied."
+T044:
+  c: false
+  h: f3571dd0d065001611221b14ee5aa718814a2e1bc1e59b9d47a8fdcb361e7f49
+  r: The required `data/processed/surrogate_validation_report.csv` does not exist,
+    and the provided `code/sensitivity.py` is truncated and lacks any implementation
+    that compares real vs. surrogate entropy, computes differences, determines pass/fail,
+    or writes the specified CSV. The validation logic and output artifact are therefore
+    missing.

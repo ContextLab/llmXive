@@ -1,19 +1,19 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-02T17:22:36.291024Z'
-current_stage: validated
+current_stage: specified
 failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-159-predicting-molecular-permeability-throug
-last_run_id: 83b7d3de-c0dc-46f1-8b6b-c0f50bab7cdc
+last_run_id: 87dd7075-5a79-490b-a9c8-83a4eaabd5b0
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-159-predicting-molecular-permeability-throug/specs/001-predicting-molecular-permeability-throug
 title: Predicting Molecular Permeability Through Porous Materials Using Graph Neural
   Networks
-updated_at: '2026-06-27T20:49:03.569047Z'
+updated_at: '2026-10-21T03:42:02.645615Z'

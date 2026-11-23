@@ -1,0 +1,17 @@
+status: none
+intent: Claw SWE Bench dataset download pip install huggingface datasets python package
+  dataset
+required_fields:
+- issue_id
+- issue_description
+- repository_url
+- file_path
+- file_history_contents
+- file_history_line_count
+- ground_truth_patch
+- unit_tests
+- dependency_graph
+- metadata_timestamp
+cache_key: f527018aa196903dad7eceb86dee83aa6a187b4dabf73df7edc377162c450359
+searched_at: '2026-10-10T19:26:51.568917+00:00'
+retry_count: 1

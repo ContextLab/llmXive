@@ -1,56 +1,64 @@
 # Data Model: Predicting Polymer Degradation Pathways with Graph Neural Networks
 
-## Entities
+## Core Entities
 
 ### PolymerRecord
-
-Represents a single polymer degradation entry.
-
-| Field | Type | Description | Source |
-|-------|------|-------------|--------|
-| `id` | str | Unique identifier (hash of SMILES + conditions) | Derived |
-| `smiles` | str | Canonical SMILES string of polymer | NIST/WebBooks-1 |
-| `temp` | float | Temperature (°C) | NIST/WebBooks-1 (records with missing values are EXCLUDED) |
-| `pH` | float | pH value | NIST/WebBooks-1 (records with missing values are EXCLUDED) |
-| `uv` | float | UV exposure (W/m²) | NIST/WebBooks-1 (records with missing values are EXCLUDED) |
-| `pathway` | str | Degradation pathway label (hydrolysis/oxidation/photolysis/other) | NIST/WebBooks-1 (records without this label are EXCLUDED) |
-| `flags` | list[str] | Flags for missing data, invalid SMILES, manual review | Derived |
+| Field | Type | Description | Constraints |
+|-------|------|-------------|-------------|
+| `id` | string | SHA‑256 hash of (`smiles` + `temp_c` + `ph` + `uv_exposure`). | Required, unique |
+| `smiles` | string | Canonical SMILES; **must be a valid RDKit SMILES**. | Valid RDKit SMILES |
+| `is_polyester` | boolean | `True` if the SMARTS pattern `C(=O)O` (ester) is detected; otherwise `False`. | Derived from SMARTS detection |
+| `temp_c` | number | Temperature in Celsius; default 25 if imputed. | ≥ -273.15 |
+| `ph` | number | pH value; default 7 if imputed. | 0 – 14 |
+| `uv_exposure` | number | Normalised UV (0‑1); default 0 if imputed. | 0 – 1 |
+| `label` | string | Degradation pathway (`"hydrolysis"`, `"oxidation"` or `"photolysis"`). | Curated label required for training |
+| `label_source` | string | `"curated"` (used for training) **or** `"synthetic"` (used **only for augmentation**). |
+| `validation_flag` | string | `"valid"` if all fields pass checks, `"missing_env"` if any environmental variable was imputed, `"invalid_smiles"` if RDKit failed to parse. |
+| `metadata` | object | Flags for imputation, validation status, etc. |
 
 ### MolecularGraph
-
-Graph representation of a polymer record.
-
 | Field | Type | Description |
 |-------|------|-------------|
-| `nodes` | list[dict] | Atom features: `{atomic_num, degree, hybridization, charge}` |
-| `edges` | list[dict] | Bond features: `{type, conjugation}` |
-| `global_features` | list[float] | `[temp, pH, uv]` |
-| `label` | int | Integer-encoded degradation pathway |
+| `record_id` | string | FK → `PolymerRecord.id`. |
+| `nodes` | list of objects | Atom features (`atom_type`, `degree`, `hybridization`, `formal_charge`). |
+| `edges` | list of objects | Bond features (`bond_type`, `conjugation`, `aromaticity`). |
+| `global_features` | object | `{temp_c, ph, uv_exposure}`. |
+| `graph_hash` | string | SHA‑256 of the serialized graph. |
 
 ### MotifImportance
-
-Derived metric linking structural motifs to pathways.
-
 | Field | Type | Description |
 |-------|------|-------------|
-| `motif_pattern` | str | SMILES fragment or subgraph description |
-| `pathway` | str | Associated degradation pathway |
-| `importance_score` | float | Integrated Gradients attribution score (for interpretation only) |
-| `p_value_global` | float | Label-shuffling permutation test p-value (global model significance) |
-| `p_value_local` | float | Motif-masking permutation test p-value (local motif significance) |
-| `confidence` | float | Prediction confidence (0-1) |
+| `motif_id` | string | Unique identifier |
+| `motif_pattern` | string | SMILES of the subgraph motif |
+| `pathway` | string | `"hydrolysis"`, `"oxidation"` or `"photolysis"` |
+| `importance_score` | number | Integrated Gradients score (0 – 1) |
+| `p_value` | number | Empirical **permutation‑test** p‑value (0 – 1) |
+| `significant` | boolean | `p_value < 0.05` |
 
-## Data Flow
+### PredictionResult (model output)
+| Field | Type | Description |
+|-------|------|-------------|
+| `record_id` | string | FK to `PolymerRecord.id`. |
+| `predicted_class` | string | One of the three pathways. |
+| `confidence` | number | Softmax probability (0 – 1). |
+| `is_low_confidence` | boolean | `confidence < 0.6` (source: 2312.01650). |
+| `motif_importance` | object | Mapping `{motif_name: score}`. |
+| `attribution_map` | array of numbers | Node‑level IG scores. |
 
-1. **Ingestion**: `raw/` → `processed/polymer_graphs.csv` (FR-001, FR-008). **Records with missing environmental data or missing pathway labels are excluded.**
-2. **Preprocessing**: `polymer_graphs.csv` → `processed/graph_dataset.pt` (PyTorch Geometric DataList) (FR-002).
-3. **Augmentation**: `graph_dataset.pt` → `processed/augmented_graph_dataset.pt` (FR-004). **Only if n < 150; uses SMILES canonicalization and functional-group-preserving edge dropout (corrected from bond rotation).**
-4. **Training**: `augmented_graph_dataset.pt` → `models/gnn_model.pt` (FR-003).
-5. **Evaluation**: `models/gnn_model.pt` + `graph_dataset.pt` → `reports/motif_report.yaml` (FR-006, FR-007). **Uses Label-Shuffling (global) and Motif-Masking (local) permutation tests.**
+## Data Flow Diagram (conceptual)
 
-## Storage Schema
+1. **Ingestion** → raw Parquet (`data/raw/`).  
+2. **Label Validation** → `label_flags.json` (adds `label_source`, `validation_flag`).  
+3. **Preprocess** → `PolymerRecord`s (`records.parquet`) + `MolecularGraph`s (`graphs/*.pkl`).  
+4. **Augmentation** (bond rotation + atom masking) → augmented graphs (`augmented/graphs/*.pkl`).  
+5. **Training** → model checkpoint (`code/models/model.pt`).  
+6. **Inference** → `PredictionResult`s (`output/predictions.json`).  
+7. **Attribution** → `MotifImportance`s (`output/model_output.json`).  
+8. **Statistical Validation** → permutation‑test results (`data/reports/perm_test_results.json`).  
+9. **Report** → final markdown (`docs/reports/final_report.md`).  
 
-- **Raw Data**: `data/raw/*.txt` (original downloads, checksummed).
-- **Processed Data**: `data/processed/*.csv`, `*.pt` (PyTorch Geometric format).
-- **Models**: `models/*.pt` (trained GNN weights).
-- **Reports**: `reports/*.yaml`, `*.json` (motif rankings, p-values, macro-F1).
+All artifacts are version‑hashed and listed in `state/artifact_hashes.yaml` for reproducibility.
+
+---
+
+

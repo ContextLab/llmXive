@@ -1,0 +1,17 @@
+status: none
+intent: "HEPData beta decay D\u2011coefficient upper limits dataset INSPIRE arXiv\
+  \ python package dataset"
+required_fields:
+- nucleus
+- D_coefficient_upper_limit
+- confidence_level
+- uncertainty
+- limit_type
+- experimental_conditions
+- experiment_name
+- reference_doi
+- reference_arxiv_id
+- publication_year
+cache_key: 4802f58c0ba61c8abfe6d62dfe91df96c5a8ef3c8637de973c80726e63a73f3e
+searched_at: '2026-08-24T03:07:36.036179+00:00'
+retry_count: 1

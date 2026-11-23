@@ -1,46 +1,84 @@
 """
-Script to initialize the project directory structure for the LLM Carbon Footprint study.
-Creates the necessary folders for code, data (raw, processed, outputs), tests, and output.
+Module to create the project directory structure.
+Implements T001: Create project root structure per implementation plan.
 """
 import os
 import sys
+from pathlib import Path
 
-# Define the directory structure relative to the project root
-DIRS = [
-    "code",
-    "data/raw",
-    "data/processed",
-    "data/outputs",
-    "tests",
-    "tests/unit",
-    "tests/contract",
-    "output",
-    "figures",
-    "specs",
-]
+def create_directory_structure(root_dir: str = ".") -> None:
+    """
+    Creates the required directory structure for the project.
+    
+    Required directories:
+    - code/
+    - data/raw/
+    - data/processed/
+    - data/outputs/
+    - tests/unit/
+    - tests/contract/
+    
+    Also creates empty __init__.py files in all code/ and tests/ subdirectories.
+    """
+    # Define the base project directory (current working directory)
+    base_dir = Path.cwd()
+    
+    # Define required directories
+    directories = [
+        "code",
+        "data/raw",
+        "data/processed",
+        "data/outputs",
+        "tests/unit",
+        "tests/contract"
+    ]
+    
+    # Create directories
+    for dir_path in directories:
+        full_path = base_dir / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        print(f"Created directory: {full_path}")
+    
+    # Create __init__.py files in code/ and tests/ subdirectories
+    # code/ directory
+    code_init = base_dir / "code" / "__init__.py"
+    code_init.touch()
+    print(f"Created: {code_init}")
+    
+    # tests/ unit directory
+    tests_unit_init = base_dir / "tests" / "unit" / "__init__.py"
+    tests_unit_init.parent.mkdir(parents=True, exist_ok=True)
+    tests_unit_init.touch()
+    print(f"Created: {tests_unit_init}")
+    
+    # tests/ contract directory
+    tests_contract_init = base_dir / "tests" / "contract" / "__init__.py"
+    tests_contract_init.parent.mkdir(parents=True, exist_ok=True)
+    tests_contract_init.touch()
+    print(f"Created: {tests_contract_init}")
+    
+    # Create root tests/__init__.py
+    tests_init = base_dir / "tests" / "__init__.py"
+    tests_init.touch()
+    print(f"Created: {tests_init}")
+    
+    print("\nProject structure created successfully!")
+    print("Directory structure:")
+    for dir_path in directories:
+        print(f"  - {dir_path}")
+    
+    return True
 
 def main():
-    base_dir = os.getcwd()
-    created_count = 0
-    existing_count = 0
-
-    print(f"Initializing project structure in: {base_dir}")
-
-    for dir_path in DIRS:
-        full_path = os.path.join(base_dir, dir_path)
-        try:
-            if not os.path.exists(full_path):
-                os.makedirs(full_path)
-                print(f"  Created: {dir_path}")
-                created_count += 1
-            else:
-                print(f"  Exists:  {dir_path}")
-                existing_count += 1
-        except OSError as e:
-            print(f"  Error creating {dir_path}: {e}")
-            sys.exit(1)
-
-    print(f"\nSetup complete. Created {created_count} directories, skipped {existing_count}.")
+    """Main entry point for the script."""
+    print("Initializing project structure...")
+    success = create_directory_structure()
+    if success:
+        print("Project structure setup complete.")
+        return 0
+    else:
+        print("Project structure setup failed.")
+        return 1
 
 if __name__ == "__main__":
     main()

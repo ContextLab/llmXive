@@ -1,0 +1,32 @@
+# Default configuration for llmXive simulation pipeline
+# Task T026b: Configuration loading logic reads target_steps from this file
+
+# Simulation parameters
+target_steps: 10000
+seed: 42
+memory_limit_mb: 7000
+time_limit_seconds: null
+
+# Agent specific parameters
+ca_eco_director:
+  neighborhood_radius: 3
+  memory_depth: 5
+  non_linearity: 0.8
+  update_rule: "majority_with_noise"
+
+neural_baseline:
+  model_type: "throttled_proxy"
+  throttle_factor: 0.1
+  hidden_size: 64
+
+# Data parameters
+dataset:
+  name: "simulation_dataset"
+  streaming: true
+  chunk_size: 1000
+
+# Output paths (relative to project root)
+output:
+  raw: "data/raw"
+  processed: "data/processed"
+  logs: "logs"

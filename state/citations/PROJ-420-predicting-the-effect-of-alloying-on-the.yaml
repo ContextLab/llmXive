@@ -1,11 +1,11 @@
-- artifact_hash: 165ff9ca50a41b96fbd7af9e153b6af6b85dc9ac32a2285597f9092bd13258ae
-  artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/tasks.md
+- artifact_hash: efea892a083c28c90233572dce596c4eeeecab56fe3ee204cd562f920bdf478a
+  artifact_path: projects/PROJ-420-predicting-the-effect-of-alloying-on-the/specs/001-predicting-the-effect-of-alloying-on-the/quickstart.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://next-gen.materialsproject.org/api/v2/materials/`
-  verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/api/v2/materials/
-  verified_at: '2026-07-15T12:54:19.625833Z'
+  value: https://github.com/your-org/PROJ-420-predicting-the-effect-of-alloying-on-the.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/PROJ-420-predicting-the-effect-of-alloying-on-the
+  verified_at: '2026-10-25T05:29:27.858175Z'

@@ -1,0 +1,2 @@
+# This file ensures the data/processed directory exists in git.
+# Actual processed data files should be ignored by the .gitignore in the parent directory.

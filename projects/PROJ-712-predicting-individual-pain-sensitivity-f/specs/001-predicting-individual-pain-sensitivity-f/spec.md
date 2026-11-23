@@ -13,7 +13,7 @@ The system must successfully ingest the OpenNeuro ds003XXX dataset, apply standa
 
 **Why this priority**: Without a robust, reproducible preprocessing pipeline that handles the raw EEG and extracts the microstate descriptors (duration, occurrence, transitions, spectral power), no predictive modeling can occur. This is the foundational data product of the project.
 
-**Independent Test**: The pipeline can be executed end-to-end on a sample of 5 participants from the dataset; the output must be a CSV file containing 30 features per participant and the corresponding heat-pain threshold labels, with no NaN values in the feature columns.
+**Independent Test**: The pipeline can be executed end-to-end on a representative subset of participants from the dataset; the output must be a CSV file containing 30 features per participant and the corresponding heat-pain threshold labels, with no NaN values in the feature columns.
 
 **Acceptance Scenarios**:
 1. **Given** the raw EEG files and heat-pain threshold CSV exist in the input directory, **When** the preprocessing script is executed, **Then** the output feature matrix contains exactly 30 features per participant with no missing values.
@@ -54,7 +54,7 @@ The system must perform multiple-comparison corrections for feature testing, con
 ### Functional Requirements
 
 - **FR-001**: System MUST ingest the OpenNeuro ds003XXX dataset, re-reference to average mastoids, band-pass filter (1–40 Hz), and remove ocular/muscle artifacts via ICA. (See US-1)
-- **FR-002**: System MUST extract 30 microstate features per participant: 4 mean durations, 4 occurrence rates, 16 transition probabilities (4x4 matrix flattened), and 6 spectral power features (delta, theta, alpha, beta, low-gamma, high-gamma). (See US-1)
+- **FR-002**: System MUST extract a set of microstate features per participant: Multiple mean durations, Multiple occurrence rates, Multiple transition probabilities (derived from a flattened 4×4 matrix), and Multiple spectral power features (delta, theta, alpha, beta, low‑gamma, high‑gamma). (See US-1)
 - **FR-003**: System MUST train an Elastic Net regression model (α=0.5) with nested 5-fold cross-validation to predict heat-pain thresholds from the 30 extracted features. (See US-2)
 - **FR-004**: System MUST perform 1,000 permutations of the pain-threshold labels *within* the nested cross-validation loop to generate a null distribution and calculate an empirical p-value for the observed correlation. (See US-2)
 - **FR-005**: System MUST apply a False Discovery Rate (FDR) correction to the p-values of all 30 feature coefficients to control for multiplicity. (See US-3)

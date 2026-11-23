@@ -1,143 +1,73 @@
 """
-Utility functions for the molecular fingerprint analysis pipeline.
-
-Provides logging configuration, random seed initialization, and environment
-variable loading to ensure reproducible and well-logged experiments.
+Utility module for the comparative analysis pipeline.
+Provides functions for logging configuration, random seed initialization,
+and logger retrieval used across the codebase.
 """
 
 import logging
 import os
 import random
-from pathlib import Path
-
 import numpy as np
 
-# Default seed for reproducibility as per project requirements
-DEFAULT_SEED = 42
+__all__ = [
+    "setup_logging",
+    "init_random_seed",
+    "get_logger",
+]
 
-# Log file path relative to project root
-LOG_FILE_PATH = "data/processed/pipeline.log"
-
-def load_environment_variables(env_path: str | None = None) -> dict[str, str]:
+def setup_logging(level: int = logging.INFO) -> logging.Logger:
     """
-    Load environment variables from a .env file if it exists.
+    Configure the root logger with a simple format and return a logger
+    instance. This function is imported by many pipeline scripts (e.g.,
+    `download.py`, `fingerprints.py`, `split.py`, `train.py`, `evaluate.py`).
 
-    Args:
-        env_path: Path to the .env file. Defaults to looking for .env in the
-                  current working directory.
+    Parameters
+    ----------
+    level : int, optional
+        Logging level for the root logger (default is ``logging.INFO``).
 
-    Returns:
-        Dictionary of loaded environment variables (empty if file not found).
+    Returns
+    -------
+    logging.Logger
+        The root logger instance.
     """
-    if env_path is None:
-        env_path = ".env"
+    # Basic configuration; if the root logger is already configured this call
+    # is a no‑op, which is safe for repeated imports.
+    logging.basicConfig(
+        level=level,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        datefmt="%Y-%m-%d %H:%M:%S",
+    )
+    return logging.getLogger()
 
-    env_vars = {}
-    env_file = Path(env_path)
-
-    if env_file.exists():
-        with open(env_file, "r", encoding="utf-8") as f:
-            for line in f:
-                line = line.strip()
-                # Skip comments and empty lines
-                if not line or line.startswith("#"):
-                    continue
-                # Split on the first '=' only
-                if "=" in line:
-                    key, value = line.split("=", 1)
-                    key = key.strip()
-                    value = value.strip().strip('"').strip("'")
-                    os.environ[key] = value
-                    env_vars[key] = value
-
-    return env_vars
-
-
-def init_random_seed(seed: int = DEFAULT_SEED) -> None:
+def init_random_seed(seed: int = 42) -> None:
     """
-    Initialize random seeds for reproducibility across libraries.
+    Initialise the random seed for the Python standard library,
+    NumPy, and the environment variable ``PYTHONHASHSEED`` to ensure
+    reproducibility across runs.
 
-    Args:
-        seed: Integer seed value. Defaults to 42.
+    Parameters
+    ----------
+    seed : int, optional
+        Seed value (default is ``42``).
     """
     random.seed(seed)
     np.random.seed(seed)
-    # Note: If using TensorFlow or PyTorch, they should be seeded in their
-    # respective modules, but this covers standard Python and NumPy usage
-    # required for this project's scikit-learn/RDKit workflow.
+    os.environ["PYTHONHASHSEED"] = str(seed)
 
-
-def setup_logging(
-    log_level: int = logging.INFO,
-    log_file: str | None = None,
-    console: bool = True,
-) -> logging.Logger:
+def get_logger(name: str) -> logging.Logger:
     """
-    Configure logging for the pipeline.
+    Retrieve a named logger. All pipeline modules use this helper to obtain
+    a logger that respects the configuration performed by ``setup_logging``.
 
-    Sets up a logger that writes to both a file (if specified) and the console.
-    The logger is configured to be the root logger for the project to ensure
-    consistent logging across modules.
+    Parameters
+    ----------
+    name : str
+        Name of the logger (typically ``__name__``).
 
-    Args:
-        log_level: Logging level (e.g., logging.INFO, logging.DEBUG).
-        log_file: Path to the log file. If None, no file handler is added.
-                  Defaults to LOG_FILE_PATH.
-        console: If True, adds a StreamHandler for console output.
-
-    Returns:
-        The configured logger instance.
+    Returns
+    -------
+    logging.Logger
+        Configured logger instance.
     """
-    if log_file is None:
-        log_file = LOG_FILE_PATH
-
-    # Ensure log directory exists
-    log_path = Path(log_file)
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-
-    logger = logging.getLogger("llmXive_pipeline")
-    logger.setLevel(log_level)
-
-    # Prevent adding multiple handlers if this function is called multiple times
-    if logger.handlers:
-        return logger
-
-    # Formatter
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-    )
-
-    # File Handler
-    file_handler = logging.FileHandler(log_file, mode="a", encoding="utf-8")
-    file_handler.setLevel(log_level)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-
-    # Console Handler
-    if console:
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(log_level)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-
-    return logger
-
-
-def get_logger(name: str = "llmXive_pipeline") -> logging.Logger:
-    """
-    Retrieve a logger instance with the specified name.
-
-    If the root logger for the pipeline has not been configured, this function
-    will attempt to configure it with defaults.
-
-    Args:
-        name: Name of the logger to retrieve.
-
-    Returns:
-        Logger instance.
-    """
-    logger = logging.getLogger(name)
-    if not logger.handlers:
-        setup_logging()
-    return logger
+    return logging.getLogger(name)

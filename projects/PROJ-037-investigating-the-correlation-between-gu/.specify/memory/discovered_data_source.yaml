@@ -1,0 +1,16 @@
+status: none
+intent: American Gut Project 16S OTU table and Open Humans sleep survey download python
+  package dataset
+required_fields:
+- participant_id
+- age
+- bmi
+- antibiotic_use
+- diet_type
+- otu_table_or_asv_table
+- shannon_diversity
+- sleep_duration
+- chronotype
+cache_key: 9013487c08217c39e7d5f0e28ba1ed7c6cab17474e974fe6898da413b32a458d
+searched_at: '2026-10-10T06:18:16.720140+00:00'
+retry_count: 1

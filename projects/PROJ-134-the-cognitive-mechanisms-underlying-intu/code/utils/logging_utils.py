@@ -1,185 +1,181 @@
 """
-Base logging infrastructure for the cognitive mechanisms project.
-Captures exclusion reasons, VR mapping logs, and general pipeline steps.
+Logging infrastructure for the llmXive project.
+
+Provides configured loggers and helper functions to capture exclusion reasons,
+VR mapping logs, and general pipeline steps to the data/logs directory.
 """
 import logging
 import os
 import sys
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Any, Dict
+from typing import Optional, Any, Dict, List
 import json
+import csv
 
-from code.config import ensure_directories
-
-
-class LogType:
-    """Constants for log categories."""
-    EXCLUSION = "exclusion"
-    VR_MAPPING = "vr_mapping"
-    PIPELINE_STEP = "pipeline_step"
-    ERROR = "error"
+from code.config import get_path
 
 
-def get_logger(name: str) -> logging.Logger:
+# Ensure the log directory exists
+LOG_DIR = Path(get_path("data/logs"))
+LOG_DIR.mkdir(parents=True, exist_ok=True)
+
+# Format for console and file logs
+LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+DATE_FORMAT = '%Y-%m-%d %H:%M:%S'
+
+# Cache for loggers to avoid re-configuration
+_loggers: Dict[str, logging.Logger] = {}
+
+
+def get_logger(name: str = "llmXive") -> logging.Logger:
     """
-    Get a logger instance with standard configuration.
-
+    Get or create a logger with the specified name, configured to write to file and console.
+    
     Args:
-        name: The name of the logger (typically __name__).
-
+        name: The name of the logger.
+        
     Returns:
-        Configured logger instance.
+        A configured logging.Logger instance.
     """
+    if name in _loggers:
+        return _loggers[name]
+    
     logger = logging.getLogger(name)
-    if logger.handlers:
-        return logger
-
-    logger.setLevel(logging.DEBUG)
-
-    # Ensure log directory exists
-    log_dir = Path("data/logs")
-    ensure_directories([log_dir])
-
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-    console_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    console_handler.setFormatter(console_format)
-
-    # File handler (general)
-    log_file = log_dir / f"{name}.log"
-    file_handler = logging.FileHandler(log_file)
-    file_handler.setLevel(logging.DEBUG)
-    file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(file_format)
-
-    logger.addHandler(console_handler)
-    logger.addHandler(file_handler)
-
+    logger.setLevel(logging.INFO)
+    
+    # Avoid adding handlers if they already exist (for re-runs in same process)
+    if not logger.handlers:
+        # File Handler
+        file_handler = logging.FileHandler(
+            LOG_DIR / f"{name.lower().replace('.', '_')}.log"
+        )
+        file_handler.setLevel(logging.INFO)
+        file_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
+        
+        # Console Handler
+        console_handler = logging.StreamHandler(sys.stdout)
+        console_handler.setLevel(logging.INFO)
+        console_handler.setFormatter(logging.Formatter(LOG_FORMAT, DATE_FORMAT))
+        
+        logger.addHandler(file_handler)
+        logger.addHandler(console_handler)
+    
+    _loggers[name] = logger
     return logger
 
 
-def get_log_path(log_type: str, category: Optional[str] = None) -> Path:
+def get_log_path(filename: str) -> Path:
     """
-    Generate the file path for a specific log type.
-
+    Get the full path for a log file in the data/logs directory.
+    
     Args:
-        log_type: Type of log (exclusion, vr_mapping, pipeline_step).
-        category: Optional sub-category for organization.
-
+        filename: The name of the log file.
+        
     Returns:
-        Path object for the log file.
+        A Path object pointing to the log file.
     """
-    ensure_directories([Path("data/logs")])
-    log_dir = Path("data/logs")
-
-    if category:
-        filename = f"{log_type}_{category}.log"
-    else:
-        filename = f"{log_type}.log"
-
-    return log_dir / filename
-
-
-def log_exclusion(record_id: str, reason: str, context: Optional[Dict[str, Any]] = None) -> None:
-    """
-    Log an exclusion reason for a specific record.
-
-    Args:
-        record_id: Unique identifier of the excluded record.
-        reason: Human-readable reason for exclusion.
-        context: Optional dictionary of additional context (e.g., validation errors).
-    """
-    logger = get_logger("exclusions")
-    timestamp = datetime.now().isoformat()
-
-    entry = {
-        "timestamp": timestamp,
-        "record_id": record_id,
-        "reason": reason,
-        "context": context or {}
-    }
-
-    logger.warning(json.dumps(entry))
-
-    # Also append to structured exclusion log file
-    log_path = get_log_path("exclusion")
-    with open(log_path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
-
-
-def log_vr_mapping(
-    story_id: str,
-    vr_scene_id: str,
-    salience_level: str,
-    blend_shapes: Dict[str, float],
-    mapping_confidence: float
-) -> None:
-    """
-    Log the mapping of a story to a VR scene with salience details.
-
-    Args:
-        story_id: Identifier of the source story.
-        vr_scene_id: Identifier of the mapped VR scene.
-        salience_level: Assigned salience level (e.g., 'low', 'high').
-        blend_shapes: Dictionary of blend-shape parameters used.
-        mapping_confidence: Confidence score of the mapping (0.0 to 1.0).
-    """
-    logger = get_logger("vr_mapping")
-    timestamp = datetime.now().isoformat()
-
-    entry = {
-        "timestamp": timestamp,
-        "story_id": story_id,
-        "vr_scene_id": vr_scene_id,
-        "salience_level": salience_level,
-        "blend_shapes": blend_shapes,
-        "mapping_confidence": mapping_confidence
-    }
-
-    logger.info(json.dumps(entry))
-
-    # Append to structured VR mapping log
-    log_path = get_log_path("vr_mapping")
-    with open(log_path, "a", encoding="utf-8") as f:
-        f.write(json.dumps(entry) + "\n")
-
-
-def log_pipeline_step(
-    step_name: str,
-    status: str,
-    details: Optional[Dict[str, Any]] = None
-) -> None:
-    """
-    Log a general pipeline execution step.
-
-    Args:
-        step_name: Name of the pipeline step.
-        status: Status of the step (STARTED, COMPLETED, FAILED).
-        details: Optional dictionary of step-specific details (duration, counts, etc.).
-    """
-    logger = get_logger("pipeline")
-    timestamp = datetime.now().isoformat()
-
-    entry = {
-        "timestamp": timestamp,
-        "step_name": step_name,
-        "status": status,
-        "details": details or {}
-    }
-
-    level = logging.INFO if status == "COMPLETED" else (
-        logging.WARNING if status == "FAILED" else logging.DEBUG
-    )
-    logger.log(level, json.dumps(entry))
+    return LOG_DIR / filename
 
 
 def get_exclusion_log_path() -> Path:
-    """Return the path to the exclusion log file."""
-    return get_log_path("exclusion")
+    """
+    Get the path for the exclusion log file.
+    
+    Returns:
+        Path to data/logs/exclusion.log
+    """
+    return get_log_path("exclusion.log")
 
 
 def get_vr_mapping_log_path() -> Path:
-    """Return the path to the VR mapping log file."""
-    return get_log_path("vr_mapping")
+    """
+    Get the path for the VR mapping log file.
+    
+    Returns:
+        Path to data/logs/vr_mapping.log
+    """
+    return get_log_path("vr_mapping.log")
+
+
+def log_exclusion(reason: str, details: Optional[Dict[str, Any]] = None) -> None:
+    """
+    Log an exclusion reason to the exclusion log file.
+    
+    Args:
+        reason: A string describing the reason for exclusion.
+        details: Optional dictionary of additional details.
+    """
+    logger = get_logger("exclusion")
+    timestamp = datetime.now().isoformat()
+    
+    log_entry = {
+        "timestamp": timestamp,
+        "reason": reason,
+        "details": details or {}
+    }
+    
+    log_msg = json.dumps(log_entry)
+    logger.warning(log_msg)
+    
+    # Also append to a dedicated exclusion.log for easy parsing
+    exclusion_path = get_exclusion_log_path()
+    with open(exclusion_path, "a", encoding="utf-8") as f:
+        f.write(log_msg + "\n")
+
+
+def log_vr_mapping(story_id: str, salience_level: str, blend_shape_params: Dict[str, Any]) -> None:
+    """
+    Log VR mapping details to the VR mapping log file.
+    
+    Args:
+        story_id: The identifier of the story.
+        salience_level: The assigned salience level ('low' or 'high').
+        blend_shape_params: The dictionary of blend shape parameters used.
+    """
+    logger = get_logger("vr_mapping")
+    timestamp = datetime.now().isoformat()
+    
+    log_entry = {
+        "timestamp": timestamp,
+        "story_id": story_id,
+        "salience_level": salience_level,
+        "blend_shape_params": blend_shape_params
+    }
+    
+    log_msg = json.dumps(log_entry)
+    logger.info(log_msg)
+    
+    # Append to dedicated VR mapping log
+    mapping_path = get_vr_mapping_log_path()
+    with open(mapping_path, "a", encoding="utf-8") as f:
+        f.write(log_msg + "\n")
+
+
+def log_pipeline_step(step_name: str, status: str, details: Optional[Dict[str, Any]] = None) -> None:
+    """
+    Log a general pipeline step execution.
+    
+    Args:
+        step_name: The name of the pipeline step.
+        status: The status of the step (e.g., 'STARTED', 'COMPLETED', 'FAILED').
+        details: Optional dictionary of additional details.
+    """
+    logger = get_logger("pipeline")
+    timestamp = datetime.now().isoformat()
+    
+    log_entry = {
+        "timestamp": timestamp,
+        "step": step_name,
+        "status": status,
+        "details": details or {}
+    }
+    
+    log_msg = json.dumps(log_entry)
+    
+    if status == "FAILED":
+        logger.error(log_msg)
+    elif status == "COMPLETED":
+        logger.info(log_msg)
+    else:
+        logger.debug(log_msg)

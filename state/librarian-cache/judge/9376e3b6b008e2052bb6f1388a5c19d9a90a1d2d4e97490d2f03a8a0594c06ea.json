@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2203.16487",
+  "judged_at": "2026-08-24T18:29:30Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"domino: decoupling causal modeling from autoregressive drafting in spe\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (d) as it formally studies the \"draft-then-verify\" mechanism (Speculative Decoding) which is the core component of the \"Domino\" framework mentioned in the user's question, establishing the foundational methodology and empirical baseline for accelerating autoregressive generation that the user's follow-up research would necessarily cite.",
+  "relevant": true
+}

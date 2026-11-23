@@ -1,0 +1,115 @@
+T001a:
+  c: false
+  h: 155eb90c2d0a59d14ec4484e9cea2502969284b3ef976c8dfa3adf88332c2ee3
+  r: The project root listing shows `code/`, `data/`, `tests/`, and `docs/` exist,
+    but the required `results/` and `state/` directories are absent from the 13 entries,
+    and there is no evidence that `data/raw/` and `data/derived/` subdirectories were
+    created (the `data/` directory's contents are not shown as containing them). The
+    task explicitly required `mkdir -p data/raw data/derived code tests results state
+    docs`, so the missing `results/`, `state/`, and (unconfirmed) `data/raw`/`data/derived`
+    directories must be created to complete it.
+  sig: 399c6b361ea598fcfcc03346085238548d0958a47f4eb81769cb52a7db9e41c5
+T001b:
+  c: false
+  h: b3be218332629667bfeb5a65dc15a554c5f4f9960923966e88df20214767bbbc
+  r: "The task requires initializing a `.gitignore` file excluding `data/raw`, `data/derived`,\
+    \ `__pycache__`, and `.env`, but the evidence collector found no artifact on disk\
+    \ \u2014 no `.gitignore` path was resolved or confirmed to exist anywhere in the\
+    \ project. The next implementer should create the `.gitignore` at the project\
+    \ root with those four entries."
+  sig: 07dd2db1cdc09cb4445554183e08a082908f0aed88727372faa77a646842c96d
+T001c:
+  c: false
+  h: 19f128d3c5df28c4a7b2b333377eb55d18d6d96c7389a4c6ae7ebf704815092a
+  r: The `requirements.txt` exists and lists all 11 required packages (plus two extras),
+    but the task explicitly required **pinned versions**, and every entry is unpinned
+    (e.g., `pandas`, `numpy` with no `==x.y.z`). The implementer must add version
+    pins for each dependency.
+  sig: 740dfa5e2e59f38022d04b82baf4e2750a3af3489b724912ba2932cb606a7534
+T005:
+  c: true
+  h: 54121a7daf7317d4c8cbe7f6330242f827940f051c2193f38d94066c7c83e712
+  r: "The file `code/__init__.py` exists at the resolved project path, is non-empty\
+    \ (509 bytes), and contains a proper package docstring, version, and `__all__`\
+    \ declaration \u2014 a genuine package marker, not a stub or placeholder. This\
+    \ matches the task's requirement to create the file and establish the package\
+    \ structure."
+  sig: db928447f679a2d3c7ee0f5ba7a80222c17d640b79ec5c610e02c48097359a65
+T006:
+  c: false
+  h: a5a541e1c30987767db631009b1b2b6863fedf14c6fc6d78c6e190ee02586c51
+  r: "The required output file `data/raw/data.csv` does not exist, and there is no\
+    \ execution evidence (logs, schema_validation.json) that the loader ever ran successfully.\
+    \ The script also deviates from the spec: it never uses `streaming=True` or the\
+    \ >100MB size check, and the `osf/reproducibility_project` dataset fetch has no\
+    \ demonstrated success \u2014 the next implementer must actually run the loader\
+    \ and produce the validated CSV with `year`, `effect_size`, `sample_size`, `field`\
+    \ columns."
+  sig: 4194d0dc64c04cda841f83e4e8c4e0468d2e70b9b8305669462024a7ed6f3bc8
+T008:
+  c: true
+  h: 730cfda8f6bcb0164b373006eb4fb068bc8a11ae7a9f0bef4acdbf8299275abb
+  r: 'The artifact `code/update_state.py` exists (3201 bytes) and contains a full,
+    non-stub implementation: chunked SHA-256 hashing of files in `data/derived/` and
+    `results/`, loading/updating a YAML state file at `state/projects/<project_id>/state.yaml`
+    with artifact hashes, sizes, timestamps, and `current_stage: implemented`. The
+    code matches the task''s stated requirement of computing SHA-256 hashes and updating
+    the project state file.'
+  sig: d0a675b126a62cd6802d43e43b8f675ab1100b9bebd458f407f209a902701240
+T011:
+  c: false
+  h: b8e93d066fbae223db472f45caba8f6de148ac7ace7d148b52e7489130d4cfb1
+  r: The required integration test file `tests/integration/test_lmm_pipeline.py` does
+    not exist, so the specified test `test_lmm_pipeline_full_run` is missing. Without
+    this artifact, the task is not satisfied.
+T011a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission contains only the task description and acceptance criteria; there
+    are no actual code files, computed power estimates, fitted model outputs, or visualizations
+    provided. Consequently, the required preprocessing script, power calculations,
+    model results, and plots are missing, so the task is not genuinely completed.
+T011b:
+  c: false
+  h: 68642a0cbea1231eab05b236e17e8efa350c271feb7a3191c8a16f7cfff3537c
+  r: "The repository contains `code/preprocess.py` with a `validate_grouping_variables`\
+    \ function, but it only checks the number of unique levels and never evaluates\
+    \ variance of the target variable as required. Moreover, the expected output file\
+    \ `data/derived/grouping_validation.json` is absent, so the task\u2019s verification\
+    \ condition is not met."
+T011c:
+  c: false
+  h: 1ee1da1e350c1bfc6de72eb978414dc7920209560a56ee76ff03fd57d7bfe070
+  r: "The `code/model_fit.py` file is present but incomplete (truncated and ends with\
+    \ an unfinished statement), and the required output artifacts `results/lmm_final_summary.json`\
+    \ and `data/derived/residuals.csv` do not exist. Consequently, the task\u2019\
+    s deliverables are not fully provided."
+T013:
+  c: false
+  h: 4b39835f12022a333bae3ee3b36a996a2f46ab2617a75c2f7ab70096f17cd3f0
+  r: "The repository contains `code/visualize.py`, but the required input `data/derived/residuals.csv`\
+    \ is missing, and the expected output `results/power_drift_scatter.png` was not\
+    \ generated. Without the data file the script cannot run, and the verification\
+    \ step (existence and non\u2011zero size of the plot) fails. The missing files\
+    \ must be provided and the script executed to produce the plot with the regression\
+    \ line and confidence interval."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, data file, or report implementing the required input permutation\
+    \ validation (the non\u2011parametric permutation test for the power\u2011drift\
+    \ analysis) is present; the claim provides no artifact to verify that the permutation\
+    \ test logic was added. Consequently the task\u2019s requirement is not satisfied."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No pytest execution log, report, or test result artifacts are present; the implementer
+    provided no evidence that unit or integration tests were run or that they all
+    passed. Consequently, the requirement to run `pytest` and verify test success
+    is not satisfied.
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` file is provided or shown; there is no evidence of execution
+    instructions or expected output descriptions being added. The required artifact
+    is missing, so the task is not satisfied.

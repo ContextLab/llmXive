@@ -1,3 +1,1 @@
-"""
-Test suite for the Aluminum Alloy Poisson's Ratio Prediction Pipeline.
-"""
+"""Tests package for PROJ-420-predicting-the-effect-of-alloying-on-the."""

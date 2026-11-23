@@ -1,15 +1,19 @@
-"""
-Custom exceptions for the p-value validity assessment pipeline.
-"""
-
 class HighDimensionalInstabilityError(Exception):
-    """
-    Raised when a matrix exhibits numerical instability indicative of
-    high-dimensional singular behavior (e.g., condition number > 10^12).
+    """Raised when high-dimensional instability is detected (e.g., condition number > 10^12)."""
+    pass
 
-    This error signals that standard inversion or decomposition methods
-    are unreliable without regularization.
-    """
-    def __init__(self, message: str, condition_number: float = None):
-        super().__init__(message)
-        self.condition_number = condition_number
+class SimulationError(Exception):
+    """General simulation error."""
+    pass
+
+class DataGenerationError(Exception):
+    """Error during data generation."""
+    pass
+
+class HypothesisTestError(Exception):
+    """Error during hypothesis testing."""
+    pass
+
+class AnalysisError(Exception):
+    """Error during analysis."""
+    pass

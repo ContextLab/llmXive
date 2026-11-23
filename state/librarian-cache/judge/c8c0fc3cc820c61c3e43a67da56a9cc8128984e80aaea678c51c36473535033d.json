@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.09832",
+  "judged_at": "2026-07-24T22:02:15Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scaling the horizon, not the parameters: reaching trillion-parameter p\" linguistics",
+  "rationale": "This paper satisfies criterion (a) and (b) because it empirically measures the same core mechanism the user is investigating: the scaling behavior of Large Language Models (specifically how performance or susceptibility changes with model size/parameters). Although the user's query references a specific prior work on \"trillion-parameter\" scaling and the candidate paper focuses on \"prompt injection\" rather than general linguistic capability, both studies address the fundamental relationship betwe",
+  "relevant": true
+}

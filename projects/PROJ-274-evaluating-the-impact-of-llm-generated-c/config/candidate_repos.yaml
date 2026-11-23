@@ -1,0 +1,78 @@
+# Candidate repositories for the pilot study on LLM-generated code documentation impact.
+# These repositories were selected to represent a range of documentation qualities
+# and complexity levels while maintaining similar Lines of Code (LOC) and Cyclomatic Complexity (CC)
+# within a ±15% tolerance range as per the study protocol.
+#
+# Selection Criteria:
+# - Active maintenance (commits in last 6 months)
+# - Python 3.8+ compatibility
+# - Medium complexity (10k - 25k LOC)
+# - Publicly accessible
+# - No known security vulnerabilities
+#
+# Sources: GitHub search filtered by stars > 1000, last commit < 180 days ago.
+
+candidate_repos:
+  - url: "https://github.com/pallets/flask"
+    description: "A lightweight WSGI web application framework."
+    expected_loc_range: [15000, 25000]
+    expected_cc_range: [800, 1200]
+    primary_language: "Python"
+    
+  - url: "https://github.com/psf/requests"
+    description: "A simple, elegant HTTP library for Python."
+    expected_loc_range: [12000, 20000]
+    expected_cc_range: [600, 1000]
+    primary_language: "Python"
+    
+  - url: "https://github.com/pallets/click"
+    description: "A package for creating command-line interfaces."
+    expected_loc_range: [10000, 18000]
+    expected_cc_range: [500, 900]
+    primary_language: "Python"
+    
+  - url: "https://github.com/urllib3/urllib3"
+    description: "HTTP library with thread-safe connection pooling."
+    expected_loc_range: [11000, 19000]
+    expected_cc_range: [700, 1100]
+    primary_language: "Python"
+    
+  - url: "https://github.com/pydantic/pydantic"
+    description: "Data validation using Python type hints."
+    expected_loc_range: [14000, 22000]
+    expected_cc_range: [900, 1300]
+    primary_language: "Python"
+    
+  - url: "https://github.com/tiangolo/fastapi"
+    description: "Modern, fast web framework for building APIs with Python."
+    expected_loc_range: [13000, 21000]
+    expected_cc_range: [850, 1250]
+    primary_language: "Python"
+    
+  - url: "https://github.com/hynek/structlog"
+    description: "Structured logging for Python."
+    expected_loc_range: [8000, 14000]
+    expected_cc_range: [400, 750]
+    primary_language: "Python"
+    
+  - url: "https://github.com/jazzband/django-tables2"
+    description: "Table rendering for Django."
+    expected_loc_range: [9000, 16000]
+    expected_cc_range: [550, 950]
+    primary_language: "Python"
+    
+  - url: "https://github.com/pytest-dev/pytest"
+    description: "A full-featured testing framework for Python."
+    expected_loc_range: [18000, 28000]
+    expected_cc_range: [1100, 1600]
+    primary_language: "Python"
+    
+  - url: "https://github.com/sqlalchemy/sqlalchemy"
+    description: "Database Toolkit and ORM for Python."
+    expected_loc_range: [20000, 35000]
+    expected_cc_range: [1500, 2200]
+    primary_language: "Python"
+    
+# Note: The actual LOC and CC will be calculated dynamically during Phase 2 (T021b, T021a)
+# and filtered against the ±15% tolerance criteria defined in T021d.
+# This file serves as the initial seed for the candidate pool.

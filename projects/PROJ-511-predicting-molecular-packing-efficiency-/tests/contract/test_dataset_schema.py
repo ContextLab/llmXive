@@ -1,191 +1,214 @@
 """
-Contract test for dataset schema validation.
+Contract test for dataset schema validation (T010).
 
-This test validates that the final dataset produced by the pipeline (T018)
-conforms to the schema defined in `contracts/dataset.schema.yaml` (T004).
-It ensures data integrity, correct types, and presence of required fields
-before the data is used for model training.
+This test validates that the generated dataset (data/dataset.csv) strictly
+adheres to the schema defined in contracts/dataset.schema.yaml (created in T004).
 
 Dependencies:
 - T004: contracts/dataset.schema.yaml must exist.
-- T018: code/add_3d_descriptors.py must have produced data/dataset.csv.
+- T018: data/dataset.csv must exist and be generated.
+
+This test ensures data integrity and prevents schema drift before the dataset
+is used for model training (US2).
 """
 import os
 import sys
 import json
+import yaml
 import unittest
 from pathlib import Path
+from typing import Dict, Any, List
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
+# Add project root to path for imports if running as script
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 try:
     import jsonschema
-    from jsonschema import validate, ValidationError, SchemaError
+    HAS_JSONSCHEMA = True
 except ImportError:
-    raise RuntimeError("Missing dependency: 'jsonschema'. Install via 'pip install jsonschema'.")
+    HAS_JSONSCHEMA = False
+    print("WARNING: jsonschema not installed. Install with: pip install jsonschema")
 
-SCHEMA_PATH = PROJECT_ROOT / "contracts" / "dataset.schema.yaml"
-DATASET_PATH = PROJECT_ROOT / "data" / "dataset.csv"
+# Constants
+SCHEMA_PATH = project_root / "contracts" / "dataset.schema.yaml"
+DATASET_PATH = project_root / "data" / "dataset.csv"
 
 class TestDatasetSchema(unittest.TestCase):
-    """
-    Validates the dataset.csv against the defined JSON schema.
-    """
+    """Test suite for validating dataset schema compliance."""
 
-    def setUp(self):
-        """
-        Load the schema and the dataset before each test.
-        """
+    @classmethod
+    def setUpClass(cls):
+        """Load schema and dataset before running tests."""
+        if not HAS_JSONSCHEMA:
+            raise RuntimeError("jsonschema is required for contract tests.")
+
         if not SCHEMA_PATH.exists():
-            self.fail(f"Schema file not found: {SCHEMA_PATH}. Ensure T004 is complete.")
+            raise FileNotFoundError(
+                f"Schema file not found: {SCHEMA_PATH}. "
+                "Ensure T004 (contracts/dataset.schema.yaml) is completed."
+            )
 
         if not DATASET_PATH.exists():
-            self.fail(f"Dataset file not found: {DATASET_PATH}. Ensure T018 has been run to generate data/dataset.csv.")
+            raise FileNotFoundError(
+                f"Dataset file not found: {DATASET_PATH}. "
+                "Ensure T018 (data/dataset.csv) is completed before running this test."
+            )
 
-        # Load schema (YAML -> JSON dict)
-        try:
-            import yaml
-            with open(SCHEMA_PATH, 'r') as f:
-                self.schema = yaml.safe_load(f)
-        except ImportError:
-            self.fail("Missing dependency: 'pyyaml'. Install via 'pip install pyyaml'.")
-        except Exception as e:
-            self.fail(f"Failed to load schema: {e}")
+        # Load schema
+        with open(SCHEMA_PATH, 'r') as f:
+            cls.schema = yaml.safe_load(f)
 
         # Load dataset
-        try:
-            import pandas as pd
-            self.df = pd.read_csv(DATASET_PATH)
-        except Exception as e:
-            self.fail(f"Failed to load dataset: {e}")
+        import pandas as pd
+        cls.df = pd.read_csv(DATASET_PATH)
+        cls.records = cls.df.to_dict(orient='records')
 
-    def test_schema_exists_and_is_valid(self):
-        """Verify the schema itself is a valid JSON Schema draft."""
-        try:
-            # Basic check that required keys exist
-            self.assertIn('type', self.schema)
-            self.assertEqual(self.schema['type'], 'object')
-            self.assertIn('properties', self.schema)
-            self.assertIn('required', self.schema)
-        except AssertionError:
-            self.fail("Schema structure is invalid or incomplete.")
+    def test_schema_exists(self):
+        """Verify the schema file is valid YAML and has required structure."""
+        self.assertIsInstance(self.schema, dict)
+        self.assertIn("type", self.schema)
+        self.assertEqual(self.schema["type"], "object")
+        self.assertIn("properties", self.schema)
 
-    def test_dataset_rows_exist(self):
-        """Ensure the dataset is not empty (minimum 500 rows requirement)."""
-        self.assertGreater(len(self.df), 0, "Dataset is empty.")
-        # Per US1 requirements, we expect >= 500 rows for a valid MVP dataset
-        self.assertGreaterEqual(len(self.df), 500, f"Dataset has {len(self.df)} rows, expected >= 500.")
-
-    def test_required_columns_present(self):
-        """Check that all columns defined in 'required' schema are present."""
-        required_fields = self.schema.get('required', [])
-        missing_columns = set(required_fields) - set(self.df.columns)
-        if missing_columns:
-            self.fail(f"Missing required columns: {missing_columns}")
-
-    def test_schema_validation_per_row(self):
-        """
-        Validate the structure of the dataset against the schema.
-        Since jsonschema is designed for JSON objects, we convert the dataframe
-        to a list of dicts and validate each record.
-        """
-        # Convert dataframe to list of records
-        records = self.df.to_dict(orient='records')
-
-        # If the schema expects an array of items (common for datasets), validate the whole list
-        if self.schema.get('type') == 'array':
-            try:
-                validate(instance=records, schema=self.schema)
-            except ValidationError as e:
-                self.fail(f"Schema validation failed for dataset: {e.message}")
-        else:
-            # If schema is an object, it likely defines the structure of a single row
-            # We validate a sample or all rows against the 'properties' if it's a row-schema
-            # However, standard practice for CSV validation with jsonschema is often:
-            # 1. Check columns match properties keys
-            # 2. Check types of values in columns
-            
-            # Let's perform a robust check:
-            # Check that every row is a dict and keys match schema properties
-            schema_props = self.schema.get('properties', {})
-            
-            for idx, record in enumerate(records):
-                # Check keys
-                record_keys = set(record.keys())
-                schema_keys = set(schema_props.keys())
-                
-                # Extra keys are usually allowed unless 'additionalProperties': False
-                if self.schema.get('additionalProperties') is False:
-                    extra = record_keys - schema_keys
-                    if extra:
-                        self.fail(f"Row {idx} has unexpected columns: {extra}")
-                
-                # Check missing required keys
-                missing = set(schema_props.keys()) - record_keys
-                if missing:
-                    self.fail(f"Row {idx} missing required keys: {missing}")
-                
-                # Type checking for specific fields
-                for key, value in record.items():
-                    if key in schema_props:
-                        expected_type = schema_props[key].get('type')
-                        if expected_type:
-                            if expected_type == 'number':
-                                if not isinstance(value, (int, float)) or (isinstance(value, float) and (value != value)): # NaN check
-                                    # Allow NaN for numbers in pandas usually, but strict schema might not
-                                    # We'll be lenient on NaN for floats but check int/float nature
-                                    if not isinstance(value, (int, float)):
-                                        self.fail(f"Row {idx}, column {key}: expected number, got {type(value)}")
-                            elif expected_type == 'string':
-                                if value is not None and not isinstance(value, str):
-                                    self.fail(f"Row {idx}, column {key}: expected string, got {type(value)}")
-                            elif expected_type == 'integer':
-                                if not isinstance(value, int):
-                                    self.fail(f"Row {idx}, column {key}: expected integer, got {type(value)}")
-                            elif expected_type == 'boolean':
-                                if not isinstance(value, bool):
-                                    self.fail(f"Row {idx}, column {key}: expected boolean, got {type(value)}")
-
-    def test_smiles_validity_format(self):
-        """
-        Quick heuristic check that SMILES strings look like SMILES.
-        Does not validate chemical correctness (requires RDKit), but checks format.
-        """
-        if 'smiles' not in self.df.columns:
-            return # Handled by required columns test
-
-        invalid_smiles = []
-        for idx, row in self.df.iterrows():
-            s = str(row['smiles'])
-            if not s or len(s) < 2:
-                invalid_smiles.append(idx)
-            # Basic check: no whitespace, contains valid chars
-            if ' ' in s or '\n' in s:
-                invalid_smiles.append(idx)
+    def test_required_fields_present(self):
+        """Verify all required fields defined in schema are present in dataset."""
+        required_fields = self.schema.get("required", [])
+        dataset_columns = set(self.df.columns)
         
-        if invalid_smiles:
-            self.fail(f"Found {len(invalid_smiles)} rows with malformed SMILES strings (indices: {invalid_smiles[:5]}...)")
+        missing_fields = [field for field in required_fields if field not in dataset_columns]
+        self.assertEqual(
+            len(missing_fields), 0,
+            f"Dataset missing required fields: {missing_fields}"
+        )
 
-    def test_packing_coefficient_range(self):
-        """
-        Verify that CAPE (target) and Raw PC are within physically possible ranges [0, 1].
-        """
-        # Check CAPE
-        if 'cape' in self.df.columns:
-            if not self.df['cape'].between(0.0, 1.0).all():
-                # Allow for small floating point errors or NaNs
-                invalid = self.df[~self.df['cape'].between(0.0, 1.0) & ~self.df['cape'].isna()]
-                if not invalid.empty:
-                    self.fail(f"CAPE values out of range [0, 1]: {invalid['cape'].describe()}")
+    def test_row_count_minimum(self):
+        """Verify dataset has sufficient rows (>= 500 as per US1 goal)."""
+        self.assertGreaterEqual(
+            len(self.df), 500,
+            f"Dataset has only {len(self.df)} rows. Minimum required is 500."
+        )
 
-        # Check raw_pc
-        if 'raw_pc' in self.df.columns:
-            if not self.df['raw_pc'].between(0.0, 1.0).all():
-                invalid = self.df[~self.df['raw_pc'].between(0.0, 1.0) & ~self.df['raw_pc'].isna()]
-                if not invalid.empty:
-                    self.fail(f"Raw PC values out of range [0, 1]: {invalid['raw_pc'].describe()}")
+    def test_validate_each_record(self):
+        """Validate every row in the dataset against the JSON schema."""
+        errors = []
+        
+        for idx, record in enumerate(self.records):
+            try:
+                jsonschema.validate(instance=record, schema=self.schema)
+            except jsonschema.ValidationError as e:
+                errors.append({
+                    "row_index": idx,
+                    "cod_id": record.get("cod_id", "UNKNOWN"),
+                    "message": e.message,
+                    "path": list(e.path)
+                })
+                # Limit error collection to avoid huge test output
+                if len(errors) >= 10:
+                    break
 
-if __name__ == '__main__':
-    unittest.main()
+        if errors:
+            error_details = "\n".join([
+                f"Row {e['row_index']} (COD: {e['cod_id']}): {e['message']}"
+                for e in errors
+            ])
+            self.fail(f"Schema validation failed for {len(errors)} records:\n{error_details}")
+
+    def test_cod_id_pattern(self):
+        """Verify cod_id matches the pattern ^COD-\\d+$."""
+        import re
+        pattern = re.compile(r"^COD-\d+$")
+        invalid_ids = [
+            row["cod_id"] for row in self.records 
+            if not pattern.match(str(row["cod_id"]))
+        ]
+        
+        self.assertEqual(
+            len(invalid_ids), 0,
+            f"Found {len(invalid_ids)} invalid COD IDs: {invalid_ids[:5]}..."
+        )
+
+    def test_numeric_constraints(self):
+        """Verify numeric fields respect min/max constraints."""
+        invalid_records = []
+        
+        for idx, row in self.records:
+            issues = []
+            
+            # unit_cell_volume > 0
+            if row.get("unit_cell_volume", 0) <= 0:
+                issues.append("unit_cell_volume <= 0")
+            
+            # n_atoms >= 1
+            if row.get("n_atoms", 0) < 1:
+                issues.append("n_atoms < 1")
+            
+            # raw_pc [0, 1]
+            pc = row.get("raw_pc")
+            if pc is not None and (pc < 0 or pc > 1):
+                issues.append(f"raw_pc {pc} not in [0, 1]")
+            
+            # cape >= 0
+            cape = row.get("cape")
+            if cape is not None and cape < 0:
+                issues.append(f"cape {cape} < 0")
+            
+            if issues:
+                invalid_records.append({
+                    "cod_id": row.get("cod_id"),
+                    "issues": issues
+                })
+
+        self.assertEqual(
+            len(invalid_records), 0,
+            f"Numeric constraints violated in {len(invalid_records)} records: {invalid_records[:3]}"
+        )
+
+    def test_lattice_system_enum(self):
+        """Verify lattice_system is a non-empty string (schema allows any string, but logically must be valid)."""
+        # While schema just says string, we can check for empty strings which are likely errors
+        empty_lattices = [
+            row.get("cod_id") for row in self.records
+            if not row.get("lattice_system") or not isinstance(row.get("lattice_system"), str)
+        ]
+        
+        self.assertEqual(
+            len(empty_lattices), 0,
+            f"Found {len(empty_lattices)} records with missing or invalid lattice_system."
+        )
+
+    def test_smiles_source_enum(self):
+        """Verify smiles_source is either 'extracted' or 'generated'."""
+        valid_sources = {"extracted", "generated"}
+        invalid_sources = [
+            row.get("cod_id") for row in self.records
+            if row.get("smiles_source") not in valid_sources
+        ]
+        
+        self.assertEqual(
+            len(invalid_sources), 0,
+            f"Found {len(invalid_sources)} records with invalid smiles_source: {invalid_sources[:5]}"
+        )
+
+    def test_principal_moments_array(self):
+        """Verify principal_moments is an array of 3 numbers."""
+        invalid_moments = []
+        for row in self.records:
+            pm = row.get("principal_moments")
+            if not isinstance(pm, list) or len(pm) != 3:
+                invalid_moments.append(row.get("cod_id"))
+            else:
+                try:
+                    # Ensure they are numbers
+                    [float(x) for x in pm]
+                except (TypeError, ValueError):
+                    invalid_moments.append(row.get("cod_id"))
+        
+        self.assertEqual(
+            len(invalid_moments), 0,
+            f"Found {len(invalid_moments)} records with invalid principal_moments."
+        )
+
+if __name__ == "__main__":
+    unittest.main(verbosity=2)

@@ -1,0 +1,11 @@
+status: none
+intent: Eywa benchmark dataset synthetic queries download python package dataset
+required_fields:
+- query_id
+- prompt
+- parameters
+- expected_output
+- task_type
+cache_key: d3a7a25cc854e0d88bedf56c4d95f9aab044479b988b5783cb95f1ce310798e0
+searched_at: '2026-10-09T11:17:37.500671+00:00'
+retry_count: 1

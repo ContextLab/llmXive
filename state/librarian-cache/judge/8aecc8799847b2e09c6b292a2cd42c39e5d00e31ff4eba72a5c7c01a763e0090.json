@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2608.17095",
+  "judged_at": "2026-09-07T08:24:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ace-ego-0: unifying egocentric human and robotic data for vla pretrain\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core domain (Vision-Language-Action models) and mechanism (attention steering/modulation in VLA architectures) as the user's question, providing empirical evidence on how to manipulate VLA behavior at inference time without retraining, which is directly relevant to extending the \"ACE-Ego-0\" work on VLA pretraining and unification.",
+  "relevant": true
+}

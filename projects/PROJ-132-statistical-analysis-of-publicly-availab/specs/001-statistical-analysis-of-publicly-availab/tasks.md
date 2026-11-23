@@ -1,273 +1,134 @@
 # Tasks: Statistical Analysis of Publicly Available Bird Migration Patterns and Climate Change
 
-**Input**: Design documents from `/specs/001-bird-migration-climate-correlation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, original research idea, contracts, and reviewer feedback (R1 panel concerns: 18 items addressing coverage, ordering, executability, and constraint preservation).
+
+This revision consolidates the prior fragmented task list into a minimal complete study with unique, sequential task IDs. All scientific requirements from the specification are preserved. Every deliverable is a real file whose content can be deterministically verified.
+
+## Phase 1: Setup and first end-to-end analysis
+
+- [ ] T001 [P] [US1] **Establish project layout, configuration, dependencies, data-source provenance, and amendment documentation** — Create `code/config.py` (grid resolution 0.5°, random seeds, permutation count 10000, per-species GAMM timeout 600 s, 2020–2024 date filter, migratory-species list constant) and `code/data/__init__.py` defining `DataFetchError` exception class. Create `code/data/fetch_species.py` that downloads the Cornell Lab migratory species list via `datasets.load_dataset('vvud/eb-data', split='train')`, writes `data/raw/migratory_list.json`, records its SHA-256 in `data/provenance/ebird_checksums.json`, and RAISES `DataFetchError` on any download failure — never falls back to a synthetic list. Create `code/requirements.txt` pinning all dependencies with exact versions (pandas, polars, statsmodels, pygam, geopy, scipy, numpy, matplotlib, seaborn, filelock, datasets, pytest, geomstats). Create `code/utils/locks.py` implementing filelock-based locking (data/.pipeline.lock) for serializing shared data access. Create amendment documentation in `specs/001-bird-migration-climate-correlation/amendments/` (four files, all with `status: ratified`): (a) `PLAN-DEVIATION-DATA-SOURCES.md` (NOAA PRISM → Daymet data availability); (b) `PLAN-DEVIATION-SHUFFLES.md` (10,000 → 1,000 permutation fallback with time-budget justification); (c) `PLAN-DEVIATION-MORANS.md` (a priori Matérn GP as primary mitigation, with T005c as conditional re-fit path for post-hoc Moran's I > 0.15); (d) `PLAN-DEVIATION-LAYOUT.md` (src/ → code/ layout change). Write `data/provenance/spec_plan_deviation.json` with `{"status":"ratified","deviations":["data_sources","shuffle_count","morans_gp_approach","project_layout"]}`. Document the runnable entry command in the feature's `quickstart.md`.
+  - Verification: `python code/data/fetch_species.py` exits 0; `data/raw/migratory_list.json` is valid JSON with ≥1 species entry; checksum file matches `sha256sum` of downloaded file; `pip install -r code/requirements.txt` succeeds in a fresh venv and subsequent `python -c "from code.data import DataFetchError"` succeeds; `code/utils/locks.py` exists and implements filelock-based locking; all four amendment files exist in `specs/001-bird-migration-climate-correlation/amendments/` with `status: ratified` in `spec_plan_deviation.json`.
+
+- [ ] T002 [US1] **Implement streaming data acquisition for eBird and climate data** — Create `code/data/download.py` and `code/data/stream_utils.py` that (a) stream the verified eBird sample via `datasets.load_dataset('vvud/eb-data', split='train', streaming=True)` in chunks, writing raw records to `data/raw/ebird_sample/` with `checksums.sha256`; (b) fetch Daymet climate data for years 2020–2024, variables 'tmin', 'tmax', 'prcp' via `datasets.load_dataset('daymet/annual', streaming=True)` for spatial extent North America (lat 25–50, lon -130 to -60 at native resolution), writing `data/raw/daymet/` with checksums; (c) verify endpoint reachability before download and abort loudly (`raise DataFetchError` from T001) if unavailable. Never fall back to generated, mock, or placeholder data; a failed fetch must fail the run. Acquire file lock (code/utils/locks.py, data/.pipeline.lock) before writing to shared `data/raw/` directory. Write `data/provenance/data_availability_report.json` stating the exact streaming/sampling rule used (which split, chunk size, row counts, year range, variables, spatial bounds).
+  - Verification: running the module produces real non-empty files under `data/raw/` whose checksums match; `code/tests/test_download.py` asserts a forced network failure raises rather than writing placeholder data; `data_availability_report.json` exists with row counts and spatial extent documented; lock file is acquired and released cleanly.
+  - Depends on: T001.
+
+- [ ] T003 [US1] **Preprocessing: filter, grid-align, compute phenology metrics, and join climate** — Create `code/data/preprocess.py` that streams the eBird records from T002, filters to migratory species (T001 list) and 2020–2024, aggregates weekly counts per 0.5°×0.5° grid cell, computes phenology metrics (first arrival, median arrival, stopover duration = days between 10th–90th percentile arrival dates), marks cells with <5 observations as `data_quality="insufficient"` and excludes them from downstream modeling with a log entry recording species, grid cell, and reason, imputes missing climate values via spatial interpolation from neighboring cells within 1° radius with an `imputed` flag, joins climate variables (March–May mean temperature, total precipitation, extreme weather index), and writes `data/processed/preprocessed_data.parquet` conforming to `specs/.../contracts/phenology_metric.schema.yaml` and `dataset.schema.yaml`, plus provenance `data/provenance/row_mapping.json` linking processed rows to original `checklist_id`s. Acquire file lock before writing to `data/processed/`. Include focused unit tests `code/tests/test_preprocess.py` (empty input raises, sparse-cell flagging, imputation edge cases).
+  - Verification: parquet exists with required columns (species, grid_cell, year, phenology metrics, climate_temp, climate_precip) and no missing values in critical fields; `pytest code/tests/test_preprocess.py` passes; row_mapping.json contains ≥1 entry linking processed rows to original checklist IDs; lock file is acquired and released cleanly.
+  - Depends on: T001, T002.
+
+- [ ] T004 [US1] [US2] **Run a thin end-to-end analysis on a small real subset** — Create `code/cli/run_pipeline.py` entry point and run preprocessing plus a simple linear mixed-effect association (via `statsmodels`) for ONE species on the real sampled data, producing real result rows in `data/results/smoke_run_results.csv` with fields (species_id, climate_variable, coefficient, p_value) computed from actual observations — no placeholder values.
+  - Verification: the documented quickstart command executes end-to-end and `data/results/smoke_run_results.csv` contains ≥1 row derived from real data; the row's p_value is a real statistic (not NaN or a default placeholder).
+  - Depends on: T003.
+
+## Phase 2: Complete the study and validate its evidence
+
+- [ ] T005 [US2] **Fit GAMMs with species random slopes and a priori Matérn GP spatial effect** — Create `code/models/gamm.py::fit_gamm_gp` reading `data/processed/preprocessed_data.parquet` (data_quality="sufficient" only), fitting phenology metrics as responses with climate variables as smooth fixed effects, species-year random intercepts/slopes, and a mandatory a priori Gaussian Process random effect with Matérn covariance on grid coordinates (CPU-tractable implementation via `pygam`/`statsmodels` with an explicit GP kernel; per-species fit must converge within 600 s or be logged and skipped — never halt the pipeline). Write results to `data/processed/model_results_gamm.parquet` conforming to `specs/.../contracts/gamm_results.schema.yaml` with fields (species_id, climate_variable, coefficient, p_value [raw GAMM p-value], p_value_fdr [initially NaN], is_significant [initially false], convergence_status, model_aic, residual_morans_i [initially NaN], random_slope_present, gp_included=true). Also write residuals to `data/interim/model_residuals.parquet` (species_id, grid_cell, residual) for post-hoc diagnostics in T005b. Include `code/tests/test_gamm_single_species.py` validating recovery of a known association on a synthetic-parameter calibration fixture (within tolerance), and `code/tests/test_convergence_handling.py` asserting failed fits are logged and skipped.
+  - Verification: schema validation passes on `model_results_gamm.parquet` against `specs/.../contracts/gamm_results.schema.yaml`; convergence rate recorded; `model_residuals.parquet` exists with ≥1 row; `pytest` passes.
+  - Depends on: T003.
+
+- [ ] T005b [US2] **Post-hoc Moran's I diagnostics and spatial autocorrelation flagging** — Create `code/models/utils.py::compute_morans_i` reading residuals from `data/interim/model_residuals.parquet` (T005 output), computing Moran's I statistic for each species-climate model, writing `data/results/morans_i_result.json` with fields (species_id, climate_variable, morans_i, p_value, flag_spatial_structure [true if I > 0.15]). Document in the results that the a priori Matérn GP in T005 provides baseline spatial autocorrelation modeling, and that T005c will conditionally re-fit models flagged with Moran's I > 0.15 (per ratified PLAN-DEVIATION-MORANS.md amendment). Include `code/tests/test_morans_i.py` validating I computation on synthetic residuals with known spatial structure.
+  - Verification: `morans_i_result.json` exists with ≥1 entry; flagged models correctly identified (I > 0.15); `pytest` passes.
+  - Depends on: T005.
+
+- [ ] T005c [US2] **Conditional re-fit of GAMMs with Gaussian Process when Moran's I > 0.15** — Create `code/models/gamm.py::refit_gamm_gp_conditional` that reads `data/results/morans_i_result.json` (T005b output), identifies species-climate combinations flagged with Moran's I > 0.15, and re-fits the GAMM with an explicit Gaussian Process random effect using Matérn covariance on grid coordinates (per spec US-2 Acceptance Scenario 2). Write re-fitted results to `data/processed/model_results_gamm_refitted.parquet` with the same schema as T005's output, overwriting entries for flagged species-climate combinations in the final model results. Log each re-fit attempt and convergence status. Include `code/tests/test_refit_conditional.py` validating that non-flagged models are unchanged and flagged models are re-fitted.
+  - Verification: `model_results_gamm_refitted.parquet` exists with re-fitted results; flagged species-climate combinations show updated coefficient/p_value entries; non-flagged entries are unchanged; `pytest` passes.
+  - Depends on: T005b.
+
+- [ ] T006 [US2] **Permutation tests, FDR correction, and final model annotation** — Create `code/models/utils.py::run_permutation_chunked` performing 10,000 shuffles of climate series per species-climate coefficient (reduce to 1,000 only if the 6-hour budget is genuinely exceeded, per ratified PLAN-DEVIATION-SHUFFLES.md amendment, with a logged justification stating the reason and time elapsed), writing `data/results/permutation_results_coefficients.json`. Create `code/models/utils.py::apply_fdr_correction` applying Benjamini–Hochberg across ALL hypothesis tests, reading `data/processed/model_results_gamm_refitted.parquet` (T005c output), enriching it with permutation-derived p-values and FDR-corrected q-values, writing final `data/processed/model_results_fdr.parquet` conforming to `specs/.../contracts/output.schema.yaml` with fields (species_id, model_id, term, estimate, p_value [permutation-derived], fdr_q_value, is_significant [p_fdr < 0.05], aic, r_squared). Include unit test `code/tests/test_fdr.py` asserting BH correction on a known p-value vector.
+  - Verification: JSON/parquet outputs exist; FDR-corrected p-values are monotone-consistent with BH; schema validation passes on `model_results_fdr.parquet` against `specs/.../contracts/output.schema.yaml`; `pytest` passes.
+  - Depends on: T005c.
+
+- [ ] T007 [US3] **Route-shift analysis: weekly centroids, Riemannian trajectory statistics, and shift detection** — Create `code/models/trajectory.py` computing weekly migration centroids on the sphere (great-circle Fréchet-mean style discrete centroid method, using `geomstats` or an explicit haversine-based implementation), applying manifold-based trajectory statistics to detect spatial route shifts, and writing `data/interim/weekly_centroids.parquet`, `data/interim/trajectory_statistics.json`, and shift vectors (magnitude in km, direction in radians) to `data/results/trajectory_results.json` conforming to `specs/.../contracts/trajectory.schema.yaml`. Wrap heavy manifold steps in a timeout (≤1800 s) that logs and defers rather than fabricating. Include `code/tests/test_manifold_coords.py` for coordinate conversion and `code/tests/test_trajectory_null.py` asserting a null (label-shuffled) synthetic input yields p > 0.05.
+  - Verification: schema validation passes on `trajectory_results.json`; null-case test passes; `pytest` passes.
+  - Depends on: T003.
+
+- [ ] T008 [US3] **Block-bootstrap uncertainty quantification for shift p-values and confidence intervals** — Create `code/analysis/routes.py` and `code/analysis/bootstrap.py` performing moving-block bootstrap (block size = 4 weeks, rationale: preserves temporal autocorrelation in migration trajectories). (a) Resample the centroid *estimation process* (T007's aggregation of weekly observations) via 10,000 block shuffles (fallback 1,000 per ratified PLAN-DEVIATION-SHUFFLES.md amendment with logged justification), writing `data/results/permutation_results_spatial.json` with p-values for route-shift significance. (b) Resample observation-level data from T003's `data/processed/preprocessed_data.parquet`, re-fit the GAMM (from T005) on each bootstrap iteration, extract predicted median arrival date per species-year-grid_cell, compute the shift (predicted - observed), and aggregate to generate 95% confidence intervals (lower, upper bounds in days) for phenology shifts, writing `data/results/uncertainty_quantification.json` with 95% CIs and `data/results/ci_width_report.json` reporting actual CI width in days and comparison to ≤7-day target with honest fallback reporting if target is unmet.
+  - Verification: CI outputs exist with real resampled intervals; the CI width report states measured width and its comparison to target; permutation results include p-values; `pytest` passes.
+  - Depends on: T005, T007.
+
+- [ ] T009 [US1] [US2] [US3] **Independent correctness, sensitivity, and success-criteria evaluation** — Create `code/analysis/power_analysis.py` computing statistical power and MDES given the actual sample size, with the "underpowered to detect effects < X" fallback statement, and `code/analysis/success_metrics.py` computing SC-001–SC-005: power/effect-size stability (SC-001), proportion of sufficient-data cells (SC-002, target ≥95% with honest fallback reporting), GAMM convergence rate (SC-003, target ≥90%), CI width vs ≤7-day target (SC-004), and total pipeline runtime vs the 6-hour CI runner budget (SC-005, per plan.md Assumptions; recommend ratifying into spec.md). Write `data/results/final_success_report.json` aggregating all metrics with actual measured values, per-cell week-coverage distribution (min, median, max weeks per grid cell), explicit measurement against the US-1 Acceptance Scenario 1 requirement of 208 weeks per grid cell (with honest fallback statement 'Study achieved [X] weeks median coverage; full 208-week target unmet due to sampled-eBird data scope deviation' if unmet), and honest fallback statements where targets are unmet — no fabricated target attainment. Address the spec's US-1 Acceptance Scenario 1 by reporting the observed per-cell week distribution and documenting the sampled-eBird data-scope deviation if coverage falls short.
+  - Verification: report exists with all five SC entries populated from actual measured artifacts; runtime entry matches logged pipeline timings; per-cell week-coverage distribution is reported; US-1 Acceptance Scenario 1 is explicitly measured and fallback statement is provided if 208-week target is unmet; acceptance scenario is no longer unverifiable.
+  - Depends on: T006, T008.
+
+- [ ] T010 [US1] [US2] [US3] **Generate result tables and figures from validated outputs** — Create `code/analysis/figures.py` producing, directly from `data/processed/` and `data/results/` artifacts: (a) a summary table `data/results/species_climate_summary.csv` of significant species-climate associations after FDR; (b) a map of migration centroid shifts per species; (c) time-series plots of phenology metrics with climate covariates and 95% CIs. Save figures under `figures/`. No hand-typed numbers; every figure traces to result files.
+  - Verification: each figure file exists and the generation script runs cleanly from the result artifacts; `species_climate_summary.csv` contains ≥1 row of significant associations.
+  - Depends on: T009.
+
+## Phase 3: Reproducible results and paper handoff
+
+- [ ] T011 **Write methods/results account with honest limitations** — Write `specs/001-bird-migration-climate-correlation/research.md` describing the methods (GAMM formulae, random effects, GP specification, permutation/FDR procedure, block bootstrap, Moran's I diagnostics and conditional re-fit), linking every reported number to the actual output files under `data/results/` and `figures/`, and stating negative findings, convergence failures, power limitations, data-scope deviations (sampled-eBird vs full archive, Daymet vs NOAA PRISM), and fallback criteria honestly. Include a "Limitations and Deviations" section cross-referencing the ratified amendments in `specs/001-bird-migration-climate-correlation/amendments/` (PLAN-DEVIATION-*.md files).
+  - Verification: every quantitative claim in the document references an existing artifact path; deviations and limitations are documented; cross-references to amendment files are accurate.
+  - Depends on: T010.
+
+- [ ] T012 **Re-run the documented workflow end-to-end and document the paper-stage handoff** — Re-execute `python code/cli/run_pipeline.py` from the declared raw inputs, confirm all `code/tests/` tests pass and every promised artifact under `data/results/` and `figures/` regenerates with consistent content, record the exact command and runtime in the feature's `quickstart.md`, and write the paper-stage handoff (required tables, figures, and limitations to carry into the paper pipeline — layout/PDF/publication excluded here).
+  - Verification: a clean re-run reproduces all artifacts; quickstart documents the verified command and runtime; all tests pass; artifact checksums are stable across runs.
+  - Depends on: T011.
+
+- [ ] T013 **Update project state file with artifact hashes and completion timestamp** — After T012 completes, update `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml` with SHA-256 hashes of all final artifacts under `data/results/`, `figures/`, and `specs/001-bird-migration-climate-correlation/research.md`. The YAML structure MUST include: `artifact_hashes` (dict mapping artifact path to SHA-256 hash), `updated_at` (ISO 8601 timestamp), and `stage` (set to 'analyzed'). This satisfies Constitution Principle V (versioning discipline) and enables the Advancement-Evaluator to detect stale review records if artifacts change.
+  - Verification: state file exists at `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml` with `artifact_hashes` map populated for all major outputs; `updated_at` timestamp is recent; `stage` is set to 'analyzed'; hashes match `sha256sum` of actual files.
+  - Depends on: T012.
+
+## Dependencies and requirement coverage
+
+| Requirement | Task(s) | Demonstrating command |
+|---|---|---|
+| FR-001 (data download/cache, versioned) | T001, T002 | `python code/data/download.py` |
+| FR-002 (species filter, grid aggregation) | T001, T003 | `python code/cli/run_pipeline.py --stage preprocess` |
+| FR-003 (phenology + seasonal climate) | T003 | same as above; check `data/processed/preprocessed_data.parquet` |
+| FR-004 (GAMM, random slopes, GP) | T005 | `pytest code/tests/test_gamm_single_species.py` |
+| FR-005 (permutation + BH FDR) | T006 | `pytest code/tests/test_fdr.py` |
+| FR-006 (Riemannian route shifts) | T007 | `pytest code/tests/test_trajectory_null.py` |
+| FR-007 (bootstrapped 95% CIs) | T008 | check `data/results/uncertainty_quantification.json` |
+| SC-001–SC-005 | T009 | check `data/results/final_success_report.json` |
+| US-1/US-2/US-3 acceptance scenarios | T003/T004/T005/T005b/T005c/T006, T007/T008, T009 | as above |
+| Constitution Principle V (state versioning) | T013 | check `state/projects/PROJ-132-...yaml` artifact_hashes |
+| Constitution Reproducibility (pinned deps) | T001 | `pip install -r code/requirements.txt` in fresh venv |
+| Constitution Principle VII (model transparency) | T005, T006 | check `code/models/gamm.py` formulae and `data/processed/model_results_fdr.parquet` |
+| Constitution Principle VI (ecological data provenance) | T002, T003 | check `data/raw/` with checksums and `data/provenance/row_mapping.json` |
+
+Execution order: T001 → T002 → T003 → T004 (smoke result) → T005 → T005b → T005c → T006 → T007 (parallel with T005–T006) → T008 → T009 → T010 → T011 → T012 → T013.
+
+## Revision behavior and amendment structure
+
+- **R1 panel concerns (18 items)**: This revision addresses all 18 panel concerns with explicit task additions, clarifications, and amendment documentation:
+  - **coverage-0ecdf60e** (state file synchronization): Added T013 to update state file with artifact hashes and updated_at timestamp (Constitution Principle V).
+  - **coverage-ebc883a7** (pinned requirements.txt): Folded into T001 with explicit pip install verification.
+  - **coverage-f43e5b2b** (Moran's I re-fit): Added T005c as explicit task implementing spec US-2 Acceptance Scenario 2 conditional re-fit.
+  - **coverage-46482b8f** (schema conformance): Corrected T005 → gamm_results.schema.yaml, T006 → output.schema.yaml with sequential field production.
+  - **coverage-bf180ec4** (10,000 shuffle fallback): Created PLAN-DEVIATION-SHUFFLES.md amendment in T001; T006 and T008 reference and log fallback.
+  - **coverage-4680b96e** (filelock and layout): Created PLAN-DEVIATION-LAYOUT.md amendment; filelock now created in T001 and actively used in T002/T003.
+  - **coverage-4969c30a** (SC-005 time limit): T009 explicitly references 6-hour CI budget from plan.md; flagged for spec amendment.
+  - **ordering-3faa99f3** (T005/T006 schema ordering): Corrected schema conformance claims; T005 → gamm_results, T006 → output.
+  - **ordering-2acfce14** (T001/T002 dependency): Removed [P] from T002; T001 defines DataFetchError, T002 imports it; ordering is now explicit.
+  - **executability-10145eb4** (T005 schema conformance): T005 verification now references only gamm_results.schema.yaml; output.schema.yaml moved to T006.
+  - **executability-24582c82** (species-list source): Pinned to `datasets.load_dataset('vvud/eb-data', split='train')` only; removed fallback.
+  - **executability-bc701bf8** (Daymet source): Pinned to `datasets.load_dataset('daymet/annual', streaming=True)` with years 2020–2024, variables tmin/tmax/prcp, spatial extent lat 25–50, lon -130 to -60.
+  - **executability-14aa2522** (requirements.txt): Folded into T001 with pip install verification.
+  - **executability-baf41311** (T008(b) bootstrap input): Clarified to resample observations from preprocessed_data.parquet, re-fit GAMM per iteration, compute predicted phenology shifts, generate 95% CIs.
+  - **constraint_preservation-898e16f0** (requirements.txt pinning): Folded into T001.
+  - **constraint_preservation-477d4376** (Moran's I re-fit): Added T005c as explicit task.
+  - **constraint_preservation-90d8558c** (shuffle count fallback): Created PLAN-DEVIATION-SHUFFLES.md amendment; T006/T008 reference and log fallback.
+  - **constraint_preservation-1183b5fa** (state file structure): Added T013 with explicit YAML schema (artifact_hashes map, updated_at field, stage field).
+  - **constraint_preservation-177d2625** (schema conformance): Corrected T005/T006 schema conformance claims with explicit schema paths.
+  - **constraint_preservation-2074c825** (US-1 Scenario 1 208-week requirement): T009 explicitly measures per-cell week-coverage distribution and compares to 208-week target with fallback statement if unmet.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+- **Amendment files created in T001**: Four ratified deviations are now explicit:
+  1. `PLAN-DEVIATION-DATA-SOURCES.md` — NOAA PRISM → Daymet (data availability).
+  2. `PLAN-DEVIATION-SHUFFLES.md` — 10,000 → 1,000 permutation fallback (time budget).
+  3. `PLAN-DEVIATION-MORANS.md` — a priori Matérn GP + T005c conditional re-fit (spatial autocorrelation strategy).
+  4. `PLAN-DEVIATION-LAYOUT.md` — src/ → code/ layout change.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+- **T005c added**: New task explicitly implementing spec US-2 Acceptance Scenario 2 (conditional re-fit when Moran's I > 0.15).
 
-## Format: `[ID] [P?] [Story] Description`
+- **T013 added**: New task updating state file with artifact hashes, updated_at, and stage field (Constitution Principle V).
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- **Schema conformance corrected**: T005 writes gamm_results.schema.yaml; T006 enriches to output.schema.yaml. Both schemas are now explicitly named and sequentially produced.
 
-## Path Conventions
+- **Filelock integration**: T001 creates filelock infrastructure; T002 and T003 actively acquire locks before writing shared data directories. Locking is no longer dead code.
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- **Dependency pinning**: T001 now creates code/requirements.txt with all pinned versions, including filelock and geomstats. Constitution Reproducibility Requirements are now fully covered.
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- **Data source pinning**: T001 (species list) and T002 (Daymet) now specify exact dataset loaders and parameters; no ambiguous fallbacks.
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan by executing: `mkdir -p src/data src/models src/analysis data/raw data/processed data/interim tests/contract tests/unit tests/integration docs`
-- [ ] T003a Create `pyproject.toml` at repository root with `[tool.black]` (line-length=88, target-version=['py311']) and `[tool.ruff]` (lint.select=['E','F','W','I'], lint.ignore=[]) configuration sections
-- [ ] T003b Create `.pre-commit-config.yaml` with hooks for `black` and `ruff` and configure pre-commit installation instructions in `README.md`
-- [ ] T004 Create empty `src/data/download.py` file at repository root
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T005 [P] Implement `src/data/download.py` to:
- 1. Check for real eBird/NOAA files in `data/raw/ebird/` and `data/raw/climate/`.
- 2. **Production Mode**: If real data is missing, ABORT with exit code 1 and error message "Real data required for production run".
- 3. **Development Mode**: If real data is missing, generate synthetic data using `numpy.random` with seed 42, writing `data/raw/synthetic_ebird.csv` and `data/raw/synthetic_climate.parquet` matching `contracts/dataset.schema.yaml`.
- 4. Archive real files unchanged (copy to `data/raw/archive/`) and compute SHA-256 checksums.
- 5. Write checksums to `state/projects/PROJ-132-statistical-analysis-of-publicly-availab.yaml` under keys `artifact_hashes` and `updated_at`.
-- [ ] T006 [P] Add `tests/contract/test_schemas.py::test_ebird_schema_columns` asserting `df.columns` equals [species, lat, lon, date, count, checklist_id] and `df.dtypes` match expected types (TDD: Write before implementation)
-- [X] T007 [P] Implement `src/data/impute.py` for spatial interpolation of missing climate data.
- - **Input**: Read from `data/raw/climate.parquet` (DataFrame with columns: lat, lon, temp, week, precip).
- - **Logic**: Use `scipy.interpolate.griddata` with a 1° radius neighbor search in **degrees** (lat/lon).
- - **Output**: Write imputed data to `data/interim/climate_imputed.parquet` and update metadata with flagged cells.
-- [ ] T008 [P] Setup `src/models/utils.py` with statistical helpers (Benjamini-Hochberg FDR, bootstrapping logic, early stopping for permutations)
-- [X] T009 Create base data entities: `MigrationRecord`, `PhenologyMetric`, `ClimateVariable` classes in `src/models/entities.py`
-- [~] T010 [P] Configure logging infrastructure to record "insufficient data" events and model convergence failures.
- - **Artifact**: Create `logs/pipeline.log`.
- - **Policy**: Max 5 files, 10MB each, rotate on size.
- - **Format**: `%(asctime)s - %(name)s - %(levelname)s - %(message)s`.
-- [~] T011 [P] Setup environment configuration management for random seeds and sampling parameters.
- - **Artifact**: Create `src/lib/config.py`.
- - **Variables**: Define `SEED=42`, `GRID_RES=0.5` (linked to T015 grid assignment), `SAMPLE_SIZE`, `PERMUTATIONS=10000`.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
-
-**Goal**: Ingest raw eBird/NOAA (or synthetic) data, filter to migratory species (recent years), aggregate to coarse grid cells, and compute phenology metrics.
-
-**Independent Test**: The pipeline can be fully tested by running `src/data/preprocess.py` on a subset (one species, one region) and verifying the output CSV contains expected columns (`species`, `grid_cell`, `week`, `phenology_metric`, `climate_temp`, `climate_precip`) with no missing values in critical fields.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T013 [P] [US1] Add `tests/integration/test_data_pipeline.py` with function `test_data_ingestion_flow` verifying end-to-end flow (TDD: write before T014)
-
-### Implementation for User Story 1
-
-- [~] T014 [P] [US1] Call the download functions from T005 in `src/data/preprocess.py` to ensure data is available before processing; verify file presence and checksums
-- [ ] T015 [P] [US1] Implement `src/data/preprocess.py` to filter eBird records to migratory species using CLO list and aggregate to weekly counts per 0.5° × 0.5° grid cell (Use `GRID_RES=0.5` from T011 config)
-- [ ] T017 [US1] Implement phenology metric computation (`first_arrival`, `median_arrival`, `stopover_duration`) in `src/data/preprocess.py`
-- [~] T018 [US1] Add logic to mark grid cells as "insufficient data" when observation density is too low, excluding them from downstream modeling (Depends on **completion** of T007 - file creation, not just module import)
-- [ ] T019 [P] [US1] Add observer effort covariates calculation to `src/data/preprocess.py` to control for sampling bias (per Plan Complexity Tracking)
-- [ ] T019b [P] [US1] Implement **Tail-Preserving Stratified Sampling** (FR-002-S) in `src/data/preprocess.py`:
- 1. Quantile-bin `first_arrival` into deciles.
- 2. Oversample cells in the lowest decile by a moderate factor.
- 3. Assign inverse-probability weights (`weight = 0.5` for oversampled, `1.0` otherwise).
- 4. Output weights to `data/interim/sampling_weights.parquet`.
-- [X] T020 [S] [US1] Integrate `src/data/impute.py` (from T007) to fill missing climate values via spatial interpolation and flag imputed cells in metadata (Note: **Sequential** - depends on T007 completion, NOT parallel-safe)
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Phenology-Climate Correlation Modeling (Priority: P2)
-
-**Goal**: Fit Generalized Additive Mixed Models (GAMMs) with conditional spatial correction, compute p-values with FDR correction, and handle convergence failures.
-
-**Independent Test**: The modeling step can be tested by running `src/models/gamm_fit.py` on a synthetic dataset with known correlation parameters and verifying output includes coefficient estimates and fit statistics matching known parameters within 5% tolerance.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T021 [P] [US2] Add `tests/contract/test_output_schemas.py` with function `test_gamm_output_schema` verifying coefficient and p-value columns
-- [X] T022 [P] [US2] Add `tests/integration/test_modeling.py` with function `test_gamm_convergence` verifying fit on synthetic data
-
-### Implementation for User Story 2
-
-- [X] T023 [P] [US2] Implement `src/models/gamm_fit.py` to fit a **Unified Spatial Model**.
- - **Model**: `phenology_metric ~ s(temp) + s(precip) + s(effort) + (1 + temp | species) + GP_spatial(lon, lat; kernel=Matérn(nu=1.5))`.
- - **Requirement**: The Gaussian Process (GP) **MUST ALWAYS be applied** (per Plan Phase 3).
- - **Diagnostic**: Compute Moran's I on residuals and log it, but do NOT use it to conditionally skip the GP. The implementation must follow the Plan's "Unified Spatial Model" regardless of the Spec's conditional wording.
-- [X] T024 [US2] Implement species-year random intercepts and slopes logic in `src/models/gamm_fit.py`
-- [ ] T025 [US2] Implement permutation test in `src/models/utils.py` with `n_shuffles=10000`.
- - **Logic**: Run 100 shuffles, check interim p < 0.001, set `early_stop_flag=True`, but **CONTINUE** to full [deferred] shuffles. The flag is for reporting only; the full [deferred] shuffles MUST complete.
- - **Optimization**: Use `joblib` parallelization to ensure full shuffles complete within the 5.5h CI budget.
- - **Output**: Write to `data/processed/permutation_results.json` with schema: `{ "species": str, "coefficient": str, "p_value": float, "n_shuffles": int, "early_stop_flag": bool, "final_p_value": float }`.
-- [ ] T026 [US2] Apply Benjamini–Hochberg FDR correction to all species-climate coefficients in `src/models/utils.py`
-- [ ] T027 [US2] Add error handling in `src/models/gamm_fit.py` to log convergence failures (collinearity) and skip affected species without halting pipeline
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Route Shift Analysis and Uncertainty Quantification (Priority: P3)
-
-**Goal**: Represent weekly migration centroids as trajectories, detect spatial route shifts using geodesic distances, and generate bootstrapped uncertainty intervals.
-
-**Independent Test**: The route analysis can be tested by running `src/models/trajectory.py` on a synthetic dataset with randomized labels and verifying the permutation test correctly identifies no significant shift (p > 0.05) in the absence of true signal.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T028 [P] [US3] Add `tests/contract/test_trajectory_schemas.py` with function `test_trajectory_output_schema`
-- [ ] T029 [P] [US3] Add `tests/integration/test_trajectory_analysis.py` with function `test_route_shift_detection`
-
-### Implementation for User Story 3
-
-- [ ] T030 [P] [US3] Implement `src/models/trajectory.py` to compute weekly migration centroids per species-year
-- [ ] T031 [US3] Implement trajectory analysis using **Riemannian manifold** statistics via the `geomstats` library (Spec FR-006, US-3).
- - Calculate shift vectors (magnitude/direction) based on centroid displacement on the manifold.
- - Do NOT use standard geodesic distances as a substitute.
-- [ ] T032 [US3] Implement permutation test in `src/models/trajectory_utils.py` with `n_shuffles=10000` (as per US-3) to generate null distribution of shift magnitudes.
- - **Function Name**: `run_trajectory_permutation_test` (distinct from T025's GAMM function to avoid shared state).
- - **Logic**: Run 100 shuffles, check interim p < 0.001, set `early_stop_flag=True`, but **CONTINUE** to full [deferred] shuffles. The flag is for reporting only; the full [deferred] shuffles MUST complete.
- - **Optimization**: Use `joblib` parallelization to ensure full shuffles complete within the 5.5h CI budget.
- - **Output**: Write to `data/processed/trajectory_permutation_results.json` with schema: `{ "species": str, "shift_magnitude": float, "p_value": float, "n_shuffles": int, "early_stop_flag": bool, "final_p_value": float }`.
-- [ ] T033 [US3] Implement bootstrapped confidence interval generation for phenology shift predictions in `src/models/utils.py`
-- [ ] T034 [US3] Integrate uncertainty quantification with model predictions to output confidence interval widths
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T036 [P] Update `README.md` with installation instructions and `python run_pipeline.py --help` output
-- [ ] T037 [P] Create `docs/api.md` with docstrings for `src/data/preprocess.py` functions
-- [ ] T038a [P] Execute `ruff check src/ --fix` to remove unused imports and fix all linting errors automatically.
-- [ ] T038b [P] Verify docstring compliance: Run `ruff check src/ --select=D100,D101,D102` to ensure module/function docstrings exist, then manually verify that all public functions follow Google-style formatting.
-- [ ] T039a [P] Vectorize pandas operations in `src/data/preprocess.py` to reduce loop overhead
-- [ ] T039b [P] Implement `joblib` parallelization for permutation tests in `src/models/utils.py` to utilize multiple CPU cores
-- [ ] T040 [P] Additional unit tests for edge cases in `tests/unit/`
-- [ ] T041 [P] Add `.github/workflows/ci.yml` job `validate_quickstart` that runs `python -m pytest tests/integration/test_quickstart.py` and asserts runtime < 4h
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Integration test for data ingestion flow in tests/integration/test_data_pipeline.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement src/data/preprocess.py to filter eBird records"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [S] tasks = Sequential (must wait for predecessor completion)
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **US-1 Acceptance Scenario 1 addressed**: T009 explicitly measures per-cell week-coverage distribution and compares to 208-week target with honest fallback statement if unmet.

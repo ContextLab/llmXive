@@ -1,0 +1,19 @@
+datasets:
+  - name: Iris
+    url: https://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data
+    type: mixed
+  - name: Wine
+    url: https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data
+    type: numerical
+  - name: Adult
+    url: https://archive.ics.uci.edu/ml/machine-learning-databases/adult/adult.data
+    type: mixed
+  - name: Breast Cancer Wisconsin Diagnostic
+    url: https://archive.ics.uci.edu/ml/machine-learning-databases/breast-cancer-wisconsin/wdbc.data
+    type: mixed
+  - name: Car Evaluation
+    url: https://archive.ics.uci.edu/ml/machine-learning-databases/car/car.data
+    type: categorical
+  - name: Mushroom
+    url: https://archive.ics.uci.edu/ml/machine-learning-databases/mushroom/agaricus-lepiota.data
+    type: categorical

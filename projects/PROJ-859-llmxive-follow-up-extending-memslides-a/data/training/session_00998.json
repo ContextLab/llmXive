@@ -1,0 +1,210 @@
+{
+  "trace_id": "training_42_00998",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "update_layout",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "insert_text",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "apply_theme",
+    "delete_element",
+    "resize_element",
+    "delete_element",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "delete_element",
+    "resize_element",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 24.3164,
+        "padding": 43.471
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 66.4195,
+        "y": 48.2985,
+        "length": 36.3429
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 50.7751,
+        "y": 58.1559,
+        "length": 44.1765
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 48.6526,
+        "y": 9.3627,
+        "length": 73.36
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 73.4932,
+        "y": 46.7807,
+        "length": 23.4371
+      }
+    },
+    {
+      "step": 5,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 23.2612,
+        "height": 99.582
+      }
+    },
+    {
+      "step": 6,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 50.154,
+        "height": 49.8817
+      }
+    },
+    {
+      "step": 7,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 97.025,
+        "height": 96.6495
+      }
+    },
+    {
+      "step": 8,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 18.4347,
+        "height": 53.4166
+      }
+    },
+    {
+      "step": 9,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 93.0249,
+        "height": 74.8174
+      }
+    },
+    {
+      "step": 10,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 91.4524,
+        "saturation": 29.1022
+      }
+    },
+    {
+      "step": 11,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 67.49
+      }
+    },
+    {
+      "step": 12,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 32.6522,
+        "height": 59.4143
+      }
+    },
+    {
+      "step": 13,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 28.9445
+      }
+    },
+    {
+      "step": 14,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 83.1557,
+        "y": 37.9816,
+        "width": 10.4753,
+        "height": 61.192,
+        "data_points": 46.3335
+      }
+    },
+    {
+      "step": 15,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 73.8354,
+        "y": 52.4492,
+        "width": 15.3389,
+        "height": 67.6533,
+        "data_points": 4.3916
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 60.5601,
+        "y": 40.0815,
+        "width": 27.9864,
+        "height": 3.5979,
+        "data_points": 57.443
+      }
+    },
+    {
+      "step": 17,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 61.37
+      }
+    },
+    {
+      "step": 18,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 15.8273,
+        "height": 26.2182
+      }
+    },
+    {
+      "step": 19,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 13.2831,
+        "height": 45.4549
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.557113,
+    "tool_repetition_freq": 0.7,
+    "arg_semantic_variance": 643.348682
+  },
+  "final_state": {
+    "dominant_tool": "resize_element",
+    "slide_element_count": 12,
+    "layout_hash": "42-998-resize_element"
+  }
+}

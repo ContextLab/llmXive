@@ -1,0 +1,15 @@
+captured:
+  path: data/logs/download_summary.json
+  sha256: b4259050badd0c6140fefb7c262738ed07ca7a7483fdb4c82df405c673a0feb6
+created_at: '2026-10-22T22:32:37Z'
+env_sha: b4259050badd0c61
+hmac: 8949841b60a2ba08016d513aa2f5546aae442ca19f24a29f526966c11cd8d3ca
+inputs:
+  command: quickstart run-book
+kind: table
+output_sha256: 4d28dd931de339758e47fcad57994a69bd0fae1f032f2313f94fad1d8152695f
+producer:
+  artifact: data/logs/download_summary.json
+  stage: implementation_preview
+result_id: r_4d28dd93
+value: data/logs/download_summary.json

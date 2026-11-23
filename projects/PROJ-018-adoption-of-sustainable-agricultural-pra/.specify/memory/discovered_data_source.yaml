@@ -1,9 +1,15 @@
 status: none
-intent: World Bank LSMS FAO STAT FAO FIES agricultural survey python package dataset
+intent: download World Bank LSMS FAO FIES FAO STAT agricultural survey microdata python
+  package dataset
 required_fields:
 - farmer_age
 - farmer_education
 - farm_size
 - credit_access
 - sustainable_practice_adoption
-- community_engagement
+- community_engagement_items
+- country
+- income_classification
+cache_key: daadf953e16182d161802a42de2726c04aa84cd000299a5ecd7d27d5112031f7
+searched_at: '2026-10-05T06:51:49.591791+00:00'
+retry_count: 1

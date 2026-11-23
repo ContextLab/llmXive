@@ -1,225 +1,297 @@
 """
-Style Consistency Scoring Module.
+Task T013: Implement code/01_style_scoring.py
 
-This module calculates normalized style-consistency scores for Python files
-using pylint (for indentation and naming conventions) and radon (for line length).
-It outputs a composite score and individual metric scores normalized to [0.0, 1.0].
+This script calculates style consistency metrics for Python files using pylint
+(for indentation and naming) and radon (for line length). It also extracts
+file_size and cyclomatic_complexity.
+
+Outputs:
+    data/metadata/style_scores_raw.csv
 """
-
 import subprocess
 import sys
 import json
 import os
+import csv
 from pathlib import Path
-from typing import Dict, Any, Optional
-from radon.complexity import cc_visit
-from radon.visitors import ComplexityVisitor
-from radon.raw import analyze as radon_raw_analyze
+from typing import Dict, Any, Optional, List, Tuple
 
+# Import utilities from existing project files to ensure API consistency
+# T009 provides these functions: get_file_age_git, get_file_size, get_cyclomatic_complexity, find_python_files
+# Since 01_style_scoring.py is in code/, we import from the sibling module
+try:
+    from code.utils import metrics  # Importing to ensure utils exists, though not used for scores directly here
+except ImportError:
+    pass
 
-def get_file_size(file_path: str) -> int:
-    """Get the size of a file in bytes."""
-    return os.path.getsize(file_path)
+# We need to import the specific functions from 00_extract_metadata
+# Since they are in the same directory 'code/', we can import them directly if we treat code as a package
+# or use relative imports if running as a module. To be safe and robust as a script:
+# We will implement the logic here or import from the sibling file by adding the path.
 
+# However, the prompt says: "import the real names that sibling files already define"
+# The API surface for 00_extract_metadata lists: get_file_size, get_cyclomatic_complexity
+# We will attempt to import them. If the environment treats 'code' as a package, we use code.00_extract_metadata.
+# If it's a flat script execution, we might need to adjust sys.path.
 
-def get_cyclomatic_complexity(file_path: str) -> int:
-    """Calculate the cyclomatic complexity of a file using radon."""
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            source = f.read()
-        visitor = ComplexityVisitor.from_code(source)
-        # Return the total complexity sum of all functions/classes
-        return sum(block.complexity for block in visitor.blocks)
-    except Exception:
-        return 0
+# Let's assume the standard project structure where we can import sibling modules in the same directory.
+# To be safe for the runner, we will try importing from the sibling module directly.
 
+import importlib.util
+import sys
 
-def get_pylint_score(file_path: str) -> Optional[float]:
+def load_sibling_module(module_name: str, file_path: Path):
+    """Dynamically load a sibling module to access its functions."""
+    spec = importlib.util.spec_from_file_location(module_name, file_path)
+    if spec and spec.loader:
+        module = importlib.util.module_from_spec(spec)
+        sys.modules[module_name] = module
+        spec.loader.exec_module(module)
+        return module
+    return None
+
+# Load the 00_extract_metadata module to reuse its functions
+metadata_module_path = Path(__file__).parent / "00_extract_metadata.py"
+if metadata_module_path.exists():
+    metadata_mod = load_sibling_module("00_extract_metadata", metadata_module_path)
+    get_file_size = getattr(metadata_mod, 'get_file_size', None)
+    get_cyclomatic_complexity = getattr(metadata_mod, 'get_cyclomatic_complexity', None)
+    find_python_files = getattr(metadata_mod, 'find_python_files', None)
+else:
+    # Fallback: implement basic versions if the module is missing (though T009 should exist)
+    get_file_size = None
+    get_cyclomatic_complexity = None
+    find_python_files = None
+
+def get_file_size_fallback(file_path: Path) -> int:
+    """Fallback to get file size in bytes."""
+    return file_path.stat().st_size
+
+def get_cyclomatic_complexity_fallback(file_path: Path) -> float:
     """
-    Run pylint on a file and extract a normalized score.
-    
-    Pylint returns a score out of 10.0. We normalize this to 0.0-1.0.
-    We specifically look for issues related to indentation and naming.
+    Fallback to calculate cyclomatic complexity using radon.
+    If radon is not available or fails, return 0.0.
+    """
+    try:
+        from radon.complexity import cc_visit
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+            source = f.read()
+        results = cc_visit(source)
+        if not results:
+            return 0.0
+        # Return average complexity
+        total = sum(r.complexity for r in results)
+        return total / len(results)
+    except Exception:
+        return 0.0
+
+def get_pylint_score(file_path: Path) -> Tuple[Optional[float], Optional[float], Optional[float]]:
+    """
+    Run pylint on a file and extract indentation and naming scores.
+    Returns: (indentation_score, naming_score, overall_score)
+    If pylint fails, returns (None, None, None).
     """
     try:
         # Run pylint with JSON output
         result = subprocess.run(
-            [sys.executable, '-m', 'pylint', '--output-format=json', file_path],
+            [sys.executable, "-m", "pylint", "--output-format=json", str(file_path)],
             capture_output=True,
             text=True,
             timeout=30
         )
         
-        if result.returncode not in [0, 16]: # 0=OK, 16=Usage error, 20+=Fatal
-            # If pylint crashes, return None to indicate failure
-            return None
+        if result.returncode not in (0, 16): # 0 = OK, 16 = syntax error but parsed
+            # If it's a major failure (e.g. file not found), return None
+            if "No such file" in result.stderr:
+                return None, None, None
+            # For other errors, we might still have JSON if it parsed
+        
+        try:
+            messages = json.loads(result.stdout)
+        except json.JSONDecodeError:
+            return None, None, None
 
-        messages = json.loads(result.stdout)
+        # Pylint scores are not directly in the JSON messages list as "score".
+        # We need to calculate based on messages or use the --score option if available in output.
+        # Actually, pylint's JSON output doesn't include the final score by default in the list of messages.
+        # We need to parse the "refactor" or "convention" messages to estimate.
+        # However, a simpler approach for "style" is to count specific message types.
         
-        # Filter for indentation and naming issues
-        # Indentation: E1101 (no-member), E1120 (no-value-for-param) are not style
-        # Style codes: C0301 (line-too-long), C0303 (trailing-whitespace), C0304 (missing-final-newline),
-        #            C0321 (multiple-statements), C0325 (superfluous-parens)
-        #            W0311 (bad-indentation), E111 (bad-continuation)
-        # Naming: C0103 (invalid-name), C0114 (missing-module-docstring), etc.
+        # Let's try to get the score by running pylint with --score=yes (default) and parsing the summary if available,
+        # but the JSON output is a list of messages.
+        # Alternative: Use pylint's --reports=no and parse the summary line? No, we need JSON.
         
-        style_issues = 0
-        total_issues = len(messages)
+        # Strategy: Calculate a normalized score based on message counts for specific categories.
+        # Categories of interest:
+        # - indentation (C0301, C0303, C0304, etc. - actually C03 is convention)
+        # - naming (C0103, C0111, etc.)
         
-        # Define style-related codes (simplified for this task)
-        style_codes = {
-            'W0311', # bad-indentation
-            'E111',  # bad-continuation (deprecated in newer pylint but common)
-            'C0301', # line-too-long
-            'C0303', # trailing-whitespace
-            'C0304', # missing-final-newline
-            'C0325', # superfluous-parens
-            'C0326', # bad-whitespace
-            'C0103', # invalid-name (naming)
-            'C0114', # missing-module-docstring
-            'C0115', # missing-class-docstring
-            'C0116', # missing-function-docstring
-        }
+        # Let's count violations for specific groups.
+        # Max score is 10.0.
         
-        for msg in messages:
-            if msg.get('symbol') in style_codes or msg.get('message-id', '').startswith('C') or msg.get('message-id', '').startswith('W'):
-                # We count all W and C codes as style issues for this simplified metric
-                if msg.get('type') in ['convention', 'refactor', 'warning']:
-                    style_issues += 1
+        convention_messages = [m for m in messages if m['type'] == 'convention']
+        refactor_messages = [m for m in messages if m['type'] == 'refactor']
         
-        # If no issues found, score is 1.0
-        if total_issues == 0:
-            return 1.0
+        # Specific codes for indentation/naming in 'convention'
+        # Indentation: C0301, C0302, C0303, C0304, C0325, C0326, C0327, C0328
+        # Naming: C0103, C0111, C0112, C0113, C0114, C0115, C0116
         
-        # Normalize: 1.0 - (issues / total_possible_issues). 
-        # Since we don't know total possible, we use a heuristic based on lines of code
-        # or simply cap the penalty. Let's use a simple ratio:
-        # Score = 1.0 - (style_issues / max(1, total_lines))
-        # But to keep it strictly within [0,1] and robust, let's use a simpler approach:
-        # If pylint runs successfully, it gives a global score.
-        # Let's try to parse the global score from the "report" section if available, 
-        # or calculate based on the ratio of style issues to total lines.
+        indentation_codes = {'C0301', 'C0302', 'C0303', 'C0304', 'C0325', 'C0326', 'C0327', 'C0328', 'C0305', 'C0306'}
+        naming_codes = {'C0103', 'C0111', 'C0112', 'C0113', 'C0114', 'C0115', 'C0116'}
         
-        # Fallback: Use the global score from pylint if we can parse it, else estimate.
-        # The JSON output doesn't always have the global score directly in the list of messages.
-        # We will calculate a heuristic score based on the number of style violations.
+        indent_count = sum(1 for m in convention_messages if m['symbol'] in indentation_codes or any(c in m['message'] for c in ['indent', 'line too long'])) 
+        # Note: 'line too long' is C0301. 
+        # Actually, let's just count specific symbols.
+        indent_count = sum(1 for m in convention_messages if m['symbol'].startswith('C030') or m['symbol'] in {'C0325', 'C0326', 'C0327', 'C0328'})
+        naming_count = sum(1 for m in convention_messages if m['symbol'].startswith('C010') or m['symbol'].startswith('C011'))
         
-        with open(file_path, 'r', encoding='utf-8') as f:
-            lines = f.readlines()
-        total_lines = len(lines)
+        # Normalize: Assume 10 violations = 0 score. Cap at 10.
+        # This is a heuristic.
+        indent_score = max(0.0, 10.0 - (indent_count * 1.0))
+        naming_score = max(0.0, 10.0 - (naming_count * 1.0))
         
-        # Heuristic: 10% of lines having a style issue is a 0.5 score
-        # Max penalty is 0.0 if style_issues > total_lines * 2 (impossible but safe)
-        penalty = min(1.0, style_issues / max(1, total_lines * 0.1))
-        return max(0.0, 1.0 - penalty)
+        # Overall style score could be average of these two, or based on total convention messages
+        # Let's use the average of the two specific scores for "style consistency"
+        overall_score = (indent_score + naming_score) / 2.0
         
+        return indent_score, naming_score, overall_score
+
     except subprocess.TimeoutExpired:
-        return None
+        return None, None, None
     except Exception:
-        return None
+        return None, None, None
 
-
-def get_radon_line_length_score(file_path: str) -> float:
+def get_radon_line_length_score(file_path: Path) -> Optional[float]:
     """
-    Calculate a normalized score for line length consistency using radon.
-    
-    Returns 1.0 if no lines exceed 100 chars, decreasing as violations increase.
+    Run radon to check line length (C0301 equivalent).
+    Returns a score (0-10) based on line length violations.
     """
     try:
-        with open(file_path, 'r', encoding='utf-8') as f:
+        from radon.complexity import cc_visit
+        from radon.visitors import ComplexityVisitor
+        from radon.metrics import h_visit
+        # Radon doesn't have a direct "line length" score in the same way as pylint.
+        # We can check for long lines using radon's raw metrics or just parse the file.
+        # Let's count lines > 120 chars.
+        
+        with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             lines = f.readlines()
         
-        if not lines:
-            return 1.0
+        long_lines = sum(1 for line in lines if len(line.strip()) > 120)
         
-        long_lines = 0
-        max_len = 100 # Standard limit
-        
-        for line in lines:
-            # Strip newline for length check
-            if len(line.rstrip('\n\r')) > max_len:
-                long_lines += 1
-        
-        if long_lines == 0:
-            return 1.0
-        
-        # Score decreases based on the proportion of long lines
-        # If 10% of lines are too long, score is 0.9
-        penalty = min(1.0, long_lines / len(lines))
-        return max(0.0, 1.0 - penalty)
-        
+        # Score: 10 - (long_lines * 0.5), min 0
+        score = max(0.0, 10.0 - (long_lines * 0.5))
+        return score
     except Exception:
-        return 0.0
+        return None
 
-
-def compute_style_score(file_path: str) -> Dict[str, Any]:
+def compute_style_score(indent_score: Optional[float], naming_score: Optional[float], line_len_score: Optional[float]) -> Optional[float]:
     """
-    Compute style consistency scores for a given Python file.
-    
-    Args:
-        file_path: Path to the Python file.
-        
-    Returns:
-        A dictionary containing:
-        - pylint_indent: Normalized score for indentation and naming (0.0-1.0)
-        - radon_line_len: Normalized score for line length (0.0-1.0)
-        - composite_score: Average of the two scores (0.0-1.0)
+    Compute a composite style score from the individual metrics.
+    Returns None if any critical metric is missing.
     """
-    if not os.path.isfile(file_path):
-        raise FileNotFoundError(f"File not found: {file_path}")
-        
-    if not file_path.endswith('.py'):
-        raise ValueError(f"File must be a Python file: {file_path}")
+    if indent_score is None or naming_score is None or line_len_score is None:
+        return None
     
-    # Calculate individual metrics
-    pylint_score = get_pylint_score(file_path)
-    radon_score = get_radon_line_length_score(file_path)
-    
-    # Handle cases where pylint fails (e.g., syntax error)
-    if pylint_score is None:
-        # If pylint fails, we assume a very low score or 0.0 for style consistency
-        # This indicates the file is not well-formed or cannot be analyzed
-        pylint_score = 0.0
-    
-    # Ensure scores are within [0.0, 1.0] (they should be by design, but safe-guard)
-    pylint_score = max(0.0, min(1.0, pylint_score))
-    radon_score = max(0.0, min(1.0, radon_score))
-    
-    # Compute composite score (simple average)
-    composite = (pylint_score + radon_score) / 2.0
-    
-    return {
-        "pylint_indent": pylint_score,
-        "radon_line_len": radon_score,
-        "composite_score": composite
-    }
-
+    # Weighted average: 40% indent, 40% naming, 20% line length
+    composite = (indent_score * 0.4) + (naming_score * 0.4) + (line_len_score * 0.2)
+    # Normalize to 0-1 range for consistency with project goals (0.0-1.0)
+    return composite / 10.0
 
 def main():
-    """Main entry point for CLI usage."""
-    import argparse
+    """Main entry point for style scoring."""
+    # Determine target directory (default to current repo root or a specific data dir if provided)
+    # The task implies scanning the project's source code.
+    # We'll scan the 'code' directory or the root if 'code' is not the target.
+    # Let's assume we scan the project root for Python files, excluding data/ and tests/ if needed,
+    # but the task says "all source files". Let's scan the 'code' directory as it's the source.
     
-    parser = argparse.ArgumentParser(description="Compute style scores for Python files.")
-    parser.add_argument("file_path", help="Path to the Python file to analyze")
-    parser.add_argument("--output", "-o", help="Output file path (JSON)", default=None)
+    base_dir = Path(__file__).parent.parent
+    source_dir = base_dir / "code"
     
-    args = parser.parse_args()
-    
-    try:
-        result = compute_style_score(args.file_path)
-        output_str = json.dumps(result, indent=2)
-        
-        if args.output:
-            with open(args.output, 'w') as f:
-                f.write(output_str)
-            print(f"Results written to {args.output}")
-        else:
-            print(output_str)
-            
-    except Exception as e:
-        print(f"Error: {e}", file=sys.stderr)
+    if not source_dir.exists():
+        print(f"Source directory not found: {source_dir}")
         sys.exit(1)
-
+    
+    # Find all Python files
+    if find_python_files:
+        python_files = list(find_python_files(source_dir))
+    else:
+        # Fallback implementation
+        python_files = list(source_dir.rglob("*.py"))
+    
+    if not python_files:
+        print("No Python files found.")
+        sys.exit(0)
+    
+    results = []
+    errors = []
+    
+    for file_path in python_files:
+        try:
+            # Get file size
+            if get_file_size:
+                size = get_file_size(file_path)
+            else:
+                size = get_file_size_fallback(file_path)
+            
+            # Get cyclomatic complexity
+            if get_cyclomatic_complexity:
+                complexity = get_cyclomatic_complexity(file_path)
+            else:
+                complexity = get_cyclomatic_complexity_fallback(file_path)
+            
+            # Get pylint scores
+            indent_score, naming_score, overall_pylint = get_pylint_score(file_path)
+            
+            # Get radon line length score
+            line_len_score = get_radon_line_length_score(file_path)
+            
+            # Compute composite
+            composite = compute_style_score(indent_score, naming_score, line_len_score)
+            
+            if composite is None:
+                errors.append(str(file_path))
+                continue
+            
+            results.append({
+                "file_path": str(file_path),
+                "pylint_indent": round(indent_score, 2) if indent_score is not None else None,
+                "pylint_naming": round(naming_score, 2) if naming_score is not None else None,
+                "radon_line_len": round(line_len_score, 2) if line_len_score is not None else None,
+                "composite_score": round(composite, 4),
+                "file_size": size,
+                "cyclomatic_complexity": round(complexity, 2),
+                "status": "ok"
+            })
+            
+        except Exception as e:
+            errors.append(f"{file_path}: {str(e)}")
+            continue
+    
+    # Write output to CSV
+    output_dir = base_dir / "data" / "metadata"
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / "style_scores_raw.csv"
+    
+    if results:
+        fieldnames = ["file_path", "pylint_indent", "pylint_naming", "radon_line_len", "composite_score", "file_size", "cyclomatic_complexity", "status"]
+        with open(output_file, 'w', newline='', encoding='utf-8') as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(results)
+        print(f"Successfully wrote {len(results)} records to {output_file}")
+    else:
+        print("No valid style scores computed.")
+    
+    if errors:
+        print(f"Encountered {len(errors)} errors:")
+        for err in errors[:10]: # Log first 10
+            print(f"  {err}")
+        if len(errors) > 10:
+            print(f"  ... and {len(errors) - 10} more.")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

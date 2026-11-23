@@ -1,0 +1,16 @@
+8337916b2b3ba41cef1565629255ca86  ./annotation_hashes.txt
+5327c41523b974004c499336f2b50df1  ./GCF_001458655.1_Mb9_assembly_report.txt
+9a4f1c023ed5710dc8b1b90e6306d1a6  ./GCF_001458655.1_Mb9_assembly_stats.txt
+17d4ed34df98a11056bb9c39502eac41  ./GCF_001458655.1_Mb9_cds_from_genomic.fna.gz
+c7f49275da0c434fa0218baa020f169e  ./GCF_001458655.1_Mb9_fcs_report.txt
+2d8b7c488a88c5e1bfcbc7385e599adf  ./GCF_001458655.1_Mb9_feature_count.txt
+3b846f3b0e5ddfe1b49b6f0d4941bd2f  ./GCF_001458655.1_Mb9_feature_table.txt.gz
+67fc560b421a8105a5b4a5f218444f81  ./GCF_001458655.1_Mb9_gene_ontology.gaf.gz
+ba8da46077e48634b905d23a0aeb141c  ./GCF_001458655.1_Mb9_genomic.fna.gz
+da72a2f30c8b95d41ec3a42614833967  ./GCF_001458655.1_Mb9_genomic.gbff.gz
+5c0758e72f76a30848157e6f1fdb0380  ./GCF_001458655.1_Mb9_genomic.gff.gz
+f5e85b12ac812c3e491effb7c63d8cf8  ./GCF_001458655.1_Mb9_genomic.gtf.gz
+46b1256e1b9d7045cd30fe7c4b7b662f  ./GCF_001458655.1_Mb9_protein.faa.gz
+0d47d3f389deae4f5e00f28d7e5eb8fa  ./GCF_001458655.1_Mb9_protein.gpff.gz
+8fa105450f39c9da746d264a76e4191f  ./GCF_001458655.1_Mb9_rna_from_genomic.fna.gz
+80b042632a0fc33db7b0486c54987340  ./GCF_001458655.1_Mb9_translated_cds.faa.gz

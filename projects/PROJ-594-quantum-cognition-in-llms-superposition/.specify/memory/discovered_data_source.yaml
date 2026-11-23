@@ -1,0 +1,11 @@
+status: none
+intent: WiC Word-in-Context dataset SuperGLUE download python package dataset
+required_fields:
+- example_id
+- sentence1
+- sentence2
+- word
+- label
+cache_key: 19ce3f4ba66757224f81bfbe061c14b198ea9fe2c40c8cd3db3b1a7df2f2de0b
+searched_at: '2026-08-01T20:01:16.745750+00:00'
+retry_count: 1

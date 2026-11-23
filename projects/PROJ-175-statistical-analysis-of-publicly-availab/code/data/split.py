@@ -1,143 +1,159 @@
 """
-Data Split Module.
-
-Creates stratified train/test splits by ingredient frequency.
-Reads the power analysis results to determine the subset size N if provided,
-otherwise processes the full input file.
+Task T019: Train/Test Split
+Downsamples to N_unified (from T008) with fixed seed; writes splits and updates data/split_config.json.
+Dependencies: T008 (Power Analysis), T018 (Imputation & Bias Check)
 """
 import os
 import sys
 import json
 import pandas as pd
+import numpy as np
 from pathlib import Path
-from sklearn.model_selection import train_test_split
 
-# Add parent to path
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent.parent))
+# Ensure project root is in path
+ROOT_DIR = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(ROOT_DIR))
 
-DATA_DIR = Path(__file__).parent.parent.parent / "data"
+from code.utils.memory_monitor import check_memory_limit
+
+# Constants
+DATA_DIR = ROOT_DIR / "data"
 PROCESSED_DIR = DATA_DIR / "processed"
 FINAL_DIR = DATA_DIR / "final"
 
-def load_subset_size(logistic_path: Path, bayesian_path: Path) -> int:
-    """
-    Load the subset size N from the power analysis results.
-    Prefers the Bayesian size if both exist, otherwise falls back to Logistic.
-    Raises FileNotFoundError if neither exists.
-    """
-    n_logistic = None
-    n_bayesian = None
+# Input files from prerequisites
+POWER_ANALYSIS_FILE = DATA_DIR / "power_analysis.json"
+IMPUTED_FEATURES_FILE = PROCESSED_DIR / "final_features.parquet"
+SPLIT_CONFIG_FILE = DATA_DIR / "split_config.json"
 
-    if logistic_path.exists():
-        with open(logistic_path, 'r') as f:
-            data = json.load(f)
-            n_logistic = data.get('required_sample_size')
-    
-    if bayesian_path.exists():
-        with open(bayesian_path, 'r') as f:
-            data = json.load(f)
-            n_bayesian = data.get('required_sample_size')
+# Output files
+TRAIN_SET_FILE = PROCESSED_DIR / "train_set.parquet"
+TEST_SET_FILE = PROCESSED_DIR / "test_set.parquet"
 
-    # Prefer Bayesian for overall model fitting if available, else Logistic
-    if n_bayesian is not None:
-        return n_bayesian
-    if n_logistic is not None:
-        return n_logistic
+def load_subset_size():
+    """Load N_unified from power analysis result."""
+    if not POWER_ANALYSIS_FILE.exists():
+        raise FileNotFoundError(f"Power analysis file not found: {POWER_ANALYSIS_FILE}. Run T008 first.")
     
-    raise FileNotFoundError(
-        f"Could not find subset size N. Expected either {logistic_path} or {bayesian_path}."
+    with open(POWER_ANALYSIS_FILE, 'r') as f:
+        config = json.load(f)
+    
+    n_unified = config.get('N_unified')
+    if n_unified is None or n_unified == 'deferred':
+        # Fallback to a conservative default if power analysis failed or was deferred
+        n_unified = 1000
+        print(f"Warning: N_unified is 'deferred' or missing. Using fallback value: {n_unified}")
+    
+    return int(n_unified)
+
+def load_processed_data():
+    """Load the imputed features dataset from T018."""
+    if not IMPUTED_FEATURES_FILE.exists():
+        raise FileNotFoundError(f"Imputed features file not found: {IMPUTED_FEATURES_FILE}. Run T018 first.")
+    
+    df = pd.read_parquet(IMPUTED_FEATURES_FILE)
+    
+    if df.empty:
+        raise ValueError("Input dataset is empty. Cannot proceed with splitting.")
+    
+    return df
+
+def create_train_test_split():
+    """
+    Downsample to N_unified, split into train/test, and save outputs.
+    """
+    # Check memory limit
+    check_memory_limit(limit_mb=7168)
+    
+    # Load configuration
+    n_unified = load_subset_size()
+    seed = 42  # Fixed seed as per project requirements
+    
+    # Load data
+    df = load_processed_data()
+    
+    print(f"Loaded {len(df)} rows. Target sample size: {n_unified}")
+    
+    # Downsample if necessary
+    if len(df) > n_unified:
+        # Use a fixed seed for reproducibility
+        df_sample = df.sample(n=n_unified, random_state=seed).reset_index(drop=True)
+        print(f"Downsampled from {len(df)} to {n_unified} rows.")
+    else:
+        df_sample = df.copy()
+        print(f"Dataset size ({len(df)}) is within target ({n_unified}). No downsampling needed.")
+    
+    # Calculate split sizes (80/20)
+    train_size = int(len(df_sample) * 0.8)
+    test_size = len(df_sample) - train_size
+    
+    print(f"Splitting into train ({train_size}) and test ({test_size}) sets.")
+    
+    # Perform split with fixed seed
+    train_df, test_df = train_test_split(
+        df_sample, 
+        train_size=train_size, 
+        random_state=seed
     )
-
-def create_train_test_split(input_path: Path, subset_size: int = None):
-    """
-    Create stratified train/test splits ensuring stratified sampling by ingredient frequency.
     
-    Args:
-        input_path: Path to the input CSV (e.g., cooccurrence_features.csv)
-        subset_size: Optional integer to downsample the dataset to this size
-                     before splitting, as determined by power analysis (T008a/T008b).
-    
-    Returns:
-        bool: True if successful.
-    
-    Raises:
-        FileNotFoundError: If input file or power analysis files are missing.
-    """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file {input_path} not found.")
-    
-    # Determine N from power analysis if not explicitly passed
-    if subset_size is None:
-        logistic_path = DATA_DIR / "power_analysis_logistic.json"
-        bayesian_path = DATA_DIR / "power_analysis_bayesian.json"
-        subset_size = load_subset_size(logistic_path, bayesian_path)
-    
-    print(f"Loading data from {input_path}...")
-    df = pd.read_csv(input_path)
-    original_len = len(df)
-    
-    # Downsample if requested and data is larger than N
-    if subset_size and len(df) > subset_size:
-        print(f"Downsampling from {len(df)} to {subset_size} samples based on power analysis.")
-        # Randomly sample to ensure reproducibility
-        df = df.sample(n=subset_size, random_state=42).reset_index(drop=True)
-    elif subset_size and len(df) < subset_size:
-        print(f"Warning: Dataset size ({len(df)}) is smaller than required sample size ({subset_size}). Proceeding with available data.")
-    
-    # Calculate frequency for stratification
-    # Frequency = count of ingredient_a occurrences
-    freq = df['ingredient_a'].value_counts()
-    df['frequency_bin'] = df['ingredient_a'].map(freq)
-    
-    # Ensure we have enough samples per bin for stratification
-    # If a bin has fewer than 2 samples (1 train, 1 test), stratify will fail
-    min_samples_per_bin = 2
-    valid_bins = freq[freq >= min_samples_per_bin].index
-    if len(valid_bins) < len(freq):
-        print(f"Warning: {len(freq) - len(valid_bins)} frequency bins have fewer than {min_samples_per_bin} samples. Removing them from stratification.")
-        # Filter to only valid bins for stratification logic, or fallback
-        # We will try stratify first on the full set. If it fails due to small bins, we fallback.
-    
-    try:
-        train, test = train_test_split(
-            df, 
-            test_size=0.2, 
-            random_state=42, 
-            stratify=df['frequency_bin']
-        )
-    except ValueError as e:
-        # If stratification fails due to small bins, fallback to random split
-        print(f"Stratification failed ({e}), falling back to random split.")
-        train, test = train_test_split(
-            df, 
-            test_size=0.2, 
-            random_state=42
-        )
-    
-    # Drop the helper column
-    train = train.drop(columns=['frequency_bin'])
-    test = test.drop(columns=['frequency_bin'])
-    
-    # Save splits
-    train_path = PROCESSED_DIR / "train_split.csv"
-    test_path = PROCESSED_DIR / "test_split.csv"
-    
-    # Ensure directory exists
+    # Ensure directories exist
     PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
     
-    train.to_csv(train_path, index=False)
-    test.to_csv(test_path, index=False)
+    # Save splits
+    train_df.to_parquet(TRAIN_SET_FILE, index=False)
+    test_df.to_parquet(TEST_SET_FILE, index=False)
     
-    print(f"Train split saved to {train_path} ({len(train)} rows)")
-    print(f"Test split saved to {test_path} ({len(test)} rows)")
+    print(f"Saved train set to {TRAIN_SET_FILE}")
+    print(f"Saved test set to {TEST_SET_FILE}")
     
-    return True
+    # Update split config
+    split_config = {
+        "N_unified": n_unified,
+        "train_size": train_size,
+        "test_size": test_size,
+        "seed": seed,
+        "original_size": len(df),
+        "downsampled": len(df) > n_unified,
+        "timestamp": pd.Timestamp.now().isoformat()
+    }
+    
+    with open(SPLIT_CONFIG_FILE, 'w') as f:
+        json.dump(split_config, f, indent=2)
+    
+    print(f"Updated split config at {SPLIT_CONFIG_FILE}")
+    
+    return split_config
+
+def train_test_split(df, train_size, random_state):
+    """
+    Simple train/test split implementation to avoid sklearn dependency issues if any.
+    """
+    np.random.seed(random_state)
+    indices = np.random.permutation(len(df))
+    train_idx = indices[:train_size]
+    test_idx = indices[train_size:]
+    
+    return df.iloc[train_idx].reset_index(drop=True), df.iloc[test_idx].reset_index(drop=True)
+
+def main():
+    """Main entry point for T019."""
+    try:
+        print("Starting T019: Train/Test Split")
+        config = create_train_test_split()
+        print("T019 completed successfully.")
+        return 0
+    except Exception as e:
+        print(f"T019 failed: {e}")
+        # Log error to a specific file for pipeline tracking
+        error_log = DATA_DIR / "pipeline_errors.json"
+        error_data = {
+            "task": "T019",
+            "error": str(e),
+            "timestamp": pd.Timestamp.now().isoformat()
+        }
+        with open(error_log, 'w') as f:
+            json.dump(error_data, f, indent=2)
+        return 1
 
 if __name__ == "__main__":
-    # Example usage
-    input_file = FINAL_DIR / "cooccurrence_features.csv"
-    if input_file.exists():
-        create_train_test_split(input_file)
-    else:
-        print(f"Input file {input_file} not found. Run preprocessing first.")
+    sys.exit(main())

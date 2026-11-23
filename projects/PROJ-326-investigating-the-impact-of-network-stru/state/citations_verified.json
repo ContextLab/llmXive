@@ -1,0 +1,21 @@
+{
+  "status": "PASS",
+  "plan_path": "/project/plan.md",
+  "spec_path": "/project/spec.md",
+  "citations_found": [],
+  "errors": [],
+  "warnings": [
+    "plan.md not found",
+    "spec.md not found"
+  ],
+  "timestamp": "2024-01-15T10:30:00Z",
+  "summary": {
+    "total_citations": 0,
+    "numeric_citations": 0,
+    "author_year_citations": 0,
+    "url_citations": 0,
+    "doi_citations": 0,
+    "error_count": 0,
+    "warning_count": 2
+  }
+}

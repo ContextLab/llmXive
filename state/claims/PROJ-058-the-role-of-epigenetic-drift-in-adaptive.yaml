@@ -1,0 +1,208 @@
+- artifact_path: projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/specs/001-the-role-of-epigenetic-drift-in-adaptive/tasks.md
+  attempts: 1
+  canonical: minimum 3 multi-generational methylation and RNA-seq datasets
+  claim_id: c_6fadf750
+  context: "Goal: Validate the existence of \u22653 matched multi-generational datasets\
+    \ (methylation + RNA-seq) in GEO/ENCODE before proceeding."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Validate the existence of \u22653 matched multi-generational datasets\
+    \ (methylation + RNA-seq) in GEO/ENCODE before proceeding."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T10:42:31Z'
+- artifact_path: projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/specs/001-the-role-of-epigenetic-drift-in-adaptive/tasks.md
+  attempts: 1
+  canonical: title overlap threshold of 0.7
+  claim_id: c_c7e66a7e
+  context: "Implement `validate_reference(accession, title)` in `code/discovery/query_geno.py`\
+    \ performing title-token overlap check (threshold \u2265 0.7) against `data/verified_datasets.yaml`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "title-token overlap check (threshold \u2265 0.7) against `data/verified_datasets.yaml`."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T10:42:31Z'
+- artifact_path: projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/specs/001-the-role-of-epigenetic-drift-in-adaptive/tasks.md
+  attempts: 1
+  canonical: datasets filtered by mouse, C. elegans, and Drosophila
+  claim_id: c_dcf15055
+  context: Implement logic to filter datasets by organism (mouse, C. elegans, Drosophila)
+    and metadata completeness (fluctuation timescale/amplitude).
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q17392902
+        url: https://www.wikidata.org/wiki/Q17392902
+        value: Drosophila
+      - channel: wikidata
+        source_id: Q312154
+        url: https://www.wikidata.org/wiki/Q312154
+        value: Drosophila
+      quote: Drosophila melanogaster
+      source_id: Q130888
+      url: https://www.wikidata.org/wiki/Q130888
+      value: Drosophila melanogaster
+    filled: true
+  kind: entity_fact
+  raw_text: filter datasets by organism (mouse, C. elegans, Drosophila)
+  resolved_value: Drosophila melanogaster
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T10:57:00Z'
+- artifact_path: projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/specs/001-the-role-of-epigenetic-drift-in-adaptive/tasks.md
+  attempts: 1
+  canonical: less than 3 valid datasets
+  claim_id: c_b07277b7
+  context: Implement logic to flag "Partial Match" datasets and write a `halt_signal`
+    to `output/discovery_status.json` if <3 valid datasets are found.
+  evidence:
+    entailment_evidence: Less than 3 valid datasets
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Less_than_3_valid_datasets
+  kind: magnitude
+  raw_text: if <3 valid datasets are found.
+  resolved_value: less than 3 valid datasets
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T10:57:02Z'
+- artifact_path: projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/specs/001-the-role-of-epigenetic-drift-in-adaptive/tasks.md
+  attempts: 1
+  canonical: Python 3.11 with 8 dependencies
+  claim_id: c_2097fc9e
+  context: 'Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scipy`,
+    `scikit-learn`, `requests`, `pyyaml`, `tqdm`, `pytest`'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Python 3.11 project with dependencies: `pandas`, `numpy`, `scipy`, `scikit-learn`,
+    `requests`, `pyyaml`, `tqdm`, `pytest`'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T11:16:07Z'
+- artifact_path: projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/specs/001-the-role-of-epigenetic-drift-in-adaptive/tasks.md
+  attempts: 1
+  canonical: p-value variance greater than 0.001
+  claim_id: c_ab01dd59
+  context: If variance > 0.001, increase iterations by [deferred] and repeat.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/P-value_variance_greater_than_0.001
+  kind: magnitude
+  raw_text: variance > 0.001
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T11:34:26Z'
+- artifact_path: projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/specs/001-the-role-of-epigenetic-drift-in-adaptive/tasks.md
+  attempts: 1
+  canonical: 95 percent non-missing gene pairs
+  claim_id: c_78287026
+  context: "Pipeline runs on a small public subset; output is a unified CSV/TSV with\
+    \ \u226595% non-missing gene pairs for variance metrics."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "\u226595% non-missing gene pairs"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T11:34:26Z'
+- artifact_path: projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/specs/001-the-role-of-epigenetic-drift-in-adaptive/tasks.md
+  attempts: 1
+  canonical: less than 1 percent exclusion
+  claim_id: c_aed7a11a
+  context: Implement global methylation level filter (<1% exclusion) and non-model
+    organism exclusion.
+  evidence:
+    entailment_evidence: Less than 1 percent exclusion
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Less_than_1_percent_exclusion
+  kind: magnitude
+  raw_text: <1% exclusion
+  resolved_value: less than 1 percent exclusion
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T11:34:29Z'
+- artifact_path: projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/specs/001-the-role-of-epigenetic-drift-in-adaptive/tasks.md
+  attempts: 1
+  canonical: Spearman's rho and p-value
+  claim_id: c_3187afaf
+  context: Script produces Spearman's rho, p-value (theoretical and empirical), and
+    a scatter plot.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1889: Charles Spearman'
+      source_id: Q649075
+      url: https://www.wikidata.org/wiki/Q649075
+      value: Charles Spearman
+    filled: true
+  kind: entity_fact
+  raw_text: Spearman's rho, p-value
+  resolved_value: Charles Spearman
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T11:49:12Z'
+- artifact_path: projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/specs/001-the-role-of-epigenetic-drift-in-adaptive/tasks.md
+  attempts: 1
+  canonical: absolute difference in rho greater than 0.1
+  claim_id: c_e05a9fa8
+  context: "if correlation remains significant (p < 0.05) in <2 of 3 thresholds or\
+    \ if |\u0394rho| > 0.1."
+  evidence:
+    entailment_evidence: Absolute difference in rho greater than 0.1
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Absolute_difference_in_rho_greater_than_0.1
+  kind: magnitude
+  raw_text: "|\u0394rho| > 0.1"
+  resolved_value: absolute difference in rho greater than 0.1
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T11:49:16Z'
+- artifact_path: projects/PROJ-058-the-role-of-epigenetic-drift-in-adaptive/specs/001-the-role-of-epigenetic-drift-in-adaptive/tasks.md
+  attempts: 1
+  canonical: drift rate within 10 percent of environmental fluctuation frequency
+  claim_id: c_759cd101
+  context: categorize the relationship as "Aligned" (drift rate matches environmental
+    fluctuation frequency within 10%), "Mismatched" (drift is too slow/fast), or "Insufficient
+    Data"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: drift rate matches environmental fluctuation frequency within 10%
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T11:49:16Z'

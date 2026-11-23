@@ -1,17 +1,30 @@
 type: object
-properties:
-  participant_id:
-    type: string
-  latency:
-    type: number
-  smoothness:
-    type: number
-  lead_time:
-    type: number
-  agency_score:
-    type: number
+description: "Schema for the final analysis‑ready CSV (converted to JSON for validation). Each row represents a participant with all required motion features, optional covariates, and a validated agency score."
 required:
   - participant_id
   - latency
   - smoothness
+  - lead_time
   - agency_score
+properties:
+  participant_id:
+    type: string
+    description: UUID linking participant across files.
+  latency:
+    type: number
+    description: Response latency in milliseconds.
+  smoothness:
+    type: number
+    description: Trajectory smoothness (jerk metric, dimensionless).
+  lead_time:
+    type: number
+    description: Anticipatory lead time in milliseconds; may be null if independence check fails.
+    nullable: true
+  agency_score:
+    type: number
+    description: Continuous aggregated agency rating (0‑100).
+  covariates:
+    type: object
+    description: Optional participant‑level covariates (e.g., age, vr_experience, task_difficulty).
+    additionalProperties:
+      type: number

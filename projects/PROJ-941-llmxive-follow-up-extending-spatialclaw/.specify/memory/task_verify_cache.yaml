@@ -1,0 +1,139 @@
+T001:
+  c: true
+  h: ec126c455cc7a0dca0f3a914cd79e13d0e1fa330e82d8cc51ee9e2d09b12cac3
+  r: "Checked that the project root `projects/PROJ-941-llmxive-follow-up-extending-spatialclaw`\
+    \ contains the required top\u2011level directories `code/`, `data/`, `results/`,\
+    \ and `tests/`, each present with files (e.g., `.gitkeep`, `__init__.py`). The\
+    \ structure matches the implementation plan."
+  sig: e4887c618c7f5c17fe96a0718b796f98ace53b0e2556554268e7dd4b0211b026
+T002:
+  c: true
+  h: 02923a05c62f387d475aa1df3688e57048f8abc427e4848f6fab7898bf3d30d7
+  r: "Checked the `requirements.txt` file at `projects/PROJ-941-llmxive-follow-up-extending-spatialclaw/requirements.txt`;\
+    \ it exists, is non\u2011empty, and lists all required packages (shapely, numpy,\
+    \ scipy, pandas, pytest, statsmodels, datasets, huggingface_hub) plus an extra\
+    \ harmless entry. No required artifact is missing or incorrect."
+  sig: 87531c3f2012e8779cf06cf34447e3167e1f5b43f897902a0c1e4c07b4f8626f
+T003:
+  c: false
+  h: ddf4fa31c1c7012d4a306232d96a288c9691ab0a39da8a5762679a0de596bc79
+  r: "The evidence only shows the project root path and contains no linting or formatting\
+    \ configuration files (e.g., `pyproject.toml` with `[tool.black]` / `[tool.ruff]`,\
+    \ `.ruff.toml`, or a `black`/`ruff` config file). Without these artifacts, the\
+    \ task of configuring ruff and black is not satisfied. Adding the appropriate\
+    \ configuration files (and optionally a pre\u2011commit hook) is required."
+  sig: 70a3d6871a268f75085ef4029d8693130bcb94171b19228e0e63ac907d327ad0
+T006a:
+  c: false
+  h: 380fa64df417d30c0ca4fa7f88dfc48d24afea9cc86d2d2108909202168035c9
+  r: "The required output file `data/raw/synthetic_spatialclaw_pilot.json` does not\
+    \ exist, and the provided `code/data/generator.py` appears to generate a full\
+    \ dataset (`synthetic_spatialclaw_v1.json`) rather than a pilot set of exactly\
+    \ 10 primitives with the specified invariants. Consequently the task\u2019s core\
+    \ deliverable is missing."
+T006b:
+  c: false
+  h: d6cc53c0ae9d51ff4a9bba4b1615820e12c9bbea6797705ce13de511461c4220
+  r: "The required output file `data/raw/synthetic_spatialclaw_v1.json` does not exist,\
+    \ so the generator has not produced the full dataset as specified. Without this\
+    \ file the task\u2019s primary deliverable is missing."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, test results, or documentation were provided that demonstrate\
+    \ the implementation of logic to subtract blocked 3D library initialization time\
+    \ from step latency calculations. The required artifact (e.g., modified latency\u2011\
+    calculation module, unit tests, or logs showing the exclusion) is missing."
+T035a:
+  c: false
+  h: b430e66b49cdb5ef562eda47e898154c5bf0e259058d2b5c943787f4727ac642
+  r: 'The provided `data/power_config.yaml` is present but does not contain all required
+    keys: it lacks `max_runtime_hours`, `n_runs`, `flat_object_ratio`, and `side_length_bounds`,
+    and thus does not match the specified schema or default values. The missing fields
+    must be added with the concrete numeric defaults for the task to be satisfied.'
+  sig: 2d0b173b0fe7b15037cea2464ddde9a8e3a78cf396f1c8ea67df79ab2f9c7ff6
+T035b:
+  c: false
+  h: 005b25a1945a233e831e600877e13a3a49febaa46870412ce44f67de745cc6c2
+  r: "The `code/stats/power_analysis.py` correctly reads `data/power_config.yaml`\
+    \ and writes a JSON summary with the required fields, and the output file exists.\
+    \ However, the implementation does not incorporate the \u201Cspecific subset of\
+    \ \u2018flat objects\u2019 required for edge case analysis\u201D into the sample\u2011\
+    size calculation, which the task explicitly demands. Adding logic to handle that\
+    \ subset is needed for completeness."
+  sig: 86bee880a1e555b15a6103b5159f56f436ae67e2544b4fcabb1545e7fa9e725f
+T035c:
+  c: true
+  h: 10fc118310f5861e2edb64596275db92f04dab76bfebb59e628987cf169883a5
+  r: "The `results/analysis/power_analysis_summary.json` file exists, is non\u2011\
+    empty, and contains a concrete power\u2011analysis summary with realistic parameters\
+    \ and results, satisfying the task\u2019s requirement to execute T035b logic and\
+    \ write the JSON artifact."
+  sig: 1946e4fe411b2f866d95f339d381d1725fdb881c95ecfcb7abad57fb39f1206f
+T037a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `README.md` file containing the required setup instructions
+    was provided; the submission includes only the task description and specifications,
+    with no actual documentation artifact to verify. The implementer must supply the
+    updated `README.md` showing the new setup steps.
+T037b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` file with usage examples was provided; the evidence list
+    contains no documentation artifact, so the required documentation change is missing.
+T037c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No API documentation files, HTML, Markdown, or other generated docs for the `code/kernel/`
+    module are present in the provided evidence. The claim lacks any artifact demonstrating
+    that documentation was created, so the requirement is not satisfied.
+T037d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No generated API documentation files (e.g., HTML, Markdown, or Sphinx output)
+    for the `code/agents/` module are present or referenced; the evidence provided
+    contains no artifact confirming that documentation was created. The task therefore
+    remains unfulfilled.
+T037e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `research.md` file or excerpt showing a new \u201CMethodology\u201D section\
+    \ is provided, and there is no evidence that power analysis, statistical tests,\
+    \ or sensitivity analysis results were documented. The required artifact is missing,\
+    \ so the task is not satisfied."
+T046:
+  c: false
+  h: d4fba53f2f58b3c44551f58b6681ec636c0693d7d0b398200b96af177ca84bc1
+  r: The provided `verify_run.py` is truncated and we cannot see the logic that aggregates
+    the run files or writes the report in the required schema. Moreover, no `results/runs/run_*.json`
+    files or the dataset file (`data/raw/synthetic_spatialclaw_v1.json`) are present,
+    yet the generated `run_integrity_report.json` claims 50 total tasks while the
+    baseline file only contains 5 tasks, indicating the report is fabricated rather
+    than derived from real data. The task therefore lacks the necessary artifacts
+    and correct verification behavior.
+T050:
+  c: false
+  h: 89097bb73d03f2e1bf497b22a7e0d0308fb2b629d57e3683c210ffff3f18ab28
+  r: "The provided `kernel_audit.py` is truncated and does not contain a runnable\
+    \ script that writes `results/analysis/kernel_audit.txt` or exits with the required\
+    \ status code. Moreover, the required output file `results/analysis/kernel_audit.txt`\
+    \ is missing. The task\u2019s core output and exit\u2011code behavior are therefore\
+    \ not satisfied."
+T064:
+  c: false
+  h: a369cf336bbe7a9a5213d5f09d038cfc487000e50a5907bbd2ec2e609afc1a34
+  r: "The `results/logs/blocked_operations.log` file is missing, and the provided\
+    \ `restricted_kernel.py` defines a logging helper but never invokes it when a\
+    \ `RestrictedActionError` is raised (the import hook raises the error directly).\
+    \ Consequently the required stack\u2011trace logging to the specified file is\
+    \ not implemented."
+T065:
+  c: false
+  h: ff42679860e65b98f722c28cf4194d23b853d34ba74f2392acf2eaeb064c1204
+  r: "The required output file `results/analysis/projection_loss_case_studies.json`\
+    \ is absent, and the provided script `code/stats/analyze_projection_loss.py` does\
+    \ not implement the case\u2011study extraction described (it focuses on a breakdown\
+    \ analysis and is incomplete). Consequently the task\u2019s core requirement\u2014\
+    saving concrete geometric parameters for representative \u201Cprojection loss\u201D\
+    \ tasks\u2014is not met."

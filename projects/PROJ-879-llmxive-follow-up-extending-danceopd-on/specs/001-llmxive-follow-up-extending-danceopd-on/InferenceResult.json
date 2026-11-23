@@ -1,49 +1,53 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/InferenceResult.json",
   "title": "InferenceResult",
-  "description": "Schema for the result of a single inference run, containing generated image metadata and fidelity metrics.",
+  "description": "Schema for the result of a single inference run, including generated image metadata and routing decisions.",
   "type": "object",
-  "required": [
-    "sample_id",
-    "generation_mode",
-    "expert_id",
-    "image_path",
-    "fidelity_metrics"
-  ],
   "properties": {
     "sample_id": {
       "type": "string",
       "description": "Reference to the original sample ID."
     },
-    "generation_mode": {
+    "predicted_routing_label": {
       "type": "string",
-      "description": "The mode used for generation.",
-      "enum": ["tree_predicted", "teacher_baseline"]
+      "description": "The expert label predicted by the model or tree.",
+      "pattern": "^expert_[a-z_]+$"
     },
-    "expert_id": {
-      "type": "integer",
-      "description": "The expert ID used for generation.",
+    "ground_truth_routing_label": {
+      "type": "string",
+      "description": "The expert label from the teacher model (if available).",
+      "pattern": "^expert_[a-z_]+$",
+      "nullable": true
+    },
+    "generated_image_path": {
+      "type": "string",
+      "description": "Relative path to the generated image file."
+    },
+    "velocity_vector": {
+      "type": "array",
+      "items": {
+        "type": "number",
+        "format": "float32"
+      },
+      "description": "The velocity vector used for generation."
+    },
+    "inference_time_ms": {
+      "type": "number",
+      "description": "Time taken for inference in milliseconds.",
       "minimum": 0
     },
-    "image_path": {
+    "status": {
       "type": "string",
-      "description": "Relative path to the generated image file under data/results/."
+      "enum": ["success", "partial", "failed", "undefined_route"],
+      "description": "Status of the inference run."
     },
-    "fidelity_metrics": {
-      "type": "object",
-      "description": "Metrics comparing this generation to the baseline.",
-      "properties": {
-        "clip_score": {
-          "type": "number",
-          "description": "CLIP similarity score."
-        },
-        "fid_score": {
-          "type": "number",
-          "description": "Fréchet Inception Distance score."
-        }
-      },
-      "required": ["clip_score", "fid_score"]
+    "error_message": {
+      "type": "string",
+      "nullable": true,
+      "description": "Error details if status is not success."
     }
   },
+  "required": ["sample_id", "predicted_routing_label", "generated_image_path", "velocity_vector", "inference_time_ms", "status"],
   "additionalProperties": false
 }

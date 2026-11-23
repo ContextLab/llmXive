@@ -1,0 +1,7 @@
+{
+  "task_id": "T001a-dirs\u2011verify",
+  "fingerprint": "1bf2fc4773dfcbf66d0e6779fe9dc06d0db3129c3ab143f11a26dddc710088c1",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'tests/unit/test_directory_structure.py': SyntaxError at line 34: invalid syntax. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 1152"
+}

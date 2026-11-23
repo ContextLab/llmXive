@@ -1,0 +1,19 @@
+status: none
+intent: NIST Chemistry WebBook Materials Project polymer degradation SMILES environmental
+  conditions python package dataset
+required_fields:
+- SMILES_string
+- polymer_name
+- polymer_type
+- temperature_celsius
+- pH
+- UV_exposure_hours
+- degradation_pathway_label
+- degradation_products
+- hydrolysis_indicator
+- oxidation_indicator
+- photodegradation_indicator
+- data_source
+cache_key: 0f6adaf65d8bf3ce1f68bb1c855deef05675a599ed13863effe752d9357f2323
+searched_at: '2026-10-26T16:31:05.761965+00:00'
+retry_count: 1

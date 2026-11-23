@@ -1,0 +1,103 @@
+T001:
+  task: d809fbe7eada0071852d760d85d1849c9b1eedd258ed198b5697ccd62135d5cb
+T002:
+  reason: "The provided `requirements.txt` exists, but it uses \u201C>=\u201D version\
+    \ specifiers instead of exact pinned versions (e.g., `networkx==3.1`). Moreover,\
+    \ it lists many additional packages beyond the seven required, which does not\
+    \ meet the task\u2019s specification of a pinned requirements file for those specific\
+    \ dependencies."
+  task: 606a6b411135c800a38e90143a9f37a579b10e0f054e26547c48310c309829fb
+T004:
+  task: d8c16b7143a884fab77be2c064e689ab595c01b8229fa0705c1d4dbf21533ac1
+T005:
+  reason: "The `code/utils/hash_artifacts.py` script exists and implements hashing,\
+    \ but the required state file `state/projects/PROJ-911-llmxive-follow-up-extending-mcompassrag.yaml`\
+    \ is missing, so the task\u2019s requirement to update that YAML file has not\
+    \ been fulfilled. The missing YAML file must be created/updated by the script\
+    \ (or provided) for the task to be complete."
+  task: 9fd73c7ed6998f783ead42c8bf9195231f056514188c1efd5214bfab2ebee55a
+T006:
+  task: 5d183d374509aa5db6613703dc874d5253acf04d8932d713ded1b548825fd0ab
+T007:
+  task: f7c127aa5e840f78363fd7daa2f57d974f79fb244c45ad31bab86be2ed9db04b
+T008:
+  task: 628e82e450cd7322cac1568a7e1e43ca68933e9c7ca4e0663ee953d65b6945b6
+T008b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/timer.py'
+  task: 59349b921f6c201e3a25535bd310a70739a9918ac68d2f2b99d9ef910b8155ac
+T009:
+  task: 8ffb3fcc19574460d5af47af25c39e36f13b656779f92fedebc5cf638328e812
+T010:
+  task: c91ef948af918bfdebfcf090800f12eda32052981f147d8cb6e2b5bec9a270d9
+T011:
+  task: 0c0bd0601d848f5f45c117c165fd59d69576e0ca9818998e2f7a9ff0282e2aa3
+T012:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/fixed_vocab.json'
+  task: 8ba9ce65e957a3e933f2aed1783035b3e39abfb1f57b1b7140f6124d1149356f
+T013:
+  task: 1c789b0b34c287e4e96d4644d83c2e37b94b15f6218822db4e0452c6f1daad31
+T014:
+  task: f57c4cd750007bc81a94dd1f1315ba5444fe0f1ee176c1630810f9d39e02f135
+T015:
+  task: b96bea070660d418b5246cb35c9935dff61374d8984f5df7de1ee09fb9e93886
+T016a:
+  task: 9fcef09bd77cf0d796bbf170c7c34a9b5f80cb0bb9bef5ee0506502ab1ad2546
+T016b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/features.csv'
+  task: c62f11fc7e682573c1e0c5483de5adedd8ab3fd6dc9298efeecd9867f29f5db8
+T017:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/latency.log'
+  task: e7b76e4d5659848df985f68e39cec27722e125eef04b4f02b466684975b53fd0
+T018:
+  task: e6e0430d2bb78ad8ee6f55cbf4dfe74ef5e547ab408f9ee9ae8bb8c57015cea7
+T019:
+  task: 0bd370d0a89e812d82bcdd21d9a73069fabf56520e81fd59cb2543bbdee39102
+T020:
+  task: fad20ce11de78168177a8b6508f9191e7e2f7d2795ec18b3321c3052606395fe
+T021:
+  task: 8e7495d822aa1d359705817493a23adbeb8eec17a11aa9dc357eb73f8cd055ea
+T022:
+  task: 168b99682bb0758d806d9da603941cc3ea385a283d6e6e67b25bff90d1793022
+T023:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/retrieved_features.csv'
+  task: a5546c7191f32c6dad1b330f56fe257e9940c6b88986a43e5d3c64576ecddf6a
+T024:
+  task: 0a17dfaf334a394c6bae78e737c9285b760d62860e980d2369f651acbe49464c
+T025:
+  task: 304e74e2c8a3681a0b07eb891b9f915f793b74d8c5d1ccf131e14c4e3afde427
+T026:
+  task: bf6bc702848c68c21194fa46dd40356e69cf5f5d01be8071bf7ee76884e0d10a
+T027:
+  task: 25b63262586ce25b3f92c8b822fd6ce13f3a1b2e7feb1186e27c13c66164c34f
+T028a:
+  task: ff034dd29973eab6c01377e83c59dd1cebeb1c4be7af261354cc7a99751f57e0
+T028b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/correlation.csv'
+  task: 928082755cfc85503264f615874603042ea20393b84664a0de995b8afce44e75
+T029a:
+  task: 55f66470e7a10bd3603f2eee381f170e8eacf4e73667da7347855037bd2b132e
+T029b:
+  task: 67a009cce229da5d308ffb011ca4b6e09f1d9d994476a669046d8a1af3d3676f
+T030:
+  task: f3d1d3a38f362484526656170923dced935a7bc41678498d7850bdf3087eefb6
+T030b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/results/resource_usage.log'
+  task: 9ba685dfef8c850292b4c50bd04562353684cb1dd6b958a0578badb5dc4121fe
+T031:
+  task: fa337f3620bd213eee2d93f5724d09a62d66fd5aeb5dc2f8d989fa0822d4d4a2
+T032:
+  task: 27aa6e95e7f11fda636f3833f406d86ae195c9f1e6d0346eb2ebcb760ac9cd65
+T033:
+  task: ead527e8919128aa0cc4d9a93704e0ceacdc54d5654a4090f7ae238e10f1f238
+T034:
+  reason: 'Requested task execution failed; rerun successfully: code/cleanup_refactor.py
+    exit=1'
+  task: b7706bc7e9ed82889eeace4500e9df599caa86747abb6ef4237c787598655c5e
+T035:
+  task: 39b46754d21c618a935829f48886ced89bb4e1a7d02f2fc137886da8404fbc3b
+T036:
+  task: c5845c3e9d4f4816c66565776329e38e1f8628b70e6fbaffa0538186f8fb29cc
+T037:
+  task: f2baece09692617c2e8bc08ee3f21dd238b992a8230c80af129c34a43707b8bc
+T038:
+  task: ccad2d6f098574e19b082f4e7eccce1f61082629682b202243e64117e98f1098

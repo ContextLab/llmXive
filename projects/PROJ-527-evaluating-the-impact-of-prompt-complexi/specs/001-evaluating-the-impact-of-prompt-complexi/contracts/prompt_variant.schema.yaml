@@ -1,15 +1,15 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "PromptVariant Schema"
-description: "Schema for a generated prompt variant with complexity metadata"
+title: "PromptVariant"
+description: "Schema for a generated prompt variant with complexity metadata."
 type: "object"
 properties:
   variant_id:
     type: "string"
-    description: "Unique identifier for the variant (e.g., 'problem_id_complexity')"
+    description: "Unique identifier for the variant."
   problem_id:
     type: "string"
-    description: "Foreign key to HumanEvalProblem"
-  complexity_label:
+    description: "Reference to the HumanEval problem."
+  complexity_level:
     type: "string"
     enum:
       - "simple"
@@ -17,29 +17,22 @@ properties:
       - "complex"
       - "very_complex"
       - "degenerate"
-    description: "Assigned complexity tier"
+    description: "The structural complexity tier."
   prompt_text:
     type: "string"
-    description: "The full text of the prompt sent to the LLM"
+    description: "The full text of the prompt."
   token_count:
     type: "integer"
-    description: "Number of tokens in the prompt (using tiktoken cl100k_base)"
-  structural_element_count:
+    minimum: 0
+    description: "Number of tokens using tiktoken cl100k_base."
+  structural_elements:
     type: "integer"
-    description: "Count of structural elements (examples, constraints, instructions)"
-  structural_complexity_score:
-    type: "number"
-    description: "Weighted score based on element types (e.g., examples=1, constraints=2)"
-  residualized_structure_score:
-    type: "number"
-    description: "Residual of structural_count regressed on token_count (for collinearity control)"
+    minimum: 0
+    description: "Count of structural elements (examples, constraints, etc.)."
 required:
-  - "variant_id"
-  - "problem_id"
-  - "complexity_label"
-  - "prompt_text"
-  - "token_count"
-  - "structural_element_count"
-  - "structural_complexity_score"
-  - "residualized_structure_score"
-additionalProperties: false
+  - variant_id
+  - problem_id
+  - complexity_level
+  - prompt_text
+  - token_count
+  - structural_elements

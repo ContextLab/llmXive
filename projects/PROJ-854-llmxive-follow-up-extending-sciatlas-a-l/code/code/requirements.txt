@@ -1,0 +1,13 @@
+networkx
+scikit-learn
+sentence-transformers
+pandas
+numpy
+scipy
+pyalex>=1.0
+memory-profiler
+pytest
+ruff
+black
+datasets
+pyarrow

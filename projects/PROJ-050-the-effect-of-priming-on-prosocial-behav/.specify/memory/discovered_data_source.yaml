@@ -1,0 +1,13 @@
+status: none
+intent: Reddit comments Pushshift archive Hugging Face dataset python package dataset
+required_fields:
+- comment_id
+- subreddit
+- created_utc
+- body
+- author
+- parent_id
+- post_title
+cache_key: f603e47d4048cc14bf1c6884801e4c37b8bfe3a15c6982902709a54c38b5bcb7
+searched_at: '2026-11-07T05:18:31.190424+00:00'
+retry_count: 1

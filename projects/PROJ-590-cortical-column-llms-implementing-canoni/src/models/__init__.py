@@ -1,2 +1,3 @@
-# src.models package
-# Contains neural network architectures for cortical column simulations.
+"""
+Models package containing neural network architectures.
+"""

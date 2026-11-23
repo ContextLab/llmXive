@@ -8,6 +8,8 @@ import pytest
 from pathlib import Path
 import json
 import hashlib
+import tempfile
+import shutil
 
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
@@ -20,15 +22,15 @@ from code.download import (
 )
 
 @pytest.fixture
-def temp_dir(tmp_path):
+def temp_dir():
     """Create a temporary directory for testing."""
-    test_dir = tmp_path / "test_data"
-    test_dir.mkdir()
-    return test_dir
+    test_dir = tempfile.mkdtemp()
+    yield Path(test_dir)
+    shutil.rmtree(test_dir)
 
 def test_calculate_file_hash(temp_dir):
     """Test file hash calculation."""
-    test_file = temp_dir / "test.txt"
+    test_file = Path(temp_dir) / "test.txt"
     test_content = b"Hello, World!"
     test_file.write_bytes(test_content)
     
@@ -41,10 +43,10 @@ def test_calculate_file_hash(temp_dir):
 def test_verify_checksums_success(temp_dir):
     """Test checksum verification with valid files."""
     # Create test files
-    file1 = temp_dir / "file1.txt"
+    file1 = Path(temp_dir) / "file1.txt"
     file1.write_text("content1")
     
-    file2 = temp_dir / "file2.txt"
+    file2 = Path(temp_dir) / "file2.txt"
     file2.write_text("content2")
     
     # Create checksums
@@ -53,11 +55,11 @@ def test_verify_checksums_success(temp_dir):
         "file2.txt": calculate_file_hash(file2)
     }
     
-    checksums_file = temp_dir / "checksums.json"
+    checksums_file = Path(temp_dir) / "checksums.json"
     with open(checksums_file, "w") as f:
         json.dump(checksums, f)
     
-    success, failed = verify_checksums("test", temp_dir, checksums_file)
+    success, failed = verify_checksums("test", Path(temp_dir), checksums_file)
     
     assert success is True
     assert len(failed) == 0
@@ -69,11 +71,11 @@ def test_verify_checksums_missing_file(temp_dir):
         "missing.txt": "somehash"
     }
     
-    checksums_file = temp_dir / "checksums.json"
+    checksums_file = Path(temp_dir) / "checksums.json"
     with open(checksums_file, "w") as f:
         json.dump(checksums, f)
     
-    success, failed = verify_checksums("test", temp_dir, checksums_file)
+    success, failed = verify_checksums("test", Path(temp_dir), checksums_file)
     
     assert success is False
     assert "missing.txt" in failed
@@ -81,7 +83,7 @@ def test_verify_checksums_missing_file(temp_dir):
 def test_verify_checksums_checksum_mismatch(temp_dir):
     """Test checksum verification with mismatched hash."""
     # Create test file
-    test_file = temp_dir / "test.txt"
+    test_file = Path(temp_dir) / "test.txt"
     test_file.write_text("content")
     
     # Create checksums with wrong hash
@@ -89,11 +91,11 @@ def test_verify_checksums_checksum_mismatch(temp_dir):
         "test.txt": "wronghash123"
     }
     
-    checksums_file = temp_dir / "checksums.json"
+    checksums_file = Path(temp_dir) / "checksums.json"
     with open(checksums_file, "w") as f:
         json.dump(checksums, f)
     
-    success, failed = verify_checksums("test", temp_dir, checksums_file)
+    success, failed = verify_checksums("test", Path(temp_dir), checksums_file)
     
     assert success is False
     assert "test.txt" in failed

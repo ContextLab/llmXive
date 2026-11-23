@@ -1,0 +1,28 @@
+# Project Configuration
+# This file is loaded by code/config.py
+
+project:
+  name: "PROJ-013-developing-a-low-cost-solar-powered-wate"
+  version: "1.0.0"
+
+# NASA POWER API Configuration
+# If API_KEY is not set in environment variables, it will be read from here.
+# It is recommended to use .env for secrets instead of committing this file.
+nasa_power:
+  api_key: null  # Set this if not using environment variables
+  base_url: "https://power.larc.nasa.gov/api"
+  default_params:
+    temporal-average: 1
+    format: JSON
+    mapping: community
+    community: RE
+    parameters: 
+      - "ALLSKY_SCATTERED"
+      - "ALLSKY_DIRECT"
+      - "ALLSKY_SFC_SW_DWN"
+      - "T2M"
+
+simulation:
+  time_step: 60  # seconds
+  duration_hours: 24
+  convergence_tolerance: 1e-6

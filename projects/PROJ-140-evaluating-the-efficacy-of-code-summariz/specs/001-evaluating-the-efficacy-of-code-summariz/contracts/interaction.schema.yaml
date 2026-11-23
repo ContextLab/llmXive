@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Interaction Log Schema"
+description: "Schema for anonymized participant interaction logs."
+type: object
+properties:
+  participant_id:
+    type: string
+    description: "Anonymized participant ID (hashed)."
+  task_id:
+    type: string
+    description: "Unique task identifier."
+  condition:
+    type: string
+    enum:
+      - baseline
+      - llm
+      - rule
+    description: "Summary condition used for the task."
+  timestamp_ms:
+    type: integer
+    description: "Timestamp of the click in milliseconds."
+    minimum: 0
+  selected_line:
+    type: integer
+    description: "Line number selected by the participant."
+    minimum: 1
+  ground_truth_line:
+    type: integer
+    description: "Ground truth buggy line number."
+    minimum: 1
+  fallback_status:
+    type: string
+    description: "Indicates whether a fallback to rule‑based summary occurred."
+    enum:
+      - none
+      - llm_timeout
+      - llm_error
+required:
+  - participant_id
+  - task_id
+  - condition
+  - timestamp_ms
+  - selected_line
+  - ground_truth_line
+  - fallback_status
+additionalProperties: false

@@ -1,0 +1,22 @@
+# Orchestration Configuration for T045
+# This file documents the lock mechanism settings used to serialize T025 and T032.
+
+lock:
+  file_name: "pipeline.lock"
+  directory: "state"
+  timeout_seconds: 300
+  check_interval_seconds: 1.0
+
+serialization:
+  tasks:
+    - id: "T025"
+      description: "GAMM Permutation Test"
+      resource_type: "CPU_INTENSIVE"
+    - id: "T032"
+      description: "Trajectory Permutation Test"
+      resource_type: "CPU_INTENSIVE"
+
+# Execution Order Enforced:
+# 1. T025 must complete before T032 starts
+# 2. Lock file ensures mutual exclusion
+# 3. Logs are written to logs/pipeline.log

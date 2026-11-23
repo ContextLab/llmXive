@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelArtifact"
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      architecture:
+        type: "string"
+        description: "e.g., '4-layer-Transformer'"
+      parameter_count:
+        type: "integer"
+        maximum: 10000000
+        description: "Must be < 10M"
+      input_dim:
+        type: "integer"
+      output_dim:
+        type: "integer"
+      precision:
+        type: "string"
+        enum: ["float32"]
+    required:
+      - architecture
+      - parameter_count
+      - input_dim
+      - output_dim
+      - precision
+  training_config:
+    type: "object"
+    properties:
+      epochs:
+        type: "integer"
+      batch_size:
+        type: "integer"
+    required: []
+required:
+  - metadata
+  - training_config
+description: "Schema for model artifact metadata."

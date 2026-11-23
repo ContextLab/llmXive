@@ -1,125 +1,135 @@
-import pytest
-import json
+"""
+Integration test for associational labeling (T024).
+Verifies that all result objects contain the 'association_label' field.
+"""
 import os
 import sys
+import json
+import tempfile
+import shutil
 from pathlib import Path
 import pandas as pd
+import pytest
 
 # Add project root to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root / "code"))
 
-from analysis.lmm_model import run_lmm_analysis, save_results, ASSOCIATION_LABEL, fit_lmm_for_combination
-from analysis.correction import apply_bonferroni_correction, load_lmm_results
-from analysis.sensitivity import run_sensitivity_analysis, load_lmm_results as load_sens_results
+from utils.config import get_project_root, get_output_path
+from analysis.associational_labeler import (
+    apply_labeling_to_all_outputs,
+    label_result_object,
+    label_list_of_results,
+    ASSOCIATION_LABEL
+)
 
-class MockDataFrame:
-    """Mock dataframe for testing without real data files."""
-    def __init__(self):
-        self.data = {
-            'participant_id': [1, 1, 2, 2, 3, 3],
-            'valence_category': ['positive', 'positive', 'negative', 'negative', 'neutral', 'neutral'],
-            'recall_accuracy': [0.8, 0.9, 0.5, 0.6, 0.7, 0.75],
-            'fixation_duration': [100, 120, 80, 90, 110, 115],
-            'saccade_amplitude': [2.5, 3.0, 1.5, 2.0, 2.8, 2.9],
-            'gaze_distribution': [0.4, 0.5, 0.3, 0.4, 0.45, 0.48]
-        }
-        self._df = pd.DataFrame(self.data)
+@pytest.fixture
+def mock_results_dir():
+    """Create a temporary directory with mock result files."""
+    temp_dir = tempfile.mkdtemp()
+    results_subdir = Path(temp_dir) / "results"
+    results_subdir.mkdir()
     
-    def __getitem__(self, key):
-        return self._df[key]
+    # Create mock LMM summary
+    lmm_df = pd.DataFrame({
+        "metric": ["fixation_duration", "saccade_amplitude"],
+        "valence": ["positive", "negative"],
+        "coef": [0.5, -0.3],
+        "p_raw": [0.02, 0.15]
+    })
+    lmm_df.to_csv(results_subdir / "lmm_summary.csv", index=False)
     
-    def __iter__(self):
-        return iter(self._df)
+    # Create mock correction results
+    correction_data = {
+        "results": [
+            {"metric": "fixation_duration", "valence": "positive", "p_corrected": 0.06},
+            {"metric": "saccade_amplitude", "valence": "negative", "p_corrected": 0.45}
+        ]
+    }
+    with open(results_subdir / "correction_results.json", "w") as f:
+        json.dump(correction_data, f)
     
-    def copy(self):
-        return self._df.copy()
-    
-    def dropna(self, subset):
-        return self._df.dropna(subset=subset)
-
-def test_associational_labeling_in_lmm_results():
-    """
-    Test that all LMM results include the explicit 'associational' label.
-    FR-005 Compliance: Prohibit causal language in outputs.
-    """
-    # Create mock results similar to what fit_lmm_for_combination returns
-    mock_results = [
-        {
-            "metric": "fixation_duration",
-            "valence": "positive",
-            "coef": 0.05,
-            "p_raw": 0.04,
-            "n_obs": 10,
-            "converged": True,
-            "association_label": ASSOCIATION_LABEL
-        },
-        {
-            "metric": "saccade_amplitude",
-            "valence": "negative",
-            "coef": -0.02,
-            "p_raw": 0.12,
-            "n_obs": 10,
-            "converged": True,
-            "association_label": ASSOCIATION_LABEL
-        }
+    # Create mock sensitivity analysis
+    sensitivity_data = [
+        {"threshold": 0.01, "significant_count": 1},
+        {"threshold": 0.05, "significant_count": 2}
     ]
+    with open(results_subdir / "sensitivity_analysis.json", "w") as f:
+        json.dump(sensitivity_data, f)
+    
+    # Create a dummy manifest to avoid overwrite issues in real run if needed, 
+    # but here we just set up the inputs.
+    
+    return results_subdir
 
-    # Assertion: Check that the label is present and correct
-    for res in mock_results:
-        assert 'association_label' in res, "Missing association_label in result"
-        assert res['association_label'] == "associational", f"Expected 'associational', got {res['association_label']}"
+def test_label_result_object():
+    """Test that a single dict gets the label."""
+    data = {"metric": "test", "value": 1.0}
+    labeled = label_result_object(data)
+    assert labeled["association_label"] == ASSOCIATION_LABEL
+    assert labeled["metric"] == "test"
 
-def test_associational_labeling_after_correction():
-    """
-    Test that correction step preserves/sets the associational label.
-    """
-    results = [
-        {"metric": "m1", "valence": "v1", "p_raw": 0.05, "association_label": "associational"},
-        {"metric": "m2", "valence": "v2", "p_raw": 0.03, "association_label": "associational"}
-    ]
-    
-    # Apply correction
-    corrected = apply_bonferroni_correction(results)
-    
-    for res in corrected:
-        assert 'association_label' in res, "Correction failed to preserve association_label"
-        assert res['association_label'] == "associational", f"Correction changed label to {res['association_label']}"
+def test_label_list_of_results():
+    """Test that a list of dicts gets labeled."""
+    data = [{"id": 1}, {"id": 2}]
+    labeled = label_list_of_results(data)
+    assert all(item.get("association_label") == ASSOCIATION_LABEL for item in labeled)
 
-def test_associational_labeling_in_sensitivity():
-    """
-    Test that sensitivity analysis outputs include the associational label.
-    """
-    mock_lmm_results = [
-        {"p_raw": 0.01, "association_label": "associational"},
-        {"p_raw": 0.06, "association_label": "associational"},
-        {"p_raw": 0.15, "association_label": "associational"}
-    ]
+def test_apply_labeling_to_mock_files(mock_results_dir):
+    """Test the full pipeline on mock files."""
+    # Temporarily override the output path for the test
+    original_get_output_path = get_output_path
     
-    thresholds = [0.01, 0.05, 0.1]
-    analysis = run_sensitivity_analysis(mock_lmm_results, thresholds)
+    # We need to mock the get_output_path function to return our temp dir
+    # Since get_output_path is imported in the module, we patch it
+    import analysis.associational_labeler as labeler_module
     
-    assert 'analysis' in analysis, "Sensitivity analysis missing 'analysis' key"
+    # Mock the function
+    def mock_get_output_path():
+        return mock_results_dir.parent
     
-    for item in analysis['analysis']:
-        assert 'association_label' in item, "Sensitivity analysis item missing association_label"
-        assert item['association_label'] == "associational", f"Sensitivity label mismatch: {item['association_label']}"
+    # Patch
+    original_func = labeler_module.get_output_path
+    labeler_module.get_output_path = mock_get_output_path
     
-    # Top level should also have it if applicable (implementation dependent, but safe to check)
-    assert analysis.get('association_label') == "associational", "Top level sensitivity result missing label"
+    try:
+        apply_labeling_to_all_outputs()
+        
+        # Check LMM Summary
+        lmm_path = mock_results_dir / "lmm_summary.csv"
+        df = pd.read_csv(lmm_path)
+        assert "association_label" in df.columns
+        assert all(df["association_label"] == ASSOCIATION_LABEL)
+        
+        # Check Correction Results
+        corr_path = mock_results_dir / "correction_results.json"
+        with open(corr_path, "r") as f:
+            corr_data = json.load(f)
+        # The structure is {"results": [...]}
+        assert "results" in corr_data
+        for item in corr_data["results"]:
+            assert item["association_label"] == ASSOCIATION_LABEL
+        
+        # Check Sensitivity Analysis
+        sens_path = mock_results_dir / "sensitivity_analysis.json"
+        with open(sens_path, "r") as f:
+            sens_data = json.load(f)
+        for item in sens_data:
+            assert item["association_label"] == ASSOCIATION_LABEL
+            
+        # Check Manifest
+        manifest_path = mock_results_dir / "associational_labeling_manifest.json"
+        assert manifest_path.exists()
+        with open(manifest_path, "r") as f:
+            manifest = json.load(f)
+        assert manifest["status"] == "completed"
+        assert manifest["label_value"] == ASSOCIATION_LABEL
+        
+    finally:
+        # Restore original function
+        labeler_module.get_output_path = original_func
+        # Cleanup
+        shutil.rmtree(mock_results_dir.parent)
 
-def test_lmm_fit_function_includes_label():
-    """
-    Test that the actual fit_lmm_for_combination function (if it runs) includes the label.
-    Since we can't easily run statsmodels without real data structure in this test env,
-    we verify the constant is used in the return dict construction.
-    """
-    # This test verifies the code structure. 
-    # In a real integration test with data, we would call fit_lmm_for_combination.
-    # Here we assert the constant exists and is used in the module.
-    assert ASSOCIATION_LABEL == "associational"
-    
-    # Verify the string is used in the source code of the module
-    import inspect
-    source = inspect.getsource(fit_lmm_for_combination)
-    assert 'association_label' in source, "fit_lmm_for_combination does not set association_label"
-    assert ASSOCIATION_LABEL in source, "fit_lmm_for_combination does not use the ASSOCIATION_LABEL constant"
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

@@ -1,86 +1,75 @@
-# Quickstart: Consciousness Bootstrapping
+# Quickstart: Consciousness Bootstrapping: Self-Aware AI Through Recursive Introspection
 
 ## Prerequisites
 
-* Python 3.11+
-* Git
-* GitHub Account (for CI)
+- Python 3.11+
+- Git
+- Access to HuggingFace Hub (for datasets)
 
 ## Installation
 
-1. **Clone the repository**:
- ```bash
- git clone
- cd PROJ-558-consciousness-bootstrapping-self-aware-a
- ```
+1. **Clone the repository** and navigate to the project directory.
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-558-consciousness-bootstrapping-self-aware-a
+   ```
 
-2. **Create a virtual environment**:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+2. **Create a virtual environment** and install dependencies.
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r code/requirements.txt
+   ```
 
-3. **Install dependencies**:
- ```bash
- pip install -r requirements.txt
- ```
- *Note: `requirements.txt` pins `torch` to a CPU-only version to ensure compatibility with the GitHub Actions free-tier.*
+3. **Verify dataset access** (optional but recommended).
+   ```bash
+   python -c "from datasets import load_dataset; load_dataset('openai/gsm8k', 'main', split='test', streaming=True)"
+   ```
 
-4. **Download Datasets**:
- The `code/utils/data_loader.py` script handles downloads and updates `data/manifest.json` with checksums. Run:
- ```bash
- python -m code.utils.data_loader --download
- ```
- This will fetch the Pile (arXiv subset), GSM8K, and MMLU to `data/raw/`. It will also generate the teacher labels (if not present) and store them in `data/processed/`.
+## Running the Pipeline
 
-## Execution
+The pipeline consists of three stages: Training, Evaluation, and Analysis.
 
 ### Step 1: Training
-
-Run the training script for a single seed (e.g., seed 1):
+Train both the recursive and baseline models.
 ```bash
-python -m code.training.train --seed 1 --model-type recursive --epochs 1
+python code/training/train_loop.py --mode all --seeds 0 1 2 3 4
 ```
-*This will train the recursive model. To train the baseline, change `--model-type baseline`.*
+- This will download the `arXiv` subset of The Pile (streamed).
+- It will train multiple models across several seeds and architectures.
+- Checkpoints are saved to `data/checkpoints/`.
 
 ### Step 2: Evaluation
-
-Evaluate the trained model on GSM8K:
+Evaluate the trained models on GSM8K and MMLU.
 ```bash
-python -m code.evaluation.run_benchmarks --checkpoint artifacts/checkpoints/seed_1_recursive.pt --dataset gsm8k --num-paths 10
+python code/evaluation/runner.py --checkpoints data/checkpoints/ --benchmarks gsm8k mmlu
 ```
-*This script validates the output JSON against `contracts/evaluation-schema.schema.yaml` before saving.*
+- This generates `EvaluationResult` JSON files in `data/results/`.
+- It handles multiple reasoning paths (5 per question) and calculates metrics.
 
 ### Step 3: Analysis
-
-Run the statistical analysis across all seeds (assuming you have run training for seeds 1-5):
+Perform statistical tests and generate the report.
 ```bash
-python -m code.analysis.stats --seeds 1,2,3,4,5 --metrics consistency,ece,roc_auc
+python code/analysis/stats.py --results data/results/
 ```
+- This produces `data/results/statistical_report.json` with p-values and effect sizes.
 
-## Reproducibility
+## Expected Outputs
 
-To reproduce the full experiment:
-```bash
-# Run training for all seeds
-for seed in 1 2 3 4 5; do
- python -m code.training.train --seed $seed --model-type recursive --epochs 1
- python -m code.training.train --seed $seed --model-type baseline --epochs 1
-done
-
-# Run evaluation
-python -m code.evaluation.run_benchmarks --all-checkpoints --num-paths 10
-
-# Run analysis
-python -m code.analysis.stats --seeds 1,2,3,4,5
-
-# Update state with checksums
-sha256sum artifacts/checkpoints/*.pt artifacts/results/*.json > state/checksums.txt
-# (In CI, this step updates the state YAML file automatically)
-```
+- `data/checkpoints/`: Model weights for all seeds and architectures.
+- `data/results/eval_results_*.json`: Raw evaluation metrics per seed.
+- `data/results/statistical_report.json`: Final statistical analysis.
+- `code/`: Source code with `__init__.py` files in all directories.
 
 ## Troubleshooting
 
-* **OOM Error**: If you encounter "Out of Memory", reduce the `--context-length` in `config.py` or ensure `gradient_checkpointing` is enabled.
-* **CUDA Error**: Ensure `torch` is installed as the CPU version (`pip install torch --index-url https://download.pytorch.org/whl/cpu`).
-* **Contract Validation Error**: If `run_benchmarks.py` fails validation, check the output JSON against `contracts/evaluation-schema.schema.yaml` for missing fields or type mismatches.
+- **OOM Error**: If training fails with `CUDA out of memory` or `CPU OOM`, the system will attempt to offload to a Kaggle GPU if configured. If not, reduce `batch_size` in `code/training/train_loop.py`.
+- **Dataset Errors**: Ensure you have accepted the HuggingFace terms of service for the datasets if required.
+
+## Verification
+
+To verify the installation and data integrity:
+```bash
+pytest tests/
+```
+This runs unit tests for metrics and integration tests for the training loop.

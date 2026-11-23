@@ -1,0 +1,11 @@
+status: none
+intent: MolmoMotion-1M processed trajectories dataset Hugging Face download python
+  package dataset
+required_fields:
+- trajectory_id
+- point_cloud_3d
+- velocity_vector
+- duration
+cache_key: bfdad36d2573b10470e9505a714ea69fad50c4d77e436783a17a87534728c0a7
+searched_at: '2026-10-20T03:35:03.694779+00:00'
+retry_count: 1

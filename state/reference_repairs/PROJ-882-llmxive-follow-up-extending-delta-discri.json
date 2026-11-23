@@ -1,0 +1,26 @@
+[
+  {
+    "repaired_at": "2026-09-09T04:28:16.007827+00:00",
+    "project": "PROJ-882-llmxive-follow-up-extending-delta-discri",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/nvidia/OpenMathInstruct-1/resolve/main/train.parquet",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/nvidia/OpenMathInstruct-1/resolve/main/correct_solutions/train.jsonl",
+        "intent": "nvidia OpenMathInstruct train.parquet Reference for semantic similarity OpenMathInstruct\u20111 train split datasets.load_dataset \"nvidia/OpenMathInstruct 1\", split=\"train\" implicit from template Used to build prototype embeddings scoring."
+      }
+    ]
+  },
+  {
+    "repaired_at": "2026-09-09T04:29:53.228056+00:00",
+    "project": "PROJ-882-llmxive-follow-up-extending-delta-discri",
+    "repairs": [
+      {
+        "dead_url": "https://huggingface.co/datasets/nvidia/OpenMathInstruct-1/resolve/main/train.parquet",
+        "reason": "HTTP 404",
+        "replacement_url": "https://huggingface.co/datasets/nvidia/OpenMathInstruct-1/resolve/main/correct_solutions/train.jsonl",
+        "intent": "nvidia OpenMathInstruct train.parquet Semantic similarity reference OpenMathInstruct\u20111 train split datasets.load_dataset \"nvidia/OpenMathInstruct 1\", split=\"train\" Used to compute prototype embeddings for the MiniLM score."
+      }
+    ]
+  }
+]

@@ -1,0 +1,47 @@
+- **FR-001**: System MUST extract time-series latent vectors and turn-taking labels from Wan-Streamer v0.1 logs (or the canonical VoxCeleb2 fallback), ensuring the dataset contains variables for semantic content, prosodic signals, and latent delta magnitude (See US-1).
+- **FR-002**: System MUST train a lightweight RNN or shallow Transformer model on CPU-only hardware to predict latent delta magnitude AND an uncertainty score, with a maximum memory footprint of ≤ 7 GB (See US-2).
+- **FR-003**: System MUST implement a hybrid inference engine that conditionally skips flow-matching steps based on the estimator's prediction of "low-priority" frames (See US-3).
+- **FR-004**: System MUST compute Fréchet Inception Distance (FID) and a proxy Mean Opinion Score (MOS) using a separate, pre-trained video quality assessment model that is frozen and trained on a dataset NOT used for estimator training, ensuring validation independence (See US-3).
+- **FR-005**: System MUST perform a statistical significance test using stratified bootstrap with propensity-score matching (using independent covariates, not the estimator's prediction) to validate latency reduction, and a Two One-Sided Tests (TOST) equivalence test with margin Δ=0.05 (relative ratio) for quality metrics. **These methods are explicitly stated to satisfy the 'paired statistical test' requirement of Constitution Principle VI.** (See US-3).
+- **FR-006**: System MUST enforce a fallback mechanism where any frame with an estimator uncertainty score above a predefined threshold defaults to the full flow-matching solver. (See US-2, US-3).
+- **FR-007**: System MUST implement a task module `analyze_latency_bias` that executes the stratified bootstrap with propensity-score matching for the latency reduction metric (See FR-005).
+- **FR-008**: System MUST implement a randomized counterfactual intervention where a random subset of frames (≥ 5% of total) is forced to be skipped regardless of the estimator's prediction, to establish the causal effect of the skip action and distinguish 'easy to skip' from 'easy to generate' (See US-3).
+- **FR-009**: System MUST implement a task module `execute_fallback` that handles the conditional fallback logic, ensuring precedence for randomized counterfactuals over deterministic thresholds (See FR-006, FR-008).
+- **FR-010**: System MUST calculate and log the correlation (r ≥ 0.7) between predicted delta magnitude and FID stability (relative change in FID between skipped and full-solver frames) as a specific metric (See SC-003).
+- **FR-011**: System MUST implement a task module `calculate_fid_stability_corr` to perform the calculation defined in FR-010 (See FR-010).
+- **FR-012**: System MUST validate the proxy MOS correlation (r ≥ 0.8) with human ratings if data exists, or log "Assumption Validated (No Human Data Available)" if not (See SC-007).
+- **FR-013**: System MUST implement a task module `validate_proxy_mos` to perform the correlation test or handle the missing data scenario (See FR-012).
+- **FR-014**: System MUST implement a task module `reduce_sample_size` that reduces the dataset sample size by [deferred] on power limit exceedance, or fails with a "Power Limitation" error if the minimum sample size is reached (See Edge Cases).
+- **FR-015**: System MUST implement a task module `validate_sampling_distribution` to measure and confirm that stratified sampling preserves the distribution of turn-taking events (See Assumption about power limitations).
+- **FR-016**: System MUST implement a power analysis that specifies the expected variance of the FID metric and the minimum detectable effect size to justify the sample size for the TOST test with [deferred] power (See SC-002).
+- **FR-017**: System MUST define a precedence rule where the randomized counterfactual intervention (FR-008) overrides the deterministic fallback (FR-006) for frames in the randomized subset (See Edge Cases).
+- **FR-018**: System MUST define the detection algorithm and thresholds for classifying 'interruption' and 'pause' events (e.g., audio energy > X dB overlapping with agent speech) to ensure the 500 minimum event count is verifiable (See US-1 AS-2).
+- **FR-019**: System MUST fetch data from a canonical source (VoxCeleb2 or verified Wan-Streamer public proxy) if local logs are unavailable, ensuring reproducibility (See Constitution Principle I).
+- **FR-020**: System MUST implement a task module `update_state_yaml` to update the `state.yaml` file with artifact hashes (See Constitution Principle V).
+- **FR-021**: System MUST link the `contracts/` directory schema definitions to the `data-model.md` and `quickstart.md` documents in the 'Data Flow' section (See Data Flow).
+- **FR-022**: System MUST ensure that the 'Data Unavailable' scenario is handled by falling back to the canonical source defined in FR-019 (See Assumption about dataset availability).
+- **FR-023**: System MUST ensure that the 'Power Limitation' error is logged and the system exits gracefully if the minimum sample size is reached (See Edge Cases).
+- **FR-024**: System MUST ensure that the 'Assumption Validated (No Human Data Available)' scenario is logged and the system continues without the proxy MOS correlation test (See US-3 AS-4).
+
+### Key Entities
+
+- **LatentTrajectory**: A time-series record of audio-visual latent vectors, including magnitude of displacement between timesteps.
+- **TurnTakingEvent**: A labeled segment of interaction indicating "interruption," "agent pause," or "normal turn," derived from semantic and prosodic features.
+- **EstimatorModel**: A lightweight recurrent or transformer model trained to predict `LatentTrajectory` changes and an `UncertaintyScore` based on `TurnTakingEvent` history.
+- **UncertaintyScore**: A scalar value (0.0 to 1.0) output by the `EstimatorModel` representing the confidence in the latent delta prediction; values > 0.8 trigger fallback to full solver.
+- **HybridOutput**: The generated video/audio sequence produced by the hybrid pipeline, containing a mix of estimated and fully solved frames.
+- **FIDStability**: A derived metric representing the relative change in FID between a skipped frame (estimated) and the corresponding full-solver frame (ground truth) for the same timestamp.
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
+
+- **SC-001**: Latency reduction is measured against the full flow-matching baseline, targeting a ≥ 20% decrease in inference time per frame (See FR-003, US-3).
+- **SC-002**: Perceptual quality degradation is measured against the baseline FID score, ensuring the hybrid output FID satisfies `(FID_hybrid - FID_baseline) / FID_baseline <= 0.05` (relative ratio). **Note: This 5% threshold is a domain-standard approximation for perceptual equivalence in this context, acknowledging the non-linearity of FID.** (See FR-004, US-3).
+- **SC-003**: Estimator prediction accuracy is measured against the actual latent delta magnitude in the validation set, requiring a significant improvement over a zero-delta baseline AND a correlation (r ≥ 0.7) with FID stability (defined as the relative change in FID between skipped and full-solver frames) for skipped frames (See FR-002, US-2).
+- **SC-004**: Statistical significance of the latency reduction is measured against the null hypothesis (no difference) using bias-corrected methods, requiring a propensity-score corrected p-value < 0.05 (See FR-005, US-3).
+- **SC-005**: Computational feasibility is measured against the CI runner constraints, ensuring peak RAM usage ≤ 7 GB and total runtime ≤ 6 hours (See FR-002, US-2).

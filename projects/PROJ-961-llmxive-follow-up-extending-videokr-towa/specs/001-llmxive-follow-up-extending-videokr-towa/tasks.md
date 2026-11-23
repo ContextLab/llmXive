@@ -1,275 +1,183 @@
-# Tasks: llmXive follow-up: extending "VideoKR: Towards Knowledge- and Reasoning-Intensive Video Understandin"
-
-**Input**: Design documents from `/specs/001-video-reasoning-threshold/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001a [P] Create `code/`, `tests/`, and `data/` directories at repository root
-- [ ] T001b [P] Create `code/ingest/`, `code/analysis/`, `code/utils/` subdirectories
-- [ ] T001c [P] Create `tests/unit/` and `tests/integration/` subdirectories
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T004 [P] Implement `code/utils/config.py` for seed management and path configuration
-- [ ] T005 [P] Implement `code/utils/versioning.py` to write SHA-256 hashes of data artifacts (Constitution Principle V)
-- [ ] T006 [P] Create `code/utils/graph_utils.py` with shortest path logic (BFS) handling disconnected graphs
-- [ ] T007 [P] Create `code/utils/entity_linker.py` for mapping question entities to graph nodes (fuzzy/embedding based)
-- [ ] T008a [P] Create `.gitkeep` in `data/raw/` directory
-- [ ] T008b [P] Create `.gitkeep` in `data/processed/` directory
-- [ ] T009 [P] Implement `code/ingest/checksum.py` for verifying raw data integrity
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Ingestion and Structural Annotation (Priority: P1) 🎯 MVP
-
-**Goal**: Download VideoKR-SFT, annotate questions with structural chain length (hops) from the ground-truth graph.
-
-**Independent Test**: Run the annotation script on a small, manually verified subset; confirm `chain_length` matches manual graph traversal for a representative sample of random records.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T010 [P] [US1] Unit test for `graph_utils.py` shortest path logic in `tests/unit/test_graph_utils.py` (handles disconnected nodes, shortest path rule). **Depends on T006 completion.**
-- [ ] T011 [P] [US1] Integration test for `annotate_graph.py` on a sample subset in `tests/integration/test_pipeline.py`
-
-### Implementation for User Story 1
-
-- [ ] T012 [P] [US1] Implement `code/ingest/download_data.py` to fetch VideoKR-SFT and Knowledge Graph from verified URLs (NAB/UCI/arXiv) with checksumming
-- [ ] T013 [US1] Implement `code/ingest/annotate_graph.py` to:
-  - Load graph and dataset
-  - Map question entities to graph nodes using `entity_linker.py`
-  - Calculate shortest path hops (1, 2, 3+) for each record
-  - Handle disconnected graphs (exclude or label "unresolvable")
-  - Enforce "shortest path" rule for multiple paths
-- [ ] T014 [US1] Ensure output file `data/processed/annotated_videokr.csv` contains all input records with `chain_length` and original `correctness` labels (FR-002)
-- [ ] T015 [US1] Add chunking/sampling logic to `annotate_graph.py` to ensure memory < 7 GB RAM AND **explicitly mandate that the annotation step completes within the CI limit on a 2-core CPU runner**. If the full dataset cannot be processed within this time, implement a pilot sampling strategy first. **Task description must include the specific timing constraint: 'total runtime < 6 hours on 2-core CPU'.** (FR-006)
-- [ ] T016 [US1] Write hash of `annotated_videokr.csv` to `state/projects/PROJ-961-llmxive-follow-up-extending-videokr-towa.yaml`
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Accuracy Stratification and Threshold Detection (Priority: P2)
-
-**Goal**: Calculate accuracy per hop-bin, detect non-linear "reasoning cliff" using Permutation Test and GAM.
-
-**Independent Test**: Generate accuracy vs. hop plot and statistical report; verify trend and p-value against raw data summary.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T017 [P] [US2] Unit test for accuracy calculation logic in `tests/unit/test_stratify_accuracy.py`
-- [ ] T018 [P] [US2] Integration test for `detect_threshold.py` on annotated data in `tests/integration/test_pipeline.py`
-
-### Implementation for User Story 2
-
-- [ ] T019 [P] [US2] Implement `code/analysis/stratify_accuracy.py` to calculate accuracy rate for bins 1-hop, 2-hop, 3+ hops (FR-003)
-- [ ] T020 [US2] Implement `code/analysis/detect_threshold.py` to:
-  - Perform grid-search change-point detection over hops 1-5
-  - Compare linear vs. piecewise linear models at optimal knot
-  - Apply Bonferroni correction for multiple comparisons (FR-004)
-  - **Note**: This task implements the Permutation Test for discrete change-point detection.
-  - **Depends on T019** (requires binned accuracy data).
-- [ ] T021 [US2] Handle small bin sizes: If 3+ hop bin < 50 samples, flag limitation and merge bins or defer test. **MUST write the specific reason for deferral and the merge logic used to `data/processed/threshold_results.json`** to satisfy Single Source of Truth (Edge Case).
-- [ ] T022 [US2] Generate summary table and plots:
-  - Binned accuracy plot
-  - **Continuous plot of accuracy vs. exact hop count (without binning)** using `data/processed/annotated_videokr.csv` as input (FR-005).
-  - **Depends on T013** (requires annotated data for continuous plot) and **T019** (for binned data).
-- [ ] T023 [US2] Output `data/processed/threshold_results.json` with p-value, effect size, optimal knot location, and deferral reasons (if any)
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Sensitivity Analysis of Threshold Definition (Priority: P3)
-
-**Goal**: Verify robustness of the "cliff" by sweeping thresholds (2, 3, 4 hops) and visualizing stability.
-
-**Independent Test**: Change threshold config parameter; verify output report shows variation in p-values and effect sizes.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T024 [P] [US3] Unit test for sensitivity sweep logic in `tests/unit/test_sensitivity.py`
-
-### Implementation for User Story 3
-
-- [ ] T025 [US3] Implement `code/analysis/sensitivity.py` to:
-  - Sweep thresholds across multiple hops (FR-005)
-  - Re-run threshold detection logic for each offset (depends on T020 logic)
-  - Compare significance (p-value) and effect size (accuracy drop)
-  - **Note**: This task must run sequentially after T020 completes; [P] tag removed to indicate dependency on Phase 4 completion.
-- [ ] T026 [US3] Generate comparison table for varying hop thresholds
-- [ ] T027 [US3] Create overlay plot of accuracy curves for different threshold definitions
-- [ ] T028 [US3] Output `data/processed/sensitivity_report.md` stating if "cliff" remains significant (p < 0.05) in ≥2 of 3 thresholds (SC-003)
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: GAM Implementation (FR-007 Compliance)
-
-**Goal**: Implement the Generalized Additive Model to test for non-linearity in the continuous domain, satisfying FR-007.
-
-- [ ] T034 [US2] Implement `code/analysis/fit_gam.py` to:
-  - Fit a Generalized Additive Model (GAM) with a smooth spline term for hop count using `data/processed/annotated_videokr.csv`
-  - Test for non-linearity in the continuous domain (FR-007)
-  - Compare GAM fit against a linear baseline
-  - Output `data/processed/gam_results.json` with p-value for non-linearity and smoothness parameters
-  - **Note**: This task complements T020 (Permutation Test) by addressing the continuous domain requirement as mandated by FR-007, overriding the Plan's "Complexity Tracking" note which suggested removal. The Spec's functional requirement (FR-007) takes precedence.
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T029 [P] Documentation updates in `docs/` (README, usage instructions)
-- [ ] T030 Code cleanup and refactoring
-- [ ] T031 [P] Performance optimization: Ensure **annotation step (T015) and full pipeline** complete within 6 hours on 2-core CPU (FR-006). **Explicitly verify that T015's 6-hour constraint is met before proceeding to T020/T025.**
-- [ ] T032 [P] Additional unit tests in `tests/unit/` (if requested)
-- [ ] T033 Run `quickstart.md` validation to ensure reproducibility
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **GAM (Phase 6)**: Depends on Foundational and US1 data (T013)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 output (annotated data)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 logic and data
-- **GAM (Phase 6)**: Depends on US1 output (annotated data)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Utils before Services
-- Services before Endpoints/Analysis scripts
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for graph_utils.py shortest path logic in tests/unit/test_graph_utils.py"
-Task: "Integration test for annotate_graph.py on a sample subset in tests/integration/test_pipeline.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/ingest/download_data.py"
-Task: "Implement code/utils/entity_linker.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All tasks must run on CPU-only CI (limited cores, limited RAM, 6h limit). No GPU, no low-bit models, no large LLMs.
-- **Data Integrity**: No fake data. All datasets must be fetched from real, verified sources.
-- **Dual-Method Analysis**: Non-linearity is tested via both Permutation Test (T020, discrete) and GAM (T034, continuous) to satisfy all spec requirements (FR-004, FR-007).
+# Tasks: Video Reasoning Threshold Analysis
+
+**Inputs**: `spec.md`, `plan.md`, data‑model, contracts, existing artifacts, and reviewer feedback.
+
+The checklist follows the canonical format `- [ ] T### [P?] [USx?] description …`.  
+Checked boxes (`[X]`) denote tasks that have already passed verification and are retained unchanged.  
+Unchecked boxes (`[ ]`) are pending or have been revised to satisfy the specification and reviewer comments.
+
+## Phase 1 – Setup and first end‑to‑end analysis  
+
+**Goal**: Establish a reproducible pipeline on a small real input and produce the first set of processed artifacts.
+
+- [ ] T123 [P] Fix `download_data.py` to guarantee successful execution (exit 0) and creation of required raw files.  
+  - **File**: `code/ingest/download_data.py`  
+  - **Verification**: Running `python code/ingest/download_data.py` exits with status 0 and creates `data/raw/videokr_sft.csv`, `metadata/video_lengths.csv`, `knowledge_graph.json`, and `checksums.json`.
+
+- [ ] T103 [S] [US1] Download the official **VideoKR‑SFT** dataset and its ground‑truth knowledge graph.  
+  - **File**: `code/ingest/download_data.py`  
+  - **Behaviour**:  
+    1. Use `datasets.load_dataset("llmxive/video_kr_sft", split="train", streaming=True)` to fetch the QA split and `datasets.load_dataset("llmxive/video_kr_sft", split="train", streaming=False)` for any auxiliary metadata.  
+    2. Download the knowledge‑graph JSON (`knowledge_graph.json`) via `huggingface_hub.hf_hub_download` from the verified repo `llmxive/video_kr_kg`.  
+    3. Abort loudly with a custom `DataUnavailableError` if any fetch fails; **no synthetic fallback**.  
+    4. Compute SHA‑256 checksums for every downloaded file and write `data/raw/checksums.json`.  
+  - **Verification**: Running `python code/ingest/download_data.py` creates `data/raw/` with `videokr_sft.csv`, `metadata/video_lengths.csv`, `knowledge_graph.json`, and a non‑empty `checksums.json`. The script exits with status 0 on success and non‑zero on failure.
+
+- [ ] T124 [S] Generate ingestion log `ingest_log.json` recording the exit code of the download script.  
+  - **File**: `code/ingest/ingest_log.py` (called by the orchestrator after T103).  
+  - **Output**: `data/processed/ingest_log.json` with field `exit_code` (integer).  
+  - **Verification**: The JSON exists and `exit_code == 0` after a successful download.
+
+- [ ] T104 [S] [US1] Annotate the raw VideoKR‑SFT records with structural hop counts, required covariates, and a placeholder `predicted_correctness` column (default 0.0).  
+  - **File**: `code/ingest/annotate_graph.py`  
+  - **Steps**:  
+    1. Stream the raw CSV (`data/raw/videokr_sft.csv`) using `pandas.read_csv(chunksize=10_000)`.  
+    2. For each record, invoke `entity_linker.link_dataframe` to obtain node IDs for the question and answer entities.  
+    3. Compute the shortest‑path hop count (`chain_length`) via BFS on the graph loaded by `code/utils/graph_utils.py`.  
+    4. Extract covariates: `question_difficulty` (from `difficulty_score`), `video_length_seconds` (from `metadata/video_lengths.csv`), and `answer_type` (derived from the answer‑format field).  
+    5. Set `status = "annotated"` when both entities are linked; otherwise `status = "mapping_failure"` and `chain_length = -1`.  
+    6. Add columns `chain_bin` (derived from `chain_length`: `'1'`, `'2'`, `'3+'`), duplicate `hop_bin` for backward compatibility, and a placeholder `predicted_correctness` = 0.0.  
+  - **Outputs** (conform to `contracts/annotated_questions.schema.yaml`):  
+    - `data/processed/annotated_videokr.csv` (all required columns).  
+    - `data/processed/annotation_coverage.json` (total, annotated, unresolvable counts).  
+  - **Verification**: CSV validates against the schema; a sanity‑check script confirms every row with `status="annotated"` has `chain_length ≥ 1` and that `predicted_correctness` is present (0.0).
+
+- [ ] T105 [S] Perform a pilot‑driven power analysis to determine the minimum per‑bin sample size.  
+  - **File**: `code/analysis/power_analysis.py`  
+  - **Method**:  
+    1. Randomly sample 1 000 annotated records (seed `pilot_sampling`).  
+    2. Estimate the observed accuracy difference between low‑hop (1‑2) and high‑hop (3+) bins.  
+    3. Use `statsmodels.stats.power.NormalIndPower` with effect size *h* ≈ 0.12, α = 0.05 (Bonferroni‑adjusted for five candidate knots → α_adj = 0.01), and power = 0.80 to compute `min_samples_per_bin`.  
+  - **Output**: `data/processed/power_analysis.json` containing `effect_size_h`, `alpha`, `adjusted_alpha`, `power`, `min_samples_per_bin`, and `rounded_n`.  
+  - **Verification**: The JSON field `rounded_n` ≥ 100 and matches a unit‑test reproduction of the calculation.
+
+- [ ] T106 [S] Validate that each hop‑bin meets the power‑analysis sample requirement; flag any insufficient bin.  
+  - **File**: `code/analysis/validate_bins.py`  
+  - **Steps**:  
+    1. Load `annotated_videokr.csv` and compute `chain_bin` (`'1'`, `'2'`, `'3+'`).  
+    2. Load `power_analysis.json` to obtain `rounded_n`.  
+    3. For each bin, compare its record count to `rounded_n`.  
+    4. Write a flag file `data/processed/bin_validation.json` listing bins that satisfy the requirement and those that fail.  
+    5. If any bin fails, the pipeline records a warning but continues; downstream statistical tests will automatically defer for that bin (as required by FR‑003).  
+  - **Verification**: A script confirms that `bin_validation.json` correctly reflects the counts and that the `limit_exceeded` flag is `false` when all bins pass.
+
+- [ ] T107 [S] Compute stratified accuracy per hop‑bin and generate the bin‑mapping file.  
+  - **File**: `code/analysis/stratify_accuracy.py`  
+  - **Outputs**:  
+    - `data/processed/chain_bins.csv` (`question_id`, `hop_bin`).  
+    - `data/processed/accuracy_binned.csv` (`hop_bin`, `n`, `accuracy`).  
+    - `data/processed/accuracy_binned.png` (bar chart).  
+  - **Verification**: The CSV contains exactly three rows (bins) and the accuracies equal the mean of `correctness` within each bin.
+
+- [ ] T108 [S] Produce a continuous scatter plot of raw correctness vs. hop count with LOESS smoothing.  
+  - **File**: `code/analysis/visualize_continuous.py`  
+  - **Outputs**:  
+    - `data/processed/accuracy_vs_hop_raw.csv` (`chain_length`, `correctness`).  
+    - `data/processed/accuracy_vs_hop_raw.png`.  
+  - **Verification**: PNG is non‑empty; CSV row count matches the number of records in `annotated_videokr.csv`.
+
+- [ ] T109 [S] Detect the “reasoning cliff” using both a permutation change‑point test and a logistic‑regression LRT.  
+  - **File**: `code/analysis/detect_threshold.py`  
+  - **Procedure**:  
+    1. **Null model**: binomial logistic regression of `correctness` on `chain_length` plus covariates (`question_difficulty`, `video_length_seconds`, `answer_type`).  
+    2. **Alternative models**: piecewise logistic with a single knot at each candidate *k* ∈ {1, 2, 3, 4, 5}.  
+    3. For each knot, compute the likelihood‑ratio statistic against the null model.  
+    4. Perform **10 000** label permutations (seed `permutation`) to obtain an empirical null distribution for the maximum LRT statistic.  
+    5. Apply Bonferroni correction (α = 0.05 → α_adj = 0.01).  
+    6. Select the knot with the smallest corrected p‑value and record significance.  
+  - **Outputs**:  
+    - `data/processed/threshold_results.json` (conforms to `contracts/threshold_results.schema.yaml`).  
+    - `data/processed/threshold_meta.json` (contains `alpha`, `bonferroni_corrected`, `selected_knot`, human‑readable `conclusion`).  
+  - **Verification**: JSON validates against the schema; a unit test confirms that the selected knot corresponds to the minimum corrected p‑value.
+
+- [ ] T110 [S] Conduct sensitivity analysis over three explicit binning schemes and assess robustness.  
+  - **File**: `code/analysis/sensitivity.py`  
+  - **Schemes** (clarified – “initial” = hop count 1):  
+    1. **Scheme A**: `'1', '2', '3+'` (default).  
+    2. **Scheme B**: `'1', '2', '3', '4+'` (aggregate hop ≥ 4).  
+    3. **Scheme C**: `'1', '2', '3', '4', '5+'` (aggregate hop ≥ 5).  
+  - **For each scheme**: repeat the full permutation‑test + LRT pipeline from T109.  
+  - **Outputs**:  
+    - `data/processed/sensitivity_analysis.json` (per‑scheme `selected_knot`, `p_value`, `is_significant`).  
+    - `data/processed/stability_metric.json` (`robustness_status` = `"PASS"` if ≥ 2 of 3 schemes yield `p < 0.05` after correction, else `"FAIL"`).  
+  - **Verification**: A script recomputes the PASS/FAIL flag from the JSON and asserts consistency.
+
+- [ ] T116 [S] Perform a covariate‑adjusted likelihood‑ratio test to verify that the identified reasoning cliff remains significant after controlling for question difficulty, video length, and answer type.  
+  - **File**: `code/analysis/confound_adjusted_lrt.py`  
+  - **Steps**:  
+    1. Fit the null logistic model (covariates only).  
+    2. Fit the piecewise logistic model (selected knot from T109) **including the same covariates**.  
+    3. Compute LRT statistic and Bonferroni‑adjusted p‑value; set `is_significant`.  
+  - **Output**: `data/processed/confound_adjusted_lrt.json` (matches the schema required by SC‑006).  
+  - **Verification**: JSON validates against the dedicated schema; a unit test checks that `is_significant` aligns with the corrected p‑value.
+
+- [ ] T111 [S] Train a text‑only logistic‑regression baseline and an extended model that adds `chain_length`; evaluate improvement via LRT and inject predictions.  
+  - **File**: `code/analysis/model_lrt.py`  
+  - **Steps**:  
+    1. Vectorise `question_text` + `answer_text` with TF‑IDF.  
+    2. Fit baseline logistic regression (text features only).  
+    3. Fit extended model adding `chain_length` as a continuous predictor.  
+    4. Perform LRT between the two models; record statistic, p‑value, and `is_significant`.  
+    5. Generate predicted probabilities for every record and **atomically overwrite** `predicted_correctness` in `annotated_videokr.csv`.  
+  - **Outputs**: `data/processed/model_lrt_results.json`.  
+  - **Verification**: JSON contains `baseline_loglik`, `extended_loglik`, `lrt_statistic`, `p_value`, `is_significant`, `conclusion`; the updated CSV has a non‑null `predicted_correctness` in the range [0, 1] for all rows with `status="annotated"`.
+
+- [ ] T122 [S] Validate the `predicted_correctness` column values are present and lie within [0, 1] for every annotated record.  
+  - **File**: `code/analysis/predicted_correctness_check.py`  
+  - **Output**: `data/processed/predicted_correctness_check.json` (`all_in_range: true/false`, `missing_count: int`).  
+  - **Verification**: The script scans `annotated_videokr.csv` and asserts that every non‑null `predicted_correctness` is between 0.0 and 1.0; fails the task if any violation is found.
+
+- [ ] T112 [S] Record total runtime and peak memory usage for the whole pipeline.  
+  - **Files**: `code/utils/memory_tracker.py` (uses `psutil`), `code/main.py` (orchestrator).  
+  - **Outputs**:  
+    - `data/processed/runtime_log.json` (`total_seconds`, `limit_exceeded` vs 7200 s, `pipeline_success`).  
+    - `data/processed/memory_log.json` (`peak_gb`, `limit_exceeded` vs 7 GB).  
+  - **Verification**: Both JSON files exist and `limit_exceeded` is `false` on a successful run.
+
+- [ ] T113 [S] Implement the orchestrator that runs all stages in the correct order and handles failures gracefully.  
+  - **File**: `code/main.py`  
+  - **Workflow**:  
+    `fix_download → download_data → ingest_log → annotate_graph → validate_bins → stratify_accuracy → visualize_continuous → detect_threshold → sensitivity → covariate_adjusted_lrt → model_lrt → predicted_correctness_check → runtime/memory logging`.  
+  - **Error handling**: Catches `DataUnavailableError`, `MemoryLimitError`, `BinPowerError`; on error writes partial artifacts with `.invalid` suffix and exits non‑zero.  
+  - **Verification**: `python code/main.py` completes without error on a fresh runner and produces every artifact listed above.
+
+## Phase 2 – Reproducible results and paper handoff  
+
+- [ ] T114 [S] Generate a fully automated final report that draws exclusively from the JSON artifacts.  
+  - **File**: `code/analysis/generate_final_report.py`  
+  - **Output**: `data/processed/final_report.md` (methods, results, robustness discussion, runtime/memory compliance, and a “Paper‑Stage Handoff” section listing figure/table filenames).  
+  - **Verification**: Every numeric value appearing in the markdown is a verbatim copy of a value from a source JSON file (checked by a regression test).
+
+- [ ] T115 [S] Update the project quick‑start documentation to reflect the new end‑to‑end command and data provenance.  
+  - **File**: `specs/001-llmxive-follow-up-extending-videokr-towa/quickstart.md`  
+  - **Content**:  
+    1. Prerequisite: Python 3.10, `pip install -r code/requirements.txt`.  
+    2. Command: `python code/main.py`.  
+    3. List of expected output artifacts with brief descriptions.  
+    4. Instructions for reproducing the run from a clean `data/processed/` directory.  
+  - **Verification**: A clean re‑run (delete `data/processed/*`) followed by the documented command reproduces identical artifact checksums (validated by a test script).
+
+- [ ] T117 [S] (Optional) Provide a CI configuration snippet that enforces the 7200 s runtime and 7 GB memory limits, referencing `runtime_log.json` and `memory_log.json`.  
+  - **File**: `.github/workflows/ci.yml` (generated by `code/utils/ci_generator.py`).  
+  - **Verification**: CI run fails if either `limit_exceeded` flag is `true`.
+
+## Phase 3 – Additional verification tasks (independent checks)
+
+- [ ] T118 [S] Verify that the original correctness labels are used unchanged.  
+  - **File**: `code/analysis/label_integrity_check.py`  
+  - **Output**: `data/processed/label_integrity_check.json` (`original_labels_used: true`).  
+  - **Verification**: The script cross‑checks the `correctness` column against the raw dataset before any transformation.
+
+- [ ] T119 [S] Confirm that the official VideoKR‑SFT dataset checksum matches the known release checksum.  
+  - **File**: `code/ingest/verify_dataset.py`  
+  - **Output**: `data/processed/dataset_verification.json` (`checksum_match: true/false`).  
+  - **Verification**: The script aborts with a non‑zero exit code if the checksum does not match.
+
+- [ ] T120 [S] Validate that `annotated_videokr.csv` conforms to the updated schema after FR‑013 injection.  
+  - **File**: `code/analysis/annotated_schema_check.py`  
+  - **Output**: `data/processed/annotated_schema_validation.json` (`schema_valid: true`).  
+  - **Verification**: Uses `jsonschema.validate`; the task passes only if the CSV validates against `contracts/annotated_questions.schema.yaml`.
+
+--- 
+
+*All tasks above are ordered to respect data dependencies. Execution of a later task assumes successful completion of its prerequisites.*  

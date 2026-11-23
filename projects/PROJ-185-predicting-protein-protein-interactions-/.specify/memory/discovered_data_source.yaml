@@ -1,0 +1,13 @@
+status: none
+intent: "download plant RNA\u2011seq count matrices from GEO and map to STRING python\
+  \ package dataset"
+required_fields:
+- sample_id
+- gene_id
+- raw_count
+- species
+- geo_accession
+- string_protein_id
+cache_key: 9e69f3c82dc221a15abc7dfee4e353569677d04230034bb565ea2578daa27b8c
+searched_at: '2026-10-16T15:29:24.725085+00:00'
+retry_count: 1

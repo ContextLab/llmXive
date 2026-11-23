@@ -1,0 +1,16 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Results Schema
+description: Schema for auxiliary result files such as sensitivity analysis CSVs.
+type: object
+required:
+  - file_path
+  - columns
+properties:
+  file_path:
+    type: string
+    pattern: "^results/.*\\.(csv|png|json|md)$"
+  columns:
+    type: array
+    items:
+      type: string
+additionalProperties: false

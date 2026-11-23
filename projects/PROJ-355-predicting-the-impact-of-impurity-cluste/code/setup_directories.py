@@ -1,41 +1,52 @@
 import os
 import sys
 from pathlib import Path
-from setup_project import ensure_directory, create_gitkeep
+from typing import List, Tuple
+from setup_project import ensure_directory, create_gitkeep, setup_directories, main
 
-def setup_directories():
+def setup_data_and_results_directories(project_root: Path) -> List[Tuple[str, bool]]:
     """
-    Setup the required directory structure for the project.
-    Creates data/raw, data/processed, and results directories with .gitkeep files.
+    Setup specific data and results directories required by T008.
+    Creates data/raw, data/processed, and results with .gitkeep files.
+    
+    Args:
+        project_root: The root path of the project.
+        
+    Returns:
+        A list of tuples (path, created) indicating status.
     """
-    # Define the relative paths to create
     directories = [
-        "data/raw",
-        "data/processed",
-        "results"
+        project_root / "data" / "raw",
+        project_root / "data" / "processed",
+        project_root / "results",
     ]
-
-    # Get the project root (assumed to be the parent of the 'code' directory)
-    # Since this script is in 'code/', we go up one level
-    project_root = Path(__file__).resolve().parent.parent
-
-    created_paths = []
-    for dir_name in directories:
-        full_path = project_root / dir_name
-        ensure_directory(full_path)
-        gitkeep_path = full_path / ".gitkeep"
-        create_gitkeep(gitkeep_path)
-        created_paths.append(str(full_path))
-        print(f"Created directory: {full_path}")
-        print(f"Created .gitkeep: {gitkeep_path}")
-
-    return created_paths
+    
+    results = []
+    for dir_path in directories:
+        created = ensure_directory(dir_path)
+        gitkeep_path = dir_path / ".gitkeep"
+        if not gitkeep_path.exists():
+            gitkeep_path.touch()
+            created = True
+        results.append((str(dir_path.relative_to(project_root)), created))
+        
+    return results
 
 def main():
-    """Entry point for the directory setup script."""
-    print("Starting directory setup for PROJ-355...")
-    setup_directories()
-    print("Directory setup complete.")
+    """Main entry point for T008 directory setup."""
+    from setup_project import get_project_root
+    
+    project_root = get_project_root()
+    print(f"Setting up data and results directories in {project_root}")
+    
+    results = setup_data_and_results_directories(project_root)
+    
+    for path_str, created in results:
+        status = "created" if created else "exists"
+        print(f"  {path_str}: {status}")
+        
+    print("T008 directory setup complete.")
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,0 +1,569 @@
+{
+  "fetched_at": "2026-08-18T12:29:23Z",
+  "field": "computer science",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "computer science",
+      "idea_body_excerpt": "llmXive follow-up: extending \"Why Can't I Open My Drawer? Mitigating Object-Driven Shortcuts in Zero\"",
+      "target_n": 5
+    },
+    "duration_seconds": 44.146,
+    "ended_at": "2026-08-18T12:29:23Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "object-driven shortcuts in vision-language models"
+        ],
+        [
+          2,
+          "mitigating spurious correlations in zero-shot visual recognition"
+        ],
+        [
+          3,
+          "object bias in zero-shot classification"
+        ],
+        [
+          4,
+          "causal interventions for object-driven shortcuts"
+        ],
+        [
+          5,
+          "counterfactual reasoning in zero-shot learning"
+        ],
+        [
+          6,
+          "debiasing zero-shot image classification"
+        ],
+        [
+          7,
+          "visual reasoning shortcuts in multimodal models"
+        ],
+        [
+          8,
+          "object-centric bias in CLIP-based models"
+        ],
+        [
+          9,
+          "mitigating dataset bias in zero-shot transfer"
+        ],
+        [
+          10,
+          "robustness against object-driven heuristics"
+        ],
+        [
+          11,
+          "zero-shot learning without object priors"
+        ],
+        [
+          12,
+          "visual shortcut learning in foundation models"
+        ],
+        [
+          13,
+          "addressing object bias in multimodal understanding"
+        ],
+        [
+          14,
+          "causal feature disentanglement for zero-shot tasks"
+        ],
+        [
+          15,
+          "improving zero-shot generalization via object de-biasing"
+        ],
+        [
+          16,
+          "visual question answering and object bias"
+        ],
+        [
+          17,
+          "spurious feature reliance in vision-language pre-training"
+        ],
+        [
+          18,
+          "counterfactual data augmentation for object bias"
+        ],
+        [
+          19,
+          "zero-shot recognition robustness to object shortcuts"
+        ],
+        [
+          20,
+          "mitigating shortcut learning in large language models for vision"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "llmXive follow-up: extending \"Why Can't I Open My Drawer? Mitigating Object-Driven Shortcuts in Zero\" computer science": 0,
+        "object-driven shortcuts in vision-language models": 5
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "object affordance hallucination visual grounding",
+      "VQA object permanence spatial reasoning",
+      "shortcut learning confounding bias visual features",
+      "zero-shot benchmark evaluation spatial relationship",
+      "causal intervention counterfactual reasoning visual language"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "2508.19294"
+      ]
+    },
+    "per_query_hit_count": {
+      "VQA object permanence spatial reasoning": 3,
+      "causal intervention counterfactual reasoning visual language": 2,
+      "llmXive follow-up: extending \"Why Can't I Open My Drawer? Mitigating Object-Driven Shortcuts in Zero\" computer science": 3,
+      "object affordance hallucination visual grounding": 3,
+      "shortcut learning confounding bias visual features": 3,
+      "zero-shot benchmark evaluation spatial relationship": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2604.00086",
+          "rationale": "The paper focuses on improving vision-language alignment through hierarchical feature fusion, which is a distinct technical mechanism from the user's specific question about mitigating \"object-driven shortcuts\" in zero-shot reasoning. While both involve LLMs and vision, the candidate paper does not address the specific failure mode (object-driven shortcuts) or the \"zero\" context (likely zero-shot or zero-object scenarios) central to the user's query, failing to meet the criteria for same-mechani",
+          "title": "Hierarchical Pre-Training of Vision Encoders with Large Language Model"
+        },
+        {
+          "primary_pointer": "2202.09061",
+          "rationale": "The paper is a general survey on Vision-Language Pre-training (VLP) architectures and datasets, which does not address the specific mechanism of \"object-driven shortcuts\" or the \"Why Can't I Open My Drawer?\" phenomenon mentioned in the user's question. While it covers the broad domain of multi-modal models, it lacks the specific focus on the failure mode (object-driven shortcuts) or the mitigation strategies required to be considered a canonical reference for this specific research gap.",
+          "title": "VLP: A Survey on Vision-Language Pre-training"
+        },
+        {
+          "primary_pointer": "2507.07104",
+          "rationale": "The paper focuses on cost-efficient knowledge distillation for image captioning using diffusion models, which does not address the user's specific question about mitigating \"object-driven shortcuts\" in zero-shot object interaction or manipulation tasks. While both involve vision-language models, the mechanisms (distillation vs. shortcut mitigation) and the specific problem domains (captioning quality vs. physical interaction reasoning) are distinct, failing to meet the criteria for same-mechanis",
+          "title": "Vision-Language-Vision Auto-Encoder: Scalable Knowledge Distillation from Diffusion Models"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-18T12:28:39Z",
+    "term_input": {
+      "normalized": "llmxive follow-up: extending \"why can't i open my drawer? mitigating object-driven shortcuts in zero\" computer science",
+      "raw": "llmXive follow-up: extending \"Why Can't I Open My Drawer? Mitigating Object-Driven Shortcuts in Zero\" computer science"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This white paper describes the LSST Dark Energy Science Collaboration (DESC), whose goal is the study of dark energy and related topics in fundamental physics with data from the Large Synoptic Survey Telescope (LSST). It provides an overview of dark energy science and describes the current and anticipated state of the field. It makes the case for the DESC by laying out a robust analytical framework for dark energy science that has been defined by its members and the comprehensive three-year work plan they have developed for implementing that framework. The analysis working groups cover five key probes of dark energy: weak lensing, large scale structure, galaxy clusters, Type Ia supernovae, and strong lensing. The computing working groups span cosmological simulations, galaxy catalogs, photon simulations and a systematic software and computational framework for LSST dark energy data analysis. The technical working groups make the connection between dark energy science and the LSST system. The working groups have close linkages, especially through the use of the photon simulations to study the impact of instrument design and survey strategy on analysis methodology and cosmological parameter estimation. The white paper describes several high priority tasks identified by each of the 16 working groups. Over the next three years these tasks will help prepare for LSST analysis, make synergistic connections with ongoing cosmological surveys and provide the dark energy community with state of the art analysis tools. Members of the community are invited to join the LSST DESC, according to the membership policies described in the white paper. Applications to sign up for associate membership may be made by submitting the Web form at http://www.slac.stanford.edu/exp/lsst/desc/signup.html with a short statement of the work they wish to pursue that is relevant to the LSST DESC.",
+          "claimed_authors": [
+            " LSST Dark Energy Science Collaboration"
+          ],
+          "claimed_title": "Large Synoptic Survey Telescope: Dark Energy Science Collaboration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1211.0310"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The large instantaneous sensitivity, a wide frequency coverage and flexible observation modes with large number of beams in the sky are the main features of the SKA observatory's two telescopes, the SKA-Low and the SKA-Mid, which are located on two different continents. Owing to these capabilities, the SKAO telescopes are going to be a game-changer for radio astronomy in general and pulsar astronomy in particular. The eleven articles in this special issue on pulsar science with the SKA Observatory describe its impact on different areas of pulsar science. In this lead article, a brief description of the two telescopes highlighting the relevant features for pulsar science is presented followed by an overview of each accompanying article, exploring the inter-relationship between different pulsar science use cases.",
+          "claimed_authors": [
+            "Bhal Chandra Joshi",
+            "Aris Karastergiou",
+            "Marta Burgay",
+            "The SKA pulsar science working group"
+          ],
+          "claimed_title": "Pulsar Science with the SKA Observatory",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.16152"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='Pulsar Science with the SKA Observatory')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A Human Computer Interface (HCI) System for playing games is designed here for more natural communication with the machines. The system presented here is a vision-based system for detection of long voluntary eye blinks and interpretation of blink patterns for communication between man and machine. This system replaces the mouse with the human face as a new way to interact with the computer. Facial features (nose tip and eyes) are detected and tracked in realtime to use their actions as mouse events. The coordinates and movement of the nose tip in the live video feed are translated to become the coordinates and movement of the mouse pointer on the application. The left or right eye blinks fire left or right mouse click events. The system works with inexpensive USB cameras and runs at a frame rate of 30 frames per second.",
+          "claimed_authors": [
+            "S. Sumathi",
+            "S. K. Srivatsa",
+            "M. Uma Maheswari"
+          ],
+          "claimed_title": "Vision Based Game Development Using Human Computer Interaction",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2010,
+          "primary_pointer": "1002.2191"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Building a generalized affordance grounding model to identify actionable regions on objects is vital for real-world applications. Existing methods to train the model can be divided into weakly and fully supervised ways. However, the former method requires a complex training framework design and can not infer new actions without an auxiliary prior. While the latter often struggle with limited annotated data and components trained from scratch despite being simpler. This study focuses on fully supervised affordance grounding and overcomes its limitations by proposing AffordanceSAM, which extends SAM's generalization capacity in segmentation to affordance grounding. Specifically, we design an affordance-adaption module and curate a coarse-to-fine annotated dataset called C2F-Aff to thoroughly transfer SAM's robust performance to affordance in a three-stage training manner. Experimental results confirm that AffordanceSAM achieves state-of-the-art (SOTA) performance on the AGD20K benchmark and exhibits strong generalized capacity.",
+          "claimed_authors": [
+            "Dengyang Jiang",
+            "Zanyi Wang",
+            "Hengzhuang Li",
+            "Sizhe Dang",
+            "Teli Ma",
+            "Wei Wei",
+            "Guang Dai",
+            "Lei Zhang",
+            "Harry Yang",
+            "Mengmeng Wang"
+          ],
+          "claimed_title": "AffordanceSAM: Segment Anything Once More in Affordance Grounding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.15650"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='AffordanceSAM: Segment Anything Once More in Affordance Grounding')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Humans can easily learn new concepts from just a single exemplar, mainly due to their remarkable ability to imagine or hallucinate what the unseen exemplar may look like in different settings. Incorporating such an ability to hallucinate diverse new samples of the tracked instance can help the trackers alleviate the over-fitting problem in the low-data tracking regime. To achieve this, we propose an effective adversarial approach, denoted as adversarial \"hallucinator\" (AH), for robust visual tracking. The proposed AH is designed to firstly learn transferable non-linear deformations between a pair of same-identity instances, and then apply these deformations to an unseen tracked instance in order to generate diverse positive training samples. By incorporating AH into an online tracking-by-detection framework, we propose the hallucinated adversarial tracker (HAT), which jointly optimizes AH with an online classifier (e.g., MDNet) in an end-to-end manner. In addition, a novel selective deformation transfer (SDT) method is presented to better select the deformations which are more suitable for transfer. Extensive experiments on 3 popular benchmarks demonstrate that our HAT achieves the state-of-the-art performance.",
+          "claimed_authors": [
+            "Qiangqiang Wu",
+            "Zhihui Chen",
+            "Lin Cheng",
+            "Yan Yan",
+            "Bo Li",
+            "Hanzi Wang"
+          ],
+          "claimed_title": "Hallucinated Adversarial Learning for Robust Visual Tracking",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1906.07008"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='Hallucinated Adversarial Learning for Robust Visual Tracking')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A core task in embodied intelligence is ego-centric 3D visual grounding. Existing methods typically adopt two-stage, heterogeneous pipelines that pair a detector with a separate grounding model. Incompatible decoders and box heads hinder the transfer of object-level priors, and the split training causes redundant re-optimization. To overcome these limitations, we present DEGround, a straight, elegant, and effective framework that centers on object-level sharing over detection and grounding. It employs a set of queries that serves as the common object representation for both detection and grounding, which is decoded by a shared transformer and bounding box head. Building on this homogeneous framework, we further introduce two task-specific plug-in modules to enhance fine-grained instruction grounding. The Regional Activation Grounding module improves spatial-textual alignment by highlighting instruction-relevant regions, while the Query-wise Modulation module applies sentence-conditioned affine modulation to generate instruction-aware queries at initialization. Extensive experiments demonstrate that DEGround achieves the best performance on multiple benchmarks. Remarkably, it significantly outperforms previous methods by 7.52% at overall precision on the EmbodiedScan dataset.",
+          "claimed_authors": [
+            "Yani Zhang",
+            "Dongming Wu",
+            "Hao Shi",
+            "Yingfei Liu",
+            "Tiancai Wang",
+            "Xingping Dong"
+          ],
+          "claimed_title": "DEGround: An Effective Baseline for Ego-centric 3D Visual Grounding with a Homogeneous Framework",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.05199"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='DEGround: An Effective Baseline for Ego-centric 3D Visual Grounding with a Homogeneous Framework')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Flow theory describes an optimal cognitive state where individuals experience deep focus and intrinsic motivation when a task's difficulty aligns with their skill level. In AI-augmented reasoning, interventions that disrupt the state of cognitive flow can hinder rather than enhance decision-making. This paper proposes a context-aware cognitive augmentation framework that adapts interventions based on three key contextual factors: type, timing, and scale. By leveraging multimodal behavioral cues (e.g., gaze behavior, typing hesitation, interaction speed), AI can dynamically adjust cognitive support to maintain or restore flow. We introduce the concept of cognitive flow, an extension of flow theory in AI-augmented reasoning, where interventions are personalized, adaptive, and minimally intrusive. By shifting from static interventions to context-aware augmentation, our approach ensures that AI systems support deep engagement in complex decision-making and reasoning without disrupting cognitive immersion.",
+          "claimed_authors": [
+            "Dinithi Dissanayake",
+            "Suranga Nanayakkara"
+          ],
+          "claimed_title": "Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.16021"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='Navigating the State of Cognitive Flow: Context-Aware AI Interventions for Effective Reasoning Support')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Large language models (LLMs) and vision language models (VLMs), such as DeepSeek R1,OpenAI o3, and Gemini 2.5 Pro, have demonstrated remarkable reasoning capabilities across logical inference, problem solving, and decision making. However, spatial reasoning:a fundamental component of human cognition that includes mental rotation, navigation, and spatial relationship comprehension remains a significant challenge for current advanced VLMs. We hypothesize that imagination, the internal simulation of spatial states, is the dominant reasoning mechanism within a spatial world model. To test this hypothesis and systematically probe current VLM spatial reasoning mechanisms, we introduce SpatiaLite, a fully synthetic benchmark that jointly measures spatial reasoning accuracy and reasoning efficiency. Comprehensive experiments reveal three key findings. First, advanced VLMs predominantly rely on linguistic representations for reasoning and imagination, resulting in significant deficiencies on visual centric tasks that demand perceptual spatial relations and 3D geometry transformations such as mental rotation or projection prediction. Second, advanced VLMs exhibit severe inefficiency in their current spatial reasoning mechanisms, with token usage growing rapidly as transformation complexity increases. Third, we propose an Imagery Driven Framework (IDF) for data synthesis and training, which can implicitly construct an internal world model that is critical for spatial reasoning in VLMs. Building on SpatiaLite, this work delineates the spatial reasoning limits and patterns of advanced VLMs, identifies key shortcomings, and informs future advances",
+          "claimed_authors": [
+            "Xiaoxing Lian",
+            "Aidong Yang",
+            "Jun Zhu",
+            "Peng Wang",
+            "Yue Zhang"
+          ],
+          "claimed_title": "Imagine in Space: Exploring the Frontier of Spatial Intelligence and Reasoning Efficiency in Vision Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.13782"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='Imagine in Space: Exploring the Frontier of Spatial Intelligence and Reasoning Efficiency in Vision Language Models')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Text-based Visual Question Answering~(TextVQA) aims to produce correct answers for given questions about the images with multiple scene texts. In most cases, the texts naturally attach to the surface of the objects. Therefore, spatial reasoning between texts and objects is crucial in TextVQA. However, existing approaches are constrained within 2D spatial information learned from the input images and rely on transformer-based architectures to reason implicitly during the fusion process. Under this setting, these 2D spatial reasoning approaches cannot distinguish the fine-grain spatial relations between visual objects and scene texts on the same image plane, thereby impairing the interpretability and performance of TextVQA models. In this paper, we introduce 3D geometric information into a human-like spatial reasoning process to capture the contextual knowledge of key objects step-by-step. %we formulate a human-like spatial reasoning process by introducing 3D geometric information for capturing key objects' contextual knowledge. To enhance the model's understanding of 3D spatial relationships, Specifically, (i)~we propose a relation prediction module for accurately locating the region of interest of critical objects; (ii)~we design a depth-aware attention calibration module for calibrating the OCR tokens' attention according to critical objects. Extensive experiments show that our method achieves state-of-the-art performance on TextVQA and ST-VQA datasets. More encouragingly, our model surpasses others by clear margins of 5.7\\% and 12.1\\% on questions that involve spatial reasoning in TextVQA and ST-VQA valid split. Besides, we also verify the generalizability of our model on the text-based image captioning task.",
+          "claimed_authors": [
+            "Hao Li",
+            "Jinfa Huang",
+            "Peng Jin",
+            "Guoli Song",
+            "Qi Wu",
+            "Jie Chen"
+          ],
+          "claimed_title": "Toward 3D Spatial Reasoning for Human-like Text-based Visual Question Answering",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2209.10326"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='Toward 3D Spatial Reasoning for Human-like Text-based Visual Question Answering')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present Contextualized Local Visual Embeddings (CLoVE), a self-supervised convolutional-based method that learns representations suited for dense prediction tasks. CLoVE deviates from current methods and optimizes a single loss function that operates at the level of contextualized local embeddings learned from output feature maps of convolution neural network (CNN) encoders. To learn contextualized embeddings, CLoVE proposes a normalized mult-head self-attention layer that combines local features from different parts of an image based on similarity. We extensively benchmark CLoVE's pre-trained representations on multiple datasets. CLoVE reaches state-of-the-art performance for CNN-based architectures in 4 dense prediction downstream tasks, including object detection, instance segmentation, keypoint detection, and dense pose estimation.",
+          "claimed_authors": [
+            "Thalles Santos Silva",
+            "Helio Pedrini",
+            "Adín Ramírez Rivera"
+          ],
+          "claimed_title": "Self-supervised Learning of Contextualized Local Visual Embeddings",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2310.00527"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='Self-supervised Learning of Contextualized Local Visual Embeddings')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "When a three-dimensional object moves relative to an observer, a change occurs on the observer's image plane and in the visual representation computed by a learned model. Starting with the idea that a good visual representation is one that transforms linearly under scene motions, we show, using the theory of group representations, that any such representation is equivalent to a combination of the elementary irreducible representations. We derive a striking relationship between irreducibility and the statistical dependency structure of the representation, by showing that under restricted conditions, irreducible representations are decorrelated. Under partial observability, as induced by the perspective projection of a scene onto the image plane, the motion group does not have a linear action on the space of images, so that it becomes necessary to perform inference over a latent representation that does transform linearly. This idea is demonstrated in a model of rotating NORB objects that employs a latent representation of the non-commutative 3D rotation group SO(3).",
+          "claimed_authors": [
+            "Taco S. Cohen",
+            "Max Welling"
+          ],
+          "claimed_title": "Transformation Properties of Learned Visual Representations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1412.7659"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='Transformation Properties of Learned Visual Representations')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Basic binary relations such as equality and inequality are fundamental to relational data structures. Neural networks should learn such relations and generalise to new unseen data. We show in this study, however, that this generalisation fails with standard feed-forward networks on binary vectors. Even when trained with maximal training data, standard networks do not reliably detect equality.We introduce differential rectifier (DR) units that we add to the network in different configurations. The DR units create an inductive bias in the networks, so that they do learn to generalise, even from small numbers of examples and we have not found any negative effect of their inclusion in the network. Given the fundamental nature of these relations, we hypothesize that feed-forward neural network learning benefits from inductive bias in other relations as well. Consequently, the further development of suitable inductive biases will be beneficial to many tasks in relational learning with neural networks.",
+          "claimed_authors": [
+            "Tillman Weyde",
+            "Radha Manisha Kopparti"
+          ],
+          "claimed_title": "Feed-Forward Neural Networks Need Inductive Bias to Learn Equality Relations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1812.01662"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='Feed-Forward Neural Networks Need Inductive Bias to Learn Equality Relations')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
+          "claimed_authors": [
+            "Zhen Ye",
+            "Zeqian Ju",
+            "Haohe Liu",
+            "Xu Tan",
+            "Jianyi Chen",
+            "Yiwen Lu",
+            "Peiwen Sun",
+            "Jiahao Pan",
+            "Weizhen Bian",
+            "Shulin He",
+            "Wei Xue",
+            "Qifeng Liu",
+            "Yike Guo"
+          ],
+          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2404.14700"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "To transfer knowledge from seen attribute-object compositions to recognize unseen ones, recent compositional zero-shot learning (CZSL) methods mainly discuss the optimal classification branches to identify the elements, leading to the popularity of employing a three-branch architecture. However, these methods mix up the underlying relationship among the branches, in the aspect of consistency and diversity. Specifically, consistently providing the highest-level features for all three branches increases the difficulty in distinguishing classes that are superficially similar. Furthermore, a single branch may focus on suboptimal regions when spatial messages are not shared between the personalized branches. Recognizing these issues and endeavoring to address them, we propose a novel method called Focus-Consistent Multi-Level Aggregation (FOMA). Our method incorporates a Multi-Level Feature Aggregation (MFA) module to generate personalized features for each branch based on the image content. Additionally, a Focus-Consistent Constraint encourages a consistent focus on the informative regions, thereby implicitly exchanging spatial information between all branches. Extensive experiments on three benchmark datasets (UT-Zappos, C-GQA, and Clothing16K) demonstrate that our FOMA outperforms SOTA.",
+          "claimed_authors": [
+            "Fengyuan Dai",
+            "Siteng Huang",
+            "Min Zhang",
+            "Biao Gong",
+            "Donglin Wang"
+          ],
+          "claimed_title": "Focus-Consistent Multi-Level Aggregation for Compositional Zero-Shot Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2408.17083"
+        },
+        "details": "query-relevance 0.167 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='Focus-Consistent Multi-Level Aggregation for Compositional Zero-Shot Learning')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Text-to-image (T2I) generation has advanced rapidly, yet faithfully capturing spatial relationships described in natural language prompts remains a major challenge. Prior efforts have addressed this issue through prompt optimization, spatially grounded generation, and semantic refinement. This work introduces a lightweight approach that augments prompts with tuple-based structured information, using a fine-tuned language model for automatic conversion and seamless integration into T2I pipelines. Experimental results demonstrate substantial improvements in spatial accuracy, without compromising overall image quality as measured by Inception Score. Furthermore, the automatically generated tuples exhibit quality comparable to human-crafted tuples. This structured information provides a practical and portable solution to enhance spatial relationships in T2I generation, addressing a key limitation of current large-scale generative systems.",
+          "claimed_authors": [
+            "Sander Schildermans",
+            "Chang Tian",
+            "Ying Jiao",
+            "Marie-Francine Moens"
+          ],
+          "claimed_title": "Structured Information for Improving Spatial Relationships in Text-to-Image Generation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2509.15962"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='Structured Information for Improving Spatial Relationships in Text-to-Image Generation')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We present CausalVLR (Causal Visual-Linguistic Reasoning), an open-source toolbox containing a rich set of state-of-the-art causal relation discovery and causal inference methods for various visual-linguistic reasoning tasks, such as VQA, image/video captioning, medical report generation, model generalization and robustness, etc. These methods have been included in the toolbox with PyTorch implementations under NVIDIA computing system. It not only includes training and inference codes, but also provides model weights. We believe this toolbox is by far the most complete visual-linguitic causal reasoning toolbox. We wish that the toolbox and benchmark could serve the growing research community by providing a flexible toolkit to re-implement existing methods and develop their own new causal reasoning methods. Code and models are available at https://github.com/HCPLab-SYSU/CausalVLR. The project is under active development by HCP-Lab's contributors and we will keep this document updated.",
+          "claimed_authors": [
+            "Yang Liu",
+            "Weixing Chen",
+            "Guanbin Li",
+            "Liang Lin"
+          ],
+          "claimed_title": "CausalVLR: A Toolbox and Benchmark for Visual-Linguistic Causal Reasoning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2306.17462"
+        },
+        "details": "query-relevance 0.083 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='CausalVLR: A Toolbox and Benchmark for Visual-Linguistic Causal Reasoning')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Numerous benchmarks aim to evaluate the capabilities of Large Language Models (LLMs) for causal inference and reasoning. However, many of them can likely be solved through the retrieval of domain knowledge, questioning whether they achieve their purpose. In this review, we present a comprehensive overview of LLM benchmarks for causality. We highlight how recent benchmarks move towards a more thorough definition of causal reasoning by incorporating interventional or counterfactual reasoning. We derive a set of criteria that a useful benchmark or set of benchmarks should aim to satisfy. We hope this work will pave the way towards a general framework for the assessment of causal understanding in LLMs and the design of novel benchmarks.",
+          "claimed_authors": [
+            "Linying Yang",
+            "Vik Shirvaikar",
+            "Oscar Clivio",
+            "Fabian Falck"
+          ],
+          "claimed_title": "A Critical Review of Causal Reasoning Benchmarks for Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2407.08029"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Why Can\\'t I Open My Drawer? Mitigating Object-Driv', candidate_title='A Critical Review of Causal Reasoning Benchmarks for Large Language Models')",
+        "failed_at": "2026-08-18T12:29:07Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Ranjan Sapkota",
+            "Manoj Karkee"
+          ],
+          "title": "Object Detection with Multimodal Large Vision-Language Models: An In-depth Review",
+          "venue": "arXiv",
+          "year": 2025
+        },
+        "primary_pointer": "2508.19294",
+        "summary": "The fusion of language and vision in large vision-language models (LVLMs) has revolutionized deep learning-based object detection by enhancing adaptability, contextual reasoning, and generalization beyond traditional architectures. This in-depth review presents a structured exploration of the state-of-the-art in LVLMs, systematically organized through a three-step research review process. First, we discuss the functioning of vision language models (VLMs) for object detection, describing how these models harness natural language processing (NLP) and computer vision (CV) techniques to revolutionize object detection and localization. We then explain the architectural innovations, training paradigms, and output flexibility of recent LVLMs for object detection, highlighting how they achieve advanced contextual understanding for object detection. The review thoroughly examines the approaches used in integration of visual and textual information, demonstrating the progress made in object detection using VLMs that facilitate more sophisticated object detection and localization strategies. This review presents comprehensive visualizations demonstrating LVLMs' effectiveness in diverse scenarios including localization and segmentation, and then compares their real-time performance, adaptability, and complexity to traditional deep learning systems. Based on the review, its is expected that LVLMs will soon meet or surpass the performance of conventional methods in object detection. The review also identifies a few major limitations of the current LVLM modes, proposes solutions to address those challenges, and presents a clear roadmap for the future advancement in this field. We conclude, based on this study, that the recent advancement in LVLMs have made and will continue to make a transformative impact on object detection and robotic applications in the future.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2508.19294",
+          "http_status": 200,
+          "pdf_sample_score": 0.2803,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-18T12:29:11Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Peng Xu",
+            "Wenqi Shao",
+            "Kaipeng Zhang",
+            "Peng Gao",
+            "Shuo Liu",
+            "Meng Lei",
+            "Fanqing Meng",
+            "Siyuan Huang",
+            "Yu Qiao",
+            "Ping Luo"
+          ],
+          "title": "LVLM-eHub: A Comprehensive Evaluation Benchmark for Large Vision-Language Models",
+          "venue": "arXiv",
+          "year": 2023
+        },
+        "primary_pointer": "2306.09265",
+        "summary": "Large Vision-Language Models (LVLMs) have recently played a dominant role in multimodal vision-language learning. Despite the great success, it lacks a holistic evaluation of their efficacy. This paper presents a comprehensive evaluation of publicly available large multimodal models by building a LVLM evaluation Hub (LVLM-eHub). Our LVLM-eHub consists of $8$ representative LVLMs such as InstructBLIP and MiniGPT-4, which are thoroughly evaluated by a quantitative capability evaluation and an online arena platform. The former evaluates $6$ categories of multimodal capabilities of LVLMs such as visual question answering and embodied artificial intelligence on $47$ standard text-related visual benchmarks, while the latter provides the user-level evaluation of LVLMs in an open-world question-answering scenario. The study reveals several innovative findings. First, instruction-tuned LVLM with massive in-domain data such as InstructBLIP heavily overfits many existing tasks, generalizing poorly in the open-world scenario. Second, instruction-tuned LVLM with moderate instruction-following data may result in object hallucination issues (i.e., generate objects that are inconsistent with target images in the descriptions). It either makes the current evaluation metric such as CIDEr for image captioning ineffective or generates wrong answers. Third, employing a multi-turn reasoning evaluation framework can mitigate the issue of object hallucination, shedding light on developing an effective pipeline for LVLM evaluation. The findings provide a foundational framework for the conception and assessment of innovative strategies aimed at enhancing zero-shot multimodal techniques. Our LVLM-eHub will be available at https://github.com/OpenGVLab/Multi-Modality-Arena",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/2306.09265",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6667,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-18T12:29:12Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "llmxive follow-up: extending \"why can't i open my drawer? mitigating object-driven shortcuts in zero\" computer science",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

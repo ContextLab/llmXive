@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2606.21645",
+  "judged_at": "2026-09-05T09:34:16Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"accurate, interdisciplinary and transparent structure-property underst\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) by providing empirical evidence on the same biological/algorithmic mechanism (LLM internal representations and statistical alignment) and measuring the dependent variable (linguistic structure-property relationships like binomial ordering preferences) within the user's specified domain of linguistics. It serves as a canonical study for how LLMs capture and represent linguistic conventions, which is directly relevant to extending research on \"structure-pr",
+  "relevant": true
+}

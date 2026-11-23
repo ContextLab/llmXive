@@ -1,0 +1,17 @@
+d97de4b868b6411fd251c1e82232adb2  ./annotation_hashes.txt
+ba71cc2f0c8c7f8f81d1caf354653db5  ./GCF_000363885.1_MethanoVillo1.0_assembly_report.txt
+73e23ee3a745d533c9205d432ba60a37  ./GCF_000363885.1_MethanoVillo1.0_assembly_stats.txt
+2fda7ff710a4f832206b637dcccf53db  ./GCF_000363885.1_MethanoVillo1.0_cds_from_genomic.fna.gz
+67f6b7199219bbd0e08fb2cc6f9e537d  ./GCF_000363885.1_MethanoVillo1.0_fcs_report.txt
+b154af8b8764c8d731e05ca9e78d0577  ./GCF_000363885.1_MethanoVillo1.0_feature_count.txt
+a0803de05e56ced8ff69916c968e5534  ./GCF_000363885.1_MethanoVillo1.0_feature_table.txt.gz
+d1d3691848ee7c863e59918bc7e6f2e6  ./GCF_000363885.1_MethanoVillo1.0_gene_ontology.gaf.gz
+9d4c7358163c63ad4de4eac21ed07d4f  ./GCF_000363885.1_MethanoVillo1.0_genomic.fna.gz
+9f2ef90d5d81d567158338099734eb60  ./GCF_000363885.1_MethanoVillo1.0_genomic.gbff.gz
+c8964e87ca061742aa57dde971739d90  ./GCF_000363885.1_MethanoVillo1.0_genomic.gff.gz
+3f4df11ba4f67cf090192a1642f13f5e  ./GCF_000363885.1_MethanoVillo1.0_genomic.gtf.gz
+a94b2396e87d0c9cba7abb41369c830b  ./GCF_000363885.1_MethanoVillo1.0_protein.faa.gz
+7c3c071ab7ff86b7790a0574bc67a9b4  ./GCF_000363885.1_MethanoVillo1.0_protein.gpff.gz
+cc19e578418381f637dd2e7352de5690  ./GCF_000363885.1_MethanoVillo1.0_rna_from_genomic.fna.gz
+a9c138ba6ee7b478c8ed7af6a285f7dd  ./GCF_000363885.1_MethanoVillo1.0_translated_cds.faa.gz
+8cf4ec53b872311e15b728a947753f8c  ./GCF_000363885.1_MethanoVillo1.0_wgsmaster.gbff.gz

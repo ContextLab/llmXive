@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Human Evaluation Proxy Scores Schema"
+description: "Schema for aggregated human‑evaluation proxy scores per trajectory."
+type: object
+properties:
+  trajectory_id:
+    type: string
+    description: "Unique identifier for the generated trajectory."
+  prompt_id:
+    type: string
+    description: "Reference to the originating prompt."
+  condition:
+    type: string
+    enum:
+      - AntiSD
+      - StandardSD
+    description: "Training condition under which the trajectory was generated."
+  rater_1_score:
+    type: integer
+    minimum: 1
+    maximum: 5
+    description: "Score from rater 1."
+  rater_2_score:
+    type: integer
+    minimum: 1
+    maximum: 5
+    description: "Score from rater 2."
+  rater_3_score:
+    type: integer
+    minimum: 1
+    maximum: 5
+    description: "Score from rater 3."
+  median_score:
+    type: number
+    description: "Median of the three rater scores."
+required:
+  - trajectory_id
+  - prompt_id
+  - condition
+  - rater_1_score
+  - rater_2_score
+  - rater_3_score
+  - median_score
+additionalProperties: false

@@ -1,22 +1,16 @@
-"""
-Logging and Error Handling Utilities
-
-Provides standardized logging configuration and custom exception classes
-for the llmXive science pipeline.
-"""
 import logging
 import sys
 import os
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, Callable
 from datetime import datetime
+import traceback
 
-# Custom Exceptions
 class PipelineError(Exception):
-    """Base exception for pipeline-related errors."""
+    """Base exception for pipeline errors."""
     pass
 
 class DataUnavailableError(PipelineError):
-    """Raised when required data is missing or inaccessible."""
+    """Raised when required data cannot be fetched or is missing."""
     pass
 
 class ConfigurationError(PipelineError):
@@ -24,110 +18,97 @@ class ConfigurationError(PipelineError):
     pass
 
 class AnalysisError(PipelineError):
-    """Raised when a scientific analysis step fails."""
+    """Raised when analysis steps fail."""
     pass
 
+class ModelConvergenceError(AnalysisError):
+    """Raised when an optimization model fails to converge."""
+    pass
 
-# Logger Registry
-_loggers: Dict[str, logging.Logger] = {}
+class ValidationError(AnalysisError):
+    """Raised when validation checks fail."""
+    pass
 
+class ModelError(AnalysisError):
+    """Raised when a physical model calculation fails."""
+    pass
 
-def get_logger(name: str = "llmXive") -> logging.Logger:
+_logger: Optional[logging.Logger] = None
+
+def init_logging(log_level: str = "INFO", log_file: Optional[str] = None) -> logging.Logger:
     """
-    Get or create a logger with standardized configuration.
-
-    Args:
-        name: The name of the logger (usually __name__).
-
-    Returns:
-        Configured logging.Logger instance.
+    Initialize the global logger with console and optional file handlers.
     """
-    if name in _loggers:
-        return _loggers[name]
+    global _logger
+    if _logger is not None:
+        return _logger
 
-    logger = logging.getLogger(name)
-    if logger.handlers:
-        _loggers[name] = logger
-        return logger
+    _logger = logging.getLogger("llmXive_pipeline")
+    _logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
 
-    logger.setLevel(logging.INFO)
-
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(logging.INFO)
-
-    # Formatter
+    # Console Handler
+    ch = logging.StreamHandler(sys.stdout)
+    ch.setLevel(logging.DEBUG)
     formatter = logging.Formatter(
         '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
         datefmt='%Y-%m-%d %H:%M:%S'
     )
-    console_handler.setFormatter(formatter)
+    ch.setFormatter(formatter)
+    _logger.addHandler(ch)
 
-    logger.addHandler(console_handler)
-    _loggers[name] = logger
-
-    return logger
-
-
-def init_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> None:
-    """
-    Initialize logging to both console and optional file.
-
-    Args:
-        log_file: Path to log file. If None, only console logging is used.
-        level: Logging level (e.g., logging.DEBUG, logging.INFO).
-    """
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-
-    # Clear existing handlers to avoid duplicates
-    root_logger.handlers.clear()
-
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    console_handler.setFormatter(
-        logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-            datefmt='%Y-%m-%d %H:%M:%S'
-        )
-    )
-    root_logger.addHandler(console_handler)
-
+    # File Handler (if specified)
     if log_file:
         os.makedirs(os.path.dirname(log_file) if os.path.dirname(log_file) else '.', exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        file_handler.setFormatter(
-            logging.Formatter(
-                '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-                datefmt='%Y-%m-%d %H:%M:%S'
-            )
-        )
-        root_logger.addHandler(file_handler)
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.DEBUG)
+        fh.setFormatter(formatter)
+        _logger.addHandler(fh)
 
+    return _logger
 
-def log_progress(message: str, logger_name: str = "llmXive") -> None:
-    """Log a progress message at INFO level."""
-    logger = get_logger(logger_name)
-    logger.info(f"[PROGRESS] {message}")
+def get_logger(name: Optional[str] = None) -> logging.Logger:
+    """Get the global logger or a child logger."""
+    if _logger is None:
+        init_logging()
+    if name:
+        return _logger.getChild(name)
+    return _logger
 
+def log_progress(message: str, level: str = "INFO"):
+    """Log a progress message."""
+    logger = get_logger()
+    getattr(logger, level.lower())(message)
 
-def log_error(message: str, logger_name: str = "llmXive") -> None:
-    """Log an error message at ERROR level."""
-    logger = get_logger(logger_name)
-    logger.error(f"[ERROR] {message}")
+def log_error(message: str, error: Optional[Exception] = None):
+    """Log an error message, optionally with traceback."""
+    logger = get_logger()
+    logger.error(message)
+    if error:
+        logger.error(traceback.format_exc())
 
-
-def handle_fatal_error(error: Exception, logger_name: str = "llmXive") -> None:
-    """
-    Handle a fatal error by logging it and exiting the program.
-
-    Args:
-        error: The exception that caused the failure.
-        logger_name: Name of the logger to use.
-    """
-    logger = get_logger(logger_name)
-    logger.critical(f"FATAL ERROR: {str(error)}")
-    logger.critical("Pipeline execution aborted.")
+def handle_fatal_error(message: str, error: Exception):
+    """Log a fatal error and exit."""
+    logger = get_logger()
+    logger.critical(f"FATAL: {message}")
+    logger.critical(traceback.format_exc())
     sys.exit(1)
+
+def log_step_duration(step_name: str, duration_seconds: float):
+    """Log the duration of a step."""
+    logger = get_logger()
+    logger.info(f"Step '{step_name}' completed in {duration_seconds:.2f}s")
+
+class TimedStep:
+    """Context manager to track step duration."""
+    def __init__(self, step_name: str):
+        self.step_name = step_name
+        self.start_time: Optional[float] = None
+
+    def __enter__(self):
+        self.start_time = datetime.now()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.start_time:
+            duration = (datetime.now() - self.start_time).total_seconds()
+            log_step_duration(self.step_name, duration)

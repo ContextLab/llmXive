@@ -1,0 +1,15 @@
+status: none
+intent: download metallic glass composition dataset with elemental descriptors from
+  Materials Project and Miedema parameters
+required_fields:
+- composition_id
+- composition_formula
+- atomic_radius
+- electronegativity
+- valence_electron_concentration
+- atomic_size_mismatch
+- mixing_enthalpy
+- additional_descriptors
+cache_key: 19db569021131a6fdbdb680d7db84c24d66f5b7ec69ff3ecf5c58d86ebb66c5b
+searched_at: '2026-10-19T21:27:22.407324+00:00'
+retry_count: 1

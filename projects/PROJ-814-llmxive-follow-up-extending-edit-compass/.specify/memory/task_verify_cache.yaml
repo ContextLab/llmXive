@@ -1,0 +1,81 @@
+T002:
+  c: true
+  h: 3f37ab9f01829f3c6774bad255edd6a0208fee76189eb06c6de01df7d6ee5b3a
+  r: "The `requirements.txt` file is present, non\u2011empty, and lists all required\
+    \ packages with the specified version pins (and includes the un\u2011pinned packages).\
+    \ No required entry is missing."
+T003:
+  c: false
+  h: 06b29c5ec85e3b9e9d1b3d24ca1f0f6f8654ae0e53e75dd980e2e5e6eede6af8
+  r: The `pyproject.toml` correctly defines `[tool.black]` with `line-length = 88`
+    and `[tool.ruff]` with `select = ['E', 'F', 'W']`, but a separate `.ruff.toml`
+    file is still present, contradicting the requirement that the single `pyproject.toml`
+    replace any standalone Ruff (or Black) configuration files. The extra `.ruff.toml`
+    must be removed for the task to be considered complete.
+T005:
+  c: true
+  h: 8a65ec9140e6bc6fced945fa85506f6dbf74c727a370ce5900d33c4727254265
+  r: "The `src/utils/logging.py` file exists, contains a full implementation with\
+    \ a JSON formatter, and the `setup_logging` function adds a stdout handler and,\
+    \ when a log file path is supplied (as done in `init_default_logger`), also adds\
+    \ a file handler. This matches the task\u2019s requirement for a basic JSON\u2011\
+    formatted logging utility that logs to both file and stdout."
+T006:
+  c: true
+  h: 1dc9d38715b91a7f9c8165dd8885c37cb9eac3b5be7c8130af339f0bd0ef546b
+  r: "The provided `src/data_models.py` exists, is non\u2011empty, and defines the\
+    \ two required Pydantic models with all specified fields (`EditInstance` with\
+    \ the five fields, `ScoreRecord` with the six fields). The models correctly inherit\
+    \ from `BaseModel`, meeting the task\u2019s specification."
+T006b:
+  c: false
+  h: 9c7fd603503a143a60621839b90c8c809b35517863ba591212d09daa34c2cf8e
+  r: The `RegressionResult` class is present, but the fields `fdr_corrected_p_logic`
+    and `fdr_corrected_p_fidelity` are defined as mandatory `float` types, not `Optional[float]`
+    as the task specifies. This prevents instantiation without those values, violating
+    the requirement. The model must be updated to make those two fields optional.
+T007:
+  c: true
+  h: 685c17b6efb85879c81076d55a2d64d735b042a574808c32b038ec885eba1319
+  r: "The `contracts/score-record.schema.yaml` file is present (1085\u202Fbytes) and\
+    \ contains a well\u2011formed YAML document defining a JSON Schema for `ScoreRecord`\
+    \ with required fields and property specifications, satisfying the task\u2019\
+    s existence and syntax checks."
+T014:
+  c: false
+  h: 0a1ef335411aa8d8d1ccfc91c8c85bb0d067a3d3220bd47e87a66d609559243f
+  r: "The required file `src/cli/main.py` does not exist in the repository, so the\
+    \ download and filter functionality cannot be verified or executed. The task\u2019\
+    s core artifact is missing, making the implementation incomplete."
+T024:
+  c: false
+  h: 6a2afb574965621aadc93b8460be3592b58be6b2721404aef521c45706496bcc
+  r: "The provided `src/services/analysis.py` is truncated and shows no implementation\
+    \ of the required Pearson\u2011correlation independence check, atomic JSON write,\
+    \ or raising of `CircularValidationRiskError`. Moreover, the required output file\
+    \ `outputs/circular_validation_risk_report.json` does not exist. The task\u2019\
+    s core behavior is therefore not present."
+T038:
+  c: false
+  h: 6dc73737e1455625d2f151022c6aa81d549035770314368359e8cea276594689
+  r: "The provided `src/services/analysis.py` snippet shows imports for VIF but contains\
+    \ no visible VIF calculation or logic to write a \u201CCollinearity Warning\u201D\
+    \ to `outputs/regression_report.md`. Moreover, the required `outputs/regression_report.md`\
+    \ file is absent entirely. The task\u2019s core requirements are therefore not\
+    \ satisfied."
+T040:
+  c: false
+  h: 6abf1f36567c529f253d4277105c7b96bddc0cdce7b9e8dcecdd1b39da240d00
+  r: "The required `state/projects/PROJ-814-checksums.yaml` file does not exist, so\
+    \ there is no known\u2011good checksum to compare against. Moreover, the `verify_filtered_data_integrity`\
+    \ function in `src/services/download.py` is truncated and does not clearly show\
+    \ that it computes a SHA256 of the entire `data/filtered/` dataset and logs a\
+    \ critical error on mismatch. Both the missing checksum file and the incomplete\
+    \ implementation mean the task is not genuinely fulfilled."
+T041:
+  c: false
+  h: 6110ecd8c439f476bd0c2ec998259febb297e2ab457e5ac1d1d3d09416012827
+  r: The provided `src/services/scoring.py` contains only model loading and scoring
+    utilities; there is no implementation that runs the pipeline with `batch_size=1`
+    and `batch_size=16`, nor any logging of results. Additionally, the required `outputs/batch_stress_test.log`
+    file does not exist. Both the functional code and the log artifact are missing.

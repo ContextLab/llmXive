@@ -1,0 +1,81 @@
+name: CI PMD and JRE Availability Check
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+jobs:
+  pmd-setup-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 17 (Required for PMD)
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Cache PMD installation
+        id: pmd-cache
+        uses: actions/cache@v4
+        with:
+          path: ~/pmd-bin
+          key: ${{ runner.os }}-pmd-${{ hashFiles('**/pmd-version.txt') }}
+
+      - name: Download and Install PMD CLI
+        if: steps.pmd-cache.outputs.cache-hit != 'true'
+        run: |
+          # Determine latest PMD version (hardcoded to a stable recent version for reproducibility)
+          PMD_VERSION="7.5.0"
+          echo "Downloading PMD version ${PMD_VERSION}..."
+          wget -q https://github.com/pmd/pmd/releases/download/pmd_releases%2F${PMD_VERSION}/pmd-bin-${PMD_VERSION}.zip -O /tmp/pmd-bin.zip
+          
+          echo "Unzipping PMD..."
+          unzip -q /tmp/pmd-bin.zip -d ~/
+          mv ~/pmd-bin-${PMD_VERSION} ~/pmd-bin
+          
+          echo "Adding PMD to PATH"
+          echo "$HOME/pmd-bin/bin" >> $GITHUB_PATH
+
+      - name: Verify PMD Installation
+        run: |
+          echo "Verifying PMD availability..."
+          pmd --version
+          
+          # Verify JRE is available (PMD requires Java)
+          java -version
+          
+          # Verify PMD rulesets are accessible
+          echo "Checking PMD ruleset directory..."
+          ls -R ~/pmd-bin/rulesets/
+
+      - name: Run Basic PMD Check on Utility Files
+        run: |
+          echo "Running a sanity check PMD analysis on a utility file..."
+          # Create a temporary dummy file to ensure PMD can parse
+          mkdir -p /tmp/pmd-test
+          echo "class Dummy { public static void main(String[] args) {} }" > /tmp/pmd-test/Dummy.java
+          
+          # Run PMD against the dummy file with a basic Java ruleset
+          pmd check \
+            --rulesets rulesets/java/quickstart.xml \
+            --format text \
+            --dir /tmp/pmd-test
+          
+          if [ $? -eq 0 ]; then
+            echo "PMD check passed successfully."
+          else
+            echo "PMD check completed with warnings/errors (expected for dummy file)."
+          fi
+
+      - name: Export PMD Environment Info
+        run: |
+          echo "PMD_HOME: $HOME/pmd-bin"
+          echo "PMD_BIN: $(which pmd)"
+          echo "JAVA_HOME: $JAVA_HOME"
+          echo "Java Version: $(java -version 2>&1 | head -n 1)"
+          echo "PMD Version: $(pmd --version)"

@@ -1,1 +1,5 @@
-# Unit tests package
+"""
+Unit tests package.
+
+Tests for individual functions and classes.
+"""

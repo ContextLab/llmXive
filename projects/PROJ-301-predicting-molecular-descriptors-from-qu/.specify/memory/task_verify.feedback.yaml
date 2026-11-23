@@ -1,0 +1,46 @@
+T001:
+  reason: "The evidence shows the required top\u2011level directories `code/`, `data/raw/`,\
+    \ `data/processed/`, `data/results/`, `tests/`, and `docs/` each contain a `.gitkeep`\
+    \ file, but there is **no separate top\u2011level `utils/` directory**\u2014the\
+    \ only `utils/` found is nested inside `code/`. The task explicitly requires a\
+    \ top\u2011level `utils/` folder, so the directory tree is incomplete."
+  task: c8e69606045f92f8a55715eda63adbb607ce2cb5bfab26324d1c85bca3004621
+T002:
+  reason: "The `requirements.txt` contains the required ten pinned packages, but it\
+    \ also includes two additional lines (`ruff==0.4.0` and `black==24.0.0`) that\
+    \ were not part of the task specification, so the file\u2019s content does not\
+    \ exactly match the requested list."
+  task: 4056e7b075e34423880a668c6cc4469b7fcacc8d5ad815f285ffedb76e30c580
+T003:
+  reason: 'Requested task execution failed; rerun successfully: code/run_lint.py exit=1'
+  task: a530b7b79a151d5de05b337ae6ca54573dc7dba7ee2c10927c7b1f441d80a6bb
+T004:
+  task: 56abebf111082a0ad015fdbf52c4844a5f4e752be48d3aa778497e8815c6e8c4
+T005:
+  task: 60260588d83096edb46adc6f423879e5a24ea87965d05cd5d48517140aa9c009
+T006:
+  task: 208cb7e7e1d386ef9c5ccecd16c7a51c191c1cbe0ad299b8bfc679532a69385d
+T007:
+  task: f1136a5681c71a3b2f9080042ea53a476a661662dbf57724e6e86c893f9a4dcd
+T008:
+  task: 45a405403629c116c6d5edae327dd6666736c8c9891b9b3cc2c7c76c25061a16
+T009:
+  task: 868991be18b828e0a39f23e6a5152f4472723ed19bcff8cbd0410ac6436117ca
+T010:
+  task: 127704eefdb55f99b6cd71cb86bea358106f2d00a5081141ffd9c677f4d589b8
+T011:
+  task: 53baa7bbaf036642db6663ee6f99ff1a2c8cc8be83be06f15c176ce9ec24e112
+T012:
+  task: c1a2f121a604966ac8a2e8985878dd8b860e2d5152daaa2f49801cbcd187c103
+T013:
+  task: 15701b46e9e102b7ca4b60a443d9583061b8f8f22004df3c8d8cfe7cd12e97c9
+T014:
+  task: 9a6323fc04db75d43a33b381ab8abeeeefe8c2dabf5f7cc61b92fde5a7d07ccd
+T015:
+  task: 203d517e6a60ddd387a04f75475128655cc5936ff9e44660a8fa98ad6dba7abb
+T016:
+  task: 16aeb6b2e86a3e0675b88536fdc263ece5392a68cb41bcbd872866ff3a22287d
+T017:
+  task: 7662a29e5e01496e7870314d9feca16711e075e0341d17c1dac17a42a19a6dcd
+T018:
+  task: ddda6a7eabdeaaee2a43d5babab7a08f14c1b9a1c03e7b156f5ae22891af9591

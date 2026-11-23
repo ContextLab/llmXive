@@ -26,11 +26,11 @@ properties:
     type: "array"
     items:
       type: "number"
-    description: "R² scores from LOO cross-validation or bootstrap."
+    description: "R² scores from LOO cross-validation, 5‑fold CV, or bootstrap."
   cv_method:
     type: "string"
-    enum: ["LOO", "Bootstrap"]
-    description: "Cross-validation method used."
+    enum: ["LOO", "5Fold", "Bootstrap"]
+    description: "Cross‑validation method used; LOO for N<20, 5‑fold for N≥20, Bootstrap for resampling."
 required:
   - "model_type"
   - "r_squared"

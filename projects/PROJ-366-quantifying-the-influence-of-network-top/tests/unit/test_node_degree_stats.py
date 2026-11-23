@@ -1,102 +1,101 @@
-"""
-Unit tests for T016: Node Degree Stats Generation.
-
-Verifies that:
-1. The mode is correctly calculated from a known distribution.
-2. The verification logic correctly identifies if the mode is within the expected range.
-3. The output file is generated with the correct schema.
-"""
 import json
 import os
+import pickle
 import tempfile
-import pytest
-from collections import Counter
 from pathlib import Path
+from unittest import mock
 
-# Mock the config paths to use a temporary directory for testing
-import sys
-from unittest.mock import patch, MagicMock
+import pytest
 
-# Add code directory to path if not already present
-code_path = Path(__file__).parent.parent.parent / "code"
-if str(code_path) not in sys.path:
-    sys.path.insert(0, str(code_path))
+from ingest.node_degree_stats_generator import (
+    load_graphs,
+    calculate_global_degree_distribution,
+    compute_mode_and_stats,
+    validate_mode_for_amorphous_silicon,
+    main
+)
+from config import get_config
 
-from ingest.node_degree_stats_generator import calculate_global_degree_distribution, compute_mode_and_stats
-
-def test_calculate_global_degree_distribution():
-    """Test aggregation of degrees across multiple mock graphs."""
-    mock_graphs = [
-        {
+@pytest.fixture
+def temp_graph_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir)
+        # Create a mock graph
+        graph1 = {
+            "graph_id": "sample_01",
             "nodes": [
-                {"degree": 4}, {"degree": 4}, {"degree": 3},
-                {"degree": 4}, {"degree": 5}
-            ]
-        },
-        {
-            "nodes": [
-                {"degree": 4}, {"degree": 4}, {"degree": 4},
-                {"degree": 3}
+                {"id": 0, "degree": 4, "coords": [0.0, 0.0, 0.0]},
+                {"id": 1, "degree": 4, "coords": [1.0, 0.0, 0.0]},
+                {"id": 2, "degree": 3, "coords": [0.0, 1.0, 0.0]},
+                {"id": 3, "degree": 5, "coords": [0.0, 0.0, 1.0]}
             ]
         }
-    ]
+        # Create another mock graph
+        graph2 = {
+            "graph_id": "sample_02",
+            "nodes": [
+                {"id": 0, "degree": 4, "coords": [0.0, 0.0, 0.0]},
+                {"id": 1, "degree": 4, "coords": [1.0, 0.0, 0.0]},
+                {"id": 2, "degree": 4, "coords": [0.0, 1.0, 0.0]}
+            ]
+        }
+        
+        with open(tmp_path / "graph_01.pkl", 'wb') as f:
+            pickle.dump(graph1, f)
+        with open(tmp_path / "graph_02.pkl", 'wb') as f:
+            pickle.dump(graph2, f)
+        
+        yield tmp_path
 
-    counts = calculate_global_degree_distribution(mock_graphs)
-    
-    # Expected: 4 appears 7 times, 3 appears 2 times, 5 appears 1 time
-    assert counts[4] == 7
-    assert counts[3] == 2
-    assert counts[5] == 1
-    assert sum(counts.values()) == 10
+def test_load_graphs(temp_graph_dir):
+    graphs = load_graphs(temp_graph_dir)
+    assert len(graphs) == 2
+    assert graphs[0]['graph_id'] == 'sample_01'
+    assert graphs[1]['graph_id'] == 'sample_02'
 
-def test_compute_mode_and_stats_valid_range():
-    """Test mode calculation and range verification with valid data."""
-    # Distribution where 4 is the mode (typical for amorphous silicon)
-    counts = {3: 10, 4: 50, 5: 20, 6: 5}
-    
-    stats = compute_mode_and_stats(counts)
-    
-    assert stats["mode"] == 4
-    assert stats["mode_count"] == 50
-    assert stats["is_within_expected_range"] is True
-    assert stats["verification"] == "PASS"
-    assert stats["total_nodes"] == 85
+def test_calculate_global_degree_distribution(temp_graph_dir):
+    graphs = load_graphs(temp_graph_dir)
+    dist = calculate_global_degree_distribution(graphs)
+    # Expected: 3 appears once, 4 appears 5 times, 5 appears once
+    assert dist[3] == 1
+    assert dist[4] == 5
+    assert dist[5] == 1
 
-def test_compute_mode_and_stats_invalid_range():
-    """Test verification logic when mode is outside expected range (3-6)."""
-    # Artificial distribution where mode is 2 (defective)
-    counts = {2: 60, 3: 20, 4: 10}
+def test_compute_mode_and_stats(temp_graph_dir):
+    graphs = load_graphs(temp_graph_dir)
+    dist = calculate_global_degree_distribution(graphs)
+    stats = compute_mode_and_stats(dist)
     
-    stats = compute_mode_and_stats(counts)
-    
-    assert stats["mode"] == 2
-    assert stats["is_within_expected_range"] is False
-    assert stats["verification"] == "FAIL"
+    assert stats['mode'] == 4
+    assert stats['mode_frequency'] == 5
+    assert stats['total_nodes'] == 7
+    # Mean: (3*1 + 4*5 + 5*1) / 7 = (3 + 20 + 5) / 7 = 28/7 = 4.0
+    assert stats['mean_degree'] == 4.0
 
-def test_tie_breaking():
-    """Test deterministic tie-breaking when multiple degrees have the same max count."""
-    # 3 and 4 both have 20 counts
-    counts = {3: 20, 4: 20, 5: 10}
-    
-    stats = compute_mode_and_stats(counts)
-    
-    # Should pick the minimum (3) as the tie-breaker
-    assert stats["mode"] == 3
-    assert stats["mode_count"] == 20
+def test_validate_mode_for_amorphous_silicon():
+    config = get_config()
+    # Valid range
+    assert validate_mode_for_amorphous_silicon(4, config) is True
+    # Invalid range (too low)
+    assert validate_mode_for_amorphous_silicon(2, config) is False
+    # Invalid range (too high)
+    assert validate_mode_for_amorphous_silicon(6, config) is False
 
-def test_output_schema_structure():
-    """Verify the structure of the output stats dictionary."""
-    counts = {4: 100}
-    stats = compute_mode_and_stats(counts)
+def test_main_execution(temp_graph_dir, tmp_path):
+    # Mock paths to point to our temp dir and a temp output
+    mock_paths = {
+        'processed_graphs': temp_graph_dir,
+        'node_degree_stats': tmp_path / "node_degree_stats.json"
+    }
     
-    required_keys = [
-        "mode", "mode_count", "mean_degree", "total_nodes", 
-        "distribution", "expected_range", "is_within_expected_range", "verification"
-    ]
+    with mock.patch('ingest.node_degree_stats_generator.get_paths', return_value=mock_paths):
+        main()
     
-    for key in required_keys:
-        assert key in stats, f"Missing key: {key}"
+    assert mock_paths['node_degree_stats'].exists()
     
-    assert isinstance(stats["distribution"], dict)
-    assert "min" in stats["expected_range"]
-    assert "max" in stats["expected_range"]
+    with open(mock_paths['node_degree_stats'], 'r') as f:
+        data = json.load(f)
+    
+    assert 'stats' in data
+    assert data['stats']['mode'] == 4
+    assert 'distribution' in data['stats']

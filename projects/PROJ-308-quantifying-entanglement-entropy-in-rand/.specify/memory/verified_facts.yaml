@@ -1,6 +1,11 @@
-'|arithmetic double floating point precision system use':
-  quote: "64-bit word [1]. We assume that the bit-\uFB02ip happens randomly so it\
-    \ has equi-probability"
-  source_id: '1304.4292'
-  url: https://arxiv.org/abs/1304.4292
-  value: '64'
+0.693|approx eff ln moore phase predicted random refael singlet text:
+  quote: "the entanglement entropy in the Random Singlet Phase with an e\uFB00ective\
+    \ central charge \u02DCc = c \xD7 ln 2."
+  source_id: cond-mat/0504446
+  url: https://arxiv.org/abs/cond-mat/0504446
+  value: ln 2
+'|calabrese cardy entanglement entropy experiment field journal mechanic p06002 quantum statistical theory':
+  quote: P06002 (2004) [hep-th/0405152].
+  source_id: '0905.4013'
+  url: https://arxiv.org/abs/0905.4013
+  value: P06002

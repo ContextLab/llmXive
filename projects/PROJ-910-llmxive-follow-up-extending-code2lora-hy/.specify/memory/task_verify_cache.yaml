@@ -1,0 +1,85 @@
+T001:
+  c: false
+  h: 7a601a0a03da0ed24e24f0fdff400d177967cee895f9635186eaa102536fd16f
+  r: The provided artifacts include all required files except `pyproject.toml` and
+    `.github/workflows/ci.yml`, which are missing entirely. These two files must be
+    added to the project structure for the task to be considered complete.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission provides no visible changes to `ast_parser.py`, no evidence that\
+    \ malformed files are skipped, nor that `log_warning` from T006 is invoked with\
+    \ filename and error. Without the actual code artifact, the required control\u2011\
+    flow logic cannot be confirmed."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `adapter_generator.py` or `main.py` files containing the required custom\
+    \ exceptions, RAM checks, checkpoint validation, or corresponding unit tests are\
+    \ present. The claim lacks any concrete code or test artifacts to verify the specified\
+    \ error\u2011handling behavior."
+T021:
+  c: false
+  h: e0a9603f18cb67bd53ab52cb2080c439e02bf69430960ea79fcbbb7df2dbeece
+  r: "The provided `code/evaluation/runner.py` is present, but the visible excerpt\
+    \ stops before any latency measurement or CSV\u2011writing logic, and the required\
+    \ output file `data/results/ast_scores.csv` does not exist. To satisfy the task,\
+    \ the script must explicitly record inference latency for each task, compute exact\u2011\
+    match, and write rows with `task_id, exact_match, latency_ms` to `data/results/ast_scores.csv`.\
+    \ Add and verify that code, then generate the CSV."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data, or documentation was provided that implements the three failure\u2011\
+    mode classes (`'Syntax Error'`, `'Semantic Mismatch'`, `'Timeout'`) nor a test\
+    \ that logs a mock `SyntaxError`. The required artifact (implementation and verification\
+    \ log) is missing, so the task is not satisfied."
+T026:
+  c: false
+  h: 4974b5c12e8b1423ec44a3ce38bd76562c3e54669b1bbb63899c61a45924d30c
+  r: "The repository contains a partially shown `code/evaluation/stats.py`, but the\
+    \ file is truncated and does not demonstrate the full required logic (fallback\
+    \ to t\u2011test, JSON output, verification assertion). Moreover, the required\
+    \ output file `data/results/stats.json` is missing. Consequently the task\u2019\
+    s specifications are not satisfied."
+T028:
+  c: false
+  h: 97969afb6fd11006fdfe02724132e75522ce35ffa7753f183cc1fe045cb09565
+  r: The required artifact `tests/integration/test_sensitivity_analysis.py` does not
+    exist in the repository, so the integration test for the sensitivity analysis
+    loop is missing. The task cannot be considered completed until this file is added
+    with appropriate test code.
+T031b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `baseline_score.json` file is present in the provided evidence, and thus there
+    is no way to verify that it contains a single key `score` with a float value.
+    The required artifact is missing.
+T032:
+  c: false
+  h: 6c75c88dc39ad43a2130159cc4bffd53ffa9de09bdc38acb3387c48bbd526661
+  r: The required output file `data/results/minimal_feature_set.txt` is missing, and
+    there is no evidence that the implementer performed the threshold calculation
+    or identified the minimal feature set. The CSV and JSON inputs exist, but the
+    final artifact demanded by the task is absent.
+T041:
+  c: true
+  h: ada7064eeb7bdf61d586556df073b2129f1e56a655e2d9c33fae0b1c4ca9ea88
+  r: "The repository contains a fully\u2011implemented `code/utils/memory_monitor.py`\
+    \ that uses `resource.getrusage` to obtain RSS memory (peak) and writes timestamps,\
+    \ step names, current and peak memory (in GB), and optional duration to `data/results/memory_log.csv`,\
+    \ creating the directory and file as needed. No placeholder or missing functionality\
+    \ is evident."
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No CI workflow file (e.g., a GitHub Actions YAML) or any script that runs the\
+    \ full pipeline on sample data is present. The required artifact\u2014a CI job\
+    \ definition that exercises the pipeline and validates timeouts/resource limits\u2014\
+    is missing."
+T053:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md` or `specs/001-ast-based-adapter-generation/quickstart.md`
+    files were provided; without these artifacts the claim of polishing the documentation
+    cannot be verified. The required documentation updates are missing.

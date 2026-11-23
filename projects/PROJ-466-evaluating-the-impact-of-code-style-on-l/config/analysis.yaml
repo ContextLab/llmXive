@@ -1,28 +1,47 @@
-# Configuration for Code Style Diversity Evaluation
-# Matches task T005 requirements
+# Configuration for llmXive Automated Science Pipeline
+# PROJ-466: Evaluating the Impact of Code Style on LLM Code Generation Diversity
 
 seeds:
+  default: 42
   generation: 42
-  analysis: 42
 
 thresholds:
   alpha: 0.05
-  bias_magnitude: 0.10
-  min_pass_rate: 0.01
+  bias_magnitude: 0.1
+  collinearity_threshold: 0.9
 
-generation:
-  batch_size_start: 50
-  samples_per_task: 20
-  temperature: 0.7
-  timeout_minutes: 5
+batch:
+  initial_size: 50
+  min_size: 1
 
-memory:
-  max_usage_gb: 7.0
-  reduction_step: 10
+timeouts:
+  task_limit_minutes: 5
+  pipeline_limit_hours: 6
+
+analysis:
+  # Range of alpha values for sensitivity analysis (T034)
+  sensitivity_alpha_range: [0.001, 0.005, 0.01, 0.02, 0.05, 0.1]
+  # Metrics to compute
+  metrics:
+    - ast_distance
+    - ngram_entropy
 
 paths:
   raw_data: data/raw/humaneval
   processed: data/processed
-  figures: figures
-  logs: logs
+  samples_all: data/processed/samples_all.csv
+  samples_valid: data/processed/samples_valid.csv
+  metrics_all: data/processed/metrics_all.csv
+  metrics_valid: data/processed/metrics_valid.csv
+  sensitivity_results: data/processed/sensitivity_analysis.csv
   state: state
+  logs: logs
+  reports: reports
+
+memory:
+  max_gb: 7.0
+  safety_margin: 0.5
+
+reporting:
+  format: html
+  include_plots: true

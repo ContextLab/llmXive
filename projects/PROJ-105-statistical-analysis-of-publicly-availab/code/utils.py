@@ -14,39 +14,73 @@ class PipelineError(Exception):
     """Custom exception for pipeline-related errors."""
     pass
 
+# Global logger instance configured at import time
+_logger: Optional[logging.Logger] = None
+
+def _get_or_create_logger() -> logging.Logger:
+    """
+    Returns the global logger, initializing it if necessary.
+    Initializes logging to data/logs/pipeline.log at INFO level.
+    """
+    global _logger
+    if _logger is not None:
+        return _logger
+
+    logger = logging.getLogger("pipeline")
+    logger.setLevel(logging.INFO)
+
+    # Avoid duplicate handlers if called multiple times
+    if not logger.handlers:
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+
+        # File handler for data/logs/pipeline.log
+        log_path = Path("data/logs/pipeline.log")
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_path)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
+
+        # Stream handler for stderr
+        stream_handler = logging.StreamHandler(sys.stderr)
+        stream_handler.setFormatter(formatter)
+        logger.addHandler(stream_handler)
+
+        _logger = logger
+
+    return _logger
+
 def setup_logging(log_file: Optional[Path] = None, level: int = logging.INFO) -> logging.Logger:
     """
     Configure and return a logger instance.
 
+    If log_file is provided, it configures the global logger to write to that file.
+    If log_file is None, it returns the pre-configured global logger (writing to data/logs/pipeline.log).
+    
     Args:
-        log_file: Optional path to a log file. If None, logs to stderr.
+        log_file: Optional path to a custom log file. If None, uses the default pipeline.log.
         level: Logging level (default: INFO).
 
     Returns:
         A configured logger instance.
     """
-    logger = logging.getLogger("pipeline")
+    logger = _get_or_create_logger()
+    
+    # If a custom log file is requested, ensure the global logger has that handler
+    # Note: The global logger is already initialized to data/logs/pipeline.log by default.
+    # If the user passes a different path, we add a handler for it without removing the default.
+    if log_file and log_file != Path("data/logs/pipeline.log"):
+        if not any(isinstance(h, logging.FileHandler) and h.baseFilename == str(log_file) for h in logger.handlers):
+            formatter = logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            )
+            log_file.parent.mkdir(parents=True, exist_ok=True)
+            file_handler = logging.FileHandler(log_file)
+            file_handler.setFormatter(formatter)
+            logger.addHandler(file_handler)
+    
     logger.setLevel(level)
-
-    # Avoid adding duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
-
-    formatter = logging.Formatter(
-        "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    )
-
-    if log_file:
-        log_file.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
-    # Always add a stream handler to stderr
-    stream_handler = logging.StreamHandler(sys.stderr)
-    stream_handler.setFormatter(formatter)
-    logger.addHandler(stream_handler)
-
     return logger
 
 def get_current_memory_gb() -> float:

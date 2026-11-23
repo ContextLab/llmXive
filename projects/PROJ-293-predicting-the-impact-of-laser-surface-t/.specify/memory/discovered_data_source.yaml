@@ -1,0 +1,9 @@
+status: none
+intent: '### User Story 1 - Aggregate and Preprocess LST Wear Data (Priority: P1)
+  The researcher needs to ingest raw tabular data from diverse sources (OpenML, HuggingFace,
+  literature supplements), standardize the schema (process parameters vs. material
+  properties vs. wear outcomes), and handle missing value'
+required_fields: []
+cache_key: 53d16c0413b1e82453db11de59c331e7a2775ab0d3569e1f886d68c54bb6d7e1
+searched_at: '2026-11-14T06:42:15.161974+00:00'
+retry_count: 1

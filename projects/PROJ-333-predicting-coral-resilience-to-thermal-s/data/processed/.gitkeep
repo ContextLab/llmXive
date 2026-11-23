@@ -1,1 +1,2 @@
-# Placeholder to ensure directory exists for processed data outputs
+# This directory stores processed data files (e.g., count matrices).
+# Do not commit large binary files.

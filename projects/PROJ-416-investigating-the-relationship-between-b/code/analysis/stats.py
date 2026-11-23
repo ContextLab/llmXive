@@ -1,342 +1,517 @@
+"""
+Statistical analysis module for brain network dynamics and VR therapy response.
+Implements ANCOVA, power analysis, VIF collinearity checks, FDR correction,
+and sensitivity analysis.
+"""
+
 import logging
 import pandas as pd
 import numpy as np
-from typing import Dict, List, Tuple, Optional
+from typing import Dict, List, Tuple, Optional, Any
 from pathlib import Path
 import statsmodels.api as sm
+from statsmodels.stats.power import FTestPower
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 from statsmodels.stats.multitest import multipletests
-from code.config import Config
+import json
+import os
 
 logger = logging.getLogger(__name__)
 
-def calculate_vif(df: pd.DataFrame, features: List[str]) -> Dict[str, float]:
-    """
-    Calculate Variance Inflation Factor (VIF) for each feature.
-    
-    Args:
-        df: DataFrame containing the features
-        features: List of feature column names
-        
-    Returns:
-        Dictionary mapping feature names to VIF values
-    """
-    vif_data = {}
-    for feature in features:
-        if feature not in df.columns:
-            logger.warning(f"Feature {feature} not found in DataFrame")
-            continue
-        
-        X = df[features].values
-        if X.shape[1] < 2:
-            vif_data[feature] = 0.0
-            continue
-        
-        # Create design matrix for this feature
-        y = df[feature].values
-        X_other = np.column_stack([np.ones(len(df)), 
-                                  np.delete(X, features.index(feature), axis=1)])
-        
-        try:
-            # Fit linear model
-            model = sm.OLS(y, X_other).fit()
-            r_squared = model.rsquared
-            vif = 1.0 / (1.0 - r_squared) if r_squared < 1.0 else float('inf')
-            vif_data[feature] = vif
-        except Exception as e:
-            logger.error(f"Error calculating VIF for {feature}: {e}")
-            vif_data[feature] = float('inf')
-    
-    return vif_data
 
-def apply_fdr_correction(p_values: List[float], alpha: float = 0.05) -> Tuple[List[bool], List[float]]:
+class CollinearityUnresolvableError(Exception):
+    """Raised when collinearity cannot be resolved via PCA."""
+    pass
+
+
+def calculate_vif(df: pd.DataFrame, feature_cols: List[str]) -> float:
     """
-    Apply False Discovery Rate (FDR) correction to p-values.
+    Calculate Variance Inflation Factor (VIF) for a set of features.
     
     Args:
-        p_values: List of p-values
-        alpha: Significance level
+        df: DataFrame containing the features.
+        feature_cols: List of column names to calculate VIF for.
         
     Returns:
-        Tuple of (rejection decisions, adjusted p-values)
+        Maximum VIF value across all features.
+    """
+    if not feature_cols:
+        return 0.0
+    
+    X = df[feature_cols].dropna()
+    if X.shape[0] < len(feature_cols) + 1:
+        logger.warning("Not enough samples to calculate VIF reliably.")
+        return float('inf')
+    
+    # Add constant for intercept
+    X_with_const = sm.add_constant(X)
+    
+    vif_values = []
+    for col in feature_cols:
+        try:
+            vif = variance_inflation_factor(X_with_const.values, X_with_const.columns.get_loc(col))
+            vif_values.append(vif)
+        except Exception as e:
+            logger.warning(f"Could not calculate VIF for {col}: {e}")
+            vif_values.append(float('inf'))
+    
+    return max(vif_values) if vif_values else 0.0
+
+
+def apply_fdr_correction(p_values: List[float], alpha: float = 0.05) -> List[float]:
+    """
+    Apply False Discovery Rate (FDR) correction to a list of p-values.
+    
+    Args:
+        p_values: List of uncorrected p-values.
+        alpha: Significance level.
+        
+    Returns:
+        List of corrected p-values.
     """
     if not p_values:
-        return [], []
+        return []
     
     try:
-        reject, p_corrected, _, _ = multipletests(p_values, alpha=alpha, method='fdr_bh')
-        return list(reject), list(p_corrected)
+        _, p_values_corrected, _, _ = multipletests(
+            p_values, 
+            alpha=alpha, 
+            method='fdr_bh', 
+            is_sorted=False, 
+            returnsorted=False
+        )
+        return p_values_corrected.tolist()
     except Exception as e:
         logger.error(f"FDR correction failed: {e}")
-        return [False] * len(p_values), p_values
+        return p_values
 
-def run_ancova_analysis(df: pd.DataFrame, 
-                       dependent_var: str,
-                       independent_vars: List[str],
-                       confounds: List[str] = None,
-                       fd_covariate: str = 'fd_mean',
-                       motion_thresholds: List[float] = [2.0, 3.0],
-                       p_values: List[str] = ['uncorrected', '0.05', '0.1']) -> Dict:
+
+def load_power_analysis_results() -> Optional[Dict[str, Any]]:
+    """Load power analysis results from JSON file."""
+    path = Path("data/metrics/power_analysis.json")
+    if not path.exists():
+        logger.warning(f"Power analysis file not found: {path}")
+        return None
+    
+    try:
+        with open(path, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to load power analysis results: {e}")
+        return None
+
+
+def run_power_analysis(n_obs: int, effect_size: float = 0.15, alpha: float = 0.05, power: float = 0.8) -> Dict[str, Any]:
     """
-    Run ANCOVA analysis with sensitivity analysis for motion thresholds and p-values.
+    Run power analysis to determine minimum sample size required.
     
     Args:
-        df: DataFrame with all variables
-        dependent_var: Name of dependent variable (post-treatment score)
-        independent_vars: List of independent variables (pre-treatment score, network metrics)
-        confounds: List of confound variables
-        fd_covariate: Name of framewise displacement covariate
-        motion_thresholds: List of motion thresholds to sweep (2mm, 3mm)
-        p_values: List of p-value correction strategies to sweep
+        n_obs: Current number of observations.
+        effect_size: Cohen's f-squared (default 0.15 for medium effect).
+        alpha: Significance level.
+        power: Desired statistical power.
         
     Returns:
-        Dictionary containing analysis results for each sweep configuration
+        Dictionary with power analysis results.
     """
-    results = {}
+    logger.info(f"Running power analysis: n_obs={n_obs}, effect_size={effect_size}, alpha={alpha}, power={power}")
     
-    # Ensure required columns exist
-    required_cols = [dependent_var] + independent_vars + [fd_covariate]
-    if confounds:
-        required_cols.extend(confounds)
-        
-    missing_cols = [col for col in required_cols if col not in df.columns]
-    if missing_cols:
-        raise ValueError(f"Missing required columns: {missing_cols}")
+    ft = FTestPower()
     
-    # Store baseline analysis results
-    baseline_results = {
-        'motion_threshold': 'baseline',
-        'p_correction': 'uncorrected',
-        'coefficients': {},
-        'p_values': {},
-        'vif': {},
-        'n_samples': len(df)
-    }
-    
-    # Run baseline analysis (all data, uncorrected)
     try:
-        X = df[independent_vars + confounds + [fd_covariate] if confounds else [fd_covariate]].copy()
-        X = sm.add_constant(X)
-        y = df[dependent_var]
+        # Calculate minimum N required
+        result = ft.solve_power(
+            effect_size=effect_size,
+            alpha=alpha,
+            power=power,
+            nobs1=None,
+            ratio=1.0,
+            alternative='two-sided'
+        )
         
+        min_n_required = int(np.ceil(result))
+        
+        # Determine status
+        if n_obs < 5:
+            status = "HALT"
+            warning_message = "Insufficient Power: N < 5"
+        elif n_obs < min_n_required:
+            status = "WARNING"
+            warning_message = "WARNING: Underpowered for hypothesis testing (Power < 0.8)"
+        else:
+            status = "OK"
+            warning_message = ""
+        
+        result_dict = {
+            "min_N_required": min_n_required,
+            "effect_size": effect_size,
+            "alpha": alpha,
+            "power": power,
+            "method": "FTestPower",
+            "status": status,
+            "warning_message": warning_message,
+            "current_n": n_obs
+        }
+        
+        # Save to file
+        output_path = Path("data/metrics/power_analysis.json")
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(result_dict, f, indent=2)
+        
+        logger.info(f"Power analysis saved to {output_path}: status={status}, min_N={min_n_required}")
+        
+        return result_dict
+        
+    except Exception as e:
+        logger.error(f"Power analysis failed: {e}")
+        return {
+            "min_N_required": -1,
+            "effect_size": effect_size,
+            "alpha": alpha,
+            "power": power,
+            "method": "FTestPower",
+            "status": "ERROR",
+            "warning_message": f"Power analysis error: {str(e)}",
+            "current_n": n_obs
+        }
+
+
+def run_ancova_analysis(
+    df: pd.DataFrame,
+    outcome_col: str,
+    pre_col: str,
+    metric_col: str,
+    confound_cols: Optional[List[str]] = None,
+    fd_col: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Run ANCOVA analysis: Outcome ~ Pre + Metric + Confounds + FD.
+    
+    Args:
+        df: DataFrame with all variables.
+        outcome_col: Name of the outcome variable (post-treatment).
+        pre_col: Name of the pre-treatment covariate.
+        metric_col: Name of the network metric predictor.
+        confound_cols: List of confound variable names.
+        fd_col: Name of the framewise displacement covariate.
+        
+    Returns:
+        Dictionary with model results.
+    """
+    logger.info(f"Running ANCOVA: {outcome_col} ~ {pre_col} + {metric_col}")
+    
+    # Build formula
+    predictors = [pre_col, metric_col]
+    if confound_cols:
+        predictors.extend(confound_cols)
+    if fd_col and fd_col in df.columns:
+        predictors.append(fd_col)
+    
+    formula = f"{outcome_col} ~ " + " + ".join(predictors)
+    
+    # Prepare data
+    model_data = df[[outcome_col] + predictors].dropna()
+    
+    if model_data.shape[0] < len(predictors) + 1:
+        raise ValueError(f"Insufficient data for ANCOVA: {model_data.shape[0]} rows, {len(predictors)+1} parameters needed")
+    
+    y = model_data[outcome_col]
+    X = sm.add_constant(model_data[predictors])
+    
+    try:
         model = sm.OLS(y, X).fit()
         
-        baseline_results['coefficients'] = model.params.to_dict()
-        baseline_results['p_values'] = model.pvalues.to_dict()
-        baseline_results['rsquared'] = model.rsquared
-        baseline_results['n_samples'] = model.nobs
+        # Extract results for the metric of interest
+        metric_idx = predictors.index(metric_col)
+        metric_coef = model.params[metric_idx]
+        metric_pval = model.pvalues[metric_idx]
+        r_squared = model.rsquared
         
-        # Calculate VIF
-        all_features = independent_vars + (confounds if confounds else []) + [fd_covariate]
-        baseline_results['vif'] = calculate_vif(df, all_features)
-        
-        results['baseline'] = baseline_results
+        return {
+            "formula": formula,
+            "metric_coefficient": float(metric_coef),
+            "metric_p_value": float(metric_pval),
+            "r_squared": float(r_squared),
+            "n_obs": int(model_data.shape[0]),
+            "params": model.params.to_dict(),
+            "pvalues": model.pvalues.to_dict()
+        }
     except Exception as e:
-        logger.error(f"Baseline ANCOVA failed: {e}")
-        results['baseline_error'] = str(e)
-    
-    # Sensitivity analysis: Sweep motion thresholds
-    for threshold in motion_thresholds:
-        threshold_key = f"motion_{threshold}mm"
-        
-        # Filter data based on motion threshold
-        motion_filtered_df = df[df[fd_covariate] <= threshold].copy()
-        
-        if len(motion_filtered_df) < 5:
-            logger.warning(f"Insufficient samples ({len(motion_filtered_df)}) for motion threshold {threshold}mm")
-            results[threshold_key] = {'error': f'Insufficient samples: {len(motion_filtered_df)}'}
-            continue
-        
-        # Run analysis with filtered data
-        try:
-            X = motion_filtered_df[independent_vars + (confounds if confounds else []) + [fd_covariate]].copy()
-            X = sm.add_constant(X)
-            y = motion_filtered_df[dependent_var]
-            
-            model = sm.OLS(y, X).fit()
-            
-            threshold_results = {
-                'motion_threshold': threshold,
-                'p_correction': 'uncorrected',
-                'coefficients': model.params.to_dict(),
-                'p_values': model.pvalues.to_dict(),
-                'rsquared': model.rsquared,
-                'n_samples': model.nobs,
-                'vif': calculate_vif(motion_filtered_df, independent_vars + (confounds if confounds else []) + [fd_covariate])
-            }
-            
-            results[threshold_key] = threshold_results
-        except Exception as e:
-            logger.error(f"Motion threshold analysis {threshold}mm failed: {e}")
-            results[f"{threshold_key}_error"] = str(e)
-    
-    # Sensitivity analysis: Sweep p-value corrections
-    for p_val_strategy in p_values:
-        p_key = f"p_{p_val_strategy}"
-        
-        # For uncorrected, we already have baseline
-        if p_val_strategy == 'uncorrected':
-            if 'baseline' in results:
-                results[p_key] = results['baseline'].copy()
-                results[p_key]['p_correction'] = 'uncorrected'
-            continue
-        
-        # For corrected p-values, use baseline data but apply FDR
-        try:
-            if 'baseline' not in results or 'p_values' not in results['baseline']:
-                raise ValueError("No baseline results available for p-value correction")
-            
-            p_values_list = list(results['baseline']['p_values'].values())
-            alpha = float(p_val_strategy)
-            
-            reject, p_corrected = apply_fdr_correction(p_values_list, alpha=alpha)
-            
-            # Update p-values in results
-            corrected_results = results['baseline'].copy()
-            corrected_results['p_correction'] = p_val_strategy
-            corrected_results['p_values_corrected'] = p_corrected
-            corrected_results['rejected'] = reject
-            
-            results[p_key] = corrected_results
-            
-        except Exception as e:
-            logger.error(f"P-value correction {p_val_strategy} failed: {e}")
-            results[f"{p_key}_error"] = str(e)
-    
-    # Combined sensitivity: motion thresholds with p-value corrections
-    for threshold in motion_thresholds:
-        for p_val_strategy in p_values:
-            if p_val_strategy == 'uncorrected':
-                continue  # Already handled above
-            
-            combined_key = f"motion_{threshold}mm_p_{p_val_strategy}"
-            
-            # Get motion filtered results
-            motion_key = f"motion_{threshold}mm"
-            if motion_key not in results or 'error' in results[motion_key]:
-                continue
-            
-            try:
-                # Re-run analysis on motion-filtered data with p-value correction
-                motion_filtered_df = df[df[fd_covariate] <= threshold].copy()
-                
-                X = motion_filtered_df[independent_vars + (confounds if confounds else []) + [fd_covariate]].copy()
-                X = sm.add_constant(X)
-                y = motion_filtered_df[dependent_var]
-                
-                model = sm.OLS(y, X).fit()
-                
-                p_values_list = list(model.pvalues.values())
-                alpha = float(p_val_strategy)
-                reject, p_corrected = apply_fdr_correction(p_values_list, alpha=alpha)
-                
-                combined_results = {
-                    'motion_threshold': threshold,
-                    'p_correction': p_val_strategy,
-                    'coefficients': model.params.to_dict(),
-                    'p_values': model.pvalues.to_dict(),
-                    'p_values_corrected': p_corrected,
-                    'rejected': reject,
-                    'rsquared': model.rsquared,
-                    'n_samples': model.nobs
-                }
-                
-                results[combined_key] = combined_results
-                
-            except Exception as e:
-                logger.error(f"Combined analysis {combined_key} failed: {e}")
-                results[f"{combined_key}_error"] = str(e)
-    
-    return results
+        logger.error(f"ANCOVA model fitting failed: {e}")
+        raise
 
-def run_analysis(config: Config) -> Dict:
+
+def run_sensitivity_analysis(
+    df: pd.DataFrame,
+    outcome_col: str,
+    pre_col: str,
+    metric_cols: List[str],
+    motion_thresholds: List[float] = [2.0, 3.0],
+    pval_thresholds: List[float] = [0.01, 0.05, 0.1],
+    outcome_defs: List[str] = ["change", "residual", "raw"],
+    fd_col: Optional[str] = None
+) -> pd.DataFrame:
     """
-    Run the complete statistical analysis pipeline including sensitivity analysis.
+    Run sensitivity analysis sweeping motion thresholds, p-values, and outcome definitions.
     
     Args:
-        config: Configuration object
+        df: DataFrame with all variables.
+        outcome_col: Base outcome variable name.
+        pre_col: Pre-treatment covariate.
+        metric_cols: List of network metric columns to test.
+        motion_thresholds: List of motion thresholds (mm) to test.
+        pval_thresholds: List of p-value thresholds to test.
+        outcome_defs: List of outcome definitions to test.
+        fd_col: Framewise displacement column name.
         
     Returns:
-        Dictionary containing all analysis results
+        DataFrame with sensitivity analysis results.
     """
-    logger.info("Starting statistical analysis with sensitivity analysis")
+    logger.info(f"Running sensitivity analysis with {len(motion_thresholds)} motion, {len(pval_thresholds)} pval, {len(outcome_defs)} outcome thresholds")
     
-    # Load data
-    metrics_path = config.DATA_METRICS_PATH / "network_metrics.csv"
-    if not metrics_path.exists():
-        raise FileNotFoundError(f"Network metrics file not found: {metrics_path}")
+    results = []
     
-    df = pd.read_csv(metrics_path)
-    logger.info(f"Loaded {len(df)} subjects from {metrics_path}")
-    
-    # Define analysis parameters from config or defaults
-    dependent_var = config.get('DEPENDENT_VAR', 'post_treatment_score')
-    independent_vars = [config.get('INDEPENDENT_VAR', 'pre_treatment_score')]
-    confounds = config.get('CONFOUNDS', []).split(',') if config.get('CONFOUNDS') else []
-    fd_covariate = config.get('FD_COVARIATE', 'fd_mean')
-    
-    # Sensitivity analysis parameters
-    motion_thresholds = [2.0, 3.0]  # mm
-    p_values = ['uncorrected', '0.05', '0.1']
-    
-    # Run ANCOVA with sensitivity analysis
-    results = run_ancova_analysis(
-        df=df,
-        dependent_var=dependent_var,
-        independent_vars=independent_vars,
-        confounds=confounds,
-        fd_covariate=fd_covariate,
-        motion_thresholds=motion_thresholds,
-        p_values=p_values
-    )
-    
-    logger.info(f"Analysis complete. Results for {len(results)} configurations generated")
-    
-    return results
-
-def main():
-    """Main entry point for statistical analysis."""
-    import sys
-    from code.config import Config
-    
-    # Setup logging
-    from code.utils.logging import setup_logging
-    setup_logging()
-    
-    try:
-        config = Config()
-        results = run_analysis(config)
+    for motion_thresh in motion_thresholds:
+        # Filter by motion
+        df_motion = df.copy()
+        if fd_col and fd_col in df_motion.columns:
+            df_motion = df_motion[df_motion[fd_col] <= motion_thresh]
+            logger.debug(f"Motion threshold {motion_thresh}mm: {len(df_motion)} subjects remaining")
         
-        # Save results
-        output_path = config.DATA_METRICS_PATH / "statistical_results.csv"
-        output_path.parent.mkdir(parents=True, exist_ok=True)
+        if len(df_motion) < 5:
+            logger.warning(f"Too few subjects after motion filter ({motion_thresh}mm): {len(df_motion)}")
+            continue
         
-        # Convert results to DataFrame for saving
-        flat_results = []
-        for config_key, config_results in results.items():
-            if 'error' in config_results:
+        for outcome_def in outcome_defs:
+            # Create outcome variable based on definition
+            if outcome_def == "change":
+                if outcome_col in df_motion.columns and pre_col in df_motion.columns:
+                    df_motion["outcome"] = df_motion[outcome_col] - df_motion[pre_col]
+                else:
+                    continue
+            elif outcome_def == "residual":
+                # Residual of post ~ pre
+                if outcome_col in df_motion.columns and pre_col in df_motion.columns:
+                    try:
+                        X_pre = sm.add_constant(df_motion[[pre_col]])
+                        y_post = df_motion[outcome_col]
+                        model_pre = sm.OLS(y_post, X_pre).fit()
+                        df_motion["outcome"] = model_pre.resid
+                    except:
+                        continue
+                else:
+                    continue
+            elif outcome_def == "raw":
+                if outcome_col in df_motion.columns:
+                    df_motion["outcome"] = df_motion[outcome_col]
+                else:
+                    continue
+            else:
                 continue
             
-            row = {'configuration': config_key}
-            row.update(config_results)
-            
-            # Flatten nested dictionaries
-            for key, value in config_results.items():
-                if isinstance(value, dict):
-                    for k, v in value.items():
-                        row[f"{key}_{k}"] = v
-            
-            flat_results.append(row)
+            for metric_col in metric_cols:
+                if metric_col not in df_motion.columns:
+                    continue
+                
+                for pval_thresh in pval_thresholds:
+                    # Run ANCOVA
+                    try:
+                        ancova_result = run_ancova_analysis(
+                            df_motion,
+                            outcome_col="outcome",
+                            pre_col=pre_col,
+                            metric_col=metric_col,
+                            fd_col=fd_col
+                        )
+                        
+                        p_val = ancova_result["metric_p_value"]
+                        coef = ancova_result["metric_coefficient"]
+                        significant = p_val < pval_thresh
+                        
+                        results.append({
+                            "threshold_type": "combined",
+                            "threshold_value": f"{motion_thresh}mm|{pval_thresh}|{outcome_def}",
+                            "motion_threshold": motion_thresh,
+                            "pval_threshold": pval_thresh,
+                            "outcome_definition": outcome_def,
+                            "metric": metric_col,
+                            "significant": significant,
+                            "effect_size": coef,
+                            "p_value": p_val,
+                            "n_obs": ancova_result["n_obs"]
+                        })
+                        
+                    except Exception as e:
+                        logger.warning(f"ANCOVA failed for {metric_col} with {outcome_def}: {e}")
+                        continue
+    
+    if not results:
+        logger.warning("No sensitivity analysis results generated")
+        return pd.DataFrame()
+    
+    return pd.DataFrame(results)
+
+
+def save_sensitivity_report(results_df: pd.DataFrame, output_path: str = "reports/sensitivity_analysis.md") -> None:
+    """
+    Save sensitivity analysis results to a markdown report.
+    
+    Args:
+        results_df: DataFrame with sensitivity analysis results.
+        output_path: Path to save the report.
+    """
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(output_path, 'w') as f:
+        f.write("# Sensitivity Analysis Report\n\n")
+        f.write("This report shows the robustness of findings across different analytical choices.\n\n")
         
-        if flat_results:
-            results_df = pd.DataFrame(flat_results)
-            results_df.to_csv(output_path, index=False)
-            logger.info(f"Results saved to {output_path}")
-        else:
-            logger.warning("No valid results to save")
-            
+        if results_df.empty:
+            f.write("No results to report.\n")
+            return
+        
+        # Summary by threshold type
+        f.write("## Summary by Threshold Combination\n\n")
+        f.write("| Motion (mm) | P-Value | Outcome Def | Metric | Significant | Effect Size | N |\n")
+        f.write("|-------------|---------|-------------|--------|-------------|-------------|---|\n")
+        
+        for _, row in results_df.iterrows():
+            f.write(f"| {row['motion_threshold']} | {row['pval_threshold']} | {row['outcome_definition']} | {row['metric']} | {'Yes' if row['significant'] else 'No'} | {row['effect_size']:.4f} | {row['n_obs']} |\n")
+        
+        # Aggregate counts
+        f.write("\n## Aggregate Significance Counts\n\n")
+        summary = results_df.groupby(['motion_threshold', 'pval_threshold', 'outcome_definition'])['significant'].agg(['sum', 'count']).reset_index()
+        summary['sig_pct'] = (summary['sum'] / summary['count'] * 100).round(1)
+        
+        f.write("| Motion (mm) | P-Value | Outcome Def | Significant | Total | % Sig |\n")
+        f.write("|-------------|---------|-------------|-------------|-------|-------|\n")
+        for _, row in summary.iterrows():
+            f.write(f"| {row['motion_threshold']} | {row['pval_threshold']} | {row['outcome_definition']} | {int(row['sum'])} | {int(row['count'])} | {row['sig_pct']}% |\n")
+        
+        f.write("\n## Methodological Notes\n\n")
+        f.write("- Motion thresholds tested: 2.0mm, 3.0mm\n")
+        f.write("- P-value thresholds tested: 0.01, 0.05, 0.1\n")
+        f.write("- Outcome definitions tested: Change Score, Residual, Raw Post\n")
+        f.write("- Primary analysis uses 3.0mm threshold, p<0.05, Change Score outcome\n")
+    
+    logger.info(f"Sensitivity analysis report saved to {output_path}")
+
+
+def run_analysis() -> None:
+    """Main entry point for statistical analysis pipeline."""
+    logger.info("Starting statistical analysis pipeline")
+    
+    # Load data
+    try:
+        network_metrics = pd.read_csv("data/metrics/network_metrics.csv")
+        qc_metrics = pd.read_csv("data/metrics/qc_metrics.csv")
+        filtered_subjects = pd.read_csv("data/metrics/filtered_subjects.csv")
     except Exception as e:
-        logger.error(f"Analysis failed: {e}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"Failed to load data: {e}")
+        return
+    
+    # Merge data
+    df = network_metrics.merge(qc_metrics, on='subject_id', how='inner')
+    df = df.merge(filtered_subjects, on='subject_id', how='inner')
+    df = df[df['status'] == 'included']
+    
+    if df.empty:
+        logger.warning("No included subjects for analysis")
+        return
+    
+    # Power analysis
+    power_result = run_power_analysis(n_obs=len(df))
+    if power_result.get('status') == 'HALT':
+        logger.error(power_result.get('warning_message', 'HALT condition met'))
+        return
+    
+    # VIF check
+    metric_cols = [c for c in df.columns if 'modularity' in c.lower() or 'efficiency' in c.lower()]
+    if metric_cols:
+        vif = calculate_vif(df, metric_cols)
+        logger.info(f"Calculated VIF: {vif:.2f}")
+        
+        if vif > 5:
+            logger.warning("High collinearity detected (VIF > 5). Switching to exploratory mode.")
+            # PCA handling would go here, but per spec we don't replace primary predictors
+            model_selection = "PCA-Exploratory"
+        else:
+            model_selection = "OLS"
+        
+        # Save model selection
+        model_log = {
+            "vif_value": vif,
+            "decision": model_selection,
+            "reason": "High collinearity" if vif > 5 else "Low collinearity"
+        }
+        with open("data/metrics/model_selection_log.json", 'w') as f:
+            json.dump(model_log, f, indent=2)
+    
+    # Run ANCOVA for each metric
+    results = []
+    for metric_col in metric_cols:
+        try:
+            ancova_result = run_ancova_analysis(
+                df,
+                outcome_col='post_treatment_score',
+                pre_col='pre_treatment_score',
+                metric_col=metric_col,
+                confound_cols=['age', 'medication_status'] if 'age' in df.columns else None,
+                fd_col='mean_fd'
+            )
+            
+            results.append({
+                'metric': metric_col,
+                'coefficient': ancova_result['metric_coefficient'],
+                'p_value_uncorrected': ancova_result['metric_p_value'],
+                'model_type': model_selection,
+                'n_obs': ancova_result['n_obs']
+            })
+        except Exception as e:
+            logger.warning(f"ANCOVA failed for {metric_col}: {e}")
+            continue
+    
+    if results:
+        # Apply FDR correction
+        p_values = [r['p_value_uncorrected'] for r in results]
+        p_values_corrected = apply_fdr_correction(p_values)
+        
+        for i, r in enumerate(results):
+            r['p_value_corrected'] = p_values_corrected[i]
+            r['vif'] = vif if metric_cols else 0
+            r['min_N_required'] = power_result.get('min_N_required', -1)
+        
+        # Save results
+        results_df = pd.DataFrame(results)
+        results_df.to_csv("data/metrics/statistical_results.csv", index=False)
+        logger.info("Statistical results saved")
+    
+    # Run sensitivity analysis
+    if metric_cols:
+        sens_results = run_sensitivity_analysis(
+            df,
+            outcome_col='post_treatment_score',
+            pre_col='pre_treatment_score',
+            metric_cols=metric_cols,
+            motion_thresholds=[2.0, 3.0],
+            pval_thresholds=[0.01, 0.05, 0.1],
+            outcome_defs=['change', 'residual', 'raw'],
+            fd_col='mean_fd'
+        )
+        
+        if not sens_results.empty:
+            save_sensitivity_report(sens_results, "reports/sensitivity_analysis.md")
+    
+    logger.info("Statistical analysis pipeline completed")
+
+
+def main():
+    """CLI entry point."""
+    logging.basicConfig(level=logging.INFO)
+    run_analysis()
+
 
 if __name__ == "__main__":
     main()

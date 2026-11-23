@@ -1,0 +1,17 @@
+status: none
+intent: download CMIP6 tas pr data from ESGF using intake-esm python package dataset
+required_fields:
+- model_id
+- ensemble_member
+- scenario
+- variable
+- time
+- latitude
+- longitude
+- tas
+- pr
+- units
+- grid_type
+cache_key: 4958af33e5a614ffd0db8272dddafd9c0925eee1e0213dc0d1e4b77f125f8b7d
+searched_at: '2026-10-15T13:48:29.352202+00:00'
+retry_count: 1

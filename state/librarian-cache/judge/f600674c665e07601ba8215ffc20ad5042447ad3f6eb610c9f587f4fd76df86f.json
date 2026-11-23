@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2004.07276",
+  "judged_at": "2026-07-30T10:45:35Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"in-context world modeling for robotic control\" computer science",
+  "rationale": "This paper satisfies criterion (b) as it measures the performance of robotic control systems (the user's domain) under model uncertainty and input constraints, which are the core physical mechanisms and variables addressed in \"In-Context World Modeling for Robotic Control.\" Additionally, it serves as a relevant empirical baseline (c) for control strategies that do not rely on in-context learning, providing necessary context for a literature review on extending world modeling approaches.",
+  "relevant": true
+}

@@ -1,0 +1,5 @@
+sample_id,pH,biome,latitude,longitude,nutrients
+S1,5.5,Forest,45.0,-120.0,10.5
+S2,6.2,Grassland,40.0,-110.0,12.3
+S3,7.0,Desert,35.0,-100.0,5.2
+S4,5.8,Forest,10.0,-90.0,15.1

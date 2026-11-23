@@ -1,107 +1,99 @@
-"""
-Power analysis and edge case handling for statistical validation.
-
-Handles the edge case where sample size N < 50, ensuring
-output/power_analysis.json is written with the appropriate status
-and logging a WARNING message.
-"""
 import os
 import json
 import logging
 from typing import Dict, Any, Optional
-
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-OUTPUT_DIR = "output"
-POWER_ANALYSIS_FILE = os.path.join(OUTPUT_DIR, "power_analysis.json")
-MIN_POWER_THRESHOLD = 50
-
-
-def check_sample_size_power(n_samples: int) -> Dict[str, Any]:
+def check_sample_size_power(n_samples: int, threshold: int = 50) -> Dict[str, Any]:
     """
-    Check if sample size meets minimum power requirements.
+    Check if the sample size is sufficient for statistical power.
     
     Args:
         n_samples: The number of samples in the dataset.
+        threshold: The minimum number of samples required (default 50).
         
     Returns:
-        A dictionary with 'status' and 'n_samples' keys.
-        If n_samples < 50, status is 'insufficient_power'.
-        Otherwise, status is 'sufficient_power'.
+        A dictionary with status information.
     """
-    if n_samples < MIN_POWER_THRESHOLD:
-        status = "insufficient_power"
-        logger.warning(f"INSUFFICIENT_POWER: N={n_samples} < {MIN_POWER_THRESHOLD}")
+    if n_samples < threshold:
+        logger.warning(f"INSUFFICIENT_POWER: N={n_samples} < {threshold}")
+        return {
+            "status": "insufficient_power",
+            "n_samples": n_samples,
+            "threshold": threshold,
+            "message": f"Sample size {n_samples} is below the required threshold of {threshold} for reliable statistical analysis."
+        }
     else:
-        status = "sufficient_power"
-        logger.info(f"Power check passed: N={n_samples} >= {MIN_POWER_THRESHOLD}")
+        return {
+            "status": "sufficient_power",
+            "n_samples": n_samples,
+            "threshold": threshold,
+            "message": f"Sample size {n_samples} meets the requirement of {threshold}."
+        }
+
+def write_power_analysis(
+    output_path: str,
+    status: str,
+    n_samples: int,
+    threshold: int = 50,
+    message: Optional[str] = None
+) -> None:
+    """
+    Write the power analysis results to a JSON file.
     
-    return {
+    Args:
+        output_path: Path to the output JSON file.
+        status: The power status ('sufficient_power' or 'insufficient_power').
+        n_samples: The number of samples analyzed.
+        threshold: The threshold used for the check.
+        message: Optional detailed message.
+    """
+    result = {
         "status": status,
         "n_samples": n_samples,
-        "threshold": MIN_POWER_THRESHOLD
+        "threshold": threshold,
     }
-
-
-def write_power_analysis(n_samples: int, output_path: Optional[str] = None) -> Dict[str, Any]:
-    """
-    Write power analysis results to output/power_analysis.json.
-    
-    This function handles the edge case where N < 50 by writing
-    a status of 'insufficient_power' and logging a WARNING message.
-    
-    Args:
-        n_samples: The number of samples in the dataset.
-        output_path: Optional path to write the JSON file. Defaults to output/power_analysis.json.
-        
-    Returns:
-        The power analysis dictionary that was written.
-    """
-    if output_path is None:
-        output_path = POWER_ANALYSIS_FILE
+    if message:
+        result["message"] = message
     
     # Ensure output directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    # Check power status (this also logs the warning if needed)
-    power_result = check_sample_size_power(n_samples)
-    
-    # Write to JSON file
     with open(output_path, 'w') as f:
-        json.dump(power_result, f, indent=2)
+        json.dump(result, f, indent=2)
     
-    logger.info(f"Power analysis written to {output_path}")
-    return power_result
-
+    logger.info(f"Power analysis results written to {output_path}")
 
 def main():
     """
-    Main entry point for power analysis script.
-    
-    This script is intended to be called from the evaluation pipeline
-    after data loading but before expensive statistical tests.
-    It checks sample size and writes the power analysis result.
+    Main entry point for the power analysis script.
+    This script is typically called by the evaluation pipeline.
     """
-    # This function can be called with a specific N or derived from a dataset
-    # For now, we'll demonstrate with a placeholder - in real usage,
-    # this would be called with actual data count from the pipeline
+    # Example usage - in practice, n_samples would be passed from the pipeline
+    # or read from the processed data
     import sys
+    if len(sys.argv) < 2:
+        logger.error("Usage: python code/models/power_analysis.py <n_samples> [output_path]")
+        sys.exit(1)
     
-    if len(sys.argv) > 1:
-        try:
-            n = int(sys.argv[1])
-            result = write_power_analysis(n)
-            print(f"Power analysis result: {result}")
-        except ValueError:
-            logger.error(f"Invalid sample size: {sys.argv[1]}")
-            sys.exit(1)
-    else:
-        # Default demonstration - in real pipeline this is called with actual N
-        logger.info("No sample size provided. Use: python code/models/power_analysis.py <n_samples>")
-        sys.exit(0)
-
+    try:
+        n_samples = int(sys.argv[1])
+    except ValueError:
+        logger.error(f"Invalid n_samples value: {sys.argv[1]}")
+        sys.exit(1)
+    
+    output_path = sys.argv[2] if len(sys.argv) > 2 else "output/power_analysis.json"
+    
+    power_status = check_sample_size_power(n_samples)
+    write_power_analysis(
+        output_path=output_path,
+        status=power_status["status"],
+        n_samples=power_status["n_samples"],
+        threshold=power_status["threshold"],
+        message=power_status.get("message")
+    )
 
 if __name__ == "__main__":
     main()

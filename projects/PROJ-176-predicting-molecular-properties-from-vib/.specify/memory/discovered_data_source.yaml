@@ -1,0 +1,14 @@
+status: none
+intent: download QM9 dataset with precomputed IR spectra aligned by InChIKey python
+  package dataset
+required_fields:
+- InChIKey
+- dipole_moment
+- isotropic_polarizability
+- homo_lumo_gap
+- ir_wavenumbers
+- ir_intensities
+- dft_functional
+cache_key: 9fbcc2492ee3ffbcc273f7da5865c6cb25534637e187058749b2b3bf8703546e
+searched_at: '2026-10-20T13:51:43.570394+00:00'
+retry_count: 1

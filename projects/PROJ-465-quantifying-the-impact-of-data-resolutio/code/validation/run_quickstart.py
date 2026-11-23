@@ -1,12 +1,11 @@
 """
-Quickstart Validation Script for PROJ-465.
+Quickstart validation script for PROJ-465.
 
-This script validates the end-to-end pipeline by:
-1. Ensuring all required directories exist.
-2. Running the data download, transformation, inference, and analysis pipeline
-   on a single high-SNR event (GW150914) if data is not present.
-3. Generating checksums for all produced artifacts (posteriors, metrics, reports).
-4. Verifying artifact integrity.
+This script validates the entire pipeline by:
+1. Ensuring event data is available (fetching from GWOSC if necessary)
+2. Running the full downsampling and inference pipeline
+3. Generating checksums for all artifacts
+4. Verifying artifact integrity
 
 Usage:
     python code/validation/run_quickstart.py
@@ -16,236 +15,277 @@ import os
 import sys
 import logging
 import shutil
+import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional
+import hashlib
 
 # Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+project_root = Path(__file__).parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-from code.config import DATA_DIR, RESULTS_DIR, ensure_directories
-from code.utils.logging_config import setup_logging, get_derivation_logger
-from code.utils.hash_artifact import compute_file_hash, save_hash_manifest, verify_artifact_integrity
-from code.utils.seeds import set_global_seed
-from code.data.download import fetch_high_snr_events, download_strain_data
-from code.data.transform import apply_resolution_transforms
-from code.inference.run_bilby import run_inference
-from code.analysis.metrics import compute_metrics_for_resolution
-from code.analysis.aggregate import aggregate_results, save_aggregation_report
+from config import DATA_DIR, RESULTS_DIR, ensure_directories
+from utils.seeds import set_global_seed
+from utils.logging_config import setup_logging, get_derivation_logger
+from utils.hash_artifact import compute_file_hash, save_hash_manifest, load_hash_manifest, verify_artifact_integrity
+from data.download import fetch_high_snr_events, download_strain_data, save_strain_data
+from data.transform import generate_all_resolutions
+from inference.run_bilby import run_inference
+from analysis.metrics import compute_metrics_for_resolution
+from analysis.aggregate import aggregate_results, save_aggregation_report
 
 # Configure logging
-LOG_DIR = Path("logs")
-LOG_DIR.mkdir(exist_ok=True)
-setup_logging(log_level=logging.INFO, log_dir=str(LOG_DIR))
-logger = get_derivation_logger("quickstart_validation")
+setup_logging()
+logger = logging.getLogger(__name__)
+derivation_logger = get_derivation_logger("quickstart_validation")
 
-# Constants
-TARGET_EVENT = "GW150914"
-SAMPLE_RATE = 4096
-RESOLUTIONS = [4096, 2048, 1024]
-BIT_DEPTHS = [32, 16]
-MAX_STEPS = 5000
-DLOGZ_THRESHOLD = 0.1
-SEED = 42
-
-def ensure_event_data(event_id: str) -> Optional[Path]:
+def ensure_event_data(event_id: str = "GW150914") -> Path:
     """
-    Fetches or locates strain data for a specific event.
-    Returns the path to the data file, or None if unavailable.
-    """
-    logger.info(f"Checking for data for event: {event_id}")
-    
-    # Try to find existing data
-    raw_dir = DATA_DIR / "raw"
-    if raw_dir.exists():
-        candidates = list(raw_dir.glob(f"*{event_id}*"))
-        if candidates:
-            logger.info(f"Found existing data: {candidates[0]}")
-            return candidates[0]
+    Ensure event data is available. Fetch from GWOSC if not present.
 
-    # Attempt to download
-    logger.info(f"Attempting to fetch high-SNR events from GWOSC for {event_id}...")
+    Args:
+        event_id: The event ID to fetch (default: GW150914)
+
+    Returns:
+        Path to the downloaded strain data file
+    """
+    ensure_directories()
+    strain_dir = DATA_DIR / "raw" / "strain"
+    strain_dir.mkdir(parents=True, exist_ok=True)
+
+    expected_file = strain_dir / f"{event_id}_strain.h5"
+
+    if expected_file.exists():
+        logger.info(f"Event data already exists: {expected_file}")
+        return expected_file
+
+    logger.info(f"Fetching event data for {event_id} from GWOSC...")
     try:
-        events = fetch_high_snr_events(min_snr=20, max_results=1)
+        # Fetch high SNR events
+        events = fetch_high_snr_events(min_snr=20, event_ids=[event_id])
         if not events:
-            logger.warning("No high-SNR events found in catalog.")
-            return None
-        
-        # Filter for our target or take the first
-        target_event = next((e for e in events if event_id in e.get('name', '')), events[0])
-        event_name = target_event.get('name')
-        
-        logger.info(f"Downloading strain data for {event_name}...")
-        data_path = download_strain_data(event_name, start_time=target_event.get('gps_start'), 
-                                         end_time=target_event.get('gps_end'),
-                                         sampling_rate=SAMPLE_RATE)
-        return data_path
+            raise ValueError(f"No high-SNR data found for {event_id}")
+
+        event_data = events[0]
+        strain_file = download_strain_data(event_data)
+        saved_path = save_strain_data(strain_file, event_id)
+
+        logger.info(f"Successfully downloaded and saved strain data: {saved_path}")
+        return saved_path
+
     except Exception as e:
-        logger.error(f"Failed to download data: {e}", exc_info=True)
-        return None
+        logger.error(f"Failed to fetch event data: {e}")
+        raise
 
-def run_pipeline(data_path: Path) -> Dict[str, Any]:
+def run_pipeline(event_id: str, resolutions: List[int] = [4096, 2048, 1024]) -> Dict[str, Any]:
     """
-    Executes the full pipeline: Transform -> Inference -> Metrics -> Aggregation.
+    Run the full downsampling and inference pipeline for an event.
+
+    Args:
+        event_id: The event ID to process
+        resolutions: List of sampling rates to test
+
+    Returns:
+        Dictionary containing pipeline results
     """
-    logger.info("Starting Pipeline Execution")
-    
-    # 1. Transform: Generate all resolutions
-    logger.info("Applying resolution transforms...")
-    transformed_data = apply_resolution_transforms(
-        input_path=data_path,
-        resolutions=RESOLUTIONS,
-        bit_depths=BIT_DEPTHS
-    )
-    
-    results = {}
-    
-    # 2. Inference & Metrics
-    for res_config, file_path in transformed_data.items():
-        sample_rate = res_config['sampling_rate']
-        bit_depth = res_config['bit_depth']
-        logger.info(f"Running inference for {sample_rate}Hz, {bit_depth}-bit...")
-        
-        # Run Inference
+    logger.info(f"Starting pipeline for event {event_id} with resolutions: {resolutions}")
+
+    # Ensure data is available
+    strain_path = ensure_event_data(event_id)
+
+    # Generate all resolutions
+    resolution_results = generate_all_resolutions(strain_path, resolutions)
+
+    # Run inference for each resolution
+    posterior_files = []
+    for res_config, strain_data in resolution_results.items():
+        logger.info(f"Running inference for resolution: {res_config}")
+
         posterior_path = run_inference(
-            strain_file=str(file_path),
-            sample_rate=sample_rate,
-            event_id=TARGET_EVENT,
-            max_steps=MAX_STEPS,
-            dlogz_threshold=DLOGZ_THRESHOLD,
-            seed=SEED
-        )
-        
-        if not posterior_path:
-            logger.warning(f"Inference failed for {res_config}. Skipping metrics.")
-            continue
-        
-        # Compute Metrics
-        logger.info(f"Computing metrics for {res_config}...")
-        metrics = compute_metrics_for_resolution(
-            posterior_file=str(posterior_path),
+            strain_data=strain_data,
             resolution_config=res_config,
-            baseline_sampling_rate=4096
+            event_id=event_id
         )
-        
-        results[str(res_config)] = {
-            "posterior_file": str(posterior_path),
-            "metrics": metrics
-        }
 
-    # 3. Aggregate
-    logger.info("Aggregating results...")
-    metrics_dir = RESULTS_DIR / "metrics"
-    if not metrics_dir.exists():
-        metrics_dir.mkdir(parents=True)
-        
-    # Save individual metrics files first (if not already done by compute_metrics_for_resolution)
-    # Assuming compute_metrics_for_resolution saves to RESULTS_DIR/metrics
-    
-    aggregation_report = save_aggregation_report(
-        output_path=str(RESULTS_DIR / "metrics" / "aggregation_report.json"),
-        results_dir=str(metrics_dir)
-    )
-    
-    return results
+        if posterior_path:
+            posterior_files.append(posterior_path)
+            logger.info(f"Generated posterior: {posterior_path}")
 
-def generate_checksums() -> Dict[str, str]:
-    """
-    Generates SHA-256 checksums for all artifacts in data/derived and results/.
-    """
-    logger.info("Generating checksums for all artifacts...")
-    manifest = {}
-    
-    artifact_dirs = [
-        DATA_DIR / "derived",
-        RESULTS_DIR / "posteriors",
-        RESULTS_DIR / "metrics",
-        RESULTS_DIR / "figures"
-    ]
-    
-    for dir_path in artifact_dirs:
-        if not dir_path.exists():
+    # Compute metrics for each resolution
+    metrics_results = {}
+    baseline_path = None
+    for res_config in resolutions:
+        # Find the posterior file for this resolution
+        res_posteriors = [p for p in posterior_files if str(res_config) in str(p)]
+        if not res_posteriors:
+            logger.warning(f"No posterior found for resolution {res_config}")
             continue
-        
-        for file_path in dir_path.rglob("*"):
-            if file_path.is_file() and not file_path.name.endswith(".sha256"):
+
+        posterior_path = res_posteriors[0]
+
+        # Calculate metrics
+        metrics = compute_metrics_for_resolution(
+            posterior_path=posterior_path,
+            resolution_config=res_config,
+            event_id=event_id
+        )
+
+        if metrics:
+            metrics_results[res_config] = metrics
+            if res_config == 4096:
+                baseline_path = posterior_path
+
+    # Aggregate results
+    if metrics_results:
+        aggregation = aggregate_results(metrics_results, event_id)
+        report_path = save_aggregation_report(aggregation, event_id)
+        logger.info(f"Saved aggregation report: {report_path}")
+
+    return {
+        "event_id": event_id,
+        "posterior_files": posterior_files,
+        "metrics_results": metrics_results,
+        "aggregation_report": report_path if metrics_results else None
+    }
+
+def generate_checksums(results_dir: Path) -> Path:
+    """
+    Generate checksums for all artifacts in the results directory.
+
+    Args:
+        results_dir: Path to the results directory
+
+    Returns:
+        Path to the checksum manifest file
+    """
+    logger.info(f"Generating checksums for artifacts in {results_dir}")
+
+    manifest = {
+        "version": "1.0",
+        "generated_at": "",
+        "artifacts": []
+    }
+
+    # Walk through all files in results directory
+    for root, dirs, files in os.walk(results_dir):
+        for file in files:
+            file_path = Path(root) / file
+            rel_path = file_path.relative_to(results_dir)
+
+            try:
                 file_hash = compute_file_hash(file_path)
-                rel_path = file_path.relative_to(Path.cwd())
-                manifest[str(rel_path)] = file_hash
-    
-    # Save manifest
-    manifest_path = Path("artifacts_manifest.json")
-    save_hash_manifest(manifest, str(manifest_path))
-    logger.info(f"Checksum manifest saved to {manifest_path}")
-    
-    return manifest
+                manifest["artifacts"].append({
+                    "path": str(rel_path),
+                    "hash": file_hash,
+                    "size": file_path.stat().st_size
+                })
+                logger.debug(f"Checksummed: {rel_path} -> {file_hash[:16]}...")
+            except Exception as e:
+                logger.warning(f"Failed to checksum {file_path}: {e}")
 
-def verify_artifacts(manifest: Dict[str, str]) -> bool:
+    manifest["generated_at"] = str(Path(__file__).parent.parent.parent / "data" / "derived" / "checksums")
+    manifest_path = results_dir / "checksum_manifest.json"
+
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest, f, indent=2)
+
+    logger.info(f"Saved checksum manifest: {manifest_path}")
+    return manifest_path
+
+def verify_artifacts(results_dir: Path) -> bool:
     """
-    Verifies the integrity of all artifacts against the manifest.
+    Verify artifact integrity using checksums.
+
+    Args:
+        results_dir: Path to the results directory
+
+    Returns:
+        True if all artifacts are valid, False otherwise
     """
-    logger.info("Verifying artifact integrity...")
-    is_valid = True
-    for rel_path, expected_hash in manifest.items():
-        file_path = Path(rel_path)
-        if not file_path.exists():
-            logger.error(f"Missing artifact: {file_path}")
-            is_valid = False
-            continue
-        
-        actual_hash = compute_file_hash(file_path)
-        if actual_hash != expected_hash:
-            logger.error(f"Integrity check failed for {file_path}: Expected {expected_hash}, Got {actual_hash}")
-            is_valid = False
+    manifest_path = results_dir / "checksum_manifest.json"
+
+    if not manifest_path.exists():
+        logger.error(f"Checksum manifest not found: {manifest_path}")
+        return False
+
+    logger.info(f"Verifying artifacts using manifest: {manifest_path}")
+
+    try:
+        manifest = load_hash_manifest(manifest_path)
+        all_valid = True
+
+        for artifact in manifest["artifacts"]:
+            file_path = results_dir / artifact["path"]
+            if not file_path.exists():
+                logger.error(f"Artifact missing: {artifact['path']}")
+                all_valid = False
+                continue
+
+            current_hash = compute_file_hash(file_path)
+            if current_hash != artifact["hash"]:
+                logger.error(f"Hash mismatch for {artifact['path']}: expected {artifact['hash']}, got {current_hash}")
+                all_valid = False
+            else:
+                logger.debug(f"Verified: {artifact['path']}")
+
+        if all_valid:
+            logger.info("All artifacts verified successfully!")
         else:
-            logger.debug(f"Verified: {file_path}")
-    
-    return is_valid
+            logger.error("Some artifacts failed verification!")
+
+        return all_valid
+
+    except Exception as e:
+        logger.error(f"Verification failed: {e}")
+        return False
 
 def main():
     """
-    Main entry point for validation.
+    Main entry point for quickstart validation.
     """
-    logger.info("=== Starting Quickstart Validation ===")
-    
-    # 1. Setup
+    logger.info("=" * 80)
+    logger.info("Starting Quickstart Validation for PROJ-465")
+    logger.info("=" * 80)
+
+    # Set global seed for reproducibility
+    set_global_seed(42)
+
+    # Ensure directories exist
     ensure_directories()
-    set_global_seed(SEED)
-    
-    # 2. Data Acquisition
-    data_path = ensure_event_data(TARGET_EVENT)
-    if not data_path:
-        logger.error("Could not acquire data. Validation cannot proceed.")
-        # If we can't get data, we might still want to check if the structure exists,
-        # but the task implies running the pipeline.
-        # For the sake of this task, we assume if data is missing, we fail gracefully.
-        return 1
-    
-    # 3. Pipeline Execution
+
+    # Run pipeline for GW150914
+    event_id = "GW150914"
     try:
-        results = run_pipeline(data_path)
-        if not results:
-            logger.error("Pipeline produced no results.")
+        results = run_pipeline(event_id)
+
+        if not results["posterior_files"]:
+            logger.error("Pipeline failed to generate any posterior files")
+            sys.exit(1)
+
+        logger.info(f"Pipeline completed successfully for {event_id}")
+        logger.info(f"Generated {len(results['posterior_files'])} posterior files")
+
+        # Generate checksums
+        checksum_path = generate_checksums(RESULTS_DIR)
+
+        # Verify artifacts
+        if verify_artifacts(RESULTS_DIR):
+            logger.info("=" * 80)
+            logger.info("Quickstart Validation PASSED")
+            logger.info("=" * 80)
+            logger.info(f"Checksum manifest: {checksum_path}")
+            logger.info(f"Results directory: {RESULTS_DIR}")
+            return 0
+        else:
+            logger.error("=" * 80)
+            logger.error("Quickstart Validation FAILED - Artifact verification failed")
+            logger.error("=" * 80)
             return 1
+
     except Exception as e:
-        logger.error(f"Pipeline execution failed: {e}", exc_info=True)
+        logger.error(f"Quickstart validation failed with error: {e}")
+        logger.exception("Full traceback:")
         return 1
-    
-    # 4. Checksum Generation
-    try:
-        manifest = generate_checksums()
-        if not manifest:
-            logger.warning("No artifacts found to checksum.")
-    except Exception as e:
-        logger.error(f"Checksum generation failed: {e}", exc_info=True)
-        return 1
-    
-    # 5. Verification
-    if not verify_artifacts(manifest):
-        logger.error("Artifact verification failed.")
-        return 1
-    
-    logger.info("=== Quickstart Validation PASSED ===")
-    return 0
 
 if __name__ == "__main__":
     sys.exit(main())

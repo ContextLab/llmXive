@@ -1,0 +1,2 @@
+# This directory stores executable scripts for running experiments and validation.
+# Do not commit large files; use .gitkeep to preserve directory structure.

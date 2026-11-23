@@ -1,0 +1,35 @@
+# generated using pymatgen
+data_Li7BiO6
+_symmetry_space_group_name_H-M   P-1
+_cell_length_a   5.44268689
+_cell_length_b   5.50710000
+_cell_length_c   5.98626141
+_cell_angle_alpha   63.27439087
+_cell_angle_beta   63.91460866
+_cell_angle_gamma   60.58000112
+_symmetry_Int_Tables_number   2
+_chemical_formula_structural   Li7BiO6
+_chemical_formula_sum   'Li7 Bi1 O6'
+_cell_volume   133.95911623
+_cell_formula_units_Z   1
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li0  2  0.06048107  0.78416267  0.64013574  0.875
+  Li  Li1  2  0.17293991  0.54079718  0.38459433  0.875
+  Li  Li2  2  0.34930408  0.32878553  0.95138052  0.875
+  Li  Li3  2  0.48574104  0.15318981  0.63378810  0.875
+  Bi  Bi4  1  0.00000000  0.00000000  0.00000000  1.0
+  O  O5  2  0.06929751  0.41302806  0.76237738  1.0
+  O  O6  2  0.22125624  0.89034397  0.24662226  1.0
+  O  O7  2  0.38278210  0.74999287  0.75504697  1.0

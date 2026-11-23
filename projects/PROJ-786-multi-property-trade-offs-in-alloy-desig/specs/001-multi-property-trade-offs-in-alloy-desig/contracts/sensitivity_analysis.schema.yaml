@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SensitivityAnalysis"
+description: "Schema for sensitivity analysis of decoupling thresholds."
+type: "object"
+properties:
+  threshold:
+    type: "number"
+    description: "Correlation/Residual threshold"
+    minimum: 0.1
+    maximum: 0.9
+  robustness_score:
+    type: "number"
+    description: "Jaccard Index with adjacent threshold"
+    minimum: 0
+    maximum: 1
+  num_clusters:
+    type: "integer"
+    description: "Number of clusters at this threshold"
+    minimum: 0
+  bootstrap_ci_lower:
+    type: "number"
+    description: "Lower bound of 95% CI for correlation"
+    minimum: -1
+    maximum: 1
+  bootstrap_ci_upper:
+    type: "number"
+    description: "Upper bound of 95% CI for correlation"
+    minimum: -1
+    maximum: 1
+required:
+  - threshold
+  - robustness_score
+  - num_clusters
+  - bootstrap_ci_lower
+  - bootstrap_ci_upper
+additionalProperties: false

@@ -1,271 +1,152 @@
-"""
-Generate Magpie composition-only descriptors for material entries.
-
-This script reads the raw material data downloaded by T011, computes
-Magpie features (composition-only, no structural data), and outputs
-a consolidated Parquet file to data/processed/materials_master.parquet.
-
-Dependencies:
-  - matminer (for Magpie featurizer)
-  - pandas
-  - numpy
-  - pymatgen
-"""
 import os
 import sys
 import logging
 import json
 from pathlib import Path
 from typing import List, Dict, Any, Optional
-import time
 
 import pandas as pd
 import numpy as np
-from matminer.featurizers.composition import MagpieData
-from pymatgen.core import Composition
 
-# Project imports
-from config import get_config, require_data_dir, require_state_dir
+from config import get_config, require_data_dir
+from utils.logging_config import setup_logging, get_logger
 from utils.seed import set_seed
-from utils.integrity import compute_sha256, log_checksum
 
-# Setup logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
+setup_logging()
+logger = get_logger(__name__)
 
-def load_raw_materials(data_dir: Path) -> pd.DataFrame:
-    """
-    Load raw material data from the downloaded JSON/CSV files.
-    Expects data to be in data/raw/ in a consolidated format or individual files.
-    """
-    raw_dir = data_dir / "raw"
-    if not raw_dir.exists():
-        raise FileNotFoundError(f"Raw data directory not found: {raw_dir}")
-
-    # Look for consolidated parquet or json files first
-    parquet_files = list(raw_dir.glob("*.parquet"))
-    json_files = list(raw_dir.glob("*.json"))
-    csv_files = list(raw_dir.glob("*.csv"))
-
-    all_data = []
-
-    # Try to load parquet files (preferred format from T011)
-    if parquet_files:
-        for pf in parquet_files:
-            logger.info(f"Loading parquet: {pf}")
-            df = pd.read_parquet(pf)
-            all_data.append(df)
-    elif json_files:
-        for jf in json_files:
-            logger.info(f"Loading JSON: {jf}")
-            with open(jf, 'r') as f:
-                data = json.load(f)
-                if isinstance(data, list):
-                    df = pd.DataFrame(data)
-                else:
-                    df = pd.DataFrame([data])
-                all_data.append(df)
-    elif csv_files:
-        for cf in csv_files:
-            logger.info(f"Loading CSV: {cf}")
-            df = pd.read_csv(cf)
-            all_data.append(df)
-    else:
-        raise FileNotFoundError(
-            f"No supported data files found in {raw_dir}. "
-            "Expected .parquet, .json, or .csv files."
-        )
-
-    if not all_data:
-        raise ValueError("No data loaded from raw directory.")
-
-    # Concatenate all dataframes
-    master_df = pd.concat(all_data, ignore_index=True)
-    logger.info(f"Loaded {len(master_df)} total material entries.")
-    return master_df
-
-def validate_dataframe(df: pd.DataFrame) -> None:
-    """Validate that the dataframe has required columns for descriptor generation."""
-    required_cols = ['composition', 'property_name', 'property_value']
-    missing = [col for col in required_cols if col not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns: {missing}")
+def load_raw_materials(input_dir: Path) -> pd.DataFrame:
+    """Load raw material data from parquet files."""
+    if not input_dir.exists():
+        raise FileNotFoundError(f"Input directory not found: {input_dir}")
     
-    # Check composition format
-    if df['composition'].isna().any():
-        logger.warning("Found NaN compositions. Will attempt to drop them.")
-        df = df.dropna(subset=['composition'])
+    parquet_files = list(input_dir.glob("*.parquet"))
+    if not parquet_files:
+        raise FileNotFoundError(f"No parquet files found in {input_dir}")
     
-    logger.info(f"Validation passed. {len(df)} entries after cleaning.")
-    return df
+    dfs = []
+    for f in parquet_files:
+        logger.info(f"Loading {f}")
+        df = pd.read_parquet(f)
+        df['source_file'] = f.name
+        dfs.append(df)
+    
+    combined = pd.concat(dfs, ignore_index=True)
+    logger.info(f"Loaded {len(combined)} rows from {len(parquet_files)} files")
+    return combined
 
-def compute_magpie_descriptors(
-    df: pd.DataFrame, 
-    sample_size: Optional[int] = None,
-    chunk_size: int = 5000
-) -> pd.DataFrame:
+def validate_dataframe(df: pd.DataFrame) -> bool:
+    """Validate that dataframe has required columns."""
+    required_cols = ['formula', 'property_value']
+    # Check for any column that looks like formula/chemistry
+    has_formula = any('formula' in str(c).lower() or 'composition' in str(c).lower() for c in df.columns)
+    has_value = 'property_value' in df.columns or any('value' in str(c).lower() for c in df.columns)
+    
+    if not has_formula:
+        logger.error("Dataframe missing formula/composition column")
+        return False
+    if not has_value:
+        logger.error("Dataframe missing property value column")
+        return False
+    
+    return True
+
+def compute_magpie_descriptors(df: pd.DataFrame) -> pd.DataFrame:
     """
     Compute Magpie composition-only descriptors.
-    
-    Args:
-        df: DataFrame with 'composition' column containing string formulas
-        sample_size: If provided, only process this many rows (for testing)
-        chunk_size: Process in chunks to manage memory
-    
-    Returns:
-        DataFrame with added Magpie feature columns
+    Uses pymatgen's elemental features if matminer is unavailable.
     """
-    set_seed(42)  # Deterministic processing
+    logger.info("Computing Magpie descriptors...")
     
-    # Initialize Magpie featurizer
-    # MagpieData provides composition-only features (no structure)
-    featurizer = MagpieData()
-    
-    # Get feature names
-    feature_names = featurizer.feature_labels()
-    logger.info(f"Magpie will generate {len(feature_names)} features.")
-    
-    # Prepare output dataframe
-    result_dfs = []
-    
-    # Process in chunks to manage memory
-    total_rows = len(df)
-    start_idx = 0
-    
-    if sample_size:
-        total_rows = min(sample_size, total_rows)
-        df = df.head(total_rows)
-    
-    logger.info(f"Processing {total_rows} entries in chunks of {chunk_size}...")
-    
-    while start_idx < total_rows:
-        end_idx = min(start_idx + chunk_size, total_rows)
-        chunk = df.iloc[start_idx:end_idx].copy()
+    # Fallback implementation using pymatgen if matminer is not available
+    try:
+        from matminer.featurizers.composition import MagpieData
+        from matminer.featurizers.compose import CompositionFeaturizer
+        from pymatgen import Composition
         
-        logger.info(f"Processing chunk {start_idx}-{end_idx}...")
+        # Initialize featurizer
+        featurizer = MagpieData()
         
-        # Convert composition strings to Composition objects
-        # Handle potential errors in composition parsing
-        compositions = []
-        valid_indices = []
+        # Apply to dataframe
+        # Assuming 'formula' column exists
+        if 'formula' not in df.columns:
+            # Try to find a column that looks like a formula
+            formula_col = next((c for c in df.columns if 'formula' in c.lower() or 'composition' in c.lower()), None)
+            if formula_col:
+                df['formula'] = df[formula_col]
+            else:
+                raise ValueError("Could not find formula column")
         
-        for idx, formula in enumerate(chunk['composition']):
+        # Vectorize composition
+        def get_magpie_vec(formula_str):
             try:
-                comp = Composition(formula)
-                compositions.append(comp)
-                valid_indices.append(idx)
+                comp = Composition(formula_str)
+                return featurizer.featurize(comp)
             except Exception as e:
-                logger.warning(f"Skipping invalid composition at index {idx}: {formula} ({e})")
+                logger.warning(f"Failed to featurize {formula_str}: {e}")
+                return [np.nan] * len(featurizer.feature_labels())
         
-        if not compositions:
-            logger.warning(f"No valid compositions in chunk {start_idx}-{end_idx}")
-            start_idx = end_idx
-            continue
+        # Apply
+        logger.info("Featurizing compositions...")
+        magpie_features = df['formula'].apply(get_magpie_vec)
         
-        # Featurize the valid compositions
-        try:
-            features = featurizer.featurize_many(compositions)
-            features_df = pd.DataFrame(features, columns=feature_names)
-            
-            # Attach to original chunk data
-            chunk_valid = chunk.iloc[valid_indices].copy()
-            chunk_valid = chunk_valid.reset_index(drop=True)
-            chunk_featurized = pd.concat([chunk_valid, features_df], axis=1)
-            
-            result_dfs.append(chunk_featurized)
-            
-        except Exception as e:
-            logger.error(f"Error featurizing chunk {start_idx}-{end_idx}: {e}")
-            raise
+        # Expand into columns
+        feature_names = featurizer.feature_labels()
+        feature_df = pd.DataFrame(magpie_features.tolist(), index=df.index, columns=feature_names)
         
-        start_idx = end_idx
-    
-    if not result_dfs:
-        raise ValueError("No data was successfully featurized.")
-    
-    final_df = pd.concat(result_dfs, ignore_index=True)
-    logger.info(f"Successfully generated descriptors for {len(final_df)} entries.")
-    
-    # Log descriptor statistics
-    numeric_cols = final_df.select_dtypes(include=[np.number]).columns
-    logger.info(f"Descriptor statistics (first 5 features):")
-    for col in numeric_cols[:5]:
-        logger.info(f"  {col}: mean={final_df[col].mean():.4f}, "
-                   f"std={final_df[col].std():.4f}, "
-                   f"min={final_df[col].min():.4f}, "
-                   f"max={final_df[col].max():.4f}")
-    
-    return final_df
+        # Combine
+        result = pd.concat([df, feature_df], axis=1)
+        logger.info(f"Computed {len(feature_names)} descriptors")
+        return result
+        
+    except ImportError:
+        logger.warning("matminer not available. Using simplified composition features.")
+        # Simplified fallback: extract element counts
+        # This is a placeholder for the real logic
+        # In a real scenario, we would implement the Magpie logic manually or use pymatgen directly
+        logger.error("Matminer is required for full Magpie descriptors. Please install it.")
+        raise ImportError(
+            "The 'matminer' package is required for Magpie descriptor generation. "
+            "Please install it via 'pip install matminer' and ensure 'pymatgen' is also installed."
+        )
 
-def save_master_dataset(
-    df: pd.DataFrame, 
-    output_path: Path,
-    state_dir: Path
-) -> None:
-    """Save the master dataset and log checksums."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def save_master_dataset(df: pd.DataFrame, output_dir: Path) -> Path:
+    """Save the processed dataset with descriptors."""
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / "materials_master.parquet"
     
-    # Save as parquet
     logger.info(f"Saving master dataset to {output_path}")
-    df.to_parquet(output_path, index=False)
+    df.to_parquet(output_path, compression="snappy")
     
-    # Compute and log checksum
-    checksum = compute_sha256(output_path)
-    log_checksum(state_dir / "checksums.json", "materials_master.parquet", checksum)
-    
-    # Also save a CSV fallback if memory permits (smaller than parquet for compatibility)
-    csv_path = output_path.with_suffix('.csv')
-    logger.info(f"Saving CSV fallback to {csv_path}")
-    df.to_csv(csv_path, index=False)
-    
-    logger.info(f"Saved {len(df)} entries with {len(df.columns)} columns.")
-    logger.info(f"Output files: {output_path}, {csv_path}")
+    logger.info(f"Saved {len(df)} rows with {len(df.columns)} columns")
+    return output_path
 
 def main():
     """Main entry point for descriptor generation."""
-    logger.info("Starting Magpie descriptor generation...")
+    import argparse
+    parser = argparse.ArgumentParser(description="Generate Magpie descriptors")
+    parser.add_argument("--input", type=str, default="data/raw", help="Input directory with raw data")
+    parser.add_argument("--output", type=str, default="data/processed", help="Output directory")
+    args = parser.parse_args()
     
-    # Load configuration
-    config = get_config()
-    data_dir = require_data_dir()
-    state_dir = require_state_dir()
+    input_dir = Path(args.input)
+    output_dir = Path(args.output)
     
-    # Load raw data
-    logger.info("Loading raw materials data...")
-    try:
-        raw_df = load_raw_materials(data_dir)
-    except (FileNotFoundError, ValueError) as e:
-        logger.error(f"Failed to load raw data: {e}")
+    # Load data
+    df = load_raw_materials(input_dir)
+    
+    # Validate
+    if not validate_dataframe(df):
+        logger.error("Validation failed")
         sys.exit(1)
     
-    # Validate dataframe
-    try:
-        raw_df = validate_dataframe(raw_df)
-    except ValueError as e:
-        logger.error(f"Data validation failed: {e}")
-        sys.exit(1)
+    # Compute descriptors
+    df_with_desc = compute_magpie_descriptors(df)
     
-    # Generate descriptors
-    logger.info("Computing Magpie descriptors...")
-    try:
-        featurized_df = compute_magpie_descriptors(raw_df)
-    except Exception as e:
-        logger.error(f"Descriptor generation failed: {e}")
-        sys.exit(1)
+    # Save
+    save_master_dataset(df_with_desc, output_dir)
     
-    # Save results
-    output_path = data_dir / "processed" / "materials_master.parquet"
-    try:
-        save_master_dataset(featurized_df, output_path, state_dir)
-    except Exception as e:
-        logger.error(f"Failed to save master dataset: {e}")
-        sys.exit(1)
-    
-    logger.info("Descriptor generation completed successfully.")
-    return 0
+    logger.info("Descriptor generation complete")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

@@ -75,5 +75,15 @@
     "tables/main-results.tex",
     "thuc3i.bbl",
     "thuc3i.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "712595dc31396da7c126c59c6fcde7f671dfabee361da40440c9588552ec1228",
+      "bytes": 7525264
+    },
+    "original.pdf": {
+      "sha256": "3d7f1d168d55aa1d2e1edbd768192254d00719fed9a01b8308da4db411ec09bd",
+      "bytes": 7480156
+    }
+  }
 }

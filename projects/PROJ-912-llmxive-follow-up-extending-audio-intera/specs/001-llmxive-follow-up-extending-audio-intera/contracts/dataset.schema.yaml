@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SubtleCueSample"
+description: "Schema for a filtered audio sample from the ESC-50 dataset containing high-frequency transients or low-amplitude events."
+type: "object"
+properties:
+  sample_id:
+    type: "string"
+    description: "Unique identifier for the sample (e.g., 'esc50-glass-001')."
+  class_label:
+    type: "string"
+    description: "Ground truth class label (e.g., 'glass breaking')."
+  file_path:
+    type: "string"
+    description: "Path to the audio file (streamed)."
+  dominant_freq:
+    type: "number"
+    description: "Dominant frequency in Hz (derived from FFT)."
+    minimum: 0
+  amplitude_db:
+    type: "number"
+    description: "Peak amplitude in dBFS (derived from waveform)."
+  duration_sec:
+    type: "number"
+    description: "Duration of the audio clip in seconds."
+    minimum: 0
+  is_subtle_cue:
+    type: "boolean"
+    description: "True if the sample meets the high-frequency (>8kHz) or low-amplitude (<-40dBFS) criteria."
+required:
+  - sample_id
+  - class_label
+  - file_path
+  - dominant_freq
+  - amplitude_db
+  - duration_sec
+  - is_subtle_cue
+additionalProperties: false

@@ -1,0 +1,137 @@
+T001a:
+  c: true
+  h: af6098b94cb3b6b5e0510f23ae836d8438e0e6a0dd7522353cd5a9115f86ba70
+  r: The `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/` directory contains
+    the required subfolders (`code/`, `data/raw/`, `data/processed/`, `data/results/`,
+    `tests/`, `docs/`, `contracts/`) as shown in the `ls -R` output captured in `code/.tasks/T001a.code_setup_project_structure.py.log`.
+    The log confirms the full recursive listing and verifies that each mandated directory
+    is present.
+  sig: 8856407b428cd87c02e04a46a25acaa14d8712d4c4cb9a2c8407e57ddd13360e
+T001b:
+  c: true
+  h: 9ae121778110a668e0e1fac573c218604fa76cfc09a0965d8f9af7d865fbb32e
+  r: The evidence shows the three required directories (`data/raw/`, `data/processed/`,
+    `data/results/`) exist under the project root and contain placeholder `.gitkeep`
+    files, satisfying the creation task.
+  sig: 82a4fa79fbf195772ae80df5a75b759c4c6af3258f4c7ff51ce95fe0199b3652
+T001c:
+  c: true
+  h: 86be9892e09128c5efc577308f8168b45aa17bdbc1b861d29398f07f7bc68eea
+  r: The evidence shows that `projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/tests/contract/`,
+    `tests/integration/`, and `tests/unit/` directories all exist in the repository
+    with multiple entries, confirming the required directories were created.
+  sig: 739f7188fb28d40b15d312430242c75c36d4bfbd1c0057b1d3e03f4b1ff9c65f
+T003:
+  c: false
+  h: 1ccb30b2ffc994afac82fe8a20b5f57a7cb842dda872eae03d9206703981c48a
+  r: The only evidence is a log claiming that `pyproject.toml`, `.ruff.toml`, and
+    `.flake8` were written, but the actual configuration files are not present in
+    the artifact list, nor is their content shown. Without the concrete config files,
+    we cannot confirm that linting (ruff/flake8) and formatting (black) are truly
+    configured. The missing configuration files need to be added and verified.
+  sig: 19f709d41fa23e52bd44d1962cd955720eedf4f09a74f2349f0fabfffc7dcd05
+T004a:
+  c: true
+  h: 8f31f32fa79e42134252e1623e13f764dc26b74dfe331f02cea8b14fa9301d98
+  r: "Checked `code/config.py` (10854\u202Fbytes) \u2013 it defines `set_seed`/`get_seed`\
+    \ for seed management, provides `get_raw_dir`, `get_processed_dir`, `get_results_dir`\
+    \ and `get_dataset_paths` for dataset locations, and implements `get_state` and\
+    \ `update_state` to read/write a `state.json` file. All required functionalities\
+    \ are present and the file is non\u2011empty."
+  sig: d09b7536f0566c82baa3b417a9d3c20455d661a23fa92df36ef04c5991515cb5
+T005:
+  c: true
+  h: 54f323c6efe8ba49a7267b5b2b83b245d38b4c6bfa89dc8acf86b4d1dc46b73c
+  r: Checked `contracts/dataset.schema.yaml` and `contracts/metrics.schema.yaml` (both
+    present and define md5/sha256 fields) and verified that `code/download.py` implements
+    md5/sha256 hashing and verification, while `code/config.py` adds `verify_manifest_checksums`
+    that validates both hashes against a manifest. All required artifacts exist and
+    contain the requested functionality.
+  sig: dc31dfa5dfcfc0aedf96774f5af668ef6f097f804fd606883284c89e056b29de
+T013:
+  c: false
+  h: 75181fbea82a80f824ebe760407c1faf4386a6f34c1bad7b8d4af47ee972231b
+  r: "The provided `code/generate.py` is truncated and shows no implementation of\
+    \ the `--mode baseline-full` or `--mode baseline-naive` logic, nor any code that\
+    \ measures and writes a per\u2011video `total_wall_clock_time` entry in ISO8601\
+    \ format. Moreover, the required output file `results/generation_times.log` does\
+    \ not exist. The task\u2019s core requirements are therefore unmet."
+T014a:
+  c: false
+  h: 75181fbea82a80f824ebe760407c1faf4386a6f34c1bad7b8d4af47ee972231b
+  r: "The repository contains a partially implemented `code/generate.py` with a JSON\u2011\
+    line logger, but the file is truncated before any generation loop and does not\
+    \ show timing with `time.time()` or logging of `video_id`, `mode`, and `inference_time_seconds`.\
+    \ Moreover, the required `results/generation_times.log` file is absent. The task\u2019\
+    s core requirement\u2014recording isolated inference times as JSON lines\u2014\
+    is therefore not satisfied."
+T014b:
+  c: false
+  h: 75181fbea82a80f824ebe760407c1faf4386a6f34c1bad7b8d4af47ee972231b
+  r: The required artifact `results/generation_times.log` is absent; there is no evidence
+    that `code/generate.py` was executed or that a log with the specified JSON fields
+    was produced. The implementer must run the script and provide the generated log
+    file containing valid JSON lines.
+T017:
+  c: false
+  h: fc6fe0fbcf9f03219a97f3e2ac95d4fbf7666f4b368d1b3f26d66361ad160a8c
+  r: The repository contains the `code/pilot_study.py` script, but the required output
+    file `data/pilot_variance.json` is missing, so the pilot study was not run and
+    the empirical variance results were not saved as specified. The missing JSON (with
+    keys `mean`, `std`, `n_samples`, `metric_name`) must be generated for the task
+    to be complete.
+T019:
+  c: false
+  h: 64ea219e939947a985ccf4d3e112a100ce3a2519462f047a8dedcd7525010010
+  r: "The required file `tests/integration/test_flow_correction.py` does not exist,\
+    \ so no integration test for the flow correction pipeline is present. The task\u2019\
+    s core deliverable is missing."
+T029:
+  c: false
+  h: 5d03cec4f650dceb55f736f5aca2d21d03acb058f988516895bcda231d9a4a72
+  r: "The required output file `results/failure_cases.json` does not exist, so the\
+    \ failure\u2011case identification logic was not produced nor logged as specified.\
+    \ The task therefore remains unfinished."
+T032a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `quickstart.md` file is provided, nor any excerpt showing the new
+    CLI flags or dataset requirements. The evidence consists only of a feature specification
+    and user stories, which do not satisfy the requirement to modify the documentation.
+    The implementer must add the revised `quickstart.md` content.
+T033:
+  c: false
+  h: 3ac03c7fc70b65778c579189889f7a02a856f61794803c7f937a5cc7e138eb6d
+  r: "The repository contains `code/generate.py`, but it lacks a `--profile-memory`\
+    \ command\u2011line option and does not implement real memory profiling (it merely\
+    \ returns the current memory usage). Moreover, the required output file `results/memory_profile.log`\
+    \ is absent, so the peak RSS was never recorded. The task\u2019s memory\u2011\
+    footprint verification is therefore not satisfied."
+T034a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only high\u2011level user stories and specifications;\
+    \ there is no log, script, or data showing RAFT\u2011Small inference time per\
+    \ frame measured on CPU, nor any evidence that the measurement was compared against\
+    \ CI limits (SC\u2011005). The required artifact (timing measurements) is missing."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no evidence of new unit test files under `tests/unit/` targeting
+    the metric calculation logic; no test code, file listings, or test results are
+    present. Consequently, the required artifact (additional unit tests) is missing.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the `quickstart.md` validation run is provided\u2014there are\
+    \ no logs, generated video files, timing records, or analysis reports demonstrating\
+    \ that the baseline, naive, and flow\u2011corrected pipelines were executed and\
+    \ reproduced as required. The implementer must supply the actual execution output\
+    \ and validation artifacts."
+T037:
+  c: false
+  h: 57ac286340f72ad797677e241e72d368a5c605305874ac046cb5ac1e48986b9e
+  r: The required file `tests/contract/test_metrics_schema.py` does not exist in the
+    repository, so the contract test for the metrics schema is missing. The task cannot
+    be considered done until this test file is created and contains the appropriate
+    schema validation code.

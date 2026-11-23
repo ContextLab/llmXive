@@ -1,24 +1,12 @@
-"""
-T016: UCI Dataset Downloader
-Fetches real numeric datasets from the UCI Machine Learning Repository via HTTP
-and saves them to data/raw/.
-
-Specific datasets:
-1. Wine (UCI ID: 109)
-2. Wine Quality Red (UCI ID: 186)
-3. Wine Quality White (UCI ID: 185)
-4. Ionosphere (UCI ID: 112)
-5. Heart Disease (Cleveland) (UCI ID: 144)
-
-This module adheres to FR-001 by ensuring data is retrieved from a real source.
-"""
 import os
 import sys
 import csv
 import logging
+import urllib.request
+import ssl
+import hashlib
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional
-import requests
+from typing import Dict, List, Any, Optional, Tuple
 
 # Configure logging
 logging.basicConfig(
@@ -27,187 +15,155 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# UCI Machine Learning Repository Base URL
-UCI_BASE_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases"
-
-# Dataset Configuration
-# Maps friendly names to UCI directory paths and specific file names
+# Dataset definitions mapping names to UCI URLs and expected file paths
 DATASETS = {
     "wine": {
-        "dir": "wine/wine.data",
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/wine/wine.data",
-        "has_header": False,
-        "description": "Wine dataset (178 instances, 13 attributes)"
+        "url": "https://archive.ics.uci.edu/static/public/105/wine.csv",
+        "file": "wine.csv",
+        "description": "Wine dataset"
     },
     "wine_quality_red": {
-        "dir": "winequality/winequality-red.csv",
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-red.csv",
-        "has_header": True,
-        "delimiter": ";",
-        "description": "Wine Quality Red (1599 instances, 12 attributes)"
+        "url": "https://archive.ics.uci.edu/static/public/186/wine+quality+red.csv",
+        "file": "wine_quality_red.csv",
+        "description": "Wine Quality Red dataset"
     },
     "wine_quality_white": {
-        "dir": "winequality/winequality-white.csv",
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/wine-quality/winequality-white.csv",
-        "has_header": True,
-        "delimiter": ";",
-        "description": "Wine Quality White (4898 instances, 12 attributes)"
+        "url": "https://archive.ics.uci.edu/static/public/186/wine+quality+white.csv",
+        "file": "wine_quality_white.csv",
+        "description": "Wine Quality White dataset"
     },
     "ionosphere": {
-        "dir": "ionosphere/ionosphere.data",
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/ionosphere/ionosphere.data",
-        "has_header": False,
-        "description": "Ionosphere dataset (351 instances, 35 attributes)"
+        "url": "https://archive.ics.uci.edu/static/public/47/ionosphere.csv",
+        "file": "ionosphere.csv",
+        "description": "Ionosphere dataset"
     },
-    "heart_cleveland": {
-        "dir": "heart-cleveland/heart.dat",
-        "url": "https://archive.ics.uci.edu/ml/machine-learning-databases/heart-disease/processed.cleveland.data",
-        "has_header": False,
-        "description": "Heart Disease Cleveland (303 instances, 14 attributes)"
+    "heart_disease_cleveland": {
+        "url": "https://archive.ics.uci.edu/static/public/45/heart+disease.csv",
+        "file": "heart_disease_cleveland.csv",
+        "description": "Heart Disease (Cleveland) dataset"
     }
 }
 
-def ensure_data_directory(base_path: Path) -> Path:
-    """Creates the data/raw directory if it doesn't exist."""
-    raw_dir = base_path / "data" / "raw"
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured data directory exists: {raw_dir}")
-    return raw_dir
+def ensure_data_directory(raw_data_dir: Path) -> None:
+    """Ensure the raw data directory exists."""
+    if not raw_data_dir.exists():
+        raw_data_dir.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Created raw data directory: {raw_data_dir}")
+    else:
+        logger.info(f"Raw data directory already exists: {raw_data_dir}")
 
-def fetch_dataset(dataset_name: str, config: Dict, output_dir: Path) -> Optional[Path]:
-    """
-    Fetches a single dataset from the UCI repository.
-    
-    Args:
-        dataset_name: Friendly name for logging
-        config: Dictionary containing 'url', 'has_header', 'delimiter'
-        output_dir: Path to save the downloaded file
-        
-    Returns:
-        Path to the saved file, or None if failed.
-    """
-    url = config['url']
-    has_header = config.get('has_header', False)
-    delimiter = config.get('delimiter', ',')
-    
-    # Determine local filename
-    # Extract filename from URL
-    filename = url.split('/')[-1]
-    local_path = output_dir / filename
-    
-    if local_path.exists():
-        logger.info(f"Dataset {dataset_name} already exists at {local_path}. Skipping download.")
-        return local_path
+def compute_sha256(file_path: Path) -> str:
+    """Compute SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-    logger.info(f"Downloading {dataset_name} from {url}...")
+def fetch_dataset(url: str, file_path: Path, dataset_name: str) -> bool:
+    """
+    Fetch a dataset from UCI via HTTP.
+    Returns True if successful, False otherwise.
+    """
+    logger.info(f"Fetching {dataset_name} from {url}")
     try:
-        response = requests.get(url, timeout=30)
-        response.raise_for_status()
+        # Create an SSL context that does not verify certificates to handle
+        # potential self-signed issues on some UCI mirrors, though standard
+        # UCI URLs usually work with default.
+        context = ssl.create_default_context()
         
-        with open(local_path, 'wb') as f:
-            f.write(response.content)
+        with urllib.request.urlopen(url, context=context, timeout=30) as response:
+            with open(file_path, 'wb') as out_file:
+                # Read in chunks to handle large files gracefully
+                chunk_size = 1024 * 1024  # 1 MB
+                while True:
+                    chunk = response.read(chunk_size)
+                    if not chunk:
+                        break
+                    out_file.write(chunk)
         
-        logger.info(f"Successfully downloaded {dataset_name} to {local_path}")
+        checksum = compute_sha256(file_path)
+        logger.info(f"Successfully downloaded {dataset_name} to {file_path} (SHA256: {checksum[:16]}...)")
+        return True
         
-        # If the file has a header but we need to standardize format for processing,
-        # we might want to normalize it here, but for T016 we just need the raw file.
-        # However, for Wine Quality CSVs, they use ';' delimiter. 
-        # We will save them as is; the loader (T017) will handle parsing.
-        
-        return local_path
-
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to download {dataset_name}: {e}")
-        return None
     except Exception as e:
-        logger.error(f"Unexpected error downloading {dataset_name}: {e}")
-        return None
+        logger.error(f"Failed to fetch {dataset_name}: {e}")
+        return False
 
-def clean_missing_values(file_path: Path, output_path: Path, has_header: bool, delimiter: str) -> Path:
+def clean_missing_values(file_path: Path) -> None:
     """
-    Removes rows with missing values (represented as '?' or empty strings) 
-    and writes a clean version to output_path.
-    This is a preparatory step for T018 but ensures the raw data is usable.
+    Remove rows with missing values (empty fields) from the CSV.
+    Modifies the file in-place.
     """
-    logger.info(f"Cleaning missing values in {file_path}...")
+    logger.info(f"Cleaning missing values from {file_path}")
+    temp_path = file_path.with_suffix('.tmp')
     
-    rows = []
-    with open(file_path, 'r', encoding='utf-8') as f:
-        reader = csv.reader(f, delimiter=delimiter)
-        if has_header:
-            header = next(reader)
-            rows.append(header)
+    try:
+        with open(file_path, 'r', newline='', encoding='utf-8') as infile, \
+             open(temp_path, 'w', newline='', encoding='utf-8') as outfile:
+            
+            reader = csv.reader(infile)
+            writer = csv.writer(outfile)
+            
+            header = next(reader, None)
+            if header:
+                writer.writerow(header)
+            
+            row_count = 0
+            cleaned_count = 0
+            for row in reader:
+                row_count += 1
+                # Check if any field is empty or just whitespace
+                if any(field.strip() == '' for field in row):
+                    continue
+                writer.writerow(row)
+                cleaned_count += 1
+                
+        # Replace original with cleaned
+        temp_path.replace(file_path)
+        logger.info(f"Cleaned {file_path}: {row_count} rows processed, {cleaned_count} rows kept")
         
-        for row in reader:
-            # Check for missing values
-            if '?' in row or '' in row:
-                continue
-            # Check for numeric validity (basic check)
-            try:
-                # Attempt to convert all non-class columns to float if possible
-                # We don't drop rows just because they might be categorical yet, 
-                # but we drop obvious missing markers.
-                rows.append(row)
-            except ValueError:
-                continue
-    
-    with open(output_path, 'w', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f, delimiter=delimiter)
-        writer.writerows(rows)
-    
-    logger.info(f"Cleaned data saved to {output_path}")
-    return output_path
+    except Exception as e:
+        logger.error(f"Error cleaning missing values in {file_path}: {e}")
+        if temp_path.exists():
+            temp_path.unlink()
+        raise
 
 def main():
-    """Main entry point for T016."""
+    """Main entry point for downloading UCI datasets."""
     # Determine project root (assuming this script is in code/)
-    # We need to find the project root to write to data/raw/
-    current_dir = Path(__file__).parent
-    project_root = current_dir.parent
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent
+    raw_data_dir = project_root / "data" / "raw"
     
-    output_dir = ensure_data_directory(project_root)
+    ensure_data_directory(raw_data_dir)
     
     success_count = 0
     total_count = len(DATASETS)
     
     for name, config in DATASETS.items():
-        logger.info(f"Processing: {name}")
-        file_path = fetch_dataset(name, config, output_dir)
+        file_path = raw_data_dir / config["file"]
         
-        if file_path:
-            # For datasets that are CSV with headers or specific delimiters, 
-            # we might want to ensure a consistent format for downstream loaders.
-            # The Wine Quality datasets are CSV with ';'. 
-            # The Wine dataset is comma-separated.
-            # Let's create a standardized clean version in data/raw/processed_temp for now 
-            # or just note that T017 will handle the raw file.
-            # Per T016, we save to data/raw/.
-            # We will perform a basic cleaning pass to remove '?' rows which are common in UCI.
-            
-            cleaned_path = output_dir / f"{name}_clean.csv"
-            # We need to infer delimiter for cleaning if not obvious
-            delim = config.get('delimiter', ',')
-            
-            # Special handling for Wine Quality which has a header
-            clean_missing_values(file_path, cleaned_path, config.get('has_header', False), delim)
-            
-            # If the original was not CSV or had no header, we might keep the original too,
-            # but for simplicity in this pipeline, we will rely on the cleaned CSV version
-            # for the subsequent steps, or we can just save the raw and let T017 handle it.
-            # The task says "save to data/raw/". We have saved the raw.
-            # We will also save the cleaned version to ensure T018 logic doesn't need to re-download.
-            # Actually, T018 says "exclude rows with missing values".
-            # To be safe and strictly follow "save to data/raw", we keep the raw file.
-            # But to make T017/T018 easier, we ensure the raw file is valid.
-            # Let's just log that the raw file is ready.
-            
+        # Skip if already exists (optional: add force flag if needed)
+        if file_path.exists():
+            logger.info(f"Skipping {name}: {file_path} already exists")
             success_count += 1
+            continue
+        
+        if fetch_dataset(config["url"], file_path, config["description"]):
+            try:
+                clean_missing_values(file_path)
+                success_count += 1
+            except Exception as e:
+                logger.error(f"Failed to clean {name}: {e}")
+                # Optionally remove the corrupted file
+                file_path.unlink()
         else:
-            logger.warning(f"Skipping {name} due to download failure.")
-
-    logger.info(f"Download complete. {success_count}/{total_count} datasets fetched.")
-    if success_count == 0:
-        logger.error("No datasets were successfully downloaded. Check network or URLs.")
+            logger.warning(f"Skipping cleaning for {name} due to download failure")
+    
+    logger.info(f"Download complete: {success_count}/{total_count} datasets processed successfully")
+    
+    if success_count < total_count:
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -1,0 +1,13 @@
+status: none
+intent: "download \u03C0-Bench interaction traces dataset python package dataset"
+required_fields:
+- dialogue_id
+- turn_index
+- speaker
+- utterance
+- timestamp
+- ground_truth_intent
+- metadata
+cache_key: 69c2060c0f7b58e9fea014566af9460fd5f8ddd7cdfb1c01777200acd5cdda73
+searched_at: '2026-10-23T13:15:19.665186+00:00'
+retry_count: 1

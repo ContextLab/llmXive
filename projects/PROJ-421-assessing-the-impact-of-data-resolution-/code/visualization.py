@@ -71,15 +71,15 @@ def find_threshold(power_csv_path: str) -> Optional[str]:
     report_path = results_dir / "threshold_report.txt"
 
     with open(report_path, 'w') as f:
-        f.write(f"Statistical Power Threshold Report\n")
-        f.write(f"===================================\n")
+        f.write("Statistical Power Threshold Report\n")
+        f.write("===================================\n")
         f.write(f"Threshold Resolution: {threshold_resolution}\n")
         f.write(f"Power at Threshold: {threshold_power:.4f}\n")
-        f.write(f"Criterion: Power < 0.80\n")
-        f.write(f"\n")
-        f.write(f"Analysis: This is the coarsest resolution (lowest spatial detail)\n")
-        f.write(f"where the statistical power to detect spatial autocorrelation\n")
-        f.write(f"falls below the standard 0.80 threshold.\n")
+        f.write("Criterion: Power < 0.80\n")
+        f.write("\n")
+        f.write("Analysis: This is the coarsest resolution (lowest spatial detail)\n")
+        f.write("where the statistical power to detect spatial autocorrelation\n")
+        f.write("falls below the standard 0.80 threshold.\n")
 
     logger.info(f"Threshold report written to: {report_path}")
     return threshold_resolution

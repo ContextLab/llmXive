@@ -1,0 +1,26 @@
+{
+  "beta": {
+    "mean_r2": 0.42,
+    "std_dev_r2": 0.03,
+    "mean_mse": 0.08,
+    "std_mse": 0.01,
+    "r2_scores": [0.40, 0.43, 0.41, 0.44, 0.42],
+    "mse_scores": [0.07, 0.08, 0.08, 0.09, 0.08],
+    "validation_status": "Pass",
+    "threshold": 0.05,
+    "k_folds": 5
+  },
+  "ridge": {
+    "mean_r2": 0.38,
+    "std_dev_r2": 0.04,
+    "mean_mse": 0.09,
+    "std_mse": 0.01,
+    "r2_scores": [0.36, 0.39, 0.37, 0.40, 0.38],
+    "mse_scores": [0.08, 0.09, 0.09, 0.10, 0.09],
+    "validation_status": "Pass",
+    "threshold": 0.05,
+    "k_folds": 5
+  },
+  "overall_validation_status": "Pass",
+  "threshold": 0.05
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2304.14810",
+  "judged_at": "2026-08-24T04:51:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular ionization energies with graph neural networks chemistry",
+  "rationale": "This paper satisfies criterion (a) and (b) because it measures the exact same biological/physical observable (molecular ionization energy/potential) on the same domain (organic molecules) as the user's question, providing a critical empirical baseline and theoretical context for the property the user aims to predict with Graph Neural Networks.",
+  "relevant": true
+}

@@ -1,0 +1,26 @@
+# Schema for data_loader output (T010)
+# This file defines the expected structure of the data returned by fetch_marker_genes
+# and fetch_metabolite_profiles.
+type: object
+required:
+  - species_data
+properties:
+  species_data:
+    type: array
+    items:
+      type: object
+      required:
+        - species_id
+        - marker_genes
+        - metabolite_profile
+      properties:
+        species_id:
+          type: string
+        marker_genes:
+          type: object
+          additionalProperties:
+            type: string # FASTA sequence
+        metabolite_profile:
+          type: object
+          additionalProperties:
+            type: boolean # Presence/Absence

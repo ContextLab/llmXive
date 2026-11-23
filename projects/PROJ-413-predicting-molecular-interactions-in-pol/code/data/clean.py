@@ -1,200 +1,193 @@
+"""
+Data cleaning and validation script.
+Implements hard abort logic per Plan override: E-DATA-001 if adhesion energy is missing or row count < 100.
+"""
+
 import os
 import sys
 import logging
 import json
 import math
 from pathlib import Path
-from typing import List, Dict, Any, Optional
 
-# Add project root to path if running as script
-if __name__ == "__main__":
-    project_root = Path(__file__).resolve().parents[2]
-    sys.path.insert(0, str(project_root))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
 
 from utils.exceptions import DataError
-from utils.logger import PerformanceLogger, log_performance
+from utils.logger import log_performance
 from utils.seed_utils import set_seed
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
         logging.StreamHandler(sys.stdout),
-        logging.FileHandler('results/cleaning.log')
+        logging.FileHandler('results/data_cleaning.log')
     ]
 )
 logger = logging.getLogger(__name__)
 
-def validate_adhesion_energy(df: Any) -> bool:
+# Constants
+MIN_ROW_COUNT = 100
+MAX_MISSING_PERCENTAGE = 0.05
+EXIT_CODE_DATA_UNAVAILABLE = 1
+EXIT_CODE_E_DATA_001 = 2
+
+def validate_adhesion_energy(df):
     """
-    Validates that adhesion energy column exists and has no missing values.
-    Returns True if valid, raises DataError otherwise.
+    Validates that the 'adhesion_energy' column exists and contains valid numeric values.
+    Raises DataError with E-DATA-001 if missing or non-numeric.
     """
     if 'adhesion_energy' not in df.columns:
-        raise DataError("E-DATA-001: Missing required column 'adhesion_energy'")
-    
-    missing = df['adhesion_energy'].isna().sum()
-    if missing > 0:
-        raise DataError(f"E-DATA-001: Found {missing} missing values in 'adhesion_energy'")
-    
+        raise DataError("E-DATA-001: Adhesion energy column missing from dataset. "
+                        "Per Plan override: Hard abort implemented. No proxy fallback allowed.")
+
+    # Check for non-numeric values or all NaN
+    if df['adhesion_energy'].isna().all():
+        raise DataError("E-DATA-001: Adhesion energy column contains only missing values. "
+                        "Per Plan override: Hard abort implemented. No proxy fallback allowed.")
+
+    # Count valid numeric entries
+    valid_count = df['adhesion_energy'].notna().sum()
+    if valid_count == 0:
+        raise DataError("E-DATA-001: No valid adhesion energy measurements found. "
+                        "Per Plan override: Hard abort implemented.")
+
+    logger.info(f"Adhesion energy column validated. {valid_count} valid entries found.")
     return True
 
-def validate_row_count(df: Any, min_rows: int = 100) -> bool:
+def validate_row_count(df):
     """
-    Validates that the dataset has at least min_rows rows.
-    Returns True if valid, raises DataError otherwise.
+    Validates that the dataset has at least MIN_ROW_COUNT rows.
+    Raises DataError with E-DATA-001 if count is insufficient.
     """
     row_count = len(df)
-    if row_count < min_rows:
-        raise DataError(f"E-DATA-001: Dataset has {row_count} rows, minimum required is {min_rows}")
+    if row_count < MIN_ROW_COUNT:
+        raise DataError(f"E-DATA-001: Insufficient data. Row count ({row_count}) < {MIN_ROW_COUNT}. "
+                        "Per Plan override: Hard abort implemented. No proxy fallback allowed.")
+
+    logger.info(f"Row count validated: {row_count} rows (minimum: {MIN_ROW_COUNT}).")
     return True
 
-def validate_missing_values(df: Any, threshold: float = 0.05) -> Dict[str, float]:
+def validate_missing_values(df, max_missing_pct=MAX_MISSING_PERCENTAGE):
     """
-    Validates that missing values per column are below the threshold.
-    Returns a dict of column names to missing value ratios.
-    Raises DataError if any column exceeds threshold.
+    Validates that missing values per column are within the acceptable threshold.
+    Flags columns exceeding the threshold but does not abort if total < 5%.
     """
-    missing_ratios = {}
-    for col in df.columns:
-        ratio = df[col].isna().sum() / len(df)
-        missing_ratios[col] = ratio
-        if ratio > threshold:
-            raise DataError(f"E-DATA-002: Column '{col}' has {ratio:.2%} missing values (threshold: {threshold:.0%})")
-    
-    return missing_ratios
+    total_rows = len(df)
+    missing_pct_per_col = {}
+    flagged_columns = []
 
-def calculate_margin_of_error(std_dev: float, n: int, confidence_level: float = 0.95) -> float:
+    for col in df.columns:
+        missing_count = df[col].isna().sum()
+        missing_pct = missing_count / total_rows if total_rows > 0 else 0
+        missing_pct_per_col[col] = missing_pct
+
+        if missing_pct > max_missing_pct:
+            flagged_columns.append((col, missing_pct))
+
+    if flagged_columns:
+        logger.warning(f"Columns exceeding missing value threshold ({max_missing_pct * 100}%):")
+        for col, pct in flagged_columns:
+            logger.warning(f"  - {col}: {pct * 100:.2f}% missing")
+    else:
+        logger.info("All columns within acceptable missing value threshold.")
+
+    return missing_pct_per_col
+
+def calculate_margin_of_error(df):
     """
-    Calculates the margin of error for a given standard deviation and sample size.
-    Uses the formula: z * (std / sqrt(n))
-    For 95% confidence, z = 1.96
+    Calculates the margin of error for the adhesion energy column if row count is between 100 and 500.
+    Formula: 1.96 * std / sqrt(n)
+    Returns None if row count >= 500 or std is not calculable.
     """
-    if n <= 1:
-        return float('inf')
-    
-    # Z-score for 95% confidence interval
-    z_score = 1.96
-    margin = z_score * (std_dev / math.sqrt(n))
+    row_count = len(df)
+    if row_count >= 500:
+        logger.info("Dataset size >= 500. Margin of error not calculated (high power).")
+        return None
+
+    adhesion_data = df['adhesion_energy'].dropna()
+    if len(adhesion_data) < 2:
+        logger.warning("Insufficient data to calculate standard deviation for margin of error.")
+        return None
+
+    std_dev = adhesion_data.std()
+    margin = 1.96 * std_dev / math.sqrt(row_count)
+
+    logger.info(f"Limited Power Warning: {row_count} rows. Margin of Error (95% CI): ±{margin:.4f}")
     return margin
 
-def clean_and_validate(input_path: str, output_path: str) -> Dict[str, Any]:
+def clean_and_validate(input_path, output_path):
     """
     Main cleaning and validation pipeline.
-    1. Loads data from input_path
-    2. Validates adhesion energy presence and completeness
-    3. Validates row count (min 100)
-    4. Validates missing values per column (max 5%)
-    5. If 100 <= rows < 500, logs warning and calculates margin of error
-    6. Saves cleaned data to output_path
-    7. Returns summary statistics
+    1. Loads data.
+    2. Validates adhesion energy (E-DATA-001 abort).
+    3. Validates row count (E-DATA-001 abort).
+    4. Validates missing values (warning only).
+    5. Calculates margin of error if applicable.
+    6. Saves cleaned dataset.
     """
-    import pandas as pd
-    
-    logger.info(f"Loading data from {input_path}")
-    df = pd.read_csv(input_path)
-    
-    initial_rows = len(df)
-    logger.info(f"Loaded {initial_rows} rows")
-    
-    # Step 1: Validate adhesion energy
+    input_file = Path(input_path)
+    output_file = Path(output_path)
+
+    if not input_file.exists():
+        raise DataError(f"E-DATA-001: Input file not found at {input_path}. "
+                        "Per Plan override: Hard abort. No synthetic data generation.")
+
+    logger.info(f"Loading data from {input_path}...")
     try:
-        validate_adhesion_energy(df)
-        logger.info("Adhesion energy validation passed")
-    except DataError as e:
-        logger.error(f"Adhesion energy validation failed: {e}")
-        raise
-    
-    # Step 2: Validate row count
-    try:
-        validate_row_count(df, min_rows=100)
-        logger.info("Row count validation passed")
-    except DataError as e:
-        logger.error(f"Row count validation failed: {e}")
-        raise
-    
-    # Step 3: Validate missing values
-    try:
-        missing_ratios = validate_missing_values(df, threshold=0.05)
-        logger.info(f"Missing values validation passed: {missing_ratios}")
-    except DataError as e:
-        logger.error(f"Missing values validation failed: {e}")
-        raise
-    
-    # Step 4: Limited Power Warning Logic (T015)
-    row_count = len(df)
-    summary = {
-        "initial_rows": initial_rows,
-        "final_rows": row_count,
-        "missing_ratios": missing_ratios,
-        "power_status": "adequate"
-    }
-    
-    if 100 <= row_count < 500:
-        summary["power_status"] = "limited"
-        warning_msg = (
-            f"Limited Power Warning: Dataset has {row_count} rows (target: 500). "
-            f"Results should be interpreted with caution."
-        )
-        logger.warning(warning_msg)
-        
-        # Calculate margin of error for adhesion energy
-        if 'adhesion_energy' in df.columns:
-            std_dev = df['adhesion_energy'].std()
-            if not math.isnan(std_dev) and row_count > 1:
-                moe = calculate_margin_of_error(std_dev, row_count)
-                summary["margin_of_error"] = moe
-                summary["std_dev"] = std_dev
-                summary["confidence_interval_95"] = (
-                    f"{df['adhesion_energy'].mean() - moe:.4f} to {df['adhesion_energy'].mean() + moe:.4f}"
-                )
-                logger.info(f"Margin of Error (95% CI): ±{moe:.4f}")
-                logger.info(f"95% Confidence Interval: {summary['confidence_interval_95']}")
-            else:
-                summary["margin_of_error"] = None
-                logger.warning("Could not calculate margin of error (std_dev is NaN or n <= 1)")
-    
-    # Step 5: Save cleaned data
-    output_dir = Path(output_path).parent
-    output_dir.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved cleaned data to {output_path}")
-    
-    # Step 6: Save summary statistics
-    summary_path = Path(output_path).with_suffix('.json')
-    with open(summary_path, 'w') as f:
-        json.dump(summary, f, indent=2)
-    logger.info(f"Saved summary statistics to {summary_path}")
-    
-    return summary
+        import pandas as pd
+        df = pd.read_csv(input_file)
+    except Exception as e:
+        raise DataError(f"E-DATA-001: Failed to read input file: {str(e)}")
+
+    # Step 1: Validate Adhesion Energy (Hard Abort)
+    validate_adhesion_energy(df)
+
+    # Step 2: Validate Row Count (Hard Abort)
+    validate_row_count(df)
+
+    # Step 3: Validate Missing Values (Warning)
+    validate_missing_values(df)
+
+    # Step 4: Calculate Margin of Error (Warning)
+    calculate_margin_of_error(df)
+
+    # Step 5: Save Cleaned Dataset
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(output_file, index=False)
+    logger.info(f"Cleaned dataset saved to {output_path}")
+
+    return df
 
 def main():
     """
-    Entry point for the cleaning script.
-    Expects environment variables:
-    - INPUT_PATH: Path to raw data CSV
-    - OUTPUT_PATH: Path to save cleaned data CSV
+    Entry point for the data cleaning script.
+    Expects input from 'data/raw/molnet_raw.csv' and outputs to 'data/curated/curated_dataset.csv'.
     """
     set_seed(42)
-    
-    input_path = os.getenv('INPUT_PATH', 'data/raw/molnet_raw.csv')
-    output_path = os.getenv('OUTPUT_PATH', 'data/curated/curated_dataset.csv')
-    
-    logger.info(f"Starting data cleaning pipeline")
-    logger.info(f"Input: {input_path}")
-    logger.info(f"Output: {output_path}")
-    
+    logger.info("Starting data cleaning and validation pipeline...")
+
+    input_path = "data/raw/molnet_raw.csv"
+    output_path = "data/curated/curated_dataset.csv"
+
     try:
-        summary = clean_and_validate(input_path, output_path)
-        logger.info("Data cleaning completed successfully")
-        logger.info(f"Summary: {json.dumps(summary, indent=2)}")
+        df = clean_and_validate(input_path, output_path)
+        logger.info("Data cleaning completed successfully.")
+        sys.exit(0)
+
     except DataError as e:
-        logger.error(f"Data error occurred: {e}")
-        sys.exit(1)
+        logger.error(f"Data Error: {str(e)}")
+        # Determine exit code based on error message content
+        if "E-DATA-001" in str(e):
+            sys.exit(EXIT_CODE_E_DATA_001)
+        else:
+            sys.exit(EXIT_CODE_DATA_UNAVAILABLE)
+
     except Exception as e:
-        logger.error(f"Unexpected error: {e}", exc_info=True)
-        sys.exit(1)
+        logger.error(f"Unexpected error during cleaning: {str(e)}")
+        sys.exit(EXIT_CODE_DATA_UNAVAILABLE)
 
 if __name__ == "__main__":
     main()

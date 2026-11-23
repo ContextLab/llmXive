@@ -1,3 +1,3 @@
 """
-Test suite for llmXive Gene Essentiality Analysis.
+Tests package for gene essentiality prediction pipeline.
 """

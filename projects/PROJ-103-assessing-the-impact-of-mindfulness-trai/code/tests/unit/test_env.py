@@ -1,184 +1,109 @@
-"""
-Unit tests for environment variable management (T009).
-"""
-
 import os
 import pytest
 from unittest.mock import patch
-
-# Import the module under test
-# Adjust import path based on project structure (src/ vs code/src/)
-# Assuming the task creates code/src/config/env.py
 from src.config.env import (
-    EnvConfig,
     EnvironmentError,
+    EnvConfig,
     get_config,
     get_openneuro_api_key,
-    get_data_dir,
+    get_data_dir
 )
 
 
 class TestEnvConfigValidation:
-    """Tests for EnvConfig validation logic."""
+    """Tests for environment variable validation logic."""
 
-    def test_valid_environment(self):
-        """Test that valid environment variables are loaded correctly."""
-        with patch.dict(
-            os.environ,
-            {
-                "OPENNEURO_API_KEY": "valid_key_123",
-                "DATA_DIR": "/path/to/data",
-            },
-            clear=True,
-        ):
-            config = EnvConfig()
-            assert config.openneuro_api_key == "valid_key_123"
-            assert config.data_dir == "/path/to/data"
-
-    def test_missing_api_key(self):
+    def test_missing_required_key_raises_error(self):
         """Test that missing OPENNEURO_API_KEY raises EnvironmentError."""
-        with patch.dict(
-            os.environ,
-            {"DATA_DIR": "/path/to/data"},
-            clear=True,
-        ):
+        with patch.dict(os.environ, {}, clear=True):
             with pytest.raises(EnvironmentError) as exc_info:
-                EnvConfig()
+                get_openneuro_api_key()
+            
             assert "OPENNEURO_API_KEY" in str(exc_info.value)
+            assert "not set or is empty" in str(exc_info.value)
 
-    def test_missing_data_dir(self):
-        """Test that missing DATA_DIR raises EnvironmentError."""
-        with patch.dict(
-            os.environ,
-            {"OPENNEURO_API_KEY": "valid_key"},
-            clear=True,
-        ):
-            with pytest.raises(EnvironmentError) as exc_info:
-                EnvConfig()
-            assert "DATA_DIR" in str(exc_info.value)
-
-    def test_empty_api_key(self):
+    def test_empty_required_key_raises_error(self):
         """Test that empty OPENNEURO_API_KEY raises EnvironmentError."""
-        with patch.dict(
-            os.environ,
-            {
-                "OPENNEURO_API_KEY": "",
-                "DATA_DIR": "/path/to/data",
-            },
-            clear=True,
-        ):
+        with patch.dict(os.environ, {"OPENNEURO_API_KEY": ""}):
             with pytest.raises(EnvironmentError) as exc_info:
-                EnvConfig()
+                get_openneuro_api_key()
+            
             assert "OPENNEURO_API_KEY" in str(exc_info.value)
 
-    def test_empty_data_dir(self):
-        """Test that empty DATA_DIR raises EnvironmentError."""
-        with patch.dict(
-            os.environ,
-            {
-                "OPENNEURO_API_KEY": "valid_key",
-                "DATA_DIR": "   ",
-            },
-            clear=True,
-        ):
+    def test_whitespace_only_key_raises_error(self):
+        """Test that whitespace-only OPENNEURO_API_KEY raises EnvironmentError."""
+        with patch.dict(os.environ, {"OPENNEURO_API_KEY": "   "}):
             with pytest.raises(EnvironmentError) as exc_info:
-                EnvConfig()
+                get_openneuro_api_key()
+            
+            assert "OPENNEURO_API_KEY" in str(exc_info.value)
+
+    def test_missing_data_dir_raises_error(self):
+        """Test that missing DATA_DIR raises EnvironmentError."""
+        with patch.dict(os.environ, {}, clear=True):
+            with pytest.raises(EnvironmentError) as exc_info:
+                get_data_dir()
+            
             assert "DATA_DIR" in str(exc_info.value)
 
-    def test_whitespace_stripping(self):
-        """Test that whitespace is stripped from values."""
-        with patch.dict(
-            os.environ,
-            {
-                "OPENNEURO_API_KEY": "  key_with_spaces  ",
-                "DATA_DIR": "  /path/to/data  ",
-            },
-            clear=True,
-        ):
-            config = EnvConfig()
-            assert config.openneuro_api_key == "key_with_spaces"
-            assert config.data_dir == "/path/to/data"
+    def test_valid_api_key_returns_stripped_value(self):
+        """Test that valid API key is returned with whitespace stripped."""
+        test_key = "  sk-test-12345  "
+        with patch.dict(os.environ, {"OPENNEURO_API_KEY": test_key}):
+            result = get_openneuro_api_key()
+            assert result == "sk-test-12345"
 
-    def test_to_dict_masks_key(self):
-        """Test that to_dict masks the API key."""
-        with patch.dict(
-            os.environ,
-            {
-                "OPENNEURO_API_KEY": "secret_key",
-                "DATA_DIR": "/data",
-            },
-            clear=True,
-        ):
-            config = EnvConfig()
-            result = config.to_dict()
-            assert result["openneuro_api_key"] == "****"
-            assert result["data_dir"] == "/data"
+    def test_valid_data_dir_returns_stripped_value(self):
+        """Test that valid data dir is returned with whitespace stripped."""
+        test_dir = "  /path/to/data  "
+        with patch.dict(os.environ, {"DATA_DIR": test_dir}):
+            result = get_data_dir()
+            assert result == "/path/to/data"
+
+    def test_get_config_returns_envconfig_object(self):
+        """Test that get_config returns a properly populated EnvConfig."""
+        with patch.dict(os.environ, {
+            "OPENNEURO_API_KEY": "test-key",
+            "DATA_DIR": "/test/data"
+        }):
+            config = get_config()
+            assert isinstance(config, EnvConfig)
+            assert config.openneuro_api_key == "test-key"
+            assert config.data_dir == "/test/data"
+
+    def test_get_config_validates_both_variables(self):
+        """Test that get_config fails if either variable is missing."""
+        # Missing API key
+        with patch.dict(os.environ, {"DATA_DIR": "/test/data"}):
+            with pytest.raises(EnvironmentError):
+                get_config()
+
+        # Missing DATA_DIR
+        with patch.dict(os.environ, {"OPENNEURO_API_KEY": "test-key"}):
+            with pytest.raises(EnvironmentError):
+                get_config()
 
 
 class TestGlobalAccessors:
-    """Tests for global accessor functions."""
+    """Tests for the global accessor functions."""
 
-    def setup_method(self):
-        # Reset singleton before each test
-        from src.config import env
-        env._config_instance = None
+    def test_get_openneuro_api_key_integration(self):
+        """Integration test for get_openneuro_api_key with valid env."""
+        test_key = "integration-test-key-999"
+        with patch.dict(os.environ, {"OPENNEURO_API_KEY": test_key}):
+            assert get_openneuro_api_key() == test_key
 
-    def test_get_config_returns_instance(self):
-        """Test that get_config returns an EnvConfig instance."""
-        with patch.dict(
-            os.environ,
-            {
-                "OPENNEURO_API_KEY": "test_key",
-                "DATA_DIR": "/test/data",
-            },
-            clear=True,
-        ):
-            config = get_config()
-            assert isinstance(config, EnvConfig)
+    def test_get_data_dir_integration(self):
+        """Integration test for get_data_dir with valid env."""
+        test_dir = "/integration/test/dir"
+        with patch.dict(os.environ, {"DATA_DIR": test_dir}):
+            assert get_data_dir() == test_dir
 
-    def test_get_config_singleton(self):
-        """Test that get_config returns the same instance."""
-        with patch.dict(
-            os.environ,
-            {
-                "OPENNEURO_API_KEY": "test_key",
-                "DATA_DIR": "/test/data",
-            },
-            clear=True,
-        ):
-            config1 = get_config()
-            config2 = get_config()
-            assert config1 is config2
-
-    def test_get_openneuro_api_key(self):
-        """Test the convenience function for API key."""
-        with patch.dict(
-            os.environ,
-            {
-                "OPENNEURO_API_KEY": "my_api_key",
-                "DATA_DIR": "/test/data",
-            },
-            clear=True,
-        ):
-            key = get_openneuro_api_key()
-            assert key == "my_api_key"
-
-    def test_get_data_dir(self):
-        """Test the convenience function for data dir."""
-        with patch.dict(
-            os.environ,
-            {
-                "OPENNEURO_API_KEY": "my_api_key",
-                "DATA_DIR": "/my/data/path",
-            },
-            clear=True,
-        ):
-            path = get_data_dir()
-            assert path == "/my/data/path"
-
-    def test_get_config_fails_without_env(self):
-        """Test that get_config raises error if env vars are missing."""
-        # Ensure vars are not set
-        with patch.dict(os.environ, {}, clear=True):
-            with pytest.raises(EnvironmentError):
-                get_config()
+    def test_env_error_inheritance(self):
+        """Test that EnvironmentError is a proper Exception subclass."""
+        assert issubclass(EnvironmentError, Exception)
+        
+        try:
+            raise EnvironmentError("Test error message")
+        except Exception as e:
+            assert str(e) == "Test error message"

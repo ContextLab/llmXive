@@ -1,0 +1,12 @@
+nist_janaf_url: ""
+sgte_url: ""
+local_fallback_path: ""
+data_schema:
+  required_columns:
+    - temperature
+    - composition
+    - element_a
+    - element_b
+required_systems:
+  - Cu-Zn
+  - Al-Cu

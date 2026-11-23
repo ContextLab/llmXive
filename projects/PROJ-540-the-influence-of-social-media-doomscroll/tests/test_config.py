@@ -1,126 +1,116 @@
-"""
-Unit tests for code/config.py.
-
-Specifically tests:
-- Seed verification and logging behavior.
-- Warning generation when seed is missing.
-- Seed application to random and numpy.
-"""
-import os
-import logging
-import random
-from unittest.mock import patch, MagicMock
 import pytest
-
-# Add project root to path if needed (assuming tests/ is at root)
-import sys
+import random
+import numpy as np
+import logging
 from pathlib import Path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+import sys
+import os
 
-from code.config import load_config, set_seed, ConfigError, logger
+# Ensure code/ is in path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
+
+from config import (
+    ConfigError,
+    load_config,
+    set_seed,
+    verify_and_apply_seed,
+    log_seed_status,
+    get_dataset_url,
+    ensure_directories
+)
+
+# Mock config for testing
+MOCK_CONFIG_VALID = {
+    'seed': 42,
+    'dataset_url': 'https://example.com/data.csv'
+}
+
+MOCK_CONFIG_NO_SEED = {
+    'dataset_url': 'https://example.com/data.csv'
+}
+
+MOCK_CONFIG_NO_URL = {
+    'seed': 42
+}
 
 class TestSeedVerification:
-    """Tests for seed verification and logging logic."""
+    """Tests for seed verification and application logic in code/config.py"""
 
-    @pytest.fixture(autouse=True)
-    def setup(self, tmp_path, caplog):
-        """Setup test environment."""
-        self.tmp_path = tmp_path
-        self.caplog.set_level(logging.WARNING)
-        # Ensure a clean environment for each test
-        self.original_seed_env = os.environ.pop("LLMXIVE_SEED", None)
-        self.original_config_env = os.environ.pop("LLMXIVE_CONFIG_PATH", None)
+    def test_set_seed_applies_to_random(self):
+        """Verify set_seed applies to Python's random module"""
+        set_seed(123)
+        val1 = random.random()
+        
+        set_seed(123)
+        val2 = random.random()
+        
+        assert val1 == val2, "Random seed application failed"
 
-    def teardown_method(self):
-        """Restore environment."""
-        if self.original_seed_env is not None:
-            os.environ["LLMXIVE_SEED"] = self.original_seed_env
-        if self.original_config_env is not None:
-            os.environ["LLMXIVE_CONFIG_PATH"] = self.original_config_env
+    def test_set_seed_applies_to_numpy(self):
+        """Verify set_seed applies to numpy random"""
+        set_seed(456)
+        arr1 = np.random.rand(5)
+        
+        set_seed(456)
+        arr2 = np.random.rand(5)
+        
+        assert np.array_equal(arr1, arr2), "Numpy random seed application failed"
 
-    def test_seed_set_explicitly_logs_info(self, caplog):
-        """Verify that setting a seed explicitly logs the action."""
+    def test_verify_and_apply_seed_success(self):
+        """Verify verify_and_apply_seed returns correct seed and applies it"""
+        seed = verify_and_apply_seed(MOCK_CONFIG_VALID)
+        assert seed == 42
+        # Verify it was actually applied by checking reproducibility
+        set_seed(42)
+        val = random.random()
+        # If we reset and get same value, it was applied correctly
+        verify_and_apply_seed(MOCK_CONFIG_VALID)
+        val2 = random.random()
+        assert val == val2
+
+    def test_verify_and_apply_seed_raises_on_missing(self):
+        """Verify verify_and_apply_seed raises ValueError when seed is missing"""
+        with pytest.raises(ValueError) as exc_info:
+            verify_and_apply_seed(MOCK_CONFIG_NO_SEED)
+        assert "Seed is not set" in str(exc_info.value)
+
+    def test_log_seed_status_set(self, caplog):
+        """Verify log_seed_status logs correctly when seed is set"""
         with caplog.at_level(logging.INFO):
-            result = set_seed(seed=42)
-        
-        assert result == 42
-        assert "Random seed set to: 42" in caplog.text
-        # Verify random state is actually affected
-        r1 = random.random()
-        random.seed(42)
-        r2 = random.random()
-        assert r1 == r2
+            log_seed_status(999)
+        assert any("999" in record.message for record in caplog.records)
 
-    def test_seed_from_config_logs_info(self, tmp_path, caplog):
-        """Verify that loading a seed from config logs the action."""
-        config_file = tmp_path / "config.yaml"
-        config_file.write_text("seed: 12345")
-        
-        with caplog.at_level(logging.INFO):
-            # Pass the config explicitly to avoid file path logic complexity in test
-            cfg = {"seed": 12345}
-            result = set_seed(config=cfg)
-        
-        assert result == 12345
-        assert "Random seed set to: 12345" in caplog.text
-
-    def test_no_seed_provided_logs_warning(self, caplog):
-        """Verify that missing seed triggers a warning (Constitution Principle I)."""
-        # Ensure no seed in config or env
-        cfg = {"seed": None}
-        
+    def test_log_seed_status_none(self, caplog):
+        """Verify log_seed_status logs warning when seed is None"""
         with caplog.at_level(logging.WARNING):
-            result = set_seed(config=cfg)
-        
-        assert result is None
-        assert "No random seed provided" in caplog.text
-        assert "Set LLXIVE_SEED or 'seed' in config.yaml" in caplog.text
+            log_seed_status(None)
+        assert any("not set" in record.message for record in caplog.records)
 
-    def test_no_seed_env_var_logs_warning(self, caplog):
-        """Verify warning when environment variable is missing."""
-        # Clear env if present
-        os.environ.pop("LLMXIVE_SEED", None)
-        
+class TestConfiguration:
+    """Tests for configuration loading and URL retrieval"""
+
+    def test_get_dataset_url_success(self):
+        """Verify get_dataset_url returns URL from config"""
+        url = get_dataset_url(MOCK_CONFIG_VALID)
+        assert url == 'https://example.com/data.csv'
+
+    def test_get_dataset_url_raises_on_missing(self):
+        """Verify get_dataset_url raises ConfigError when URL missing"""
+        with pytest.raises(ConfigError) as exc_info:
+            get_dataset_url(MOCK_CONFIG_NO_URL)
+        assert "Dataset URL not found" in str(exc_info.value)
+
+    def test_load_config_missing_file(self, tmp_path, caplog):
+        """Verify load_config handles missing file gracefully"""
         with caplog.at_level(logging.WARNING):
-            # load_config will return None for seed
-            cfg = load_config()
-            result = set_seed(config=cfg)
-        
-        assert result is None
-        assert "No random seed provided" in caplog.text
+            # Pass a path that definitely doesn't exist
+            result = load_config(str(tmp_path / "nonexistent.yaml"))
+        assert result == {}
+        assert any("not found" in record.message for record in caplog.records)
 
-    def test_seed_applied_to_numpy(self):
-        """Verify seed is applied to numpy if available."""
-        try:
-            import numpy as np
-            has_numpy = True
-        except ImportError:
-            has_numpy = False
-            return
-
-        set_seed(seed=999)
-        val1 = np.random.random()
-        
-        set_seed(seed=999)
-        val2 = np.random.random()
-        
-        assert val1 == val2
-
-    def test_load_config_priority_env_over_yaml(self, tmp_path):
-        """Verify environment variables take priority over YAML config."""
-        config_file = tmp_path / "config.yaml"
-        config_file.write_text("seed: 100")
-        
-        os.environ["LLMXIVE_SEED"] = "200"
-        
-        cfg = load_config(config_file)
-        assert cfg["seed"] == 200
-
-    def test_load_config_defaults_when_missing(self, tmp_path):
-        """Verify defaults are used when no config exists."""
-        # Point to non-existent file
-        fake_path = tmp_path / "nonexistent.yaml"
-        
-        cfg = load_config(fake_path)
-        assert cfg["seed"] is None
-        assert "gss_data_2022.csv" in cfg["dataset_url"]
+    def test_ensure_directories_creates_paths(self, tmp_path):
+        """Verify ensure_directories creates required directories"""
+        test_dir = tmp_path / "test_subdir"
+        ensure_directories([test_dir])
+        assert test_dir.exists()
+        assert test_dir.is_dir()

@@ -1,0 +1,46 @@
+# generated using pymatgen
+data_Li1.956Ca1.896P6Pb6.12O24
+_symmetry_space_group_name_H-M   P6_3/m
+_cell_length_a   9.67900000
+_cell_length_b   9.67900000
+_cell_length_c   7.11300000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   120.00000000
+_symmetry_Int_Tables_number   176
+_chemical_formula_structural   Li1.956Ca1.896P6Pb6.12O24
+_chemical_formula_sum   'Li1.956 Ca1.896 P6 Pb6.12 O24'
+_cell_volume   577.09115782
+_cell_formula_units_Z   1
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-x, -y, -z'
+  3  'x-y, x, z+1/2'
+  4  '-x+y, -x, -z+1/2'
+  5  '-y, x-y, z'
+  6  'y, -x+y, -z'
+  7  '-x, -y, z+1/2'
+  8  'x, y, -z+1/2'
+  9  '-x+y, -x, z'
+  10  'x-y, x, -z'
+  11  'y, -x+y, z+1/2'
+  12  '-y, x-y, -z+1/2'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Pb  Pb0  4  0.33333333  0.66666667  0.00826037  0.285
+  Li  Li1  4  0.33333333  0.66666667  0.00826037  0.489
+  Ca  Ca2  4  0.33333333  0.66666667  0.00826037  0.219
+  Pb  Pb3  6  0.00580432  0.75602494  0.75000000  0.83
+  Ca  Ca4  6  0.00580432  0.75602494  0.75000000  0.17
+  P  P5  6  0.03176704  0.39828785  0.75000000  1.0
+  O  O6  12  0.07533894  0.36991254  0.59575718  1.0
+  O  O7  6  0.12360299  0.59993576  0.75000000  1.0
+  O  O8  6  0.16323889  0.63554540  0.25000000  1.0

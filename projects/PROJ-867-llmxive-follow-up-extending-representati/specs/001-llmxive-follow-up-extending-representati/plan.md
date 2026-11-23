@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational study to validate the "bottleneck-free" hypothesis of the Representation Forcing (RF) architecture. The primary requirement is to demonstrate that intermediate RF tokens, extracted from a frozen encoder (specifically `microsoft/layoutlmv-base` as a verified proxy), contain sufficient structural priors to allow a lightweight autoregressive model (~30M params) to reconstruct structured text (JSON/Markdown) from document images. The technical approach involves: (1) extracting RF tokens from the PubLayNet dataset using a frozen encoder; (2) training a small transformer to map these tokens to structured text; (3) comparing performance against a pixel-based baseline; and (4) validating structural independence on a "structure-only" subset. All experiments are constrained to run on CPU-only GitHub Actions free-tier runners (≤7GB RAM, ≤6h runtime). The study explicitly frames results as "performance under extreme resource constraints" rather than optimal performance, and uses per-image statistical testing (McNemar's test) to ensure methodological rigor.
+This project implements a computational study to validate the "bottleneck-free" hypothesis of the Representation Forcing (RF) architecture. The primary requirement is to demonstrate that intermediate RF tokens, extracted from a frozen encoder (specifically `microsoft/layoutlmv-base` as a verified proxy), contain sufficient structural priors to allow a lightweight autoregressive model to reconstruct structured text (JSON/Markdown) from document images. The technical approach involves: (1) extracting RF tokens from the PubLayNet dataset using a frozen encoder; (2) training a small transformer to map these tokens to structured text; (3) comparing performance against a pixel-based baseline; and (4) validating structural independence on a "structure-only" subset. All experiments are constrained to run on CPU-only GitHub Actions free-tier runners (≤7GB RAM, ≤6h runtime). The study explicitly frames results as "performance under extreme resource constraints" rather than optimal performance, and uses per-image statistical testing (McNemar's test) to ensure methodological rigor.
 
 ## Technical Context
 
@@ -16,8 +16,8 @@ This project implements a computational study to validate the "bottleneck-free" 
 **Target Platform**: Linux (GitHub Actions `ubuntu-latest` runner)  
 **Project Type**: Research pipeline / CLI  
 **Performance Goals**: Complete training and evaluation within 6 hours; memory usage < 4GB (conservative headroom below 7GB limit).  
-**Constraints**: No GPU/CUDA; no quantization requiring CUDA kernels; lightweight models only (~30M params, reduced from 100M for CPU feasibility); dataset subsampling required if full set exceeds RAM.  
-**Scale/Scope**: ~10k-50k document images (subsampled from PubLayNet); 2 epochs max training (Constitution VII), with optional 5-epoch sensitivity analysis if RAM permits.
+**Constraints**: No GPU/CUDA; no quantization requiring CUDA kernels; lightweight models only (reduced parameter count for CPU feasibility); dataset subsampling required if full set exceeds RAM.  
+**Scale/Scope**: A large-scale dataset of document images (subsampled from PubLayNet); A limited number of epochs for training (Constitution VII), with optional -epoch sensitivity analysis if RAM permits.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -111,15 +111,15 @@ projects/PROJ-867-llmxive-follow-up-extending-representati/
 ### Phase 2: Implementation
 *Goal: Implement the pipeline.*
 1.  **Data Loaders**: Implement `loaders.py` for PubLayNet.
-2.  **Token Extraction**: Implement `preprocessing.py` to extract RF tokens (frozen) and downsample pixels, with fixed context window (512).
-3.  **Resource Monitoring**: Implement `resource_monitor.py` to enforce 4GB RAM limit (FR-007).
-4.  **Model Training**: Implement `train.py` with early stopping (2 epochs max per Constitution VII).
+2.  **Token Extraction**: Implement `preprocessing.py` to extract RF tokens (frozen) and downsample pixels, with fixed context window.
+3.  **Resource Monitoring**: Implement `resource_monitor.py` to enforce GB RAM limit (FR-007).
+4.  **Model Training**: Implement `train.py` with early stopping (limited epochs per Constitution VII).
 5.  **Structure-Only Subset**: Implement logic to filter for low-contrast/high-complexity images (US-4).
 6.  **Evaluation**: Implement `evaluate.py` for syntax validation, AST distance, and statistical testing (McNemar/Wilcoxon) using `scikit-learn`.
 
 ### Phase 3: Validation & Reporting
 *Goal: Run experiments and generate results.*
-1.  **Run Experiments**: Execute training for RF and Baseline models across multiple random seeds (5 seeds).
+1.  **Run Experiments**: Execute training for RF and Baseline models across multiple random seeds.
 2.  **Statistical Analysis**: Compute p-values (McNemar for validity, Wilcoxon for AST) and effect sizes on per-image data.
 3.  **Runtime Logging**: Record total training/evaluation time (SC-005).
 4.  **Paper Draft**: Compile results into the final research paper, ensuring all numbers trace to `data/results/`.
@@ -127,10 +127,10 @@ projects/PROJ-867-llmxive-follow-up-extending-representati/
 ## Computational Feasibility & Constraints
 
 - **Memory**: All operations must fit within 4GB RAM (conservative limit below 7GB). Data will be streamed or subsampled. `psutil` will enforce hard limits.
-- **Time**: Total runtime capped at 6 hours. Training limited to 2 epochs (Constitution VII) and max 20 epochs (Spec FR-003) -> **Constitution VII (2 epochs) takes precedence** to ensure feasibility.
+- **Time**: Total runtime capped at hours. Training limited to epochs (Constitution VII) and max 20 epochs (Spec FR-003) -> **Constitution VII (2 epochs) takes precedence** to ensure feasibility.
 - **No GPU**: All models must run on CPU. `torch` will be installed without CUDA support.
 - **Dataset Fit**: PubLayNet is verified to contain layout boxes and text. CodeParrot is excluded due to lack of document-image alignment.
-- **Model Size**: Reduced to ~30M parameters to ensure CPU feasibility within 6 hours.
+- **Model Size**: Reduced to a substantially smaller parameter count. to ensure CPU feasibility within 6 hours.
 
 ## Risk Mitigation
 

@@ -1,0 +1,19 @@
+status: none
+intent: download OpenAlex Works parquet dataset S3 and arXiv bioRxiv metadata python
+  package dataset
+required_fields:
+- preprint_id
+- preprint_doi
+- journal_doi
+- title
+- authors
+- publication_date
+- venue
+- match_similarity_score
+- source_repository
+- p_value_preprint
+- p_value_journal
+- p_value_preprint_inequality
+cache_key: 24f160778647f2eab43270d9c48d839e07a8360073d9970f0eed747f265fd6f2
+searched_at: '2026-09-29T00:59:47.066040+00:00'
+retry_count: 1

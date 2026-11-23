@@ -1,1 +1,2 @@
-# Placeholder for raw data directory
+# This directory holds raw ingested data files.
+# Do not commit large binary files; use .gitignore to exclude data files.

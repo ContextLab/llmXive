@@ -1,39 +1,13 @@
-"""
-Custom exception definitions for the Dream-State Learning pipeline.
-
-This module provides specialized exception classes to enforce data integrity
-and handle specific failure modes defined in the project contracts.
-"""
-
+import time
 
 class DataIntegrityError(Exception):
-    """
-    Raised when a data integrity check fails, specifically for checksum
-    verification mismatches.
+    """Raised when dataset checksum verification fails."""
+    pass
 
-    This exception is used by the data loader to abort execution when
-    downloaded data (e.g., GLUE/SuperGLUE subsets) does not match the
-    expected SHA-256 hash, preventing the use of corrupted or tampered
-    datasets.
-
-    Attributes:
-        message (str): Human-readable explanation of the error.
-        expected_hash (str, optional): The expected SHA-256 hash.
-        actual_hash (str, optional): The computed SHA-256 hash of the file.
-    """
-
-    def __init__(self, message: str, expected_hash: str = None, actual_hash: str = None):
-        self.message = message
-        self.expected_hash = expected_hash
-        self.actual_hash = actual_hash
-
-        if expected_hash and actual_hash:
-            full_message = (
-                f"{message}. "
-                f"Expected: {expected_hash}, "
-                f"Actual: {actual_hash}"
-            )
-        else:
-            full_message = message
-
+class TimeLimitExceeded(Exception):
+    """Raised when the wall-clock execution time exceeds the configured limit."""
+    def __init__(self, message="Execution time limit exceeded", elapsed_seconds=None, limit_seconds=None):
+        self.elapsed_seconds = elapsed_seconds
+        self.limit_seconds = limit_seconds
+        full_message = f"{message} (Elapsed: {elapsed_seconds:.2f}s, Limit: {limit_seconds}s)" if elapsed_seconds is not None else message
         super().__init__(full_message)

@@ -1,0 +1,5 @@
+{
+  "status": "unavailable",
+  "message": "Data source unavailable: REAL_DATA_SOURCE environment variable not set.",
+  "timestamp": "2026-10-20T19:18:01.452187+00:00"
+}

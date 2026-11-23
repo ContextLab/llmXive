@@ -1,0 +1,11 @@
+status: none
+intent: CiteVQA dataset download with bounding boxes python package dataset
+required_fields:
+- query
+- answer
+- bounding_box
+- document_id
+- chunk_id
+cache_key: e993a8bed3d5a35b1000a395eb4f4ad3117c937b78574e5dcbc3a55f64832977
+searched_at: '2026-10-10T11:16:15.332285+00:00'
+retry_count: 1

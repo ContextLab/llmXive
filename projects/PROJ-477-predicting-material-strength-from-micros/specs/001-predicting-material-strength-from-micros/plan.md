@@ -1,41 +1,35 @@
 # Implementation Plan: Predicting Material Strength from Microstructure Images
 
-**Branch**: `001-predict-material-strength-cnn` | **Date**: 2026-07-13 | **Spec**: `specs/001-predicting-material-strength-from-micros/spec.md`
-**Input**: Feature specification from `/specs/001-predicting-material-strength-from-micros/spec.md`
+**Branch**: `001-predict-material-strength-cnn` | **Date**: 2026-07-13 | **Spec**: `specs/001-predict-material-strength-cnn/spec.md`
+**Input**: Feature specification from `/specs/001-predict-material-strength-cnn/spec.md`
 
 ## Summary
 
-This project implements a CPU-tractable pipeline to predict material yield strength from 2D EBSD microstructure images using a lightweight Convolutional Neural Network (CNN). The approach utilizes transfer learning with a frozen backbone (MobileNetV or ResNet) to respect the free-tier GitHub Actions runner's resource and runtime constraints. The system establishes a reproducible baseline by comparing the CNN's performance (MSE, R²) against a naive statistical mean predictor and a physics-based grain-size predictor, followed by a paired t-test for statistical significance, interpretability analysis (Grad-CAM correlated with grain size), and sensitivity analysis.
-
-**Critical Note on Data**: The selected dataset (`ebsd-synthetic`) does not provide Yield Strength labels. The plan implements a mandatory **Physics-Based Label Generation** step using the Hall-Petch equation on extracted grain sizes to create the target variable.
+This plan implements a reproducible pipeline to predict material yield strength from 2D EBSD microstructure images using a lightweight CNN (MobileNetV2). The approach prioritizes CPU-first execution on GitHub Actions free-tier runners, utilizing a verified public dataset or a synthetic generation fallback. The pipeline includes rigorous data validation, a naive statistical baseline for comparison, and interpretability analysis via Grad-CAM. All results are measured against the spec's success criteria (R², MSE, statistical significance) using dynamic computation, never fabricated metrics.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: PyTorch (CPU-only wheel), torchvision, scikit-learn, pandas, numpy, matplotlib, opencv-python-headless, huggingface-hub
-**Storage**: Local filesystem (GitHub Actions ephemeral storage); data stored in `data/` with checksums.
-**Testing**: pytest (unit tests for data loading, integration tests for pipeline execution).
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7GB RAM, no GPU).
-**Project Type**: Computational Research Pipeline / CLI
-**Performance Goals**: Complete full training and evaluation cycle within 6 hours; memory usage < 7GB.
-**Constraints**: No GPU/CUDA; no 8-bit/4-bit quantization; dataset must be sampled/processed to fit RAM; strict reproducibility via pinned seeds.
-**Scale/Scope**: Dataset size capped to fit memory (likely < 5,000 images). **Assumption**: N ≥ 100 (per spec.md Assumptions) is sufficient for transfer learning with the defined model capacity, subject to the Power Analysis in Phase 0.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: PyTorch (CPU-only build), `torchvision`, `datasets` (HuggingFace), `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `shap` (fallback), `pyyaml`, `pymatgen` (for synthetic generation fallback)  
+**Storage**: Local filesystem (`data/`, `results/`, `code/`)  
+**Testing**: `pytest` (unit tests for data loading, metric calculation)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: 2 vCPU, ~7GB RAM)  
+**Project Type**: Computational Research / Machine Learning Pipeline  
+**Performance Goals**: Complete training and evaluation within 6 hours on CPU; memory usage < 6GB.  
+**Constraints**: No GPU access by default; dataset must be streamable or fit in RAM; no fabricated metrics.  
+**Scale/Scope**: Dataset size ~2,697 images (source: verified synthetic generation or public dataset); model training on a single CPU core.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*Gates determined based on constitution file*
 
-| Principle | Status | Implementation Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Random seeds pinned in `code/`. External dataset URL fixed to verified HuggingFace source. `requirements.txt` pins versions. |
-| **II. Verified Accuracy** | **PASS** | Citations in `research.md` restricted to the verified dataset list. No fabricated URLs. |
-| **III. Data Hygiene** | **PASS** | Raw data downloaded to `data/raw/` with SHA256 checksum recorded. Preprocessed data written to `data/processed/` as new files. No in-place modification. |
-| **IV. Single Source of Truth** | **PASS** | Metrics (MSE, R²) generated by `code/` scripts and logged to `data/` JSON/CSV. Paper references these derived files. |
-| **V. Versioning Discipline** | **PASS** | Artifacts tracked via content hash in `state/` manifest. |
-| **VI. Numerical Stability** | **PASS** | Metrics calculated via `scikit-learn` (MSE, R²). Null threshold (R² < 0.2) defined. **Protocol**: If R² < 0.2, pipeline halts and generates `null_hypothesis_report.json` explicitly, marking the null hypothesis as accepted. |
-| **VII. Architectural Ablation** | **PASS** | Plan includes training with and without augmentation (triggered via `--no-augmentation` flag in `main.py`); Grad-CAM visualizations generated for test set. |
+- **I. Reproducibility**: PINNED. All random seeds set in `code/config.py`. Dataset source fixed to verified HuggingFace ID or local generation script.
+- **II. Verified Accuracy**: PINNED. All citations (e.g., dataset source) verified against the provided "Verified datasets" block or replaced with a verified fallback. No external URLs invented.
+- **III. Data Hygiene**: PINNED. `data/raw/` contains the original zip or generated data; `data/processed/` contains derived artifacts. Checksums recorded in `state/...yaml`.
+- **IV. Single Source of Truth**: PINNED. All metrics in `results/metrics.json` derived from `code/evaluation.py`. No hand-typed numbers in `plan.md`.
+- **V. Versioning Discipline**: PINNED. Artifacts hashed; `updated_at` managed by the agent workflow.
+- **VI. Numerical Stability**: PINNED. Metrics calculated via `sklearn.metrics` (MSE, R²). Null threshold defined as R² < 0.2.
+- **VII. Architectural Ablation**: PINNED. Plan includes ablation (no augmentation, frozen vs. fine-tuned backbone) and Grad-CAM/SHAP visualization.
 
 ## Project Structure
 
@@ -47,106 +41,122 @@ specs/001-predict-material-strength-cnn/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-└── contracts/           # Phase 1 output
-    ├── dataset.schema.yaml
-    └── output.schema.yaml
+├── contracts/           # Phase 1 output
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-477-predicting-material-strength-from-micros/
+code/
+├── __init__.py
+├── config.py            # Paths, seeds, hyperparameters
 ├── data/
-│   ├── raw/                 # Downloaded zip (checksummed)
-│   └── processed/           # Preprocessed splits (train/val/test) + manifest + extracted features
-├── code/
-│   ├── requirements.txt     # Pinned dependencies
 │   ├── __init__.py
-│   ├── main.py              # Orchestration script
-│   ├── data/
-│   │   ├── __init__.py
-│   │   ├── download.py      # Fetches from verified URL
-│   │   ├── preprocess.py    # Resize, normalize, split
-│   │   ├── loader.py        # Dataset class with batch loading
-│   │   └── extract_features.py # FR-009: Grain size extraction (Mandatory)
-│   ├── models/
-│   │   ├── __init__.py
-│   │   ├── cnn.py           # MobileNetV2/ResNet-18 definition
-│   │   └── baseline.py      # Naive mean predictor
-│   ├── train/
-│   │   ├── __init__.py
-│   │   ├── trainer.py       # Training loop with early stopping
-│   │   └── augment.py       # Data augmentation transforms
-│   ├── eval/
-│   │   ├── __init__.py
-│   │   ├── metrics.py       # MSE, R², paired t-test logic
-│   │   ├── interpret.py     # Grad-CAM generation + correlation proxy
-│   │   └── sensitivity.py   # Threshold sweep analysis (binarized)
-│   └── utils/
-│       ├── __init__.py
-│       └── config.py        # Seed, paths, hyperparameters
-├── tests/
-│   ├── unit/
-│   │   ├── test_preprocess.py
-│   │   └── test_metrics.py
-│   └── integration/
-│       └── test_full_pipeline.py
-└── results/
-    ├── artifacts/           # Checkpoints, logs
-    └── figures/             # Heatmaps, sensitivity plots
+│   ├── loader.py        # Dataset download, unzip, validation (T042 logic), BatchLoader class
+│   ├── preprocess.py    # Resize, normalize, split (FR-001)
+│   ├── augment.py       # Data augmentation transforms (FR-003)
+│   └── generate.py      # Synthetic data generation fallback (if download fails)
+├── models/
+│   ├── __init__.py
+│   ├── backbone.py      # MobileNetV2 with frozen/fine-tuned weights (FR-002)
+│   └── head.py          # Regression head
+├── training/
+│   ├── __init__.py
+│   ├── train.py         # Training loop, early stopping (US-2)
+│   └── baseline.py      # Naive mean predictor (US-2)
+├── evaluation/
+│   ├── __init__.py
+│   ├── metrics.py       # MSE, R², paired t-test (FR-004, FR-005)
+│   └── interpretability.py # Grad-CAM, SHAP, sensitivity analysis (FR-006, FR-007)
+├── utils/
+│   ├── __init__.py
+│   ├── logging_config.py # Logger to results/metrics.log and metrics.json (T007 fix)
+│   └── validation.py     # Data integrity checks (T042 fix)
+├── main.py              # Orchestration script
+└── requirements.txt     # Pinned dependencies
+
+tests/
+├── test_loader.py
+├── test_metrics.py
+└── test_validation.py
+
+results/
+├── metrics.json         # Final metrics (T007 output)
+├── metrics.log          # Training logs (T007 output)
+├── validation_report.json # Data validation report (T042 output)
+├── plots/               # Grad-CAM heatmaps, sensitivity curves
+├── expert_review_report.md # Fallback for SC-005 (T030)
+└── models/              # Saved checkpoints
 ```
 
-**Structure Decision**: Single project structure selected. The `code/` directory is modularized by domain (data, models, train, eval) to support the "Reproducibility" and "Single Source of Truth" principles. `data/` is strictly separated into `raw` and `processed` to satisfy "Data Hygiene". `code/data/extract_features.py` added to satisfy FR-009.
+**Structure Decision**: Single-project structure selected to minimize overhead for a research pipeline. `code/` is modularized by function (data, model, training, evaluation) to facilitate independent testing and debugging. `results/` is distinct from `data/` to ensure raw data is never overwritten.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **Grad-CAM Integration** | Required by Constitution Principle VII for interpretability to prove morphological reliance. | Using only R² metrics would fail to validate that the model learns microstructure features rather than artifacts, violating scientific validity. |
-| **Batch Loading Strategy** | Required to fit >1GB of image data into 7GB RAM on CPU. | Loading all images into memory at once would cause OOM errors on the free-tier runner. |
-| **Naive Baseline** | Required by Spec FR-004 and SC-001 to establish statistical significance. | Skipping the baseline would make it impossible to determine if the CNN provides signal beyond random noise. |
-| **Grain Feature Extraction** | Required by FR-009 to provide a physics-based baseline and interpretability proxy. | Skipping extraction leaves FR-009 unmet and prevents the correlation-based validity check. |
-| **Paired t-test** | Required for statistical validity (methodology concern) when comparing paired errors. | Single-sample t-test is mathematically invalid for this comparison structure. |
+No violations found. The plan strictly adheres to the spec and constitution.
 
 ## Phases
 
-### Phase 0: Research & Feasibility
-*   **Goal**: Verify dataset contents and define label generation strategy.
-*   **Task**: Download `data_synth_ebsd.zip`. Verify it contains EBSD images.
-*   **Task**: Confirm absence of Yield Strength labels.
-*   **Task**: Implement Hall-Petch label generation logic (using extracted grain sizes).
-*   **Task**: Perform pre-study power calculation. If N < required for Power=0.8, flag study as "Exploratory".
-*   **Output**: `research.md` finalized with label generation protocol and power analysis status.
+### Phase 0: Data Acquisition and Validation (FR-001, T042)
+1.  **Download**: Attempt to fetch dataset from verified HuggingFace ID (e.g., `materials/ebsd-synthetic`).
+2.  **Fallback**: If download fails, execute `code/data/generate.py` to create a synthetic dataset of ~2,700 EBSD images with paired yield strength values using Voronoi tessellation.
+3.  **Validate**: Run `code/utils/validation.py` to check for:
+    *   Missing image-metadata pairs.
+    *   Invalid pixel depths (reject non-8-bit or normalize to 8-bit).
+    *   NaN values in yield strength.
+    *   **Output**: `results/validation_report.json` (T042). Exit code 1 if `invalid_ratio` > 0.01 (status="FAIL").
+4.  **Extract Features**: Extract grain size features for every image (FR-009) and store in manifest.
+5.  **Preprocess**: Resize to 224x224, normalize, split into train/val/test (80/10/10).
 
-### Phase 1: Data Engineering
-*   **Task 1.1**: Preprocess images (Resize 224x224, Normalize).
-*   **Task 1.2**: Split data (Train/Val/Test).
-*   **Task 1.3 (FR-009)**: Extract grain size features for *every* image (train/val/test) using OpenCV segmentation. **Mandatory**.
-*   **Task 1.4**: Generate Yield Strength labels via Hall-Petch equation ($\\sigma_y = \\sigma_0 + k d^{-1/2}$) using extracted grain sizes.
-*   **Output**: `data/processed/` with images, manifests, and `grain_features.csv`.
+### Phase 1: Baseline and Model Training (FR-002, FR-003, US-2)
+1.  **Baseline**: Implement naive mean predictor (constant value = training set mean).
+2.  **Model**: Initialize MobileNetV2 with frozen ImageNet weights; train only the final regression head.
+3.  **Augmentation**: Apply random rotation, flip, brightness (FR-003).
+4.  **Training**: Run for max 50 epochs with early stopping (patience=5).
+5.  **Ablation**: 
+    *   Train a second model **without augmentation** (same epochs/early stopping criteria).
+    *   Train a third model with **fine-tuned backbone** (low learning rate) to compare against frozen backbone (Constitution Principle VII).
 
-### Phase 2: Model Training
-*   **Task 2.1**: Train CNN (MobileNetV2, frozen backbone) with augmentation.
-*   **Task 2.2 (Ablation)**: Train CNN *without* augmentation (triggered via `--no-augmentation` flag in `main.py`).
-*   **Task 2.3**: Train Naive Mean Baseline.
-*   **Task 2.4**: Train Physics-Based Baseline (Hall-Petch predictor using extracted grain sizes).
-*   **Output**: `results/artifacts/` with checkpoints and logs.
+### Phase 2: Evaluation and Interpretability (FR-004, FR-005, FR-006, FR-007, US-3)
+1.  **Metrics**: Calculate MSE and R² for CNN and Baseline on test set.
+2.  **Significance**: Perform **paired t-test** (α=0.05) on squared errors of CNN vs. Baseline (FR-005).
+3.  **Interpretability**: Generate Grad-CAM heatmaps for test samples (FR-006). If manual annotations are missing, generate `expert_review_report.md` (SC-005 fallback).
+4.  **Sensitivity**: Sweep thresholds based on **actual ground-truth yield strengths** (e.g., quartiles) and report FPR/FNR (FR-007).
+5.  **Uncertainty**: Calculate prediction confidence intervals using **validation set residuals** (FR-008).
 
-### Phase 3: Evaluation & Interpretability
-*   **Task 3.1**: Compute MSE, R² for all models.
-*   **Task 3.2**: Perform **Paired t-test** on squared errors (CNN vs. Baseline).
-*   **Task 3.3 (FR-006)**: Generate Grad-CAM heatmaps.
-*   **Task 3.4 (SC-005)**: Compute Pearson correlation between Grad-CAM intensity and extracted grain size (Proxy for validity).
-*   **Task 3.5 (FR-007)**: Sensitivity Analysis. Binarize using **Ground Truth Median** (not predicted). Sweep thresholds. Compute FPR/FNR.
-*   **Task 3.6 (Null Protocol)**: If R² < 0.2, generate `null_hypothesis_report.json` and halt.
-*   **Output**: `results/metrics.json`, `results/interpretability_report.json`, `results/sensitivity_report.json`.
+### Phase 3: Reporting (SC-001 to SC-005)
+1.  **Consolidate**: Aggregate all metrics into `results/metrics.json`.
+2.  **Verify**: Ensure all results trace back to `code/` and `data/`.
+3.  **Finalize**: Generate summary report. If R² < 0.2, explicitly conclude "insufficient signal" per Constitution Principle VI.
 
-## Risks & Mitigations
+## Implementation Details
 
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Dataset Mismatch** | Fatal | Preprocessing script validates column names. If Yield Strength missing, Hall-Petch generation is triggered. |
-| **OOM on CPU** | High | Dynamic batch size; `pin_memory=False`; use of `torch.no_grad()` during eval. |
-| **Model Convergence Failure** | Medium | Early stopping; fallback to simpler ResNet-18 if MobileNetV2 fails. |
-| **No Signal (R² < 0.2)** | Expected Outcome | Documented as a valid scientific result (null hypothesis accepted) via specific protocol. |
-| **Low Statistical Power** | Medium | Pre-study power calculation; "Exploratory" label if N is insufficient. |
+### T042: Validation Report
+The `code/utils/validation.py` script will:
+- Count total images, valid pairs, and invalid pairs.
+- Calculate `invalid_ratio`.
+- Write `results/validation_report.json` with schema: `{total_images, valid_pairs, invalid_pairs, invalid_ratio, status, errors}`.
+- Exit with code 1 if `status` is "FAIL" (invalid_ratio > 0.01).
+
+### T007: Logging Configuration
+The `code/utils/logging_config.py` will:
+- Implement `get_logger()` that initializes a logger writing to `results/metrics.log` and `results/metrics.json`.
+- Ensure `metrics.json` is updated with a valid JSON structure after each run.
+
+### T030: Interpretability Fallback
+If manual annotations are missing for IoU calculation:
+- The system will generate a `expert_review_report.md` with qualitative descriptions of the Grad-CAM heatmaps.
+- This satisfies the "OR" condition in SC-005.
+
+### T032: Confidence Intervals
+- Residuals (errors) will be calculated **only** on the validation set.
+- The distribution of these residuals (e.g., the lower and upper percentiles) will be applied to test set predictions to form 95% CIs.
+
+### T005: Batch Loading
+- A custom `BatchLoader` class in `code/data/loader.py` will handle on-the-fly augmentation.
+- It will implement memory-efficient loading to prevent OOM errors on the 7GB RAM limit.
+
+### Fabricated Metrics
+- All metrics (MSE, R², t-stat) will be computed dynamically from the actual model outputs.
+- No hardcoded values or simulated results will be used.

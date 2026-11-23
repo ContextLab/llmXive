@@ -6,7 +6,7 @@ failed_stage: null
 field: neuroscience
 human_escalation_reason: null
 id: PROJ-295-predicting-cognitive-load-from-eeg-spect
-last_run_id: edc8d66f-17a2-4efa-8939-7e7e748af315
+last_run_id: 643b9079-e1dc-4de8-a080-176bb472df3c
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-295-predicting-cognitive-load-from-eeg-spect/specs/001-predicting-cognitive-load-from-eeg-spect
 title: Predicting Cognitive Load from EEG Spectral Power Changes During Naturalistic
   Viewing
-updated_at: '2026-07-06T03:21:24.475609Z'
+updated_at: '2026-09-02T17:37:34.996463Z'

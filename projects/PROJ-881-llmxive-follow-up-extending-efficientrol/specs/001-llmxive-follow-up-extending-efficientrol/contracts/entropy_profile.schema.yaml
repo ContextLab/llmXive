@@ -1,30 +1,32 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "EntropyProfile"
-description: "Schema for intermediate layer entropy extraction (US-2)"
+description: "Schema for intermediate layer entropy data."
 type: "object"
 properties:
+  profile_id:
+    type: "string"
+    description: "Unique identifier for the profile."
   sequence_id:
     type: "string"
-    description: "Foreign key to TokenSequence"
+    description: "Foreign key to the parent TokenSequence."
   token_index:
     type: "integer"
-    description: "Position of the token in the sequence"
-  token_id:
+    description: "Position of the token in the sequence."
+  layer_id:
     type: "integer"
-    description: "Vocabulary ID of the token"
-  entropy_values:
-    type: "array"
-    items:
-      type: "number"
-      minimum: 0
-    description: "Shannon entropy values for each transformer layer"
-  is_valid:
+    description: "Transformer layer index."
+  entropy_value:
+    type: "number"
+    description: "Calculated Shannon entropy value."
+  validity_label:
     type: "integer"
     enum: [0, 1]
-    description: "Validity flag for this token (derived from external ground truth)"
+    description: "Validity label inherited from the sequence."
 required:
+  - profile_id
   - sequence_id
   - token_index
-  - token_id
-  - entropy_values
-  - is_valid
+  - layer_id
+  - entropy_value
+  - validity_label
+additionalProperties: false

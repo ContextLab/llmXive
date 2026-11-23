@@ -1,0 +1,105 @@
+{
+  "trace_id": "training_42_02799",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "format_text",
+    "insert_chart",
+    "resize_element",
+    "insert_text",
+    "delete_element",
+    "apply_theme",
+    "apply_theme",
+    "apply_theme",
+    "update_layout"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 74.5709,
+        "x": 79.8072,
+        "y": 23.1203
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 92.7466,
+        "y": 99.2557,
+        "width": 60.5854,
+        "height": 60.986,
+        "data_points": 28.4129
+      }
+    },
+    {
+      "step": 2,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 86.0986,
+        "height": 73.8667
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 69.3383,
+        "y": 55.4675,
+        "length": 28.1677
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 80.7591
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 68.3512,
+        "saturation": 59.9165
+      }
+    },
+    {
+      "step": 6,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 9.7597,
+        "saturation": 50.6829
+      }
+    },
+    {
+      "step": 7,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 92.4607,
+        "saturation": 16.6193
+      }
+    },
+    {
+      "step": 8,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 74.341,
+        "padding": 19.6334
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.83102,
+    "tool_repetition_freq": 0.222222,
+    "arg_semantic_variance": 701.982682
+  },
+  "final_state": {
+    "dominant_tool": "apply_theme",
+    "slide_element_count": 7,
+    "layout_hash": "42-2799-apply_theme"
+  }
+}

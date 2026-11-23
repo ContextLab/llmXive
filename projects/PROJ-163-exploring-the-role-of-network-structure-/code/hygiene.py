@@ -1,122 +1,154 @@
-"""
-Hygiene module for PROJ-163: Compute SHA256 checksums for data artifacts
-and update the project state YAML file with artifact hashes.
-
-This script ensures data integrity by verifying checksums of all files
-in the data/ directory and persisting them to the state file.
-"""
-
 import hashlib
 import os
 import yaml
+import logging
+import subprocess
+import sys
 from pathlib import Path
 from typing import Dict, Any, Optional
+from datetime import datetime
 
-# Project root relative to this file's location (assuming code/ is a subdirectory)
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-DATA_DIR = PROJECT_ROOT / "data"
-STATE_DIR = PROJECT_ROOT / "state" / "projects"
-STATE_FILE_NAME = "PROJ-163-exploring-the-role-of-network-structure-....yaml"
-# Fallback if the exact name isn't known, we look for the specific project state file
-# The task description says "PROJ-163-...yaml", we will construct the likely path or search.
-# Based on T001, the structure is created. We assume the file exists or create it.
+from config import load_config
 
-def compute_sha256(file_path: Path) -> str:
+logger = logging.getLogger(__name__)
+
+def compute_sha256(file_path: str) -> str:
     """Compute SHA256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(chunk)
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def get_relative_path(file_path: Path) -> str:
-    """Get path relative to project root."""
-    return str(file_path.relative_to(PROJECT_ROOT))
+def get_relative_path(file_path: str, base_path: str) -> str:
+    """Get relative path from base path."""
+    return os.path.relpath(file_path, base_path)
 
-def find_state_file() -> Optional[Path]:
-    """Find the project state YAML file."""
-    if STATE_DIR.exists():
-        # Look for files starting with the project ID
-        candidates = list(STATE_DIR.glob("PROJ-163*.yaml"))
-        if candidates:
-            return candidates[0]
-    return None
+def find_state_file(project_id: str) -> Path:
+    """Find the state file for a project."""
+    state_dir = Path("state/projects")
+    if not state_dir.exists():
+        state_dir.mkdir(parents=True, exist_ok=True)
+    return state_dir / f"{project_id}.yaml"
 
-def load_state(state_path: Path) -> Dict[str, Any]:
-    """Load existing state or return a default structure."""
-    if state_path.exists():
-        with open(state_path, "r", encoding="utf-8") as f:
-            return yaml.safe_load(f) or {}
-    return {
-        "project_id": "PROJ-163-exploring-the-role-of-network-structure-",
-        "last_updated": None,
-        "artifacts": {}
-    }
+def load_state(state_file: Path) -> Dict[str, Any]:
+    """Load state file."""
+    if not state_file.exists():
+        return {"project_id": state_file.stem, "updated_at": "", "artifact_hashes": {}}
+    with open(state_file, "r") as f:
+        return yaml.safe_load(f)
 
-def save_state(state_path: Path, state: Dict[str, Any]) -> None:
-    """Save state dictionary to YAML file."""
-    state_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(state_path, "w", encoding="utf-8") as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+def save_state(state_file: Path, state: Dict[str, Any]) -> None:
+    """Save state file."""
+    state["updated_at"] = datetime.utcnow().isoformat() + "Z"
+    with open(state_file, "w") as f:
+        yaml.dump(state, f, default_flow_style=False)
 
-def process_data_directory() -> Dict[str, str]:
-    """
-    Traverse data/ directory and compute hashes for all files.
-    Returns a dict mapping relative path -> sha256 hash.
-    """
-    if not DATA_DIR.exists():
-        print(f"Warning: Data directory {DATA_DIR} does not exist.")
-        return {}
-
-    hashes = {}
-    for root, _, files in os.walk(DATA_DIR):
-        for file in files:
-            file_path = Path(root) / file
-            if file_path.is_file():
-                rel_path = get_relative_path(file_path)
-                try:
-                    file_hash = compute_sha256(file_path)
-                    hashes[rel_path] = file_hash
-                    print(f"Computed hash for: {rel_path}")
-                except Exception as e:
-                    print(f"Error computing hash for {rel_path}: {e}")
-    return hashes
-
-def update_state_file(hashes: Dict[str, str]) -> None:
-    """Update the project state file with new artifact hashes."""
-    state_path = find_state_file()
-    if not state_path:
-        # If no state file exists, create one in the expected location
-        state_path = STATE_DIR / "PROJ-163-exploring-the-role-of-network-structure-.yaml"
-        print(f"Creating new state file at: {state_path}")
-
-    state = load_state(state_path)
-    state["artifacts"] = hashes
-    # Add a timestamp or version marker if needed, keeping it simple for now
-    state["last_updated"] = "updated_by_hygiene_task"
-    
-    save_state(state_path, state)
-    print(f"State file updated at: {state_path}")
-
-def main():
-    """Main entry point for the hygiene script."""
-    print("Starting hygiene check for PROJ-163...")
-    print(f"Project Root: {PROJECT_ROOT}")
-    print(f"Data Dir: {DATA_DIR}")
-
-    # Step 1: Compute hashes
-    hashes = process_data_directory()
-    
-    if not hashes:
-        print("No data files found to hash.")
-        # Still update state to reflect empty state if file exists
-        # or create empty state
-        update_state_file(hashes)
+def process_data_directory(data_dir: str, state: Dict[str, Any]) -> None:
+    """Process data directory and update artifact hashes."""
+    if not os.path.exists(data_dir):
+        logger.warning(f"Data directory {data_dir} does not exist.")
         return
 
-    # Step 2: Update state file
-    update_state_file(hashes)
-    print("Hygiene check completed successfully.")
+    for root, _, files in os.walk(data_dir):
+        for file in files:
+            if file.endswith((".pyc", ".pyo", ".yaml")):
+                continue
+            file_path = os.path.join(root, file)
+            rel_path = get_relative_path(file_path, "data")
+            file_hash = compute_sha256(file_path)
+            state["artifact_hashes"][rel_path] = file_hash
+
+def audit_data_integrity(state: Dict[str, Any]) -> bool:
+    """Audit data integrity by comparing stored hashes with current hashes."""
+    data_dir = "data"
+    if not os.path.exists(data_dir):
+        logger.warning(f"Data directory {data_dir} does not exist.")
+        return True
+
+    all_valid = True
+    for rel_path, stored_hash in state.get("artifact_hashes", {}).items():
+        file_path = os.path.join(data_dir, rel_path)
+        if not os.path.exists(file_path):
+            logger.warning(f"File {file_path} missing from disk.")
+            all_valid = False
+            continue
+        current_hash = compute_sha256(file_path)
+        if current_hash != stored_hash:
+            logger.warning(f"Hash mismatch for {file_path}: stored={stored_hash}, current={current_hash}")
+            all_valid = False
+    return all_valid
+
+def update_state_file(project_id: str, data_dir: str = "data") -> None:
+    """Update state file with current artifact hashes."""
+    state_file = find_state_file(project_id)
+    state = load_state(state_file)
+    state["project_id"] = project_id
+    process_data_directory(data_dir, state)
+    save_state(state_file, state)
+    logger.info(f"State file updated: {state_file}")
+
+def generate_reproducibility_audit(project_id: str) -> None:
+    """
+    Generate a reproducibility audit file containing:
+    - git commit hash
+    - requirements.txt hash
+    - python version
+    
+    Output: state/projects/{project_id}-reproducibility.yaml
+    """
+    state_dir = Path("state/projects")
+    state_dir.mkdir(parents=True, exist_ok=True)
+    repro_file = state_dir / f"{project_id}-reproducibility.yaml"
+
+    # 1. Get Git Commit Hash
+    try:
+        git_hash = subprocess.check_output(
+            ["git", "rev-parse", "HEAD"],
+            stderr=subprocess.DEVNULL,
+            text=True
+        ).strip()
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        logger.warning("Git repository not found or 'git' command unavailable. Setting git_hash to 'unknown'.")
+        git_hash = "unknown"
+
+    # 2. Get Requirements.txt Hash
+    req_path = Path("requirements.txt")
+    if req_path.exists():
+        req_hash = compute_sha256(str(req_path))
+    else:
+        logger.warning("requirements.txt not found. Setting requirements_hash to 'missing'.")
+        req_hash = "missing"
+
+    # 3. Get Python Version
+    python_version = sys.version
+
+    audit_data = {
+        "project_id": project_id,
+        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "git_hash": git_hash,
+        "requirements_hash": req_hash,
+        "python_version": python_version
+    }
+
+    with open(repro_file, "w") as f:
+        yaml.dump(audit_data, f, default_flow_style=False)
+
+    logger.info(f"Reproducibility audit generated: {repro_file}")
+
+def main():
+    """Main entry point for hygiene operations."""
+    logging.basicConfig(level=logging.INFO)
+    config = load_config()
+    project_id = config.get("project_id", "PROJ-163-exploring-the-role-of-network-structure-")
+
+    if len(sys.argv) > 1 and sys.argv[1] == "--reproducibility":
+        generate_reproducibility_audit(project_id)
+    else:
+        update_state_file(project_id)
+        if not audit_data_integrity(load_state(find_state_file(project_id))):
+            logger.error("Data integrity audit failed.")
+            sys.exit(1)
 
 if __name__ == "__main__":
     main()

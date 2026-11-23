@@ -7,5 +7,4 @@ matplotlib
 seaborn
 pyyaml
 pytrends
-flake8
-black
+python-dotenv

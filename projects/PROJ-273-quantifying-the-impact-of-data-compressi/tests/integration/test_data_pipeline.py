@@ -5,6 +5,10 @@ This test verifies the end-to-end flow:
 1. Generate synthetic signal (simulating download/inject step for CI speed)
 2. Validate metadata contains true parameters
 3. Ensure the full pipeline produces a valid output artifact
+
+NOTE: This test uses a simulated noise segment to ensure deterministic, 
+fast execution in CI without requiring network access to GWOSC.
+It relies on the real `src.data.inject` and `src.data.validate` modules.
 """
 import pytest
 import numpy as np
@@ -13,13 +17,14 @@ import tempfile
 import os
 from pathlib import Path
 import sys
+import h5py
 
 # Add project root to path to import src modules
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from src.data.inject import inject_synthetic_signal
-from src.data.validate import validate_metadata, check_true_parameters_exist
+from src.data.validate import validate_metadata, check_true_parameters_exist, validate_file
 
 
 @pytest.fixture
@@ -55,7 +60,8 @@ def test_full_download_inject_validate_flow(temp_output_dir):
     sample_rate = 2048
     duration = 4.0
     t = np.linspace(0, duration, int(sample_rate * duration))
-    noise = np.random.normal(0, 1e-20, len(t))  # Simulated strain noise
+    # Generate Gaussian noise with realistic strain amplitude scale
+    noise = np.random.normal(0, 1e-21, len(t))
     
     output_h5_path = temp_output_dir / "test_event.h5"
     output_json_path = temp_output_dir / "test_event_meta.json"
@@ -104,6 +110,7 @@ def test_full_download_inject_validate_flow(temp_output_dir):
         # In a real scenario, the inject function would calculate SNR.
         pass
 
+
 def test_pipeline_handles_missing_files_gracefully():
     """
     Integration test ensuring the pipeline fails loudly if expected files are missing.
@@ -120,3 +127,6 @@ def test_pipeline_handles_missing_files_gracefully():
     except FileNotFoundError:
         # Expected behavior: fail loudly
         pass
+    except Exception as e:
+        # Any other exception indicates the pipeline is not handling missing files correctly
+        pytest.fail(f"Unexpected exception type: {type(e).__name__}: {e}")

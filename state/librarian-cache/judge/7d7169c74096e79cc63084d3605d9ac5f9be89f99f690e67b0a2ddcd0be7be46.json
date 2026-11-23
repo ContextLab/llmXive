@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2005.07866",
+  "judged_at": "2026-08-22T04:20:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"openthoughts-agent: data recipes for agentic models\" computer science",
+  "rationale": "The paper focuses on Byzantine-resilient distributed optimization (SGD) and gradient compression, which addresses robustness and communication efficiency in training, but it does not measure the same mechanisms, variables, or empirical populations related to \"agentic models,\" \"data recipes,\" or the specific \"OpenThoughts-Agent\" framework mentioned in the user's question. It falls under the \"off-domain entirely\" rejection rule as it addresses a different sub-field of machine learning (robust dist",
+  "relevant": false
+}

@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Derived Metrics Schema"
+description: "Schema for structural and dynamic metrics derived from HCP data."
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject."
+  structural_metrics:
+    type: "object"
+    properties:
+      global_efficiency:
+        type: "number"
+      clustering_coefficient:
+        type: "number"
+      modularity:
+        type: "number"
+      threshold_density:
+        type: "number"
+    required:
+      - "global_efficiency"
+      - "clustering_coefficient"
+      - "modularity"
+  dynamic_metrics:
+    type: "object"
+    properties:
+      mean_dwell_time_state1:
+        type: "number"
+      mean_dwell_time_state2:
+        type: "number"
+      mean_dwell_time_state3:
+        type: "number"
+      mean_dwell_time_state4:
+        type: "number"
+      mean_dwell_time_state5:
+        type: "number"
+      num_visited_states:
+        type: "integer"
+    required:
+      - "num_visited_states"
+required:
+  - "subject_id"
+  - "structural_metrics"
+  - "dynamic_metrics"

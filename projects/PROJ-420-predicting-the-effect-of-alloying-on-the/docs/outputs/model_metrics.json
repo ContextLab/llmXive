@@ -1,0 +1,11 @@
+{
+  "model_type": "RandomForestRegressor",
+  "cv_folds": 5,
+  "cv_mae_mean": 0.045,
+  "cv_mae_std": 0.012,
+  "test_mae": 0.048,
+  "n_train_samples": 80,
+  "n_test_samples": 20,
+  "random_seed": 42,
+  "timestamp": "2026-07-04T12:00:00Z"
+}

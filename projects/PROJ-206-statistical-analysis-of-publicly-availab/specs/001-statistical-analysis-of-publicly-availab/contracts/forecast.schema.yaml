@@ -1,104 +1,200 @@
-%YAML 1.2
----
-# Forecast Schema for Poll Aggregation Pipeline
-# Defines the structure for output forecasts (Frequentist and Bayesian)
-# Used for validation in src/models/frequentist.py and src/models/bayesian.py
-
+# Forecast Schema for Aggregation Pipeline
+# Defines the structure and validation rules for generated forecasts
 $schema: http://json-schema.org/draft-07/schema#
-title: Forecast Output Schema
-description: >
-  Schema for the forecast outputs produced by src/models/frequentist.py
-  and src/models/bayesian.py. Defines the structure of data/processed/frequentist_forecasts.csv
-  and data/processed/bayesian_forecasts.csv.
+title: ForecastDatasetSchema
+description: Schema for forecast outputs (Frequentist and Bayesian)
 type: object
 required:
-  - columns
-  - column_types
-  - constraints
-properties:
-  columns:
-    type: array
-    description: Ordered list of column names in the forecast dataset.
-    items:
-      type: string
-    example:
-      - date
-      - candidate
-      - simple_avg_forecast
-      - weighted_avg_forecast
-      - bayesian_median
-      - bayesian_ci_lower
-      - bayesian_ci_upper
-      - model_type
-  column_types:
-    type: object
-    description: Mapping of column name to expected data type.
-    properties:
-      date:
-        type: string
-        format: date
-        description: ISO 8601 date string (YYYY-MM-DD) for the forecast bin.
-      candidate:
-        type: string
-        description: Candidate name (e.g., 'Democrat', 'Republican').
-      simple_avg_forecast:
-        type: number
-        description: Arithmetic mean vote share (0.0 to 100.0).
-      weighted_avg_forecast:
-        type: number
-        description: Inverse-RMSE weighted mean vote share (0.0 to 100.0).
-      bayesian_median:
-        type: number
-        description: Posterior median vote share.
-      bayesian_ci_lower:
-        type: number
-        description: Lower bound of the 95% credible interval.
-      bayesian_ci_upper:
-        type: number
-        description: Upper bound of the 95% credible interval.
-      model_type:
-        type: string
-        description: Type of model used (e.g., 'frequentist', 'bayesian').
-    required:
-      - date
-      - candidate
-      - model_type
-  constraints:
-    type: object
-    description: Business logic constraints enforced during validation.
-    properties:
-      forecast_range:
-        type: array
-        minItems: 2
-        maxItems: 2
-        items:
-          type: number
-        description: Allowed range [min, max] for all forecast values.
-        example: [0.0, 100.0]
-      ci_ordering:
-        type: boolean
-        description: True if bayesian_ci_lower <= bayesian_median <= bayesian_ci_upper.
-        default: true
-      unique_date_candidate_model:
-        type: boolean
-        description: True if (date, candidate, model_type) must be unique.
-        default: true
-  metadata:
-    type: object
-    description: Provenance and generation metadata.
-    properties:
-      model_version:
-        type: string
-        description: Version of the model code used.
-      generated_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of generation.
-      seed:
-        type: integer
-        description: Random seed used for reproducibility.
-      version:
-        type: string
-        description: Schema version.
-        default: "1.0.0"
-additionalProperties: false
+  - fields
+  - validation_rules
+fields:
+  type: object
+  properties:
+    week_bin:
+      type: object
+      description: The week bin for which the forecast is made
+      required:
+        - type
+      properties:
+        type:
+          const: integer
+        minimum:
+          const: 1
+    state:
+      type: object
+      description: State code for the forecast
+      required:
+        - type
+      properties:
+        type:
+          const: string
+        pattern:
+          const: "^[A-Z]{2}$"
+    candidate:
+      type: object
+      description: Candidate name
+      required:
+        - type
+      properties:
+        type:
+          const: string
+        minLength:
+          const: 1
+    simple_avg_forecast:
+      type: object
+      description: Simple unweighted average forecast (FR-003)
+      required:
+        - type
+        - minimum
+        - maximum
+      properties:
+        type:
+          const: number
+        minimum:
+          const: 0
+        maximum:
+          const: 100
+    weighted_avg_forecast:
+      type: object
+      description: Accuracy-weighted average forecast (FR-004)
+      required:
+        - type
+        - minimum
+        - maximum
+      properties:
+        type:
+          const: number
+        minimum:
+          const: 0
+        maximum:
+          const: 100
+    bayesian_forecast:
+      type: object
+      description: Bayesian hierarchical model forecast (FR-005)
+      required:
+        - type
+        - minimum
+        - maximum
+      properties:
+        type:
+          const: number
+        minimum:
+          const: 0
+        maximum:
+          const: 100
+    ci_lower:
+      type: object
+      description: Lower bound of 95% credible/confidence interval
+      required:
+        - type
+        - minimum
+        - maximum
+      properties:
+        type:
+          const: number
+        minimum:
+          const: 0
+        maximum:
+          const: 100
+    ci_upper:
+      type: object
+      description: Upper bound of 95% credible/confidence interval
+      required:
+        - type
+        - minimum
+        - maximum
+      properties:
+        type:
+          const: number
+        minimum:
+          const: 0
+        maximum:
+          const: 100
+    model_type:
+      type: object
+      description: Type of model that generated this forecast
+      required:
+        - type
+        - enum
+      properties:
+        type:
+          const: string
+        enum:
+          - simple_average
+          - weighted_average
+          - bayesian_random_walk
+    r_hat:
+      type: object
+      description: R-hat convergence statistic (Bayesian only)
+      required:
+        - type
+        - minimum
+        - maximum
+      properties:
+        type:
+          const: number
+        minimum:
+          const: 0
+        maximum:
+          const: 2.0
+        description:
+          const: "Must be <= 1.05 for convergence (T023)"
+  required:
+    - week_bin
+    - state
+    - candidate
+    - model_type
+validation_rules:
+  type: object
+  description: Business logic validation rules for forecasts
+  properties:
+    ci_coverage:
+      type: object
+      description: Check if actual outcome falls within CI (SC-002)
+      required:
+        - target_coverage
+        - actual_coverage_min
+      properties:
+        target_coverage:
+          const: 0.95
+        actual_coverage_min:
+          const: 0.90
+        severity:
+          const: error
+    convergence_check:
+      type: object
+      description: Bayesian model convergence check
+      required:
+        - max_r_hat
+        - severity
+      properties:
+        max_r_hat:
+          const: 1.05
+        severity:
+          const: error
+    forecast_order:
+      type: object
+      description: Forecasts must be ordered by week_bin
+      required:
+        - ascending
+        - severity
+      properties:
+        ascending:
+          const: true
+        severity:
+          const: warning
+    weight_normalization:
+      type: object
+      description: Weights must sum to 1.0 (for weighted average)
+      required:
+        - tolerance
+        - severity
+      properties:
+        tolerance:
+          const: 0.0001
+        severity:
+          const: error
+metadata:
+  version: "1.0.0"
+  source: "specs/001-statistical-analysis-of-publicly-availab/contracts/forecast.schema.yaml"
+  created_by: "T005"

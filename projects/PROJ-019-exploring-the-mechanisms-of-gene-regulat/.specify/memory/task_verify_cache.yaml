@@ -1,0 +1,48 @@
+T001:
+  c: true
+  h: 03975ef872b3e9cfe18334a5aa64c2840a02f202364b328ae142568d53327ec3
+  r: Checked the unit test log `tests/unit/test_directory_layout.py` (both tests passed)
+    and the script execution log `code/setup_dirs.py` confirming all required directories
+    were created.
+  sig: 2c02da54ddaafe29ac7023431bc73dbcad4c888d8bdb4cf94805ab7feefd85fb
+T003:
+  c: true
+  h: 33815d358676df90de538fa0f00e9d480b41071aea3a7397fe7869507d46ba79
+  r: "Checked `code/config.py` (1336\u202Fbytes) which defines `TMP_DIR` defaulting\
+    \ to `/tmp`, the three data directory paths, `MAX_RETRIES=3`, `RETRY_BACKOFF=2`,\
+    \ and `EXPECTED_CELL_TYPES` list matching the specification, and verified that\
+    \ the unit\u2011test log `tests/unit/test_config.py` reports all four assertions\
+    \ passing."
+  sig: 7f40e1a04b8d8b3619d837cba0c6356a8ba8ae693d0453c4d7e46ed5307b2ce1
+T004:
+  c: true
+  h: b9e60fff97936d3ce8400d555fa16ff0a490e34d6179b548ff15c8e2efe356a8
+  r: "Checked the four utility scripts (`memory_check.py`, `disk_check.py`, `time_check.py`,\
+    \ `network.py`) and confirmed they exist, are non\u2011empty, enforce the required\
+    \ thresholds (\u22657\u202FGB RAM, \u226514\u202FGB free TMP_DIR, \u22646\u202F\
+    h runtime) and implement exponential back\u2011off with a `MaxRetriesError`."
+  sig: 75840258fb11bd5fcb74cd1b55fcff604e8bc95b558ec0631b00b18c8453ee23
+T016:
+  c: false
+  h: 02d7f90ae120082738afcfa876dba0276e3a869872dc90aca3a6013f5feedc15
+  r: "The `code/main.py` imports `start_timer` and `check_time_limit` from `code.utils.time_check`,\
+    \ but the `time_check.py` file is missing from the repository, so the integration\
+    \ cannot succeed. Additionally, there is no evidence in the shown code that `run_preflight_checks()`\
+    \ is actually invoked before `run_ingestion()`. The missing `time_check.py` (and\
+    \ its functions) must be added and the pre\u2011flight checks called prior to\
+    \ ingestion for the task to be complete."
+T022:
+  c: false
+  h: 8126108b25ad38778039d893e672510fe45deb6432e5ab8ae5810fe566481a2b
+  r: "The `code/enrichment.py` file is present but the shown code stops after loading\
+    \ data and a memory\u2011check stub; there is no implementation of Fisher\u2019\
+    s exact test or any enrichment calculation, and the required `data/interim/background_union.bed`\
+    \ file does not exist. Both the core functionality and the declared dependency\
+    \ are missing."
+T024:
+  c: false
+  h: e5732f29d6182c9a69c73f259ca4ec969fefdb7f5aa89e5503d1891fdb0533ca
+  r: "The provided `code/main.py` is truncated and the `run_enrichment` function is\
+    \ incomplete (wrong signature, missing implementation, typo `aggregate_enrichment_result`).\
+    \ Moreover, the required output file `data/processed/enrichment_matrix.csv` does\
+    \ not exist. The task\u2019s core artifact and functionality are therefore missing."

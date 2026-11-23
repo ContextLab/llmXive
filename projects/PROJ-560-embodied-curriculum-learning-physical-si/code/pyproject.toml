@@ -5,48 +5,32 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "embodied-curriculum-learning"
 version = "0.1.0"
-description = "Embodied Curriculum Learning: Physical Simulation for Abstract Concept Teaching"
-requires-python = ">=3.11"
+description = "Statistical engine for embodied curriculum learning validation"
+requires-python = ">=3.10"
 dependencies = []
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["code*"]
-
-[tool.ruff]
-line-length = 88
-target-version = "py311"
-src = ["code"]
-
-[tool.ruff.lint]
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
-
-[tool.ruff.lint.isort]
-known-first-party = ["code"]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ['py310']
 include = '\.pyi?$'
 extend-exclude = '''
 /(
-  \.git
+  \.eggs
+  | \.git
+  | \.hg
   | \.mypy_cache
+  | \.tox
   | \.venv
-  | venv
+  | _build
+  | buck-out
   | build
   | dist
 )/
 '''
+
+[tool.pytest.ini_options]
+testpaths = ["code/tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

@@ -1,131 +1,141 @@
-"""
-Logging configuration for the llmXive project.
-
-Configures a hierarchical logging system that writes to both:
-1. A rotating file handler in `logs/`
-2. A console handler with colored output (if supported)
-
-Usage:
-    import logging
-    from logging_config import setup_logging, get_logger
-    
-    setup_logging()
-    logger = get_logger(__name__)
-    logger.info("Ready to start analysis.")
-"""
-
 import logging
 import os
 import sys
 from pathlib import Path
 from logging.handlers import RotatingFileHandler
+from config import ensure_dirs
 
-# Import ensure_dirs from config to ensure log directory exists
-# We use a dynamic import or direct path resolution to avoid circular dependency issues
-# if this file is loaded before config is fully initialized in some contexts.
-# However, based on the API surface, config.ensure_dirs is available.
-try:
-    from config import ensure_dirs
-    HAS_CONFIG = True
-except ImportError:
-    HAS_CONFIG = False
-
-LOG_DIR = Path("logs")
-LOG_FILE = LOG_DIR / "project.log"
-MAX_BYTES = 5 * 1024 * 1024  # 5 MB
-BACKUP_COUNT = 3
-
-# Define a simple formatter
-LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
-
-# Console formatter with color codes (optional, fallback to plain)
-try:
-    import colorama
-    colorama.init()
-    CONSOLE_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    USE_COLOR = True
-    LEVEL_COLORS = {
-        logging.DEBUG: colorama.Fore.WHITE,
-        logging.INFO: colorama.Fore.GREEN,
-        logging.WARNING: colorama.Fore.YELLOW,
-        logging.ERROR: colorama.Fore.RED,
-        logging.CRITICAL: colorama.Fore.RED + colorama.Style.BRIGHT,
-    }
-except ImportError:
-    USE_COLOR = False
-    CONSOLE_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    LEVEL_COLORS = {}
+# Global logger instance to be used across the project
+_logger_instance = None
 
 class ColorFormatter(logging.Formatter):
-    """Custom formatter that adds color to log levels in the console."""
+    """Custom formatter that adds colors to log levels for console output."""
     
+    # ANSI color codes
+    COLORS = {
+        'DEBUG': '\033[36m',      # Cyan
+        'INFO': '\033[32m',       # Green
+        'WARNING': '\033[33m',    # Yellow
+        'ERROR': '\033[31m',      # Red
+        'CRITICAL': '\033[35m',   # Magenta
+        'RESET': '\033[0m'        # Reset
+    }
+
     def format(self, record):
-        if USE_COLOR:
-            color = LEVEL_COLORS.get(record.levelno, "")
-            reset = colorama.Style.RESET_ALL if color else ""
-            record.msg = f"{color}{record.msg}{reset}"
-        return super().format(record)
-
-def setup_logging(level=logging.INFO):
-    """
-    Configure the root logger with file and console handlers.
-    
-    Args:
-        level: The logging level (e.g., logging.DEBUG, logging.INFO).
-    """
-    # Ensure log directory exists
-    if HAS_CONFIG:
-        ensure_dirs([LOG_DIR])
-    else:
-        LOG_DIR.mkdir(parents=True, exist_ok=True)
-    
-    # Root logger
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-    
-    # Clear existing handlers to avoid duplicates in interactive environments
-    if root_logger.handlers:
-        root_logger.handlers.clear()
-    
-    # File Handler (Rotating)
-    file_handler = RotatingFileHandler(
-        LOG_FILE, maxBytes=MAX_BYTES, backupCount=BACKUP_COUNT, encoding='utf-8'
-    )
-    file_handler.setLevel(level)
-    file_formatter = logging.Formatter(LOG_FORMAT, DATE_FORMAT)
-    file_handler.setFormatter(file_formatter)
-    root_logger.addHandler(file_handler)
-    
-    # Console Handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    
-    if USE_COLOR:
-        console_formatter = ColorFormatter(CONSOLE_FORMAT, DATE_FORMAT)
-    else:
-        console_formatter = logging.Formatter(CONSOLE_FORMAT, DATE_FORMAT)
+        # Apply color to the level name
+        levelname = record.levelname
+        color = self.COLORS.get(levelname, self.COLORS['RESET'])
+        record.levelname = f"{color}{levelname}{self.COLORS['RESET']}"
         
-    console_handler.setFormatter(console_formatter)
-    root_logger.addHandler(console_handler)
+        # Format the message
+        formatted_message = super().format(record)
+        return formatted_message
 
-def get_logger(name: str) -> logging.Logger:
+def setup_logging(log_level: str = "INFO", log_file: str = "pipeline.log") -> logging.Logger:
     """
-    Get a logger instance with the specified name.
+    Configure the root logger with both console and file handlers.
     
     Args:
-        name: The name of the logger (usually __name__).
+        log_level: Logging level (DEBUG, INFO, WARNING, ERROR, CRITICAL)
+        log_file: Name of the log file (stored in logs/)
     
     Returns:
-        A configured logging.Logger instance.
+        Configured logger instance
     """
+    global _logger_instance
+    
+    if _logger_instance is not None:
+        return _logger_instance
+
+    # Ensure logs directory exists
+    ensure_dirs()
+    logs_dir = Path("logs")
+    logs_dir.mkdir(exist_ok=True)
+    
+    log_path = logs_dir / log_file
+
+    # Get root logger
+    logger = logging.getLogger()
+    logger.setLevel(getattr(logging, log_level.upper()))
+    
+    # Clear existing handlers to avoid duplicates in interactive environments
+    if logger.handlers:
+        logger.handlers.clear()
+
+    # Create formatter for file (no colors)
+    file_formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+    # Create rotating file handler (max 10MB, 5 backup files)
+    file_handler = RotatingFileHandler(
+        log_path,
+        maxBytes=10 * 1024 * 1024,  # 10 MB
+        backupCount=5,
+        encoding='utf-8'
+    )
+    file_handler.setLevel(logging.DEBUG)  # Log everything to file
+    file_handler.setFormatter(file_formatter)
+
+    # Create formatter for console (with colors)
+    console_formatter = ColorFormatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%H:%M:%S'
+    )
+
+    # Create console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(getattr(logging, log_level.upper()))
+    console_handler.setFormatter(console_formatter)
+
+    # Add handlers to logger
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    # Store instance
+    _logger_instance = logger
+    
+    logger.info(f"Logging initialized. File: {log_path}")
+    return logger
+
+def get_logger(name: str = "llmXive") -> logging.Logger:
+    """
+    Get a named logger instance.
+    
+    Args:
+        name: Logger name (usually __name__ of the module)
+    
+    Returns:
+        Logger instance
+    """
+    # Ensure root logger is set up
+    if _logger_instance is None:
+        setup_logging()
+    
     return logging.getLogger(name)
 
-# Initialize logging immediately if this module is imported directly
-if __name__ == "__main__":
-    setup_logging()
-    logger = get_logger(__name__)
-    logger.info("Logging infrastructure initialized successfully.")
-    logger.debug("Debug message test.")
-    logger.warning("Warning message test.")
-    logger.error("Error message test.")
+def log_exception(exc: Exception, context: str = "") -> None:
+    """
+    Log an exception with full traceback.
+    
+    Args:
+        exc: The exception instance
+        context: Optional context string describing where the error occurred
+    """
+    logger = get_logger()
+    error_msg = f"{context}: {str(exc)}" if context else str(exc)
+    logger.exception(error_msg)
+
+def handle_critical_error(exc: Exception, exit_code: int = 1) -> None:
+    """
+    Log a critical error and exit the program.
+    
+    Args:
+        exc: The exception instance
+        exit_code: Exit code for the process
+    """
+    logger = get_logger()
+    logger.critical(f"FATAL ERROR: {str(exc)}")
+    log_exception(exc, "Critical failure")
+    sys.exit(exit_code)

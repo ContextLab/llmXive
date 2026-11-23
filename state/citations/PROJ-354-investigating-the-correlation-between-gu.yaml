@@ -9,3 +9,69 @@
   verification_status: verified
   verified_against_url: https://doi.org/10.1038/s41586-018-0579-z
   verified_at: '2026-07-04T11:21:40.281474Z'
+- artifact_hash: 29fb69408d15cce7d0e6f4b6bf53466563c4684189b3dd5fecf758edd2919531
+  artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: '![Python 3.10+'
+  fetched_title: 'python: 3.10+'
+  kind: url
+  value: https://img.shields.io/badge/python-3.10+-blue.svg
+  verification_status: verified
+  verified_against_url: https://img.shields.io/badge/python-3.10+-blue.svg
+  verified_at: '2026-08-26T22:17:52.040725Z'
+- artifact_hash: 29fb69408d15cce7d0e6f4b6bf53466563c4684189b3dd5fecf758edd2919531
+  artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/README.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: '![License: MIT'
+  fetched_title: 'License: MIT'
+  kind: url
+  value: https://img.shields.io/badge/License-MIT-yellow.svg
+  verification_status: verified
+  verified_against_url: https://img.shields.io/badge/License-MIT-yellow.svg
+  verified_at: '2026-08-26T22:17:52.040725Z'
+- artifact_hash: 29fb69408d15cce7d0e6f4b6bf53466563c4684189b3dd5fecf758edd2919531
+  artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/README.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Download Python | Python.org
+  kind: url
+  value: https://www.python.org/downloads/
+  verification_status: pending
+  verified_against_url: https://www.python.org/downloads/
+  verified_at: '2026-08-26T22:17:52.040725Z'
+- artifact_hash: 29fb69408d15cce7d0e6f4b6bf53466563c4684189b3dd5fecf758edd2919531
+  artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/README.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: The MIT License &#8211; Open Source Initiative
+  kind: url
+  value: https://opensource.org/licenses/MIT
+  verification_status: pending
+  verified_against_url: https://opensource.org/license/MIT
+  verified_at: '2026-08-26T22:17:52.040725Z'
+- artifact_hash: d099946349d748681ba14a09a8544c03adb6d70f2a0a31ee29f328cb539a93d4
+  artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/docs/changelog.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: Keep a Changelog
+  fetched_title: Keep a Changelog
+  kind: url
+  value: https://keepachangelog.com/en/1.0.0/
+  verification_status: verified
+  verified_against_url: https://keepachangelog.com/en/1.0.0/
+  verified_at: '2026-08-26T22:32:15.255169Z'
+- artifact_hash: d099946349d748681ba14a09a8544c03adb6d70f2a0a31ee29f328cb539a93d4
+  artifact_path: projects/PROJ-354-investigating-the-correlation-between-gu/docs/changelog.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: Semantic Versioning
+  fetched_title: Semantic Versioning 2.0.0 | Semantic Versioning
+  kind: url
+  value: https://semver.org/spec/v2.0.0.html
+  verification_status: verified
+  verified_against_url: https://semver.org/spec/v2.0.0.html
+  verified_at: '2026-08-26T22:32:15.255169Z'

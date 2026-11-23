@@ -1,0 +1,116 @@
+T001:
+  c: false
+  h: b69e1430c2b1d3649a81fc248dedb6078ac64c6f38b1def6455bc3923ab21422
+  r: The evidence shows the `code/` and `results/` directories exist, and a `requirements.txt`
+    with the required pinned packages is present, but the required `data/raw`, `data/processed`,
+    `data/models` (only a file inside is shown, the directory itself is not confirmed),
+    `tests/unit`, `tests/integration`, `state/` directories are missing, as is a `.gitignore`
+    file and `__init__.py` files in all Python directories (e.g., `tests/`). These
+    omissions mean the prescribed project structure is not fully created.
+  sig: 2826c3229f963a71074a0013fe0628b6c40f0fe0ce70e990a82e589d36fe5dab
+T002A:
+  c: true
+  h: 7cc8cbfb66e33b6f446a4b77dd7b3a7c7075caa7b634ae8157e6b42b76fdfcf5
+  r: "The `ruff.toml` file was found at the repository root (`projects/PROJ-127-predicting-coral-bleaching-susceptibilit/ruff.toml`)\
+    \ and contains concrete linting settings, including a line\u2011length rule, excluded\
+    \ directories, selected rule families, and ignored rules. Its content matches\
+    \ the task\u2019s requirement for a project\u2011wide Ruff configuration."
+  sig: 9227cdf627558cdb04bff5fe07b2b02ec9b8205029d97832dbb5498ee63ade62
+T002B:
+  c: true
+  h: bf502982831ee6bc440e1ac3c2ea86d4384ba3dd9d92877ebd55f1f526b7de53
+  r: "Checked the `pyproject.toml` file (resolved at `pyproject.toml`, 1634\u202F\
+    bytes) which contains the required `[build-system]` section, full `[project]`\
+    \ metadata, dependencies, optional dev dependencies, script entry point, and tool\
+    \ configurations. The file exists, is non\u2011empty, and matches the task\u2019\
+    s specification."
+  sig: bcc69f021fe4cfab2002f1da4b1da012514b7ab84ae206211f9fc30df3a51124
+T003:
+  c: false
+  h: 223735b7cd068ea6b201498ad9bb823764a3e44fc78b5b119f9cda8d71f3fbb5
+  r: "The `code/config.py` file is present but lacks the required `IMPUTATION_THRESHOLD_DAYS`\
+    \ and `MAX_RAM_GB` variables, does not perform any reachability checks on the\
+    \ URLs, and uses an incorrect variable name (`UNEP_REEFS_URL` instead of `UNEP_URL`).\
+    \ Moreover, the URLs are generic placeholders rather than verified, working endpoints.\
+    \ These omissions mean the task\u2019s specifications are not satisfied."
+  sig: 94b0ba413f2121b5220bf82f615bb09048e886043f735e56dd901286ce1418c9
+T004:
+  c: true
+  h: b2e4ac2fb022be134211d9bde1f4949b87746358d6bada7221668b76b685d64b
+  r: "Checked `code/data_gap_report.py` (2929\u202Fbytes) which imports `code/config.py`,\
+    \ validates each required URL with a HEAD request, and writes `data_gap_report.md`\
+    \ containing missing sources and a \u201CHALT\u201D status when any URL is absent\
+    \ or unreachable. The script fulfills the specified behavior."
+  sig: bbefffd5a01daa057a041cb2da034cfee49a601dc5a798e499502aa96fd34ba4
+T005:
+  c: false
+  h: 44284672246361e7c8a0b208211f0d7a96ab9bc4212cdf084efb29d2ba6ab914
+  r: "The repository contains `code/data_gap_report.py`, but the script only writes\
+    \ a markdown report and never creates the required `data_gap_status.json` with\
+    \ the `status` and `missing_sources` fields. No execution logs or generated JSON\
+    \ file are present, so the task\u2019s success criteria and blocking\u2011gate\
+    \ behavior are not demonstrated. The implementer must add code to produce `data_gap_status.json`\
+    \ (PASS/FAIL) and provide evidence of a run that creates this file and halts the\
+    \ pipeline on FAIL."
+  sig: 174888238cce54e4f985035a34a25f32fea94c86ae0edfe9c1d3514b8bd70190
+T009:
+  c: false
+  h: f404e9e2f75a71f0178c25068ec179e3b5993b02f835770680ad491220d1f9c4
+  r: "The provided `code/features.py` defines a `check_definitional_circularity` function\
+    \ that adds a `circularity_flag` column and (presumably) logs a warning, but there\
+    \ is no evidence it writes any note to `data/processed/features.csv`. Moreover,\
+    \ the required `data/processed/features.csv` file is missing entirely. The task\u2019\
+    s requirement to record the flag in that CSV is therefore unmet."
+T012:
+  c: false
+  h: 2bcc36dd3cff35271f5b9ea0872dfc1b0ab7c1ec65f7aa6399194ef2e8666cc6
+  r: "The provided `code/features.py` is truncated (e.g., the `calculate_vif` function\
+    \ ends abruptly and no logic for dropping high\u2011VIF features or writing `filtered_features.csv`\
+    \ / `feature_list.txt` is present). Moreover, the required output files `data/processed/filtered_features.csv`\
+    \ and `data/processed/feature_list.txt` do not exist. The task\u2019s core requirements\
+    \ are therefore unmet."
+T014:
+  c: false
+  h: b5e13c8934d367998e41fc5bc82c762508f5b73456557e28e6d5fc6be681572c
+  r: "The repository contains a partially\u2011implemented `code/ingest.py` (the file\
+    \ is truncated and does not include logic to merge the various data sources or\
+    \ write `data/processed/reef_species_unified.csv`). Moreover, the required output\
+    \ CSV `data/processed/reef_species_unified.csv` is absent. The task\u2019s core\
+    \ requirement\u2014producing a unified dataset at 5\u2011km grid resolution\u2014\
+    is therefore not satisfied."
+T015:
+  c: false
+  h: 8a4dd98acb3bb2f099220a8a9c84cb39b0a1712be3beee36fd3e46edc819d90e
+  r: "The required output files `data/processed/train_split.csv` and `data/processed/test_split.csv`\
+    \ are absent, and the provided `code/train.py` is truncated before completing\
+    \ the spatial split logic and saving the splits. Consequently the task\u2019s\
+    \ core requirement is not satisfied."
+T022:
+  c: false
+  h: 76f9150a5e4c3436d59c2d801bc441f14cf6df60952a93c5b4ab6612f0203bc8
+  r: "The repository contains `code/map.py` with a `generate_risk_map` implementation,\
+    \ but the required output file `data/models/bleaching_risk_map.tif` is missing,\
+    \ so the task\u2019s core deliverable (a GeoTIFF of bleaching probabilities) was\
+    \ not produced. The implementer must run the script (or otherwise generate) the\
+    \ GeoTIFF and ensure its pixel values lie within\u202F[0,\u202F1]."
+T023:
+  c: false
+  h: 4e7e5e214671ed86c309d35c55da50771f8616e3f9489eac176dd6cc4dc384f4
+  r: "The required output file `data/models/local_driver_analysis.json` does not exist,\
+    \ and the `identify_dominant_drivers` function in `code/map.py` contains only\
+    \ a placeholder comment (\u201CImplementation details omitted\u201D). No actual\
+    \ local permutation importance logic or JSON generation is present."
+T024:
+  c: false
+  h: 9d7d6d2b9c63539d0fa8640dd7abf37c075c9b8320503f85763739b0108296ad
+  r: "The repository lacks the required `data/models/xgboost_model.pkl` and the generated\
+    \ `data/models/bleaching_risk_map.tif`. Moreover, `code/map.py`\u2019s `generate_risk_map`\
+    \ function is a stub (`pass`) with no implementation to load rasters, apply the\
+    \ model, or write a GeoTIFF. These missing artifacts and placeholder code mean\
+    \ the task\u2019s requirements are not met."
+T029:
+  c: false
+  h: 763092b78bdd927830194af4592c77d931f63106835fb36758b26e73bbedacfc
+  r: "The required `data/processed/runtime.log` file does not exist, so no runtime\
+    \ has been logged and the conditional warning/success behavior cannot be verified.\
+    \ The task\u2019s primary output is missing."

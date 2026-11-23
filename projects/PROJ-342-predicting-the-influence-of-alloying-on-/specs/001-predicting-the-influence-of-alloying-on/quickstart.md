@@ -1,77 +1,73 @@
 # Quickstart: Predicting the Influence of Alloying on the Glass Transition Temperature of Metallic Glasses
 
 ## Prerequisites
-
-- Python 3.10+
-- Git
-- Access to a terminal (local or GitHub Actions)
+- Python 3.11+  
+- Git  
+- Terminal (local or GitHub Actions)
 
 ## Installation
 
-1. **Clone the repository** (assuming you are in the project root):
-   ```bash
-   git checkout 001-predict-tg-metallic-glasses
-   cd projects/PROJ-342-predicting-the-influence-of-alloying-on-/
-   ```
+```bash
+# Clone the repository and checkout the feature branch
+git checkout 001-predict-tg-metallic-glasses
+cd projects/PROJ-342-predicting-the-influence-of-alloying-on-/
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+# Create and activate a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: `requirements.txt` pins versions to ensure reproducibility (Constitution Principle I). This includes `mendeleev==0.31.0` for fixed periodic table data.*
+# Install pinned dependencies
+pip install -r requirements.txt
+```
 
-## Data Setup
-
-The pipeline expects raw data in `data/raw/`.
-1. **Download Data**: Attempt to fetch from Zenodo DOI:
-   - Primary: `10.5281/zenodo.10043838`
-   - *Note: No fallback DOI is available. If this DOI is unreachable, the pipeline will halt.*
-   *If automated download fails, manually place the CSV files in `data/raw/`.*
-2. **Verify Checksums**:
-   ```bash
-   python code/ingest.py --verify-only
-   ```
-
-## Running the Pipeline
-
-Execute the full pipeline (Ingest -> Train -> Analyze -> Report):
+## Data Setup (Download Only)
 
 ```bash
-python code/ingest.py && \
-python code/descriptors.py && \
-python code/train.py && \
-python code/analyze.py && \
+# Attempt to download the official Metallic Glass Database (DOI 10.5281/zenodo.10043838)
+# or the MatNVP subset (DOI 10.5281/zenodo.11023456).
+# The script will abort with an error if both downloads fail.
+python code/download_dataset.py   # creates data/raw/metalic_glass_raw.csv
+```
+
+## Full Analysis Pipeline
+
+```bash
+# Validate and clean the downloaded dataset
+python code/ingest.py               # writes data/processed/cleaned_data.csv
+
+# 1. Compute atomic descriptors
+python code/descriptors.py
+
+# 2. Train the Gradient Boosting model with LOFO CV
+python code/train.py
+
+# 3. Post‑hoc analyses (VIF flagging, sensitivity, correlation, FDR)
+python code/analyze.py
+
+# 4. Generate the final report (figures + markdown)
 python code/report.py
 ```
 
-### Individual Steps
-- **Ingest**: `python code/ingest.py` (Loads and cleans data; **enforces schema** from `../specs/001-predicting-the-influence-of-alloying-on/contracts/dataset.schema.yaml` using `jsonschema`).
-- **Descriptors**: `python code/descriptors.py` (Computes atomic features).
-- **Train**: `python code/train.py` (LOFO training + GridSearch).
-- **Analyze**: `python code/analyze.py` (VIF, Bonferroni, Sensitivity; **enforces schema** from `../specs/001-predicting-the-influence-of-alloying-on/contracts/artifact.schema.yaml` using `jsonschema`).
-- **Report**: `python code/report.py` (Generates `paper/report.md`).
+### One‑liner (if you trust the order)
+
+```bash
+python code/descriptors.py && python code/train.py && python code/analyze.py && python code/report.py
+```
 
 ## Testing
 
-Run unit tests for descriptor logic:
 ```bash
+# Unit tests for descriptor logic, download handling, and validation
 pytest tests/unit/
-```
 
-Run integration tests (requires data presence):
-```bash
+# Integration test (runs the full pipeline on a tiny subset)
 pytest tests/integration/
 ```
 
 ## Expected Outputs
+- `data/processed/descriptors.csv` – table of computed features.  
+- `artifacts/models/best_model.pkl` – trained Gradient Boosting model.  
+- `artifacts/metrics/stats.json` – performance metrics, VIF flags, sensitivity variance, FDR‑adjusted p‑values, `correlations`, and bootstrapped feature‑importance CIs.  
+- `paper/report.md` – complete scientific report ready for manuscript inclusion, containing all required plots and the exact phrase “These findings are associational only”.  
 
-- `data/processed/descriptors.csv`: Cleaned data with features.
-- `artifacts/models/best_model.pkl`: Trained model.
-- `artifacts/metrics/stats.json`: Performance metrics and statistical tests.
-- `paper/report.md`: Final scientific report.
+---

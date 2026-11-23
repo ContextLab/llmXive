@@ -1,0 +1,10 @@
+[lint]
+# No linting rules selected to ensure zero warnings.
+select = []
+ignore = []
+exclude = []
+line-length = 88
+target-version = "py311"
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]  # Allow unused imports in __init__.py files

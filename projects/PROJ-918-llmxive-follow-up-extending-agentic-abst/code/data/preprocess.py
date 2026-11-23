@@ -1,12 +1,3 @@
-"""
-Preprocessing module for the Agentic Abstention dataset.
-
-This module handles:
-1. Mean imputation for missing numeric variables.
-2. Validation logic to halt execution if missing data exceeds thresholds.
-3. Generation of a validation report.
-"""
-
 import os
 import sys
 import json
@@ -17,199 +8,274 @@ from typing import Dict, List, Any, Optional, Set
 import pandas as pd
 import numpy as np
 
-# Import project config utilities
-from config import get_path, get_config, load_config
-from logging_config import setup_logging
+from config import get_path, load_config
 
 # Configure logging
-logger = setup_logging(__name__)
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
-# Critical columns that cannot have high missing rates
-CRITICAL_COLUMNS = {
-    "search_count",
-    "error_frequency",
-    "token_usage",
-    "turn_number",
-    "abstention_label"
-}
-
-MISSING_THRESHOLD = 0.05  # 5%
-
-def load_preprocessing_config() -> Dict[str, Any]:
-    """Load specific preprocessing config if available, otherwise return defaults."""
-    try:
-        config = load_config()
-        return config.get("preprocessing", {})
-    except Exception as e:
-        logger.warning(f"Could not load preprocessing config: {e}. Using defaults.")
-        return {}
-
-def calculate_missing_statistics(df: pd.DataFrame) -> Dict[str, Dict[str, float]]:
-    """
-    Calculate missing value statistics for each column.
-    
-    Returns:
-        Dict mapping column name to {'missing_count': int, 'missing_ratio': float}
-    """
-    stats = {}
-    total_rows = len(df)
-    
-    for col in df.columns:
-        missing_count = df[col].isna().sum()
-        missing_ratio = missing_count / total_rows if total_rows > 0 else 0.0
-        stats[col] = {
-            "missing_count": int(missing_count),
-            "missing_ratio": float(missing_ratio)
-        }
-        
-    return stats
-
-def perform_mean_imputation(df: pd.DataFrame, config: Optional[Dict] = None) -> pd.DataFrame:
-    """
-    Apply mean imputation for missing numeric variables.
-    
-    Args:
-        df: Input DataFrame
-        config: Optional configuration override
-        
-    Returns:
-        DataFrame with imputed values
-    """
-    df_imputed = df.copy()
-    
-    # Identify numeric columns
-    numeric_cols = df_imputed.select_dtypes(include=[np.number]).columns.tolist()
-    
-    logger.info(f"Identified {len(numeric_cols)} numeric columns for potential imputation.")
-    
-    for col in numeric_cols:
-        missing_count = df_imputed[col].isna().sum()
-        if missing_count > 0:
-            mean_val = df_imputed[col].mean()
-            
-            # Handle case where all values are missing (mean would be NaN)
-            if pd.isna(mean_val):
-                mean_val = 0.0
-                logger.warning(f"Column '{col}' has all missing values. Imputing with 0.0.")
-            
-            df_imputed[col] = df_imputed[col].fillna(mean_val)
-            logger.info(f"Imputed {missing_count} missing values in '{col}' with mean {mean_val:.4f}")
-            
-    return df_imputed
-
-def validate_dataset(df: pd.DataFrame, stats: Dict[str, Dict[str, float]]) -> bool:
-    """
-    Validate the dataset against missing data thresholds.
-    
-    Args:
-        df: Input DataFrame
-        stats: Pre-calculated missing statistics
-        
-    Returns:
-        True if dataset is valid, False otherwise
-    """
-    is_valid = True
-    critical_violations = []
-    
-    for col, col_stats in stats.items():
-        if col_stats["missing_ratio"] > MISSING_THRESHOLD:
-            if col in CRITICAL_COLUMNS:
-                critical_violations.append(col)
-                is_valid = False
-                logger.error(f"CRITICAL: Column '{col}' has {col_stats['missing_ratio']*100:.2f}% missing values (threshold: {MISSING_THRESHOLD*100}%).")
-            else:
-                logger.warning(f"Column '{col}' has {col_stats['missing_ratio']*100:.2f}% missing values (threshold: {MISSING_THRESHOLD*100}%).")
-                
-    if critical_violations:
-        logger.error(f"Dataset validation FAILED due to missing critical columns: {critical_violations}")
+def load_preprocessing_config(config_path: Optional[str] = None) -> Dict[str, Any]:
+    """Load preprocessing configuration from config.yaml or default settings."""
+    if config_path:
+        config = load_config(config_path)
     else:
-        logger.info("Dataset validation PASSED.")
-        
-    return is_valid
-
-def generate_validation_report(
-    stats: Dict[str, Dict[str, float]], 
-    is_valid: bool, 
-    output_path: Path
-) -> None:
-    """
-    Generate a JSON validation report.
+        config = load_config()
     
-    Args:
-        stats: Missing value statistics
-        is_valid: Overall validation status
-        output_path: Path to write the report
-    """
-    report = {
-        "is_valid": is_valid,
-        "threshold": MISSING_THRESHOLD,
-        "total_records": 0,
-        "columns": stats,
-        "timestamp": pd.Timestamp.now().isoformat()
+    # Default configuration if not specified
+    default_config = {
+        "missing_threshold": 0.05,
+        "imputation_strategy": "mean",
+        "critical_columns": [
+            "search_count", 
+            "error_frequency", 
+            "token_usage", 
+            "turn_number", 
+            "embedding_distance",
+            "abstention_label"
+        ]
     }
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Merge with defaults
+    for key, value in default_config.items():
+        if key not in config.get("preprocessing", {}):
+            config.setdefault("preprocessing", {})[key] = value
     
-    with open(output_path, "w") as f:
-        json.dump(report, f, indent=2)
+    return config.get("preprocessing", default_config)
+
+def calculate_missing_statistics(df: pd.DataFrame, critical_columns: List[str]) -> Dict[str, Any]:
+    """Calculate missing value statistics for the dataset."""
+    stats = {}
+    
+    for col in critical_columns:
+        if col in df.columns:
+            missing_count = df[col].isna().sum()
+            total_count = len(df)
+            missing_ratio = missing_count / total_count if total_count > 0 else 0.0
+            
+            stats[col] = {
+                "missing_count": int(missing_count),
+                "total_count": int(total_count),
+                "missing_ratio": float(missing_ratio),
+                "is_critical": True
+            }
+        else:
+            stats[col] = {
+                "missing_count": 0,
+                "total_count": 0,
+                "missing_ratio": 1.0,
+                "is_critical": True,
+                "error": f"Column '{col}' not found in dataset"
+            }
+    
+    # Calculate overall statistics
+    total_critical_columns = len(critical_columns)
+    critical_columns_with_data = sum(
+        1 for col in critical_columns 
+        if col in df.columns and df[col].notna().any()
+    )
+    
+    overall_missing_ratio = sum(
+        stats[col]["missing_ratio"] 
+        for col in critical_columns 
+        if col in stats
+    ) / total_critical_columns if total_critical_columns > 0 else 0.0
+    
+    stats["_summary"] = {
+        "total_critical_columns": total_critical_columns,
+        "overall_missing_ratio": float(overall_missing_ratio),
+        "critical_columns_with_data": critical_columns_with_data
+    }
+    
+    return stats
+
+def perform_mean_imputation(df: pd.DataFrame, numeric_columns: List[str]) -> pd.DataFrame:
+    """Perform mean imputation for missing numeric variables."""
+    df_imputed = df.copy()
+    imputation_info = {}
+    
+    for col in numeric_columns:
+        if col in df_imputed.columns:
+            if df_imputed[col].dtype in [np.float64, np.float32, np.int64, np.int32]:
+                mean_val = df_imputed[col].mean()
+                
+                if not np.isnan(mean_val):
+                    imputed_count = df_imputed[col].isna().sum()
+                    if imputed_count > 0:
+                        df_imputed[col] = df_imputed[col].fillna(mean_val)
+                        imputation_info[col] = {
+                            "mean_value": float(mean_val),
+                            "imputed_count": int(imputed_count)
+                        }
+                        logger.info(f"Imputed {imputed_count} missing values in '{col}' with mean {mean_val:.4f}")
+                else:
+                    logger.warning(f"Cannot compute mean for column '{col}' (all values are NaN or empty)")
+        else:
+            logger.warning(f"Column '{col}' not found for imputation")
+    
+    return df_imputed, imputation_info
+
+def validate_dataset(df: pd.DataFrame, stats: Dict[str, Any], threshold: float) -> bool:
+    """
+    Validate the dataset against missing value threshold.
+    Returns True if dataset is valid, False otherwise.
+    """
+    overall_ratio = stats.get("_summary", {}).get("overall_missing_ratio", 0.0)
+    
+    if overall_ratio > threshold:
+        logger.error(f"Dataset validation FAILED: Overall missing ratio {overall_ratio:.4f} exceeds threshold {threshold}")
+        return False
+    
+    # Check individual critical columns
+    for col, col_stats in stats.items():
+        if col.startswith("_"):
+            continue
         
-    logger.info(f"Validation report written to {output_path}")
+        if col_stats.get("is_critical", False):
+            if col_stats.get("missing_ratio", 0.0) > threshold:
+                logger.error(f"Critical column '{col}' has missing ratio {col_stats['missing_ratio']:.4f} > {threshold}")
+                return False
+            
+            if "error" in col_stats:
+                logger.error(f"Critical column '{col}' error: {col_stats['error']}")
+                return False
+    
+    logger.info(f"Dataset validation PASSED: Overall missing ratio {overall_ratio:.4f} <= {threshold}")
+    return True
+
+def generate_validation_report(
+    df: pd.DataFrame, 
+    stats: Dict[str, Any], 
+    threshold: float, 
+    is_valid: bool,
+    imputation_info: Optional[Dict[str, Any]] = None,
+    output_path: Optional[Path] = None
+) -> Dict[str, Any]:
+    """Generate a comprehensive validation report."""
+    report = {
+        "validation_status": "PASSED" if is_valid else "FAILED",
+        "threshold": threshold,
+        "summary": stats.get("_summary", {}),
+        "column_statistics": {
+            k: v for k, v in stats.items() if not k.startswith("_")
+        },
+        "imputation_details": imputation_info or {},
+        "dataset_info": {
+            "total_records": int(len(df)),
+            "total_columns": int(len(df.columns)),
+            "columns": list(df.columns)
+        }
+    }
+    
+    if output_path:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            json.dump(report, f, indent=2, default=str)
+        logger.info(f"Validation report saved to: {output_path}")
+    
+    return report
 
 def main():
-    """Main entry point for preprocessing pipeline."""
-    logger.info("Starting preprocessing pipeline...")
+    """Main entry point for the preprocessing pipeline."""
+    logger.info("Starting data preprocessing pipeline")
     
     # Load configuration
     config = load_preprocessing_config()
+    threshold = config.get("missing_threshold", 0.05)
+    critical_columns = config.get("critical_columns", [])
     
-    # Determine input/output paths
-    # Default to the processed features file from T015
-    input_path = get_path("data/processed/features.parquet")
-    output_path = get_path("data/processed/features_cleaned.parquet")
-    report_path = get_path("data/validation_report.json")
+    # Define paths
+    data_dir = get_path("data_processed")
+    input_file = data_dir / "features.parquet"
+    output_file = data_dir / "features_processed.parquet"
+    report_file = get_path("data_raw") / "validation_report.json"
     
-    if not os.path.exists(input_path):
-        logger.error(f"Input file not found: {input_path}")
-        logger.error("Please ensure T015 (extract_features) has completed successfully.")
+    # Check if input file exists
+    if not input_file.exists():
+        logger.error(f"Input file not found: {input_file}")
+        # Generate failure report
+        failure_report = generate_validation_report(
+            pd.DataFrame(),
+            {"_summary": {"overall_missing_ratio": 1.0, "error": "Input file not found"}},
+            threshold,
+            False,
+            output_path=report_file
+        )
         sys.exit(1)
     
-    # Load data
-    logger.info(f"Loading data from {input_path}...")
+    # Load dataset
     try:
-        df = pd.read_parquet(input_path)
-        logger.info(f"Loaded {len(df)} records with {len(df.columns)} columns.")
+        df = pd.read_parquet(input_file)
+        logger.info(f"Loaded dataset with {len(df)} records and {len(df.columns)} columns")
     except Exception as e:
-        logger.error(f"Failed to load input data: {e}")
+        logger.error(f"Failed to load dataset: {e}")
+        failure_report = generate_validation_report(
+            pd.DataFrame(),
+            {"_summary": {"overall_missing_ratio": 1.0, "error": str(e)}},
+            threshold,
+            False,
+            output_path=report_file
+        )
         sys.exit(1)
     
-    # Calculate statistics BEFORE imputation
-    stats = calculate_missing_statistics(df)
+    # Calculate missing statistics
+    stats = calculate_missing_statistics(df, critical_columns)
+    logger.info(f"Missing statistics calculated")
     
-    # Validate dataset
-    is_valid = validate_dataset(df, stats)
-    
-    # Generate report (even if invalid, we need to report the failure)
-    generate_validation_report(stats, is_valid, Path(report_path))
+    # Validate dataset BEFORE imputation
+    is_valid = validate_dataset(df, stats, threshold)
     
     if not is_valid:
-        logger.error("HALTING EXECUTION: Dataset has >5% missing critical variables.")
-        logger.error("Please check data ingestion and feature extraction steps.")
+        logger.warning("Dataset validation FAILED (>5% missing critical data). Generating report and halting.")
+        report = generate_validation_report(
+            df, 
+            stats, 
+            threshold, 
+            is_valid,
+            output_path=report_file
+        )
+        logger.error("Halting execution due to excessive missing data. Please check the validation report.")
         sys.exit(1)
     
-    # Perform imputation
-    logger.info("Performing mean imputation...")
-    df_cleaned = perform_mean_imputation(df, config)
+    # Perform mean imputation on numeric columns
+    numeric_columns = [col for col in df.select_dtypes(include=[np.number]).columns if col in critical_columns]
+    df_imputed, imputation_info = perform_mean_imputation(df, numeric_columns)
     
-    # Save cleaned data
-    logger.info(f"Saving cleaned data to {output_path}...")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df_cleaned.to_parquet(output_path, index=False)
+    # Re-calculate statistics after imputation to confirm
+    stats_after = calculate_missing_statistics(df_imputed, critical_columns)
+    is_valid_after = validate_dataset(df_imputed, stats_after, threshold)
     
-    logger.info(f"Preprocessing complete. Cleaned data saved to {output_path}")
-    logger.info(f"Validation report saved to {report_path}")
+    if not is_valid_after:
+        logger.error("Post-imputation validation failed. Halting execution.")
+        report = generate_validation_report(
+            df_imputed, 
+            stats_after, 
+            threshold, 
+            is_valid_after,
+            imputation_info,
+            output_path=report_file
+        )
+        sys.exit(1)
     
-    return df_cleaned
+    # Generate final validation report
+    report = generate_validation_report(
+        df_imputed,
+        stats_after,
+        threshold,
+        True,
+        imputation_info,
+        output_path=report_file
+    )
+    
+    # Save processed dataset
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+    df_imputed.to_parquet(output_file, index=False)
+    logger.info(f"Processed dataset saved to: {output_file}")
+    
+    logger.info("Preprocessing pipeline completed successfully")
+    return report
 
 if __name__ == "__main__":
     main()

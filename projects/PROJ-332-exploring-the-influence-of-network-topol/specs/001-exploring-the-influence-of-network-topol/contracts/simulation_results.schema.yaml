@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Results Schema"
+description: "Schema for data/processed/simulation_results.csv"
+type: "object"
+properties:
+  seed:
+    type: "integer"
+    description: "Random seed used for reproducibility"
+  N:
+    type: "integer"
+    description: "Number of nodes in the network"
+    minimum: 100
+  p:
+    type: "number"
+    description: "Connection probability"
+    minimum: 0.0
+    maximum: 1.0
+  avg_degree:
+    type: "number"
+    description: "Measured average degree of the generated graph"
+    minimum: 0.0
+  percolation_threshold:
+    type: "number"
+    description: "Estimated percolation threshold for the batch (k_c) - batch level aggregate"
+    minimum: 0.0
+  connectivity_probability:
+    type: "number"
+    description: "Fraction of connected graphs in the batch (P_infinity)"
+    minimum: 0.0
+    maximum: 1.0
+  convergence_rate:
+    type: "number"
+    description: "Solver convergence status (1.0 = success, 0.0 = failure)"
+    minimum: 0.0
+    maximum: 1.0
+  total_runtime:
+    type: "number"
+    description: "Total runtime in seconds"
+    minimum: 0.0
+  k_eff:
+    type: "number"
+    description: "Effective thermal conductivity in W/(m·K) (Isotropic average)"
+    minimum: 0.0
+  scaling_exponent_t:
+    type: ["number", "null"]
+    description: "Fitted scaling exponent (null if not computed for this row)"
+  p_value:
+    type: ["number", "null"]
+    description: "P-value for regression (null if not computed for this row)"
+  k_eff_adj:
+    type: "number"
+    description: "Adjusted conductivity (k_eff * connectivity_probability)"
+    minimum: 0.0
+required:
+  - seed
+  - N
+  - p
+  - avg_degree
+  - percolation_threshold
+  - connectivity_probability
+  - convergence_rate
+  - total_runtime
+  - k_eff
+  - k_eff_adj
+additionalProperties: false

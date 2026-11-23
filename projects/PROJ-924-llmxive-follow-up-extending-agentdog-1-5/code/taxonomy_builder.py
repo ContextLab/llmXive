@@ -1,163 +1,130 @@
-"""
-taxonomy_builder.py
-
-Generates centroid embeddings for the AgentDoG 1.5 taxonomy categories.
-Uses 'all-MiniLM-L6-v2' on CPU with batching to ensure memory usage < 100MB.
-Input: data/raw/taxonomy.json (produced by T005d)
-Output: data/processed/taxonomy_centroids.json
-"""
-
 import json
 import os
 import sys
+import tracemalloc
+import logging
 from pathlib import Path
-from typing import Dict, Any, List, Optional
-
-# Add project root to path for imports if running as script
-_project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(_project_root))
+from typing import Dict, Any, List
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
-from config import get_path, ensure_directories, get_config_summary
-from utils import save_json_file, load_json_file
-from data_loader import fetch_taxonomy
+from config import get_path, ensure_directories, RANDOM_SEED, MAX_RAM_GB
+from config import set_seed
 
-# Constants
-MODEL_NAME = "all-MiniLM-L6-v2"
-INPUT_FILE_REL = "data/raw/taxonomy.json"
-OUTPUT_FILE_REL = "data/processed/taxonomy_centroids.json"
-BATCH_SIZE = 32  # Small batch to fit <100MB RAM on CPU
-MAX_TOKENS = 128 # Truncate to fit model and save memory
+class MemoryLimitExceededError(Exception):
+    """Raised when memory usage exceeds the limit."""
+    pass
 
-def load_taxonomy(input_path: Path) -> Dict[str, Any]:
+class TaxonomyLoadError(Exception):
+    """Raised when taxonomy loading fails."""
+    pass
+
+def load_taxonomy(source: str = "local") -> Dict[str, Any]:
     """
-    Loads the taxonomy JSON structure.
-    Expected format: {"categories": [{"id": "...", "name": "...", "description": "..."}, ...]}
-    """
-    if not input_path.exists():
-        raise FileNotFoundError(f"Taxonomy file not found at {input_path}. "
-                                "Please ensure T005d has run successfully.")
-    return load_json_file(input_path)
-
-def build_centroids(taxonomy_data: Dict[str, Any], model: SentenceTransformer) -> List[Dict[str, Any]]:
-    """
-    Iterates through taxonomy categories, constructs a text representation
-    (name + description), encodes it, and computes the centroid.
-    Since each category is a single entry initially, the centroid is just the embedding of that entry.
-    If the taxonomy structure groups items under categories later, this would aggregate them.
-    For now, we assume 1 item -> 1 centroid per category.
-    """
-    categories = taxonomy_data.get("categories", [])
-    if not categories:
-        raise ValueError("Taxonomy file contains no categories.")
-
-    print(f"Processing {len(categories)} categories...")
-    results = []
-
-    # Prepare texts in batches to manage memory
-    # We process in chunks to avoid loading all embeddings into memory at once if the list is huge,
-    # though for a taxonomy it's likely manageable. We'll stick to batched encoding.
+    Load taxonomy definition.
     
-    texts = []
-    category_map = {} # index -> category info
+    Args:
+        source: Source of taxonomy ('local' or 'paper').
     
-    for idx, cat in enumerate(categories):
-        name = cat.get("name", "")
-        desc = cat.get("description", "")
-        # Combine name and description for embedding context
-        text = f"{name}: {desc}" if desc else name
-        texts.append(text)
-        category_map[idx] = {
-            "id": cat.get("id"),
-            "name": name,
-            "description": desc,
-            "original": cat
-        }
+    Returns:
+        Dictionary containing taxonomy definition.
+    
+    Raises:
+        TaxonomyLoadError: If taxonomy cannot be loaded.
+    """
+    taxonomy_path = get_path("processed") / "taxonomy_agentdog.json"
+    
+    if not taxonomy_path.exists():
+        raise TaxonomyLoadError(f"Taxonomy file not found at {taxonomy_path}.")
+    
+    try:
+        with open(taxonomy_path, 'r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        raise TaxonomyLoadError(f"Failed to load taxonomy: {e}")
 
-    # Batch encoding
-    all_embeddings = []
-    for i in range(0, len(texts), BATCH_SIZE):
-        batch_texts = texts[i : i + BATCH_SIZE]
-        # Truncate if necessary (model usually handles, but good practice)
-        batch_texts = [t[:MAX_TOKENS] for t in batch_texts]
+def build_centroids(taxonomy: Dict[str, Any], model_name: str = "all-MiniLM-L6-v2") -> Dict[str, List[float]]:
+    """
+    Build centroid embeddings for taxonomy categories.
+    
+    Args:
+        taxonomy: Taxonomy definition dictionary.
+        model_name: Name of the sentence transformer model.
+    
+    Returns:
+        Dictionary mapping category names to centroid embeddings.
+    
+    Raises:
+        MemoryLimitExceededError: If memory usage exceeds limit.
+    """
+    # Start memory tracking
+    tracemalloc.start()
+    
+    try:
+        # Load model
+        model = SentenceTransformer(model_name)
         
-        embeddings = model.encode(batch_texts, convert_to_numpy=True, show_progress_bar=False)
-        all_embeddings.append(embeddings)
+        centroids = {}
+        categories = taxonomy.get("categories", {})
         
-        # Log progress
-        if (i + BATCH_SIZE) % (BATCH_SIZE * 10) == 0 or (i + BATCH_SIZE) == len(texts):
-            print(f"  Encoded {min(i + BATCH_SIZE, len(texts))} / {len(texts)} categories...")
+        for category_name, category_def in categories.items():
+            definition = category_def.get("definition", "")
+            
+            # Encode definition
+            embedding = model.encode([definition])[0]
+            centroids[category_name] = embedding.tolist()
+            
+            # Check memory usage
+            current, peak = tracemalloc.get_traced_memory()
+            if peak > MAX_RAM_GB * 1024 * 1024 * 1024:
+                raise MemoryLimitExceededError(f"Memory limit exceeded: {peak / (1024**3):.2f}GB")
+        
+        return centroids
+    
+    finally:
+        tracemalloc.stop()
 
-    all_embeddings = np.vstack(all_embeddings) if all_embeddings else np.array([])
-
-    # Construct output
-    for idx, cat_info in category_map.items():
-        if len(all_embeddings) > idx:
-            emb = all_embeddings[idx].tolist()
-            results.append({
-                "category_id": cat_info["id"],
-                "category_name": cat_info["name"],
-                "centroid_embedding": emb,
-                "embedding_dim": len(emb),
-                "source_text": f"{cat_info['name']}: {cat_info['description']}"
-            })
-        else:
-            # Should not happen if logic is correct
-            results.append({
-                "category_id": cat_info["id"],
-                "category_name": cat_info["name"],
-                "centroid_embedding": [],
-                "embedding_dim": 0,
-                "source_text": f"{cat_info['name']}: {cat_info['description']}",
-                "error": "Embedding generation failed for this category"
-            })
-
-    return results
+def save_centroids(centroids: Dict[str, List[float]], output_path: Path) -> None:
+    """
+    Save centroids to a JSON file.
+    
+    Args:
+        centroids: Dictionary of centroids.
+        output_path: Path to save the centroids.
+    """
+    ensure_directories([str(output_path.parent)])
+    
+    # Convert numpy arrays to lists for JSON serialization
+    serializable_centroids = {k: v for k, v in centroids.items()}
+    
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(serializable_centroids, f, indent=2)
 
 def main():
-    """Main entry point for the taxonomy builder."""
-    print("Starting Taxonomy Centroid Builder...")
+    """Main entry point for taxonomy_builder script."""
+    import argparse
     
-    # 1. Ensure directories exist
-    input_path = get_path(INPUT_FILE_REL)
-    output_path = get_path(OUTPUT_FILE_REL)
-    ensure_directories([output_path])
-
-    # 2. Load Taxonomy
-    print(f"Loading taxonomy from {input_path}...")
-    try:
-        taxonomy_data = load_taxonomy(input_path)
-    except FileNotFoundError as e:
-        print(f"CRITICAL ERROR: {e}")
-        print("This task depends on T005d (fetch_taxonomy). Please run T005d first.")
-        sys.exit(1)
-
-    # 3. Load Model (CPU-first)
-    print(f"Loading model '{MODEL_NAME}' (CPU)...")
-    try:
-        model = SentenceTransformer(MODEL_NAME, device="cpu")
-    except Exception as e:
-        print(f"CRITICAL ERROR: Failed to load model '{MODEL_NAME}'.")
-        print(f"Reason: {e}")
-        print("Ensure 'sentence-transformers' is installed and the model is available.")
-        sys.exit(1)
-
-    # 4. Build Centroids
-    print("Building centroids...")
-    centroids = build_centroids(taxonomy_data, model)
-
-    # 5. Save Output
-    print(f"Saving centroids to {output_path}...")
-    save_json_file(output_path, {
-        "model": MODEL_NAME,
-        "embedding_dim": len(centroids[0]["centroid_embedding"]) if centroids else 0,
-        "total_categories": len(centroids),
-        "centroids": centroids
-    })
-
-    print("Taxonomy centroid generation complete.")
-    print(get_config_summary())
+    parser = argparse.ArgumentParser(description="Build taxonomy centroids")
+    parser.add_argument("--source", type=str, default="local", help="Source of taxonomy")
+    parser.add_argument("--output", type=str, help="Output path for centroids")
+    parser.add_argument("--model", type=str, default="all-MiniLM-L6-v2", help="Sentence transformer model")
+    
+    args = parser.parse_args()
+    
+    # Set seed
+    set_seed(RANDOM_SEED)
+    
+    # Load taxonomy
+    taxonomy = load_taxonomy(args.source)
+    
+    # Build centroids
+    centroids = build_centroids(taxonomy, args.model)
+    
+    # Save centroids
+    output = Path(args.output) if args.output else get_path("processed") / "taxonomy_centroids.json"
+    save_centroids(centroids, output)
+    
+    print(f"Saved centroids to {output}")
 
 if __name__ == "__main__":
     main()

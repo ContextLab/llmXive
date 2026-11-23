@@ -1,0 +1,62 @@
+# Task Instance Schema
+# Defines the structure of a single SWE-bench task instance used in the experiment.
+# Corresponds to the `TaskInstance` dataclass in `code/config.py`.
+
+schema_version: "1.0"
+entity_name: "TaskInstance"
+
+fields:
+  - name: instance_id
+    type: string
+    description: "Unique identifier for the task instance (e.g., 'sphinx-doc__sphinx-12345')."
+    required: true
+    
+  - name: problem_statement
+    type: string
+    description: "The natural language description of the bug or feature request."
+    required: true
+    
+  - name: repo
+    type: string
+    description: "The GitHub repository identifier (e.g., 'sphinx-doc/sphinx')."
+    required: true
+    
+  - name: version
+    type: string
+    description: "The specific version tag or commit hash of the repository."
+    required: true
+    
+  - name: patch
+    type: string
+    description: "The ground-truth patch (diff) that solves the problem. Can be null if not available."
+    required: false
+    
+  - name: test_patch
+    type: string
+    description: "The test patch used to validate the solution."
+    required: true
+    
+  - name: base_commit
+    type: string
+    description: "The commit hash from which the issue was derived."
+    required: true
+    
+  - name: relevant_files
+    type: list[string]
+    description: "List of file paths considered relevant to the issue (pre-filtered or ground truth)."
+    required: true
+    
+  - name: total_lines_relevant
+    type: integer
+    description: "Total number of lines in the relevant file history. Used for filtering (>500 threshold)."
+    required: true
+    
+  - name: import_graph_nodes
+    type: list[string]
+    description: "List of file paths included in the static import graph traversal."
+    required: false
+    
+  - name: import_graph_edges
+    type: list[tuple]
+    description: "List of edges (source, target) representing the import dependency graph."
+    required: false

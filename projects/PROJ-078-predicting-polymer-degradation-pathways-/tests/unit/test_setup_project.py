@@ -1,88 +1,52 @@
 import os
-import tempfile
 import pytest
 from pathlib import Path
+import tempfile
+import shutil
+
+# Import the function to test
+# Assuming setup_project is in the code directory
 import sys
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
+from setup_project import create_directories, verify_directories
 
-# Add parent directory to path to allow imports from code/
-# Assuming this test runs from the project root or tests/ directory
-code_dir = Path(__file__).parent.parent.parent / "code"
-sys.path.insert(0, str(code_dir))
+class TestSetupProject:
+    """Tests for project directory creation and verification."""
 
-from setup_project import create_directories
+    def test_create_directories_creates_all_required(self, tmp_path):
+        """Test that create_directories creates all required folders."""
+        required = ["code", "data/raw", "data/processed", "data/reports", "tests", "state"]
+        
+        created = create_directories(tmp_path)
+        
+        assert len(created) == len(required)
+        
+        for rel_path in required:
+            full_path = tmp_path / rel_path
+            assert full_path.exists(), f"Directory {full_path} was not created"
+            assert full_path.is_dir(), f"{full_path} is not a directory"
 
-def test_create_directories_creates_structure():
-    """
-    Test that create_directories creates all required directories.
-    """
-    # Create a temporary directory to act as the project root for this test
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(tmp_dir)
-            
-            # Call the function
-            result = create_directories()
-            
-            # Verify the returned dictionary contains the expected keys
-            expected_dirs = [
-                "code",
-                "data/raw",
-                "data/processed",
-                "data/reports",
-                "tests",
-                "state"
-            ]
-            
-            for dir_name in expected_dirs:
-                assert dir_name in result, f"Missing directory {dir_name} in result"
-                
-                # Verify the path exists on disk
-                full_path = Path(tmp_dir) / dir_name
-                assert full_path.exists(), f"Directory {full_path} does not exist on disk"
-                assert full_path.is_dir(), f"Path {full_path} is not a directory"
-                
-        finally:
-            os.chdir(original_cwd)
+    def test_verify_directories_returns_true_when_all_exist(self, tmp_path):
+        """Test verify_directories returns True when all directories exist."""
+        create_directories(tmp_path)
+        assert verify_directories(tmp_path) is True
 
-def test_create_directories_idempotent():
-    """
-    Test that calling create_directories multiple times does not raise errors.
-    """
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(tmp_dir)
-            
-            # Call once
-            result1 = create_directories()
-            
-            # Call again
-            result2 = create_directories()
-            
-            # Both should succeed and return the same structure
-            assert len(result1) == len(result2)
-            
-        finally:
-            os.chdir(original_cwd)
+    def test_verify_directories_returns_false_when_missing(self, tmp_path):
+        """Test verify_directories returns False when a directory is missing."""
+        # Create some but not all directories
+        (tmp_path / "code").mkdir()
+        (tmp_path / "data").mkdir()
+        # Missing: data/raw, data/processed, etc.
+        
+        assert verify_directories(tmp_path) is False
 
-def test_create_directories_nested_structure():
-    """
-    Test that nested directories (like data/raw) are created correctly.
-    """
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        original_cwd = os.getcwd()
-        try:
-            os.chdir(tmp_dir)
-            
-            result = create_directories()
-            
-            # Check specific nested paths
-            raw_path = Path(tmp_dir) / "data" / "raw"
-            processed_path = Path(tmp_dir) / "data" / "processed"
-            
-            assert raw_path.exists() and raw_path.is_dir()
-            assert processed_path.exists() and processed_path.is_dir()
-            
-        finally:
-            os.chdir(original_cwd)
+    def test_create_directories_idempotent(self, tmp_path):
+        """Test that calling create_directories twice doesn't raise errors."""
+        first_run = create_directories(tmp_path)
+        second_run = create_directories(tmp_path)
+        
+        # Second run should return empty list (no new dirs)
+        assert len(second_run) == 0
+        
+        # Verify all still exist
+        assert verify_directories(tmp_path) is True

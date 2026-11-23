@@ -3,39 +3,80 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-# Distribution / packaging
-.eggs/
-*.egg-info/
-dist/
-build/
+# C extensions
+*.so
 
-# Virtual environments
-venv/
-.venv/
+# Distribution / packaging
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+*.egg
+MANIFEST
+
+# PyInstaller
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.tox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis
+.pytest_cache
+
+# Translations
+*.mo
+*.pot
+
+# Environments
+.env
+.venv
 env/
-.env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 
 # IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-
-# Data (keep raw/processed if needed, but ignore large binaries if specified)
-# data/raw/*
-# data/processed/*
-# But allow specific tracked files via gitattributes if needed
-data/interim/*
-data/results/*
-*.npy
-*.pkl
-
-# Logs
-*.log
+*~
 
 # OS
 .DS_Store
 Thumbs.db
 
-# Secrets
+# Project specific
+data/raw/*.zip
+data/raw/*.tar.gz
+data/interim/*.csv
+data/processed/*.npy
+data/processed/*.csv
+data/results/*.json
+data/results/*.log
+logs/
 .secrets.baseline
+.mypy_cache/
+.ruff_cache/

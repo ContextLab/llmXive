@@ -1,107 +1,167 @@
 """
-Tests for the model loader utility.
+Tests for the model_loader utility.
 """
 
+import gc
+import os
+import sys
+from pathlib import Path
+from unittest.mock import MagicMock, patch
+
 import pytest
-from unittest.mock import patch, MagicMock
 import torch
+from transformers import BitsAndBytesConfig
+
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
 from src.utils.model_loader import (
+    get_4bit_quantization_config,
     load_model,
     get_model_card,
     validate_model_compatibility,
-    _check_bitsandbytes,
-    _load_full_precision_model,
 )
-from src.utils.config import SocraticConfig
 
 
 class TestModelLoader:
-    """Test cases for model loading functionality."""
+    """Test cases for model_loader.py"""
 
-    def test_check_bitsandbytes_available(self):
-        """Test bitsandbytes availability check."""
-        # This will return False if bitsandbytes is not installed
-        result = _check_bitsandbytes()
-        assert isinstance(result, bool)
+    def test_get_4bit_quantization_config(self):
+        """Test that 4-bit quantization config is created correctly."""
+        config = get_4bit_quantization_config()
 
-    @patch('src.utils.model_loader.AutoTokenizer')
-    @patch('src.utils.model_loader.AutoModelForCausalLM')
-    def test_load_full_precision_model(self, mock_model, mock_tokenizer):
-        """Test loading a model in full precision."""
-        mock_tokenizer.from_pretrained.return_value = MagicMock()
-        mock_model.from_pretrained.return_value = MagicMock()
-        
-        config = SocraticConfig()
-        model, tokenizer = _load_full_precision_model("test-model", "cpu")
-        
-        mock_model.from_pretrained.assert_called_once()
-        mock_tokenizer.from_pretrained.assert_called_once()
-        assert model is not None
-        assert tokenizer is not None
+        assert isinstance(config, BitsAndBytesConfig)
+        assert config.load_in_4bit is True
+        assert config.bnb_4bit_compute_dtype == torch.float16
+        assert config.bnb_4bit_use_double_quant is True
+        assert config.bnb_4bit_quant_type == "nf4"
 
-    @patch('src.utils.model_loader._check_bitsandbytes')
-    @patch('src.utils.model_loader.AutoTokenizer')
-    @patch('src.utils.model_loader.AutoModelForCausalLM')
-    def test_load_model_with_quantization(
-        self, mock_model, mock_tokenizer, mock_check_bnb
-    ):
-        """Test loading a model with 4-bit quantization."""
-        mock_check_bnb.return_value = True
-        mock_tokenizer.from_pretrained.return_value = MagicMock()
-        mock_model.from_pretrained.return_value = MagicMock()
-        
-        config = SocraticConfig()
-        model, tokenizer, model_name = load_model("test-model", config=config)
-        
-        assert model is not None
-        assert tokenizer is not None
-        assert model_name == "test-model"
+    @patch("src.utils.model_loader.AutoTokenizer.from_pretrained")
+    @patch("src.utils.model_loader.AutoModelForCausalLM.from_pretrained")
+    def test_load_model_with_mock(self, mock_model, mock_tokenizer):
+        """Test model loading with mocked dependencies."""
+        # Setup mocks
+        mock_tokenizer_instance = MagicMock()
+        mock_tokenizer_instance.pad_token_id = None
+        mock_tokenizer_instance.eos_token = "<eos>"
+        mock_tokenizer.return_value = mock_tokenizer_instance
 
-    @patch('src.utils.model_loader.load_model')
-    def test_load_model_fallback_on_oom(self, mock_load):
-        """Test that fallback model is used on OOM."""
-        # First call raises OOM, second call succeeds
-        mock_load.side_effect = [
-            RuntimeError("out of memory"),
-            (MagicMock(), MagicMock(), "fallback-model")
-        ]
-        
-        config = SocraticConfig()
-        config.fallback_model = "fallback-model"
-        
-        # This test would need more complex mocking to properly test OOM handling
-        # For now, we just verify the function exists and has the right signature
-        pass
+        mock_model_instance = MagicMock()
+        mock_model_instance.requires_grad_ = MagicMock()
+        mock_model_instance.eval = MagicMock()
+        mock_model_instance.hf_device_map = {"": "cpu"}
+        mock_model.return_value = mock_model_instance
 
-    def test_get_model_card(self):
-        """Test fetching model card metadata."""
-        # This will fail if the model doesn't exist, but tests the function structure
-        result = get_model_card("hf-internal-testing/tiny-random-gpt2")
-        assert isinstance(result, dict)
-        assert "name" in result
+        # Load model
+        model, tokenizer = load_model("test-model", device_map="cpu")
 
-    def test_validate_model_compatibility(self):
-        """Test model compatibility validation."""
-        result = validate_model_compatibility(
-            "hf-internal-testing/tiny-random-gpt2",
-            target_ram_gb=7
+        # Assertions
+        mock_tokenizer.assert_called_once()
+        mock_model.assert_called_once()
+        mock_model_instance.requires_grad_.assert_called_once_with(False)
+        mock_model_instance.eval.assert_called_once()
+        assert tokenizer.pad_token == "<eos>"
+
+    @patch("src.utils.model_loader.AutoConfig.from_pretrained")
+    def test_get_model_card(self, mock_config):
+        """Test retrieving model card information."""
+        # Setup mock config
+        mock_config_instance = MagicMock()
+        mock_config_instance.model_type = "llama"
+        mock_config_instance.vocab_size = 32000
+        mock_config_instance.hidden_size = 4096
+        mock_config_instance.num_attention_heads = 32
+        mock_config_instance.num_hidden_layers = 32
+        mock_config.return_value = mock_config_instance
+
+        model_card = get_model_card("test-model")
+
+        assert model_card["model_id"] == "test-model"
+        assert model_card["model_type"] == "llama"
+        assert model_card["vocab_size"] == 32000
+        assert model_card["hidden_size"] == 4096
+
+    @patch("src.utils.model_loader.get_model_card")
+    def test_validate_model_compatibility_small(self, mock_card):
+        """Test validation for a small model that fits in memory."""
+        mock_card.return_value = {
+            "model_id": "small-model",
+            "hidden_size": 512,
+            "num_attention_heads": 8,
+            "num_hidden_layers": 4,
+            "vocab_size": 1000,
+        }
+
+        is_compatible = validate_model_compatibility(
+            "small-model",
+            max_memory_gb=7.0,
+            require_4bit=True,
         )
-        assert isinstance(result, dict)
-        assert "model_name" in result
-        assert "recommendation" in result
 
+        assert is_compatible is True
 
-class TestModelLoaderEdgeCases:
-    """Test edge cases and error handling."""
+    @patch("src.utils.model_loader.get_model_card")
+    def test_validate_model_compatibility_large(self, mock_card):
+        """Test validation for a large model that exceeds memory."""
+        # Simulate a very large model
+        mock_card.return_value = {
+            "model_id": "huge-model",
+            "hidden_size": 8192,
+            "num_attention_heads": 64,
+            "num_hidden_layers": 80,
+            "vocab_size": 128000,
+        }
 
-    def test_load_model_with_invalid_model_name(self):
-        """Test loading a non-existent model raises appropriate error."""
-        with pytest.raises(Exception):
-            load_model("non-existent-model-12345", fallback_model=None)
+        is_compatible = validate_model_compatibility(
+            "huge-model",
+            max_memory_gb=7.0,
+            require_4bit=True,
+        )
 
-    def test_validate_model_compatibility_with_error(self):
-        """Test validation handles errors gracefully."""
-        result = validate_model_compatibility("invalid:model:name", target_ram_gb=7)
-        assert isinstance(result, dict)
-        assert "error" in result or "recommendation" in result
+        # This should fail due to memory constraints
+        assert is_compatible is False
+
+    def test_validate_model_compatibility_error(self):
+        """Test validation when model card retrieval fails."""
+        with patch("src.utils.model_loader.get_model_card") as mock_card:
+            mock_card.return_value = {"model_id": "error-model", "error": "Not found"}
+
+            is_compatible = validate_model_compatibility("error-model")
+
+            assert is_compatible is False
+
+    @patch("src.utils.model_loader.AutoTokenizer.from_pretrained")
+    @patch("src.utils.model_loader.AutoModelForCausalLM.from_pretrained")
+    def test_load_model_sets_requires_grad_false(self, mock_model, mock_tokenizer):
+        """Test that loaded model has requires_grad set to False."""
+        mock_tokenizer_instance = MagicMock()
+        mock_tokenizer_instance.pad_token_id = 1
+        mock_tokenizer.return_value = mock_tokenizer_instance
+
+        mock_model_instance = MagicMock()
+        mock_model_instance.hf_device_map = {"": "cpu"}
+        mock_model.return_value = mock_model_instance
+
+        load_model("test-model", device_map="cpu")
+
+        # Verify requires_grad_ was called with False
+        mock_model_instance.requires_grad_.assert_called_once_with(False)
+
+    @patch("src.utils.model_loader.AutoTokenizer.from_pretrained")
+    @patch("src.utils.model_loader.AutoModelForCausalLM.from_pretrained")
+    def test_load_model_sets_eval_mode(self, mock_model, mock_tokenizer):
+        """Test that loaded model is set to eval mode."""
+        mock_tokenizer_instance = MagicMock()
+        mock_tokenizer_instance.pad_token_id = 1
+        mock_tokenizer.return_value = mock_tokenizer_instance
+
+        mock_model_instance = MagicMock()
+        mock_model_instance.hf_device_map = {"": "cpu"}
+        mock_model.return_value = mock_model_instance
+
+        load_model("test-model", device_map="cpu")
+
+        # Verify eval was called
+        mock_model_instance.eval.assert_called_once()

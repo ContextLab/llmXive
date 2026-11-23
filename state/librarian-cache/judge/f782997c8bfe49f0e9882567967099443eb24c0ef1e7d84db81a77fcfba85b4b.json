@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2002.04272",
+  "judged_at": "2026-07-21T10:39:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "investigating neural signatures of predictive processing in visual illusions neuroscience",
+  "rationale": "The paper focuses on a methodological advancement for source reconstruction in E/MEG (RAMUS) to detect deep brain activity, but it does not investigate the specific biological mechanism of \"predictive processing\" or the neural signatures associated with \"visual illusions.\" While it uses E/MEG (a relevant modality), it studies somatosensory evoked potentials in a proof-of-concept simulation rather than the visual predictive coding phenomena central to the user's question, failing to meet the crit",
+  "relevant": false
+}

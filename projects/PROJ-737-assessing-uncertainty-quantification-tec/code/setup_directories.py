@@ -1,49 +1,52 @@
 """
-Script to initialize the project directory structure for the
-llmXive automated science pipeline: Assessing Uncertainty Quantification
-Techniques for Materials Property Predictions.
-
-This script creates the necessary directories as defined in task T001a.
+Setup script to create the required directory structure for the project.
+Ensures all necessary folders for data, code, results, and tests exist.
 """
-
 import os
 import sys
 from pathlib import Path
 
+# Define the base directory (project root)
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Define the required directory structure relative to the project root
+REQUIRED_DIRS = [
+    "data/raw",
+    "data/processed",
+    "code/models",
+    "code/metrics",
+    "code/stats",
+    "results",
+    "tests/unit",
+    "tests/integration",
+    "code/utils"
+]
+
 def main():
-    """Create the required directory structure."""
-    # Define the base project root (assuming this script is in code/ or code/setup/)
-    # We look for 'data', 'code', 'tests', 'results' relative to the script's parent
-    base_dir = Path(__file__).resolve().parent.parent
-
-    # Define the directories to create relative to the base directory
-    directories = [
-        "data/raw",
-        "data/processed",
-        "code/models",
-        "code/metrics",
-        "code/stats",
-        "code/utils",
-        "results",
-        "tests/unit",
-        "tests/integration",
-    ]
-
+    """
+    Creates all required directories if they do not already exist.
+    Prints a summary of created directories.
+    """
     created_count = 0
     existing_count = 0
 
-    for dir_path in directories:
-        full_path = base_dir / dir_path
-        
-        if full_path.exists():
-            existing_count += 1
-            print(f"Directory exists: {full_path}")
-        else:
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-            print(f"Created directory: {full_path}")
+    print(f"Project Root: {BASE_DIR}")
+    print("Checking/Creating directories...")
 
-    print(f"\nSetup complete. Created {created_count} directories. {existing_count} already existed.")
+    for dir_path in REQUIRED_DIRS:
+        full_path = BASE_DIR / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created: {full_path}")
+            created_count += 1
+        else:
+            existing_count += 1
+
+    print("-" * 40)
+    print(f"Directories created: {created_count}")
+    print(f"Directories already existing: {existing_count}")
+    print("Directory structure setup complete.")
+
     return 0
 
 if __name__ == "__main__":

@@ -1,0 +1,46 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Plant Herbivore Resistance Dataset Schema
+description: |
+  Schema for the harmonized plant metabolomic dataset used in predicting
+  herbivore resistance. Defines required columns and their types.
+type: object
+properties:
+  sample_id:
+    description: Unique identifier for each sample
+    type: string
+    minLength: 1
+  genotype_id:
+    description: Identifier for the plant genotype
+    type: string
+    minLength: 1
+  resistance:
+    description: Quantified herbivore resistance score (numeric or ordinal)
+    type: number
+  herbivore_density:
+    description: Density of herbivores applied (optional, may be null)
+    type: number
+    nullable: true
+  batch:
+    description: Batch identifier for experimental batch correction (optional)
+    type: string
+    nullable: true
+  study_id:
+    description: Identifier for the source study (optional)
+    type: string
+    nullable: true
+  metabolite_*:
+    description: |
+      Metabolite abundance columns. At least one column matching this pattern
+      must exist (e.g., metabolite_1, metabolite_2, etc.).
+      Values represent normalized abundance.
+    type: number
+    pattern: "^metabolite_\\d+$"
+required:
+  - sample_id
+  - genotype_id
+  - resistance
+additionalProperties: true
+patternProperties:
+  "^metabolite_\\d+$":
+    type: number
+    description: Abundance of a specific metabolite

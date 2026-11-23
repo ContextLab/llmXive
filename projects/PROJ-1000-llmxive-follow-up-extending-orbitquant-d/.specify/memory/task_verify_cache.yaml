@@ -1,0 +1,9 @@
+T001:
+  c: true
+  h: a631863381aef20c9c3e8d67cb2a9c285dd59885f73fbb3c4caab571480015c5
+  r: "Checked that `code/` contains the required sub\u2011directories (analysis, models,\
+    \ quantization, evaluation, utils) and totals \u2265\u202F8 dirs, `code/config.py`\
+    \ imports without error, `requirements.txt` lists torch, and `python -m code.main\
+    \ --phase init` outputs \u201CInitialization complete\u201D. The `tests/` placeholder,\
+    \ `requirements.txt`, and `quickstart.md` are present and non\u2011empty."
+  sig: 29b98dbf330ed04e678cd082d8a52c897e00631f389339e69ceeecbb896511a9

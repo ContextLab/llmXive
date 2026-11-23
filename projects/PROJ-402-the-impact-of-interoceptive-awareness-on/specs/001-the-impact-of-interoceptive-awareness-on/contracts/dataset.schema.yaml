@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "BIDS Dataset Structure Schema"
+description: "Schema for the downloaded BIDS dataset directory structure (not a flat file)"
+type: "object"
+properties:
+  root_directory:
+    type: "string"
+    description: "Path to the root of the BIDS dataset"
+  dataset_description:
+    type: "object"
+    description: "dataset_description.json content"
+    properties:
+      Name:
+        type: "string"
+      BIDSVersion:
+        type: "string"
+    required:
+      - "Name"
+      - "BIDSVersion"
+  subjects:
+    type: "array"
+    description: "List of subject directories"
+    items:
+      type: "object"
+      properties:
+        subject_id:
+          type: "string"
+          description: "e.g., sub-01"
+        has_events:
+          type: "boolean"
+          description: "Whether sub-*/events.tsv exists"
+        has_ecg:
+          type: "boolean"
+          description: "Whether ECG signal files exist"
+      required:
+        - "subject_id"
+        - "has_events"
+        - "has_ecg"
+required:
+  - "root_directory"
+  - "dataset_description"
+  - "subjects"
+additionalProperties: true

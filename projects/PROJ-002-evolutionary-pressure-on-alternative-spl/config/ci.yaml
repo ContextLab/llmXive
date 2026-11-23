@@ -1,0 +1,25 @@
+# CI Environment Configuration for PROJ-002
+# Constraints based on free-tier CPU-only CI limits
+# RAM=7GB, cores=2, disk=14GB
+environment:
+  name: ci
+  type: continuous_integration
+  constraints:
+    ram_gb: 7
+    cores: 2
+    disk_gb: 14
+  features:
+    star_alignment: false  # Disabled for CI; use pre-aligned BAMs or synthetic data
+    suppa2_quantification: true
+    phylop_annotation: false  # Requires large bigWig files; use subset or mock for CI
+    phylogenetic_regression: true  # R-based, low memory footprint
+  data_handling:
+    max_replicates: 3  # Sample size for CI testing
+    use_synthetic_data: true  # Required for CI to avoid large downloads
+    max_fastq_size_gb: 2
+  timeouts:
+    max_alignment_minutes: 30  # Relaxed for CI
+    max_pipeline_minutes: 60
+  logging:
+    level: DEBUG
+    retention_hours: 24

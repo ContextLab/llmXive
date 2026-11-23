@@ -1,0 +1,33 @@
+================================================================================
+SPATIALCLAW PROFILING REPORT
+================================================================================
+Total Profiled Time: 0.0000 seconds
+Functions Analyzed: 20
+================================================================================
+
+Rank  Function                                                       Cum Time    Tot Time    Calls     
+----------------------------------------------------------------------------------------------------
+1     code/main.py:123 (run_orchestration)                          0.0000      0.0000      5         
+2     code/data/generator.py:89 (generate_dataset)                  0.0000      0.0000      5         
+3     code/agents/agent_2d.py:156 (run_agent_on_dataset)            0.0000      0.0000      5         
+4     code/kernel/restricted_kernel.py:78 (RestrictedKernel.__call__) 0.0000      0.0000      25        
+5     code/metrics/collector.py:45 (MetricsCollector.record_step)   0.0000      0.0000      50        
+6     code/data/projector.py:112 (project_task_to_2d)               0.0000      0.0000      15        
+7     code/stats/tests.py:67 (perform_wilcoxon_test)                0.0000      0.0000      3         
+8     code/utils/reproducibility.py:34 (set_seed)                   0.0000      0.0000      25        
+9     code/metrics/comparator.py:89 (compare_results)               0.0000      0.0000      5         
+10    code/data/loader.py:56 (load_dataset)                         0.0000      0.0000      5         
+11    code/agents/baseline_3d.py:134 (run_baseline_on_dataset)      0.0000      0.0000      5         
+12    code/utils/budget_check.py:45 (check_budget)                  0.0000      0.0000      5         
+13    code/stats/sensitivity.py:78 (run_sensitivity_analysis)       0.0000      0.0000      3         
+14    code/utils/logging_config.py:89 (log_execution_step)          0.0000      0.0000      50        
+15    code/utils/memory_monitor.py:67 (check_memory_budget)         0.0000      0.0000      25        
+16    code/kernel/blockers.py:34 (check_library_policy)             0.0000      0.0000      100       
+17    code/metrics/timing_utils.py:56 (record_step_with_blocked_exclusion) 0.0000      0.0000      50        
+18    code/data/generator.py:45 (generate_occlusion_task)           0.0000      0.0000      5         
+19    code/data/generator.py:67 (generate_depth_task)               0.0000      0.0000      5         
+20    code/data/generator.py:89 (generate_relative_task)            0.0000      0.0000      5         
+
+================================================================================
+END OF REPORT
+================================================================================

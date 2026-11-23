@@ -1,0 +1,10 @@
+{
+  "processed_games": [
+    "game1",
+    "game2"
+  ],
+  "last_index": 5,
+  "metadata": {
+    "timestamp": "2023-10-27"
+  }
+}

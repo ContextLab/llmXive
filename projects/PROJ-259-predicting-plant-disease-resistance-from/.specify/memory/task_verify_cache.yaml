@@ -1,0 +1,112 @@
+T002:
+  c: false
+  h: a6fe9df5db7cecc0019edd0d94de89b4b4912965228323de3c079df8658606be
+  r: "The repository contains `code/download.py` and `code/preprocess.py`, but there\
+    \ is no evidence that they were actually run \u2013 the `data/raw/` and `data/processed/`\
+    \ directories only contain a `.gitkeep` placeholder and no generated CSV files.\
+    \ Execution logs or the expected output files (`genotype.csv`, `metabolomics.csv`,\
+    \ `phenotype.csv`, and `combined_features.csv`) are missing, so the verification\
+    \ step is not satisfied."
+  sig: ded03b6e53360c8769aaa8b2b1e2f9e4779df5be6994f5fa555354a806f3a718
+T003:
+  c: true
+  h: 280692b4248c89729f52ade4f2139a40106f990e51b6b1e859c5d2b6421e41db
+  r: Checked `code/cli.py` which implements a `--demo` mode that writes `data/results/small_demo.csv`,
+    and verified that `small_demo.csv` exists and contains the required columns `sample_id`,
+    `feature_1`, and `prediction`.
+  sig: 74d6f5432208354dc2f29fe30d7c2c8f4e57d1ad973a54d21460a1da9cc378b8
+T004:
+  c: false
+  h: b1e52f89a9ebffc749c822f7328a279713ddf0d4fa5b7290dff5df2db68ff616
+  r: "The `tests/unit/test_download.py` file exists, but running `pytest -q tests/unit/test_download.py`\
+    \ fails (exit code\u202F1) because the `test_download_module_has_fetch_function`\
+    \ test reports that `code.download` does not expose any of the expected data\u2011\
+    fetching functions, causing the suite to not pass. The required verification of\
+    \ a zero\u2011exit\u2011code test run is therefore not satisfied."
+  sig: 5cb13da15dc06a6adeb4c7fddd974850a61a5522fb6a2b35a0435cfea9280caf
+T005:
+  c: false
+  h: 668aecdf0d929eb7ab26e02422b3f0c4c5f65cbdb7a9a6a3341b2212c2aef85c
+  r: "The integration test file `tests/integration/test_e2e_ci.py` exists, but the\
+    \ recorded pytest run fails (return code\u202F2, \u201Cunrecognized arguments:\
+    \ --ci-mode\u201D). The required verification that `pytest -q tests/integration/test_e2e_ci.py`\
+    \ succeeds is not met; the CLI does not support the `--ci-mode` flag needed for\
+    \ the test to pass. The test or the CLI must be corrected for the test to succeed."
+  sig: f69386b35b0d042b150000077487cbcd547c3a46143452b6af0b5abe9436e6b3
+T006:
+  c: false
+  h: e660524d7bfae33dd7f193e1355f9cbbdd120bd1d0cdb473f91324940ca86cc0
+  r: The test file `tests/contract/test_dataset_schema.py` exists, and `data/data_manifest.yaml`
+    is present, but the required schema file `contracts/dataset.schema.yaml` is missing,
+    causing the test to raise a `FileNotFoundError` and fail (see the execution log).
+    Without the schema, the validation test cannot pass.
+  sig: 33f42805f234eca6b3bd4d056a8472226a8878737bce71d5a4a5558a09a9c5c6
+T007:
+  c: false
+  h: 9ee31cc162d0963dbbdd1b10f7ada675b5f582a6c6c4938d999561b9ae4cee66
+  r: "The Dockerfile itself exists (3,929 bytes) and is a plausible, non-stub container\
+    \ spec (Python 3.11-slim, fastp/bcftools, pip install from requirements.txt, sensible\
+    \ CMD). However, the task's verification criterion \u2014 that the image actually\
+    \ builds and `docker run <image> echo ok` succeeds \u2014 has no supporting evidence:\
+    \ no build log, image ID, or run output was supplied. Additionally, the build\
+    \ depends on a top-level `requirements.txt` being COPY-able and on `fastp` being\
+    \ installable via apt in the base image; neither is confirmed by the collected\
+    \ artifacts, so build success cannot be establishe"
+  sig: 8be5d734b3f2fc66ea91ffb11458d3a02ad1de4fc8d39c1b5201cca25d4ca4a1
+T008:
+  c: true
+  h: cfbac13128d7998632c14a76cd0d64d3efddb0ebae2777d0f1b2320af60f2f17
+  r: 'The file `code/utils/dummy_monitor.py` exists (1591 bytes) and contains a real,
+    non-stub-behavior implementation of a no-op context manager: `DummyMonitor` with
+    `__enter__`/`__exit__` and a `monitor` factory, which matches the task''s explicit
+    requirement that importing the module and calling its context manager raises no
+    exception. The task itself asked for a stub to be replaced later, so the no-op
+    design is intentional and correct.'
+  sig: 6898a465a408fdefaa8ba243408c0a8a3012f5ec8d967fbce4e303123870be15
+T011:
+  c: false
+  h: 048986a2ebd05d4f769fd88f177ced253476dda40f37863b55157204e58acacd
+  r: "The provided `preprocess.py` is truncated and does not contain the full implementation\
+    \ for MetaboAnalyst normalization, sample\u2011ID alignment, or exclusion\u2011\
+    logging logic. Moreover, the required `data/processed/exclusion_log.csv` file\
+    \ is absent, so the mandated logging of dropped samples is not satisfied."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or documentation was provided that implements the\
+    \ required logic to filter and rank features by selection frequency and BH\u2011\
+    adjusted p\u2011value\u202F<\u202F0.05. The artifact is missing, so the task\u2019\
+    s functional requirement is not satisfied."
+T051:
+  c: false
+  h: 7e346f083d3f666ba6bac7b71a87ab13f1abd5b027ed19952700949fd7b1c80d
+  r: "The `scripts/run_ci.sh` script exists and correctly sets `MAX_MEMORY_GB=7` and\
+    \ `MAX_RUNTIME_HOURS=6`, but the required `code/utils/measure_resources.py` file\
+    \ is missing, and `code/main.py` does not import or invoke any resource\u2011\
+    measurement logic, so the environment variables are not actually respected. The\
+    \ implementation therefore fails to meet the task\u2019s core requirement."
+T053:
+  c: false
+  h: 668cbc8a2da964ba39ee9e3e3615b8fcaf7ba20f8bdcc67dc3c43c256f08a2ad
+  r: The provided `generate_final_report.py` is present but the shown code is truncated
+    and does not include the logic that writes `artifacts/reports/final_validation_report.md`.
+    Moreover, the `load_json_file` function looks for the metric JSON files in `artifacts/reports/`
+    (using `REPORTS_DIR`) instead of the expected `artifacts/` location, so it would
+    fail to aggregate the required inputs. The final markdown report file is missing,
+    indicating the generator does not yet fulfill the specification.
+T055:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No CI workflow file (e.g., `.github/workflows/ci.yml` or similar) was presented
+    that adds a linting step running `flake8` and `black` on the `code/` and `tests/`
+    directories before the pipeline executes. Without such a configuration file or
+    log output, the required linting check cannot be confirmed. The implementer must
+    provide the actual CI configuration showing the linting steps.
+T060:
+  c: true
+  h: f664c2016f5f1ebc0746949358303408c41a9bbe930311196eb1d0364f31b8ba
+  r: "The provided `code/main.py` contains a non\u2011empty `check_data_integrity`\
+    \ function that loads `data_manifest.yaml`, verifies `source` is either `SIMULATED`\
+    \ or `REAL_DATA`, ensures `sample_count >= 100`, and logs \u201CPipeline Ready\u201D\
+    . This matches the task\u2019s specification. (The manifest file itself is not\
+    \ required to be present for the code change to be considered complete.)"

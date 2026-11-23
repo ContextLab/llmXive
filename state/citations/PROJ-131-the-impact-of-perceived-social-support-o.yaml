@@ -1,11 +1,11 @@
-- artifact_hash: ff02ede919aa003eb3d4be7a03bc68c941de8f02f4355d7dd767cb1f621a09cd
+- artifact_hash: cf4b6136249e946d121affa98a77a3163b6f81873d27d3a82ddfd30263888861
   artifact_path: projects/PROJ-131-the-impact-of-perceived-social-support-o/specs/001-the-impact-of-perceived-social-support-o/tasks.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Page Not Found
+  fetched_title: Bootstrapping - Wikipedia
   kind: url
-  value: https://gss.norc.org/files/stata/2022/2022_Stata.zip`
+  value: https://en.wikipedia.org/wiki/Bootstrapping_
   verification_status: pending
-  verified_against_url: https://gss.norc.org/page-not-found.html
-  verified_at: '2026-07-14T07:48:22.340801Z'
+  verified_against_url: https://en.wikipedia.org/wiki/Bootstrapping
+  verified_at: '2026-10-06T08:04:21.005069Z'

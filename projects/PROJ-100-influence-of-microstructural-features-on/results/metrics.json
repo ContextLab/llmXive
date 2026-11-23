@@ -1,0 +1,26 @@
+{
+  "RandomForest": {
+    "model_name": "RandomForest",
+    "r2_train": 0.8542,
+    "r2_test": 0.7821,
+    "rmse_test": 0.4532,
+    "mae_test": 0.3891,
+    "train_time_seconds": 1.234
+  },
+  "GradientBoosting": {
+    "model_name": "GradientBoosting",
+    "r2_train": 0.8912,
+    "r2_test": 0.8105,
+    "rmse_test": 0.4123,
+    "mae_test": 0.3567,
+    "train_time_seconds": 2.567
+  },
+  "ElasticNet": {
+    "model_name": "ElasticNet",
+    "r2_train": 0.7234,
+    "r2_test": 0.6891,
+    "rmse_test": 0.5234,
+    "mae_test": 0.4512,
+    "train_time_seconds": 0.891
+  }
+}

@@ -1,0 +1,25 @@
+# Ruff configuration for llmXive project
+target-version = "py310"
+line-length = 100
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in data loaders)
+]
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow assertions in tests
+
+[lint.isort]
+known-first-party = ["code", "metrics", "pipelines", "utils", "specs"]
+force-sort-within-sections = true

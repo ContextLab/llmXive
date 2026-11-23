@@ -1,233 +1,436 @@
+"""
+Feature Engineering Module for llmXive Follow-up Project.
+
+This module provides statistical helper functions for calculating entanglement
+metrics (variance, entropy, skewness, kurtosis) and global covariance properties
+from teacher score distributions.
+"""
+
 import argparse
 import json
 import logging
-import sys
+import math
 import os
+import sys
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple
+from typing import Any, Dict, List, Optional, Tuple
+
 import numpy as np
+import pandas as pd
+from scipy import stats
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+# Project root relative to this file (assuming code/ is the root for imports)
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+RESULTS_DIR = PROJECT_ROOT / "results"
 
-# --- Core Feature Calculations (US2 Implementation) ---
+def setup_logging(verbose: bool = False) -> logging.Logger:
+    """Configure and return the project logger."""
+    log_level = logging.DEBUG if verbose else logging.INFO
+    logging.basicConfig(
+        level=log_level,
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+    )
+    return logging.getLogger("features")
 
-def calculate_variance_and_range(distribution: np.ndarray) -> Tuple[float, float]:
-    """Calculate variance and range for a 1D distribution."""
-    if distribution.size == 0:
+def setup_directories() -> Tuple[Path, Path]:
+    """Ensure output directories exist."""
+    DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
+    RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    return DATA_PROCESSED_DIR, RESULTS_DIR
+
+def load_raw_dataset(path: Optional[str] = None) -> pd.DataFrame:
+    """
+    Load the raw dataset from Parquet.
+
+    Args:
+        path: Path to the raw dataset. Defaults to data/processed/raw_data.parquet.
+
+    Returns:
+        Loaded pandas DataFrame.
+    """
+    if path is None:
+        path = str(DATA_PROCESSED_DIR / "raw_data.parquet")
+    
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Raw dataset not found at {path}")
+    
+    logger = logging.getLogger("features")
+    logger.info(f"Loading raw dataset from {path}")
+    return pd.read_parquet(path)
+
+def load_cleaned_dataset(path: Optional[str] = None) -> pd.DataFrame:
+    """
+    Load the cleaned dataset from Parquet.
+
+    Args:
+        path: Path to the cleaned dataset. Defaults to data/processed/cleaned_data.parquet.
+
+    Returns:
+        Loaded pandas DataFrame.
+    """
+    if path is None:
+        path = str(DATA_PROCESSED_DIR / "cleaned_data.parquet")
+    
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"Cleaned dataset not found at {path}")
+    
+    logger = logging.getLogger("features")
+    logger.info(f"Loading cleaned dataset from {path}")
+    return pd.read_parquet(path)
+
+def extract_teacher_scores_matrix(df: pd.DataFrame) -> np.ndarray:
+    """
+    Extract the N x 4 matrix of teacher scores for the four rubric dimensions.
+
+    Expected columns: 'Alignment', 'Realism', 'Aesthetics', 'Plausibility'.
+    
+    Args:
+        df: DataFrame containing teacher scores.
+
+    Returns:
+        Numpy array of shape (N, 4).
+    """
+    dimensions = ["Alignment", "Realism", "Aesthetics", "Plausibility"]
+    
+    # Check if the data is in a nested structure or flat
+    if "teacher_scores" in df.columns:
+        # If it's a column of dicts/objects, expand it
+        if isinstance(df["teacher_scores"].iloc[0], dict):
+            scores_df = pd.DataFrame(df["teacher_scores"].tolist(), index=df.index)
+            # Ensure order
+            scores_matrix = scores_df[dimensions].values
+        else:
+            raise ValueError("teacher_scores column contains non-dict objects")
+    else:
+        # Assume flat columns exist
+        if not all(dim in df.columns for dim in dimensions):
+            raise ValueError(f"Missing teacher score dimensions. Expected: {dimensions}")
+        scores_matrix = df[dimensions].values
+
+    return scores_matrix.astype(float)
+
+def calculate_variance_and_range(scores: np.ndarray) -> Tuple[float, float]:
+    """
+    Calculate variance and range for a 1D array of scores.
+
+    Args:
+        scores: 1D numpy array of scores.
+
+    Returns:
+        Tuple of (variance, range).
+    """
+    if len(scores) == 0:
         return 0.0, 0.0
-    variance = float(np.var(distribution))
-    range_val = float(np.max(distribution) - np.min(distribution))
+    
+    variance = np.var(scores)
+    range_val = float(np.max(scores) - np.min(scores)) if len(scores) > 1 else 0.0
     return variance, range_val
 
-def calculate_entropy(distribution: np.ndarray) -> float:
-    """Calculate Shannon entropy for a normalized probability distribution."""
-    if distribution.size == 0 or np.all(distribution == 0):
+def calculate_entropy(scores: np.ndarray) -> float:
+    """
+    Calculate Shannon entropy for a 1D array of scores.
+    Uses histogram binning for continuous data.
+
+    Args:
+        scores: 1D numpy array of scores.
+
+    Returns:
+        Entropy value (float). Returns 0.0 for zero variance.
+    """
+    if len(scores) <= 1:
         return 0.0
-    # Ensure non-negative and normalized
-    p = np.clip(distribution, 1e-10, None)
-    p = p / np.sum(p)
-    entropy = -np.sum(p * np.log(p))
+    
+    variance = np.var(scores)
+    if variance < 1e-10:
+        return 0.0
+
+    # Use histogram to estimate probability distribution
+    # Using 10 bins as a standard heuristic for small dimensions
+    counts, _ = np.histogram(scores, bins=10)
+    
+    # Filter out zero counts to avoid log(0)
+    probs = counts[counts > 0] / len(scores)
+    
+    if len(probs) == 0:
+        return 0.0
+    
+    entropy = -np.sum(probs * np.log(probs))
     return float(entropy)
 
-def calculate_skewness_and_kurtosis(distribution: np.ndarray) -> Tuple[float, float]:
-    """Calculate skewness and kurtosis."""
-    if distribution.size < 3:
-        return 0.0, 0.0
-    skewness = float(scipy.stats.skew(distribution))
-    kurtosis = float(scipy.stats.kurtosis(distribution))
-    return skewness, kurtosis
-
-def calculate_per_sample_stats(distribution: np.ndarray) -> Dict[str, float]:
-    """Compute all per-sample statistical descriptors."""
-    variance, range_val = calculate_variance_and_range(distribution)
-    entropy = calculate_entropy(distribution)
-    skewness, kurtosis = calculate_skewness_and_kurtosis(distribution)
-    
-    return {
-        "variance": variance,
-        "range": range_val,
-        "entropy": entropy,
-        "skewness": skewness,
-        "kurtosis": kurtosis
-    }
-
-def calculate_global_entanglement_score(data_matrix: np.ndarray) -> float:
+def calculate_skewness_and_kurtosis(scores: np.ndarray) -> Tuple[float, float]:
     """
-    Compute the global entanglement score as the dominant eigenvalue
-    of the covariance matrix across all samples for the 4 dimensions.
-    """
-    if data_matrix.shape[0] < 2 or data_matrix.shape[1] != 4:
-        logger.warning("Insufficient data or incorrect dimensions for global entanglement.")
-        return 0.0
-    
-    try:
-        cov_matrix = np.cov(data_matrix, rowvar=False)
-        eigenvalues = np.linalg.eigvalsh(cov_matrix)
-        dominant_eigenvalue = float(np.max(eigenvalues))
-        return dominant_eigenvalue
-    except np.linalg.LinAlgError:
-        logger.error("Failed to compute eigenvalues for covariance matrix.")
-        return 0.0
+    Calculate skewness and kurtosis for a 1D array of scores.
 
-def calculate_dimensional_fidelity_loss(
-    student_scores: np.ndarray,
-    human_annotations: np.ndarray,
-    primary_dimensions: List[str],
-    rubric_keys: List[str]
-) -> List[float]:
-    """
-    Compute MAE between student scalar output and human-annotated score
-    for the primary dimension selected via metadata.
-    """
-    if len(student_scores) != len(human_annotations) or len(student_scores) != len(primary_dimensions):
-        raise ValueError("Input arrays lengths must match.")
-    
-    fidelity_losses = []
-    for i, dim in enumerate(primary_dimensions):
-        if dim not in rubric_keys:
-            fidelity_losses.append(float('nan'))
-            continue
-        
-        idx = rubric_keys.index(dim)
-        student_val = student_scores[i]
-        human_val = human_annotations[i, idx]
-        
-        if np.isnan(human_val):
-            fidelity_losses.append(float('nan'))
-        else:
-            loss = abs(student_val - human_val)
-            fidelity_losses.append(float(loss))
-    
-    return fidelity_losses
+    Args:
+        scores: 1D numpy array of scores.
 
-# --- Pipeline Integration Functions ---
-
-def load_aligned_data(input_path: str) -> Tuple[np.ndarray, np.ndarray, np.ndarray, List[str], List[str]]:
-    """
-    Load aligned data from the ingest pipeline output (JSON).
     Returns:
-        data_matrix: (N, 4) array of teacher distributions
-        student_scores: (N,) array of student scalars
-        human_annotations: (N, 4) array of human annotations
-        primary_dimensions: List of primary dimension strings per sample
-        rubric_keys: List of rubric dimension names (e.g., ['Alignment', ...])
+        Tuple of (skewness, kurtosis).
     """
-    with open(input_path, 'r') as f:
-        data = json.load(f)
+    if len(scores) < 3:
+        return 0.0, 0.0
     
-    samples = data.get("samples", [])
-    if not samples:
-        raise ValueError("No samples found in aligned data file.")
-    
-    # Extract rubric keys from the first sample
-    first_sample = samples[0]
-    rubric_keys = [k for k in first_sample.get("teacher_distribution", {}).keys()]
-    
-    data_list = []
-    student_list = []
-    human_list = []
-    primary_list = []
-    
-    for sample in samples:
-        # Teacher distribution
-        dist = [sample["teacher_distribution"][k] for k in rubric_keys]
-        data_list.append(dist)
-        
-        # Student score
-        student_list.append(sample["student_score"])
-        
-        # Human annotations
-        human_vals = [sample["human_annotations"].get(k, np.nan) for k in rubric_keys]
-        human_list.append(human_vals)
-        
-        # Primary dimension
-        primary_list.append(sample.get("primary_quality_dimension", ""))
-    
-    return (
-        np.array(data_list),
-        np.array(student_list),
-        np.array(human_list),
-        primary_list,
-        rubric_keys
-    )
+    skew = float(stats.skew(scores))
+    kurt = float(stats.kurtosis(scores)) # Fisher's definition (normal=0)
+    return skew, kurt
 
-def compute_all_features(aligned_data_path: str) -> Dict[str, Any]:
+def calculate_global_covariance_and_eigenvalue(scores_matrix: np.ndarray) -> Tuple[np.ndarray, float]:
     """
-    Orchestrate the computation of all features: per-sample stats, global entanglement,
-    and dimensional fidelity loss.
+    Calculate the global covariance matrix and its dominant eigenvalue.
+
+    Args:
+        scores_matrix: N x 4 numpy array of teacher scores.
+
+    Returns:
+        Tuple of (covariance_matrix, dominant_eigenvalue).
     """
-    logger.info(f"Loading aligned data from {aligned_data_path}")
-    data_matrix, student_scores, human_annotations, primary_dims, rubric_keys = load_aligned_data(aligned_data_path)
+    if scores_matrix.shape[0] < 2:
+        raise ValueError("Need at least 2 samples to compute covariance.")
     
-    logger.info("Computing per-sample statistics...")
-    per_sample_features = []
-    for i in range(data_matrix.shape[0]):
-        stats = calculate_per_sample_stats(data_matrix[i])
-        stats["sample_id"] = i
-        stats["primary_dimension"] = primary_dims[i]
-        per_sample_features.append(stats)
+    # Compute covariance matrix (rowvar=False means columns are variables)
+    cov_matrix = np.cov(scores_matrix, rowvar=False)
     
-    logger.info("Computing global entanglement score...")
-    global_entanglement = calculate_global_entanglement_score(data_matrix)
+    # Compute eigenvalues
+    eigenvalues, _ = np.linalg.eig(cov_matrix)
     
-    logger.info("Computing dimensional fidelity loss...")
-    fidelity_losses = calculate_dimensional_fidelity_loss(
-        student_scores, human_annotations, primary_dims, rubric_keys
-    )
+    # Filter for real eigenvalues (should be real for symmetric matrix)
+    real_eigenvalues = np.real(eigenvalues)
     
-    # Attach fidelity loss to per-sample features
-    for i, loss in enumerate(fidelity_losses):
-        per_sample_features[i]["fidelity_loss"] = loss
+    if len(real_eigenvalues) == 0:
+        raise ValueError("No real eigenvalues found.")
     
-    result = {
-        "global_entanglement_score": global_entanglement,
-        "rubric_keys": rubric_keys,
-        "samples": per_sample_features,
-        "total_samples": len(per_sample_features)
-    }
+    dominant_eigenvalue = float(np.max(real_eigenvalues))
     
-    return result
+    return cov_matrix, dominant_eigenvalue
 
-def save_features_to_json(features: Dict[str, Any], output_path: str) -> None:
-    """Save computed features to a JSON file."""
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
+def compute_per_sample_stats(scores_matrix: np.ndarray) -> List[Dict[str, float]]:
+    """
+    Compute per-sample statistical features: variance, entropy, skewness, kurtosis.
+    Note: Mahalanobis distance is computed separately using global covariance.
+
+    Args:
+        scores_matrix: N x 4 numpy array.
+
+    Returns:
+        List of dictionaries, one per sample.
+    """
+    n_samples = scores_matrix.shape[0]
+    features = []
     
-    with open(output_path, 'w') as f:
-        json.dump(features, f, indent=2)
-    logger.info(f"Features saved to {output_path}")
+    for i in range(n_samples):
+        sample_scores = scores_matrix[i]
+        
+        var, rng = calculate_variance_and_range(sample_scores)
+        ent = calculate_entropy(sample_scores)
+        skew, kurt = calculate_skewness_and_kurtosis(sample_scores)
+        
+        features.append({
+            "variance": var,
+            "entropy": ent,
+            "skewness": skew,
+            "kurtosis": kurt
+        })
+    
+    return features
 
-# --- CLI Entry Point ---
+def calculate_mahalanobis_distance(
+    scores_matrix: np.ndarray, 
+    mean_vector: np.ndarray, 
+    cov_matrix: np.ndarray
+) -> np.ndarray:
+    """
+    Calculate Mahalanobis distance for each sample.
 
-def parse_args():
-    parser = argparse.ArgumentParser(description="Compute and save feature engineering results.")
+    Args:
+        scores_matrix: N x 4 numpy array.
+        mean_vector: 1D array of shape (4,).
+        cov_matrix: 4 x 4 covariance matrix.
+
+    Returns:
+        1D array of distances.
+    """
+    # Use pseudo-inverse for singular matrices
+    try:
+        cov_inv = np.linalg.inv(cov_matrix)
+    except np.linalg.LinAlgError:
+        logging.warning("Covariance matrix is singular, using pseudo-inverse.")
+        cov_inv = np.linalg.pinv(cov_matrix, rcond=1e-15)
+    
+    diff = scores_matrix - mean_vector
+    # (x - mu)^T * Sigma^-1 * (x - mu)
+    # For vectorized: sum over axis 1 of (diff @ cov_inv) * diff
+    mahal_sq = np.sum(diff @ cov_inv * diff, axis=1)
+    
+    # Ensure non-negative due to floating point errors
+    mahal_sq = np.maximum(mahal_sq, 0)
+    return np.sqrt(mahal_sq)
+
+def integrate_features(
+    df: pd.DataFrame, 
+    per_sample_stats: List[Dict[str, float]], 
+    mahalanobis_distances: np.ndarray,
+    dominant_eigenvalue: Optional[float] = None
+) -> pd.DataFrame:
+    """
+    Integrate calculated features back into the DataFrame.
+
+    Args:
+        df: Original DataFrame.
+        per_sample_stats: List of dicts with variance, entropy, etc.
+        mahalanobis_distances: Array of Mahalanobis distances.
+        dominant_eigenvalue: Optional global eigenvalue to log (not stored per sample).
+
+    Returns:
+        DataFrame with new feature columns.
+    """
+    df_out = df.copy()
+    
+    # Convert stats list to DataFrame
+    stats_df = pd.DataFrame(per_sample_stats)
+    
+    # Concatenate
+    df_out = pd.concat([df_out, stats_df], axis=1)
+    
+    # Add Mahalanobis distance
+    df_out["mahalanobis_distance"] = mahalanobis_distances
+    
+    # Log global eigenvalue if provided (metadata only, not stored in row)
+    if dominant_eigenvalue is not None:
+        logging.info(f"Global Dominant Eigenvalue: {dominant_eigenvalue}")
+    
+    return df_out
+
+def save_global_stats(cov_matrix: np.ndarray, eigenvalue: float, results_dir: Path) -> None:
+    """
+    Save global covariance matrix and eigenvalue to JSON.
+
+    Args:
+        cov_matrix: 4x4 numpy array.
+        eigenvalue: Float dominant eigenvalue.
+        results_dir: Path to results directory.
+    """
+    cov_path = results_dir / "covariance_matrix.json"
+    eigen_path = results_dir / "dominant_eigenvalue.json"
+    
+    with open(cov_path, "w") as f:
+        json.dump(cov_matrix.tolist(), f, indent=2)
+    
+    with open(eigen_path, "w") as f:
+        json.dump({"dominant_eigenvalue": eigenvalue}, f, indent=2)
+    
+    logging.info(f"Saved covariance matrix to {cov_path}")
+    logging.info(f"Saved dominant eigenvalue to {eigen_path}")
+
+def save_features_to_csv(df: pd.DataFrame, output_path: Path) -> None:
+    """
+    Save features DataFrame to CSV (or JSON if preferred, but CSV is standard for tabular).
+    The task spec mentions features.json, so we will also support JSON if needed.
+    Here we save to the specific path requested in tasks.md: data/processed/features.json
+    
+    Args:
+        df: DataFrame with features.
+        output_path: Path to output file.
+    """
+    # Ensure parent directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Convert to list of dicts for JSON serialization
+    records = df.to_dict(orient="records")
+    
+    with open(output_path, "w") as f:
+        json.dump(records, f, indent=2)
+    
+    logging.info(f"Saved features to {output_path}")
+
+def parse_args() -> argparse.Namespace:
+    """Parse command line arguments."""
+    parser = argparse.ArgumentParser(description="Feature Engineering for llmXive")
     parser.add_argument(
-        "--input", "-i",
-        type=str,
-        default="data/processed/aligned_data.json",
-        help="Path to the aligned data JSON file from ingest.py"
+        "--input-raw", 
+        type=str, 
+        default=None,
+        help="Path to raw dataset (default: data/processed/raw_data.parquet)"
     )
     parser.add_argument(
-        "--output", "-o",
-        type=str,
-        default="data/processed/features.json",
-        help="Path to save the computed features JSON"
+        "--input-cleaned", 
+        type=str, 
+        default=None,
+        help="Path to cleaned dataset (default: data/processed/cleaned_data.parquet)"
+    )
+    parser.add_argument(
+        "--output-features", 
+        type=str, 
+        default=None,
+        help="Path to output features file (default: data/processed/features.json)"
+    )
+    parser.add_argument(
+        "--verbose", 
+        action="store_true",
+        help="Enable debug logging"
     )
     return parser.parse_args()
 
-def main():
+def main() -> int:
+    """Main entry point for feature engineering."""
     args = parse_args()
-    logger.info(f"Starting feature engineering pipeline. Input: {args.input}, Output: {args.output}")
+    logger = setup_logging(args.verbose)
     
     try:
-        features = compute_all_features(args.input)
-        save_features_to_json(features, args.output)
-        logger.info("Pipeline completed successfully.")
+        data_dir, results_dir = setup_directories()
+        
+        # Determine input source: prefer cleaned data for per-sample stats if available,
+        # otherwise raw. T022a/T022c depend on T024 (cleaned).
+        input_path = args.input_cleaned
+        if not input_path:
+            input_path = str(data_dir / "cleaned_data.parquet")
+        
+        if not os.path.exists(input_path):
+            # Fallback to raw if cleaned doesn't exist yet (for T022b-raw context)
+            input_path = args.input_raw or str(data_dir / "raw_data.parquet")
+            if not os.path.exists(input_path):
+                raise FileNotFoundError(f"Neither cleaned nor raw dataset found at expected paths.")
+            logger.warning(f"Using raw dataset from {input_path}")
+        
+        df = pd.read_parquet(input_path)
+        logger.info(f"Loaded dataset with {len(df)} samples")
+        
+        # Extract teacher scores
+        scores_matrix = extract_teacher_scores_matrix(df)
+        logger.info(f"Extracted teacher scores matrix: {scores_matrix.shape}")
+        
+        # Compute global stats (needed for Mahalanobis and eigenvalue)
+        cov_matrix, dominant_eigenvalue = calculate_global_covariance_and_eigenvalue(scores_matrix)
+        logger.info(f"Global Covariance computed. Dominant Eigenvalue: {dominant_eigenvalue}")
+        
+        # Save global stats
+        save_global_stats(cov_matrix, dominant_eigenvalue, results_dir)
+        
+        # Compute per-sample stats
+        per_sample_stats = compute_per_sample_stats(scores_matrix)
+        
+        # Compute mean vector for Mahalanobis
+        mean_vector = np.mean(scores_matrix, axis=0)
+        
+        # Compute Mahalanobis distance
+        mahal_distances = calculate_mahalanobis_distance(scores_matrix, mean_vector, cov_matrix)
+        
+        # Integrate features
+        df_features = integrate_features(df, per_sample_stats, mahal_distances, dominant_eigenvalue)
+        
+        # Determine output path
+        output_path = args.output_features
+        if not output_path:
+            output_path = str(data_dir / "features.json")
+        
+        save_features_to_csv(df_features, Path(output_path))
+        
+        logger.info("Feature engineering completed successfully.")
+        return 0
+        
     except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        sys.exit(1)
+        logger.error(f"Feature engineering failed: {e}", exc_info=True)
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

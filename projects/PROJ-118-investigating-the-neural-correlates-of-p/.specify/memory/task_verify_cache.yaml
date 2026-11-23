@@ -1,0 +1,17 @@
+T001:
+  c: false
+  h: 1b0ba1e42967312cbf004885d606e8262e7c00771f3a1018899f190b6f21f42b
+  r: "The `data/checksums.txt` file is missing and the BIDS\u2011structured directory\
+    \ tree is not present under `data/raw/` (only a zip and a .gitkeep). Moreover,\
+    \ `code/download.py` uses the Python `requests` library instead of `wget`/`curl`,\
+    \ violating the specified implementation detail. The task\u2019s download and\
+    \ verification requirements are therefore not met."
+  sig: 78e815327c0d3394a9290cf7a11b90ec85887fef685edd8698c19c62cafc7fb7
+T002:
+  c: false
+  h: 83adbeeacc4dbb01e1b64b928a7f13ef1acafdfe4fe4e855bbef682d69300241
+  r: "The required output file `data/processed/subsampled_raw.fif` is missing, and\
+    \ the unit\u2011test log shows failures (NameError for `np`) indicating the preprocessing\
+    \ functions are not verified to work. The pipeline therefore does not produce\
+    \ the specified subsampled, filtered, re\u2011referenced data."
+  sig: aa9790e7af45d89e1a6a94e0ab474fea5db05c0b59f7b43a40862f36fdc61662

@@ -1,79 +1,81 @@
 # Quickstart: Testing the Isotropy of Cosmic Expansion with Type Ia Supernova Data
 
 ## Prerequisites
-
-- Python 3.11 or higher
-- `git`
-- ~10 GB of free disk space (for data and dependencies)
+- Python 3.11 or newer
+- Git
+- ~sufficient free disk space (for the Pantheon+ release and intermediate files)
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repository-url>
-   cd projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion
-   ```
+```bash
+# 1. Clone the repository
+git clone <repository-url>
+cd projects/PROJ-753-testing-the-isotropy-of-cosmic-expansion
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+# 3. Install pinned dependencies
+pip install -r requirements.txt
+```
 
 ## Data Setup
 
-1. **Download the Pantheon+ dataset**:
-   - Navigate to the official repository: https://github.com/PantheonPlusSH0ES/DataRelease
-   - Download the `Pantheon+_SH0ES.dat` file (or the latest CSV equivalent).
-   - Place the file in `data/raw/`.
-   - Verify the checksum (if provided) against the `data/` metadata.
+```bash
+# Download Pantheon+ (open‑source GitHub release)
+python code/download_pantheon.py   # writes data/raw/pantheon_plus.dat and records SHA‑256
+# Verify checksum (optional)
+python code/download_pantheon.py --verify-only
+```
 
-2. **Verify data integrity**:
-   ```bash
-   python code/ingestion.py --verify-only
-   ```
+> **Note:** The Pantheon+ repository URL is **not** a verified citation under Constitution Principle II. When a Zenodo‑mirrored DOI becomes available it should replace the GitHub URL to achieve full compliance.
 
-## Running the Analysis
+## Step 0 – Power‑Analysis (optional but recommended)
 
-Execute the full pipeline:
+```bash
+python code/power_analysis.py
+# Produces data/processed/power_analysis_results.csv
+```
+
+> **Note:** The power‑analysis routine uses each supernova’s individual uncertainty plus a small systematic term (σ_sys = 0.02 mag) and streams the dataset to stay within the 7 GB RAM limit.
+
+## Run the Full Analysis
 
 ```bash
 python code/analysis.py
 ```
 
-This will:
-1. Ingest and filter the Pantheon+ data.
-2. Calculate residuals.
-3. Project to HEALPix and compute spherical harmonics.
-4. Run a large number of rotation simulations.
-5. Calculate p-values and generate the final report.
+The script will automatically:
 
-## Output
+1. Ingest the Pantheon+ data, filter invalid rows, and compute residuals (`residuals.csv`).  
+2. Project residuals onto a HEALPix grid (`healpix_map.fits`).  
+3. Estimate dipole and quadrupole amplitudes (weighted‑least‑squares + pseudo‑Cℓ).  
+4. Generate isotropic mock catalogs via mask‑aware random rotations, stopping when convergence criteria (≥ 5 000 sims, mean change < 0.001 mag, p‑value CI width ≤ 0.01) are met.  
+5. Compute p‑values, write `final_report.txt`, and produce `analysis_result.json`.
 
-- **Processed Data**: `data/processed/`
-  - `residuals.csv`: Filtered supernova data with residuals.
-  - `healpix_map.fits`: HEALPix projection.
-  - `simulation_results.csv`: Null distribution data.
-- **Reports**: `data/reports/final_report.txt`
-  - Contains the observed dipole/quadrupole amplitudes, p-values, and significance conclusion.
+## Outputs
 
-## Validation
+- `data/processed/residuals.csv` – cleaned supernova table with residuals.  
+- `data/processed/healpix_map.fits` – HEALPix map of mean residuals.  
+- `data/processed/simulation_results.csv` – dipole/quadrupole amplitudes from each mock catalog.  
+- `data/processed/power_analysis_results.csv` – (optional) detectable dipole amplitude and assumptions.  
+- `data/reports/final_report.txt` – human‑readable summary, validated against `final_report.schema.yaml`.  
+- `data/reports/analysis_result.json` – machine‑readable result, validated against `analysis_result.schema.yaml`.
 
-To validate the implementation against a known signal:
+## Validation (Synthetic Test)
 
 ```bash
-python code/analysis.py --synthetic --inject-dipole 0.05
+python code/analysis.py --synthetic --inject-dipole 0.04
 ```
 
-This will run the analysis on a synthetic dataset with an injected dipole of a representative magnitude and verify that the extracted amplitude matches within statistical error.
+Creates a synthetic supernova sample with an injected dipole of modest magnitude, runs the full pipeline, and prints the recovered amplitude and p‑value.
 
 ## Troubleshooting
 
-- **Memory Error**: If you encounter memory issues, reduce the simulation count in `code/simulations.py` (e.g., `N=1000`).
-- **Missing Data**: If the script reports missing RA/Dec, check the raw data file for formatting issues.
-- **Runtime Error**: Ensure you are using Python 3.11+ and that all dependencies are installed correctly.
+- **MemoryError** – Reduce `MAX_SIMULATIONS` in `code/simulations.py` (default a high default value (e.g., on the order of thousands)).  
+- **Missing columns** – Ensure the raw Pantheon+ file includes `RA`, `DEC`, `z`, `mu`, `mu_err`.  
+- **Runtime > 6 h** – The simulation loop stops automatically once the dipole mean changes by < 0.001 mag over the last 1 000 sims **and** the p‑value confidence‑interval width ≤ 0.01; you can also lower `MAX_SIMULATIONS` manually.  
+
+---  
+*End of Quickstart*===

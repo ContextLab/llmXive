@@ -1,0 +1,60 @@
+T001:
+  c: true
+  h: 60948e2bd0ac4595c643512c3f93424f6c91cddaa2a85e15afac99fec85c6ccc
+  r: All seven required directories (`code/`, `data/raw/`, `data/processed/`, `models/`,
+    `tests/unit/`, `tests/integration/`, `specs/`) exist and are non-empty, with `__init__.py`
+    files present in `code/`, `tests/unit/`, and `tests/integration/`. The execution
+    log shows `code/setup_project.py` ran successfully (exit 0) and printed the expected
+    directory tree, and the test directories contain real test files (e.g., `test_directory_structure.py`,
+    `test_package_boilerplate.py`) consistent with pytest collection working.
+  sig: 2fb09b671a16d5c9b5b899add1ab03603a8e23a5ac2bd6c4d1f500f9f01bdb6a
+T002:
+  c: true
+  h: b408ff64bdd6531236a89fe3851a3bebebe5029df5cd736f1acfe1b493ea1750
+  r: "`code/config.py` exists (3752 bytes) and contains `RANDOM_SEED = 42`, comprehensive\
+    \ path constants (PROJECT_ROOT, DATA_RAW, etc.), and the placeholder `EXPECTED_AFLOW_CHECKSUM`\
+    \ (SHA-256 of empty string, documented as placeholder for T027), exactly as the\
+    \ task requires. The recorded pytest failure is an environment issue unrelated\
+    \ to this artifact: pytest's pdb import pulled in the project's `code/__init__.py`,\
+    \ which failed on a pyarrow/NumPy version mismatch from a different task's `download_hmao.py`\
+    \ \u2014 not a defect in `config.py` itself, whose contents fully satisfy the\
+    \ T002 requirements."
+  sig: b84e742bad14860928797c909a9bc9491090a6dfdefe108dae5851a4d38b8469
+T003:
+  c: true
+  h: 719ae8d06cdf3927f88a39e9a37ef0858311e06c2df530f95415518a73f2e5d9
+  r: Both `code/__init__.py` (530 bytes, real docstring and version) and `tests/__init__.py`
+    (74 bytes) exist and are non-empty, and the recorded pytest run shows `test_import_code_package`
+    and `test_import_tests_package` both passing (exit 0), confirming `import code`
+    succeeds.
+  sig: 3e18136de6a4de692e48e488f8eb14171c1ff107f714ba15a5d758212c167f0c
+T004:
+  c: true
+  h: 2c3f457abcd1db5b69f57f56c3fe9fe11bbed1bce6e9fa7da959d821e2a1b7c6
+  r: '`code/config.py` contains a real `setup_logging()` with a RotatingFileHandler
+    (10 MB, 5 backups) writing to `code/logs/app.log`, and the log file exists with
+    timestamped entries matching the recorded execution of `code/init_logging.py`
+    (exit 0). Unit tests for log creation, timestamped entries, and idempotency passed.'
+  sig: 7f92609f7e02c62a67d1034b23f3cefbba7d3e1a79826841cc57823a924887f9
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `tests/unit/` or `tests/integration/` directories (with `__init__.py` files)
+    were presented in the provided evidence, so the required test infrastructure is
+    missing. The implementer must create the two directories and include the necessary
+    `__init__.py` files.
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, configuration, or test artifacts were provided showing that the dataset
+    checksum is validated against `config.EXPECTED_AFLOW_CHECKSUM` or that exponential
+    backoff with up to 3 retries is implemented. The required implementation and evidence
+    are missing.
+T021:
+  c: false
+  h: d387ffe6f933ec15317d1c788d82df3fefeb9bb6977b711b361153ceeeba77a5
+  r: "The required output file `data/processed/heas_train_features.csv` does not exist,\
+    \ so the weighted mean/variance descriptors are not produced. Additionally, the\
+    \ provided `code/feature_engineering.py` is truncated and does not show the implementation\
+    \ that writes the required CSV with the specified columns. The task\u2019s core\
+    \ deliverable is therefore missing."

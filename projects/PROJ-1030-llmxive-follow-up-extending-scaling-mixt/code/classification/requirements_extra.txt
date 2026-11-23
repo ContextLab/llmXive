@@ -1,0 +1,5 @@
+# Additional dependencies for Feature Importance Analysis (T033)
+# Note: These should be merged into the main requirements.txt
+shap>=0.44.0
+matplotlib>=3.7.0
+seaborn>=0.13.0

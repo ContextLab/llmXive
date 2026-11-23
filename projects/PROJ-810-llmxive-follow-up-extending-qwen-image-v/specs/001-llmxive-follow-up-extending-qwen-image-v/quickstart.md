@@ -1,89 +1,58 @@
-# Quickstart: llmXive follow-up: extending "Qwen-Image-VAE-2.0 Technical Report"
+# Quickstart: llmXive follow‑up: extending "Qwen-Image-VAE-2.0 Technical Report"
 
 ## Prerequisites
-
-- Python 3.11+
-- Git
-- 7 GB+ RAM (free memory)
-- 14 GB+ disk space
+- Python 3.11+  
+- 2 vCPU, ~7 GB RAM (or Kaggle GPU access for the optional escape hatch)  
+- Internet connection (for streaming the verified benchmark dataset)
 
 ## Installation
 
-1. **Clone the repository** and navigate to the project directory:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v
-   ```
+```bash
+# 1️⃣ Clone the repository
+git clone 
+cd llmxive-vae-geometric-analysis
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+# 2️⃣ Create a virtual environment
+python -m venv venv
+source venv/bin/activate
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-   *Note: Ensure `torch` is installed as the CPU-only version.*
+# 3️⃣ Install pinned dependencies (the file lives under the code directory as required by the Constitution)
+pip install -r projects/PROJ-810-llmxive-follow-up-extending-qwen-image-v/code/requirements.txt
+```
 
 ## Running the Pipeline
 
-### Step 1: Download Data
-Fetch the OmniDoc dataset (verified source).
-```bash
-python code/data/download.py
-```
-*Output: `data/raw/omni-doc.parquet`*
+All phases are orchestrated via `code/src/main.py`. Use the `--phase` flag to run a specific stage or `--full` for end‑to‑end execution.
 
-### Step 2: Preprocess & Encode
-Crop regions, extract latent vectors, and compute centroids.
-```bash
-python code/data/preprocess.py
-```
-*Output: `data/processed/latent_vectors.parquet`, `data/processed/centroids.json`*
+| Phase | Command | Description |
+|-------|---------|-------------|
+| **0** | `python code/src/main.py --phase url_verify` | Verify external URLs for dataset and model (Phase 0). |
+| **1** | `python code/src/main.py --phase data_load` | Streams the **verified CPU‑only benchmark parquet** dataset. |
+| **2** | `python code/src/main.py --phase model_load` | Loads the **tiny‑vae** model on CPU; if this fails, the GPU escape hatch will be triggered automatically. |
+| **3** | `python code/src/main.py --phase preprocess` | Applies the purity filter, computes confounder metadata, and writes `RawImageCrop` records. |
+| **4** | `python code/src/main.py --phase encode` | Encodes crops into `LatentVector` objects using tiny‑vae. |
+| **5** | `python code/src/main.py --phase disentangle` | Clustering, DCI computation, triviality check, and permutation test with Bonferroni correction. |
+| **6** | `python code/src/main.py --phase linearity` | Pilot linearity verification on 10 samples (R² ≥ 0.9). |
+| **7** | `python code/src/main.py --phase centroids` | Computes modality centroids. |
+| **8** | `python code/src/main.py --phase edit` | Performs vector arithmetic, decodes, runs OCR, and computes layout‑preservation metrics against the original image. |
+| **9** | `python code/src/main.py --phase sensitivity` | Sweeps classification threshold and reports FP/FN variation. |
+| **10** | `python code/src/main.py --phase power` | Runs power analysis and runtime feasibility check. |
+| **11** | `python code/src/main.py --phase aggregate` | Writes the final `experiment_output.json` conforming to the output schema. |
+| **12** | `python code/src/main.py --phase gpu_fallback` | (Optional) Runs Phases 4‑11 on a Kaggle free GPU with 8‑bit quantization if CPU loading fails. |
 
-### Step 3: Disentanglement Analysis
-Train the classifier, run permutation tests, and generate PCA plots.
-```bash
-python code/analysis/separability.py
-```
-*Output: `data/interim/separability_metrics.json`, `figures/pca_plot.png`*
+> **Important**: The pipeline now uses **verified** open resources (benchmark parquet dataset and tiny‑vae model). No unverified Omni‑Doc‑1 or Qwen‑Image‑VAE‑2.0 resources are required. If either resource cannot be fetched, the script logs an error and aborts; the optional GPU fallback is only for the *model* loading step.
 
-### Step 4: Linearity & Orthogonality Check
-Validate geometric assumptions before editing.
-```bash
-python code/analysis/linearity_check.py
-```
-*Output: `data/interim/linearity_metrics.json`*
-*Note: If this step fails (contamination > 15% or angle < 85), the pipeline halts.*
-
-### Step 5: Zero-Shot Editing & Evaluation
-Perform vector arithmetic, decode images, and compute SSIM/Keypoint scores.
-```bash
-python code/analysis/editing_eval.py
-```
-*Output: `data/processed/edited_images/`, `data/interim/editing_metrics.json`*
-
-### Step 6: Statistical Validation
-Apply Bonferroni correction and generate the final report.
-```bash
-python code/analysis/stats.py
-```
-*Output: `data/interim/final_report.json`*
-
-## Verification
-
-To verify the installation and pipeline integrity:
-```bash
-pytest tests/ -v --cov=code
-```
+## Output Verification
+- `data/results/experiment_output.json` – conforms to `contracts/output.schema.yaml`.  
+- `data/results/metrics.json` – per‑metric values (populated only when resources are available).  
+- `data/results/plots/` – PCA scatter plot, example edited images (if generated).  
 
 ## Troubleshooting
+- **Missing verified dataset** – The script logs `DataUnavailableError` and aborts; no fallback to a non‑verified dataset is attempted.  
+- **Model cannot load on CPU** – The script logs `ModelUnavailableError` and automatically triggers the optional GPU escape hatch; `cpu_feasibility` will be set to `"rejected"` in the final JSON.  
+- **Out‑of‑memory on CPU** – Reduce the sample size via `--sample-size N`; the power analysis will be updated accordingly.  
+- **PaddleOCR import error** – Ensure `paddlepaddle‑cpu` and `paddleocr` are installed from the pinned `requirements.txt`.  
 
-- **OOM Error**: Reduce the batch size in `code/config.py` or sample a smaller subset of the dataset.
-- **CUDA Error**: Ensure `torch` is installed without CUDA support. Check `torch.cuda.is_available()` returns `False`.
-- **Dataset Missing**: Verify network access to the HuggingFace URL provided in `research.md`.
-- **Model Not Found**: If the specific Qwen-Image-VAE-2.0 model is not found on HuggingFace, the pipeline will halt with "Model Not Found".
-- **Schema Mismatch**: If the dataset lacks required columns (bbox, modality), the pipeline will halt with "Data Schema Mismatch".
-- **Linearity Fail**: If the linearity check fails, the editing pipeline halts and reports "Hypothesis Rejected: Space not linear/orthogonal".
+---
+
+

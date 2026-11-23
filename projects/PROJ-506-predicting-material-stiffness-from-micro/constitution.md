@@ -1,26 +1,35 @@
-# Project Constitution: Predicting Material Stiffness from Microstructure
+# Constitution of the llmXive Automated Science Project
 
-## I. Purpose
-This document establishes the fundamental principles and constraints governing the **PROJ-506** project.
+## Preamble
+This document establishes the governing principles for the llmXive automated science pipeline,
+ensuring scientific rigor, reproducibility, and computational efficiency.
 
-## II. Scientific Integrity
-- All ground truth data must be derived from physically valid models.
-- All model predictions must be validated against independent test sets.
+## Principles
 
-## III. Reproducibility
-- All experiments must be deterministic given a fixed random seed.
-- Code and data must be version-controlled.
+### Principle I: Scientific Integrity
+All generated results must be reproducible and derived from verifiable data sources.
 
-## IV. Computational Constraints
-- Training must complete on CPU-only infrastructure within 6 hours.
-- Memory usage must not exceed available RAM (streaming required).
+### Principle II: Computational Efficiency
+Algorithms must be optimized for available hardware resources, prioritizing CPU efficiency where GPU access is limited.
 
-## V. Data Privacy & Security
-- No real-world proprietary material data will be used; only synthetic data generated per protocol.
+### Principle III: Modularity
+Code components must be decoupled to allow independent testing and replacement of methods.
 
-## VI. Numerical Homogenization (Amended)
-> **Principle VI**: The project permits the use of **FFT-based numerical homogenization** (specifically the Moulinec-Suquet scheme) to compute effective elastic stiffness tensors for stochastic microstructures. This method shall be considered the ground truth for model training, provided that results are validated against Voigt-Reuss-Hill bounds for physical plausibility.
+### Principle IV: Data Fidelity
+Synthetic data generation must adhere to physical laws and known material constraints.
 
-## VII. Governance
-- Changes to this constitution require a formal amendment proposal (see `docs/`).
-- Amendments must be approved before data generation or model training begins.
+### Principle V: Transparency
+All transformations, hyperparameters, and random seeds must be logged and versioned.
+
+### Principle VI: Numerical Homogenization Methodology
+To ensure accurate prediction of material stiffness from microstructure, this project explicitly permits the use of **FFT-based numerical homogenization** as the primary ground-truth method.
+
+This approach replaces traditional analytical approximations for complex microstructures, providing high-fidelity effective stiffness tensors. The FFT-based solver is validated against Voigt-Reuss-Hill bounds to ensure physical plausibility.
+
+**Implementation Note**: All stiffness calculations for training labels must utilize the `code/utils/fft_homogenization.py` module.
+
+### Principle VII: Statistical Rigor
+Conclusions drawn from model performance must be supported by appropriate statistical testing (e.g., ANOVA, Tukey HSD) as defined in the project specifications.
+
+## Amendments
+- **T002a**: Amended Principle VI to permit FFT-based numerical homogenization.

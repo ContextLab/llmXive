@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ConvergenceTrajectory"
+description: "Schema for convergence trajectory data across loop counts."
+type: "object"
+properties:
+  problem_id:
+    type: "string"
+    description: "Unique identifier for the problem."
+  loop_count:
+    type: "integer"
+    description: "The loop count k (1, 2, or 3)."
+    enum:
+      - 1
+      - 2
+      - 3
+  passed:
+    type: "boolean"
+    description: "Whether the generated code passed unit tests."
+  is_censored:
+    type: "boolean"
+    description: "True if the sample did not converge at k_max."
+  convergence_step:
+    type: ["integer", "null"]
+    description: "The first k where the code passed, or null if censored."
+required:
+  - problem_id
+  - loop_count
+  - passed
+  - is_censored
+  - convergence_step

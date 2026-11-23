@@ -1,0 +1,62 @@
+T007:
+  c: false
+  h: abe7e9933ab98e528339a40aad84478b26f140f8785732fe008995842b8898e7
+  r: "The `code/utils/logging_config.py` file is present but does not automatically\
+    \ initialize a logger that writes to `results/metrics.log` and `results/metrics.json`;\
+    \ the `get_logger` function is truncated and never creates a logger with those\
+    \ paths. Moreover, the expected output files are missing (log file absent, JSON\
+    \ file empty). The task\u2019s requirement of a ready\u2011to\u2011use logger\
+    \ with the specified JSON schema is therefore not fulfilled."
+T022a:
+  c: false
+  h: 28033eb9f04f70200a729d5ff773d07a4a54e29ffb5df4f5c050b9f4a872ef2a
+  r: "The required output files `data/features/test_grain_features.csv` (and the optional\
+    \ `all_grain_features.csv`) are missing, and the provided `extract_features.py`\
+    \ script is incomplete/truncated and does not demonstrably generate those CSVs.\
+    \ The task\u2019s core deliverable \u2013 a CSV of grain\u2011size features for\
+    \ the test set \u2013 has not been produced."
+T024:
+  c: false
+  h: a04708b3598beeff5f6eb50cc2edd6295ff4b167add8091eec905ffbb865c639
+  r: "The `code/eval/metrics.py` file defines the metric functions, but the required\
+    \ output file `results/statistical_test.json` is not present on disk, and the\
+    \ provided snippet shows no code that writes the JSON result. The task\u2019s\
+    \ core deliverable \u2013 a JSON file with the t\u2011test results \u2013 is missing."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., terminal log, CI report, or script output) showing that `ruff\
+    \ check --fix` was executed on the `code/` directory and returned exit code\u202F\
+    0 is present. Without such evidence, we cannot confirm the task was actually performed.\
+    \ The implementer must provide the ruff execution output or a verification file\
+    \ confirming a successful run."
+T036:
+  c: false
+  h: c4a89ec27db07304613811f75fa9f493af2491f9bc68e49b89aa30f66a1efb5d
+  r: "The required output file `results/memory_profile.json` is absent, so there is\
+    \ no recorded peak memory usage and no verification that the script was run with\
+    \ the `--stress-test` flag or that memory stayed below 7\u202FGB. The implementer\
+    \ must generate this JSON file with the memory profile data."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of new unit test files under `tests/unit/` was provided; the claim\
+    \ lacks any actual test code covering corrupted data or extreme aspect\u2011ratio\
+    \ cases, so the required artifact is missing."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No actual artifacts (download script, preprocessing pipeline, train/validation/test\
+    \ splits, manifest files, trained model checkpoint, or final performance report)\
+    \ were provided for inspection, so the claim that the full pipeline from data\
+    \ download to report generation has been executed cannot be verified. The implementer\
+    \ must supply the runnable end\u2011to\u2011end scripts and the resulting output\
+    \ artifacts to satisfy the integration test."
+T040:
+  c: false
+  h: 9e1468556e041b72fd871c7c594d168d91f5ecc865f01d57cb5a6346ee479f5b
+  r: The `code/data/download.py` script is present but its core `download_and_prepare`
+    function is truncated and never actually performs the HuggingFace download. Moreover,
+    the required `code/config.yaml` file is missing, so the script cannot read the
+    expected SHA256 hash and will raise a `FileNotFoundError`. Both the missing configuration
+    file and the incomplete downloader prevent the task from being fulfilled.

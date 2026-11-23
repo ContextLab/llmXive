@@ -1,1 +1,3 @@
-"""Contract tests for the llmXive research pipeline."""
+"""
+Contract tests for the LLM code smell detection pipeline.
+"""

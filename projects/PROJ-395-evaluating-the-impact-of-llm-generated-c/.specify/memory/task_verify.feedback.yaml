@@ -1,0 +1,95 @@
+T001a:
+  task: 824830aef45207bae132254cca9aea4008bdc87a05660b981672259fe80c3957
+T001b:
+  reason: "The provided `requirements.txt` lists the required packages but uses \u201C\
+    >=\u201D version specifiers instead of pinned \u201C==\u201D versions, and it\
+    \ also contains many additional packages that were not part of the task. Hence\
+    \ it does not satisfy the requirement to create a requirements file with pinned\
+    \ versions for the specified nine libraries."
+  task: 8a43e5d366460ae31afb4506088f98cacf895adc9c054da36ffe7e3394a0a4ef
+T002:
+  reason: "No evidence of a Python\u202F3.11 virtual environment (e.g., a `venv/`\
+    \ directory, `pyproject.toml`, or `requirements.txt`) or of installed dependencies\
+    \ is present; the claim cannot be verified from any provided artifact. The required\
+    \ environment setup files are missing."
+  task: 3bccb2ed44fad24009295f747812c60ba60c777b19723dff0d56c73aa34a5196
+T003:
+  reason: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    `pyproject.toml` with Black settings, or associated setup scripts) are present
+    in the provided artifacts, so the requirement to configure ruff/flake8 and Black
+    is not satisfied.
+  task: ea936586f92a1e4a4373ca7e4d20daffaa7eafd5623d1ed6e1bdd52b1689dea2
+T004:
+  task: 8883793b0042f8a5854df9f4d78d8bfca2da8dd781c565da07f9060c78fd85fa
+T005:
+  task: 0bfc5ec9b51977609111aaefe117189ac5c9f619295bacfa1a7f0c837e3a3517
+T006:
+  task: 70b65ee42a514639c1bf7c19073dcfeb0337ea11b26944370e6b30b9cb9bd6e2
+T007:
+  task: 0d75f16c397bc9634ec68edd322083f72c6f71ef41c2d0e301e20b191261ba46
+T008:
+  task: 92e8dc12180ffaee53aa86d1f6fcb95b7a1e630dcd2233aba7c4ef1f798ee25e
+T009:
+  task: b5e06df643dd4da415727de546e3e699c3c56558d7070676a0b575c14660a263
+T010:
+  task: d0e54716d55f1086f4a658079367198b3628cbecd8b9672a144fb17815f460b2
+T011:
+  task: c99cee21e5825c880afdfbdc11b4d10ab8d950b7b176f90a155ff629e5880a29
+T012:
+  task: d73c2394e0c88dacb3345ef8c991eb1801c5cbc506851caef195e68fa40bfc56
+T013:
+  task: df6e48d214a0495a2689d3bad1286e084b6a562134d42f9e77df6ffc55fb6986
+T014:
+  task: 58a128dc26060f2c5af6fa59468e54ae1e04efd6ad5c5640823fa706f172e311
+T015:
+  task: b26dd3bb4d78ac73e38f9a0e3d187e58c5294b8d9223c3436dbd77abb89a7258
+T016:
+  task: b0d4d47e5f02d108dfeef55b98761e3478c928e7094e3efb63ab2b2e70542576
+T017:
+  task: 5044b6e1e76edd645dd0081e32e573303f46b934ee1a6547d59a3afff6e68bb6
+T018:
+  task: d3cacd067b5d92113ed4519f1988fa6f0d0f2dddf4f7461e073dbe3493caa952
+T019:
+  task: 4b843957876ea226ca44d8a38495dbe810feceb1647a8f387d5bad9b675a8eeb
+T020:
+  task: a9b786d2bfc5936636e381d3040ac89580a7307b9b1b72d6c1f8a01e6c7e2c8d
+T021:
+  task: 6ac6c82e19635d04e1b48af06e292ae122c40e104eefbbb3dc8e08c7f7b2262b
+T022:
+  task: 4e8d4eaee374ee97d47835506b0b3308b2bc71e14e0245385de03feec7e73a0c
+T023:
+  task: f7c809be119884902b8e1cc61688eb7342f05644c1e2a53cd2a2afa115caa603
+T024:
+  task: b77e5de7fa21e6decabb0f9e49c10432dce87308873a1adb87a43d95f7276220
+T025:
+  reason: 'Requested task execution failed; rerun successfully: code/generate_report.py
+    exit=1'
+  task: 8a8fede3755f391219fa352a8c88b4ab07dc37287846a7f3a520a35e5cb1c92c
+T026:
+  task: a12b6620c72858433d6f302f0cd4a50de607afc28d651857adaac06af6dab7c9
+T027:
+  task: 53b611991d251a8cbdbef6298bf3fa6386fa00900403aa643dd3e7ce161b3e05
+T028:
+  task: 913914716d696b29b84e85d51a9ede443ce7bc1bd813cd57f2d03f7c8b210f43
+T029:
+  task: 35bb0273007bb4ef827f7064f68479ee2cdb9ff8a27e44761eb706e3cb36ec8f
+T030:
+  task: 38ce676edc2e688125193bdef51cddc8c9e12f42dcf97400d5472071b11c88c4
+T031:
+  task: e755b36cf4c0831fd924fb1022d251603523f2c026407bf729a22f7628133f8d
+T032:
+  task: e273fa7ca6ad4617dbd0046d2f14c1754c916e3b189e5af4ea8799573d3443f0
+T033:
+  task: f847292223c9e087e6f338864ad4362a9c3ce1608338ed9a86f87dd07b8047c7
+T034a:
+  task: e69ce7b9c16a929671bcba96372e9937074c0cb44554355e6fd23e92f16ce224
+T034b:
+  task: 588722c285f269d486a92836adfe5d0835e509d5ceb646830387dc810a2742b1
+T035:
+  task: d326baf8a37585ca998bef9b3401f943a525ca6d924c4c07196b8905cc6615f4
+T036:
+  task: 129de2c2bebf2f2320c0275d4597657cd21fbc9070fb4bfec124ba579a2dde59
+T037:
+  task: 2011cdf85fe1dc3f095cc9b6f41e7b14cf963e530067fe3cdd0955c601d5d161
+T038:
+  task: 516267ccabd83c179233347b3e3daf35835972d458f5abf2b8dcc71bade9332c

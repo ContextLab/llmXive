@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Dataset Manifest Schema"
+description: "Schema for tracking data artifacts and their checksums."
+type: "object"
+properties:
+  artifacts:
+    type: "array"
+    description: "List of data artifacts with checksums."
+    items:
+      type: "object"
+      properties:
+        path:
+          type: "string"
+          description: "Relative path to the artifact."
+        checksum:
+          type: "string"
+          description: "SHA-256 checksum of the file."
+        source_url:
+          type: "string"
+          description: "Original source URL (if applicable)."
+        timestamp:
+          type: "string"
+          format: "date-time"
+          description: "Timestamp of creation/download."
+      required:
+        - path
+        - checksum
+        - timestamp
+    minItems: 1
+  project_id:
+    type: "string"
+    description: "Project identifier."
+  version:
+    type: "string"
+    description: "Version of the manifest schema."
+required:
+  - artifacts
+  - project_id
+  - version
+additionalProperties: false

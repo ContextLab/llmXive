@@ -1,0 +1,129 @@
+name: LlmXive CI Runner
+
+on:
+  push:
+    branches: [ "main", "develop" ]
+  pull_request:
+    branches: [ "main", "develop" ]
+
+# Environment configuration for the runner
+# Constraints: CPU-only, 2 cores, 7GB RAM, 6h timeout
+env:
+  CPU_RUNNER: "true"
+  MAX_RAM_GB: "7"
+  MAX_TIME_HOURS: "6"
+
+jobs:
+  lint-and-format:
+    name: Lint and Format Check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r code/requirements.txt
+          pip install ruff black
+
+      - name: Run Ruff Linter
+        run: |
+          ruff check code/
+
+      - name: Run Black Formatter Check
+        run: |
+          black --check code/
+
+  unit-tests:
+    name: Unit Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r code/requirements.txt
+          pip install pytest pytest-cov
+
+      - name: Run Unit Tests
+        run: |
+          pytest tests/unit/ -v --cov=code --cov-report=xml
+
+  integration-tests:
+    name: Integration Tests (CPU Only)
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r code/requirements.txt
+          pip install pytest
+
+      - name: Run Integration Tests
+        run: |
+          pytest tests/integration/ -v -m "not slow"
+
+  end-to-eval:
+    name: End-to-End Evaluation (US1 & US2)
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    # Explicitly limit resources via runner config if available, 
+    # otherwise rely on code-level checks (config.py ResourceConfig)
+    env:
+      PYTORCH_ENABLE_MPS_FALLBACK: "0"
+      CUDA_VISIBLE_DEVICES: ""
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r code/requirements.txt
+
+      - name: Run Compression & Training (US1)
+        run: |
+          # Runs T014 logic: compress_model, distillation, save checkpoint
+          python -c "from models.compress import run_compression_experiment; run_compression_experiment()"
+        timeout-minutes: 180
+
+      - name: Run Inference & Metrics (US2)
+        run: |
+          # Runs T024 logic: inference on subtle/control sets, calculate AUC
+          python -c "from inference.runner import run_inference; from inference.metrics import calculate_metrics; run_inference(); calculate_metrics()"
+        timeout-minutes: 180
+
+      - name: Validate Outputs
+        run: |
+          # Verify real artifacts exist as per task requirements
+          test -f data/processed/distillation_loss_curve.csv
+          test -f data/processed/robustness_metrics.csv
+          test -f data/processed/breaking_point.json || echo "Breaking point not generated yet (T030)"

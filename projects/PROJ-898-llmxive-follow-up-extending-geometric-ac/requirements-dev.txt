@@ -1,0 +1,5 @@
+# Development dependencies for linting and formatting
+ruff>=0.6.0
+black>=24.8.0
+pre-commit>=3.8.0
+pytest>=8.3.0

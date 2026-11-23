@@ -1,13 +1,21 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Predicted PPI Edge List"
 type: "object"
-description: "Tab‑separated file with a header line. Each row represents an undirected predicted interaction."
+description: "TSV file with predicted protein‑protein interactions."
 properties:
   header:
+    type: "string"
+    const: "protein_id_1\tprotein_id_2\tcorrelation"
+  rows:
     type: "array"
     items:
-      type: "string"
-    enum:
-      - ["protein_id_1", "protein_id_2", "correlation"]
-required: ["header"]
+      type: "array"
+      items:
+        - type: "string"
+          description: "STRING protein identifier for gene 1"
+        - type: "string"
+          description: "STRING protein identifier for gene 2"
+        - type: "number"
+          description: "Correlation coefficient (≥ 0.75 per FR-004)"
+required: ["header", "rows"]
 additionalProperties: false

@@ -1,0 +1,204 @@
+%YAML 1.2
+---
+# Schema for Model Output Artifacts
+# Defines the structure for ModelMetrics and SensitivityReport
+# Used to validate outputs from code/train.py and code/analyze.py
+
+ModelMetrics:
+  description: "Metrics resulting from model training and cross-validation"
+  type: object
+  required:
+    - model_type
+    - cross_validation
+    - test_metrics
+    - feature_importance_summary
+  properties:
+    model_type:
+      type: string
+      description: "Type of model trained (e.g., 'RandomForestRegressor')"
+      enum:
+        - RandomForestRegressor
+        - DummyRegressor
+    hyperparameters:
+      type: object
+      description: "Dictionary of hyperparameters used for training"
+      additionalProperties: true
+    cross_validation:
+      type: object
+      description: "Results from k-fold cross-validation"
+      required:
+        - k_folds
+        - fold_scores
+        - mean_rmse
+        - fold_variance
+      properties:
+        k_folds:
+          type: integer
+          description: "Number of folds used in cross-validation"
+          minimum: 2
+        fold_scores:
+          type: array
+          description: "RMSE scores for each fold"
+          items:
+            type: number
+            format: float
+          minItems: 2
+        mean_rmse:
+          type: number
+          format: float
+          description: "Mean RMSE across all folds"
+          minimum: 0
+        fold_variance:
+          type: number
+          format: float
+          description: "Variance of the fold scores"
+          minimum: 0
+    test_metrics:
+      type: object
+      description: "Performance on the held-out test set"
+      required:
+        - test_rmse
+        - r2_score
+        - n_samples
+      properties:
+        test_rmse:
+          type: number
+          format: float
+          description: "Root Mean Squared Error on test set"
+          minimum: 0
+        r2_score:
+          type: number
+          format: float
+          description: "Coefficient of determination (R^2)"
+        n_samples:
+          type: integer
+          description: "Number of samples in the test set"
+          minimum: 1
+    feature_importance_summary:
+      type: object
+      description: "Top features ranked by importance"
+      required:
+        - top_features
+      properties:
+        top_features:
+          type: array
+          description: "List of top 10 features by importance"
+          items:
+            type: object
+            properties:
+              feature_name:
+                type: string
+              importance_score:
+                type: number
+                format: float
+              rank:
+                type: integer
+                minimum: 1
+    timestamp:
+      type: string
+      format: date-time
+      description: "ISO 8601 timestamp when metrics were generated"
+    seed:
+      type: integer
+      description: "Random seed used for reproducibility (e.g., 42)"
+      default: 42
+
+SensitivityReport:
+  description: "Results from sensitivity analysis across different thresholds"
+  type: object
+  required:
+    - analysis_type
+    - thresholds
+    - results
+    - stability_check
+  properties:
+    analysis_type:
+      type: string
+      description: "Type of sensitivity analysis performed"
+      enum:
+        - threshold_sweep
+        - permutation_importance
+    model_path:
+      type: string
+      description: "Relative path to the model file used"
+    thresholds:
+      type: array
+      description: "List of CCR thresholds tested (in K/s)"
+      items:
+        type: number
+        format: float
+      example: [50.0, 100.0, 150.0]
+    results:
+      type: array
+      description: "Performance metrics for each threshold"
+      items:
+        type: object
+        required:
+          - threshold
+          - metric_type
+          - metric_value
+          - metric_variance
+        properties:
+          threshold:
+            type: number
+            format: float
+            description: "The CCR threshold value"
+          metric_type:
+            type: string
+            description: "Type of metric calculated (F1 for <100, RMSE for >=100)"
+            enum:
+              - F1
+              - RMSE
+          metric_value:
+            type: number
+            format: float
+            description: "The calculated metric value"
+          metric_variance:
+            type: number
+            format: float
+            description: "Variance of the metric across folds/bins"
+          status:
+            type: string
+            description: "Validation status (PASS/FAIL)"
+            enum:
+              - PASS
+              - FAIL
+    stability_check:
+      type: object
+      description: "Comparison between original and stability-tested models"
+      required:
+        - original_rmse
+        - stability_rmse
+        - difference_percent
+        - is_stable
+      properties:
+        original_rmse:
+          type: number
+          format: float
+        stability_rmse:
+          type: number
+          format: float
+        difference_percent:
+          type: number
+          format: float
+          description: "Percentage difference in RMSE"
+        is_stable:
+          type: boolean
+          description: "True if difference is < 5%"
+    collinearity_flags:
+      type: array
+      description: "List of feature pairs with correlation > 0.8"
+      items:
+        type: object
+        properties:
+          feature_1:
+            type: string
+          feature_2:
+            type: string
+          correlation:
+            type: number
+            format: float
+    timestamp:
+      type: string
+      format: date-time
+      description: "ISO 8601 timestamp when report was generated"

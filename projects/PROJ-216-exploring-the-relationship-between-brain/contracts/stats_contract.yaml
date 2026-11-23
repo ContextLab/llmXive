@@ -1,0 +1,6 @@
+input:
+  graph_metrics_csv: path
+  behavioral_scores_csv: path
+output:
+  correlation_results_csv: path
+  report_pdf: path

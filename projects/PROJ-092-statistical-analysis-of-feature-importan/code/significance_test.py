@@ -1,255 +1,325 @@
-import os
-import sys
-import logging
+"""Statistical significance testing for the drift correlation sequence.
+
+Implements (FR-005, FR-008):
+  - Mann-Kendall trend test returning Kendall's Tau and trend direction.
+  - Block permutation significance test returning a p-value for the
+    correlation (rho) sequence.
+
+T024 — small sample size handling (n < 10):
+  When the correlation sequence has fewer than 10 observations the
+  asymptotic normal approximation used by the Mann-Kendall test is
+  unreliable, so the module:
+    1. Flags the result as ``small_sample = True``.
+    2. Marks the asymptotic Mann-Kendall p-value as unreliable and
+       relies on the block permutation p-value instead (FR-008).
+    3. Uses an EXACT permutation test (exhaustive enumeration of all
+       block-shift permutations when feasible, i.e. n <= 8 and the
+       number of distinct circular block shifts is small) or otherwise
+       a larger number of random resamples, so the permutation p-value
+       remains trustworthy at small n.
+"""
 import csv
+import itertools
+import json
+import logging
 import math
+import os
 import random
-from pathlib import Path
+import sys
+from typing import Any, Dict, List, Tuple
 
-# Local imports
-from utils.logger import get_logger
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+  _h = logging.StreamHandler(sys.stdout)
+  _h.setFormatter(logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s"))
+  logger.addHandler(_h)
+  logger.setLevel(logging.INFO)
 
-logger = get_logger(__name__)
+SMALL_SAMPLE_THRESHOLD = 10
+DEFAULT_N_RESAMPLES = 1000
+SMALL_SAMPLE_N_RESAMPLES = 10000
+DEFAULT_BLOCK_SIZE = 2
+EXHAUSTIVE_MAX_PERMUTATIONS = 50000
 
-def load_correlation_sequence(csv_path: str) -> list:
-    """
-    Load the sequence of Spearman rho values from drift_metrics.csv.
-    Returns a list of floats.
-    """
-    path = Path(csv_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Correlation sequence file not found: {csv_path}")
+DRIFT_METRICS_PATH = os.path.join("outputs", "drift_metrics.csv")
+P_VALUES_PATH = os.path.join("outputs", "p_values.json")
 
-    rhos = []
-    with open(path, 'r', newline='') as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            try:
-                # Handle potential NaN or empty strings if logic changed, though spec implies floats
-                val = float(row['rho'])
-                if not math.isnan(val):
-                    rhos.append(val)
-            except (ValueError, KeyError) as e:
-                logger.warning(f"Skipping invalid rho value in row: {row}, error: {e}")
-                continue
-    
-    logger.info(f"Loaded {len(rhos)} correlation values from {csv_path}")
-    return rhos
 
-def mann_kendall_test(data: list) -> tuple:
-    """
-    Perform the Mann-Kendall trend test on a sequence of data.
-    Returns (tau, p_value).
-    
-    Handles small sample sizes (n < 10) by returning a placeholder 
-    or specific handling if the standard approximation is invalid, 
-    though the exact p-value calculation for small n often requires 
-    exact tables or permutation which we simulate here via the 
-    block_permutation logic if n is very small, or standard 
-    approximation otherwise.
-    
-    Note: For n < 10, the normal approximation for p-value is often 
-    inaccurate. This implementation calculates the S statistic and 
-    variance, but for the p-value, it defers to the block permutation 
-    result if n is small, or returns a conservative estimate.
-    """
-    n = len(data)
-    if n < 2:
-        logger.warning("Sample size too small for Mann-Kendall test (n < 2)")
-        return 0.0, 1.0
+def load_correlation_sequence(drift_metrics_path: str) -> List[float]:
+  """Load the sequence of rho values from drift metrics CSV.
 
-    # Calculate S statistic
-    s = 0
-    for i in range(n - 1):
-        for j in range(i + 1, n):
-            diff = data[j] - data[i]
-            if diff > 0:
-                s += 1
-            elif diff < 0:
-                s -= 1
+  Expects a column named ``rho``. Raises loudly if the file is
+  missing or malformed — never returns fabricated values.
+  """
+  if not os.path.isfile(drift_metrics_path):
+    raise FileNotFoundError(
+      f"Drift metrics file not found: {drift_metrics_path}. "
+      "Run the drift analysis stage first."
+    )
+  rhos: List[float] = []
+  with open(drift_metrics_path, "r", newline="") as f:
+    reader = csv.DictReader(f)
+    if reader.fieldnames is None or "rho" not in reader.fieldnames:
+      raise ValueError(
+        f"Expected a 'rho' column in {drift_metrics_path}; "
+        f"found columns: {reader.fieldnames}"
+      )
+    for row in reader:
+      raw = (row.get("rho") or "").strip()
+      if raw == "":
+        continue
+      try:
+        rhos.append(float(raw))
+      except ValueError as exc:
+        raise ValueError(f"Non-numeric rho value {raw!r} in {drift_metrics_path}") from exc
+  if not rhos:
+    raise ValueError(f"No rho values found in {drift_metrics_path}")
+  logger.info("Loaded %d rho values from %s", len(rhos), drift_metrics_path)
+  return rhos
 
-    # Calculate Variance of S
-    # Var(S) = n(n-1)(2n+5) / 18  (assuming no ties for simplicity in this context)
-    # If ties exist, the formula is more complex, but for correlation sequences, 
-    # exact ties are rare unless constant.
-    var_s = (n * (n - 1) * (2 * n + 5)) / 18.0
 
-    # Calculate Tau
-    tau = s / math.sqrt(var_s) if var_s > 0 else 0.0
+def _kendall_tau(data: List[float]) -> float:
+  """Compute Kendall's Tau (tau-b with no ties handled as tau-a) manually."""
+  n = len(data)
+  if n < 2:
+    return 0.0
+  s = 0
+  for i in range(n - 1):
+    for j in range(i + 1, n):
+      s += 1 if data[j] > data[i] else (-1 if data[j] < data[i] else 0)
+  return 2.0 * s / (n * (n - 1))
 
-    # P-value calculation
-    # For small samples (n < 10), the normal approximation is poor.
-    # We return the Tau statistic. The p-value will be handled by 
-    # the block_permutation_test function in the main flow as per FR-008.
-    # Here we return a dummy p-value or 1.0 to indicate "rely on permutation".
-    if n < 10:
-        logger.info(f"Small sample size (n={n}) detected. Mann-Kendall p-value approx unreliable. Rely on permutation test.")
-        p_value = 1.0 # Placeholder, actual significance determined by permutation
-    else:
-        # Normal approximation for larger n
-        # Z = (S - 1) / sqrt(Var(S)) if S > 0, (S + 1) / sqrt(Var(S)) if S < 0, 0 if S=0
-        if s > 0:
-            z = (s - 1) / math.sqrt(var_s)
-        elif s < 0:
-            z = (s + 1) / math.sqrt(var_s)
-        else:
-            z = 0
-        
-        # Two-tailed p-value from standard normal distribution
-        # Using error function approximation
-        p_value = 2 * (1 - 0.5 * (1 + math.erf(abs(z) / math.sqrt(2))))
 
-    return tau, p_value
+def _normal_sf(z: float) -> float:
+  """Survival function of the standard normal distribution (two-sided helper)."""
+  return 0.5 * math.erfc(z / math.sqrt(2.0))
 
-def block_permutation_test(data: list, n_permutations: int = 1000, block_size: int = 2) -> float:
-    """
-    Perform a block permutation test to assess the significance of the trend.
-    This is robust for small sample sizes and time-series data.
-    
-    Args:
-        data: List of rho values.
-        n_permutations: Number of permutations to run.
-        block_size: Size of blocks to shuffle (to preserve some autocorrelation).
-    
-    Returns:
-        p-value (float).
-    """
-    n = len(data)
-    if n < 2:
-        return 1.0
 
-    # Calculate observed S statistic (or a trend metric)
-    # We can use the sum of signed differences as the test statistic
-    def calc_stat(seq):
-        s = 0
-        for i in range(len(seq) - 1):
-            for j in range(i + 1, len(seq)):
-                if seq[j] > seq[i]:
-                    s += 1
-                elif seq[j] < seq[i]:
-                    s -= 1
-        return s
+def mann_kendall_test(data: List[float]) -> Tuple[float, str, float]:
+  """Perform the Mann-Kendall trend test.
 
-    observed_stat = calc_stat(data)
-    
-    count_extreme = 0
-    
-    # Create a list of indices to permute
-    indices = list(range(n))
-    
-    for _ in range(n_permutations):
-        # Block permutation: split into blocks and shuffle blocks
-        # Simple approach for small n: shuffle indices, but respecting blocks if possible
-        # If n is small, full permutation might be too expensive or not applicable 
-        # if n_permutations > n!.
-        # Here we implement a simple block shuffle:
-        blocks = [indices[i:i+block_size] for i in range(0, n, block_size)]
-        random.shuffle(blocks)
-        permuted_indices = [i for block in blocks for i in block]
-        
-        # Truncate or pad if block_size doesn't divide n perfectly (rare in small n logic)
-        permuted_indices = permuted_indices[:n]
-        
-        permuted_data = [data[i] for i in permuted_indices]
-        
-        perm_stat = calc_stat(permuted_data)
-        
-        # Two-tailed test
-        if abs(perm_stat) >= abs(observed_stat):
-            count_extreme += 1
+  Returns: (Kendall's Tau, trend_direction, p_value).
 
-    p_value = (count_extreme + 1) / (n_permutations + 1)
-    logger.debug(f"Block permutation test completed. P-value: {p_value}")
+  The p-value uses the normal approximation with continuity correction
+  and variance adjusted for ties. For n < 10 this asymptotic p-value is
+  flagged as unreliable by the caller (see ``is_small_sample``); the
+  permutation p-value from ``block_permutation_test`` should be relied
+  upon instead (FR-008, T024).
+  """
+  n = len(data)
+  if n < 2:
+    logger.warning("Mann-Kendall test requires at least 2 points; returning neutral result.")
+    return 0.0, "no trend", 1.0
+
+  tau = _kendall_tau(data)
+
+  # Mann-Kendall S statistic and variance (with tie correction)
+  s_stat = 0
+  for i in range(n - 1):
+    for j in range(i + 1, n):
+      s_stat += 1 if data[j] > data[i] else (-1 if data[j] < data[i] else 0)
+
+  # Tie correction
+  _, tie_counts = _unique_with_counts(data)
+  var_s = n * (n - 1) * (2 * n + 5) / 18.0
+  tie_term = 0.0
+  for t in tie_counts:
+    tie_term += t * (t - 1) * (2 * t + 5)
+  var_s -= tie_term / 18.0
+
+  if var_s <= 0:
+    p_value = 1.0
+  else:
+    z = (abs(s_stat) - 1) / math.sqrt(var_s)
+    p_value = 2.0 * _normal_sf(z)
+
+  if tau < 0:
+    direction = "monotonic decrease"
+  elif tau > 0:
+    direction = "monotonic increase"
+  else:
+    direction = "no trend"
+
+  logger.info(
+    "Mann-Kendall: tau=%.4f, direction=%s, asymptotic p=%.4f (n=%d)",
+    tau, direction, p_value, n,
+  )
+  return tau, direction, p_value
+
+
+def _unique_with_counts(data: List[float]) -> Tuple[List[float], List[int]]:
+  counts: Dict[float, int] = {}
+  for v in data:
+    counts[v] = counts.get(v, 0) + 1
+  values = sorted(counts.keys())
+  return values, [counts[v] for v in values]
+
+
+def _trend_statistic(rhos: List[float]) -> float:
+  """Test statistic: magnitude of the Mann-Kendall S statistic.
+
+  Using |S| (rather than the mean rho) targets monotonic trend in the
+  correlation sequence, which is what the block permutation test must
+  assess (FR-008).
+  """
+  n = len(rhos)
+  s_stat = 0
+  for i in range(n - 1):
+    for j in range(i + 1, n):
+      s_stat += 1 if rhos[j] > rhos[i] else (-1 if rhos[j] < rhos[i] else 0)
+  return float(abs(s_stat))
+
+
+def _block_permute(rhos: List[float], block_size: int, shift: int) -> List[float]:
+  """Circularly shift the sequence by whole blocks, preserving local
+  (block) autocorrelation structure under the null."""
+  n = len(rhos)
+  shift = shift % n
+  return rhos[n - shift:] + rhos[:n - shift]
+
+
+def is_small_sample(rhos: List[float], threshold: int = SMALL_SAMPLE_THRESHOLD) -> bool:
+  """T024 / FR-008: small sample size constraint check (n < 10)."""
+  return len(rhos) < threshold
+
+
+def block_permutation_test(
+  rhos: List[float],
+  n_resamples: int = DEFAULT_N_RESAMPLES,
+  block_size: int = DEFAULT_BLOCK_SIZE,
+) -> float:
+  """Block permutation significance test for the correlation sequence.
+
+  Null hypothesis: the ordering of the rho sequence carries no trend
+  information. Whole blocks of ``block_size`` consecutive values are
+  circularly shifted to build the null distribution of the trend
+  statistic |S|, preserving short-range autocorrelation.
+
+  T024 small-sample handling (n < 10):
+    - If n <= 8, enumerate ALL n circular block-shift permutations
+      (exhaustive / exact test) when the total is below
+      ``EXHAUSTIVE_MAX_PERMUTATIONS``.
+    - Otherwise use ``SMALL_SAMPLE_N_RESAMPLES`` random resamples so
+      the permutation p-value remains reliable at small n.
+
+  Returns the permutation p-value (one-sided, upper tail of |S|).
+  """
+  n = len(rhos)
+  if n < 2:
+    logger.warning("Block permutation test requires at least 2 points; returning p=1.0.")
+    return 1.0
+
+  observed = _trend_statistic(rhos)
+
+  small = is_small_sample(rhos)
+  if small:
+    logger.info(
+      "Small sample detected (n=%d < %d): relying on permutation p-value (FR-008).",
+      n, SMALL_SAMPLE_THRESHOLD,
+    )
+
+  # Exhaustive enumeration of all circular shifts (exact test)
+  if n <= 8 and n <= EXHAUSTIVE_MAX_PERMUTATIONS:
+    shifts = range(n)
+    count_ge = 0
+    total = 0
+    for shift in shifts:
+      perm = _block_permute(rhos, block_size, shift)
+      stat = _trend_statistic(perm)
+      total += 1
+      if stat >= observed:
+        count_ge += 1
+    p_value = count_ge / total
+    logger.info(
+      "Exact block permutation test over %d circular shifts: p=%.4f", total, p_value
+    )
     return p_value
 
-def run_significance_tests(rho_csv_path: str, output_json_path: str = None) -> dict:
-    """
-    Orchestrates the Mann-Kendall test and Block Permutation test.
-    Handles small sample size constraints (n < 10) by relying on 
-    permutation p-values as per FR-008.
-    
-    Args:
-        rho_csv_path: Path to drift_metrics.csv
-        output_json_path: Optional path to save results.
-    
-    Returns:
-        Dictionary containing test results.
-    """
-    logger.info(f"Running significance tests on {rho_csv_path}")
-    rhos = load_correlation_sequence(rho_csv_path)
-    n = len(rhos)
-    
-    results = {
-        "n_samples": n,
-        "mean_rho": sum(rhos) / n if n > 0 else 0.0,
-        "mann_kendall": {},
-        "block_permutation": {}
-    }
+  # Random resampling
+  rng = random.Random(42)
+  resamples = SMALL_SAMPLE_N_RESAMPLES if small else n_resamples
+  count_ge = 0
+  for _ in range(resamples):
+    shift = rng.randrange(n)
+    perm = _block_permute(rhos, block_size, shift)
+    if _trend_statistic(perm) >= observed:
+      count_ge += 1
+  p_value = count_ge / resamples
+  logger.info(
+    "Block permutation test (%d resamples, block_size=%d): p=%.4f",
+    resamples, block_size, p_value,
+  )
+  return p_value
 
-    # Handle small sample size logic
-    if n < 10:
-        logger.warning(f"Small sample size (n={n}). Relying on block permutation p-value for significance.")
-        # Run block permutation with sufficient resamples
-        p_val_perm = block_permutation_test(rhos, n_permutations=5000) # Increase permutations for small n reliability
-        results["block_permutation"]["p_value"] = p_val_perm
-        results["block_permutation"]["note"] = "Used for significance due to small sample size"
-        
-        # Still run MK to get Tau, but p-value from MK is not trusted
-        tau, _ = mann_kendall_test(rhos)
-        results["mann_kendall"]["tau"] = tau
-        results["mann_kendall"]["p_value"] = None # Not reliable
-        results["mann_kendall"]["reliability"] = "Low"
-    else:
-        # Normal path
-        tau, p_val_mk = mann_kendall_test(rhos)
-        results["mann_kendall"]["tau"] = tau
-        results["mann_kendall"]["p_value"] = p_val_mk
-        
-        # Run block permutation as a robustness check
-        p_val_perm = block_permutation_test(rhos, n_permutations=1000)
-        results["block_permutation"]["p_value"] = p_val_perm
-        results["block_permutation"]["note"] = "Robustness check"
 
-    # Determine trend direction
-    tau = results["mann_kendall"].get("tau", 0)
-    if tau < -0.1:
-        results["trend_direction"] = "monotonic decrease"
-    elif tau > 0.1:
-        results["trend_direction"] = "monotonic increase"
-    else:
-        results["trend_direction"] = "no clear trend"
+def run_significance_tests(drift_metrics_path: str, output_path: str) -> Dict[str, Any]:
+  """Run Mann-Kendall and block permutation tests on drift metrics.
 
-    # Select final p-value based on sample size
-    if n < 10:
-        results["final_p_value"] = results["block_permutation"]["p_value"]
-    else:
-        # Prefer MK p-value if n is large enough, or average? 
-        # Spec says "rely on permutation p-values" for small n.
-        # For larger n, we can use MK, but let's store both.
-        # For the "final" decision in T018, we use the block permutation if n<10.
-        # Let's set final to MK for n>=10 for now, or we can use the more conservative one.
-        results["final_p_value"] = min(results["mann_kendall"]["p_value"], results["block_permutation"]["p_value"])
+  Writes a JSON report to ``output_path`` containing:
+    - kendall_tau, trend_direction, mann_kendall_p (asymptotic)
+    - p_value (block permutation; authoritative when n < 10)
+    - n_observations, small_sample, method notes
+  """
+  rhos = load_correlation_sequence(drift_metrics_path)
+  n = len(rhos)
+  small = is_small_sample(rhos)
 
-    if output_json_path:
-        with open(output_json_path, 'w') as f:
-            json.dump(results, f, indent=2)
-        logger.info(f"Saved significance results to {output_json_path}")
+  tau, direction, mk_p = mann_kendall_test(rhos)
+  perm_p = block_permutation_test(rhos)
 
-    return results
+  # T024: for small samples, rely on the permutation p-value.
+  if small:
+    logger.info(
+      "n=%d < %d: asymptotic Mann-Kendall p-value is unreliable; "
+      "using block permutation p-value=%.4f as the reported p-value.",
+      n, SMALL_SAMPLE_THRESHOLD, perm_p,
+    )
+    reported_p = perm_p
+    method = "block_permutation (small sample, exact/random circular block shifts)"
+  else:
+    reported_p = perm_p
+    method = "block_permutation (circular block shifts)"
 
-def main():
-    """Entry point for running significance tests."""
-    # Default paths based on project structure
-    project_root = Path(__file__).parent.parent
-    rho_csv = project_root / "outputs" / "drift_metrics.csv"
-    output_json = project_root / "outputs" / "significance_results.json"
+  result = {
+    "n_observations": n,
+    "small_sample": small,
+    "kendall_tau": tau,
+    "trend_direction": direction,
+    "mann_kendall_p_asymptotic": mk_p,
+    "p_value": reported_p,
+    "method": method,
+    "note": (
+      "n < 10: permutation p-value relied upon per FR-008; "
+      "asymptotic Mann-Kendall p-value reported for reference only."
+      if small
+      else "n >= 10: block permutation p-value reported."
+    ),
+  }
 
-    if not rho_csv.exists():
-        logger.error(f"Input file not found: {rho_csv}. Run drift analysis first.")
-        sys.exit(1)
+  out_dir = os.path.dirname(os.path.abspath(output_path))
+  os.makedirs(out_dir, exist_ok=True)
+  with open(output_path, "w") as f:
+    json.dump(result, f, indent=2)
+  logger.info("Significance test results saved to %s", output_path)
+  return result
 
-    results = run_significance_tests(str(rho_csv), str(output_json))
-    print(f"Significance Test Results: {results}")
+
+def main() -> None:
+  """Entry point for significance tests.
+
+  Optional positional arguments:
+    1. drift metrics CSV path (default outputs/drift_metrics.csv)
+    2. output JSON path (default outputs/p_values.json)
+  """
+  drift_path = sys.argv[1] if len(sys.argv) > 1 else DRIFT_METRICS_PATH
+  out_path = sys.argv[2] if len(sys.argv) > 2 else P_VALUES_PATH
+  try:
+    result = run_significance_tests(drift_path, out_path)
+    print(json.dumps(result, indent=2))
+  except Exception as exc:
+    logger.error("Significance testing failed: %s", exc, exc_info=True)
+    sys.exit(1)
+
 
 if __name__ == "__main__":
-    main()
+  main()

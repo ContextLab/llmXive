@@ -12,6 +12,7 @@ properties:
     enum:
       - "scalar_descriptors"
       - "ilr_transformed"
+      - "combined"
   models:
     type: array
     items:
@@ -49,12 +50,15 @@ properties:
         feature_stability_spearman:
           type: number
           description: "Median Spearman correlation of feature importance across CV reps"
+        feature_stability_rank_std:
+          type: number
+          description: "Standard deviation of feature importance ranks"
         mae_vs_uncertainty:
           type: boolean
           description: "True if MAE <= 50 MPa (experimental uncertainty)"
         statistical_significance:
           type: string
-          description: "Result of Friedman/Nemenyi test"
+          description: "Result of Wilcoxon signed-rank test"
       required:
         - model_type
         - r_squared
@@ -65,6 +69,7 @@ properties:
         - cv_repetitions
         - n_samples
         - feature_stability_spearman
+        - feature_stability_rank_std
         - mae_vs_uncertainty
         - statistical_significance
 required:

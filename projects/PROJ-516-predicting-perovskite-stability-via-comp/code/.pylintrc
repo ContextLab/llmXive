@@ -1,64 +1,45 @@
 [MAIN]
-ignore=CVS,venv,.venv,build,dist,.eggs
-jobs=1
+load-plugins=pylint.extensions.docparams,pylint.extensions.mccabe
+ignore=.git,.hg,.mypy_cache,.tox,.venv,_build,buck-out,build,dist,venv
 persistent=yes
-extension-pkg-allow-list=pandas,numpy,pymatgen
+extension-pkg-allow-list=pymatgen,numpy,pandas
 
 [MESSAGES CONTROL]
-disable=
-    C0114,
-    C0115,
-    C0116,
-    R0903,
-    R0913,
-    R0914,
-    W0511,
-    W1203,
-    R0801,
-    R0917,
-    R0902,
-    R0904,
-    R0912,
-    R0915,
-    W0613,
-    W0621,
-    R0911,
-    R0912,
-    R0914,
-    R0915,
-    C0301,
-    C0325,
-    C0330,
-    R0903,
-    R0913,
-    R0914,
-    W0511,
-    W1203,
-    R0801,
-    R0917,
-    R0902,
-    R0904,
-    R0912,
-    R0915,
-    W0613,
-    W0621,
-    R0911,
-    R0912,
-    R0914,
-    R0915
-
-[FORMAT]
-expected-line-ending-format=LF
-max-line-length=88
-
-[BASIC]
-good-names=i,j,k,v,ex,_,f,fd,df
+disable=C0114,C0115,C0116,R0903,R0913,R0914,W0511,E1136,R0902,R0917
+enable=C0301,C0302,C0325
 
 [DESIGN]
-max-args=10
-max-locals=15
+max-args=8
+max-locals=20
 max-returns=6
-max-branches=12
-max-statements=50
-max-attributes=10
-max-public-methods=20
+max-branches=15
+max-statements=60
+max-attributes=15
+max-public-methods=25
+max-module-lines=1000
+
+[FORMAT]
+max-line-length=100
+indent-string='    '
+expected-line-ending-format=LF
+
+[REPORTS]
+output-format=text
+reports=yes
+score=yes
+evaluation=10.0 - ((float(5 * error + warning + refactor + convention) / statement) * 10)
+
+[BASIC]
+good-names=i,j,k,ex,Run,_,f,t,fd,df,ax,fig,df,series
+bad-names=foo,bar,baz,toto,tata,toulou
+naming-style=snake_case
+function-naming-style=snake_case
+method-naming-style=snake_case
+attr-naming-style=snake_case
+argument-naming-style=snake_case
+variable-naming-style=snake_case
+const-naming-style=UPPER_CASE
+class-naming-style=PascalCase
+module-naming-style=snake_case
+typevar-naming-style=PascalCase
+typealias-naming-style=PascalCase

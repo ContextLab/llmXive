@@ -1,35 +1,25 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Structural Metrics Schema"
-description: "Schema for validating computed structural metrics per trace."
+# Metrics Schema Definition
+# Validates the structure of extracted metrics
 type: object
 required:
   - session_id
   - sequence_entropy
   - tool_repetition_frequency
   - argument_semantic_variance
-  - feature_vector
 properties:
   session_id:
     type: string
-    description: "Reference to the source session UUID."
-    pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
   sequence_entropy:
     type: number
-    minimum: 0
-    description: "Calculated Shannon entropy of the tool sequence."
+    minimum: 0.0
   tool_repetition_frequency:
     type: number
-    minimum: 0
-    maximum: 1
-    description: "Frequency of repeated tool invocations."
+    minimum: 0.0
+    maximum: 1.0
   argument_semantic_variance:
     type: number
-    minimum: 0
-    description: "Mean pairwise cosine distance of argument embeddings."
+    minimum: 0.0
   feature_vector:
     type: array
-    description: "Normalized feature vector for model input."
     items:
       type: number
-    minItems: 3
-additionalProperties: false

@@ -1,0 +1,29 @@
+# Dataset Schema Contract for Social Media Cognitive Flexibility Study
+# Defines the expected structure of the raw and cleaned datasets.
+
+required_columns:
+  - self_reported_switching_frequency
+  - cognitive_flexibility_score
+  - age
+  - total_screen_time
+  - num_platforms
+  - participant_id
+
+constraints:
+  age:
+    min_value: 10
+    max_value: 100
+  total_screen_time:
+    min_value: 0
+  cognitive_flexibility_score:
+    non_null: true
+  self_reported_switching_frequency:
+    non_null: true
+
+type_map:
+  participant_id: int
+  age: float
+  total_screen_time: float
+  num_platforms: int
+  self_reported_switching_frequency: float
+  cognitive_flexibility_score: float

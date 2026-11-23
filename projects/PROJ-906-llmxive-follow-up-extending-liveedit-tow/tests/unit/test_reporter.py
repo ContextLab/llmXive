@@ -1,169 +1,166 @@
-"""
-Unit tests for the reporter module.
-"""
 import os
 import json
+import pytest
 import tempfile
 from pathlib import Path
-import pytest
+from unittest.mock import patch, mock_open
 
-import numpy as np
-import pandas as pd
+# Adjust imports based on project structure
+import sys
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', '..'))
 
 from code.analysis.reporter import (
-    aggregate_metrics_to_records,
     generate_baseline_report,
-    generate_comparative_report
+    generate_flow_report,
+    _load_json_file,
+    BASELINE_RESULTS_PATH,
+    FLOW_RESULTS_PATH
 )
-from code.data.models import MetricRecord
 
+@pytest.fixture
+def temp_dir():
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
 
-class TestAggregateMetricsToRecords:
-    def test_valid_metrics_conversion(self):
-        """Test that valid metric dicts are converted to MetricRecord objects."""
-        metrics = [
-            {
-                "clip_id": "clip_001",
-                "inference_time_s": 1.5,
-                "peak_memory_mb": 2048.0,
-                "bss_score": 0.95,
-                "flow_normalized_ssim": 0.92,
-                "flow_magnitude_mean": 2.1,
-                "invalid_flow_count": 0
-            }
-        ]
+def test_load_json_file_existing():
+    data = {"test": "value"}
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        json.dump(data, f)
+        temp_path = f.name
+    
+    try:
+        result = _load_json_file(temp_path)
+        # _load_json_file returns a list if the top level is a list, or wraps dict
+        # But our implementation returns the list if it's a list, or handles dict keys.
+        # If the file is a simple dict without 'baseline_metrics', it returns [data] if 'clip_id' in data else []
+        # Let's test with a list
+    finally:
+        os.unlink(temp_path)
 
-        records = aggregate_metrics_to_records(metrics, "test_run", "baseline")
+def test_load_json_file_missing():
+    result = _load_json_file("non_existent_path_12345.json")
+    assert result == []
 
-        assert len(records) == 1
-        assert isinstance(records[0], MetricRecord)
-        assert records[0].clip_id == "clip_001"
-        assert records[0].run_id == "test_run"
-        assert records[0].run_type == "baseline"
+def test_generate_baseline_report_merge():
+    """
+    Test that generate_baseline_report correctly merges baseline metrics with resource metrics.
+    """
+    baseline_data = [
+        {"clip_id": "clip_001", "ssim": 0.9, "consecutive_ssim": 0.85, "temporal_gradient_variance": 0.02},
+        {"clip_id": "clip_002", "ssim": 0.8, "consecutive_ssim": 0.75, "temporal_gradient_variance": 0.03}
+    ]
+    resource_data = [
+        {"clip_id": "clip_001", "peak_memory": 2.5, "inference_time": 10.2},
+        {"clip_id": "clip_002", "peak_memory": 2.8, "inference_time": 11.5}
+    ]
 
-    def test_invalid_metrics_skipped(self):
-        """Test that invalid metric dicts are skipped."""
-        metrics = [
-            {
-                "clip_id": "clip_001",
-                "inference_time_s": "not_a_number",  # Invalid type
-                "peak_memory_mb": 2048.0,
-                "bss_score": 0.95,
-                "flow_normalized_ssim": 0.92,
-                "flow_magnitude_mean": 2.1,
-                "invalid_flow_count": 0
-            },
-            {
-                "clip_id": "clip_002",
-                "inference_time_s": 1.5,
-                "peak_memory_mb": 2048.0,
-                "bss_score": 0.95,
-                "flow_normalized_ssim": 0.92,
-                "flow_magnitude_mean": 2.1,
-                "invalid_flow_count": 0
-            }
-        ]
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Patch the path constants to use temp dir
+        original_path = BASELINE_RESULTS_PATH
+        temp_path = os.path.join(tmpdir, "baseline_results.json")
+        
+        # We need to patch the module's global variable or the function's internal logic
+        # Since the function uses the global constant, we can't easily patch it without reloading.
+        # Instead, we test the logic by mocking the file write.
+        
+        with patch('code.analysis.reporter.ensure_directories'), \
+             patch('code.analysis.reporter.BASELINE_RESULTS_PATH', temp_path), \
+             patch('builtins.open', mock_open()) as mock_file:
+            
+            result = generate_baseline_report(baseline_data, resource_data)
+            
+            # Verify the structure
+            assert 'baseline_metrics' in result
+            assert len(result['baseline_metrics']) == 2
+            
+            # Check merge logic
+            m0 = result['baseline_metrics'][0]
+            assert m0['clip_id'] == 'clip_001'
+            assert m0['peak_memory'] == 2.5
+            assert m0['inference_time'] == 10.2
+            assert m0['consecutive_ssim'] == 0.85
+            
+            m1 = result['baseline_metrics'][1]
+            assert m1['clip_id'] == 'clip_002'
+            assert m1['peak_memory'] == 2.8
+            assert m1['inference_time'] == 11.5
+            assert m1['consecutive_ssim'] == 0.75
 
-        records = aggregate_metrics_to_records(metrics, "test_run", "baseline")
+def test_generate_baseline_report_missing_resource():
+    """
+    Test that generate_baseline_report handles missing resource data gracefully.
+    """
+    baseline_data = [
+        {"clip_id": "clip_001", "ssim": 0.9, "consecutive_ssim": 0.85}
+    ]
+    
+    with patch('code.analysis.reporter.ensure_directories'), \
+         patch('builtins.open', mock_open()):
+        
+        result = generate_baseline_report(baseline_data, None)
+        
+        assert len(result['baseline_metrics']) == 1
+        # Should default to 0.0 for missing resource fields
+        assert result['baseline_metrics'][0]['peak_memory'] == 0.0
+        assert result['baseline_metrics'][0]['inference_time'] == 0.0
 
-        # First record should be skipped, second should be valid
-        assert len(records) == 1
-        assert records[0].clip_id == "clip_002"
+def test_generate_flow_report():
+    """
+    Test flow report generation.
+    """
+    flow_data = [
+        {"clip_id": "clip_001", "ssim": 0.88, "consecutive_ssim": 0.82, "invalid_flow_count": 1}
+    ]
+    
+    with patch('code.analysis.reporter.ensure_directories'), \
+         patch('builtins.open', mock_open()):
+        
+        result = generate_flow_report(flow_data)
+        
+        assert 'flow_metrics' in result
+        assert len(result['flow_metrics']) == 1
+        assert result['flow_metrics'][0]['clip_id'] == 'clip_001'
+        assert result['flow_metrics'][0]['invalid_flow_count'] == 1
 
-
-class TestGenerateBaselineReport:
-    def test_generates_json_and_parquet(self, tmp_path):
-        """Test that the function creates both JSON and Parquet files."""
-        metrics = [
-            {
-                "clip_id": "clip_001",
-                "inference_time_s": 1.5,
-                "peak_memory_mb": 2048.0,
-                "bss_score": 0.95,
-                "flow_normalized_ssim": 0.92,
-                "flow_magnitude_mean": 2.1,
-                "invalid_flow_count": 0
-            }
-        ]
-
-        result = generate_baseline_report(metrics, output_dir=tmp_path, run_id="test_001")
-
-        assert "json_path" in result
-        assert "parquet_path" in result
-        assert os.path.exists(result["json_path"])
-        assert os.path.exists(result["parquet_path"])
-
-    def test_json_content_valid(self, tmp_path):
-        """Test that the JSON file contains expected structure."""
-        metrics = [
-            {
-                "clip_id": "clip_001",
-                "inference_time_s": 1.5,
-                "peak_memory_mb": 2048.0,
-                "bss_score": 0.95,
-                "flow_normalized_ssim": 0.92,
-                "flow_magnitude_mean": 2.1,
-                "invalid_flow_count": 0
-            }
-        ]
-
-        result = generate_baseline_report(metrics, output_dir=tmp_path, run_id="test_002")
-
-        with open(result["json_path"], "r") as f:
-            data = json.load(f)
-
-        assert "run_id" in data
-        assert "run_type" in data
-        assert "stats" in data
-        assert data["run_type"] == "baseline"
-        assert "inference_time_s" in data["stats"]
-
-    def test_empty_metrics_handled(self, tmp_path):
-        """Test that empty metrics list generates a valid empty report."""
-        result = generate_baseline_report([], output_dir=tmp_path, run_id="test_003")
-
-        assert os.path.exists(result["json_path"])
-        with open(result["json_path"], "r") as f:
-            data = json.load(f)
-        assert data["clip_count"] == 0
-
-
-class TestGenerateComparativeReport:
-    def test_generates_comparative_report(self, tmp_path):
-        """Test generation of comparative report."""
-        baseline_metrics = [
-            {
-                "clip_id": "clip_001",
-                "inference_time_s": 1.5,
-                "peak_memory_mb": 2048.0,
-                "bss_score": 0.95,
-                "flow_normalized_ssim": 0.92,
-                "flow_magnitude_mean": 2.1,
-                "invalid_flow_count": 0
-            }
-        ]
-        flow_metrics = [
-            {
-                "clip_id": "clip_001",
-                "inference_time_s": 1.2,
-                "peak_memory_mb": 1024.0,
-                "bss_score": 0.90,
-                "flow_normalized_ssim": 0.88,
-                "flow_magnitude_mean": 2.1,
-                "invalid_flow_count": 0
-            }
-        ]
-
-        result = generate_comparative_report(
-            baseline_metrics,
-            flow_metrics,
-            output_dir=tmp_path,
-            run_id="test_004"
-        )
-
-        assert os.path.exists(result["json_path"])
-        with open(result["json_path"], "r") as f:
-            data = json.load(f)
-
-        assert "comparison_stats" in data
-        assert "memory_reduction_pct" in data["comparison_stats"]
+def test_baseline_report_generation():
+    """
+    Full integration test for T017: Generate baseline report.
+    """
+    # Simulate data that would come from T016a and T008
+    baseline_metrics = [
+        {"clip_id": "davis_001", "ssim": 0.92, "consecutive_ssim": 0.88, "temporal_gradient_variance": 0.015},
+        {"clip_id": "davis_002", "ssim": 0.85, "consecutive_ssim": 0.80, "temporal_gradient_variance": 0.025}
+    ]
+    resource_metrics = [
+        {"clip_id": "davis_001", "peak_memory": 3.2, "inference_time": 12.5},
+        {"clip_id": "davis_002", "peak_memory": 3.5, "inference_time": 13.1}
+    ]
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        # Create a fake intermediate file to simulate T016a output
+        intermediate_path = os.path.join(tmpdir, "baseline_ssim.json")
+        with open(intermediate_path, 'w') as f:
+            json.dump(baseline_metrics, f)
+        
+        # We can't easily patch the global path constant in the module without reloading,
+        # so we test the function logic directly with the data passed in.
+        # The task requires the function to write to `data/metrics/baseline_results.json`.
+        # In a real run, the main pipeline would ensure the directory exists.
+        
+        # Mock the file write to avoid needing real paths
+        with patch('code.analysis.reporter.ensure_directories'), \
+             patch('builtins.open', mock_open()) as mock_file:
+            
+                report = generate_baseline_report(baseline_metrics, resource_metrics)
+                
+                # Verify the call to open was made
+                assert mock_file.called
+                # Verify the content written
+                handle = mock_file()
+                written_content = ''.join([call[0][0] for call in handle.write.call_args_list])
+                written_data = json.loads(written_content)
+                
+                assert 'baseline_metrics' in written_data
+                assert len(written_data['baseline_metrics']) == 2
+                assert written_data['baseline_metrics'][0]['peak_memory'] == 3.2
+                assert written_data['baseline_metrics'][0]['consecutive_ssim'] == 0.88

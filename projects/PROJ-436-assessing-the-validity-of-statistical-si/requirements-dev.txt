@@ -1,0 +1,5 @@
+# Development dependencies for linting and formatting
+# Added for task T003: Configure linting (ruff/flake8) and formatting (black) tools
+ruff>=0.1.0
+black>=23.0.0
+pre-commit>=3.0.0

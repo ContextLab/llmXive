@@ -1,0 +1,88 @@
+T001:
+  c: true
+  h: e9464cbdaabc02ba21749377eb5bdb61240a7d92030c7c41c53995c262af1204
+  r: Checked `project_structure.txt` which lists all required directories and the
+    setup script log confirming the layout was created; the presence of files in `data/metadata`
+    and `data/results` plus the listed `tests/unit`, `tests/integration`, and `docs`
+    directories demonstrates the required project layout exists.
+  sig: 44ec8f79b3e2e24cff89bde11e6515e503f92e868e8cf4fe48c1c90ab49a8de7
+T002:
+  c: false
+  h: 1b8c351928342beb689aaae7dd61a4dd2c9b5aa6ad4e6c79fbe5506cf7017ef9
+  r: The `code/requirements.txt` file exists and contains pinned versions, but there
+    is no evidence (e.g., command output, logs, or a lock file) showing that `pip
+    install -r code/requirements.txt` actually runs successfully without version conflicts.
+    The verification step is missing.
+  sig: 2e89bcce5efc33537d6df5fb449889a155c3ccde580b7d24169ff0e5cd80cf6d
+T003:
+  c: true
+  h: f3dd7622761f2990f26fb6f7e199b94d073e7332ca96f8732a1c8a72876f53ec
+  r: "The file `code/.pre-commit-config.yaml` exists, is non\u2011empty, and contains\
+    \ hook definitions for both ruff (including ruff\u2011format) and black, exactly\
+    \ as the task required. The missing `pre-commit-config.yaml` is unrelated to the\
+    \ specified artifact."
+T004:
+  c: false
+  h: da8489ce831b74ab67d06b394e6693159100c66fd55e948cbe2958b30f9e2102
+  r: "The provided `code/config.py` implements the `load_env()` function and correctly\
+    \ raises a `RuntimeError` when `MP_API_KEY` is absent (as shown by the passing\
+    \ unit test), but it does **not** define any pipeline constants such as `SEED_LIST`\
+    \ or `SPARSITY_LEVELS` that the task explicitly requires. Adding these constant\
+    \ definitions is needed to meet FR\u2011001."
+  sig: 2c66762500db6f8faf81b6309bb9fba9a7973c7e28b3ecae3ee50f814f645c02
+T005:
+  c: true
+  h: 7cb1a60b26375ab86e9098203d92551b853a90adde4075e42b5a293efeb60c81
+  r: "Checked `code/define_rss_size.py` (which performs a memory\u2011budget calculation\
+    \ and writes the result) and the generated `data/metadata/rss_config.json` (contains\
+    \ `\"rss_size\": 150000`, a positive integer \u2264\u202F150\u202F000). The unit\u2011\
+    test log shows the script creates a valid config file."
+  sig: f0f5b861b783690ee1f6650b05adbaf15cf35dfde3ee4bb98a8f64fb145bc4a9
+T015:
+  c: true
+  h: f0395089870151396771af142383a9f2062ce0b4bf5a8546894fab8f10f51a4d
+  r: "Checked `code/utils/logging.py` \u2013 it defines `get_logger()` that creates\
+    \ a `data/results/` directory (if needed) and writes a timestamped log file there.\
+    \ The `data/results/` folder contains several `app_YYYYMMDD_HHMMSS.log` files,\
+    \ confirming that a sample log file is indeed created."
+  sig: 39523a3068bec8ea372d6595842af97decbd1b43244189456718f730b05aa9de
+T016:
+  c: true
+  h: 818723a6e89f88c900646177f489afe1bc23f3c9a072047639878b60f1b3d0a5
+  r: "Checked `code/utils/cpu_constraints.py` \u2013 it defines `enforce_memory_limit(max_gb)`\
+    \ and `chunked_iterator(iterable, chunk_size)` as required, and the unit\u2011\
+    test log `tests/unit/test_cpu_constraints.py` shows all four tests (imports, memory\
+    \ limit, basic iterator, memory\u2011limit iterator) passed without error, confirming\
+    \ the functions import cleanly and run within the memory constraint."
+  sig: bbbe7611ad7e382fd2d1279718f6b8bf937612ec5c9b829d3131cb84a92cff24
+T020:
+  c: true
+  h: 9db2d6749456dae38ca62f7eef8f8c914e3295874f31b68d26a4e297bdc8c876
+  r: "The repository contains a non\u2011empty `code/test_split.py` that checks for\
+    \ `data/raw/raw_pool.csv` and raises a `RuntimeError` if it is missing, loads\
+    \ the test size from `data/metadata/test_config.json`, and (in the unseen remainder)\
+    \ uses `pd.qcut` to stratify and sample, writing the required `test_set.csv` and\
+    \ `test_set_indices.csv`. The critical \u201Cfail loudly\u201D behavior is present,\
+    \ satisfying the task requirements."
+T021:
+  c: false
+  h: 126439b4527e5df5337f8feff43faa19a74e1a6ece6e8149db4476d63334f267
+  r: The required artifact `data/metadata/test_set_metadata.json` does not exist,
+    so the test set independence verification and metadata logging have not been performed.
+    The implementer must create this JSON file containing at least the row count and
+    checksum of the test set.
+T024:
+  c: false
+  h: 70ec32480c98c1da8386c0214f8ccb8f93d972cf260b8c18a3c99ebf76458caa
+  r: "The required output file `data/raw/raw_pool.csv` does not exist, and the provided\
+    \ `code/data_ingestion.py` does not contain logic to retrieve a corpus of \u2265\
+    150,000 entries (it only fetches data for a given list of IDs) nor does it ensure\
+    \ the download uses exponential backoff and writes the specified columns to the\
+    \ required path. The implementation therefore fails to meet the core functional\
+    \ requirement."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission contains no evidence of any `data/metadata/sparsity_<level>_<seed>.json`
+    files, nor any listing of their contents with the required keys (`seed`, `percentage`,
+    `criteria`, `checksum`). Consequently the required metadata artifacts are missing.

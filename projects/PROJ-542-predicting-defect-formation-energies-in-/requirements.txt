@@ -1,0 +1,5 @@
+# Project dependencies
+# Core scientific libraries are provided by the execution environment.
+# Additional third‑party packages required by the data acquisition step.
+mp-api
+pymatgen

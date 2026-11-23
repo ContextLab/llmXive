@@ -1,0 +1,138 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Agent State Schema
+description: >
+  Defines the schema for the state of an agent in the Co-Evolving Policy Distillation pipeline.
+  This schema is used to validate the JSON structure of agent state files saved during training.
+type: object
+required:
+  - population
+  - rule_sets
+  - generation_count
+  - agent_type
+  - total_rule_evaluations
+properties:
+  agent_type:
+    type: string
+    description: >
+      The type of agent implementation. Must be one of:
+      "SequentialAgent", "MixedAgent", or "CoevolvingAgent".
+    enum:
+      - SequentialAgent
+      - MixedAgent
+      - CoevolvingAgent
+  generation_count:
+    type: integer
+    description: >
+      The current generation number of the training process.
+      Starts at 0 and increments with each training step.
+    minimum: 0
+  total_rule_evaluations:
+    type: integer
+    description: >
+      The cumulative count of rule evaluations performed by this agent.
+      Used to enforce parity constraints across different training conditions.
+    minimum: 0
+  population:
+    type: array
+    description: >
+      The current population of agents/rules within the system.
+      For CoevolvingAgent, this contains sub-populations.
+      For SequentialAgent/MixedAgent, this is the single population.
+    items:
+      type: object
+      required:
+        - id
+        - rule_set_id
+        - fitness_score
+        - domain
+      properties:
+        id:
+          type: string
+          description: Unique identifier for this agent instance.
+        rule_set_id:
+          type: string
+          description: Reference to the rule set this agent is using.
+        fitness_score:
+          type: number
+          description: Current fitness score of the agent.
+        domain:
+          type: string
+          description: The task domain this agent is specialized for (e.g., "logic", "grid").
+        metadata:
+          type: object
+          description: Additional metadata specific to the agent.
+          additionalProperties: true
+  rule_sets:
+    type: object
+    description: >
+      A dictionary mapping rule_set_id to the actual RuleSet definitions.
+      This allows agents to reference rules by ID without duplicating data.
+    additionalProperties:
+      type: object
+      required:
+        - id
+        - rules
+        - domain
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the rule set.
+        domain:
+          type: string
+          description: The domain this rule set applies to (e.g., "logic", "grid").
+        rules:
+          type: array
+          description: List of rules contained in this set.
+          items:
+            type: object
+            required:
+              - rule_id
+              - expression
+              - description
+            properties:
+              rule_id:
+                type: string
+                description: Unique identifier for the specific rule.
+              expression:
+                type: string
+                description: >
+                  The symbolic representation of the rule (e.g., sympy expression string).
+              description:
+                type: string
+                description: Human-readable description of the rule.
+        created_at:
+          type: integer
+          description: Generation count when this rule set was created.
+        last_modified:
+          type: integer
+          description: Generation count when this rule set was last updated.
+  exchange_history:
+    type: array
+    description: >
+      (Optional) History of rule-set exchanges between sub-populations.
+      Only populated for CoevolvingAgent.
+    items:
+      type: object
+      required:
+        - generation
+        - source_pop
+        - target_pop
+        - rule_set_id
+      properties:
+        generation:
+          type: integer
+          description: Generation number when the exchange occurred.
+        source_pop:
+          type: string
+          description: Identifier of the source sub-population.
+        target_pop:
+          type: string
+          description: Identifier of the target sub-population.
+        rule_set_id:
+          type: string
+          description: ID of the rule set that was exchanged.
+  metadata:
+    type: object
+    description: Additional metadata about the agent state.
+    additionalProperties: true
+additionalProperties: false

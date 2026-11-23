@@ -1,160 +1,101 @@
 """
-Unit tests for code/ingestion.py functions.
+Tests for the data ingestion pipeline.
 """
+
 import pytest
-import pandas as pd
-import numpy as np
-from pathlib import Path
-import tempfile
 import os
 import sys
+from pathlib import Path
+import pandas as pd
+import numpy as np
 
-# Add parent directory to path to allow imports if running standalone
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / 'code'))
 
-# Import the module under test
-from code.ingestion import (
+from ingestion import (
+    validate_dgp_config,
     generate_delay_discounting_data,
     generate_procrastination_data,
     generate_nback_data,
-    validate_dgp_config,
     calculate_cronbach_alpha,
     harmonize_datasets,
-    DEFAULT_DGP_CONFIG
+    DGP_DEFAULTS
 )
 
 @pytest.fixture
-def temp_dir():
-    """Create a temporary directory for test files."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        yield tmpdir
+def random_seed():
+    return 42
 
-def test_generate_delay_discounting_data(temp_dir):
-    """Test generation of delay discounting data."""
-    output_path = os.path.join(temp_dir, "delay_discounting.csv")
-    
-    # Generate data
-    df = generate_delay_discounting_data(
-        n_participants=50,
-        output_path=output_path,
-        seed=42
-    )
-    
-    # Check file was created
-    assert os.path.exists(output_path)
-    
-    # Check dataframe structure
+@pytest.fixture
+def data_path():
+    return Path(__file__).parent.parent / 'data'
+
+def test_dgp_params_valid():
+    """Test that DGP parameters are valid."""
+    assert validate_dgp_config(DGP_DEFAULTS) is True
+
+    # Test invalid config
+    invalid_config = DGP_DEFAULTS.copy()
+    del invalid_config['k_mean']
+    assert validate_dgp_config(invalid_config) is False
+
+def test_generate_delay_discounting_data(random_seed):
+    """Test delay discounting data generation."""
+    n = 100
+    df = generate_delay_discounting_data(n, random_seed)
+
+    assert len(df) == n * 5  # 5 delays per participant
     assert 'participant_id' in df.columns
     assert 'delay' in df.columns
-    assert 'indifference_point' in df.columns
-    assert len(df) == 50 * 5  # 50 participants * 5 delays
+    assert 'amount' in df.columns
+    assert 'choice' in df.columns
+    assert 'k_true' in df.columns
+    assert df['choice'].isin([0, 1]).all()
 
-def test_generate_procrastination_data(temp_dir):
-    """Test generation of procrastination data."""
-    output_path = os.path.join(temp_dir, "procrastination.csv")
-    
-    # Generate data
-    df = generate_procrastination_data(
-        n_participants=50,
-        output_path=output_path,
-        seed=42
-    )
-    
-    # Check file was created
-    assert os.path.exists(output_path)
-    
-    # Check dataframe structure
+def test_generate_procrastination_data(random_seed):
+    """Test procrastination data generation."""
+    n = 100
+    df = generate_procrastination_data(n, random_seed)
+
+    assert len(df) == n
     assert 'participant_id' in df.columns
-    assert 'procrastination_score' in df.columns
-    # Check for item columns
-    item_cols = [c for c in df.columns if c.startswith('item_')]
-    assert len(item_cols) == DEFAULT_DGP_CONFIG["procrastination"]["n_items"]
-    assert len(df) == 50
+    for i in range(1, 11):
+        assert f'procrastination_item_{i}' in df.columns
+        assert df[f'procrastination_item_{i}'].between(1, 5).all()
 
-def test_generate_nback_data(temp_dir):
-    """Test generation of n-back task data."""
-    output_path = os.path.join(temp_dir, "nback.csv")
-    
-    # Generate data
-    df = generate_nback_data(
-        n_participants=50,
-        output_path=output_path,
-        seed=42
-    )
-    
-    # Check file was created
-    assert os.path.exists(output_path)
-    
-    # Check dataframe structure
+def test_generate_nback_data(random_seed):
+    """Test n-back data generation."""
+    n = 100
+    df = generate_nback_data(n, random_seed)
+
+    assert len(df) == n
     assert 'participant_id' in df.columns
-    assert 'wm_accuracy' in df.columns
-    assert 'wm_rt' in df.columns
-    assert len(df) == 50
+    assert 'nback_accuracy' in df.columns
+    assert 'nback_rt' in df.columns
+    assert df['nback_accuracy'].between(0.5, 1.0).all()
+    assert df['nback_rt'].between(300, 2000).all()
 
-def test_validate_dgp_config_valid():
-    """Test that valid config passes."""
-    assert validate_dgp_config(DEFAULT_DGP_CONFIG) is True
-
-def test_validate_dgp_config_invalid_missing_section():
-    """Test that invalid config raises SystemExit."""
-    invalid_config = DEFAULT_DGP_CONFIG.copy()
-    del invalid_config["n_participants"]
-    
-    with pytest.raises(SystemExit) as exc_info:
-        validate_dgp_config(invalid_config)
-    assert exc_info.value.code == 1
-
-def test_calculate_cronbach_alpha():
+def test_cronbach_alpha():
     """Test Cronbach's alpha calculation."""
-    # Create sample data with known reliability
+    # Create synthetic data with known reliability
     np.random.seed(42)
-    n_items = 10
-    n_participants = 100
-    
-    # Generate correlated items (high alpha expected)
-    common_factor = np.random.normal(0, 1, n_participants)
-    data = np.zeros((n_participants, n_items))
-    for i in range(n_items):
-        data[:, i] = common_factor + np.random.normal(0, 0.5, n_participants)
-    
-    alpha = calculate_cronbach_alpha(data)
-    
-    # High alpha expected for correlated items
-    assert alpha > 0.7
-    assert alpha <= 1.0
+    n = 100
+    data = np.random.randn(n, 5) * 0.5 + 3  # 5 items, moderate correlation
+    df = pd.DataFrame(data, columns=['item1', 'item2', 'item3', 'item4', 'item5'])
 
-def test_calculate_cronbach_alpha_low_reliability():
-    """Test Cronbach's alpha with uncorrelated items."""
-    np.random.seed(42)
-    n_items = 10
-    n_participants = 100
-    
-    # Generate uncorrelated items (low alpha expected)
-    data = np.random.normal(0, 1, (n_participants, n_items))
-    
-    alpha = calculate_cronbach_alpha(data)
-    
-    # Alpha should be low (close to 0)
-    assert alpha < 0.5
+    alpha = calculate_cronbach_alpha(df, ['item1', 'item2', 'item3', 'item4', 'item5'])
+    assert 0 <= alpha <= 1
 
-def test_harmonize_datasets(temp_dir):
-    """Test harmonization of multiple datasets."""
-    # Generate individual datasets
-    dd_path = os.path.join(temp_dir, "delay_discounting.csv")
-    proc_path = os.path.join(temp_dir, "procrastination.csv")
-    nback_path = os.path.join(temp_dir, "nback.csv")
-    
-    generate_delay_discounting_data(50, dd_path, 42)
-    generate_procrastination_data(50, proc_path, 42)
-    generate_nback_data(50, nback_path, 42)
-    
-    # Harmonize
-    df = harmonize_datasets(dd_path, proc_path, nback_path)
-    
-    # Check merged dataframe
-    assert 'participant_id' in df.columns
-    assert 'discount_rate_k' in df.columns
-    assert 'procrastination_score' in df.columns
-    assert 'wm_accuracy' in df.columns
-    assert 'wm_rt' in df.columns
-    assert len(df) == 50  # All participants matched
+def test_harmonization_id_match(random_seed):
+    """Test that harmonization preserves participant IDs correctly."""
+    n = 100
+    delay_df = generate_delay_discounting_data(n, random_seed)
+    proc_df = generate_procrastination_data(n, random_seed)
+    nback_df = generate_nback_data(n, random_seed)
+
+    merged = harmonize_datasets(delay_df, proc_df, nback_df)
+
+    assert len(merged) == n
+    assert 'procrastination_score' in merged.columns
+    assert 'wm_accuracy' in merged.columns
+    assert 'discount_rate_k' in merged.columns

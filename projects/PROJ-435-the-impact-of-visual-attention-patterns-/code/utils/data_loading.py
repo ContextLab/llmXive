@@ -1,240 +1,235 @@
 """
-Data loading utilities for eye-tracking data.
+Data loading utilities for the visual attention study.
 
-This module provides functions to fetch eye-tracking data from verified sources.
-It strictly adheres to the "Verified datasets" block in plan.md:
-- University of Dundee Eye-Tracking Corpus
-- Boston University Eye-Tracking Dataset
-
-The module uses the HuggingFace `datasets` library to fetch data programmatically.
+This module handles fetching, validating, and managing the raw eye-tracking dataset.
+It strictly adheres to the verified source defined in research.md.
 """
-
 import os
+import sys
 import logging
+import hashlib
+import json
+import re
 from pathlib import Path
-from typing import Optional, Dict, Any, List
-
+from typing import Optional, Dict, Any, Tuple
 import pandas as pd
-from datasets import load_dataset, Dataset
+import requests
+from urllib.parse import urlparse
 
-# Configure logger
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+def get_project_root() -> Path:
+    """Return the project root directory."""
+    current = Path(__file__).resolve()
+    # Navigate up from code/utils/ to root
+    return current.parent.parent
 
-def load_dundee_eye_tracking(
-    split: str = "train",
-    streaming: bool = False,
-    revision: Optional[str] = None
-) -> pd.DataFrame:
+def parse_research_md() -> str:
     """
-    Fetch the University of Dundee Eye-Tracking Corpus from HuggingFace.
-
-    This dataset contains eye-tracking data from participants reading sentences.
-    It is a verified source per the project plan.
-
-    Args:
-        split: The dataset split to load ('train', 'test', 'validation', or None for all).
-        streaming: If True, stream the dataset instead of loading into memory.
-        revision: Specific revision tag (e.g., 'v1.0.0') if needed.
-
-    Returns:
-        pd.DataFrame: The eye-tracking data.
-
-    Raises:
-        ValueError: If the dataset cannot be found or loaded.
-        RuntimeError: If the fetch fails and no fallback is available.
+    Parse research.md to extract the verified dataset URL.
+    Looks for the 'Verified datasets' block as per spec.
     """
-    dataset_id = "nab/dundee_eye_tracking_corpus"
-    logger.info(f"Attempting to load dataset: {dataset_id}")
+    project_root = get_project_root()
+    research_path = project_root / "idea" / "research.md"
+    
+    if not research_path.exists():
+        # Fallback to common locations if idea/research.md not found
+        research_path = project_root / "research.md"
+    
+    if not research_path.exists():
+        raise FileNotFoundError(f"Could not find research.md at {research_path}")
 
-    try:
-        if streaming:
-            ds = load_dataset(
-                dataset_id,
-                split=split if split else None,
-                streaming=True,
-                revision=revision
-            )
-            # Convert streaming dataset to DataFrame (iterative approach for memory efficiency)
-            # For large datasets, we might want to process in chunks, but for now
-            # we convert the first split to a DataFrame.
-            if hasattr(ds, 'to_pandas'):
-                df = ds.to_pandas()
+    content = research_path.read_text(encoding="utf-8")
+    
+    # Look for the "Verified datasets" block
+    # Pattern: "Verified datasets" followed by a URL
+    # We assume the format contains a line like: - [Dataset Name](URL) or just a URL
+    # Based on the spec, we need to find the "Verified datasets" block specifically.
+    
+    # Regex to find the block content
+    # We look for a section header or a specific marker if present, 
+    # but primarily we search for the URL associated with the verified source.
+    # A robust way is to look for the text "Verified datasets" and extract the URL nearby.
+    
+    lines = content.split('\n')
+    in_verified_block = False
+    url_candidate = None
+    
+    for line in lines:
+        if "Verified datasets" in line:
+            in_verified_block = True
+            continue
+        
+        if in_verified_block:
+            # Stop if we hit another major section (e.g., starts with #)
+            if line.strip().startswith('#') and "Verified" not in line:
+                break
+            
+            # Extract URL from markdown link or plain text
+            # Pattern for [text](url)
+            match = re.search(r'\((https?://[^\s]+)\)', line)
+            if match:
+                url_candidate = match.group(1)
+                break
+            # Pattern for plain URL
+            match = re.search(r'(https?://[^\s]+)', line)
+            if match:
+                url_candidate = match.group(1)
+                break
+    
+    if not url_candidate:
+        raise ValueError("Could not find a verified dataset URL in the 'Verified datasets' block of research.md")
+    
+    logger.info(f"Extracted verified source URL: {url_candidate}")
+    return url_candidate
+
+def compute_sha256(file_path: Path) -> str:
+    """Compute SHA-256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
+    return sha256_hash.hexdigest()
+
+def load_hash_registry() -> Dict[str, str]:
+    """Load the hash registry from state/data_hashes.json."""
+    project_root = get_project_root()
+    state_dir = project_root / "state"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    hash_file = state_dir / "data_hashes.json"
+    
+    if hash_file.exists():
+        with open(hash_file, "r") as f:
+            return json.load(f)
+    return {}
+
+def save_hash_registry(registry: Dict[str, str]) -> None:
+    """Save the hash registry to state/data_hashes.json."""
+    project_root = get_project_root()
+    state_dir = project_root / "state"
+    state_dir.mkdir(parents=True, exist_ok=True)
+    hash_file = state_dir / "data_hashes.json"
+    
+    with open(hash_file, "w") as f:
+        json.dump(registry, f, indent=2)
+
+def verify_checksum(file_path: Path, expected_hash: str) -> bool:
+    """Verify the SHA-256 checksum of a file."""
+    actual_hash = compute_sha256(file_path)
+    return actual_hash == expected_hash
+
+def fetch_eye_tracking_data() -> Path:
+    """
+    Fetch the eye-tracking data from the verified source in research.md.
+    Downloads to a temporary location, verifies checksum, then moves to data/raw/.
+    """
+    url = parse_research_md()
+    project_root = get_project_root()
+    
+    # Ensure directories exist
+    raw_dir = project_root / "data" / "raw"
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Determine output filename
+    # Try to extract filename from URL, default to eye_tracking_raw.parquet
+    parsed = urlparse(url)
+    path_name = os.path.basename(parsed.path)
+    if not path_name.endswith('.parquet'):
+        path_name = "eye_tracking_raw.parquet"
+    
+    output_path = raw_dir / path_name
+    
+    # Check if file already exists
+    if output_path.exists():
+        logger.info(f"File {output_path} already exists. Verifying checksum...")
+        registry = load_hash_registry()
+        if path_name in registry:
+            if verify_checksum(output_path, registry[path_name]):
+                logger.info("Checksum matches. Skipping download.")
+                return output_path
             else:
-                # Fallback for streaming datasets that don't have to_pandas directly
-                # We assume the dataset is small enough to convert or we take a sample
-                # In a real scenario, we would iterate and accumulate.
-                # For this implementation, we try to convert directly.
-                df = pd.DataFrame(list(ds))
+                logger.warning("Checksum mismatch. Re-downloading.")
         else:
-            ds = load_dataset(
-                dataset_id,
-                split=split if split else None,
-                revision=revision
-            )
-            if isinstance(ds, dict):
-                # If multiple splits, return the requested one or the first
-                if split and split in ds:
-                    df = ds[split].to_pandas()
-                else:
-                    # Default to first split if split not specified
-                    first_key = next(iter(ds))
-                    df = ds[first_key].to_pandas()
-            else:
-                df = ds.to_pandas()
-
-        logger.info(f"Successfully loaded {len(df)} rows from Dundee dataset.")
-        return df
-
-    except Exception as e:
-        logger.error(f"Failed to load Dundee dataset: {e}")
-        # Fail loudly as per requirements - no synthetic fallback
-        raise RuntimeError(f"Failed to load verified eye-tracking data from {dataset_id}: {e}")
-
-
-def load_boston_eye_tracking(
-    split: str = "train",
-    streaming: bool = False,
-    revision: Optional[str] = None
-) -> pd.DataFrame:
-    """
-    Fetch the Boston University Eye-Tracking Dataset from HuggingFace.
-
-    This dataset contains eye-tracking data from participants reading news articles.
-    It is a verified source per the project plan.
-
-    Args:
-        split: The dataset split to load.
-        streaming: If True, stream the dataset.
-        revision: Specific revision tag.
-
-    Returns:
-        pd.DataFrame: The eye-tracking data.
-
-    Raises:
-        ValueError: If the dataset cannot be found or loaded.
-        RuntimeError: If the fetch fails.
-    """
-    dataset_id = "nab/boston_university_eye_tracking"
-    logger.info(f"Attempting to load dataset: {dataset_id}")
-
+            logger.warning("File exists but no checksum record. Re-downloading to ensure integrity.")
+    
+    # Download
+    logger.info(f"Downloading data from {url}...")
     try:
-        if streaming:
-            ds = load_dataset(
-                dataset_id,
-                split=split if split else None,
-                streaming=True,
-                revision=revision
-            )
-            if hasattr(ds, 'to_pandas'):
-                df = ds.to_pandas()
-            else:
-                df = pd.DataFrame(list(ds))
-        else:
-            ds = load_dataset(
-                dataset_id,
-                split=split if split else None,
-                revision=revision
-            )
-            if isinstance(ds, dict):
-                if split and split in ds:
-                    df = ds[split].to_pandas()
-                else:
-                    first_key = next(iter(ds))
-                    df = ds[first_key].to_pandas()
-            else:
-                df = ds.to_pandas()
+        response = requests.get(url, stream=True)
+        response.raise_for_status()
+        
+        # Save to temp first
+        temp_path = raw_dir / f"{path_name}.tmp"
+        with open(temp_path, 'wb') as f:
+            for chunk in response.iter_content(chunk_size=8192):
+                f.write(chunk)
+        
+        # Compute checksum
+        actual_hash = compute_sha256(temp_path)
+        logger.info(f"Downloaded. SHA-256: {actual_hash}")
+        
+        # Check against registry if it exists (for re-downloads)
+        registry = load_hash_registry()
+        if path_name in registry and registry[path_name] != actual_hash:
+            temp_path.unlink()
+            raise ValueError(f"Checksum mismatch after download. Expected: {registry[path_name]}, Got: {actual_hash}")
+        
+        # Move to final location
+        temp_path.rename(output_path)
+        
+        # Update registry
+        registry[path_name] = actual_hash
+        save_hash_registry(registry)
+        
+        logger.info(f"Data saved to {output_path}")
+        return output_path
+        
+    except requests.exceptions.RequestException as e:
+        raise RuntimeError(f"Failed to download data from {url}: {e}")
 
-        logger.info(f"Successfully loaded {len(df)} rows from Boston dataset.")
-        return df
-
-    except Exception as e:
-        logger.error(f"Failed to load Boston dataset: {e}")
-        raise RuntimeError(f"Failed to load verified eye-tracking data from {dataset_id}: {e}")
-
-
-def fetch_eye_tracking_data(
-    source: str = "dundee",
-    split: str = "train",
-    streaming: bool = False,
-    revision: Optional[str] = None
-) -> pd.DataFrame:
+def validate_eye_tracking_schema(df: pd.DataFrame) -> None:
     """
-    Main entry point to fetch eye-tracking data from verified sources.
-
-    Args:
-        source: The source dataset ('dundee' or 'boston').
-        split: The dataset split to load.
-        streaming: If True, stream the dataset.
-        revision: Specific revision tag.
-
-    Returns:
-        pd.DataFrame: The eye-tracking data.
-
-    Raises:
-        ValueError: If an unknown source is specified.
-        RuntimeError: If the fetch fails.
+    Validate that the loaded dataframe has the expected schema.
+    Raises ValueError if columns are missing.
     """
-    source = source.lower()
-    if source == "dundee":
-        return load_dundee_eye_tracking(split=split, streaming=streaming, revision=revision)
-    elif source == "boston":
-        return load_boston_eye_tracking(split=split, streaming=streaming, revision=revision)
-    else:
-        raise ValueError(f"Unknown eye-tracking source: {source}. Use 'dundee' or 'boston'.")
+    required_columns = ['participant_id', 'timestamp', 'x', 'y', 'duration', 'event_type']
+    # Adjust based on actual expected schema from research.md if known
+    # For now, we assume a standard eye-tracking format.
+    # If the dataset is different, this should be adapted.
+    
+    missing = [col for col in required_columns if col not in df.columns]
+    if missing:
+        raise ValueError(f"Missing required columns: {missing}")
 
-
-def validate_eye_tracking_schema(df: pd.DataFrame) -> bool:
+def load_dundee_eye_tracking() -> pd.DataFrame:
     """
-    Validate that the loaded DataFrame has the expected schema for eye-tracking data.
-
-    Expected columns (at minimum):
-    - participant_id
-    - trial_id
-    - timestamp
-    - x (gaze x-coordinate)
-    - y (gaze y-coordinate)
-
-    Args:
-        df: The DataFrame to validate.
-
-    Returns:
-        bool: True if schema is valid, False otherwise.
+    Load the Dundee eye-tracking dataset (if available).
+    This is a placeholder for specific dataset loading logic if the verified source is Dundee.
     """
-    required_columns = {'participant_id', 'trial_id', 'timestamp', 'x', 'y'}
-    if not required_columns.issubset(df.columns):
-        missing = required_columns - set(df.columns)
-        logger.warning(f"Missing required columns: {missing}")
-        return False
-    return True
+    raise NotImplementedError("Specific dataset loader not implemented; use fetch_eye_tracking_data() for generic download.")
 
+def load_boston_eye_tracking() -> pd.DataFrame:
+    """
+    Load the Boston eye-tracking dataset (if available).
+    """
+    raise NotImplementedError("Specific dataset loader not implemented; use fetch_eye_tracking_data() for generic download.")
 
 def main():
-    """
-    Main function to demonstrate data loading.
-    This function attempts to load data from the Dundee dataset.
-    """
-    # Setup logging
-    logging.basicConfig(level=logging.INFO)
-
+    """Main entry point for data fetching."""
+    logger.info("Starting data fetching process...")
     try:
-        # Attempt to load data
-        logger.info("Starting data loading process...")
-        df = fetch_eye_tracking_data(source="dundee", split="train")
+        output_path = fetch_eye_tracking_data()
+        logger.info(f"Successfully fetched data to: {output_path}")
         
-        # Validate schema
-        if validate_eye_tracking_schema(df):
-            logger.info("Schema validation passed.")
-            logger.info(f"Dataset shape: {df.shape}")
-            logger.info(f"Columns: {list(df.columns)}")
-            logger.info(f"First few rows:\n{df.head()}")
-        else:
-            logger.error("Schema validation failed.")
-            
+        # Optional: Load and validate
+        # df = pd.read_parquet(output_path)
+        # validate_eye_tracking_schema(df)
+        
     except Exception as e:
-        logger.error(f"Data loading failed: {e}")
-        raise
-
+        logger.error(f"Data fetching failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

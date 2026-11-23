@@ -1,3 +1,1 @@
-"""
-Tests package for llmXive Statistical Analysis Project
-"""
+"""Tests for the recipe analysis pipeline."""

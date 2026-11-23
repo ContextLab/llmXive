@@ -1,0 +1,10 @@
+0|matplotlib:
+  quote: Matplotlib, using the matplotlib.pyplot.ecdf function (new in version 3.8.0)
+  source_id: Empirical distribution function
+  url: https://en.wikipedia.org/wiki/Empirical_distribution_function
+  value: 3.8.0
+0|pytest:
+  quote: 3.141592653589793 (math.pi (IEEE-754 double, Python stdlib))
+  source_id: pi
+  url: https://en.wikipedia.org/wiki/Pi
+  value: '3.141592653589793'

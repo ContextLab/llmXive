@@ -1,6 +1,6 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "PolymerRecord"
-description: "Schema for polymer degradation records ingested from NIST/WebBooks-1. Records with missing environmental data or pathway labels are excluded."
+description: "Schema for polymer degradation records with SMILES and environmental conditions."
 type: "object"
 properties:
   id:
@@ -8,35 +8,54 @@ properties:
     description: "Unique identifier (hash of SMILES + conditions)"
   smiles:
     type: "string"
-    description: "Canonical SMILES string of polymer"
-    pattern: "^[A-Za-z0-9@#$%&*\\-+=\\[\\]{}()<>|~]+$"
-  temp:
+    description: "SMILES string of polymer"
+  is_polyester:
+    type: "boolean"
+    description: "True if functional group detected"
+  temp_c:
     type: "number"
-    description: "Temperature in degrees Celsius"
-  pH:
+    description: "Temperature in Celsius; default 25 if imputed."
+    minimum: -273.15
+  ph:
     type: "number"
-    description: "pH value (0-14)"
-  uv:
+    description: "pH value; default 7 if imputed."
+    minimum: 0.0
+    maximum: 14.0
+  uv_exposure:
     type: "number"
-    description: "UV exposure in W/m²"
-  pathway:
+    description: "UV exposure level (0‑1)."
+    minimum: 0.0
+    maximum: 1.0
+  label:
     type: "string"
     description: "Degradation pathway label"
     enum:
       - "hydrolysis"
       - "oxidation"
       - "photolysis"
-      - "other"
-  flags:
-    type: "array"
-    items:
-      type: "string"
-    description: "Flags for missing data, invalid SMILES, manual review"
+  label_source:
+    type: "string"
+    description: "Origin of the label"
+    enum:
+      - "curated"
+      - "synthetic"
+  validation_flag:
+    type: "string"
+    description: "Record validation status"
+    enum:
+      - "valid"
+      - "missing_env"
+      - "invalid_smiles"
 required:
-  - "id"
-  - "smiles"
-  - "temp"
-  - "pH"
-  - "uv"
-  - "pathway"
+  - id
+  - smiles
+  - is_polyester
+  - temp_c
+  - ph
+  - uv_exposure
+  - label
+  - label_source
+  - validation_flag
 additionalProperties: false
+
+

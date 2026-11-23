@@ -1,8 +1,14 @@
-T001 Create project structure per `plan.md` (`code/`, `data/`, `tests/`, `state/`): 1
-? T002 Initialize Python 3.11 project with `requirements.txt` (xgboost, sentence-transformers,
-  pandas, scikit-learn, lifelines, pyyaml, numpy)
-: 1
-T003 [P] Configure linting (flake8/ruff) and formatting (black) tools: 1
-T004 Create `contracts/dataset.schema.yaml` enforcing exclusion of full semantic context text columns: 1
-T005 Create `contracts/output.schema.yaml` for model metrics and simulation logs: 1
-T006 [P] Setup `data/` directory structure (`raw/`, `processed/`) and checksum scripts: 1
+T001: 2
+T003: 2
+T004: 2
+T005: 2
+T006: 2
+T016: 2
+T017: 2
+T020: 1
+T021: 2
+T022: 2
+T023: 1
+T030: 1
+T031: 1
+T032: 1

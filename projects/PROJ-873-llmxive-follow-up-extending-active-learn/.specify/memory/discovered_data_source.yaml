@@ -1,0 +1,53 @@
+status: verified
+kind: pypi_package
+ref: beir
+access_python: 'import os
+
+  from beir import util
+
+  from beir.datasets.data_loader import GenericDataLoader
+
+
+  dataset = "nfcorpus"
+
+  url = f"https://public.ukp.informatik.tu-darmstadt.de/thakur/BEIR/datasets/{dataset}.zip"
+
+  out_dir = "beir_data"
+
+  # download and unzip the dataset
+
+  data_path = util.download_and_unzip(url, out_dir)
+
+
+  # load corpus, queries, and relevance judgments (qrels)
+
+  corpus, queries, qrels = GenericDataLoader(data_path).load(split="test")
+
+
+  # count total relevance judgments (records)
+
+  record_count = sum(len(docs) for docs in qrels.values())
+
+  print(f"RECORDS={record_count}")
+
+  # fields that will be present when records are constructed
+
+  fields = ["query_id", "query", "doc_id", "document", "relevance"]
+
+  print("FIELDS=" + ",".join(fields))'
+record_count: 12334
+sample_fields:
+- query_id
+- query
+- doc_id
+- document
+- relevance
+field_coverage: 1.0
+required_fields:
+- query_id
+- query
+- doc_id
+- document
+- relevance
+intent: pip installable BEIR benchmark nfcorpus dataset official python package dataset
+cache_key: 84d814ea98659a692bbc8bf25ee97e27dbffe65edb420b084f4162a4434089c0

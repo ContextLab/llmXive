@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-874-llmxive-follow-up-extending-enhancing-tr
-last_run_id: 248264c5-20c8-4216-a484-1b6a9e99185b
+last_run_id: f0f54887-7566-44ba-a037-0cbf9b5a5de7
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-874-llmxive-follow-up-extending-enhancing-tr/specs/001-llmxive-follow-up-extending-enhancing-tr
 title: 'llmXive follow-up: extending "Enhancing Train-Free Infinite-Frame Generation
   for Consistent Long Vid"'
-updated_at: '2026-07-13T12:56:23.039050Z'
+updated_at: '2026-09-30T19:01:44.376757Z'

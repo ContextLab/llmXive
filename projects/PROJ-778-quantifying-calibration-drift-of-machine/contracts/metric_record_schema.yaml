@@ -1,92 +1,56 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Metric Record Schema"
-description: "Schema for JSON structure of calibration and covariate shift metrics over time. Includes fields for robustness verification (SC-002) via rho difference calculations."
-type: object
-required:
-  - year
-  - model_type
-  - ece_5
-  - ece_10
-  - ece_20
-  - brier
-  - pca_shift
-  - key_feature_shift
-  - rho_5
-  - rho_10
-  - rho_20
-  - rho_diff_5_10
-  - rho_diff_10_20
-  - max_rho_diff
-  - p_value_wls
-  - change_point_year
-properties:
-  year:
-    type: integer
-    description: "Calendar year of the test snapshot (e.g., 1995, 1996)."
-    minimum: 1994
-  model_type:
-    type: string
-    description: "Type of model used for evaluation."
-    enum:
-      - logistic_regression
-      - random_forest
-  ece_5:
-    type: number
-    description: "Expected Calibration Error with 5 bins."
-    minimum: 0.0
-    maximum: 1.0
-  ece_10:
-    type: number
-    description: "Expected Calibration Error with 10 bins."
-    minimum: 0.0
-    maximum: 1.0
-  ece_20:
-    type: number
-    description: "Expected Calibration Error with 20 bins."
-    minimum: 0.0
-    maximum: 1.0
-  brier:
-    type: number
-    description: "Brier Score (Mean Squared Error of probabilities)."
-    minimum: 0.0
-    maximum: 1.0
-  pca_shift:
-    type: number
-    description: "PCA-based covariate shift metric between train and test distributions."
-    minimum: 0.0
-  key_feature_shift:
-    type: number
-    description: "Mean shift of key features between train and test distributions."
-    minimum: 0.0
-  rho_5:
-    type: number
-    description: "Spearman rank correlation between covariate shift and calibration error for 5-bin ECE."
-  rho_10:
-    type: number
-    description: "Spearman rank correlation between covariate shift and calibration error for 10-bin ECE."
-  rho_20:
-    type: number
-    description: "Spearman rank correlation between covariate shift and calibration error for 20-bin ECE."
-  rho_diff_5_10:
-    type: number
-    description: "Absolute difference between rho_5 and rho_10. Used for robustness verification (SC-002)."
-    minimum: 0.0
-  rho_diff_10_20:
-    type: number
-    description: "Absolute difference between rho_10 and rho_20. Used for robustness verification (SC-002)."
-    minimum: 0.0
-  max_rho_diff:
-    type: number
-    description: "Maximum absolute difference among rho differences. Used to verify consistency across binning strategies."
-    minimum: 0.0
-  p_value_wls:
-    type: number
-    description: "P-value from Weighted Least Squares regression of ECE over time."
-    minimum: 0.0
-    maximum: 1.0
-  change_point_year:
-    type: integer
-    nullable: true
-    description: "Year identified as a change point via BIC-based detection. Null if no significant change point found."
-    minimum: 1994
-additionalProperties: false
+# Metric Record Schema
+# Defines the JSON structure for calibration and covariate shift metrics per year
+
+schema_name: metric_record_schema
+version: "1.0"
+description: "Schema for recording calibration and covariate shift metrics over time."
+
+fields:
+  - name: year
+    type: int
+    description: "Year of the data snapshot"
+  - name: model_type
+    type: str
+    description: "Type of model (e.g., LogisticRegression, RandomForest)"
+  - name: ece_5
+    type: float
+    description: "Expected Calibration Error with 5 bins"
+  - name: ece_10
+    type: float
+    description: "Expected Calibration Error with 10 bins"
+  - name: ece_20
+    type: float
+    description: "Expected Calibration Error with 20 bins"
+  - name: brier
+    type: float
+    description: "Brier Score"
+  - name: pca_shift
+    type: float
+    description: "PCA-based covariate shift metric"
+  - name: key_feature_shift
+    type: float
+    description: "Key feature mean shift metric"
+  - name: rho_5
+    type: float
+    description: "Spearman correlation between shift and ECE (5 bins)"
+  - name: rho_10
+    type: float
+    description: "Spearman correlation between shift and ECE (10 bins)"
+  - name: rho_20
+    type: float
+    description: "Spearman correlation between shift and ECE (20 bins)"
+  - name: rho_diff_5_10
+    type: float
+    description: "Absolute difference between rho_5 and rho_10"
+  - name: rho_diff_10_20
+    type: float
+    description: "Absolute difference between rho_10 and rho_20"
+  - name: max_rho_diff
+    type: float
+    description: "Maximum difference across rho values (robustness check)"
+  - name: p_value_wls
+    type: float
+    description: "P-value from Weighted Least Squares regression of ECE vs Year"
+  - name: change_point_year
+    type: int
+    description: "Year identified as a change point by BIC-based detection"

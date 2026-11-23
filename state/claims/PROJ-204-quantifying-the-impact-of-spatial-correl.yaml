@@ -1,0 +1,57 @@
+- artifact_path: projects/PROJ-204-quantifying-the-impact-of-spatial-correl/quickstart.md
+  attempts: 1
+  canonical: feasibility script automatically detects newly available EDS maps
+  claim_id: c_bdeaf9d7
+  context: "To add new samples (e.g., after a database update), simply re\u2011execute\
+    \ main_pipeline.py; the feasibility script will automatically detect newly available\
+    \ EDS maps."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The feasibility script will automatically detect newly available EDS maps.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T17:07:44Z'
+- artifact_path: projects/PROJ-204-quantifying-the-impact-of-spatial-correl/quickstart.md
+  attempts: 1
+  canonical: "pipeline continues with performance\u2011only analysis when no EDS maps\
+    \ are found"
+  claim_id: c_2e8a1a4e
+  context: "Reports how many EDS maps were found via the verified HuggingFace dataset\
+    \ doe2023/perovskite-eds. If none are found, the pipeline continues with a performance\u2011\
+    only analysis (no abort)."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "If no EDS maps are found, the pipeline continues with a performance\u2011\
+    only analysis (no abort)."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T17:07:44Z'
+- artifact_path: projects/PROJ-204-quantifying-the-impact-of-spatial-correl/quickstart.md
+  attempts: 1
+  canonical: summary_report.csv contains correlation coefficients, confidence intervals,
+    effect size, p-values, adjusted p-values, GAM deviance, delta r, sample counts,
+    and diagnostic flags
+  claim_id: c_ea2d8177
+  context: "Key outputs: results/summary_report.csv \u2013 Correlation coefficients,\
+    \ 95\u202F% CIs, effect\u2011size\u202Fq, p\u2011values, BH\u2011adjusted p\u2011\
+    values, GAM deviance, \u0394r, sample counts, and diagnostic flags."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The summary_report.csv includes correlation coefficients, 95\u202F% confidence\
+    \ intervals, effect\u2011size q, p\u2011values, BH\u2011adjusted p\u2011values,\
+    \ GAM deviance, \u0394r, sample counts, and diagnostic flags."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-24T17:07:44Z'

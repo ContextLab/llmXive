@@ -1,0 +1,61 @@
+T001:
+  c: false
+  h: 54f5a608a1b0929813a217cd656fac17c8ef77bdff8010588737e3d600bef50c
+  r: "The evidence shows `code/src/__init__.py` but does not include `__init__.py`\
+    \ files inside the required sub\u2011packages (`data/`, `analysis/`, `stats/`,\
+    \ `reporting/`, `utils/`). Moreover, there is no execution evidence that `python\
+    \ -m code.src.run_pipeline --dry-run` exits with code\u202F0 and prints \u201C\
+    Pipeline completed (dry\u2011run)\u201D, nor any pytest output confirming \u201C\
+    0 failed, X passed\u201D. These missing artifacts prevent the task from being\
+    \ considered complete."
+  sig: e40c63c39958da1247ce7baa5274b0ca993406334c419a49169d28883d67b378
+T003:
+  c: false
+  h: 36b3049dd3724c58b6046e24a6f66297d9133259a9585171911c3f815106c851
+  r: "The repository contains the `code/src/data/qc.py` script, but the required input\
+    \ file `data/raw/dsrt_scores.parquet` is missing, and the expected output artifacts\
+    \ `data/derived/clean_subjects.parquet` and `data/derived/subject_qc.csv` do not\
+    \ exist. Moreover, the unit test for the QC module fails during import (pandas\
+    \ version error), so the script\u2019s behavior has not been validated nor proven\
+    \ to meet the schema requirements. These missing files and failing tests must\
+    \ be addressed for the task to be considered complete."
+  sig: 65d3ed5013593df94f0e2d577c2b3765821247a5b4ba2b32639d5674308797f1
+T004:
+  c: false
+  h: fc964befcec645b08e187701a7863788442f67ca8d31f0c670ec036b734b8356
+  r: "Checked the repository and found that while `code/src/analysis/entropy.py` is\
+    \ present and implements the required functions, the required output artifacts\
+    \ `data/derived/entropy_matrix.parquet`, `data/derived/entropy_metadata.json`,\
+    \ and `data/derived/invalid_parcels.csv` are all missing. Without these files\
+    \ the task\u2019s deliverables (matrix with checksum, metadata JSON, and invalid\u2011\
+    parcel log) are not satisfied."
+  sig: 53de2856ea523bac38e38b85654d50c1bb962a2c83ea3147ea1771c436f22663
+T005:
+  c: false
+  h: 293947002efff8bbdcac352cf850c236a8b364f90089704be234a23415ddce4f
+  r: "The run_pipeline script exists and logs \u201CCompleted 5 subjects, 400 parcels\u201D\
+    , but the required output files are missing \u2013 `results/entropy_matrix.parquet`\
+    \ (and its source `data/derived/entropy_matrix.parquet`) and `results/covariates.parquet`\
+    \ do not exist, so their columns cannot be verified. Additionally, there is no\
+    \ evidence that the pipeline processes parcels in batches of \u2264\u202F50 to\
+    \ keep RAM\u202F<\u202F4\u202FGB. The task\u2019s core deliverables are therefore\
+    \ not satisfied."
+  sig: af9e6b6633fc1d0d80f70bc38e9a4e7db92c86e88f8ef09345e8e7f0621d8145
+T006:
+  c: false
+  h: 1209080e052ac9ba635f3a12dc2f4a13ad0cb066e790fbed74cc2ff3ee0f43f8
+  r: "The run_pipeline script exists but the only recorded execution was a dry\u2011\
+    run (no HCP_TOKEN, subjects defaulted to 5) which never writes `results/pipeline_metrics.json`.\
+    \ The required metrics file is missing, and there is no evidence that the pipeline\
+    \ was run on 200 subjects or that the two result files from T005 were produced\
+    \ for the full cohort. The task therefore fails to meet its specifications."
+  sig: 1440a22058fd1530f86b9dcbefc42277a1e6842a81de4e16f3fd9409677b253b
+T014:
+  c: true
+  h: 965b528399806294565a81ed7793de1619368d87acdb5b4711c08077072455d4
+  r: "Checked `code/src/stats/power_pre.py` for correct use of `FTestPower` with the\
+    \ specified parameters and JSON output logic, and verified `results/power_analysis_pre.json`\
+    \ contains the required fields with a power value\u202F\u2248\u202F0.051 (<\u202F\
+    0.80) and `underpowered: true`. The script runs (as shown in the execution log)\
+    \ and produces a parsable JSON file matching the task specification."
+  sig: 370eb0e20a37a3b965400d66fd49430382fe8d375c1693fade2f107455aa4019

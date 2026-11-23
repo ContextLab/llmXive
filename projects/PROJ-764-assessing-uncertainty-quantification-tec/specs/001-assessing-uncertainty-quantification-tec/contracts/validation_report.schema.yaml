@@ -1,0 +1,28 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Validation Report Schema"
+description: "Schema for the validation_report.json file generated during data preprocessing."
+type: "object"
+properties:
+  excluded_count:
+    type: "integer"
+    description: "Number of rows excluded due to missing critical features."
+    minimum: 0
+  missing_columns:
+    type: "array"
+    description: "List of column names that were missing in the excluded rows."
+    items:
+      type: "string"
+  total_raw_rows:
+    type: "integer"
+    description: "Total number of rows in the raw dataset before exclusion."
+    minimum: 0
+  remaining_rows:
+    type: "integer"
+    description: "Number of rows remaining after exclusion."
+    minimum: 0
+required:
+  - "excluded_count"
+  - "missing_columns"
+  - "total_raw_rows"
+  - "remaining_rows"
+additionalProperties: false

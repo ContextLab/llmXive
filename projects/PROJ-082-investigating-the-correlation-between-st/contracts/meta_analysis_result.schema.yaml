@@ -1,124 +1,157 @@
-%YAML 1.2
----
+$schema: http://json-schema.org/draft-07/schema#
 title: Meta-Analysis Result Schema
-description: Schema for the aggregated results of the meta-analysis pipeline.
+description: Schema for pooled effect, confidence intervals, heterogeneity, and bias metrics from the meta-analysis pipeline.
 type: object
 required:
-  - analysis_id
-  - timestamp
-  - synthesis_mode
-  - study_count
-  - results
+  - pooled_effect_size
+  - confidence_interval
+  - heterogeneity_metrics
+  - bias_assessment
+  - model_type
+  - n_studies
 properties:
-  analysis_id:
+  pooled_effect_size:
+    type: object
+    description: The pooled correlation coefficient (r) and its Fisher's z transformed value.
+    required:
+      - r
+      - z
+    properties:
+      r:
+        type: number
+        description: The pooled correlation coefficient (back-transformed from z).
+      z:
+        type: number
+        description: The pooled Fisher's z transformed value.
+      se:
+        type: number
+        description: Standard error of the pooled z.
+      ci_lower_z:
+        type: number
+        description: Lower bound of the confidence interval in z-space.
+      ci_upper_z:
+        type: number
+        description: Upper bound of the confidence interval in z-space.
+
+  confidence_interval:
+    type: object
+    description: The confidence interval for the pooled effect in r-space.
+    required:
+      - level
+      - lower
+      - upper
+    properties:
+      level:
+        type: number
+        description: Confidence level (e.g., 0.95).
+      lower:
+        type: number
+        description: Lower bound of the CI in r-space.
+      upper:
+        type: number
+        description: Upper bound of the CI in r-space.
+
+  heterogeneity_metrics:
+    type: object
+    description: Metrics quantifying heterogeneity across studies.
+    required:
+      - i_squared
+      - tau_squared
+      - q_statistic
+      - q_p_value
+    properties:
+      i_squared:
+        type: number
+        description: I² statistic (percentage of total variation due to heterogeneity).
+      tau_squared:
+        type: number
+        description: Between-study variance (Tau²).
+      q_statistic:
+        type: number
+        description: Cochran's Q statistic.
+      q_p_value:
+        type: number
+        description: P-value for Cochran's Q test.
+      interpretation:
+        type: string
+        description: Qualitative interpretation of heterogeneity (e.g., "Low", "Moderate", "High").
+
+  bias_assessment:
+    type: object
+    description: Results from publication bias tests (e.g., Egger's regression).
+    required:
+      - egger_test
+    properties:
+      egger_test:
+        type: object
+        description: Egger's regression test results.
+        properties:
+          intercept:
+            type: number
+            description: Intercept of the Egger's regression.
+          p_value:
+            type: number
+            description: P-value for the intercept (significance of asymmetry).
+          t_statistic:
+            type: number
+            description: T-statistic for the intercept.
+          skipped:
+            type: boolean
+            description: Whether the test was skipped (e.g., N < 10).
+          reason:
+            type: string
+            description: Reason for skipping if applicable.
+
+  model_type:
     type: string
-    description: Unique identifier for this analysis run.
+    description: Type of meta-analysis model used.
+    enum:
+      - fixed_effects
+      - random_effects
+
+  n_studies:
+    type: integer
+    description: Number of studies included in the analysis.
+
+  n_valid_pairs:
+    type: integer
+    description: Number of studies with valid (r, n) pairs.
+
+  k_tracts:
+    type: integer
+    description: Number of distinct tracts analyzed (for correction context).
+
+  correction_applied:
+    type: object
+    description: Details on multiple comparisons correction if applied.
+    properties:
+      bonferroni_applied:
+        type: boolean
+      alpha_adjusted:
+        type: number
+      p_adjusted:
+        type: array
+        items:
+          type: number
+        description: List of adjusted p-values.
+
+  hartung_knapp_adjusted:
+    type: boolean
+    description: Whether Hartung-Knapp adjustment was applied.
+
+  meta_status:
+    type: string
+    description: Status of the meta-analysis execution.
+    enum:
+      - completed
+      - skipped
+      - failed
+
+  skip_reason:
+    type: string
+    description: Reason for skipping if meta_status is 'skipped'.
+
   timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp when analysis was completed.
-  synthesis_mode:
-    type: string
-    enum:
-      - quantitative
-      - narrative
-      - empty
-    description: Mode of synthesis based on study count.
-  study_count:
-    type: integer
-    description: Number of eligible studies included in the analysis.
-    minimum: 0
-  results:
-    type: object
-    description: Results container based on synthesis mode.
-    oneOf:
-      - title: Quantitative Results
-        required:
-          - weighted_mean_r
-          - confidence_interval
-          - i_squared
-          - heterogeneity_p_value
-          - egger_test
-        properties:
-          weighted_mean_r:
-            type: number
-            description: Pooled effect size (random-effects model).
-          confidence_interval:
-            type: object
-            required:
-              - lower
-              - upper
-            properties:
-              lower:
-                type: number
-              upper:
-                type: number
-          i_squared:
-            type: number
-            description: Heterogeneity statistic (I²) with two decimal places.
-            minimum: 0.0
-            maximum: 100.0
-          heterogeneity_p_value:
-            type: number
-            description: P-value for Q-test of heterogeneity.
-          egger_test:
-            type: object
-            description: Egger's regression test results.
-            required:
-              - intercept
-              - p_value
-            properties:
-              intercept:
-                type: number
-              p_value:
-                type: number
-                description: P-value for Egger's test.
-          correction_method:
-            type: string
-            description: Method used for multiple comparison correction (e.g., Bonferroni).
-          adjusted_threshold:
-            type: number
-            description: Adjusted significance threshold if correction applied.
-          limitations:
-            type: string
-            description: Notes on limitations (e.g., Bonferroni conservatism).
-      - title: Narrative Results
-        required:
-          - narrative_summary
-        properties:
-          narrative_summary:
-            type: object
-            required:
-              - overview
-              - themes
-              - limitations
-            properties:
-              overview:
-                type: string
-              themes:
-                type: array
-                items:
-                  type: string
-              limitations:
-                type: string
-          egger_skipped_reason:
-            type: string
-            description: Reason for skipping Egger's test if N < 10.
-      - title: Empty Results
-        required:
-          - message
-        properties:
-          message:
-            type: string
-            description: Message indicating no studies were found.
-  metadata:
-    type: object
-    description: Additional metadata about the run.
-    properties:
-      config_hash:
-        type: string
-      input_files:
-        type: array
-        items:
-          type: string
-additionalProperties: false
+    description: ISO 8601 timestamp of when the analysis was run.

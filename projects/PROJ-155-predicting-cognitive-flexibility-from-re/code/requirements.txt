@@ -1,0 +1,12 @@
+numpy
+pandas
+scikit-learn
+statsmodels
+nibabel
+scipy
+networkx
+tqdm
+pyyaml
+nitime
+pytest
+nilearn

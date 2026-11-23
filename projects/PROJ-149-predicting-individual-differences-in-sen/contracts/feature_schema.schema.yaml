@@ -1,0 +1,39 @@
+version: "1.0"
+name: feature_schema
+description: Schema for data/processed/features.csv
+columns:
+  participant_id:
+    type: string
+    required: true
+    nullable: false
+  median_rt:
+    type: float
+    required: true
+    nullable: false
+    constraints:
+      min: 100
+      max: 2000
+  delta_rel:
+    type: float
+    required: true
+    nullable: false
+  theta_rel:
+    type: float
+    required: true
+    nullable: false
+  alpha_rel:
+    type: float
+    required: true
+    nullable: false
+  low_beta_rel:
+    type: float
+    required: true
+    nullable: false
+  high_beta_rel:
+    type: float
+    required: true
+    nullable: false
+  gamma_rel:
+    type: float
+    required: true
+    nullable: false

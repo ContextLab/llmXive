@@ -1,0 +1,43 @@
+# Project Configuration
+# Defines paths, seeds, and processing parameters.
+
+project:
+  name: "PROJ-107-quantifying-the-effects-of-dark-matter-h"
+  version: "1.0.0"
+  description: "Quantifying the Effects of Dark Matter Halo Shapes on Galaxy Formation"
+
+paths:
+  # Relative to project root
+  code_root: "code"
+  data_root: "data"
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  outputs_root: "outputs"
+  outputs_figures: "outputs/figures"
+  outputs_reports: "outputs/reports"
+
+processing:
+  # Random seed for reproducibility
+  random_seed: 42
+  
+  # Halo filtering
+  min_particles: 10000
+  
+  # Chunking for memory management (7GB RAM constraint)
+  chunk_size: 1000  # Number of halos per chunk
+  
+  # Shape binning thresholds (c/a)
+  bin_prolate_max: 0.5
+  bin_triaxial_min: 0.5
+  bin_triaxial_max: 0.8
+  bin_spherical_min: 0.8
+
+data_sources:
+  tng_api_base: "https://www.tng-project.org/api/v2"
+  # Note: Actual API keys and specific snapshot IDs are loaded from environment or secrets
+  # if required by the API.
+
+logging:
+  level: "INFO"
+  file: "logs/pipeline.log"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

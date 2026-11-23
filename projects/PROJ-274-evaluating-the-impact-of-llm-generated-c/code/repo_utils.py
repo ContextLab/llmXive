@@ -1,206 +1,282 @@
 """
-Repository Utilities for llmXive Project PROJ-274.
-
-Implements codebase fetching (limiting to 500 files) and commit pinning logic.
-Depends on T021c (covariate collection) and T047 (validation consolidation).
+Repository utilities for fetching, pinning, and streaming codebases.
+Implements T024: Codebase fetching (<=500 files) and commit pinning logic.
 """
 import os
 import subprocess
 import hashlib
 import json
-from typing import List, Dict, Any, Optional, Tuple
+import logging
+from typing import List, Dict, Any, Optional, Tuple, Generator, Iterable
 from pathlib import Path
 
+# Configure logging for this module
+logger = logging.getLogger(__name__)
+
 # Constants
-MAX_FILES = 500
-DATA_RAW_DIR = "data/raw"
-CHECKSUM_FILE = "data/checksums.txt"
+MAX_FILES_LIMIT = 500
+GIT_TIMEOUT = 300  # seconds
 
+class DataFetchError(Exception):
+    """Raised when real data fetching fails."""
+    pass
 
-def ensure_dirs() -> None:
-    """Ensure required directories exist."""
-    os.makedirs(DATA_RAW_DIR, exist_ok=True)
-    os.makedirs(os.path.join(DATA_RAW_DIR, "pinned_repos"), exist_ok=True)
+def ensure_dirs(output_dir: str) -> None:
+    """Ensure the output directory exists."""
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
 
-
-def clone_or_fetch_repo(repo_url: str, target_dir: str, commit_hash: Optional[str] = None) -> Tuple[str, str]:
+def clone_or_fetch_repo(repo_url: str, commit_hash: str, output_dir: str) -> str:
     """
-    Clone a repository or fetch updates if it already exists.
-    Optionally checkout a specific commit for pinning.
-
+    Clone a repository and checkout a specific commit.
+    Returns the path to the checked-out directory.
+    
     Args:
-        repo_url: URL of the git repository.
-        target_dir: Local directory path for the repository.
-        commit_hash: Optional specific commit hash to pin to.
-
+        repo_url: URL of the git repository
+        commit_hash: Specific commit hash to pin to
+        output_dir: Directory to clone into
+        
     Returns:
-        Tuple of (local_path, actual_commit_hash).
+        Path to the checked-out repository directory
+        
+    Raises:
+        DataFetchError: If the repository cannot be fetched or commit not found
     """
-    ensure_dirs()
-
-    if not os.path.exists(target_dir):
-        # Clone the repository
-        subprocess.run(["git", "clone", repo_url, target_dir], check=True, capture_output=True)
+    ensure_dirs(output_dir)
+    repo_name = repo_url.rstrip('/').split('/')[-1].replace('.git', '')
+    repo_path = os.path.join(output_dir, repo_name)
+    
+    # Check if repo already exists
+    if os.path.exists(repo_path):
+        logger.info(f"Repository {repo_name} already exists at {repo_path}")
     else:
-        # Fetch updates to ensure we have the latest commit info
-        subprocess.run(["git", "-C", target_dir, "fetch", "origin"], check=True, capture_output=True)
-
-    # Determine the commit hash
-    if commit_hash:
-        # Checkout specific commit for pinning
-        subprocess.run(["git", "-C", target_dir, "checkout", commit_hash], check=True, capture_output=True)
-        actual_hash = commit_hash
-    else:
-        # Get the current HEAD commit hash
+        logger.info(f"Cloning repository {repo_url}...")
+        try:
+            subprocess.run(
+                ['git', 'clone', '--depth', '1', repo_url, repo_path],
+                check=True,
+                timeout=GIT_TIMEOUT,
+                capture_output=True,
+                text=True
+            )
+        except subprocess.CalledProcessError as e:
+            raise DataFetchError(f"Failed to clone repository {repo_url}: {e.stderr}")
+        except subprocess.TimeoutExpired:
+            raise DataFetchError(f"Timeout cloning repository {repo_url}")
+    
+    # Checkout specific commit
+    logger.info(f"Checking out commit {commit_hash}...")
+    try:
         result = subprocess.run(
-            ["git", "-C", target_dir, "rev-parse", "HEAD"],
+            ['git', '-C', repo_path, 'fetch', 'origin', commit_hash],
             check=True,
+            timeout=GIT_TIMEOUT,
+            capture_output=True,
+            text=True
+        )
+    except subprocess.CalledProcessError as e:
+        raise DataFetchError(f"Failed to fetch commit {commit_hash}: {e.stderr}")
+    
+    try:
+        result = subprocess.run(
+            ['git', '-C', repo_path, 'checkout', commit_hash],
+            check=True,
+            timeout=GIT_TIMEOUT,
+            capture_output=True,
+            text=True
+        )
+    except subprocess.CalledProcessError as e:
+        raise DataFetchError(f"Failed to checkout commit {commit_hash}: {e.stderr}")
+    
+    # Verify commit hash matches
+    try:
+        result = subprocess.run(
+            ['git', '-C', repo_path, 'rev-parse', 'HEAD'],
+            check=True,
+            timeout=GIT_TIMEOUT,
             capture_output=True,
             text=True
         )
         actual_hash = result.stdout.strip()
+        if not actual_hash.startswith(commit_hash):
+            raise DataFetchError(f"Commit hash mismatch: expected {commit_hash}, got {actual_hash}")
+    except subprocess.CalledProcessError as e:
+        raise DataFetchError(f"Failed to verify commit hash: {e.stderr}")
+    
+    logger.info(f"Successfully pinned to commit {actual_hash}")
+    return repo_path
 
-    return target_dir, actual_hash
-
-
-def get_repo_files(target_dir: str, max_files: int = MAX_FILES) -> List[str]:
+def get_repo_files(repo_path: str, max_files: int = MAX_FILES_LIMIT) -> Tuple[List[str], int]:
     """
-    Retrieve a list of files in the repository, limiting to max_files.
-    Filters out common non-source files (e.g., .git, .md, .txt in root).
-
+    Get list of files in the repository, respecting the max_files limit.
+    
     Args:
-        target_dir: Path to the repository.
-        max_files: Maximum number of files to return.
-
+        repo_path: Path to the repository
+        max_files: Maximum number of files to return
+        
     Returns:
-        List of relative file paths.
+        Tuple of (list of file paths, total file count)
+        
+    Raises:
+        DataFetchError: If file count exceeds limit
     """
-    files = []
-    for root, _, filenames in os.walk(target_dir):
-        # Skip .git and other hidden directories
-        dirs_to_skip = {'.git', '__pycache__', 'node_modules', 'venv', '.venv', 'dist', 'build'}
-        dirs_to_skip.update({d for d in os.listdir(root) if d.startswith('.') and d != '.'})
-
-        # Filter directories in-place to skip them in future iterations
-        dirs = [d for d in os.listdir(root) if os.path.isdir(os.path.join(root, d)) and d not in dirs_to_skip]
-        # This doesn't work with os.walk directly, so we filter the filenames list instead
-
-        for filename in filenames:
-            if len(files) >= max_files:
-                return files
-
-            full_path = os.path.join(root, filename)
-            rel_path = os.path.relpath(full_path, target_dir)
-
-            # Skip common non-source files
-            if any(ext in filename.lower() for ext in ['.md', '.txt', '.rst', '.json', '.yaml', '.yml', '.toml']):
-                if filename.startswith('.') or filename == 'LICENSE' or filename == 'README.md':
-                    continue
-
-            # Skip binary files
-            try:
-                with open(full_path, 'rb') as f:
-                    chunk = f.read(8192)
-                    if b'\0' in chunk:
-                        continue
-            except (IOError, OSError):
-                continue
-
-            files.append(rel_path)
-
-    return files[:max_files]
-
-
-def generate_checksum(target_dir: str, file_list: List[str]) -> str:
-    """
-    Generate a SHA-256 checksum for the set of files in the repository.
-
-    Args:
-        target_dir: Path to the repository.
-        file_list: List of relative file paths to include in checksum.
-
-    Returns:
-        Hexadecimal checksum string.
-    """
-    hasher = hashlib.sha256()
-    for rel_path in sorted(file_list):
-        full_path = os.path.join(target_dir, rel_path)
-        try:
-            with open(full_path, 'rb') as f:
-                while chunk := f.read(8192):
-                    hasher.update(chunk)
-        except (IOError, OSError):
+    if not os.path.isdir(repo_path):
+        raise DataFetchError(f"Repository path does not exist: {repo_path}")
+    
+    all_files = []
+    for root, _, files in os.walk(repo_path):
+        # Skip common non-code directories
+        if any(skip in root for skip in ['.git', '__pycache__', 'node_modules', 'venv', '.tox']):
             continue
-    return hasher.hexdigest()
+        for file in files:
+            # Skip binary files and common non-text files
+            if file.endswith(('.png', '.jpg', '.jpeg', '.gif', '.ico', '.exe', '.dll', '.so')):
+                continue
+            all_files.append(os.path.join(root, file))
+    
+    total_count = len(all_files)
+    
+    if total_count > max_files:
+        raise DataFetchError(
+            f"Repository has {total_count} files, exceeding limit of {max_files}. "
+            f"Please select a smaller repository or adjust the limit."
+        )
+    
+    # Sort for deterministic ordering
+    all_files.sort()
+    return all_files, total_count
 
-
-def log_pinned_repo(repo_url: str, commit_hash: str, file_count: int, checksum: str, output_file: str) -> None:
+def generate_checksum(file_path: str) -> str:
     """
-    Log the pinned repository details to a JSON file.
-
+    Generate SHA-256 checksum for a file.
+    
     Args:
-        repo_url: Original repository URL.
-        commit_hash: Pinned commit hash.
-        file_count: Number of files fetched.
-        checksum: SHA-256 checksum of the file set.
-        output_file: Path to the output JSON file.
+        file_path: Path to the file
+        
+    Returns:
+        Hex digest of the file's SHA-256 hash
     """
-    record = {
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def log_pinned_repo(repo_url: str, commit_hash: str, repo_path: str, output_file: str) -> None:
+    """
+    Log the pinned repository information to a JSON file.
+    
+    Args:
+        repo_url: Original repository URL
+        commit_hash: Pinned commit hash
+        repo_path: Local path to the repository
+        output_file: Path to the output JSON file
+    """
+    ensure_dirs(os.path.dirname(output_file))
+    
+    repo_info = {
         "repo_url": repo_url,
         "commit_hash": commit_hash,
-        "file_count": file_count,
-        "checksum": checksum,
-        "timestamp": subprocess.run(["date", "-u", "+%Y-%m-%dT%H:%M:%SZ"], capture_output=True, text=True).stdout.strip()
+        "repo_path": repo_path,
+        "pinned_at": subprocess.run(
+            ['git', '-C', repo_path, 'log', '-1', '--format=%ci'],
+            capture_output=True,
+            text=True
+        ).stdout.strip() if os.path.exists(repo_path) else "unknown"
     }
-
-    # Load existing records if any
-    records = []
-    if os.path.exists(output_file):
-        with open(output_file, 'r') as f:
-            try:
-                records = json.load(f)
-            except json.JSONDecodeError:
-                records = []
-
-    records.append(record)
-
+    
     with open(output_file, 'w') as f:
-        json.dump(records, f, indent=2)
+        json.dump(repo_info, f, indent=2)
+    
+    logger.info(f"Pinned repository logged to {output_file}")
 
-
-def main() -> None:
+def stream_repo_content(repo_path: str, file_list: List[str]) -> Generator[Tuple[str, str], None, None]:
     """
-    Main entry point for testing the repo fetching and pinning logic.
-    Demonstrates the workflow with a sample repository.
+    Stream file contents from the repository.
+    
+    Args:
+        repo_path: Path to the repository
+        file_list: List of file paths to stream
+        
+    Yields:
+        Tuples of (relative_path, content)
     """
-    # Example usage (can be replaced with actual repo selection from T021b/T021c)
-    # Using a small, public repo for demonstration
-    test_repo_url = "https://github.com/pallets/click.git"
-    target_dir = os.path.join(DATA_RAW_DIR, "pinned_repos", "click_test")
-    pinned_output = os.path.join(DATA_RAW_DIR, "pinned_repos", "pinned_repos.json")
+    for file_path in file_list:
+        try:
+            with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
+                content = f.read()
+                rel_path = os.path.relpath(file_path, repo_path)
+                yield rel_path, content
+        except Exception as e:
+            logger.warning(f"Failed to read {file_path}: {e}")
+            continue
 
-    print(f"Fetching and pinning repository: {test_repo_url}")
+def construct_llm_prompt_stream(repo_name: str, file_stream: Iterable[Tuple[str, str]], max_tokens: Optional[int] = None) -> str:
+    """
+    Construct an LLM prompt from streamed repository content.
+    
+    Args:
+        repo_name: Name of the repository
+        file_stream: Iterable of (relative_path, content) tuples
+        max_tokens: Optional maximum token limit (approximate)
+        
+    Returns:
+        Formatted prompt string
+    """
+    prompt_parts = [f"Repository: {repo_name}\n\n"]
+    token_count = 0
+    estimated_chars_per_token = 4
+    
+    for rel_path, content in file_stream:
+        file_prompt = f"--- File: {rel_path} ---\n{content}\n\n"
+        estimated_tokens = len(file_prompt) / estimated_chars_per_token
+        
+        if max_tokens and token_count + estimated_tokens > max_tokens:
+            logger.warning(f"Token limit reached at {token_count}/{max_tokens}, stopping stream")
+            break
+        
+        prompt_parts.append(file_prompt)
+        token_count += estimated_tokens
+    
+    return "".join(prompt_parts)
 
-    # Clone/fetch and pin (using latest HEAD as commit_hash=None)
-    local_path, actual_hash = clone_or_fetch_repo(test_repo_url, target_dir)
-
-    # Get files (limited to 500)
-    files = get_repo_files(local_path, MAX_FILES)
-    print(f"Fetched {len(files)} files (max {MAX_FILES})")
-
-    # Generate checksum
-    checksum = generate_checksum(local_path, files)
-    print(f"Generated checksum: {checksum[:16]}...")
-
-    # Log the pinned repo
-    log_pinned_repo(test_repo_url, actual_hash, len(files), checksum, pinned_output)
-    print(f"Logged pinned repo details to {pinned_output}")
-
-    # Also update the global checksums file
-    with open(CHECKSUM_FILE, 'a') as f:
-        f.write(f"{checksum}  {os.path.basename(target_dir)}\n")
-    print(f"Updated global checksums file: {CHECKSUM_FILE}")
-
+def main():
+    """Main entry point for testing repo_utils functionality."""
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Repository utilities for code fetching and pinning')
+    parser.add_argument('--repo', required=True, help='Repository URL')
+    parser.add_argument('--commit', required=True, help='Commit hash to pin to')
+    parser.add_argument('--output-dir', default='data/raw/repos', help='Output directory for cloned repo')
+    parser.add_argument('--log-file', default='data/raw/pinned_repo.json', help='Path to log pinned repo info')
+    
+    args = parser.parse_args()
+    
+    try:
+        # Clone and checkout
+        repo_path = clone_or_fetch_repo(args.repo, args.commit, args.output_dir)
+        
+        # Get file list
+        files, count = get_repo_files(repo_path)
+        logger.info(f"Found {count} files in repository")
+        
+        # Log pinned repo
+        log_pinned_repo(args.repo, args.commit, repo_path, args.log_file)
+        
+        # Verify checksum of a sample file
+        if files:
+            sample_file = files[0]
+            checksum = generate_checksum(sample_file)
+            logger.info(f"Sample file checksum: {checksum}")
+        
+        logger.info("Repository fetching and pinning completed successfully")
+        
+    except DataFetchError as e:
+        logger.error(f"Data fetch error: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        raise
 
 if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     main()

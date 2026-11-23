@@ -1,71 +1,34 @@
+"""
+code/utils/ingestion_stats.py
+------------------------------
+
+Helper utilities that compute ingestion statistics.  The functions are
+lightweight wrappers used by ``code/main_pipeline.py``.  They operate on the
+``data/results/ingestion_stats.json`` file produced by the ingestion step.
+"""
+
 import json
-import logging
-import os
 from pathlib import Path
-from typing import Dict, Any, Optional
-import yaml
+from typing import Dict
 
-__all__ = ["load_yaml_safe", "calculate_ingestion_stats", "write_ingestion_stats", "main"]
+from llmxive_toolkit import paths
 
-def load_yaml_safe(path: str) -> Dict[str, Any]:
+def calculate_ingestion_stats(config: Dict) -> Dict:
     """
-    Safely load a YAML file, returning an empty dict on failure.
-
-    Parameters
-    ----------
-    path: str
-        Path to the YAML file.
-
-    Returns
-    -------
-    Dict[str, Any]
-        Parsed contents or empty dict.
+    Load ``ingestion_stats.json`` and return its contents as a dictionary.
+    If the file does not exist, an empty dict is returned.
     """
-    try:
-        with open(path, "r") as f:
-            return yaml.safe_load(f) or {}
-    except FileNotFoundError:
-        logging.warning("YAML file not found: %s", path)
+    stats_path = paths.results("ingestion_stats.json")
+    if not stats_path.is_file():
         return {}
+    with open(stats_path, "r") as f:
+        return json.load(f)
 
-def calculate_ingestion_stats(
-    requested: int, processed: int
-) -> Dict[str, float]:
+def write_ingestion_stats(config: Dict) -> None:
     """
-    Compute ingestion success rate.
-
-    Parameters
-    ----------
-    requested: int
-        Number of samples that were requested.
-    processed: int
-        Number of samples successfully processed.
-
-    Returns
-    -------
-    Dict[str, float]
-        Dictionary with ``'ingestion_success_rate'``.
+    Placeholder – the actual stats are written by ``code/data/ingest.py``.
+    This function exists so that ``code/main_pipeline.py`` can import it
+    without raising an ``ImportError``.
     """
-    rate = processed / requested if requested > 0 else 0.0
-    return {"ingestion_success_rate": rate}
-
-def write_ingestion_stats(stats: Dict[str, Any], out_path: str) -> None:
-    """
-    Write ingestion statistics to a JSON file.
-
-    Parameters
-    ----------
-    stats: Dict[str, Any]
-        Statistics dictionary.
-    out_path: str
-        Destination JSON file path.
-    """
-    with open(out_path, "w") as f:
-        json.dump(stats, f, indent=2)
-    logging.info("Ingestion stats written to %s", out_path)
-
-def main():
-    """
-    Placeholder main function for ingestion statistics utilities.
-    """
-    logging.info("Ingestion stats utility placeholder – no CLI implemented.")
+    # No action required – the ingestion script already wrote the JSON file.
+    pass

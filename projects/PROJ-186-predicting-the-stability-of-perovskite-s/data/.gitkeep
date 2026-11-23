@@ -1,1 +1,2 @@
-# This file ensures the data directory is tracked by git.
+# This directory holds generated data artifacts for the Perovskite Stability Pipeline.
+# Do not commit large binary files; use .gitignore for patterns like *.csv, *.pkl, etc.

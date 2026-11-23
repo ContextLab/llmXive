@@ -1,78 +1,126 @@
+"""
+Ground Truth Labeling Module for User Story 3.
+
+Implements logic to label cognitive load based on search time (median split)
+when independent ground truth is unavailable. Handles 'UNFULFILLABLE' proxies
+by excluding them from labeling and logging the exclusion.
+"""
 import os
 import sys
 import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Optional, Tuple
+from typing import Optional, Dict, Any
 
-# Add project root to path if running as script
-if __name__ == "__main__" and "code" not in sys.path:
-    project_root = Path(__file__).resolve().parent.parent
-    sys.path.insert(0, str(project_root))
+# Add parent directory to path for imports if running as script
+if 'code' not in sys.path:
+    code_root = Path(__file__).resolve().parent.parent
+    if code_root.exists():
+        sys.path.insert(0, str(code_root))
 
 from config import load_config
+from logging_config import get_logger
 
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('code/logs/ground_truth.log')
-    ]
-)
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
-def load_search_time_data(file_path: Optional[str] = None) -> Optional[pd.DataFrame]:
+# Constants
+FEATURES_PATH = Path("data/processed/features.csv")
+LABELED_OUTPUT_PATH = Path("data/processed/labeled_features.csv")
+LIMITATIONS_PATH = Path("results/limitations.md")
+METRICS_PATH = Path("results/classification_metrics.csv")
+
+
+def load_config() -> Dict[str, Any]:
     """
-    Load search time data from the processed dataset.
+    Load configuration from code/config.yaml.
+    Returns empty dict if file missing (caller should handle defaults).
     """
-    if file_path is None:
-        config = load_config()
-        file_path = config.get('paths', {}).get('processed_data', 'data/processed/processed_data.csv')
-    
-    if not os.path.exists(file_path):
-        logger.error(f"Search time data not found at {file_path}")
+    config_path = Path("code/config.yaml")
+    if not config_path.exists():
+        logger.warning(f"Config file {config_path} not found. Using defaults.")
+        return {}
+    return load_config()
+
+
+def load_search_time_data() -> Optional[pd.DataFrame]:
+    """
+    Load the preprocessed features dataset containing search_time.
+    Returns None if file is missing or invalid.
+    """
+    if not FEATURES_PATH.exists():
+        logger.error(f"Features file not found: {FEATURES_PATH}")
         return None
-    
+
     try:
-        df = pd.read_csv(file_path)
-        if 'search_time' not in df.columns:
-            logger.error("Search time data missing 'search_time' column.")
-            return None
-        logger.info(f"Loaded search time data from {file_path}: {len(df)} rows")
+        df = pd.read_csv(FEATURES_PATH)
+        logger.info(f"Loaded {len(df)} rows from {FEATURES_PATH}")
         return df
     except Exception as e:
-        logger.error(f"Failed to load search time data: {e}")
+        logger.error(f"Failed to load features data: {e}")
         return None
 
-def label_by_median_split(df: pd.DataFrame, target_col: str = 'search_time') -> pd.DataFrame:
-    """
-    Label data by median split of the target column.
-    Returns a copy of the dataframe with a new 'ground_truth_label' column.
-    """
-    if df is None or df.empty:
-        return pd.DataFrame()
-    
-    median_val = df[target_col].median()
-    df_labeled = df.copy()
-    df_labeled['ground_truth_label'] = (df_labeled[target_col] >= median_val).astype(int)
-    
-    logger.info(f"Labeled {len(df_labeled)} rows by median split (median={median_val:.4f})")
-    return df_labeled
 
-def save_labeled_data(df: pd.DataFrame, output_path: str = "data/processed/labeled_data.csv") -> bool:
+def label_by_median_split(df: pd.DataFrame, column: str = "search_time") -> pd.DataFrame:
     """
-    Save the labeled dataframe to disk.
+    Label rows based on a median split of the specified column.
+    - If value > median: Label = 1 (High Load)
+    - If value <= median: Label = 0 (Low Load)
+    - If value is NaN, 'UNFULFILLABLE', or missing: Label = -1 (Excluded)
+
+    Args:
+        df: Input DataFrame.
+        column: The column to use for splitting (default: 'search_time').
+
+    Returns:
+        DataFrame with a new 'load_label' column.
     """
-    if df is None or df.empty:
-        logger.error("Cannot save empty DataFrame.")
-        return False
+    if column not in df.columns:
+        logger.error(f"Column '{column}' not found in DataFrame. Available: {list(df.columns)}")
+        df['load_label'] = -1
+        return df
+
+    # Create a copy to avoid SettingWithCopyWarning
+    df = df.copy()
+
+    # Identify valid numeric values
+    # Handle potential string representations of 'UNFULFILLABLE' or NaN
+    valid_mask = df[column].notna() & (df[column] != 'UNFULFILLABLE')
     
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
+    if valid_mask.sum() == 0:
+        logger.warning(f"All values in '{column}' are invalid or missing. No labels generated.")
+        df['load_label'] = -1
+        return df
+
+    valid_values = df.loc[valid_mask, column].astype(float)
+    median_val = valid_values.median()
+    logger.info(f"Calculated median for '{column}': {median_val:.4f}")
+
+    # Initialize labels as -1 (Excluded)
+    df['load_label'] = -1
+
+    # Apply median split logic
+    # High Load: strictly greater than median
+    high_load_mask = valid_mask & (valid_values > median_val)
+    df.loc[high_load_mask, 'load_label'] = 1
+
+    # Low Load: less than or equal to median
+    low_load_mask = valid_mask & (valid_values <= median_val)
+    df.loc[low_load_mask, 'load_label'] = 0
+
+    # Log exclusion stats
+    excluded_count = (df['load_label'] == -1).sum()
+    logger.info(f"Labeling complete. High Load: {high_load_mask.sum()}, Low Load: {low_load_mask.sum()}, Excluded: {excluded_count}")
+
+    return df
+
+
+def save_labeled_data(df: pd.DataFrame, output_path: Path = LABELED_OUTPUT_PATH) -> bool:
+    """
+    Save the labeled DataFrame to CSV.
+    """
     try:
+        output_path.parent.mkdir(parents=True, exist_ok=True)
         df.to_csv(output_path, index=False)
         logger.info(f"Labeled data saved to {output_path}")
         return True
@@ -80,86 +128,103 @@ def save_labeled_data(df: pd.DataFrame, output_path: str = "data/processed/label
         logger.error(f"Failed to save labeled data: {e}")
         return False
 
-def write_limitations_note(output_path: str = "results/limitations.md") -> bool:
+
+def write_limitations_note(output_path: Path = LIMITATIONS_PATH) -> bool:
     """
-    Write a limitations note to results/limitations.md.
+    Write the limitations documentation file.
     """
-    note_content = """# Limitations of Ground Truth
+    content = """# Limitations: Ground Truth Proxy
 
-## Ground Truth Derivation
-The ground truth labels for this study are derived from a **median split of search time**.
-This is a relative measure and does not represent an absolute cognitive load metric.
+This project uses search-time as a proxy for cognitive load during visual search tasks.
 
-## Implications
-- **Predictive Validity**: Claims of predictive validity for absolute cognitive load are **removed**.
-- **Interpretation**: Results should be interpreted as "Search-Time Estimation" rather than absolute cognitive load classification.
-- **Stability**: The classification stability depends on the distribution of search times in the dataset.
+**Reason for Proxy**: An independent, direct measure of cognitive load (e.g., dual-task performance, subjective rating) was not available in the source dataset.
 
-## Caveat for Sensitivity Analysis
-Any sensitivity analysis performed on these labels should be understood in the context of this relative measure.
+**Labeling Method**: Ground truth labels for classification were generated via a median split of the `search_time` metric.
+- **High Load (1)**: Search time > Median
+- **Low Load (0)**: Search time <= Median
+
+**Implications**: 
+- This is a relative measure, not an absolute ground truth.
+- The classification performance reflects the model's ability to distinguish between faster and slower search trials based on pupil dynamics, rather than an absolute cognitive load state.
+- Results should be interpreted as "Search-Time Estimation" capabilities.
 """
-    
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
     try:
-        with open(output_path, 'w') as f:
-            f.write(note_content)
+        output_path.parent.mkdir(parents=True, exist_ok=True)
+        output_path.write_text(content)
         logger.info(f"Limitations note written to {output_path}")
         return True
     except Exception as e:
         logger.error(f"Failed to write limitations note: {e}")
         return False
 
-def update_classification_metrics(metrics_df: pd.DataFrame, status: str = "UNVALIDATED") -> pd.DataFrame:
+
+def update_classification_metrics(metrics_path: Path = METRICS_PATH) -> bool:
     """
-    Update the classification metrics dataframe to set the status column.
+    Update the classification metrics CSV headers to include 'ground_truth_source'.
+    If the file exists, ensures the column is present. If not, creates it with headers.
     """
-    if metrics_df is None or metrics_df.empty:
-        return pd.DataFrame()
-    
-    df = metrics_df.copy()
-    df['status'] = status
-    logger.info(f"Updated classification metrics status to: {status}")
-    return df
+    try:
+        if not metrics_path.exists():
+            # Create new file with headers
+            df = pd.DataFrame(columns=['threshold', 'accuracy', 'precision', 'recall', 'auc', 'ground_truth_source'])
+            df.to_csv(metrics_path, index=False)
+            logger.info(f"Created new metrics file at {metrics_path}")
+        else:
+            # Check if column exists
+            df = pd.read_csv(metrics_path)
+            if 'ground_truth_source' not in df.columns:
+                df['ground_truth_source'] = "Search-Time Estimation"
+                df.to_csv(metrics_path, index=False)
+                logger.info(f"Updated metrics file at {metrics_path} with 'ground_truth_source' column")
+            else:
+                logger.info(f"Metrics file at {metrics_path} already has 'ground_truth_source' column")
+        return True
+    except Exception as e:
+        logger.error(f"Failed to update classification metrics: {e}")
+        return False
+
 
 def main():
     """
-    Main function to run the ground truth labeling pipeline.
+    Main entry point for ground truth labeling.
+    1. Load config (for defaults if needed).
+    2. Load features data.
+    3. Handle 'UNFULFILLABLE' search_time (log exclusion).
+    4. Perform median split labeling.
+    5. Save labeled data.
+    6. Write limitations documentation.
+    7. Update metrics schema.
     """
-    logger.info("Starting Ground Truth Labeling Pipeline")
+    logger.info("Starting Ground Truth Labeling (T029)...")
     
-    # Load data
+    # 1. Load Config
+    config = load_config()
+    
+    # 2. Load Data
     df = load_search_time_data()
     if df is None:
-        logger.error("Failed to load search time data. Aborting.")
-        return False
-    
-    # Label by median split
-    df_labeled = label_by_median_split(df)
-    
-    # Save labeled data
-    if not save_labeled_data(df_labeled):
-        logger.error("Failed to save labeled data. Aborting.")
-        return False
-    
-    # Write limitations note
-    write_limitations_note()
-    
-    # Update metrics if they exist (optional, called by evaluate.py)
-    metrics_path = Path("results/classification_metrics.csv")
-    if metrics_path.exists():
-        try:
-            metrics_df = pd.read_csv(metrics_path)
-            metrics_df = update_classification_metrics(metrics_df, status="UNVALIDATED")
-            metrics_df.to_csv(metrics_path, index=False)
-            logger.info("Updated existing classification metrics with UNVALIDATED status.")
-        except Exception as e:
-            logger.warning(f"Could not update existing metrics: {e}")
-    
-    logger.info("Ground Truth Labeling Pipeline completed successfully.")
-    return True
+        logger.error("Cannot proceed without feature data.")
+        sys.exit(1)
+
+    # 3 & 4. Label by Median Split
+    # The function handles 'UNFULFILLABLE' strings and NaNs internally
+    labeled_df = label_by_median_split(df, column="search_time")
+
+    # 5. Save Labeled Data
+    if not save_labeled_data(labeled_df):
+        logger.error("Failed to save labeled data.")
+        sys.exit(1)
+
+    # 6. Write Limitations
+    if not write_limitations_note():
+        logger.warning("Failed to write limitations note (non-fatal).")
+
+    # 7. Update Metrics Schema
+    if not update_classification_metrics():
+        logger.warning("Failed to update metrics schema (non-fatal).")
+
+    logger.info("Ground Truth Labeling (T029) completed successfully.")
+
 
 if __name__ == "__main__":
-    success = main()
-    sys.exit(0 if success else 1)
+    main()

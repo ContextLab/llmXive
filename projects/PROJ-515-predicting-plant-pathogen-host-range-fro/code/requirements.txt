@@ -8,3 +8,4 @@ loguru>=0.7.0
 pyyaml>=6.0.1
 pytest>=7.4.0
 pytest-cov
+loguru>=0.7.0

@@ -1,215 +1,214 @@
+"""Unit tests for consistency analysis module."""
 import pytest
-import json
 import os
 import sys
-from pathlib import Path
+from unittest.mock import Mock, patch, MagicMock
+import pandas as pd
 import tempfile
-from unittest.mock import patch, MagicMock
+import json
 
-# Add code/ to path
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
-from analysis.consistency import (
+from code.analysis.consistency import (
     ConsistencyError,
     load_nli_model,
     split_into_sentences,
     compute_pairwise_contradictions,
     compute_consistency_metric,
-    run_consistency_analysis,
-    main
+    run_consistency_analysis
 )
 
-class TestLoadNliModel:
-    def test_load_model(self):
-        """Test that the NLI model loads successfully (mocked for speed)."""
-        with patch('analysis.consistency.AutoModelForSequenceClassification') as mock_model, \
-             patch('analysis.consistency.AutoTokenizer') as mock_tokenizer:
-            
-            mock_model.from_pretrained.return_value = MagicMock()
-            mock_tokenizer.from_pretrained.return_value = MagicMock()
-            
-            model, tokenizer = load_nli_model()
-            
-            assert model is not None
-            assert tokenizer is not None
 
 class TestSplitIntoSentences:
-    def test_basic_split(self):
-        text = "This is sentence one. This is sentence two! This is sentence three?"
+    """Tests for sentence splitting logic."""
+
+    def test_simple_sentences(self):
+        """Test splitting on standard punctuation."""
+        text = "This is a sentence. This is another! Is this a question?"
         sentences = split_into_sentences(text)
         assert len(sentences) == 3
-        assert sentences[0] == "This is sentence one."
-        assert sentences[1] == "This is sentence two!"
-        assert sentences[2] == "This is sentence three?"
+        assert sentences[0] == "This is a sentence."
+        assert sentences[1] == "This is another!"
+        assert sentences[2] == "Is this a question?"
 
-    def test_single_sentence(self):
-        text = "Just one sentence here."
+    def test_short_fragments_filtered(self):
+        """Test that very short fragments are filtered out."""
+        text = "Hi. OK. This is a real sentence. X."
         sentences = split_into_sentences(text)
+        # "Hi." and "OK." and "X." might be filtered if < 10 chars
+        # "This is a real sentence." should remain
+        assert len(sentences) >= 1
+        assert "This is a real sentence." in sentences
+
+    def test_empty_string(self):
+        """Test empty input."""
+        assert split_into_sentences("") == []
+
+    def test_no_punctuation(self):
+        """Test text without sentence-ending punctuation."""
+        text = "This is one long fragment without punctuation"
+        sentences = split_into_sentences(text)
+        # Should return one sentence if > 10 chars
         assert len(sentences) == 1
-        assert sentences[0] == "Just one sentence here."
 
-    def test_empty_text(self):
-        text = ""
-        sentences = split_into_sentences(text)
-        assert len(sentences) == 0
 
 class TestComputePairwiseContradictions:
-    def test_no_contradictions(self):
-        sentences = [
-            "The sky is blue.",
-            "The grass is green.",
-            "The sun is hot."
-        ]
-        # Mock the model to return no contradictions
-        with patch('analysis.consistency.AutoModelForSequenceClassification') as mock_model, \
-             patch('analysis.consistency.AutoTokenizer') as mock_tokenizer, \
-             patch('torch.no_grad'):
-            
-            mock_model_instance = MagicMock()
-            mock_model.from_pretrained.return_value = mock_model_instance
-            mock_tokenizer_instance = MagicMock()
-            mock_tokenizer.from_pretrained.return_value = mock_tokenizer_instance
-            
-            # Mock the forward pass to return high entailment scores (no contradiction)
-            mock_output = MagicMock()
-            mock_output.logits = MagicMock()
-            # Logits for [contradiction, neutral, entailment]
-            # We want entailment to be highest for all pairs
-            mock_output.logits.detach.return_value.cpu.return_value.numpy.return_value = \
-                [[0.1, 0.1, 0.8], [0.1, 0.1, 0.8]]
-            
-            mock_model_instance.forward.return_value = mock_output
-            
-            # Note: This test relies on the internal logic of compute_pairwise_contradictions
-            # which compares logits. We assume the mock returns a valid tensor.
-            # Since we can't easily mock the exact tensor shape and values without deep mocking,
-            # we'll test the structure instead.
-            pass
+    """Tests for pairwise contradiction counting."""
 
-    def test_with_contradictions(self):
-        sentences = [
-            "The sky is blue.",
-            "The sky is completely black."
-        ]
-        # Similar mocking approach as above
-        pass
+    def test_no_sentences(self):
+        """Test with empty or single sentence."""
+        mock_model = Mock()
+        assert compute_pairwise_contradictions(mock_model, []) == 0
+        assert compute_pairwise_contradictions(mock_model, ["One sentence"]) == 0
+
+    def test_contradiction_detection(self):
+        """Test that low scores are counted as contradictions."""
+        mock_model = Mock()
+        # Mock predict to return scores: [0.9, 0.4, 0.8] -> 1 contradiction
+        mock_model.predict.return_value = [0.9, 0.4, 0.8]
+
+        sentences = ["Sentence A", "Sentence B", "Sentence C"]
+        result = compute_pairwise_contradictions(mock_model, sentences)
+
+        # Pairs: (A,B), (A,C), (B,C) -> 3 pairs
+        # Scores: 0.9 (no), 0.4 (yes), 0.8 (no) -> 1 contradiction
+        assert result == 1
+        mock_model.predict.assert_called_once()
+
+    def test_no_contradictions(self):
+        """Test with all high scores."""
+        mock_model = Mock()
+        mock_model.predict.return_value = [0.9, 0.9, 0.9]
+
+        sentences = ["A", "B", "C"]
+        result = compute_pairwise_contradictions(mock_model, sentences)
+        assert result == 0
+
+    def test_exception_handling(self):
+        """Test that exceptions return 0 and log warning."""
+        mock_model = Mock()
+        mock_model.predict.side_effect = Exception("Model error")
+
+        sentences = ["A", "B", "C"]
+        # Should not raise, return 0
+        result = compute_pairwise_contradictions(mock_model, sentences)
+        assert result == 0
+
 
 class TestComputeConsistencyMetric:
-    def test_basic_metric(self):
-        sentences = [
-            "I see the light.",
-            "I hear a sound.",
-            "I feel the warmth."
-        ]
-        # Mock the contradiction computation
-        with patch('analysis.consistency.compute_pairwise_contradictions') as mock_contra:
-            mock_contra.return_value = 0  # No contradictions
-            
-            metric, details = compute_consistency_metric(sentences)
-            
-            assert metric >= 0.0
-            assert metric <= 1.0
-            assert 'total_pairs' in details
-            assert 'contradiction_pairs' in details
+    """Tests for the main consistency metric."""
 
-    def test_all_contradictions(self):
-        sentences = [
-            "The light is on.",
-            "The light is off."
-        ]
-        with patch('analysis.consistency.compute_pairwise_contradictions') as mock_contra:
-            mock_contra.return_value = 1  # All pairs contradict
-            
-            metric, details = compute_consistency_metric(sentences)
-            
-            # If all pairs contradict, consistency should be low
-            assert metric < 0.5
+    def test_short_text(self):
+        """Test text with fewer than 2 sentences."""
+        mock_model = Mock()
+        # Single sentence
+        assert compute_consistency_metric("Just one sentence.", mock_model) == 1.0
+        # Empty
+        assert compute_consistency_metric("", mock_model) == 1.0
+
+    def test_perfect_consistency(self):
+        """Test text with no contradictions."""
+        mock_model = Mock()
+        mock_model.predict.return_value = [0.9, 0.9]
+
+        text = "Sentence one. Sentence two. Sentence three."
+        score = compute_consistency_metric(text, mock_model)
+        # 3 sentences -> 3 pairs. All scores > 0.5 -> 0 contradictions.
+        # Score = 1 - (0/3) = 1.0
+        assert score == 1.0
+
+    def test_half_contradictions(self):
+        """Test text with 50% contradictions."""
+        mock_model = Mock()
+        # 3 sentences -> 3 pairs. 1.5 contradictions? No, integer count.
+        # Let's say 2 out of 3 are contradictions.
+        mock_model.predict.return_value = [0.3, 0.3, 0.9]
+
+        text = "A. B. C."
+        score = compute_consistency_metric(text, mock_model)
+        # 2 contradictions / 3 pairs = 0.666...
+        # Score = 1 - 0.666 = 0.333...
+        expected = 1.0 - (2.0 / 3.0)
+        assert abs(score - expected) < 0.001
+
 
 class TestRunConsistencyAnalysis:
-    def test_full_pipeline(self):
-        """Test the full consistency analysis pipeline with a temporary file."""
-        # Create temporary input file
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
-            sample_data = [
-                {"id": 1, "text": "I see the light. It is bright. I feel warm.", "strategy": "direct", "seed": 42},
-                {"id": 2, "text": "I hear a sound. It is loud. I think it is close.", "strategy": "role-play", "seed": 43}
-            ]
-            for item in sample_data:
-                f.write(json.dumps(item) + '\n')
-            input_path = f.name
+    """Integration tests for the full analysis pipeline."""
 
-        try:
-            # Create temporary output path
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as out_f:
-                output_path = out_f.name
+    def test_missing_input_file(self):
+        """Test behavior when input file is missing."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, "output.csv")
+            config = {
+                "input_path": "/nonexistent/path.csv",
+                "output_path": output_path,
+                "model_name": "cross-encoder/stsb-distilroberta-base"
+            }
 
-            try:
-                # Mock the model loading and computation
-                with patch('analysis.consistency.load_nli_model') as mock_load, \
-                     patch('analysis.consistency.compute_consistency_metric') as mock_metric:
-                    
-                    mock_load.return_value = (MagicMock(), MagicMock())
-                    mock_metric.return_value = (0.85, {'total_pairs': 3, 'contradiction_pairs': 0})
-                    
-                    results = run_consistency_analysis(input_path, output_path)
-                    
-                    assert len(results) == 2
-                    assert results[0]['report_id'] == 1
-                    assert results[0]['consistency_score'] == 0.85
-                    assert results[0]['strategy'] == 'direct'
-                    
-                    # Check file was written
-                    assert os.path.exists(output_path)
-            finally:
-                os.unlink(output_path)
-        finally:
-            os.unlink(input_path)
+            # Should not raise, should create empty file
+            run_consistency_analysis(config)
+            assert os.path.exists(output_path)
+            df = pd.read_csv(output_path)
+            assert df.empty
 
-    def test_missing_file(self):
-        with pytest.raises(ConsistencyError):
-            run_consistency_analysis("nonexistent.jsonl", "output.csv")
+    def test_full_pipeline_with_mock_model(self):
+        """Test full pipeline with mocked model to avoid real download."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = os.path.join(tmpdir, "input.csv")
+            output_path = os.path.join(tmpdir, "output.csv")
 
-    def test_missing_text_field(self):
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.jsonl', delete=False) as f:
-            # Missing 'text' field
-            f.write(json.dumps({"id": 1, "strategy": "direct"}) + '\n')
-            input_path = f.name
+            # Create input data
+            data = {
+                "id": ["1", "2"],
+                "text": ["Sentence one. Sentence two.", "A. B. C. D."]
+            }
+            pd.DataFrame(data).to_csv(input_path, index=False)
 
-        try:
-            with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as out_f:
-                output_path = out_f.name
+            # Mock the model loading and prediction
+            with patch('code.analysis.consistency.load_nli_model') as mock_load:
+                mock_model = Mock()
+                mock_model.predict.return_value = [0.9, 0.9, 0.9, 0.9, 0.9, 0.9] # All consistent
+                mock_load.return_value = mock_model
 
-            try:
-                with patch('analysis.consistency.load_nli_model') as mock_load, \
-                     patch('analysis.consistency.compute_consistency_metric') as mock_metric:
-                    
-                    mock_load.return_value = (MagicMock(), MagicMock())
-                    mock_metric.return_value = (0.0, {})
-                    
-                    results = run_consistency_analysis(input_path, output_path)
-                    # Should skip the report with missing text
-                    assert len(results) == 0
-            finally:
-                os.unlink(output_path)
-        finally:
-            os.unlink(input_path)
+                config = {
+                    "input_path": input_path,
+                    "output_path": output_path,
+                    "model_name": "test-model"
+                }
 
-class TestPairwiseContradictionCount:
-    def test_pairwise_logic(self):
-        """Test the pairwise combination logic."""
-        sentences = ["A", "B", "C"]
-        # Pairs: (A,B), (A,C), (B,C) -> 3 pairs
-        from itertools import combinations
-        pairs = list(combinations(sentences, 2))
-        assert len(pairs) == 3
-        assert pairs[0] == ("A", "B")
-        assert pairs[1] == ("A", "C")
-        assert pairs[2] == ("B", "C")
+                run_consistency_analysis(config)
 
-    def test_short_text_handling(self):
-        """Ensure very short texts are handled."""
-        text = "Hi."
-        sentences = split_into_sentences(text)
-        assert len(sentences) == 1
-        # With 1 sentence, 0 pairs, so consistency is undefined or 1.0
-        # The metric function should handle this edge case.
+                assert os.path.exists(output_path)
+                df = pd.read_csv(output_path)
+                assert len(df) == 2
+                assert "id" in df.columns
+                assert "consistency_score" in df.columns
+                # All scores should be 1.0 (no contradictions)
+                assert all(df["consistency_score"] == 1.0)
+
+    def test_run_consistency_analysis_with_config_dict(self):
+        """Test that run_consistency_analysis accepts a config dict."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            input_path = os.path.join(tmpdir, "input.csv")
+            output_path = os.path.join(tmpdir, "output.csv")
+
+            data = {"id": ["1"], "text": ["Just one sentence."]}
+            pd.DataFrame(data).to_csv(input_path, index=False)
+
+            with patch('code.analysis.consistency.load_nli_model') as mock_load:
+                mock_model = Mock()
+                mock_load.return_value = mock_model
+
+                config = {
+                    "input_path": input_path,
+                    "output_path": output_path,
+                    "model_name": "test"
+                }
+                # Should not raise
+                run_consistency_analysis(config)
+                assert os.path.exists(output_path)
+
+
+if __name__ == "__main__":
+    pytest.main([__file__, "-v"])

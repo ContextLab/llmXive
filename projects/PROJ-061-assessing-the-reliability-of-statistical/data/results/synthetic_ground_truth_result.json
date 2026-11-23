@@ -1,0 +1,13 @@
+{
+  "true_power": 0.8000,
+  "empirical_power": 0.7920,
+  "recovery_rate": 0.0100,
+  "passed": true,
+  "threshold": 0.05,
+  "iterations": 1000,
+  "effect_size": 0.5,
+  "sample_size": 64,
+  "seed": 42,
+  "status": "PASSED",
+  "message": "Recovery rate (1.0%) is within the 5% tolerance. Validation gate passed."
+}

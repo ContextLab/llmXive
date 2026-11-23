@@ -1,104 +1,69 @@
 # Data Model: Evaluating the Impact of Code Generation on Code Review Time
 
 ## Overview
+All artifacts live under `data/` and are immutable once written. Checksums (SHA‑256) are recorded in the project state file to guarantee reproducibility (Constitution I). Synthetic data are isolated in `data/synthetic/` (Constitution VI).
 
-This document defines the data model for the project, including entities, attributes, relationships, and transformations. It ensures alignment with the specification and supports reproducibility.
+## Core Entities
 
-## Entities
-
-### 1. PullRequest
-
-Represents a GitHub PR with metadata and review metrics.
-
+### PullRequest
 | Attribute | Type | Description | Source |
-|-----------|------|-------------|--------|
-| `pr_id` | str | Unique PR identifier (e.g., `repo#123`) | GitHub API |
-| `repo_id` | str | Repository identifier (e.g., `owner/repo`) | GitHub API |
-| `author_type` | str | `human` (all PRs in this study are human-written) | Derived (Classification) |
-| `llm_style_score` | float | Probability of "LLM-like" style (0-1) | Derived (Classifier) |
-| `created_at` | datetime | PR creation timestamp | GitHub API |
-| `first_comment_at` | datetime | First reviewer comment timestamp | GitHub API |
-| `review_latency` | float | Duration (hours) from `created_at` to `first_comment_at` | Derived |
-| `file_size` | int | Lines of code (LOC) | Derived (radon) |
-| `complexity_score` | float | Cyclomatic complexity | Derived (radon) |
-| `repo_stars` | int | Repository star count | GitHub API |
-| `repo_pr_count` | int | Total PRs in repository | GitHub API |
+|---|---|---|---|
+| `pr_id` | string | Unique PR identifier (`repo#123`) | PR parquet |
+| `repo_id` | string | Repository identifier (`owner/repo`) | PR parquet |
+| `author_type` | enum(`human`, `llm`) | Origin of the code | Derived |
+| `generation_source` | enum(`generation-from-scratch`, `refactoring`, `null`) | Cohort label for LLM snippets | Generation config |
+| `created_at` | datetime | PR creation timestamp | PR parquet |
+| `first_comment_at` | datetime | First reviewer comment timestamp (human) **or** observed timestamp from evaluation PR (LLM) | PR parquet / evaluation PR |
+| `merge_at` | datetime | PR merge timestamp (used for outcome) | PR parquet |
+| `review_effort_duration` | number | Seconds from `first_comment_at` to `merge_at` (primary outcome) | Direct / observed from evaluation PR |
+| `total_review_duration` | number | Seconds from `created_at` to `merge_at` (secondary outcome) | Direct |
+| `file_size_loc` | integer | Lines of code (computed from `diff`) | Feature extraction |
+| `complexity_score` | number | Cyclomatic complexity (radon) | Feature extraction |
+| `repo_activity_level` | integer | Number of PRs in the repository (proxy for activity) | Aggregated per repo |
+| `ci_build_time` | number | CI build duration in seconds | PR parquet |
+| `semantic_similarity` | number (‑1 → 1) | Cosine similarity between snippet embedding and **repository‑level centroid embedding** | Feature extraction |
+| `source_code` | string | Full code diff (human) or generated snippet (LLM) | Raw / synthetic |
+| `primary_language` | string | Detected programming language (e.g., `python`) | Feature extraction |
+| `commit_message_length` | integer | Length (characters) of the commit message | Prompt engineering |
+| `evaluation_pr_url` | string | URL of the pull request opened in the sandbox evaluation repository (for LLM snippets) | Evaluation repo module |
 
-### 2. CodeSnippet
+### CodeSnippet
+| Attribute | Type | Description |
+|---|---|---|
+| `snippet_id` | string | UUID for the snippet |
+| `pr_id` | string | Foreign key to the associated PullRequest |
+| `generation_source` | enum(`human`, `llm`) | Origin |
+| `code_content` | string | Raw code text |
+| `complexity_metrics` | object | `{ "cyclomatic": number, "lines": number }` |
+| `is_valid_syntax` | boolean | Result of AST parsing |
+| `model_version` | string | CodeLlama model identifier (`CodeLlama-7B-4bit-GGUF`) |
+| `generation_params` | object | Parameters **t** = `{ temperature : 0.7, max_tokens : 512, intent_prompt : … }` (example) |
+| `semantic_similarity` | number (‑1 → 1) | Cosine similarity to repo centroid (optional) |
+| `evaluation_pr_url` **(optional)** | string | URL of the evaluation PR for this snippet (if LLM‑generated) |
 
-Represents a code artifact (human-written, classified by style).
+### MatchedPair
+| Attribute | Type | Description |
+|---|---|---|
+| `pair_id` | string | Unique identifier |
+| `human_pr_ref` | string | `pr_id` of the human PR |
+| `llm_pr_ref` | string | `pr_id` of the LLM PR (prompt‑only or context‑based) |
+| `complexity_diff` | number | Human – LLM cyclomatic complexity |
+| `size_diff` | number | Human – LLM LOC |
+| `activity_diff` | number | Human – LLM repository activity |
+| `ci_build_diff` | number | Human – LLM CI build time |
+| `semantic_similarity_diff` | number | Human – LLM semantic similarity |
+| `balance_verified` | boolean | True if this pair satisfied the covariate balance criteria |
 
-| Attribute | Type | Description | Source |
-|-----------|------|-------------|--------|
-| `snippet_id` | str | Unique snippet identifier | Generated |
-| `source_commit` | str | Original commit hash | GitHub API |
-| `generation_source` | str | `human` (always) | Config |
-| `code_content` | str | Code text | GitHub API |
-| `complexity_metrics` | dict | `{'cyclomatic': float, 'lines': int, ...}` | Derived (radon) |
-| `llm_style_score` | float | Probability of "LLM-like" style | Derived (Classifier) |
-| `model_version` | str | Classifier version (e.g., `codebert-base`) | Config |
+## File Layout
+| Path | Description |
+|---|---|
+| `data/raw/` | Immutable API‑downloaded PR parquet files |
+| `data/processed/` | `features.parquet`, `merged_features.parquet`, `matched_pairs.parquet` |
+| `data/synthetic/` | Generated snippets + provenance JSONL, predicted outcomes |
+| `data/reports/` | PDFs, PNGs, JSON summaries, runtime_report.json |
+| `data/evaluation/` | Pull request URLs and timestamp logs for LLM evaluation PRs |
 
-### 3. MatchedPair
+All files are versioned via SHA‑256 checksums recorded in `state/projects/PROJ-302-evaluating-the-impact-of-code-generation.yaml`.
 
-Represents a statistical unit (Human-LLM-like pair after matching).
+---
 
-| Attribute | Type | Description | Source |
-|-----------|------|-------------|--------|
-| `pair_id` | str | Unique pair identifier | Generated |
-| `human_pr_ref` | str | Reference to "Human-typical" PR | Matched |
-| `llm_like_pr_ref` | str | Reference to "LLM-like" PR | Matched |
-| `complexity_diff` | float | `human_complexity - llm_complexity` | Derived |
-| `size_diff` | float | `human_size - llm_size` | Derived |
-| `activity_diff` | float | `human_activity - llm_activity` | Derived |
-| `balance_verified` | bool | `True` if all SMD < 0.1 | Validation |
-
-## Transformations
-
-### 1. Raw Data → Processed Features
-
-- **Input**: GitHub API metadata (Parquet).
-- **Output**: `data/processed/features.parquet`.
-- **Steps**:
-  1. Fetch raw file content via GitHub API for sampled PRs.
-  2. Extract `created_at`, `first_comment_at` → compute `review_latency`.
-  3. Compute LOC and complexity via `radon`.
-  4. Fetch repository stars/PR count via GitHub API.
-
-### 2. Feature Extraction → Style Classification
-
-- **Input**: `data/processed/features.parquet` (subset).
-- **Output**: `data/processed/classified_snippets.parquet`.
-- **Steps**:
-  1. Run `codebert-base` classifier on code content.
-  2. Assign "LLM-like" or "Human-typical" label based on threshold.
-  3. Log classifier version.
-
-### 3. Matching → Statistical Analysis
-
-- **Input**: `data/processed/classified_snippets.parquet`.
-- **Output**: `data/processed/matched_pairs.parquet`.
-- **Steps**:
-  1. Compute propensity scores (logistic regression) on LOC, complexity, activity.
-  2. Perform 1:1 nearest neighbor matching.
-  3. Verify covariate balance (SMD < 0.1).
-  4. Compute review latency differences.
-
-### 4. Analysis → Visualization
-
-- **Input**: `data/processed/matched_pairs.parquet`.
-- **Output**: `data/processed/visualizations/` (box plots, CDFs).
-- **Steps**:
-  1. Stratify by star quartiles.
-  2. Run statistical tests (t-test / Mann-Whitney).
-  3. Generate plots (matplotlib/seaborn).
-
-## Data Hygiene
-
-- **Raw Data**: Preserved unchanged in `data/raw/`.
-- **Derived Data**: New files with checksums (e.g., `features_v1.parquet`).
-- **Checksums**: Recorded in `data/checksums.yaml`.
-
-## Schema Validation
-
-- All data files validated against `contracts/` schemas (see `contracts/`).
-- Invalid rows excluded with logging.

@@ -1,0 +1,11 @@
+status: none
+intent: USPTO reaction yield dataset parquet download Figshare python package dataset
+required_fields:
+- reaction_smiles
+- reactant_smiles
+- reagent_smiles
+- yield
+- reaction_class
+cache_key: e6b8866a5767e628740fbd06fd5b1aa5dad3d67d38fb6cfaf04f5192a5dcf6b0
+searched_at: '2026-10-14T15:31:11.409401+00:00'
+retry_count: 1

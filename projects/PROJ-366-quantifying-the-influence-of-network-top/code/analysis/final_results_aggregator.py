@@ -1,140 +1,156 @@
+"""
+Final Results Aggregator for T036.
+
+Aggregates LMM coefficients (from T033) and Pearson correlation results (from T033a/T034)
+and saves a unified final report to data/processed/model_outputs/final_analysis_report.json.
+"""
 import json
 import logging
 import sys
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Import from existing API surface
+# Import from local analysis modules as per API surface
 from analysis.lmm_analysis import run_lmm_analysis, load_conductivity_samples, extract_topological_features, interpret_results, save_results as lmm_save_results
 from analysis.correlation_significance import load_pearson_results, apply_bonferroni_correction, generate_summary, save_corrected_results
-from config import get_config, get_paths
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.FileHandler('logs/final_results_aggregator.log'),
-        logging.StreamHandler(sys.stdout)
-    ]
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
-def load_lmm_results(lmm_output_path: Path) -> Optional[Dict[str, Any]]:
+def load_lmm_results(output_dir: Path) -> Optional[Dict[str, Any]]:
     """
-    Load LMM coefficients and interpretation from the output of T033.
+    Load LMM analysis results from the standard output location.
     """
-    if not lmm_output_path.exists():
-        logger.error(f"LMM results file not found: {lmm_output_path}")
+    lmm_path = output_dir / "lmm_results.json"
+    if not lmm_path.exists():
+        logger.warning(f"LMM results file not found at {lmm_path}. "
+                       "Ensure T033 has been executed successfully.")
         return None
     
     try:
-        with open(lmm_output_path, 'r') as f:
-            data = json.load(f)
-        logger.info(f"Loaded LMM results from {lmm_output_path}")
-        return data
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse LMM results JSON: {e}")
+        with open(lmm_path, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to load LMM results from {lmm_path}: {e}")
         return None
 
-def load_pearson_corrected_results(pearson_output_path: Path) -> Optional[Dict[str, Any]]:
+def load_pearson_corrected_results(output_dir: Path) -> Optional[Dict[str, Any]]:
     """
-    Load Pearson correlation results with Bonferroni correction from the output of T034.
+    Load Bonferroni-corrected Pearson correlation results.
     """
-    if not pearson_output_path.exists():
-        logger.error(f"Pearson corrected results file not found: {pearson_output_path}")
+    pearson_path = output_dir / "correlation_pearson_corrected.json"
+    if not pearson_path.exists():
+        logger.warning(f"Corrected Pearson results file not found at {pearson_path}. "
+                       "Ensure T034 has been executed successfully.")
         return None
     
     try:
-        with open(pearson_output_path, 'r') as f:
-            data = json.load(f)
-        logger.info(f"Loaded Pearson corrected results from {pearson_output_path}")
-        return data
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse Pearson corrected results JSON: {e}")
+        with open(pearson_path, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Failed to load corrected Pearson results from {pearson_path}: {e}")
         return None
 
 def aggregate_results(lmm_data: Dict[str, Any], pearson_data: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Combine LMM coefficients and Pearson correlation results into a single report.
+    Combine LMM and Pearson results into a single report structure.
     """
-    logger.info("Aggregating LMM and Pearson correlation results...")
+    logger.info("Aggregating LMM and Pearson results...")
     
-    aggregated = {
-        "lmm_analysis": lmm_data.get("lmm_results", {}),
-        "lmm_interpretation": lmm_data.get("interpretation", {}),
-        "pearson_correlation": pearson_data.get("correlation_results", {}),
-        "pearson_bonferroni_corrected": pearson_data.get("corrected_results", {}),
-        "summary": {
-            "lmm_significance": lmm_data.get("interpretation", {}).get("significant", False),
-            "pearson_significance": pearson_data.get("corrected_results", {}).get("significant", False),
-            "conclusion": ""
+    final_report = {
+        "analysis_type": "Combined Topology-Thermal Conductivity Analysis",
+        "lmm_analysis": {
+            "coefficients": lmm_data.get("coefficients", {}),
+            "model_summary": lmm_data.get("model_summary", {}),
+            "interpretation": lmm_data.get("interpretation", "No interpretation available.")
+        },
+        "pearson_correlation": {
+            "r_value": pearson_data.get("r", 0.0),
+            "p_value": pearson_data.get("p_value", 1.0),
+            "bonferroni_corrected_p": pearson_data.get("corrected_p_value", pearson_data.get("p_value", 1.0)),
+            "n_samples": pearson_data.get("n_samples", 0),
+            "interpretation": pearson_data.get("interpretation", "No interpretation available.")
+        },
+        "cross_analysis": {
+            "consistent_findings": _check_consistency(lmm_data, pearson_data),
+            "summary": _generate_cross_summary(lmm_data, pearson_data)
         }
     }
-
-    # Generate a high-level conclusion based on both analyses
-    lmm_sig = aggregated["summary"]["lmm_significance"]
-    pearson_sig = aggregated["summary"]["pearson_significance"]
     
-    if lmm_sig and pearson_sig:
-        aggregated["summary"]["conclusion"] = "Both LMM and Pearson analyses indicate a statistically significant relationship between topological metrics and thermal conductivity."
-    elif lmm_sig:
-        aggregated["summary"]["conclusion"] = "LMM analysis indicates significance, but Pearson correlation (with Bonferroni correction) does not. The relationship may be complex or non-linear."
-    elif pearson_sig:
-        aggregated["summary"]["conclusion"] = "Pearson correlation indicates significance, but LMM does not. Further investigation into model assumptions is recommended."
-    else:
-        aggregated["summary"]["conclusion"] = "Neither LMM nor Pearson correlation analysis found a statistically significant relationship between topological metrics and thermal conductivity in this sample."
+    return final_report
 
-    logger.info("Aggregation complete.")
-    return aggregated
+def _check_consistency(lmm_data: Dict[str, Any], pearson_data: Dict[str, Any]) -> bool:
+    """
+    Basic check to see if both analyses agree on significance direction.
+    """
+    lmm_significant = lmm_data.get("model_summary", {}).get("significant", False)
+    pearson_significant = pearson_data.get("corrected_p_value", 1.0) < 0.05
+    
+    # If both agree (both significant or both not), we consider them consistent
+    # This is a heuristic; real scientific consistency requires deeper analysis.
+    return lmm_significant == pearson_significant
 
-def save_final_results(aggregated_data: Dict[str, Any], output_path: Path) -> None:
+def _generate_cross_summary(lmm_data: Dict[str, Any], pearson_data: Dict[str, Any]) -> str:
     """
-    Save the aggregated results to a JSON file.
+    Generate a human-readable summary of the combined findings.
     """
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(aggregated_data, f, indent=2)
-    logger.info(f"Final results saved to {output_path}")
+    pearson_r = pearson_data.get("r", 0.0)
+    pearson_p = pearson_data.get("corrected_p_value", 1.0)
+    
+    lmm_summary = lmm_data.get("interpretation", "LMM analysis not available.")
+    pearson_summary = pearson_data.get("interpretation", "Pearson analysis not available.")
+    
+    return (
+        f"Pearson correlation found r={pearson_r:.4f} (p={pearson_p:.4f}). "
+        f"LMM analysis suggests: {lmm_summary}. "
+        f"Pearson interpretation: {pearson_summary}."
+    )
+
+def save_final_results(report: Dict[str, Any], output_path: Path) -> None:
+    """
+    Save the aggregated report to the specified JSON file.
+    """
+    try:
+        with open(output_path, 'w') as f:
+            json.dump(report, f, indent=2)
+        logger.info(f"Final aggregated results saved to {output_path}")
+    except Exception as e:
+        logger.error(f"Failed to save final results to {output_path}: {e}")
+        raise
 
 def main():
     """
-    Main entry point for T036: Save LMM coefficients, correlation results, and interpretation.
+    Main entry point for T036.
     """
-    config = get_config()
-    paths = get_paths()
+    logger.info("Starting Final Results Aggregation (T036)...")
     
-    # Define input paths based on previous tasks
-    # T033 output: LMM results
-    lmm_output_file = paths["model_outputs"] / "lmm_results.json"
-    # T034 output: Pearson corrected results
-    pearson_output_file = paths["model_outputs"] / "correlation_pearson_corrected.json"
+    # Determine output directory based on config or default
+    # Assuming standard project structure: data/processed/model_outputs/
+    base_dir = Path(__file__).resolve().parents[2]
+    output_dir = base_dir / "data" / "processed" / "model_outputs"
+    output_dir.mkdir(parents=True, exist_ok=True)
     
-    # Define output path for T036
-    final_output_file = paths["model_outputs"] / "final_analysis_report.json"
+    # Load prerequisite artifacts
+    lmm_results = load_lmm_results(output_dir)
+    pearson_results = load_pearson_corrected_results(output_dir)
     
-    logger.info("Starting T036: Final Results Aggregation")
-    
-    # Load LMM results
-    lmm_data = load_lmm_results(lmm_output_file)
-    if lmm_data is None:
-        logger.error("Cannot proceed: LMM results not found. Ensure T033 has completed.")
+    if lmm_results is None or pearson_results is None:
+        logger.error("Missing prerequisite artifacts. T036 cannot complete without LMM and Pearson results.")
+        logger.error("Ensure T033 and T034 have been executed successfully.")
         sys.exit(1)
     
-    # Load Pearson corrected results
-    pearson_data = load_pearson_corrected_results(pearson_output_file)
-    if pearson_data is None:
-        logger.error("Cannot proceed: Pearson corrected results not found. Ensure T034 has completed.")
-        sys.exit(1)
+    # Aggregate
+    final_report = aggregate_results(lmm_results, pearson_results)
     
-    # Aggregate results
-    aggregated = aggregate_results(lmm_data, pearson_data)
-    
-    # Save final results
-    save_final_results(aggregated, final_output_file)
+    # Save
+    final_output_path = output_dir / "final_analysis_report.json"
+    save_final_results(final_report, final_output_path)
     
     logger.info("T036 completed successfully.")
-    return 0
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

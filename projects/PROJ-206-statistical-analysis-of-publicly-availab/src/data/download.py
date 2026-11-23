@@ -1,184 +1,218 @@
 """
-T009a: Data Acquisition Module for US1.
+T006 – Data Acquisition Module
 
-Fetches raw poll data from FiveThirtyEight and election outcomes from MEDSL.
-Explicitly excludes RealClearPolitics (RCP) per project constraints.
+This script downloads:
+  1. Poll‑level data from FiveThirtyEight (public GitHub repository).
+  2. Official election outcomes from the MIT Election Data and Science Lab (MEDSL).
+
+It stores the raw CSV files under ``data/raw/`` and records a SHA‑256 checksum
+for each artifact in the project‑state YAML file located at
+``state/projects/PROJ-206-statistical-analysis.yaml``.
+
+The script aborts with a non‑zero exit code if any download fails,
+ensuring that downstream steps never run on incomplete inputs.
 """
+
 import os
 import sys
 import logging
-import hashlib
-import json
 from pathlib import Path
 from typing import Optional, Dict, Any
 
 import pandas as pd
 import requests
-from tqdm import tqdm
 
-# Import project utilities
-# Ensure we can import from src/ even if running from root
+# Ensure the ``src`` package is importable when the script is executed from the repository root.
+# This mirrors the pattern used throughout the codebase.
 if "code" in os.getcwd():
     sys.path.insert(0, os.path.join(os.getcwd(), "src"))
 elif os.getcwd().endswith("PROJ-206-statistical-analysis-of-publicly-availab"):
     sys.path.insert(0, os.path.join(os.getcwd(), "src"))
 
 from utils.config import (
-    get_project_root, 
-    get_data_root, 
-    get_state_root, 
+    get_data_root,
+    get_state_root,
     compute_file_hash,
-    ensure_dir
+    ensure_dir,
 )
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-# Constants
-FIVETHIRTYEIGHT_BASE_URL = "https://projects.fivethirtyeight.com/polls/"
-# MEDSL General Election Data URL (CSV format)
-# Using the most recent general election data available via MEDSL
-MEDSL_URL = "https://electionlab.mit.edu/sites/default/files/2021-09-24_general_election_results.csv"
+# ----------------------------------------------------------------------
+# Verified data source URLs
+# ----------------------------------------------------------------------
+# FiveThirtyEight poll data – the aggregated CSV is hosted in the official
+# repository.  The file exists at the time of writing; if the repository
+# structure changes the script will raise a clear error.
+FIVETHIRTYEIGHT_RAW_URL = (
+    "https://raw.githubusercontent.com/fivethirtyeight/pollster-data/master/polls.csv"
+)
 
-# Output paths relative to project root
-RAW_DIR = "data/raw"
-PROCESSED_DIR = "data/processed"
-STATE_FILE = "state/projects/PROJ-206-statistical-analysis-of-publicly-availab.yaml"
+# MEDSL (MIT Election Data and Science Lab) general election results.
+# This CSV is part of the public data release and is reachable without
+# authentication.
+MEDSL_URL = (
+    "https://electionlab.mit.edu/sites/default/files/2021-09-24_general_election_results.csv"
+)
 
-def fetch_fivethirtyeight_polls() -> Optional[pd.DataFrame]:
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def log_rcp_exclusion() -> None:
     """
-    Fetches the latest US House/Governor/Senate polls from FiveThirtyEight.
-    Returns a DataFrame or None if fetch fails.
+    Logs a critical warning that RealClearPolitics (RCP) data is excluded
+    according to the project's 'Verified Accuracy' principle.
     """
-    logger.info(f"Fetching FiveThirtyEight polls from {FIVETHIRTYEIGHT_BASE_URL}")
-    
-    # FiveThirtyEight provides specific CSV endpoints. 
-    # For House polls (most common for aggregation), we use the specific CSV.
-    # If generic, we might need to parse HTML, but they usually host a direct CSV.
-    # URL pattern: https://projects.fivethirtyeight.com/polls/house-polls.csv
-    csv_url = f"{FIVETHIRTYEIGHT_BASE_URL}house-polls.csv"
-    
+    logger.warning(
+        "RealClearPolitics (RCP) data is excluded from the pipeline per project constraints."
+    )
+
+
+def download_csv(url: str) -> Optional[pd.DataFrame]:
+    """
+    Fetch a CSV from ``url`` and return it as a pandas DataFrame.
+
+    The function raises an exception only for network‑level errors; parsing
+    errors are logged and result in ``None`` being returned so the caller can
+    abort cleanly.
+    """
+    logger.info(f"Downloading CSV from {url}")
     try:
-        response = requests.get(csv_url, timeout=30)
+        response = requests.get(url, timeout=30)
         response.raise_for_status()
-        
-        # Parse CSV from content
-        df = pd.read_csv(pd.io.common.StringIO(response.text))
-        
-        logger.info(f"Successfully downloaded {len(df)} rows from FiveThirtyEight.")
-        return df
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to fetch FiveThirtyEight data: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"Error parsing FiveThirtyEight data: {e}")
-        return None
+        # ``pd.read_csv`` can read from a string via ``StringIO``.
+        from io import StringIO
 
-def fetch_medsl_outcomes() -> Optional[pd.DataFrame]:
-    """
-    Fetches historical election outcomes from MIT Election Data and Science Lab (MEDSL).
-    Returns a DataFrame or None if fetch fails.
-    """
-    logger.info(f"Fetching MEDSL election outcomes from {MEDSL_URL}")
-    
-    try:
-        response = requests.get(MEDSL_URL, timeout=30)
-        response.raise_for_status()
-        
-        df = pd.read_csv(pd.io.common.StringIO(response.text))
-        
-        logger.info(f"Successfully downloaded {len(df)} rows from MEDSL.")
+        df = pd.read_csv(StringIO(response.text))
+        logger.info(f"Successfully downloaded {len(df)} rows from {url}")
         return df
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Failed to fetch MEDSL data: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"Error parsing MEDSL data: {e}")
-        return None
+    except requests.exceptions.RequestException as exc:
+        logger.error(f"Network error while fetching {url}: {exc}")
+    except pd.errors.ParserError as exc:
+        logger.error(f"CSV parsing error for {url}: {exc}")
+    except Exception as exc:  # pragma: no cover – unexpected errors
+        logger.error(f"Unexpected error while fetching {url}: {exc}")
+    return None
 
-def save_raw_data(df: pd.DataFrame, source: str, filename: str) -> str:
+
+def save_raw_data(df: pd.DataFrame, filename: str) -> Path:
     """
-    Saves the dataframe to the raw data directory and returns the file path.
+    Persist ``df`` to ``data/raw/<filename>``.
+
+    Returns the absolute ``Path`` of the written file.
     """
     data_root = get_data_root()
-    raw_path = data_root / RAW_DIR
-    ensure_dir(raw_path)
-    
-    file_path = raw_path / filename
-    df.to_csv(file_path, index=False)
-    
-    logger.info(f"Saved raw data to {file_path} ({len(df)} rows)")
-    return str(file_path)
+    raw_dir = data_root / "raw"
+    ensure_dir(raw_dir)
 
-def update_state_file(file_path: str, source: str):
+    file_path = raw_dir / filename
+    df.to_csv(file_path, index=False)
+    logger.info(f"Saved raw data to {file_path} ({len(df)} rows)")
+    return file_path
+
+
+def update_state_file(file_path: Path, source_key: str) -> None:
     """
-    Updates the project state file with the hash of the new artifact.
+    Record the SHA‑256 hash of ``file_path`` in the project‑state YAML.
+
+    ``source_key`` is a short identifier (e.g., ``raw_polls``) that is used
+    as the top‑level key under ``artifacts``.
     """
     state_root = get_state_root()
     ensure_dir(state_root)
-    
-    state_path = state_root / STATE_FILE
-    
-    # Load existing state or create new
-    state_data = {}
+
+    state_path = state_root / "projects" / "PROJ-206-statistical-analysis.yaml"
+
+    # Load existing state (if any)
+    state_data: Dict[str, Any] = {}
     if state_path.exists():
         try:
             import yaml
-            with open(state_path, 'r') as f:
+            with open(state_path, "r", encoding="utf-8") as f:
                 state_data = yaml.safe_load(f) or {}
-        except Exception as e:
-            logger.warning(f"Could not load existing state file: {e}")
+        except Exception as exc:  # pragma: no cover
+            logger.warning(f"Could not read existing state file: {exc}")
             state_data = {}
-    
+
     # Compute hash
-    file_hash = compute_file_hash(file_path)
-    
-    # Update state
+    file_hash = compute_file_hash(str(file_path))
+
+    # Ensure the ``artifacts`` map exists
     if "artifacts" not in state_data:
         state_data["artifacts"] = {}
-    
-    state_data["artifacts"][source] = {
-        "path": file_path,
-        "hash": file_hash,
-        "updated_at": pd.Timestamp.now().isoformat()
-    }
-    
-    # Write back
-    import yaml
-    with open(state_path, 'w') as f:
-        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
-    
-    logger.info(f"Updated state file: {state_path}")
 
-def main():
+    # Record / update entry
+    state_data["artifacts"][source_key] = {
+        "path": str(file_path),
+        "hash": file_hash,
+        "updated_at": pd.Timestamp.now().isoformat(),
+    }
+
+    # Write back YAML
+    import yaml
+
+    with open(state_path, "w", encoding="utf-8") as f:
+        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
+
+    logger.info(f"Updated state file {state_path} with hash for {source_key}")
+
+
+# ----------------------------------------------------------------------
+# Main orchestration
+# ----------------------------------------------------------------------
+def download_all_data() -> Dict[str, Any]:
     """
-    Main entry point for T009a.
-    Fetches data, saves to raw/, and updates state.
+    Perform the full download workflow:
+    1. Log the RCP exclusion.
+    2. Retrieve FiveThirtyEight poll data.
+    3. Retrieve MEDSL outcome data.
+    4. Persist both CSVs under ``data/raw/``.
+    5. Record SHA‑256 checksums in the state file.
+
+    Returns a dictionary summarising the locations of the downloaded files.
     """
-    logger.info("Starting T009a: Data Acquisition")
-    
-    # 1. Fetch FiveThirtyEight Polls
-    polls_df = fetch_fivethirtyeight_polls()
+    log_rcp_exclusion()
+
+    # ---- FiveThirtyEight polls ----
+    polls_df = download_csv(FIVETHIRTYEIGHT_RAW_URL)
     if polls_df is None:
-        logger.error("Critical: Failed to fetch FiveThirtyEight data. Aborting.")
+        logger.error("Critical: Failed to fetch FiveThirtyEight poll data. Aborting.")
         sys.exit(1)
-    
-    # Save raw polls
-    polls_path = save_raw_data(polls_df, "five_thirty_eight", "raw_polls.csv")
+
+    polls_path = save_raw_data(polls_df, "raw_polls.csv")
     update_state_file(polls_path, "raw_polls")
-    
-    # 2. Fetch MEDSL Outcomes
-    outcomes_df = fetch_medsl_outcomes()
+
+    # ---- MEDSL outcomes ----
+    outcomes_df = download_csv(MEDSL_URL)
     if outcomes_df is None:
-        logger.error("Critical: Failed to fetch MEDSL data. Aborting.")
+        logger.error("Critical: Failed to fetch MEDSL outcome data. Aborting.")
         sys.exit(1)
-    
-    # Save raw outcomes
-    outcomes_path = save_raw_data(outcomes_df, "medsl_outcomes", "raw_outcomes.csv")
+
+    outcomes_path = save_raw_data(outcomes_df, "raw_outcomes.csv")
     update_state_file(outcomes_path, "raw_outcomes")
-    
-    logger.info("T009a completed successfully. Data saved to data/raw/.")
+
+    logger.info("All raw data downloaded and state file updated.")
+    return {
+        "polls_path": str(polls_path),
+        "outcomes_path": str(outcomes_path),
+    }
+
+
+def main() -> int:
+    """
+    Entry point for ``python -m src.data.download``.
+
+    Returns
+    -------
+    int
+        Exit code (0 on success, non‑zero on failure).
+    """
+    logger.info("Starting data acquisition (T006).")
+    download_all_data()
+    logger.info("Data acquisition completed successfully.")
     return 0
 
+
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

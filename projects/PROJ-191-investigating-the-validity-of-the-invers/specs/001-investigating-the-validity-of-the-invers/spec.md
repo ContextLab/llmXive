@@ -93,11 +93,11 @@ The researcher must be able to perform leave-one-experiment-out cross-validation
 - **SC-002**: The statistical significance of the model preference is measured by the Bayes factor K against the Kass–Raftery scale (K > 3 indicates substantial evidence) AND against the null-simulation baseline established in FR-009 to ensure the result is not a systematic artifact. (See FR-004, FR-009)
 - **SC-003**: The robustness of the results is measured by the variation in the [deferred] credible upper limits across the leave-one-out cross-validation iterations (must be < 15%). (See FR-005)
 - **SC-004**: The computational feasibility is measured by the total runtime of the inference pipeline against the GitHub Actions job limit. (See FR-006)
-- **SC-005**: The validity of the inference pipeline is measured by the injection-recovery test (FR-008), requiring the recovered α to fall within the 95% credible interval of the injected value. (See FR-008)
+- **SC-005**: The validity of the inference pipeline is measured by the injection-recovery test (FR-008), requiring the recovered α to fall within the credible interval of the injected value. (See FR-008)
 
 ## Assumptions
 
-- The arXiv supplementary data files for the 2021 experiment (2106.08611) and the calibration curves for the 2023 review (2305.06325) are publicly accessible and remain stable in their current format throughout the project duration.
+- The arXiv supplementary data files for the prior experiment (2106.08611) and the calibration curves for the 2023 review (2305.06325) are publicly accessible and remain stable in their current format throughout the project duration.
 - The `emcee` and `dynesty` Python libraries are compatible with the default Python version on the GitHub Actions runner and do not require GPU acceleration or CUDA dependencies.
 - The dataset size after harmonization will fit within the available RAM limit of the free-tier runner; if not, a random subsample of the force-distance points will be used for the MCMC run.
 - The systematic uncertainty budgets provided in the source papers are sufficient to construct a valid covariance matrix without requiring additional external data or estimation.

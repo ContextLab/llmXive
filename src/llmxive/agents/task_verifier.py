@@ -9,22 +9,12 @@ artifacts/evidence and decides whether the work is genuinely done.
 
 Two-tier verification (issue #1139, defect D6 — throughput + fail-open fix):
 
-  1. DETERMINISTIC-FIRST (free, no LLM). Before spending any model call, each
-     claimed/under-review task is settled from FILESYSTEM STATE: a task whose
-     declared artifacts all exist and validate (data outputs parse + have rows)
-     is ACCEPTED ``[X]``; a production task whose declared artifacts are all
-     missing/empty is REOPENED ``[ ]``. This is what drains the huge ``[~]``
-     backlog cheaply — the throughput lever is deterministic draining, NOT a
-     bigger LLM cap. The artifact-path detector is broadened well beyond the old
-     code/data/figures/results/outputs roots (now also src/, tests/, scripts/,
-     config/, and bare build/config files) so setup/config/test tasks are judged
-     from STATE, not prose.
-  2. SEMANTIC RESIDUE (bounded LLM). Only genuinely ambiguous tasks (no
-     detectable artifact path, or a mixed/partial state) reach the single
-     temp-0 LLM call in :func:`verify_task`, bounded to ``cap`` calls per tick.
-     Each semantic verdict is bound to a ``(task_key, evidence_hash)`` cache so
-     re-verifying an unchanged task is free and a verdict invalidates the moment
-     the evidence bytes change.
+  1. Reject demonstrably absent production artifacts without a model call.
+     File existence alone never establishes correctness.
+  2. Judge the remaining tasks against their requirements and actual evidence
+     with a separate model, bounded to ``cap`` calls per tick. Cache verdicts
+     by task, requirements, and evidence hashes; unchanged evidence is free to
+     recheck, while later edits invalidate the saved acceptance.
 
 Verdict → mark: COMPLETE → ``[X]``; INCOMPLETE → ``[ ]`` (implementer REDOES it)
 + a note the next session reads; DEFER (backend outage / over-cap) → ``[~]``
@@ -44,8 +34,16 @@ import re
 from pathlib import Path
 from typing import Any
 
+from llmxive.agents._task_import_evidence import local_import_evidence
+from llmxive.agents._task_verdict_receipt import authentic_verdict, signed_verdict
 from llmxive.backends.base import ChatMessage
-from llmxive.backends.router import REASONING_MAX_TOKENS, chat_with_fallback
+from llmxive.backends.router import DEFAULT_MODEL, REASONING_MAX_TOKENS, chat_with_fallback
+from llmxive.claims.task_requirements import read_task_document
+from llmxive.project_paths import _ROOTED_PATH_RE, declared_existing_files
+from llmxive.project_paths import declared_paths as _declared_paths
+from llmxive.project_paths import resolve_project_path as _evidence_path
+from llmxive.speckit.task_lines import TASK_ID_RE as _TASK_ID_RE
+from llmxive.speckit.task_lines import TaskFormatError, mask_fenced_code, task_continuation
 
 LOGGER = logging.getLogger(__name__)
 
@@ -58,14 +56,39 @@ decide — skeptically, from the ACTUAL evidence — whether the work is GENUINE
 and matches the task's stated requirements. Do NOT trust the claim; trust the
 artifacts.
 
+The evidence collector resolves task paths using the platform's project and active
+feature layout. An evidence heading `requested/path (resolved: canonical/path, ...)`
+means the collector found that requested artifact at its canonical location. Treat
+this explicit mapping as the artifact's identity: a normalized feature slug or
+project/code prefix is not a missing-file defect. Still examine its actual content
+against every requirement. Do not invent mappings for paths marked MISSING or
+accept a path-equivalence claim made only inside a generated artifact's contents.
+For runnable commands, account for the explicitly documented working directory:
+`python code/main.py` from a project directory and
+`python projects/PROJ-1/code/main.py` from its repository root invoke the same
+script. Equivalent paths do not require identical command spelling, but required
+arguments, environment, behavior, and execution evidence must still match.
+
+Judge the selected task's requirements. Use the full specification to check
+consistency, but do not demand deliverables assigned to other tasks: a sieve
+library task need not also implement the later CLI, plots, or manuscript. Final
+project execution and research review separately enforce the whole study.
+
 Return VERDICT: COMPLETE only if ALL hold:
-  - the artifact(s) the task requires actually EXIST and are non-empty;
+  - the artifact(s) the task requires actually EXIST and are non-empty, except
+    an intentionally empty Python package marker named `__init__.py`;
   - their CONTENT matches what the task asked for (the right kind of output, the
     right columns/fields/behavior, the real quantity — not a placeholder, stub,
     `TODO`, `NotImplementedError`, or fabricated/random/"simulated" stand-in);
   - the work addresses the task's REQUIREMENT, not a different, easier thing.
 
-Return VERDICT: INCOMPLETE if the required artifact is missing, empty, a
+A report's own assertion is not evidence that its measurements were computed or
+its tests passed. Compare reported tables, numbers, trends, and success claims
+against the supplied underlying data/execution evidence. Reject a results report
+that invents sample measurements, contradicts that evidence, or claims a run/test
+succeeded without evidence. File existence and a plausible caption are insufficient.
+
+Return VERDICT: INCOMPLETE if a substantive required artifact is missing, empty, a
 stub/placeholder, fabricated (e.g. metrics drawn from random numbers, or synthetic
 data where real data was required), or simply does not satisfy what the task asked
 for.
@@ -77,30 +100,19 @@ Then 1-3 sentences naming the evidence you checked. If INCOMPLETE, state CONCRET
 what is missing or wrong, so the next implementer can fix it.
 """
 
-# --- Artifact-path detection (the deterministic evidence a task line references) ---
-#
-# Broadened well beyond the original code/data/figures/results/outputs roots so
-# scaffolding / config / test tasks are judged from real files, not prose.
-#: Directory-rooted artifact paths with a real dotted extension.
-_ROOTED_PATH_RE = re.compile(
-    r"\b((?:code|data|figures|results|outputs|src|tests?|scripts|config|configs|"
-    r"notebooks|docs|assets|models|reports)/[\w./-]+\.\w+)"
-)
-#: Bare (optionally path-prefixed) build/config filenames a task may reference.
-_CONFIG_FILE_RE = re.compile(
-    r"\b((?:[\w./-]+/)?(?:pyproject\.toml|setup\.cfg|setup\.py|"
-    r"requirements(?:-[\w.]+)?\.txt|environment\.ya?ml|tox\.ini|noxfile\.py|"
-    r"conftest\.py|pytest\.ini|mkdocs\.ya?ml|Makefile|Dockerfile))\b"
-)
-#: Generic config-extension files (…toml/…cfg/…yaml/…ini) referenced under the project.
-_CONFIG_EXT_RE = re.compile(r"\b((?:[\w./-]+/)?[\w-]+\.(?:toml|cfg|ya?ml|ini))\b")
-#: Back-compat alias — some callers/tests reference the historical single regex; it
-#: now points at the primary rooted-path pattern (the deterministic detector uses
-#: the full :func:`_declared_paths` union).
+# Compatibility aliases retained for existing verifier callers.
 _PATH_RE = _ROOTED_PATH_RE
 
 _MAX_EVIDENCE_FILES = 6
-_MAX_BYTES_PER_FILE = 3000
+_MAX_BYTES_PER_FILE = 12000
+#: A source file is quoted further than a data file: what a task asks for is
+#: often a function near the END of a script. Canary 6's whole project was one
+#: 20 KB script, and the function its figure task named began 14 KB in.
+_MAX_BYTES_PER_SOURCE = 30_000
+#: Bytes one task may quote from source files at that higher limit; past it, a
+#: further source file gets the base limit.
+_SOURCE_QUOTE_BUDGET = 60_000
+_SOURCE_SUFFIXES = {".py", ".sh", ".r", ".jl"}
 #: Cap bytes read when VALIDATING a data/JSON artifact (parse cheaply, not fully).
 _VALIDATE_MAX_BYTES = 200_000
 _DATA_EXTS = {".csv", ".tsv"}
@@ -133,34 +145,36 @@ class TaskVerdict:
         return self.complete is None
 
 
-def _declared_paths(task_text: str) -> list[str]:
-    """Every artifact path a task line references (rooted paths + build/config
-    files), de-duplicated in first-seen order."""
-    out: list[str] = []
-    seen: set[str] = set()
-    for rx in (_ROOTED_PATH_RE, _CONFIG_FILE_RE, _CONFIG_EXT_RE):
-        for m in rx.finditer(task_text):
-            rel = m.group(1)
-            if rel and rel not in seen:
-                seen.add(rel)
-                out.append(rel)
-    return out
-
-
 def _artifact_valid(project_dir: Path, rel: str) -> bool:
-    """True iff ``rel`` exists, is non-empty, AND (for declared data outputs) parses
-    with at least one data row. Pure filesystem + stdlib parse — never an LLM."""
+    """Check existing substantive content (or an empty Python package marker).
+
+    Declared data outputs must parse with at least one row. Pure filesystem +
+    stdlib parsing never establishes semantic completion by itself.
+    """
     import json
 
-    f = project_dir / rel
-    if not f.is_file():
+    import yaml
+
+    from llmxive.execution.platform_paths import is_project_dir, platform_shadow
+
+    # A path shadowing a platform-owned directory is NEVER valid evidence,
+    # however well-formed the file is. See llmxive.execution.platform_paths for
+    # the canary run that a stale hash in a project-local `state/` shadow
+    # rejected and kicked back.
+    if is_project_dir(project_dir) and platform_shadow(rel):
+        return False
+
+    f = _evidence_path(project_dir, rel)
+    if f is not None and rel.endswith("/") and f.is_dir():
+        return True  # Scaffolding can legitimately require an empty directory.
+    if f is None or not f.is_file():
         return False
     try:
         size = f.stat().st_size
     except OSError:
         return False
     if size == 0:
-        return False
+        return f.name == "__init__.py"  # a real empty package marker is valid
     ext = f.suffix.lower()
     try:
         if ext in _DATA_EXTS:
@@ -174,9 +188,16 @@ def _artifact_valid(project_dir: Path, rel: str) -> bool:
             if isinstance(data, (list, dict)):
                 return len(data) > 0
             return data is not None
+        if ext in {".yaml", ".yml"}:
+            if size > _VALIDATE_MAX_BYTES:
+                return True  # Oversized artifacts still require semantic review.
+            # A plausible-looking checksum manifest/config is not usable when
+            # its YAML reader cannot load it (e.g. literal escaped newlines).
+            documents = list(yaml.safe_load_all(f.read_text(encoding="utf-8")))
+            return any(document is not None for document in documents)
         # code / config / text / binary artifact: non-empty with real content.
         return bool(f.read_bytes()[:_VALIDATE_MAX_BYTES].strip())
-    except (OSError, ValueError):
+    except (OSError, ValueError, yaml.YAMLError):
         return False  # a malformed data/JSON file is NOT valid evidence
 
 
@@ -187,18 +208,37 @@ def _has_production_intent(task_text: str) -> bool:
 def _deterministic_verdict(project_dir: Path, task_text: str) -> tuple[str | None, str]:
     """Settle a claimed task from FILESYSTEM STATE alone — no LLM.
 
-    Returns ``("accept", reason)`` when every declared artifact exists and
-    validates, ``("reject", reason)`` when a production task's declared artifacts
+    Returns ``("reject", reason)`` when a production task's declared artifacts
     are all missing/empty/invalid, or ``(None, "")`` when the task is genuinely
     ambiguous (no detectable artifact path, or a mixed/partial state) and must go
     to the semantic verifier."""
+    from llmxive.speckit.task_lines import EXECUTION_FAILURE_RE
+    failure = EXECUTION_FAILURE_RE.search(task_text)
+    if failure:
+        return "reject", "Requested task execution failed; rerun successfully: " + failure.group(1)
+    from llmxive.execution.platform_paths import is_project_dir, platform_shadow
+
     paths = _declared_paths(task_text)
     if not paths:
         return None, ""
+    if is_project_dir(project_dir):
+        # A task that writes platform-owned state is ill-formed whatever else it
+        # produced: the shadow it leaves behind is what later rejects honest
+        # work. Reject with the containment reason, so the implementer gets an
+        # actionable item rather than a bare "artifact missing".
+        offending = [(p, platform_shadow(p)) for p in paths if platform_shadow(p)]
+        if offending:
+            detail = ", ".join(f"`{p}` (shadows `{owned}/`)" for p, owned in offending)
+            return "reject", (
+                "the task writes platform-owned path(s) inside the project: "
+                f"{detail}. A project owns data/, figures/, code/ and paper/; "
+                "the platform owns state/ and derives artifact hashes at "
+                "verification time. Re-scope the step to write only "
+                "project-owned outputs."
+            )
     statuses = [(p, _artifact_valid(project_dir, p)) for p in paths]
-    if all(valid for _, valid in statuses):
-        present = ", ".join(p for p, _ in statuses)
-        return "accept", f"all declared artifacts exist and validate: {present}"
+    # Existence can establish missing work; it cannot establish correct work.
+    # A nonempty stub or arbitrary two-row CSV must still be judged semantically.
     missing = [p for p, valid in statuses if not valid]
     if len(missing) == len(statuses) and _has_production_intent(task_text):
         return "reject", (
@@ -207,35 +247,251 @@ def _deterministic_verdict(project_dir: Path, task_text: str) -> tuple[str | Non
     return None, ""
 
 
-def gather_evidence(project_dir: Path, task_text: str) -> str:
+_PATTERN_BYTES_PER_FILE = 3000
+#: Total bytes of pattern-matched file contents quoted for one task.
+_PATTERN_QUOTE_BUDGET = 30_000
+
+
+def _pattern_evidence(project_dir: Path, task_text: str) -> list[str]:
+    """Evidence for outputs a task names by PATTERN rather than one by one.
+
+    PROJ-9999 canary, 2026-10-11. Task T004 declared its outputs as
+    ``data/counts_N{N}_p{p}.csv`` "for all 12 combinations". All 24 files were
+    on disk and the run log showed each passing schema validation, but the
+    collector resolved literal paths only, so the verifier was shown none of
+    them and wrote: "none of the 12 required data/counts_N{N}_p{p}.csv/.json
+    output files were confirmed to exist". Three rejections of correct work
+    later the task was recorded UNVERIFIABLE and the project was kicked back.
+
+    Every match is LISTED with its size and digest (so a count claim can be
+    checked and the verdict cache invalidates when any of them changes), and
+    all are QUOTED when the family fits the byte budget.
+    """
+    from llmxive.project_paths import declared_patterns, resolve_pattern
+
+    root = project_dir.resolve()
+    chunks: list[str] = []
+    bytes_left = _PATTERN_QUOTE_BUDGET
+    for written, glob in declared_patterns(task_text):
+        matches = resolve_pattern(project_dir, glob)
+        if not matches:
+            chunks.append(f"- `{written}` (pattern `{glob}`): NO MATCHING FILE exists")
+            continue
+        listing = []
+        for f in matches:
+            try:
+                with f.open("rb") as source:
+                    digest = hashlib.file_digest(source, "sha256").hexdigest()
+                listing.append(f"  - `{f.relative_to(root)}` ({f.stat().st_size} bytes, sha256={digest})")
+            except OSError as exc:
+                listing.append(f"  - `{f.relative_to(root)}` (unreadable: {exc})")
+        chunk = (f"- `{written}` (pattern `{glob}`): {len(matches)} matching file(s) exist, "
+                 "collector-confirmed:\n" + "\n".join(listing))
+        # Quote EVERY file of the family when the family is small. Showing two
+        # of twelve got "the evidence only shows the contents of two CSVs ...
+        # cannot verify that each of them sums to its respective N" (canary,
+        # 2026-10-11): a claim about all of them needs all of them. A family
+        # too large for the budget falls back to its first and last file.
+        sizes = []
+        for f in matches:
+            try:
+                sizes.append(min(f.stat().st_size, _PATTERN_BYTES_PER_FILE))
+            except OSError:
+                sizes.append(_PATTERN_BYTES_PER_FILE)
+        if sum(sizes) <= bytes_left:
+            quoted = matches
+        else:
+            quoted = [matches[0]] if len(matches) == 1 else [matches[0], matches[-1]]
+            chunk += (f"\n  ({len(matches) - len(quoted)} file(s) listed above are NOT quoted: "
+                      "the family exceeds the evidence budget)")
+        for f in quoted:
+            try:
+                with f.open("rb") as source:
+                    head = source.read(_PATTERN_BYTES_PER_FILE).decode("utf-8", errors="replace")
+            except OSError:
+                continue
+            bytes_left -= len(head)
+            chunk += (f"\n  contents of `{f.relative_to(root)}`:\n```\n{head}\n```"
+                      + ("" if f.stat().st_size <= _PATTERN_BYTES_PER_FILE else "\n…(truncated)"))
+        chunks.append(chunk)
+    return chunks
+
+
+_TOOLKIT_IMPORT_RE = re.compile(r"^\s*(?:from|import)\s+llmxive_toolkit\b", re.MULTILINE)
+_TOOLKIT_NOTE = (
+    "# Platform-provided module\n"
+    "`llmxive_toolkit` (`paths`, `project_root`, `get_logger`, `setup_logging`) is "
+    "installed by the platform on every project's import path. It is not a project "
+    "file: its absence from the project tree is not a defect, and a project must "
+    "not add its own copy."
+)
+
+
+def _imports_toolkit(source: Path) -> bool:
+    try:
+        with source.open("rb") as stream:
+            head = stream.read(_VALIDATE_MAX_BYTES).decode("utf-8", errors="replace")
+    except OSError:
+        return False
+    return bool(_TOOLKIT_IMPORT_RE.search(head))
+
+
+def gather_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str = "code/.tasks") -> str:
     """Collect the artifacts a task references (head of each) as evidence text.
 
     Uses the broadened :func:`_declared_paths` detector, so a setup/config/test
     task (``pyproject.toml``, ``tests/…``, ``src/…``) yields REAL file evidence
     instead of the "no artifact path" prose fallback."""
-    paths = _declared_paths(task_text)[:_MAX_EVIDENCE_FILES]
+    from llmxive.execution.platform_paths import platform_shadow
+
+    paths = [*_declared_paths(task_text), *declared_existing_files(project_dir, task_text)]
+    file_count = 0
+    source_bytes = 0
+    python_sources: list[Path] = []
     chunks: list[str] = []
+    project_root = project_dir.resolve()
+    # The production layout is projects/<id>. State that collector-observed
+    # identity, so project-relative evidence can substantiate repository-root
+    # commands without trusting path-equivalence claims in generated prose.
+    # Standalone caller directories do not establish a repository convention.
+    repository_root = project_root.parent.parent if project_root.parent.name == "projects" else None
+    inside_project = repository_root is not None
     for rel in paths:
-        f = project_dir / rel
-        if not f.is_file():
+        owned = platform_shadow(rel) if inside_project else None
+        if owned:
+            # Never quote a shadow's CONTENTS as evidence: a stale record in one
+            # is exactly how an honest artifact gets rejected.
+            chunks.append(
+                f"- `{rel}`: PLATFORM-OWNED PATH (shadows `{owned}/`) — a project "
+                "must not write platform state, and this copy is not evidence."
+            )
+            continue
+        f = _evidence_path(project_dir, rel)
+        if f is not None and rel.endswith("/") and f.is_dir():
+            entries = sorted(p.name + ("/" if p.is_dir() else "") for p in f.iterdir())
+            digest = hashlib.sha256("\n".join(entries).encode()).hexdigest()
+            chunks.append(
+                f"- `{rel}`: directory exists ({len(entries)} entries, sha256={digest})\n"
+                + "\n".join(entries[:200])
+                + ("\n…(listing truncated)" if len(entries) > 200 else "")
+            )
+            continue
+        if f is None or not f.is_file():
             chunks.append(f"- `{rel}`: MISSING (file does not exist)")
+            continue
+        file_count += 1
+        if file_count > _MAX_EVIDENCE_FILES:
+            chunks.append(f"- `{rel}`: NOT INSPECTED (file evidence limit reached)")
             continue
         try:
             size = f.stat().st_size
-            head = f.read_text(encoding="utf-8", errors="ignore")[:_MAX_BYTES_PER_FILE]
+            with f.open("rb") as source:
+                digest = hashlib.file_digest(source, "sha256").hexdigest()
+                source.seek(0)
+                limit = _MAX_BYTES_PER_FILE
+                if (f.suffix.lower() in _SOURCE_SUFFIXES
+                        and source_bytes + min(size, _MAX_BYTES_PER_SOURCE) <= _SOURCE_QUOTE_BUDGET):
+                    limit = _MAX_BYTES_PER_SOURCE
+                    source_bytes += min(size, limit)
+                head = source.read(limit).decode("utf-8", errors="replace")
         except OSError as exc:
             chunks.append(f"- `{rel}`: unreadable ({exc})")
             continue
+        if f.suffix == ".py":
+            python_sources.append(f)
         chunks.append(
-            f"- `{rel}` ({size} bytes):\n```\n{head}\n```"
-            + ("" if size <= _MAX_BYTES_PER_FILE else "\n…(truncated)")
+            f"- `{rel}` (resolved: `{f.relative_to(project_dir.resolve())}`, "
+            + (f"repository-relative: `{f.relative_to(repository_root)}`, "
+               if repository_root is not None else "")
+            + f"{size} bytes, sha256={digest}):\n```\n{head}\n```"
+            + ("" if size <= limit else "\n…(truncated)")
         )
+    chunks.extend(_pattern_evidence(project_dir, task_text))
+    if any(_imports_toolkit(source) for source in python_sources):
+        chunks.append(_TOOLKIT_NOTE)
+    dependencies = local_import_evidence(project_root, python_sources)
+    if dependencies:
+        chunks.append(dependencies)
     if not chunks:
         chunks.append(
             "(the task references no code/data/figure artifact path; verify from "
             "the task description + the project context alone)"
         )
+    # A report alone cannot substantiate its own results. Directory-producing
+    # tasks likewise need contents, not merely a list of filenames. The shared
+    # bounded reader exposes actual data and hashes, so report-cache entries
+    # invalidate when their supporting bytes change.
+    needs_data = any(
+        Path(rel).suffix.lower() == ".md" or rel.endswith("/")
+        for rel in paths
+    )
+    if needs_data:
+        from llmxive.speckit.implement_cmd import _current_data_context
+        data = _current_data_context(project_dir, preferred_paths=tuple(paths))
+        chunks.append("# Underlying data evidence (not proof of run/test success)\n"
+                      + (data or "No data artifacts available; do not infer measured results from report prose."))
+    execution = _task_execution_evidence(project_dir, task_text, execution_log_dir=execution_log_dir)
+    if execution:
+        chunks.append(execution)
+    if repository_root is not None:
+        chunks.insert(0,
+            "# Collector-confirmed project location\n"
+            f"Project root relative to the repository: `{project_root.relative_to(repository_root)}`.\n"
+            "Resolved artifact paths are relative to this project root; repository-relative "
+            "paths identify the same observed files from the repository root.\n"
+            "This mapping does not establish the existence of missing paths."
+        )
     return "\n".join(chunks)
+
+
+def _task_execution_evidence(project_dir: Path, task_text: str, *, execution_log_dir: str = "code/.tasks") -> str:
+    """Expose bounded, task-specific execution records rather than hiding success.
+
+    These are historical observations, not approval of the current project.
+    Final execution freshness and scientific review remain separate gates.
+    """
+    match = _TASK_ID_RE.match(task_text.strip())
+    if not match:
+        return ""
+    task_id = match.group(1)
+    root = project_dir.resolve()
+    records = []
+    candidates = sorted((project_dir / execution_log_dir).glob(f"{task_id}.*.log"),
+                        key=lambda p: p.stat().st_mtime_ns, reverse=True)
+    for path in candidates:
+        if path.is_symlink() or not path.is_file() or not path.resolve().is_relative_to(root):
+            continue
+        try:
+            with path.open("rb") as stream:
+                digest = hashlib.file_digest(stream, "sha256").hexdigest()
+                stream.seek(0)
+                body = stream.read(6001).decode("utf-8", errors="replace")
+        except OSError:
+            continue
+        header = re.match(r"# (.+?) \(exit -?\d+,", body)
+        # Dotted IDs share filename prefixes; require the producer in the
+        # record to match this exact task's filename before using its evidence.
+        if not header or path.name != f"{task_id}.{header.group(1).replace('/', '_')}.log":
+            continue
+        records.append(f"### {path.relative_to(project_dir)} (sha256 {digest})\n"
+                       + body[:6000] + ("\n[Log truncated]" if len(body) > 6000 else ""))
+        if len(records) == 3:
+            break
+    if not records:
+        return ""
+    return ("# Historical execution records for this task\n"
+            "These record actual commands, exit codes and timings. They do not prove "
+            "later edits were executed; current artifacts, final execution freshness "
+            "and scientific correctness must still be checked.\n" + "\n".join(records))
+
+
+def _verification_hash(
+    task_text: str, spec: str, evidence: str, *, model: str = DEFAULT_MODEL,
+) -> str:
+    # A new verifier policy/model must reconsider stale literal-path decisions.
+    return _evidence_hash("\n".join((
+        _SYSTEM_PROMPT, model, task_text, spec, evidence,
+    )))
 
 
 def verify_task(
@@ -318,7 +574,6 @@ DEFAULT_VERIFY_CAP = 6
 #: (``[UNRESOLVED-CLAIM: c_a1b2 — status=not_enough_info]``). They are not identity.
 _VOLATILE_MARK_RE = re.compile(r"\s*\[(?:UNRESOLVED-CLAIM|UNVERIFIED):[^\]]*\]")
 #: The leading speckit task id — ``T009``, ``T005C``, ``PT005C`` — a task's TRUE identity.
-_TASK_ID_RE = re.compile(r"^\*{0,2}([A-Za-z]{1,4}\d+[A-Za-z0-9]*)\b")
 
 
 def _task_key(rest: str) -> str:
@@ -355,7 +610,7 @@ def task_keys(tasks_text: str | list[str]) -> dict[int, str]:
     lines = tasks_text.splitlines() if isinstance(tasks_text, str) else tasks_text
     seen: dict[str, int] = {}
     out: dict[int, str] = {}
-    for i, line in enumerate(lines):
+    for i, line in enumerate(mask_fenced_code("\n".join(lines)).splitlines()):
         m = _TASK_LINE_RE.match(line)
         if not m:
             continue
@@ -376,6 +631,70 @@ def claimed_done_keys(tasks_text: str) -> set[str]:
         if m and m.group(2) in ("x", "X"):
             out.add(key)
     return out
+
+
+def task_verification_state_path(project_dir: Path, tasks_path: Path) -> Path:
+    root = project_dir / "paper" if tasks_path.resolve().is_relative_to((project_dir / "paper").resolve()) else project_dir
+    return root / ".specify/memory/task_verify.yaml"
+
+
+def verified_done_keys(
+    project_dir: Path, tasks_path: Path, *, tasks_text: str | None = None,
+    model: str = DEFAULT_MODEL,
+) -> set[str]:
+    """Only reuse acceptances whose requirements and actual evidence still match.
+
+    A checkbox alone can be an interrupted implementer's unverified self-report.
+    Later tasks can also overwrite an earlier task's accepted code.
+    """
+    import yaml
+
+    state_path = task_verification_state_path(project_dir, tasks_path)
+    try:
+        cache = yaml.safe_load(_cache_path(state_path).read_text()) or {}
+    except (OSError, yaml.YAMLError):
+        return set()
+    if not isinstance(cache, dict):
+        return set()
+    try:
+        spec = (tasks_path.parent / "spec.md").read_text()
+    except OSError:
+        spec = ""
+    try:
+        lines = (read_task_document(tasks_path, project_dir)
+                 if tasks_text is None else tasks_text).splitlines()
+    except TaskFormatError:
+        return set()  # the implementer routes the corrupt document back to tasking
+    verified = set()
+    for i, key in task_keys(lines).items():
+        match = _TASK_LINE_RE.match(lines[i])
+        if not match or match.group(2) not in {"x", "X"}:
+            continue
+        task_text = match.group(3).strip() + task_continuation(lines, i)
+        if _deterministic_verdict(project_dir, task_text)[0] == "reject":
+            continue
+        digest = _verification_hash(task_text, spec, gather_evidence(project_dir, task_text, execution_log_dir=("paper/.tasks" if state_path.is_relative_to(project_dir / "paper") else "code/.tasks")), model=model)
+        receipt = cache.get(key)
+        if (isinstance(receipt, dict) and receipt.get("c") is True and receipt.get("h") == digest
+                and authentic_verdict(project_dir, tasks_path, key, receipt)):
+            verified.add(key)
+    return verified
+
+
+def preserve_verified_completion(project_dir: Path, tasks_path: Path, text: str) -> str:
+    """A task planner may define work, but cannot invent completion evidence.
+
+    Keep checked tasks only when the independent verifier's receipt still binds
+    to the new task definition, active specification and current artifact bytes.
+    This is read-only with respect to existing files and verification state.
+    """
+    from llmxive.speckit.task_lines import TASK_LINE_RE, mark_task
+
+    verified = verified_done_keys(project_dir, tasks_path, tasks_text=text)
+    for match in TASK_LINE_RE.finditer(mask_fenced_code(text)):
+        if match.group("status") in {"x", "X"} and match.group("id") not in verified:
+            text = mark_task(text, match.group("id"), " ")
+    return text
 
 
 def _resolve_ids(
@@ -407,8 +726,8 @@ def _cache_path(state_path: Path) -> Path:
 def _mark_counts(lines: list[str]) -> dict[str, int]:
     """Count real checkbox marks by kind (``X`` done / `` `` open / ``~`` under-review)."""
     out = {"X": 0, " ": 0, "~": 0}
-    for line in lines:
-        m = _TASK_LINE_RE.match(line)
+    for i in task_keys(lines):
+        m = _TASK_LINE_RE.match(lines[i])
         if not m:
             continue
         mk = m.group(2)
@@ -437,12 +756,11 @@ def run_verification_pass(
     """Independently verify each newly-claimed (``[X]`` not in ``already_verified``)
     or previously-deferred (``[~]``) task in ``tasks_path``, rewriting its mark.
 
-    Two tiers (issue #1139): every task is first settled DETERMINISTICALLY from
-    filesystem state (free) — declared artifacts all valid → ``[X]``; a production
-    task's declared artifacts all missing → ``[ ]``. Only genuinely ambiguous tasks
-    reach the bounded (``cap``) semantic LLM, whose verdicts are cached by
-    ``(task_key, evidence_hash)`` so unchanged tasks re-verify for free and a verdict
-    invalidates the instant the evidence bytes change.
+    Reject absent production artifacts deterministically. Remaining tasks reach
+    the bounded (``cap``) semantic model, with verdicts cached against task,
+    requirements, policy, requested model, and evidence bytes. Persist pending
+    review before backend calls so interruption cannot leave unreviewed work
+    marked accepted.
 
       - COMPLETE   → ``[X]`` (truly done),
       - INCOMPLETE → ``[ ]`` (implementer REDOES it) + a note in ``notes_path``;
@@ -463,7 +781,7 @@ def run_verification_pass(
 
     project_id, repo_root = _resolve_ids(project_dir, project_id, repo_root)
 
-    text = tasks_path.read_text(encoding="utf-8")
+    text = read_task_document(tasks_path, project_dir, project_id=project_id, repo_root=repo_root)
     lines = text.splitlines()
     try:
         reject_counts = yaml.safe_load(state_path.read_text(encoding="utf-8")) or {}
@@ -478,7 +796,18 @@ def run_verification_pass(
         cache = {}
     if not isinstance(cache, dict):
         cache = {}
-    unv_keys = _unv.recorded_keys(project_id, repo_root=repo_root)
+    # Feedback outlives a single verification batch. Bind it to the task's
+    # requirements so a replan reusing T001 cannot inherit old diagnoses/counts.
+    feedback_path = state_path.with_suffix(".feedback.yaml")
+    try:
+        feedback = yaml.safe_load(feedback_path.read_text(encoding="utf-8")) or {}
+    except (OSError, yaml.YAMLError):
+        feedback = {}
+    if not isinstance(feedback, dict):
+        feedback = {}
+    namespace = "paper:" if tasks_path.resolve().is_relative_to((project_dir / "paper").resolve()) else ""
+    unv_keys = {key.removeprefix(namespace) for key in _unv.recorded_keys(project_id, repo_root=repo_root)
+                if key.startswith(namespace) and (namespace or not key.startswith("paper:"))}
 
     accepted = 0
     rejected: list[tuple[str, str]] = []
@@ -486,20 +815,55 @@ def run_verification_pass(
     unverifiable_flagged: list[str] = []
     budget = cap
     keys = task_keys(lines)  # unique + churn-stable; see task_keys()
+    current_feedback: dict[str, dict[str, str]] = {}
+    changed_keys: set[str] = set()
+    for i, key in keys.items():
+        match = _TASK_LINE_RE.match(lines[i])
+        assert match is not None
+        definition = match.group(3).strip() + task_continuation(lines, i)
+        definition = re.sub(r"<!--.*?-->", "", definition, flags=re.DOTALL)
+        definition = " ".join(_VOLATILE_MARK_RE.sub("", definition).split())
+        signature = _evidence_hash(definition)
+        previous = feedback.get(key)
+        if isinstance(previous, dict) and previous.get("task") == signature:
+            current_feedback[key] = {"task": signature}
+            if previous.get("reason"):
+                current_feedback[key]["reason"] = str(previous["reason"])
+        else:
+            current_feedback[key] = {"task": signature}
+            # Unbound legacy counts cannot establish repeated failure of THIS
+            # definition. A new rejection starts its own bounded attempt count.
+            reject_counts.pop(key, None)
+            if isinstance(previous, dict):
+                cache.pop(key, None)
+                changed_keys.add(key)
+    feedback = current_feedback
+
+    # Persist pending review BEFORE calling a backend. A crash/interruption must
+    # not leave an unreviewed [X] that the next tick mistakes for an acceptance.
+    pending = list(lines)
+    for i, key in keys.items():
+        match = _TASK_LINE_RE.match(lines[i])
+        if match and match.group(2) in {"X", "x"} and (key not in already_verified or key in changed_keys):
+            pending[i] = f"{match.group(1)}[~]{match.group(3)}"
+    if pending != lines:
+        atomic_write_text(tasks_path, "\n".join(pending) + ("\n" if text.endswith("\n") else ""))
 
     def _accept(i: int, m: re.Match[str], rest: str, key: str) -> None:
         nonlocal accepted
         lines[i] = f"{m.group(1)}[X]{rest}"
         accepted += 1
         reject_counts.pop(key, None)
+        feedback[key].pop("reason", None)
 
     def _reject(i: int, m: re.Match[str], rest: str, key: str, reason: str) -> None:
         count = int(reject_counts.get(key, 0)) + 1
         reject_counts[key] = count
         lines[i] = f"{m.group(1)}[ ]{rest}"
         rejected.append((key, reason))
+        feedback[key]["reason"] = reason.strip()[:600]
         if count >= REJECT_CAP:
-            _unv.record_unverifiable(project_id, key, reason, repo_root=repo_root)
+            _unv.record_unverifiable(project_id, namespace + key, reason, repo_root=repo_root)
             reject_counts.pop(key, None)
             cache.pop(key, None)
             unv_keys.add(key)
@@ -512,17 +876,18 @@ def run_verification_pass(
                 key, count,
             )
 
-    for i, line in enumerate(lines):
+    for i in keys:
+        line = lines[i]
         m = _TASK_LINE_RE.match(line)
         if not m:
             continue
         mark, rest = m.group(2), m.group(3)
         key = keys[i]
-        newly_claimed = mark in ("x", "X") and key not in already_verified
+        newly_claimed = mark in ("x", "X") and (key not in already_verified or key in changed_keys)
         under_review = mark == "~"
         if not (newly_claimed or under_review):
             continue
-        task_text = rest.strip()
+        task_text = rest.strip() + task_continuation(lines, i)
 
         # (A) Already recorded UNVERIFIABLE → do NOT re-judge (this is what breaks
         # the loop REJECT_CAP used to paper over). Keep it OUT of the done set
@@ -544,13 +909,14 @@ def run_verification_pass(
             continue
 
         # (C) Ambiguous residue → evidence-hash cache, else bounded semantic LLM.
-        evidence = gather_evidence(project_dir, rest)
-        ev_hash = _evidence_hash(evidence)
+        evidence = gather_evidence(project_dir, task_text, execution_log_dir="paper/.tasks" if namespace else "code/.tasks")
+        ev_hash = _verification_hash(task_text, spec_context, evidence, model=model)
         cached = cache.get(key)
         if (
             isinstance(cached, dict)
             and cached.get("h") == ev_hash
             and isinstance(cached.get("c"), bool)
+            and authentic_verdict(project_dir, tasks_path, key, cached)
         ):
             complete: bool | None = cached["c"]
             reason = str(cached.get("r") or "(cached verdict; evidence unchanged)")
@@ -571,7 +937,14 @@ def run_verification_pass(
             complete = verdict.complete
             reason = verdict.reason
             if complete is not None:
-                cache[key] = {"h": ev_hash, "c": complete, "r": reason[:600]}
+                receipt = signed_verdict(project_dir, tasks_path, key,
+                    {"h": ev_hash, "c": complete, "r": reason[:600]})
+                if receipt is not None:
+                    cache[key] = receipt
+                else:
+                    # Fresh independent decisions remain valid for this pass;
+                    # without a signing key they cannot be reused on later ticks.
+                    cache.pop(key, None)
 
         if complete is True:
             _accept(i, m, rest, key)
@@ -582,7 +955,7 @@ def run_verification_pass(
             deferred.append(key)
 
     new_text = "\n".join(lines) + ("\n" if text.endswith("\n") else "")
-    if new_text != text:
+    if new_text != tasks_path.read_text(encoding="utf-8"):
         atomic_write_text(tasks_path, new_text)
 
     # Drop reject counts / cache entries for tasks that no longer exist in tasks.md.
@@ -602,7 +975,13 @@ def run_verification_pass(
     else:
         cache_path.unlink(missing_ok=True)
 
-    _write_notes(notes_path, rejected)
+    if feedback:
+        atomic_write_text(feedback_path, yaml.safe_dump(feedback, sort_keys=True))
+    else:
+        feedback_path.unlink(missing_ok=True)
+    _write_notes(notes_path, [
+        (key, entry["reason"]) for key, entry in feedback.items() if entry.get("reason")
+    ])
     return {
         "accepted": accepted,
         "rejected": rejected,
@@ -642,7 +1021,7 @@ def drain_under_review(
     if state_path is None:
         state_path = project_dir / ".specify" / "memory" / "task_verify.yaml"
 
-    text = tasks_path.read_text(encoding="utf-8")
+    text = read_task_document(tasks_path, project_dir, project_id=project_id, repo_root=repo_root)
     lines = text.splitlines()
     try:
         reject_counts = yaml.safe_load(state_path.read_text(encoding="utf-8")) or {}
@@ -656,13 +1035,14 @@ def drain_under_review(
 
     accepted = reopened = ambiguous = 0
     newly_unverifiable: list[str] = []
-    for i, line in enumerate(lines):
+    for i in keys:
+        line = lines[i]
         m = _TASK_LINE_RE.match(line)
         if not m or m.group(2) != "~":
             continue
         rest = m.group(3)
         key = keys[i]
-        task_text = rest.strip()
+        task_text = rest.strip() + task_continuation(lines, i)
         if key in unv_keys:
             lines[i] = f"{m.group(1)}[ ]{rest}"
             reopened += 1

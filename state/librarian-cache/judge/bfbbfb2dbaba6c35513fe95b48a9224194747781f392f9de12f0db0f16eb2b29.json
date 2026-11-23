@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2506.00204",
+  "judged_at": "2026-07-21T01:08:37Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"function-aware fill-in-the-middle as mid-training for coding agent fou\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same core mechanism (Fill-in-the-Middle pretraining for code LLMs) and domain (code editing and generation) as the user's question, offering a canonical alternative approach (AST-based masking) to the standard random-character FIM mentioned in the user's context. It provides essential prior work on the specific training strategy and evaluation benchmarks relevant to extending the user's research on coding agents.",
+  "relevant": true
+}

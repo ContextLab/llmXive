@@ -1,0 +1,107 @@
+T000:
+  task: 9dafb6255a275ad696bafc3ef69c4b75a187cdfa0367eeafffa85266173788d0
+T001:
+  reason: The `scripts/init_project.py` file exists and contains code to create the
+    required directories, but there is no evidence that the script was actually run,
+    and the expected directories (`data/raw/`, `data/processed/`, `data/qualitative/`,
+    `specs/contracts/`) are still missing. The task requires successful execution
+    of the script to scaffold those folders.
+  task: c1b02ab761a8113df343da0667bbe6cddb138772754a0228a6b1ca45048f7fce
+T002:
+  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/ci.yml`
+    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 2bed844ee776afb60823334fef41ad5f518c5938d6a261e4846c1caf82f725f0
+T003:
+  reason: 'declared artifact(s) missing/empty/invalid: pyproject.toml'
+  task: 66d8d05b3846db53723b28e2d7ecc08ac773c92646e3754b4c968f128746384b
+T004:
+  reason: "The provided `code/config.py` does not define a `MARKER_DICTS` constant\
+    \ (the verification script expects it) and its `model_id` is `TheBloke/TinyLlama-1.1B-Chat-v1.0-GGUF`\
+    \ instead of the required primary `TheBloke/TinyLlama-Chat-v-GGUF`; it also lacks\
+    \ the secondary model IDs `mistralai/Mistral-7B-Instruct-v0.2` and `meta-llama/Llama-7b-chat-hf`.\
+    \ These omissions mean the task\u2019s specifications are not satisfied."
+  task: cf17703d92314ce230cf1181b592d17b1091c9aa44a3e236f1fc764c4fd7f95a
+T005:
+  task: 64538bd9c70026b4da66c41ea0068a0ff290fb41ead04fa21f45ee0253fe1900
+T006:
+  reason: "The repository contains `code/utils/io.py`, but it does not provide a command\u2011\
+    line interface (no `if __name__ == '__main__'` or argparse handling for `--validate-schema`).\
+    \ Moreover, the required test files `data/test.json` and `specs/contracts/test.schema.yaml`\
+    \ are missing, so the verification command cannot be executed."
+  task: a56478d18396b1e088db250a7b7dfe6a26ada512200417e2a96269dac6b15c2e
+T007:
+  reason: The required `generation_log.schema.yaml` and `final_report.schema.yaml`
+    files are missing, and the existing schema files are located under `specs/001-phenomenological-ai-first-person-experie/`
+    rather than the required `specs/contracts/` directory.
+  task: 3f3dc921797cd72a187cd46d62867aa28c918bb33221809a2d48b1d2d9d5110d
+T009:
+  task: 5b75f9b80bc9e1e92d386a70e434386194ff5bdf180b75f558f7eb37baa3a3e4
+T009b:
+  task: e9a319015cf7bfb3f60cc5054cb0ff4b5fa0d60a013dba9373c9bb6a9eaf72b6
+T009c:
+  task: cfd05c2b7861008dc7afca14d7d118ac8cc942e3f7617d0231792462d014a8f5
+T009d:
+  task: cc8f5274c32bef608e1c4979c66f32ad02b0586b8df7d94c83de64e6fe907864
+T010:
+  task: 93702d1e8b982569008de82f20bb513dfdc4171e1e0aa4c76af4f13c542c0cec
+T011:
+  task: 916316d2cf714d9912690a48587bd6a5474fd59bcd4b7a71d8c61222ea278e0f
+T012:
+  task: 69a2f69a2719456ea9c132b216ba85623dc0c1da7b747a7b8ac0d3ce7b263e85
+T013:
+  task: fd82a890f1f24728f7251646dd6ebc8b299b94fa33c324c21c2c524c1f1122c6
+T014:
+  task: 6040ed65e6cba28d5ab8ab62bddcf256c9ce842281170df328aa859504f1dbd2
+T015:
+  task: a799343993eb2503ffed2e9bbe616162b6704e3d687fbeffc716165821d2c8d2
+T016:
+  task: 084d68cd481a9f806561544ed67112afd020efe0ade0d57dec464fc4b47f5452
+T017:
+  task: 86b58efefa59a70cb7cd9f9ffea3b2258bb44f057417151bb34ccfc3b29943f0
+T018:
+  task: fc5005726948d6e22f9d9b7ecddc90cb4f720c7147daedb93fbed6f070876528
+T019:
+  task: 13b86c7412de5019ff0cd12bad54562c1e7cf5a525201d594ffc663bb6d60109
+T020:
+  reason: "The provided `code/validation/rubric.md` does not contain the required\
+    \ literal headings \u201CMarker Density\u201D or \u201CStructural Integrity\u201D\
+    \ (only \u201CTemporal Coherence\u201D, \u201CSensory Detail\u201D, etc.), so\
+    \ the verification greps would return 0 for those terms. The rubric therefore\
+    \ fails to meet the task\u2019s specified content."
+  task: f0b6b0251576d7c733c274943fa6d9a02cd38ea5c8bb92a911b0917883f1a994
+T021:
+  task: e7f8f591d00a9ff2b758620a8d2b2ba1ef1fb3e6a4eebb06ef61d832e80b7803
+T021b:
+  task: 15205722a6ff9532fc54e45422374c333376cb472c76811952e444955ff63522
+T022:
+  task: 017625f9dbb81c1a2f44bbf16c4fe4dd878f8bdd52163e3b7ac9b30cc8801690
+T023:
+  task: 19a54db14a7b63dc2b1fcf06953809de0248d5b2f53fa4ef2b2c427333f310d2
+T025:
+  task: d9a9fc97f3f592d677cdb834ec89aeabe2777dda78788f3cb5c392865da0a987
+T026:
+  task: 491f4675b6c5b65c1e2c89cfe3a996572075dff772fe3e02b15cb9b8567afd79
+T030a:
+  task: 2f65be9dab8eb292a7fed7618fc5b302f6c23f9ea9c9d02ef6429ba47042f116
+T031a:
+  task: 48820075eb45d910c916a89d8053386b3b23a515806ead8ce96e1d4e65d453d5
+T031b:
+  task: 866e2808a22950c882ab815d62185f49802a236b4d6c0b012484160683160574
+T032:
+  task: 58a52ef78019dd06d548ef3453e11a6b07a3380945e06756eb278b684915b4b0
+T033:
+  task: 41fd36d884ca24715be299420860d098b6aca11c5dd244ce795412494ad5b1db
+T033a:
+  task: 71388a852bb260790201c2fc6b564482c0de7bd9074c66322ccdc48302bb6c19
+T034a:
+  task: cec381aa62e30af810a959b63a447b8bcb4d678233827717ddf73ca31ee85bd1
+T039:
+  task: 5e20d74bb27b118cc588934053d781d23fc31d76ac0c042663bb8072a26b0d38
+T040:
+  task: e50b0f12c37264c8f20902f35a368d63c11564715fef9bf1c7111613eed2dcfe
+T041:
+  task: 7a4558e4bbf617d244caf12ca923f853c7f740186bf655882db2944d02a7b3dc
+T042:
+  task: 4013c50f090839133f552febe64ccc07302f3aafeb9f161731ae43cea284377c

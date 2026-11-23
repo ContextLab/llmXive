@@ -1,0 +1,9 @@
+numpy
+pandas
+scipy
+vaderSentiment
+fairlearn
+datasets
+pyyaml
+pytest
+scikit-learn

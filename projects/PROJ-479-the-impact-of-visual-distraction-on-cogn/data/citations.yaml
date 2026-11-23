@@ -1,0 +1,71 @@
+citations:
+  holm_bonferroni:
+    title: "A Simple Sequentially Rejective Multiple Test Procedure"
+    authors:
+      - "Holm, S."
+    year: 1979
+    journal: "Scandinavian Journal of Statistics"
+    volume: "6"
+    pages: "65-70"
+    type: "primary_source"
+    doi: "N/A"
+    url: "https://www.jstor.org/stable/4615733"
+    note: "Seminal paper introducing the Holm-Bonferroni method for multiple testing correction."
+
+  opencv_edge_detection:
+    title: "A Computational Approach to Edge Detection"
+    authors:
+      - "Canny, J."
+    year: 1986
+    journal: "IEEE Transactions on Pattern Analysis and Machine Intelligence (TPAMI)"
+    volume: "PAMI-8"
+    number: "6"
+    pages: "679-698"
+    type: "primary_source"
+    doi: "10.1109/TPAMI.1986.4767851"
+    url: "https://doi.org/10.1109/TPAMI.1986.4767851"
+    note: "Foundational paper on the Canny edge detection algorithm, widely implemented in OpenCV."
+
+  color_entropy:
+    title: "A Mathematical Theory of Communication"
+    authors:
+      - "Shannon, C.E."
+    year: 1948
+    journal: "The Bell System Technical Journal"
+    volume: "27"
+    pages: "379-423, 623-656"
+    type: "primary_source"
+    doi: "10.1002/j.1538-7305.1948.tb01338.x"
+    url: "https://doi.org/10.1002/j.1538-7305.1948.tb01338.x"
+    note: "Original source for the definition of information entropy, used to calculate color entropy in images."
+
+  yolov8:
+    title: "Ultralytics YOLOv8"
+    authors:
+      - "Ultralytics Team"
+    year: 2023
+    publisher: "Ultralytics"
+    type: "software_documentation"
+    url: "https://docs.ultralytics.com/"
+    note: "Official documentation and repository for the YOLOv8 object detection model. Based on the architecture lineage of Redmon et al.'s YOLO series, but specifically implemented and maintained by Ultralytics."
+    related_work:
+      - title: "You Only Look Once: Unified, Real-Time Object Detection"
+        authors: "Redmon, J., Divvala, S., Girshick, R., Farhadi, A."
+        year: 2016
+        journal: "CVPR"
+        note: "Original YOLO paper establishing the single-shot detection framework."
+
+  p_value_threshold:
+    title: "The ASA Statement on p-Values: Context, Process, and Purpose"
+    authors:
+      - "Wasserstein, R.L."
+      - "Lazar, N.A."
+    year: 2016
+    journal: "The American Statistician"
+    volume: "70"
+    number: "2"
+    pages: "129-133"
+    type: "primary_source"
+    doi: "10.1080/00031305.2016.1154108"
+    url: "https://doi.org/10.1080/00031305.2016.1154108"
+    note: "Official statement from the American Statistical Association regarding the interpretation and use of p-values in scientific research, establishing the community standard of alpha=0.05."

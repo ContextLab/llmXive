@@ -1,252 +1,128 @@
-# Tasks: Assessing the Impact of Data Heterogeneity on Meta-Analysis Results
-
-**Input**: Design documents from `/specs/001-assess-heterogeneity-impact/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/` at repository root (per `plan.md`)
-- Paths shown below assume single project structure - adjusted based on `plan.md`
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project structure per `plan.md` (mkdir `code/simulation`, `code/analysis`, `code/visualization`, `code/reporting`, `data/raw`, `data/processed`, `data/results`, `tests/unit`, `tests/integration`, `contracts`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` containing `numpy`, `scipy`, `pandas`, `scikit-learn`, `matplotlib`, `pyyaml`, `pytest`
-- [X] T003 [P] Configure linting (flake8/black) and pre-commit hooks in `code/`
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure, data ingestion, and contracts that MUST be complete before ANY user story can be implemented.
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. Data must be fetched and verified before simulation.
-
-- [ ] T004 [P] Create JSON schemas for `SimulatedDataset`, `EstimationResult`, and `AggregatedMetric` in `specs/001-assess-heterogeneity-impact/contracts/` with filenames `simulated_dataset.schema.yaml`, `estimation_result.schema.yaml`, and `aggregated_metric.schema.yaml`. **Must include `I^2` as a required field in `EstimationResult`**.
-- [X] T005 [P] Implement `code/simulation/__init__.py` and `code/analysis/__init__.py` to expose core classes
-- [ ] T006 Create `code/main.py` entry point that orchestrates the pipeline (generation -> estimation -> analysis -> reporting) with CLI argument support for seeds and levels <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested --> <!-- ATOMIZE: requested -->
-- [X] T007 Setup logging infrastructure in `code/utils/logging.py` to capture convergence failures and simulation progress to `data/results/simulation.log`
-- [ ] T040 [P] **Fetch Real Data**: Execute a script to download a verified Cochrane meta-analysis dataset (or a verified synthetic base with explicitly cited parameters from literature, e.g., Jackson et al., 2010) into `data/raw/`. The task must specify the exact URL or package fetch command and save the file as `data/raw/cochrane_base.csv`.
-- [X] T041 [P] **Document Data Source**: Create `data/raw/README.md` and update `research.md` to explicitly document the source URL, accession ID, and citation for the base dataset used in T040, satisfying Constitution Principle II (Verified Accuracy).
-
-**Checkpoint**: Foundation ready - data fetched, schemas defined, user story implementation can now begin.
-
----
-
-## Phase 3: User Story 1 - Simulation Engine Execution (Priority: P1) 🎯 MVP
-
-**Goal**: Generate synthetic meta-analysis datasets with controlled $\tau^2$ levels based on Cochrane data structures.
-
-**Independent Test**: Run `code/simulation/generator.py` with $\tau^ \in \{0, 0.1\}$ and 10 replicates; verify output JSON contains injected $\tau^2$ and generated effect sizes; process exits 0 within 10 mins.
-
-### Tests for User Story 1
-
-- [ ] T008 [P] [US1] Unit test `test_generator.py` verifying that generated variance matches injected $\tau^2$ within Monte Carlo error (500 replicates). **Verify output artifact `data/results/test_variance_check.json` contains mean variance within 0.01 of target **.
-- [ ] T009 [P] [US1] Unit test `test_generator.py` verifying that $\tau^2=0$ produces zero between-study variance (homogeneity). **Verify output artifact `data/results/test_homogeneity_check.json` confirms zero variance**.
-- [ ] T014 [P] [US1] **Full Scale Performance Test**: Run `generator.py` for the full set (5 levels $\times$ 500 replicates = 2,500 total). Verify the process completes within 360 minutes (6 hours) and RAM usage < 7GB on CPU-only runner. Verify integrity of `data/results/simulation_raw.json` (2,500 records).
-
-### Implementation for User Story 1
-
-- [ ] T010 [US1] Implement `code/simulation/generator.py` to load base Cochrane data (from `data/raw/`, verified in T040) and implement a loop generating ≥500 replicates per level for heterogeneity levels $\{0, 0.1, 0.5, 1.0, 2.0\}$. **Ensure output conforms to `contracts/simulated_dataset.schema.yaml`**.
-- [ ] T011 [US1] Implement logic in `generator.py` to handle $N < 5$ studies by flagging/excluding replicates (Edge Case: Small Study Effects)
-- [ ] T012 [US1] Implement logic in `generator.py` to handle $\tau^2=0$ without numerical instability (Edge Case: Zero Variance)
-- [ ] T013 [US1] Ensure `generator.py` outputs `data/results/simulation_raw.json` conforming to `contracts/simulated_dataset.schema.yaml`
-
-**Checkpoint**: Simulation engine generates valid, reproducible datasets with known ground truths.
-
----
-
-## Phase 4: User Story 2 - Estimator Application and Metric Calculation (Priority: P2)
-
-**Goal**: Apply Fixed-Effects, DL, and REML estimators to simulated data and calculate bias/coverage.
-
-**Independent Test**: Process a pre-generated small set of simulated datasets; verify output includes pooled estimate, confidence interval, and coverage flag for true effect.
-
-### Tests for User Story 2
-
-- [ ] T015 [P] [US2] Unit test `test_estimators.py` verifying Fixed-Effects, DL, and REML against standard normal data cases
-- [ ] T016 [P] [US2] Unit test `test_estimators.py` verifying REML convergence failure handling (negative variance -> fallback/skip)
-- [ ] T016_test_edge_cases_estimator [P] [US2] Unit test `test_estimators.py` verifying that Fixed-Effects converges when $\tau^2=0$ and that bias calculation handles excluded $N<5$ studies correctly.
-
-### Implementation for User Story 2
-
-- [ ] T017 [US2] Implement `code/simulation/estimators.py` with Fixed-Effects, DerSimonian-Laird (DL), and REML estimators (CPU-tractable, no CUDA)
-- [ ] T018 [US2] Implement REML convergence failure logic in `estimators.py`: log event, impute minimal positive variance or skip, record count
-- [ ] T019 [US2] Implement `code/analysis/metrics.py` to calculate bias (`pooled - true_effect`) and 95% CI coverage for each replicate
-- [ ] T020 [US2] Implement logic in `metrics.py` to verify coverage at $\tau^2=0$ is statistically indistinguishable from **0.95** (within $\pm 1.5\%$, alpha=0.05, CI=95%)
-- [ ] T021 [US2] Output results to `data/results/estimation_results.csv` conforming to `contracts/estimation_result.schema.yaml` (including `I^2` field)
-
-**Checkpoint**: Estimators applied correctly; bias and coverage metrics calculated for all replicates.
-
----
-
-## Phase 5: User Story 3 - Statistical Analysis and Reporting (Priority: P3)
-
-**Goal**: Aggregate results, perform statistical tests (Binomial, Kruskal-Wallis), and generate visualizations.
-
-**Independent Test**: Run analysis script on pre-computed CSV; verify summary table of coverage rates and PNG plot of coverage vs. $\tau^2$.
-
-### Tests for User Story 3
-
-- [ ] T022 [P] [US3] Unit test `test_stats.py` verifying exact binomial test calculation against known proportions
-- [ ] T023 [P] [US3] Unit test `test_stats.py` verifying Bonferroni correction application ($\alpha = 0.05/5$)
-- [ ] T023_test_conditional_logic [P] [US3] Unit test `test_stats.py` verifying the conditional branching logic: explicitly test that Shapiro-Wilk $p < 0.05$ triggers Kruskal-Wallis, and $p \ge 0.05$ triggers ANOVA.
-
-### Implementation for User Story 3
-
-- [ ] T024 [US3] Implement `code/analysis/stats.py` with exact binomial test for coverage deviation (FR-004)
-- [ ] T025 [US3] Implement `code/analysis/stats.py` with Shapiro-Wilk test for normality (FR-008)
-- [ ] T026 [US3] Implement `code/analysis/stats.py` with Bonferroni correction for multiple hypothesis tests (FR-007)
-- [ ] T037 [US3] Implement conditional branching logic in `code/analysis/stats.py` to select Kruskal-Wallis if Shapiro-Wilk $p < 0.05$, else ANOVA (FR-008)
-- [ ] T039 [US3] Implement calculation and reporting of $I^2$ statistic alongside $\tau^2$ in `code/analysis/stats.py` and `report_gen.py` for normalization (Constitution Principle VII)
-- [ ] T034 [US3] Implement sensitivity sweep execution in `main.py` for levels $\{0.05, 0.1, 0.5\}$ and generate comparative plots. **Output `data/results/sensitivity_sweep.csv` and `data/results/sensitivity_plots/`**.
-- [ ] T027 [US3] Implement `code/visualization/plots.py` to generate PNG plots: Coverage vs. $\tau^2$ and Mean Bias vs. $\tau^2$ (FR-005). **Ensure plots utilize $I^2$ data if required by T039**.
-- [ ] T028 [US3] Implement `code/reporting/report_gen.py` to aggregate metrics, perform tests, and generate `data/results/report.md`. **Must include sensitivity sweep data from T034**.
-- [ ] T029 [US3] Ensure `report_gen.py` explicitly labels results as "associational" and avoids causal claims (SC-005)
-- [ ] T030 [US3] Validate final report content against `contracts/aggregated_metric.schema.yaml`
-- [ ] T038 [P] [US3] Verify aggregate pipeline performance (generation + estimation + analysis) completes within 6 hours and < 7GB RAM on CPU-only runner (SC-003)
-- [ ] T020_test_edge_cases_metrics [P] [US3] Unit test `test_stats.py` verifying that bias metrics are correctly calculated for excluded $N<5$ studies from T011.
-
-**Checkpoint**: Statistical analysis complete; visualizations generated; report framed correctly.
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T031 [P] Run full integration test `tests/integration/test_pipeline.py` on a fresh runner to verify end-to-end flow (Depends on T034 and T038 completion)
-- [ ] T032 [P] Update `docs/quickstart.md` with instructions to run the simulation engine locally
-- [ ] T033 [P] Verify `requirements.txt` contains only CPU-tractable dependencies (no `torch[cuda]`, `bitsandbytes`, etc.)
-- [ ] T035 [P] Update `state/` with content hashes of `data/results/` artifacts
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories. **Includes Data Fetch (T040) and Documentation (T041)**.
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 (needs simulated data to estimate)
-- **User Story 3 (P3)**: Depends on US2 (needs estimation results to analyze)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Generators before Estimators
-- Estimators before Metrics/Analysis
-- Core implementation before Visualization/Reporting
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Tests for a user story marked [P] can run in parallel
-- Different modules (Generator vs Estimator logic) can be developed in parallel once interfaces are defined
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together:
-Task: "Unit test test_generator.py verifying variance match (T008)"
-Task: "Unit test test_generator.py verifying homogeneity (T009)"
-Task: "Full Scale Performance Test (T014)"
-
-# Launch implementation tasks:
-Task: "Implement generator.py for perturbation logic (T010)"
-Task: "Implement generator.py for edge cases (N<5, tau2=0) (T011, T012)"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (Including T040/T041 Data Fetch)
-3. Complete Phase 3: User Story 1 (Simulation)
-4. **STOP and VALIDATE**: Run simulation with small seed, verify JSON output and variance match.
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 (Simulation) → Test independently → MVP Data Generation
-3. Add User Story 2 (Estimation) → Test independently → MVP Metrics
-4. Add User Story 3 (Analysis) → Test independently → MVP Report
-5. Each story adds value without breaking previous stories.
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Simulation Engine)
- - Developer B: User Story 2 (Estimators & Metrics)
- - Developer C: User Story 3 (Stats & Reporting)
-3. Stories complete and integrate via `main.py`.
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- **CRITICAL**: All simulation tasks must run on CPU-only (2 cores, 7GB RAM) within 6 hours. No GPU/CUDA dependencies allowed.
-- **CRITICAL**: Data must be real (Cochrane) or verified synthetic base. No fabrication of input data. T040 ensures this by mandating a fetch step in Phase 2.
-- **CRITICAL**: REML convergence failures must be handled gracefully (log/skip) to ensure full pipeline completion.
-- **CRITICAL**: T010 must implement a loop for ≥500 replicates per level.
-- **CRITICAL**: T037 must implement conditional branching for statistical test selection.
-- **CRITICAL**: T038 must verify aggregate pipeline performance.
-- **CRITICAL**: T034 (Sensitivity Sweep) is a core success criterion, not optional polish.
-- **CRITICAL**: T039 must calculate and report $I^2$ statistic.
-- **CRITICAL**: T041 ensures traceability of the base dataset to satisfy Constitution II.
-- **CRITICAL**: T014 explicitly verifies the full 2,500 replicate generation loop and performance constraints.
+# Tasks: Assessing the Impact of Data Heterogeneity on Meta‑Analysis Results  
+
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, `contracts/*.yaml`  
+
+## Phase 1 – Data acquisition & synthetic dataset generation  
+
+- [ ] T001 [P1] [FR-001] **Download a public Cochrane meta‑analysis CSV and generate a deterministic synthetic base template** using `code/scripts/generate_base_template.py` and store it at `data/processed/base_template.csv`.   <!-- FAILED-IN-EXECUTION: code/scripts/generate_base_template.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/scripts/generate_base_template.py exit=1 -->
+  *Verification*:  
+  • Running `python code/scripts/generate_base_template.py --out data/processed/base_template.csv` exits with status 0.  
+  • The CSV contains exactly 20 rows with columns `study_id,effect,se,n`.  
+  • The file exists under `data/processed/` and passes a simple header check (no schema validation required).  
+
+- [ ] T001a [P1] [FR-001] **(Optional) Validate that the downloaded Cochrane CSV is accessible**; if unavailable, the pipeline aborts with a clear error.
+  *Verification*:  
+  • The script raises a `FileNotFoundError` if the URL cannot be reached; CI step fails accordingly.  
+
+- [ ] T002 [P1] [FR-001] **Implement the simulation generator** (`code/simulation/generator.py`) that reads `data/processed/base_template.csv` and writes synthetic `SimulatedDataset` records to `data/results/simulation_raw.jsonl`. It must:   <!-- FAILED-IN-EXECUTION: code/main.py exit=2 --> <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+    • Accept `--tau-squared` (comma‑separated list), `--replicates`, `--sweep-type`, `--out`.  
+    • Produce **900 replicates per τ² level** for the primary sweep (`0,0.1,0.5,1.0,2.0`) and **900 replicates per τ² level** for the sensitivity sweep (`0.05,0.1,0.5`).  
+    • Write each record as a JSON line conforming to `contracts/simulated_dataset.schema.yaml`.  
+  *Verification*:  
+  • Unit test `tests/unit/test_generator.py` passes.  
+  • CLI call `python -m code.simulation.generator --tau-squared 0.5 --replicates 900 --sweep-type primary --out data/results/simulation_raw.jsonl` creates exactly 900 lines, each with `"tau_squared": 0.5` and empirical between‑study variance within ±0.05 of 0.5.  
+  • After running the full primary command the file contains **4 500** `SimulatedDataset` lines (5 τ² × 900).  
+
+## Phase 2 – Estimation, metric calculation & full sweeps  
+
+- [X] T003 [P2] [FR-002] **Implement Fixed‑Effects, DerSimonian‑Laird, and REML estimators** in `code/simulation/estimators.py`. Include computation of pooled effect, 95 % CI, τ² estimate, I², Q, and a `convergence_warning` flag for REML failures (fallback τ² = 1e‑6).  
+  *Verification*:  
+  • Unit tests `tests/unit/test_estimators.py` pass for all three estimators.  
+  • For a dataset with `tau_squared = 0`, the Random‑Effects pooled estimate equals the Fixed‑Effects estimate within 1e‑3.  
+  • When REML fails on a high‑heterogeneity replicate, `convergence_warning` is `true` and the estimated τ² is set to 1e‑6.  
+
+- [ ] T005 [P2] [FR-001, FR-002] **Create an end‑to‑end entry point** (`code/main.py`) that accepts the CLI arguments `--tau-squared`, `--replicates`, `--batch-size`, `--sweep-type`, `--out`. With a tiny configuration (`--tau-squared 0,0.1 --replicates 10 --batch-size 5 --sweep-type primary --out data/results/`) it must:  
+    • Invoke the simulation generator (T002).  
+    • Run all three estimators (T003) on each generated dataset.  
+    • Write the combined JSON‑lines file to `data/results/simulation_raw.jsonl`.  
+    • Produce `data/results/sample_estimates.csv` containing **exactly 30 rows** (10 replicates × 3 estimators) with columns `replicate_id,tau_squared,estimator_type,pooled_effect,ci_lower,ci_upper,coverage_flag`.  
+  *Verification*:  
+  • Command `python -m code.main --tau-squared 0 0.1 --replicates 10 --batch-size 5 --sweep-type primary --out data/results/` exits with status 0.  
+  • `sample_estimates.csv` has 30 rows and the required columns.  
+  • `simulation_raw.jsonl` contains 10 `SimulatedDataset` lines followed by 30 `EstimationResult` lines.  
+
+- [ ] T004 [P2] [FR-003] **Compute bias and coverage per replicate** (`code/analysis/metrics.py`). The script reads `data/results/simulation_raw.jsonl`, extracts each `EstimationResult`, calculates bias (`pooled_effect − true_effect`) and verifies coverage (`true_effect` within CI). It writes these per‑replicate metrics to `data/results/replicate_metrics.jsonl` (each line conforms to a new schema with fields `dataset_id`, `estimator_type`, `bias`, `coverage_flag`).   <!-- FAILED-IN-EXECUTION: code/main.py exit=2 -->
+  *Verification*:  
+  • After execution, every line in `replicate_metrics.jsonl` validates against the new metrics schema.  
+  • Bias values are numeric and coverage_flag correctly reflects CI inclusion of the true effect (0.5).  
+
+- [ ] T006 [P2] [FR-001] **Run the full primary sweep** using the entry point from T005 with `--tau-squared 0 0.1 0.5 1.0 2.0 --replicates 900 --batch-size 100 --sweep-type primary --out data/results/`.  
+  *Verification*:  
+  • `data/results/simulation_raw.jsonl` contains **4 500** `SimulatedDataset` lines and **13 500** `EstimationResult` lines (3 estimators × 4 500).  
+  • Peak RAM never exceeds 5 GB (checked via CI logs).  
+  • Total wall‑clock time ≤ 3 h on the GitHub Actions free‑tier runner.  
+
+- [ ] T007 [P2] [FR-001] **Run the sensitivity sweep** (`--tau-squared 0.05 0.1 0.5 --replicates 900 --sweep-type sensitivity --batch-size 100 --out data/results/`). Results are appended to the same `simulation_raw.jsonl`.  
+  *Verification*:  
+  • After completion `simulation_raw.jsonl` contains **7 200** `SimulatedDataset` lines (4 500 primary + 2 700 sensitivity) and **21 600** `EstimationResult` lines.  
+  • No duplicate `replicate_id` values exist across primary and sensitivity sweeps.  
+
+- [ ] T008 [P3] [FR-004, FR‑007, FR‑008] **Aggregate metrics and perform statistical tests** (`code/analysis/stats.py`). The script reads the full JSON‑lines file and `replicate_metrics.jsonl`, then produces:  
+    • `data/results/aggregated_metrics.csv` – **15 rows** (3 estimators × 5 primary τ² levels) with columns exactly matching `contracts/aggregated_metric.schema.yaml`.  
+    • `data/results/coverage_tests.json` – JSON‑lines file containing **15 objects**, each with fields `estimator_type`, `tau_squared`, `p_value`, `alpha_used` (0.01), `test_type` (“binomial”).  
+    • `data/results/reml_failures.json` – JSON array listing all REML runs that triggered `convergence_warning`.  
+  *Verification*:  
+  • CSV header order and types conform to the schema; a pandas validation step passes.  
+  • `coverage_tests.json` contains exactly 15 well‑formed JSON objects.  
+  • `reml_failures.json` is a JSON array (empty `[]` if no failures).  
+
+## Phase 3 – Visualization, reporting & hand‑off  
+
+- [ ] T009 [P3] [FR-005] **Generate visualisations** (`code/visualization/plots.py`). From `aggregated_metrics.csv` produce:  
+    • `data/results/coverage_vs_tau2.png` – plot of observed coverage rate (with Wilson‑score CI) vs. τ² for each estimator.  
+    • `data/results/mean_bias_vs_tau2.png` – plot of mean bias vs. τ² for each estimator.  
+  *Verification*:  
+  • Both PNG files exist, are ≥ 600 × 400 px, and each file size ≥ 10 KB.  
+  • The x‑axis label contains the substring “τ²”.  
+
+- [ ] T010 [P3] [SC-005] **Generate the final markdown report** (`code/reporting/report_gen.py`). The report (`data/results/report.md`) must include:  
+    • Header line `Framing: associational`.  
+    • Summary tables of bias and coverage (pulled from `aggregated_metrics.csv`).  
+    • A “REML convergence failures” section reporting `n_failures = len(json.load(open('data/results/reml_failures.json')))` and listing the first five failure `dataset_id`s.  
+    • Embedded figures referencing the PNGs created in T009.  
+  *Verification*:  
+  • The report contains the exact framing line.  
+  • The failure count matches the length of `reml_failures.json`.  
+  • All figure markdown links resolve to existing PNG files.  
+
+- [ ] T011 [P3] [SC-003] **Write and pass an integration test** (`tests/integration/test_pipeline.py`). The test runs the full pipeline via `python -m code.main --full-sweep --out data/results/` and asserts:  
+    • `data/results/simulation_raw.jsonl` has **7 200** `SimulatedDataset` lines.  
+    • `aggregated_metrics.csv` exists, has 15 rows, and passes schema validation.  
+    • Both PNG figures exist.  
+    • `report.md` contains the framing line.  
+  *Verification*:  
+  • `pytest -q tests/integration/test_pipeline.py` exits with status 0 and reports `1 passed`.  
+
+- [ ] T012 [P3] [SC-003] **Compute SHA‑256 checksums for all final artefacts** (`code/scripts/record_hashes.py data/results/`). The script writes `state/artifact_hashes.yaml`.  
+  *Verification*:  
+  • Re‑running the script produces an identical YAML file (no diff).  
+
+- [ ] T013 [P3] [SC-003] **Write a hand‑off markdown** (`data/results/handoff.md`) that lists each final artifact (aggregated metrics CSV, coverage tests JSON, both PNGs, report, checksum file) together with the corresponding FR/SC IDs. The document includes a table with columns `Artifact`, `FR/SC ID`, `Location`.  
+  *Verification*:  
+  • The table contains entries for all six artefacts, and each `Location` path exists.  
+  • No placeholder `{{…}}` strings remain.  
+
+- [ ] T014 [P3] [SC-003] **Document the reproducible command in `quickstart.md`** and verify it on a clean runner. The markdown must show the exact command `python -m code.main --full-sweep --out data/results/`.  
+  *Verification*:  
+  • A CI step runs this command in a fresh container; generated artefacts match the hashes recorded in `state/artifact_hashes.yaml`.  
+
+---  
+
+### Dependency mapping (spec → tasks)
+
+| Spec / Success Criterion | Satisfied by Task(s) |
+|--------------------------|----------------------|
+| FR‑001 (synthetic datasets) | T001, T001a, T002 |
+| FR‑002 (estimators) | T003 |
+| FR‑003 (bias & coverage) | T004 |
+| FR‑004 (exact binomial test) | T008 |
+| FR‑005 (visualisations) | T009 |
+| FR‑006 (REML handling) | T003, T008 |
+| FR‑007 (Bonferroni) | T008 |
+| FR‑008 (Shapiro‑Wilk → KW/ANOVA) | T008 |
+| SC‑001 (coverage measurement) | T008 |
+| SC‑002 (bias measurement) | T008 |
+| SC‑003 (runtime limits) | T006, T007 |
+| SC‑004 (sensitivity sweep) | T007 |
+| SC‑005 (associational framing) | T010 |
+| SC‑003 (checksum & hand‑off) | T012, T013, T014 |

@@ -1,16 +1,15 @@
 status: none
-intent: download Human Connectome Project 1200 subject rs-fMRI data with sleep questionnaire
-  Schaefer 200 atlas python package dataset
+intent: download Human Connectome Project 1200 minimal preprocessed rs-fMRI with sleep
+  questionnaire python package dataset
 required_fields:
 - subject_id
-- session_id
-- run_id
-- rs_fmri_time_series
-- nuisance_regressor_values
-- framewise_displacement
 - sleep_questionnaire_responses
-- schaefer_200_roi_labels
-- subcortical_roi_labels
-- preprocessing_parameters
-- bandpass_filter_low_hz
-- bandpass_filter_high_hz
+- framewise_displacement
+- rs_fmri_file_path
+- schaefer_200_time_series
+- subcortical_roi_time_series
+- fisher_z_connectivity_vector
+- processing_status
+cache_key: 9ab440fdd47d860b80258edb89605577205aa8edca7bc6290b684e6848cd31ea
+searched_at: '2026-07-23T06:37:10.981034+00:00'
+retry_count: 1

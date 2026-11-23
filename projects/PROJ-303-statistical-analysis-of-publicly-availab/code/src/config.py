@@ -1,163 +1,250 @@
 """
-Configuration management for the llmXive weather analysis pipeline.
+src/config.py
 
-Loads hyperparameters, paths, seeds, and enforces the 6-hour compute limit.
-Supports environment variable overrides and YAML configuration files.
+Central configuration module for the statistical analysis pipeline.
+
+This module provides:
+- A dataclass ``Config`` that holds all hyperparameters, directory paths,
+  random seeds, and compute limits.
+- Helper functions ``get_config`` and ``set_config`` to access a global
+  singleton instance (useful throughout the code base and in tests).
+- Automatic creation of required directories.
+- Environment variable overrides for key settings.
+- Ability to save and load the configuration to/from a YAML snapshot.
 """
+
 import os
+import random
 import yaml
+import numpy as np
+from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Dict, Optional
-from dataclasses import dataclass, field
-import random
-import numpy as np
-import time
-
-# Project root is assumed to be the parent of 'code'
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-CONFIG_PATH = PROJECT_ROOT / "config.yaml"
 
 @dataclass
 class Config:
     """
-    Central configuration holder for the pipeline.
+    Configuration container.
+
+    All fields have sensible defaults; they can be overridden by
+    environment variables or by loading a saved YAML snapshot.
     """
-    # Paths
-    data_raw_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "data" / "raw")
-    data_processed_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "data" / "processed")
-    outputs_plots_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "outputs" / "plots")
-    outputs_metrics_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "outputs" / "metrics")
-    state_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "state")
-    logs_dir: Path = field(default_factory=lambda: PROJECT_ROOT / "logs")
-    
-    # Hyperparameters
+
+    # ------------------------------------------------------------------
+    # Paths (derived from ``project_root`` in ``__post_init__``)
+    # ------------------------------------------------------------------
+    project_root: Path = field(
+        default_factory=lambda: Path(__file__).resolve().parent.parent
+    )
+    data_raw_dir: Path = field(init=False)
+    data_processed_dir: Path = field(init=False)
+    outputs_plots_dir: Path = field(init=False)
+    outputs_metrics_dir: Path = field(init=False)
+    state_dir: Path = field(init=False)
+    specs_dir: Path = field(init=False)
+
+    # ------------------------------------------------------------------
+    # Hyper‑parameters for the analysis
+    # ------------------------------------------------------------------
+    training_start_year: int = 2000
+    training_end_year: int = 2015
+    test_start_year: int = 2019
+    test_end_year: int = 2020
+
+    # Extreme‑event definition
+    percentile_threshold: float = 95.0  # percentile used for peaks‑over‑threshold
+    missing_ratio_threshold: float = 0.15  # max allowed overall missing ratio
+    max_contiguous_gap_days: int = 30    # max allowed consecutive missing days
+
+    # Model‑specific defaults (can be overridden later)
+    gpd_loc_param: float = 0.0
+    gpd_scale_param: float = 1.0
+    gpd_shape_param: float = 0.0
+
+    # ------------------------------------------------------------------
+    # Compute limits
+    # ------------------------------------------------------------------
+    wall_clock_budget_seconds: int = 6 * 60 * 60  # 6 hours
+    time_limit_check_interval_seconds: int = 300  # 5 minutes
+
+    # ------------------------------------------------------------------
+    # Randomness & logging
+    # ------------------------------------------------------------------
     seed: int = 42
-    max_missing_ratio: float = 0.15  # 15%
-    max_gap_days: int = 30
-    percentile_threshold: float = 0.90  # Default for POT
-    
-    # Compute Limits
-    wall_clock_budget_seconds: int = 6 * 3600  # 6 hours default
-    time_check_interval_seconds: int = 60
-    fallback_time_threshold_seconds: int = 2 * 3600  # 2 hours before subsampling
-    
-    # Model Specifics
-    gpd_fitting_method: str = "mle"  # 'mle', 'pwm', 'mm'
-    spatial_model_type: str = "gaussian_copula"
-    cross_validation_strategy: str = "loso"  # Leave-One-Station-Out
-    
-    # Environment overrides
-    def __post_init__(self):
-        self._apply_env_overrides()
-    
-    def _apply_env_overrides(self):
-        """Override config values with environment variables if present."""
-        env_mappings = {
-            "WALL_CLOCK_BUDGET_SECONDS": "wall_clock_budget_seconds",
-            "SEED": "seed",
-            "MAX_MISSING_RATIO": "max_missing_ratio",
-            "PERCENTILE_THRESHOLD": "percentile_threshold",
-            "DATA_RAW_DIR": "data_raw_dir",
-            "DATA_PROCESSED_DIR": "data_processed_dir",
-        }
-        
-        for env_key, attr_name in env_mappings.items():
-            if env_key in os.environ:
-                val = os.environ[env_key]
-                if attr_name in ["wall_clock_budget_seconds", "seed"]:
-                    setattr(self, attr_name, int(val))
-                elif attr_name in ["max_missing_ratio", "percentile_threshold"]:
-                    setattr(self, attr_name, float(val))
-                elif "DIR" in attr_name:
-                    setattr(self, attr_name, Path(val))
-        
-        # Ensure directories exist
-        self._ensure_dirs()
-    
-    def _ensure_dirs(self):
-        """Create directories if they don't exist."""
-        dirs = [
+    log_level: str = "INFO"
+    log_file: Optional[str] = None
+
+    def __post_init__(self) -> None:
+        """Create derived paths and apply environment overrides."""
+        # Derived directories (always relative to the repository root)
+        self.data_raw_dir = self.project_root / "data" / "raw"
+        self.data_processed_dir = self.project_root / "data" / "processed"
+        self.outputs_plots_dir = self.project_root / "outputs" / "plots"
+        self.outputs_metrics_dir = self.project_root / "outputs" / "metrics"
+        self.state_dir = self.project_root / "state"
+        self.specs_dir = self.project_root / "specs"
+
+        # Ensure the directories exist
+        for p in (
             self.data_raw_dir,
             self.data_processed_dir,
             self.outputs_plots_dir,
             self.outputs_metrics_dir,
             self.state_dir,
-            self.logs_dir
-        ]
-        for d in dirs:
-            d.mkdir(parents=True, exist_ok=True)
+            self.specs_dir,
+        ):
+            p.mkdir(parents=True, exist_ok=True)
 
-    def set_seed(self):
-        """Set random seeds for reproducibility."""
+        # Apply any overrides from the environment
+        self._apply_env_overrides()
+
+        # Initialise random seeds for reproducibility
         random.seed(self.seed)
         np.random.seed(self.seed)
 
-    def check_time_budget(self, start_time: float) -> bool:
-        """
-        Check if the wall-clock time budget has been exceeded.
-        
-        Args:
-            start_time: The time the process started (from time.time())
-        
-        Returns:
-            True if within budget, False if exceeded.
-        """
-        elapsed = time.time() - start_time
-        return elapsed < self.wall_clock_budget_seconds
+    # ------------------------------------------------------------------
+    # Private helpers
+    # ------------------------------------------------------------------
+    def _apply_env_overrides(self) -> None:
+        """Override configuration values with ``PIPELINE_*`` environment variables."""
+        if env_seed := os.getenv("PIPELINE_SEED"):
+            self.seed = int(env_seed)
 
-    def should_trigger_fallback(self, start_time: float) -> bool:
-        """
-        Check if the process should trigger fallback logic (e.g., subsampling).
-        
-        Returns:
-            True if estimated time suggests we will hit the hard limit.
-        """
-        elapsed = time.time() - start_time
-        return elapsed > self.fallback_time_threshold_seconds
+        if env_budget := os.getenv("PIPELINE_WALL_CLOCK_BUDGET_SECONDS"):
+            self.wall_clock_budget_seconds = int(env_budget)
 
-    def load_from_yaml(self, config_path: Optional[Path] = None) -> None:
-        """
-        Load configuration from a YAML file.
-        
-        Args:
-            config_path: Path to the YAML file. Defaults to PROJECT_ROOT/config.yaml
-        """
-        path = config_path or CONFIG_PATH
-        if not path.exists():
-            return
-        
-        with open(path, 'r') as f:
-            data = yaml.safe_load(f)
-        
-        if data:
-            for key, value in data.items():
-                if hasattr(self, key):
-                    # Handle path conversion
-                    if isinstance(getattr(self, key), Path) and isinstance(value, str):
-                        value = Path(value)
-                    setattr(self, key, value)
+        if env_threshold := os.getenv("PIPELINE_PERCENTILE_THRESHOLD"):
+            self.percentile_threshold = float(env_threshold)
 
-# Global instance
-config = Config()
+        # Additional optional overrides
+        if env_missing := os.getenv("PIPELINE_MISSING_RATIO_THRESHOLD"):
+            self.missing_ratio_threshold = float(env_missing)
 
-# Load YAML if it exists
-if CONFIG_PATH.exists():
-    config.load_from_yaml()
+        if env_gap := os.getenv("PIPELINE_MAX_CONTIGUOUS_GAP_DAYS"):
+            self.max_contiguous_gap_days = int(env_gap)
+
+    # ------------------------------------------------------------------
+    # Serialization helpers
+    # ------------------------------------------------------------------
+    def to_dict(self) -> Dict[str, Any]:
+        """Return a plain‑dict representation (useful for YAML dumping)."""
+        return {
+            "project_root": str(self.project_root),
+            "paths": {
+                "data_raw": str(self.data_raw_dir),
+                "data_processed": str(self.data_processed_dir),
+                "outputs_plots": str(self.outputs_plots_dir),
+                "outputs_metrics": str(self.outputs_metrics_dir),
+                "state": str(self.state_dir),
+                "specs": str(self.specs_dir),
+            },
+            "training_years": f"{self.training_start_year}-{self.training_end_year}",
+            "test_years": f"{self.test_start_year}-{self.test_end_year}",
+            "percentile_threshold": self.percentile_threshold,
+            "missing_ratio_threshold": self.missing_ratio_threshold,
+            "max_contiguous_gap_days": self.max_contiguous_gap_days,
+            "wall_clock_budget_seconds": self.wall_clock_budget_seconds,
+            "time_limit_check_interval_seconds": self.time_limit_check_interval_seconds,
+            "seed": self.seed,
+            "log_level": self.log_level,
+            "log_file": self.log_file,
+        }
+
+    def save_yaml(self, path: Optional[Path] = None) -> None:
+        """
+        Persist the current configuration to a YAML file.
+
+        By default the snapshot is written to ``state/config_snapshot.yaml``.
+        """
+        if path is None:
+            path = self.state_dir / "config_snapshot.yaml"
+        with open(path, "w") as f:
+            yaml.dump(self.to_dict(), f, default_flow_style=False)
+
+    @classmethod
+    def load_yaml(cls, path: Path) -> "Config":
+        """
+        Load a configuration from a YAML file and return a ``Config`` instance.
+
+        Only the keys present in the snapshot are applied; missing keys keep
+        their default values.
+        """
+        with open(path, "r") as f:
+            data = yaml.safe_load(f) or {}
+
+        cfg = cls()
+
+        # Populate simple scalar overrides
+        if training := data.get("training_years"):
+            start, end = map(int, training.split("-"))
+            cfg.training_start_year = start
+            cfg.training_end_year = end
+
+        if test := data.get("test_years"):
+            start, end = map(int, test.split("-"))
+            cfg.test_start_year = start
+            cfg.test_end_year = end
+
+        if pct := data.get("percentile_threshold"):
+            cfg.percentile_threshold = float(pct)
+
+        if missing := data.get("missing_ratio_threshold"):
+            cfg.missing_ratio_threshold = float(missing)
+
+        if gap := data.get("max_contiguous_gap_days"):
+            cfg.max_contiguous_gap_days = int(gap)
+
+        if budget := data.get("wall_clock_budget_seconds"):
+            cfg.wall_clock_budget_seconds = int(budget)
+
+        if seed := data.get("seed"):
+            cfg.seed = int(seed)
+
+        # Apply environment overrides after loading from file
+        cfg._apply_env_overrides()
+        return cfg
+
+# ----------------------------------------------------------------------
+# Global singleton handling
+# ----------------------------------------------------------------------
+_config_instance: Optional[Config] = None
 
 def get_config() -> Config:
-    """Return the global configuration instance."""
-    return config
+    """
+    Retrieve the global ``Config`` instance.
 
+    If it does not exist yet, the function attempts to load a previously
+    saved snapshot from ``state/config_snapshot.yaml``; otherwise a fresh
+    ``Config`` with defaults is created.
+    """
+    global _config_instance
+    if _config_instance is None:
+        snapshot_path = (
+            Path(__file__).resolve().parent.parent.parent
+            / "state"
+            / "config_snapshot.yaml"
+        )
+        if snapshot_path.exists():
+            _config_instance = Config.load_yaml(snapshot_path)
+        else:
+            _config_instance = Config()
+    return _config_instance
+
+def set_config(config: Config) -> None:
+    """
+    Replace the global configuration singleton (mainly useful in tests).
+    """
+    global _config_instance
+    _config_instance = config
+
+# ----------------------------------------------------------------------
+# Simple sanity‑check when the module is executed directly
+# ----------------------------------------------------------------------
 if __name__ == "__main__":
-    # Basic validation script
     cfg = get_config()
-    print(f"Configuration loaded successfully.")
-    print(f"Data Raw Dir: {cfg.data_raw_dir}")
-    print(f"Wall Clock Budget: {cfg.wall_clock_budget_seconds} seconds ({cfg.wall_clock_budget_seconds/3600:.1f} hours)")
-    print(f"Seed: {cfg.seed}")
-    print(f"Max Missing Ratio: {cfg.max_missing_ratio}")
-    
-    # Verify time check
-    start = time.time() - 100  # Fake start time
-    assert cfg.check_time_budget(start), "Time budget check failed on valid time"
-    print("Time budget checks passed.")
+    print("Configuration loaded:")
+    for k, v in cfg.to_dict().items():
+        print(f"  {k}: {v}")
+    # Persist a snapshot for downstream steps
+    cfg.save_yaml()
+    print(f"\nSnapshot saved to: {cfg.state_dir / 'config_snapshot.yaml'}")

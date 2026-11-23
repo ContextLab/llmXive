@@ -1,11 +1,3 @@
-"""
-Save cleaned and processed polymer dataset to HDF5 format.
-
-This script consumes the cleaned dataset produced by the ingestion pipeline
-(T010-T013) and serializes it to `data/processed/polymers.h5` in HDF5 format.
-It ensures the output directory exists, handles serialization of complex
-objects (PolymerGraph, PermeabilityRecord), and logs the process.
-"""
 import os
 import sys
 import logging
@@ -14,137 +6,154 @@ import json
 import numpy as np
 from typing import List, Dict, Any, Optional
 
-# Add project root to path to allow imports
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..'))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
-
-from data.ingestion import process_dataset, CleanedDataset
-from data.utils import setup_logging, set_seed
+from models.polymer_graph import PolymerGraph
+from data.utils import setup_logging
 
 logger = logging.getLogger(__name__)
 
-OUTPUT_PATH = "data/processed/polymers.h5"
-
-def serialize_polymer_graph(graph) -> Dict[str, Any]:
+def serialize_polymer_graph(graph: PolymerGraph) -> Dict[str, Any]:
     """
-    Serialize a PolymerGraph object to a dictionary suitable for HDF5 storage.
-    Converts numpy arrays to lists for JSON/HDF5 compatibility.
+    Convert a PolymerGraph instance into a JSON-serializable dictionary
+    suitable for storage in HDF5 attributes or datasets.
     """
-    if graph is None:
-        return None
-
     data = {
         "smiles": graph.smiles,
-        "mw": float(graph.mw) if graph.mw is not None else None,
-        "permeability": graph.permeability,
-        "node_features": None,
-        "edge_features": None,
-        "adjacency": None,
-        "atom_types": None,
-        "bond_types": None,
-        "hybridization": None
+        "mw": float(graph.mw),
+        "log_permeability": float(graph.log_permeability) if graph.log_permeability is not None else None,
+        "source": graph.source,
+        "node_features": graph.node_features.tolist() if isinstance(graph.node_features, np.ndarray) else graph.node_features,
+        "edge_features": graph.edge_features.tolist() if isinstance(graph.edge_features, np.ndarray) else graph.edge_features,
+        "edge_index": graph.edge_index.tolist() if isinstance(graph.edge_index, np.ndarray) else graph.edge_index,
+        "metadata": graph.metadata or {}
     }
-
-    if hasattr(graph, 'node_features') and graph.node_features is not None:
-        data["node_features"] = graph.node_features.tolist()
-    if hasattr(graph, 'edge_features') and graph.edge_features is not None:
-        data["edge_features"] = graph.edge_features.tolist()
-    if hasattr(graph, 'adjacency') and graph.adjacency is not None:
-        data["adjacency"] = graph.adjacency.tolist()
-    if hasattr(graph, 'atom_types') and graph.atom_types is not None:
-        data["atom_types"] = graph.atom_types.tolist()
-    if hasattr(graph, 'bond_types') and graph.bond_types is not None:
-        data["bond_types"] = graph.bond_types.tolist()
-    if hasattr(graph, 'hybridization') and graph.hybridization is not None:
-        data["hybridization"] = graph.hybridization.tolist()
-    
-    # Serialize metadata if present
-    if hasattr(graph, 'metadata') and graph.metadata:
-        # Convert nested dict to JSON string if too complex for direct storage
-        data["metadata_json"] = json.dumps(graph.metadata, default=str)
-
     return data
 
-def save_to_hdf5(dataset: CleanedDataset, output_path: str):
+def save_to_hdf5(
+    graphs: List[PolymerGraph],
+    output_path: str,
+    metadata: Optional[Dict[str, Any]] = None
+) -> None:
     """
-    Save the CleanedDataset to an HDF5 file.
+    Save a list of PolymerGraph objects to an HDF5 file.
+
+    Structure:
+    /graphs (dataset of serialized JSON strings or structured arrays)
+    /metadata (attributes)
     """
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-        logger.info(f"Created output directory: {output_dir}")
+    if not graphs:
+        raise ValueError("Cannot save an empty list of graphs.")
 
-    logger.info(f"Saving dataset to {output_path}...")
-    logger.info(f"Dataset contains {len(dataset.records)} records.")
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
-    with h5py.File(output_path, 'w') as hf:
-        # Store metadata
-        meta_grp = hf.create_group("metadata")
-        meta_grp.attrs["total_records"] = len(dataset.records)
-        meta_grp.attrs["excluded_count"] = len(dataset.excluded) if dataset.excluded else 0
-        meta_grp.attrs["small_molecule_count"] = dataset.small_molecule_count if hasattr(dataset, 'small_molecule_count') else 0
-        meta_grp.attrs["version"] = "1.0"
+    logger.info(f"Saving {len(graphs)} PolymerGraph objects to {output_path}")
 
-        # Create dataset for records
-        # We store each record as a JSON string in a dataset of strings
-        # This is a robust way to handle variable-length structured data in HDF5
+    with h5py.File(output_path, "w") as f:
+        # Store metadata as attributes
+        if metadata:
+            for key, value in metadata.items():
+                if isinstance(value, (str, int, float, bool)):
+                    f.attrs[key] = value
+                elif isinstance(value, (list, tuple)):
+                    f.attrs[key] = json.dumps(value)
+                else:
+                    f.attrs[key] = str(value)
+
+        # Create a dataset for the graph data
+        # We will store each graph as a JSON string to preserve complex nested structures
+        # like numpy arrays, which HDF5 doesn't handle natively in a simple way without extra schemas.
         dt = h5py.special_dtype(vlen=str)
-        records_ds = hf.create_dataset("records", (len(dataset.records),), dtype=dt)
+        ds = f.create_dataset("graphs", (len(graphs),), dtype=dt)
 
-        for i, record in enumerate(dataset.records):
-            serialized = serialize_polymer_graph(record)
-            records_ds[i] = json.dumps(serialized, default=str)
-        
-        logger.info(f"Successfully saved {len(dataset.records)} records to HDF5.")
+        for i, graph in enumerate(graphs):
+            serialized = serialize_polymer_graph(graph)
+            # Convert numpy arrays to lists for JSON serialization
+            # The serialize_polymer_graph function already handles this for known fields.
+            # Ensure nested metadata is clean.
+            ds[i] = json.dumps(serialized)
 
-def main():
+        logger.info(f"Successfully saved {len(graphs)} graphs to {output_path}")
+
+def main() -> None:
     """
-    Main entry point for the save dataset script.
-    """
-    set_seed(42)
-    setup_logging(level=logging.INFO)
-    
-    logger.info("Starting dataset serialization (T014)...")
-    
-    try:
-        # Load the cleaned dataset from the previous stage (T012/T013)
-        # The ingestion pipeline typically writes a temporary intermediate file
-        # or we assume the process_dataset function returns the object directly.
-        # Based on T010-T013 flow, we assume process_dataset returns the CleanedDataset.
-        
-        # Note: T010-T013 are designed to be run sequentially or via a pipeline.
-        # We assume the data has been processed and is available via the ingestion module's
-        # main entry or by re-running the processing logic if a cache file exists.
-        # For this task, we assume the 'process_dataset' function in ingestion.py
-        # is designed to return the CleanedDataset object if called with appropriate flags,
-        # or we load from a temporary intermediate file if T012 wrote one.
-        
-        # Since T012 logs exclusions to a CSV and T013 processes graphs,
-        # we assume the full pipeline up to T013 has been run and the result
-        # is available. To ensure this script is standalone and runnable as per T014,
-        # we will invoke the ingestion logic to fetch and process the data
-        # if a pre-processed cache isn't strictly required by the spec to be separate.
-        # However, to respect the pipeline flow, we assume the data is already
-        # in memory or we re-run the fetch+process step here to guarantee
-        # the output file is generated from real data as per FR-001.
-        
-        # Re-running the full ingestion pipeline to ensure data freshness and
-        # compliance with "real data only" constraint.
-        logger.info("Fetching and processing dataset from source...")
-        cleaned_data = process_dataset()
-        
-        if not cleaned_data or not cleaned_data.records:
-            logger.error("No data processed. Aborting save.")
-            sys.exit(1)
+    Main entry point for saving the processed dataset to HDF5.
+    Expects the processed data to be available in the expected location
+    or passed via arguments (for this script, we assume it's called after T013).
 
-        save_to_hdf5(cleaned_data, OUTPUT_PATH)
-        
-        logger.info(f"Task T014 completed successfully. Output: {OUTPUT_PATH}")
-        
-    except Exception as e:
-        logger.error(f"Failed to save dataset: {e}", exc_info=True)
+    Since T013 produces processed graphs, this script acts as the saver.
+    In a real pipeline, the data would be passed or loaded from a temporary location.
+    Here, we assume the caller loads the processed data (e.g., from a pickle or memory)
+    and passes it to this function, or we load from the intermediate CSV if T013 wrote one.
+
+    For this implementation, we assume the script is run after T013 has populated
+    the processed data, or we read from a standard intermediate file if T013 output one.
+    However, T013 description says "Implement node/edge feature extraction".
+    Let's assume T013 outputs a CSV or JSON intermediate that we load here.
+    If T013 directly produces objects, this script would need to import that logic.
+
+    Given the task dependency "T013 must complete before T014", we assume the
+    processed data exists in `data/processed/intermediate_features.json` or similar,
+    or we re-run the extraction logic.
+
+    To be robust: We will attempt to load from `data/processed/intermediate_features.json`
+    (if T013 writes there) or we re-execute the logic from `preprocessing.py` if needed.
+    However, the cleanest way is to have T013 output a file we read here.
+    Let's assume T013 writes to `data/processed/processed_graphs.json` (list of dicts).
+
+    If that file doesn't exist, we raise an error.
+    """
+    logger = setup_logging("save_dataset")
+
+    input_file = "projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/processed_graphs.json"
+    output_file = "projects/PROJ-512-predicting-molecular-permeability-of-pol/code/data/processed/polymers.h5"
+
+    if not os.path.exists(input_file):
+        # Fallback: Try to load from the raw/processed CSV if JSON doesn't exist,
+        # but the task implies T013 produces the features.
+        # If T013 didn't write a file, we can't proceed.
+        logger.error(f"Intermediate processed data file not found: {input_file}")
+        logger.error("Ensure T013 has run and produced the required intermediate file.")
         sys.exit(1)
+
+    logger.info(f"Loading processed graphs from {input_file}")
+    with open(input_file, "r") as f:
+        raw_data = json.load(f)
+
+    graphs = []
+    for item in raw_data:
+        # Reconstruct PolymerGraph from the dict
+        # This assumes the dict structure matches what serialize_polymer_graph expects
+        # or we reconstruct it manually.
+        # Since PolymerGraph is a dataclass, we can try to instantiate it.
+        # We need to handle numpy arrays if they were saved as lists.
+        node_feat = np.array(item["node_features"]) if isinstance(item["node_features"], list) else item["node_features"]
+        edge_feat = np.array(item["edge_features"]) if isinstance(item["edge_features"], list) else item["edge_features"]
+        edge_idx = np.array(item["edge_index"]) if isinstance(item["edge_index"], list) else item["edge_index"]
+
+        graph = PolymerGraph(
+            smiles=item["smiles"],
+            mw=item["mw"],
+            log_permeability=item.get("log_permeability"),
+            source=item.get("source", "unknown"),
+            node_features=node_feat,
+            edge_features=edge_feat,
+            edge_index=edge_idx,
+            metadata=item.get("metadata", {})
+        )
+        graphs.append(graph)
+
+    logger.info(f"Reconstructed {len(graphs)} PolymerGraph objects.")
+
+    save_to_hdf5(
+        graphs,
+        output_file,
+        metadata={
+            "source": "T013 processed features",
+            "count": len(graphs),
+            "version": "1.0"
+        }
+    )
+
+    logger.info(f"Dataset saved to {output_file}")
 
 if __name__ == "__main__":
     main()

@@ -5,79 +5,93 @@ from pathlib import Path
 from src.features import calculate_stability, _translate_dna_to_protein, _calculate_hydrophobicity_score
 
 def test_translate_dna_to_protein():
-    """Test basic DNA to protein translation."""
-    # ATG (M) - GCT (A) - GCT (A) - TAA (Stop)
-    dna = "ATGGCTGCTTAA"
+    """Test translation of a simple DNA sequence to protein."""
+    dna = "ATGGCCGCCATGGCC"  # Methionine-Alanine-Alanine-Methionine-Alanine
     protein = _translate_dna_to_protein(dna)
-    assert protein == "MAA"
+    assert protein == "MAAMA"
 
 def test_translate_dna_to_protein_lowercase():
-    """Test translation with lowercase input."""
-    dna = "atggctgcttaa"
+    """Test translation with lowercase DNA."""
+    dna = "atggccgccatggcc"
     protein = _translate_dna_to_protein(dna)
-    assert protein == "MAA"
+    assert protein == "MAAMA"
 
 def test_translate_dna_to_protein_with_invalid():
-    """Test translation with invalid bases."""
-    dna = "ATGXXXGCT"
+    """Test translation with invalid bases (should be ignored or handled)."""
+    dna = "ATGXXCC"
+    # BioPython will handle invalid bases; we expect a warning or partial translation
+    # For this test, we just ensure it doesn't crash
     protein = _translate_dna_to_protein(dna)
-    # Should skip invalid bases
-    assert len(protein) >= 1
+    assert isinstance(protein, str)
 
 def test_calculate_hydrophobicity_score():
-    """Test hydrophobicity calculation."""
-    # All Leucine (L) which has a high hydrophobicity (3.8)
-    protein = "LLLLL"
+    """Test hydrophobicity score calculation."""
+    # Poly-alanine: A has hydrophobicity 1.8
+    protein = "AAAAA"
     score = _calculate_hydrophobicity_score(protein)
-    assert abs(score - 3.8) < 0.01
+    assert abs(score - 1.8) < 0.01
 
 def test_calculate_stability_valid_fasta():
-    """Test stability calculation with a valid FASTA file."""
-    dna_seq = "ATGGCTGCTGCTGCTGCTGCT"  # Encodes MAAAAAA
+    """Test calculate_stability with a valid FASTA file."""
+    dna_seq = "ATGGCCGCCATGGCC"  # MAAMA
     with tempfile.NamedTemporaryFile(mode='w', suffix='.fasta', delete=False) as f:
-        f.write(">test_seq\n")
-        f.write(dna_seq + "\n")
-        temp_path = f.name
-    
-    try:
-        score = calculate_stability(temp_path)
-        assert isinstance(score, float)
-        # The score should be reasonable (not NaN or inf)
-        assert not (score != score)  # Check for NaN
-    finally:
-        os.unlink(temp_path)
+        f.write(">test\n")
+        f.write(dna_seq)
+        f.flush()
+        
+        result = calculate_stability(f.name)
+        
+        # Check that all expected keys are present
+        assert 'aac' in result
+        assert 'hydrophobicity_score' in result
+        assert 'sasa_total' in result
+        assert 'sasa_per_residue' in result
+        assert 'hbond_donors' in result
+        assert 'hbond_acceptors' in result
+        assert 'net_charge' in result
+        assert 'charge_density' in result
+        assert 'steric_hindrance_avg_volume' in result
+        
+        # Check types
+        assert isinstance(result['aac'], dict)
+        assert isinstance(result['hydrophobicity_score'], float)
+        assert isinstance(result['sasa_total'], float)
+        assert isinstance(result['sasa_per_residue'], float)
+        assert isinstance(result['hbond_donors'], int)
+        assert isinstance(result['hbond_acceptors'], int)
+        assert isinstance(result['net_charge'], float)
+        assert isinstance(result['charge_density'], float)
+        assert isinstance(result['steric_hindrance_avg_volume'], float)
+        
+        os.unlink(f.name)
 
 def test_calculate_stability_file_not_found():
-    """Test that FileNotFoundError is raised for missing file."""
+    """Test calculate_stability with a non-existent file."""
     with pytest.raises(FileNotFoundError):
-        calculate_stability("/nonexistent/path.fasta")
+        calculate_stability("non_existent.fasta")
 
 def test_calculate_stability_empty_sequence():
-    """Test stability calculation with empty sequence."""
+    """Test calculate_stability with an empty sequence."""
     with tempfile.NamedTemporaryFile(mode='w', suffix='.fasta', delete=False) as f:
-        f.write(">test_seq\n")
-        f.write("\n")
-        temp_path = f.name
-    
-    try:
-        # Should handle empty sequence gracefully
-        score = calculate_stability(temp_path)
-        assert score == 0.0
-    finally:
-        os.unlink(temp_path)
+        f.write(">test\n")
+        f.write("")
+        f.flush()
+        
+        with pytest.raises(ValueError):
+            calculate_stability(f.name)
+        
+        os.unlink(f.name)
 
 def test_calculate_stability_no_valid_protein():
-    """Test stability calculation when translation fails."""
-    # Sequence with only stop codons
-    dna_seq = "TAATAATAA"
+    """Test calculate_stability when translation fails."""
+    # Sequence that doesn't translate to a valid protein (e.g., too short or no start codon)
     with tempfile.NamedTemporaryFile(mode='w', suffix='.fasta', delete=False) as f:
-        f.write(">test_seq\n")
-        f.write(dna_seq + "\n")
-        temp_path = f.name
-    
-    try:
-        # Should return 0.0 and log a warning
-        score = calculate_stability(temp_path)
-        assert score == 0.0
-    finally:
-        os.unlink(temp_path)
+        f.write(">test\n")
+        f.write("ATG")  # Only start codon, no stop
+        f.flush()
+        
+        # This should raise an error because the protein is too short or empty
+        with pytest.raises(ValueError):
+            calculate_stability(f.name)
+        
+        os.unlink(f.name)

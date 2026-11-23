@@ -1,99 +1,97 @@
 # Quickstart: Unveiling Hidden Correlations Between Processing Parameters and Mechanical Properties in Additively Manufactured Alloys
 
 ## Prerequisites
-
-- **Python**: 3.10 or higher
-- **OS**: Linux (recommended for CI compatibility), macOS, or WSL2 on Windows.
-- **Data**: A CSV file containing AM process parameters and mechanical properties.
-  - *Note*: No verified public dataset is currently available. You must provide your own `data/raw/am_data.csv` or modify the download script to use a valid URL.
+- Python 3.11 or newer
+- `git`
+- Internet connection (to download the dataset, if an appropriate open source is supplied)
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-053-unveiling-hidden-correlations-between-pr
-   ```
-
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-
-## Data Preparation
-
-### Option A: Using a Custom Dataset
-1. Place your CSV file in `data/raw/am_data.csv`.
-2. Ensure it has columns: `laser_power`, `scan_speed`, `layer_thickness`, `yield_strength`, `ductility`.
-3. (Optional) Include `alloy_type` for one-hot encoding.
-4. (Optional) Create `data/baseline_importance.json` for SC-004 validation (see `contracts/` for schema).
-
-### Option B: Automated Download (If a verified URL is found)
-1. Update `code/data/download.py` with the verified URL.
-2. Run the download script:
-   ```bash
-   python code/data/download.py
-   ```
-   *Note: Currently, this will fail gracefully with instructions for manual placement.*
-
-## Running the Pipeline
-
-Execute the full pipeline from preprocessing to visualization:
-
 ```bash
-python code/main.py
+# 1. Clone the repository
+git clone <repo-url>
+cd projects/PROJ-053-unveiling-hidden-correlations-between-pr
+
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3. Install pinned dependencies
+pip install -r code/requirements.txt
 ```
 
-### Expected Output
-- **Logs**: `logs/preprocess.log`, `logs/training.log`
-- **Data**: `data/processed/cleaned_data.csv`, `data/processed/normalization_bounds.json`
-- **Models**: `models/gpr_model.pkl`, `models/baseline_model.pkl`
-- **Results**: `results/metrics.json`
-- **Figures**: `output/contour_yield_strength.png`, `output/uncertainty_heatmap.png`
+## Step‑by‑Step Pipeline
 
-## Verification
+All pipeline steps are invoked via `code/main.py` with the `--step` flag. Each step writes logs under `results/`.
 
-1. **Check Metrics**:
-   Open `results/metrics.json` and verify `r2_score`, `rmse`, and `total_runtime_seconds` are present.
-   ```json
-   {
-     "r2_score": 0.75,
-     "rmse": 0.12,
-     "total_runtime_seconds": 120.5,
-     "n_samples": 150
-   }
-   ```
+### 1. Download & Validate the Dataset
+```bash
+python code/main.py --step download
+```
+- Downloads a **public AM‑alloy dataset** that **must** contain the exact columns `laser_power`, `scan_speed`, `layer_thickness`, `alloy_composition`, `yield_strength`, and `ductility`.  
+- Verifies SHA‑256 checksum (recorded in `state/dataset_checksum.txt`).  
+- Confirms ≥ 50 rows and presence of all required columns. If any column is missing, the script aborts with a clear error: *“Insufficient or malformed dataset: required column X missing.”*  
 
-2. **Check Visualizations**:
-   Open `output/contour_yield_strength.png`. Verify that:
-   - The contour plot shows smooth transitions.
-   - The uncertainty heatmap highlights regions with high variance (red zones).
-   - Axis labels include physical units (e.g., "Laser Power (W)").
+### 2. Preprocess the Data & Create Train/Test Splits
+```bash
+python code/main.py --step preprocess
+```
+- Median imputes missing values.  
+- Min‑max normalizes all numeric columns to `[0, 1]`.  
+- Detects and drops zero‑variance columns (logged).  
+- One‑hot encodes `alloy_composition` (creates `alloy_<type>` binary columns).  
+- Splits into `data/processed/train.csv` and `data/processed/test.csv`.  
+- Writes `data/processed/preprocessing.log`.
 
-3. **Run Tests**:
-   ```bash
-   pytest tests/
-   ```
+### 3. Train Models & Compute Metrics
+```bash
+python code/main.py --step train
+```
+- Trains GPR (RBF kernel) with 5‑fold CV and a Linear Regression baseline.  
+- Saves models under `results/model/`.  
+- Writes `results/metrics.json` (validated against `contracts/model_output.schema.yaml`), which now **includes** the permutation‑importance ranking under `feature_importance`, the `residual_analysis` object, and the `power_analysis` entry.
+
+### 4. Analyse Importance (merged into metrics)
+```bash
+python code/main.py --step importance
+```
+- Computes permutation importance (30 repeats, `random_state=42`).  
+- Merges the resulting ranking directly into `results/metrics.json` as the `feature_importance` array.
+
+### 5. Power Analysis (integrated)
+```bash
+python code/main.py --step power_analysis
+```
+- Performs the bootstrap‑based power analysis using the **effective sample size** after preprocessing and records the minimum detectable R² (with confidence interval) inside `results/metrics.json`.
+
+### 6. Generate Visualizations
+```bash
+python code/main.py --step visualize
+```
+- Produces contour plot of predicted **Yield Strength** vs. **Laser Power** and **Scan Speed** (axes correspond to the normalized variables).  
+- Produces uncertainty heatmap with red zones for σ > 2 × median σ.  
+- Writes side‑car JSON metadata for each plot (`results/visualization/*.json`).
+
+### 7. Review Outputs
+- `results/metrics.json` – performance numbers, importance ranking, residual analysis, uncertainty ratio, runtime, and power‑analysis note.  
+- `results/plots/contour_yield_strength.png` – predicted surface.  
+- `results/plots/uncertainty_heatmap.png` – σ heatmap.  
+- `results/confounders.json` – any potential confounder flags (high predictor‑response correlation, VIF warnings).  
+- `state/manifest.yaml` – manifest of all primary artifacts for traceability.
+
+## Expected Runtime
+On the GitHub Actions free tier the full pipeline typically finishes **[deferred]** for a dataset of ≤ 500 samples, well within the allotted time limit (SC‑005).
 
 ## Troubleshooting
 
-- **Error: "Dataset missing required columns"**
-  - Ensure your CSV has `laser_power`, `scan_speed`, `layer_thickness`, `yield_strength`, `ductility`.
-- **Error: "Insufficient data for GPR training"**
-  - Ensure your dataset has at least 50 rows.
-- **Error: "No verified source found for AM-Machine-Learning"**
-  - This is expected. Manually provide the dataset in `data/raw/am_data.csv`.
-- **Warning: "High Uncertainty / Low Power"**
-  - The synthetic data simulation indicated N=50 may be insufficient for robust non-linear detection. Interpret results with caution.
+| Symptom | Likely Cause | Remedy |
+|---------|--------------|--------|
+| `Dataset download failed` | Network issue or checksum mismatch | Verify internet connectivity; delete `data/raw/<dataset>.csv` and re‑run `--step download`. |
+| `Insufficient data for GPR training; minimum 50 samples required.` | Downloaded file corrupted, missing rows, or columns filtered out during preprocessing | Re‑run the download step; the script will abort with a clear error if the row count is < 50 or required columns are absent. |
+| `Zero variance detected in column X` | All rows share the same value for a predictor | The column is automatically dropped; check `preprocessing.log` for details. |
+| `Model artifact missing` | Previous step crashed (e.g., out‑of‑memory) | Inspect `results/*.log`; ensure the CI runner has ≤ 7 GB RAM. |
+| `metrics.json missing key rmse_percentage_range` | Older version of the code; update | Re‑run `--step train`; the key is now generated correctly. |
 
-## Next Steps
+---
 
-- **Model Tuning**: Adjust `n_restarts_optimizer` in `code/models/gpr_trainer.py` for better hyperparameter search.
-- **Feature Engineering**: Add derived features (e.g., `energy_density = laser_power / (scan_speed * layer_thickness)`) **ONLY** if you explicitly handle collinearity (not recommended for this pipeline).
-- **Uncertainty Analysis**: Investigate regions with high uncertainty to design new experiments.
+

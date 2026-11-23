@@ -1,0 +1,34 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Detection Metric
+description: Schema for aggregated detection probability metrics.
+type: object
+required:
+  - p_value
+  - method
+  - detection_probability
+  - resolution
+  - n_injections
+properties:
+  p_value:
+    type: number
+    description: P-value from statistical test (e.g., Welch's t-test).
+    minimum: 0
+    maximum: 1
+  method:
+    type: string
+    description: Name of the statistical method used (e.g., "welch_ttest", "mann_whitney_u").
+    minLength: 1
+  detection_probability:
+    type: number
+    description: Fraction of injections with re-weighted SNR > 8.
+    minimum: 0
+    maximum: 1
+  resolution:
+    type: integer
+    description: Sampling frequency in Hz.
+    minimum: 64
+  n_injections:
+    type: integer
+    description: Number of injections used in the calculation.
+    minimum: 1
+additionalProperties: false

@@ -1,0 +1,10 @@
+status: none
+intent: DreamBank dream recall and bizarreness scores dataset python package dataset
+required_fields:
+- participant_id
+- sensory_deprivation
+- bizarreness_score
+- recall_score
+cache_key: 2e9c0abb1d0fdf5e8d5049cfa968523183ada7fac045f23a07004fa4097fff56
+searched_at: '2026-10-10T09:29:33.616272+00:00'
+retry_count: 1

@@ -1,7 +1,12 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
 [project]
-name = "memory-palace-pedagogy-vr-enhanced-spati"
+name = "memory-load-adaptive-text"
 version = "0.1.0"
-description = "Memory Load-Adaptive Text Presentation for Abstract Concept Retention"
+description = "Cognitive Load Index calculation and adaptive text presentation simulation"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "pandas",
@@ -11,24 +16,71 @@ dependencies = [
     "pyarrow",
     "openneuro-py",
     "transformers",
-    "pytest",
 ]
 
-[tool.black]
-line-length = 88
-target-version = ["py311"]
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest>=7.0.0",
+]
 
 [tool.ruff]
-line-length = 88
+# Target Python 3.11
 target-version = "py311"
+# Line length consistent with Black
+line-length = 88
+# Exclude generated or large data files
+exclude = [
+    ".git",
+    "__pycache__",
+    ".eggs",
+    "*.egg-info",
+    "build",
+    "dist",
+    "data",
+    "results",
+    "figures",
+]
 
 [tool.ruff.lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "PL"]
-ignore = ["E501", "PLR0913"]
+# Enable pycodestyle (E), Pyflakes (F), and isort (I)
+select = ["E", "F", "I", "UP", "B", "C4"]
+# Ignore specific rules if needed (e.g., line too long handled by Black)
+ignore = []
 
 [tool.ruff.lint.isort]
-known-first-party = ["code", "tests"]
+known-first-party = ["code"]
+force-sort-within-sections = true
+
+[tool.black]
+target-version = ["py311"]
+line-length = 88
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | results
+    | figures
+)/
+'''
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
-pythonpath = ["."]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "slow: Slow running tests",
+]

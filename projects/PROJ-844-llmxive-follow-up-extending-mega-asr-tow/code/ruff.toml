@@ -1,0 +1,41 @@
+[tool.ruff]
+# Target Python version (align with project requirements)
+target-version = "py39"
+
+# Exclude common directories
+exclude = [
+    ".bzr",
+    ".direnv",
+    ".eggs",
+    ".git",
+    ".hg",
+    ".mypy_cache",
+    ".nox",
+    ".pants.d",
+    ".pytype",
+    ".ruff_cache",
+    ".svn",
+    ".tox",
+    ".venv",
+    "__pypackages__",
+    "_build",
+    "buck-out",
+    "build",
+    "dist",
+    "node_modules",
+    "venv",
+]
+
+# Line length matching Black's default
+line-length = 88
+
+[tool.ruff.lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W"]
+
+# Ignore specific rules if necessary (e.g., line too long handled by formatter)
+ignore = []
+
+[tool.ruff.lint.per-file-ignores]
+# Allow longer lines in tests or data scripts if needed
+"tests/*" = ["E501"]

@@ -1,0 +1,11 @@
+- artifact_hash: 412f9bb66c890f096feeb41ac21b6f20b9e64697b19f01cf4c6ad82b0b9ea637
+  artifact_path: projects/PROJ-313-predicting-bacterial-antibiotic-resistan/specs/001-predicting-bacterial-antibiotic-resistan/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/predicting-bacterial-antibiotic-resistance.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/predicting-bacterial-antibiotic-resistance
+  verified_at: '2026-10-25T06:52:55.053921Z'

@@ -1,65 +1,71 @@
+"""
+Unit tests for the Task Goal Validator module.
+"""
 import pytest
-from classification.goal_validator import validate_static_constraints
+from code.classification.goal_validator import validate_static_constraints, process_traces
 
-class TestValidateStaticConstraints:
-    def test_validate_file_path_constraint(self):
-        """Verify file path constraint extraction."""
-        task_description = "The agent must save results to /data/output/results.csv"
-        
-        constraints = validate_static_constraints(task_description)
-        
-        assert isinstance(constraints, list)
-        # Should extract the file path pattern
-        assert any("/data/output/results.csv" in c for c in constraints)
+def test_extract_file_paths():
+    description = "Please write to 'output.txt' and read from /tmp/data.csv"
+    result = validate_static_constraints(description)
+    assert "output.txt" in result["files"]
+    assert "/tmp/data.csv" in result["files"]
 
-    def test_validate_variable_name_constraint(self):
-        """Verify variable name constraint extraction."""
-        task_description = "Use the variable 'final_score' to store the result"
-        
-        constraints = validate_static_constraints(task_description)
-        
-        assert isinstance(constraints, list)
-        assert any("final_score" in c for c in constraints)
+def test_extract_variables():
+    description = "Initialize var counter = 0 and let result = None"
+    result = validate_static_constraints(description)
+    assert "counter" in result["variables"]
+    assert "result" in result["variables"]
 
-    def test_validate_multiple_constraints(self):
-        """Verify multiple constraint extraction."""
-        task_description = "Save to /output/file.txt and use variable 'score'"
-        
-        constraints = validate_static_constraints(task_description)
-        
-        assert isinstance(constraints, list)
-        assert len(constraints) >= 2
+def test_extract_functions():
+    description = "Define def calculate_sum(a, b): and call it"
+    result = validate_static_constraints(description)
+    assert "calculate_sum" in result["functions"]
 
-    def test_validate_no_constraints(self):
-        """Verify empty list for no constraints."""
-        task_description = "The agent should perform the task successfully"
-        
-        constraints = validate_static_constraints(task_description)
-        
-        assert isinstance(constraints, list)
-        # May return empty or generic constraints depending on regex
+def test_extract_task_ids():
+    description = "Complete task_123 and verify task_456"
+    result = validate_static_constraints(description)
+    assert "task_123" in result["task_ids"]
+    assert "task_456" in result["task_ids"]
 
-    def test_validate_empty_description(self):
-        """Verify handling of empty description."""
-        task_description = ""
-        
-        constraints = validate_static_constraints(task_description)
-        
-        assert isinstance(constraints, list)
+def test_extract_explicit_constraints():
+    description = "Ensure file: report.pdf exists and var: status is set"
+    result = validate_static_constraints(description)
+    assert "file: report.pdf" in result["explicit_constraints"]
+    assert "var: status" in result["explicit_constraints"]
 
-    def test_validate_special_characters(self):
-        """Verify handling of special characters in paths."""
-        task_description = "Save to /data/output/file-name_v2.0.json"
-        
-        constraints = validate_static_constraints(task_description)
-        
-        assert isinstance(constraints, list)
+def test_empty_description():
+    result = validate_static_constraints("")
+    assert result["files"] == []
+    assert result["variables"] == []
+    assert result["functions"] == []
+    assert result["task_ids"] == []
+    assert result["explicit_constraints"] == []
 
-    def test_validate_regex_template_matching(self):
-        """Verify deterministic regex-based matching (FR-007)."""
-        task_description = "File: /path/to/file.txt, Var: my_var"
-        
-        constraints = validate_static_constraints(task_description)
-        
-        # Should use regex patterns, not LLM
-        assert isinstance(constraints, list)
+def test_process_traces():
+    traces = [
+        {
+            "trace_id": "trace_001",
+            "task_description": "Write to file 'log.txt' using var logger"
+        },
+        {
+            "trace_id": "trace_002",
+            "task_description": "Implement def process_data() for task_999"
+        }
+    ]
+    results = process_traces(traces)
+    
+    assert "trace_001" in results
+    assert "trace_002" in results
+    assert "log.txt" in results["trace_001"]["constraints"]["files"]
+    assert "logger" in results["trace_001"]["constraints"]["variables"]
+    assert "process_data" in results["trace_002"]["constraints"]["functions"]
+    assert "task_999" in results["trace_002"]["constraints"]["task_ids"]
+
+def test_process_traces_missing_id():
+    traces = [
+        {
+            "task_description": "Some task without ID"
+        }
+    ]
+    results = process_traces(traces)
+    assert len(results) == 0

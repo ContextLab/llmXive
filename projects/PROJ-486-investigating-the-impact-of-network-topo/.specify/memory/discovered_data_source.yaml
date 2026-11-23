@@ -1,0 +1,11 @@
+status: none
+intent: human connectome project 1200 subjects resting state fMRI download python
+  package dataset
+required_fields:
+- subject_id
+- clustering_coefficient
+- characteristic_path_length
+- entrainment_strength_metric
+cache_key: 09c9299cb902643e47b3f0367192ea17d431890dedc63d4f1b613118a5b97e2b
+searched_at: '2026-08-06T07:07:52.147786+00:00'
+retry_count: 1

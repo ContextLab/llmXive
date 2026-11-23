@@ -1,0 +1,37 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Model Output Schema
+description: Schema for model predictions and metadata.
+type: object
+required:
+  - predictions
+  - metrics
+properties:
+  predictions:
+    type: array
+    description: List of prediction objects.
+    items:
+      type: object
+      required:
+        - composition
+        - predicted_density
+        - residual
+      properties:
+        composition:
+          type: object
+          additionalProperties:
+            type: number
+        predicted_density:
+          type: number
+        residual:
+          type: number
+  metrics:
+    type: object
+    required:
+      - mae
+      - r2
+    properties:
+      mae:
+        type: number
+      r2:
+        type: number
+additionalProperties: false

@@ -1,120 +1,111 @@
 # Assessing the Sensitivity of Common Statistical Tests to Dataset Size
 
-This project implements a Monte Carlo simulation pipeline to evaluate how the sensitivity (Type I and Type II error rates) of common statistical tests (t-test, ANOVA, Chi-squared, Fisher's Exact) varies with dataset size and underlying distribution.
+This project implements a Monte Carlo simulation pipeline to evaluate how the sensitivity (Type I error rate and statistical power) of common statistical tests (t-test, ANOVA, Chi-squared) varies with dataset size, distribution type, and effect size.
 
-## Prerequisites
+## Project Overview
 
-- Python 3.11+
-- pip
+The pipeline generates synthetic datasets with known ground truth parameters, executes statistical tests under both null and alternative hypotheses, and aggregates results to analyze stability and power curves.
 
-## Environment Setup
+### Key Features
+- **Controlled Data Generation**: Generates Normal, Uniform, and Log-Normal distributions with precise effect sizes.
+- **Adaptive Monte Carlo Simulation**: Automatically adjusts replicate counts to ensure 95% Confidence Intervals are within a specified width (≤ 0.01).
+- **Robust Statistical Testing**: Implements t-tests, ANOVA, Chi-squared, and Fisher's Exact (for small sample sizes).
+- **Visualization**: Generates publication-ready plots of error rates vs. sample size.
+- **Theoretical Validation**: Compares observed power curves against theoretical non-central distributions.
 
-1. Clone the repository and navigate to the project root.
-2. Create a virtual environment (optional but recommended):
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+## Installation
+
+### Prerequisites
+- Python 3.11 or higher
+- pip (Python package installer)
+
+### Installation
+1. Clone the repository.
+2. Navigate to the project root directory.
 3. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
+4. (Optional) Verify the installation by running the validation script:
+ ```bash
+ python code/validate_quickstart.py
+ ```
 
-## Quick Start
+## Data Generation
 
-The entire pipeline can be executed via the main entry point:
+The project uses a synthetic data generator (`code/data_generator.py`) to create datasets with known parameters. This ensures that the "ground truth" is available for validating Type I and Type II errors.
 
-```bash
-python code/main.py
-```
-
-This command orchestrates the following stages:
-1. **Setup**: Ensures output directories exist (`data/raw`, `data/processed`, `logs`).
-2. **Data Generation**: Generates synthetic datasets with known ground truth parameters.
-3. **Simulation**: Runs adaptive Monte Carlo simulations for various sample sizes, distributions, and statistical tests.
-4. **Analysis**: Aggregates results, computes bootstrap confidence intervals, and performs regression analysis.
-5. **Visualization**: Generates publication-ready plots.
-6. **Export**: Saves final results to CSV and plot files.
-
-## Data Generation (US1)
-
-The data generator creates datasets for Normal, Uniform, and Log-Normal distributions under both Null (effect=0) and Alternative (effect=0.5) hypotheses.
-
-To generate a validation dataset manually:
+To generate a small validation dataset manually:
 ```bash
 python code/run_data_gen.py
 ```
-Output: `data/raw/sample_validation.csv`
+This will create `data/raw/sample_validation.csv` containing checksums and statistics for manual verification.
 
-## Simulation Execution (US2)
+## Simulation Execution
 
-The simulation engine performs adaptive Monte Carlo replicates. It starts with 1000 replicates and extends the count until the 95% Clopper-Pearson confidence interval width is ≤ 0.01 (or hits the maximum cap).
+The core simulation is orchestrated by `code/main.py`. It runs the full pipeline:
+1. **Setup**: Ensures directory structure exists.
+2. **Data Generation**: Creates synthetic datasets across sample sizes (n=10 to n=1000).
+3. **Ground Truth Validation**: Verifies generated data matches theoretical parameters.
+4. **Simulation**: Runs adaptive Monte Carlo replicates for t-tests, ANOVA, and Chi-squared tests.
+5. **Analysis**: Aggregates results, computes bootstrap confidence intervals, and fits regression models.
+6. **Export**: Saves results to CSV and generates plots.
 
-To run the full simulation batch:
+### Running the Full Pipeline
 ```bash
-python code/run_simulation.py
+python code/run_analyzer.py
 ```
-Or via the main pipeline:
+Aggregates simulation results, computes confidence intervals, fits regression models, and generates plots.
+
+### Running Specific Stages
+- **Run Simulation Only**:
+ ```bash
+ python code/run_simulation.py
+ ```
+- **Run Stability Analysis**:
+ ```bash
+ python code/run_stability_analysis.py
+ ```
+- **Run Regression Analysis**:
+ ```bash
+ python code/run_regression_analysis.py
+ ```
+
+## Interpreting Results
+
+After the pipeline completes, results are stored in `data/processed/`.
+
+### Key Output Files
+- `data/processed/raw_pvalues.csv`: Raw p-values from every replicate (used for bootstrap CI).
+- `data/processed/error_rates.csv`: Aggregated error rates (Type I and Type II) by sample size, distribution, and test type.
+- `data/processed/stability_trend.csv`: Results of the stability trend analysis (regression of error rate vs. sample size).
+- `data/processed/regression_results.json`: Coefficients and McFadden R² from the logistic regression model.
+- `data/processed/plots/`: Contains PNG files of error rate curves and power curve comparisons.
+
+### Metrics
+- **Type I Error Rate**: The proportion of times the test incorrectly rejects the null hypothesis when it is true. Ideally close to α (0.05).
+- **Statistical Power**: The proportion of times the test correctly rejects the null hypothesis when the alternative is true.
+- **Stability Metric**: A measure of how much the error rate fluctuates across sample sizes.
+- **McFadden R²**: A goodness-of-fit measure for the regression model predicting deviation from the nominal significance level.
+
+## Architecture
+
+- `code/config.py`: Simulation parameters and configuration.
+- `code/data_generator.py`: Functions to generate synthetic data.
+- `code/simulation_engine.py`: Core logic for running tests and adaptive replication.
+- `code/analyzer.py`: Aggregation, bootstrap CI calculation, and regression analysis.
+- `code/visualizer.py`: Plot generation.
+- `code/export_results.py`: Final data export.
+- `code/main.py`: Pipeline orchestration.
+
+## Testing
+
+Unit and integration tests are located in the `tests/` directory.
+Run tests using:
 ```bash
-python code/main.py
-```
-
-Outputs:
-- `data/processed/error_counts.csv`: Aggregated Type I and Type II error counts.
-- `data/processed/raw_pvalues.csv`: Raw p-values for every replicate.
-
-## Visualization (US3)
-
-The visualizer generates plots showing Error Rate vs. Sample Size with confidence interval bands.
-
-To generate all plots:
-```bash
-python code/visualizer.py
-```
-Or via the main pipeline (which calls the analyzer and visualizer automatically).
-
-Outputs:
-- `data/processed/plots/`: Contains PNG/SVG files of the analysis.
-
-## Interpretation of Results
-
-### Error Rates
-- **Type I Error**: The rate at which the test incorrectly rejects the null hypothesis when it is true. Ideally, this should be close to the significance level (α = 0.05).
-- **Type II Error**: The rate at which the test fails to reject the null hypothesis when the alternative is true. Lower values indicate higher power.
-
-### Sensitivity Analysis
-The generated plots (`data/processed/plots/`) illustrate how these error rates converge as sample size increases.
-- **Small Sample Sizes**: Tests may exhibit higher variance in error rates or fail to detect effects (high Type II error).
-- **Large Sample Sizes**: Error rates should stabilize near the nominal levels (Type I) or approach 0 (Type II).
-
-### Distribution Impact
-Compare curves for Normal, Uniform, and Log-Normal distributions to assess robustness. Deviations from expected behavior in non-normal distributions highlight the sensitivity of parametric tests to distributional assumptions.
-
-### Regression Insights
-The `data/processed/stability_trend.csv` and regression coefficients (from `data/processed/error_rates.csv`) quantify the relationship between sample size and error rate deviation, providing a mathematical model of the test's sensitivity.
-
-## Project Structure
-
-```
-.
-├── code/
-│ ├── config.py # Simulation parameters
-│ ├── data_generator.py # Synthetic data generation
-│ ├── simulation_engine.py # Monte Carlo loop & test execution
-│ ├── analyzer.py # Aggregation, CI, regression
-│ ├── visualizer.py # Plot generation
-│ ├── main.py # Pipeline orchestrator
-│ └──... (other scripts)
-├── data/
-│ ├── raw/ # Raw generated data (e.g., sample_validation.csv)
-│ └── processed/ # Simulation results, plots, logs
-├── tests/
-│ ├── unit/ # Unit tests
-│ └── integration/ # Integration tests
-├── requirements.txt
-└── README.md
+pytest tests/
 ```
 
 ## License
 
-MIT
+This project is part of the llmXive automated science pipeline.

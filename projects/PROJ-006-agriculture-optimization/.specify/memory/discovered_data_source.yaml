@@ -1,0 +1,19 @@
+status: none
+intent: FAOSTAT crop production statistics CHIRPS rainfall SoilGrids MODIS MOD13Q1
+  Landsat 8 python package dataset
+required_fields:
+- region_id
+- cluster_id
+- treatment_assignment
+- random_seed
+- chi_square_pvalue
+- household_id
+- crop_yield
+- rainfall_mm
+- soil_ph
+- soil_organic_carbon
+- socioeconomic_status
+- ndvi
+cache_key: f320e64db4e9891ceb1dc13c84ec1eaf4cb94386ddc37d769550e0429be7587e
+searched_at: '2026-09-03T18:51:18.521055+00:00'
+retry_count: 1

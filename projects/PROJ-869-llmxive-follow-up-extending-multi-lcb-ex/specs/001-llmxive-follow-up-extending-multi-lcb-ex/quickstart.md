@@ -2,82 +2,79 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   Git
--   Docker (optional, for sandbox isolation)
--   Access to GitHub Actions (for CI execution)
+- Python 3.11+
+- Git
+- Access to a GitHub Actions runner (or local environment with sufficient RAM).
+- Hugging Face account (optional, for model access if required).
 
-## Setup
+## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex
-    ```
-
-2.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-    *Note: `llama-cpp-python` will install CPU-only wheels by default on Linux. Ensure no CUDA flags are set.*
-
-3.  **Download the dataset**:
-    ```bash
-    python code/data_loader.py --download
-    ```
-    This script fetches the verified LCB datasets from HuggingFace and saves them to `data/raw/`. It also records checksums.
-
-4.  **Configure the model**:
-    -   Download a CPU-quantized GGUF model (e.g., `Llama-2-7B-Chat-GGUF` `q4_0`) and place it in `code/models/`.
-    -   Update `code/config.py` with the model path and any hyperparameters (temperature, max tokens).
-
-## Running the Pipeline
-
-The full pipeline (Data Filtering → Blind Runs → Guided Runs → Analysis) can be executed via:
-
+1. **Clone the Repository**:
 ```bash
-bash run_pipeline.sh
+git clone
+cd llmxive-follow-up/projects/PROJ-869-llmxive-follow-up-extending-multi-lcb-ex/code
 ```
 
-This script will:
-1.  Load and filter the dataset (applying the Stochasticity Filter).
-2.  Run the Blind condition (multiple times per task) to establish the baseline.
-3.  Run the Guided condition (1 time per task) using the Partial Logic Trace.
-4.  Execute the generated code in the sandbox.
-5.  Categorize errors and perform statistical analysis.
-6.  Save all results to `data/results/`.
+2. **Install Dependencies**:
+```bash
+pip install -r requirements.txt
+```
+*Note: This installs `datasets`, `transformers`, `torch` (CPU), `scikit-learn`, `pytest`, `pyarrow`.*
 
-### Individual Steps (for debugging)
+3. **Verify Environment**:
+```bash
+python -c "import torch; print(f'CUDA available: {torch.cuda.is_available()}')"
+# Expected: CUDA available: False (CPU-first)
+```
 
--   **Filter Dataset**:
-    ```bash
-    python code/orchestrator.py --step filter
-    ```
--   **Run Blind Condition**:
-    ```bash
-    python code/orchestrator.py --step blind --runs 3
-    ```
--   **Run Guided Condition**:
-    ```bash
-    python code/orchestrator.py --step guided
-    ```
--   **Analyze Results**:
-    ```bash
-    python code/statistical_analysis.py
-    ```
+## Data Preparation
 
-## Verifying Results
+1. **Download Datasets**:
+The script `code/src/data_loader.py` will automatically download and cache the verified parquet files.
+```bash
+python code/src/data_loader.py --cache-dir data/raw --verify-checksum
+```
 
-1.  Check `data/results/statistical_report.yaml` for the Pass@1 rates and p-value.
-2.  Verify that `data/processed/blind_baseline_metrics.yaml` contains the empirical baseline.
-3.  Ensure the total runtime (logged in `data/results/execution_logs.csv`) is ≤ 6 hours.
-4.  Run the contract tests to validate data schemas:
-    ```bash
-    pytest tests/contract/
-    ```
+2. **Filter Tasks**:
+Run the stochasticity filter to select a representative task set.
+```bash
+python code/src/data_loader.py --filter-stochasticity --output data/processed/filtered_tasks.json
+```
+
+## Running the Experiment
+
+### Step 1: Extract Logic Anchors
+```bash
+python code/src/anchor_extractor.py --input data/processed/filtered_tasks.json --output data/processed/anchors.json
+```
+
+### Step 2: Run Blind Condition
+```bash
+python code/src/inference_engine.py --condition blind --input data/processed/filtered_tasks.json --output results/blind_results.json
+```
+
+### Step 3: Run Guided Condition
+```bash
+python code/src/inference_engine.py --condition guided --input data/processed/filtered_tasks.json --anchors data/processed/anchors.json --output results/guided_results.json
+```
+
+### Step 4: Execute & Verify
+```bash
+python code/src/sandbox_runner.py --input results/blind_results.json results/guided_results.json --timeout 10 --output results/execution_logs.json
+```
+
+### Step 5: Analyze & Report
+```bash
+python code/src/stats_analyzer.py --input results/execution_logs.json --output results/statistical_report.json
+```
+
+## Expected Output
+
+- `results/statistical_report.json`: Contains the McNemar's p-value, Pass@1 rates, and error distribution.
+- `results/execution_logs.json`: Detailed logs for each task (Pass/Fail, error type).
 
 ## Troubleshooting
 
--   **Out of Memory**: Reduce the batch size in `code/orchestrator.py` or use a smaller GGUF quantization (e.g., `q3_k_m`).
--   **Timeout Errors**: The timeout per test case is strict. If a task consistently times out, it is logged as a "Runtime Error".
--   **Model Loading Failure**: Ensure `llama-cpp-python` is installed with CPU support (`pip install llama-cpp-python --force-reinstall --no-binary :all:` if needed, though binary wheels are preferred).
+- **OOM Error**: Ensure you are using the `streaming=True` flag in `data_loader.py`. Reduce batch size to 1.
+- **Timeout Errors**: If valid solutions are timing out, the algorithmic complexity may be too high for the 10s limit (log as "Runtime Error" but note in analysis).
+- **Anchor Extraction Failed**: If a Python solution is too short, the task is skipped. Check `data/processed/anchors.json` for `status: Failed`.

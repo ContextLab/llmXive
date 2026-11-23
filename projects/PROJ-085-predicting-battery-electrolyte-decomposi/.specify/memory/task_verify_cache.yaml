@@ -1,0 +1,8 @@
+T012:
+  c: false
+  h: 468bcac03552b61e23a2976d939c95be4d2fc36b9c0320d83a5984cab6bfe15d
+  r: The repository contains `code/data/ingestion.py`, but the required fallback file
+    `data/raw/mock_electrolytes.csv` is absent, so the script cannot satisfy the fallback
+    behavior. Additionally, the provided source is truncated, leaving uncertainty
+    about proper filtering logic. The missing mock CSV must be added (with the correct
+    schema) and the script verified to fully implement the task.

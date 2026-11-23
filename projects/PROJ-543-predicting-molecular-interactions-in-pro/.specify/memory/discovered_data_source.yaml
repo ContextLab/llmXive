@@ -1,0 +1,18 @@
+status: none
+intent: PDBbind v2020 refined full PDB raw structures python package dataset
+required_fields:
+- atom_index
+- atom_type
+- x
+- y
+- z
+- residue_name
+- chain_id
+- residue_number
+- ligand_id
+- binding_affinity_pKd
+- resolution
+- formal_charge
+cache_key: 44bd2a8a9cff974453064506ca023aa7c890465a642820e589ac8166f3dfc542
+searched_at: '2026-09-02T03:12:17.332085+00:00'
+retry_count: 1

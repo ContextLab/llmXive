@@ -1,94 +1,65 @@
-# Quick Start Guide: HEA Yield Strength Prediction
+# Quickstart for Predicting HEA Yield Strength
 
-This guide walks you through the execution of the HEA yield strength prediction pipeline, from environment setup to final report generation.
+This document provides a minimal, reproducible set of commands to
+execute the full analysis pipeline from raw data acquisition to final
+reporting.
 
-## 1. Environment Setup
+## Prerequisites
 
-```bash
-# Ensure Python 3.9+ is installed
-python --version
+- Python 3.9+ (virtual environment recommended)
+- All dependencies installed via `pip install -r requirements.txt`
 
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate # Windows: venv\Scripts\activate
+## Steps
 
-# Install dependencies
-pip install -r requirements.txt
-```
+1. **Create the required directory structure** (already performed by `T001a`).
 
-## 2. Configuration
+2. **Install the project dependencies**
 
-Before running the pipeline, you must configure the verified dataset URL.
+ ```bash
+ pip install -r requirements.txt
+ ```
 
-1. Open `code/utils/config.py`.
-2. Locate the `RESEARCH_VERIFIED_DATASETS` dictionary.
-3. Add or update the `hea_compositions` key with a valid, accessible URL to the HEA dataset (e.g., a CSV file hosted on a secure server or a direct download link).
+3. **Run the full pipeline with checksum verification**
 
-**Note:** The pipeline will terminate immediately with error code `DATA_SOURCE_MISSING` if this URL is not configured or unreachable.
+ The original command attempted to invoke a non‑existent `src.pipeline.run`
+ module. The corrected entry point is the script
+ `code/run_pipeline_with_checksum.py`, which also performs the
+ FR‑009 checksum validation before proceeding.
 
-## 3. Running the Pipeline
+ ```bash
+ python code/run_pipeline_with_checksum.py --seed 42 --output-dir output/
+ ```
 
-The pipeline executes in three main phases corresponding to the User Stories.
+ This command will:
 
-### Phase 1: Data Acquisition & Descriptor Engineering (US1)
+ - Download the raw HEA dataset (`data/raw/heas_raw.csv`) if it is not
+ already present.
+ - Verify that the SHA‑256 checksum recorded in the state file matches
+ the actual file hash; on mismatch it aborts with a clear error.
+ - Execute the data preprocessing, descriptor calculation, and all
+ downstream model training/evaluation steps, producing the expected
+ artifacts such as `data/processed/hea_descriptors.csv`,
+ `output/metrics.json`, `output/report.md`, etc.
 
-This phase downloads the raw data, filters for single-phase room-temperature alloys, normalizes units, and calculates compositional descriptors.
+4. **Validate the quick‑start execution**
 
-```bash
-# Run the pipeline orchestrator
-python code/data/pipeline.py
-```
+ After the pipeline finishes, you can run the built‑in validation script
+ to ensure all expected artifacts exist and conform to their schemas:
 
-**Outputs:**
-- `data/processed/hea_descriptors.csv`: The processed dataset with all descriptors.
-- `output/data_status.json`: Status report including sample count and power warnings.
+ ```bash
+ python code/validate_quickstart.py
+ ```
 
-### Phase 2: Model Training & Evaluation (US2)
+## Expected outputs
 
-This phase trains Linear Regression, Random Forest, and Gradient Boosting models with hyperparameter tuning and evaluates them on a hold-out test set.
+- `data/raw/heas_raw.csv` – raw experimental dataset.
+- `data/processed/hea_descriptors.csv` – descriptor table.
+- `output/metrics.json` – model performance metrics.
+- `output/report.md` – comprehensive analysis report.
+- Additional JSON files (e.g., `output/permutation_results.json`,
+ `output/stability_rankings.json`) as described in the project
+ specifications.
 
-```bash
-# Run the training pipeline
-python code/models/train.py
-
-# Run the evaluation pipeline
-python code/models/evaluate.py
-```
-
-**Outputs:**
-- `output/metrics.json`: R², MAE, RMSE for all models.
-- `output/power_analysis.json`: Sample size and power status.
-
-### Phase 3: Statistical Validation & Reporting (US3)
-
-This phase performs permutation testing, bootstrap resampling, VIF diagnostics, and generates the final research report.
-
-```bash
-# Run the evaluation pipeline (includes validation steps)
-python code/models/evaluate.py
-
-# Generate the final report
-python code/models/report_generator.py
-```
-
-**Outputs:**
-- `output/report.md`: Comprehensive research report with all statistical results and disclaimers.
-- `output/plots/`: Generated figures with disclaimers.
-
-## 4. Verification
-
-After running the pipeline, verify the outputs:
-
-1. Check `output/metrics.json` for model performance.
-2. Check `output/power_analysis.json` to ensure sample size is sufficient (N ≥ 50).
-3. Review `output/report.md` for the final analysis and mandatory disclaimers.
-
-## Troubleshooting
-
-- **Error: DATA_SOURCE_MISSING**: The verified dataset URL is missing in `code/utils/config.py`.
-- **Error: ImportError**: Ensure all `__init__.py` files are present and dependencies are installed.
-- **Low Power Warning**: If `N < 50`, statistical tests (permutation, bootstrap) will be skipped, and `output/power_analysis.json` will reflect `status: 'insufficient_power'`.
-
-## Next Steps
-
-For detailed API documentation, refer to the docstrings in the `code/` modules. For development tasks, see `tasks.md`.
+If any step fails, consult the log messages printed to the console;
+they will indicate whether a checksum mismatch (FR‑009) or another
+issue caused the abort.

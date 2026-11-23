@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CoTTrace"
+description: "Schema for a generated Chain-of-Thought trace and its parsing results."
+type: object
+required:
+  - task_id
+  - trace_text
+  - status
+properties:
+  task_id:
+    type: string
+    description: "Reference to the input task id."
+  trace_text:
+    type: string
+    description: "The full generated reasoning text."
+  generation_time:
+    type: number
+    description: "Time taken to generate in seconds."
+  status:
+    type: string
+    description: "Status of the generation."
+    enum:
+      - "success"
+      - "timeout"
+      - "error"
+  error_msg:
+    type: string
+    description: "Error details if status is not success."
+    default: ""
+  first_mention_offset:
+    type: ["integer", "null"]
+    description: "Character offset of the first constraint mention."
+  last_mention_offset:
+    type: ["integer", "null"]
+    description: "Character offset of the last constraint mention."
+  is_semantic_match:
+    type: boolean
+    description: "True if constraint found via embedding similarity."
+  match_score:
+    type: ["number", "null"]
+    description: "Cosine similarity score if semantic match."
+additionalProperties: false

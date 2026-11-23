@@ -82,7 +82,7 @@ The researcher validates the model's generalizability by evaluating it on an ind
 
 - **FR-001**: System MUST download the QM9 dataset and a pre-computed IR-spectra dataset, verify one-to-one molecular correspondence via InChIKey, and discard any mismatches (See US-1).
 - **FR-002**: System MUST interpolate all IR spectra to a fixed wavenumber grid (covering the mid-infrared region with fine resolution), apply Gaussian smoothing (σ = 2 cm⁻¹), and normalize them to unit area (See US-1).
-- **FR-003**: System MUST implement a CNN architecture with three convolutional blocks (kernel sizes, 7, 9) and three separate regression heads for dipole, polarizability, and HOMO-LUMO gap (See US-2).
+- **FR-003**: System MUST implement a CNN architecture with three convolutional blocks (kernel sizes, variable odd integers) and three separate regression heads for dipole, polarizability, and HOMO-LUMO gap (See US-2).
 - **FR-004**: System MUST train the model using the Adam optimizer (lr=1e-3) with early stopping (patience=10) on a CPU-only runner, ensuring no GPU/CUDA operations are invoked (See US-2).
 - **FR-005**: System MUST compute MAE and R² for each target property on the held-out test set and perform paired-sample t-tests to assess systematic bias (mean error ≠ 0) relative to the reference DFT values (See US-3).
 - **FR-006**: System MUST enforce a maximum runtime for the entire pipeline (download, preprocess, train, evaluate) by terminating if runtime exceeds a configurable threshold. (See US-2).
@@ -90,7 +90,7 @@ The researcher validates the model's generalizability by evaluating it on an ind
 
 ### Key Entities
 
-- **Spectrum**: A 1-D array representing the intensity of IR absorption across a fixed wavenumber grid (3601 points).
+- **Spectrum**: An array representing the intensity of IR absorption across a fixed wavenumber grid.
 - **MolecularProperties**: A structured record containing three numeric values: dipole moment (Debye), isotropic polarizability (Å³), and HOMO-LUMO gap (eV).
 - **ModelCheckpoint**: A serialized state of the trained CNN, including weights and optimizer state, saved for inference and evaluation.
 
@@ -105,7 +105,7 @@ The researcher validates the model's generalizability by evaluating it on an ind
 - **SC-001**: The Mean Absolute Error (MAE) of the model predictions is measured against the DFT-computed reference values for dipole moment, polarizability, and HOMO-LUMO gap (See FR-005).
 - **SC-002**: The coefficient of determination (R²) is measured against the variance of the DFT-computed reference values to assess the proportion of variance explained by the spectral model (See FR-005).
 - **SC-003**: The statistical significance of systematic bias is measured against the null hypothesis (mean error = 0) via paired-sample t-tests, with a target p-value < 0.01 for bias detection (See FR-005).
-- **SC-004**: The total end-to-end runtime of the pipeline is measured against the 6-hour limit of the GitHub Actions free-tier runner to ensure feasibility (See FR-006).
+- **SC-004**: The total end-to-end runtime of the pipeline is measured against the Time limit of the GitHub Actions free-tier runner to ensure feasibility (See FR-006).
 - **SC-005**: The generalizability of the model is measured by comparing the MAE on the independent validation dataset against the MAE on the held-out test set, with a tolerance of ≤ 20% increase (See FR-007).
 
 ## Assumptions

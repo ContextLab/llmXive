@@ -1,0 +1,88 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Analysis Results Schema
+description: Aggregated analysis results per snippet
+type: object
+required:
+  - snippet_id
+  - dataset_id
+  - language
+  - static_analysis
+  - dynamic_analysis
+properties:
+  snippet_id:
+    type: string
+    description: Unique identifier for the code snippet
+  dataset_id:
+    type: string
+    description: Source dataset identifier
+  language:
+    type: string
+    enum:
+      - python
+      - javascript
+      - java
+    description: Programming language
+  static_analysis:
+    type: object
+    required:
+      - tool
+      - issue_count
+      - issues
+    properties:
+      tool:
+        type: string
+        description: Primary static analysis tool used
+      issue_count:
+        type: integer
+        minimum: 0
+        description: Total number of issues found
+      issues:
+        type: array
+        items:
+          type: object
+          properties:
+            severity:
+              type: string
+            rule_id:
+              type: string
+            message:
+              type: string
+      fallback_used:
+        type: boolean
+        description: Whether a fallback tool was used
+  dynamic_analysis:
+    type: object
+    required:
+      - status
+    properties:
+      status:
+        type: string
+        enum:
+          - passed
+          - failed
+          - untestable
+          - timeout
+        description: Overall dynamic analysis status
+      pass_rate:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Ratio of passed tests
+      test_count:
+        type: integer
+        minimum: 0
+        description: Number of tests executed
+      duration_ms:
+        type: integer
+        minimum: 0
+        description: Total execution time
+  correlation_metadata:
+    type: object
+    properties:
+      static_issue_density:
+        type: number
+        description: Issues per line of code
+      dynamic_complexity:
+        type: number
+        description: Complexity metric from dynamic analysis
+additionalProperties: false

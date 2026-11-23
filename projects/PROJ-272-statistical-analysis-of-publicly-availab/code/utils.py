@@ -1,138 +1,95 @@
-"""
-Logging and utility infrastructure for the statistical analysis pipeline.
-
-Provides:
-- Configurable logging to both console and file.
-- Data validation utilities (UTF-8 normalization, length checks).
-"""
 import logging
 import os
 import sys
 from pathlib import Path
-from typing import Optional, Union
-
-# Import config to ensure paths are initialized before logging setup
+from typing import Optional, Union, Dict, Any
 from config import get_path, ensure_dirs
 
-
-def setup_logging(
-    log_level: int = logging.INFO,
-    log_filename: Optional[str] = "pipeline.log",
-    console: bool = True,
-    file: bool = True,
-) -> logging.Logger:
-    """
-    Configures the root logger with file and console handlers.
-    
-    Args:
-        log_level: The logging level (e.g., logging.DEBUG, logging.INFO).
-        log_filename: Name of the log file relative to the project root.
-        console: Whether to add a StreamHandler for stdout.
-        file: Whether to add a FileHandler.
-        
-    Returns:
-        The configured root logger instance.
-    """
+def setup_logging(log_file: Optional[Path] = None) -> logging.Logger:
+    """Sets up logging to console and optionally to a file."""
     logger = logging.getLogger()
-    logger.setLevel(log_level)
-    
-    # Clear existing handlers to avoid duplicates on re-runs in same process
-    if logger.handlers:
-        logger.handlers.clear()
-    
-    # Ensure log directory exists
-    log_dir = get_path("data").parent / "logs"
-    ensure_dirs(log_dir)
-    
-    formatter = logging.Formatter(
-        fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S"
-    )
-    
-    if console:
-        console_handler = logging.StreamHandler(sys.stdout)
-        console_handler.setLevel(log_level)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-    
-    if file:
-        log_file_path = log_dir / log_filename
-        file_handler = logging.FileHandler(log_file_path, encoding="utf-8")
-        file_handler.setLevel(log_level)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-            
+    logger.setLevel(logging.INFO)
+
+    # Console handler
+    if not logger.handlers:
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+
+    # File handler
+    if log_file:
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.INFO)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+
     return logger
 
+def get_logger(name: str) -> logging.Logger:
+    """Returns a logger with the given name."""
+    logger = logging.getLogger(name)
+    if not logger.handlers:
+        ch = logging.StreamHandler()
+        ch.setLevel(logging.INFO)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        ch.setFormatter(formatter)
+        logger.addHandler(ch)
+        logger.setLevel(logging.INFO)
+    return logger
 
-def normalize_text(text: Union[str, bytes]) -> str:
+def normalize_text(text: str) -> str:
     """
-    Normalizes text to UTF-8 string, handling potential encoding errors.
-    
-    Args:
-        text: The input text string or bytes.
-        
-    Returns:
-        A normalized UTF-8 string.
-        
-    Raises:
-        ValueError: If the input cannot be decoded as UTF-8.
-    """
-    if isinstance(text, bytes):
-        try:
-            text = text.decode("utf-8")
-        except UnicodeDecodeError as e:
-            # Attempt to replace invalid characters, but log a warning
-            # In a strict pipeline, we might want to fail here.
-            # For now, we replace with replacement character.
-            text = text.decode("utf-8", errors="replace")
-    elif not isinstance(text, str):
-        text = str(text)
-        
-    # Normalize unicode (NFKC) for consistency
-    import unicodedata
-    return unicodedata.normalize("NFKC", text)
-
-
-def validate_text_length(text: str, min_length: int = 50, max_length: Optional[int] = None, unit: str = "words") -> bool:
-    """
-    Validates that text meets length constraints.
-    
-    Args:
-        text: The text to validate.
-        min_length: Minimum number of units (words or chars) allowed.
-        max_length: Maximum number of units (words or chars) allowed.
-        unit: Measurement unit, either "words" or "chars".
-        
-    Returns:
-        True if valid, False otherwise.
+    Normalizes text to UTF-8.
+    This function handles various encodings and normalizes the text to UTF-8.
     """
     if not text:
+        return ""
+    try:
+        # Try to encode as UTF-8, which will fail if the text is not valid UTF-8
+        # and then we can try to decode it from a common encoding like 'latin-1'
+        # and re-encode to UTF-8
+        text.encode('utf-8')
+        return text
+    except UnicodeEncodeError:
+        try:
+            # If it's not valid UTF-8, try to decode from latin-1 and then encode to UTF-8
+            return text.encode('latin-1').decode('utf-8')
+        except (UnicodeEncodeError, UnicodeDecodeError):
+            # If all else fails, return the original text
+            return text
+
+def validate_text_length(text: str, min_length: int = 50) -> bool:
+    """Validates that the text length is at least min_length words."""
+    if not text:
         return False
-        
-    if unit == "chars":
-        length = len(text)
-    else:
-        # Default to words
-        length = len(text.split())
-        
-    if length < min_length:
+    return len(text.split()) >= min_length
+
+def validate_text_encoding(text: str) -> bool:
+    """Validates that the text is valid UTF-8."""
+    try:
+        text.encode('utf-8')
+        return True
+    except UnicodeEncodeError:
         return False
-    if max_length is not None and length > max_length:
+
+def sanitize_text(text: str) -> str:
+    """Sanitizes text by removing non-printable characters."""
+    if not text:
+        return ""
+    return ''.join(char for char in text if char.isprintable())
+
+def validate_record(record: Dict[str, Any]) -> bool:
+    """Validates a record dictionary."""
+    if not record:
+        return False
+    if 'participant_id' not in record or 'label' not in record or 'text' not in record:
+        return False
+    if not isinstance(record['participant_id'], (str, int)):
+        return False
+    if record['label'] is None:
+        return False
+    if not isinstance(record['text'], str) or len(record['text'].split()) < 50:
         return False
     return True
-
-
-def get_logger(name: Optional[str] = None) -> logging.Logger:
-    """
-    Retrieves a logger by name. If not configured yet, returns the root logger.
-    
-    Args:
-        name: Name of the logger.
-        
-    Returns:
-        A logging.Logger instance.
-    """
-    if name is None:
-        return logging.getLogger()
-    return logging.getLogger(name)

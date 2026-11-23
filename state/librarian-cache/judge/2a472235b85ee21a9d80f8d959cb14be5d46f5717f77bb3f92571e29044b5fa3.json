@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cond-mat/0606511",
+  "judged_at": "2026-08-13T09:48:22Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "computational screening of deep eutectic solvent mixtures for co2 capture chemistry",
+  "rationale": "The paper focuses on a specific algorithmic thermostat for molecular dynamics simulations of complex fluids, which is a general computational methodology rather than a study of Deep Eutectic Solvents, CO2 capture chemistry, or the screening of such mixtures. It fails to satisfy any inclusion criteria (a-f) as it does not measure the relevant chemical mechanisms, variables, or populations, and is not the foundational reference for the specific application domain of solvent screening.",
+  "relevant": false
+}

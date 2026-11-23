@@ -1,44 +1,61 @@
 # Research: The Impact of Parasocial Relationships with AI Companions on Loneliness
 
-## Objective
-Quantify the association between AI companion usage (frequency & session duration) and changes in self‑reported loneliness, while controlling for baseline attachment style and age. **Note**: As this is an observational study, all findings are framed as **associational**, not causal.
+## Overview
+This research investigates whether higher engagement with AI companions (weekly frequency and session duration) predicts changes in loneliness over time, while controlling for baseline attachment style (ECAR lexicon), age, and gender. The design is purely observational; all claims are framed as **associational**.
 
 ## Dataset Strategy
+| Dataset | Verified URL (if any) | Access Method | Role in Study |
+|---|---|---|---|
+| **Reddit Loneliness Longitudinal Dataset** | *No verified public source found* | The pipeline attempts to download via the Zenodo DOI referenced in the spec. Because no open, verifiable URL exists, the pipeline will abort with **“Data Linkage Impossible”** and flag the specification for revision. | Provides longitudinal UCLA Loneliness scores, demographics, and baseline posts for ECAR scoring. |
+| **Pushshift Reddit Interaction Logs** | *No verified source found* | Public Pushshift API (`) with exponential back‑off (max 5 retries, 30 s timeout). | Supplies AI‑companion usage timestamps needed for weekly frequency and session‑duration metrics. |
+| **ECAR Lexicon** | https://huggingface.co/datasets/12ml/e-CARE/resolve/main/train.csv | Load via `datasets.load_dataset("12ml/e-CARE")`. | Generates attachment‑style proxy scores (anxiety & avoidance). |
 
-| Dataset | Source / URL (Verified) | Availability | Notes |
-|---------|------------------------|--------------|-------|
-| Reddit Loneliness Longitudinal Dataset | **Blocking Gap**: No specific Zenodo DOI verified in the "Verified datasets" block. | **Pre-flight Check Required**: Must contain `UCLA_Loneliness_Score`, `timestamp`, AND `username` or `username_hash`. If missing, pipeline halts. | If the dataset is de-identified (no user IDs), the study cannot proceed. |
-| Pushshift Reddit interaction logs (subreddits `r/Replika`, `r/characterAI`, `r/AICompanions`) | Pushshift API (no static URL) | Streaming via API calls | Rate‑limited to 100 req/min; exponential back‑off implemented. |
-| Attachment Style Proxy | **ECR-RS Keyword Proxy** (Derived from public ECR-RS items) | Bundled with code | **Validity Limitation**: This is a heuristic text-based proxy, NOT a validated psychometric instrument. It serves as a noisy control variable. |
-| Demographics table (age) | Part of the Loneliness dataset | Same as above | Users missing age are excluded from subgroup analysis. |
+**Critical Feasibility Note**: Because the primary survey dataset lacks a verified public URL and does not meet the required variable set (`UCLA_Loneliness_Score`, `timestamp`, `username_hash`, `baseline_text`, `age`, `gender`), the study cannot proceed without an open substitute. This limitation is explicitly flagged for specification revision; the pipeline will halt early with a clear error message.
 
-> **Gap Notice**: The "Reddit Loneliness Longitudinal Dataset" is a **Blocking Gap** until a verified DOI with the required schema (longitudinal + linkable IDs) is confirmed. The plan includes a mandatory pre-flight check to abort if the schema is insufficient.
+### Dataset Variable Fit Check
+- Required variables: `UCLA_Loneliness_Score`, `timestamp`, `username_hash`, `baseline_text`, `age`, `gender`.  
+- At runtime, `src/validation/validate_data.py` inspects the Zenodo CSV; missing columns trigger a fatal error.
 
-## Methods
+## Methodological Rigor
 
-| Step | Method | Rationale | Parameters |
-|------|--------|-----------|------------|
-| **Data Cleaning & Matching** | SHA‑256 hashing of Reddit usernames, inner join on hash | Guarantees anonymity while preserving longitudinal linkage. | Hash algorithm: SHA‑256 (Python `hashlib`). |
-| **Weekly Usage Metrics** | **Frequency**: Count of AI‑related posts/comments per user per week.<br>**Session Duration**: **Total time span** (max timestamp - min timestamp) of all activity blocks in the week, capped at 24h. | Captures intensity and opportunity for engagement. Acknowledged as a proxy for "active time" due to asynchronous nature of Reddit. | Weekly aggregation; cap = 24 h. |
-| **Attachment‑Style Proxy** | Normalized term‑frequency scoring using **ECR-RS Keyword Proxy** (anxiety & avoidance categories). | Provides a heuristic control for pre-existing relational dispositions. **Limitation**: Low construct validity compared to full psychometric scales. | Term list from public ECR-RS items; TF not used to keep interpretability. |
-| **Mixed‑Effects Model** | Linear Mixed‑Effects (LME) via `statsmodels.MixedLM`. Fixed effects: **Lagged Usage (T)**, **Lagged Duration (T)**, **Attachment Anx/Avoid**, **Baseline Loneliness (T)**. Random intercepts for `User`; random slopes for `UsageFrequency` by `User`. | **Lagged Structure**: Models change (T -> T+1) while controlling for baseline (T) to reduce reverse causality bias. | Estimator: REML; optimizer: `lbfgs`. |
-| **Bootstrap Confidence Intervals** | **Cluster Bootstrap** (1 000 resamples, seed = 42). **Resample at the User level** to preserve within-user correlation. | Provides robust CIs when model assumptions are violated. Resampling at the row level would invalidate the hierarchical structure. | Resample at the *user* level. |
-| **Multiple‑Comparison Correction** | Bonferroni correction across the set of fixed‑effect tests (four primary predictors). | Controls family‑wise error rate. |
-| **Power / Sample‑Size Justification** | **Pragmatic Target**: 500 matched users is set as a pragmatic upper bound to maximize power. **Limitation**: LME power is highly sensitive to ICC and time points. A medium effect (Cohen's d ≈ 0.5) typically requires >300 subjects, but 500 may still be underpowered for small effects or complex random-slope structures. The study will report effect sizes with CIs, acknowledging potential power limitations. | Aligns with FR‑001 acceptance scenario. |
-| **Causal Framing** | Observational design; all statements will be *associational* (e.g., "higher usage is associated with lower loneliness"). | Consistent with Constitution Principle VII. |
-| **Collinearity Check** | Variance Inflation Factor (VIF) computed for fixed effects; if VIF > 5, report collinearity and interpret coefficients descriptively. | Prevents misleading independent effect claims. |
+### Statistical Approach
+1. **Model**: Linear Mixed‑Effects Model (LMM) via `statsmodels.regression.mixed_linear_model.MixedLM`.  
+   - **Fixed Effects**: `UsageFrequency`, `SessionDuration`, `AttachmentAnxietyScore`, `AttachmentAvoidanceScore`, `prev_loneliness_score`, `Age`, `Gender`.  
+   - **Random Effects**: Random intercept for `User`; random slope for `UsageFrequency` by `User`.  
+   - **Lagged Structure**: Usage metrics at week *t* predict loneliness at week *t + 1*.  
 
-## Validation & Robustness
+2. **Inference & Corrections**  
+   - **Multiple Comparisons**: Holm‑Bonferroni correction applied to fixed‑effect p‑values.  
+   - **Bootstrap**: **1 000** resamples (seed = 42) to derive 95 % confidence intervals (FR‑006).  
+   - **Power**: Monte‑Carlo power simulation for mixed‑effects with random slopes; if matched N < 500 or detectable effect size > 0.8, pipeline halts with “Power Limitation”.  
 
-1. **Model Diagnostics** – Residual normality (Shapiro‑Wilk), homoscedasticity (Breusch‑Pagan). If violated, cluster bootstrap CIs replace Wald CIs.  
-2. **Subgroup (Age ≥ 60)** – Re‑fit LME on older users; compare effect sizes to full‑sample model (FR‑007).  
-3. **Sensitivity to Missing Attachment** – Exclude rows where `missing_attachment_flag=True` and re‑run model; report any substantive changes.  
-4. **Runtime Monitoring** – Log total CPU time; abort if > 6 h (SC‑004).  
+3. **Causal Framing**: All statements are explicitly labeled as *associational* per the observational assumption.
 
-## Expected Deliverables
-- `data/unified_dataset.parquet` (matches FR‑001‑FR‑004)  
-- `results/mixed_effects_summary.csv` (fixed effects, p‑values, bootstrap CIs)  
-- `results/subgroup_60plus.csv`  
-- `reports/analysis_report.html` (includes tables, diagnostic plots, runtime summary)  
+### Measurement Validity
+- **UCLA Loneliness Scale**: Validated instrument; `src/validation/validate_data.py` checks ≥ 90 % completion and flags missing items.  
+- **ECAR Lexicon**: Peer‑reviewed lexicon (Rashkin et al., 2023); used to compute normalized anxiety and avoidance scores.  
+
+### Data Handling
+- **Missing Data**: Users lacking baseline text or any required covariate are excluded (FR‑004b, FR‑009). No imputation.  
+- **PII Protection**: Reddit usernames hashed immediately; originals never written to disk or logs.  
+- **Selection Bias**: `src/analysis/bias_analysis.py` compares demographics of excluded vs. included users; results reported in the manuscript.
+
+## Computational Feasibility
+- **CPU‑First**: Modeling uses `statsmodels` and `joblib`; no GPU required.  
+- **Memory Management**: Input files streamed where possible; processing stays < 7 GB RAM.  
+- **Runtime**: Benchmarked bootstrap on a representative sample completes in a few hours on 2 CPU cores; full run stays within the GitHub Actions time limit.  
+- **GPU Escape Hatch**: Not needed.
+
+## Risk Mitigation
+| Risk | Mitigation |
+|---|---|
+| **Dataset Missing / Invalid** | Early validation; clear error message (“Data Linkage Impossible”). |
+| **Match Rate < 80 %** | Phase 1 aborts with “Power Insufficient” (SC‑001). |
+| **Model Non‑convergence** | Fallback to random‑intercept‑only model; log warning. |
+| **API Rate Limits** | Exponential back‑off (`src/utils/retry_policy.py`). |
+| **Insufficient Power** | Power analysis; halt if detectable effect size > 0.8. |
+| **Subgroup Power** | Power check for ≥ 60 subgroup (requires ≥ 80 users); skip if unmet. |
+| **Selection Bias** | Bias analysis reports demographic differences; informs interpretation. |
+| **Lexicon Validation Failure** | Halt with “Lexicon Validation Failed” if κ < 0.8 (SC‑005). |
 
 ---

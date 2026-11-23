@@ -1,36 +1,37 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "MaterialEntry Dataset Schema"
-description: "Schema for the preprocessed material dataset including formation energy and descriptors."
-type: object
+title: "MaterialEntry Schema"
+type: "object"
 properties:
   material_id:
-    type: string
-    description: "Unique identifier for the material."
+    type: "string"
+    description: "Unique identifier for the material from the Materials Project"
   composition:
-    type: object
-    description: "Dictionary of element symbols to counts."
-    additionalProperties:
-      type: integer
+    type: "string"
+    description: "Chemical formula string (e.g., 'Fe2O3')"
   formation_energy_per_atom:
-    type: number
-    description: "DFT-computed formation energy per atom in eV/atom."
-    minimum: -100
-    maximum: 100
-  descriptors:
-    type: object
-    description: "Derived composition descriptors (e.g., avg atomic radius, electronegativity)."
-    additionalProperties:
-      type: number
-  source:
-    type: string
-    enum:
-      - "MaterialsProject"
-      - "Local"
-    description: "Origin of the data entry."
+    type: "number"
+    description: "DFT-computed formation energy per atom (eV/atom)"
+  elemental_descriptors:
+    type: "object"
+    description: "Computed features including avg atomic number, electronegativity, radius"
+    properties:
+      avg_atomic_number:
+        type: "number"
+      avg_electronegativity:
+        type: "number"
+      avg_atomic_radius:
+        type: "number"
+    required:
+      - avg_atomic_number
+      - avg_electronegativity
+      - avg_atomic_radius
+  is_in_test_set:
+    type: "boolean"
+    description: "Flag indicating if the entry belongs to the fixed holdout test set"
 required:
   - material_id
   - composition
   - formation_energy_per_atom
-  - descriptors
-  - source
+  - elemental_descriptors
+  - is_in_test_set
 additionalProperties: false

@@ -1,3 +1,3 @@
 """
-Data ingestion and processing modules.
+Data ingestion, processing, and salience computation modules.
 """

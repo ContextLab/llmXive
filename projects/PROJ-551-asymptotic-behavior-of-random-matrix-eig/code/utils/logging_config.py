@@ -1,8 +1,3 @@
-"""
-Structured logging configuration for simulation runs.
-Implements Constitution Principle I (Reproducibility) by capturing
-exact random seed states, parameter values, and timestamps in JSON format.
-"""
 import json
 import logging
 import os
@@ -10,18 +5,15 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
-from .config import get_project_paths
+from utils.config import get_project_paths
 
 
 class SimulationJsonFormatter(logging.Formatter):
     """
-    Custom formatter that outputs log records as JSON.
-    Ensures reproducibility by including seed state and run metadata.
+    Custom formatter that outputs log records as structured JSON.
+    Ensures all log entries satisfy Constitution Principle I (Reproducibility)
+    by including timestamps, seed states, and parameter snapshots.
     """
-
-    def __init__(self, seed_state: Optional[Dict[str, Any]] = None):
-        super().__init__()
-        self.seed_state = seed_state or {}
 
     def format(self, record: logging.LogRecord) -> str:
         log_entry: Dict[str, Any] = {
@@ -33,55 +25,50 @@ class SimulationJsonFormatter(logging.Formatter):
             "line": record.lineno,
         }
 
-        # Include seed state if available for reproducibility
-        if self.seed_state:
-            log_entry["seed_state"] = self.seed_state
-
-        # Include extra fields if present
-        if hasattr(record, "params"):
-            log_entry["params"] = record.params
-
-        if hasattr(record, "run_id"):
-            log_entry["run_id"] = record.run_id
+        # Attach extra structured data if present
+        if hasattr(record, "simulation_params"):
+            log_entry["simulation_params"] = record.simulation_params
+        if hasattr(record, "seed_state"):
+            log_entry["seed_state"] = record.seed_state
+        if hasattr(record, "data_path"):
+            log_entry["data_path"] = record.data_path
 
         return json.dumps(log_entry)
 
 
 def setup_simulation_logger(
-    seed_state: Optional[Dict[str, Any]] = None,
-    log_file_name: str = "simulation_run.log",
-    log_level: int = logging.INFO,
+    log_file_path: Optional[Union[str, Path]] = None,
+    level: int = logging.INFO,
 ) -> logging.Logger:
     """
-    Configure a structured JSON logger for simulation runs.
+    Configure a dedicated logger for simulation runs that writes structured
+    JSON logs to the specified file path.
 
     Args:
-        seed_state: Dictionary containing random seed states (numpy, random, torch, etc.)
-        log_file_name: Name of the log file relative to data/logs/
-        log_level: Logging level (default: INFO)
+        log_file_path: Path to the log file. Defaults to data/logs/simulation_run.log.
+        level: Logging level (default: INFO).
 
     Returns:
-        Configured logger instance
+        Configured logger instance.
     """
-    # Get project paths and ensure log directory exists
-    paths = get_project_paths()
-    log_dir = paths["data"] / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
+    if log_file_path is None:
+        paths = get_project_paths()
+        log_dir = paths["data"] / "logs"
+        log_dir.mkdir(parents=True, exist_ok=True)
+        log_file_path = log_dir / "simulation_run.log"
+    else:
+        log_file_path = Path(log_file_path)
+        log_file_path.parent.mkdir(parents=True, exist_ok=True)
 
-    log_file_path = log_dir / log_file_name
-
-    # Create logger
     logger = logging.getLogger("simulation")
-    logger.setLevel(log_level)
+    logger.setLevel(level)
 
-    # Remove existing handlers to avoid duplicates
-    logger.handlers.clear()
+    # Prevent duplicate handlers if called multiple times
+    if logger.handlers:
+        logger.handlers.clear()
 
-    # Create file handler with JSON formatter
-    file_handler = logging.FileHandler(log_file_path, mode="a")
-    file_handler.setLevel(log_level)
-    file_handler.setFormatter(SimulationJsonFormatter(seed_state))
-
+    file_handler = logging.FileHandler(log_file_path)
+    file_handler.setFormatter(SimulationJsonFormatter())
     logger.addHandler(file_handler)
 
     return logger
@@ -89,76 +76,100 @@ def setup_simulation_logger(
 
 def log_simulation_start(
     logger: logging.Logger,
-    params: Dict[str, Any],
-    seed_state: Dict[str, Any],
-    run_id: Optional[str] = None,
+    seed: int,
+    matrix_size: int,
+    perturbation_norm: float,
+    perturbation_type: str,
+    sparsity_density: Optional[float] = None,
+    num_eigenvalues: int = 10,
+    **extra_params: Any,
 ) -> None:
     """
-    Log the start of a simulation run with full parameter and seed state.
+    Logs the start of a simulation run with full parameter reproducibility.
 
     Args:
-        logger: The configured logger instance
-        params: Dictionary of simulation parameters
-        seed_state: Dictionary of random seed states
-        run_id: Optional unique run identifier
+        logger: The configured logger instance.
+        seed: Random seed used for this run.
+        matrix_size: Dimension N of the Wigner matrix.
+        perturbation_norm: Norm (theta) of the perturbation.
+        perturbation_type: Type of perturbation (e.g., 'diagonal', 'block_sparse').
+        sparsity_density: Density parameter if applicable.
+        num_eigenvalues: Number of top eigenvalues to compute.
+        **extra_params: Additional parameters to include in the log.
     """
-    extra = {"params": params, "seed_state": seed_state}
-    if run_id:
-        extra["run_id"] = run_id
+    seed_state = {
+        "global_seed": seed,
+        "numpy_seed": int(seed),
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+    }
 
-    logger.info("Simulation run started", extra=extra)
+    params = {
+        "matrix_size": matrix_size,
+        "perturbation_norm": perturbation_norm,
+        "perturbation_type": perturbation_type,
+        "num_eigenvalues": num_eigenvalues,
+        **extra_params,
+    }
+    if sparsity_density is not None:
+        params["sparsity_density"] = sparsity_density
+
+    logger.info(
+        "Simulation started",
+        extra={"seed_state": seed_state, "simulation_params": params},
+    )
 
 
 def log_simulation_end(
     logger: logging.Logger,
-    status: str,
-    duration_seconds: Optional[float] = None,
-    run_id: Optional[str] = None,
+    execution_time_seconds: float,
+    status: str = "success",
+    error_message: Optional[str] = None,
 ) -> None:
     """
-    Log the completion of a simulation run.
+    Logs the end of a simulation run.
 
     Args:
-        logger: The configured logger instance
-        status: Status string (e.g., "success", "failed", "interrupted")
-        duration_seconds: Optional execution duration
-        run_id: Optional unique run identifier
+        logger: The configured logger instance.
+        execution_time_seconds: Total runtime of the simulation.
+        status: 'success' or 'failed'.
+        error_message: Error details if status is 'failed'.
     """
-    extra = {"status": status}
-    if duration_seconds is not None:
-        extra["duration_seconds"] = duration_seconds
-    if run_id:
-        extra["run_id"] = run_id
+    end_params = {
+        "execution_time_seconds": execution_time_seconds,
+        "status": status,
+    }
+    if error_message:
+        end_params["error"] = error_message
 
-    logger.info("Simulation run completed", extra=extra)
+    logger.info(
+        "Simulation ended",
+        extra={"simulation_params": end_params},
+    )
 
 
 def log_eigenvalue_results(
     logger: logging.Logger,
     eigenvalues: list,
-    outlier_indices: list,
-    perturbation_norm: float,
-    matrix_size: int,
-    run_id: Optional[str] = None,
+    outlier_indices: Optional[list] = None,
+    theoretical_edge: float = 2.0,
 ) -> None:
     """
-    Log eigenvalue analysis results.
+    Logs the computed eigenvalues and outlier detection results.
 
     Args:
-        logger: The configured logger instance
-        eigenvalues: List of computed eigenvalues
-        outlier_indices: Indices of detected outliers
-        perturbation_norm: Norm of the perturbation matrix
-        matrix_size: Size of the matrix
-        run_id: Optional unique run identifier
+        logger: The configured logger instance.
+        eigenvalues: List of computed eigenvalues (sorted descending).
+        outlier_indices: Indices of eigenvalues identified as outliers.
+        theoretical_edge: Theoretical bulk edge (default 2.0 for Wigner).
     """
-    extra = {
-        "eigenvalues": eigenvalues,
+    results = {
+        "top_eigenvalues": eigenvalues,
         "outlier_indices": outlier_indices,
-        "perturbation_norm": perturbation_norm,
-        "matrix_size": matrix_size,
+        "theoretical_edge": theoretical_edge,
+        "outlier_count": len(outlier_indices) if outlier_indices else 0,
     }
-    if run_id:
-        extra["run_id"] = run_id
 
-    logger.info("Eigenvalue results computed", extra=extra)
+    logger.info(
+        "Eigenvalue results computed",
+        extra={"simulation_params": results},
+    )

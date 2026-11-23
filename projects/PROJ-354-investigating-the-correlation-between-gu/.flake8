@@ -1,0 +1,10 @@
+[flake8]
+max-line-length = 88
+exclude = .git,__pycache__,build,dist,.eggs,venv
+ignore = E501,W503
+# E501: line too long (handled by black)
+# W503: line break before binary operator (incompatible with black sometimes)
+
+[isort]
+profile = black
+known_first_party = code,tests

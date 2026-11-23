@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a simulation engine to empirically evaluate the sensitivity of parametric statistical tests (t-test, ANOVA, chi-squared) to sample size reductions. The system generates synthetic data with known ground truth (null and alternative hypotheses) across sample sizes $n=5$ to $n=500$, performing [deferred]+ iterations per condition to calculate Type I and Type II error rates. It identifies reliability thresholds where error rates deviate from nominal levels or power drops below 0.80, visualizes these trends with confidence intervals, and validates findings against public small-sample datasets. The implementation adheres to strict reproducibility and compute feasibility constraints (CPU-only, bounded runtime).
+This project implements a simulation engine to empirically evaluate the sensitivity of parametric statistical tests (t-test, ANOVA, chi-squared) to sample size reductions. The system generates synthetic data with known ground truth (null and alternative hypotheses) across sample sizes $n=5$ to $n=500$, performing [deferred]+ iterations per condition to calculate Type I and Type II error rates. It identifies reliability thresholds where error rates deviate from nominal levels or power drops below acceptable standards., visualizes these trends with confidence intervals, and validates findings against public small-sample datasets. The implementation adheres to strict reproducibility and compute feasibility constraints (CPU-only, bounded runtime).
 
 ## Technical Context
 
@@ -17,7 +17,7 @@ This project implements a simulation engine to empirically evaluate the sensitiv
 **Project Type**: Computational Research / Simulation Engine  
 **Performance Goals**: Complete [deferred] iterations for all conditions (n=5..500, 3 tests, 3 effect sizes) within 6 hours on 2 CPU cores.
 **Constraints**: No GPU usage; memory < 7 GB; disk < 14 GB; all random seeds pinned; no external API calls during core simulation (only dataset download once).  
-**Scale/Scope**: A large-scale set of simulation iterations total (multiple sample sizes * tests * 3 effects * 2 hypotheses * 10k iterations, optimized via vectorization and batch processing).
+**Scale/Scope**: A large-scale set of simulation iterations total (multiple sample sizes * tests * multiple effects * 2 hypotheses * 10k iterations, optimized via vectorization and batch processing).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

@@ -1,0 +1,35 @@
+[
+  {
+    "pr_id": "12345",
+    "repo": "microsoft/vscode",
+    "linked_issue_ids": ["189234", "189235"],
+    "linked_issues_status": [
+      {
+        "issue_id": "189234",
+        "status": "reported",
+        "is_ground_truth": false,
+        "validation_source": "extraction_phase"
+      },
+      {
+        "issue_id": "189235",
+        "status": "reported",
+        "is_ground_truth": false,
+        "validation_source": "extraction_phase"
+      }
+    ],
+    "is_ground_truth": false,
+    "validation_flag": true,
+    "diff": "...",
+    "comments": []
+  },
+  {
+    "pr_id": "12346",
+    "repo": "microsoft/vscode",
+    "linked_issue_ids": [],
+    "linked_issues_status": [],
+    "is_ground_truth": false,
+    "validation_flag": true,
+    "diff": "...",
+    "comments": []
+  }
+]

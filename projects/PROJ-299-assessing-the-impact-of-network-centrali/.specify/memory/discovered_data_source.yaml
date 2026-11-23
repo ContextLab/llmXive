@@ -1,0 +1,13 @@
+status: none
+intent: download ADNI resting state fMRI dataset with AAL atlas python package dataset
+required_fields:
+- participant_id
+- session_id
+- rs_fmri_nifti_path
+- aals_roi_label
+- time_series_matrix
+- motion_parameters
+- acquisition_date
+cache_key: ae18206667db2c412a81b19db67dd0edef22baef756ec642014b169f9a01ef3e
+searched_at: '2026-09-07T15:21:01.361294+00:00'
+retry_count: 1

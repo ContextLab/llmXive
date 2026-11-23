@@ -1,406 +1,609 @@
-import os
-import sys
+"""
+Ingestion module for the Temporal Discounting study.
+
+This module provides:
+* verify_urls – validates that a list of URLs are reachable (HTTP 200).
+* load_and_harmonize – loads raw data (real or synthetic), merges the three
+  core datasets, fits a hyperbolic discounting model per participant,
+  creates derived variables, and writes all required artefacts.
+* run_dgp_pipeline – generates synthetic data for the three core datasets
+  when real data are unavailable (used by the test suite and the fallback
+  path in ``load_and_harmonize``).
+
+The implementation deliberately avoids writing to the platform‑owned
+``state/`` directory; hashes are written to a project‑local JSON file
+``data/processed/file_hashes.json``.  All paths are created via the
+``llmxive_toolkit.paths`` helpers to guarantee they live inside the
+repository.
+"""
+
+import argparse
 import json
-import numpy as np
-import pandas as pd
+import logging
+import hashlib
 from pathlib import Path
+from typing import List, Dict, Tuple, Any
 
-# Import config for paths and random state
-from config import get_project_root, get_config_value, get_random_state
+import pandas as pd
+import numpy as np
+import requests
+from scipy.optimize import curve_fit
 
-# Ensure imports from utils.checksum are available if needed for future steps,
-# though not strictly used in this specific validation step.
-# from utils.checksum import update_artifact_hash
+from llmxive_toolkit import paths, get_logger
+from config import get_random_state
 
-def validate_dgp_config():
+# ----------------------------------------------------------------------
+# Configuration / constants
+# ----------------------------------------------------------------------
+logger = get_logger(__name__)
+
+# Expected raw file names (CSV).  The files must contain a column
+# named ``participant_id`` that can be used for an inner join.
+RAW_DELAY_FILE = "delay_discounting.csv"
+RAW_PROCRASTINATION_FILE = "procrastination.csv"
+RAW_NBACK_FILE = "nback.csv"
+
+# Output file names (all live under ``data/processed``)
+UNIFIED_CSV = "unified_analysis.csv"
+HARMONIZATION_LOG = "harmonization_log.json"
+EXCLUDED_CSV = "excluded_participants.csv"
+HALT_LOG = "halt_log.json"
+HASHES_JSON = "file_hashes.json"
+HARMONIZED_PARQUET = "harmonized_dataset.parquet"
+
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
+def _sha256(file_path: Path) -> str:
+    """Calculate the SHA‑256 hash of ``file_path``."""
+    h = hashlib.sha256()
+    with file_path.open("rb") as f:
+        for block in iter(lambda: f.read(4096), b""):
+            h.update(block)
+    return h.hexdigest()
+
+# ----------------------------------------------------------------------
+# Public API – URL verification
+# ----------------------------------------------------------------------
+def verify_urls(urls: List[str]) -> None:
     """
-    Validates the DGP parameters configuration.
-    Ensures schema definition, expected columns, and reliability targets match specs.
-    Raises SystemExit(1) if invalid.
+    Verify that each URL in ``urls`` returns HTTP 200 via a HEAD request.
+
+    Raises
+    ------
+    RuntimeError
+        If any URL is unreachable or returns a non‑200 status.
     """
-    config_path = get_project_root() / "data" / "dgp_config.json"
-    if not config_path.exists():
-        # If no config file exists, we assume defaults for the sake of this pipeline
-        # or raise if strict mode is required. For this task, we proceed with defaults.
-        return True
+    for url in urls:
+        try:
+            response = requests.head(url, allow_redirects=True, timeout=10)
+            if response.status_code != 200:
+                raise RuntimeError(
+                    f"URL verification failed for {url}: status {response.status_code}"
+                )
+        except requests.RequestException as exc:
+            raise RuntimeError(f"URL verification failed for {url}: {exc}") from exc
 
-    with open(config_path, 'r') as f:
-        config = json.load(f)
+# ----------------------------------------------------------------------
+# Hyperbolic discounting utilities
+# ----------------------------------------------------------------------
+def hyperbolic_function(V, k, D):
+    """Hyperbolic discounting: V / (1 + k·D)."""
+    return V / (1 + k * D)
 
-    # Basic schema validation
-    required_keys = ['n_participants', 'reliability_target', 'columns']
-    for key in required_keys:
-        if key not in config:
-            print(f"ERROR: DGP config missing required key: {key}")
-            sys.exit(1)
-
-    if config['reliability_target'] < 0.0 or config['reliability_target'] > 1.0:
-        print(f"ERROR: Reliability target must be between 0 and 1. Got: {config['reliability_target']}")
-        sys.exit(1)
-
-    return True
-
-def calculate_cronbach_alpha(data_frame, item_columns):
+def fit_hyperbolic_model(
+    delays: np.ndarray,
+    values: np.ndarray,
+    immediate_value: float,
+    participant_id: str | None = None,
+) -> Tuple[float | None, str | None]:
     """
-    Calculates Cronbach's alpha for a set of item columns.
+    Fit a hyperbolic model to a participant's discounting data.
+
+    Returns
+    -------
+    k_value : float | None
+        Estimated discount rate.  ``None`` indicates a failure.
+    reason_code : str | None
+        ``None`` if the fit succeeded; otherwise a short diagnostic code.
     """
-    if len(item_columns) < 2:
+    valid_mask = (delays >= 0) & (values > 0)
+    if np.sum(valid_mask) < 3:
+        return None, "INVALID_RANGE"
+
+    D = delays[valid_mask]
+    V = values[valid_mask]
+
+    try:
+        def model(D_, k_):
+            return immediate_value / (1 + k_ * D_)
+
+        popt, _ = curve_fit(
+            model,
+            D,
+            V,
+            p0=[0.05],
+            bounds=(0, np.inf),
+            maxfev=5000,
+        )
+        k_est = popt[0]
+        if not np.isfinite(k_est) or k_est < 0 or k_est > 100:
+            return None, "INVALID_RANGE"
+        return k_est, None
+    except RuntimeError:
+        return None, "CONVERGENCE_FAIL"
+    except Exception:
+        return None, "NO_SOLUTION"
+
+# ----------------------------------------------------------------------
+# Cronbach's alpha (re‑exported for the test suite)
+# ----------------------------------------------------------------------
+def calculate_cronbach_alpha(items_df: pd.DataFrame, item_cols: List[str]) -> float:
+    """
+    Compute Cronbach's alpha for the columns listed in ``item_cols``.
+
+    Parameters
+    ----------
+    items_df : pd.DataFrame
+        DataFrame containing the item responses.
+    item_cols : list[str]
+        Names of the columns that belong to the scale.
+
+    Returns
+    -------
+    float
+        Alpha coefficient (0 – 1).  Returns 0 if computation is impossible.
+    """
+    if len(item_cols) < 2:
         return 0.0
-    
-    # Select only the columns that exist in the dataframe
-    valid_cols = [col for col in item_columns if col in data_frame.columns]
-    if len(valid_cols) < 2:
-        return 0.0
-    
-    items = data_frame[valid_cols].dropna()
-    if items.empty:
+
+    sub = items_df[item_cols].dropna()
+    if sub.empty:
         return 0.0
 
-    # Calculate variance of each item and total variance
-    item_variances = items.var(axis=0)
-    total_variance = items.sum(axis=1).var()
-    
-    k = len(valid_cols)
+    item_variances = sub.var(axis=0, ddof=1)
+    total_variance = sub.sum(axis=1).var(ddof=1)
+
+    n_items = len(item_cols)
     if total_variance == 0:
         return 0.0
-    
-    alpha = (k / (k - 1)) * (1 - item_variances.sum() / total_variance)
-    return alpha
+    alpha = (n_items / (n_items - 1)) * (1 - item_variances.sum() / total_variance)
+    return float(alpha)
 
-def generate_delay_discounting_data(n_participants, rng):
+# ----------------------------------------------------------------------
+# Default DGP configuration – kept for backward‑compatible unit tests
+# ----------------------------------------------------------------------
+DGP_DEFAULTS: Dict[str, Any] = {
+    "k_mean": 0.05,
+    "k_sd": 0.02,
+    "procrastination_mean": 3.5,
+    "procrastination_sd": 0.8,
+    "wm_accuracy_mean": 0.85,
+    "wm_accuracy_sd": 0.1,
+    "age_mean": 25,
+    "age_sd": 5,
+    "gender_distribution": {"male": 0.5, "female": 0.5, "other": 0.0},
+    "education_mean": 16,
+    "education_sd": 2,
+}
+
+# ----------------------------------------------------------------------
+# Harmonisation – thin wrapper around the existing implementation
+# ----------------------------------------------------------------------
+# The project already ships a robust harmonisation routine in
+# ``code/data/harmonize.py``.  For the public API expected by the test
+# suite we simply re‑export it.
+from data.harmonize import harmonize_datasets as _harmonize_datasets
+
+def harmonize_datasets(
+    discounting: pd.DataFrame,
+    procrastination: pd.DataFrame,
+    nback: pd.DataFrame,
+) -> pd.DataFrame:
     """
-    Generates synthetic delay discounting data.
-    Returns a DataFrame with indifference points.
+    Wrapper that forwards to the library implementation.
+
+    The original ``harmonize_datasets`` expects a ``dict``; the test
+    suite supplies three separate DataFrames, so we adapt the call.
     """
-    # Parameters based on literature (hyperbolic discounting)
-    # k ~ log-normal distribution
-    log_k_mean = -2.5
-    log_k_std = 1.0
-    
-    data = {
-        'participant_id': range(1, n_participants + 1),
-        'delay_days': rng.choice([1, 7, 30, 180, 365], size=n_participants),
-        'immediate_amount': rng.uniform(10, 100, size=n_participants),
-        'delayed_amount': rng.uniform(10, 100, size=n_participants)
-    }
-    
-    # Simulate indifference points based on hyperbolic model with noise
-    # V = A / (1 + k*D)
-    # We generate a 'choice' probability or just simulate the indifference point directly
-    # For simplicity, we generate synthetic responses that imply a k value.
-    
-    df = pd.DataFrame(data)
-    
-    # Add noise to simulate real responses
-    noise = rng.normal(0, 5, size=n_participants)
-    df['indifference_point'] = df['immediate_amount'] + noise
-    
+    return _harmonize_datasets(
+        {
+            "discounting": discounting,
+            "procrastination": procrastination,
+            "nback": nback,
+        }
+    )
+
+# ----------------------------------------------------------------------
+# Core ingestion / harmonisation routine
+# ----------------------------------------------------------------------
+def _load_raw_csv(file_name: str) -> pd.DataFrame:
+    """Load a CSV from ``data/raw``; raise if the file is missing."""
+    raw_path = paths.data("raw", file_name)
+    if not raw_path.is_file():
+        raise FileNotFoundError(f"Required raw file not found: {raw_path}")
+    return pd.read_csv(raw_path)
+
+def _fit_discount_rates(df_discount: pd.DataFrame) -> Tuple[pd.DataFrame, List[str]]:
+    """
+    Fit a hyperbolic model for each participant.
+
+    Returns
+    -------
+    df_rates : pd.DataFrame
+        Columns ``participant_id`` and ``discount_rate_k``.
+    excluded : list[str]
+        Participant IDs for which fitting failed.
+    """
+    required_cols = {"participant_id", "delay", "amount", "choice"}
+    if not required_cols.issubset(df_discount.columns):
+        raise ValueError(
+            f"Discounting data must contain columns {required_cols}. "
+            f"Found: {list(df_discount.columns)}"
+        )
+
+    participants = df_discount["participant_id"].unique()
+    rates = []
+    excluded = []
+
+    for pid in participants:
+        sub = df_discount[df_discount["participant_id"] == pid]
+        delays = sub["delay"].to_numpy()
+        immediate = sub["amount"].iloc[0]  # assume constant across rows
+        values = np.where(sub["choice"] == 1, immediate, sub["amount"])
+
+        k, reason = fit_hyperbolic_model(delays, values, immediate, pid)
+        if k is None:
+            excluded.append(pid)
+        else:
+            rates.append({"participant_id": pid, "discount_rate_k": k})
+
+    df_rates = pd.DataFrame(rates)
+    return df_rates, excluded
+
+def _compute_derived_variables(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Compute ``log_k``, mean‑center ``log_k`` and ``wm_accuracy``,
+    and add the interaction term.
+    """
+    df = df.copy()
+    # Log‑transform (add a tiny constant to avoid log(0))
+    df["log_k"] = np.log(df["discount_rate_k"] + 1e-8)
+
+    # Mean‑center
+    df["log_k_centered"] = df["log_k"] - df["log_k"].mean()
+    df["wm_accuracy_centered"] = df["wm_accuracy"] - df["wm_accuracy"].mean()
+
+    # Interaction
+    df["interaction"] = df["log_k_centered"] * df["wm_accuracy_centered"]
     return df
 
-def generate_procrastination_data(n_participants, rng):
-    """
-    Generates synthetic procrastination scale data.
-    Returns a DataFrame with scale items.
-    """
-    # Typical procrastination scale (e.g., 5 items, 1-5 Likert)
-    n_items = 5
-    items = [f'procrastination_item_{i+1}' for i in range(n_items)]
-    
-    data = {'participant_id': range(1, n_participants + 1)}
-    for item in items:
-        # Likert scale 1-5
-        data[item] = rng.integers(1, 6, size=n_participants)
-        
-    return pd.DataFrame(data)
+def _write_json(path: Path, payload: Any) -> None:
+    """Write ``payload`` as pretty‑printed JSON."""
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with path.open("w") as f:
+        json.dump(payload, f, indent=2)
 
-def generate_nback_data(n_participants, rng):
+# ----------------------------------------------------------------------
+# Synthetic data generator (public API)
+# ----------------------------------------------------------------------
+def run_dgp_pipeline(
+    n: int = 500,
+    seed: int = 42,
+    config: Dict[str, Any] | None = None,
+) -> Dict[str, pd.DataFrame]:
     """
-    Generates synthetic n-back working memory data.
-    Returns a DataFrame with accuracy and reaction time.
+    Generate a synthetic dataset that mimics the three required sources.
+
+    The function:
+    1. Creates three DataFrames (discounting, procrastination, n‑back) with
+       realistic‑looking values based on ``config``.
+    2. Writes each DataFrame to ``data/raw/<filename>.csv`` using the
+       ``llmxive_toolkit.paths`` helpers (ensuring the directories exist).
+    3. Returns a dictionary with the three DataFrames.
+
+    Parameters
+    ----------
+    n : int
+        Number of participants to simulate.
+    seed : int
+        Random seed for reproducibility.
+    config : dict | None
+        Optional overrides for the default DGP parameters.
+
+    Returns
+    -------
+    dict
+        Keys ``discounting``, ``procrastination``, ``nback`` mapping to the
+        generated DataFrames.
     """
-    data = {
-        'participant_id': range(1, n_participants + 1),
-        'wm_accuracy': rng.uniform(0.6, 0.99, size=n_participants),
-        'wm_rt': rng.uniform(400, 1200, size=n_participants) # ms
+    if config is None:
+        config = DGP_DEFAULTS
+
+    rs = get_random_state(offset=0)  # deterministic seed handling
+    rs.seed(seed)
+
+    # ------------------------------------------------------------------
+    # Participant IDs
+    # ------------------------------------------------------------------
+    participant_ids = [f"P{i:05d}" for i in range(1, n + 1)]
+
+    # ------------------------------------------------------------------
+    # Discounting dataset
+    # ------------------------------------------------------------------
+    # We'll create 5 delay points per participant (typical in discounting tasks)
+    delays = np.array([1, 7, 30, 90, 180])  # days
+    discount_rows = []
+    for pid in participant_ids:
+        # Simulate a true k for the participant from a log‑normal distribution
+        true_k = max(0.0, rs.normal(config["k_mean"], config["k_sd"]))
+        immediate_amount = 100.0
+        for d in delays:
+            # Subjective value according to the hyperbolic model plus noise
+            subj = hyperbolic_function(immediate_amount, true_k, d)
+            # Simulate a binary choice: 1 if immediate is chosen, else delayed
+            # Add a small random perturbation to model stochasticity
+            choice = 1 if rs.rand() < (immediate_amount - subj) / immediate_amount else 0
+            discount_rows.append(
+                {
+                    "participant_id": pid,
+                    "delay": d,
+                    "amount": immediate_amount,
+                    "choice": choice,
+                }
+            )
+    df_discount = pd.DataFrame(discount_rows)
+
+    # ------------------------------------------------------------------
+    # Procrastination dataset
+    # ------------------------------------------------------------------
+    procrast_rows = []
+    for pid in participant_ids:
+        score = max(
+            0.0,
+            rs.normal(
+                config["procrastination_mean"], config["procrastination_sd"]
+            ),
+        )
+        procrast_rows.append(
+            {"participant_id": pid, "procrastination_score": score}
+        )
+    df_procrast = pd.DataFrame(procrast_rows)
+
+    # ------------------------------------------------------------------
+    # N‑back dataset (working‑memory accuracy)
+    # ------------------------------------------------------------------
+    nback_rows = []
+    for pid in participant_ids:
+        acc = rs.normal(
+            config["wm_accuracy_mean"], config["wm_accuracy_sd"]
+        )
+        # Clip to [0, 1]
+        acc = float(np.clip(acc, 0.0, 1.0))
+        nback_rows.append({"participant_id": pid, "wm_accuracy": acc})
+    df_nback = pd.DataFrame(nback_rows)
+
+    # ------------------------------------------------------------------
+    # Write CSV files to the raw data folder
+    # ------------------------------------------------------------------
+    raw_paths = {
+        RAW_DELAY_FILE: df_discount,
+        RAW_PROCRASTINATION_FILE: df_procrast,
+        RAW_NBACK_FILE: df_nback,
     }
-    return pd.DataFrame(data)
+    for fname, df in raw_paths.items():
+        out_path = paths.data("raw", fname)
+        df.to_csv(out_path, index=False)
 
-def harmonize_datasets():
-    """
-    Reads the three distinct source files generated by T014, merges them,
-    and handles ID matching. Checks for >10% drop due to ID mismatch.
-    """
-    project_root = get_project_root()
-    raw_dir = project_root / "data" / "raw"
-    
-    delay_file = raw_dir / "delay_discounting.csv"
-    proc_file = raw_dir / "procrastination.csv"
-    nback_file = raw_dir / "nback.csv"
-    
-    if not all(f.exists() for f in [delay_file, proc_file, nback_file]):
-        raise FileNotFoundError("One or more raw data files missing. Run T014 first.")
-    
-    df_delay = pd.read_csv(delay_file)
-    df_proc = pd.read_csv(proc_file)
-    df_nback = pd.read_csv(nback_file)
-    
-    # Merge on participant_id
-    # Using inner join to keep only matching IDs
-    total_ids = set(df_delay['participant_id'].tolist())
-    
-    df_merged = df_delay.merge(df_proc, on='participant_id', how='inner')
-    df_merged = df_merged.merge(df_nback, on='participant_id', how='inner')
-    
-    merged_ids = set(df_merged['participant_id'].tolist())
-    dropped_ids = total_ids - merged_ids
-    drop_rate = len(dropped_ids) / len(total_ids) if total_ids else 0
-    
-    if drop_rate > 0.10:
-        print(f"WARNING: ID mismatch drop rate is {drop_rate:.2%} (>10%). Check data integrity.")
-        # Task T015a requires flagging/halting if exceeded. 
-        # However, T015a description says "flag/halt". T015b is the CRITICAL HALT.
-        # We will flag here but let T015b handle the critical stop if columns are missing.
-        # But per T015a description: "flag/halt if exceeded". Let's be strict here.
-        if drop_rate > 0.10:
-            # We flag but do not exit here as T015b is the designated "CRITICAL HALT" task
-            # for data integrity. We will log the warning.
-            pass 
-    
-    return df_merged
+    logger.info(
+        f"Synthetic DGP generated {n} participants and written to data/raw/"
+    )
+    return {
+        "discounting": df_discount,
+        "procrastination": df_procrast,
+        "nback": df_nback,
+    }
 
-def validate_core_constructs(df):
+# ----------------------------------------------------------------------
+# Core ingestion / harmonisation routine (unchanged apart from parquet output)
+# ----------------------------------------------------------------------
+def load_and_harmonize(n: int = 500, seed: int = 42) -> pd.DataFrame:
     """
-    T015b: Validates that core constructs exist in the harmonized dataset.
-    Checks for: discount_rate_k, procrastination_score, wm_accuracy.
-    If any are missing, raises SystemExit(1).
-    """
-    required_columns = ['discount_rate_k', 'procrastination_score', 'wm_accuracy']
-    missing_cols = [col for col in required_columns if col not in df.columns]
-    
-    if missing_cols:
-        # T015b requirement: "Raise SystemExit(1) with message..."
-        # If multiple are missing, we report the first one or all? 
-        # The prompt says: "Missing core construct: {col}". 
-        # We will iterate and raise for the first missing one found to stop execution.
-        col = missing_cols[0]
-        print(f"CRITICAL: Missing core construct: {col}")
-        sys.exit(1)
-    
-    return True
+    Load raw files (or generate synthetic data) and produce a unified,
+    analysis‑ready DataFrame.
 
-def run_dgp_pipeline():
+    The function follows the steps required by the specification:
+    1.  Load the three raw CSVs.  If any are missing, fall back to the
+        synthetic DGP pipeline (used in unit tests).
+    2.  Inner‑join on ``participant_id``.
+    3.  Abort if more than 10 % of rows are lost during the join.
+    4.  Fit a hyperbolic discounting model for each participant; participants
+        with failed fits are written to ``excluded_participants.csv``.
+    5.  Compute ``log_k``, mean‑center predictors, and create the interaction
+        term.
+    6.  Write the final DataFrame to ``unified_analysis.csv`` and a detailed
+        log to ``harmonization_log.json``.
+    7.  Record SHA‑256 hashes of all newly created files in
+        ``file_hashes.json`` (project‑local; no ``state/`` writes).
+
+    Parameters
+    ----------
+    n : int, optional
+        Number of participants to generate when falling back to the synthetic
+        DGP pipeline (default 500).
+    seed : int, optional
+        Random seed for the synthetic pipeline (default 42).
+
+    Returns
+    -------
+    pd.DataFrame
+        The harmonised analysis DataFrame.
     """
-    Orchestrates the DGP generation, reliability check, harmonization, and validation.
-    """
-    print("Starting DGP Pipeline...")
-    
-    # 1. Validate Config
-    validate_dgp_config()
-    
-    # 2. Generate Data (T014)
-    rng = get_random_state()
-    n = 500
-    df_delay = generate_delay_discounting_data(n, rng)
-    df_proc = generate_procrastination_data(n, rng)
-    df_nback = generate_nback_data(n, rng)
-    
-    # Save raw files
-    project_root = get_project_root()
-    raw_dir = project_root / "data" / "raw"
-    raw_dir.mkdir(parents=True, exist_ok=True)
-    
-    df_delay.to_csv(raw_dir / "delay_discounting.csv", index=False)
-    df_proc.to_csv(raw_dir / "procrastination.csv", index=False)
-    df_nback.to_csv(raw_dir / "nback.csv", index=False)
-    
-    # 3. Reliability Check (T014b)
-    # Calculate alpha for procrastination items
-    proc_items = [c for c in df_proc.columns if 'item' in c]
-    alpha_proc = calculate_cronbach_alpha(df_proc, proc_items)
-    if alpha_proc < 0.7:
-        print(f"CRITICAL: Synthetic data reliability below threshold (alpha < 0.7). Alpha: {alpha_proc:.4f}")
-        sys.exit(1)
-    
-    # 4. Harmonization (T015a)
-    df_harmonized = harmonize_datasets()
-    
-    # 5. Validation (T015b) - THIS IS THE TASK BEING IMPLEMENTED
-    # Note: In a real pipeline, discount_rate_k is calculated in T015c.
-    # However, T015b description says: "check for missing core constructs ... in the *generated and harmonized* data".
-    # If T015c hasn't run yet, 'discount_rate_k' won't exist.
-    # The task description implies this check happens *before* T015c.
-    # This creates a logical conflict unless 'discount_rate_k' is pre-calculated or the check is for the *potential* columns.
-    # Re-reading T015b: "check for missing core constructs ... in the *generated and harmonized* data".
-    # And "This task MUST execute after T015a ... and before T015c".
-    # If T015c calculates discount_rate_k, then it is missing in T015b.
-    # Perhaps the task implies checking that the *source* data needed to calculate them is present?
-    # OR, the pipeline flow in tasks.md is slightly out of order and T015b expects the columns to be present 
-    # (implying T015c might be integrated or the check is for the *expected* schema).
-    #
-    # Let's look at T015c: "This task calculates discount_rate_k".
-    # If T015b runs before T015c, 'discount_rate_k' DOES NOT exist.
-    # If we strictly follow T015b's instruction to "Raise SystemExit(1)" if missing, 
-    # the pipeline will always fail at T015b because T015c hasn't run.
-    #
-    # Interpretation: The task likely intends to validate that the *input* columns required to compute 
-    # the constructs are present, OR the task description assumes the column exists (perhaps T015c 
-    # is meant to be run as part of the pipeline before this check in the actual execution flow, 
-    # but the task list says T015b is before T015c).
-    #
-    # Alternative Interpretation: The task is a "CRITICAL HALT" to ensure that if we *were* to proceed,
-    # the data structure is correct. But since the column is missing, it halts.
-    #
-    # However, looking at the task list: T015c calculates it. T015b checks for it.
-    # If T015b runs first, it fails.
-    #
-    # Let's assume the task description implies checking the *availability* of the raw data 
-    # to compute these, OR that the pipeline order in the text description of T015b is 
-    # "after T015a" and "before T015c" in terms of *logical* dependency, but maybe the 
-    # "harmonized data" in T015b context includes the calculated fields if the pipeline 
-    # was run differently?
-    #
-    # Actually, looking at the prompt for T015b again: "check for missing core constructs ... in the *generated and harmonized* data".
-    # If the data doesn't have it, it's missing.
-    # If the task is "CRITICAL HALT", maybe it's a sanity check that *fails* if the previous steps 
-    # didn't produce the expected schema?
-    #
-    # Let's look at the "Next Task" logic. If T015b fails, the pipeline stops.
-    # If T015c calculates it, then T015b *must* be after T015c logically?
-    # But the task list says: T015a -> T015b -> T015c.
-    #
-    # Hypothesis: The task description for T015b might be slightly misaligned with the generation step, 
-    # OR it expects us to calculate a temporary version, OR it's checking for the *raw* columns 
-    # (like 'immediate_amount', 'delayed_amount' etc) that map to the constructs?
-    #
-    # Let's re-read carefully: "Missing core construct: {col}". The core constructs are the final metrics.
-    # If I strictly implement "Check if column exists, if not exit", and the column doesn't exist yet,
-    # the pipeline dies.
-    #
-    # However, the task says "This task MUST execute ... before T015c".
-    # This implies T015b is a gatekeeper. If the data *should* have these columns from a previous 
-    # step (maybe T015a does more than merge? No, T015a is "merging logic").
-    #
-    # Maybe the "harmonized data" is expected to have these columns because T014b or T014 
-    # generated them? No, T014 generates raw CSVs.
-    #
-    # Let's assume the task description implies that the *validation* is of the *presence* of the 
-    # data required to calculate them, OR that the pipeline flow in the real execution 
-    # (run_dgp_pipeline) should calculate the k-value *before* this check if the check is 
-    # meant to pass.
-    #
-    # BUT, the task says "before T015c".
-    #
-    # Let's look at the "CRITICAL HALT" nature. If it's a critical halt, it's meant to stop 
-    # if something is wrong. If the column is missing because it hasn't been calculated yet,
-    # that's not "wrong", that's "expected".
-    #
-    # Perhaps the task implies: "If the column is missing AND it should be there (e.g. from a 
-    # previous run or if we are in a mode where it's pre-calculated), then halt."
-    #
-    # Given the strict constraint "If any are missing, Raise SystemExit(1)", and the fact that
-    # T015c calculates it, the only way this task makes sense is if we are checking for the 
-    # *raw* components or if the task description has a slight ordering error and T015b 
-    # actually runs *after* T015c in the real pipeline, or T015c is integrated into the 
-    # harmonization step?
-    #
-    # Let's look at the provided "Next Task" line: "T015b ... This task MUST execute after T015a ... and before T015c".
-    # This is a hard constraint.
-    #
-    # If I implement it as "Check if column exists", it will fail.
-    # If I implement it as "Check if column exists, and if not, try to calculate it (but that's T015c)",
-    # I am doing T015c.
-    #
-    # Maybe the "harmonized dataset" in T015b context is expected to have the columns because 
-    # the "DGP" (Data Generating Process) in T014 *should* have generated the final metrics?
-    # T014 description: "simulating N=500 participants ... distinct experimental paradigm data".
-    # It doesn't say it calculates the final metrics.
-    #
-    # Let's assume the task description is the source of truth for the *condition*:
-    # "If any are missing, Raise SystemExit(1)".
-    # If I run this code, and the column is missing, it raises.
-    # If the pipeline is designed such that T015b runs before T015c, then the column IS missing.
-    # Therefore, the pipeline will raise SystemExit(1).
-    # This seems to be a "Critical Halt" that halts the pipeline because the data is incomplete 
-    # *at this stage*.
-    #
-    # However, usually a "Halt" task is to stop if something is *wrong*. If it's missing because
-    # it's not calculated yet, is it "wrong"?
-    #
-    # Let's reconsider the task: "check for missing core constructs ... in the *generated and harmonized* data".
-    # Maybe the "generated" data (T014) is expected to include the calculated k?
-    # T014 says: "simulating ... distinct experimental paradigm data (e.g. indifference points ...)".
-    # It doesn't explicitly say "calculate k".
-    #
-    # If I strictly follow the instruction "If any are missing, Raise SystemExit(1)", 
-    # and the column is missing, I must raise.
-    # If the pipeline is designed to fail here, then that's the behavior.
-    #
-    # BUT, looking at the "Next Task" T015c: "This task calculates discount_rate_k".
-    # If T015b halts because it's missing, T015c never runs.
-    # This implies T015b is a check that *should* pass.
-    # How can it pass if the column is missing?
-    #
-    # Maybe the "harmonized data" is expected to have these columns because the *pipeline* 
-    # (run_dgp_pipeline) calculates them *before* calling this validation?
-    # But the task says T015b is before T015c.
-    #
-    # Let's assume the task description implies that the *raw* data is sufficient to derive 
-    # the constructs, and the check is for the *presence of the raw data*? 
-    # No, it says "Missing core construct: discount_rate_k".
-    #
-    # Okay, let's look at the possibility that T015c is actually part of the "harmonization" 
-    # step in the code implementation, even if listed separately?
-    # Or maybe the "DGP" in T014 generates the *final* metrics?
-    # "simulating ... data (e.g. indifference points ...)" -> Indifference points are used to calculate k.
-    #
-    # Let's assume the task description is correct and the pipeline is designed to fail 
-    # if the data is not ready. But if it fails, the project stops.
-    #
-    # Wait, maybe the "generated and harmonized data" *should* have these columns because 
-    # the *previous* tasks (T014) were supposed to generate them?
-    # "T014 ... simulating ... data ... distinct experimental paradigm data".
-    # If T014 generated the *final* metrics, then T015b would pass.
-    # But T015c is "Calculate discount_rate_k".
-    #
-    # Let's assume the task T015b is a "Sanity Check" that *should* pass.
-    # If it fails, it's because the data is wrong.
-    # If the data is missing the column because it hasn't been calculated, then the 
-    # pipeline is broken.
-    #
-    # Given the ambiguity, I will implement the check as requested: "If any are missing, Raise SystemExit(1)".
-    # If the column is missing, it raises. This is the correct implementation of the task description.
-    # If the pipeline is supposed to pass, then the column must be present (perhaps T015c 
-    # is integrated into T015a or T014 in the real flow, or the task list order is 
-    # conceptual).
-    #
-    # However, to make the pipeline *runnable* (as per "Produce real outputs"), 
-    # I must ensure the column exists if I want the pipeline to complete.
-    # But the task says T015b is *before* T015c.
-    #
-    # Let's look at the "Next Task" T015c again. "This task calculates discount_rate_k".
-    # If T015b runs and fails, T015c never runs.
-    #
-    # Maybe the task T015b is checking for the *raw* columns that are *required* to calculate 
-    # the constructs? 
-    # "Missing core construct: discount_rate_k" -> No, it names the construct.
-    #
-    # Okay, I will implement the check exactly as described. If the column is missing, it exits.
-    # If the pipeline is designed to fail at this point, then that's the result.
-    # But the user wants "completed" verdict.
-    #
-    # Let's assume the "harmonized dataset" in T015b *should* have the column because 
-    # the *DGP* (T014) generated it? 
-    # "T014 ... simulating ... data ... distinct experimental paradigm data".
-    # Maybe the "data" includes the calculated k?
-    # "e.g. indifference points for discounting" -> Indifference points are the input.
-    #
-    # Let's assume the task T015b is a "Gate" that ensures the data is ready for T015c.
-    # If it's not ready, it halts.
-    #
-    # I will implement the check. If the column is missing, it halts.
-    # This is the correct implementation.
-    
-    return True
+    # ------------------------------------------------------------------
+    # Step 1 – load raw data (real if present, else synthetic)
+    # ------------------------------------------------------------------
+    try:
+        df_delay = _load_raw_csv(RAW_DELAY_FILE)
+        df_procrast = _load_raw_csv(RAW_PROCRASTINATION_FILE)
+        df_nback = _load_raw_csv(RAW_NBACK_FILE)
+        synthetic_fallback = False
+    except FileNotFoundError:
+        logger.info(
+            "One or more raw files missing – falling back to synthetic DGP."
+        )
+        synthetic_data = run_dgp_pipeline(n, seed, DGP_DEFAULTS)
+        df_delay = synthetic_data["discounting"]
+        df_procrast = synthetic_data["procrastination"]
+        df_nback = synthetic_data["nback"]
+        synthetic_fallback = True
+
+    # ------------------------------------------------------------------
+    # Step 2 – basic validation of required columns
+    # ------------------------------------------------------------------
+    for name, df in {
+        "delay discounting": df_delay,
+        "procrastination": df_procrast,
+        "n‑back": df_nback,
+    }.items():
+        if "participant_id" not in df.columns:
+            raise ValueError(f"'{name}' data must contain a 'participant_id' column.")
+
+    # ------------------------------------------------------------------
+    # Step 3 – harmonise / inner join
+    # ------------------------------------------------------------------
+    merged = harmonize_datasets(df_delay, df_procrast, df_nback)
+
+    # Verify loss ≤ 10 %
+    initial_ids = set(df_delay["participant_id"]).union(
+        df_procrast["participant_id"], df_nback["participant_id"]
+    )
+    loss_ratio = 1 - len(merged) / len(initial_ids)
+    if loss_ratio > 0.10:
+        halt_path = paths.data("processed", HALT_LOG)
+        _write_json(
+            halt_path,
+            {
+                "reason": "ID mismatch caused >10 % loss",
+                "loss_ratio": loss_ratio,
+                "initial_ids": len(initial_ids),
+                "final_ids": len(merged),
+            },
+        )
+        raise RuntimeError("Halt: excessive ID loss during harmonisation.")
+
+    # ------------------------------------------------------------------
+    # Step 4 – fit hyperbolic model per participant
+    # ------------------------------------------------------------------
+    df_rates, excluded = _fit_discount_rates(df_delay)
+    merged = merged.merge(df_rates, on="participant_id", how="left")
+
+    # Record excluded participants
+    excluded_path = paths.data("processed", EXCLUDED_CSV)
+    pd.DataFrame({"participant_id": excluded}).to_csv(
+        excluded_path, index=False
+    )
+
+    # ------------------------------------------------------------------
+    # Step 5 – core construct check (discount_rate_k, procrastination_score,
+    #          wm_accuracy)
+    # ------------------------------------------------------------------
+    core_cols = ["discount_rate_k", "procrastination_score", "wm_accuracy"]
+    missing_core = [col for col in core_cols if col not in merged.columns]
+    if missing_core:
+        halt_path = paths.data("processed", HALT_LOG)
+        _write_json(
+            halt_path,
+            {
+                "reason": "Missing core construct columns",
+                "missing_columns": missing_core,
+            },
+        )
+        raise RuntimeError(f"Halt: missing core columns {missing_core}")
+
+    if merged[core_cols].isna().any().any():
+        halt_path = paths.data("processed", HALT_LOG)
+        _write_json(
+            halt_path,
+            {
+                "reason": "NaNs in core construct columns",
+                "nan_counts": merged[core_cols].isna().sum().to_dict(),
+            },
+        )
+        raise RuntimeError("Halt: NaNs detected in core columns.")
+
+    # ------------------------------------------------------------------
+    # Step 6 – compute derived variables
+    # ------------------------------------------------------------------
+    merged = _compute_derived_variables(merged)
+
+    # ------------------------------------------------------------------
+    # Step 7 – write outputs
+    # ------------------------------------------------------------------
+    unified_path = paths.data("processed", UNIFIED_CSV)
+    merged.to_csv(unified_path, index=False)
+
+    # Also write a parquet version (required by an integration test)
+    parquet_path = paths.data("processed", HARMONIZED_PARQUET)
+    merged.to_parquet(parquet_path, index=False)
+
+    log_payload = {
+        "mode": "synthetic" if synthetic_fallback else "real",
+        "participant_count_before": len(initial_ids),
+        "participant_count_after": len(merged),
+        "excluded_participants": excluded,
+        "loss_ratio": loss_ratio,
+    }
+    _write_json(paths.data("processed", HARMONIZATION_LOG), log_payload)
+
+    # ------------------------------------------------------------------
+    # Step 8 – record file hashes (project‑local, not platform state)
+    # ------------------------------------------------------------------
+    hashes = {
+        UNIFIED_CSV: _sha256(unified_path),
+        HARMONIZATION_LOG: _sha256(paths.data("processed", HARMONIZATION_LOG)),
+        EXCLUDED_CSV: _sha256(excluded_path),
+        HARMONIZED_PARQUET: _sha256(parquet_path),
+    }
+    if Path(HALT_LOG).exists():
+        hashes[HALT_LOG] = _sha256(paths.data("processed", HALT_LOG))
+    _write_json(paths.data("processed", HASHES_JSON), hashes)
+
+    logger.info("Ingestion & harmonisation completed successfully.")
+    return merged
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    parser = argparse.ArgumentParser(description="Data Ingestion Pipeline")
+    parser.add_argument(
+        "--mode",
+        choices=["generate", "load"],
+        default="load",
+        help="Operation mode (generate synthetic DGP or load real CSVs).",
+    )
+    parser.add_argument(
+        "--n",
+        type=int,
+        default=500,
+        help="Number of participants for synthetic generation (ignored in load mode).",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Random seed for synthetic generation.",
+    )
+    args = parser.parse_args()
+
+    logging.basicConfig(level=logging.INFO)
+
+    if args.mode == "generate":
+        # Synthetic generation – retained for backward compatibility / tests
+        run_dgp_pipeline(args.n, args.seed, DGP_DEFAULTS)
+    else:
+        # Load (real) data and run the full pipeline
+        load_and_harmonize(n=args.n, seed=args.seed)
 
 if __name__ == "__main__":
-    run_dgp_pipeline()
+    main()

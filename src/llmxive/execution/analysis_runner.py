@@ -70,9 +70,9 @@ class AnalysisRunResult:
 
 
 def extract_run_commands(quickstart_text: str) -> list[str]:
-    """Return the ordered ``python`` commands from quickstart's bash blocks.
+    """Return ordered Python, pytest and project shell-script commands from quickstart's bash blocks.
 
-    Only ``python``/``python3`` lines are kept (they do the real work);
+    Python, pytest and explicit ``bash/sh script.sh`` invocations are kept;
     directory checks, navigation, prints, and the venv/pip setup lines are
     skipped (the venv + requirements are handled by :func:`sandbox.ensure_venv`).
     Line-continuations (trailing ``\\``) are joined.
@@ -89,6 +89,12 @@ def extract_run_commands(quickstart_text: str) -> list[str]:
                 continue
             if line.startswith(("python ", "python3 ")):
                 commands.append(line)
+            elif line == "pytest" or line.startswith("pytest "):
+                commands.append("python -m " + line)
+            elif line.startswith(("bash ", "sh ", "./")):
+                # Retain explicit script invocations, including malformed ones,
+                # so unsupported/missing commands become execution failures.
+                commands.append(line if not line.startswith("./") else "bash " + line)
     return commands
 
 
@@ -111,13 +117,11 @@ def _resolve_script(project_dir: Path, rel_path: str) -> str | None:
     """
     if (project_dir / rel_path).is_file():
         return rel_path
-    code = project_dir / "code"
-    if not code.is_dir():
-        return None
+    from llmxive.project_files import source_files
     want = set(Path(rel_path).stem.split("_"))
     if not want:
         return None
-    cands = [p for p in code.rglob("*.py") if "/.venv/" not in str(p)]
+    cands = list(source_files(project_dir))
     exact = [p for p in cands if set(p.stem.split("_")) == want]
     if len(exact) == 1:
         return str(exact[0].relative_to(project_dir))
@@ -135,6 +139,7 @@ def _snapshot_artifacts(project_dir: Path) -> dict[str, float]:
     for sub in _ARTIFACT_DIRS:
         roots.append(project_dir / sub)           # <proj>/data, <proj>/results, …
         roots.append(project_dir / "code" / sub)  # <proj>/code/output, …
+    roots.append(project_dir / "paper" / "figures")
     for root in roots:
         if not root.is_dir():
             continue
@@ -164,7 +169,7 @@ def declared_deliverables(tasks_md: str) -> set[str]:
     """
     out: set[str] = set()
     # data/ or figures/ rooted paths with a real file extension
-    for m in re.finditer(r"\b((?:data|figures)/[\w./-]+\.\w+)", tasks_md or ""):
+    for m in re.finditer(r"(?<![\w./-])((?:paper/figures|data|figures)/[\w./-]+\.\w+)", tasks_md or ""):
         out.add(m.group(1))
     return {
         p for p in out
@@ -314,7 +319,7 @@ def run_analysis(
     if not commands:
         return AnalysisRunResult(
             ok=False,
-            reason="quickstart.md contains no runnable `python` commands",
+            reason="quickstart.md contains no runnable Python or shell-script commands",
         )
 
     before = _snapshot_artifacts(project_dir)
@@ -327,7 +332,8 @@ def run_analysis(
             deadline_exceeded = True
             break
         try:
-            args = shlex.split(command)[1:]  # drop the leading `python`
+            parts = shlex.split(command)
+            interpreter, args = parts[0], parts[1:]
         except ValueError:
             results.append(RunCommandResult(
                 command=command, ok=False, returncode=-1, duration_s=0.0,
@@ -338,6 +344,17 @@ def run_analysis(
         # planner-vs-implementer naming/dir drift to the real file; only a
         # genuinely-unresolvable path is a real missing-script failure.
         script_missing = False
+        if args[:2] == ["-m", "pytest"]:
+            # Run-books often `cd code` before `pytest test_analysis.py`; the
+            # executor keeps project-root cwd, so resolve those targets there.
+            resolved_targets = []
+            for arg in args[2:]:
+                target, separator, selection = arg.partition("::")
+                resolved = _resolve_script(project_dir, target) if target.endswith(".py") and not target.startswith("-") else None
+                if resolved is None and not (project_dir / target).exists() and (project_dir / "code" / target).is_dir():
+                    resolved = "code/" + target
+                resolved_targets.append((resolved or target) + separator + selection)
+            args = ["-m", "pytest", *resolved_targets]
         if args and not args[0].startswith("-") and args[0].endswith(".py"):
             resolved = _resolve_script(project_dir, args[0])
             if resolved is None:
@@ -356,21 +373,31 @@ def run_analysis(
         # that never reached research_complete). Carrying both makes either style
         # run without a rewrite. code/ goes first so a bare sibling import always
         # wins over a same-named top-level module.
-        pythonpath = os.pathsep.join((
-            str((project_dir / "code").resolve()),
+        from llmxive.project_files import SOURCE_DIRS
+
+        pythonpath = os.pathsep.join([
+            *(str((project_dir / base).resolve()) for base in SOURCE_DIRS),
             str(project_dir.resolve()),
-        ))
-        res = sandbox.run_in_venv(
-            project_dir=project_dir, args=args, timeout_s=per_cmd_timeout_s,
-            extra_env={"PYTHONPATH": pythonpath},
-        )
+        ])
+        if interpreter in {"bash", "sh"}:
+            script_missing = not args or not (project_dir / args[0]).is_file()
+            res = sandbox.run_shell_script(
+                project_dir=project_dir, script_relpath=args[0] if args else "",
+                script_args=args[1:], timeout_s=per_cmd_timeout_s,
+                interpreter=interpreter,
+            )
+        else:
+            res = sandbox.run_in_venv(
+                project_dir=project_dir, args=args, timeout_s=per_cmd_timeout_s,
+                extra_env={"PYTHONPATH": pythonpath},
+            )
         tail = ((res.stdout or "") + "\n" + (res.stderr or ""))[-1200:]
         # `python -c "..."` lines are quickstart SMOKE-TESTS (import checks),
         # not artifact producers. The gate is "did the real scripts run and
         # produce real artifacts" — a failing smoke-test (often a quickstart
         # authoring slip like `from code.x import ...` when scripts use
         # `from x import ...`) is reported but must NOT block research_complete.
-        advisory = bool(args and args[0] == "-c")
+        advisory = bool(interpreter not in {"bash", "sh"} and args and args[0] == "-c")
         results.append(RunCommandResult(
             command=command, ok=res.ok, returncode=res.returncode,
             duration_s=res.duration_s, timed_out=res.timed_out,

@@ -5,27 +5,25 @@ import yaml
 from pathlib import Path
 import pytest
 
-# Adjust path to import if necessary, though this is a test file
-# Assuming tests are run from project root
-
-SCHEMAS_DIR = Path("specs/001-chemo-biomarker-discovery/contracts")
+from src.config import get_project_root
 
 def load_schema(schema_name: str) -> dict:
-    """Load a YAML schema file."""
-    schema_path = SCHEMAS_DIR / schema_name
+    """Load a schema definition from the contracts directory."""
+    project_root = get_project_root()
+    schema_path = project_root / "specs" / "001-chemo-biomarker-discovery" / "contracts" / f"{schema_name}.schema.yaml"
     if not schema_path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
     with open(schema_path, "r") as f:
         return yaml.safe_load(f)
 
 def validate_type(value: any, expected_type: str) -> bool:
-    """Basic type validation helper."""
+    """Validate that a value matches the expected JSON Schema type."""
     if expected_type == "string":
         return isinstance(value, str)
-    elif expected_type == "integer":
-        return isinstance(value, int) and not isinstance(value, bool)
     elif expected_type == "number":
-        return isinstance(value, (int, float)) and not isinstance(value, bool)
+        return isinstance(value, (int, float))
+    elif expected_type == "integer":
+        return isinstance(value, int)
     elif expected_type == "boolean":
         return isinstance(value, bool)
     elif expected_type == "array":
@@ -34,108 +32,106 @@ def validate_type(value: any, expected_type: str) -> bool:
         return isinstance(value, dict)
     return False
 
-def validate_required_fields(data: dict, required: list, path: str = ""):
-    """Recursively validate required fields."""
-    for field in required:
+def validate_required_fields(data: dict, required_fields: list) -> list:
+    """Check if all required fields are present in the data."""
+    missing = []
+    for field in required_fields:
         if field not in data:
-            raise AssertionError(f"Missing required field '{field}' at {path}")
+            missing.append(field)
+    return missing
 
-def validate_data_against_schema(data: dict, schema: dict, path: str = ""):
-    """Simple recursive validation against schema (basic implementation)."""
-    if schema.get("type") == "object":
-        validate_required_fields(data, schema.get("required", []), path)
-        if "properties" in schema:
-            for key, prop_schema in schema["properties"].items():
-                if key in data:
-                    validate_data_against_schema(data[key], prop_schema, f"{path}.{key}")
-    elif schema.get("type") == "array":
-        if "items" in schema:
-            for i, item in enumerate(data):
-                validate_data_against_schema(item, schema["items"], f"{path}[{i}]")
+def validate_data_against_schema(data: dict, schema: dict) -> bool:
+    """Validate a data object against a schema definition."""
+    if schema.get("type") != "object" or not isinstance(data, dict):
+        return False
+    
+    required = schema.get("required", [])
+    missing = validate_required_fields(data, required)
+    if missing:
+        return False
+    
+    properties = schema.get("properties", {})
+    for key, value in data.items():
+        if key in properties:
+            prop_schema = properties[key]
+            if "type" in prop_schema:
+                if not validate_type(value, prop_schema["type"]):
+                    return False
+            if prop_schema.get("type") == "array" and "items" in prop_schema:
+                item_schema = prop_schema["items"]
+                if "type" in item_schema:
+                    if not all(validate_type(item, item_schema["type"]) for item in value):
+                        return False
+    return True
 
-class TestSchemasExist:
-    def test_schemas_exist(self):
-        """Verify all required schema files exist."""
-        required_schemas = [
-            "dataset.schema.yaml",
-            "model_output.schema.yaml",
-            "meta_analysis.schema.yaml"
-        ]
-        for schema_name in required_schemas:
-            schema_path = SCHEMAS_DIR / schema_name
-            assert schema_path.exists(), f"Schema file missing: {schema_path}"
+def test_schemas_exist():
+    """Test that all required schema files exist."""
+    schema_names = ["dataset", "model_output", "gene_panel"]
+    for name in schema_names:
+        schema_path = get_project_root() / "specs" / "001-chemo-biomarker-discovery" / "contracts" / f"{name}.schema.yaml"
+        assert schema_path.exists(), f"Schema file missing: {schema_path}"
 
-class TestSchemasLoadValidYaml:
-    def test_dataset_schema_loads(self):
-        schema = load_schema("dataset.schema.yaml")
-        assert "properties" in schema
-        assert "metadata" in schema["properties"]
+def test_schemas_load_valid_yaml():
+    """Test that all schema files are valid YAML."""
+    schema_names = ["dataset", "model_output", "gene_panel"]
+    for name in schema_names:
+        schema = load_schema(name)
+        assert isinstance(schema, dict), f"Schema {name} did not load as a dictionary"
+        assert "properties" in schema, f"Schema {name} missing 'properties' key"
 
-    def test_model_output_schema_loads(self):
-        schema = load_schema("model_output.schema.yaml")
-        assert "properties" in schema
-        assert "model_metadata" in schema["properties"]
+def test_dataset_schema_structure():
+    """Test the specific structure of the dataset schema."""
+    schema = load_schema("dataset")
+    assert "sample_id" in schema["properties"]
+    assert "tumor_type" in schema["properties"]
+    assert "response_label" in schema["properties"]
+    assert "expression_vector" in schema["properties"]
+    assert schema["properties"]["expression_vector"]["type"] == "array"
 
-    def test_meta_analysis_schema_loads(self):
-        schema = load_schema("meta_analysis.schema.yaml")
-        assert "properties" in schema
-        assert "analysis_metadata" in schema["properties"]
+def test_model_output_schema_structure():
+    """Test the specific structure of the model output schema."""
+    schema = load_schema("model_output")
+    assert "cancer_type" in schema["properties"]
+    assert "alpha" in schema["properties"]
+    assert "lambda" in schema["properties"]
+    assert "coefficients" in schema["properties"]
+    assert "cross_val_auc" in schema["properties"]
 
-class TestDatasetSchemaStructure:
-    def test_dataset_schema_structure(self):
-        schema = load_schema("dataset.schema.yaml")
-        assert schema["$schema"].endswith("json-schema.org/draft-07/schema#")
-        assert "metadata" in schema["required"]
-        assert "samples" in schema["required"]
-        assert "features" in schema["required"]
+def test_meta_analysis_schema_structure():
+    """Test the specific structure of the gene panel schema."""
+    schema = load_schema("gene_panel")
+    assert "gene_symbol" in schema["properties"]
+    assert "meta_p_value" in schema["properties"]
+    assert "log2FC_mean" in schema["properties"]
+    assert "selected" in schema["properties"]
+    assert schema["properties"]["selected"]["type"] == "boolean"
 
-class TestModelOutputSchemaStructure:
-    def test_model_output_schema_structure(self):
-        schema = load_schema("model_output.schema.yaml")
-        assert "model_metadata" in schema["required"]
-        assert "performance_metrics" in schema["required"]
-        assert "feature_importance" in schema["required"]
+def test_sample_data_validation():
+    """Test that sample data conforms to the dataset schema."""
+    schema = load_schema("dataset")
+    sample_data = {
+        "sample_id": "TCGA-AB-1234",
+        "tumor_type": "BRCA",
+        "response_label": "Responder",
+        "expression_vector": [1.2, 3.4, 5.6]
+    }
+    assert validate_data_against_schema(sample_data, schema)
 
-class TestMetaAnalysisSchemaStructure:
-    def test_meta_analysis_schema_structure(self):
-        schema = load_schema("meta_analysis.schema.yaml")
-        assert "analysis_metadata" in schema["required"]
-        assert "differential_expression_results" in schema["required"]
-        assert "gene_panel_selection" in schema["required"]
+def test_invalid_data_catches_error():
+    """Test that invalid data is correctly rejected."""
+    schema = load_schema("dataset")
+    invalid_data = {
+        "sample_id": 123,  # Should be string
+        "tumor_type": "BRCA",
+        "response_label": "Responder",
+        "expression_vector": [1.2, 3.4, 5.6]
+    }
+    assert not validate_data_against_schema(invalid_data, schema)
 
-class TestSampleDataValidation:
-    @pytest.fixture
-    def valid_sample_dataset(self):
-        return {
-            "metadata": {
-                "dataset_id": "TCGA-BRCA-TEST",
-                "source": "TCGA",
-                "tumor_type": "BRCA",
-                "created_at": "2023-10-27T10:00:00Z",
-                "sample_count": 100,
-                "feature_count": 20000
-            },
-            "samples": [
-                {"sample_id": "S1", "response_label": "Responder"}
-            ],
-            "features": [
-                {"gene_symbol": "TP53", "ensembl_id": "ENSG00000141510"}
-            ]
-        }
-
-    def test_valid_data_passes(self, valid_sample_dataset):
-        schema = load_schema("dataset.schema.yaml")
-        # Basic validation logic for test
-        assert valid_sample_dataset["metadata"]["source"] in ["TCGA", "GEO"]
-        assert valid_sample_dataset["metadata"]["sample_count"] >= 1
-
-    def test_invalid_data_catches_error(self):
-        invalid_data = {
-            "metadata": {
-                "dataset_id": "TEST",
-                # Missing required fields
-            }
-        }
-        schema = load_schema("dataset.schema.yaml")
-        with pytest.raises(AssertionError):
-            validate_required_fields(invalid_data, schema["required"])
+    missing_field_data = {
+        "sample_id": "TCGA-AB-1234",
+        "tumor_type": "BRCA",
+        # Missing response_label
+        "expression_vector": [1.2, 3.4, 5.6]
+    }
+    assert not validate_data_against_schema(missing_field_data, schema)

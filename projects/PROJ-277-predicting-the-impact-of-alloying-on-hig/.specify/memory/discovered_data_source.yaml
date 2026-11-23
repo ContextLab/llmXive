@@ -1,0 +1,15 @@
+status: none
+intent: NIST Materials Data Repository nickel alloy oxidation weight gain dataset
+  Zenodo python package dataset
+required_fields:
+- Ni_wt%
+- Cr_wt%
+- Al_wt%
+- Co_wt%
+- Ti_wt%
+- oxidation_weight_gain_mg_per_cm2
+- test_temperature_C
+- test_time_h
+cache_key: f69b60b1795bc4c6f0eb439d062af59e5f9fdf5c4831d6969793e02cbc13fafd
+searched_at: '2026-10-10T10:18:09.071396+00:00'
+retry_count: 1

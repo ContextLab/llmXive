@@ -119,5 +119,15 @@
     "Optimistic.ttf",
     "plainnat.bst",
     "selfevolagent.cls"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "993211d225e77fba2d811a83153167640da950e225725d3288bbd45fd07b79ce",
+      "bytes": 15781632
+    },
+    "original.pdf": {
+      "sha256": "c80931a404f5f0e0adc90d689fbedcc947fa986e4cfe9fa869238c85a7deb276",
+      "bytes": 12838970
+    }
+  }
 }

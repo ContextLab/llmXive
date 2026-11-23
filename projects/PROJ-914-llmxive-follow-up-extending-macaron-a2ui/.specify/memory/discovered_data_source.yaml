@@ -1,0 +1,10 @@
+status: none
+intent: download A2UI-Bench dataset for intent annotation as python package dataset
+required_fields:
+- turn_id
+- utterance
+- intent_label
+- complexity_metadata
+cache_key: 7ec6745dd4f667877dd22eb557a4d3d998848d0afd53a9c0f9a4e1c54df8d332
+searched_at: '2026-08-22T18:57:36.695582+00:00'
+retry_count: 1

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.06079",
+  "judged_at": "2026-07-19T21:48:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"geneb: why genomic models are hard to compare\" linguistics",
+  "rationale": "The paper focuses on the methodology and performance of a generative model for DNA sequences, whereas the user's question targets the specific problem of \"comparability\" and evaluation challenges in genomic models (as framed by the GENEB paper). While both involve genomic models, the candidate paper does not measure the same mechanism of comparison difficulty, establish a baseline for model comparability, or address the linguistic/evaluation framework implied by the user's follow-up; it is a dis",
+  "relevant": false
+}

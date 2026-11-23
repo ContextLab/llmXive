@@ -56,9 +56,11 @@ def test_full_pipeline_generates_non_null_csv(pipeline_output):
     assert not missing_cols, f"Missing required columns: {missing_cols}"
     
     # 3. Check for null values in the entire dataset
-    assert pipeline_output.isnull().sum().sum() == 0, (
+    null_counts = pipeline_output.isnull().sum()
+    total_nulls = null_counts.sum()
+    assert total_nulls == 0, (
         "Output CSV contains null values. "
-        f"Null counts per column:\n{pipeline_output.isnull().sum()}"
+        f"Null counts per column:\n{null_counts}"
     )
     
     # 4. Check for positive numerical values in RSA traits
@@ -66,30 +68,38 @@ def test_full_pipeline_generates_non_null_csv(pipeline_output):
     numerical_cols = ["depth", "branching_density", "surface_area"]
     for col in numerical_cols:
         if col in pipeline_output.columns:
-            # Check if all values are positive
-            non_positive = pipeline_output[pipeline_output[col] <= 0]
-            assert non_positive.empty, (
-                f"Column '{col}' contains zero or negative values. "
-                f"Invalid rows:\n{non_positive}"
-            )
-            
-            # Check for non-finite values (inf, -inf)
+            # Check dtype is numeric
             assert pd.api.types.is_numeric_dtype(pipeline_output[col]), (
                 f"Column '{col}' is not numeric."
             )
-            if not (pd.isna(pipeline_output[col]) | (pipeline_output[col] == float('inf')) | 
-                    (pipeline_output[col] == float('-inf'))).any():
-                pass # No inf values found, which is good
-            else:
-                # Explicit check for inf just in case
-                assert not (pipeline_output[col] == float('inf')).any() and not (pipeline_output[col] == float('-inf')).any(), (
-                    f"Column '{col}' contains infinite values."
+            
+            # Check for zero or negative values
+            non_positive_mask = pipeline_output[col] <= 0
+            if non_positive_mask.any():
+                invalid_rows = pipeline_output[non_positive_mask]
+                assert False, (
+                    f"Column '{col}' contains zero or negative values. "
+                    f"Invalid rows:\n{invalid_rows}"
                 )
-    
+            
+            # Check for infinite values
+            inf_mask = (pipeline_output[col] == float('inf')) | (pipeline_output[col] == float('-inf'))
+            if inf_mask.any():
+                invalid_rows = pipeline_output[inf_mask]
+                assert False, (
+                    f"Column '{col}' contains infinite values. "
+                    f"Invalid rows:\n{invalid_rows}"
+                )
+                
     # 5. Verify species_id is not empty string
     if "species_id" in pipeline_output.columns:
-        empty_species = pipeline_output[pipeline_output["species_id"].str.strip() == ""]
-        assert empty_species.empty, "Output CSV contains rows with empty species_id."
+        empty_species_mask = pipeline_output["species_id"].astype(str).str.strip() == ""
+        if empty_species_mask.any():
+            invalid_rows = pipeline_output[empty_species_mask]
+            assert False, (
+                "Output CSV contains rows with empty species_id.\n"
+                f"Invalid rows:\n{invalid_rows}"
+            )
 
 def test_pipeline_consistency_with_source_images(pipeline_output):
     """
@@ -101,7 +111,8 @@ def test_pipeline_consistency_with_source_images(pipeline_output):
     
     raw_files = list(RAW_IMAGES_DIR.glob("*"))
     # Filter for common image extensions
-    image_files = [f for f in raw_files if f.suffix.lower() in ['.jpg', '.jpeg', '.png', '.bmp', '.tiff']]
+    image_extensions = {'.jpg', '.jpeg', '.png', '.bmp', '.tiff', '.tif'}
+    image_files = [f for f in raw_files if f.suffix.lower() in image_extensions]
     
     if not image_files:
         pytest.skip("No image files found in raw directory.")

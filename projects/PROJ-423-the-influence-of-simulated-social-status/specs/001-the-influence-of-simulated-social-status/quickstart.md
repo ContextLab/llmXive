@@ -1,99 +1,65 @@
-# Quickstart: The Influence of Simulated Social Status on Risk-Taking Behavior
+# Quickstart: Simulated Social Status on Risk-Taking
 
 ## Prerequisites
+
 - Python 3.11+
-- Git
-- Access to a terminal (Linux/macOS/WSL)
+- `pip`
+- Access to a Linux environment (GitHub Actions or local WSL)
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repository-url>
-    cd projects/PROJ-423-the-influence-of-simulated-social-status
-    ```
+1. **Clone the repository** (if applicable) or navigate to the project root.
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r code/requirements.txt
+   ```
+   *Dependencies include: `pandas`, `numpy`, `statsmodels`, `scipy`, `matplotlib`, `seaborn`, `pyyaml`.*
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+## Execution Workflow
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
-
-## Running the Pipeline
-
-The pipeline consists of three main steps: Data Generation, Analysis, and Reporting.
-
-### Step 1: Generate Synthetic Data
-This step creates the experimental dataset based on pre-registered meta-analytic effect sizes (N=800).
+### Step 1: Data Simulation
+Run the simulation script to generate the synthetic dataset.
 ```bash
-python code/generate_data.py
+python code/simulation.py --seed 42 --n 400
 ```
-- **Output**: `data/raw/synthetic_data.csv`
-- **Note**: This script uses a fixed random seed for reproducibility.
+- **Output**: `data/raw/simulated_data.csv`
+- **Verification**: Check that the file contains a sufficient number of rows and 4 unique conditions.
 
-### Step 2: Preprocess Data
-This step cleans the data, handles missing values, and prepares it for analysis.
+### Step 2: Preprocessing
+Clean the data and detect the data structure.
 ```bash
-python code/preprocess.py
+python code/preprocess.py --input data/raw/simulated_data.csv
 ```
-- **Input**: `data/raw/synthetic_data.csv`
-- **Output**: `data/processed/cleaned_data.csv`
+- **Output**: `data/processed/cleaned_data.csv`, `data/processed/structure_config.json`, `data/processed/validation_report.json`.
 
-### Step 3: Run Analysis & Sensitivity Check
-This step fits the **Fixed-Effects Linear Model (ANOVA)**, calculates VIF, and runs the sensitivity sweep.
+### Step 3: Analysis
+Fit the mixed-effects model and run sensitivity analysis.
 ```bash
-python code/analysis.py
+python code/analysis.py --input data/processed/cleaned_data.csv
 ```
-- **Input**: `data/processed/cleaned_data.csv`
-- **Output**:
-  - `data/results/model_summary.json`
-  - `data/results/sensitivity_analysis.csv`
-  - `data/results/vif_report.json`
+- **Output**: `data/processed/model_output.json`, `data/processed/sensitivity_analysis.csv`, `data/processed/posthoc_results.json`.
 
-### Step 4: Generate Report
-This step creates the forest plot and final HTML report.
+### Step 4: Reporting
+Generate visualizations and final reports.
 ```bash
-python code/report.py
+python code/reporting.py --model data/processed/model_output.json --plot data/processed/forest_plot.png
 ```
-- **Input**: Model results from Step 3.
-- **Output**:
-  - `data/results/forest_plot.png`
-  - `data/results/report.html`
+- **Output**: `data/processed/forest_plot.png`, `data/processed/report.html` (if configured).
 
 ## Verification
 
-To verify the pipeline runs correctly on a fresh environment:
-
-1.  **Check Data Integrity**:
-    ```bash
-    python -c "import json; print(json.load(open('data/checksums.json')))"
-    ```
-    Ensure checksums match the files in `data/raw/` and `data/processed/`.
-
-2.  **Run Unit Tests**:
-    ```bash
-    pytest tests/unit/
-    ```
-
-3.  **Run Contract Tests**:
-    ```bash
-    pytest tests/contract/
-    ```
-    This validates that the output data matches the schemas defined in `contracts/`.
+To verify the pipeline:
+1. Check that `data/processed/model_output.json` contains a non-null `interaction_p_value`.
+2. Ensure `data/processed/sensitivity_analysis.csv` has 3 rows (thresholds 2.5, 3.0, 3.5).
+3. Confirm `data/processed/forest_plot.png` exists and displays 4 error bars.
 
 ## Troubleshooting
 
-- **Memory Error**: If the analysis fails due to memory constraints, reduce the `N` parameter in `code/generate_data.py` (e.g., `N=500`).
-- **Missing Dependencies**: Ensure `statsmodels` and `scikit-learn` are installed.
-- **Schema Validation Failure**: Check that `data/processed/cleaned_data.csv` has the correct column names and types as defined in `contracts/data.schema.yaml`.
-
-## Next Steps
-- Review the generated `report.html` for the forest plot and statistical summary.
-- Examine `data/results/sensitivity_analysis.csv` to verify the stability of the interaction effect.
-- Verify that the **Recovered Estimate** is within the 95% CI of the **Injected Parameter** (Parameter Recovery Study).
-- Submit results for `research_review` stage.
+- **Memory Error**: If `statsmodels` fails due to memory, reduce `--n` in the simulation step.
+- **Singular Fit**: If the random effect variance is zero, the script automatically switches to a fixed-effects model (between-subjects logic) and logs a warning.
+- **Missing Columns**: Ensure the simulation output matches the `contracts/data.schema.yaml` definition.

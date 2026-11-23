@@ -1,2 +1,2 @@
-# This directory contains generated result files.
-# Keep this file to ensure the directory is tracked by git.
+# This file ensures the data/results directory exists in the repository.
+# It is a placeholder and will be overwritten by real data files.

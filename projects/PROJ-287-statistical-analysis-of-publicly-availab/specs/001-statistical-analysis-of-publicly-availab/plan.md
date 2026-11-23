@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a statistical analysis pipeline to measure "topic drift" in academic abstracts (arXiv and PubMed) from 2000–2024. The approach involves:
+This project implements a statistical analysis pipeline to measure "topic drift" in academic abstracts (arXiv and PubMed) from –2024. The approach involves:
 1.  **Data Acquisition**: Fetching abstracts via APIs (primary) with checksummed storage for reproducibility.
 2.  **Preprocessing**: Tokenization, lemmatization, and filtering (min 20 tokens) with **window-specific stopword lists** to mitigate language drift.
 3.  **Topic Modeling**: Fitting LDA (k=10) per 5-year window, with a **validation step** to ensure k=10 is optimal (within 10% of max coherence).
@@ -19,15 +19,15 @@ The entire pipeline is designed to run on CPU-only infrastructure within 6 hours
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python 3.x  
 **Primary Dependencies**: `scikit-learn` (LDA), `scipy` (divergence/stats), `nltk`/`spacy` (NLP), `pandas`, `matplotlib`, `requests` (API), `pyyaml` (manifests).  
 **Storage**: Local file system (`data/` for raw/processed CSVs, `results/` for figures/manifests).  
 **Testing**: `pytest` (unit tests for preprocessing, integration tests for pipeline flow).  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 CPU, 7GB RAM).  
+**Target Platform**: Linux (GitHub Actions Free Tier: multiple CPU cores, sufficient RAM).  
 **Project Type**: Data Analysis Pipeline / CLI Tool.  
 **Performance Goals**: Total runtime ≤ 6h, Peak RAM ≤ 7GB.  
 **Constraints**: No GPU; CPU-only execution; strict adherence to 5-year non-overlapping windows; exclusion of abstracts <20 tokens.  
-**Scale/Scope**: Target a substantial volume of abstracts per source, partitioned into 5 windows. **Stratified sampling** (2000 abstracts/window) used for permutation refits to meet time constraints.
+**Scale/Scope**: Target a substantial volume of abstracts per source, partitioned into multiple windows. **Stratified sampling** (2000 abstracts/window) used for permutation refits to meet time constraints.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 

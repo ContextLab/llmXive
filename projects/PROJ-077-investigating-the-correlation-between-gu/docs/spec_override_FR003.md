@@ -1,43 +1,30 @@
-# Spec Override: Rejection of FR-003 (CLR on Alpha Diversity)
+# Spec Override: FR-003 Rejection and Correction
 
-**Date**: 2023-10-27
-**Reference**: FR-003 (Original Specification)
-**Status**: REJECTED / CORRECTED
+## Original Requirement (Rejected)
 
-## 1. Original Requirement (FR-003)
+**FR-003**: System MUST compute alpha diversity (Shannon index) on CLR-transformed OTU/ASV tables.
 
-The original feature requirement FR-003 stated:
-> "System MUST apply Centered Log-Ratio (CLR) transformation to Alpha Diversity metrics (e.g., Shannon Index) prior to correlation analysis."
+## Rejection Rationale
 
-## 2. Rationale for Rejection
+This requirement is **mathematically invalid**. The Shannon Index is a measure of entropy derived from probability distributions (relative abundances) of raw counts. Applying a Centered Log-Ratio (CLR) transformation prior to Shannon calculation distorts the underlying probability distribution, as CLR operates on log-ratios of geometric means rather than raw proportions. Calculating Shannon on CLR-transformed data yields a metric that does not represent true biological diversity and violates standard ecological definitions.
 
-This requirement is **mathematically invalid** and methodologically unsound for the following reasons:
+## Corrected Requirement
 
-1. **Nature of Alpha Diversity**: Alpha diversity indices (such as Shannon Index, Simpson Index) are scalar summary statistics derived from the relative abundance distribution of a community. They represent a single value per sample, not a composition vector.
-2. **CLR Definition**: The Centered Log-Ratio (CLR) transformation is defined for compositional data vectors $x = (x_1, x_2,..., x_D)$ where $x_i > 0$ and $\sum x_i = C$ (constant). The transformation is:
- $$ clr(x)_i = \ln \left( \frac{x_i}{g(x)} \right) $$
- where $g(x)$ is the geometric mean of the components.
-3. **Inapplicability**: Applying CLR to a single scalar value (the Shannon Index) is undefined. There is no vector of components to normalize, and no geometric mean of components to calculate. Even if one attempts to treat the scalar as a 1D vector, the geometric mean equals the value itself, resulting in $\ln(1) = 0$ for all samples, which destroys all variance and renders correlation analysis impossible.
-4. **Statistical Validity**: Alpha diversity indices are typically treated as continuous, unbounded (or semi-bounded) variables. Standard parametric or non-parametric tests (e.g., Pearson/Spearman correlation) can be applied directly to the raw index values, potentially after standard normalization (e.g., Z-score) if required for regression scaling, but **not** CLR.
+**FR-002**: System MUST compute alpha diversity (Shannon index) using `scikit-bio` on the OTU/ASV tables **using raw counts** (not CLR-transformed).
 
-## 3. Corrected Requirement
+## Implementation Specification
 
-The requirement FR-003 is hereby **REJECTED** and replaced with the following corrected specification:
+1. **Input**: The `diversity.py` module must accept OTU/ASV tables containing **raw integer counts**.
+2. **Validation**: The module MUST validate that input values are non-negative integers. If non-integer or negative values are detected (indicating a potential CLR transformation or data error), the process MUST halt with a `ValueError` stating: "Shannon Index requires raw counts. CLR-transformed data detected."
+3. **Calculation**: Use `scikit-bio.diversity.alpha.shannon` (or equivalent implementation) on the raw count matrix.
+4. **Output**: A column `shannon_index` added to the processed dataset.
+5. **CLR Usage**: CLR transformation (implemented in `transformation.py`) is **strictly reserved** for secondary path analyses (e.g., Lasso regression on taxa) and must **never** be applied to the `shannon_index` calculation.
 
-> **Corrected FR-003**: "System MUST compute Shannon Index on **raw** count data. The resulting alpha diversity values MUST be used directly (raw or Z-score normalized) for correlation and regression analysis. **CLR transformation MUST NOT be applied to alpha diversity metrics.**"
+## Dependency
 
-## 4. Implementation Impact
+This override supersedes the original FR-003 in the main specification and is a prerequisite for Task T020 (Shannon Index Calculation).
 
-- **`code/diversity.py`**: Must calculate Shannon Index from raw OTU/ASV counts using `scikit-bio` or equivalent.
-- **`code/analysis.py`**: Correlation analysis (Spearman/Pearson) and regression models must use the raw `shannon_index` column.
-- **`code/transformation.py`**: CLR transformation logic, if implemented, must be strictly scoped to taxonomic abundance matrices (compositional vectors) and must explicitly exclude alpha diversity columns.
+## Verification
 
-## 5. Verification
-
-- Unit tests in `tests/unit/test_diversity.py` will verify that `shannon_index` is calculated from raw counts.
-- Integration tests will verify that no CLR transformation is applied to the `shannon_index` column before statistical testing.
-
----
-**Approved by**: Automated Science Pipeline Validator
-**Linked Task**: T045 (Spec Override Implementation)
-**Linked Task**: T020 (Shannon Calculation)
+- Unit tests in `tests/unit/test_diversity.py` must verify that `calculate_shannon_index` fails on CLR-transformed data.
+- Integration tests must confirm that `shannon_index` values are derived from raw counts.

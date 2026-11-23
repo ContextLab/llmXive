@@ -1,0 +1,55 @@
+T001:
+  c: true
+  h: 7bd4ea82f8de5c7992265ed24294c9f9094c931a7180b773e9b28db45146e594
+  r: Checked the repository tree showing `src/`, `tests/`, `data/`, and `results/`
+    directories present, and the integration test `tests/integration/test_structure.py`
+    which asserts their existence. The creation log confirms the directories were
+    successfully generated.
+  sig: 93ecd69e8b080a14ba773bd9e1d69576b42d8560e4dae89c4d6e68d9d47a3ff9
+T002:
+  c: true
+  h: 6b679da209a3b2fc4173f83d5f05034662b4b26a6d03bcae7a66ef9ef56a1b77
+  r: The `requirements.txt` exists with all ten required packages at the exact pinned
+    versions, and `tests/unit/test_requirements.py` parses the file and asserts presence
+    and exact versions of every required package, matching the task's verification
+    criteria.
+  sig: e58bfb2b83fae6608544330698736aaa47a5b3483260168e00cb7867885e55c5
+T003:
+  c: true
+  h: 0f4e34ee2fa42c9b2cd605c268535e94261921b6ac08e65f9be7444186aef90f
+  r: 'The `quickstart.md` artifact exists (3200 bytes) at the project root and genuinely
+    satisfies the task: it documents the single-command end-to-end run (`python -m
+    src.main --sample 1`), explains what the command does and its outputs, lists the
+    environment variables (`OPENNEURO_API_KEY`, `DATA_ROOT`) with defaults, and documents
+    the CI dry-run command (`python -m src.main --dry-run`) with its expected exit
+    status 0. The task is a documentation deliverable, and the content matches the
+    requested kind and detail; the unresolved-claim marker on the dry-run''s actual
+    execution is a CI verification con'
+  sig: 4c99625992220ddf7e36760f0a817adb565c0d2ebbb802d3d871e4bb513dc431
+T004:
+  c: true
+  h: 028b260f2f45f1a2fc99c0d90828cb1c2a22782e4538af9cf792918335ffc848
+  r: Checked `src/config.py` for the required constants, their exact values/types,
+    and the use of `llmxive_toolkit.paths.ensure_dir` to create directories, and verified
+    that `tests/unit/test_config.py` imports the module and asserts all specified
+    constants. All required artifacts exist, contain the correct content, and the
+    unit test would pass without import errors.
+  sig: e9baf8e2686ee14bb270929a726c0d5aed5d0002bc0779cff2edf32486b5b288
+T005:
+  c: false
+  h: 6b205f51473397e59cde54b81cc7465c36c741f1bbc28c986ac1883d08397d3f
+  r: "The provided `src/utils/atlas.py` exists but it caches files in `data/cache/`\
+    \ (not `data/atlas/`), never extracts a zip archive, and its API uses internal\
+    \ keys like `\"schaefer_400\"` rather than the required name string (e.g., `\"\
+    Schaefer400\"`). Consequently the verification command `load_atlas('Schaefer400')`\
+    \ would fail, and the required `data/atlas/` directory is missing. The task\u2019\
+    s download, caching, extraction, and function\u2011signature requirements are\
+    \ not met."
+  sig: fb5353a5559af0a51601d3d7ad07775281accea923d6c5bbe1cf396ee32ee0f9
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging code, configuration, or generated log files were presented; the claim
+    that logging for download statistics, exclusion counts, and preprocessing times
+    was added cannot be verified from the provided evidence. The required artifact
+    (implemented logging and its output) is missing.

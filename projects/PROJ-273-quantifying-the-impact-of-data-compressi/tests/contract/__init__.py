@@ -1,1 +1,3 @@
-"""Contract tests package for llmXive research pipeline."""
+"""
+Contract tests for API and data schema compliance.
+"""

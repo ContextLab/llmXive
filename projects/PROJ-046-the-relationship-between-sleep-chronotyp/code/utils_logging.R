@@ -1,116 +1,69 @@
 # utils_logging.R
-# Logging infrastructure for the Chronotype-Moral Judgement pipeline.
-# Provides functions for warnings, informational messages, and fatal aborts.
-# All logs are written to the project's logs directory.
+# Logging infrastructure for the chronotype-moral-judgement pipeline.
+# Provides consistent logging, warning, and abort mechanisms.
 
-# Ensure dependencies are loaded (base R only for this utility)
-# No external packages required for basic file I/O and logging.
-
-#' Get the log directory path
-#'
-#' Retrieves the path to the logs directory, creating it if it doesn't exist.
-#' Uses the LOGS_DIR environment variable if set, otherwise defaults to "logs".
-#'
-#' @return Character string of the absolute path to the logs directory.
-get_log_dir <- function() {
-  log_dir <- Sys.getenv("LOGS_DIR", unset = "logs")
-  if (!dir.exists(log_dir)) {
-    dir.create(log_dir, recursive = TRUE, showWarnings = FALSE)
+# Global log file path (can be overridden by environment variable)
+get_log_file <- function() {
+  env_log <- Sys.getenv("LOG_FILE", unset = "logs/pipeline.log")
+  if (!file.exists(dirname(env_log))) {
+    dir.create(dirname(env_log), recursive = TRUE)
   }
-  return(log_dir)
+  return(env_log)
 }
 
-#' Generate a timestamped log prefix
-#'
-#' @param level Character string representing the log level (INFO, WARN, ERROR).
-#' @return Character string formatted as "[YYYY-MM-DD HH:MM:SS] [LEVEL] "
-get_log_prefix <- function(level = "INFO") {
+# Initialize logging (creates log file and directory if needed)
+init_logging <- function() {
+  log_file <- get_log_file()
+  if (!file.exists(log_file)) {
+    file.create(log_file)
+  }
+  message("Logging initialized to: ", log_file)
+}
+
+# Write a log message to the log file and console
+log_message <- function(msg, level = "INFO") {
   timestamp <- format(Sys.time(), "%Y-%m-%d %H:%M:%S")
-  return(sprintf("[%s] [%s] ", timestamp, level))
+  log_line <- sprintf("[%s] [%s] %s", timestamp, level, msg)
+  
+  # Write to log file
+  log_file <- get_log_file()
+  writeLines(log_line, log_file, sep = "\n", append = TRUE)
+  
+  # Print to console
+  cat(log_line, "\n")
 }
 
-#' Log a message to the console and a file
-#'
-#' Writes a formatted message to the console (cat) and appends it to the
-#' specified log file in the logs directory.
-#'
-#' @param message Character string of the message content.
-#' @param level Character string: "INFO", "WARN", or "ERROR".
-#' @param log_file Character string (optional). Filename in the logs directory.
-#'                 Defaults to "pipeline.log".
-log_message <- function(message, level = "INFO", log_file = "pipeline.log") {
-  prefix <- get_log_prefix(level)
-  full_message <- paste0(prefix, message)
-
-  # Write to console
-  cat(full_message, "\n", sep = "")
-
-  # Write to file
-  log_path <- file.path(get_log_dir(), log_file)
-  cat(full_message, "\n", sep = "", file = log_path, append = TRUE)
+# Log a warning
+log_warning <- function(msg) {
+  log_message(msg, level = "WARNING")
 }
 
-#' Log a warning
-#'
-#' Wrapper for log_message with level "WARN". Also triggers a standard R warning.
-#'
-#' @param message Character string of the warning message.
-#' @param log_file Character string. Defaults to "pipeline.log".
-log_warn <- function(message, log_file = "pipeline.log") {
-  log_message(message, level = "WARN", log_file = log_file)
-  warning(message, call. = FALSE)
+# Log an error
+log_error <- function(msg) {
+  log_message(msg, level = "ERROR")
 }
 
-#' Log an informational message
-#'
-#' Wrapper for log_message with level "INFO".
-#'
-#' @param message Character string of the info message.
-#' @param log_file Character string. Defaults to "pipeline.log".
-log_info <- function(message, log_file = "pipeline.log") {
-  log_message(message, level = "INFO", log_file = log_file)
-}
-
-#' Log an error and abort execution
-#'
-#' Writes an error message to the log file and the console, then stops
-#' execution of the script using stop().
-#'
-#' @param message Character string of the error message.
-#' @param log_file Character string. Defaults to "pipeline.log".
-#' @param code Integer (optional). Error code to append to the message.
-log_abort <- function(message, log_file = "pipeline.log", code = NULL) {
-  if (!is.null(code)) {
-    message <- sprintf("Error (Code %d): %s", code, message)
+# Log an abort condition and terminate the script
+log_abort <- function(msg) {
+  log_message(msg, level = "ABORT")
+  
+  # Create an error flag file if specified in environment
+  error_flag <- Sys.getenv("ERROR_FLAG_FILE", unset = "logs/pipeline_error.flag")
+  if (error_flag != "") {
+    writeLines(paste(Sys.time(), msg), error_flag)
   }
-  log_message(message, level = "ERROR", log_file = log_file)
-  stop(message, call. = FALSE)
+  
+  # Terminate the script
+  stop(paste("PIPELINE ABORT:", msg))
 }
 
-#' Log a specific exclusion event
-#'
-#' Helper function to log data exclusions to a dedicated exclusion log file.
-#'
-#' @param reason Character string explaining why the row was excluded.
-#' @param row_id Character or integer identifier for the row (optional).
-#' @param log_file Character string. Defaults to "exclusions.log".
-log_exclusion <- function(reason, row_id = NULL, log_file = "exclusions.log") {
-  if (!is.null(row_id)) {
-    msg <- sprintf("Row %s excluded: %s", row_id, reason)
-  } else {
-    msg <- sprintf("Exclusion: %s", reason)
+# Log a debug message (only if DEBUG mode is enabled)
+log_debug <- function(msg) {
+  debug_mode <- Sys.getenv("DEBUG", unset = "FALSE")
+  if (debug_mode == "TRUE") {
+    log_message(msg, level = "DEBUG")
   }
-  log_message(msg, level = "WARN", log_file = log_file)
 }
 
-#' Initialize the logging system
-#'
-#' Ensures the log directory exists and writes a startup message.
-#' Can be called at the beginning of any pipeline script.
-#'
-#' @param log_file Character string. Defaults to "pipeline.log".
-init_logging <- function(log_file = "pipeline.log") {
-  # Ensure directory exists
-  _ <- get_log_dir()
-  log_info("Logging system initialized.")
-}
+# Initialize logging on load
+init_logging()

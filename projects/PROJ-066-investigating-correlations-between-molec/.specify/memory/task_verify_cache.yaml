@@ -1,0 +1,160 @@
+T001a:
+  c: true
+  h: de4c9c90f21a5af0c67fc54d4dab0b01742d64b274cf98b79ba737940c7d3810
+  r: The README.md exists at the resolved project path (5,092 bytes) and contains
+    a substantive project overview (research goal, pipeline stages mapped to user
+    stories, resource constraints, success criteria) plus detailed quickstart instructions
+    (environment setup, per-stage commands with expected outputs, directory structure,
+    troubleshooting). It matches the task's requirement for a project overview and
+    quickstart, with no placeholders or stubs.
+  sig: 5bed2ca39021363c03375c1c28a8daa71ca406f132d031dc15b82da8b57d0d5f
+T003a:
+  c: true
+  h: df48245f49f55c268ba8e867cdb64af7094c0b87bbfd4ed365e96294051de97f
+  r: The project directory `projects/PROJ-066-investigating-correlations-between-molec`
+    exists with a non-empty `code/pyproject.toml` (324 bytes) containing a valid `[tool.black]`
+    section with `line-length = 88` and `target-version = ['py310']`, matching the
+    task's stated requirements.
+  sig: 5663656c8b0f906a75bf9e3211b1bd7f86a48c2c2954b8b9469aada95a974f13
+T003b:
+  c: false
+  h: 2577534cf0619c098a12840295299f3ae1efe46f2a418253cbf47a0d4f5acbb6
+  r: "The evidence collector lists no artifacts on disk for this task \u2014 no configuration\
+    \ file (e.g., `.flake8`, `setup.cfg`, or `pyproject.toml` linting section) exists\
+    \ anywhere under the project root, so there is nothing containing the required\
+    \ max-line-length setting and E501 ignore rule. The implementer must actually\
+    \ create the linting configuration file in `projects/PROJ-066-investigating-correlations-between-molec`."
+  sig: 5015f47315a06d805f6e10698fdb6ccab1a00c6de583d09553b36f68b7287316
+T004a:
+  c: true
+  h: 55a9518377708b9c1ce0650456afdba3978f19b78ab8ea41328b19df9a263e67
+  r: The schema file exists at the requested path (1718 bytes) and defines a valid
+    JSON Schema (draft-07) for processed molecular data covering SMILES, the required
+    2D descriptors (TPSA, logP, MW, rotatable bonds, H-bond donors/acceptors, ring
+    count), and the target/experimental value fields, with types, constraints, and
+    an example. Minor cosmetic issues (a duplicate `description` key on `experimental_value`)
+    don't undermine the requirement.
+  sig: b9f506af753f49951e16791a0216ddda9efb78e9d0d07144cca05b232bf7eb71
+T004b:
+  c: true
+  h: 60a4924b01cf5f24bd1b7c62946563d71d5337daed8f4932589011129bd66745
+  r: The file `code/contracts/model_output.schema.yaml` exists (2205 bytes) and is
+    a valid JSON Schema draft-07 document defining model metrics (RMSE, Pearson r
+    for both LR and RF models, baseline, timing/memory) and feature importance (feature_name,
+    importance_score) with appropriate types, bounds, and required fields, matching
+    the task's requirement.
+  sig: ee32bb6f6e84137f489bf4f0f518adc436bb5ecf4a017dce4e4ece957221c676
+T005:
+  c: true
+  h: 85e9933e11176350d481852fc2e6afb141d0a192d67abaf7134c4e27a303d302
+  r: The `projects/PROJ-066-investigating-correlations-between-molec/code/utils/config.py`
+    file exists and defines `RANDOM_SEED = 42`, `MAX_MEMORY_GB = 7`, `MAX_DURATION_HOURS
+    = 6`, and `MAX_MOLECULES = 15000`. Its module docstring and comments explicitly
+    state that `RANDOM_SEED` must be passed to the stratified splitter in T017 for
+    reproducibility.
+  sig: 91fd651d9de3666126b51be5e09231cfea0a6833aa91ed4a223c491933e72c1e
+T006:
+  c: true
+  h: bd277a5e8e5790b4e00a73167e5c661ee96dcab78c013f405d90df94b2d116e0
+  r: "Checked `projects/PROJ-066-investigating-correlations-between-molec/code/utils/logging.py`,\
+    \ which exists (4.6\u202FKB) and provides a JSON\u2011structured formatter, a\
+    \ `log_pipeline_step` helper, and resource\u2011monitoring utilities, fulfilling\
+    \ the requirement for structured logging of pipeline steps."
+  sig: d29f02d7363405f75941a2d6c050003961a5f6adddcae3cf07a8cb44b49bfb71
+T008a:
+  c: true
+  h: 2fd718461e0cfebc1256b72ed020c81f31d122d34f7648151776768c75ef8922
+  r: The task only required creating the directory `projects/PROJ-066-investigating-correlations-between-molec/data/raw/`,
+    and the collector confirms the directory exists and is non-empty (contains `.gitkeep`,
+    `chembl_33.db`, and `chembl_33.sha256`). No content requirements beyond directory
+    creation were specified for this task.
+  sig: 7e936e580256edf17135ec188919fef970fb9047417060de3aaa8e8c786b6808
+T008b:
+  c: true
+  h: c304fc5d012f4c244a151e038b2f35b250b20683ae3209252d4adf0739c60f7e
+  r: The requested directory `projects/PROJ-066-investigating-correlations-between-molec/data/processed/`
+    exists and is non-empty (contains `.gitkeep` and `artifact_hashes.yaml`), which
+    fully satisfies this task's sole requirement of creating that directory.
+  sig: e031ff863d3d03df1b607330c995881d8a45489e952ed35cab23b0b7a9d4b83b
+T008c:
+  c: true
+  h: 6d58bce4e80c63879e099baaf1e08d7dfcbdeecf61076fd6a1b9832a0c9fb367
+  r: The task only requires creating the directory `projects/PROJ-066-investigating-correlations-between-molec/code/data/`,
+    and the collector confirms the directory exists with 5 entries (including `__init__.py`,
+    `download.py`, `preprocess.py`). The directory is non-empty and matches the stated
+    requirement.
+  sig: 74c1a03e79c92b299a73cbdf5e1350f9ee00e2e105b2669a341a8e642611cf25
+T008d:
+  c: true
+  h: d5bf2e3a5e71b28046ef90d5586925660a6c04c8efd53031e3f0009f83cf8282
+  r: The task only requires creating the directory `projects/PROJ-066-investigating-correlations-between-molec/code/models/`,
+    and the collector confirms the directory exists with 5 entries (`.gitkeep`, `README.md`,
+    `__init__.py`, `evaluate.py`, `train.py`). The directory is non-empty and its
+    presence is directly verified on disk.
+  sig: 4bf28a3760be78eae6c16fbeeace1a8c150caf079314a1b567c5c6659c8cdb93
+T008e:
+  c: true
+  h: 02e47f89860d1aed7f8bd2fedb591d565f255ba84c5cd8b0cbf6f0e4522deba2
+  r: The task only required creating the `tests/` directory, and the collector confirms
+    it exists with 16 non-empty entries including test files (test_download.py, test_preprocess.py,
+    test_models.py, etc.), a conftest.py, and __init__.py. The directory is populated
+    with substantive test files matching the project's user stories, satisfying the
+    stated requirement.
+  sig: 2a9662eb2472482363151d808786ac57f28adb7fc439bcd7d579b4410905ddcb
+T015:
+  c: false
+  h: 9f9ed6f721c10daaf63de8029ad99068a57cde7ca21b99ed6f48954f0eaa5991
+  r: "The required output file `data/processed/molecules_processed.csv` does not exist,\
+    \ and the provided `preprocess.py` snippet does not show an implementation of\
+    \ `write_processed_data()` that validates each row against the schema or calls\
+    \ `update_state.py`. Consequently the core functional and state\u2011recording\
+    \ requirements are unmet."
+T018:
+  c: false
+  h: 484bccd5a5bf4b2adc611a9d8348c88884e974f8e17b748f1262b47c60e4f880
+  r: The repository lacks the required `data/processed/model_lr.pkl` file, and the
+    provided `train.py` excerpt does not show a `train_linear_regression()` implementation
+    that fits a Linear Regression model and saves it with joblib. Both the artifact
+    and the specific function are missing, so the task is not genuinely completed.
+T019:
+  c: false
+  h: e6c43ac6508bcc3f687306ca1d66d81bd9bbce3ec4d38e8c8f75fee2a209ddd6
+  r: "The repository contains a `train.py` file, but the visible portion does not\
+    \ define a `train_random_forest()` function, nor does it show memory\u2011profiling\
+    \ hooks or a joblib save to `data/processed/model_rf.pkl`. Moreover, the expected\
+    \ model artifact `model_rf.pkl` is absent from the filesystem. These missing pieces\
+    \ mean the task\u2019s core requirements are not met."
+T020:
+  c: false
+  h: f5d59b7be640752fa54f8d23b56c1848392264952d698412bdc02d26f5b3277a
+  r: "The repository contains a `train.py` file, but the shown code does not include\
+    \ a `generate_feature_importance()` function, nor does it produce or save a `feature_importance.json`\
+    \ file (the file is missing). Consequently the required feature\u2011importance\
+    \ extraction, ranking, and JSON report are not implemented."
+T030a:
+  c: true
+  h: 06beab035c50781e389d98355fdcd6f8f0e97bc7431342937ee1fc2630d6c878
+  r: Checked `projects/PROJ-066-investigating-correlations-between-molec/code/utils/config.py`
+    (defines resource limits) and `projects/PROJ-066-investigating-correlations-between-molec/code/utils/logging.py`
+    (provides `ResourceMonitor`, start/stop hooks, metric retrieval, and logging of
+    memory/CPU usage). Both files contain concrete, functional implementations, not
+    stubs.
+  sig: ca37c81773413759062ba9458afd863359c32a4136928b1ad5f9c494dacccfc8
+T033:
+  c: true
+  h: 615e7f10ae75f9268bdbb2c7a4740ac97d1db95e8d76a6bbd4984f4bf9677601
+  r: "Checked `projects/PROJ-066-investigating-correlations-between-molec/code/utils/update_state.py`\
+    \ (7053\u202Fbytes) which defines a fully\u2011implemented `update_state(project_id,\
+    \ artifacts)` function that accepts artifact paths and optional hashes, computes\
+    \ missing hashes, updates the project\u2011owned registry, and includes a CLI\
+    \ entry point, satisfying the integration interface requirement."
+  sig: 66c142c3a03ecc8a16b8ddac16d498cf1ee502763eeff5d21458e6fe1fab8fff
+T036:
+  c: true
+  h: 7825fda22378299404da588a761281dfc32933636c3406842b1850c867747156
+  r: "Checked `projects/PROJ-066-investigating-correlations-between-molec/code/data/preprocess.py`\
+    \ and `projects/PROJ-066-investigating-correlations-between-molec/code/models/train.py`;\
+    \ both files exist, are non\u2011empty, and contain well\u2011structured, documented\
+    \ functions, type hints, and logging that improve modularity and readability,\
+    \ satisfying the refactor requirement."
+  sig: 94fa7343c0e61b02d0fbe19f6accaf2cd677efe85d90dfc2dff6ea82457b121f

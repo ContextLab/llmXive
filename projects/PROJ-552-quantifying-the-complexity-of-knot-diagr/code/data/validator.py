@@ -1,233 +1,103 @@
-"""Data validation utilities for the knot dataset.
+"""Validator for knot dataset.
 
-This module defines flag enumerations for missing invariants and data
-quality issues, applies them to a cleaned CSV of knot records, and writes
-an annotated CSV that includes the flags for downstream analysis.
-The flagging functionality is exercised by unit tests in the test suite.
+This module provides utilities to flag records for data quality issues
+and for missing computed invariants.  The logic follows the specification:
 
-The implementation is deliberately lightweight: it does not attempt to
-exhaustively validate every possible field but focuses on the core
-invariants required by the project (crossing number, braid index,
-hyperbolic volume, and alternating classification).  The logic can be
-extended without breaking existing callers.
+* ``data_quality_flags`` – a list of column names that contain nulls or
+  format errors for *any* field in the record.
+* ``missing_invariant_flags`` – a list of **computed** invariant names
+  that are missing (null) when diagram data is unavailable.  Core
+  tabulated invariants (crossing number, braid index) are never included
+  in this list, even if they are null.
+
+The public entry point is :func:`flag_dataframe` which returns a copy of the
+input ``DataFrame`` with two new columns:
+  - ``data_quality_flags`` (list of strings)
+  - ``missing_invariant_flags`` (list of strings)
+
+The implementation is tolerant of missing columns – if a column expected
+by the validator does not exist, it is simply ignored.
 """
 
 from __future__ import annotations
 
-import argparse
-import csv
-from dataclasses import dataclass, field
-from enum import Enum, auto
-from pathlib import Path
-from typing import List, Dict, Any
+import pandas as pd
+from typing import List, Set
 
-from reproducibility.logs import get_logger, log_operation
-# Flagging logic is implemented in this module and exercised by unit tests in tests/unit/test_validator.py
+__all__: List[str] = ["flag_dataframe", "CORE_INVARIANTS", "COMPUTED_INVARIANTS"]
 
+# ----------------------------------------------------------------------
+# Core (tabulated) invariants – never generate ``missing_invariant_flags``
+# ----------------------------------------------------------------------
+CORE_INVARIANTS: Set[str] = {
+    "crossing_number",
+    "braid_index",
+}
 
-class MissingInvariantFlag(Enum):
-    """Flags indicating that a required invariant is missing."""
+# --------------------------------------------------------------
+# Computed invariants – may generate ``missing_invariant_flags``
+# --------------------------------------------------------------
+COMPUTED_INVARIANTS: Set[str] = {
+    "arc_index",
+    "seifert_circle_count",
+    "bridge_number",
+}
 
-    MISSING_CROSSING_NUMBER = auto()
-    MISSING_BRAID_INDEX = auto()
-    MISSING_HYPERBOLIC_VOLUME = auto()
-    MISSING_ALTERNATING_CLASS = auto()
-# Unit tests covering these flags are in tests/unit/test_validator.py
+def _collect_null_columns(row: pd.Series, columns: Set[str]) -> List[str]:
+    """Return a list of column names from *columns* that are null in *row*."""
+    missing: List[str] = []
+    for col in columns:
+        if col in row and pd.isna(row[col]):
+            missing.append(col)
+    return missing
 
-
-class DataQualityFlag(Enum):
-    """Flags indicating that an invariant is present but of poor quality."""
-
-    NEGATIVE_VALUE = auto()
-    # Unit tests covering these flags are in tests/unit/test_validator.py
-    NON_NUMERIC = auto()
-    UNEXPECTED_NULL = auto()
-
-
-class AmbiguousClassificationFlag(Enum):
-    """Flag for ambiguous alternating/non‑alternating classification."""
-
-    AMBIGUOUS = auto()
-
-
-@dataclass
-class ValidationResult:
-    """Result of validating a single knot record."""
-
-    record: Dict[str, Any]
-    missing_flags: List[MissingInvariantFlag] = field(default_factory=list)
-    quality_flags: List[DataQualityFlag] = field(default_factory=list)
-    ambiguous_flag: bool = False
-
-    def to_row(self) -> Dict[str, Any]:
-        """Convert the result back to a CSV‑compatible row."""
-        row = dict(self.record)  # shallow copy of original fields
-        row["missing_invariant_flags"] = ";".join(
-            flag.name for flag in self.missing_flags
-        )
-        row["data_quality_flags"] = ";".join(flag.name for flag in self.quality_flags)
-        row["ambiguous_classification_flag"] = (
-            "TRUE" if self.ambiguous_flag else "FALSE"
-        )
-        return row
-
-
-def _is_missing(value: Any) -> bool:
-    """Utility: treat empty strings and None as missing."""
-    return value is None or (isinstance(value, str) and value.strip() == "")
-
-
-def _is_negative(value: Any) -> bool:
-    """Utility: check if a numeric value is negative."""
-    try:
-        return float(value) < 0
-    except Exception:
-        return False
-
-
-def _is_numeric(value: Any) -> bool:
-    """Utility: verify that a value can be interpreted as a number."""
-    try:
-        float(value)
-        return True
-    except Exception:
-        return False
-
-
-def apply_missing_and_quality_flags(
-    csv_path: Path,
-) -> List[ValidationResult]:
-    """Read a cleaned CSV, flag missing/poor‑quality data, and return results.
+def flag_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Flag a DataFrame of knot records.
 
     Parameters
     ----------
-    csv_path: Path
-        Path to the cleaned knot CSV (e.g. ``data/processed/knots_cleaned.csv``).
+    df :
+        Input DataFrame.  It may contain any subset of the columns
+        defined in :data:`CORE_INVARIANTS` and :data:`COMPUTED_INVARIANTS`.
 
     Returns
     -------
-    List[ValidationResult]
-        One result per record in the input CSV.
+    pd.DataFrame
+        A **new** DataFrame (the original is left unchanged) with two
+        additional columns:
+
+        * ``data_quality_flags`` – list of any column names that are null.
+        * ``missing_invariant_flags`` – list of missing *computed* invariant
+          names; core invariants are never added here.
     """
-    logger = get_logger(__name__)
-    log_operation("apply_missing_and_quality_flags_start", csv_path=str(csv_path))
+    # Work on a copy to avoid side‑effects.
+    result = df.copy()
 
-    results: List[ValidationResult] = []
+    # Prepare containers for the new columns.
+    data_quality_flags: List[List[str]] = []
+    missing_invariant_flags: List[List[str]] = []
 
-    with csv_path.open(newline="", encoding="utf-8") as f:
-        reader = csv.DictReader(f)
-        for row in reader:
-            vr = ValidationResult(record=row)
+    # Determine the full set of columns we need to inspect.
+    all_columns = set(result.columns)
 
-            # ---- Missing invariant checks (Phase 2+ algorithmic invariants only) ----
-            # Crossing Number and Braid Index are tabulated core invariants; missing values
-            # are recorded as data quality issues, not missing algorithmic invariants.
-            # Hyperbolic Volume and Alternating Class are algorithmically computed (Phase 2+).
-            if _is_missing(row.get("hyperbolic_volume")):
-                vr.missing_flags.append(MissingInvariantFlag.MISSING_HYPERBOLIC_VOLUME)
-            if _is_missing(row.get("alternating")):
-                vr.missing_flags.append(MissingInvariantFlag.MISSING_ALTERNATING_CLASS)
+    # Columns that participate in data‑quality checking: *all* columns.
+    quality_columns = all_columns
 
-            # ---- Tabulated invariant data quality checks ----
-            # Missing tabulated invariants trigger data_quality_flags, not missing_invariant_flags.
-            if _is_missing(row.get("crossing_number")):
-                vr.quality_flags.append(DataQualityFlag.UNEXPECTED_NULL)
-            if _is_missing(row.get("braid_index")):
-                vr.quality_flags.append(DataQualityFlag.UNEXPECTED_NULL)
+    # Columns that participate in missing‑invariant checking: only the
+    # computed invariants that actually exist in the DataFrame.
+    invariant_columns = {c for c in COMPUTED_INVARIANTS if c in all_columns}
 
-            # ---- Data‑quality checks (only if present) ----
-            for field_name in ["crossing_number", "braid_index", "hyperbolic_volume"]:
-                value = row.get(field_name)
-                if _is_missing(value):
-                    continue  # already captured as missing
-                if not _is_numeric(value):
-                    vr.quality_flags.append(DataQualityFlag.NON_NUMERIC)
-                elif _is_negative(value):
-                    vr.quality_flags.append(DataQualityFlag.NEGATIVE_VALUE)
+    # Iterate row‑wise – this is acceptable for the dataset size (~13 k rows).
+    for _, row in result.iterrows():
+        # Any null in any column → data quality flag.
+        dq_flags = _collect_null_columns(row, quality_columns)
+        data_quality_flags.append(dq_flags)
 
-            # ---- Ambiguous classification detection ----
-            alt = row.get("alternating")
-            if isinstance(alt, str) and alt.lower() not in {"alternating", "non‑alternating", "non-alternating"}:
-                # Anything other than the two canonical strings is considered ambiguous.
-                vr.ambiguous_flag = True
-                # Only record as a missing flag if the core invariants (crossing number, braid index)
-                # are present. If core invariants are missing, the record is already flagged under
-                # data_quality_flags, and we avoid double-flagging in missing_invariant_flags.
-                if not (_is_missing(row.get("crossing_number")) or _is_missing(row.get("braid_index"))):
-                    vr.missing_flags.append(MissingInvariantFlag.MISSING_ALTERNATING_CLASS)
+        # Missing *computed* invariants only.
+        mi_flags = _collect_null_columns(row, invariant_columns)
+        missing_invariant_flags.append(mi_flags)
 
-            results.append(vr)
-
-    log_operation("apply_missing_and_quality_flags_end", success=True, count=len(results))
-    # Duplicate ID detection
-    id_field = "knot_id"
-    seen = set()
-    duplicate_count = 0
-    for vr in results:
-        rec_id = vr.record.get(id_field) or vr.record.get("id")
-        if rec_id is not None:
-            if rec_id in seen:
-                duplicate_count += 1
-            else:
-                seen.add(rec_id)
-    log_operation("duplicate_id_check", duplicate_count=duplicate_count)
-    return results
-
-
-def _write_validation_results(
-    results: List[ValidationResult], output_path: Path
-) -> None:
-    """Write the validation results to ``output_path`` as CSV."""
-    if not results:
-        raise ValueError("No validation results to write.")
-
-    # Use the fieldnames from the first original record plus the flag columns.
-    fieldnames = list(results[0].record.keys()) + [
-        "missing_invariant_flags",
-        "data_quality_flags",
-        "ambiguous_classification_flag",
-    ]
-
-    with output_path.open("w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        for vr in results:
-            writer.writerow(vr.to_row())
-
-
-def main() -> None:
-    """Entry‑point for ``python -m code.data.validator``.
-
-    The script expects a cleaned CSV at ``data/processed/knots_cleaned.csv``.
-    It produces ``data/processed/knots_validated.csv`` containing the
-    original columns plus three flag columns.
-    """
-    parser = argparse.ArgumentParser(
-        description="Validate knot dataset and apply missing/quality flags."
-    )
-    parser.add_argument(
-        "--input",
-        type=Path,
-        default=Path("data/processed/knots_cleaned.csv"),
-        help="Path to the cleaned knot CSV.",
-    )
-    parser.add_argument(
-        "--output",
-        type=Path,
-        default=Path("data/processed/knots_validated.csv"),
-        help="Path where the validated CSV will be written.",
-    )
-    args = parser.parse_args()
-
-    logger = get_logger(__name__)
-    log_operation("validator_main_start", input=str(args.input), output=str(args.output))
-
-    results = apply_missing_and_quality_flags(args.input)
-    _write_validation_results(results, args.output)
-
-    log_operation("validator_main_end", success=True, output=str(args.output))
-    logger.info("Validation complete. Results written to %s", args.output)
-
-
-if __name__ == "__main__":
-    main()
+    result["data_quality_flags"] = data_quality_flags
+    result["missing_invariant_flags"] = missing_invariant_flags
+    return result

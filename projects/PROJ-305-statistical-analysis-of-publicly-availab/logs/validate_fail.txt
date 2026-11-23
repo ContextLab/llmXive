@@ -1,0 +1,2 @@
+FAIL
+Missing required columns: ['VAERS_ID', 'VAX_TYPE', 'SOC_CODE', 'SOC_NAME', 'REPT_DATE']

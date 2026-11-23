@@ -1,116 +1,82 @@
 # Dataset Schema for Emotional Synchrony Trust Study
-# Defines the structure of the raw and processed interaction data
-# Per FR-001: Schema must be static, versioned, and validated before processing
+# Defines the contract for the processed feature dataset (features.csv)
+# Used by T010 contract tests to validate data integrity
 
-$schema: http://json-schema.org/draft-07/schema#
-title: EmotionalSynchronyDataset
-description: >
-  Schema for the dataset capturing emotional expression, user trust,
-  and interaction metrics in AI avatar scenarios.
-version: "1.0.0"
-
+$schema: "http://json-schema.org/draft-07/schema#"
 type: object
-required:
-  - metadata
-  - interactions
+title: "Emotional Synchrony Dataset Schema"
+description: "Schema for the intra-modal consistency and trust correlation dataset"
 
 properties:
-  metadata:
-    type: object
-    description: Global dataset metadata
-    required:
-      - dataset_id
-      - created_at
-      - version
-      - source
-      - consent_version
-    properties:
-      dataset_id:
-        type: string
-        description: Unique identifier for this dataset version
-        pattern: "^PROJ-344-[0-9]{4}-[0-9]{2}-[0-9]{2}-[a-z0-9]+$"
-      created_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of dataset creation
-      version:
-        type: string
-        description: Semantic version of the dataset schema
-      source:
-        type: string
-        description: Origin of the data (e.g., 'synthetic', 'nab', 'controlled_collection')
-        enum:
-          - synthetic
-          - nab
-          - controlled_collection
-      consent_version:
-        type: string
-        description: Version of the consent form used for data collection
-        pattern: "^v[0-9]+\\.[0-9]+\\.[0-9]+$"
-      num_interactions:
-        type: integer
-        minimum: 1
-        description: Total number of interaction records
+  interaction_id:
+    type: string
+    description: "Unique identifier for the user-AI interaction session"
+    pattern: "^[a-zA-Z0-9_-]+$"
+    
+  facial_consistency_score:
+    type: number
+    description: "Normalized max absolute cross-correlation for facial features (0.0 to 1.0)"
+    minimum: 0.0
+    maximum: 1.0
+    
+  vocal_consistency_score:
+    type: number
+    description: "Normalized max absolute cross-correlation for vocal prosody (0.0 to 1.0)"
+    minimum: 0.0
+    maximum: 1.0
+    
+  combined_consistency_score:
+    type: number
+    description: "Weighted average of facial and vocal consistency scores"
+    minimum: 0.0
+    maximum: 1.0
+    
+  trust_score:
+    type: number
+    description: "User trust rating (Likert scale 1-5)"
+    minimum: 1.0
+    maximum: 5.0
+    
+  avatar_type:
+    type: string
+    description: "Type of AI avatar used in the interaction"
+    enum: ["neutral", "expressive", "animated"]
+    
+  session_duration_sec:
+    type: integer
+    description: "Duration of the interaction in seconds"
+    minimum: 10
+    
+  task_difficulty:
+    type: integer
+    description: "Perceived difficulty of the task (1-5 scale)"
+    minimum: 1
+    maximum: 5
+    
+  timestamp:
+    type: string
+    description: "ISO 8601 timestamp of the interaction"
+    format: date-time
+    
+  source_dataset:
+    type: string
+    description: "Origin of the data (e.g., 'NAB', 'UCI', 'synthetic')"
+    enum: ["NAB", "UCI", "synthetic", "human_collected"]
+    
+  metadata_version:
+    type: string
+    description: "Schema version used for this record"
+    pattern: "^\\d+\\.\\d+$"
 
-  interactions:
-    type: array
-    description: List of individual interaction records
-    items:
-      type: object
-      required:
-        - interaction_id
-        - timestamp
-        - user_id
-        - avatar_id
-        - modalities
-        - trust_score
-        - duration_seconds
-      properties:
-        interaction_id:
-          type: string
-          description: Unique identifier for the interaction session
-          pattern: "^INT-[0-9]{6}$"
-        timestamp:
-          type: string
-          format: date-time
-          description: Start time of the interaction
-        user_id:
-          type: string
-          description: Anonymized user identifier
-          pattern: "^USR-[A-Z0-9]{6}$"
-        avatar_id:
-          type: string
-          description: Identifier for the AI avatar used
-          pattern: "^AVT-[A-Z0-9]{4}$"
-        modalities:
-          type: object
-          description: File paths or references to modality data
-          required:
-            - video
-            - audio
-          properties:
-            video:
-              type: string
-              description: Relative path to video file (e.g., data/raw/video/INT-0001.mp4)
-            audio:
-              type: string
-              description: Relative path to audio file (e.g., data/raw/audio/INT-0001.wav)
-        trust_score:
-          type: number
-          minimum: 0
-          maximum: 100
-          description: User-rated trust score (0-100 scale)
-        duration_seconds:
-          type: number
-          minimum: 0
-          description: Duration of the interaction in seconds
-        difficulty_level:
-          type: integer
-          minimum: 1
-          maximum: 5
-          description: Task difficulty level (1=Easy, 5=Hard)
-        avatar_type:
-          type: string
-          description: Type of avatar (e.g., 'neutral', 'empathetic', 'robotic')
+required:
+  - interaction_id
+  - facial_consistency_score
+  - vocal_consistency_score
+  - combined_consistency_score
+  - trust_score
+  - avatar_type
+  - timestamp
+  - source_dataset
+  - metadata_version
 
 additionalProperties: false

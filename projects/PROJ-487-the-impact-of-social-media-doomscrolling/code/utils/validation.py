@@ -1,319 +1,436 @@
 """
-Schema validation utilities for the llmXive automated science pipeline.
+Schema validation utilities for the llmXive science pipeline.
 
-This module provides functions to validate data files against YAML schema definitions
-using the pyyaml library. It supports validating both input datasets and output files.
+This module provides functions to load and validate data against
+JSON Schema definitions and Pydantic models for type safety.
 """
 
 import os
 import sys
-from typing import Dict, Any, Optional, List, Tuple
+import logging
+from typing import Dict, Any, Optional, List, Tuple, Union
+import re
 import yaml
+import json
+import jsonschema
+from jsonschema import validate, ValidationError as JsonSchemaError, SchemaError
+from pathlib import Path
+
+# Import Pydantic models from the models module (T007c)
+from utils.models import TimeSeriesRecord, AnalysisResult, validate_time_series_record, validate_analysis_result
 
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-# Default schema file paths relative to project root
-DATASET_SCHEMA_PATH = "contracts/dataset.schema.yaml"
-OUTPUT_SCHEMA_PATH = "contracts/output.schema.yaml"
+class ValidationError(Exception):
+    """Custom exception for validation errors."""
+    pass
 
-
-def load_schema(schema_path: str) -> Optional[Dict[str, Any]]:
+def load_schema(schema_path: str) -> Dict[str, Any]:
     """
-    Load a YAML schema definition from a file.
+    Load a JSON Schema from a YAML or JSON file.
 
     Args:
-        schema_path: Relative path to the schema YAML file.
+        schema_path: Path to the schema file.
 
     Returns:
-        Dictionary containing the schema definition, or None if loading fails.
+        Dictionary containing the schema.
+
+    Raises:
+        FileNotFoundError: If the schema file does not exist.
+        ValueError: If the file format is unsupported or parsing fails.
     """
-    try:
-        # Resolve relative to project root (assumed current working directory)
-        full_path = os.path.join(os.getcwd(), schema_path)
-        
-        if not os.path.exists(full_path):
-            logger.error(f"Schema file not found: {full_path}")
-            return None
+    if not os.path.exists(schema_path):
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
 
-        with open(full_path, 'r', encoding='utf-8') as f:
-            schema = yaml.safe_load(f)
-        
-        if schema is None:
-            logger.error(f"Schema file is empty or invalid YAML: {full_path}")
-            return None
+    with open(schema_path, 'r', encoding='utf-8') as f:
+        content = f.read()
 
-        logger.info(f"Successfully loaded schema: {schema_path}")
-        return schema
+    if schema_path.endswith('.yaml') or schema_path.endswith('.yml'):
+        try:
+            schema = yaml.safe_load(content)
+        except yaml.YAMLError as e:
+            raise ValueError(f"Failed to parse YAML schema: {e}")
+    elif schema_path.endswith('.json'):
+        try:
+            schema = json.loads(content)
+        except json.JSONDecodeError as e:
+            raise ValueError(f"Failed to parse JSON schema: {e}")
+    else:
+        raise ValueError(f"Unsupported schema file format: {schema_path}")
 
-    except yaml.YAMLError as e:
-        logger.error(f"YAML parsing error in {schema_path}: {e}")
-        return None
-    except Exception as e:
-        logger.error(f"Unexpected error loading schema {schema_path}: {e}")
-        return None
+    if not isinstance(schema, dict):
+        raise ValueError("Schema must be a JSON object or YAML mapping")
 
+    return schema
 
 def validate_field_type(value: Any, expected_type: str) -> bool:
     """
-    Validate that a value matches the expected type string.
-
-    Supported types: string, integer, float, boolean, list, dict, any
+    Validate that a value matches the expected JSON Schema type.
 
     Args:
         value: The value to check.
-        expected_type: String representation of the expected type.
+        expected_type: The expected type (string, number, integer, boolean, object, array).
 
     Returns:
-        True if the value matches the type, False otherwise.
+        True if the type matches, False otherwise.
     """
-    type_mapping = {
-        'string': str,
-        'str': str,
-        'integer': int,
-        'int': int,
-        'float': float,
-        'number': (int, float),
-        'boolean': bool,
-        'bool': bool,
-        'list': list,
-        'array': list,
-        'dict': dict,
-        'object': dict,
-        'any': None,  # Any type is always valid
-    }
-
-    if expected_type.lower() == 'any':
-        return True
-
-    expected_python_type = type_mapping.get(expected_type.lower())
-    
-    if expected_python_type is None:
-        logger.warning(f"Unknown type specification: {expected_type}")
-        return True  # Be permissive for unknown types
-
-    # Special case: allow integers to pass as floats
-    if expected_python_type == float and isinstance(value, int) and not isinstance(value, bool):
-        return True
-
-    return isinstance(value, expected_python_type)
-
+    if expected_type == 'string':
+        return isinstance(value, str)
+    elif expected_type == 'number':
+        return isinstance(value, (int, float)) and not isinstance(value, bool)
+    elif expected_type == 'integer':
+        return isinstance(value, int) and not isinstance(value, bool)
+    elif expected_type == 'boolean':
+        return isinstance(value, bool)
+    elif expected_type == 'object':
+        return isinstance(value, dict)
+    elif expected_type == 'array':
+        return isinstance(value, list)
+    elif expected_type == 'null':
+        return value is None
+    else:
+        logger.warning(f"Unknown type expected: {expected_type}")
+        return False
 
 def validate_value_constraints(value: Any, constraints: Dict[str, Any]) -> Tuple[bool, str]:
     """
-    Validate a value against specified constraints.
+    Validate that a value meets specific constraints (pattern, minimum, maximum, etc.).
 
     Args:
         value: The value to check.
-        constraints: Dictionary of constraint key-value pairs.
+        constraints: Dictionary of constraints from the schema.
 
     Returns:
         Tuple of (is_valid, error_message).
     """
-    if 'min' in constraints:
-        if value < constraints['min']:
-            return False, f"Value {value} is less than minimum {constraints['min']}"
-
-    if 'max' in constraints:
-        if value > constraints['max']:
-            return False, f"Value {value} is greater than maximum {constraints['max']}"
-
-    if 'min_length' in constraints and isinstance(value, (str, list)):
-        if len(value) < constraints['min_length']:
-            return False, f"Length {len(value)} is less than minimum {constraints['min_length']}"
-
-    if 'max_length' in constraints and isinstance(value, (str, list)):
-        if len(value) > constraints['max_length']:
-            return False, f"Length {len(value)} is greater than maximum {constraints['max_length']}"
-
     if 'pattern' in constraints and isinstance(value, str):
-        import re
-        if not re.match(constraints['pattern'], value):
-            return False, f"Value '{value}' does not match pattern '{constraints['pattern']}'"
+        pattern = constraints['pattern']
+        if not re.match(pattern, value):
+            return False, f"Value '{value}' does not match pattern '{pattern}'"
+
+    if 'minimum' in constraints:
+        if value < constraints['minimum']:
+            return False, f"Value {value} is less than minimum {constraints['minimum']}"
+
+    if 'maximum' in constraints:
+        if value > constraints['maximum']:
+            return False, f"Value {value} is greater than maximum {constraints['maximum']}"
+
+    if 'minLength' in constraints and isinstance(value, str):
+        if len(value) < constraints['minLength']:
+            return False, f"String length {len(value)} is less than minimum {constraints['minLength']}"
+
+    if 'maxLength' in constraints and isinstance(value, str):
+        if len(value) > constraints['maxLength']:
+            return False, f"String length {len(value)} is greater than maximum {constraints['maxLength']}"
 
     if 'enum' in constraints:
         if value not in constraints['enum']:
-            return False, f"Value '{value}' is not in allowed values: {constraints['enum']}"
+            return False, f"Value '{value}' is not in allowed enum values: {constraints['enum']}"
 
     return True, ""
 
-
 def validate_record(record: Dict[str, Any], schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
-    Validate a single record (row) against a schema definition.
+    Validate a single record against a JSON Schema.
 
     Args:
-        record: Dictionary representing a data record.
-        schema: Schema definition dictionary.
+        record: The record to validate.
+        schema: The JSON Schema to validate against.
 
     Returns:
-        Tuple of (is_valid, list_of_error_messages).
+        Tuple of (is_valid, list_of_errors).
     """
     errors = []
-    required_fields = schema.get('required', [])
-    properties = schema.get('properties', {})
 
     # Check required fields
+    required_fields = schema.get('required', [])
     for field in required_fields:
         if field not in record:
             errors.append(f"Missing required field: {field}")
 
-    # Validate each field present in the record
-    for field_name, field_value in record.items():
-        if field_name not in properties:
-            # Unknown field - log warning but don't fail (permissive mode)
-            logger.warning(f"Unknown field '{field_name}' in record, skipping validation")
-            continue
+    # Validate each field in the record
+    properties = schema.get('properties', {})
+    for field, value in record.items():
+        if field in properties:
+            field_schema = properties[field]
+            expected_type = field_schema.get('type')
 
-        field_spec = properties[field_name]
-        
-        # Type validation
-        expected_type = field_spec.get('type', 'any')
-        if not validate_field_type(field_value, expected_type):
-            errors.append(f"Field '{field_name}' has invalid type. Expected {expected_type}, got {type(field_value).__name__}")
-            continue
+            if expected_type and not validate_field_type(value, expected_type):
+                errors.append(f"Field '{field}' has incorrect type. Expected {expected_type}, got {type(value).__name__}")
+                continue
 
-        # Constraint validation
-        constraints = field_spec.get('constraints', {})
-        if constraints:
-            is_valid, error_msg = validate_value_constraints(field_value, constraints)
+            # Check constraints
+            is_valid, error_msg = validate_value_constraints(value, field_schema)
             if not is_valid:
-                errors.append(f"Field '{field_name}': {error_msg}")
+                errors.append(f"Field '{field}': {error_msg}")
 
     return len(errors) == 0, errors
 
-
-def validate_dataset_file(file_path: str, schema_path: str = DATASET_SCHEMA_PATH) -> Tuple[bool, List[str]]:
+def validate_against_schema(data: Union[Dict[str, Any], List[Dict[str, Any]]], schema: Dict[str, Any]) -> Tuple[bool, List[str]]:
     """
-    Validate a dataset file (CSV/JSON) against a schema.
-
-    For CSV files, this validates the header and a sample of rows.
-    For JSON files, this validates the structure.
+    Validate data against a JSON Schema using the jsonschema library.
 
     Args:
-        file_path: Path to the data file.
-        schema_path: Path to the schema definition.
+        data: The data to validate (single record or list of records).
+        schema: The JSON Schema to validate against.
 
     Returns:
-        Tuple of (is_valid, list_of_error_messages).
+        Tuple of (is_valid, list_of_errors).
+    """
+    try:
+        if isinstance(data, list):
+            for i, record in enumerate(data):
+                validate(instance=record, schema=schema)
+        else:
+            validate(instance=data, schema=schema)
+        return True, []
+    except JsonSchemaError as e:
+        return False, [str(e)]
+    except Exception as e:
+        return False, [f"Unexpected error during validation: {str(e)}"]
+
+def validate_with_pydantic(data: Dict[str, Any], model_class: Any) -> Tuple[bool, Optional[Any], List[str]]:
+    """
+    Validate data using a Pydantic model for type safety.
+
+    Args:
+        data: The data to validate.
+        model_class: The Pydantic model class to use.
+
+    Returns:
+        Tuple of (is_valid, validated_model_instance_or_none, list_of_errors).
+    """
+    try:
+        instance = model_class(**data)
+        return True, instance, []
+    except Exception as e:
+        # Pydantic raises ValidationError which contains detailed error messages
+        errors = []
+        if hasattr(e, 'errors'):
+            for err in e.errors():
+                errors.append(f"Field '{err.get('loc', ['unknown'])[0]}': {err.get('msg', 'Unknown error')}")
+        else:
+            errors.append(str(e))
+        return False, None, errors
+
+def validate_dataset_file(file_path: str, schema_path: str, pydantic_model: Any = None) -> Dict[str, Any]:
+    """
+    Validate a dataset CSV file against a schema and optionally a Pydantic model.
+
+    Args:
+        file_path: Path to the CSV file.
+        schema_path: Path to the JSON Schema file.
+        pydantic_model: Optional Pydantic model class for additional type validation.
+
+    Returns:
+        Dictionary with validation results.
     """
     import pandas as pd
 
-    if not os.path.exists(file_path):
-        return False, [f"Data file not found: {file_path}"]
+    result = {
+        'valid': True,
+        'errors': [],
+        'warnings': [],
+        'records_validated': 0,
+        'records_failed': 0,
+        'schema_validation': True,
+        'pydantic_validation': True
+    }
 
-    schema = load_schema(schema_path)
-    if schema is None:
-        return False, [f"Failed to load schema: {schema_path}"]
+    if not os.path.exists(file_path):
+        result['valid'] = False
+        result['errors'].append(f"File not found: {file_path}")
+        return result
+
+    if not os.path.exists(schema_path):
+        result['valid'] = False
+        result['errors'].append(f"Schema file not found: {schema_path}")
+        return result
 
     try:
-        # Determine file type and load
-        if file_path.endswith('.csv'):
-            df = pd.read_csv(file_path)
-            records = df.to_dict('records')
-        elif file_path.endswith('.json'):
-            import json
+        schema = load_schema(schema_path)
+    except Exception as e:
+        result['valid'] = False
+        result['errors'].append(f"Failed to load schema: {str(e)}")
+        return result
+
+    try:
+        df = pd.read_csv(file_path)
+    except Exception as e:
+        result['valid'] = False
+        result['errors'].append(f"Failed to read CSV file: {str(e)}")
+        return result
+
+    if df.empty:
+        result['warnings'].append("CSV file is empty")
+        return result
+
+    # Convert DataFrame to list of dicts
+    records = df.to_dict('records')
+
+    # Validate each record against JSON Schema
+    for i, record in enumerate(records):
+        is_valid, errors = validate_record(record, schema)
+        if not is_valid:
+            result['valid'] = False
+            result['schema_validation'] = False
+            result['records_failed'] += 1
+            for error in errors:
+                result['errors'].append(f"Record {i}: {error}")
+        else:
+            result['records_validated'] += 1
+
+    # Validate against Pydantic model if provided
+    if pydantic_model:
+        for i, record in enumerate(records):
+            is_valid, instance, errors = validate_with_pydantic(record, pydantic_model)
+            if not is_valid:
+                result['valid'] = False
+                result['pydantic_validation'] = False
+                result['records_failed'] += 1
+                for error in errors:
+                    result['errors'].append(f"Record {i} (Pydantic): {error}")
+            else:
+                result['records_validated'] += 1
+
+    return result
+
+def validate_output_file_structure(file_path: str, schema_path: str, pydantic_model: Any = None) -> Dict[str, Any]:
+    """
+    Validate an output file (e.g., analysis results) against a schema and optionally a Pydantic model.
+
+    Args:
+        file_path: Path to the output file (CSV or JSON).
+        schema_path: Path to the JSON Schema file.
+        pydantic_model: Optional Pydantic model class for additional type validation.
+
+    Returns:
+        Dictionary with validation results.
+    """
+    import pandas as pd
+    import json
+
+    result = {
+        'valid': True,
+        'errors': [],
+        'warnings': [],
+        'records_validated': 0,
+        'records_failed': 0,
+        'schema_validation': True,
+        'pydantic_validation': True
+    }
+
+    if not os.path.exists(file_path):
+        result['valid'] = False
+        result['errors'].append(f"File not found: {file_path}")
+        return result
+
+    if not os.path.exists(schema_path):
+        result['valid'] = False
+        result['errors'].append(f"Schema file not found: {schema_path}")
+        return result
+
+    try:
+        schema = load_schema(schema_path)
+    except Exception as e:
+        result['valid'] = False
+        result['errors'].append(f"Failed to load schema: {str(e)}")
+        return result
+
+    # Determine file type and load data
+    try:
+        if file_path.endswith('.json'):
             with open(file_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
-                if isinstance(data, list):
-                    records = data
-                elif isinstance(data, dict):
-                    # Assume the data is under a specific key or the dict itself is the record
-                    records = [data]
-                else:
-                    return False, ["Invalid JSON structure: expected list or object"]
+        elif file_path.endswith('.csv'):
+            df = pd.read_csv(file_path)
+            data = df.to_dict('records')
         else:
-            return False, [f"Unsupported file format: {file_path}. Use .csv or .json"]
-
-        if not records:
-            return False, ["Data file is empty"]
-
-        # Validate all records
-        all_errors = []
-        for i, record in enumerate(records):
-            is_valid, errors = validate_record(record, schema)
-            if not is_valid:
-                all_errors.extend([f"Record {i}: {err}" for err in errors])
-
-            # Limit error reporting to first 10 errors for readability
-            if len(all_errors) >= 10:
-                all_errors.append("... (additional errors truncated)")
-                break
-
-        if all_errors:
-            return False, all_errors
-
-        logger.info(f"Dataset validation passed: {file_path}")
-        return True, []
-
+            result['valid'] = False
+            result['errors'].append(f"Unsupported file format: {file_path}")
+            return result
     except Exception as e:
-        return False, [f"Error processing data file: {str(e)}"]
+        result['valid'] = False
+        result['errors'].append(f"Failed to read file: {str(e)}")
+        return result
 
+    if isinstance(data, dict):
+        data = [data]
 
-def validate_output_file(file_path: str, schema_path: str = OUTPUT_SCHEMA_PATH) -> Tuple[bool, List[str]]:
+    if not data:
+        result['warnings'].append("File is empty")
+        return result
+
+    # Validate each record
+    for i, record in enumerate(data):
+        is_valid, errors = validate_record(record, schema)
+        if not is_valid:
+            result['valid'] = False
+            result['schema_validation'] = False
+            result['records_failed'] += 1
+            for error in errors:
+                result['errors'].append(f"Record {i}: {error}")
+        else:
+            result['records_validated'] += 1
+
+    # Validate against Pydantic model if provided
+    if pydantic_model:
+        for i, record in enumerate(data):
+            is_valid, instance, errors = validate_with_pydantic(record, pydantic_model)
+            if not is_valid:
+                result['valid'] = False
+                result['pydantic_validation'] = False
+                result['records_failed'] += 1
+                for error in errors:
+                    result['errors'].append(f"Record {i} (Pydantic): {error}")
+            else:
+                result['records_validated'] += 1
+
+    return result
+
+def main():
     """
-    Validate an output file against the output schema.
-
-    Args:
-        file_path: Path to the output file.
-        schema_path: Path to the output schema definition.
-
-    Returns:
-        Tuple of (is_valid, list_of_error_messages).
+    Main function to demonstrate validation usage.
+    This script can be run to validate specific files if paths are provided.
     """
-    return validate_dataset_file(file_path, schema_path)
+    import argparse
 
+    parser = argparse.ArgumentParser(description='Validate data files against schemas and Pydantic models.')
+    parser.add_argument('--dataset', type=str, help='Path to dataset CSV file')
+    parser.add_argument('--output', type=str, help='Path to output file (CSV or JSON)')
+    parser.add_argument('--schema-dataset', type=str, default='code/contracts/dataset.schema.yaml', help='Path to dataset schema')
+    parser.add_argument('--schema-output', type=str, default='code/contracts/output.schema.yaml', help='Path to output schema')
 
-def validate_against_schema(
-    file_path: str,
-    schema_type: str = 'dataset',
-    custom_schema_path: Optional[str] = None
-) -> bool:
-    """
-    Main entry point for validating a file against a schema.
+    args = parser.parse_args()
 
-    Args:
-        file_path: Path to the file to validate.
-        schema_type: Either 'dataset' or 'output'.
-        custom_schema_path: Optional custom schema path.
-
-    Returns:
-        True if validation passes, False otherwise.
-    """
-    if schema_type == 'dataset':
-        schema_path = custom_schema_path or DATASET_SCHEMA_PATH
-    elif schema_type == 'output':
-        schema_path = custom_schema_path or OUTPUT_SCHEMA_PATH
-    else:
-        logger.error(f"Unknown schema type: {schema_type}")
-        return False
-
-    is_valid, errors = validate_dataset_file(file_path, schema_path)
-
-    if not is_valid:
-        logger.error(f"Validation failed for {file_path}:")
-        for err in errors[:5]:  # Log first 5 errors
-            logger.error(f"  - {err}")
-        if len(errors) > 5:
-            logger.error(f"  ... and {len(errors) - 5} more errors")
-    
-    return is_valid
-
-
-if __name__ == "__main__":
-    # Simple CLI for testing validation
-    if len(sys.argv) < 2:
-        print("Usage: python validation.py <file_path> [schema_type]")
-        print("  schema_type: 'dataset' (default) or 'output'")
+    if not args.dataset and not args.output:
+        print("Usage: python -m utils.validation --dataset <path> or --output <path>")
         sys.exit(1)
 
-    target_file = sys.argv[1]
-    schema_type = sys.argv[2] if len(sys.argv) > 2 else 'dataset'
+    if args.dataset:
+        logger.info(f"Validating dataset file: {args.dataset}")
+        result = validate_dataset_file(args.dataset, args.schema_dataset, TimeSeriesRecord)
+        if result['valid']:
+            logger.info(f"Validation PASSED: {result['records_validated']} records validated successfully.")
+        else:
+            logger.error(f"Validation FAILED: {len(result['errors'])} errors found.")
+            for error in result['errors']:
+                logger.error(f"  - {error}")
+        sys.exit(0 if result['valid'] else 1)
 
-    if validate_against_schema(target_file, schema_type):
-        print(f"✓ Validation passed for {target_file}")
-        sys.exit(0)
-    else:
-        print(f"✗ Validation failed for {target_file}")
-        sys.exit(1)
+    if args.output:
+        logger.info(f"Validating output file: {args.output}")
+        result = validate_output_file_structure(args.output, args.schema_output, AnalysisResult)
+        if result['valid']:
+            logger.info(f"Validation PASSED: {result['records_validated']} records validated successfully.")
+        else:
+            logger.error(f"Validation FAILED: {len(result['errors'])} errors found.")
+            for error in result['errors']:
+                logger.error(f"  - {error}")
+        sys.exit(0 if result['valid'] else 1)
+
+if __name__ == '__main__':
+    main()

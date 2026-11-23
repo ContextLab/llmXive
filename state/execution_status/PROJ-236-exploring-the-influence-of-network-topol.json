@@ -1,10 +1,18 @@
 {
-  "model_tier": 1,
-  "fix_rounds": 0,
-  "updated_at": "2026-07-10T19:13:15Z",
   "project_id": "PROJ-236-exploring-the-influence-of-network-topol",
-  "total_attempts": 0,
+  "ok": false,
+  "reason": "3 run-book script(s) missing (plan/impl path mismatch): python code/01_generate_networks.py --n 200 --types small_world,scale_free,random --seed 42; python code/02_compute_transport.py --input data/processed/graphs/ --mode cpu; python code/03_analyze_correlations.py --transport data/processed/transport/ --graphs data/processed/graphs/; 3 declared deliverable(s) absent: data/analysis/sensitivity_results.csv; data/processed/pilot_data/pilot_metrics.csv; data/transport/transport_results.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/01_generate_networks.py --n 200 --types small_world,scale_free,random --seed 42 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/01_generate_networks.py': [Errno 2] No such file or directory",
+    "python code/02_compute_transport.py --input data/processed/graphs/ --mode cpu -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/02_compute_transport.py': [Errno 2] No such file or directory",
+    "python code/03_analyze_correlations.py --transport data/processed/transport/ --graphs data/processed/graphs/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-236-exploring-the-influence-of-network-topol/code/03_analyze_correlations.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 1,
+  "total_attempts": 1,
   "replan_rounds": 0,
-  "failure_class": "unknown",
-  "evidence": []
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-10-03T14:14:16Z"
 }

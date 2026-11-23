@@ -1,126 +1,263 @@
 import argparse
 import numpy as np
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, Union
+import os
+import sys
 
-# Constants from T004
+# Constants defined in T004
 ICC_RANGE = [0.0, 0.1, 0.2, 0.3, 0.4, 0.5]
 ICC_STEP = 0.1
 ALPHA_LEVELS = [0.01, 0.05, 0.10]
 DEFAULT_N_CLUSTERS = 100
+CLUSTER_MEAN_SIZE = 12.5
+CLUSTER_STD_SIZE = 8.2
 DEFAULT_SEED = 42
+DEFAULT_ITERATIONS = 1000
+
+# Minimum number of alpha levels required by SC-004
+MIN_ALPHA_LEVELS = 3
+
+def validate_config(cfg: Optional[Dict[str, Any]] = None) -> None:
+    """Validate simulation configuration parameters.
+
+    If ``cfg`` is ``None`` the default configuration is loaded via
+    :func:`load_config` and validated.
+
+    Args:
+        cfg: Optional configuration dictionary. When omitted, the default
+             configuration (as defined by the module constants) is used.
+
+    Raises:
+        ValueError: If ``n_clusters`` < 50.
+    """
+    if cfg is None:
+        # Load defaults without parsing any CLI arguments
+        cfg = load_config(cli_args=[])
+
+    if cfg.get('n_clusters', DEFAULT_N_CLUSTERS) < 50:
+        raise ValueError(f"n_clusters must be >= 50, got {cfg['n_clusters']}")
+
+def validate_alpha_levels(alphas: List[float]) -> None:
+    """Validate that the alpha levels list meets minimum requirements.
+
+    Per SC-004, at least 3 alpha levels must be provided to ensure
+    robust statistical evaluation.
+
+    Args:
+        alphas: List of significance levels (floats).
+
+    Raises:
+        ValueError: If ``len(alphas)`` < 3.
+    """
+    if not isinstance(alphas, list) or len(alphas) < MIN_ALPHA_LEVELS:
+        raise ValueError(
+            f"SC-004 Compliance: At least {MIN_ALPHA_LEVELS} alpha levels "
+            f"are required. Got {len(alphas)}."
+        )
 
 def set_seed(seed: int) -> None:
-    """Set the random seed for reproducibility."""
+    """Set the random seed for reproducibility.
+
+    Args:
+        seed: Integer seed value.
+    """
     np.random.seed(seed)
 
-def validate_config(cfg: Dict[str, Any]) -> None:
-    """Validate configuration parameters.
-    
-    Args:
-        cfg: Configuration dictionary.
-        
-    Raises:
-        ValueError: If configuration is invalid.
-    """
-    if cfg['n_clusters'] < 50 and cfg['icc'] != 0.0:
-        raise ValueError(f"n_clusters must be >= 50 when icc != 0.0, got {cfg['n_clusters']}")
+def load_config(cli_args: Optional[List[str]] = None) -> Dict[str, Any]:
+    """Load configuration from defaults and optional CLI overrides.
 
-def load_config() -> Dict[str, Any]:
-    """Load default configuration.
-    
+    This function handles the full lifecycle:
+    1. Start with defaults.
+    2. Parse CLI arguments if provided.
+    3. Validate constraints (including alpha count).
+    4. Return the final config.
+
+    Args:
+        cli_args: Optional list of CLI arguments (``sys.argv[1:]`` if ``None``).
+
     Returns:
-        Default configuration dictionary.
+        Complete configuration dictionary.
+
+    Raises:
+        ValueError: If validation fails (e.g., alpha count < 3).
     """
-    return {
-        'icc_range': ICC_RANGE.copy(),
+    cfg = {
+        'icc_range': list(ICC_RANGE),
         'icc_step': ICC_STEP,
-        'alpha_levels': ALPHA_LEVELS.copy(),
+        'alpha_levels': list(ALPHA_LEVELS),
         'n_clusters': DEFAULT_N_CLUSTERS,
+        'cluster_mean': CLUSTER_MEAN_SIZE,
+        'cluster_std': CLUSTER_STD_SIZE,
         'seed': DEFAULT_SEED,
-        'n_obs_per_cluster': 100,  # Added for simulation runner
-        'n_permutations': 1000,    # Added for permutation tests
-        'output_baseline': 'data/derived/baseline_results.csv',
-        'output_robust': 'data/derived/robustResults.csv',
+        'iterations': DEFAULT_ITERATIONS,
+        'n_obs_per_cluster': None,  # Calculated later or set via CLI
+        'n_permutations': 1000,
+        'output': None,
+        'verbose': False
     }
 
-def parse_cli_args(args: Optional[argparse.Namespace] = None, cfg: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-    """Parse command-line arguments and update configuration.
-    
-    This function is designed to be flexible and accept different call signatures:
-    1. parse_cli_args() - Returns config with defaults
-    2. parse_cli_args(args) - Parses args and returns new config
-    3. parse_cli_args(args, cfg) - Parses args and updates existing config
-    
+    if cli_args is None:
+        cli_args = sys.argv[1:]
+
+    if cli_args:
+        cfg = parse_cli_args(cli_args, cfg)
+
+    # Validate alpha levels (SC-004)
+    validate_alpha_levels(cfg['alpha_levels'])
+
+    # Validate n_clusters
+    validate_config(cfg)
+
+    return cfg
+
+def parse_cli_args(
+    args: Union[List[str], argparse.Namespace, Dict[str, Any]],
+    cfg: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
+    """Parse CLI arguments and update configuration.
+
+    Supports multiple call patterns for flexibility:
+    1. ``parse_cli_args()`` -> Returns config with defaults (not supported directly,
+       use :func:`load_config`).
+    2. ``parse_cli_args(args)`` -> Parses ``args`` and returns new config.
+    3. ``parse_cli_args(args, cfg)`` -> Parses ``args`` and updates existing ``cfg``.
+    4. ``parse_cli_args(cfg)`` -> Updates existing config with defaults (no CLI).
+
     Args:
-        args: argparse.Namespace from ArgumentParser.parse_args(). Can be None.
-        cfg: Existing configuration dictionary to update. Can be None.
-        
+        args: Either a list of CLI strings, an ``argparse.Namespace``, a config
+              ``dict``, or a config ``dict`` used as the sole argument.
+        cfg: Optional existing config dict to update.
+
     Returns:
         Updated configuration dictionary.
-        
+
     Raises:
-        SystemExit: If CLI argument parsing fails.
+        ValueError: If alpha levels validation fails.
     """
-    # Initialize config if not provided
-    if cfg is None:
-        cfg = load_config()
-    
-    # If no args provided, just return the config
-    if args is None:
+    # Pattern 4: args is actually a config dict, no CLI provided
+    if isinstance(args, dict):
+        if cfg is None:
+            cfg = args
+        else:
+            # Merge args into cfg
+            cfg.update(args)
         return cfg
-    
-    # Create parser
-    parser = argparse.ArgumentParser(description='Simulation Runner')
-    parser.add_argument('--icc', type=float, help='Single ICC value to simulate')
-    parser.add_argument('--iterations', type=int, default=1000, help='Number of simulation iterations')
-    parser.add_argument('--seed', type=int, default=DEFAULT_SEED, help='Random seed')
-    parser.add_argument('--n-clusters', type=int, default=DEFAULT_N_CLUSTERS, help='Number of clusters')
-    parser.add_argument('--n-obs-per-cluster', type=int, default=100, help='Observations per cluster')
-    parser.add_argument('--icc-range', type=str, help='Comma-separated ICC values')
-    parser.add_argument('--icc-step', type=float, help='Step size for ICC range')
-    parser.add_argument('--alpha', type=float, help='Single alpha level (overrides alpha_levels)')
-    parser.add_argument('--alpha-list', type=str, help='Comma-separated alpha levels')
-    parser.add_argument('--n-permutations', type=int, default=1000, help='Number of permutations for block test')
-    parser.add_argument('--output-baseline', type=str, help='Output path for baseline results')
-    parser.add_argument('--output-robust', type=str, help='Output path for robust results')
-    
-    # Parse arguments
-    parsed_args = parser.parse_args(args=args.__dict__.keys() if hasattr(args, '__dict__') else None)
-    
-    # Handle single ICC
-    if hasattr(parsed_args, 'icc') and parsed_args.icc is not None:
-        cfg['icc_range'] = [parsed_args.icc]
-    
-    # Handle ICC range override
-    if hasattr(parsed_args, 'icc_range') and parsed_args.icc_range is not None:
-        cfg['icc_range'] = [float(x) for x in parsed_args.icc_range.split(',')]
-    
-    # Handle ICC step
-    if hasattr(parsed_args, 'icc_step') and parsed_args.icc_step is not None:
-        cfg['icc_step'] = parsed_args.icc_step
-    
-    # Handle alpha level
-    if hasattr(parsed_args, 'alpha') and parsed_args.alpha is not None:
-        cfg['alpha_levels'] = [parsed_args.alpha]
-    
-    # Handle alpha list
-    if hasattr(parsed_args, 'alpha_list') and parsed_args.alpha_list is not None:
-        cfg['alpha_levels'] = [float(x) for x in parsed_args.alpha_list.split(',')]
-    
-    # Handle other parameters
-    if hasattr(parsed_args, 'iterations') and parsed_args.iterations is not None:
-        cfg['iterations'] = parsed_args.iterations
-    if hasattr(parsed_args, 'seed') and parsed_args.seed is not None:
-        cfg['seed'] = parsed_args.seed
-    if hasattr(parsed_args, 'n_clusters') and parsed_args.n_clusters is not None:
-        cfg['n_clusters'] = parsed_args.n_clusters
-    if hasattr(parsed_args, 'n_obs_per_cluster') and parsed_args.n_obs_per_cluster is not None:
-        cfg['n_obs_per_cluster'] = parsed_args.n_obs_per_cluster
-    if hasattr(parsed_args, 'n_permutations') and parsed_args.n_permutations is not None:
-        cfg['n_permutations'] = parsed_args.n_permutations
-    if hasattr(parsed_args, 'output_baseline') and parsed_args.output_baseline is not None:
-        cfg['output_baseline'] = parsed_args.output_baseline
-    if hasattr(parsed_args, 'output_robust') and parsed_args.output_robust is not None:
-        cfg['output_robust'] = parsed_args.output_robust
-        
+
+    # If cfg is None, start with defaults
+    if cfg is None:
+        cfg = {
+            'icc_range': list(ICC_RANGE),
+            'icc_step': ICC_STEP,
+            'alpha_levels': list(ALPHA_LEVELS),
+            'n_clusters': DEFAULT_N_CLUSTERS,
+            'cluster_mean': CLUSTER_MEAN_SIZE,
+            'cluster_std': CLUSTER_STD_SIZE,
+            'seed': DEFAULT_SEED,
+            'iterations': DEFAULT_ITERATIONS,
+            'n_obs_per_cluster': None,
+            'n_permutations': 1000,
+            'output': None,
+            'verbose': False
+        }
+
+    # If args is a Namespace, convert to dict
+    if isinstance(args, argparse.Namespace):
+        args = vars(args)
+
+    # If args is a list, parse it
+    if isinstance(args, list):
+        parser = argparse.ArgumentParser(
+            description='Simulation configuration CLI',
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        )
+
+        # ICC Configuration
+        parser.add_argument('--icc-range', type=str, default=None,
+                            help='Comma-separated list of ICC values (e.g., 0.0,0.1,0.2)')
+        parser.add_argument('--icc-step', type=float, default=None,
+                            help='Step size for ICC range')
+
+        # Alpha Configuration (T023, T022b)
+        parser.add_argument('--alpha-list', type=str, default=None,
+                            help='Comma-separated list of alpha levels (e.g., 0.01,0.05,0.10). '
+                                 f'Must contain at least {MIN_ALPHA_LEVELS} values.')
+        parser.add_argument('--alpha', type=float, default=None,
+                            help='Single alpha level (deprecated, use --alpha-list). '
+                                 'If provided, overrides alpha-list if only 1 value.')
+
+        # Cluster Configuration (T040)
+        parser.add_argument('--cluster-mean', type=float, default=None,
+                            help='Mean cluster size')
+        parser.add_argument('--cluster-std', type=float, default=None,
+                            help='Std dev of cluster size')
+        parser.add_argument('--n-clusters', type=int, default=None,
+                            help='Number of clusters')
+        parser.add_argument('--n-obs-per-cluster', type=int, default=None,
+                            help='Observations per cluster')
+
+        # Simulation Control
+        parser.add_argument('--seed', type=int, default=None,
+                            help='Random seed')
+        parser.add_argument('--iterations', type=int, default=None,
+                            help='Number of simulation iterations')
+        parser.add_argument('--n-permutations', type=int, default=None,
+                            help='Number of permutations for block test')
+
+        # Output
+        parser.add_argument('--output', type=str, default=None,
+                            help='Output file path')
+        parser.add_argument('--verbose', action='store_true',
+                            help='Enable verbose logging')
+
+        parsed = parser.parse_args(args)
+        parsed_dict = vars(parsed)
+    else:
+        # Assume args is already a dict (e.g., from vars(namespace))
+        parsed_dict = args
+
+    # Apply overrides
+    if parsed_dict.get('icc_range') is not None:
+        cfg['icc_range'] = [float(x) for x in parsed_dict['icc_range'].split(',')]
+
+    if parsed_dict.get('icc_step') is not None:
+        cfg['icc_step'] = parsed_dict['icc_step']
+
+    # Handle Alpha Levels
+    if parsed_dict.get('alpha_list') is not None:
+        alphas = [float(x) for x in parsed_dict['alpha_list'].split(',')]
+        cfg['alpha_levels'] = alphas
+    elif parsed_dict.get('alpha') is not None:
+        # If single alpha provided, convert to list but warn if < 3
+        cfg['alpha_levels'] = [parsed_dict['alpha']]
+
+    if parsed_dict.get('cluster_mean') is not None:
+        cfg['cluster_mean'] = parsed_dict['cluster_mean']
+
+    if parsed_dict.get('cluster_std') is not None:
+        cfg['cluster_std'] = parsed_dict['cluster_std']
+
+    if parsed_dict.get('n_clusters') is not None:
+        cfg['n_clusters'] = parsed_dict['n_clusters']
+
+    if parsed_dict.get('n_obs_per_cluster') is not None:
+        cfg['n_obs_per_cluster'] = parsed_dict['n_obs_per_cluster']
+
+    if parsed_dict.get('seed') is not None:
+        cfg['seed'] = parsed_dict['seed']
+
+    if parsed_dict.get('iterations') is not None:
+        cfg['iterations'] = parsed_dict['iterations']
+
+    if parsed_dict.get('n_permutations') is not None:
+        cfg['n_permutations'] = parsed_dict['n_permutations']
+
+    if parsed_dict.get('output') is not None:
+        cfg['output'] = parsed_dict['output']
+
+    if parsed_dict.get('verbose'):
+        cfg['verbose'] = parsed_dict['verbose']
+
+    # Final validation of alpha levels
+    validate_alpha_levels(cfg['alpha_levels'])
+
     return cfg

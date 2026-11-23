@@ -36,5 +36,15 @@
     "sandian.pdf",
     "tanjjiu.pdf",
     "wordlcloud.pdf"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "d2d8a0792a7c58de0cf5822bc663a5388779ff0da22f3a68b31aea3bf206dbd8",
+      "bytes": 6027730
+    },
+    "original.pdf": {
+      "sha256": "bd6a1301eb2e7f68fc978fa1b55cd9ae1c36f7792dd1d4fc13391853711a4bd7",
+      "bytes": 5749664
+    }
+  }
 }

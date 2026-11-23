@@ -1,3 +1,17 @@
-# This file extends the configuration in pyproject.toml for Ruff.
-# It is kept separate for clarity in CI/CD pipelines if needed.
-extend = "pyproject.toml"
+line-length = 88
+target-version = "py311"
+
+select = [
+    "E",   # pycodestyle errors
+    "F",   # Pyflakes
+    "W",   # pycodestyle warnings
+    "I",   # isort
+]
+
+# Ignore specific rules if necessary (none required by task spec)
+# ignore = []
+
+[tool.ruff]
+# Ensure ruff also respects the target version and line length
+target-version = "py311"
+line-length = 88

@@ -1,101 +1,187 @@
-# Feature Specification: Statistical Analysis of Publicly Available Textual Data for Detecting Cognitive Decline
+# Idea (source material)
 
-**Feature Branch**: `001-statistical-cognitive-decline`  
-**Created**: 2024-05-22  
-**Status**: Draft  
-**Input**: User description: "Statistical Analysis of Publicly Available Textual Data for Detecting Cognitive Decline"
+**Research Question:**  
+Can linguistic markers derived from publicly available speech transcripts reliably detect cognitive decline associated with Alzheimer's Disease (AD) and Mild Cognitive Impairment (MCI) compared to healthy controls?
 
-## User Scenarios & Testing
+**Motivation:**  
+Early, non‑invasive detection of cognitive decline can enable timely interventions. Publicly available speech datasets (e.g., ADReSS) provide a scalable source of linguistic data without requiring new data collection.
 
-### User Story 1 - Data Ingestion and Preprocessing (Priority: P1)
+**Scope:**  
+- Use the ADReSS (Alzheimer’s Disease Recognition System for Speech) Challenge dataset, which includes raw text transcripts, speaker metadata, and optional pre‑computed sentence embeddings.  
+- Exclude external corpora such as DementiaBank unless a formal amendment is approved.  
+- Focus on lexical, syntactic, and semantic linguistic features; no acoustic‑only features are considered.
 
-The system must successfully acquire, clean, and structure the DementiaBank Pitt Corpus and ADReSS Challenge dataset, transforming raw interview transcripts into a standardized, analysis-ready format with verified cognitive status labels.
+# Specification: Statistical Analysis of Publicly Available Textual Data for Detecting Cognitive Decline
 
-**Why this priority**: Without a clean, labeled dataset, no statistical analysis can occur. This is the foundational step that enables all subsequent feature extraction and modeling.
+## 1. Introduction
 
-**Independent Test**: Can be fully tested by running the ingestion pipeline on a sample subset (e.g., 50 transcripts) and verifying that the output contains exactly 50 records with non-null cognitive status labels and cleaned text fields.
+This project aims to develop a statistical analysis pipeline to detect cognitive decline using publicly available textual data from speech transcripts. The primary objective is to identify linguistic markers associated with Alzheimer's Disease (AD) and Mild Cognitive Impairment (MCI) compared to healthy controls.
 
-**Acceptance Scenarios**:
+## 2. Functional Requirements
 
-1. **Given** raw transcript files from DementiaBank and ADReSS, **When** the ingestion script processes them, **Then** the output dataset contains only cleaned text (no non-verbal annotations like `<laughter>` or `<pause>`) and valid cognitive status labels (Control, MCI, or AD).
-2. **Given** a transcript with missing cognitive status metadata, **When** the ingestion script processes it, **Then** the record is excluded from the final dataset and logged as an exclusion with a specific reason code.
-3. **Given** mixed encoding in source files, **When** the ingestion script processes them, **Then** all text is normalized to UTF-8 without data loss or character corruption.
+### FR-001: Data Ingestion Scope (See US1)
 
----
+**Requirement**: The system shall ingest **raw text transcripts** and associated cognitive status labels (Control, MCI, AD) from the **ADReSS Challenge Dataset** (2019/2020 editions). When optional pre‑computed sentence embeddings (`all‑MiniLM‑L6‑v2`) are provided, the system shall also ingest these embeddings to enable downstream semantic similarity calculations without re‑encoding. Raw transcripts remain required for lexical and syntactic feature extraction.
 
-### User Story 2 - Linguistic Feature Extraction and Statistical Testing (Priority: P2)
+**Scope Definition**:
+- **Primary Source**: ADReSS Challenge Dataset (includes raw transcripts, speaker metadata, and optional embeddings).  
+- **Excluded Sources**: DementiaBank is explicitly excluded from this project scope per the Implementation Plan. No code paths shall attempt to fetch or process data from DementiaBank unless a verified source URL and access method are provided in a future spec amendment.  
+- **Data Format**: Raw text transcripts (`.txt` or `.csv`), associated cognitive status labels, and optional embedding files (`.npy` or `.pt`).
 
-The system must compute lexical, syntactic, and semantic features for each participant and perform statistical hypothesis testing to identify significant differences between cognitive groups (Control vs. AD and Control vs. MCI).
+**Contingency for Missing Transcripts**:
+- If a record lacks a raw transcript, that record is omitted from lexical and syntactic feature extraction and logged in `data/interim/exclusions.log`.  
+- If **no** raw transcripts are available in the dataset (e.g., dataset provides only embeddings), the pipeline shall abort with a clear error message indicating that lexical and syntactic analyses cannot be performed, and the overall study will be halted pending a scope amendment to include an alternative source of raw text.
 
-**Why this priority**: This is the core research activity. It transforms raw text into quantifiable metrics and determines if the hypothesized relationship exists in the data, distinguishing early (MCI) from late (AD) decline.
+**Edge Cases**:
+- Records with missing cognitive status labels **are omitted from the output CSV** and logged in `data/interim/exclusions.log`.  
+- Transcripts with insufficient length (< 50 words) **are omitted from the output CSV** and logged in `data/interim/exclusions.log`.  
+- Non‑verbal annotations (e.g., `<laughter>`, `<pause>`) shall be removed during preprocessing.
 
-**Independent Test**: Can be fully tested by running the feature extraction on a small, fixed dataset of 10 participants (5 control, 5 AD) and verifying that the output includes multiple feature categories (lexical, syntactic, semantic) with calculated p-values and effect sizes for each.
+### FR-002: Linguistic Feature Extraction, Covariate Adjustment, and Statistical Testing (See US2)
 
-**Acceptance Scenarios**:
+**Requirement**: The system MUST extract the following features **from the raw transcripts** and perform **ANCOVA** between groups (Control vs AD, Control vs MCI) for each feature, **including age and education as covariates directly in the ANCOVA model (no prior residualization)**. Results shall include **Bonferroni‑corrected p‑values** and **partial eta‑squared (η²)** effect sizes with 95 % confidence intervals.
 
-1. **Given** a cleaned transcript, **When** the feature extractor runs, **Then** it outputs at least 3 lexical diversity metrics (Type-Token Ratio, MTLD, Noun/Verb ratio), 2 syntactic complexity metrics (Mean Clause Length, T-unit Count), and 1 semantic coherence metric (Sentence Embedding Cosine Similarity).
-2. **Given** feature values for Control, MCI, and AD groups, **When** the statistical test module runs, **Then** it outputs Mann-Whitney U test results with p-values and Cohen's d effect sizes for both (Control vs. AD) and (Control vs. MCI) comparisons.
-3. **Given** multiple hypothesis tests (≥3 features), **When** the correction module runs, **Then** it applies Bonferroni correction and reports both raw and adjusted p-values.
+- **Lexical features**: Type‑Token Ratio (TTR), Measure of Textual Lexical Diversity (MTLD), Noun/Verb ratio.  
+- **Syntactic features**: Mean Clause Length, T‑unit Count.  
+- **Semantic features**: Sentence‑embedding cosine similarity using the `all‑MiniLM‑L6‑v2` model (or loaded embeddings).
 
----
+### FR-003: Statistical Reporting (See US3)
 
-### User Story 3 - Predictive Modeling and Validation (Priority: P3)
+**Requirement**: The system MUST generate a comprehensive report containing:
+- Bonferroni‑corrected p‑values for each feature comparison.  
+- Effect sizes reported as **partial eta‑squared (η²)** with 95 % confidence intervals, estimated via a bias‑corrected accelerated bootstrap with 5 000 resamples.  
+- Summary tables and visualizations suitable for manuscript inclusion.
 
-The system must train logistic regression and random forest classifiers to distinguish cognitive groups. This serves as a **Preliminary Sanity Check** to verify feature utility, while the primary validation uses nested cross-validation to account for small sample sizes.
+### FR-004: Covariate Adjustment
 
-**Why this priority**: This validates the practical utility of the identified features in a preliminary manner. It moves from "do features differ?" to "can features predict status?" but acknowledges the small sample size constraints.
+**Requirement**: When testing group differences, the system MUST adjust for age and education level by **including them as covariates in the ANCOVA model**, thereby controlling for confounding while using a parametric testing framework.
 
-**Independent Test**: Can be fully tested by training a logistic regression model on [deferred] of the data, tuning on [deferred], and evaluating on the held-out [deferred] test set, verifying that the output includes AUC, accuracy, and F1-score metrics. Additionally, the system must perform nested 5-fold cross-validation on the full dataset to generate the primary performance metric.
+### FR-005: Privacy & Data Anonymization (See Non‑Functional Requirements, See US4)
 
-**Acceptance Scenarios**:
+**Requirement**: The pipeline MUST ensure that no Personally Identifiable Information (PII) – defined as any name, email address, phone number, or physical address – is logged or stored. An automated regex‑based audit step shall scan all intermediate files; any detection triggers a pipeline abort and a logged error.
 
-1. **Given** a stratified 70/15/15 train/validation/test split (Preliminary Sanity Check), **When** the logistic regression model trains, **Then** it converges within 100 iterations and achieves a training AUC ≥ 0.65 on the training fold.
-2. **Given** a trained model on the [deferred] training set, **When** evaluated on the held-out [deferred] test set (Preliminary Sanity Check), **Then** the output includes AUC, accuracy, and F1-score, and the test AUC is ≥ 0.70.
-3. **Given** the full dataset, **When** nested 5-fold cross-validation runs (Primary Validation), **Then** the mean AUC is statistically significantly greater than 0.5 (p < 0.05), and the standard deviation of AUC across outer folds is ≤ 0.05.
+### FR-007: Power Analysis (See US2)
 
----
+**Requirement**: Prior to analysis, the system MUST perform an a priori power analysis for the ANCOVA models targeting **≥ 80 % power** to detect a **medium effect size (partial η² ≈ 0.06, corresponding to Cohen’s f = 0.25)** for each feature, with significance level α adjusted for Bonferroni correction (α = 0.05 / N_features). Power calculations shall account for the three groups (Control, MCI, AD) and the two covariates (age, education). If the calculated power for the available sample size is **< 80 %**, the limitation shall be documented in `data/results/power_analysis.txt`; otherwise, the analysis shall confirm that the sample meets the target. Results are recorded in `data/results/power_analysis.txt`.
 
-### Edge Cases
+### FR-008: ANCOVA Assumption Verification (See US2)
 
-- What happens when the dataset contains participants with identical feature vectors (perfect collinearity)? The system must flag these records and exclude them from feature importance ranking to prevent inflated coefficients.
-- How does the system handle transcripts with fewer than 50 words? The system must exclude these records from analysis, as linguistic metrics are unreliable on such short samples.
-- What happens if the ADReSS dataset is unavailable? The system must gracefully degrade to using only DementiaBank data and log a warning that sample size is reduced.
+**Requirement**: The system MUST verify key ANCOVA assumptions for each feature:
+- Normality of residuals (e.g., Shapiro‑Wilk test, α = 0.05).  
+- Homogeneity of regression slopes across groups.  
+- Linearity between covariates and the dependent variable.  
+Diagnostics and any violations shall be reported in the final statistical report.
 
-## Requirements
+### FR-009: Summary Statistics Output (See US1)
 
-### Functional Requirements
+**Requirement**: The pipeline MUST produce the following JSON summary files in `data/results/`:
+- `raw_record_count.json` – total number of records read from the source dataset.  
+- `group_counts.json` – counts of records per cognitive status group (Control, MCI, AD).  
+Both files must conform to a simple schema `{ "total": int, "groups": { "Control": int, "MCI": int, "AD": int } }` and be referenced in the metadata report.
 
-- **FR-001**: System MUST ingest transcripts from DementiaBank Pitt Corpus and ADReSS Challenge, removing non-verbal annotations and normalizing text to UTF-8 (See US-1).
-- **FR-002**: System MUST compute at least 6 linguistic features per participant: Type-Token Ratio, MTLD (Vocabulary Richness), Mean Clause Length, T-unit Count, Sentence Embedding Cosine Similarity, and Noun/Verb ratio (See US-2).
-- **FR-003**: System MUST perform Mann-Whitney U tests for each feature between (Control vs. AD) and (Control vs. MCI) groups, reporting raw and Bonferroni-corrected p-values (See US-2).
-- **FR-004**: System MUST train logistic regression and random forest classifiers using a stratified 70/15/15 train/validation/test split for preliminary sanity checks, and perform nested 5-fold cross-validation on the full dataset for primary validation (See US-3).
-- **FR-005**: System MUST report model performance metrics (AUC, accuracy, F1-score) for both classifiers on the held-out test set and report the mean AUC and p-value from nested cross-validation (See US-3).
+### FR-010: Raw Transcript Availability Check (New)
 
-### Key Entities
+**Requirement**: Before any lexical or syntactic feature extraction, the system shall verify that at least one raw transcript is present in the ingested dataset. If none are found, the pipeline shall abort with error code 101 and log a clear message indicating that raw transcripts are required for the study’s primary research question. No downstream analysis shall be executed until the dataset is amended to include raw text.
 
-- **Participant**: A unique individual with an associated cognitive status label (Control, MCI, or AD) and one or more interview transcripts.
-- **Linguistic Feature**: A quantitative metric (e.g., Type-Token Ratio, Mean Clause Length) derived from a participant's transcript.
-- **Model**: A predictive algorithm (Logistic Regression or Random Forest) trained on linguistic features to predict cognitive status.
+## 3. User Stories
 
-## Success Criteria
+### US1: Data Ingestion and Preprocessing
 
-### Measurable Outcomes
+**As a** data scientist,  
+**I want** to ingest and clean the ADReSS dataset (raw transcripts and optional embeddings),  
+**So that** I have a structured, labeled dataset ready for feature extraction.
 
-> Planning docs state *what* will be measured and the *source/reference* it is measured against; defer specific empirical values (counts, dataset sizes, measured quantities, percentages) to the implementation/research phase.
+**Acceptance Criteria**:
+1. The system downloads the ADReSS dataset from the canonical GitHub repository.  
+2. The system validates the downloaded data integrity using SHA‑256 checksums.  
+3. The system loads raw transcripts; if embedding files are present, they are also loaded.  
+4. The system cleans transcripts by removing non‑verbal annotations and normalizing text.  
+5. The system filters out records with missing labels or insufficient text length (< 50 words) and logs exclusions.  
+6. The system outputs a cleaned CSV file (`data/interim/cleaned_adress.csv`) and a metadata report (`data/results/metadata.json`).  
+7. The system writes `raw_record_count.json` and `group_counts.json` as specified in FR‑009.  
+8. **Exclusion**: The system does NOT attempt to access DementiaBank.
 
-- **SC-001**: The proportion of participants with valid cognitive status labels is measured against the total number of records in the raw DementiaBank/ADReSS datasets (See US-1).
-- **SC-002**: The statistical significance of linguistic features is measured against a p-value threshold of 0.05 with Bonferroni correction applied for multiple comparisons (See US-2).
-- **SC-003**: The predictive performance of the models is measured against a target AUC ≥ 0.70 for the preliminary 70/15/15 hold-out check, and statistically significant improvement over chance (p < 0.05) for the primary nested 5-fold cross-validation (See US-3).
-- **SC-004**: The stability of the model is measured against a standard deviation of AUC ≤ 0.05 across 5-fold cross-validation folds (See US-3).
-- **SC-005**: The computational feasibility is measured against a total runtime of ≤ 6 hours on a CPU-only runner with ≤ 7 GB RAM (See Assumptions).
+### US2: Linguistic Feature Extraction, Covariate Adjustment, and Statistical Testing
+
+**As a** researcher,  
+**I want** to extract linguistic features, adjust for confounders, and perform statistical tests,  
+**So that** I can identify significant differences between cognitive groups.
+
+**Acceptance Criteria**:
+1. Extract lexical features (Type‑Token Ratio, MTLD, Noun/Verb ratio) and adjust for age and education **via ANCOVA covariates**.  
+2. Extract syntactic features (Mean Clause Length, T‑unit Count) and adjust for age and education **via ANCOVA covariates**.  
+3. Extract semantic features (Sentence Embedding Cosine Similarity) using the `all‑MiniLM‑L6‑v2` model (or loaded embeddings) and adjust for age and education **via ANCOVA covariates**.  
+4. Perform **ANCOVA** between Control vs. AD and Control vs. MCI for each feature.  
+5. Verify ANCOVA assumptions as specified in FR‑008; report diagnostics.  
+6. Report effect sizes using **partial eta‑squared (η²)** with 95 % confidence intervals, applying Bonferroni correction for multiple comparisons.  
+7. Conduct the a priori power analysis defined in FR‑007 and record the outcome.
+
+### US3: Statistical Reporting and Interpretation
+
+**As a** researcher,  
+**I want** a reproducible statistical report,  
+**So that** I can interpret the significance and effect magnitude of linguistic markers across groups.
+
+**Acceptance Criteria**:
+1. Generate a PDF/HTML report summarizing all statistical test results, corrected p‑values, and η² effect sizes.  
+2. Provide visualizations:  
+   - Boxplots for each extracted lexical, syntactic, and semantic feature (one plot per feature).  
+   - A summary violin plot showing the distribution of effect sizes across all features.  
+3. Archive the report at `data/results/statistical_report.pdf`.
+
+### US4: Privacy Auditing
+
+**As a** compliance officer,  
+**I want** the pipeline to automatically audit all intermediate artifacts for personally identifiable information,  
+**So that** we guarantee no PII is inadvertently stored or logged.
+
+**Acceptance Criteria**:
+1. After each processing step, run a regex‑based PII scanner over all generated files.  
+2. If any PII pattern is detected, abort the pipeline, emit a clear error message, and write the incident to `logs/privacy_audit.log`.  
+3. Verify that the final cleaned dataset (`cleaned_adress.csv`) contains no PII.
+
+## 4. Non-Functional Requirements
+
+- **Reproducibility**: All random seeds must be fixed, and data sources must be versioned via checksums. An optional benchmark note: on an Intel Xeon processor (multi‑core) with ample memory resources, the full pipeline completes in ≤ 4 hours.  
+- **Privacy**: No PII (name, email, phone, address) shall be logged or stored; an automated regex audit (see FR‑005 / US4) must verify this condition.  
+- **Robustness**: The pipeline shall log all exclusion reasons to `data/interim/exclusions.log` and continue processing remaining records.  
+- **Memory**: Peak RAM usage must not exceed 16 GB, measured by monitoring the process RSS during execution.
+
+## 5. Data Model
+
+(See `data-model.md` for detailed entity definitions)
+
+## 6. Contracts
+
+(See `contracts/` directory for API and data schemas)
+
+## 7. Implementation Plan
+
+The project follows a phased approach:
+1. **Phase 0**: Spec Amendment (T000) – Resolve scope contradictions.  
+2. **Phase 1**: Setup – Project structure and dependencies.  
+3. **Phase 2**: Foundational – Logging, config, validation.  
+4. **Phase 3**: US1 – Ingestion and cleaning.  
+5. **Phase 4**: US2 – Feature extraction, covariate adjustment, statistical testing, and power analysis.  
+6. **Phase 5**: US3 – Reporting and interpretation.  
+7. **Phase 6**: US4 – Privacy auditing integration.  
+8. **Phase N**: Polish and documentation.
+
+## 8. Success Criteria
+
+- **SC-001**: At least one linguistic feature shows a statistically significant difference (Bonferroni‑adjusted *p* ≤ 0.05) **(See US2)**.  
+- **SC-002**: The cleaned dataset (`cleaned_adress.csv`) contains **≥ 150 records** after exclusions, which is realistic given the ADReSS dataset size (approximately a few hundred participants) and expected exclusion rate. **(See US1)**  
+- **SC-003**: The final statistical report (`data/results/statistical_report.pdf`) is generated without errors, includes the required visualizations (boxplots for each feature and a summary violin plot), and passes the automated PII audit **(See US3 & US4)**.  
+- **SC-004**: Privacy audit reports **zero** PII detections; any detection aborts the pipeline as specified in US4.  
+- **SC-009**: The a priori power analysis (FR‑007) confirms **≥ 80 % power** to detect a medium effect size (partial η² indicating a moderate effect) for the ANCOVA models given the available sample size **(See US2)**, or otherwise documents the limitation.
+
+## Requirements *(mandatory)*
+
+Functional requirements are defined in Section 2. All placeholder functional requirement entries, including the duplicate FR-001, have been removed to avoid ambiguity.
 
 ## Assumptions
 
-- The DementiaBank Pitt Corpus and ADReSS Challenge datasets are publicly accessible and contain sufficient sample sizes (≥ 500 participants per group) to achieve statistical power for the planned analyses.
-- The linguistic features extracted (lexical diversity, syntactic complexity, semantic coherence) are measurable using standard NLP libraries (NLTK, sentence-transformers) without requiring GPU acceleration.
-- The cognitive status labels in the datasets are reliable and derived from independent clinical assessments, ensuring no circularity between predictors and outcomes.
-- The analysis is observational; therefore, all findings will be framed as associational rather than causal, as the data lacks random assignment.
-- The constrained RAM of the CI runner is sufficient to load the preprocessed dataset and train small-scale models. (logistic regression, random forest) on a sampled subset if necessary.
-- The Bonferroni correction method is appropriate for the number of hypotheses tested (≤ 10 features); if more features are added, the correction method may need adjustment.
-- The semantic coherence metric using sentence-BERT embeddings is computationally feasible on CPU; if inference is too slow, a smaller pre-trained model (e.g., `all-MiniLM-L6-v2`) will be used as a fallback.
-- The 70/15/15 split is used only as a preliminary sanity check due to small sample size constraints; the primary validation relies on nested cross-validation to maximize data utility.
+- Users have stable internet connectivity to download the ADReSS dataset.  
+- Mobile support is out of scope for the initial release.  
+- Existing authentication system will be reused for any internal tooling.  
+- Requires access to the existing user profile API for metadata enrichment.

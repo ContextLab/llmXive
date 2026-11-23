@@ -3,234 +3,306 @@ import sys
 import json
 import time
 import argparse
-from typing import List, Dict, Any, Tuple
+import logging
+from typing import List, Dict, Any, Optional
+
+# Add project root to path for imports
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+if project_root not in sys.path:
+    sys.path.insert(0, project_root)
 
 from simulation.config import SimulationConfig
-from simulation.engine import generate_dataset, save_dataset_instance, calculate_vif, load_dataset_instance
+from simulation.engine import (
+    generate_synthetic_data,
+    calculate_vif,
+    save_dataset_instance,
+    DatasetInstance
+)
+from metrics.coverage import check_coverage, calculate_coverage_metrics
 from models.ols import fit_ols_and_get_intervals
 from models.bootstrap import fit_bootstrap_and_get_intervals
 from models.bayesian import fit_bayesian_and_get_intervals
-from metrics.coverage import check_coverage, calculate_coverage_metrics
 
-def run_single_replication(config: SimulationConfig, seed: int, method: str = "all") -> Dict[str, Any]:
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler(os.path.join(project_root, 'data', 'results', 'simulation.log'), mode='a')
+    ]
+)
+logger = logging.getLogger(__name__)
+
+def run_single_replication(
+    config: SimulationConfig,
+    seed: int,
+    method: str = "ols"
+) -> Dict[str, Any]:
     """
-    Run a single replication of the simulation for a given config and seed.
-    
-    Returns a dictionary containing:
-    - seed: The random seed used
-    - method: The method used ('ols', 'bootstrap', 'bayesian', or 'all')
-    - coverage: Binary coverage flags for each parameter
-    - interval_widths: Width of confidence/credible intervals
-    - vif_max: Maximum VIF value for the dataset
-    - r_hat: R-hat value for Bayesian method (None for others)
-    - valid: Boolean indicating if the run should be included in final metrics
-    - reason_invalid: Reason for invalidity if valid is False
+    Run a single replication of the simulation for a specific method.
+    Returns a dictionary containing results and metadata.
     """
+    logger.info(f"Starting replication {seed} with method {method}")
     start_time = time.time()
-    
+
     try:
-        # Generate dataset
-        dataset = generate_dataset(config, seed)
-        X, y, beta_true = dataset.X, dataset.y, dataset.beta_true
+        # Generate synthetic data
+        dataset: DatasetInstance = generate_synthetic_data(config, seed)
         
-        # Calculate VIF
-        vif_values = calculate_vif(X)
-        vif_max = max(vif_values) if vif_values else 0.0
+        # Check VIF
+        max_vif = max(dataset.vif_scores.values()) if dataset.vif_scores else 0
+        vif_fail = max_vif > 10
         
-        # Check VIF threshold
-        if vif_max > 10:
+        if vif_fail:
+            logger.warning(f"Replication {seed}: VIF check failed (max={max_vif})")
             return {
                 "seed": seed,
                 "method": method,
-                "coverage": [],
-                "interval_widths": [],
-                "vif_max": vif_max,
-                "r_hat": None,
-                "valid": False,
-                "reason_invalid": f"VIF too high: {vif_max:.2f} > 10",
+                "status": "invalid",
+                "failure_reason": "vif_fail",
+                "max_vif": max_vif,
                 "duration": time.time() - start_time
             }
-        
-        # Store results based on method
-        results = {
-            "seed": seed,
-            "method": method,
-            "vif_max": vif_max,
-            "valid": True,
-            "reason_invalid": None,
-            "duration": time.time() - start_time
-        }
-        
-        if method == "ols" or method == "all":
-            intervals, cov_flags, widths = fit_ols_and_get_intervals(X, y, beta_true)
-            results["method"] = "ols"
-            results["coverage"] = cov_flags
-            results["interval_widths"] = widths
-            results["r_hat"] = None
-            
-        elif method == "bootstrap" or method == "all":
-            intervals, cov_flags, widths = fit_bootstrap_and_get_intervals(X, y, beta_true)
-            results["method"] = "bootstrap"
-            results["coverage"] = cov_flags
-            results["interval_widths"] = widths
-            results["r_hat"] = None
-            
-        elif method == "bayesian" or method == "all":
-            intervals, cov_flags, widths, r_hat = fit_bayesian_and_get_intervals(X, y, beta_true)
-            results["method"] = "bayesian"
-            results["coverage"] = cov_flags
-            results["interval_widths"] = widths
-            results["r_hat"] = r_hat
-            
-            # Check R-hat threshold
-            if r_hat is not None and r_hat > 1.05:
-                results["valid"] = False
-                results["reason_invalid"] = f"R-hat too high: {r_hat:.4f} > 1.05"
-        
-        return results
-        
-    except Exception as e:
+
+        # Fit model and get intervals
+        if method == "ols":
+            intervals, r_hat, status = fit_ols_and_get_intervals(dataset.X, dataset.y)
+        elif method == "bootstrap":
+            intervals, r_hat, status = fit_bootstrap_and_get_intervals(dataset.X, dataset.y)
+        elif method == "bayesian":
+            intervals, r_hat, status = fit_bayesian_and_get_intervals(dataset.X, dataset.y)
+        else:
+            raise ValueError(f"Unknown method: {method}")
+
+        # Check convergence (for Bayesian)
+        r_hat_fail = False
+        if r_hat is not None and r_hat > 1.05:
+            r_hat_fail = True
+            logger.warning(f"Replication {seed}: R-hat check failed (r_hat={r_hat})")
+
+        if r_hat_fail:
+            return {
+                "seed": seed,
+                "method": method,
+                "status": "invalid",
+                "failure_reason": "r_hat_fail",
+                "r_hat": r_hat,
+                "duration": time.time() - start_time
+            }
+
+        # Calculate coverage for each parameter
+        coverage_results = []
+        for i, true_beta in enumerate(dataset.beta_true):
+            lower, upper = intervals[i]
+            covered = check_coverage(lower, upper, true_beta)
+            coverage_results.append({
+                "parameter_index": i,
+                "true_beta": true_beta,
+                "lower": lower,
+                "upper": upper,
+                "covered": covered
+            })
+
+        duration = time.time() - start_time
+        logger.info(f"Replication {seed} completed in {duration:.2f}s")
+
         return {
             "seed": seed,
             "method": method,
-            "coverage": [],
-            "interval_widths": [],
-            "vif_max": 0.0,
-            "r_hat": None,
-            "valid": False,
-            "reason_invalid": f"Exception: {str(e)}",
+            "status": "valid",
+            "failure_reason": None,
+            "intervals": intervals,
+            "coverage_results": coverage_results,
+            "max_vif": max_vif,
+            "r_hat": r_hat,
+            "duration": duration
+        }
+
+    except Exception as e:
+        logger.error(f"Replication {seed} failed with exception: {e}", exc_info=True)
+        return {
+            "seed": seed,
+            "method": method,
+            "status": "invalid",
+            "failure_reason": "other",
+            "error_message": str(e),
             "duration": time.time() - start_time
         }
 
-def run_full_simulation(config: SimulationConfig, n_replications: int = 200, 
-                        output_path: str = "data/results/coverage_metrics.json",
-                        filtered_output_path: str = "data/results/filtered_metrics.json") -> Dict[str, Any]:
+def run_full_simulation(
+    config: SimulationConfig,
+    n_replications: int = 200,
+    methods: Optional[List[str]] = None
+) -> List[Dict[str, Any]]:
     """
-    Run the full simulation with multiple replications.
-    
-    Args:
-        config: Simulation configuration
-        n_replications: Number of Monte Carlo replications
-        output_path: Path to save all results
-        filtered_output_path: Path to save filtered results (excluding invalid runs)
-        
-    Returns:
-        Dictionary with aggregated metrics
+    Run the full Monte Carlo simulation.
     """
-    print(f"Starting simulation with {n_replications} replications...")
-    start_time = time.time()
+    if methods is None:
+        methods = ["ols", "bootstrap", "bayesian"]
     
     all_results = []
     
-    for i in range(n_replications):
-        seed = config.seed + i
-        print(f"Replication {i+1}/{n_replications} (seed={seed})")
+    logger.info(f"Starting full simulation with {n_replications} replications and methods: {methods}")
+    start_time = time.time()
+
+    for rep_idx in range(n_replications):
+        seed = rep_idx + 1  # Use 1-based seeds for reproducibility
         
-        # Run all methods for this replication
-        methods = ["ols", "bootstrap", "bayesian"]
         for method in methods:
             result = run_single_replication(config, seed, method)
-            result["replication_id"] = i
             all_results.append(result)
-            
+
     total_duration = time.time() - start_time
-    print(f"Simulation completed in {total_duration:.2f} seconds")
-    
-    # Save all results
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    logger.info(f"Full simulation completed in {total_duration:.2f}s")
+
+    # Save raw results
+    output_path = os.path.join(project_root, 'data', 'results', 'coverage_metrics.json')
     with open(output_path, 'w') as f:
-        json.dump(all_results, f, indent=2)
-    print(f"Saved all results to {output_path}")
+        json.dump({
+            "results": all_results,
+            "config": config.__dict__,
+            "n_replications": n_replications,
+            "methods": methods,
+            "total_duration": total_duration
+        }, f, indent=2)
     
-    # Filter results: exclude runs with R-hat > 1.05 or VIF > 10
-    filtered_results = [r for r in all_results if r["valid"]]
-    invalid_count = len(all_results) - len(filtered_results)
+    logger.info(f"Raw results saved to {output_path}")
     
-    # Calculate coverage metrics for filtered results
-    coverage_metrics = calculate_coverage_metrics(filtered_results)
-    
-    # Add metadata to filtered results
-    for method in ["ols", "bootstrap", "bayesian"]:
-        method_results = [r for r in filtered_results if r["method"] == method]
-        if method in coverage_metrics:
-            coverage_metrics[method]["total_attempts"] = len([r for r in all_results if r["method"] == method])
-            coverage_metrics[method]["invalid_count"] = invalid_count
-    
-    # Save filtered results
+    return all_results
+
+def filter_and_save_results(
+    results: List[Dict[str, Any]],
+    output_path: Optional[str] = None
+) -> Dict[str, Any]:
+    """
+    Filter results to exclude runs with R-hat > 1.05 or VIF > 10.
+    Calculate coverage metrics only on valid runs.
+    """
+    if output_path is None:
+        output_path = os.path.join(project_root, 'data', 'results', 'filtered_metrics.json')
+
+    logger.info("Filtering results and calculating metrics...")
+
+    # Separate valid and invalid runs
+    valid_runs = []
+    invalid_runs = []
+    failure_reasons = {"r_hat_fail": 0, "vif_fail": 0, "other": 0}
+
+    for result in results:
+        if result["status"] == "valid":
+            valid_runs.append(result)
+        else:
+            invalid_runs.append(result)
+            reason = result.get("failure_reason", "other")
+            if reason in failure_reasons:
+                failure_reasons[reason] += 1
+            else:
+                failure_reasons["other"] += 1
+
+    logger.info(f"Valid runs: {len(valid_runs)}, Invalid runs: {len(invalid_runs)}")
+
+    # Calculate coverage metrics per method
+    method_metrics = {}
+    methods = list(set(r["method"] for r in valid_runs))
+
+    for method in methods:
+        method_valid_runs = [r for r in valid_runs if r["method"] == method]
+        
+        if not method_valid_runs:
+            logger.warning(f"No valid runs for method {method}")
+            continue
+
+        # Aggregate coverage results
+        all_covered = []
+        all_widths = []
+        
+        for run in method_valid_runs:
+          for cov in run.get("coverage_results", []):
+              all_covered.append(cov["covered"])
+              width = cov["upper"] - cov["lower"]
+              all_widths.append(width)
+
+        coverage_rate = sum(all_covered) / len(all_covered) if all_covered else 0.0
+        avg_width = sum(all_widths) / len(all_widths) if all_widths else 0.0
+
+        method_metrics[method] = {
+            "coverage_rate": coverage_rate,
+            "interval_width": avg_width,
+            "valid_n": len(method_valid_runs),
+            "total_runs": len([r for r in results if r["method"] == method])
+        }
+
     filtered_output = {
-        "metadata": {
-            "total_replications": n_replications,
-            "total_attempts": len(all_results),
-            "valid_runs": len(filtered_results),
-            "invalid_runs": invalid_count,
-            "total_duration": total_duration,
-            "config": {
-                "N": config.N,
-                "predictors": config.predictors,
-                "rho": config.rho,
-                "noise_std": config.noise_std,
-                "seed": config.seed
-            }
+        "summary": {
+            "total_runs": len(results),
+            "valid_runs": len(valid_runs),
+            "invalid_runs": len(invalid_runs),
+            "failure_reasons": failure_reasons
         },
-        "coverage_metrics": coverage_metrics,
-        "individual_results": filtered_results
+        "method_metrics": method_metrics,
+        "exclusion_criteria": {
+            "r_hat_threshold": 1.05,
+            "vif_threshold": 10
+        }
     }
-    
-    os.makedirs(os.path.dirname(filtered_output_path), exist_ok=True)
-    with open(filtered_output_path, 'w') as f:
+
+    with open(output_path, 'w') as f:
         json.dump(filtered_output, f, indent=2)
-    print(f"Saved filtered results to {filtered_output_path}")
-    print(f"Filtered out {invalid_count} invalid runs")
+
+    logger.info(f"Filtered results saved to {output_path}")
     
     return filtered_output
 
 def main():
-    """Main entry point for the simulation."""
+    """
+    Main entry point for the simulation pipeline.
+    """
     parser = argparse.ArgumentParser(description="Run uncertainty quantification simulation")
-    parser.add_argument("--config", type=str, default="data/results/simulation_config.json",
-                      help="Path to simulation configuration file")
-    parser.add_argument("--replications", type=int, default=200,
-                      help="Number of Monte Carlo replications")
-    parser.add_argument("--output", type=str, default="data/results/coverage_metrics.json",
-                      help="Output path for all results")
-    parser.add_argument("--filtered-output", type=str, default="data/results/filtered_metrics.json",
-                      help="Output path for filtered results")
-    
+    parser.add_argument('--n-replications', type=int, default=200, help='Number of Monte Carlo replications')
+    parser.add_argument('--methods', type=str, nargs='+', default=['ols', 'bootstrap', 'bayesian'],
+                      help='Methods to compare')
+    parser.add_argument('--config', type=str, default=None, help='Path to simulation config JSON')
     args = parser.parse_args()
-    
-    # Load configuration
-    if os.path.exists(args.config):
+
+    # Default simulation config
+    config = SimulationConfig(
+        n_samples=30,
+        n_predictors=3,
+        correlation=0.5,
+        noise_std=1.0,
+        true_coefficients=[1.0, 2.0, 3.0]
+    )
+
+    if args.config:
         with open(args.config, 'r') as f:
             config_dict = json.load(f)
-        config = SimulationConfig(**config_dict)
-    else:
-        # Default configuration
-        config = SimulationConfig(
-            N=30,
-            predictors=3,
-            rho=0.5,
-            noise_std=1.0,
-            seed=42
-        )
-    
+            config = SimulationConfig(**config_dict)
+
     # Run simulation
     results = run_full_simulation(
         config=config,
-        n_replications=args.replications,
-        output_path=args.output,
-        filtered_output_path=args.filtered_output
+        n_replications=args.n_replications,
+        methods=args.methods
     )
-    
-    print("\nSummary:")
-    print(f"Total attempts: {results['metadata']['total_attempts']}")
-    print(f"Valid runs: {results['metadata']['valid_runs']}")
-    print(f"Invalid runs: {results['metadata']['invalid_runs']}")
-    
-    for method, metrics in results['coverage_metrics'].items():
-        print(f"\n{method.upper()}:")
-        print(f"  Coverage rate: {metrics['coverage_rate']:.4f}")
-        print(f"  Avg interval width: {metrics['avg_interval_width']:.4f}")
-        print(f"  Valid samples: {metrics['valid_n']}")
+
+    # Filter and save results
+    filtered_results = filter_and_save_results(results)
+
+    # Print summary
+    print("\n=== SIMULATION SUMMARY ===")
+    print(f"Total runs: {filtered_results['summary']['total_runs']}")
+    print(f"Valid runs: {filtered_results['summary']['valid_runs']}")
+    print(f"Invalid runs: {filtered_results['summary']['invalid_runs']}")
+    print(f"Failure reasons: {filtered_results['summary']['failure_reasons']}")
+    print("\nMethod Metrics:")
+    for method, metrics in filtered_results['method_metrics'].items():
+        print(f"  {method}:")
+        print(f"    Coverage Rate: {metrics['coverage_rate']:.4f}")
+        print(f"    Avg Interval Width: {metrics['interval_width']:.4f}")
+        print(f"    Valid N: {metrics['valid_n']}")
+
+    return filtered_results
 
 if __name__ == "__main__":
     main()

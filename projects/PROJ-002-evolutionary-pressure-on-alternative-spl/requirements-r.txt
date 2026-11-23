@@ -1,0 +1,7 @@
+# R Dependencies for PROJ-002
+# Generated for T002: Initialize Python 3.11 and R 4.3 project with dependencies
+# These packages will be installed via renv or install.packages()
+phylolm
+ape
+data.table
+ggplot2

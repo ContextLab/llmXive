@@ -1,0 +1,27 @@
+T020a:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided specification excerpt shows FR\u2011004 and the Assumptions now\
+    \ explicitly refer to stratification by **Chemical Family** (and note \u201Cnot\
+    \ crystal system\u201D), matching the task\u2019s requirement. No missing or placeholder\
+    \ content is evident."
+T026a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `plan.md` file (or its updated contents) is provided, so we\
+    \ cannot confirm that the \u201CSingle Source of Truth\u201D section was edited\
+    \ to list `permutation_importance.json`, `feature_ranking.json`, and `vif_scores.json`.\
+    \ The required artifact (the updated plan document) is missing."
+T047:
+  c: false
+  h: 50e4c53a1a48f992a0fbbff6dec718d4f97a6ff5ff01ea8d32eb22e856754971
+  r: "The provided `code/importance.py` never computes VIF scores nor writes them\
+    \ to `data/evaluation/vif_scores.json`, and the expected JSON file is absent from\
+    \ the repository. Consequently the multi\u2011collinearity check and required\
+    \ output are not implemented."
+T053:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `research.md` file or any summary document is present in the provided evidence,
+    and therefore there are no metrics, VIF results, or references to ALE plot files
+    to verify. The required artifact is missing.

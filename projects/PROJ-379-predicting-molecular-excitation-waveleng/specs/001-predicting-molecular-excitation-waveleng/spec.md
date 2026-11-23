@@ -49,7 +49,7 @@ The researcher must be able to analyze which molecular substructures (features) 
 
 **Acceptance Scenarios**:
 
-1. **Given** a trained GNN and a set of test molecules, **When** the attribution analysis (GNNExplainer or gradient-based) is run, **Then** the system outputs a visualization or data file highlighting the top 5 atoms/bonds contributing to the λmax prediction for each molecule.
+1. **Given** a trained GNN and a set of test molecules, **When** the attribution analysis (GNNExplainer or gradient-based) is run, **Then** the system outputs a visualization or data file highlighting the top contributing atoms/bonds to the λmax prediction for each molecule.
 2. **Given** decision cutoffs for error classification (MAE ≥ 30 nm, 40 nm, 50 nm), **When** the sensitivity analysis is run, **Then** the system sweeps these thresholds and reports the variation in false-positive/false-negative rates.
 3. **Given** two subgraphs with latent embeddings showing cosine similarity > 0.9, **When** the redundancy check is run, **Then** the system aggregates these subgraphs and masks their individual attribution weights to prevent spurious independent effect claims.
 

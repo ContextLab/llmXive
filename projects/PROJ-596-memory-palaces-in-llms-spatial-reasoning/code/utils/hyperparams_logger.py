@@ -1,3 +1,7 @@
+"""
+Hyperparameter logging utility for the Memory Palaces project.
+Logs configuration and runtime decisions to artifacts/results/hyperparams_log.json.
+"""
 import json
 import os
 import time
@@ -5,189 +9,84 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List
 
-# Constants matching the project's memory constraints
-RAM_THRESHOLD_GB = 6.0
-
-def get_current_memory_usage_gb() -> float:
-    """
-    Returns the current RSS (Resident Set Size) memory usage in GB.
-    Uses psutil if available, otherwise falls back to a simple estimation
-    or returns 0.0 if not measurable.
-    """
-    try:
-        import psutil
-        process = psutil.Process(os.getpid())
-        mem_info = process.memory_info()
-        return mem_info.rss / (1024 ** 3)
-    except ImportError:
-        # Fallback: Try reading /proc/self/status on Linux
-        try:
-            with open('/proc/self/status', 'r') as f:
-                for line in f:
-                    if line.startswith('VmRSS:'):
-                        # VmRSS is in kB
-                        rss_kb = int(line.split()[1])
-                        return rss_kb / (1024 ** 2)
-        except Exception:
-            pass
-    return 0.0
-
 def log_hyperparameters(
-    run_id: str,
-    base_batch_size: int,
-    effective_batch_size: int,
-    dataset_size: int,
-    effective_dataset_size: int,
+    batch_size: int,
     model_name: str,
-    memory_threshold_gb: float = RAM_THRESHOLD_GB,
-    memory_usage_at_start_gb: Optional[float] = None,
-    memory_usage_at_end_gb: Optional[float] = None,
-    deviations: Optional[List[Dict[str, Any]]] = None,
-    output_dir: Optional[Path] = None
-) -> Path:
+    dataset: str,
+    seeds: List[int],
+    memory_threshold_gb: float,
+    dataset_capped: bool,
+    fallback_triggered: bool,
+    extra_notes: Optional[str] = None
+):
     """
-    Logs the final effective hyperparameters and any deviations (e.g., batch-size
-    reduction, dataset capping) to artifacts/results/hyperparams_log.json.
-    
-    Explicitly notes the RAM threshold (FR-003) and documents the decision logic.
+    Log hyperparameters and memory decisions to artifacts/results/hyperparams_log.json.
     
     Args:
-        run_id: Unique identifier for the run.
-        base_batch_size: The originally requested batch size.
-        effective_batch_size: The actual batch size used after memory adjustments.
-        dataset_size: Original size of the dataset.
-        effective_dataset_size: Actual size of the dataset used (if capped).
-        model_name: Name of the model used.
-        memory_threshold_gb: The RAM threshold in GB that triggers adjustments.
-        memory_usage_at_start_gb: RSS at start of run.
-        memory_usage_at_end_gb: RSS at end of run.
-        deviations: List of deviation records (e.g., {"type": "batch_size_reduction", "reason": "RSS > 6GB"}).
-        output_dir: Directory to write the log. Defaults to artifacts/results/.
-    
-    Returns:
-        Path to the written JSON file.
+        batch_size: Effective batch size used.
+        model_name: Name of the model used (e.g., 'distilgpt2').
+        dataset: Name of the dataset used.
+        seeds: List of random seeds used.
+        memory_threshold_gb: The memory threshold in GB (e.g., 6.0).
+        dataset_capped: Whether the dataset was capped due to memory constraints.
+        fallback_triggered: Whether the model fallback logic was triggered.
+        extra_notes: Optional string for additional context.
     """
-    if output_dir is None:
-        output_dir = Path("artifacts/results")
+    ensure_dir()
+    log_path = Path("artifacts/results/hyperparams_log.json")
     
-    output_dir.mkdir(parents=True, exist_ok=True)
-    output_path = output_dir / "hyperparams_log.json"
-    
-    # Load existing log if it exists to append to it
-    existing_log = []
-    if output_path.exists():
+    # Load existing log if present to append/merge, or create new
+    existing_data = []
+    if log_path.exists():
         try:
-            with open(output_path, 'r') as f:
-                existing_log = json.load(f)
-        except (json.JSONDecodeError, IOError):
-            existing_log = []
-    
-    # Ensure deviations is a list
-    if deviations is None:
-        deviations = []
-    
-    # Determine if deviations occurred based on inputs if not explicitly provided
-    if not deviations:
-        if effective_batch_size < base_batch_size:
-            deviations.append({
-                "type": "batch_size_reduction",
-                "original": base_batch_size,
-                "effective": effective_batch_size,
-                "reason": f"Memory usage exceeded {memory_threshold_gb}GB threshold (FR-003)"
-            })
-        if effective_dataset_size < dataset_size:
-            deviations.append({
-                "type": "dataset_capping",
-                "original": dataset_size,
-                "effective": effective_dataset_size,
-                "reason": f"Memory usage exceeded {memory_threshold_gb}GB threshold after batch size reduction (FR-003)"
-            })
-    
+            with open(log_path, "r") as f:
+                existing_data = json.load(f)
+        except json.JSONDecodeError:
+            existing_data = []
+
     entry = {
-        "timestamp": datetime.utcnow().isoformat(),
-        "run_id": run_id,
-        "ram_threshold_gb": memory_threshold_gb,
-        "hyperparameters": {
-            "base_batch_size": base_batch_size,
-            "effective_batch_size": effective_batch_size,
-            "base_dataset_size": dataset_size,
-            "effective_dataset_size": effective_dataset_size,
-            "model_name": model_name
-        },
-        "memory_snapshot": {
-            "start_gb": memory_usage_at_start_gb,
-            "end_gb": memory_usage_at_end_gb
-        },
-        "deviations": deviations,
-        "notes": "Log generated per FR-003: Explicitly notes 6GB RAM threshold and deviations."
+        "timestamp": datetime.now().isoformat(),
+        "batch_size": batch_size,
+        "model_name": model_name,
+        "dataset": dataset,
+        "seeds": seeds,
+        "memory_threshold_gb": memory_threshold_gb,
+        "dataset_capped": dataset_capped,
+        "fallback_triggered": fallback_triggered,
+        "extra_notes": extra_notes or ""
     }
     
-    existing_log.append(entry)
+    existing_data.append(entry)
     
-    with open(output_path, 'w') as f:
-        json.dump(existing_log, f, indent=2)
+    with open(log_path, "w") as f:
+        json.dump(existing_data, f, indent=2)
     
-    return output_path
+    print(f"Hyperparameters logged to {log_path}")
+
+def ensure_dir():
+    """Ensure the results directory exists."""
+    results_dir = Path("artifacts/results")
+    results_dir.mkdir(parents=True, exist_ok=True)
 
 def main():
-    """
-    CLI entry point for testing the hyperparameters logger.
-    """
+    """CLI entry point for testing the logger."""
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Log hyperparameters and deviations.")
-    parser.add_argument("--run_id", type=str, default="test_run_001", help="Run ID")
-    parser.add_argument("--base_batch_size", type=int, default=8, help="Original batch size")
-    parser.add_argument("--effective_batch_size", type=int, default=4, help="Effective batch size")
-    parser.add_argument("--dataset_size", type=int, default=10000, help="Original dataset size")
-    parser.add_argument("--effective_dataset_size", type=int, default=10000, help="Effective dataset size")
-    parser.add_argument("--model_name", type=str, default="gpt2-medium", help="Model name")
-    parser.add_argument("--threshold", type=float, default=RAM_THRESHOLD_GB, help="RAM threshold")
-    
+    parser = argparse.ArgumentParser(description="Hyperparameter Logger")
+    parser.add_argument("--test", action="store_true", help="Run a test log entry")
     args = parser.parse_args()
-    
-    start_mem = get_current_memory_usage_gb()
-    
-    # Simulate some work or just log immediately
-    time.sleep(0.1)
-    
-    end_mem = get_current_memory_usage_gb()
-    
-    deviations = []
-    if args.effective_batch_size < args.base_batch_size:
-        deviations.append({
-            "type": "batch_size_reduction",
-            "original": args.base_batch_size,
-            "effective": args.effective_batch_size,
-            "reason": f"Memory usage exceeded {args.threshold}GB threshold (FR-003)"
-        })
-    
-    if args.effective_dataset_size < args.dataset_size:
-        deviations.append({
-            "type": "dataset_capping",
-            "original": args.dataset_size,
-            "effective": args.effective_dataset_size,
-            "reason": f"Memory usage exceeded {args.threshold}GB threshold after batch size reduction (FR-003)"
-        })
-    
-    output_path = log_hyperparameters(
-        run_id=args.run_id,
-        base_batch_size=args.base_batch_size,
-        effective_batch_size=args.effective_batch_size,
-        dataset_size=args.dataset_size,
-        effective_dataset_size=args.effective_dataset_size,
-        model_name=args.model_name,
-        memory_threshold_gb=args.threshold,
-        memory_usage_at_start_gb=start_mem,
-        memory_usage_at_end_gb=end_mem,
-        deviations=deviations
-    )
-    
-    print(f"Hyperparameters logged to: {output_path}")
-    
-    # Read and print the content to verify
-    with open(output_path, 'r') as f:
-        print(f.read())
+
+    if args.test:
+        log_hyperparameters(
+            batch_size=4,
+            model_name="distilgpt2",
+            dataset="babi",
+            seeds=[42],
+            memory_threshold_gb=6.0,
+            dataset_capped=False,
+            fallback_triggered=True,
+            extra_notes="Test entry for T017 verification"
+        )
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

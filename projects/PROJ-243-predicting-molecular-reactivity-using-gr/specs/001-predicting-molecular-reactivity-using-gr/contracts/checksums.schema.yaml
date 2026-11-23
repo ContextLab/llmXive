@@ -1,0 +1,18 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Checksums Schema"
+description: "Schema for the SHA‑256 checksum manifest of raw data files."
+type: "array"
+items:
+  type: "object"
+  properties:
+    file_path:
+      type: "string"
+      description: "Relative path to the raw file (e.g., 'data/raw/qm9_subset.parquet')."
+    sha256:
+      type: "string"
+      pattern: "^[a-fA-F0-9]{64}$"
+      description: "Hex‑encoded SHA‑256 checksum of the file."
+  required:
+    - "file_path"
+    - "sha256"
+uniqueItems: true

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.05051",
+  "judged_at": "2026-07-31T08:17:02Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"robodojo: a unified sim-and-real benchmark for comprehensive evaluatio\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly investigates the core mechanism of \"sim-to-real\" transfer in robotics, which is the central theme of the user's question regarding the \"RoboDojo\" benchmark. Although it does not mention RoboDojo specifically, it provides canonical prior work on the same biological/physical mechanism (sim-to-real gap closure via representation learning) and measures the same dependent variable (real-world controller performance) on the same domain (robotics",
+  "relevant": true
+}

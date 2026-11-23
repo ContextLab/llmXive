@@ -1,0 +1,77 @@
+T001:
+  c: false
+  h: 46b557704188a3ccec40d36508d7f6584b0787b0bffc13728b7cf2cb6044add1
+  r: 'The evidence confirms only the top-level directories (`code/`, `data/`, `outputs/`)
+    and some subdirectories (`code/data/`, `code/tests/`, `code/utils/`, `data/processed/`),
+    but the required nested directories are not shown to exist: `code/models/` is
+    absent from the 28-entry `code/` listing, and there is no evidence of `code/data/raw`,
+    `code/data/processed`, `code/data/evaluation`, `code/tests/unit`, `code/tests/integration`,
+    or `data/raw` (the `data/` listing contains only 4 entries with no `raw/` directory;
+    checksums.json references to `data/raw/...` files are not proof those paths exist
+    at '
+  sig: b0268a0c8de8ac502eeda57a168f82d35b904599dc00054f35ddd0f3b94805d0
+T002:
+  c: true
+  h: edef8d8658a4b75b50e3ade97d9a30fdebc5f1657ee11e63752754ccd4c1ab3f
+  r: '`code/requirements.txt` exists with exactly the 11 required pinned lines (trailing
+    newline only difference, no extra packages), and `outputs/install_log.txt` shows
+    a real `pip install -r code/requirements.txt` run resolving all 11 pins without
+    error, corroborated by the exit-0 execution record for `code/install_deps.py`.'
+  sig: 688ccc10cf53b50e9e6d74c0cf3765297dadfef386b28193c91768bc77a9c91b
+T003:
+  c: true
+  h: 616aa762119b08312d9124c1ef38bba2ebb4c56194bfa29bd99f08424ed3faca
+  r: Checked `pyproject.toml` for a `[tool.black]` section with `line-length = 88`
+    and `.ruff.toml` for a `[tool.ruff]` section with `select = ["E", "F", "W"]`;
+    both files exist and contain the required configurations.
+  sig: fb4755242a69f46ee757348904c6fc112e35d85fffd9e360a7d05d0ed9dbfc1d
+T004:
+  c: true
+  h: df399a1479f38959af4b1b5852ae437312cb35899434ac517079fe37ca604d2d
+  r: "Both artifacts exist and are valid JSON: `data/checksums.json` (populated by\
+    \ later download tasks, which is fine \u2014 it need only exist at this stage)\
+    \ and `outputs/reproducibility_meta.json`, which contains a non-empty `\"seed\"\
+    ` field (1101310393) plus a timestamp, exactly as required."
+  sig: 37d6f916009fc17fea9f0c7788d9d33e2a9d4a083f11e9334f85873e2aff544f
+T005:
+  c: true
+  h: e370bb4b1b066c5731391298932463fbb7e0aadd2b24f5e474cf096083f56401
+  r: "Checked `code/utils/emulator.py` (15979\u202Fbytes) \u2013 it defines the required\
+    \ constants `EMU_CRASH`, `EMU_TIMEOUT`, `EMU_NOT_FOUND` and implements the four\
+    \ public functions `launch_emulator()`, `send_action(action_seq)`, `check_crash()`,\
+    \ and `get_screenshot()` with proper exception handling, and the module imports\
+    \ without error."
+  sig: f70528b16cd1690ca05337a8fd20cf2c6d37812378611ef27a8daa3c911ee245
+T006:
+  c: true
+  h: 48db0d947e87c826cf7c93e1014e53f1d7f84ea4fe852af41132e93e8c20f16b
+  r: 'The file `code/utils/metrics.py` exists (2996 bytes) and contains both required
+    classes with the exact signatures: `SuccessRate.compute(success_flags: List[bool])
+    -> float` returning a value in [0,1] (0.0 for empty input), and `StepEfficiency.compute(steps_taken,
+    optimal_steps) -> float` returning a non-negative ratio of averages with sensible
+    edge-case handling. The implementation is real, not a stub or placeholder, and
+    matches the task''s documented ranges.'
+  sig: 96229dc32ebc6176fc4df46fdc0370d5b284ab9427d41fbfc9ec2d6e53cb297a
+T007:
+  c: true
+  h: a3509fa01acb018e9e0503909961a0ebd3c16613be5f13617abd770f4a5dded3
+  r: "The script `code/utils/power_analysis.py` exists and implements a real statsmodels-based\
+    \ power calculation (GofChisquarePower, an acceptable McNemar-appropriate estimator\
+    \ per the task's \"e.g.\" wording), enforces the before-extraction rule by aborting\
+    \ if `data/processed` is non-empty, and writes the schema-conforming output. The\
+    \ output `outputs/power_analysis.json` contains `n_required: 197` \u2014 which\
+    \ matches the analytically expected value (z\u2080.\u2080\u2082\u2085+z\u2080\
+    .\u2088)\xB2/h\xB2 \u2248 196.2 rounded up \u2014 plus the full `parameters` block\
+    \ and timestamp, satisfying the schema's required fields and constraints (integer\
+    \ \u22651, no"
+  sig: f52318e107c3cc9d2b320aa67074917f5c1224353c1f346fad215e3799dc5097
+T008:
+  c: false
+  h: 98971fb0acfebec665dea9bf81b6244fd0ba166aff817ea6f10de075b8d93eba
+  r: "The required script `data/raw/download_mobileforge.py` (and `code/data/raw/download_mobileforge.py`)\
+    \ does not exist at all, so the core deliverable is missing. Moreover, the download\
+    \ log shows the dataset actually fetched was `OSTShushack/ExtractionDataset`,\
+    \ not the required `mobileforge/logs`, and the checksums.json contains only 3\
+    \ files checksummed against the saved dataset while the log claims success \u2014\
+    \ the artifacts contradict the task's stated requirements."
+  sig: 996810139d6f3bde0e4cbb10b74cc9823e449ae23dd3b54e417d5c58d967f1a1

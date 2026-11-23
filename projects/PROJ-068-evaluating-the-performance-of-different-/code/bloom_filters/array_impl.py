@@ -1,81 +1,92 @@
 """
-Implementation of a Bloom Filter using native Python lists (arrays).
+Implementation of ArrayBloomFilter using native Python lists.
 
-This module provides the ArrayBloomFilter class, which implements the
-BloomFilter abstract base class using a list of integers (0 or 1)
-to represent the bit array.
+This module provides a Bloom filter implementation that utilizes standard
+Python lists as the underlying bit array. While less memory-efficient than
+specialized bitset libraries, it serves as a baseline for performance
+comparison and ensures compatibility without external C-extension dependencies
+for the bit storage mechanism.
 """
 
-from typing import List, Union, Dict, Tuple, Iterable
+from typing import List, Union, Iterable, Optional, Dict, Tuple
 import math
+import struct
 
-# Import from sibling modules based on provided API surface
 from .base import BloomFilter, calculate_optimal_parameters
 from .hash_utils import get_k_hashes, hash_murmur3_32
 
 
 class ArrayBloomFilter(BloomFilter):
     """
-    A Bloom Filter implementation using a native Python list for the bit array.
+    A Bloom filter implementation using native Python lists.
 
     Attributes:
-        n_elements (int): Estimated number of inserted elements.
-        m (int): Size of the bit array.
-        k (int): Number of hash functions.
-        fpr_target (float): Target false positive rate.
-        bit_array (List[int]): The underlying storage, a list of 0s and 1s.
+        bits (List[int]): The underlying bit array represented as a list of integers (0 or 1).
+        size (int): Total number of bits in the filter.
+        k (int): Number of hash functions to use.
+        n_elements (int): Count of elements inserted.
     """
 
     def __init__(
         self,
         n_elements: int,
-        fpr_target: float,
-        hash_func=None,
-        seeds: Tuple[int, int, int] = (42, 1337, 2024)
+        fpr: float,
+        seed: int = 42,
     ):
         """
         Initialize the ArrayBloomFilter.
 
         Args:
-            n_elements: Expected number of elements to insert.
-            fpr_target: Target false positive rate (e.g., 0.01).
-            hash_func: Hash function to use (defaults to MurmurHash3 wrapper).
-            seeds: Tuple of seeds for the k hash functions.
+            n_elements (int): Expected number of elements to insert.
+            fpr (float): Target false positive rate (0 < fpr < 1).
+            seed (int): Seed for hash functions to ensure reproducibility.
         """
-        if fpr_target <= 0 or fpr_target >= 1:
-            raise ValueError("fpr_target must be between 0 and 1")
+        if not (0 < fpr < 1):
+            raise ValueError(f"FPR must be between 0 and 1, got {fpr}")
         if n_elements <= 0:
-            raise ValueError("n_elements must be positive")
+            raise ValueError(f"n_elements must be positive, got {n_elements}")
 
+        # Calculate optimal m (bits) and k (hash functions)
+        self.size, self.k = calculate_optimal_parameters(n_elements, fpr)
         self.n_elements = 0
-        self.fpr_target = fpr_target
-        self.hash_func = hash_func or hash_murmur3_32
-        self.seeds = seeds
+        self.seed = seed
 
-        # Calculate optimal m and k based on n and p
-        self.m, self.k = calculate_optimal_parameters(n_elements, fpr_target)
+        # Initialize bit array with 0s
+        self.bits: List[int] = [0] * self.size
 
-        # Initialize the bit array (list of 0s)
-        # Using integers 0 and 1 for the array implementation
-        self.bit_array: List[int] = [0] * self.m
+    def _get_hash_indices(self, item: Union[str, bytes, int]) -> List[int]:
+        """
+        Compute the k hash indices for a given item.
+
+        Args:
+            item: The item to hash.
+
+        Returns:
+            List[int]: A list of k indices in the bit array.
+        """
+        return get_k_hashes(item, self.k, self.seed)
 
     def insert(self, item: Union[str, bytes, int]) -> None:
         """
         Insert an item into the Bloom filter.
 
         Args:
-            item: The item to insert. Can be string, bytes, or integer.
+            item: The item to insert. Can be a string, bytes, or integer.
         """
-        if item is None:
-            raise ValueError("Cannot insert None")
-
-        # Get the k hash indices
-        indices = get_k_hashes(self.hash_func, item, self.k, self.seeds, self.m)
-
+        indices = self._get_hash_indices(item)
         for idx in indices:
-            self.bit_array[idx] = 1
-
+            self.bits[idx] = 1
         self.n_elements += 1
+
+    def insert_many(self, items: Iterable[Union[str, bytes, int]]) -> None:
+        """
+        Insert multiple items into the Bloom filter.
+
+        Args:
+            items: An iterable of items to insert.
+        """
+        for item in items:
+            self.insert(item)
 
     def contains(self, item: Union[str, bytes, int]) -> bool:
         """
@@ -85,88 +96,51 @@ class ArrayBloomFilter(BloomFilter):
             item: The item to check.
 
         Returns:
-            True if the item might be in the set (possible false positive),
-            False if the item is definitely not in the set.
+            bool: True if the item might be in the set (possible false positive),
+                  False if the item is definitely not in the set.
         """
-        if item is None:
-            return False
+        indices = self._get_hash_indices(item)
+        return all(self.bits[idx] == 1 for idx in indices)
 
-        indices = get_k_hashes(self.hash_func, item, self.k, self.seeds, self.m)
-
-        # Check if all corresponding bits are set to 1
-        for idx in indices:
-            if self.bit_array[idx] == 0:
-                return False
-
-        return True
-
-    def false_positive_rate(self) -> float:
+    def contains_many(self, items: Iterable[Union[str, bytes, int]]) -> List[bool]:
         """
-        Calculate the theoretical false positive rate.
+        Check multiple items against the Bloom filter.
+
+        Args:
+            items: An iterable of items to check.
 
         Returns:
-            The theoretical FPR based on current n_elements, m, and k.
+            List[bool]: A list of booleans indicating potential membership.
         """
-        if self.n_elements == 0:
-            return 0.0
-
-        # Formula: (1 - e^(-kn/m))^k
-        # Note: n is current elements, m is size, k is hash count
-        exponent = -1.0 * self.k * self.n_elements / self.m
-        prob_bit_set = 1.0 - math.exp(exponent)
-        fpr = prob_bit_set ** self.k
-
-        return fpr
+        return [self.contains(item) for item in items]
 
     def get_stats(self) -> Dict[str, Union[int, float]]:
         """
-        Get internal statistics of the filter.
+        Get statistics about the current state of the filter.
 
         Returns:
-            Dictionary containing m, k, n_elements, and theoretical_fpr.
+            Dict[str, Union[int, float]]: Dictionary containing size, k, n_elements,
+                                          bits_set, and estimated_fpr.
         """
+        bits_set = sum(self.bits)
+        # Estimated FPR formula: (1 - e^(-kn/m))^k
+        if self.size == 0:
+            estimated_fpr = 0.0
+        else:
+            estimated_fpr = (1 - math.exp(-self.k * self.n_elements / self.size)) ** self.k
+
         return {
-            "m": self.m,
+            "size": self.size,
             "k": self.k,
             "n_elements": self.n_elements,
-            "fpr_target": self.fpr_target,
-            "theoretical_fpr": self.false_positive_rate(),
-            "implementation_type": "ArrayBloomFilter"
+            "bits_set": bits_set,
+            "estimated_fpr": estimated_fpr,
+            "implementation_type": "array",
         }
 
-    def get_memory_usage_bytes(self) -> int:
-        """
-        Estimate memory usage in bytes.
-
-        Returns:
-            Approximate memory usage. For a list of integers, Python overhead
-            is significant, but we estimate based on the number of bits + overhead.
-            A Python int is typically 28 bytes, but small ints are cached.
-            We approximate as: size_of_list + size_of_elements.
-        """
-        # Approximate: 8 bytes per pointer in the list + 28 bytes per int object
-        # However, small integers (0, 1) are singletons in CPython.
-        # A more realistic estimate for the list structure itself:
-        # 8 bytes * m (pointers) + overhead for list object
-        # Plus the actual integer objects (which are cached for 0/1, so negligible extra)
-        # We'll return the raw bit count as the theoretical minimum,
-        # but acknowledge Python list overhead is higher.
-        # To be consistent with "bits" logic, let's return bits used:
-        return self.m  # Returning bits for theoretical comparison, or:
-        # return self.m * 4  # 4 bytes per int in list (pointer + object overhead approx)
-        # Let's stick to the bit count for theoretical baseline comparison as per T035
-        # but for "memory_mb" in benchmarks, we usually want actual RAM.
-        # We will return the number of bits to be consistent with T035 theoretical calc.
-        # If the benchmark wrapper needs actual RAM, it uses measure_memory.
-        # Here we return the bit count for the "theoretical_memory_bits" column.
-        return self.m
-
     def __len__(self) -> int:
-        """Return the number of inserted elements."""
-        return self.n_elements
+        """Return the total number of bits in the filter."""
+        return self.size
 
-    def __str__(self) -> str:
-        return (
-            f"ArrayBloomFilter(n={self.n_elements}, m={self.m}, k={self.k}, "
-            f"fpr_target={self.fpr_target:.4f})"
-        )
+    def __repr__(self) -> str:
+        return f"ArrayBloomFilter(size={self.size}, k={self.k}, elements={self.n_elements})"

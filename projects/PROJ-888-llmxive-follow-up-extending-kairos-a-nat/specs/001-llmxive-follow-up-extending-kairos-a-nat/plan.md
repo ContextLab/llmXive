@@ -1,40 +1,49 @@
 # Implementation Plan: llmXive follow-up: extending "Kairos: A Native World Model Stack for Physical AI"
 
-**Branch**: `001-llmxive-kairos-discrete-scaling` | **Date**: 2026-07-14 | **Spec**: `specs/001-llmxive-follow-up-extending-kairos-a-nat/spec.md`
-**Input**: Feature specification from `specs/001-llmxive-follow-up-extending-kairos-a-nat/spec.md`
+**Branch**: `001-llmxive-kairos-discrete-scaling` | **Date**: 2026-08-24 | **Spec**: `specs/001-llmxive-follow-up-extending-kairos-a-nat/spec.md`
 
 ## Summary
 
-This project investigates the scaling of minimum information density required for stable long-horizon forecasting in embodied agents as input modality shifts from continuous visual streams to sparse, discrete sensor streams. The technical approach involves converting the continuous LIBERO benchmark dataset into discrete, quantized JSON state vectors (4-bit, 8-bit, 16-bit), injecting controlled noise to simulate sensor instability, and evaluating the stability of the "Kairos" Hybrid Linear Temporal Attention mechanism under these constraints. The entire pipeline is engineered to run on a CPU-only GitHub Actions free-tier runner (limited cores, constrained RAM, time-constrained environment)., ensuring the results are directly applicable to resource-constrained edge deployment scenarios.
+This project investigates how the minimum information density required for stable long-horizon forecasting in embodied agents scales as input modality shifts from continuous visual streams to sparse, discrete sensor streams. We will implement a reproducible pipeline to convert the `lerobot/libero_plus` dataset into discrete state vectors with configurable quantization (4, 6, 8, 16-bit), inject telemetry noise, and evaluate a CPU-only Kairos Hybrid Linear Temporal Attention model. The study will determine the stability threshold where the Total Mean Squared Error (MSE) of the discrete modality significantly exceeds the continuous baseline using Linear Mixed-Effects Models (LMM) and power analysis, strictly adhering to GitHub Actions Free Tier constraints (limited compute resources, constrained RAM, and runtime limits).
+
+**Critical Methodological Adjustment**: To ensure scientific validity and CPU feasibility, the "Fair Baseline" will be a **frozen pre-trained continuous model** evaluated on **quantized ground truth** (derived from continuous data). The "Discrete" arm will fine-tune only the projection layer. This isolates the modality shift effect from training convergence artifacts and ensures the CPU budget is sufficient.
 
 ## Technical Context
 
 **Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU-only build), `numpy`, `pandas`, `datasets` (HuggingFace), `scikit-learn`, `pyyaml`, `pytest`, `h5py`, `arviz` (for Bayesian analysis)  
-**Storage**: Local file system (JSON for discrete vectors, HDF5 for raw data caching), GitHub Actions ephemeral storage  
-**Testing**: `pytest` (unit tests for quantization logic, integration tests for pipeline execution, contract tests against YAML schemas)  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest` free tier), CPU-only execution  
-**Project Type**: Research pipeline / Data processing & Modeling  
-**Performance Goals**: Training loop convergence within 4 hours (graceful exit at 6h), inference latency ≤ 2s/step, peak RAM < 7GB.  
-**Constraints**: No GPU/CUDA usage, no 8-bit/4-bit quantization libraries requiring CUDA (e.g., `bitsandbytes`), strict adherence to 7GB RAM limit via data chunking.  
-**Scale/Scope**: LIBERO dataset subset (sampled to fit RAM), Multiple independent runs with varying noise seeds, multiple quantization levels (variable bit-widths, e.g., 8 and 16-bit).  
-**Prediction Horizons**: 100, 500, and 1000 steps (per Constitution Principle VII).
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+**Primary Dependencies**: `torch` (CPU-only build), `datasets` (Hugging Face), `pandas`, `statsmodels` (for LMM), `scikit-learn`, `numpy`, `psutil`, `pyyaml`, `pytest`, `simr` (for power analysis simulation)  
+**Storage**: Local file system (`data/`, `code/`, `results/`); Parquet source, JSON-serialized discrete outputs.  
+**Testing**: `pytest` (unit tests for quantization logic, integration tests for pipeline), `contract` tests for schema validation.  
+**Target Platform**: Linux (GitHub Actions Free Tier: 2 vCPU, ~7GB RAM).  
+**Project Type**: Research pipeline / Data processing & Statistical Analysis.  
+**Performance Goals**: 
+- Data conversion: ≤ 30 mins for full subset.
+- Training (Fine-tuning): ≤ 4 hours (graceful exit at 6h).
+- RAM: Peak < 7GB.
+**Constraints**: 
+- NO GPU, NO CUDA, NO `bitsandbytes`.
+- Velocities derived from *continuous* data before quantization.
+- Noise added to continuous data before quantization.
+- Bit-level degeneracy detection (exit code indicating failure).
+**Scale/Scope**: 
+- Dataset: `lerobot/libero_plus` (subset sampled to fit RAM/time).
+- Horizons: multiple step counts, including a high number of steps.
+- Quantization: low to high bit-widths (e.g., standard and extended precision).
+- Factorial Design: A full factorial design crossing the factors of Continuous/Discrete and Noise/NoNoise.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*GATE: Must pass before Phase 0 research. Note: Principle VII requires amendment.*
 
-| Principle | Status | Action Plan / Compliance Strategy |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | All random seeds pinned in `code/`. External datasets fetched from verified HuggingFace URLs (LIBERO) on every run. `requirements.txt` pins exact versions. |
-| **II. Verified Accuracy** | **PASS** | All citations to LIBERO and Kairos architecture will be validated against primary sources. No fabricated dataset URLs; only verified sources used. |
-| **III. Data Hygiene** | **PASS** | Raw data checksummed before processing. Quantized outputs written to new files with derivation logs. No in-place modification of raw HDF5 files. PII scan configured. |
-| **IV. Single Source of Truth** | **PASS** | All error metrics (MSE, p-values/credible intervals) will be generated programmatically and stored in `data/` as CSV/JSON. Paper figures will be generated directly from these files. |
-| **V. Versioning Discipline** | **PASS** | Content hashes for all artifacts in `data/` and `code/` will be tracked in `state/`. `updated_at` timestamps managed by the Advancement-Evaluator. |
-| **VI. Resource-Constrained Stability** | **PASS** | Pipeline explicitly designed for a minimal multi-core/low-memory configuration. Training loop includes memory monitoring and graceful exit at 6h. Quantization parameters (4/8/16-bit) explicitly logged. |
-| **VII. Discrete Modality Error** | **PASS** | MSE normalized by state space dimensionality. Cumulative error growth calculated over short, medium, and long horizons. Bayesian Hierarchical Modeling (BHM) used for multiple independent runs to ensure statistical power. |
+| Principle | Compliance Status | Evidence/Action |
+|-----------|-------------------|-----------------|
+| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, fixed random seeds, and automated download of `lerobot/libero_plus` via `datasets` library. |
+| **II. Verified Accuracy** | **PASS** | All citations (Kairos paper, LMM methodology) will be validated by Reference-Validator. No fabricated URLs; dataset source verified. |
+| **III. Data Hygiene** | **PASS** | Pipeline creates new derived files (`data/discrete_4bit.json`, etc.) without modifying raw parquet. Checksums recorded in `state/`. |
+| **IV. Single Source of Truth** | **PASS** | `results/stats_results.json` and `results/power_analysis_report.json` are the sole sources for paper figures. |
+| **V. Versioning Discipline** | **PASS** | Artifacts in `data/` and `results/` will be hashed; `state/` updated on change. |
+| **VI. Resource-Constrained Stability** | **PASS** | Plan explicitly targets CPU-only execution; metrics `peak_ram_gb` and `total_time_h` are logged and validated against 7GB/6h limits. |
+| **VII. Discrete Modality Error** | **FAIL (Amendment Required)** | Constitution mandates t-test/Wilcoxon; Plan uses LMM for autocorrelation. **Action**: Flagged for amendment. Plan implements LMM. Also, MSE is now explicitly normalized by state space dimensionality (`MSE / D`) to satisfy the calculation method. Cumulative error growth rate is explicitly tracked. |
 
 ## Project Structure
 
@@ -47,6 +56,9 @@ specs/001-llmxive-kairos-discrete-scaling/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
+│   ├── dataset.schema.yaml
+│   ├── prediction.schema.yaml
+│   └── result.schema.yaml
 └── tasks.md             # Phase 2 output
 ```
 
@@ -56,38 +68,74 @@ specs/001-llmxive-kairos-discrete-scaling/
 projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat/
 ├── code/
 │   ├── __init__.py
-│   ├── config.py                # Configuration for seeds, paths, quantization levels
+│   ├── config.py              # Paths, seeds, hyperparameters
 │   ├── data/
-│   │   ├── download_libero.py   # Fetches from verified HuggingFace URLs (HDF5)
-│   │   ├── quantize.py          # Converts HDF5/Parquet to JSON discrete vectors
-│   │   └── noise.py             # Injects Gaussian noise with clamping
-│   ├── models/
 │   │   ├── __init__.py
-│   │   ├── kairos_adapter.py    # Loads pre-trained weights, replaces visual encoder
-│   │   └── training_loop.py     # CPU-only training (two-stage: encoder pre-train, then freeze)
+│   │   ├── loader.py          # HF dataset loading + Schema Verification
+│   │   ├── quantizer.py       # Pre-quantization derivation & noise injection
+│   │   └── validator.py       # 1-bit collapse detection
+│   ├── model/
+│   │   ├── __init__.py
+│   │   ├── kairos_adapter.py  # Heuristic initialization logic
+│   │   └── training_loop.py   # CPU-only fine-tuning & inference
 │   ├── analysis/
-│   │   ├── metrics.py           # MSE, cumulative error growth calculation
-│   │   └── stats.py             # Bayesian Hierarchical Modeling (BHM)
-│   └── main.py                  # Orchestration script
-├── data/
-│   ├── raw/                     # Downloaded HDF5/Parquet files (checksummed)
-│   ├── processed/               # Quantized JSON vectors
-│   └── results/                 # MSE logs, stats outputs
+│   │   ├── __init__.py
+│   │   ├── metrics.py         # MSE (normalized), cumulative error rate
+│   │   └── stats.py           # LMM, Power Analysis (LMM simulation), Bootstrap
+│   └── main.py                # Orchestration script
 ├── tests/
-│   ├── contract/                # Schema validation tests (validates training_loop.py output)
-│   ├── integration/             # End-to-end pipeline tests
-│   └── unit/                    # Quantization logic tests
-├── requirements.txt
-└── README.md
+│   ├── __init__.py
+│   ├── contract/              # Schema validation tests
+│   ├── unit/                  # Quantization logic, noise injection, 1-bit collapse
+│   └── integration/           # End-to-end pipeline (subset)
+├── data/
+│   ├── raw/                   # Downloaded parquet (if cached)
+│   ├── processed/             # Discrete JSON outputs
+│   └── checksums.yaml         # Artifact hashes
+├── results/
+│   ├── stats_results.json
+│   ├── power_analysis_report.json
+│   └── resource_profile.json
+├── state/
+│   └── projects/PROJ-888-llmxive-follow-up-extending-kairos-a-nat.yaml
+├── docs/
+│   └── README.md
+└── requirements.txt
 ```
 
-**Structure Decision**: Single project structure (`projects/.../code/`) selected to align with the research pipeline nature of the work. The separation of `data`, `models`, and `analysis` ensures modularity while maintaining a clear data flow from raw ingestion to statistical reporting. This structure supports the "Single Source of Truth" principle by keeping all intermediate artifacts within the project tree. The `tests/contract/` suite explicitly validates the output of `training_loop.py` against `contracts/error_metric.schema.yaml`.
+**Structure Decision**: Single `code/` directory with modular sub-packages (`data`, `model`, `analysis`) to enforce separation of concerns between data transformation, model logic, and statistical analysis. This aligns with the requirement for reproducible, isolated runs.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
-| :--- | :--- | :--- |
-| **Two-Stage Training** | Standard libraries do not support the specific "discrete sensor simulation" with Gaussian noise injection and bin clamping required by US-1. | Using pre-binned datasets would not allow the controlled sweep of quantization levels and noise parameters needed for the scaling law analysis. |
-| **CPU-Only Training Adapter** | The Kairos model is typically trained on GPU; a custom adapter is needed to replace the visual encoder with a fixed discrete projection without triggering CUDA errors. | Attempting to run the original GPU-optimized code on CPU would result in "CUDA device" errors or OOM, failing US-2. |
-| **Statistical Rigor (BHM)** | To satisfy FR-005 and SC-004 with N=10 runs, a Bayesian Hierarchical Model is required to handle low-N high-variance data and avoid Type II errors. | A frequentist t-test with N=10 lacks the power to detect subtle scaling effects, risking a false negative conclusion. |
-| **HDF5 Parsing** | The LIBERO benchmark distributes data as HDF5 files, not Parquet. | Assuming Parquet format would result in data loading failures and invalid state extraction. |
+|-----------|------------|-------------------------------------|
+| **LMM vs. T-test** | Time-series errors are autocorrelated; paired t-tests assume independence. | Standard t-test would yield inflated Type I error rates, violating scientific rigor (Constitution VII). **Requires Amendment**. |
+| **Pre-quantization Derivation** | Deriving velocity from quantized data amplifies noise artifacts. | Post-quantization derivation would confound "modality shift" with "quantization noise," invalidating the core hypothesis. |
+| **Heuristic Initialization** | Random initialization on discrete data may prevent convergence within 6h. | Random init risks non-convergence; heuristic init (matching continuous stats) isolates the modality shift variable. |
+| **Frozen Baseline** | Training a full continuous model on CPU may fail to converge in 4h. | A frozen pre-trained baseline ensures the comparison is valid and not confounded by optimization failure. |
+
+## Phases & Tasks
+
+### Phase 0: Data Verification & Preparation
+- **T001**: Verify `lerobot/libero_plus` availability via `datasets.load_dataset`. **Fail-Hard** if schema missing `observations.ee_pos` or `observations.positions`.
+- **T002**: Generate 2x2 factorial datasets: (Continuous+NoNoise), (Continuous+Noise), (Discrete+NoNoise), (Discrete+Noise).
+- **T003**: Implement 1-bit collapse detection (exit code 1) in `data/validator.py`.
+
+### Phase 0.5: Power Analysis
+- **T004**: Perform LMM-based power simulation (using `simr` logic) to determine N for Cohen's d=0.8, Power=0.8. Output `power_analysis_report.json`.
+
+### Phase 1: Model Execution
+- **T005**: Load frozen pre-trained Kairos weights.
+- **T006**: Fine-tune discrete projection layer on quantized data.
+- **T007**: Evaluate both arms on quantized ground truth.
+
+### Phase 2: Analysis
+- **T008**: Compute Total MSE (normalized by D), cumulative error rate.
+- **T009**: Run LMM with `episode_id` as random effect.
+- **T010**: Identify stability threshold (CI upper bound > 1.0).
+
+## Risk Management
+
+- **Risk**: `lerobot/libero_plus` not available. **Mitigation**: Fail-Hard with clear error; no synthetic substitution.
+- **Risk**: CPU training time exceeds 6h. **Mitigation**: Use frozen baseline; fine-tune only projection layer; sample episodes.
+- **Risk**: 1-bit collapse. **Mitigation**: Detect and exit with code 1.

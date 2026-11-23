@@ -1,100 +1,102 @@
-"""
-Script to compute molecular descriptors from a SMILES file and save results to CSV.
-This script implements task T019.
-"""
 import os
 import sys
+import argparse
 import logging
 import pandas as pd
+import numpy as np
+from code.logging_config import setup_logging
+from code.config import DATA_PATH
+from code.descriptors import compute_all_descriptors
 
-# Add parent directory to path for imports
-sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+def load_smiles_from_file(path: str) -> pd.DataFrame:
+    """
+    Loads SMILES from a CSV file.
+    Expects a column named 'smiles'.
+    """
+    if not os.path.exists(path):
+        raise FileNotFoundError(f"File not found: {path}")
+    
+    df = pd.read_csv(path)
+    if 'smiles' not in df.columns:
+        raise ValueError("CSV must contain a 'smiles' column.")
+    
+    logging.info(f"Loaded {len(df)} SMILES from {path}")
+    return df
 
-from descriptors import compute_descriptors_batch
-from logging_config import setup_logging
-from config import DATA_PATH
+def clean_dataframe(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Removes rows with missing or invalid SMILES.
+    """
+    # Drop rows with missing SMILES
+    initial_count = len(df)
+    df = df.dropna(subset=['smiles'])
+    dropped = initial_count - len(df)
+    if dropped > 0:
+        logging.warning(f"Dropped {dropped} rows with missing SMILES.")
+    
+    # Basic validation: check if SMILES is a string
+    df = df[df['smiles'].apply(lambda x: isinstance(x, str) and len(x) > 0)]
+    return df
 
-def load_smiles_from_file(file_path: str) -> list:
-    """Load SMILES strings from a file (one per line or CSV)."""
-    smiles_list = []
-    
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"SMILES file not found: {file_path}")
-    
-    # Try to load as CSV first
-    try:
-        df = pd.read_csv(file_path)
-        if 'smiles' in df.columns:
-            smiles_list = df['smiles'].dropna().astype(str).tolist()
-        elif 'SMILES' in df.columns:
-            smiles_list = df['SMILES'].dropna().astype(str).tolist()
-        else:
-            # Assume first column is SMILES
-            smiles_list = df.iloc[:, 0].dropna().astype(str).tolist()
-    except Exception:
-        # Fallback to line-by-line
-        with open(file_path, 'r') as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#'):
-                    smiles_list.append(line)
-    
-    return smiles_list
+def compute_all_descriptors(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Computes all descriptors for the given DataFrame.
+    Returns a DataFrame with descriptors added.
+    """
+    logging.info("Computing descriptors...")
+    # Assuming compute_all_descriptors handles the SMILES column and returns a DF with descriptors
+    # The function signature in descriptors.py is expected to match this usage
+    result_df = compute_all_descriptors(df)
+    logging.info(f"Computed descriptors for {len(result_df)} molecules.")
+    return result_df
 
 def main():
-    # Setup logging
+    """
+    CLI entry point for the descriptor pipeline.
+    Loads data, computes descriptors, and saves to data/processed/descriptors_base.csv and descriptors.csv.
+    """
+    parser = argparse.ArgumentParser(description="Run the descriptor computation pipeline.")
+    parser.add_argument("--input", type=str, default=None, help="Path to input SMILES CSV.")
+    parser.add_argument("--output-base", type=str, default=None, help="Path to output base descriptors CSV.")
+    parser.add_argument("--output-full", type=str, default=None, help="Path to output full descriptors CSV.")
+    args = parser.parse_args()
+
     setup_logging()
-    logger = logging.getLogger(__name__)
     
-    # Define input and output paths
-    # Use a sample file if the main one doesn't exist, but try the expected path first
-    input_file = os.path.join(DATA_PATH, 'raw', 'molecules.csv')
+    # Default paths
+    if args.input is None:
+        args.input = os.path.join(DATA_PATH, "raw", "smiles.csv")
     
-    if not os.path.exists(input_file):
-        # Fallback to a simple test file if the main one doesn't exist
-        # In a real scenario, this file should be provided
-        logger.warning(f"Input file {input_file} not found. Creating a sample input file for testing.")
-        os.makedirs(os.path.dirname(input_file), exist_ok=True)
-        
-        # Create a sample CSV with known molecules
-        sample_data = """smiles
-        c1ccccc1
-        C=CC=C
-        CC(=O)O
-        c1ccncc1
-        CCCCCC
-        """
-        with open(input_file, 'w') as f:
-            f.write(sample_data)
+    if args.output_base is None:
+        args.output_base = os.path.join(DATA_PATH, "processed", "descriptors_base.csv")
     
-    logger.info(f"Loading SMILES from {input_file}")
-    smiles_list = load_smiles_from_file(input_file)
-    logger.info(f"Loaded {len(smiles_list)} SMILES strings")
+    if args.output_full is None:
+        args.output_full = os.path.join(DATA_PATH, "processed", "descriptors.csv")
     
-    # Compute descriptors
-    logger.info("Computing descriptors...")
-    df_descriptors = compute_descriptors_batch(smiles_list)
+    # Ensure output directories exist
+    os.makedirs(os.path.dirname(args.output_base), exist_ok=True)
+    os.makedirs(os.path.dirname(args.output_full), exist_ok=True)
     
-    # Ensure output directory exists
-    output_dir = os.path.join(DATA_PATH, 'processed')
-    os.makedirs(output_dir, exist_ok=True)
+    # 1. Load Data
+    df = load_smiles_from_file(args.input)
     
-    output_file = os.path.join(output_dir, 'descriptors.csv')
+    # 2. Clean Data
+    df = clean_dataframe(df)
     
-    # Save to CSV
-    logger.info(f"Saving results to {output_file}")
-    df_descriptors.to_csv(output_file, index=False)
+    if len(df) == 0:
+        logging.error("No valid SMILES found after cleaning.")
+        return
     
-    logger.info(f"Successfully computed descriptors for {len(df_descriptors)} molecules")
-    logger.info(f"Output saved to {output_file}")
+    # 3. Compute Descriptors
+    df_descriptors = compute_all_descriptors(df)
     
-    # Verify no NaN values
-    if df_descriptors.isnull().any().any():
-        logger.error("Output contains NaN values!")
-        return 1
-    else:
-        logger.info("Verification: No NaN values in output.")
-        return 0
+    # 4. Save Base Descriptors
+    df_descriptors.to_csv(args.output_base, index=False)
+    logging.info(f"Saved base descriptors to {args.output_base}")
+    
+    # 5. Save Full Descriptors (same as base for now, schema compliant)
+    df_descriptors.to_csv(args.output_full, index=False)
+    logging.info(f"Saved full descriptors to {args.output_full}")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

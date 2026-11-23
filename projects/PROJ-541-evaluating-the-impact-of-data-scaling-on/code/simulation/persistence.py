@@ -1,203 +1,213 @@
-"""
-Data persistence module for synthetic data generation.
+"""Persistence utilities for simulation data and seed management."""
 
-Handles saving generated synthetic datasets along with their metadata
-(seed, configuration) to ensure reproducibility.
-"""
 import os
 import json
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional
-import numpy as np
+from typing import Dict, Any, Optional, Tuple, Union
+
 import pandas as pd
+import numpy as np
 
-from simulation.config import SimulationConfig
 from simulation.logger import setup_logger
+from simulation.schema import (
+    save_seed_config,
+    compute_config_hash,
+    load_seed_config,
+    validate_seed_config,
+)
 
-# Ensure logger is available
 logger = setup_logger(__name__)
 
-# Ensure output directory exists
-OUTPUT_DIR = Path("data/synthetic")
+# Paths
+SYNTHETIC_DATA_DIR = Path("data/synthetic")
+SEED_CONFIG_PATH = Path("code/simulation/seed_config.json")
 
-def _ensure_output_dir():
-    """Create the output directory if it doesn't exist."""
-    if not OUTPUT_DIR.exists():
-        OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-        logger.info(f"Created output directory: {OUTPUT_DIR}")
 
-def _generate_run_id() -> str:
-    """Generate a unique run ID based on timestamp and random suffix."""
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    suffix = np.random.randint(1000, 9999)
-    return f"{timestamp}_{suffix}"
+def ensure_data_directories() -> None:
+    """Ensure all required data directories exist."""
+    SYNTHETIC_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
-def _serialize_config(config: SimulationConfig) -> Dict[str, Any]:
-    """Convert SimulationConfig to a JSON-serializable dictionary."""
-    # Handle dataclass conversion
-    if hasattr(config, '__dataclass_fields__'):
-        result = {}
-        for field_name, field_obj in config.__dataclass_fields__.items():
-            value = getattr(config, field_name)
-            # Convert numpy types to native Python types
-            if isinstance(value, np.ndarray):
-                result[field_name] = value.tolist()
-            elif isinstance(value, (np.integer, np.floating)):
-                result[field_name] = value.item()
-            elif isinstance(value, (list, tuple)):
-                result[field_name] = [
-                    v.item() if isinstance(v, (np.integer, np.floating)) else v 
-                    for v in value
-                ]
-            else:
-                result[field_name] = value
-        return result
-    return config if isinstance(config, dict) else {}
 
 def save_synthetic_data(
-    data: Dict[str, np.ndarray],
-    config: SimulationConfig,
+    data: pd.DataFrame,
+    config: Dict[str, Any],
+    batch_id: str,
     seed: int,
-    run_id: Optional[str] = None,
-    metadata_extra: Optional[Dict[str, Any]] = None
+    ground_truth_label: str,
 ) -> str:
     """
-    Save synthetic data and metadata to disk.
-    
-    Args:
-        data: Dictionary mapping column names to numpy arrays.
-        config: SimulationConfig instance used to generate the data.
-        seed: Random seed used for generation.
-        run_id: Optional unique identifier for this run. If None, generated automatically.
-        metadata_extra: Optional additional metadata to include.
-        
-    Returns:
-        Path to the saved CSV file (relative to project root).
-        
-    Raises:
-        ValueError: If data is empty or config is invalid.
-        IOError: If file cannot be written.
-    """
-    _ensure_output_dir()
-    
-    if not data:
-        raise ValueError("Data dictionary cannot be empty")
-        
-    if run_id is None:
-        run_id = _generate_run_id()
-        
-    # Prepare DataFrame
-    df = pd.DataFrame(data)
-    
-    # Generate file paths
-    csv_path = OUTPUT_DIR / f"data_{run_id}.csv"
-    meta_path = OUTPUT_DIR / f"meta_{run_id}.json"
-    
-    # Serialize config
-    config_dict = _serialize_config(config)
-    
-    # Build metadata
-    metadata = {
-        "run_id": run_id,
-        "seed": seed,
-        "generated_at": datetime.now().isoformat(),
-        "config": config_dict,
-        "data_shape": {
-            "rows": len(df),
-            "columns": len(df.columns)
-        },
-        "column_names": list(df.columns),
-        "statistics": {
-            col: {
-                "mean": float(df[col].mean()),
-                "std": float(df[col].std()),
-                "min": float(df[col].min()),
-                "max": float(df[col].max())
-            }
-            for col in df.columns
-        }
-    }
-    
-    # Add extra metadata if provided
-    if metadata_extra:
-        metadata.update(metadata_extra)
-    
-    try:
-        # Save CSV
-        df.to_csv(csv_path, index=False)
-        logger.info(f"Saved synthetic data to: {csv_path}")
-        
-        # Save metadata
-        with open(meta_path, 'w') as f:
-            json.dump(metadata, f, indent=2, default=str)
-        logger.info(f"Saved metadata to: {meta_path}")
-        
-        return str(csv_path)
-        
-    except IOError as e:
-        logger.error(f"Failed to write files: {e}")
-        raise
-    
-def load_synthetic_data(run_id: str) -> tuple[pd.DataFrame, Dict[str, Any]]:
-    """
-    Load synthetic data and metadata by run_id.
-    
-    Args:
-        run_id: The unique identifier of the run to load.
-        
-    Returns:
-        Tuple of (DataFrame, metadata dictionary)
-        
-    Raises:
-        FileNotFoundError: If files do not exist.
-    """
-    csv_path = OUTPUT_DIR / f"data_{run_id}.csv"
-    meta_path = OUTPUT_DIR / f"meta_{run_id}.json"
-    
-    if not csv_path.exists():
-        raise FileNotFoundError(f"Data file not found: {csv_path}")
-    if not meta_path.exists():
-        raise FileNotFoundError(f"Metadata file not found: {meta_path}")
-        
-    df = pd.read_csv(csv_path)
-    
-    with open(meta_path, 'r') as f:
-        metadata = json.load(f)
-        
-    logger.info(f"Loaded synthetic data: {csv_path}")
-    return df, metadata
+    Save synthetic data to a Parquet file with metadata.
 
-def list_available_runs() -> list[str]:
+    Args:
+        data: The generated data DataFrame
+        config: The configuration used for generation
+        batch_id: The batch identifier
+        seed: The random seed used
+        ground_truth_label: 'null' or 'alternative'
+
+    Returns:
+        Path to the saved file
+    """
+    ensure_data_directories()
+
+    # Create filename
+    filename = f"batch_{batch_id}_{seed}.parquet"
+    filepath = SYNTHETIC_DATA_DIR / filename
+
+    # Prepare metadata
+    metadata = {
+        "seed": seed,
+        "config_json": json.dumps(config, default=str),
+        "ground_truth_label": ground_truth_label,
+    }
+
+    # Add metadata to DataFrame
+    for key, value in metadata.items():
+        data[key] = value
+
+    # Save to Parquet
+    data.to_parquet(filepath, index=False)
+    logger.log("save_synthetic_data", file=str(filepath), rows=len(data))
+
+    return str(filepath)
+
+
+def load_synthetic_data(filepath: Union[str, Path]) -> pd.DataFrame:
+    """
+    Load synthetic data from a Parquet file.
+
+    Args:
+        filepath: Path to the Parquet file
+
+    Returns:
+        The loaded DataFrame
+
+    Raises:
+        FileNotFoundError: If the file doesn't exist
+    """
+    filepath = Path(filepath)
+    if not filepath.exists():
+        raise FileNotFoundError(f"Synthetic data file not found: {filepath}")
+
+    return pd.read_parquet(filepath)
+
+
+def list_available_runs() -> list:
     """
     List all available synthetic data runs.
-    
-    Returns:
-        List of run_ids found in the output directory.
-    """
-    if not OUTPUT_DIR.exists():
-        return []
-        
-    runs = []
-    for file in OUTPUT_DIR.glob("data_*.csv"):
-        run_id = file.stem.replace("data_", "")
-        runs.append(run_id)
-    return sorted(runs)
 
-def get_run_summary(run_id: str) -> Optional[Dict[str, Any]]:
-    """
-    Get a summary of a specific run without loading the full data.
-    
-    Args:
-        run_id: The unique identifier of the run.
-        
     Returns:
-        Metadata dictionary or None if not found.
+        List of dictionaries with run metadata
     """
-    meta_path = OUTPUT_DIR / f"meta_{run_id}.json"
-    if not meta_path.exists():
+    if not SYNTHETIC_DATA_DIR.exists():
+        return []
+
+    runs = []
+    for filepath in SYNTHETIC_DATA_DIR.glob("batch_*.parquet"):
+        try:
+            df = load_synthetic_data(filepath)
+            runs.append(
+                {
+                    "file": filepath.name,
+                    "batch_id": filepath.stem.split("_")[1],
+                    "seed": int(df["seed"].iloc[0]) if "seed" in df.columns else None,
+                    "ground_truth_label": (
+                        df["ground_truth_label"].iloc[0]
+                        if "ground_truth_label" in df.columns
+                        else None
+                    ),
+                    "rows": len(df),
+                }
+            )
+        except Exception as e:
+            logger.log("list_available_runs_error", file=str(filepath), error=str(e))
+
+    return runs
+
+
+def get_run_summary(batch_id: str, seed: int) -> Optional[Dict[str, Any]]:
+    """
+    Get summary information for a specific run.
+
+    Args:
+        batch_id: The batch identifier
+        seed: The random seed
+
+    Returns:
+        Dictionary with run summary or None if not found
+    """
+    filename = f"batch_{batch_id}_{seed}.parquet"
+    filepath = SYNTHETIC_DATA_DIR / filename
+
+    if not filepath.exists():
         return None
-        
-    with open(meta_path, 'r') as f:
-        return json.load(f)
+
+    df = load_synthetic_data(filepath)
+    return {
+        "file": filename,
+        "batch_id": batch_id,
+        "seed": seed,
+        "rows": len(df),
+        "columns": list(df.columns),
+        "ground_truth_label": (
+            df["ground_truth_label"].iloc[0]
+            if "ground_truth_label" in df.columns
+            else None
+        ),
+    }
+
+
+def save_seed_config_entry(batch_id: str, config: Dict[str, Any]) -> str:
+    """
+    Save a seed configuration entry for a batch.
+
+    Args:
+        batch_id: The batch identifier
+        config: The configuration dictionary
+
+    Returns:
+        The seed used for this batch
+    """
+    import random
+
+    # Generate a random seed
+    seed = random.randint(0, 2**32 - 1)
+
+    # Compute config hash
+    config_hash = compute_config_hash(config)
+
+    # Save to seed config file
+    save_seed_config(batch_id, seed, config_hash)
+
+    logger.log("save_seed_config_entry", batch_id=batch_id, seed=seed)
+
+    return str(seed)
+
+
+def load_seed_config_entry(batch_id: str) -> Optional[Dict[str, Any]]:
+    """
+    Load the seed configuration for a specific batch.
+
+    Args:
+        batch_id: The batch identifier
+
+    Returns:
+        Dictionary with seed config or None if not found
+    """
+    config = load_seed_config()
+    if batch_id in config:
+        return config[batch_id]
+    return None
+
+
+def validate_seed_config_file() -> bool:
+    """
+    Validate the seed configuration file.
+
+    Returns:
+        True if valid, False otherwise
+    """
+    config = load_seed_config()
+    return validate_seed_config(config)

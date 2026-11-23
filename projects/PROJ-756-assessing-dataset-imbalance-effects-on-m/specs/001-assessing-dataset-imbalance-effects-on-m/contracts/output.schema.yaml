@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ComparisonReportSchema"
+description: "Schema for the performance comparison report between skewed and balanced models."
+type: object
+properties:
+  property_name:
+    type: string
+    description: "Name of the target property (e.g., formation_energy)."
+  strategy:
+    type: string
+    enum: ["skewed", "balanced", "cost_sensitive"]
+    description: "Training strategy used."
+  metrics:
+    type: object
+    description: "Performance metrics."
+    properties:
+      mae:
+        type: number
+        description: "Mean Absolute Error."
+      rmse:
+        type: number
+        description: "Root Mean Squared Error."
+      r2:
+        type: number
+        description: "R-squared score."
+      mae_minority:
+        type: number
+        description: "MAE on the minority subset (bottom [deferred])."
+    required:
+      - mae
+      - rmse
+      - r2
+  statistical_significance:
+    type: object
+    description: "Results of paired statistical test."
+    properties:
+      p_value:
+        type: number
+        description: "P-value from t-test or Wilcoxon."
+      is_significant:
+        type: boolean
+        description: "True if p < 0.05."
+      is_power_insufficient:
+        type: boolean
+        description: "True if minority subset < 100 samples."
+    required:
+      - p_value
+      - is_significant
+  imbalance_scores:
+    type: object
+    description: "Imbalance metrics for this property."
+    properties:
+      compositional_coverage_score:
+        type: number
+        description: "Normalized Convex Hull Volume of compositional space."
+      target_gini:
+        type: number
+        description: "Gini coefficient of target distribution."
+    required:
+      - compositional_coverage_score
+      - target_gini
+required:
+  - property_name
+  - strategy
+  - metrics
+  - statistical_significance
+  - imbalance_scores

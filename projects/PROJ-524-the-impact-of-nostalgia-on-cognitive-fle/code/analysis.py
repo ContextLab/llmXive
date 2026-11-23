@@ -1,315 +1,388 @@
+"""
+Statistical Analysis Module for Nostalgia and Cognitive Flexibility Study.
+
+This module implements Welch's t-test, effect size calculations, and
+statistical reporting for the comparison between nostalgia and control groups.
+"""
+
 import os
 import json
 import logging
 import numpy as np
 import pandas as pd
 from scipy import stats
+from statsmodels.stats.power import TTestIndPower
+from pathlib import Path
+from typing import Dict, Any, Tuple, Optional, List
 
 # Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def welch_t_test(group1: np.ndarray, group2: np.ndarray) -> dict:
+class DataNotFoundError(Exception):
+    """Raised when required data files are not found."""
+    pass
+
+def get_config_paths() -> Dict[str, str]:
+    """
+    Get file paths from environment or defaults.
+    
+    Returns:
+        Dict containing 'root', 'processed', and 'results' paths.
+    """
+    root = os.environ.get('PROJECT_ROOT', str(Path.cwd()))
+    return {
+        'root': root,
+        'processed': os.path.join(root, 'data', 'processed'),
+        'results': os.path.join(root, 'data', 'results'),
+        'input_file': os.path.join(root, 'data', 'processed', 'final_cleaned_dataset.csv')
+    }
+
+def load_cleaned_dataset(filepath: Optional[str] = None) -> pd.DataFrame:
+    """
+    Load the cleaned dataset from disk.
+    
+    Args:
+        filepath: Optional path to the dataset. If None, uses default path.
+        
+    Returns:
+        DataFrame with cleaned data.
+        
+    Raises:
+        DataNotFoundError: If the file does not exist.
+    """
+    if filepath is None:
+        paths = get_config_paths()
+        filepath = paths['input_file']
+    
+    if not os.path.exists(filepath):
+        raise DataNotFoundError(f"Cleaned dataset not found at {filepath}")
+    
+    logger.info(f"Loading cleaned dataset from {filepath}")
+    df = pd.read_csv(filepath)
+    logger.info(f"Loaded {len(df)} records")
+    return df
+
+def split_by_stimulus_type(df: pd.DataFrame) -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Split the dataset by stimulus type (nostalgia vs control).
+    
+    Args:
+        df: Input DataFrame with 'stimulus_type' column.
+        
+    Returns:
+        Tuple of (nostalgia_group, control_group) DataFrames.
+        
+    Raises:
+        ValueError: If stimulus_type column is missing or groups are empty.
+    """
+    if 'stimulus_type' not in df.columns:
+        raise ValueError("Column 'stimulus_type' not found in dataset")
+    
+    nostalgia_group = df[df['stimulus_type'] == 'nostalgia'].copy()
+    control_group = df[df['stimulus_type'] == 'control'].copy()
+    
+    if len(nostalgia_group) == 0:
+        raise ValueError("No records found for nostalgia group")
+    if len(control_group) == 0:
+        raise ValueError("No records found for control group")
+    
+    logger.info(f"Split data: Nostalgia (n={len(nostalgia_group)}), Control (n={len(control_group)})")
+    return nostalgia_group, control_group
+
+def save_grouped_data(nostalgia_group: pd.DataFrame, control_group: pd.DataFrame, 
+                     output_path: str) -> None:
+    """
+    Save grouped data to JSON file.
+    
+    Args:
+        nostalgia_group: Nostalgia group DataFrame.
+        control_group: Control group DataFrame.
+        output_path: Path to save the grouped data.
+    """
+    grouped_data = {
+        'nostalgia': nostalgia_group.to_dict(orient='records'),
+        'control': control_group.to_dict(orient='records')
+    }
+    
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(grouped_data, f, indent=2)
+    
+    logger.info(f"Saved grouped data to {output_path}")
+
+def welch_t_test(group1: pd.Series, group2: pd.Series) -> Tuple[float, float]:
     """
     Perform Welch's independent samples t-test.
     
-    Args:
-        group1: Array of values for group 1
-        group2: Array of values for group 2
-        
-    Returns:
-        Dictionary containing t-statistic, p-value, and degrees of freedom
-    """
-    if len(group1) == 0 or len(group2) == 0:
-        raise ValueError("One or both groups are empty.")
-        
-    if len(group1) < 2 or len(group2) < 2:
-        raise ValueError("Sample size too small for t-test (need at least 2 per group).")
-    
-    var1 = np.var(group1, ddof=1)
-    var2 = np.var(group2, ddof=1)
-    
-    if var1 == 0 and var2 == 0:
-        raise ValueError("Zero variance in both groups. Cannot compute t-test.")
-    
-    try:
-        result = stats.ttest_ind(group1, group2, equal_var=False)
-        return {
-            't_statistic': float(result.statistic),
-            'p_value': float(result.pvalue),
-            'df': float(result.df) if hasattr(result, 'df') else None
-        }
-    except Exception as e:
-        logger.error(f"Error during Welch's t-test: {str(e)}")
-        raise
-
-def calculate_cohen_d(group1: np.ndarray, group2: np.ndarray) -> float:
-    """
-    Calculate Cohen's d effect size for independent samples.
+    This is the recommended test for comparing two independent groups
+    with potentially unequal variances and sample sizes.
     
     Args:
-        group1: Array of values for group 1
-        group2: Array of values for group 2
+        group1: Series of values for group 1 (nostalgia).
+        group2: Series of values for group 2 (control).
         
     Returns:
-        Cohen's d value
+        Tuple of (t_statistic, p_value).
     """
-    if len(group1) == 0 or len(group2) == 0:
-        raise ValueError("One or both groups are empty.")
-        
-    mean1 = np.mean(group1)
-    mean2 = np.mean(group2)
-    
-    std1 = np.std(group1, ddof=1)
-    std2 = np.std(group2, ddof=1)
-    
-    if std1 == 0 and std2 == 0:
-        raise ValueError("Zero variance in both groups. Cannot compute Cohen's d.")
-    
-    pooled_std = np.sqrt((std1**2 + std2**2) / 2)
-    
-    if pooled_std == 0:
-        raise ValueError("Pooled standard deviation is zero. Cannot compute Cohen's d.")
-    
-    return (mean1 - mean2) / pooled_std
+    t_stat, p_val = stats.ttest_ind(group1, group2, equal_var=False)
+    return t_stat, p_val
 
-def calculate_effect_size_ci(group1: np.ndarray, group2: np.ndarray, confidence: float = 0.95) -> dict:
-    """
-    Calculate confidence interval for Cohen's d.
-    
-    Args:
-        group1: Array of values for group 1
-        group2: Array of values for group 2
-        confidence: Confidence level (default 0.95)
-        
-    Returns:
-        Dictionary with effect size and confidence interval bounds
-    """
-    d = calculate_cohen_d(group1, group2)
-    n1 = len(group1)
-    n2 = len(group2)
-    
-    # Approximate standard error for Cohen's d
-    se_d = np.sqrt((n1 + n2) / (n1 * n2) + (d**2) / (2 * (n1 + n2)))
-    
-    alpha = 1 - confidence
-    z_score = stats.norm.ppf(1 - alpha/2)
-    
-    ci_lower = d - z_score * se_d
-    ci_upper = d + z_score * se_d
-    
-    return {
-        'effect_size': d,
-        'ci_lower': ci_lower,
-        'ci_upper': ci_upper,
-        'confidence_level': confidence
-    }
-
-def bonferroni_correction(p_values: list, num_tests: int) -> list:
+def bonferroni_correction(p_values: List[float]) -> List[float]:
     """
     Apply Bonferroni correction to multiple p-values.
     
     Args:
-        p_values: List of p-values
-        num_tests: Number of statistical tests performed
+        p_values: List of raw p-values.
         
     Returns:
-        List of corrected p-values
+        List of corrected p-values.
     """
-    if not p_values:
-        return []
-        
-    corrected = [min(p * num_tests, 1.0) for p in p_values]
+    n_tests = len(p_values)
+    corrected = [min(p * n_tests, 1.0) for p in p_values]
     return corrected
 
-def calculate_power_and_mdes(effect_size: float, n1: int, n2: int, alpha: float = 0.05) -> dict:
+def calculate_cohen_d(group1: pd.Series, group2: pd.Series) -> float:
+    """
+    Calculate Cohen's d effect size.
+    
+    Args:
+        group1: Series of values for group 1.
+        group2: Series of values for group 2.
+        
+    Returns:
+        Cohen's d value.
+    """
+    n1, n2 = len(group1), len(group2)
+    mean1, mean2 = group1.mean(), group2.mean()
+    var1, var2 = group1.var(ddof=1), group2.var(ddof=1)
+    
+    # Pooled standard deviation
+    pooled_std = np.sqrt(((n1 - 1) * var1 + (n2 - 1) * var2) / (n1 + n2 - 2))
+    
+    if pooled_std == 0:
+        logger.warning("Pooled standard deviation is zero, returning 0 for Cohen's d")
+        return 0.0
+    
+    cohens_d = (mean1 - mean2) / pooled_std
+    return cohens_d
+
+def calculate_effect_size_ci(group1: pd.Series, group2: pd.Series, 
+                            alpha: float = 0.05) -> Tuple[float, float, float]:
+    """
+    Calculate Cohen's d with 95% confidence interval.
+    
+    Args:
+        group1: Series of values for group 1.
+        group2: Series of values for group 2.
+        alpha: Significance level (default 0.05 for 95% CI).
+        
+    Returns:
+        Tuple of (cohens_d, ci_lower, ci_upper).
+    """
+    d = calculate_cohen_d(group1, group2)
+    n1, n2 = len(group1), len(group2)
+    
+    # Standard error of Cohen's d
+    se_d = np.sqrt((n1 + n2) / (n1 * n2) + (d ** 2) / (2 * (n1 + n2)))
+    
+    # Critical value for 95% CI
+    z_critical = stats.norm.ppf(1 - alpha / 2)
+    
+    ci_lower = d - z_critical * se_d
+    ci_upper = d + z_critical * se_d
+    
+    return d, ci_lower, ci_upper
+
+def calculate_power_and_mdes(group1: pd.Series, group2: pd.Series, 
+                             alpha: float = 0.05) -> Dict[str, float]:
     """
     Calculate statistical power and Minimum Detectable Effect Size (MDES).
     
     Args:
-        effect_size: Observed effect size (Cohen's d)
-        n1: Sample size of group 1
-        n2: Sample size of group 2
-        alpha: Significance level (default 0.05)
+        group1: Series of values for group 1.
+        group2: Series of values for group 2.
+        alpha: Significance level.
         
     Returns:
-        Dictionary with power and MDES values
+        Dictionary with power and MDES values.
     """
-    if n1 < 2 or n2 < 2:
-        raise ValueError("Sample size too small for power analysis (need at least 2 per group).")
+    n1, n2 = len(group1), len(group2)
+    d = calculate_cohen_d(group1, group2)
     
-    # Calculate power using t-test power function
-    n_per_group = (n1 + n2) / 2
-    try:
-        power_result = stats.ttost_ind(n1, n2, effect_size, 0.05, 0.05) # Placeholder for proper power calc
-        # Using a simplified approximation for power
-        from statsmodels.stats.power import TTestIndPower
-        power_analysis = TTestIndPower()
-        power = power_analysis.power(effect_size=effect_size, nobs1=n_per_group, alpha=alpha, ratio=n2/n1)
-    except Exception:
-        # Fallback calculation if statsmodels not available or fails
-        # Simplified approximation
-        se = np.sqrt(1/n1 + 1/n2)
-        z_alpha = stats.norm.ppf(1 - alpha/2)
-        z_beta = (abs(effect_size) / se) - z_alpha
-        power = stats.norm.cdf(z_beta)
+    # Calculate power
+    power_analysis = TTestIndPower()
+    power = power_analysis.power(effect_size=abs(d), nobs1=n1, alpha=alpha, ratio=n2/n1)
     
     # Calculate MDES for 80% power
-    target_power = 0.8
-    try:
-        from statsmodels.stats.power import TTestIndPower
-        power_analysis = TTestIndPower()
-        mdes = power_analysis.solve_power(effect_size=None, nobs1=n_per_group, alpha=alpha, power=target_power, ratio=n2/n1)
-    except Exception:
-        # Fallback approximation
-        z_alpha = stats.norm.ppf(1 - alpha/2)
-        z_beta = stats.norm.ppf(target_power)
-        mdes = (z_alpha + z_beta) * np.sqrt(1/n1 + 1/n2)
+    mdes = power_analysis.solve_power(power=0.8, nobs1=n1, alpha=alpha, ratio=n2/n1)
     
     return {
-        'power': float(power),
-        'mdes': float(mdes),
+        'statistical_power': float(power),
+        'minimum_detectable_effect_size': float(mdes),
         'alpha': alpha,
-        'target_power': target_power,
-        'sample_sizes': {'n1': n1, 'n2': n2}
+        'sample_size_nostalgia': n1,
+        'sample_size_control': n2
     }
 
-def run_analysis(df: pd.DataFrame, metric: str, group_col: str = 'stimulus_type', 
-                 nostalgia_val: str = 'nostalgia', control_val: str = 'control') -> dict:
+def run_analysis(df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Run statistical analysis for a specific metric.
+    Run the full statistical analysis pipeline.
     
     Args:
-        df: DataFrame containing the data
-        metric: Name of the metric column to analyze
-        group_col: Column name for grouping
-        nostalgia_val: Value in group_col representing nostalgia group
-        control_val: Value in group_col representing control group
+        df: Cleaned DataFrame with stimulus_type column.
         
     Returns:
-        Dictionary with analysis results
+        Dictionary containing all statistical results.
     """
-    if metric not in df.columns:
-        raise ValueError(f"Metric column '{metric}' not found in dataframe.")
+    nostalgia_group, control_group = split_by_stimulus_type(df)
     
-    nostalgia_data = df[df[group_col] == nostalgia_val][metric].dropna().values
-    control_data = df[df[group_col] == control_val][metric].dropna().values
-    
-    logger.info(f"Analyzing {metric}: Nostalgia (n={len(nostalgia_data)}), Control (n={len(control_data)})")
-    
-    # Error handling for small sample sizes
-    if len(nostalgia_data) < 2 or len(control_data) < 2:
-        raise ValueError(f"Sample size too small for {metric}: Nostalgia n={len(nostalgia_data)}, Control n={len(control_data)}. Minimum 2 per group required.")
-    
-    # Error handling for zero variance
-    var_nostalgia = np.var(nostalgia_data, ddof=1)
-    var_control = np.var(control_data, ddof=1)
-    
-    if var_nostalgia == 0 and var_control == 0:
-        raise ValueError(f"Zero variance in both groups for {metric}. Cannot perform statistical test.")
-    
-    try:
-        t_result = welch_t_test(nostalgia_data, control_data)
-    except ValueError as e:
-        logger.error(f"t-test failed for {metric}: {str(e)}")
-        raise
-    
-    try:
-        cohens_d = calculate_cohen_d(nostalgia_data, control_data)
-        ci_result = calculate_effect_size_ci(nostalgia_data, control_data)
-    except ValueError as e:
-        logger.error(f"Effect size calculation failed for {metric}: {str(e)}")
-        raise
-    
-    power_result = calculate_power_and_mdes(cohens_d, len(nostalgia_data), len(control_data))
-    
-    return {
-        'metric': metric,
-        'nostalgia_n': len(nostalgia_data),
-        'control_n': len(control_data),
-        'nostalgia_mean': float(np.mean(nostalgia_data)),
-        'control_mean': float(np.mean(control_data)),
-        't_statistic': t_result['t_statistic'],
-        'p_value': t_result['p_value'],
-        'degrees_of_freedom': t_result['df'],
-        'cohens_d': cohens_d,
-        'effect_size_ci': ci_result,
-        'power': power_result['power'],
-        'mdes': power_result['mdes']
+    metrics = ['perseverative_errors', 'categories_completed']
+    results = {
+        'report_metadata': {
+            'task_id': 'T018',
+            'description': 'Welch\'s t-test analysis',
+            'analysis_method': "Welch's independent samples t-test",
+            'correction_method': 'Bonferroni'
+        },
+        'comparisons': []
     }
-
-def run_full_analysis(df: pd.DataFrame, metrics: list, group_col: str = 'stimulus_type') -> dict:
-    """
-    Run full analysis pipeline for multiple metrics.
     
-    Args:
-        df: DataFrame containing the data
-        metrics: List of metric columns to analyze
-        group_col: Column name for grouping
-        
-    Returns:
-        Dictionary with all analysis results and corrected p-values
-    """
-    results = {}
-    p_values = []
+    raw_p_values = []
     
     for metric in metrics:
-        try:
-            result = run_analysis(df, metric, group_col)
-            results[metric] = result
-            p_values.append(result['p_value'])
-        except Exception as e:
-            logger.error(f"Analysis failed for {metric}: {str(e)}")
-            results[metric] = {'error': str(e)}
+        if metric not in nostalgia_group.columns or metric not in control_group.columns:
+            logger.warning(f"Metric {metric} not found in dataset, skipping")
+            continue
+        
+        group1_vals = nostalgia_group[metric]
+        group2_vals = control_group[metric]
+        
+        # Check for zero variance
+        if group1_vals.var(ddof=1) == 0 and group2_vals.var(ddof=1) == 0:
+            logger.warning(f"Zero variance in both groups for {metric}, skipping")
+            continue
+        
+        # Perform Welch's t-test
+        t_stat, p_val = welch_t_test(group1_vals, group2_vals)
+        raw_p_values.append(p_val)
+        
+        # Calculate effect size
+        cohens_d, ci_lower, ci_upper = calculate_effect_size_ci(group1_vals, group2_vals)
+        
+        # Calculate power and MDES
+        power_results = calculate_power_and_mdes(group1_vals, group2_vals)
+        
+        comparison = {
+            'metric': metric,
+            'group_nostalgia': {
+                'n': len(group1_vals),
+                'mean': float(group1_vals.mean()),
+                'std': float(group1_vals.std(ddof=1))
+            },
+            'group_control': {
+                'n': len(group2_vals),
+                'mean': float(group2_vals.mean()),
+                'std': float(group2_vals.std(ddof=1))
+            },
+            't_statistic': float(t_stat),
+            'p_value_raw': float(p_val),
+            'effect_size': {
+                'cohen_d': float(cohens_d),
+                'ci_95_lower': float(ci_lower),
+                'ci_95_upper': float(ci_upper)
+            },
+            'power_analysis': power_results
+        }
+        results['comparisons'].append(comparison)
     
     # Apply Bonferroni correction
-    corrected_p_values = bonferroni_correction(p_values, len(metrics))
+    corrected_p_values = bonferroni_correction(raw_p_values)
+    results['p_values'] = raw_p_values
+    results['t_statistics'] = [comp['t_statistic'] for comp in results['comparisons']]
+    results['corrected_p_values'] = corrected_p_values
     
-    # Add corrected p-values to results
-    for i, metric in enumerate(metrics):
-        if metric in results and 'error' not in results[metric]:
-            results[metric]['corrected_p_value'] = corrected_p_values[i]
+    # Update comparisons with corrected p-values
+    for i, comp in enumerate(results['comparisons']):
+        comp['p_value_corrected'] = corrected_p_values[i]
+    
+    # Summary
+    significant_at_05 = sum(1 for p in corrected_p_values if p < 0.05)
+    significant_at_01 = sum(1 for p in corrected_p_values if p < 0.01)
+    avg_power = np.mean([comp['power_analysis']['statistical_power'] for comp in results['comparisons']])
+    avg_mdes = np.mean([comp['power_analysis']['minimum_detectable_effect_size'] for comp in results['comparisons']])
+    
+    results['summary'] = {
+        'total_comparisons': len(results['comparisons']),
+        'significant_at_alpha_05': significant_at_05,
+        'significant_at_alpha_01': significant_at_01,
+        'average_power': float(avg_power),
+        'average_mdes': float(avg_mdes)
+    }
+    
+    return results
+
+def save_report(results: Dict[str, Any], output_path: str) -> None:
+    """
+    Save statistical results to JSON file.
+    
+    Args:
+        results: Dictionary containing statistical results.
+        output_path: Path to save the report.
+    """
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    with open(output_path, 'w') as f:
+        json.dump(results, f, indent=2)
+    logger.info(f"Saved statistical report to {output_path}")
+
+def run_full_analysis(input_path: Optional[str] = None, 
+                     output_path: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Run the full analysis pipeline from input file to output report.
+    
+    Args:
+        input_path: Path to cleaned dataset. If None, uses default.
+        output_path: Path to save report. If None, uses default.
+        
+    Returns:
+        Dictionary containing all statistical results.
+    """
+    paths = get_config_paths()
+    
+    if input_path is None:
+        input_path = paths['input_file']
+    if output_path is None:
+        output_path = os.path.join(paths['results'], 'statistical_report.json')
+    
+    # Load data
+    df = load_cleaned_dataset(input_path)
+    
+    # Run analysis
+    results = run_analysis(df)
+    
+    # Save report
+    save_report(results, output_path)
     
     return results
 
 def main():
-    """Main entry point for the analysis module."""
-    config_path = os.getenv('CONFIG_PATH', 'data/config.yaml')
-    data_path = os.getenv('DATA_PATH', 'data/processed/cleaned_dataset.csv')
-    
-    if not os.path.exists(data_path):
-        logger.error(f"Data file not found: {data_path}")
-        return
-    
+    """Main entry point for the analysis script."""
     try:
-        df = pd.read_csv(data_path)
-        logger.info(f"Loaded {len(df)} records from {data_path}")
+        logger.info("Starting statistical analysis (T018: Welch's t-test)")
+        results = run_full_analysis()
+        logger.info("Analysis completed successfully")
+        logger.info(f"Results saved to {os.path.join(get_config_paths()['results'], 'statistical_report.json')}")
+        return 0
+    except DataNotFoundError as e:
+        logger.error(f"Data Error: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Failed to load data: {str(e)}")
-        return
-    
-    metrics = ['perseverative_errors', 'categories_completed']
-    available_metrics = [m for m in metrics if m in df.columns]
-    
-    if not available_metrics:
-        logger.error("No valid metrics found in dataset.")
-        return
-    
-    try:
-        results = run_full_analysis(df, available_metrics)
-        
-        # Save results
-        output_path = os.getenv('OUTPUT_PATH', 'data/results/statistical_report.json')
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2)
-        
-        logger.info(f"Analysis complete. Results saved to {output_path}")
-        
-    except Exception as e:
-        logger.error(f"Analysis pipeline failed: {str(e)}")
-        raise
+        logger.error(f"Unexpected error: {e}")
+        return 1
 
-if __name__ == '__main__':
-    main()
+if __name__ == "__main__":
+    import sys
+    sys.exit(main())

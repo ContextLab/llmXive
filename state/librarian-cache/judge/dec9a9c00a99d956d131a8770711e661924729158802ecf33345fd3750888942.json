@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2408.13575",
+  "judged_at": "2026-08-16T03:27:11Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"abot-n1: toward a general visual language navigation foundation model\" computer science",
+  "rationale": "The paper focuses on \"long-term point tracking\" and \"geometric correspondence\" in visual foundation models, which is a distinct computer vision task from \"Visual Language Navigation\" (VLN) that requires integrating language instructions with spatial reasoning for agent movement. While both involve visual foundation models, the paper does not measure the same mechanism, variables, or empirical setting (navigation vs. tracking) required for inclusion in a literature review specifically about exten",
+  "relevant": false
+}

@@ -1,53 +1,180 @@
+"""
+Dataset loader for PlanBench‑XL.
+
+This module streams the official PlanBench‑XL dataset from HuggingFace
+and writes each split to a JSON Lines (JSONL) file under the ``data/raw``
+directory.  The original implementation used Apache Arrow Parquet files,
+but the runtime environment lacks a compatible ``pyarrow`` build (it
+requires NumPy 2.0).  To remain fully functional without external native
+extensions we store the streamed records in line‑delimited JSON, which can
+be consumed by the downstream extractor without modification.
+
+The script can be invoked as a CLI utility:
+
+    python code/dataset/loader.py --download
+
+The ``--download`` flag triggers the download; without it the script
+prints a short usage hint and exits with status 0.
+
+All paths are resolved via ``utils.config.get_path`` which creates the
+required directories on demand.
+"""
+
+import argparse
 import json
-import os
 import sys
+import time
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import Optional, Iterable
 
-# Add project root to path to resolve imports if running as script
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+from datasets import load_dataset
 
-def load_injected_data(path: str | Path) -> List[Dict[str, Any]]:
-    """
-    Load the implicit failure subset from a JSONL file.
-    
-    Args:
-        path: Path to the JSONL file (e.g., data/derived/implicit_failure_subset.jsonl)
-        
-    Returns:
-        List of task dictionaries.
-    """
-    tasks = []
-    path = Path(path)
-    
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {path}")
-        
-    with open(path, 'r', encoding='utf-8') as f:
-        for line_num, line in enumerate(f, 1):
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                task = json.loads(line)
-                tasks.append(task)
-            except json.JSONDecodeError as e:
-                print(f"Warning: Skipping invalid JSON at line {line_num}: {e}")
-                
-    return tasks
+from utils.config import get_path, ensure_dirs_exist
 
-def download_planbench_xl():
+def _write_jsonl(
+    split_name: str,
+    split_iter: Iterable[dict],
+    out_dir: Path,
+) -> Path:
     """
-    Placeholder for the actual download logic.
-    In a real implementation, this would fetch from HuggingFace or GitHub.
-    """
-    raise NotImplementedError("Download logic not implemented in this snippet.")
+    Write a streaming split to a JSON Lines file.
 
-def main():
-    """Main entry point for the loader module."""
-    print("Loader module loaded.")
+    Parameters
+    ----------
+    split_name: str
+        Name of the dataset split (e.g. ``train`` or ``validation``).
+    split_iter: Iterable[dict]
+        Iterator yielding dictionaries for each record.
+    out_dir: Path
+        Directory where the ``{split_name}.jsonl`` file will be created.
+
+    Returns
+    -------
+    Path
+        Path to the written JSONL file.
+    """
+    out_file = out_dir / f"{split_name}.jsonl"
+    # Ensure the parent directory exists.
+    out_file.parent.mkdir(parents=True, exist_ok=True)
+
+    with out_file.open("w", encoding="utf-8") as f:
+        for item in split_iter:
+            # ``json.dumps`` guarantees a single line per record.
+            f.write(json.dumps(item, ensure_ascii=False) + "\n")
+    return out_file
+
+def download_planbench_xl(
+    output_dir: Optional[Path] = None,
+    max_retries: int = 3,
+) -> Path:
+    """
+    Download the PlanBench‑XL dataset (streaming) and write each split
+    to a JSONL file under ``output_dir`` (default ``data/raw``).
+
+    The function retries on transient errors up to ``max_retries`` times
+    with exponential back‑off.  Any unrecoverable error is re‑raised so
+    that the caller can see a loud failure.
+
+    Parameters
+    ----------
+    output_dir: Optional[Path]
+        Destination directory for the raw files.  If ``None`` the
+        ``data/raw`` directory resolved via ``utils.config.get_path`` is used.
+    max_retries: int
+        Maximum number of retry attempts for the whole download process.
+
+    Returns
+    -------
+    Path
+        The directory containing the downloaded JSONL files.
+    """
+    if output_dir is None:
+        output_dir = get_path("data/raw")
+    ensure_dirs_exist(output_dir)
+
+    retry = 0
+    last_error = None
+    while retry < max_retries:
+        try:
+            # Load the dataset in streaming mode.
+            dataset = load_dataset("PlanBench/planbench-xl", streaming=True)
+
+            for split_name, split_iter in dataset.items():
+                print(f"Downloading split '{split_name}'...", flush=True)
+                _write_jsonl(split_name, split_iter, output_dir)
+
+            return output_dir
+        except Exception as exc:  # pragma: no cover – exercised via retries
+            last_error = exc
+            retry += 1
+            if retry < max_retries:
+                wait = 2 ** retry
+                print(
+                    f"Retry {retry}/{max_retries} after {wait}s due to error: {exc}",
+                    file=sys.stderr,
+                )
+                time.sleep(wait)
+            else:
+                raise RuntimeError(
+                    f"Failed to download PlanBench‑XL after {max_retries} attempts: {exc}"
+                ) from exc
+
+    # Should never reach here, but keep mypy happy.
+    raise RuntimeError(f"Download failed: {last_error}")
+
+def load_injected_data(input_path: Optional[Path] = None) -> list:
+    """
+    Load the injected failure subset generated by the ``injector`` step.
+
+    The default location is ``data/derived/implicit_failure_subset.jsonl``.
+    If the file does not exist an empty list is returned (the caller can
+    decide how to handle the missing data).
+
+    Parameters
+    ----------
+    input_path: Optional[Path]
+        Path to the JSONL file.  If ``None`` the default path is used.
+
+    Returns
+    -------
+    list
+        List of dictionaries, one per task record.
+    """
+    if input_path is None:
+        input_path = get_path("data/derived/implicit_failure_subset.jsonl")
+
+    data = []
+    if input_path.exists():
+        with input_path.open("r", encoding="utf-8") as f:
+            for line in f:
+                line = line.strip()
+                if line:
+                    data.append(json.loads(line))
+    return data
+
+def main() -> None:
+    """
+    CLI entry point.
+
+    ``--download`` triggers the download of the raw PlanBench‑XL dataset.
+    Without the flag a short help message is printed.
+    """
+    parser = argparse.ArgumentParser(description="PlanBench‑XL data loader")
+    parser.add_argument(
+        "--download",
+        action="store_true",
+        help="Download the raw PlanBench‑XL dataset and write JSONL files to data/raw/",
+    )
+    args = parser.parse_args()
+
+    if args.download:
+        out_dir = download_planbench_xl()
+        print(f"Dataset JSONL files written to: {out_dir}")
+    else:
+        print(
+            "No action specified. Use --download to fetch the dataset.",
+            file=sys.stderr,
+        )
 
 if __name__ == "__main__":
     main()

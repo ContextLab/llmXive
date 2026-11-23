@@ -141,5 +141,15 @@
     "tables/dense_object_detection.tex",
     "tables/common_object_detection.tex",
     "tables/ablation.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "a05aa1cc59792d2013a5623f5ff85fa7b57d61315780afbb097d78a1fd5b5638",
+      "bytes": 21060733
+    },
+    "original.pdf": {
+      "sha256": "c223b3d9b5131742c5971ac77030bebd414d5926b1f04aedb9a501d4c2bf78e2",
+      "bytes": 21016363
+    }
+  }
 }

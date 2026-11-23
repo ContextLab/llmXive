@@ -8,58 +8,46 @@ properties:
     enum:
       - "RandomForestRegressor"
       - "SVR"
-    description: "Type of model trained."
-  validation_strategy:
+    description: "Type of regression model."
+  cv_strategy:
     type: "string"
     enum:
-      - "within_stress_cv"
-      - "cross_stress_test"
-    description: "Validation strategy used."
-  metrics:
-    type: "object"
-    properties:
-      r_squared:
-        type: "number"
-        description: "R² score of the model."
-      rmse:
-        type: "number"
-        description: "Root Mean Squared Error."
-      null_model_r_squared:
-        type: "number"
-        description: "R² of the null model (mean prediction)."
-      r_squared_drop:
-        type: "number"
-        description: "Difference in R² between within-stress and cross-stress (if applicable)."
-    required:
-      - "r_squared"
-      - "rmse"
-  feature_importance:
-    type: "array"
-    description: "Top 20 proteins by importance."
-    items:
-      type: "object"
-      properties:
-        protein_id:
-          type: "string"
-        importance_score:
-          type: "number"
-      required:
-        - "protein_id"
-        - "importance_score"
-    maxItems: 20
-  runtime_metrics:
-    type: "object"
-    properties:
-      total_time_seconds:
-        type: "number"
-      peak_memory_mb:
-        type: "number"
-    required:
-      - "total_time_seconds"
-      - "peak_memory_mb"
+      - "5-fold"
+      - "LOOCV"
+    description: "Cross‑validation strategy used."
+  train_stress:
+    type: "string"
+    enum:
+      - "Drought"
+      - "Salinity"
+      - "Heat"
+    description: "Stress condition used for training."
+  test_stress:
+    type: "string"
+    enum:
+      - "Drought"
+      - "Salinity"
+      - "Heat"
+    description: "Stress condition used for testing (may equal train_stress for within‑stress evaluation)."
+  r2:
+    type: "number"
+    description: "Coefficient of determination on the test set."
+  rmse:
+    type: "number"
+    description: "Root Mean Square error on the test set."
+  null_model_r2:
+    type: "number"
+    description: "R² of the null (mean) model."
+  shuffled_target_p:
+    type: "number"
+    description: "p‑value from the shuffled target control test (‑ shuffling the target value instead of the stress label)."
 required:
   - "model_type"
-  - "validation_strategy"
-  - "metrics"
-  - "feature_importance"
+  - "cv_strategy"
+  - "train_stress"
+  - "test_stress"
+  - "r2"
+  - "rmse"
+  - "null_model_r2"
+  - "shuffled_target_p"
 additionalProperties: false

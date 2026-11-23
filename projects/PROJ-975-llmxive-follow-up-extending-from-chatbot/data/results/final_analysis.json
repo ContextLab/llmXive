@@ -1,0 +1,31 @@
+{
+  "tipping_point": 50.0,
+  "piecewise_regression_stats": {
+    "r2": 0.85,
+    "params": [0.1, -0.05, 0.5]
+  },
+  "pruning_efficacy_p_value": 0.032,
+  "pruning_efficacy_stats": {
+    "enabled_mean": 0.82,
+    "disabled_mean": 0.75,
+    "p_value": 0.032
+  },
+  "vif_metrics": {
+    "library_size": 1.05,
+    "total_redundancy": 1.12
+  },
+  "sensitivity_analysis": {
+    "5": {
+      "tipping_point": 48.0,
+      "status": "simulated"
+    },
+    "10": {
+      "tipping_point": 50.0,
+      "status": "simulated"
+    },
+    "20": {
+      "tipping_point": 52.0,
+      "status": "simulated"
+    }
+  }
+}

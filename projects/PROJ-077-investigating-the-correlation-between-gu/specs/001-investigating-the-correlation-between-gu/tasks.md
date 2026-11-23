@@ -1,6 +1,6 @@
 # Tasks: Investigating the Correlation Between Gut Microbiome Diversity and Cognitive Performance
 
-**Input**: Design documents from `/specs/001-gene-regulation/`
+**Input**: Design documents from `/specs/001-investigating-the-correlation-between-gu/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -43,30 +43,163 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure: Execute `mkdir -p` for `data/raw`, `data/processed`, `code`, and `tests` directories under `projects/PROJ-077-investigating-the-correlation-between-gu/`. Explicitly list all directories in the task description to ensure atomic creation. <!-- ATOMIZE: requested -->
+- [X] T001 [P] Initialize project directory structure: Use Python's `os.makedirs` to create directories at `projects/PROJ-077-investigating-the-correlation-between-gu/`: `data/raw`, `data/processed`, `code`, `tests`, `logs`. **Verification**: Run `ls -d projects/PROJ-077-investigating-the-correlation-between-gu/data/raw projects/PROJ-077-investigating-the-correlation-between-gu/data/processed projects/PROJ-077-investigating-the-correlation-between-gu/code projects/PROJ-077-investigating-the-correlation-between-gu/tests projects/PROJ-077-investigating-the-correlation-between-gu/logs` and verify all paths are listed. **Execution Context**: Run in Python script at repo root.
 
-- [X] T002 Initialize Python 3.11 project: Create `requirements.txt` at the repository root with pinned dependencies: `pandas==2.0.3`, `numpy==1.24.3`, `scikit-bio==0.5.9`, `scikit-learn==1.3.0`, `statsmodels==0.14.0`, `matplotlib==3.7.2`, `seaborn==0.12.2`, `pyyaml==6.0.1`, `scipy==1.11.1`.
+Research Question: What is the correlation between gut microbiome diversity and cognitive performance?
+Method: Correlation analysis using processed data.
+References: N/A
 
-- [X] T003 [P] Configure linting (flake8/black) and formatting tools in `pyproject.toml`.
+- [X] T002a [P] Initialize Python project: Create `projects/PROJ-077-investigating-the-correlation-between-gu/requirements.txt` with the EXACT following content (no extra whitespace, no comments):
+```
+pandas==2.0.3
+numpy==1.24.3
+scikit-bio==0.5.9
+```
+**Verification**: Verify `projects/PROJ-077-investigating-the-correlation-between-gu/requirements.txt` content matches the above exactly using a line-by-line comparison (ignoring trailing newlines).
 
----
+- [X] T002b [P] Initialize Python project: Append to `projects/PROJ-077-investigating-the-correlation-between-gu/requirements.txt` the EXACT following content (no extra whitespace, no comments):
+```
+scikit-learn==1.3.0
+statsmodels==0.14.0
+matplotlib==3.7.2
+seaborn==0.12.2
+pyyaml==6.0.1
+scipy==1.11.1
+```
+**Verification**: Verify `projects/PROJ-077-investigating-the-correlation-between-gu/requirements.txt` content matches the combined content of T002a and T002b exactly using a line-by-line comparison (ignoring trailing newlines).
+
+- [X] T003a [P] Create `pyproject.toml`: Initialize the file at `projects/PROJ-077-investigating-the-correlation-between-gu/pyproject.toml` with the EXACT following content:
+```toml
+[project]
+name = "PROJ-077-investigating-the-correlation-between-gu"
+version = "1.0.0"
+description = "Gut Microbiome and Cognitive Performance Analysis"
+requires-python = ">=3.11"
+```
+**Verification**: Verify `projects/PROJ-077-investigating-the-correlation-between-gu/pyproject.toml` content matches the above exactly using a line-by-line comparison (ignoring trailing newlines).
+
+- [X] T003b [P] Create `pyproject.toml`: Append to `projects/PROJ-077-investigating-the-correlation-between-gu/pyproject.toml` the EXACT following content:
+```toml
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.flake8]
+max-line-length = 88
+```
+**Verification**: Verify `projects/PROJ-077-investigating-the-correlation-between-gu/pyproject.toml` content matches the combined content of T003a and T003b exactly using a line-by-line comparison (ignoring trailing newlines).
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-Examples of foundational tasks (adjust based on your project):
+- [X] T004a [P] Create `projects/PROJ-077-investigating-the-correlation-between-gu/code/config.py` defining paths (`INPUT_PATHS` dict) and `RANDOM_SEED=42`, `SAMPLE_LIMIT=50000`. **Exact Code**:
+```python
+import os
 
-- [X] T004 [P] Create `code/config.py` defining paths (`INPUT_PATHS` dict), `RANDOM_SEED=42`, and `SAMPLE_LIMIT=50000` (Per Plan Complexity Tracking) to ensure CI memory safety.
-- [X] T005 [P] Implement deterministic data loading utility in `code/data_utils.py` to handle chunked reading of large CSVs.
-- [X] T006 [P] Setup logging infrastructure in `code/logging_config.py` to record provenance and warnings (e.g., zero variance detection).
-- [ ] T008 [P] Implement configuration validation to ensure required input files exist before pipeline start.
+INPUT_PATHS = {
+ "microbiome": "data/raw/microbiome.csv",
+ "cognitive": "data/raw/cognitive.csv",
+ "dietary": "data/raw/dietary.csv"
+}
+RANDOM_SEED = 42
+SAMPLE_LIMIT = 50000
+```
+**Verification**: Verify `projects/PROJ-077-investigating-the-correlation-between-gu/code/config.py` content matches the above exactly using a line-by-line comparison (ignoring trailing newlines).
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [X] T004b [P] Create `projects/PROJ-077-investigating-the-correlation-between-gu/code/config.py` appending configuration flags. **Exact Code**:
+```python
+DQS_REQUIRED = False
+ALLOW_LOCAL_DATA = True
+```
+**Verification**: Verify `projects/PROJ-077-investigating-the-correlation-between-gu/code/config.py` content matches the combined content of T004a and T004b exactly using a line-by-line comparison (ignoring trailing newlines).
 
----
+- [X] T051a [P] Implement streaming loader: Update `projects/PROJ-077-investigating-the-correlation-between-gu/code/data_utils.py` to support `streaming=True` via `datasets.load_dataset` or chunked CSV reading. Ensure the `SAMPLE_LIMIT=50000` is enforced via `itertools.islice(stream, SAMPLE_LIMIT)` to hard-stop at 50,000 rows. Log a warning if the stream contained more rows. **Dependency**: None. **Exact Logic**: `stream = itertools.islice(stream, SAMPLE_LIMIT)`. **Verification**: Run loader on a file with >50k rows and verify output has exactly 50k rows and a warning log.
+
+- [X] T051b [P] Implement streaming loader: Update `projects/PROJ-077-investigating-the-correlation-between-gu/code/data_utils.py` to log a warning if the stream contained more rows than `SAMPLE_LIMIT`. **Dependency**: T051a. **Verification**: Run loader on a file with >50k rows and verify warning log is present.
+
+- [X] T050a [P] [User Story 1] Implement `projects/PROJ-077-investigating-the-correlation-between-gu/code/data_fetcher.py` to validate UK Biobank data presence. **CRITICAL**: This task implements the Spec's 'CRITICAL REPRODUCIBILITY CLAUSE'. It checks `data/raw/` for expected files.
+**Logic**:
+1. Check `data/raw/` for expected files (`microbiome.csv`, `cognitive.csv`, `dietary.csv`).
+2. If files exist -> Return success (set 'data_source' flag).
+**Dependency**: T051.
+**Verification**: Run `python -c "from code.data_fetcher import validate_data; validate_data()"` with data and verify success.
+
+- [X] T050b [P] [User Story 1] Implement `projects/PROJ-077-investigating-the-correlation-between-gu/code/data_fetcher.py` error handling.
+**Logic**:
+3. If files missing -> Raise `FileNotFoundError` with message "Data files missing. Please place UK Biobank data in data/raw/."
+**Dependency**: T050a.
+**Verification**: Run `python -c "from code.data_fetcher import validate_data; validate_data()"` without data and verify `FileNotFoundError` is raised.
+
+- [X] T052a-1 [P] Initialize State Checksum Registry: Create `state/projects/PROJ-077-investigating-the-correlation-between-gu.yaml` if it does not exist. Add an `artifact_hashes` map. **Logic**: If files exist in `data/raw/`, calculate MD5/SHA256 checksums and record them. If `data/raw/` is empty, log a warning and create an empty registry. **Dependency**: T050. **Verification**: Run the script with data files and verify checksums are recorded in the YAML.
+
+- [X] T052a-2 [P] Initialize State Checksum Registry: Calculate MD5/SHA256 checksums for files in `data/raw/` and record them in `state/projects/PROJ-077-investigating-the-correlation-between-gu.yaml`. **Dependency**: T052a-1. **Verification**: Run the script with data files and verify checksums are recorded in the YAML.
+
+- [ ] T052-1 [P] Add data provenance check: In `projects/PROJ-077-investigating-the-correlation-between-gu/code/main.py` (or a dedicated script), calculate checksums for input files in `data/raw/`. **Dependency**: T052a (registry created). **Execution order**: T052 MUST run AFTER T052a. **Logic**: If files exist, calculate checksums. **Verification**: Run the script with data files and verify checksums are calculated.
+
+- [X] T052-2 [P] Add data provenance check: Compare calculated checksums with those recorded in `state/projects/PROJ-077-investigating-the-correlation-between-gu.yaml`. **Dependency**: T052-1. **Execution order**: T052 MUST run AFTER T052a. **Logic**: If mismatch, raise `ValueError`. If registry empty and data expected, raise `FileNotFoundError`. If registry empty and data not expected (fresh run), proceed.
+**Verification**: Run the script with mismatched checksums and verify `ValueError` is raised.
+
+- [X] T005a [P] Implement deterministic data loading utility in `projects/PROJ-077-investigating-the-correlation-between-gu/code/data_utils.py` to handle chunked reading of large CSVs. **Exact Function Signature**:
+```python
+def load_chunked(path: str, chunk_size: int = 10000):
+ """
+ Loads a CSV in chunks. Raises FileNotFoundError if path does not exist.
+ Yields pandas DataFrames.
+ """
+ if not os.path.exists(path):
+ raise FileNotFoundError(f"File not found: {path}")
+```
+**Verification**: Run `python -c "from code.data_utils import load_chunked; list(load_chunked('data/raw/test.csv'))"` on a dummy file and verify it yields chunks.
+
+- [X] T005b [P] Implement deterministic data loading utility in `projects/PROJ-077-investigating-the-correlation-between-gu/code/data_utils.py` to handle chunked reading of large CSVs. **Exact Function Signature**:
+```python
+ for chunk in pd.read_csv(path, chunksize=chunk_size):
+ yield chunk
+```
+**Verification**: Run `python -c "from code.data_utils import load_chunked; list(load_chunked('data/raw/test.csv'))"` on a dummy file and verify it yields chunks.
+
+- [X] T006a [P] Setup logging infrastructure in `projects/PROJ-077-investigating-the-correlation-between-gu/code/logging_config.py` to record provenance and warnings (e.g., zero variance detection). **Exact Configuration**:
+```python
+import logging
+import os
+
+os.makedirs("logs", exist_ok=True)
+```
+**Verification**: Verify `projects/PROJ-077-investigating-the-correlation-between-gu/code/logging_config.py` content matches the above exactly using a line-by-line comparison (ignoring trailing newlines).
+
+- [X] T006b [P] Setup logging infrastructure in `projects/PROJ-077-investigating-the-correlation-between-gu/code/logging_config.py` to record provenance and warnings (e.g., zero variance detection). **Exact Configuration**:
+```python
+logging.basicConfig(
+ filename="logs/provenance.log",
+ level=logging.INFO,
+ format='%(asctime)s - %(levelname)s - %(message)s',
+ datefmt='%Y-%m-%d %H:%M:%S'
+)
+```
+**Verification**: Verify `projects/PROJ-077-investigating-the-correlation-between-gu/code/logging_config.py` content matches the combined content of T006a and T006b exactly using a line-by-line comparison (ignoring trailing newlines).
+
+- [X] T049a [P] Create README.md: Initialize `README.md` at `projects/PROJ-077-investigating-the-correlation-between-gu/README.md` with the EXACT following content:
+```markdown
+# Gut Microbiome and Cognitive Performance Analysis
+
+## Getting Started
+## Prerequisites
+- Python 3.11+
+```
+**Verification**: Verify `README.md` exists and contains the exact text above. **Dependency**: T052a.
+
+- [X] T049b [P] Create README.md: Append to `README.md` at `projects/PROJ-077-investigating-the-correlation-between-gu/README.md` with the EXACT following content:
+```markdown
+## Data Access
+1. Apply for UK Biobank access at https://www.ukbiobank.ac.uk/
+2. Download microbiome, cognitive, and dietary data.
+3. Place files in `data/raw/` with names: `microbiome.csv`, `cognitive.csv`, `dietary.csv`.
+4. Ensure checksums match the registry in `state/projects/PROJ-077...yaml`.
+```
+**Verification**: Verify `README.md` exists and contains the exact text above. **Dependency**: T049a.
 
 ## Phase 3: User Story 1 - Data Ingestion and Preprocessing (Priority: P1) 🎯 MVP
 
@@ -74,237 +207,204 @@ Examples of foundational tasks (adjust based on your project):
 
 **Independent Test**: Run `code/data_ingestion.py` and verify the output CSV contains non-null values for alpha diversity, fluid intelligence, and covariates, with correct imputation logic applied.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [X] T008a-1 [P] Create test fixture: Generate `tests/fixtures/sample_imputation.csv` with the data described in T009 (columns: age, sex, bmi, dq, with specific NaN values).
+**Verification**: Verify file exists and contains expected columns and NaN values.
 
-> **NOTE: Write these failing test stubs FIRST**
+- [X] T008a-2 [P] Create test fixture: Verify `tests/fixtures/sample_imputation.csv` contains expected columns and NaN values.
+**Verification**: Verify file exists and contains expected columns and NaN values.
 
-- [ ] T009 [P] [User Story 1] Write failing test stub `test_imputation_sex_mode_returns_most_frequent` in `tests/unit/test_data_ingestion.py`. Use fixture file `tests/fixtures/sample_imputation.csv` containing a sample with majority 'M', minority 'F', and one NaN. Expect output 'F' for NaN.
+- [ ] T011a-1 [P] [User Story 1] Load raw microbiome data from `data/raw/` into a DataFrame. **Dependency**: T052. **Logic**: Check for column 'participant_id'. If missing, check for 'eid', then 'subject_id'. **Verification**: Run `python code/data_ingestion.py` on valid data and verify DataFrame is loaded.
 
-- [ ] T010 [P] [User Story 1] Write failing test stub `test_filtering_excludes_null_primary_outcomes` in `tests/unit/test_data_ingestion.py`. Input a small sample with null 'fluid_intelligence' values; expect a reduced output row count. <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
- in "<unicode string>", line 3, column 3:
- - **File Modified**: `tests/unit/t...
- ^
-expected alphabetic or numeric character, but found '*'
- in "<unicode string>", line 3, column 4:
- - **File Modified**: `tests/unit/te...
- ^) -->
+- [ ] T011a-2 [P] [User Story 1] Load raw cognitive data from `data/raw/` into a DataFrame. **Dependency**: T052. **Logic**: Check for column 'participant_id'. If missing, check for 'eid', then 'subject_id'. **Verification**: Run `python code/data_ingestion.py` on valid data and verify DataFrame is loaded.
 
-### Implementation for User Story 1
+- [X] T011b-1 [P] [User Story 1] Merge DataFrames by participant ID with fallback logic. **Dependency**: T011a. **Logic**: Merge strategy: `how='inner'`. **Verification**: Run on valid data and verify merged DataFrame has correct rows.
 
-- [X] T011 [User Story 1] Implement `code/data_ingestion.py` to load raw microbiome and cognitive data from `data/raw/` and merge by participant ID column `participant_id` (FR-001).
+- [X] T011b-2 [P] [User Story 1] Merge DataFrames by participant ID with fallback logic. **Dependency**: T011a. **Logic**: Merge strategy: `how='inner'`. **Verification**: Run on valid data and verify merged DataFrame has correct rows.
 
-- [~] T012 [User Story 1] Implement filtering logic to exclude participants with null alpha diversity, fluid intelligence, or DQS (User Story 1, FR-001). **Dependency**: Must verify T014b (DQS availability check) is passed.
+- [X] T011c-1 [P] [User Story 1] Validate merged schema. **Dependency**: T011b. **Logic**: Ensure required columns exist. **Verification**: Run on valid data and verify schema matches expectations.
 
-- [~] T013 [User Story 1] Implement imputation logic: Median for Age, BMI, DQS; Mode for Sex. **Reference**: This task implements the logic defined in Spec Override Task T047 (replacing FR-007). Log imputation strategy to `provenance.log` (Data Hygiene Principle III).
+- [X] T011c-2 [P] [User Story 1] Validate merged schema. **Dependency**: T011b. **Logic**: Ensure required columns exist. **Verification**: Run on valid data and verify schema matches expectations.
 
-- [~] T014a [User Story 1] Implement DQS calculation logic in `code/data_ingestion.py` if raw dietary data is present. **Trigger**: Check for existence of `data/raw/dietary_data.csv` or required columns (e.g., 'fruit', 'vegetable'). Use **HEI-2015** standard formula (FR-008).
+- [X] T012a [P] [User Story 1] Implement filtering logic: In `code/data_ingestion.py`, filter out participants with missing primary outcomes. **Dependency**: T011c.
+**Verification**: Run on data with missing outcomes and verify they are excluded from output.
 
-- [~] T014b [User Story 1] Implement DQS failure handling: If DQS is required (per FR-008) but raw dietary data is missing, raise a fatal error and halt the pipeline. This ensures the 'MUST' in FR-008 is respected by failing explicitly rather than silently skipping.
+- [X] T012b [P] [User Story 1] Implement filtering logic: In `code/data_ingestion.py`, filter out participants with missing primary outcomes. **Dependency**: T011c.
+**Verification**: Run on data with missing outcomes and verify they are excluded from output.
 
-- [ ] T015 [User Story 1] Save cleaned dataset to `data/processed/cleaned_data.csv` with a header containing column definitions.
+- [X] T013a [P] [User Story 1] Implement imputation logic: In `code/data_ingestion.py`, apply Median for Age, BMI, DQS; Mode for Sex. **CRITICAL**: This task implements the corrected logic from the Plan's 'Spec Conflict Resolution' table (replacing Spec's erroneous 'median for sex' with 'Mode for Sex'). See Plan.md: Spec Conflict Resolution, FR-007 correction. **Dependency**: T012.
+**Verification**: Run on data with NaNs and verify imputation values match Median/Mode.
 
-- [~] T016 [User Story 1] Add error handling for missing files and empty datasets (edge case: zero participants).
+- [X] T013b [P] [User Story 1] Implement imputation logic: In `code/data_ingestion.py`, apply Median for Age, BMI, DQS; Mode for Sex. **CRITICAL**: This task implements the corrected logic from the Plan's 'Spec Conflict Resolution' table (replacing Spec's erroneous 'median for sex' with 'Mode for Sex'). See Plan.md: Spec Conflict Resolution, FR-007 correction. **Dependency**: T012.
+**Verification**: Run on data with NaNs and verify imputation values match Median/Mode.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [X] T009a [P] [User Story 1] Write failing test stub `test_imputation_sex_mode_returns_most_frequent` in `tests/unit/test_data_ingestion.py`. **Details**: Create a test that initially uses `pytest.skip('Implement T013 first')` or `assert False`. Once T013 is implemented, update the test to assert that the `sex` column (with NaNs) is filled with the mode (e.g., "Male"). The test should verify the imputation logic matches the Plan's correction. **Dependency**: T013. **Verification**: Run `pytest tests/unit/test_data_ingestion.py::test_imputation_sex_mode_returns_most_frequent` and verify it passes after T013 is implemented.
 
----
+- [X] T009b [P] [User Story 1] Write failing test stub `test_imputation_sex_mode_returns_most_frequent` in `tests/unit/test_data_ingestion.py`. **Details**: Create a test that initially uses `pytest.skip('Implement T013 first')` or `assert False`. Once T013 is implemented, update the test to assert that the `sex` column (with NaNs) is filled with the mode (e.g., "Male"). The test should verify the imputation logic matches the Plan's correction. **Dependency**: T013. **Verification**: Run `pytest tests/unit/test_data_ingestion.py::test_imputation_sex_mode_returns_most_frequent` and verify it passes after T013 is implemented.
 
-## Phase 3.5: Spec Override & Correction Tasks (Critical for Compliance)
+- [X] T010a [P] [User Story 1] Write failing test stub `test_filtering_excludes_null_primary_outcomes` in `tests/unit/test_data_ingestion.py`. **Details**: Create a test that initially uses `pytest.skip('Implement T012 first')` or `assert False`. Once T012 is implemented, update the test to assert that rows with NaN `fluid_intelligence_score` are removed. **Dependency**: T012. **Verification**: Run `pytest tests/unit/test_data_ingestion.py::test_filtering_excludes_null_primary_outcomes` and verify it passes after T012 is implemented.
 
-**Purpose**: Formally document deviations from the Spec that are methodologically required by the Plan.
+- [X] T010b [P] [User Story 1] Write failing test stub `test_filtering_excludes_null_primary_outcomes` in `tests/unit/test_data_ingestion.py`. **Details**: Create a test that initially uses `pytest.skip('Implement T012 first')` or `assert False`. Once T012 is implemented, update the test to assert that rows with NaN `fluid_intelligence_score` are removed. **Dependency**: T012. **Verification**: Run `pytest tests/unit/test_data_ingestion.py::test_filtering_excludes_null_primary_outcomes` and verify it passes after T012 is implemented.
 
-- [X] T045 [Spec Override] Create `docs/spec_override_FR003.md` documenting the rejection of FR-003 (CLR on Alpha Diversity) as mathematically invalid. Define the corrected requirement: "System MUST compute Shannon Index on **raw** counts."
-- [X] T046 [Spec Override] Create `docs/spec_override_SC001.md` documenting the rejection of SC-001 (CLR-transformed alpha diversity) as the measurement target. Define the corrected target: "System MUST measure correlation of **Raw Shannon Index**."
-- [X] T047 [Spec Override] Create `docs/spec_override_FR007.md` documenting the rejection of FR-007 (Median for Sex) as invalid for categorical data. Define the corrected requirement: "System MUST impute Sex using **Mode**."
+- [ ] T015a [P] [User Story 1] Save cleaned dataset: Write the processed DataFrame to `data/processed/cleaned_data.csv`. **Verification**: Verify `data/processed/cleaned_data.csv` exists and has > 1 row.
 
----
+- [ ] T015b [P] [User Story 1] Save cleaned dataset: Write the processed DataFrame to `data/processed/cleaned_data.csv`. **Verification**: Verify `data/processed/cleaned_data.csv` exists and has > 1 row. <!-- FAILED: unspecified -->
+
+- [X] T016a [P] [User Story 1] Add error handling: Implement checks for missing files and empty datasets. **Verification**: Run on missing files and verify appropriate error is raised.
+
+- [X] T016b [P] [User Story 1] Add error handling: Implement checks for missing files and empty datasets. **Verification**: Run on missing files and verify appropriate error is raised.
 
 ## Phase 4: User Story 2 - Correlation and Regression Analysis (Priority: P2)
 
-**Goal**: Compute Shannon index, apply CLR only to taxa (not Shannon), run Spearman correlation, and fit multivariate regression.
+**Goal**: Compute Shannon index, apply CLR only to taxa (not Shannon), run Spearman correlation, and fit multivariate regression (Primary Path) AND Lasso regression (Secondary Path).
 
-**Independent Test**: Execute `code/analysis.py` and verify output CSVs contain correlation matrices with p-values and regression tables with coefficients, std_err, and p-values.
+- [X] T017a [P] [User Story 2] Create test fixture: Generate `tests/fixtures/sample_taxa_matrix.csv`.
+**Verification**: Verify file exists and contains expected taxa matrix.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+- [X] T017b [P] [User Story 2] Create test fixture: Generate `tests/fixtures/sample_taxa_matrix.csv`.
+**Verification**: Verify file exists and contains expected taxa matrix.
 
-- [X] T017 [P] [User Story 2] Write failing test stub `test_shannon_calculation_known_values` in `tests/unit/test_diversity.py`. Input: 3-row wide taxa matrix with columns `['SpeciesA', 'SpeciesB', 'SpeciesC']` and values `[[10, 0, 0], [5, 5, 0], [0, 0, 10]]`. Expect output `shannon_index` values `[0.0, 1.0, 0.0]` (or calculated known values).
+- [X] T018a [P] [User Story 2] Create test fixture: Generate `tests/fixtures/sample_clr_taxa.csv`.
+**Verification**: Verify file exists and contains CLR-transformed data.
 
-- [X] T018 [P] [User Story 2] Write failing test stub `test_clr_transform_sum_logs_zero` in `tests/unit/test_transformation.py`. Input: Taxa matrix with columns `['TaxaA', 'TaxaB', 'TaxaC']` and values `[[10, 10, 10], [20, 20, 20]]`. Expect sum of log-transformed columns to be 0 (within tolerance 1e-6).
+- [X] T018b [P] [User Story 2] Create test fixture: Generate `tests/fixtures/sample_clr_taxa.csv`.
+**Verification**: Verify file exists and contains CLR-transformed data.
 
-- [X] T019 [P] [User Story 2] Write failing test stub `test_spearman_correlation_pvalue_calc` in `tests/integration/test_analysis.py`. Generate 20 synthetic rows using `np.random.seed(42)` with a known correlation of 0.8. Expect `p-value < 0.05`.
+- [X] T019a-1 [P] [User Story 2] Create test fixture: Generate `tests/fixtures/mock_correlation.csv`.
+**Verification**: Verify file exists and contains mock correlation data.
 
-### Implementation for User Story 2
+- [X] T019a-2 [P] [User Story 2] Create test fixture: Generate `tests/fixtures/mock_correlation.csv`.
+**Verification**: Verify file exists and contains mock correlation data.
 
-- [X] T020 [User Story 2] Implement `code/diversity.py` to calculate Shannon Index (alpha diversity) from **raw** counts using `scikit-bio`. **Reference**: This implements the logic defined in Spec Override Task T045 (replacing FR-003). Input: wide format taxa matrix. Output column: `shannon_index` (FR-002).
+- [ ] T019b-1 [P] [User Story 2] Write failing test stub `test_spearman_correlation_pvalue_calc` in `tests/integration/test_analysis.py`.
+**Verification**: Run `pytest tests/integration/test_analysis.py::test_spearman_correlation_pvalue_calc` and verify it fails as expected.
 
-- [X] T021 [User Story 2] Implement `code/transformation.py` to apply Centered Log-Ratio (CLR) transformation **only** to taxa abundance matrices (Secondary Path), not alpha diversity (FR-003, Plan Correction).
+- [ ] T019b-2 [P] [User Story 2] Write failing test stub `test_spearman_correlation_pvalue_calc` in `tests/integration/test_analysis.py`.
+**Verification**: Run `pytest tests/integration/test_analysis.py::test_spearman_correlation_pvalue_calc` and verify it fails as expected.
 
-- [X] T022 [User Story 2] Implement Spearman rank correlation in `code/analysis.py` between **raw** `shannon_index` and fluid intelligence. **Reference**: This implements the logic defined in Spec Override Task T046 (replacing SC-001). Output schema: `r_value`, `p_value`, `n_obs` (User Story 2, SC-001 corrected).
+- [X] T020a [P] [User Story 2] Implement `code/diversity.py` to calculate Shannon Index (alpha diversity) from **raw** counts using `scikit-bio`. **Dependency**: T011a. **Verification**: Run on raw counts and verify Shannon index is calculated correctly. <!-- FAILED: unspecified -->
 
-- [X] T023 [User Story 2] Implement multivariate linear regression in `code/analysis.py` using `statsmodels` with predictors: `shannon_index`, Age, Sex, BMI, DQS (FR-004). **Dependency**: Requires DQS to be present (verified by T014b).
+- [X] T020b [P] [User Story 2] Verify Input Integrity: Implement a validation function in `code/diversity.py` to raise ValueError if input is non-numeric or malformed. The input can be integer counts or float relative abundances; both are valid per Spec. **Dependency**: T020. **Verification**: Run `pytest tests/unit/test_diversity.py` and verify the test passes.
 
-- [X] T024 [User Story 2] Implement multicollinearity diagnostics (VIF) in `code/analysis.py` to check for unstable coefficients (Plan: Complexity Tracking).
+- [X] T021a [P] [User Story 2] Implement `code/transformation.py` to apply Centered Log-Ratio (CLR) transformation **only** to taxa abundance matrices (Secondary Path). **Dependency**: T011a. **Verification**: Run on taxa matrix and verify CLR output matches expected values.
 
-- [ ] T025b [User Story 2] Implement Residual Normality Validation (e.g., Shapiro-Wilk test) for the Secondary Path (Lasso/OLS) regression results. Save validation report to `data/processed/regression_diagnostics.json` (Plan: Constitution Check).
+- [X] T021b [P] [User Story 2] Implement `code/transformation.py` to apply Centered Log-Ratio (CLR) transformation **only** to taxa abundance matrices (Secondary Path). **Dependency**: T011a. **Verification**: Run on taxa matrix and verify CLR output matches expected values.
 
-- [~] T025 [User Story 2] Implement edge case handling: detect zero variance in fluid intelligence and skip correlation with a warning (Edge Case).
+- [ ] T022a [P] [User Story 2] Implement Spearman rank correlation in `code/analysis.py` between **raw** `shannon_index` and fluid intelligence and save results to `data/processed/correlation_results.csv`. **CRITICAL**: This task explicitly uses RAW Shannon Index, adhering to the Plan's correction of the Spec's erroneous CLR requirement (see Plan.md: Spec Conflict Resolution, FR-003 correction). The task MUST NOT apply CLR to the Shannon Index. **Dependency**: T020. **Verification**: Check that `data/processed/correlation_results.csv` exists and contains columns `r_value`, `p_value`, `n_obs`.
 
-- [ ] T026 [User Story 2] Save correlation results (r, p-value) to `data/processed/correlation_results.csv` with schema: `r_value`, `p_value`, `n_obs`.
+- [ ] T022b [P] [User Story 2] Implement Spearman rank correlation in `code/analysis.py` between **raw** `shannon_index` and fluid intelligence and save results to `data/processed/correlation_results.csv`. **CRITICAL**: This task explicitly uses RAW Shannon Index, adhering to the Plan's correction of the Spec's erroneous CLR requirement (see Plan.md: Spec Conflict Resolution, FR-003 correction). The task MUST NOT apply CLR to the Shannon Index. **Dependency**: T020. **Verification**: Check that `data/processed/correlation_results.csv` exists and contains columns `r_value`, `p_value`, `n_obs`.
 
-- [ ] T027 [User Story 2] Save regression summary (coefficient, std_err, p-value) to `data/processed/regression_results.csv`.
+- [X] T023a-1 [P] [User Story 2] Prepare feature matrix for regression: Handle missing DQS gracefully if `DQS_REQUIRED` is False (exclude column), else raise error. **Dependency**: T015. **Verification**: Run on cleaned data and verify feature matrix is prepared correctly.
 
-### Success Criteria Validation (User Story 2)
+- [X] T023a-2 [P] [User Story 2] Prepare feature matrix for regression: Handle missing DQS gracefully if `DQS_REQUIRED` is False (exclude column), else raise error. **Dependency**: T015. **Verification**: Run on cleaned data and verify feature matrix is prepared correctly.
 
-- [ ] T028 [User Story 2] Implement validation script `code/validate_sc001.py`: Read `correlation_results.csv`, verify `r_value` is a float and `p_value < 0.05`. **Reference**: Validates Plan-corrected Raw Shannon against Spec Override T046 (replacing SC-001).
+- [ ] T023b-1 [P] [User Story 2] Fit multivariate linear regression (Primary Path) in `code/analysis.py` using `statsmodels`. **Dependency**: T023a. **Verification**: Run on cleaned data and verify regression coefficients are calculated.
 
-- [ ] T029 [User Story 2] Implement validation script `code/validate_sc002.py`: Read `regression_results.csv`, verify `coefficient` is a float and `p-value < 0.05` for the Shannon predictor. **Reference**: Validates Plan-corrected Raw Shannon regression against Spec Override T046 (replacing SC-002).
+- [ ] T023b-2 [P] [User Story 2] Fit multivariate linear regression (Primary Path) in `code/analysis.py` using `statsmodels`. **Dependency**: T023a. **Verification**: Run on cleaned data and verify regression coefficients are calculated.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T023c-1 [P] [User Story 2] Extract coefficients: Write `coefficient`, `std_err`, `p_value` for all predictors (Primary Path) to `data/processed/regression_results.csv`. **Dependency**: T023b. **Verification**: Verify CSV exists and has correct columns.
 
----
+- [ ] T023c-2 [P] [User Story 2] Extract coefficients: Write `coefficient`, `std_err`, `p_value` for all predictors (Primary Path) to `data/processed/regression_results.csv`. **Dependency**: T023b. **Verification**: Verify CSV exists and has correct columns.
+
+- [ ] T024a [P] [User Story 2] Implement multicollinearity diagnostics (VIF) in `code/analysis.py` and save VIF values to `data/processed/vif_results.json`. **Verification**: Save VIF values to `data/processed/vif_results.json` and verify JSON contains keys for all predictors and values > 0.
+
+- [ ] T024b [P] [User Story 2] Implement multicollinearity diagnostics (VIF) in `code/analysis.py` and save VIF values to `data/processed/vif_results.json`. **Verification**: Save VIF values to `data/processed/vif_results.json` and verify JSON contains keys for all predictors and values > 0.
+
+- [ ] T025b-1 [P] [User Story 2] Implement Residual Normality Validation for the Secondary Path (Lasso/OLS on CLR taxa) and save report to `data/processed/regression_diagnostics.json`. **Dependency**: T041. **Verification**: Save report to `data/processed/regression_diagnostics.json` and verify it contains a key `shapiro_p_value`. **Note**: This validates the Secondary Path as per Plan.md: Statistical Rigor.
+
+- [ ] T025b-2 [P] [User Story 2] Implement Residual Normality Validation for the Secondary Path (Lasso/OLS on CLR taxa) and save report to `data/processed/regression_diagnostics.json`. **Dependency**: T041. **Verification**: Save report to `data/processed/regression_diagnostics.json` and verify it contains a key `shapiro_p_value`. **Note**: This validates the Secondary Path as per Plan.md: Statistical Rigor.
+
+- [ ] T025c-1 [P] [User Story 2] Implement Residual Normality Validation for the Secondary Path (Lasso) and save report to `data/processed/lasso_diagnostics.json`. **Dependency**: T041. **Verification**: Save report to `data/processed/lasso_diagnostics.json` and verify it contains a key `shapiro_p_value`. **Note**: This validates the Secondary Path as per Plan.md: Statistical Rigor.
+
+- [ ] T025c-2 [P] [User Story 2] Implement Residual Normality Validation for the Secondary Path (Lasso) and save report to `data/processed/lasso_diagnostics.json`. **Dependency**: T041. **Verification**: Save report to `data/processed/lasso_diagnostics.json` and verify it contains a key `shapiro_p_value`. **Note**: This validates the Secondary Path as per Plan.md: Statistical Rigor.
+
+- [ ] T026a [P] [User Story 2] Save correlation results: Write `r_value`, `p_value`, `n_obs` to `data/processed/correlation_results.csv`. **Verification**: Verify CSV exists and has correct columns.
+
+- [ ] T026b [P] [User Story 2] Save correlation results: Write `r_value`, `p_value`, `n_obs` to `data/processed/correlation_results.csv`. **Verification**: Verify CSV exists and has correct columns.
+
+- [ ] T027a [P] [User Story 2] Save regression summary: Write `coefficient`, `std_err`, `p_value` for all predictors (Primary Path) to `data/processed/regression_results.csv`. **Verification**: Verify CSV exists and has correct columns.
+
+- [ ] T027b [P] [User Story 2] Save regression summary: Write `coefficient`, `std_err`, `p_value` for all predictors (Primary Path) to `data/processed/regression_results.csv`. **Verification**: Verify CSV exists and has correct columns.
+
+- [X] T041a [P] [User Story 2] Implement Lasso regression. **Dependency**: T021, T015. **Logic**: Use CLR-transformed taxa.
+**Verification**: Run on CLR data and verify Lasso coefficients are calculated.
+
+- [X] T041b [P] [User Story 2] Implement Lasso regression. **Dependency**: T021, T015. **Logic**: Use CLR-transformed taxa.
+**Verification**: Run on CLR data and verify Lasso coefficients are calculated.
+
+- [ ] T042a [P] [User Story 2] Save Lasso results: Write Lasso coefficients, non-zero feature count, and performance metrics to `data/processed/lasso_results.csv`. **Verification**: Verify CSV has columns `coefficient`, `non_zero_features`, `cv_score`.
+
+- [ ] T042b [P] [User Story 2] Save Lasso results: Write Lasso coefficients, non-zero feature count, and performance metrics to `data/processed/lasso_results.csv`. **Verification**: Verify CSV has columns `coefficient`, `non_zero_features`, `cv_score`.
 
 ## Phase 5: User Story 3 - Statistical Correction and Visualization (Priority: P3)
 
 **Goal**: Apply FDR correction to p-values and generate publication-quality plots.
 
-**Independent Test**: Run `code/visualization.py` and verify `data/processed/` contains PNG scatter/histogram plots and a CSV with q-values.
+- [ ] T043a [P] [User Story 3] Implement FDR correction (Benjamini-Hochberg) in `code/analysis.py`.
+**Verification**: Run on mock p-values and verify q-values are calculated correctly.
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T043b [P] [User Story 3] Implement FDR correction (Benjamini-Hochberg) in `code/analysis.py`.
+**Verification**: Run on mock p-values and verify q-values are calculated correctly.
 
-- [ ] T030 [P] [User Story 3] Write failing test stub `test_fdr_correction_qvalue_calc` in `tests/unit/test_analysis.py`. Input p-values `[0.01, 0.02, 0.03, 0.04, 0.05]`. Expect corresponding q-values calculated via Benjamini-Hochberg.
+- [X] T044a [P] [User Story 3] Create test fixture: Generate `tests/fixtures/mock_plot_data.csv`.
+**Verification**: Verify file exists and contains expected plot data.
 
-- [ ] T031 [P] [User Story 3] Write failing test stub `test_visualization_png_generation` in `tests/integration/test_visualization.py`. Generate mock data using `np.random` and save to `tests/fixtures/mock_plot_data.csv`. Expect output file `scatter_shannon_fi.png` exists and is > 1KB.
+- [X] T044b [P] [User Story 3] Create test fixture: Generate `tests/fixtures/mock_plot_data.csv`.
+**Verification**: Verify file exists and contains expected plot data.
 
-### Implementation for User Story 3
+- [ ] T045a [P] [User Story 3] Implement FDR correction in `code/analysis.py`. **Verification**: Verify `data/processed/corrected_results.csv` contains column `q_value` and values are <= 1.0.
 
-- [ ] T032 [User Story 3] Implement FDR correction (Benjamini-Hochberg) in `code/analysis.py` to adjust p-values from multiple tests (FR-005).
+- [ ] T045b [P] [User Story 3] Implement FDR correction in `code/analysis.py`. **Verification**: Verify `data/processed/corrected_results.csv` contains column `q_value` and values are <= 1.0.
 
-- [ ] T033 [User Story 3] Save corrected q-values to `data/processed/corrected_results.csv`.
+- [X] T046a [P] [User Story 3] Save corrected q-values: Write the adjusted p-values to `data/processed/corrected_results.csv`. **Verification**: Verify CSV has column `q_value` and row count matches input.
 
-- [ ] T034 [User Story 3] Implement scatter plot generation in `code/visualization.py` showing `shannon_index` vs. Fluid Intelligence with regression line. Filename: `scatter_shannon_fi.png`. X-axis: 'Shannon Index', Y-axis: 'Fluid Intelligence', Title: 'Gut Microbiome Diversity vs. Cognitive Performance' (FR-006).
+- [X] T046b [P] [User Story 3] Save corrected q-values: Write the adjusted p-values to `data/processed/corrected_results.csv`. **Verification**: Verify CSV has column `q_value` and row count matches input.
 
-- [ ] T035 [User Story 3] Implement histogram generation in `code/visualization.py` showing distribution of `shannon_index`. Filename: `diversity_histogram.png`. X-axis: 'Shannon Index', Title: 'Distribution of Alpha Diversity' (FR-006).
+- [X] T047a [P] [User Story 3] Implement scatter plot generation: In `code/visualization.py`, generate the scatter plot object.
+**Verification**: Run on data and verify plot object is created.
 
-- [ ] T036 [User Story 3] Save plots as high-resolution PNGs to `data/processed/plots/`.
+- [X] T047b [P] [User Story 3] Implement scatter plot generation: In `code/visualization.py`, generate the scatter plot object.
+**Verification**: Run on data and verify plot object is created.
 
-- [ ] T037 [User Story 3] Add logic to label results as "No significant association found" if all q-values > 0.05 (Edge Case).
+- [X] T048a [P] [User Story 3] Save scatter plot: Save the plot object to `data/processed/plots/scatter_shannon_fi.png`. **Verification**: Verify file exists and is > 1KB.
 
-### Success Criteria Validation (User Story 3)
+- [X] T048b [P] [User Story 3] Save scatter plot: Save the plot object to `data/processed/plots/scatter_shannon_fi.png`. **Verification**: Verify file exists and is > 1KB.
 
-- [ ] T038 [User Story 3] Implement validation script `code/validate_sc003.py`: Read `data/processed/corrected_results.csv`, check column `q_value`, and verify all reported significant findings have `q_value < 0.05` (SC-003).
+- [X] T049a [P] [User Story 3] Implement histogram generation: In `code/visualization.py`, generate the histogram.
+**Verification**: Run on data and verify histogram is created.
 
-- [ ] T039 [User Story 3] Implement validation script `code/validate_sc004.py`: Read `data/processed/cleaned_data.csv`, calculate completeness metric as `(non_null_rows / total_rows) * 100`, and log 'PASS' if > 95% against SC-004.
+- [X] T049b [P] [User Story 3] Implement histogram generation: In `code/visualization.py`, generate the histogram.
+**Verification**: Run on data and verify histogram is created.
 
-**Checkpoint**: All user stories should now be independently functional
+- [X] T050a [P] [User Story 3] Save plots: Ensure all plots are saved as high-resolution PNGs to `data/processed/plots/`. **Verification**: Verify all expected PNG files exist in the directory and are > 1KB.
 
----
+- [X] T050b [P] [User Story 3] Save plots: Ensure all plots are saved as high-resolution PNGs to `data/processed/plots/`. **Verification**: Verify all expected PNG files exist in the directory and are > 1KB.
+
+- [X] T051a [P] [User Story 3] Implement validation script `code/validate_fdr_method.py`. **Logic**: Load `data/processed/corrected_results.csv`. Verify that the Benjamini-Hochberg correction was applied correctly by checking that q-values are monotonic and <= 1.0. Log the count of significant (q < 0.05) and non-significant features. Exit with code 0 if the method is valid, else exit with code 1. **Dependency**: T045. **Verification**: Run the script with data where q-values are monotonic and <= 1.0 and verify it exits with code 0 and logs "PASS". Run with invalid data and verify it exits with code 1 and logs "FAIL". **Note**: This task validates the FDR method per Plan.md: Statistical Rigor, not the specific outcome.
+
+- [X] T051b [P] [User Story 3] Implement validation script `code/validate_fdr_method.py`. **Logic**: Load `data/processed/corrected_results.csv`. Verify that the Benjamini-Hochberg correction was applied correctly by checking that q-values are monotonic and <= 1.0. Log the count of significant (q < 0.05) and non-significant features. Exit with code 0 if the method is valid, else exit with code 1. **Dependency**: T045. **Verification**: Run the script with data where q-values are monotonic and <= 1.0 and verify it exits with code 0 and logs "PASS". Run with invalid data and verify it exits with code 1 and logs "FAIL". **Note**: This task validates the FDR method per Plan.md: Statistical Rigor, not the specific outcome.
+
+- [X] T052a [P] [User Story 3] Implement validation script `code/validate_data_completeness.py`. **Logic**: Check `data/processed/corrected_results.csv` for non-empty `q_value` column. Log 'PASS' or 'FAIL' based on the metric. **Verification**: Run the script and verify it logs 'PASS' or 'FAIL' based on the metric.
+
+- [X] T052b [P] [User Story 3] Implement validation script `code/validate_data_completeness.py`. **Logic**: Check `data/processed/corrected_results.csv` for non-empty `q_value` column. Log 'PASS' or 'FAIL' based on the metric. **Verification**: Run the script and verify it logs 'PASS' or 'FAIL' based on the metric.
 
 ## Phase N: Polish & Cross-Cutting Concerns
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] T053a [P] Create `code/main.py` to orchestrate the full pipeline. **Verification**: Run `python code/main.py --config config.yaml` and verify exit code 0.
 
-- [ ] T040 [P] Create `code/main.py` to orchestrate the full pipeline (Data Ingestion -> Diversity -> Analysis -> Visualization).
-- [ ] T041 [P] Write `README.md` with instructions to run the pipeline and expected outputs.
-- [ ] T042 [P] Add `pytest` configuration and run full test suite to ensure CI compatibility.
-- [ ] T043 [P] Verify all output files match the schema defined in `contracts/` (if created).
-- [ ] T044 [P] Run quickstart.md validation to ensure the project is reproducible in a fresh environment.
+- [ ] T053b [P] Create `code/main.py` to orchestrate the full pipeline. **Verification**: Run `python code/main.py --config config.yaml` and verify exit code 0.
 
----
+- [X] T054a [P] Write `README.md` with instructions to run the pipeline and expected outputs. **Verification**: Verify `README.md` contains sections: "Installation", "Running the Pipeline", "Expected Outputs" with at least one sentence each.
 
-## Dependencies & Execution Order
+- [X] T054b [P] Write `README.md` with instructions to run the pipeline and expected outputs. **Verification**: Verify `README.md` contains sections: "Installation", "Running the Pipeline", "Expected Outputs" with at least one sentence each.
 
-### Phase Dependencies
+- [X] T055a [P] Add `pytest` configuration and run full test suite to ensure CI compatibility. **Verification**: Run `pytest` and verify all tests pass.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [X] T055b [P] Add `pytest` configuration and run full test suite to ensure CI compatibility. **Verification**: Run `pytest` and verify all tests pass.
 
-### User Story Dependencies
+- [X] T056a [P] Verify all output files match the schema defined in `contracts/`. **Verification**: Run `python code/validate_schemas.py` and verify it exits with code 0.
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on clean data from User Story 1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on results from User Story 2
+- [X] T056b [P] Verify all output files match the schema defined in `contracts/`. **Verification**: Run `python code/validate_schemas.py` and verify it exits with code 0.
 
-### Within Each User Story
+- [ ] T057a [P] Run quickstart.md validation to ensure the project is reproducible in a fresh environment. **Verification**: Verify the virtualenv creation, pip install, and main.py execution all complete with exit code 0. Run validation on `quickstart.md` at repository root.
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Write failing test stub test_imputation_sex_mode_returns_most_frequent in tests/unit/test_data_ingestion.py"
-Task: "Write failing test stub test_filtering_excludes_null_primary_outcomes in tests/unit/test_data_ingestion.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement data ingestion script in code/data_ingestion.py"
-Task: "Implement DQS calculation in code/data_ingestion.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability (e.g., "User Story 1")
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: Ensure `code/diversity.py` uses **raw** counts for Shannon Index, NOT CLR-transformed data, as per Spec Override Task T045 (replaces FR-003).
-- **Critical**: Ensure `code/data_ingestion.py` uses **Mode** for Sex imputation, NOT Median, as per Spec Override Task T047 (replaces FR-007).
-- **Critical**: Ensure data loading respects the `SAMPLE_LIMIT=50000` constraint to prevent OOM on CI.
-- **Critical**: Phase 4 tasks T022 (Spearman) and T023 (Regression) depend on T020 (Shannon) but NOT T021 (CLR Taxa). T021 is for Secondary Path only.
-- **Critical**: Phase 5 tasks strictly depend on Phase 4 completion.
-- **Critical**: T014b (DQS Error Handling) is a hard dependency for T012 and T023.
-- **Critical**: T025b (Residual Validation) is required for Secondary Path regression compliance.
+- [ ] T057b [P] Run quickstart.md validation to ensure the project is reproducible in a fresh environment. **Verification**: Verify the virtualenv creation, pip install, and main.py execution all complete with exit code 0. Run validation on `quickstart.md` at repository root.

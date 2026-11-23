@@ -1,0 +1,208 @@
+{
+  "trace_id": "training_42_01278",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 20,
+  "tool_sequence": [
+    "apply_theme",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "apply_theme",
+    "resize_element",
+    "delete_element",
+    "format_text",
+    "insert_chart",
+    "insert_image",
+    "insert_image",
+    "delete_element",
+    "delete_element",
+    "delete_element",
+    "apply_theme",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "delete_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 92.9346,
+        "saturation": 9.7517
+      }
+    },
+    {
+      "step": 1,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 94.2194
+      }
+    },
+    {
+      "step": 2,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 79.6657
+      }
+    },
+    {
+      "step": 3,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 39.5091
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 79.9572
+      }
+    },
+    {
+      "step": 5,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 72.7111,
+        "saturation": 77.2227
+      }
+    },
+    {
+      "step": 6,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 55.6376,
+        "height": 89.8383
+      }
+    },
+    {
+      "step": 7,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 28.7643
+      }
+    },
+    {
+      "step": 8,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 86.7316,
+        "x": 68.0437,
+        "y": 45.0995
+      }
+    },
+    {
+      "step": 9,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 95.4997,
+        "y": 41.2504,
+        "width": 86.9948,
+        "height": 35.1192,
+        "data_points": 84.4155
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 1.2826,
+        "y": 26.7389,
+        "width": 65.0199,
+        "height": 80.695
+      }
+    },
+    {
+      "step": 11,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 78.4375,
+        "y": 0.3726,
+        "width": 44.0491,
+        "height": 23.6279
+      }
+    },
+    {
+      "step": 12,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 92.477
+      }
+    },
+    {
+      "step": 13,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 40.1455
+      }
+    },
+    {
+      "step": 14,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 61.6965
+      }
+    },
+    {
+      "step": 15,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 13.06,
+        "saturation": 87.5406
+      }
+    },
+    {
+      "step": 16,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 13.496,
+        "y": 51.7561,
+        "width": 2.6052,
+        "height": 18.4435,
+        "data_points": 30.2427
+      }
+    },
+    {
+      "step": 17,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 1.4089,
+        "y": 58.7451,
+        "width": 48.923,
+        "height": 8.1298,
+        "data_points": 89.5408
+      }
+    },
+    {
+      "step": 18,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 0.3689,
+        "y": 18.6417,
+        "width": 23.7079,
+        "height": 63.0383,
+        "data_points": 70.2838
+      }
+    },
+    {
+      "step": 19,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 98.3827
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.495616,
+    "tool_repetition_freq": 0.7,
+    "arg_semantic_variance": 996.088897
+  },
+  "final_state": {
+    "dominant_tool": "delete_element",
+    "slide_element_count": 18,
+    "layout_hash": "42-1278-delete_element"
+  }
+}

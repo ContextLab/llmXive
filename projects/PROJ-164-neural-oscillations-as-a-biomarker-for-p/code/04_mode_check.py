@@ -1,72 +1,129 @@
-"""
-T012: Mode Check Task
+"""T012: Mode Propagation Task.
 
-Reads verified_source_manifest.json. If mode flag is 'Data Insufficient',
-terminates pipeline gracefully (exit code 0) after writing the manifest.
-No further tasks are executed.
+Reads verified_source_manifest.json (produced by T011) and sets the
+global mode_flag for downstream tasks. If mode is 'Data Insufficient'
+or 'Underpowered', downstream tasks will skip execution.
 
-Dependencies: T011 (Source Verification)
+This task does NOT terminate the pipeline; it simply sets the flag.
 """
 import json
-import logging
-import os
 import sys
+from datetime import datetime, timezone
 from pathlib import Path
+from typing import Any, Dict
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+from llmxive_toolkit import paths, get_logger
 
-from utils.logging_setup import get_logger, log_mode_switch
+log = get_logger(__name__)
 
-# Setup logging
-logger = get_logger(__name__)
+MANIFEST_PATH = paths.data("verified_source_manifest.json")
+MODE_FLAG_PATH = paths.path("state", "mode_flag.json")
 
-MANIFEST_PATH = project_root / "data" / "verified_source_manifest.json"
+VALID_MODES = ("Primary", "Data Insufficient", "Underpowered")
 
-def main():
-    """
-    Main entry point for T012 Mode Check.
+
+def load_manifest() -> dict:
+    """Load the verified source manifest.
+
+    Raises loudly if the manifest is missing or malformed — no silent
+    fallback, since downstream mode gating depends on the verified
+    manifest from T011.
     """
     if not MANIFEST_PATH.exists():
-        logger.error(f"Manifest file not found: {MANIFEST_PATH}")
-        logger.error("T011 (Source Verification) must complete successfully before T012.")
-        sys.exit(1)
+        raise FileNotFoundError(
+            f"verified_source_manifest.json not found at {MANIFEST_PATH}; "
+            "run T011 (source verification) before T012."
+        )
+    with open(MANIFEST_PATH, "r", encoding="utf-8") as f:
+        manifest = json.load(f)
+    if not isinstance(manifest, dict):
+        raise ValueError(
+            f"Malformed manifest at {MANIFEST_PATH}: expected a JSON object."
+        )
+    return manifest
 
+
+def determine_mode(manifest: dict) -> str:
+    """Determine the pipeline mode based on the manifest.
+
+    Returns 'Primary', 'Data Insufficient', or 'Underpowered'.
+    """
+    mode = manifest.get("mode_flag")
+    if mode is None:
+        # Fall back to status: an absent paired dataset means
+        # Data Insufficient (FR-001).
+        status = manifest.get("status")
+        if status == "absent":
+            mode = "Data Insufficient"
+        elif status == "found":
+            mode = "Primary"
+        else:
+            raise ValueError(
+                "Manifest contains neither 'mode_flag' nor a recognizable "
+                "'status' field; cannot determine pipeline mode."
+            )
+    if mode not in VALID_MODES:
+        raise ValueError(
+            f"Unknown mode_flag '{mode}' in manifest; expected one of {VALID_MODES}."
+        )
+    # Cross-check: a manifest with status 'absent' can never be Primary.
+    if manifest.get("status") == "absent" and mode == "Primary":
+        raise ValueError(
+            "Inconsistent manifest: status is 'absent' but mode_flag is 'Primary'."
+        )
+    return mode
+
+
+def save_mode_flag(mode: str) -> None:
+    """Save the determined mode flag to the state directory."""
+    if mode not in VALID_MODES:
+        raise ValueError(f"Invalid mode '{mode}'; expected one of {VALID_MODES}.")
+    downstream_skipped = mode in ("Data Insufficient", "Underpowered")
+    payload = {
+        "artifact": "mode_flag",
+        "task_id": "T012",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "mode_flag": mode,
+        "downstream_execution_skipped": downstream_skipped,
+        "source_manifest": str(MANIFEST_PATH),
+    }
+    MODE_FLAG_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with open(MODE_FLAG_PATH, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2)
+    log.info("Mode flag saved to %s: %s", MODE_FLAG_PATH, mode)
+
+
+def main() -> int:
+    """T012 entry point: read the manifest, set the mode flag, exit 0."""
     try:
-        with open(MANIFEST_PATH, 'r', encoding='utf-8') as f:
-            manifest = json.load(f)
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to parse manifest JSON: {e}")
-        sys.exit(1)
-    except Exception as e:
-        logger.error(f"Unexpected error reading manifest: {e}")
-        sys.exit(1)
+        manifest = load_manifest()
+    except (FileNotFoundError, ValueError) as exc:
+        log.error("T012 failed to load manifest: %s", exc)
+        return 1
 
-    # Extract mode flag
-    # The manifest structure from T011 is expected to have a 'mode' or 'status' field
-    # based on the description: "If none found, log 'Data Insufficient'... and set mode flag"
-    mode = manifest.get("mode", manifest.get("status", "Unknown"))
-    
-    logger.info(f"Read manifest from {MANIFEST_PATH}")
-    logger.info(f"Current pipeline mode: {mode}")
+    mode = determine_mode(manifest)
+    save_mode_flag(mode)
 
-    if mode == "Data Insufficient":
-        logger.warning("Data Insufficient Mode detected. No single-source paired dataset found.")
-        log_mode_switch("Data Insufficient", "Terminating pipeline as per protocol.")
-        logger.info("Pipeline terminated gracefully (exit code 0) as no further tasks can be executed.")
-        sys.exit(0)
-    
-    elif mode == "Primary":
-        logger.info("Primary Mode detected. Data exists. Proceeding to next tasks.")
-        # If we are here, we do not terminate. The script exits successfully (0)
-        # allowing the pipeline to continue to T009 or T013.
-        sys.exit(0)
-    
-    else:
-        logger.error(f"Unknown mode flag found in manifest: {mode}")
-        logger.error("Cannot determine pipeline flow. Halting.")
-        sys.exit(1)
+    if mode == "Primary":
+        log.info(
+            "Primary Mode: single-source paired dataset verified. "
+            "Downstream tasks (T013+) may execute."
+        )
+    elif mode == "Data Insufficient":
+        log.info(
+            "Data Insufficient Mode: no single-source paired dataset found. "
+            "Downstream tasks (T013-T050) will skip execution. "
+            "The pipeline is NOT terminated; the flag is simply set."
+        )
+    else:  # Underpowered
+        log.info(
+            "Underpowered Mode: N_actual below the minimum required sample "
+            "size. Downstream statistical inference will be skipped."
+        )
+
+    # Always exit 0: this task only propagates the mode flag.
+    return 0
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

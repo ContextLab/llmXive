@@ -1,168 +1,127 @@
 """
-Unit tests for the trainer module (T013).
-
-These tests verify:
-1. Data loading logic
-2. Grid search execution (mocked to avoid long runtime)
-3. Metric calculation
-4. Artifact saving
+Unit tests for the trainer module.
 """
 import os
-import json
 import tempfile
+import json
 import pandas as pd
 import numpy as np
-from unittest.mock import patch, MagicMock
 import pytest
+from pathlib import Path
 
-# Import the module to test
-from code.models import trainer
-
+# Import the module under test
+from code.models.trainer import (
+    load_processed_data,
+    get_param_distributions,
+    train_model,
+    run_training_pipeline
+)
 
 @pytest.fixture
 def sample_processed_data():
-    """Create a minimal valid processed dataset for testing."""
+    """Create a temporary CSV with sample processed data."""
     data = {
-        'strain_rate': [0.1, 0.2, 0.3, 0.4, 0.5],
-        'temperature': [300, 350, 400, 450, 500],
-        'alloy_family': ['Al', 'Al', 'Cu', 'Cu', 'Cu'],
-        'ODF_{100}': [0.5, 0.6, 0.7, 0.8, 0.9],
-        'ODF_{110}': [0.4, 0.5, 0.6, 0.7, 0.8],
-        'ODF_{111}': [0.3, 0.4, 0.5, 0.6, 0.7]
+        'rolling_temp': np.random.uniform(300, 800, 100),
+        'strain_rate': np.random.uniform(0.1, 10.0, 100),
+        'reduction_ratio': np.random.uniform(0.1, 0.8, 100),
+        'odf_100': np.random.uniform(1.0, 5.0, 100),
+        'odf_110': np.random.uniform(1.0, 5.0, 100),
+        'odf_111': np.random.uniform(1.0, 5.0, 100),
+        'alloy_family': np.random.choice(['Al', 'Mg', 'Ti'], 100)
     }
     df = pd.DataFrame(data)
-    return df
+    
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        df.to_csv(f, index=False)
+        return f.name
 
+@pytest.fixture
+def temp_output_dir():
+    """Create a temporary directory for model output."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        yield tmpdir
 
-def test_load_processed_data(sample_processed_data, tmp_path):
-    """Test that load_processed_data correctly splits features and targets."""
-    # Save sample data
-    csv_path = tmp_path / "processed_dataset.csv"
-    sample_processed_data.to_csv(csv_path, index=False)
-    
-    # Load
-    X, y = trainer.load_processed_data(str(csv_path))
-    
-    # Assertions
-    assert X.shape[0] == 5
-    assert y.shape[0] == 5
-    assert 'strain_rate' in X.columns
-    assert 'ODF_{100}' in y.columns
-    assert 'ODF_{111}' in y.columns
-    assert list(X.columns) == ['strain_rate', 'temperature', 'alloy_family']
+def test_get_param_distributions():
+    """Test that param distributions are valid and non-empty."""
+    dist = get_param_distributions()
+    assert isinstance(dist, dict)
+    assert 'n_estimators' in dist
+    assert 'max_depth' in dist
+    assert len(dist['n_estimators']) > 0
+    assert len(dist['max_depth']) > 0
 
+def test_load_processed_data(sample_processed_data):
+    """Test loading and splitting of processed data."""
+    X, y, targets = load_processed_data(sample_processed_data)
+    
+    assert isinstance(X, pd.DataFrame)
+    assert isinstance(y, pd.DataFrame)
+    assert len(targets) == 3
+    assert 'odf_100' in targets
+    assert 'odf_110' in targets
+    assert 'odf_111' in targets
+    assert len(X) == 100
+    assert len(y) == 100
+    assert list(X.columns) == ['rolling_temp', 'strain_rate', 'reduction_ratio']
 
-def test_load_processed_data_missing_file():
-    """Test that load_processed_data raises FileNotFoundError."""
-    with pytest.raises(FileNotFoundError):
-        trainer.load_processed_data("non_existent_path.csv")
-
-
-@patch('code.models.trainer.GridSearchCV')
-@patch('code.models.trainer.RandomForestRegressor')
-def test_run_grid_search(mock_rf, mock_grid, sample_processed_data, tmp_path):
-    """Test that run_grid_search executes with correct parameters."""
-    # Setup mocks
-    mock_instance = MagicMock()
-    mock_instance.best_params_ = {'n_estimators': 100}
-    mock_instance.best_score_ = 0.85
-    mock_grid.return_value = mock_instance
-    mock_rf.return_value = MagicMock()
+def test_train_model_basic(sample_processed_data, temp_output_dir):
+    """Test basic model training with reduced iterations for speed."""
+    X, y, targets = load_processed_data(sample_processed_data)
     
-    # Prepare data
-    csv_path = tmp_path / "processed_dataset.csv"
-    sample_processed_data.to_csv(csv_path, index=False)
-    X, y = trainer.load_processed_data(str(csv_path))
+    # Override n_iter to speed up test
+    import code.models.trainer as trainer_module
+    original_n_iter = trainer_module.N_ITERATIONS
+    trainer_module.N_ITERATIONS = 2  # Very small for unit test
     
-    # Run
-    model, results = trainer.run_grid_search(X, y)
-    
-    # Verify GridSearchCV was called
-    assert mock_grid.called
-    call_args = mock_grid.call_args
-    assert call_args[1]['cv'] == 5
-    assert 'n_estimators' in call_args[1]['param_grid']
-
-
-def test_evaluate_model(sample_processed_data, tmp_path):
-    """Test metric calculation."""
-    # Create a simple mock model
-    mock_model = MagicMock()
-    mock_model.predict.return_value = np.array([
-        [0.5, 0.4, 0.3],
-        [0.6, 0.5, 0.4],
-        [0.7, 0.6, 0.5],
-        [0.8, 0.7, 0.6],
-        [0.9, 0.8, 0.7]
-    ])
-    
-    csv_path = tmp_path / "processed_dataset.csv"
-    sample_processed_data.to_csv(csv_path, index=False)
-    X, y = trainer.load_processed_data(str(csv_path))
-    
-    metrics = trainer.evaluate_model(mock_model, X, y)
-    
-    assert 'r2_mean' in metrics
-    assert 'r2_per_output' in metrics
-    assert metrics['n_samples'] == 5
-
-
-def test_save_model_and_results(tmp_path):
-    """Test that artifacts are saved correctly."""
-    mock_model = MagicMock()
-    search_results = {
-        "best_params": {"n_estimators": 50},
-        "best_score": 0.8,
-        "total_time_seconds": 10.0,
-        "timeout_reached": False
-    }
-    eval_metrics = {
-        "r2_mean": 0.85,
-        "r2_per_output": {"ODF_{100}": 0.85}
-    }
-    
-    model_path = str(tmp_path / "model.json")
-    metrics_path = str(tmp_path / "metrics.json")
-    
-    trainer.save_model_and_results(mock_model, search_results, eval_metrics, model_path, metrics_path)
-    
-    # Check JSON file exists and has content
-    assert os.path.exists(metrics_path)
-    with open(metrics_path, 'r') as f:
-        data = json.load(f)
-    
-    assert data['best_params']['n_estimators'] == 50
-    assert data['training_metrics']['r2_mean'] == 0.85
-    
-    # Check model binary exists (either .pkl or .joblib)
-    pkl_path = model_path.replace('.json', '.pkl')
-    assert os.path.exists(pkl_path)
-
-
-def test_train_pipeline_integration(sample_processed_data, tmp_path):
-    """Integration test for the full training pipeline."""
-    csv_path = str(tmp_path / "processed_dataset.csv")
-    model_path = str(tmp_path / "model.json")
-    metrics_path = str(tmp_path / "metrics.json")
-    
-    sample_processed_data.to_csv(csv_path, index=False)
-    
-    # Patch GridSearchCV to avoid long runtime in tests
-    with patch('code.models.trainer.GridSearchCV') as mock_grid:
-        mock_instance = MagicMock()
-        mock_instance.best_params_ = {'n_estimators': 10}
-        mock_instance.best_score_ = 0.9
-        mock_instance.cv_results_ = pd.DataFrame({'params': [{}], 'mean_test_score': [0.9]})
-        mock_grid.return_value = mock_instance
+    try:
+        model, metrics = train_model(X, y, targets, temp_output_dir, timeout_seconds=300)
         
-        # Patch RandomForestRegressor
-        with patch('code.models.trainer.RandomForestRegressor'):
-            result = trainer.train_pipeline(
-                data_path=csv_path,
-                model_output=model_path,
-                metrics_output=metrics_path
-            )
+        assert model is not None
+        assert isinstance(metrics, dict)
+        assert 'best_params' in metrics
+        assert 'best_cv_score' in metrics
+        assert 'training_time_seconds' in metrics
+        
+        # Check files were created
+        assert os.path.exists(os.path.join(temp_output_dir, "best_model.pkl"))
+        assert os.path.exists(os.path.join(temp_output_dir, "training_metrics.json"))
+        
+        # Verify metrics content
+        with open(os.path.join(temp_output_dir, "training_metrics.json")) as f:
+            saved_metrics = json.load(f)
+            assert saved_metrics['best_cv_score'] == metrics['best_cv_score']
+    finally:
+        trainer_module.N_ITERATIONS = original_n_iter
+
+def test_run_training_pipeline(sample_processed_data, temp_output_dir):
+    """Test the full pipeline orchestration."""
+    import code.models.trainer as trainer_module
+    original_n_iter = trainer_module.N_ITERATIONS
+    trainer_module.N_ITERATIONS = 2
     
-    assert result['status'] == 'success'
-    assert 'metrics' in result
-    assert os.path.exists(metrics_path)
+    try:
+        results = run_training_pipeline(sample_processed_data, temp_output_dir)
+        
+        assert 'model_path' in results
+        assert 'metrics' in results
+        assert 'target_names' in results
+        assert os.path.exists(results['model_path'])
+    finally:
+        trainer_module.N_ITERATIONS = original_n_iter
+
+def test_missing_data_file():
+    """Test error handling for missing data file."""
+    with pytest.raises(FileNotFoundError):
+        load_processed_data("non_existent_file.csv")
+
+def test_empty_data():
+    """Test handling of empty or invalid data."""
+    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
+        f.write("col1,col2\n") # Header only
+        temp_path = f.name
+    
+    try:
+        with pytest.raises(ValueError):
+            load_processed_data(temp_path)
+    finally:
+        os.unlink(temp_path)

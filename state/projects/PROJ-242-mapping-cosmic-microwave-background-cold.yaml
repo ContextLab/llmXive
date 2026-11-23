@@ -1,18 +1,18 @@
 artifact_hashes: {}
 assigned_agent: null
 created_at: '2026-05-04T07:16:50.555861Z'
-current_stage: validated
+current_stage: specified
 failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-242-mapping-cosmic-microwave-background-cold
-last_run_id: e9919513-d162-440b-9dcd-f51268da751c
+last_run_id: fc08bc70-fd3a-434b-bbfc-437fd3dc3997
 last_run_status: null
 points_paper: {}
 points_research: {}
 revision_round: 0
 revision_spec_path: null
 speckit_paper_dir: null
-speckit_research_dir: null
+speckit_research_dir: projects/PROJ-242-mapping-cosmic-microwave-background-cold/specs/001-mapping-cosmic-microwave-background-cold
 title: Mapping Cosmic Microwave Background Cold Spots to Large-Scale Structure
-updated_at: '2026-06-13T23:07:20.225695Z'
+updated_at: '2026-10-24T10:31:19.165716Z'

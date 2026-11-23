@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-096-exploring-the-role-of-network-topology-o",
+  "ok": false,
+  "reason": "2 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/download_ca_astro_ph.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026nd does not fall back to synthetic data. \"\"\" import os import sy\u2026\u201d; code/generate_topology.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026-> nx.Graph:     \"\"\"     Generate a synthetic regular ring lattice.\u2026\u201d; 3 command(s) failed: python code/generate_topology.py (rc=1); python code/simulate_kuramoto.py (rc=1); python code/analyze_results.py (rc=1); 8 declared deliverable(s) absent: data/processed/config.json; data/processed/correlation_results.json; data/processed/graph_metadata.json",
+  "artifacts": [],
+  "failures": [
+    "python code/generate_topology.py -> rc=1\n    2026-08-05 18:00:55 - llmXive - INFO - Logging initialized. Log file: data/processed/simulation_20260805_180055.log\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-096-exploring-the-role-of-network-topology-o/code/generate_topology.py\", line 16, in <module>\n    logger = get_logger(__name__)\n             ^^^^^^^^^^^^^^^^^^^^\nTypeError: get_logger() takes 0 positional arguments but 1 was given",
+    "python code/simulate_kuramoto.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-096-exploring-the-role-of-network-topology-o/code/simulate_kuramoto.py\", line 33, in <module>\n    logger = get_logger(__name__)\n             ^^^^^^^^^^^^^^^^^^^^\nTypeError: get_logger() takes 0 positional arguments but 1 was given",
+    "python code/analyze_results.py -> rc=1\n    2026-08-05 18:00:57,006 - __main__ - INFO - Loading simulation results from data/processed/simulation_results.csv\n2026-08-05 18:00:57,006 - __main__ - ERROR - File not found: Input file not found: data/processed/simulation_results.csv"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-08-05T18:00:57Z"
+}

@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "VR Interaction Log Schema"
+description: "Schema for the simulated VR interaction logs (response time, gaze, judgment)."
+type: "object"
+properties:
+  participant_id:
+    type: "string"
+    description: "Foreign key to Participant."
+  story_id:
+    type: "string"
+    description: "Foreign key to Vignette."
+  salience_level:
+    type: "string"
+    enum:
+      - "low"
+      - "high"
+    description: "Visual salience level of the avatar expression."
+  response_time:
+    type: "number"
+    description: "Simulated response time in seconds."
+  gaze_metrics:
+    type: "object"
+    description: "Simulated gaze tracking metrics."
+    properties:
+      fixation_count:
+        type: "integer"
+        description: "Number of fixations."
+      saccade_amplitude:
+        type: "number"
+        description: "Average saccade amplitude in degrees."
+    required:
+      - fixation_count
+      - saccade_amplitude
+  judgment_rating:
+    type: "number"
+    description: "Moral judgment rating (1-7 scale)."
+  ground_truth_effect:
+    type: "number"
+    description: "The known effect size used in simulation for validation."
+required:
+  - participant_id
+  - story_id
+  - salience_level
+  - response_time
+  - gaze_metrics
+  - judgment_rating
+  - ground_truth_effect
+additionalProperties: false

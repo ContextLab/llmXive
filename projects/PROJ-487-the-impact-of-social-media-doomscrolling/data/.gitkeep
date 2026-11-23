@@ -1,0 +1,4 @@
+# Data directory structure
+# - raw/: Raw data fetched from APIs
+# - processed/: Cleaned and aligned time-series data
+# - reports/: Generated analysis reports and visualizations

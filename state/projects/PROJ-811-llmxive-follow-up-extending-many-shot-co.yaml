@@ -6,7 +6,7 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-811-llmxive-follow-up-extending-many-shot-co
-last_run_id: 7e430dab-bf8f-477b-8bd9-8516826a9c8e
+last_run_id: 812d44d1-958b-4518-8ed5-29a444762b77
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-811-llmxive-follow-up-extending-many-shot-co/specs/001-llmxive-follow-up-extending-many-shot-co
 title: 'llmXive follow-up: extending "Many-Shot CoT-ICL: Making In-Context Learning
   Truly Learn"'
-updated_at: '2026-07-11T09:55:40.282125Z'
+updated_at: '2026-08-21T07:33:04.346600Z'

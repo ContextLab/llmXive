@@ -1,0 +1,16 @@
+status: none
+intent: NIST JANAF thermochemical tables and SGTE thermodynamic database python package
+  dataset
+required_fields:
+- alloy_system
+- composition
+- temperature
+- phase
+- phase_boundary_coordinates
+- elemental_mean_atomic_radius
+- electronegativity_variance
+- valence_electron_count
+- hume_rothery_electron_concentration
+cache_key: 2611c5d51b1b5b4f3ab3de51fd238decdefc31b3c9a9a2afcfecd8a08c3a1e91
+searched_at: '2026-10-09T19:23:53.248250+00:00'
+retry_count: 1

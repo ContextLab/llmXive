@@ -1,91 +1,116 @@
 """
 Contract tests for agent state schema validation.
-Validates the structure of saved agent states (rule sets, performance metrics).
+Ensures agent state snapshots conform to the defined JSON schema.
 """
-import json
-import os
 import pytest
-from typing import Any, Dict, List
+from tests.contract.schemas import validate_agent_state
 
-AGENT_STATE_SCHEMA = {
-    "required_keys": ["agent_id", "condition", "generation", "rule_set", "metrics"],
-    "rule_set_keys": ["rules", "score", "history"],
-    "metrics_keys": ["accuracy", "evaluations", "forgetting_rate"],
-    "conditions": ["sequential", "mixed", "coevolving"]
-}
+class TestAgentStateSchema:
+    """Tests for the agent state schema validator."""
 
-def validate_agent_state_structure(data: Dict[str, Any]) -> List[str]:
-    """
-    Validates an agent state dictionary against the expected schema.
-    Returns a list of validation errors (empty if valid).
-    """
-    errors = []
+    def test_valid_sequential_agent_state(self):
+        """Test a valid state for a SequentialAgent."""
+        valid_state = {
+            "agent_type": "SequentialAgent",
+            "config": {
+                "max_generations": 100,
+                "population_size": 50
+            },
+            "population": [
+                {
+                    "id": "rule_set_1",
+                    "rules": ["A -> B", "B -> C"],
+                    "fitness": 0.85
+                },
+                {
+                    "id": "rule_set_2",
+                    "rules": ["X -> Y"],
+                    "fitness": 0.72
+                }
+            ],
+            "evaluation_stats": {
+                "total_evaluations": 5000,
+                "by_task": {
+                    "logic": 2500,
+                    "grid": 2500
+                }
+            },
+            "generation_history": [
+                {"gen": 0, "avg_fitness": 0.5},
+                {"gen": 1, "avg_fitness": 0.6}
+            ]
+        }
+        result = validate_agent_state(valid_state)
+        assert result.valid, f"Validation failed: {result.errors}"
 
-    # Check top-level required keys
-    for key in AGENT_STATE_SCHEMA["required_keys"]:
-        if key not in data:
-            errors.append(f"Missing required top-level key: {key}")
+    def test_valid_coevolving_agent_state(self):
+        """Test a valid state for a CoevolvingAgent with sub-populations."""
+        valid_state = {
+            "agent_type": "CoevolvingAgent",
+            "config": {
+                "num_subpops": 2,
+                "exchange_rate": 0.1
+            },
+            "population": [
+                {
+                    "id": "subpop_1_rule_1",
+                    "rules": ["Avoid Red"],
+                    "fitness": 0.9
+                },
+                {
+                    "id": "subpop_2_rule_1",
+                    "rules": ["Diagonal Path"],
+                    "fitness": 0.88
+                }
+            ],
+            "evaluation_stats": {
+                "total_evaluations": 10000,
+                "by_task": {
+                    "grid_avoid_red": 5000,
+                    "grid_diagonal": 5000
+                }
+            },
+            "generation_history": []
+        }
+        result = validate_agent_state(valid_state)
+        assert result.valid, f"Validation failed: {result.errors}"
 
-    # Validate condition
-    if "condition" in data and data["condition"] not in AGENT_STATE_SCHEMA["conditions"]:
-        errors.append(f"Invalid condition: {data['condition']}")
+    def test_invalid_missing_agent_type(self):
+        """Test that missing agent_type causes validation failure."""
+        invalid_state = {
+            "config": {},
+            "population": [],
+            "evaluation_stats": {"total_evaluations": 0, "by_task": {}}
+        }
+        result = validate_agent_state(invalid_state)
+        assert not result.valid
+        assert any("Missing required property 'agent_type'" in str(e.message) for e in result.errors)
 
-    # Validate rule_set structure
-    if "rule_set" in data:
-        rs = data["rule_set"]
-        for key in AGENT_STATE_SCHEMA["rule_set_keys"]:
-            if key not in rs:
-                errors.append(f"Missing required rule_set key: {key}")
-        
-        if "rules" in rs and not isinstance(rs["rules"], list):
-            errors.append("'rule_set.rules' must be a list")
+    def test_invalid_wrong_fitness_type(self):
+        """Test that non-numeric fitness causes validation failure."""
+        invalid_state = {
+            "agent_type": "MixedAgent",
+            "config": {},
+            "population": [
+                {
+                    "id": "r1",
+                    "rules": ["A"],
+                    "fitness": "high" # Should be number
+                }
+            ],
+            "evaluation_stats": {"total_evaluations": 0, "by_task": {}}
+        }
+        result = validate_agent_state(invalid_state)
+        assert not result.valid
+        assert any("Expected type 'number'" in str(e.message) for e in result.errors)
 
-    # Validate metrics structure
-    if "metrics" in data:
-        metrics = data["metrics"]
-        for key in AGENT_STATE_SCHEMA["metrics_keys"]:
-            if key not in metrics:
-                errors.append(f"Missing required metrics key: {key}")
-        
-        # Check numeric types
-        if "accuracy" in metrics and not isinstance(metrics["accuracy"], (int, float)):
-            errors.append("'metrics.accuracy' must be a number")
-
-    return errors
-
-def load_agent_state(filepath: str) -> Dict[str, Any]:
-    """Load an agent state from a JSON file."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Agent state file not found: {filepath}")
-    with open(filepath, 'r') as f:
-        return json.load(f)
-
-@pytest.mark.contract
-def test_sequential_agent_state_schema():
-    """Test that a sequential agent state conforms to the schema."""
-    try:
-        state = load_agent_state("data/results/agent_sequential_state.json")
-        errors = validate_agent_state_structure(state)
-        assert len(errors) == 0, f"Schema validation failed: {errors}"
-    except FileNotFoundError:
-        pytest.skip("Agent state file not found. Run training tasks first.")
-
-@pytest.mark.contract
-def test_mixed_agent_state_schema():
-    """Test that a mixed agent state conforms to the schema."""
-    try:
-        state = load_agent_state("data/results/agent_mixed_state.json")
-        errors = validate_agent_state_structure(state)
-        assert len(errors) == 0, f"Schema validation failed: {errors}"
-    except FileNotFoundError:
-        pytest.skip("Agent state file not found. Run training tasks first.")
-
-@pytest.mark.contract
-def test_coevolving_agent_state_schema():
-    """Test that a co-evolving agent state conforms to the schema."""
-    try:
-        state = load_agent_state("data/results/agent_coevolving_state.json")
-        errors = validate_agent_state_structure(state)
-        assert len(errors) == 0, f"Schema validation failed: {errors}"
-    except FileNotFoundError:
-        pytest.skip("Agent state file not found. Run training tasks first.")
+    def test_invalid_missing_evaluation_stats(self):
+        """Test missing evaluation_stats."""
+        invalid_state = {
+            "agent_type": "SequentialAgent",
+            "config": {},
+            "population": []
+        }
+        result = validate_agent_state(invalid_state)
+        assert not result.valid
+        assert any("Missing required property 'evaluation_stats'" in str(e.message) for e in result.errors)

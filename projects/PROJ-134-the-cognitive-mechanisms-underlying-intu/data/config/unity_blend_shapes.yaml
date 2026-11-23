@@ -1,0 +1,119 @@
+# Unity Blend Shape Configuration
+# This file defines the mapping of text story IDs to VR blend-shape parameters.
+# It serves as the single source of truth for the "perceptual salience" variable.
+#
+# Format:
+# story_id:
+#   salience_level: "low" | "high"
+#   blend_shape_params:
+#     jawOpen: float (0.0 - 1.0)
+#     browLower: float (0.0 - 1.0)
+#     eyeBlink: float (0.0 - 1.0)
+#     mouthCornerPull: float (0.0 - 1.0)
+#     noseSneer: float (0.0 - 1.0)
+
+version: "1.0"
+generated_at: "2023-10-27T10:00:00Z"
+
+mappings:
+  # High Salience Stories (Visually Intense)
+  story_001:
+    salience_level: "high"
+    blend_shape_params:
+      jawOpen: 0.85
+      browLower: 0.90
+      eyeBlink: 0.20
+      mouthCornerPull: 0.10
+      noseSneer: 0.75
+
+  story_002:
+    salience_level: "high"
+    blend_shape_params:
+      jawOpen: 0.80
+      browLower: 0.85
+      eyeBlink: 0.15
+      mouthCornerPull: 0.05
+      noseSneer: 0.80
+
+  story_003:
+    salience_level: "high"
+    blend_shape_params:
+      jawOpen: 0.90
+      browLower: 0.95
+      eyeBlink: 0.25
+      mouthCornerPull: 0.15
+      noseSneer: 0.70
+
+  story_004:
+    salience_level: "high"
+    blend_shape_params:
+      jawOpen: 0.75
+      browLower: 0.80
+      eyeBlink: 0.10
+      mouthCornerPull: 0.00
+      noseSneer: 0.85
+
+  story_005:
+    salience_level: "high"
+    blend_shape_params:
+      jawOpen: 0.88
+      browLower: 0.92
+      eyeBlink: 0.30
+      mouthCornerPull: 0.20
+      noseSneer: 0.65
+
+  # Low Salience Stories (Visually Subtle)
+  story_006:
+    salience_level: "low"
+    blend_shape_params:
+      jawOpen: 0.10
+      browLower: 0.15
+      eyeBlink: 0.50
+      mouthCornerPull: 0.20
+      noseSneer: 0.05
+
+  story_007:
+    salience_level: "low"
+    blend_shape_params:
+      jawOpen: 0.15
+      browLower: 0.10
+      eyeBlink: 0.45
+      mouthCornerPull: 0.25
+      noseSneer: 0.00
+
+  story_008:
+    salience_level: "low"
+    blend_shape_params:
+      jawOpen: 0.05
+      browLower: 0.20
+      eyeBlink: 0.55
+      mouthCornerPull: 0.30
+      noseSneer: 0.10
+
+  story_009:
+    salience_level: "low"
+    blend_shape_params:
+      jawOpen: 0.12
+      browLower: 0.18
+      eyeBlink: 0.48
+      mouthCornerPull: 0.22
+      noseSneer: 0.02
+
+  story_010:
+    salience_level: "low"
+    blend_shape_params:
+      jawOpen: 0.08
+      browLower: 0.12
+      eyeBlink: 0.52
+      mouthCornerPull: 0.28
+      noseSneer: 0.08
+
+# Metadata for validation
+metadata:
+  total_stories: 10
+  high_salience_count: 5
+  low_salience_count: 5
+  parameter_range:
+    min: 0.0
+    max: 1.0
+  validation_status: "verified"

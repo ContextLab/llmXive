@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1703.04298",
+  "judged_at": "2026-08-12T00:36:04Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging llms for automated generation of code complexity metrics computer science",
+  "rationale": "This paper satisfies criterion (b) as it measures software quality metrics (specifically the 378 automatically collected measures from the Quamoco model) on a large corpus of open-source systems, which directly addresses the \"code complexity metrics\" variable in the user's domain. Additionally, it serves as an empirical baseline (criterion c) for evaluating the sufficiency of focused versus comprehensive metric sets, a foundational concern for any research on automated metric generation.",
+  "relevant": true
+}

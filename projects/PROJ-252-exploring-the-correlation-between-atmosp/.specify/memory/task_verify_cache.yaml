@@ -1,0 +1,10 @@
+T001:
+  c: false
+  h: 9590efd2cdb54aebc03143b2b595c255b3e236c4218f2cc6629193acfcd1755f
+  r: "Checked `requirements.txt` (present and pinned), `code/seed_init.py` (sets both\
+    \ seeds and writes the log), and `docs/quickstart.md` (does not contain the required\
+    \ single\u2011line command). The log file `logs/seed_initialization.log` is never\
+    \ listed as an artifact, so there is no evidence it was created, and the quick\u2011\
+    start documentation does not match the specified command. These missing pieces\
+    \ prevent the task from being fully satisfied."
+  sig: 2806c662f9ffa5d05ff62d5dcdce8421687ed3af95f3dfafd267b7185bda670d

@@ -43,10 +43,10 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a Create `data/` and `data/raw/` directories
+- [ ] T001a Create `data/` and `data/raw/` directories
 - [X] T001b Create `code/`, `code/discovery/`, `code/preprocess/`, `code/analysis/`, `code/viz/` directories
 - [X] T001c Create `output/`, `output/figures/`, `tests/`, `tests/unit/`, `tests/contract/`, `logs/`, and `data/processed/` directories
-- [X] T002 Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scipy`, `scikit-learn`, `requests`, `pyyaml`, `tqdm`, `pytest`
+- [ ] T002 Initialize Python 3.11 project with dependencies: `pandas`, `numpy`, `scipy`, `scikit-learn`, `requests`, `pyyaml`, `tqdm`, `pytest` [UNRESOLVED-CLAIM: c_2097fc9e — status=not_enough_info]
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
@@ -59,10 +59,10 @@
 
 - [X] T004 Implement `code/config.py` for path management, random seeds, and environment variables
 - [X] T005 [P] Create `code/__init__.py` and module `__init__.py` files for package structure
-- [X] T006 Implement `code/discovery/__init__.py` and `code/preprocess/__init__.py`
-- [X] T007 Implement `code/analysis/__init__.py` and `code/viz/__init__.py`
-- [ ] T008 Create `tests/unit/__init__.py` and `tests/contract/__init__.py`
-- [ ] T008b Create `data/verified_datasets.yaml` as the local registry for verified accession titles (required by T010)
+- [ ] T006 Implement `code/discovery/__init__.py` and `code/preprocess/__init__.py`
+- [~] T007 Implement `code/analysis/__init__.py` and `code/viz/__init__.py`
+- [~] T008 Create `tests/unit/__init__.py` and `tests/contract/__init__.py`
+- [~] T008b Create `data/verified_datasets.yaml` as the local registry for verified accession titles (required by T010)
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -70,17 +70,17 @@
 
 ## Phase 3: User Story 0 - Data Discovery and Availability Check (Priority: P0) 🎯 MVP
 
-**Goal**: Validate the existence of ≥3 matched multi-generational datasets (methylation + RNA-seq) in GEO/ENCODE before proceeding.
+**Goal**: Validate the existence of ≥3 matched multi-generational datasets (methylation + RNA-seq) in GEO/ENCODE before proceeding. [UNRESOLVED-CLAIM: c_6fadf750 — status=not_enough_info]
 
 **Independent Test**: The discovery script runs against a hardcoded list of search queries; output is a list of valid accession IDs or a "Data Unavailable" failure message.
 
 ### Implementation for User Story 0
 
-- [ ] T009 [US0] Implement `code/discovery/query_geno.py` with search logic for "multi-generational", "methylation", "RNA-seq", and "fluctuating" keywords. **Output**: `output/discovery_results.json`.
-- [X] T010 [US0] Implement `validate_reference(accession, title)` in `code/discovery/query_geno.py` performing title-token overlap check (threshold ≥ 0.7) against `data/verified_datasets.yaml`.
-- [~] T011 [US0] Implement logic to filter datasets by organism (mouse, C. elegans, Drosophila) and metadata completeness (fluctuation timescale/amplitude).
+- [~] T009 [US0] Implement `code/discovery/query_geno.py` with search logic for "multi-generational", "methylation", "RNA-seq", and "fluctuating" keywords. **Output**: `output/discovery_results.json`.
+- [~] T010 [US0] Implement `validate_reference(accession, title)` in `code/discovery/query_geno.py` performing title-token overlap check (threshold ≥ 0.7) against `data/verified_datasets.yaml`. [UNRESOLVED-CLAIM: c_c7e66a7e — status=not_enough_info]
+- [~] T011 [US0] Implement logic to filter datasets by organism (mouse, C. elegans, Drosophila) (Wikidata Q130888, https://www.wikidata.org/wiki/Q130888) and metadata completeness (fluctuation timescale/amplitude).
 - [~] T012 [US0] Implement logic to flag "Partial Match" datasets and write a `halt_signal` to `output/discovery_status.json` if <3 valid datasets are found. **Checkpoint**: Pipeline halts if this file contains `halt_signal`.
-- [X] T013 [US0] Create `tests/unit/test_discovery.py` with mock responses for GEO/ENCODE queries.
+- [~] T013 [US0] Create `tests/unit/test_discovery.py` with mock responses for GEO/ENCODE queries.
 
 **Checkpoint**: Data availability confirmed or pipeline halted appropriately via `output/discovery_status.json`.
 
@@ -90,17 +90,17 @@
 
 **Goal**: Download, filter, and normalize multi-generational omics datasets using LOGO jackknife to create a unified analysis-ready matrix.
 
-**Independent Test**: Pipeline runs on a small public subset; output is a unified CSV/TSV with ≥95% non-missing gene pairs for variance metrics.
+**Independent Test**: Pipeline runs on a small public subset; output is a unified CSV/TSV with ≥95% non-missing gene pairs [UNRESOLVED-CLAIM: c_78287026 — status=not_enough_info] for variance metrics.
 
 ### Implementation for User Story 1
 
-- [X] T014 [US1] Implement `code/preprocess/rna_seq.py` for RNA-seq normalization (DESeq2-like approach using `scipy`/`sklearn` for CPU feasibility) and variance calculation.
-- [X] T015 [US1] Implement `code/preprocess/methyl.py` for methylation normalization (CpG-density adjustment) and variance calculation.
+- [~] T014 [US1] Implement `code/preprocess/rna_seq.py` for RNA-seq normalization (DESeq2-like approach using `scipy`/`sklearn` for CPU feasibility) and variance calculation.
+- [~] T015 [US1] Implement `code/preprocess/methyl.py` for methylation normalization (CpG-density adjustment) and variance calculation.
 - [~] T016 [US1] Implement **Leave-One-Generation-Out (LOGO)** jackknife logic in both `rna_seq.py` and `methyl.py` to ensure independent sample subsets for variance derivation.
-- [~] T017 [US1] Implement filtering logic to exclude genes with zero variance in both layers or missing data in either layer.
-- [~] T018 [US1] Implement global methylation level filter (<1% exclusion) and non-model organism exclusion.
-- [~] T019 [US1] Create `code/main.py` as an **initial/skeleton stateless orchestrator** that: (1) checks `output/discovery_status.json` for `halt_signal`, (2) creates `logs/` directory if missing, (3) invokes isolated modules `code/preprocess/rna_seq.py` and `code/preprocess/methyl.py` sequentially, (4) unifies results into `data/processed/variance_matrix.csv`, (5) logs execution to `logs/pipeline.log`, and (6) monitors runtime to fail if >6 hours (SC-004). **Note**: `main.py` must strictly forbid cross-contamination between streams.
-- [X] T020 [US1] Create `tests/unit/test_preprocess.py` to validate LOGO split and variance calculations on synthetic small datasets.
+- [ ] T017 [US1] Implement filtering logic to exclude genes with zero variance in both layers or missing data in either layer.
+- [ ] T018 [US1] Implement global methylation level filter (<1% exclusion) and non-model organism exclusion.
+- [ ] T019 [US1] Create `code/main.py` as an **initial/skeleton stateless orchestrator** that: (1) checks `output/discovery_status.json` for `halt_signal`, (2) creates `logs/` directory if missing, (3) invokes isolated modules `code/preprocess/rna_seq.py` and `code/preprocess/methyl.py` sequentially, (4) unifies results into `data/processed/variance_matrix.csv`, (5) logs execution to `logs/pipeline.log`, and (6) monitors runtime to fail if >6 hours (SC-004). **Note**: `main.py` must strictly forbid cross-contamination between streams.
+- [~] T020 [US1] Create `tests/unit/test_preprocess.py` to validate LOGO split and variance calculations on synthetic small datasets.
 
 **Checkpoint**: Unified `data/processed/variance_matrix.csv` generated with valid LOGO-derived metrics.
 
@@ -110,16 +110,16 @@
 
 **Goal**: Compute Spearman correlation between epigenetic and expression variance, stratified by environmental condition and stressor type.
 
-**Independent Test**: Script produces Spearman's rho, p-value (theoretical and empirical), and a scatter plot.
+**Independent Test**: Script produces Spearman's rho, p-value (Wikidata Q649075, https://www.wikidata.org/wiki/Q649075) (theoretical and empirical), and a scatter plot.
 
 ### Implementation for User Story 2
 
-- [X] T022 [US2] Implement `code/analysis/correlation.py` to calculate Spearman's rho for "fluctuating" and "constant" subsets. **Output**: `output/correlation_results.json`.
-- [~] T023 [US2] Implement **iterative permutation test** in `correlation.py`. **Logic**: Start with a sufficient number of iterations. Calculate p-value. Check variance of p-value over the last [deferred] iterations. If variance > 0.001, increase iterations by [deferred] and repeat. **Hard Cap**: Stop at [deferred] iterations if stability not reached, then report the final p-value and a "convergence_warning" flag. **Output**: Updated `output/correlation_results.json`. **Dependency**: Requires T022.
-- [~] T024 [US2] Implement stressor stratification logic (e.g., temperature vs. nutrient) if metadata permits.
-- [X] T025 [US2] Implement `code/viz/plots.py` to generate scatter plots (x=epigenetic variance, y=expression variance) colored by condition.
-- [~] T026 [US2] Implement `Temporal Resolution Flag` logic: if N<3 generations or missing timescale, set `temporal_resolution_flag: "insufficient"` in `output/correlation_results.json` and exclude from final claim. **Dependency**: Requires T022 and metadata from T009/T010/T011.
-- [X] T027 [US2] Create `tests/unit/test_analysis.py` with unit tests for correlation math and permutation logic.
+- [~] T022 [US2] Implement `code/analysis/correlation.py` to calculate Spearman's rho for "fluctuating" and "constant" subsets. **Output**: `output/correlation_results.json`.
+- [ ] T023 [US2] Implement **iterative permutation test** in `correlation.py`. **Logic**: Start with a sufficient number of iterations. Calculate p-value. Check variance of p-value over the last [deferred] iterations. If variance > 0.001 [UNRESOLVED-CLAIM: c_ab01dd59 — status=not_enough_info], increase iterations by [deferred] and repeat. **Hard Cap**: Stop at [deferred] iterations if stability not reached, then report the final p-value and a "convergence_warning" flag. **Output**: Updated `output/correlation_results.json`. **Dependency**: Requires T022.
+- [ ] T024 [US2] Implement stressor stratification logic (e.g., temperature vs. nutrient) if metadata permits.
+- [~] T025 [US2] Implement `code/viz/plots.py` to generate scatter plots (x=epigenetic variance, y=expression variance) colored by condition.
+- [ ] T026 [US2] Implement `Temporal Resolution Flag` logic: if N<3 generations or missing timescale, set `temporal_resolution_flag: "insufficient"` in `output/correlation_results.json` and exclude from final claim. **Dependency**: Requires T022 and metadata from T009/T010/T011.
+- [~] T027 [US2] Create `tests/unit/test_analysis.py` with unit tests for correlation math and permutation logic.
 
 **Checkpoint**: `output/correlation_results.json` generated with rho, p-values, and flags.
 
@@ -133,15 +133,15 @@
 
 ### Implementation for Revision (Phase 6)
 
-- [X] T033 [P] [Revision] Implement `code/analysis/timescale_align.py` to extract "fluctuation timescale" from metadata. **Metadata Keys**: Check `fluctuation_timescale`, `fluctuation_period`, `env_period` in that order. **Calculation**: Compute "drift timescale" as the slope of variance vs. generation count (linear regression of variance on generation index). **Output**: `output/timescale_alignment.json` with raw values. <!-- SKIPPED: YAML+regex parse failed (while scanning for the next token
+- [~] T033 [P] [Revision] Implement `code/analysis/timescale_align.py` to extract "fluctuation timescale" from metadata. **Metadata Keys**: Check `fluctuation_timescale`, `fluctuation_period`, `env_period` in that order. **Calculation**: Compute "drift timescale" as the slope of variance vs. generation count (linear regression of variance on generation index). **Output**: `output/timescale_alignment.json` with raw values. <!-- SKIPPED: YAML+regex parse failed (while scanning for the next token
 found character '`' that cannot start any token
  in "<unicode string>", line 6, column 84:
 ... etadata keys in priority order: `fluctuation_timescale`, `fluctu...
  ^) -->
-- [~] T034 [P] [Revision] Implement logic to categorize the relationship as "Aligned" (drift rate matches environmental fluctuation frequency within 10%), "Mismatched" (drift is too slow/fast), or "Insufficient Data" (missing keys). **Output**: `output/timescale_alignment.json` with `alignment_status` field. **Dependency**: Requires T033.
-- [~] T035 [P] [Revision] Implement logic to set `temporal_validation_status` in `output/timescale_alignment.json` to "VALID" if "Aligned" or "Mismatched", and "INSUFFICIENT" if "Insufficient Data". Explicitly forbid any causal or "plausibility" scoring. **Dependency**: Requires T034.
-- [X] T036 [Revision] Update `code/main.py` to include `timescale_align.py` in the pipeline execution flow, ensuring it runs after `correlation.py` and before the final report merge. **Dependency**: Requires T035.
-- [X] T037 [P] [Revision] Create `tests/unit/test_timescale_align.py` to validate the comparison logic using mock data with known alignment/mismatch scenarios.
+- [ ] T034 [P] [Revision] Implement logic to categorize the relationship as "Aligned" (drift rate matches environmental fluctuation frequency within 10% [UNRESOLVED-CLAIM: c_759cd101 — status=not_enough_info]), "Mismatched" (drift is too slow/fast), or "Insufficient Data" (missing keys). **Output**: `output/timescale_alignment.json` with `alignment_status` field. **Dependency**: Requires T033.
+- [ ] T035 [P] [Revision] Implement logic to set `temporal_validation_status` in `output/timescale_alignment.json` to "VALID" if "Aligned" or "Mismatched", and "INSUFFICIENT" if "Insufficient Data". Explicitly forbid any causal or "plausibility" scoring. **Dependency**: Requires T034.
+- [~] T036 [Revision] Update `code/main.py` to include `timescale_align.py` in the pipeline execution flow, ensuring it runs after `correlation.py` and before the final report merge. **Dependency**: Requires T035.
+- [~] T037 [P] [Revision] Create `tests/unit/test_timescale_align.py` to validate the comparison logic using mock data with known alignment/mismatch scenarios.
 
 **Checkpoint**: `output/timescale_alignment.json` generated with alignment status and validation flag.
 
@@ -155,11 +155,11 @@ found character '`' that cannot start any token
 
 ### Implementation for User Story 3
 
-- [X] T028 [US3] Implement `code/analysis/sensitivity.py` to sweep minimum generation thresholds **specifically at values 3, 4, and 5 generations**.
-- [~] T029 [US3] Implement logic to report correlation coefficient variation across thresholds.
+- [~] T028 [US3] Implement `code/analysis/sensitivity.py` to sweep minimum generation thresholds **specifically at values 3, 4, and 5 generations**.
+- [ ] T029 [US3] Implement logic to report correlation coefficient variation across thresholds.
 - [~] T030 [US3] Implement stability check: flag result if correlation remains significant (p < 0.05) in <2 of 3 thresholds or if |Δrho| > 0.1. **Dependency**: Requires T023 (converged p-values) for empirical p-values.
-- [X] T031 [US3] Integrate sensitivity results into final report generation in `code/main.py`.
-- [X] T032 [US3] Create `tests/unit/test_sensitivity.py` to validate threshold sweep logic.
+- [~] T031 [US3] Integrate sensitivity results into final report generation in `code/main.py`.
+- [~] T032 [US3] Create `tests/unit/test_sensitivity.py` to validate threshold sweep logic.
 
 **Checkpoint**: Sensitivity analysis report appended to final results.
 
@@ -169,8 +169,8 @@ found character '`' that cannot start any token
 
 **Purpose**: Improvements that affect multiple user stories and final verification
 
-- [X] T038 [P] Implement logic in `code/main.py` to merge `output/correlation_results.json`, `output/timescale_alignment.json`, and sensitivity results into a final `output/final_report.json`. **Dependency**: Requires T036.
-- [X] T039 [P] Create `tests/contract/test_schema.py` to validate final report structure against data-model.md.
+- [~] T038 [P] Implement logic in `code/main.py` to merge `output/correlation_results.json`, `output/timescale_alignment.json`, and sensitivity results into a final `output/final_report.json`. **Dependency**: Requires T036.
+- [~] T039 [P] Create `tests/contract/test_schema.py` to validate final report structure against data-model.md.
 - [~] T040 [P] Documentation updates in `docs/` including `quickstart.md` and `data-model.md` (specifically updating the hypothesis section to reflect the "timescale alignment" requirement).
 - [~] T041 Code cleanup and refactoring for memory efficiency (ensure <2GB RAM usage).
 - [~] T042 [P] Additional unit tests in `tests/unit/` for edge cases (zero variance, missing metadata, timescale mismatch).

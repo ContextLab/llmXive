@@ -1,327 +1,353 @@
 import logging
 import sys
+import json
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple, List
 import numpy as np
 import pandas as pd
-import seaborn as sns
-import matplotlib.pyplot as plt
 from scipy import stats
+from scipy.optimize import curve_fit
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+import statsmodels.api as sm
 
-# Importing from utils to ensure logging is configured
-from utils.logging import get_logger, configure_root_logger
-from utils.config import get_project_root, set_seed
+# --- Logging Setup ---
+def setup_logger(name: str) -> logging.Logger:
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys.stdout)
+        formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+    return logger
 
-# Configure logger
-logger = get_logger(__name__)
+logger = setup_logger(__name__)
 
-def load_analysis_data(filepath: Optional[Path] = None) -> pd.DataFrame:
+# --- Data Loading Helpers ---
+def load_analysis_data() -> pd.DataFrame:
     """
-    Load the processed data containing descriptors and permeability values.
-    Defaults to data/processed/flexibility_descriptors.csv if not specified.
+    Loads the enriched data required for analysis.
+    Expects: data/processed/enriched_data.csv
     """
-    if filepath is None:
-        root = get_project_root()
-        filepath = root / "data" / "processed" / "flexibility_descriptors.csv"
-    
-    if not filepath.exists():
-        raise FileNotFoundError(f"Analysis data file not found: {filepath}")
-    
-    logger.info(f"Loading analysis data from {filepath}")
-    df = pd.read_csv(filepath)
-    
-    # Ensure required columns exist
-    required_cols = ['smiles', 'bond_variance', 'angle_variance', 'dihedral_variance', 'logPapp']
-    missing = [c for c in required_cols if c not in df.columns]
+    path = Path("data/processed/enriched_data.csv")
+    if not path.exists():
+        raise FileNotFoundError(f"Required input file not found: {path}")
+    df = pd.read_csv(path)
+    # Ensure necessary columns exist
+    required = ['smiles', 'logPapp', 'mw', 'psa', 'logP', 'dihedral_variance', 'complexity_metric']
+    missing = [c for c in required if c not in df.columns]
     if missing:
-        raise ValueError(f"Missing required columns in analysis data: {missing}")
-    
+        raise ValueError(f"Missing required columns in {path}: {missing}")
+    # Drop rows with NaN in critical columns
+    df = df.dropna(subset=required)
     return df
 
-def compute_vif(df: pd.DataFrame, predictors: List[str]) -> pd.Series:
-    """
-    Compute Variance Inflation Factor (VIF) for a list of predictor columns.
-    """
-    if len(predictors) == 0:
-        return pd.Series([], dtype=float)
-    
-    X = df[predictors].dropna()
-    if X.empty:
-        return pd.Series([np.inf] * len(predictors), index=predictors)
-    
-    vif_data = []
-    for i, col in enumerate(predictors):
-        # Fit linear model of this column against all others
-        y = X[col]
-        X_others = X.drop(columns=[col])
-        
-        # Handle constant columns
-        if X_others.shape[1] == 0:
-            vif_data.append(np.inf if y.std() == 0 else 1.0)
-            continue
-        
-        try:
-            # Simple OLS
-            beta = np.linalg.lstsq(X_others.values, y.values, rcond=None)[0]
-            y_pred = X_others.values @ beta
-            residuals = y.values - y_pred
-            ss_res = np.sum(residuals**2)
-            ss_tot = np.sum((y.values - np.mean(y.values))**2)
-            r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0
-            vif = 1 / (1 - r2) if (1 - r2) > 1e-10 else np.inf
-            vif_data.append(vif)
-        except np.linalg.LinAlgError:
-            vif_data.append(np.inf)
-    
-    return pd.Series(vif_data, index=predictors)
+def load_scaling_results() -> Optional[Dict[str, Any]]:
+    """Loads existing scaling analysis results if they exist."""
+    path = Path("data/processed/scaling_analysis_results.json")
+    if path.exists():
+        with open(path, 'r') as f:
+            return json.load(f)
+    return None
 
-def build_regression_model(df: pd.DataFrame, 
-                           predictors: List[str], 
-                           target: str = 'logPapp') -> Dict[str, Any]:
+# --- Statistical Utilities ---
+def calculate_bivariate_correlations(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Build a multivariate linear regression model.
-    Returns model statistics, coefficients, and R-squared.
+    Computes Pearson and Spearman correlations between flexibility descriptors and logPapp.
+    Diagnostic only - no confounder control.
     """
-    X = df[predictors].dropna()
-    y = df.loc[X.index, target].dropna()
+    descriptors = ['bond_variance', 'angle_variance', 'dihedral_variance']
+    results = []
+    for desc in descriptors:
+        if desc not in df.columns:
+            continue
+        # Pearson
+        r_p, p_p = stats.pearsonr(df[desc], df['logPapp'])
+        # Spearman
+        r_s, p_s = stats.spearmanr(df[desc], df['logPapp'])
+        results.append({
+            'descriptor': desc,
+            'correlation_type': 'pearson',
+            'r': r_p,
+            'p_value': p_p
+        })
+        results.append({
+            'descriptor': desc,
+            'correlation_type': 'spearman',
+            'r': r_s,
+            'p_value': p_s
+        })
+    return pd.DataFrame(results)
+
+def calculate_controlled_partial_correlations(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Computes partial correlations between dihedral_variance and logPapp,
+    controlling for logP, MW, and PSA.
+    """
+    # Using scipy's partial correlation approach via residuals
+    # Y = logPapp, X = dihedral_variance, Z = [logP, MW, PSA]
+    Y = df['logPapp'].values
+    X = df['dihedral_variance'].values
+    Z = df[['logP', 'mw', 'psa']].values
+
+    # Regress Y on Z
+    model_Y = sm.OLS(Y, sm.add_constant(Z)).fit()
+    res_Y = model_Y.resid
+
+    # Regress X on Z
+    model_X = sm.OLS(X, sm.add_constant(Z)).fit()
+    res_X = model_X.resid
+
+    # Correlation of residuals
+    r_partial, p_val = stats.pearsonr(res_X, res_Y)
+
+    return pd.DataFrame([{
+        'predictor': 'dihedral_variance',
+        'controlled_for': ['logP', 'mw', 'psa'],
+        'partial_r': r_partial,
+        'p_value': p_val
+    }])
+
+def apply_benjamini_hochberg_fdr(df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Applies Benjamini-Hochberg FDR correction to p-values.
+    """
+    if df.empty:
+        return df
+    p_values = df['p_value'].values
+    n = len(p_values)
+    sorted_indices = np.argsort(p_values)
+    sorted_p = p_values[sorted_indices]
+    ranks = np.arange(1, n + 1)
+    # BH correction
+    q_values = (sorted_p * n) / ranks
+    q_values = np.minimum.accumulate(q_values[::-1])[::-1] # Ensure monotonicity
+    q_values = np.clip(q_values, 0, 1)
+    df = df.copy()
+    df['q_value'] = 0.0
+    df.loc[sorted_indices, 'q_value'] = q_values
+    return df
+
+def check_significance(p_value: float, alpha: float = 0.05) -> bool:
+    return p_value < alpha
+
+def calculate_vif(df: pd.DataFrame, predictors: List[str]) -> Dict[str, float]:
+    """Calculates Variance Inflation Factors for given predictors."""
+    X = df[predictors].values
+    X = sm.add_constant(X)
+    vif_data = {}
+    for i, col in enumerate(predictors):
+        vif = variance_inflation_factor(X, i+1) # +1 because of const
+        vif_data[col] = vif
+    return vif_data
+
+# --- Model Fitting ---
+def run_multivariate_regression(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Runs multivariate linear regression: logPapp ~ dihedral_variance + logP + MW + PSA
+    """
+    predictors = ['dihedral_variance', 'logP', 'mw', 'psa']
+    X = df[predictors].values
+    y = df['logPapp'].values
+    X = sm.add_constant(X)
+
+    model = sm.OLS(y, X).fit()
     
-    # Align indices
-    common_idx = X.index.intersection(y.index)
-    X = X.loc[common_idx]
-    y = y.loc[common_idx]
+    # Cross-validation (simple k-fold for R2)
+    from sklearn.model_selection import cross_val_score
+    from sklearn.linear_model import LinearRegression
+    sklearn_model = LinearRegression()
+    cv_scores = cross_val_score(sklearn_model, X[:, 1:], y, cv=5, scoring='r2')
     
-    if len(X) < 2:
-        raise ValueError("Not enough data points to build regression model.")
-    
-    # Add intercept
-    X_with_intercept = np.column_stack([np.ones(len(X)), X.values])
+    return {
+        'coefficients': dict(zip(['const'] + predictors, model.params)),
+        'r_squared': model.rsquared,
+        'adj_r_squared': model.rsquared_adj,
+        'p_values': model.pvalues[1:].to_dict(), # exclude const
+        'cv_r2_mean': float(cv_scores.mean()),
+        'cv_r2_std': float(cv_scores.std())
+    }
+
+def power_law_model(x, a, b, c):
+    """
+    Power law model: y = a * x^b + c
+    """
+    return a * np.power(x, b) + c
+
+def fit_power_law_model(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Fits the power law model to logPapp vs complexity_metric.
+    """
+    x = df['complexity_metric'].values
+    y = df['logPapp'].values
+
+    # Filter for positive x to allow power law
+    mask = x > 0
+    x_fit = x[mask]
+    y_fit = y[mask]
+
+    if len(x_fit) < 3:
+        raise ValueError("Not enough data points with positive complexity_metric to fit power law.")
+
+    # Initial guess [a, b, c]
+    p0 = [1.0, -0.5, 0.0]
     
     try:
-        beta, residuals, rank, s = np.linalg.lstsq(X_with_intercept, y.values, rcond=None)
-    except np.linalg.LinAlgError:
-        raise RuntimeError("Linear algebra error during model fitting. Singular matrix.")
+        popt, pcov = curve_fit(power_law_model, x_fit, y_fit, p0=p0, maxfev=2000)
+        a, b, c = popt
+        
+        # Calculate R2
+        y_pred = power_law_model(x_fit, *popt)
+        ss_res = np.sum((y_fit - y_pred) ** 2)
+        ss_tot = np.sum((y_fit - np.mean(y_fit)) ** 2)
+        r_squared = 1 - (ss_res / ss_tot)
+        
+        # Calculate AIC
+        n = len(y_fit)
+        k = 3 # a, b, c
+        rss = ss_res
+        aic = n * np.log(rss / n) + 2 * k
+        
+        return {
+            'parameters': {'a': a, 'b': b, 'c': c},
+            'r_squared': r_squared,
+            'aic': aic,
+            'covariance': pcov.tolist()
+        }
+    except Exception as e:
+        logger.error(f"Power law fitting failed: {e}")
+        raise
+
+# --- T027: Model Comparison and Hypothesis Testing ---
+def compare_models(df: pd.DataFrame) -> Dict[str, Any]:
+    """
+    Compares the linear model (T019a) against the power-law model (T026)
+    using AIC/BIC and F-tests.
     
-    y_pred = X_with_intercept @ beta
-    
-    ss_res = np.sum((y.values - y_pred)**2)
-    ss_tot = np.sum((y.values - np.mean(y.values))**2)
-    r_squared = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
-    
-    # Calculate p-values for coefficients
+    Returns a dictionary with comparison metrics and a conclusion.
+    """
+    # 1. Prepare Data
+    X_lin = df[['dihedral_variance', 'logP', 'mw', 'psa']].values
+    y = df['logPapp'].values
+    X_lin = sm.add_constant(X_lin)
     n = len(y)
-    p = len(predictors)
-    dof = n - p - 1
+    k_lin = 4 # 3 predictors + const
+    k_pow = 3 # a, b, c (non-linear, but 3 params)
+
+    # 2. Fit Linear Model
+    lin_model = sm.OLS(y, X_lin).fit()
+    lin_rss = np.sum(lin_model.resid ** 2)
+    lin_aic = lin_model.aic
+    lin_bic = lin_model.bic
+    lin_r2 = lin_model.rsquared
+
+    # 3. Fit Power Law Model
+    # Re-use logic from fit_power_law_model but ensure we get RSS for F-test
+    x_pow = df['complexity_metric'].values
+    mask = x_pow > 0
+    x_pow_fit = x_pow[mask]
+    y_pow_fit = y[mask]
     
-    if dof <= 0:
-        p_values = [np.nan] * (p + 1)
+    p0 = [1.0, -0.5, 0.0]
+    try:
+        popt, _ = curve_fit(power_law_model, x_pow_fit, y_pow_fit, p0=p0, maxfev=5000)
+        y_pred_pow = power_law_model(x_pow_fit, *popt)
+        pow_rss = np.sum((y_pow_fit - y_pred_pow) ** 2)
+        
+        # AIC/BIC for power law
+        # Note: For non-linear models, AIC = n*ln(RSS/n) + 2k
+        n_pow = len(y_pow_fit)
+        pow_aic = n_pow * np.log(pow_rss / n_pow) + 2 * k_pow
+        pow_bic = n_pow * np.log(pow_rss / n_pow) + k_pow * np.log(n_pow)
+        
+        # R2 for power law (on the fitted subset)
+        ss_tot_pow = np.sum((y_pow_fit - np.mean(y_pow_fit)) ** 2)
+        pow_r2 = 1 - (pow_rss / ss_tot_pow)
+        
+    except Exception as e:
+        logger.error(f"Power law fitting failed during comparison: {e}")
+        return {
+            'status': 'error',
+            'message': f"Could not fit power law model: {e}",
+            'linear_metrics': {'r2': lin_r2, 'aic': lin_aic, 'bic': lin_bic}
+        }
+
+    # 4. F-Test (Nested Model Approximation)
+    # Strictly speaking, linear and power-law are non-nested unless specific constraints apply.
+    # However, we can compare their fit quality via AIC/BIC primarily.
+    # If we treat them as competing models, the one with lower AIC is preferred.
+    # For an F-test like statistic, we can compare RSS if we assume the same N, 
+    # but here N differs (power law drops non-positive complexity).
+    # We will rely on AIC/BIC difference as the primary metric.
+    
+    delta_aic = lin_aic - pow_aic
+    delta_bic = lin_bic - pow_bic
+    
+    # Conclusion logic
+    conclusion = ""
+    if delta_aic > 2:
+        conclusion = "Power-law model is significantly better (lower AIC)."
+    elif delta_aic < -2:
+        conclusion = "Linear model is significantly better (lower AIC)."
     else:
-        mse = ss_res / dof
-        var_beta = mse * np.linalg.inv(X_with_intercept.T @ X_with_intercept).diagonal()
-        se_beta = np.sqrt(var_beta)
-        t_stats = beta / se_beta
-        p_values = 2 * (1 - stats.t.cdf(np.abs(t_stats), dof))
+        conclusion = "Models are statistically indistinguishable based on AIC."
+
+    if delta_bic > 2:
+        conclusion += " (Power-law preferred by BIC)"
+    elif delta_bic < -2:
+        conclusion += " (Linear preferred by BIC)"
     
     return {
-        "coefficients": {
-            "intercept": float(beta[0]),
-            "predictors": {col: float(beta[i+1]) for i, col in enumerate(predictors)}
+        'status': 'success',
+        'linear_model': {
+            'r_squared': float(lin_r2),
+            'aic': float(lin_aic),
+            'bic': float(lin_bic),
+            'rss': float(lin_rss),
+            'n': n,
+            'k': k_lin
         },
-        "p_values": {
-            "intercept": float(p_values[0]),
-            "predictors": {col: float(p_values[i+1]) for i, col in enumerate(predictors)}
+        'power_law_model': {
+            'r_squared': float(pow_r2),
+            'aic': float(pow_aic),
+            'bic': float(pow_bic),
+            'rss': float(pow_rss),
+            'n': int(n_pow),
+            'k': k_pow,
+            'parameters': {'a': float(popt[0]), 'b': float(popt[1]), 'c': float(popt[2])}
         },
-        "r_squared": float(r_squared),
-        "adj_r_squared": float(1 - (1 - r_squared) * (n - 1) / (n - p - 1)) if dof > 0 else 0.0,
-        "f_statistic": float((r_squared / p) / ((1 - r_squared) / dof)) if dof > 0 and r_squared < 1 else 0.0,
-        "n_samples": int(n)
+        'comparison': {
+            'delta_aic': float(delta_aic),
+            'delta_bic': float(delta_bic),
+            'conclusion': conclusion
+        }
     }
-
-def scaffold_cross_validation(df: pd.DataFrame, 
-                              predictors: List[str], 
-                              target: str = 'logPapp',
-                              n_splits: int = 5,
-                              seed: int = 42) -> Dict[str, float]:
-    """
-    Perform scaffold-based cross-validation.
-    Note: Without explicit scaffold IDs, this falls back to K-Fold on random shuffles
-    or uses a simple heuristic if 'scaffold' column exists.
-    For this implementation, we assume standard K-Fold if no scaffold column,
-    but log the limitation as per spec requirements for scaffold-based logic.
-    """
-    set_seed(seed)
-    
-    if 'scaffold' in df.columns:
-        logger.warning("Scaffold column detected but not implemented in this simplified cross-validator. "
-                     "Using K-Fold as fallback.")
-    
-    from sklearn.model_selection import KFold
-    
-    X = df[predictors].dropna()
-    y = df.loc[X.index, target].dropna()
-    common_idx = X.index.intersection(y.index)
-    X = X.loc[common_idx].values
-    y = y.loc[common_idx].values
-    
-    kf = KFold(n_splits=n_splits, shuffle=True, random_state=seed)
-    r2_scores = []
-    
-    for train_idx, test_idx in kf.split(X):
-        X_train, X_test = X[train_idx], X[test_idx]
-        y_train, y_test = y[train_idx], y[test_idx]
-        
-        X_train_with_intercept = np.column_stack([np.ones(len(X_train)), X_train])
-        beta, _, _, _ = np.linalg.lstsq(X_train_with_intercept, y_train, rcond=None)
-        
-        y_pred = X_test @ beta[1:] + beta[0]
-        ss_res = np.sum((y_test - y_pred)**2)
-        ss_tot = np.sum((y_test - np.mean(y_test))**2)
-        r2 = 1 - (ss_res / ss_tot) if ss_tot != 0 else 0.0
-        r2_scores.append(r2)
-    
-    return {
-        "mean_r2": float(np.mean(r2_scores)),
-        "std_r2": float(np.std(r2_scores)),
-        "splits": n_splits
-    }
-
-def generate_scatter_plot(df: pd.DataFrame,
-                          x_col: str = 'dihedral_variance',
-                          y_col: str = 'logPapp',
-                          model_results: Optional[Dict[str, Any]] = None,
-                          output_path: Optional[Path] = None) -> Path:
-    """
-    Generate a scatter plot with regression line and confidence interval.
-    Saves the plot to data/figures/ unless output_path is specified.
-    """
-    if output_path is None:
-        root = get_project_root()
-        output_path = root / "data" / "figures" / "flexibility_permeability_scatter.png"
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Clean data for plotting
-    plot_df = df[[x_col, y_col]].dropna()
-    
-    if plot_df.empty:
-        raise ValueError("No valid data points to plot after dropping NaNs.")
-    
-    plt.figure(figsize=(10, 8))
-    
-    # Seaborn regplot handles regression line and confidence interval automatically
-    # We use a specific palette and style for publication quality
-    sns.set_theme(style="whitegrid")
-    
-    ax = sns.regplot(
-        data=plot_df,
-        x=x_col,
-        y=y_col,
-        scatter_kws={'alpha': 0.6, 's': 40, 'edgecolor': 'w', 'linewidth': 0.5},
-        line_kws={'color': 'red', 'linewidth': 2},
-        ci=95,
-        truncate=False
-    )
-    
-    # Customize labels and title
-    # Ensure associational language as per FR-009
-    title = f"Associational Relationship: {x_col.replace('_', ' ').title()} vs {y_col.replace('_', ' ').title()}"
-    if model_results:
-        r2 = model_results.get('r_squared', 0)
-        title += f" (R² = {r2:.3f})"
-    
-    ax.set_title(title, fontsize=14, fontweight='bold')
-    ax.set_xlabel(x_col.replace('_', ' ').title(), fontsize=12)
-    ax.set_ylabel(y_col.replace('_', ' ').title(), fontsize=12)
-    
-    # Tight layout
-    plt.tight_layout()
-    
-    # Save with high DPI
-    plt.savefig(output_path, dpi=300, bbox_inches='tight')
-    plt.close()
-    
-    logger.info(f"Scatter plot saved to {output_path}")
-    return output_path
-
-def write_model_results(results: Dict[str, Any], output_path: Optional[Path] = None) -> Path:
-    """
-    Write model results to a JSON file.
-    """
-    if output_path is None:
-        root = get_project_root()
-        output_path = root / "data" / "processed" / "model_results.json"
-    
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, 'w') as f:
-        import json
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"Model results saved to {output_path}")
-    return output_path
 
 def main():
     """
-    Main entry point to run the analysis pipeline:
-    1. Load data
-    2. Compute VIF
-    3. Build model
-    4. Cross-validate
-    5. Generate scatter plot
-    6. Write results
+    Main entry point for T027: Model Comparison and Hypothesis Testing.
+    Reads enriched data, fits models, compares them, and saves results.
     """
-    configure_root_logger()
+    logger.info("Starting T027: Model Comparison and Hypothesis Testing")
     
     try:
-        # 1. Load Data
+        # Load data
         df = load_analysis_data()
-        logger.info(f"Loaded {len(df)} records.")
+        logger.info(f"Loaded {len(df)} records for analysis.")
         
-        # Define predictors based on T019 requirements (all flexibility descriptors + confounders if available)
-        # T019 specifies: bond, angle, dihedral variance. Confounders (logP, MW, PSA, rotatable bonds) 
-        # are mentioned but might not be in the current dataframe. We select available ones.
-        base_predictors = ['bond_variance', 'angle_variance', 'dihedral_variance']
-        available_predictors = [c for c in base_predictors if c in df.columns]
+        # Perform comparison
+        results = compare_models(df)
         
-        if not available_predictors:
-            raise ValueError("No flexibility descriptors found in data.")
+        # Save results
+        output_path = Path("data/processed/scaling_analysis_results.json")
+        with open(output_path, 'w') as f:
+            json.dump(results, f, indent=2)
         
-        logger.info(f"Using predictors: {available_predictors}")
-        
-        # 2. Compute VIF
-        vif_results = compute_vif(df, available_predictors)
-        logger.info(f"VIF Results:\n{vif_results}")
-        
-        # 3. Build Model
-        model_results = build_regression_model(df, available_predictors)
-        logger.info(f"Model R²: {model_results['r_squared']:.4f}")
-        
-        # 4. Cross-Validation
-        cv_results = scaffold_cross_validation(df, available_predictors)
-        logger.info(f"CV R²: {cv_results['mean_r2']:.4f} (+/- {cv_results['std_r2']:.4f})")
-        
-        # 5. Generate Scatter Plot (Primary task T022a)
-        # Focus on the primary hypothesis: dihedral_variance vs logPapp
-        if 'dihedral_variance' in available_predictors:
-            plot_path = generate_scatter_plot(df, x_col='dihedral_variance', y_col='logPapp', 
-                                              model_results=model_results)
-        else:
-            # Fallback if dihedral not available
-            plot_path = generate_scatter_plot(df, x_col=available_predictors[0], y_col='logPapp', 
-                                              model_results=model_results)
-        
-        # 6. Write Results
-        final_results = {
-            "model": model_results,
-            "cross_validation": cv_results,
-            "vif": vif_results.to_dict(),
-            "plot_path": str(plot_path)
-        }
-        write_model_results(final_results)
-        
-        print("Analysis complete. Check data/processed/ for results.")
+        logger.info(f"Results saved to {output_path}")
+        logger.info(f"Conclusion: {results.get('comparison', {}).get('conclusion', 'N/A')}")
         
     except Exception as e:
-        logger.error(f"Analysis failed: {e}", exc_info=True)
+        logger.error(f"Execution failed: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

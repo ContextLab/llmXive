@@ -1,0 +1,30 @@
+[ruff]
+# Target Python version
+target-version = "py310"
+# Line length for formatting checks
+line-length = 88
+# Exclude common build artifacts
+exclude = [
+    ".git",
+    "__pycache__",
+    ".eggs",
+    "build",
+    "dist",
+    "venv",
+    ".venv",
+    "node_modules",
+    ".tox",
+    ".mypy_cache"
+]
+
+[ruff.lint]
+# Enable pycodestyle (E), Pyflakes (F), and isort (I) rules
+select = ["E", "F", "I"]
+# Ignore specific rules if necessary (e.g., line too long is handled by black)
+ignore = ["E501"]
+
+[ruff.lint.isort]
+# Configuration for import sorting to match Black
+known-first-party = ["code"]
+force-single-line = false
+lines-after-imports = 2

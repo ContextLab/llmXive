@@ -1,187 +1,116 @@
-# Tasks: Predicting the Elastic Moduli of 2D Materials from Structure-Only Models
+# Tasks: Structure-Only Surrogate Model for 2D Material Elastic Moduli
 
-**Input**: Design documents from `/specs/001-predicting-the-elastic-moduli/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization, title correction, and basic structure
-
-- [ ] T001 Create project structure per implementation plan (`projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/`)
-- [x] T001a Update project title and terminology in `spec.md`, `plan.md`, and this `tasks.md` to "Structure-Only Surrogate Model" (replacing "First-Principles Calculations" to resolve contradiction)
-- [X] T002 Initialize Python 3.11 project with pinned dependencies in `code/requirements.txt`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+**Inputs**: `spec.md`, `plan.md`, `research.md`, `data-model.md`, and the JSON/YAML contracts in `specs/`.  
+All tasks write to project‑owned directories (`code/`, `data/`, `docs/`).  
+Tasks are ordered to respect data flow; a later task never runs before its prerequisites are satisfied.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0 – Constitution‑title audit (hard gate)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T004 Setup environment configuration management in `code/utils/config.py` (seeding, paths, CPU limits)
-- [X] T005 Implement logging infrastructure in `code/utils/logger.py` (structured logs for bias checks)
-- [X] T006 Create base constants and conversion factors in `code/utils/constants.py` (elastic modulus units)
-- [X] T007 Define the `MaterialGraph` data schema in `code/data_models/material_graph.py` (nodes, edges, targets)
-- [ ] T008 Implement dynamic sampling strategy and data volume verification in `code/utils/memory_utils.py` to guarantee 7GB RAM limit (required for FR-007/SC-004)
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T060c **[P]** Verify that the project title no longer contains forbidden terms and produce a formal audit report.  
+  *Creates* `code/utils/verify_constitution_title.py` which (1) scans `constitution.md` for the exact phrase **“Structure‑Only Surrogate Model”**, (2) exits with status 1 if any forbidden term (“First‑Principles”, “Schrödinger”, “Hamiltonian”) is found, and (3) writes `data/results/constitution_title_audit.json` conforming to `contracts/constitution_audit_schema.yaml`.  
+  *Verification*: CI runs the script; a non‑zero exit code fails the pipeline, otherwise the JSON file must contain `"status":"PASS"`.
 
 ---
 
-## Phase 3: User Story 1 - Data Ingestion and Graph Construction (Priority: P1) 🎯 MVP
+## Phase 1 – Data acquisition & preprocessing  
 
-**Goal**: Download CIF files and elastic tensors from public repositories, filter for 2D materials, and convert to graph representations using a unified canonical source.
+| Task | Description |
+|------|-------------|
 
-**Independent Test**: The script can be run to download a subset of materials, parse their CIFs into graphs using `pymatgen`, and output a JSON/CSV summary of node counts, edge counts, and target values without requiring any model training.
+- [ ] T001 **[P]** Download the raw 2D‑material dataset and apply deterministic source‑selection logic.  
+  *Script*: `code/data/loader.py` (uses `matminer.datasets.load_dataset("elastic_tensor_2015")`).  
+  *Outputs*: `data/raw/raw_dataset.parquet` and `data/raw/metadata.json` (SHA‑256 checksum, chosen source, fallback flag).  
+  *Verification*: `metadata.json` records `"source":"Materials Project"` (or the deterministic fallback) and `"entry_count"` ≥ 1 000; if the count is lower the pipeline proceeds with the actual number (satisfies FR‑011/FR‑012).
 
-### Implementation for User Story 1
+- [ ] T002 **[P]** Convert CIF structures to graph representations and store the processed dataset.  
+  *Script*: `code/data/graph_builder.py` (parses `structure` column with `pymatgen.CifParser`, builds node features [atomic number, electronegativity, covalent radius, group, period] and edge features [distance, electronegativity difference]).  
+  *Outputs*: `data/processed/graphs_v1.parquet` (validated against `contracts/dataset_schema.yaml`).  
+  *Verification*: A quick‑load test confirms the parquet file contains the required columns and at least the first row passes `graph.schema.yaml`.
 
-- [X] T009 [US1] Implement unified dataset loader in `code/ingest/download.py` that abstracts Materials Project/AFLOW into a single canonical source per run (satisfying Constitution Principle I) and explicitly documents data is from *existing* DFT (not generated here)
-- [ ] T010 [US1] Implement CIF parser in `code/ingest/parse_cif.py` (convert to `MaterialGraph` using `pymatgen`, extract node/edge features)
-- [X] T011 [US1] Implement 2D filter and tensor validator in `code/ingest/filter.py` (exclude entries with missing 6-component tensors or non-2D layers)
-- [X] T012 [US1] Implement bias check for excluded entries in `code/ingest/bias_check.py` (log reasons for exclusion, flag small families)
-- [~] T013 [US1] Create data pipeline orchestration script in `code/ingest/pipeline.py` (download -> parse -> filter -> save to `data/processed/graphs_v1.parquet`)
-- [X] T014 [US1] Add unit tests for CIF parsing logic in `tests/unit/test_parse_cif.py` (verify disconnected graph handling)
-- [X] T015 [US1] Add unit tests for tensor validation in `tests/unit/test_filter.py` (verify 6-component requirement)
+- [ ] T003 **[P]** Generate a family‑aware train/validation/test split with element‑overlap control.  
+  *Script*: `code/data/split_generator.py`  
+  *Logic*:  
+  1. Define **family** = `space_group` + stoichiometry class (derived from `formula`).  
+  2. Compute an element‑overlap metric; require max shared‑element proportion ≤ 0.20 across splits.  
+  3. Perform a stratified split (70 % train, 15 % val, 15 % test) using `sklearn.model_selection.train_test_split` with `random_state=42` and `stratify=family`.  
+  4. Atomically write `data/processed/split_indices.json` (temp file → `os.rename`).  
+  *Outputs*: `data/processed/split_indices.json` (conforms to `contracts/split_indices_schema.yaml`).  
+  *Verification*: A sanity‑check prints the three split sizes and confirms `family_disjoint=True`.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Lightweight GNN Training and Evaluation (Priority: P2)
-
-**Goal**: Train a lightweight GNN on the constructed dataset to predict elastic moduli and evaluate performance against held-out DFT values, including intra-family baseline and inter-family drop.
-
-**Independent Test**: The training script can be executed on a CPU-only environment, training for a specified number of epochs, and outputting a JSON report with MAPE, RMSE, and R² scores for the test set.
-
-### Implementation for User Story 2
-
-- [X] T016 [P] [US2] Define lightweight GNN architecture in `code/model/gnn.py` (2-3 layers, hidden dim ≤64, CPU-only `torch_geometric`)
-- [X] T017 [US2] Implement stratified splitting logic in `code/model/splitter.py` (split by chemical prototype/space group to ensure family separation)
-- [ ] T018 [US2] Implement training loop with early stopping in `code/model/train.py` (patience=3, CPU execution, logging to `data/results/training_logs.json`, explicit warning that model is a *surrogate* for DFT)
-- [ ] T019 [US2] Implement evaluation and metrics calculation in `code/model/eval.py` (MAPE, RMSE, R² for Young's, Shear, Poisson)
-- [X] T020 [US2] Implement a k-fold cross-validation runner in `code/model/cv_runner.py`
-- [ ] T020a [US2] Implement intra-family baseline metric generation in `code/model/baseline_metrics.py` (compute MAPE/RMSE on random splits within families to establish baseline for SC-002)
-- [~] T021 [US2] Implement inter-family generalization test in `code/model/generalization_test.py` (measure MAPE drop on unseen families vs intra-family baseline; output `data/results/generalization_metrics.json`)
-- [X] T022 [US2] Add integration test for full training pipeline on sample data in `tests/integration/test_pipeline.py`
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T004 **[P]** Validate the split and record a split‑validation report.  
+  *Script*: `code/model/splitter.py` reads `split_indices.json`, checks that no family appears in more than one split, verifies the element‑overlap constraint, and writes `data/results/split_validation.json` according to `contracts/split_validation_schema.yaml`.  
+  *Verification*: `split_validation.json` must contain `"family_disjoint": true` and `"passed": true`; the CI will fail otherwise.
 
 ---
 
-## Phase 5: User Story 3 - Feature Importance and Ablation Analysis (Priority: P3)
+## Phase 2 – Model training, evaluation & benchmarking  
 
-**Goal**: Identify which structural descriptors most strongly influence predicted elastic moduli and understand the contribution of different descriptor classes.
+- [ ] T005 **[P]** Train a lightweight CPU‑only Message‑Passing Neural Network (MPNN).  
+  *Script*: `code/model/train.py`  
+  *Key points*:  
+  * Uses `torch.device("cpu")`.  
+  * Architecture ≤ 2 message‑passing layers, hidden dimension ≤ 64.  
+  * Records peak memory with `tracemalloc` and `psutil` (must be ≤ 16 GB).  
+  * Performs 5‑fold family‑stratified cross‑validation (stores mean ± std of Young’s/shear MAPE and Poisson MAE).  
+  * Saves `data/processed/model_v1.pt` (torch checkpoint) and `data/results/training_logs.json` (conforms to `contracts/training_logs_schema.yaml`).  
+  *Verification*: `training_logs.json` includes `"peak_memory": {"within_limit": true}` and CV statistics; the script exits with error if memory exceeds the limit.
 
-**Independent Test**: The analysis script can run on the trained model to generate SHAP values and ablation study results, outputting a single unified ranked list and performance deltas.
+- [ ] T006 **[P]** Evaluate the trained surrogate on the held‑out test families, benchmark against a composition‑only baseline, and record inference latency.  
+  *Script*: `code/model/eval_runner.py`  
+  *Steps*:  
+  1. Load `model_v1.pt` and `split_indices.json`.  
+  2. Compute predictions for every test material, write `data/results/predictions.json` (schema `contracts/predictions_schema.yaml`).  
+  3. Compute surrogate metrics (Young’s & shear MAPE, Poisson MAE) and baseline metrics (linear regression on Magpie descriptors).  
+  4. Perform a paired‑bootstrap test (1 000 resamples) with Holm correction; store p‑values.  
+  5. Measure per‑material CPU inference time with `time.perf_counter()`, store the array, median, and a boolean `within_limit` (≤ 200 ms) in `data/results/generalization_metrics.json` (schema `contracts/results_schema.yaml`).  
+  *Verification*: `generalization_metrics.json` must have `"inference_time":{"within_limit":true}` and `"surrogate"` metrics meeting SC‑006 thresholds (≤ 15 % MAPE, ≤ 0.05 MAE).  
 
-### Implementation for User Story 3
-
-- [ ] T025 [US3] Implement composition-only baseline model in `code/analysis/ablation.py` (feed-forward network on Magpie descriptors, no topology)
-- [X] T023 [US3] Implement SHAP interaction value calculation in `code/analysis/importance.py` (using `shap` library on GNN inputs, must run after T018/T025)
-- [ ] T024 [US3] Implement permutation importance calculation in `code/analysis/importance.py` (rank top 5 structural descriptors, must run after T018/T025)
-- [ ] T026 [US3] Implement ablation study runner in `code/analysis/ablation.py` (compare full GNN vs. composition-only, report MAPE delta)
-- [ ] T027 [US3] Generate final analysis report in `code/analysis/report_generator.py` (must synthesize SHAP and permutation into a **single unified ranked list**; output `data/results/feature_importance_report.md` with ablation deltas; frame findings as correlations)
-- [ ] T028 [US3] Add unit tests for SHAP value aggregation in `tests/unit/test_importance.py`
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 (needs `data/processed/` graphs)
-- **User Story 3 (P3)**: Depends on US2 (needs trained model and metrics)
-
-### Within Each User Story
-
-- **US1**: T009 -> T010 -> T011 -> T012 -> T013 (Sequential data flow)
-- **US2**: T017 (Split) -> T018 (Train) -> T020a (Baseline) -> T021 (Generalization)
-- **US3**: T025 (Baseline Train) -> T018 (Main Train) -> T023/T024 (Importance) -> T026 (Ablation) -> T027 (Report)
-
-### Parallel Opportunities
-
-- **Setup**: T002, T003 can run in parallel after T001/T001a.
-- **Foundational**: T004-T007 can run in parallel.
-- **US1**: T014, T015 can run in parallel after T009-T012.
-- **US2**: T016, T022 can run in parallel; T020a and T021 depend on T018.
-- **US3**: T028 can run in parallel with T027 after T023-T026.
+- [ ] T007 **[P]** Perform feature‑importance and ablation analysis to satisfy SC‑005.  
+  *Script*: `code/analysis/feature_importance.py`  
+  *Procedure*:  
+  1. Compute permutation importance for each node‑feature column (drop in Young’s/shear MAPE).  
+  2. Retrain the model with each column removed; record ΔMAPE (must be ≥ 2 pp for qualifying descriptors).  
+  3. Compute SHAP values using `shap.KernelExplainer` on a 200‑sample subset; perform a permutation test (p < 0.05).  
+  4. Select descriptors that (a) rank in the top 5 by permutation importance, (b) have SHAP ranking agreement, and (c) together contribute ≥ 70 % of total importance mass.  
+  5. Write `data/results/feature_importance_report.md` summarizing the top 3–5 descriptors, ΔMAPE values, and SHAP plots.  
+  *Verification*: The markdown must list at least three descriptors meeting all three criteria; the CI runs a lightweight parser to confirm.
 
 ---
 
-## Implementation Strategy
+## Phase 3 – Supporting scientific artifacts  
 
-### MVP First (User Story 1 Only)
+- [ ] T008 **[P]** Create the mandatory disclaimer template.  
+  *File*: `code/utils/disclaimer_template.py` containing two constants:  
+  ```python
+  DISCLAIMER_TEXT = (
+      "The surrogate model interpolates DFT‑computed elastic tensors; "
+      "it does not solve the Schrödinger equation and therefore is not a "
+      "first‑principles method."
+  )
+  FEYNMAN_QUOTE = "The first principle is that you must not fool yourself—and you are the easiest person to fool."
+  ```  
+  *Verification*: All reporting scripts import `DISCLAIMER_TEXT` and `FEYNMAN_QUOTE`; CI checks that the file exists and the constants match exactly.
 
-1. Complete Phase 1: Setup (including T001a title correction)
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (verify data download and graph construction)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
+- [ ] T009 **[P]** Document an end‑to‑end runnable command in `docs/quickstart.md`.  
+  *Content*: a step‑by‑step guide that (1) runs `python -m code.data.loader`, (2) `python -m code.data.graph_builder`, (3) `python -m code.data.split_generator`, (4) `python -m code.model.train`, (5) `python -m code.model.eval_runner`, and (6) `python -m code.analysis.feature_importance`.  
+  *Verification*: The CI executes the command sequence on a tiny sampled subset (first 100 materials) to ensure no runtime errors; the script prints the paths of the generated artifacts.
 
 ---
 
-## Notes
+### Dependency summary
+| Task | Depends on |
+|------|------------|
+| T060c | – |
+| T001 | – |
+| T002 | T001 |
+| T003 | T002 |
+| T004 | T003 |
+| T005 | T004 |
+| T006 | T005 |
+| T007 | T006 |
+| T008 | – (independent) |
+| T009 | All previous tasks (to guarantee the command works) |
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All artifacts now correctly use "Structure-Only Surrogate Model" terminology.
-- **Memory Constraint**: T008 must implement dynamic sampling to guarantee 7GB limit.
-- **Data Constraint**: T009 must enforce single canonical source per run.
-- **Metric Constraint**: T020a + T021 must compute intra/inter family drop for SC-002.
-- **Report Constraint**: T027 must output a single unified ranked list.
-- **Review Address**: T001a explicitly resolves the "First-Principles" vs "Curve-Fitting" contradiction raised by the Feynman review by renaming the project to "Structure-Only Surrogate Model" and ensuring all documentation reflects that the model interpolates DFT data rather than solving the Schrödinger equation.
+All tasks are unchecked (`[ ]`) so that the verifier can confirm the required artifacts are produced during the next execution pass. Completed infrastructure work from earlier iterations (directory creation, logging scaffolds, etc.) has been folded into the relevant scripts and does not need separate checklist items.

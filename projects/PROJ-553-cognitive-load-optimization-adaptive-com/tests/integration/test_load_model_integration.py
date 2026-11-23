@@ -1,208 +1,193 @@
-"""
-Integration test for Golden Set validation and model training pipeline.
-
-This test verifies the end-to-end flow:
-1. Golden Set validation (T005/T006)
-2. Feature engineering (T011)
-3. Model training (T012, T014)
-4. Performance validation against Golden Set (Pearson r >= 0.6)
-"""
 import os
-import sys
-import tempfile
-import shutil
-from pathlib import Path
 import pytest
 import pandas as pd
 import numpy as np
+from pathlib import Path
+import pickle
+from scipy.stats import pearsonr
 
-# Add project root to path for imports
-project_root = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(project_root / "code"))
+# Import functions from the module under test
+from code.train_load_model import (
+    ensure_golden_set_validity,
+    engineer_features,
+    check_collinearity,
+    train_model,
+    check_model_size,
+    save_model,
+    save_metrics,
+    main,
+    TARGET_CORRELATION,
+    MAX_MODEL_SIZE_MB,
+    GOLDEN_SET_PATH,
+    MODEL_OUTPUT_PATH,
+    METRICS_OUTPUT_PATH
+)
 
-from load_data import validate_golden_set, load_and_verify_datasets
-from create_golden_set import generate_synthetic_interactions, apply_expert_rubric
-from utils import setup_logging, get_logger
+@pytest.fixture
+def sample_golden_set(tmp_path):
+    """Create a sample golden set for testing."""
+    data = {
+        'interaction_id': [f'int_{i}' for i in range(100)],
+        'expert_load_score': np.random.uniform(0, 100, 100),
+        'response_latency': np.random.uniform(0.5, 30.0, 100),
+        'error_flag': np.random.randint(0, 2, 100),
+        'hint_request': np.random.randint(0, 5, 100),
+        'pause_duration': np.random.uniform(0.1, 5.0, 100)
+    }
+    df = pd.DataFrame(data)
+    output_path = tmp_path / "golden_set.csv"
+    df.to_csv(output_path, index=False)
+    return str(output_path)
 
-# Import the training script's main logic
-# We assume train_load_model.py has a main() that returns a dict with results
-# If it doesn't, we import specific functions if available
-try:
-    from train_load_model import main as train_main
-    HAS_TRAIN_SCRIPT = True
-except ImportError:
-    HAS_TRAIN_SCRIPT = False
-    get_logger().warning("train_load_model.py not found or import failed; skipping training execution")
+@pytest.fixture
+def mock_processed_data(sample_golden_set):
+    """Load and process the golden set."""
+    golden_set = pd.read_csv(sample_golden_set)
+    return engineer_features(golden_set)
 
-logger = setup_logging()
-logger = get_logger(__name__)
+def test_ensure_golden_set_validity_valid(sample_golden_set):
+    """Test validation with a valid golden set."""
+    result = ensure_golden_set_validity(sample_golden_set)
+    assert len(result) >= 50
+    assert 'expert_load_score' in result.columns
+    assert result['expert_load_score'].between(0, 100).all()
 
+def test_ensure_golden_set_validity_missing_file(tmp_path):
+    """Test validation with missing file."""
+    with pytest.raises(FileNotFoundError):
+        ensure_golden_set_validity(str(tmp_path / "nonexistent.csv"))
 
-class TestGoldenSetIntegration:
-    """Integration tests for Golden Set validation and model training."""
+def test_ensure_golden_set_validity_insufficient_rows(tmp_path):
+    """Test validation with insufficient rows."""
+    data = {
+        'interaction_id': [f'int_{i}' for i in range(20)],
+        'expert_load_score': np.random.uniform(0, 100, 20)
+    }
+    df = pd.DataFrame(data)
+    output_path = tmp_path / "small_golden_set.csv"
+    df.to_csv(output_path, index=False)
+    
+    with pytest.raises(ValueError, match="at least 50 rows"):
+        ensure_golden_set_validity(str(output_path))
 
-    @pytest.fixture(autouse=True)
-    def setup_test_environment(self, tmp_path):
-        """Set up a temporary directory structure for testing."""
-        self.tmp_dir = tmp_path
-        self.data_dir = self.tmp_dir / "data"
-        self.data_raw = self.data_dir / "raw"
-        self.data_processed = self.data_dir / "processed"
-        self.code_dir = self.tmp_dir / "code"
+def test_engineer_features(mock_processed_data):
+    """Test feature engineering."""
+    assert 'log_latency' in mock_processed_data.columns or 'response_latency' in mock_processed_data.columns
+    assert not mock_processed_data.isna().any().any()
 
-        # Create directory structure
-        self.data_raw.mkdir(parents=True, exist_ok=True)
-        self.data_processed.mkdir(parents=True, exist_ok=True)
-        self.code_dir.mkdir(parents=True, exist_ok=True)
+def test_check_collinearity(mock_processed_data):
+    """Test collinearity check."""
+    result = check_collinearity(mock_processed_data, 'expert_load_score')
+    assert 'highly_collinear' in result
+    assert 'vif_scores' in result
+    assert isinstance(result['highly_collinear'], bool)
 
-        # Save original environment
-        self.original_data_dir = os.environ.get("DATA_DIR")
-        self.original_code_dir = os.environ.get("CODE_DIR")
+def test_train_model(mock_processed_data):
+    """Test model training."""
+    from sklearn.model_selection import train_test_split
+    
+    train_df, valid_df = train_test_split(
+        mock_processed_data, 
+        test_size=0.2, 
+        random_state=42
+    )
+    
+    model, metrics = train_model(train_df, valid_df)
+    
+    assert model is not None
+    assert 'pearson_correlation' in metrics
+    assert 'rmse' in metrics
+    assert metrics['n_train'] > 0
+    assert metrics['n_valid'] > 0
 
-        # Set environment variables for this test
-        os.environ["DATA_DIR"] = str(self.data_dir)
-        os.environ["CODE_DIR"] = str(self.code_dir)
+def test_check_model_size(tmp_path, mock_processed_data):
+    """Test model size check."""
+    from sklearn.model_selection import train_test_split
+    import lightgbm as lgb
+    
+    train_df, valid_df = train_test_split(
+        mock_processed_data, 
+        test_size=0.2, 
+        random_state=42
+    )
+    
+    model, _ = train_model(train_df, valid_df)
+    
+    model_path = str(tmp_path / "test_model.pkl")
+    result = check_model_size(model, model_path)
+    
+    assert result is True
+    assert os.path.exists(model_path)
+    
+    # Cleanup
+    if os.path.exists(model_path):
+        os.remove(model_path)
 
-        yield
-
-        # Restore environment
-        if self.original_data_dir:
-            os.environ["DATA_DIR"] = self.original_data_dir
-        elif "DATA_DIR" in os.environ:
-            del os.environ["DATA_DIR"]
-
-        if self.original_code_dir:
-            os.environ["CODE_DIR"] = self.original_code_dir
-        elif "CODE_DIR" in os.environ:
-            del os.environ["CODE_DIR"]
-
-    def test_golden_set_validation_existing(self):
-        """Test validation of an existing Golden Set file."""
-        # Create a minimal valid golden set
-        golden_data = {
-            "session_id": [f"sess_{i}" for i in range(50)],
-            "interaction_id": [f"int_{i}" for i in range(50)],
-            "expert_load_score": np.random.uniform(0, 100, 50).tolist(),
-            "timestamp": pd.date_range("2023-01-01", periods=50).tolist()
-        }
-        golden_df = pd.DataFrame(golden_data)
-        golden_path = self.data_processed / "golden_set.csv"
-        golden_df.to_csv(golden_path, index=False)
-
-        # Test validation
-        is_valid, message = validate_golden_set(str(golden_path))
+def test_full_pipeline_integration(sample_golden_set, tmp_path):
+    """Test the full pipeline integration."""
+    import json
+    
+    # Override paths to use temp directory
+    original_golden_path = GOLDEN_SET_PATH
+    original_model_path = MODEL_OUTPUT_PATH
+    original_metrics_path = METRICS_OUTPUT_PATH
+    
+    try:
+        # Update global paths for this test
+        import code.train_load_model as module
+        module.GOLDEN_SET_PATH = sample_golden_set
+        module.MODEL_OUTPUT_PATH = str(tmp_path / "load_model.pkl")
+        module.METRICS_OUTPUT_PATH = str(tmp_path / "model_metrics.json")
         
-        assert is_valid, f"Golden set validation failed: {message}"
-        assert "50" in message or len(golden_data["session_id"]) == 50
+        # Run main
+        main()
+        
+        # Verify outputs
+        assert os.path.exists(module.MODEL_OUTPUT_PATH)
+        assert os.path.exists(module.METRICS_PATH)
+        
+        # Check model file size
+        model_size_mb = os.path.getsize(module.MODEL_OUTPUT_PATH) / (1024 * 1024)
+        assert model_size_mb <= MAX_MODEL_SIZE_MB, f"Model too large: {model_size_mb}MB"
+        
+        # Check metrics file
+        with open(module.METRICS_PATH, 'r') as f:
+            metrics = json.load(f)
+        
+        assert 'pearson_correlation' in metrics
+        assert metrics['pearson_correlation'] >= TARGET_CORRELATION, \
+            f"Correlation {metrics['pearson_correlation']} below target {TARGET_CORRELATION}"
+        
+    finally:
+        # Restore original paths
+        module.GOLDEN_SET_PATH = original_golden_path
+        module.MODEL_OUTPUT_PATH = original_model_path
+        module.METRICS_OUTPUT_PATH = original_metrics_path
 
-    def test_golden_set_validation_missing(self):
-        """Test validation when Golden Set is missing."""
-        is_valid, message = validate_golden_set(str(self.data_processed / "nonexistent.csv"))
+def test_model_performance_threshold(sample_golden_set, tmp_path):
+    """Test that model meets performance threshold."""
+    # This test verifies the correlation threshold is enforced
+    import code.train_load_model as module
+    
+    original_golden_path = GOLDEN_SET_PATH
+    original_model_path = MODEL_OUTPUT_PATH
+    original_metrics_path = METRICS_OUTPUT_PATH
+    
+    try:
+        module.GOLDEN_SET_PATH = sample_golden_set
+        module.MODEL_OUTPUT_PATH = str(tmp_path / "load_model.pkl")
+        module.METRICS_OUTPUT_PATH = str(tmp_path / "model_metrics.json")
         
-        assert not is_valid
-        assert "not found" in message.lower() or "missing" in message.lower()
-
-    def test_golden_set_validation_insufficient_rows(self):
-        """Test validation with insufficient rows (< 50)."""
-        # Create a golden set with only 30 rows
-        golden_data = {
-            "session_id": [f"sess_{i}" for i in range(30)],
-            "interaction_id": [f"int_{i}" for i in range(30)],
-            "expert_load_score": np.random.uniform(0, 100, 30).tolist(),
-            "timestamp": pd.date_range("2023-01-01", periods=30).tolist()
-        }
-        golden_df = pd.DataFrame(golden_data)
-        golden_path = self.data_processed / "golden_set.csv"
-        golden_df.to_csv(golden_path, index=False)
-
-        is_valid, message = validate_golden_set(str(golden_path))
+        # Run main
+        main()
         
-        assert not is_valid
-        assert "50" in message or "insufficient" in message.lower()
-
-    def test_golden_set_creation_and_validation(self):
-        """Test creating a Golden Set and then validating it."""
-        # Generate synthetic interactions
-        interactions = generate_synthetic_interactions(n_samples=60)
+        # Load metrics
+        with open(module.METRICS_OUTPUT_PATH, 'r') as f:
+            metrics = json.load(f)
         
-        # Apply expert rubric
-        golden_df = apply_expert_rubric(interactions)
+        assert metrics['pearson_correlation'] >= TARGET_CORRELATION
         
-        # Save to processed directory
-        golden_path = self.data_processed / "golden_set.csv"
-        golden_df.to_csv(golden_path, index=False)
-        
-        # Validate the created set
-        is_valid, message = validate_golden_set(str(golden_path))
-        
-        assert is_valid, f"Created golden set failed validation: {message}"
-        assert len(golden_df) >= 50
-
-    @pytest.mark.skipif(not HAS_TRAIN_SCRIPT, reason="train_load_model.py not available")
-    def test_model_training_pipeline(self):
-        """End-to-end test of model training against Golden Set."""
-        # Ensure Golden Set exists
-        golden_path = self.data_processed / "golden_set.csv"
-        if not golden_path.exists():
-            # Create one if missing
-            interactions = generate_synthetic_interactions(n_samples=60)
-            golden_df = apply_expert_rubric(interactions)
-            golden_df.to_csv(golden_path, index=False)
-        
-        # Run training pipeline
-        # Note: This may take time and require real data
-        # For integration test, we assume the script runs successfully
-        try:
-            result = train_main()
-            
-            # Verify result structure
-            assert isinstance(result, dict), "Training result should be a dictionary"
-            
-            # Check for expected keys
-            expected_keys = ["model_path", "pearson_correlation", "validation_passed"]
-            for key in expected_keys:
-                assert key in result, f"Missing expected key in result: {key}"
-            
-            # Verify model was saved
-            model_path = result.get("model_path")
-            if model_path:
-                assert Path(model_path).exists(), f"Model file not saved at {model_path}"
-            
-            # Verify correlation metric
-            correlation = result.get("pearson_correlation")
-            if correlation is not None:
-                assert isinstance(correlation, (int, float)), "Correlation should be numeric"
-                # Note: We don't assert >= 0.6 here as it depends on real data quality
-                # The test passes if the pipeline runs and computes the metric
-            
-            # Verify validation flag
-            validation_passed = result.get("validation_passed")
-            assert isinstance(validation_passed, bool), "Validation passed should be boolean"
-            
-        except Exception as e:
-            # If training fails due to missing data or other issues, log but don't fail the test
-            # unless it's a structural failure
-            logger.error(f"Training pipeline failed: {str(e)}")
-            # Re-raise if it's a critical structural error
-            if "No training data found" in str(e) or "Golden set" in str(e).lower():
-                pytest.fail(f"Training pipeline failed due to missing data: {str(e)}")
-            else:
-                # For other errors, we might want to skip or mark as incomplete
-                pytest.skip(f"Training pipeline encountered non-critical error: {str(e)}")
-
-    def test_load_data_integration(self):
-        """Test loading and verifying datasets integration."""
-        # This test verifies that load_data.py functions work correctly
-        # with the directory structure we've set up
-        
-        # Ensure directories exist
-        ensure_directories = True  # We already created them in setup
-        
-        # Try to load ASSISTments dataset (this may fail if network is unavailable)
-        # For integration test, we just verify the function exists and can be called
-        try:
-            # We don't actually run this as it requires network access
-            # Instead, we verify the function signature exists
-            assert callable(load_and_verify_datasets), "load_and_verify_datasets should be callable"
-        except Exception as e:
-            pytest.skip(f"Load data test skipped due to: {str(e)}")
+    finally:
+        module.GOLDEN_SET_PATH = original_golden_path
+        module.MODEL_OUTPUT_PATH = original_model_path
+        module.METRICS_OUTPUT_PATH = original_metrics_path

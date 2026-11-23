@@ -1,0 +1,2719 @@
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/research.md
+  attempts: 1
+  canonical: z-reward/z-reward-v1 title token overlap 0.85
+  claim_id: c_2551ab07
+  context: Verification Details section listing the title token overlap result.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset z-reward/z-reward-v1 has a title token overlap of 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T09:24:03Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/research.md
+  attempts: 1
+  canonical: Title token overlap for z-reward/z-reward-v1 is 0.85
+  claim_id: c_d5866a8f
+  context: 'Verification Status: VERIFIED. Title Token Overlap: 0.85. Checksum: sha256:a1b2c3d4e5f6789012345678901234567890abcdef1234567890abcdef123456'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Title Token Overlap: 0.85'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T09:34:57Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/research.md
+  attempts: 1
+  canonical: Sample count for z-reward/z-reward-v1 is 10000
+  claim_id: c_a997f83f
+  context: 'Primary Dimension: Derived from prompt metadata or defaults to ''Alignment''.
+    Sample Count: 10,000 (verified). Column Verification: All required columns present.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Sample Count: 10,000 (verified)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T09:35:43Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Model selection fails if sample count is less than 30
+  claim_id: c_b89599b7
+  context: "Phase 2, Task T027d Model-selection task: If N < 30 \u2192 set model_type\
+    \ = 'fail'. Action: Write {\"status\": \"fail\", \"model_type\": \"fail\", \"\
+    reason\": \"Critical Power Limitation: N < 30\"} to data/processed/model_selection.json."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_selection_fails_if_sample_count_is_less_than_30
+  kind: magnitude
+  raw_text: "If N < 30 \u2192 set model_type = 'fail'."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:12:22Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Ridge regression selected for sample count between 30 and 300
+  claim_id: c_785b32d5
+  context: "Phase 2, Task T027d Model-selection task: If 30 \u2264 N < 300 \u2192\
+    \ set model_type = 'ridge' (use Ridge Regression)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If 30 \u2264 N < 300 \u2192 set model_type = 'ridge'."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:13:20Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Random Forest selected for sample count greater than or equal to 300
+  claim_id: c_0a52dcaf
+  context: "Phase 2, Task T027d Model-selection task: If N \u2265 300 \u2192 set model_type\
+    \ = 'rf' (use Random Forest) and ensure Mahalanobis distance will be computed\
+    \ (T022c)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_selected_for_sample_count_greater_than_or_equa
+  kind: magnitude
+  raw_text: "If N \u2265 300 \u2192 set model_type = 'rf'."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:14:24Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Synthetic fallback generates 10000 samples
+  claim_id: c_9fcff094
+  context: 'Phase 2, Task T037: If --mode=test (or no flag) and file NOT found: Invoke
+    code/synthetic_data.py (T000d) to create data/raw/z_reward_synthetic.parquet (N=10,000)
+    with IS_MOCK_DATA = true.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=10,000 synthetic samples generated for test mode fallback.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:14:57Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Unit test synthetic data defaults to 50 samples
+  claim_id: c_6447a7f3
+  context: 'Phase 2, Task T037b: DEFAULT: N=50 samples (configurable via --n-samples)
+    to test Ridge Regression path.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N=50 samples generated for unit testing Ridge Regression path.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:15:39Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Synthetic teacher scores distribution parameters loc 5 scale 2
+  claim_id: c_f669a0a4
+  context: 'Phase 2, Task T037b: Teacher scores are sampled from np.random.normal(loc=5,
+    scale=2, size=...).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Teacher scores sampled from normal distribution with loc=5 and scale=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:16:27Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Synthetic human annotations distribution parameters loc 5 scale 2
+  claim_id: c_761a86f1
+  context: 'Phase 2, Task T037b: human annotations are sampled independently from
+    a separate np.random.normal(loc=5, scale=2,...) with a different seed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Human annotations sampled independently with loc=5 and scale=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:16:54Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Memory usage limited to 7 GB
+  claim_id: c_88279eb6
+  context: 'Phase 3, Task T015: Implement chunked loading or sampling logic in code/ingest.py
+    to keep RAM usage < 7 GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: RAM usage kept under 7 GB via chunked loading.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:17:37Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Stratified splitting uses 5 quantile bins
+  claim_id: c_20b5e942
+  context: 'Phase 5, Task T027a: Perform quantile-based binning (5 bins) on the target
+    fidelity_loss for stratified train_test_split.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Quantile-based binning uses 5 bins.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:18:15Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Test set size is 20 percent
+  claim_id: c_dfae719b
+  context: 'Phase 5, Task T027a: Perform quantile-based binning (5 bins) on the target
+    fidelity_loss for stratified train_test_split(test_size=0.2, random_state=42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train-test split uses test_size=0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:18:39Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Random Forest configured with 100 estimators
+  claim_id: c_6587a199
+  context: "Phase 5, Task T027b: If model_type == 'rf' \u2192 train RandomForestRegressor(n_estimators=100,\
+    \ random_state=42, n_jobs=2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest uses 100 estimators.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:19:25Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Permutation test performs 1000 iterations
+  claim_id: c_c4f3ae43
+  context: 'Phase 5, Task T030a: Using the training split (X_train, y_train) from
+    T027a, permute y_train n_permutations=1000 times (fixed random_state=42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation test runs 1000 iterations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:20:08Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Permutation test random state is 42
+  claim_id: c_f6490132
+  context: 'Phase 5, Task T030a: Using the training split (X_train, y_train) from
+    T027a, permute y_train n_permutations=1000 times (fixed random_state=42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation test random state is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:20:44Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Significance threshold is 0.05
+  claim_id: c_7c941445
+  context: 'Phase 5, Task T030c: Reporting: Compute p-value. If p < 0.05, report ''significant'';
+    otherwise report ''not significant''.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: P-value threshold for significance is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T23:21:01Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Pandas version 2.0.3
+  claim_id: c_42c0b8c1
+  context: 'Phase 1, Task T001c: Write projects/.../code/requirements.txt with pinned
+    versions (e.g., pandas==2.0.3, numpy==1.24.3).'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Pandas version pinned to 2.0.3.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T23:21:01Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: NumPy version 1.24.3
+  claim_id: c_9bc5d359
+  context: 'Phase 1, Task T001c: Write projects/.../code/requirements.txt with pinned
+    versions (e.g., pandas==2.0.3, numpy==1.24.3).'
+  evidence:
+    asserted: '1.24'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: NumPy version pinned to 1.24.3.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T23:21:01Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Primary dataset ID is z-reward z-reward-v1
+  claim_id: c_b5af1701
+  context: 'Phase 2, Task T037: Primary: Verify dataset ID z-reward/z-reward-v1 via
+    code/verify_dataset.py (T000b).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_dataset_ID_is_z-reward_z-reward-v1
+  kind: entity_fact
+  raw_text: Dataset ID z-reward/z-reward-v1 is the primary source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:21:53Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Secondary dataset ID is z-reward z-reward-v2
+  claim_id: c_57acccc9
+  context: 'Phase 2, Task T037: Secondary: If primary verification fails, verify z-reward/z-reward-v2
+    and load.'
+  evidence:
+    entailment_evidence: Secondary dataset ID is z-reward z-reward-v2
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Secondary_dataset_ID_is_z-reward_z-reward-v2
+  kind: entity_fact
+  raw_text: Dataset ID z-reward/z-reward-v2 is the secondary source.
+  resolved_value: Secondary dataset ID is z-reward z-reward-v2
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-16T23:21:55Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Rubric dimensions are Alignment Realism Aesthetics and Plausibility
+  claim_id: c_08172561
+  context: 'Phase 1, Task T001d: schema fields include teacher_scores properties:
+    Alignment, Realism, Aesthetics, Plausibility.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Rubric_dimensions_are_Alignment_Realism_Aesthetics_and_Plaus
+  kind: entity_fact
+  raw_text: Four rubric dimensions are Alignment, Realism, Aesthetics, and Plausibility.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:22:32Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Primary dimension fallback is Alignment
+  claim_id: c_738c5bb3
+  context: 'Phase 2, Task T014: Fallback Rule: If both fail, default to ''Alignment''
+    (deterministic fallback).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_dimension_fallback_is_Alignment
+  kind: entity_fact
+  raw_text: Fallback to 'Alignment' if primary dimension cannot be derived.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:23:34Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Mahalanobis recomputed if sample removal exceeds 10 percent
+  claim_id: c_d347311b
+  context: 'Phase 4, Task T022c: Statistical Consistency: If the filtered dataset
+    differs significantly from the global set (e.g., >10% samples removed), recompute
+    the mean and covariance on the filtered set.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mahalanobis_recomputed_if_sample_removal_exceeds_10_percent
+  kind: magnitude
+  raw_text: Mahalanobis distance recomputed if more than 10 percent samples removed.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-16T23:24:22Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: verify_dataset.py outputs JSON with verified, checksum, and source_type
+    keys
+  claim_id: c_9b418f60
+  context: 'Create verify_dataset.py: Create projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/verify_dataset.py
+    with logic to validate dataset ID, check token overlap using Jaccard similarity
+    >= 0.7 threshold, and return verification status.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_dataset.py_outputs_JSON_with_verified,_checksum,_and
+  kind: entity_fact
+  raw_text: 'The script must print a JSON object to stdout containing {"verified":
+    bool, "checksum": str, "source_type": str}.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:12:00Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: synthetic_data.py accepts --n-samples and --seed arguments
+  claim_id: c_3611a83f
+  context: 'Create synthetic data generator: Create projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/synthetic_data.py
+    with a schema-compliant generator function that accepts --n-samples and --seed
+    arguments to generate a configurable number of synthetic samples.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data.py_accepts_--n-samples_and_--seed_arguments
+  kind: entity_fact
+  raw_text: Generate a configurable number of synthetic samples using --n-samples
+    and --seed arguments.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:12:23Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Synthetic teacher scores sampled from normal distribution with loc=5
+    and scale=2
+  claim_id: c_4bdb1c86
+  context: 'Noise Independence: Teacher scores are sampled from np.random.normal(loc=5,
+    scale=2, size=...); human annotations are sampled independently from a separate
+    np.random.normal(loc=5, scale=2,...) with a different seed, guaranteeing independent
+    noise structures.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Teacher scores are sampled from np.random.normal(loc=5, scale=2, size=...).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:12:39Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Synthetic human annotations sampled from independent normal distribution
+    with loc=5 and scale=2
+  claim_id: c_424bb11b
+  context: 'Noise Independence: Teacher scores are sampled from np.random.normal(loc=5,
+    scale=2, size=...); human annotations are sampled independently from a separate
+    np.random.normal(loc=5, scale=2,...) with a different seed, guaranteeing independent
+    noise structures.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Human annotations are sampled independently from a separate np.random.normal(loc=5,
+    scale=2,...) with a different seed.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:12:57Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Synthetic dataset default sample count is 50
+  claim_id: c_eee7e359
+  context: 'Generate: Create a Pandas DataFrame matching the schema with columns prompt,
+    image_url, teacher_scores (Alignment, Realism, Aesthetics, Plausibility), student_scalar,
+    human_annotations (same four keys), primary_dimension. DEFAULT: N=50 samples (configurable
+    via --n-samples) to test Ridge Regression path.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of samples for unit testing is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:13:34Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Synthetic data generation uses default seed 42
+  claim_id: c_b66277ef
+  context: 'COMMAND: python code/synthetic_data.py --n-samples 50 --seed 42 --output
+    data/raw/mock_z_reward.parquet.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default seed for synthetic data generation is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:14:08Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Dominant eigenvalue of teacher score covariance matrix is computed
+  claim_id: c_78b05909
+  context: Compute the dominant eigenvalue (largest eigenvalue) of this matrix.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dominant_eigenvalue_of_teacher_score_covariance_matrix_is_co
+  kind: entity_fact
+  raw_text: The dominant eigenvalue of the covariance matrix is computed.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:14:18Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Mahalanobis distance uses numpy.linalg.pinv with rcond=1e-15
+  claim_id: c_5799b739
+  context: Handle singular covariance matrices with numpy.linalg.pinv with rcond=1e-15,
+    issuing a warning.
+  evidence:
+    asserted: 1e-15
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Mahalanobis distance calculation uses rcond=1e-15 for singular covariance
+    matrices.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T02:14:18Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Train-test split uses 0.2 test size
+  claim_id: c_4c44994f
+  context: Perform quantile-based binning (5 bins) on the target fidelity_loss for
+    stratified train_test_split(test_size=0.2, random_state=42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training split uses a test_size of 0.2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:14:24Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Quantile-based binning uses 5 bins
+  claim_id: c_cb9effea
+  context: Perform quantile-based binning (5 bins) on the target fidelity_loss for
+    stratified train_test_split(test_size=0.2, random_state=42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of bins for quantile-based binning is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:14:33Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Random Forest model uses 100 estimators
+  claim_id: c_2687d285
+  context: "If model_type == \"rf\" \u2192 train RandomForestRegressor(n_estimators=100,\
+    \ random_state=42, n_jobs=2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Random Forest model uses 100 estimators.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:14:40Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Ridge regression model uses alpha 1.0
+  claim_id: c_0809a5e1
+  context: "If model_type == \"ridge\" \u2192 train Ridge(alpha=1.0, random_state=42)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Ridge regression model uses an alpha of 1.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:14:48Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 1000 permutations
+  claim_id: c_cc845227
+  context: Using the training split (X_train, y_train) from T027a, permute y_train
+    n_permutations=1000 times (fixed random_state=42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test runs 1000 permutations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:14:55Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Model selection fails if N < 30
+  claim_id: c_46e43fd5
+  context: "If N < 30 \u2192 set model_type = \"fail\". Action: Write {\"model_type\"\
+    : \"fail\", \"n_samples\": N, \"threshold\": 30, \"reason\": \"Critical Power\
+    \ Limitation: N < 30\"} to data/processed/model_selection.json."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_selection_fails_if_N_%3C_30
+  kind: magnitude
+  raw_text: The model selection fails if the sample count is less than 30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:15:01Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Model selection uses Ridge if 30 <= N < 300
+  claim_id: c_27e7a8dd
+  context: "If 30 \u2264 N < 300 \u2192 set model_type = \"ridge\" (use Ridge Regression).\
+    \ Label: low_power."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model selection uses Ridge regression if the sample count is between
+    30 and 300.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:15:36Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Model selection uses Random Forest if N >= 300
+  claim_id: c_6073b8f9
+  context: "If N \u2265 300 \u2192 set model_type = \"rf\" (use Random Forest) and\
+    \ ensure Mahalanobis distance will be computed (T022c)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model selection uses Random Forest if the sample count is 300 or more.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:15:43Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Dataset verification uses Jaccard similarity threshold of 0.7
+  claim_id: c_af2c27ab
+  context: 'Create verify_dataset.py: Create projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/verify_dataset.py
+    with logic to validate dataset ID, check token overlap using Jaccard similarity
+    >= 0.7 threshold, and return verification status.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Jaccard similarity threshold for dataset verification is 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:15:50Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Chunked loading keeps RAM usage below 7 GB
+  claim_id: c_7c0f4549
+  context: Implement chunked loading or sampling logic in code/ingest.py to keep RAM
+    usage < 7 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The RAM usage for chunked loading is kept below 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:15:55Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Random Forest model random state is 42
+  claim_id: c_102c1f15
+  context: "If model_type == \"rf\" \u2192 train RandomForestRegressor(n_estimators=100,\
+    \ random_state=42, n_jobs=2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random state for the Random Forest model is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:16:01Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Ridge regression model random state is 42
+  claim_id: c_8a67aad6
+  context: "If model_type == \"ridge\" \u2192 train Ridge(alpha=1.0, random_state=42)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random state for the Ridge regression model is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:16:10Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Random Forest model uses 2 jobs
+  claim_id: c_56a3b4b7
+  context: "If model_type == \"rf\" \u2192 train RandomForestRegressor(n_estimators=100,\
+    \ random_state=42, n_jobs=2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The number of jobs for the Random Forest model is 2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:16:15Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Hypothesis significance threshold is p < 0.05
+  claim_id: c_1ef496ff
+  context: 'Reporting: Compute p-value. If p < 0.05, report "significant"; otherwise
+    report "not significant". CRITICAL: If p >= 0.05, explicitly flag the hypothesis
+    as "unsupported" in results.json and quickstart.md using the key hypothesis_status.'
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The p-value threshold for hypothesis significance is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T02:16:26Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Synthetic data generation default is 10000 samples
+  claim_id: c_461ea18e
+  context: 'If --mode=test (or no flag) and file NOT found: Execute code/synthetic_data.py
+    (T000d) with command python code/synthetic_data.py --n-samples 10000 --seed 42
+    --output data/raw/z_reward_synthetic.parquet to create data/raw/z_reward_synthetic.parquet
+    with IS_MOCK_DATA = true.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of samples for synthetic data generation is 10000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:16:31Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Derivation rule hash uses SHA-256
+  claim_id: c_27b613f5
+  context: derivation_rule_hash MUST be the SHA-256 hash of the rule string 'primary_dimension
+    = metadata.primary_dimension or hash(prompt) % 4'.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The SHA-256 hash of the derivation rule string is used for the derivation_rule_hash.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:17:04Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Permutation test random state is 42
+  claim_id: c_cfe67252
+  context: Using the training split (X_train, y_train) from T027a, permute y_train
+    n_permutations=1000 times (fixed random_state=42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The random state for the permutation test is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-18T02:17:10Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Pandas version pinned is 2.0.3
+  claim_id: c_5fac7336
+  context: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (e.g., pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0,
+    scipy==1.11.0, pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0, black==24.8.0).
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pandas version pinned in requirements.txt is 2.0.3.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T02:17:10Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Numpy version pinned is 1.24.3
+  claim_id: c_0676abde
+  context: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (e.g., pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0,
+    scipy==1.11.0, pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0, black==24.8.0).
+  evidence:
+    asserted: '1.24'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The numpy version pinned in requirements.txt is 1.24.3.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T02:17:10Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Scikit-learn version pinned is 1.3.0
+  claim_id: c_a3d1812a
+  context: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (e.g., pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0,
+    scipy==1.11.0, pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0, black==24.8.0).
+  evidence:
+    asserted: '1.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The scikit-learn version pinned in requirements.txt is 1.3.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T02:17:10Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Scipy version pinned is 1.11.0
+  claim_id: c_efe33be5
+  context: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (e.g., pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0,
+    scipy==1.11.0, pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0, black==24.8.0).
+  evidence:
+    asserted: '1.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The scipy version pinned in requirements.txt is 1.11.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T02:17:10Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: PyYAML version pinned is 6.0.1
+  claim_id: c_b9464559
+  context: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (e.g., pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0,
+    scipy==1.11.0, pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0, black==24.8.0).
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pyyaml version pinned in requirements.txt is 6.0.1.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T02:17:11Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Pytest version pinned is 7.4.0
+  claim_id: c_31a023d7
+  context: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (e.g., pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0,
+    scipy==1.11.0, pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0, black==24.8.0).
+  evidence:
+    asserted: '7.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pytest version pinned in requirements.txt is 7.4.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T02:17:11Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Ruff version pinned is 0.9.0
+  claim_id: c_3d1d91a6
+  context: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (e.g., pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0,
+    scipy==1.11.0, pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0, black==24.8.0).
+  evidence:
+    asserted: '0.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The ruff version pinned in requirements.txt is 0.9.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T02:17:11Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Black version pinned is 24.8.0
+  claim_id: c_7c2037b0
+  context: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (e.g., pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0,
+    scipy==1.11.0, pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0, black==24.8.0).
+  evidence:
+    asserted: '24.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The black version pinned in requirements.txt is 24.8.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T02:17:11Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Ruff version in pyproject.toml is 0.9.0
+  claim_id: c_cf263908
+  context: 'CRITICAL: pyproject.toml must use exact version pinning (e.g., ruff==0.9.0)
+    and .ruff.toml must exist.'
+  evidence:
+    asserted: '0.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The ruff version in pyproject.toml is pinned to 0.9.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T02:17:11Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Black version in pyproject.toml is 24.8.0
+  claim_id: c_a0befaaf
+  context: 'Configure linting (ruff) and formatting (black) tools: Create .ruff.toml
+    and pyproject.toml in projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/
+    with pinned tool versions (ruff==0.9.0, black==24.8.0) and configuration to satisfy
+    Constitution Principle I (Reproducibility).'
+  evidence:
+    asserted: '24.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The black version in pyproject.toml is pinned to 24.8.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-08-18T02:17:11Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 0
+  canonical: Pandas version pinned to 2.0.3
+  claim_id: c_8e9e3f42
+  context: 'T001e Write dependencies: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (e.g., pandas==2.0.3, numpy==1.24.3...).'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pandas version is pinned to 2.0.3.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T12:31:15Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 0
+  canonical: NumPy version pinned to 1.24.3
+  claim_id: c_d208cba4
+  context: 'T001e Write dependencies: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (e.g., pandas==2.0.3, numpy==1.24.3...).'
+  evidence:
+    asserted: '1.24'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The numpy version is pinned to 1.24.3.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T12:31:15Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: verify_dataset.py outputs JSON with verified, checksum, and source_type
+    fields
+  claim_id: c_bf162f0b
+  context: 'T000c Create verify_dataset.py: Create code/verify_dataset.py with logic
+    to validate dataset ID, check token overlap using Jaccard similarity >= 0.7 threshold,
+    and return verification status.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_dataset.py_outputs_JSON_with_verified,_checksum,_and
+  kind: entity_fact
+  raw_text: 'The script must print a JSON object to stdout containing {"verified":
+    bool, "checksum": str, "source_type": str}.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:32:19Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Synthetic data generated by T037b conforms to contracts/dataset.schema.yaml
+  claim_id: c_c0a790f4
+  context: 'T037 Adaptive Fallback (Case A - MISSING DATA): Execute code/synthetic_data.py
+    ... to create data/raw/z_reward_synthetic.parquet ... CRITICAL: The generated
+    data MUST strictly conform to the schema defined in T001d.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_data_generated_by_T037b_conforms_to_contracts/data
+  kind: entity_fact
+  raw_text: The generated data MUST strictly conform to the schema defined in T001d
+    (contracts/dataset.schema.yaml).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:33:11Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Teacher scores sampled from normal distribution with loc=5 and scale=2
+  claim_id: c_e2d9be2f
+  context: 'T037b Generate synthetic dataset for unit testing: Teacher scores are
+    sampled from np.random.normal(loc=5, scale=2, size=...); human annotations are
+    sampled independently from a separate np.random.normal(loc=5, scale=2,...) with
+    a different seed.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Teacher scores are sampled from np.random.normal(loc=5, scale=2, size=...)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:33:39Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Default sample count for unit testing is 50
+  claim_id: c_1fa62ee4
+  context: 'T037b Generate synthetic dataset for unit testing: DEFAULT: N=50 samples
+    (configurable via --n-samples) to test Ridge Regression path.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default number of samples for unit testing is 50.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:34:17Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Derivation rule hash is SHA-256 of specific metadata rule string
+  claim_id: c_888c8609
+  context: 'T024 Implement dimensional fidelity loss calculation: CRITICAL: Generate
+    data/processed/lineage_report.json with schema ... derivation_rule_hash MUST be
+    the SHA-256 hash of the rule string ''primary_dimension = metadata.primary_dimension
+    or hash(prompt) % 4''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The derivation_rule_hash MUST be the SHA-256 hash of the rule string 'primary_dimension
+    = metadata.primary_dimension or hash(prompt) % 4'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:34:59Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Model selection fails if sample count is less than 30
+  claim_id: c_b5523fd4
+  context: "T027d Model-selection task: If N < 30 \u2192 set model_type = \"fail\"\
+    . Action: Write {\"model_type\": \"fail\", \"n_samples\": N, \"threshold\": 30,\
+    \ \"reason\": \"Critical Power Limitation: N < 30\"} to data/processed/model_selection.json."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_selection_fails_if_sample_count_is_less_than_30
+  kind: magnitude
+  raw_text: If N < 30, the model_type is set to 'fail'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:36:41Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Model selection uses Ridge Regression for sample counts between 30 and
+    299
+  claim_id: c_90a26523
+  context: "T027d Model-selection task: If 30 \u2264 N < 300 \u2192 set model_type\
+    \ = \"ridge\" (use Ridge Regression). Label: low_power."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If 30 \u2264 N < 300, the model_type is set to 'ridge'."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:38:16Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Model selection uses Random Forest for sample counts of 300 or more
+  claim_id: c_1ddca180
+  context: "T027d Model-selection task: If N \u2265 300 \u2192 set model_type = \"\
+    rf\" (use Random Forest) and ensure Mahalanobis distance will be computed (T022c)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If N \u2265 300, the model_type is set to 'rf'."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:38:16Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: 'Random Forest configuration: 100 estimators, seed 42, 2 jobs'
+  claim_id: c_6b0c1926
+  context: "T027b Train the selected model: If model_type == \"rf\" \u2192 train RandomForestRegressor(n_estimators=100,\
+    \ random_state=42, n_jobs=2)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest is configured with n_estimators=100, random_state=42, and
+    n_jobs=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:39:08Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: 'Ridge Regression configuration: alpha 1.0, seed 42'
+  claim_id: c_d390ecd3
+  context: "T027b Train the selected model: If model_type == \"ridge\" \u2192 train\
+    \ Ridge(alpha=1.0, random_state=42)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ridge Regression is configured with alpha=1.0 and random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:40:02Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Training split uses 20% test size with random seed 42
+  claim_id: c_7b57eb2b
+  context: 'T027a Configure training split: Perform quantile-based binning (5 bins)
+    on the target fidelity_loss for stratified train_test_split(test_size=0.2, random_state=42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training split uses stratified train_test_split with test_size=0.2
+    and random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:40:52Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 1000 permutations with random seed 42
+  claim_id: c_22d71e9b
+  context: 'T030a Implement permutation test: Using the training split (X_train, y_train)
+    from T027a, permute y_train n_permutations=1000 times (fixed random_state=42).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The permutation test runs 1000 permutations with random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:41:27Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Hypothesis is unsupported if p-value >= 0.05
+  claim_id: c_560ccc0e
+  context: 'T030c Null Baseline Comparison: CRITICAL: If p >= 0.05, explicitly flag
+    the hypothesis as "unsupported" in results.json and quickstart.md using the key
+    hypothesis_status.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_is_unsupported_if_p-value_%3E=_0.05
+  kind: magnitude
+  raw_text: The hypothesis status is flagged as 'unsupported' if the p-value is greater
+    than or equal to 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:42:05Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Singular covariance matrix handling uses rcond 1e-15
+  claim_id: c_e84a5bd7
+  context: 'T022c Per-Sample Mahalanobis Distance: Handle singular covariance matrices
+    with numpy.linalg.pinv with rcond=1e-15, issuing a warning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The inverse covariance matrix calculation uses rcond=1e-15 for singular
+    matrices.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:42:34Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: RAM usage limit for chunked loading is 7 GB
+  claim_id: c_c31aadf8
+  context: T015 Implement chunked loading or sampling logic in code/ingest.py to keep
+    RAM usage < 7 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The RAM usage for chunked loading is kept under 7 GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:43:13Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Dataset verification uses Jaccard similarity threshold of 0.7
+  claim_id: c_e22f2d0a
+  context: 'T000a Create research.md schema template: title_token_overlap: float (Jaccard
+    similarity >= 0.7)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Jaccard similarity threshold for dataset verification is 0.7.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-01T12:44:05Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Scikit-learn version pinned to 1.3.0
+  claim_id: c_feb0852b
+  context: 'T001e Write dependencies: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (e.g., pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0...).'
+  evidence:
+    asserted: '1.3'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The scikit-learn version is pinned to 1.3.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T12:44:06Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: SciPy version pinned to 1.11.0
+  claim_id: c_400a97a1
+  context: 'T001e Write dependencies: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (e.g., pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0,
+    scipy==1.11.0...).'
+  evidence:
+    asserted: '1.11'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The scipy version is pinned to 1.11.0.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T12:44:06Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: PyYAML version pinned to 6.0.1
+  claim_id: c_6c88b442
+  context: 'T001e Write dependencies: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (e.g., pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0,
+    scipy==1.11.0, pyyaml==6.0.1...).'
+  evidence:
+    asserted: '6.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pyyaml version is pinned to 6.0.1.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T12:44:06Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Pytest version pinned to 7.4.0
+  claim_id: c_3894acf3
+  context: 'T001e Write dependencies: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (e.g., pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0,
+    scipy==1.11.0, pyyaml==6.0.1, pytest==7.4.0...).'
+  evidence:
+    asserted: '7.4'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The pytest version is pinned to 7.4.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T12:44:06Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Ruff version pinned to 0.9.0
+  claim_id: c_c92fbe0f
+  context: 'T001e Write dependencies: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (e.g., pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0,
+    scipy==1.11.0, pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0...).'
+  evidence:
+    asserted: '0.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The ruff version is pinned to 0.9.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T12:44:06Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Black version pinned to 24.8.0
+  claim_id: c_0d234567
+  context: 'T001e Write dependencies: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (e.g., pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0,
+    scipy==1.11.0, pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0, black==24.8.0).'
+  evidence:
+    asserted: '24.8'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The black version is pinned to 24.8.0.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-01T12:44:07Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 0
+  canonical: Mahalanobis distance uses rcond 1e-15 for singular covariance matrices
+  claim_id: c_9de34840
+  context: Handle singular covariance matrices with **`numpy.linalg.pinv` with `rcond=1e-15`**,
+    issuing a warning.
+  evidence:
+    asserted: 1e-15
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Mahalanobis distance calculation uses rcond=1e-15 for singular covariance
+    matrices
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-05T03:13:50Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: teacher scores sampled from normal distribution with loc 5 and scale
+    2
+  claim_id: c_f6541cac
+  context: 'Noise Independence: Teacher scores are sampled from `np.random.normal(loc=5,
+    scale=2, size=...)`; human annotations are sampled independently from a separate
+    `np.random.normal(loc=5, scale=2,...)` *with a different seed*, guaranteeing independent
+    noise structures.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: teacher scores are sampled from np.random.normal(loc=5, scale=2, size=...)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:15:52Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: human annotations sampled from normal distribution with loc 5 and scale
+    2
+  claim_id: c_63ba43fb
+  context: 'Noise Independence: Teacher scores are sampled from `np.random.normal(loc=5,
+    scale=2, size=...)`; human annotations are sampled independently from a separate
+    `np.random.normal(loc=5, scale=2,...)` *with a different seed*, guaranteeing independent
+    noise structures.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: human annotations are sampled from np.random.normal(loc=5, scale=2,...)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:15:58Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: synthetic dataset generation defaults to 50 samples
+  claim_id: c_fef82bc1
+  context: 'DEFAULT: N=50 samples (configurable via `--n-samples`) to test Ridge Regression
+    path. **COMMAND**: `python code/synthetic_data.py --n-samples 50 --seed 42 --output
+    data/raw/mock_z_reward.parquet`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The synthetic dataset generation defaults to N=50 samples
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:16:07Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: model selection fails if sample count is less than 30
+  claim_id: c_674d73a7
+  context: "If N < 30 \u2192 set `model_type = \"fail\"`. **Action**: Write `{\"model_type\"\
+    : \"fail\", \"n_samples\": N, \"threshold\": 30, \"reason\": \"Critical Power\
+    \ Limitation: N < 30\"}` to `data/processed/model_selection.json`."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_selection_fails_if_sample_count_is_less_than_30
+  kind: magnitude
+  raw_text: Model selection fails if sample count N is less than 30
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:16:28Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Ridge Regression selected for sample count between 30 and 300
+  claim_id: c_c530e8d7
+  context: "If 30 \u2264 N < 300 \u2192 set `model_type = \"ridge\"` (use Ridge Regression).\
+    \ **Label**: `low_power`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ridge Regression is selected if sample count N is between 30 and 300
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:16:46Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Random Forest selected for sample count greater than or equal to 300
+  claim_id: c_b19bb823
+  context: "If N \u2265 300 \u2192 set `model_type = \"rf\"` (use Random Forest) and\
+    \ ensure Mahalanobis distance will be computed (T022c)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Random_Forest_selected_for_sample_count_greater_than_or_equa
+  kind: magnitude
+  raw_text: Random Forest is selected if sample count N is 300 or greater
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:20:11Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: derivation rule hash is SHA-256 of 'primary_dimension = metadata.primary_dimension'
+  claim_id: c_0eb80d07
+  context: '**derivation_rule_hash** MUST be the **SHA-256** hash of the rule string
+    `''primary_dimension = metadata.primary_dimension''` (without additional logic).
+    This report MUST explicitly state "Source: Metadata Only" for every sample to
+    prove target independence (SC-004).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The derivation_rule_hash is the SHA-256 hash of the rule string 'primary_dimension
+    = metadata.primary_dimension'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:20:34Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: training split uses test size 0.2
+  claim_id: c_21a49d83
+  context: "Perform quantile\u2011based binning on the target `fidelity_loss` for\
+    \ stratified `train_test_split(test_size=0.2, random_state=42)`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training split uses a test_size of 0.2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:21:07Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: training split uses random state 42
+  claim_id: c_8755c041
+  context: "Perform quantile\u2011based binning on the target `fidelity_loss` for\
+    \ stratified `train_test_split(test_size=0.2, random_state=42)`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The training split uses random_state=42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:21:45Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Random Forest training uses 100 estimators
+  claim_id: c_a9ce9bd2
+  context: "If `model_type == \"rf\"` \u2192 train `RandomForestRegressor(n_estimators=100,\
+    \ random_state=42, n_jobs=2)`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest training uses n_estimators=100
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:22:24Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Random Forest training uses 2 jobs
+  claim_id: c_51edb8d1
+  context: "If `model_type == \"rf\"` \u2192 train `RandomForestRegressor(n_estimators=100,\
+    \ random_state=42, n_jobs=2)`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Random Forest training uses n_jobs=2
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:23:02Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Ridge regression training uses alpha 1.0
+  claim_id: c_e1f08cf3
+  context: "If `model_type == \"ridge\"` \u2192 train `Ridge(alpha=1.0, random_state=42)`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ridge regression training uses alpha=1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:23:57Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: hypothesis flagged as unsupported if t-test p-value is greater than or
+    equal to 0.05
+  claim_id: c_7efcd1c8
+  context: 'If p < 0.05, report "significant"; otherwise report "not significant".
+    **CRITICAL**: If p >= 0.05, the hypothesis MUST be flagged as "unsupported" in
+    `results.json` and `quickstart.md` using the key `hypothesis_status`.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_flagged_as_unsupported_if_t-test_p-value_is_great
+  kind: magnitude
+  raw_text: The hypothesis is flagged as unsupported if the paired t-test p-value
+    is greater than or equal to 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:24:56Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Jaccard similarity threshold for dataset verification is 0.7
+  claim_id: c_7964ac21
+  context: Create `projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/verify_dataset.py`
+    with logic to validate dataset ID 'Z-Reward', check token overlap using **Jaccard
+    similarity >= 0.7** threshold against HuggingFace `z-reward` or local archive,
+    and return verification status.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Jaccard similarity threshold for dataset verification is 0.7
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:25:27Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: RAM usage for chunked loading kept below 7 GB
+  claim_id: c_bec80dba
+  context: Implement chunked loading or sampling logic in `code/ingest.py` to keep
+    RAM usage < 7 GB.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The RAM usage for chunked loading is kept below 7 GB
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:26:06Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: estimated runtime for feature engineering under 6 hours on CI runner
+  claim_id: c_05897a4f
+  context: If estimated runtime > 30 min, refactor to vectorized NumPy operations;
+    ensure total runtime stays < 6 h on the CI runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The estimated runtime for feature engineering must stay under 6 hours
+    on the CI runner
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:26:34Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: threshold for triggering optimization refactoring is 30 minutes
+  claim_id: c_b88d1401
+  context: If estimated runtime > 30 min, refactor to vectorized NumPy operations;
+    ensure total runtime stays < 6 h on the CI runner.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The threshold for triggering optimization refactoring is 30 minutes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T03:27:24Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: synthetic unit-test dataset size 50 with seed 42
+  claim_id: c_1d1cea05
+  context: "T037b [P] **Synthetic Unit\u2011Test Dataset** Generate a small synthetic\
+    \ dataset (N=50) for unit testing via simulate.py --n-samples 50 --seed 42 --output\
+    \ data/raw/mock_oxford_pets.parquet."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a small synthetic dataset (N=50) for unit testing via simulate.py
+    --n-samples 50 --seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:16:45Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: RAM usage less than 7 GB for full dataset
+  claim_id: c_2f855718
+  context: T015 [P] **Chunked Loading** Implement streaming or chunked reading in
+    code/ingest.py to keep RAM usage < 7 GB for the full dataset.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/RAM_usage_less_than_7_GB_for_full_dataset
+  kind: magnitude
+  raw_text: Implement streaming or chunked reading in code/ingest.py to keep RAM usage
+    < 7 GB for the full dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:17:16Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: model selection thresholds N less than 30 fail, 30 to 299 ridge, 300
+    or more random forest
+  claim_id: c_c6958627
+  context: 'T027d [FR-004][P] **Model Selection** Based on sample count N from data/processed/cleaned_data.parquet:
+    * N < 30 -> model_type = fail * 30 <= N < 300 -> model_type = ridge * N >= 300
+    -> model_type = rf.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Model_selection_thresholds_N_less_than_30_fail,_30_to_299_ri
+  kind: causal
+  raw_text: 'Based on sample count N: N < 30 results in model_type = fail; 30 <= N
+    < 300 results in model_type = ridge; N >= 300 results in model_type = rf.'
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:17:19Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: RandomForestRegressor n_estimators 100 random_state 42 n_jobs 2
+  claim_id: c_5b7de527
+  context: T027f [FR-004][P] **Train Random Forest** Train RandomForestRegressor(n_estimators=100,
+    random_state=42, n_jobs=2) on the training split.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train RandomForestRegressor with n_estimators=100, random_state=42, and
+    n_jobs=2.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:18:30Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Ridge regression alpha 1.0 random_state 42
+  claim_id: c_3edb244d
+  context: T027g [FR-004][P] **Train Ridge Regression** Train Ridge(alpha=1.0, random_state=42)
+    on the training split.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Ridge Regression with alpha=1.0 and random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:20:23Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: train_test_split test_size 0.2 random_state 42
+  claim_id: c_d0169864
+  context: T027a [P] **Training Split** Load enriched features, perform quantile-based
+    stratified train_test_split(test_size=0.2, random_state=42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform quantile-based stratified train_test_split with test_size=0.2
+    and random_state=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:23:28Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: numpy.linalg.pinv rcond 1e-15
+  claim_id: c_cba40793
+  context: T022c [FR-002][P] **Mahalanobis Distance (Unconditional)** ... Handle singular
+    matrices with numpy.linalg.pinv(rcond=1e-15).
+  evidence:
+    asserted: 1e-15
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Handle singular matrices with numpy.linalg.pinv using rcond=1e-15.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T03:23:28Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: hypothesis status unsupported if p value ttest greater than or equal
+    to 0.05
+  claim_id: c_54ecd132
+  context: "T030c [P] **Null Baseline & Paired t\u2011Test** ... If p_value_ttest\
+    \ >= 0.05, set hypothesis_status:\"unsupported\" in results.json."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_status_unsupported_if_p_value_ttest_greater_than
+  kind: magnitude
+  raw_text: If p_value_ttest >= 0.05, set hypothesis_status to unsupported.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:23:32Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: feature engineering runtime less than 6 hours on CI
+  claim_id: c_70d9538e
+  context: T034b [P] **Feature Engineering Optimization** Refactor code/features.py
+    based on profiling results to ensure total runtime < 6 h on CI.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Feature_engineering_runtime_less_than_6_hours_on_CI
+  kind: magnitude
+  raw_text: Refactor code/features.py to ensure total runtime < 6 h on CI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:23:39Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Synthetic unit-test dataset generated with N=50 samples, seed=42
+  claim_id: c_7aa4652e
+  context: "T037b [P] **Synthetic Unit\u2011Test Dataset** Generate a small synthetic\
+    \ dataset (N=50) for unit testing via simulate.py --n-samples 50 --seed 42 --output\
+    \ data/raw/mock_oxford_pets.parquet. Include mock human annotations (not for final\
+    \ analysis)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a small synthetic dataset (N=50) for unit testing via simulate.py
+    --n-samples 50 --seed 42 --output data/raw/mock_oxford_pets.parquet.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:31:31Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: RAM usage limit for full dataset ingestion is 7 GB
+  claim_id: c_2700a479
+  context: T015 [P] **Chunked Loading** Implement streaming or chunked reading in
+    code/ingest.py to keep RAM usage < 7 GB for the full dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement streaming or chunked reading in code/ingest.py to keep RAM usage
+    < 7 GB for the full dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:31:31Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Primary dimension derived using species_id_hash_mod_4_v1 rule
+  claim_id: c_302e598f
+  context: "T014 [FR-003][P] **Primary Dimension Identification** Derive primary_dimension\
+    \ via hash(species_id) % 4 using the fixed rule string species_id_hash_mod_4_v1\
+    \ (hashing with Python's built\u2011in hash and modulo 4)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Derive primary_dimension via hash(species_id) % 4 using the fixed rule
+    string species_id_hash_mod_4_v1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:31:34Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Singular matrix handling uses numpy.linalg.pinv with rcond=1e-15
+  claim_id: c_cb96536e
+  context: T022c [FR-002][P] **Mahalanobis Distance (Unconditional)** Using the global
+    covariance matrix from results/covariance_matrix.json, compute Mahalanobis distance
+    for each sample and merge as mahalanobis_distance into data/processed/features.json.
+    Handle singular matrices with numpy.linalg.pinv(rcond=1e-15).
+  evidence:
+    asserted: 1e-15
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Handle singular matrices with numpy.linalg.pinv(rcond=1e-15).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T03:31:34Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Random Forest model trained with 100 estimators and random state 42
+  claim_id: c_166cae26
+  context: T027f [FR-004][P] **Train Random Forest** Train RandomForestRegressor(n_estimators=100,
+    random_state=42, n_jobs=2) on the training split; save model to results/model.pkl.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=2)
+    on the training split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:31:41Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Ridge Regression model trained with alpha=1.0 and random state 42
+  claim_id: c_15ea5001
+  context: T027g [FR-004][P] **Train Ridge Regression** Train Ridge(alpha=1.0, random_state=42)
+    on the training split; save model to results/model.pkl.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Ridge(alpha=1.0, random_state=42) on the training split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:31:48Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Data split uses test_size=0.2 and random_state=42
+  claim_id: c_34284f7e
+  context: "T027a [P] **Training Split** Load enriched features, perform quantile\u2011\
+    based stratified train_test_split(test_size=0.2, random_state=42), and write split\
+    \ indices to data/processed/split_config.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform quantile-based stratified train_test_split(test_size=0.2, random_state=42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:31:51Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Hypothesis status set to unsupported if t-test p-value is >= 0.05
+  claim_id: c_bd47a199
+  context: "T030c [P] **Null Baseline & Paired t\u2011Test** 5. If p_value_ttest >=\
+    \ 0.05, set hypothesis_status:unsupported in results.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If p_value_ttest >= 0.05, set hypothesis_status:unsupported in results.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:31:57Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Feature engineering runtime target is less than 6 hours on CI
+  claim_id: c_7a7f1fde
+  context: T034b [P] **Feature Engineering Optimization** Refactor code/features.py
+    based on profiling results to ensure total runtime < 6 h on CI.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Feature_engineering_runtime_target_is_less_than_6_hours_on_C
+  kind: magnitude
+  raw_text: Refactor code/features.py based on profiling results to ensure total runtime
+    < 6 h on CI.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:32:03Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Project dependencies pinned to specific versions including pandas 2.0.3
+    and numpy 1.24.3
+  claim_id: c_ca2d31b7
+  context: 'T001c [P] Write dependencies: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, scipy==1.11.0,
+    pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0, black==24.8.0).'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Write dependencies with pinned versions (pandas==2.0.3, numpy==1.24.3,
+    scikit-learn==1.3.0, scipy==1.11.0, pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0,
+    black==24.8.0).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T03:32:04Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 0
+  canonical: Singular matrix handling using numpy.linalg.pinv with rcond 1e-15
+  claim_id: c_00b476a1
+  context: 'Phase 3: Global Entanglement Metrics - Task T022c: Mahalanobis Distance
+    (Unconditional).'
+  evidence:
+    asserted: 1e-15
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Handle singular matrices with numpy.linalg.pinv(rcond=1e-15).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T03:32:58Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: 'Pinned dependency versions: pandas 2.0.3, numpy 1.24.3, scikit-learn
+    1.3.0, scipy 1.11.0, pyyaml 6.0.1, pytest 7.4.0, ruff 0.9.0, black 24.8.0'
+  claim_id: c_1eb91119
+  context: 'Phase 1: Setup (Shared Infrastructure) - Task T001c: Write dependencies.'
+  evidence:
+    asserted: '-967.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, scipy==1.11.0,
+    pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0, black==24.8.0).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-24T03:33:01Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Synthetic unit-test dataset size of 50 samples with seed 42
+  claim_id: c_db7c6fe8
+  context: 'Phase 2: Data Acquisition & Simulation - Task T037b: Synthetic Unit-Test
+    Dataset.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a small synthetic dataset (N=50) for unit testing via simulate.py
+    --n-samples 50 --seed 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:33:02Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: RAM usage limit for full dataset ingestion is 7 GB
+  claim_id: c_17bf117b
+  context: 'Phase 2: Data Acquisition & Simulation - Task T015: Chunked Loading.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement streaming or chunked reading in code/ingest.py to keep RAM usage
+    < 7 GB for the full dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:33:02Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: 'Primary dimension derivation rule: hash(species_id) modulo 4'
+  claim_id: c_d015dec2
+  context: 'Phase 2: Data Acquisition & Simulation - Task T014: Primary Dimension
+    Identification.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Derive primary_dimension via hash(species_id) % 4 using the fixed rule
+    string species_id_hash_mod_4_v1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:33:03Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Train-test split with 20% test size and random state 42
+  claim_id: c_b7a70027
+  context: 'Phase 4: Model Selection & Training - Task T027a: Training Split.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Perform quantile-based stratified train_test_split(test_size=0.2, random_state=42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:33:03Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: 'Random Forest model configuration: 100 estimators, random state 42,
+    2 jobs'
+  claim_id: c_14e81183
+  context: 'Phase 4: Model Selection & Training - Task T027f: Train Random Forest.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=2).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:33:26Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: 'Ridge regression model configuration: alpha 1.0, random state 42'
+  claim_id: c_ea56e763
+  context: 'Phase 4: Model Selection & Training - Task T027g: Train Ridge Regression.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Ridge(alpha=1.0, random_state=42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:35:13Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Paired t-test using scipy.stats.ttest_rel for model vs baseline residuals
+  claim_id: c_e65b6d0c
+  context: 'Phase 4: Model Selection & Training - Task T030c: Null Baseline & Paired
+    t-Test.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paired_t-test_using_scipy.stats.ttest_rel_for_model_vs_basel
+  kind: entity_fact
+  raw_text: Perform a paired t-test (scipy.stats.ttest_rel) on the residuals of the
+    model vs. baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:35:21Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Hypothesis status set to unsupported if t-test p-value is greater than
+    or equal to 0.05
+  claim_id: c_3b2b4ed5
+  context: 'Phase 4: Model Selection & Training - Task T030c: Null Baseline & Paired
+    t-Test.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_status_set_to_unsupported_if_t-test_p-value_is_gr
+  kind: magnitude
+  raw_text: If p_value_ttest >= 0.05, set hypothesis_status:unsupported in results.json.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:35:23Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Feature engineering runtime limit is 6 hours on CI
+  claim_id: c_b26fcdcb
+  context: 'Phase 5: Polish & Cross-Cutting Concerns - Task T034b: Feature Engineering
+    Optimization.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactor code/features.py based on profiling results to ensure total runtime
+    < 6 h on CI.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-24T03:35:23Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 0
+  canonical: Requirements pinned to pandas 2.0.3, numpy 1.24.3, scikit-learn 1.3.0,
+    scipy 1.11.0, pyyaml 6.0.1, pytest 7.4.0, ruff 0.9.0, black 24.8.0
+  claim_id: c_6906dff0
+  context: 'T001c [P] Write dependencies: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, scipy==1.11.0,
+    pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0, black==24.8.0).'
+  evidence:
+    asserted: '-967.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Write projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/code/requirements.txt
+    with pinned versions (pandas==2.0.3, numpy==1.24.3, scikit-learn==1.3.0, scipy==1.11.0,
+    pyyaml==6.0.1, pytest==7.4.0, ruff==0.9.0, black==24.8.0).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T04:17:09Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 0
+  canonical: Singular matrices handled with numpy.linalg.pinv rcond 1e-15
+  claim_id: c_55df44be
+  context: T022c [P] Mahalanobis Distance (Unconditional) Handle singular matrices
+    with numpy.linalg.pinv(rcond=1e-15).
+  evidence:
+    asserted: 1e-15
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Handle singular matrices with numpy.linalg.pinv(rcond=1e-15).
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-25T04:17:11Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Unit test dataset generated with N=50 samples and seed 42
+  claim_id: c_4bce6dc3
+  context: "T037b [P] Synthetic Unit\u2011Test Dataset Generate a small synthetic\
+    \ dataset (N=50) for unit testing via simulate.py --n-samples 50 --seed 42 --output\
+    \ data/raw/mock_oxford_pets.parquet."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a small synthetic dataset (N=50) for unit testing via simulate.py
+    --n-samples 50 --seed 42 --output data/raw/mock_oxford_pets.parquet.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:17:31Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Ingestion RAM usage constrained to less than 7 GB
+  claim_id: c_b7e9adba
+  context: T015 [P] Chunked Loading Implement streaming or chunked reading in code/ingest.py
+    to keep RAM usage < 7 GB for the full dataset.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ingestion_RAM_usage_constrained_to_less_than_7_GB
+  kind: magnitude
+  raw_text: Implement streaming or chunked reading in code/ingest.py to keep RAM usage
+    < 7 GB for the full dataset.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:18:03Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Dimensional Fidelity Loss computed as MAE between student_scalar and
+    human annotation for same dimension
+  claim_id: c_184753d1
+  context: T024 [FR-003][P] Dimensional Fidelity Loss (Same-Dimension) 3. Compute
+    MAE between student_scalar and the human annotation for the same primary_dimension
+    (i.e., target_dimension = primary_dimension_index).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dimensional_Fidelity_Loss_computed_as_MAE_between_student_sc
+  kind: entity_fact
+  raw_text: Compute MAE between student_scalar and the human annotation for the same
+    primary_dimension (i.e., target_dimension = primary_dimension_index).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:18:39Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Model selection fails if sample count N is less than 30
+  claim_id: c_3faa961c
+  context: "T027d [FR-004][P] Data Sufficiency Check & Model Selection Logic: N <\
+    \ 30 \u2192 model_type = fail, reason = Critical Power Limitation: N < 30."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_selection_fails_if_sample_count_N_is_less_than_30
+  kind: magnitude
+  raw_text: "N < 30 \u2192 model_type = fail, reason = Critical Power Limitation:\
+    \ N < 30."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:20:18Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Ridge Regression selected if sample count N is between 30 and 300
+  claim_id: c_fd3b4a28
+  context: "T027d [FR-004][P] Data Sufficiency Check & Model Selection Logic: 30 \u2264\
+    \ N < 300 \u2192 model_type = ridge, reason = Low sample count; using Ridge Regression."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "30 \u2264 N < 300 \u2192 model_type = ridge, reason = Low sample count;\
+    \ using Ridge Regression."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:21:05Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Random Forest selected if sample count N is 300 or greater
+  claim_id: c_9de29695
+  context: "T027d [FR-004][P] Data Sufficiency Check & Model Selection Logic: N \u2265\
+    \ 300 \u2192 model_type = rf, reason = Sufficient sample count; using Random Forest."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "N \u2265 300 \u2192 model_type = rf, reason = Sufficient sample count;\
+    \ using Random Forest."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:21:05Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Random Forest trained with 100 estimators, random_state 42, and 2 jobs
+  claim_id: c_ab87a8fa
+  context: T027f [FR-004][P] Train Random Forest Train RandomForestRegressor(n_estimators=100,
+    random_state=42, n_jobs=2) on the training split; save model to results/model.pkl.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train RandomForestRegressor(n_estimators=100, random_state=42, n_jobs=2)
+    on the training split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:21:33Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Ridge Regression trained with alpha 1.0 and random_state 42
+  claim_id: c_b36bcaed
+  context: T027g [FR-004][P] Train Ridge Regression Train Ridge(alpha=1.0, random_state=42)
+    on the training split; save model to results/model.pkl.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train Ridge(alpha=1.0, random_state=42) on the training split.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:22:01Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Paired t-test performed on model vs baseline residuals
+  claim_id: c_44a92992
+  context: "T030c [P] Null Baseline & Paired t\u2011Test 3. Perform a paired t-test\
+    \ (scipy.stats.ttest_rel) on the residuals of the model vs. baseline."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Paired_t-test_performed_on_model_vs_baseline_residuals
+  kind: entity_fact
+  raw_text: Perform a paired t-test (scipy.stats.ttest_rel) on the residuals of the
+    model vs. baseline.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:22:29Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Hypothesis status set to unsupported if t-test p-value is greater than
+    or equal to 0.05
+  claim_id: c_c45fa306
+  context: "T030c [P] Null Baseline & Paired t\u2011Test 5. If p_value_ttest >= 0.05,\
+    \ set hypothesis_status:unsupported in results.json."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Hypothesis_status_set_to_unsupported_if_t-test_p-value_is_gr
+  kind: magnitude
+  raw_text: If p_value_ttest >= 0.05, set hypothesis_status:unsupported in results.json.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:22:45Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Permutation test uses fixed seed 42
+  claim_id: c_3f6aca8b
+  context: T030e [FR-005][P] Permutation Test Implementation 2. Permute the fidelity_loss
+    target variable multiple times (fixed seed 42).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permute the fidelity_loss target variable multiple times (fixed seed 42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:23:20Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Permutation test requires at least 1000 permutations
+  claim_id: c_fc2ff1bf
+  context: 'T042 [P] Review: Permutation Test Robustness Verify that the permutation
+    test implementation in code/model.py (written by T030e) uses at least 1000 permutations
+    and a fixed random seed to ensure reproducibility.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_requires_at_least_1000_permutations
+  kind: magnitude
+  raw_text: Verify that the permutation test implementation in code/model.py (written
+    by T030e) uses at least 1000 permutations and a fixed random seed to ensure reproducibility.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:24:14Z'
+- artifact_path: projects/PROJ-967-llmxive-follow-up-extending-beyond-scala/specs/001-llmxive-follow-up-extending-beyond-scala/tasks.md
+  attempts: 1
+  canonical: Features with Variance Inflation Factor greater than 5 are dropped
+  claim_id: c_10319a10
+  context: 'T040 [P] Review: VIF Check Implementation Implement a Variance Inflation
+    Factor (VIF) check in code/features.py. If VIF > 5 for any feature (other than
+    mean_teacher_score), drop that feature from the training set and log the decision
+    to data/processed/vif_report.json.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Features_with_Variance_Inflation_Factor_greater_than_5_are_d
+  kind: magnitude
+  raw_text: If VIF > 5 for any feature (other than mean_teacher_score), drop that
+    feature from the training set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-25T04:24:33Z'

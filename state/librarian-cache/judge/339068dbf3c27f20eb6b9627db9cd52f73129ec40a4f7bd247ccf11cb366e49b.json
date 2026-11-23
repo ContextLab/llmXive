@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2011.03526",
+  "judged_at": "2026-08-01T04:26:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant stress response from publicly available transcriptomic data biology",
+  "rationale": "This paper satisfies criteria (a) and (e) as it directly measures the biological mechanism of plant stress response (specifically salt stress in rice) using publicly available transcriptomic data (RNA sequencing read counts) to identify responsive genes, which is the core subject of the user's research question.",
+  "relevant": true
+}

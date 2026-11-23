@@ -1,100 +1,121 @@
-"""
-Configuration module for the llmXive asynchronous communication impact study.
-
-This module centralizes all project paths, API keys, and deferred thresholds.
-It adheres to the Constitution Principle of Configuration (separation of logic from values).
-"""
 import os
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, Any, List, Union
+import json
+import logging
 
-# --- Project Root & Directory Structure ---
-# Determine project root based on the assumption that this file is at code/config.py
-_CURRENT_FILE = Path(__file__).resolve()
-PROJECT_ROOT = _CURRENT_FILE.parent.parent
-CODE_DIR = PROJECT_ROOT / "code"
-DATA_DIR = PROJECT_ROOT / "data"
-TESTS_DIR = PROJECT_ROOT / "tests"
-SPECS_DIR = PROJECT_ROOT / "specs"
+# Configuration defaults
+DEFAULT_CONFIG = {
+    "sample_size": 5,
+    "min_events": 10,
+    "deferred_threshold": 0.5,
+    "data_dir": "data",
+    "raw_dir": "data/raw",
+    "derived_dir": "data/derived",
+    "validation_dir": "data/validation",
+    "logs_dir": "data/logs",
+    "figures_dir": "figures",
+    "project_root": ".",
+}
 
-# Data Subdirectories (created by T006, but defined here for path consistency)
-RAW_DATA_DIR = DATA_DIR / "raw"
-DERIVED_DATA_DIR = DATA_DIR / "derived"
-VALIDATION_DATA_DIR = DATA_DIR / "validation"
-FIGURES_DIR = PROJECT_ROOT / "figures"
+_config_cache: Optional[Dict[str, Any]] = None
 
-# --- API Keys & External Services ---
-# These are loaded from environment variables. If not set, they default to None.
-# The pipeline will fail early if a required key is missing during execution.
-GITHUB_TOKEN: Optional[str] = os.getenv("GITHUB_TOKEN")
-# Placeholder for future API keys (e.g., if using external sentiment APIs)
-# OPENAI_API_KEY: Optional[str] = os.getenv("OPENAI_API_KEY")
+def get_config() -> Dict[str, Any]:
+    """Load configuration from config.json or return defaults."""
+    global _config_cache
+    if _config_cache is not None:
+        return _config_cache
 
-# --- Deferred Thresholds & Hyperparameters ---
-# These values control the "deferred" logic for data processing and filtering.
-# They are designed to be tuned or overridden via environment variables or a config file.
+    config_path = Path("config.json")
+    if config_path.exists():
+        try:
+            with open(config_path, "r") as f:
+                _config_cache = json.load(f)
+        except (json.JSONDecodeError, IOError) as e:
+            logging.warning(f"Failed to load config.json: {e}. Using defaults.")
+            _config_cache = DEFAULT_CONFIG.copy()
+    else:
+        _config_cache = DEFAULT_CONFIG.copy()
+    
+    # Ensure paths are absolute relative to project root
+    project_root = _config_cache.get("project_root", ".")
+    base = Path(project_root)
+    
+    for key in ["data_dir", "raw_dir", "derived_dir", "validation_dir", "logs_dir", "figures_dir"]:
+        if key in _config_cache:
+            path_val = _config_cache[key]
+            if not os.path.isabs(path_val):
+                _config_cache[key] = str(base / path_val)
+        
+    return _config_cache
 
-# Minimum number of events required to consider a project valid for analysis.
-# Projects with fewer events are filtered out to avoid statistical noise.
-MIN_EVENTS: int = int(os.getenv("MIN_EVENTS", "50"))
+def get_config_summary() -> str:
+    """Return a string summary of the current configuration."""
+    cfg = get_config()
+    return json.dumps(cfg, indent=2)
 
-# Sample size for specific operations (e.g., manual annotation sampling).
-# If None, all available data is used.
-SAMPLE_SIZE: Optional[int] = (
-    int(os.getenv("SAMPLE_SIZE", "1000"))
-    if os.getenv("SAMPLE_SIZE") else None
-)
+def get_min_events() -> int:
+    """Get the minimum events threshold."""
+    return get_config().get("min_events", 10)
 
-# Threshold for language detection confidence (0.0 to 1.0).
-# Text below this confidence is excluded from sentiment analysis.
-LANGUAGE_CONFIDENCE_THRESHOLD: float = float(os.getenv("LANGUAGE_CONFIDENCE_THRESHOLD", "0.95"))
+def get_sample_size() -> int:
+    """Get the target sample size."""
+    return get_config().get("sample_size", 5)
 
-# Maximum number of events to process in a single chunk to prevent OOM.
-CHUNK_SIZE: int = int(os.getenv("CHUNK_SIZE", "100000"))
+def get_deferred_threshold() -> float:
+    """Get the deferred threshold."""
+    return get_config().get("deferred_threshold", 0.5)
 
-# Rate limit handling: seconds to wait before retrying a failed API request.
-RATE_LIMIT_RETRY_DELAY: int = int(os.getenv("RATE_LIMIT_RETRY_DELAY", "60"))
+def get_data_dir() -> str:
+    """Get the data directory path."""
+    return get_config().get("data_dir", "data")
 
-# VIF (Variance Inflation Factor) threshold for halting regression analysis.
-# If any feature has a VIF > this value, the analysis is halted to prevent multicollinearity issues.
-VIF_THRESHOLD: float = float(os.getenv("VIF_THRESHOLD", "5.0"))
+def get_raw_dir() -> str:
+    """Get the raw data directory path."""
+    return get_config().get("raw_dir", "data/raw")
 
-# Spearman correlation threshold for validation (US2).
-# The VADER scores must correlate with manual ground truth at least this strongly.
-SPEARMAN_VALIDATION_THRESHOLD: float = float(os.getenv("SPEARMAN_VALIDATION_THRESHOLD", "0.5"))
+def get_output_dir() -> str:
+    """Get the derived output directory path."""
+    return get_config().get("derived_dir", "data/derived")
 
-# --- Helper Functions ---
-def ensure_directories_exist() -> None:
-    """
-    Creates all required data directories if they do not already exist.
-    This is a safety check to ensure the pipeline can write output files.
-    """
-    directories = [
-        RAW_DATA_DIR,
-        DERIVED_DATA_DIR,
-        VALIDATION_DATA_DIR,
-        FIGURES_DIR,
-    ]
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-
-def get_config_summary() -> dict:
-    """
-    Returns a summary of the current configuration for logging/debugging.
-    Does not expose actual API keys.
-    """
-    return {
-        "project_root": str(PROJECT_ROOT),
-        "data_dir": str(DATA_DIR),
-        "min_events": MIN_EVENTS,
-        "sample_size": SAMPLE_SIZE,
-        "language_confidence_threshold": LANGUAGE_CONFIDENCE_THRESHOLD,
-        "chunk_size": CHUNK_SIZE,
-        "rate_limit_retry_delay": RATE_LIMIT_RETRY_DELAY,
-        "vif_threshold": VIF_THRESHOLD,
-        "spearman_validation_threshold": SPEARMAN_VALIDATION_THRESHOLD,
-        "github_token_set": GITHUB_TOKEN is not None,
-    }
-
-# Execute directory creation on import if needed (optional, can be called explicitly)
-# ensure_directories_exist()
+def ensure_directories_exist(*args: Union[Dict[str, Any], List[str], str, Path, None]) -> None:
+  """
+  Robust directory creation utility that adapts to various call signatures found in the codebase.
+  
+  Supported call patterns:
+  1. ensure_directories_exist(config_dict) -> creates dirs listed in config (raw_dir, derived_dir, etc.)
+  2. ensure_directories_exist([path_str, ...], logger) -> creates list of paths
+  3. ensure_directories_exist(path_str) -> creates single path
+  4. ensure_directories_exist(Path_obj) -> creates single path
+  5. ensure_directories_exist() -> no-op
+  6. ensure_directories_exist([path_str], logger) -> creates list
+  """
+  # Flatten args to a list of potential items
+  items = []
+  for arg in args:
+      if arg is None:
+          continue
+      if isinstance(arg, dict):
+          # Case 1: Config dict
+          # Extract known directory keys
+          for key in ["raw_dir", "derived_dir", "validation_dir", "logs_dir", "figures_dir", "data_dir"]:
+              if key in arg:
+                  items.append(arg[key])
+      elif isinstance(arg, list):
+          # Case 2: List of paths
+          items.extend(arg)
+      elif isinstance(arg, (str, Path)):
+          # Case 3: Single path
+          items.append(arg)
+      # Ignore logger objects or other types
+  
+  for item in items:
+      if item is None:
+          continue
+      try:
+          # Convert to Path and create
+          p = Path(item)
+          p.mkdir(parents=True, exist_ok=True)
+      except (TypeError, ValueError, OSError) as e:
+          # Log warning but do not halt if a path is invalid
+          logging.warning(f"Could not create directory {item}: {e}")

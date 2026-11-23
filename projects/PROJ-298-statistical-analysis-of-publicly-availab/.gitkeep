@@ -1,2 +1,3 @@
-# This directory serves as the root for project PROJ-298.
-# It is created by task T001a as part of the project setup phase.
+# This directory exists to satisfy the project structure requirement.
+# The root directory for project PROJ-298.
+# Subdirectories (code, data, tests, notebooks) are created separately.

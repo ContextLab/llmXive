@@ -1,0 +1,9 @@
+# Existing dependencies
+pandas
+scikit-learn
+requests
+pyyaml
+numpy
+pymatgen
+# Additional dependencies for T017 (if any)
+# None required beyond existing

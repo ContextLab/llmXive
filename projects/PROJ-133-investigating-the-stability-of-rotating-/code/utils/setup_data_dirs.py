@@ -1,48 +1,53 @@
-"""
-Setup utility to initialize the project's data directory structure.
-
-This script creates the required subdirectories under `data/` as specified
-in the project's data model and task requirements:
-- data/raw: For unprocessed, downloaded, or raw simulation output files.
-- data/processed: For cleaned, normalized, or intermediate analysis data.
-- data/aggregated: For final statistical aggregates, phase maps, and report data.
-
-It is idempotent: running it multiple times will not error if directories exist.
-"""
 import os
 import sys
 from pathlib import Path
 
-# Define the project root relative to this script's location
-# Assuming this script is at code/utils/setup_data_dirs.py
-# Project root is two levels up: code/utils -> code -> root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-DATA_ROOT = PROJECT_ROOT / "data"
+def create_project_structure(base_dir: Path) -> None:
+    """
+    Create the required data directory structure for the project.
+    
+    This function ensures the existence of the following directories:
+    - data/raw
+    - data/processed
+    - data/aggregated
+    
+    Args:
+        base_dir (Path): The base directory where the data folder will be created.
+    """
+    data_dir = base_dir / "data"
+    raw_dir = data_dir / "raw"
+    processed_dir = data_dir / "processed"
+    aggregated_dir = data_dir / "aggregated"
+    
+    # Create directories if they don't exist
+    raw_dir.mkdir(parents=True, exist_ok=True)
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    aggregated_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Create .gitkeep files to ensure directories are tracked by git
+    (raw_dir / ".gitkeep").touch()
+    (processed_dir / ".gitkeep").touch()
+    (aggregated_dir / ".gitkeep").touch()
+    
+    # Log the created structure
+    print(f"Created data directory structure at: {data_dir}")
+    print(f"  - {raw_dir}")
+    print(f"  - {processed_dir}")
+    print(f"  - {aggregated_dir}")
 
-SUBDIRECTORIES = [
-    "raw",
-    "processed",
-    "aggregated",
-]
-
-def main():
-    """Create the data directory structure if it doesn't exist."""
-    if not DATA_ROOT.exists():
-        print(f"Creating base data directory: {DATA_ROOT}")
-        DATA_ROOT.mkdir(parents=True, exist_ok=True)
-    else:
-        print(f"Data directory already exists: {DATA_ROOT}")
-
-    for subdir_name in SUBDIRECTORIES:
-        subdir_path = DATA_ROOT / subdir_name
-        if not subdir_path.exists():
-            subdir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created: {subdir_path}")
-        else:
-            print(f"Directory already exists: {subdir_path}")
-
-    print("Data directory setup complete.")
-    return 0
+def main() -> None:
+    """
+    Main entry point for creating the data directory structure.
+    
+    This script creates the required data directories under the project root.
+    """
+    # Determine the project root (parent of the code directory)
+    current_file = Path(__file__).resolve()
+    code_dir = current_file.parent
+    project_root = code_dir.parent
+    
+    create_project_structure(project_root)
+    print("Data directory structure setup complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

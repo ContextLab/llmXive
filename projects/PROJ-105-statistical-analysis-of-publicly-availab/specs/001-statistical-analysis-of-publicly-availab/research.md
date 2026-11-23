@@ -1,72 +1,61 @@
 # Research: Statistical Analysis of Flight Delay Distributions
 
-## Problem Statement
-Do flight delay times follow heavy-tailed probability distributions (e.g., Pareto, Log-Normal), and if so, which parametric models best capture the observed tails compared to conventional short-tailed models (e.g., Exponential, Gamma)?
+## Research Question
+
+Do flight delay times follow heavy-tailed probability distributions (e.g., Pareto, Log-Normal), and if so, which parametric models best capture the observed tails compared to conventional short-tailed models (Exponential, Gamma, Weibull)?
 
 ## Dataset Strategy
 
-### Source Verification
-The primary data source is the **Bureau of Transportation Statistics (BTS) On-Time Performance** data.
-- **Verified Source**: The **official BTS endpoint** (transtats.bts.gov) is designated as the verified source for the full-year 2022 dataset. This endpoint is considered "Verified" for the purpose of this project's Constitution (Principle II) as it is the canonical, official release.
- - *Target*: Full year 2022 data.
- - *Constraint*: The pipeline MUST fail if the full year is not available. No fallback to partial datasets.
-- **Secondary Source (Logic Validation)**: The verified HuggingFace datasets listed in the "Verified datasets" block (e.g., `lamini/bts`, `yangjinlong/bts`) are **test samples**. They are insufficient for the required heavy-tail analysis of a full year of records. but may be used for local logic validation or schema testing if the official endpoint is temporarily unreachable (with a hard fail if the full year is missing).
-- **Gap Analysis**: The verified HF links are samples. The full 2022 dataset is available via the official BTS endpoint, which is designated as the verified source.
-- **Decision**: The pipeline MUST fetch the full 2022 data from the official BTS endpoint. If the endpoint is unreachable or the full year is missing, the system MUST fail with a clear error message. No silent fallback to test samples is permitted for the primary analysis.
+### Verified Datasets
+The plan relies on the **official Bureau of Transportation Statistics (BTS) On-Time Performance** data for the year 2022. Per the project constraints and Constitution Principle VII, we do not use third-party mirrors.
 
-**Dataset Strategy Table**:
+- **BTS Official Source**:
+ - URL Pattern: ` (Specific file naming convention for 2022 monthly data must be aggregated).
+ - Access Method: Programmatic download of monthly CSV files for 2022, aggregated into a single stream.
+ - Verification: Checksums of downloaded files are recorded in `data/README.md`.
 
-| Dataset | Source URL | Status | Usage |
-|:--- |:--- |:--- |:--- |
-| BTS On-Time (2022) | ` (Official Endpoint) | **Verified** (Canonical Source) | Primary Target |
-| BTS Sample (HF) | ` | **Verified** | Logic Validation / Fallback (if endpoint fails) |
-| BTS Sample (HF) | ` | **Verified** | Logic Validation |
+*Note*: The specific columns `ArrDelay` and `DepDelay` are required. The official BTS schema includes these fields.
 
-*Note: The "Verified" status for the BTS endpoint is explicitly established in this research document to satisfy Constitution Principle II.*
+### Data Acquisition Plan
+1. **Source Selection**: We will use the official BTS transtats.bts.gov endpoint for the 2022 calendar year.
+2. **Memory Management**: The full BTS dataset for a year (approx. millions of rows) exceeds available RAM if loaded entirely.
+ - **Strategy**: We will use `pandas.read_csv` with `chunksize` parameter to stream the data in batches (e.g., 100k rows per chunk).
+ - **Processing**: Each chunk is pre-processed (calculated total delay, flagged anomalies) and aggregated into a running summary or written to a temporary processed file. This ensures peak RAM usage stays within acceptable limits.
+ - **Fallback**: **None**. Per FR-001 and US-1, if the full dataset cannot be processed even with streaming (e.g., disk I/O limits or invalid data), the pipeline MUST fail gracefully with a clear error message. No partial datasets or random samples are permitted.
+3. **Zero-Inflation Handling**: Missing values in `ArrDelay`/`DepDelay` are treated as 0 (per FR-002). A sensitivity analysis will be run on the subset where `total_delay > 0` to ensure the heavy-tail hypothesis is not an artifact of the zero-spike.
 
-## Methodological Approach
+## Statistical Methodology
 
-### 1. Data Pre-processing
-- **Variable Construction**: `Total_Delay = ArrDelay + DepDelay`.
-- **Zero-Inflation**: Missing values treated as 0. A separate sensitivity analysis will exclude `Total_Delay == 0` to prevent distortion of the tail index (Hill estimator).
-- **Anomaly Handling**:
- - `is_anomaly`: `1440 < delay <= 10000`. Retained but flagged.
- - `is_data_error`: `delay > 10000`. Excluded from primary fit, used for sensitivity analysis.
-- **Filtering**: Commercial US flights only. Negative delays removed.
+### Parametric Models
+We will fit the following distributions using Maximum Likelihood Estimation (MLE):
+1. **Exponential**: Short-tailed baseline.
+2. **Gamma**: Flexible short-tailed model.
+3. **Log-Normal**: Heavy-tailed candidate.
+4. **Weibull**: Flexible model.
+5. **Pareto**: Classic heavy-tailed (power-law) model.
 
-### 2. Parametric Modeling
-- **Candidates**: Exponential, Gamma, Log-Normal, Weibull, Pareto.
-- **Estimation**: Maximum Likelihood Estimation (MLE) via `scipy.stats`.
-- **Pareto Specifics**: Fit only on tail `x >= x_min`. `x_min` determined via KS minimization.
-- **Goodness-of-Fit**: AIC, BIC, KS statistic, Anderson-Darling (AD).
-- **Vuong Test**: Compare best heavy-tail vs. best short-tail model using **tail subset** likelihoods.
+### Goodness-of-Fit Metrics
+- **AIC / BIC**: For model selection (lower is better).
+- **Kolmogorov-Smirnov (KS)**: Maximum distance between empirical and theoretical CDF.
+- **Anderson-Darling (AD)**: Weighted distance, more sensitive to tails.
 
-### 3. Heavy-Tail Diagnostics
-- **Hill Estimator**: Applied to the top `k` records.
- - `k` selection: Minimize variance of alpha estimates over sliding window `w=10`.
- - Constraint: `k/n <= 0.1`.
-- **Visual Diagnostics**:
- - Log-log survival plot: `log(S(x))` vs `log(x)`. Linearity indicates power law.
- - R² calculation: OLS on log-log tail data (for visualization only, not a pass/fail gate).
- - QQ-plots: Empirical vs. Theoretical quantiles.
-- **Model Selection**:
- - Primary: Lowest AIC/BIC on the **tail subset**.
- - Validation: **Bootstrap Goodness-of-Fit Test** (p-value based, not R²).
- - Rejection: If best model fails Bootstrap GoF (p < 0.1) or Log-Normal Discrimination, flag next best.
+### Heavy-Tail Diagnostics
+- **Hill Estimator**: To estimate the tail index $\alpha$.
+ - **Threshold Selection ($x_{min}$)**: Determined by minimizing the Kolmogorov-Smirnov distance between the empirical and fitted Pareto distributions for the tail, following the **Clauset et al. (2009)** methodology. This is an iterative grid search, not a circular dependency.
+ - **Stability Analysis**: The Hill estimator will be computed for $k$ ranging from $0.01n$ to $0.1n$ (constrained by $k/n \le 0.1$). The optimal $k$ is chosen where the **slope of the alpha estimate vs k is near zero (plateau)**. If no plateau exists within the cap, the result is flagged as "unstable" and the heavy-tail hypothesis is rejected.
+- **Log-Log Survival Plot**: Plot $\log(S(x))$ vs $\log(x)$. A linear fit with $R^2 \ge 0.95$ supports the power-law hypothesis.
+- **Log-Normal Discrimination**: A curvature test (e.g., comparing to Log-Normal null) is performed to distinguish true power laws from Log-Normal distributions which can appear linear on log-log plots.
+- **Vuong Test**: To statistically compare the best heavy-tailed model (e.g., Pareto) against the best short-tailed model (e.g., Log-Normal or Gamma). **Crucially, all models are fitted to the same tail subset (x >= x_min)** to ensure valid comparison of likelihoods.
 
-### 4. Statistical Comparisons
-- **Vuong Test**: Compare best heavy-tail (e.g., Pareto/Log-Normal) vs. best short-tail (e.g., Gamma/Exponential) using **tail subset** likelihoods.
-- **Sum vs. Components**: KS test comparing `Total_Delay` distribution vs. `ArrDelay` and `DepDelay` individually.
+### Computational Constraints
+- **CPU-First**: All MLE fitting and diagnostics will be performed using `scipy.stats` and `numpy` on CPU.
+- **Time Limit**: The pipeline is designed to complete within 6 hours.
+- **Memory Limit**: Strict monitoring of RAM usage via chunked streaming. The pipeline will fail gracefully with a non-zero exit code if the full dataset cannot be processed.
 
-## Decision Rationale
-- **Why Hill Estimator?**: Standard for estimating the tail index of heavy-tailed distributions without assuming a specific parametric form for the tail.
-- **Why x_min via KS?**: Provides an objective, data-driven threshold for the Pareto fit, reducing bias in tail index estimation.
-- **Why Sensitivity Analysis?**: Flight delay data is notoriously zero-inflated. Including zeros in tail fitting would bias the tail index towards infinity (light tail). Excluding them isolates the "delay event" distribution.
-- **Why CPU-only?**: The analysis is statistical, not deep learning. MLE and bootstrapping are CPU-efficient.
-- **Why Bootstrap GoF?**: Replaces arbitrary R² thresholds with a statistically rigorous test (Clauset et al.) that accounts for the data-driven estimation of x_min, avoiding inflated Type I errors.
-- **Why Log-Normal Discrimination?**: The Hill estimator alone cannot distinguish between Power-Law and Log-Normal tails. The curvature statistic comparison against a simulated Log-Normal null distribution provides a necessary test for construct validity.
+## Decision/Rationale
 
-## Limitations
-- **Data Availability**: The full 2022 dataset is accessed via the official BTS endpoint. If this endpoint is unavailable, the pipeline fails.
-- **Observational Nature**: Correlations and distribution shapes do not imply causation (e.g., weather vs. airline efficiency). All findings are framed as associational.
-- **Convergence**: MLE for Pareto on light-tailed data may fail. The plan handles this by catching exceptions and requiring a sufficient number of converged models.
+- **Why Official BTS?** The Constitution (Principle VII) mandates the official source. HuggingFace mirrors are not used to ensure source authenticity and reproducibility.
+- **Why Chunked Streaming?** To satisfy the 7 GB RAM constraint while processing the full year of data without fallback to subsets.
+- **Why Clauset et al. (2009)?** This is the standard, non-circular method for estimating $x_{min}$ in power-law analysis.
+- **Why Tail Subset for Vuong?** Fitting models on different data subsets (full vs tail) makes AIC/BIC and Vuong tests invalid. Comparing on the tail subset ensures a fair test of the heavy-tail hypothesis.
+- **Why Sensitivity Analysis?** Flight delay data is zero-inflated. Treating missing as 0 is required by the spec, but the sensitivity analysis (excluding zeros) validates the robustness of the heavy-tail claim.

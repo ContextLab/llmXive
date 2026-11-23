@@ -1,82 +1,49 @@
+# Project configuration file
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=45", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-plant-metabolite"
+name = "llmxive-plant-metabolite-pipeline"
 version = "0.1.0"
 description = "Predicting Plant Secondary Metabolite Profiles from Genomic Data"
-requires-python = ">=3.10"
+readme = "README.md"
+requires-python = ">=3.8"
 dependencies = [
-    "scikit-learn>=1.3.0",
-    "pandas>=2.0.0",
-    "numpy>=1.24.0",
-    "biopython>=1.81",
-    "requests>=2.31.0",
-    "pyyaml>=6.0.1",
-    "dendropy>=4.5.2",
-    "statsmodels>=0.14.0",
-    "pymc3>=3.11.5",
-    "tqdm>=4.65.0",
-    "pydantic>=2.4.0",
-    "pydantic-settings>=2.0.0",
-    "ruff>=0.1.0",
-    "black>=23.0.0",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "biopython",
+    "requests",
+    "pyyaml",
+    "dendropy",
+    "statsmodels",
+    "pymc3",
+    "tqdm",
+    "pydantic",
+    "pydantic-settings",
+    "black",
+    "ruff",
+    "python-dotenv",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
+    "pytest",
+    "pytest-cov",
+    "mypy",
 ]
+
+[tool.setuptools]
+packages = ["code", "tests"]
 
 [tool.black]
 line-length = 88
-target-version = ['py310', 'py311', 'py312']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
-
-[tool.ruff]
-line-length = 88
-target-version = "py310"
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (handled by black)
-    "B008", # do not perform function calls in argument defaults
-    "C901", # too complex
-]
-
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"] # Allow unused imports in __init__.py for exports
-
-[tool.ruff.isort]
-known-first-party = ["models", "data", "utils", "config", "scripts"]
-force-sort-within-sections = true
+target-version = ['py38', 'py39', 'py310', 'py311']
+include = '\\.pyi?$'
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+python_functions = ["test_*"]
 addopts = "-v --tb=short"
-filterwarnings = [
-    "ignore::DeprecationWarning",
-    "ignore::PendingDeprecationWarning",
-]

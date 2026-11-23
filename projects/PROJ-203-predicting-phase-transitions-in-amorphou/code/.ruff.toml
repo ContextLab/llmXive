@@ -1,0 +1,57 @@
+# Ruff configuration for PROJ-203-predicting-phase-transitions-in-amorphou
+# Enforces PEP 8 compliance and project-specific style rules
+
+# Target Python version
+target-version = "py310"
+
+# Line length for formatting (consistent with Black)
+line-length = 88
+
+# Exclude generated files and external dependencies
+exclude = [
+    ".git",
+    "__pycache__",
+    "*.pyc",
+    "data/",
+    "models/",
+    "docs/",
+    "venv",
+    ".venv",
+    "build",
+    "dist",
+]
+
+[lint]
+# Enable specific rule sets
+select = [
+    "E",    # pycodestyle errors
+    "W",    # pycodestyle warnings
+    "F",    # Pyflakes
+    "I",    # isort (import sorting)
+    "C90",  # mccabe (complexity)
+    "UP",   # pyupgrade (modern Python syntax)
+    "N",    # pep8-naming
+    "B",    # flake8-bugbear
+    "C4",   # flake8-comprehensions
+    "SIM",  # flake8-simplify
+    "TCH",  # flake8-type-checking
+]
+
+# Ignore specific rules that conflict with project style or are too strict
+ignore = [
+    "E501",  # Line too long (handled by Black)
+    "F403",  # 'from module import *' used (allowed for config exports if necessary)
+    "SIM105", # Use 'contextlib.suppress' instead of try/except (optional style)
+]
+
+# Allow unused imports in __init__.py for API surface exposure
+[lint.per-file-ignores]
+"code/__init__.py" = ["F401", "F403"]
+"code/models/__init__.py" = ["F401"]
+"code/utils/__init__.py" = ["F401"]
+"code/data/__init__.py" = ["F401"]
+
+[lint.isort]
+known-first-party = ["config", "data", "models", "utils"]
+force-single-line = false
+lines-after-imports = 2

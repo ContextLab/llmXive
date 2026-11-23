@@ -52,14 +52,16 @@ The system must calculate task success rates, latency metrics, and alignment sco
 
 1. **Given** the simulation logs from multiple runs with varying information densities, **When** the analysis script runs, **Then** it calculates the alignment score for each configuration using the predefined rubric.
 2. **Given** the calculated metrics, **When** the plot is generated, **Then** it clearly displays the Pareto frontier where the hybrid model outperforms both pure baselines in the high-latency regime.
-3. **Given** the threshold analysis, **When** the results are aggregated, **Then** the specific latency threshold is identified as the first step where the 95% confidence interval of the generative baseline's alignment score drops below the lower bound of the hybrid model's interval (p < 0.05).
+3. **Given** the threshold analysis, **When** the results are aggregated, **Then** the specific latency threshold is identified as the first step where the confidence interval
+
+The research question, method, and references remain as stated in the original planning document. of the generative baseline's alignment score drops below the lower bound of the hybrid model's interval (p < 0.05).
 
 ### Edge Cases
 
-- What happens if the 1B parameter model fails to load on the CPU-only environment? (System must fallback to a smaller distilled model or abort with a clear error).
+- What happens if the B parameter model fails to load on the CPU-only environment? (System must fallback to a smaller distilled model or abort with a clear error).
 - How does the system handle queries that are borderline between "High-Confidence" and "Ambiguous" where the router's confidence score is near the decision boundary? (The system must log the confidence score and allow for a sensitivity analysis on the router threshold).
-- What if the deterministic rule-based generator cannot find a matching ontology entry for an "Ambiguous" query? (The system must return a safe, minimal fallback UI (1 element) and log the "no-match" event for safety analysis. This is treated as an "Ambiguous" case with a specific sub-flag).
-- What happens if the user cancels the request due to high latency? (The system must record an "abandonment" event and set the alignment score to 0 for that trial).
+- What if the deterministic rule-based generator cannot find a matching ontology entry for an "Ambiguous" query? (The system must return a safe, minimal fallback UI (a single element) and log the "no-match" event for safety analysis. This is treated as an "Ambiguous" case with a specific sub-flag).
+- What happens if the user cancels the request due to high latency? (The system must record an "abandonment" event and set the alignment score to a baseline value for that trial).
 
 ## Requirements *(mandatory)*
 
@@ -71,7 +73,7 @@ The system must calculate task success rates, latency metrics, and alignment sco
 - **FR-004**: The system MUST vary the information density of the deterministic fallback by rendering a small number of UI elements to determine the minimum viable density (See US-2).
 - **FR-005**: The system MUST calculate alignment scores using a rubric derived from the "Designing for Human-Agent Alignment" paper (Section 4.2) and generate a Pareto frontier plot of alignment vs. latency (See US-3).
 - **FR-006**: The system MUST perform multiple-comparison correction (e.g., Bonferroni or FDR) on the statistical analysis of alignment scores across the different latency and density configurations to control family-wise error (See US-3).
-- **FR-007**: The system MUST conduct a sensitivity analysis on the router's decision threshold, sweeping the confidence cutoff over a concrete set (e.g., {0.6, 0.7, 0.8}) and reporting the variation in inconsistency rates (See US-2).
+- **FR-007**: The system MUST conduct a sensitivity analysis on the router's decision threshold, sweeping the confidence cutoff over a concrete set (e.g., {, 0.8}) and reporting the variation in inconsistency rates (See US-2).
 - **FR-008**: The system MUST validate the generative baseline's output quality against a human-annotated gold standard (N=50) at 0ms latency before the experiment begins, ensuring the "degradation" claim is empirically grounded (See US-2).
 
 ### Key Entities
@@ -92,12 +94,12 @@ The system must calculate task success rates, latency metrics, and alignment sco
 - **SC-002**: The minimum information density required for task completion is measured against the "Human-Agent Alignment" rubric criteria for user satisfaction, operationalized as a scoring function: `score = 0.4 * intent_match + 0.3 * (1 - latency_penalty) + 0.3 * ui_completeness` (See FR-004).
 - **SC-003**: The latency threshold for fidelity degradation is measured against the point where the generative baseline's alignment score drops below the hybrid model's performance with statistical significance (p < 0.05, non-overlapping 95% CIs) (See FR-005).
 - **SC-004**: The family-wise error rate is measured against the nominal alpha level (e.g., 0.05) after applying the multiple-comparison correction method (See FR-006).
-- **SC-005**: The router's robustness is measured by the variance in inconsistency rates across the swept confidence thresholds (0.6, 0.7, 0.8) (See FR-007).
+- **SC-005**: The router's robustness is measured by the variance in inconsistency rates across the swept confidence thresholds (See FR-007).
 
 ## Assumptions
 
 - The A2UI-Bench dataset contains all necessary variables (queries, ground truth intents, and complexity indicators) required to train the router and simulate the scenarios; if specific complexity metadata is missing, it will be derived from query length or token count.
-- The 1B parameter generative model and the DistilBERT classifier can run within the GitHub Actions free-tier constraints (2 CPU cores, ~7 GB RAM) without requiring GPU acceleration or quantization.
+- The medium-scale generative model and the DistilBERT classifier can run within the GitHub Actions free-tier constraints (a limited number of CPU cores and constrained RAM) without requiring GPU acceleration or quantization.
 - The "Human-Agent Alignment" rubric can be operationalized into a deterministic scoring function for the simulation, as human-in-the-loop testing is not feasible within the CI/CD environment. **Validation**: This rubric is validated against a hold-out set of N=50 human-annotated examples, requiring a correlation (r) ≥ 0.7 to ensure it is a valid proxy for "alignment" and not just "rule adherence".
 - The deterministic rule-based generator has a sufficiently rich ontology of common UI components to handle the majority of "Ambiguous" intents without falling back to a generic error state.
 - The latency injection method (sleep/delay) accurately simulates real-world network/compute variance, and the user patience model (exponential decay, mean=2s) accurately captures the behavioral impact of delay on user trust.

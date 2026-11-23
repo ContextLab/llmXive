@@ -4,158 +4,180 @@ import logging
 import argparse
 from pathlib import Path
 from typing import List, Dict, Any
-
 import pandas as pd
 import numpy as np
 
-# Import from existing API surface
 from config import ensure_directories
-from evaluate import load_model, load_split_data, compute_cv_scores, evaluate_model_cv, run_cv_for_all_models
-from compare_models import load_null_metrics, load_trained_metrics, compare_models, save_comparison_results
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('logs/save_metrics.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
-def load_all_model_results(processed_dir: Path) -> pd.DataFrame:
+def load_all_model_results(metrics_dir: Path) -> pd.DataFrame:
     """
-    Loads the trained model metrics (from T035 output) and null model metrics.
-    Merges them to create a comprehensive ranking dataframe.
+    Load all model metric CSV files from the metrics directory.
+    Expects files like: null_model_metrics.csv, model_metrics_<condition>.csv
+    """
+    logger.info(f"Scanning directory: {metrics_dir}")
+    if not metrics_dir.exists():
+        raise FileNotFoundError(f"Metrics directory not found: {metrics_dir}")
+
+    all_metrics = []
+    csv_files = list(metrics_dir.glob("*.csv"))
     
-    Expected inputs based on previous tasks:
-    - data/processed/model_scores_cv.csv (output from T035/evaluate.py run_cv_for_all_models)
-    - data/processed/null_model_metrics.csv (output from T027)
-    """
-    cv_metrics_path = processed_dir / "model_scores_cv.csv"
-    null_metrics_path = processed_dir / "null_model_metrics.csv"
+    if not csv_files:
+        logger.warning(f"No CSV files found in {metrics_dir}")
+        return pd.DataFrame()
 
-    if not cv_metrics_path.exists():
-        raise FileNotFoundError(f"Trained model metrics not found at {cv_metrics_path}. "
-                                "Please run T035 (evaluate.py) first.")
+    for file_path in csv_files:
+        try:
+            df = pd.read_csv(file_path)
+            df['source_file'] = file_path.name
+            all_metrics.append(df)
+            logger.info(f"Loaded metrics from {file_path.name}: {len(df)} rows")
+        except Exception as e:
+            logger.error(f"Failed to load {file_path.name}: {e}")
+            continue
+
+    if not all_metrics:
+        logger.warning("No valid metric files could be loaded.")
+        return pd.DataFrame()
+
+    combined_df = pd.concat(all_metrics, ignore_index=True)
+    logger.info(f"Total combined metrics rows: {len(combined_df)}")
+    return combined_df
+
+def calculate_rankings(metrics_df: pd.DataFrame) -> pd.DataFrame:
+    """
+    Calculate performance rankings per nutrient condition.
+    Rankings are based on R² (higher is better), then MAE (lower is better).
     
-    df_cv = pd.read_csv(cv_metrics_path)
+    Columns expected: 'condition', 'model_type', 'r2_score', 'mae', 'cv_r2_mean'
+    """
+    if metrics_df.empty:
+        logger.warning("Cannot calculate rankings on empty DataFrame.")
+        return metrics_df
+
+    # Ensure numeric types for ranking columns
+    numeric_cols = ['r2_score', 'mae', 'cv_r2_mean']
+    for col in numeric_cols:
+        if col in metrics_df.columns:
+            metrics_df[col] = pd.to_numeric(metrics_df[col], errors='coerce')
+
+    # Define ranking logic per condition
+    ranked_dfs = []
     
-    # Ensure required columns exist for ranking
-    required_cols = ['nutrient_condition', 'model_type', 'r2_mean', 'mae_mean']
-    for col in required_cols:
-        if col not in df_cv.columns:
-            raise ValueError(f"Column '{col}' missing in {cv_metrics_path}. "
-                             "Check T035 implementation.")
+    if 'condition' not in metrics_df.columns:
+        logger.error("Missing 'condition' column in metrics dataframe. Cannot rank per condition.")
+        return metrics_df
 
-    df_null = None
-    if null_metrics_path.exists():
-        df_null = pd.read_csv(null_metrics_path)
-        logger.info(f"Loaded null model metrics from {null_metrics_path}")
-    else:
-        logger.warning(f"Null model metrics not found at {null_metrics_path}. "
-                       "Proceeding without baseline comparison.")
+    conditions = metrics_df['condition'].unique()
+    logger.info(f"Calculating rankings for conditions: {conditions}")
 
-    return df_cv, df_null
-
-def calculate_rankings(df_cv: pd.DataFrame, df_null: pd.DataFrame = None) -> pd.DataFrame:
-    """
-    Calculates performance rankings per nutrient condition.
-    Adds columns: 'rank_r2', 'rank_mae', 'beats_null' (if null data exists).
-    """
-    # Sort by condition, then by R2 descending (higher is better)
-    # If R2 is equal, use MAE ascending (lower is better)
-    df_sorted = df_cv.sort_values(
-        by=['nutrient_condition', 'r2_mean', 'mae_mean'], 
-        ascending=[True, False, True]
-    )
-
-    # Calculate rank within each condition
-    # rank='dense' or 'min' works, but we want 1 to be best
-    df_sorted['rank_r2'] = df_sorted.groupby('nutrient_condition')['r2_mean'].rank(ascending=False, method='min').astype(int)
-    df_sorted['rank_mae'] = df_sorted.groupby('nutrient_condition')['mae_mean'].rank(ascending=True, method='min').astype(int)
-
-    # Determine if model beats the null model
-    if df_null is not None and not df_null.empty:
-        # Merge null metrics on condition
-        # Assuming null metrics has columns: ['nutrient_condition', 'r2_mean', 'model_type']
-        # We need to align the null R2 for each condition
-        null_r2_map = df_null.set_index('nutrient_condition')['r2_mean'].to_dict()
+    for condition in conditions:
+        subset = metrics_df[metrics_df['condition'] == condition].copy()
         
-        df_sorted['null_r2'] = df_sorted['nutrient_condition'].map(null_r2_map)
-        df_sorted['beats_null'] = df_sorted['r2_mean'] > df_sorted['null_r2']
-        df_sorted['r2_improvement'] = df_sorted['r2_mean'] - df_sorted['null_r2']
-    else:
-        df_sorted['beats_null'] = None
-        df_sorted['r2_improvement'] = None
+        if subset.empty:
+            continue
 
-    return df_sorted
+        # Sort by R2 (desc) then MAE (asc) to determine rank
+        # We use a temporary sort to assign ranks
+        # Higher R2 is better -> rank 1
+        # Lower MAE is better -> rank 1
+        
+        # Primary sort: R2 descending
+        # Secondary sort: MAE ascending
+        subset = subset.sort_values(by=['r2_score', 'mae'], ascending=[False, True])
+        
+        # Assign ranks
+        subset['performance_rank'] = range(1, len(subset) + 1)
+        
+        # Add condition metadata
+        subset['rank_condition'] = condition
+        
+        ranked_dfs.append(subset)
 
-def save_metrics_ranking(df_ranked: pd.DataFrame, output_path: Path) -> None:
+    if not ranked_dfs:
+        logger.warning("No conditions found to rank.")
+        return metrics_df
+
+    final_ranked_df = pd.concat(ranked_dfs, ignore_index=True)
+    logger.info(f"Rankings calculated for {len(final_ranked_df)} entries.")
+    return final_ranked_df
+
+def save_metrics_ranking(ranked_df: pd.DataFrame, output_path: Path) -> None:
     """
-    Saves the final ranked metrics to data/processed/model_metrics.csv
+    Save the final ranked metrics to a CSV file.
     """
-    # Ensure output directory exists
-    ensure_directories()
+    ensure_directories([output_path.parent])
     
-    # Sort final output for readability
-    df_final = df_ranked.sort_values(
-        by=['nutrient_condition', 'rank_r2', 'rank_mae']
-    )
-    
-    # Select and reorder columns for the final report
-    # Keep core metrics and rankings
-    final_columns = [
-        'nutrient_condition', 
-        'model_type', 
-        'r2_mean', 'r2_std', 
-        'mae_mean', 'mae_std',
-        'rank_r2', 'rank_mae',
-        'beats_null', 'r2_improvement'
+    if ranked_df.empty:
+        logger.warning("Ranking DataFrame is empty. Saving empty file.")
+        # Still save an empty file with headers if possible, or warn
+        ranked_df.to_csv(output_path, index=False)
+        return
+
+    # Select relevant columns for the final output
+    columns_to_save = [
+        'condition', 'model_type', 'performance_rank', 
+        'r2_score', 'mae', 'cv_r2_mean', 'source_file'
     ]
     
-    # Filter columns that actually exist (some might be None if null data missing)
-    existing_cols = [c for c in final_columns if c in df_final.columns]
+    # Filter columns that actually exist
+    available_cols = [c for c in columns_to_save if c in ranked_df.columns]
+    output_df = ranked_df[available_cols]
     
-    df_final = df_final[existing_cols]
-    
-    df_final.to_csv(output_path, index=False)
-    logger.info(f"Successfully saved model metrics rankings to {output_path}")
-    logger.info(f"Shape of output: {df_final.shape}")
-    
-    # Log a summary
-    for condition in df_final['nutrient_condition'].unique():
-        best_model = df_final[df_final['nutrient_condition'] == condition].iloc[0]
-        logger.info(f"Condition '{condition}': Best model is {best_model['model_type']} (R2={best_model['r2_mean']:.4f})")
+    output_df.to_csv(output_path, index=False)
+    logger.info(f"Saved performance rankings to {output_path}")
+    logger.info(f"Top 5 models:\n{output_df.nsmallest(5, 'performance_rank')}")
 
 def main():
-    parser = argparse.ArgumentParser(description="Save and rank model metrics.")
+    parser = argparse.ArgumentParser(description="Save model metrics with performance rankings.")
     parser.add_argument(
-        "--data-dir", 
+        "--metrics_dir", 
         type=str, 
         default="data/processed",
-        help="Path to processed data directory"
+        help="Directory containing model metric CSV files."
+    )
+    parser.add_argument(
+        "--output_file", 
+        type=str, 
+        default="data/processed/model_metrics.csv",
+        help="Path to save the ranked metrics CSV."
     )
     args = parser.parse_args()
 
-    data_dir = Path(args.data_dir)
-    output_file = data_dir / "model_metrics.csv"
+    metrics_dir = Path(args.metrics_dir)
+    output_path = Path(args.output_file)
 
     try:
-        # 1. Load data
-        df_cv, df_null = load_all_model_results(data_dir)
+        logger.info("Starting metrics aggregation and ranking process...")
+        
+        # Load all metrics
+        all_metrics = load_all_model_results(metrics_dir)
+        
+        if all_metrics.empty:
+            logger.error("No metrics found to process. Aborting.")
+            sys.exit(1)
 
-        # 2. Calculate rankings
-        df_ranked = calculate_rankings(df_cv, df_null)
+        # Calculate rankings
+        ranked_metrics = calculate_rankings(all_metrics)
 
-        # 3. Save output
-        save_metrics_ranking(df_ranked, output_file)
+        # Save results
+        save_metrics_ranking(ranked_metrics, output_path)
 
-        print(f"Task T036 completed: {output_file} created.")
-        return 0
-
-    except FileNotFoundError as e:
-        logger.error(f"Missing required data file: {e}")
-        return 1
+        logger.info("Process completed successfully.")
+        
     except Exception as e:
-        logger.error(f"Error processing metrics: {e}")
-        return 1
+        logger.error(f"Process failed: {e}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

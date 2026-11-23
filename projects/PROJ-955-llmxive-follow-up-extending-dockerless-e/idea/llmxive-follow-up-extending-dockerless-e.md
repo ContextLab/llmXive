@@ -9,78 +9,75 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Does replacing parallel, LLM-driven sub-agent exploration with a pre-computed static code graph reduce verification latency by an order of magnitude while maintaining accuracy within 2-3 AUC points for coding agent patch evaluation?
+To what extent can static structural features (control flow and call graphs) capture the semantic correctness of LLM-generated code patches, and what specific types of code behaviors (e.g., dynamic dispatch, external API calls) cause static approximations to diverge from dynamic execution ground truth?
 
 ## Motivation
 
-The "Dockerless" verifier eliminates container overhead but remains computationally expensive due to spawning multiple LLM sub-agents per task, limiting scalability for real-time deployment. A static, graph-based approach could enable fully CPU-tractable verification on low-cost infrastructure, provided it does not sacrifice the accuracy required for training coding agents.
+Current "Dockerless" verifiers rely on parallel LLM sub-agents to simulate execution, which introduces high latency and cost. While static analysis offers a path to faster verification, its ability to predict the correctness of complex, LLM-generated patches remains unquantified. Understanding the specific failure modes of static approximations against dynamic ground truth is critical for determining if a hybrid or fully static verifier can replace costly runtime simulation in coding agent pipelines.
 
 ## Related work
 
-- [Dockerless: Environment-Free Program Verifier for Coding Agents (2026)](https://arxiv.org/abs/2606.28436) — Establishes the baseline for environment-free verification using parallel sub-agents to explore repositories, demonstrating high accuracy in filtering training trajectories without Docker.
-- [AtomicCommitBench: Can Coding Agents Reconstruct Commit Histories from Squashed Patches? (2026)](https://arxiv.org/abs/2607.03332) — Highlights the complexity of modern coding agent outputs (squashed patches), underscoring the need for robust verification methods that can handle mixed feature/bug-fix code without execution.
-- [Lemma Discovery in Agentic Program Verification (2026)](https://arxiv.org/abs/2603.22114) — Discusses deductive verification and the difficulty of generating verification conditions, providing context for why static analysis (graph traversal) might be a necessary complement to LLM-based reasoning.
-- [Higher-order symbolic execution for contract verification and refutation (2015)](https://arxiv.org/abs/1507.04817) — Demonstrates that symbolic execution can provide sound reasoning about program behavior, supporting the hypothesis that static graph analysis can approximate the reachability checks currently done by LLM sub-agents.
+- [Dockerless: Environment-Free Program Verifier for Coding Agents (2026)](https://arxiv.org/abs/2606.28436) — Establishes the baseline for environment-free verification using parallel sub-agents, highlighting the current reliance on LLM reasoning over static structural analysis for accuracy.
+- [CAVA: Canonical Action Verification and Attestation for Runtime Governance of Agentic AI Systems (2026)](https://arxiv.org/abs/2607.13716) — Discusses the challenges of verifying heterogeneous agentic actions, providing context on why robust, scalable verification mechanisms (beyond simple runtime checks) are needed for AI governance.
+- [Deductive Verification of Unmodified Linux Kernel Library Functions (2018)](https://arxiv.org/abs/1809.00626) — Demonstrates the feasibility and limits of deductive/static verification on complex, unmodified system code, serving as a methodological precedent for applying formal/static techniques to real-world software components.
 
 ## Expected results
 
-We expect the static graph-based verifier to achieve a 10x reduction in inference latency compared to the parallel sub-agent baseline while maintaining accuracy within 2-3 AUC points. The primary evidence will be a comparative performance curve showing the trade-off between latency (time-to-verdict) and verification accuracy (AUC against ground-truth test results) on the SWE-Gym dataset.
+We expect to identify a high correlation between static graph metrics (e.g., cyclomatic complexity, call depth) and patch correctness for deterministic logic, but a sharp divergence for behaviors involving dynamic dispatch or external I/O. The primary evidence will be a confusion matrix and error analysis showing that static approximations fail predictably on specific code patterns, quantifying the "semantic gap" between structural analysis and dynamic execution.
 
 ## Methodology sketch
 
-- **Data Acquisition**: Download the SWE-Gym and Multi-SWE-RL datasets (3.7k issues) from their public repositories; extract all associated Python and C++ source files.
-- **Static Graph Construction**: Use `pycg` (for Python) and `clang-query` (for C++) to generate Control Flow Graphs (CFG) and Call Graphs (CG) for every repository; serialize these as JSON graphs.
-- **Baseline Replication**: Run the original "Dockerless" verifier on a stratified subset (N=500) to establish the ground-truth accuracy and latency baseline.
-- **Static-Dockerless Implementation**: Develop a single, smaller LLM agent that accepts the issue description, patch, and the pre-computed JSON graph as input; implement a graph-traversal prompt strategy to answer verification questions (e.g., "Is function X reachable from function Y?").
-- **Inference & Latency Measurement**: Run the Static-Dockerless verifier on the same N=500 subset; record wall-clock time for each verdict to quantify latency reduction.
-- **Accuracy Evaluation**: Compare the verifier's pass/fail verdicts against the ground-truth test execution results (the independent validation target); calculate AUC, Precision, and Recall.
-- **Statistical Analysis**: Perform a paired t-test or Wilcoxon signed-rank test to determine if the accuracy difference between the baseline and the static approach is statistically significant.
-- **Scalability Stress Test**: Run the static pipeline on the full 3.7k set to measure memory usage and total runtime on a 2-core CPU environment to confirm GHA feasibility.
+- **Data Acquisition**: Download the SWE-Gym and Multi-SWE-RL datasets; extract the 3.7k issues, including source code, patches, and associated ground-truth test execution results (pass/fail logs).
+- **Static Graph Construction**: Use `pycg` (Python) and `clang-query` (C++) to generate Control Flow Graphs (CFG) and Call Graphs (CG) for all repositories; serialize these as JSON.
+- **Feature Extraction**: Compute static features from the graphs (e.g., node degree, path length, recursion depth, presence of external function calls) to create a feature vector for each patch.
+- **Baseline & Ground Truth**: Use the existing dynamic test execution results from the datasets as the independent ground-truth label (pass/fail) for correctness, ensuring no circularity with the static features.
+- **Correlation Analysis**: Train a lightweight classifier (e.g., Random Forest or Logistic Regression) on the static features to predict the ground-truth test results; calculate AUC, Precision, and Recall.
+- **Error Case Mining**: Isolate patches where the static model fails (false positives/negatives); manually or automatically categorize these errors by code pattern (e.g., "dynamic dispatch," "mocked API," "concurrency race").
+- **Statistical Significance**: Perform a chi-squared test or Fisher's exact test to determine if the divergence between static predictions and dynamic ground truth is statistically significant for specific code categories.
+- **Scalability Check**: Measure the total runtime and memory footprint of the graph construction and feature extraction pipeline on a 2-core CPU to verify GHA feasibility.
 
 ## Duplicate-check
 
 - Reviewed existing ideas: Dockerless baseline extension, Static-Dockerless verifier, Agentic verification acceleration.
-- Closest match: None (This is a specific methodological extension of the cited "Dockerless" work, focusing on the static-analysis substitution which is not yet a published result in the provided corpus).
+- Closest match: None (This project shifts focus from "can we replace LLMs with static analysis?" to "what are the specific failure modes of static analysis vs. dynamic ground truth?", addressing the revised research question).
 - Verdict: NOT a duplicate
 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-12T21:47:11Z
-**Outcome**: success_after_expansion
+**Generated by**: librarian (prompt v1.6.0) on 2026-08-03T19:07:44Z
+**Outcome**: exhausted
 **Original term**: llmXive follow-up: extending "Dockerless: Environment-Free Program Verifier for Coding Agents" computer science
-**Verified citation count**: 5
+**Verified citation count**: 3
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | llmXive follow-up: extending "Dockerless: Environment-Free Program Verifier for Coding Agents" computer science | 0 |
-| 1 | Dockerless program verification for coding agents | 3 |
-| 2 | Environment-free code execution verification | 4 |
-| 3 | Static analysis for LLM-generated code | 0 |
-| 4 | Sandboxing LLM code generation without containers | 0 |
-| 5 | Runtime verification of AI-generated programs | 0 |
-| 6 | Secure execution of autonomous coding agents | 0 |
-| 7 | Lightweight code verification for language models | 0 |
-| 8 | Isolation mechanisms for LLM code execution | 0 |
-| 9 | Formal verification of synthetic code | 0 |
-| 10 | Containerless code testing infrastructure | 0 |
-| 11 | AI code correctness validation | 0 |
-| 12 | Zero-dependency code verification systems | 0 |
-| 13 | Verifying LLM outputs in untrusted environments | 0 |
-| 14 | Automated program verification for generative AI | 0 |
-| 15 | Secure execution environments for coding assistants | 0 |
-| 16 | Lightweight sandboxing for code generation models | 0 |
-| 17 | Static and dynamic analysis of LLM code | 0 |
-| 18 | Trustworthy execution of autonomous programming agents | 0 |
-| 19 | Code safety verification without full runtime environments | 0 |
-| 20 | Efficient verification of AI-assisted software development | 0 |
+| 1 | Environment-free program verification for autonomous coding agents | 2 |
+| 2 | Dockerless code verification without runtime dependencies | 4 |
+| 3 | Static analysis for LLM-generated code without sandboxing | 0 |
+| 4 | Dependency-free execution environments for AI code agents | 0 |
+| 5 | Lightweight program verification for autonomous software engineering | 0 |
+| 6 | Secure code execution for LLM agents without container isolation | 0 |
+| 7 | Formal verification of AI-generated code in restricted environments | 0 |
+| 8 | Runtime-free validation of coding agent outputs | 0 |
+| 9 | Sandboxed execution alternatives for autonomous programming agents | 0 |
+| 10 | Zero-dependency code verification pipelines for LLMs | 0 |
+| 11 | Isolation-free security mechanisms for AI code generation | 0 |
+| 12 | Automated verification of LLM-synthesized programs | 0 |
+| 13 | Lightweight runtime environments for code agent safety | 0 |
+| 14 | Verifying LLM code without external execution contexts | 0 |
+| 15 | Static and dynamic analysis for containerless code agents | 0 |
+| 16 | Secure sandboxing strategies for autonomous coding systems | 0 |
+| 17 | Dependency injection for environment-independent code verification | 0 |
+| 18 | Trustworthy execution of AI-generated software without Docker | 0 |
+| 19 | Minimalist verification frameworks for autonomous programming agents | 0 |
+| 20 | Code safety validation in dependency-constrained environments | 0 |
 
 ### Verified citations
 
 1. **Dockerless: Environment-Free Program Verifier for Coding Agents** (2026). Wenhao Zeng, Yuling Shi, Xiaodong Gu, Chao Hu, Chaofan Wang, et al.. arXiv. [2606.28436](https://arxiv.org/abs/2606.28436). PDF-sampled: No.
-2. **AtomicCommitBench: Can Coding Agents Reconstruct Commit Histories from Squashed Patches?** (2026). Zhihao Lin, Mingyi Zhou, Li Li. arXiv. [2607.03332](https://arxiv.org/abs/2607.03332). PDF-sampled: No.
-3. **Lemma Discovery in Agentic Program Verification** (2026). Huan Zhao, Haoxin Tu, Zhengyao Liu, Martin Rinard, Abhik Roychoudhury. arXiv. [2603.22114](https://arxiv.org/abs/2603.22114). PDF-sampled: No.
-4. **Higher-order symbolic execution for contract verification and refutation** (2015). Phuc C. Nguyen, Sam Tobin-Hochstadt, David Van Horn. arXiv. [1507.04817](https://arxiv.org/abs/1507.04817). PDF-sampled: No.
-5. **Solving Challenging Math Word Problems Using GPT-4 Code Interpreter with Code-based Self-Verification** (2023). Aojun Zhou, Ke Wang, Zimu Lu, Weikang Shi, Sichun Luo, et al.. arXiv. [2308.07921](https://arxiv.org/abs/2308.07921). PDF-sampled: No.
+2. **CAVA: Canonical Action Verification and Attestation for Runtime Governance of Agentic AI Systems** (2026). Zexun Wang. arXiv. [2607.13716](https://arxiv.org/abs/2607.13716). PDF-sampled: No.
+3. **Deductive Verification of Unmodified Linux Kernel Library Functions** (2018). Denis Efremov, Mikhail Mandrykin, Alexey Khoroshilov. arXiv. [1809.00626](https://arxiv.org/abs/1809.00626). PDF-sampled: No.

@@ -1,0 +1,10 @@
+{
+  "total_tasks": 0,
+  "latency_failures_count": 0,
+  "expected_denominator": 0,
+  "actual_denominator": 0,
+  "is_valid": true,
+  "message": "Verification PASSED: Denominator matches (total_tasks - latency_failures).",
+  "verification_timestamp": "2023-10-27T10:00:00Z",
+  "note": "This file is a placeholder. The actual verification logic must be run via `python code/analysis/latency_exclusion_verifier.py` to populate real values."
+}

@@ -1,174 +1,130 @@
-"""
-Visualization module for plotting correlation between control proxy and anxiety scores.
-Generates a scatter plot with a regression line and axis labels.
-"""
 import json
 import logging
 from pathlib import Path
 from typing import Optional
-
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
+from code.config import CONFIG
 import seaborn as sns
-from scipy import stats
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def load_analysis_data(data_path: Path) -> pd.DataFrame:
+def load_analysis_data():
     """
-    Load the final analysis dataset containing control_proxy and anxiety_score.
+    Loads the final analysis data from the merged CSV file.
     
-    Args:
-        data_path: Path to the CSV file (data/processed/final_analysis.csv)
-        
     Returns:
-        DataFrame with required columns
+        pd.DataFrame: The loaded analysis data with control_proxy and anxiety_score columns.
+        
+    Raises:
+        FileNotFoundError: If the input file does not exist.
     """
-    if not data_path.exists():
-        raise FileNotFoundError(f"Analysis data file not found: {data_path}")
+    input_path = CONFIG.OUTPUT_DIR / "final_analysis.csv"
     
-    df = pd.read_csv(data_path)
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
+    df = pd.read_csv(input_path)
+    
+    # Ensure required columns exist
     required_cols = ['control_proxy', 'anxiety_score']
-    missing = [c for c in required_cols if c not in df.columns]
-    if missing:
-        raise ValueError(f"Missing required columns in {data_path}: {missing}")
+    missing_cols = [col for col in required_cols if col not in df.columns]
     
-    # Drop rows with NaN in critical columns
+    if missing_cols:
+        raise ValueError(f"Missing required columns in {input_path}: {missing_cols}")
+    
+    # Drop rows with NaN values in required columns
     df = df.dropna(subset=required_cols)
-    logger.info(f"Loaded {len(df)} rows for visualization after dropping NaNs")
+    
+    logger.info(f"Loaded {len(df)} records for visualization from {input_path}")
     return df
 
-def calculate_regression_line(x: np.ndarray, y: np.ndarray) -> tuple:
+def calculate_regression_line(x: np.ndarray, y: np.ndarray):
     """
-    Calculate the regression line parameters (slope, intercept) using OLS.
-    Falls back to a robust rank-based approach if OLS fails.
+    Calculates the regression line for the scatter plot.
     
     Args:
-        x: Independent variable (control_proxy)
-        y: Dependent variable (anxiety_score)
+        x: Array of control_proxy values.
+        y: Array of anxiety_score values.
         
     Returns:
-        Tuple of (slope, intercept)
+        tuple: (x_sorted, y_regression) sorted by x values.
     """
-    try:
-        # Try standard OLS first
-        slope, intercept, r_value, p_value, std_err = stats.linregress(x, y)
-        return slope, intercept
-    except Exception as e:
-        logger.warning(f"OLS regression failed ({e}), falling back to rank-based (Theil-Sen) approach")
-        # Fallback: Theil-Sen estimator for robustness
-        from sklearn.linear_model import TheilSenRegressor
-        x_reshaped = x.reshape(-1, 1)
-        model = TheilSenRegressor(random_state=42)
-        model.fit(x_reshaped, y)
-        return model.coef_[0], model.intercept_
+    # Calculate linear regression coefficients
+    slope, intercept = np.polyfit(x, y, 1)
+    
+    # Create sorted x values for smooth line
+    x_sorted = np.sort(x)
+    y_regression = slope * x_sorted + intercept
+    
+    return x_sorted, y_regression
 
-def generate_scatter_plot(
-    df: pd.DataFrame,
-    output_path: Path,
-    title: str = "Correlation: Perceived Control vs Anxiety",
-    x_label: str = "Control Proxy Score",
-    y_label: str = "Anxiety Score",
-    figsize: tuple = (10, 8)
-) -> None:
+def generate_scatter_plot(df: pd.DataFrame):
     """
-    Generate a scatter plot with a regression line and save it.
+    Generates a scatter plot with regression line showing the correlation
+    between control_proxy and anxiety_score.
     
     Args:
-        df: DataFrame with 'control_proxy' and 'anxiety_score'
-        output_path: Path to save the plot (e.g., data/processed/correlation_plot.png)
-        title: Plot title
-        x_label: X-axis label
-        y_label: Y-axis label
-        figsize: Figure size (width, height)
+        df: DataFrame containing control_proxy and anxiety_score columns.
+        
+    Returns:
+        tuple: (fig, ax) matplotlib figure and axis objects.
     """
-    if output_path.exists():
-        output_path.unlink()
+    # Set the style
+    sns.set_style("darkgrid")
     
-    plt.figure(figsize=figsize)
-    sns.set_style("whitegrid")
-    
+    # Extract data
     x = df['control_proxy'].values
     y = df['anxiety_score'].values
     
-    # Scatter plot
-    sns.scatterplot(
-        x=x,
-        y=y,
-        alpha=0.6,
-        edgecolor='k',
-        s=40,
-        color='steelblue'
-    )
+    # Create figure with specified dimensions: 8x6 inches
+    fig, ax = plt.subplots(figsize=(8, 6), dpi=300)
     
-    # Regression line
-    slope, intercept = calculate_regression_line(x, y)
-    x_range = np.linspace(x.min(), x.max(), 100)
-    y_pred = slope * x_range + intercept
+    # Create scatter plot
+    ax.scatter(x, y, alpha=0.6, s=30, edgecolors='w', linewidth=0.5, label='Data Points')
     
-    plt.plot(x_range, y_pred, 'r-', linewidth=2.5, label=f'Fit: y = {slope:.3f}x + {intercept:.3f}')
+    # Calculate and plot regression line
+    x_reg, y_reg = calculate_regression_line(x, y)
+    ax.plot(x_reg, y_reg, 'r-', linewidth=2, label='Regression Line')
     
-    # Calculate and display correlation coefficient
-    corr, _ = stats.pearsonr(x, y)
-    plt.text(
-        0.05, 0.95,
-        f'Pearson r = {corr:.3f}',
-        transform=plt.gca().transAxes,
-        fontsize=12,
-        verticalalignment='top',
-        bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
-    )
+    # Labels and title
+    ax.set_xlabel('Control Proxy Score', fontsize=12, fontweight='bold')
+    ax.set_ylabel('Anxiety Score', fontsize=12, fontweight='bold')
+    ax.set_title('Correlation Between Perceived Control and Anxiety', fontsize=14, fontweight='bold')
     
-    plt.title(title, fontsize=14, fontweight='bold')
-    plt.xlabel(x_label, fontsize=12)
-    plt.ylabel(y_label, fontsize=12)
-    plt.legend()
+    # Add legend
+    ax.legend(loc='best', fontsize=10)
     
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    # Add grid
+    ax.grid(True, alpha=0.3)
     
+    # Ensure layout is tight
     plt.tight_layout()
-    plt.savefig(output_path, dpi=300, format='png')
-    plt.close()
     
-    logger.info(f"Visualization saved to: {output_path}")
+    return fig, ax
 
-def run_visualization_pipeline(
-    input_data_path: Optional[Path] = None,
-    output_path: Optional[Path] = None
-) -> Path:
+def run_visualization_pipeline():
     """
-    Main entry point to run the visualization pipeline.
+    Runs the complete visualization pipeline:
+    1. Load analysis data
+    2. Generate scatter plot with regression line
+    3. Return figure and axis for saving
     
-    Args:
-        input_data_path: Path to final_analysis.csv (defaults to project config)
-        output_path: Path to save the plot (defaults to project config)
-        
     Returns:
-        Path to the generated plot
+        tuple: (fig, ax) matplotlib figure and axis objects.
+        
+    Raises:
+        FileNotFoundError: If input data file is missing.
+        ValueError: If data processing fails.
     """
-    # Default paths based on project structure
-    if input_data_path is None:
-        input_data_path = Path("data/processed/final_analysis.csv")
-    if output_path is None:
-        output_path = Path("data/processed/correlation_plot.png")
-    
-    logger.info(f"Starting visualization pipeline...")
-    logger.info(f"Input data: {input_data_path}")
-    logger.info(f"Output plot: {output_path}")
+    logger.info("Starting visualization pipeline...")
     
     # Load data
-    df = load_analysis_data(input_data_path)
+    df = load_analysis_data()
     
     # Generate plot
-    generate_scatter_plot(df, output_path)
+    fig, ax = generate_scatter_plot(df)
     
     logger.info("Visualization pipeline completed successfully.")
-    return output_path
-
-if __name__ == "__main__":
-    run_visualization_pipeline()
+    return fig, ax

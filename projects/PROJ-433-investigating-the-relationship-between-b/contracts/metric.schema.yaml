@@ -1,44 +1,87 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: Network Metric Schema
-description: Schema for computed network reconfigurability metrics per subject.
+$schema: http://json-schema.org/draft-07/schema#
+title: Metric Schema
+description: Schema for network reconfigurability metrics computed per subject
 type: object
-required:
-  - subject_id
-  - transition_count
-  - window_size
-  - step_size
-  - algorithm
-  - seed
 properties:
   subject_id:
     type: string
-    description: Unique subject identifier.
-  transition_count:
-    type: integer
-    minimum: 0
-    description: Number of community state transitions detected.
-  window_size:
-    type: integer
-    description: Size of the sliding window in time points.
-  step_size:
-    type: integer
-    description: Step size for sliding window in time points.
-  algorithm:
+    description: HCP subject ID corresponding to the computed metrics
+  computation_timestamp:
     type: string
-    enum: [louvain, leiden]
-    description: Community detection algorithm used.
-  seed:
-    type: integer
-    description: Random seed used for reproducibility.
-  resolution_parameter:
-    type: number
-    minimum: 0
-    description: Resolution parameter for community detection.
-  num_communities:
-    type: integer
-    minimum: 1
-    description: Number of detected communities in the average partition.
-  computation_time_seconds:
-    type: number
-    minimum: 0
-    description: Wall-clock time taken for computation.
+    format: date-time
+    description: ISO 8601 timestamp of when metrics were computed
+  parameters:
+    type: object
+    description: Parameters used for metric computation
+    properties:
+      window_size:
+        type: integer
+        minimum: 1
+        description: Sliding window size in timepoints
+      step_size:
+        type: integer
+        minimum: 1
+        description: Step size between windows in timepoints
+      community_detection_algorithm:
+        type: string
+        enum:
+          - louvain
+          - leiden
+        description: Algorithm used for community detection
+      random_seed:
+        type: integer
+        description: Random seed used for reproducibility
+    required:
+      - window_size
+      - step_size
+      - community_detection_algorithm
+      - random_seed
+  metrics:
+    type: object
+    properties:
+      transition_count:
+        type: integer
+        minimum: 0
+        description: Number of community state transitions observed
+      transition_rate:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Rate of transitions per window
+      community_stability:
+        type: number
+        minimum: 0.0
+        maximum: 1.0
+        description: Measure of community stability over time
+      modularity_q:
+        type: number
+        description: Modularity Q value from community detection
+    required:
+      - transition_count
+  qc_metrics:
+    type: object
+    properties:
+      framewise_displacement:
+        type: number
+        minimum: 0.0
+        description: Mean framewise displacement for this subject
+      excluded_windows:
+        type: integer
+        minimum: 0
+        description: Number of windows excluded due to motion artifacts
+      convergence_status:
+        type: string
+        enum:
+          - converged
+          - failed_max_iter
+          - failed_retry_limit
+        description: Status of community detection algorithm convergence
+    required:
+      - framewise_displacement
+      - convergence_status
+required:
+  - subject_id
+  - computation_timestamp
+  - parameters
+  - metrics
+  - qc_metrics

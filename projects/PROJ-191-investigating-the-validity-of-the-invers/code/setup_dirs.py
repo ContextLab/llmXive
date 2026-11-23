@@ -1,19 +1,27 @@
 """
-Script to initialize the full project directory structure for PROJ-191.
-Creates all required subdirectories atomically.
+Script to create the full project directory tree for PROJ-191.
+This implements T001 by executing the required mkdir -p command structure.
 """
 import os
 import sys
 from pathlib import Path
+import logging
+from config import get_logger, setup_logging
 
 def main():
+    """Create the project directory structure."""
+    # Ensure logging is set up first
+    setup_logging()
+    logger = get_logger(__name__)
+
     # Define the project root relative to the current working directory
-    # The task specifies the tree should be at projects/PROJ-191-...
+    # The task specifies the path relative to the repository root.
+    # We assume the script is run from the repository root or the project root.
     project_root = Path("projects/PROJ-191-investigating-the-validity-of-the-invers")
-    
-    # Define the relative subdirectories required
-    # Note: Some paths overlap (e.g., code/ and code/data/), but os.makedirs handles this safely.
-    subdirs = [
+
+    # Define the directory structure components
+    # Using a set of paths to ensure all required subdirectories are created
+    directories = [
         "code",
         "tests",
         "data",
@@ -31,27 +39,33 @@ def main():
         "tests/integration",
     ]
 
+    logger.info(f"Creating project directory tree at: {project_root}")
+
     created_count = 0
-    existing_count = 0
-
-    for subdir in subdirs:
-        full_path = project_root / subdir
+    for dir_name in directories:
+        full_path = project_root / dir_name
         if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-            print(f"Created: {full_path}")
+            try:
+                full_path.mkdir(parents=True, exist_ok=True)
+                created_count += 1
+                logger.debug(f"Created directory: {full_path}")
+            except OSError as e:
+                logger.error(f"Failed to create directory {full_path}: {e}")
+                return 1
         else:
-            existing_count += 1
+            logger.debug(f"Directory already exists: {full_path}")
 
-    print(f"\nDirectory initialization complete.")
-    print(f"Project Root: {project_root.absolute()}")
-    print(f"Directories created: {created_count}")
-    print(f"Directories already existing: {existing_count}")
-
-    # Verify the structure exists
-    if not project_root.exists():
-        print("ERROR: Project root was not created.", file=sys.stderr)
-        sys.exit(1)
+    logger.info(f"Successfully created {created_count} new directories.")
+    
+    # Verify the structure by listing the root
+    if project_root.exists():
+        logger.info(f"Verification: Project root {project_root} exists.")
+        # List immediate subdirectories to confirm
+        subdirs = [d.name for d in project_root.iterdir() if d.is_dir()]
+        logger.info(f"Subdirectories found: {subdirs}")
+    else:
+        logger.error("Verification failed: Project root does not exist.")
+        return 1
 
     return 0
 

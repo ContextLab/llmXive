@@ -1,0 +1,17 @@
+36b5aceb09b04b19478e32454fd50a79  ./annotation_hashes.txt
+5fac6413a60325ef2a480fe7de116a45  ./GCF_964306905.1_EST-A-0036_Methanobrevibacter_A-smithii_assembly_report.txt
+b8e6029cbfd67d62a3ff7d34628792b8  ./GCF_964306905.1_EST-A-0036_Methanobrevibacter_A-smithii_assembly_stats.txt
+2a3afe2e51a9ba571d83b92329a83f66  ./GCF_964306905.1_EST-A-0036_Methanobrevibacter_A-smithii_cds_from_genomic.fna.gz
+2802d675d1af991a3d8ee9a6d016538d  ./GCF_964306905.1_EST-A-0036_Methanobrevibacter_A-smithii_fcs_report.txt
+ff89cd3ee025d246cd0e3ba4f12b7fe2  ./GCF_964306905.1_EST-A-0036_Methanobrevibacter_A-smithii_feature_count.txt
+a7a981aaaffce32749cf0eda809e966b  ./GCF_964306905.1_EST-A-0036_Methanobrevibacter_A-smithii_feature_table.txt.gz
+577b97bd8eb47b932ed5faf02cd9bcfa  ./GCF_964306905.1_EST-A-0036_Methanobrevibacter_A-smithii_gene_ontology.gaf.gz
+1d9a9056a8ec415c4707d1e6f595aaf0  ./GCF_964306905.1_EST-A-0036_Methanobrevibacter_A-smithii_genomic.fna.gz
+11ac9b6e7b430ebd70c68bf73f3a6989  ./GCF_964306905.1_EST-A-0036_Methanobrevibacter_A-smithii_genomic.gbff.gz
+a45525ba9bd93f94185338bcb10c3520  ./GCF_964306905.1_EST-A-0036_Methanobrevibacter_A-smithii_genomic.gff.gz
+a9542a87cd6b6d5a5a5f2cc68359caba  ./GCF_964306905.1_EST-A-0036_Methanobrevibacter_A-smithii_genomic.gtf.gz
+dec7986fd297566543fe5bb4e51ae7c3  ./GCF_964306905.1_EST-A-0036_Methanobrevibacter_A-smithii_protein.faa.gz
+15d251357787196d04d6467474952761  ./GCF_964306905.1_EST-A-0036_Methanobrevibacter_A-smithii_protein.gpff.gz
+1dbc2b023e65532a7f5f7de4e9b8819d  ./GCF_964306905.1_EST-A-0036_Methanobrevibacter_A-smithii_rna_from_genomic.fna.gz
+58dd7d2cf14cbf8a76c4429d939dd20c  ./GCF_964306905.1_EST-A-0036_Methanobrevibacter_A-smithii_translated_cds.faa.gz
+dfd3e3ff5f5bed332052328344bb29c2  ./GCF_964306905.1_EST-A-0036_Methanobrevibacter_A-smithii_wgsmaster.gbff.gz

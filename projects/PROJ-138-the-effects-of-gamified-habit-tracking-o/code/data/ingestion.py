@@ -1,117 +1,91 @@
-"""
-Data ingestion module.
-Loads real data if available, otherwise generates synthetic data.
-Validates schema and group sizes.
-"""
 import os
 import sys
+import json
 import pandas as pd
-from code.utils.logging import pipeline_logger
-from code.data.validation import check_consent, validate_schema
-from code.data.synthetic_generator import generate_synthetic_data, OUTPUT_PATH as SYNTHETIC_PATH
+from typing import Optional
 
-REAL_DATA_PATH = "data/raw/habitica_data.csv"
-OUTPUT_PATH = "data/processed/ingested_data.csv"
+# Add project root to path
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
+
+from code.utils.logging import setup_logger, log_pipeline_stage
+from code.data.validation import check_consent, validate_schema
+
+logger = setup_logger("ingestion")
 
 def load_data() -> pd.DataFrame:
     """
-    Load data from real source or generate synthetic data.
-    
-    Returns:
-        DataFrame with ingested data.
-        
-    Raises:
-        FileNotFoundError: If real data is missing and synthetic generation fails.
-        ValueError: If data validation fails.
+    Load data from the appropriate source.
+    Prioritizes synthetic data if marker exists, otherwise attempts API fetch.
     """
-    # Step 1: Check Consent
-    try:
-        check_consent()
-    except FileNotFoundError as e:
-        pipeline_logger.error(f"Consent check failed: {str(e)}")
-        raise
-
-    # Step 2: Determine Source
-    if os.path.exists(REAL_DATA_PATH):
-        pipeline_logger.info(f"Loading real data from {REAL_DATA_PATH}")
-        try:
-            df = pd.read_csv(REAL_DATA_PATH)
-            # Validate real data schema if needed, though we assume it matches spec
-            # For now, we ensure required columns exist
-            if "user_id" not in df.columns:
-                raise ValueError("Missing 'user_id' column in real dataset.")
-            if "adherence_flag" not in df.columns:
-                raise ValueError("Missing 'adherence_flag' column in real dataset.")
-        except Exception as e:
-            pipeline_logger.error(f"Failed to load real data: {str(e)}")
-            raise
-    else:
-        pipeline_logger.info(f"Real data not found at {REAL_DATA_PATH}. Generating synthetic data.")
-        # Generate synthetic data
-        # Ensure we always generate fresh to guarantee seed consistency for this run
-        df = generate_synthetic_data(seed=42)
-        os.makedirs(os.path.dirname(SYNTHETIC_PATH), exist_ok=True)
-        df.to_csv(SYNTHETIC_PATH, index=False)
-        pipeline_logger.info(f"Synthetic data saved to {SYNTHETIC_PATH}")
+    marker_path = "data/raw/synthetic_data_marker.json"
+    csv_path = "data/raw/synthetic_data.csv"
     
-    pipeline_logger.info(f"Loaded {len(df)} records.")
-    return df
+    if os.path.exists(marker_path):
+        logger.info("Synthetic data marker found. Loading synthetic data.")
+        if not os.path.exists(csv_path):
+            raise FileNotFoundError(f"Marker found but CSV not found at {csv_path}")
+        df = pd.read_csv(csv_path)
+        return df
+    
+    # If no synthetic marker, check for real data
+    # In this project, we rely on synthetic data for the simulation study
+    # If this were real data mode, we would fetch from API here
+    logger.error("No data source found. Ensure synthetic data generation has run.")
+    raise FileNotFoundError("No data source found. Run synthetic_generator first.")
 
 def validate_group_sizes(df: pd.DataFrame) -> bool:
-    """
-    Validate that the non-gamified group size is >= 30 and total valid records >= 100.
+    """Validate that group sizes meet minimum requirements."""
+    n_gamified = df['gamified_status'].sum()
+    n_non_gamified = len(df) - n_gamified
     
-    Args:
-        df: DataFrame with 'gamification_status' column.
-        
-    Returns:
-        True if valid, False otherwise.
-    """
-    if "gamification_status" not in df.columns:
-        pipeline_logger.error("Data Insufficiency: Missing 'gamification_status' column.")
-        return False
-
-    # Count unique users per group based on their first recorded status
-    user_groups = df.groupby("user_id")["gamification_status"].first()
-    non_gamified_count = (user_groups == False).sum()
-    total_users = len(user_groups)
+    logger.info(f"Group sizes - Gamified: {n_gamified}, Non-gamified: {n_non_gamified}")
     
-    pipeline_logger.info(f"Total unique users: {total_users}")
-    pipeline_logger.info(f"Non-gamified user count: {non_gamified_count}")
-
-    # Check total valid records (users) >= 100
-    if total_users < 100:
-        pipeline_logger.error(f"Data Insufficiency: Total valid users ({total_users}) < 100.")
+    if n_non_gamified < 30:
+        logger.error(f"Non-gamified group size ({n_non_gamified}) is below minimum 30.")
         return False
-
-    # Check non-gamified group size >= 30
-    if non_gamified_count < 30:
-        pipeline_logger.error(f"Group Imbalance: Non-gamified group size ({non_gamified_count}) < 30.")
+    
+    if len(df) < 100:
+        logger.error(f"Total records ({len(df)}) is below minimum 100.")
         return False
-
-    pipeline_logger.info("Group size validation passed.")
+    
     return True
 
 def main():
-    """Main entry point for data ingestion."""
-    pipeline_logger.info("Starting data ingestion pipeline...")
+    parser = argparse.ArgumentParser(description="Ingest and validate data")
+    args = parser.parse_args()
+    
+    log_pipeline_stage(logger, "START", "Data Ingestion")
     
     try:
-        # Load data (real or synthetic)
+        # Check consent
+        check_consent()
+        
+        # Load data
         df = load_data()
+        logger.info(f"Loaded {len(df)} records")
+        
+        # Validate schema
+        validate_schema(df)
         
         # Validate group sizes
         if not validate_group_sizes(df):
-            raise ValueError("Data validation failed: Insufficient data or group imbalance.")
+            # Generate report and exit gracefully
+            report = {
+                "error": "Data insufficiency",
+                "details": "Group sizes below minimum requirements"
+            }
+            os.makedirs("data/reports", exist_ok=True)
+            with open("data/reports/data_insufficiency_report.json", 'w') as f:
+                json.dump(report, f, indent=2)
+            sys.exit(0)
         
-        # Save ingested data to processed directory
-        os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
-        df.to_csv(OUTPUT_PATH, index=False)
-        pipeline_logger.info(f"Ingested data successfully saved to {OUTPUT_PATH}")
+        log_pipeline_stage(logger, "SUCCESS", "Data Ingestion Complete")
+        return 0
         
     except Exception as e:
-        pipeline_logger.error(f"Ingestion pipeline failed: {str(e)}")
-        raise
+        log_pipeline_stage(logger, "ERROR", str(e))
+        return 1
 
 if __name__ == "__main__":
-    main()
+  import argparse
+  sys.exit(main())

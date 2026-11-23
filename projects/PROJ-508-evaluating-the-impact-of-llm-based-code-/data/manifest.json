@@ -1,0 +1,102 @@
+{
+  "version": "1.0.0",
+  "generated_at": "2026-08-16T17:34:37.935000+00:00",
+  "project_id": "PROJ-508-evaluating-the-impact-of-llm-based-code-",
+  "constitution_principle": "VI - Empirical Data Collection Transparency",
+  "data_collection": {
+    "source": "GitHub API",
+    "api_endpoints": [
+      {
+        "endpoint": "https://api.github.com/repos/{owner}/{repo}",
+        "method": "GET",
+        "parameters": [
+          "owner",
+          "repo"
+        ],
+        "description": "Repository metadata"
+      },
+      {
+        "endpoint": "https://api.github.com/repos/{owner}/{repo}/pulls",
+        "method": "GET",
+        "parameters": [
+          "owner",
+          "repo",
+          "state",
+          "per_page",
+          "page"
+        ],
+        "description": "Pull request list"
+      },
+      {
+        "endpoint": "https://api.github.com/repos/{owner}/{repo}/commits",
+        "method": "GET",
+        "parameters": [
+          "owner",
+          "repo",
+          "sha",
+          "per_page",
+          "page"
+        ],
+        "description": "Commit history"
+      },
+      {
+        "endpoint": "https://api.github.com/repos/{owner}/{repo}/contents/{path}",
+        "method": "GET",
+        "parameters": [
+          "owner",
+          "repo",
+          "path",
+          "ref"
+        ],
+        "description": "File content (for .cursorrules, README, etc.)"
+      }
+    ],
+    "rate_limit_handling": {
+      "retries": 3,
+      "delay_seconds": 1,
+      "retry_codes": [
+        429,
+        500,
+        502,
+        503
+      ]
+    },
+    "filters_applied": [
+      "Repositories with >= 10 PRs in last 12 months",
+      "Excluded forks",
+      "Excluded archived repositories"
+    ]
+  },
+  "parameters": {
+    "time_window": "12 months",
+    "min_pr_count": 10,
+    "llm_adoption_threshold": 0.05,
+    "ai_noise_threshold": 0.3,
+    "vif_threshold": 5.0
+  },
+  "artifacts": {
+    "input_files": [],
+    "output_files": [
+      {
+        "path": "data/derived/master_dataset.csv",
+        "exists": true,
+        "size_bytes": 1024,
+        "modified": "2026-08-16T17:34:37.935000+00:00",
+        "type": ".csv",
+        "relative_path": "data/derived/master_dataset.csv"
+      }
+    ]
+  },
+  "environment": {
+    "python_version": "3.11",
+    "timestamp_utc": "2026-08-16T17:34:37.935000+00:00",
+    "hostname": "runner"
+  },
+  "ingestion_details": {
+    "total_repositories_processed": 5,
+    "successful_fetches": 5,
+    "failed_fetches": 0,
+    "llm_adoption_count": 2,
+    "timestamp": "2026-08-16T17:34:37.935000+00:00"
+  }
+}

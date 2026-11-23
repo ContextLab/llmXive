@@ -1,5 +1,9 @@
-T001 Create project structure per implementation plan (`projects/PROJ-169-predicting-the-elastic-moduli-of-2d-mate/`): 2
-T003 [P] Configure linting (ruff) and formatting (black) tools: 2
-? T008 Implement dynamic sampling strategy and data volume verification in `code/utils/memory_utils.py`
-  to guarantee 7GB RAM limit (required for FR-007/SC-004)
-: 1
+T017b: 2
+T018b: 1
+T018c: 1
+T020a: 2
+T021a: 1
+T023: 1
+T024: 1
+T046: 2
+T060c: 1

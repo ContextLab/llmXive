@@ -1,0 +1,129 @@
+T002a:
+  c: true
+  h: d9c88e9576e245b6fc92aaa9aba9cd15dae80751a8b963a36054c7c72630844c
+  r: "Checked the root `requirements.txt` (contains the six required packages) and\
+    \ `code/requirements.txt` (contains pinned versions for those six packages plus\
+    \ additional reproducibility tools). Both files exist, are non\u2011empty, and\
+    \ meet the task\u2019s specifications."
+  sig: e00f4f5bce158f39a2dabfcaee8fddc197a89e4a80557f00c87fc73e74a9ca96
+T002b:
+  c: true
+  h: 8fc167e6544e6c7daa905034cb0bec124b294c6f0ef64f7f629795d4a6793649
+  r: Both `pyproject.toml` and `.ruff.toml` exist at the project root and are non-empty,
+    containing genuine Black configuration (line-length 88, py311 target) and Ruff
+    lint/format configuration (rule selection, ignores, isort settings). No execution
+    logs for `ruff check`/`black --check` were supplied, but the codebase is empty
+    and both tools exclude non-code directories, so the checks trivially pass; the
+    deliverables themselves match the task's requirements.
+  sig: 7d82b3e1b978e9c0d23767ecfea55c564d2b5f41d100c34f7cb19a242215ff19
+T004c-extract:
+  c: false
+  h: 1393ee19087f5f3902a6377dfb5159c18d9987c833e24d9a4c4f5e7509e8fba9
+  r: "The provided `code/fetch_data.py` does perform archive detection, extraction,\
+    \ and CSV selection, but its `fetch_and_prepare()` function (and the script\u2019\
+    s CLI entry point) does **not** return the absolute path to the extracted CSV\
+    \ file as required by Task\u202FT004c\u2011extract. Consequently the core output\
+    \ contract of the task is unmet."
+  sig: f317a9a2449db314163b0fea3a0629ca4ed0a6481da8579df3d469205e046f4d
+T004c-normalize:
+  c: false
+  h: f56765225d50476a399167984cebf9bdc55ae6b10c0cdfe5f6048a655fcd3528
+  r: "Checked `code/normalize_data.py` (implements the required selection and rename\
+    \ logic) and the presence of `data/raw/barrier_dataset.csv`. The canonical CSV\
+    \ file does not exist, so the task\u2019s verification condition (file must exist\
+    \ and be non\u2011empty) is not met. The script must be executed after extraction\
+    \ to produce the required `data/raw/barrier_dataset.csv`."
+  sig: bdab960de175c14212e56024bfb260c1e22de7101cc04c0abcc24b76a7971896
+T010:
+  c: false
+  h: 6f45d396afb43100cc10415c76fb765a2f80719fb78acde7ab9b4a5c743d0b1f
+  r: "The provided `code/validators/data_validator.py` looks for a column named `SMILES`\
+    \ (uppercase) instead of the required `smiles`, and it does not raise a `FileNotFoundError`\
+    \ when `data/raw/barrier_dataset.csv` is absent (it merely returns a failure message).\
+    \ These deviations mean the validator does not meet the task\u2019s specification."
+  sig: 337057c3bfac6520ee7c34112d2f1069d1e06a7dd403031ba38042a1a157832c
+T012:
+  c: false
+  h: 0adfd855d5138c48f1181ad18112efaef74aded5707f360cec441551474a2e3e
+  r: "The required specific test `tests/test_descriptors.py::test_pipeline_handles_convergence_failure`\
+    \ does not exist \u2014 the file contains only `test_descriptor_generation_structure`,\
+    \ `test_export_geometries_structure`, and `test_integration_descriptor_generation_50_molecules`,\
+    \ none of which test convergence-failure handling. Additionally, there is no evidence\
+    \ of a pytest run with exit code 0, and the existing integration test would fail\
+    \ anyway (it invokes `python code/generate_descriptors.py` without the required\
+    \ `--input-csv`/`--output-csv` arguments, and the script's convergence path returns\
+    \ None"
+  sig: 7845250a6d447ba389eed41814c0a37c7ad39259156ebf50a0e3a563f12ce402
+T013a:
+  c: false
+  h: 995f85d20c7b623a4e69c4616e1d74ae5ad0a23215a078d4f0066d98313e9239
+  r: "The file exists but is not functional or requirement-complete: (1) it has no\
+    \ convergence retry with perturbed coordinates and no HOMO>=LUMO physical-validity\
+    \ retry/`PhysicalInvalidityError` \u2014 the two core logic requirements; (2)\
+    \ it calls `log_dftb_invocation(molecule_id, str(base_temp))` and `log_resource_snapshot(duration)`\
+    \ with signatures that don't match the actual `logging_utils` functions (which\
+    \ require a logger plus several more args), and it uses `time.time()` without\
+    \ importing `time`, so the module would crash at runtime; (3) the generated `dftb_in.hsd`\
+    \ is not valid DFTB+ input (e.g., "
+  sig: 75a21bbfc33e1f8c044669fca1aa18c75a0af68278f2564fc9017a26f5b649d1
+T013b:
+  c: false
+  h: a497a09bedf3d98dbbc2ca10a60cf6d47ac3073ecc8b254808480485d3cc4794
+  r: "The file exists and the three log functions (`log_convergence_failure`, `log_structural_failure`,\
+    \ `log_oom_failure`) correctly write the required `molecule_id, timestamp, error_code,\
+    \ error_message` schema. However, the OOM-handling portion is stubbed: `monitor_memory_usage`\
+    \ explicitly returns `0.0` with a \"This is a placeholder\" comment, `check_process_memory`\
+    \ unconditionally returns `True`, and `run_with_oom_protection` is marked \"Placeholder\
+    \ for actual implementation\" \u2014 so the required OOM signal detection/kill\
+    \ behavior is not actually implemented. There is also no evidence (log files or\
+    \ tes"
+  sig: 2b0a9afebd52fce09a7ddeb080de7a1c09c22ec05a253df8040aefccbc6fcae6
+T020a:
+  c: false
+  h: f3a4610afca0fc2cbc8f1b6059e641416b957fb3a0cc36ed33b401d1a1ad28f5
+  r: "The required input file `data/raw/barrier_dataset.csv` is absent, so the script\
+    \ cannot perform the subset\u2011selection logic as specified. Additionally, the\
+    \ provided `code/dft_calculator.py` is only partially shown and appears truncated,\
+    \ leaving doubt that the full subset\u2011selection implementation is present.\
+    \ The missing dataset (and likely incomplete code) must be added for the task\
+    \ to be considered complete."
+T021:
+  c: false
+  h: f3d2f238f221092f75d0a8d28a5715d5233abe11244e9d59d24ded884b4d5b6e
+  r: The provided `code/train_models.py` is truncated and does not contain the logic
+    to load `state/splits.json`, filter the descriptor files, train both Random Forest
+    models, or ensure identical splits and random state. Additionally, the required
+    input files `data/descriptors_semi.csv` and `data/descriptors_dft.csv` are missing
+    from the repository.
+T022:
+  c: false
+  h: 36f9065e8f5c76341fdef8eb059659e4a114bcd5f8ba682cd1809e4d03376a34
+  r: "The repository lacks the required output file `reports/evaluation.json` and\
+    \ the input `data/descriptors_dft.csv` (both are missing), so the script cannot\
+    \ be executed to produce the specified results. Additionally, the provided `code/evaluate_models.py`\
+    \ is truncated and does not demonstrate the full per\u2011fold MAE computation,\
+    \ paired t\u2011test logic, or the required JSON structure. These artifacts must\
+    \ be present and complete for the task to be considered done."
+T029:
+  c: false
+  h: 09b75083a90b7e63791606b70c7e1190edc4915ca321a631b261d20dafb56afd
+  r: The required output file `reports/sensitivity.csv` does not exist, and the provided
+    `code/sensitivity_analysis.py` is incomplete (truncated) and does not clearly
+    implement the full logic to map the three specified descriptors, compute ranks
+    and cumulative importance, and write the CSV with the exact schema. The task therefore
+    remains unfinished.
+T033a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No runtime logs, execution traces, or any output files (e.g., a completed pipeline\
+    \ run on a sample subset) were provided; the claim lacks any concrete artifact\
+    \ demonstrating that the full pipeline was executed end\u2011to\u2011end. The\
+    \ required evidence is missing."
+T035:
+  c: false
+  h: a7919bc7101f276e758e650add98a9cac81a285c956c04c2209f40844df4d8a5
+  r: "The repository contains a partially\u2011implemented `code/generate_summary_report.py`\
+    \ (the file ends abruptly and lacks the full logic to write the markdown report),\
+    \ and the required output `reports/summary_report.md` is not present at all. Both\
+    \ the script and the generated summary report are missing, so the task is not\
+    \ satisfied."

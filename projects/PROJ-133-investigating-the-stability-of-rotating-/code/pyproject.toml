@@ -3,7 +3,7 @@ requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "rotating-bec-stability"
+name = "llmxive-rotating-bec"
 version = "0.1.0"
 description = "Investigating the Stability of Rotating Bose-Einstein Condensates with Dipolar Interactions"
 requires-python = ">=3.9"
@@ -16,33 +16,54 @@ dependencies = [
     "numba",
     "ruff",
     "black",
+    "psutil",
 ]
 
 [tool.black]
 line-length = 88
-target-version = ['py39']
+target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
-extend-exclude = '''
+exclude = '''
 /(
     \.git
-    | \.mypy_cache
-    | \.ruff_cache
-    | \.venv
-    | build
-    | dist
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+  | data
+  | docs
 )/
 '''
-
-[tool.ruff]
-line-length = 88
-target-version = "py39"
-
-[tool.ruff.lint]
-select = ["E", "W", "F", "I", "B", "C4", "UP"]
-ignore = []
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
-addopts = "-v --tb=short"
+addopts = "-v --strict-markers"
+markers = [
+    "unit: Unit tests",
+    "integration: Integration tests",
+    "contract: Contract tests",
+    "slow: Slow running tests",
+]
+
+[tool.ruff]
+# This is redundant with .ruff.toml but ensures pyproject works if .ruff.toml is ignored
+line-length = 88
+target-version = "py39"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "B", "C4", "UP", "N"]
+ignore = ["E501"]
+fixable = ["ALL"]
+unfixable = []
+
+[tool.ruff.lint.isort]
+known-first-party = ["simulation", "analysis", "statistics", "viz", "models", "config", "utils"]
+force-sort-within-sections = true
+combine-as-imports = true
+split-on-trailing-comma = true

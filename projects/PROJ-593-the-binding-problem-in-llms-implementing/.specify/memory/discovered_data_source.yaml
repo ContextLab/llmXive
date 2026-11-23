@@ -1,0 +1,13 @@
+status: none
+intent: download EEG Motor Movement Imagery dataset as python package dataset
+required_fields:
+- subject_id
+- recording_id
+- sampling_rate
+- channel_names
+- eeg_signal
+- event_labels
+- timestamp
+cache_key: f93208f4e5c9840a62b70435a81cf2e6781dd065f0099bfc57c628f010431bfa
+searched_at: '2026-10-09T09:53:34.597848+00:00'
+retry_count: 1

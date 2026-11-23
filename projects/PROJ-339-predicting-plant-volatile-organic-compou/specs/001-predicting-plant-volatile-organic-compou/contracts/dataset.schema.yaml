@@ -1,150 +1,127 @@
+# Dataset Schema for Predicting Plant VOC Emission Profiles
+# This file defines the expected structure for Sample, GenomicFeature, EnvironmentalFeature, and VOCProfile objects.
+# Used for validation of both real and synthetic data.
+
 $schema: http://json-schema.org/draft-07/schema#
-title: Plant VOC Genomic Dataset Schema
-description: >
-  Base schema for the merged genomic and environmental dataset used to predict
-  plant volatile organic compound (VOC) emission profiles. This schema defines
-  the expected structure for `data/processed/merged_dataset.csv` and intermediate
-  artifacts.
-type: object
-properties:
-  meta:
+title: Plant VOC Dataset Schema
+description: Schema for the plant volatile organic compound prediction pipeline.
+
+definitions:
+  Sample:
     type: object
-    description: Metadata about the dataset generation
+    required:
+      - sample_id
+      - species
+      - tissue_type
+      - collection_date
     properties:
+      sample_id:
+        type: string
+        description: Unique identifier for the sample.
+      species:
+        type: string
+        description: Scientific name of the plant species (e.g., Arabidopsis thaliana).
+      tissue_type:
+        type: string
+        description: Type of plant tissue (e.g., leaf, flower, root).
+      collection_date:
+        type: string
+        format: date
+        description: Date of sample collection (YYYY-MM-DD).
+      experiment_id:
+        type: string
+        description: Identifier for the experiment this sample belongs to.
       source:
         type: string
-        description: Source of the data (e.g., 'synthetic', 'NCBI_GEO', 'Metabolomics_Workbench')
-      version:
+        description: Data source (e.g., NCBI GEO, Metabolomics Workbench, Synthetic).
+      accession_id:
         type: string
-        description: Schema version
-      generated_at:
-        type: string
-        format: date-time
-        description: ISO 8601 timestamp of generation
-      sample_count:
-        type: integer
-        minimum: 1
-        description: Total number of samples in the dataset
-      feature_count:
-        type: integer
-        minimum: 1
-        description: Total number of feature columns (genes/pathways + environmental)
-    required:
-      - source
-      - version
-      - generated_at
-      - sample_count
-      - feature_count
+        description: Original accession ID from the data source.
 
-  columns:
-    type: array
-    description: Definition of each column in the dataset
-    items:
-      type: object
-      properties:
-        name:
-          type: string
-          description: Column name as it appears in the CSV
-        type:
-          type: string
-          enum:
-            - sample_id
-            - gene_expression_tpm
-            - pathway_aggregate
-            - environmental_continuous
-            - environmental_categorical
-            - voc_target
-            - metadata
-          description: Semantic type of the column
-        required:
-          type: boolean
-          description: Whether the column must be present and non-null
-        description:
-          type: string
-          description: Human-readable description of the column
-        unit:
-          type: string
-          nullable: true
-          description: Physical unit (e.g., 'TPM', '°C', 'µmol/m²/s', 'ppb')
-      required:
-        - name
-        - type
-        - required
-        - description
-    minItems: 1
-
-  constraints:
+  GenomicFeature:
     type: object
-    description: Business logic constraints enforced during validation
+    required:
+      - sample_id
     properties:
-      min_replicates:
-        type: integer
-        default: 3
-        description: Minimum biological replicates required per condition (FR-011)
-      required_environmental_fields:
-        type: array
-        items:
-          type: string
-        default:
-          - temperature
-          - light_intensity
-        description: Environmental fields that must be present for inclusion (FR-012)
-      voc_targets:
-        type: array
-        items:
-          type: string
-        description: List of valid VOC target column names
-      gene_expression_threshold:
+      sample_id:
+        type: string
+        description: Foreign key linking to Sample.
+      gene_id:
+        type: string
+        description: Gene identifier (e.g., AT1G01010).
+      gene_symbol:
+        type: string
+        description: Common gene symbol if available.
+      tpm:
         type: number
-        default: 0.0
-        description: Minimum TPM value considered valid (non-negative)
-    required:
-      - min_replicates
-      - required_environmental_fields
-      - voc_targets
+        description: Transcripts Per Million normalized expression value.
+      raw_count:
+        type: integer
+        description: Raw read count before normalization.
+      pathway:
+        type: string
+        description: Associated metabolic pathway (e.g., Terpenoid biosynthesis).
+      family:
+        type: string
+        description: Gene family (e.g., TPS-a, TPS-b).
 
-  examples:
+  EnvironmentalFeature:
     type: object
-    description: Example rows conforming to the schema
-    properties:
-      sample_row:
-        type: object
-        description: A single representative row of data
-        properties:
-          sample_id:
-            type: string
-            example: "AT_STRESS_001"
-          gene_At1g01010_tpm:
-            type: number
-            example: 12.5
-          pathway_terpene_tpm:
-            type: number
-            example: 45.2
-          temperature:
-            type: number
-            example: 22.5
-          light_intensity:
-            type: number
-            example: 150.0
-          stress_condition:
-            type: string
-            example: "drought"
-          monoterpenes_ppb:
-            type: number
-            example: 10.5
-          sesquiterpenes_ppb:
-            type: number
-            example: 2.1
-        required:
-          - sample_id
-          - temperature
-          - light_intensity
-          - stress_condition
     required:
-      - sample_row
+      - sample_id
+    properties:
+      sample_id:
+        type: string
+        description: Foreign key linking to Sample.
+      temperature:
+        type: number
+        description: Temperature in Celsius.
+      light_intensity:
+        type: number
+        description: Light intensity in µmol m⁻² s⁻¹.
+      co2_level:
+        type: number
+        description: CO2 concentration in ppm.
+      humidity:
+        type: number
+        description: Relative humidity in %.
+      stress_condition:
+        type: string
+        description: Description of applied stress (e.g., drought, heat, herbivory).
+      duration_hours:
+        type: number
+        description: Duration of stress exposure in hours.
 
-required:
-  - meta
-  - columns
-  - constraints
-  - examples
+  VOCProfile:
+    type: object
+    required:
+      - sample_id
+    properties:
+      sample_id:
+        type: string
+        description: Foreign key linking to Sample.
+      compound_name:
+        type: string
+        description: Name of the VOC compound.
+      cas_number:
+        type: string
+        description: CAS registry number if available.
+      emission_rate:
+        type: number
+        description: Emission rate (e.g., ng g⁻¹ h⁻¹).
+      unit:
+        type: string
+        description: Unit of measurement.
+      detection_limit:
+        type: number
+        description: Limit of detection.
+      compound_class:
+        type: string
+        description: Chemical class (e.g., Monoterpene, Sesquiterpene, Green Leaf Volatile).
+
+# Root schema for a single record (union of types)
+oneOf:
+  - $ref: "#/definitions/Sample"
+  - $ref: "#/definitions/GenomicFeature"
+  - $ref: "#/definitions/EnvironmentalFeature"
+  - $ref: "#/definitions/VOCProfile"

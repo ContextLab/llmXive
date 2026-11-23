@@ -1,0 +1,26 @@
+# Ruff configuration file (alternative to pyproject.toml)
+# This file is used if ruff is invoked directly without pyproject.toml settings
+
+target-version = "py311"
+line-length = 88
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (black handles this)
+    "B008", # do not perform function calls in argument defaults
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401"]
+
+[lint.isort]
+known-first-party = ["code", "utils", "data", "heuristics", "eval", "models", "analysis"]
+force-single-line = false

@@ -1,0 +1,17 @@
+{
+  "external_data_available": false,
+  "sources_checked": [
+    "NOMAD API",
+    "PubChem",
+    "research.md DOIs"
+  ],
+  "last_checked": "2024-01-15T10:30:00.000000",
+  "found_urls": [],
+  "error_details": [
+    "NOMAD: NOMAD API request failed: Connection timeout",
+    "PubChem: PubChem request failed: Connection timeout",
+    "DOIs: No DOIs found in research.md",
+    "No external data sources found after checking all methods."
+  ],
+  "validation_mode": "internal_fallback"
+}

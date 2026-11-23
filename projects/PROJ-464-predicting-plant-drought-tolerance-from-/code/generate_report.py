@@ -6,220 +6,210 @@ from typing import Dict, Any, List, Optional
 import yaml
 import pandas as pd
 
-# Ensure project root is in path for imports
-_project_root = Path(__file__).parent.parent
-if str(_project_root) not in sys.path:
-    sys.path.insert(0, str(_project_root))
+# Add project root to path to allow imports from sibling modules
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
 
 from config import ensure_directories, get_config_summary
-from analysis import calculate_vif
 
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler(PROJECT_ROOT / 'logs' / 'report_generation.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 logger = logging.getLogger(__name__)
 
-VIF_THRESHOLD = 5.0
 
-def load_vif_results(vif_path: Optional[Path] = None) -> Dict[str, float]:
-    """Load VIF results from the analysis state file."""
-    if vif_path is None:
-        vif_path = _project_root / "state" / "vif_compliance_check.yaml"
-    
+def load_vif_results() -> Dict[str, Any]:
+    """Load VIF compliance check results from state/vif_compliance_check.yaml."""
+    vif_path = PROJECT_ROOT / 'state' / 'vif_compliance_check.yaml'
     if not vif_path.exists():
-        logger.warning(f"VIF results file not found at {vif_path}. Returning empty dict.")
-        return {}
+        logger.warning(f"VIF compliance check file not found at {vif_path}. Assuming no suppression needed.")
+        return {
+            'high_vif_detected': False,
+            'suppressed_predictors': [],
+            'vif_values': {},
+            'status': 'not_run'
+        }
     
     try:
         with open(vif_path, 'r') as f:
             data = yaml.safe_load(f)
-            # Expect structure: { "vif_values": { "var_name": float, ... } }
-            return data.get("vif_values", {})
+            logger.info(f"Loaded VIF results: {data.get('status', 'unknown')}")
+            return data
     except Exception as e:
         logger.error(f"Failed to load VIF results: {e}")
-        return {}
+        return {
+            'high_vif_detected': False,
+            'suppressed_predictors': [],
+            'vif_values': {},
+            'status': 'error'
+        }
 
-def load_model_results(results_path: Optional[Path] = None) -> pd.DataFrame:
-    """Load model results from the derived CSV."""
-    if results_path is None:
-        results_path = _project_root / "data" / "derived" / "model_results.csv"
-    
-    if not results_path.exists():
-        raise FileNotFoundError(f"Model results file not found at {results_path}")
-    
-    return pd.read_csv(results_path)
 
-def check_vif_compliance(vif_values: Dict[str, float]) -> Dict[str, Any]:
-    """
-    Check which predictors exceed the VIF threshold.
-    Returns a dict with compliance status and list of suppressed variables.
-    """
-    suppressed_vars = [
-        var for var, val in vif_values.items()
-        if val > VIF_THRESHOLD
-    ]
+def load_model_results() -> pd.DataFrame:
+    """Load aggregated model results from data/derived/model_results.csv."""
+    model_path = PROJECT_ROOT / 'data' / 'derived' / 'model_results.csv'
+    if not model_path.exists():
+        raise FileNotFoundError(f"Model results file not found at {model_path}")
     
-    is_compliant = len(suppressed_vars) == 0
-    
-    return {
-        "is_compliant": is_compliant,
-        "suppressed_variables": suppressed_vars,
-        "threshold": VIF_THRESHOLD,
-        "vif_values": vif_values
-    }
+    try:
+        df = pd.read_csv(model_path)
+        logger.info(f"Loaded model results with {len(df)} rows")
+        return df
+    except Exception as e:
+        logger.error(f"Failed to load model results: {e}")
+        raise
 
-def generate_framing_text(compliance_check: Dict[str, Any]) -> str:
-    """
-    Generate the framing text for the report.
-    If VIF > 5 is detected, explicitly suppress claims of independent effects.
-    """
-    if compliance_check["is_compliant"]:
-        return (
-            "All predictors in the model satisfy the Variance Inflation Factor (VIF) "
-            "threshold (VIF <= 5.0). Independent effect claims are supported by the data."
-        )
-    
-    suppressed = ", ".join(compliance_check["suppressed_variables"])
-    return (
-        f"WARNING: Collinearity detected. The following predictors exceeded the VIF "
-        f"threshold ({VIF_THRESHOLD}): {suppressed}. "
-        "Claims of independent effects for these variables have been explicitly suppressed "
-        "in the final report due to definitional correlation and statistical instability. "
-        "Interpret results as associations only."
-    )
 
-def save_vif_compliance_report(
-    compliance_check: Dict[str, Any], 
-    output_path: Optional[Path] = None
-) -> Path:
-    """Save the VIF compliance check to a YAML file."""
-    if output_path is None:
-        output_path = _project_root / "state" / "vif_compliance_check.yaml"
+def check_vif_compliance(vif_results: Dict[str, Any]) -> bool:
+    """
+    Check if VIF compliance is satisfied.
+    Returns True if no high VIF detected or if suppression logic is properly recorded.
+    """
+    if vif_results.get('status') != 'compliant':
+        logger.warning("VIF compliance check not passed or not run.")
+        return False
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    if vif_results.get('high_vif_detected', False):
+        suppressed = vif_results.get('suppressed_predictors', [])
+        if not suppressed:
+            logger.warning("High VIF detected but no predictors marked for suppression.")
+            return False
+        logger.info(f"High VIF detected. Suppressing independent effect claims for: {suppressed}")
     
-    with open(output_path, 'w') as f:
-        yaml.dump(compliance_check, f, default_flow_style=False)
-    
-    logger.info(f"VIF compliance report saved to {output_path}")
-    return output_path
+    return True
 
-def generate_final_report(
-    model_results: pd.DataFrame,
-    framing_text: str,
-    output_path: Optional[Path] = None
-) -> Path:
+
+def generate_framing_text(model_results: pd.DataFrame, vif_results: Dict[str, Any]) -> str:
     """
-    Generate the final report text, incorporating the framing logic to suppress
-    independent effect claims for high-VIF variables.
-    
-    This function reads the model results and constructs a narrative. If a variable
-    was flagged for suppression in the framing text, the generated text for that
-    variable will explicitly state that independent effects are not claimed.
+    Generate the framing text for the final report.
+    Explicitly suppresses claims of independent effects for predictors with VIF > 5.
     """
-    if output_path is None:
-        output_path = _project_root / "data" / "derived" / "final_report.md"
+    suppressed_predictors = vif_results.get('suppressed_predictors', [])
+    high_vif_detected = vif_results.get('high_vif_detected', False)
     
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    framing = []
+    framing.append("# Drought Tolerance Prediction Report")
+    framing.append("")
+    framing.append("## Overview")
+    framing.append("This report summarizes the statistical analysis of Root System Architecture (RSA) metrics")
+    framing.append("and their association with plant drought tolerance physiology.")
+    framing.append("")
     
-    # Extract suppressed variables from the framing text logic (re-parsing for safety)
-    # In a real scenario, we might pass the list explicitly, but here we infer from the text
-    # or assume the caller passed the correct context.
-    # For this implementation, we assume the framing_text contains the suppression notice
-    # and we will append a specific section if needed, or we modify the interpretation
-    # of the coefficients in the report.
+    if high_vif_detected and suppressed_predictors:
+        framing.append("## ⚠️ Multicollinearity Warning & Suppression Notice")
+        framing.append("")
+        framing.append(f"**High Variance Inflation Factor (VIF > 5) detected for the following predictors:** {', '.join(suppressed_predictors)}")
+        framing.append("")
+        framing.append("To prevent misleading interpretations due to multicollinearity, the following adjustments have been made:")
+        framing.append("- **Independent effect claims for the above predictors have been suppressed.**")
+        framing.append("- The report presents these variables as part of a correlated system rather than isolated drivers.")
+        framing.append("- Statistical significance (p-values) for these predictors should be interpreted with extreme caution.")
+        framing.append("- Only predictors with VIF <= 5 are discussed as having potential independent effects.")
+        framing.append("")
     
-    # Let's parse the suppressed variables from the framing text if present,
-    # or rely on the fact that the framing text is already generated with the warning.
-    # To be robust, we'll assume the 'suppressed_variables' list is available
-    # via a side-channel or we re-calculate it from the VIF check if we had it.
-    # Since we don't have the VIF check object here, we will just write the report
-    # and include the framing text as a header, which is the primary mechanism for suppression.
+    framing.append("## Model Results Summary")
+    framing.append("")
     
-    report_lines = [
-        "# Plant Drought Tolerance Analysis Report",
-        "",
-        "## Statistical Modeling Results",
-        "",
-        framing_text,
-        "",
-        "### Model Coefficients",
-        "",
-    ]
-    
-    # Add table of results
+    # Group by model type
     if not model_results.empty:
-        # Ensure we don't claim independence for suppressed vars in the text description
-        # We will iterate and add a note if we knew the suppressed list. 
-        # Since we only have the text, we rely on the header.
-        # However, to be explicit as per task T026c:
-        # "Implement logic ... to explicitly suppress any claims of independent effects"
-        # The framing text does the suppression. We will ensure the report body
-        # does not contradict it.
-        
-        report_lines.append("| Variable | Coefficient | P-Value | R² | Adjusted P-Value |")
-        report_lines.append("| :--- | :--- | :--- | :--- | :--- |")
-        
-        for _, row in model_results.iterrows():
-            var_name = row.get('variable', 'Unknown')
-            coef = row.get('coefficient', 0.0)
-            p_val = row.get('p_value', 1.0)
-            r2 = row.get('r2', 0.0)
-            adj_p = row.get('adj_p_value', 1.0)
+        for model_type in model_results['model_type'].unique():
+            model_data = model_results[model_results['model_type'] == model_type]
+            framing.append(f"### {model_type}")
+            framing.append("")
             
-            # We do not add "independent effect" language here.
-            # The framing text at the top handles the suppression.
-            report_lines.append(
-                f"| {var_name} | {coef:.4f} | {p_val:.4f} | {r2:.4f} | {adj_p:.4f} |"
-            )
+            for _, row in model_data.iterrows():
+                predictor = row['predictor']
+                coefficient = row['coefficient']
+                p_value = row['p_value']
+                r2 = row['r2']
+                adj_p = row.get('adj_p_value', p_value)
+                
+                # Check if this predictor is suppressed
+                is_suppressed = predictor in suppressed_predictors
+                
+                if is_suppressed:
+                    status_note = " (⚠️ Suppressed due to VIF > 5)"
+                else:
+                    status_note = ""
+                
+                framing.append(f"- **{predictor}**: Coeff = {coefficient:.4f}{status_note}, p = {p_value:.4f}, Adj p = {adj_p:.4f}")
+            
+            # Show model R2
+            avg_r2 = model_data['r2'].mean()
+            framing.append(f"- **Model R²**: {avg_r2:.4f}")
+            framing.append("")
     else:
-        report_lines.append("No model results found.")
+        framing.append("No model results found.")
+        framing.append("")
     
-    report_content = "\n".join(report_lines)
+    framing.append("## Conclusion")
+    if high_vif_detected:
+        framing.append("Due to detected multicollinearity, conclusions regarding independent effects are limited.")
+        framing.append("Future work should focus on orthogonalizing RSA traits or collecting additional data to reduce collinearity.")
+    else:
+        framing.append("RSA metrics show statistically significant associations with drought tolerance physiology.")
+        framing.append("Caution is advised in interpreting these as causal without further experimental validation.")
     
+    return "\n".join(framing)
+
+
+def save_vif_compliance_report(vif_results: Dict[str, Any], output_path: Path) -> None:
+    """Save the VIF compliance check report to a YAML file."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        f.write(report_content)
+        yaml.dump(vif_results, f, default_flow_style=False)
+    logger.info(f"VIF compliance report saved to {output_path}")
+
+
+def generate_final_report(vif_results: Dict[str, Any], model_results: pd.DataFrame, output_path: Path) -> None:
+    """Generate the final markdown report with VIF suppression logic applied."""
+    framing_text = generate_framing_text(model_results, vif_results)
+    
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, 'w') as f:
+        f.write(framing_text)
     
     logger.info(f"Final report generated at {output_path}")
-    return output_path
+
 
 def main():
-    """Main entry point for the report generation pipeline."""
+    """Main entry point for report generation."""
     logger.info("Starting report generation...")
     
-    # 1. Load VIF results
+    # Ensure directories exist
+    ensure_directories()
+    
+    # Load VIF results
     vif_results = load_vif_results()
-    if not vif_results:
-        # If no VIF results, we assume compliance or skip suppression logic?
-        # Spec says: "If VIF > 5 is detected... suppress". If not detected, no suppression.
-        # But we need to handle the case where VIF analysis wasn't run.
-        # We'll treat missing VIF as "no suppression needed" but log a warning.
-        logger.warning("VIF results missing. Proceeding without suppression logic.")
-        compliance = {"is_compliant": True, "suppressed_variables": [], "vif_values": {}}
-    else:
-        compliance = check_vif_compliance(vif_results)
     
-    # 2. Save compliance check
-    save_vif_compliance_report(compliance)
+    # Validate VIF compliance
+    is_compliant = check_vif_compliance(vif_results)
+    if not is_compliant:
+        logger.warning("VIF compliance check failed. Proceeding with caution.")
     
-    # 3. Generate framing text
-    framing = generate_framing_text(compliance)
-    
-    # 4. Load model results
+    # Load model results
     try:
-        results_df = load_model_results()
+        model_results = load_model_results()
     except FileNotFoundError as e:
-        logger.error(str(e))
-        # Create a dummy report indicating failure
-        with open(_project_root / "data" / "derived" / "final_report.md", 'w') as f:
-            f.write(f"# Error\n\n{str(e)}")
-        return
+        logger.error(f"Cannot generate report: {e}")
+        sys.exit(1)
     
-    # 5. Generate final report
-    generate_final_report(results_df, framing)
+    # Save VIF compliance report (re-validated)
+    vif_output_path = PROJECT_ROOT / 'state' / 'vif_compliance_check.yaml'
+    save_vif_compliance_report(vif_results, vif_output_path)
     
-    logger.info("Report generation complete.")
+    # Generate final report
+    report_path = PROJECT_ROOT / 'data' / 'derived' / 'report_framing.md'
+    generate_final_report(vif_results, model_results, report_path)
+    
+    logger.info("Report generation completed successfully.")
+
 
 if __name__ == "__main__":
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
     main()

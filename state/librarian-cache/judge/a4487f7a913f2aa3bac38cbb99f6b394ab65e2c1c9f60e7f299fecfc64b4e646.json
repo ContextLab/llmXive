@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2309.05503",
+  "judged_at": "2026-07-31T21:30:57Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"synthdocbench: controlled benchmark for long-context visual document u\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the same mechanism (long-context processing in visual document understanding) and variables (performance of Transformer architectures on long multi-page documents) that the user's question regarding \"Long-Context Visual Document\" benchmarks addresses, serving as essential prior work for the domain.",
+  "relevant": true
+}

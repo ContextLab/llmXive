@@ -1,0 +1,15 @@
+torch==2.3.0
+transformers==4.44.0
+datasets==2.21.0
+scikit-learn==1.5.2
+pandas==2.2.3
+numpy==2.1.2
+pyyaml==6.0.2
+pytest==8.3.3
+statsmodels==0.14.3
+psutil==6.0.0
+huggingface_hub==0.26.1
+pymer4==0.8.2
+minigrid==2.2.0
+bitsandbytes==0.44.1
+# The above versions are pinned to ensure reproducibility.

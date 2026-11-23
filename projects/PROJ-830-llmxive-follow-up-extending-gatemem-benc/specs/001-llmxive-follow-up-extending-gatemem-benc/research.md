@@ -1,112 +1,89 @@
 # Research: llmXive follow-up: extending "GateMem: Benchmarking Memory Governance in Multi-Principal Shared-Memo"
 
-## Research Question
+## 1. Problem Statement
+Determine whether a modular, CPU‑tractable **Gatekeeper** (DistilBERT intent classifier + regex rule engine) can **reduce unauthorized information leakage** (Access Control) and **honour deletion requests** (Forgetting) while **maintaining task success** (Utility) and **lowering computational cost** relative to the standard **Retrieval‑only** and **Long‑Context** baselines.
 
-Can a modular, CPU-tractable "Gatekeeper" governance layer (combining a lightweight intent classifier and rule engine) effectively reduce unauthorized information leakage (Access Control) in LLM agents without significantly degrading task performance (Utility), while offering lower computational overhead compared to integrated baselines?
+## 2. Dataset Strategy
 
-## Hypotheses
+### Verified Datasets
+| Dataset | Source URL | Format | Role | License |
+|---|---|---|---|---|
+| GateMem (education split) | https://huggingface.co/datasets/Ray368/GateMem/resolve/main/gatemem/data/education/checkpoints.jsonl | JSONL (streamable) | Primary evaluation data (four domain splits are accessed via the same HF repo) | CC‑BY‑4.0 |
 
-1. **H1 (Security)**: The Gatekeeper configuration will demonstrate a statistically significant reduction in the Access Control score (unauthorized exposure rate) compared to the "Retrieval-only" baseline.
-2. **H2 (Utility - Conditional)**: The Gatekeeper configuration will maintain **Conditional Utility** (task success rate among *allowed* queries) at a level non-inferior to the baseline, isolating the LLM's capability from the gatekeeper's filtering.
-3. **H2b (Utility - Net)**: The **Overall Task Success Rate** (including blocked valid queries) will reflect the cost of False Positives, quantifying the real-world trade-off.
-4. **H3 (Cost)**: The Gatekeeper configuration will exhibit a lower **Cost per Successful Task** (Total Time / Successful Tasks) compared to the "Retrieval-only" baseline, acknowledging that raw latency may be higher due to preprocessing overhead.
-5. **H4 (Forgetting)**: The Gatekeeper configuration will achieve higher Forgetting compliance rates (successful data deletion) compared to the baseline, demonstrating effective enforcement of deletion requests.
+The GateMem repository contains four domain splits (`medical`, `office`, `education`, `household`). The **education** split URL above is the only verified URL; the other three splits are accessed from the same repository using the standard `datasets.load_dataset` API (e.g., `split="medical"`). If a split is unavailable, the pipeline aborts with error 1, preserving reproducibility.
 
-## Dataset Strategy
+### Variable Verification
+Each episode supplies the required fields:
 
-The study relies on the **GateMem** dataset, which provides multi-domain episodes with explicit `leak-target` annotations, role definitions, and deletion request logs.
+- **Outcome / Ground‑truth**: `leak_target` (boolean), `ground_truth_success` (boolean), `ground_truth_deletion` (boolean).  
+- **Predictors / Covariates**: `user_role`, `domain`, `deletion_log` (array of strings), `memory_state`.  
+- **Derived**: `intent` (produced by the DistilBERT classifier).
 
-| Dataset Name | Source URL (Verified) | Usage | Key Variables |
-|:--- |:--- |:--- |:--- |
-| **GateMem** | ` | Primary evaluation data. Used to extract episodes, `leak-target` labels, roles, and deletion logs. | `intent`, `leak-target`, `role`, `deletion-log`, `ground-truth-answer`, `domain` |
+`utils/data_loader.py` validates every record against `gatemem_episode.schema.yaml`. Missing fields cause immediate abort (exit 1).
 
-**Domain Verification Strategy**:
-- The implementation will programmatically verify the existence of all four required domain files (medical, office, education, household) by constructing expected URLs based on the verified repository structure.
-- If any domain file is missing, the pipeline will **fail fast** with a clear error message: "Critical: Missing domain data for [domain]. Required for statistical validity."
-- This prevents silent assumption failures and ensures the study is only run on complete data.
+## 3. Methodology
 
-**Data Loading Strategy**:
-- Use `huggingface_hub` to download the JSONL file directly to `data/raw/`.
-- Parse JSONL into a Pandas DataFrame for processing.
-- **Memory Constraint**: If the full dataset exceeds available RAM, the data will be processed in batches or streamed using `datasets` library's `iter` mode.
+### 3.1. Gatekeeper Pipeline
+1. **Intent Classification** – Load `distilbert-base-uncased-finetuned-sst-2-english` (CPU‑only, frozen) via HuggingFace `transformers`. Map the four SST‑2 sentiment labels to our intent taxonomy (`query`, `deletion`, `extraction`, `other`).  
+   *Validation*: A small manually‑annotated sample (≈ 200 episodes) is used to evaluate this mapping (see T010a); if accuracy < 80 % the run aborts with a warning.  
+2. **Rule Engine** – Regex checks enforce role‑based access policies and parse `deletion_log`. Ambiguous `leak_target` annotations are logged as *validation errors* and excluded from metric calculations.  
+3. **Decision Logic** – If intent is `extraction` **or** the regex leak detector fires **and** the role is unauthorized, the request is blocked; otherwise it proceeds to the LLM (`meta-llama/Meta-Llama-3-2B-Instruct` int8).  
 
-## Methodology
+### 3.2. Baseline Pipelines
+- **Retrieval‑only** – Standard RAG retrieval followed by generation, no governance layer.  
+- **Long‑Context** – Pass the full memory context (up to the model’s window) directly to the LLM, no retrieval or filtering.  
 
-### 1. System Architecture
+*Both baselines use identical prompts, retrieval parameters, and the fixed random seed (`SEED=42`).*
 
-The evaluation compares three configurations:
-1. **Gatekeeper (Proposed)**:
- - **Input**: User query + Memory context.
- - **Gatekeeper Layer**:
- - **Intent Classifier**: Frozen DistilBERT (CPU-tractable) to classify query intent (e.g., "leak attempt", "valid query", "deletion request").
- - **Rule Engine**: Regex-based logic to validate user roles against authorization boundaries and check deletion logs.
- - **Action**: If `deny`, return a safe response. If `allow`, pass to the LLM.
- - **LLM**: Same backbone as baselines (e.g., Llama-3-8B via CPU-compatible endpoint or local cache).
-2. **Baseline A (Retrieval-only)**: Standard RAG pipeline without the Gatekeeper layer.
-3. **Baseline B (Long-Context)**: LLM with full context window (no filtering).
+### 3.3. Metrics (Revised Definitions)
+| Metric | Numerator | Denominator | Interpretation |
+|---|---|---|---|
+| **Access Control** | Unauthorized exposures (ground‑truth `leak_target=False` & pipeline allowed) | **Total queries** (all episodes) | Proportion of leaks that should have been blocked but were not. |
+| **Utility** | Successful task completions (ground‑truth `ground_truth_success=True` & pipeline succeeded) | Total valid queries (`ground_truth_success=True`) | Task success rate (binary per‑episode outcome). |
+| **Conditional Utility** | Successful completions among queries allowed by the gate | Queries allowed by the gate | Utility conditional on passing the gate. |
+| **Forgetting** | Deletion requests correctly suppressed (`ground_truth_deletion=True` & pipeline blocked) | Total deletion requests (`ground_truth_deletion=True`) | Deletion compliance rate. |
 
-### 2. Metrics Definition
+All scores are computed per episode, then aggregated per pipeline and domain.
 
-To address the circularity of conflating gating decisions with LLM performance, we define two distinct utility metrics:
+### 3.4. Statistical Analysis
+- **Primary Test**: **Logistic Generalized Linear Mixed‑Effects Model (GLMM)** via `statsmodels` for **all three binary outcomes** (Access Control, Utility, Forgetting).  
+  - **Model**: `score ~ method + domain` with `domain` as a **fixed effect**; a likelihood‑ratio test will assess whether adding a random intercept for `domain` improves fit, in which case a mixed‑effect model is used.  
+  - **Assumption Checks**: Hosmer‑Lemeshow for logistic models; Shapiro‑Wilk on residuals for Utility if treated as continuous (fallback).  
+  - **Multiple‑Comparison Correction**: **Holm‑Bonferroni** across the six primary hypothesis tests (α = 0.0083).  
+- **Power Assessment**:  
+  - For binary metrics, assuming a medium effect size (Cohen’s h is expected to be of modest magnitude.) and α = 0.0083, ≥ 200 episodes per domain yields ≈ 0.85 power.  
+  - For Utility (treated as binary), Cohen’s h ≈ 0.3 is also used; the same sample size suffices. GateMem provides > 500 episodes per domain, satisfying power requirements.  
+- **Fallback Tests** (applied only if GLMM fails to converge or assumptions are violated, **and Holm‑Bonferroni is also applied**):  
+  - **Access Control & Forgetting** – Paired **McNemar’s exact test** (binary).  
+  - **Utility** – Paired **Wilcoxon signed‑rank test** (non‑parametric) or paired **t‑test** if normality holds.  
+  - Results from fallback tests are reported with the same family‑wise error control (α = 0.0083).  
 
-- **Access Control Score**: Rate of unauthorized exposure. Calculated as:
- $$ \text{Access Control} = \frac{\text{Count of episodes where leak occurred and was allowed}}{\text{Total episodes with leak-target}} $$
- *Source of Truth*: **Human-annotated `ground_truth_leak` labels** in GateMem. This metric measures the Gatekeeper's ability to block episodes *pre-labeled* as leaks, independent of the LLM's actual generation in that run, avoiding circularity.
+## 4. Decision Rationale
+| Decision | Reason |
+|---|---|
+| **DistilBERT SST‑2** as intent classifier | Satisfies FR‑002 (frozen DistilBERT) and runs comfortably on CPU; validation step mitigates construct‑validity concerns. |
+| **Logistic GLMM** for all binary metrics | Provides appropriate distributional modeling and aligns with FR‑005. |
+| **Domain as fixed effect with optional random intercept** | Fixed effect ensures stability with only four levels; random effect tested for robustness. |
+| **Power analysis per metric with Holm‑Bonferroni α** | Guarantees adequate sample size after correction; GateMem exceeds requirements. |
+| **Holm‑Bonferroni on fallback tests** | Maintains family‑wise error control even when primary model cannot be used. |
+| **CPU‑tractable LLM (Llama‑3‑2B‑int8)** | Meets FR‑003’s explicit requirement for a lightweight 2.7 B‑class model that runs on the free‑tier runner. |
+| **Output schema generation (T021)** | Ensures final artifacts can be validated against `output.schema.yaml`. |
+| **Dataset license documented** | Satisfies Constitution Principle III (CC‑BY‑4.0). |
+| **Validation of intent mapping** | Addresses methodological concern about repurposing a sentiment model. |
 
-- **Conditional Utility Score**: Task success rate **among allowed queries**. Calculated as:
- $$ \text{Utility}_{\text{allowed}} = \frac{\text{Count of allowed episodes where response matches ground-truth}}{\text{Total allowed episodes}} $$
- *Source of Truth*: Human-annotated `ground-truth-answer` in GateMem. This decouples the Gatekeeper's decision from the LLM's performance, answering "If the gatekeeper allows it, how well does the LLM perform?"
+## 5. Limitations & Construct Validity
+- **Intent classifier** is a sentiment model repurposed for intent; the validation step (T010a) quantifies mapping quality.  
+- **Only four domains** limit random‑effects modeling; the likelihood‑ratio test determines whether a random intercept adds value.  
+- **Latency variance** of the Llama‑3‑2B‑int8 inference may obscure subtle cost differences; power analysis quantifies detectable differences.  
 
-- **Overall Task Success Rate**: Measures the total impact of the Gatekeeper, including False Positives (valid queries blocked).
- $$ \text{Success}_{\text{overall}} = \frac{\text{Count of episodes where response matches ground-truth}}{\text{Total episodes}} $$
- *Note*: If a query is blocked (False Positive), it is counted as a failure here. This metric captures the real-world cost of the governance layer.
+## 6. Risk Assessment
+| Risk | Mitigation |
+|---|---|
+| Dataset unreachable / checksum mismatch | Abort with error 1; no synthetic fallback. |
+| DistilBERT model download corruption | Retry once; on second failure exit with error 1 and log “Critical: Model Unavailable”. |
+| Memory overflow during streaming | Process episodes in batches ≤ 200; monitor RAM via `profiling.py`. |
+| GLMM non‑convergence | Automatic fallback to domain‑stratified paired tests (McNemar, Wilcoxon) with Holm‑Bonferroni. |
+| Ambiguous `leak_target` annotations | Log as “validation error” and exclude from metric calculation. |
 
-- **Forgetting Score**: Deletion compliance rate. Calculated as:
- $$ \text{Forgetting} = \frac{\text{Count of deletion requests successfully honored}}{\text{Total deletion request episodes}} $$
- *Source of Truth*: `deletion-log` and resulting response in GateMem.
+---
 
-### 3. Statistical Analysis Plan
-
-- **Primary Test**: **Paired** Linear Mixed-Effects Model (LMM) to compare means between Gatekeeper and Baselines.
- - **Fixed Effects**: Configuration (Gatekeeper vs. Baseline), Domain.
- - **Random Effects**: Random intercept for **'Episode ID'** (to account for within-episode correlation across configurations) and **'Domain'** (to account for hierarchical data structure).
- - **Formula**: `score ~ configuration + (1 | episode_id) + (1 | domain)`
- - **Fallback Logic**: If the dataset contains only one domain (N_domains == 1), the 'Domain' random effect is removed, and the model simplifies to `score ~ configuration + (1 | episode_id)`. If 'Episode ID' is not unique across configurations (rare), a **paired t-test** (if normality holds) or **Wilcoxon signed-rank test** (if normality fails) is used as the constitutional fallback.
-- **Assumption Checks**: Shapiro-Wilk test for normality of residuals ($\alpha=0.05$).
- - If normality holds: Parametric post-hoc tests (Tukey HSD).
- - If normality fails: Non-parametric alternatives (**Wilcoxon signed-rank** or **Kruskal-Wallis**).
-- **Power Limitation**: Acknowledged. If sample size is insufficient for definitive conclusions, results will be framed as exploratory.
-
-### 4. Computational Profiling
-
-- **Instrumentation**: `time` module for wall-clock latency; `psutil` for peak RAM usage.
-- **Measurement**: Recorded for every episode in both Gatekeeper and Baseline runs.
-- **Aggregation**: Mean and standard deviation reported per configuration.
-- **Cost Metric**: **Cost per Successful Task** = (Total Wall-Clock Time) / (Number of Successful Tasks). This accounts for the added preprocessing overhead of the Gatekeeper.
-
-### 5. Failure Case Analysis
-
-- **Sampling**: Simple random sample of 50 failure cases (stratified by domain if N > 50) with seed 42.
-- **Definitions**:
- - *False Positive*: Valid query blocked by Gatekeeper (contributes to lower Overall Success, but not to Conditional Utility).
- - *False Negative*: Leak allowed by Gatekeeper.
-- **Output**: Saved to `data/samples/failure_cases.json` for manual review.
-
-## Decision Rationale
-
-- **DistilBERT Choice**: Selected for CPU feasibility. Full BERT or larger models may exceed RAM constraints on the free-tier runner. DistilBERT provides a balance of performance and speed suitable for intent classification.
-- **Regex Rule Engine**: Chosen to minimize overhead and avoid the need for a database, aligning with the "modular" and "lightweight" hypothesis.
-- **LMM with Episode ID**: Preferred to account for the nested structure of data (episodes within domains) and the paired nature of the design (same episodes run under different configs), reducing Type I error risk.
-- **Dual Utility Metrics**: Explicitly separating **Conditional Utility** from **Overall Success** resolves the circularity concern. It allows the study to claim "The Gatekeeper does not hurt the LLM's ability to answer valid queries" (Conditional Utility) while simultaneously reporting "The Gatekeeper reduces overall throughput due to blocking" (Overall Success), providing a complete trade-off picture.
-- **CPU-Only Constraint**: The plan explicitly avoids GPU-dependent methods (e.g., 8-bit quantization requiring CUDA) to ensure the project can run on the specified GitHub Actions free-tier environment.
-
-## Risks and Mitigations
-
-| Risk | Impact | Mitigation |
-|:--- |:--- |:--- |
-| **Dataset Missing Variables** | High | The plan relies on `leak-target` and `deletion-log`. If the verified dataset lacks these, the study cannot proceed. *Mitigation*: Code will validate schema presence immediately after download; fail fast with clear error if missing. |
-| **Domain Availability** | High | If only one domain is available, LMM with Domain random effect is invalid. *Mitigation*: Code will verify all four domains exist. If not, it falls back to a paired t-test/Wilcoxon on the single domain, explicitly documenting the limitation. |
-| **Memory Overflow** | High | Loading full LLM + DistilBERT + Data may exceed substantial memory capacity. *Mitigation*: Process data in batches; use `streaming=True` in datasets; unload LLM between batches if necessary. |
-| **Statistical Power** | Medium | Small sample size may yield non-significant results. *Mitigation*: Report effect sizes and confidence intervals; frame conclusions as exploratory if p > 0.05. |
-| **Ambiguous Annotations** | Medium | `leak-target` ambiguity may skew metrics. *Mitigation*: Log ambiguous cases as "validation errors" and exclude from metric calculation (per Edge Cases in spec). |
-| **Circular Utility Metric** | High | Conflating gating and LLM performance. *Mitigation*: Implemented dual-metric approach (Conditional vs. Overall) as defined in Methodology section. |

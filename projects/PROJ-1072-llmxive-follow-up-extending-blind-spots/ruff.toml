@@ -1,0 +1,26 @@
+# Ruff configuration for llmXive project
+# Enforces PEP 8 compliance with modern standards
+
+target-version = "py311"
+line-length = 88
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by Black)
+]
+
+[lint.isort]
+known-first-party = ["code", "tests"]
+force-single-line = true
+
+[lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow assert in tests

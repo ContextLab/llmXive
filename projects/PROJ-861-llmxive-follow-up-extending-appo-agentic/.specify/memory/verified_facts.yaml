@@ -1,0 +1,6 @@
+'|across iteration run seed':
+  quote: seeds with 50 internal replications per seed , enabling formal paired statistical
+    comparison
+  source_id: '2511.18065'
+  url: https://arxiv.org/abs/2511.18065
+  value: '50'

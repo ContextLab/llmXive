@@ -1,16 +1,18 @@
 status: none
-intent: Hugging Face quantized 8B LLM CPU inference python package dataset
+intent: DeepSpeed benchmark memory usage dataset for CPU inference of transformer
+  models python package dataset
 required_fields:
 - model_name
-- model_id
 - parameter_count
-- quantization_type
-- compatible_hardware
-- license
-- download_url
-- tokenizer_name
-- config_file
-- repo_url
-cache_key: 370ee385bf80737c0353a3076aee32c21052d6d0013b2ea2be6c7cc4b834c904
-searched_at: '2026-07-16T05:41:57.013313+00:00'
+- context_length
+- batch_size
+- cpu_memory_usage_mb
+- peak_memory_mb
+- inference_time_ms
+- oom_occurred
+- cpu_model
+- num_cores
+- ram_gb
+cache_key: fc18208246a9194cfd70376ea46d39646464ab4e74383a27a5ae48a1361e2759
+searched_at: '2026-10-09T10:24:28.727284+00:00'
 retry_count: 1

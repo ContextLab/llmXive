@@ -1,0 +1,68 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-research"
+version = "0.1.0"
+description = "Automated science pipeline for extending 'Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings'"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "torch==2.1.0",
+    "transformers==4.36.0",
+    "numpy==1.24.3",
+    "scipy==1.11.4",
+    "pandas==2.1.4",
+    "huggingface_hub==0.20.3",
+    "datasets==2.16.1",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black==24.3.0",
+    "flake8==7.0.0",
+    "pytest==8.1.1",
+    "jsonschema==4.21.1",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+
+[tool.flake8]
+max-line-length = 100
+exclude = [
+    ".git",
+    "__pycache__",
+    ".pytest_cache",
+    ".mypy_cache",
+    "build",
+    "dist",
+    "venv",
+]
+ignore = [
+    "E203",  # Whitespace before ':' (conflicts with black)
+    "W503",  # Line break before binary operator (conflicts with black)
+]
+per-file-ignores = [
+    "__init__.py:F401",
+]
+
+[tool.setuptools]
+packages = ["code", "tests", "contracts"]
+package-dir = {"" = "."}

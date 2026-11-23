@@ -1,0 +1,8 @@
+3.  Flag the experiment as 'Failed to Validate Hypothesis' in the final report.
+
+## References
+
+- **CollectionLoRA Paper**: (To be verified against primary source; likely "CollectionLoRA: Collecting Multiple Effects in 1 LoRA via Multi-Teacher On-P").
+- **CLIP**: Radford et al., "Learning Transferable Visual Models From Natural Language Supervision" (2021).
+- **LPIPS**: Zhang et al., "The Unreasonable Effectiveness of Deep Features as a Perceptual Metric" (2018).
+- **Bayesian Data Analysis**: Gelman et al., "Bayesian Data Analysis" (3rd ed.).

@@ -1,0 +1,50 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "SHAP Analysis Output Schema"
+description: "Schema for the SHAP summary and feature importance results."
+type: object
+properties:
+  top_features:
+    type: array
+    items:
+      type: object
+      properties:
+        feature_name:
+          type: string
+        mean_abs_shap:
+          type: number
+          description: "Mean absolute SHAP value."
+        p_value_raw:
+          type: number
+        p_value_adjusted:
+          type: number
+          description: "FDR-corrected p-value."
+        is_significant:
+          type: boolean
+          description: "True if p_value_adjusted < 0.05."
+      required:
+        - feature_name
+        - mean_abs_shap
+        - p_value_adjusted
+        - is_significant
+  consensus_check:
+    type: object
+    properties:
+      literature_list:
+        type: array
+        items:
+          type: string
+      top_3_matches:
+        type: array
+        items:
+          type: string
+      divergence_notes:
+        type: string
+        description: "Text description of any divergence from consensus."
+    required:
+      - literature_list
+      - top_3_matches
+      - divergence_notes
+required:
+  - top_features
+  - consensus_check
+additionalProperties: false

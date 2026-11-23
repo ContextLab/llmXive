@@ -1,0 +1,189 @@
+T001a:
+  task: 0b07edf022e95da3ac065cbb1de1e5244c1a87bc2e189c9dc35bddbeb798131d
+T001b:
+  reason: "Checked the `data/` directory at the project root. While `data/` exists\
+    \ and contains a `raw/` subdirectory, the required `processed/` and `figures/`\
+    \ subdirectories are missing (the `figures/` entry is reported as MISSING). The\
+    \ task\u2019s requirement to create all three subdirectories is therefore not\
+    \ satisfied."
+  task: c48d24d7c0840ea5b348d0370ee3ab2306d8cc1d146576ba9614cb0e837cfa5c
+T001c:
+  task: 260f6cf0cad797e5be62b44aad95899c3cb34279547c30cddb2654c85a6a0882
+T001d:
+  reason: 'declared artifact(s) missing/empty/invalid: state/'
+  task: eda26372672b05d0ec200346d7939f511844b09f2dd1505027946f2192bc7258
+T002:
+  reason: "The only visible\u202Frequirements.txt (at the project root) lists the\
+    \ correct packages but without version pins and includes an extra \u201Cdatasets\u201D\
+    \ entry; the task required a pinned list located in\u202Fprojects/PROJ-208\u2011\
+    statistical\u2011analysis\u2011of\u2011publicly\u2011availab/code/\u202Fexactly\
+    \ matching the nine specified packages. The content does not satisfy the \u201C\
+    pinned CPU\u2011tractable dependencies\u201D requirement."
+  task: cae3446a5f956580af0ca117ec83596180d5d9b4a98d20295da8b67d4033d562
+T003:
+  task: ff84cc9bbd347b6ea824265dad36039c3e3cb8820318c2b420cba1c88f54221a
+T004:
+  task: 042f987eb039d3540c82eba2235099c2134642b98f8cfe6dab0595ce776f928d
+T005:
+  task: f2bb032844c2f8ba6d74b6692c0c30cc8813c5d7a549537bfef71eab8ac92546
+T006:
+  task: f4f85b37d26ba40d5b12b884cfa1ba01e4a08dd929ebf7e1c24d9bb79b43847d
+T007:
+  task: 9eb452e7b53d74a2becc622759dff41ff15cd4225dfbdd39627b0087978bcb11
+T008:
+  task: 3dbd9cfa21f65c3f34af5d97ec7186553c58831a99caacf5e0db11d21d791028
+T009a-1:
+  task: 66e6654845cd3e68ba9cbe061473530f0d18f0aa8b51bd85fee8e41dd0e8a046
+T009a-2:
+  reason: 'Requested task execution failed; rerun successfully: code/data/loader_hf.py
+    exit=1'
+  task: 53d363ba55ce7c4b738e41fc32f625e2125406ccfd07f7b244ef5e01677526de
+T009a-3:
+  task: 7ac051058aa748ee434f7e0385c568f1014886300486049d49d49ac9cfd6ae2e
+T009b-1:
+  task: 75013f7ad7db2b9247cc6b9320637949413faabde5353e14feebadba0e8fab54
+T009b-2a:
+  task: 8ab7f993dd13cd117a05036bcfb87874ff6925fe2d0ddc0cc27ea77d8bf155c7
+T009b-2b:
+  task: 7c0fbdc500513c2115643effdf5fd041867a0ea19079a4421895339986706a51
+T009b-2c:
+  task: de413cd694eeee10b1a2fa18c839e225785fe408059db9875289fafd8beb1ae7
+T009b-3:
+  task: 4d7b9a791f273a8c965c5fdde5f35ebb1620501203becdfc00ab21f8e0e90a7e
+T009b-4:
+  task: 9a8f591bac0a47b2b67ba7739ca628861a4f1052da3efb1cb5415c5001f05eec
+T009c-1:
+  task: 85cb46cbb107844bc79297aa8aa8204a677ea120f0d1544ff22c86d3b949d18f
+T009c-2:
+  task: 5cd838120241e1bb0ae12e3d60c5701e11ec02fa40c117c3f682f8e18116bfaf
+T009c-3:
+  task: 4b4f5977b216bdb7d98104ff929f3265fe11b9ea2e8c09e461cbb598630e409e
+T009c-4:
+  task: c943f24c1414d76018a7c3cb422f759ebbb5d22e09bb0e493dc8bcc74efddfd1
+T009c-5:
+  task: 7475571ee5731c75b37592bf9eb2fcdd817d6c070595da6896b168e8ac5547f5
+T009c-6:
+  task: 69489b304c53d61fa6664173dd7a86a622fac1d49e7c47bcef6c01d54d6aa2bb
+T009d:
+  task: 5aef17a47e2f931c26ee079ec665c242556475eb3f8fb33c3f73ef74a1d433d7
+T010:
+  task: c1e036f3c49cbce3a2df5f3d9b37390c632f3f75b57bc50de3087f82910d8a25
+T011:
+  task: 20b4b03fa9161f85d0e17a0b75fab7cfecd5ca4831710edea54e43c87ec8542a
+T012:
+  reason: 'declared artifact(s) missing/empty/invalid: data/logs/preprocessing.log'
+  task: 6799b07bf41d7159e275c46a71bc8ac635545b04c39fb22556dc0d8ea7f019ef
+T013:
+  task: ddc2a96fad9229018b39fb98d2ba25e3d62a71c099073f5e23af7adad51102b2
+T014:
+  task: 5801896f9e6d6164934ae3474105baad47d8dfcb9ece3b0e90f360e018dbd2f8
+T015:
+  task: 8d955702797b1e3153c85b3470090fdab170aa591c655dadeaab0a6ba3a2b7e7
+T016a:
+  task: 6335408f677b68a5dd378b01bac91fc00f2a4b2da970c6d96ef6da8fc0190c2f
+T016b:
+  task: b0b71a746ae7bda1ac077c0ff0266a7ef5613ea2eb15854c3e164e24b9073957
+T017:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/outlier_report.json'
+  task: d20fed39c6366d5d8f1bfe61fb4cc878532d050fdb3eb286e2e2b02c1ac1fcc6
+T017a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/cleaner.py'
+  task: 0a030e067b08c2ebfb8b72984bdf0ab4b5aba5360c4a48990e415bfd518a3679
+T018:
+  task: bc7f9cfdd32136c3b044c6c4123844ee079e6f36785d92bd94b3ca8dfacb8db2
+T019:
+  task: 5d98a07f0afc4ffc2e777c91b1079119d2b480c92a0caf13ebd11551741332e5
+T020:
+  task: 31c5aedb11736049587a89d88c34bf9f764acca9facd44ecae015892766f9ac2
+T021:
+  task: 4becff3dad423d4b68e1b89d80c5483b93c0617a2156b97354e48e730536a51f
+T022:
+  task: 1500ab96055e6f45794eecb1e6a5e1c2329bf23e220be62df626dad65c4dd8d4
+T023:
+  task: e09c43110b0402e46d00767f061ee1d8f06ea5ec2f93ce70dd0b72a696061050
+T023b:
+  task: 8253226a1f3853e91df3389428ab4e4ea82f2a7519688bb1b596e34f745bcf13
+T024:
+  task: 7547fc7ff7b7db69b9d8e2c1549cfbd91407e50a5af76750e17233e5ccfed89a
+T025a-1a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/sensitivity.py'
+  task: 218dc3f27ac94af58a3641161d272da6df017fa47be853915130b0e28f541d4d
+T025a-1b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/sensitivity.py'
+  task: 40d0776ae4a0e3196f19cd61bcdc22f64349e03c68c63077427d3ed9d569ec4e
+T025a-1c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/sensitivity.py'
+  task: 3b3b19f6e058a3a5a5c1b1c3eb0e042b8ce85c902cbc36018701518b4aa231a9
+T025a-2:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/sensitivity.py'
+  task: 4a1aba5d41bed0d9b0bcd6701e803959422af5babd8a4e6c92ba2c28d20cb78a
+T025a-3:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/bootstrap_samples.pkl'
+  task: b7ad74529c67087a18e278125958973728975665e8a07c2b65a4c71856ebcaeb
+T025b-1:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/sensitivity.py'
+  task: c872d6379fc89d050c5a3ea002f58e6f02961254459f91572d7344a3ececabad
+T025b-2:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/sensitivity.py'
+  task: d163ffd3ac23f69159f1aa1d81b9f806db3bbc1a5bb74130eb66dc1890141c53
+T025b-3:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/sensitivity_sweep.json'
+  task: 4c6f4d4b62f65ff836362d960768ab6dfe511a4e65a5ea676ec64d936898b5fc
+T025c:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/sensitivity_report.json'
+  task: f53310c94a468625e7a4080b9803ea1b0b518a24a94e4a087057ce0c64e26729
+T026:
+  task: 5c2a389a94a6f68caec2e6ae04865c6a93a0863cd425eb9c1c10abc0d32dbe18
+T027:
+  task: ce5cfe295d2c34c53df5ccf2e10f3abcc1c6ab1687efe089412f9b6c9c689f6d
+T028:
+  task: 08106b6ed70df026c0dd04653c2b5b9967924da2f71d855d3bd02ef05f729402
+T029:
+  task: 91c846b196a618da9e4ded67da24152ae63efd207b5ea8b30e23e3c6a6249666
+T030:
+  task: 918171daea6e0324ebca5daef8e99be31641b39c617848f3f4327e3eec22501a
+T031:
+  task: 1616915b03bb23bd5827215d11204cef09e0a83a85eb368c7c34c64e83ade933
+T032:
+  task: f3a1d8cf2165eed47ecbf62c4412b6345d2a394609984c01631773545c772ee6
+T033:
+  task: a9c67f016d5cdd439341f17e28c30c98c7a354e86f242b83d0b7b12977de9c06
+T034:
+  task: c0dc735bb23bf1d25e4d12d07e9a4900de5ba0ec18369610123f09f73433381c
+T035a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/VERSION.txt'
+  task: f306ab716e7fb13f34be97603c0547aa6f1f2a3a2a9867c5f993130a94d2e08b
+T035b:
+  task: 26c98632b498a9622ba8432ad1b6898bc1586ec3e695c5a23829724b7f00024b
+T036:
+  task: eab74ad8abe1aad30d2a46246e0a40bc8d413147796cb7f0a6374685c52dc20d
+T037:
+  task: 4cfe80b83478f749ff72fc7442c2a422a28b79a1c1f8f8d0796d14f9ce97c060
+T038:
+  task: 0844e09d38a692261d0f37e49272ce2420fd5cdd0dae221b41cebe1dbed6c87d
+T039:
+  task: 859023e377d437e85b55347125a6ed84338ac1a232e10974e748537e0ba0afc9
+T040:
+  task: d4b27553ff0ac590c1c6a24dab17b377de8d65d00cb51197f331bd17c21ea4a3
+T041:
+  task: 5ecd257aa27cd88f1c598d2ca9b626be4e1cabe2f7d99795bd4851de65f04a6c
+T042:
+  task: 066ecc5c0197c911ca94d0ce34b630512d6f1ada4745f8d5eec45f037f251ad0
+T043:
+  task: d7aefecb9111eb38679e3e0f85fad6042aa61386dc9cc31991cc7274666c00f2
+T045:
+  task: 2c8ec915389b0534079a6db81f6647e90b70c1729d7b8bd88f7594eb117848eb
+T047:
+  task: ecbdf831dc9dd0936ba321a13e90a3adee609eaa21fb689d987b704f6550043c
+T049:
+  task: b73b6ba01cb671fe83b4732a3a3cb329f1d311e17e3fce09a076d4e4b6079d6b
+T053:
+  task: 636aabd49d89416cdca7590aa0c468b42f04152b367d9f085ca44edab0b5c93c
+T054:
+  task: b5f3b4a8e18d6ec3ed5d6f661516d6c4c591f6df4f4847fc8bad298920aa4410
+T056-1:
+  task: 2dd6033d371a6787fd928812e86c0e539558b1168a0474a63e404165c118a0d4
+T056-2:
+  task: dc6acfefd6e267a384a6e1f4b8d6a6d54299b5154b808a6b5a8e3143339c2536
+T056-3:
+  task: c99818b74c5790f1d19daacded55a0440f541627c7bed943a18fefa14a309686

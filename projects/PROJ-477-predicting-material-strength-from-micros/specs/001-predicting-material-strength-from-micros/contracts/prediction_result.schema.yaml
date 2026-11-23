@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PredictionResult"
+description: "Schema for individual prediction results"
+type: object
+properties:
+  image_id:
+    type: string
+    description: "Unique identifier for the image"
+  predicted_strength:
+    type: number
+    description: "Predicted yield strength in MPa"
+  actual_strength:
+    type: number
+    description: "Actual yield strength in MPa"
+  error:
+    type: number
+    description: "Difference between predicted and actual"
+  squared_error:
+    type: number
+    description: "Square of the error"
+  confidence_interval:
+    type: array
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+    description: "95% confidence interval [lower, upper]"
+  heatmap_path:
+    type: string
+    description: "Relative path to the Grad-CAM heatmap image"
+required:
+  - image_id
+  - predicted_strength
+  - actual_strength
+  - error
+  - squared_error
+  - confidence_interval
+  - heatmap_path

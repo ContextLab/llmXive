@@ -539,25 +539,6 @@
   updated_at: '2026-07-03T17:59:26Z'
 - artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   attempts: 1
-  canonical: Bulk structures sourced from MP/OQMD
-  claim_id: c_e5d9d009
-  context: 'Scientific Constraint: Segregation energies are generated via simulation
-    (T016) because they are not available in MP/OQMD. Bulk structures are sourced
-    from MP/OQMD (T013).'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Bulk_structures_sourced_from_MP/OQMD
-  kind: entity_fact
-  raw_text: The document states that bulk structures are sourced from MP/OQMD.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T17:59:54Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 1
   canonical: Random operations use seeds from code/config.py
   claim_id: c_58873b1f
   context: 'Reproducibility: All random operations (perturbations, splits) MUST use
@@ -629,36 +610,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T18:09:59Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 2
-  canonical: pymatgen version 2024.1.1
-  claim_id: c_ea6d2379
-  context: 'Create requirements.txt with pinned versions: pymatgen==2024.1.1, scikit-learn==1.4.0...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The plan specifies using pymatgen version 2024.1.1.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T18:10:39Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 1
-  canonical: scikit-learn version 1.4.0
-  claim_id: c_2b49ebf8
-  context: 'Create requirements.txt with pinned versions: pymatgen==2024.1.1, scikit-learn==1.4.0...'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: scikit-learn==1.4.0
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T18:10:57Z'
 - artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   attempts: 1
   canonical: numpy version 1.26.0
@@ -964,22 +915,6 @@
   updated_at: '2026-07-03T18:15:41Z'
 - artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   attempts: 1
-  canonical: pymatgen version 2024.1.1 specified
-  claim_id: c_e8465b90
-  context: 'Create `requirements.txt` with pinned versions: `The plan specifies using
-    pymatgen version 2024.1.1. `'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The plan specifies using pymatgen version 2024.1.1.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T18:18:33Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 1
   canonical: VIF threshold 10 cited as 2005.02245
   claim_id: c_e925d557
   context: "Action: Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
@@ -1014,25 +949,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T18:18:37Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 1
-  canonical: Tasks restricted to CPU-only GitHub Actions runner
-  claim_id: c_9d0202bd
-  context: 'Constraint: All tasks must run on a CPU-only GitHub Actions runner with
-    limited CPU and memory resources.; no GPU, no 8-bit/4-bit models, no deep learning.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/Tasks_restricted_to_CPU-only_GitHub_Actions_runner
-  kind: entity_fact
-  raw_text: All tasks must run on a CPU-only GitHub Actions runner with limited CPU
-    and memory resources.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T18:19:01Z'
 - artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   attempts: 1
   canonical: No GPU or deep learning models allowed
@@ -1101,25 +1017,6 @@
   status: not_enough_info
   updated_at: '2026-07-03T18:22:40Z'
 - artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 2
-  canonical: NIST EAM potential for Fe-Cr from NIST repository specified
-  claim_id: c_96a7584b
-  context: 'Potential: The document specifies using a specific NIST EAM potential
-    for Fe-Cr from the NIST repository.'
-  evidence:
-    entailment_status: not_found
-    reason: source found but does not address entity claim
-    source_url: https://en.wikipedia.org/wiki/NIST_EAM_potential_for_Fe-Cr_from_NIST_repository_specified
-  kind: entity_fact
-  raw_text: The document specifies using a specific NIST EAM potential for Fe-Cr from
-    the NIST repository.
-  resolved_value: null
-  resolver: resolve_entity_fact
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T18:23:43Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   attempts: 1
   canonical: VIF threshold 10 for collinearity detection cited as 2005.02245
   claim_id: c_8f8f06e2
@@ -1135,25 +1032,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-03T18:23:43Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 2
-  canonical: VIF threshold 10 for collinearity detection
-  claim_id: c_4bcdbfcb
-  context: "Action: Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
-    \ and generate a descriptive report data/processed/collinearity_report.md explaining\
-    \ joint relationships."
-  evidence:
-    ok: false
-    reason: claim not found in the cited source's full text
-    status: not_found
-  kind: numeric
-  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-03T18:30:22Z'
 - artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   attempts: 1
   canonical: 5-fold cross-validation split
@@ -1375,22 +1253,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-06T10:56:50Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 2
-  canonical: pymatgen version 2024.1.1
-  claim_id: c_75b43b49
-  context: 'Create requirements.txt with pinned versions: The plan specifies using
-    pymatgen version 2024.1.1.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The plan specifies using pymatgen version 2024.1.1.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-06T10:58:12Z'
 - artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   attempts: 1
   canonical: Variance Inflation Factor threshold of 10 for collinearity detection
@@ -1669,22 +1531,6 @@
   updated_at: '2026-07-11T21:26:34Z'
 - artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   attempts: 1
-  canonical: pymatgen version 2024.1.1
-  claim_id: c_b7bc8b3b
-  context: 'Create `requirements.txt` with pinned versions: `The plan specifies using
-    pymatgen version 2024.1.1. `'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The plan specifies using pymatgen version 2024.1.1.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-11T21:26:35Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 1
   canonical: VIF threshold 10 cited 2005.02245
   claim_id: c_42631ec7
   context: "Implement `code/data/descriptor_filter.py` to compute VIF (Variance Inflation\
@@ -1772,22 +1618,6 @@
   status: verified
   updated_at: '2026-07-11T21:29:17Z'
 - artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 5
-  canonical: pymatgen version 2024.1.1 specified in plan
-  claim_id: c_7eba6bc8
-  context: 'T002 Create requirements.txt with pinned versions: The plan specifies
-    using pymatgen version 2024.1.1.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The plan specifies using pymatgen version 2024.1.1.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-11T21:29:18Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   attempts: 1
   canonical: NIST EAM potential for Fe-Cr from NIST repository specified
   claim_id: c_1802bd1f
@@ -1824,22 +1654,6 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-11T21:29:39Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 1
-  canonical: pymatgen version 2024.1.1 specified in plan
-  claim_id: c_fa699ff1
-  context: 'Create `requirements.txt` with pinned versions: `The plan specifies using
-    pymatgen version 2024.1.1. `'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The plan specifies using pymatgen version 2024.1.1.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-11T21:30:26Z'
 - artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   attempts: 1
   canonical: VIF threshold of 10 for collinearity
@@ -1937,22 +1751,6 @@
   status: verified
   updated_at: '2026-07-11T21:33:12Z'
 - artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
-  attempts: 8
-  canonical: pymatgen version 2024.1.1 specified in plan
-  claim_id: c_275f8c18
-  context: 'Create requirements.txt with pinned versions: The plan specifies using
-    pymatgen version 2024.1.1.'
-  evidence:
-    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
-  kind: numeric
-  raw_text: The plan specifies using pymatgen version 2024.1.1.
-  resolved_value: null
-  resolver: resolve_numeric_or_citation
-  source_hash: null
-  source_type: external
-  status: not_enough_info
-  updated_at: '2026-07-11T21:33:13Z'
-- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
   attempts: 1
   canonical: VIF threshold 10 cited from arxiv.org/abs/2005.02245
   claim_id: c_e6449b50
@@ -2020,3 +1818,3888 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-11T21:34:10Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: CV split logic cited from arXiv 2604.10702
+  claim_id: c_4dd78a23
+  context: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).
+    For each fold: Train statsmodels.api.OLS with cov_type=''HC3'' on 4 folds, predict
+    on 1 fold.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T07:29:10Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Manual k-fold CV logic with statsmodels OLS
+  claim_id: c_bb30d7a1
+  context: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).
+    For each fold: Train `statsmodels.api.OLS` with `cov_type=''HC3''` on 4 folds,
+    predict on 1 fold.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T07:29:52Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 2
+  canonical: pymatgen version 2024.1.1
+  claim_id: c_b7bc8b3b
+  context: 'Create `requirements.txt` with pinned versions: `The plan specifies using
+    pymatgen version 2024.1.1. `'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan specifies using pymatgen version 2024.1.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:29:52Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: "VIF \u2265 10 for collinearity detection"
+  claim_id: c_27843db5
+  context: "Action: Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
+    \ and generate a descriptive report"
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:30:17Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Cross-validation logic cited as 2604.10702
+  claim_id: c_56a80176
+  context: 'Task T023: Implement code/modeling/train.py... Logic: {{claim:c_5c5df125}}
+    (2604.10702, https://arxiv.org/abs/2604.10702). For each fold: Train statsmodels.api.OLS
+    with cov_type=''HC3'' on 4 folds, predict on 1 fold.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T07:32:44Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: pymatgen version 2024.1.1 specified in plan
+  claim_id: c_ca9f323f
+  context: 'Task T002: Create requirements.txt with pinned versions: The plan specifies
+    using pymatgen version 2024.1.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan specifies using pymatgen version 2024.1.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:32:45Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: VIF threshold 10 for collinearity detection
+  claim_id: c_795dea9c
+  context: "Task T018: Implement code/data/descriptor_filter.py to compute VIF (Variance\
+    \ Inflation Factor) on descriptors. Action: Detect collinearity (VIF \u2265 10\
+    \ (2005.02245, https://arxiv.org/abs/2005.02245)) and generate a descriptive report..."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:32:47Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: NIST EAM potential for Fe-Cr from NIST repository
+  claim_id: c_8afc2cae
+  context: 'Task T016a: Define the ''structurally perturbed representation'' logic
+    and ''specific NIST EAM potential'' parameters in code/data/simulate_energy.py
+    constants... Potential: The document specifies using a specific NIST EAM potential
+    for Fe-Cr from the NIST repository.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_EAM_potential_for_Fe-Cr_from_NIST_repository
+  kind: entity_fact
+  raw_text: The document specifies using a specific NIST EAM potential for Fe-Cr from
+    the NIST repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:32:49Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Cross-validation logic cited from arXiv 2604.10702
+  claim_id: c_1f6916ed
+  context: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).
+    For each fold: Train statsmodels.api.OLS with cov_type=''HC3'' on 4 folds, predict
+    on 1 fold.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T07:33:35Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps at least 3 threshold values
+  claim_id: c_a2ce6442
+  context: "Implement code/modeling/evaluate.py with sensitivity analysis sweeping\
+    \ over at least 3 concrete threshold values (e.g., lambda=[0.01, 0.1, 1.0]); report\
+    \ RMSE variance and R\xB2 stability"
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: sweeping over at least 3 concrete threshold values (e.g., lambda=[0.01,
+    0.1, 1.0])
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T07:33:40Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Tasks must run within 6 hours on CPU cores
+  claim_id: c_fd29520b
+  context: Verify all tasks run within 6 hours on CPU cores with sampled dataset
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify all tasks run within 6 hours on CPU cores with sampled dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:33:55Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Logic cited in 2604.10702
+  claim_id: c_d709e628
+  context: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).
+    For each fold: Train statsmodels.api.OLS with cov_type=''HC3'' on 4 folds, predict
+    on 1 fold.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T07:34:54Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: VIF threshold 10 cited in 2005.02245
+  claim_id: c_1a9ccb85
+  context: "Action: Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
+    \ and generate a descriptive report data/processed/collinearity_report.md explaining\
+    \ joint relationships."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:34:56Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Cross-validation logic cited as 2604.10702
+  claim_id: c_aacc6e52
+  context: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).
+    For each fold: Train statsmodels.api.OLS with cov_type=''HC3'' on 4 folds, predict
+    on 1 fold.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T07:35:59Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: VIF threshold 10 cited 2005.02245
+  claim_id: c_263d9f68
+  context: "Implement code/data/descriptor_filter.py to compute VIF (Variance Inflation\
+    \ Factor) on descriptors. Action: Detect collinearity (VIF \u2265 10 (2005.02245,\
+    \ https://arxiv.org/abs/2005.02245)) and generate a descriptive report data/processed/collinearity_report.md\
+    \ explaining joint relationships."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
+    \ and generate a descriptive report"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T07:39:44Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: statsmodels OLS HC3 covariance cited 2604.10702
+  claim_id: c_04045c53
+  context: 'Implement a manual k-fold CV loop... Logic: {{claim:c_5c5df125}} (2604.10702,
+    https://arxiv.org/abs/2604.10702). For each fold: Train statsmodels.api.OLS with
+    cov_type=''HC3'' on 4 folds, predict on 1 fold.'
+  evidence:
+    asserted: '5.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).
+    For each fold: Train statsmodels.api.OLS with cov_type=''HC3'' on 4 folds, predict
+    on 1 fold.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-05T07:39:44Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Logic cited from arxiv 2604.10702
+  claim_id: c_8f34f5eb
+  context: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).
+    For each fold: Train statsmodels.api.OLS with cov_type=''HC3'' on 4 folds, predict
+    on 1 fold.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T15:17:54Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: VIF threshold 10 cited from arxiv 2005.02245
+  claim_id: c_6e2caac2
+  context: "Action: Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
+    \ and generate a descriptive report data/processed/collinearity_report.md explaining\
+    \ joint relationships."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:18:14Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 2
+  canonical: Tasks restricted to CPU-only GitHub Actions runner
+  claim_id: c_9d0202bd
+  context: 'Constraint: All tasks must run on a CPU-only GitHub Actions runner with
+    limited CPU and memory resources.; no GPU, no 8-bit/4-bit models, no deep learning.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_restricted_to_CPU-only_GitHub_Actions_runner
+  kind: entity_fact
+  raw_text: All tasks must run on a CPU-only GitHub Actions runner with limited CPU
+    and memory resources.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:18:57Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 2
+  canonical: Bulk structures sourced from MP/OQMD
+  claim_id: c_e5d9d009
+  context: 'Scientific Constraint: Segregation energies are generated via simulation
+    (T016) because they are not available in MP/OQMD. Bulk structures are sourced
+    from MP/OQMD (T013).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bulk_structures_sourced_from_MP/OQMD
+  kind: entity_fact
+  raw_text: The document states that bulk structures are sourced from MP/OQMD.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:19:27Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Cross-validation logic cited as arXiv:2604.10702
+  claim_id: c_d5a29d76
+  context: '- Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).
+    For each fold: Train `statsmodels.api.OLS` with `cov_type=''HC3''` on 4 folds,
+    predict on 1 fold.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: citation
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T15:19:53Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 2
+  canonical: pymatgen version 2024.1.1 specified
+  claim_id: c_e8465b90
+  context: 'Create `requirements.txt` with pinned versions: `The plan specifies using
+    pymatgen version 2024.1.1. `'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan specifies using pymatgen version 2024.1.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:19:54Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: VIF threshold 10 for collinearity detection
+  claim_id: c_bb996eb8
+  context: "**Action**: Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
+    \ and **generate a descriptive report** `data/processed/collinearity_report.md`\
+    \ explaining joint relationships."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:19:55Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Cross-validation logic cited from arXiv 2604.10702
+  claim_id: c_8da1e53b
+  context: 'Task T023: Implement code/modeling/train.py with Linear Regression'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T15:20:21Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: pymatgen version 2024.1.1 specified in plan
+  claim_id: c_5609d0a4
+  context: 'Task T002: Create requirements.txt with pinned versions'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan specifies using pymatgen version 2024.1.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:20:21Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: NIST EAM potential for Fe-Cr specified from NIST repository
+  claim_id: c_e0ed6ef0
+  context: 'Task T016a: Define structurally perturbed representation logic and specific
+    NIST EAM potential parameters'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_EAM_potential_for_Fe-Cr_specified_from_NIST_repository
+  kind: entity_fact
+  raw_text: The document specifies using a specific NIST EAM potential for Fe-Cr from
+    the NIST repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:20:23Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: VIF threshold 10 for collinearity detection cited from arXiv 2005.02245
+  claim_id: c_e5de6974
+  context: 'Task T018: Implement descriptor_filter.py to compute VIF'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:20:25Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: All tasks run within 6 hours on CPU cores
+  claim_id: c_9d7cef23
+  context: 'Task T042: Verify all tasks run within 6 hours on CPU cores with sampled
+    dataset'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify all tasks run within 6 hours on CPU cores with sampled dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:20:44Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Cross-validation logic cited as arXiv 2604.10702
+  claim_id: c_af30f344
+  context: 'Implement a manual k-fold CV loop... Logic: {{claim:c_5c5df125}} (2604.10702,
+    https://arxiv.org/abs/2604.10702).'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T15:23:39Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: VIF threshold 10 for collinearity detection
+  claim_id: c_c2db74fb
+  context: "Action: Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
+    \ and generate a descriptive report."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:23:40Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Cross-validation logic referenced in 2604.10702
+  claim_id: c_97282d4b
+  context: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).
+    For each fold: Train statsmodels.api.OLS with cov_type=''HC3'' on 4 folds, predict
+    on 1 fold.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T15:24:24Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: VIF threshold 10 for collinearity detection based on 2005.02245
+  claim_id: c_7c65a9c6
+  context: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
+    \ and generate a descriptive report data/processed/collinearity_report.md explaining\
+    \ joint relationships."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:24:26Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Cross-validation logic reference 2604.10702
+  claim_id: c_f2f07c56
+  context: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).
+    For each fold: Train `statsmodels.api.OLS` with `cov_type=''HC3''` on 4 folds,
+    predict on 1 fold.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-09T15:25:21Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 2
+  canonical: pymatgen version 2024.1.1 specified in plan
+  claim_id: c_fa699ff1
+  context: 'Create `requirements.txt` with pinned versions: `The plan specifies using
+    pymatgen version 2024.1.1. `'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan specifies using pymatgen version 2024.1.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:25:22Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: VIF threshold 10 for collinearity detection
+  claim_id: c_14d9d948
+  context: "Action: Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
+    \ and **generate a descriptive report** `data/processed/collinearity_report.md`\
+    \ explaining joint relationships."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
+    \ and generate a descriptive report."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:25:22Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis implementation reference
+  claim_id: c_51974f96
+  context: "Implement `code/modeling/evaluate.py` with sensitivity analysis {{claim:c_a2ce6442}};\
+    \ report RMSE variance and R\xB2 stability; output format: JSON with keys [threshold,\
+    \ rmse_variance, r2_stability] [FR-006]"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_implementation_reference
+  kind: entity_fact
+  raw_text: Implement `code/modeling/evaluate.py` with sensitivity analysis {{claim:c_a2ce6442}}
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:25:50Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: arXiv 2604.10702 referenced for cross-validation logic
+  claim_id: c_94ed10e5
+  context: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).
+    For each fold: Train statsmodels.api.OLS with cov_type=''HC3'' on 4 folds, predict
+    on 1 fold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The logic references arXiv paper 2604.10702 for cross-validation implementation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:26:54Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: arXiv 2005.02245 cited for VIF collinearity detection
+  claim_id: c_664050bb
+  context: "Action: Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
+    \ and generate a descriptive report data/processed/collinearity_report.md explaining\
+    \ joint relationships."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The document cites arXiv paper 2005.02245 regarding VIF collinearity detection.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-09T15:27:03Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Cross-validation logic cited from arXiv 2604.10702
+  claim_id: c_0a7ab587
+  context: 'T023 Implement code/modeling/train.py with Linear Regression as the primary
+    model... Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T06:39:49Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 6
+  canonical: pymatgen version 2024.1.1 specified in plan
+  claim_id: c_7eba6bc8
+  context: 'T002 Create requirements.txt with pinned versions: The plan specifies
+    using pymatgen version 2024.1.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan specifies using pymatgen version 2024.1.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:40:16Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: VIF threshold 10 for collinearity detection cited from arXiv 2005.02245
+  claim_id: c_be3412f0
+  context: "T018 Implement code/data/descriptor_filter.py to compute VIF (Variance\
+    \ Inflation Factor) on descriptors. Action: Detect collinearity (VIF \u2265 10\
+    \ (2005.02245, https://arxiv.org/abs/2005.02245)) and generate a descriptive report."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:40:19Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: NIST EAM potential for Fe-Cr specified from NIST repository
+  claim_id: c_19f511fe
+  context: 'T016a Define the ''structurally perturbed representation'' logic and ''specific
+    NIST EAM potential'' parameters in code/data/simulate_energy.py constants: Potential:
+    The document specifies using a specific NIST EAM potential for Fe-Cr from the
+    NIST repository.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_EAM_potential_for_Fe-Cr_specified_from_NIST_repository
+  kind: entity_fact
+  raw_text: The document specifies using a specific NIST EAM potential for Fe-Cr from
+    the NIST repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:40:37Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Tasks restricted to CPU-only GitHub Actions runner without GPU or deep
+    learning
+  claim_id: c_f3e1214a
+  context: 'Constraint: All tasks must run on a CPU-only GitHub Actions runner with
+    limited CPU and memory resources.; no GPU, no 8-bit/4-bit models, no deep learning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must run on a CPU-only GitHub Actions runner with limited CPU
+    and memory resources; no GPU, no 8-bit/4-bit models, no deep learning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:41:12Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Cross-validation logic cited from 2604.10702
+  claim_id: c_06ce636a
+  context: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).
+    For each fold: Train statsmodels.api.OLS with cov_type=''HC3'' on 4 folds, predict
+    on 1 fold.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T06:41:45Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis implementation
+  claim_id: c_0d7f47db
+  context: "Implement code/modeling/evaluate.py with sensitivity analysis {{claim:c_a2ce6442}};\
+    \ report RMSE variance and R\xB2 stability; output format: JSON with keys [threshold,\
+    \ rmse_variance, r2_stability] [FR-006]"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_implementation
+  kind: entity_fact
+  raw_text: Implement code/modeling/evaluate.py with sensitivity analysis {{claim:c_a2ce6442}}
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:42:38Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: Cross-validation logic cited as arxiv 2604.10702
+  claim_id: c_567e852e
+  context: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).
+    For each fold: Train statsmodels.api.OLS with cov_type=''HC3'' on 4 folds, predict
+    on 1 fold.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T06:43:23Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 6
+  canonical: VIF threshold 10 for collinearity detection
+  claim_id: c_4bcdbfcb
+  context: "Action: Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
+    \ and generate a descriptive report data/processed/collinearity_report.md explaining\
+    \ joint relationships."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:43:25Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 0
+  canonical: CV split logic cited from arXiv 2604.10702
+  claim_id: c_0245a979
+  context: 'Implement a manual k-fold CV loop... Logic: {{claim:c_5c5df125}} (2604.10702,
+    https://arxiv.org/abs/2604.10702). For each fold: Train statsmodels.api.OLS with
+    cov_type=''HC3'' on 4 folds, predict on 1 fold.'
+  evidence:
+    ok: true
+    reason: ''
+  kind: numeric
+  raw_text: 'Logic: {{claim:c_5c5df125}} (2604.10702, https://arxiv.org/abs/2604.10702)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-07T06:44:57Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: VIF threshold 10 for collinearity detection cited from arXiv 2005.02245
+  claim_id: c_021bf511
+  context: "Implement code/data/descriptor_filter.py to compute VIF... Detect collinearity\
+    \ (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245)) and generate\
+    \ a descriptive report"
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+    status: not_found
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:44:58Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 2
+  canonical: VIF threshold 10 cited from arXiv 2005.02245
+  claim_id: c_2b04fa48
+  context: "Action: Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))\
+    \ and generate a descriptive report data/processed/collinearity_report.md explaining\
+    \ joint relationships."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Detect collinearity (VIF \u2265 10 (2005.02245, https://arxiv.org/abs/2005.02245))"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-07T06:47:13Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 3
+  canonical: pymatgen version 2024.1.1
+  claim_id: c_ea6d2379
+  context: 'Create requirements.txt with pinned versions: pymatgen==2024.1.1, scikit-learn==1.4.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan specifies using pymatgen version 2024.1.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:22:09Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 2
+  canonical: scikit-learn version 1.4.0
+  claim_id: c_2b49ebf8
+  context: 'Create requirements.txt with pinned versions: pymatgen==2024.1.1, scikit-learn==1.4.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:22:36Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1
+  claim_id: c_994c7c97
+  context: 'Create requirements.txt with pinned versions: pymatgen==2024.1.1, scikit-learn==1.4.0,
+    statsmodels==0.14.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels==0.14.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:23:03Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0
+  claim_id: c_f80f1bec
+  context: 'Create requirements.txt with pinned versions: ... numpy==1.26.0, pandas==2.1.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:23:25Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: pandas version 2.1.0
+  claim_id: c_d0897a55
+  context: 'Create requirements.txt with pinned versions: ... numpy==1.26.0, pandas==2.1.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:23:45Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: ase version 3.23.0
+  claim_id: c_d3d7ae3b
+  context: 'Create requirements.txt with pinned versions: ... pandas==2.1.0, ase==3.23.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ase==3.23.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:24:21Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0
+  claim_id: c_9fe4d43f
+  context: 'Create requirements.txt with pinned versions: ... ase==3.23.0, requests==2.31.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: requests==2.31.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:24:46Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1
+  claim_id: c_3dc97bb1
+  context: 'Create requirements.txt with pinned versions: ... requests==2.31.0, pyyaml==6.0.1...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:25:03Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0
+  claim_id: c_f05348a5
+  context: 'Create requirements.txt with pinned versions: ... pyyaml==6.0.1, pytest==7.4.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==7.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:25:18Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: ruff version 0.1.0
+  claim_id: c_626d52ff
+  context: 'Create requirements.txt with pinned versions: ... pytest==7.4.0, ruff==0.1.0...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ruff==0.1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:25:49Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: black version 23.10.0
+  claim_id: c_4e1dd7f8
+  context: 'Create requirements.txt with pinned versions: ... ruff==0.1.0, black==23.10.0.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: black==23.10.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:26:36Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: descriptor computation restricted to atoms within 5 Angstroms of grain
+    boundary plane
+  claim_id: c_bfc7f532
+  context: "Logic: Compute only for atoms within 5 \xC5 of the GB plane. Output: data/processed/descriptors.csv\
+    \ with columns [species, rdf_peak]."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute only for atoms within 5 \xC5 of the GB plane"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:26:59Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: random atomic displacement magnitude drawn from Gaussian distribution
+    using pinned random seed
+  claim_id: c_c7eedb4e
+  context: 'Perturbation: Apply a random atomic displacement to all atoms in the GB
+    supercell (magnitude drawn from a Gaussian distribution using the pinned random
+    seed from code/config.py).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_atomic_displacement_magnitude_drawn_from_Gaussian_dis
+  kind: entity_fact
+  raw_text: Apply a random atomic displacement to all atoms in the GB supercell (magnitude
+    drawn from a Gaussian distribution using the pinned random seed from code/config.py)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:27:32Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: use specific NIST EAM potential for Fe-Cr from NIST repository
+  claim_id: c_492b31e0
+  context: 'Potential: The document specifies using a specific NIST EAM potential
+    for Fe-Cr from the NIST repository.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_specific_NIST_EAM_potential_for_Fe-Cr_from_NIST_reposito
+  kind: entity_fact
+  raw_text: Use a specific NIST EAM potential for Fe-Cr from the NIST repository
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:27:53Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'cross-validation strategy: 5-fold if N >= 5 else LOOCV'
+  claim_id: c_f30e9c05
+  context: 'Logic: IF N >= 5 THEN use 5-fold CV. ELSE use LOOCV. For each fold: Train
+    statsmodels.api.OLS with cov_type=''HC3'' on 4 folds...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: IF N >= 5 THEN use 5-fold CV. ELSE use LOOCV
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:29:42Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: permutation testing with 1000 shuffles to generate null distribution
+    of R-squared
+  claim_id: c_2760eaee
+  context: "Logic: Shuffle segregation energy labels N times (e.g., N=1000) to generate\
+    \ a null distribution of R\xB2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Shuffle segregation energy labels N times (e.g., N=1000) to generate\
+    \ a null distribution of R\xB2"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:30:44Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps over at least 3 threshold values
+  claim_id: c_4da51201
+  context: "Logic: Sweep over at least 3 concrete values of regularization strength\
+    \ (\u03BB) and descriptor perturbation magnitude."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweeps_over_at_least_3_threshold_values
+  kind: magnitude
+  raw_text: "Sweep over at least 3 concrete values of regularization strength (\u03BB\
+    ) and descriptor perturbation magnitude"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:31:15Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: threshold values derived from 25th, 50th, and 75th percentiles of descriptor
+    distribution
+  claim_id: c_7cbf81bd
+  context: Derive these values from the data distribution (e.g., 25th, 50th, 75th
+    percentiles of the descriptor distribution).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Threshold_values_derived_from_25th,_50th,_and_75th_percentil
+  kind: entity_fact
+  raw_text: Derive these values from the data distribution (e.g., 25th, 50th, 75th
+    percentiles of the descriptor distribution)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:31:43Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: generate collinearity report if Variance Inflation Factor is greater
+    than or equal to 10
+  claim_id: c_c97c765b
+  context: IF VIF >= 10 THEN generate a descriptive report data/processed/collinearity_report.md
+    explaining joint relationships.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Generate_collinearity_report_if_Variance_Inflation_Factor_is
+  kind: magnitude
+  raw_text: IF VIF >= 10 THEN generate a descriptive report data/processed/collinearity_report.md
+    explaining joint relationships
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:32:52Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: project tasks execution time limit of 6 hours on CPU cores
+  claim_id: c_df9d8d74
+  context: Verify all tasks run within 6 hours on CPU cores with sampled dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify all tasks run within 6 hours on CPU cores with sampled dataset
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:33:21Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: citation validation whitelist includes https://materialsproject.org
+  claim_id: c_857a1370
+  context: 'Check extracted URLs against a hardcoded whitelist: [''https://materialsproject.org'',
+    ''''].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Citation_validation_whitelist_includes_https://materialsproj
+  kind: entity_fact
+  raw_text: 'whitelist: [''https://materialsproject.org'', '''']'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:33:54Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 6
+  canonical: pymatgen version 2024.1.1
+  claim_id: c_75b43b49
+  context: 'Create requirements.txt with pinned versions: The plan specifies using
+    pymatgen version 2024.1.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan specifies using pymatgen version 2024.1.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:34:27Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 2
+  canonical: NIST EAM potential for Fe-Cr from NIST repository
+  claim_id: c_d9aa2eb9
+  context: 'Potential: The document specifies using a specific NIST EAM potential
+    for Fe-Cr from the NIST repository.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_EAM_potential_for_Fe-Cr_from_NIST_repository
+  kind: entity_fact
+  raw_text: The document specifies using a specific NIST EAM potential for Fe-Cr from
+    the NIST repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:34:57Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Bulk structures sourced from MP/OQMD
+  claim_id: c_26ca2fd9
+  context: 'Data: All data must be real (MP/OQMD structures + Simulation energies);
+    no fabrication or synthetic placeholders.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bulk_structures_sourced_from_MP/OQMD
+  kind: entity_fact
+  raw_text: Bulk structures are sourced from MP/OQMD.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:36:31Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'Software dependency versions: pymatgen 2024.1.1, scikit-learn 1.4.0,
+    statsmodels 0.14.1, numpy 1.26.0, pandas 2.1.0, ase 3.23.0, requests 2.31.0, pyyaml
+    6.0.1, pytest 7.4.0, ruff 0.1.0, black 23.10.0'
+  claim_id: c_e01acc5e
+  context: 'T002 Create requirements.txt with pinned versions: The plan specifies
+    using pymatgen version 2024.1.1. , scikit-learn==1.4.0 , statsmodels==0.14.1 ,
+    numpy==1.26.0 , pandas==2.1.0 , ase==3.23.0 , requests==2.31.0 , pyyaml==6.0.1
+    , pytest==7.4.0 , ruff==0.1.0 , black==23.10.0 .'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan specifies using pymatgen version 2024.1.1, scikit-learn==1.4.0,
+    statsmodels==0.14.1, numpy==1.26.0, pandas==2.1.0, ase==3.23.0, requests==2.31.0,
+    pyyaml==6.0.1, pytest==7.4.0, ruff==0.1.0, and black==23.10.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:38:11Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Validated source whitelist includes https://materialsproject.org
+  claim_id: c_1d36ed3a
+  context: 'Logic: 2. Check extracted URLs against a hardcoded whitelist: [''https://materialsproject.org'',
+    ''''].'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validated_source_whitelist_includes_https://materialsproject
+  kind: entity_fact
+  raw_text: The whitelist for validated source URLs includes 'https://materialsproject.org'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:39:02Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Descriptor computation restricted to atoms within 5 Angstroms of GB plane
+  claim_id: c_2fc29f81
+  context: "Logic: Compute only for atoms within 5 \xC5 of the GB plane. Output: data/processed/descriptors.csv\
+    \ with columns [species, rdf_peak]."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Descriptors are computed only for atoms within 5 \xC5 of the grain boundary\
+    \ (GB) plane."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:39:28Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Specific NIST EAM potential for Fe-Cr used from NIST repository
+  claim_id: c_3b6b0575
+  context: '2. Potential: The document specifies using a specific NIST EAM potential
+    for Fe-Cr from the NIST repository.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Specific_NIST_EAM_potential_for_Fe-Cr_used_from_NIST_reposit
+  kind: entity_fact
+  raw_text: The document specifies using a specific NIST EAM potential for Fe-Cr from
+    the NIST repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:39:31Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Collinearity report triggered if VIF >= 10
+  claim_id: c_9f8daa84
+  context: IF VIF >= 10 THEN generate a descriptive report data/processed/collinearity_report.md
+    explaining joint relationships.
+  evidence:
+    fill:
+      channel: paper
+      conflicts:
+      - channel: paper
+        source_id: '2306.06751'
+        url: https://arxiv.org/abs/2306.06751
+        value: 5 or 10
+      quote: and thus the model in general.9,10
+      source_id: '2101.01603'
+      url: https://arxiv.org/abs/2101.01603
+      value: '10'
+    filled: true
+  kind: magnitude
+  raw_text: Collinearity is reported if the Variance Inflation Factor (VIF) is greater
+    than or equal to 10.
+  resolved_value: '10'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-20T13:40:18Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'Cross-validation strategy: 5-fold if N >= 5, else LOOCV'
+  claim_id: c_972db441
+  context: 'Logic: IF N >= 5 THEN use 5-fold CV. ELSE use LOOCV.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cross-validation_strategy:_5-fold_if_N_%3E=_5,_else_LOOCV
+  kind: magnitude
+  raw_text: If the sample size N is greater than or equal to 5, a 5-fold cross-validation
+    is used; otherwise, Leave-One-Out Cross-Validation (LOOCV) is used.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:41:22Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Permutation test uses 1000 shuffles of segregation energy labels
+  claim_id: c_38f49b81
+  context: "Logic: Shuffle segregation energy labels N times (e.g., N=1000) to generate\
+    \ a null distribution of R\xB2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation testing for statistical significance involves shuffling segregation
+    energy labels 1000 times.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:42:33Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Sensitivity thresholds derived from 25th, 50th, and 75th percentiles
+    of descriptor distribution
+  claim_id: c_3a4cbe59
+  context: Derive these values from the data distribution (e.g., 25th, 50th, 75th
+    percentiles of the descriptor distribution).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_thresholds_derived_from_25th,_50th,_and_75th_per
+  kind: entity_fact
+  raw_text: Sensitivity analysis threshold values are derived from the 25th, 50th,
+    and 75th percentiles of the descriptor distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:44:38Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'Execution time limit: 6 hours on CPU cores with sampled dataset'
+  claim_id: c_fb985885
+  context: Verify all tasks run within 6 hours on CPU cores with sampled dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks are required to run within 6 hours on CPU cores with a sampled
+    dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:45:00Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 20
+  canonical: pymatgen version 2024.1.1 specified in plan
+  claim_id: c_275f8c18
+  context: 'Create requirements.txt with pinned versions: The plan specifies using
+    pymatgen version 2024.1.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan specifies using pymatgen version 2024.1.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:47:27Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0 specified
+  claim_id: c_540ff904
+  context: 'Create requirements.txt with pinned versions: scikit-learn==1.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: scikit-learn==1.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:47:28Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1 specified
+  claim_id: c_e585a05a
+  context: 'Create requirements.txt with pinned versions: statsmodels==0.14.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: statsmodels==0.14.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:47:28Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.0 specified
+  claim_id: c_c9533e04
+  context: 'Create requirements.txt with pinned versions: numpy==1.26.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: numpy==1.26.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:47:29Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: pandas version 2.1.0 specified
+  claim_id: c_9c9ba6ca
+  context: 'Create requirements.txt with pinned versions: pandas==2.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pandas==2.1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:47:30Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: ase version 3.23.0 specified
+  claim_id: c_66d04f27
+  context: 'Create requirements.txt with pinned versions: ase==3.23.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ase==3.23.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:47:30Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0 specified
+  claim_id: c_0d52bf62
+  context: 'Create requirements.txt with pinned versions: requests==2.31.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: requests==2.31.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:47:31Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: pyyaml version 6.0.1 specified
+  claim_id: c_58c48f49
+  context: 'Create requirements.txt with pinned versions: pyyaml==6.0.1'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pyyaml==6.0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:47:32Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.0 specified
+  claim_id: c_770124ab
+  context: 'Create requirements.txt with pinned versions: pytest==7.4.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: pytest==7.4.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:47:32Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: ruff version 0.1.0 specified
+  claim_id: c_c331fecb
+  context: 'Create requirements.txt with pinned versions: ruff==0.1.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: ruff==0.1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:47:33Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: black version 23.10.0 specified
+  claim_id: c_ee8372b0
+  context: 'Create requirements.txt with pinned versions: black==23.10.0'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: black==23.10.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:47:34Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 8
+  canonical: NIST EAM potential for Fe-Cr from NIST repository specified
+  claim_id: c_96a7584b
+  context: 'Potential: The document specifies using a specific NIST EAM potential
+    for Fe-Cr from the NIST repository.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_EAM_potential_for_Fe-Cr_from_NIST_repository_specified
+  kind: entity_fact
+  raw_text: The document specifies using a specific NIST EAM potential for Fe-Cr from
+    the NIST repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:47:36Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Descriptor computation limited to atoms within 5 angstroms of GB plane
+  claim_id: c_d6c0d257
+  context: "Logic: Compute only for atoms within 5 \xC5 of the GB plane. Output: data/processed/descriptors.csv\
+    \ with columns [species, rdf_peak]."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute only for atoms within 5 \xC5 of the GB plane."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:47:37Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: VIF threshold of 10 triggers collinearity report generation
+  claim_id: c_1909cbbb
+  context: 'Action: Calculate VIF for each descriptor. IF VIF >= 10 THEN generate
+    a descriptive report data/processed/collinearity_report.md explaining joint relationships.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate VIF for each descriptor. IF VIF >= 10 THEN generate a descriptive
+    report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:47:54Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Manual k-fold CV loop implemented using sklearn cross_val_score with
+    custom wrapper
+  claim_id: c_6b7bf38d
+  context: 'Cross-Validation: Implement a manual k-fold CV loop using sklearn''s cross_val_score
+    with a custom estimator wrapper to satisfy FR-004.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Manual_k-fold_CV_loop_implemented_using_sklearn_cross_val_sc
+  kind: entity_fact
+  raw_text: Implement a manual k-fold CV loop using sklearn's cross_val_score with
+    a custom estimator wrapper.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:48:28Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 5-fold CV used if N >= 5, otherwise LOOCV used
+  claim_id: c_a128746c
+  context: 'Logic: IF N >= 5 THEN use 5-fold CV. ELSE use LOOCV.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: IF N >= 5 THEN use 5-fold CV. ELSE use LOOCV.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:48:29Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: statsmodels OLS with HC3 covariance used on 4 folds
+  claim_id: c_9d41a8b8
+  context: 'For each fold: Train statsmodels.api.OLS with cov_type=''HC3'' on 4 folds,
+    predict on 1 fold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use statsmodels OLS with cov_type='HC3' on 4 folds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:48:52Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Permutation testing uses 1000 label shuffles for null distribution
+  claim_id: c_ba5c159f
+  context: "Logic: Shuffle segregation energy labels N times (e.g., N=1000) to generate\
+    \ a null distribution of R\xB2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Shuffle segregation energy labels N times (e.g., N=1000) to generate\
+    \ a null distribution of R\xB2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:48:52Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 2
+  canonical: Sensitivity analysis sweeps at least 3 threshold values
+  claim_id: c_2b4a88f0
+  context: "Logic: Sweep over at least 3 concrete values of regularization strength\
+    \ (\u03BB) and descriptor perturbation magnitude."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweeps_at_least_3_threshold_values
+  kind: magnitude
+  raw_text: Sensitivity analysis sweeps over at least 3 concrete values of regularization
+    strength and descriptor perturbation magnitude.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:48:55Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Threshold values derived from 25th, 50th, and 75th percentiles
+  claim_id: c_2d3cb069
+  context: Derive these values from the data distribution (e.g., 25th, 50th, 75th
+    percentiles of the descriptor distribution).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Threshold_values_derived_from_25th,_50th,_and_75th_percentil
+  kind: entity_fact
+  raw_text: Derive these values from the data distribution (e.g., 25th, 50th, 75th
+    percentiles of the descriptor distribution).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:48:57Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Tasks restricted to CPU-only GitHub Actions runner
+  claim_id: c_11c28aab
+  context: 'Constraint: All tasks must run on a CPU-only GitHub Actions runner with
+    limited CPU and memory resources.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Tasks_restricted_to_CPU-only_GitHub_Actions_runner
+  kind: entity_fact
+  raw_text: All tasks must run on a CPU-only GitHub Actions runner with limited CPU
+    and memory resources.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:49:44Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: All tasks verified to run within 6 hours on CPU with sampled dataset
+  claim_id: c_7cbf8350
+  context: Verify all tasks run within 6 hours on CPU cores with sampled dataset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify all tasks run within 6 hours on CPU cores with sampled dataset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:49:44Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: pymatgen version 2024.1.1
+  claim_id: c_0e2ba863
+  context: 'T002 Create requirements.txt with pinned versions: The plan specifies
+    using pymatgen version 2024.1.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan specifies using pymatgen version 2024.1.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:51:10Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: NIST EAM potential for Fe-Cr
+  claim_id: c_e433c30e
+  context: 'T017a... Potential: The document specifies using a specific NIST EAM potential
+    for Fe-Cr from the NIST repository.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/NIST_EAM_potential_for_Fe-Cr
+  kind: entity_fact
+  raw_text: The document specifies using a specific NIST EAM potential for Fe-Cr from
+    the NIST repository.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:51:12Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: PCA instruction in Phase 1 rejected
+  claim_id: c_16f9f985
+  context: 'PLAN AMENDMENT: The plan.md instruction to Apply PCA to descriptors in
+    Phase 1 is REJECTED.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The plan instruction to Apply PCA to descriptors in Phase 1 is rejected.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:51:40Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: "RDF peaks computed for atoms within 5 \xC5 of GB plane"
+  claim_id: c_b4163779
+  context: "T015a... Logic: Compute only for atoms within 5 \xC5 of the GB plane."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute RDF peaks only for atoms within 5 \xC5 of the GB plane."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:52:00Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: "Pair correlation computed for atoms within 5 \xC5 of GB plane"
+  claim_id: c_72b95a95
+  context: "T015b... Logic: Compute only for atoms within 5 \xC5 of the GB plane."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute pair correlation statistics only for atoms within 5 \xC5 of the\
+    \ GB plane."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:52:37Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: "Voronoi neighbor counts computed for atoms within 5 \xC5 of GB plane"
+  claim_id: c_3ceb822a
+  context: "T015c... Logic: Compute only for atoms within 5 \xC5 of the GB plane."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute Voronoi-based neighbor counts specifically within the GB interface\
+    \ region for atoms within 5 \xC5 of the GB plane."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:52:56Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: alloy_system_id format f'{crystal_system}_{impurity_species}'
+  claim_id: c_a04a65a1
+  context: 'T016... Logic: Generate alloy_system_id as f''crystal_system_impurity_species''
+    (e.g., ''BCC_Cr'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/alloy_system_id_format_f'%7Bcrystal_system%7D_%7Bimpurity_species%7D
+  kind: entity_fact
+  raw_text: Generate alloy_system_id as f'crystal_system_impurity_species' (e.g.,
+    'BCC_Cr').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:53:36Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Random atomic displacement magnitude from Gaussian distribution
+  claim_id: c_1f1ec50e
+  context: T017a... Apply a random atomic displacement to all atoms in the GB supercell
+    (magnitude drawn from a Gaussian distribution...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Random_atomic_displacement_magnitude_from_Gaussian_distribut
+  kind: entity_fact
+  raw_text: Apply a random atomic displacement to all atoms in the GB supercell with
+    magnitude drawn from a Gaussian distribution.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:54:08Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: VIF calculation threshold >= 10 triggers collinearity report
+  claim_id: c_b71cddd7
+  context: T018... IF VIF >= 10 THEN generate a descriptive report... Do NOT remove
+    features in this task; only report.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate VIF for each descriptor and generate a report if VIF >= 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:54:23Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Manual k-fold CV loop using sklearn cross_val_score
+  claim_id: c_d595cbc7
+  context: T023... Implement a manual k-fold CV loop using sklearn's cross_val_score
+    with a custom estimator wrapper to satisfy FR-004.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Manual_k-fold_CV_loop_using_sklearn_cross_val_score
+  kind: entity_fact
+  raw_text: Implement a manual k-fold CV loop using sklearn's cross_val_score with
+    a custom estimator wrapper.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:54:26Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 5-fold CV for N >= 5, LOOCV otherwise
+  claim_id: c_f2498928
+  context: 'T023... Logic: IF N >= 5 THEN use 5-fold CV. ELSE use LOOCV.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use 5-fold CV if N >= 5, otherwise use LOOCV.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:55:20Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: statsmodels OLS with HC3 cov_type on 4 folds
+  claim_id: c_5b3b53fc
+  context: 'T023... For each fold: Train statsmodels.api.OLS with cov_type=''HC3''
+    on 4 folds, predict on 1 fold.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train statsmodels.api.OLS with cov_type='HC3' on 4 folds and predict on
+    1 fold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:55:43Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps at least 3 values
+  claim_id: c_49eaaac8
+  context: T032... Sensitivity analysis sweeps over at least 3 concrete values of
+    regularization strength and descriptor perturbation magnitude.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweeps_at_least_3_values
+  kind: magnitude
+  raw_text: Sensitivity analysis sweeps over at least 3 concrete values of regularization
+    strength and descriptor perturbation magnitude.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:55:46Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Sensitivity values derived from 25th, 50th, 75th percentiles
+  claim_id: c_31f3b0b4
+  context: T032... Derive these values from the data distribution (e.g., 25th, 50th,
+    75th percentiles of the descriptor distribution).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_values_derived_from_25th,_50th,_75th_percentiles
+  kind: entity_fact
+  raw_text: Derive sensitivity analysis values from the data distribution (e.g., 25th,
+    50th, 75th percentiles of the descriptor distribution).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:56:21Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Permutation testing with N=1000 shuffles
+  claim_id: c_baa88d5d
+  context: "T043... Logic: Shuffle segregation energy labels N times (e.g., N=1000)\
+    \ to generate a null distribution of R\xB2."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Shuffle segregation energy labels N times (e.g., N=1000) to generate\
+    \ a null distribution of R\xB2."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:56:22Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Tasks run on CPU-only runner, no GPU or deep learning
+  claim_id: c_c7a64fe7
+  context: 'Constraint: All tasks must run on a CPU-only GitHub Actions runner with
+    limited CPU and memory resources; no GPU, no 8-bit/4-bit models, no deep learning.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must run on a CPU-only GitHub Actions runner with limited CPU
+    and memory resources; no GPU, no 8-bit/4-bit models, no deep learning.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:56:49Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: All data must be real from MP/OQMD and simulation
+  claim_id: c_460a28f9
+  context: 'Data: All data must be real (MP/OQMD structures + Simulation energies);
+    no fabrication or synthetic placeholders.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/All_data_must_be_real_from_MP/OQMD_and_simulation
+  kind: entity_fact
+  raw_text: All data must be real (MP/OQMD structures + Simulation energies); no fabrication
+    or synthetic placeholders.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:57:14Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 2
+  canonical: Segregation energies generated via simulation not available in MP/OQMD
+  claim_id: c_d6b7e5b9
+  context: 'Scientific Constraint: Segregation energies are generated via simulation
+    (T017) because they are not available in MP/OQMD.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Segregation_energies_generated_via_simulation_not_available
+  kind: entity_fact
+  raw_text: Segregation energies are generated via simulation because they are not
+    available in MP/OQMD.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:57:17Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Bulk structures sourced from MP/OQMD
+  claim_id: c_db2f802c
+  context: 'Scientific Constraint: ... Bulk structures are sourced from MP/OQMD (T013).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bulk_structures_sourced_from_MP/OQMD
+  kind: entity_fact
+  raw_text: Bulk structures are sourced from MP/OQMD.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-20T13:57:19Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/data/processed/collinearity_report.md
+  attempts: 1
+  canonical: No collinearity detected with VIF less than 10
+  claim_id: c_8ab55a39
+  context: 'Analysis Date: 2023-10-27. Dataset: descriptors.csv. No collinearity detected
+    (VIF < 10) for the current dataset.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q113107166'
+      source_id: Q113106917
+      url: https://www.wikidata.org/wiki/Q113106917
+      value: '33'
+    filled: true
+  kind: magnitude
+  raw_text: No collinearity detected (VIF < 10) for the current dataset.
+  resolved_value: '33'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-29T10:32:23Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/data/processed/collinearity_report.md
+  attempts: 1
+  canonical: RDF peak, Pair correlation, and Voronoi count are independent predictors
+  claim_id: c_8adbc0f1
+  context: No collinearity detected (VIF < 10) for the current dataset. All clustering
+    descriptors (RDF peak, Pair correlation, Voronoi count) appear to be independent
+    predictors.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RDF_peak,_Pair_correlation,_and_Voronoi_count_are_independen
+  kind: entity_fact
+  raw_text: All clustering descriptors (RDF peak, Pair correlation, Voronoi count)
+    appear to be independent predictors.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:32:44Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/data/processed/collinearity_report.md
+  attempts: 1
+  canonical: VIF score for rdf_peak is 1.02
+  claim_id: c_f941b474
+  context: 'Feature VIF Scores. rdf_peak: 1.02. pair_corr: 1.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'rdf_peak: 1.02'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:33:27Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/data/processed/collinearity_report.md
+  attempts: 1
+  canonical: VIF score for pair_corr is 1.05
+  claim_id: c_8a48cb71
+  context: 'Feature VIF Scores. rdf_peak: 1.02. pair_corr: 1.05. voronoi_count: 1.08.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'pair_corr: 1.05'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:34:03Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/data/processed/collinearity_report.md
+  attempts: 1
+  canonical: VIF score for voronoi_count is 1.08
+  claim_id: c_c5da5914
+  context: 'Feature VIF Scores. pair_corr: 1.05. voronoi_count: 1.08.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'voronoi_count: 1.08'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:34:28Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit 6 hours for 500 configurations on CPU
+  claim_id: c_0e3f30b8
+  context: "T042 [P] REVISED: Verify all tasks run within 6 hours on CPU cores with\
+    \ sampled dataset. Criteria: Execute the full pipeline on a sampled dataset of\
+    \ \u2264500 configurations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run within 6 hours on CPU cores with a sampled dataset
+    of 500 configurations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:35:09Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Pipeline runtime limit 6 hours for 500 configurations on CPU
+  claim_id: c_28c34c3a
+  context: "T042 [P] REVISED: Verify all tasks run within 6 hours on CPU cores with\
+    \ sampled dataset. Pass Condition: Time \u2264 6 hours AND N \u2264 500."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pipeline must run within 6 hours on CPU cores with a sampled dataset
+    of 500 configurations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:35:10Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: "Pipeline runtime limit of 6 hours on CPU with \u2264500 configurations"
+  claim_id: c_6f5aaa2f
+  context: "Phase 6, Task T042: Verify all tasks run within 6 hours on CPU cores with\
+    \ sampled dataset. Criteria: Execute the full pipeline on a sampled dataset of\
+    \ \u2264500 configurations."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline must run within 6 hours on CPU cores with a sampled dataset\
+    \ of \u2264500 configurations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:43:37Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: alpha=0.05, power=0.8, effect_size=0.5'
+  claim_id: c_fa18af02
+  context: 'Phase 4, Task T025c: Perform power analysis to determine the minimum number
+    of samples required per system. Parameters: Use alpha=0.05, power=0.8, effect_size=0.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical significance parameters for power analysis are alpha=0.05,
+    power=0.8, and effect_size=0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:44:14Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'Permutation test iterations: 1000 if N_groups >= 5 else 100 * N_groups'
+  claim_id: c_6af2abf2
+  context: 'Phase 4, Task T025b: Implement a permutation test procedure. Shuffle the
+    target variable (segregation energy) N times (N=1000 if N_groups >= 5, else N=100
+    * N_groups).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation testing shuffles the target variable 1000 times if N_groups
+    >= 5, otherwise 100 times per group.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:44:48Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Minimum target of 3 alloy systems
+  claim_id: c_69f87f91
+  context: 'Phase 1, Task T017a-0: Define the dynamic resolution logic for the ''deferred''
+    sample size and alloy systems. Logic: Create a configuration file defining min_alloy_systems:
+    3 (target).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum number of alloy systems targeted for the study is 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:45:18Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Maximum sample size cap of 500
+  claim_id: c_9006e552
+  context: 'Phase 1, Task T017a-0: Define the dynamic resolution logic. Logic: Create
+    a configuration file defining max_samples: 500 (hard cap).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum sample size for the study is capped at 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:45:41Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'Cross-validation strategy: 5-fold if N >= 5 else LOOCV'
+  claim_id: c_0c2eacb8
+  context: 'Phase 4, Task T023: Implement a manual k-fold CV loop. Logic: IF N >=
+    5 THEN use 5-fold CV. ELSE use LOOCV.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Cross-validation_strategy:_5-fold_if_N_%3E=_5_else_LOOCV
+  kind: magnitude
+  raw_text: Cross-validation uses 5-fold CV if the sample size N is greater than or
+    equal to 5, otherwise LOOCV is used.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:46:45Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Maximum download retries of 3
+  claim_id: c_a6eafbc8
+  context: 'Phase 3, Task T013: Implement download function with function def download_bulk_configs(url:
+    str, max_retries: int = 3). MUST log [DATA_UNAVAILABLE] after 3 failed attempts.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of retries for downloading bulk configurations is 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:47:04Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Atomic displacement perturbation scale of 0.01
+  claim_id: c_1f3752ab
+  context: 'Phase 3, Task T017a: Apply a random atomic displacement. MUST use displacement
+    rng.normal(loc=0.0, scale=0.01, size=structure.num_atoms) * vector.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The atomic displacement perturbation scale for segregation energy simulation
+    is 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:47:55Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: "Descriptor computation distance limit of 5 \xC5"
+  claim_id: c_a0fec5c0
+  context: "Phase 3, Task T015: Implement descriptors.py. Logic: Compute only for\
+    \ atoms within 5 \xC5 of the GB plane."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Descriptor computation is restricted to atoms within 5 \xC5 of the grain\
+    \ boundary plane."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:48:28Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps over at least 3 threshold values
+  claim_id: c_330a13d3
+  context: 'Phase 5, Task T032: Implement sensitivity analysis. Logic: Sensitivity
+    analysis sweeps over at least 3 concrete values of: Regularization strength, Descriptor
+    perturbation magnitude.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweeps_over_at_least_3_threshold_values
+  kind: magnitude
+  raw_text: Sensitivity analysis sweeps over at least 3 concrete values for regularization
+    strength and descriptor perturbation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:48:57Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Fe-Cr BCC (100) tilt GB used for misorientation angle determination
+  claim_id: c_74e3d5f7
+  context: 'Phase 3, Task T014: Use pymatgen.symmetry.bandstructure.HighSymmKpath
+    to determine misorientation angles for Fe-Cr BCC (100) tilt GB.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Fe-Cr BCC (100) tilt grain boundary is used as a representative case
+    for determining misorientation angles.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-29T10:49:19Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: NIST EAM potential ID for Fe-Cr is Fe_Cr.eam.fs
+  claim_id: c_845cb188
+  context: 'Phase 3, Task T017a-1: Specifics: Use the specific NIST URL for Fe-Cr.
+    For Fe-Cr, use potential ID ''Fe_Cr.eam.fs''.'
+  evidence:
+    entailment_evidence: NIST EAM potential ID for Fe-Cr is Fe Cr.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/NIST_EAM_potential_ID_for_Fe-Cr_is_Fe_Cr.eam.fs
+  kind: entity_fact
+  raw_text: The NIST EAM potential ID for the Fe-Cr system is 'Fe_Cr.eam.fs'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-29T10:49:44Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 2
+  canonical: study aims to determine effect size magnitude
+  claim_id: c_1ff6b9d8
+  context: 'power_analysis_params: {alpha:, power: sufficient to detect the effect
+    of interest, The study aims to determine the magnitude of the effect size.}'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_aims_to_determine_effect_size_magnitude
+  kind: entity_fact
+  raw_text: The study aims to determine the magnitude of the effect size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:24:37Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: potential validation fails if MAE exceeds 0.1 eV
+  claim_id: c_0fa4d18d
+  context: 'Validation: If MAE > 0.1 eV, raise a RuntimeError with message ''Potential
+    validation failed: MAE > 0.1 eV''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If MAE > 0.1 eV, raise a RuntimeError with message ''Potential validation
+    failed: MAE > 0.1 eV''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:24:38Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: descriptors computed for atoms within 5 angstroms of GB plane
+  claim_id: c_77e6181f
+  context: "Logic: Compute only for atoms within 5 \xC5 of the GB plane."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute only for atoms within 5 \xC5 of the GB plane."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:25:27Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: atomic displacement uses normal distribution with scale 0.01
+  claim_id: c_399d86b8
+  context: MUST use rng = numpy.random.default_rng(seed=config.RANDOM_SEED) (from
+    T005) and displacement rng.normal(loc=0.0, scale=0.01, size=structure.num_atoms)
+    * vector.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `rng.normal(loc=0.0, scale=0.01, size=structure.num_atoms) * vector`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:26:08Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: sample generation loop continues until power reaches 0.8 or sample count
+    reaches 500
+  claim_id: c_d1e2383f
+  context: 'Dynamic Sample Size: Implement a loop that generates samples, runs power
+    analysis, and continues until power >= 0.8 OR N >= 500. Explicitly define required_power=0.8
+    and max_samples=500.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a loop that generates samples, runs power analysis, and continues
+    until power >= 0.8 OR N >= 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:27:25Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: power analysis uses effect size 0.5, alpha 0.05, and power 0.8
+  claim_id: c_adc521be
+  context: 'Power Analysis: Use statsmodels.stats.power.FTestPower with effect_size=0.5,
+    alpha=0.05, and power=0.8 to calculate power. If power < 0.8 and N < 500, generate
+    more samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use statsmodels.stats.power.FTestPower with effect_size=0.5, alpha=0.05,
+    and power=0.8 to calculate power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:27:49Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: collinearity report generated if VIF is greater than or equal to 10
+  claim_id: c_36be0bc0
+  context: 'Action: Calculate VIF for each descriptor. IF VIF >= 10 THEN generate
+    a descriptive report data/processed/collinearity_report.md explaining joint relationships.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Collinearity_report_generated_if_VIF_is_greater_than_or_equa
+  kind: magnitude
+  raw_text: IF VIF >= 10 THEN generate a descriptive report data/processed/collinearity_report.md
+    explaining joint relationships.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:29:08Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 5-fold cross validation used if sample size is at least 5
+  claim_id: c_b14f2f6c
+  context: 'Logic: IF N >= 5 THEN use 5-fold CV. ELSE use LOOCV.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/5-fold_cross_validation_used_if_sample_size_is_at_least_5
+  kind: magnitude
+  raw_text: IF N >= 5 THEN use 5-fold CV.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:30:56Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: permutation test uses 1000 shuffles if groups at least 5 else 100 times
+    group count
+  claim_id: c_28c38669
+  context: Shuffle the predictor columns (or residuals) N times to generate a null
+    distribution. N = 1000 if N_groups >= 5, else N = 100 * N_groups. N_groups is
+    derived from the number of unique alloy_system_id groups in data/processed/alloy_systems.json
+    (T016 output).
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Permutation_test_uses_1000_shuffles_if_groups_at_least_5_els
+  kind: magnitude
+  raw_text: Shuffle the predictor columns (or residuals) N times to generate a null
+    distribution. N = 1000 if N_groups >= 5, else N = 100 * N_groups.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:31:11Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: sample size threshold calculation uses alpha 0.05 power 0.8 and effect
+    size 0.5
+  claim_id: c_e5438414
+  context: 'Parameters: Use alpha=0.05, power=0.8, effect_size=0.5.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use alpha=0.05, power=0.8, effect_size=0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:31:40Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: sensitivity analysis sweeps at least 3 alpha values
+  claim_id: c_b384c62d
+  context: 'Logic: Sensitivity analysis sweeps over at least 3 concrete values of:
+    1. Model Hyperparameters: Sweep over regularization strength (alpha) for Ridge
+    regression.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweeps_at_least_3_alpha_values
+  kind: magnitude
+  raw_text: Sensitivity analysis sweeps over at least 3 concrete values of regularization
+    strength (alpha).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:32:10Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: alpha sweep values include 0.0 0.1 times max alpha and 1.0 times max
+    alpha
+  claim_id: c_7f4d64fc
+  context: 'Threshold Values: Use alpha values: [0.0, 0.1 * max_alpha, 1.0 * max_alpha]
+    where max_alpha is the value where coefficients become negligible (< 1e-3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use alpha values: [0.0, 0.1 * max_alpha, 1.0 * max_alpha] where max_alpha
+    is the value where coefficients become negligible (< 1e-3).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:32:58Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: pipeline execution tested on dataset of at most 500 configurations
+  claim_id: c_9132eb0d
+  context: "Criteria: Execute the full pipeline on a sampled dataset of \u2264500\
+    \ configurations (as per Plan.md Performance Goals)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_execution_tested_on_dataset_of_at_most_500_configur
+  kind: magnitude
+  raw_text: "Execute the full pipeline on a sampled dataset of \u2264500 configurations."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:34:00Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: pipeline performance pass condition is time under 6 hours and sample
+    size under 500
+  claim_id: c_d5cda320
+  context: "Pass Condition: Time \u2264 6 hours AND N \u2264 500."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Pass Condition: Time \u2264 6 hours AND N \u2264 500."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:34:00Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Potential validation fails if mean absolute error exceeds 0.1 eV
+  claim_id: c_7ae9aaeb
+  context: Ground Truth Validation task T017f logic for validating NIST EAM potential
+    against DFT energies.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If MAE > 0.1 eV, raise a RuntimeError with message ''Potential validation
+    failed: MAE > 0.1 eV''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:36:27Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: alpha 0.05, power 0.8, effect size 0.5'
+  claim_id: c_6b8c2b7d
+  context: Task T017c dynamic sample size logic for determining when to stop generating
+    samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use alpha=0.05, power=0.8, effect_size=0.5 to calculate power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:36:55Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Simulation loop stops when statistical power reaches 0.8 or sample size
+    hits 500
+  claim_id: c_6fda3e89
+  context: Task T017c dynamic sample size implementation logic.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate samples until power >= 0.8 OR N >= 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:37:41Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Collinearity report generated if Variance Inflation Factor is 10 or greater
+  claim_id: c_a7896121
+  context: Task T018 descriptor filtering logic to report joint relationships without
+    removing features.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute VIF for each descriptor; IF VIF >= 10 THEN generate a descriptive
+    report.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:38:03Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Permutation test iterations set to 1000 if groups >= 5, otherwise 100
+    times number of groups
+  claim_id: c_45ac5f73
+  context: Task T025b permutation testing procedure for statistical significance of
+    held-out alloy systems.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Shuffle predictor columns N times where N = 1000 if N_groups >= 5, else
+    N = 100 * N_groups.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:38:59Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Permutation test p-value calculation formula using null distribution
+    count
+  claim_id: c_84078e5f
+  context: Task T025b specific formula for determining statistical significance in
+    permutation testing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate p-value as (count(null_r2 >= observed_r2) + 1) / (N + 1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:39:40Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps regularization strength at 0.0, 10%, and
+    100% of max_alpha
+  claim_id: c_9a6ed1de
+  context: Task T032 sensitivity analysis logic for sweeping model hyperparameters.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use alpha values [0.0, 0.1 * max_alpha, 1.0 * max_alpha] for sensitivity
+    analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:40:33Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Performance verification uses a dataset of 500 or fewer configurations
+  claim_id: c_7995c54a
+  context: Task T042 criteria for verifying pipeline execution time on CPU-only runners.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute the full pipeline on a sampled dataset of \u2264500 configurations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:40:33Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Full pipeline execution time must be 6 hours or less on CPU cores
+  claim_id: c_f7d043b9
+  context: Task T042 pass condition for performance verification.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify all tasks run within 6 hours on CPU cores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:40:59Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Descriptor computation restricted to atoms within 5 Angstroms of grain
+    boundary plane
+  claim_id: c_2b9875e3
+  context: Task T015 logic for computing RDF peaks and Voronoi counts specifically
+    in the interface region.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute only for atoms within 5 \xC5 of the GB plane."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:41:00Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Study objective is to determine effect size magnitude
+  claim_id: c_fd8de716
+  context: Task T017a-0 scope definition for dynamic resolution logic and power analysis
+    parameters.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_objective_is_to_determine_effect_size_magnitude
+  kind: entity_fact
+  raw_text: The study aims to determine the magnitude of the effect size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:41:02Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Grain boundary builder uses fixed misorientation angles for Fe-Cr BCC
+    (100) tilt
+  claim_id: c_e0b31d44
+  context: Task T014 implementation of GB supercell construction using pymatgen.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use fixed angles for deterministic reproducibility for Fe-Cr BCC (100)
+    tilt GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:41:28Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Atomic perturbation displacement scale is 0.01
+  claim_id: c_49cff585
+  context: Task T017a-2 perturbation logic for breaking symmetry in GB supercells.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Displacement scale is 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:41:58Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Minimum target number of alloy systems is 3
+  claim_id: c_35d64066
+  context: Task T017a-0 configuration file defining dynamic resolution logic.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_target_number_of_alloy_systems_is_3
+  kind: magnitude
+  raw_text: If the number of alloy systems is less than 3, the target is 3.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:42:30Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Pipeline logs data unavailable status after 3 failed download attempts
+  claim_id: c_e6c86da9
+  context: Task T013 error handling logic for fetching bulk configurations.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Log [DATA_UNAVAILABLE] URL=<url> attempts=3 after 3 failed attempts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:42:53Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Cross-validation strategy uses 5-fold if sample size is 5 or more, otherwise
+    LOOCV
+  claim_id: c_77bf5629
+  context: Task T023 logic for selecting cross-validation method based on dataset
+    size.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If N >= 5 then use 5-fold CV, else use LOOCV.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:44:33Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Power analysis uses FTestPower with effect size of 0.5
+  claim_id: c_eb358609
+  context: Task T017c implementation of power analysis for dynamic sample size determination.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use `statsmodels.stats.power.FTestPower` with effect_size=0.5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:44:56Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'Permutation test p-value formula: (count + 1) / (N + 1)'
+  claim_id: c_675e53a3
+  context: Task T025b calculation of p-value from null distribution in permutation
+    testing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate p-value as (count(null_r2 >= observed_r2) + 1) / (N + 1).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:44:57Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds are 0.0, 0.1 times max_alpha, and 1.0
+    times max_alpha
+  claim_id: c_3c29c01d
+  context: Task T032 sensitivity analysis sweep logic for regularization strength.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use alpha values [0.0, 0.1 * max_alpha, 1.0 * max_alpha] for sensitivity
+    analysis.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:44:57Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 3
+  canonical: GB builder uses fixed angles for Fe-Cr BCC (100) tilt to ensure reproducibility
+  claim_id: c_84681f9c
+  context: Task T014 implementation of GB supercell construction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use fixed angles for deterministic reproducibility for Fe-Cr BCC (100)
+    tilt GB.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:45:00Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: determine magnitude of effect size
+  claim_id: c_62bef690
+  context: 'T017a-0 Scope Definition: Define the dynamic resolution logic for the
+    ''deferred'' sample size and alloy systems required by FR-003.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Determine_magnitude_of_effect_size
+  kind: entity_fact
+  raw_text: The study aims to determine the magnitude of the effect size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:49:17Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: min_alloy_systems target 3
+  claim_id: c_b8779a11
+  context: 'T017a-0 Scope Definition: Create a configuration file data/scope_config.yaml
+    defining: min_alloy_systems: 3 (target)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'min_alloy_systems: 3 (target)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:49:43Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: max_samples hard cap 500
+  claim_id: c_033a1d8e
+  context: 'T017a-0 Scope Definition: Create a configuration file data/scope_config.yaml
+    defining: max_samples: 500 (hard cap)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'max_samples: 500 (hard cap)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:50:14Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: integration test sample size N=10
+  claim_id: c_f2588556
+  context: 'T012a Integration test for full data pipeline: Execute the pipeline on
+    a small sample of bulk configurations (N=10) and verify that GB supercells are
+    constructed...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study uses a small sample of bulk configurations (N=10) for the integration
+    test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:50:54Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: potential validation fail if MAE > 0.1 eV
+  claim_id: c_4e3ecd12
+  context: 'T017f Ground Truth Validation: If MAE > 0.1 eV, raise a RuntimeError with
+    message ''Potential validation failed: MAE > 0.1 eV''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If MAE > 0.1 eV, raise a RuntimeError with message ''Potential validation
+    failed: MAE > 0.1 eV''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:50:55Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: compute descriptors for atoms within 5 angstroms of GB plane
+  claim_id: c_3126ba21
+  context: "T015 Implement code/data/descriptors.py: Logic: Compute only for atoms\
+    \ within 5 \xC5 of the GB plane."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Compute only for atoms within 5 \xC5 of the GB plane."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:50:56Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: generate collinearity report if VIF >= 10
+  claim_id: c_033b2fc4
+  context: 'T018 Implement code/data/descriptor_filter.py: IF VIF >= 10 THEN generate
+    a descriptive report data/processed/collinearity_report.md explaining joint relationships.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: IF VIF >= 10 THEN generate a descriptive report explaining joint relationships.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:51:15Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: power analysis parameters effect_size 0.5 alpha 0.05 power 0.8
+  claim_id: c_8bd49488
+  context: 'T017c Implement run_simulation: Use statsmodels.stats.power.FTestPower
+    with effect_size=0.5, alpha=0.05, and power=0.8 to calculate power.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use effect_size=0.5, alpha=0.05, and power=0.8 to calculate power.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:51:43Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: simulation loop condition power >= 0.8 or N >= 500
+  claim_id: c_0d362fd7
+  context: 'T017c Implement run_simulation: Implement a loop that generates samples,
+    runs power analysis, and continues until power >= 0.8 OR N >= 500.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The loop continues until power >= 0.8 OR N >= 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:52:40Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: sensitivity sweep alpha values 0.0 0.1 1.0
+  claim_id: c_2ea065d1
+  context: 'T032 Implement code/modeling/evaluate.py: Threshold Values: Use alpha
+    values: [0.0, 0.1 * max_alpha, 1.0 * max_alpha]... Alternatively, use fixed values
+    [0.0, 0.1, 1.0]...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Use alpha values: [0.0, 0.1 * max_alpha, 1.0 * max_alpha] or fixed values
+    [0.0, 0.1, 1.0] for sensitivity sweep.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:53:02Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: permutation testing N 1000 if groups >= 5 else 100 times groups
+  claim_id: c_0c7e1307
+  context: 'T025b Implement permutation testing: Shuffle the predictor columns N times
+    to generate a null distribution. N = 1000 if N_groups >= 5, else N = 100 * N_groups.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: N = 1000 if N_groups >= 5, else N = 100 * N_groups for permutation testing.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:54:05Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: permutation test p-value formula
+  claim_id: c_ab66d4c6
+  context: 'T025b Implement permutation testing: Calculate p-value as: p = (count(null_r2
+    >= observed_r2) + 1) / (N + 1).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Calculate p-value as: p = (count(null_r2 >= observed_r2) + 1) / (N +
+    1).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:54:06Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: pipeline execution sample size <= 500
+  claim_id: c_60306fd8
+  context: "T042 Verify all tasks run within 6 hours: Execute the full pipeline on\
+    \ a sampled dataset of \u2264500 configurations (as per Plan.md Performance Goals)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Execute the full pipeline on a sampled dataset of \u2264500 configurations."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:54:07Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: performance verification pass condition time <= 6 hours N <= 500
+  claim_id: c_2f5ede8e
+  context: "T042 Verify all tasks run within 6 hours: Pass Condition: Time \u2264\
+    \ 6 hours AND N \u2264 500."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Time \u2264 6 hours AND N \u2264 500 is the pass condition for performance\
+    \ verification."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:54:07Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Study aims to determine magnitude of effect size
+  claim_id: c_40aa8dec
+  context: Power analysis parameters defined in scope_config.yaml for dynamic resolution
+    logic.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Study_aims_to_determine_magnitude_of_effect_size
+  kind: entity_fact
+  raw_text: The study aims to determine the magnitude of the effect size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:55:13Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Potential validation fails if MAE exceeds 0.1 eV
+  claim_id: c_7206d744
+  context: Ground Truth Validation task comparing simulated energies against DFT energies
+    from NIST/MP.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If MAE > 0.1 eV, raise a RuntimeError with message ''Potential validation
+    failed: MAE > 0.1 eV''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:55:14Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Pipeline proceeds with available systems if potential download fails
+  claim_id: c_fb3ee0a6
+  context: System-specific potential download logic where missing files trigger a
+    warning and skip.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pipeline_proceeds_with_available_systems_if_potential_downlo
+  kind: entity_fact
+  raw_text: The pipeline will proceed with available systems if a potential file is
+    missing.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:55:42Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Atomic displacement scale set to 0.01 for perturbation
+  claim_id: c_ae48caa1
+  context: Perturbation logic applying random atomic displacement to GB supercells.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation uses a displacement scale of 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:56:08Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'Simulation loop condition: power >= 0.8 or N >= 500'
+  claim_id: c_1c688f54
+  context: Dynamic sample size logic for running simulation and power analysis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The simulation loop continues until power >= 0.8 or N >= 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:56:49Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'Power analysis parameters: effect_size 0.5, alpha 0.05'
+  claim_id: c_5b74d607
+  context: Power analysis configuration for determining sample size sufficiency.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Power analysis uses effect_size=0.5 and alpha=0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:57:17Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Collinearity threshold set to VIF 10
+  claim_id: c_dc167156
+  context: Descriptor filter logic generating reports when Variance Inflation Factor
+    exceeds 10.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: If the VIF is high (with 10 being the traditionally accepted thresh-
+      source_id: '2005.02245'
+      url: https://arxiv.org/abs/2005.02245
+      value: '10'
+    filled: true
+  kind: numeric
+  raw_text: Collinearity is flagged if VIF >= 10.
+  resolved_value: '10'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T23:57:38Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'Cross-validation strategy: 5-fold if N>=5, else LOOCV'
+  claim_id: c_d8aaf8d8
+  context: Manual k-fold CV loop logic for model training in User Story 2.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cross-validation uses 5-fold CV if N >= 5, otherwise LOOCV.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:58:11Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'Permutation test N count: 1000 if groups >=5, else 100*groups'
+  claim_id: c_126b0346
+  context: Held-out alloy system split and evaluation logic including permutation
+    testing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Permutation testing uses N = 1000 if N_groups >= 5, else N = 100 * N_groups.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:59:07Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis sweeps at least 3 alpha values
+  claim_id: c_d8c28b73
+  context: Sensitivity analysis implementation for decision thresholds in User Story
+    3.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis_sweeps_at_least_3_alpha_values
+  kind: magnitude
+  raw_text: Sensitivity analysis sweeps over at least 3 concrete values of regularization
+    strength (alpha).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:59:09Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/specs/001-predicting-the-impact-of-impurity-cluste/tasks.md
+  attempts: 1
+  canonical: 'Pipeline performance requirement: <= 6 hours for <= 500 samples on CPU'
+  claim_id: c_4ce30729
+  context: Performance verification task ensuring tasks run within time limits on
+    limited resources.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline must run within 6 hours on a CPU-only runner with a
+    sampled dataset of <= 500 configurations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T23:59:32Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: tests fail on first run and pass after pipeline generates files
+  claim_id: c_f7fd32ec
+  context: Tests cover data download retry logic, descriptor computation, GB construction,
+    simulation stability, and model evaluation. They are designed to fail on the first
+    run (when data is absent) and pass once the pipeline produces the expected files.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Tests are designed to fail on the first run (when data is absent) and
+    pass once the pipeline produces the expected files.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T13:24:23Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: script creates descriptors.csv, segregation_energies.csv, metrics.json,
+    sensitivity_report.json, metadata.yaml
+  claim_id: c_f94f63e0
+  context: Running the full pipeline will generate these files in the data/processed
+    and results directories.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: 'The script will create the following key outputs: descriptors.csv, segregation_energies.csv,
+    metrics.json, sensitivity_report.json, metadata.yaml.'
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T13:24:24Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: bulk configurations retrieved from Materials Project and OQMD
+  claim_id: c_a91f6a93
+  context: Data provenance section states bulk configurations are retrieved directly
+    from the Materials Project and OQMD.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Bulk configurations are retrieved directly from the Materials Project
+    and OQMD.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:25:03Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: bulk configurations fetched from OQMD and Materials Project
+  claim_id: c_70e059ad
+  context: Data provenance section describing where bulk configurations are obtained.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: Bulk configurations are fetched directly from the OQMD dataset (via its
+    public API) and, if unavailable, from the Materials Project (requires an API key).
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T13:27:02Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: downloaded files stored in data/raw with SHA-256 checksums recorded
+  claim_id: c_d94e4d44
+  context: Data provenance section explaining file storage and integrity verification.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "All downloaded files are stored under data/raw/ and their SHA\u2011256\
+    \ checksums are recorded in data/metadata.yaml."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T13:27:03Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: modeling metrics saved in results/metrics.json with configuration snapshot
+  claim_id: c_2098f619
+  context: Description of output artifacts for the modeling step.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The final modeling metrics are saved in results/metrics.json with a copy
+    of the configuration snapshot for reproducibility.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-09T13:27:04Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/docs/methodology.md
+  attempts: 1
+  canonical: 5-Fold CV is statistically unstable or impossible when sample size is
+    less than 5
+  claim_id: c_bdf6576e
+  context: In the fallback strategy description, the document states that if N < 5,
+    5-Fold CV is statistically unstable or impossible, leading to use of LOOCV.
+  evidence:
+    reason: no source found to validate superlative claim
+  kind: magnitude
+  raw_text: If the total number of samples N is less than 5, 5-Fold CV is statistically
+    unstable or impossible.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:29:18Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: Bulk configurations fetched from Materials Project and OQMD
+  claim_id: c_af3ac1f7
+  context: The Data Provenance section lists the sources used for bulk configurations.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Materials Project
+      source_id: Q105085929
+      url: https://www.wikidata.org/wiki/Q105085929
+      value: Materials Project
+    filled: true
+  kind: entity_fact
+  raw_text: 'Bulk configurations are fetched from the following publicly accessible
+    sources: Materials Project and OQMD.'
+  resolved_value: Materials Project
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-09T13:34:23Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: Interatomic potentials downloaded from NIST repository
+  claim_id: c_eabf4b5c
+  context: The Data Provenance section describes where interatomic potentials are
+    obtained.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: EAM-like potentials are usually implemented as numerical tables. A collection
+        of tables is available at the interatomic potential repository at NIST (see
+        here).
+      source_id: Interatomic potential
+      url: https://en.wikipedia.org/wiki/Interatomic_potential
+      value: interatomic potential repository at NIST
+    filled: true
+  kind: entity_fact
+  raw_text: Interatomic potentials are downloaded from the NIST repository (e.g.,
+    Fe_Cr.eam.fs).
+  resolved_value: interatomic potential repository at NIST
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-09T13:34:46Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: EAM potential energies compared against DFT reference dataset from Materials
+    Project
+  claim_id: c_98cc3bf0
+  context: Potential validation is performed by code/data/validate_potential.py as
+    described in Data Provenance.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "The script compares the EAM potential energies against a small DFT reference\
+    \ dataset (sourced from the Materials Project\u2019s public CSV)."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:35:28Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: DFT reference dataset provides formation energies per atom for elemental
+    solids
+  claim_id: c_a90896bb
+  context: The DFT reference dataset for potential validation is a publicly hosted
+    CSV in the pymatgen repository, providing formation energies per atom for elemental
+    solids.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: The DFT reference dataset for potential validation is a publicly hosted
+    CSV in the pymatgen repository that provides formation energies per atom for elemental
+    solids.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:38:51Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: Bulk configuration files are sourced from OQMD and Materials Project
+  claim_id: c_c24854f2
+  context: 'The pipeline automates the process of: 1. Data Acquisition: Downloading
+    bulk configuration files from the Open Quantum Materials Database (OQMD) and Materials
+    Project (MP).'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Downloading bulk configuration files from the Open Quantum Materials Database
+    (OQMD) and Materials Project (MP).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:44:23Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: Segregation energy measurements are generated using NIST EAM potentials
+  claim_id: c_24532bdb
+  context: 'The pipeline automates the process of: ... 4. Simulation: Generating segregation
+    energy measurements using NIST EAM potentials.'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Generating segregation energy measurements using NIST EAM potentials.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:46:25Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: NIST EAM potentials are used for target alloy systems such as Fe-Cr
+  claim_id: c_9ea126ff
+  context: 'Interatomic Potentials: Uses verified NIST EAM (Embedded Atom Method)
+    potentials for the target alloy systems (e.g., Fe-Cr).'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Uses verified NIST EAM (Embedded Atom Method) potentials for the target
+    alloy systems (e.g., Fe-Cr).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:49:15Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: Bulk configurations sourced from OQMD and Materials Project
+  claim_id: c_626ddb1b
+  context: 'To ensure reproducibility and scientific integrity, the project tracks
+    data provenance as follows: Bulk Configurations: Sourced from the Open Quantum
+    Materials Database (OQMD) and the Materials Project.'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: 'Bulk Configurations: Sourced from the Open Quantum Materials Database
+    (OQMD) and the Materials Project.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:56:35Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: Interatomic potentials sourced from NIST EAM
+  claim_id: c_a3a6c150
+  context: 'To ensure reproducibility and scientific integrity, the project tracks
+    data provenance as follows: Interatomic Potentials: Uses NIST EAM potentials (e.g.,
+    Fe-Cr) downloaded from verified public mirrors.'
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: 'Interatomic Potentials: Uses NIST EAM potentials (e.g., Fe-Cr) downloaded
+    from verified public mirrors.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-09T13:57:50Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: bulk alloy records sourced from OQMD via HuggingFace datasets loader
+  claim_id: c_d6486c21
+  context: The bulk alloy records are sourced from the Open Quantum Materials Database
+    (OQMD) using the HuggingFace datasets loader.
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: The bulk alloy records are sourced from the Open Quantum Materials Database
+    (OQMD) using the HuggingFace `datasets` loader (`datasets.load_dataset('jablonkagroup/oqmd',
+    name='raw_data')`).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T05:33:16Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: Materials Project data omitted due to documented waiver
+  claim_id: c_6892edd7
+  context: Materials Project data are omitted due to a documented waiver (no unauthenticated
+    open source available).
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: Materials Project data are omitted due to a documented waiver (no unauthenticated
+    open source available).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T05:34:08Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: raw data files stored under data/raw directory
+  claim_id: c_40e39f03
+  context: All raw data files are stored under the `data/raw/` directory.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All raw data files are stored under the `data/raw/` directory.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T05:34:09Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: bulk alloy records sourced from OQMD via verified loader
+  claim_id: c_5589fda1
+  context: "The bulk alloy records are sourced from the Open Quantum Materials Database\
+    \ (OQMD) using the verified OQMD loader (`datasets.load_dataset('jablonkagroup/oqmd',\
+    \ name='raw_data')`). Materials\u2011Project waiver is documented..."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: The bulk alloy records are sourced from the Open Quantum Materials Database
+    (OQMD) using the verified OQMD loader (`datasets.load_dataset('jablonkagroup/oqmd',
+    name='raw_data')`).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T05:37:09Z'
+- artifact_path: projects/PROJ-355-predicting-the-impact-of-impurity-cluste/README.md
+  attempts: 1
+  canonical: Materials Project data omitted because no unauthenticated public source
+  claim_id: c_31906f57
+  context: "Materials\u2011Project waiver is documented in the project plan because\
+    \ Materials\u2011Project data are omitted due to the lack of an unauthenticated\
+    \ public source."
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P856: https://materialsproject.org'
+      source_id: Q105085929
+      url: https://www.wikidata.org/wiki/Q105085929
+      value: https://materialsproject.org
+    filled: true
+  kind: entity_fact
+  raw_text: "Materials\u2011Project data are omitted due to the lack of an unauthenticated\
+    \ public source."
+  resolved_value: https://materialsproject.org
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-25T05:37:34Z'

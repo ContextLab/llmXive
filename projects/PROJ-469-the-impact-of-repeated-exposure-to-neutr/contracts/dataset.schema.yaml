@@ -1,84 +1,89 @@
-version: "1.0.0"
-description: >
-  Schema for the Project Implicit Political IAT dataset.
-  Defines required columns, data types, and validation logic
-  to ensure data integrity before analysis.
-source: "Project Implicit"
-last_updated: "2023-10-27"
+# Dataset Schema for Political IAT Analysis
+# Defines the required columns, types, and validation logic for the Project Implicit dataset.
+# This schema is used by code/data_loader.py to validate raw data before processing.
+
+version: "1.0"
+description: "Schema for the Political News Exposure and Implicit Bias dataset"
+source: "Project Implicit (Political IAT)"
 
 columns:
   - name: IAT_D_score
     type: float
-    description: >
-      The D-score measure of implicit bias from the Implicit Association Test.
-      Positive values indicate bias toward the first category, negative toward the second.
-    validation:
-      - min: -4.0
-        max: 4.0
-        message: "IAT_D_score must be between -4.0 and 4.0."
-      - not_null: true
-        message: "IAT_D_score cannot be null."
+    description: "The D-score metric for the Political IAT, representing implicit bias strength."
+    constraints:
+      min: -1.0
+      max: 1.0
+      nullable: true
+    validation_logic: "Value must be between -1.0 and 1.0. NaN allowed for missing data."
 
   - name: political_ideology
     type: float
-    description: >
-      Self-reported political ideology score.
-      Typically a continuous scale (e.g., 1-7) where lower values indicate liberal and higher conservative.
-    validation:
-      - min: 1.0
-        max: 7.0
-        message: "political_ideology must be between 1.0 and 7.0."
-      - not_null: true
-        message: "political_ideology cannot be null."
+    description: "Self-reported political ideology score (continuous scale, e.g., 1-7 or -3 to +3)."
+    constraints:
+      nullable: true
+    validation_logic: "Must be a numeric value. Specific range depends on the survey instrument used in the raw data."
 
   - name: news_exposure_freq
     type: float
-    description: >
-      Frequency of exposure to political news.
-      Self-reported frequency score (e.g., 1-5 or 1-7 scale).
-    validation:
-      - min: 1.0
-        max: 7.0
-        message: "news_exposure_freq must be between 1.0 and 7.0."
-      - not_null: true
-        message: "news_exposure_freq cannot be null."
+    description: "Frequency of political news exposure (continuous or ordinal scale)."
+    constraints:
+      nullable: true
+    validation_logic: "Must be a numeric value representing frequency."
 
-optional_columns:
   - name: age
-    type: float
+    type: integer
     description: "Participant age in years."
+    constraints:
+      min: 18
+      max: 120
+      nullable: true
+    validation_logic: "Age must be a positive integer within reasonable bounds."
+
   - name: gender
     type: string
-    description: "Participant gender."
-  - name: education
-    type: float
-    description: "Education level code."
+    description: "Self-reported gender."
+    constraints:
+      nullable: true
+    allowed_values: ["Male", "Female", "Non-binary", "Other", "Prefer not to say"]
+    validation_logic: "Must match one of the allowed categorical values or be null."
 
-validation_logic:
-  - name: check_core_columns
-    description: >
-      Ensures that all core columns defined in 'columns' are present in the dataset.
-      Raises ValueError if any are missing.
-    implementation: >
-      required = {col['name'] for col in columns if col.get('not_null')}
-      missing = required - set(df.columns)
-      if missing:
-          raise ValueError(f"Missing required columns: {missing}")
-  - name: check_value_ranges
-    description: >
-      Validates that numeric columns fall within their specified min/max ranges.
-      Rows with out-of-range values are flagged or dropped depending on strictness.
-    implementation: >
-      for col_def in columns:
-          col_name = col_def['name']
-          if col_name in df.columns:
-              min_val = col_def['validation'][0]['min']
-              max_val = col_def['validation'][0]['max']
-              invalid = df[(df[col_name] < min_val) | (df[col_name] > max_val)]
-              if not invalid.empty:
-                  # Log warning or raise error based on configuration
-                  pass
-notes: >
-  This schema is used by code/data_loader.py to validate the raw dataset
-  immediately after fetching or loading. It ensures that the downstream
-  analysis (T013-T018) operates on data with the expected structure.
+  - name: education
+    type: string
+    description: "Highest level of education attained."
+    constraints:
+      nullable: true
+    allowed_values: ["High School", "Some College", "Bachelor's", "Master's", "Doctorate", "Other"]
+    validation_logic: "Must match one of the allowed categorical values or be null."
+
+required_columns:
+  - IAT_D_score
+  - political_ideology
+  - news_exposure_freq
+
+validation_rules:
+  - rule: "check_required_columns"
+    description: "Ensure all columns in 'required_columns' exist in the dataset."
+    action: "raise ValueError"
+    message: "Missing required columns: {missing_columns}"
+
+  - rule: "check_data_types"
+    description: "Verify that numeric columns contain numeric data."
+    action: "warn_and_convert"
+    message: "Non-numeric values found in {column}. Attempting conversion or marking as NaN."
+
+  - rule: "check_value_ranges"
+    description: "Verify that numeric columns fall within defined min/max constraints."
+    action: "raise ValueError"
+    message: "Invalid values found in {column}: values outside range [{min}, {max}]."
+
+  - rule: "check_categorical_values"
+    description: "Verify that categorical columns contain only allowed values."
+    action: "warn"
+    message: "Unexpected values found in {column}: {unexpected_values}. Marking as NaN."
+
+notes: |
+  This schema is used by `code/data_loader.py` to validate the raw CSV file.
+  If validation fails, the loader raises a ValueError with specific details about the failure.
+  The schema does not enforce the data to be non-null; missing values are handled during the MICE imputation step (T014).
+  The `political_ideology` and `news_exposure_freq` ranges are not strictly defined here as they depend on the specific survey version,
+  but they must be numeric. The `IAT_D_score` is strictly bounded by the D-score methodology.

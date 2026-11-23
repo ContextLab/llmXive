@@ -19,58 +19,40 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
-MANIFEST
 
 # Virtual Environments
+.venv/
 venv/
 ENV/
 env/
-.venv/
 
-# IDEs
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
-*~
-.project
-.settings/
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# Data Artifacts (Raw and Processed)
+# Data
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
+*.parquet
+*.csv
+*.json
+!data/processed/scaling_results.csv
+!data/processed/materials_master.parquet
+!data/processed/final_analysis.csv
 
-# State and Logs
-state/*.json
-state/*.log
-state/amendments.md
+# Logs
+*.log
 logs/
 
-# OS files
+# State
+state/*.json
+!state/amendments.md
+!state/properties_status.json
+
+# OS
 .DS_Store
 Thumbs.db
-
-# Local Configuration
-.env
-.local_settings.py
-config_local.py
-
-# Test Coverage
-.coverage
-htmlcov/
-.pytest_cache/
-
-# Model artifacts (large binaries)
-models/
-*.h5
-*.pkl
-*.joblib
-
-# Temporary files
-*.tmp
-.tmp/

@@ -12,13 +12,17 @@ dependencies = [
     "numpy>=1.24.0",
     "scipy>=1.10.0",
     "pytest>=7.0.0",
+    "pytest-timeout>=2.2.0",
     "psutil>=5.9.0",
+    "ruff>=0.1.0",
+    "black>=23.0.0",
 ]
 
 [project.optional-dependencies]
 dev = [
     "ruff>=0.1.0",
     "black>=23.0.0",
+    "pytest>=7.0.0",
     "pytest-timeout>=2.2.0",
 ]
 
@@ -28,7 +32,8 @@ target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+    | \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -43,23 +48,36 @@ exclude = '''
 [tool.ruff]
 line-length = 88
 target-version = "py311"
+src = ["src", "tests", "scripts"]
+
+[tool.ruff.lint]
 select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings
-    "F",   # pyflakes
-    "I",   # isort
-    "C",   # flake8-comprehensions
-    "B",   # flake8-bugbear
+    "E",
+    "W",
+    "F",
+    "I",
+    "B",
+    "C4",
+    "UP",
+    "SIM",
+    "ARG",
+    "PTH",
 ]
 ignore = [
-    "E501", # line too long (black handles this)
-    "C901", # too complex
-    "B008", # do not perform function calls in argument defaults
+    "E501",
+    "B008",
 ]
 
-[tool.ruff.per-file-ignores]
-"__init__.py" = ["F401"]
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["ARG", "S101"]
+"scripts/*" = ["T201"]
 
-[tool.ruff.isort]
-known-first-party = ["src", "tests", "data"]
-known-third-party = ["torch", "numpy", "scipy", "pytest", "psutil"]
+[tool.ruff.lint.isort]
+known-first-party = ["src", "tests"]
+force-sort-within-sections = true
+
+[tool.pytest.ini_options]
+timeout = 300
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

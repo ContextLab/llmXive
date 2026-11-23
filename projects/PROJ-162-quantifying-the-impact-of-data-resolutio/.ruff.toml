@@ -1,0 +1,36 @@
+# Ruff configuration for llmXive project
+# Aligns with Black formatting and enforces strict linting
+
+target-version = "py310"
+line-length = 88
+
+[lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+    "RUF", # Ruff-specific rules
+]
+ignore = [
+    "E501", # Line too long (handled by Black)
+    "B008", # Do not perform function call in argument defaults (common in Pydantic/attrs)
+    "C901", # Complex logic (allow for research scripts)
+]
+
+[lint.isort]
+force-single-line = false
+lines-between-types = 0
+lines-after-imports = 2
+known-first-party = ["src"]
+known-third-party = ["pycbc", "scipy", "numpy", "pandas", "gwosc", "pytest", "memory_profiler", "sklearn", "ruff", "black"]
+
+[format]
+# Explicitly set Black-compatible settings
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

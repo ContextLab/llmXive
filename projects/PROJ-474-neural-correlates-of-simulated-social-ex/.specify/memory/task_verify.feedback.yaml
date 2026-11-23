@@ -1,0 +1,51 @@
+T000:
+  task: 169ebc517d8e602e7794919291283565e0dc76d3499c50e71c6d92ea834487b5
+T001:
+  reason: "Checked `code/data_loader.py`, `data/raw/checksums.json`, `data/processed/dataset_manifest.json`,\
+    \ the unit tests, and the execution log. The loader implements backoff and marker\u2011\
+    checking logic, and the tests pass, but it never streams the subject fMRI files\
+    \ (it only downloads the Harvard\u2011Oxford atlas) and the generated `dataset_manifest.json`\
+    \ does not follow the required `contracts/dataset_schema.schema.yaml` (it lacks\
+    \ the subject/run/condition/time_series fields). Moreover, when the OpenNeuro\
+    \ API call fails (404) the script proceeds in \u201Crecord\u201D mode instead\
+    \ of aborting with error\u202F101897695 as"
+  task: fb5e3bf542f05a2916745a68bdf199da8857fee0074398f506ad058ad5f297ad
+T001b:
+  reason: "Checked `data/raw/checksums.json` and its generation log \u2013 it contains\
+    \ a single SHA\u2011256 entry that matches the recomputed checksum for `harvard_oxford_cort_maxprob_thr25_2mm.nii.gz`.\
+    \ However, the task requires a checksum entry for **every** downloaded NIfTI file;\
+    \ there is no evidence that other NIfTI files (e.g., the fMRI runs from ds000030)\
+    \ were included or that the JSON covers all of them. Add entries for all downloaded\
+    \ NIfTI files (or provide proof that only this file was downloaded) and verify\
+    \ each checksum."
+  task: fba38a90f7148a7acaf8d4b5e2df63dba48f802459174740e958f9a5fe05d026
+T002:
+  reason: "The QC module cannot be imported (test collection fails) because `code/qc.py`\
+    \ tries to import `src.exceptions`, but the `src` package only re\u2011exports\
+    \ the `code/src` directory and does not contain an `exceptions` submodule, causing\
+    \ a `ModuleNotFoundError`. Moreover, the generated `data/processed/subjects_metadata.json`\
+    \ is just an empty list (`[]`), which does not satisfy the required schema (missing\
+    \ required fields and contains extra keys like `condition_valid` with lower\u2011\
+    cased condition names). The implementation therefore does not produce the correct\
+    \ output nor pass the provided tests."
+  task: 5c228487fa94c834e047851784bd1195a8a66a39d1b2a9944636a2ab9ca4f299
+T003:
+  task: 2d79eefacf719679a7e41621db51a77148912b4570df4f9f3fe26951de245fc5
+T004:
+  task: e645b5b7426519486155d1a5869061ca6b732243f0ba594ae6891ed175fe5d7d
+T005:
+  task: 440edcaa2ec69ccddd7a4b3a693d307d4dbe5ee819a52235d83fdbb49ca64484
+T006:
+  task: 4598b82657016a61d785104b2ce948095703149f19d104284406fc6dc9dcc9f0
+T007:
+  task: a6416724f8b850e8990404b2c5005dc8ad366d993f088b61c9fda485fe220a36
+T008:
+  task: 02ab57b0cf6e5f3a44ffb377aa7dd864dfe4522a6877ac64327b0bf2989799b1
+T009:
+  task: 4c800082a495dd70a8ea33b8105820cc46db9cababf33f480d1c70401cc45a33
+T010:
+  task: e36606b265ea6ead4ebe9f191448c82b25c51fd03ff8c4e860cc161d385afbbd
+T011:
+  task: 5a6085c8d890c1e7d490a756bfd4396bacba44b61f5975486b39f2ad217aab81
+T012:
+  task: 1caf5cfdc647b1b2548c21901cf1db99468926a04bf0b5f388f5b5080f2183a0

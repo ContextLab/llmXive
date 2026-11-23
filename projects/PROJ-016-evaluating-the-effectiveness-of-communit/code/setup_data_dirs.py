@@ -1,24 +1,31 @@
+"""
+Task T004: Setup data and output directories.
+
+Creates the required directory structure for the project:
+- data/raw/
+- data/processed/
+- docs/output/
+
+This script ensures that all necessary directories exist before
+data ingestion and analysis tasks begin.
+"""
 import os
 import sys
 from pathlib import Path
 
 def main():
-    """
-    Setup data directories (`data/raw/`, `data/processed/`) and output directories (`docs/output/`).
-    This script ensures the required directory structure exists for the project.
-    """
-    # Define the project root (assumed to be the parent of the 'code' directory)
-    # If this script is run from 'code/', we need to go up one level
+    """Create the required data and output directories."""
+    # Define the project root (assuming script is in code/)
     project_root = Path(__file__).resolve().parent.parent
     
+    # Define directories to create
     directories = [
         project_root / "data" / "raw",
         project_root / "data" / "processed",
         project_root / "docs" / "output",
-        # Ensure logs directory exists as well for T005 compatibility
-        project_root / "logs",
     ]
-
+    
+    # Create directories
     created_count = 0
     for directory in directories:
         if not directory.exists():
@@ -27,13 +34,17 @@ def main():
             created_count += 1
         else:
             print(f"Directory already exists: {directory}")
-
-    if created_count > 0:
-        print(f"Successfully created {created_count} new directory/directories.")
+    
+    print(f"Setup complete. Created {created_count} new directories.")
+    
+    # Verify all directories exist
+    all_exist = all(directory.exists() for directory in directories)
+    if all_exist:
+        print("Verification: All required directories exist.")
+        return 0
     else:
-        print("All required directories already existed.")
-
-    return 0
+        print("Error: Some directories failed to be created.")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

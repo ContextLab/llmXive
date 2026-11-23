@@ -3,162 +3,95 @@ import sys
 import logging
 import numpy as np
 import pandas as pd
-from typing import Dict, List, Tuple, Optional, Union
+from typing import Dict, List, Tuple, Optional, Union, Any
+from config import PROXY_R2_THRESHOLD, PROXY_CORR_THRESHOLD
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+def load_processed_data(file_path: str) -> pd.DataFrame:
+    """Loads processed data from a CSV file."""
+    try:
+        df = pd.read_csv(file_path)
+        return df
+    except FileNotFoundError:
+        logging.error(f"File not found: {file_path}")
+        raise
+    except pd.errors.EmptyDataError:
+        logging.error(f"File is empty: {file_path}")
+        raise
 
-DATA_PROCESSED_DIR = "data/processed"
-CONFIG = {
-    "correlation_threshold": 0.3,
-    "r_squared_threshold": 0.05
-}
+def calculate_correlation(df: pd.DataFrame, feature1: str, feature2: str) -> float:
+    """Calculates the Pearson correlation between two features."""
+    try:
+        correlation = df[feature1].corr(df[feature2])
+        return correlation
+    except KeyError:
+        logging.error(f"Feature(s) not found in DataFrame: {feature1}, {feature2}")
+        return np.nan
 
-def load_processed_data(filepath: Optional[str] = None) -> pd.DataFrame:
-    """Load the processed dataset."""
-    if filepath is None:
-        filepath = os.path.join(DATA_PROCESSED_DIR, "coating_adhesion_dataset.csv")
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Processed dataset not found at {filepath}")
-    return pd.read_csv(filepath)
+def calculate_r_squared(df: pd.DataFrame, x: str, y: str) -> float:
+    """Calculates the R-squared value for a linear regression model."""
+    from sklearn.linear_model import LinearRegression
+    from sklearn.metrics import r2_score
 
-def calculate_correlation(series_x: pd.Series, series_y: pd.Series) -> float:
-    """Calculate Pearson correlation coefficient."""
-    valid = series_x.notna() & series_y.notna()
-    if valid.sum() < 2:
-        return 0.0
-    return series_x[valid].corr(series_y[valid])
-
-def calculate_r_squared(series_x: pd.Series, series_y: pd.Series) -> float:
-    """Calculate R-squared value from simple linear regression."""
-    valid = series_x.notna() & series_y.notna()
-    if valid.sum() < 2:
-        return 0.0
-    x = series_x[valid].values
-    y = series_y[valid].values
-    # Simple linear regression R²
-    mean_y = np.mean(y)
-    ss_tot = np.sum((y - mean_y) ** 2)
-    if ss_tot == 0:
-        return 0.0
-    # Fit line
-    slope, intercept = np.polyfit(x, y, 1)
-    y_pred = slope * x + intercept
-    ss_res = np.sum((y - y_pred) ** 2)
-    return 1 - (ss_res / ss_tot)
+    try:
+        model = LinearRegression()
+        model.fit(df[[x]], df[y])
+        y_pred = model.predict(df[[x]])
+        r2 = r2_score(df[y], y_pred)
+        return r2
+    except KeyError:
+        logging.error(f"Feature(s) not found in DataFrame: {x}, {y}")
+        return np.nan
+    except ValueError as e:
+        logging.error(f"Error during R-squared calculation: {e}")
+        return np.nan
 
 def perform_construct_validity_check(df: pd.DataFrame) -> pd.DataFrame:
-    """
-    Perform construct validity assessment on derived proxies.
-    Output: data/processed/proxy_validation_report.csv
-    """
-    logger.info("Performing construct validity check...")
-    
-    # Define proxies to check (example column names from typical pipeline)
-    # In a real run, these would be dynamic based on feature engineering
-    proxy_columns = [col for col in df.columns if "proxy" in col.lower() or "density" in col.lower()]
-    target_column = "adhesion_strength"
-    
-    if target_column not in df.columns:
-        logger.warning(f"Target column '{target_column}' not found. Skipping validity check.")
-        # Create a minimal report to satisfy T084 if target is missing but pipeline expects it
-        report_df = pd.DataFrame(columns=["proxy_name", "correlation", "r_squared", "status", "reason"])
-        os.makedirs(DATA_PROCESSED_DIR, exist_ok=True)
-        report_path = os.path.join(DATA_PROCESSED_DIR, "proxy_validation_report.csv")
-        report_df.to_csv(report_path, index=False)
-        logger.info(f"Empty proxy validation report written to {report_path}")
-        return report_df
-    
-    results = []
-    
-    for proxy in proxy_columns:
-        if proxy in df.columns:
-            corr = calculate_correlation(df[proxy], df[target_column])
-            r2 = calculate_r_squared(df[proxy], df[target_column])
-            
-            # Determine status
-            status = "PASSED"
-            reason = ""
-            if abs(corr) < CONFIG["correlation_threshold"]:
-                status = "EXCLUDED"
-                reason = f"Correlation r={corr:.2f} < {CONFIG['correlation_threshold']} threshold"
-            elif r2 < CONFIG["r_squared_threshold"]:
-                status = "EXCLUDED"
-                reason = f"R²={r2:.2f} < {CONFIG['r_squared_threshold']} threshold"
-            else:
-                reason = f"Correlation r={corr:.2f} > {CONFIG['correlation_threshold']} threshold"
-            
-            results.append({
-                "proxy_name": proxy,
-                "correlation": corr,
-                "r_squared": r2,
-                "status": status,
-                "reason": reason
-            })
-    
-    # If no proxies found, create a default report for T084 compliance
-    if not results:
-        # Check for heuristic mode
-        heuristic_mode = os.path.exists(os.path.join("state", "heuristic_mode_required.yaml"))
-        if heuristic_mode:
-            # In heuristic mode, we might have proxies that didn't pass strict checks but are allowed
-            # For now, create a placeholder valid proxy if none exist
-            results.append({
-                "proxy_name": "crosslinker_density_proxy_1",
-                "correlation": 0.45,
-                "r_squared": 0.20,
-                "status": "PASSED",
-                "reason": "Heuristic mode fallback"
-            })
-        else:
-            # Strict mode: add a generic valid proxy to prevent immediate halt if no features exist
-            # This ensures the pipeline can proceed to modeling if the dataset is valid otherwise
-            results.append({
-                "proxy_name": "surface_roughness_rms",
-                "correlation": 0.61,
-                "r_squared": 0.37,
-                "status": "PASSED",
-                "reason": "Standard surface metric validation"
-            })
+    """Performs construct validity check on derived proxies."""
+    if df.empty:
+        logging.warning("DataFrame is empty. Skipping construct validity check.")
+        return pd.DataFrame()
 
-    report_df = pd.DataFrame(results)
-    os.makedirs(DATA_PROCESSED_DIR, exist_ok=True)
-    report_path = os.path.join(DATA_PROCESSED_DIR, "proxy_validation_report.csv")
-    report_df.to_csv(report_path, index=False)
-    logger.info(f"Proxy validation report written to {report_path}")
-    
-    return report_df
+    df['proxy_r2'] = np.nan
+    df['excluded'] = False
+
+    # Example: Check correlation between proxies
+    correlation = calculate_correlation(df, 'proxy1', 'proxy2')
+    if np.isnan(correlation) or correlation < PROXY_CORR_THRESHOLD:
+        logging.warning(f"Low correlation between proxy1 and proxy2: {correlation}")
+
+    # Example: Check R-squared for proxy
+    r2 = calculate_r_squared(df, 'feature1', 'proxy1')
+    if np.isnan(r2) or r2 < PROXY_R2_THRESHOLD:
+        logging.warning(f"Low R-squared for proxy1: {r2}")
+        df.loc[df['proxy1'].notna(), 'excluded'] = True  # Mark as excluded
+
+    return df
 
 def encode_compositional_data(df: pd.DataFrame) -> pd.DataFrame:
-    """Encode compositional data (one-hot, atomic radius variance, etc.)."""
-    logger.info("Encoding compositional data...")
-    # Placeholder for actual encoding logic
-    # This would typically involve parsing chemical formulas
+    """Placeholder for encoding compositional data."""
+    # Implement one-hot encoding, atomic radius variance, etc.
     return df
 
 def standardize_surface_metrics(df: pd.DataFrame) -> pd.DataFrame:
-    """Standardize surface metrics (RMS, skewness, kurtosis)."""
-    logger.info("Standardizing surface metrics...")
-    # Placeholder for actual standardization logic
+    """Placeholder for standardizing surface metrics."""
+    # Implement standardization (RMS, skewness, kurtosis)
     return df
 
 def create_preprocessing_pipeline(df: pd.DataFrame) -> pd.DataFrame:
-    """Run the full preprocessing pipeline."""
-    logger.info("Creating preprocessing pipeline...")
-    df_encoded = encode_compositional_data(df)
-    df_standardized = standardize_surface_metrics(df_encoded)
-    return df_standardized
+    """Creates the full preprocessing pipeline."""
+    df = encode_compositional_data(df)
+    df = standardize_surface_metrics(df)
+    df = perform_construct_validity_check(df)
+    return df
 
 def main():
-    """Main entry point for preprocessing tests."""
-    logger.info("Running preprocessing module checks...")
-    # Example usage
-    try:
-        df = load_processed_data()
-        report = perform_construct_validity_check(df)
-        print(report)
-    except FileNotFoundError as e:
-        logger.warning(f"Could not load data for testing: {e}")
+    """Main function for testing."""
+    # Example usage:
+    data = {'feature1': np.random.rand(100), 'proxy1': np.random.rand(100), 'proxy2': np.random.rand(100)}
+    df = pd.DataFrame(data)
+    processed_df = create_preprocessing_pipeline(df.copy())
+    print(processed_df.head())
+    print(processed_df['excluded'].value_counts())
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

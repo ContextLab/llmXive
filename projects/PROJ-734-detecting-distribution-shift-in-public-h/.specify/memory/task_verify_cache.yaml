@@ -1,0 +1,101 @@
+T012a:
+  c: false
+  h: 90bc9a412af694f6108080e7e7c4306746eb64994cff82de70bcfec9ff6274fa
+  r: "The provided `code/download_data.py` points to a GitHub mirror instead of the\
+    \ canonical CDC FluView URL, lacks the required error handling (raising `E-NO-DATA`\
+    \ on 404/500), does not verify the file extension or tabular content, and the\
+    \ function `fetch_ili_data` is truncated and never creates `data/raw/fluview_ili.csv`\
+    \ (the file is missing). These omissions mean the task\u2019s specifications are\
+    \ not met."
+T012b:
+  c: false
+  h: 27b9cc240b996e0d8bb8b013e3d8089bd51ac7ae976a8e907c40b5deae144cc1
+  r: "The repository lacks `data/raw/ground_truth_events.csv`, and `code/download_data.py`\
+    \ does not implement the required CDC ground\u2011truth fetch (no CDC URL constant,\
+    \ no HTTP\u2011200 check, no `E\u2011NO\u2011DATA` exception, and it writes an\
+    \ ILI CSV instead of the required `ground_truth_events.csv`). The task\u2019s\
+    \ specifications are therefore not satisfied."
+T013:
+  c: false
+  h: 89880dece5f35d2548146e8057d5592e71ddf8ad4a24c44e33d9375e88aec864
+  r: "The repository contains a `code/preprocess.py` file, but it is truncated, contains\
+    \ a syntax error (`raise ValueErro`), and shows no logic that counts removed missing\
+    \ weeks or writes that count to `data/processed/preprocessing_log.json`. Moreover,\
+    \ the required `data/processed/preprocessing_log.json` file is absent. The task\u2019\
+    s core requirement\u2014logging the number of missing weeks removed to that JSON\
+    \ file\u2014is therefore not satisfied."
+T013a:
+  c: false
+  h: 3872aca7d3cc665574cf87205238c2458a792d5d06f36c725f57b11a219f1c54
+  r: "The repository contains a `code/preprocess.py` file, but the shown portion ends\
+    \ before any logic that computes the total number of consecutive window pairs\
+    \ (`N`) or writes it to `data/processed/mmd_config.json`. Moreover, the required\
+    \ `data/processed/mmd_config.json` file is absent. Consequently, the task\u2019\
+    s core requirement\u2014calculating\u202FN and persisting it under the key `total_window_pairs`\u2014\
+    has not been fulfilled."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `baselines.csv` file is present in the provided evidence, nor any excerpt\
+    \ or description showing its contents. Without the required CSV listing the Pettitt\
+    \ and BOCPD detected change weeks and associated statistics, the task\u2019s deliverable\
+    \ is missing."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `sensitivity.csv` file (or any evidence of its generation) is present; without\
+    \ the artifact we cannot confirm that metrics for all bandwidth/window\u2011length\
+    \ configurations were aggregated as required. The implementer must provide the\
+    \ actual CSV containing precision, recall, and detection\u2011delay values for\
+    \ each configuration."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `report.pdf` containing the required sensitivity\u2011analysis summary and\
+    \ variation plots was provided; the evidence contains no artifact at all, so the\
+    \ task\u2019s deliverable cannot be verified. The next implementer must supply\
+    \ an updated PDF that includes the sensitivity analysis results and the associated\
+    \ plots."
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The repository does not contain the required `quickstart.md` with added run\
+    \ instructions nor an updated `README.md` providing a project overview; no such\
+    \ files or modifications are present in the provided evidence. The task\u2019\
+    s deliverables are therefore missing."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required unit test files (`tests/unit/test_constant_series.py`
+    and `tests/unit/test_outlier_handling.py`) was provided; the claim lacks any displayed
+    code, file listings, or test content, so the task is not demonstrably completed.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence is provided that a `pytest` run was performed in the `code/` directory,\
+    \ nor any output showing an exit code of\u202F0. The required artifact (successful\
+    \ test execution log or result file) is missing, so the task cannot be confirmed\
+    \ as completed."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only a feature specification for a distribution\u2011\
+    shift pipeline and no evidence of any `data/` files being checked for `sha256sum`\
+    \ nor any `state/` JSON files being created or updated with those hashes. Consequently,\
+    \ the required artifacts for task T039 are missing."
+T045:
+  c: false
+  h: 7603791f22aa2c0ed101285405489ea589c83c5e0d9aeaf61f0c036575b6b092
+  r: "The repository lacks the required `data/processed/reproducibility_manifest.json`\
+    \ file, and the provided `code/main.py` excerpt shows no implementation that writes\
+    \ such a manifest (no git hash retrieval, requirements dump, seed or URL collection).\
+    \ Consequently the task\u2019s specification is not met."
+T049:
+  c: false
+  h: e83dd86f0be3fce5859fd30d9823ee9267b48bfe0ff2a1f06fb8339ede68e056
+  r: "The `code/bocpd.py` file now accepts a `run_length_prior` argument and logs\
+    \ its choice, and `code/sensitivity.py` builds a grid that varies BOCPD priors,\
+    \ but the required `config.yaml` file that should expose the `run_length_prior`\
+    \ setting is missing, and the sensitivity script does not show concrete logging\
+    \ of the prior used together with the resulting change\u2011point outputs. Both\
+    \ artifacts needed to satisfy the task are absent or incomplete."

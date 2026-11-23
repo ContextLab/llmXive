@@ -1,3 +1,1 @@
-"""
-llmXive - The Impact of Perceived Control Over Digital Environments on Anxiety
-"""
+"""Main code package for llmXive project."""

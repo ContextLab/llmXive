@@ -886,30 +886,41 @@
   verification_status: verified
   verified_against_url: https://oeis.org/
   verified_at: '2026-06-30T17:05:39.658752Z'
-- artifact_hash: 51f67afe33d622bdbc591f959097eeaa2314cfd198e275168461b1e145921cfa
-  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Knot theory - Wikipedia
-  kind: url
-  value: https://en.wikipedia.org/wiki/Knot_theory
-  verification_status: verified
-  verified_against_url: https://en.wikipedia.org/wiki/Knot_theory
-  verified_at: '2026-06-30T04:49:01.081480Z'
-- artifact_hash: fa75fa177e0c4c5baffdeee0ea3c515cc83c7bce200760f75e9beaccd50ef933
+- artifact_hash: b959ac6287ba539be36de7f1433934e3c3d35309437e9ad77b54f26768d9cd0d
   artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Knot Atlas
+  fetched_title: null
   kind: url
-  value: https://katlas.org
+  value: https://oeis.org/A002863
   verification_status: pending
-  verified_against_url: https://katlas.org/wiki/Main_Page
-  verified_at: '2026-07-16T01:13:28.535922Z'
-- artifact_hash: fa75fa177e0c4c5baffdeee0ea3c515cc83c7bce200760f75e9beaccd50ef933
-  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/research.md
+  verified_against_url: https://oeis.org/A002863
+  verified_at: '2026-07-26T07:38:21.316490Z'
+- artifact_hash: d09489fcd09491f3c4195b862acd85109aae0e41b5191a265d12a2b27292f3c3
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://github.com/your-org/quantifying-knot-complexity.git
+  verification_status: mismatch
+  verified_against_url: https://github.com/your-org/quantifying-knot-complexity
+  verified_at: '2026-07-26T07:38:37.452748Z'
+- artifact_hash: f90ffcda54c72a53a0b8a022d28a19ca9be86c0f8b87709483e351ab361fac37
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_scope.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://doi.org/10.1090/S0025-5718-98-00969-0
+  verification_status: mismatch
+  verified_against_url: https://doi.org/10.1090/S0025-5718-98-00969-0
+  verified_at: '2026-08-22T05:50:23.936110Z'
+- artifact_hash: f90ffcda54c72a53a0b8a022d28a19ca9be86c0f8b87709483e351ab361fac37
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_scope.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
@@ -918,26 +929,70 @@
   value: https://oeis.org/A002863
   verification_status: pending
   verified_against_url: https://oeis.org/A002863
-  verified_at: '2026-07-16T01:13:28.535922Z'
-- artifact_hash: fa75fa177e0c4c5baffdeee0ea3c515cc83c7bce200760f75e9beaccd50ef933
-  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/research.md
+  verified_at: '2026-08-22T05:50:23.936110Z'
+- artifact_hash: f90ffcda54c72a53a0b8a022d28a19ca9be86c0f8b87709483e351ab361fac37
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_scope.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: KnotInfo
+  fetched_title: null
   kind: url
-  value: https://knotinfo.org
-  verification_status: pending
-  verified_against_url: https://knotinfo.org
-  verified_at: '2026-07-16T01:13:28.535922Z'
-- artifact_hash: fa75fa177e0c4c5baffdeee0ea3c515cc83c7bce200760f75e9beaccd50ef933
-  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/research.md
+  value: https://knotinfo.math.indiana.edu/
+  verification_status: unreachable
+  verified_against_url: https://knotinfo.math.indiana.edu/
+  verified_at: '2026-08-22T05:50:23.936110Z'
+- artifact_hash: f90ffcda54c72a53a0b8a022d28a19ca9be86c0f8b87709483e351ab361fac37
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/docs/reproducibility/validation_scope.md
   cite_id: c-004
   cited_authors: []
   cited_title: null
-  fetched_title: KnotInfo
+  fetched_title: null
+  kind: doi
+  value: 10.1090/S0025-5718-98-00969-0
+  verification_status: mismatch
+  verified_against_url: https://api.crossref.org/works/10.1090/S0025-5718-98-00969-0
+  verified_at: '2026-08-22T05:50:23.936110Z'
+- artifact_hash: b9f8f5ef4867d4c9a8ac2747494f7e19b078b3171e58022f1e098b6ca556ca5d
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: document - Wikidata
   kind: url
-  value: https://knotinfo.org`
+  value: https://www.wikidata.org/wiki/Q49848
   verification_status: pending
-  verified_against_url: https://knotinfo.org
-  verified_at: '2026-07-16T01:13:28.535922Z'
+  verified_against_url: https://www.wikidata.org/wiki/Q49848
+  verified_at: '2026-09-08T02:00:39.948541Z'
+- artifact_hash: b9f8f5ef4867d4c9a8ac2747494f7e19b078b3171e58022f1e098b6ca556ca5d
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: allative case - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q655020
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q655020
+  verified_at: '2026-09-08T02:00:39.948541Z'
+- artifact_hash: b9f8f5ef4867d4c9a8ac2747494f7e19b078b3171e58022f1e098b6ca556ca5d
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Readme.fi - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q131983664
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q131983664
+  verified_at: '2026-09-08T02:00:39.948541Z'
+- artifact_hash: b9f8f5ef4867d4c9a8ac2747494f7e19b078b3171e58022f1e098b6ca556ca5d
+  artifact_path: projects/PROJ-552-quantifying-the-complexity-of-knot-diagr/specs/010-quantifying-the-complexity-of-knot-diagr/tasks.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: United Kingdom - Wikidata
+  kind: url
+  value: https://www.wikidata.org/wiki/Q145
+  verification_status: pending
+  verified_against_url: https://www.wikidata.org/wiki/Q145
+  verified_at: '2026-09-08T02:00:39.948541Z'

@@ -1,28 +1,35 @@
 import csv
-import os
+import datetime
 from pathlib import Path
-from typing import Optional
-from config import get_config
+from llmxive_toolkit import paths
 
 def log_exclusion(reason: str, subject_id: str) -> None:
     """
-    Log an exclusion decision to a CSV file.
+    Log a subject exclusion event to ``data/interim/data_exclusion_log.txt``.
 
-    Args:
-        reason: The reason for exclusion (e.g., 'MISSING_SCAN', 'MISSING_SCORE', 'HIGH_MOTION').
-        subject_id: The ID of the excluded subject.
+    The log file is a CSV with three columns:
+    ``subject_id,reason,timestamp``.
+    If the file does not exist, it is created with a header row.
+
+    Parameters
+    ----------
+    reason : str
+        One of the standardized exclusion reason codes
+        (e.g., ``MISSING_SCAN``, ``MISSING_SCORE``, ``HIGH_MOTION``).
+    subject_id : str
+        The identifier of the subject being excluded.
     """
-    config = get_config()
-    project_root = Path(__file__).resolve().parent.parent.parent
-    log_file = project_root / "data" / "interim" / "data_exclusion_log.txt"
-    
-    # Ensure directory exists
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    file_exists = os.path.exists(log_file)
-    
-    with open(log_file, 'a', newline='', encoding='utf-8') as f:
-        writer = csv.writer(f)
-        if not file_exists:
-            writer.writerow(['timestamp', 'reason', 'subject_id'])
-        writer.writerow(['', reason, subject_id])
+    # Resolve the log file path using the toolkit helper (ensures correct root)
+    log_path = Path("data", "interim", "data_exclusion_log.txt")
+    log_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Determine whether we need to write a header
+    write_header = not log_path.is_file()
+
+    timestamp = datetime.datetime.utcnow().isoformat()
+
+    with open(log_path, "a", newline="") as csvfile:
+        writer = csv.writer(csvfile)
+        if write_header:
+            writer.writerow(["subject_id", "reason", "timestamp"])
+        writer.writerow([subject_id, reason, timestamp])

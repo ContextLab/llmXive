@@ -5,37 +5,85 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "AlayaWorld: Long-Horizon and Playable Video World Generation"
 
-## Summary of the prior work
-AlayaWorld presents a full-stack, open-source framework for generating long-horizon, interactive video worlds by training autoregressive models on mixed gameplay and real-world video data. Its core innovation lies in unifying data preparation, model architecture, and inference acceleration to enable real-time, open-ended user interactions like combat and spell-casting within a synthesized environment. The paper demonstrates that such models can capture diverse visual dynamics and physical laws, moving beyond static generation to playable, dynamic simulations.
+**Field**: Computer Science
 
-## Proposed extension
-**Research Question:** Can a lightweight, CPU-tractable symbolic logic layer be integrated with a pre-trained AlayaWorld video model to enforce strict semantic consistency in long-horizon interactions without requiring additional GPU-based fine-tuning?
+## Research question
 
-This extension matters because current video world models often suffer from "semantic drift" over long horizons (e.g., a summoned monster disappearing or physics breaking), and while AlayaWorld addresses this via scale, a CPU-efficient method to guarantee logical coherence would democratize deployment on edge devices and enable verifiable, safe AI agents in resource-constrained environments.
+How does the integration of a lightweight, CPU-tractable symbolic logic layer influence the long-horizon semantic consistency of interactive video world models compared to autoregressive generation alone?
+
+## Motivation
+
+Current video world models, while capable of generating realistic short-term dynamics, often suffer from "semantic drift" over extended horizons, where object permanence and logical constraints (e.g., health points, inventory states) degrade without explicit supervision. A hybrid approach that offloads logical state tracking to a symbolic engine could democratize deployment on resource-constrained edge devices by avoiding the need for massive GPU-based fine-tuning to enforce consistency.
+
+## Related work
+
+- [AlayaWorld: Long-Horizon and Playable Video World Generation](https://arxiv.org/abs/2607.06291) — Establishes the baseline for unified data preparation and inference acceleration in generating playable, long-horizon video worlds, serving as the primary target for the proposed symbolic integration.
+- [Playable Video Generation](https://arxiv.org/abs/2101.12195) — Introduces the foundational unsupervised learning problem of allowing user control via discrete actions, providing the theoretical context for the "playable" aspect of the AlayaWorld extension.
+- [GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation](https://arxiv.org/abs/2605.22882) — Highlights the specific failure mode of current models in tracking physical points consistently across time, justifying the need for a geometry/logic-based correction mechanism.
+- [LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning](https://arxiv.org/abs/2604.14140) — Demonstrates the critical importance of explicit reasoning over long horizons for autonomous tasks, supporting the hypothesis that a symbolic layer can mitigate drift where pure autoregression fails.
+- [Prisma-World: Camera-Controllable Multi-Agent Video World Model](https://arxiv.org/abs/2606.09507) — Addresses the complexity of multi-agent simulation, offering a comparative perspective on how state management becomes more difficult as interaction density increases.
+
+## Expected results
+
+The study is expected to show that the hybrid symbolic-visual approach significantly reduces the rate of semantic drift (measured by object permanence violations and state inconsistency) compared to the vanilla AlayaWorld model over 60-second sequences. The evidence will confirm that this improvement is achieved without additional GPU training, maintaining inference speeds viable for CPU-only deployment while introducing a measurable "Semantic Drift Score" reduction of at least 30%.
 
 ## Methodology sketch
-**Data:** Utilize the existing AlayaWorld dataset but filter for sequences containing specific, countable object interactions (e.g., "summon monster," "hit monster," "monster dies") to create a ground-truth event log.
 
-**Procedure:** 
-1. Freeze the AlayaWorld video generation weights and run inference on a standard CPU to generate a 60-second interaction sequence.
-2. Simultaneously, run a lightweight, rule-based symbolic engine (implemented in pure Python/C) that tracks object states based on user action inputs (e.g., "if action=hit, decrement HP").
-3. Implement a "consistency checker" that compares the symbolic engine's state trajectory against the visual output of the video model frame-by-frame using simple computer vision primitives (e.g., template matching or optical flow) rather than deep learning, calculating a "Semantic Drift Score."
-4. Iterate by injecting "correction tokens" into the video model's context window based on the symbolic engine's error flags, measuring if this reduces drift without retraining the model.
+- Download the AlayaWorld dataset and filter for sequences containing specific, countable object interactions (e.g., "summon," "hit," "die") to create a ground-truth event log.
+- Freeze the pre-trained AlayaWorld weights and run inference on a standard CPU to generate 60-second interaction sequences based on fixed user action inputs.
+- Implement a lightweight, rule-based symbolic engine in pure Python/C that tracks object states (e.g., HP, inventory) deterministically based on the same user action inputs.
+- Develop a "consistency checker" using classical computer vision primitives (template matching or optical flow) to detect object states in the generated video frames, avoiding deep learning inference for this step.
+- Calculate a "Semantic Drift Score" by comparing the symbolic engine's state trajectory against the visual detections frame-by-frame.
+- Implement a feedback loop where "correction tokens" or context injections are applied to the video model based on the symbolic engine's error flags.
+- Re-run inference with the correction mechanism active and measure the reduction in the Semantic Drift Score.
+- Benchmark the total wall-clock time and CPU memory usage to verify the method fits within the 2-core, 7GB RAM constraint.
+- Perform statistical comparison (paired t-test) of the drift scores between the vanilla and hybrid approaches across multiple random seeds.
 
-**Expected Result:** The study should demonstrate that the hybrid symbolic-visual approach significantly reduces long-horizon semantic drift (e.g., >30% improvement in object permanence) compared to the vanilla AlayaWorld model, while maintaining inference speeds viable for CPU-only deployment.
+## Duplicate-check
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- Reviewed existing ideas: None in the immediate corpus.
+- Closest match: None identified (similarity sketch: N/A).
+- Verdict: NOT a duplicate
 
-- **AlayaWorld: Long-Horizon and Playable Video World Generation** — AlayaWorld Team, Kaipeng Zhang, Chuanhao Li, Yifan Zhan, Yongtao Ge, Yuanyang Yin, Jiaming Tan, Kang He, Liaoyuan Fan, Ruicong Liu, Xiaojie Xu, Xuangeng Chu, Zhen Li, Zhengyuan Lin, Zhixiang Wang, Zian Meng, Zihui Gao. https://arxiv.org/abs/2607.06291.
 
-```bibtex
-@article{orig_arxiv_2607_06291,
-  title = {AlayaWorld: Long-Horizon and Playable Video World Generation},
-  author = {AlayaWorld Team and Kaipeng Zhang and Chuanhao Li and Yifan Zhan and Yongtao Ge and Yuanyang Yin and Jiaming Tan and Kang He and Liaoyuan Fan and Ruicong Liu and Xiaojie Xu and Xuangeng Chu and Zhen Li and Zhengyuan Lin and Zhixiang Wang and Zian Meng and Zihui Gao},
-  year = {2026},
-  eprint = {2607.06291},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2607.06291},
-  url = {https://arxiv.org/abs/2607.06291}
-}
-```
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-18T19:00:18Z
+**Outcome**: success_after_expansion
+**Original term**: llmXive follow-up: extending "AlayaWorld: Long-Horizon and Playable Video World Generation" computer science
+**Verified citation count**: 6
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "AlayaWorld: Long-Horizon and Playable Video World Generation" computer science | 0 |
+| 1 | playable video world generation | 4 |
+| 2 | long-horizon video synthesis for interactive environments | 0 |
+| 3 | generative world models for video games | 0 |
+| 4 | interactive video generation with long temporal coherence | 0 |
+| 5 | real-time video world simulation | 0 |
+| 6 | AI-driven procedural video game content generation | 0 |
+| 7 | generative agents in dynamic video environments | 0 |
+| 8 | video generation for embodied AI and simulation | 0 |
+| 9 | controllable long-duration video synthesis | 0 |
+| 10 | neural video generation for interactive storytelling | 0 |
+| 11 | video diffusion models for game engines | 0 |
+| 12 | generative modeling of playable 3D and video worlds | 0 |
+| 13 | interactive video world models | 0 |
+| 14 | long-horizon planning in video generation | 0 |
+| 15 | generative video for virtual reality environments | 0 |
+| 16 | AI-generated playable video content | 0 |
+| 17 | video world generation with user interaction | 0 |
+| 18 | scalable video synthesis for open-world simulation | 0 |
+| 19 | generative video agents for game development | 0 |
+| 20 | temporal consistency in interactive video generation | 0 |
+
+### Verified citations
+
+1. **LongCoT: Benchmarking Long-Horizon Chain-of-Thought Reasoning** (2026). Sumeet Ramesh Motwani, Daniel Nichols, Charles London, Peggy Li, Fabio Pizzati, et al.. arXiv. [2604.14140](https://arxiv.org/abs/2604.14140). PDF-sampled: No.
+2. **AlayaWorld: Long-Horizon and Playable Video World Generation** (2026).  AlayaWorld Team, Kaipeng Zhang, Chuanhao Li, Yifan Zhan, Yongtao Ge, et al.. arXiv. [2607.06291](https://arxiv.org/abs/2607.06291). PDF-sampled: No.
+3. **Prisma-World: Camera-Controllable Multi-Agent Video World Model** (2026). Huiqiang Sun, Zhan Peng, Size Wu, Kun Wang, Kang Liao, et al.. arXiv. [2606.09507](https://arxiv.org/abs/2606.09507). PDF-sampled: No.
+4. **Sora as a World Model? A Complete Survey on Text-to-Video Generation** (2024). Fachrina Dewi Puspitasari, Chaoning Zhang, Joseph Cho, Adnan Haider, Noor Ul Eman, et al.. arXiv. [2403.05131](https://arxiv.org/abs/2403.05131). PDF-sampled: No.
+5. **GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation** (2026). Kaichen Zhou, Yuzhen Chen, Fangneng Zhan, Hang Hua, Grace Chen, et al.. arXiv. [2605.22882](https://arxiv.org/abs/2605.22882). PDF-sampled: No.
+6. **Playable Video Generation** (2021). Willi Menapace, Stéphane Lathuilière, Sergey Tulyakov, Aliaksandr Siarohin, Elisa Ricci. arXiv. [2101.12195](https://arxiv.org/abs/2101.12195). PDF-sampled: No.

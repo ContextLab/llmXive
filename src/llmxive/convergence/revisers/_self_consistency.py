@@ -45,6 +45,7 @@ import yaml
 from llmxive.agents.prompts import load_prompt
 from llmxive.backends.base import ChatMessage
 from llmxive.backends.router import GENERATION_MAX_TOKENS, reasoning_chat
+from llmxive.speckit.yaml_extract import outer_fenced_body
 
 from ..types import Concern, ConcernResponse
 
@@ -103,18 +104,13 @@ def _parse_self_consistency_reply(text: str) -> SelfConsistencyResult:
     fallback (treat as OK) is the caller's explicit policy, applied uniformly
     to every failure mode.
     """
-    raw = (text or "").strip()
-    # Strip a leading ```yaml / ``` fence if present.
-    if raw.startswith("```"):
-        lines = raw.splitlines()
-        # drop the opening fence line and any trailing fence line
-        if lines and lines[0].startswith("```"):
-            lines = lines[1:]
-        if lines and lines[-1].strip() == "```":
-            lines = lines[:-1]
-        raw = "\n".join(lines).strip()
-
-    obj = yaml.safe_load(raw)
+    # A model that answers with the fenced audit and then explains itself is
+    # still answering. Reading only a fence that closed on the last line threw
+    # such a reply away, problems and all.
+    try:
+        obj = yaml.safe_load(outer_fenced_body(text))
+    except yaml.YAMLError as exc:
+        raise ValueError(f"self-consistency reply is not readable YAML: {exc}") from exc
     if not isinstance(obj, dict):
         raise ValueError(
             f"self-consistency reply is not a YAML mapping: {type(obj).__name__}"
@@ -171,11 +167,44 @@ def invoke_reviser_backend(reviser: Any, messages: list[ChatMessage]) -> str:
     # ``_overrides`` field) alongside ``profile=`` into ``route_chat``. ``getattr``
     # default keeps back-compat for placeholder revisers that lack the field.
     overrides = getattr(reviser, "_overrides", None)
+    from ._reviser_response import RESPONSE_FORMAT_BLOCK
+
+    # Reused authoring prompts can mandate JSON-only or YAML-only output.
+    # The active revision protocol must be at system priority too, rather
+    # than asking a lower-priority user message to contradict that contract.
+    contract = (
+        "\n\n# Active mode: convergence revision\n"
+        "For this invocation, the authoring output format described above does "
+        "not apply. Preserve its scientific and editing requirements, but use "
+        "the following revision response contract instead of standalone JSON, "
+        "YAML, or Markdown.\n\n" + RESPONSE_FORMAT_BLOCK
+    )
+    messages = list(messages)
+    for index, message in enumerate(messages):
+        if message.role == "system":
+            messages[index] = ChatMessage(role="system", content=message.content + contract)
+            break
+    else:
+        messages.insert(0, ChatMessage(role="system", content=contract))
+    # Request-local rejected producers (set only around a corrective re-pass by
+    # ``run_pass_with_artifact_retry``). They ride the SAME selection mechanism:
+    # ``reasoning_chat`` unions them into ``RequirementOverrides.exclude_models``.
+    # A format retry must stay on FREE peers, so paid admission is switched off
+    # for exactly that call (``allow_paid=False`` is explicit tier authority).
+    exclusions = getattr(reviser, "_revision_excluded_models", frozenset())
+    if exclusions:
+        from dataclasses import replace
+
+        from llmxive.model_selection.types import RequirementOverrides
+
+        overrides = replace(overrides or RequirementOverrides(), allow_paid=False)
     response = reasoning_chat(
         reviser._backend, messages, profile=profile,
         max_tokens=GENERATION_MAX_TOKENS,
         overrides=overrides,
+        excluded_models=frozenset(exclusions),
     )
+    reviser._last_revision_model = getattr(response, "model", None)
     return getattr(response, "text", "") or ""
 
 

@@ -1,3 +1,6 @@
+"""
+Unit tests for T024: Lagged Alignment Logic.
+"""
 import os
 import sys
 import pytest
@@ -6,94 +9,121 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 
-# Add code to path
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
+# Add code to path if not already
+code_path = Path(__file__).parent.parent.parent / "code"
+sys.path.insert(0, str(code_path))
 
-from src.data.align import compute_lagged_alignment, calculate_block_accuracy, calculate_mmn_amplitude
+from src.data.align import calculate_lagged_mmns, load_accuracy_blocks, load_mmn_epochs
 
 class TestT024LaggedAlignment:
     
-    def test_calculate_block_accuracy(self):
-        """Test accuracy calculation for a block."""
-        df = pd.DataFrame({
-            'trial': [0, 1, 2, 3, 4],
-            'accuracy': [1, 1, 0, 1, 1]
-        })
-        acc = calculate_block_accuracy(df, 1, 4)
-        assert acc == 2/3  # trials 1, 2, 3 -> 1, 0, 1 -> 2/3
-        
-    def test_lagged_alignment_schema(self):
-        """Test that the output schema matches requirements."""
-        # Mock data
-        mock_epochs = {
-            'CP3': np.random.randn(100, 700),
-            'CP4': np.random.randn(100, 700),
-            'C3': np.random.randn(100, 700),
-            'C4': np.random.randn(100, 700),
-            'metadata': pd.DataFrame({
-                'trial': range(100),
-                'stimulus_type': ['standard'] * 80 + ['deviant'] * 20,
-                'correct': [1] * 100
+    @pytest.fixture
+    def sample_mmn_epochs(self):
+        """Create a mock MMN epochs DataFrame."""
+        data = []
+        # Create data for subject 1
+        # Trials 1 to 100
+        for i in range(1, 101):
+            data.append({
+                'subject_id': 1,
+                'trial_id': i,
+                'mmn_amplitude': float(i * 0.1) # Simple linear trend for testing
             })
-        }
-        mock_behavioral = pd.DataFrame({
-            'trial': range(100),
-            'accuracy': [1] * 100
-        })
-        
-        results = compute_lagged_alignment(
-            subject_id="sub-001",
-            epochs=mock_epochs,
-            behavioral_df=mock_behavioral,
-            window_size=50,
-            step_size=10
-        )
-        
-        assert len(results) > 0
-        first = results[0]
-        assert 'subject_id' in first
-        assert 'block_id' in first
-        assert 'mmn_amplitude' in first
-        assert 'source_window_start_trial' in first
-        
-        # Check types
-        assert isinstance(first['subject_id'], str)
-        assert isinstance(first['mmn_amplitude'], (int, float, np.floating))
-        assert isinstance(first['source_window_start_trial'], int)
+        # Create data for subject 2
+        for i in range(1, 101):
+            data.append({
+                'subject_id': 2,
+                'trial_id': i,
+                'mmn_amplitude': float(i * 0.2)
+            })
+        return pd.DataFrame(data)
 
-    def test_lagged_window_logic(self):
-        """Test that the window logic (t-50 to t-10) is applied correctly."""
-        # We can't easily test the exact numerical values without real data,
-        # but we can verify the source_window_start_trial is consistent with the block_id logic
-        mock_epochs = {
-            'CP3': np.random.randn(100, 700),
-            'CP4': np.random.randn(100, 700),
-            'C3': np.random.randn(100, 700),
-            'C4': np.random.randn(100, 700),
-            'metadata': pd.DataFrame({
-                'trial': range(100),
-                'stimulus_type': ['standard'] * 80 + ['deviant'] * 20,
-                'correct': [1] * 100
-            })
-        }
-        mock_behavioral = pd.DataFrame({
-            'trial': range(100),
-            'accuracy': [1] * 100
-        })
+    @pytest.fixture
+    def sample_accuracy_blocks(self):
+        """Create a mock accuracy blocks DataFrame."""
+        data = [
+            {
+                'subject_id': 1,
+                'block_id': 1,
+                'accuracy': 0.85,
+                'trial_start': 60, # Window: 10 to 50
+                'trial_end': 70
+            },
+            {
+                'subject_id': 1,
+                'block_id': 2,
+                'accuracy': 0.90,
+                'trial_start': 80, # Window: 30 to 70
+                'trial_end': 90
+            },
+            {
+                'subject_id': 2,
+                'block_id': 1,
+                'accuracy': 0.75,
+                'trial_start': 60,
+                'trial_end': 70
+            }
+        ]
+        return pd.DataFrame(data)
+
+    def test_calculate_lagged_mmns_basic(self, sample_mmn_epochs, sample_accuracy_blocks):
+        """Test basic calculation of lagged MMN."""
+        result = calculate_lagged_mmns(sample_mmn_epochs, sample_accuracy_blocks)
         
-        results = compute_lagged_alignment(
-            subject_id="sub-001",
-            epochs=mock_epochs,
-            behavioral_df=mock_behavioral,
-            window_size=50,
-            step_size=10
-        )
+        assert not result.empty
+        assert 'subject_id' in result.columns
+        assert 'block_id' in result.columns
+        assert 'mmn_amplitude' in result.columns
+        assert 'source_window_start_trial' in result.columns
+
+        # Check subject 1, block 1
+        # Block starts at 60. Window: 60-50=10 to 60-10=50.
+        # Trials 10 to 50.
+        # Expected MMN: mean of [1.0, 1.1, ..., 5.0]
+        # Sum = (1.0 + 5.0) * 41 / 2 = 123.0
+        # Mean = 123.0 / 41 = 3.0
+        row = result[(result['subject_id'] == 1) & (result['block_id'] == 1)]
+        assert len(row) == 1
+        assert row['source_window_start_trial'].values[0] == 10
+        assert np.isclose(row['mmn_amplitude'].values[0], 3.0)
+
+    def test_calculate_lagged_mmns_empty_window(self, sample_mmn_epochs, sample_accuracy_blocks):
+        """Test behavior when window has no data (e.g., start trial too early)."""
+        # Create a block starting at trial 5
+        # Window: 5-50 = -45 to 5-10 = -5. No data.
+        extra_block = pd.DataFrame([{
+            'subject_id': 1,
+            'block_id': 99,
+            'accuracy': 0.5,
+            'trial_start': 5,
+            'trial_end': 15
+        }])
+        combined_blocks = pd.concat([sample_accuracy_blocks, extra_block], ignore_index=True)
         
-        # First block should start at t = 50 + 10 = 60
-        # MMN window: 10 to 50
-        # source_window_start_trial should be 10
-        if len(results) > 0:
-            assert results[0]['source_window_start_trial'] == 10
-            # Block ID should reflect the start of the target block (t=60)
-            # Our implementation uses f"{subject_id}_block_{t}"
-            assert "block_60" in results[0]['block_id']
+        result = calculate_lagged_mmns(sample_mmn_epochs, combined_blocks)
+        
+        # The row for block 99 should not exist in the result
+        row_99 = result[(result['subject_id'] == 1) & (result['block_id'] == 99)]
+        assert len(row_99) == 0
+
+    def test_calculate_lagged_mmns_multiple_subjects(self, sample_mmn_epochs, sample_accuracy_blocks):
+        """Test that calculation works correctly for multiple subjects."""
+        result = calculate_lagged_mmns(sample_mmn_epochs, sample_accuracy_blocks)
+        
+        # Should have 3 rows (2 for sub 1, 1 for sub 2)
+        assert len(result) == 3
+
+        # Check subject 2, block 1
+        # Window: 10 to 50.
+        # MMN values: i * 0.2
+        # Mean = mean(i * 0.2 for i in 10..50) = 0.2 * 3.0 = 0.6
+        row = result[(result['subject_id'] == 2) & (result['block_id'] == 1)]
+        assert len(row) == 1
+        assert np.isclose(row['mmn_amplitude'].values[0], 0.6)
+
+    def test_calculate_lagged_mmns_schema(self, sample_mmn_epochs, sample_accuracy_blocks):
+        """Verify the output schema matches T024 requirements."""
+        result = calculate_lagged_mmns(sample_mmn_epochs, sample_accuracy_blocks)
+        
+        expected_cols = ['subject_id', 'block_id', 'mmn_amplitude', 'source_window_start_trial']
+        assert list(result.columns) == expected_cols

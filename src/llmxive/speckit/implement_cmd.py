@@ -22,17 +22,18 @@ import yaml
 from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.config import LEAF_TASK_BUDGET_SECONDS
+from llmxive.speckit._artifact_directories import prepare_artifact_directory
 from llmxive.speckit.slash_command import SlashCommandAgent, SlashCommandContext
-from llmxive.speckit.yaml_extract import parse_yaml_lenient
-
-_TASK_RE = re.compile(
-    # T### or T###<letter-suffix> (e.g., T016, T016a, T017b for
-    # revision sub-tasks). The trailing alphanumeric must be followed
-    # by whitespace or end of string — no word-boundary, since 'a' is
-    # itself a word char.
-    r"^- \[(?P<status>[ Xx])\]\s+(?P<id>T\d+[a-z]?)(?=\s|$)(?P<rest>.*)$",
-    re.MULTILINE,
+from llmxive.speckit.task_lines import TASK_LINE_RE as _TASK_RE
+from llmxive.speckit.task_lines import (
+    all_complete,
+    clear_retried_execution_failures,
+    mark_task,
+    mask_fenced_code,
+    task_continuation,
+    validate_open_tasks,
 )
+from llmxive.speckit.yaml_extract import parse_yaml_lenient
 
 
 class ImplementerAgent(SlashCommandAgent):
@@ -50,20 +51,23 @@ class ImplementerAgent(SlashCommandAgent):
         return resolve_feature_dir(ctx)
 
     def _next_incomplete(self, tasks_text: str) -> tuple[str, str] | None:
-        for m in _TASK_RE.finditer(tasks_text):
+        for m in _TASK_RE.finditer(mask_fenced_code(tasks_text)):
             if m.group("status") == " ":
-                return m.group("id"), m.group(0)
+                index = tasks_text[:m.start()].count("\n")
+                return m.group("id"), m.group(0) + task_continuation(tasks_text.splitlines(), index)
         return None
 
     def _all_complete(self, tasks_text: str) -> bool:
-        return all(m.group("status") in {"X", "x"} for m in _TASK_RE.finditer(tasks_text))
+        return all_complete(tasks_text)
 
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
         feature_dir = self._feature_dir(ctx)
         tasks_path = feature_dir / "tasks.md"
-        tasks_text = tasks_path.read_text(encoding="utf-8") if tasks_path.exists() else ""
+        from llmxive.claims.task_requirements import read_task_document
+        tasks_text = read_task_document(tasks_path, ctx.project_dir, persist=True)
+        validate_open_tasks(tasks_text)
         next_task = self._next_incomplete(tasks_text)
-        completed = [m.group("id") for m in _TASK_RE.finditer(tasks_text)
+        completed = [m.group("id") for m in _TASK_RE.finditer(mask_fenced_code(tasks_text))
                      if m.group("status") in {"X", "x"}]
         return {
             "feature_dir": str(feature_dir),
@@ -72,7 +76,8 @@ class ImplementerAgent(SlashCommandAgent):
             "next_task_id": next_task[0] if next_task else None,
             "next_task_line": next_task[1] if next_task else None,
             "completed_task_ids": completed,
-            "all_complete": next_task is None and bool(completed),
+            "all_complete": self._all_complete(tasks_text),
+            "skip_llm": next_task is None,
         }
 
     def build_prompt(
@@ -113,7 +118,7 @@ class ImplementerAgent(SlashCommandAgent):
         # inline their full contents (capped) so the LLM can extend
         # rather than re-author them.
         task_line = mechanical_output["next_task_line"] or ""
-        referenced = _inline_referenced_files(ctx.project_dir, task_line)
+        reference_text = task_line
 
         user_parts = [
             f"# tasks.md\n\n{mechanical_output['tasks_text']}",
@@ -121,6 +126,30 @@ class ImplementerAgent(SlashCommandAgent):
             f"# completed task ids\n{mechanical_output['completed_task_ids']}",
             f"# wall_clock_budget_seconds\n{LEAF_TASK_BUDGET_SECONDS}",
         ]
+        # A task summary is not the specification. Supply the canonical inputs
+        # that define parameter domains, interfaces and the actual CLI invocation.
+        feature_dir = mechanical_output.get("feature_dir")
+        if feature_dir:
+            for name in ("spec.md", "plan.md", "quickstart.md"):
+                path = Path(feature_dir) / name
+                if path.is_file():
+                    user_parts.append(f"# Active {name} (authoritative requirements and run instructions)\n\n"
+                                      + path.read_text(encoding="utf-8"))
+        for path in sorted((ctx.project_dir / "idea").glob("*.md")):
+            user_parts.append(f"# Original research idea: {path.name}\n\n"
+                              + path.read_text(encoding="utf-8"))
+        # Write refusals and execute:true failures leave the task open. Feed the
+        # exact diagnosis back on its next attempt, not merely a status marker.
+        task_logs = sorted(
+            (ctx.project_dir / "code/.tasks").glob(f"{mechanical_output['next_task_id']}.*.log"),
+            key=lambda path: path.stat().st_mtime_ns, reverse=True,
+        )
+        for path in task_logs[:3]:
+            body = path.read_text(encoding="utf-8", errors="replace")
+            if len(body) > 12000:
+                body = "[Earlier log output truncated]\n" + body[-12000:]
+            user_parts.append(f"# Previous attempt record for this task: {path.name}\n\n" + body)
+            reference_text += "\n" + body
         # Spec 023 #25 — close the auto-fix loop: the dedicated execution stage
         # runs the project's analysis end-to-end and, on failure, writes the
         # tracebacks + missing deliverables to execution_feedback.md and RE-OPENS
@@ -131,6 +160,7 @@ class ImplementerAgent(SlashCommandAgent):
         if exec_feedback.is_file():
             fb = exec_feedback.read_text(encoding="utf-8", errors="replace").strip()
             if fb:
+                reference_text += "\n" + fb
                 user_parts.append(
                     "# ⚠ EXECUTION FAILED ON THE LAST RUN — FIXING THIS IS YOUR "
                     "PRIORITY\n\n"
@@ -149,11 +179,24 @@ class ImplementerAgent(SlashCommandAgent):
                 "you import or call MUST come from this list, not invented)\n\n"
                 + existing_api
             )
+        referenced = _inline_referenced_files(ctx.project_dir, reference_text)
         if referenced:
             user_parts.append(
-                "# Full contents of files this task references "
+                "# Full contents of files this task or its execution failures reference "
                 "(extend / modify these EXACTLY — do not invent new APIs)\n\n"
                 + referenced
+            )
+        evidence = _current_data_context(ctx.project_dir)
+        if evidence:
+            user_parts.append(
+                "# Current data files (observations, not accepted conclusions)\n\n"
+                "Use these exact bytes to reconcile schemas and write results. "
+                "Do not invent example measurements, infer that execution/tests "
+                "passed from file existence, or describe a trend contradicted by "
+                "the data. Files may be stale or from a failed run; successful "
+                "execution and independent verification are still required. "
+                "If relevant evidence is omitted, generate and execute code to "
+                "read it and write the summary instead of guessing.\n\n" + evidence
             )
         # Spec 011 / FR-013: inject recent personality + reviewer comments
         # so the implementer's design choices reflect accumulated feedback.
@@ -208,13 +251,7 @@ class ImplementerAgent(SlashCommandAgent):
         from pathlib import Path as _Path
         text = _Path(tasks_path).read_text(encoding="utf-8")
         # Replace `- [ ] T###` with `- [X] T### <!-- SKIPPED: reason -->`
-        new_text = re.sub(
-            rf"^- \[ \] ({re.escape(task_id)}\b)([^\n]*)$",
-            rf"- [X] \1\2 <!-- SKIPPED: {reason}{f' ({exc!s})' if exc else ''} -->",
-            text,
-            count=1,
-            flags=re.MULTILINE,
-        )
+        new_text = mark_task(text, task_id, "X", f" <!-- SKIPPED: {reason}{f' ({exc!s})' if exc else ''} -->")
         _Path(tasks_path).write_text(new_text, encoding="utf-8")
         print(f"[implementer] marked {task_id} SKIPPED: {reason}")
 
@@ -238,6 +275,11 @@ class ImplementerAgent(SlashCommandAgent):
             # task_id/verdict/artifact paths/contents using markers
             # rather than YAML structure.
             doc = _regex_parse_implementer(llm_response.text)
+            if doc is not None:
+                # Kept for the refusal message: when recovery finds nothing to
+                # write, the model must be told its YAML broke and where, not
+                # that it "supplied no artifacts" -- it believes it did.
+                doc["_yaml_error"] = " ".join(str(exc).split())[:400]
             if doc is None:
                 # Last-resort: mark this task as parse-failed and check
                 # it off so the implementer moves to the next one. The
@@ -255,6 +297,12 @@ class ImplementerAgent(SlashCommandAgent):
 
         if verdict == "completed":
             project_root = ctx.project_dir
+            refusals: list[str] = []
+
+            def refuse(message: str) -> None:
+                refusals.append(message)
+                print(message)
+
             # Identify the canonical feature_dir (e.g., "002-foo-bar")
             # so we can rewrite the LLM's wrong slug. The LLM tends to
             # use spec.md's branch_name (which it invents differently
@@ -273,7 +321,11 @@ class ImplementerAgent(SlashCommandAgent):
             for art in doc.get("artifacts", []) or []:
                 relpath = art.get("path")
                 contents = art.get("contents", "")
-                if not relpath:
+                if not isinstance(relpath, str) or not relpath:
+                    refuse("[implementer] refused artifact without a non-empty string path")
+                    continue
+                if not isinstance(contents, str):
+                    refuse(f"[implementer] refused non-text contents for {relpath!r}")
                     continue
                 # Confine all artifact writes to projects/<PROJ-ID>/.
                 # The LLM occasionally produces paths like "src/" or
@@ -283,6 +335,7 @@ class ImplementerAgent(SlashCommandAgent):
                 proj_prefix = f"projects/{project_root.name}/"
                 if rel.startswith(proj_prefix):
                     rel = rel[len(proj_prefix):]
+                proposed_rel = rel
                 # Canonicalize specs/<wrong-slug>/... → specs/<canonical>/...
                 # so the LLM's invented branch slug doesn't fragment artifacts
                 # across two parallel feature directories.
@@ -302,21 +355,93 @@ class ImplementerAgent(SlashCommandAgent):
                 try:
                     target.resolve().relative_to(project_root.resolve())
                 except ValueError:
-                    print(f"[implementer] refused out-of-project path: {relpath!r}")
+                    refuse(f"[implementer] refused out-of-project path: {relpath!r}")
+                    continue
+                # The toolkit is the platform's. A project copy ("a minimal shim")
+                # is a second implementation with different paths.
+                from llmxive.project_toolkit import is_toolkit_copy
+                if is_toolkit_copy(rel):
+                    refuse(
+                        f"[implementer] refused {relpath!r}: `llmxive_toolkit` is provided by the "
+                        "platform and is already importable in every project run. Do not write "
+                        "a copy or shim of it; `from llmxive_toolkit import paths, get_logger` works as is."
+                    )
+                    continue
+                # Generated deliverables cannot author the evidence or reviewed
+                # requirements used to decide their own acceptance. Check both
+                # the proposal and resolved target so an in-project symlink
+                # cannot turn an ordinary output name into a control-file write.
+                if _is_control_artifact(project_root, target, mechanical_output, proposed_rel):
+                    refuse(f"[implementer] refused pipeline control evidence or reviewed requirements: {relpath!r}")
+                    continue
+                from llmxive.project_paths import casefold_write_conflict
+
+                conflict = casefold_write_conflict(project_root, target)
+                if conflict is not None:
+                    refuse(
+                        f"[implementer] refused case-insensitive path collision: {relpath!r} "
+                        f"aliases existing {str(conflict.relative_to(project_root))!r}. "
+                        "Use the existing spelling or a distinct filename."
+                    )
                     continue
                 # Skip if target is an existing directory (LLM bug).
                 if target.exists() and target.is_dir():
-                    print(f"[implementer] skipping directory path: {relpath!r}")
+                    refuse(f"[implementer] skipping directory path: {relpath!r}")
                     continue
-                if not contents:
+                # An explicitly empty Python package marker is valid source,
+                # not a missing substantive deliverable. Preserve/create it.
+                empty_package_marker = "contents" in art and target.name == "__init__.py"
+                if not contents and not empty_package_marker:
+                    if not art.get("execute"):
+                        refuse(f"[implementer] refused empty contents without execution: {relpath!r}")
                     continue
+                from llmxive.project_files import SOURCE_DIRS, has_code
+
+                # A script is one file. A second copy at the project root that
+                # re-exports the first (canary 10: `from code.run_analysis
+                # import main`) gives the task's bare filename two meanings.
+                if "/" not in rel and rel.endswith(".py"):
+                    twin = next((f"{d}/{rel}" for d in SOURCE_DIRS if (project_root / d / rel).is_file()), None)
+                    if twin is not None:
+                        refuse(
+                            f"[implementer] refused {relpath!r}: `{twin}` already exists. "
+                            "Edit that file; do not add a second copy or a re-exporting "
+                            "wrapper at the project root."
+                        )
+                        continue
+                # "Run it as it is", said with a comment where the contents go,
+                # must not erase the script. Canary 10 lost a 16 KB driver to
+                # `# The file exists already; this entry requests execution
+                # without modification.` and three accepted tasks with it.
+                if (target.is_file() and not target.is_symlink()
+                        and target.suffix.lower() in {".py", ".sh"}
+                        and not has_code(target.name, contents)
+                        and has_code(target.name, target.read_text(encoding="utf-8", errors="replace"))):
+                    if art.get("execute"):
+                        print(
+                            f"[implementer] kept existing {relpath!r}: the reply's contents hold "
+                            "no code, so the file is run as it is"
+                        )
+                    else:
+                        refuse(
+                            f"[implementer] refused {relpath!r}: it would replace working code "
+                            "with a file that has none. To leave a file unchanged, leave it out "
+                            "of `artifacts`; to re-run it unchanged, give `path`, `execute: true` "
+                            "and `args` and omit `contents`."
+                        )
+                    continue
+                # The feature directory has ONE name. Code that hard-codes the
+                # slug the model invented reads a path that does not exist.
+                if canonical_spec_dirname:
+                    from llmxive.speckit.feature_slug import canonicalize_feature_refs
+                    contents = canonicalize_feature_refs(contents, project_root, canonical_spec_dirname)
                 # Refuse to write content that's a unified-diff fragment.
                 # The implementer prompt forbids diffs, but Qwen
                 # occasionally returns one anyway and the script later
                 # explodes with SyntaxError. Better to skip and surface.
                 stripped_first = contents.lstrip().splitlines()[0] if contents.lstrip() else ""
                 if stripped_first.startswith(("--- a/", "+++ b/", "@@ ")):
-                    print(
+                    refuse(
                         f"[implementer] refusing to write diff-fragment "
                         f"content to {relpath!r} (first line: {stripped_first!r})"
                     )
@@ -332,7 +457,7 @@ class ImplementerAgent(SlashCommandAgent):
                     try:
                         compile(contents, target.name, "exec")
                     except SyntaxError as exc:
-                        print(
+                        refuse(
                             f"[implementer] refusing to write {relpath!r}: "
                             f"SyntaxError at line {exc.lineno}: {exc.msg}. "
                             f"Likely truncation (output ran out of tokens) "
@@ -345,9 +470,9 @@ class ImplementerAgent(SlashCommandAgent):
                     # NOT catch these because Python only resolves
                     # names at runtime, but we can detect them statically
                     # via AST.
-                    unresolved = _find_unresolved_names(contents)
+                    unresolved = _find_unresolved_names(contents, filename=target.name)
                     if unresolved:
-                        print(
+                        refuse(
                             f"[implementer] refusing to write {relpath!r}: "
                             f"unresolved names {sorted(unresolved)} — likely "
                             f"missing imports. Add the necessary `import` "
@@ -368,7 +493,7 @@ class ImplementerAgent(SlashCommandAgent):
                             f"`from {mod} import {names}` (available: {avail})"
                             for mod, names, avail in bad_imports
                         )
-                        print(
+                        refuse(
                             f"[implementer] refusing to write {relpath!r}: "
                             f"imports nonexistent names from sibling files: "
                             f"{details}. Either change the import to use names "
@@ -376,9 +501,46 @@ class ImplementerAgent(SlashCommandAgent):
                             f"this task's `artifacts` list."
                         )
                         continue
-                target.parent.mkdir(parents=True, exist_ok=True)
+                recovered = prepare_artifact_directory(project_root, target.parent)
+                written.extend(str(path.relative_to(repo)) for path in recovered)
                 target.write_text(contents, encoding="utf-8")
                 written.append(str(target.relative_to(repo)))
+
+            refusal_log = project_root / mechanical_output.get("task_log_dir", "code/.tasks") / f"{task_id}.artifact-write.log"
+            if not written and not any(art.get("execute") for art in doc.get("artifacts", []) or []):
+                if not refusals:
+                    refuse("[implementer] completed report supplied no writable artifacts or execution requests"
+                           + (". The reply was not valid YAML (" + doc["_yaml_error"] + "). Under "
+                              "`contents: |` EVERY line must be indented deeper than `contents:`, "
+                              "including the lines of a multi-line string. Write long text "
+                              "(Markdown, a paper) as its own artifact with its own `path:`, not "
+                              "as a string inside Python." if doc.get("_yaml_error") else ""))
+            if refusals:
+                # Preserve exact rejection diagnostics through the same per-task
+                # log channel build_prompt already reads. Do not run stale files
+                # from a proposal whose replacement artifacts were refused.
+                from llmxive.speckit._inspection import _redact
+                recovered = prepare_artifact_directory(project_root, refusal_log.parent)
+                written.extend(str(path.relative_to(repo)) for path in recovered)
+                refusal_log.write_text(
+                    "# Artifact writes refused — task remains incomplete\n\n"
+                    + _redact("\n\n".join(refusals)) + "\n", encoding="utf-8")
+                tasks_path = Path(mechanical_output["tasks_path"])
+                text = tasks_path.read_text(encoding="utf-8")
+                text = mark_task(text, task_id, " ")
+                tasks_path.write_text(text, encoding="utf-8")
+                written.extend([str(refusal_log.relative_to(repo)), str(tasks_path.relative_to(repo))])
+                # Paper delegates writes here but owns a separate bounded
+                # _proposal_failure path and paper: task namespace.
+                if mechanical_output.get("task_log_dir", "code/.tasks") == "code/.tasks":
+                    _record_artifact_refusal(ctx, mechanical_output, getattr(llm_response, "model", "unknown"),
+                                             _redact("\n".join(refusals)))
+                return written
+            # A structurally valid retry supersedes the earlier write refusal;
+            # independent task and execution verification still decide completion.
+            refusal_log.unlink(missing_ok=True)
+            if mechanical_output.get("task_log_dir", "code/.tasks") == "code/.tasks":
+                _clear_artifact_refusal(ctx, task_id)
 
             # Code-execution step: if the LLM marked any artifact as
             # `execute: true` (a runnable script that produces real
@@ -386,36 +548,77 @@ class ImplementerAgent(SlashCommandAgent):
             # capture stdout/stderr. Reviewers later check that the
             # task actually produced expected output, not just code.
             from llmxive import sandbox as _sandbox
+            from llmxive.project_files import is_pytest_module
             execute_results: list[tuple[str, _sandbox.ExecutionResult]] = []
+            # Scripts whose run the reply ASKED for. Only these gate the task.
+            requested_runs: set[str] = set()
+            tested: set[str] = set()
             for art in doc.get("artifacts", []) or []:
-                if not art.get("execute"):
-                    continue
-                relpath = art.get("path", "").lstrip("/")
+                relpath = str(art.get("path") or "").lstrip("/")
                 proj_prefix = f"projects/{project_root.name}/"
                 if relpath.startswith(proj_prefix):
                     relpath = relpath[len(proj_prefix):]
-                if not relpath.endswith(".py"):
-                    continue  # only run python scripts
-                try:
-                    result = _sandbox.run_python_script(
-                        project_dir=project_root,
-                        script_relpath=relpath,
-                        timeout_s=int(art.get("timeout_s", 600)),
-                    )
-                except Exception as exc:  # pragma: no cover — defensive
-                    print(f"[implementer] sandbox failed for {relpath}: {exc}")
+                # A test module is run by pytest, asked for or not. Canary 7,
+                # 2026-10-11: one reply set `execute: true` on a wrapper that
+                # sent pytest's output to a file the verifier never reads, and
+                # another's test passed but only inside a shell script; the
+                # verifier rejected both for "no evidence pytest was run".
+                # `python tests/test_x.py` is worse: exit 0, nothing collected.
+                if relpath in tested:
                     continue
+                is_test = (is_pytest_module(Path(relpath).name)
+                           and (project_root / relpath).is_file())
+                if not art.get("execute") and not is_test:
+                    continue
+                if art.get("execute"):
+                    requested_runs.add(relpath)
+                # YAML infers unquoted numeric CLI arguments as numbers. Their
+                # literal decimal representation is safe argv, without a shell.
+                # Preserve other invalid types for the sandbox to reject.
+                script_args = art.get("args", [])
+                if isinstance(script_args, list):
+                    import math
+                    script_args = [str(arg) if type(arg) is int or (
+                        type(arg) is float and math.isfinite(arg)) else arg
+                        for arg in script_args]
+                try:
+                    if is_test:
+                        tested.add(relpath)
+                        result = _sandbox.run_pytest_file(
+                            project_dir=project_root, test_relpath=relpath,
+                            script_args=script_args if art.get("execute") else [],
+                            timeout_s=int(art.get("timeout_s", 600)),
+                        )
+                    elif relpath.endswith((".py", ".sh")):
+                        runner = (_sandbox.run_shell_script if relpath.endswith(".sh")
+                                  else _sandbox.run_python_script)
+                        result = runner(
+                            project_dir=project_root, script_relpath=relpath,
+                            script_args=script_args,
+                            timeout_s=int(art.get("timeout_s", 600)),
+                        )
+                    else:
+                        result = _sandbox.ExecutionResult(
+                            False, -1, "", "execute:true requires a .py or .sh script", 0.0,
+                        )
+                except Exception as exc:  # pragma: no cover — defensive
+                    result = _sandbox.ExecutionResult(
+                        False, -1, "", f"execution failed: {exc}", 0.0,
+                    )
                 # Persist execution log next to the script.
                 log_path = (
                     project_root
-                    / "code"
-                    / ".tasks"
+                    / mechanical_output.get("task_log_dir", "code/.tasks")
                     / f"{task_id}.{relpath.replace('/', '_')}.log"
                 )
-                log_path.parent.mkdir(parents=True, exist_ok=True)
+                recovered = prepare_artifact_directory(project_root, log_path.parent)
+                written.extend(str(path.relative_to(repo)) for path in recovered)
                 log_path.write_text(
                     f"# {relpath} (exit {result.returncode}, "
                     f"{result.duration_s:.1f}s, ok={result.ok})\n\n"
+                    + ("Run by the platform as `python -m pytest -v` from the project root.\n\n"
+                       if is_test else "")
+                    + f"Arguments: {script_args!r}\n\n"
                     f"## stdout\n\n```\n{result.stdout}\n```\n\n"
                     f"## stderr\n\n```\n{result.stderr}\n```\n",
                     encoding="utf-8",
@@ -427,36 +630,32 @@ class ImplementerAgent(SlashCommandAgent):
             # non-zero, the task did NOT actually produce its output.
             # Mark the task as FAILED-IN-EXECUTION with a clear
             # annotation rather than checking it off as completed.
-            # The downstream reviewer will see the FAILED tag and
-            # request a revision.
-            failed_scripts = [(p, r) for p, r in execute_results if not r.ok]
+            # Pending review is deterministically rejected; a semantic model
+            # cannot override a real failed command.
+            # A failing test the reply did not ask to run is evidence for the
+            # verifier, not a failed command: a task may write a test before
+            # the code it tests exists.
+            failed_scripts = [(p, r) for p, r in execute_results
+                              if not r.ok and p in requested_runs]
             tasks_path = Path(mechanical_output["tasks_path"])
             text = tasks_path.read_text(encoding="utf-8")
+            succeeded = {path for path, result in execute_results if result.ok}
+            succeeded |= _superseded_failures(
+                project_root / mechanical_output.get("task_log_dir", "code/.tasks"), task_id, text)
+            text = clear_retried_execution_failures(text, task_id, succeeded)
             if failed_scripts:
                 fail_summary = "; ".join(
                     f"{p} exit={r.returncode}{' (TIMEOUT)' if r.timed_out else ''}"
                     for p, r in failed_scripts
                 )
-                text = re.sub(
-                    rf"^- \[ \] ({re.escape(task_id)}\b)([^\n]*)$",
-                    rf"- [X] \1\2 <!-- FAILED-IN-EXECUTION: {fail_summary} -->",
-                    text,
-                    count=1,
-                    flags=re.MULTILINE,
-                )
+                text = mark_task(text, task_id, "~", f" <!-- FAILED-IN-EXECUTION: {fail_summary} -->")
                 tasks_path.write_text(text, encoding="utf-8")
                 written.append(str(tasks_path.relative_to(repo)))
                 print(
                     f"[implementer] task {task_id} marked FAILED-IN-EXECUTION: {fail_summary}"
                 )
                 return written  # do not also run the "completed" check-off below
-            text = re.sub(
-                rf"^- \[ \] ({re.escape(task_id)}\b)",
-                r"- [X] \1",
-                text,
-                count=1,
-                flags=re.MULTILINE,
-            )
+            text = mark_task(text, task_id, "X", "")
             tasks_path.write_text(text, encoding="utf-8")
             written.append(str(tasks_path.relative_to(repo)))
         elif verdict == "failed":
@@ -470,13 +669,7 @@ class ImplementerAgent(SlashCommandAgent):
             tasks_path = Path(mechanical_output["tasks_path"])
             text = tasks_path.read_text(encoding="utf-8")
             failure_reason = doc.get("failure", {}).get("reason", "unspecified")
-            text = re.sub(
-                rf"^- \[ \] ({re.escape(task_id)}\b)([^\n]*)$",
-                rf"- [X] \1\2 <!-- FAILED: {failure_reason} -->",
-                text,
-                count=1,
-                flags=re.MULTILINE,
-            )
+            text = mark_task(text, task_id, "X", f" <!-- FAILED: {failure_reason} -->")
             tasks_path.write_text(text, encoding="utf-8")
             written.append(str(tasks_path.relative_to(repo)))
         elif verdict == "atomize":
@@ -486,23 +679,110 @@ class ImplementerAgent(SlashCommandAgent):
             # waiting for an atomizer agent that may never run.
             tasks_path = Path(mechanical_output["tasks_path"])
             text = tasks_path.read_text(encoding="utf-8")
-            text = re.sub(
-                rf"^- \[ \] ({re.escape(task_id)}\b)([^\n]*)$",
-                r"- [X] \1\2 <!-- ATOMIZE: requested -->",
-                text,
-                count=1,
-                flags=re.MULTILINE,
-            )
+            text = mark_task(text, task_id, "X", " <!-- ATOMIZE: requested -->")
             tasks_path.write_text(text, encoding="utf-8")
             written.append(str(tasks_path.relative_to(repo)))
             atomize_dir = ctx.project_dir / "code" / ".tasks"
-            atomize_dir.mkdir(parents=True, exist_ok=True)
+            recovered = prepare_artifact_directory(ctx.project_dir, atomize_dir)
+            written.extend(str(path.relative_to(repo)) for path in recovered)
             (atomize_dir / f"{task_id}.atomize.yaml").write_text(
                 yaml.safe_dump(doc.get("atomize", {})),
                 encoding="utf-8",
             )
 
         return written
+
+
+ARTIFACT_REFUSAL_CAP = 3
+
+
+def _artifact_refusal_path(ctx: SlashCommandContext, task_id: str) -> Path:
+    # Task IDs have already passed validate_open_tasks; hash the storage key as
+    # defense in depth for direct callers of write_artifacts.
+    import hashlib
+
+    key = hashlib.sha256(task_id.encode()).hexdigest()
+    path = ctx.project_dir / ".specify/memory/artifact_refusals" / f"{key}.json"
+    if not path.resolve().is_relative_to(ctx.project_dir.resolve()):
+        raise ValueError("artifact refusal store escapes the project")
+    # Refuse even in-project aliases: control state must never read or delete
+    # an unrelated artifact through a final-file or parent-directory symlink.
+    for part in (path, *path.parents):
+        if part == ctx.project_dir:
+            break
+        if part.is_symlink():
+            raise ValueError("artifact refusal store contains a symlink")
+    return path
+
+
+def _clear_artifact_refusal(ctx: SlashCommandContext, task_id: str) -> None:
+    _artifact_refusal_path(ctx, task_id).unlink(missing_ok=True)
+
+
+def _record_artifact_refusal(
+    ctx: SlashCommandContext, mechanical: dict[str, Any], model: str, reason: str,
+) -> None:
+    """Escalate repeated refused proposals through the existing free repair ladder.
+
+    These tasks stay open, so the independent verifier never sees a completion
+    claim to reject. Without this counter an empty or invalid artifact response
+    retries the same model forever. A new task definition, tier, or re-plan gets
+    a fresh allowance; a writable proposal clears the consecutive refusal count.
+    """
+    import hashlib
+    import json
+
+    from llmxive.state import execution_status, unverifiable
+    from llmxive.state._io import atomic_write_text
+
+    repo = ctx.project_dir.parent.parent
+    task_id = mechanical["next_task_id"]
+    tasks_path = Path(mechanical["tasks_path"])
+    selected = ImplementerAgent()._next_incomplete(tasks_path.read_text(encoding="utf-8"))
+    task_line = mechanical.get("next_task_line") or (selected[1] if selected else task_id)
+    identity = [str(tasks_path.relative_to(ctx.project_dir)), task_line,
+                execution_status.model_tier(ctx.project_id, repo_root=repo),
+                execution_status.replan_rounds(ctx.project_id, repo_root=repo)]
+    fingerprint = hashlib.sha256(json.dumps(identity).encode()).hexdigest()
+    path = _artifact_refusal_path(ctx, task_id)
+    try:
+        previous = json.loads(path.read_text())
+    except (OSError, ValueError):
+        previous = {}
+    count = previous.get("count", 0) if isinstance(previous, dict) and previous.get("fingerprint") == fingerprint else 0
+    count = count if type(count) is int and count >= 0 else 0
+    count += 1
+    atomic_write_text(path, json.dumps({"task_id": task_id, "fingerprint": fingerprint,
+        "count": count, "model": model, "reason": reason[:2000]}, indent=2) + "\n")
+    if count >= ARTIFACT_REFUSAL_CAP:
+        unverifiable.record_unverifiable(ctx.project_id, task_id,
+            f"Artifact proposal refused {count} consecutive times: {reason}", repo_root=repo)
+
+
+def _is_control_artifact(project: Path, target: Path, mechanical: dict[str, Any], proposed: str) -> bool:
+    """Keep implementation output separate from pipeline-owned control inputs.
+
+    Research/quickstart/data-model documents and contracts remain writable;
+    spec/plan/task definitions belong to their dedicated reviewed author stages.
+    This guards proposed artifact writes, not arbitrary executed Python code.
+    """
+    protected_parts = {".specify", ".tasks", ".git", ".venv"}
+    if protected_parts.intersection(part.casefold() for part in Path(proposed).parts):
+        return True
+    definitions = {"spec.md", "plan.md", "tasks.md"}
+    feature = Path(mechanical["feature_dir"])
+    active = [Path(mechanical["tasks_path"]), *(feature / name for name in definitions)]
+    active_paths = {str(path.resolve()).casefold() for path in active}
+    for path, root in ((target, project), (target.resolve(), project.resolve())):
+        parts = tuple(part.casefold() for part in path.relative_to(root).parts)
+        if protected_parts.intersection(parts):
+            return True
+        # Preserve earlier feature definitions too, including legacy flat specs.
+        research_definition = parts[:1] == ("specs",) and len(parts) in {2, 3}
+        paper_definition = parts[:2] == ("paper", "specs") and len(parts) in {3, 4}
+        if (research_definition or paper_definition) and parts[-1] in definitions:
+            return True
+    return str(target.resolve()).casefold() in active_paths
 
 
 def _find_bad_sibling_imports(
@@ -515,7 +795,7 @@ def _find_bad_sibling_imports(
     actually exist in the imported sibling file.
 
     Conservative: only flags imports of LOCAL modules (modules whose
-    source file is reachable under code_dir). Third-party imports
+    source file is reachable under code_dir or the project root). Third-party imports
     (numpy, pandas, etc.) are skipped — we don't know their API surface
     statically.
     """
@@ -532,16 +812,23 @@ def _find_bad_sibling_imports(
             continue
         if node.module is None or node.level != 0:
             continue  # relative imports / no module name — skip
-        # Try to resolve module to a sibling file under code_dir.
-        # E.g. `from utils.streaming import X` -> code_dir/utils/streaming.py
+        # Use the artifact's own workspace first. Root/src implementations and
+        # tests must not be checked against deprecated code/src namesakes; code/
+        # artifacts retain their historical workspace-first resolution.
+        project_root = code_dir.parent
+        roots = ([code_dir, project_root] if target.resolve().is_relative_to(code_dir.resolve())
+                 else [project_root, code_dir])
         rel_path = node.module.replace(".", "/")
-        candidate_file = code_dir / f"{rel_path}.py"
-        candidate_pkg = code_dir / rel_path / "__init__.py"
-        sibling = (
-            candidate_file
-            if candidate_file.is_file()
-            else (candidate_pkg if candidate_pkg.is_file() else None)
-        )
+        sibling = None
+        for root in roots:
+            candidate_file = root / f"{rel_path}.py"
+            candidate_pkg = root / rel_path / "__init__.py"
+            if candidate_file.is_file():
+                sibling = candidate_file
+                break
+            if candidate_pkg.is_file():
+                sibling = candidate_pkg
+                break
         if sibling is None:
             continue  # not a local module; assume third-party / stdlib
         try:
@@ -571,21 +858,16 @@ def _find_bad_sibling_imports(
                         # star import — sibling re-exports who knows what; bail.
                         return []
                     exposed.add(alias.asname or alias.name)
-        # If the sibling has __all__, restrict to that.
-        for s in sibling_tree.body:
-            if (
-                isinstance(s, ast.Assign)
-                and len(s.targets) == 1
-                and isinstance(s.targets[0], ast.Name)
-                and s.targets[0].id == "__all__"
-                and isinstance(s.value, (ast.List, ast.Tuple))
-            ):
-                all_names = {
-                    e.value for e in s.value.elts
-                    if isinstance(e, ast.Constant) and isinstance(e.value, str)
-                }
-                if all_names:
-                    exposed = all_names
+        # __all__ controls star imports only; explicit imports can name any
+        # bound attribute. Python also resolves `from package import child`
+        # by loading a child module, even when __init__.py is empty.
+        if sibling == candidate_pkg:
+            for child in candidate_pkg.parent.iterdir():
+                if child.is_file() and child.suffix == ".py":
+                    exposed.add(child.stem)
+                elif child.is_dir() and child.name.isidentifier():
+                    # A directory can be a PEP 420 namespace subpackage.
+                    exposed.add(child.name)
         wanted = {alias.name for alias in node.names if alias.name != "*"}
         missing = wanted - exposed
         if missing:
@@ -597,7 +879,7 @@ def _find_bad_sibling_imports(
     return bad
 
 
-def _find_unresolved_names(source: str) -> set[str]:
+def _find_unresolved_names(source: str, *, filename: str = "") -> set[str]:
     """Return names referenced at module-execution time that aren't bound.
 
     Walks the AST: collects names BOUND by imports, top-level
@@ -626,6 +908,14 @@ def _find_unresolved_names(source: str) -> set[str]:
     bound.add("__name__")
     bound.add("__file__")
     bound.add("__doc__")
+    bound.update({"__package__", "__spec__", "__loader__", "__cached__", "__builtins__"})
+    if filename == "__init__.py":
+        bound.add("__path__")
+
+    def _target_names(target: ast.AST) -> set[str]:
+        """Names assigned by a binding target, excluding attribute bases."""
+        return {n.id for n in ast.walk(target)
+                if isinstance(n, ast.Name) and isinstance(n.ctx, ast.Store)}
 
     def _collect_bindings_in_module(node: ast.AST) -> None:
         for child in ast.walk(node):
@@ -642,6 +932,12 @@ def _find_unresolved_names(source: str) -> set[str]:
                         bound.add("__star_import__")
                         continue
                     bound.add(alias.asname or alias.name)
+            elif isinstance(child, (ast.For, ast.AsyncFor)):
+                bound.update(_target_names(child.target))
+            elif isinstance(child, (ast.With, ast.AsyncWith)):
+                for item in child.items:
+                    if item.optional_vars is not None:
+                        bound.update(_target_names(item.optional_vars))
             elif isinstance(child, ast.Assign):
                 for target in child.targets:
                     for n in ast.walk(target):
@@ -668,6 +964,37 @@ def _find_unresolved_names(source: str) -> set[str]:
         if imported lazily). DOES descend into decorators, default
         values, and base classes — those execute at module load.
         """
+
+        def __init__(self) -> None:
+            self.local_scopes: list[set[str]] = []
+
+        def visit_ExceptHandler(self, node: ast.ExceptHandler) -> None:
+            if node.type is not None:
+                self.visit(node.type)
+            self.local_scopes.append({node.name} if node.name else set())
+            for stmt in node.body:
+                self.visit(stmt)
+            self.local_scopes.pop()
+
+        def _visit_comprehension(self, node: ast.AST) -> None:
+            self.local_scopes.append(set())
+            for generator in node.generators:
+                # The iterable executes before this target is bound.
+                self.visit(generator.iter)
+                self.local_scopes[-1].update(_target_names(generator.target))
+                for condition in generator.ifs:
+                    self.visit(condition)
+            if isinstance(node, ast.DictComp):
+                self.visit(node.key)
+                self.visit(node.value)
+            else:
+                self.visit(node.elt)
+            self.local_scopes.pop()
+
+        visit_ListComp = _visit_comprehension
+        visit_SetComp = _visit_comprehension
+        visit_DictComp = _visit_comprehension
+        visit_GeneratorExp = _visit_comprehension
 
         def visit_FunctionDef(self, node: ast.FunctionDef) -> None:
             for d in node.decorator_list:
@@ -702,7 +1029,9 @@ def _find_unresolved_names(source: str) -> set[str]:
                     self.visit(stmt)
 
         def visit_Name(self, node: ast.Name) -> None:
-            if isinstance(node.ctx, ast.Load):
+            if isinstance(node.ctx, ast.Load) and not any(
+                node.id in scope for scope in self.local_scopes
+            ):
                 used.add(node.id)
 
     _ModuleLevelNameCollector().visit(tree)
@@ -717,6 +1046,16 @@ _TOP_IMPORT_RE = re.compile(
     r"^(?:from\s+\S+\s+import\s+[^\n]+|import\s+[^\n]+)$",
     re.MULTILINE,
 )
+
+
+def _source_module_path(path: Path, project_dir: Path) -> str:
+    relative = path.relative_to(project_dir)
+    if relative.parts[0] == "code":
+        relative = Path(*relative.parts[1:])
+    parts = list(relative.with_suffix("").parts)
+    if parts[-1] == "__init__":
+        parts.pop()
+    return ".".join(parts)
 
 
 def _summarize_existing_code(project_dir: Path, *, max_chars: int = 16000) -> str:
@@ -739,11 +1078,23 @@ def _summarize_existing_code(project_dir: Path, *, max_chars: int = 16000) -> st
           import numpy as np
           from typing import Optional
     """
-    code_dir = project_dir / "code"
-    if not code_dir.is_dir():
-        return ""
+    import ast
+
+    from llmxive.project_files import source_files
+
     lines: list[str] = []
-    for fp in sorted(code_dir.rglob("*.py")):
+    files = list(source_files(project_dir))
+    modules: dict[str, list[str]] = {}
+    for fp in files:
+        modules.setdefault(_source_module_path(fp, project_dir), []).append(
+            fp.relative_to(project_dir).as_posix())
+    for module, paths in modules.items():
+        if len(paths) > 1:
+            lines.append(f"IMPORT COLLISION: `{module}` is present at {', '.join(paths)}. "
+                         "These files are not interchangeable: one package can hide the other. "
+                         "Reuse the explicit existing artifact paths and reconcile imports and "
+                         "package initializers before claiming the command works.")
+    for fp in files:
         if any(p in fp.parts for p in (".venv", "__pycache__", ".tasks")):
             continue
         if fp.name == "__init__.py":
@@ -762,7 +1113,10 @@ def _summarize_existing_code(project_dir: Path, *, max_chars: int = 16000) -> st
         # Canonical import path: drop "code/" prefix and ".py" suffix,
         # convert "/" to ".".  For tests/, drop "code/" and prefix with
         # "tests." (test runner adds tests/ to path).
-        rel_to_code = fp.relative_to(code_dir).with_suffix("").as_posix().replace("/", ".")
+        module_path = fp.relative_to(project_dir)
+        if module_path.parts[0] == "code":
+            module_path = Path(*module_path.parts[1:])
+        rel_to_code = module_path.with_suffix("").as_posix().replace("/", ".")
         import_stmt = (
             f"from {rel_to_code} import " + ", ".join(names[:8])
             if names else f"import {rel_to_code}"
@@ -774,6 +1128,20 @@ def _summarize_existing_code(project_dir: Path, *, max_chars: int = 16000) -> st
         if imports:
             chunk_lines.append("imports:")
             chunk_lines.extend("  " + i for i in imports)
+        try:
+            tree = ast.parse(text)
+        except SyntaxError:
+            tree = None
+        if tree:
+            for node in tree.body:
+                if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                    signature = f"{node.name}({ast.unparse(node.args)})"
+                    if node.returns:
+                        signature += " -> " + ast.unparse(node.returns)
+                    chunk_lines.append("signature: " + signature)
+                    doc = ast.get_docstring(node)
+                    if doc:
+                        chunk_lines.append("contract: " + doc[:1200])
         lines.append("\n".join(chunk_lines))
     body = "\n\n".join(lines)
     if len(body) > max_chars:
@@ -781,13 +1149,95 @@ def _summarize_existing_code(project_dir: Path, *, max_chars: int = 16000) -> st
     return body
 
 
-_PATH_RE = re.compile(
-    r"\b(?:code|specs|paper|data|tests)/[A-Za-z0-9_./\-]+\.(?:py|md|yaml|yml|json|toml|txt)\b"
-)
+def _current_data_context(
+    project_dir: Path, *, max_chars: int = 16000, max_files: int = 32,
+    preferred_paths: tuple[str, ...] = (),
+) -> str:
+    """Bounded, literal CSV/JSON evidence for schema fixes and result writing.
+
+    Reading a file does not authenticate it. The normal execution/claim gates
+    remain responsible for acceptance. Do not follow links outside the project
+    or read whole large datasets just to construct a prompt.
+    """
+    import hashlib
+    import os
+
+    root = project_dir.resolve()
+    project_dir = root
+    preferred = []
+    for relative in preferred_paths:
+        path = project_dir / relative
+        if (not path.is_symlink() and path.resolve().is_relative_to(root)
+                and (path.is_dir() or path.suffix.lower() in {".json", ".csv", ".tsv"})):
+            preferred.append(path.resolve())
+    candidates: list[Path] = []
+    seen: set[Path] = set()
+    for base in [*preferred, *(project_dir / name for name in ("data", "results", "outputs"))]:
+        if len(candidates) >= 256:
+            break
+        if base.is_symlink() or not base.resolve().is_relative_to(root):
+            continue
+        if base.is_file():
+            if base.suffix.lower() in {".json", ".csv", ".tsv"} and base not in seen:
+                candidates.append(base)
+                seen.add(base)
+            continue
+        if base.is_symlink() or not base.is_dir():
+            continue
+        for folder, dirs, files in os.walk(base, followlinks=False):
+            dirs[:] = sorted(d for d in dirs if not d.startswith(".")
+                             and not (Path(folder) / d).is_symlink())
+            for name in sorted(files):
+                path = Path(folder) / name
+                if (path.suffix.lower() in {".json", ".csv", ".tsv"}
+                        and not path.is_symlink() and path.is_file()
+                        and path.resolve().is_relative_to(root) and path not in seen):
+                    candidates.append(path)
+                    seen.add(path)
+                if len(candidates) >= 256:
+                    break
+            if len(candidates) >= 256:
+                break
+        if len(candidates) >= 256:
+            break
+    # Task-declared outputs first, then small files within that scope. Old
+    # summaries elsewhere must not crowd the required CSVs out of the budget.
+    # Never cut a CSV row or JSON object into an apparent complete result.
+    candidates.sort(key=lambda p: (
+        not any(p == base or p.is_relative_to(base) for base in preferred),
+        p.stat().st_size, p.relative_to(project_dir).as_posix(),
+    ))
+    chunks: list[str] = []
+    used = 0
+    for path in candidates[:max_files]:
+        relative = path.relative_to(project_dir).as_posix()
+        size = path.stat().st_size
+        if size > max_chars - used - 200:
+            chunk = f"### {relative} ({size} bytes; contents omitted for budget)"
+        else:
+            try:
+                with path.open("rb") as stream:
+                    raw = stream.read(max_chars + 1)
+                if len(raw) > max_chars:
+                    continue
+                body = raw.decode("utf-8")
+            except (OSError, UnicodeError):
+                continue
+            chunk = (f"### {relative} (sha256 {hashlib.sha256(raw).hexdigest()})\n"
+                     f"```\n{body}\n```")
+        if used + len(chunk) > max_chars:
+            break
+        chunks.append(chunk)
+        used += len(chunk) + 2
+    if len(candidates) > len(chunks):
+        notice = f"\nAdditional data files omitted ({len(candidates) - len(chunks)} or more)."
+        if used + len(notice) <= max_chars:
+            chunks.append(notice)
+    return "\n\n".join(chunks)
 
 
 def _inline_referenced_files(
-    project_dir: Path, task_line: str, *, max_files: int = 5, max_chars: int = 6000
+    project_dir: Path, task_line: str, *, max_files: int = 12, max_chars: int = 48000
 ) -> str:
     """Inline the full contents of any file path mentioned in the task line.
 
@@ -796,7 +1246,44 @@ def _inline_referenced_files(
     code/models/dpgmm.py"). If that file already exists, the LLM
     should EXTEND it rather than re-author it from scratch.
     """
-    paths = _PATH_RE.findall(task_line)
+    from llmxive.project_paths import declared_paths, resolve_project_path
+
+    paths = declared_paths(task_line)
+    # Supply local imported implementations and package initializers as well as
+    # the named target. A list of function names cannot establish argument/data
+    # contracts, and same-named root/code packages can hide each other's files.
+    import ast
+
+    from llmxive.project_files import source_files
+    sources = list(source_files(project_dir))
+    for relative in list(paths):
+        target = resolve_project_path(project_dir, relative)
+        if target is None or not target.is_file() or target.suffix != ".py":
+            continue
+        try:
+            tree = ast.parse(target.read_text(encoding="utf-8"))
+        except (OSError, SyntaxError, UnicodeError):
+            continue
+        for node in ast.walk(tree):
+            imported = []
+            if isinstance(node, ast.Import):
+                imported = [alias.name for alias in node.names]
+            elif isinstance(node, ast.ImportFrom):
+                name = node.module or ""
+                if node.level:
+                    package = _source_module_path(target, project_dir.resolve()).split(".")
+                    if target.name != "__init__.py":
+                        package.pop()
+                    package = package[:len(package) - node.level + 1]
+                    name = ".".join([*package, name]).rstrip(".")
+                imported = [name, *(name + "." + alias.name for alias in node.names)]
+            for candidate in sources:
+                module = _source_module_path(candidate, project_dir)
+                if any(module == name or (candidate.name == "__init__.py" and
+                                          name.startswith(module + ".")) for name in imported):
+                    exact = f"projects/{project_dir.name}/{candidate.relative_to(project_dir).as_posix()}"
+                    if exact not in paths:
+                        paths.append(exact)
     seen: set[str] = set()
     chunks: list[str] = []
     used = 0
@@ -804,23 +1291,86 @@ def _inline_referenced_files(
         if p in seen:
             continue
         seen.add(p)
-        target = project_dir / p
-        if not target.exists() or not target.is_file():
+        target = resolve_project_path(project_dir, p)
+        if target is None or not target.is_file():
             continue
         try:
             text = target.read_text(encoding="utf-8", errors="replace")
         except OSError:
             continue
-        chunk = f"### {p}\n\n```\n{text}\n```"
+        resolved = target.relative_to(project_dir.resolve())
+        chunk = f"### {p} (resolved: {resolved})\n\n```\n{text}\n```"
         if used + len(chunk) > max_chars:
             chunks.append(f"### {p}\n\n(file exists, {len(text)} chars; "
-                          "omitted for prompt budget — extend it on disk)")
+                          "omitted for prompt budget — its contents are unavailable. "
+                          "Do not replace this file blindly; return failed with the "
+                          "context-size limitation if this task requires editing it.)")
         else:
             chunks.append(chunk)
             used += len(chunk)
         if len(chunks) >= max_files:
             break
     return "\n\n".join(chunks)
+
+
+_LOG_HEADER_RE = re.compile(r"^# (?P<path>.+) \(exit (?P<code>-?\d+), .*ok=(?P<ok>True|False)\)\s*$")
+
+
+def _execution_record(log: Path) -> tuple[str, bool, str] | None:
+    """``(script, ok, arguments line)`` from one execution log, or ``None``."""
+    try:
+        lines = log.read_text(encoding="utf-8", errors="replace").splitlines()[:4]
+    except OSError:
+        return None
+    header = _LOG_HEADER_RE.match(lines[0]) if lines else None
+    if header is None:
+        return None
+    arguments = next((ln for ln in lines if ln.startswith("Arguments: ")), "")
+    return header.group("path"), header.group("ok") == "True", arguments
+
+
+def _superseded_failures(log_dir: Path, task_id: str, tasks_text: str) -> set[str]:
+    """Scripts in this task's failure marker that have since run successfully.
+
+    A marker names every script that failed under a task and is cleared only
+    when ALL of them have succeeded. A script fixed and re-run under a LATER
+    task never counted. PROJ-9999 canary, 2026-10-11: T006's marker read
+    ``src/stage_figure.py exit=1; src/pipeline.py exit=1``. The figure stage was
+    fixed and re-run under T006 (exit 0); the pipeline was re-run, with the same
+    arguments, under T009 (exit 0). The marker stayed, the verifier rejected
+    T006 on it three times without looking at anything else, and a project
+    with 8 of 9 tasks done was kicked back.
+
+    A failure is superseded only by a real, later execution of the SAME script
+    with the SAME arguments that exited 0 -- read from the execution logs the
+    platform itself wrote, never from anything the model claims.
+    """
+    from llmxive.speckit.task_lines import EXECUTION_FAILURE_RE, TASK_LINE_RE, mask_fenced_code
+
+    line = next((m for m in TASK_LINE_RE.finditer(mask_fenced_code(tasks_text))
+                 if m.group("id") == task_id), None)
+    if line is None or not log_dir.is_dir():
+        return set()
+    marked: set[str] = set()
+    for failure in EXECUTION_FAILURE_RE.finditer(tasks_text[line.start():line.end()]):
+        marked.update(re.findall(r"(?:^|; )(.+?) exit=-?\d+", failure.group(1)))
+    superseded: set[str] = set()
+    for script in marked:
+        mine = log_dir / f"{task_id}.{script.replace('/', '_')}.log"
+        failed = _execution_record(mine)
+        if failed is None or failed[0] != script or failed[1]:
+            continue
+        try:
+            failed_at = mine.stat().st_mtime
+        except OSError:
+            continue
+        for other in log_dir.glob(f"*.{script.replace('/', '_')}.log"):
+            record = _execution_record(other)
+            if (other != mine and record is not None and record[0] == script and record[1]
+                    and record[2] == failed[2] and other.stat().st_mtime > failed_at):
+                superseded.add(script)
+                break
+    return superseded
 
 
 def _regex_parse_implementer(text: str) -> dict[str, Any] | None:
@@ -843,6 +1393,9 @@ def _regex_parse_implementer(text: str) -> dict[str, Any] | None:
         if m:
             body = m.group(1)
 
+    from llmxive.speckit.yaml_extract import strip_trailing_markers
+    body = "\n".join(strip_trailing_markers(body.splitlines()))
+
     task_id_m = re.search(r"^task_id:\s*([^\s\n]+)\s*$", body, re.MULTILINE)
     verdict_m = re.search(r"^verdict:\s*(\w+)\s*$", body, re.MULTILINE)
     if not (task_id_m and verdict_m):
@@ -856,37 +1409,46 @@ def _regex_parse_implementer(text: str) -> dict[str, Any] | None:
     if out["verdict"] != "completed":
         return out
 
-    artifacts: list[dict[str, str]] = []
-    # Find every "  path: <p>\n  contents: |" pair, then read the
-    # indented block until next "  path:" or end of artifacts list.
-    art_re = re.compile(
-        r"^\s*-\s*path:\s*(?P<path>[^\n]+)\s*\n"
-        r"\s*contents:\s*\|\s*\n"
-        r"(?P<block>(?:.*\n)*?)"
-        r"(?=^\s*-\s*path:|\Z)",
-        re.MULTILINE,
-    )
-    for m in art_re.finditer(body):
-        path = m.group("path").strip().strip('"').strip("'")
-        block = m.group("block").rstrip("\n")
-        # Determine the leading indent of the block from its first
-        # non-empty line, then strip that indent from every line.
-        indent = None
-        for ln in block.splitlines():
-            if ln.strip():
-                indent = len(ln) - len(ln.lstrip(" "))
-                break
-        if indent is None or indent == 0:
-            contents = block
-        else:
-            stripped = []
+    artifacts: list[dict[str, Any]] = []
+    # Each "- path: <p>" entry, its scalar fields, then "contents: |" and the
+    # block up to the next entry. The scalar fields matter: a reply with
+    # `execute: true`, `args:` and `timeout_s:` between `path:` and `contents:`
+    # used to match NOTHING here, so a complete, runnable artifact was reported
+    # as "no writable artifacts" (PROJ-9999 canary, 2026-10-11, eleven times
+    # in a row -- see tests/fixtures/implementer/).
+    entry_re = re.compile(r"^(?P<lead>[ \t]*)-[ \t]*path:[ \t]*(?P<path>[^\n]+)\n", re.MULTILINE)
+    entries = list(entry_re.finditer(body))
+    for index, m in enumerate(entries):
+        end = entries[index + 1].start() if index + 1 < len(entries) else len(body)
+        rest = body[m.end():end]
+        art: dict[str, Any] = {"path": m.group("path").strip().strip('"').strip("'")}
+        opener = re.search(r"^[ \t]*contents:[ \t]*[|>][-+0-9]*[ \t]*\n", rest, re.MULTILINE)
+        fields = rest[: opener.start()] if opener else rest
+        for line in fields.splitlines():
+            key, sep, value = line.strip().partition(":")
+            if not sep or key not in {"execute", "args", "timeout_s", "contents"}:
+                continue
+            try:
+                art[key] = yaml.safe_load(value)
+            except yaml.YAMLError:
+                continue
+        if opener:
+            block = rest[opener.end():].rstrip("\n")
+            # The block's indent is that of its first non-empty line. Lines the
+            # model wrote at a SHALLOWER indent (a Markdown document inside a
+            # triple-quoted string, flush left) are kept as they are: they are
+            # exactly what broke the YAML, and they are content.
+            indent = None
             for ln in block.splitlines():
-                if len(ln) >= indent and ln[:indent].strip() == "":
-                    stripped.append(ln[indent:])
-                else:
-                    stripped.append(ln)
-            contents = "\n".join(stripped)
-        artifacts.append({"path": path, "contents": contents})
+                if ln.strip():
+                    indent = len(ln) - len(ln.lstrip(" "))
+                    break
+            if not indent:
+                art["contents"] = block
+            else:
+                art["contents"] = "\n".join(
+                    ln[indent:] if ln[:indent].strip() == "" else ln for ln in block.splitlines())
+        artifacts.append(art)
 
     out["artifacts"] = artifacts
     return out

@@ -1,104 +1,143 @@
-# Feature Specification: Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data
+# Project Specification: Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data
 
-**Feature Branch**: `001-multi-property-trade-offs`  
-**Created**: 2026-06-26  
-**Status**: Draft  
-**Input**: User description: "Multi-Property Trade-Offs in Alloy Design Using Public Compositional Data"
+## Version History
 
-## User Scenarios & Testing *(mandatory)*
+- **v1.0 (Initial Draft)**: Focused on Yield Strength and Elongation as primary targets.
+- **v1.1 (Pivot to DFT Proxies)**: Updated to target **Bulk and Shear Moduli** as surrogates for mechanical properties to leverage high-throughput DFT databases (OQMD).
+- **v1.2 (Refined Constraints & Clustering)**: Explicitly defined **Bulk and Shear Moduli** as the sole optimization targets. Updated Success Criteria to include K-Means clustering for decoupling analysis and Rule of Mixtures bounds.
+- **v1.3 (Convergence Revision)**: Resolved contradictions between SC-003 and Constitution Principle VII; added statistical validation (permutation test) to SC-002; mandated isometric log-ratio (ilr) transform in FR-005; defined sensitivity analysis artifacts in FR-006; clarified stop conditions and uncertainty metrics in User Stories.
+- **v1.4 (Physics & Traceability Revision)**: Added FR-000 for physical feasibility check; redefined 'System' for LOSO-CV to prevent elemental leakage; clarified 'decoupling' as deviation from Poisson's ratio; added explicit traceability anchors to all FRs/SCs; defined all ambiguous metrics (hull radius, robustness_score, uncertainty_variance).
 
-### User Story 1 - Data Extraction and Composition Encoding (Priority: P1)
+## 1. Executive Summary
 
-**Journey**: A materials researcher needs to ingest a subset of public alloy data (e.g., OQMD or Materials Project), filter for entries containing paired mechanical properties (yield strength and elongation), and encode these compositions into a feature vector using elemental fractions and periodic table descriptors (atomic radius, electronegativity).
+This project aims to identify alloy compositions that optimize the trade-off between **Bulk Modulus** (resistance to uniform compression) and **Shear Modulus** (resistance to shear deformation). Unlike previous iterations focusing on yield strength, we utilize **Bulk and Shear Moduli** as DFT-derived proxies to access larger, high-quality public datasets (OQMD). 
 
-**Why this priority**: Without a clean, encoded dataset containing both the composition and the target properties, no modeling or trade-off analysis can occur. This is the foundational data pipeline required for any subsequent step.
+**Critical Physics Note**: Bulk (K) and Shear (G) moduli are physically coupled via Poisson's ratio (ν) by the relationship $G = 3K(1-2\nu)/2(1+\nu)$. In most metallic systems, this enforces a strong positive correlation. This project redefines "decoupling" as either (a) a statistically significant deviation from the global correlation trend (if correlation < 0.95) or (b) a significant deviation from the theoretical Poisson's ratio line (if global correlation > 0.95), ensuring the research question remains answerable.
 
-**Independent Test**: Can be fully tested by running the data ingestion script against a known small subset of the public API and verifying the output CSV contains non-null values for composition, strength, and ductility, with feature vectors of the correct dimension.
+## 2. Functional Requirements
 
-**Acceptance Scenarios**:
+### FR-000: Physical Feasibility Check
+The system MUST perform a preliminary check on the global correlation between Bulk and Shear Moduli in the ingested dataset.
+- If the global Pearson correlation coefficient $r < 0.95$, the system proceeds with standard "decoupling" analysis (low correlation clusters).
+- If the global Pearson correlation coefficient $r \ge 0.95$, the system MUST pivot to a "Poisson's Ratio Anomaly" analysis, where "decoupled" is defined as points with residuals from the theoretical $G(K)$ line exceeding a threshold of 0.1 GPa.
+- This check MUST be logged in `data/processed/feasibility_report.json` with the field `global_correlation` and `analysis_mode` (either "standard" or "poisson_anomaly").
 
-1. **Given** a public dataset endpoint is accessible, **When** the script filters for Fe-Cr or Al-Cu systems and encodes entries with both yield strength and elongation > 0, **Then** the output dataset contains valid feature vectors for all successfully processed entries, and if the total count is < 500, the system logs a specific warning "Insufficient data for statistical analysis (N < 500)" and exits with code 0.
-2. **Given** a dataset entry lacks one of the required properties (strength or ductility), **When** the ingestion script processes it, **Then** the entry is excluded from the training/test split without causing a pipeline crash.
-3. **Given** a valid alloy composition, **When** the encoder runs, **Then** the output feature vector includes elemental fractions and at least two periodic descriptors (atomic radius, electronegativity) for each element present.
+### FR-001: Data Ingestion
+The system must ingest compositional data and corresponding **Bulk and Shear Moduli** values from the OQMD dataset via HuggingFace. It must filter for entries where both moduli are positive and non-null.
 
----
+### FR-001.1: Data Sufficiency
+The system MUST verify that the filtered dataset contains at least **500 valid entries**. If valid entries < 500, the system MUST exit with error code 1 and log a critical error stating "Insufficient data for research validity; minimum 500 entries required." This requirement directly supports US-1 Acceptance Criteria 4.
 
-### User Story 2 - Surrogate Model Training and Pareto Frontier Generation (Priority: P2)
+### FR-002: Composition Encoding
+The system must encode alloy compositions into feature vectors using elemental fractions and periodic descriptors (atomic radius, electronegativity) for every element present in the composition. The encoding MUST apply an isometric log-ratio (ilr) transform to the elemental fractions before any clustering or distance-based calculations.
 
-**Journey**: A researcher trains separate CPU-based gradient-boosting regressors for strength and ductility on the encoded data, then uses these models to generate synthetic composition points within the convex hull to compute empirical Pareto frontiers via a multi-objective evolutionary algorithm (NSGA-II).
+### FR-003: Surrogate Modeling
+The system must train separate Gradient Boosting Regressors to predict **Bulk Modulus** and **Shear Modulus** from the encoded composition features. 
+- **Validation Strategy**: The system MUST use **Leave-One-System-Out Cross-Validation (LOSO-CV)**.
+- **Definition of "System"**: For the purpose of LOSO-CV, a "System" is defined as a **Chemical System Group** (e.g., all alloys where Iron is the primary constituent vs. all alloys where Nickel is the primary constituent) to ensure no shared elemental descriptors exist between the training and test sets, preventing elemental interpolation leakage.
+- Models must be validated using this strict LOSO-CV strategy to ensure true out-of-distribution generalization.
 
-**Why this priority**: This step transforms raw data into predictive models and identifies the theoretical "best" trade-off curves. It is the core analytical engine of the project.
+### FR-004: Pareto Optimization
+The system must generate a Pareto frontier of optimal **Bulk and Shear Moduli** combinations using a genetic algorithm (NSGA-II) over a synthetic compositional space constrained strictly within the convex hull of the training data. 
+- **Hull Definition**: The "convex hull" is defined as the convex hull of the training data points in ilr-transformed space.
+- **Uncertainty Flagging**: The system MUST calculate prediction uncertainty via cross-validation variance and flag any points approaching the hull boundary (distance < 5% of hull radius) in the output.
+- **Hull Radius Definition**: "Hull radius" is defined as the maximum Euclidean distance from the centroid of the training data in ilr-space to any training point.
+- **Artifact Generation**: The system MUST output `data/processed/model_validation_report.json` containing a field `uncertainty_variance` for each point. `uncertainty_variance` is defined as the variance of the predicted Bulk/Shear Moduli across the 5-fold LOSO-CV splits for that specific composition.
 
-**Independent Test**: Can be fully tested by training the models on a fixed random seed, generating a set of synthetic points, and verifying that the resulting Pareto frontier consists of non-dominated points that improve upon the raw test set distribution.
+### FR-005: Decoupling Analysis
+The system must perform K-Means clustering on the compositional space (ilr-transformed) to identify regions where **Bulk and Shear Moduli** exhibit low correlation (decoupled regions) OR high deviation from the Poisson line (if FR-000 triggers). 
+- **Traceability**: This requirement supports **US-3** and **SC-002**.
+- **Method**: K-Means clusters based on distance in feature space. The "decoupled" label is assigned post-hoc to clusters meeting the criteria in SC-002.
+- **Output**: The system MUST identify at least one cluster meeting the "decoupled" criteria defined in SC-002.
 
-**Acceptance Scenarios**:
+### FR-006: Sensitivity Analysis
+The system must perform a sensitivity analysis on the **correlation threshold** (or residual threshold if in Poisson mode) used to define "decoupled" regions. 
+- **Traceability**: This requirement supports **US-3**.
+- **Sweep Range**: The system MUST sweep the threshold across a high-probability range in discrete steps.
+- **Robustness Score**: The system MUST calculate a `robustness_score` for each threshold. `robustness_score` is defined as the **Jaccard Index** of cluster membership between the current threshold and the threshold ±0.1 steps.
+- **Output**: The system MUST output a CSV file `data/processed/sensitivity_analysis.csv` containing a `robustness_score` for each threshold.
 
-1. **Given** a training set of encoded alloys, **When** the gradient-boosting models are trained on CPU (max 2 cores), **Then** the system calculates and reports the cross-validated R² score for each target property on the held-out test set.
-2. **Given** trained models and a convex hull of the training data, **When** the NSGA-II algorithm generates a set of synthetic points, **Then** the resulting Pareto frontier contains the set of non-dominated points found by the algorithm.
-3. **Given** the empirical test data and theoretical thermodynamic limits (Rule of Mixtures), **When** the model-derived frontier is overlaid, **Then** the system calculates and outputs the percentage of test points dominated by the model frontier and the percentage of the model frontier that strictly dominates the empirical set.
+## 3. Success Criteria
 
----
+### SC-001: Model Performance
+The surrogate models for **Bulk and Shear Moduli** must achieve an R² score > 0.6 on the LOSO-CV test sets (using the "Chemical System Group" definition of System).
 
-### User Story 3 - Trade-Off Decoupling Analysis and Visualization (Priority: P3)
+### SC-002: Decoupling Identification
+The system must identify at least one compositional cluster where the correlation coefficient between **Bulk and Shear Moduli** is significantly lower than the global correlation (if global r < 0.95) OR the residual variance from the theoretical Poisson line is significantly high (if global r ≥ 0.95).
+- **Traceability**: This criterion supports **US-3**.
+- **Statistical Definition**: "Significantly lower" is defined as a delta > 0.2 verified by a permutation test (1000 iterations, p < 0.05). The permutation test MUST generate a null distribution by shuffling the *global* dataset labels and re-clustering, not just shuffling within the cluster.
+- **Threshold Definition**: If global r < 0.95, the target cluster must have correlation < 0.5. If global r ≥ 0.95, the target cluster must have residual variance > 0.1 GPa.
 
-**Journey**: A researcher identifies specific compositional clusters where strength and ductility are decoupled (low correlation) and visualizes these regions in 2D composition-property space to highlight candidate design zones.
+### SC-003: Pareto Frontier Quality
+The generated Pareto frontier must contain non-dominated points that maximize coverage within and extend to the boundary of the empirical convex hull of the training data, respecting **DFT-derived physical bounds (Rule of Mixtures for Bulk/Shear)**.
+- **Coverage Definition**: "Maximize coverage" is defined as maximizing the area of the convex hull of the Pareto frontier points relative to the theoretical convex hull of the training data.
+- **Boundary Definition**: Points are allowed "within or on the boundary" of the convex hull. The 5% margin is used only for uncertainty flagging (FR-004), not for point exclusion.
 
-**Why this priority**: This delivers the specific scientific insight requested in the research question—identifying "decoupled" regions—allowing the researcher to make informed design decisions.
+## 4. User Stories
 
-**Independent Test**: Can be tested by running the analysis on a fixed dataset and verifying the output includes a 2D plot where regions of low correlation are distinctly marked and the correlation coefficient is reported for those regions.
+### US-1: Data Extraction and Composition Encoding
+**As a** materials scientist,
+**I want** to ingest public alloy data filtered for **Bulk and Shear Moduli**,
+**So that** I can encode compositions and prepare a clean dataset for modeling.
 
-**Acceptance Scenarios**:
+**Acceptance Criteria:**
+1. The system loads data from `OQMD/elastic_properties` and filters for valid **Bulk and Shear Moduli**.
+2. The output CSV (`data/processed/encoded_alloys.csv`) contains no nulls in key columns.
+3. Feature vectors include at least two periodic descriptors per element.
+4. If valid entries < 500, the system MUST exit with error code 1 and log a critical error stating "Insufficient data for research validity; minimum 500 entries required." (Supported by FR-001.1).
+5. **Flow Control**: If this step exits due to insufficient data, the process terminates immediately; subsequent steps (US-2, US-3) are skipped.
 
-1. **Given** the full dataset and model predictions, **When** the correlation analysis runs using composition-based clustering, **Then** the system identifies the cluster with the minimum correlation between strength and ductility and reports the correlation coefficient.
-2. **Given** identified decoupled regions, **When** the visualization module runs, **Then** a 2D plot is generated showing the compositional space with the decoupled region highlighted and the theoretical Pareto frontier overlaid.
-3. **Given** the uncertainty metrics (cross-validation variance) and a configurable threshold parameter, **When** the analysis flags unreliable regions, **Then** the visualization excludes or shades regions where the prediction variance exceeds the configured threshold.
+### US-2: Surrogate Model Training and Pareto Generation
+**As a** researcher,
+**I want** to train models on **Bulk and Shear Moduli** and generate a Pareto frontier,
+**So that** I can visualize the trade-offs and identify optimal regions.
 
----
+**Acceptance Criteria:**
+1. Models achieve R² > 0.6 on LOSO-CV (using Chemical System Group definition).
+2. A Pareto frontier is generated using NSGA-II with a fixed time budget.
+3. Synthetic points are clamped to physical limits (moduli > 0) and strictly within the convex hull (or on the boundary).
+4. Uncertainty metrics are calculated and flagged for extrapolated regions; the system MUST output `data/processed/model_validation_report.json` containing a field `uncertainty_variance` for each point. `uncertainty_variance` is the variance of predictions across LOSO-CV splits.
+5. **Flow Control**: If US-1 passed but US-2 fails the R² threshold, the system logs the failure but does not exit with error, allowing for fallback analysis (e.g., Poisson Anomaly mode).
 
-### Edge Cases
+### US-3: Trade-Off Decoupling and Visualization
+**As a** design engineer,
+**I want** to visualize decoupled regions where **Bulk and Shear Moduli** are uncorrelated (or anomalous),
+**So that** I can target specific compositional clusters for independent property tuning.
 
-- What happens when the public dataset API returns a limited number of valid entries for a specific alloy system (e.g., a rare ternary system)? The system must fail gracefully with a clear error message indicating insufficient data for statistical analysis.
-- How does the system handle compositional points on the boundary of the convex hull where extrapolation might lead to physically impossible property predictions? The system must clamp predictions to known physical limits (e.g., ductility ≤ 100%) and flag these points as "extrapolated."
-- What occurs if the NSGA-II algorithm fails to converge within a predefined computational time limit? The system must output the best non-dominated set found so far and log a warning about incomplete convergence.
+**Acceptance Criteria:**
+1. K-Means clustering (on ilr-transformed data) identifies a "Decoupled Region" meeting the criteria in SC-002.
+2. A sensitivity analysis is performed on the correlation threshold across the range [0.1, 0.9] with step 0.1, and the system MUST output `data/processed/sensitivity_analysis.csv` with a `robustness_score` column (defined as Jaccard Index stability).
+3. A 2D plot is generated showing the Pareto frontier, empirical data, and the decoupled region.
 
-## Requirements *(mandatory)*
+## 5. Data Model
 
-### Functional Requirements
+### AlloyEntry
+- `composition`: string (e.g., "Fe0.8Ni0.2")
+- `bulk_modulus`: float (GPa)
+- `shear_modulus`: float (GPa)
+- `elements`: list of strings
+- `metadata`: dict (source, temperature, etc.)
 
-- **FR-001**: System MUST download and filter public alloy datasets (OQMD/Materials Project) for entries containing both yield strength and elongation values, excluding any with missing data (See US-1).
-- **FR-002**: System MUST encode alloy compositions into feature vectors using elemental fractions and periodic descriptors (atomic radius, electronegativity) for all elements present (See US-1).
-- **FR-003**: System MUST train separate gradient-boosting regressors for each target property using scikit-learn on CPU with a maximum of 2 cores and memory usage within available limits (<7GB RAM) (See US-2).
-- **FR-004**: System MUST generate synthetic composition points within the convex hull of the training data and compute Pareto frontiers using a multi-objective evolutionary algorithm (See US-2).
-- **FR-005**: System MUST identify compositional clusters using a composition-based method (e.g., K-Means on elemental fractions) and calculate the correlation between competing properties for each cluster to identify the region with the lowest correlation (See US-3).
-- **FR-006**: System MUST calculate and report prediction uncertainty (cross-validation variance) for all generated points, flagging regions where variance exceeds a configurable threshold parameter (See US-3).
-- **FR-007**: System MUST perform a sensitivity analysis on the decoupling threshold (correlation cutoff) by sweeping a configurable set of values and reporting the change in identified region size (See US-3).
-- **FR-008**: System MUST validate model generalizability using Leave-One-System-Out Cross-Validation (LOSO-CV) to ensure the Pareto frontier is not an interpolation artifact of the training data (See US-2).
+### ClusterAnalysis
+- `cluster_id`: int
+- `correlation_coefficient`: float
+- `residual_variance`: float (if Poisson mode)
+- `size`: int
 
-### Key Entities
+### SensitivityAnalysis
+- `threshold`: float
+- `robustness_score`: float (Jaccard Index)
 
-- **AlloyEntry**: Represents a single data point from the public dataset, containing composition (elements, fractions), yield strength, elongation, and encoded feature vector.
-- **ParetoFrontier**: A set of non-dominated synthetic composition points representing the optimal trade-off curve between two properties.
-- **DecoupledRegion**: A defined cluster in composition space (identified via composition-based clustering) where the correlation between two properties falls below a specified threshold.
+## 6. Constraints & Assumptions
+- **Hardware**: CPU-only execution (max 2 cores, <7GB RAM).
+- **Data Source**: OQMD via HuggingFace (`OQMD/elastic_properties`).
+- **Target Properties**: **Bulk and Shear Moduli** only.
+- **Runtime**: NSGA-II optimization must complete within 6 hours.
+- **Statistical Rigor**: All claims of "significance" must be backed by defined statistical tests (e.g., permutation, bootstrap) with explicit null distributions.
+- **Physics Constraint**: The analysis MUST account for the physical coupling of Bulk and Shear Moduli via Poisson's ratio, as defined in FR-000 and SC-002.
 
-## Success Criteria *(mandatory)*
-
-### Measurable Outcomes
-
-> Planning docs state *what* will be measured and the *source/reference* it is
-> measured against; defer specific empirical values (counts, dataset sizes,
-> measured quantities, percentages) to the implementation/research phase.
-
-- **SC-001**: The percentage of test set points dominated by the model-derived Pareto frontier and the percentage of the frontier strictly dominating the empirical set are measured against the theoretical thermodynamic limits (Rule of Mixtures) to assess model fidelity (See US-2).
-- **SC-002**: The correlation coefficient between strength and ductility in the identified "decoupled" region (minimum correlation cluster) is measured against the global correlation coefficient of the entire dataset to quantify decoupling (See US-3).
-- **SC-003**: The size (number of points) of the identified decoupled regions is measured against the sensitivity analysis sweep results (configurable correlation cutoffs) to validate threshold robustness (See US-3).
-- **SC-004**: The R² score of the surrogate models on the held-out test set (via LOSO-CV) is measured against the baseline of a null model (predicting the mean) to ensure predictive utility (See US-2).
-- **SC-005**: The variance of predictions in flagged "unreliable" regions is measured against the global prediction variance to confirm the uncertainty metric is functioning (See US-3).
-
-## Assumptions
-
-- The public datasets (OQMD or Materials Project) contain sufficient entries with both yield strength and elongation values for the selected alloy systems (e.g., Fe-Cr, Al-Cu) to support statistical modeling (target ≥ 500 valid entries).
-- The computational environment (GitHub Actions free-tier) provides sufficient CPU resources (multiple cores, Approximately several gigabytes of RAM.) to run gradient-boosting and NSGA-II algorithms within the specified time limit without GPU acceleration.
-- The relationship between composition and properties in the public datasets is sufficiently captured by elemental fractions and simple periodic descriptors (atomic radius, electronegativity) without requiring complex crystal structure features.
-- The "decoupling" of properties is a real phenomenon in the data and not an artifact of measurement noise or dataset bias.
-- The sensitivity analysis for the correlation threshold (sweeping configurable values) is computationally trivial and will not significantly impact the total runtime.
-- The NSGA-II algorithm will converge to a stable Pareto frontier within the allocated time budget for the specified problem size.
+## 7. Appendix
+- References to DFT proxy literature for Bulk/Shear Moduli as mechanical surrogates.
+- Rule of Mixtures calculation methodology for theoretical bounds.
+- Isometric Log-Ratio (ilr) transform methodology for compositional data.
+- Poisson's Ratio constraint equation: $G = 3K(1-2\nu)/2(1+\nu)$.

@@ -1,0 +1,85 @@
+T004v:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that the file `projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predict-stiffness-cnn/spec.md`\
+    \ exists or contains the required strings \u201C128x128 pixels\u201D and \u201C\
+    US-1\u201D. Without the actual spec file content, the verification cannot be confirmed."
+T005v:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The claim references `spec.md` and `plan.md` files, but no contents or excerpts\
+    \ of those files are provided, so we cannot confirm that the strings \u201CANOVA\u201D\
+    \ and \u201CTukey\u201D appear in both. The required evidence (the actual files\
+    \ with the required keywords) is missing."
+T007a:
+  c: false
+  h: 3431907d96f0dc18b47f963580a1e6a768141f7c41186ae462c731495bd10fae
+  r: "The required file `projects/PROJ-506-predicting-material-stiffness-from-micro/code/requirements.txt`\
+    \ does not exist, so the task\u2019s primary deliverable is missing. The implementer\
+    \ only provided other `requirements.txt` files in different locations. The missing\
+    \ file must be created at the specified path with the exact required content."
+T017:
+  c: false
+  h: b0767252d71cc42dc44d66eee00b8f39589764a18e37b7f8b4141b23a5b57f56
+  r: The `generate_microstructures.py` file is present but its code is truncated (e.g.,
+    `radius_y = np.random.randin` is incomplete) and it never writes PNG files to
+    `data/raw/` nor validates against a schema. Moreover, the required `dataset.schema.yaml`
+    file is missing. Consequently the required output and validation steps are not
+    provided.
+T017b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or data files were presented that compute `shape_factor` and
+    `connectivity` for each microstructure or that add these values to the metadata.
+    The required artifact is missing, so the task is not satisfied.
+T017c:
+  c: false
+  h: 6ffc0760abc2eb72b62e133492f2b2b17ded4a7dd76a11db16135aac9e47d294
+  r: The `code/utils/topology_labels.py` file provides the required labeling functions,
+    but there is no evidence that the generator was updated to accept a `topology_type`
+    argument, and the required `data/raw/metadata.json` file is missing entirely.
+    Both the integration step and the metadata recording are absent.
+T018:
+  c: false
+  h: fc0128a75a900b9c92ee830f298f5907ccb31afeef2398e92d221706f9bed087
+  r: The `compute_stiffness.py` file exists and calls the FFT homogenization function,
+    but the script is truncated before it writes results to `data/raw/` and performs
+    any validation against a `dataset.schema.yaml`. Moreover, the required `schema.yaml`
+    file is missing from the repository. Both the output step and schema validation
+    are absent, so the task is not fully satisfied.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided that implements or demonstrates\
+    \ the required validation logic (Voigt\u2011Reuss\u2011Hill bounds checking and\
+    \ schema conformity) for the generated tensors. The artifact set is empty, so\
+    \ the task\u2019s requirement is not satisfied."
+T021:
+  c: false
+  h: d2f9df686426b7debcc1c007be529b05036d5a946f50a973162b803d0e71a0a2
+  r: "The required file `data/processed/derivation_log.json` does not exist, so no\
+    \ metadata has been logged as specified. The task\u2019s core output is missing."
+T023:
+  c: false
+  h: 5951cb6e0a2261bc09c43e0fcfbc4dd0d6111155b28f3a5a484ffcb23cbb5466
+  r: "The required file `tests/unit/test_model.py` does not exist, so no unit test\
+    \ for the CNN architecture definition is present. The task\u2019s artifact is\
+    \ missing."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation showing k\u2011fold cross\u2011validation\
+    \ logic was provided; the required artifact (training script with integrated,\
+    \ stratified k\u2011fold CV) is missing, so the claim cannot be verified."
+T029:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or configuration was provided that creates or writes model checkpoint
+    files to the `code/models/` directory upon training completion. The required artifact
+    (saved model weights) is missing, so the checkpointing requirement is not satisfied.
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, notebook, script, or result files were provided that demonstrate computing\
+    \ MAE, MSE, and R\xB2 on a held\u2011out test set. The required evaluation artifacts\
+    \ are missing, so the FR\u2011006 requirement is not satisfied."

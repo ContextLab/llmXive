@@ -1,0 +1,65 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Aligned Dataset Row Schema"
+description: "Schema for one row of the merged salience and eye-tracking data (aligned_data.csv)"
+type: "object"
+properties:
+  trial_id:
+    type: "string"
+    description: "Unique identifier for the trial"
+  participant_id:
+    type: "string"
+    description: "Participant identifier"
+  stimulus_id:
+    type: "string"
+    description: "Stimulus image identifier"
+  roi_type:
+    type: "string"
+    enum:
+      - "face"
+      - "weapon"
+      - "background"
+    description: "Region of Interest type"
+  dwell_time_ms:
+    type: "number"
+    description: "Dwell time in milliseconds"
+  first_fixation_prob:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Probability of first fixation landing in the ROI"
+  fixation_latency_ms:
+    type: "number"
+    description: "Latency of first fixation in milliseconds"
+  salience_score:
+    type: "number"
+    description: "Mean computational salience within the ROI"
+  luminance:
+    type: "number"
+    description: "Mean luminance of the stimulus image (covariate)"
+  contrast:
+    type: "number"
+    description: "RMS contrast of the stimulus image (covariate)"
+  edge_density:
+    type: "number"
+    description: "Edge density of the stimulus image (covariate)"
+  scene_complexity:
+    type: "integer"
+    minimum: 0
+    description: "Number of detected objects in the scene (covariate)"
+  excluded:
+    type: "boolean"
+    description: "True if the trial was excluded from analysis"
+required:
+  - "trial_id"
+  - "participant_id"
+  - "stimulus_id"
+  - "roi_type"
+  - "dwell_time_ms"
+  - "first_fixation_prob"
+  - "fixation_latency_ms"
+  - "salience_score"
+  - "luminance"
+  - "contrast"
+  - "edge_density"
+  - "scene_complexity"
+  - "excluded"

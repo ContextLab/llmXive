@@ -1,13 +1,6 @@
-"""
-Environment variable management for dataset API keys and paths.
-
-This module handles the loading, validation, and access of critical
-environment variables required for the mindfulness training study,
-specifically the OpenNeuro API key and the data directory path.
-"""
-
 import os
 from typing import Optional
+from dataclasses import dataclass
 
 
 class EnvironmentError(Exception):
@@ -15,122 +8,83 @@ class EnvironmentError(Exception):
     pass
 
 
+@dataclass
 class EnvConfig:
+    """Container for validated environment configuration."""
+    openneuro_api_key: str
+    data_dir: str
+
+
+def _validate_required(var_name: str, value: Optional[str]) -> str:
+    """Validate that an environment variable is present and non-empty.
+    
+    Args:
+        var_name: Name of the environment variable for error messages.
+        value: The value retrieved from the environment.
+        
+    Returns:
+        The validated string value.
+        
+    Raises:
+        EnvironmentError: If the variable is missing or empty.
     """
-    Manages environment variable validation and access.
-
-    Attributes:
-        openneuro_api_key (str): The OpenNeuro API key.
-        data_dir (str): The root directory for dataset storage.
-    """
-
-    # Required environment variable names
-    OPENNEURO_API_KEY_VAR = "OPENNEURO_API_KEY"
-    DATA_DIR_VAR = "DATA_DIR"
-
-    def __init__(self) -> None:
-        """
-        Initialize and validate environment configuration.
-
-        Raises:
-            EnvironmentError: If any required variable is missing or empty.
-        """
-        self._validate_and_load()
-
-    def _validate_and_load(self) -> None:
-        """
-        Validates that all required environment variables are present and non-empty.
-
-        Raises:
-            EnvironmentError: If validation fails.
-        """
-        missing_vars = []
-        empty_vars = []
-
-        # Check OPENNEURO_API_KEY
-        api_key = os.getenv(self.OPENNEURO_API_KEY_VAR)
-        if api_key is None:
-            missing_vars.append(self.OPENNEURO_API_KEY_VAR)
-        elif not api_key.strip():
-            empty_vars.append(self.OPENNEURO_API_KEY_VAR)
-
-        # Check DATA_DIR
-        data_dir = os.getenv(self.DATA_DIR_VAR)
-        if data_dir is None:
-            missing_vars.append(self.DATA_DIR_VAR)
-        elif not data_dir.strip():
-            empty_vars.append(self.DATA_DIR_VAR)
-
-        if missing_vars or empty_vars:
-            error_msg_parts = []
-            if missing_vars:
-                error_msg_parts.append(
-                    f"Missing required environment variables: {', '.join(missing_vars)}"
-                )
-            if empty_vars:
-                error_msg_parts.append(
-                    f"Environment variables are empty: {', '.join(empty_vars)}"
-                )
-            raise EnvironmentError("; ".join(error_msg_parts))
-
-        # Store validated values
-        self._openneuro_api_key = api_key.strip()
-        self._data_dir = data_dir.strip()
-
-    @property
-    def openneuro_api_key(self) -> str:
-        """Returns the validated OpenNeuro API key."""
-        return self._openneuro_api_key
-
-    @property
-    def data_dir(self) -> str:
-        """Returns the validated data directory path."""
-        return self._data_dir
-
-    def to_dict(self) -> dict:
-        """
-        Returns a dictionary representation of the configuration.
-
-        Note: Sensitive keys are masked in the output for safety.
-        """
-        return {
-            "openneuro_api_key": "****" if self._openneuro_api_key else None,
-            "data_dir": self._data_dir,
-        }
-
-
-# Singleton instance for global access
-_config_instance: Optional[EnvConfig] = None
+    if value is None or value.strip() == "":
+        raise EnvironmentError(
+            f"Required environment variable '{var_name}' is not set or is empty."
+        )
+    return value.strip()
 
 
 def get_config() -> EnvConfig:
-    """
-    Returns the singleton EnvConfig instance.
-
+    """Load and validate all required environment variables.
+    
+    Returns:
+        EnvConfig object containing validated configuration values.
+        
     Raises:
-        EnvironmentError: If the environment has not been validated yet.
+        EnvironmentError: If any required variable is missing or invalid.
     """
-    global _config_instance
-    if _config_instance is None:
-        _config_instance = EnvConfig()
-    return _config_instance
+    api_key = _validate_required(
+        "OPENNEURO_API_KEY", 
+        os.getenv("OPENNEURO_API_KEY")
+    )
+    
+    data_dir = _validate_required(
+        "DATA_DIR", 
+        os.getenv("DATA_DIR")
+    )
+    
+    return EnvConfig(
+        openneuro_api_key=api_key,
+        data_dir=data_dir
+    )
 
 
 def get_openneuro_api_key() -> str:
-    """
-    Convenience function to get the OpenNeuro API key.
-
+    """Retrieve and validate the OpenNeuro API key.
+    
     Returns:
-        str: The API key.
+        The validated API key string.
+        
+    Raises:
+        EnvironmentError: If the key is missing or empty.
     """
-    return get_config().openneuro_api_key
+    return _validate_required(
+        "OPENNEURO_API_KEY", 
+        os.getenv("OPENNEURO_API_KEY")
+    )
 
 
 def get_data_dir() -> str:
-    """
-    Convenience function to get the data directory path.
-
+    """Retrieve and validate the data directory path.
+    
     Returns:
-        str: The data directory path.
+        The validated data directory path string.
+        
+    Raises:
+        EnvironmentError: If the path is missing or empty.
     """
-    return get_config().data_dir
+    return _validate_required(
+        "DATA_DIR", 
+        os.getenv("DATA_DIR")
+    )

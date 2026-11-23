@@ -1,147 +1,144 @@
-"""
-State management utility for tracking artifact hashes and project state.
-Implements Constitution Principle V: State tracking and versioning.
-"""
 import os
 import yaml
 import json
 import hashlib
 from pathlib import Path
 from datetime import datetime
-from typing import Dict, Any, Optional, List
 
-# Project ID from tasks.md context
-PROJECT_ID = "PROJ-230-evaluating-the-effectiveness-of-prompt-e"
+# Ensure compatibility with project API surface
+# The project expects these names to be importable from src.utils.update_state
+# We re-export them to ensure the import path `from src.utils.update_state import ...` works
+# even if this file is the only artifact updated in this task.
 
-def ensure_state_dirs(state_root: Path) -> None:
-    """Ensure state directories exist."""
-    state_root.mkdir(parents=True, exist_ok=True)
-    (state_root / "projects").mkdir(parents=True, exist_ok=True)
-    (state_root / "checksums").mkdir(parents=True, exist_ok=True)
+def ensure_state_dirs():
+    """Create state directories if they do not exist."""
+    state_dir = Path("state")
+    projects_dir = state_dir / "projects"
+    state_dir.mkdir(exist_ok=True)
+    projects_dir.mkdir(exist_ok=True)
+    return projects_dir
 
-def compute_sha256(file_path: Path) -> str:
+def compute_sha256(file_path):
     """Compute SHA-256 hash of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
+        for chunk in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(chunk)
     return sha256_hash.hexdigest()
 
-def load_state(state_root: Path, project_id: str) -> Dict[str, Any]:
-    """Load project state from YAML file."""
-    state_file = state_root / "projects" / f"{project_id}.yaml"
+def load_state(project_id):
+    """Load the state YAML for a specific project."""
+    projects_dir = ensure_state_dirs()
+    state_file = projects_dir / f"{project_id}.yaml"
     if not state_file.exists():
-        return {
-            "project_id": project_id,
-            "created_at": datetime.utcnow().isoformat(),
-            "updated_at": datetime.utcnow().isoformat(),
-            "artifacts": {},
-            "checksums": {},
-            "summary": {}
-        }
-    
+        return {"project_id": project_id, "artifacts": {}, "updated_at": None}
     with open(state_file, "r") as f:
         return yaml.safe_load(f)
 
-def save_state(state_root: Path, project_id: str, state: Dict[str, Any]) -> None:
-    """Save project state to YAML file."""
-    state_file = state_root / "projects" / f"{project_id}.yaml"
-    state["updated_at"] = datetime.utcnow().isoformat()
+def save_state(project_id, state_data):
+    """Save the state YAML for a specific project."""
+    projects_dir = ensure_state_dirs()
+    state_file = projects_dir / f"{project_id}.yaml"
+    state_data["updated_at"] = datetime.utcnow().isoformat()
     with open(state_file, "w") as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False)
+        yaml.safe_dump(state_data, f, default_flow_style=False, sort_keys=False)
 
-def update_artifact_hash(state: Dict[str, Any], artifact_path: str, file_path: Path) -> Dict[str, Any]:
-    """Update hash for a specific artifact."""
-    if not file_path.exists():
-        return state
-    
-    file_hash = compute_sha256(file_path)
-    if "artifacts" not in state:
-        state["artifacts"] = {}
-    
-    state["artifacts"][artifact_path] = {
-        "hash": file_hash,
-        "updated_at": datetime.utcnow().isoformat(),
-        "size_bytes": file_path.stat().st_size
+def update_artifact_hash(state_data, artifact_path, artifact_hash):
+    """Update or add an artifact hash in the state data."""
+    if "artifacts" not in state_data:
+        state_data["artifacts"] = {}
+    state_data["artifacts"][artifact_path] = {
+        "hash": artifact_hash,
+        "last_updated": datetime.utcnow().isoformat()
     }
-    return state
+    return state_data
 
-def scan_and_update_artifacts(state_root: Path, project_id: str, scan_dirs: List[Path]) -> Dict[str, Any]:
-    """Scan directories and update artifact hashes in state."""
-    state = load_state(state_root, project_id)
+def scan_and_update_artifacts(project_id, scan_dirs):
+    """
+    Scan directories for artifacts, compute hashes, and update state.
+    
+    Args:
+        project_id: The project identifier (e.g., PROJ-230-...)
+        scan_dirs: List of Path objects to scan for artifacts.
+    
+    Returns:
+        Updated state dictionary.
+    """
+    state_data = load_state(project_id)
     
     for scan_dir in scan_dirs:
         if not scan_dir.exists():
             continue
-        
         for file_path in scan_dir.rglob("*"):
-            if file_path.is_file():
-                rel_path = file_path.relative_to(state_root.parent)
-                state = update_artifact_hash(state, str(rel_path), file_path)
+            if file_path.is_file() and not file_path.name.startswith("."):
+                # Skip state files themselves to avoid circular updates
+                if "state" in str(file_path):
+                    continue
+                rel_path = file_path.relative_to(Path.cwd())
+                file_hash = compute_sha256(file_path)
+                state_data = update_artifact_hash(state_data, str(rel_path), file_hash)
     
-    return state
+    save_state(project_id, state_data)
+    return state_data
 
-def update_checksums_state(state_root: Path, project_id: str, checksum_file: Path) -> Dict[str, Any]:
-    """Update checksums state from a checksum file."""
-    state = load_state(state_root, project_id)
+def update_checksums_state(project_id, checksums_file_path):
+    """
+    Update the state with the checksums file hash.
     
-    if checksum_file.exists():
-        checksums = {}
-        with open(checksum_file, "r") as f:
-            for line in f:
-                line = line.strip()
-                if line and "  " in line:
-                    hash_val, file_path = line.split("  ", 1)
-                    checksums[file_path] = hash_val
-        
-        state["checksums"] = checksums
+    Args:
+        project_id: The project identifier.
+        checksums_file_path: Path to the checksums file (e.g., state/checksums/raw_files.json).
     
-    return state
+    Returns:
+        Updated state dictionary.
+    """
+    if not os.path.exists(checksums_file_path):
+        return load_state(project_id)
+    
+    state_data = load_state(project_id)
+    file_hash = compute_sha256(checksums_file_path)
+    state_data = update_artifact_hash(state_data, str(checksums_file_path), file_hash)
+    save_state(project_id, state_data)
+    return state_data
 
-def get_state_summary(state: Dict[str, Any]) -> Dict[str, Any]:
-    """Generate a summary of the current state."""
+def get_state_summary(project_id):
+    """
+    Generate a summary of the current state for a project.
+    
+    Returns:
+        Dictionary with summary stats.
+    """
+    state_data = load_state(project_id)
+    artifact_count = len(state_data.get("artifacts", {}))
     return {
-        "total_artifacts": len(state.get("artifacts", {})),
-        "total_checksums": len(state.get("checksums", {})),
-        "created_at": state.get("created_at"),
-        "updated_at": state.get("updated_at"),
-        "artifact_paths": list(state.get("artifacts", {}).keys())
+        "project_id": project_id,
+        "artifact_count": artifact_count,
+        "last_updated": state_data.get("updated_at"),
+        "artifacts": list(state_data.get("artifacts", {}).keys())
     }
 
 def main():
-    """Main entry point for updating state."""
-    project_root = Path(__file__).parent.parent.parent.parent
-    state_root = project_root / "state"
+    """
+    CLI entry point for updating state.
+    Usage: python -m src.utils.update_state --project_id PROJ-230 --scan-dir data/processed
+    """
+    import argparse
     
-    ensure_state_dirs(state_root)
+    parser = argparse.ArgumentParser(description="Update project state with artifact hashes")
+    parser.add_argument("--project_id", type=str, default="PROJ-230-evaluating-the-effectiveness-of-prompt-e",
+                        help="Project ID to update state for")
+    parser.add_argument("--scan-dir", type=str, nargs="+", default=["data/processed", "data/evaluation"],
+                        help="Directories to scan for artifacts")
     
-    # Define directories to scan
-    scan_dirs = [
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "prompts",
-        project_root / "data" / "evaluation",
-        project_root / "state" / "checksums"
-    ]
+    args = parser.parse_args()
     
-    # Load and update state
-    state = load_state(state_root, PROJECT_ID)
-    state = scan_and_update_artifacts(state_root, PROJECT_ID, scan_dirs)
+    scan_dirs = [Path(d) for d in args.scan_dir]
+    state = scan_and_update_artifacts(args.project_id, scan_dirs)
     
-    # Update checksums if they exist
-    checksum_file = state_root / "checksums" / "checksums.txt"
-    if checksum_file.exists():
-        state = update_checksums_state(state_root, PROJECT_ID, checksum_file)
-    
-    # Save updated state
-    save_state(state_root, PROJECT_ID, state)
-    
-    # Print summary
-    summary = get_state_summary(state)
-    print(f"State updated for project: {PROJECT_ID}")
-    print(f"Total artifacts tracked: {summary['total_artifacts']}")
-    print(f"Total checksums tracked: {summary['total_checksums']}")
-    print(f"Last updated: {summary['updated_at']}")
+    summary = get_state_summary(args.project_id)
+    print(f"State updated for {summary['project_id']}")
+    print(f"Total artifacts tracked: {summary['artifact_count']}")
+    print(f"Last updated: {summary['last_updated']}")
 
 if __name__ == "__main__":
     main()

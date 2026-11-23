@@ -2,125 +2,130 @@
 
 ## Project Overview
 
-This project implements a machine learning pipeline to predict the aqueous solubility (logS) of pharmaceutical compounds. It compares a Random Forest baseline using Morgan fingerprints against a Message Passing Neural Network (MPNN) using Graph Neural Networks (GNNs).
+This project implements a machine learning pipeline to predict the aqueous solubility (logS) of pharmaceutical compounds. It compares a traditional Random Forest baseline using Morgan fingerprints against a modern Graph Neural Network (MPNN) architecture, strictly optimized for CPU execution.
 
-## Features
+## Architecture & Components
 
-- **Data Pipeline**: Automated download and cleaning of the ESOL dataset from MoleculeNet.
-- **Preprocessing**: Conversion of SMILES strings to molecular graphs using RDKit and extraction of atom/bond features.
-- **Baseline Model**: Random Forest regression using Morgan fingerprints (Radius 2, 2048 bits).
-- **GNN Model**: Custom Message Passing Neural Network (MPNN) implemented in PyTorch Geometric, optimized for CPU execution.
-- **Evaluation**: Comprehensive metrics (RMSE, R²) and statistical significance testing (paired t-test, power analysis).
-- **Interpretability**: Feature importance analysis and visualization of node contributions.
+The pipeline follows a modular design separated into data processing, model training, and evaluation phases.
 
-## Requirements
+### 1. Data Pipeline
+- **Source**: ESOL (Delaney) dataset from MoleculeNet/HuggingFace.
+- **Preprocessing**: SMILES validation, invalid entry exclusion, and conversion to graph structures using RDKit.
+- **Splitting**: Stratified splits based on logS quantiles to ensure distributional consistency across train/validation/test sets.
+- **Key Modules**:
+ - `code/data/download_esol.py`: Fetches and verifies dataset integrity.
+ - `code/data/preprocess.py`: Converts raw CSV to graph data.
+ - `code/data/split.py`: Generates stratified indices.
 
-- Python 3.10+
-- See `requirements.txt` for the full list of dependencies.
+### 2. Models
+- **Baseline**: Random Forest Regressor using Morgan Fingerprints (Radius=2, 2048 bits).
+ - Implementation: `code/models/baseline_rf.py`
+- **GNN**: Message Passing Neural Network (MPNN) with 2 layers, hidden dim 64.
+ - Implementation: `code/models/gnn_mpnn.py`
+ - Constraint: CPU-only execution (no CUDA).
 
-## Installation
+### 3. Training & Evaluation
+- **Training**:
+ - `code/training/train_baseline.py`: Trains RF and logs metrics.
+ - `code/training/train_gnn.py`: Trains MPNN with early stopping.
+- **Evaluation**:
+ - Metrics: RMSE, R², Paired T-Test, Post-hoc Power.
+ - Interpretability: Node importance rankings and feature heatmaps.
+ - Reports: JSON summaries and PNG visualizations.
+- **Key Modules**:
+ - `code/evaluation/metrics.py`: Core metric calculations.
+ - `code/evaluation/statistical_test.py`: Statistical significance analysis.
+ - `code/evaluation/report_generator.py`: Final report compilation.
 
-1. Clone the repository:
- ```bash
- git clone <repository-url>
- cd <project-name>
- ```
+## Directory Structure
 
-2. Create a virtual environment and activate it:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
+```text
+.
+├── code/ # Source code
+│ ├── config/ # Configuration (seeds, logging)
+│ ├── data/ # Data loading, preprocessing, splitting
+│ ├── models/ # Model definitions (RF, MPNN)
+│ ├── training/ # Training scripts
+│ ├── evaluation/ # Metrics, stats, visualization
+│ ├── validation/ # Quickstart validation logic
+│ └── setup_*.py # Project setup utilities
+├── data/ # Data artifacts
+│ ├── raw/ # Downloaded raw CSV
+│ ├── processed/ # Preprocessed graphs and splits
+│ └── logs/ # Execution logs
+├── models/ # Saved model weights
+├── results/ # Metrics, predictions, and visualizations
+├── tests/ # Unit and integration tests
+├── docs/ # Documentation
+├── requirements.txt # Python dependencies
+└── README.md # This file
+```
 
-3. Install dependencies:
+## Quickstart Guide
+
+### Prerequisites
+- Python 3.8+
+- pip
+
+### Installation
+1. Clone the repository.
+2. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-## Project Structure
+### Running the Pipeline
+The pipeline is executed in sequential stages. Ensure you have sufficient disk space for the dataset and logs.
 
-```
-.
-├── code/ # Source code modules
-│ ├── config/ # Configuration and seed management
-│ ├── data/ # Data download and preprocessing scripts
-│ ├── evaluation/ # Metrics, statistical tests, and reporting
-│ ├── models/ # Model definitions (RF, MPNN)
-│ ├── training/ # Training loops and logging utilities
-│ └── setup_*.py # Project setup and environment checks
-├── data/ # Data storage
-│ ├── raw/ # Raw downloaded datasets
-│ └── processed/ # Preprocessed graphs and split indices
-├── models/ # Trained model checkpoints
-├── results/ # Evaluation metrics, plots, and reports
-├── tests/ # Unit and integration tests
-├── docs/ # Documentation (this file)
-├── requirements.txt # Python dependencies
-└── README.md # Project documentation
-```
+1. **Download Data**:
+ ```bash
+ python code/data/download_esol.py
+ ```
+2. **Preprocess Data**:
+ ```bash
+ python code/data/preprocess.py
+ ```
+3. **Split Data**:
+ ```bash
+ python code/data/split.py
+ ```
+4. **Train Baseline (Random Forest)**:
+ ```bash
+ python code/training/train_baseline.py
+ ```
+5. **Train GNN (MPNN)**:
+ ```bash
+ python code/training/train_gnn.py
+ ```
+6. **Evaluate & Generate Report**:
+ ```bash
+ python code/evaluation/report_generator.py
+ ```
 
-## Usage
-
-### 1. Download and Preprocess Data
-
-Run the data pipeline to download the ESOL dataset, clean invalid SMILES, and generate graph representations:
-
+### Validation
+Run the validation script to ensure all artifacts were generated correctly:
 ```bash
-python code/data/download_esol.py
-python code/data/preprocess.py
-python code/data/split.py
+python code/validation/quickstart_validation.py
 ```
-
-### 2. Train Baseline Model (Random Forest)
-
-Train the Random Forest baseline using Morgan fingerprints:
-
-```bash
-python code/training/train_baseline.py
-```
-
-This will save the model to `models/` and metrics to `results/baseline_metrics.json`.
-
-### 3. Train GNN Model (MPNN)
-
-Train the Message Passing Neural Network:
-
-```bash
-python code/training/train_gnn.py
-```
-
-This script includes early stopping and saves the model to `models/` and metrics to `results/gnn_metrics.json`.
-
-### 4. Evaluation and Reporting
-
-Run statistical tests and generate the final report:
-
-```bash
-python code/evaluation/statistical_test.py
-python code/evaluation/report_generator.py
-```
-
-Visualizations and interpretability reports are saved in `results/`.
 
 ## Configuration
 
-- **Random Seeds**: Controlled via `code/config/seeds.py`. Ensure reproducibility by setting the seed environment variable or modifying the config.
-- **Logging**: All training and exclusion logs are written to `data/logs/`.
+- **Random Seeds**: Managed via `code/config/seeds.py` to ensure reproducibility.
+- **Logging**: All logs are written to `data/logs/` in JSON format.
+- **Hardware**: Optimized for CPU execution. GPU usage is explicitly disabled in the GNN configuration.
 
-## Testing
+## Results & Outputs
 
-Run the test suite to verify the pipeline:
-
-```bash
-pytest tests/
-```
+Upon successful completion, the `results/` directory will contain:
+- `baseline_metrics.json`: RF performance metrics.
+- `gnn_metrics.json`: GNN performance metrics.
+- `model_comparison.json`: Delta analysis between models.
+- `gnn_predictions.csv`: Test set predictions.
+- `feature_importance_*.png`: Visualizations of molecular importance.
+- `final_report.json`: Comprehensive summary including statistical tests.
 
 ## License
+[Insert License Information]
 
-[Insert License Information Here]
-
-## Acknowledgments
-
-- ESOL Dataset from MoleculeNet
-- RDKit for cheminformatics
-- PyTorch Geometric for GNN implementation
+## Contributing
+Please refer to the project's contribution guidelines.

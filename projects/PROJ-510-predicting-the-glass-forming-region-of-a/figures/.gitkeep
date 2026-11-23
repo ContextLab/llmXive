@@ -1,0 +1,2 @@
+# This file ensures the figures directory exists in git.
+# Actual figure files should be ignored by the .gitignore in the parent directory.

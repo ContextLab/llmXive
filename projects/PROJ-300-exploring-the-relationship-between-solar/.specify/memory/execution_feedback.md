@@ -18,34 +18,33 @@ The gate detected that your reported numbers are NOT real measurements: they are
 
 The analysis code was EXECUTED end-to-end (per quickstart.md) and FAILED. The project cannot reach research_complete until the run-book runs cleanly AND produces its declared data/figure artifacts. Fix the ROOT CAUSE of each failure below — do not stub, do not fake outputs, do not mark a task done until its script actually runs and writes its real output.
 
-**Summary**: 7 fabricated/simulated-result signal(s) — results are not real measurements: code/run_sensitivity_demo.py: synthetic/fake INPUT data not authorized by the spec — “…vity analysis on real or synthetic data and output results. This…”; code/run_sensitivity_demo.py: synthetic/fake INPUT data not authorized by the spec — “…oints=5000):     """     Generate synthetic data that mimics the str…”; code/run_sensitivity_demo.py: synthetic/fake INPUT data not authorized by the spec — “…# For this task, we generate synthetic data to ensure the scrip…”; 1 command(s) failed: python code/main.py --start 2023-01-01 --end 2023-01-03 (rc=1); 1 declared deliverable(s) absent: data/processed/quality_log.json
+**Summary**: 7 fabricated/simulated-result signal(s) — results are not real measurements: code/run_sensitivity_demo.py: synthetic/fake INPUT data not authorized by the spec — “…vity analysis on real or synthetic data and output results. This…”; code/run_sensitivity_demo.py: synthetic/fake INPUT data not authorized by the spec — “…oints=5000):     """     Generate synthetic data that mimics the str…”; code/run_sensitivity_demo.py: synthetic/fake INPUT data not authorized by the spec — “…# For this task, we generate synthetic data to ensure the scrip…”; 1 command(s) failed: python code/main.py --start 2023-01-01 --end 2023-01-03 (rc=1); 2 declared deliverable(s) absent: data/processed/cleaned_data.csv; data/processed/quality_log.json
 
 ## Failing / missing run-book commands
 
 - python code/main.py --start 2023-01-01 --end 2023-01-03 -> rc=1
-    >
-    from pandas.compat.numpy import (
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/.venv/lib/python3.11/site-packages/pandas/compat/numpy/__init__.py", line 4, in <module>
-    from pandas.util.version import Version
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/.venv/lib/python3.11/site-packages/pandas/util/__init__.py", line 2, in <module>
-    from pandas.util._decorators import (  # noqa:F401
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/.venv/lib/python3.11/site-packages/pandas/util/_decorators.py", line 14, in <module>
-    from pandas._libs.properties import cache_readonly
-  File "/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/.venv/lib/python3.11/site-packages/pandas/_libs/__init__.py", line 13, in <module>
-    from pandas._libs.interval import Interval
-  File "pandas/_libs/interval.pyx", line 1, in init pandas._libs.interval
-ValueError: numpy.dtype size changed, may indicate binary incompatibility. Expected 96 from C header, got 88 from PyObject
+    Traceback (most recent call last):
+  File "/home/runner/work/llmXive/llmXive/projects/PROJ-300-exploring-the-relationship-between-solar/code/main.py", line 8, in <module>
+    import portalocker
+ModuleNotFoundError: No module named 'portalocker'
 
 ## Declared deliverables still missing
 
+- data/processed/cleaned_data.csv
 - data/processed/quality_log.json
 
 ## Declared deliverables NOT produced — make the run-book produce them
 
 Every command may exit 0 yet a declared data/figure file is still absent. Fix the producing script to WRITE it to the exact declared path, and ensure that script is INVOKED by the quickstart run-book (you may edit quickstart.md to add the command).
 
+- `data/processed/cleaned_data.csv` is declared but was NOT written. Scripts referencing it:
+    - `code/main.py` — IS a run-book command
+  Make ONE of these WRITE `data/processed/cleaned_data.csv` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.
 - `data/processed/quality_log.json` is declared but was NOT written. Scripts referencing it:
+    - `code/main.py` — IS a run-book command
+    - `code/verify_artifacts.py` — NOT invoked by the run-book
     - `code/run_e2e_validation.py` — NOT invoked by the run-book
     - `code/run_us3_sample.py` — NOT invoked by the run-book
-    - `code/main.py` — IS a run-book command
+    - `code/data/clean.py` — NOT invoked by the run-book
+    - `code/data/lag.py` — NOT invoked by the run-book
   Make ONE of these WRITE `data/processed/quality_log.json` to that EXACT path. If its producing script is not a run-book command, ADD `python code/<script>.py` to quickstart.md so the run-book invokes it.

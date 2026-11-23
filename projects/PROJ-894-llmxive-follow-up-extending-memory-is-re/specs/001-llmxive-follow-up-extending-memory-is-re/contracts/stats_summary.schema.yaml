@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Summary Schema"
+description: "Schema for the aggregated statistical analysis results."
+type: "object"
+properties:
+  strategy:
+    type: "string"
+    description: "Name of the heuristic strategy."
+  n_tasks:
+    type: "integer"
+    description: "Number of tasks analyzed."
+    minimum: 1
+  mean_accuracy:
+    type: "number"
+    description: "Mean accuracy of the strategy."
+  std_accuracy:
+    type: "number"
+    description: "Standard deviation of accuracy."
+  mean_nodes_visited:
+    type: "number"
+    description: "Mean number of nodes visited."
+  p_value:
+    type: "number"
+    description: "P-value from the paired statistical test."
+  test_statistic:
+    type: "number"
+    description: "T or W statistic from the test."
+  test_type:
+    type: "string"
+    description: "Type of test performed (t-test or wilcoxon)."
+    enum:
+      - "t-test"
+      - "wilcoxon"
+  correlation_coefficient:
+    type: "number"
+    description: "Point-Biserial correlation coefficient."
+  inflection_point:
+    type: "integer"
+    description: "Nodes count where accuracy drops below [deferred] of baseline. Null if not found."
+  significance_level:
+    type: "number"
+    description: "Alpha level used for significance testing."
+    default: 0.05
+required:
+  - strategy
+  - n_tasks
+  - mean_accuracy
+  - p_value
+  - test_statistic
+  - test_type
+additionalProperties: false

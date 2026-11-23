@@ -1,36 +1,14 @@
-# llmXive Configuration File
-# This file overrides default settings. Environment variables take precedence.
-
-seeds:
-  global_seed: 42
-  train_test_split_seed: 42
-  model_init_seed: 42
-
-paths:
-  # Relative paths are resolved relative to the project root
-  data_raw: "data/raw"
-  data_processed: "data/processed"
-  data_results: "data/results"
-  figures: "figures"
-  models: "models"
-  logs: "logs"
+seed: 42
+processed_features_path: data/processed/features.parquet
+model_output_path: data/models/meta_critic_model.joblib
+metrics_output_path: data/results/metrics.json
+abstention_audit_log_path: data/results/abstention_audit_log.json
 
 hyperparameters:
-  max_turns: 20
-  token_budget: 4096
-  abstention_threshold: 0.75
-  embedding_model: "all-MiniLM-L6-v2"
-  
-  xgboost_params:
-    objective: "binary:logistic"
-    eval_metric: "logloss"
-    max_depth: 6
-    eta: 0.3
-    subsample: 0.8
-    colsample_bytree: 0.8
-    n_estimators: 100
+  max_depth: 4
+  learning_rate: 0.1
+  n_estimators: 100
 
 simulation:
-  run_baseline: true
-  run_meta_critic: true
-  seed: 42
+  max_turns: 20
+  baseline_seed: 42

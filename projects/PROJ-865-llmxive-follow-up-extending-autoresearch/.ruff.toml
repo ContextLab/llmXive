@@ -1,0 +1,9 @@
+# Ruff configuration file
+# This file is an alias for pyproject.toml settings but can be used for specific overrides
+
+extend = "pyproject.toml"
+
+# Specific overrides for this project if needed
+# For example, to ignore specific rules in specific files:
+# [tool.ruff.per-file-ignores]
+# "code/03_execution/run_baseline_external.py" = ["S603"]

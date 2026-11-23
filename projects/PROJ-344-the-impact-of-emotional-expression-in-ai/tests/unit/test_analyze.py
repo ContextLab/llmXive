@@ -1,199 +1,216 @@
 """
-Unit tests for ordinal regression model fitting with synthetic metadata.
+Unit tests for analyze.py module.
 
-This test suite validates the ordinal regression implementation in code/analyze.py
-using synthetic metadata that mimics the structure of real experimental data.
+Tests:
+- T016: Spearman correlation computation and CI
+- T019: Ordinal regression with controls
+- T017: Associational framing
 """
-import pytest
+import os
+import sys
 import numpy as np
 import pandas as pd
-from statsmodels.miscmodels.ordinal_model import OrderedModel
-import sys
-import os
+import pytest
+from unittest.mock import patch, MagicMock
 
-# Add the code directory to the path for imports
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from analyze import fit_ordinal_regression, get_model_summary
+from analyze import (
+    load_consistency_scores,
+    compute_spearman_correlation,
+    compute_ordinal_regression,
+    format_associational_framing,
+    save_analysis_results
+)
 
-class TestOrdinalRegression:
-    """Test cases for ordinal regression model fitting."""
+class TestLoadConsistencyScores:
+    def test_load_valid_file(self, tmp_path):
+        """Test loading a valid consistency scores file."""
+        # Create test data
+        data = {
+            'interaction_id': [1, 2, 3],
+            'consistency_score': [0.8, 0.6, 0.9],
+            'trust_score': [4, 3, 5]
+        }
+        df = pd.DataFrame(data)
+        input_path = tmp_path / "test_scores.csv"
+        df.to_csv(input_path, index=False)
+        
+        # Load and verify
+        loaded_df = load_consistency_scores(str(input_path))
+        assert len(loaded_df) == 3
+        assert 'consistency_score' in loaded_df.columns
+        assert 'trust_score' in loaded_df.columns
+    
+    def test_missing_file(self, tmp_path):
+        """Test that missing file raises FileNotFoundError."""
+        with pytest.raises(FileNotFoundError):
+            load_consistency_scores(str(tmp_path / "nonexistent.csv"))
+    
+    def test_missing_columns(self, tmp_path):
+        """Test that missing columns raise ValueError."""
+        data = {'interaction_id': [1, 2]}
+        df = pd.DataFrame(data)
+        input_path = tmp_path / "bad_scores.csv"
+        df.to_csv(input_path, index=False)
+        
+        with pytest.raises(ValueError):
+            load_consistency_scores(str(input_path))
 
-    def _create_synthetic_metadata(self, n_samples=100):
-        """
-        Create synthetic metadata mimicking real experimental data.
+class TestComputeSpearmanCorrelation:
+    def test_perfect_correlation(self):
+        """Test with perfectly correlated data."""
+        data = {
+            'consistency_score': [1, 2, 3, 4, 5],
+            'trust_score': [1, 2, 3, 4, 5]
+        }
+        df = pd.DataFrame(data)
         
-        Args:
-            n_samples: Number of synthetic samples to generate
-            
-        Returns:
-            tuple: (X_features, y_trust) where:
-                - X_features: DataFrame with consistency_score, avatar_type, 
-                              duration, difficulty
-                - y_trust: Series of ordinal trust scores (1-5)
-        """
-        np.random.seed(42)  # For reproducibility
+        result = compute_spearman_correlation(df)
+        
+        assert result['coefficient'] == pytest.approx(1.0, abs=0.01)
+        assert result['p_value'] < 0.05
+        assert result['n_samples'] == 5
+    
+    def test_no_correlation(self):
+        """Test with uncorrelated data."""
+        np.random.seed(42)
+        data = {
+            'consistency_score': np.random.rand(100),
+            'trust_score': np.random.rand(100)
+        }
+        df = pd.DataFrame(data)
+        
+        result = compute_spearman_correlation(df)
+        
+        # With random data, rho should be close to 0
+        assert abs(result['coefficient']) < 0.2
+        assert 'ci_lower' in result
+        assert 'ci_upper' in result
+    
+    def test_insufficient_samples(self):
+        """Test with too few samples."""
+        data = {
+            'consistency_score': [1.0, 2.0],
+            'trust_score': [1.0, 2.0]
+        }
+        df = pd.DataFrame(data)
+        
+        result = compute_spearman_correlation(df)
+        
+        assert np.isnan(result['coefficient'])
+        assert result['n_samples'] == 2
 
-        # Generate synthetic features
-        consistency_score = np.random.uniform(0, 1, n_samples)
-        avatar_type = np.random.choice(['emotional', 'neutral', 'expressive'], n_samples)
-        duration = np.random.uniform(30, 300, n_samples)  # 30s to 300s
-        difficulty = np.random.choice([1, 2, 3, 4, 5], n_samples)
+class TestComputeOrdinalRegression:
+    def test_regression_with_controls(self, tmp_path):
+        """Test ordinal regression with control variables."""
+        np.random.seed(42)
+        n = 100
+        data = {
+            'trust_score': np.random.randint(1, 6, n),
+            'consistency_score': np.random.rand(n),
+            'avatar_type': np.random.choice(['human', 'robot'], n),
+            'duration': np.random.randint(10, 60, n),
+            'difficulty': np.random.randint(1, 5, n)
+        }
+        df = pd.DataFrame(data)
+        
+        result = compute_ordinal_regression(
+            df,
+            control_cols=['avatar_type', 'duration', 'difficulty']
+        )
+        
+        assert 'coefficients' in result
+        assert 'p_values' in result
+        assert 'pseudo_r2' in result
+        assert result['n_samples'] == n
+    
+    def test_insufficient_samples_regression(self):
+        """Test regression with too few samples."""
+        data = {
+            'trust_score': [1, 2],
+            'consistency_score': [0.5, 0.6]
+        }
+        df = pd.DataFrame(data)
+        
+        result = compute_ordinal_regression(df)
+        
+        assert result['n_samples'] == 2
+        assert np.isnan(result['pseudo_r2'])
 
-        # Generate ordinal trust scores (1-5) with some correlation to consistency
-        # Higher consistency should generally lead to higher trust
-        base_trust = 3 + 2 * consistency_score  # Base score influenced by consistency
-        noise = np.random.normal(0, 0.8, n_samples)  # Add noise
-        raw_trust = base_trust + noise + (difficulty * 0.1)  # Slight difficulty effect
+class TestAssociationalFraming:
+    def test_correlation_framing(self):
+        """Test that correlation results are framed as associational."""
+        results = {
+            'coefficient': 0.75,
+            'p_value': 0.001,
+            'ci_lower': 0.65,
+            'ci_upper': 0.85,
+            'n_samples': 100
+        }
+        
+        framing = format_associational_framing(results, 'correlation')
+        
+        assert 'ASSOCIATION' in framing
+        assert 'NO causal inference' in framing
+        assert 'Associational Only' in framing
+    
+    def test_regression_framing(self):
+        """Test that regression results are framed as associational."""
+        results = {
+            'pseudo_r2': 0.45,
+            'n_samples': 200,
+            'converged': True
+        }
+        
+        framing = format_associational_framing(results, 'regression')
+        
+        assert 'ASSOCIATIONS' in framing
+        assert 'NO causal inference' in framing
+        assert 'Associational Only' in framing
 
-        # Clip and convert to ordinal categories 1-5
-        trust_scores = np.clip(raw_trust, 1, 5).astype(int)
-
-        # Create DataFrame
-        X = pd.DataFrame({
-            'consistency_score': consistency_score,
-            'avatar_type': avatar_type,
-            'duration': duration,
-            'difficulty': difficulty
-        })
-
-        y = pd.Series(trust_scores, name='trust_score')
-
-        return X, y
-
-    def test_fit_ordinal_regression_basic(self):
-        """Test basic fitting of ordinal regression model."""
-        X, y = self._create_synthetic_metadata(n_samples=200)
+class TestSaveAnalysisResults:
+    def test_save_correlation_results(self, tmp_path):
+        """Test saving correlation results to CSV and JSON."""
+        results = {
+            'coefficient': 0.75,
+            'p_value': 0.001,
+            'ci_lower': 0.65,
+            'ci_upper': 0.85,
+            'n_samples': 100
+        }
         
-        # Fit the model
-        model, results = fit_ordinal_regression(X, y)
+        output_path = str(tmp_path / "results.csv")
+        save_analysis_results(results, output_path, 'correlation')
         
-        # Verify model is not None
-        assert model is not None, "Model should not be None"
-        assert results is not None, "Results should not be None"
+        # Verify CSV exists
+        assert os.path.exists(output_path)
         
-        # Verify results have expected attributes
-        assert hasattr(results, 'params'), "Results should have 'params' attribute"
-        assert hasattr(results, 'pvalues'), "Results should have 'pvalues' attribute"
-        assert hasattr(results, 'rsquared_pseudo'), "Results should have 'rsquared_pseudo' attribute"
+        # Verify JSON exists
+        json_path = output_path.replace('.csv', '.json')
+        assert os.path.exists(json_path)
         
-        # Check that consistency_score parameter exists
-        assert 'consistency_score' in results.params.index, \
-            "consistency_score should be in model parameters"
-
-    def test_fit_ordinal_regression_with_controls(self):
-        """Test fitting with control variables (avatar_type, duration, difficulty)."""
-        X, y = self._create_synthetic_metadata(n_samples=300)
+        # Verify content
+        df = pd.read_csv(output_path)
+        assert len(df) == 5
+        assert 'metric' in df.columns
+        assert 'value' in df.columns
+    
+    def test_save_regression_results(self, tmp_path):
+        """Test saving regression results."""
+        results = {
+            'coefficients': {'const': 1.0, 'consistency_score': 0.5},
+            'p_values': {'const': 0.01, 'consistency_score': 0.03},
+            'pseudo_r2': 0.45,
+            'n_samples': 100,
+            'converged': True
+        }
         
-        model, results = fit_ordinal_regression(X, y)
+        output_path = str(tmp_path / "regression_results.csv")
+        save_analysis_results(results, output_path, 'regression')
         
-        # Check that all control variables are in the model
-        param_index = results.params.index
-        assert 'avatar_type' in param_index or any('avatar_type' in str(idx) for idx in param_index), \
-            "avatar_type should be included as a control variable"
-        assert 'duration' in param_index, "duration should be in model parameters"
-        assert 'difficulty' in param_index, "difficulty should be in model parameters"
-
-    def test_fit_ordinal_regression_small_sample(self):
-        """Test fitting with a very small sample to ensure robustness."""
-        X, y = self._create_synthetic_metadata(n_samples=30)
-        
-        # This should not raise an exception, though results may not be statistically significant
-        model, results = fit_ordinal_regression(X, y)
-        
-        assert model is not None
-        assert results is not None
-
-    def test_get_model_summary_structure(self):
-        """Test that get_model_summary returns expected structure."""
-        X, y = self._create_synthetic_metadata(n_samples=150)
-        
-        model, results = fit_ordinal_regression(X, y)
-        summary = get_model_summary(results)
-        
-        # Verify summary is a dictionary
-        assert isinstance(summary, dict), "Summary should be a dictionary"
-        
-        # Verify expected keys
-        expected_keys = ['consistency_score_coef', 'consistency_score_pvalue', 
-                       'pseudo_r_squared', 'control_variables']
-        for key in expected_keys:
-            assert key in summary, f"Summary should contain '{key}'"
-        
-        # Verify types
-        assert isinstance(summary['consistency_score_coef'], (int, float)), \
-            "consistency_score_coef should be numeric"
-        assert isinstance(summary['consistency_score_pvalue'], (int, float)), \
-            "consistency_score_pvalue should be numeric"
-        assert isinstance(summary['pseudo_r_squared'], (int, float)), \
-            "pseudo_r_squared should be numeric"
-        assert isinstance(summary['control_variables'], dict), \
-            "control_variables should be a dictionary"
-
-    def test_get_model_summary_values(self):
-        """Test that model summary values are within expected ranges."""
-        X, y = self._create_synthetic_metadata(n_samples=200)
-        
-        model, results = fit_ordinal_regression(X, y)
-        summary = get_model_summary(results)
-        
-        # Pseudo R-squared should be between 0 and 1 (or close to it)
-        assert 0 <= summary['pseudo_r_squared'] <= 1.5, \
-            f"Pseudo R-squared should be between 0 and 1.5, got {summary['pseudo_r_squared']}"
-        
-        # P-values should be between 0 and 1
-        assert 0 <= summary['consistency_score_pvalue'] <= 1, \
-            f"P-value should be between 0 and 1, got {summary['consistency_score_pvalue']}"
-
-    def test_fit_ordinal_regression_significant_consistency(self):
-        """
-        Test that when consistency has a strong effect, 
-        the model detects it as significant.
-        """
-        # Create data with strong consistency effect
-        np.random.seed(123)
-        n_samples = 500
-        consistency = np.random.uniform(0, 1, n_samples)
-        
-        # Strong positive effect of consistency on trust
-        base_trust = 2 + 3 * consistency  
-        noise = np.random.normal(0, 0.5, n_samples)
-        raw_trust = base_trust + noise
-        trust_scores = np.clip(raw_trust, 1, 5).astype(int)
-        
-        X = pd.DataFrame({'consistency_score': consistency, 
-                        'avatar_type': ['neutral'] * n_samples,
-                        'duration': [60] * n_samples,
-                        'difficulty': [3] * n_samples})
-        y = pd.Series(trust_scores)
-        
-        model, results = fit_ordinal_regression(X, y)
-        summary = get_model_summary(results)
-        
-        # With strong effect and large sample, p-value should be low
-        # Note: This is probabilistic, so we allow some tolerance
-        assert summary['consistency_score_pvalue'] < 0.1, \
-            f"Expected significant consistency effect (p < 0.1), got p={summary['consistency_score_pvalue']}"
-        
-        # Coefficient should be positive
-        assert summary['consistency_score_coef'] > 0, \
-            "Consistency coefficient should be positive"
-
-    def test_fit_ordinal_regression_error_handling(self):
-        """Test error handling with invalid input."""
-        # Test with empty DataFrame
-        X_empty = pd.DataFrame()
-        y_empty = pd.Series()
-        
-        with pytest.raises(Exception):
-            fit_ordinal_regression(X_empty, y_empty)
-
-        # Test with mismatched lengths
-        X_mismatch = pd.DataFrame({'consistency_score': [0.5, 0.6]})
-        y_mismatch = pd.Series([1, 2, 3])
-        
-        with pytest.raises(Exception):
-            fit_ordinal_regression(X_mismatch, y_mismatch)
-
-if __name__ == '__main__':
-    pytest.main([__file__, '-v'])
+        assert os.path.exists(output_path)
+        df = pd.read_csv(output_path)
+        assert 'variable' in df.columns
+        assert 'coefficient' in df.columns

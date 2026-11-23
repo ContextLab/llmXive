@@ -3,235 +3,211 @@ import pandas as pd
 import numpy as np
 from datetime import timedelta
 from code import logger
-from code.config import ACE_VARS, NOAA_VARS, TRAIN_START, TEST_END
+from code.config import ACE_VARS, NOAA_VARS, TRAIN_START, TEST_END, STREAMING_CHUNK_SIZE
 
 def load_raw_ace(filepath: str) -> pd.DataFrame:
-    """
-    Load raw ACE data from a CSV file.
-    
-    Args:
-        filepath: Path to the raw ACE CSV file.
-        
-    Returns:
-        DataFrame with ACE data.
-    """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"ACE raw data file not found: {filepath}")
-    
-    df = pd.read_csv(filepath)
-    
-    # Ensure timestamp column exists and is datetime
-    if 'timestamp' not in df.columns:
-        # Try to find a column that might be the timestamp
-        possible_ts_cols = [col for col in df.columns if 'time' in col.lower() or 'date' in col.lower()]
-        if possible_ts_cols:
-            ts_col = possible_ts_cols[0]
-            df = df.rename(columns={ts_col: 'timestamp'})
-        else:
-            raise ValueError("No timestamp column found in ACE data")
-    
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
-    df = df.set_index('timestamp')
-    
-    logger.info(f"Loaded ACE data: {len(df)} rows, columns: {list(df.columns)}")
-    return df
+    """Loads raw ACE data from a CSV file."""
+    try:
+        df = pd.read_csv(filepath)
+        return df
+    except FileNotFoundError:
+        logger.error(f"File not found: {filepath}")
+        raise
 
 def load_raw_noaa(filepath: str) -> pd.DataFrame:
-    """
-    Load raw NOAA data from a CSV file.
-    
-    Args:
-        filepath: Path to the raw NOAA CSV file.
-        
-    Returns:
-        DataFrame with NOAA data.
-    """
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"NOAA raw data file not found: {filepath}")
-    
-    df = pd.read_csv(filepath)
-    
-    # Ensure timestamp column exists and is datetime
-    if 'timestamp' not in df.columns:
-        # Try to find a column that might be the timestamp
-        possible_ts_cols = [col for col in df.columns if 'time' in col.lower() or 'date' in col.lower()]
-        if possible_ts_cols:
-            ts_col = possible_ts_cols[0]
-            df = df.rename(columns={ts_col: 'timestamp'})
-        else:
-            raise ValueError("No timestamp column found in NOAA data")
-    
-    df['timestamp'] = pd.to_datetime(df['timestamp'])
+    """Loads raw NOAA data from a CSV file."""
+    try:
+        df = pd.read_csv(filepath)
+        return df
+    except FileNotFoundError:
+        logger.error(f"File not found: {filepath}")
+        raise
+
+def align_to_hourly(df: pd.DataFrame, target_freq: str='1h') -> pd.DataFrame:
+    """Resamples the DataFrame to an hourly frequency."""
     df = df.set_index('timestamp')
-    
-    logger.info(f"Loaded NOAA data: {len(df)} rows, columns: {list(df.columns)}")
+    df = df.resample(target_freq).mean()
     return df
 
-def align_to_hourly(df: pd.DataFrame, var_name: str) -> pd.Series:
-    """
-    Resample a single variable to 1-hour UTC grid.
-    
-    Args:
-        df: DataFrame with datetime index.
-        var_name: Name of the variable to resample.
-        
-    Returns:
-        Series resampled to hourly frequency.
-    """
-    if var_name not in df.columns:
-        logger.warning(f"Variable {var_name} not found in data, skipping")
-        return pd.Series(dtype=float)
-    
-    # Resample to hourly frequency, taking the mean of values within each hour
-    # This handles both regular and irregular time steps
-    hourly = df[var_name].resample('h').mean()
-    
-    logger.info(f"Resampled {var_name} to hourly: {len(hourly)} rows")
-    return hourly
+def interpolate_gaps(df: pd.DataFrame, max_gap_hours: int=6) -> pd.DataFrame:
+    """Interpolates missing values in the DataFrame."""
+    # Check for gaps larger than 6 hours and log a warning
+    if df.isnull().sum().any():
+        gaps = df.diff().isnull().sum()
+        large_gaps = gaps[gaps > max_gap_hours]
+        if not large_gaps.empty:
+            logger.warning(f"Gaps larger than {max_gap_hours} hours detected in columns: {large_gaps.index.tolist()}")
 
-def interpolate_gaps(series: pd.Series, max_gap_hours: int = 6) -> pd.Series:
-    """
-    Fill gaps in a time series using linear interpolation.
-    Gaps larger than max_gap_hours will be left as NaN and logged.
-    
-    Args:
-        series: Time series to interpolate.
-        max_gap_hours: Maximum gap size (in hours) to fill.
-        
-    Returns:
-        Interpolated time series.
-    """
-    # Convert to Series if it's not already
-    if not isinstance(series, pd.Series):
-        series = pd.Series(series)
-    
-    # Identify gaps
-    gaps = series.isna()
-    gap_sizes = gaps.groupby((~gaps).cumsum()).sum()
-    
-    # Log gaps
-    large_gaps = gap_sizes[gap_sizes > max_gap_hours]
-    if len(large_gaps) > 0:
-        logger.warning(f"Found {len(large_gaps)} gaps larger than {max_gap_hours}h that will not be filled")
-        for idx, size in large_gaps.items():
-            logger.warning(f"Gap of {size}h at index {idx} will remain NaN")
-    
-    # Interpolate all NaN values
-    interpolated = series.interpolate(method='linear')
-    
-    # Check which values are still NaN (these are from large gaps)
-    still_nan = interpolated.isna()
-    if still_nan.any():
-        logger.info(f"After interpolation, {still_nan.sum()} values remain NaN (from gaps > {max_gap_hours}h)")
-    
-    return interpolated
+    df = df.interpolate()  # Linear interpolation
+    assert df.isnull().sum().sum() == 0, "DataFrame still contains NaNs after interpolation."
+    return df
 
-def run_alignment(raw_ace_path: str, raw_noaa_path: str, output_path: str) -> str:
+
+def run_alignment(ace_filepath: str, noaa_filepath: str) -> pd.DataFrame:
+    """Runs the entire alignment pipeline."""
+
+    ace_df = load_raw_ace(ace_filepath)
+    noaa_df = load_raw_noaa(noaa_filepath)
+
+    # Rename ACE columns to match output schema
+    ace_df = ace_df.rename(columns={
+        'N_p': 'proton_density',
+        'T_p': 'temperature',
+        'He2+_ratio': 'helium_abundance'
+    })
+
+    # Merge the DataFrames based on timestamp
+    merged_df = pd.merge(ace_df, noaa_df, on='timestamp')
+
+    aligned_df = align_to_hourly(merged_df)
+    interpolated_df = interpolate_gaps(aligned_df)
+    return interpolated_df
+
+
+def write_synced_csv(df: pd.DataFrame, output_path: str) -> None:
+    """Writes the synced DataFrame to a CSV file.
+    
+    Ensures columns are renamed to the canonical schema and asserts 
+    data integrity (no NaNs, correct columns) before writing.
     """
-    Main function to run the full alignment pipeline.
-    Reads raw ACE and NOAA data, aligns to 1-hour grid, interpolates gaps,
-    and writes the synchronized dataset.
+    # 1. Ensure timestamp is a column, not just index (if it was set previously)
+    if isinstance(df.index, pd.DatetimeIndex):
+        df = df.reset_index()
+
+    # 2. Explicitly rename columns to match the output schema
+    # This handles cases where the input might still have raw ACE names
+    rename_map = {
+        'N_p': 'proton_density',
+        'T_p': 'temperature',
+        'He2+_ratio': 'helium_abundance'
+    }
+    df = df.rename(columns=rename_map)
+
+    # 3. Assert that the DataFrame keys are exactly as expected
+    expected_columns = ['timestamp', 'proton_density', 'temperature', 'helium_abundance', 'Kp', 'Dst']
+    
+    # Ensure the column order matches exactly
+    if list(df.columns) != expected_columns:
+        # Attempt to reorder if columns are present but in wrong order
+        missing_cols = set(expected_columns) - set(df.columns)
+        if missing_cols:
+            raise ValueError(f"Missing required columns: {missing_cols}")
+        
+        df = df[expected_columns]
+
+    # 4. Verify the output contains no NaNs before writing
+    nan_count = df.isnull().sum().sum()
+    if nan_count > 0:
+        raise ValueError(f"DataFrame contains {nan_count} NaN values before writing. Interpolation may have failed.")
+
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+    df.to_csv(output_path, index=False)
+    logger.info(f"Synced data written to: {output_path}")
+
+def run_alignment_chunked(ace_filepath: str, noaa_filepath: str, output_path: str, chunk_size: int = None) -> None:
+    """
+    Runs the alignment pipeline in temporal chunks to handle large files (e.g. > 1 year).
+    
+    This function processes the raw data in chunks (default: by year) to avoid memory spikes
+    when aligning multi-decadal datasets. It performs resampling and interpolation per chunk,
+    then concatenates the results before writing the final output.
     
     Args:
-        raw_ace_path: Path to raw ACE data file.
-        raw_noaa_path: Path to raw NOAA data file.
-        output_path: Path where the synchronized CSV will be written.
-        
-    Returns:
-        Path to the output file.
+        ace_filepath: Path to raw ACE CSV.
+        noaa_filepath: Path to raw NOAA CSV.
+        output_path: Path to write the final synced CSV.
+        chunk_size: Number of rows per chunk. If None, defaults to STREAMING_CHUNK_SIZE from config.
     """
-    logger.info("Starting alignment pipeline")
+    if chunk_size is None:
+        chunk_size = STREAMING_CHUNK_SIZE
+    
+    logger.info(f"Starting chunked alignment with chunk_size={chunk_size}")
     
     # Load raw data
-    ace_df = load_raw_ace(raw_ace_path)
-    noaa_df = load_raw_noaa(raw_noaa_path)
+    ace_df = load_raw_ace(ace_filepath)
+    noaa_df = load_raw_noaa(noaa_filepath)
     
-    # Align ACE variables to hourly
-    aligned_ace = {}
-    for var in ACE_VARS:
-        if var in ace_df.columns:
-          series = align_to_hourly(ace_df, var)
-          aligned_ace[var] = interpolate_gaps(series)
-          logger.info(f"Processed ACE variable: {var}")
-        else:
-            logger.warning(f"ACE variable {var} not found in data")
+    # Rename ACE columns
+    ace_df = ace_df.rename(columns={
+        'N_p': 'proton_density',
+        'T_p': 'temperature',
+        'He2+_ratio': 'helium_abundance'
+    })
     
-    # Align NOAA variables to hourly
-    aligned_noaa = {}
-    for var in NOAA_VARS:
-        if var in noaa_df.columns:
-            series = align_to_hourly(noaa_df, var)
-            aligned_noaa[var] = interpolate_gaps(series)
-            logger.info(f"Processed NOAA variable: {var}")
-        else:
-            logger.warning(f"NOAA variable {var} not found in data")
+    # Ensure timestamp is datetime
+    ace_df['timestamp'] = pd.to_datetime(ace_df['timestamp'])
+    noaa_df['timestamp'] = pd.to_datetime(noaa_df['timestamp'])
     
-    # Create combined DataFrame
-    # Use the union of all timestamps
-    all_timestamps = set()
-    for series in aligned_ace.values():
-        all_timestamps.update(series.index)
-    for series in aligned_noaa.values():
-        all_timestamps.update(series.index)
+    # Determine date range for chunking
+    min_date = min(ace_df['timestamp'].min(), noaa_df['timestamp'].min())
+    max_date = max(ace_df['timestamp'].max(), noaa_df['timestamp'].max())
     
-    # Create a complete hourly index for the date range
-    if all_timestamps:
-        min_time = min(all_timestamps)
-        max_time = max(all_timestamps)
-        # Round to nearest hour
-        min_time = min_time.replace(minute=0, second=0, microsecond=0)
-        max_time = max_time.replace(minute=0, second=0, microsecond=0)
+    # Create date boundaries for yearly chunks
+    current_date = min_date
+    chunks = []
+    
+    while current_date <= max_date:
+        next_date = current_date.replace(year=current_date.year + 1)
+        if next_date > max_date:
+            next_date = max_date + timedelta(days=1)
         
-        complete_index = pd.date_range(start=min_time, end=max_time, freq='h')
-    else:
-        # Fallback to a reasonable range if no data
-        complete_index = pd.date_range(start=f"{TRAIN_START}-01-01", end=f"{TEST_END}-12-31", freq='h')
+        logger.info(f"Processing chunk: {current_date} to {next_date}")
+        
+        # Filter data for this chunk
+        ace_chunk = ace_df[(ace_df['timestamp'] >= current_date) & (ace_df['timestamp'] < next_date)].copy()
+        noaa_chunk = noaa_df[(noaa_df['timestamp'] >= current_date) & (noaa_df['timestamp'] < next_date)].copy()
+        
+        if ace_chunk.empty or noaa_chunk.empty:
+            logger.warning(f"No data found for chunk {current_date} to {next_date}, skipping.")
+            current_date = next_date
+            continue
+        
+        # Merge chunk
+        merged_chunk = pd.merge(ace_chunk, noaa_chunk, on='timestamp', how='outer')
+        
+        # Resample to hourly
+        merged_chunk = align_to_hourly(merged_chunk)
+        
+        # Interpolate gaps
+        merged_chunk = interpolate_gaps(merged_chunk)
+        
+        chunks.append(merged_chunk)
+        
+        current_date = next_date
     
-    # Build final DataFrame
-    final_df = pd.DataFrame(index=complete_index)
-    final_df.index.name = 'timestamp'
+    if not chunks:
+        raise ValueError("No data chunks were processed. Check input data range.")
     
-    # Add ACE variables
-    for var, series in aligned_ace.items():
-        final_df[var] = series
+    # Concatenate all chunks
+    final_df = pd.concat(chunks, axis=0)
     
-    # Add NOAA variables
-    for var, series in aligned_noaa.items():
-        final_df[var] = series
+    # Reset index to make timestamp a column
+    if isinstance(final_df.index, pd.DatetimeIndex):
+        final_df = final_df.reset_index()
     
-    # Final interpolation pass to fill any remaining gaps from missing sources
-    # Only for gaps <= 6 hours
-    for col in final_df.columns:
-        if final_df[col].isna().any():
-            final_df[col] = interpolate_gaps(final_df[col], max_gap_hours=6)
+    # Ensure correct column order and names
+    expected_columns = ['timestamp', 'proton_density', 'temperature', 'helium_abundance', 'Kp', 'Dst']
+    final_df = final_df[expected_columns]
     
-    # Log final stats
-    logger.info(f"Final synchronized dataset: {len(final_df)} rows")
-    logger.info(f"Columns: {list(final_df.columns)}")
-    logger.info(f"NaN counts per column:\n{final_df.isna().sum()}")
+    # Final NaN check
+    if final_df.isnull().sum().sum() > 0:
+        raise ValueError(f"Final dataframe contains NaNs after chunked processing.")
     
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-        logger.info(f"Created output directory: {output_dir}")
-    
-    # Write to CSV
-    final_df.to_csv(output_path)
-    logger.info(f"Written synchronized data to: {output_path}")
-    
-    return output_path
+    # Write output
+    write_synced_csv(final_df, output_path)
 
-if __name__ == "__main__":
-    # Example usage for direct execution
-    import sys
+def read_synced_in_chunks(filepath: str, chunksize: int = 100000):
+    """
+    Reads a synced CSV file in chunks for memory-efficient processing.
     
-    if len(sys.argv) < 4:
-        print("Usage: python align.py <raw_ace_path> <raw_noaa_path> <output_path>")
-        sys.exit(1)
-    
-    raw_ace = sys.argv[1]
-    raw_noaa = sys.argv[2]
-    output = sys.argv[3]
-    
-    run_alignment(raw_ace, raw_noaa, output)
+    Args:
+        filepath: Path to the CSV file.
+        chunksize: Number of rows per chunk.
+        
+    Yields:
+        pandas.DataFrame chunks.
+    """
+    for chunk in pd.read_csv(filepath, chunksize=chunksize):
+        yield chunk

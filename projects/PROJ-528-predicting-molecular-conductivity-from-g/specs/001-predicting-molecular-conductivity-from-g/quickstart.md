@@ -4,65 +4,71 @@
 
 -   Python 3.11+
 -   Git
--   Access to a GitHub Actions runner (or local environment with 7GB+ RAM).
+-   Access to GitHub Actions (for CI) or a local Linux environment with 7 GB+ RAM.
 
 ## Installation
 
-1.  **Clone the repository**:
+1.  **Clone the repository** and navigate to the project directory:
     ```bash
     git clone <repo-url>
     cd projects/PROJ-528-predicting-molecular-conductivity-from-g
     ```
 
-2.  **Create and activate virtual environment**:
+2.  **Create a virtual environment** and install dependencies:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
-
-3.  **Install dependencies**:
-    ```bash
     pip install -r code/requirements.txt
     ```
 
-## Running the Pipeline
+## Data Preparation
 
-1.  **Download Data**:
-    The `data_loader.py` script will fetch verified datasets from HuggingFace.
-    ```bash
-    python code/data_loader.py --download
-    ```
+### Option A: Use Your Own Data (Recommended)
+Create a CSV file named `input.csv` with at least two columns: `smiles` and `conductivity`.
+```csv
+smiles,conductivity
+c1ccccc1,1.5e-4
+CCO,2.3e-5
+...
+```
+Place this file in `data/raw/input.csv`.
 
-2.  **Compute Descriptors**:
-    ```bash
-    python code/descriptors.py --input data/raw/combined_smiles.csv --output data/processed/descriptors.csv
-    ```
-
-3.  **Train Models**:
-    ```bash
-    python code/model_training.py --data data/processed/descriptors.csv --output data/processed/model_results.json
-    ```
-
-4.  **Generate Analysis and Plots**:
-    ```bash
-    python code/analysis.py --results data/processed/model_results.json --plots data/processed/correlation_plots/
-    ```
-
-## Verification
-
-Run the test suite to ensure correctness:
+### Option B: Download Default Dataset
+If no input is provided, the pipeline attempts to load from Hugging Face.
 ```bash
-pytest tests/
+# The pipeline will automatically attempt to load from verified URLs if data/raw/input.csv is missing.
 ```
 
-Expected output:
--   `test_descriptors.py`: All descriptor values match reference SMILES.
--   `test_scaffold_split.py`: Train and test sets have no overlapping Murcko scaffolds.
--   `test_analysis.py`: VIF, FDR, and sensitivity analysis calculations are correct.
+## Running the Pipeline
 
-## Troubleshooting
+Execute the main orchestration script:
+```bash
+python code/main.py
+```
 
--   **Memory Error**: If the dataset is too large, the `data_loader.py` script automatically samples to 5000 rows.
--   **Missing Target**: If no conductivity or HOMO-LUMO gap column is found, the script will halt with an error "No valid target variable found."
--   **SMILES Errors**: Invalid SMILES strings are logged to `data/logs/errors.log` and excluded.
--   **Weak Correlation**: If topological descriptors show weak correlation with the target, a warning will be logged indicating the proxy hypothesis may be unsupported.
+This will:
+1.  Load and validate data.
+2.  Compute graph descriptors.
+3.  Perform VIF filtering and scaffold splitting.
+4.  Train Random Forest and Gradient Boosting models.
+5.  Run sensitivity analysis and FDR correction.
+6.  Generate plots and reports.
+
+## Expected Outputs
+
+-   `data/processed/descriptors.csv`: Computed features.
+-   `data/processed/metrics.json`: R², MAE, CV scores.
+-   `data/processed/plots/`: Feature importance and correlation plots.
+-   `data/processed/reports/sensitivity_analysis.json`: R² variance across outlier thresholds.
+
+## Testing
+
+Run unit tests:
+```bash
+pytest tests/unit/
+```
+
+Run integration tests:
+```bash
+pytest tests/integration/
+```

@@ -1,0 +1,15 @@
+status: none
+intent: Metallic Glass Database Pauly DOI 10.5281/zenodo.10043838 composition Tg python
+  package dataset
+required_fields:
+- composition
+- Tg
+- temperature
+- elements
+- atomic_fraction
+- glass_transition_temperature
+- material_id
+- reference
+cache_key: 971e2e81714b5cdd4eef03f9e872c461c7c5a34c8e5afd07fee6547276f9c926
+searched_at: '2026-10-26T16:39:01.254892+00:00'
+retry_count: 1

@@ -1,0 +1,24 @@
+# Configuration file for the Predicting the Impact of Ball Milling on Particle Size Distribution project
+#
+# This file defines the required top‑level sections used by the configuration loader
+# in `src/config/settings.py`. All keys are mandatory; missing keys will cause the
+# loader to raise a clear ``KeyError``.
+#
+# Adjust the values as needed for your environment (e.g., API endpoints,
+# resource limits, OCR language settings).
+
+api:
+  # URLs or identifiers for the external data sources.
+  materials_project: "https://materialsproject.org/api/v2"
+  nist: "https://materialsdata.nist.gov/api/v2"
+  arxiv: "https://export.arxiv.org/api/query"
+
+# Maximum allowed runtime (seconds) and memory (GB) for Gaussian Process Regression.
+gpr_max_runtime: 1800        # 30 minutes
+gpr_max_memory: 5.0          # GB
+
+ocr:
+  # Whether to fall back to OCR when PSD data is only available as images.
+  fallback_enabled: true
+  # List of language codes to pass to the OCR engine (e.g., Tesseract).
+  language: ["eng"]

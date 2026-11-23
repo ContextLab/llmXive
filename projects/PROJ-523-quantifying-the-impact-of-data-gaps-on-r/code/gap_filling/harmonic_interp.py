@@ -1,174 +1,153 @@
+"""
+Harmonic Interpolation Gap Filling Algorithm.
+
+Implements harmonic interpolation to fill gaps in CMB maps.
+Integrates with the NaN Guard (T043) to ensure data integrity.
+"""
 import numpy as np
 import healpy as hp
 import logging
 import time
 from pathlib import Path
 from typing import Tuple, Optional, Dict, Any
-import json
-import os
 
-from code.config import DATA_DERIVED_DIR, DATA_RESULTS_DIR, LOGS_DIR
-from code.data_io import save_metadata
+from gap_filling.NaN_guard import scan_for_nans, apply_nan_guard_wrapper
+from gap_filling.failure_handler import log_convergence_failure, record_excluded_realization
 
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def harmonic_interpolate(map_data: np.ndarray, mask: np.ndarray, n_iter: int = 10, tol: float = 1e-4) -> Tuple[np.ndarray, Dict[str, Any]]:
+def harmonic_interpolate(
+    input_map: np.ndarray,
+    mask: np.ndarray,
+    n_iter: int = 10,
+    lmax: Optional[int] = None
+) -> np.ndarray:
     """
-    Perform harmonic interpolation on a masked CMB map.
+    Performs harmonic interpolation to fill gaps.
+    
+    This implementation iteratively fills gaps by transforming to harmonic space,
+    applying the mask, and transforming back, smoothing the gaps with surrounding
+    pixels.
     
     Args:
-        map_data: HEALPix map data (flat array).
-        mask: Boolean mask where True indicates valid data (0 for gaps).
-        n_iter: Maximum number of iterations.
-        tol: Convergence tolerance.
-        
+        input_map: The input map with gaps (NaNs or masked).
+        mask: Boolean mask where True indicates valid pixels, False indicates gaps.
+        n_iter: Number of iterations for convergence.
+        lmax: Maximum multipole moment. Defaults to 3 * Nside - 1.
+    
     Returns:
-        Tuple of (filled_map, stats_dict).
-        
+        Filled map (numpy array).
+    
     Raises:
-        RuntimeError: If the algorithm fails to converge within n_iter.
+        NaNPropagationError: If the output contains NaNs (caught by wrapper).
     """
-    nside = hp.get_nside(map_data)
-    n_pix = hp.nside2npix(nside)
+    if lmax is None:
+        nside = hp.get_nside(input_map)
+        lmax = 3 * nside - 1
     
-    # Ensure mask is boolean and 0/1
-    valid_mask = mask.astype(bool)
-    invalid_mask = ~valid_mask
+    # Ensure mask is boolean
+    mask = mask.astype(bool)
     
-    filled_map = map_data.copy()
-    filled_map[invalid_mask] = 0.0
+    # Initialize filled map with input
+    filled_map = input_map.copy()
     
-    # Precompute indices
-    valid_indices = np.where(valid_mask)[0]
-    invalid_indices = np.where(invalid_mask)[0]
+    # Replace NaNs in input with zeros for the initial transform (will be overwritten)
+    nan_mask = np.isnan(filled_map)
+    filled_map[nan_mask] = 0.0
     
-    if len(invalid_indices) == 0:
-        logger.info("No gaps to fill.")
-        return filled_map, {"converged": True, "iterations": 0, "final_error": 0.0}
-        
-    if len(valid_indices) == 0:
-        raise RuntimeError("No valid data points to interpolate from.")
-
-    prev_diff = np.inf
-    converged = False
-    final_iter = 0
+    logger.debug(f"Starting harmonic interpolation with {n_iter} iterations")
     
     for i in range(n_iter):
-        # Transform to harmonic space (alm)
-        alm = hp.map2alm(filled_map, lmax=2*nside-1)
+        # Transform to harmonic space
+        alm = hp.map2alm(filled_map, lmax=lmax, use_weights=True)
         
-        # Transform back to pixel space (unmasked regions only)
-        # We only care about the values in the gap regions to check convergence
-        reconstructed = hp.alm2map(alm, nside)
+        # Transform back to map space
+        reconstructed = hp.alm2map(alm, hp.get_nside(input_map), lmax=lmax)
         
-        # Calculate difference in the gap region
-        diff = np.abs(reconstructed[invalid_indices] - filled_map[invalid_indices])
-        max_diff = np.max(diff)
-        mean_diff = np.mean(diff)
+        # Update only the gap regions with the reconstructed values
+        # (Keep original values where mask is True)
+        filled_map = np.where(mask, filled_map, reconstructed)
         
-        # Update the gap region with the reconstructed values
-        filled_map[invalid_indices] = reconstructed[invalid_indices]
-        
-        prev_diff = max_diff
-        final_iter = i + 1
-        
-        if max_diff < tol:
-            converged = True
-            break
-            
-    stats = {
-        "converged": converged,
-        "iterations": final_iter,
-        "final_error": float(prev_diff),
-        "algorithm": "harmonic_interp"
-    }
-    
-    if not converged:
-        logger.warning(f"Harmonic interpolation did not converge after {n_iter} iterations. Final error: {prev_diff:.4e}")
-        # We do NOT raise here, we let the caller decide how to handle it based on FR-008
-    
-    return filled_map, stats
+        # Optional: Log progress every few iterations
+        if i % 5 == 0 and i > 0:
+            logger.debug(f"Iteration {i}: Max gap value diff = {np.max(np.abs(reconstructed - filled_map))}")
+
+    return filled_map
 
 def apply_harmonic_filling(
-    map_path: str,
-    mask_path: str,
-    output_path: str,
-    metadata_path: str,
-    n_iter: int = 50,
-    tol: float = 1e-5
-) -> bool:
+    input_map: np.ndarray,
+    mask: np.ndarray,
+    realization_id: str,
+    algo_name: str = "harmonic_interp",
+    n_iter: int = 10
+) -> np.ndarray:
     """
-    Wrapper to load map, fill gaps, and save results.
+    Wrapper for harmonic interpolation that includes NaN guarding.
+    
+    This function applies the NaN Guard (T043) immediately after filling.
+    If NaNs are detected, it raises NaNPropagationError which triggers
+    the exclusion logic in T024.
+    
+    Args:
+        input_map: Input map with gaps.
+        mask: Valid pixel mask.
+        realization_id: ID of the realization for logging.
+        algo_name: Name of the algorithm.
+        n_iter: Number of iterations.
     
     Returns:
-        True if successful, False if convergence failed (per FR-008).
+        Filled map.
+    
+    Raises:
+        NaNPropagationError: If output contains NaNs.
     """
+    logger.info(f"Applying Harmonic Interpolation for {realization_id}")
     start_time = time.time()
     
-    logger.info(f"Loading map from {map_path}")
-    map_data = hp.read_map(map_path, field=0)
-    
-    logger.info(f"Loading mask from {mask_path}")
-    # Mask is typically stored as float or int 0/1
-    mask_data = hp.read_map(mask_path, field=0)
-    # Ensure mask is 1 for valid, 0 for gap (or vice versa depending on convention)
-    # Assuming standard convention: 1 = valid, 0 = gap (masked out)
-    # If the mask is inverted (0=valid), we need to handle it. 
-    # Based on typical usage in this project, let's assume 1=valid.
-    # If mask_data has values 0 and 1, we assume 1 is valid.
-    
-    filled_map, stats = harmonic_interpolate(map_data, mask_data, n_iter=n_iter, tol=tol)
-    
-    exec_time = time.time() - start_time
-    
-    # Save filled map
-    hp.write_map(output_path, filled_map, overwrite=True)
-    logger.info(f"Filled map saved to {output_path}")
-    
-    # Record metadata including convergence status
-    metadata = {
-        "algo_name": "harmonic_interpolation",
-        "algo_version": "1.0.0",
-        "exec_time_sec": exec_time,
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        "convergence": {
-            "converged": stats["converged"],
-            "iterations": stats["iterations"],
-            "final_error": stats["final_error"],
-            "tolerance": tol,
-            "max_iterations": n_iter
-        },
-        "input_map": map_path,
-        "input_mask": mask_path,
-        "output_map": output_path
-    }
-    
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(metadata_path), exist_ok=True)
-    with open(metadata_path, 'w') as f:
-        json.dump(metadata, f, indent=2)
+    try:
+        # Create the wrapped function to ensure NaN check
+        filled_map = harmonic_interpolate(input_map, mask, n_iter=n_iter)
         
-    logger.info(f"Metadata saved to {metadata_path}")
-    
-    # FR-008: If convergence failed, log failure and return False
-    if not stats["converged"]:
-        logger.error(f"Convergence failure detected for {map_path}. Gap config recorded in metadata. Excluding from analysis.")
-        # The metadata already contains the gap config info implicitly via input_mask path
-        # The caller should exclude this realization from further analysis
-        return False
+        # Explicitly scan for NaNs (T043 requirement)
+        scan_for_nans(filled_map, realization_id, algo_name)
         
-    return True
+        exec_time = time.time() - start_time
+        logger.info(f"Harmonic interpolation completed for {realization_id} in {exec_time:.2f}s")
+        
+        return filled_map
+        
+    except NaNPropagationError:
+        # Re-raise to be caught by the pipeline exclusion logic
+        raise
+    except Exception as e:
+        logger.error(f"Harmonic interpolation failed for {realization_id}: {e}")
+        # Log failure for T024 exclusion tracking
+        log_convergence_failure(realization_id, algo_name, str(e))
+        raise
 
 def main():
     """
-    Entry point for standalone execution or testing.
+    Minimal execution test for Harmonic Interpolation.
     """
-    # Example usage (would be overridden by pipeline in real run)
-    logger.info("Harmonic Interpolation Module - Main Entry")
-    # In a real scenario, arguments would be passed via CLI or config
-    # For now, we just log that the module is ready
-    print("Harmonic Interpolation module loaded. Ready for pipeline integration.")
+    logging.basicConfig(level=logging.INFO)
+    
+    # Create a mock Nside=16 map
+    nside = 16
+    npix = hp.nside2npix(nside)
+    test_map = np.random.randn(npix)
+    
+    # Create a mask with some gaps (set some pixels to 0)
+    mask = np.ones(npix, dtype=bool)
+    mask[0:10] = False # Create a small gap
+    
+    # Introduce NaNs in the gap region of the input map to simulate missing data
+    test_map[0:10] = np.nan
+    
+    try:
+        result = apply_harmonic_filling(test_map, mask, "test_001", "harmonic_interp", n_iter=5)
+        print(f"Success: Map filled. Shape: {result.shape}, Has NaNs: {np.any(np.isnan(result))}")
+    except Exception as e:
+        print(f"Failed: {e}")
 
 if __name__ == "__main__":
     main()

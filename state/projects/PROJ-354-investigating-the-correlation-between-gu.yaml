@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-354-investigating-the-correlation-between-gu
-last_run_id: 9e46a605-6ea3-46b1-af25-9ca0afdc072b
+last_run_id: 4f482355-856f-4504-8f79-2111747a2847
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-354-investigating-the-correlation-between-gu/specs/001-investigating-the-correlation-between-gu
 title: Investigating the Correlation Between Gut Microbiome Composition and Cognitive
   Function in Aging Using UK Biobank Data
-updated_at: '2026-07-04T11:21:52.346279Z'
+updated_at: '2026-10-09T18:30:33.706846Z'

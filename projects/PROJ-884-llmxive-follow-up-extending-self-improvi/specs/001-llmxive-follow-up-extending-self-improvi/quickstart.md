@@ -1,90 +1,82 @@
-# Quickstart: llmXive follow-up: extending "Self-Improving Language Models with Bidirectional Evolutionary Search"
+# Quickstart: llmXive follow‑up – Symbolic Bidirectional Evolutionary Search
+
+## Overview
+This quickstart provides a minimal, reproducible command chain that:
+1. Installs the project dependencies.
+2. Generates a small pilot dataset (in the required JSON format).
+3. Runs the pilot version of the BES pipeline (the only mode that currently works out‑of‑the‑box).
+
+All commands are CPU‑only and suitable for GitHub Actions free‑tier or a local machine.
 
 ## Prerequisites
-
-- **Python**: 3.11+
-- **Git**: For cloning the repository.
-- **Hardware**: CPU-only environment (tested on GitHub Actions free-tier: multiple cores, ~7GB RAM).
-- **Dependencies**: `requirements.txt` (pins all versions).
+- Python 3.11+  
+- Git  
+- At least 2 CPU cores and a few GB of RAM  
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-884-llmxive-follow-up-extending-self-improvi
-   ```
+```bash
+# 1. Clone the repository
+git clone <repo-url>
+cd projects/PROJ-884-llmxive-follow-up-extending-self-improvi
 
-2. **Create and activate a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
-   *Note: This installs CPU-only versions of `transformers`, `torch`, `optimum`, etc. No CUDA dependencies.*
+# 3. Install pinned dependencies
+pip install -r requirements.txt
+```
 
-## Dataset Curation (Phase 0)
+## Verify the test suite
 
-The dataset is generated programmatically to ensure deterministic verification and includes a scaling subset for complexity analysis.
+```bash
+pytest tests/unit/
+```
 
-1. **Generate the puzzle dataset**:
-   ```bash
-   python code/dataset/generator.py --count 500 --output data/raw/puzzles.jsonl --scaling
-   ```
-   - This creates 500 puzzle instances (including a scaling subset) and their corresponding Python verifier scripts in `data/raw/`.
-   - **Verification**: Run `python tests/unit/test_verifier.py` to ensure all verifiers return valid/invalid correctly.
+All unit tests should pass. The fixes for **T001** (generator output format) and **T002** (planner exception handling) are incorporated.
 
-## Running the Experiment (Phase 1)
+## Phase 0 – Pilot dataset & verification
 
-1. **Execute the Symbolic-Guided BES**:
-   ```bash
-   python code/main.py --method symbolic --pop-size 50 --generations 20 --output data/processed/symbolic_run.jsonl
-   ```
-   - Uses a small CPU LLM for forward steps and the symbolic planner for backward steps.
-   - Logs success rates and costs.
+```bash
+python -m code.main --pilot --seed 42
+```
 
-2. **Execute the Learned Verifier Baseline**:
-   ```bash
-   python code/main.py --method neural --pop-size 50 --generations 20 --output data/processed/neural_run.jsonl
-   ```
-   - Uses a small CPU LLM for forward steps and a learned verifier (DistilBERT) for backward steps.
-   - If DistilBERT is too slow, the script will automatically switch to TinyBERT or CPU-quantized model.
+What this does:
+- Generates a tiny puzzle set (default `N=10`, 5 puzzles) and writes **one JSON file** `data/raw/puzzles.json` containing a `"puzzles"` list (required by `test_generator.py`).  
+- Creates deterministic verifier scripts under `data/raw/verifiers/`.  
+- Runs a single generation of the BES loop using the symbolic planner and the CPU LLM.  
+- Writes pilot logs to:
+  - `data/processed/pilot/pilot_run.jsonl` – one line per puzzle with `puzzle_id`, `success` and `time_ms` fields.  
+  - `data/processed/pilot/verifier_timing.log` – a simple log with a timestamp and the elapsed verification time.
 
-## Analysis (Phase 2)
+## Expected output locations
 
-1. **Run statistical analysis**:
-   ```bash
-   python code/analysis/stats.py --symbolic data/processed/symbolic_run.jsonl --neural data/processed/neural_run.jsonl --output data/processed/results.json
-   ```
-   - Outputs `p_value_z` (success rate - TOST) and `p_value_t` (cost) to `results.json`.
-   - Includes `logical_contradiction_rate` for the symbolic planner.
+After the pilot command finishes, the following files/directories must exist and be non‑empty:
 
-## Verification & Testing
-
-- **Unit Tests**:
-  ```bash
-  pytest tests/unit/
-  ```
-  - Verifies puzzle generation, verifier correctness, and symbolic planner logic.
-
-- **Integration Tests**:
-  ```bash
-  pytest tests/integration/
-  ```
-  - Runs a mini BES loop to ensure end-to-end flow.
-
-## Reproducibility
-
-- **Seeds**: Set `PYTHONHASHSEED` and random seeds in `code/main.py` (default: 42).
-- **Checksums**: Verify `data/raw/` and `data/processed/` checksums against `state/...yaml`.
-- **Environment**: Re-run on a fresh GitHub Actions runner to confirm results.
+- `data/raw/puzzles.json` – JSON object with a `"puzzles"` list.  
+- `data/raw/verifiers/` – deterministic verifier scripts (unchanged after creation).  
+- `data/processed/pilot/pilot_run.jsonl` – per‑puzzle log (includes `puzzle_id`, `success`, `time_ms`).  
+- `data/processed/pilot/verifier_timing.log` – timestamped verification timing log.  
 
 ## Troubleshooting
 
-- **Memory Error**: Reduce `--pop-size` or `--generations` in `main.py`.
-- **Verifier Timeout**: Ensure `code/dataset/verifier.py` is optimized (<100ms).
-- **LLM Slow**: If inference is too slow, the script will automatically switch to a smaller model (TinyBERT) or quantized version.
+- **Command fails with usage error** – ensure you are using the `--pilot` flag; other modes are not yet wired.  
+- **Empty `pilot_run.jsonl`** – check console output for tracebacks; the deterministic verifier must complete within 100 ms per puzzle.  
+- **Missing `data/raw/puzzles.json`** – the generator may have aborted; re‑run with the same seed (`--seed 42`) for deterministic behaviour.
+
+## Next steps
+
+Once the pilot run succeeds, you can proceed to the full experiments:
+
+```bash
+python -m code.main --full --seed 42
+```
+
+This will:
+- Generate the full synthetic dataset (N = 10 → 500).  
+- Run **both** the symbolic‑guided BES and the neural‑verifier baseline on the *matched* set of puzzles (excluding only those where the symbolic planner fails).  
+- Produce `data/processed/full/` with logs, `summary_symbolic.json`, `summary_neural.json`, and the final statistical result file `data/processed/full/statistical_result.json` (conforms to `contracts/output.schema.yaml`).  
+- Record **CPU‑seconds** for each method and a placeholder `gpu_hours = 0` to satisfy Principle VII.
+
+*Remember to keep the virtual environment activated and to use the same seed for reproducibility.*

@@ -6,15 +6,9 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 
 import pandas as pd
-import numpy as np
-
 from src.utils.logging import get_logger
-from src.utils.config import ensure_directories
-from src.data.preprocess.tokenizer import load_preprocessed_data
 
-logger = get_logger(__name__)
-
-# Define the specific 5-year windows as per project requirements
+# Define the specific 5-year windows as required by the task
 WINDOWS = [
     "2000-2004",
     "2005-2009",
@@ -23,135 +17,199 @@ WINDOWS = [
     "2020-2024"
 ]
 
-def partition_by_window(records: List[Dict[str, Any]], window_key: str = "year") -> Dict[str, List[Dict[str, Any]]]:
+def partition_by_window(
+    df: pd.DataFrame,
+    year_column: str = "year"
+) -> Dict[str, pd.DataFrame]:
     """
-    Partitions a list of abstract records into dictionaries based on the 5-year windows.
+    Partition a DataFrame of abstracts into specific 5-year windows.
     
     Args:
-        records: List of dictionaries containing abstract data with a 'year' field.
-        window_key: The key in the record dictionary that holds the year.
+        df: DataFrame containing abstract records with a 'year' column.
+        year_column: Name of the column containing publication year.
         
     Returns:
-        A dictionary mapping window strings (e.g., "2000-2004") to lists of records.
+        Dictionary mapping window string (e.g., "2000-2004") to 
+        the corresponding DataFrame subset.
     """
-    partitions: Dict[str, List[Dict[str, Any]]] = {w: [] for w in WINDOWS}
+    logger = get_logger(__name__)
+    partitions = {}
     
-    for record in records:
-        try:
-            year = int(record.get(window_key, 0))
-            assigned = False
-            for window in WINDOWS:
-                start, end = map(int, window.split("-"))
-                if start <= year <= end:
-                    partitions[window].append(record)
-                    assigned = True
-                    break
-            
-            if not assigned:
-                logger.debug(f"Record year {year} does not fall into any defined 5-year window.")
-        except (ValueError, TypeError):
-            logger.warning(f"Could not parse year from record: {record.get('id', 'unknown')}")
+    for window in WINDOWS:
+        start_year, end_year = map(int, window.split("-"))
+        mask = (df[year_column] >= start_year) & (df[year_column] <= end_year)
+        subset = df[mask].copy()
+        partitions[window] = subset
+        
+        logger.info(f"Window {window}: {len(subset)} records retained "
+                    f"out of {len(df)} total ({100*len(subset)/len(df):.2f}%)")
+        
+        if len(subset) == 0:
+            logger.warning(f"Window {window} contains no records!")
             
     return partitions
 
 def compute_checksum(df: pd.DataFrame) -> str:
     """
-    Computes a SHA256 checksum of the DataFrame content for reproducibility verification.
+    Compute a SHA256 checksum of the DataFrame contents for reproducibility.
     
     Args:
-        df: The pandas DataFrame to checksum.
+        df: DataFrame to checksum.
         
     Returns:
-        Hex digest of the SHA256 hash.
+        Hexadecimal string of the SHA256 hash.
     """
-    # Convert to CSV string to ensure consistent hashing regardless of internal dtypes
-    csv_content = df.to_csv(index=False).encode('utf-8')
-    return hashlib.sha256(csv_content).hexdigest()
+    # Convert to JSON string to ensure consistent hashing across types
+    data_str = df.to_json(orient="records", lines=False)
+    return hashlib.sha256(data_str.encode('utf-8')).hexdigest()
 
 def save_partitioned_csvs(
-    data_path: Path,
-    output_dir: Path,
-    window_map: Optional[Dict[str, str]] = None
+    partitions: Dict[str, pd.DataFrame],
+    output_dir: str,
+    base_filename: str = "processed_abstracts"
 ) -> Dict[str, str]:
     """
-    Loads preprocessed data, partitions it by 5-year windows, and saves each partition
-    as a separate CSV file in the specified output directory.
+    Save each window partition to a separate CSV file and compute checksums.
     
     Args:
-        data_path: Path to the input preprocessed data (JSONL or CSV).
-        output_dir: Path to the directory where CSVs will be saved.
-        window_map: Optional mapping of window names to specific output filenames.
+        partitions: Dictionary of window name -> DataFrame.
+        output_dir: Directory path where CSVs will be saved.
+        base_filename: Base name for output files.
         
     Returns:
-        Dictionary mapping window names to their saved file paths and checksums.
+        Dictionary mapping window name to the path of the saved CSV file.
     """
-    ensure_directories([output_dir])
+    logger = get_logger(__name__)
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
     
-    logger.info(f"Loading preprocessed data from {data_path}")
-    records = load_preprocessed_data(data_path)
+    saved_files = {}
+    checksums = {}
     
-    if not records:
-        logger.warning("No records found to save.")
-        return {}
-    
-    logger.info(f"Loaded {len(records)} records. Partitioning by 5-year windows...")
-    partitions = partition_by_window(records)
-    
-    saved_manifest: Dict[str, Dict[str, str]] = {}
-    
-    for window_name, window_records in partitions.items():
-        if not window_records:
-            logger.info(f"No records found for window {window_name}. Skipping.")
+    for window, df in partitions.items():
+        if len(df) == 0:
+            logger.warning(f"Skipping save for {window} as it is empty.")
             continue
         
-        df = pd.DataFrame(window_records)
+        filename = f"{base_filename}_{window}.csv"
+        file_path = output_path / filename
         
-        # Ensure consistent column ordering
-        if 'id' in df.columns:
-            cols = ['id', 'source', 'year', 'title', 'abstract', 'tokens', 'token_count']
-            existing_cols = [c for c in cols if c in df.columns]
-            other_cols = [c for c in df.columns if c not in cols]
-            df = df[existing_cols + other_cols]
+        # Save to CSV
+        df.to_csv(file_path, index=False)
+        saved_files[window] = str(file_path)
         
-        output_filename = window_map.get(window_name, f"{window_name.replace('-', '_')}.csv") if window_map else f"{window_name.replace('-', '_')}.csv"
-        output_path = output_dir / output_filename
-        
-        df.to_csv(output_path, index=False)
+        # Compute and store checksum
         checksum = compute_checksum(df)
+        checksums[window] = checksum
         
-        saved_manifest[window_name] = {
-            "file_path": str(output_path),
-            "record_count": len(window_records),
-            "checksum": checksum
-        }
-        
-        logger.info(f"Saved {len(window_records)} records to {output_path} (SHA256: {checksum[:16]}...)")
-    
-    logger.info(f"Partitioning complete. Saved {len(saved_manifest)} window files.")
-    return saved_manifest
+        logger.info(f"Saved {window} partition: {file_path} "
+                    f"(records={len(df)}, checksum={checksum[:16]}...)")
+                    
+    return saved_files, checksums
 
 def main():
     """
     Main entry point for the saver module.
-    Loads data from the default processed location and saves partitioned CSVs.
+    Loads preprocessed data (from tokenized/filter stage), partitions by window,
+    and saves to data/processed/.
     """
-    # Default paths relative to project root
-    project_root = Path(__file__).resolve().parents[3]
-    input_path = project_root / "data" / "processed" / "preprocessed_abstracts.jsonl"
-    output_base = project_root / "data" / "processed"
+    logger = get_logger(__name__)
+    logger.info("Starting data storage and partitioning process...")
     
-    # Check if input exists, if not, try to find any preprocessed file
-    if not input_path.exists():
-        # Fallback: look for any jsonl in data/processed
-        candidates = list((project_root / "data" / "processed").glob("*.jsonl"))
-        if candidates:
-            input_path = candidates[0]
-            logger.info(f"Using fallback input path: {input_path}")
-        else:
-            logger.error(f"No preprocessed data found at {input_path} or in {project_root / 'data' / 'processed'}")
-            return
+    # Define paths
+    # Assuming the previous stage (T015) outputs to data/raw/tokenized.jsonl
+    # or similar. We need to load the filtered data.
+    # Based on the pipeline flow: Fetch -> Raw JSONL -> Tokenize/Filter -> Processed CSV
     
-    save_partitioned_csvs(input_path, output_base)
+    # We will look for the tokenized/filtered data. 
+    # The filter.py (T015) likely outputs to a specific location or we read from the
+    # raw tokenized results if not saved separately.
+    # For this implementation, we assume the filter stage produced a JSONL file 
+    # or we load from the tokenized results saved by tokenizer.py.
+    
+    # Let's assume the filter stage saved to: data/raw/filtered_abstracts.jsonl
+    # If not found, we try to load from the tokenized results if they were saved there.
+    
+    input_file_candidates = [
+        Path("data/raw/filtered_abstracts.jsonl"),
+        Path("data/raw/tokenized_abstracts.jsonl"),
+        Path("data/raw/preprocessed_abstracts.jsonl")
+    ]
+    
+    input_path = None
+    for candidate in input_file_candidates:
+        if candidate.exists():
+            input_path = candidate
+            break
+            
+    if not input_path:
+        # Fallback: try to load from the tokenized results if they exist in a specific format
+        # Or raise an error if no data is found.
+        # We must fail loudly if no real data is found.
+        raise FileNotFoundError(
+            "No preprocessed data file found in data/raw/. "
+            "Ensure T015 (filter) has been executed and output a JSONL file."
+        )
+        
+    logger.info(f"Loading preprocessed data from: {input_path}")
+    
+    # Load data
+    try:
+        df = pd.read_json(input_path, lines=True)
+    except ValueError:
+        # Try loading as regular JSON if not lines
+        with open(input_path, 'r') as f:
+            import json
+            data = json.load(f)
+            if isinstance(data, list):
+                df = pd.DataFrame(data)
+            else:
+                raise ValueError(f"Unexpected JSON structure in {input_path}")
+                
+    logger.info(f"Loaded {len(df)} records from {input_path}")
+    
+    if df.empty:
+        raise ValueError("Loaded data is empty. Check the upstream filtering logic.")
+        
+    # Ensure year column exists and is numeric
+    if "year" not in df.columns:
+        raise KeyError("Data must contain a 'year' column for partitioning.")
+        
+    df["year"] = pd.to_numeric(df["year"], errors="coerce")
+    df = df.dropna(subset=["year"])
+    
+    if df.empty:
+        raise ValueError("No valid records with numeric year found.")
+        
+    # Partition by window
+    partitions = partition_by_window(df)
+    
+    # Save partitions
+    output_dir = "data/processed"
+    saved_files, checksums = save_partitioned_csvs(partitions, output_dir)
+    
+    if not saved_files:
+        raise RuntimeError("No files were saved. Check partitioning logic.")
+        
+    logger.info("Partitioning and saving completed successfully.")
+    logger.info(f"Saved files: {list(saved_files.values())}")
+    
+    # Optionally save a manifest for this step
+    manifest = {
+        "source_file": str(input_path),
+        "windows": list(partitions.keys()),
+        "record_counts": {w: len(partitions[w]) for w in partitions},
+        "checksums": checksums,
+        "output_files": saved_files
+    }
+    
+    manifest_path = Path(output_dir) / "partition_manifest.json"
+    with open(manifest_path, 'w') as f:
+        json.dump(manifest, f, indent=2)
+        
+    logger.info(f"Saved partition manifest to {manifest_path}")
+    
+    return saved_files, checksums
 
 if __name__ == "__main__":
     main()

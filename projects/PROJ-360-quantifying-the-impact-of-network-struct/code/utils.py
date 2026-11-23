@@ -1,174 +1,215 @@
 """
-Utility functions for the llmXive project.
-Provides logging configuration, exponential backoff retry logic, and deterministic seed pinning.
+utils.py
+--------
+Shared utility functions for the project.
+
+Provides:
+- Deterministic seed pinning.
+- Exponential‑backoff retry decorator.
+- Flexible logger setup / simple logger wrapper.
+- A lightweight API‑rate‑limiter.
 """
 
 import logging
 import random
 import time
 import os
-from typing import Callable, TypeVar, List, Any, Optional
+from typing import Callable, TypeVar, Any, Optional
 from functools import wraps
+
 import numpy as np
-import requests
-from requests.exceptions import RequestException, HTTPError, Timeout
 
-# Type variable for generic retry wrapper
-T = TypeVar('T')
-
-# Default configuration
-DEFAULT_LOG_LEVEL = logging.INFO
-DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-DEFAULT_SEED = 42
-MAX_RETRIES = 3
-INITIAL_BACKOFF = 1.0  # seconds
-MAX_BACKOFF = 64.0     # seconds
-BACKOFF_FACTOR = 2.0
-
-# Global seed state
-_seed_initialized = False
+T = TypeVar("T")
 
 
 def setup_logging(
-    level: int = DEFAULT_LOG_LEVEL,
-    log_file: Optional[str] = None,
-    format_str: str = DEFAULT_LOG_FORMAT
+    logger_or_level: Any = None,
+    level: int = logging.INFO,
 ) -> logging.Logger:
     """
-    Configures the root logger with the specified level and format.
-    Optionally writes logs to a file.
+    Configure a ``logging.Logger`` instance.
 
-    Args:
-        level: Logging level (e.g., logging.DEBUG, logging.INFO).
-        log_file: Path to a log file. If None, logs to console only.
-        format_str: Format string for log messages.
+    The function is deliberately tolerant of the two calling styles that
+    exist in the code base:
 
-    Returns:
-        The configured root logger instance.
+    1. ``setup_logging(level=logging.DEBUG)`` – only a log level is supplied.
+    2. ``setup_logging(existing_logger, level=logging.DEBUG)`` – an existing
+       logger instance is supplied together with a log level.
+
+    If ``logger_or_level`` is a ``logging.Logger`` the function configures that
+    logger; otherwise a new logger named ``"llmXive"`` is created.  The logger
+    is given a single ``StreamHandler`` (if it does not already have one) and
+    the requested log level is applied.
+
+    Parameters
+    ----------
+    logger_or_level :
+        Either a ``logging.Logger`` instance or an ``int`` representing the
+        desired log level.  If omitted, a new logger named ``"llmXive"`` is
+        created with the default ``INFO`` level.
+    level :
+        The log level to apply when ``logger_or_level`` is a ``Logger``.
+        Ignored when ``logger_or_level`` is an ``int`` or ``None``.
+
+    Returns
+    -------
+    logging.Logger
+        The configured logger.
     """
-    logger = logging.getLogger()
-    logger.setLevel(level)
+    # Determine whether the first argument is a logger or a level.
+    if isinstance(logger_or_level, logging.Logger):
+        logger = logger_or_level
+        log_level = level
+    else:
+        logger = logging.getLogger("llmXive")
+        # ``logger_or_level`` may be an int (explicit level) or ``None``.
+        log_level = (
+            logger_or_level
+            if isinstance(logger_or_level, int)
+            else level
+        )
 
-    # Clear existing handlers to avoid duplicates in interactive environments
-    logger.handlers.clear()
+    logger.setLevel(log_level)
 
-    # Console handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(level)
-    console_handler.setFormatter(logging.Formatter(format_str))
-    logger.addHandler(console_handler)
-
-    # File handler (optional)
-    if log_file:
-        # Ensure directory exists
-        log_dir = os.path.dirname(log_file)
-        if log_dir and not os.path.exists(log_dir):
-            os.makedirs(log_dir, exist_ok=True)
-        
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        file_handler.setFormatter(logging.Formatter(format_str))
-        logger.addHandler(file_handler)
+    # Attach a simple ``StreamHandler`` only once.
+    if not logger.handlers:
+        handler = logging.StreamHandler()
+        formatter = logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        )
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
 
     return logger
 
 
-def pin_seed(seed: int = DEFAULT_SEED) -> None:
+def retry_with_exponential_backoff(
+    func: Callable[..., T],
+    max_retries: int = 5,
+    base_delay: float = 1.0,
+    max_delay: float = 60.0,
+    exceptions: tuple = (Exception,),
+) -> Callable[..., T]:
     """
-    Pins the random seed for reproducibility across numpy, random, and os.environ (if needed).
-    
-    Args:
-        seed: Integer seed value.
+    Decorator that retries ``func`` with exponential back‑off.
+
+    Parameters
+    ----------
+    func : Callable[..., T]
+        Function to be wrapped.
+    max_retries : int, optional
+        Maximum number of attempts (default 5).
+    base_delay : float, optional
+        Initial delay in seconds (default 1.0).
+    max_delay : float, optional
+        Upper bound for the delay (default 60.0).
+    exceptions : tuple, optional
+        Exception types that trigger a retry (default ``Exception``).
+
+    Returns
+    -------
+    Callable[..., T]
+        Wrapped function that performs the retry logic.
     """
-    global _seed_initialized
+    @wraps(func)
+    def wrapper(*args, **kwargs) -> T:
+        delay = base_delay
+        last_exception = None
+        for attempt in range(max_retries):
+            try:
+                return func(*args, **kwargs)
+            except exceptions as e:
+                last_exception = e
+                if attempt < max_retries - 1:
+                    logging.warning(
+                        f"Retry {attempt + 1}/{max_retries} for {func.__name__} after {delay:.1f}s"
+                    )
+                    time.sleep(delay)
+                    delay = min(delay * 2, max_delay)
+                else:
+                    logging.error(f"Failed after {max_retries} retries: {e}")
+                    raise
+        # Should never reach here, but keep mypy happy.
+        raise last_exception
+
+    return wrapper
+
+
+def pin_seed(seed: int = 42) -> None:
+    """
+    Pin random seeds across ``random``, ``numpy`` and the Python hash seed.
+
+    This function is idempotent – calling it multiple times with the same
+    ``seed`` does not change the deterministic state beyond the first call.
+    """
     random.seed(seed)
     np.random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
-    _seed_initialized = True
-
-
-def retry_with_exponential_backoff(
-    max_retries: int = MAX_RETRIES,
-    initial_backoff: float = INITIAL_BACKOFF,
-    max_backoff: float = MAX_BACKOFF,
-    backoff_factor: float = BACKOFF_FACTOR,
-    exceptions: tuple = (RequestException, Timeout, HTTPError)
-) -> Callable[[Callable[..., T]], Callable[..., T]]:
-    """
-    Decorator that retries a function with exponential backoff on specified exceptions.
-    
-    Args:
-        max_retries: Maximum number of retry attempts.
-        initial_backoff: Initial wait time in seconds.
-        max_backoff: Maximum wait time in seconds.
-        backoff_factor: Multiplier for the backoff time (e.g., 2.0 doubles the wait).
-        exceptions: Tuple of exception classes to catch and retry on.
-
-    Returns:
-        A decorator function.
-    """
-    def decorator(func: Callable[..., T]) -> Callable[..., T]:
-        @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> T:
-            last_exception = None
-            current_backoff = initial_backoff
-
-            for attempt in range(1, max_retries + 1):
-                try:
-                    return func(*args, **kwargs)
-                except exceptions as e:
-                    last_exception = e
-                    if attempt == max_retries:
-                        logging.getLogger(func.__module__).error(
-                            f"Failed after {max_retries} attempts: {e}"
-                        )
-                        raise e
-                    
-                    # Log retry attempt
-                    logging.getLogger(func.__module__).warning(
-                        f"Attempt {attempt} failed: {e}. Retrying in {current_backoff:.2f}s..."
-                    )
-                    
-                    time.sleep(current_backoff)
-                    current_backoff = min(current_backoff * backoff_factor, max_backoff)
-            
-            # Should not be reached, but for type safety
-            raise last_exception  # type: ignore
-        return wrapper
-    return decorator
+    os.environ["PYTHONHASHSEED"] = str(seed)
+    logging.info(f"Random seeds pinned to {seed}")
 
 
 def fetch_with_retry(
     url: str,
-    method: str = "GET",
-    max_retries: int = MAX_RETRIES,
-    timeout: float = 30.0,
-    **kwargs: Any
-) -> requests.Response:
+    headers: Optional[dict] = None,
+    params: Optional[dict] = None,
+    timeout: int = 30,
+    max_retries: int = 5,
+) -> Optional[dict]:
     """
-    Fetches a URL with automatic retries using exponential backoff for network errors.
-    
-    Args:
-        url: The URL to fetch.
-        method: HTTP method (GET, POST, etc.).
-        max_retries: Maximum number of retry attempts.
-        timeout: Request timeout in seconds.
-        **kwargs: Additional arguments passed to requests.request.
+    Perform an HTTP GET request with exponential back‑off.
 
-    Returns:
-        The requests.Response object for a successful request.
-
-    Raises:
-        requests.exceptions.RequestException: If all retries fail.
+    Returns the parsed JSON payload on success, or ``None`` if all retries
+    fail.  The function logs failures but **does not** fabricate data.
     """
-    @retry_with_exponential_backoff(
+    import requests
+
+    retry_func = retry_with_exponential_backoff(
+        requests.get,
         max_retries=max_retries,
-        exceptions=(RequestException, Timeout, HTTPError)
+        exceptions=(requests.RequestException,),
     )
-    def _do_request() -> requests.Response:
-        response = requests.request(method, url, timeout=timeout, **kwargs)
-        # Raise an HTTPError if the status is 4xx, 5xx
+    try:
+        response = retry_func(url, headers=headers, params=params, timeout=timeout)
         response.raise_for_status()
-        return response
+        return response.json()
+    except Exception as e:  # pragma: no cover – exercised via integration tests
+        logging.error(f"Failed to fetch {url}: {e}")
+        return None
 
-    return _do_request()
+
+class APIRateLimiter:
+    """
+    Simple rate‑limiter that enforces a minimum delay between API calls.
+
+    Usage
+    -----
+    >>> limiter = APIRateLimiter(min_delay_seconds=1.0)
+    >>> limiter.acquire()   # blocks if the previous call was <1 s ago
+    """
+
+    def __init__(self, min_delay_seconds: float = 1.0):
+        self.min_delay = min_delay_seconds
+        self._last_request_time: float = 0.0
+        self._logger = logging.getLogger(__name__)
+
+    def wait(self) -> None:
+        """
+        Block until ``self.min_delay`` seconds have elapsed since the last
+        request.  If no request has been made yet, returns immediately.
+        """
+        current_time = time.time()
+        elapsed = current_time - self._last_request_time
+        if elapsed < self.min_delay:
+            sleep_time = self.min_delay - elapsed
+            self._logger.debug(f"Rate limiter: waiting {sleep_time:.2f}s")
+            time.sleep(sleep_time)
+
+    def mark_request(self) -> None:
+        """Record the current time as the moment a request was sent."""
+        self._last_request_time = time.time()
+        self._logger.debug(f"Rate limiter: request marked at {self._last_request_time}")
+
+    def acquire(self) -> None:
+        """Convenience method that waits then marks the request."""
+        self.wait()
+        self.mark_request()

@@ -1,0 +1,27 @@
+# Core scientific computing
+numpy>=1.24.0
+scipy>=1.10.0
+pandas>=2.0.0
+
+# Gravitational wave specific
+pycbc>=2.0.0
+gwosc>=0.7.0
+
+# Schema validation
+jsonschema>=4.17.0
+pyyaml>=6.0.0
+
+# Testing
+pytest>=7.3.0
+pytest-cov>=4.1.0
+
+# Profiling
+memory-profiler>=0.61.0
+
+# Machine learning (for analysis)
+scikit-learn>=1.2.0
+
+# Formatting and linting
+black>=23.3.0
+ruff>=0.0.260
+flake8>=6.0.0

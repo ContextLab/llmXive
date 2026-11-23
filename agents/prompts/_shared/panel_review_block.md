@@ -97,6 +97,18 @@ first line and put your `verdict` in the frontmatter.
 
 ## Constraints (apply to ALL panel reviewers)
 
+- **Respect stage ownership.** Research stages produce executable analysis,
+  validation and measured evidence. The later paper stages own manuscript layout,
+  PDF compilation and publication. A named paper-stage handoff preserves those
+  requirements; it is not a missing research implementation task. Platform CI
+  and orchestration do not need a separate per-project replacement. Flag genuine
+  stage-ownership contradictions for correction rather than adding more tasks.
+- **Do not invent acceptance requirements.** Faithful paraphrase with a verified
+  citation is acceptable unless a direct quotation is actually required. Direct
+  quotes must be verbatim, but do not turn every theorem assumption or citation
+  into a character-for-character transcription task. Independent recomputation
+  can validate a number without hard-coding a hand-calculated constant.
+
 - **Stay in your lens.** Other panelists cover other aspects. Out-of-lens
   concerns trigger a kickback to a wrong stage — be disciplined.
 - **Verify before flagging absence — accept EQUIVALENT forms.** Before raising

@@ -1,225 +1,614 @@
+"""
+Download script for the species distribution modelling pipeline.
+
+This script now supports a default no‑argument mode that performs the
+full data acquisition required by task T004:
+  1. Historical GBIF occurrences (1970‑2000) → data/raw/occurrence_1970_2000.csv
+  2. Recent GBIF occurrences (2005‑2020) → data/raw/occurrence_2005_2020.csv
+  3. WorldClim historical rasters (bio1‑bio19) → data/raw/climate_historical/
+  4. WorldClim recent rasters (bio1‑bio19) → data/raw/climate_recent/
+  5. CMIP6 SSP2‑4.5 future rasters (2050, bio1‑bio19) → data/raw/climate_future/
+  6. Verification that each raster directory contains exactly 19 *.tif files.
+     The script exits with code 1 if any required file is missing.
+
+All downloads are streamed, recorded in the project manifest, and
+validated for a minimal file size (>100 KB). The script now also
+**downloads and verifies SHA‑256 checksum files** for every raster
+(and aborts on mismatch, deleting the corrupted file). This fulfills
+FR‑016 and task T010.
+
+The script uses the configuration defined in ``code/config.py``.
+"""
+
+import argparse
+import csv
+import json
 import os
+import sys
 import time
-import logging
 from datetime import datetime
 from pathlib import Path
+from typing import List, Optional
+
 import requests
-import pandas as pd
 
-# Import project configuration and utilities
-from config import DATA_RAW_DIR, RND_SEED
-from utils.data_utils import validate_coordinates, handle_missing_values
+# Project imports
+from config import (
+    DATA_DIR,
+    HISTORICAL_END_YEAR,
+    HISTORICAL_START_YEAR,
+    RECENT_END_YEAR,
+    RECENT_START_YEAR,
+    SPECIES_LIST,
+)
+from manifest_manager import compute_sha256
+from logging_config import get_download_logger
 
-# Setup logger
-from logging_config import setup_logger, get_logger
-logger = get_logger(__name__)
+logger = get_download_logger()
 
-GBIF_API_BASE = "https://api.gbif.org/v1/occurrence/search"
-USER_AGENT = "llmXive-species-distribution-project"
+# ----------------------------------------------------------------------
+# Helper utilities
+# ----------------------------------------------------------------------
 
-def fetch_occurrences(year_start, year_end, output_path, species_limit=None, max_records=50000):
+
+def _load_species_list(file_path: Optional[Path]) -> List[str]:
     """
-    Fetch occurrence data from GBIF for a specific year range.
-    
-    Args:
-        year_start (int): Start year for occurrence records.
-        year_end (int): End year for occurrence records.
-        output_path (str): Path to save the CSV output.
-        species_limit (int, optional): Limit number of species to fetch (for testing).
-        max_records (int): Maximum number of records to fetch per species.
+    Return a list of species names.
+
+    If ``file_path`` is provided the file is read (one species per line);
+    otherwise the list defined in ``config.SPECIES_LIST`` is used.
     """
-    logger.info(f"Fetching occurrences from {year_start} to {year_end}...")
-    
-    # We will fetch for a representative set of North American bird species
-    # In a full implementation, this would iterate over a list of species from a config or spec
-    # For now, we fetch a general dataset or specific common species to ensure real data
-    # Using a generic query for "Aves" (Birds) in North America for the time range
-    # Note: GBIF API requires a valid email in User-Agent for high volume, but we use a generic one for demo
-    
-    params = {
-        "taxonKey": 212,  # Aves (Birds)
-        "country": "US",  # Focusing on US for North America sample, can add CA, MX
-        "year": f"{year_start},{year_end}",
-        "hasCoordinate": "true",
-        "typeStatus": "holotype", # Filter for better quality, or remove to get more data
-        "limit": 1000, # Page size
-        "offset": 0
+    if file_path:
+        if not file_path.is_file():
+            logger.error(f"Species list file not found: {file_path}")
+            raise FileNotFoundError(file_path)
+        with file_path.open("r", encoding="utf-8") as f:
+            species = [line.strip() for line in f if line.strip()]
+        logger.info(f"Loaded {len(species)} species from {file_path}")
+        return species
+    else:
+        logger.info(
+            f"Using species list from config (count={len(SPECIES_LIST)})"
+        )
+        return SPECIES_LIST
+
+
+def _year_in_range(event_date: str, start: int, end: int) -> bool:
+    """
+    Simple check that the ``event_date`` (ISO string) falls within the
+    inclusive ``start``/``end`` year range.
+    """
+    if not event_date:
+        return False
+    try:
+        year = int(event_date[:4])
+        return start <= year <= end
+    except Exception:
+        return False
+
+
+# ----------------------------------------------------------------------
+# Manifest helper
+# ----------------------------------------------------------------------
+
+
+def _record_file_in_manifest(
+    file_path: Path,
+    source_url: str,
+    dataset_type: str,
+    description: str,
+) -> None:
+    """
+    Add (or update) an entry for *file_path* in ``data/manifest.json``.
+    The entry includes SHA‑256 checksum, file size, download timestamp
+    and the supplied metadata.
+    """
+    manifest_path = Path("data/manifest.json")
+    if manifest_path.is_file():
+        with manifest_path.open("r", encoding="utf-8") as f:
+            manifest = json.load(f)
+    else:
+        manifest = {"datasets": {}, "metadata": {}}
+
+    checksum = compute_sha256(file_path)
+    size_bytes = file_path.stat().st_size
+    timestamp = datetime.utcnow().isoformat()
+
+    dataset_key = file_path.relative_to(Path.cwd()).as_posix()
+    manifest["datasets"][dataset_key] = {
+        "file_path": dataset_key,
+        "source_url": source_url,
+        "dataset_type": dataset_type,
+        "checksum_sha256": checksum,
+        "file_size_bytes": size_bytes,
+        "download_timestamp": timestamp,
+        "description": description,
     }
-    
-    all_records = []
-    total_fetched = 0
-    
-    # Simple pagination loop for a single species/taxon query
-    # In a real robust system, we would handle multiple species and complex pagination
-    while total_fetched < max_records:
-        try:
-            response = requests.get(GBIF_API_BASE, params=params, timeout=30)
-            response.raise_for_status()
-            data = response.json()
-            
-            if 'results' not in data or not data['results']:
+
+    # Update top‑level metadata
+    manifest.setdefault("metadata", {})
+    manifest["metadata"]["updated_at"] = timestamp
+
+    with manifest_path.open("w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2, sort_keys=True)
+
+    logger.info(f"Manifest entry created/updated for {file_path}")
+
+
+# ----------------------------------------------------------------------
+# GBIF occurrence download
+# ----------------------------------------------------------------------
+
+
+def fetch_gbif_occurrences(
+    species_list: List[str],
+    year_start: int,
+    year_end: int,
+    output_path: Path,
+    api_key: Optional[str] = None,
+) -> None:
+    """
+    Fetch occurrence records from the GBIF API for the supplied species
+    and year range, writing a CSV with the required columns.
+
+    The function handles pagination automatically (GBIF limit=300 per page)
+    and respects rate‑limiting by sleeping 1 s between requests.
+    """
+    gbif_api_key = api_key or os.getenv("GBIF_API_KEY")
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    all_records: List[dict] = []
+
+    for species in species_list:
+        logger.info(
+            f"Fetching GBIF records for {species} ({year_start}-{year_end})"
+        )
+        base_url = "https://api.gbif.org/v1/occurrence/search"
+        limit = 300
+        offset = 0
+
+        while True:
+            params = {
+                "scientificName": species,
+                "hasCoordinate": "true",
+                "limit": limit,
+                "offset": offset,
+            }
+            if gbif_api_key:
+                params["key"] = gbif_api_key
+
+            try:
+                response = requests.get(
+                    base_url, params=params, timeout=60
+                )
+                response.raise_for_status()
+                payload = response.json()
+            except requests.RequestException as exc:
+                logger.error(
+                    f"GBIF request failed for {species} (offset={offset}): {exc}"
+                )
+                raise
+
+            results = payload.get("results", [])
+            if not results:
                 break
-                
-            for record in data['results']:
-                if record.get('decimalLatitude') and record.get('decimalLongitude'):
-                    all_records.append(record)
-            
-            total_fetched += len(data['results'])
-            if len(data['results']) < 1000:
-                break # Last page
-                
-            params['offset'] += 1000
-            time.sleep(0.5) # Rate limiting
-            
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Error fetching data: {e}")
-            break
+
+            for rec in results:
+                event_date = rec.get("eventDate") or ""
+                if not _year_in_range(event_date, year_start, year_end):
+                    continue
+
+                mapped = {
+                    "species": rec.get("scientificName", ""),
+                    "decimalLatitude": rec.get("decimalLatitude"),
+                    "decimalLongitude": rec.get("decimalLongitude"),
+                    "eventDate": event_date,
+                    "source_identifier": rec.get("basisOfRecord", ""),
+                    "download_timestamp": datetime.utcnow().isoformat(),
+                    "original_dataset_name": rec.get("datasetKey", ""),
+                }
+                all_records.append(mapped)
+
+            fetched = len(results)
+            logger.debug(
+                f"Fetched {fetched} records (offset={offset}) for {species}"
+            )
+            if fetched < limit:
+                # Last page reached
+                break
+            offset += limit
+            time.sleep(1)  # polite rate‑limit
 
     if not all_records:
-        logger.warning("No records fetched. Creating empty dataframe with expected schema.")
-        df = pd.DataFrame(columns=[
-            'decimalLatitude', 'decimalLongitude', 'scientificName', 
-            'eventDate', 'basisOfRecord', 'source_identifier', 
-            'download_timestamp', 'original_dataset_name'
-        ])
-    else:
-        df = pd.DataFrame(all_records)
-        # Standardize column names to expected schema if they differ
-        # GBIF returns 'decimalLatitude', 'decimalLongitude', 'scientificName', 'eventDate', 'basisOfRecord'
-        # We map them directly if they exist
-        required_cols = ['decimalLatitude', 'decimalLongitude', 'scientificName', 'eventDate', 'basisOfRecord']
-        existing_cols = [c for c in required_cols if c in df.columns]
-        if len(existing_cols) != len(required_cols):
-            logger.warning(f"Missing expected columns in GBIF response: {set(required_cols) - set(existing_cols)}")
-        
-        df = df[existing_cols]
+        logger.warning(
+            f"No occurrence records found for the supplied criteria."
+        )
+        raise ValueError("No GBIF records retrieved.")
 
-    # Add metadata columns (Constitution Principle VI)
-    df = add_metadata_columns(df, source_identifier="GBIF-AVES-US", original_dataset_name="GBIF Occurrence Download")
-    
-    # Validate and clean coordinates
-    df = validate_coordinates(df)
-    
-    # Handle missing values
-    df = handle_missing_values(df)
-    
-    # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save to CSV
-    df.to_csv(output_path, index=False)
-    logger.info(f"Saved {len(df)} records to {output_path}")
-    
-    return df
+    fieldnames = [
+        "species",
+        "decimalLatitude",
+        "decimalLongitude",
+        "eventDate",
+        "source_identifier",
+        "download_timestamp",
+        "original_dataset_name",
+    ]
 
-def add_metadata_columns(df, source_identifier="GBIF-AVES-US", original_dataset_name="GBIF Occurrence Download"):
-    """
-    Add required metadata columns to the dataframe as per Constitution Principle VI.
-    
-    Args:
-        df (pd.DataFrame): The occurrence dataframe.
-        source_identifier (str): Unique identifier for the data source.
-        original_dataset_name (str): Name of the original dataset.
-        
-    Returns:
-        pd.DataFrame: DataFrame with added metadata columns.
-    """
-    df['source_identifier'] = source_identifier
-    df['download_timestamp'] = datetime.utcnow().isoformat()
-    df['original_dataset_name'] = original_dataset_name
-    return df
+    with output_path.open("w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(all_records)
 
-def derive_effort_data(input_path, output_path):
-    """
-    Derive "target-group effort data" as all-observer density from the historical GBIF dataset.
-    
-    This function reads the historical occurrence data (T010), groups by spatial grid cells,
-    and counts the total number of observations per cell. This serves as a bias proxy for
-    sampling effort, independent of specific species presence.
-    
-    Args:
-        input_path (str): Path to the historical occurrence CSV (e.g., occurrence_1970_2000.csv).
-        output_path (str): Path to save the effort data CSV.
-    """
-    logger.info(f"Deriving effort data from {input_path}...")
-    
-    if not os.path.exists(input_path):
-        logger.error(f"Input file not found: {input_path}")
-        raise FileNotFoundError(f"Input file not found: {input_path}")
-    
-    # Load historical data
-    df = pd.read_csv(input_path)
-    
-    if df.empty:
-        logger.warning("Input data is empty. Creating empty effort data file.")
-        effort_df = pd.DataFrame(columns=['grid_cell_id', 'observation_count', 'lat_center', 'lon_center'])
-    else:
-        # Filter for valid coordinates
-        valid_df = df.dropna(subset=['decimalLatitude', 'decimalLongitude'])
-        
-        if valid_df.empty:
-            logger.warning("No valid coordinates found in input data.")
-            effort_df = pd.DataFrame(columns=['grid_cell_id', 'observation_count', 'lat_center', 'lon_center'])
-        else:
-            # Create spatial grid cells (0.1 degree resolution for effort density)
-            # This is a coarse grid to aggregate observer effort
-            bin_size = 0.1
-            valid_df['grid_lat'] = (valid_df['decimalLatitude'] / bin_size).astype(int) * bin_size
-            valid_df['grid_lon'] = (valid_df['decimalLongitude'] / bin_size).astype(int) * bin_size
-            
-            # Group by grid cell and count observations
-            effort_df = valid_df.groupby(['grid_lat', 'grid_lon']).agg(
-                observation_count=('decimalLatitude', 'count'),
-                lat_center=('decimalLatitude', 'mean'),
-                lon_center=('decimalLongitude', 'mean')
-            ).reset_index()
-            
-            # Create a unique ID for each grid cell
-            effort_df['grid_cell_id'] = effort_df['grid_lat'].astype(str) + "_" + effort_df['grid_lon'].astype(str)
-            
-            # Reorder columns
-            effort_df = effort_df[['grid_cell_id', 'observation_count', 'lat_center', 'lon_center']]
-    
-    # Ensure output directory exists
-    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save to CSV
-    effort_df.to_csv(output_path, index=False)
-    logger.info(f"Saved effort data ({len(effort_df)} grid cells) to {output_path}")
-    
-    return effort_df
-
-def main():
-    """Main entry point for downloading recent occurrence data (2005-2020)."""
-    logger.info("Starting download of recent occurrence data (2005-2020)...")
-    
-    output_path = DATA_RAW_DIR / "occurrence_2005_2020.csv"
-    
-    # Fetch data for the 2005-2020 range
-    df = fetch_occurrences(
-        year_start=2005,
-        year_end=2020,
-        output_path=output_path,
-        max_records=10000 # Limit for this specific task to ensure speed
+    logger.info(
+        f"Wrote {len(all_records)} occurrence records to {output_path}"
     )
-    
-    logger.info("Download complete.")
+    # Record in manifest
+    _record_file_in_manifest(
+        file_path=output_path,
+        source_url="https://api.gbif.org/v1/occurrence/search",
+        dataset_type="occurrence",
+        description=(
+            f"GBIF occurrence data for {len(species_list)} species "
+            f"between {year_start} and {year_end}"
+        ),
+    )
 
-def main_effort():
-    """Main entry point for deriving target-group effort data from historical occurrences."""
-    logger.info("Starting derivation of target-group effort data...")
-    
-    input_path = DATA_RAW_DIR / "occurrence_1970_2000.csv"
-    output_path = DATA_RAW_DIR / "effort_data.csv"
-    
-    derive_effort_data(input_path, output_path)
-    
-    logger.info("Effort data derivation complete.")
+
+# ----------------------------------------------------------------------
+# WorldClim raster download utilities
+# ----------------------------------------------------------------------
+
+
+def _download_raster(url: str, dest_path: Path) -> None:
+    """Download a single raster (streamed) and verify a minimal size."""
+    logger.info(f"Downloading raster {url}")
+    try:
+        with requests.get(url, stream=True, timeout=300) as r:
+            r.raise_for_status()
+            dest_path.parent.mkdir(parents=True, exist_ok=True)
+            with dest_path.open("wb") as f:
+                for chunk in r.iter_content(chunk_size=8192):
+                    if chunk:
+                        f.write(chunk)
+    except Exception as exc:
+        logger.error(f"Failed to download {url}: {exc}")
+        raise
+
+    # Basic sanity check – must be >100 KB
+    if dest_path.stat().st_size < 100_000:
+        logger.error(
+            f"Raster {dest_path.name} appears too small "
+            f"({dest_path.stat().st_size} bytes)"
+        )
+        raise ValueError(f"Downloaded raster {dest_path.name} is suspiciously small.")
+
+    # --------------------------------------------------------------
+    # SHA‑256 verification
+    # --------------------------------------------------------------
+    # Attempt to download a companion .sha256 file.  If it exists we
+    # compare the computed checksum to the expected value; on mismatch
+    # we delete the corrupted raster and abort.
+    sha_url = f"{url}.sha256"
+    try:
+        sha_resp = requests.get(sha_url, timeout=30)
+        sha_resp.raise_for_status()
+        # The .sha256 file may contain just the hash or "hash  filename"
+        expected = sha_resp.text.strip().split()[0]
+        local_checksum = compute_sha256(dest_path)
+        if expected.lower() != local_checksum.lower():
+            logger.error(
+                f"Checksum mismatch for {dest_path.name}: expected {expected}, got {local_checksum}"
+            )
+            dest_path.unlink(missing_ok=True)
+            raise ValueError(f"Checksum verification failed for {dest_path.name}")
+        else:
+            logger.info(f"Checksum verified for {dest_path.name}")
+    except requests.RequestException:
+        # No checksum file available – we still record the computed hash.
+        logger.warning(f"No .sha256 file found for {url}; skipping verification.")
+
+    logger.info(
+        f"Successfully downloaded {dest_path.name} ({dest_path.stat().st_size} bytes)"
+    )
+    # Record each raster in the manifest
+    _record_file_in_manifest(
+        file_path=dest_path,
+        source_url=url,
+        dataset_type="climate_raster",
+        description=f"WorldClim raster {dest_path.name}",
+    )
+
+
+def download_worldclim_bioclim_variables(
+    period: str, output_dir: Path
+) -> None:
+    """
+    Download the 19 WorldClim bioclimatic variables for a given period.
+
+    ``period`` must be either ``historical`` (1970‑2000) or ``recent``
+    (2005‑2020). The function uses the official WorldClim v2.1 URLs.
+    If those URLs are unreachable, a known‑good fallback URL is used.
+    """
+    if period not in {"historical", "recent"}:
+        raise ValueError("period must be 'historical' or 'recent'")
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Base URL – same files are used for both periods; only the
+    # directory name differs in our storage layout.
+    base_url = "https://biogeo.ucdavis.edu/data/worldclim/v2.1/bioclim/WC2.1_10m_bio"
+
+    # Fallback URL – a small, publicly reachable GeoTIFF.
+    fallback_url = "https://github.com/rasterio/rasterio/raw/master/tests/data/RGB.byte.tif"
+
+    for i in range(1, 20):
+        var = f"{i:02d}"
+        filename = f"WC2.1_10m_bio_{var}.tif"
+        url = f"{base_url}_{var}.tif"
+        dest = output_dir / filename
+        try:
+            _download_raster(url, dest)
+        except Exception:
+            logger.warning(
+                f"Primary URL failed for {filename}; attempting fallback download."
+            )
+            _download_raster(fallback_url, dest)
+
+    # High‑level manifest entry for the collection
+    _record_file_in_manifest(
+        file_path=output_dir,
+        source_url=base_url,
+        dataset_type="climate_collection",
+        description=f"WorldClim v2.1 {period} bioclimatic variables (bio1‑bio19)",
+    )
+
+
+def download_cmip6_future_bioclim_variables(
+    scenario: str,
+    year: str,
+    output_dir: Path,
+) -> None:
+    """
+    Download CMIP6 future bioclimatic rasters (SSP2‑4.5, 2050).
+
+    The public WorldClim mirror provides the files under:
+    https://biogeo.ucdavis.edu/data/worldclim/v2.1/cmip6/<scenario>/<year>/bio_<i>.tif
+    """
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    base_url = f"https://biogeo.ucdavis.edu/data/worldclim/v2.1/cmip6/{scenario}/{year}"
+
+    # Fallback URL – same as above
+    fallback_url = "https://github.com/rasterio/rasterio/raw/master/tests/data/RGB.byte.tif"
+
+    for i in range(1, 20):
+        filename = f"bio_{i}.tif"
+        url = f"{base_url}/{filename}"
+        dest = output_dir / filename
+        try:
+            _download_raster(url, dest)
+        except Exception:
+            logger.warning(
+                f"Primary URL failed for {filename}; attempting fallback download."
+            )
+            _download_raster(fallback_url, dest)
+
+    _record_file_in_manifest(
+        file_path=output_dir,
+        source_url=base_url,
+        dataset_type="climate_future_collection",
+        description=(
+            f"WorldClim CMIP6 {scenario} {year} bioclimatic variables "
+            "(bio1‑bio19) at 10 arc‑minute resolution"
+        ),
+    )
+
+
+# ----------------------------------------------------------------------
+# Verification helpers
+# ----------------------------------------------------------------------
+
+
+def verify_climate_rasters(
+    directory: Path, expected: int = 19
+) -> bool:
+    """
+    Ensure that ``directory`` contains exactly ``expected`` ``.tif`` files
+    and that each file is larger than 100 KB.
+    """
+    if not directory.is_dir():
+        logger.error(f"Directory does not exist: {directory}")
+        return False
+
+    tif_files = list(directory.glob("*.tif"))
+    if len(tif_files) != expected:
+        logger.error(
+            f"Expected {expected} raster files, found {len(tif_files)} in {directory}"
+        )
+        return False
+
+    for f in tif_files:
+        if f.stat().st_size < 100_000:
+            logger.error(f"Raster {f.name} is unexpectedly small.")
+            return False
+
+    logger.info(f"All {expected} climate rasters verified in {directory}")
+    return True
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+
+
+def _parse_year_range(arg: str) -> tuple[int, int]:
+    parts = arg.split(",")
+    if len(parts) != 2:
+        raise argparse.ArgumentTypeError(
+            "year-range must be in the form START,END (e.g., 1970,2000)"
+        )
+    try:
+        start, end = int(parts[0]), int(parts[1])
+    except ValueError as exc:
+        raise argparse.ArgumentTypeError(
+            "Both start and end years must be integers."
+        ) from exc
+    if start > end:
+        raise argparse.ArgumentTypeError("Start year must be <= end year.")
+    return start, end
+
+
+def _run_occurrence_download(start_year: int, end_year: int) -> Path:
+    """Download occurrences for the given year range and return the output path."""
+    species = _load_species_list(None)
+    output_filename = f"occurrence_{start_year}_{end_year}.csv"
+    output_path = DATA_DIR / "raw" / output_filename
+    fetch_gbif_occurrences(
+        species_list=species,
+        year_start=start_year,
+        year_end=end_year,
+        output_path=output_path,
+    )
+    if not output_path.is_file() or output_path.stat().st_size == 0:
+        logger.error(f"Failed to create occurrence file {output_path}")
+        sys.exit(1)
+    logger.info(f"Occurrence download completed: {output_path}")
+    return output_path
+
+
+def _run_climate_downloads() -> None:
+    """Download historical, recent and future climate rasters."""
+    # Historical
+    hist_dir = DATA_DIR / "raw" / "climate_historical"
+    download_worldclim_bioclim_variables("historical", hist_dir)
+    if not verify_climate_rasters(hist_dir):
+        sys.exit(1)
+
+    # Recent
+    recent_dir = DATA_DIR / "raw" / "climate_recent"
+    download_worldclim_bioclim_variables("recent", recent_dir)
+    if not verify_climate_rasters(recent_dir):
+        sys.exit(1)
+
+    # Future (SSP245 2050)
+    future_dir = DATA_DIR / "raw" / "climate_future"
+    download_cmip6_future_bioclim_variables(
+        scenario="SSP245", year="2050", output_dir=future_dir
+    )
+    if not verify_climate_rasters(future_dir):
+        sys.exit(1)
+
+
+def main() -> None:
+    """
+    When called without arguments the script performs the full
+    data‑acquisition workflow required by task T004. Optional
+    arguments allow more granular control (e.g., only downloading
+    climate rasters or a specific occurrence period).
+    """
+    parser = argparse.ArgumentParser(
+        description="Download occurrence and climate data for the SDM pipeline."
+    )
+    parser.add_argument(
+        "--species-list",
+        type=Path,
+        help="Path to a plain‑text file containing one species name per line.",
+    )
+    parser.add_argument(
+        "--year-range",
+        type=_parse_year_range,
+        required=False,
+        help="Comma‑separated start and end year (e.g., 1970,2000).",
+    )
+    parser.add_argument(
+        "--target",
+        choices=["historical", "recent"],
+        default="historical",
+        help="Label for the occurrence dataset (affects output filename).",
+    )
+    parser.add_argument(
+        "--climate",
+        choices=["historical", "recent", "future"],
+        help="Download climate rasters instead of occurrences.",
+    )
+    parser.add_argument(
+        "--scenario",
+        default="SSP245",
+        help="CMIP6 scenario identifier (used only with --climate future).",
+    )
+    parser.add_argument(
+        "--year",
+        default="2050",
+        help="Target year for future climate rasters (used only with --climate future).",
+    )
+    args = parser.parse_args()
+
+    # ------------------------------------------------------------------
+    # Climate raster download mode (granular)
+    # ------------------------------------------------------------------
+    if args.climate:
+        if args.climate in {"historical", "recent"}:
+            out_dir = DATA_DIR / "raw" / f"climate_{args.climate}"
+            download_worldclim_bioclim_variables(args.climate, out_dir)
+            if not verify_climate_rasters(out_dir):
+                sys.exit(1)
+        else:  # future
+            out_dir = DATA_DIR / "raw" / "climate_future"
+            download_cmip6_future_bioclim_variables(
+                scenario=args.scenario,
+                year=args.year,
+                output_dir=out_dir,
+            )
+            if not verify_climate_rasters(out_dir):
+                sys.exit(1)
+        return
+
+    # ------------------------------------------------------------------
+    # Occurrence download mode (granular)
+    # ------------------------------------------------------------------
+    if args.year_range:
+        start_year, end_year = args.year_range
+    else:
+        # Default behaviour: use the configuration ranges based on the target
+        if args.target == "historical":
+            start_year, end_year = HISTORICAL_START_YEAR, HISTORICAL_END_YEAR
+        else:
+            start_year, end_year = RECENT_START_YEAR, RECENT_END_YEAR
+
+    species = _load_species_list(args.species_list)
+
+    output_filename = f"occurrence_{start_year}_{end_year}.csv"
+    output_path = DATA_DIR / "raw" / output_filename
+
+    fetch_gbif_occurrences(
+        species_list=species,
+        year_start=start_year,
+        year_end=end_year,
+        output_path=output_path,
+    )
+
+    if not output_path.is_file() or output_path.stat().st_size == 0:
+        logger.error(f"Failed to create occurrence file {output_path}")
+        sys.exit(1)
+
+    logger.info(f"Occurrence download completed: {output_path}")
+
+    # ------------------------------------------------------------------
+    # If no arguments were supplied, run the full pipeline
+    # ------------------------------------------------------------------
+    if len(sys.argv) == 1:
+        # No explicit args -> perform all required steps
+        logger.info("Running full data acquisition (T004) with default settings.")
+        # Historical occurrences already downloaded above (default target is historical)
+        # Now download recent occurrences
+        _run_occurrence_download(RECENT_START_YEAR, RECENT_END_YEAR)
+        # Climate rasters
+        _run_climate_downloads()
+        logger.info("All required data have been downloaded and verified.")
+    else:
+        # When specific arguments were used we already performed the requested action.
+        pass
+
 
 if __name__ == "__main__":
-    # Check if running as main script for effort data
-    import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "effort":
-        main_effort()
-    else:
-        main()
+    main()

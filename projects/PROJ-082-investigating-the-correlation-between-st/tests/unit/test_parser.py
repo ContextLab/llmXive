@@ -1,140 +1,155 @@
 """
-Unit tests for code/extraction/parser.py
+Unit tests for the extraction parser module.
 """
+import pytest
 import json
 import csv
-import tempfile
+import os
 from pathlib import Path
-import pytest
-
+import tempfile
 import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from code.extraction.parser import parse_row, parse_csv_file, parse_json_file, _find_proximity_match
+# Add the project root to the path
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
+from extraction.parser import (
+    parse_row, 
+    parse_csv_file, 
+    parse_json_file, 
+    save_extracted_studies, 
+    load_qualitative_data,
+    log_exclusion,
+    load_tract_lexicon
+)
 
-class TestParseRow:
-    def test_extract_quantitative_direct(self):
-        """Test direct extraction of r and n."""
-        row = {"r": 0.45, "n": 120, "author": "Smith"}
-        result = parse_row(row)
-        assert result["r"] == 0.45
-        assert result["n"] == 120
-        assert result["quantitative_available"] is True
+@pytest.fixture
+def sample_lexicon():
+    return ["arcuate fasciculus", "cingulum bundle", "uncinate fasciculus"]
 
-    def test_extract_quantitative_string(self):
-        """Test extraction from string values."""
-        row = {"r": "0.32", "n": "85", "author": "Jones"}
-        result = parse_row(row)
-        assert result["r"] == 0.32
-        assert result["n"] == 85
-        assert result["quantitative_available"] is True
+@pytest.fixture
+def sample_qualitative_data():
+    return {
+        "Smith_2020": "Strong correlation with auditory cortex",
+        "Jones_2021": "No significant findings reported"
+    }
 
-    def test_extract_quantitative_missing(self):
-        """Test when r or n is missing."""
-        row = {"r": 0.45, "author": "Doe"}
-        result = parse_row(row)
-        assert result["r"] == 0.45
-        assert result["n"] is None
-        assert result["quantitative_available"] is False
+def test_parse_row_valid_quantitative(sample_lexicon):
+    """Test parsing a row with valid r and n values."""
+    row = {
+        "author": "Smith",
+        "year": 2020,
+        "tract": "Arcuate Fasciculus",
+        "r": 0.45,
+        "n": 50
+    }
+    qualitative_data = {}
+    
+    result, reason = parse_row(row, sample_lexicon, qualitative_data)
+    
+    assert result is not None
+    assert reason is None
+    assert result['author'] == "Smith"
+    assert result['year'] == 2020
+    assert result['tract'] == "arcuate fasciculus"
+    assert result['r'] == 0.45
+    assert result['n'] == 50
+    assert result['narrative_pool'] == False
 
-    def test_qualitative_specific_tract_found(self):
-        """Test detection of specific tract near directional verb."""
-        row = {
-            "abstract": "The arcuate fasciculus showed increased connectivity in music lovers.",
-            "author": "Test"
-        }
-        result = parse_row(row)
-        assert result["qualitative_descriptor"]["tract"] == "arcuate fasciculus"
-        assert result["qualitative_descriptor"]["context"] == "specific_circuitry_found"
+def test_parse_row_missing_r_with_qualitative(sample_lexicon, sample_qualitative_data):
+    """Test parsing a row missing r but with qualitative data."""
+    row = {
+        "author": "Smith",
+        "year": 2020,
+        "tract": "Arcuate Fasciculus",
+        "r": "",
+        "n": 50
+    }
+    
+    result, reason = parse_row(row, sample_lexicon, sample_qualitative_data)
+    
+    assert result is not None
+    assert reason is None
+    assert result['qualitative_desc'] == "Strong correlation with auditory cortex"
+    assert result['narrative_pool'] == True
 
-    def test_qualitative_no_tract_no_music(self):
-        """Test fallback when no tract or music context found."""
-        row = {
-            "abstract": "General brain activity was measured.",
-            "author": "Test"
-        }
-        result = parse_row(row)
-        assert result["qualitative_descriptor"]["no_qualitative_data"] is True
+def test_parse_row_missing_both_and_no_qualitative(sample_lexicon):
+    """Test parsing a row missing both r and n with no qualitative data."""
+    row = {
+        "author": "Unknown",
+        "year": 2023,
+        "tract": "Cingulum Bundle",
+        "r": "",
+        "n": ""
+    }
+    qualitative_data = {}
+    
+    result, reason = parse_row(row, sample_lexicon, qualitative_data)
+    
+    assert result is None
+    assert reason == "Missing r, n, and qualitative description"
 
-    def test_qualitative_music_only_no_tract(self):
-        """Test when music preference is mentioned but no specific tract."""
-        row = {
-            "abstract": "Participants reported their music preference, and general brain scans were done.",
-            "author": "Test"
-        }
-        result = parse_row(row)
-        assert result["qualitative_descriptor"]["no_qualitative_data"] is True
-        assert result["qualitative_descriptor"]["context"] == "music_preference_only"
+def test_parse_row_missing_author(sample_lexicon):
+    """Test parsing a row missing author."""
+    row = {
+        "author": "",
+        "year": 2020,
+        "tract": "Cingulum Bundle",
+        "r": 0.3,
+        "n": 40
+    }
+    
+    result, reason = parse_row(row, sample_lexicon, {})
+    
+    assert result is None
+    assert reason == "Missing author or year"
 
-    def test_qualitative_uncinate_tract(self):
-        """Test detection of uncinate fasciculus."""
-        row = {
-            "abstract": "A negative correlation was found between uncinate fasciculus integrity and jazz preference.",
-            "author": "Test"
-        }
-        result = parse_row(row)
-        assert result["qualitative_descriptor"]["tract"] == "uncinate fasciculus"
-        assert result["qualitative_descriptor"]["context"] == "specific_circuitry_found"
+def test_parse_csv_file(tmp_path, sample_lexicon, sample_qualitative_data):
+    """Test parsing a CSV file."""
+    csv_file = tmp_path / "studies.csv"
+    with open(csv_file, 'w', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=['author', 'year', 'tract', 'r', 'n'])
+        writer.writeheader()
+        writer.writerow({"author": "Smith", "year": 2020, "tract": "Arcuate Fasciculus", "r": 0.45, "n": 50})
+        writer.writerow({"author": "Jones", "year": 2021, "tract": "Cingulum Bundle", "r": "", "n": 30})
+    
+    studies, exclusions = parse_csv_file(csv_file, sample_qualitative_data)
+    
+    assert len(studies) == 2
+    assert len(exclusions) == 0
+    assert studies[0]['author'] == "Smith"
+    assert studies[1]['qualitative_desc'] == "No significant findings reported"
 
+def test_save_extracted_studies(tmp_path):
+    """Test saving extracted studies to CSV."""
+    studies = [
+        {"author": "Smith", "year": 2020, "tract": "Arcuate Fasciculus", "r": 0.45, "n": 50, "qualitative_desc": None, "narrative_pool": False},
+        {"author": "Jones", "year": 2021, "tract": "Cingulum Bundle", "r": None, "n": 30, "qualitative_desc": "Test desc", "narrative_pool": True}
+    ]
+    output_path = tmp_path / "extracted.csv"
+    
+    save_extracted_studies(studies, output_path)
+    
+    assert output_path.exists()
+    with open(output_path, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    
+    assert len(rows) == 2
+    assert rows[0]['r'] == '0.45'
+    assert rows[1]['r'] == ''
+    assert rows[1]['narrative_pool'] == 'True'
 
-class TestParseCSV:
-    def test_parse_csv_file(self):
-        """Test parsing a CSV file."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            writer = csv.DictWriter(f, fieldnames=['id', 'r', 'n', 'abstract'])
-            writer.writeheader()
-            writer.writerow({'id': 'S1', 'r': '0.5', 'n': '100', 'abstract': 'Arcuate increased in music fans.'})
-            temp_path = f.name
-
-        try:
-            results = parse_csv_file(temp_path)
-            assert len(results) == 1
-            assert results[0]['r'] == 0.5
-            assert results[0]['n'] == 100
-            assert results[0]['qualitative_descriptor']['tract'] == 'arcuate'
-        finally:
-            Path(temp_path).unlink()
-
-
-class TestParseJSON:
-    def test_parse_json_file(self):
-        """Test parsing a JSON file."""
-        data = [
-            {
-                "id": "S1",
-                "r": 0.6,
-                "n": 50,
-                "abstract": "Cingulum bundle correlated with classical music preference."
-            }
-        ]
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
-            json.dump(data, f)
-            temp_path = f.name
-
-        try:
-            results = parse_json_file(temp_path)
-            assert len(results) == 1
-            assert results[0]['r'] == 0.6
-            assert results[0]['n'] == 50
-            assert results[0]['qualitative_descriptor']['tract'] == 'cingulum bundle'
-        finally:
-            Path(temp_path).unlink()
-
-
-class TestFindProximityMatch:
-    def test_match_arcuate(self):
-        text = "The study found that the arcuate fasciculus was increased in individuals with high music preference."
-        assert _find_proximity_match(text) == "arcuate fasciculus"
-
-    def test_match_cingulum(self):
-        text = "Reduced integrity in the cingulum bundle was associated with lower music liking."
-        assert _find_proximity_match(text) == "cingulum bundle"
-
-    def test_no_match(self):
-        text = "General brain structures were analyzed without specific tract focus."
-        assert _find_proximity_match(text) is None
-
-    def test_match_unspecified_tract(self):
-        text = "The corpus callosum showed a positive correlation with music enjoyment."
-        assert _find_proximity_match(text) == "corpus callosum"
+def test_log_exclusion(tmp_path):
+    """Test logging an excluded row."""
+    exclusion_log_path = tmp_path / "exclusions.csv"
+    row = {"author": "Test", "year": 2022, "tract": "Unknown", "r": "", "n": ""}
+    
+    log_exclusion(row, "Missing data", exclusion_log_path)
+    
+    assert exclusion_log_path.exists()
+    with open(exclusion_log_path, 'r') as f:
+        reader = csv.DictReader(f)
+        rows = list(reader)
+    
+    assert len(rows) == 1
+    assert rows[0]['reason'] == "Missing data"

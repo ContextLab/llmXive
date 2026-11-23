@@ -1,0 +1,4 @@
+# This file intentionally empty to inherit from root .flake8
+# Specific overrides for code/ directory can be added here if needed
+[flake8]
+max-line-length = 88

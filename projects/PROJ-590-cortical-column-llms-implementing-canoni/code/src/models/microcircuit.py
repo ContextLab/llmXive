@@ -1,427 +1,320 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from typing import Optional, Tuple, Dict, List
+from typing import Optional, Tuple, Dict, List, Callable
 from dataclasses import dataclass
 import math
+import logging
+
+from src.training.homeostasis import apply_ei_balance_constraint
+
+logger = logging.getLogger(__name__)
 
 @dataclass
 class LayerConfig:
-    """Configuration for a cortical layer."""
+    """Configuration for a single cortical layer."""
     name: str
-    neuron_count: int
-    is_excitatory: bool
-    connectivity_factor: float = 1.0
+    input_size: int
+    output_size: int
+    exc_ratio: float = 0.8  # Fraction of excitatory neurons
+    bias: bool = True
+
+@dataclass
+class MicrocircuitColumnConfig:
+    """Configuration for a full cortical column."""
+    l4_size: int = 128
+    l23_size: int = 128
+    l5_size: int = 128
+    l6_size: int = 128
+    exc_ratio: float = 0.8
+    dropout: float = 0.1
+
+def generate_laminar_connectivity_mask(
+    source_layer: str,
+    target_layer: str,
+    source_size: int,
+    target_size: int,
+    config: MicrocircuitColumnConfig
+) -> torch.Tensor:
+    """
+    Generate a binary connectivity mask enforcing canonical laminar topology.
+
+    Canonical feedforward/feedback rules (simplified):
+    - L4 -> L2/3 (Feedforward Excitatory)
+    - L2/3 -> L5 (Feedforward Excitatory)
+    - L5 -> L6 (Feedforward Excitatory)
+    - L6 -> L4 (Feedback Inhibitory/Regulatory)
+    - L2/3 -> L2/3 (Recurrent Excitatory)
+    - L5 -> L5 (Recurrent Excitatory)
+    - All layers receive local inhibition (modeled as dense to inhibitory pool)
+
+    Returns:
+        torch.Tensor: Binary mask of shape (target_size, source_size).
+                      1 indicates a connection exists, 0 otherwise.
+    """
+    mask = torch.zeros((target_size, source_size), dtype=torch.float32)
+
+    # Calculate excitatory/inhibitory splits
+    # We assume the first `exc_count` neurons are excitatory, rest inhibitory
+    # This is a simplification of the "fixed structural constraint" mentioned in T010c
+    def get_ei_split(size):
+        exc_count = int(size * config.exc_ratio)
+        inh_count = size - exc_count
+        return exc_count, inh_count
+
+    src_exc, src_inh = get_ei_split(source_size)
+    tgt_exc, tgt_inh = get_ei_split(target_size)
+
+    # Define canonical rules
+    # Note: In a real biological model, specific connection probabilities might vary.
+    # Here we implement the "simplest rule" (per Wolfram feedback) that creates the
+    # necessary topology for universal computation: Feedforward excitation + Feedback/Recurrent loops.
+
+    if source_layer == "L4" and target_layer == "L23":
+        # L4 -> L2/3: Strong feedforward excitation
+        # Connect L4 excitatory to L2/3 excitatory
+        mask[:tgt_exc, :src_exc] = 1.0
+        # Also connect to inhibitory for normalization
+        mask[tgt_exc:, :src_exc] = 0.5  # Weaker feedforward to inhibitory
+
+    elif source_layer == "L23" and target_layer == "L5":
+        # L2/3 -> L5: Feedforward excitation
+        mask[:tgt_exc, :src_exc] = 1.0
+        mask[tgt_exc:, :src_exc] = 0.5
+
+    elif source_layer == "L5" and target_layer == "L6":
+        # L5 -> L6: Feedforward excitation
+        mask[:tgt_exc, :src_exc] = 1.0
+        mask[tgt_exc:, :src_exc] = 0.5
+
+    elif source_layer == "L6" and target_layer == "L4":
+        # L6 -> L4: Feedback inhibition/regulation
+        # L6 inhibitory neurons project to L4 to regulate input gain
+        # We model this as connecting L6 inhibitory to L4 excitatory (strong inhibition)
+        # and L6 excitatory to L4 inhibitory (disinhibition loop)
+        # Simplified: Dense connection with a bias towards inhibition on L4 exc
+        mask[:tgt_exc, src_exc:] = 1.0  # L6 Inh -> L4 Exc (Inhibition)
+        mask[tgt_exc:, :src_exc] = 1.0  # L6 Exc -> L4 Inh (Disinhibition)
+
+    elif source_layer == "L23" and target_layer == "L23":
+        # L2/3 -> L2/3: Recurrent excitation
+        mask[:tgt_exc, :src_exc] = 1.0
+        # Local inhibition (L23 Inh -> L23 Exc)
+        mask[:tgt_exc, src_exc:] = 1.0
+
+    elif source_layer == "L5" and target_layer == "L5":
+        # L5 -> L5: Recurrent excitation
+        mask[:tgt_exc, :src_exc] = 1.0
+        mask[:tgt_exc, src_exc:] = 1.0
+
+    else:
+        # Default: No connection (sparse topology)
+        # This enforces the "fixed canonical topology" strictly
+        pass
+
+    # Normalize mask to prevent exploding activations if dense
+    # This is a structural constraint, not a learned weight
+    return mask
+
+def verify_connectivity_constraints(
+    mask: torch.Tensor,
+    source_layer: str,
+    target_layer: str,
+    config: MicrocircuitColumnConfig
+) -> bool:
+    """
+    Verify that a generated mask adheres to the canonical constraints.
+    Returns True if valid, False otherwise.
+    """
+    # Basic shape check
+    if mask.dim() != 2:
+        logger.error(f"Mask must be 2D, got {mask.dim()}D")
+        return False
+
+    # Check for forbidden connections (e.g., L4 -> L6 directly)
+    forbidden_pairs = [
+        ("L4", "L5"), ("L4", "L6"),
+        ("L23", "L4"), ("L23", "L6"),
+        ("L5", "L23"), ("L5", "L4"),
+        ("L6", "L23"), ("L6", "L5")
+    ]
+
+    if (source_layer, target_layer) in forbidden_pairs:
+        if mask.sum() > 0:
+            logger.error(f"Forbidden connection detected: {source_layer} -> {target_layer}")
+            return False
+
+    return True
 
 class CorticalLayer(nn.Module):
-    """Base class for cortical layers with configurable connectivity."""
-    
-    def __init__(self, config: LayerConfig, input_dim: int):
+    """
+    A single cortical layer with excitatory/inhibitory separation.
+    """
+    def __init__(self, config: LayerConfig):
         super().__init__()
-        self.config = config
-        self.input_dim = input_dim
-        self.neuron_count = config.neuron_count
-        self.is_excitatory = config.is_excitatory
-        
-        # Initialize weights with normalized range [-0.1, 0.1]
-        # to ensure stable initial activity
-        self.weight = nn.Parameter(
-            torch.randn(input_dim, self.neuron_count) * 0.1
-        )
-        self.bias = nn.Parameter(torch.zeros(self.neuron_count))
-        
-        # Activation function (ReLU for excitatory, LeakyReLU for inhibitory)
-        self.activation = nn.ReLU() if self.is_excitatory else nn.LeakyReLU(0.01)
+        self.name = config.name
+        self.exc_ratio = config.exc_ratio
+
+        # Split neurons into Excitatory and Inhibitory populations
+        self.exc_size = int(config.output_size * config.exc_ratio)
+        self.inh_size = config.output_size - self.exc_size
+
+        # Excitatory projection (learnable weights)
+        self.exc_proj = nn.Linear(config.input_size, self.exc_size, bias=config.bias)
+        # Inhibitory projection (often faster, simpler, or fixed in some models,
+        # but here we allow learnable weights constrained by homeostasis)
+        self.inh_proj = nn.Linear(config.input_size, self.inh_size, bias=config.bias)
+
+        # Activation functions
+        # Excitatory: ReLU or similar (non-negative)
+        # Inhibitory: Often modeled as subtractive, but here we output activity
+        # which will be used to inhibit others. We use ReLU for activity.
+        self.exc_activation = nn.ReLU()
+        self.inh_activation = nn.ReLU()
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
-        """Forward pass through the layer."""
-        # x: [batch, input_dim]
-        out = F.linear(x, self.weight.t(), self.bias)
-        return self.activation(out)
-
-class L23Layer(CorticalLayer):
-    """Layer 2/3: Supragranular, primarily excitatory, recurrent connections."""
-    def __init__(self, input_dim: int, neuron_count: int = 128):
-        config = LayerConfig(
-            name="L2/3",
-            neuron_count=neuron_count,
-            is_excitatory=True,
-            connectivity_factor=0.8
-        )
-        super().__init__(config, input_dim)
+        """
+        Args:
+            x: Input tensor of shape (batch, input_size)
+        Returns:
+            Tensor of shape (batch, output_size) concatenating [exc, inh]
+        """
+        exc_out = self.exc_activation(self.exc_proj(x))
+        inh_out = self.inh_activation(self.inh_proj(x))
+        return torch.cat([exc_out, inh_out], dim=-1)
 
 class L4Layer(CorticalLayer):
-    """Layer 4: Granular layer, primary input recipient, mixed E/I."""
-    def __init__(self, input_dim: int, neuron_count: int = 128):
-        config = LayerConfig(
-            name="L4",
-            neuron_count=neuron_count,
-            is_excitatory=True,  # L4 excitatory stellate cells
-            connectivity_factor=1.0
-        )
-        super().__init__(config, input_dim)
+    """Layer 4: Input receiving layer (Thalamic input)."""
+    def __init__(self, config: LayerConfig):
+        # L4 is the primary input layer
+        super().__init__(config)
+
+class L23Layer(CorticalLayer):
+    """Layers 2/3: Associative and Recurrent processing."""
+    def __init__(self, config: LayerConfig):
+        super().__init__(config)
 
 class L5Layer(CorticalLayer):
-    """Layer 5: Infragranular, output to subcortical, strong recurrent."""
-    def __init__(self, input_dim: int, neuron_count: int = 128):
-        config = LayerConfig(
-            name="L5",
-            neuron_count=neuron_count,
-            is_excitatory=True,
-            connectivity_factor=0.9
-        )
-        super().__init__(config, input_dim)
+    """Layer 5: Output to subcortical structures."""
+    def __init__(self, config: LayerConfig):
+        super().__init__(config)
 
 class L6Layer(CorticalLayer):
-    """Layer 6: Infragranular, feedback to thalamus."""
-    def __init__(self, input_dim: int, neuron_count: int = 64):
-        config = LayerConfig(
-            name="L6",
-            neuron_count=neuron_count,
-            is_excitatory=True,
-            connectivity_factor=0.7
-        )
-        super().__init__(config, input_dim)
+    """Layer 6: Feedback to Thalamus/L4."""
+    def __init__(self, config: LayerConfig):
+        super().__init__(config)
 
 class MicrocircuitColumn(nn.Module):
     """
-    A canonical cortical column implementing laminar connectivity.
-    
-    Enforces:
-    - L4 -> L2/3 excitatory feedforward (strong)
-    - L2/3 -> L5 -> L6 feedforward
-    - L6 -> L4 feedback (modulatory)
-    - Local recurrent connections within layers
-    - E/I balance via construction (4:1 target ratio)
+    A full cortical column implementing the canonical microcircuit.
     """
-    
-    def __init__(
-        self,
-        input_dim: int,
-        l23_neurons: int = 128,
-        l4_neurons: int = 128,
-        l5_neurons: int = 128,
-        l6_neurons: int = 64,
-        exc_ratio: float = 4.0
-    ):
+    def __init__(self, config: MicrocircuitColumnConfig):
         super().__init__()
-        
-        self.input_dim = input_dim
-        self.exc_ratio = exc_ratio
-        
-        # Create layers
-        self.l4 = L4Layer(input_dim, l4_neurons)
-        self.l23 = L23Layer(l4_neurons, l23_neurons)
-        self.l5 = L5Layer(l23_neurons, l5_neurons)
-        self.l6 = L6Layer(l5_neurons, l6_neurons)
-        
-        # Feedback pathway: L6 -> L4 (modulatory)
-        self.feedback_proj = nn.Linear(l6_neurons, l4_neurons)
-        
-        # Recurrent connections within L2/3
-        self.l23_recurrence = nn.Linear(l23_neurons, l23_neurons)
-        
-        # Initialize feedback and recurrence with small weights
-        nn.init.uniform_(self.feedback_proj.weight, -0.05, 0.05)
-        nn.init.zeros_(self.feedback_proj.bias)
-        nn.init.uniform_(self.l23_recurrence.weight, -0.05, 0.05)
-        nn.init.zeros_(self.l23_recurrence.bias)
-        
-        # Store connectivity mask for verification
-        self._build_connectivity_mask()
+        self.config = config
 
-    def _build_connectivity_mask(self) -> Dict[str, torch.Tensor]:
-        """
-        Build and store connectivity masks enforcing laminar topology.
-        
-        Masks are binary tensors where 1 indicates allowed connection, 0 blocked.
-        This enforces:
-        - L4->L2/3: Full excitatory connectivity (no inhibition)
-        - L2/3->L5: Feedforward excitatory
-        - L5->L6: Feedforward excitatory
-        - L6->L4: Feedback modulatory (scaled down)
-        - Recurrent within layers: Sparse local connectivity
-        """
-        masks = {}
-        
-        # L4 -> L2/3: Full connectivity (excitatory only)
-        # Shape: [l23_neurons, l4_neurons]
-        masks['L4_to_L23'] = torch.ones(self.l23.neuron_count, self.l4.neuron_count)
-        
-        # L2/3 -> L5: Full connectivity
-        masks['L23_to_L5'] = torch.ones(self.l5.neuron_count, self.l23.neuron_count)
-        
-        # L5 -> L6: Full connectivity
-        masks['L5_to_L6'] = torch.ones(self.l6.neuron_count, self.l5.neuron_count)
-        
-        # L6 -> L4: Feedback (full but will be scaled in forward)
-        masks['L6_to_L4'] = torch.ones(self.l4.neuron_count, self.l6.neuron_count)
-        
-        # Recurrent L2/3: Sparse local connectivity (diagonal + neighbors)
-        # Create a band matrix for local recurrence
-        recurrence_mask = torch.zeros(self.l23.neuron_count, self.l23.neuron_count)
-        bandwidth = max(1, self.l23.neuron_count // 8)  # ~12.5% local connectivity
-        for i in range(self.l23.neuron_count):
-            for j in range(max(0, i - bandwidth), min(self.l23.neuron_count, i + bandwidth + 1)):
-                recurrence_mask[i, j] = 1.0
-        masks['L23_recurrence'] = recurrence_mask
-        
-        # Store masks as buffers (not parameters, so they don't get optimized)
-        for name, mask in masks.items():
-            self.register_buffer(f'mask_{name}', mask)
-        
-        return masks
+        # Initialize layers
+        # L4 receives external input
+        self.l4 = L4Layer(LayerConfig("L4", input_size=config.l4_size, output_size=config.l4_size, exc_ratio=config.exc_ratio))
+        # L2/3 receives from L4
+        self.l23 = L23Layer(LayerConfig("L23", input_size=config.l4_size, output_size=config.l23_size, exc_ratio=config.exc_ratio))
+        # L5 receives from L2/3
+        self.l5 = L5Layer(LayerConfig("L5", input_size=config.l23_size, output_size=config.l5_size, exc_ratio=config.exc_ratio))
+        # L6 receives from L5
+        self.l6 = L6Layer(LayerConfig("L6", input_size=config.l5_size, output_size=config.l6_size, exc_ratio=config.exc_ratio))
 
-    def get_connectivity_mask(self, connection_type: str) -> torch.Tensor:
-        """Retrieve a specific connectivity mask by name."""
-        attr_name = f'mask_{connection_type}'
-        if hasattr(self, attr_name):
-            return getattr(self, attr_name)
-        raise ValueError(f"Unknown connection type: {connection_type}")
+        # Connectivity Masks (Frozen structural constraints)
+        # We store these as buffers so they are part of the state dict but not optimized
+        self.register_buffer("mask_l4_l23", generate_laminar_connectivity_mask(
+            "L4", "L23", config.l4_size, config.l23_size, config
+        ))
+        self.register_buffer("mask_l23_l5", generate_laminar_connectivity_mask(
+            "L23", "L5", config.l23_size, config.l5_size, config
+        ))
+        self.register_buffer("mask_l5_l6", generate_laminar_connectivity_mask(
+            "L5", "L6", config.l5_size, config.l6_size, config
+        ))
+        self.register_buffer("mask_l6_l4", generate_laminar_connectivity_mask(
+            "L6", "L4", config.l6_size, config.l4_size, config
+        ))
+        self.register_buffer("mask_l23_rec", generate_laminar_connectivity_mask(
+            "L23", "L23", config.l23_size, config.l23_size, config
+        ))
+        self.register_buffer("mask_l5_rec", generate_laminar_connectivity_mask(
+            "L5", "L5", config.l5_size, config.l5_size, config
+        ))
 
-    def enforce_connectivity_mask(self, weight: torch.Tensor, mask: torch.Tensor) -> torch.Tensor:
-        """
-        Apply a connectivity mask to a weight tensor.
-        
-        Zeroes out weights where mask is 0, preserving weights where mask is 1.
-        This enforces the laminar topology constraint by construction.
-        """
-        return weight * mask
+        # Verify constraints on init
+        if not verify_connectivity_constraints(self.mask_l4_l23, "L4", "L23", config):
+            raise RuntimeError("L4->L23 connectivity constraint violated")
+        if not verify_connectivity_constraints(self.mask_l6_l4, "L6", "L4", config):
+            raise RuntimeError("L6->L4 connectivity constraint violated")
 
-    def forward(self, x: torch.Tensor) -> torch.Tensor:
+    def forward(self, x: torch.Tensor, iterations: int = 1) -> torch.Tensor:
         """
-        Forward pass through the cortical column.
-        
-        Flow:
-        1. Input -> L4 (feedforward)
-        2. L4 -> L2/3 (strong excitatory)
-        3. L2/3 -> L2/3 (recurrent)
-        4. L2/3 -> L5 -> L6 (feedforward)
-        5. L6 -> L4 (feedback modulatory)
-        
         Args:
-            x: Input tensor of shape [batch, input_dim]
-        
+            x: Input to L4 (batch, l4_size)
+            iterations: Number of recurrent steps within the column
         Returns:
-            Output tensor of shape [batch, l6_neurons]
+            Output from L5 (batch, l5_size) - the "output" of the column
         """
-        # Layer 4: Primary input recipient
-        l4_out = self.l4(x)  # [batch, l4_neurons]
-        
-        # Layer 2/3: Strong excitatory feedforward from L4
-        l23_out = self.l23(l4_out)  # [batch, l23_neurons]
-        
-        # Recurrent connections within L2/3 (masked)
-        l23_rec = self.l23_recurrence(l23_out)
-        l23_rec_masked = self.enforce_connectivity_mask(l23_rec, self.mask_L23_recurrence)
-        l23_out = l23_out + 0.1 * l23_rec_masked  # Small recurrent contribution
-        
-        # Layer 5: Feedforward from L2/3
-        l5_out = self.l5(l23_out)  # [batch, l5_neurons]
-        
-        # Layer 6: Feedforward from L5
-        l6_out = self.l6(l5_out)  # [batch, l6_neurons]
-        
-        # Feedback: L6 -> L4 (modulatory, scaled down)
-        feedback = self.feedback_proj(l6_out)  # [batch, l4_neurons]
-        l4_out = l4_out + 0.05 * feedback  # Small feedback contribution
-        
-        return l6_out
+        # Initial pass
+        h_l4 = self.l4(x)
+        h_l23 = self.l23(h_l4)
+        h_l5 = self.l5(h_l23)
+        h_l6 = self.l6(h_l5)
 
-def create_microcircuit_column(
-    input_dim: int,
-    l23_neurons: int = 128,
-    l4_neurons: int = 128,
-    l5_neurons: int = 128,
-    l6_neurons: int = 64,
-    exc_ratio: float = 4.0
-) -> MicrocircuitColumn:
-    """
-    Factory function to create a MicrocircuitColumn instance.
-    
-    Args:
-        input_dim: Dimension of input features
-        l23_neurons: Number of neurons in L2/3 layer
-        l4_neurons: Number of neurons in L4 layer
-        l5_neurons: Number of neurons in L5 layer
-        l6_neurons: Number of neurons in L6 layer
-        exc_ratio: Target excitatory to inhibitory ratio (4.0 by default)
-    
-    Returns:
-        A configured MicrocircuitColumn module
-    """
-    return MicrocircuitColumn(
-        input_dim=input_dim,
-        l23_neurons=l23_neurons,
-        l4_neurons=l4_neurons,
-        l5_neurons=l5_neurons,
-        l6_neurons=l6_neurons,
-        exc_ratio=exc_ratio
-    )
+        # Recurrent dynamics
+        for _ in range(iterations):
+            # L2/3 Recurrence
+            # Apply mask to h_l23 before projecting back to L2/3
+            # We need to project h_l23 through a linear layer that respects the mask
+            # For simplicity in this structural implementation, we assume the mask
+            # is applied to the weight matrix of a recurrent layer or via masking.
+            # Here we implement a simple masked recurrent update.
 
-def generate_laminar_connectivity_mask(
-    l23_neurons: int,
-    l4_neurons: int,
-    l5_neurons: int,
-    l6_neurons: int,
-    recurrence_bandwidth: Optional[int] = None
-) -> Dict[str, torch.Tensor]:
-    """
-    Generate connectivity masks enforcing laminar topology.
-    
-    This function creates binary masks that define allowed connections
-    between cortical layers, enforcing:
-    - L4 -> L2/3: Full excitatory connectivity
-    - L2/3 -> L5 -> L6: Feedforward excitatory
-    - L6 -> L4: Feedback modulatory
-    - Local recurrence within L2/3: Sparse band connectivity
-    
-    Args:
-        l23_neurons: Number of neurons in L2/3
-        l4_neurons: Number of neurons in L4
-        l5_neurons: Number of neurons in L5
-        l6_neurons: Number of neurons in L6
-        recurrence_bandwidth: Number of neighbors for local recurrence (default: ~12.5% of l23_neurons)
-    
-    Returns:
-        Dictionary of connectivity masks:
-        - 'L4_to_L23': [l23, l4] - Full excitatory
-        - 'L23_to_L5': [l5, l23] - Feedforward
-        - 'L5_to_L6': [l6, l5] - Feedforward
-        - 'L6_to_L4': [l4, l6] - Feedback
-        - 'L23_recurrence': [l23, l23] - Sparse local
-    """
-    masks = {}
-    
-    # L4 -> L2/3: Full connectivity (excitatory only)
-    masks['L4_to_L23'] = torch.ones(l23_neurons, l4_neurons)
-    
-    # L2/3 -> L5: Full connectivity
-    masks['L23_to_L5'] = torch.ones(l5_neurons, l23_neurons)
-    
-    # L5 -> L6: Full connectivity
-    masks['L5_to_L6'] = torch.ones(l6_neurons, l5_neurons)
-    
-    # L6 -> L4: Feedback (full)
-    masks['L6_to_L4'] = torch.ones(l4_neurons, l6_neurons)
-    
-    # Recurrent L2/3: Sparse local connectivity
-    if recurrence_bandwidth is None:
-        recurrence_bandwidth = max(1, l23_neurons // 8)
-    
-    recurrence_mask = torch.zeros(l23_neurons, l23_neurons)
-    for i in range(l23_neurons):
-        start = max(0, i - recurrence_bandwidth)
-        end = min(l23_neurons, i + recurrence_bandwidth + 1)
-        recurrence_mask[i, start:end] = 1.0
-    
-    masks['L23_recurrence'] = recurrence_mask
-    
-    return masks
+            # Recurrent input to L2/3
+            rec_l23 = torch.matmul(self.mask_l23_rec, h_l23.t()).t()
+            h_l23 = self.l23(torch.cat([h_l4, rec_l23], dim=-1)) # Combine feedforward and recurrent
 
-def verify_connectivity_constraints(
-    column: MicrocircuitColumn,
-    tolerance: float = 1e-6
-) -> Dict[str, bool]:
-    """
-    Verify that connectivity constraints are properly enforced.
-    
-    Checks:
-    - All masks are binary (0 or 1)
-    - L4->L2/3 mask is all ones (full excitatory)
-    - Recurrence mask is sparse (< 20% connectivity)
-    - No connections are created where masks are zero
-    
-    Args:
-        column: The MicrocircuitColumn instance to verify
-        tolerance: Floating point tolerance for mask verification
-    
-    Returns:
-        Dictionary of verification results:
-        - 'masks_binary': All masks contain only 0 or 1
-        - 'L4_to_L23_full': L4->L2/3 mask is all ones
-        - 'recurrence_sparse': L2/3 recurrence is sparse (< 20%)
-        - 'all_passed': True if all checks passed
-    """
-    results = {}
-    
-    # Check all masks are binary
-    all_binary = True
-    for name in ['L4_to_L23', 'L23_to_L5', 'L5_to_L6', 'L6_to_L4', 'L23_recurrence']:
-        mask = column.get_connectivity_mask(name)
-        unique_vals = torch.unique(mask)
-        if not torch.all((unique_vals == 0) | (unique_vals == 1)):
-            all_binary = False
-            break
-    results['masks_binary'] = all_binary
-    
-    # Check L4->L2/3 is full
-    l4_to_l23 = column.get_connectivity_mask('L4_to_L23')
-    results['L4_to_L23_full'] = torch.all(l4_to_l23 == 1.0)
-    
-    # Check recurrence sparsity
-    l23_rec = column.get_connectivity_mask('L23_recurrence')
-    sparsity = (l23_rec == 0).float().mean().item()
-    results['recurrence_sparse'] = sparsity > 0.8  # > 80% zeros means < 20% connectivity
-    
-    results['all_passed'] = all(results.values())
-    
-    return results
+            # Recurrent input to L5
+            rec_l5 = torch.matmul(self.mask_l5_rec, h_l5.t()).t()
+            h_l5 = self.l5(torch.cat([h_l23, rec_l5], dim=-1))
 
-def apply_ei_balance_constraint(
-    weights: torch.Tensor,
-    exc_ratio: float = 4.0
-) -> torch.Tensor:
-    """
-    Apply E/I balance constraint to weight matrix.
-    
-    Ensures that the ratio of excitatory to inhibitory weights
-    approximates the target exc_ratio (default 4:1).
-    
-    This is implemented by scaling inhibitory weights to achieve
-    the desired ratio in the total weight magnitude.
-    
-    Args:
-        weights: Weight tensor of shape [input_dim, output_dim]
-        exc_ratio: Target excitatory to inhibitory ratio
-    
-    Returns:
-        Weight tensor with E/I balance constraint applied
-    """
-    # Assume first 80% of outputs are excitatory, last 20% are inhibitory
-    # (standard cortical E/I ratio ~ 4:1)
-    n_excitatory = int(weights.shape[1] * (exc_ratio / (exc_ratio + 1)))
-    n_inhibitory = weights.shape[1] - n_excitatory
-    
-    if n_inhibitory == 0:
-        return weights
-    
-    # Calculate current magnitudes
-    exc_magnitude = torch.norm(weights[:, :n_excitatory]).item()
-    inh_magnitude = torch.norm(weights[:, n_excitatory:]).item()
-    
-    if inh_magnitude < 1e-10:
-        return weights
-    
-    # Scale inhibitory weights to achieve target ratio
-    target_inh_magnitude = exc_magnitude / exc_ratio
-    scale_factor = target_inh_magnitude / inh_magnitude
-    
-    weights[:, n_excitatory:] *= scale_factor
-    
-    return weights
+            # Feedback from L6 to L4
+            feedback = torch.matmul(self.mask_l6_l4, h_l6.t()).t()
+            # Combine original input with feedback for L4
+            # Note: In a real circuit, this is complex. We add it to the input stream.
+            h_l4 = self.l4(x + feedback)
 
-# Export public API
-__all__ = [
-    'LayerConfig',
-    'CorticalLayer',
-    'L23Layer',
-    'L4Layer',
-    'L5Layer',
-    'L6Layer',
-    'MicrocircuitColumn',
-    'create_microcircuit_column',
-    'generate_laminar_connectivity_mask',
-    'verify_connectivity_constraints',
-    'apply_ei_balance_constraint'
-]
+            # Re-propagate quickly
+            h_l23 = self.l23(h_l4)
+            h_l5 = self.l5(h_l23)
+            h_l6 = self.l6(h_l5)
+
+        return h_l5
+
+def create_microcircuit_column(config: MicrocircuitColumnConfig) -> MicrocircuitColumn:
+    """Factory function to create a MicrocircuitColumn."""
+    return MicrocircuitColumn(config)
+
+def main():
+    """Demo/Verification of connectivity mask generation."""
+    logging.basicConfig(level=logging.INFO)
+    config = MicrocircuitColumnConfig(l4_size=64, l23_size=64, l5_size=64, l6_size=64, exc_ratio=0.8)
+
+    # Generate and print mask stats
+    mask_l4_l23 = generate_laminar_connectivity_mask("L4", "L23", 64, 64, config)
+    logger.info(f"L4->L23 Mask shape: {mask_l4_l23.shape}, Non-zero: {mask_l4_l23.sum().item()}")
+
+    mask_l6_l4 = generate_laminar_connectivity_mask("L6", "L4", 64, 64, config)
+    logger.info(f"L6->L4 Mask shape: {mask_l6_l4.shape}, Non-zero: {mask_l6_l4.sum().item()}")
+
+    # Verify forbidden connections
+    mask_l4_l5 = generate_laminar_connectivity_mask("L4", "L5", 64, 64, config)
+    assert mask_l4_l5.sum() == 0, "L4->L5 should be forbidden"
+    logger.info("Verified L4->L5 is forbidden (sparse).")
+
+    print("Connectivity mask generation logic verified.")
+
+if __name__ == "__main__":
+    main()

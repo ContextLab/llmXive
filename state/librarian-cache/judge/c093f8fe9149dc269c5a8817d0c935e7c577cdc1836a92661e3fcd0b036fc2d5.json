@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1409.1484",
+  "judged_at": "2026-09-06T18:55:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"video generation models are general-purpose vision learners\" computer science",
+  "rationale": "The paper is a survey of traditional computer vision methods for first-person video analysis from 1997–2014, which is off-domain from the user's specific question regarding Large Language Models (LLMs) and their application as general-purpose vision learners in video generation. It fails to meet any inclusion criteria as it does not address the mechanism of LLMs, the specific domain of video generation models, or the empirical population of modern foundation models, and instead focuses on a dist",
+  "relevant": false
+}

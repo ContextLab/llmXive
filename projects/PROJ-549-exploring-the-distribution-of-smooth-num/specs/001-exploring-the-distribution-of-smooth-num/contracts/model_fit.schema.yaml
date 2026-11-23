@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelFit"
+description: "Schema for the statistical model fit results (Weighted Least Squares on deviation ratio)."
+type: "object"
+required:
+  - "y_bound"
+  - "exponent_beta"
+  - "coefficient_c"
+  - "r_squared"
+  - "p_value_ks"
+  - "p_value_adjusted"
+properties:
+  y_bound:
+    type: "integer"
+    description: "The smoothness bound (y) for this model fit."
+  exponent_beta:
+    type: "number"
+    description: "The fitted power-law exponent (beta) for the deviation ratio (R ~ h^beta)."
+  coefficient_c:
+    type: "number"
+    description: "The fitted coefficient (c) for the deviation ratio."
+  r_squared:
+    type: "number"
+    description: "Coefficient of determination for the WLS fit."
+    minimum: 0.0
+    maximum: 1.0
+  p_value_ks:
+    type: "number"
+    description: "P-value from the Kolmogorov-Smirnov test comparing the distribution of ratios to the null hypothesis."
+    minimum: 0.0
+    maximum: 1.0
+  p_value_adjusted:
+    type: "number"
+    description: "Bonferroni-adjusted p-value for multiple comparisons (significance threshold p < 0.01)."
+    minimum: 0.0
+    maximum: 1.0
+additionalProperties: false

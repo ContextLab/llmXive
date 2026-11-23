@@ -1,7 +1,3 @@
 """
-llmXive research implementation package.
+llmXive Automated Science Pipeline - Agentic Abstention Follow-up
 """
-
-from .logging_config import setup_logging
-
-__all__ = ["setup_logging"]

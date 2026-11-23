@@ -1,0 +1,21 @@
+# Black configuration for llmXive project
+# This file is a backup for environments that might not read pyproject.toml
+# Primary configuration is in pyproject.toml
+
+[tool.black]
+line-length = 88
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''

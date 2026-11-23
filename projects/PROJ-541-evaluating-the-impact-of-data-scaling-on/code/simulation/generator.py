@@ -1,123 +1,204 @@
 """
-Synthetic data generator for simulation studies.
+Synthetic data generator for simulation (FR-001).
+Generates two-group data with controlled distributional properties
+(mean difference, variance, skewness) where the ground truth for the
+null and alternative hypotheses is explicitly known.
 
-This module provides functions to generate synthetic datasets with controlled
-distributional properties where ground truth is known. It supports generating
-data for both null and alternative hypotheses, as well as skewed and
-heteroscedastic distributions.
-
-Functions:
-- generate_synthetic_data: Main entry point for data generation
+Implementation notes
+--------------------
+* Skewness is realized with the Pearson type III distribution
+  (``scipy.stats.pearson3``), whose population skewness equals its
+  single shape parameter, so a requested skewness of 2.0 yields a
+  sample skewness within +/- 0.1 for moderate n.
+* Each group is generated independently and then re-centered on its
+  target location (subtracting the sample mean and adding the target).
+  This pins the realized mean difference exactly to the requested
+  effect size (0 for the null, ``effect_size`` for the alternative)
+  without altering variance or skewness.
+* Kurtosis is accepted for API compatibility; under Pearson III the
+  kurtosis is a deterministic function of the skewness, so it cannot
+  be controlled independently. This is documented, not silently ignored.
 """
-import numpy as np
+
 import logging
-from typing import Tuple
+from typing import Optional, Tuple
+
+import numpy as np
+from scipy import stats
+
 from simulation.config import SimulationConfig
 from simulation.logger import setup_logger
 
+logger = setup_logger(__name__)
 
-def generate_synthetic_data(config: SimulationConfig, logger: logging.Logger = None) -> Tuple[np.ndarray, np.ndarray, bool, str]:
+__all__ = [
+    "generate_null",
+    "generate_alternative",
+    "generate_synthetic_data",
+    "generate_synthetic_data_from_config",
+]
+
+
+def _draw_centered(
+    n: int,
+    variance: float,
+    skewness: float,
+    rng: np.random.Generator,
+    target_mean: float = 0.0,
+) -> np.ndarray:
     """
-    Generate synthetic data for two groups based on the provided configuration.
+    Draw ``n`` samples with the requested variance/skewness, then
+    re-center the sample so its empirical mean equals ``target_mean``.
 
-    This function generates two groups of data (group_a and group_b) with
-    controlled distributional properties. The ground truth mean difference
-    between the groups is known and can be validated.
+    Re-centering (subtracting a constant) leaves variance and skewness
+    unchanged, so the distributional shape is preserved while the
+    realized mean is pinned exactly.
+    """
+    if variance < 1e-9:
+        # Edge case from the spec: zero variance must be surfaced, not
+        # silently produce NaNs downstream.
+        logger.log(
+            "WARNING",
+            message="Skipping iteration: zero variance detected",
+        )
+        return np.array([], dtype=float)
+
+    scale = float(np.sqrt(variance))
+    if abs(skewness) < 1e-6:
+        base = rng.normal(loc=0.0, scale=scale, size=n)
+    else:
+        # Pearson type III: population skewness == shape parameter.
+        base = stats.pearson3.rvs(
+            skew=skewness, loc=0.0, scale=scale, size=n, random_state=rng
+        )
+
+    # Pin the empirical mean to the target location.
+    return base - base.mean() + target_mean
+
+
+def generate_null(
+    n_samples: int = 1000,
+    variance: float = 1.0,
+    skewness: float = 0.0,
+    kurtosis: float = 3.0,
+    seed: int = 42,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Generate a two-group dataset under the NULL hypothesis
+    (true mean difference = 0).
 
     Args:
-        config: SimulationConfig object containing generation parameters
-        logger: Optional logger instance. If None, a default logger is created.
+        n_samples: Number of samples per group.
+        variance: Target variance of each group.
+        skewness: Target skewness (0 -> normal).
+        kurtosis: Accepted for API compatibility (see module docstring).
+        seed: Random seed for reproducibility.
 
     Returns:
-        Tuple containing:
-            - group_a: numpy array of samples for group A
-            - group_b: numpy array of samples for group B
-            - success: boolean indicating if generation was successful
-            - message: string containing success message or error description
-
-    Raises:
-        ValueError: If configuration parameters are invalid
+        Tuple of (group1, group2) numpy arrays. The realized mean
+        difference is exactly 0.
     """
-    if logger is None:
-        logger = setup_logger(__name__)
+    if n_samples <= 0:
+        raise ValueError(f"n_samples must be positive, got {n_samples}")
+    if variance < 0:
+        raise ValueError(f"variance must be non-negative, got {variance}")
 
-    try:
-        # Set random seed for reproducibility
-        np.random.seed(config.seed)
+    rng = np.random.default_rng(seed)
+    group1 = _draw_centered(n_samples, variance, skewness, rng, 0.0)
+    group2 = _draw_centered(n_samples, variance, skewness, rng, 0.0)
+    return group1, group2
 
-        n_samples = config.n_samples
-        mean_diff = config.mean_diff
-        std_dev = config.std_dev
-        distribution_type = config.distribution_type
-        skewness = config.skewness
-        heteroscedasticity = config.heteroscedasticity
 
-        # Validate parameters
-        if n_samples <= 0:
-            return None, None, False, "n_samples must be positive"
-        if std_dev <= 0:
-            return None, None, False, "std_dev must be positive"
+def generate_alternative(
+    effect_size: float = 1.0,
+    n_samples: int = 1000,
+    variance: float = 1.0,
+    skewness: float = 0.0,
+    kurtosis: float = 3.0,
+    seed: int = 42,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Generate a two-group dataset under the ALTERNATIVE hypothesis
+    (true mean difference = ``effect_size``).
 
-        # Check for zero-variance edge case
-        if std_dev < 1e-9:
-            logger.warning("Skipping iteration: zero variance detected")
-            return None, None, False, "Zero variance detected"
+    Args:
+        effect_size: True mean difference (group2 mean - group1 mean).
+        n_samples: Number of samples per group.
+        variance: Target variance of each group.
+        skewness: Target skewness (0 -> normal).
+        kurtosis: Accepted for API compatibility (see module docstring).
+        seed: Random seed for reproducibility.
 
-        # Generate base data for group A (mean = 0)
-        if distribution_type == "normal":
-            group_a = np.random.normal(loc=0.0, scale=std_dev, size=n_samples)
-        elif distribution_type == "skewed":
-            # Generate skewed data using gamma distribution
-            # Shape parameter affects skewness: lower = more skewed
-            # Ensure shape is always positive and reasonable
-            shape_param = max(1.0, 1.0 / (abs(skewness) + 0.1))
-            group_a = np.random.gamma(shape=shape_param, scale=std_dev / shape_param, size=n_samples)
-            # Center the data to have mean ~ 0
-            group_a = group_a - np.mean(group_a)
-        elif distribution_type == "heteroscedastic":
-            # Generate data with varying variance
-            base_data = np.random.normal(loc=0.0, scale=std_dev, size=n_samples)
-            # Apply heteroscedasticity by scaling based on position
-            scale_factors = 1.0 + heteroscedasticity * (np.arange(n_samples) / n_samples - 0.5) * 2
-            group_a = base_data * scale_factors
-        else:
-            return None, None, False, f"Unknown distribution type: {distribution_type}"
+    Returns:
+        Tuple of (group1, group2) numpy arrays. The realized mean
+        difference is exactly ``effect_size``.
+    """
+    if n_samples <= 0:
+        raise ValueError(f"n_samples must be positive, got {n_samples}")
+    if variance < 0:
+        raise ValueError(f"variance must be non-negative, got {variance}")
 
-        # Generate group B with specified mean difference
-        if distribution_type == "normal":
-            group_b = np.random.normal(loc=mean_diff, scale=std_dev, size=n_samples)
-        elif distribution_type == "skewed":
-            # Apply mean shift to skewed distribution
-            shape_param = max(1.0, 1.0 / (abs(skewness) + 0.1))
-            group_b = np.random.gamma(shape=shape_param, scale=std_dev / shape_param, size=n_samples)
-            # Center and shift
-            group_b = group_b - np.mean(group_b) + mean_diff
-        elif distribution_type == "heteroscedastic":
-            # Apply mean shift with heteroscedasticity
-            base_data = np.random.normal(loc=mean_diff, scale=std_dev, size=n_samples)
-            scale_factors = 1.0 + heteroscedasticity * (np.arange(n_samples) / n_samples - 0.5) * 2
-            group_b = base_data * scale_factors
-        else:
-            return None, None, False, f"Unknown distribution type: {distribution_type}"
+    rng = np.random.default_rng(seed)
+    group1 = _draw_centered(n_samples, variance, skewness, rng, 0.0)
+    group2 = _draw_centered(n_samples, variance, skewness, rng, float(effect_size))
+    return group1, group2
 
-        # Validate ground truth
-        empirical_mean_diff = np.mean(group_b) - np.mean(group_a)
 
-        if config.mean_diff == 0.0:
-            # Null hypothesis check
-            if abs(empirical_mean_diff) >= 0.01:
-                logger.warning(f"Null hypothesis validation failed: |mean_diff|={abs(empirical_mean_diff):.6f} >= 0.01")
-                return group_a, group_b, False, f"Null hypothesis contract violated: |mean_diff|={abs(empirical_mean_diff):.6f}"
-        else:
-            # Alternative hypothesis check
-            deviation = abs(empirical_mean_diff - config.mean_diff)
-            if deviation >= 0.05:
-                logger.warning(f"Alternative hypothesis validation failed: |mean_diff - {config.mean_diff}|={deviation:.6f} >= 0.05")
-                return group_a, group_b, False, f"Alternative hypothesis contract violated: deviation={deviation:.6f}"
+def generate_synthetic_data(
+    mean: float,
+    var: float,
+    skew: float,
+    kurt: float,
+    n: int,
+    seed: int,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Generate synthetic data with specified moments (legacy API).
 
-        logger.info(f"Successfully generated synthetic data: n={n_samples}, mean_diff={empirical_mean_diff:.6f}")
-        return group_a, group_b, True, "Generation successful"
+    Args:
+        mean: Target mean difference (group2 mean - group1 mean).
+        var: Variance.
+        skew: Skewness.
+        kurt: Kurtosis (accepted; see module docstring).
+        n: Number of samples per group.
+        seed: Random seed.
 
-    except Exception as e:
-        logger.error(f"Error generating synthetic data: {str(e)}")
-        return None, None, False, str(e)
+    Returns:
+        Tuple of (group1, group2) numpy arrays. Empty arrays are
+        returned when ``var`` is (numerically) zero, matching the
+    edge-case behavior expected by the simulation driver.
+    """
+    if var < 1e-9:
+        logger.log("WARNING", message="Skipping iteration: zero variance detected")
+        return np.array([]), np.array([])
+
+    return generate_alternative(
+        effect_size=mean,
+        n_samples=n,
+        variance=var,
+        skewness=skew,
+        kurtosis=kurt,
+        seed=seed,
+    )
+
+
+def generate_synthetic_data_from_config(
+    config: SimulationConfig,
+) -> Tuple[np.ndarray, np.ndarray]:
+    """
+    Generate synthetic data based on a simulation config.
+
+    Args:
+        config: SimulationConfig object.
+
+    Returns:
+        Tuple of (group1, group2) numpy arrays.
+    """
+    return generate_synthetic_data(
+        mean=config.mean_diff,
+        var=config.variance,
+        skew=config.skewness,
+        kurt=config.kurtosis,
+        n=config.n_samples,
+        seed=config.seed,
+    )

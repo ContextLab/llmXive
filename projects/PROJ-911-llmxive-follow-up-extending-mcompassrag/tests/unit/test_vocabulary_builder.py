@@ -1,40 +1,69 @@
+import pytest
 import json
 import os
-import sys
 from pathlib import Path
+from unittest.mock import patch, MagicMock
 
-# Add project root to path for imports
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(PROJECT_ROOT))
-
+from code.vocabulary_builder import clean_text, build_fixed_vocabulary, save_vocabulary
 from code.config import PROCESSED_DIR
 
-def test_fixed_vocab_file_exists():
-    """Test that the vocabulary file is created at the expected path."""
-    vocab_path = PROCESSED_DIR / "fixed_vocab.json"
-    # Note: This test assumes the build script has been run.
-    # In a real CI, we would run the script first or mock the data loading.
-    # For the purpose of this task, we verify the path logic.
-    assert str(PROCESSED_DIR) != "", "PROCESSED_DIR must be defined"
-    # We cannot guarantee the file exists without running the heavy script,
-    # but we verify the path construction is correct.
-    assert "fixed_vocab.json" in str(vocab_path)
 
-def test_vocab_structure():
-    """Test that if the file exists, it is a valid JSON dict."""
-    vocab_path = PROCESSED_DIR / "fixed_vocab.json"
-    if not vocab_path.exists():
-        # If the file doesn't exist yet, we skip the content check
-        # or raise a skip. For this task, we assume the script runs.
-        return 
-    
-    with open(vocab_path, 'r') as f:
-        data = json.load(f)
-    
-    assert isinstance(data, dict), "Vocabulary must be a dictionary"
-    assert len(data) > 0, "Vocabulary must not be empty"
-    
-    # Check that keys are strings and values are integers
-    for term, idx in list(data.items())[:10]:
-        assert isinstance(term, str), f"Term must be string, got {type(term)}"
-        assert isinstance(idx, int), f"Index must be int, got {type(idx)}"
+class TestCleanText:
+    def test_lowercases_text(self):
+        assert clean_text("Hello World") == "hello world"
+
+    def test_removes_special_chars(self):
+        assert clean_text("Hello, World! 123") == "hello world 123"
+
+    def test_collapse_whitespace(self):
+        assert clean_text("Hello   World") == "hello world"
+
+    def test_empty_string(self):
+        assert clean_text("") == ""
+
+    def test_none_handling(self):
+        # The function expects a string, but let's ensure robustness if called with None
+        # Based on implementation, it checks `if not text`
+        assert clean_text(None) == ""
+
+
+class TestBuildFixedVocabulary:
+    def test_basic_vocabulary_building(self):
+        corpus = [
+            "The cat sat on the mat.",
+            "The dog sat on the log.",
+            "Cats and dogs are great pets."
+        ]
+        vocab = build_fixed_vocabulary(corpus, max_vocab_size=10)
+        
+        assert isinstance(vocab, set)
+        # Check for expected terms
+        assert "cat" in vocab or "cats" in vocab
+        assert "dog" in vocab or "dogs" in vocab
+        assert "sat" in vocab
+        # "the" might be filtered out by max_df or min_df depending on implementation details,
+        # but common nouns should be present.
+        
+    def test_empty_corpus(self):
+        vocab = build_fixed_vocabulary([])
+        assert vocab == set()
+
+    def test_corpus_with_all_empty_strings(self):
+        vocab = build_fixed_vocabulary(["", "   ", ""])
+        assert vocab == set()
+
+    def test_max_vocab_size_limit(self):
+        # Create a corpus that would generate many terms
+        corpus = [f"word{i} example text" for i in range(100)]
+        vocab = build_fixed_vocabulary(corpus, max_vocab_size=5)
+        assert len(vocab) <= 5
+
+    def test_deterministic_output(self):
+        corpus = [
+            "consistent test data one",
+            "consistent test data two",
+            "consistent test data three"
+        ]
+        vocab1 = build_fixed_vocabulary(corpus, max_vocab_size=10)
+        vocab2 = build_fixed_vocabulary(corpus, max_vocab_size=10)
+        assert vocab1 == vocab2

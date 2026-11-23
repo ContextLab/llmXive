@@ -130,7 +130,7 @@ projects/PROJ-203-predicting-phase-transitions-in-amorphou/
 - **SC-001**: RMSE measured against experimental Tg. **Must be better than Null Model RMSE**.
 - **SC-002**: ROC-AUC > 0.7.
 - **SC-003**: Stability of top 3 descriptors across families (SHAP).
-- **SC-004**: Sensitivity of classification to threshold (25-100K).
+- **SC-004**: Sensitivity of classification to threshold (low to high).
 - **SC-005**: Pipeline ≤ 6 hours. **Explicitly report N=24 power limitation**.
 
 ## Risk Assessment

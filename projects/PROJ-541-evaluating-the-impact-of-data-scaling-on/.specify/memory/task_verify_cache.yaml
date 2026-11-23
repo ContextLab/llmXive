@@ -1,0 +1,24 @@
+T001:
+  c: false
+  h: 9cd11ec8a663a1e5c118dc182cff8f9d8cd7c7985ad5d46b76270e5fa63d4ca4
+  r: "The config files (`code/requirements.txt`, `code/pyproject.toml`, `code/ruff.toml`,\
+    \ `code/.pre-commit-config.yaml`, `code/__init__.py`, `code/tests/__init__.py`)\
+    \ exist with plausible content, but `README.md` was not confirmed to exist (\"\
+    NOT INSPECTED\" due to evidence limit, with no resolved path shown), and there\
+    \ is no execution evidence for any of the three verification steps \u2014 no log\
+    \ or output showing `pip install -r code/requirements.txt` succeeded in a fresh\
+    \ venv, or that `ruff check .` and `black --check .` returned exit code 0. The\
+    \ next implementer should confirm README.md exists and pro"
+  sig: 4317ccadcf53793e1cbb62cb4c7df782d12de7add5339604e673a9873e4ee6e7
+T002:
+  c: false
+  h: 3276bac1f96f042747501ad2dc32a1f40ab2b63d709d57fdc9619051b10c7e99
+  r: "The required test run fails: the recorded execution log shows `pytest code/tests/unit/test_generator.py`\
+    \ exits 1 with 2 failures \u2014 `test_skewness_within_01_of_target[2.0]` (sample\
+    \ skewness 1.89, off by 0.11 > 0.1 tolerance) and `test_from_config` (test passes\
+    \ `mean=` but `SimulationConfig` has no `mean` field, only `mean_diff`). The generator\
+    \ and test files exist and are substantive, but the verification requirement \"\
+    pytest passes\" is not met; fix the skewness realization for target 2.0 (e.g.,\
+    \ larger n, moment matching, or different skewed distribution) and correct the\
+    \ `SimulationConfig` field"
+  sig: cbcf8a7943c26317689e19219548c4d9264de108a7d2a842df8a77bf65113e9e

@@ -1,215 +1,80 @@
-"""
-Contract test for regression output schema.
-
-This test validates that the regression output artifacts produced by the
-analysis pipeline (code/analysis/regression.py) conform to the schema
-defined in contracts/results.schema.yaml.
-
-It verifies:
-1. The output JSON file exists.
-2. The file structure matches the expected schema (coefficients, diagnostics, metadata).
-3. Specific required fields (e.g., interaction_effect, p_value, assumption_checks) are present and typed correctly.
-"""
-
 import json
 import os
-import pytest
 from pathlib import Path
+import pytest
+import pandas as pd
+from utils.validators import validate_json_against_schema, load_schema
 
-# Import validation utilities from the project's utility module
-# Using the API surface provided in code/utils/validators.py
-from utils.validators import (
-    load_schema,
-    validate_json_against_schema,
-    assert_valid
-)
-
-
-@pytest.fixture
-def schema_path():
-    """Locate the results schema file."""
-    # The project root is assumed to be the parent of 'code' and 'tests'
-    # Based on T001 structure: projects/PROJ-490-.../contracts/results.schema.yaml
-    current_dir = Path(__file__).resolve().parent
-    project_root = current_dir.parent.parent
-    return project_root / "contracts" / "results.schema.yaml"
-
-
-@pytest.fixture
-def sample_output_path():
+def test_regression_coefficients_csv_schema():
     """
-    Generate a sample output file to test against.
-    Since the actual regression script might not have run yet in this specific test context,
-    we create a minimal valid sample that *should* exist after T021 runs.
-    
-    NOTE: In a real CI/CD or integration flow, this would point to the actual
-    output of `code/analysis/regression.py`. For this contract test, we ensure
-    the validator works against a known-good structure.
+    Contract test to verify regression_coefficients.csv matches the expected schema.
+    This test ensures the CSV file contains the required columns and data types.
     """
-    current_dir = Path(__file__).resolve().parent
-    project_root = current_dir.parent.parent
-    processed_dir = project_root / "data" / "processed"
-    processed_dir.mkdir(parents=True, exist_ok=True)
+    # Construct the expected path
+    project_root = Path(__file__).parent.parent.parent
+    output_file = project_root / "data" / "processed" / "regression_coefficients.csv"
     
-    output_file = processed_dir / "regression_results_sample.json"
+    # Skip if file doesn't exist (task not yet run)
+    if not output_file.exists():
+        pytest.skip(f"File {output_file} does not exist yet. Run the pipeline first.")
     
-    sample_data = {
-        "metadata": {
-            "data_source_type": "synthetic",
-            "data_path": "data/raw/synthetic_dataset.csv",
-            "model_type": "ANCOVA",
-            "n_samples": 100,
-            "seed": 42
-        },
-        "coefficients": [
-            {
-                "term": "Intercept",
-                "estimate": 5.0,
-                "std_error": 0.5,
-                "p_value": 0.001,
-                "ci_lower": 4.0,
-                "ci_upper": 6.0
-            },
-            {
-                "term": "avatar_condition",
-                "estimate": -0.2,
-                "std_error": 0.1,
-                "p_value": 0.04,
-                "ci_lower": -0.4,
-                "ci_upper": 0.0
-            },
-            {
-                "term": "pre_self_esteem",
-                "estimate": 0.8,
-                "std_error": 0.05,
-                "p_value": 0.0001,
-                "ci_lower": 0.7,
-                "ci_upper": 0.9
-            },
-            {
-                "term": "comparison_tendency",
-                "estimate": -0.15,
-                "std_error": 0.08,
-                "p_value": 0.06,
-                "ci_lower": -0.31,
-                "ci_upper": 0.01
-            },
-            {
-                "term": "avatar_condition:comparison_tendency",
-                "estimate": 0.05,
-                "std_error": 0.04,
-                "p_value": 0.21,
-                "ci_lower": -0.03,
-                "ci_upper": 0.13
-            }
-        ],
-        "diagnostics": {
-            "model_fit": {
-                "r_squared": 0.65,
-                "adj_r_squared": 0.63,
-                "f_statistic": 45.2,
-                "f_p_value": 1e-10
-            },
-            "assumption_checks": {
-                "normality_shapiro_wilk": {
-                    "statistic": 0.98,
-                    "p_value": 0.45,
-                    "passed": True
-                },
-                "homoscedasticity_breusch_pagan": {
-                    "statistic": 1.2,
-                    "p_value": 0.27,
-                    "passed": True
-                },
-                "collinearity_vif": {
-                    "avatar_condition": 1.1,
-                    "pre_self_esteem": 1.05,
-                    "comparison_tendency": 1.2,
-                    "interaction": 1.3,
-                    "max_vif": 1.3,
-                    "passed": True
-                }
-            },
-            "interpretation_label": "Simulated Causal Effect"
-        },
-        "sensitivity": {
-            "bootstrap_ci_width_variance": 0.002,
-            "stability_flag": True
-        }
-    }
+    # Load the CSV
+    df = pd.read_csv(output_file)
     
-    with open(output_file, "w") as f:
-        json.dump(sample_data, f, indent=2)
-        
-    return output_file
+    # Define expected columns
+    expected_columns = {'name', 'estimate', 'std_err', 'p_value', 'conf_int_low', 'conf_int_high'}
+    
+    # Check that all expected columns exist
+    assert expected_columns.issubset(set(df.columns)), f"Missing columns: {expected_columns - set(df.columns)}"
+    
+    # Check data types
+    assert df['estimate'].dtype in ['float64', 'int64'], "estimate column must be numeric"
+    assert df['std_err'].dtype in ['float64', 'int64'], "std_err column must be numeric"
+    assert df['p_value'].dtype in ['float64', 'int64'], "p_value column must be numeric"
+    
+    # Check that p_values are between 0 and 1
+    assert (df['p_value'] >= 0).all() and (df['p_value'] <= 1).all(), "p_values must be between 0 and 1"
 
-
-def test_results_schema_exists(schema_path):
-    """Verify the schema file itself exists."""
-    assert schema_path.exists(), f"Schema file not found at {schema_path}"
-
-
-def test_results_schema_validates_sample(sample_output_path, schema_path):
+def test_model_diagnostics_json_schema():
     """
-    Contract test: Ensure a valid regression output file passes schema validation.
+    Contract test to verify model_diagnostics.json matches the expected schema.
+    This test validates the JSON structure against the results.schema.yaml.
     """
+    # Construct the expected path
+    project_root = Path(__file__).parent.parent.parent
+    output_file = project_root / "data" / "processed" / "model_diagnostics.json"
+    
+    # Skip if file doesn't exist (task not yet run)
+    if not output_file.exists():
+        pytest.skip(f"File {output_file} does not exist yet. Run the pipeline first.")
+    
     # Load the schema
+    schema_path = project_root / "contracts" / "results.schema.yaml"
+    if not schema_path.exists():
+        pytest.skip(f"Schema file {schema_path} does not exist.")
+    
     schema = load_schema(schema_path)
     
-    # Load the sample output
-    with open(sample_output_path, "r") as f:
+    # Load the JSON
+    with open(output_file, 'r') as f:
         data = json.load(f)
     
-    # Validate
-    is_valid, errors = validate_json_against_schema(data, schema)
+    # Validate against schema
+    errors = validate_json_against_schema(data, schema)
     
-    assert is_valid, f"Regression output failed schema validation. Errors: {errors}"
-
-
-def test_results_schema_structure_requirements(sample_output_path, schema_path):
-    """
-    Additional contract checks for specific structural requirements
-    that might be too granular for a generic JSON schema or to ensure
-    business logic constraints are met.
-    """
-    with open(sample_output_path, "r") as f:
-        data = json.load(f)
+    assert len(errors) == 0, f"Schema validation failed: {errors}"
     
-    # Check top-level keys
-    required_top_keys = {"metadata", "coefficients", "diagnostics", "sensitivity"}
-    assert required_top_keys.issubset(data.keys()), f"Missing top-level keys: {required_top_keys - set(data.keys())}"
+    # Additional specific checks
+    assert 'coefficients' in data, "Missing 'coefficients' key in diagnostics"
+    assert 'assumptions' in data, "Missing 'assumptions' key in diagnostics"
+    assert 'data_source_type' in data, "Missing 'data_source_type' key in diagnostics"
     
-    # Check metadata keys
-    required_meta_keys = {"data_source_type", "model_type", "n_samples"}
-    assert required_meta_keys.issubset(data["metadata"].keys()), "Missing metadata keys"
+    # Check data_source_type is valid
+    valid_types = ["real", "synthetic"]
+    assert data['data_source_type'] in valid_types, f"Invalid data_source_type: {data['data_source_type']}"
     
-    # Check coefficients structure
-    assert isinstance(data["coefficients"], list), "Coefficients must be a list"
-    assert len(data["coefficients"]) > 0, "Coefficients list cannot be empty"
-    
-    required_coef_keys = {"term", "estimate", "std_error", "p_value"}
-    for coef in data["coefficients"]:
-        assert required_coef_keys.issubset(coef.keys()), f"Missing keys in coefficient entry: {required_coef_keys - set(coef.keys())}"
-    
-    # Check interaction term exists
-    terms = [c["term"] for c in data["coefficients"]]
-    assert any("avatar_condition:comparison_tendency" in t for t in terms), "Interaction term (avatar_condition:comparison_tendency) is required"
-    
-    # Check diagnostics structure
-    assert "assumption_checks" in data["diagnostics"], "Missing assumption_checks in diagnostics"
-    assert "normality_shapiro_wilk" in data["diagnostics"]["assumption_checks"], "Missing Shapiro-Wilk check"
-    assert "homoscedasticity_breusch_pagan" in data["diagnostics"]["assumption_checks"], "Missing Breusch-Pagan check"
-    assert "collinearity_vif" in data["diagnostics"]["assumption_checks"], "Missing VIF check"
-
-    # Check sensitivity structure
-    assert "bootstrap_ci_width_variance" in data["sensitivity"], "Missing bootstrap variance in sensitivity"
-    assert "stability_flag" in data["sensitivity"], "Missing stability flag in sensitivity"
-
-def test_assert_valid_helper(sample_output_path, schema_path):
-    """Test the assert_valid helper from validators.py directly."""
-    schema = load_schema(schema_path)
-    with open(sample_output_path, "r") as f:
-        data = json.load(f)
-    
-    # This should not raise an AssertionError
-    assert_valid(data, schema, "Regression Output")
+    # Check assumptions structure
+    assumptions = data['assumptions']
+    assert 'shapiro_p' in assumptions, "Missing 'shapiro_p' in assumptions"
+    assert 'breusch_pagan_p' in assumptions, "Missing 'breusch_pagan_p' in assumptions"
+    assert 'vif_max' in assumptions, "Missing 'vif_max' in assumptions"

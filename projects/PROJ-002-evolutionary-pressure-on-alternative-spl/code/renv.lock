@@ -1,0 +1,83 @@
+{
+  "R": {
+    "Version": "4.3.2",
+    "Repositories": [
+      {
+        "Name": "CRAN",
+        "URL": "https://cloud.r-project.org"
+      }
+    ]
+  },
+  "Packages": {
+    "phylolm": {
+      "Package": "phylolm",
+      "Version": "2.6.3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6"
+    },
+    "ape": {
+      "Package": "ape",
+      "Version": "5.7-1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7"
+    },
+    "data.table": {
+      "Package": "data.table",
+      "Version": "1.14.8",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8"
+    },
+    "ggplot2": {
+      "Package": "ggplot2",
+      "Version": "3.4.4",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9"
+    },
+    "R6": {
+      "Package": "R6",
+      "Version": "2.5.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0"
+    },
+    "lattice": {
+      "Package": "lattice",
+      "Version": "0.21-9",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1"
+    },
+    "nlme": {
+      "Package": "nlme",
+      "Version": "3.1-164",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "a7b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2"
+    },
+    "mvtnorm": {
+      "Package": "mvtnorm",
+      "Version": "1.2-3",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "b8c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3"
+    },
+    "boot": {
+      "Package": "boot",
+      "Version": "1.3-29",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "c9d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4"
+    },
+    "Matrix": {
+      "Package": "Matrix",
+      "Version": "1.6-1.1",
+      "Source": "Repository",
+      "Repository": "CRAN",
+      "Hash": "d0e1f2a3b4c5d6e7f8a9b0c1d2e3f4a5"
+    }
+  }
+}

@@ -1,0 +1,11 @@
+- Task T006a mandates 'Strictly NO synthetic fallback' and 'exit with code 1' on fetch failure. While this aligns with Constitution Principle I, the task description lacks the explicit verification step required by FR-001 to ensure the dataset contains 'all required variables (outcome, predictors, covariates)'. The task focuses on fetching and checksumming but does not explicitly include the validation of variable presence in the deliverable description, creating a gap between the task's scope and the FR-001 acceptance criteria.
+- Task T029a defines 'Forgetting Violation' as 'deletion compliance < 100%'. FR-007 and Constitution Principle VI require measuring 'deletion compliance rate' but do not define a violation threshold of 100% for sampling purposes. This task silently narrows the acceptance criteria by introducing a hard threshold (100%) that is not in the spec, potentially excluding valid failure cases (e.g., 99% compliance) from the manual error analysis sample required by FR-007.
+
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T037a** — declared artifact(s) missing/empty/invalid: tests/unit/test_docs.py
+- **T007** — declared artifact(s) missing/empty/invalid: src/utils/profiling.py
+- **T008d** — declared artifact(s) missing/empty/invalid: src/utils/stats.py
+- **T008e** — declared artifact(s) missing/empty/invalid: src/utils/stats.py

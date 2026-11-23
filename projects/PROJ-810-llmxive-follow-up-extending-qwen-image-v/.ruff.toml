@@ -1,0 +1,32 @@
+# Ruff configuration for llmXive project
+# Extends pyproject.toml settings with project-specific rules
+
+[lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+    "UP", # pyupgrade
+    "ARG", # flake8-unused-arguments
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+    "ARG001", # unused function arguments (allowed for interface definitions)
+]
+
+[lint.per-file-ignores]
+"__init__.py" = ["F401", "E402"]
+"tests/**/*.py" = ["ARG001", "S101"]
+"code/utils/*.py" = ["SIM102"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"

@@ -1,0 +1,17 @@
+b78db6a50505870c2399795b1875f615  ./annotation_hashes.txt
+1550e9dab8b170406637719963632a50  ./GCF_003045125.1_CN25urea_metaspades_assembly_report.txt
+9bb809bdf790a35559dc211614da64b2  ./GCF_003045125.1_CN25urea_metaspades_assembly_stats.txt
+a145694f8f4b098b854f4c994339d982  ./GCF_003045125.1_CN25urea_metaspades_cds_from_genomic.fna.gz
+5e9b1a8d13a92f1e9cd2b2f37da82e3d  ./GCF_003045125.1_CN25urea_metaspades_fcs_report.txt
+680311ed3cae22d09ebe9260b6efc7b2  ./GCF_003045125.1_CN25urea_metaspades_feature_count.txt
+fb92fcd067f87aa9cd6dbbef094d2ae2  ./GCF_003045125.1_CN25urea_metaspades_feature_table.txt.gz
+af8d52d2c3b0c531cefa863b2c912690  ./GCF_003045125.1_CN25urea_metaspades_gene_ontology.gaf.gz
+5493644f852c06cc308505c0bc6965c0  ./GCF_003045125.1_CN25urea_metaspades_genomic.fna.gz
+fcc590c35626d75f91c56b9a81f2018c  ./GCF_003045125.1_CN25urea_metaspades_genomic.gbff.gz
+239b6e38702ea4a15a53928e5c4757ec  ./GCF_003045125.1_CN25urea_metaspades_genomic.gff.gz
+73b4080af56f5916048ff1632ee24047  ./GCF_003045125.1_CN25urea_metaspades_genomic.gtf.gz
+a820375b6776ba89ac30f2d61e65d28e  ./GCF_003045125.1_CN25urea_metaspades_protein.faa.gz
+4ccd274e7df528c73932d0f2eff24222  ./GCF_003045125.1_CN25urea_metaspades_protein.gpff.gz
+35db60d3d2eef238449f4d14748f1d4e  ./GCF_003045125.1_CN25urea_metaspades_rna_from_genomic.fna.gz
+b64e059608aedca5b33656f727d34a38  ./GCF_003045125.1_CN25urea_metaspades_translated_cds.faa.gz
+a5493372201784fb8474ce06a8048163  ./GCF_003045125.1_CN25urea_metaspades_wgsmaster.gbff.gz

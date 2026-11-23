@@ -1,30 +1,40 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Alignment Results Schema
-description: Schema for the alignment of NMF component weights with behavioral metadata.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Alignment Results Schema"
+description: "Schema describing the results of aligning behavioral timestamps to imaging frames."
 type: object
-properties:
-  alignment_timestamps:
-    type: array
-    items:
-      type: number
-  component_weights_aligned:
-    type: array
-    items:
-      type: array
-      items:
-        type: number
-  behavioral_metrics_aligned:
-    type: array
-    items:
-      type: object
-  error_metric:
-    type: number
-    description: Alignment error in frames
-  threshold_passed:
-    type: boolean
 required:
-  - alignment_timestamps
-  - component_weights_aligned
-  - behavioral_metrics_aligned
-  - error_metric
-  - threshold_passed
+  - imaging_timestamps_path
+  - behavior_timestamps_path
+  - aligned_indices
+  - alignment_error
+  - method
+properties:
+  imaging_timestamps_path:
+    type: string
+    description: Path to the file containing imaging timestamps.
+  behavior_timestamps_path:
+    type: string
+    description: Path to the file containing raw behavioral timestamps.
+  aligned_indices:
+    type: array
+    description: Array of integer indices mapping each behavior event to the nearest imaging frame.
+    items:
+      type: integer
+  alignment_error:
+    type: object
+    description: Error metrics for the alignment.
+    required:
+      - mean_error_seconds
+      - max_error_seconds
+    properties:
+      mean_error_seconds:
+        type: number
+      max_error_seconds:
+        type: number
+  method:
+    type: string
+    enum: [nearest, linear_interpolation]
+    description: Alignment method used.
+  notes:
+    type: string
+    description: Optional free‑form notes.

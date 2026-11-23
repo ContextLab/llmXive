@@ -1,0 +1,15 @@
+status: none
+intent: Distributed Execution Log Dataset OpenML CPU utilization packet counts per
+  node python package dataset
+required_fields:
+- node_id
+- task_chunk_id
+- wall_clock_time
+- packet_count
+- cpu_utilization_percent
+- memory_usage_mb
+- heartbeat_timestamp
+- status
+cache_key: 0287b5d87943990b54153340daefef2b6cf2a81ba0ded35d181248ebc7c1f3f1
+searched_at: '2026-10-23T21:40:33.008649+00:00'
+retry_count: 1

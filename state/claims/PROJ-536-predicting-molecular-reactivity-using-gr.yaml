@@ -377,3 +377,162 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-05T23:09:19Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/amendments/FR-008_scaffold_split.md
+  attempts: 1
+  canonical: no changes to data schema or model architecture required
+  claim_id: c_5dc75f69
+  context: Impact paragraph stating that no changes to the underlying data schema
+    or model architecture are required.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: No changes to the underlying data schema or model architecture are required.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T09:42:03Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/amendments/FR-008_scaffold_split.md
+  attempts: 1
+  canonical: existing code implements scaffold-based splitting
+  claim_id: c_71c6a2da
+  context: Impact paragraph noting that existing code already implements scaffold-based
+    splitting and only documentation needs updating.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "Existing code in src/data/preprocess.py already implements scaffold-based\
+    \ splitting; only documentation and any references to \u201Creaction class stratification\u201D\
+    \ need updating."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T09:42:03Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/amendments/FR-008_amendment.md
+  attempts: 1
+  canonical: "Scaffold\u2011based splitting is a widely accepted practice for evaluating\
+    \ graph\u2011based models in chemistry"
+  claim_id: c_82c5a3a6
+  context: "Scientific Validity \u2013 Scaffold\u2011based splitting is a widely accepted\
+    \ practice for evaluating graph\u2011based models in chemistry, as it ensures\
+    \ that chemically similar molecules are not shared across train and test splits."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "Scaffold\u2011based splitting is a widely accepted practice for evaluating\
+    \ graph\u2011based models in chemistry, as it ensures that chemically similar\
+    \ molecules are not shared across train and test splits."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T09:45:34Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/amendments/FR-008_amendment.md
+  attempts: 1
+  canonical: "reaction\u2011class stratification would leak structural information\
+    \ by allowing reactions sharing the same scaffold to appear in both train and\
+    \ test sets"
+  claim_id: c_07e5a27c
+  context: "Using reaction\u2011class stratification would leak structural information\
+    \ because reactions sharing the same scaffold can appear in both train and test\
+    \ sets, violating the construct validity of the study."
+  evidence:
+    reason: no authoritative source found for entity claim
+  kind: entity_fact
+  raw_text: "Using reaction\u2011class stratification would leak structural information\
+    \ because reactions sharing the same scaffold can appear in both train and test\
+    \ sets, violating the construct validity of the study."
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-25T09:46:24Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/amendments/FR-008_amendment.md
+  attempts: 1
+  canonical: All downstream tasks already rely on the Scaffold Split
+  claim_id: c_1946179f
+  context: All downstream tasks (training, evaluation, baseline comparison) already
+    rely on the Scaffold Split, so the amendment brings the spec into agreement with
+    the actual pipeline.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All downstream tasks (training, evaluation, baseline comparison) already
+    rely on the Scaffold Split, so the amendment brings the spec into agreement with
+    the actual pipeline.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T09:46:24Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/amendments/FR-008_amendment.md
+  attempts: 1
+  canonical: No code changes are required beyond the existing Scaffold Split implementation
+  claim_id: c_cf62a2ab
+  context: No code changes are required beyond the existing Scaffold Split implementation.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: No code changes are required beyond the existing Scaffold Split implementation.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T09:46:24Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/amendments/FR-008_amendment.md
+  attempts: 1
+  canonical: The amendment file is present in the repository under specs/001-predicting-molecular-reactivity-using-gr/amendments/
+  claim_id: c_10620659
+  context: The amendment file is present in the repository under `specs/001-predicting-molecular-reactivity-using-gr/amendments/`.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: The amendment file is present in the repository under `specs/001-predicting-molecular-reactivity-using-gr/amendments/`.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T09:46:24Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/amendments/FR-008_amendment.md
+  attempts: 1
+  canonical: "`apply_spec_amendment.py` can locate the amendment file and update spec.md\
+    \ with the amended FR\u2011008 text"
+  claim_id: c_e338b7e5
+  context: "The `apply_spec_amendment.py` script (once implemented) can locate this\
+    \ file and successfully update `specs/001-predicting-molecular-reactivity-using-gr/spec.md`\
+    \ with the amended FR\u2011008 text."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "The `apply_spec_amendment.py` script (once implemented) can locate this\
+    \ file and successfully update `specs/001-predicting-molecular-reactivity-using-gr/spec.md`\
+    \ with the amended FR\u2011008 text."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T09:46:24Z'
+- artifact_path: projects/PROJ-536-predicting-molecular-reactivity-using-gr/specs/001-predicting-molecular-reactivity-using-gr/amendments/FR-008_amendment.md
+  attempts: 1
+  canonical: No existing tests or pipelines break after the amendment is applied
+  claim_id: c_3b7afd23
+  context: No existing tests or pipelines break after the amendment is applied.
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: No existing tests or pipelines break after the amendment is applied.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-25T09:46:24Z'

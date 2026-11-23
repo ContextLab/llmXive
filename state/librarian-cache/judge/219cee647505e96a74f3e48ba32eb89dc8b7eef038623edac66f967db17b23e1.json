@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2407.17492",
+  "judged_at": "2026-08-13T08:58:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting chemical reaction yields from spectroscopic data with attention mechanisms chemistry",
+  "rationale": "This paper satisfies criterion (b) by providing a large-scale, multimodal spectroscopic dataset (NMR, IR, MS) derived from chemical reactions, which establishes the essential empirical data foundation and baseline for any machine learning model attempting to predict chemical properties (like yields) from spectroscopic inputs. Additionally, it addresses criterion (d) as a foundational resource paper that any researcher in this specific domain would cite to justify the data modality and scope of t",
+  "relevant": true
+}

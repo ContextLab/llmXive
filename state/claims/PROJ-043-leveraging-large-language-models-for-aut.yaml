@@ -1,0 +1,804 @@
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: Dataset of 3 Python functions used for OLS regression with VIF filtering
+    and k-fold cross-validation
+  claim_id: c_9acc9123
+  context: We analyze the relationship between original code structural metrics and
+    the resulting improvements in code quality metrics. Using a dataset of 3 valid
+    Python functions, we employed Multiple Linear Regression (OLS)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Using a dataset of 3 valid Python functions, we employed Multiple Linear
+    Regression (OLS) with Variance Inflation Factor (VIF) filtering and k-fold cross-validation
+    to predict refactoring outcomes.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:44:55Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: bigcode/the-stack-dedup dataset used to extract Python functions
+  claim_id: c_cc2e1e24
+  context: We utilized the `bigcode/the-stack-dedup` dataset to extract Python functions.
+    A strict validation pipeline was applied to ensure code parsability...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bigcode/the-stack-dedup_dataset_used_to_extract_Python_funct
+  kind: entity_fact
+  raw_text: We utilized the bigcode/the-stack-dedup dataset to extract Python functions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:45:24Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: Zero-shot prompts sent to WizardCoder-13B model via HuggingFace Inference
+    API
+  claim_id: c_26b29760
+  context: 'Refactoring: Zero-shot prompts were sent to the WizardCoder-13B model
+    via HuggingFace Inference API. Baselines: Identity transformations were generated...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Zero-shot_prompts_sent_to_WizardCoder-13B_model_via_HuggingF
+  kind: entity_fact
+  raw_text: Zero-shot prompts were sent to the WizardCoder-13B model via HuggingFace
+    Inference API.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:46:00Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: Final regression model retained 5 structural predictors after VIF filtering
+  claim_id: c_62b20a93
+  context: "The final regression model, after VIF filtering, retained all five structural\
+    \ predictors. Adjusted R\xB2: 0.82..."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final regression model, after VIF filtering, retained all five structural
+    predictors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:46:00Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: F-Statistic of 12.5 with p-value of 0.0001
+  claim_id: c_fc036212
+  context: "Adjusted R\xB2: 0.82. F-Statistic: 12.5 (p = 0.0001). VIF Filtered Predictors:\
+    \ loc, nesting_depth, param_count, pep8_violations, docstring_present"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The F-Statistic was 12.5 with a p-value of 0.0001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:46:28Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: Mean coefficient for LOC was 0.10 with p-value of 0.001
+  claim_id: c_176fc366
+  context: Lines of Code (LOC) | 0.10 | 0.001. Nesting Depth | 0.05 | 0.050...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean coefficient for Lines of Code (LOC) was 0.10 with a P-Value of
+    0.001.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:46:59Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: Mean coefficient for Nesting Depth was 0.05 with p-value of 0.050
+  claim_id: c_3067a9aa
+  context: Nesting Depth | 0.05 | 0.050. Parameter Count | 0.02 | 0.100...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean coefficient for Nesting Depth was 0.05 with a P-Value of 0.050.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:47:23Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: Mean coefficient for Parameter Count was 0.02 with p-value of 0.100
+  claim_id: c_2c36ead5
+  context: Parameter Count | 0.02 | 0.100. PEP-8 Violations | 0.01 | 0.200...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean coefficient for Parameter Count was 0.02 with a P-Value of 0.100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:47:45Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: Mean coefficient for PEP-8 Violations was 0.01 with p-value of 0.200
+  claim_id: c_3beb034a
+  context: PEP-8 Violations | 0.01 | 0.200. Docstring Present | 0.03 | 0.150...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean coefficient for PEP-8 Violations was 0.01 with a P-Value of 0.200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:48:13Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: Mean coefficient for Docstring Present was 0.03 with p-value of 0.150
+  claim_id: c_d8a454da
+  context: 'Docstring Present | 0.03 | 0.150. Interpretation: The number of Lines
+    of Code (LOC) shows the strongest positive association...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean coefficient for Docstring Present was 0.03 with a P-Value of
+    0.150.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:48:30Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: T-Statistic for Complexity Delta was -0.50 with p-value of 0.62
+  claim_id: c_e8bd56f7
+  context: Complexity Delta (Delta Complexity) | -0.50 | 0.62 | No. Pylint Delta (Delta
+    Pylint) | -0.30 | 0.77 | No...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The T-Statistic for Complexity Delta was -0.50 with a P-Value of 0.62.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:49:03Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: T-Statistic for Pylint Delta was -0.30 with p-value of 0.77
+  claim_id: c_19a46a9a
+  context: Pylint Delta (Delta Pylint) | -0.30 | 0.77 | No. Maintainability Delta
+    (Delta Maintainability) | 0.20 | 0.85 | No...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The T-Statistic for Pylint Delta was -0.30 with a P-Value of 0.77.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:49:17Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/paper/draft.md
+  attempts: 1
+  canonical: T-Statistic for Maintainability Delta was 0.20 with p-value of 0.85
+  claim_id: c_a0d9be2d
+  context: 'Maintainability Delta (Delta Maintainability) | 0.20 | 0.85 | No. Observation:
+    Despite the high explanatory power...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The T-Statistic for Maintainability Delta was 0.20 with a P-Value of 0.85.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T21:49:36Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Python 3.11 project initialization
+  claim_id: c_818c24d4
+  context: T002 Initialize Python 3.11 project with pinned dependencies in projects/PROJ-043-leveraging-large-language-models-for-aut/code/requirements.txt.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project initializes with Python 3.11.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:34:28Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: datasets version 2.18.0
+  claim_id: c_856583db
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The datasets library version is 2.18.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:35:02Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: transformers version 4.38.0
+  claim_id: c_96523041
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The transformers library version is 4.38.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:35:36Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: radon version 6.0.1
+  claim_id: c_cfbfe91f
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The radon library version is 6.0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:36:11Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: pylint version 3.0.3
+  claim_id: c_4bc031f2
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pylint library version is 3.0.3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:36:36Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: scikit-learn version 1.4.0
+  claim_id: c_796d94a9
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The scikit-learn library version is 1.4.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:37:07Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: statsmodels version 0.14.1
+  claim_id: c_59e6e2f0
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statsmodels library version is 0.14.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:37:52Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: pandas version 2.2.0
+  claim_id: c_8ad83bb0
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pandas library version is 2.2.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:38:23Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: numpy version 1.26.4
+  claim_id: c_39d89ff0
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The numpy library version is 1.26.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:38:51Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: requests version 2.31.0
+  claim_id: c_67c73b2c
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The requests library version is 2.31.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:39:20Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: pydantic version 2.6.1
+  claim_id: c_a57a231f
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pydantic library version is 2.6.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:39:42Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: pytest version 7.4.4
+  claim_id: c_b7af57e9
+  context: Must include datasets==2.18.0, transformers==4.38.0, radon==6.0.1, pylint==3.0.3,
+    scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0, numpy==1.26.4, requests==2.31.0,
+    pydantic==2.6.1, pytest==7.4.4.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The pytest library version is 7.4.4.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:40:19Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: MAX_ATTEMPTS 400
+  claim_id: c_ca101a2a
+  context: Define variables HF_API_KEY (str), RANDOM_SEED (int), MAX_ATTEMPTS (int,
+    default 400), MIN_VALID_FUNCTIONS (int, default 100), TARGET_VALID_FUNCTIONS (int,
+    default 200), BATCH_SIZE (int, default 10), and BASELINE_TOLERANCE (float, default
+    0.01).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of attempts for sampling is 400.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:41:05Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: MIN_VALID_FUNCTIONS 100
+  claim_id: c_edfa11d1
+  context: Define variables HF_API_KEY (str), RANDOM_SEED (int), MAX_ATTEMPTS (int,
+    default 400), MIN_VALID_FUNCTIONS (int, default 100), TARGET_VALID_FUNCTIONS (int,
+    default 200), BATCH_SIZE (int, default 10), and BASELINE_TOLERANCE (float, default
+    0.01).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The minimum number of valid functions required is 100.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:42:07Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: TARGET_VALID_FUNCTIONS 200
+  claim_id: c_abd85bb2
+  context: Define variables HF_API_KEY (str), RANDOM_SEED (int), MAX_ATTEMPTS (int,
+    default 400), MIN_VALID_FUNCTIONS (int, default 100), TARGET_VALID_FUNCTIONS (int,
+    default 200), BATCH_SIZE (int, default 10), and BASELINE_TOLERANCE (float, default
+    0.01).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target number of valid functions is 200.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:44:01Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: BASELINE_TOLERANCE 0.01
+  claim_id: c_60e0f763
+  context: Define variables HF_API_KEY (str), RANDOM_SEED (int), MAX_ATTEMPTS (int,
+    default 400), MIN_VALID_FUNCTIONS (int, default 100), TARGET_VALID_FUNCTIONS (int,
+    default 200), BATCH_SIZE (int, default 10), and BASELINE_TOLERANCE (float, default
+    0.01).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default baseline tolerance is 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:49:54Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: bigcode/the-stack-dedup dataset
+  claim_id: c_476aead8
+  context: Fetch bigcode/the-stack-dedup via datasets.load_dataset.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Bigcode/the-stack-dedup_dataset
+  kind: entity_fact
+  raw_text: The dataset used for acquisition is bigcode/the-stack-dedup.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:53:54Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: WizardCoder-Python-13B model
+  claim_id: c_98b7c354
+  context: Invoke HuggingFace Inference API for WizardCoder-Python-13B with zero-shot
+    prompts.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/WizardCoder-Python-13B_model
+  kind: entity_fact
+  raw_text: The WizardCoder model used is WizardCoder-Python-13B.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:54:15Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: API timeout 60 seconds
+  claim_id: c_970c9db4
+  context: "Implement batching (\u226410), retry logic (limited number of attempts),\
+    \ timeout=60 seconds per attempt, and integrate caching."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The timeout per API attempt is 60 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:54:25Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: LLM refactoring batch size 10
+  claim_id: c_413a42d6
+  context: "Implement batching (\u226410), retry logic (limited number of attempts),\
+    \ timeout=60 seconds per attempt."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The batch size limit for LLM refactoring is 10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:54:28Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: VIF threshold 5
+  claim_id: c_81efd2e8
+  context: "Iteratively drop the predictor with the highest VIF and re-fit the model\
+    \ until all remaining predictors have VIF \u2264 5."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The VIF threshold for predictor filtering is 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:54:31Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: One-Sample T-Test validation
+  claim_id: c_6a708003
+  context: Perform a One-Sample T-Test on the delta distribution (testing against
+    zero).
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q137330298
+        url: https://www.wikidata.org/wiki/Q137330298
+        value: "One-Sample \U0001D461-Test"
+      quote: one sample t-test
+      source_id: Q1309370
+      url: https://www.wikidata.org/wiki/Q1309370
+      value: one sample t-test
+    filled: true
+  kind: entity_fact
+  raw_text: The statistical validation method is a One-Sample T-Test.
+  resolved_value: one sample t-test
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-08T04:54:57Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: OLS, Ridge, and GLM models
+  claim_id: c_6f003a5c
+  context: Fit Multiple Linear Regression (OLS), Ridge Regression, and GLM models
+    using k-fold cross-validation.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/OLS,_Ridge,_and_GLM_models
+  kind: entity_fact
+  raw_text: The models implemented are Multiple Linear Regression (OLS), Ridge Regression,
+    and GLM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-08T04:57:36Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Create directory tree for PROJ-043 at projects/PROJ-043-leveraging-large-language-models-for-aut
+  claim_id: c_6f45d17d
+  context: 'T001 Initialize project directory structure: Create the full nested directory
+    tree at `projects/PROJ-043-leveraging-large-language-models-for-aut/` including
+    `code/`, `data/`, `tests/`, `paper/`, and `contracts/`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project must create the nested directory tree at `projects/PROJ-043-leveraging-large-language-models-for-aut/`
+    including `code/`, `data/`, `tests/`, `paper/`, and `contracts/`.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:22:48Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Pin dependencies to specific versions in requirements.txt
+  claim_id: c_7ad11b58
+  context: 'T002 Initialize Python 3.11 project with pinned dependencies in `projects/PROJ-043-leveraging-large-language-models-for-aut/code/requirements.txt`.
+    **Content**: Must include `datasets==2.18.0`, `transformers==4.38.0`, `radon==6.0.1`,
+    `pylint==3.0.3`, `scikit-learn==1.4.0`, `statsmodels==0.14.1`, `pandas==2.2.0`,
+    `numpy==1.26.4`, `requests==2.31.0`, `pydantic==2.6.1`, `pytest==7.4.4`.'
+  evidence:
+    asserted: '2.18'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: The Python project must include dependencies datasets==2.18.0, transformers==4.38.0,
+    radon==6.0.1, pylint==3.0.3, scikit-learn==1.4.0, statsmodels==0.14.1, pandas==2.2.0,
+    numpy==1.26.4, requests==2.31.0, pydantic==2.6.1, and pytest==7.4.4.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T12:22:48Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Stop sampling after 400 attempts or 200 valid samples
+  claim_id: c_5ce03530
+  context: T010 [P] [US1] Unit test for dataset sampling logic... asserting that the
+    sampler stops after a configurable maximum number of attempts (400) or a target
+    number of valid samples (200).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sampling logic must stop after a configurable maximum number of attempts
+    (400) or a target number of valid samples (200).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:23:13Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Loop up to 400 attempts to find 200 valid samples
+  claim_id: c_db4f00d1
+  context: T012 [US1] Implement `projects/PROJ-043-leveraging-large-language-models-for-aut/code/data/download.py`...
+    Loop **up to 400 attempts**; stop immediately if **200 valid samples** are found.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The download script must loop up to 400 attempts and stop immediately
+    if 200 valid samples are found.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:24:17Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Proceed with warning if 100 to 199 valid samples found
+  claim_id: c_59315151
+  context: T012... If between 100 and 199 valid samples are found, **log a warning
+    and proceed** with the available data (as per Spec US-1 Scenario 4).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If between 100 and 199 valid samples are found, the system must log a
+    warning and proceed with the available data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:24:34Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Halt with error if fewer than 100 valid samples found
+  claim_id: c_8c718237
+  context: T012... If an insufficient number of valid samples are found (<100), halt
+    with a clear error.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Halt_with_error_if_fewer_than_100_valid_samples_found
+  kind: magnitude
+  raw_text: The system must halt with a clear error if an insufficient number of valid
+    samples are found (<100).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:25:30Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: PEP-8 Adherence Score normalized to 0-1 range
+  claim_id: c_3a52b1d4
+  context: T013... compute LOC, max nesting depth, parameter count, **PEP-8 Adherence
+    Score** (normalized 0-1)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The PEP-8 Adherence Score must be a normalized value between 0 and 1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:25:58Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Limit LLM refactoring batch size to 10
+  claim_id: c_794838c7
+  context: "T019... implement batching (\u226410)..."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Limit_LLM_refactoring_batch_size_to_10
+  kind: magnitude
+  raw_text: The refactoring process must use a batch size of no more than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:26:55Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Drop predictors with VIF > 5
+  claim_id: c_a1f78914
+  context: "T030... **iteratively drop the predictor with the highest VIF and re-fit\
+    \ the model** until all remaining predictors have VIF \u2264 5."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Drop_predictors_with_VIF_%3E_5
+  kind: magnitude
+  raw_text: Predictors with a Variance Inflation Factor (VIF) greater than 5 must
+    be iteratively dropped.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:27:32Z'
+- artifact_path: projects/PROJ-043-leveraging-large-language-models-for-aut/specs/001-leveraging-large-language-models-for-aut/tasks.md
+  attempts: 1
+  canonical: Default BASELINE_TOLERANCE is 0.01
+  claim_id: c_10d62dd7
+  context: 'Notes: **Baseline Constraint**: Use configurable `BASELINE_TOLERANCE`
+    (default 0.01) for identity baseline delta warning...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline tolerance threshold for identity baseline delta warnings
+    is configurable with a default of 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T12:27:46Z'

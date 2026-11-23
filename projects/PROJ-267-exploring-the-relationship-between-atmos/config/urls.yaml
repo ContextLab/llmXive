@@ -1,0 +1,3 @@
+urls:
+  gracefo_degree1: "https://gracefo.jpl.nasa.gov/data/get-data/degree-1/GRACEFO_DEGREE1_RL06.txt"
+  gracefo_c20: "https://gracefo.jpl.nasa.gov/data/get-data/c20/GRACEFO_C20_RL06.txt"

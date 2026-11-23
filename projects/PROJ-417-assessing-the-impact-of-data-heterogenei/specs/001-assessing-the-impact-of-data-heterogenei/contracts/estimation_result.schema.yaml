@@ -1,70 +1,37 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: EstimationResult
-description: >
-  Schema for the results of applying an estimator to a simulated dataset.
-  Includes pooled estimates, confidence intervals, and heterogeneity metrics.
 type: object
 required:
-  - replicate_id
-  - estimator_name
+  - dataset_id
+  - estimator_type
   - pooled_effect
-  - pooled_se
   - ci_lower
   - ci_upper
-  - tau_squared_estimate
+  - tau_squared_est
   - i_squared
-  - convergence_status
+  - q_statistic
+  - coverage_flag
+  - convergence_warning
 properties:
-  replicate_id:
-    type: string
-    description: Reference to the simulated dataset replicate_id.
-  estimator_name:
+  dataset_id:
+    type: integer
+  estimator_type:
     type: string
     enum:
       - FixedEffects
       - DerSimonianLaird
       - REML
-    description: Name of the estimator used.
   pooled_effect:
     type: number
-    description: The estimated overall effect size (mu_hat).
-  pooled_se:
-    type: number
-    description: Standard error of the pooled effect.
   ci_lower:
     type: number
-    description: Lower bound of the 95% confidence interval.
   ci_upper:
     type: number
-    description: Upper bound of the 95% confidence interval.
-  tau_squared_estimate:
+  tau_squared_est:
     type: number
-    description: Estimated between-study variance.
   i_squared:
     type: number
-    minimum: 0
-    maximum: 100
-    description: >
-      I^2 statistic representing the percentage of variation across studies
-      that is due to heterogeneity rather than chance.
-      Calculated as max(0, (Q - df) / Q) * 100.
   q_statistic:
     type: number
-    description: Cochran's Q statistic.
-  df:
-    type: integer
-    description: Degrees of freedom (k - 1).
-  convergence_status:
-    type: string
-    enum:
-      - success
-      - failed
-      - skipped
-    description: Status of the estimation process.
-  true_tau_squared:
-    type: number
-    description: The ground-truth tau^2 for bias calculation reference.
-  true_mu:
-    type: number
-    description: The ground-truth mu for bias calculation reference.
-additionalProperties: false
+  coverage_flag:
+    type: boolean
+  convergence_warning:
+    type: boolean

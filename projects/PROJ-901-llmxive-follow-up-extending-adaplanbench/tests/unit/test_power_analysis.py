@@ -1,122 +1,134 @@
 """
 Unit tests for the power analysis module.
 """
-
-import json
 import os
+import sys
+import json
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
-
-import pytest
 import pandas as pd
-import numpy as np
+import pytest
 
-# Import the module under test
-# Note: We mock the config.Paths to avoid dependency on actual project structure in unit tests
+# Add project root to path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "code"))
+
 from analysis.power import (
-    calculate_effect_size_for_logistic,
-    estimate_required_sample_size,
-    perform_power_analysis,
-    run_power_analysis,
-    TARGET_EFFECT_SIZE_F2,
-    TARGET_POWER,
-    ALPHA
+    load_filtered_tasks,
+    calculate_achieved_power,
+    run_power_analysis
 )
 
-def test_calculate_effect_size_for_logistic():
-    """Test that effect size calculation returns a reasonable value."""
-    # Test with p0=0.5, p1=0.65 (medium effect heuristic)
-    effect_size = calculate_effect_size_for_logistic(0.5, 0.65)
-    
-    # Cohen's h for 0.5 vs 0.65 should be positive and non-zero
-    assert effect_size > 0
-    assert effect_size < 2.0 # Upper bound for h
-
-def test_estimate_required_sample_size():
-    """Test sample size estimation."""
-    # Use a known effect size (e.g., 0.5 for medium)
-    # For alpha=0.05, power=0.80, effect=0.5, N should be around 100-150 for chi-square
-    n = estimate_required_sample_size(0.5, alpha=0.05, power=0.80)
-    
-    assert isinstance(n, int)
-    assert n > 0
-
-def test_perform_power_analysis():
-    """Test power calculation given sample size."""
-    # If sample size is very large, power should be close to 1.0
-    power_large = perform_power_analysis(10000, 0.5)
-    assert power_large > 0.95
-    
-    # If sample size is very small, power should be low
-    power_small = perform_power_analysis(10, 0.5)
-    assert power_small < 0.5
-
-@pytest.fixture
-def mock_filtered_data():
-    """Create a mock CSV file for testing."""
-    data = {
-        'task_id': range(100),
-        'constraint_count': [5 + i % 5 for i in range(100)],
-        'architecture': ['dual_track'] * 50 + ['monolithic'] * 50,
-        'violation': [0] * 50 + [1] * 50
-    }
-    df = pd.DataFrame(data)
-    
-    with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.csv') as f:
-        df.to_csv(f.name, index=False)
-        return f.name
-
-def test_run_power_analysis_success(mock_filtered_data):
-    """Test the full power analysis pipeline with mock data."""
-    try:
-        report = run_power_analysis(data_path=Path(mock_filtered_data))
+class TestLoadFilteredTasks:
+    def test_load_valid_csv(self, tmp_path):
+        """Test loading a valid filtered tasks CSV."""
+        csv_path = tmp_path / "filtered_tasks.csv"
+        data = {
+            'task_id': ['t1', 't2', 't3'],
+            'raw_prompt': ['p1', 'p2', 'p3'],
+            'progressive_constraints': [['c1'], ['c2', 'c3'], ['c4']],
+            'constraint_count': [1, 2, 1]
+        }
+        pd.DataFrame(data).to_csv(csv_path, index=False)
         
-        assert 'actual_power' in report
-        assert 'required_sample_size' in report
-        assert 'passed' in report
-        assert 'actual_sample_size' in report
+        df = load_filtered_tasks(csv_path)
         
-        assert report['actual_sample_size'] == 100
-        assert isinstance(report['actual_power'], float)
-        
-    finally:
-        os.unlink(mock_filtered_data)
-
-def test_run_power_analysis_empty_data(tmp_path):
-    """Test that power analysis fails gracefully on empty data."""
-    empty_csv = tmp_path / "empty.csv"
-    empty_csv.write_text("task_id,constraint_count\n")
+        assert len(df) == 3
+        assert 'task_id' in df.columns
+        assert 'constraint_count' in df.columns
     
-    with pytest.raises(ValueError, match="Filtered dataset is empty"):
-        run_power_analysis(data_path=empty_csv)
-
-def test_run_power_analysis_missing_file(tmp_path):
-    """Test that power analysis fails gracefully on missing file."""
-    missing_path = tmp_path / "nonexistent.csv"
+    def test_missing_file(self, tmp_path):
+        """Test that FileNotFoundError is raised for missing file."""
+        csv_path = tmp_path / "nonexistent.csv"
+        
+        with pytest.raises(FileNotFoundError):
+            load_filtered_tasks(csv_path)
     
-    with pytest.raises(FileNotFoundError):
-        run_power_analysis(data_path=missing_path)
+    def test_missing_columns(self, tmp_path):
+        """Test that ValueError is raised for missing required columns."""
+        csv_path = tmp_path / "filtered_tasks.csv"
+        data = {
+            'task_id': ['t1', 't2'],
+            'raw_prompt': ['p1', 'p2']
+        }
+        pd.DataFrame(data).to_csv(csv_path, index=False)
+        
+        with pytest.raises(ValueError):
+            load_filtered_tasks(csv_path)
 
-def test_report_structure(mock_filtered_data):
-    """Verify the report contains all required keys."""
-    try:
-        report = run_power_analysis(data_path=Path(mock_filtered_data))
+class TestCalculateAchievedPower:
+    def test_power_calculation(self):
+        """Test that power is calculated correctly for a known sample size."""
+        sample_size = 100
+        effect_size = 0.15
+        alpha = 0.05
+        groups = 2
         
-        required_keys = [
-            "target_effect_size_f2",
-            "target_power",
-            "alpha",
-            "estimated_effect_size_cohens_h",
-            "actual_sample_size",
-            "required_sample_size",
-            "actual_power",
-            "passed",
-            "data_source",
-            "notes"
-        ]
+        power = calculate_achieved_power(sample_size, effect_size, alpha, groups)
         
-        for key in required_keys:
-            assert key in report, f"Missing key: {key}"
-    finally:
-        os.unlink(mock_filtered_data)
+        assert 0 <= power <= 1
+        # For a sample size of 100 and effect size of 0.15, power should be reasonable (> 0.5)
+        assert power > 0.5
+    
+    def test_small_sample_size(self):
+        """Test power calculation with a small sample size."""
+        sample_size = 10
+        effect_size = 0.15
+        alpha = 0.05
+        groups = 2
+        
+        power = calculate_achieved_power(sample_size, effect_size, alpha, groups)
+        
+        assert 0 <= power <= 1
+        # Power should be low for small sample sizes
+        assert power < 0.5
+    
+    def test_large_effect_size(self):
+        """Test power calculation with a large effect size."""
+        sample_size = 50
+        effect_size = 0.5  # Large effect
+        alpha = 0.05
+        groups = 2
+        
+        power = calculate_achieved_power(sample_size, effect_size, alpha, groups)
+        
+        assert 0 <= power <= 1
+        # Power should be high for large effect sizes
+        assert power > 0.8
+
+class TestRunPowerAnalysis:
+    def test_run_power_analysis_writes_output(self, tmp_path):
+        """Test that run_power_analysis writes the output JSON file."""
+        # Create a temporary input CSV
+        input_path = tmp_path / "filtered_tasks.csv"
+        data = {
+            'task_id': [f't{i}' for i in range(50)],
+            'raw_prompt': [f'p{i}' for i in range(50)],
+            'progressive_constraints': [['c1'] for _ in range(50)],
+            'constraint_count': [1 for _ in range(50)]
+        }
+        pd.DataFrame(data).to_csv(input_path, index=False)
+        
+        output_path = tmp_path / "power_report.json"
+        
+        result = run_power_analysis(
+            input_path=input_path,
+            output_path=output_path,
+            effect_size=0.15,
+            alpha=0.05,
+            groups=2
+        )
+        
+        assert output_path.exists()
+        
+        with open(output_path, 'r') as f:
+            saved_result = json.load(f)
+        
+        assert 'calculated_power' in saved_result
+        assert 'effect_size' in saved_result
+        assert 'sample_size' in saved_result
+        assert 'groups' in saved_result
+        assert saved_result['sample_size'] == 50
+        assert saved_result['effect_size'] == 0.15
+        assert saved_result['groups'] == 2
+        assert 0 <= saved_result['calculated_power'] <= 1

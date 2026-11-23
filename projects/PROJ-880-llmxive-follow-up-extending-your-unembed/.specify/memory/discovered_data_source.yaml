@@ -1,0 +1,14 @@
+status: none
+intent: "Hugging Face Transformers unembedding matrix weights for Llama\u20113 Mistral\
+  \ BLOOM python package dataset"
+required_fields:
+- model_name
+- language_type
+- unembedding_matrix_path_or_tensor
+- vocab_size
+- hidden_dim
+- repository_url
+- model_version
+cache_key: 8d1a514b6d2b6a6e7c2833d270dd6543693f992ded8b98efc548f65568c9dbb4
+searched_at: '2026-10-25T21:45:04.445131+00:00'
+retry_count: 1

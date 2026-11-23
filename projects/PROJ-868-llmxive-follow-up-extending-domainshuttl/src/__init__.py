@@ -1,3 +1,3 @@
 """
-llmXive research-implementer pipeline.
+llmXive: Automated Science Pipeline for DomainShuttle Extension.
 """

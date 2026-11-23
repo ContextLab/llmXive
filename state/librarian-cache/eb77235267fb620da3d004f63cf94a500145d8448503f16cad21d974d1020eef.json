@@ -1,0 +1,573 @@
+{
+  "fetched_at": "2026-07-20T00:49:57Z",
+  "field": "chemistry",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "chemistry",
+      "idea_body_excerpt": "Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculations",
+      "target_n": 5
+    },
+    "duration_seconds": 67.421,
+    "ended_at": "2026-07-20T00:49:57Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "electrostatic potential mapping on molecular surfaces"
+        ],
+        [
+          2,
+          "molecular electrostatic potential (MEP) calculation"
+        ],
+        [
+          3,
+          "quantum chemical prediction of charge density"
+        ],
+        [
+          4,
+          "DFT-based surface charge distribution analysis"
+        ],
+        [
+          5,
+          "electron density isosurface visualization"
+        ],
+        [
+          6,
+          "partial atomic charge derivation from quantum mechanics"
+        ],
+        [
+          7,
+          "van der Waals surface electrostatics"
+        ],
+        [
+          8,
+          "ab initio molecular electrostatic potential"
+        ],
+        [
+          9,
+          "charge distribution modeling using wavefunction theory"
+        ],
+        [
+          10,
+          "electrostatic potential surface (EPS) prediction"
+        ],
+        [
+          11,
+          "molecular reactivity descriptors from electron density"
+        ],
+        [
+          12,
+          "quantum mechanical calculation of local charge"
+        ],
+        [
+          13,
+          "Poisson-Boltzmann surface charge approximation"
+        ],
+        [
+          14,
+          "Hirshfeld charge analysis on molecular surfaces"
+        ],
+        [
+          15,
+          "Bader charge analysis for surface properties"
+        ],
+        [
+          16,
+          "machine learning prediction of molecular electrostatic potential"
+        ],
+        [
+          17,
+          "quantum mechanics/molecular mechanics (QM/MM) surface charges"
+        ],
+        [
+          18,
+          "topological analysis of electron density at molecular surfaces"
+        ],
+        [
+          19,
+          "solvent-accessible surface charge distribution"
+        ],
+        [
+          20,
+          "semi-empirical methods for molecular surface electrostatics"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculations chemistry": 0,
+        "electrostatic potential mapping on molecular surfaces": 3
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "electrostatic potential surface charge mapping",
+      "DFT electrostatic potential molecular dataset",
+      "partial charge assignment force field parameters",
+      "charge distribution accuracy benchmark quantum chemistry",
+      "electron density topology Bader analysis charge"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": true,
+      "verdict": false
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "1806.04801"
+      ]
+    },
+    "per_query_hit_count": {
+      "DFT electrostatic potential molecular dataset": 2,
+      "Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculations chemistry": 3,
+      "charge distribution accuracy benchmark quantum chemistry": 3,
+      "electron density topology Bader analysis charge": 3,
+      "electrostatic potential surface charge mapping": 3,
+      "partial charge assignment force field parameters": 3
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "1508.05820",
+          "rationale": "The paper focuses on deriving and validating a specific molecular dynamics method (TRPMD) for computing spectra and autocorrelation functions, which does not address the user's specific goal of predicting molecular surface charge distributions. While both fall under the broad domain of quantum chemistry, the paper lacks any measurable connection to the specific mechanism (charge distribution), variables, or empirical setting requested, failing to meet the criteria for inclusion as a partial matc",
+          "title": "How to obtain thermostatted ring polymer molecular dynamics from exact quantum dynamics and when to use it"
+        },
+        {
+          "primary_pointer": "2112.14193",
+          "rationale": "The paper focuses on a quantum algorithm for calculating excited-state energy spectra, which is a distinct construct from the user's specific goal of predicting molecular surface charge distribution. While both fall under the broad domain of quantum chemistry, the paper does not measure the same mechanism (charge distribution), provide a baseline for that specific variable, or offer the foundational methodology for charge prediction, thus failing to meet any of the inclusion criteria (a-f).",
+          "title": "A full circuit-based quantum algorithm for excited-states in quantum chemistry"
+        },
+        {
+          "primary_pointer": "1705.09863",
+          "rationale": "The paper discusses \"quantum-like modeling\" of biological evolution and speciation mechanisms, which is a distinct construct from the user's specific question about predicting molecular surface charge distributions using standard quantum chemical calculations. The keywords \"quantum\" and \"molecular\" here refer to a theoretical framework for evolutionary biology rather than the computational chemistry task of calculating electrostatic properties, satisfying the rejection rule for distinct construc",
+          "title": "Molecular recognition of the environment and mechanisms of the origin of species in quantum-like modeling of evolution"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-07-20T00:48:50Z",
+    "term_input": {
+      "normalized": "predicting molecular surface charge distribution from quantum chemical calculations chemistry",
+      "raw": "Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculations chemistry"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We aim to characterize the U-band variability of young brown dwarfs in the Taurus Molecular Cloud and discuss its origin. We used the XMM-Newton Extended Survey of the Taurus Molecular Cloud, where a sample of 11 young bona fide brown dwarfs (spectral type later than M6) were observed simultaneously in X-rays with XMM-Newton and in the U-band with the XMM-Newton Optical/UV Monitor (OM). We obtained upper limits to the U-band emission of 10 brown dwarfs (U>19.6-20.6 mag), whereas 2MASSJ04141188+2811535 was detected in the U-band. Remarkably, the magnitude of this brown dwarf increased regularly from U~19.5 mag at the beginning of the observation, peaked 6h later at U~18.4 mag, and then decreased to U~18.65 mag in the next 2h. The first OM U-band measurement is consistent with the quiescent level observed about one year later thanks to ground follow-up observations. This brown dwarf was not detected in X-rays by XMM-Newton during the OM observation. We discuss the possible sources of U-band variability for this young brown dwarf, namely a magnetic flare, non-steady accretion onto the substellar surface, and rotational modulation of a hot spot. We conclude that this event is related to accretion from a circumsubstellar disk, where the mass accretion rate was about a factor of 3 higher than during the quiescent level.",
+          "claimed_authors": [
+            "Nicolas Grosso",
+            "Marc Audard",
+            "Jérôme Bouvier",
+            "Kevin R. Briggs",
+            "Manuel Güdel",
+            "the The XMM-Newton Extended Surveyof the Taurus Molecular Cloud",
+            " Collaboration"
+          ],
+          "claimed_title": "A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "astro-ph/0609027"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculati', candidate_title='A U-band survey of brown dwarfs in the Taurus Molecular Cloud with the XMM-Newton Optical/UV Monitor')",
+        "failed_at": "2026-07-20T00:49:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We discuss the effect of a strong magnetic field on the chemical freezeout points in the ultrarelativistic heavy-ion collision. As a result of the inverse magnetic catalysis or the magnetic inhibition, the crossover onset to hot and dense matter out of quarks and gluons should be shifted to a lower temperature. To quantify this shift we employ the hadron resonance gas model and an empirical condition for the chemical freezeout. We point out that the charged particle abundances are significantly affected by the magnetic field so that the electric charge fluctuation is largely enhanced especially at high baryon density. The charge conservation partially cancels the enhancement but our calculation shows that the electric charge fluctuation and the charge chemical potential could serve as a magnetometer. We find that the fluctuation exhibits a crossover behavior rapidly increased for eB >~ (0.4GeV)^2, while the charge chemical potential has better sensitivity to the magnetic field.",
+          "claimed_authors": [
+            "Kenji Fukushima",
+            "Yoshimasa Hidaka"
+          ],
+          "claimed_title": "Magnetic shift of the chemical freezeout and electric charge fluctuations",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1605.01912"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculati', candidate_title='Magnetic shift of the chemical freezeout and electric charge fluctuations')",
+        "failed_at": "2026-07-20T00:49:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Alzheimer's disease (AD) confirmation often relies on positron emission tomography (PET) or cerebrospinal fluid (CSF) analysis, which are costly and invasive. Consequently, structural MRI biomarkers such as cortical thickness (CT) are widely used for non-invasive AD screening. Multiscale structural mapping (MSSM) was recently proposed to integrate gray-white matter contrasts (GWCs) with CT from a single T1-weighted MRI (T1w) scan. Building on this framework, we propose MSSM+, together with surface supervertex mapping (SSVM) and a Supervertex Vision Transformer (SV-ViT). 3D T1w images from individuals with AD and cognitively normal (CN) controls were analyzed. MSSM+ extends MSSM by incorporating sulcal depth and cortical curvature at the vertex level. SSVM partitions the cortical surface into supervertices (surface patches) that effectively represent inter- and intra-regional spatial relationships. SV-ViT is a Vision Transformer architecture operating on these supervertices, enabling anatomically informed learning from surface mesh representations. Compared with MSSM, MSSM+ identified more spatially extensive and statistically significant group differences between AD and CN. In AD vs. CN classification, MSSM+ achieved a 3%p higher area under the precision-recall curve than MSSM. Vendor-specific analyses further demonstrated reduced signal variability and consistently improved classification performance across MR manufacturers relative to CT, GWCs, and MSSM. These findings suggest that MSSM+ combined with SV-ViT is a promising MRI-based imaging marker for AD detection prior to CSF/PET confirmation.",
+          "claimed_authors": [
+            "Geonwoo Baek",
+            "David H. Salat",
+            "Ikbeom Jang"
+          ],
+          "claimed_title": "Improved Multiscale Structural Mapping with Supervertex Vision Transformer for the Detection of Alzheimer's Disease Neurodegeneration",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2604.14837"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculati', candidate_title=\"Improved Multiscale Structural Mapping with Supervertex Vision Transformer for the Detection of Alzheimer's Disease Neurodegeneration\")",
+        "failed_at": "2026-07-20T00:49:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The field-effect technique, popular thanks to its application in common field-effect transistors, is here applied to metallic thin films by using as a dielectric a novel polymer electrolyte solution. The maximum injected surface charge, determined by a suitable modification of a classic method of electrochemistry called double-step chronocoulometry, reached some units in 10^15 charges/cm^2. At room temperature, relative variations of resistance up to 8%, 1.9% and 1.6% were observed in the case of gold, silver and copper, respectively and, if the films are thick enough (> 25 nm), results can be nicely explained within a free-electron model with parallel resistive channels. The huge charge injections achieved make this particular field-effect technique very promising for a vast variety of materials such as unconventional superconductors, graphene and 2D-like materials.",
+          "claimed_authors": [
+            "M. Tortello",
+            "A. Sola",
+            "Kanudha Sharda",
+            "F. Paolucci",
+            "J. R. Nair",
+            "C. Gerbaldi",
+            "D. Daghero",
+            "R. S. Gonnelli"
+          ],
+          "claimed_title": "Huge field-effect surface charge injection and conductance modulation in metallic thin films by electrochemical gating",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1301.3769"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculati', candidate_title='Huge field-effect surface charge injection and conductance modulation in metallic thin films by electrochemical gating')",
+        "failed_at": "2026-07-20T00:49:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculati', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-07-20T00:49:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The Radiological Society of North America (RSNA) Lumbar Degenerative Imaging Spine Classification (LumbarDISC) dataset is the largest publicly available dataset of adult MRI lumbar spine examinations annotated for degenerative changes. The dataset includes 2,697 patients with a total of 8,593 image series from 8 institutions across 6 countries and 5 continents. The dataset is available for free for non-commercial use via Kaggle and RSNA Medical Imaging Resource of AI (MIRA). The dataset was created for the RSNA 2024 Lumbar Spine Degenerative Classification competition where competitors developed deep learning models to grade degenerative changes in the lumbar spine. The degree of spinal canal, subarticular recess, and neural foraminal stenosis was graded at each intervertebral disc level in the lumbar spine. The images were annotated by expert volunteer neuroradiologists and musculoskeletal radiologists from the RSNA, American Society of Neuroradiology, and the American Society of Spine Radiology. This dataset aims to facilitate research and development in machine learning and lumbar spine imaging to lead to improved patient care and clinical efficiency.",
+          "claimed_authors": [
+            "Tyler J. Richards",
+            "Adam E. Flanders",
+            "Errol Colak",
+            "Luciano M. Prevedello",
+            "Robyn L. Ball",
+            "Felipe Kitamura",
+            "John Mongan",
+            "Maryam Vazirabad",
+            "Hui-Ming Lin",
+            "Anne Kendell",
+            "Thanat Kanthawang",
+            "Salita Angkurawaranon",
+            "Emre Altinmakas",
+            "Hakan Dogan",
+            "Paulo Eduardo de Aguiar Kuriki",
+            "Arjuna Somasundaram",
+            "Christopher Ruston",
+            "Deniz Bulja",
+            "Naida Spahovic",
+            "Jennifer Sommer",
+            "Sirui Jiang",
+            "Eduardo Moreno Judice de Mattos Farina",
+            "Eduardo Caminha Nunes",
+            "Michael Brassil",
+            "Megan McNamara",
+            "Johanna Ortiz",
+            "Jacob Peoples",
+            "Vinson L. Uytana",
+            "Anthony Kam",
+            "Venkata N. S. Dola",
+            "Daniel Murphy",
+            "David Vu",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Competition Data Notebook Group",
+            "Jason F. Talbott"
+          ],
+          "claimed_title": "The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.09162"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculati', candidate_title='The RSNA Lumbar Degenerative Imaging Spine Classification (LumbarDISC) Dataset')",
+        "failed_at": "2026-07-20T00:49:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "A detailed study is made of the space-time transformation properties of intercharge forces and the associated electric and magnetic force fields, both in classical electrodynamics and in a recently developed relativistic classical electrodynamical theory. Important differences are found and serious errors are found in the traditional treatment of special-relativistic effects in classical electromagnetism. Fields associated with radiation processes are also considered and classical and quantum mechanical predictions are compared. An important, though trivial, mathematical error in the derivation of the retarded Liénard-Wiechert retarded potentials is pointed out. It is also shown why electric and magnetic fields produced by moving source charges or current distributions are not `classical fields', and that they do not, in general, constitute an antisymmetic second-rank tensor, as is usually assumed.",
+          "claimed_authors": [
+            "J. H. Field"
+          ],
+          "claimed_title": "Space-time transformation properties of inter-charge forces and dipole radiation: Breakdown of the classical field concept in relativistic electrodynamics",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2006,
+          "primary_pointer": "physics/0604089"
+        },
+        "details": "query-relevance 0.250 < 0.3 (query='Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculati', candidate_title='Space-time transformation properties of inter-charge forces and dipole radiation: Breakdown of the classical field concept in relativistic electrodynamics')",
+        "failed_at": "2026-07-20T00:49:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Retarded electromagnetic potentials are derived from Maxwell's equations and the Lorenz condition. The difference found between these potentials and the conventional Liénard-Wiechert ones is explained by neglect, for the latter, of the motion-dependence of the effective charge density. The corresponding retarded fields of a point-like charge in arbitary motion are compared with those given by the formulae of Heaviside, Feynman, Jefimenko and other authors. The fields of an accelerated charge given by the Feynman are the same as those derived from the Liénard-Wiechert potentials but not those given by the Jefimenko formulae. A mathematical error concerning partial space and time derivatives in the derivation of the Jefimenko equations is pointed out.",
+          "claimed_authors": [
+            "J. H. Field"
+          ],
+          "claimed_title": "Retarded electric and magnetic fields of a moving charge: Feynman's derivation of Liénard-Wiechert potentials revisited",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2007,
+          "primary_pointer": "0704.1574"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculati', candidate_title=\"Retarded electric and magnetic fields of a moving charge: Feynman's derivation of Liénard-Wiechert potentials revisited\")",
+        "failed_at": "2026-07-20T00:49:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "It is demonstrated how the right hand sides of the Lorentz Transformation equations may be written, in a Lorentz invariant manner, as 4--vector scalar products. The formalism is shown to provide a short derivation, in which the 4--vector electromagnetic potential plays a crucial role, of the Lorentz force law of classical electrodynamics, and the conventional definition of the magnetic field in terms spatial derivatives of the 4--vector potential. The time component of the relativistic generalisation of the Lorentz force law is discussed. An important physical distinction between the space-time and energy-momentum 4--vectors is also pointed out.",
+          "claimed_authors": [
+            "J. H. Field"
+          ],
+          "claimed_title": "Derivation of the Lorentz Force Law and the Magnetic Field Concept using an Invariant Formulation of the Lorentz Transformation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2003,
+          "primary_pointer": "physics/0307133"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculati', candidate_title='Derivation of the Lorentz Force Law and the Magnetic Field Concept using an Invariant Formulation of the Lorentz Transformation')",
+        "failed_at": "2026-07-20T00:49:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Tianyan Quantum Cloud Platform offers cloud services demonstrating quantum advantage capabilities with a Zuchongzhi 3.0-like superconducting quantum processor. This cloud-accessible superconducting quantum prototype, named Tianyan-287, features 105 qubits and achieves high operational fidelities, with single-qubit gates, two-qubit gates, and readout fidelity at 99.90%, 99.56%, 98.7%, respectively. For a specific benchmark task involving random circuit sampling on a 74-qubit system over 24 cycles, the platform completes one million samples in just 18.4 minutes. In contrast, state-of-the-art classical supercomputers would require approximately 16,000 years to complete the equivalent calculation. To facilitate this, the platform provides access via Cqlib, an open-source SDK designed for working with quantum systems at the level of extended quantum circuits, operators, and primitives. The cloud service aims to democratize access to high-performance quantum hardware, enabling the community to validate and explore practical quantum advantages.",
+          "claimed_authors": [
+            " Tianyan Quantum Group"
+          ],
+          "claimed_title": "Tianyan: Cloud services with quantum advantage",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2512.10504"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculati', candidate_title='Tianyan: Cloud services with quantum advantage')",
+        "failed_at": "2026-07-20T00:49:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce ChemPro, a progressive benchmark with 4100 natural language question-answer pairs in Chemistry, across 4 coherent sections of difficulty designed to assess the proficiency of Large Language Models (LLMs) in a broad spectrum of general chemistry topics. We include Multiple Choice Questions and Numerical Questions spread across fine-grained information recall, long-horizon reasoning, multi-concept questions, problem-solving with nuanced articulation, and straightforward questions in a balanced ratio, effectively covering Bio-Chemistry, Inorganic-Chemistry, Organic-Chemistry and Physical-Chemistry. ChemPro is carefully designed analogous to a student's academic evaluation for basic to high-school chemistry. A gradual increase in the question difficulty rigorously tests the ability of LLMs to progress from solving basic problems to solving more sophisticated challenges. We evaluate 45+7 state-of-the-art LLMs, spanning both open-source and proprietary variants, and our analysis reveals that while LLMs perform well on basic chemistry questions, their accuracy declines with different types and levels of complexity. These findings highlight the critical limitations of LLMs in general scientific reasoning and understanding and point towards understudied dimensions of difficulty, emphasizing the need for more robust methodologies to improve LLMs.",
+          "claimed_authors": [
+            "Aaditya Baranwal",
+            "Shruti Vyas"
+          ],
+          "claimed_title": "ChemPro: A Progressive Chemistry Benchmark for Large Language Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2602.03108"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculati', candidate_title='ChemPro: A Progressive Chemistry Benchmark for Large Language Models')",
+        "failed_at": "2026-07-20T00:49:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Persistence modules are a central algebraic object arising in topological data analysis. The notion of interleaving provides a natural way to measure distances between persistence modules. We consider various classes of persistence modules, including many of those that have been previously studied, and describe the relationships between them. In the cases where these classes are sets, interleaving distance induces a topology. We undertake a systematic study the resulting topological spaces and their basic topological properties.",
+          "claimed_authors": [
+            "Peter Bubenik",
+            "Tane Vergili"
+          ],
+          "claimed_title": "Topological spaces of persistence modules and their properties",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1802.08117"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculati', candidate_title='Topological spaces of persistence modules and their properties')",
+        "failed_at": "2026-07-20T00:49:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The paper is devoted to study the structure of Hawaiian groups of some topological spaces. We present some behaviors of Hawaiian groups with respect to product spaces, weak join spaces, cone spaces, covering spaces and locally trivial bundles. In particular, we determine the structure of the $n$-dimensional Hawaiian group of the $m$-dimensional Hawaiian earring space, for all $1\\leq m\\leq n$.",
+          "claimed_authors": [
+            "Ameneh Babaee",
+            "Behrooz Mashayekhy",
+            "Hanieh Mirebrahimi"
+          ],
+          "claimed_title": "On Hawaiian Groups of Some Topological Spaces",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1111.0731"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculati', candidate_title='On Hawaiian Groups of Some Topological Spaces')",
+        "failed_at": "2026-07-20T00:49:26Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We employ cut and paste contact topological techniques to classify some tight contact structures on the closed, oriented genus-2 surface times the interval. A boundary condition is specified so that the Euler class of the of the contact structure vanishes when evaluated on each boundary component. We prove that there exists a unique, non-product tight contact structure in this case.",
+          "claimed_authors": [
+            "Tanya Cofer"
+          ],
+          "claimed_title": "A class of tight contact structures on Sigma_2 x I",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2004,
+          "primary_pointer": "math/0411208"
+        },
+        "details": "query-relevance 0.125 < 0.3 (query='Predicting Molecular Surface Charge Distribution from Quantum Chemical Calculati', candidate_title='A class of tight contact structures on Sigma_2 x I')",
+        "failed_at": "2026-07-20T00:49:26Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Qiyuan Zhao",
+            "Jiuyang Liang",
+            "Zhenli Xu"
+          ],
+          "title": "Harmonic surface mapping algorithm for fast electrostatic sums",
+          "venue": "arXiv",
+          "year": 2018
+        },
+        "primary_pointer": "1806.04801",
+        "summary": "We propose a harmonic surface mapping algorithm (HSMA) for electrostatic pairwise sums of an infinite number of image charges. The images are induced by point sources within a box due to a specific boundary condition which can be non-periodic. The HSMA first introduces an auxiliary surface such that the contribution of images outside the surface can be approximated by the least-squares method using spherical harmonics as basis functions. The so-called harmonic surface mapping is the procedure to transform the approximate solution into a surface charge and a surface dipole over the auxiliary surface, which becomes point images by using numerical integration. The mapping procedure is independent of the number of the sources and is considered to have a low complexity. The electrostatic interactions are then among those charges within the surface and at the integration points, which are all the form of Coulomb potential and can be accelerated straightforwardly by the fast multipole method to achieve linear scaling. Numerical calculations of the Madelung constant of a crystalline lattice, electrostatic energy of ions in a metallic cavity, and the time performance for large-scale systems show that the HSMA is accurate and fast, and thus is attractive for many applications.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1806.04801",
+          "http_status": 200,
+          "pdf_sample_score": 0.2559,
+          "query_relevance_score": 0.375,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-20T00:49:26Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Cameron Mura"
+          ],
+          "title": "Understanding the Results of Electrostatics Calculations: Visualizing Molecular 'Isopotential' Surfaces",
+          "venue": "arXiv",
+          "year": 2016
+        },
+        "primary_pointer": "1606.03797",
+        "summary": "This document attempts to clarify potential confusion regarding electrostatics calculations, specifically in the context of biomolecular structure and specifically as regards the units typically used to contour/visualize isopotential surfaces, potentials mapped onto molecular solvent-accessible surfaces, etc.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1606.03797",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-20T00:49:33Z"
+        }
+      },
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Guillaume Jeanmairet",
+            "Virginie Marry",
+            "Maximilien Levesque",
+            "Benjamin Rotenberg",
+            "Daniel Borgis"
+          ],
+          "title": "Hydration of Clays at the Molecular Scale: The Promising Perspective of Classical Density Functional Theory",
+          "venue": "arXiv",
+          "year": 2014
+        },
+        "primary_pointer": "1402.2581",
+        "summary": "We report here how the hydration of complex surfaces can be efficiently studied thanks to recent advances in classical molecular density functional theory. This is illustrated on the example of the pyrophylite clay. After presenting the most recent advances, we show that the strength of this implicit method is that (i) it is in quantitative or semi-quantitative agreement with reference all-atoms simulations (molecular dynamics here) for both the solvation structure and energetics, and that (ii) the computational cost is two to three orders of magnitude less than in explicit methods. The method remains imperfect, in that it locally overestimates the polarization of water close to hydrophylic sites of the clay. The high numerical efficiency of the method is illustrated and exploited to carry a systematic study of the electrostatic and van der Waals components of the surface-solvant interactions within the most popular force field for clays, CLAYFF. Hydration structure and energetics are found to weakly depend upon the electrostatics. We conclude on the consequences of such findings in future force-field development.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/1402.2581",
+          "http_status": 200,
+          "pdf_sample_score": null,
+          "query_relevance_score": 0.6,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-07-20T00:49:34Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "predicting molecular surface charge distribution from quantum chemical calculations chemistry",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -2,63 +2,89 @@
 
 ## Prerequisites
 
--   Python 3.11+
--   Git
--   14 GB free disk space
--   8 GB RAM (recommended for smooth operation)
+- Python 3.11+
+- R 4.3+ (with `lme4`, `ordinal`, `dplyr` packages)
+- Git
+- Access to Hugging Face Hub (optional, for datasets)
 
 ## Installation
 
 1.  **Clone the repository**:
     ```bash
     git clone <repo-url>
-    cd projects/PROJ-755-the-influence-of-chatbot-politeness-on-u
+    cd <project-dir>
     ```
 
-2.  **Create and activate virtual environment**:
+2.  **Create virtual environment**:
     ```bash
     python -m venv venv
     source venv/bin/activate  # On Windows: venv\Scripts\activate
     ```
 
-3.  **Install dependencies**:
+3.  **Install Python dependencies**:
     ```bash
-    pip install -r code/requirements.txt
+    pip install -r requirements.txt
+    ```
+
+4.  **Install R dependencies** (if not using system R):
+    ```r
+    install.packages(c("lme4", "ordinal", "dplyr", "tidyr"))
+    ```
+
+5.  **Set environment variables**:
+    Copy `.env.example` to `.env` and add your `HF_TOKEN` if required for private datasets (though we use public ones).
+    ```bash
+    cp .env.example .env
+    # Edit .env to add HF_TOKEN=your_token
     ```
 
 ## Running the Pipeline
 
-### Step 1: Download and Score Data
-This step downloads the datasets, computes politeness scores, and saves the processed data.
+### 1. Download and Validate Data
 ```bash
-python code/01_download_and_score.py
+python code/data/download_datasets.py
+python code/data/validate_data.py
 ```
--   **Output**: `data/processed/scored_dialogues.parquet`
--   **Time**: ~1-2 hours (depends on dataset size and CPU speed).
+*Outputs: `data/raw/*.parquet`, `data/processed/validation_log.txt`*
 
-### Step 2: Fit CLMM Model
-This step fits the Cumulative Link Mixed-Effects Model.
+### 2. Score Politeness
 ```bash
-python code/02_fit_clmm.py
+python code/data/score_politeness.py
 ```
--   **Output**: `data/processed/clmm_results.csv`
+*Outputs: `data/processed/dialogues_scored.csv`*
 
-### Step 3: Robustness & Subgroup Analysis
-This step runs the LIWC analysis and subgroup checks.
+### 3. Run CLMM Analysis
 ```bash
-python code/03_robustness_analysis.py
+python code/analysis/run_clmm.py
 ```
--   **Output**: `data/processed/robustness_results.csv`
+*Outputs: `data/processed/model_results.csv`, `data/processed/figures/`*
 
-## Verifying Results
-
-Run the contract tests to ensure data integrity:
+### 4. Robustness Check
 ```bash
-pytest tests/contract/
+python code/analysis/robustness_check.py
+```
+*Outputs: `data/processed/robustness_results.csv`*
+
+### 5. Subgroup Analysis (if applicable)
+```bash
+python code/analysis/subgroup_analysis.py
+```
+*Outputs: `data/processed/subgroup_results.csv`*
+
+## Verification
+
+Run the test suite:
+```bash
+pytest tests/
+```
+
+Run schema validation:
+```bash
+python code/utils/schema_validator.py --input data/processed/dialogues_merged.csv --schema contracts/dataset.schema.yaml
 ```
 
 ## Troubleshooting
 
--   **Memory Error**: If you encounter OOM errors, reduce the batch size in `01_download_and_score.py` or sample the dataset.
--   **Model Convergence**: If the CLMM fails to converge, check `logs/convergence.log` for diagnostics. The script will automatically attempt a simplified model.
--   **Dataset Missing**: If Persona-Chat is missing, the script will proceed with EmpatheticDialogues and log a warning.
+- **OOM Error**: If `score_politeness.py` fails due to memory, reduce `BATCH_SIZE` in `code/data/score_politeness.py` or enable the GPU escape hatch.
+- **R Package Missing**: Ensure R is installed and packages are in the library path.
+- **Dataset Not Found**: Check `code/data/download_datasets.py` for updated Hugging Face IDs.

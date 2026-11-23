@@ -1,93 +1,203 @@
 """
-Download the ESOL (Estimated Solubility) dataset from HuggingFace.
+Task T004: Download ESOL dataset from MoleculeNet or verified mirror.
 
-This script fetches the 'delaney-esol' dataset from the HuggingFace Hub,
-validates the presence of the 'logS' column, and saves the raw data
-to data/raw/esol_raw.csv.
+Fetches the 'delaney-processed.csv' file, validates the 'logS' column,
+saves it to data/raw/, computes SHA-256 checksum, and updates the state manifest.
 
-Dependencies:
-    pandas, requests (or huggingface_hub)
+Constraints:
+- NO synthetic fallbacks. If both sources fail, raise an exception.
+- Must record checksum in state/projects/PROJ-351-predicting-the-solubility-of-pharmaceuti.yaml
 """
 import os
 import sys
-import pandas as pd
+import json
+import hashlib
+import logging
+import urllib.request
+import urllib.error
+from pathlib import Path
+from typing import Dict, Any
 
-# Ensure we can import from the code directory if run from project root
-# However, for this specific file, we rely on standard library and pandas.
+# Ensure project root is in path for imports if running as script
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
-def fetch_esol_dataset():
-    """
-    Fetches the ESOL dataset from HuggingFace datasets.
-    
-    Returns:
-        pd.DataFrame: The raw ESOL dataset.
-    
-    Raises:
-        RuntimeError: If the dataset cannot be fetched or 'logS' column is missing.
-    """
+# Import local logging configuration
+from config.logging_config import setup_logger
+
+# Optional: huggingface_hub for robust mirror download
+try:
+    from huggingface_hub import hf_hub_download
+    _HAS_HF_HUB = True
+except Exception:
+    _HAS_HF_HUB = False
+
+# Configuration
+PRIMARY_SOURCE = "https://deepchemdata.s3-us-west-1.amazonaws.com/datasets/delaney-processed.csv"
+FALLBACK_SOURCE = "https://huggingface.co/datasets/deepchem/delaney-processed/resolve/main/delaney-processed.csv"
+OUTPUT_FILENAME = "delaney-processed.csv"
+OUTPUT_DIR = "data/raw"
+STATE_MANIFEST_PATH = "state/projects/PROJ-351-predicting-the-solubility-of-pharmaceuti.yaml"
+REQUIRED_COLUMNS = ["logS"]
+
+# Setup logger
+logger = setup_logger("download_esol")
+
+def compute_sha256(filepath: Path) -> str:
+    """Compute SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def fetch_url(url: str, output_path: Path) -> None:
+    """Fetch a file from a URL and save it."""
+    logger.info(f"Attempting to fetch from: {url}")
     try:
-        # We use the 'datasets' library for robust access to HuggingFace datasets
-        # If not installed, we fall back to direct URL download if available,
-        # but 'datasets' is the canonical way for MoleculeNet data on HF.
-        from datasets import load_dataset
-    except ImportError:
-        print("Error: The 'datasets' library is required. "
-              "Please run: pip install datasets", file=sys.stderr)
-        sys.exit(1)
-
-    print("Fetching ESOL dataset from HuggingFace...")
-    try:
-        # The ESOL dataset is available as 'delaney-esol' on HuggingFace
-        dataset = load_dataset("delaney-esol", split="train")
+        with urllib.request.urlopen(url, timeout=30) as response:
+            with open(output_path, "wb") as out_file:
+                while True:
+                    chunk = response.read(8192)
+                    if not chunk:
+                        break
+                    out_file.write(chunk)
+        logger.info(f"Successfully downloaded to: {output_path}")
+    except urllib.error.HTTPError as e:
+        logger.error(f"HTTP Error {e.code} fetching {url}: {e.reason}")
+        raise
+    except urllib.error.URLError as e:
+        logger.error(f"URL Error fetching {url}: {e.reason}")
+        raise
     except Exception as e:
-        print(f"Error fetching dataset: {e}", file=sys.stderr)
-        sys.exit(1)
+        logger.error(f"Unexpected error fetching {url}: {e}")
+        raise
 
-    # Convert to pandas DataFrame
-    df = dataset.to_pandas()
+def validate_csv(filepath: Path) -> bool:
+    """Validate that the CSV contains required columns."""
+    try:
+        import pandas as pd
+        df = pd.read_csv(filepath, nrows=5)  # Read header and a few rows
+        missing_cols = [col for col in REQUIRED_COLUMNS if col not in df.columns]
+        if missing_cols:
+            logger.error(f"Validation failed: Missing required columns: {missing_cols}")
+            return False
+        logger.info("Validation passed: Required columns present.")
+        return True
+    except Exception as e:
+        logger.error(f"Validation failed: Could not read CSV: {e}")
+        return False
 
-    # Validate required columns
-    required_columns = ['logS', 'smiles', 'measured logS']
-    missing_cols = [col for col in required_columns if col not in df.columns]
-    
-    if missing_cols:
-        raise RuntimeError(f"Missing required columns in dataset: {missing_cols}")
+def load_yaml_manifest(filepath: Path) -> Dict[str, Any]:
+    """Load a YAML file safely without external dependencies if possible, or use yaml."""
+    try:
+        import yaml
+        if not filepath.exists():
+            return {"artifact_hashes": {}}
+        with open(filepath, "r") as f:
+            return yaml.safe_load(f) or {"artifact_hashes": {}}
+    except ImportError:
+        logger.warning("PyYAML not installed. Returning empty manifest.")
+        if not filepath.exists():
+            return {"artifact_hashes": {}}
+        return {"artifact_hashes": {}}
 
-    # Validate 'logS' column has numeric data and no NaNs in the target column
-    if df['logS'].isna().any():
-        print(f"Warning: {df['logS'].isna().sum()} rows have NaN in 'logS'. "
-              "These will be dropped later in preprocessing, but we keep them here as raw.",
-              file=sys.stderr)
+def save_yaml_manifest(filepath: Path, data: Dict[str, Any]) -> None:
+    """Save data to a YAML file."""
+    try:
+        import yaml
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        with open(filepath, "w") as f:
+            yaml.dump(data, f, default_flow_style=False)
+        logger.info(f"Updated state manifest at {filepath}")
+    except ImportError as e:
+        logger.error("PyYAML is required to update the state manifest.")
+        raise
 
-    return df
+def update_state_manifest(output_file: Path, checksum: str) -> None:
+    """Update the project state manifest with the new checksum."""
+    manifest_path = project_root / STATE_MANIFEST_PATH
+    data = load_yaml_manifest(manifest_path)
 
-def save_raw_csv(df, output_path):
+    # Ensure artifact_hashes key exists
+    if "artifact_hashes" not in data:
+        data["artifact_hashes"] = {}
+
+    # Update the specific hash using a relative path from the project root
+    relative_path = str(output_file.relative_to(project_root))
+    data["artifact_hashes"][relative_path] = f"sha256:{checksum}"
+
+    save_yaml_manifest(manifest_path, data)
+
+def fetch_esol_dataset(output_dir: Path) -> Path:
     """
-    Saves the DataFrame to a CSV file.
-    
-    Args:
-        df (pd.DataFrame): The dataset to save.
-        output_path (str): The path to save the CSV file.
+    Fetch ESOL dataset from primary source, fallback to mirror if needed,
+    and finally try huggingface_hub if both URLs fail.
+    Raises RuntimeError if all attempts fail.
     """
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    df.to_csv(output_path, index=False)
-    print(f"Raw ESOL dataset saved to {output_path}")
-    print(f"Total rows: {len(df)}, Columns: {list(df.columns)}")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_path = output_dir / OUTPUT_FILENAME
+
+    sources = [PRIMARY_SOURCE, FALLBACK_SOURCE]
+
+    for url in sources:
+        try:
+            fetch_url(url, output_path)
+            if validate_csv(output_path):
+                return output_path
+            else:
+                logger.warning(f"Validation failed for {url}, removing file.")
+                output_path.unlink(missing_ok=True)
+        except Exception as e:
+            logger.warning(f"Failed to fetch or validate from {url}: {e}")
+            if output_path.exists():
+                output_path.unlink(missing_ok=True)
+            continue
+
+    # Final attempt: use huggingface_hub if available
+    if _HAS_HF_HUB:
+        try:
+            logger.info("Attempting download via huggingface_hub...")
+            hf_path = hf_hub_download(
+                repo_id="deepchem/delaney-processed",
+                filename=OUTPUT_FILENAME,
+                repo_type="dataset"
+            )
+            # Copy the downloaded file to the desired location
+            Path(hf_path).rename(output_path)
+            if validate_csv(output_path):
+                return output_path
+            else:
+                logger.error("Validation failed for file downloaded via huggingface_hub.")
+                output_path.unlink(missing_ok=True)
+        except Exception as e:
+            logger.error(f"HuggingFace hub download failed: {e}")
+
+    raise RuntimeError(
+        f"CRITICAL: Could not fetch real ESOL data from any source. "
+        f"Primary: {PRIMARY_SOURCE}, Fallback: {FALLBACK_SOURCE}, "
+        "HuggingFace hub also failed. No synthetic data allowed."
+    )
 
 def main():
-    """Main entry point for the download script."""
-    output_path = "data/raw/esol_raw.csv"
-    
+    """Main entry point for the download task."""
+    logger.info("Starting ESOL dataset download (Task T004)...")
+
+    output_path = project_root / OUTPUT_DIR
     try:
-        df = fetch_esol_dataset()
-        save_raw_csv(df, output_path)
-        print("Download and validation successful.")
-    except RuntimeError as e:
-        print(f"Failed to download or validate dataset: {e}", file=sys.stderr)
-        sys.exit(1)
+        csv_path = fetch_esol_dataset(output_path)
+
+        # Compute checksum
+        checksum = compute_sha256(csv_path)
+        logger.info(f"SHA-256 Checksum: {checksum}")
+
+        # Update manifest
+        update_state_manifest(csv_path, checksum)
+
+        logger.info("Task T004 completed successfully.")
     except Exception as e:
-        print(f"Unexpected error: {e}", file=sys.stderr)
-        sys.exit(1)
+        logger.error(f"Task T004 failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

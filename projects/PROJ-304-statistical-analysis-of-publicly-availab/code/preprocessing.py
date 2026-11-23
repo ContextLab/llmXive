@@ -12,7 +12,13 @@ def clean_traffic_data(df: pd.DataFrame) -> pd.DataFrame:
     """
     Clean traffic data ensuring 'traffic_volume' retains 0.0 values.
     Only imputation/exclusion applies to NaN values.
-    Logs excluded rows to data/processed/exclusion_log.csv.
+    Logs the count of excluded rows to data/processed/exclusion_log.csv.
+    
+    Args:
+        df: Input DataFrame with 'traffic_volume' column.
+        
+    Returns:
+        DataFrame with NaN rows in 'traffic_volume' removed.
     """
     logger.info("Starting traffic data cleaning.")
     df_clean = df.copy()
@@ -23,10 +29,27 @@ def clean_traffic_data(df: pd.DataFrame) -> pd.DataFrame:
 
     if nan_count > 0:
         logger.warning(f"Found {nan_count} rows with NaN in 'traffic_volume'. Excluding them.")
-        # Log excluded rows
-        excluded_df = df_clean[nan_mask]
+        
+        # Prepare log path
         log_path = get_project_root() / "data" / "processed" / "exclusion_log.csv"
-        excluded_df.to_csv(log_path, index=False)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Create a log entry with the count and details
+        # We store the count and the indices of excluded rows for traceability
+        exclusion_record = {
+            'timestamp': datetime.now().isoformat(),
+            'excluded_count': int(nan_count),
+            'column': 'traffic_volume',
+            'reason': 'NaN_value'
+        }
+        
+        # Append to exclusion log (create if not exists)
+        try:
+            existing_log = pd.read_csv(log_path)
+            combined_log = pd.concat([existing_log, pd.DataFrame([exclusion_record])], ignore_index=True)
+            combined_log.to_csv(log_path, index=False)
+        except FileNotFoundError:
+            pd.DataFrame([exclusion_record]).to_csv(log_path, index=False)
         
         # Drop NaN rows
         df_clean = df_clean.dropna(subset=['traffic_volume'])

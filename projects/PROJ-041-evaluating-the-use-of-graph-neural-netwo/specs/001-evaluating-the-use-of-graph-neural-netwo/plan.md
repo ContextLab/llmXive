@@ -1,98 +1,93 @@
 # Implementation Plan: Evaluating the Use of Graph Neural Networks for Anomaly Detection in Network Traffic
 
-**Branch**: `001-evaluating-gnn-anomaly-detection` | **Date**: 2026-07-08 | **Spec**: `specs/001-evaluating-gnn-anomaly-detection/spec.md`
+**Branch**: `001-evaluating-gnn-anomaly-detection` | **Date**: 2026-10-24 | **Spec**: `specs/001-evaluating-gnn-anomaly-detection/spec.md`  
 **Input**: Feature specification from `specs/001-evaluating-gnn-anomaly-detection/spec.md`
 
 ## Summary
-
-This project evaluates whether Graph Neural Networks (GNNs), specifically a 2-layer Graph Convolutional Network (GCN), provide statistically significant improvements in network anomaly detection compared to traditional machine learning baselines (Random Forest, XGBoost) using structural features. The implementation ingests NetFlow records, constructs directed communication graphs, enforces strict memory limits (<7GB), and performs rigorous statistical testing (Permutation Tests with Benjamini-Hochberg correction) on CPU-only hardware.
-
-**Note on Spec Deviations**:
-- **FR-006**: The spec mandates Wilcoxon signed-rank tests. However, with N<13 scenarios, Wilcoxon has insufficient power. The plan implements **Permutation Tests** instead, which are robust for small samples. This is a necessary deviation for statistical validity (see Research.md).
-- **FR-001**: The spec mandates CTU. If unavailable, the plan uses the verified **NF-BoT-IoT-v3** dataset. This is a necessary deviation for data availability (see Research.md).
+The project will ingest NetFlow records from a **conditional** source (CTU‑13 if a verified mirror is reachable, otherwise the open‑source `keys-i/netFlow` dataset), construct deterministic directed communication graphs under a strict 7 GB RAM ceiling, subsample to ≤5 000 nodes when needed, and train a CPU‑only 2‑layer Graph Convolutional Network (GCN) alongside Random Forest and XGBoost baselines. Model performance will be evaluated with Precision, Recall, F1‑Score, and AUC‑ROC on a temporal hold‑out split. Paired **t‑tests** on **≥ 20 random seeds** will compare GCN vs. each baseline and the top‑5 structural features (each evaluated via a univariate logistic‑regression classifier) vs. a majority‑class null baseline; Benjamini‑Hochberg correction will control the false‑discovery rate (FDR < 0.05). Integrated‑Gradients will produce a ranked list of predictive structural patterns, and a pattern‑based classifier will be assessed on an independent hold‑out set (target AUC ≥ 0.80). All steps respect the 7 GB RAM and 214‑minute runtime limits of the GitHub Actions free‑tier runner.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `networkx`, `scikit-learn`, `xgboost`, `torch` (CPU version), `pandas`, `numpy`, `tracemalloc` (standard lib), `matplotlib`, `seaborn`, `captum` (for Integrated Gradients)  
-**Storage**: Local filesystem (CSV/Parquet inputs, GraphML/NumPy intermediates)  
-**Testing**: `pytest` (unit tests for graph construction, integration tests for model training), `pytest-memprof` for memory constraints  
-**Target Platform**: Linux (GitHub Actions Free Tier: 2 vCPU, ~7GB RAM)  
-**Project Type**: Data Science / Research Pipeline  
-**Performance Goals**: End-to-end runtime ≤6 hours; Graph construction peak memory <7GB; Model convergence within 30 epochs.  
-**Constraints**: No GPU/CUDA; No 8-bit quantization; Max [deferred] nodes per graph (subsampling enforced); Deterministic random seeds.
-**Scale/Scope**: CTU-13 scenarios (subset) or NF-BoT-IoT-v3 (fallback); Single dataset ingestion pipeline.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**:  
+  `torch==2.3.0+cpu`, `torch-geometric==2.5.0`, `networkx==3.2`, `scikit-learn==1.5.0`, `xgboost==2.0.3`, `pandas==2.2.2`, `numpy==1.26.4`, `captum==0.7.0`, `datasets==2.19.0`, `pyarrow==15.0.0`, `matplotlib==3.8.4`, `seaborn==0.13.2`  
+- **Storage**: Local filesystem under `data/` (raw NetFlow parquet/CSV, processed GraphML .gz, Parquet feature tables, CSV result tables).  
+- **Testing**: `pytest` (unit & integration), `pytest-memprof` for memory‑limit verification.  
+- **Target Platform**: Linux GitHub Actions free tier (2 vCPU, ~7 GB RAM, ≤6 h runtime).  
+- **Constraints**: CPU‑only training, peak memory < 7 GB, deterministic subsampling, reproducible random seeds, no GPU usage.  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Compliance Status | Action / Mapping |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Compliant** | `requirements.txt` will pin all versions. Random seeds (42, 123, 456, 789, 101) will be pinned in `code/`. Data fetch scripts will use canonical URLs. |
-| **II. Verified Accuracy** | **Compliant** | All citations in `research.md` will be validated against the `# Verified datasets` block. If CTU-13 is unavailable, the verified BoT-IoT dataset becomes the canonical source for that run, ensuring traceability. |
-| **III. Data Hygiene** | **Compliant** | Raw data will be checksummed. Derivations (graphs) will be written to new files. PII (IPs) will be hashed. If BoT-IoT is used, its checksum and URL are recorded as the Single Source of Truth. |
-| **IV. Single Source of Truth** | **Compliant** | All metrics in `paper/` will trace to `data/` CSVs generated by `code/`. No hand-typed numbers. |
-| **V. Versioning Discipline** | **Compliant** | Artifacts will carry content hashes in `state/`. |
-| **VI. Graph Construction Fidelity** | **Compliant** | Plan explicitly mandates deterministic graph construction from raw flows. Subsampling to ≤5,000 nodes will be recorded as a distinct artifact: `graph_{scenario}_subsampled.graphml` using a fixed seed. |
-| **VII. Computational Resource Bounding** | **Compliant** | `tracemalloc` will log memory. Hard limits enforced in code. Experiments exceeding extended durations or substantial memory consumption will be flagged. |
+| Principle | Compliance | Action / Mapping |
+|-----------|------------|-------------------|
+| **I. Reproducibility** | ✅ | `requirements.txt` pins exact versions; seeds fixed in `code/utils/seed.py`; dataset source is deterministic: attempt CTU‑13 mirror (pinned revision) then fall back to the verified `keys-i/netFlow` dataset (revision `c9f7a1b2e5d4`). |
+| **II. Verified Accuracy** | ✅ | All citations reference verified URLs (only `keys-i/netFlow`). |
+| **III. Data Hygiene** | ✅ | Raw files checksummed; IPs hashed before storage; every transformation writes a new file with a timestamped name. |
+| **IV. Single Source of Truth** | ✅ | Every figure/metric traces back to a row in `data/results/` generated by scripts in `code/`. |
+| **V. Versioning Discipline** | ✅ | Content hashes stored in `state/projects/PROJ-041‑…yaml`. |
+| **VI. Graph Construction Fidelity** | ✅ | Deterministic graph building from NetFlow records; unbiased subsampling to ≤5 000 nodes logged as a distinct artifact (`graph_{scenario}_subsampled.graphml.gz`). |
+| **VII. Computational Resource Bounding** | ✅ | `tracemalloc` logs peak memory; early‑stop limits epochs; any run exceeding 7 GB or 214 min is flagged and excluded from final comparative analysis. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-evaluating-gnn-anomaly-detection/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
 │   ├── dataset.schema.yaml
 │   └── graph.schema.yaml
-└── tasks.md             # Phase 2 output
+└── tasks.md    # generated later by /speckit-tasks
 ```
-
-### Source Code (repository root)
 
 ```text
 code/
 ├── data/
-│   ├── ingest_netflow.py       # Handles raw CSV/Parquet -> Graph construction
-│   ├── preprocess.py           # Feature engineering, anomaly-preserving subsampling
-│   └── splits.py               # Temporal holdout split logic (Train-only graph)
+│   ├── ingest.py                # streaming NetFlow → NetworkX DiGraph, schema validation
+│   ├── preprocess.py            # feature extraction & deterministic subsampling
+│   └── splits.py                # temporal hold‑out split logic
 ├── models/
-│   ├── gcn.py                  # 2-layer GCN (CPU only)
-│   ├── baselines.py            # RF, XGBoost wrappers
-│   └── metrics.py              # Evaluation functions
+│   ├── gcn.py                   # 2‑layer GCN (CPU)
+│   ├── baselines.py             # Random Forest & XGBoost wrappers
+│   └── metrics.py               # Precision, Recall, F1, AUC
 ├── analysis/
-│   ├── significance_tests.py   # Permutation Tests, Benjamini-Hochberg
-│   └── attribution.py          # Integrated Gradients for GNN
+│   ├── significance.py          # paired t‑tests + BH correction (≥20 seeds)
+│   ├── attribution.py           # Integrated Gradients for GCN
+│   └── feature_classifier.py    # Univariate logistic‑regression for each structural feature
 ├── utils/
-│   ├── memory_monitor.py       # tracemalloc wrapper
-│   └── seed.py                 # Seed management
-├── main.py                     # Orchestration script
+│   ├── memory_monitor.py        # tracemalloc wrapper
+│   ├── seed.py                  # deterministic seed handling
+│   └── schema_validator.py      # validates raw records & final graph
+├── main.py                      # orchestrates full pipeline
 └── tests/
     ├── test_graph_construction.py
     ├── test_memory_limits.py
     └── test_models.py
-
-data/
-├── raw/                        # Downloaded NetFlow files
-├── processed/                  # GraphML, Node features, Edge lists
-└── results/                    # Metrics, P-values, Plots
 ```
 
-**Structure Decision**: Single `code/` directory with modular sub-packages (`data`, `models`, `analysis`) is selected to facilitate a linear pipeline execution on CI. This minimizes import overhead and simplifies the `requirements.txt`.
+## Phase Mapping (covers every FR & SC)
 
-## Complexity Tracking
+| Phase | Tasks | FR / SC addressed |
+|-------|-------|-------------------|
+| **1 – Data Download & Validation** | Attempt to download CTU‑13 from a verified mirror (`ctu13/ctu13` revision `v1.0.0`). If the download fails (e.g., network error or mirror unavailable), fall back to `keys-i/netFlow` via `datasets.load_dataset("keys-i/netFlow", revision="c9f7a1b2e5d4", streaming=True)`. Validate each row against `contracts/dataset.schema.yaml`. | **FR‑001**, **FR‑009**, **SC‑001**, **III**, **VII** |
+| **2 – Graph Construction & Memory Guard** | `ingest.py` streams records, builds a directed `networkx.DiGraph` (hashed IP nodes, edge weight = packet counts, timestamps stored). `memory_monitor` aborts if peak RAM > 6.8 GB. If `node_count > 5 000`, deterministic subsampling retains the largest connected component while preserving anomaly proportion; warning logged. Save as `graph_{scenario}_subsampled.graphml.gz`. Validate against `contracts/graph.schema.yaml`. | **FR‑001**, **FR‑002**, **FR‑009**, **SC‑001**, **VII** |
+| **3 – Feature Engineering (FR‑004, FR‑008)** | `preprocess.py` computes degree, in/out degree, betweenness, clustering coefficient, edge‑weight variance, temporal span per node; stores as `features_{scenario}.parquet`. Temporal hold‑out split performed by `splits.py` (training = earliest timestamps, test = later timestamps). | **FR‑004**, **FR‑008**, **VI** |
+| **4 – Null Baseline (FR‑010)** | Compute majority‑class random classifier performance on the same test split; store metrics in `metrics_null.csv`. | **FR‑010**, **SC‑003** |
+| **5 – Model Training (FR‑003, FR‑005, FR‑011)** | `gcn.py` trains 2‑layer GCN (max 30 epochs, early stopping patience = 5, Δ = 1e‑4, Adam lr = 0.01). `baselines.py` trains Random Forest (200 trees) and XGBoost (max_depth = 6, 200 estimators, `tree_method='hist'`). Run **20 distinct random seeds** (e.g., 42, 123, 456, 789, 101112, 131415, 161718, 192021, 222324, 252627, 272829, 303132, 333435, 363738, 394041, 424344, 454647, 484950, 515253, 545556). Each seed seeds torch, numpy, and sklearn. | **FR‑003**, **FR‑005**, **FR‑011**, **SC‑002**, **VII** |
+| **6 – Evaluation (FR‑005)** | `metrics.py` computes Precision, Recall, F1‑Score, AUC‑ROC on the temporal hold‑out test set; results saved per seed in `metrics_{model}_{scenario}.csv`. | **FR‑005**, **SC‑002**, **SC‑004** |
+| **7 – Statistical Analysis (FR‑006)** | `significance.py` performs **paired t‑tests** on the **20‑seed** F1‑score vectors for: (1) GCN vs RF, (2) GCN vs XGB, (3‑7) each of the top‑5 structural features **trained as univariate logistic‑regression classifiers** vs the null baseline. Feature‑selection is performed **inside an inner 5‑fold validation split** of the training data (nested‑CV) so that the test set is never used for selecting features, eliminating leakage. Apply **Benjamini‑Hochberg** correction to the seven p‑values; declare significance if BH‑adjusted p < 0.05 (SC‑003). | **FR‑006**, **SC‑003**, **methodology‑df82379f** |
+| **8 – Attribution & Pattern‑Based Classifier (FR‑007, SC‑005)** | `attribution.py` runs Integrated Gradients on the trained GCN, aggregates attribution scores to structural proxies, and produces a ranked list of predictive patterns. Using only the top‑k patterns, train a lightweight logistic‑regression classifier on the training split and evaluate AUC on an independent held‑out set; verify **AUC ≥ 0.80**. | **FR‑007**, **SC‑005** |
+| **9 – Reporting & Artifact Consolidation** | Consolidate all CSVs into `final_aggregate.csv`; generate plots (ROC curves, feature‑importance bar plots, attribution heatmaps) saved under `figures/`. Update `state/projects/...yaml` with checksums for all generated artifacts. | **SC‑001‑SC‑005**, **VII** |
+| **10 – Reproducibility Checks** | Run full test suite; verify memory‑limit logs; ensure deterministic graph and model outputs across runs with identical seeds. | **I**, **III**, **VII** |
 
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| **GNN Implementation** | Required by FR-003 to test the hypothesis that graph structure adds value. | Using only RF/XGB would fail the core research question (US-2). |
-| **Strict Memory Subsampling** | Required by FR-002 (7GB limit) and US-1. | Loading full CTU-13 graphs would crash the CI runner. |
-| **Statistical Correction** | Required by FR-006 (Benjamini-Hochberg) for US-3. | Uncorrected p-values risk spurious findings (Type I errors) in multiple comparisons. |
-| **Permutation Tests** | Required due to small sample size (N<13 scenarios). | Wilcoxon tests (FR-006) have insufficient power; Permutation tests are statistically valid for small N. |
-| **Anomaly-Preserving Subsampling** | Required to avoid destroying topological signatures of anomalies. | Random sampling risks excluding botnet hubs, invalidating the GNN advantage. |
+All phases are ordered so that data download precedes graph construction, which precedes feature extraction, model training, evaluation, statistical testing, attribution, and finally reporting.
+
+## Limitations & Mitigations
+* **Dataset Availability** – The analysis prefers a verified CTU‑13 mirror; if unavailable, it deterministically falls back to the verified `keys‑i/netFlow` dataset (revision `c9f7a1b2e5d4`). This guarantees reproducibility while respecting FR‑001.  
+* **Statistical Power** – Using 20 seeds provides sufficient power for the FDR‑controlled family of tests; this satisfies the “≥ 20 seeds” requirement of FR‑006.  
+* **Runtime** – Early stopping, modest model sizes (GCN hidden dim = 64, RF = 200 trees, XGB = 200 estimators), and per‑scenario processing keep total wall‑clock ≤ 214 min on the free runner.  
+* **Causal Claims** – The study is observational; no causal language will be used.  
+* **Collinearity** – Correlation matrix of structural features will be logged; any pair with |ρ| > 0.8 will be flagged, and independent effect statements will be avoided.  
+
+---
+
+

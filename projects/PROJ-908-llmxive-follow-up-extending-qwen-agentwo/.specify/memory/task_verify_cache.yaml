@@ -1,31 +1,57 @@
-T001:
+T014:
+  c: false
+  h: efb6a59dea56f359c9c485527f3d946cf2990f356c047804fad11d6c7845e821
+  r: "The required artifact `data/processed/oracle_graph.json` does not exist, and\
+    \ there is no evidence of the semantic verification step (accuracy check, exit\
+    \ code, checksum) being performed. The implementer must generate the oracle file,\
+    \ run the 1,000\u2011sample comparison with \u226599.9\u202F% accuracy, and provide\
+    \ the resulting file (non\u2011empty) along with verification logs or checksum\
+    \ confirmation."
+T016:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No files or directory listing for `projects/PROJ-908-llmxive-follow-up-extending-qwen-agentwo/`
-    were provided, so the required project structure per `plan.md` cannot be verified
-    as existing or correctly populated. The implementer must supply the actual folder
-    contents showing the expected hierarchy and files.
-T003:
+  r: "No code, configuration files, or log output were presented showing that logging\
+    \ statements were added to the Oracle generation and validation steps. The required\
+    \ artifact\u2014a modified codebase (or diff) with concrete logging implementation\u2014\
+    is missing, so the task is not satisfied."
+T017:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`,
-    `black` settings) or scripts were presented, so there is no evidence that ruff
-    and black have been configured for the project. The required artifacts are missing.
-T006:
+  h: 6cf6204e167541370e1990018fa074be2d6b8b1ad0623febdd5cfc97196d0585
+  r: "The repository contains a partially\u2011implemented `code/inference/runner.py`\
+    \ (the file is truncated and does not include the full generation logic or a main\
+    \ entry point). Moreover, the required input file `data/raw/standardized_benchmark.json`\
+    \ and the expected output `data/raw/cot_traces.json` are absent, so the verification\
+    \ command cannot be run and no JSON trace file is produced. The task therefore\
+    \ remains unfinished."
+T023:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required `data/raw/` and `data/processed/` directories or
-    a `.gitignore` file was provided; the claim lacks any artifact confirming the
-    directory structure or ignore rules.
-T007:
+  h: cb304781208b6d4101740b91d09605db69130a348409bb50e93888fcd2afeaa1
+  r: "The repository contains `code/rules/extractor.py`, but the implementation is\
+    \ incomplete (truncated and only performs simple pattern counting, not full FOL\
+    \ rule induction) and the required output file `data/processed/extracted_rules.json`\
+    \ is absent. Additionally, the validation dataset `data/raw/synthetic_control_traces.json`\
+    \ is missing, so the script cannot be run nor the \u226595\u202F% precision check\
+    \ performed."
+T026:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No evidence of any files under `specs/001-llmxive-followup/contracts/` was provided;\
-    \ the required schema definition files for \u201Coracle\u201D, \u201Crules\u201D\
-    , and \u201Cdivergence\u201D are missing, so the task is not satisfied."
-T008:
+  h: a61f43fa3ae9b5e56ef9908d5ca588a5d33dee74743813a60ee6f7e0dc3f4a88
+  r: "The required output file `data/processed/cot_quality_metrics.json` does not\
+    \ exist, and the provided `code/analysis/metrics.py` lacks a complete implementation\
+    \ (e.g., no function that computes the precision and writes the JSON result).\
+    \ Consequently the task\u2019s core requirement\u2014to calculate and store the\
+    \ Pattern Reproduction Precision metric\u2014is not satisfied."
+T031:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pytest configuration (e.g., `pytest.ini` or `conftest.py`) setting a fixed\
-    \ seed of\u202F42 is present, nor are any integration test files or scaffolding\
-    \ shown. The required artifacts are missing, so the task is not satisfied."
+  h: d7746255b78ebbae2dff67b4dce53ed8ba6dcba9ad82cc0cfa17f7405221f5ff
+  r: "The required output file `data/processed/divergence_report.json` does not exist,\
+    \ and the provided `code/analysis/diverge.py` is incomplete (truncated) and cannot\
+    \ be verified to produce the specified report. The task\u2019s core artifact is\
+    \ missing."
+T031a:
+  c: false
+  h: 552a0ade51f07ed39cf1e334ac3cac3e54af00303fe37b3f396a47fe229208dc
+  r: "The required `data/processed/exclusion_audit.json` file does not exist, and\
+    \ the provided `tests/integration/test_stats_significance.py` is truncated and\
+    \ contains no visible assertions that check `excluded_metrics` are omitted from\
+    \ p\u2011value or correlation calculations. Both the audit artifact and the verification\
+    \ logic are missing."

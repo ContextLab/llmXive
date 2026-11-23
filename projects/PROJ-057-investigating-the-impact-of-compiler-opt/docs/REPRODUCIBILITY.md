@@ -1,48 +1,52 @@
-# Reproducibility Guide
+# Reproducibility
 
-## Ensuring Reproducible Results
+## Overview
 
-To ensure that results can be reproduced across different runs and environments, the following measures are implemented:
+This project is designed for full reproducibility. All outputs are hashed and recorded to ensure that results can be verified and replicated.
 
-### 1. Deterministic Data Generation
+## Manifest
 
-- **Fixed Seeds**: All synthetic tensors are generated with fixed random seeds.
-- **Consistent Distributions**: Use of Normal and Uniform distributions with defined parameters.
+The `data/manifest.json` file contains SHA-256 hashes for:
+- Compiled binaries
+- Raw logs
+- CSV results
+- Generated plots
 
-### 2. High-Precision Reference
+Verify integrity with:
 
-- **Decimal Module**: Reference calculations use Python's `decimal` module with 512-bit precision to minimize rounding errors.
+```bash
+python code/utils/manifest_generator.py
+```
 
-### 3. Manifest Generation
+## Deterministic Inputs
 
-- **SHA-256 Hashes**: Every generated artifact (binaries, logs, CSVs, plots) is hashed and recorded in `data/manifest.json`.
-- **Verification**: The manifest can be used to verify that all artifacts match the expected state.
+Input tensors are generated with fixed seeds to ensure construct validity.
 
-### 4. Version Control
+## Configuration Snapshots
 
-- **Compiler Versions**: Log the exact version of the compiler used (GCC/Clang).
-- **Python Version**: Record the Python version used for execution.
+All configuration parameters (flags, dimensions, thresholds) are logged and can be recreated from `benchmarks/config.py`.
 
-### 5. Environment Variables
+## Version Control
 
-- **LD_LIBRARY_PATH**: Ensure consistent library paths.
-- **OMP_NUM_THREADS**: Set to 1 to avoid non-deterministic thread scheduling effects (if applicable).
+- **Python**: Version 3.8+
+- **C++**: C++17 standard
+- **Compilers**: GCC 11+ or Clang 14+
+- **Dependencies**: Listed in `code/requirements.txt`
 
-## Verifying Reproducibility
+## Steps to Reproduce
 
-1. **Run the Experiment**: Execute `python main.py`.
-2. **Check Manifest**: Verify `data/manifest.json` contains hashes for all artifacts.
-3. **Re-run**: Execute the experiment again on the same environment.
-4. **Compare**: Ensure the new hashes match the original manifest.
+1. Clone the repository.
+2. Install dependencies: `pip install -r code/requirements.txt`.
+3. Run the full pipeline: `python code/main.py`.
+4. Verify outputs against `data/manifest.json`.
 
-## Known Variations
+## Known Variability
 
-- **Hardware Differences**: Results may vary slightly on different CPU architectures due to micro-optimizations.
-- **Compiler Versions**: Different compiler versions may produce different binaries, affecting latency.
-- **System Load**: Background processes can affect latency measurements. Block averaging helps mitigate this.
+- **Timing**: Latency measurements may vary slightly due to system load. Use block averaging to mitigate.
+- **Compiler Versions**: Different compiler versions may produce slightly different binaries.
 
 ## Best Practices
 
-- **Isolated Environment**: Run experiments in a dedicated environment (e.g., Docker container) to minimize external interference.
-- **Consistent Configuration**: Use the same configuration file for all runs.
-- **Document Changes**: Log any changes to the environment or configuration.
+- Always commit `data/manifest.json` with your results.
+- Use the same compiler version for comparisons.
+- Document any deviations from the standard pipeline.

@@ -1,0 +1,9 @@
+{
+  "methodology": "Correlational Analysis",
+  "imputation_strategy": "similarity_score -> 0",
+  "counts": {
+    "similarity_score": 0,
+    "functional_role_missing": "Column not found",
+    "log_co_occurrence_missing": "Column not found"
+  }
+}

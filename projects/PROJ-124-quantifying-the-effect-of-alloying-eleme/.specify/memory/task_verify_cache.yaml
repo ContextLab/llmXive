@@ -1,0 +1,32 @@
+T005:
+  c: true
+  h: 5d2c5af92a4d279ce4e077bd02e3c91d1bb6d76add991a268d46b08a3ec718e8
+  r: "The repository contains a non\u2011empty `code/utils/state_manager.py` implementing\
+    \ `update_artifact_hash(path)`, which computes a SHA\u2011256 hash of the given\
+    \ file and writes/updates an entry in `state/artifact_hashes.yaml`, creating the\
+    \ state directory and file if needed. This fulfills the specified requirement."
+T012:
+  c: false
+  h: e3f47f436b11839cbaca5ba796294c1978978fc535241355b6a3cafebc90ad86
+  r: "The provided `code/data/download.py` is truncated before it copies the downloaded\
+    \ file, runs the schema check, applies exponential\u2011backoff retries, handles\
+    \ auth/permission errors, and calls `save_checksum`; consequently the required\
+    \ `data/raw/gfa_dataset.csv` and its `.sha` file are absent. The implementation\
+    \ does not demonstrably satisfy the download, verification, and checksum steps\
+    \ mandated by the task."
+T014:
+  c: false
+  h: 5f59368aa37e4ae56048c7b8c8334bb198f4b7f34cbd0981139bfdb4993c6192
+  r: "The repository contains a `code/data/features.py` file, but it is truncated,\
+    \ lacks handling of element fractions, does not compute electronegativity means,\
+    \ VEC_raw or VEC_avg, and does not generate the required columns (e.g., `size_mismatch`,\
+    \ pairwise descriptors, `source_row_id`). Moreover, the expected output file `data/processed/features.csv`\
+    \ is missing entirely. The task\u2019s core requirements are therefore not satisfied."
+T021:
+  c: false
+  h: 6feccdd41f7d114178886a0ab21dc30110be2833c958ebfe6eb1faedaf2fb93f
+  r: The repository contains `code/models/train.py`, but the shown code (and the truncated
+    remainder) does not demonstrate that a `StandardScaler` is fitted and persisted,
+    nor that the transformed `X_train.pkl` and `y_train.pkl` are saved. Moreover,
+    the required file `data/processed/scaler.pkl` is absent from the disk. These missing
+    artifacts mean the critical requirements of the task are not satisfied.

@@ -1,0 +1,6 @@
+random_seed: 42
+granularity: ["fine", "medium", "coarse"]
+node_counts: [10, 15, 20]
+injected_latencies: [0, 50, 100, 150]
+runs_per_config: 2
+global_timeout_seconds: 21600

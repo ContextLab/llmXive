@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-12T04:22:03Z",
+  "fetched_at": "2026-08-04T21:35:03Z",
   "field": "other",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,105 +9,105 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\"",
       "target_n": 5
     },
-    "duration_seconds": 86.734,
-    "ended_at": "2026-07-12T04:22:03Z",
+    "duration_seconds": 57.27,
+    "ended_at": "2026-08-04T21:35:03Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
           1,
-          "extending LLM research papers"
+          "LLM lifecycle management frameworks"
         ],
         [
           2,
-          "follow-up studies on large language models"
+          "Large language model version control systems"
         ],
         [
           3,
-          "iterative improvements to LLM architectures"
+          "Iterative development of large language models"
         ],
         [
           4,
-          "subsequent work on LLM methodologies"
+          "LLM model evolution and tracking"
         ],
         [
           5,
-          "LLM extension frameworks"
+          "Reproducibility in large language model research"
         ],
         [
           6,
-          "building upon existing LLM research"
+          "Continuous integration for generative AI"
         ],
         [
           7,
-          "LLM research evolution and progression"
+          "LLM experiment tracking and lineage"
         ],
         [
           8,
-          "advanced LLM implementations"
+          "Software engineering practices for large language models"
         ],
         [
           9,
-          "LLM model refinement techniques"
+          "Managing updates in foundation models"
         ],
         [
           10,
-          "LLM research continuity"
+          "LLM deployment pipelines and versioning"
         ],
         [
           11,
-          "LLM paper extensions and derivatives"
+          "Evolutionary algorithms for language model refinement"
         ],
         [
           12,
-          "LLM incremental research"
+          "Tracking changes in pre-trained language models"
         ],
         [
           13,
-          "LLM follow-up methodologies"
+          "Incremental learning in large language models"
         ],
         [
           14,
-          "LLM research trajectory"
+          "LLM artifact management and storage"
         ],
         [
           15,
-          "LLM model adaptation strategies"
+          "Comparative analysis of LLM iterations"
         ],
         [
           16,
-          "LLM literature expansion"
+          "Model registry systems for generative AI"
         ],
         [
           17,
-          "LLM research lineage"
+          "LLM fine-tuning workflows and history"
         ],
         [
           18,
-          "LLM paper successor studies"
+          "Audit trails for large language model outputs"
         ],
         [
           19,
-          "LLM development iterations"
+          "Collaborative development of large language models"
         ],
         [
           20,
-          "LLM research progression"
+          "LLM configuration management strategies"
         ]
       ],
       "original_term": "",
       "per_term_hit_count": {
-        "extending LLM research papers": 4,
-        "follow-up studies on large language models": 5,
+        "LLM lifecycle management frameworks": 3,
+        "Large language model version control systems": 2,
         "llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other": 0
       },
       "total_queries_issued": 2
     },
     "extracted_queries": [
-      "LLMXive model fine-tuning instruction",
-      "arXiv 2607.07508 parameter-efficient adaptation",
-      "instruction following RLHF SFT",
-      "downstream task zero-shot evaluation",
-      "pre-training data contamination memorization"
+      "LLM memorization data contamination leakage",
+      "training set deduplication benchmark evaluation",
+      "pretraining data composition synthetic augmentation",
+      "model generalization held-out test perplexity",
+      "catastrophic forgetting dataset overlap interference"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -121,71 +121,51 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2402.14679"
+        "2510.27194"
       ]
     },
     "per_query_hit_count": {
-      "LLMXive model fine-tuning instruction": 3,
-      "arXiv 2607.07508 parameter-efficient adaptation": 3,
-      "downstream task zero-shot evaluation": 3,
-      "instruction following RLHF SFT": 3,
+      "LLM memorization data contamination leakage": 3,
+      "catastrophic forgetting dataset overlap interference": 3,
       "llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other": 3,
-      "pre-training data contamination memorization": 3
+      "model generalization held-out test perplexity": 3,
+      "pretraining data composition synthetic augmentation": 3,
+      "training set deduplication benchmark evaluation": 3
     },
     "relevance_judge": {
       "enabled": true,
       "marginal_fallback_used": true,
-      "rejected_count": 9,
+      "rejected_count": 5,
       "rejections": [
         {
-          "primary_pointer": "2606.05868",
-          "rationale": "The candidate paper focuses on a specific engineering solution (adaptive GQA-to-MLA transition) for high-concurrency financial LLM deployment, which does not align with the user's request for a \"follow-up\" or \"extension\" of a specific prior work (arXiv:2607.07508) without evidence that the two papers share the same mechanism, variables, or foundational methodology. Since the user's question is defined by a specific citation rather than a general domain query, and the candidate paper does not exp",
-          "title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition"
+          "primary_pointer": "2510.27194",
+          "rationale": "The paper focuses on \"System of Systems\" (SoS) lifecycle management in engineering and industrial contexts (mobility, healthcare), which is an entirely different domain from the user's question regarding Large Language Models (LLMs) and the specific \"llmXive\" follow-up research. The shared term \"system\" refers to distinct constructs (engineering systems vs. AI model systems), satisfying the rejection rule for distinct constructs sharing only homonym keywords.",
+          "title": "From product to system network challenges in system of systems lifecycle management"
         },
         {
-          "primary_pointer": "2605.21404",
-          "rationale": "The candidate paper focuses on the transparency and reproducibility of LLM agent benchmarking methodologies (disclosure of settings, cost, and harness), which is a meta-scientific issue distinct from the specific technical mechanism or empirical gap implied by the user's \"llmXive follow-up\" question. It does not measure the same biological/algorithmic mechanism, establish a baseline for the specific variable in question, nor does it appear to be the foundational method for the specific \"llmXive\"",
-          "title": "What Twelve LLM Agent Benchmark Papers Disclose About Themselves: A Pilot Audit and an Open Scoring Schema"
+          "primary_pointer": "2402.10067",
+          "rationale": "The candidate paper focuses on using LLMs for intent-based application management and policy generation, which is a distinct domain from the user's implied question about \"llmXive\" (likely referring to a specific framework, dataset, or mechanism for LLM evaluation or extension). The paper does not measure the same biological, algorithmic, or causal mechanism, nor does it establish a baseline or foundational method for the specific \"llmXive\" concept, failing to meet any of the inclusion criteria ",
+          "title": "LLM-based policy generation for intent-based management of applications"
         },
         {
-          "primary_pointer": "1602.07396",
-          "rationale": "The candidate paper addresses the economics of research funding distribution and diminishing returns in scientific output, which is entirely off-domain from the user's question regarding \"llmXive\" (a specific Large Language Model framework or benchmark) and its technical extensions. There is no overlap in mechanism, variables, empirical population, or methodology between research grant allocation and LLM architecture or performance.",
-          "title": "Concentration of research funding leads to decreasing marginal returns"
+          "primary_pointer": "2304.13037",
+          "rationale": "The paper focuses on version management and lifecycle automation for machine learning pipelines, which is a distinct construct from the user's query about \"llmXive\" (a specific LLM framework or benchmark) and its follow-up research. There is no overlap in the specific mechanism, empirical population, or canonical variables being studied, and the paper does not address the specific domain of LLM evaluation or the \"llmXive\" system.",
+          "title": "VeML: An End-to-End Machine Learning Lifecycle for Large-scale and High-dimensional Data"
         },
         {
-          "primary_pointer": "2306.05212",
-          "rationale": "The user's question asks for follow-up work or extensions to a specific paper (arXiv:2607.07508), but the candidate paper is a general toolkit for Retrieval-Augmented Generation (RAG) that does not reference, extend, or build upon the specific mechanisms or findings of the target paper. While both involve LLMs, the candidate paper fails to satisfy the inclusion criteria (a-f) because it does not measure the same mechanism, establish a baseline for the specific variables in the user's target pape",
-          "title": "RETA-LLM: A Retrieval-Augmented Large Language Model Toolkit"
+          "primary_pointer": "2003.05711",
+          "rationale": "The candidate paper addresses control theory for infinite-dimensional dynamical systems with time delays, which is entirely off-domain from the user's question regarding Large Language Models (LLMs) and the specific follow-up to the \"llmXive\" paper. There is no overlap in mechanism, variables, empirical population, or methodology between mathematical control stabilization and LLM research.",
+          "title": "Exponential input-to-state stabilization of a class of diagonal boundary control systems with delay boundary control"
         },
         {
-          "primary_pointer": "2501.05032",
-          "rationale": "The candidate paper discusses general techniques for making LLMs more human-like (fine-tuning, psychological principles) but fails to address the specific \"llmXive\" mechanism, the \"2607.07508\" paper, or the specific follow-up context requested by the user. It does not measure the same biological pathway, physical observable, or algorithmic property as the user's specific query, nor does it establish a baseline for the specific phenomenon implied by the user's unique terminology, thus failing cri",
-          "title": "Enhancing Human-Like Responses in Large Language Models"
-        },
-        {
-          "primary_pointer": "2503.16581",
-          "rationale": "The paper does not address the user's specific research question because the user is asking for a follow-up or extension of a specific prior work (arXiv:2607.07508, \"llmXive\"), whereas the candidate paper is a standalone study on Retrieval-Augmented Generation (RAG) in Quranic studies with no apparent connection to the \"llmXive\" framework, mechanism, or variables. It fails to meet any inclusion criteria (a-f) as it does not measure the same mechanism, share the same domain variables, or serve as",
-          "title": "Investigating Retrieval-Augmented Generation in Quranic Studies: A Study of 13 Open-Source Large Language Models"
-        },
-        {
-          "primary_pointer": "2407.01505",
-          "rationale": "The user's question explicitly requests a follow-up to a specific paper (arXiv:2607.07508) regarding \"llmXive,\" a term or concept not present in the candidate paper's abstract or title. The candidate paper studies \"self-cognition\" in LLMs, which is a distinct construct from the user's specific query about \"llmXive\" (likely a specific framework, dataset, or metric from the referenced paper). Since the candidate paper does not measure the same mechanism, variables, or domain as the specific \"llmXi",
-          "title": "Self-Cognition in Large Language Models: An Exploratory Study"
-        },
-        {
-          "primary_pointer": "2402.14679",
-          "rationale": "The candidate paper investigates the consistency between LLM self-reported personality and behavioral actions, which is a distinct construct from the user's query regarding \"llmXive\" (likely referring to a specific framework, dataset, or the paper arXiv:2607.07508) and its extensions. The paper does not measure the same mechanism, variables, or empirical population as the specific \"llmXive\" follow-up work, nor does it serve as a foundational baseline for that specific research line, failing all ",
-          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality"
-        },
-        {
-          "primary_pointer": "2405.11357",
-          "rationale": "The candidate paper investigates a specific capability gap (character-level understanding) in LLMs, which is a distinct construct from the user's query about \"llmXive\" (a specific follow-up to a paper with an invalid 2026 date) and its extensions. The paper does not measure the same mechanism, variables, or empirical population as the user's specific follow-up study, nor does it serve as a foundational reference for that specific line of inquiry, failing all inclusion criteria (a-f).",
-          "title": "Large Language Models Lack Understanding of Character Composition of Words"
+          "primary_pointer": "2008.09071",
+          "rationale": "The candidate paper focuses on control theory and optimization algorithms (Model Predictive Control, ADMM) for embedded systems, which is entirely off-domain from the user's question regarding Large Language Models (LLMs) and the specific \"llmXive\" follow-up research. There is no overlap in mechanism, variables, empirical population, or canonical methodology between the two topics.",
+          "title": "Implementation of model predictive control for tracking in embedded systems using a sparse extended ADMM algorithm"
         }
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-12T04:20:36Z",
+    "started_at": "2026-08-04T21:34:05Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other",
       "raw": "llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other"
@@ -204,7 +184,7 @@
           "primary_pointer": "2603.13351"
         },
         "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Prompt Complexity Dilutes Structured Reasoning: A Follow-Up Study on the Car Wash Problem')",
-        "failed_at": "2026-07-12T04:21:10Z",
+        "failed_at": "2026-08-04T21:34:36Z",
         "reason": "query_irrelevant"
       },
       {
@@ -239,7 +219,7 @@
           "primary_pointer": "2506.03299"
         },
         "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='The NASA Exoplanet Archive and Exoplanet Follow-up Observing Program: Data, Tools, and Usage')",
-        "failed_at": "2026-07-12T04:21:10Z",
+        "failed_at": "2026-08-04T21:34:36Z",
         "reason": "query_irrelevant"
       },
       {
@@ -266,256 +246,27 @@
           "primary_pointer": "2512.15911"
         },
         "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='The Era of Binary Supermassive Black Holes: Coordination of Nanohertz-Frequency Gravitational-Wave Follow-up')",
-        "failed_at": "2026-07-12T04:21:10Z",
+        "failed_at": "2026-08-04T21:34:36Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Instruction tuning significantly enhances the performance of large language models (LLMs) across various tasks. However, the procedure to optimizing the mixing of instruction datasets for LLM fine-tuning is still poorly understood. This study categorizes instructions into three primary types: NLP downstream tasks, coding, and general chat. We explore the effects of instruction tuning on different combinations of datasets on LLM performance, and find that certain instruction types are more advantageous for specific applications but can negatively impact other areas. This work provides insights into instruction mixtures, laying the foundations for future research.",
+          "claimed_abstract": "Large language models (LLMs) trained on web-scale datasets raise substantial concerns regarding permissible data usage. One major question is whether these models \"memorize\" all their training data or they integrate many data sources in some way more akin to how a human would learn and synthesize information. The answer hinges, to a large degree, on how we define memorization. In this work, we propose the Adversarial Compression Ratio (ACR) as a metric for assessing memorization in LLMs. A given string from the training data is considered memorized if it can be elicited by a prompt (much) shorter than the string itself -- in other words, if these strings can be \"compressed\" with the model by computing adversarial prompts of fewer tokens. The ACR overcomes the limitations of existing notions of memorization by (i) offering an adversarial view of measuring memorization, especially for monitoring unlearning and compliance; and (ii) allowing for the flexibility to measure memorization for arbitrary strings at a reasonably low compute. Our definition serves as a practical tool for determining when model owners may be violating terms around data usage, providing a potential legal tool and a critical lens through which to address such scenarios.",
           "claimed_authors": [
-            "Renxi Wang",
-            "Haonan Li",
-            "Minghao Wu",
-            "Yuxia Wang",
-            "Xudong Han",
-            "Chiyu Zhang",
-            "Timothy Baldwin"
+            "Avi Schwarzschild",
+            "Zhili Feng",
+            "Pratyush Maini",
+            "Zachary C. Lipton",
+            "J. Zico Kolter"
           ],
-          "claimed_title": "Demystifying Instruction Mixing for Fine-tuning Large Language Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2312.10793"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Demystifying Instruction Mixing for Fine-tuning Large Language Models')",
-        "failed_at": "2026-07-12T04:21:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Training large language models (LLMs) with open-domain instruction following data brings colossal success. However, manually creating such instruction data is very time-consuming and labor-intensive. Moreover, humans may struggle to produce high-complexity instructions. In this paper, we show an avenue for creating large amounts of instruction data with varying levels of complexity using LLM instead of humans. Starting with an initial set of instructions, we use our proposed Evol-Instruct to rewrite them step by step into more complex instructions. Then, we mix all generated instruction data to fine-tune LLaMA. We call the resulting model WizardLM. Human evaluations on a complexity-balanced test bed and Vicuna's testset show that instructions from Evol-Instruct are superior to human-created ones. By analyzing the human evaluation results of the high complexity part, we demonstrate that outputs from our WizardLM are preferred to outputs from OpenAI ChatGPT. In GPT-4 automatic evaluation, WizardLM achieves more than 90\\% capacity of ChatGPT on 17 out of 29 skills. Even though WizardLM still lags behind ChatGPT in some aspects, our findings suggest that fine-tuning with AI-evolved instructions is a promising direction for enhancing LLMs. Our code and data are public at https://github.com/nlpxucan/WizardLM",
-          "claimed_authors": [
-            "Can Xu",
-            "Qingfeng Sun",
-            "Kai Zheng",
-            "Xiubo Geng",
-            "Pu Zhao",
-            "Jiazhan Feng",
-            "Chongyang Tao",
-            "Qingwei Lin",
-            "Daxin Jiang"
-          ],
-          "claimed_title": "WizardLM: Empowering large pre-trained language models to follow complex instructions",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2304.12244"
-        },
-        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='WizardLM: Empowering large pre-trained language models to follow complex instructions')",
-        "failed_at": "2026-07-12T04:21:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "We give simpler, sparser, and faster algorithms for differentially private fine-tuning of large-scale pre-trained language models, which achieve the state-of-the-art privacy versus utility tradeoffs on many standard NLP tasks. We propose a meta-framework for this problem, inspired by the recent success of highly parameter-efficient methods for fine-tuning. Our experiments show that differentially private adaptations of these approaches outperform previous private algorithms in three important dimensions: utility, privacy, and the computational and memory cost of private training. On many commonly studied datasets, the utility of private models approaches that of non-private models. For example, on the MNLI dataset we achieve an accuracy of $87.8\\%$ using RoBERTa-Large and $83.5\\%$ using RoBERTa-Base with a privacy budget of $ε= 6.7$. In comparison, absent privacy constraints, RoBERTa-Large achieves an accuracy of $90.2\\%$. Our findings are similar for natural language generation tasks. Privately fine-tuning with DART, GPT-2-Small, GPT-2-Medium, GPT-2-Large, and GPT-2-XL achieve BLEU scores of 38.5, 42.0, 43.1, and 43.8 respectively (privacy budget of $ε= 6.8,δ=$ 1e-5) whereas the non-private baseline is $48.1$. All our experiments suggest that larger models are better suited for private fine-tuning: while they are well known to achieve superior accuracy non-privately, we find that they also better maintain their accuracy when privacy is introduced.",
-          "claimed_authors": [
-            "Da Yu",
-            "Saurabh Naik",
-            "Arturs Backurs",
-            "Sivakanth Gopi",
-            "Huseyin A. Inan",
-            "Gautam Kamath",
-            "Janardhan Kulkarni",
-            "Yin Tat Lee",
-            "Andre Manoel",
-            "Lukas Wutschitz",
-            "Sergey Yekhanin",
-            "Huishuai Zhang"
-          ],
-          "claimed_title": "Differentially Private Fine-tuning of Language Models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2021,
-          "primary_pointer": "2110.06500"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Differentially Private Fine-tuning of Language Models')",
-        "failed_at": "2026-07-12T04:21:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This submission has been withdrawn by arXiv administrators because it contains fictitious content and was submitted under a pseudonym, which is against arXiv policy.",
-          "claimed_authors": [
-            "Tairen Sun"
-          ],
-          "claimed_title": "A Simulation and Modeling of Access Points with Definition Language",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2013,
-          "primary_pointer": "1304.1836"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='A Simulation and Modeling of Access Points with Definition Language')",
-        "failed_at": "2026-07-12T04:21:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This paper has been administratively withdrawn by arXiv, duplicate of arXiv:1008.2691.",
-          "claimed_authors": [
-            "Boris V. Vasiliev"
-          ],
-          "claimed_title": "Superconductivity as a consequence of an ordering of the electron gas zero-point oscillations",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1005.0280"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Superconductivity as a consequence of an ordering of the electron gas zero-point oscillations')",
-        "failed_at": "2026-07-12T04:21:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This article has been withdrawn by arXiv administrators due to plagiarized content from arXiv:1010.2469.",
-          "claimed_authors": [
-            "Nayyar Mehmood",
-            "I. H Qureshi"
-          ],
-          "claimed_title": "Intutionistic Fuzzy Ideals in Γ-semiring",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2010,
-          "primary_pointer": "1011.5746"
-        },
-        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Intutionistic Fuzzy Ideals in Γ-semiring')",
-        "failed_at": "2026-07-12T04:21:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Instruction-following language models demand robust methodologies for information retrieval to augment instructions for question-answering applications. A primary challenge is the resolution of coreferences in the context of chunking strategies for long documents. The critical barrier to experimentation of handling coreferences is a lack of open source datasets, specifically in question-answering tasks that require coreference resolution. In this work we present our Coreference Resolution in Question-Answering (CRaQAn) dataset, an open-source dataset that caters to the nuanced information retrieval requirements of coreference resolution in question-answering tasks by providing over 250 question-answer pairs containing coreferences. To develop this dataset, we developed a novel approach for creating high-quality datasets using an instruction-following model (GPT-4) and a Recursive Criticism and Improvement Loop.",
-          "claimed_authors": [
-            "Rob Grzywinski",
-            "Joshua D'Arcy",
-            "Rob Naidoff",
-            "Ashish Shukla",
-            "Alex Browne",
-            "Ren Gibbons",
-            "Brinnae Bent"
-          ],
-          "claimed_title": "Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2023,
-          "primary_pointer": "2311.16338"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Releasing the CRaQAn (Coreference Resolution in Question-Answering): An open-source dataset and dataset creation methodology using instruction-following models')",
-        "failed_at": "2026-07-12T04:21:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "With the advent of Large Language Models, single-task and token-based multi-task models have evolved into instruction-based systems that infer task and target language implicitly from natural language prompts. This trend is reflected in IWSLT's Instruction Following Track, which this year introduced new tasks including an unknown surprise task, posing a genuine challenge against overfitting to known tasks. We present KIT's submission to the Long and Short Instruction Following tracks in the unconstrained setting. Our approach combines a general data augmentation pipeline that converts short-form corpora into long-form training data through segment concatenation, LLM-based label generation, and cross-lingual translation, yielding over 1M instances across six tasks and four languages. We further show that likelihood-based re-ranking, while highly effective for ASR, systematically degrades semantic tasks by spuriously selecting candidates generated from segmented audio processing rather than holistic long-form inference, a failure mode resolved by combining likelihood with Minimum Bayes Risk decoding.",
-          "claimed_authors": [
-            "Enes Yavuz Ugan",
-            "Maike Züfle",
-            "Yuka Ko",
-            "Supriti Sinhamahapatra",
-            "Fabian Retkowski",
-            "Seymanur Akti",
-            "Jan Niehues",
-            "Alexander Waibel"
-          ],
-          "claimed_title": "Multilingual Long-Form Speech Instruction Following: KIT's Submission to IWSLT 2026",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2026,
-          "primary_pointer": "2606.04730"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title=\"Multilingual Long-Form Speech Instruction Following: KIT's Submission to IWSLT 2026\")",
-        "failed_at": "2026-07-12T04:21:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "After the pretraining stage of LLMs, techniques such as SFT, RLHF, RLVR, and RFT are applied to enhance instruction-following ability, mitigate undesired responses, improve reasoning capability and enable efficient domain adaptation with minimal data. SFT relies on the next-token prediction objective to strengthen instruction following in a base model using a large corpus of human-labeled responses. In contrast, RFT employs a RL-based approach to adapt fine-tuned reasoning models to specific domains with limited supervision. Inspired by RFT, we propose replacing SFT with RLSR to leverage the extensive SFT dataset in an RL framework, thereby improving the base model's instruction-following ability. In RLSR, the base model generates multiple responses for each prompt, and reward scores are computed as the cosine similarity in the semantic embedding space between the generated and human-labeled responses. RLSR can be utilized in multiple ways. It can directly replace SFT, achieving superior performance on instruction-following benchmarks-for example, RLSR (SB) on Qwen-7B (INFINITY) achieved an AlpacaEval win rate of 26.34%, surpassing SFT's 21.01%. Furthermore, combining SFT and RLSR further enhances downstream task performance; Qwen-7B (INFINITY) achieved a win rate of 30.73% when trained with SFT + RLSR.",
-          "claimed_authors": [
-            "Zhichao Wang",
-            "Andy Wong",
-            "Ruslan Belkin"
-          ],
-          "claimed_title": "RLSR: Reinforcement Learning with Supervised Reward Outperforms SFT in Instruction Following",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2510.14200"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='RLSR: Reinforcement Learning with Supervised Reward Outperforms SFT in Instruction Following')",
-        "failed_at": "2026-07-12T04:21:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "Recent progress in large-scale zero-shot speech synthesis has been significantly advanced by language models and diffusion models. However, the generation process of both methods is slow and computationally intensive. Efficient speech synthesis using a lower computing budget to achieve quality on par with previous work remains a significant challenge. In this paper, we present FlashSpeech, a large-scale zero-shot speech synthesis system with approximately 5\\% of the inference time compared with previous work. FlashSpeech is built on the latent consistency model and applies a novel adversarial consistency training approach that can train from scratch without the need for a pre-trained diffusion model as the teacher. Furthermore, a new prosody generator module enhances the diversity of prosody, making the rhythm of the speech sound more natural. The generation processes of FlashSpeech can be achieved efficiently with one or two sampling steps while maintaining high audio quality and high similarity to the audio prompt for zero-shot speech generation. Our experimental results demonstrate the superior performance of FlashSpeech. Notably, FlashSpeech can be about 20 times faster than other zero-shot speech synthesis systems while maintaining comparable performance in terms of voice quality and similarity. Furthermore, FlashSpeech demonstrates its versatility by efficiently performing tasks like voice conversion, speech editing, and diverse speech sampling. Audio samples can be found in https://flashspeech.github.io/.",
-          "claimed_authors": [
-            "Zhen Ye",
-            "Zeqian Ju",
-            "Haohe Liu",
-            "Xu Tan",
-            "Jianyi Chen",
-            "Yiwen Lu",
-            "Peiwen Sun",
-            "Jiahao Pan",
-            "Weizhen Bian",
-            "Shulin He",
-            "Wei Xue",
-            "Qifeng Liu",
-            "Yike Guo"
-          ],
-          "claimed_title": "FlashSpeech: Efficient Zero-Shot Speech Synthesis",
+          "claimed_title": "Rethinking LLM Memorization through the Lens of Adversarial Compression",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2404.14700"
+          "primary_pointer": "2404.15146"
         },
-        "details": "query-relevance 0.200 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='FlashSpeech: Efficient Zero-Shot Speech Synthesis')",
-        "failed_at": "2026-07-12T04:21:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "One of the most impressive results of recent NLP history is the ability of pre-trained language models to solve new tasks in a zero-shot setting. To achieve this, NLP tasks are framed as natural language prompts, generating a response indicating the predicted output. Nonetheless, the performance in such settings often lags far behind its supervised counterpart, suggesting a large space for potential improvement. In this paper, we explore methods to utilize unlabeled data to improve zero-shot performance. Specifically, we take advantage of the fact that multiple prompts can be used to specify a single task, and propose to regularize prompt consistency, encouraging consistent predictions over this diverse set of prompts. Our method makes it possible to fine-tune the model either with extra unlabeled training data, or directly on test input at inference time in an unsupervised manner. In experiments, our approach outperforms the state-of-the-art zero-shot learner, T0 (Sanh et al., 2022), on 9 out of 11 datasets across 4 NLP tasks by up to 10.6 absolute points in terms of accuracy. The gains are often attained with a small number of unlabeled examples.",
-          "claimed_authors": [
-            "Chunting Zhou",
-            "Junxian He",
-            "Xuezhe Ma",
-            "Taylor Berg-Kirkpatrick",
-            "Graham Neubig"
-          ],
-          "claimed_title": "Prompt Consistency for Zero-Shot Task Generalization",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2205.00049"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Prompt Consistency for Zero-Shot Task Generalization')",
-        "failed_at": "2026-07-12T04:21:10Z",
-        "reason": "query_irrelevant"
-      },
-      {
-        "candidate": {
-          "backend": "arxiv",
-          "claimed_abstract": "This work builds upon the Euphemism Detection Shared Task proposed in the EMNLP 2022 FigLang Workshop, and extends it to few-shot and zero-shot settings. We demonstrate a few-shot and zero-shot formulation using the dataset from the shared task, and we conduct experiments in these settings using RoBERTa and GPT-3. Our results show that language models are able to classify euphemistic terms relatively well even on new terms unseen during training, indicating that it is able to capture higher-level concepts related to euphemisms.",
-          "claimed_authors": [
-            "Sedrick Scott Keh"
-          ],
-          "claimed_title": "Exploring Euphemism Detection in Few-Shot and Zero-Shot Settings",
-          "claimed_venue": "arXiv",
-          "claimed_year": 2022,
-          "primary_pointer": "2210.12926"
-        },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Exploring Euphemism Detection in Few-Shot and Zero-Shot Settings')",
-        "failed_at": "2026-07-12T04:21:10Z",
+        "details": "query-relevance 0.100 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Rethinking LLM Memorization through the Lens of Adversarial Compression')",
+        "failed_at": "2026-08-04T21:34:36Z",
         "reason": "query_irrelevant"
       },
       {
@@ -533,7 +284,7 @@
           "primary_pointer": "1907.02664"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Data Encoding for Byzantine-Resilient Distributed Optimization')",
-        "failed_at": "2026-07-12T04:21:10Z",
+        "failed_at": "2026-08-04T21:34:36Z",
         "reason": "query_irrelevant"
       },
       {
@@ -550,50 +301,231 @@
           "primary_pointer": "2005.07866"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Byzantine-Resilient SGD in High Dimensions on Heterogeneous Data')",
-        "failed_at": "2026-07-12T04:21:10Z",
+        "failed_at": "2026-08-04T21:34:36Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "The 1st Workshop on Data Contamination (CONDA 2024) focuses on all relevant aspects of data contamination in natural language processing, where data contamination is understood as situations where evaluation data is included in pre-training corpora used to train large scale models, compromising evaluation results. The workshop fostered a shared task to collect evidence on data contamination in current available datasets and models. The goal of the shared task and associated database is to assist the community in understanding the extent of the problem and to assist researchers in avoiding reporting evaluation results on known contaminated resources. The shared task provides a structured, centralized public database for the collection of contamination evidence, open to contributions from the community via GitHub pool requests. This first compilation paper is based on 566 reported entries over 91 contaminated sources from a total of 23 contributors. The details of the individual contamination events are available in the platform. The platform continues to be online, open to contributions from the community.",
+          "claimed_abstract": "Research in interpretable machine learning proposes different computational and human subject approaches to evaluate model saliency explanations. These approaches measure different qualities of explanations to achieve diverse goals in designing interpretable machine learning systems. In this paper, we propose a human attention benchmark for image and text domains using multi-layer human attention masks aggregated from multiple human annotators. We then present an evaluation study to evaluate model saliency explanations obtained using Grad-cam and LIME techniques. We demonstrate our benchmark's utility for quantitative evaluation of model explanations by comparing it with human subjective ratings and ground-truth single-layer segmentation masks evaluations. Our study results show that our threshold agnostic evaluation method with the human attention baseline is more effective than single-layer object segmentation masks to ground truth. Our experiments also reveal user biases in the subjective rating of model saliency explanations.",
           "claimed_authors": [
-            "Oscar Sainz",
-            "Iker García-Ferrero",
-            "Alon Jacovi",
-            "Jon Ander Campos",
-            "Yanai Elazar",
-            "Eneko Agirre",
-            "Yoav Goldberg",
-            "Wei-Lin Chen",
-            "Jenny Chim",
-            "Leshem Choshen",
-            "Luca D'Amico-Wong",
-            "Melissa Dell",
-            "Run-Ze Fan",
-            "Shahriar Golchin",
-            "Yucheng Li",
-            "Pengfei Liu",
-            "Bhavish Pahwa",
-            "Ameya Prabhu",
-            "Suryansh Sharma",
-            "Emily Silcock",
-            "Kateryna Solonko",
-            "David Stap",
-            "Mihai Surdeanu",
-            "Yu-Min Tseng",
-            "Vishaal Udandarao",
-            "Zengzhi Wang",
-            "Ruijie Xu",
-            "Jinglin Yang"
+            "Sina Mohseni",
+            "Jeremy E. Block",
+            "Eric D. Ragan"
           ],
-          "claimed_title": "Data Contamination Report from the 2024 CONDA Shared Task",
+          "claimed_title": "A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1801.05075"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='A Human-Grounded Evaluation Benchmark for Local Explanations of Machine Learning')",
+        "failed_at": "2026-08-04T21:34:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Content-defined Chunking (CDC) algorithms dictate the overall space savings that deduplication systems achieve. However, due to their need to scan each file in its entirety, they are slow and often the main performance bottleneck within data deduplication. We present VectorCDC, a method to accelerate hashless CDC algorithms using vector CPU instructions, such as SSE / AVX. We analyzed the state-of-the-art chunking algorithms and discovered that hashless algorithms primarily use two data processing patterns to identify chunk boundaries: Extreme Byte Searches and Range Scans. VectorCDC presents a vector-friendly approach to accelerate these two patterns. Using VectorCDC, we accelerated three state-of-the-art hashless chunking algorithms: RAM, AE, and MAXP. Our evaluation shows that VectorCDC is effective on Intel, AMD, ARM, and IBM CPUs, achieving 8.35x - 26.2x higher throughput than existing vector-accelerated algorithms, and 15.3x - 207.2x higher throughput than existing unaccelerated algorithms. VectorCDC achieves this without affecting the deduplication space savings.",
+          "claimed_authors": [
+            "Sreeharsha Udayashankar",
+            "Abdelrahman Baba",
+            "Samer Al-Kiswany"
+          ],
+          "claimed_title": "Accelerating Data Chunking in Deduplication Systems using Vector Instructions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.05797"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Accelerating Data Chunking in Deduplication Systems using Vector Instructions')",
+        "failed_at": "2026-08-04T21:34:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We introduce SECQUE, a comprehensive benchmark for evaluating large language models (LLMs) in financial analysis tasks. SECQUE comprises 565 expert-written questions covering SEC filings analysis across four key categories: comparison analysis, ratio calculation, risk assessment, and financial insight generation. To assess model performance, we develop SECQUE-Judge, an evaluation mechanism leveraging multiple LLM-based judges, which demonstrates strong alignment with human evaluations. Additionally, we provide an extensive analysis of various models' performance on our benchmark. By making SECQUE publicly available, we aim to facilitate further research and advancements in financial AI.",
+          "claimed_authors": [
+            "Noga Ben Yoash",
+            "Meni Brief",
+            "Oded Ovadia",
+            "Gil Shenderovitz",
+            "Moshik Mishaeli",
+            "Rachel Lemberg",
+            "Eitam Sheetrit"
+          ],
+          "claimed_title": "SECQUE: A Benchmark for Evaluating Real-World Financial Analysis Capabilities",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2504.04596"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='SECQUE: A Benchmark for Evaluating Real-World Financial Analysis Capabilities')",
+        "failed_at": "2026-08-04T21:34:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Remote sensing vision tasks require extensive labeled data across multiple, interconnected domains. However, current generative data augmentation frameworks are task-isolated, i.e., each vision task requires training an independent generative model, and ignores the modeling of geographical information and spatial constraints. To address these issues, we propose \\textbf{TerraGen}, a unified layout-to-image generation framework that enables flexible, spatially controllable synthesis of remote sensing imagery for various high-level vision tasks, e.g., detection, segmentation, and extraction. Specifically, TerraGen introduces a geographic-spatial layout encoder that unifies bounding box and segmentation mask inputs, combined with a multi-scale injection scheme and mask-weighted loss to explicitly encode spatial constraints, from global structures to fine details. Also, we construct the first large-scale multi-task remote sensing layout generation dataset containing 45k images and establish a standardized evaluation protocol for this task. Experimental results show that our TerraGen can achieve the best generation image quality across diverse tasks. Additionally, TerraGen can be used as a universal data-augmentation generator, enhancing downstream task performance significantly and demonstrating robust cross-task generalisation in both full-data and few-shot scenarios.",
+          "claimed_authors": [
+            "Datao Tang",
+            "Hao Wang",
+            "Yudeng Xin",
+            "Hui Qiao",
+            "Dongsheng Jiang",
+            "Yin Li",
+            "Zhiheng Yu",
+            "Xiangyong Cao"
+          ],
+          "claimed_title": "TerraGen: A Unified Multi-Task Layout Generation Framework for Remote Sensing Data Augmentation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.21391"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='TerraGen: A Unified Multi-Task Layout Generation Framework for Remote Sensing Data Augmentation')",
+        "failed_at": "2026-08-04T21:34:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Synthetic data (SD) have garnered attention as a privacy enhancing technology. Unfortunately, there is no standard for quantifying their degree of privacy protection. In this paper, we discuss proposed quantification approaches. This contributes to the development of SD privacy standards; stimulates multi-disciplinary discussion; and helps SD researchers make informed modeling and evaluation decisions.",
+          "claimed_authors": [
+            "Alexander Boudewijn",
+            "Andrea Filippo Ferraris",
+            "Daniele Panfilo",
+            "Vanessa Cocca",
+            "Sabrina Zinutti",
+            "Karel De Schepper",
+            "Carlo Rossi Chauvenet"
+          ],
+          "claimed_title": "Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2311.17453"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Privacy Measurement in Tabular Synthetic Data: State of the Art and Future Research Directions')",
+        "failed_at": "2026-08-04T21:34:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The standard approach to tackling computer vision problems is to train deep convolutional neural network (CNN) models using large-scale image datasets which are representative of the target task. However, in many scenarios, it is often challenging to obtain sufficient image data for the target task. Data augmentation is a way to mitigate this challenge. A common practice is to explicitly transform existing images in desired ways so as to create the required volume and variability of training data necessary to achieve good generalization performance. In situations where data for the target domain is not accessible, a viable workaround is to synthesize training data from scratch--i.e., synthetic data augmentation. This paper presents an extensive review of synthetic data augmentation techniques. It covers data synthesis approaches based on realistic 3D graphics modeling, neural style transfer (NST), differential neural rendering, and generative artificial intelligence (AI) techniques such as generative adversarial networks (GANs) and variational autoencoders (VAEs). For each of these classes of methods, we focus on the important data generation and augmentation techniques, general scope of application and specific use-cases, as well as existing limitations and possible workarounds. Additionally, we provide a summary of common synthetic datasets for training computer vision models, highlighting the main features, application domains and supported tasks. Finally, we discuss the effectiveness of synthetic data augmentation methods. Since this is the first paper to explore synthetic data augmentation methods in great detail, we are hoping to equip readers with the necessary background information and in-depth knowledge of existing methods and their attendant issues.",
+          "claimed_authors": [
+            "Alhassan Mumuni",
+            "Fuseini Mumuni",
+            "Nana Kobina Gerrar"
+          ],
+          "claimed_title": "A survey of synthetic data augmentation methods in computer vision",
           "claimed_venue": "arXiv",
           "claimed_year": 2024,
-          "primary_pointer": "2407.21530"
+          "primary_pointer": "2403.10075"
         },
-        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Data Contamination Report from the 2024 CONDA Shared Task')",
-        "failed_at": "2026-07-12T04:21:10Z",
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='A survey of synthetic data augmentation methods in computer vision')",
+        "failed_at": "2026-08-04T21:34:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This article looks at a simple modification to speedup the conventional Gauss Elimination. The proposed modification speeds up the conventional Gauss Elimination by a factor of nearly 9/7 (in the asymptotic limit).",
+          "claimed_authors": [
+            "Sivaram Ambikasaran"
+          ],
+          "claimed_title": "A simple way to speedup Gauss Elimination",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1101.4081"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='A simple way to speedup Gauss Elimination')",
+        "failed_at": "2026-08-04T21:34:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "We describe Sparse Non-negative Matrix (SNM) language model estimation using multinomial loss on held-out data.\n  Being able to train on held-out data is important in practical situations where the training data is usually mismatched from the held-out/test data. It is also less constrained than the previous training algorithm using leave-one-out on training data: it allows the use of richer meta-features in the adjustment model, e.g. the diversity counts used by Kneser-Ney smoothing which would be difficult to deal with correctly in leave-one-out training.\n  In experiments on the one billion words language modeling benchmark, we are able to slightly improve on our previous results which use a different loss function, and employ leave-one-out training on a subset of the main training set. Surprisingly, an adjustment model with meta-features that discard all lexical information can perform as well as lexicalized meta-features. We find that fairly small amounts of held-out data (on the order of 30-70 thousand words) are sufficient for training the adjustment model.\n  In a real-life scenario where the training data is a mix of data sources that are imbalanced in size, and of different degrees of relevance to the held-out and test data, taking into account the data source for a given skip-/n-gram feature and combining them for best performance on held-out/test data improves over skip-/n-gram SNM models trained on pooled data by about 8% in the SMT setup, or as much as 15% in the ASR/IME setup.\n  The ability to mix various data sources based on how relevant they are to a mismatched held-out set is probably the most attractive feature of the new estimation method for SNM LM.",
+          "claimed_authors": [
+            "Ciprian Chelba",
+            "Fernando Pereira"
+          ],
+          "claimed_title": "Multinomial Loss on Held-out Data for the Sparse Non-negative Matrix Language Model",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2015,
+          "primary_pointer": "1511.01574"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Multinomial Loss on Held-out Data for the Sparse Non-negative Matrix Language Model')",
+        "failed_at": "2026-08-04T21:34:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Held-out log-likelihood is the standard currency for comparing statistical models of neural spike trains, and is often reported as bits per spike relative to a homogeneous Poisson baseline. The units of this metric are difficult to reason about: it is rarely obvious whether an improvement of, say, $0.34$ bits per spike is a large effect or a negligible one. This note develops an interpretation of held-out log-likelihood borrowed from game-theoretic statistics. A fitted model $Q$ is treated as a player who bets on each upcoming observation at prices set by a baseline model $B$. Under the optimal (Kelly) betting strategy the player's contract function is exactly the likelihood ratio $q/b$, and the expected log-likelihood ratio $L$ is the exponential growth rate of the player's wealth. Because the wealth process is a nonnegative martingale under the null hypothesis that $B$ generated the data, Ville's inequality turns it into an anytime-valid test: the baseline may be rejected at level $α$ as soon as wealth exceeds $1/α$. This yields a simple summary statistic, the time to significance $τΔ= -Δ\\log(α) / L$, which is the amount of held-out recording needed on average to reject the baseline at level $α$. Since $τ$ is a strictly decreasing function of $L$, it ranks models identically to bits per spike; it is not a new statistic but a more interpretable unit for an existing one, expressed in seconds of recording rather than in bits. We illustrate the construction on head-direction cells recorded in mouse anterior thalamus, where a generalized linear model reaches significance against a homogeneous Poisson baseline in roughly $120$ ms of held-out data for a strongly tuned cell and roughly $11$ s for a moderately tuned cell.",
+          "claimed_authors": [
+            "Alex H. Williams"
+          ],
+          "claimed_title": "Bits per Spike as a Betting Game: An Interpretable Unit for Held-Out Log-Likelihood in Neural Data Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2607.28779"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Bits per Spike as a Betting Game: An Interpretable Unit for Held-Out Log-Likelihood in Neural Data Analysis')",
+        "failed_at": "2026-08-04T21:34:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Explaining the behaviors of deep neural networks, usually considered as black boxes, is critical especially when they are now being adopted over diverse aspects of human life. Taking the advantages of interpretable machine learning (interpretable ML), this work proposes a novel tool called Catastrophic Forgetting Dissector (or CFD) to explain catastrophic forgetting in continual learning settings. We also introduce a new method called Critical Freezing based on the observations of our tool. Experiments on ResNet articulate how catastrophic forgetting happens, particularly showing which components of this famous network are forgetting. Our new continual learning algorithm defeats various recent techniques by a significant margin, proving the capability of the investigation. Critical freezing not only attacks catastrophic forgetting but also exposes explainability.",
+          "claimed_authors": [
+            "Giang Nguyen"
+          ],
+          "claimed_title": "Overcoming Catastrophic Forgetting by XAI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.14177"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Overcoming Catastrophic Forgetting by XAI')",
+        "failed_at": "2026-08-04T21:34:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Continual learning (CL) is a setting in which an agent has to learn from an incoming stream of data during its entire lifetime. Although major advances have been made in the field, one recurring problem which remains unsolved is that of Catastrophic Forgetting (CF). While the issue has been extensively studied empirically, little attention has been paid from a theoretical angle. In this paper, we show that the impact of CF increases as two tasks increasingly align. We introduce a measure of task similarity called the NTK overlap matrix which is at the core of CF. We analyze common projected gradient algorithms and demonstrate how they mitigate forgetting. Then, we propose a variant of Orthogonal Gradient Descent (OGD) which leverages structure of the data through Principal Component Analysis (PCA). Experiments support our theoretical findings and show how our method can help reduce CF on classical CL datasets.",
+          "claimed_authors": [
+            "Thang Doan",
+            "Mehdi Bennani",
+            "Bogdan Mazoure",
+            "Guillaume Rabusseau",
+            "Pierre Alquier"
+          ],
+          "claimed_title": "A Theoretical Analysis of Catastrophic Forgetting through the NTK Overlap Matrix",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.04003"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='A Theoretical Analysis of Catastrophic Forgetting through the NTK Overlap Matrix')",
+        "failed_at": "2026-08-04T21:34:36Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Catastrophic forgetting remains a severe hindrance to the broad application of artificial neural networks (ANNs), however, it continues to be a poorly understood phenomenon. Despite the extensive amount of work on catastrophic forgetting, we argue that it is still unclear how exactly the phenomenon should be quantified, and, moreover, to what degree all of the choices we make when designing learning systems affect the amount of catastrophic forgetting. We use various testbeds from the reinforcement learning and supervised learning literature to (1) provide evidence that the choice of which modern gradient-based optimization algorithm is used to train an ANN has a significant impact on the amount of catastrophic forgetting and show that-surprisingly-in many instances classical algorithms such as vanilla SGD experience less catastrophic forgetting than the more modern algorithms such as Adam. We empirically compare four different existing metrics for quantifying catastrophic forgetting and (2) show that the degree to which the learning systems experience catastrophic forgetting is sufficiently sensitive to the metric used that a change from one principled metric to another is enough to change the conclusions of a study dramatically. Our results suggest that a much more rigorous experimental methodology is required when looking at catastrophic forgetting. Based on our results, we recommend inter-task forgetting in supervised learning must be measured with both retention and relearning metrics concurrently, and intra-task forgetting in reinforcement learning must-at the very least-be measured with pairwise interference.",
+          "claimed_authors": [
+            "Dylan R. Ashley",
+            "Sina Ghiassian",
+            "Richard S. Sutton"
+          ],
+          "claimed_title": "Does the Adam Optimizer Exacerbate Catastrophic Forgetting?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2102.07686"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"https://arxiv.org/abs/2607.07508\" other', candidate_title='Does the Adam Optimizer Exacerbate Catastrophic Forgetting?')",
+        "failed_at": "2026-08-04T21:34:36Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -601,322 +533,143 @@
       {
         "bibliographic_info": {
           "authors": [
-            " PSBC LLM Team",
-            " Huawei LLM Team",
-            "Ruihan Long",
-            "Junjie Wu",
-            "Tianan Zhang",
-            "Duo Zhang",
-            "Yaozong Wu",
-            "Jinbin Fu",
-            "Chang Liu",
-            "Zhentao Tang",
-            "Wenshuang Yang",
-            "Xin Wang",
-            "Zhihao Song",
-            "Ning Huang",
-            "Wenjing Xu",
-            "Shuai Zong",
-            "Shupei Sun",
-            "Sen Wang",
-            "Jing Hu",
-            "Bin Wang",
-            "Xinyu Wang",
-            "Junkui Ju",
-            "Zequn Ding",
-            "Jie Ran",
-            "Man Luo",
-            "Shixiong Kai",
-            "Linkai Hou",
-            "Kaichao Liang",
-            "Hu Zhao",
-            "Yang Zhao",
-            "Shucheng Lin",
-            "Wei Yu",
-            "Chenghan Jiang",
-            "Jingjing Ding",
-            "Jiahui Zhang",
-            "Tian Jin",
-            "Yuhang Zhang",
-            "Dong Guo",
-            "Wei Sun",
-            "Jun Xie",
-            "Jianwei Li",
-            "Lei Cao",
-            "Pei Li",
-            "Jiabin Li",
-            "Jia Yuan",
-            "Rui Yuan",
-            "Jing Zhu",
-            "Mingxuan Yuan",
-            "Zhangcheng Lv",
-            "Xin Jiang",
-            "Xiuhong Fei",
-            "Xiaozhe Ren",
-            "Yulong Li",
-            "Zhipeng Zhang",
-            "Hang Wang",
-            "Zhaohui Xu",
-            "Rui Zhao",
-            "Yibo He",
-            "Xinzhuang Niu"
+            "Vahid Salehi",
+            "Josef Vilsmeier",
+            "Shirui Wang"
           ],
-          "title": "YouZhi: Towards High-Concurrency Financial LLMs via Adaptive GQA-to-MLA Transition",
+          "title": "From product to system network challenges in system of systems lifecycle management",
           "topically_marginal": true,
           "venue": "arXiv",
-          "year": 2026
+          "year": 2025
         },
-        "primary_pointer": "2606.05868",
-        "summary": "Large language models (LLMs) drive significant financial innovations, yet their high-concurrency deployment is severely bottlenecked by KV cache memory overhead, which inflates infrastructure costs and throttles scalability. To address this, we propose YouZhi-LLM, a highly efficient financial LLM empowered by a comprehensive structural transition and training pipeline natively built on the Huawei Ascend ecosystem. At its algorithmic core, YouZhi-LLM features a layer-adaptive GQA-to-MLA transition framework that dynamically assigns per-layer FreqFold sizes, maximizing KV-cache compression while minimizing perplexity degradation. To recover representation capacity and inject domain expertise, the Ascend-based training pipeline seamlessly integrates generalized knowledge distillation with financial-specific supervised fine-tuning. Evaluations demonstrate the superiority of this systematic approach, with the adaptive transition reducing perplexity degradation by up to 35% over uniform baselines. Crucially, when evaluated on Ascend NPUs via vLLM-Ascend, the massive KV-cache reduction translates directly into deployment efficiency. Compared to their respective base models, YouZhi-7B yields a 12.3% improvement in average financial benchmark score alongside a 2.69$\\times$ increase in maximum concurrency; similarly, YouZhi-14B achieves a 7.0% accuracy gain and a 2.43$\\times$ concurrency boost, establishing a new paradigm for cost-effective, high-throughput financial inference.",
+        "primary_pointer": "2510.27194",
+        "summary": "Today, products are no longer isolated artifacts, but nodes in networked systems. This means that traditional, linearly conceived life cycle models are reaching their limits: Interoperability across disciplines, variant and configuration management, traceability, and governance across organizational boundaries are becoming key factors. This collective contribution classifies the state of the art and proposes a practical frame of reference for SoS lifecycle management, model-based systems engineering (MBSE) as the semantic backbone, product lifecycle management (PLM) as the governance and configuration level, CAD-CAE as model-derived domains, and digital thread and digital twin as continuous feedback. Based on current literature and industry experience, mobility, healthcare, and the public sector, we identify four principles: (1) referenced architecture and data models, (2) end-to-end configuration sovereignty instead of tool silos, (3) curated models with clear review gates, and (4) measurable value contributions along time, quality, cost, and sustainability. A three-step roadmap shows the transition from product- to network- centric development: piloting with reference architecture, scaling across variant and supply chain spaces, organizational anchoring (roles, training, compliance). The results are increased change robustness, shorter throughput times, improved reuse, and informed sustainability decisions. This article is aimed at decision-makers and practitioners who want to make complexity manageable and design SoS value streams to be scalable.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2606.05868",
+          "final_url": "https://arxiv.org/abs/2510.27194",
           "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3333,
+          "pdf_sample_score": 0.3052,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-12T04:21:16Z"
+          "verified_at": "2026-08-04T21:34:41Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Mahdi Naser Moghadasi",
-            "Faezeh Ghaderi"
+            "Kristina Dzeparoska",
+            "Jieyu Lin",
+            "Ali Tizghadam",
+            "Alberto Leon-Garcia"
           ],
-          "title": "What Twelve LLM Agent Benchmark Papers Disclose About Themselves: A Pilot Audit and an Open Scoring Schema",
+          "title": "LLM-based policy generation for intent-based management of applications",
           "topically_marginal": true,
           "venue": "arXiv",
-          "year": 2026
+          "year": 2024
         },
-        "primary_pointer": "2605.21404",
-        "summary": "We read twelve well-known LLM agent benchmark papers and recorded, dimension by dimension, what each paper actually says about how its evaluation was run. The motivation came from a familiar frustration: two papers will report results on the same benchmark with the same model name and disagree, and you cannot tell why -- the scaffold, the sampling settings, the subset, or the evaluator version. In many cases the published artifact does not let you answer. This paper is an implementation report on the attempt. We designed a small audit schema (five fields: benchmark identity, harness specification, inference settings, cost reporting, failure breakdown), wrote a scoring codebook with the boundary cases we hit during pilot scoring, applied it to twelve canonical papers (eight agent, four classical static), and recorded what we saw. We score the disclosure of an agent run, not its correctness, and make no claim that disclosure implies a trustworthy result. The mean audit score across the eight agent-benchmark papers is 0.38 (out of 1.0), and across the four classical static benchmarks 0.66; the largest gap is on cost (none of the eight agent benchmark papers disclose inference cost in any form) and on harness specification (none fully disclose a content-addressed container image of the evaluation environment). We release the schema as a JSON Schema file, the codebook as a Markdown document, and the raw scoring sheet as a CSV. The scoring was performed by a single auditor in one pass; a multi-rater audit is the natural next step, and we discuss what we think it would change.",
+        "primary_pointer": "2402.10067",
+        "summary": "Automated management requires decomposing high-level user requests, such as intents, to an abstraction that the system can understand and execute. This is challenging because even a simple intent requires performing a number of ordered steps. And the task of identifying and adapting these steps (as conditions change) requires a decomposition approach that cannot be exactly pre-defined beforehand. To tackle these challenges and support automated intent decomposition and execution, we explore the few-shot capability of Large Language Models (LLMs). We propose a pipeline that progressively decomposes intents by generating the required actions using a policy-based abstraction. This allows us to automate the policy execution by creating a closed control loop for the intent deployment. To do so, we generate and map the policies to APIs and form application management loops that perform the necessary monitoring, analysis, planning and execution. We evaluate our proposal with a use-case to fulfill and assure an application service chain of virtual network functions. Using our approach, we can generalize and generate the necessary steps to realize intents, thereby enabling intent automation for application management.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2605.21404",
+          "final_url": "https://arxiv.org/abs/2402.10067",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.6667,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-12T04:21:16Z"
+          "verified_at": "2026-08-04T21:34:42Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Philippe Mongeon",
-            "Christine Brodeur",
-            "Catherine Beaudry",
-            "Vincent Lariviere"
+            "Van-Duc Le",
+            "Tien-Cuong Bui",
+            "Wen-Syan Li"
           ],
-          "title": "Concentration of research funding leads to decreasing marginal returns",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2016
-        },
-        "primary_pointer": "1602.07396",
-        "summary": "In most countries, basic research is supported by research councils that select, after peer review, the individuals or teams that are to receive funding. Unfortunately, the number of grants these research councils can allocate is not infinite and, in most cases, a minority of the researchers receive the majority of the funds. However, evidence as to whether this is an optimal way of distributing available funds is mixed. The purpose of this study is to measure the relation between the amount of funding provided to 12,720 researchers in Quebec over a fifteen year period (1998-2012) and their scientific output and impact from 2000 to 2013. Our results show that both in terms of the quantity of papers produced and of their scientific impact, the concentration of research funding in the hands of a so-called \"elite\" of researchers generally produces diminishing marginal returns. Also, we find that the most funded researchers do not stand out in terms of output and scientific impact.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/1602.07396",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.3333,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-12T04:21:17Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Jiongnan Liu",
-            "Jiajie Jin",
-            "Zihan Wang",
-            "Jiehan Cheng",
-            "Zhicheng Dou",
-            "Ji-Rong Wen"
-          ],
-          "title": "RETA-LLM: A Retrieval-Augmented Large Language Model Toolkit",
+          "title": "VeML: An End-to-End Machine Learning Lifecycle for Large-scale and High-dimensional Data",
           "topically_marginal": true,
           "venue": "arXiv",
           "year": 2023
         },
-        "primary_pointer": "2306.05212",
-        "summary": "Although Large Language Models (LLMs) have demonstrated extraordinary capabilities in many domains, they still have a tendency to hallucinate and generate fictitious responses to user requests. This problem can be alleviated by augmenting LLMs with information retrieval (IR) systems (also known as retrieval-augmented LLMs). Applying this strategy, LLMs can generate more factual texts in response to user input according to the relevant content retrieved by IR systems from external corpora as references. In addition, by incorporating external knowledge, retrieval-augmented LLMs can answer in-domain questions that cannot be answered by solely relying on the world knowledge stored in parameters. To support research in this area and facilitate the development of retrieval-augmented LLM systems, we develop RETA-LLM, a {RET}reival-{A}ugmented LLM toolkit. In RETA-LLM, we create a complete pipeline to help researchers and users build their customized in-domain LLM-based systems. Compared with previous retrieval-augmented LLM systems, RETA-LLM provides more plug-and-play modules to support better interaction between IR systems and LLMs, including {request rewriting, document retrieval, passage extraction, answer generation, and fact checking} modules. Our toolkit is publicly available at https://github.com/RUC-GSAI/YuLan-IR/tree/main/RETA-LLM.",
+        "primary_pointer": "2304.13037",
+        "summary": "An end-to-end machine learning (ML) lifecycle consists of many iterative processes, from data preparation and ML model design to model training and then deploying the trained model for inference. When building an end-to-end lifecycle for an ML problem, many ML pipelines must be designed and executed that produce a huge number of lifecycle versions. Therefore, this paper introduces VeML, a Version management system dedicated to end-to-end ML Lifecycle. Our system tackles several crucial problems that other systems have not solved. First, we address the high cost of building an ML lifecycle, especially for large-scale and high-dimensional dataset. We solve this problem by proposing to transfer the lifecycle of similar datasets managed in our system to the new training data. We design an algorithm based on the core set to compute similarity for large-scale, high-dimensional data efficiently. Another critical issue is the model accuracy degradation by the difference between training data and testing data during the ML lifetime, which leads to lifecycle rebuild. Our system helps to detect this mismatch without getting labeled data from testing data and rebuild the ML lifecycle for a new data version. To demonstrate our contributions, we conduct experiments on real-world, large-scale datasets of driving images and spatiotemporal sensor data and show promising results.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2306.05212",
+          "final_url": "https://arxiv.org/abs/2304.13037",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.3333,
+          "query_relevance_score": 0.5,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-12T04:21:17Z"
+          "verified_at": "2026-08-04T21:34:42Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Ethem Yağız Çalık",
-            "Talha Rüzgar Akkuş"
+            "Hugo Lhachemi",
+            "Robert Shorten",
+            "Christophe Prieur"
           ],
-          "title": "Enhancing Human-Like Responses in Large Language Models",
+          "title": "Exponential input-to-state stabilization of a class of diagonal boundary control systems with delay boundary control",
           "topically_marginal": true,
           "venue": "arXiv",
-          "year": 2025
+          "year": 2020
         },
-        "primary_pointer": "2501.05032",
-        "summary": "This paper explores the advancements in making large language models (LLMs) more human-like. We focus on techniques that enhance natural language understanding, conversational coherence, and emotional intelligence in AI systems. The study evaluates various approaches, including fine-tuning with diverse datasets, incorporating psychological principles, and designing models that better mimic human reasoning patterns. Our findings demonstrate that these enhancements not only improve user interactions but also open new possibilities for AI applications across different domains. Future work will address the ethical implications and potential biases introduced by these human-like attributes.",
+        "primary_pointer": "2003.05711",
+        "summary": "This paper deals with the exponential input-to-state stabilization with respect to boundary disturbances of a class of diagonal infinite-dimensional systems via delay boundary control. The considered input delays are uncertain and time-varying. The proposed control strategy consists of a constant-delay predictor feedback controller designed on a truncated finite-dimensional model capturing the unstable modes of the original infinite-dimensional system. We show that the resulting closed-loop system is exponentially input-to-state stable with fading memory of both additive boundary input perturbations and disturbances in the computation of the predictor feedback.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2501.05032",
+          "final_url": "https://arxiv.org/abs/2003.05711",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.75,
+          "query_relevance_score": 0.4,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-12T04:21:21Z"
+          "verified_at": "2026-08-04T21:34:47Z"
         }
       },
       {
         "bibliographic_info": {
           "authors": [
-            "Zahra Khalila",
-            "Arbi Haza Nasution",
-            "Winda Monika",
-            "Aytug Onan",
-            "Yohei Murakami",
-            "Yasir Bin Ismail Radi",
-            "Noor Mohammad Osmani"
+            "Pablo Krupa",
+            "Ignacio Alvarado",
+            "Daniel Limon",
+            "Teodoro Alamo"
           ],
-          "title": "Investigating Retrieval-Augmented Generation in Quranic Studies: A Study of 13 Open-Source Large Language Models",
+          "title": "Implementation of model predictive control for tracking in embedded systems using a sparse extended ADMM algorithm",
           "topically_marginal": true,
           "venue": "arXiv",
-          "year": 2025
+          "year": 2020
         },
-        "primary_pointer": "2503.16581",
-        "summary": "Accurate and contextually faithful responses are critical when applying large language models (LLMs) to sensitive and domain-specific tasks, such as answering queries related to quranic studies. General-purpose LLMs often struggle with hallucinations, where generated responses deviate from authoritative sources, raising concerns about their reliability in religious contexts. This challenge highlights the need for systems that can integrate domain-specific knowledge while maintaining response accuracy, relevance, and faithfulness. In this study, we investigate 13 open-source LLMs categorized into large (e.g., Llama3:70b, Gemma2:27b, QwQ:32b), medium (e.g., Gemma2:9b, Llama3:8b), and small (e.g., Llama3.2:3b, Phi3:3.8b). A Retrieval-Augmented Generation (RAG) is used to make up for the problems that come with using separate models. This research utilizes a descriptive dataset of Quranic surahs including the meanings, historical context, and qualities of the 114 surahs, allowing the model to gather relevant knowledge before responding. The models are evaluated using three key metrics set by human evaluators: context relevance, answer faithfulness, and answer relevance. The findings reveal that large models consistently outperform smaller models in capturing query semantics and producing accurate, contextually grounded responses. The Llama3.2:3b model, even though it is considered small, does very well on faithfulness (4.619) and relevance (4.857), showing the promise of smaller architectures that have been well optimized. This article examines the trade-offs between model size, computational efficiency, and response quality while using LLMs in domain-specific applications.",
+        "primary_pointer": "2008.09071",
+        "summary": "This article presents a sparse, low-memory footprint optimization algorithm for the implementation of the model predictive control (MPC) for tracking formulation in embedded systems. This MPC formulation has several advantages over standard MPC formulations, such as an increased domain of attraction and guaranteed recursive feasibility even in the event of a sudden reference change. However, this comes at the expense of the addition of a small amount of decision variables to the MPC's optimization problem that complicates the structure of its matrices. We propose a sparse optimization algorithm, based on an extension of the alternating direction method of multipliers, that exploits the structure of this particular MPC formulation. We describe the controller formulation and detail how its structure is exploited by means of the aforementioned optimization algorithm. We show closed-loop simulations comparing the proposed solver against other solvers and approaches from the literature.",
         "summary_grounded_pdf": false,
         "verification_log": {
           "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2503.16581",
+          "final_url": "https://arxiv.org/abs/2008.09071",
           "http_status": 200,
           "pdf_sample_score": null,
-          "query_relevance_score": 0.75,
+          "query_relevance_score": 0.4,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-12T04:21:22Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Dongping Chen",
-            "Jiawen Shi",
-            "Yao Wan",
-            "Pan Zhou",
-            "Neil Zhenqiang Gong",
-            "Lichao Sun"
-          ],
-          "title": "Self-Cognition in Large Language Models: An Exploratory Study",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2024
-        },
-        "primary_pointer": "2407.01505",
-        "summary": "While Large Language Models (LLMs) have achieved remarkable success across various applications, they also raise concerns regarding self-cognition. In this paper, we perform a pioneering study to explore self-cognition in LLMs. Specifically, we first construct a pool of self-cognition instruction prompts to evaluate where an LLM exhibits self-cognition and four well-designed principles to quantify LLMs' self-cognition. Our study reveals that 4 of the 48 models on Chatbot Arena--specifically Command R, Claude3-Opus, Llama-3-70b-Instruct, and Reka-core--demonstrate some level of detectable self-cognition. We observe a positive correlation between model size, training data quality, and self-cognition level. Additionally, we also explore the utility and trustworthiness of LLM in the self-cognition state, revealing that the self-cognition state enhances some specific tasks such as creative writing and exaggeration. We believe that our work can serve as an inspiration for further research to study the self-cognition in LLMs.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2407.01505",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.75,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-12T04:21:22Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Yiming Ai",
-            "Zhiwei He",
-            "Ziyin Zhang",
-            "Wenhong Zhu",
-            "Hongkun Hao",
-            "Kai Yu",
-            "Lingjun Chen",
-            "Rui Wang"
-          ],
-          "title": "Is Self-knowledge and Action Consistent or Not: Investigating Large Language Model's Personality",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2024
-        },
-        "primary_pointer": "2402.14679",
-        "summary": "In this study, we delve into the validity of conventional personality questionnaires in capturing the human-like personality traits of Large Language Models (LLMs). Our objective is to assess the congruence between the personality traits LLMs claim to possess and their demonstrated tendencies in real-world scenarios. By conducting an extensive examination of LLM outputs against observed human response patterns, we aim to understand the disjunction between self-knowledge and action in LLMs.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2402.14679",
-          "http_status": 200,
-          "pdf_sample_score": 0.1092,
-          "query_relevance_score": 0.75,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-12T04:21:22Z"
-        }
-      },
-      {
-        "bibliographic_info": {
-          "authors": [
-            "Andrew Shin",
-            "Kunitake Kaneko"
-          ],
-          "title": "Large Language Models Lack Understanding of Character Composition of Words",
-          "topically_marginal": true,
-          "venue": "arXiv",
-          "year": 2024
-        },
-        "primary_pointer": "2405.11357",
-        "summary": "Large language models (LLMs) have demonstrated remarkable performances on a wide range of natural language tasks. Yet, LLMs' successes have been largely restricted to tasks concerning words, sentences, or documents, and it remains questionable how much they understand the minimal units of text, namely characters. In this paper, we examine contemporary LLMs regarding their ability to understand character composition of words, and show that most of them fail to reliably carry out even the simple tasks that can be handled by humans with perfection. We analyze their behaviors with comparison to token level performances, and discuss the potential directions for future research.",
-        "summary_grounded_pdf": false,
-        "verification_log": {
-          "backend": "arxiv",
-          "final_url": "https://arxiv.org/abs/2405.11357",
-          "http_status": 200,
-          "pdf_sample_score": null,
-          "query_relevance_score": 0.75,
-          "redirect_chain": [],
-          "summary_grounding_score": 1.0,
-          "title_token_overlap_score": 1.0,
-          "url_resolves": true,
-          "verified_at": "2026-07-12T04:21:23Z"
+          "verified_at": "2026-08-04T21:34:47Z"
         }
       }
     ]

@@ -1,33 +1,77 @@
-- artifact_hash: 776df55c48daa44df0546257a5c295ed56b89e5f0ddbbbacfee2e2bff2716e42
+- artifact_hash: 6a2a49b6bff71e1ef8ca11a03fd7d121eff60f5d47f1e5d758d381d181efeb4b
   artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: test-00000-of-00001.parquet
+  fetched_title: "openai/gsm8k \xB7 Datasets at Hugging Face"
   kind: url
-  value: https://huggingface.co/datasets/openai/gsm8k/resolve/main/main/test-00000-of-00001.parquet
-  verification_status: verified
-  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/625552d2b339bb03abe3432d/ad526cbfe3eb75568603d62295066ebd2491137403f012186c30f9416839141d?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27test-00000-of-00001.parquet%3B+filename%3D%22test-00000-of-00001.parquet%22%3B&user_id=public&X-Xet-Cas-Uid=public&Expires=1783966383&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjI1NTUyZDJiMzM5YmIwM2FiZTM0MzJkL2FkNTI2Y2JmZTNlYjc1NTY4NjAzZDYyMjk1MDY2ZWJkMjQ5MTEzNzQwM2YwMTIxODZjMzBmOTQxNjgzOTE0MWRcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydGVzdC0wMDAwMC1vZi0wMDAwMS5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJlgtWGV0LUNhcy1VaWQ9cHVibGljIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3ODM5NjYzODN9fX1dfQ__&Signature=MEYCIQDhMSM5PXCaKMgXELJPAXDxVSFRXgnvvaWVvTLgyQvZDwIhAKKaIrOE9xO8o9LvQ4dX%7E%7EM5eVu2ku5%7EtgRp9d%7EwvjXZ&Key-Pair-Id=01KAYHXK2CBJSW0YZTMNXK9W1M
-  verified_at: '2026-07-13T17:13:03.499195Z'
-- artifact_hash: 776df55c48daa44df0546257a5c295ed56b89e5f0ddbbbacfee2e2bff2716e42
+  value: https://huggingface.co/datasets/openai/gsm8k
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/openai/gsm8k
+  verified_at: '2026-07-29T11:30:11.776917Z'
+- artifact_hash: 6a2a49b6bff71e1ef8ca11a03fd7d121eff60f5d47f1e5d758d381d181efeb4b
   artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/research.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/farama-minari/minigrid/resolve/main/minigrid-babyai-action-obj-door-v0/train-00000-of-00001.parquet
-  verification_status: mismatch
-  verified_against_url: https://huggingface.co/datasets/farama-minari/minigrid/resolve/main/minigrid-babyai-action-obj-door-v0/train-00000-of-00001.parquet
-  verified_at: '2026-07-13T17:13:03.499195Z'
-- artifact_hash: 776df55c48daa44df0546257a5c295ed56b89e5f0ddbbbacfee2e2bff2716e42
-  artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/research.md
+  value: https://huggingface.co/datasets/fka/awesome-ml-minigrid
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/fka/awesome-ml-minigrid
+  verified_at: '2026-07-29T11:30:11.776917Z'
+- artifact_hash: 67882801f91453b3b0133f0618c3010229e0fe97655c3d0a7e7a7f24c2c85f23
+  artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/specs/001-llmxive-follow-up-extending-efficientrol/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: cpu
+  kind: url
+  value: https://download.pytorch.org/whl/cpu`
+  verification_status: pending
+  verified_against_url: https://download.pytorch.org/whl/cpu
+  verified_at: '2026-07-29T11:30:28.831316Z'
+- artifact_hash: 777ef9d35e6339237e641b8d0fc73fa60f0ce8882305c9d5e4622aa1ba71cfdd
+  artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "Qwen/Qwen1.5-0.5B \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/Qwen/Qwen1.5-0.5B
+  verification_status: pending
+  verified_against_url: https://huggingface.co/Qwen/Qwen1.5-0.5B
+  verified_at: '2026-10-09T21:27:51.356919Z'
+- artifact_hash: 777ef9d35e6339237e641b8d0fc73fa60f0ce8882305c9d5e4622aa1ba71cfdd
+  artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/Qwen/Qwen1.5-1.5B
+  verification_status: pending
+  verified_against_url: https://huggingface.co/Qwen/Qwen1.5-1.5B
+  verified_at: '2026-10-09T21:27:51.356919Z'
+- artifact_hash: 777ef9d35e6339237e641b8d0fc73fa60f0ce8882305c9d5e4622aa1ba71cfdd
+  artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
   cite_id: c-003
   cited_authors: []
   cited_title: null
-  fetched_title: "TinyLlama/TinyLlama-1.1B-Chat-v1.0 \xB7 Hugging Face"
+  fetched_title: null
   kind: url
-  value: https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0
-  verification_status: verified
-  verified_against_url: https://huggingface.co/TinyLlama/TinyLlama-1.1B-Chat-v1.0
-  verified_at: '2026-07-13T17:13:03.499195Z'
+  value: https://huggingface.co/Qwen/Qwen1.5-7B-Int4
+  verification_status: pending
+  verified_against_url: https://huggingface.co/Qwen/Qwen1.5-7B-Int4
+  verified_at: '2026-10-09T21:27:51.356919Z'
+- artifact_hash: 777ef9d35e6339237e641b8d0fc73fa60f0ce8882305c9d5e4622aa1ba71cfdd
+  artifact_path: projects/PROJ-881-llmxive-follow-up-extending-efficientrol/docs/model_selection.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: "meta-llama/Llama-2-7b-hf \xB7 Hugging Face"
+  kind: url
+  value: https://huggingface.co/meta-llama/Llama-2-7b-hf
+  verification_status: pending
+  verified_against_url: https://huggingface.co/meta-llama/Llama-2-7b-hf
+  verified_at: '2026-10-09T21:27:51.356919Z'

@@ -1,0 +1,16 @@
+status: none
+intent: TransitLM SFT dataset download Chinese city routes Beijing Shanghai Guangzhou
+  Shenzhen python package dataset
+required_fields:
+- city
+- route_id
+- stop_sequence
+- station_id
+- station_name
+- sequence_index
+- latitude
+- longitude
+- line_id
+cache_key: 238f355a9f2d575d5a1e82b3d251da454dd268b6e9553dfe41bb8149e1b9ac9a
+searched_at: '2026-08-03T18:40:23.360697+00:00'
+retry_count: 1

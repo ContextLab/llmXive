@@ -1,7 +1,3 @@
-"""
-Serialization module for embedding outputs.
-Handles writing embeddings and metadata to Parquet format.
-"""
 import os
 import json
 import hashlib
@@ -9,133 +5,156 @@ from datetime import datetime
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Union
 
-import numpy as np
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
+import numpy as np
+import torch
 
-from utils.logging import get_logger, log_info, log_warning, log_error
-from config import get_output_path
+from utils.logging import get_logger, log_info, log_error, log_warning
 
 logger = get_logger(__name__)
 
+def generate_run_id() -> str:
+    """
+    Generate a deterministic run_id based on current timestamp and a random salt.
+    This ensures unique identifiers for each run while allowing reproducibility
+    if the seed is fixed in the calling context.
+    """
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    salt = hashlib.sha256(os.urandom(16)).hexdigest()[:8]
+    return f"run_{timestamp}_{salt}"
 
 def serialize_embeddings_to_parquet(
     embeddings: List[Dict[str, Any]],
-    output_path: Union[str, Path],
+    output_path: str,
     run_id: str,
     metadata: Optional[Dict[str, Any]] = None
 ) -> None:
     """
-    Serialize a list of embedding records to a Parquet file.
+    Serialize a list of embedding dictionaries to a Parquet file.
+
+    Each embedding dictionary must contain:
+    - dataset_id: str
+    - sample_id: str (or index)
+    - embedding: np.ndarray or list
+    - modality: str ('image' or 'text')
+    - Optional: model_name, seed, timestamp, etc.
+
+    The output Parquet file will include:
+    - run_id: str (added to every row)
+    - dataset_id: str
+    - sample_id: str
+    - embedding: list[float] (flattened)
+    - modality: str
+    - Any additional metadata fields provided
 
     Args:
-        embeddings: List of dicts containing 'dataset_id', 'record_id',
-                    'embedding_vector', 'modality', and other metadata.
+        embeddings: List of embedding dictionaries.
         output_path: Path to the output Parquet file.
-        run_id: Unique identifier for this run (included in metadata).
-        metadata: Optional additional metadata to store alongside embeddings.
+        run_id: Unique identifier for this run.
+        metadata: Optional dictionary of global metadata to include.
     """
     if not embeddings:
-        log_warning("No embeddings provided for serialization. Creating empty file.")
-        # Create an empty Parquet file with the expected schema
-        schema = pa.schema([
-            ('run_id', pa.string()),
-            ('dataset_id', pa.string()),
-            ('record_id', pa.string()),
-            ('modality', pa.string()),
-            ('embedding_vector', pa.list_(pa.float32())),
-            ('timestamp', pa.string()),
-            ('checksum', pa.string())
-        ])
-        output_path = Path(output_path)
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        pq.write_table(pa.table(schema=schema), str(output_path))
+        log_warning("No embeddings to serialize. Creating empty Parquet file with schema.")
+        # Create an empty DataFrame with the expected schema
+        df = pd.DataFrame({
+            'run_id': pd.Series([], dtype=str),
+            'dataset_id': pd.Series([], dtype=str),
+            'sample_id': pd.Series([], dtype=str),
+            'embedding': pd.Series([], dtype='object'),
+            'modality': pd.Series([], dtype=str)
+        })
+        output_file = Path(output_path)
+        output_file.parent.mkdir(parents=True, exist_ok=True)
+        df.to_parquet(output_file, index=False)
         log_info(f"Created empty Parquet file at {output_path}")
         return
 
-    # Ensure output directory exists
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Prepare data for DataFrame
-    data = []
-    for record in embeddings:
-        # Convert numpy arrays to lists for JSON/Parquet compatibility
-        embedding_vec = record.get('embedding_vector')
-        if isinstance(embedding_vec, np.ndarray):
-            embedding_vec = embedding_vec.tolist()
-        elif embedding_vec is None:
-            embedding_vec = []
-
-        # Compute checksum for data integrity
-        checksum_data = json.dumps({
-            'dataset_id': record.get('dataset_id', ''),
-            'record_id': record.get('record_id', ''),
-            'embedding_vector': embedding_vec
-        }, sort_keys=True)
-        checksum = hashlib.sha256(checksum_data.encode('utf-8')).hexdigest()[:16]
-
-        data.append({
+    # Prepare data rows
+    rows = []
+    for emb_dict in embeddings:
+        row = {
             'run_id': run_id,
-            'dataset_id': record.get('dataset_id', ''),
-            'record_id': record.get('record_id', ''),
-            'modality': record.get('modality', 'unknown'),
-            'embedding_vector': embedding_vec,
-            'timestamp': datetime.utcnow().isoformat(),
-            'checksum': checksum
-        })
+            'dataset_id': emb_dict.get('dataset_id', 'unknown'),
+            'sample_id': emb_dict.get('sample_id', 'unknown'),
+            'embedding': emb_dict['embedding'].tolist() if isinstance(emb_dict['embedding'], np.ndarray) else emb_dict['embedding'],
+            'modality': emb_dict.get('modality', 'unknown'),
+        }
+        
+        # Add optional fields
+        if 'model_name' in emb_dict:
+            row['model_name'] = emb_dict['model_name']
+        if 'seed' in emb_dict:
+            row['seed'] = emb_dict['seed']
+        if 'timestamp' in emb_dict:
+            row['timestamp'] = emb_dict['timestamp']
+        
+        rows.append(row)
 
-    # Create DataFrame
-    df = pd.DataFrame(data)
+    df = pd.DataFrame(rows)
 
-    # Ensure embedding_vector column is list type for PyArrow
-    # PyArrow handles list columns well, but we ensure consistency
-    if 'embedding_vector' in df.columns:
-        df['embedding_vector'] = df['embedding_vector'].apply(lambda x: x if isinstance(x, list) else [])
+    # Ensure output directory exists
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
 
+    # Write to Parquet
     try:
-        # Write to Parquet using PyArrow for better compatibility
-        table = pa.Table.from_pandas(df)
-        pq.write_table(table, str(output_path))
-        log_info(f"Successfully serialized {len(embeddings)} embeddings to {output_path}")
+        df.to_parquet(output_file, index=False)
+        log_info(f"Successfully serialized {len(rows)} embeddings to {output_path}")
+        
+        # Log schema summary
+        log_info(f"Output schema: {df.dtypes.to_dict()}")
+        log_info(f"Sample row: {df.iloc[0].to_dict()}")
+        
     except Exception as e:
-        log_error(f"Failed to serialize embeddings to Parquet: {e}")
+        log_error(f"Failed to serialize embeddings to {output_path}: {str(e)}")
         raise
 
-
 def load_embeddings_from_parquet(
-    input_path: Union[str, Path]
-) -> pd.DataFrame:
+    input_path: str,
+    filter_by_run_id: Optional[str] = None,
+    filter_by_dataset_id: Optional[str] = None
+) -> List[Dict[str, Any]]:
     """
-    Load embeddings from a Parquet file into a Pandas DataFrame.
+    Load embeddings from a Parquet file.
 
     Args:
         input_path: Path to the input Parquet file.
+        filter_by_run_id: Optional filter to only include rows with this run_id.
+        filter_by_dataset_id: Optional filter to only include rows with this dataset_id.
 
     Returns:
-        DataFrame containing the embeddings.
+        List of embedding dictionaries with the same structure as serialize_embeddings_to_parquet.
     """
-    input_path = Path(input_path)
-    if not input_path.exists():
+    if not Path(input_path).exists():
         raise FileNotFoundError(f"Embeddings file not found: {input_path}")
 
-    try:
-        df = pd.read_parquet(str(input_path))
-        log_info(f"Loaded {len(df)} embeddings from {input_path}")
-        return df
-    except Exception as e:
-        log_error(f"Failed to load embeddings from Parquet: {e}")
-        raise
+    df = pd.read_parquet(input_path)
 
+    # Apply filters
+    if filter_by_run_id:
+        df = df[df['run_id'] == filter_by_run_id]
+    if filter_by_dataset_id:
+        df = df[df['dataset_id'] == filter_by_dataset_id]
 
-def generate_run_id() -> str:
-    """
-    Generate a unique run ID based on timestamp and a random component.
+    embeddings = []
+    for _, row in df.iterrows():
+        emb_dict = {
+            'dataset_id': row['dataset_id'],
+            'sample_id': row['sample_id'],
+            'embedding': np.array(row['embedding']),
+            'modality': row['modality'],
+            'run_id': row['run_id'],
+        }
+        
+        # Add optional fields if present
+        if 'model_name' in row:
+            emb_dict['model_name'] = row['model_name']
+        if 'seed' in row:
+            emb_dict['seed'] = row['seed']
+        if 'timestamp' in row:
+            emb_dict['timestamp'] = row['timestamp']
+        
+        embeddings.append(emb_dict)
 
-    Returns:
-        A unique run ID string.
-    """
-    timestamp = datetime.utcnow().strftime('%Y%m%d_%H%M%S')
-    random_part = hashlib.md5(str(os.urandom(16)).encode()).hexdigest()[:8]
-    return f"{timestamp}_{random_part}"
+    log_info(f"Loaded {len(embeddings)} embeddings from {input_path}")
+    return embeddings

@@ -1,228 +1,98 @@
 # Tasks: Statistical Analysis of Publicly Available Chess Game Data for Elo Rating Prediction
 
-**Input**: Design documents from `/specs/001-statistical-chess-elo-analysis/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+**Inputs**: `spec.md`, `plan.md`, existing research artifacts, and contracts under `specs/contracts/`.  
+All paths are relative to the repository root.
 
 ---
 
-## Phase 1: Setup (Shared Infrastructure)
+## Phase 0 – Project Setup (already completed)
 
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project structure: `src/`, `tests/`, `data/`, `specs/`, `data/raw/`, `data/processed/`, `data/results/`, `specs/contracts/`, `tests/contract/`, `tests/unit/`, `tests/integration/`. Create `__init__.py` in all `src/` and `tests/` subdirectories.
-- [X] T002 Initialize Python 3.11 project by creating `requirements.txt` at repository root containing: `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `chess`, `matplotlib`, `seaborn`, `requests`, `datasets`, `pytest`.
-- [X] T003 [P] Configure linting (ruff) and formatting (black) tools in `pyproject.toml` or `.ruff.toml`/`.black.toml`.
-- [X] T004 [P] Setup `src/config.py` with random seeds (e.g., `RANDOM_SEED=42`), file paths constants, and Lichess dataset URL constants.
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T005 Implement `src/validation/validate_contracts.py` to load YAML schemas from `specs/contracts/` and validate in-memory pandas DataFrames against them.
-- [X] T006 Define `specs/contracts/game_record.schema.yaml` with columns: `game_id`, `white_rating`, `black_rating`, `eco_code`, `avg_move_time_white`, `avg_move_time_black`, `material_imbalance_move5`, `outcome`, `elo_expected_prob`, `outcome_deviation`. (Note: Aligns with Plan.md Complexity Tracking override of Spec FR-002).
-- [ ] T007 Define `specs/contracts/model_output.schema.yaml` with columns: `model_type`, `coefficients`, `p_values`, `r_squared`, `aic`, `cross_validation_scores`. (Note: Aligns with Plan.md Complexity Tracking override of Spec FR-005).
-- [ ] T008 Implement `src/data/download.py` with exponential backoff retry logic for Lichess/HuggingFace API.
-- [ ] T009 [US1] Implement `src/data/download.py` logic to: (1) Verify dataset URL reachability; if unreachable, HALT with error. (2) Sample a small subset of games to check for `move_time` metadata presence. (3) If >5% of sampled games lack `move_time`, HALT immediately with error (per Plan.md Dataset Verification). (4) If ≤5% lack `move_time`, exclude those specific games and proceed. This resolves the conflict between Spec Edge Cases (skip) and Plan (halt) by enforcing the Plan's HALT threshold.
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T000 **Dataset Verification** – Verify that the downloaded raw dataset contains the required columns `white_rating`, `black_rating`, `eco_code`, `move_times`, and `outcome`. Abort the pipeline with a clear error message if any column is missing. Write a verification report `data/results/dataset_verification.json` containing a boolean `all_columns_present` and a list of missing columns (if any). **Verification**: The script exits with non‑zero status on failure; the JSON file exists and reports `all_columns_present: true` for a compliant dataset.   <!-- FAILED-IN-EXECUTION: code/src/data/verify_dataset.py exit=1 -->
+- [ ] T001 **Create project structure** – Create directories `src/`, `tests/`, `data/`, `specs/`, `data/raw/`, `data/processed/`, `data/results/`, `specs/contracts/`, `tests/contract/`, `tests/unit/`, `tests/integration/`. **Verification**: Assert each directory exists on disk after execution.  
+- [X] T002 **Initialize Python project** – Write `requirements.txt` containing `pandas`, `numpy`, `scikit-learn`, `statsmodels`, `python-chess`, `matplotlib`, `seaborn`, `requests`, `datasets`, `pytest`. **Verification**: Check that `requirements.txt` exists and contains all listed packages.  
+- [ ] T003 **Configure linting and formatting** – Add `pyproject.toml` with `ruff` and `black` configuration. **Verification**: Run `ruff check` and `black --check .`; both must exit with code 0.  
+- [ ] T004 **Add global config** – Create `src/config.py` defining seeds, path constants, Lichess URL, `SAMPLE_SIZE_ESTIMATE_BYTES_PER_GAME = 2000`, and `USE_MOVE_5 = False`. **Verification**: Import the module and assert that the constants are defined and have the expected types/values.
 
 ---
 
-## Phase 3: User Story 1 - Data Ingestion and Feature Extraction (Priority: P1) 🎯 MVP
+## Phase 1 – Foundational Infrastructure (blocking prerequisites)
 
-**Goal**: Download a subset of Lichess PGN games, parse them to extract features (ECO, move times, material imbalance at move 5), calculate Elo expected probabilities, and produce a clean `GameRecord` dataset.
-
-**Independent Test**: The system can be tested by running the ingestion pipeline on a small sample (e.g., 100 games) and verifying that the output collection of GameRecord entities contains the expected columns (ECO code, avg_move_time, material_imbalance_move5, elo_expected_prob, outcome_deviation) with no null values in critical fields.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T010 [P] [US1] Contract test for `GameRecord` schema validation in `tests/contract/test_game_record.py`.
-- [ ] T011 [P] [US1] Unit test for PGN parsing logic handling malformed move lists in `tests/unit/test_parsers.py`.
-- [ ] T012 [P] [US1] Unit test for Elo probability calculation and deviation math in `tests/unit/test_calculations.py`.
-
-### Implementation for User Story 1
-
-- [X] T013 [P] [US1] Implement `src/data/parse.py` to read PGN files, extract ECO codes, and calculate `avg_move_time` per player.
-- [X] T014 [US1] Implement `src/data/parse.py` logic to calculate `material_imbalance_move5` (board state at move 5). This implements the Plan.md Complexity Tracking override of Spec FR-002 (Move 10). The schema in T006 and downstream tasks reference this Move 5 value.
-- [X] T015 [US1] Implement `src/data/process.py` to calculate `elo_expected_prob` using `P = 1 / (1 + 10^((R2-R1)/400))` with probability capping for numerical stability (e.g., clamp to [0.01, 0.99]).
-- [X] T016 [US1] Implement `src/data/process.py` to compute `outcome_deviation` as `(actual_result - expected_probability)`.
-- [X] T017 [US1] Implement error handling in `src/data/process.py` to skip malformed games, log errors, and ensure final dataset inclusion rate meets SC-001 (≥95% of valid PGNs). Remove any ±1% target constraint as it conflicts with the exclusion rule and T009 HALT logic.
-- [ ] T018 [US1] Integrate schema validation in `src/main.py` to run `validate_contracts.py` on the generated dataset before saving to `data/processed/games.parquet`. <!-- FAILED: unspecified -->
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+| Task | Description |
+|------|-------------|
+- [ ] T006 **Write `game_record.schema.yaml`** – Copy the exact schema from the specification into `specs/contracts/game_record.schema.yaml`. **Verification**: Compute SHA‑256 checksum of the file and compare against the expected checksum stored in CI; run a pytest schema‑lint test that loads the YAML and validates a known‑good example.  
+- [ ] T007 **Write `model_output.schema.yaml`** – Copy the exact schema from the specification into `specs/contracts/model_output.schema.yaml`. **Verification**: Same checksum and pytest schema‑lint test as T006.  
+- [ ] T005a **Implement schema‑validation logic** in `src/validation/validate_contracts.py` that loads the YAML schemas from `specs/contracts/` and validates pandas DataFrames against them. **Verification**: Unit test that validates a correct DataFrame passes and a deliberately malformed DataFrame raises a `ValidationError`.  
+- [ ] T008a **Implement `select_subset.py`** – Choose a reproducible list of game IDs using the seed from `config.py` and write them to `data/raw/selected_ids.txt`. **Verification**: After execution, assert that `selected_ids.txt` exists and contains the expected number of lines (e.g., 100 for a sample run).  
+- [ ] T008b **Implement `precheck.py`** – Estimate total download size from the ID list and truncate the list if it would exceed the memory budget, writing the final list back to `data/raw/selected_ids.txt`. **Verification**: Assert that the estimated size (bytes) is ≤ 7 GB; the final `selected_ids.txt` length reflects any truncation.  
+- [ ] T008c **Implement `verify_mirror.py`** – Check that a verified mirror provides move‑time metadata. **Verification**: Unit test that samples the first 100 games; if >5 % lack move‑time metadata, the function raises `DataFetchError`.  
+- [ ] T008d-0 **Add `DataFetchError` exception** – Subclass of `RuntimeError` with a `reason: str` attribute in `src/data/download.py`. **Verification**: Import and raise the exception in a test; ensure the `reason` attribute is accessible.  
+- [ ] T008d-1 **Implement `retry_fetch_with_backoff`** – Exponential back‑off retry logic with logging; raises `DataFetchError` after max retries. **Verification**: Mock a failing request and assert that the function retries exactly `max_retries` times with increasing delays.  
+- [ ] T008d-2 **Implement `verify_mirror_metadata`** – Sample first 100 games, check move‑time metadata, raise `DataFetchError` if >5 % missing. **Verification**: Two pytest scenarios – one where metadata is sufficient (returns `True`), another where it fails (raises).  
+- [ ] T008d-3 **Implement `download_lichess_stream`** – Stream PGN data in chunks, integrate back‑off and mirror verification, never load full dataset into memory. **Verification**: Integration test that streams a small real subset (e.g., 10 games) and confirms the generator yields PGN strings without exhausting RAM.  
+- **T009 **Verify rating and move‑time metadata presence** – After streaming download, scan the retrieved PGN records to ensure every game contains both `white_rating`/`black_rating` and per‑move time information. If any game lacks either, abort the pipeline with a clear error. Write a verification report `data/results/metadata_verification.json` containing `all_games_have_required_metadata: bool` and a `missing_counts` dictionary (e.g., `{"rating_missing": 3, "move_time_missing": 5}`). **Verification**: The task exits non‑zero when `all_games_have_required_metadata` is false; otherwise the JSON report exists with `true`.  
+- **Checkpoint** – All foundation tasks must be complete before any user‑story work begins.
 
 ---
 
-## Phase 4: User Story 2 - Regression Modeling and Significance Testing (Priority: P2)
+## Phase 2 – User Story 1: Data Ingestion & Feature Extraction (Priority P1)
 
-**Goal**: Fit Gaussian GLM and Ridge regression models (per Plan.md override), apply Benjamini-Hochberg FDR correction, perform sensitivity analysis, and collapse ECO codes to reduce multicollinearity.
+- [ ] T013 **Define `GameRecord` TypedDict** in `src/data/models.py` with all fields required by `game_record.schema.yaml` (including `eco_family`). **Verification**: Import the TypedDict and run a static‑type check; unit test in `tests/unit/test_models.py` creates an instance and passes `isinstance`‑style validation.  
+- [ ] T014 **Implement `parse_pgn_stream`** in `src/data/parse.py` – Read a generator of raw PGN strings, skip malformed games (log ID), compute `avg_move_time_white`, `avg_move_time_black`, `material_imbalance_move10` (and optionally `material_imbalance_move5` when `USE_MOVE_5`), map ECO codes to families, calculate capped `elo_expected_prob`, and yield `GameRecord` objects. **Verification**: Run on a 100‑game sample; assert no required field is `None` and that malformed games are logged but do not abort.  
+- [ ] T015 **Implement `OnlineAccumulator` and `process_stream`** in `src/data/process.py` – Consume iterator from `parse_pgn_stream`, update online statistics, write full dataset to `data/processed/games.parquet`, and write `data/results/inclusion_counts.json` with `total_games`, `parsed_games`, and `inclusion_rate`. **Verification**: After processing a sample, both files exist; inclusion_rate ≥ 0.95 for the sample.  
+- [ ] T017 **Implement `save_inclusion_metrics`** in `src/data/process.py` – Read `inclusion_counts.json`, add a timestamp, and write `data/results/inclusion_metrics.json` with keys `total_games`, `parsed_games`, `inclusion_rate`, `timestamp`. **Verification**: JSON file exists and contains all four keys with correct types.  
+- [ ] T018 **Implement `src/main.py` orchestration** – Parse `--sample` flag, load configuration, run full pipeline (`select_subset → precheck → download → **metadata verification (T009)** → parse → process → save_inclusion_metrics`), validate contracts via `validate_contracts.py`, and exit with code 0 on success (printing “Pipeline completed successfully”) or code 1 on any error. **Verification**: Execute `python src/main.py --sample`; exit code 0, success message printed, and all artifacts from T015‑T017 are present.
 
-**Independent Test**: The system can be tested by running the modeling script on the generated dataset and verifying that the output includes coefficient tables with corrected p-values, R² scores, and AIC values for Gaussian GLM and Ridge models.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T019 [P] [US2] Unit test for FDR correction logic (Benjamini-Hochberg) in `tests/unit/test_calculations.py`.
-- [X] T020 [P] [US2] Unit test for ECO code collapsing logic (mapping specific codes to families) in `tests/unit/test_parsers.py`.
-
-### Implementation for User Story 2
-
-- [ ] T021 [P] [US2] Implement `src/models/fit.py` to prepare features: one-hot encode ECO codes and collapse them into opening families (e.g., King's Pawn, Queen's Gambit) as per FR-011. This task prepares features specifically for the Plan-authorized models (Gaussian GLM/Ridge).
-- [ ] T022 [US2] Implement `src/models/fit.py` to fit Gaussian GLM (Gaussian family) and Ridge Regression. This implements the Plan.md Complexity Tracking override of Spec FR-005 (Beta Regression). The implementation uses `statsmodels` for GLM and `sklearn.linear_model.Ridge`.
-- [ ] T023 [US2] Implement `src/models/fit.py` to fit Ridge Regression as a linear baseline (if not covered in T022).
-- [X] T024 [US2] Implement `src/models/metrics.py` to calculate p-values (Wald Z-tests) and F-statistics for all predictors.
-- [X] T025 [US2] Implement `src/models/metrics.py` to apply Benjamini-Hochberg FDR correction to p-values (FR-009).
-- [X] T026 [US2] Implement `src/reports/sensitivity.py` to perform threshold sweep analysis over a range of small thresholds and report Jaccard index of significant predictors (FR-010).
-- [ ] T027 [US2] Save model artifacts (coefficients, p-values, R², AIC) to `data/results/model_metrics.json` and validate against `model_output.schema.yaml` (T007). <!-- ATOMIZE: requested -->
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint** – End‑to‑end ingestion pipeline must run on a small real subset and produce all required output files.
 
 ---
 
-## Phase 5: User Story 3 - Cross-Validation and Diagnostic Reporting (Priority: P3)
+## Phase 3 – User Story 2: Regression Modeling & Significance Testing (Priority P2)
 
-**Goal**: Perform 5-fold cross-validation, generate diagnostic plots (residuals, predicted vs. actual), and produce a final validation report.
-
-**Independent Test**: The system can be tested by executing the validation script and verifying that the output includes a report of MSE across 5 folds and saves PNG diagnostic plots.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T028 [P] [US3] Integration test for end-to-end pipeline (download -> parse -> model -> validate) on a small sample in `tests/integration/test_pipeline.py`.
-
-### Implementation for User Story 3
-
-- [X] T029 [P] [US3] Implement `src/models/validate.py` to perform k-fold cross-validation on both Gaussian GLM and Ridge models (FR-006).
-- [X] T030 [US3] Implement `src/models/validate.py` to calculate R² and MSE variance across folds; specifically calculate standard deviation of R². If `std_dev_r2 >= 0.05`, raise a `RuntimeError` with message "SC-003 Threshold Exceeded: Model instability detected". This enforces SC-003 as a hard pass/fail gate.
-- [ ] T031 [US3] Implement `src/reports/generate_plots.py` to create residual plots and feature importance rankings.
-- [ ] T032 [US3] Implement `src/reports/generate_plots.py` to create predicted vs. actual deviation scatterplots.
-- [ ] T033 [US3] Save all plots to `data/results/` and generate a final `DiagnosticReport` summary in `data/results/diagnostics.json`.
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T021 **ECO‑family mapping & feature‑matrix integration** – Scan ECO codes, write mapping to `data/processed/eco_mapping.json`, and incorporate the collapsed `eco_family` into the feature matrix. **Verification**: Assert that the JSON mapping file exists and that the feature matrix contains the `eco_family` column with no missing values.  
+- [ ] T022a **Fit Beta Regression** – Transform outcome to `(y+1)/2`, fit using `statsmodels`, and save model artifact to `data/models/beta_glm.pkl`. **Verification**: Check that the pickle file exists and that a post‑fit summary can be loaded without error.  
+- [ ] T022b **Fit Ridge Regression** – Fit using scikit‑learn on the same feature matrix; save to `data/models/ridge.pkl`. **Verification**: Assert pickle existence and that coefficients can be extracted.  
+- [ ] T022c **Document model selection** – Write `data/results/model_selection_log.json` explaining why Gaussian GLM was not used (referencing FR‑005). **Verification**: File exists and contains a non‑empty `reason` field.  
+- [ ] T023 **Compute Wald Z‑tests (Beta) and t‑tests (Ridge)** – Store raw p‑values in `data/results/raw_pvalues.json`. **Verification**: JSON exists and each p‑value is in `[0,1]`.  
+- [ ] T024 **Apply Benjamini‑Hochberg FDR correction** – Store corrected values in `data/results/fdr_pvalues.json`. **Verification**: Assert that corrected p‑values are ≤ 1 and that the correction algorithm was applied (e.g., monotonicity).  
+- [ ] T025 **Perform sensitivity analysis** – Sweep thresholds `{0.005, 0.01, 0.05}`; save results to `data/results/sensitivity_analysis.json`. **Verification**: JSON contains entries for all three thresholds.  
+- [ ] T025‑Report **Compute Jaccard index & robustness flag** – Calculate Jaccard across thresholds, write `data/results/jaccard_index.json` with the index and a `robustness_status` flag. **Verification**: Assert that the Jaccard index ≥ 0.8; if not, raise an error to fail the task.  
+- [ ] T029 **Run 5‑fold cross‑validation** for both models; write CV R² scores to `data/results/cv_scores.json`. **Verification**: JSON contains exactly 5 scores per model and the standard deviation of the scores is computed.  
+- [ ] T030‑Calc **Compute CV metrics** – Write mean and standard deviation of CV R² to `data/results/cv_metrics.json`. **Verification**: Assert that `std_r2` < 0.05; failure raises an error.  
+- [ ] T027‑Aggregate **Gather model metrics** – Combine coefficients, FDR‑corrected p‑values, AIC, and CV scores into `data/results/model_metrics_temp.json`. **Verification**: Validate against `model_output.schema.yaml` using the schema‑validation module; output passes.  
+- [ ] T027‑Validate **Validate aggregated structure** – Write final `data/results/model_metrics.json`. **Verification**: Same schema validation as above; file exists and conforms.
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 4 – User Story 3: Cross‑Validation & Diagnostic Reporting (Priority P3)
 
-**Purpose**: Improvements that affect multiple user stories
-
-- [~] T034 [P] Documentation updates in `README.md` and `quickstart.md`.
-- [~] T035 Code cleanup and refactoring. <!-- ATOMIZE: requested -->
-- [~] T036 Performance optimization (ensure RAM usage < 7GB, sample data if necessary).
-- [ ] T037 [P] Additional unit tests (if requested) in `tests/unit/`.
-- [ ] T038 Run quickstart.md validation.
+- [ ] T031 **Generate diagnostic plots** – Create residual, predicted‑vs‑actual, and feature‑importance PNGs for each model, saved as `data/results/residuals_{model_type}_{hash}.png`, `data/results/predicted_vs_actual_{model_type}_{hash}.png`, `data/results/feature_importance_{model_type}_{hash}.png`. **Verification**: After generation, each PNG file exists and its file size > 0 bytes.  
+- [ ] T033‑Generate **Build DiagnosticReport dictionary** – Include plot paths, CV summary from `cv_metrics.json`, and list `significant_predictors` from `model_metrics.json`. **Verification**: Validate the dictionary against a `diagnostic_report.schema.yaml` (to be added) using the validation module.  
+- [ ] T033‑Write **Persist DiagnosticReport** to `data/results/diagnostics.json`. **Verification**: File exists and passes schema validation.
 
 ---
 
-## Dependencies & Execution Order
+## Phase 5 – Polish & Cross‑Cutting Concerns
 
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - May integrate with US1/US2 but should be independently testable
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T036 **Run ruff linting** – Execute `ruff check --select T20` on the codebase, capture output to `data/results/ruff_check.txt`. **Verification**: Assert that `ruff_check.txt` is empty (no warnings).  
+- [ ] T038 **Profile RAM usage & runtime** – Run `memory_profiler` while executing `src/main.py --sample`; write line‑by‑line report to `data/results/memory_profile.txt`. Parse the report to assert peak memory ≤ 7 GB. Additionally, measure total wall‑clock time and write `data/results/runtime_summary.txt` containing `total_seconds` and `peak_memory_gb`. **Verification**: Both files exist; `peak_memory_gb` ≤ 7 and `total_seconds` ≤ 21600 (6 h).  
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 6 – Documentation Hand‑off
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for GameRecord schema validation in tests/contract/test_game_record.py"
-Task: "Unit test for PGN parsing logic handling malformed move lists in tests/unit/test_parsers.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement src/data/parse.py to read PGN files..."
-Task: "Implement src/data/process.py to calculate elo_expected_prob..."
-```
+- [ ] T035 **Create `quickstart.md`** – Provide a short usage example (`python src/main.py --sample`) and the expected success message. **Verification**: Run the command from the documentation in an automated test and assert the success message appears.  
+- [ ] T034 **Create `README.md`** – Include installation steps, a Mermaid diagram of the data‑flow (Download → Parse → Process → Model → Validate → Report), and brief usage instructions. **Verification**: Use `mermaid-cli` to render the diagram; the command must exit with code 0, confirming the diagram is syntactically correct.
 
 ---
 
-## Implementation Strategy
+### Dependency Summary
 
-### MVP First (User Story 1 Only)
+- Foundational tasks (Phase 0–1) must all be **checked** before any Phase 2 task runs.  
+- Phase 2 tasks depend on `T008d-3` (download) **and** the new verification task `T009`.  
+- Phase 3 tasks depend on the processed dataset (`data/processed/games.parquet`) produced by Phase 2.  
+- Phase 4 tasks depend on the model artifacts and CV results from Phase 3.  
+- Polish tasks (`T036`, `T038`) run after the full pipeline is functional and are required for the final verification verdict.  
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
+--- 
 
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Spec/Plan Override Note**: Where tasks deviate from Spec text (e.g., Move 5 vs 10, Gaussian vs Beta), the Plan.md Complexity Tracking section is the ratified authority for implementation.
+*All unchecked tasks above are pending implementation. Once each task’s verification passes, the checkbox should be marked `[X]`. The pipeline is designed to run entirely on the free‑tier GitHub Actions CPU runner; no GPU resources are required.*  

@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Distilled Rule Library Schema"
+description: "Schema for the generated rule library"
+type: "object"
+properties:
+  rules:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        rule_id:
+          type: "string"
+          description: "Unique identifier for the rule"
+        condition_pattern:
+          type: "string"
+          description: "Regex or logic pattern to match errors"
+        action:
+          type: "string"
+          description: "Prescribed pivot action"
+        confidence:
+          type: "number"
+          minimum: 0.0
+          maximum: 1.0
+          description: "Confidence score from distillation model"
+        applicable_features:
+          type: "array"
+          items:
+            type: "string"
+            enum:
+              - "Syntactic"
+              - "Logical"
+              - "Semantic"
+              - "Missing Context"
+              - "Unstructured"
+          description: "List of structural features this rule applies to"
+      required:
+        - rule_id
+        - condition_pattern
+        - action
+        - applicable_features
+required:
+  - rules
+additionalProperties: false

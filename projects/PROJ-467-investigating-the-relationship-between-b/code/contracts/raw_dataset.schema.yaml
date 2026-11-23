@@ -1,0 +1,39 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Raw Dataset Schema
+description: Schema for the raw dataset loaded from HCP or alternative sources.
+type: object
+required:
+  - subject_id
+  - tactile_score
+  - age
+  - sex
+  - mean_fd
+  - scanner_id
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject.
+  tactile_score:
+    type: number
+    description: Tactile discrimination score.
+    minimum: 0
+  age:
+    type: number
+    description: Age of the subject in years.
+  sex:
+    type: string
+    enum:
+      - M
+      - F
+      - Other
+    description: Biological sex of the subject.
+  mean_fd:
+    type: number
+    description: Mean framewise displacement.
+    minimum: 0
+  scanner_id:
+    type: string
+    description: Identifier for the scanner used.
+  additional_metadata:
+    type: object
+    description: Any additional metadata fields.

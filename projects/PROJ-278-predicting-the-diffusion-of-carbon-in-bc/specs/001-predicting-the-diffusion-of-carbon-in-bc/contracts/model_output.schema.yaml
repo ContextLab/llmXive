@@ -1,49 +1,73 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Model Results Schema"
-description: "Schema for the output of the training and evaluation pipeline."
-type: "object"
+title: Model Output Schema
+description: Schema for model_results.json, feature_importance.json, and variance_partition.csv outputs.
+type: object
 properties:
-  best_model:
-    type: string
-    description: "Name of the best performing model (e.g., 'XGBoost')."
-  metrics:
+  model_results:
     type: object
     properties:
-      R2:
+      best_model:
+        type: string
+        description: Name of the best performing model.
+      baseline_model:
+        type: string
+        description: Name of the baseline model.
+      r2:
         type: number
-        description: "Coefficient of determination on the test set."
-      RMSE:
+        description: R-squared score on the test set.
+      rmse:
         type: number
-        description: "Root Mean Squared Error on the test set."
-      MAE:
+        description: Root Mean Squared Error on the test set.
+      mae:
         type: number
-        description: "Mean Absolute Error on the test set."
+        description: Mean Absolute Error on the test set.
+      p_value:
+        type: number
+        description: P-value from the permutation test.
     required:
-      - R2
-      - RMSE
-      - MAE
-  hyperparameters:
-    type: object
-    description: "Dictionary of the best hyperparameters found."
+      - best_model
+      - baseline_model
+      - r2
+      - rmse
+      - mae
+      - p_value
   feature_importance:
-    type: array
-    items:
-      type: object
-      properties:
-        feature:
+    type: object
+    properties:
+      ranked_features:
+        type: array
+        items:
           type: string
-        value:
-          type: number
-      required:
-        - feature
-        - value
-  permutation_p_value:
-    type: number
-    description: "P-value from the permutation test against linear baseline."
+        description: List of feature names ranked by importance.
+      top_two:
+        type: array
+        items:
+          type: string
+        minItems: 2
+        maxItems: 2
+        description: The top two most important features.
+    required:
+      - ranked_features
+      - top_two
+  variance_partition:
+    type: object
+    properties:
+      adjusted_r2:
+        type: number
+        description: Adjusted R-squared value.
+      microstructural_gap:
+        type: number
+        description: Fraction of variance not explained by composition (1 - adjusted_r2).
+      residual_variance_label:
+        type: string
+        enum:
+          - "noise, measurement error, and missing compositional descriptors"
+        description: Label for the residual variance component.
+    required:
+      - adjusted_r2
+      - microstructural_gap
+      - residual_variance_label
 required:
-  - best_model
-  - metrics
-  - hyperparameters
+  - model_results
   - feature_importance
-  - permutation_p_value
-additionalProperties: false
+  - variance_partition

@@ -1,0 +1,654 @@
+{
+  "fetched_at": "2026-08-12T06:41:39Z",
+  "field": "statistics",
+  "prompt_version": "1.6.0",
+  "result": {
+    "cache_status": "miss",
+    "context": {
+      "field": "statistics",
+      "idea_body_excerpt": "Statistical Power Analysis of Openly Available fMRI Datasets",
+      "target_n": 5
+    },
+    "duration_seconds": 94.626,
+    "ended_at": "2026-08-12T06:41:39Z",
+    "expansion": {
+      "expanded_terms_ranked": [
+        [
+          1,
+          "Statistical power calculation for fMRI studies"
+        ],
+        [
+          2,
+          "Sample size determination in neuroimaging research"
+        ],
+        [
+          3,
+          "Power analysis for functional magnetic resonance imaging"
+        ],
+        [
+          4,
+          "Effect size estimation in open fMRI datasets"
+        ],
+        [
+          5,
+          "Detectability of BOLD signal effects in public repositories"
+        ],
+        [
+          6,
+          "Minimum sample size for fMRI group analysis"
+        ],
+        [
+          7,
+          "Statistical sensitivity of open neuroimaging data"
+        ],
+        [
+          8,
+          "Power curves for fMRI experimental designs"
+        ],
+        [
+          9,
+          "Reproducibility and power in publicly available fMRI"
+        ],
+        [
+          10,
+          "False positive rates and power in fMRI meta-analyses"
+        ],
+        [
+          11,
+          "Power analysis for resting-state fMRI datasets"
+        ],
+        [
+          12,
+          "Power analysis for task-based fMRI datasets"
+        ],
+        [
+          13,
+          "Sample size requirements for detecting brain activation"
+        ],
+        [
+          14,
+          "Statistical power in large-scale neuroimaging consortia"
+        ],
+        [
+          15,
+          "Impact of sample size on fMRI effect estimates"
+        ],
+        [
+          16,
+          "Power calculation methods for voxel-wise analysis"
+        ],
+        [
+          17,
+          "Statistical power in multi-site fMRI studies"
+        ],
+        [
+          18,
+          "Power limitations of existing open fMRI repositories"
+        ],
+        [
+          19,
+          "A priori power analysis for neuroimaging experiments"
+        ],
+        [
+          20,
+          "Post-hoc power analysis in fMRI literature"
+        ]
+      ],
+      "original_term": "",
+      "per_term_hit_count": {
+        "Statistical Power Analysis of Openly Available fMRI Datasets statistics": 0,
+        "Statistical power calculation for fMRI studies": 3
+      },
+      "total_queries_issued": 1
+    },
+    "extracted_queries": [
+      "statistical power fMRI sample size sensitivity",
+      "HCP ABIDE fMRI dataset power analysis",
+      "neuroimaging effect size variance estimation",
+      "fMRI reproducibility reliability power metrics",
+      "multiple comparison correction power fMRI"
+    ],
+    "failure_reason": null,
+    "librarian_prompt_version": "1.6.0",
+    "math_classifier": {
+      "error": null,
+      "invoked": false,
+      "verdict": null
+    },
+    "outcome": "exhausted",
+    "pdf_sample": {
+      "sample_size_target": 1,
+      "sampled_count": 1,
+      "sampled_pointers": [
+        "0906.3662"
+      ]
+    },
+    "per_query_hit_count": {
+      "HCP ABIDE fMRI dataset power analysis": 3,
+      "Statistical Power Analysis of Openly Available fMRI Datasets statistics": 3,
+      "fMRI reproducibility reliability power metrics": 2,
+      "multiple comparison correction power fMRI": 2,
+      "neuroimaging effect size variance estimation": 3,
+      "statistical power fMRI sample size sensitivity": 2
+    },
+    "relevance_judge": {
+      "enabled": true,
+      "marginal_fallback_used": false,
+      "rejected_count": 3,
+      "rejections": [
+        {
+          "primary_pointer": "2407.04806",
+          "rationale": "The paper focuses on the theoretical statistical power of a specific machine learning algorithm (neural network two-sample tests) rather than the empirical statistical power characteristics of openly available fMRI datasets. While it uses the term \"statistical power,\" it addresses a distinct construct (algorithmic detection guarantees) in an off-domain setting (neural network theory) compared to the user's domain (neuroimaging data analysis), failing to meet the criteria for inclusion as prior w",
+          "title": "Training Guarantees of Neural Network Classification Two-Sample Tests by Kernel Analysis"
+        },
+        {
+          "primary_pointer": "2210.13564",
+          "rationale": "The paper focuses on data preprocessing and quality control procedures (e.g., realignment, denoising) rather than measuring or analyzing statistical power, sample size justification, or the achieved power of openly available fMRI datasets. It addresses the \"how to prepare data\" methodology but does not provide the empirical baseline, power analysis results, or statistical construct measurements required by the user's specific question.",
+          "title": "Preparing fMRI Data for Statistical Analysis"
+        },
+        {
+          "primary_pointer": "1503.05146",
+          "rationale": "The paper addresses electrical engineering concepts (impedance of power cables) and uses the term \"power\" in the context of electrical energy, which is a distinct construct sharing only a homonym keyword with the user's question about \"statistical power\" in fMRI research. This falls under the rejection rule for distinct constructs sharing only homonym keywords and is entirely off-domain.",
+          "title": "Accurate Impedance Calculation for Underground and Submarine Power Cables using MoM-SO and a Multilayer Ground Model"
+        }
+      ]
+    },
+    "schema_version": "1.0.0",
+    "started_at": "2026-08-12T06:40:04Z",
+    "term_input": {
+      "normalized": "statistical power analysis of openly available fmri datasets statistics",
+      "raw": "Statistical Power Analysis of Openly Available fMRI Datasets statistics"
+    },
+    "verification_failures": [
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Statistics has moved beyond the frequentist-Bayesian controversies of the past. Where does this leave our ability to interpret results? I suggest that a philosophy compatible with statistical practice, labeled here statistical pragmatism, serves as a foundation for inference. Statistical pragmatism is inclusive and emphasizes the assumptions that connect statistical models with observed data. I argue that introductory courses often mischaracterize the process of statistical inference and I propose an alternative \"big picture\" depiction.",
+          "claimed_authors": [
+            "Robert E. Kass"
+          ],
+          "claimed_title": "Statistical Inference: The Big Picture",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2011,
+          "primary_pointer": "1106.2895"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='Statistical Inference: The Big Picture')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Bell's [Physics 1 (1964) 195-200] theorem is popularly supposed to establish the nonlocality of quantum physics. Violation of Bell's inequality in experiments such as that of Aspect, Dalibard and Roger [Phys. Rev. Lett. 49 (1982) 1804-1807] provides empirical proof of nonlocality in the real world. This paper reviews recent work on Bell's theorem, linking it to issues in causality as understood by statisticians. The paper starts with a proof of a strong, finite sample, version of Bell's inequality and thereby also of Bell's theorem, which states that quantum theory is incompatible with the conjunction of three formerly uncontroversial physical principles, here referred to as locality, realism and freedom. Locality is the principle that the direction of causality matches the direction of time, and that causal influences need time to propagate spatially. Realism and freedom are directly connected to statistical thinking on causality: they relate to counterfactual reasoning, and to randomisation, respectively. Experimental loopholes in state-of-the-art Bell type experiments are related to statistical issues of post-selection in observational studies, and the missing at random assumption. They can be avoided by properly matching the statistical analysis to the actual experimental design, instead of by making untestable assumptions of independence between observed and unobserved variables. Methodological and statistical issues in the design of quantum Randi challenges (QRC) are discussed. The paper argues that Bell's theorem (and its experimental confirmation) should lead us to relinquish not locality, but realism.",
+          "claimed_authors": [
+            "Richard D. Gill"
+          ],
+          "claimed_title": "Statistics, Causality and Bell's Theorem",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2012,
+          "primary_pointer": "1207.5103"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title=\"Statistics, Causality and Bell's Theorem\")",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advances in multimodal large language models (LLMs) have enabled unified reasoning across images, audio, and video, but extending such capability to brain imaging remains largely unexplored. Bridging this gap is essential to link neural activity with semantic cognition and to develop cross-modal brain representations. To this end, we present fMRI-LM, a foundational model that bridges functional MRI (fMRI) and language through a three-stage framework. In Stage 1, we learn a neural tokenizer that maps fMRI into discrete tokens embedded in a language-consistent space. In Stage 2, a pretrained LLM is adapted to jointly model fMRI tokens and text, treating brain activity as a sequence that can be temporally predicted and linguistically described. To overcome the lack of natural fMRI-text pairs, we construct a large descriptive corpus that translates diverse imaging-based features into structured textual descriptors, capturing the low-level organization of fMRI signals. In Stage 3, we perform multi-task, multi-paradigm instruction tuning to endow fMRI-LM with high-level semantic understanding, supporting diverse downstream applications. Across various benchmarks, fMRI-LM achieves strong zero-shot and few-shot performance, and adapts efficiently with parameter-efficient tuning (LoRA), establishing a scalable pathway toward a language-aligned, universal model for structural and semantic understanding of fMRI.",
+          "claimed_authors": [
+            "Yuxiang Wei",
+            "Yanteng Zhang",
+            "Xi Xiao",
+            "Chengxuan Qian",
+            "Tianyang Wang",
+            "Vince D. Calhoun"
+          ],
+          "claimed_title": "fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2511.21760"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='fMRI-LM: Towards a Universal Foundation Model for Language-Aligned fMRI Understanding')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This chapter describes several procedures used to prepare fMRI data for statistical analyses. It includes the description of common preprocessing steps, such as spatial realignment, coregistration, and spatial normalization, aimed at the spatial alignment of all fMRI data within- and between- subjects, as well as several denoising procedures aimed at minimizing the impact of common noise sources, including physiological and residual subject motion effects, on the BOLD signal time series. The chapter ends with a description of quality control procedures recommended for detecting potential problems in the fMRI data and evaluating its suitability for subsequent statistical analyses.",
+          "claimed_authors": [
+            "Alfonso Nieto-Castanon"
+          ],
+          "claimed_title": "Preparing fMRI Data for Statistical Analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2210.13564"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='Preparing fMRI Data for Statistical Analysis')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The RSNA Abdominal Traumatic Injury CT (RATIC) dataset is the largest publicly available collection of adult abdominal CT studies annotated for traumatic injuries. This dataset includes 4,274 studies from 23 institutions across 14 countries. The dataset is freely available for non-commercial use via Kaggle at https://www.kaggle.com/competitions/rsna-2023-abdominal-trauma-detection. Created for the RSNA 2023 Abdominal Trauma Detection competition, the dataset encourages the development of advanced machine learning models for detecting abdominal injuries on CT scans. The dataset encompasses detection and classification of traumatic injuries across multiple organs, including the liver, spleen, kidneys, bowel, and mesentery. Annotations were created by expert radiologists from the American Society of Emergency Radiology (ASER) and Society of Abdominal Radiology (SAR). The dataset is annotated at multiple levels, including the presence of injuries in three solid organs with injury grading, image-level annotations for active extravasations and bowel injury, and voxelwise segmentations of each of the potentially injured organs. With the release of this dataset, we hope to facilitate research and development in machine learning and abdominal trauma that can lead to improved patient care and outcomes.",
+          "claimed_authors": [
+            "Jeffrey D. Rudie",
+            "Hui-Ming Lin",
+            "Robyn L. Ball",
+            "Sabeena Jalal",
+            "Luciano M. Prevedello",
+            "Savvas Nicolaou",
+            "Brett S. Marinelli",
+            "Adam E. Flanders",
+            "Kirti Magudia",
+            "George Shih",
+            "Melissa A. Davis",
+            "John Mongan",
+            "Peter D. Chang",
+            "Ferco H. Berger",
+            "Sebastiaan Hermans",
+            "Meng Law",
+            "Tyler Richards",
+            "Jan-Peter Grunz",
+            "Andreas Steven Kunz",
+            "Shobhit Mathur",
+            "Sandro Galea-Soler",
+            "Andrew D. Chung",
+            "Saif Afat",
+            "Chin-Chi Kuo",
+            "Layal Aweidah",
+            "Ana Villanueva Campos",
+            "Arjuna Somasundaram",
+            "Felipe Antonio Sanchez Tijmes",
+            "Attaporn Jantarangkoon",
+            "Leonardo Kayat Bittencourt",
+            "Michael Brassil",
+            "Ayoub El Hajjami",
+            "Hakan Dogan",
+            "Muris Becircic",
+            "Agrahara G. Bharatkumar",
+            "Eduardo Moreno Júdice de Mattos Farina",
+            "Dataset Curator Group",
+            "Dataset Contributor Group",
+            "Dataset Annotator Group",
+            "Errol Colak"
+          ],
+          "claimed_title": "The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2405.19595"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='The RSNA Abdominal Traumatic Injury CT (RATIC) Dataset')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The variability of wind power supply can present substantial challenges to incorporating wind power into a grid system. Thus, Wind Power Forecasting (WPF) has been widely recognized as one of the most critical issues in wind power integration and operation. There has been an explosion of studies on wind power forecasting problems in the past decades. Nevertheless, how to well handle the WPF problem is still challenging, since high prediction accuracy is always demanded to ensure grid stability and security of supply. We present a unique Spatial Dynamic Wind Power Forecasting dataset: SDWPF, which includes the spatial distribution of wind turbines, as well as the dynamic context factors. Whereas, most of the existing datasets have only a small number of wind turbines without knowing the locations and context information of wind turbines at a fine-grained time scale. By contrast, SDWPF provides the wind power data of 134 wind turbines from a wind farm over half a year with their relative positions and internal statuses. We use this dataset to launch the Baidu KDD Cup 2022 to examine the limit of current WPF solutions. The dataset is released at https://aistudio.baidu.com/aistudio/competition/detail/152/0/datasets.",
+          "claimed_authors": [
+            "Jingbo Zhou",
+            "Xinjiang Lu",
+            "Yixiong Xiao",
+            "Jiantao Su",
+            "Junfu Lyu",
+            "Yanjun Ma",
+            "Dejing Dou"
+          ],
+          "claimed_title": "SDWPF: A Dataset for Spatial Dynamic Wind Power Forecasting Challenge at KDD Cup 2022",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2208.04360"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='SDWPF: A Dataset for Spatial Dynamic Wind Power Forecasting Challenge at KDD Cup 2022')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Results of functional Magnetic Resonance Imaging (fMRI) studies can be impacted by many sources of variability including differences due to: the sampling of the participants, differences in acquisition protocols and material but also due to different analytical choices in the processing of the fMRI data. While variability across participants or across acquisition instruments have been extensively studied in the neuroimaging literature the root causes of analytical variability remain an open question. Here, we share the \\textit{HCP multi-pipeline dataset}, including the resulting statistic maps for 24 typical fMRI pipelines on 1,080 participants of the HCP-Young Adults dataset. We share both individual and group results - for 1,000 groups of 50 participants - over 5 motor contrasts. We hope that this large dataset covering  a wide range of analysis conditions will provide new opportunities to study analytical variability in fMRI.",
+          "claimed_authors": [
+            "Elodie Germani",
+            "Elisa Fromont",
+            "Pierre Maurel",
+            "Camille Maumet"
+          ],
+          "claimed_title": "The HCP multi-pipeline dataset: an opportunity to investigate analytical variability in fMRI data analysis",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2023,
+          "primary_pointer": "2312.14493"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='The HCP multi-pipeline dataset: an opportunity to investigate analytical variability in fMRI data analysis')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent research in neuroimaging has focused on assessing associations between genetic variants that are measured on a genomewide scale and brain imaging phenotypes. A large number of works in the area apply massively univariate analyses on a genomewide basis to find single nucleotide polymorphisms that influence brain structure. In this paper, we propose using various dimensionality reduction methods on both brain structural MRI scans and genomic data, motivated by the Alzheimer's Disease Neuroimaging Initiative (ADNI) study. We also consider a new multiple testing adjustment method and compare it with two existing false discovery rate (FDR) adjustment methods. The simulation results suggest an increase in power for the proposed method. The real data analysis suggests that the proposed procedure is able to find associations between genetic variants and brain volume differences that offer potentially new biological insights.",
+          "claimed_authors": [
+            "Wen-Yu Hua",
+            "Thomas E. Nichols",
+            "Debashis Ghosh",
+            "the Alzheimer's Disease Neuroimaging Initiative"
+          ],
+          "claimed_title": "Multiple Comparison Procedures for Neuroimaging Genomewide Association Studies",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2014,
+          "primary_pointer": "1402.2678"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='Multiple Comparison Procedures for Neuroimaging Genomewide Association Studies')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "This paper develops a general framework for analyzing asymptotics of $V$-statistics. Previous literature on limiting distribution mainly focuses on the cases when $n \\to \\infty$ with fixed kernel size $k$. Under some regularity conditions, we demonstrate asymptotic normality when $k$ grows with $n$ by utilizing existing results for $U$-statistics. The key in our approach lies in a mathematical reduction to $U$-statistics by designing an equivalent kernel for $V$-statistics. We also provide a unified treatment on variance estimation for both $U$- and $V$-statistics by observing connections to existing methods and proposing an empirically more accurate estimator. Ensemble methods such as random forests, where multiple base learners are trained and aggregated for prediction purposes, serve as a running example throughout the paper because they are a natural and flexible application of $V$-statistics.",
+          "claimed_authors": [
+            "Zhengze Zhou",
+            "Lucas Mentch",
+            "Giles Hooker"
+          ],
+          "claimed_title": "$V$-statistics and Variance Estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2019,
+          "primary_pointer": "1912.01089"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='$V$-statistics and Variance Estimation')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Automated methods for Alzheimer's disease (AD) classification have the potential for great clinical benefits and may provide insight for combating the disease. Machine learning, and more specifically deep neural networks, have been shown to have great efficacy in this domain. These algorithms often use neurological imaging data such as MRI and PET, but a comprehensive and balanced comparison of these modalities has not been performed. In order to accurately determine the relative strength of each imaging variant, this work performs a comparison study in the context of Alzheimer's dementia classification using the Alzheimer's Disease Neuroimaging Initiative (ADNI) dataset. Furthermore, this work analyzes the benefits of using both modalities in a fusion setting and discusses how these data types may be leveraged in future AD studies using deep learning.",
+          "claimed_authors": [
+            "Arjun Punjabi",
+            "Adam Martersteck",
+            "Yanran Wang",
+            "Todd B. Parrish",
+            "Aggelos K. Katsaggelos",
+            "the Alzheimer's Disease Neuroimaging Initiative"
+          ],
+          "claimed_title": "Neuroimaging Modality Fusion in Alzheimer's Classification Using Convolutional Neural Networks",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1811.05105"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title=\"Neuroimaging Modality Fusion in Alzheimer's Classification Using Convolutional Neural Networks\")",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Resting-state fMRI (rs-fMRI) is widely used to investigate brain functional connectivity, but the reliability of these measurements remains a key concern for ensuring reproducibility. The distance-based intraclass correlation coefficient (dbICC) generalizes classical ICC to more general data types, making it well-suited for assessing the reliability of measures of functional connectivity. In this study, we applied dbICC to assess the reliability of rs-fMRI data from the Midnight Scanning Club (MSC) dataset, which consists of 10 subjects, each undergoing 10 sessions of 30-minute rs-fMRI scans. The functional connectivity was estimated using Pearson's correlation coefficients between all pairs of brain regions, resulting in a correlation matrix for each session. We compared two distance metrics-the widely used Frobenius metric and the Affine Invariant Riemannian Metric (AIRM) selected to respect the geometry of the space of covariance matrices-to evaluate how the choice of metric affects the reliability of estimating correlation. In addition, we investigated the impact of scan length and time interval between sessions on reliability. Results based on each metric agreed in some respects but disagreed in others, illustrating the impact of choice of metric. We also found that longer scan lengths significantly improve reliability, while the time interval between sessions has less impact.",
+          "claimed_authors": [
+            "Yu Huang",
+            "Philip T. Reiss",
+            "Seonjoo Lee",
+            "R. Todd Ogden"
+          ],
+          "claimed_title": "The Effect of Choice of Metric and Scan Length on Reliability in Resting-State fMRI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2606.00767"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='The Effect of Choice of Metric and Scan Length on Reliability in Resting-State fMRI')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "The integration of Artificial Intelligence (AI) into safety-critical systems introduces a new reliability paradigm: silent failures, where AI produces confident but incorrect outputs that can be dangerous. This paper introduces the Formal Assurance and Monitoring Environment (FAME), a novel framework that confronts this challenge. FAME synergizes the mathematical rigor of offline formal synthesis with the vigilance of online runtime monitoring to create a verifiable safety net around opaque AI components. We demonstrate its efficacy in an autonomous vehicle perception system, where FAME successfully detected 93.5% of critical safety violations that were otherwise silent. By contextualizing our framework within the ISO 26262 and ISO/PAS 8800 standards, we provide reliability engineers with a practical, certifiable pathway for deploying trustworthy AI. FAME represents a crucial shift from accepting probabilistic performance to enforcing provable safety in next-generation systems.",
+          "claimed_authors": [
+            "Guan-Yan Yang",
+            "Farn Wang"
+          ],
+          "claimed_title": "Taming Silent Failures: A Framework for Verifiable AI Reliability",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2510.22224"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='Taming Silent Failures: A Framework for Verifiable AI Reliability')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Brain development in the first few months of human life is a critical phase characterized by rapid structural growth and functional organization. Accurately predicting developmental outcomes during this time is crucial for identifying delays and enabling timely interventions. This study introduces the SwiFT (Swin 4D fMRI Transformer) model, designed to predict Bayley-III composite scores using neonatal fMRI from the Developing Human Connectome Project (dHCP). To enhance predictive accuracy, we apply dimensionality reduction via group independent component analysis (ICA) and pretrain SwiFT on large adult fMRI datasets to address the challenges of limited neonatal data. Our analysis shows that SwiFT significantly outperforms baseline models in predicting cognitive, motor, and language outcomes, leveraging both single-label and multi-label prediction strategies. The model's attention-based architecture processes spatiotemporal data end-to-end, delivering superior predictive performance. Additionally, we use Integrated Gradients with Smoothgrad sQuare (IG-SQ) to interpret predictions, identifying neural spatial representations linked to early cognitive and behavioral development. These findings underscore the potential of Transformer models to advance neurodevelopmental research and clinical practice.",
+          "claimed_authors": [
+            "Patrick Styll",
+            "Dowon Kim",
+            "Jiook Cha"
+          ],
+          "claimed_title": "Swin fMRI Transformer Predicts Early Neurodevelopmental Outcomes from Neonatal fMRI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.07783"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='Swin fMRI Transformer Predicts Early Neurodevelopmental Outcomes from Neonatal fMRI')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Deciphering visual content from functional Magnetic Resonance Imaging (fMRI) helps illuminate the human vision system. However, the scarcity of fMRI data and noise hamper brain decoding model performance. Previous approaches primarily employ subject-specific models, sensitive to training sample size. In this paper, we explore a straightforward but overlooked solution to address data scarcity. We propose shallow subject-specific adapters to map cross-subject fMRI data into unified representations. Subsequently, a shared deeper decoding model decodes cross-subject features into the target feature space. During training, we leverage both visual and textual supervision for multi-modal brain decoding. Our model integrates a high-level perception decoding pipeline and a pixel-wise reconstruction pipeline guided by high-level perceptions, simulating bottom-up and top-down processes in neuroscience. Empirical experiments demonstrate robust neural representation learning across subjects for both pipelines. Moreover, merging high-level and low-level information improves both low-level and high-level reconstruction metrics. Additionally, we successfully transfer learned general knowledge to new subjects by training new adapters with limited training data. Compared to previous state-of-the-art methods, notably pre-training-based methods (Mind-Vis and fMRI-PTE), our approach achieves comparable or superior results across diverse tasks, showing promise as an alternative method for cross-subject fMRI data pre-training. Our code and pre-trained weights will be publicly released at https://github.com/YulongBonjour/See_Through_Their_Minds.",
+          "claimed_authors": [
+            "Yulong Liu",
+            "Yongqiang Ma",
+            "Guibo Zhu",
+            "Haodong Jing",
+            "Nanning Zheng"
+          ],
+          "claimed_title": "See Through Their Minds: Learning Transferable Neural Representation from Cross-Subject fMRI",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2403.06361"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='See Through Their Minds: Learning Transferable Neural Representation from Cross-Subject fMRI')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This work concerns developing communication- and computation-efficient methods for large-scale multiple testing over networks, which is of interest to many practical applications. We take an asymptotic approach and propose two methods, proportion-matching and greedy aggregation, tailored to distributed settings. The proportion-matching method achieves the global BH performance yet only requires a one-shot communication of the (estimated) proportion of true null hypotheses as well as the number of p-values at each node. By focusing on the asymptotic optimal power, we go beyond the BH procedure by providing an explicit characterization of the asymptotic optimal solution. This leads to the greedy aggregation method that effectively approximates the optimal rejection regions at each node, while computation efficiency comes from the greedy-type approach naturally. Moreover, for both methods, we provide the rate of convergence for both the FDR and power. Extensive numerical results over a variety of challenging settings are provided to support our theoretical findings.",
+          "claimed_authors": [
+            "Mehrdad Pournaderi",
+            "Yu Xiang"
+          ],
+          "claimed_title": "On Large-Scale Multiple Testing Over Networks: An Asymptotic Approach",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2022,
+          "primary_pointer": "2211.16059"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='On Large-Scale Multiple Testing Over Networks: An Asymptotic Approach')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We investigate the problem of testing the global null in the high-dimensional regression models when the feature dimension $p$ grows proportionally to the number of observations $n$. Despite a number of prior work studying this problem, whether there exists a test that is model-agnostic, efficient to compute and enjoys high power, still remains unsettled. In this paper, we answer this question in the affirmative by leveraging the random projection techniques, and propose a testing procedure that blends the classical $F$-test with a random projection step. When combined with a systematic choice of the projection dimension, the proposed procedure is proved to be minimax optimal and, meanwhile, reduces the computation and data storage requirements. We illustrate our results in various scenarios when the underlying feature matrix exhibits an intrinsic lower dimensional structure (such as approximate block structure or has exponential/polynomial eigen-decay), and it turns out that the proposed test achieves sharp adaptive rates. Our theoretical findings are further validated by comparisons to other state-of-the-art tests on the synthetic data.",
+          "claimed_authors": [
+            "Yue Li",
+            "Ilmun Kim",
+            "Yuting Wei"
+          ],
+          "claimed_title": "Randomized tests for high-dimensional regression: A more efficient and powerful solution",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2020,
+          "primary_pointer": "2010.01289"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='Randomized tests for high-dimensional regression: A more efficient and powerful solution')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "This paper aims to solve a basic problem in distributed statistical inference: how many machines can we use in parallel computing? In kernel ridge regression, we address this question in two important settings: nonparametric estimation and hypothesis testing. Specifically, we find a range for the number of machines under which optimal estimation/testing is achievable. The employed empirical processes method provides a unified framework, that allows us to handle various regression problems (such as thin-plate splines and nonparametric additive regression) under different settings (such as univariate, multivariate and diverging-dimensional designs). It is worth noting that the upper bounds of the number of machines are proven to be un-improvable (upto a logarithmic factor) in two important cases: smoothing spline regression and Gaussian RKHS regression. Our theoretical findings are backed by thorough numerical studies.",
+          "claimed_authors": [
+            "Meimei Liu",
+            "Zuofeng Shang",
+            "Guang Cheng"
+          ],
+          "claimed_title": "How Many Machines Can We Use in Parallel Computing for Kernel Ridge Regression?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2018,
+          "primary_pointer": "1805.09948"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='How Many Machines Can We Use in Parallel Computing for Kernel Ridge Regression?')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "It is generally believed that more observations provide more information. However, we observe that in the independence test for rare events, the power of the test is, surprisingly, determined by the number of rare events rather than the total sample size. Moreover, the correlations tend to shrink to zero even as the total sample size increases, as long as the proportion of rare events decreases. We demonstrate this phenomenon in both fixed and high-dimensional settings. To address these issues, we first rescale the covariances to account for the presence of rare events. We then propose a boosted procedure that uses only a small subset of non-rare events, yet achieves nearly the same power as using the full set of observations. As a result, computational complexity is significantly reduced. The theoretical properties, including asymptotic distribution and local power analysis, are carefully derived for both the rescaled statistic based on the full sample and the boosted test statistic based on subsampling. Furthermore, we extend the theory to multi-class rare events. Extensive simulations and real-world data analyses confirm the effectiveness and computational efficiency of the proposed approach.",
+          "claimed_authors": [
+            "Danyang Huang",
+            "Liyuan Wang",
+            "Liping Zhu"
+          ],
+          "claimed_title": "Do more observations bring more information in rare events?",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2506.13671"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='Do more observations bring more information in rare events?')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In this paper we study the statistical properties of Principal Components Regression with Laplacian Eigenmaps (PCR-LE), a method for nonparametric regression based on Laplacian Eigenmaps (LE). PCR-LE works by projecting a vector of observed responses ${\\bf Y} = (Y_1,\\ldots,Y_n)$ onto a subspace spanned by certain eigenvectors of a neighborhood graph Laplacian. We show that PCR-LE achieves minimax rates of convergence for random design regression over Sobolev spaces. Under sufficient smoothness conditions on the design density $p$, PCR-LE achieves the optimal rates for both estimation (where the optimal rate in squared $L^2$ norm is known to be $n^{-2s/(2s + d)}$) and goodness-of-fit testing ($n^{-4s/(4s + d)}$). We also show that PCR-LE is \\emph{manifold adaptive}: that is, we consider the situation where the design is supported on a manifold of small intrinsic dimension $m$, and give upper bounds establishing that PCR-LE achieves the faster minimax estimation ($n^{-2s/(2s + m)}$) and testing ($n^{-4s/(4s + m)}$) rates of convergence. Interestingly, these rates are almost always much faster than the known rates of convergence of graph Laplacian eigenvectors to their population-level limits; in other words, for this problem regression with estimated features appears to be much easier, statistically speaking, than estimating the features itself. We support these theoretical results with empirical evidence.",
+          "claimed_authors": [
+            "Alden Green",
+            "Sivaraman Balakrishnan",
+            "Ryan J. Tibshirani"
+          ],
+          "claimed_title": "Minimax Optimal Regression over Sobolev Spaces via Laplacian Eigenmaps on Neighborhood Graphs",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2111.07394"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='Minimax Optimal Regression over Sobolev Spaces via Laplacian Eigenmaps on Neighborhood Graphs')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "We introduce a novel privatization framework for high-dimensional controlled variable selection. Our framework enables rigorous False Discovery Rate (FDR) control under differential privacy constraints. While the Model-X knockoff procedure provides FDR guarantees by constructing provably exchangeable ``negative control\" features, existing privacy mechanisms like Laplace or Gaussian noise injection disrupt its core exchangeability conditions. Our key innovation lies in privatizing the data knockoff matrix through the Gaussian Johnson-Lindenstrauss Transformation (JLT), a dimension reduction technique that simultaneously preserves covariate relationships through approximate isometry for $(ε,δ)$-differential privacy.\n  We theoretically characterize both FDR and the power of the proposed private variable selection procedure, in an asymptotic regime. Our theoretical analysis characterizes the role of different factors, such as the JLT's dimension reduction ratio, signal-to-noise ratio, differential privacy parameters, sample size and feature dimension, in shaping the privacy-power trade-off. Our analysis is based on a novel `debiasing technique' for high-dimensional private knockoff procedure. We further establish sufficient conditions under which the power of the proposed procedure converges to one. This work bridges two critical paradigms -- knockoff-based FDR control and private data release -- enabling reliable variable selection in sensitive domains. Our analysis demonstrates that structural privacy preservation through random projections outperforms the classical noise addition mechanism, maintaining statistical power even under strict privacy budgets.",
+          "claimed_authors": [
+            "Yuxuan Tao",
+            "Adel Javanmard"
+          ],
+          "claimed_title": "Differentially Private Model-X Knockoffs via Johnson-Lindenstrauss Transform",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2025,
+          "primary_pointer": "2508.04800"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='Differentially Private Model-X Knockoffs via Johnson-Lindenstrauss Transform')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "In many applications, we encounter data on Riemannian manifolds such as torus and rotation groups. Standard statistical procedures for multivariate data are not applicable to such data. In this study, we develop goodness-of-fit testing and interpretable model criticism methods for general distributions on Riemannian manifolds, including those with an intractable normalization constant. The proposed methods are based on extensions of kernel Stein discrepancy, which are derived from Stein operators on Riemannian manifolds. We discuss the connections between the proposed tests with existing ones and provide a theoretical analysis of their asymptotic Bahadur efficiency. Simulation results and real data applications show the validity of the proposed methods.",
+          "claimed_authors": [
+            "Wenkai Xu",
+            "Takeru Matsuda"
+          ],
+          "claimed_title": "Interpretable Stein Goodness-of-fit Tests on Riemannian Manifolds",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2021,
+          "primary_pointer": "2103.00895"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='Interpretable Stein Goodness-of-fit Tests on Riemannian Manifolds')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "Recently, Chernozhukov, Chetverikov, and Kato [Ann. Statist. 42 (2014) 1564--1597] developed a new Gaussian comparison inequality for approximating the suprema of empirical processes. This paper exploits this technique to devise sharp inference on spectra of large random matrices. In particular, we show that two long-standing problems in random matrix theory can be solved: (i) simple bootstrap inference on sample eigenvalues when true eigenvalues are tied; (ii) conducting two-sample Roy's covariance test in high dimensions. To establish the asymptotic results, a generalized $ε$-net argument regarding the matrix rescaled spectral norm and several new empirical process bounds are developed and of independent interest.",
+          "claimed_authors": [
+            "Fang Han",
+            "Sheng Xu",
+            "Wen-Xin Zhou"
+          ],
+          "claimed_title": "On Gaussian Comparison Inequality and Its Application to Spectral Analysis of Large Random Matrices",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2016,
+          "primary_pointer": "1607.01853"
+        },
+        "details": "query-relevance 0.000 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='On Gaussian Comparison Inequality and Its Application to Spectral Analysis of Large Random Matrices')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "theoremsearch",
+          "claimed_abstract": "A formal likelihood ratio hypothesis test for the validity of a parametric regression function is proposed, using a large-dimensional, nonparametric double cone alternative. For example, the test against a constant function uses the alternative of increasing or decreasing regression functions, and the test against a linear function uses the convex or concave alternative. The proposed test is exact, unbiased and the critical value is easily computed. The power of the test increases to one as the sample size increases, under very mild assumptions -- even when the alternative is mis-specified. That is, the power of the test converges to one for any true regression function that deviates (in a non-degenerate way) from the parametric null hypothesis. We also formulate tests for the linear versus partial linear model, and consider the special case of the additive model. Simulations show that our procedure behaves well consistently when compared with other methods. Although the alternative fit is non-parametric, no tuning parameters are involved.",
+          "claimed_authors": [
+            "Bodhisattva Sen",
+            "Mary Meyer"
+          ],
+          "claimed_title": "Testing against a linear regression model using ideas from shape-restricted estimation",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2013,
+          "primary_pointer": "1311.6849"
+        },
+        "details": "query-relevance 0.143 < 0.3 (query='Statistical Power Analysis of Openly Available fMRI Datasets statistics', candidate_title='Testing against a linear regression model using ideas from shape-restricted estimation')",
+        "failed_at": "2026-08-12T06:41:25Z",
+        "reason": "query_irrelevant"
+      }
+    ],
+    "verified_citations": [
+      {
+        "bibliographic_info": {
+          "authors": [
+            "Martin A. Lindquist"
+          ],
+          "title": "The Statistical Analysis of fMRI Data",
+          "venue": "arXiv",
+          "year": 2009
+        },
+        "primary_pointer": "0906.3662",
+        "summary": "In recent years there has been explosive growth in the number of neuroimaging studies performed using functional Magnetic Resonance Imaging (fMRI). The field that has grown around the acquisition and analysis of fMRI data is intrinsically interdisciplinary in nature and involves contributions from researchers in neuroscience, psychology, physics and statistics, among others. A standard fMRI study gives rise to massive amounts of noisy data with a complicated spatio-temporal correlation structure. Statistics plays a crucial role in understanding the nature of the data and obtaining relevant results that can be used and interpreted by neuroscientists. In this paper we discuss the analysis of fMRI data, from the initial acquisition of the raw data to its use in locating brain activity, making inference about brain connectivity and predictions about psychological or disease states. Along the way, we illustrate interesting and important issues where statistics already plays a crucial role. We also seek to illustrate areas where statistics has perhaps been underutilized and will have an increased role in the future.",
+        "summary_grounded_pdf": false,
+        "verification_log": {
+          "backend": "arxiv",
+          "final_url": "https://arxiv.org/abs/0906.3662",
+          "http_status": 200,
+          "pdf_sample_score": 0.2186,
+          "query_relevance_score": 0.4286,
+          "redirect_chain": [],
+          "summary_grounding_score": 1.0,
+          "title_token_overlap_score": 1.0,
+          "url_resolves": true,
+          "verified_at": "2026-08-12T06:41:25Z"
+        }
+      }
+    ]
+  },
+  "target_n": 5,
+  "term_normalized": "statistical power analysis of openly available fmri datasets statistics",
+  "ttls": {
+    "arxiv": 2592000,
+    "doi_bib": 7776000,
+    "http_head": 604800
+  }
+}

@@ -1,6 +1,5 @@
 """
-Configuration Management Module (T006)
-
+Configuration management for the Calibration Drift project.
 Handles path resolution, directory creation, and configuration loading.
 """
 import os
@@ -8,71 +7,74 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 import yaml
 
-# Project root is the directory containing 'code', 'data', etc.
-# We assume the script is run from the project root.
-PROJECT_ROOT = Path(__file__).parent.parent
+# Project root is assumed to be the parent of the 'code' directory
+# Or we can use an environment variable if set
+_PROJECT_ROOT = Path(__file__).resolve().parent.parent
 
-CONFIG_FILE = PROJECT_ROOT / "config.yaml"
-ENV_FILE = PROJECT_ROOT / ".env"
-
-def get_config_dict() -> Dict[str, Any]:
-    """Load configuration from config.yaml or return defaults."""
-    config = {
+def get_config_dict(config_path: Optional[str] = None) -> Dict[str, Any]:
+    """
+    Load configuration from a YAML file.
+    Falls back to default settings if no file is provided or file is missing.
+    """
+    if config_path and os.path.exists(config_path):
+        with open(config_path, 'r') as f:
+            return yaml.safe_load(f)
+    
+    # Default configuration
+    return {
         "data": {
-            "raw": str(PROJECT_ROOT / "data" / "raw"),
-            "processed": str(PROJECT_ROOT / "data" / "processed"),
-            "models": str(PROJECT_ROOT / "data" / "models"),
-            "figures": str(PROJECT_ROOT / "data" / "figures"),
-            # Default URLs for testing if config.yaml is missing
-            "yearly_cps_urls": [] 
+            "raw": "data/raw",
+            "processed": "data/processed",
+            "models": "data/models",
+            "figures": "figures"
         },
-        "paths": {
-            "root": str(PROJECT_ROOT)
+        "params": {
+            "random_state": 42,
+            "test_size": 0.2
         }
     }
 
-    if CONFIG_FILE.exists():
-        try:
-            with open(CONFIG_FILE, 'r') as f:
-                loaded = yaml.safe_load(f)
-                # Deep merge not implemented for simplicity, just update top level
-                if loaded:
-                    for key in loaded:
-                        if isinstance(loaded[key], dict) and key in config and isinstance(config[key], dict):
-                            config[key].update(loaded[key])
-                        else:
-                            config[key] = loaded[key]
-        except Exception as e:
-            print(f"Warning: Failed to load config.yaml: {e}. Using defaults.")
-    elif ENV_FILE.exists():
-        # Simple env file parsing if yaml not present
-        # Not implemented for full .env support, assuming yaml is primary
-        pass
-
-    return config
-
-def get_path(*parts: str) -> Path:
+def get_path(key: str) -> Path:
     """
-    Resolve a path relative to the project root or a specific data directory.
-    Usage: get_path('data', 'raw') -> PROJECT_ROOT/data/raw
+    Resolve a project path based on a key from the configuration.
+    Keys are dot-separated (e.g., 'data.processed').
     """
-    # If the first part is a known data directory, resolve relative to project root
-    base = PROJECT_ROOT
-    if parts and parts[0] in ['data', 'code', 'tests', 'specs', 'contracts']:
-        base = PROJECT_ROOT / parts[0]
-        parts = parts[1:]
-    
-    return base / os.path.join(*parts)
-
-def ensure_directories():
-    """Create all necessary directories defined in config."""
     config = get_config_dict()
-    dirs = [
-        config['data']['raw'],
-        config['data']['processed'],
-        config['data']['models'],
-        config['data']['figures']
+    
+    parts = key.split('.')
+    value = config
+    for part in parts:
+        if isinstance(value, dict):
+            value = value.get(part)
+        else:
+            raise KeyError(f"Invalid config key: {key}. Path segment '{part}' not found.")
+    
+    if not value:
+        raise KeyError(f"Config key '{key}' not found or is empty.")
+    
+    # If the value is a relative path, join with project root
+    if isinstance(value, str):
+        return _PROJECT_ROOT / value
+    return Path(value)
+
+def ensure_directories() -> None:
+    """
+    Create all necessary directories defined in the configuration.
+    """
+    config = get_config_dict()
+    paths_to_create = [
+        "data.raw",
+        "data.processed",
+        "data.models",
+        "figures",
+        "tests.unit",
+        "tests.integration"
     ]
-    for d in dirs:
-        path = Path(d)
-        path.mkdir(parents=True, exist_ok=True)
+    
+    for path_key in paths_to_create:
+        try:
+            path = get_path(path_key)
+            path.mkdir(parents=True, exist_ok=True)
+        except KeyError:
+            # Ignore if key doesn't exist in config
+            pass

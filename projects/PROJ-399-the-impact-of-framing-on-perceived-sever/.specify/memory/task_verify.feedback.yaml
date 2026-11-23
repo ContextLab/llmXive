@@ -1,0 +1,85 @@
+T001:
+  reason: The required directories `projects/PROJ-399-the-impact-of-framing-on-perceived-sever/data/raw/`,
+    `data/processed/`, `results/plots/`, and `.github/workflows/` are reported as
+    MISSING, so the project structure does not match the specification despite the
+    presence of `docs/project_structure.md`.
+  task: 91933311dafb07e7f4c770741f9dce3a3616a2e58a8ce6cf630cf3947cb8cd42
+T002:
+  reason: The artifacts `code/DESCRIPTION` and `code/NAMESPACE` are missing entirely.
+    Additionally, the `code/renv.lock` file is missing the required `testthat>=3.1.0`
+    dependency.
+  task: f3156ab9396a26ddf04a15e768248a70972485c6eccf7e8d871897978bdc178e
+T003:
+  reason: No evidence of linting or formatting configuration files (e.g., `.lintr`)
+    or related setup scripts was provided in the artifacts.
+  task: 40185ddd9a9f94d69cfca3948ef32c8cc8bb5c0af68cbff772bc822ec34e3f89
+T005:
+  task: efd036441b22fea6a8cdc4b9c235f45e8862470a8be51886b7acd0d70ca4485e
+T006:
+  reason: No evidence of environment configuration management was provided. There
+    are no `.Renviron`, `renv.lock`, or `renv/` directory artifacts present in the
+    project root to verify the setup.
+  task: b6f2ab276bb1b7046f8a7b19e6582aed94826cd59cf8126769f3f14bf2c73db5
+T007:
+  task: 88a1060b7a8719d580f081626d0e93fcd52910303a774a9bb3e771394f2c1bfd
+T008:
+  task: 083642842affecf6c8c2e24ed8518a89215871fc4c523a780d5035d4121e2b0b
+T009:
+  task: cff1565378a7b9b67ac272f5525182402f71b6381fb936b025a265c1ea1abd05
+T010:
+  task: 309345ed7386107ed3395da0d3a32c1e5ccb1c315a833bb71183a1ec6842bf9e
+T011:
+  reason: The file `tests/test_statistics.R` contains tests for power calculation
+    logic (related to User Story 3), but it completely lacks the integration tests
+    for the mixed-effects model output format required by T011 and User Story 1. There
+    is no evidence of tests verifying the "harm" framing coefficient, p-values, or
+    Cohen's d.
+  task: cfa14570bd8fced84ee18f8ce37b0c9736d51c5b2134ab4378c52ff127a2ca13
+T012:
+  task: d8c8cd30ed9fb0ecc456313bbac662605142ec7461c339be7c491bfa21aa1da1
+T013:
+  task: d290dc42e47a805d50bcb930b42e1e15f44caad3f6d92d22c555b46d2fe36fce
+T013b:
+  task: 1d7312d69c0aa1167fe900d8f5d0d2845f82c64d892653c74a68257a3890328c
+T013c:
+  task: 202ecc261d4a3b675e345711aa98d2991d6184b0aa10ae90d1f47d7a31a3fac4
+T014:
+  task: 5ca15985038e7eb1d5a840c6bcc3cfa7266045285d8f6e1927ce8b18f783f510
+T015:
+  task: 732b2e06ca2ce9676835ecfd010f6820fb39eff18d1618731fc62ee4b6307785
+T016:
+  task: d57257d81ca799ba5d1f2535aa315141cbabe697e0b477a025e4182e5b3f07e8
+T017:
+  task: 113332995e3f17800d0eb24763300fe19e38fb31a1eb48ea371cc1236d5186ce
+T018:
+  task: cc98cf2db08e14efe9cbe08e2f496a79fe132dcd640c62736ffab101ed9ee4da
+T019:
+  task: 8abdd6231ff0ba5d5eb7bf244039ef58a02cc00ca49ad72e36076ba3b03a7fac
+T020:
+  task: 252aa68091d89e7641d50e8d3c307f20e0325b1793ed61befc32dc0f5cf11e40
+T021:
+  task: a4acc76ba02349d75f452b8aa2f265251f9ad2af2bff651348654bc9131db2de
+T022:
+  task: 49544bd791c6a76e625c50ae48b4768e269b4188f7eb86e1aebae33b0882a70a
+T023:
+  task: 2f1d57728b07a1c1ef50b7773a7e58b0052f8330b3d44387f8cc64878935a018
+T024:
+  task: 1c508f89f4c3106270aa665ec1805cac203eb848b5bda45496e5635dce120fc8
+T025:
+  task: c3858259c1615b10303250be450a18f8bbd1993aaab60eb036aa74f5270b21b6
+T026:
+  task: 5cfd1cbc1cdf5de818ab047fb549595f551c314f9d7db30a9208569bf5adc881
+T027:
+  task: 8106086d54e90e8d143cc6e0b49b7855fa509932ed747ac8ace97f0932a5a3fe
+T028:
+  task: 18916f7d3f7b9cc1ddae2d643c2be9d52dad789c3fede71716a33b3c5be89ee6
+T029:
+  task: bd48661ac47e3af1e120513a16af91756654af760c579404d01826750d281479
+T030:
+  task: a6b74b07eb40e3eb24d5838288ad9f97edac0b5f0ee2ea94eb60410a59b4f970
+T031:
+  task: acc95b97239e1ac76c179421751424346be3929e55c3f9ee4ebea4add72b04a5
+T032:
+  task: 5c43667f842146532611b5a8f84ca2b689db7b1d8bce8b3b442642d25b951923
+T033:
+  task: 8fb4ccd74d94a0de94f2c2fd9d9af5f569969959adbf4c6f25427825d72933e3

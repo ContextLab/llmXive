@@ -1,6 +1,6 @@
-$schema: "http://json-schema.org/draft-07/schema#"
-title: "Final Analysis Dataset Schema"
-description: "Schema for the cleaned, analysis-ready dataset containing recordings, noise levels, and vocal metrics."
+$schema: http://json-schema.org/draft-07/schema#
+title: "Avian Vocal Complexity Dataset"
+description: "Schema for the final processed dataset used in LMM analysis."
 type: object
 properties:
   recording_id:
@@ -8,54 +8,45 @@ properties:
     description: "Unique identifier for the recording."
   species_id:
     type: string
-    description: "Species code."
+    description: "Xeno-canto species code."
   latitude:
     type: number
-    description: "Latitude in decimal degrees."
+    description: "Latitude of recording location."
   longitude:
     type: number
-    description: "Longitude in decimal degrees."
+    description: "Longitude of recording location."
   noise_level_db:
     type: number
-    description: "Ambient noise level in dB(A) derived from OSM land-use."
-  noise_source:
+    description: "Ambient noise level in dB(A)."
+  habitat_type:
     type: string
-    enum: ["OSM"]
-    description: "Source of the noise level data (OpenStreetMap)."
-  land_use_class:
-    type: string
-    enum: ["Urban", "Rural", "Wild"]
-    description: "Land-use classification from OSM."
+    description: "Land cover class (e.g., Urban, Forest)."
   syllable_count:
     type: integer
-    description: "Number of syllables detected."
+    description: "Number of syllables in the vocalization."
   duration_seconds:
     type: number
-    description: "Duration of the vocalization in seconds."
+    description: "Total duration of the recording in seconds."
   frequency_bandwidth_hz:
     type: number
-    description: "Frequency bandwidth in Hz."
+    description: "Frequency bandwidth in Hz (95th - 5th percentile)."
   spectral_entropy:
     type: number
-    description: "Spectral entropy value."
+    description: "Spectral entropy of the recording."
   snr_db:
     type: number
     description: "Signal-to-Noise Ratio in dB."
-  is_valid:
-    type: boolean
-    description: "True if SNR > 10 dB and species count threshold met."
+  location_id:
+    type: string
+    description: "Geohash or region identifier."
 required:
   - recording_id
   - species_id
-  - latitude
-  - longitude
   - noise_level_db
-  - noise_source
-  - land_use_class
+  - habitat_type
   - syllable_count
   - duration_seconds
   - frequency_bandwidth_hz
   - spectral_entropy
   - snr_db
-  - is_valid
 additionalProperties: false

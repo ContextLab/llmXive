@@ -7,3 +7,14 @@
 {"at": "2026-07-03T09:54:50.321045+00:00", "from_stage": "planned", "last_run_id": "96aa0975-fcbb-438a-946e-2df80c97fbb3", "to_stage": "tasked"}
 {"at": "2026-07-03T10:04:42.402234+00:00", "from_stage": "tasked", "last_run_id": "13b992e5-0eee-4b33-a136-3b9c42b5e3a7", "to_stage": "analyzed"}
 {"at": "2026-07-03T10:15:59.593650+00:00", "from_stage": "analyzed", "last_run_id": "203f6dac-ab1b-40bf-a9e7-c872cefc8a5f", "to_stage": "in_progress"}
+{"at": "2026-08-25T07:28:38.026243+00:00", "from_stage": "in_progress", "last_run_id": "f8167043-1dc9-4652-8f52-9b5e212fc68d", "to_stage": "planned"}
+{"at": "2026-08-29T02:32:22.218511+00:00", "from_stage": "planned", "last_run_id": "9cd0057e-2309-4eae-907a-eaf378c90d15", "to_stage": "tasked"}
+{"at": "2026-08-29T02:40:33.898034+00:00", "from_stage": "tasked", "last_run_id": "61a5c5be-8743-4f07-8c12-61b2e2f882af", "to_stage": "analyzed"}
+{"at": "2026-08-29T02:55:47.975537+00:00", "from_stage": "analyzed", "last_run_id": "738d2154-0b50-4543-808c-a944d8b0ae04", "to_stage": "in_progress"}
+{"at": "2026-08-29T03:06:40.170719+00:00", "from_stage": "in_progress", "last_run_id": "dc625ba3-bd9c-481e-b33d-128e50a2b6e5", "to_stage": "planned"}
+{"at": "2026-08-31T06:20:27.457112+00:00", "from_stage": "planned", "last_run_id": "fe4c02af-7eee-4ebe-986f-58be6975a579", "to_stage": "tasked"}
+{"at": "2026-09-01T17:33:59.677851+00:00", "from_stage": "tasked", "last_run_id": "0e3202a9-e62c-4286-b07f-0b90d0f4d7c1", "to_stage": "analyzed"}
+{"at": "2026-09-01T17:34:00.579179+00:00", "from_stage": "analyzed", "last_run_id": "f31c2c7b-5535-4d94-89a0-d678af8f7a23", "to_stage": "in_progress"}
+{"at": "2026-09-01T17:58:35.856799+00:00", "from_stage": "in_progress", "last_run_id": "792454c6-c79a-46e6-93e1-af2be223ccc0", "to_stage": "planned"}
+{"at": "2026-09-01T18:07:38.753001+00:00", "from_stage": "planned", "last_run_id": "996727f9-b746-46de-9b40-d6ddd70cc810", "to_stage": "tasked"}
+{"at": "2026-09-02T23:09:38.757363+00:00", "from_stage": "analyzed", "last_run_id": "bd39bc8e-0593-41c8-bfed-babe420b19e0", "to_stage": "in_progress"}

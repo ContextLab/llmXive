@@ -1,0 +1,15 @@
+status: none
+intent: Metabolomics Workbench download metabolomics intensity tables phenotype metadata
+  python package dataset
+required_fields:
+- sample_id
+- metabolite_id
+- intensity
+- study_id
+- disease_resistance_label
+- assay_method
+- batch_id
+- phenotype_metadata
+cache_key: e95a71f747e2d916925f6d249c6e4e1ef5551b6a73601f48275daa82876eb211
+searched_at: '2026-09-03T22:52:01.046963+00:00'
+retry_count: 1

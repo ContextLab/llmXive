@@ -1,0 +1,35 @@
+# Environment Configuration for Metallic Glasses GFA Pipeline
+# This file defines dataset URLs, paths, random seeds, and experimental flags.
+
+# Random seed for reproducibility across all random number generators
+random_seed: 42
+
+# Dataset configurations
+datasets:
+  gfa_recent:
+    name: "Recent Experimental GFA Data"
+    url: "https://huggingface.co/datasets/GFA-D/pilot_flags/resolve/main/gfa_dataset.csv"
+    local_path: "data/raw/gfa_dataset.csv"
+    description: "Recent experimental glass-forming ability dataset with compositions and Rc values"
+
+  known_alloys:
+    name: "Known Alloys Database"
+    url: "https://raw.githubusercontent.com/llmXive/data/main/known_alloys.csv"
+    local_path: "data/known_alloys.csv"
+    description: "Database of known metallic glass compositions for novelty checking"
+
+# Path configurations (relative to project root)
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  state: "state"
+  output: "output"
+  models: "code/models"
+  figures: "figures"
+  contracts: "contracts"
+
+# Experimental features (toggle for testing new approaches)
+experimental:
+  use_weighted_models: true
+  use_pca_doa_fallback: false
+  enable_detailed_logging: true

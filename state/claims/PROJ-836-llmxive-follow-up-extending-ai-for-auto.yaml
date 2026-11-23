@@ -1,0 +1,311 @@
+- artifact_path: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto/tasks.md
+  attempts: 1
+  canonical: CPU-only runner constraints 7 GB RAM 6 hours
+  claim_id: c_24549edb
+  context: "CPU Feasibility: Ensure all models and datasets are scaled to fit CPU-only\
+    \ runner constraints (\u22647 GB RAM, \u22646 h)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Ensure all models and datasets are scaled to fit CPU-only runner constraints\
+    \ (\u22647 GB RAM, \u22646 h)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T07:40:19Z'
+- artifact_path: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto/tasks.md
+  attempts: 1
+  canonical: avg_time 1.0s per permutation
+  claim_id: c_0989a3bc
+  context: T006a [P] Implement code/config/permutation_config.json to store the calculated
+    permutation budget... Include a script to calculate this based on dataset size
+    (constant avg_time = 1.0s per permutation for initial calculation).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Include a script to calculate this based on dataset size (constant avg_time
+    = 1.0s per permutation for initial calculation).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T07:41:21Z'
+- artifact_path: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto/tasks.md
+  attempts: 1
+  canonical: avg_time 1.0s constant
+  claim_id: c_9264873d
+  context: T031a [US3] Implement logic in code/model_training.py to determine the
+    number of permutations... Use avg_time = 1.0s (constant) for the initial calculation,
+    or use the value from T006a if available.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use avg_time = 1.0s (constant) for the initial calculation, or use the
+    value from T006a if available.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T07:42:17Z'
+- artifact_path: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto/tasks.md
+  attempts: 1
+  canonical: extract_triplets returns empty list for empty input
+  claim_id: c_14a4f33c
+  context: 'T007a [P] Implement function extract_triplets(text: str) -> List[Triplet]
+    in code/graph_construction.py that returns an empty list for empty input.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Extract_triplets_returns_empty_list_for_empty_input
+  kind: entity_fact
+  raw_text: 'Implement function extract_triplets(text: str) -> List[Triplet] in code/graph_construction.py
+    that returns an empty list for empty input.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T07:42:53Z'
+- artifact_path: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto/tasks.md
+  attempts: 1
+  canonical: build_graph merges duplicate nodes
+  claim_id: c_3c143603
+  context: 'T007b [P] Implement function build_graph(triplets: List[Triplet]) -> nx.DiGraph
+    in code/graph_construction.py that merges duplicate nodes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Build_graph_merges_duplicate_nodes
+  kind: entity_fact
+  raw_text: 'Implement function build_graph(triplets: List[Triplet]) -> nx.DiGraph
+    in code/graph_construction.py that merges duplicate nodes.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T07:43:33Z'
+- artifact_path: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto/tasks.md
+  attempts: 1
+  canonical: cycle density calculation ratio of actual cycles to max possible
+  claim_id: c_350c75c2
+  context: T016 [US1] Implement cycle density calculation in code/metric_engine.py
+    (ratio of actual cycles to max possible).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Cycle_density_calculation_ratio_of_actual_cycles_to_max_poss
+  kind: entity_fact
+  raw_text: Implement cycle density calculation in code/metric_engine.py (ratio of
+    actual cycles to max possible).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T07:44:29Z'
+- artifact_path: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto/tasks.md
+  attempts: 1
+  canonical: citation isolation metric degree centrality of nodes with no external
+    incoming edges
+  claim_id: c_f5971986
+  context: T017 [US1] Implement citation isolation metric in code/metric_engine.py
+    (degree centrality of nodes with no external incoming edges).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Citation_isolation_metric_degree_centrality_of_nodes_with_no
+  kind: entity_fact
+  raw_text: Implement citation isolation metric in code/metric_engine.py (degree centrality
+    of nodes with no external incoming edges).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T07:45:16Z'
+- artifact_path: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto/tasks.md
+  attempts: 1
+  canonical: semantic distance calculation using all-MiniLM-L6-v2
+  claim_id: c_92c089c6
+  context: T018 [US1] Implement semantic distance calculation in code/metric_engine.py
+    using all-MiniLM-L6-v2 (mean pairwise cosine distance within component).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Semantic_distance_calculation_using_all-MiniLM-L6-v2
+  kind: entity_fact
+  raw_text: Implement semantic distance calculation in code/metric_engine.py using
+    all-MiniLM-L6-v2 (mean pairwise cosine distance within component).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T07:46:06Z'
+- artifact_path: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto/tasks.md
+  attempts: 1
+  canonical: cycle density float range 0.0 to 1.0
+  claim_id: c_b9030ea0
+  context: "T011 [P] [US1] Unit test for cycle density calculation in tests/unit/test_metric_engine.py\
+    \ (verify float range 0.0\u20131.0)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Unit test for cycle density calculation in tests/unit/test_metric_engine.py\
+    \ (verify float range 0.0\u20131.0)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T07:46:56Z'
+- artifact_path: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto/tasks.md
+  attempts: 1
+  canonical: Initialize requirements.txt with specific dependencies
+  claim_id: c_21699147
+  context: 'T001b [P] Initialize code/requirements.txt with dependencies: networkx,
+    scikit-learn, spacy, sentence-transformers, pandas, numpy, scipy, pytest, requests,
+    pydantic'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Initialize_requirements.txt_with_specific_dependencies
+  kind: entity_fact
+  raw_text: 'Initialize code/requirements.txt with dependencies: networkx, scikit-learn,
+    spacy, sentence-transformers, pandas, numpy, scipy, pytest, requests, pydantic'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T07:47:23Z'
+- artifact_path: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto/tasks.md
+  attempts: 1
+  canonical: Download AI for Auto-Research benchmark dataset with SHA-256 validation
+    and PII scan
+  claim_id: c_f566a585
+  context: T004 [P] Implement code/data_ingestion.py to download the 'AI for Auto-Research'
+    benchmark dataset from the source specified in config/dataset_source.json, perform
+    SHA-256 checksum validation against data/checksums.json, and run PII scan via
+    repo-hygiene scan --pii command.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement code/data_ingestion.py to download the 'AI for Auto-Research'
+    benchmark dataset from the source specified in config/dataset_source.json, perform
+    SHA-256 checksum validation against data/checksums.json, and run PII scan via
+    repo-hygiene scan --pii command.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T07:48:16Z'
+- artifact_path: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto/tasks.md
+  attempts: 1
+  canonical: Fetch and validate external experimental outcome metadata
+  claim_id: c_3586295b
+  context: T004b [P] Implement code/data_ingestion.py logic to fetch and validate
+    the external experimental outcome metadata (e.g., labels.json or metadata.csv
+    containing ground-truth failure labels) from the verified real source.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_and_validate_external_experimental_outcome_metadata
+  kind: entity_fact
+  raw_text: Implement code/data_ingestion.py logic to fetch and validate the external
+    experimental outcome metadata (e.g., labels.json or metadata.csv containing ground-truth
+    failure labels) from the verified real source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T07:49:09Z'
+- artifact_path: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto/tasks.md
+  attempts: 1
+  canonical: Verify ground-truth labels derived from external experimental outcomes
+  claim_id: c_cfea2b8b
+  context: T024a [US2] Implement programmatic verification of ground-truth label derivation
+    in code/model_training.py to ensure labels are derived from external experimental
+    outcomes (e.g., wet-lab results) by checking the 'source_type' field in the metadata
+    validated by T004b.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_ground-truth_labels_derived_from_external_experimenta
+  kind: entity_fact
+  raw_text: Implement programmatic verification of ground-truth label derivation in
+    code/model_training.py to ensure labels are derived from external experimental
+    outcomes (e.g., wet-lab results) by checking the 'source_type' field in the metadata
+    validated by T004b.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T07:49:55Z'
+- artifact_path: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto/tasks.md
+  attempts: 1
+  canonical: Check if hallucination label column exists in validated metadata
+  claim_id: c_af5cc3fa
+  context: T029 [US2] Implement reporting logic in code/model_training.py to check
+    if the 'hallucination' label column exists in the validated metadata (from T004b).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Check_if_hallucination_label_column_exists_in_validated_meta
+  kind: entity_fact
+  raw_text: Implement reporting logic in code/model_training.py to check if the 'hallucination'
+    label column exists in the validated metadata (from T004b).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T07:50:37Z'
+- artifact_path: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto/tasks.md
+  attempts: 1
+  canonical: 5-fold cross-validation AUC calculation and standard deviation
+  claim_id: c_bb912e2e
+  context: T022 [P] [US2] Unit test for 5-fold cross-validation logic in tests/unit/test_model_training.py
+    (verify AUC calculation and standard deviation).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement 5-fold cross-validation in code/model_training.py (verify AUC
+    calculation and standard deviation).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T07:50:55Z'
+- artifact_path: projects/PROJ-836-llmxive-follow-up-extending-ai-for-auto/specs/001-llmxive-follow-up-extending-ai-for-auto/tasks.md
+  attempts: 1
+  canonical: validate_triplets uses fuzzy matching for citation isolation
+  claim_id: c_c49c3546
+  context: 'T007c [P] Implement function validate_triplets(triplets: List[Triplet],
+    source_text: str) -> List[Triplet] in code/graph_construction.py using fuzzy matching
+    to confirm ''citation isolation'' reflects genuine lack of grounding (Constitution
+    Principle VI).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Validate_triplets_uses_fuzzy_matching_for_citation_isolation
+  kind: entity_fact
+  raw_text: 'Implement function validate_triplets(triplets: List[Triplet], source_text:
+    str) -> List[Triplet] in code/graph_construction.py using fuzzy matching to confirm
+    ''citation isolation'' reflects genuine lack of grounding (Constitution Principle
+    VI).'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T07:51:54Z'

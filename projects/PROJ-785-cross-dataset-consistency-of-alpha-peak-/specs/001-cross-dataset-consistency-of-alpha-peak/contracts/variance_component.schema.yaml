@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Variance Component Schema"
+description: "Schema for mixed-effects model variance decomposition results"
+type: "object"
+properties:
+  component:
+    type: "string"
+    description: "Name of the variance component (e.g., 'dataset_source')"
+  variance_estimate:
+    type: "number"
+    description: "Estimated variance (sigma squared)"
+  proportion:
+    type: "number"
+    description: "Proportion of total variance (R²)"
+    minimum: 0
+    maximum: 1
+  ci_lower_95:
+    type: "number"
+    description: "Lower bound of 95% confidence interval"
+  ci_upper_95:
+    type: "number"
+    description: "Upper bound of 95% confidence interval"
+  method:
+    type: "string"
+    description: "Method used for CI (e.g., 'bootstrapping')"
+  interpretation:
+    type: "string"
+    description: "Interpretation label (e.g., 'Between-Study Heterogeneity', 'Algorithmic Bias')"
+required:
+  - component
+  - variance_estimate
+  - proportion
+  - ci_lower_95
+  - ci_upper_95
+  - method
+  - interpretation

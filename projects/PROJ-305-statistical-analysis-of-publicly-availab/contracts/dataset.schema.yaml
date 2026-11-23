@@ -1,88 +1,46 @@
-# Dataset Schema for VAERS Statistical Analysis
-# Defines the required columns for the cleaned dataset used in disproportionality analysis.
-#
-# Source: VAERS Data Dictionary (https://vaers.hhs.gov/data/datasets)
-# Mapping:
-#   - VAX_TYPE: Derived from VAX_MANU and VAX_TYPE fields in raw data.
-#   - SOC_CODE: Mapped from MedDRA SOC codes (SOC_CODE) in raw data.
-#   - LLT: Lowest Level Term from MedDRA (used for granular analysis if needed).
-#   - REPT_DATE: Date of report submission.
-#   - AGE: Age of the patient.
-
-schema_name: vaers_cleaned_dataset
-version: "1.0"
-description: >
-  Schema for the cleaned and filtered VAERS dataset used in 
-  COVID-19 vs Non-COVID vaccine adverse event analysis.
-
-required_columns:
-  - name: VAX_TYPE
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "VAERS Dataset Schema"
+description: "Schema for the cleaned and filtered VAERS dataset used in analysis. Must contain VAX_TYPE and MedDRA/SOC columns."
+type: object
+properties:
+  VAERS_ID:
+    type: integer
+    description: "Unique identifier for the adverse event report."
+  VAX_TYPE:
     type: string
-    description: >
-      Vaccine type category. Must be either "COVID-19" or "Non-COVID".
-      Derived from raw VAX_MANU and VAX_TYPE fields.
-    constraints:
-      - not_null
-      - allowed_values: ["COVID-19", "Non-COVID"]
-
-  - name: SOC_CODE
+    description: "Vaccine type (e.g., 'COVID-19', 'Influenza', 'Tetanus')."
+  SOC_CODE:
     type: string
-    description: >
-      System Organ Class code from MedDRA.
-      Used for grouping adverse events into broad categories.
-      Format: 5-digit numeric code (e.g., "10000001").
-    constraints:
-      - not_null
-      - pattern: "^[0-9]{8}$" # MedDRA SOC codes are typically 8 digits (e.g., 10000001)
-
-  - name: LLT
+    description: "MedDRA System Organ Class code."
+  SOC_NAME:
     type: string
-    description: >
-      Lowest Level Term from MedDRA.
-      Provides the specific adverse event description.
-      May be empty if mapping to SOC failed, but raw term should exist.
-    constraints:
-      - not_null # Required for audit trail, even if generic
-
-  - name: REPT_DATE
-    type: date
-    description: >
-      Date the adverse event report was received by VAERS.
-      Format: YYYY-MM-DD.
-      Used for temporal analysis and cohort filtering.
-    constraints:
-      - not_null
-      - format: "YYYY-MM-DD"
-
-  - name: AGE
-    type: numeric
-    description: >
-      Age of the patient at the time of the adverse event.
-      Must be non-negative.
-    constraints:
-      - not_null
-      - min_value: 0
-      - max_value: 120
-
-optional_columns:
-  - name: CASE_ID
+    description: "Human-readable name of the System Organ Class."
+  REPT_DATE:
     type: string
-    description: Unique VAERS case identifier.
-
-  - name: SEX
+    format: date
+    description: "Date of the adverse event report (YYYY-MM-DD)."
+  AGE:
+    type: number
+    description: "Age of the patient in years."
+  SEX:
     type: string
-    description: Patient sex (M/F).
-
-  - name: DEATH
-    type: boolean
-    description: Indicator if the case resulted in death.
-
-validation_rules:
-  - rule: "VAX_TYPE must be present for all records"
-    severity: error
-  - rule: "SOC_CODE must be a valid MedDRA SOC code"
-    severity: error
-  - rule: "REPT_DATE must be within the analysis range (2020-2023)"
-    severity: warning
-  - rule: "AGE must be a reasonable integer"
-    severity: warning
+    enum: ["M", "F", "U"]
+    description: "Gender of the patient."
+  VAX_DATE:
+    type: string
+    format: date
+    description: "Date of vaccination (may be missing)."
+  EVENT_DATE:
+    type: string
+    format: date
+    description: "Date of the adverse event."
+  OUTCOME:
+    type: string
+    description: "Outcome of the adverse event."
+required:
+  - VAERS_ID
+  - VAX_TYPE
+  - SOC_CODE
+  - SOC_NAME
+  - REPT_DATE
+additionalProperties: true

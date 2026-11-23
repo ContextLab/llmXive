@@ -1,351 +1,400 @@
+"""
+UCI Concrete Dataset Validation Runner.
+
+This module handles fetching the UCI Concrete Compressive Strength dataset,
+subsampling it to small sample sizes (N < 50) with stratified sampling,
+and running uncertainty quantification methods on the subsampled data.
+"""
+
 import os
 import sys
 import argparse
 import logging
 import json
+import warnings
+from typing import Tuple, Dict, Any, Optional, List
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-import seaborn as sns
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
 
-from simulation.engine import calculate_vif
-from models.bayesian import fit_bayesian_and_get_intervals
+# Import existing model interfaces
 from models.ols import fit_ols_and_get_intervals
 from models.bootstrap import fit_bootstrap_and_get_intervals
+from models.bayesian import fit_bayesian_and_get_intervals
+from simulation.engine import calculate_vif
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout),
+        logging.FileHandler('data/results/uci_validation.log')
+    ]
 )
 logger = logging.getLogger(__name__)
 
-def fetch_uci_concrete_dataset(output_path: str) -> pd.DataFrame:
+# Constants
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+DATA_RESULTS_DIR = PROJECT_ROOT / "data" / "results"
+
+# UCI Concrete Dataset URL (Verified in T000)
+# The dataset is hosted on the UCI Machine Learning Repository
+# Direct CSV link for programmatic access
+UCI_CONCRETE_URL = "https://archive.ics.uci.edu/ml/machine-learning-databases/concrete/compressive/concrete_compressive_strength.csv"
+# Alternative: Use the raw GitHub mirror if UCI blocks direct access (common in CI)
+# UCI often redirects, so we use the direct data file path if available
+# For robustness, we try the direct link first, then fallback to a known stable mirror
+UCI_CONCRETE_MIRROR_URL = "https://raw.githubusercontent.com/UCI-ML/Concrete/master/concrete_compressive_strength.csv"
+
+def fetch_uci_concrete_dataset() -> pd.DataFrame:
     """
-    Fetches the UCI Concrete Compressive Strength dataset.
-    Tries the official CSV URL first, then falls back to a known mirror.
-    """
-    # Primary URL from UCI Machine Learning Repository
-    url = "https://archive.ics.uci.edu/ml/machine-learning-databases/00240/UCI%20Concrete%20Compressive%20Strength%20Dataset.csv"
+    Fetch the UCI Concrete Compressive Strength dataset.
     
-    try:
-        logger.info(f"Attempting to fetch dataset from: {url}")
-        df = pd.read_csv(url)
-        logger.info(f"Successfully loaded dataset with shape: {df.shape}")
-        return df
-    except Exception as e:
-        logger.warning(f"Primary URL failed: {e}. Trying fallback...")
-        # Fallback: known working direct link to the CSV content
-        fallback_url = "https://raw.githubusercontent.com/UCI-ML/Concrete-Compressive-Strength/master/Concrete_Data.csv"
+    Returns:
+        pd.DataFrame: The loaded dataset.
+        
+    Raises:
+        RuntimeError: If the dataset cannot be fetched from any source.
+    """
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    cache_path = DATA_RAW_DIR / "uci_concrete_raw.csv"
+    
+    if cache_path.exists():
+        logger.info(f"Loading cached dataset from {cache_path}")
+        return pd.read_csv(cache_path)
+    
+    logger.info("Attempting to fetch UCI Concrete dataset...")
+    sources = [
+        ("UCI Direct", UCI_CONCRETE_URL),
+        ("GitHub Mirror", UCI_CONCRETE_MIRROR_URL)
+    ]
+    
+    last_error = None
+    for source_name, url in sources:
         try:
-            df = pd.read_csv(fallback_url)
-            logger.info(f"Successfully loaded dataset from fallback: {df.shape}")
+            logger.info(f"Trying source: {source_name} ({url})")
+            df = pd.read_csv(url)
+            df.to_csv(cache_path, index=False)
+            logger.info(f"Successfully fetched and cached from {source_name}")
             return df
-        except Exception as e2:
-            logger.error(f"Both URLs failed: {e2}")
-            raise RuntimeError("Could not fetch UCI Concrete dataset from any known source.")
-
-def subsample_stratified(df: pd.DataFrame, target_n: int, seed: int = 42) -> pd.DataFrame:
-    """
-    Subsamples the dataframe to target_n using stratified sampling on the target variable.
-    Ensures N > p (sample size > number of predictors).
-    """
-    rng = np.random.default_rng(seed)
+        except Exception as e:
+            last_error = e
+            logger.warning(f"Failed to fetch from {source_name}: {e}")
+            continue
     
-    # Identify target column (usually 'Concrete compressive strength (MPa)')
-    target_col = None
-    for col in df.columns:
-        if 'strength' in col.lower() or 'compressive' in col.lower():
-            target_col = col
-            break
+    error_msg = f"Failed to fetch UCI Concrete dataset from all sources. Last error: {last_error}"
+    logger.error(error_msg)
+    raise RuntimeError(error_msg)
+
+
+def subsample_stratified(
+    df: pd.DataFrame, 
+    target_n: int, 
+    predictor_cols: List[str], 
+    target_col: str,
+    seed: int = 42
+) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+    """
+    Subsample the dataset to target_n using stratified sampling.
     
-    if target_col is None:
-        # Fallback: assume last column is target if not found by name
-        target_col = df.columns[-1]
-        logger.warning(f"Target column not found by name, using '{target_col}'")
-
-    predictors = [c for c in df.columns if c != target_col]
-    p = len(predictors)
-
+    Ensures at least 3 predictors are retained and N > p.
+    
+    Args:
+        df: Full dataset.
+        target_n: Target sample size (N < 50).
+        predictor_cols: List of predictor column names.
+        target_col: Target variable column name.
+        seed: Random seed for reproducibility.
+        
+    Returns:
+        Tuple of (subsampled DataFrame, metadata dict).
+        
+    Raises:
+        ValueError: If target_n <= number of predictors.
+    """
+    p = len(predictor_cols)
+    
+    # Validation: Ensure N > p
     if target_n <= p:
-        raise ValueError(f"Target N ({target_n}) must be greater than number of predictors ({p}).")
-
-    # Create bins for stratification if target is continuous
-    # We'll use quantile-based binning to ensure representation
+        warning_msg = f"Rank-deficient: N={target_n} <= p={p}. Skipping this configuration."
+        logger.warning(warning_msg)
+        # Return None and metadata indicating skip
+        return None, {
+            "status": "skipped",
+            "reason": f"Rank-deficient: N={target_n} <= p={p}",
+            "target_n": target_n,
+            "p": p
+        }
+    
+    if target_n > len(df):
+        logger.warning(f"Target N ({target_n}) exceeds dataset size ({len(df)}). Using full dataset.")
+        target_n = len(df)
+    
+    logger.info(f"Subsampling to N={target_n} with {p} predictors (N > p check passed).")
+    
+    # Stratify by target variable bins if continuous, or use simple random if not enough unique values
+    # For continuous target, create bins for stratification
     try:
-        df['stratum'] = pd.qcut(df[target_col], q=min(10, target_n), duplicates='drop')
+        # Create 5 bins for stratification to ensure distribution preservation
+        n_bins = min(5, target_n)
+        if n_bins < 2:
+            n_bins = 2
+            
+        df['target_bin'] = pd.qcut(df[target_col], q=n_bins, duplicates='drop')
+        strat_col = 'target_bin'
     except ValueError:
-        # If too few unique values, just use the values directly or a simpler binning
-        df['stratum'] = pd.cut(df[target_col], bins=min(5, target_n), duplicates='drop')
+        # If qcut fails (e.g., not enough unique values), fall back to simple random
+        logger.info("Stratification failed (not enough unique values). Using simple random sampling.")
+        strat_col = None
+    
+    # Perform stratified or simple random sampling
+    if strat_col:
+        sample_df = df.groupby(strat_col, group_keys=False).apply(
+            lambda x: x.sample(n=min(int(target_n * len(x) / len(df)), len(x)), random_state=seed)
+        ).reset_index(drop=True)
+        # Ensure we have exactly target_n if possible
+        if len(sample_df) > target_n:
+            sample_df = sample_df.sample(n=target_n, random_state=seed)
+    else:
+        sample_df = df.sample(n=target_n, random_state=seed)
+    
+    # Drop temporary bin column
+    if 'target_bin' in sample_df.columns:
+        sample_df = sample_df.drop(columns=['target_bin'])
+    
+    metadata = {
+        "status": "success",
+        "original_n": len(df),
+        "subsampled_n": len(sample_df),
+        "predictor_count": p,
+        "predictor_cols": predictor_cols,
+        "target_col": target_col,
+        "seed": seed,
+        "n_greater_than_p": len(sample_df) > p
+    }
+    
+    return sample_df, metadata
 
-    # Stratified sample
-    sample = df.groupby('stratum', group_keys=False).apply(
-        lambda x: x.sample(n=min(int((len(x) / len(df)) * target_n), len(x)), replace=False, random_state=rng)
-    )
-    
-    # If we didn't get enough, fill the rest randomly
-    while len(sample) < target_n:
-        missing = target_n - len(sample)
-        pool = df.drop(sample.index)
-        if len(pool) == 0:
-            break
-        extra = pool.sample(n=min(missing, len(pool)), replace=False, random_state=rng)
-        sample = pd.concat([sample, extra])
-    
-    sample = sample.drop(columns=['stratum'])
-    logger.info(f"Subsampled to N={len(sample)} with {p} predictors.")
-    return sample
 
-def load_best_method_config(config_path: str) -> Dict[str, Any]:
-    """Loads the best method configuration."""
-    if not os.path.exists(config_path):
-        logger.warning(f"Best method config not found at {config_path}. Defaulting to 'bayesian'.")
-        return {"method": "bayesian", "params": {}}
-    
-    with open(config_path, 'r') as f:
-        return json.load(f)
+def load_best_method_config() -> Dict[str, Any]:
+    """
+    Load configuration for the best method from comparative analysis.
+    This is a placeholder for T027.5 output.
+    """
+    config_path = DATA_RESULTS_DIR / "comparative_metrics.json"
+    if config_path.exists():
+        with open(config_path, 'r') as f:
+            return json.load(f)
+    return {"best_method": "bayesian", "reason": "Default to Bayesian"}
+
 
 def run_validation_on_dataset(
-    df: pd.DataFrame, 
-    method_name: str, 
-    seed: int = 42
-) -> Tuple[Dict[str, Any], Dict[str, Any]]:
+    df: pd.DataFrame,
+    predictor_cols: List[str],
+    target_col: str,
+    method: str = "all"
+) -> Dict[str, Any]:
     """
-    Runs the specified method on the dataset and returns results.
-    Returns: (results_dict, diagnostics_dict)
-    """
-    # Prepare data
-    # Identify target column
-    target_col = None
-    for col in df.columns:
-        if 'strength' in col.lower() or 'compressive' in col.lower():
-            target_col = col
-            break
-    if target_col is None:
-        target_col = df.columns[-1]
+    Run all three uncertainty quantification methods on the dataset.
     
-    X = df.drop(columns=[target_col]).values
+    Args:
+        df: Subsampled dataset.
+        predictor_cols: List of predictor column names.
+        target_col: Target variable column name.
+        method: Method to run ('ols', 'bootstrap', 'bayesian', or 'all').
+        
+    Returns:
+        Dictionary containing results from all methods.
+    """
+    X = df[predictor_cols].values
     y = df[target_col].values
-    p = X.shape[1]
-
-    # Calculate VIF
-    vif_max = calculate_vif(X)
-    logger.info(f"VIF Max: {vif_max}")
-
-    results = {
-        "method": method_name,
-        "N": len(y),
-        "p": p,
-        "vif_max": vif_max,
-        "seed": seed
-    }
     
-    diagnostics = {
-        "converged": True,
-        "warnings": []
-    }
+    results = {}
+    
+    # OLS
+    if method in ['ols', 'all']:
+        try:
+            logger.info("Running OLS...")
+            ols_result = fit_ols_and_get_intervals(X, y, confidence_level=0.95)
+            results['ols'] = ols_result
+        except Exception as e:
+            logger.error(f"OLS failed: {e}")
+            results['ols'] = {"error": str(e)}
+    
+    # Bootstrap
+    if method in ['bootstrap', 'all']:
+        try:
+            logger.info("Running Bootstrap...")
+            boot_result = fit_bootstrap_and_get_intervals(X, y, confidence_level=0.95, n_bootstrap=1000)
+            results['bootstrap'] = boot_result
+        except Exception as e:
+            logger.error(f"Bootstrap failed: {e}")
+            results['bootstrap'] = {"error": str(e)}
+    
+    # Bayesian
+    if method in ['bayesian', 'all']:
+        try:
+            logger.info("Running Bayesian...")
+            bayes_result = fit_bayesian_and_get_intervals(X, y, confidence_level=0.95, n_samples=1000, n_warmup=500)
+            results['bayesian'] = bayes_result
+        except Exception as e:
+            logger.error(f"Bayesian failed: {e}")
+            results['bayesian'] = {"error": str(e)}
+    
+    return results
 
-    try:
-        if method_name == "bayesian":
-            # Run Bayesian
-            model = fit_bayesian_and_get_intervals(X, y, seed=seed)
-            results["intervals"] = model["intervals"]
-            results["coefficients"] = model["coefficients"]
-            if not model.get("converged", True):
-                diagnostics["converged"] = False
-                diagnostics["warnings"].append("Bayesian model did not converge")
+
+def generate_interval_stability_metrics(results: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    Generate metrics comparing interval widths and stability across methods.
+    """
+    metrics = {}
+    for method, res in results.items():
+        if 'error' in res:
+            metrics[method] = {"status": "failed", "error": res['error']}
+            continue
         
-        elif method_name == "ols":
-            # Run OLS
-            model = fit_ols_and_get_intervals(X, y)
-            results["intervals"] = model["intervals"]
-            results["coefficients"] = model["coefficients"]
-        
-        elif method_name == "bootstrap":
-            # Run Bootstrap
-            model = fit_bootstrap_and_get_intervals(X, y, seed=seed)
-            results["intervals"] = model["intervals"]
-            results["coefficients"] = model["coefficients"]
-        
+        if 'intervals' in res:
+            intervals = res['intervals']
+            widths = [upper - lower for lower, upper in intervals]
+            metrics[method] = {
+                "status": "success",
+                "mean_width": float(np.mean(widths)),
+                "std_width": float(np.std(widths)),
+                "min_width": float(np.min(widths)),
+                "max_width": float(np.max(widths))
+            }
         else:
-            raise ValueError(f"Unknown method: {method_name}")
-
-    except Exception as e:
-        logger.error(f"Error running {method_name}: {e}")
-        diagnostics["warnings"].append(str(e))
-        diagnostics["converged"] = False
-        raise
-
-    return results, diagnostics
-
-def generate_interval_stability_metrics(
-    results: Dict[str, Any], 
-    output_path: str
-) -> None:
-    """Generates metrics on interval stability and saves them."""
-    # This is a placeholder for more complex stability metrics
-    # For now, we just save the results summary
-    metrics = {
-        "mean_interval_width": np.mean([r[1] - r[0] for r in results["intervals"]]),
-        "interval_count": len(results["intervals"]),
-        "method": results["method"]
-    }
+            metrics[method] = {"status": "unknown_structure"}
     
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-    with open(output_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    logger.info(f"Saved interval stability metrics to {output_path}")
+    return metrics
 
-def generate_diagnostic_plots(
-    results: Dict[str, Any], 
-    diagnostics: Dict[str, Any],
-    output_dir: str
-) -> None:
+
+def generate_diagnostic_plots(results: Dict[str, Any], output_dir: Path):
     """
-    Generates diagnostic plots:
-    1. Posterior distributions (for Bayesian) or Coefficient estimates with intervals
-    2. Interval widths comparison
+    Generate diagnostic plots for the validation results.
     """
-    os.makedirs(output_dir, exist_ok=True)
+    import matplotlib.pyplot as plt
+    import seaborn as sns
     
-    method = results["method"]
-    coefficients = results["coefficients"]
-    intervals = results["intervals"]
-    n_coeffs = len(coefficients)
-    coeff_names = [f"β{i}" for i in range(n_coeffs)]
-
-    # Plot 1: Coefficient Estimates with Intervals
+    output_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Plot interval widths comparison
     plt.figure(figsize=(10, 6))
-    x_pos = np.arange(n_coeffs)
-    widths = [intervals[i][1] - intervals[i][0] for i in range(n_coeffs)]
-    centers = [intervals[i][0] + widths[i]/2 for i in range(n_coeffs)]
-    lower = [intervals[i][0] for i in range(n_coeffs)]
-    upper = [intervals[i][1] for i in range(n_coeffs)]
-
-    plt.errorbar(
-        x_pos, 
-        centers, 
-        yerr=[np.array(centers) - np.array(lower), np.array(upper) - np.array(centers)],
-        fmt='o', 
-        capsize=5, 
-        label='95% Interval'
-    )
-    plt.axhline(0, color='black', linewidth=0.8, linestyle='--')
-    plt.xticks(x_pos, coeff_names)
-    plt.xlabel('Coefficient')
-    plt.ylabel('Value')
-    plt.title(f'{method.capitalize()} Coefficient Estimates and Intervals')
-    plt.grid(True, alpha=0.3)
-    plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, 'coefficient_intervals.png'))
-    plt.close()
-    logger.info(f"Saved coefficient intervals plot to {output_dir}/coefficient_intervals.png")
-
-    # Plot 2: Interval Widths
-    plt.figure(figsize=(8, 5))
-    plt.bar(x_pos, widths)
-    plt.xticks(x_pos, coeff_names)
-    plt.xlabel('Coefficient')
-    plt.ylabel('Interval Width')
-    plt.title(f'{method.capitalize()} Interval Widths')
-    plt.grid(True, alpha=0.3, axis='y')
-    plt.tight_layout()
-    plt.savefig(os.path.join(output_dir, 'interval_widths.png'))
-    plt.close()
-    logger.info(f"Saved interval widths plot to {output_dir}/interval_widths.png")
-
-    # Plot 3: Posterior Distributions (if Bayesian)
-    if method == "bayesian":
-        # Assuming results might contain posterior samples or we approximate with normal
-        # If we have full posterior samples, we would plot histograms.
-        # Since the API returns intervals, we will plot a schematic of the posterior 
-        # centered at the coefficient with width based on the interval (assuming normal approx)
-        plt.figure(figsize=(10, 6))
-        
-        # We need to retrieve posterior samples if available. 
-        # If the model object in results had 'samples', we would use them.
-        # For this implementation, we will generate a synthetic plot based on the interval
-        # to visualize the shape, assuming a normal distribution centered at the estimate.
-        # In a real scenario, we would pass the StanFit object or samples.
-        
-        # Let's assume we have access to the model object if it was stored, 
-        # but here we only have the summary. We will skip the full posterior plot 
-        # unless we modify run_validation_on_dataset to return samples.
-        # Instead, we will plot the "Estimated Posterior Density" using the interval width as sigma.
-        
-        for i in range(n_coeffs):
-            mu = centers[i]
-            sigma = widths[i] / (2 * 1.96) # Approx sigma from 95% CI
-            x = np.linspace(mu - 4*sigma, mu + 4*sigma, 100)
-            y = (1 / (sigma * np.sqrt(2 * np.pi))) * np.exp(-0.5 * ((x - mu) / sigma)**2)
-            plt.plot(x, y, label=f'{coeff_names[i]}')
-        
-        plt.title('Approximate Posterior Distributions (Normal Approx)')
-        plt.xlabel('Coefficient Value')
-        plt.ylabel('Density')
-        plt.legend()
-        plt.grid(True, alpha=0.3)
+    methods = []
+    widths = []
+    
+    for method, res in results.items():
+        if 'error' not in res and 'intervals' in res:
+            w = [upper - lower for lower, upper in res['intervals']]
+            methods.extend([method] * len(w))
+            widths.extend(w)
+    
+    if methods:
+        sns.boxplot(x=methods, y=widths)
+        plt.title("Interval Widths by Method")
+        plt.ylabel("Width")
+        plt.xlabel("Method")
         plt.tight_layout()
-        plt.savefig(os.path.join(output_dir, 'posterior_distributions.png'))
+        plot_path = output_dir / "interval_widths_comparison.png"
+        plt.savefig(plot_path)
         plt.close()
-        logger.info(f"Saved posterior distributions plot to {output_dir}/posterior_distributions.png")
+        logger.info(f"Saved interval width plot to {plot_path}")
+    else:
+        logger.warning("No valid interval data for plotting.")
+
 
 def main():
-    parser = argparse.ArgumentParser(description="Run validation on UCI Concrete dataset and generate plots.")
-    parser.add_argument('--data', type=str, default='data/raw/uci_concrete.csv', help='Path to UCI dataset')
-    parser.add_argument('--output', type=str, default='data/results', help='Output directory for plots and metrics')
-    parser.add_argument('--method', type=str, default='bayesian', help='Method to use (bayesian, ols, bootstrap)')
-    parser.add_argument('--n', type=int, default=40, help='Target sample size')
-    parser.add_argument('--seed', type=int, default=42, help='Random seed')
-    
+    """
+    Main entry point for UCI validation pipeline.
+    """
+    parser = argparse.ArgumentParser(description="UCI Concrete Validation Runner")
+    parser.add_argument('--target-n', type=int, default=40, help="Target sample size (N < 50)")
+    parser.add_argument('--seed', type=int, default=42, help="Random seed")
+    parser.add_argument('--predictors', type=str, nargs='+', default=None, help="Specific predictors to use")
     args = parser.parse_args()
-
-    # Ensure directories exist
-    os.makedirs(args.output, exist_ok=True)
-    os.makedirs(os.path.dirname(args.data), exist_ok=True)
-
-    # 1. Fetch and subsample
-    logger.info("Fetching UCI Concrete dataset...")
+    
+    # Define predictors (Concrete dataset has 8 features)
+    # Cement, Blast Furnace Slag, Fly Ash, Water, Superplasticizer, Coarse Aggregate, Fine Aggregate, Age
+    default_predictors = [
+        'cement', 'blast_furnace_slag', 'fly_ash', 'water', 
+        'superplasticizer', 'coarse_aggregate', 'fine_aggregate', 'age'
+    ]
+    
+    predictors = args.predictors if args.predictors else default_predictors
+    target_col = 'compressive_strength'
+    
+    # Ensure output directories exist
+    DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+    DATA_RESULTS_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # 1. Fetch Dataset
+    logger.info("Step 1: Fetching UCI Concrete dataset...")
     try:
-        full_df = fetch_uci_concrete_dataset(args.data)
+        df = fetch_uci_concrete_dataset()
     except RuntimeError as e:
-        logger.error(f"Failed to fetch data: {e}")
-        sys.exit(1)
-
-    logger.info("Subsampling dataset...")
-    subsampled_df = subsample_stratified(full_df, target_n=args.n, seed=args.seed)
-
-    # 2. Load best method config (optional, but good practice)
-    best_method_config_path = 'data/results/best_method_config.json'
-    config = load_best_method_config(best_method_config_path)
-    method_to_use = args.method if args.method != 'bayesian' else config.get('method', 'bayesian')
+        logger.error(f"Failed to fetch dataset: {e}")
+        return
     
-    logger.info(f"Running validation with method: {method_to_use}")
-
-    # 3. Run validation
-    try:
-        results, diagnostics = run_validation_on_dataset(subsampled_df, method_to_use, seed=args.seed)
-    except Exception as e:
-        logger.error(f"Validation failed: {e}")
-        sys.exit(1)
-
-    # 4. Generate stability metrics
-    metrics_path = os.path.join(args.output, 'validation_metrics.json')
-    generate_interval_stability_metrics(results, metrics_path)
-
-    # 5. Generate diagnostic plots
-    plots_dir = os.path.join(args.output, 'plots')
-    generate_diagnostic_plots(results, diagnostics, plots_dir)
-
-    # Save raw results for reference
-    results_path = os.path.join(args.output, 'validation_results.json')
+    logger.info(f"Dataset loaded: {len(df)} rows, {len(df.columns)} columns")
+    
+    # 2. Subsample with validation
+    logger.info(f"Step 2: Subsampling to N={args.target_n}...")
+    subsampled_df, subsample_metadata = subsample_stratified(
+        df, 
+        target_n=args.target_n, 
+        predictor_cols=predictors, 
+        target_col=target_col,
+        seed=args.seed
+    )
+    
+    # Save metadata
+    metadata_path = DATA_RESULTS_DIR / "uci_subsample_metadata.json"
+    with open(metadata_path, 'w') as f:
+        json.dump(subsample_metadata, f, indent=2)
+    
+    if subsample_metadata['status'] == 'skipped':
+        logger.warning("Subsampling skipped due to rank deficiency. No results generated.")
+        return
+    
+    # 3. Save subsampled data
+    output_csv_path = DATA_RAW_DIR / "uci_subsampled.csv"
+    subsampled_df.to_csv(output_csv_path, index=False)
+    logger.info(f"Subsampled data saved to {output_csv_path}")
+    
+    # 4. Run Validation
+    logger.info("Step 3: Running validation methods...")
+    results = run_validation_on_dataset(
+        subsampled_df, 
+        predictor_cols=predictors, 
+        target_col=target_col,
+        method="all"
+    )
+    
+    # 5. Generate Metrics
+    metrics = generate_interval_stability_metrics(results)
+    
+    # 6. Save Results
+    results_path = DATA_RESULTS_DIR / "uci_validation_results.json"
     with open(results_path, 'w') as f:
-        json.dump(results, f, indent=2)
+        json.dump({
+            "subsample_metadata": subsample_metadata,
+            "results": results,
+            "metrics": metrics
+        }, f, indent=2, default=str)
+    logger.info(f"Validation results saved to {results_path}")
     
-    logger.info("Validation complete. Plots and metrics saved.")
+    # 7. Generate Plots
+    logger.info("Step 4: Generating diagnostic plots...")
+    generate_diagnostic_plots(results, DATA_RESULTS_DIR)
+    
+    logger.info("UCI Validation pipeline completed successfully.")
+
 
 if __name__ == "__main__":
     main()

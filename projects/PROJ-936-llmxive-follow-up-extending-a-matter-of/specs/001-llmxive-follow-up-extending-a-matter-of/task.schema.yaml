@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Task Definition"
+type: object
+required:
+  - task_id
+  - goal
+  - environment
+  - tool_diversity_k
+properties:
+  task_id:
+    type: string
+    description: Unique identifier for the task.
+  goal:
+    type: string
+    description: Natural‑language description of the task objective.
+  environment:
+    type: object
+    description: JSON‑serializable representation of the task state.
+  optimal_path_length:
+    type:
+      - integer
+      - "null"
+    description: Provided optimal call count; null if missing.
+  tool_diversity_k:
+    type: integer
+    description: Minimum number of distinct tool types required (heuristic).
+  features:
+    type: object
+    additionalProperties: true
+    description: Optional numeric feature dictionary.
+  difficulty_score:
+    type:
+      - number
+      - "null"
+    description: Model‑predicted difficulty (populated later).

@@ -1,80 +1,68 @@
+"""
+Setup script for creating the required directory structure for the project.
+Creates data/raw, data/processed, data/models, and logs directories.
+"""
 import os
 import sys
 import logging
+from pathlib import Path
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/setup_directories.log')
+        logging.StreamHandler(sys.stdout)
     ]
 )
 logger = logging.getLogger(__name__)
 
-def setup_directories():
+def setup_directories(base_path: str = ".") -> None:
     """
-    Create the required directory structure for the project.
-    Creates:
-    - data/raw/
-    - data/processed/
-    - data/models/
-    - logs/
+    Create the required directory structure under the base path.
+
+    Directories to create:
+    - data/raw
+    - data/processed
+    - data/models
+    - logs
+
+    Args:
+        base_path: The root directory where the structure will be created.
     """
-    # Define the directories to create relative to the project root
-    # We assume this script runs from the project root or code/ directory
-    # We use pathlib to handle path resolution robustly
-    from pathlib import Path
-
-    # Determine the project root. 
-    # If running from code/, go up one level. If running from root, stay.
-    # We check if 'data' exists in current dir, if not, check parent.
-    current_path = Path.cwd()
-    
-    # Heuristic: look for 'code' directory to anchor project root
-    if (current_path / 'code').exists():
-        project_root = current_path
-    elif (current_path.parent / 'code').exists():
-        project_root = current_path.parent
-    else:
-        # Fallback: assume current directory is root
-        project_root = current_path
-
-    logger.info(f"Project root detected at: {project_root}")
-
-    directories = [
-        project_root / 'data' / 'raw',
-        project_root / 'data' / 'processed',
-        project_root / 'data' / 'models',
-        project_root / 'logs',
-        # Ensure data exists as a parent if not explicitly listed, though subdirs cover it
-        project_root / 'data'
+    required_dirs = [
+        "data/raw",
+        "data/processed",
+        "data/models",
+        "logs"
     ]
 
+    base = Path(base_path)
+    logger.info(f"Setting up directory structure under: {base.absolute()}")
+
     created_count = 0
-    for dir_path in directories:
-        if not dir_path.exists():
-            try:
-                dir_path.mkdir(parents=True, exist_ok=True)
-                logger.info(f"Created directory: {dir_path}")
-                created_count += 1
-            except OSError as e:
-                logger.error(f"Failed to create directory {dir_path}: {e}")
-                raise
+    for dir_path in required_dirs:
+        full_path = base / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {full_path}")
+            created_count += 1
         else:
-            logger.debug(f"Directory already exists: {dir_path}")
+            logger.info(f"Directory already exists: {full_path}")
 
-    logger.info(f"Directory setup complete. {created_count} new directories created.")
-    return created_count
+    logger.info(f"Setup complete. Created {created_count} new directories.")
 
-def main():
+def main() -> None:
     """Entry point for the script."""
+    # Determine the project root (assuming script is in code/)
+    script_dir = Path(__file__).parent
+    project_root = script_dir.parent
+
     try:
-        setup_directories()
-        logger.info("T007 Setup directory structure completed successfully.")
+        setup_directories(str(project_root))
+        logger.info("Directory setup finished successfully.")
     except Exception as e:
-        logger.error(f"Task T007 failed: {e}")
+        logger.error(f"Failed to setup directories: {e}")
         sys.exit(1)
 
 if __name__ == "__main__":

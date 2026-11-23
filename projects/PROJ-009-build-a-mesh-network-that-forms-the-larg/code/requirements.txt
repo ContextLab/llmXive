@@ -1,0 +1,5 @@
+# Project dependencies
+paramiko
+# Existing dependencies are provided by the platform and do not need to be listed:
+# numpy, pandas, scipy, matplotlib, scikit-learn, statsmodels,
+# seaborn, pytest, PyYAML, requests, jsonschema, psutil

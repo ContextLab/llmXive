@@ -1,258 +1,132 @@
 # Tasks: Predicting Catalytic Activity from Electronic Structure and Reaction Path Features
 
-**Input**: Design documents from `/specs/001-predicting-catalytic-activity/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `specs/001-predicting-catalytic-activity/spec.md`, `plan.md`, `research.md`, all contracts in `specs/001-predicting-catalytic-activity/contracts/`, and any existing verified artifacts.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure. All file system paths must be created here before any logic tasks run.
-
-- [ ] T001a [P] Create project directory structure: `data/raw/`, `data/processed/`, `code/`, `outputs/`, `tests/`, `state/`, `code/models/`
-- [ ] T001b [P] Create `__init__.py` files in all Python packages (`code/`, `tests/`, `code/utils/`)
-- [ ] T001c [P] Initialize Python 3.10 project with `requirements.txt` (pinned versions: pandas, numpy, scikit-learn, xgboost, shap, requests, pyyaml, rdkit, huggingface_hub)
-- [ ] T002 [P] Configure linting (ruff/flake8) and formatting (black) tools
+The checklist implements the full end‑to‑end study while respecting the functional requirements (FR‑001 – FR‑010), success criteria (SC‑001 – SC‑007), and reviewer notes. Tasks are ordered to respect data flow; each task lists its concrete output paths and the verification steps that must succeed for the task to be considered complete.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [X] T000 **Skeleton Setup** `code/setup_skeleton.py`  
+  - Creates the required directory hierarchy: `data/raw/`, `data/processed/`, `outputs/`.  
+  - **Verification**: all three directories exist and are writable; a tiny `README.txt` is written in each confirming creation.
 
-**Purpose**: Core infrastructure logic that MUST be complete before ANY user story can be implemented. 
-**Note**: This phase assumes directory structure from Phase 1 (T001a) is already present.
+- [ ] T001 **Download OC20 & Materials Project descriptors** `code/download_data.py` <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/download_data.py exit=1 -->
+  - Streams the OC20 dataset via `datasets.load_dataset(..., streaming=True)` and writes a stratified sample to `data/raw/oc20_sample.parquet`.  
+  - Retrieves bulk electronic descriptors from the Materials Project API (`mp-api`) and caches them as `data/raw/mp_descriptors.json`.  
+  - Generates `data/raw/required_columns.json` describing the mandatory columns for the unified DataFrame.  
+  - **Verification**: the three files exist, are non‑empty, and their SHA‑256 checksums are recorded in `data/checksums.txt`. The checksum entry for `required_columns.json` is also present.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T014 **Acquire open experimental TOF dataset** `code/acquire_tof.py` *(Pending/Deferred)*  
+  - Attempts to locate a publicly available 2025 CO₂ hydrogenation TOF dataset (e.g., via DOI resolution or open data repository).  
+  - If found, downloads the CSV to `data/raw/experimental_tof.csv` and updates `data/checksums.txt`.  
+  - If not found, **invokes task T015** to submit a formal scope‑revision request and then raises an exception that halts further downstream steps until the dataset is provided.  
+  - **Verification**: either `experimental_tof.csv` exists with a valid checksum **or** task T015 has been executed and logged.
 
-- [ ] T004 [P] Implement content hashing mechanism for `state/` artifacts (Constitution Principle V) in `code/utils/hashing.py`
-- [ ] T005 [P] Create base configuration loader for environment variables and paths in `code/config.py`
-- [ ] T006 [P] Setup logging infrastructure to write logs to `outputs/run.log`
-- [ ] T007 [P] Implement data validation helpers (checksum verification, schema checks) in `code/utils/validation.py`
+- [ ] T015 **Submit scope‑revision request for experimental TOF dataset** `code/request_scope_revision.py` *(New task)*  
+  - Generates a JSON request `outputs/scope_revision_request.json` describing the missing open experimental TOF dataset, the impact on FR‑001, and a proposed mitigation (e.g., provision of a public dataset by the sponsor).  
+  - Sends this request to the project governance channel (simulated by writing the file).  
+  - **Verification**: the JSON file exists, contains the fields `request_id`, `missing_dataset`, `impact`, and `proposed_action`, and its SHA‑256 checksum is recorded in `data/checksums.txt`.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T002 **Extract DFT‑derived descriptors** `code/extract_descriptors.py`  
+  - Reads `data/raw/oc20_sample.parquet`, computes the required numeric descriptors (`d_band_center`, `p_band_center`, `bader_charges`, `activation_barrier`, `reaction_energy`, `coordination_number`, `surface_area`) using `pymatgen`/`numpy`.  
+  - Writes the per‑entry descriptor table to `data/processed/oc20_descriptors.parquet`.  
+  - **Verification**: the parquet file contains all seven descriptor columns, no row contains `NaN` in any descriptor, and the row count > 0.
 
----
+- [ ] T003 **Align descriptors with experimental TOFs** `code/preprocess_alignment.py` *(Deferred until TOF dataset is available)*  
+  - Performs exact string matching on `composition`, `surface_facet`, `synthesis_condition`, **and** `temperature`/`pressure` (when present) between `data/processed/oc20_descriptors.parquet` and `data/raw/experimental_tof.csv`.  
+  - Generates a unified DataFrame and writes it to `data/processed/unified_dataset.parquet`.  
+  - Computes `alignment_rate = matched_entries / total_experimental_entries` and writes `outputs/alignment_metrics.json` (must contain the field `alignment_rate`).  
+  - **Verification**: `alignment_rate` ≥ 0.80, unified dataset has ≥ 500 rows (or ≥ 1500 if source data permit), and the JSON is well‑formed.
 
-## Phase 3: User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+- [ ] T004 **k‑NN imputation and exclusion flagging** `code/impute_and_flag.py` *(Deferred until alignment is complete)*  
+  - Builds a stoichiometry‑based feature space (normalized element counts) from the unified dataset.  
+  - Applies k‑nearest‑neighbors (k = 5) imputation to any missing descriptor values (target `experimental_tof` is never used for distance).  
+  - Sets `is_imputed = true` for rows where any descriptor was filled, and `excluded_from_training = true` for rows with < 5 neighbors or alignment failures.  
+  - Writes the intermediate result to `data/processed/imputed_dataset.parquet`.  
+  - **Verification**: after imputation, all required descriptor columns contain no `NaN`; `is_imputed` and `excluded_from_training` columns are present and correctly populated.
 
-**Goal**: Download OC20 stratified sample, align descriptors, impute missing values, and produce `aligned_dataset.csv`. 
-**Scope Note**: Per plan.md "Critical Scope Adjustment", this pipeline relies exclusively on the verified OC20 dataset. External datasets (Materials Project, 2025 CO2 study) are excluded due to verification failures.
+- [ ] T005 **Feature scaling and final aligned CSV** `code/scale_and_export.py` *(Deferred until imputation is complete)*  
+  - Loads `data/processed/imputed_dataset.parquet`, applies `StandardScaler` to all numeric features (including the placeholder `experimental_tof` if present).  
+  - Writes scaling diagnostics (`mean_abs` and `std_abs` per feature) to `outputs/scaling_report.json`; each feature must satisfy |μ| < 0.01 and |σ − 1| < 0.01.  
+  - Exports the fully processed table to `data/processed/aligned_dataset.csv`, which must validate against `specs/001-predicting-catalytic-activity/contracts/aligned_dataset.schema.yaml`.  
+  - **Verification**: JSON scaling report meets thresholds; CSV passes JSON‑Schema validation (`jsonschema.validate`).  
 
-**Independent Test**: The pipeline can be tested by verifying that the output CSV contains exactly the expected columns (composition, surface_facet, energy_change, d_band_center, adsorption_energy) with no NaN values in the target column after imputation.
+- [ ] T006 **Create outer hold‑out split** `code/create_split.py` *(Deferred; split fraction TBD per FR‑010)*  
+  - Once `aligned_dataset.csv` is available, splits it into training and test sets **before any hyper‑parameter tuning**.  
+  - The exact hold‑out proportion will be defined after FR‑010 is resolved; for now the task records the intent and writes a placeholder `outputs/split_info.json` with a status field `"split_defined": false`.  
+  - When the fraction is decided, the script will stratify by `composition` family, write `data/processed/train_set.csv`, `data/processed/test_set.csv`, and update `split_info.json` with concrete sizes and random seed.  
+  - **Verification**: after execution, `split_info.json` contains either a concrete split (≥ 100 test rows) **or** a clear “pending” status; when concrete, the train/test sets have disjoint `catalyst_id`s.
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T007 **XGBoost hyper‑parameter search & model saving** `code/train_xgboost.py` *(Deferred until training data with TOF are available)*  
+  - Performs a 5‑fold CV grid search on the training set (`max_depth ∈ {3,5,7}`, `learning_rate ∈ {0.01,0.1}`, `n_estimators ≤ 200`).  
+  - Selects the hyper‑parameter set maximizing cross‑validated R²; ties broken by smallest `n_estimators`.  
+  - Saves the chosen configuration to `outputs/best_params.json` and the trained model to `code/models/best_xgboost.json`.  
+  - **Verification**: `best_params.json` contains `max_depth`, `learning_rate`, `n_estimators`; model file exists and can be loaded with `xgboost.Booster`.
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+- [ ] T008 **Linear baseline training** `code/train_linear.py` *(Deferred until training data with TOF are available)*  
+  - Fits an ordinary least‑squares regression using only `d_band_center` and `activation_barrier` on the same training set.  
+  - Saves the baseline model to `code/models/baseline_linear.json`.  
+  - **Verification**: model file exists, coefficients are non‑null, and the model can predict on the test set without error.
 
-- [ ] T008 [P] [US1] Contract test for data alignment logic in `tests/test_preprocess.py::test_alignment_columns`
-- [ ] T009 [P] [US1] Integration test for full download-to-csv flow in `tests/test_preprocess.py::test_full_pipeline_sample`
+- [ ] T009 **Model evaluation & statistical significance testing** `code/evaluate_models.py` *(Deferred until predictions exist)*  
+  - Generates predictions for both XGBoost and linear baseline on `data/processed/test_set.csv`.  
+  - Computes R², MAE (log‑TOF scale), and Pearson R for each model; writes all metrics to `outputs/metrics.json` conforming to `contracts/metrics.schema.yaml`.  
+  - Performs Shapiro‑Wilk test on the absolute‑error differences; based on the p‑value selects either a paired t‑test or Wilcoxon signed‑rank test, records the test type, p‑value, and a `significant` flag (true only if p < 0.05 **and** ΔMAE ≥ 0.1) in `outputs/statistical_test.json`.  
+  - **Verification**: `metrics.json` validates against its schema, `statistical_test.json` contains the required fields, and the `significant` flag matches FR‑008 logic.
 
-### Implementation for User Story 1
+- [ ] T010 **SHAP importance calculation & visualization** `code/compute_shap.py` *(Deferred until XGBoost model is trained)*  
+  - Loads `code/models/best_xgboost.json` and the test set, computes SHAP values with `shap.TreeExplainer`.  
+  - Ranks descriptors by mean absolute SHAP impact, writes `outputs/shap_rankings.csv` (validated against `contracts/feature_importance.schema.yaml`), and generates a bar plot `outputs/shap_barplot.png` showing the top 5 descriptors.  
+  - **Verification**: CSV passes schema validation, plot file exists, and the top‑5 list is non‑empty.
 
-- [ ] T010 [US1] Implement `code/download_data.py`: Download stratified sample of OC dataset from HuggingFace (repo: 'oc20/oc20-sample-v1', stratify by 'composition_family', output: 'data/raw/oc20_sample.h5')
-- [ ] T011 [US1] Implement `code/download_data.py`: Verify checksums of downloaded OC20 file against known hashes
-- [ ] T014 [US1] Implement `code/preprocess.py`: Align OC20 entries using exact string matching on `composition` and `surface_facet`. **Note**: `synthesis_condition` alignment is deferred as per plan pivot to single-source OC20 data (FR-002 adaptation).
-- [ ] T015 [US1] Implement `code/preprocess.py`: Retrieve target variable `energy_change` from OC20 data (per plan pivot). Log any missing target values for exclusion.
-- [ ] T016 [US1] Implement `code/preprocess.py`: Compute and log alignment success rate (matched entries / total sample) for SC-002
-- [ ] T017 [US1] Implement `code/preprocess.py`: Impute missing descriptors using k-nearest-neighbors (k=5) based on **stoichiometry similarity** (parse composition string into normalized element count vector, calculate Euclidean distance, exclude target from distance) (FR-003)
-- [ ] T018 [US1] Implement `code/preprocess.py`: Handle edge case where <5 neighbors exist (flag and exclude from training set)
-- [ ] T019 [US1] Implement `code/preprocess.py`: Scale all numeric features to zero mean and unit variance
-- [ ] T020 [US1] Generate `data/processed/aligned_dataset.csv` with final schema
-- [ ] T021 [US1] Create `tests/test_preprocess.py` unit tests for KNN imputation logic and exclusion flags
+- [ ] T011 **Reduced‑model verification (SC‑003)** `code/train_reduced.py` *(Deferred until SHAP rankings are available)*  
+  - Trains a new XGBoost model using only the top‑5 descriptors identified in T010, with the same grid‑search limits.  
+  - Evaluates on the test set, computes R², and writes `outputs/reduced_model_metrics.json` containing `r_squared_full`, `r_squared_reduced`, `ratio`, and `SC-003_status` (PASS if `ratio ≥ 0.50`).  
+  - **Verification**: `ratio` ≥ 0.50 and `SC-003_status` = "PASS".
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T012 **Generate final report** `code/report.py` *(Deferred until all upstream results are ready)*  
+  - Collates alignment metrics, model performance, statistical‑test outcome, SHAP rankings, reduced‑model ratio, and compares the top‑5 descriptors against the Nørskov reference list (`data/norskov_descriptors.json`).  
+  - Writes a human‑readable markdown report to `outputs/final_report.md` and a machine‑readable companion `outputs/final_report.json` validated against `contracts/report_schema.json.schema.yaml`.  
+  - **Verification**: both files exist, schema validation succeeds, and every numeric entry can be traced back to its source artifact (e.g., `metrics.json`, `statistical_test.json`).
 
----
+- [ ] T013 **Document reproducible workflow & integration test** `quickstart.md` & `tests/integration/test_full_pipeline.py`  
+  - `quickstart.md` lists the exact command sequence, now including the new skeleton and acquisition steps:  
+    ```bash
+    python -m code.setup_skeleton
+    python -m code.download_data
+    python -m code.acquire_tof          # may pause pending dataset
+    python -m code.request_scope_revision  # manual trigger if acquire fails
+    python -m code.extract_descriptors
+    python -m code.preprocess_alignment
+    python -m code.impute_and_flag
+    python -m code.scale_and_export
+    python -m code.create_split
+    python -m code.train_xgboost
+    python -m code.train_linear
+    python -m code.evaluate_models
+    python -m code.compute_shap
+    python -m code.train_reduced
+    python -m code.report
+    ```  
+  - The integration test now conditionally checks for the presence of deferred artifacts; it passes if the pipeline runs up to the point where a missing TOF dataset is reported, and it validates all generated artifacts that do exist.  
+  - **Verification**: `pytest -q tests/integration/test_full_pipeline.py` passes on a clean environment, and `outputs/metrics.json.total_seconds` (when present) is ≤ 21600 s.
 
-## Phase 4: User Story 2 - Model Training and Baseline Comparison (Priority: P2)
+---  
 
-**Goal**: Train XGBoost model, compare against linear baseline, and perform statistical significance testing
+**Dependency Mapping**
 
-**Independent Test**: The model training can be tested by running the script and verifying that both the XGBoost and linear models produce predictions on the hold-out test set with calculated R² and MAE metrics.
+| FR | Covered by Task(s) |
+|----|--------------------|
+| FR‑001 | T001, T014, T015 |
+| FR‑002 | T003 |
+| FR‑003 | T004, T005 |
+| FR‑004 | T007 |
+| FR‑005 | T008, T009 |
+| FR‑006 | T010 |
+| FR‑007 | T012 |
+| FR‑008 | T009 (significance logic) |
+| FR‑009 | T003 (exact temperature/pressure matching) |
+| FR‑010 | T006 (deferred until FR‑010 is defined) |
+| FR‑011 | T005 (schema compliance) |
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T022 [P] [US2] Contract test for metric calculation in `tests/test_train.py::test_metrics_output`
-- [ ] T023 [P] [US2] Integration test for nested CV flow in `tests/test_train.py::test_nested_cv_execution`
-
-### Implementation for User Story 2
-
-- [ ] T024 [US2] Implement `code/train.py`: Load `aligned_dataset.csv` and split into train/test sets (stratified). **Depends on T020 completion.**
-- [ ] T025 [P] [US2] Implement `code/train.py`: Train Linear Baseline using only `d_band_center` and `adsorption_energy`
-- [ ] T026 [US2] Implement `code/train.py`: Train XGBoost with nested cross-validation (inner loop: grid search max_depth {,5,7}, lr {0.01,0.1}, n_est ≤200; outer loop: R² evaluation) and **Save best model to code/models/best_xgboost.json** (FR-004)
-- [ ] T027 [US2] Implement `code/evaluate.py`: Compute absolute errors for both models on hold-out test set. **Depends on T025 and T026 completion.**
-- [ ] T028a [US2] Implement `code/evaluate.py`: Perform Shapiro-Wilk test on the distribution of absolute errors for the **baseline model** and **XGBoost model**; **Log result (normal/not normal) to outputs/normality_check.json** (FR-005)
-- [ ] T028b [US2] Implement `code/evaluate.py`: Perform paired t-test (if normal) or Wilcoxon signed-rank test (if not normal) on absolute errors comparing XGBoost vs Linear baseline. **Depends on T028a.**
-- [ ] T029 [US2] Generate `outputs/metrics.json` containing R², MAE, Pearson R, and p-value for both models
-- [ ] T030 [US2] Create `tests/test_train.py` unit tests for grid search parameter selection logic
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Feature Importance and Interpretability Analysis (Priority: P3)
-
-**Goal**: Perform SHAP analysis, rank top descriptors, verify SC-003, and generate final report
-
-**Independent Test**: The interpretability step can be tested by running the SHAP calculation and verifying that the top 5 descriptors are listed in descending order of importance with a corresponding bar plot generated.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T031 [P] [US3] Contract test for SHAP value computation in `tests/test_evaluate.py::test_shap_values`
-- [ ] T032 [P] [US3] Integration test for reduced model verification in `tests/test_evaluate.py::test_reduced_model_sc003`
-
-### Implementation for User Story 3
-
-- [ ] T033 [US3] Implement `code/evaluate.py`: Compute SHAP values for the final XGBoost model using `shap.TreeExplainer`. **Depends on T026 (model saved).**
-- [ ] T034 [US3] Implement `code/evaluate.py`: Rank descriptors by mean absolute SHAP impact (FR-006)
-- [ ] T035 [US3] Implement `code/evaluate.py`: Generate `outputs/feature_importance.png` bar plot of top 5 descriptors
-- [ ] T036 [US3] Implement `code/evaluate.py`: Train a reduced model using only the top 5 SHAP-ranked descriptors
-- [ ] T037 [US3] Implement `code/evaluate.py`: Verify SC-003: Check if reduced model R² ≥ 0.50 * full model R². **Append verification status to outputs/metrics.json**
-- [ ] T038 [US3] Implement `code/evaluate.py`: Validate SC-003 threshold (0.50 R²) against target variable context; if target is 'energy_change', recalculate expected redundancy or flag as legacy threshold in report.
-- [ ] T039 [US3] Implement `code/report.py`: Compare top 5 descriptors against Nørskov et al., reference list (d-band, activation barrier, reaction energy) and **Generate comparison table in outputs/final_report.md with columns: descriptor, norskov_match (boolean), novelty_flag** (FR-007)
-- [ ] T040 [US3] Implement `code/report.py`: Generate `outputs/final_report.md` containing Pearson R, MAE, p-value, top 5 list, SC-003 verification result, and Nørskov comparison table (FR-007)
-- [ ] T041 [US3] Create `tests/test_evaluate.py` unit tests for SC-003 threshold logic
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T042 [P] Run full pipeline end-to-end and verify completion within 6-hour CI limit (SC-004)
-- [ ] T043a [P] Code cleanup: Remove debug prints from `code/preprocess.py` and `code/train.py`
-- [ ] T043b [P] Code cleanup: Optimize memory usage in `code/train.py` by streaming data where possible
-- [ ] T043c [P] Code cleanup: Format all code with `black` and `ruff`
-- [ ] T044 [P] Update `README.md` with usage instructions and data sources
-- [ ] T045 [P] Add additional unit tests for edge cases (missing neighbors, non-normal error distributions)
-- [ ] T046 [P] Run quickstart.md validation to ensure reproducibility
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion (T001a) - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 completion (needs `aligned_dataset.csv`)
-- **User Story 3 (P3)**: Depends on US2 completion (needs trained XGBoost model)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data alignment logic in tests/test_preprocess.py::test_alignment_columns"
-Task: "Integration test for full download-to-csv flow in tests/test_preprocess.py::test_full_pipeline_sample"
-
-# Launch all implementation tasks for US1 that are independent:
-Task: "Implement download_data.py: Download stratified sample"
-Task: "Implement download_data.py: Verify checksums"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently (verify `aligned_dataset.csv`)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo (Model comparison)
-4. Add User Story 3 → Test independently → Deploy/Demo (Interpretability)
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1 (Data)
-   - Developer B: User Story 2 (Modeling) - *Can start once T020 (aligned_dataset.csv) is done*
-   - Developer C: User Story 3 (Interpretability) - *Can start once T026 (model saved) is done*
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All tasks must run on CPU-only CI (limited cores, constrained RAM, 6h limit). No GPU, no 8-bit quantization, no large LLMs.
-- **Data Scope**: Per plan.md, this project uses OC20 exclusively. External dataset tasks (Materials Project, 2025 CO2 study) are omitted due to data unavailability.
+All tasks are unchecked (`[ ]`) pending implementation; completed work from previous iterations that already satisfies any of the above requirements should be re‑checked after the corresponding task passes its verification steps.  

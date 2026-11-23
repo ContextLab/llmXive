@@ -1,0 +1,12 @@
+# Existing dependencies (standard library packages are pre‑installed)
+pandas
+numpy
+requests
+beautifulsoup4
+rdkit
+scikit-learn>=1.4.0
+matplotlib
+seaborn
+pyarrow
+# Added for reliable HuggingFace dataset download
+huggingface_hub

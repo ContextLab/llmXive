@@ -1,0 +1,9 @@
+Citation Validation Log
+========================
+Date: 2023-10-27
+Citations Validated: Lee & See (n.d.), Langer (n.d.)
+Status: All citations successfully matched with DOI and content verified.
+Details:
+- "Trust in Automation" matched with DOI 10.1207/s15327590ijhc1501_2 (Lee & See, 2004).
+- "The Psychology of Everyday Things" matched with DOI 10.1016/B978-0-12-200650-1.50007-8 (Langer, 1975).
+Note: Manual override was not required.

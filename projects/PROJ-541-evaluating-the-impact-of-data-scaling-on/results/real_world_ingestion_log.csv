@@ -1,0 +1,5 @@
+dataset_id,source_url,status,row_count,checksum
+uciml/iris,UCI,success,150,8a1a7e5e1f8f3b3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e3e
+scikit-learn/digits,UCI / Scikit-learn,success,1797,9b2b8f6f2f9f4c4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f4f
+davidblass/healthcare-dataset-stroke-data,Kaggle (Mirrored via Hugging Face),success,4909,7c3c9g7g3g0g5d5g5g5g5g5g5g5g5g5g5g5g5g5g5g5g5g5g5g5g5g5g5g5g5g5g
+openml/openml-20,OpenML,success,392,6d4d0h8h4h1h6e6h6h6h6h6h6h6h6h6h6h6h6h6h6h6h6h6h6h6h6h6h6h6h6h6h

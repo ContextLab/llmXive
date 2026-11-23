@@ -1,60 +1,34 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-followup"
+name = "llmxive-follow-up"
 version = "0.1.0"
 description = "llmXive follow-up: extending Edit-Compass & EditReward-Compass"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "transformers>=4.40.0",
+    "sentence-transformers>=2.7.0",
+    "torch==2.2.2+cpu",
+    "llama-cpp-python>=0.2.60",
+    "scikit-image>=0.22.0",
+    "lpips>=0.1.4",
+    "statsmodels>=0.14.0",
+    "numpy>=1.26.0",
+    "scipy>=1.12.0",
+    "pydantic>=2.6.0",
+    "requests>=2.31.0",
+    "tqdm>=4.66.0",
+    "pyyaml>=6.0.1",
+]
 
 [tool.black]
 line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
-)/
-'''
 
-[tool.ruff]
-line-length = 88
-target-version = "py311"
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "C",  # flake8-comprehensions
-    "B",  # flake8-bugbear
-]
-ignore = [
-    "E501", # line too long (black handles this)
-    "B008", # do not perform function calls in argument defaults (common in CLI)
-]
-
-[tool.ruff.per-file-ignores]
-"tests/*" = ["S101"] # allow assert in tests
-
-[tool.ruff.isort]
-known-first-party = ["llmxive"]
-split-on-trailing-comma = true
-
-[tool.ruff.flake8-bugbear]
-extend-immutable-calls = ["fastapi.Depends", "fastapi.Query"]
-
-[tool.ruff.mccabe]
-max-complexity = 12
-
-[tool.ruff.pydocstyle]
-convention = "google"
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"

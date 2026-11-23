@@ -1,0 +1,4 @@
+# This file is a placeholder to ensure .black configuration is recognized
+# by tools that look for a separate .toml file, though primary config
+# resides in pyproject.toml [tool.black].
+include = "pyproject.toml"

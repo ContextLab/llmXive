@@ -13,7 +13,7 @@ The system must aggregate sparse experimental data from literature (arXiv, OpenP
 
 **Why this priority**: Without a clean, standardized dataset, no machine learning model can be trained. This is the foundational step required to address the "data scarcity" gap identified in the literature.
 
-**Independent Test**: The pipeline can be tested by running the ingestion script against a mock CSV of 10 literature entries and verifying the output dataframe contains standardized units, imputed missing values, and a valid count of non-null performance records.
+**Independent Test**: The pipeline can be tested by running the ingestion script against a mock CSV of literature entries and verifying the output dataframe contains standardized units, imputed missing values, and a valid count of non-null performance records.
 
 **Acceptance Scenarios**:
 

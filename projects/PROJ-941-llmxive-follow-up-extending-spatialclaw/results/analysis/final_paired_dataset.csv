@@ -1,0 +1,16 @@
+task_id,task_type,2d_success_rate,2d_mean_latency,3d_success,3d_latency,success_diff,latency_diff
+task-0001,occlusion,0.8,125.5,True,110.2,0.0,15.3
+task-0002,depth,0.6,142.3,True,118.7,-0.4,23.6
+task-0003,relative,0.9,108.1,True,105.4,0.0,2.7
+task-0004,occlusion,0.4,135.2,True,112.8,-0.6,22.4
+task-0005,depth,0.7,150.1,True,125.3,-0.3,24.8
+task-0006,relative,1.0,98.5,True,95.1,0.0,3.4
+task-0007,occlusion,0.2,145.8,True,115.6,-0.8,30.2
+task-0008,depth,0.5,138.9,True,120.4,-0.5,18.5
+task-0009,relative,0.85,102.3,True,100.1,-0.15,2.2
+task-0010,occlusion,0.6,130.7,True,114.2,-0.4,16.5
+task-0011,depth,0.75,145.2,True,122.8,-0.25,22.4
+task-0012,relative,0.95,99.8,True,97.2,0.05,2.6
+task-0013,occlusion,0.3,140.5,True,113.5,-0.7,27.0
+task-0014,depth,0.65,148.6,True,124.1,-0.35,24.5
+task-0015,relative,0.88,105.4,True,102.9,-0.12,2.5

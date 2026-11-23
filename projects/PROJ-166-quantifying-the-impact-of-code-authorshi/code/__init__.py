@@ -1,1 +1,1 @@
-"""Code package for the project."""
+"""Root package."""

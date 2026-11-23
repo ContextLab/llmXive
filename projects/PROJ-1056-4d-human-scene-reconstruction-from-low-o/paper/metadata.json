@@ -44,5 +44,15 @@
     "assets/teaser_v6.pdf",
     "main_arxiv.tex",
     "main.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "5ce955bf0189774f3a40ebfc000476882607b2bdaab36b1d8ae4138bf5163e1c",
+      "bytes": 27064553
+    },
+    "original.pdf": {
+      "sha256": "8190b4081209c98275babe0950c51c5190bcd695531d62face5e35fcefd8973a",
+      "bytes": 26922457
+    }
+  }
 }

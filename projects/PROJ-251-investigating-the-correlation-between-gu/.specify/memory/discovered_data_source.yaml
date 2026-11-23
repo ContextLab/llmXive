@@ -1,0 +1,15 @@
+status: none
+intent: download vaccine 16S OTU and serology dataset NCBI SRA NCBI Disease SRA Imagenet
+  python package dataset
+required_fields:
+- subject_id
+- baseline_timepoint
+- otu_id
+- otu_abundance
+- antibody_titer_pre
+- antibody_titer_post
+- age
+- sex
+cache_key: ab029ffce9d327066bb6c9c9ec53da2a5eeb9f26243a2cee715f7933f9b878ef
+searched_at: '2026-10-25T18:33:01.682846+00:00'
+retry_count: 1

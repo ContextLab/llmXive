@@ -1,156 +1,125 @@
 """
-Data hygiene utilities for checksums per Constitution Principle III.
+Data hygiene utilities: Checksums and Metadata Registry management.
+Implements Constitution Principle III (Data Hygiene).
 """
+
 import hashlib
 import json
+import logging
 import os
 from pathlib import Path
-from typing import Dict, List, Union
+from typing import Dict, List, Any, Optional
 
-from .config import get_project_paths
+logger = logging.getLogger(__name__)
 
-
-def compute_file_checksum(file_path: Union[str, Path], algorithm: str = 'sha256') -> str:
+def compute_file_sha256(filepath: Path) -> str:
     """
-    Compute SHA-256 (or other hashlib-supported) checksum of a file.
+    Compute the SHA-256 checksum of a file.
 
     Args:
-        file_path: Path to the file to checksum.
-        algorithm: Hash algorithm name (default: 'sha256').
+        filepath: Path to the file.
 
     Returns:
-        Hexadecimal digest string.
-
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the algorithm is not supported.
+        Hexadecimal string of the SHA-256 hash.
     """
-    file_path = Path(file_path)
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found for checksum: {file_path}")
+    sha256_hash = hashlib.sha256()
+    with open(filepath, "rb") as f:
+        # Read in chunks for large files
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
-    try:
-        hasher = hashlib.new(algorithm)
-    except ValueError as e:
-        raise ValueError(f"Unsupported hash algorithm: {algorithm}") from e
-
-    with open(file_path, 'rb') as f:
-        for chunk in iter(lambda: f.read(8192), b""):
-            hasher.update(chunk)
-
-    return hasher.hexdigest()
-
-
-def compute_directory_checksums(
-    root_dir: Union[str, Path],
-    extensions: List[str] = None,
-    algorithm: str = 'sha256'
-) -> Dict[str, str]:
+def load_existing_checksums(metadata_file: Path) -> Dict[str, Any]:
     """
-    Compute checksums for all files in a directory tree.
+    Load the existing metadata registry, or return a default structure if it doesn't exist.
 
     Args:
-        root_dir: Root directory to traverse.
-        extensions: Optional list of file extensions to include (e.g. ['.csv', '.npy']).
-                   If None, all files are included.
-        algorithm: Hash algorithm name.
+        metadata_file: Path to the metadata JSON file.
 
     Returns:
-        Dictionary mapping relative file paths to their checksums.
+        Dictionary with 'runs' key containing a list of run metadata.
     """
-    root_dir = Path(root_dir)
-    if not root_dir.is_dir():
-        raise NotADirectoryError(f"Root path is not a directory: {root_dir}")
+    if metadata_file.exists():
+        with open(metadata_file, 'r') as f:
+            return json.load(f)
+    else:
+        logger.info(f"Metadata file {metadata_file} not found. Creating new registry.")
+        return {"runs": []}
 
-    checksums = {}
+def save_checksums(metadata_file: Path, data: Dict[str, Any]) -> None:
+    """
+    Save the metadata registry to disk.
 
-    for file_path in root_dir.rglob('*'):
-        if file_path.is_file():
-            if extensions is None or file_path.suffix in extensions:
-                rel_path = file_path.relative_to(root_dir)
-                try:
-                    checksums[str(rel_path)] = compute_file_checksum(file_path, algorithm)
-                except FileNotFoundError:
-                    # Skip files that might be deleted during traversal
-                    continue
+    Args:
+        metadata_file: Path to the metadata JSON file.
+        data: Dictionary to save.
+    """
+    with open(metadata_file, 'w') as f:
+        json.dump(data, f, indent=2)
+    logger.info(f"Saved metadata registry to {metadata_file}")
 
-    return checksums
-
-
-def save_checksum_manifest(
-    checksums: Dict[str, str],
-    output_path: Union[str, Path],
-    metadata: Dict[str, str] = None
+def update_metadata_registry(
+    metadata_file: Path,
+    new_entries: List[Dict[str, Any]]
 ) -> None:
     """
-    Save a checksum manifest to a JSON file.
+    Atomically update the metadata registry with new entries.
+    Appends new entries to the existing 'runs' list.
 
     Args:
-        checksums: Dictionary of relative paths to checksums.
-        output_path: Path to the output JSON file.
-        metadata: Optional metadata dictionary (e.g. timestamp, algorithm used).
+        metadata_file: Path to the metadata JSON file.
+        new_entries: List of new run metadata dictionaries.
     """
-    output_path = Path(output_path)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    registry = load_existing_checksums(metadata_file)
 
-    manifest = {
-        "algorithm": "sha256",
-        "metadata": metadata or {},
-        "checksums": checksums
-    }
+    # Check for duplicates to avoid overwriting
+    existing_ids = {run["run_id"] for run in registry["runs"]}
+    for entry in new_entries:
+        if entry["run_id"] in existing_ids:
+            logger.warning(f"Run ID {entry['run_id']} already exists. Skipping update.")
+        else:
+            registry["runs"].append(entry)
+            existing_ids.add(entry["run_id"])
 
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(manifest, f, indent=2)
+    save_checksums(metadata_file, registry)
 
-
-def load_checksum_manifest(manifest_path: Union[str, Path]) -> Dict[str, str]:
+def find_raw_matrices(raw_data_dir: Path) -> List[Path]:
     """
-    Load a checksum manifest from a JSON file.
+    Find all .npy files in the raw data directory.
 
     Args:
-        manifest_path: Path to the manifest JSON file.
+        raw_data_dir: Path to the raw data directory.
 
     Returns:
-        Dictionary of relative paths to checksums.
+        List of Path objects for .npy files.
     """
-    manifest_path = Path(manifest_path)
-    if not manifest_path.exists():
-        raise FileNotFoundError(f"Manifest not found: {manifest_path}")
+    if not raw_data_dir.exists():
+        return []
+    return list(raw_data_dir.glob("*.npy"))
 
-    with open(manifest_path, 'r', encoding='utf-8') as f:
-        data = json.load(f)
-
-    return data.get("checksums", {})
-
-
-def verify_checksums(
-    root_dir: Union[str, Path],
-    manifest_path: Union[str, Path]
-) -> Dict[str, bool]:
+def checksum_raw_matrices(raw_data_dir: Path, metadata_file: Path) -> None:
     """
-    Verify files against a saved checksum manifest.
+    Compute checksums for all .npy files in the raw data directory and update the registry.
 
     Args:
-        root_dir: Root directory where files are located.
-        manifest_path: Path to the manifest JSON file.
-
-    Returns:
-        Dictionary mapping relative paths to verification status (True=valid, False=invalid).
+        raw_data_dir: Path to the raw data directory.
+        metadata_file: Path to the metadata JSON file.
     """
-    root_dir = Path(root_dir)
-    manifest = load_checksum_manifest(manifest_path)
-    results = {}
+    matrix_files = find_raw_matrices(raw_data_dir)
+    if not matrix_files:
+        logger.warning(f"No .npy files found in {raw_data_dir}")
+        return
 
-    for rel_path, expected_checksum in manifest.items():
-        file_path = root_dir / rel_path
-        if not file_path.exists():
-            results[rel_path] = False
-            continue
+    new_entries = []
+    for filepath in matrix_files:
+        checksum = compute_file_sha256(filepath)
+        entry = {
+            "run_id": filepath.stem,
+            "checksum": checksum,
+            "parameters": {}, # Parameters should be filled by the generator
+            "file_path": str(filepath)
+        }
+        new_entries.append(entry)
+        logger.info(f"Checksummed {filepath.name}: {checksum}")
 
-        try:
-            actual_checksum = compute_file_checksum(file_path)
-            results[rel_path] = (actual_checksum == expected_checksum)
-        except Exception:
-            results[rel_path] = False
-
-    return results
+    update_metadata_registry(metadata_file, new_entries)

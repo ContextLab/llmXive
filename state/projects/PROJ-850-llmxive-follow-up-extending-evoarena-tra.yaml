@@ -6,7 +6,7 @@ failed_stage: null
 field: linguistics
 human_escalation_reason: null
 id: PROJ-850-llmxive-follow-up-extending-evoarena-tra
-last_run_id: 225cc755-73d2-4060-b833-e2f9311c7d27
+last_run_id: e3afd475-ec54-4976-926c-deac0dd4cd85
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-850-llmxive-follow-up-extending-evoarena-tra/specs/001-llmxive-follow-up-extending-evoarena-tra
 title: 'llmXive follow-up: extending "EvoArena: Tracking Memory Evolution for Robust
   LLM Agents in Dynamic E"'
-updated_at: '2026-07-15T04:17:09.810422Z'
+updated_at: '2026-10-01T11:56:40.628454Z'

@@ -1,11 +1,10 @@
 """
-Sensitivity Report Generator for GWR Bandwidth Sweep (Task T035).
+Sensitivity Report Generator for GWR Bandwidth Sweep.
 
-This module generates a Markdown sensitivity report visualizing the stability
-of R² across different GWR bandwidths, as required by SC-004.
-
-It reads the bandwidth sweep results produced by T034 (run_gwr_bandwidth_sweep)
-and generates a report at `data/results/sensitivity_report.md`.
+This module generates a markdown sensitivity report visualizing the stability
+of R² scores across different GWR bandwidths. It reads results from the
+bandwidth sweep performed in `modeling.py` and outputs a structured report
+to `data/results/sensitivity_report.md`.
 """
 import os
 import json
@@ -14,181 +13,235 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any
 import numpy as np
 
-from utils.logging import get_main_logger
+from utils.logging import get_logger
+from config import get_path
 
-# Ensure output directory exists
-RESULTS_DIR = Path("data/results")
-RESULTS_DIR.mkdir(parents=True, exist_ok=True)
-
-logger = get_main_logger(__name__)
+logger = get_logger(__name__)
 
 
-def load_bandwidth_sweep_results(sweep_file: Optional[Path] = None) -> List[Dict[str, Any]]:
+def load_bandwidth_sweep_results(results_path: Optional[Path] = None) -> Dict[str, Any]:
     """
-    Load the GWR bandwidth sweep results from JSON.
-    
+    Load the GWR bandwidth sweep results from a JSON file.
+
     Args:
-        sweep_file: Path to the sweep results JSON. Defaults to 
-                    `data/results/gwr_bandwidth_sweep.json`.
-    
+        results_path: Path to the JSON file containing sweep results.
+                      Defaults to 'data/results/gwr_bandwidth_sweep.json'.
+
     Returns:
-        List of dictionaries containing bandwidth, R2, and other metrics.
+        A dictionary containing the sweep results (bandwidths, R² scores, etc.).
+
+    Raises:
+        FileNotFoundError: If the results file does not exist.
+        json.JSONDecodeError: If the file content is not valid JSON.
     """
-    if sweep_file is None:
-        sweep_file = RESULTS_DIR / "gwr_bandwidth_sweep.json"
-    
-    if not sweep_file.exists():
+    if results_path is None:
+        results_path = get_path("data/results/gwr_bandwidth_sweep.json")
+
+    if not os.path.exists(results_path):
         raise FileNotFoundError(
-            f"Sweep results file not found at {sweep_file}. "
-            "Please ensure T034 (run_gwr_bandwidth_sweep) has been executed."
+            f"Sweep results file not found: {results_path}. "
+            "Ensure run_gwr_bandwidth_sweep in modeling.py has been executed."
         )
-    
-    with open(sweep_file, "r") as f:
+
+    with open(results_path, 'r', encoding='utf-8') as f:
         data = json.load(f)
-    
-    return data.get("sweep_results", [])
+
+    logger.info(f"Loaded bandwidth sweep results from {results_path}")
+    return data
 
 
-def calculate_stability_metrics(sweep_results: List[Dict[str, Any]]) -> Dict[str, float]:
+def calculate_stability_metrics(results: Dict[str, Any]) -> Dict[str, float]:
     """
-    Calculate stability metrics from the sweep results.
-    
+    Calculate stability metrics from the bandwidth sweep results.
+
+    This includes the standard deviation of R², the range (max - min),
+    and the coefficient of variation.
+
     Args:
-        sweep_results: List of sweep result dictionaries.
-    
+        results: The dictionary of sweep results.
+
     Returns:
-        Dictionary with mean R2, std R2, min R2, max R2, and range.
+        A dictionary with calculated stability metrics.
     """
-    if not sweep_results:
+    r2_scores = results.get("r2_scores", [])
+    if not r2_scores:
+        logger.warning("No R² scores found in results. Returning zero metrics.")
         return {
-            "mean_r2": 0.0,
-            "std_r2": 0.0,
-            "min_r2": 0.0,
-            "max_r2": 0.0,
-            "range_r2": 0.0
+            "r2_std": 0.0,
+            "r2_range": 0.0,
+            "r2_cv": 0.0,
+            "best_bandwidth": None,
+            "best_r2": None,
+            "worst_bandwidth": None,
+            "worst_r2": None
         }
-    
-    r2_values = [res.get("r2", 0.0) for res in sweep_results]
-    r2_array = np.array(r2_values)
-    
+
+    r2_array = np.array(r2_scores)
+    r2_mean = np.mean(r2_array)
+    r2_std = np.std(r2_array)
+    r2_range = np.max(r2_array) - np.min(r2_array)
+    r2_cv = r2_std / r2_mean if r2_mean != 0 else 0.0
+
+    best_idx = int(np.argmax(r2_array))
+    worst_idx = int(np.argmin(r2_array))
+
+    bandwidths = results.get("bandwidths", [])
+    best_bandwidth = bandwidths[best_idx] if bandwidths else None
+    worst_bandwidth = bandwidths[worst_idx] if bandwidths else None
+
     return {
-        "mean_r2": float(np.mean(r2_array)),
-        "std_r2": float(np.std(r2_array)),
-        "min_r2": float(np.min(r2_array)),
-        "max_r2": float(np.max(r2_array)),
-        "range_r2": float(np.max(r2_array) - np.min(r2_array))
+        "r2_std": float(r2_std),
+        "r2_range": float(r2_range),
+        "r2_cv": float(r2_cv),
+        "best_bandwidth": best_bandwidth,
+        "best_r2": float(r2_array[best_idx]),
+        "worst_bandwidth": worst_bandwidth,
+        "worst_r2": float(r2_array[worst_idx])
     }
 
 
 def generate_report_content(
-    sweep_results: List[Dict[str, Any]],
+    results: Dict[str, Any],
     stability_metrics: Dict[str, float]
 ) -> str:
     """
-    Generate the Markdown content for the sensitivity report.
-    
+    Generate the markdown content for the sensitivity report.
+
     Args:
-        sweep_results: List of sweep result dictionaries.
-        stability_metrics: Dictionary of calculated stability metrics.
-    
+        results: The raw sweep results.
+        stability_metrics: The calculated stability metrics.
+
     Returns:
-        Markdown string content for the report.
+        A markdown string representing the report.
     """
+    timestamp = results.get("timestamp", "N/A")
+    city = results.get("city", "Unknown")
+    model_type = results.get("model_type", "GWR")
+    bandwidths = results.get("bandwidths", [])
+    r2_scores = results.get("r2_scores", [])
+    aic_scores = results.get("aic_scores", [])
+
+    # Header
     report_lines = [
-        "# GWR Bandwidth Sensitivity Report",
-        "",
-        "## Overview",
-        "",
-        "This report analyzes the stability of the Geographically Weighted Regression (GWR) "
-        "model performance across different bandwidth values. Stability is measured by the "
-        "standard deviation of R² scores.",
-        "",
-        "## Data Source",
-        "",
-        f"Results loaded from: `data/results/gwr_bandwidth_sweep.json`",
-        "",
-        "## Stability Metrics",
-        "",
-        "| Metric | Value |",
-        "| :--- | :--- |",
-        f"| Mean R² | {stability_metrics['mean_r2']:.4f} |",
-        f"| Std Dev R² | {stability_metrics['std_r2']:.4f} |",
-        f"| Min R² | {stability_metrics['min_r2']:.4f} |",
-        f"| Max R² | {stability_metrics['max_r2']:.4f} |",
-        f"| R² Range | {stability_metrics['range_r2']:.4f} |",
-        "",
-        "## Interpretation",
-        "",
-        "A lower standard deviation in R² across bandwidths indicates a stable model "
-        "that is less sensitive to the specific choice of bandwidth. A high standard "
-        "deviation suggests the model performance is highly dependent on the bandwidth "
-        "selection.",
-        "",
-        "## Detailed Results",
-        "",
-        "| Bandwidth | R² | RMSE | MAE |",
-        "| :--- | :--- | :--- | :--- |",
+        f"# GWR Bandwidth Sensitivity Report",
+        f"",
+        f"**Generated**: {timestamp}",
+        f"**City**: {city}",
+        f"**Model**: {model_type}",
+        f"",
+        f"## Summary",
+        f"",
+        f"This report analyzes the stability of the Geographically Weighted Regression (GWR) model",
+        f"performance across different bandwidth configurations. The bandwidth parameter controls",
+        f"the spatial extent of the local regression, influencing the trade-off between bias and variance.",
+        f"",
+        f"### Key Stability Metrics",
+        f"",
+        f"| Metric | Value |",
+        f"| :--- | :--- |",
+        f"| **R² Standard Deviation** | {stability_metrics['r2_std']:.4f} |",
+        f"| **R² Range (Max - Min)** | {stability_metrics['r2_range']:.4f} |",
+        f"| **Coefficient of Variation** | {stability_metrics['r2_cv']:.4f} |",
+        f"| **Best Bandwidth** | {stability_metrics['best_bandwidth']} |",
+        f"| **Best R²** | {stability_metrics['best_r2']:.4f} |",
+        f"| **Worst Bandwidth** | {stability_metrics['worst_bandwidth']} |",
+        f"| **Worst R²** | {stability_metrics['worst_r2']:.4f} |",
+        f"",
+        f"## Interpretation",
+        f"",
     ]
-    
-    for res in sweep_results:
-        bw = res.get("bandwidth", "N/A")
-        r2 = res.get("r2", 0.0)
-        rmse = res.get("rmse", 0.0)
-        mae = res.get("mae", 0.0)
-        report_lines.append(f"| {bw} | {r2:.4f} | {rmse:.4f} | {mae:.4f} |")
-    
-    report_lines.extend([
-        "",
-        "## Conclusion",
-        "",
-        "Based on the standard deviation of R² across the tested bandwidths, the model "
-        f"{'shows stable performance' if stability_metrics['std_r2'] < 0.05 else 'exhibits sensitivity to bandwidth choice'}. "
-        "The optimal bandwidth should be selected based on the specific bandwidth that maximizes "
-        "R² while maintaining model interpretability and avoiding overfitting.",
-        "",
-        "---",
-        f"*Report generated automatically by `code/sensitivity_report.py`.*"
-    ])
-    
+
+    # Interpretation logic
+    if stability_metrics['r2_cv'] < 0.05:
+        interpretation = (
+            f"The model performance is **highly stable** across the tested bandwidths. "
+            f"The low coefficient of variation ({stability_metrics['r2_cv']:.4f}) suggests that "
+            f"the choice of bandwidth within this range has a minimal impact on the predictive power (R²). "
+            f"The optimal bandwidth can be selected based on other criteria (e.g., AIC, computational cost)."
+        )
+    elif stability_metrics['r2_cv'] < 0.15:
+        interpretation = (
+            f"The model performance shows **moderate stability**. "
+            f"There is some variation in R² ({stability_metrics['r2_cv']:.4f}), indicating that bandwidth selection "
+            f"does influence model fit, but the model is not extremely sensitive to small changes."
+        )
+    else:
+        interpretation = (
+            f"The model performance is **unstable** across the tested bandwidths. "
+            f"The high coefficient of variation ({stability_metrics['r2_cv']:.4f}) suggests that "
+            f"the model fit is highly sensitive to the bandwidth parameter. "
+            f"Careful selection of the bandwidth is critical, and the range of tested values might need to be expanded."
+        )
+
+    report_lines.append(interpretation)
+    report_lines.append("")
+    report_lines.append("## Detailed Results")
+    report_lines.append("")
+    report_lines.append("| Bandwidth | R² Score | AIC Score |")
+    report_lines.append("| :--- | :--- | :--- |")
+
+    for bw, r2, aic in zip(bandwidths, r2_scores, aic_scores):
+        report_lines.append(f"| {bw} | {r2:.4f} | {aic:.4f} |")
+
+    report_lines.append("")
+    report_lines.append("## Methodology")
+    report_lines.append("")
+    report_lines.append(
+        f"The GWR model was fitted using a bandwidth sweep approach. "
+        f"A series of bandwidth values were tested, and for each value, the model was trained "
+        f"and evaluated. The R² score and AIC (Akaike Information Criterion) were recorded. "
+        f"The stability of the R² score was then analyzed to determine the robustness of the model "
+        f"to bandwidth selection."
+    )
+    report_lines.append("")
+    report_lines.append("---")
+    report_lines.append("*Generated by llmXive Sensitivity Report Generator*")
+
     return "\n".join(report_lines)
 
 
 def main():
     """
     Main entry point to generate the sensitivity report.
+
+    1. Loads bandwidth sweep results from `data/results/gwr_bandwidth_sweep.json`.
+    2. Calculates stability metrics.
+    3. Generates the markdown report content.
+    4. Writes the report to `data/results/sensitivity_report.md`.
     """
-    logger.info("Starting GWR Bandwidth Sensitivity Report generation (Task T035).")
-    
+    logger.info("Starting sensitivity report generation...")
+
     try:
-        # Load sweep results
-        logger.info(f"Loading bandwidth sweep results from {RESULTS_DIR / 'gwr_bandwidth_sweep.json'}")
-        sweep_results = load_bandwidth_sweep_results()
-        
-        if not sweep_results:
-            logger.warning("No sweep results found. Generating report with empty data.")
-        
-        # Calculate stability metrics
-        stability_metrics = calculate_stability_metrics(sweep_results)
-        logger.info(f"Stability metrics calculated: Std Dev R² = {stability_metrics['std_r2']:.4f}")
-        
-        # Generate report content
-        report_content = generate_report_content(sweep_results, stability_metrics)
-        
-        # Write report to file
-        output_path = RESULTS_DIR / "sensitivity_report.md"
-        with open(output_path, "w") as f:
+        # 1. Load Results
+        results = load_bandwidth_sweep_results()
+
+        # 2. Calculate Metrics
+        stability_metrics = calculate_stability_metrics(results)
+
+        # 3. Generate Content
+        report_content = generate_report_content(results, stability_metrics)
+
+        # 4. Write Output
+        output_path = get_path("data/results/sensitivity_report.md")
+        output_dir = Path(output_path).parent
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+        with open(output_path, 'w', encoding='utf-8') as f:
             f.write(report_content)
-        
+
         logger.info(f"Sensitivity report successfully written to {output_path}")
-        return 0
-        
+        print(f"Report generated: {output_path}")
+
     except FileNotFoundError as e:
-        logger.error(f"Required data file not found: {e}")
-        return 1
+        logger.error(f"Input data missing: {e}")
+        raise
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in results file: {e}")
+        raise
     except Exception as e:
-        logger.error(f"Error generating sensitivity report: {e}", exc_info=True)
-        return 1
+        logger.error(f"Unexpected error during report generation: {e}")
+        raise
 
 
 if __name__ == "__main__":
-    exit(main())
+    main()

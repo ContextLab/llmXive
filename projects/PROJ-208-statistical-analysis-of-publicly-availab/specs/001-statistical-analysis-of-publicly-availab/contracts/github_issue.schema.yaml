@@ -1,0 +1,54 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CleanedGitHubIssue"
+description: "Schema for the cleaned GitHub issue dataset used in statistical analysis."
+type: "object"
+properties:
+  issue_id:
+    type: "string"
+    description: "Unique identifier for the issue."
+  repository:
+    type: "string"
+    description: "Repository path (owner/repo)."
+  created_at:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of issue creation."
+  closed_at:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of issue closure."
+  resolution_time_hours:
+    type: "number"
+    minimum: 0
+    description: "Computed resolution time in hours. Must be > 0."
+  labels:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of labels associated with the issue."
+  assignee:
+    type: ["string", "null"]
+    description: "Assignee username or null if unassigned."
+  comments_count:
+    type: "integer"
+    minimum: 0
+    description: "Number of comments on the issue."
+  state:
+    type: "string"
+    enum:
+      - "closed"
+    description: "State of the issue (must be 'closed')."
+  is_outlier:
+    type: "boolean"
+    description: "Flag indicating if the issue is an outlier by IQR method."
+required:
+  - issue_id
+  - repository
+  - created_at
+  - closed_at
+  - resolution_time_hours
+  - labels
+  - comments_count
+  - state
+  - is_outlier
+additionalProperties: false

@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HumanAnnotation"
+description: "One annotator's blinded label for a log (three-category scheme, FR-006)."
+type: "object"
+properties:
+  log_id:
+    type: "string"
+    minLength: 1
+  annotator_id:
+    type: "string"
+    minLength: 1
+    description: "Identifier of one of exactly three independent annotators."
+  label:
+    type: "string"
+    enum: ["novel attack", "known attack", "benign"]
+    description: "Annotator category label; annotators are blinded to drift scores and bins."
+required:
+  - log_id
+  - annotator_id
+  - label
+additionalProperties: false

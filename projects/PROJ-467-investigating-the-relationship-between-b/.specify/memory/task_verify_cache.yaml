@@ -1,0 +1,7 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory listing or file system snapshot was provided to confirm that the
+    specified folders (`src/brainnet`, `tests/unit`, `tests/contract`, `data/processed`,
+    `data/raw`, `results/figures`, `metadata`, `contracts`) actually exist; thus the
+    required project structure cannot be verified.

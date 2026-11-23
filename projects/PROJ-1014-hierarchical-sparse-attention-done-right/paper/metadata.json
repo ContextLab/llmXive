@@ -63,5 +63,15 @@
     "table/7B_downstream.tex",
     "table/7B_longbench.tex",
     "table/7B_ppl.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "8f7d695fff90922581baa079a18ec46c8b8ca99124821fe202a8d9a136e0f58e",
+      "bytes": 1304785
+    },
+    "original.pdf": {
+      "sha256": "68ed363ee098765897ffa1f4bb677f560d6b19031c63a5cdbf8dd097c8e7ed76",
+      "bytes": 1271839
+    }
+  }
 }

@@ -1,6 +1,6 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: UQ Prediction
-description: Schema for uncertainty quantification predictions output.
+description: Schema for uncertainty quantification predictions and metrics.
 type: object
 required:
   - sample_id
@@ -11,10 +11,9 @@ required:
   - upper_50
   - lower_90
   - upper_90
-  - uncertainty_type
 properties:
   sample_id:
-    type: string
+    type: integer
     description: Unique identifier for the material sample.
   method:
     type: string
@@ -22,42 +21,51 @@ properties:
       - deep_ensemble
       - mc_dropout
       - sparse_gp
-    description: The UQ method used for prediction.
+    description: The UQ method used to generate the prediction.
   prediction:
     type: number
-    description: Predicted formation energy (eV/atom).
+    format: float64
+    description: Point prediction for the target variable (e.g., formation energy).
   variance:
     type: number
-    minimum: 0
-    description: Predicted variance of the formation energy.
+    format: float64
+    description: Total uncertainty variance estimate.
   lower_50:
     type: number
+    format: float64
     description: Lower bound of the 50% confidence interval.
   upper_50:
     type: number
+    format: float64
     description: Upper bound of the 50% confidence interval.
   lower_90:
     type: number
+    format: float64
     description: Lower bound of the 90% confidence interval.
   upper_90:
     type: number
+    format: float64
     description: Upper bound of the 90% confidence interval.
+  aleatoric:
+    type: number
+    format: float64
+    nullable: true
+    description: Aleatoric uncertainty component. Null for Sparse GP.
+  epistemic:
+    type: number
+    format: float64
+    nullable: true
+    description: Epistemic uncertainty component. Null for Sparse GP.
+  total:
+    type: number
+    format: float64
+    nullable: true
+    description: Total uncertainty (sum of aleatoric and epistemic). Null for Sparse GP.
   uncertainty_type:
     type: string
     enum:
+      - total
       - aleatoric
       - epistemic
-      - total
-    description: Type of uncertainty decomposition.
-  aleatoric_variance:
-    type: number
-    minimum: 0
-    description: Aleatoric (data) variance component.
-  epistemic_variance:
-    type: number
-    minimum: 0
-    description: Epistemic (model) variance component.
-  metadata:
-    type: object
-    description: Additional metadata fields.
-    additionalProperties: true
+    nullable: true
+    description: Type of uncertainty being reported in the row.

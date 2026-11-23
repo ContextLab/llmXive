@@ -92,7 +92,7 @@ As a researcher, I need to stratify the correlation analysis by package category
 - **SC-002**: The proportion of dependencies with missing release metadata is measured against the total dataset size to assess data completeness and potential bias. (See FR-010)
 - **SC-003**: The variance in correlation coefficients across package categories (for categories with N ≥ 30) is measured against the overall dataset correlation to determine if risk profiles differ by type. (See US-3)
 - **SC-004**: The number of API requests successfully completed versus failed (after retries) is measured against the total required requests to verify data collection robustness. (See FR-009)
-- **SC-005**: The computational runtime of the full analysis pipeline is measured against the 6-hour free-tier CI limit to ensure feasibility. (See Compute Feasibility)
+- **SC-005**: The computational runtime of the full analysis pipeline is measured against standard CI free-tier limits to ensure feasibility. (See Compute Feasibility)
 - **SC-006**: The statistical power of the primary correlation test is measured against a target of ≥ 0.8 for detecting a moderate effect size (rho ≥ 0.2) at alpha = 0.05. (See Assumptions - Multiplicity & power)
 
 ## Assumptions

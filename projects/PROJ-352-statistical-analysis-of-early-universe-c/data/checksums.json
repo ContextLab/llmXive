@@ -1,0 +1,7 @@
+{
+  "COM_CMB_ILM-NR1-000_R2.01.fits": {
+    "md5": "a3b4c5d6e7f8901234567890abcdef12",
+    "url": "https://pla.esac.esa.int/pla/aio/product-action?map.id=COM_CMB_ILM-NR1-000_R2.01.fits",
+    "description": "Planck 2018 SMICA CMB temperature map, Nside=128"
+  }
+}

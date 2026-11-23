@@ -1,8 +1,5 @@
 """
-Utility functions for the llmXive science pipeline.
-
-This module provides logging setup, RNG management, and QC utilities
-used across the project.
+Utility functions for logging, RNG, and QC.
 """
 import logging
 import os
@@ -11,97 +8,87 @@ from pathlib import Path
 from datetime import datetime
 from typing import Tuple, Optional
 
+# Configuration
+DATA_ROOT = Path("data")
+LOG_FILE_PREPROCESS = DATA_ROOT / "preprocess_log.txt"
+LOG_FILE_ANALYSIS = DATA_ROOT / "analysis_log.txt"
 
-def setup_logger(name: str = "llmXive", log_dir: str = "data") -> logging.Logger:
+def setup_logger(name: str = "llmXive", log_file: Optional[Path] = None) -> logging.Logger:
     """
-    Configure and return a logger that writes to both preprocess and analysis logs.
-    
+    Set up a logger that writes to both console and a file.
+
     Args:
-        name: Name of the logger instance.
-        log_dir: Directory where log files will be stored.
-        
+        name (str): Logger name.
+        log_file (Path, optional): Path to log file. Defaults to preprocess_log.txt.
+
     Returns:
-        Configured logging.Logger instance.
-        
-    The logger writes ISO-timestamped entries to:
-        - data/preprocess_log.txt
-        - data/analysis_log.txt
+        logging.Logger: Configured logger.
     """
-    # Ensure log directory exists
-    log_path = Path(log_dir)
-    log_path.mkdir(parents=True, exist_ok=True)
-    
-    # Create logger
     logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)
-    
-    # Avoid adding handlers if they already exist (prevents duplicate logs in same process)
     if logger.handlers:
         return logger
-    
-    logger.handlers.clear()
-    
-    # Define log file paths
-    preprocess_log_file = log_path / "preprocess_log.txt"
-    analysis_log_file = log_path / "analysis_log.txt"
-    
-    # Create file handlers
-    fh_preprocess = logging.FileHandler(preprocess_log_file)
-    fh_preprocess.setLevel(logging.DEBUG)
-    
-    fh_analysis = logging.FileHandler(analysis_log_file)
-    fh_analysis.setLevel(logging.DEBUG)
-    
-    # Create formatter with ISO timestamp
-    formatter = logging.Formatter(
-        fmt="%(asctime)s | %(levelname)-8s | %(name)s | %(message)s",
-        datefmt="%Y-%m-%dT%H:%M:%S"
-    )
-    
-    fh_preprocess.setFormatter(formatter)
-    fh_analysis.setFormatter(formatter)
-    
-    # Add handlers to logger
-    logger.addHandler(fh_preprocess)
-    logger.addHandler(fh_analysis)
-    
-    return logger
 
+    logger.setLevel(logging.DEBUG)
+
+    # Formatter
+    formatter = logging.Formatter(
+        '[%(asctime)s] %(levelname)s: %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+    # File handler (if specified, otherwise default)
+    if log_file is None:
+        log_file = LOG_FILE_PREPROCESS
+    
+    # Ensure directory exists
+    log_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    file_handler = logging.FileHandler(log_file)
+    file_handler.setLevel(logging.DEBUG)
+    file_handler.setFormatter(formatter)
+
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
+
+    return logger
 
 def get_seeded_rng(seed: int = 42) -> np.random.Generator:
     """
-    Create a numpy random Generator with a fixed seed for reproducibility.
-    
+    Get a numpy random generator with a fixed seed.
+
     Args:
-        seed: Integer seed value for the random number generator.
-            
+        seed (int): Random seed.
+
     Returns:
-        numpy.random.Generator instance initialized with the seed.
+        np.random.Generator: Seeded random number generator.
     """
     return np.random.default_rng(seed)
 
-
 def check_fd(fd_value: float, threshold: float = 0.5) -> bool:
     """
-    Check if a Framewise Displacement (FD) value is within acceptable limits.
-    
+    Check if FD value is within acceptable limits.
+
     Args:
-        fd_value: The calculated FD value for a subject or time point.
-        threshold: The maximum acceptable FD value (default 0.5mm).
-            
+        fd_value (float): Framewise Displacement value.
+        threshold (float): Threshold for exclusion.
+
     Returns:
-        True if FD is within acceptable limits (fd_value <= threshold), False otherwise.
+        bool: True if FD is acceptable (<= threshold), False otherwise.
     """
     return fd_value <= threshold
 
+def log_exclusion(reason: str, subject_id: str) -> None:
+    """
+    Log an exclusion event.
 
-def log_exclusion(logger: logging.Logger, reason: str, subject_id: str) -> None:
-    """
-    Log an exclusion event with the subject ID and reason.
-    
     Args:
-        logger: The logger instance to use.
-        reason: The reason for exclusion (e.g., "FD > 0.5mm").
-        subject_id: The ID of the excluded subject.
+        reason (str): Reason for exclusion.
+        subject_id (str): Subject ID.
     """
-    logger.warning(f"EXCLUSION | Subject: {subject_id} | Reason: {reason}")
+    logger = setup_logger()
+    logger.warning(f"Exclusion logged: {subject_id}, reason: {reason}")

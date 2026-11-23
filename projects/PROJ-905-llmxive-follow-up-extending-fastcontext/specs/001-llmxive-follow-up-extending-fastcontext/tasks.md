@@ -1,239 +1,255 @@
-# Tasks: llmXive follow-up: extending "FastContext: Training Efficient Repository Explorer for Coding Agents"
+# Tasks: Extending FastContext with Deterministic Retrieval (FastContext‑Lite)
 
-**Input**: Design documents from `/specs/001-llmxive-fastcontext-lite/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project structure per implementation plan in `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/` by executing: `mkdir -p data/raw data/processed data/results code tests/unit tests/integration specs/contracts state` <!-- FAILED: unspecified -->
-- [X] T001b Initialize `state/` directory structure and create empty `state/projects/PROJ-905-llmxive-follow-up-extending-fastcontext.yaml` file to ensure T004 has a valid target path.
+**Inputs**: `spec.md`, `plan.md`, existing research artifacts, and the current `tasks.md` template.  
+All tasks are written as checklist items with unique IDs, required artifact paths, and explicit verification steps.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Project Setup & Infrastructure (User Story 0)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] **T001** [US0] Create the project directory hierarchy under `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/`  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+  ```
+  projects/PROJ-905-llmxive-follow-up-extending-fastcontext/
+  ├─ data/
+  │   ├─ raw/
+  │   ├─ processed/
+  │   └─ results/
+  ├─ code/
+  ├─ tests/
+  │   ├─ unit/
+  │   └─ integration/
+  ├─ specs/
+  │   └─ contracts/
+  └─ state/
+  ```
 
-- [X] T002 Initialize Python project with `requirements.txt` at `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/requirements.txt` by executing: `cat > requirements.txt << 'EOF'
-scikit-learn==1.4.0
-pandas==2.1.0
-networkx==3.2.1
-transformers==4.40.0
-datasets==2.18.0
-pytest==8.1.0
-torch==2.2.0
-EOF`
-- [X] T003a [P] Create `.ruff.toml` at `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/` with rules: `["E", "F", "I", "W"]` and `target-version = "py311"` (FR-001)
-- [X] T003b [P] Create `pyproject.toml` at `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/` with black configuration: `line-length = 88 `, `target-version = ["py311"]` (FR-001)
-- [X] T004 Implement `code/versioning.py` to compute content hashes for `data/` and `code/` artifacts and update `state/projects/PROJ-905-llmxive-follow-up-extending-fastcontext.yaml` (Requires T001b completion) with a JSON schema containing `artifact_hashes` (map of filename: sha256 string) and `updated_at` (ISO 8601 timestamp string) (Constitution Principle V)
-- [X] T005 [P] Create base data models and schema definitions in `code/__init__.py` and `contracts/`
-- [X] T006 [P] Setup environment configuration management for dataset paths and model IDs in `code/config.py`
-- [ ] T007 Implement data download utility in `code/data_loader.py` to fetch `princeton-nlp/SWE-bench_Lite` via `datasets` library, specifically version tag: v.0, split: test, and verify checksums (FR-001)
-- [ ] T007b Implement `code/annotation_extractor.py` to extract and map 'ground-truth relevant files' from SWE-bench task annotations to a CSV format (`data/raw/ground_truth_annotations.csv`) containing `repo_id`, `issue_id`, and `ground_truth_file_paths` for validation (FR-001)
+  **Verification**: Run `tree -L 3 projects/PROJ-905-llmxive-follow-up-extending-fastcontext/ > data/processed/dir_structure.txt` and then assert that `data/processed/dir_structure.txt` exists and contains entries for the five top‑level directories (`data`, `code`, `tests`, `specs`, `state`).  
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] **T002** [US0] Add a pinned `requirements.txt` at `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/requirements.txt` containing the exact package list required for the study (CPU‑only wheels only).
 
----
+  ```text
+  datasets==2.19.0
+  scikit-learn==1.5.0
+  pandas==2.2.2
+  numpy==1.26.4
+  tiktoken==0.7.0
+  networkx==3.3
+  scipy==1.13.0
+  tqdm==4.66.5
+  huggingface-hub==0.23.2
+  ```
 
-## Phase 3: User Story 1 - Structural Regularity Scoring and Dataset Split (Priority: P1) 🎯 MVP
+  **Verification**: `pip install -r …/requirements.txt` completes without requesting CUDA or non‑CPU wheels (inspect the log for “cpu” only).
 
-**Goal**: Implement static analysis to score repositories and split them into "Regular" and "Irregular" sets.
+- [ ] **T003a** [US0] Create a lint‑configuration file `.ruff.toml` in `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/` with the rule set `["E", "F", "I", "W"]` and `target-version = "py311"`.
 
-**Independent Test**: Run the static analysis script on a small sample of known repositories and verify the output CSV contains a "regularity_score" column and the split logic correctly assigns the top half to the "Regular" set and the bottom half to the "Irregular" set.
+  ```toml
+  [tool.ruff]
+  target-version = "py311"
+  select = ["E", "F", "I", "W"]
+  ```
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+  **Verification**: `ruff check projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/` runs without configuration errors (exit code 0).
 
-> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
+- [ ] **T003b** [US0] Create `pyproject.toml` in `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/code/` with Black configuration (`line-length = 88`, `target-version = ["py311"]`).
 
-- [ ] T008 [P] [US1] Unit test `tests/unit/test_static_analysis.py::test_directory_naming_returns_score_1_0_for_standard_layout` using fixture `sample_repo_standard` (contains `src/`, `tests/`, `docs/`) to assert `calculate_dir_score` returns a normalized value indicating complete alignment. <!-- FAILED: unspecified -->
-- [ ] T009 [P] [US1] Unit test `tests/unit/test_static_analysis.py::test_import_pattern_analysis_returns_score_0_5_for_mixed_imports` using fixture `sample_repo_mixed_imports` (contains `import os`, `from. import x`) to assert `calculate_import_score` returns a moderate value <!-- FAILED: unspecified -->
-- [X] T010 [P] [US1] Unit test `tests/unit/test_stratification.py::test_stratification_splits_50_50_by_regular_score` using fixture `sample_scores_csv` (n=10, scores ranging from low to high) to assert `split_repos` returns two lists of a fixed size
+  ```toml
+  [tool.black]
+  line-length = 88
+  target-version = ["py311"]
+  ```
 
-### Implementation for User Story 1
+  **Verification**: `black --check .` reports “All done!” (exit code 0).
 
-- [X] T011 [US1] Implement `code/static_analysis.py` to calculate `regularity_score` using the formula: `* dir_score + w1 * test_score + w2 * import_score, where w1 and w2 are adjustable weights determined during the optimization phase.`.
- - `dir_score`: Binary check for presence of `src/`, `tests/`, `docs/` (A binary indicator where 1 if all present, 0 if none, linear interpolation for partial).
- - `test_score`: Binary check for `tests/` directory presence (The presence of the feature, coded as a binary indicator, is evaluated using the method described in [Citation]. This approach aligns with the research question regarding the occurrence of the phenomenon, as outlined in [Citation].).
- - `import_score`: Ratio of absolute imports (`import pkg`) to total imports (Maximum if all absolute, 0.0 if all relative).
- (FR-001)
-- [X] T012 [US1] Implement `code/static_analysis.py` to handle edge cases (missing test files, extreme irregularity) with fallback logic returning a default score (baseline parameter for initial evaluation).
-- [X] T013 [US1] Implement `code/stratification.py` to sort repositories by score and split into "Regular" and "Irregular" sets of approximately equal size
-- [ ] T014 [US1] Implement data export logic to write `data/processed/regularity_scores.csv` with repo IDs and scores
+- [ ] **T004** [US0] Implement `code/versioning.py` that computes SHA‑256 hashes for every file under `data/` and `code/` and writes a manifest to `state/projects/PROJ-905-llmxive-follow-up-extending-fastcontext.yaml`.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+  **Verification**: Running `python -m code.versioning` creates the YAML file; the file contains a top‑level key `files` mapping relative paths to 64‑character hex digests.
 
----
+- [ ] **T005** [US0] Add `code/__init__.py` and copy the JSON schema files from `specs/contracts/` into `code/schemas/` for easy import.
 
-## Phase 4: User Story 2 - FastContext-Lite Execution and Metric Collection (Priority: P2)
+  **Verification**: `ls code/schemas/` lists all four schema `.yaml` files; importing `code.schemas.execution_schema` succeeds without `FileNotFoundError`.
 
-**Goal**: Execute the FastContext-Lite pipeline and the original FastContext (4B) baseline to collect metrics.
+- [ ] **T006** [US0] Create `code/config.py` exposing constants for dataset identifiers, TF‑IDF hyper‑parameters, and weighting factors (`W_DIR=0.4`, `W_TEST=0.3`, `W_IMPORT=0.3`, `DEFAULT_SCORE=0.0`).
 
-**Independent Test**: Run the FastContext-Lite pipeline on a single "Regular" repository and verify that it outputs a JSON log containing `context_precision`, `total_tokens`, and `exploration_latency_ms` without requiring a GPU.
+  **Verification**: `python -c "import code.config as cfg; assert hasattr(cfg, 'W_DIR')"` exits cleanly.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+- [ ] **T007** [US0] Implement `code/data_loader.py` that streams the SWE‑bench Lite dataset via  
 
-- [X] T016 [P] [US2] Integration test `tests/integration/test_pipeline.py::test_fastcontext_lite_runs_on_regular_repo` using fixture `sample_regular_repo` to assert `run_lite_pipeline` completes in < 5s and returns valid JSON log <!-- FAILED: unspecified -->
-- [X] T017 [P] [US2] Integration test `tests/integration/test_pipeline.py::test_original_fastcontext_4b_runs_on_cpu` using fixture `sample_regular_repo` to assert `run_baseline_4b` completes on CPU (no CUDA) with explicit OOM/timeout handling (max limited duration, 7GB RAM) and returns valid JSON log (FR-004)
-- [X] T018 [P] [US2] Unit test `tests/unit/test_metrics_logger.py::test_log_schema_validates_required_fields` using mock data to assert `validate_log` passes for schema containing `context_precision`, `total_tokens`, `wall_clock_latency`
+  ```python
+  from datasets import load_dataset
+  ds = load_dataset("princeton-nlp/SWE-bench_Lite", split="test", streaming=True)
+  ```
 
-### Implementation for User Story 2
+  The script must verify the SHA‑256 checksum of each downloaded shard (using the `datasets` built‑in `download_checksums` if available) and raise an exception on mismatch – **no synthetic fallback**.
 
-- [X] T019 [US2] Implement `code/fastcontext_lite.py` with deterministic parser: "Parse issue description to extract keywords, search file tree for matching paths in tests/, src/, and docs/, and return top-K snippets based on TF-IDF similarity to the issue keywords." (Input: JSON `{"file_path": str, "content": str}`, output: `{"retrieved_snippets": list, "token_count": int}`) and TF-IDF index (params: `ngram_range=(variable lower bound,)`, `max_features=10000 `, `analyzer='word'`) ensuring CPU-only execution (FR-003)
-- [X] T020 [US2] Implement chunking logic in `code/fastcontext_lite.py` to handle large repositories within RAM limits (e.g., streaming file reads, sliding window indexing) to prevent OOM on 7GB runners.
-- [X] T021a [US2] Implement `code/baseline_runner.py` to load `princeton-nlp/fastcontextb ` (original FastContext model) in default precision on CPU (no bitsandbytes/quantization) as the PRIMARY baseline for FR-004 and Constitution Principle VII. Use `revision: main `, `prompt_template: fastcontext-v `, and `device_map: cpu ` with `max_memory: a sufficient amount of memory to handle the experimental workload, as determined by the system requirements and the scale of the data processing tasks outlined in the method.`. (FR-004) <!-- ATOMIZE: requested -->
-- [X] T022 [US2] Implement `code/metrics_logger.py` to record `context_precision`, `total_tokens`, and `wall_clock_latency` for every run
-- [~] T023 [US2] Implement orchestration logic in `code/main.py` to run Lite (T019) and Baseline (T021a) pipelines on the stratified sets (Requires T021a completion) and save logs to `data/results/exploration_logs.jsonl` (FR-004)
+  **Verification**: Running `python -m code.data_loader` prints the first three `instance_id`s and exits with status 0; deliberately corrupting a shard causes a `RuntimeError`.
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+## Phase 2 – Data Curation (User Story 1)
 
----
+- [ ] **T008** [US1] Implement `code/static_analysis.py` that, for a given repository path, computes:
 
-## Phase 5: User Story 3 - Comparative Analysis and Boundary Detection (Priority: P3)
+  * `dir_score` – consistency of top‑level directories (`src/`, `tests/`, `docs/`).
+  * `test_score` – average relative path distance of test files to source files.
+  * `import_score` – density of the import‑graph (using `networkx`).
 
-**Goal**: Perform statistical analysis to compare metrics and identify performance boundaries.
+  The composite `regularity_score = W_DIR*dir_score + W_TEST*test_score + W_IMPORT*import_score` (weights from `config.py`). Output a CSV row per repository with columns  
+  `instance_id,repo,dir_score,test_score,import_score,regularity_score`.
 
-**Independent Test**: Provide two mock datasets (one "Regular", one "Irregular") with pre-calculated metrics and verify the analysis script outputs the p-value for the Regular set comparison and the degradation percentage for the Irregular set.
+  **Verification**: Running the script on a fixture repository creates `data/processed/tmp_score.csv` containing the header and at least one row; the `regularity_score` column values lie in [0, 1].
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+- [ ] **T009** [US1] Add edge‑case handling in `static_analysis.py` (missing test files, empty repo, binary‑only repos). In such cases return a default score defined in `config.py` (`DEFAULT_SCORE = 0.0`) and log a warning.
 
-- [X] T024 [P] [US3] Unit test `tests/unit/test_analysis.py::test_paired_ttest_returns_significant_pvalue_for_mock_regular_data` using mock data (diffs=[,, 0.15]) to assert `run_ttest` returns p < 0.05
-- [ ] T025 [P] [US3] Unit test `tests/unit/test_analysis.py::test_degradation_calc_returns_correct_percent` using mock data (baseline=100, lite=90) to assert `calc_degradation` returns a positive scalar value.
-- [ ] T026 [P] [US3] Unit test `tests/unit/test_analysis.py::test_boundary_detection_identifies_threshold` using mock data (sensitivity analysis framework) to assert `find_threshold` returns a valid float.
+  **Verification**: Unit test `tests/unit/test_static_analysis.py::test_missing_tests` passes (asserts returned `regularity_score == 0.0`).
 
-### Implementation for User Story 3
+- [ ] **T010** [US1] Create `code/stratification.py` that reads the full `regularity_scores.csv` (generated by `static_analysis.py` over the streamed SWE‑bench), sorts by `regularity_score`, and splits into two balanced strata (“Regular” and “Irregular”) of equal size (or as close as possible). Write the result to `data/processed/regularity_scores.csv` with an additional column `split`.
 
-- [ ] T027 [US3] Implement `code/analysis.py` to perform power analysis (threshold=0.8, {{claim:c_6ac13cd6}} (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value)) and select between paired t-test and Wilcoxon signed-rank test based on sample size. Use `scipy.stats.shapiro` for normality check; if p < 0.05, use Wilcoxon. (FR-005)
-- [ ] T028b [US3] Implement `code/analysis.py` to calculate descriptive statistics (mean, std) AND **continuous regression analysis** (slope, R-squared) correlating `regularity_score` with performance delta for the "Regular" set (FR-005) (Requires T023 completion)
-- [ ] T029 [US3] Implement `code/analysis.py` to calculate performance degradation percentage for the "Irregular" set by comparing Lite metrics against the **Baseline** (T021a) (FR-006, SC-004)
-- [ ] T030 [US3] Implement `code/analysis.py` to perform regression analysis correlating `regularity_score` with performance delta (Redundant with T028b for Regular set, but covers Irregular set trend if needed)
-- [ ] T031 [US3] Implement output generation to write `data/results/statistical_summary.json` with exact schema: `{ "p_value": float, "effect_size": { "cohen_d": float }, "degradation_percent": float, "boundary_threshold": float, "regression_slope": float, "r_squared": float }` (FR-005, FR-006)
+  **Verification**: After execution, `csvstat --count data/processed/regularity_scores.csv` reports the same number of rows for each `split` value (difference ≤ 1).
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] **T027** [US1] Generate `data/processed/ground_truth_annotations.csv` by extracting the ground‑truth relevant file lists from SWE‑bench task annotations.
 
----
+  **Verification**: The CSV contains columns `instance_id` and `ground_truth_files` (JSON‑encoded list) for every repository present in `regularity_scores.csv`.
 
-## Phase 6: Polish & Cross-Cutting Concerns
+- [ ] **T011** [US1] **Pilot validation script** – `code/pilot_validation.py`
 
-**Purpose**: Improvements that affect multiple user stories
+  1. Loads the first **20** rows of `data/processed/regularity_scores.csv`.  
+  2. For each repository runs a lightweight TF‑IDF keyword‑only retrieval (over file names only) to obtain a **precision** estimate (intersection over union with ground‑truth files from `ground_truth_annotations.csv`).  
+  3. Computes the Pearson correlation `r` and two‑tailed p‑value between `regularity_score` and the precision estimates.  
+  4. Writes `data/processed/pilot_correlation.json` with exact schema `{ "pearson_r": float, "p_value": float, "n_samples": int }`.
 
-- [ ] T032a [P] Update `README.md` at `projects/PROJ-905-llmxive-follow-up-extending-fastcontext/` with installation instructions, usage examples, and contribution guidelines (FR-001)
-- [ ] T032b [P] Update `docs/` with API documentation for `code/static_analysis.py`, `code/fastcontext_lite.py`, and `code/analysis.py` (FR-001)
-- [ ] T033 Code cleanup and refactoring
-- [ ] T034 Performance optimization for TF-IDF indexing on large repos
-- [ ] T035 [P] Additional unit tests for edge cases in `tests/unit/`
-- [ ] T036 Run quickstart.md validation and end-to-end pipeline check
+  **Verification**: After running `python -m code.pilot_validation`, the JSON file exists, contains the three keys, and `n_samples == 20`. A quick `jq .pearson_r` prints a number between ‑1 and 1.
 
----
+## Phase 3 – Deterministic Engine & Baseline (User Story 2)
+
+- [ ] **T012** [US2] Implement `code/fastcontext_lite.py`:
+
+  * Deterministic parser extracts issue‑related keywords from the SWE‑bench task description.  
+  * Streams a TF‑IDF index over all repository files (`ngram_range=(1,2)`, `max_features=10000`, chunked reads ≤ 200 KB).  
+  * Retrieves the top‑K (K=5) snippets, concatenates them, and computes:
+    * `context_precision` (IoU vs. ground‑truth files),
+    * `total_tokens` (using `tiktoken` on the concatenated snippet),
+    * `latency_ms` (wall‑clock timing).
+
+  Returns a JSON **execution record** adhering to `execution_schema.yaml` with fields: `instance_id`, `split`, `method="FastContext-Lite"`, `context_precision`, `total_tokens`, `latency_ms`, `regularity_score`, `hardware_efficiency`.
+
+  **Verification**: Running the script on a single “Regular” repository produces `lite_log.json` that validates with `jsonschema` against `execution_schema.yaml` and contains all required numeric fields.
+
+- [ ] **T013** [US2] Add `code/benchmark_lite.py` that runs `fastcontext_lite.py` on a stratified sample of **50** repositories (25 Regular + 25 Irregular) and records average latency, peak memory (via `tracemalloc`), and token usage in `data/results/lite_benchmark.json`.
+
+  **Verification**: After execution, the JSON file contains keys `avg_latency_ms`, `peak_memory_mb`, `avg_tokens`; each is a non‑negative number.
+
+- [ ] **T014** [US2] Implement `code/baseline_runner.py` (original FastContext 4B model):
+
+  1. Load model `princeton-nlp/fastcontext-4b` with `device_map="cpu"` (torch ≥ 2.2).  
+  2. No GPU fallback – the script must abort with a clear error if CUDA is unavailable.  
+  3. Log an execution record matching `execution_schema.yaml` with `method="FastContext-Original"` and the same metric fields as T012 (no `hardware` field).
+
+  **Verification**: On the CI runner (CPU‑only) the script completes successfully; the output file `baseline_log.json` validates against `execution_schema.yaml`.
+
+- [ ] **T015** [US2] Create `code/metrics_logger.py` that validates each execution record against `execution_schema.yaml` (using `jsonschema`) before appending to `data/results/exploration_logs.jsonl`.
+
+  **Verification**: Feeding a deliberately malformed record raises a `jsonschema.ValidationError`; a correct record is appended without error.
+
+- [ ] **T016** [US2] Write orchestration script `code/main.py` that:
+
+  * Loads `regularity_scores.csv` to obtain the two splits.  
+  * Iterates over every repository, runs **both** `fastcontext_lite.py` and `baseline_runner.py`.  
+  * Uses `metrics_logger.py` to store each run’s JSON line in `exploration_logs.jsonl`.
+
+  **Verification**: After `python -m code.main --max-repos 10` finishes, `exploration_logs.jsonl` contains **20** lines (10 repos × 2 methods) and each line validates against the schema.
+
+## Phase 4 – Statistical Comparison & Boundary Detection (User Story 3)
+
+- [ ] **T017** [US3] Implement `code/analysis.py` that:
+
+  1. Loads `exploration_logs.jsonl` and merges Lite vs. Baseline rows by `instance_id`.  
+  2. Performs a Shapiro‑Wilk test on the paired differences of `context_precision` for the “Regular” set.  
+  3. Chooses a paired **t‑test** if normality (p > 0.05) else a **Wilcoxon signed‑rank** test.  
+  4. Computes effect size (Cohen’s d or rank‑biserial).  
+  5. Writes `data/results/statistical_summary.json` conforming to `statistical_summary.schema.yaml` (includes `test_type`, `dataset`, `metrics.precision`, `metrics.latency`, and `boundary_analysis` placeholders).  
+  6. Checks the p‑value against the deferred significance threshold (to be defined in `specs/quickstart.md`) and records a boolean `significant` field.
+
+  **Verification**: The JSON file validates against `statistical_summary.schema.yaml`; the field `test_type` is either `"paired_t_test"` or `"wilcoxon_signed_rank"` and `significant` is a boolean.
+
+- [ ] **T029** [US3] Extend `analysis.py` to compute the Pearson correlation coefficient `r` and 95 % confidence interval between `regularity_score` and the performance delta (`lite_precision - baseline_precision`) and store them in `statistical_summary.json` under `metrics.precision.correlation_r` and `metrics.precision.ci_95`.
+
+  **Verification**: The JSON contains numeric `correlation_r` between –1 and 1 and a two‑element list `ci_95`.
+
+- [ ] **T030** [US3] Add an optional non‑linear (quadratic) regression of `regularity_score` vs. performance delta; if the adjusted R² improves by ≥ 0.02 over the linear model, record `non_linear_fit=true` and the quadratic coefficients in `statistical_summary.json`.
+
+  **Verification**: Presence of `non_linear_fit` boolean and, when true, a `quadratic_coeffs` array.
+
+- [ ] **T018** [US3] Perform a linear regression of `regularity_score` vs. performance delta over the full dataset. Store `regression_slope` and `r_squared` in `statistical_summary.json` (already part of T017; now explicitly documented).
+
+  **Verification**: After execution, `statistical_summary.json` contains numeric `regression_slope` and `r_squared` (0 ≤ r² ≤ 1).
+
+- [ ] **T024** [US3] Compute the latency reduction percentage for the “Regular” set:  
+
+  `latency_reduction_pct = 100 * (baseline_latency - lite_latency) / baseline_latency`  
+
+  Verify that the reduction meets or exceeds the deferred target (e.g., 40 %). Record the value and a boolean `meets_target` in `statistical_summary.json`.
+
+  **Verification**: JSON fields `latency_reduction_pct` (float) and `latency_meets_target` (bool) exist.
+
+- [ ] **T025** [US3] Compute token‑consumption variance between methods for the “Regular” set and report the variance ratio and a statistical test (e.g., Levene’s test). Record `token_variance_ratio` and `token_variance_p` in `statistical_summary.json`.
+
+  **Verification**: JSON contains the two numeric fields; `token_variance_p` is between 0 and 1.
+
+- [ ] **T019** [US3] Add degradation calculation for the “Irregular” set:
+
+  * Compute `degradation_pct = 100 * (baseline_precision - lite_precision) / baseline_precision`.  
+  * Compare against the 10 % threshold (SC‑004) and record a boolean `degradation_exceeds_threshold`.  
+  * Store `degradation_pct` (schema‑compliant) in `statistical_summary.json`.
+
+  **Verification**: The JSON includes `degradation_pct` (float) and `degradation_exceeds_threshold` (bool).
+
+- [ ] **T020** [US3] Validate the final `statistical_summary.json` against `analysis_schema.schema.yaml` using `jsonschema`.
+
+  **Verification**: Running the validation command exits with status 0.
+
+## Phase 5 – Documentation, Cleanup & Final Checks (User Story 0)
+
+- [ ] **T021** [US0] Update `README.md` at the project root with:
+
+  * Installation steps (`python -m venv`, `pip install -r code/requirements.txt`).  
+  * Usage examples for the three entry points (`data_loader.py`, `fastcontext_lite.py`, `baseline_runner.py`).  
+  * Contribution guidelines (code style, testing).
+
+  **Verification**: `grep -q "Installation" README.md` succeeds; the file renders without markdown errors.
+
+- [ ] **T022** [US0] Generate API documentation in `docs/` for `static_analysis.py`, `fastcontext_lite.py`, and `analysis.py` using `pdoc` (or `mkdocstrings`). Ensure the docs build without import errors.
+
+  **Verification**: Running `pdoc --html code/static_analysis -o docs` creates an `index.html` file; opening it shows the module docstring.
+
+- [ ] **T026** [US0] Create `quickstart.md` describing end‑to‑end execution steps, including the deferred significance threshold and latency‑reduction target placeholders.
+
+  **Verification**: File exists and contains the required sections; `grep -q "Significance threshold" quickstart.md` succeeds.
+
+- [ ] **T023** [US0] Run the end‑to‑end pipeline documented in `quickstart.md` and confirm that:
+
+  1. `data/processed/regularity_scores.csv` is generated with both splits.  
+  2. `data/results/exploration_logs.jsonl` contains entries for **both** methods for every repository in the sample.  
+  3. `data/results/statistical_summary.json` validates against its schema.  
+  4. All unit and integration tests pass (`pytest -q` returns exit code 0).
+
+  **Verification**: The CI job logs “PASS” for each of the four bullet points; `pytest -q` outputs `..` (or more) and ends with `1 passed in …s`.
+
+- [ ] **T028** [US0] Add a final sanity‑check task that ensures `data/processed/dir_structure.txt` (produced by T001) contains the expected five top‑level directories.
+
+  **Verification**: A script reads the file and asserts presence of each directory name; exits with status 0.
 
 ## Dependencies & Execution Order
 
-### Phase Dependencies
+| Phase | Prerequisite Tasks | Blocking Tasks |
+|------|--------------------|----------------|
+| **Setup** | – | T001 → T002 → T003a → T003b → T004 → T005 → T006 → T007 |
+| **User Story 1** | Setup | T008 → T009 → T010 → T027 → T011 |
+| **User Story 2** | Setup & US 1 (for split) | T012 → T013 → T014 → T015 → T016 |
+| **User Story 3** | US 2 (metrics) | T017 → T018 → T019 → T020 → T024 → T025 → T029 → T030 → T024 → T025 |
+| **Polish** | All previous phases | T021 → T022 → T026 → T023 → T028 |
 
-- **Setup **(Phase 1): No dependencies - can start immediately
-- **Foundational **(Phase 2): Depends on Setup completion - BLOCKS all user stories
-- **User Stories **(Phase 3+): All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish **(Final Phase): Depends on all desired user stories being complete
+Tasks marked **[P]** can run in parallel when their file targets do not overlap. All other tasks respect the data‑flow order shown above.  
 
-### User Story Dependencies
+--- 
 
-- **User Story 1 **(P1): Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 **(P2): Can start after Foundational (Phase 2) - Depends on US1 data split
-- **User Story 3 **(P3): Can start after Foundational (Phase 2) - Depends on US2 metric logs
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Utilities before services
-- Services before endpoints/orchestration
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models/Utilities within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test directory naming returns score 1.0 in tests/unit/test_static_analysis.py::test_directory_naming_returns_score_1_0_for_standard_layout"
-Task: "Unit test import pattern analysis in tests/unit/test_static_analysis.py::test_import_pattern_analysis_returns_score_0_5_for_mixed_imports"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/static_analysis.py to calculate regularity_score..."
-Task: "Implement code/stratification.py to sort repositories by score..."
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint Reminder**: All models must run on CPU-only (no CUDA/8-bit quantization). Data must be real (SWE-bench Lite). **CRITICAL**: The primary baseline for comparison MUST be the original FastContext (4B model) as per FR-004 and Constitution Principle VII. T021a is the mandatory implementation for this baseline.
+*End of `tasks.md`.*  

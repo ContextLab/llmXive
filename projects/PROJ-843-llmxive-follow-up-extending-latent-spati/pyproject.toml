@@ -1,57 +1,20 @@
-[build-system]
-requires = ["setuptools>=45", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[project]
-name = "llmxive-follow-up"
-version = "0.1.0"
-description = "Extending Latent Spatial Memory for Video World Models"
-readme = "README.md"
-requires-python = ">=3.11"
-dependencies = [
-    "opencv-python",
-    "scikit-learn",
-    "scipy",
-    "pandas",
-    "numpy",
-    "torch-cpu",
-    "datasets",
-    "imageio",
-    "pytest",
-    "memory_profiler",
-    "scikit-image",
-    "flake8",
-    "black",
-    "isort",
-]
-
 [tool.black]
-line-length = 120
-target-version = ['py311']
+line-length = 100
+target-version = ["py311"]
 include = '\.pyi?$'
 exclude = '''
 /(
     \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
+  | \.venv
+  | venv
+  | __pycache__
+  | data
+  | figures
+  | \.egg-info
 )/
 '''
 
 [tool.isort]
 profile = "black"
-line_length = 120
-known_first_party = ["code"]
-skip = [".git", "__pycache__", "build", "dist", ".eggs"]
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = "test_*.py"
-python_classes = "Test*"
-python_functions = "test_*"
-addopts = "-v --tb=short"
+line_length = 100
+skip = ["data", "venv", "figures"]

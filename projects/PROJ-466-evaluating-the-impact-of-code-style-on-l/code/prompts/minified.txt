@@ -1,9 +1,20 @@
-Complete the following Python function according to the specification below.
-Your code MUST be minified:
-- No whitespace except where syntactically required
-- No comments
-- No newlines except where syntactically required
-- Variable names should be as short as possible (e.g., a, b, i, x)
-- No docstrings
+# Minified Style Prompt
+# This prompt instructs the model to generate code that is heavily obfuscated/minified.
+# This includes removing whitespace, using single-letter variable names, and compacting logic.
 
-{prompt}
+Instruction:
+Solve the following programming problem. The solution must be functionally correct and pass all unit tests,
+BUT it must be presented in a minified, compact style.
+- Remove all unnecessary whitespace and newlines.
+- Use single-letter variable names (e.g., i, x, a, b).
+- Compress logic into single lines where possible.
+- Do not include comments or docstrings.
+- The code should be difficult to read but executable.
+
+Problem:
+{problem}
+
+Input:
+{inputs}
+
+Output:

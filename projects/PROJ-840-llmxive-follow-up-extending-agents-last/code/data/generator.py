@@ -1,205 +1,227 @@
+"""
+Data Generator for ALE Execution Traces.
+
+This module orchestrates the generation of the full dataset by importing
+logic from ``generator_logic.py`` and writing the output to
+``data/raw/golden_fixture.json``.
+
+It implements the strict mapping rules for generating synthetic traces
+representing "State Persistence Error" and "Reasoning Deficit" scenarios.
+"""
 import json
 import os
-import random
+import argparse
 import hashlib
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
-from dataclasses import dataclass, field, asdict
+from typing import List, Dict, Any, Optional
+
+# Standard library imports
 from enum import Enum
 
-# Import from existing utils
-from utils.seeds import verify_pairing, set_seed
-from utils.logging_config import get_logger
+# Import generation logic that creates concrete trace structures.
+# ``generator_logic.py`` provides the heavy‑lifting for trace construction.
+from code.data.generator_logic import (
+    generate_trace,
+    generate_task_description,
+    StepState,
+    ExecutionTrace,
+    SCENARIOS,
+)
+# Import the FailureType enum defined in a dedicated module to avoid
+# circular import issues.
+from code.data.failure_type import FailureType
 
-logger = get_logger(__name__)
+# Import seed‑pinning utilities.
+from code.utils.seeds import set_seed, get_seed_state
 
+# ----------------------------------------------------------------------
+# Public API
+# ----------------------------------------------------------------------
+# Re‑export core data structures so that external modules and tests can
+# import them directly from ``code.data.generator``.
+# The test suite expects ``ExecutionTrace`` and a ``FailureLabel`` name.
+FailureLabel = FailureType  # Alias for backward‑compatibility with tests
 
-class FailureType(Enum):
-    """Enumeration of failure modes for ALE traces."""
-    STATE_PERSISTENCE_ERROR = "state_persistence_error"
-    REASONING_DEFICIT = "reasoning_deficit"
-    TIMEOUT = "timeout"
-    MEMORY_OOM = "memory_oom"
+__all__ = [
+    "generate_golden_fixture",
+    "main",
+    "ExecutionTrace",
+    "StepState",
+    "FailureLabel",
+]
 
-
-@dataclass
-class ExecutionTrace:
+def _trace_to_serializable(trace: ExecutionTrace) -> Dict[str, Any]:
     """
-    Base data structure for an ALE execution trace.
-    Represents a single run of an agent on a task, including state history and outcome.
-    """
-    trace_id: str
-    task_description: str
-    steps: List[Dict[str, Any]]  # List of step states and actions
-    final_state: Dict[str, Any]
-    success: bool
-    failure_type: FailureType | None = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    Convert an ``ExecutionTrace`` instance into a JSON‑serializable dict.
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert the trace to a dictionary for JSON serialization."""
-        return {
-            "trace_id": self.trace_id,
-            "task_description": self.task_description,
-            "steps": self.steps,
-            "final_state": self.final_state,
-            "success": self.success,
-            "failure_type": self.failure_type.value if self.failure_type else None,
-            "metadata": self.metadata
+    The ``ExecutionTrace`` objects produced by ``generator_logic`` are
+    dataclass‑like containers.  They may provide a ``to_dict`` method;
+    otherwise we fall back to their ``__dict__`` representation.
+    """
+    # Prefer an explicit ``to_dict`` if it exists.
+    if hasattr(trace, "to_dict") and callable(getattr(trace, "to_dict")):
+        return trace.to_dict()
+    # Fallback to ``__dict__`` – this works for simple dataclasses.
+    if hasattr(trace, "__dict__"):
+        # ``__dict__`` may contain non‑primitive values; ensure deep
+        # conversion of nested objects (e.g., StepState).
+        result = {}
+        for key, value in trace.__dict__.items():
+            if isinstance(value, (list, tuple)):
+                result[key] = [
+                    _trace_to_serializable(v) if not isinstance(v, (str, int, float, bool, type(None))) else v
+                    for v in value
+                ]
+            elif isinstance(value, (str, int, float, bool, type(None))):
+                result[key] = value
+            else:
+                # Attempt recursive conversion for custom objects.
+                result[key] = _trace_to_serializable(value) if hasattr(value, "__dict__") else str(value)
+        return result
+    # As a last resort, stringify the object.
+    return {"repr": repr(trace)}
+
+def generate_golden_fixture(
+    seed_base: int = 42,
+    num_tasks: int = 10,
+    output_path: Optional[str] = None,
+) -> List[Dict[str, Any]]:
+    """
+    Generate the golden fixture dataset containing exactly ten traces
+    with deterministic ground‑truth labels.
+
+    Parameters
+    ----------
+    seed_base : int, optional
+        Base seed for the first task. Subsequent tasks use ``seed_base + i``.
+    num_tasks : int, optional
+        Number of tasks to generate. The specification requires ten
+        scenarios; any other value is coerced to ten with a warning.
+    output_path : str | None, optional
+        If supplied, the JSON representation is written to this file.
+        The directory hierarchy is created automatically.
+
+    Returns
+    -------
+    List[Dict[str, Any]]
+        In‑memory representation of all generated traces.
+    """
+    if num_tasks != 10:
+        # Enforce the exact 10‑scenario requirement.
+        print(
+            f"Warning: num_tasks requested as {num_tasks}, but the golden fixture "
+            f"requires exactly 10 scenarios. Adjusting to 10."
+        )
+        num_tasks = 10
+
+    traces: List[Dict[str, Any]] = []
+
+    # Prepare the output directory early so that any failure during generation
+    # does not leave a half‑written file.
+    if output_path:
+        output_dir = Path(output_path).parent
+        output_dir.mkdir(parents=True, exist_ok=True)
+
+    for i in range(num_tasks):
+        # Derive a deterministic seed for this scenario.
+        current_seed = seed_base + i
+
+        # Select the pre‑defined scenario.
+        scenario = SCENARIOS[i]
+
+        # Pin the seed for reproducibility.
+        set_seed(current_seed)
+
+        # Build the trace using the shared generation logic.
+        # ``generate_trace`` expects a textual type and description.
+        trace = generate_trace(
+            scenario_type=str(scenario["type"]),
+            scenario_description=scenario["description"],
+            seed=current_seed,
+        )
+
+        # Convert the trace object to something JSON can handle.
+        serializable_trace = _trace_to_serializable(trace)
+
+        # Assemble the record that will be persisted.
+        trace_record = {
+            "task_id": f"task_{i:02d}",
+            "seed": current_seed,
+            "scenario_id": scenario["id"],
+            "ground_truth_label": str(scenario["type"]),
+            "description": scenario["description"],
+            "trace": serializable_trace,
         }
 
+        traces.append(trace_record)
 
-@dataclass
-class FailureLabel:
-    """
-    Base data structure for a failure label.
-    Represents the ground truth classification of a failure in a trace.
-    """
-    trace_id: str
-    label: FailureType
-    confidence: float
-    reasoning: str
-    step_index: int | None = None  # Optional: index of the step where failure occurred
+    # Persist if requested.
+    if output_path:
+        # Write the JSON file.
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(traces, f, indent=2, ensure_ascii=False)
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert the label to a dictionary for JSON serialization."""
-        return {
-            "trace_id": self.trace_id,
-            "label": self.label.value,
-            "confidence": self.confidence,
-            "reasoning": self.reasoning,
-            "step_index": self.step_index
-        }
+        # Basic verification – raise if anything went wrong.
+        if not os.path.exists(output_path) or os.path.getsize(output_path) == 0:
+            raise RuntimeError(
+                "Verification failed: generated file is missing or empty."
+            )
 
+        # Compute SHA‑256 checksum.
+        with open(output_path, "rb") as f:
+            checksum = hashlib.sha256(f.read()).hexdigest()
 
-def generate_task_description(seed: int, task_index: int) -> str:
-    """Generate a deterministic task description string."""
-    set_seed(seed)
-    templates = [
-        "Navigate to {location} and retrieve the {item}.",
-        "Solve the puzzle by moving {item_a} to {location_a} and {item_b} to {location_b}.",
-        "Identify the correct key for {door} and open it.",
-        "Collect all {count} {item_type} items and bring them to {target_location}."
-    ]
-    template = templates[task_index % len(templates)]
-    
-    # Deterministic random generation based on seed
-    locations = ["kitchen", "bedroom", "garage", "garden", "bathroom"]
-    items = ["key", "ball", "book", "cup", "lamp"]
-    
-    return template.format(
-        location=random.choice(locations),
-        item=random.choice(items),
-        item_a=random.choice(items),
-        location_a=random.choice(locations),
-        item_b=random.choice(items),
-        location_b=random.choice(locations),
-        door=random.choice(["door1", "door2", "secret_door"]),
-        count=random.randint(1, 5),
-        item_type=random.choice(items),
-        target_location=random.choice(locations)
+        # Write checksum to the processed folder as required by the task.
+        checksum_path = Path("data/processed/golden_fixture_checksum.txt")
+        checksum_path.parent.mkdir(parents=True, exist_ok=True)
+        with open(checksum_path, "w", encoding="utf-8") as cf:
+            cf.write(checksum)
+
+        print(
+            f"Generated golden fixture with {len(traces)} traces at {output_path}"
+        )
+        print(f"Checksum (SHA256) written to {checksum_path}")
+
+    return traces
+
+# ----------------------------------------------------------------------
+# CLI entry point
+# ----------------------------------------------------------------------
+def main() -> None:
+    """Command‑line interface for generating the golden fixture."""
+    parser = argparse.ArgumentParser(
+        description="Generate synthetic ALE execution traces for the golden fixture."
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=42,
+        help="Base seed for generation (default: 42)",
+    )
+    parser.add_argument(
+        "--num-tasks",
+        type=int,
+        default=10,
+        help="Number of tasks to generate (default: 10)",
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/raw/golden_fixture.json",
+        help="Output path for the JSON file",
     )
 
+    args = parser.parse_args()
 
-def generate_step_state(seed: int, step_index: int, task_desc: str) -> Dict[str, Any]:
-    """Generate a deterministic step state for a trace."""
-    set_seed(seed + step_index)
-    
-    state = {
-        "step_index": step_index,
-        "agent_position": (random.randint(0, 10), random.randint(0, 10)),
-        "inventory": [random.choice(["key", "ball", "book"]) for _ in range(random.randint(0, 3))],
-        "observed_objects": [random.choice(["door", "box", "table", "chair"]) for _ in range(random.randint(1, 5))],
-        "timestamp": 1000.0 + step_index * 0.5
-    }
-    
-    # Add some deterministic variation based on task description hash
-    desc_hash = hashlib.md5(task_desc.encode()).hexdigest()
-    state["hash_suffix"] = desc_hash[:8]
-    
-    return state
-
-
-def generate_trace(
-    task_id: str,
-    task_description: str,
-    num_steps: int,
-    failure_type: FailureType | None,
-    seed: int
-) -> ExecutionTrace:
-    """
-    Generate a complete execution trace with deterministic steps.
-    """
-    set_seed(seed)
-    
-    steps = []
-    for i in range(num_steps):
-        step_state = generate_step_state(seed, i, task_description)
-        steps.append({
-            "state": step_state,
-            "action": f"action_{i}_{random.choice(['move', 'pick', 'drop', 'interact'])}"
-        })
-    
-    final_state = steps[-1]["state"] if steps else {}
-    success = failure_type is None
-    
-    return ExecutionTrace(
-        trace_id=task_id,
-        task_description=task_description,
-        steps=steps,
-        final_state=final_state,
-        success=success,
-        failure_type=failure_type,
-        metadata={"seed": seed, "num_steps": num_steps}
-    )
-
-
-def main():
-    """
-    Entry point for the generator module.
-    Demonstrates the base data structures and generates a sample trace.
-    """
-    logger.info("Initializing data generator module...")
-    
-    # Demonstrate base data structures
-    sample_trace = ExecutionTrace(
-        trace_id="demo_trace_001",
-        task_description="Navigate to kitchen and retrieve the key.",
-        steps=[{"state": {"x": 1, "y": 2}, "action": "move"}],
-        final_state={"x": 1, "y": 2},
-        success=True,
-        failure_type=None
-    )
-    
-    sample_label = FailureLabel(
-        trace_id="demo_trace_001",
-        label=FailureType.STATE_PERSISTENCE_ERROR,
-        confidence=0.95,
-        reasoning="Agent lost track of item location after step 3."
-    )
-    
-    logger.info(f"Created sample trace: {sample_trace.trace_id}")
-    logger.info(f"Created sample label: {sample_label.label.value}")
-    
-    # Generate a full trace with failure
-    seed_val = 42
-    task_desc = generate_task_description(seed_val, 0)
-    trace = generate_trace(
-        task_id=f"trace_{seed_val}",
-        task_description=task_desc,
-        num_steps=5,
-        failure_type=FailureType.REASONING_DEFICIT,
-        seed=seed_val
-    )
-    
-    # Verify pairing (dummy check for demonstration, assumes pairing logic exists)
-    pairing_check = verify_pairing(trace.trace_id, seed_val)
-    logger.info(f"Pairing verification for {trace.trace_id}: {pairing_check}")
-    
-    # Output structure for documentation
-    print(json.dumps(asdict(trace), indent=2, default=str))
-    print(json.dumps(asdict(sample_label), indent=2, default=str))
-
+    try:
+        generate_golden_fixture(
+            seed_base=args.seed,
+            num_tasks=args.num_tasks,
+            output_path=args.output,
+        )
+    except Exception as exc:
+        print(f"Error generating golden fixture: {exc}")
+        raise
 
 if __name__ == "__main__":
     main()

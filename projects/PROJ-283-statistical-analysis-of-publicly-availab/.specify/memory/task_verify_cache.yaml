@@ -1,0 +1,84 @@
+T001:
+  c: false
+  h: a228f950d8bfb6fbc044a54ae7fa9ae6fa6ca36d46611817cd251584a425452a
+  r: The collector shows all required directories are present, but the provided verification
+    test (`tests/unit/test_structure.py`) fails with a `NameError` because `sys` is
+    not imported, so the assertion that the directories exist does not actually pass.
+    The test script must be corrected (e.g., import `sys`) and rerun so that the existence
+    check succeeds.
+  sig: 391df92d5b3bc701197501752630bffc9d1decc3586eae574b272a2a14b983ae
+T002:
+  c: true
+  h: 8f2cf628a6d91755f2e5e4dc02bc4c4a07a0cd3caf2380a40168aec0bae72386
+  r: "Checked the `requirements.txt` file (94\u202Fbytes) at `projects/PROJ-283-statistical-analysis-of-publicly-availab/requirements.txt`;\
+    \ it exists and lists all ten required packages exactly as specified."
+  sig: 9aecca85d05a8ee2e3623e1cc293deb38a29e81ce76ed9e53441244e5a2670d0
+T003:
+  c: false
+  h: dad1a0e9605e5bb86b1e1bb0aa01ad418ff2026dc3a471ebd73e614a52af0a5c
+  r: "Checked the `pyproject.toml` (present with ruff and black sections) and the\
+    \ execution log `code/.tasks/T003.tests_unit_test_lint_and_format.py.log`, which\
+    \ shows the `ruff check` and `black --check .` commands both failing (exit code\u202F\
+    1). The required zero\u2011exit\u2011code lint/format checks were not satisfied."
+  sig: 325aa1b64b5273fd0b51161749f10e5c6145d76901711e354347c68c8474f95d
+T004:
+  c: false
+  h: 261e0bb80b2482056a994e16f0dbc8b433343d98a4d01f06814d8aeb5b2a59a6
+  r: "The provided `src/config.py` contains only helper functions (`ensure_directories`,\
+    \ `get_contract_path`) and does not define the required global constants such\
+    \ as seeds, path constants, the Lichess URL, `SAMPLE_SIZE_ESTIMATE_BYTES_PER_GAME\
+    \ = 2000`, or `USE_MOVE_5 = False`. These missing definitions mean the task\u2019\
+    s specification is not satisfied."
+  sig: 476f350adbc626de150610171311faa88131184ac2eaf8a82bf8f22249069c87
+T006:
+  c: false
+  h: f915f4d5be2a524a30c729086bf7684e23506c104fc1397f62e350bab3fd8f6f
+  r: "The schema file exists only at `specs/001-statistical-analysis-of-publicly-availab/game_record.schema.yaml`,\
+    \ not at the required `specs/contracts/game_record.schema.yaml`, causing the pytest\
+    \ contract test to fail (file missing). The task\u2019s placement and checksum\
+    \ requirements are therefore unmet."
+  sig: 5bea38a7d56b4d77939360caceec0c1b9b6169938731432fea19dd2081c66cde
+T007:
+  c: false
+  h: d593efdbc71f034b7bf83024bd4c72fb5e1be0c8599a405110fb017b1da05264
+  r: "The artifact `specs/contracts/model_output.schema.yaml` exists, but there is\
+    \ no evidence that its contents exactly match the specification (checksum comparison)\
+    \ nor that the required pytest schema\u2011lint test (as in T006) was run and\
+    \ passed. Provide the checksum verification and test results to satisfy the task."
+  sig: 627540b8b1d73aa09536855410255f907dc05a18768eddb56dcf1ef2ac9e1a93
+T015:
+  c: false
+  h: 101a9c1f20d4225321433b2054c38ee4f95b63d859668b651844f369d5a6e621
+  r: "The repository lacks the required output artifacts \u2013 `data/processed/games.parquet`\
+    \ and `data/results/inclusion_counts.json` are not present. Moreover, the provided\
+    \ excerpt of `src/data/process.py` does not show the `OnlineAccumulator` class\
+    \ or a `process_stream` function, so it is unclear whether those implementations\
+    \ exist. Without the output files (and likely without the class), the task\u2019\
+    s core requirements are not satisfied."
+T017:
+  c: false
+  h: 3d8d6403edb72d397b0fc6c98bd41775e79110e2537c09c3b65d5cf4aae24638
+  r: "The repository lacks a `save_inclusion_metrics` implementation in `src/data/process.py`\
+    \ (the shown code ends before any such function) and the required output files\
+    \ `data/results/inclusion_counts.json` and `data/results/inclusion_metrics.json`\
+    \ are absent. Consequently the task\u2019s core functionality and artifacts are\
+    \ missing."
+T021:
+  c: false
+  h: 6269284322a4da71ad5dc5950d33d8d04f7280c1601fd80e7a8515e7a3018923
+  r: "The file `src/models/fit.py` does not contain a `collapse_eco_codes` implementation\
+    \ (only `map_eco_to_family` and `prepare_features_for_modeling` are present),\
+    \ and the required external config file `data/config/eco_mapping.json` is absent,\
+    \ so the task\u2019s core requirements are not satisfied."
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, commit diff, or refactoring report was provided; the only evidence is
+    the original feature specification, which does not demonstrate any cleanup or
+    refactoring work. The required artifact (cleaned/refactored code) is missing.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No ruff check output, log, or updated codebase is provided to demonstrate that
+    `ruff check --select T20` was run and that all print statements were removed.
+    The required evidence of the linting run and its results is missing.

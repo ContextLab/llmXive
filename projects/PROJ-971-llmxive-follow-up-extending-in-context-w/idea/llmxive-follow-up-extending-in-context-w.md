@@ -9,21 +9,21 @@ submitter: llmxive-preprint-followup
 
 ## Research question
 
-Does the variance and temporal structure of latent embeddings generated during the task-agnostic interaction phase of In-Context World Modeling (ICWM) contain sufficient signal to predict the optimal inference-time hyperparameters (sampling temperature and context window length) required for successful task execution in novel robotic configurations?
+How do the statistical properties of latent trajectories generated during task-agnostic interaction (e.g., variance, autocorrelation) correlate with the necessary complexity of the inference strategy required for successful control in novel robotic configurations?
 
 ## Motivation
 
-Current ICWM frameworks require manual tuning of inference parameters or rely on fixed defaults, which may be suboptimal when system dynamics (e.g., camera viewpoints, friction) shift significantly. If the "world model" inferred during the interaction phase implicitly encodes the difficulty or complexity of the environment, automating the selection of inference settings could enable robust, zero-shot deployment on resource-constrained edge devices without expensive re-tuning or fine-tuning.
+Current In-Context World Modeling (ICWM) frameworks often rely on fixed inference hyperparameters (sampling temperature, context window length), which may be suboptimal when environmental dynamics shift. If the latent "world model" implicitly encodes environmental complexity, quantifying these latent statistics could enable automatic, zero-shot calibration of inference strategies, reducing the overhead of manual tuning for edge robots in unstructured environments.
 
 ## Literature gap analysis
 
 ### What we searched
-We queried Semantic Scholar and arXiv for terms related to "in-context world modeling," "robotic hyperparameter tuning," "latent dynamics estimation," and "adaptive inference strategies in VLA." We specifically looked for works that bridge the gap between world model representations and downstream inference configuration.
+We queried Semantic Scholar and arXiv using terms such as "in-context world modeling," "robotic hyperparameter tuning," "latent dynamics estimation," "adaptive inference strategies in VLA," and "world model complexity." We specifically sought works linking the statistical properties of latent representations to downstream inference configuration or control difficulty.
 
 ### What is known
-- [GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation (2026)](https://arxiv.org/abs/2605.22882) — Establishes that video world models can generate realistic futures but highlights a critical gap in consistent physical point tracking, suggesting that current representations may struggle with fine-grained dynamic shifts.
-- [World-Gymnast: Training Robots with Reinforcement Learning in a World Model (2026)](https://arxiv.org/abs/2602.02454) — Discusses the bottleneck of physical interaction costs and the limitations of current supervised finetuning approaches, reinforcing the need for more efficient, model-based adaptation strategies.
-- [One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay (2017)](https://arxiv.org/abs/1711.10137) — Demonstrates early work on learning from limited interaction, though it relies on model-free approaches rather than the in-context latent dynamics approach proposed here.
+- [Language-conditioned world model improves policy generalization by reading environmental descriptions (2025)](https://arxiv.org/abs/2511.22904) — Demonstrates that incorporating environmental descriptions into world models improves generalization, suggesting that explicit or implicit modeling of environmental dynamics is critical for policy success, though it does not address inferring inference parameters from latent statistics.
+- [Xiaomi-Robotics-1: Scaling Vision-Language-Action Models with over 100K Hours of Real-World Trajectories (2026)](https://arxiv.org/abs/2607.15330) — Highlights the scaling of Vision-Language-Action (VLA) models with large real-world datasets, establishing that model performance is heavily dependent on data diversity and scale, but does not explore adaptive inference strategies based on interaction-phase latent properties.
+- [TidyBot: Personalized Robot Assistance with Large Language Models (2023)](https://arxiv.org/abs/2305.05658) — Investigates personalization of robot assistance by learning user preferences, showing that adaptation is possible but relies on explicit preference modeling rather than inferring inference complexity from latent trajectory statistics.
 
 ### What is NOT known
 No published work has explicitly investigated whether the *latent statistical properties* (e.g., variance, autocorrelation) of the interaction history in an In-Context World Modeling framework can serve as a direct predictor for optimal *inference-time hyperparameters*. Existing literature treats world modeling and hyperparameter tuning as separate concerns, with no established mapping between the "complexity" of the inferred world dynamics and the specific sampling temperature or context length needed for the policy to succeed.
@@ -57,40 +57,42 @@ We expect to find a statistically significant correlation between high-variance 
 
 ## Search trail
 
-**Generated by**: librarian (prompt v1.6.0) on 2026-07-10T21:35:04Z
-**Outcome**: exhausted
+**Generated by**: librarian (prompt v1.6.0) on 2026-07-30T10:46:07Z
+**Outcome**: success_after_expansion
 **Original term**: llmXive follow-up: extending "In-Context World Modeling for Robotic Control" computer science
-**Verified citation count**: 4
+**Verified citation count**: 6
 
 ### Search terms used
 
 | Rank | Term | Hit count |
 |-|-|-|
 | 0 (initial) | llmXive follow-up: extending "In-Context World Modeling for Robotic Control" computer science | 0 |
-| 1 | In-context learning for robotic world models | 5 |
-| 2 | Transformer-based world modeling for robot control | 0 |
-| 3 | Contextual world models in embodied AI | 0 |
-| 4 | Prompt-based world simulation for robotics | 0 |
-| 5 | In-context reinforcement learning for physical agents | 0 |
-| 6 | Large language models for robotic perception and planning | 0 |
-| 7 | Dynamic world model construction via few-shot prompting | 0 |
-| 8 | Context-aware policy learning in robotics | 0 |
-| 9 | In-context imitation learning for robotic manipulation | 0 |
-| 10 | Language-guided world modeling for autonomous agents | 0 |
-| 11 | Pre-trained foundation models for robotic control policies | 0 |
-| 12 | Meta-learning world dynamics from context | 0 |
-| 13 | In-context reasoning for robotic decision making | 0 |
-| 14 | Zero-shot world model adaptation for robots | 0 |
-| 15 | Contextual sequence modeling for robotic trajectories | 0 |
-| 16 | LLM-driven simulation of robotic environments | 0 |
-| 17 | Prompt engineering for robotic world state prediction | 0 |
-| 18 | Generalizable world models via in-context learning | 0 |
-| 19 | Contextual transfer learning in robotic control systems | 0 |
-| 20 | Foundation models for embodied world understanding | 0 |
+| 1 | in-context learning for robotic control | 4 |
+| 2 | world models in robotics via large language models | 5 |
+| 3 | context-based world modeling for robot agents | 0 |
+| 4 | LLM-based world modeling for autonomous systems | 0 |
+| 5 | few-shot world modeling for robot manipulation | 0 |
+| 6 | in-context policy learning for robotics | 0 |
+| 7 | language model world simulators for control | 0 |
+| 8 | context-aware robotic planning with LLMs | 0 |
+| 9 | generative world models for robot decision making | 0 |
+| 10 | in-context imitation learning for robotics | 0 |
+| 11 | large language models for embodied AI control | 0 |
+| 12 | context-conditioned dynamics modeling in robotics | 0 |
+| 13 | prompt-based world modeling for robotic agents | 0 |
+| 14 | in-context reasoning for robot task planning | 0 |
+| 15 | LLM-driven simulation for robotic control | 0 |
+| 16 | context-dependent world prediction in robotics | 0 |
+| 17 | foundation models for robotic world understanding | 0 |
+| 18 | in-context transfer learning for robot control | 0 |
+| 19 | language-guided world modeling for autonomous navigation | 0 |
+| 20 | zero-shot world modeling for robotic manipulation | 0 |
 
 ### Verified citations
 
-1. **GEM-4D: Geometry-Enhanced Video World Models for Robot Manipulation** (2026). Kaichen Zhou, Yuzhen Chen, Fangneng Zhan, Hang Hua, Grace Chen, et al.. arXiv. [2605.22882](https://arxiv.org/abs/2605.22882). PDF-sampled: No.
-2. **One-Shot Reinforcement Learning for Robot Navigation with Interactive Replay** (2017). Jake Bruce, Niko Suenderhauf, Piotr Mirowski, Raia Hadsell, Michael Milford. arXiv. [1711.10137](https://arxiv.org/abs/1711.10137). PDF-sampled: No.
-3. **Metalic: Meta-Learning In-Context with Protein Language Models** (2024). Jacob Beck, Shikha Surana, Manus McAuliffe, Oliver Bent, Thomas D. Barrett, et al.. arXiv. [2410.08355](https://arxiv.org/abs/2410.08355). PDF-sampled: No.
-4. **World-Gymnast: Training Robots with Reinforcement Learning in a World Model** (2026). Ansh Kumar Sharma, Yixiang Sun, Ninghao Lu, Yunzhe Zhang, Jiarao Liu, et al.. arXiv. [2602.02454](https://arxiv.org/abs/2602.02454). PDF-sampled: No.
+1. **FRIDAY: Real-time Learning DNN-based Stable LQR controller for Nonlinear Systems under Uncertain Disturbances** (2024). Takahito Fujimori. arXiv. [2412.01103](https://arxiv.org/abs/2412.01103). PDF-sampled: No.
+2. **Improving Input-Output Linearizing Controllers for Bipedal Robots via Reinforcement Learning** (2020). Fernando Castañeda, Mathias Wulfman, Ayush Agrawal, Tyler Westenbroek, Claire J. Tomlin, et al.. arXiv. [2004.07276](https://arxiv.org/abs/2004.07276). PDF-sampled: No.
+3. **Cleaning tasks knowledge transfer between heterogeneous robots: a deep learning approach** (2019). Jaeseok Kim, Nino Cauli, Pedro Vicente, Bruno Damas, Alexandre Bernardino, et al.. arXiv. [1903.05635](https://arxiv.org/abs/1903.05635). PDF-sampled: No.
+4. **Xiaomi-Robotics-1: Scaling Vision-Language-Action Models with over 100K Hours of Real-World Trajectories** (2026).  Xiaomi Robotics Team, Jun Guo, Piaopiao Jin, Jason Li, Peiyan Li, et al.. arXiv. [2607.15330](https://arxiv.org/abs/2607.15330). PDF-sampled: No.
+5. **TidyBot: Personalized Robot Assistance with Large Language Models** (2023). Jimmy Wu, Rika Antonova, Adam Kan, Marion Lepert, Andy Zeng, et al.. arXiv. [2305.05658](https://arxiv.org/abs/2305.05658). PDF-sampled: No.
+6. **Language-conditioned world model improves policy generalization by reading environmental descriptions** (2025). Anh Nguyen, Stefan Lee. arXiv. [2511.22904](https://arxiv.org/abs/2511.22904). PDF-sampled: No.

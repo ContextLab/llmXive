@@ -1,0 +1,103 @@
+{
+  "data/derived/schema_validation.json": {
+    "type": "object",
+    "properties": {
+      "status": { "type": "string", "enum": ["valid", "invalid"] },
+      "columns_found": { "type": "array", "items": { "type": "string" } },
+      "missing_columns": { "type": "array", "items": { "type": "string" } },
+      "valid_levels": { "type": "object" }
+    },
+    "required": ["status", "columns_found"]
+  },
+  "data/derived/grouping_validation.json": {
+    "type": "object",
+    "properties": {
+      "field": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "enum": ["valid", "single_level"] },
+          "valid_levels": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["status", "valid_levels"]
+      },
+      "original_study_id": {
+        "type": "object",
+        "properties": {
+          "status": { "type": "string", "enum": ["valid", "single_level"] },
+          "valid_levels": { "type": "array", "items": { "type": "string" } }
+        },
+        "required": ["status", "valid_levels"]
+      }
+    },
+    "required": ["field", "original_study_id"]
+  },
+  "results/lmm_final_summary.json": {
+    "type": "object",
+    "properties": {
+      "slope_year": { "type": "number" },
+      "se_year": { "type": "number" },
+      "ci_lower": { "type": "number" },
+      "ci_upper": { "type": "number" },
+      "p_value_lrt": { "type": "number" },
+      "chi2_statistic": { "type": "number" },
+      "df_diff": { "type": "integer" },
+      "methodology_note": { "type": "string" }
+    },
+    "required": ["slope_year", "se_year", "ci_lower", "ci_upper", "p_value_lrt", "chi2_statistic", "df_diff", "methodology_note"]
+  },
+  "results/permutation_pvalue.json": {
+    "type": "object",
+    "properties": {
+      "observed_slope": { "type": "number" },
+      "empirical_p_value": { "type": "number" },
+      "iterations": { "type": "integer" },
+      "fallback_used": { "type": "boolean" }
+    },
+    "required": ["observed_slope", "empirical_p_value", "iterations", "fallback_used"]
+  },
+  "results/input_permutation.json": {
+    "type": "object",
+    "properties": {
+      "observed_slope": { "type": "number" },
+      "null_distribution": { "type": "array", "items": { "type": "number" } },
+      "null_distribution_mean": { "type": "number" },
+      "null_distribution_std": { "type": "number" },
+      "p_value_input_perm": { "type": "number" },
+      "iterations": { "type": "integer" },
+      "fallback_used": { "type": "boolean" },
+      "aggregated_slope": { "type": "number" },
+      "aggregated_slope_p_value": { "type": "number" }
+    },
+    "required": ["observed_slope", "null_distribution", "null_distribution_mean", "null_distribution_std", "p_value_input_perm", "iterations", "fallback_used"]
+  },
+  "results/sensitivity_report.json": {
+    "type": "object",
+    "properties": {
+      "results": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "alpha_value": { "type": "number" },
+            "drift_significant": { "type": "boolean" },
+            "false_positive_rate": { "type": "number" }
+          },
+          "required": ["alpha_value", "drift_significant", "false_positive_rate"]
+        }
+      }
+    },
+    "required": ["results"]
+  },
+  "results/aggregated_drift.json": {
+    "type": "object",
+    "properties": {
+      "field_slopes": { "type": "object" },
+      "heterogeneity_q": { "type": "number" },
+      "tau_squared": { "type": "number" },
+      "aggregated_slope": { "type": "number" },
+      "aggregated_se": { "type": "number" },
+      "aggregated_p_value": { "type": "number" }
+    },
+    "required": ["field_slopes", "heterogeneity_q", "tau_squared", "aggregated_slope", "aggregated_se", "aggregated_p_value"]
+  }
+}

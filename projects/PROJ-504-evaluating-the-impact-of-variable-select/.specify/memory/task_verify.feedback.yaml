@@ -1,0 +1,162 @@
+T001:
+  reason: "The required sub\u2011directories `results/plots/` and `results/reports/`\
+    \ are missing, and the provided code listing does not include any visible validation\
+    \ logic that checks the directory structure\u2019s existence and writability before\
+    \ execution."
+  task: 19b8ca3f33c38f2e41d760d8206786c34d6987d15c85cec4293900a00a09d2ff
+T002:
+  task: 384455ab8541397c24c7f3044829e5ae3b2eecd669317e868f41f1d5a64c3db1
+T003:
+  reason: "Checked `code/pyproject.toml` \u2013 it contains the required `[tool.black]`\
+    \ section with `line-length = 88`. The required `code/.flake8` file is missing\
+    \ entirely, so the task\u2019s full linting/formatting configuration is not provided.\
+    \ Adding a `.flake8` file with the specified `[flake8]` settings will be needed."
+  task: 577074a2257ca1d02d74ed2ef6084fab1a242032a70fe151629f14a6060aa5af
+T004:
+  task: c496c6871818a07a0f0c41b2d2066fd24b0703dc6eba8e2a4d9e4c51ae3572f1
+T004a:
+  reason: 'Checked `projects/PROJ-504-evaluating-the-impact-of-variable-select/code/config.py`;
+    the file exists but does not define a `pilot_simulations_per_condition` attribute
+    (or default value of 10) as required by task T004a. The default configuration
+    lacks this setting, so the task is not fulfilled. Adding `pilot_simulations_per_condition:
+    int = 10` (or similar) to the Config dataclass or module-level default would resolve
+    the issue.'
+  task: d58ed20e96d11ed88dd9db54c5cb2a04a6e989399341b06b32816bf6a9476db8
+T004b:
+  task: 6dd36b711257d60826b8ea3284a93308d339245daf88d8e6d1498e3b56b0b328
+T005:
+  task: 64c7233897ed0fbe32726fb99d97d7c0def595e3ee15bd416b32ed994d884849
+T005b:
+  task: a8cc35bc3ec23ef18edb604ac8dd17ae4df5b7803a2d313c6877204bbc63109b
+T006:
+  task: e4767fc0aed2c84c1049ba011bd5322d553f93a288d3791723891ecf20df2898
+T007:
+  task: c11649c93bc6150e884b81cb99b2f8df3d502a4c7367fcdd60b43ff894558647
+T008:
+  task: e41210dffe44d4ea1d7947700523275bca1c1fc4132657d17903bc9d54d65a0e
+T009:
+  task: aad5772a7e1f682284c4188beb75e577e598d3523d50a9b3d124c7318bb5087e
+T010:
+  task: 1a9eda8073dc360f1ee2ef1ef993735ac88c9ba7ca75a0c945bc881244ab7c45
+T011:
+  task: 5c7cf10d79eb2d65583d72e82b0a3fb3c81c0f9a944a193e064d6e0c99eb3bde
+T012:
+  task: 31cd3e36db4e7e472fca6f3de9cd49dc28b8700a0d57b552b6545863eb11f1e4
+T013:
+  task: 867695c5bac40c7b798858bcaa4651fd5b9509a0445093aa5836708b317868b8
+T014:
+  task: 550a13a2d98ee29491919507555fa07a57d748ae9df0ca8b5435ad3ea6ab4dd1
+T015:
+  task: 5dcc9e5b09d92fcbd3491d3abf1f874a478134b16d0b3e14f4afbb9d2e8c3cd4
+T016:
+  task: d638ddbdeed568e8e6b6b6febc9af9f32edb04c6630df0d5d9c3e9ec82c8258b
+T017:
+  task: 2017dec37bd9b9cf3e28f17bce3304bfddc1eb5990bd15017d8da198df5d2a08
+T018:
+  task: d0b2f754b41abea4285a61fcef02b82aa12f79ef14a71e2abb654be979479d37
+T019:
+  task: 2cb7c4695e42098b238acd64cf44b186851fbb5996aa5c78cea49626b7938a3d
+T020:
+  task: a2130c88b13ac6cb73117f12cd686d3906e8a0db6a10229b97ff32abbf8da7cd
+T021:
+  task: 3192c7b1b5abfe44a696b548be2fef7338f4e64ccfd809a36c53aa9e91597052
+T022:
+  task: d23e13e82388fce832ccb08226a2a5644a6327b7769bad5aa8c52d37bf3c3b87
+T023:
+  task: 07ff86a08110f71e10cd796b8db91e1a935ec5f78bd536db7b609f0f3fd25aa6
+T024:
+  task: 5d6bf2c3c79da2323ac7f19513dfc33a5d497c2b7730d41e911b88e38406f0fe
+T025:
+  task: fc988606de842bf6aada5c60e5a3c606fcb1ae91f3b67d149d87bee8f25bdcce
+T026:
+  task: 461ab91f59275e566f0d9bf228b15bb7b86edcec3bd2fc2753253590f86b8c19
+T027:
+  task: d36a1d1e3426968b2a3832dec9feaad8d6bd3a031177d52d3d672e5ebd593f87
+T028:
+  task: 977d0c5ec298600870945a82abfbbf995a624b7d38771907a2f63285096d2d44
+T029:
+  task: 5de8bf2f27a7d876033af4de04d304fafdce80ab3954d2268aa741e482e40d08
+T032:
+  task: c2b8be174769fbb4a6f0fd25028b6790650385019b9cf5c7b3061baa654b26c6
+T033:
+  task: 306407be6b22810b6243acf3c629c00082536a2a6febd8d8a7f6aea5ecbf840d
+T034:
+  task: 7c10334d172a06bc4bc9a25efd4bf232b32a21f91d55844431ace7b8d92b4627
+T035:
+  task: 8c5b76c9b9bbec393adeb626c6a4060b09a94184ef52d0ed6e53c0c78c7b2fbe
+T036:
+  task: f71bb82ab1193882d3f46e92303d61017b48953c306c00e8a99d791c350884a1
+T037:
+  task: 4f713bf52abb34c7c84bcd39fd1b51c61be6cffba2894c58ab1287b508c5824c
+T038:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/comparators.py'
+  task: 5c9fb28ecbce231b3523882b4b009ad9069896f40356cefb68f8066b2b10c0fe
+T039:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/comparators.py'
+  task: 5fc72507e454e7a9ef65dc22d1eab41050f4411458d3af6a5fea33963e5ef928
+T039b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/comparators.py,
+    results/reports/holm_pvalues.csv'
+  task: 975132315a6aab5057507d61bb7dffc5c49fbadbe3a52a1ee70d3f6f95bf9f41
+T040:
+  reason: 'declared artifact(s) missing/empty/invalid: code/viz/plots.py, results/plots/'
+  task: f4543f11bf11803f55334bc96b02b49d94c738fb80d96a628f2d73d650d4c414
+T041:
+  reason: 'declared artifact(s) missing/empty/invalid: code/viz/plots.py, results/plots/'
+  task: 1d7b9b14d035e52240ca76db3d4e9324d62e7e14db64e3f346fdcbf174761e61
+T042:
+  task: f4dd9d8e68a21a3e09b27ceebdd44eede8531c6437148b2e7e558faa8f2c1945
+T045:
+  reason: "`code/utils/watchdog.py` is missing entirely, and the existing `code/analysis/selectors.py`\
+    \ only contains LASSO\u2011based selection code; it does not implement stepwise\
+    \ selection with early\u2011stopping based on an AIC improvement threshold of\u202F\
+    0.01 nor predictor\u2011pruning based on a 0.95 correlation threshold. Both required\
+    \ optimizations are absent."
+  task: 47cd542eef6af088331fce72b5026b4a602223689721c1eb49818b65605e7a03
+T046:
+  reason: "The provided `code/analysis/selectors.py` only implements LASSO selection;\
+    \ it contains no forward stepwise selection routine, no AIC\u2011based early\u2011\
+    stopping condition (improvement >\u202F0.01 for N steps), and no preprocessing\
+    \ step that removes predictors with pairwise correlation >\u202F0.95. Consequently\
+    \ the required early\u2011stopping and predictor\u2011pruning logic is absent."
+  task: 7a3ea07f068fa4af15f0428a354532803ea4ec8d3b3be1ff4a0217cbf3bb8bb8
+T051:
+  task: 61dbc5ef669b3796ae362dcabbb4135d547da8d5335ed82a7b893a0141629f88
+T052:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/validator.py'
+  task: a49f618bd3c790f040a3fe9b91f0aefe5f12b2f32992fbde842a0babe41d61e3
+T053:
+  task: 433dd79632c54b5e5b3797d2be629dbfb28fdcab6e2feedce4ed5c4930fbfc9b
+T054:
+  task: 04acd4fe2cab1cebffc619b474ff102eac2a520f4f9d574ac109225c16796c5d
+T055:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/comparators.py'
+  task: ef517951a9d03adf95f2f370f20e08471030a8a8ca96a6d4ad27e2b98034d548
+T056:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/comparators.py,
+    results/reports/sensitivity_report.csv'
+  task: a63237e8a47920bd46f187fd90dc9f9ce33fb5e986b3143a185d9bd6f229f196
+T057:
+  reason: 'declared artifact(s) missing/empty/invalid: code/utils/watchdog.py'
+  task: db14a65c29c5ef3c0eefae5e9fc485797a5bde8d52ea90c17dce9227a9044e92
+T058:
+  task: 634e70d8714144048d4998e5cbb0cbe59c884e5908e85efce56c4b23b2eb9625
+T059:
+  task: 6d7ad159eb3015eddecad3a25fd1d109a1a223779e7096bd521eb96cae5098ff
+T060:
+  task: 6462a3033993dc61673da0008eec1014d43e54fb1faf93431877fff2542fd29e
+T063:
+  task: fbd2a82414c562e31efce3aa15d9a8710df0048b0b6ebcf577bdd2759420a33c
+T064:
+  task: 5eabdbeff783fea66c925c21645753ebedb0d74f908fd8ba09b7e1a95b7b4664
+T065:
+  task: e1cf5b7f396e91705b85a81969a00909c11e420a6b811eb39019972b58705a8e
+T066:
+  task: 7ef87179165c35b53d118eb1b033742feba229002fed5e3a4b58b7ca668908c4
+T067:
+  reason: 'declared artifact(s) missing/empty/invalid: code/verify_repro.py, state/checksums.json'
+  task: 17aaae318db500403ad29d788d29f8c3c251c329b430ca81273436f02fa1dd7e
+T068:
+  task: 59181fbeab3a08d2369e9430d5b04ac48fef17d6e25aada533933282050fe1db
+T069:
+  task: 207d68bc9d443c50e66ec0e2657525e5a033d19e877f97ba64e11592800f1c29

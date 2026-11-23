@@ -1,0 +1,17 @@
+status: none
+intent: download SynthDocBench synthetic PDF documents with OCR layout metadata python
+  package dataset
+required_fields:
+- document_id
+- pdf_file_path
+- ocr_text
+- page_number
+- page_layout_bounding_boxes
+- document_page_count
+- question_id
+- question_text
+- answer_text
+- question_relative_position
+cache_key: beced53be3f761d069800a935c3b2a69c12bf95bda234a98328b15f6a2eb964a
+searched_at: '2026-09-06T20:15:41.257426+00:00'
+retry_count: 1

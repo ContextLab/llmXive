@@ -1,3 +1,7 @@
+# Pre-commit configuration for automated linting and formatting
+# Install with: pip install pre-commit && pre-commit install
+# Run manually: pre-commit run --all-files
+
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v4.5.0
@@ -7,10 +11,21 @@ repos:
       - id: check-yaml
       - id: check-json
       - id: check-added-large-files
+        args: ['--maxkb=10000'] # Allow larger data files if needed
+      - id: detect-private-key
+
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.1.6
+    rev: v0.1.9
     hooks:
+      # Run the linter.
       - id: ruff
-        args: [ --fix ]
+        args: [--fix]
+      # Run the formatter.
       - id: ruff-format
-        alias: black
+
+  - repo: https://github.com/psf/black
+    rev: 23.12.1
+    hooks:
+      - id: black
+        language_version: python3.11
+        args: [--config=projects/PROJ-008-psychology-research/pyproject.toml]

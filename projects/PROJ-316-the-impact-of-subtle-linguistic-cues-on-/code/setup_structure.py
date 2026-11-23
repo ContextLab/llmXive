@@ -1,83 +1,75 @@
 """
-Project structure and directory setup for the llmXive pipeline.
-Creates the required directory hierarchy and empty __init__.py files.
+Script to create the project directory structure and __init__.py files.
+This corresponds to task T002.
 """
 import os
 from pathlib import Path
 
-
 def setup_data_directories():
-    """
-    Create the required directory structure for the project.
-    Creates:
-      - code/
-      - src/
-      - tests/
-      - data/raw/
-      - data/processed/
-      - data/derived/
-    Also creates empty __init__.py files in all src/ subfolders.
-    """
-    base_dir = Path(__file__).parent.parent
+    """Create the required directory structure."""
+    root = Path(__file__).parent
+    
+    # Define all required directories relative to the project root
+    # Based on tasks.md T002 requirements
     directories = [
-        base_dir / "code",
-        base_dir / "src",
-        base_dir / "tests",
-        base_dir / "data" / "raw",
-        base_dir / "data" / "processed",
-        base_dir / "data" / "derived",
+        "src",
+        "src/extraction",
+        "src/analysis",
+        "src/utils",
+        "tests",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
+        "data/raw",
+        "data/processed",
+        "data/results",
+        "contracts",
     ]
+    
+    created_dirs = []
+    for dir_path in directories:
+        full_path = root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        created_dirs.append(str(full_path))
+        print(f"Created directory: {full_path}")
+    
+    return created_dirs
 
-    for directory in directories:
-        directory.mkdir(parents=True, exist_ok=True)
-        print(f"Created directory: {directory}")
-
-    # Create __init__.py files in src/ subfolders
-    src_dir = base_dir / "src"
-    subfolders = ["analysis", "extraction", "utils"]
-    for subfolder in subfolders:
-        init_file = src_dir / subfolder / "__init__.py"
-        init_file.parent.mkdir(parents=True, exist_ok=True)
+def create_init_files():
+    """Create empty __init__.py files in all src/ and tests/ subfolders."""
+    root = Path(__file__).parent
+    
+    # Directories that need __init__.py (src/ and tests/ tree)
+    init_dirs = [
+        "src",
+        "src/extraction",
+        "src/analysis",
+        "src/utils",
+        "tests",
+        "tests/unit",
+        "tests/integration",
+        "tests/contract",
+    ]
+    
+    created_files = []
+    for dir_path in init_dirs:
+        full_path = root / dir_path
+        init_file = full_path / "__init__.py"
+        
+        # Create empty file (or overwrite if exists but empty)
         init_file.touch(exist_ok=True)
+        created_files.append(str(init_file))
         print(f"Created __init__.py: {init_file}")
-
-    # Create __init__.py in tests/
-    tests_dir = base_dir / "tests"
-    (tests_dir / "__init__.py").touch(exist_ok=True)
-    print(f"Created __init__.py: {tests_dir / '__init__.py'}")
-
-    # Create __init__.py in src/ itself
-    (src_dir / "__init__.py").touch(exist_ok=True)
-    print(f"Created __init__.py: {src_dir / '__init__.py'}")
-
-
-def create_config_files():
-    """
-    Create basic configuration files if they don't exist.
-    """
-    base_dir = Path(__file__).parent.parent
-    config_files = [
-        base_dir / "code" / ".flake8",
-        base_dir / "code" / "pyproject.toml",
-    ]
-
-    for config_file in config_files:
-        if not config_file.exists():
-            config_file.touch()
-            print(f"Created empty config file: {config_file}")
-        else:
-            print(f"Config file already exists: {config_file}")
-
+    
+    return created_files
 
 def main():
-    """
-    Main entry point for running the setup script.
-    """
-    print("Setting up project structure...")
-    setup_data_directories()
-    create_config_files()
-    print("Project structure setup complete.")
-
+    """Main entry point for directory structure setup."""
+    print("Setting up project directory structure for T002...")
+    dirs = setup_data_directories()
+    files = create_init_files()
+    print(f"\nSetup complete. Created {len(dirs)} directories and {len(files)} __init__.py files.")
+    print("All paths are relative to:", Path(__file__).parent)
 
 if __name__ == "__main__":
     main()

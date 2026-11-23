@@ -1,0 +1,8 @@
+{
+  "microbiome_source": "data/raw/microbiome_sample.csv",
+  "sleep_source": "data/raw/sleep_sample.csv",
+  "description": "Configuration for multi-cohort harmonization. Replace source paths with actual dataset locations.",
+  "matching_strategies": ["id", "metadata", "age_only"],
+  "age_tolerance": 5,
+  "bmi_tolerance": 2.0
+}

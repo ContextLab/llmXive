@@ -1,116 +1,177 @@
-"""
-Unit tests for the data ingestion module.
-"""
+import os
 import pytest
 import pandas as pd
 import numpy as np
-import os
-import tempfile
 from pathlib import Path
+import tempfile
+import shutil
 from unittest.mock import patch, MagicMock
 
-# Import the function to test
-from code.data.ingest import ingest_and_filter_dataset
+from code.data.ingest import (
+    download_data,
+    align_maps,
+    mask_defects,
+    ingest_and_filter_dataset,
+    load_feasibility_status,
+)
+from code.data.models import ElementalMap, DevicePerformance
 
-def test_ingest_creates_output():
-    """
-    Test that ingest_and_filter_dataset creates the output CSV with correct columns.
-    """
-    # Create a temporary directory for raw data
-    with tempfile.TemporaryDirectory() as tmpdir:
-        raw_dir = Path(tmpdir) / "raw"
+class TestIngestModule:
+    @pytest.fixture
+    def temp_dirs(self):
+        """Create temporary directories for testing."""
+        temp_root = tempfile.mkdtemp()
+        raw_dir = Path(temp_root) / "raw"
+        processed_dir = Path(temp_root) / "processed"
+        state_dir = Path(temp_root) / "state"
         raw_dir.mkdir()
-        output_path = Path(tmpdir) / "output" / "unified_dataset.csv"
+        processed_dir.mkdir()
+        state_dir.mkdir()
+        yield {
+            "temp_root": Path(temp_root),
+            "raw_dir": raw_dir,
+            "processed_dir": processed_dir,
+            "state_dir": state_dir,
+        }
+        shutil.rmtree(temp_root)
+    
+    def test_download_data_handles_empty_urls(self, temp_dirs):
+        """Test that download_data handles empty URL lists gracefully."""
+        result = download_data([], temp_dirs["raw_dir"])
+        assert result == []
+    
+    def test_align_maps_requires_paths(self, temp_dirs):
+        """Test that align_maps raises error with no paths."""
+        with pytest.raises(ValueError, match="No map paths provided"):
+            align_maps([])
+    
+    def test_mask_defects_returns_dict(self, temp_dirs):
+        """Test that mask_defects returns a dictionary of masked arrays."""
+        # Create simple test arrays
+        test_maps = {
+            "Pb": np.ones((10, 10)),
+            "I": np.ones((10, 10)) * 2,
+        }
+        masked = mask_defects(test_maps, threshold=0.5)
+        assert isinstance(masked, dict)
+        assert "Pb" in masked
+        assert "I" in masked
+        assert masked["Pb"].shape == (10, 10)
+    
+    def test_ingest_and_filter_dataset_creates_output(self, temp_dirs):
+        """Test that ingest_and_filter_dataset creates the output CSV."""
+        # Create a minimal metadata CSV
+        metadata_path = temp_dirs["raw_dir"] / "metadata.csv"
+        metadata_data = {
+            "sample_id": ["sample_001", "sample_002"],
+            "PCE": [20.5, 21.3],
+            "J_sc": [25.0, 26.1],
+            "V_oc": [1.1, 1.15],
+            "Pb_url": ["http://example.com/Pb.npy", "http://example.com/Pb2.npy"],
+            "I_url": ["http://example.com/I.npy", "http://example.com/I2.npy"],
+            "MA_url": ["http://example.com/MA.npy", "http://example.com/MA2.npy"],
+        }
+        pd.DataFrame(metadata_data).to_csv(metadata_path, index=False)
         
-        # Create fake map files
-        sample_id = "TEST_001"
-        pb_data = np.random.rand(10, 10)
-        i_data = np.random.rand(10, 10)
-        ma_data = np.random.rand(10, 10)
+        # Create fake .npy files to simulate downloads
+        for sample in ["sample_001", "sample_002"]:
+            sample_dir = temp_dirs["raw_dir"] / sample
+            sample_dir.mkdir()
+            np.save(sample_dir / "Pb.npy", np.random.rand(10, 10))
+            np.save(sample_dir / "I.npy", np.random.rand(10, 10))
+            np.save(sample_dir / "MA.npy", np.random.rand(10, 10))
         
-        # Save maps
-        pb_path = raw_dir / f"{sample_id}_Pb_processed.npy" # We will mock the saving, but need source
-        # Actually, the function expects raw files. Let's create raw files.
-        pb_raw = raw_dir / f"{sample_id}_Pb_map.npy"
-        i_raw = raw_dir / f"{sample_id}_I_map.npy"
-        ma_raw = raw_dir / f"{sample_id}_MA_map.npy"
-        
-        np.save(pb_raw, pb_data)
-        np.save(i_raw, i_raw)
-        np.save(ma_raw, ma_data)
-        
-        # Create metadata
-        meta_df = pd.DataFrame({
-            'sample_id': [sample_id],
-            'PCE': [20.5],
-            'J_sc': [22.1],
-            'V_oc': [1.1],
-            'Pb_map_path': [str(pb_raw)],
-            'I_map_path': [str(i_raw)],
-            'MA_map_path': [str(ma_raw)]
-        })
-        meta_df.to_csv(raw_dir / "metadata.csv", index=False)
+        output_path = temp_dirs["processed_dir"] / "unified_dataset.csv"
         
         # Run ingestion
-        result = ingest_and_filter_dataset(str(raw_dir), str(output_path))
+        ingest_and_filter_dataset(
+            metadata_csv=metadata_path,
+            raw_dir=temp_dirs["raw_dir"],
+            output_csv=output_path,
+            performance_columns=["PCE", "J_sc", "V_oc"],
+            state_dir=temp_dirs["state_dir"],
+        )
         
-        # Assertions
-        assert output_path.exists(), "Output CSV was not created."
-        assert isinstance(result, pd.DataFrame)
-        assert len(result) == 1
-        assert 'sample_id' in result.columns
-        assert 'Pb_map_path' in result.columns
-        assert 'I_map_path' in result.columns
-        assert 'MA_map_path' in result.columns
-        assert 'PCE' in result.columns
-        assert 'J_sc' in result.columns
-        assert 'V_oc' in result.columns
+        # Verify output
+        assert output_path.exists()
+        df = pd.read_csv(output_path)
+        assert len(df) == 2
+        assert "sample_id" in df.columns
+        assert "Pb_map_path" in df.columns
+        assert "I_map_path" in df.columns
+        assert "MA_map_path" in df.columns
+        assert "PCE" in df.columns
+        assert "J_sc" in df.columns
+        assert "V_oc" in df.columns
+    
+    def test_ingest_filters_missing_performance_metrics(self, temp_dirs):
+        """Test that samples missing performance metrics are excluded."""
+        metadata_path = temp_dirs["raw_dir"] / "metadata.csv"
+        metadata_data = {
+            "sample_id": ["sample_001", "sample_002", "sample_003"],
+            "PCE": [20.5, np.nan, 21.3],  # sample_002 missing PCE
+            "J_sc": [25.0, 26.1, 26.5],
+            "V_oc": [1.1, 1.15, 1.12],
+            "Pb_url": ["http://example.com/Pb.npy"] * 3,
+            "I_url": ["http://example.com/I.npy"] * 3,
+            "MA_url": ["http://example.com/MA.npy"] * 3,
+        }
+        pd.DataFrame(metadata_data).to_csv(metadata_path, index=False)
         
-        # Check values
-        assert result.iloc[0]['sample_id'] == sample_id
-        assert result.iloc[0]['PCE'] == 20.5
-
-def test_ingest_filters_missing_metrics():
-    """
-    Test that samples with missing PCE, J_sc, or V_oc are excluded.
-    """
-    with tempfile.TemporaryDirectory() as tmpdir:
-        raw_dir = Path(tmpdir) / "raw"
-        raw_dir.mkdir()
-        output_path = Path(tmpdir) / "output" / "unified_dataset.csv"
+        # Create fake .npy files
+        for sample in ["sample_001", "sample_002", "sample_003"]:
+            sample_dir = temp_dirs["raw_dir"] / sample
+            sample_dir.mkdir()
+            np.save(sample_dir / "Pb.npy", np.random.rand(10, 10))
+            np.save(sample_dir / "I.npy", np.random.rand(10, 10))
+            np.save(sample_dir / "MA.npy", np.random.rand(10, 10))
         
-        # Create two samples, one with missing data
-        samples = ["S1", "S2"]
-        pb_data = np.random.rand(5, 5)
-        i_data = np.random.rand(5, 5)
-        ma_data = np.random.rand(5, 5)
+        output_path = temp_dirs["processed_dir"] / "unified_dataset.csv"
         
-        paths = []
-        for s in samples:
-            pb = raw_dir / f"{s}_Pb_map.npy"
-            i = raw_dir / f"{s}_I_map.npy"
-            m = raw_dir / f"{s}_MA_map.npy"
-            np.save(pb, pb_data)
-            np.save(i, i_data)
-            np.save(m, ma_data)
-            paths.append((s, pb, i, m))
+        ingest_and_filter_dataset(
+            metadata_csv=metadata_path,
+            raw_dir=temp_dirs["raw_dir"],
+            output_csv=output_path,
+            performance_columns=["PCE", "J_sc", "V_oc"],
+            state_dir=temp_dirs["state_dir"],
+        )
         
-        # Metadata: S1 valid, S2 missing V_oc
-        meta_df = pd.DataFrame({
-            'sample_id': ['S1', 'S2'],
-            'PCE': [20.0, 19.5],
-            'J_sc': [22.0, 21.0],
-            'V_oc': [1.1, np.nan], # Missing
-            'Pb_map_path': [str(p[1]) for p in paths],
-            'I_map_path': [str(p[2]) for p in paths],
-            'MA_map_path': [str(p[3]) for p in paths]
-        })
-        meta_df.to_csv(raw_dir / "metadata.csv", index=False)
+        df = pd.read_csv(output_path)
+        # sample_002 should be excluded
+        assert len(df) == 2
+        assert "sample_002" not in df["sample_id"].values
+    
+    def test_load_feasibility_status_raises_on_missing(self, temp_dirs):
+        """Test that load_feasibility_status raises FileNotFoundError when file missing."""
+        with pytest.raises(FileNotFoundError):
+            load_feasibility_status(temp_dirs["state_dir"])
+    
+    def test_ingest_handles_download_failures(self, temp_dirs):
+        """Test that ingestion continues even if some downloads fail."""
+        metadata_path = temp_dirs["raw_dir"] / "metadata.csv"
+        metadata_data = {
+            "sample_id": ["sample_001"],
+            "PCE": [20.5],
+            "J_sc": [25.0],
+            "V_oc": [1.1],
+            "Pb_url": ["http://invalid-url-9999.com/nonexistent.npy"],
+            "I_url": ["http://invalid-url-9999.com/nonexistent.npy"],
+            "MA_url": ["http://invalid-url-9999.com/nonexistent.npy"],
+        }
+        pd.DataFrame(metadata_data).to_csv(metadata_path, index=False)
         
-        # Run ingestion
-        result = ingest_and_filter_dataset(str(raw_dir), str(output_path))
+        output_path = temp_dirs["processed_dir"] / "unified_dataset.csv"
         
-        # S2 should be excluded
-        assert len(result) == 1
-        assert result.iloc[0]['sample_id'] == 'S1'
-        assert 'S2' not in result['sample_id'].values
+        # Should not raise, but produce empty dataset or skip sample
+        ingest_and_filter_dataset(
+            metadata_csv=metadata_path,
+            raw_dir=temp_dirs["raw_dir"],
+            output_csv=output_path,
+            performance_columns=["PCE", "J_sc", "V_oc"],
+            state_dir=temp_dirs["state_dir"],
+        )
+        
+        assert output_path.exists()
+        df = pd.read_csv(output_path)
+        # Sample should be skipped due to download failure
+        assert len(df) == 0 or "sample_id" not in df.columns or len(df) == 0

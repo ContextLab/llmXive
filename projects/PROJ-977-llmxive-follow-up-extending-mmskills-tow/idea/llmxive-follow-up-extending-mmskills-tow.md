@@ -5,33 +5,80 @@ submitter: llmxive-preprint-followup
 
 # llmXive follow-up: extending "MMSkills: Towards Multimodal Skills for General Visual Agents"
 
-## Summary of the prior work
-The paper introduces MMSkills, a framework that enhances visual agents by encapsulating reusable multimodal procedural knowledge (textual steps, state cards, and keyframes) derived from public interaction trajectories. It addresses the challenge of grounding visual decision-making by allowing agents to load specific skills into a temporary "branch" for alignment with the live environment, thereby improving performance on GUI and game benchmarks without over-anchoring to reference images.
+**Field**: computer science
 
-## Proposed extension
-**Research Question:** Can a lightweight, CPU-tractable "Skill Compression" module, which replaces high-resolution multi-view keyframes with compact, text-based visual summaries (e.g., dense caption vectors or object-property graphs), preserve the retrieval accuracy and decision-making efficacy of MMSkills while reducing inference latency and memory footprint by an order of magnitude?
-**Why it matters:** While MMSkills improves performance, the reliance on loading and aligning multiple high-resolution keyframes creates a significant computational bottleneck for deployment on edge devices or in low-resource settings; proving that semantic visual summaries can replace raw pixels without sacrificing the "visual grounding" benefit would democratize access to multimodal procedural knowledge.
+## Research question
+
+To what extent do compact, text-based visual summaries preserve the informational content required for procedural decision-making in multimodal agents, and how does this fidelity vary across GUI tasks with differing spatial versus semantic complexity?
+
+## Motivation
+
+Multimodal agents like those in the MMSkills framework currently rely on raw image tensors, creating a computational bottleneck that hinders deployment on edge devices. If semantic visual grounding via structured text can substitute for pixels without sacrificing performance, it would democratize access to advanced agents. This research specifically targets the trade-off between compression efficiency and the retention of spatial vs. semantic information, a gap not addressed by current baseline evaluations.
+
+## Related work
+
+- [MMSkills: Towards Multimodal Skills for General Visual Agents](https://arxiv.org/abs/2605.13527) — Establishes the baseline framework for encapsulating multimodal procedural knowledge, serving as the primary target for compression and the source of the evaluation tasks.
+- [LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts](https://arxiv.org/abs/2407.04973) — Provides a benchmark perspective on evaluating logical reasoning in visual contexts, offering metrics to assess whether text-based summaries retain sufficient logical fidelity for complex decision-making.
+- [Creating Multimodal Interactive Agents with Imitation and Self-Supervised Learning](https://arxiv.org/abs/2112.03763) — Offers foundational context on the general challenge of bridging visual perception and action execution, highlighting the necessity of efficient representation for scalable agent interaction.
+
+## Expected results
+
+We expect that text-based summaries will retain high fidelity for tasks dominated by semantic complexity (e.g., form filling, menu navigation) but show a significant performance drop for tasks requiring precise spatial reasoning (e.g., pixel-perfect clicking). Success will be measured by a stratified analysis of task success rates, confirming that the compression method is viable for semantic-heavy workflows while identifying the spatial complexity threshold where raw pixels remain necessary.
 
 ## Methodology sketch
-**Data:** We will extract a subset of 500 MMSkills from the original paper's HuggingFace dataset, specifically focusing on GUI tasks where visual state changes are distinct but textually describable.
-**Procedure:** 
-1. Develop a "Visual Summarizer" (using a small, pre-trained, CPU-optimized model like DistilBERT combined with a lightweight object detector run in a single pass) to convert the multi-view keyframes of each skill into a structured JSON graph of objects, attributes, and spatial relations.
-2. Replace the original keyframe inputs in the MMSkills framework with these JSON graphs.
-3. Run a controlled evaluation on a standard CPU-only environment (e.g., a standard laptop) using the original MMSkills agent architecture, measuring success rates on 100 held-out tasks while recording inference time and peak memory usage.
-**Expected Result:** We hypothesize that the "Text-Summarized MMSkills" will achieve at least 85% of the original performance (success rate) while reducing inference latency by >60% and memory usage by >80%, demonstrating that semantic visual grounding is sufficient for many procedural tasks without raw image processing.
 
-## Motivated by (source preprint — reviewed, not authored, by llmXive)
+- **Data Acquisition**: Download the MMSkills dataset from the official HuggingFace repository and extract a stratified subset of 500 GUI-focused skills, explicitly categorizing them into "high-spatial" and "high-semantic" groups based on task descriptions.
+- **Visual Summarization**: Implement a "Visual Summarizer" pipeline using a CPU-optimized object detector (e.g., YOLOv8-nano) and a lightweight language model (e.g., DistilBERT or a quantized LLM) to convert multi-view keyframes into structured JSON graphs describing objects, attributes, and spatial relations.
+- **Framework Modification**: Modify the MMSkills agent codebase to accept the generated JSON graphs as input instead of raw image tensors, ensuring the alignment logic operates on the semantic graph structure.
+- **Experimental Setup**: Deploy both the modified agent (text-input) and the original baseline agent (image-input) on a standard CPU-only environment (simulating 2 CPU cores, 7GB RAM) to ensure fair resource comparison.
+- **Evaluation**: Run both agents on the stratified test set, recording binary task completion (success/failure) and inference latency for each task, while tagging results by the task's spatial/semantic classification.
+- **Statistical Analysis**: Apply a two-way ANOVA to test for the main effects of "Input Modality" (Raw vs. Text) and "Task Complexity Type" (Spatial vs. Semantic), and their interaction, to determine if the performance drop is significant and dependent on task type.
+- **Resource Benchmarking**: Calculate the percentage reduction in latency and memory for the compressed variant relative to the baseline to quantify the efficiency gains.
 
-- **MMSkills: Towards Multimodal Skills for General Visual Agents** — Kangning Zhang, Shuai Shao, Qingyao Li, Jianghao Lin, Lingyue Fu, Shijian Wang, Wenxiang Jiao, Yuan Lu, Weiwen Liu, Weinan Zhang, Yong Yu. https://arxiv.org/abs/2605.13527.
+## Duplicate-check
 
-```bibtex
-@article{orig_arxiv_2605_13527,
-  title = {MMSkills: Towards Multimodal Skills for General Visual Agents},
-  author = {Kangning Zhang and Shuai Shao and Qingyao Li and Jianghao Lin and Lingyue Fu and Shijian Wang and Wenxiang Jiao and Yuan Lu and Weiwen Liu and Weinan Zhang and Yong Yu},
-  year = {2026},
-  eprint = {2605.13527},
-  archivePrefix = {arXiv},
-  journal = {arXiv preprint arXiv:2605.13527},
-  url = {https://arxiv.org/abs/2605.13527}
-}
-```
+- Reviewed existing ideas: None in the immediate corpus (this is a new follow-up to a specific preprint).
+- Closest match: N/A (No prior fleshed-out ideas on this specific "Skill Compression" extension found).
+- Verdict: NOT a duplicate
+
+
+## Search trail
+
+**Generated by**: librarian (prompt v1.6.0) on 2026-09-20T03:56:19Z
+**Outcome**: success_after_expansion
+**Original term**: llmXive follow-up: extending "MMSkills: Towards Multimodal Skills for General Visual Agents" computer science
+**Verified citation count**: 5
+
+### Search terms used
+
+| Rank | Term | Hit count |
+|-|-|-|
+| 0 (initial) | llmXive follow-up: extending "MMSkills: Towards Multimodal Skills for General Visual Agents" computer science | 0 |
+| 1 | multimodal general visual agents | 5 |
+| 2 | skill learning for embodied AI agents | 0 |
+| 3 | generalist vision-language agents | 0 |
+| 4 | multimodal reasoning for visual agents | 0 |
+| 5 | hierarchical skill acquisition in visual agents | 0 |
+| 6 | vision-language pretraining for agent control | 0 |
+| 7 | zero-shot visual task generalization | 0 |
+| 8 | multimodal instruction following for robots | 0 |
+| 9 | foundation models for general visual interaction | 0 |
+| 10 | cross-modal skill transfer in agents | 0 |
+| 11 | autonomous visual agents with multimodal capabilities | 0 |
+| 12 | learning reusable visual skills from language | 0 |
+| 13 | multimodal world models for agent planning | 0 |
+| 14 | general purpose visual perception and action | 0 |
+| 15 | modular skill composition for visual agents | 0 |
+| 16 | large language models for visual agent planning | 0 |
+| 17 | embodied AI multimodal skill datasets | 0 |
+| 18 | visual grounding for general task execution | 0 |
+| 19 | multi-task learning for vision-language agents | 0 |
+| 20 | scalable multimodal architectures for general agents | 0 |
+
+### Verified citations
+
+1. **MMSkills: Towards Multimodal Skills for General Visual Agents** (2026). Kangning Zhang, Shuai Shao, Qingyao Li, Jianghao Lin, Lingyue Fu, et al.. arXiv. [2605.13527](https://arxiv.org/abs/2605.13527). PDF-sampled: No.
+2. **Lexara-RF: Reference-Free Metrics for Evaluating Conversational Visual Analytics Agents** (2026). Srishti Palani, Vidya Setlur. arXiv. [2609.17842](https://arxiv.org/abs/2609.17842). PDF-sampled: No.
+3. **LogicVista: Multimodal LLM Logical Reasoning Benchmark in Visual Contexts** (2024). Yijia Xiao, Edward Sun, Tianyu Liu, Wei Wang. arXiv. [2407.04973](https://arxiv.org/abs/2407.04973). PDF-sampled: No.
+4. **Creating Multimodal Interactive Agents with Imitation and Self-Supervised Learning** (2021).  DeepMind Interactive Agents Team, Josh Abramson, Arun Ahuja, Arthur Brussee, Federico Carnevale, et al.. arXiv. [2112.03763](https://arxiv.org/abs/2112.03763). PDF-sampled: No.
+5. **A2P-Vis: an Analyzer-to-Presenter Agentic Pipeline for Visual Insights Generation and Reporting** (2025). Shuyu Gan, Renxiang Wang, James Mooney, Dongyeop Kang. arXiv. [2512.22101](https://arxiv.org/abs/2512.22101). PDF-sampled: No.

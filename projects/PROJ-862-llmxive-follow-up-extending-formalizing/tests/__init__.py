@@ -1,3 +1,3 @@
 """
-Test suite for llmXive Follow-up
+Tests package for the llmXive noise injection pipeline.
 """

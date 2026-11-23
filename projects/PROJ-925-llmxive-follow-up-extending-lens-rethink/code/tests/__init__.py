@@ -1,3 +1,2 @@
-"""
-Test suite for llmXive research pipeline.
-"""
+# Test package initialization
+# Provides test utilities and common fixtures

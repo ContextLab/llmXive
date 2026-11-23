@@ -1,22 +1,66 @@
-- artifact_hash: 02962b02c7a105e7684604fe4ef058fc7b3eeab95d9cf679f394dee728a9bc63
-  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/quickstart.md
+- artifact_hash: 902e91c4cef20e83667dfae232fc1ff9e8b5b26b26b501e3bdc58e1d071fcadf
+  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/code/specs/353-loss-functions-small-world/data-model.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: cpu
+  fetched_title: schema#
   kind: url
-  value: https://download.pytorch.org/whl/cpu`
+  value: http://json-schema.org/draft-07/schema#
   verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-07-04T14:27:55.296425Z'
-- artifact_hash: b9a22d9ce132a5020e93d988be7878612f93ea34a8dae20a2e98e43372b2db56
-  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/tasks.md
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-09-30T20:52:02.984714Z'
+- artifact_hash: a9e27cce2c4c60e262c4e2fdf5fefdf2d7a7e98898ed50f411ac8ce06c1a95de
+  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/data-model.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Bonferroni - Wikidata
+  fetched_title: schema#
   kind: url
-  value: https://www.wikidata.org/wiki/Q87892954
-  verification_status: verified
-  verified_against_url: https://www.wikidata.org/wiki/Q87892954
-  verified_at: '2026-07-07T21:45:28.616326Z'
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-10-04T19:04:11.427044Z'
+- artifact_hash: a9e27cce2c4c60e262c4e2fdf5fefdf2d7a7e98898ed50f411ac8ce06c1a95de
+  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/data-model.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://llmxive.org/schemas/synthetic_graph.json
+  verification_status: unreachable
+  verified_against_url: https://llmxive.org/schemas/synthetic_graph.json
+  verified_at: '2026-10-04T19:04:11.427044Z'
+- artifact_hash: a9e27cce2c4c60e262c4e2fdf5fefdf2d7a7e98898ed50f411ac8ce06c1a95de
+  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/data-model.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://llmxive.org/schemas/training_run.json
+  verification_status: unreachable
+  verified_against_url: https://llmxive.org/schemas/training_run.json
+  verified_at: '2026-10-04T19:04:11.427044Z'
+- artifact_hash: a9e27cce2c4c60e262c4e2fdf5fefdf2d7a7e98898ed50f411ac8ce06c1a95de
+  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/data-model.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://llmxive.org/schemas/analysis_result.json
+  verification_status: unreachable
+  verified_against_url: https://llmxive.org/schemas/analysis_result.json
+  verified_at: '2026-10-04T19:04:11.427044Z'
+- artifact_hash: 9b09d60b240b723639d8e44dd07731613eea3d8791edc3dc7a858fa78a08b843
+  artifact_path: projects/PROJ-353-investigating-the-effectiveness-of-diffe/specs/001-investigating-the-effectiveness-of-diffe/data-model.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: schema#
+  kind: url
+  value: http://json-schema.org/draft-07/schema#
+  verification_status: pending
+  verified_against_url: https://json-schema.org/draft-07/schema
+  verified_at: '2026-10-08T09:48:27.242043Z'

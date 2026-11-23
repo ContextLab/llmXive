@@ -1,135 +1,137 @@
 # Implementation Plan: Predicting Molecular Properties from Topological Data Analysis
 
-**Branch**: `001-predict-molecular-properties-tda` | **Date**: 2026-06-28 | **Spec**: `specs/001-predicting-molecular-properties-from-top/spec.md`
-**Input**: Feature specification from `specs/001-predicting-molecular-properties-from-top/spec.md`
+**Branch**: `001-predict-molecular-properties-tda` | **Date**: 2026-10-24 | **Spec**: `specs/001-predict-molecular-properties-tda/spec.md`  
+**Input**: Feature specification from `specs/001-predict-molecular-properties-tda/spec.md`
 
 ## Summary
-
-This feature implements a computational pipeline to predict molecular properties (specifically **logP** from the MoleculeNet ESOL dataset) using Topological Data Analysis (TDA) descriptors derived from molecular graphs. The approach computes persistent homology using shortest-path distance filtration, vectorizes the resulting diagrams into persistence images of a selected resolution, and trains regression models (Linear Regression with L2, Random Forest) on three feature sets: traditional descriptors, topological features, and a combined set.
-
-**Critical Methodological Update**: The study acknowledges that shortest-path filtration is a subset of the information encoded in standard Morgan fingerprints (ECFP). Therefore, the primary hypothesis is not that TDA provides *independent* information, but that it offers a *computationally efficient* or *interpretable* alternative representation. The Mutual Information analysis (FR-009) is used to quantify this redundancy as a primary result. The plan enforces strict data hygiene, a priori power analysis, and **Holm-Bonferroni correction** (replacing the spec's "Bonferroni" for correlated tests) to ensure methodological rigor.
+Implement a fully reproducible, CPU‑only pipeline that (1) streams the open **PubChem 10 M canonicalized** dataset from Hugging Face, (2) extracts valid SMILES and the XLogP3 property (renamed to `logP`), (3) validates each SMILES with RDKit, (4) builds molecular graphs and computes persistent homology using a shortest‑path distance filtration, (5) vectorizes diagrams into 10 × 10 persistence images (baseline) and sweeps 20 × 20 and 30 × 30 for sensitivity, (6) computes traditional RDKit descriptors, (7) merges feature sets (ensuring `molecule_id` is a string and dropping the target column before training), (8) trains Linear Regression (L2, α = 1.0) and Random Forest (100 trees, max_depth = 10) on three feature sets using **5 repeats of 10‑fold** scaffold‑based splits (seed = 42), (9) evaluates R² and RMSE per fold, (10) performs paired statistical tests on **RMSE** differences with Wilcoxon signed‑rank test and applies **Holm–Bonferroni** correction (α = 0.05), (11) runs VIF diagnostics (flag VIF > 5) for the Linear Regression model, (12) calculates mutual information between traditional and topological descriptor matrices, (13) extracts feature importance, (14) records all metrics in `model_metrics.json` conforming to the contract schema, (15) validates all generated CSVs against their respective JSON schemas, and (16) logs resource usage to satisfy SC‑004.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `rdkit`, `gudhi` (or `dionysus2`), `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `requests`  
-**Storage**: Local CSV/Parquet files under `data/`; no external database.  
-**Testing**: `pytest` with `pytest-cov` for coverage; contract tests against YAML schemas.  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, 7GB RAM, no GPU).  
-**Project Type**: Computational research pipeline / CLI tool.  
-**Performance Goals**: Complete full pipeline (data ingestion, TDA computation, modeling, sensitivity sweep, diagnostics) within 5.4 hours; peak RAM < 6.3GB.  
-**Constraints**: No GPU; no CUDA; no 8-bit/4-bit quantization; strict adherence to verified dataset sources; all random seeds pinned to a fixed value for reproducibility.  
-**Scale/Scope**: Subset of MoleculeNet ESOL (logP) sufficient for 5-fold scaffold split with minimum 20 scaffolds per fold.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `rdkit`, `gudhi`, `scikit-learn`, `pandas`, `numpy`, `matplotlib`, `seaborn`, `pyyaml`, `datasets` (🤗 datasets), `tqdm`, `joblib`  
+- **Storage**: CSV/Parquet files under `data/` (raw, processed) and JSON reports under `reports/`  
+- **Testing**: `pytest` with contract tests (`tests/contract/`) and unit tests (`tests/unit/`)  
+- **Target Platform**: Linux GitHub Actions free‑tier runner (2 CPU, ~7 GB RAM, no GPU)  
+- **Constraints**: CPU‑only (FR‑008), reproducibility, data‑hygiene, single source of truth (Constitution)  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
-
-| Principle | Compliance Status | Implementation Note |
-|-----------|-------------------|---------------------|
-| **I. Reproducibility** | **Pass** | All scripts use `random.seed(42)`; `requirements.txt` pins versions; data fetched from canonical MoleculeNet/ESOL URLs; no manual intervention required. |
-| **II. Verified Accuracy** | **Pass** | **Step `01_data_ingestion.py` includes a runtime check** that validates the dataset URL against the "Verified datasets" block in `research.md` AND validates that the downloaded CSV contains the specific columns (`smiles`, `logP`) defined in `dataset.schema.yaml` before proceeding. |
-| **III. Data Hygiene** | **Pass** | **Step `00_checksum_verify.py`** computes SHA256 hashes of raw data and records them in `data/checksums.txt` and the state file. Derived features in `data/processed/`; no in-place modifications. |
-| **IV. Single Source of Truth** | **Pass** | All metrics (R², RMSE, p-values) generated by code and traced to specific CSV rows; no hand-typed numbers in reports. |
-| **V. Versioning Discipline** | **Pass** | Content hashes tracked in `state/projects/PROJ-444...yaml`; artifact updates trigger state timestamp refresh. |
-| **VI. Molecular Graph Integrity** | **Pass** | RDKit validity checks (valence, aromaticity) applied before TDA; invalid SMILES logged and excluded; graph construction preserves connectivity. |
-| **VII. Topological Feature Validation** | **Pass** | Shortest-path filtration implemented; A grid resolution for the primary experiment. The research question is [insert research question]. The method is [insert method]. References: [insert references].; baseline traditional descriptors (MW, fingerprints) included; vectorization parameters documented. |
+| Principle | Compliance | Note |
+|-----------|------------|------|
+| I. Reproducibility | ✅ | Fixed seeds, deterministic streaming loader, pinned `requirements.txt`. |
+| II. Verified Accuracy | ✅ | Dataset sourced from Hugging Face URL (verified). |
+| III. Data Hygiene | ✅ | Checksums recorded, immutable raw files, derived files written to new paths, idempotent exclusion log. |
+| IV. Single Source of Truth | ✅ | Every metric traced to a specific row in `data/processed/*.csv`. |
+| V. Versioning Discipline | ✅ | Artifact hashes stored in `state/projects/PROJ-444...yaml`. |
+| VI. Molecular Graph Integrity | ✅ | RDKit valence/aromaticity checks; invalid SMILES logged & excluded. |
+| VII. Topological Feature Validation | ✅ | Shortest‑path filtration, documented grid sizes, baseline 10 × 10 persistence images, inclusion of `target_property`/`target_value`. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-predict-molecular-properties-tda/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
 │   ├── dataset.schema.yaml
 │   ├── feature_matrix.schema.yaml
 │   └── model_metrics.schema.yaml
-└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
+└── tasks.md   # generated later by /speckit-tasks
 ```
-
-### Source Code (repository root)
 
 ```text
 projects/PROJ-444-predicting-molecular-properties-from-top/
 ├── code/
 │   ├── requirements.txt
-│   ├── 00_checksum_verify.py       # Computes and records SHA256 hashes (Constitution III)
-│   ├── 01_data_ingestion.py        # Fetches ESOL, validates URL, validates schema columns, checks power, splits scaffolds
-│   ├── 02_tda_computation.py       # Graph construction, PH, vectorization
-│   ├── 03_feature_engineering.py   # Traditional descriptors, merging
-│   ├── 04_model_training.py        # Train/eval 3 models, 5-fold CV, GPU check (Constitution I)
-│   ├── 05_sensitivity_analysis.py  # Grid resolution sweep
-│   ├── 06_diagnostics.py           # VIF, Mutual Information, Holm-Bonferroni
-│   ├── 07_resource_monitor.py      # Measures RAM/CPU usage (SC-004)
+│   ├── 00_checksum_verify.py
+│   ├── 01_download_pubchem.py
+│   ├── 02_tda_computation.py
+│   ├── 03_feature_engineering.py
+│   ├── 04_model_training.py
+│   ├── 05_sensitivity_analysis.py
+│   ├── 06_diagnostics.py
+│   ├── 07_feature_importance.py
+│   ├── 08_resource_monitor.py
 │   └── utils/
 │       ├── graph_builder.py
 │       └── persistence_utils.py
 ├── data/
-│   ├── raw/                          # Downloaded datasets
-│   ├── processed/                    # Feature matrices, diagrams
-│   └── checksums.txt                 # Recorded hashes
-├── tests/
-│   ├── contract/                     # Schema validation
-│   ├── unit/                         # Graph builder, TDA logic
-│   └── integration/                  # Full pipeline on subset
+│   ├── raw/
+│   │   └── pubchem.parquet
+│   ├── processed/
+│   │   ├── molecules.csv
+│   │   ├── topological_features_10.csv
+│   │   ├── topological_features_20.csv
+│   │   ├── topological_features_30.csv
+│   │   ├── traditional_descriptors.csv
+│   │   └── combined_features.csv
+│   └── checksums.txt
 ├── reports/
-│   ├── figures/                      # Betti curves, performance plots
-│   └── metrics/                      # JSON/CSV summaries, resource_usage.json
+│   ├── figures/
+│   └── metrics/
+│       ├── model_metrics.json
+│       ├── feature_importance.json
+│       ├── vif_report.json
+│       ├── mi_report.json
+│       ├── sensitivity_report.json
+│       └── resource_usage.json
+├── tests/
+│   ├── contract/
+│   ├── unit/
+│   └── integration/
 └── state/
     └── projects/PROJ-444...yaml
 ```
 
-**Structure Decision**: Single project structure selected. The workflow is linear (ingest → compute → model → diagnose), requiring no microservices or separate frontends. All logic resides in `code/` with clear separation of concerns via scripts and a `utils/` module for shared graph/TDA logic. Tests are colocated in `tests/` with contract tests ensuring schema compliance.
-
 ## Complexity Tracking
-
-*No violations detected; complexity is justified by the multi-stage TDA pipeline and rigorous statistical requirements.*
-
-| Violation | Why Needed | Simpler Alternative Rejected Because |
-|-----------|------------|-------------------------------------|
-| N/A | N/A | N/A |
+No violations; the multi‑stage pipeline is required to satisfy every FR and SC.
 
 ## FR/SC Coverage Map
-
-| ID | Plan Phase/Step | Description |
-|----|-----------------|-------------|
-| **FR-001** | `02_tda_computation.py` | Computes persistent homology via shortest-path distance filtration using GUDHI/Dionysus. |
-| **FR-002** | `02_tda_computation.py` | Vectorizes diagrams to 10x10 persistence images as primary baseline. |
-| **FR-003** | `04_model_training.py` | Trains LR (alpha=1.0) and RF (100 trees, max_depth=10) on 3 feature sets. |
-| **FR-004** | `01_data_ingestion.py` | Implements 5-fold scaffold split (Bemis-Murcko) with seed=42; **enforces min 20 scaffolds per fold**. Calculates R²/RMSE. |
-| **FR-005** | `06_diagnostics.py` | Applies **Holm-Bonferroni** correction to p-values from model comparisons (replaces Bonferroni to address correlated tests). *Note: Spec text "Bonferroni" is flagged for amendment; plan implements robust method.* |
-| **FR-006** | `05_sensitivity_analysis.py` | Sweeps grid resolutions across a range of low to moderate values. and reports R² variance. |
-| **FR-007** | `06_diagnostics.py` | Calculates VIF; flags predictors > 5. |
-| **FR-008** | `04_model_training.py` | **Runtime assertion** checks for GPU; fails if CUDA detected. All libraries CPU-only. |
-| **FR-009** | `06_diagnostics.py` | Computes mutual information between traditional and topological feature sets to quantify redundancy. |
-| **SC-001** | `04_model_training.py` | Measures R² improvement; contingent on FR-009 (redundancy quantification) and **Power > 0.8**. |
-| **SC-002** | `05_sensitivity_analysis.py` | Measures R² stability across grid resolutions. |
-| **SC-003** | `06_diagnostics.py` | Measures family-wise error rate after **Holm-Bonferroni** correction. |
-| **SC-004** | `07_resource_monitor.py` | **Wrapper script** monitors RAM/CPU usage; targets < 90% of CI limits. |
-| **SC-005** | `06_diagnostics.py` | Measures VIF against threshold 5. |
+| ID | Plan Phase / Script | Description |
+|----|---------------------|-------------|
+| **FR-001** | `02_tda_computation.py` | Compute persistent homology via shortest‑path distance filtration (GUDHI). |
+| **FR-002** | `02_tda_computation.py` (baseline) | Vectorize diagrams to 10 × 10 persistence images; also produce 20 × 20 and 30 × 30 for sensitivity. |
+| **FR-003** | `04_model_training.py` & `03_feature_engineering.py` | Train Linear Regression (α = 1.0) and Random Forest (100 trees, max_depth = 10) on three feature sets; traditional descriptors computed in `03`. |
+| **FR-004** | `01_download_pubchem.py` + `04_model_training.py` | **5 repeats of 10‑fold** scaffold‑based splits (Bemis‑Murcko, seed = 42); compute R² & RMSE per fold. |
+| **FR-005** | `06_diagnostics.py` | Apply **Holm–Bonferroni** correction using a family‑wise α = 0.05 (source: https://en.wikipedia.org/wiki/Holm%E2%80%93Bonferroni_method) (FR‑005). |
+| **FR-006** | `05_sensitivity_analysis.py` | Sweep grid resolutions `{10,20,30}`; report R² variance and **assert that σ < 0.02** to satisfy SC‑002. |
+| **FR-007** | `06_diagnostics.py` | Compute VIF for Linear Regression; flag predictors with VIF > 5. |
+| **FR-008** | `04_model_training.py` (runtime guard) | Assert `torch.cuda.is_available()` is False; abort if GPU detected. |
+| **FR-009** | `06_diagnostics.py` | Compute mutual information between traditional and topological descriptor matrices. |
+| **FR-010** | `01_download_pubchem.py` | Randomly sample N = 5 000 valid molecules from the streamed PubChem dataset (seed = 42). |
+| **FR-011** | Contract tests | Validate all generated CSV artifacts against their JSON schema contracts. |
+| **FR-012** | `06_diagnostics.py` | Perform power analysis for paired Wilcoxon test; require ≥ 30 paired observations. |
+| **SC-001** | `04_model_training.py` | Compare combined vs. traditional RMSE; significance assessed after FR‑009 confirms non‑trivial redundancy. |
+| **SC-002** | `05_sensitivity_analysis.py` | Verify stability of R² across resolutions (σ < 0.02). |
+| **SC-003** | `06_diagnostics.py` | Verify family‑wise error rate ≤ 0.05 after Holm–Bonferroni correction. |
+| **SC-004** | `08_resource_monitor.py` & `00_checksum_verify.py` | Log peak RAM & CPU time; must stay < 90 % of CI limits. |
+| **SC-005** | `06_diagnostics.py` | Report VIF diagnostics against threshold 5. |
+| **SC-006** | `07_feature_importance.py` | Generate `model_metrics.json` with `traditional`, `topological`, `combined`, `feature_importance`, and `metadata`. |
 
 ## Compute Feasibility Strategy
+- **Dataset**: Hugging Face `sagawa/pubchem-10m-canonicalized` (≈10 M rows). We **stream** the dataset (`datasets.load_dataset(..., streaming=True)`) and **shuffle** the stream using a fixed seed (`42`). After shuffling we **randomly sample** the first **5 000** valid molecules. This unbiased sampling avoids systematic bias from taking the first N records.
+- **CPU‑only**: GUDHI and scikit‑learn run on CPU; no CUDA libraries.  
+- **Parallelism**: Cross‑validation folds processed sequentially; topological computation parallelized over molecules using `joblib` with `n_jobs=2` (max 2 cores).  
+- **Time Budget**: Estimated total < 5 h on GitHub Actions free tier; each phase includes early‑exit checks (checksum, column presence, power analysis) to fail fast if resources insufficient.
+- **Contract Validation**:  
+  1. After `01_download_pubchem.py`, run `pytest tests/contract/test_dataset_schema.py` to validate `molecules.csv` against `contracts/dataset.schema.yaml`.  
+  2. After each `02_tda_computation.py` run (grid 10, 20, 30), run `pytest tests/contract/test_feature_matrix_schema.py --grid <size>` to validate the corresponding CSV against `contracts/feature_matrix.schema.yaml`.  
+  3. After feature merging, run a contract test for the combined matrix (same schema).  
+- **Sensitivity Check**: `05_sensitivity_analysis.py` records the standard deviation of R² across the three grid resolutions and **asserts σ < 0.02**; failure aborts the pipeline.
 
-- **Dataset Sampling**: The study uses the full MoleculeNet ESOL dataset.
-- **Scaffold Validation**: `01_data_ingestion.py` performs a pre-check to count unique Bemis-Murcko scaffolds. The pipeline requires **minimum 100 unique scaffolds** (to guarantee 20 per fold in 5-fold CV). If the dataset yields < 100 scaffolds, the pipeline halts with a "Scaffold Insufficient" error. (ESOL typically yields >300 scaffolds, satisfying this).
-- **Power Analysis**: `01_data_ingestion.py` performs an a priori power analysis (alpha=0.05, power=0.8, effect size d=0.5). The minimum required sample size is **N=128** for a paired t-test. If the dataset (after filtering invalid SMILES) has < 128 valid molecules, the pipeline halts with a "Power Insufficient" error.
-- **Library Selection**: `gudhi` (CPU-optimized) or `dionysus2`; `scikit-learn` for all ML; `rdkit` for cheminformatics. No GPU-specific builds.
-- **Parallelism**: Limited to cores (GitHub Actions); parallelism restricted to cross-validation folds only if memory permits; otherwise sequential.
-- **Time Budget**: Phases ordered to fail fast (data validation first); sensitivity analysis runs only on successful baseline model.
-- **Data Gap Handling**: `01_data_ingestion.py` validates that the downloaded CSV contains the specific columns `smiles` and `logP` (or `expt_logP`) as defined in `dataset.schema.yaml`. If missing, the pipeline halts with a "Data Gap" error. No fallback to merging other sources is permitted.
+## Data Hygiene & Type Safety
+- **Checksum**: `00_checksum_verify.py` computes SHA‑256 of every raw and processed file; mismatches abort the run (ensuring SC‑004).  
+- **Exclusion Log**: Idempotent CSV (`data/processed/exclusions.csv`) records `molecule_id` and `exclusion_reason` for every invalid SMILES; duplicates prevented via checksum guard.  
+- **String IDs**: All `molecule_id` fields are cast to string before any merge to avoid type‑mix errors.  
+- **Target Handling**: After merging, the `logP` column is removed from the predictor matrix before model fitting (preventing circular prediction).  
+- **Zero‑Vector Fallback**: If a persistence diagram is empty, the script inserts a zero‑filled 10 × 10 vector.
 
 ## Risk Mitigation
+- Invalid SMILES → logged & excluded (VI).  
+- Empty persistence diagrams → zero‑vector fallback.  
+- Missing required columns (`canonical_smiles`, `XLogP3`) → `Data Gap` error abort.  
+- GPU detection → explicit abort (FR‑008).  
+- Duplicate exclusion entries → idempotent logging guarded by checksum file.  
+- Contract violations → each output file validated against its JSON schema after creation.  
 
-- **Invalid SMILES**: `01_data_ingestion.py` logs and excludes invalid entries; no crash.
-- **Empty Persistence Diagrams**: `02_tda_computation.py` returns zero-vector baseline for linear chains.
-- **Collinearity**: `06_diagnostics.py` flags high VIF; results reported as descriptive, not causal. The plan explicitly acknowledges the mathematical overlap between TDA and fingerprints.
-- **Dataset Mismatch**: `research.md` confirms variable availability (SMILES + logP in ESOL). If missing, plan halts.
-- **GPU Detection**: `04_model_training.py` includes a runtime check to ensure no GPU is used, enforcing FR-008.
-- **Resource Limits**: `07_resource_monitor.py` wraps the pipeline to log resource usage, ensuring SC-004 compliance.
+---

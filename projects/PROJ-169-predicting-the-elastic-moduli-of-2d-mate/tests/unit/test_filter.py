@@ -1,220 +1,134 @@
-"""
-Unit tests for the 2D filter and tensor validator logic.
-"""
+"""Unit tests for tensor validation logic in code/ingest/filter.py.
 
+This module verifies the 6-component elastic tensor requirement (Constitution
+Principle VI) and 2D material filtering logic.
+"""
 import pytest
 import numpy as np
-from pathlib import Path
 import sys
-import os
+from pathlib import Path
 
-# Add code directory to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+# Add the project root to the path to allow imports of sibling modules
+# when running tests from the project root.
+project_root = Path(__file__).parent.parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from data_models.material_graph import MaterialGraph
-from ingest.filter import is_valid_6_component_tensor, is_2d_material, filter_graphs
+from code.ingest.filter import is_valid_6_component_tensor, is_2d_material
 
-class TestTensorValidation:
-    """Tests for is_valid_6_component_tensor"""
 
-    def test_valid_6x6_matrix(self):
-        """Test valid 6x6 symmetric matrix"""
-        tensor = np.eye(6)
-        assert is_valid_6_component_tensor(tensor) is True
+class Test6ComponentTensorValidation:
+    """Tests for is_valid_6_component_tensor function."""
 
-    def test_valid_6x6_non_symmetric(self):
-        """Test invalid 6x6 non-symmetric matrix (fails symmetry check)"""
-        tensor = np.ones((6, 6))
-        tensor[0, 1] = 0.0
-        tensor[1, 0] = 1.0
-        # The function checks for symmetry if it's a 2D array
-        assert is_valid_6_component_tensor(tensor) is False
+    def test_valid_6_component_tensor(self):
+        """Verify that a valid 6-component tensor passes validation."""
+        valid = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+        assert is_valid_6_component_tensor(valid) is True
 
-    def test_valid_10_component(self):
-        """Test valid 10-component vector (Voigt unique for 3D)"""
-        tensor = np.ones(10)
-        assert is_valid_6_component_tensor(tensor) is True
+    def test_invalid_length_tensor(self):
+        """Verify that a tensor with incorrect length fails validation."""
+        # Too short
+        invalid_len_short = np.array([1.0, 2.0, 3.0])
+        assert is_valid_6_component_tensor(invalid_len_short) is False
 
-    def test_valid_6_component_2d(self):
-        """Test valid 6-component vector for 2D materials"""
-        tensor = np.ones(6)
-        assert is_valid_6_component_tensor(tensor) is True
+        # Too long
+        invalid_len_long = np.array([1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0])
+        assert is_valid_6_component_tensor(invalid_len_long) is False
 
-    def test_invalid_size(self):
-        """Test invalid size tensor"""
-        assert is_valid_6_component_tensor(np.ones(5)) is False
-        assert is_valid_6_component_tensor(np.ones(7)) is False
-        assert is_valid_6_component_tensor(np.ones(11)) is False
+    def test_tensor_with_nan_values(self):
+        """Verify that a tensor containing NaN values fails validation."""
+        invalid_nan = np.array([1.0, np.nan, 3.0, 4.0, 5.0, 6.0])
+        assert is_valid_6_component_tensor(invalid_nan) is False
 
-    def test_none_input(self):
-        """Test None input"""
-        assert is_valid_6_component_tensor(None) is False
+    def test_tensor_with_inf_values(self):
+        """Verify that a tensor containing Inf values fails validation."""
+        invalid_inf = np.array([1.0, 2.0, 3.0, 4.0, 5.0, np.inf])
+        assert is_valid_6_component_tensor(invalid_inf) is False
 
-    def test_list_input(self):
-        """Test list input (should convert to numpy)"""
-        tensor = [[1.0]*6 for _ in range(6)]
-        assert is_valid_6_component_tensor(tensor) is True
+    def test_tensor_with_negative_inf_values(self):
+        """Verify that a tensor containing -Inf values fails validation."""
+        invalid_neg_inf = np.array([1.0, 2.0, 3.0, 4.0, 5.0, -np.inf])
+        assert is_valid_6_component_tensor(invalid_neg_inf) is False
 
-    def test_invalid_6x6_non_symmetric_list(self):
-        """Test invalid 6x6 non-symmetric list input"""
-        tensor = [[1.0]*6 for _ in range(6)]
-        tensor[0][1] = 0.0
-        tensor[1][0] = 1.0
-        assert is_valid_6_component_tensor(tensor) is False
+    def test_integer_array_input(self):
+        """Verify that integer arrays are handled correctly."""
+        valid_int = np.array([1, 2, 3, 4, 5, 6], dtype=int)
+        assert is_valid_6_component_tensor(valid_int) is True
 
-class Test2DIdentification:
-    """Tests for is_2d_material"""
+    def test_empty_array(self):
+        """Verify that an empty array fails validation."""
+        empty = np.array([])
+        assert is_valid_6_component_tensor(empty) is False
 
-    def test_explicit_flag_true(self):
-        """Test explicit is_2d flag"""
-        info = {"is_2d": True}
-        assert is_2d_material(info) is True
+    def test_single_element_array(self):
+        """Verify that a single-element array fails validation."""
+        single = np.array([1.0])
+        assert is_valid_6_component_tensor(single) is False
 
-    def test_explicit_flag_false(self):
-        """Test explicit is_2d flag false"""
-        info = {"is_2d": False}
-        assert is_2d_material(info) is False
 
-    def test_dimensionality_tag(self):
-        """Test dimensionality tag"""
-        info = {"dimensionality": 2}
-        assert is_2d_material(info) is True
+class Test2DMaterialFilter:
+    """Tests for is_2d_material function."""
 
-    def test_dimensionality_not_2(self):
-        """Test dimensionality tag not equal to 2"""
-        info = {"dimensionality": 3}
-        assert is_2d_material(info) is False
-
-    def test_tag_contains_2d(self):
-        """Test tags string containing 2d"""
-        info = {"tags": "2d material, layered"}
-        assert is_2d_material(info) is True
-
-    def test_tag_no_2d(self):
-        """Test tags string not containing 2d"""
-        info = {"tags": "bulk, 3d crystal"}
-        assert is_2d_material(info) is False
-
-    def test_vacuum_heuristic(self):
-        """Test vacuum heuristic (large c-axis relative to a,b)"""
-        info = {
-            "lattice": {"a": 3.0, "b": 3.0, "c": 20.0}
+    def test_valid_2d_material_with_vacuum(self):
+        """Verify that a material with significant vacuum thickness is identified as 2D."""
+        # Simulated data: has_vacuum=True, vacuum_thickness=15.0 Angstroms
+        material_data = {
+            "has_vacuum": True,
+            "vacuum_thickness": 15.0,
+            "formula": "MoS2"
         }
-        assert is_2d_material(info) is True
+        assert is_2d_material(material_data) is True
 
-    def test_no_vacuum_heuristic(self):
-        """Test no vacuum heuristic (c-axis similar to a,b)"""
-        info = {
-            "lattice": {"a": 3.0, "b": 3.0, "c": 3.0}
+    def test_insufficient_vacuum_thickness(self):
+        """Verify that a material with insufficient vacuum is NOT identified as 2D."""
+        # Threshold is typically 10 Angstroms
+        material_data = {
+            "has_vacuum": True,
+            "vacuum_thickness": 5.0,
+            "formula": "MoS2"
         }
-        assert is_2d_material(info) is False
+        assert is_2d_material(material_data) is False
 
-    def test_empty_info(self):
-        """Test empty structure info"""
-        info = {}
-        assert is_2d_material(info) is False
+    def test_no_vacuum_flag(self):
+        """Verify that a material without the vacuum flag is NOT identified as 2D."""
+        material_data = {
+            "has_vacuum": False,
+            "vacuum_thickness": 0.0,
+            "formula": "Si"
+        }
+        assert is_2d_material(material_data) is False
 
-    def test_missing_lattice_keys(self):
-        """Test missing lattice keys"""
-        info = {"lattice": {"a": 3.0}}
-        assert is_2d_material(info) is False
+    def test_missing_vacuum_thickness_key(self):
+        """Verify that missing vacuum_thickness key returns False."""
+        material_data = {
+            "has_vacuum": True,
+            "formula": "MoS2"
+        }
+        assert is_2d_material(material_data) is False
 
-class TestFilterGraphs:
-    """Tests for filter_graphs function"""
+    def test_missing_has_vacuum_key(self):
+        """Verify that missing has_vacuum key returns False."""
+        material_data = {
+            "vacuum_thickness": 15.0,
+            "formula": "MoS2"
+        }
+        assert is_2d_material(material_data) is False
 
-    def test_filter_2d_valid(self):
-        """Test filtering a valid 2D material"""
-        graph = MaterialGraph(
-            material_id="test_2d",
-            nodes=[],
-            edges=[],
-            properties={
-                "elastic_tensor": np.eye(6).tolist(),
-                "structure_info": {"is_2d": True}
-            }
-        )
-        filtered, stats = filter_graphs([graph])
-        assert len(filtered) == 1
-        assert stats.passed == 1
+    def test_exact_threshold_boundary(self):
+        """Verify behavior exactly at the threshold (10.0 Angstroms)."""
+        # Assuming the threshold check is >= 10.0
+        material_data = {
+            "has_vacuum": True,
+            "vacuum_thickness": 10.0,
+            "formula": "MoS2"
+        }
+        assert is_2d_material(material_data) is True
 
-    def test_filter_non_2d(self):
-        """Test filtering a non-2D material"""
-        graph = MaterialGraph(
-            material_id="test_3d",
-            nodes=[],
-            edges=[],
-            properties={
-                "elastic_tensor": np.eye(6).tolist(),
-                "structure_info": {"is_2d": False}
-            }
-        )
-        filtered, stats = filter_graphs([graph])
-        assert len(filtered) == 0
-        assert stats.failed_non_2d == 1
-
-    def test_filter_missing_tensor(self):
-        """Test filtering a material with missing tensor"""
-        graph = MaterialGraph(
-            material_id="test_bad",
-            nodes=[],
-            edges=[],
-            properties={
-                "elastic_tensor": None,
-                "structure_info": {"is_2d": True}
-            }
-        )
-        filtered, stats = filter_graphs([graph])
-        assert len(filtered) == 0
-        assert stats.failed_missing_tensor == 1
-
-    def test_filter_invalid_tensor_shape(self):
-        """Test filtering a material with invalid tensor shape (5 components)"""
-        graph = MaterialGraph(
-            material_id="test_bad_shape",
-            nodes=[],
-            edges=[],
-            properties={
-                "elastic_tensor": np.ones(5).tolist(),
-                "structure_info": {"is_2d": True}
-            }
-        )
-        filtered, stats = filter_graphs([graph])
-        assert len(filtered) == 0
-        assert stats.failed_invalid_tensor == 1
-
-    def test_filter_mixed(self):
-        """Test filtering a mixed list"""
-        graphs = [
-            MaterialGraph(
-                material_id="good_2d",
-                nodes=[],
-                edges=[],
-                properties={"elastic_tensor": np.eye(6).tolist(), "structure_info": {"is_2d": True}}
-            ),
-            MaterialGraph(
-                material_id="bad_3d",
-                nodes=[],
-                edges=[],
-                properties={"elastic_tensor": np.eye(6).tolist(), "structure_info": {"is_2d": False}}
-            ),
-            MaterialGraph(
-                material_id="bad_tensor",
-                nodes=[],
-                edges=[],
-                properties={"elastic_tensor": None, "structure_info": {"is_2d": True}}
-            ),
-            MaterialGraph(
-                material_id="bad_shape",
-                nodes=[],
-                edges=[],
-                properties={"elastic_tensor": np.ones(5).tolist(), "structure_info": {"is_2d": True}}
-            )
-        ]
-        filtered, stats = filter_graphs(graphs)
-        assert len(filtered) == 1
-        assert filtered[0].material_id == "good_2d"
-        assert stats.total_processed == 4
-        assert stats.passed == 1
-        assert stats.failed_non_2d == 1
-        assert stats.failed_missing_tensor == 1
-        assert stats.failed_invalid_tensor == 1
+    def test_just_below_threshold(self):
+        """Verify behavior just below the threshold (9.99 Angstroms)."""
+        material_data = {
+            "has_vacuum": True,
+            "vacuum_thickness": 9.99,
+            "formula": "MoS2"
+        }
+        assert is_2d_material(material_data) is False

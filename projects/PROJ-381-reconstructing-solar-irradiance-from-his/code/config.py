@@ -1,118 +1,249 @@
 """
 Configuration module for the Solar Irradiance Reconstruction project.
+Provides path management, random seeds, and constants.
 
-Defines project paths, random seeds, and domain-specific constants
-required by FR-002 (gap logic) and FR-009 (thresholds).
+This module centralizes all project configuration including:
+- Directory paths for data and code
+- Random seeds for reproducibility
+- Constants for gap filling logic (FR-002)
+- Sensitivity analysis thresholds (FR-009)
 """
-
 import os
 from pathlib import Path
-from typing import Final
+from typing import Final, List, Dict, Any
+import logging
+
+# Setup environment variables before defining paths
+# Import from env_manager which is already in the API surface
+try:
+    from env_manager import setup_environment, get_data_path
+except ImportError:
+    # Fallback for testing if env_manager isn't fully set up yet
+    setup_environment = lambda: None
+    get_data_path = lambda: None
+
+# Initialize logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+# Ensure environment variables are loaded
+setup_environment()
 
 # ============================================================================
-# Project Root & Directory Paths
+# PROJECT STRUCTURE
 # ============================================================================
 
-# Determine project root (parent of the 'code' directory)
-_PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent
+# Project root directory (parent of code/)
+PROJECT_ROOT: Final[Path] = Path(__file__).parent.parent
 
-# Standardized directory paths
-DATA_RAW_DIR: Final[Path] = _PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR: Final[Path] = _PROJECT_ROOT / "data" / "processed"
-CODE_MODELS_DIR: Final[Path] = _PROJECT_ROOT / "code" / "models"
+# ============================================================================
+# DATA DIRECTORIES
+# ============================================================================
+
+DATA_RAW_DIR: Final[Path] = PROJECT_ROOT / "data" / "raw"
+DATA_PROCESSED_DIR: Final[Path] = PROJECT_ROOT / "data" / "processed"
+
+# ============================================================================
+# CODE DIRECTORIES
+# ============================================================================
+
+CODE_MODELS_DIR: Final[Path] = PROJECT_ROOT / "code" / "models"
+CODE_ANALYSIS_DIR: Final[Path] = PROJECT_ROOT / "code" / "analysis"
+CODE_DATA_DIR: Final[Path] = PROJECT_ROOT / "code" / "data"
 CODE_MODELS_ARTIFACTS_DIR: Final[Path] = CODE_MODELS_DIR / "artifacts"
-CODE_ANALYSIS_DIR: Final[Path] = _PROJECT_ROOT / "code" / "analysis"
-TESTS_DIR: Final[Path] = _PROJECT_ROOT / "tests"
-FIGURES_DIR: Final[Path] = _PROJECT_ROOT / "figures"
-
-# Ensure directories exist (lazy initialization pattern)
-def ensure_directories() -> None:
-    """Create all required project directories if they do not exist."""
-    for dir_path in [
-        DATA_RAW_DIR,
-        DATA_PROCESSED_DIR,
-        CODE_MODELS_DIR,
-        CODE_MODELS_ARTIFACTS_DIR,
-        CODE_ANALYSIS_DIR,
-        TESTS_DIR,
-        FIGURES_DIR,
-    ]:
-        dir_path.mkdir(parents=True, exist_ok=True)
 
 # ============================================================================
-# Random Seeds & Reproducibility
+# RANDOM SEEDS
 # ============================================================================
 
-# Global random seed for reproducibility (FR-008 compliance)
+# Global random seed for reproducibility across all libraries
 RANDOM_SEED: Final[int] = 42
 
 # ============================================================================
-# Domain Constants: FR-002 (Gap Logic) & FR-009 (Thresholds)
+# FR-002: GAP FILLING LOGIC
 # ============================================================================
 
-# FR-002: Gap Filling Logic
-# Threshold for switching from interpolation to proxy method (in years)
-GAP_THRESHOLD_YEARS: Final[float] = 1.0
+# Threshold for gap filling: gaps >= 1 year use TSI proxy
+# 1 year in days (using 365.25 for leap year average)
+GAP_THRESHOLD_DAYS: Final[int] = 365
 
-# Proxy value for GSN during gaps >= 1 year
-# Per FR-002: Use GSN=0 proxy, NOT TSI units
-GSN_PROXY_VALUE: Final[float] = 0.0
-
-# FR-009: Inconsistency Tolerance Thresholds for Sensitivity Analysis
-# Sweep values for absolute differences in TSI reconstruction stability
-SENSITIVITY_SWEEP_VALUES: Final[list[float]] = [0.01, 0.05, 0.1]
+# TSI proxy value for gaps >= 1 year (FR-002)
+# NOT using GSN=0, but a constant TSI value
+TSI_PROXY_VALUE: Final[float] = 1360.5  # W/m²
 
 # ============================================================================
-# Data Sources (Real URLs)
+# FR-009: SENSITIVITY ANALYSIS THRESHOLDS
 # ============================================================================
 
-# SILSO (Royal Observatory of Belgium) - Sunspot Number Data
-SILSO_GSN_URL: Final[str] = (
-    "https://www.sidc.be/users/eivonne/sol/indices/silso_daily_sn_total.csv"
-)
-
-# SORCE/TIM - Total Solar Irradiance Data (Proxy URL for demonstration of real source)
-# In a real execution, this would point to the specific NASA PDS or SORCE archive endpoint.
-# Using a direct FTP/HTTP link to the processed daily data if available, or a known stable mirror.
-SORCE_TSI_URL: Final[str] = (
-    "https://lasp.colorado.edu/sorce/data/tim_daily_data.csv"
-)
+# Inconsistency tolerance thresholds for sensitivity analysis
+# These values are swept to measure reconstruction stability
+SENSITIVITY_THRESHOLDS: Final[List[float]] = [0.01, 0.05, 0.1]
 
 # ============================================================================
-# Model Hyperparameters (Defaults)
+# MODEL HYPERPARAMETERS
 # ============================================================================
 
-# Random Forest Configuration
+# Random Forest parameters (from T015)
 RF_MAX_DEPTH: Final[int] = 10
 RF_N_ESTIMATORS: Final[int] = 100
 
-# Gaussian Process Kernel Type
-GP_KERNEL_TYPE: Final[str] = "RBF"
+# Gaussian Process parameters
+GP_KERNEL: Final[str] = "RBF"  # Radial Basis Function kernel
 
-# Bootstrap Configuration (FR-005)
+# ============================================================================
+# BOOTSTRAP ANALYSIS
+# ============================================================================
+
+# Number of bootstrap iterations for variance estimation (FR-005)
 BOOTSTRAP_ITERATIONS: Final[int] = 1000
 
 # ============================================================================
-# Output File Names
+# DATA SOURCES (URLs - managed via env_manager but defined here for reference)
 # ============================================================================
 
-PREPROCESSED_DATA_FILENAME: Final[str] = "preprocessed_data.parquet"
-BEST_MODEL_FILENAME: Final[str] = "best_model.joblib"
-FALLBACK_MODEL_FILENAME: Final[str] = "fallback_model.joblib"
-CV_REPORT_FILENAME: Final[str] = "cv_report.json"
-CYCLE_COEFFICIENTS_FILENAME: Final[str] = "cycle_specific_coefficients.json"
-SENSITIVITY_REPORT_FILENAME: Final[str] = "sensitivity_report.json"
-RECONSTRUCTION_FILENAME: Final[str] = "reconstruction_1610_2002.parquet"
-VARIANCE_ANALYSIS_FILENAME: Final[str] = "variance_analysis.json"
-FINAL_REPORT_FILENAME: Final[str] = "final_report.md"
+# SILSO (Royal Observatory of Belgium) - Sunspot Number data
+# URL should be configured via environment variable
+SILSO_URL_ENV_VAR: Final[str] = "SILSO_URL"
 
-# Full paths to outputs
-PREPROCESSED_DATA_PATH: Final[Path] = DATA_PROCESSED_DIR / PREPROCESSED_DATA_FILENAME
-BEST_MODEL_PATH: Final[Path] = CODE_MODELS_ARTIFACTS_DIR / BEST_MODEL_FILENAME
-FALLBACK_MODEL_PATH: Final[Path] = CODE_MODELS_ARTIFACTS_DIR / FALLBACK_MODEL_FILENAME
-CV_REPORT_PATH: Final[Path] = DATA_PROCESSED_DIR / CV_REPORT_FILENAME
-CYCLE_COEFFICIENTS_PATH: Final[Path] = DATA_PROCESSED_DIR / CYCLE_COEFFICIENTS_FILENAME
-SENSITIVITY_REPORT_PATH: Final[Path] = DATA_PROCESSED_DIR / SENSITIVITY_REPORT_FILENAME
-RECONSTRUCTION_PATH: Final[Path] = DATA_PROCESSED_DIR / RECONSTRUCTION_FILENAME
-VARIANCE_ANALYSIS_PATH: Final[Path] = DATA_PROCESSED_DIR / VARIANCE_ANALYSIS_FILENAME
-FINAL_REPORT_PATH: Final[Path] = DATA_PROCESSED_DIR / FINAL_REPORT_FILENAME
+# SORCE/TIM - Total Solar Irradiance data
+# URL should be configured via environment variable
+SORCE_URL_ENV_VAR: Final[str] = "SORCE_URL"
+
+# ============================================================================
+# OUTPUT FILES
+# ============================================================================
+
+# Preprocessed data output
+PREPROCESSED_DATA_PATH: Final[Path] = DATA_PROCESSED_DIR / "preprocessed_data.parquet"
+
+# Cross-validation report
+CV_REPORT_PATH: Final[Path] = DATA_PROCESSED_DIR / "cv_report.json"
+
+# Cycle-specific coefficients (fallback model offsets)
+CYCLE_COEFFICIENTS_PATH: Final[Path] = DATA_PROCESSED_DIR / "cycle_specific_coefficients.json"
+
+# Sensitivity report
+SENSITIVITY_REPORT_PATH: Final[Path] = DATA_PROCESSED_DIR / "sensitivity_report.json"
+
+# Reconstruction output for pre-satellite era
+RECONSTRUCTION_1610_2002_PATH: Final[Path] = DATA_PROCESSED_DIR / "reconstruction_1610_2002.parquet"
+
+# Variance analysis output
+VARIANCE_ANALYSIS_PATH: Final[Path] = DATA_PROCESSED_DIR / "variance_analysis.json"
+
+# Final comparison report
+FINAL_REPORT_PATH: Final[Path] = DATA_PROCESSED_DIR / "final_report.md"
+
+# ============================================================================
+# HELPER FUNCTIONS
+# ============================================================================
+
+def ensure_directories() -> None:
+    """
+    Ensure all required project directories exist.
+    Creates them if they don't exist.
+    
+    This function is called during project initialization to set up
+    the directory structure for data, models, and analysis outputs.
+    """
+    directories = [
+        DATA_RAW_DIR,
+        DATA_PROCESSED_DIR,
+        CODE_MODELS_DIR,
+        CODE_ANALYSIS_DIR,
+        CODE_DATA_DIR,
+        CODE_MODELS_ARTIFACTS_DIR,
+    ]
+    
+    for directory in directories:
+        directory.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Ensured directory exists: {directory}")
+
+def get_gap_filling_strategy(gap_days: int) -> str:
+    """
+    Determine the gap filling strategy based on gap duration.
+    
+    Args:
+        gap_days: Duration of the gap in days
+        
+    Returns:
+        Strategy name: 'linear_interpolation' for gaps < 1 year,
+                      'tsi_proxy' for gaps >= 1 year
+    """
+    if gap_days < GAP_THRESHOLD_DAYS:
+        return "linear_interpolation"
+    else:
+        return "tsi_proxy"
+
+def get_tsi_proxy_value() -> float:
+    """
+    Get the TSI proxy value for large gaps (FR-002).
+    
+    Returns:
+        The TSI proxy value in W/m²
+    """
+    return TSI_PROXY_VALUE
+
+def get_sensitivity_thresholds() -> List[float]:
+    """
+    Get the list of sensitivity analysis thresholds (FR-009).
+    
+    Returns:
+        List of threshold values to sweep
+    """
+    return SENSITIVITY_THRESHOLDS
+
+def validate_paths() -> bool:
+    """
+    Validate that all required paths exist and are accessible.
+    
+    Returns:
+        True if all paths are valid, False otherwise
+    """
+    required_paths = [
+        DATA_RAW_DIR,
+        DATA_PROCESSED_DIR,
+        CODE_MODELS_DIR,
+        CODE_ANALYSIS_DIR,
+        CODE_DATA_DIR,
+    ]
+    
+    all_valid = True
+    for path in required_paths:
+        if not path.exists():
+            logger.warning(f"Path does not exist: {path}")
+            all_valid = False
+        elif not os.access(path, os.W_OK):
+            logger.warning(f"Path is not writable: {path}")
+            all_valid = False
+    
+    return all_valid
+
+# ============================================================================
+# MAIN ENTRY POINT
+# ============================================================================
+
+if __name__ == "__main__":
+    logger.info("Running config module validation...")
+    
+    # Ensure directories exist
+    ensure_directories()
+    
+    # Validate paths
+    if validate_paths():
+        logger.info("All paths validated successfully.")
+    else:
+        logger.warning("Some paths are missing or not accessible.")
+    
+    # Print configuration summary
+    logger.info(f"Project Root: {PROJECT_ROOT}")
+    logger.info(f"Random Seed: {RANDOM_SEED}")
+    logger.info(f"Gap Threshold: {GAP_THRESHOLD_DAYS} days")
+    logger.info(f"TSI Proxy Value: {TSI_PROXY_VALUE} W/m²")
+    logger.info(f"Sensitivity Thresholds: {SENSITIVITY_THRESHOLDS}")
+    logger.info(f"Bootstrap Iterations: {BOOTSTRAP_ITERATIONS}")
+    
+    print("Configuration module loaded successfully.")

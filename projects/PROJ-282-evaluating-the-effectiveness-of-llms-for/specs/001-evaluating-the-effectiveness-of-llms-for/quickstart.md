@@ -1,61 +1,76 @@
-# Quickstart: Evaluating LLM Vulnerability Detection
+# Quickstart: Evaluating the Effectiveness of LLMs for Identifying Security Vulnerabilities
 
-The following steps assume a fresh GitHub Actions runner or a local Linux environment with Python 3.11.
+## Prerequisites
 
-## 1. Clone the repository
+- Python 3.11+
+- Git
+- 16GB RAM (recommended for local dev, 7GB required for CI)
+- Access to HuggingFace Hub (for datasets and models)
+
+## Installation
+
+1. **Clone and Setup Environment**
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-282-evaluating-the-effectiveness-of-llms-for
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+2. **Verify Dependencies**
+   ```bash
+   python -c "import torch; import transformers; import datasets; print('OK')"
+   ```
+
+## Data Download
+
+The pipeline automatically downloads datasets from verified sources on first run.
 ```bash
-git clone
-cd llm-vuln-eval
+# Run the download script
+python src/data/download.py
+```
+*Output*: `data/raw/vuldeepecker.parquet`, `data/raw/nist_juliet.jsonl`, `data/raw/jsvulndb.parquet`.
+
+## Running the Pipeline
+
+Execute the full pipeline (Download -> Features -> Inference -> Analysis):
+```bash
+python src/main.py --config config/default.yaml
 ```
 
-## 2. Create the Python environment
+### Specific Steps
+
+1. **Feature Extraction Only**
+   ```bash
+   python src/data/feature_extractor.py --input data/raw/ --output data/processed/features.parquet
+   ```
+
+2. **LLM Inference Only**
+   ```bash
+   python src/models/llm_inference.py --input data/processed/features.parquet --output data/processed/predictions_llm.parquet
+   ```
+
+3. **Statistical Analysis Only**
+   ```bash
+   python src/analysis/regression.py --input data/processed/analysis_dataset.parquet --output data/processed/metrics.json
+   ```
+
+## Verification
+
+Check that all required artifacts exist:
 ```bash
-python -m venv.venv
-source.venv/bin/activate
-pip install -r requirements.txt
+# Verify logs
+ls data/logs/orchestration_log.json
+ls data/logs/linting_config.json
+
+# Verify results
+ls data/processed/metrics.json
+ls data/processed/sensitivity_analysis.json
 ```
 
-## 3. Install system dependencies (static analyzers)
-```bash
-# Bandit is a pip package, already installed via requirements.txt
-sudo apt-get update && sudo apt-get install -y cppcheck
-```
+## Troubleshooting
 
-## 4. Run the full pipeline (single command)
-```bash
-python -m code.main \
- --max-snippets 5000 \
- --batch-size 8 \
- --seed 42 \
- --output-dir data/processed
-```
-- The script will:
- 1. Stream the three verified datasets.
- 2. Parse and extract all features (including **KNN-based embedding similarity** to external corpus).
- 3. Perform zero‑shot inference with the CPU‑quantized StarCoder model.
- 4. Run Bandit and cppcheck on the same snippets.
- 5. Compute all metrics, **Logistic Regression**, McNemar’s test (on matched samples), and the sensitivity analysis.
- 6. Write JSON/CSV artefacts and generate PNG figures under `results/`.
-
-## 5. Inspect results
-```bash
-# Summary JSON
-cat results/summary.json | jq.
-
-# Example metric table
-python -c "import pandas as pd; print(pd.read_parquet('data/processed/analysis_metrics.parquet').head())"
-```
-
-## 6. Run the test suite (contract validation)
-```bash
-pytest -q
-```
-All contracts in `contracts/` must pass; failures indicate a breach of the data model or missing fields.
-
-## 7. Re‑run with a different LLM (optional)
-```bash
-python -m code.main --model starcoder-base-4bit --max-snippets 2000
-```
-Replace `--model` with any model supported by `code/llm_infer.py` that can be loaded in CPU‑only mode.
-
----
+- **OOM Error**: Reduce `batch_size` in `config/default.yaml` to 1.
+- **Model Load Fail**: Ensure `HF_HOME` is set and internet is available for initial download.
+- **Dataset Missing**: Check `data/raw` for checksums. Re-run `download.py`.

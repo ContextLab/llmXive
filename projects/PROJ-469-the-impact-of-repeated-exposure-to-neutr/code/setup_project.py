@@ -1,79 +1,73 @@
 """
-Project Structure Initialization Script.
+Project structure setup (T001).
 
-This script creates the required directory structure for the llmXive
-research pipeline as specified in the implementation plan.
+Creates the standard project directory tree per the implementation plan:
+    code/  data/raw/  data/processed/  results/  logs/  figures/
 
-Directories created:
-- code/ (already exists but ensured)
-- data/raw/
-- data/processed/
-- results/
-- logs/
+Adds .gitkeep files so empty directories are preserved in version control.
+Idempotent: safe to run repeatedly.
 """
-import os
 import sys
 from pathlib import Path
 
+# Directories required by the implementation plan / tasks.md T001
+REQUIRED_DIRS = [
+    "code",
+    "data/raw",
+    "data/processed",
+    "results",
+    "logs",
+    "figures",
+]
 
-def main():
-    """Create the project directory structure."""
-    # Define the root directory (current working directory or project root)
-    root = Path.cwd()
-    
-    # Define required directories relative to root
-    required_dirs = [
-        "code",
-        "data/raw",
-        "data/processed",
-        "results",
-        "logs"
-    ]
-    
-    created_count = 0
-    existing_count = 0
-    
-    print(f"Initializing project structure at: {root}")
-    
-    for dir_path in required_dirs:
-        full_path = root / dir_path
-        
-        if full_path.exists():
-            if full_path.is_dir():
-                print(f"  [OK] Directory exists: {dir_path}")
-                existing_count += 1
-            else:
-                print(f"  [ERROR] Path exists but is not a directory: {dir_path}")
-                sys.exit(1)
-        else:
-            try:
-                full_path.mkdir(parents=True, exist_ok=True)
-                print(f"  [CREATED] {dir_path}")
-                created_count += 1
-            except OSError as e:
-                print(f"  [ERROR] Failed to create {dir_path}: {e}")
-                sys.exit(1)
-    
-    # Create .gitkeep files to ensure directories are tracked by git
-    gitkeep_files = [
-        "data/raw/.gitkeep",
-        "data/processed/.gitkeep",
-        "results/.gitkeep",
-        "logs/.gitkeep"
-    ]
-    
-    for file_path in gitkeep_files:
-        full_path = root / file_path
-        if not full_path.exists():
-            try:
-                full_path.touch()
-                print(f"  [CREATED] {file_path}")
-            except OSError as e:
-                print(f"  [WARNING] Failed to create {file_path}: {e}")
-    
-    print(f"\nSummary: {created_count} directories created, {existing_count} already existed.")
-    print("Project structure initialization complete.")
-    
+# Directories that should carry a .gitkeep placeholder when empty
+GITKEEP_DIRS = [
+    "data/raw",
+    "data/processed",
+    "results",
+    "logs",
+]
+
+
+def create_project_structure(root: Path = None) -> None:
+    """Create the required project directory tree under `root`."""
+    base = Path(root) if root is not None else Path.cwd()
+
+    created = []
+    for d in REQUIRED_DIRS:
+        path = base / d
+        if not path.exists():
+            path.mkdir(parents=True, exist_ok=True)
+            created.append(str(path))
+        elif not path.is_dir():
+            raise NotADirectoryError(
+                f"Expected a directory but found a file: {path}"
+              )
+
+    for d in GITKEEP_DIRS:
+        keep = base / d / ".gitkeep"
+        if not keep.exists():
+            keep.touch()
+
+    # Report
+    if created:
+        print("Created directories:")
+        for c in created:
+            print(f"  {c}")
+    else:
+        print("All required directories already exist.")
+    print("Project structure verified:")
+    for d in REQUIRED_DIRS:
+        print(f"  {base / d} -> exists={ (base / d).is_dir() }")
+
+    # Verify all required dirs exist; fail loudly otherwise
+    missing = [d for d in REQUIRED_DIRS if not (base / d).is_dir()]
+    if missing:
+        raise RuntimeError(f"Failed to create directories: {missing}")
+
+
+def main() -> int:
+    create_project_structure()
     return 0
 
 

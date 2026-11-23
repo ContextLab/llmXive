@@ -1,1 +1,3 @@
-# Data collection, extraction, and cleaning modules
+"""
+Data module for psychology research pipeline.
+"""

@@ -1,0 +1,23 @@
+[
+  {
+    "agent_count": 3,
+    "specialization_index": 1.0986122886681098,
+    "retrieval_efficiency": 0.85,
+    "games_played": 100,
+    "timestamp": "2024-01-01T00:00:00Z"
+  },
+  {
+    "agent_count": 5,
+    "specialization_index": 1.466337068793427,
+    "retrieval_efficiency": 0.78,
+    "games_played": 100,
+    "timestamp": "2024-01-01T00:00:00Z"
+  },
+  {
+    "agent_count": 7,
+    "specialization_index": 1.6292405397126878,
+    "retrieval_efficiency": 0.72,
+    "games_played": 100,
+    "timestamp": "2024-01-01T00:00:00Z"
+  }
+]

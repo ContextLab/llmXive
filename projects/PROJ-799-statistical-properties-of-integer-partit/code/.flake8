@@ -1,15 +1,43 @@
 [flake8]
-# Linting configuration for PROJ-799
+# Linting configuration for PROJ-799: Statistical Properties of Integer Partitions
+# Based on PEP 8 style guidelines with project-specific adjustments.
+
+# Maximum line length (matching Black's default)
 max-line-length = 88
-extend-ignore = E203, W503
+
+# Directories to ignore
 exclude =
     .git,
     __pycache__,
+    .eggs,
+    *.egg-info,
     build,
     dist,
-    .eggs,
-    *.egg-info
-# Per-file ignores if necessary
-per-file-ignores =
-    # Allow unused imports in __init__.py
-    __init__.py: F401
+    .tox,
+    .venv,
+    venv,
+    env
+
+# Ignore specific error codes:
+# E203: Whitespace before ':' (conflicts with Black)
+# W503: Line break before binary operator (conflicts with Black)
+# E731: Do not assign a lambda expression, use a def (too strict for our use cases)
+ignore = E203, W503, E731
+
+# Per-file ignores if necessary (none currently)
+# per-file-ignores =
+
+# Enable extended error codes for better feedback
+enable-extensions = G, T
+
+# Max complexity for cyclomatic complexity check
+max-complexity = 15
+
+# Show source code context for errors
+show-source = True
+
+# Show statistics at the end
+statistics = True
+
+# Count the number of errors
+count = True

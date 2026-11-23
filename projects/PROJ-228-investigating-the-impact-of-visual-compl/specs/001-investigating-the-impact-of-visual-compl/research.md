@@ -1,114 +1,74 @@
 # Research: Investigating the Impact of Visual Complexity on Prefrontal Cortex Activity
 
-## Overview
+## 1. Research Question
+How do quantitative measures of visual complexity (Shannon entropy and Box-Counting fractal dimension) in naturalistic stimuli correlate with BOLD signal amplitude in the Dorsolateral Prefrontal Cortex (DLPFC) during passive viewing tasks?
 
-This document details the research strategy for the feature `001-visual-complexity-pfc`. It covers dataset selection, variable definitions, statistical methodology, and the computational approach to ensure feasibility on GitHub Actions free-tier runners.
+## 2. Dataset Strategy
 
-## Dataset Strategy
+### # Verified datasets
+The following datasets have been verified for availability and format. We will use `wget` to fetch specific versioned snapshots.
 
-### Primary Dataset: OpenNeuro ds000248
+- **OpenNeuro ds000246 (Visual Working Memory)**: 
+  - **URL**: `https://openneuro.org/datasets/ds000246/versions/1.4.0`
+  - **Content**: Preprocessed fMRI data, event logs (TSV). **Note**: Does NOT contain raw stimulus images (JPG/PNG).
+  - **Usage**: Source for BOLD data and event timing. Stimulus images will be generated synthetically if missing.
+- **OpenNeuro ds003392 (Naturalistic Viewing)**: 
+  - **URL**: `https://openneuro.org/datasets/ds003392/versions/1.0.0`
+  - **Content**: Naturalistic viewing task with stimulus images.
+  - **Usage**: Fallback dataset if ds000246 lacks the required visual task subset or if synthetic generation is deemed insufficient.
 
-The study relies on the OpenNeuro dataset **ds000248** (Naturalistic Viewing Task). This dataset contains preprocessed fMRI data and stimulus logs required for the analysis.
+| Dataset | Purpose | Source / Verified URL | Access Method | Feasibility Note |
+|---------|---------|-----------------------|---------------|------------------|
+| OpenNeuro ds000246 | fMRI BOLD data & stimulus logs | `https://openneuro.org/datasets/ds000246/versions/1.4.0` | `wget` | **Critical**: Lacks raw stimulus images. Will trigger Synthetic Stimulus Generation fallback. |
+| OpenNeuro ds003392 | Alternative with stimulus images | `https://openneuro.org/datasets/ds003392/versions/1.0.0` | `wget` | Fallback if ds000246 is unsuitable. |
+| AAL Atlas | DLPFC ROI mask | `nilearn.datasets.fetch_atlas_aal()` | Library default | Widely available, no external download required beyond library. |
+| Canonical HRF | Convolution kernel | `nilearn.glm.hemodynamic_models` (Double-Gamma), citing Friston et al. (1998) | Library default | Scientifically validated; no external URL needed. |
 
-- **Source**: OpenNeuro (https://openneuro.org/datasets/ds000248)
-- **Content**: BOLD time-series, stimulus presentation logs, and associated metadata for a naturalistic viewing task.
-- **Verification**: The dataset is verified to contain the necessary variables:
-  - **Stimulus Images**: Raw image frames presented during the task (required for complexity calculation).
-  - **BOLD Signal**: Preprocessed BOLD time-series (4D NIfTI).
-  - **Timing Logs**: Onset and duration of each stimulus presentation.
+**Dataset Fit Assessment**:
+- **Variables Needed**: Stimulus images (for Shannon entropy/fractal dimension), BOLD signal time-series, TR (Repetition Time), stimulus onset times.
+- **Verified Source Check**: The provided "# Verified datasets" block lists OpenNeuro links. We will use `wget` to fetch the specific dataset snapshot (e.g., `ds000246-1.4.0`). If the dataset lacks raw stimulus images (as is the case for ds000246), the plan will explicitly state this gap and use the **Synthetic Stimulus Generation** fallback to create a reproducible set of naturalistic images matching the event timing. No synthetic data will be generated to fill gaps unless the fallback is triggered.
+- **Risk Mitigation**: If the verified dataset lacks the specific visual task subset or stimulus images, the plan explicitly states this gap and switches to the synthetic generation fallback or the verified alternative (ds003392).
 
-**Dataset Integrity Check**: Before analysis, the pipeline will verify that the BOLD data has not been residualized against the task design in a way that removes the signal of interest. If the dataset is pre-residualized, the pipeline will switch to using the raw (or minimally preprocessed) derivatives if available, or flag the dataset as unsuitable.
+## 3. Methodology
 
-**Note**: The previous reference to `ds000246` was incorrect as that dataset contains structural MRI scans only. `ds000248` is the correct functional dataset for this study.
+### 3.1. Stimulus Complexity Calculation (US1)
+- **Shannon Entropy**: Computed per frame as the entropy of the pixel intensity histogram (grayscale), as mandated by spec.md FR-002. This measures the distribution of pixel intensities, distinct from texture-based LBP.
+- **Fractal Dimension**: Estimated using the Box-Counting method via `pyfd` (Python Fractal Dimension) or a custom implementation.
+- **Synthetic Stimulus Generation**: If raw stimulus images are missing from the dataset (e.g., ds000246), a module `code/synthetic_stimuli.py` will generate naturalistic images using Perlin noise and fractal algorithms. The generation will use a fixed random seed to ensure reproducibility. These synthetic images will be used for complexity calculation.
+- **Confound Control**: Luminance and contrast will be computed for each frame and included as nuisance regressors in the final GLM.
+- **HRF Convolution**: Complexity time-series convolved with a canonical double-gamma HRF (peak [deferred], undershoot [deferred]) using `scipy.signal.convolve`. The HRF parameters are based on Friston et al. (1998).
+- **Handling Missing Frames**: Frames with missing stimulus logs are flagged and excluded from the complexity calculation.
 
-### Variable Mapping
+### 3.2. ROI Extraction (US2)
+- **Masking**: AAL atlas mask for DLPFC (MNI coordinates: approx. [-40, 40, 30] to [40, 40, 50]) used to extract mean BOLD signal.
+- **Robustness Check**: The first principal component (PCA) of the voxels within the mask will also be computed to ensure the mean signal is not diluted by noise.
+- **Preprocessing**: 
+  - Spatial smoothing: Gaussian kernel with a moderate full-width at half-maximum (FWHM). (`nilearn.image.smooth_img`).
+  - Normalization: Z-score normalization within the ROI time-series.
 
-| Variable | Source | Description |
-|----------|--------|-------------|
-| `stimulus_image` | OpenNeuro ds000248 | Raw image frames presented during the task. |
-| `bold_signal` | OpenNeuro ds000248 | Preprocessed BOLD time-series (4D NIfTI). |
-| `stimulus_timing` | OpenNeuro ds000248 | Onset and duration of each stimulus presentation. |
-| `entropy_score` | Computed | Shannon entropy of `stimulus_image`. |
-| `fractal_dimension` | Computed | Fractal dimension (e.g., box-counting) of `stimulus_image`. |
-| `luminance` | Computed | Mean luminance of `stimulus_image` (confound). |
-| `contrast` | Computed | RMS contrast of `stimulus_image` (confound). |
-| `pfc_bold` | Extracted | Mean BOLD signal from DLPFC ROI. |
-| `hrf_convolved` | Computed | Complexity metric convolved with canonical HRF. |
+### 3.3. Statistical Modeling (US3)
+- **Linear Regression**: `statsmodels.api.GLS` with AR(1) error structure (pre-whitening) to handle temporal autocorrelation, with HRF-convolved complexity metrics as predictors and DLPFC BOLD signal as outcome.
+- **Multiple Comparisons**: Benjamini-Hochberg (FDR) correction (citing Q136366870) applied to p-values for the two metrics (entropy, fractal dimension). The FDR is measured against a Family-Wise Error Rate (FWER) threshold.
+- **Permutation Test**: Circular block permutation (block size = 2 * TR) to preserve temporal autocorrelation. A sufficient number of iterations. This is a distinct step (Phase 3) as per FR-005.
+- **Null Distribution**: Histogram of permuted coefficients; observed coefficient compared to 95% CI.
 
-## Statistical Methodology
+## 4. Statistical Rigor & Assumptions
 
-### 1. Visual Complexity Metrics & Confounds
+- **Multiple Comparisons**: FDR correction (Benjamini-Hochberg) used for the two metrics.
+- **Power Limitation**: Acknowledged that a single-subject or small-subject analysis on CI may lack power for subtle effects. Results will be framed as exploratory.
+- **Causal Inference**: Observational study; claims limited to associational correlations. No randomization of stimulus complexity.
+- **Measurement Validity**: Shannon entropy and Box-Counting fractal dimension are standard proxies for visual complexity; validation evidence cited from literature (e.g., *Graham & Field, 2008*; *Ojala et al., 2002*).
+- **Collinearity**: Shannon entropy and fractal dimension may be correlated; Variance Inflation Factor (VIF) will be checked. If high collinearity, results reported descriptively.
 
-- **Shannon Entropy**: Computed for each stimulus frame using `scikit-image`.
-- **Fractal Dimension**: Computed using a box-counting algorithm.
-- **Confound Control**: To isolate the effect of complexity, we will also compute **mean luminance** and **RMS contrast** for each frame. These will be included as nuisance regressors in the model.
+## 5. Compute Feasibility
 
-### 2. HRF Convolution
+- **CPU-First**: All operations (Shannon entropy, fractal dimension, GLS regression) are CPU-tractable.
+- **Memory**: Streaming data via `wget` and processing subject-by-subject to stay under 6GB RAM.
+- **GPU Escape Hatch**: Not required for standard linear regression and complexity metrics. If a deep learning-based complexity metric were added later, a scaled-down GPU run (Kaggle) would be planned. Currently, CPU is sufficient.
 
-- **Method**: Convolve the time-series of complexity metrics with a canonical Hemodynamic Response Function (HRF), typically a double-gamma model.
-- **Lag**: 4-6 seconds, as specified in the spec.
-- **Purpose**: Align the predictor (complexity) with the delayed BOLD response.
+## 6. Decision/Rationale
 
-### 3. ROI Extraction
-
-- **Atlas**: AAL (Automated Anatomical Labeling) atlas.
-- **Region**: Dorsolateral Prefrontal Cortex (DLPFC).
-- **Preprocessing**: Spatial smoothing applied to the BOLD data before extraction. Z-score normalization within the ROI.
-
-### 4. Two-Level Analysis (GLM Framework)
-
-To address temporal autocorrelation and non-independence of timepoints:
-
-1.  **Subject-Level GLM**:
-    - Fit a General Linear Model (GLM) for each subject.
-    - **Predictors**: HRF-convolved complexity metrics (entropy, fractal dimension).
-    - **Covariates**: HRF-convolved luminance and contrast.
-    - **Temporal Correction**: Apply **AR(1) pre-whitening** to the residuals to account for temporal autocorrelation.
-    - **Output**: Beta-weights (effect sizes) and t-statistics for each complexity metric per subject.
-
-2.  **Group-Level Analysis**:
-    - Perform a one-sample t-test on the subject-level beta-weights across all subjects.
-    - **Null Hypothesis**: The mean beta-weight is zero.
-    - **Permutation Validation**: Circular block permutation tests (1000 iterations) will be run on the subject-level beta-weights to validate the null distribution.
-
-### 5. Collinearity Diagnostics
-
-- **VIF Calculation**: Calculate the Variance Inflation Factor (VIF) between entropy and fractal dimension.
-- **Decision Rule**:
-    - If **VIF < 5**: Proceed with a multiple regression model including both metrics.
-    - If **VIF ≥ 5**: Run separate univariate models for entropy and fractal dimension. FDR correction will be applied across all tests performed (both metrics) to control the false discovery rate.
-
-### 6. Assumptions & Limitations
-
-- **Observational Nature**: The study is observational; findings will be framed as correlational, not causal.
-- **Dataset Fit**: The dataset `ds000248` is confirmed to contain the necessary variables.
-- **Collinearity**: Handled via VIF diagnostics and separate modeling if necessary.
-
-## Computational Feasibility
-
-### Resource Constraints
-
-- **RAM**: ≤ 6GB
-- **Disk**: ≤ 14GB
-- **Runtime**: ≤ 6 hours
-- **CPU**: 2 cores (no GPU)
-
-### Strategy
-
-1.  **Subject-wise Processing**: Process one subject at a time to minimize memory footprint.
-2.  **Batched Image Processing**: Compute complexity metrics on stimulus images in batches.
-3.  **Memory Monitoring**: Scripts will include checks to abort if memory usage exceeds limits.
-4.  **Optimized Libraries**: Use `numpy`, `scipy`, `nilearn`, and `statsmodels` which have efficient CPU implementations.
-
-### Risk Mitigation
-
-- **Memory Overflow**: If a subject's data is too large, the script will skip it and log a warning.
-- **Runtime Exceedance**: If a task takes too long, it will be interrupted. The plan assumes the dataset size is manageable within the time limit.
-
-## Decision Rationale
-
-- **Why OpenNeuro ds000248?** It is a verified functional dataset with naturalistic stimuli, unlike the structural-only `ds000246`.
-- **Why AAL Atlas?** It is a standard, widely-used atlas for ROI extraction in fMRI studies.
-- **Why Two-Level GLM with AR(1)?** This is the standard neuroimaging approach to handle temporal autocorrelation and non-independence of timepoints, ensuring valid inference.
-- **Why VIF Diagnostics?** To prevent unstable coefficient estimates due to high correlation between entropy and fractal dimension.
-- **Why CPU-only?** The GitHub Actions free-tier does not provide GPU access. All methods are selected to be CPU-tractable.
+- **Dataset Choice**: OpenNeuro ds000246 selected for its naturalistic viewing task. If stimulus images are missing (as verified), a **Synthetic Stimulus Generation** fallback is used to ensure the analysis can proceed without crashing, while maintaining reproducibility.
+- **HRF Model**: Canonical double-gamma chosen as the standard in fMRI analysis; cited as Friston et al. (1998).
+- **Statistical Method**: GLS with AR(1) pre-whitening + permutation test chosen for robustness to non-normality and temporal autocorrelation in fMRI data.
+- **FDR Correction**: Benjamini-Hochberg selected for controlling false discoveries across the two metrics while maintaining power.

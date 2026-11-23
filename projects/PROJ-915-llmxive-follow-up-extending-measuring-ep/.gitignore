@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Environment and Secrets
+.env
+.env.local
+*.pem
+*.key
+
+# Data (except examples)
+data/raw/*.csv
+data/processed/*.csv
+data/interim/*.csv
+data/results/*.csv
+data/raw/*.json
+data/processed/*.json
+data/interim/*.json
+data/results/*.json
+data/raw/*.parquet
+data/processed/*.parquet
+
+# Model artifacts
+*.gguf
+*.bin
+models/
+
+# Logs
+*.log
+logs/
+
+# Build
+dist/
+build/
+*.egg-info/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Jupyter
+.ipynb_checkpoints
+*.ipynb

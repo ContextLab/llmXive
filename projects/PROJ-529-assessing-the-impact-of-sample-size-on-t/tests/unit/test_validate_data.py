@@ -1,22 +1,13 @@
-"""
-Unit tests for the validate_data module.
-
-These tests verify the data validation logic without requiring
-actual data files to be present.
-"""
-import json
 import os
+import json
 import tempfile
-from pathlib import Path
-from unittest.mock import patch, MagicMock
-
 import pytest
 import pandas as pd
-import numpy as np
+from pathlib import Path
+import shutil
 
-# Import the module under test
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+# Mock config to avoid side effects during tests
+from unittest.mock import patch, MagicMock
 
 from validate_data import (
     calculate_file_checksum,
@@ -24,218 +15,150 @@ from validate_data import (
     count_processed_meta_analyses,
     aggregate_success_rate,
     write_success_rate_report,
+    DATA_RAW_DIR,
+    DATA_PROCESSED_DIR,
+    DATA_OUTPUT_DIR,
     TARGET_COUNT
 )
 
-
-class TestCalculateFileChecksum:
-    """Tests for checksum calculation."""
-
-    def test_calculate_checksum_sha256(self, tmp_path):
-        """Test SHA256 checksum calculation."""
-        test_file = tmp_path / "test.txt"
-        test_content = b"Hello, World!"
-        test_file.write_bytes(test_content)
+@pytest.fixture
+def temp_dirs():
+    """Create temporary directory structure for testing."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        tmp_path = Path(tmpdir)
+        raw_dir = tmp_path / "data" / "raw"
+        proc_dir = tmp_path / "data" / "processed"
+        out_dir = tmp_path / "data" / "output"
         
-        checksum = calculate_file_checksum(test_file)
-        assert len(checksum) == 64  # SHA256 produces 64 hex characters
-        assert isinstance(checksum, str)
-
-    def test_calculate_checksum_consistency(self, tmp_path):
-        """Test that checksum is consistent across multiple calls."""
-        test_file = tmp_path / "test.txt"
-        test_content = b"Test content for checksum"
-        test_file.write_bytes(test_content)
+        raw_dir.mkdir(parents=True)
+        proc_dir.mkdir(parents=True)
+        out_dir.mkdir(parents=True)
         
-        checksum1 = calculate_file_checksum(test_file)
-        checksum2 = calculate_file_checksum(test_file)
-        
-        assert checksum1 == checksum2
-
-    def test_calculate_checksum_different_content(self, tmp_path):
-        """Test that different content produces different checksums."""
-        test_file1 = tmp_path / "test1.txt"
-        test_file2 = tmp_path / "test2.txt"
-        
-        test_file1.write_bytes(b"Content 1")
-        test_file2.write_bytes(b"Content 2")
-        
-        checksum1 = calculate_file_checksum(test_file1)
-        checksum2 = calculate_file_checksum(test_file2)
-        
-        assert checksum1 != checksum2
-
-
-class TestValidateDataFile:
-    """Tests for data file validation."""
-
-    def test_validate_nonexistent_file(self, tmp_path):
-        """Test validation of a non-existent file."""
-        nonexistent = tmp_path / "does_not_exist.txt"
-        result = validate_data_file(nonexistent)
-        
-        assert result['valid'] is False
-        assert result['error'] is not None
-        assert 'not found' in result['error'].lower()
-
-    def test_validate_json_file(self, tmp_path):
-        """Test validation of a valid JSON file."""
-        test_file = tmp_path / "test.json"
-        test_data = {"key": "value", "list": [1, 2, 3]}
-        
-        with open(test_file, 'w') as f:
-            json.dump(test_data, f)
-        
-        result = validate_data_file(test_file)
-        
-        assert result['valid'] is True
-        assert result['checksum'] is not None
-        assert result['row_count'] == 1  # Single object
-
-    def test_validate_json_array_file(self, tmp_path):
-        """Test validation of a JSON array file."""
-        test_file = tmp_path / "test_array.json"
-        test_data = [{"id": 1}, {"id": 2}, {"id": 3}]
-        
-        with open(test_file, 'w') as f:
-            json.dump(test_data, f)
-        
-        result = validate_data_file(test_file)
-        
-        assert result['valid'] is True
-        assert result['row_count'] == 3
-
-    def test_validate_csv_file(self, tmp_path):
-        """Test validation of a valid CSV file."""
-        test_file = tmp_path / "test.csv"
-        df = pd.DataFrame({
-            'col1': [1, 2, 3],
-            'col2': ['a', 'b', 'c']
-        })
-        df.to_csv(test_file, index=False)
-        
-        result = validate_data_file(test_file)
-        
-        assert result['valid'] is True
-        assert result['checksum'] is not None
-        assert result['row_count'] == 3
-
-    def test_validate_parquet_file(self, tmp_path):
-        """Test validation of a valid Parquet file."""
-        test_file = tmp_path / "test.parquet"
-        df = pd.DataFrame({
-            'col1': [1, 2, 3, 4, 5],
-            'col2': ['a', 'b', 'c', 'd', 'e']
-        })
-        df.to_parquet(test_file)
-        
-        result = validate_data_file(test_file)
-        
-        assert result['valid'] is True
-        assert result['checksum'] is not None
-        assert result['row_count'] == 5
-
-    def test_validate_invalid_json_file(self, tmp_path):
-        """Test validation of an invalid JSON file."""
-        test_file = tmp_path / "invalid.json"
-        test_file.write_text("{ invalid json }")
-        
-        result = validate_data_file(test_file)
-        
-        assert result['valid'] is False
-        assert result['error'] is not None
-
-
-class TestAggregateSuccessRate:
-    """Tests for success rate aggregation."""
-
-    @patch('validate_data.is_real_mode')
-    @patch('validate_data.is_simulation_mode')
-    @patch('validate_data.count_processed_meta_analyses')
-    def test_aggregate_real_mode(self, mock_count, mock_sim_mode, mock_real_mode):
-        """Test aggregation in real mode."""
-        mock_count.return_value = 60
-        mock_real_mode.return_value = True
-        mock_sim_mode.return_value = False
-        
-        report = aggregate_success_rate()
-        
-        assert report['actual_processed'] == 60
-        assert report['total_target'] == TARGET_COUNT
-        assert report['success_rate'] == 60 / TARGET_COUNT
-        assert report['mode'] == 'real'
-        assert report['meets_requirement'] is True
-
-    @patch('validate_data.is_real_mode')
-    @patch('validate_data.is_simulation_mode')
-    @patch('validate_data.count_processed_meta_analyses')
-    def test_aggregate_simulation_mode(self, mock_count, mock_sim_mode, mock_real_mode):
-        """Test aggregation in simulation mode."""
-        mock_count.return_value = 25
-        mock_real_mode.return_value = False
-        mock_sim_mode.return_value = True
-        
-        report = aggregate_success_rate()
-        
-        assert report['actual_processed'] == 25
-        assert report['mode'] == 'simulation'
-        assert report['meets_requirement'] is False
-
-    @patch('validate_data.is_real_mode')
-    @patch('validate_data.is_simulation_mode')
-    @patch('validate_data.count_processed_meta_analyses')
-    def test_aggregate_below_threshold(self, mock_count, mock_sim_mode, mock_real_mode):
-        """Test aggregation when below threshold."""
-        mock_count.return_value = 40
-        mock_real_mode.return_value = True
-        mock_sim_mode.return_value = False
-        
-        report = aggregate_success_rate()
-        
-        assert report['actual_processed'] == 40
-        assert report['meets_requirement'] is False
-        assert report['success_rate'] < 1.0
-
-
-class TestWriteSuccessRateReport:
-    """Tests for report writing."""
-
-    def test_write_report_creates_file(self, tmp_path):
-        """Test that report writing creates the output file."""
-        # Mock the output directory
-        with patch('validate_data.DATA_OUTPUT_DIR', tmp_path):
-            report = {
-                'total_target': 50,
-                'actual_processed': 45,
-                'success_rate': 0.9,
-                'mode': 'real'
+        # Patch the global constants
+        with patch('validate_data.DATA_RAW_DIR', raw_dir), \
+             patch('validate_data.DATA_PROCESSED_DIR', proc_dir), \
+             patch('validate_data.DATA_OUTPUT_DIR', out_dir):
+            yield {
+                'raw': raw_dir,
+                'processed': proc_dir,
+                'output': out_dir,
+                'root': tmp_path
             }
-            
-            output_path = write_success_rate_report(report)
-            
-            assert output_path.exists()
-            assert output_path.name == 'success_rate_report.json'
-            
-            # Verify content
-            with open(output_path, 'r') as f:
-                written_report = json.load(f)
-            
-            assert written_report['actual_processed'] == 45
-            assert written_report['mode'] == 'real'
 
-    def test_write_report_creates_directory(self, tmp_path):
-        """Test that report writing creates the output directory if needed."""
-        nested_dir = tmp_path / "nested" / "output"
-        
-        with patch('validate_data.DATA_OUTPUT_DIR', nested_dir):
-            report = {
-                'total_target': 50,
-                'actual_processed': 50,
-                'success_rate': 1.0,
-                'mode': 'real'
-            }
-            
-            output_path = write_success_rate_report(report)
-            
-            assert nested_dir.exists()
-            assert output_path.exists()
+def test_calculate_file_checksum(temp_dirs):
+    """Test checksum calculation."""
+    file_path = temp_dirs['raw'] / "test.txt"
+    file_path.write_text("Hello World")
+    
+    checksum = calculate_file_checksum(file_path)
+    assert len(checksum) == 64  # SHA256 hex length
+    assert checksum == "a591a6d40bf420404a011733cfb7b190d62c65bf0bcda32b57b277d9ad9f146e"
+
+def test_validate_data_file_valid_json(temp_dirs):
+    """Test validation of a valid JSON file."""
+    file_path = temp_dirs['raw'] / "valid.json"
+    file_path.write_text(json.dumps({"key": "value"}))
+    
+    result = validate_data_file(file_path)
+    assert result["status"] == "valid"
+    assert "checksum" in result
+
+def test_validate_data_file_missing(temp_dirs):
+    """Test validation of a missing file."""
+    file_path = temp_dirs['raw'] / "missing.json"
+    
+    result = validate_data_file(file_path)
+    assert result["status"] == "missing"
+
+def test_validate_data_file_empty(temp_dirs):
+    """Test validation of an empty file."""
+    file_path = temp_dirs['raw'] / "empty.json"
+    file_path.touch()
+    
+    result = validate_data_file(file_path)
+    assert result["status"] == "empty"
+
+def test_validate_data_file_csv(temp_dirs):
+    """Test validation of a valid CSV file."""
+    file_path = temp_dirs['raw'] / "data.csv"
+    df = pd.DataFrame({"a": [1, 2], "b": [3, 4]})
+    df.to_csv(file_path, index=False)
+    
+    result = validate_data_file(file_path)
+    assert result["status"] == "valid"
+    assert result["rows"] == 2
+
+def test_count_processed_meta_analyses_parquet(temp_dirs):
+    """Test counting from parquet file."""
+    # Create a fake parquet file
+    file_path = temp_dirs['processed'] / "subsample_data.parquet"
+    df = pd.DataFrame({
+        "meta_id": [1, 1, 2, 3, 3, 3], # 3 unique IDs
+        "k": [3, 4, 3, 3, 4, 5]
+    })
+    df.to_parquet(file_path)
+    
+    count = count_processed_meta_analyses()
+    assert count == 3
+
+def test_count_processed_meta_analyses_fallback_json(temp_dirs):
+    """Test counting fallback to raw JSON files."""
+    # Remove parquet if exists (simulate missing)
+    (temp_dirs['processed'] / "subsample_data.parquet").unlink(missing_ok=True)
+    
+    # Create raw files
+    (temp_dirs['raw'] / "meta_1.json").write_text("{}")
+    (temp_dirs['raw'] / "meta_2.json").write_text("{}")
+    (temp_dirs['raw'] / "meta_3.json").write_text("{}")
+    # Exclude config files
+    (temp_dirs['raw'] / "simulation_params.json").write_text("{}")
+    
+    count = count_processed_meta_analyses()
+    assert count == 3
+
+def test_aggregate_success_rate_meets_target(temp_dirs, caplog):
+    """Test aggregation when target is met."""
+    # Create enough files to meet target (50)
+    for i in range(TARGET_COUNT):
+        (temp_dirs['raw'] / f"meta_{i}.json").write_text("{}")
+    
+    with patch('validate_data.is_real_mode', return_value=True):
+        report = aggregate_success_rate()
+    
+    assert report["actual_processed"] == TARGET_COUNT
+    assert report["success_rate"] == 1.0
+    assert report["meets_requirement"] is True
+    assert report["mode"] == "real"
+
+def test_aggregate_success_rate_below_target(temp_dirs):
+    """Test aggregation when target is NOT met."""
+    # Create fewer files than target
+    for i in range(10):
+        (temp_dirs['raw'] / f"meta_{i}.json").write_text("{}")
+    
+    with patch('validate_data.is_real_mode', return_value=False):
+        report = aggregate_success_rate()
+    
+    assert report["actual_processed"] == 10
+    assert report["success_rate"] == 0.2
+    assert report["meets_requirement"] is False
+    assert report["mode"] == "simulation"
+
+def test_write_success_rate_report(temp_dirs):
+    """Test writing the report file."""
+    report = {
+        "total_target": 50,
+        "actual_processed": 25,
+        "success_rate": 0.5,
+        "mode": "simulation",
+        "meets_requirement": False
+    }
+    
+    path = write_success_rate_report(report)
+    
+    assert path.exists()
+    with open(path) as f:
+        loaded = json.load(f)
+    
+    assert loaded["actual_processed"] == 25
+    assert loaded["mode"] == "simulation"

@@ -1,0 +1,4 @@
+failure_class: RuntimeError
+filed_at: '2026-10-08T02:43:03.976432+00:00'
+issue_number: 1470
+project_id: PROJ-296-predicting-molecular-refractive-indices-

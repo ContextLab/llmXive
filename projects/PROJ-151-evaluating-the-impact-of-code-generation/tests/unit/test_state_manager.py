@@ -1,229 +1,121 @@
-"""
-Unit tests for the state manager module.
-"""
 import os
 import tempfile
-import shutil
-from pathlib import Path
-import yaml
-
 import pytest
+from pathlib import Path
+from datetime import datetime
 
-# We need to temporarily override PROJECT_ROOT for testing
-# We'll use a fixture to set up a temporary directory structure
+from state_manager import (
+    initialize_state_file,
+    load_state,
+    save_state,
+    calculate_file_hash,
+    register_artifact,
+    verify_artifact,
+    list_registered_artifacts
+)
 
 @pytest.fixture
-def temp_project_root(tmp_path):
-    """Create a temporary project root with required directories."""
-    # Create the directory structure expected by config
-    data_dirs = ["data/raw", "data/processed", "data/generated", "data/validation", "code", "tests"]
-    for d in data_dirs:
-        (tmp_path / d).mkdir(parents=True, exist_ok=True)
-    
-    # Create a dummy config.py that uses this temp root
-    config_content = f"""
-import os
-from pathlib import Path
+def temp_state_file():
+    """Create a temporary state.yaml file for testing."""
+    with tempfile.NamedTemporaryFile(suffix=".yaml", delete=False) as f:
+        yield Path(f.name)
+    os.unlink(f.name)
 
-PROJECT_ROOT = Path(r"{tmp_path}")
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
-DATA_GENERATED_DIR = PROJECT_ROOT / "data" / "generated"
-DATA_VALIDATION_DIR = PROJECT_ROOT / "data" / "validation"
+@pytest.fixture
+def temp_data_file():
+    """Create a temporary data file for testing."""
+    with tempfile.NamedTemporaryFile(suffix=".txt", delete=False, mode="w") as f:
+        f.write("test content for hashing")
+        yield Path(f.name)
+    os.unlink(f.name)
 
-def set_global_seed(seed=42):
-    import random
-    import numpy as np
-    import torch
-    random.seed(seed)
-    np.random.seed(seed)
-    torch.manual_seed(seed)
-"""
-    (tmp_path / "code" / "config.py").write_text(config_content)
+def test_initialize_state_file(temp_state_file):
+    """Test that initialize_state_file creates a valid skeleton."""
+    initialize_state_file(temp_state_file)
     
-    return tmp_path
+    assert temp_state_file.exists()
+    state = load_state(temp_state_file)
+    
+    assert "project_id" in state
+    assert "created_at" in state
+    assert "last_updated" in state
+    assert "artifacts" in state
+    assert isinstance(state["artifacts"], dict)
 
-
-def test_initialize_state_file(temp_project_root):
-    """Test that initialize_state_file creates a valid state.yaml."""
-    # Import after setting up temp root
-    import sys
-    sys.path.insert(0, str(temp_project_root / "code"))
-    
-    # Temporarily override the module's path
-    import code.state_manager as state_manager
-    original_path = state_manager.STATE_FILE_PATH
-    state_manager.STATE_FILE_PATH = temp_project_root / "state.yaml"
-    
-    try:
-        state_manager.initialize_state_file()
+def test_load_state_creates_if_missing(temp_state_file):
+    """Test that load_state initializes the file if it doesn't exist."""
+    # Ensure file doesn't exist
+    if temp_state_file.exists():
+        os.unlink(temp_state_file)
         
-        state_file = temp_project_root / "state.yaml"
-        assert state_file.exists()
-        
-        with open(state_file, "r") as f:
-            state = yaml.safe_load(f)
-        
-        assert "version" in state
-        assert state["version"] == "1.0"
-        assert "created_at" in state
-        assert "updated_at" in state
-        assert "artifacts" in state
-        assert isinstance(state["artifacts"], dict)
-    finally:
-        state_manager.STATE_FILE_PATH = original_path
+    state = load_state(temp_state_file)
+    
+    assert temp_state_file.exists()
+    assert "artifacts" in state
 
+def test_calculate_file_hash(temp_data_file):
+    """Test that calculate_file_hash returns a valid SHA-256 hash."""
+    file_hash = calculate_file_hash(temp_data_file)
+    
+    assert isinstance(file_hash, str)
+    assert len(file_hash) == 64  # SHA-256 hex length
+    assert all(c in '0123456789abcdef' for c in file_hash)
 
-def test_register_artifact(temp_project_root):
-    """Test registering an artifact."""
-    import sys
-    sys.path.insert(0, str(temp_project_root / "code"))
+def test_register_artifact(temp_state_file, temp_data_file):
+    """Test that register_artifact correctly adds an artifact to state."""
+    artifact_name = "test_artifact"
+    description = "A test artifact"
     
-    import code.state_manager as state_manager
-    original_path = state_manager.STATE_FILE_PATH
-    state_manager.STATE_FILE_PATH = temp_project_root / "state.yaml"
+    register_artifact(temp_state_file, artifact_name, temp_data_file, description)
     
-    # Initialize state first
-    state_manager.initialize_state_file()
+    state = load_state(temp_state_file)
     
-    # Create a dummy artifact
-    artifact_path = temp_project_root / "data" / "processed" / "test_file.csv"
-    artifact_path.write_text("col1,col2\n1,2\n3,4")
+    assert artifact_name in state["artifacts"]
+    artifact = state["artifacts"][artifact_name]
     
-    try:
-        state_manager.register_artifact(
-            artifact_path, 
-            "dataset", 
-            "Test dataset",
-            "T005"
-        )
-        
-        state_file = temp_project_root / "state.yaml"
-        with open(state_file, "r") as f:
-            state = yaml.safe_load(f)
-        
-        relative_path = "data/processed/test_file.csv"
-        assert relative_path in state["artifacts"]
-        
-        artifact_info = state["artifacts"][relative_path]
-        assert artifact_info["type"] == "dataset"
-        assert artifact_info["description"] == "Test dataset"
-        assert artifact_info["source_task_id"] == "T005"
-        assert "hash" in artifact_info
-        assert "size_bytes" in artifact_info
-        assert artifact_info["size_bytes"] > 0
-    finally:
-        state_manager.STATE_FILE_PATH = original_path
+    assert artifact["path"] == str(temp_data_file)
+    assert "hash" in artifact
+    assert "registered_at" in artifact
+    assert artifact["description"] == description
 
+def test_verify_artifact_valid(temp_state_file, temp_data_file):
+    """Test verify_artifact returns True for a valid, unchanged artifact."""
+    register_artifact(temp_state_file, "valid_artifact", temp_data_file)
+    
+    assert verify_artifact(temp_state_file, "valid_artifact") is True
 
-def test_verify_artifact_valid(temp_project_root):
-    """Test verifying a valid artifact."""
-    import sys
-    sys.path.insert(0, str(temp_project_root / "code"))
+def test_verify_artifact_modified(temp_state_file, temp_data_file):
+    """Test verify_artifact returns False when file is modified."""
+    register_artifact(temp_state_file, "modified_artifact", temp_data_file)
     
-    import code.state_manager as state_manager
-    original_path = state_manager.STATE_FILE_PATH
-    state_manager.STATE_FILE_PATH = temp_project_root / "state.yaml"
+    # Modify the file
+    with open(temp_data_file, "w") as f:
+        f.write("modified content")
     
-    state_manager.initialize_state_file()
-    
-    artifact_path = temp_project_root / "data" / "processed" / "verify_test.csv"
-    artifact_path.write_text("test,data\nhello,world")
-    
-    try:
-        state_manager.register_artifact(artifact_path, "test_file")
-        assert state_manager.verify_artifact(artifact_path) is True
-    finally:
-        state_manager.STATE_FILE_PATH = original_path
+    assert verify_artifact(temp_state_file, "modified_artifact") is False
 
+def test_verify_artifact_missing(temp_state_file):
+    """Test verify_artifact returns False when file doesn't exist."""
+    # Register a path that doesn't exist
+    state = load_state(temp_state_file)
+    state["artifacts"] = {
+        "missing_artifact": {
+            "path": "/non/existent/path.txt",
+            "hash": "dummy_hash",
+            "registered_at": datetime.utcnow().isoformat()
+        }
+    }
+    save_state(temp_state_file, state)
+    
+    assert verify_artifact(temp_state_file, "missing_artifact") is False
 
-def test_verify_artifact_modified(temp_project_root):
-    """Test verifying a modified artifact returns False."""
-    import sys
-    sys.path.insert(0, str(temp_project_root / "code"))
+def test_list_registered_artifacts(temp_state_file, temp_data_file):
+    """Test list_registered_artifacts returns all registered artifacts."""
+    register_artifact(temp_state_file, "art1", temp_data_file)
+    register_artifact(temp_state_file, "art2", temp_data_file)
     
-    import code.state_manager as state_manager
-    original_path = state_manager.STATE_FILE_PATH
-    state_manager.STATE_FILE_PATH = temp_project_root / "state.yaml"
+    artifacts = list_registered_artifacts(temp_state_file)
     
-    state_manager.initialize_state_file()
-    
-    artifact_path = temp_project_root / "data" / "processed" / "modify_test.csv"
-    artifact_path.write_text("original")
-    
-    try:
-        state_manager.register_artifact(artifact_path, "test_file")
-        
-        # Modify the file
-        artifact_path.write_text("modified")
-        
-        assert state_manager.verify_artifact(artifact_path) is False
-    finally:
-        state_manager.STATE_FILE_PATH = original_path
-
-
-def test_verify_artifact_missing(temp_project_root):
-    """Test verifying a missing artifact returns False."""
-    import sys
-    sys.path.insert(0, str(temp_project_root / "code"))
-    
-    import code.state_manager as state_manager
-    original_path = state_manager.STATE_FILE_PATH
-    state_manager.STATE_FILE_PATH = temp_project_root / "state.yaml"
-    
-    state_manager.initialize_state_file()
-    
-    artifact_path = temp_project_root / "data" / "processed" / "nonexistent.csv"
-    
-    assert state_manager.verify_artifact(artifact_path) is False
-    state_manager.STATE_FILE_PATH = original_path
-
-
-def test_list_registered_artifacts(temp_project_root):
-    """Test listing registered artifacts."""
-    import sys
-    sys.path.insert(0, str(temp_project_root / "code"))
-    
-    import code.state_manager as state_manager
-    original_path = state_manager.STATE_FILE_PATH
-    state_manager.STATE_FILE_PATH = temp_project_root / "state.yaml"
-    
-    state_manager.initialize_state_file()
-    
-    artifact1 = temp_project_root / "data" / "processed" / "art1.csv"
-    artifact1.write_text("data1")
-    
-    artifact2 = temp_project_root / "data" / "generated" / "art2.csv"
-    artifact2.write_text("data2")
-    
-    try:
-        state_manager.register_artifact(artifact1, "dataset")
-        state_manager.register_artifact(artifact2, "generated")
-        
-        artifacts = state_manager.list_registered_artifacts()
-        
-        assert len(artifacts) == 2
-        assert "data/processed/art1.csv" in artifacts
-        assert "data/generated/art2.csv" in artifacts
-    finally:
-        state_manager.STATE_FILE_PATH = original_path
-
-
-def test_load_state_nonexistent_file(temp_project_root):
-    """Test loading state when file doesn't exist."""
-    import sys
-    sys.path.insert(0, str(temp_project_root / "code"))
-    
-    import code.state_manager as state_manager
-    original_path = state_manager.STATE_FILE_PATH
-    state_manager.STATE_FILE_PATH = temp_project_root / "state.yaml"
-    
-    try:
-        state = state_manager.load_state()
-        
-        assert "version" in state
-        assert state["version"] == "1.0"
-        assert "artifacts" in state
-        assert state["artifacts"] == {}
-    finally:
-        state_manager.STATE_FILE_PATH = original_path
+    assert len(artifacts) == 2
+    assert "art1" in artifacts
+    assert "art2" in artifacts

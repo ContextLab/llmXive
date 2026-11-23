@@ -1,0 +1,20 @@
+# Schema for model output and report data
+# Keys: coefficients (object), p_values (object), vif (object), ci_width (float), model_type (string)
+coefficients:
+  type: object
+  description: Dictionary of regression coefficients
+p_values:
+  type: object
+  description: Dictionary of p-values for regression coefficients
+vif:
+  type: object
+  description: Dictionary of Variance Inflation Factors
+ci_width:
+  type: number
+  description: Width of the 95% Confidence Interval for the interaction term
+model_type:
+  type: string
+  description: Type of model used (Fixed-Effects or Mixed-Effects)
+  enum:
+    - Fixed-Effects
+    - Mixed-Effects

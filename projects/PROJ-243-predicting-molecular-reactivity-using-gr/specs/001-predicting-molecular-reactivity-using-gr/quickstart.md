@@ -1,67 +1,140 @@
-# Quickstart: Predicting Molecular Reactivity Using Graph Neural Networks
+# Quickstart: Predicting Molecular Reactivity
 
 ## Prerequisites
-
-*   Python 3.11+
-*   4 GB+ RAM available
-*   Git
+- Python 3.10+  
+- Git  
+- (Optional) Docker for local CI simulation  
 
 ## Installation
 
-1.  **Clone and Setup**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-243-predicting-molecular-reactivity-using-gr
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
-
-2.  **Verify Dependencies**:
-    Ensure `torch` is installed in CPU mode:
-    ```python
-    import torch
-    assert torch.cuda.is_available() == False, "GPU detected; this plan requires CPU-only."
-    ```
-
-## Running the Pipeline
-
-### 1. Data Ingestion
-Download and preprocess QM9 (automatically handles retries and memory checks):
 ```bash
-python code/main.py --stage download_preprocess
-```
-*Output*: `data/processed/graphs.pkl`
+# 1. Clone the repository
+git clone <repo-url>
+cd projects/PROJ-243-predicting-molecular-reactivity-using-gr
 
-### 2. Model Training
-Train Spectral GNN, Heterophily GNN, and Random Forest:
+# 2. Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+
+# 4. Verify linting and formatting (required by T002b)
+ruff check . --output-format=json > artifacts/ruff_report.json
+black --check . > artifacts/black_report.txt
+# Both commands must exit with status 0; otherwise fix the reported issues.
+```
+
+## Data Setup
+
 ```bash
-python code/main.py --stage train
-```
-*Output*: `code/models/weights_spectral.pth`, `weights_hetero.pth`, `rf_model.pkl`
+# Create required directories (tasks T001a‑T001b)
+mkdir -p data/raw data/processed data/assets artifacts/logs
+touch data/raw/.gitkeep data/processed/.gitkeep data/assets/.gitkeep artifacts/logs/.gitkeep
 
-### 3. Evaluation
-Compute metrics and run the paired t-test:
+# 1. Static assets (provided in the repo)
+#    - reference_substructures_raw.csv (several rows)
+#    - kinetic_dataset_raw.csv (≥20 rows)
+
+# 2. Initialize an empty checksums file (Task T003)
+echo "[]" > data/raw/checksums.json
+
+# 3. Download QM9 subset (streamed)
+python code/data/download.py --dataset qm9 --output data/raw
+# The script streams to data/raw/qm9_subset.parquet.
+
+# 4. Populate checksums for all raw files (Task T006)
+python code/utils/checksums.py --dir data/raw --output data/raw/checksums.json
+# This updates the previously empty JSON array with SHA‑256 hashes for:
+#   - qm9_subset.parquet
+#   - reference_substructures_raw.csv
+#   - kinetic_dataset_raw.csv
+```
+
+## Running the Full Pipeline
+
+### 1. Preprocess
 ```bash
-python code/main.py --stage evaluate
+python code/data/preprocess.py \
+  --input data/raw/qm9_subset.parquet \
+  --output data/processed
+# Generates graphs.pt, dataset.json, exclusion_report.json, and memory_adjustment.log.
 ```
-*Output*: `data/processed/metrics.json`
 
-### 4. Interpretability
-Generate feature attribution maps:
+### 2. Train Models
 ```bash
-python code/main.py --stage explain
+python code/train/trainer.py \
+  --epochs 50 \
+  --device cpu \
+  --early-stop-patience 5 \
+  --hyperparam-search grid
+# Produces model checkpoints under artifacts/models/.
 ```
-*Output*: `data/processed/attribution.json`
 
-## Expected Outputs
+### 3. Evaluate & Test
+```bash
+python code/train/eval.py \
+  --model-dir artifacts/models/ \
+  --output artifacts/
+# Writes predictions.json, metrics.json (incl. paired t‑test, Fisher‑Z).
+```
 
-*   **Metrics**: A JSON file containing MSE, MAE, R, and p-values for all models.
-*   **Artifacts**: Model weights and attribution maps saved in `data/processed/`.
-*   **Logs**: Console output detailing memory usage and training progress.
+### 4. Attribution
+```bash
+python code/interpret/explainer.py \
+  --model-dir artifacts/models/ \
+  --output artifacts/
+# Generates attribution_maps.json validated against contracts/attribution.schema.yaml.
+```
+
+### 5. Proxy Validation
+```bash
+python code/interpret/validate_proxy.py \
+  --predictions artifacts/predictions.json \
+  --kinetic data/raw/kinetic_dataset_raw.csv \
+  --output artifacts/
+# Produces kinetic_correlation.png and kinetic_report.txt (permutation test, 95 % CI).
+```
+
+### 6. Single‑Source‑of‑Truth Check
+```bash
+python code/utils/ssot.py \
+  --metrics artifacts/metrics.json \
+  --predictions artifacts/predictions.json
+# Logs verification result to artifacts/ssot.log.
+```
+
+### 7. Final Aggregation
+```bash
+python code/utils/aggregate.py \
+  --metrics artifacts/metrics.json \
+  --predictions artifacts/predictions.json \
+  --attribution artifacts/attribution_maps.json \
+  --output artifacts/final_output.json
+# Produces the consolidated final_output.json conforming to contracts/output.schema.yaml.
+```
+
+## Expected Artifacts
+After a successful run, `artifacts/` should contain:
+
+- `metrics.json` (performance & statistical tests)  
+- `predictions.json` (JSON version for schema validation)  
+- `predictions.parquet` (optional, for downstream analysis)  
+- `attribution_maps.json` (explanation data)  
+- `exclusion_report.json` (invalid SMILES log)  
+- `memory_adjustment.log` (any batch‑size reductions)  
+- `ruff_report.json` & `black_report.txt` (lint/format verification)  
+- `checksums_artifacts.json` (SHA‑256 of all output files)  
+- `ssot.log` (single‑source‑of‑truth validation)  
+- `kinetic_correlation.png` & `kinetic_report.txt` (proxy validation)  
+- `final_output.json` (single‑source‑of‑truth aggregate)  
+- `checksums_artifacts_validation.log` (validation of artifact checksums)  
 
 ## Troubleshooting
+- **Lint/format failures**: Fix reported style issues, then re‑run the `ruff`/`black` commands.  
+- **Memory OOM**: Reduce batch size via `--batch-size` flag in `trainer.py`; the script also auto‑adjusts.  
+- **Download errors**: The downloader retries up to 3 times with exponential backoff; persistent failure aborts with a clear error message.  
 
-*   **Memory Error**: If the process crashes, the script should have automatically reduced the dataset subset size. Check `logs/memory_monitor.log`.
-*   **Download Failure**: The script retries 3 times. If it fails, check your internet connection and the HuggingFace status.
-*   **CUDA Error**: Ensure `torch` was installed with the CPU-only flag (`pip install torch --index-url https://download.pytorch.org/whl/cpu`).
+---
+
+

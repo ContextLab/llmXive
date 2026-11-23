@@ -1,0 +1,3 @@
+"""
+src.data subpackage initialization.
+"""

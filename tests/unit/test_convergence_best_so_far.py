@@ -119,7 +119,7 @@ def test_sub_lettered_requirement_orphan_is_recognised() -> None:
 
     arts = {
         "spec.md": (
-            "**Anchored Requirements**: **FR-004**, **FR-004a**, **FR-005a** (all See US‑1)\n"
+            "**Anchored Requirements**: **FR-004**, **FR-004a**, **FR-005a** (all See US\u20111)\n"
             "**FR-009b**: a sub-lettered requirement with no story link\n"
         )
     }

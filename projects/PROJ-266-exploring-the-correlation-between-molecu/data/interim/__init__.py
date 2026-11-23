@@ -1,0 +1,3 @@
+"""
+Interim data directory.
+"""

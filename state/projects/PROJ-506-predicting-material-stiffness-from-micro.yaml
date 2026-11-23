@@ -6,7 +6,7 @@ failed_stage: null
 field: materials science
 human_escalation_reason: null
 id: PROJ-506-predicting-material-stiffness-from-micro
-last_run_id: fd6d16bc-309c-4aa5-b961-138acff4f61e
+last_run_id: 234fc82f-4f61-482d-8c67-157ea0170bfc
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-506-predicting-material-stiffness-from-micro/specs/001-predicting-material-stiffness-from-micro
 title: Predicting Material Stiffness from Microstructure Images Using Convolutional
   Neural Networks
-updated_at: '2026-07-10T17:16:42.096693Z'
+updated_at: '2026-09-09T21:28:18.914583Z'

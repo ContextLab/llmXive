@@ -1,53 +1,54 @@
-# Data Model: Predicting Molecular Packing Efficiency in Crystals from SMILES Representations
+# Data Model: Predicting Molecular Packing Efficiency
 
-## Data Flow
+## Overview
+Schemas define the structure of all data artifacts exchanged between pipeline stages. Validation against these JSON‑Schema contracts guarantees reproducibility and enables automated testing.
 
-1.  **Raw Input**: CIF files from COD Organic Subset (downloaded).
-2.  **Intermediate**: Parsed molecular structures (RDKit `Mol` objects), 3D coordinates.
-3.  **Processed**: `dataset.csv` (features + target).
-4.  **Model Input**: NumPy arrays (features), PyTorch tensors (targets).
-5.  **Output**: `validation_report.json`, `model.pt`, `report.html`.
+## Entity Relationships
+1. **Raw COD download** → **Filtered Record** (JSONL)  
+2. **Filtered Record** → **SMILES & 3‑D Descriptors** (CSV)  
+3. **SMILES & 3‑D Descriptors** → **Embedding Generation** (CSV with `fingerprint_vector`)  
+4. **Feature Matrix** → **Trained Models** (PyTorch checkpoints)  
+5. **Model Predictions + Ground Truth** → **Validation Report** (JSON)  
+6. **Validation Report** → **HTML Report** (final deliverable)  
 
-## Entity Definitions
+## Schemas
+The concrete JSON‑Schema definitions reside in the `contracts/` directory:
 
-### 1. Crystal Record
-Represents a single organic crystal structure entry.
+- `contracts/dataset.schema.yaml` – validates the full feature matrix (`data/processed/full_feature_matrix.csv`).  
+- `contracts/model.schema.yaml` – validates model checkpoint metadata (`data/artifacts/model_*.pt` + side‑car JSON).  
+- `contracts/validation_report.schema.yaml` – validates the validation report (`data/artifacts/validation_report.json`).  
 
-| Field | Type | Description | Source |
-| :--- | :--- | :--- | :--- |
-| `cod_id` | str | Unique COD identifier | CIF Header |
-| `smiles` | str | Canonical SMILES string | Extracted or RDKit Gen |
-| `smiles_source` | str | "extracted" or "generated" | Pipeline Flag |
-| `unit_cell_volume` | float | Volume in Å³ | CIF Cell Parameters |
-| `n_atoms` | int | Count of non-H atoms | RDKit |
-| `sum_vdw_volume` | float | Sum of atomic VdW volumes (Bondi) | RDKit + Bondi Radii |
-| `packing_coefficient` | float | $V_{cell} / \sum V_{vdW}$ | Calculated (Diagnostic Only) |
-| `cape` | float | Composition-Adjusted Packing Efficiency | Calculated (Target for ALL Models) |
-| `radius_gyration` | float | $R_g$ in Å | 3D Geometry |
-| `asphericity` | float | Shape parameter (0-1) | 3D Geometry |
-| `moments_inertia` | list(float) | [I1, I2, I3] in amu·Å² | 3D Geometry |
-| `lattice_system` | str | e.g., "monoclinic", "orthorhombic" | CIF Metadata |
-| `temperature_K` | float | Measurement temperature | CIF Metadata |
-| `has_solvent` | bool | Presence of solvent molecules | CIF Metadata |
-| `atom_type_counts` | dict | {C: 5, N: 2, ...} | RDKit |
+### Key Columns of the Full Feature Matrix (validated by `dataset.schema.yaml`)
+| Column | Type | Description |
+|--------|------|-------------|
+| `cod_id` | string | Unique COD identifier (provenance). |
+| `smiles` | string | Canonical SMILES (extracted or generated). |
+| `smiles_source` | string (`"extracted"` | `"generated"`) | Origin of SMILES. |
+| `unit_cell_volume` | number | Unit‑cell volume (Å³). |
+| `pc_raw` | number | Packing Coefficient (target). |
+| `radius_of_gyration` | number | 3‑D descriptor (Å). |
+| `asphericity` | number | 3‑D descriptor (0–1). |
+| `principal_moments` | string (JSON) | `[I1, I2, I3]` in Å⁴. |
+| `lattice_system` | string | Crystal system (e.g., `monoclinic`). |
+| `temperature_K` | number | null | Measurement temperature (K). |
+| `has_solvent` | boolean | Presence of solvent molecules. |
+| `atom_count` | integer | Non‑hydrogen atom count (excluded from Primary Model). |
+| `atom_type_counts` | string (JSON) | `{"C":10,"O":2,…}` (excluded from Primary Model). |
+| `fingerprint_vector` | string | Space‑separated float list (SMILES‑Transformer embedding). |
 
-### 2. Model Features
-The feature vector $X$ for the MLPs:
--   **Baseline Model**: $X_{smiles}$ (Fixed-length embedding from frozen transformer). **Target**: `cape`.
--   **Control Model**: $X_{geo}$ (Radius of Gyration, Asphericity, Moments) + $X_{conf}$ (Lattice, Temp, Solvent). **Target**: `cape`.
--   **Upper Bound Model**: $X_{smiles}$ + $X_{geo}$ + $X_{conf}$. **Target**: `cape`.
-    -   **Exclusion**: `sum_vdw_volume` and `n_atoms` are **NOT** included in the feature set for any CAPE model to prevent circularity.
+**Required fields**: all listed above except `temperature_K` (may be null).  
 
-### 3. Prediction Output
--   `predicted_cape`: float.
--   `residual`: `observed_cape` - `predicted_cape`.
+## Transformation Logic
+1. **PC_raw** = `unit_cell_volume / sum(vdw_volume_i)` (FR‑003).  
+2. **SMILES Generation**: If `_chemical_structure_SMILES` missing, RDKit builds a Mol from CIF geometry and generates a canonical SMILES (`MolToSmiles(..., isomericSmiles=True)`). Flagged as `"generated"` (FR‑002).  
+3. **3‑D Descriptors**: Radius of gyration, asphericity, principal moments computed from atomic coordinates (FR‑012).  
+4. **Embedding**: Frozen SMILES‑Transformer applied in streaming batches (batch = 64) → `fingerprint_vector` (FR‑004, FR‑020).  
+5. **Feature Matrix Assembly**: Merge all columns; exclude `atom_count` and `atom_type_counts` from the predictor set for the Primary Model (FR‑021).  
 
-## Data Constraints
+## Constraints
+- **Atom‑Count Filter**: Drop records with `atom_count` > 50 (FR‑001).  
+- **Volume Sanity**: Exclude rows where `unit_cell_volume` < 10 Å³ or > 100 000 Å³.  
+- **PC_raw Bounds**: Flag rows where `pc_raw` < 0 or > 10 as erroneous.  
+- **Schema Validation**: Executed in Phase 1; any violation aborts the pipeline (Principle III).  
 
--   **SMILES**: Must be valid RDKit SMILES.
--   **CAPE**: Must be > 0.
--   **Missing Data**: Records with missing CIF metadata (e.g., no temperature) are excluded or imputed with "unknown" category if applicable.
--   **Atom Count**: Filtered to ≤ 50 non-H atoms.
-
-## Schema Validation
-All processed data must conform to `contracts/dataset.schema.yaml`.
+---

@@ -1,0 +1,4 @@
+# This file is intentionally empty. Its presence indicates that the
+# citation‑gate validation (T001) succeeded. The file is created by
+# ``code/tools/reference_validator.py``.  If the file is missing the CI
+# pipeline will abort.

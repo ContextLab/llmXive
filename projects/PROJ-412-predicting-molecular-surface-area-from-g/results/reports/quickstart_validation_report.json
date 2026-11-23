@@ -1,0 +1,63 @@
+{
+  "fr001": {
+    "status": "PASS",
+    "details": [
+      "Found: data/raw/chunk_*.parquet",
+      "Valid: data/processed/graphs_with_features.parquet",
+      "Valid: data/processed/conformers.parquet",
+      "Valid: data/processed/descriptors.parquet",
+      "Valid: data/processed/paired_dataset.parquet",
+      "Found: data/processed/conformer_params.json",
+      "Found: data/processed/failure_report.csv"
+    ]
+  },
+  "fr002": {
+    "status": "PASS",
+    "details": [
+      "Valid: data/splits/train_indices.csv",
+      "Valid: data/splits/test_indices.csv",
+      "Valid: data/splits/split_report.json"
+    ]
+  },
+  "fr003": {
+    "status": "PASS",
+    "details": [
+      "Found: results/baseline/baseline_model_2d.pkl",
+      "Found: results/baseline/baseline_model_geometry.pkl",
+      "Found: results/predictions/baseline_2d_predictions.parquet",
+      "Found: results/predictions/baseline_geometry_predictions.parquet",
+      "Found: results/predictions/gcn_predictions.parquet"
+    ]
+  },
+  "fr004": {
+    "status": "PASS",
+    "details": [
+      "Valid: results/reports/model_metrics.json",
+      "Valid: results/reports/model_comparison.json"
+    ]
+  },
+  "fr005": {
+    "status": "PASS",
+    "details": [
+      "Valid: data/processed/sensitivity_absolute.csv",
+      "Found: results/reports/sensitivity_analysis.md",
+      "Found: results/plots/sensitivity_absolute.png"
+    ]
+  },
+  "fr006": {
+    "status": "PASS",
+    "details": [
+      "Found: README.md"
+    ]
+  },
+  "fr007": {
+    "status": "PASS",
+    "details": [
+      "Found: logs/excluded_molecules.log",
+      "Found: logs/ingestion_errors.log",
+      "Found: logs/conformer_failures.log",
+      "Found: data/raw/checksums.json"
+    ]
+  },
+  "overall": "PASS"
+}

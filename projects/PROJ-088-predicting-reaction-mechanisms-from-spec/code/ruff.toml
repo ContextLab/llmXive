@@ -1,0 +1,43 @@
+[tool.ruff]
+# Target Python version
+target-version = "py311"
+
+# Line length for formatting and linting
+line-length = 100
+
+# Exclude generated files or large dependencies
+exclude = [
+    ".git",
+    "__pycache__",
+    ".tox",
+    "build",
+    "dist",
+    "venv",
+    ".venv",
+    "data/",
+]
+
+[tool.ruff.lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = ["E", "F", "I", "W", "UP"]
+ignore = []
+
+# Allow autofix for all enabled rules
+fixable = ["ALL"]
+unfixable = []
+
+# Per-file ignores (optional)
+per-file-ignores = {}
+
+[tool.ruff.format]
+# Use single quotes
+quote-style = "double"
+
+# Indent with spaces
+indent-style = "space"
+
+# Respect magic trailing commas
+skip-magic-trailing-comma = false
+
+# Line ending
+line-ending = "auto"

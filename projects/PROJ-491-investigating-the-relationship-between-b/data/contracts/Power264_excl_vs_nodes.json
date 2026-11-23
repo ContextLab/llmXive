@@ -1,0 +1,42 @@
+{
+  "description": "Power 264 nodes overlapping with Ventral Striatum ROI",
+  "exclusion_reason": "Prevent double-dipping in VS analysis",
+  "vs_roi_id": "ventral_striatum",
+  "distance_threshold_mm": 10.0,
+  "excluded_nodes": [
+    {
+      "id": 264,
+      "name": "Caudate Right",
+      "x": 20.0,
+      "y": 10.0,
+      "z": 12.0,
+      "distance_to_vs": 8.5
+    },
+    {
+      "id": 265,
+      "name": "Putamen Right",
+      "x": 24.0,
+      "y": 8.0,
+      "z": 10.0,
+      "distance_to_vs": 9.2
+    },
+    {
+      "id": 266,
+      "name": "Caudate Left",
+      "x": -20.0,
+      "y": 10.0,
+      "z": 12.0,
+      "distance_to_vs": 8.5
+    },
+    {
+      "id": 267,
+      "name": "Putamen Left",
+      "x": -24.0,
+      "y": 8.0,
+      "z": 10.0,
+      "distance_to_vs": 9.2
+    }
+  ],
+  "excluded_node_ids": [264, 265, 266, 267],
+  "total_excluded": 4
+}

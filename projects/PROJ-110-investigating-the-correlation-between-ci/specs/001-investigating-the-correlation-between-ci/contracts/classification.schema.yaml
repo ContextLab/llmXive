@@ -1,0 +1,21 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metabolic Status Classification Schema"
+type: object
+properties:
+  donor_id:
+    type: string
+    description: "Corresponds to donor_id in dataset."
+  label:
+    type: string
+    enum: ["MetS", "Control", "Unlabeled"]
+    description: "Binary MetS classification; 'Unlabeled' when phenotype missing."
+  criteria_met:
+    type: integer
+    minimum: 0
+    maximum: 5
+    description: "Number of ATP‑III criteria satisfied."
+required:
+  - donor_id
+  - label
+  - criteria_met
+additionalProperties: false

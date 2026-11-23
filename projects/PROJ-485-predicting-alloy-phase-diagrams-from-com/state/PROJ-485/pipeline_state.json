@@ -1,0 +1,12 @@
+{
+  "steps": {
+    "provenance": {
+      "status": "failed",
+      "timestamp": "2026-10-09T19:22:53.410454",
+      "details": {
+        "error": "run_provenance() missing 1 required positional argument: 'state_file'"
+      }
+    }
+  },
+  "artifacts": {}
+}

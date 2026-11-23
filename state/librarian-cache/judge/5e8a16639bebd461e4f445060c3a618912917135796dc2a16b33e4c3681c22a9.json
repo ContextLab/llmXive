@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2205.04556",
+  "judged_at": "2026-07-28T16:22:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "developing novel solutions to address energy inequity in low-income communities energy",
+  "rationale": "This paper satisfies criterion (b) by measuring the dependent variable (transit use/energy consumption patterns) and independent variable (income level) within the user's specified domain (low-income communities), providing essential empirical evidence on how infrastructure investments affect mobility and resource access in the target population. Additionally, it aligns with criterion (e) as a canonical study of the specific empirical population (low-income, car-owning households in urban settin",
+  "relevant": true
+}

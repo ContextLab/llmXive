@@ -1,0 +1,6 @@
+T021:
+  c: false
+  h: 31ae8887cd82ce57ece70dc1a2e4bfa56d5a1ef73a2efb6bcae62f6f5e846d3d
+  r: The required artifact `tests/unit/test_resampling.py` does not exist in the repository,
+    so the unit test for singularity detection cannot be verified. The missing file
+    must be added with the specified test case.

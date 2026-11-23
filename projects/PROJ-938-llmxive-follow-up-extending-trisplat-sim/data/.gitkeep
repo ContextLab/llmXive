@@ -1,0 +1,5 @@
+# Placeholder for data directory
+# This directory will contain:
+# - raw/ : Downloaded dataset shards
+# - processed/ : Generated meshes, metrics, and reports
+# - figures/ : Visualization outputs

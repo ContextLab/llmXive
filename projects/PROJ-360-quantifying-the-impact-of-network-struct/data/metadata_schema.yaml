@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Metadata schema for Materials Project CIF downloads"
+description: |
+  This schema defines the structure of the `data/metadata.yaml` file that records
+  provenance information for each material processed in the pipeline. It captures
+  download timestamps, material identifiers, and SHA‑256 checksums for both the
+  raw CIF files and the derived network graph artifacts.
+type: object
+required:
+  - project_id
+  - schema_version
+  - created_at
+  - materials
+properties:
+  project_id:
+    type: string
+    description: Identifier for the overall research project.
+  schema_version:
+    type: string
+    description: Version of this metadata schema.
+  created_at:
+    type: string
+    format: date-time
+    description: ISO‑8601 timestamp of when the metadata file was first created.
+  materials:
+    type: array
+    description: List of material snapshots.
+    items:
+      type: object
+      required:
+        - material_id
+        - cif_path
+        - network_path
+        - snapshot_timestamp
+        - status
+        - cif_checksum
+        - graph_checksum
+      properties:
+        material_id:
+          type: string
+          description: Unique identifier from Materials Project (e.g., MP-123456).
+        cif_path:
+          type: string
+          description: Relative path to the raw CIF file under `data/raw/cif/`.
+        network_path:
+          type: string
+          description: Relative path to the processed network pickle under `data/processed/networks/`.
+        snapshot_timestamp:
+          type: string
+          format: date-time
+          description: ISO‑8601 timestamp when this material snapshot was recorded.
+        status:
+          type: string
+          enum: [raw, processed, failed, skipped]
+          description: Processing status of the material.
+        thermal_conductivity:
+          type: [number, "null"]
+          description: Scalar thermal conductivity (W/m·K) if available.
+        notes:
+          type: [string, "null"]
+          description: Optional free‑form notes about processing anomalies.
+        cif_checksum:
+          type: string
+          pattern: "^[a-fA-F0-9]{64}$"
+          description: SHA‑256 checksum of the downloaded CIF file.
+        graph_checksum:
+          type: [string, "null"]
+          pattern: "^[a-fA-F0-9]{64}$"
+          description: SHA‑256 checksum of the serialized network graph pickle. May be null if graph generation failed.

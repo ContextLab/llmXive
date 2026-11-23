@@ -1,0 +1,44 @@
+# Schema definition for data/exclusions.csv
+# This file documents the structure and constraints for the dataset exclusions log.
+# The CSV file must be comma-delimited with string types for all columns.
+
+file: data/exclusions.csv
+format: csv
+delimiter: ","
+
+columns:
+  - name: dataset_id
+    type: string
+    description: Unique identifier for the excluded dataset
+    required: true
+    constraints:
+      - non_empty: true
+      - pattern: "^[a-zA-Z0-9_-]+$"
+    
+  - name: reason
+    type: string
+    description: The primary reason for exclusion (e.g., 'missing_rate', 'sample_size', 'normality')
+    required: true
+    constraints:
+      - non_empty: true
+      - allowed_values:
+          - "missing_rate"
+          - "sample_size"
+          - "normality"
+          - "source_verification"
+          - "download_failure"
+          - "format_error"
+          - "other"
+    
+  - name: details
+    type: string
+    description: Additional details explaining the exclusion (e.g., "missing_rate: 12.5")
+    required: true
+    constraints:
+      - non_empty: true
+
+header_row: dataset_id,reason,details
+notes: |
+  All columns are stored as strings in the CSV file.
+  The 'details' column should contain human-readable explanations,
+  often including the specific values that triggered the exclusion.

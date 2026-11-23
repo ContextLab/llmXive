@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.07415",
+  "judged_at": "2026-08-01T04:26:08Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting plant stress response from publicly available transcriptomic data biology",
+  "rationale": "The paper focuses on predicting psychological stress in humans using survey data, which is a distinct construct and domain from the user's question regarding plant stress response and transcriptomic data. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (the word \"stress\" refers to a biological/physiological state in plants versus a psychological state in humans) and is \"Off-domain entirely\" (human psychology vs. plant biology).",
+  "relevant": false
+}

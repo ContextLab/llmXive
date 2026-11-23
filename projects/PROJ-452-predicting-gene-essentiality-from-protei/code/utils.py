@@ -1,167 +1,178 @@
-"""
-Utility functions for the gene essentiality pipeline.
-
-Provides:
-- Logging setup
-- SHA256 checksumming
-- Exponential backoff helpers for API retries
-"""
 import hashlib
 import logging
 import time
+import random
+import os
 from functools import wraps
-from pathlib import Path
-from typing import Any, Callable, List, Optional, TypeVar, Union
+from typing import Callable, Any, Optional
 
-# Type alias for the backoff function
-T = TypeVar('T')
+# Standard library imports only
+import sys
+import numpy as np
 
-def setup_logging(
-    level: int = logging.INFO,
-    log_file: Optional[Union[str, Path]] = None,
-    format_str: Optional[str] = None
-) -> logging.Logger:
+def setup_logging(log_file: Optional[str] = None, level: int = logging.INFO) -> logging.Logger:
     """
-    Configure the root logger for the pipeline.
+    Sets up logging configuration.
     
     Args:
-        level: Logging level (e.g., logging.INFO, logging.DEBUG).
-        log_file: Optional path to a log file. If None, only logs to console.
-        format_str: Optional custom format string. Defaults to a standard 
-                    pipeline format including timestamp, level, and message.
-                    
+        log_file: Optional path to a log file. If provided, logs are written to both console and file.
+        level: Logging level (default: INFO).
+    
     Returns:
-        The root logger instance.
+        Configured logger instance.
     """
-    if format_str is None:
-        format_str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    logger = logging.getLogger('root')
+    logger.setLevel(level)
     
-    root_logger = logging.getLogger()
-    root_logger.setLevel(level)
-    
-    # Clear existing handlers to avoid duplicates on re-calls
-    if root_logger.handlers:
-        root_logger.handlers.clear()
+    # Formatter
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
     
     # Console handler
-    console_handler = logging.StreamHandler()
+    console_handler = logging.StreamHandler(sys.stdout)
     console_handler.setLevel(level)
-    console_handler.setFormatter(logging.Formatter(format_str))
-    root_logger.addHandler(console_handler)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
     
-    # File handler (optional)
+    # File handler (if specified)
     if log_file:
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        file_handler = logging.FileHandler(log_path)
+        file_handler = logging.FileHandler(log_file)
         file_handler.setLevel(level)
-        file_handler.setFormatter(logging.Formatter(format_str))
-        root_logger.addHandler(file_handler)
+        file_handler.setFormatter(formatter)
+        logger.addHandler(file_handler)
     
-    return root_logger
+    return logger
 
-
-def compute_sha256(file_path: Union[str, Path], chunk_size: int = 8192) -> str:
+def compute_sha256(file_path: str) -> str:
     """
-    Compute the SHA256 hash of a file's contents.
+    Computes the SHA256 hash of a file.
     
     Args:
-        file_path: Path to the file to hash.
-        chunk_size: Size of chunks to read at a time (default 8KB).
-                    
+        file_path: Path to the file.
+    
     Returns:
         Hexadecimal string of the SHA256 hash.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        IOError: If the file cannot be read.
     """
-    path = Path(file_path)
-    if not path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    
     sha256_hash = hashlib.sha256()
-    with open(path, "rb") as f:
-        for chunk in iter(lambda: f.read(chunk_size), b""):
+    with open(file_path, "rb") as f:
+        # Read in chunks to handle large files
+        for chunk in iter(lambda: f.read(4096), b""):
             sha256_hash.update(chunk)
-    
     return sha256_hash.hexdigest()
 
-
-def exponential_backoff(
-    max_retries: int = 5,
-    base_delay: float = 1.0,
-    max_delay: float = 60.0,
-    exceptions: tuple = (Exception,)
-) -> Callable[[Callable[..., T]], Callable[..., T]]:
+def exponential_backoff(retries: int = 3, base_delay: float = 1.0, max_delay: float = 60.0):
     """
-    Decorator to retry a function with exponential backoff on specified exceptions.
+    Decorator for retrying a function with exponential backoff.
     
     Args:
-        max_retries: Maximum number of retry attempts.
-        base_delay: Initial delay in seconds between retries.
-        max_delay: Maximum delay cap in seconds.
-        exceptions: Tuple of exception types to catch and retry on.
-                    
+        retries: Maximum number of attempts.
+        base_delay: Initial delay in seconds.
+        max_delay: Maximum delay in seconds.
+    
     Returns:
-        A decorator function.
+        Decorated function.
     """
-    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+    def decorator(func: Callable) -> Callable:
         @wraps(func)
-        def wrapper(*args: Any, **kwargs: Any) -> T:
+        def wrapper(*args, **kwargs):
             delay = base_delay
-            last_exception: Optional[Exception] = None
-            
-            for attempt in range(max_retries + 1):
+            for attempt in range(retries):
                 try:
                     return func(*args, **kwargs)
-                except exceptions as e:
-                    last_exception = e
-                    if attempt == max_retries:
-                        logging.getLogger(func.__module__).error(
-                            f"Function {func.__name__} failed after {max_retries} retries: {e}"
-                        )
-                        raise
-                    
-                    logger = logging.getLogger(func.__module__)
-                    logger.warning(
-                        f"Attempt {attempt + 1}/{max_retries} failed for {func.__name__}: {e}. "
-                        f"Retrying in {delay:.2f}s..."
-                    )
+                except Exception as e:
+                    if attempt == retries - 1:
+                        raise e
+                    logging.warning(f"Attempt {attempt + 1} failed: {e}. Retrying in {delay:.2f}s...")
                     time.sleep(delay)
                     delay = min(delay * 2, max_delay)
-            
-            # Should not be reached, but required for type checking
-            raise last_exception # type: ignore
         return wrapper
     return decorator
 
-
-def safe_join(*paths: Union[str, Path]) -> Path:
+def safe_join(base: str, *paths: str) -> str:
     """
-    Safely join path components, ensuring the result is a Path object.
+    Safely joins paths, preventing directory traversal attacks.
     
     Args:
-        *paths: Path components to join.
-        
+        base: Base directory path.
+        *paths: Relative path components.
+    
     Returns:
-        A unified Path object.
+        Safe joined path.
+    
+    Raises:
+        ValueError: If the resulting path is outside the base directory.
     """
-    return Path(*paths)
+    full_path = os.path.join(base, *paths)
+    real_base = os.path.realpath(base)
+    real_path = os.path.realpath(full_path)
+    
+    if not real_path.startswith(real_base + os.sep) and real_path != real_base:
+        raise ValueError(f"Path '{full_path}' is outside base directory '{base}'")
+    return full_path
 
-
-def format_size(size_bytes: int) -> str:
+def format_size(num: float) -> str:
     """
-    Format a byte size into a human-readable string (KB, MB, GB).
+    Formats a number of bytes into a human-readable string.
     
     Args:
-        size_bytes: Size in bytes.
-        
+        num: Number of bytes.
+    
     Returns:
-        Formatted string (e.g., "1.5 MB").
+        Human-readable size string (e.g., "1.5 MB").
     """
     for unit in ['B', 'KB', 'MB', 'GB', 'TB']:
-        if size_bytes < 1024.0:
-            return f"{size_bytes:.2f} {unit}"
-        size_bytes /= 1024.0
-    return f"{size_bytes:.2f} PB"
+        if num < 1024.0:
+            return f"{num:.2f} {unit}"
+        num /= 1024.0
+    return f"{num:.2f} PB"
+
+def set_deterministic_seed(seed: int = 42) -> None:
+    """
+    Sets deterministic random seeds for reproducibility.
+    
+    This function sets the seed for:
+    - Python's built-in random module
+    - NumPy's random module
+    - PYTHONHASHSEED environment variable (for hash randomization)
+    
+    Args:
+        seed: Integer seed value (default: 42).
+    """
+    logging.info(f"Setting deterministic random seed to {seed} for reproducibility")
+    
+    # Set Python random seed
+    random.seed(seed)
+    
+    # Set NumPy random seed
+    np.random.seed(seed)
+    
+    # Set PYTHONHASHSEED environment variable
+    # Note: This must be set before Python starts for full effect, but setting it here
+    # ensures it is available for any subprocesses spawned later
+    os.environ['PYTHONHASHSEED'] = str(seed)
+
+def get_deterministic_seed() -> Optional[int]:
+    """
+    Retrieves the current deterministic seed from environment or defaults.
+    
+    Returns:
+        The seed integer if set, None otherwise.
+    """
+    hash_seed = os.environ.get('PYTHONHASHSEED')
+    if hash_seed:
+        try:
+            return int(hash_seed)
+        except ValueError:
+            return None
+    return None
+
+def reset_random_state() -> None:
+    """
+    Resets the random state to a known default (seed=42).
+    
+    Useful for ensuring consistent behavior after tests or partial runs.
+    """
+    set_deterministic_seed(42)
+    logging.info("Random state reset to default seed (42)")

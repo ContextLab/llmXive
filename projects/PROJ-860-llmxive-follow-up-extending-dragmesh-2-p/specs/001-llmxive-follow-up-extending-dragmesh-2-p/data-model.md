@@ -1,72 +1,56 @@
-# Data Model: llmXive Follow-up: Virtual Tactile Zero-Shot Adaptation
+# Data Model: Virtual Tactile Zero-Shot Adaptation
 
 ## Overview
+All artifacts reside under `data/`. No external databases are used. Files are immutable; derived files receive new filenames and checksums.
 
-This document defines the data structures used for the Virtual Tactile Estimator, the Adaptive Reward Scheduler, and the simulation results. The data model supports the CPU-only, zero-shot adaptation workflow.
+## Schemas
 
-## Entities
+### 1. Novel Object Manifest (`data/generated/novel_objects/<object_id>.json`)
+| Field | Type | Constraints |
+|---|---|---|
+| `object_id` | string | UUID, unique |
+| `base_mesh_source` | string | Path to original DragMesh‑2 mesh |
+| `friction_coefficient` | number | ≥ 0.0, ≤ 2.0 |
+| `object_mass` | number | ≥ 0.1, ≤ 5.0 (kg) |
+| `geometry_params` | object | `{ "scale": number, "rotation": [number, number, number], "articulation_links": [{…}] }` |
+| `created_at` | string | ISO 8601 timestamp |
 
-### 1. `SimulationStep`
-Represents a single timestep in the physics simulation.
-- **Purpose**: Captures the raw inputs required for the stiffness estimator.
-- **Fields**:
-  - `timestep_id`: `int` (Unique ID for the step).
-  - `hand_joint_torques`: `List[float]` (Torque values for all hand joints).
-  - `object_velocity`: `float` (Scalar magnitude of object linear velocity).
-  - `object_position`: `List[float]` (x, y, z).
-  - `object_mass`: `float` (Mass of the object, used for normalization).
-  - `friction_coeff`: `float` (Ground truth friction for the current object).
-  - `success`: `bool` (Whether the goal was reached at this step).
+### 2. Simulation Run Log (`data/logs/simulation_run_<run_id>.csv`)
+One row per timestep (raw signals). The estimator populates `k_est` later.
 
-### 2. `StiffnessEstimate`
-The output of the `VirtualTactileEstimator`.
-- **Purpose**: The computed proxy $k_{est}$.
-- **Fields**:
-  - `timestep_id`: `int`
-  - `k_est`: `float` (The computed stiffness proxy, clamped to [0.01, 100.0]).
-  - `delta_tau_hand`: `float` (Filtered torque derivative).
-  - `delta_v_object`: `float` (Velocity derivative).
-  - `is_stiction`: `bool` (True if $|\Delta v| < \epsilon$).
-  - `mass_normalized`: `bool` (True if mass normalization was applied).
+| Column | Type | Description |
+|---|---|---|
+| `timestep` | int | Simulation step index |
+| `policy_type` | string | `static`, `adaptive`, or `ablation_random` |
+| `object_id` | string | Links to Novel Object Manifest |
+| `torque_hand` | float | Norm of hand joint torque vector (RAW) |
+| `velocity_object` | float | Norm of object velocity vector (RAW) |
+| `normal_force` | float | Estimated normal contact force `N` |
+| `k_est` | float | Dynamic Resistance Proxy (filled by estimator) |
+| `reward_detach` | float | Current detachment reward weight |
+| `reward_contact` | float | Current contact reward weight |
+| `is_success` | int | 1 if goal reached (final row only), else 0 |
 
-### 3. `RewardConfig`
-The dynamic reward weights for the PICA policy.
-- **Purpose**: The output of the `AdaptiveRewardScheduler`.
-- **Fields**:
-  - `r_detach`: `float` (Detachment penalty weight).
-  - `r_contact`: `float` (Contact maintenance weight).
-  - `r_goal`: `float` (Goal achievement weight, constant).
-  - `adjustment_factor`: `float` (The multiplier applied based on $k_{est}$ via sigmoid).
-  - `transition_smoothness`: `float` (The $\alpha$ parameter used in the sigmoid).
+**Data Flow Guarantee**: `torque_hand` and `velocity_object` are logged *without* derivatives; `k_est` is computed exclusively by `virtual_tactile.py`.
 
-### 4. `ExperimentResult`
-Aggregated results for a single object evaluation.
-- **Purpose**: Stores the outcome of the zero-shot test.
-- **Fields**:
-  - `object_id`: `str` (Unique ID for the novel object).
-  - `friction_coeff`: `float` (Ground truth friction).
-  - `policy_type`: `str` ("static" or "adaptive").
-  - `mean_success_rate`: `float` (Average success rate across 50 trials).
-  - `std_success_rate`: `float` (Standard deviation across 50 trials).
-  - `avg_k_est`: `float` (Average stiffness estimate during successful runs).
-  - `total_trials`: `int` (Number of trials executed, e.g., 50).
+### 3. Experiment Summary (`data/logs/experiment_summary.json`)
+| Field | Type | Description |
+|---|---|---|
+| `experiment_id` | string | UUID |
+| `total_objects` | int | Number of novel objects (should be a sufficient quantity to ensure adequate diversity) |
+| `adaptive_success_rate` | number | Mean success (0‑1) |
+| `static_success_rate` | number | Mean success (0‑1) |
+| `ablation_success_rate` | number | Mean success (0‑1) |
+| `improvement_pct` | number | `(adaptive - static) * 100` |
+| `p_value` | number | GLMM fixed‑effect p‑value |
+| `correlation_r` | number | Pearson r from validation experiment |
+| `conclusion` | string | `"PASS"` if all SCs met, else `"FAIL"` |
+| `timestamp` | string | ISO 8601 |
 
-## Data Flow
+## Constraints & Validations
+- **Friction Coefficient**: Must be > 0.0 and ≤ 2.0.  
+- **k_est**: Finite, positive, within `[1e‑4, 10]`.  
+- **Success Rate**: 0 ≤ rate ≤ 1.  
+- **File Integrity**: SHA‑256 checksum recorded in `state/...yaml`.  
 
-1.  **Generation**: `generator.py` creates 30 objects, saving metadata to `data/generated/object_manifest.jsonl`.
-2.  **Simulation Loop**:
-    - Load object -> Initialize PyBullet.
-    - For each of multiple trials:
-      - Read `hand_joint_torques`, `object_velocity`, `object_mass`.
-      - Compute `StiffnessEstimate` (apply filter, epsilon, clamp, mass normalization).
-      - Compute `RewardConfig` based on `StiffnessEstimate` (sigmoid transition).
-      - Execute policy step.
-    - Record `ExperimentResult` (aggregated over 50 trials).
-3.  **Analysis**: `analysis.py` aggregates `ExperimentResult` files and performs the paired t-test.
-
-## Storage Format
-
-- **Raw Data**: `data/raw/dragmesh_manifest.jsonl` (Downloaded from HuggingFace).
-- **Generated Objects**: `data/generated/object_{id}.json` (Geometry + friction params + mass).
-- **Logs**: `data/logs/{object_id}_{policy_type}.jsonl` (Per-step `SimulationStep` and `StiffnessEstimate`).
-- **Results**: `data/results/experiment_summary.csv` (Aggregated `ExperimentResult`).
+---

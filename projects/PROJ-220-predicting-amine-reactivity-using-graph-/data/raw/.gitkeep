@@ -1,0 +1,2 @@
+# This directory stores raw data downloaded from external sources (ChEMBL, PubChem)
+# Do not commit large binary files here.

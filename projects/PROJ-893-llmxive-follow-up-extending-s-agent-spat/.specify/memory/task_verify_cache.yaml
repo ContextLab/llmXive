@@ -1,0 +1,110 @@
+T000:
+  c: true
+  h: 1cb0944f18444562313dfdd467152e4145003a9a06d4350c598e927946c996db
+  r: The artifact `research.md` exists (5,104 bytes) at the canonical location `specs/001-llmxive-follow-up-extending-s-agent-spat/research.md`
+    (the requested `specs/001-symbolic-spatial-reasoning/` path resolves to this same
+    file per the collector's mapping). Its content genuinely defines the research
+    question, a detailed methodology (sampling, pipeline stages, verification constraints),
+    and a "Verified Datasets" block with canonical HuggingFace IDs/URLs and honest
+    access status, matching all of T000's stated content requirements.
+  sig: e8ad1c09a5deee598aa2a955fadf271ab55d59512eaeaf29c326cbac4638d87a
+T001a:
+  c: true
+  h: 1975fd8797e3dadf6970babcea5fb4322d2d4e9c6d7e3afc0ad58cd150e97f19
+  r: The task T001a only requires creating the `code/` directory, and the collector
+    confirms `code/` exists with 13 non-empty entries (main.py, solver/, benchmark/,
+    config.py, etc.). The directory exists and is populated, satisfying the stated
+    requirement.
+  sig: 74c349ea084113d904f52fb16ebc5c38004fa399339cf78f50deceaa5f24dc8c
+T001c:
+  c: true
+  h: 809c92873262451614b8bad136d18083dd248fcb00d6c2d43d9e039469359b0e
+  r: The task T001c only required creating the `data/derived/` directory, and the
+    collector confirms it exists with two non-empty entries (`constraints.jsonl`,
+    `ground_truth.csv`). The directory creation requirement is satisfied; the other
+    artifacts shown belong to later tasks and are not judged here.
+  sig: 6d8bb64c2cfc28e0d61c47e9e96c6c87ac911cfdc18ea321398860e4cdc8f0b0
+T001d:
+  c: true
+  h: 3c07699ae678363d978f472458de53d507f88368f560de102c7754610b2de77b
+  r: The task T001d only requires creating the `data/results/` directory, and the
+    collector confirms it exists at the resolved project path with two non-empty entries
+    (`benchmark_results.csv`, `exclusion_log.json`). The directory requirement is
+    satisfied; the contents' scientific validity is for later tasks to judge.
+  sig: 96b4eacd022f080bbf8c0ce926315c6dc193e679a3234307335c39c62e03706c
+T001e:
+  c: true
+  h: c5c067879532f58862640d00ca73f6e6d72450a81dc021df2716adeb6bf2a83f
+  r: The task T001e only required creating the `specs/001-symbolic-spatial-reasoning/contracts/`
+    directory, and the collector confirms it exists with 5 non-empty schema files
+    (benchmark_result, constraints, dataset, latency_log, solver_output schemas),
+    which matches the expected contract artifacts for this feature.
+  sig: 84f4fa05f121016f10b66160b5107c90d18292353f34629da21fe27beb1bb0e4
+T001f:
+  c: true
+  h: c19c6a1a401abde5f8e20cc15980fa046253fba59f81041761a1a54bee40e8f1
+  r: The task T001f only requires creating a `tests/` directory, and the collector
+    confirms it exists with 7 non-empty entries (test_hygiene.py, test_project_structure.py,
+    test_setup_structure.py, plus unit/, integration/, validate/, data/ subdirectories).
+    The directory is present and populated; no further content requirements apply
+    to this task.
+  sig: c0f89e36c7986a26f713b3b578e054feb28059790b589e54c0276ec3dc27d97c
+T004:
+  c: false
+  h: d141df1467d7417e045bf293ece2790bdd5adff15b4e68ec4b3ac0aa34c71a71
+  r: The `code/hygiene.py` file is truncated (e.g., `load_state_yaml` ends with a
+    typo and the script never writes the computed hashes back to the YAML), and the
+    required state file `state/projects/PROJ-893-llmxive-follow-up-extending-s-agent-spat.yaml`
+    does not exist at all. Both the implementation and the target artifact are missing/incomplete.
+T006c:
+  c: false
+  h: cdc67d1b0eb6afefd9c6d92fa78ec8dc0454a5f4a88f4a04d62d6cb3bcf4d45d
+  r: "The repository contains a partially\u2011written `load_vlm_baseline.py` (truncated\
+    \ and never writes `vlm_baseline.csv`). Moreover, the required input `data/raw/sampled_scenes.jsonl`\
+    \ and the expected output `data/derived/vlm_baseline.csv` are absent. Consequently\
+    \ the task\u2019s specifications are not met."
+T013:
+  c: false
+  h: 3b509115da89861d6fd898b85f1dba79dcb325d310fb55f834d32cb967c6fa31
+  r: The required input `data/derived/solver_failures.json` is absent, so `merge_exclusions.py`
+    cannot perform the merge as specified. Consequently the script cannot be executed
+    to produce the categorized exclusion log, and the implementation is incomplete.
+T017:
+  c: false
+  h: 80a045704744e700c589115bf8f86a39d55eaa7257964fa04dd207b64a6edef8
+  r: "The repository lacks the required input CSV (`data/results/benchmark_results_base.csv`)\
+    \ and the produced output file (`data/results/p_values.jsonl`). Moreover, the\
+    \ `compute_mcnemar_test` function in `code/benchmark/metrics.py` is truncated\
+    \ and does not contain the logic to build the contingency table, compute the p\u2011\
+    value, append it to each row, or write the JSONL file. These essential artifacts\
+    \ and functionality are missing."
+T021:
+  c: false
+  h: d53224998bc09381189d881406b873bc52c66f69a06686852215d98030fc1a3b
+  r: "The script does not join `benchmark_results.csv` with `solver_failures.json`\
+    \ nor abort on mismatched scene IDs, and it never creates the required `data/derived/failure_classification.json`\
+    \ file. Consequently the required output and strict error\u2011handling behavior\
+    \ are missing."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No execution logs, output JSON files, benchmark tables, or any other artifacts\
+    \ were provided to demonstrate that the full pipeline was run end\u2011to\u2011\
+    end and that all acceptance scenarios in `spec.md` were satisfied. The claim lacks\
+    \ concrete evidence such as solver run results, latency measurements, or statistical\
+    \ test outputs."
+T027:
+  c: false
+  h: 6ce4ebd44dbe1952e8d46acad91bdb709c7f8c4f6e69e071ae9c9b02bb81f244
+  r: The `vlm_audit.py` script exists but the required input file `data/raw/sampled_scenes.jsonl`
+    is missing, causing the audit to fail at runtime, and the expected output `data/results/vlm_trace_audit.json`
+    was not generated. Without these files the script cannot produce the required
+    pass/fail JSON, so the task is not genuinely completed.
+T030:
+  c: false
+  h: 896f61a936852c1c04bd58d5647cd93c5c3b59ce0528028dd1f2a596e82ffa87
+  r: "The repository contains a partially\u2011implemented `code/benchmark/sensitivity.py`\
+    \ (the file ends abruptly and never defines the sweep loop or CSV writing), and\
+    \ the required output file `data/results/sensitivity_analysis.csv` does not exist.\
+    \ Consequently the task\u2019s core deliverable\u2014a CSV with rows for thresholds\
+    \ 0.50\u20110.95 and the specified columns\u2014is missing."

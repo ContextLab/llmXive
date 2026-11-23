@@ -6,6 +6,7 @@ schema defined in contracts/aligned_event.schema.yaml.
 """
 import os
 import json
+import copy
 import tempfile
 from pathlib import Path
 
@@ -56,7 +57,7 @@ def schema():
 @pytest.fixture
 def valid_data():
     """Return the valid mock fixture data."""
-    return VALID_ALIGNED_EVENT_FIXTURE
+    return copy.deepcopy(VALID_ALIGNED_EVENT_FIXTURE)
 
 def test_aligned_event_schema_valid(schema, valid_data):
     """
@@ -72,20 +73,15 @@ def test_aligned_event_schema_valid(schema, valid_data):
     except SchemaError as e:
         pytest.fail(f"Schema itself is invalid: {e.message}")
 
-def test_aligned_event_schema_invalid_type(schema):
+def test_aligned_event_schema_invalid_type(schema, valid_data):
     """
     Contract test: Verify that invalid data (wrong types) fails validation.
     
     This ensures the schema actually rejects incorrect data types.
     """
-    invalid_data = valid_data_copy(schema, valid_data)
+    invalid_data = copy.deepcopy(valid_data)
     # Introduce a type error: make a numeric field a string
     invalid_data["dst_min"] = "not_a_number"
     
     with pytest.raises(ValidationError):
         validate(instance=invalid_data, schema=schema)
-
-def valid_data_copy(schema, original):
-    """Helper to create a deep copy of the fixture data."""
-    import copy
-    return copy.deepcopy(original)

@@ -1,231 +1,323 @@
 import json
-import os
 import logging
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Tuple, Union
 
-# Adjust import based on project structure provided in API surface
-# The API surface shows: from ..config import ...
-# Assuming this file is at code/src/data/quality_check.py
-try:
-    from ..config import FD_THRESHOLD, HIGH_MOTION_PERCENTAGE_THRESHOLD, MIN_SAMPLE_SIZE, DATA_DIR
-except ImportError:
-    # Fallback for direct execution or different import context
-    import sys
-    sys.path.insert(0, str(Path(__file__).parent.parent))
-    from config import FD_THRESHOLD, HIGH_MOTION_PERCENTAGE_THRESHOLD, MIN_SAMPLE_SIZE, DATA_DIR
+import numpy as np
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# Import config for thresholds and paths
+import src.config as config
+
 logger = logging.getLogger(__name__)
 
+# Constants derived from config
+FD_THRESHOLD_MM = config.FD_THRESHOLD
+MAX_HIGH_MOTION_PCT = config.HIGH_MOTION_PERCENTAGE_THRESHOLD
+MIN_SAMPLE_SIZE = config.MIN_SAMPLE_SIZE
+
 def load_motion_json(json_path: Path) -> Dict[str, Any]:
-    """Load motion parameters from a JSON sidecar file."""
+    """
+    Load a motion JSON sidecar file.
+
+    Args:
+        json_path: Path to the JSON file.
+
+    Returns:
+        Dictionary containing motion parameters.
+
+    Raises:
+        FileNotFoundError: If the JSON file does not exist.
+        json.JSONDecodeError: If the file is not valid JSON.
+    """
     if not json_path.exists():
         raise FileNotFoundError(f"Motion JSON file not found: {json_path}")
-    
+
     with open(json_path, 'r') as f:
         return json.load(f)
 
-def calculate_fd(motion_params: List[float]) -> float:
+
+def calculate_fd(motion_params: Union[Dict[str, Any], Path]) -> List[float]:
     """
     Calculate Framewise Displacement (FD) from motion parameters.
-    Motion params: [trans_x, trans_y, trans_z, rot_x, rot_y, rot_z]
-    FD = |dx| + |dy| + |dz| + |drot_x| + |drot_y| + |drot_z|
-    Note: Rotations are in radians. For small angles, 1 rad ≈ 57.3 deg.
-    Standard FD (Power et al., 2012) converts rotation to mm using radius ~50mm.
-    FD = |dx| + |dy| + |dz| + 50 * (|drot_x| + |drot_y| + |drot_z|)
-    """
-    if len(motion_params) != 6:
-        raise ValueError(f"Expected 6 motion parameters, got {len(motion_params)}")
-    
-    # Calculate differences between consecutive volumes
-    diffs = [abs(motion_params[i] - motion_params[i-1]) for i in range(1, len(motion_params))]
-    
-    # Translational differences (indices 0, 1, 2)
-    trans_diffs = diffs[:3]
-    
-    # Rotational differences (indices 3, 4, 5) converted to mm (radius ~50mm)
-    rot_diffs = [d * 50.0 for d in diffs[3:]]
-    
-    return sum(trans_diffs) + sum(rot_diffs)
 
-def compute_subject_fd(json_path: Path) -> Tuple[float, int, int]:
+    This function accepts either a dictionary of motion parameters
+    or a Path to a JSON side‑car file. If a Path is supplied, the JSON
+    is loaded automatically.
+
+    FD is calculated as the sum of absolute differences of motion
+    parameters across consecutive timepoints (Power et al. method).
+
+    Args:
+        motion_params: Either a dict containing 'trans_x', 'trans_y',
+                       'trans_z', 'rot_x', 'rot_y', 'rot_z' lists,
+                       or a Path to a JSON file with those keys.
+
+    Returns:
+        List of FD values for each timepoint (length = N‑1).
     """
-    Compute FD for a subject's time series.
-    Returns: (mean_fd, n_high_motion_volumes, n_total_volumes)
+    if isinstance(motion_params, Path):
+        motion_params = load_motion_json(motion_params)
+
+    required_keys = ['trans_x', 'trans_y', 'trans_z',
+                     'rot_x', 'rot_y', 'rot_z']
+    if not all(key in motion_params for key in required_keys):
+        raise ValueError("Motion parameters missing required keys.")
+
+    trans_x = np.array(motion_params['trans_x'])
+    trans_y = np.array(motion_params['trans_y'])
+    trans_z = np.array(motion_params['trans_z'])
+    rot_x = np.array(motion_params['rot_x'])
+    rot_y = np.array(motion_params['rot_y'])
+    rot_z = np.array(motion_params['rot_z'])
+
+    # Convert rotation to mm assuming a 50 mm head radius
+    rot_radius = 50.0
+
+    diff_trans = (np.abs(np.diff(trans_x)) +
+                  np.abs(np.diff(trans_y)) +
+                  np.abs(np.diff(trans_z)))
+    diff_rot = (np.abs(np.diff(rot_x)) * rot_radius +
+                np.abs(np.diff(rot_y)) * rot_radius +
+                np.abs(np.diff(rot_z)) * rot_radius)
+
+    fd = diff_trans + diff_rot
+    # Insert a leading 0 so the FD list length matches the number of volumes
+    fd_list = [0.0] + fd.tolist()
+    return fd_list
+
+
+def compute_subject_fd(
+    subject_motion_jsons: Union[List[Path], Path],
+    threshold: float | None = None
+) -> Tuple[Any, int]:
     """
-    data = load_motion_json(json_path)
-    
-    # Handle different BIDS structures for motion parameters
-    # Look for 'repetitions' or 'volumes' or similar keys
-    if 'repetitions' in data:
-        motion_data = data['repetitions']
-    elif 'volumes' in data:
-        motion_data = data['volumes']
-    elif 'bold' in data and 'repetitions' in data['bold']:
-        motion_data = data['bold']['repetitions']
+    Compute FD statistics for a subject.
+
+    If ``threshold`` is ``None`` (default), the function returns a tuple
+    ``(fd_values, total_volumes)`` where ``fd_values`` is a list of all
+    FD values across the subject's runs.
+
+    If a numeric ``threshold`` is supplied, the function returns
+    ``(high_motion_count, total_volumes)`` where ``high_motion_count`` is
+    the number of volumes whose FD exceeds the threshold.
+
+    Args:
+        subject_motion_jsons: A list of Paths to motion JSON files for the
+                             subject, or a single Path.
+        threshold: Optional FD threshold (in mm) for counting high‑motion
+                   volumes.
+
+    Returns:
+        Tuple containing either (fd list, total volumes) or
+        (high‑motion count, total volumes) depending on ``threshold``.
+    """
+    if isinstance(subject_motion_jsons, Path):
+        json_paths = [subject_motion_jsons]
     else:
-        # Try to find any key that looks like motion data (list of lists)
-        for key, value in data.items():
-            if isinstance(value, list) and len(value) > 0 and isinstance(value[0], list):
-                motion_data = value
-                break
+        json_paths = subject_motion_jsons
+
+    all_fd: List[float] = []
+    total_volumes = 0
+
+    for json_path in json_paths:
+        motion_data = load_motion_json(json_path)
+        fd_values = calculate_fd(motion_data)
+        all_fd.extend(fd_values)
+
+        # Determine number of volumes for this run
+        if 'total_volume_count' in motion_data:
+            total_volumes += int(motion_data['total_volume_count'])
         else:
-            raise ValueError(f"Could not find motion data in {json_path}. Keys: {list(data.keys())}")
-    
-    n_total_volumes = len(motion_data)
-    if n_total_volumes == 0:
-        return 0.0, 0, 0
-    
-    fd_values = []
-    for i in range(1, n_total_volumes):
+            # Infer from one of the motion parameter arrays
+            for key in ['trans_x', 'trans_y', 'trans_z',
+                        'rot_x', 'rot_y', 'rot_z']:
+                if key in motion_data and isinstance(motion_data[key], list):
+                    total_volumes += len(motion_data[key])
+                    break
+
+    if threshold is not None:
+        high_motion_count = sum(1 for fd in all_fd if fd > threshold)
+        return high_motion_count, total_volumes
+
+    return all_fd, total_volumes
+
+
+def find_motion_jsons(data_root: Path) -> Dict[str, List[Path]]:
+    """
+    Find all motion JSON files organized by subject.
+
+    Args:
+        data_root: Root directory of the BIDS dataset.
+
+    Returns:
+        Dictionary mapping subject IDs to lists of motion JSON paths.
+    """
+    subject_map: Dict[str, List[Path]] = {}
+
+    for json_file in data_root.rglob("*.json"):
         try:
-            params = motion_data[i]
-            # Ensure we have 6 parameters, pad if necessary
-            if len(params) < 6:
-                params = params + [0.0] * (6 - len(params))
-            fd = calculate_fd(params)
-            fd_values.append(fd)
-        except Exception as e:
-            logger.warning(f"Error calculating FD for volume {i}: {e}")
+            with open(json_file, 'r') as f:
+                data = json.load(f)
+
+            if any(key in data for key in
+                   ['trans_x', 'trans_y', 'trans_z',
+                    'rot_x', 'rot_y', 'rot_z']):
+                parts = json_file.parts
+                sub_idx = None
+                for i, part in enumerate(parts):
+                    if part.startswith('sub-'):
+                        sub_idx = i
+                        break
+                if sub_idx is not None:
+                    subject_id = parts[sub_idx]
+                    subject_map.setdefault(subject_id, []).append(json_file)
+        except (json.JSONDecodeError, OSError):
             continue
-    
-    if not fd_values:
-        return 0.0, 0, n_total_volumes
-    
-    mean_fd = sum(fd_values) / len(fd_values)
-    n_high_motion = sum(1 for fd in fd_values if fd > FD_THRESHOLD)
-    
-    return mean_fd, n_high_motion, n_total_volumes
 
-def find_motion_jsons(subject_dir: Path) -> List[Path]:
-    """Find all motion parameter JSON files for a subject."""
-    json_files = []
-    for root, dirs, files in os.walk(subject_dir):
-        for file in files:
-            if file.endswith('.json') and 'motion' in file.lower():
-                json_files.append(Path(root) / file)
-    return json_files
+    return subject_map
 
-def run_quality_check(data_dir: Path = None) -> Dict[str, Any]:
+
+def run_quality_check(data_root: Path, output_manifest_path: Path) -> Dict[str, Any]:
     """
-    Run quality check on all subjects in the data directory.
-    Returns a manifest of included/excluded subjects.
+    Run quality check on the dataset.
+
+    Computes FD for all subjects, excludes those with >10 % high‑motion
+    volumes, logs exclusion counts, and halts if remaining sample size
+    < 20.
+
+    Args:
+        data_root: Root directory of the BIDS dataset.
+        output_manifest_path: Path to save the exclusion manifest JSON.
+
+    Returns:
+        Dictionary containing the exclusion manifest data.
+
+    Raises:
+        ValueError: If the remaining sample size is below the minimum threshold.
     """
-    if data_dir is None:
-        data_dir = DATA_DIR / "openneuro"
-    
-    if not data_dir.exists():
-        logger.error(f"Data directory not found: {data_dir}")
-        return {"included": [], "excluded": [], "error": "Data directory not found"}
-    
-    manifest = {
+    logger.info(f"Starting quality check on dataset: {data_root}")
+
+    subject_motion_map = find_motion_jsons(data_root)
+    total_subjects = len(subject_motion_map)
+    logger.info(f"Found {total_subjects} subjects with motion data.")
+
+    included_subjects: List[str] = []
+    excluded_subjects: List[str] = []
+    manifest_data: Dict[str, Any] = {
+        "total_subjects": total_subjects,
         "included": [],
         "excluded": [],
-        "total_subjects": 0,
-        "high_motion_excluded": 0,
-        "missing_data_excluded": 0
+        "exclusion_reasons": {},
+        "sample_size": 0
     }
-    
-    # Find all subject directories
-    subjects = [d for d in data_dir.iterdir() if d.is_dir() and d.name.startswith('sub-')]
-    manifest["total_subjects"] = len(subjects)
-    
-    logger.info(f"Found {len(subjects)} subjects to process")
-    
-    for subject_dir in subjects:
-        subject_id = subject_dir.name
-        json_files = find_motion_jsons(subject_dir)
-        
-        if not json_files:
-            logger.warning(f"No motion JSON found for {subject_id}, excluding")
-            manifest["excluded"].append({
-                "subject_id": subject_id,
-                "reason": "missing_motion_data"
-            })
-            manifest["missing_data_excluded"] += 1
-            continue
-        
+
+    for subject_id, json_paths in subject_motion_map.items():
         try:
-            # Process each JSON file (could be multiple runs)
-            total_high_motion = 0
-            total_volumes = 0
-            max_high_motion_pct = 0
-            
-            for json_file in json_files:
-                mean_fd, n_high, n_total = compute_subject_fd(json_file)
-                total_high_motion += n_high
-                total_volumes += n_total
-                
-                if n_total > 0:
-                  high_motion_pct = n_high / n_total
-                  if high_motion_pct > max_high_motion_pct:
-                      max_high_motion_pct = high_motion_pct
-                
-                logger.info(f"  {subject_id} ({json_file.name}): Mean FD={mean_fd:.3f}, High Motion={n_high}/{n_total} ({high_motion_pct:.1%})")
-            
-            # Check exclusion criteria
-            if max_high_motion_pct > HIGH_MOTION_PERCENTAGE_THRESHOLD:
-                logger.warning(f"Excluding {subject_id}: High motion ({max_high_motion_pct:.1%} > {HIGH_MOTION_PERCENTAGE_THRESHOLD:.1%})")
-                manifest["excluded"].append({
-                    "subject_id": subject_id,
-                    "reason": "high_motion",
-                    "high_motion_percentage": max_high_motion_pct
-                })
-                manifest["high_motion_excluded"] += 1
+            fd_values, total_vols = compute_subject_fd(json_paths)  # returns fd list
+
+            if total_vols == 0:
+                logger.warning(f"Subject {subject_id}: No volumes found, excluding.")
+                excluded_subjects.append(subject_id)
+                manifest_data["exclusion_reasons"][subject_id] = "No volumes"
+                continue
+
+            high_motion_count = sum(1 for fd in fd_values if fd > FD_THRESHOLD_MM)
+            high_motion_pct = (high_motion_count / len(fd_values)
+                               if len(fd_values) > 0 else 0.0)
+
+            if high_motion_pct > MAX_HIGH_MOTION_PCT:
+                logger.info(
+                    f"Subject {subject_id}: Excluded. High motion: "
+                    f"{high_motion_pct:.2%} ({high_motion_count}/{len(fd_values)})"
+                )
+                excluded_subjects.append(subject_id)
+                manifest_data["exclusion_reasons"][subject_id] = (
+                    f"High motion: {high_motion_pct:.2%}"
+                )
             else:
-                logger.info(f"Including {subject_id}")
-                manifest["included"].append({
+                logger.info(
+                    f"Subject {subject_id}: Included. High motion: {high_motion_pct:.2%}"
+                )
+                included_subjects.append(subject_id)
+                manifest_data["included"].append({
                     "subject_id": subject_id,
-                    "mean_fd": mean_fd,
-                    "high_motion_percentage": max_high_motion_pct
+                    "total_volumes": total_vols,
+                    "high_motion_count": high_motion_count,
+                    "high_motion_pct": high_motion_pct,
+                    "mean_fd": float(np.mean(fd_values))
                 })
-                
+
         except Exception as e:
-            logger.error(f"Error processing {subject_id}: {e}")
-            manifest["excluded"].append({
-                "subject_id": subject_id,
-                "reason": "processing_error",
-                "error": str(e)
-            })
-            manifest["missing_data_excluded"] += 1
-    
-    # Log exclusion counts
-    logger.info(f"Quality Check Summary: {len(manifest['included'])} included, {len(manifest['excluded'])} excluded")
-    logger.info(f"  High motion exclusions: {manifest['high_motion_excluded']}")
-    logger.info(f"  Missing data exclusions: {manifest['missing_data_excluded']}")
-    
-    # Check minimum sample size
-    if len(manifest["included"]) < MIN_SAMPLE_SIZE:
-        error_msg = f"CRITICAL: Remaining sample size ({len(manifest['included'])}) is below minimum threshold ({MIN_SAMPLE_SIZE}). Halting execution."
+            logger.error(f"Subject {subject_id}: Error processing - {e}")
+            excluded_subjects.append(subject_id)
+            manifest_data["exclusion_reasons"][subject_id] = f"Error: {str(e)}"
+
+    remaining_count = len(included_subjects)
+    manifest_data.update({
+        "sample_size": remaining_count,
+        "excluded_count": len(excluded_subjects),
+        "included_count": remaining_count
+    })
+
+    logger.info(
+        f"Quality check complete. Included: {remaining_count}, "
+        f"Excluded: {len(excluded_subjects)}"
+    )
+
+    if remaining_count < MIN_SAMPLE_SIZE:
+        error_msg = (
+            f"CRITICAL: Remaining sample size ({remaining_count}) is below "
+            f"minimum threshold (n ≥ {MIN_SAMPLE_SIZE}). Halting execution."
+        )
         logger.error(error_msg)
         raise ValueError(error_msg)
-    
-    return manifest
 
-def save_manifest(manifest: Dict[str, Any], output_path: Path = None):
-    """Save the exclusion manifest to a JSON file."""
-    if output_path is None:
-        output_path = DATA_DIR / "exclusion_manifest.json"
-    
+    # Save manifest
+    save_manifest(manifest_data, output_manifest_path)
+
+    return manifest_data
+
+
+def save_manifest(manifest_data: Dict[str, Any], output_path: Path) -> None:
+    """
+    Save the exclusion manifest to a JSON file.
+
+    Args:
+        manifest_data: Dictionary containing the manifest data.
+        output_path: Path to save the JSON file.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w') as f:
-        json.dump(manifest, f, indent=2)
-    
+        json.dump(manifest_data, f, indent=2)
     logger.info(f"Exclusion manifest saved to {output_path}")
 
-def main():
-    """Main entry point for quality check."""
-    logger.info("Starting quality check...")
+
+def main() -> int:
+    """Main entry point for quality check script."""
+    logging.basicConfig(level=logging.INFO)
+
+    # Define paths based on config
+    data_root = config.DATA_DIR / "raw"
+    output_manifest = config.DATA_DIR / "quality" / "exclusion_manifest.json"
+
+    if not data_root.exists():
+        logger.error(f"Data root directory does not exist: {data_root}")
+        print(f"Error: Data root directory not found: {data_root}")
+        print("Please ensure the dataset has been downloaded to the configured path.")
+        return 1
+
     try:
-        manifest = run_quality_check()
-        save_manifest(manifest)
-        logger.info("Quality check completed successfully.")
+        run_quality_check(data_root, output_manifest)
+        print(f"Quality check completed successfully. Manifest saved to {output_manifest}")
+        return 0
     except ValueError as e:
-        logger.error(str(e))
-        raise
+        print(f"Quality check failed: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Unexpected error during quality check: {e}")
-        raise
+        logger.exception(f"Unexpected error during quality check: {e}")
+        print(f"Unexpected error: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    exit(main())

@@ -58,4 +58,3 @@ required:
   - status
   - intervention_flag
 additionalProperties: false
-

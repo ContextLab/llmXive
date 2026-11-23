@@ -1,22 +1,25 @@
-Translate the following Python code to JavaScript. Follow modern JavaScript (ES6+) standards, use arrow functions where appropriate, and convert variable naming from snake_case to camelCase.
+Translate the following Python code into equivalent JavaScript code.
+Adhere to modern JavaScript (ES6+) best practices, including the use of `const` or `let` for variable declarations, arrow functions where appropriate, and standard naming conventions.
+Maintain the original logic and structure.
+Do not include any explanation or comments outside the code block.
 
 Example 1:
 Python:
-def calculate_area(radius):
-    return 3.14159 * radius * radius
+def add(a, b):
+    return a + b
 
 JavaScript:
-const calculateArea = (radius) => {
-    return 3.14159 * radius * radius;
-};
+const add = (a, b) => a + b;
 
 Example 2:
 Python:
-def is_even(number):
-    return number % 2 == 0
+x = [1, 2, 3]
+for i in x:
+    print(i)
 
 JavaScript:
-const isEven = (number) => number % 2 === 0;
+const x = [1, 2, 3];
+x.forEach(i => console.log(i));
 
 Now translate this:
 Python Code:

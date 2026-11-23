@@ -1,0 +1,36 @@
+#!/bin/bash
+# Pre-commit hook for llmXive project PROJ-361
+# Runs code/utils/update_state.py to track artifact changes via YAML state file.
+# This enforces Constitution Principle III: YAML as the Single Source of Truth.
+
+set -e
+
+# Determine project root (assume hook is at git_hooks/pre-commit)
+PROJECT_ROOT="$(git rev-parse --show-toplevel)"
+UPDATE_SCRIPT="$PROJECT_ROOT/code/utils/update_state.py"
+
+# Verify the update script exists
+if [ ! -f "$UPDATE_SCRIPT" ]; then
+    echo "ERROR: State update script not found at $UPDATE_SCRIPT"
+    exit 1
+fi
+
+# Check if Python 3 is available
+if ! command -v python3 &> /dev/null; then
+    echo "ERROR: python3 is required but not installed or not in PATH."
+    exit 1
+fi
+
+echo "Running artifact state update..."
+# Execute the update script. It will:
+# 1. Scan the git staged/modified files relevant to the project.
+# 2. Calculate hashes for changed artifacts.
+# 3. Update state/projects/PROJ-361-*.yaml with new checksums and metadata.
+python3 "$UPDATE_SCRIPT" --update-staged
+
+if [ $? -eq 0 ]; then
+    echo "Artifact state updated successfully."
+else
+    echo "ERROR: Artifact state update failed. Commit aborted."
+    exit 1
+fi

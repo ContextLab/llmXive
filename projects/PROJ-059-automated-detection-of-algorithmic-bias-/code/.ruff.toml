@@ -1,0 +1,25 @@
+# Ruff configuration for llmXive PROJ-059
+# Target Python 3.11, line length 88 (matching Black)
+
+target-version = "py311"
+line-length = 88
+
+[lint]
+# Enable recommended rules
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by formatter)
+    "B008", # Do not perform function call in argument defaults (common in CLI)
+]
+
+[lint.isort]
+known-first-party = ["src", "tests", "scripts", "setup_structure", "setup_data_dirs"]
+force-sort-within-sections = true

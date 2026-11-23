@@ -1,101 +1,80 @@
-"""
-T001: Create project structure per implementation plan.
-
-This script initializes the directory structure required for the
-llmXive research pipeline, creating the necessary folders for source code,
-data artifacts, tests, and state tracking.
-
-Directories created:
-  - code/ (source code)
-  - data/raw/ (raw input data)
-  - data/processed/ (processed data)
-  - data/artifacts/ (intermediate/final artifacts)
-  - tests/unit/ (unit tests)
-  - tests/integration/ (integration tests)
-  - state/ (state hashes and logs)
-  - specs/ (feature specifications)
-  - contracts/ (schema contracts)
-  - figures/ (plots and visualizations)
-
-Note: This script creates empty __init__.py files in Python package directories
-to ensure they are recognized as packages.
-"""
 import os
 import sys
 from pathlib import Path
 
-def create_structure():
-    """Create the project directory structure."""
-    # Define relative paths based on project root
-    base_dirs = [
-        "code",
+def create_structure(root_path: str) -> None:
+    """
+    Create the standard project directory structure.
+    
+    Creates the following directories relative to root_path:
+    - src/ (source code)
+    - src/cli/
+    - src/data/
+    - src/eval/
+    - src/models/
+    - src/utils/
+    - data/ (data storage)
+    - data/raw/
+    - data/processed/
+    - data/artifacts/
+    - data/references/
+    - tests/ (test suite)
+    - tests/unit/
+    - tests/integration/
+    - tests/contract/
+    - state/ (state management)
+    - specs/ (feature specifications)
+    - docs/ (documentation)
+    
+    Args:
+        root_path: The root directory where the structure will be created.
+    """
+    root = Path(root_path)
+    
+    # Define directory structure
+    directories = [
+        "src",
+        "src/cli",
+        "src/data",
+        "src/eval",
+        "src/models",
+        "src/utils",
         "data/raw",
         "data/processed",
         "data/artifacts",
+        "data/references",
         "tests/unit",
         "tests/integration",
+        "tests/contract",
         "state",
         "specs",
-        "contracts",
-        "figures",
-        "code/utils",
-        "code/data",
-        "code/models",
-        "code/eval",
-        "code/config",
-        "code/cli",
-    ]
-
-    created_count = 0
-    skipped_count = 0
-
-    for dir_path in base_dirs:
-        full_path = Path(dir_path)
-        
-        # Create parent directories if they don't exist
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {full_path}")
-            skipped_count += 1
-
-        # Create __init__.py for Python package directories
-        if "code" in dir_path or "tests" in dir_path:
-            init_file = full_path / "__init__.py"
-            if not init_file.exists():
-                # Create an empty __init__.py to mark as package
-                init_file.touch()
-                print(f"Created: {init_file}")
-                created_count += 1
-            else:
-                print(f"__init__.py already exists: {init_file}")
-                skipped_count += 1
-
-    print(f"\nProject structure creation complete.")
-    print(f"Directories created: {created_count}")
-    print(f"Directories skipped (already exist): {skipped_count}")
-    
-    # Verify critical paths exist
-    critical_paths = [
-        "code",
-        "data/processed",
-        "tests/unit",
-        "state",
-        "contracts",
+        "docs",
     ]
     
-    missing = []
-    for path in critical_paths:
-        if not Path(path).exists():
-            missing.append(path)
+    created = []
+    for dir_path in directories:
+        full_path = root / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        created.append(str(full_path))
+        # Create __init__.py for Python packages
+        if dir_path.startswith("src") or dir_path.startswith("tests"):
+          init_file = full_path / "__init__.py"
+          if not init_file.exists():
+              init_file.touch()
     
-    if missing:
-        print(f"\nERROR: Critical paths missing: {missing}")
-        sys.exit(1)
+    # Create README in data directories to ensure they are tracked
+    for data_sub in ["raw", "processed", "artifacts", "references"]:
+        readme_path = root / "data" / data_sub / ".gitkeep"
+        if not readme_path.exists():
+            readme_path.touch()
     
-    print("\nAll critical paths verified.")
+    print(f"Project structure created at {root}")
+    for p in created:
+        print(f"  - {p}")
 
 if __name__ == "__main__":
-    create_structure()
+    if len(sys.argv) > 1:
+        create_structure(sys.argv[1])
+    else:
+        # Default to current directory if no argument provided
+        create_structure(".")

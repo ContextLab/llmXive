@@ -1,32 +1,39 @@
 # Predicting Plant Drought Tolerance from RSA Data
 
-**Project ID**: PROJ-464
+This repository implements a reproducible research pipeline that:
 
-## Overview
-This project implements an automated pipeline to predict plant drought tolerance
-using Root System Architecture (RSA) metrics derived from NPPN root phenotyping images,
-correlated with physiological traits from the TRY database.
+* Downloads publicly available root system architecture (RSA) images from the
+ NPPN Plant Phenome Pipeline (via the verified MGB3 source).
+* Extracts quantitative RSA metrics (depth, branching density, surface area)
+ using CPU‑only OpenCV / scikit‑image processing.
+* Retrieves physiological traits (e.g., stomatal conductance, photosynthetic
+ rate) from the TRY database.
+* Merges the datasets, performs collinearity checks, principal component
+ analysis, and phylogenetic correction (PGLS).
+* Fits regression and classification models, applies multiple‑comparison
+ correction, and conducts sensitivity analysis.
+* Generates a final markdown report with all figures, tables, and methodological
+ notes.
 
-## Project Structure
+The pipeline is orchestrated through `code/run_pipeline.py` and can be run
+locally after installing the dependencies listed in `requirements.txt`.
+
+## Quickstart
+
+```bash
+# Clone the repository
+git clone <repo-url>
+cd projects/PROJ-464-predicting-plant-drought-tolerance-from-
+
+# Set up a virtual environment
+python -m venv venv
+source venv/bin/activate
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run the full pipeline
+python code/run_pipeline.py
 ```
-├── code/ # Python source modules
-├── data/
-│ ├── raw/ # Raw downloaded images and data
-│ └── derived/ # Processed metrics and models
-├── tests/ # Unit and integration tests
-├── docs/ # Documentation
-├── state/ # Pipeline state and reports
-├── contracts/ # Data schemas and validation rules
-└── results/ # Final analysis outputs and figures
-```
 
-## Quick Start
-1. Install dependencies: `pip install -r requirements.txt`
-2. Configure paths in `code/config.py`
-3. Run the pipeline: `python code/main.py` (placeholder for future entry point)
-
-## Dependencies
-See `requirements.txt` for the full list.
-
-## License
-[Insert License]
+For detailed module‑level usage, see `specs/001-predicting-plant-drought-tolerance-from/quickstart.md`.

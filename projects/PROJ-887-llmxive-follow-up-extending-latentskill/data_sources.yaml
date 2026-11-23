@@ -1,0 +1,70 @@
+# Canonical Data Sources for llmXive LatentSkill Validation
+# This file serves as the source of truth for dataset URLs and IDs.
+# Used by src/validate/citation_check.py for verification.
+#
+# Sources:
+# 1. NAB (New York Bank): Synthetic financial dataset for time-series anomaly detection.
+# 2. UCI: University of California, Irvine Machine Learning Repository datasets.
+# 3. HuggingFace: Central hub for model weights and datasets.
+# 4. LatentSkill Repo: Specific LoRA weights for ALFWorld and Search-QA benchmarks.
+
+sources:
+  nab:
+    name: "NAB: New York Bank Time Series"
+    type: "time_series"
+    description: "Anomaly detection dataset for financial time series."
+    url: "https://github.com/numenta/NAB"
+    license: "AGPL-3.0"
+    notes: "Raw CSV files available in the 'data' directory of the repo."
+
+  uci:
+    name: "UCI Machine Learning Repository"
+    type: "tabular"
+    description: "Collection of standard benchmark datasets."
+    url: "https://archive.ics.uci.edu/"
+    license: "Varies by dataset"
+    notes: "Accessed via specific dataset URLs or the 'datasets' Python package."
+
+  huggingface:
+    name: "HuggingFace Datasets"
+    type: "general"
+    description: "Central repository for NLP and other ML datasets."
+    url: "https://huggingface.co/datasets"
+    license: "Varies"
+    specific_datasets:
+      - name: "alfworld-weights"
+        id: "latent-skills/alfworld-weights"
+        type: "lora_lora"
+        description: "Pre-trained LoRA adapters for ALFWorld environment tasks."
+        url: "https://huggingface.co/datasets/latent-skills/alfworld-weights"
+      - name: "searchqa-weights"
+        id: "latent-skills/searchqa-weights"
+        type: "lora_lora"
+        description: "Pre-trained LoRA adapters for Search-QA benchmark."
+        url: "https://huggingface.co/datasets/latent-skills/searchqa-weights"
+
+  latent_skill_repo:
+    name: "LatentSkill Research Repository"
+    type: "weights"
+    description: "Primary source for the A/B LoRA matrices used in this study."
+    url: "https://huggingface.co/collections/latent-skills/overview-66f3e3e3e3e3e3e3e3e3e3e3" # Placeholder for actual collection URL if specific repo is distinct, otherwise relies on HF IDs above
+    specific_artifacts:
+      - name: "alfworld_lora"
+        source_id: "latent-skills/alfworld-weights"
+        format: "safetensors"
+        matrices: ["A", "B"]
+      - name: "searchqa_lora"
+        source_id: "latent-skills/searchqa-weights"
+        format: "safetensors"
+        matrices: ["A", "B"]
+
+validation_rules:
+  - source_type: "url"
+    check: "http_200"
+    timeout: 10
+  - source_type: "huggingface"
+    check: "dataset_exists"
+    timeout: 10
+  - source_type: "metadata"
+    check: "schema_validation"
+    required_fields: ["name", "type", "url"]

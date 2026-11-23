@@ -1,43 +1,88 @@
-# Dataset Schema for Gut Microbiome - Sleep Architecture Study
-# Defines required predictors (taxa) and outcomes (sleep metrics)
-
-predictors:
-  description: "Gut microbiome taxa abundance (relative or absolute counts)"
-  type: "numeric"
-  required:
-    - "Bacteroides"
-    - "Faecalibacterium"
-    - "Akkermansia"
-    - "Lactobacillus"
-    - "Bifidobacterium"
-    - "Prevotella"
-    - "Ruminococcus"
-    - "Clostridium"
-  optional:
-    - "Escherichia"
-    - "Streptococcus"
-
-outcomes:
-  description: "Sleep architecture metrics derived from polysomnography"
-  type: "numeric"
-  required:
-    - "SWS duration"
-    - "REM duration"
-    - "Sleep onset latency"
-    - "Wake after sleep onset"
-    - "Total sleep time"
-    - "Sleep efficiency"
-  optional:
-    - "N1 duration"
-    - "N2 duration"
-    - "N3 duration"
-
-metadata:
-  required:
-    - "subject_id"
-    - "age"
-    - "sex"
-  description: "Participant demographic information"
-
-version: "1.0.0"
-last_updated: "2023-10-27"
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "GutMicrobiomeSleepDataset"
+type: "object"
+properties:
+  metadata:
+    type: "object"
+    properties:
+      source_file:
+        type: "string"
+        description: "Path to the original raw data file."
+      checksum:
+        type: "string"
+        description: "MD5 checksum of the raw data file."
+      subject_count:
+        type: "integer"
+        description: "Total number of subjects in the dataset."
+      taxon_count:
+        type: "integer"
+        description: "Total number of microbial taxa columns."
+    required:
+      - "source_file"
+      - "checksum"
+      - "subject_count"
+      - "taxon_count"
+  variables:
+    type: "object"
+    properties:
+      subject_id:
+        type: "string"
+        description: "Unique identifier for each subject."
+      microbial_taxa:
+        type: "array"
+        items:
+          type: "string"
+          description: "Name of a microbial taxon column."
+      sleep_metrics:
+        type: "array"
+        items:
+          type: "string"
+          description: "Name of a sleep metric column (e.g., REM_duration, SWS_duration)."
+    required:
+      - "subject_id"
+      - "microbial_taxa"
+      - "sleep_metrics"
+  validation:
+    type: "object"
+    properties:
+      is_valid:
+        type: "boolean"
+        description: "True if all required variables are present."
+      missing_variables:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of missing required variables."
+      zero_inflation_detected:
+        type: "boolean"
+        description: "True if any taxon has >30% zeros."
+      outliers_detected:
+        type: "boolean"
+        description: "True if any sleep metric has outliers."
+      zero_inflation_warning:
+        type: "boolean"
+        description: "True if zero-inflation warning was triggered and logged."
+      method_selection_log:
+        type: "object"
+        description: "Log of the method selection process."
+        properties:
+          method_used:
+            type: "string"
+            description: "The method selected (ZINB, Spearman, Pearson)."
+          reason:
+            type: "string"
+            description: "Reason for selection."
+        required:
+          - "method_used"
+          - "reason"
+    required:
+      - "is_valid"
+      - "missing_variables"
+      - "zero_inflation_detected"
+      - "outliers_detected"
+      - "zero_inflation_warning"
+      - "method_selection_log"
+required:
+  - "metadata"
+  - "variables"
+  - "validation"

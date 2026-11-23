@@ -695,3 +695,1214 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-14T05:44:45Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Data pipeline output must contain at least 100 valid rows with microbiome
+    diversity and mental health scores
+  claim_id: c_773399f4
+  context: "Independent Test: The pipeline can be tested by running the data ingestion\
+    \ script and verifying that the output CSV contains \u2265 100 valid rows where\
+    \ both microbiome diversity metrics and mental health scores are present, with\
+    \ no missing values in the key predictor/outcome columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_pipeline_output_must_contain_at_least_100_valid_rows_wi
+  kind: magnitude
+  raw_text: "The pipeline can be tested by running the data ingestion script and verifying\
+    \ that the output CSV contains \u2265 100 valid rows where both microbiome diversity\
+    \ metrics and mental health scores are present, with no missing values in the\
+    \ key predictor/outcome columns."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:51:03Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Rarefaction fallback triggers if median sequencing depth is less than
+    1000 or sample loss exceeds 20 percent
+  claim_id: c_3cb21d29
+  context: 'Step 3: If median < 1000 or estimated loss >20%, apply Variance-Stabilizing
+    Transformation (VST) and log fallback; otherwise, apply rarefaction.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Rarefaction_fallback_triggers_if_median_sequencing_depth_is
+  kind: magnitude
+  raw_text: If median < 1000 or estimated loss >20%, apply Variance-Stabilizing Transformation
+    (VST) and log fallback; otherwise, apply rarefaction.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:51:54Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Data cleaning must retain at least 80 percent of samples and result in
+    at least 100 valid rows
+  claim_id: c_0d53fd12
+  context: "T017 [US1] Output data/processed/cleaned_dataset.csv (with alpha metrics)\
+    \ and verify \u2265 80% retention AND \u2265 100 valid rows with no missing key\
+    \ columns."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Data_cleaning_must_retain_at_least_80_percent_of_samples_and
+  kind: causal
+  raw_text: "Output data/processed/cleaned_dataset.csv (with alpha metrics) and verify\
+    \ \u2265 80% retention AND \u2265 100 valid rows with no missing key columns."
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:52:17Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: PERMANOVA analysis compares high depression (PHQ-9 >= 10) and high anxiety
+    (GAD-7 >= 10) groups
+  claim_id: c_195f72d0
+  context: "T021 [US2] Implement code/analysis.py: Perform PERMANOVA on beta diversity\
+    \ (Bray-Curtis) between high-depression (PHQ-9 \u2265 10 (2606.17973, https://arxiv.org/abs/2606.17973))\
+    \ and low-depression groups, AND high-anxiety (GAD-7 \u2265 10) and low-anxiety\
+    \ groups."
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10 (2606.17973, https://arxiv.org/abs/2606.17973)) and low-depression\
+    \ groups, AND high-anxiety (GAD-7 \u2265 10) and low-anxiety groups."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:52:47Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Kolmogorov-Smirnov test is performed on p-value distribution if no taxa
+    have adjusted p-values below 0.05
+  claim_id: c_0084bbb9
+  context: 'T024 [US2] SC-002 Check: If no significant taxa (q < 0.05), perform Kolmogorov-Smirnov
+    test on p-value distribution.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If no significant taxa (q < 0.05), perform Kolmogorov-Smirnov test on
+    p-value distribution.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:52:47Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Summary report lists associations with adjusted p-values less than 0.05
+  claim_id: c_e3152a37
+  context: 'T029 [US3] Implement code/report.py: Generate summary report listing all
+    significant associations (q < 0.05) with direction and magnitude.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Summary_report_lists_associations_with_adjusted_p-values_les
+  kind: magnitude
+  raw_text: Generate summary report listing all significant associations (q < 0.05)
+    with direction and magnitude.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-23T10:54:29Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: AGP Study ID 10317 contains both 16S rRNA and PHQ-9/GAD-7 metadata for
+    overlapping samples
+  claim_id: c_56c600de
+  context: 'Implement code/data_ingestion.py: Download AGP data (Study ID 10317) via
+    Qiita API or verified HuggingFace mirror. Feasibility Check: Verify the dataset
+    contains both S rRNA and PHQ-9/GAD-7 metadata for overlapping samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the dataset contains both S rRNA and PHQ-9/GAD-7 metadata for overlapping
+    samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T12:41:15Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Data ingestion pipeline outputs at least 100 valid rows with non-missing
+    microbiome and mental health scores
+  claim_id: c_98bd06ca
+  context: "Independent Test: The pipeline can be tested by running the data ingestion\
+    \ script and verifying that the output CSV contains \u2265 100 valid rows where\
+    \ both microbiome diversity metrics and mental health scores are present, with\
+    \ no missing values in the key predictor/outcome columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_ingestion_pipeline_outputs_at_least_100_valid_rows_with
+  kind: magnitude
+  raw_text: "The pipeline can be tested by running the data ingestion script and verifying\
+    \ that the output CSV contains \u2265 100 valid rows where both microbiome diversity\
+    \ metrics and mental health scores are present, with no missing values in the\
+    \ key predictor/outcome columns."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T12:41:59Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Data cleaning process retains at least 80% of samples and produces at
+    least 100 valid rows
+  claim_id: c_1ad78f1b
+  context: "Output data/processed/cleaned_dataset.csv (with alpha metrics) and verify\
+    \ \u2265 80% retention AND \u2265 100 valid rows with no missing key columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_cleaning_process_retains_at_least_80%25_of_samples_and_pr
+  kind: magnitude
+  raw_text: "Output data/processed/cleaned_dataset.csv with alpha metrics and verify\
+    \ \u2265 80% retention AND \u2265 100 valid rows with no missing key columns."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T12:42:20Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: High depression group defined as PHQ-9 score greater than or equal to
+    10
+  claim_id: c_8f141316
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10 (2606.17973, https://arxiv.org/abs/2606.17973)) and low-depression\
+    \ groups, AND high-anxiety (GAD-7 \u2265 10) and low-anxiety groups."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/High_depression_group_defined_as_PHQ-9_score_greater_than_or
+  kind: magnitude
+  raw_text: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10 (2606.17973, https://arxiv.org/abs/2606.17973)) and low-depression\
+    \ groups."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T12:42:47Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Kolmogorov-Smirnov test applied to p-value distribution when no taxa
+    have q-value less than 0.05
+  claim_id: c_47d0e7d2
+  context: If no significant taxa (q < 0.05), perform Kolmogorov-Smirnov test on p-value
+    distribution.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Kolmogorov-Smirnov_test_applied_to_p-value_distribution_when
+  kind: magnitude
+  raw_text: If no significant taxa (q < 0.05), perform Kolmogorov-Smirnov test on
+    p-value distribution.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-26T12:43:32Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Query Qiita Study 10317 and HuggingFace for dataset verification
+  claim_id: c_c83d972e
+  context: 'Implement code/data_feasibility.py: Check for a single verified public
+    dataset containing both 16S rRNA data and PHQ-9/GAD-7 scores for the same sample
+    IDs. Logic: Query verified sources (Qiita Study 10317, HuggingFace).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query verified sources (Qiita Study 10317, HuggingFace).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T19:59:50Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Qiita Study 10317 contains 16S rRNA data and PHQ-9/GAD-7 scores
+  claim_id: c_eab338f5
+  context: 'Check for a single verified public dataset containing both 16S rRNA data
+    and PHQ-9/GAD-7 scores for the same sample IDs. Logic: Query verified sources
+    (Qiita Study 10317, HuggingFace).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qiita Study 10317
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:00:19Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Dataset must contain 16S rRNA and PHQ-9/GAD-7 metadata for overlapping
+    samples
+  claim_id: c_f215b4f9
+  context: 'Implement code/data_ingestion.py: Download AGP data (Study ID 10317) via
+    Qiita API or verified HuggingFace mirror. Feasibility Check: Verify the dataset
+    contains both 16S rRNA and PHQ-9/GAD-7 metadata for overlapping samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the dataset contains both 16S rRNA and PHQ-9/GAD-7 metadata for
+    overlapping samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:00:44Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: AGP data corresponds to Study ID 10317
+  claim_id: c_6b16c1f4
+  context: 'Implement code/data_ingestion.py: Download AGP data (Study ID 10317) via
+    Qiita API or verified HuggingFace mirror.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: AGP data (Study ID 10317)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:01:14Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: PHQ-9 score of 10 or higher is clinically defined as high-depression
+  claim_id: c_42fe05bf
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10, clinically defined per spec) and low-depression groups."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "PHQ-9 \u2265 10 is clinically defined as high-depression."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:01:37Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: GAD-7 score of 10 or higher is clinically defined as high-anxiety
+  claim_id: c_78aba22f
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between... high-anxiety\
+    \ (GAD-7 \u2265 10) and low-anxiety groups."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "GAD-7 \u2265 10 is clinically defined as high-anxiety."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:02:14Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Validation skipped if dataset ID is missing, inaccessible (404/403),
+    or yields no data
+  claim_id: c_eede8a1c
+  context: 'Check for accessible independent cohort. Logic: First, verify existence
+    of the dataset... If the dataset ID is missing, inaccessible (404/403), or yields
+    no data, log ''Validation Skipped: No independent cohort available'' and proceed
+    to T032b.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If the dataset ID is missing, inaccessible (404/403), or yields no data,
+    log ''Validation Skipped: No independent cohort available''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:02:36Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime threshold is 4 hours or less
+  claim_id: c_857f48cd
+  context: "Read results/timing.json (from T037a) to calculate total pipeline runtime.\
+    \ Verify against threshold \u2264 4 hours. Log total_runtime_hours to results/metrics.json."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify against threshold \u2264 4 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:02:36Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: ukbiobank-microbiome and metahit are known independent cohort IDs
+  claim_id: c_98f24a4d
+  context: If accessible, attempt datasets.load_dataset with streaming for known IDs
+    (e.g., ukbiobank-microbiome, metahit) or local files matching data/external/*.csv.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ukbiobank-microbiome_and_metahit_are_known_independent_cohor
+  kind: entity_fact
+  raw_text: Known IDs (e.g., ukbiobank-microbiome, metahit).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:02:57Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Qiita Study 10317 and HuggingFace are verified sources for gut microbiome
+    and mental health data
+  claim_id: c_72eb1abc
+  context: 'Logic: Query verified sources (Qiita Study 10317, HuggingFace).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query verified sources (Qiita Study 10317, HuggingFace).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:04:41Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: AGP Study ID 10317 contains 16S rRNA and PHQ-9/GAD-7 metadata
+  claim_id: c_a3ff4cd4
+  context: 'Implement code/data_ingestion.py: Download AGP data (Study ID 10317) via
+    Qiita API or verified HuggingFace mirror (handle rate-limiting with exponential
+    backoff).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download AGP data (Study ID 10317) via Qiita API or verified HuggingFace
+    mirror
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:05:02Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: PHQ-9 score of 10 or higher defines high-depression group
+  claim_id: c_171216d4
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10, clinically defined per spec) and low-depression groups"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "high-depression (PHQ-9 \u2265 10, clinically defined per spec)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:05:28Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: GAD-7 score of 10 or higher defines high-anxiety group
+  claim_id: c_a3f0458a
+  context: "between high-depression (PHQ-9 \u2265 10, clinically defined per spec)\
+    \ and low-depression groups, AND high-anxiety (GAD-7 \u2265 10) and low-anxiety\
+    \ groups."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "high-anxiety (GAD-7 \u2265 10)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:05:57Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: UK Biobank and MetaHIT are external cohorts for microbiome validation
+  claim_id: c_e028096c
+  context: Run Reference-Validator Agent on external cohort URLs (e.g., UK Biobank,
+    MetaHIT) to verify accessibility and accuracy before T031.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UK_Biobank_and_MetaHIT_are_external_cohorts_for_microbiome_v
+  kind: entity_fact
+  raw_text: external cohort URLs (e.g., UK Biobank, MetaHIT)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:06:28Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: ukbiobank-microbiome and metahit are dataset IDs for independent cohort
+    validation
+  claim_id: c_d1184011
+  context: attempt datasets.load_dataset with streaming for known IDs (e.g., ukbiobank-microbiome,
+    metahit) or local files matching data/external/*.csv.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ukbiobank-microbiome_and_metahit_are_dataset_IDs_for_indepen
+  kind: entity_fact
+  raw_text: known IDs (e.g., ukbiobank-microbiome, metahit)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:06:30Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: pipeline test requires 100 valid rows with microbiome and mental health
+    scores
+  claim_id: c_c00b171b
+  context: "Independent Test: The pipeline can be tested by running the data ingestion\
+    \ script and verifying that the output CSV contains \u2265 100 valid rows where\
+    \ both microbiome diversity metrics and mental health scores are present, with\
+    \ no missing values in the key predictor/outcome columns."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline can be tested by running the data ingestion script and verifying\
+    \ that the output CSV contains \u2265 100 valid rows where both microbiome diversity\
+    \ metrics and mental health scores are present, with no missing values in the\
+    \ key predictor/outcome columns."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:06:41Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: cleaned dataset must have 80% retention and 100 valid rows
+  claim_id: c_400f6e71
+  context: "T017 [US1] Output `data/processed/cleaned_dataset.csv` (with alpha metrics)\
+    \ and verify \u2265 80% retention AND \u2265 100 valid rows with no missing key\
+    \ columns."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Output `data/processed/cleaned_dataset.csv` (with alpha metrics) and\
+    \ verify \u2265 80% retention AND \u2265 100 valid rows with no missing key columns."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:06:41Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Qiita Study 10317 is a verified source for 16S rRNA and mental health
+    data
+  claim_id: c_fc78a891
+  context: 'Implement code/data_feasibility.py: Check for a single verified public
+    dataset containing both 16S rRNA data and PHQ-9/GAD-7 scores for the same sample
+    IDs. Logic: Query verified sources (Qiita Study 10317, HuggingFace).'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Qiita_Study_10317_is_a_verified_source_for_16S_rRNA_and_ment
+  kind: entity_fact
+  raw_text: Query verified sources (Qiita Study 10317, HuggingFace).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-10-03T20:12:12Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: AGP Study ID 10317 contains 16S rRNA and PHQ-9/GAD-7 metadata for overlapping
+    samples
+  claim_id: c_c7e6f381
+  context: 'Implement code/data_ingestion.py: Download AGP data (Study ID 10317) via
+    Qiita API or verified HuggingFace mirror... Feasibility Check: Verify the dataset
+    contains both 16S rRNA and PHQ-9/GAD-7 metadata for overlapping samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the dataset contains both 16S rRNA and PHQ-9/GAD-7 metadata for
+    overlapping samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:12:12Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: PHQ-9 score of 10 or greater defines high-depression
+  claim_id: c_be878370
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10, clinically defined per spec) and low-depression groups"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "high-depression (PHQ-9 \u2265 10, clinically defined per spec)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:12:12Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: GAD-7 score of 10 or greater defines high-anxiety
+  claim_id: c_d5d5b9b5
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between... high-anxiety\
+    \ (GAD-7 \u2265 10) and low-anxiety groups."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "high-anxiety (GAD-7 \u2265 10)"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:12:13Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Total pipeline runtime threshold is 4 hours
+  claim_id: c_0941fb82
+  context: "Read results/timing.json (from T037a) to calculate total pipeline runtime.\
+    \ Verify against threshold \u2264 4 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify against threshold \u2264 4 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T20:12:13Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Qiita Study 10317 is a verified source for gut microbiome and mental
+    health data
+  claim_id: c_003a477e
+  context: 'Implement code/data_feasibility.py: Check for a single verified public
+    dataset containing both 16S rRNA data and PHQ-9/GAD-7 scores for the same sample
+    IDs. Logic: Query verified sources (Qiita Study 10317, HuggingFace).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Qiita_Study_10317_is_a_verified_source_for_gut_microbiome_an
+  kind: entity_fact
+  raw_text: Query verified sources (Qiita Study 10317, HuggingFace).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:17:49Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: AGP Study ID 10317 contains 16S rRNA and PHQ-9/GAD-7 metadata
+  claim_id: c_849dce73
+  context: 'Implement code/data_ingestion.py: Download AGP data (Study ID 10317) via
+    Qiita API or verified HuggingFace mirror (handle rate-limiting with exponential
+    backoff). Feasibility Check: Verify the dataset contains both 16S rRNA and PHQ-9/GAD-7
+    metadata for overlapping samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download AGP data (Study ID 10317) via Qiita API or verified HuggingFace
+    mirror
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:18:15Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: PHQ-9 score of 10 or greater defines high-depression group
+  claim_id: c_0f856616
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10, clinically defined per spec) and low-depression groups, AND\
+    \ high-anxiety (GAD-7 \u2265 10) and low-anxiety groups."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "high-depression (PHQ-9 \u2265 10, clinically defined per spec) and low-depression\
+    \ groups"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:18:36Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: GAD-7 score of 10 or greater defines high-anxiety group
+  claim_id: c_68ec23f5
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10, clinically defined per spec) and low-depression groups, AND\
+    \ high-anxiety (GAD-7 \u2265 10) and low-anxiety groups."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "high-anxiety (GAD-7 \u2265 10) and low-anxiety groups"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:19:01Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: UK Biobank and MetaHIT are external cohort sources for validation
+  claim_id: c_7f40f373
+  context: Run Reference-Validator Agent on external cohort URLs (e.g. UK Biobank,
+    MetaHIT) to verify accessibility and accuracy before T031.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/UK_Biobank_and_MetaHIT_are_external_cohort_sources_for_valid
+  kind: entity_fact
+  raw_text: UK Biobank, MetaHIT
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:19:45Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: American Gut 16S dataset is available on HuggingFace datasets
+  claim_id: c_9777db16
+  context: First, verify existence of the dataset via qiita.get_study_data (primary)
+    or datasets.load_dataset("qiita/american-gut-16s") (fallback).
+  evidence:
+    entailment_evidence: American Gut 16S dataset is available on HuggingFace dataset
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/American_Gut_16S_dataset_is_available_on_HuggingFace_dataset
+  kind: entity_fact
+  raw_text: datasets.load_dataset("qiita/american-gut-16s")
+  resolved_value: American Gut 16S dataset is available on HuggingFace datasets
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-06T08:19:47Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Verify data availability using Qiita Study 10317 and HuggingFace
+  claim_id: c_f18ce58f
+  context: 'Implement `code/data_feasibility.py`: Check for a single verified public
+    dataset containing both 16S rRNA data and PHQ-9/GAD-7 scores for the same sample
+    IDs. **Logic**: Query verified sources (Qiita Study 10317, HuggingFace).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query verified sources (Qiita Study 10317, HuggingFace).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:23:21Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Verify dataset contains 16S rRNA and PHQ-9/GAD-7 metadata for overlapping
+    samples
+  claim_id: c_58148afc
+  context: 'Implement `code/data_ingestion.py`: Download AGP data (Study ID 10317)
+    via Qiita API or verified HuggingFace mirror (handle rate-limiting with exponential
+    backoff). **Feasibility Check**: Verify the dataset contains both 16S rRNA and
+    PHQ-9/GAD-7 metadata for overlapping samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the dataset contains both 16S rRNA and PHQ-9/GAD-7 metadata for
+    overlapping samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:23:47Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Download AGP data Study ID 10317 via Qiita API or HuggingFace
+  claim_id: c_e2d15205
+  context: 'Implement `code/data_ingestion.py`: Download AGP data (Study ID 10317)
+    via Qiita API or verified HuggingFace mirror (handle rate-limiting with exponential
+    backoff).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Download AGP data (Study ID 10317) via Qiita API or verified HuggingFace
+    mirror.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:23:48Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Filter taxa with less than 0.1% prevalence
+  claim_id: c_0b51be9b
+  context: 'Implement `code/preprocessing.py`: Filter taxa with <0.1% prevalence on
+    the **preprocessed** table (output of T014c).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Filter_taxa_with_less_than_0.1%25_prevalence
+  kind: magnitude
+  raw_text: Filter taxa with <0.1% prevalence on the preprocessed table.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:24:38Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Verify output CSV contains at least 100 valid rows with diversity and
+    mental health scores
+  claim_id: c_cc9b104b
+  context: "The pipeline can be tested by running the data ingestion script and verifying\
+    \ that the output CSV contains \u2265 100 valid rows where both microbiome diversity\
+    \ metrics and mental health scores are present, with no missing values in the\
+    \ key predictor/outcome columns."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_output_CSV_contains_at_least_100_valid_rows_with_dive
+  kind: magnitude
+  raw_text: "Verify that the output CSV contains \u2265 100 valid rows where both\
+    \ microbiome diversity metrics and mental health scores are present."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:25:01Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Perform PERMANOVA on Bray-Curtis between high depression (PHQ-9 >= 10)
+    and low depression groups
+  claim_id: c_d95f8976
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10, clinically defined per spec) and low-depression groups, AND\
+    \ high-anxiety (GAD-7 \u2265 10) and low-anxiety groups."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10, clinically defined per spec) and low-depression groups."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:25:21Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Perform PERMANOVA on Bray-Curtis between high anxiety (GAD-7 >= 10) and
+    low anxiety groups
+  claim_id: c_4b5819b7
+  context: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10, clinically defined per spec) and low-depression groups, AND\
+    \ high-anxiety (GAD-7 \u2265 10) and low-anxiety groups."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform PERMANOVA on beta diversity between high-anxiety (GAD-7 \u2265\
+    \ 10) and low-anxiety groups."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:25:42Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Calculate maximum delta between covariate adjusted and unadjusted p-values
+    for each taxon
+  claim_id: c_0cb667f8
+  context: 'Calculate `|p_covariate_adjusted - p_unadjusted|` for **each taxon**.
+    **Input**: Read `data/interim/unadjusted_taxa_pvals.csv` (from T020a) AND `data/interim/covariate_adjusted_pvals.csv`
+    (from T020b). Identify the maximum delta.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_maximum_delta_between_covariate_adjusted_and_unadj
+  kind: entity_fact
+  raw_text: Identify the maximum delta for |p_covariate_adjusted - p_unadjusted| for
+    each taxon.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:26:06Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: List significant associations with q-value less than 0.05 in summary
+    report
+  claim_id: c_ee805a78
+  context: Generate summary report listing all significant associations (q < 0.05)
+    with direction and magnitude.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/List_significant_associations_with_q-value_less_than_0.05_in
+  kind: magnitude
+  raw_text: List all significant associations (q < 0.05) with direction and magnitude
+    in the summary report.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:26:43Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Compute validation match percentage as matching directions divided by
+    total significant taxa
+  claim_id: c_932dcf8c
+  context: Calculate correlations for top significant taxa (from T025), compute '%
+    match' as (matching_directions / total_significant_taxa) scaled to a percentage.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compute_validation_match_percentage_as_matching_directions_d
+  kind: entity_fact
+  raw_text: Compute '% match' as (matching_directions / total_significant_taxa) scaled
+    to a percentage.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:27:09Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Count correlation as non-matching if exactly 0 or p-value greater than
+    0.05
+  claim_id: c_ac11b150
+  context: '**Tie-breaking**: If correlation is exactly 0 or p-value > 0.05, count
+    as ''non-matching''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Count_correlation_as_non-matching_if_exactly_0_or_p-value_gr
+  kind: magnitude
+  raw_text: If correlation is exactly 0 or p-value > 0.05, count as 'non-matching'.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:27:40Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Verify total pipeline runtime is less than or equal to 4 hours
+  claim_id: c_5193f131
+  context: "Read `results/timing.json` (from T037a) to calculate total pipeline runtime.\
+    \ Verify against threshold \u2264 4 hours."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_total_pipeline_runtime_is_less_than_or_equal_to_4_hou
+  kind: magnitude
+  raw_text: "Verify against threshold \u2264 4 hours."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:28:05Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Verify dataset contains 16S rRNA and PHQ-9/GAD-7 metadata for overlapping
+    samples
+  claim_id: c_869e6689
+  context: 'T012 [US1] Implement `code/data_ingestion.py`: Download AGP data (Study
+    ID 10317) via Qiita API or verified HuggingFace mirror (handle rate-limiting with
+    exponential backoff). **Feasibility Check**: Verify the dataset contains both
+    16S rRNA and PHQ-9/GAD-7 metadata for overlapping samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the dataset contains both 16S rRNA and PHQ-9/GAD-7 metadata for
+    overlapping samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:29:15Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Verify >= 80% retention and >= 100 valid rows with no missing key columns
+  claim_id: c_f3c68a8b
+  context: "T017 [US1] Output `data/processed/cleaned_dataset.csv` (with alpha metrics)\
+    \ and verify \u2265 80% retention AND \u2265 100 valid rows with no missing key\
+    \ columns. **Dependency**: T013, T016."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Output to `data/processed/cleaned_dataset.csv` (with alpha metrics) and\
+    \ verify \u2265 80% retention AND \u2265 100 valid rows with no missing key columns."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:29:15Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Filter taxa with < 0.1% prevalence
+  claim_id: c_36a10d31
+  context: 'T015 [US1] Implement `code/preprocessing.py`: Filter taxa with <0.1% prevalence
+    on the **preprocessed** table (output of T014c).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Filter taxa with <0.1% prevalence on the preprocessed table.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:29:15Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Perform PERMANOVA on Bray-Curtis between high depression (PHQ-9 >= 10)
+    and low depression groups
+  claim_id: c_7b001c10
+  context: "T021 [US2] Implement `code/analysis.py`: Perform PERMANOVA on beta diversity\
+    \ (Bray-Curtis) between high-depression (PHQ-9 \u2265 10, clinically defined per\
+    \ spec) and low-depression groups, AND high-anxiety (GAD-7 \u2265 10) and low-anxiety\
+    \ groups."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform PERMANOVA on beta diversity (Bray-Curtis) between high-depression\
+    \ (PHQ-9 \u2265 10, clinically defined per spec) and low-depression groups."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:29:16Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Perform PERMANOVA on beta diversity between high anxiety (GAD-7 >= 10)
+    and low anxiety groups
+  claim_id: c_ad86c098
+  context: "T021 [US2] Implement `code/analysis.py`: Perform PERMANOVA on beta diversity\
+    \ (Bray-Curtis) between high-depression (PHQ-9 \u2265 10, clinically defined per\
+    \ spec) and low-depression groups, AND high-anxiety (GAD-7 \u2265 10) and low-anxiety\
+    \ groups."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Perform PERMANOVA on beta diversity between high-anxiety (GAD-7 \u2265\
+    \ 10) and low-anxiety groups."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:29:16Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Perform Kolmogorov-Smirnov test on unadjusted p-values if no significant
+    taxa with q < 0.05
+  claim_id: c_9c84ad01
+  context: 'T024 [US2] **SC-002 Check**: If T022a yields no significant taxa (q <
+    0.05), perform Kolmogorov-Smirnov test on the distribution of unadjusted p-values
+    (from `data/interim/unadjusted_taxa_pvals.csv` produced by T020a) using `scipy.stats.kstest`
+    (vs uniform distribution).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If T022a yields no significant taxa (q < 0.05), perform Kolmogorov-Smirnov
+    test on the distribution of unadjusted p-values.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:29:34Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Calculate maximum delta between covariate adjusted and unadjusted p-values
+    for each taxon
+  claim_id: c_29706f91
+  context: 'T023a [US2] **SC-005 Check (Covariate)**: Calculate `|p_covariate_adjusted
+    - p_unadjusted|` for **each taxon**. **Input**: Read `data/interim/unadjusted_taxa_pvals.csv`
+    (from T020a) AND `data/interim/covariate_adjusted_pvals.csv` (from T020b). Identify
+    the maximum delta.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_maximum_delta_between_covariate_adjusted_and_unadj
+  kind: entity_fact
+  raw_text: Calculate `|p_covariate_adjusted - p_unadjusted|` for each taxon and identify
+    the maximum delta.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:30:09Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Output max_delta and threshold_met (true if > 0.01) in covariate_delta.json
+  claim_id: c_28de3c5e
+  context: 'T023a [US2] ... Output a JSON file `results/covariate_delta.json` with
+    keys: `max_delta` (float), `threshold_met` (boolean, true if max_delta > 0.01).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Output a JSON file `results/covariate_delta.json` with keys: `max_delta`
+    (float), `threshold_met` (boolean, true if max_delta > 0.01).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:30:09Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Verify total pipeline runtime <= 4 hours
+  claim_id: c_5c3f998d
+  context: "T037 Implement `code/timing.py`: Read `results/timing.json` (from T037a)\
+    \ to calculate total pipeline runtime. Verify against threshold \u2264 4 hours."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Verify against threshold \u2264 4 hours."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:30:10Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Query Qiita Study 10317 and HuggingFace for verified dataset
+  claim_id: c_7564c228
+  context: 'T000a [P] [US1] Implement `code/data_feasibility.py`: Check for a single
+    verified public dataset containing both 16S rRNA data and PHQ-9/GAD-7 scores for
+    the same sample IDs. **Logic**: Query verified sources (Qiita Study 10317, HuggingFace).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query verified sources (Qiita Study 10317, HuggingFace).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:30:10Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Qiita Study 10317 contains 16S rRNA data and PHQ-9/GAD-7 scores for the
+    same sample IDs
+  claim_id: c_82306ee3
+  context: 'Task T000a: Implement code/data_feasibility.py: Check for a single verified
+    public dataset containing both 16S rRNA data and PHQ-9/GAD-7 scores for the same
+    sample IDs. Logic: Query verified sources (Qiita Study 10317, HuggingFace).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Query verified sources (Qiita Study 10317, HuggingFace).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:36:01Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Qiita Study 10317 contains 16S rRNA and PHQ-9/GAD-7 metadata for overlapping
+    samples
+  claim_id: c_e07d0fd1
+  context: 'Task T012: Download AGP data (Study ID 10317) via Qiita API or verified
+    HuggingFace mirror... Feasibility Check: Verify the dataset contains both 16S
+    rRNA and PHQ-9/GAD-7 metadata for overlapping samples.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the dataset contains both 16S rRNA and PHQ-9/GAD-7 metadata for
+    overlapping samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:36:02Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Qiita Study 10317 is a verified source for 16S rRNA and PHQ-9/GAD-7 data
+  claim_id: c_93731c89
+  context: 'Logic: Query verified sources (Qiita Study 10317, HuggingFace).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Qiita_Study_10317_is_a_verified_source_for_16S_rRNA_and_PHQ-
+  kind: entity_fact
+  raw_text: Query verified sources (Qiita Study 10317, HuggingFace).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:36:11Z'
+- artifact_path: projects/PROJ-215-investigating-the-relationship-between-g/specs/001-investigating-the-relationship-between-g/tasks.md
+  attempts: 1
+  canonical: Qiita Study 10317 contains 16S rRNA and mental health data
+  claim_id: c_76bddc1e
+  context: Query verified sources (Qiita Study 10317, HuggingFace).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Qiita Study 10317
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-06T08:37:18Z'

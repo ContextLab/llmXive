@@ -61,5 +61,15 @@
     "sections/optimize_loop_strategy.tex",
     "sections/related_work.tex",
     "sections/taxonomy_of_loop_strategies.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "919a9e89f20e33c1407f7e77f34831a6d18e444462493dce1bf848f5ddb6dc03",
+      "bytes": 915300
+    },
+    "original.pdf": {
+      "sha256": "e2aeff4960184faf59bb4e89bf9f68efde71b9b9874761de0bb0171550fbf3ad",
+      "bytes": 878929
+    }
+  }
 }

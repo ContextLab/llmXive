@@ -2,7 +2,13 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T010** — No test file or code snippet for `tests/unit/test_graph_builder.py` was provided, so we cannot verify that a unit test covering the low‑term‑diversity (< 5) edge case exists or is correctly implemented. The required artifact is missing.
-- **T011** — The claim provides only a description of the required integration test but no evidence that a file `tests/integration/test_graph_pipeline.py` actually exists or contains a non‑empty test exercising the full graph pipeline on sample data. Without the test artifact present, the task requirement is not satisfied.
-- **T012** — The required output file `data/processed/fixed_vocab.json` is missing, so the TF‑IDF filtering result was not saved as specified. Without this file the versioning requirement cannot be satisfied.
-- **T014** — The `calculate_topological_metrics` function computes modularity, average degree, and average betweenness centrality, but it never calculates the required average path length (or any shortest‑path metric). Moreover, the file ends abruptly after a truncated `def save` line, indicating the implementation is unfinished. The missing avg‑path‑length calculation must be added (and the file completed) to satisfy the task.
+- **T002** — The provided `requirements.txt` exists, but it uses “>=” version specifiers instead of exact pinned versions (e.g., `networkx==3.1`). Moreover, it lists many additional packages beyond the seven required, which does not meet the task’s specification of a pinned requirements file for those specific dependencies.
+- **T005** — The `code/utils/hash_artifacts.py` script exists and implements hashing, but the required state file `state/projects/PROJ-911-llmxive-follow-up-extending-mcompassrag.yaml` is missing, so the task’s requirement to update that YAML file has not been fulfilled. The missing YAML file must be created/updated by the script (or provided) for the task to be complete.
+- **T008b** — declared artifact(s) missing/empty/invalid: code/utils/timer.py
+- **T012** — declared artifact(s) missing/empty/invalid: data/processed/fixed_vocab.json
+- **T016b** — declared artifact(s) missing/empty/invalid: data/processed/features.csv
+- **T017** — declared artifact(s) missing/empty/invalid: data/results/latency.log
+- **T023** — declared artifact(s) missing/empty/invalid: data/results/retrieved_features.csv
+- **T028b** — declared artifact(s) missing/empty/invalid: data/results/correlation.csv
+- **T030b** — declared artifact(s) missing/empty/invalid: data/results/resource_usage.log
+- **T034** — Requested task execution failed; rerun successfully: code/cleanup_refactor.py exit=1

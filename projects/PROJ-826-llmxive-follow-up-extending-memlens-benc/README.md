@@ -1,34 +1,81 @@
-# PROJ-826-llmxive-follow-up-extending-memlens-benc
+# llmXive: Extending "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models"
 
-## Overview
-This project extends the "MemLens: Benchmarking Multimodal Long-Term Memory in Large Vision-Language Models" benchmark.
-It implements a pipeline for downloading, processing, and evaluating memory stores (Coarse, Medium, Fine) using CPU-optimized inference.
+## Project Overview
 
-## Project Structure
-- `code/`: Source code for the pipeline (download, preprocessing, retrieval, inference, evaluation).
-- `data/`: Raw and processed data artifacts.
-- `tests/`: Unit and integration tests.
-- `state/`: Project state tracking (YAML).
-- `specs/`: Design documents and requirements.
+This project extends the MemLens benchmark to evaluate multimodal long-term memory strategies in Large Vision-Language Models (LVLMs). It implements Coarse, Medium, and Fine memory stores, performs CPU-optimized inference, and conducts statistical significance testing.
 
 ## Prerequisites
+
 - Python 3.9+
-- CUDA is NOT required; this project targets CPU-only execution.
+- CPU-only environment (no CUDA required)
+- 7GB+ RAM available
 
 ## Installation
-1. Clone the repository.
-2. Navigate to the project root: `projects/PROJ-826-llmxive-follow-up-extending-memlens-benc/`
-3. Install dependencies:
+
+1. Create a virtual environment:
+ ```bash
+ python -m venv venv
+ source venv/bin/activate # On Windows: venv\Scripts\activate
+ ```
+
+2. Install dependencies:
  ```bash
  pip install -r requirements.txt
  ```
 
-## Usage
-See individual task implementations (e.g., `code/download.py`, `code/main.py`) for specific CLI usage.
-A general pipeline runner is expected in `code/main.py`.
+## Data Setup
 
-## Data Sources
-- MemLens dataset is fetched from HuggingFace at runtime.
+The MemLens dataset will be downloaded automatically by running `code/download.py`. Ensure you have sufficient disk space (~7GB).
+
+## Usage
+
+### Run the Full Pipeline
+
+```bash
+python code/main.py
+```
+
+### Download Dataset Only
+
+```bash
+python code/download.py
+```
+
+### Run Inference on a Subset
+
+```bash
+python code/main.py --subset 10
+```
+
+## Project Structure
+
+```
+.
+├── code/ # Implementation modules
+│ ├── download.py # Dataset download and checksums
+│ ├── preprocessing.py # Data loading, filtering, store construction
+│ ├── retrieval.py # Similarity search and retrieval
+│ ├── detection.py # Object detection (YOLOv8)
+│ ├── inference.py # CPU-optimized LLM inference
+│ ├── evaluation.py # Accuracy and resource metrics
+│ ├── stats.py # Statistical significance testing
+│ ├── config.py # Configuration parameters
+│ └── main.py # Pipeline orchestrator
+├── data/
+│ ├── raw/ # Downloaded MemLens dataset
+│ └── processed/ # Generated artifacts (stores, metrics)
+├── tests/ # Unit tests
+├── state/ # Pipeline state tracking
+└── requirements.txt # Python dependencies
+```
+
+## Configuration
+
+Key parameters can be adjusted in `code/config.py`:
+- `TOP_K`: Number of retrieved items (default: 5)
+- `MODEL_NAME`: LLM model for inference (default: "microsoft/Phi-3-mini-4k-instruct")
+- `DETECTION_MODEL`: Object detection model (default: "yolov8n.pt")
 
 ## License
-Research use only.
+
+This project is for research purposes only.

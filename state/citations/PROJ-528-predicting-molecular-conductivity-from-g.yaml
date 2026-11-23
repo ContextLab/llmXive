@@ -1,1 +1,11 @@
-[]
+- artifact_hash: 9683eb3e08738288c8c5de7570da9027de48b73743b16f95f8755003ddfb7b4c
+  artifact_path: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: train-00000-of-00001-e9b227f8c7259c8b.parquet
+  kind: url
+  value: https://huggingface.co/datasets/sagawa/pubchem-10m-canonicalized/resolve/main/data/train-00000-of-00001-e9b227f8c7259c8b.parquet`
+  verification_status: pending
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/6312e7b5bbaa385279d3e10b/06521683174da62c0d7a38ec22d401a0ddc1b06fa0bb9dab63b4ad55428703db?response-content-disposition=inline%3B+filename*%3DUTF-8%27%27train-00000-of-00001-e9b227f8c7259c8b.parquet%3B+filename%3D%22train-00000-of-00001-e9b227f8c7259c8b.parquet%22%3B&user_id=public&xip=71yjcP7wfsc&X-Xet-Cas-Uid=public&Expires=1790416813&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjMxMmU3YjViYmFhMzg1Mjc5ZDNlMTBiLzA2NTIxNjgzMTc0ZGE2MmMwZDdhMzhlYzIyZDQwMWEwZGRjMWIwNmZhMGJiOWRhYjYzYjRhZDU1NDI4NzAzZGJcXD9yZXNwb25zZS1jb250ZW50LWRpc3Bvc2l0aW9uPWlubGluZSUzQitmaWxlbmFtZSUyQSUzRFVURi04JTI3JTI3dHJhaW4tMDAwMDAtb2YtMDAwMDEtZTliMjI3ZjhjNzI1OWM4Yi5wYXJxdWV0JTNCK2ZpbGVuYW1lJTNEJTIydHJhaW4tMDAwMDAtb2YtMDAwMDEtZTliMjI3ZjhjNzI1OWM4Yi5wYXJxdWV0JTIyJTNCJnVzZXJfaWQ9cHVibGljJnhpcD03MXlqY1A3d2ZzYyZYLVhldC1DYXMtVWlkPXB1YmxpYyIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiRXBvY2hUaW1lIjoxNzkwNDE2ODEzfX19XX0_&Signature=MEQCIDnB1bIMSGqoyHlUTTy3ZLHNdYtBq-MMePIoPga6%7EMMjAiAcZiMm-RDmdycEGWiD1aRl%7Edudkz9kYDsbLEsW5ECkjw__&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-09-26T09:00:13.374950Z'

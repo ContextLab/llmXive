@@ -1,3 +1,6 @@
+"""
+Unit tests for T017: Topographic correlation calculation and reporting.
+"""
 import os
 import json
 import tempfile
@@ -5,114 +8,170 @@ from pathlib import Path
 import pytest
 import numpy as np
 
+# Import the functions to test
 from src.data.preprocess import (
-    compute_topographic_correlation,
-    save_preprocessing_report,
-    preprocess_dataset
+    calculate_topographic_correlation,
+    calculate_epoch_correlation,
+    generate_preprocessing_report
 )
 
-class TestT017TopographicCorrelation:
-    """
-    Tests for T017: Reporting validation of topographic correlation improvement.
-    """
+# Mock MNE objects for testing
+class MockEpochs:
+    def __init__(self, data, ch_names, n_epochs=10):
+        self.data = data  # (n_epochs, n_channels, n_times)
+        self.ch_names = ch_names
+        self._n_epochs = n_epochs
+        
+    def __len__(self):
+        return self._n_epochs
+        
+    def __getitem__(self, idx):
+        # Return a mock epoch object with get_data method
+        epoch_data = self.data[idx]
+        class MockEpoch:
+            def get_data(self):
+                return epoch_data
+        return MockEpoch()
 
-    def test_compute_topographic_correlation_identical(self):
-        """
-        If raw and cleaned data are identical, correlation should be 1.0.
-        """
+
+class TestT017TopographicCorrelation:
+    """Test suite for topographic correlation functions."""
+
+    def test_calculate_topographic_correlation_basic(self):
+        """Test basic correlation calculation."""
+        # Create identical data -> correlation should be 1.0
         n_channels = 32
         n_times = 100
         data = np.random.randn(n_channels, n_times)
         
-        corr = compute_topographic_correlation(data, data, [])
-        assert np.isclose(corr, 1.0), f"Expected 1.0, got {corr}"
+        corr = calculate_topographic_correlation(data, data, [f'CH{i}' for i in range(n_channels)])
+        assert abs(corr - 1.0) < 1e-5, f"Expected correlation ~1.0, got {corr}"
 
-    def test_compute_topographic_correlation_different(self):
-        """
-        If data is significantly different, correlation should be lower.
-        """
+    def test_calculate_topographic_correlation_different(self):
+        """Test correlation with different data."""
         n_channels = 32
         n_times = 100
         data1 = np.random.randn(n_channels, n_times)
         data2 = np.random.randn(n_channels, n_times)
         
-        corr = compute_topographic_correlation(data1, data2, [])
-        # It's unlikely to be exactly 1.0 or -1.0, just check it's a valid float
-        assert -1.0 <= corr <= 1.0
+        corr = calculate_topographic_correlation(data1, data2, [f'CH{i}' for i in range(n_channels)])
+        # Just check it returns a valid number between -1 and 1
+        assert -1.0 <= corr <= 1.0, f"Correlation {corr} out of bounds"
 
-    def test_compute_topographic_correlation_empty(self):
-        """
-        If data is empty, correlation should be 0.0.
-        """
-        corr = compute_topographic_correlation(np.array([]).reshape(0,0), np.array([]).reshape(0,0), [])
-        assert corr == 0.0
+    def test_calculate_topographic_correlation_mismatched_shapes(self):
+        """Test that mismatched shapes raise an error."""
+        n_channels = 32
+        n_times = 100
+        data1 = np.random.randn(n_channels, n_times)
+        data2 = np.random.randn(n_channels, n_times + 10)
+        
+        with pytest.raises(ValueError, match="Data shapes must match"):
+            calculate_topographic_correlation(data1, data2, [f'CH{i}' for i in range(n_channels)])
 
-    def test_save_preprocessing_report_creates_file(self):
-        """
-        Test that the report is saved to the correct path.
-        """
+    def test_calculate_epoch_correlation_basic(self):
+        """Test epoch correlation calculation."""
+        n_epochs = 10
+        n_channels = 32
+        n_times = 100
+        
+        # Create identical data
+        data = np.random.randn(n_epochs, n_channels, n_times)
+        epochs = MockEpochs(data, [f'CH{i}' for i in range(n_channels)])
+        
+        corr = calculate_epoch_correlation(epochs, epochs)
+        assert abs(corr - 1.0) < 1e-5, f"Expected correlation ~1.0, got {corr}"
+
+    def test_calculate_epoch_correlation_with_subset(self):
+        """Test epoch correlation with channel subset."""
+        n_epochs = 10
+        n_channels = 32
+        n_times = 100
+        
+        data = np.random.randn(n_epochs, n_channels, n_times)
+        ch_names = [f'CH{i}' for i in range(n_channels)]
+        epochs = MockEpochs(data, ch_names)
+        
+        # Use subset
+        subset = ch_names[:16]
+        corr = calculate_epoch_correlation(epochs, epochs, channel_subset=subset)
+        assert abs(corr - 1.0) < 1e-5, f"Expected correlation ~1.0, got {corr}"
+
+    def test_generate_preprocessing_report(self):
+        """Test report generation."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            output_path = os.path.join(tmpdir, "logs", "preprocessing_report.json")
-            report_data = {"test": "value", "topographic_correlation": 0.85}
+            output_path = Path(tmpdir) / "test_report.json"
             
-            save_preprocessing_report(report_data, output_path)
+            # Create mock epochs
+            n_epochs = 10
+            n_channels = 32
+            n_times = 100
+            data = np.random.randn(n_epochs, n_channels, n_times)
+            epochs = MockEpochs(data, [f'CH{i}' for i in range(n_channels)])
             
-            assert os.path.exists(output_path), "Report file was not created"
+            report = generate_preprocessing_report(
+                raw_epochs=epochs,
+                clean_epochs=epochs,
+                excluded_subjects=[],
+                output_path=output_path,
+                subject_id="SUBJ001"
+            )
             
+            # Check report structure
+            assert "subject_id" in report
+            assert "metrics" in report
+            assert "topographic_correlation" in report["metrics"]
+            assert report["subject_id"] == "SUBJ001"
+            
+            # Check file was created
+            assert output_path.exists()
+            
+            # Check file content
             with open(output_path, 'r') as f:
-                loaded = json.load(f)
-            
-            assert loaded["test"] == "value"
-            assert loaded["topographic_correlation"] == 0.85
+                loaded_report = json.load(f)
+            assert loaded_report["subject_id"] == "SUBJ001"
+            assert "topographic_correlation" in loaded_report["metrics"]
 
-    def test_preprocess_dataset_generates_report(self):
-        """
-        Integration test: Ensure preprocess_dataset creates the log file
-        and includes the topographic correlation metric.
-        """
+    def test_generate_preprocessing_report_with_excluded_subjects(self):
+        """Test report generation with excluded subjects."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            # Create dummy data path
-            data_path = os.path.join(tmpdir, "raw")
-            os.makedirs(data_path, exist_ok=True)
+            output_path = Path(tmpdir) / "test_report.json"
             
-            # Run preprocessing
-            result = preprocess_dataset(data_path, tmpdir)
+            # Create mock epochs
+            n_epochs = 10
+            n_channels = 32
+            n_times = 100
+            data = np.random.randn(n_epochs, n_channels, n_times)
+            epochs = MockEpochs(data, [f'CH{i}' for i in range(n_channels)])
             
-            # Check report exists
-            log_path = os.path.join(tmpdir, "logs", "preprocessing_report.json")
-            assert os.path.exists(log_path), "Preprocessing report not found"
+            excluded = ["SUBJ002", "SUBJ003"]
+            report = generate_preprocessing_report(
+                raw_epochs=epochs,
+                clean_epochs=epochs,
+                excluded_subjects=excluded,
+                output_path=output_path,
+                subject_id="SUBJ001"
+            )
             
-            # Verify content
-            with open(log_path, 'r') as f:
-                report = json.load(f)
-            
-            assert "topographic_correlation" in report, "Missing topographic_correlation in report"
-            assert isinstance(report["topographic_correlation"], float), "topographic_correlation must be a float"
-            assert -1.0 <= report["topographic_correlation"] <= 1.0, "Correlation out of bounds"
-            
-            # Verify the soft check logic (should not raise exception even if low)
-            assert "pipeline_status" in report
-            assert result["pipeline_status"] == "completed"
+            assert report["excluded_subjects"] == excluded
 
-    def test_low_correlation_warning(self):
-        """
-        Test that a warning is added if correlation is low (< 0.2).
-        Note: This test relies on the specific random seed in preprocess_dataset
-        producing a low correlation, or we mock the data.
-        Since the function uses random data, we can't guarantee low correlation every time.
-        However, we can verify the logic exists by checking the code or mocking.
-        For this test, we assume the random seed might produce a low correlation
-        or we accept that the test passes if the report is generated correctly.
-        """
-        # This test is somewhat flaky with random data, but verifies the structure.
+    def test_generate_preprocessing_report_creates_file(self):
+        """Test that the report file is actually created."""
         with tempfile.TemporaryDirectory() as tmpdir:
-            data_path = os.path.join(tmpdir, "raw")
-            os.makedirs(data_path, exist_ok=True)
+            output_path = Path(tmpdir) / "preprocessing_report.json"
             
-            result = preprocess_dataset(data_path, tmpdir)
+            # Create mock epochs
+            n_epochs = 10
+            n_channels = 32
+            n_times = 100
+            data = np.random.randn(n_epochs, n_channels, n_times)
+            epochs = MockEpochs(data, [f'CH{i}' for i in range(n_channels)])
             
-            # The report should always contain the 'warnings' key
-            assert "warnings" in result
-            # We don't assert on the content of warnings because it depends on the random data
-            # But we ensure the logic path exists in the code.
-            pass
+            generate_preprocessing_report(
+                raw_epochs=epochs,
+                clean_epochs=epochs,
+                excluded_subjects=[],
+                output_path=output_path
+            )
+            
+            assert output_path.exists()
+            assert output_path.stat().st_size > 0  # File is not empty

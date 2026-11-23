@@ -11,45 +11,15 @@ lands under a `_held/` sub-directory + the outcome is
 from __future__ import annotations
 
 import json
-import shutil
 from pathlib import Path
 
-import yaml
-
 from llmxive.agents import personality as p
+from tests.personality_fixture import make_repo
 
 FIXTURES = Path(__file__).resolve().parents[1] / "fixtures" / "personality"
 
 
-def _make_repo(tmp_path: Path) -> Path:
-    """Same skeleton as test_personality_tick.py."""
-    repo = tmp_path / "repo"
-    repo.mkdir()
-    (repo / "agents" / "prompts" / "personalities").mkdir(parents=True)
-    shutil.copy(FIXTURES / "kahneman.md", repo / "agents" / "prompts" / "personalities" / "kahneman.md")
-    pid = "PROJ-001-mechanistic-interpretability-of-ctcf-bin"
-    spec_dir = repo / "projects" / pid / "specs" / "001-mechanistic-interpretability-of-ctcf-bin"
-    spec_dir.mkdir(parents=True)
-    (spec_dir / "spec.md").write_text("# Spec\n\nA placeholder.", encoding="utf-8")
-    (repo / "state" / "projects").mkdir(parents=True)
-    (repo / "state" / "projects" / f"{pid}.yaml").write_text(
-        yaml.safe_dump({
-            "artifact_hashes": {}, "assigned_agent": None,
-            "created_at": "2026-05-01T00:00:00+00:00",
-            "current_stage": "in_progress", "failed_stage": None,
-            "field": "biology", "human_escalation_reason": None,
-            "id": pid,
-            "last_run_id": None, "last_run_status": None,
-            "points_paper": {}, "points_research": {},
-            "revision_round": 0,
-            "speckit_paper_dir": None,
-            "speckit_research_dir": "specs/001-mechanistic-interpretability-of-ctcf-bin",
-            "title": "CTCF Interpretability",
-            "updated_at": "2026-05-13T00:00:00+00:00",
-        }),
-        encoding="utf-8",
-    )
-    return repo
+_make_repo = make_repo
 
 
 def _make_persona() -> p.Personality:
@@ -144,16 +114,11 @@ class TestLibrarianHold:
         # Comment fixture with URL inserted into content.
         canned_with_url = tmp_path / "with-url.json"
         canned_with_url.write_text(json.dumps({
+            # The NEW reply shape: comment-or-abstain, body under `comment`.
+            # A turn no longer declares its own target.
             "action": "comment",
-            "reason": "I should cite my source.",
-            "target": {
-                "project_id": "PROJ-001-mechanistic-interpretability-of-ctcf-bin",
-                "artifact_kind": "spec",
-                "artifact_path":
-                    "projects/PROJ-001-mechanistic-interpretability-of-ctcf-bin/"
-                    "specs/001-mechanistic-interpretability-of-ctcf-bin/spec.md",
-            },
-            "content": "Reference https://example.com/paper for the methodology.",
+            "comment": "Reference https://example.com/paper for the methodology.",
+            "quotes": [],
         }), encoding="utf-8")
         entry = p.tick(repo, llm_fixture=str(canned_with_url))
         assert entry["outcome"] == p.OUTCOME_LIBRARIAN_HELD

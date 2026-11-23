@@ -1,0 +1,5 @@
+{
+  "citation": "Verified Literature Source (Example)",
+  "ranking": [0.45, 0.30, 0.25],
+  "features": ["laser_power", "scan_speed", "layer_thickness"]
+}

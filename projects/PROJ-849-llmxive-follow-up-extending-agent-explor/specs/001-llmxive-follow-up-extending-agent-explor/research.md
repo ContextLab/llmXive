@@ -1,69 +1,81 @@
 # Research: llmXive Follow-up: Semantic Divergence Diagnostic for Agentic Reasoning
 
-## 1. Methodology Overview
+## 1. Problem Statement & Hypothesis
 
-This study is a **Simulation & Feasibility Study**. It quantifies the **Semantic Divergence Score** as:
+**Hypothesis**: There exists a measurable "Semantic Divergence" between an agent's internal reasoning trace ("thinking") and the external tool actions it selects. High divergence predicts higher failure rates in multimodal reasoning tasks.
 
-```
-semantic_divergence_score = 1 - cosine_similarity(thinking_embedding, tool_centroid_embedding)
-```
-
-Both embeddings are produced by the same DistilBERT encoder (CPU‑only). The score is used as an independent variable to test the *sensitivity* of the metric to a latent “problem difficulty” variable. Ground‑truth tools and RL failure rates are **synthetically generated** when not supplied by the user, following deterministic, reproducible algorithms (see Dataset Strategy). The correlation analysis validates whether the metric can track this synthetic ground truth, serving as a proof‑of‑concept rather than a claim about real‑world RL agents.
+**Research Question**: Can a non-reasoning, keyword-based retrieval system (BM25) identify a "tool-action distribution" that, when compared to the agent's thinking embedding, yields a predictive metric for RL failure?
 
 ## 2. Dataset Strategy
 
-| Dataset / File | Purpose | Verification / Generation |
-|----------------|---------|---------------------------|
-| **MathVista (test split)** | Source of problem instances and `thinking_prefix`. | Verified URL; checksum recorded in `state/...`. |
-| **tool_mapping.csv** (User‑Provided) | Maps `problem_id` → list of ground‑truth tool IDs. | SHA‑256 checksum supplied. **If missing**, synthetic mapping is generated **deterministically** from problem difficulty (see Synthetic Generation Algorithm). |
-| **tool_descriptions.csv** (User‑Provided) | `tool_id`, `description` for BM25 indexing. | SHA‑256 checksum supplied. **If missing**, a **synthetic tool corpus** of 30 domain‑relevant tools is generated (see Synthetic Generation Algorithm). |
-| **rl_failure_rates.csv** (User‑Provided) | `problem_id`, `failure_rate` (independent RL outcome). | SHA‑256 checksum supplied. **If missing**, synthetic failure rates are generated **independently** from the tool mapping (see Synthetic Generation Algorithm). |
+### 2.1 Primary Dataset: MathVista
+- **Source**: `AI4Math/MathVista` (HuggingFace).
+- **Verified URL**: https://huggingface.co/datasets/AI4Math/MathVista/resolve/main/data/test-00000-of-00002-6b81bd7f7e2065e6.parquet
+- **Fields Used**: `question`, `answer`, `metadata`.
+- **Thinking Trace Strategy**: MathVista does not natively contain "thinking" traces. To ensure feasibility on the CPU-only free tier, the system will use **static thought stubs** (e.g., "I need to solve this problem using a tool") for all A representative set of records. This is a known limitation that may reduce variance but ensures reproducibility. If a record has a trace, it is used; otherwise, the stub is applied.
+- **Access Method**: `datasets.load_dataset("AI4Math/MathVista")` with streaming enabled to stay within memory limits.
+- **Sample Size**: Target N=500. If memory pressure > 6GB, downsample to N=300 (random seed fixed).
+- **Feasibility**: Direct download via HF API; no credentials required. Fits within CI disk limits.
 
-### Synthetic Generation Algorithm (deterministic, seed‑controlled)
+### 2.2 Tool Mapping Corpus
+- **Source**: `data/tool_mappings/mathvista_tool_map.json` (Static asset in repo).
+- **Content**: Mapping of `problem_id` to a list of plausible tool descriptions (strings).
+- **Generation**: This file is a curated list of common tools (e.g., "calculator", "image_cropper", "search_engine") and must be committed to the repository. It is the single source of truth for tool descriptions.
+- **Constraint**: Must be present in the repo; if missing, the pipeline halts with `ToolMappingMissing` error.
 
-1. **Extract Difficulty** – Each MathVista record contains a `difficulty` field (0 – 1).  
-2. **Tool Mapping** –  
-   - `difficulty < 0.33` → assign tools `{search, calculator}`.  
-   - `0.33 ≤ difficulty < 0.66` → `{search, calculator, graph_plotter}`.  
-   - `difficulty ≥ 0.66` → `{search, calculator, graph_plotter, symbolic_solver}`.  
-   The assignment uses a fixed random seed (42) for reproducibility.  
-3. **Tool Corpus** – For each of the 30 predefined tool IDs, a templated description is created, e.g., “The **search** tool queries the web for relevant information.” The corpus is checksum‑verified.  
-4. **RL Failure Rate** – Computed as  
-   ```
-   failure_rate = 0.5 * difficulty + 0.5 * U
-   ```
-   where `U ~ Uniform(0,1)` drawn with a separate fixed seed (123). This makes failure rates correlated with difficulty but **statistically independent** of the tool‑mapping procedure.  
+### 2.3 Outcome Data (Simulated RL)
+- **Source**: Deterministic Oracle based on ground truth answers.
+- **Logic**: `simulated_failure` = `True` if `agent_answer` != `ground_truth_answer`. Since the agent's answer is not available in the static dataset, we use the **ground truth answer** as the "oracle" for success. If the dataset provides a "model_answer" field, that is used; otherwise, we assume a "simulated" agent that always fails if the thinking trace is missing or invalid.
+- **Fallback**: If no agent answer is available, the system uses a heuristic: `simulated_failure` = `False` (assume success) for records with valid thinking traces, and `True` otherwise. This is a fallback and will be flagged as "Heuristic Fallback".
+- **Constraint**: No external URL available for AXPO outcomes; relies on local cache or deterministic stub. **Critical**: The ground truth outcome is **independent** of the thinking trace generation process to avoid circularity.
 
-All generated files are written to `data/external/` with accompanying SHA‑256 checksum files; the hashes are recorded in the project state YAML.
+## 3. Methodology
 
-### Power Analysis (Methodology‑597864ad)
+### 3.1 Semantic Divergence Calculation
+1.  **Thinking Embedding**: Extract "thinking" prefix (or static stub) from `metadata`. Encode using `sentence-transformers/all-MiniLM-L6-v2` (DistilBERT variant, CPU-optimized).
+2.  **Tool Retrieval**: Use `rank_bm25` to retrieve top tool descriptions from the mapping file based on the thinking prefix. **Lexical Overlap Control**: If the thinking prefix contains the exact tool name (e.g., "I need to use the calculator"), the tool is masked in the retrieval to prevent trivial lexical overlap from driving the score.
+3.  **Tool Centroid**: Encode retrieved tool descriptions with the *same* model. Compute the arithmetic mean (centroid) of these vectors.
+4.  **Centroid Validity Check**: Compute the variance of the retrieved tool embeddings. If variance > threshold (indicating semantic void), flag the centroid as invalid and set `divergence_score` = 1.0 with a warning.
+5.  **Divergence Score**: `Score = 1 - cosine_similarity(thinking_vector, tool_centroid_vector)`.
+    - If 0 tools retrieved: `tool_centroid` = zero vector, `Score` = 1.0.
 
-With a post‑filter sample size **N ≈ 500**, a two‑tailed Pearson test at α = 0.05 has 80 % power to detect **r ≥ 0.20** (small‑to‑medium effect). The pipeline aborts with a “Statistical Power Insufficient” warning if after filtering N < 30, satisfying SC‑004.
+### 3.2 Statistical Analysis
+- **Correlation**: Point-Biserial correlation (equivalent to Pearson for binary outcomes) between `divergence_score` and `simulated_failure_rate` (binary 0/1).
+    - **Power Analysis**: With N=500, power is sufficient to detect r=0.15 at α=0.05 (Power: High (targeting conventional thresholds for statistical adequacy).) **assuming balanced classes**. If classes are imbalanced, effective N is reduced, and power is lower. Fisher's Exact Test will also be run as a robustness check.
+    - **Distribution Check**: If the divergence score distribution is skewed or non-normal, switch to Spearman's rank correlation.
+- **Classification**: Logistic Regression to predict `failure` (1) vs `success` (0) from `divergence_score`.
+ - **Split**: [deferred] Train / [deferred] Test (stratified).
+    - **Metrics**: Accuracy, Precision, Recall, AUC-ROC.
+    - **Threshold**: AUC ≥ 0.65 indicates predictive value.
 
-## 3. Statistical & Computational Rigor
+### 3.3 Compute Constraints
+- **Hardware**: CPU Cores, 7 GB RAM.
+- **Strategy**:
+    - Stream dataset to avoid loading all records into memory.
+    - Batch embedding (e.g., 32 samples per batch).
+    - Monitor memory usage; trigger downsampling if > 6 GB.
+    - Timeout: A predefined duration.
 
-1. **Cosine Similarity** – Vector similarity in ℝ⁷⁶⁸. Identical vectors → similarity ≈ 1, divergence ≈ 0; orthogonal → similarity ≈ 0, divergence ≈ 1.  
-2. **Embedding Consistency** – Tool descriptions retrieved by BM25 are **embedded with the same DistilBERT model** before centroid calculation (addressing methodology‑f580469b).  
-3. **Pearson Correlation** – Primary hypothesis test (Divergence vs. Synthetic RL failure rate). Only one test → no multiple‑comparison correction needed.  
-4. **K‑Means Clustering** – Performed **only on the training split** (k = 2) to create risk groups “High‑Divergence” and “Low‑Divergence”. Silhouette score ≥ 0.25 is required. The clusters are **used for reporting only**; they are **not** fed into the logistic regression model (addressing methodology‑3f2a81d8 and scientific_soundness‑5c5fb5fb).  
-5. **Logistic Regression** – Trains on the **continuous divergence score** (and optional difficulty) to predict the binary RL outcome (`success_failure`). No cluster label is used as a predictor, avoiding circular reasoning. Model evaluation reports accuracy, precision, recall (SC‑002).  
-6. **Assumptions** – Correlation is associative within the simulation; no causal claims about real agents are made. Predictors are single‑dimensional, so multicollinearity is not a concern.
-
-## 4. Risk Assessment
+## 4. Risks & Mitigations
 
 | Risk | Impact | Mitigation |
-|------|--------|------------|
-| Missing `thinking_prefix` | Record excluded, may reduce N | Log `THINKING_MISSING`; abort correlation if N < 30. |
-| BM25 returns zero tools | `tool_centroid_embedding` set to `null`; record excluded. | Log `BM25_NO_RESULTS`. |
-| External CSV not verified | Pipeline aborts early. | Enforce checksum verification; record hash in project state. |
-| Insufficient sample size | Correlation test invalid. | Power check (see above). |
-| Memory overflow | Use streaming loader and batch processing. | Streaming via `datasets` library; batch size 32. |
-| Synthetic data validity | Results are simulation‑only. | Clearly label all outputs and the paper as “Simulation Study”. |
+| :--- | :--- | :--- |
+| **Missing "Thinking" Traces** | High: Cannot compute embedding. | Use static thought stubs for all records (acknowledged limitation). |
+| **BM25 Returns 0 Results** | Medium: Zero vector centroid. | Handled by spec: Score = 1.0. Logged as `NoToolsRetrieved`. |
+| **Memory Overflow** | High: Job failure. | Batch processing + automatic downsampling to 300 records. |
+| **Low Statistical Power** | Medium: Null results. | Ensure N ≥ 30. If N < 30, halt with `InsufficientSampleSize` error. Use Fisher's Exact Test for robustness. |
+| **Lexical Overlap** | High: Metric measures keyword match, not gap. | Implement masking for exact tool name matches in thinking trace. |
 
-## 5. Deliverables
+## 5. Decision Rationale
 
-- `divergence_scores.json` – per‑record embeddings and scores (conforms to `output.schema.yaml`).  
-- `analysis_results.json` – Pearson correlation (r, p‑value), silhouette score, logistic regression metrics.  
-- `checksums.txt` – SHA‑256 hashes of all generated artifacts.  
+- **Why DistilBERT?** It is the most CPU-efficient transformer model that provides high-quality semantic embeddings. Larger models (e.g., BERT-base, RoBERTa) would risk exceeding the 7 GB RAM limit or the -hour timeout.
+- **Why BM25?** It is deterministic, fast, and does not require a neural network, ensuring the "tool-action distribution" is independent of the agent's reasoning capabilities (avoiding circularity).
+- **Why CPU-Only?** The GitHub Actions free tier lacks GPU. The method is designed to be CPU-tractable. No GPU escape hatch is needed as the model size is small.
+- **Why Logistic Regression?** It is a simple, interpretable baseline for binary classification. It avoids the complexity of deep learning while providing a clear AUC-ROC metric.
+- **Why Point-Biserial?** It is the correct statistical test for a continuous predictor and a binary outcome, accounting for class imbalance better than raw Pearson.
 
-All artifacts are traceable to a single source (raw MathVista split, verified CSVs, or deterministic synthetic generation) per Constitution Principle IV.
+## 6. Verified Datasets
+
+- **MathVista**: `AI4Math/MathVista` (HuggingFace). URL: https://huggingface.co/datasets/AI4Math/MathVista/resolve/main/data/test-00000-of-00002-6b81bd7f7e2065e6.parquet
+- **BM25 (Reference)**: `iohadrubin/nq_reranking_bm25` (HuggingFace). URL: https://huggingface.co/datasets/iohadrubin/nq_reranking_bm25/resolve/main/data/train-00000-of-00003-2005afc34e0ba73a.parquet (Used for reference only; actual tool mapping is local).
+- **AXPO**: NO verified source found. Outcomes are simulated/deterministic based on ground truth answers.

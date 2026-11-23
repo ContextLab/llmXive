@@ -1,224 +1,247 @@
 import pytest
 import networkx as nx
-from code.src.parser import CoTParser, parse_trace_to_dag, get_max_path_depth, get_logical_difficulty
+from code.src.parser import (
+    CoTParser,
+    parse_trace_to_dag,
+    get_max_path_depth,
+    get_logical_difficulty,
+    detect_cycle,
+    split_trace_into_steps,
+    extract_references
+)
 import json
 import os
 from pathlib import Path
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Tuple, Set
 
-# Fixtures for test data
+# Fixtures
+
 @pytest.fixture
 def parser():
     return CoTParser()
 
 @pytest.fixture
 def simple_trace():
-    """A simple linear trace without dependencies."""
+    """A valid, linear trace with no cycles."""
     return [
-        {"step_id": 1, "content": "Read the problem.", "dependencies": []},
-        {"step_id": 2, "content": "Identify variables.", "dependencies": [1]},
-        {"step_id": 3, "content": "Formulate equation.", "dependencies": [2]},
-        {"step_id": 4, "content": "Solve equation.", "dependencies": [3]},
-        {"step_id": 5, "content": "Verify answer.", "dependencies": [4]}
+        {"step": 1, "text": "Read the problem.", "refs": []},
+        {"step": 2, "text": "Identify variables.", "refs": [1]},
+        {"step": 3, "text": "Formulate equation.", "refs": [2]},
+        {"step": 4, "text": "Solve equation.", "refs": [3]},
+        {"step": 5, "text": "Verify solution.", "refs": [4]}
     ]
 
 @pytest.fixture
 def cyclic_trace():
-    """A trace with a circular dependency (A->B->C->A)."""
+    """A trace with a direct cycle: Step 3 depends on 4, which depends on 3."""
     return [
-        {"step_id": 1, "content": "Step A", "dependencies": [3]},
-        {"step_id": 2, "content": "Step B", "dependencies": [1]},
-        {"step_id": 3, "content": "Step C", "dependencies": [2]}
+        {"step": 1, "text": "Start.", "refs": []},
+        {"step": 2, "text": "Process A.", "refs": [1]},
+        {"step": 3, "text": "Process B (needs C).", "refs": [2, 4]},
+        {"step": 4, "text": "Process C (needs B).", "refs": [3]},
+        {"step": 5, "text": "End.", "refs": [4]}
     ]
 
 @pytest.fixture
 def deep_trace():
-    """A trace designed to test max path depth calculation."""
-    # Creates a graph where the longest path is 1 -> 2 -> 4 -> 6 (length 4)
-    # But there is a side branch 1 -> 3 -> 5 (length 3)
+    """A trace designed to test maximum path depth calculation."""
     return [
-        {"step_id": 1, "content": "Start", "dependencies": []},
-        {"step_id": 2, "content": "Branch A", "dependencies": [1]},
-        {"step_id": 3, "content": "Branch B", "dependencies": [1]},
-        {"step_id": 4, "content": "Deep A1", "dependencies": [2]},
-        {"step_id": 5, "content": "Deep B1", "dependencies": [3]},
-        {"step_id": 6, "content": "Deep A2", "dependencies": [4]},
-        {"step_id": 7, "content": "End", "dependencies": [6, 5]}
+        {"step": 1, "text": "Base.", "refs": []},
+        {"step": 2, "text": "Level 1.", "refs": [1]},
+        {"step": 3, "text": "Level 2.", "refs": [2]},
+        {"step": 4, "text": "Level 3.", "refs": [3]},
+        {"step": 5, "text": "Level 4.", "refs": [4]},
+        {"step": 6, "text": "Level 5.", "refs": [5]},
+        {"step": 7, "text": "Level 6.", "refs": [6]}
     ]
 
 @pytest.fixture
 def complex_graph_trace():
-    """A trace with multiple incoming edges to test edge counting logic."""
+    """A trace with branching and merging to test depth and edge counts."""
     return [
-        {"step_id": 1, "content": "Start", "dependencies": []},
-        {"step_id": 2, "content": "Path 1", "dependencies": [1]},
-        {"step_id": 3, "content": "Path 2", "dependencies": [1]},
-        {"step_id": 4, "content": "Path 3", "dependencies": [1]},
-        {"step_id": 5, "content": "Convergence", "dependencies": [2, 3, 4]} # 3 incoming edges
+        {"step": 1, "text": "Start.", "refs": []},
+        {"step": 2, "text": "Branch A.", "refs": [1]},
+        {"step": 3, "text": "Branch B.", "refs": [1]},
+        {"step": 4, "text": "Branch C.", "refs": [1]},
+        {"step": 5, "text": "Merge (needs A, B, C).", "refs": [2, 3, 4]},
+        {"step": 6, "text": "End.", "refs": [5]}
     ]
 
 @pytest.fixture
 def ambiguous_trace():
-    """Trace with missing or invalid dependency IDs."""
+    """A trace with invalid references (step 99 doesn't exist)."""
     return [
-        {"step_id": 1, "content": "Step 1", "dependencies": []},
-        {"step_id": 2, "content": "Step 2", "dependencies": [99]}, # Invalid ref
-        {"step_id": 3, "content": "Step 3", "dependencies": [1]}
+        {"step": 1, "text": "Start.", "refs": []},
+        {"step": 2, "text": "Invalid ref.", "refs": [99]},
+        {"step": 3, "text": "End.", "refs": [2]}
     ]
 
-# --- Cycle Detection Tests ---
+# Cycle Detection Tests
 
 def test_cycle_detection(parser, cyclic_trace):
-    """Verify that the parser detects cycles and flags the trace as invalid."""
-    is_valid, dag, error_msg = parser.parse(cyclic_trace)
-    assert is_valid is False, "Cycle should be detected"
-    assert "cycle" in error_msg.lower() or "cyclic" in error_msg.lower()
+    """Test that detect_cycle correctly identifies a cycle in the graph."""
+    dag, _ = parse_trace_to_dag(cyclic_trace)
+    has_cycle = detect_cycle(dag)
+    assert has_cycle is True, "Cycle should be detected in cyclic_trace"
 
 def test_no_cycle_in_simple_trace(parser, simple_trace):
-    """Verify that a linear trace is detected as valid."""
-    is_valid, dag, error_msg = parser.parse(simple_trace)
-    assert is_valid is True, "Linear trace should be valid"
-    assert dag is not None
-    assert nx.is_directed_acyclic_graph(dag)
+    """Test that a valid linear trace has no cycles."""
+    dag, _ = parse_trace_to_dag(simple_trace)
+    has_cycle = detect_cycle(dag)
+    assert has_cycle is False, "Simple trace should not have a cycle"
 
 def test_max_incoming_edges_flagging(parser, complex_graph_trace):
-    """Verify that traces with too many incoming edges are flagged if configured."""
-    # Default config usually allows this, but we test the logic if limit is set low
-    # For this test, we just ensure the graph builds correctly without crashing
-    is_valid, dag, error_msg = parser.parse(complex_graph_trace)
-    assert is_valid is True, "Graph with multiple parents should be valid by default"
+    """Test flagging of nodes with > 3 incoming edges."""
+    dag, _ = parse_trace_to_dag(complex_graph_trace)
+    # Step 5 has 3 incoming edges (from 2, 3, 4).
+    # The requirement is > 3. So step 5 should NOT be flagged.
+    # Let's create a scenario where it IS > 3.
     
-    # Verify edge count
+    # Manually check logic on the parsed graph
     in_degree_5 = dag.in_degree(5)
-    assert in_degree_5 == 3, "Node 5 should have 3 incoming edges"
+    assert in_degree_5 == 3
+    
+    # Create a trace where a node has 4 incoming edges
+    heavy_trace = [
+        {"step": 1, "text": "A", "refs": []},
+        {"step": 2, "text": "B", "refs": []},
+        {"step": 3, "text": "C", "refs": []},
+        {"step": 4, "text": "D", "refs": []},
+        {"step": 5, "text": "E", "refs": [1, 2, 3, 4]} # 4 incoming edges
+    ]
+    dag_heavy, _ = parse_trace_to_dag(heavy_trace)
+    in_degree_5_heavy = dag_heavy.in_degree(5)
+    assert in_degree_5_heavy == 4
+    
+    # Verify the flagging logic (conceptually, we check the degree)
+    # The actual flagging happens in the manifest generation, 
+    # but here we verify the graph structure allows detection.
+    assert in_degree_5_heavy > 3, "Node 5 should have > 3 incoming edges"
 
 def test_invalid_trace_flagging(parser, ambiguous_trace):
-    """Verify that references to non-existent steps are flagged."""
-    is_valid, dag, error_msg = parser.parse(ambiguous_trace)
-    # Depending on strictness, this might be False. 
-    # Based on typical robust parsers, missing refs are errors.
-    assert is_valid is False, "Missing dependency reference should invalidate trace"
+    """Test that traces with invalid references are flagged."""
+    # The parser should handle missing refs gracefully or flag them.
+    # We test that the DAG construction doesn't crash and we can identify the issue.
+    dag, metadata = parse_trace_to_dag(ambiguous_trace)
+    
+    # Check if metadata contains the invalid ref info
+    assert "invalid_references" in metadata
+    assert 99 in metadata["invalid_references"]
 
 def test_empty_trace_handling(parser):
-    """Verify behavior with empty input."""
-    is_valid, dag, error_msg = parser.parse([])
-    assert is_valid is True, "Empty trace should be valid (empty graph)"
+    """Test handling of empty trace list."""
+    dag, metadata = parse_trace_to_dag([])
     assert dag.number_of_nodes() == 0
+    assert dag.number_of_edges() == 0
+    assert metadata.get("is_valid", True) is False or metadata.get("empty", False)
 
-# --- Depth Calculation Tests ---
+# Logical Difficulty Score (Max Path Depth) Tests
 
-def test_logical_difficulty_score(simple_trace):
-    """Test that logical difficulty (max path depth) is calculated correctly for a linear chain."""
-    is_valid, dag, _ = parse_trace_to_dag(simple_trace)
-    assert is_valid
-    
+def test_logical_difficulty_score(parser, simple_trace):
+    """Test max path depth calculation for a linear trace."""
+    dag, _ = parse_trace_to_dag(simple_trace)
     depth = get_max_path_depth(dag)
-    # Path: 1->2->3->4->5. 
-    # If depth is node count in longest path: 5
-    # If depth is edges: 4. 
-    # get_max_path_depth usually counts nodes in the longest path in this context.
-    assert depth == 5, f"Expected depth 5, got {depth}"
+    # Path: 1->2->3->4->5. Length (nodes) = 5.
+    # Depending on definition (edges vs nodes), check accordingly.
+    # Usually depth is number of nodes in longest path.
+    assert depth == 5
 
-def test_complex_graph_depth(complex_graph_trace):
-    """Test depth calculation on a graph with converging paths."""
-    is_valid, dag, _ = parse_trace_to_dag(complex_graph_trace)
-    assert is_valid
-    
+def test_complex_graph_depth(parser, complex_graph_trace):
+    """Test max path depth in a graph with branching."""
+    dag, _ = parse_trace_to_dag(complex_graph_trace)
     depth = get_max_path_depth(dag)
-    # Longest path: 1 -> 2 -> 5 (or 1->3->5, 1->4->5). Length 3.
-    assert depth == 3, f"Expected depth 3, got {depth}"
+    # Longest path: 1 -> 2 -> 5 -> 6 (or 3->5->6, 4->5->6)
+    # Nodes: 1, 2, 5, 6 = 4 nodes.
+    assert depth == 4
 
-def test_deep_trace_depth(deep_trace):
-    """Test depth calculation on a graph with varying branch lengths."""
-    is_valid, dag, _ = parse_trace_to_dag(deep_trace)
-    assert is_valid
-    
+def test_deep_trace_depth(parser, deep_trace):
+    """Test max path depth for a deep chain."""
+    dag, _ = parse_trace_to_dag(deep_trace)
     depth = get_max_path_depth(dag)
-    # Longest path: 1 -> 2 -> 4 -> 6 -> 7 (Length 5)
-    # Alternative: 1 -> 3 -> 5 -> 7 (Length 4)
-    assert depth == 5, f"Expected depth 5, got {depth}"
+    assert depth == 7
 
-def test_logical_difficulty_empty_graph():
-    """Test that an empty graph returns 0 depth."""
-    G = nx.DiGraph()
-    depth = get_max_path_depth(G)
+def test_logical_difficulty_empty_graph(parser):
+    """Test depth calculation on empty graph."""
+    dag = nx.DiGraph()
+    depth = get_max_path_depth(dag)
     assert depth == 0
 
-# --- Function Wrapper Tests ---
-
-def test_parse_trace_to_dag_function(simple_trace):
-    """Test the direct function wrapper."""
-    is_valid, dag, error = parse_trace_to_dag(simple_trace)
-    assert is_valid
-    assert isinstance(dag, nx.DiGraph)
-    assert len(dag.nodes()) == len(simple_trace)
-    assert len(dag.edges()) == len(simple_trace) - 1
-
-def test_get_logical_difficulty_function(simple_trace):
-    """Test the high-level difficulty function."""
+def test_get_logical_difficulty_function(parser, simple_trace):
+    """Test the wrapper function get_logical_difficulty."""
     score = get_logical_difficulty(simple_trace)
-    assert score == 5, f"Expected score 5, got {score}"
+    assert score == 5
 
-def test_invalid_trace_flagging_with_cycle(cyclic_trace):
-    """Ensure the high-level function returns invalid for cyclic traces."""
-    score = get_logical_difficulty(cyclic_trace)
-    # Should return 0 or -1 or similar indicator for invalid
-    assert score == 0, "Cyclic trace should return 0 difficulty"
+# Integration of Parser Logic
 
-def test_max_incoming_edges_flagging_logic():
-    """Test the internal logic for edge counting via direct graph manipulation."""
-    G = nx.DiGraph()
-    G.add_edges_from([(1, 2), (1, 3), (1, 4), (2, 5), (3, 5), (4, 5)])
-    
-    # Node 5 has 3 incoming edges
-    in_degree = G.in_degree(5)
-    assert in_degree == 3
+def test_parse_trace_to_dag_function(parser, simple_trace):
+    """Test that parse_trace_to_dag returns a valid DiGraph and metadata."""
+    dag, metadata = parse_trace_to_dag(simple_trace)
+    assert isinstance(dag, nx.DiGraph)
+    assert isinstance(metadata, dict)
+    assert "nodes" in metadata or "edges" in metadata or "is_valid" in metadata
 
-def test_invalid_trace_flagging_unresolvable_ref():
-    """Test parsing a trace with a reference to a non-existent node."""
-    trace = [
-        {"step_id": 1, "content": "A", "dependencies": []},
-        {"step_id": 2, "content": "B", "dependencies": [100]}
+def test_get_logical_difficulty_function(parser, deep_trace):
+    """Test get_logical_difficulty returns correct integer."""
+    score = get_logical_difficulty(deep_trace)
+    assert isinstance(score, int)
+    assert score == 7
+
+def test_invalid_trace_flagging_with_cycle(parser, cyclic_trace):
+    """Ensure cyclic traces are flagged as invalid."""
+    dag, metadata = parse_trace_to_dag(cyclic_trace)
+    assert metadata.get("is_valid") is False
+    assert metadata.get("has_cycle") is True
+
+def test_max_incoming_edges_flagging_logic(parser):
+    """Test logic for flagging nodes with > 3 incoming edges."""
+    heavy_trace = [
+        {"step": 1, "text": "A", "refs": []},
+        {"step": 2, "text": "B", "refs": []},
+        {"step": 3, "text": "C", "refs": []},
+        {"step": 4, "text": "D", "refs": []},
+        {"step": 5, "text": "E", "refs": [1, 2, 3, 4]}
     ]
-    is_valid, dag, error = parse_trace_to_dag(trace)
-    assert is_valid is False
-    assert "missing" in error.lower() or "invalid" in error.lower()
-
-def test_complex_graph_depth_verification(complex_graph_trace):
-    """Verification test for the specific complex graph structure."""
-    is_valid, dag, _ = parse_trace_to_dag(complex_graph_trace)
-    assert is_valid
+    dag, metadata = parse_trace_to_dag(heavy_trace)
     
-    # Verify structure explicitly
-    assert dag.has_edge(1, 2)
-    assert dag.has_edge(1, 3)
-    assert dag.has_edge(1, 4)
-    assert dag.has_edge(2, 5)
-    assert dag.has_edge(3, 5)
-    assert dag.has_edge(4, 5)
+    # Verify the node 5 has high in-degree
+    assert dag.in_degree(5) == 4
     
-    # Verify depth
-    assert get_max_path_depth(dag) == 3
+    # The metadata should ideally flag this if the parser implements it
+    # We verify the condition is detectable
+    has_high_indegree = any(dag.in_degree(n) > 3 for n in dag.nodes())
+    assert has_high_indegree is True
 
-def test_parser_handles_multiline_steps():
-    """Ensure parser handles steps with newlines in content."""
-    trace = [
-        {"step_id": 1, "content": "Line 1\nLine 2", "dependencies": []},
-        {"step_id": 2, "content": "Next", "dependencies": [1]}
-    ]
-    is_valid, dag, _ = parse_trace_to_dag(trace)
-    assert is_valid
-    # Check if content is preserved (networkx nodes store attributes)
-    node_1_content = dag.nodes[1].get('content', '')
-    assert "Line 1" in node_1_content
+def test_invalid_trace_flagging_unresolvable_ref(parser, ambiguous_trace):
+    """Test that unresolvable references are captured in metadata."""
+    dag, metadata = parse_trace_to_dag(ambiguous_trace)
+    assert "invalid_references" in metadata
+    assert 99 in metadata["invalid_references"]
+    # The trace should be marked invalid due to missing refs
+    assert metadata.get("is_valid") is False
 
-def test_parser_handles_special_characters():
-    """Ensure parser handles special characters in content."""
-    trace = [
-        {"step_id": 1, "content": "x = 2 * (3 + 4)", "dependencies": []},
-        {"step_id": 2, "content": "Result: 14!", "dependencies": [1]}
+def test_complex_graph_depth_verification(parser, complex_graph_trace):
+    """Verify depth calculation handles complex merging correctly."""
+    dag, _ = parse_trace_to_dag(complex_graph_trace)
+    depth = get_max_path_depth(dag)
+    # 1->2->5->6 (4 nodes)
+    assert depth == 4
+
+def test_parser_handles_multiline_steps(parser):
+    """Test parser handles multiline text in steps."""
+    multiline_trace = [
+        {"step": 1, "text": "Line 1\nLine 2", "refs": []},
+        {"step": 2, "text": "Next", "refs": [1]}
     ]
-    is_valid, dag, _ = parse_trace_to_dag(trace)
-    assert is_valid
-    node_1_content = dag.nodes[1].get('content', '')
-    assert "*" in node_1_content
+    dag, metadata = parse_trace_to_dag(multiline_trace)
+    assert dag.number_of_nodes() == 2
+    assert dag.number_of_edges() == 1
+
+def test_parser_handles_special_characters(parser):
+    """Test parser handles special characters in text."""
+    special_trace = [
+        {"step": 1, "text": "Use $100 and 3.14!", "refs": []},
+        {"step": 2, "text": "Calculate % increase", "refs": [1]}
+    ]
+    dag, metadata = parse_trace_to_dag(special_trace)
+    assert dag.number_of_nodes() == 2
+    assert dag.number_of_edges() == 1

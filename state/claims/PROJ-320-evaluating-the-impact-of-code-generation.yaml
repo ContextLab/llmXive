@@ -1,0 +1,1191 @@
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Research question: classification of Copilot bot users'
+  claim_id: c_ac798012
+  context: 'Unit test test_copilot_signature_match in tests/unit/test_classification.py:
+    The research question is to determine the classification of Copilot bot users.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question:_classification_of_Copilot_bot_users
+  kind: entity_fact
+  raw_text: The research question is to determine the classification of Copilot bot
+    users.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:31:02Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Method: label Copilot bot users as llm with high confidence'
+  claim_id: c_982b2253
+  context: 'Unit test test_copilot_signature_match in tests/unit/test_classification.py:
+    The research question is to determine the classification of Copilot bot users.
+    The method involves labeling Copilot bot users as llm with high confidence.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Method:_label_Copilot_bot_users_as_llm_with_high_confidence
+  kind: entity_fact
+  raw_text: The method involves labeling Copilot bot users as llm with high confidence.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:31:52Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Audit sample size rule: max(10, ceil(0.10 * N_LLM))'
+  claim_id: c_b366240a
+  context: Create code/audit/manual_validation.py skeleton for the audit sample size
+    rule (max(10, ceil(0.10 * N_LLM))).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The audit sample size rule is max(10, ceil(0.10 * N_LLM)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:32:49Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Complexity fallback threshold: memory usage > 6GB'
+  claim_id: c_0e9f97b4
+  context: Implement fallback logic in code/analysis/complexity.py to use standard
+    metrics if memory usage > 6GB (Assumption 3).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Complexity_fallback_threshold:_memory_usage_%3E_6GB
+  kind: entity_fact
+  raw_text: The fallback logic in code/analysis/complexity.py uses standard metrics
+    if memory usage exceeds 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:33:10Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Fetch limit: 200 PRs'
+  claim_id: c_daa01fd4
+  context: Implement code/data/fetch_github.py to fetch up to 200 PRs from prioritized
+    list, handling pagination, API backoff, and saving raw JSON payloads to data/raw/
+    with SHA-256 checksums (Constitution Principle III).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fetch script is configured to fetch up to 200 PRs from a prioritized
+    list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:34:19Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Ambiguity flag threshold: confidence < 0.6'
+  claim_id: c_d8019b52
+  context: 'Implement code/data/classify_prs.py primary logic: label llm or human
+    based on commit message/bot signatures; MUST populate confidence_score (float)
+    for every PR (normalized scale); flag ambiguous cases (confidence < 0.6) by adding
+    a ''flagged'' boolean column.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ambiguity_flag_threshold:_confidence_%3C_0.6
+  kind: magnitude
+  raw_text: Ambiguous cases are flagged if confidence is less than 0.6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:34:59Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Repo switch threshold: llm count < 10'
+  claim_id: c_ce403a5c
+  context: Implement fallback logic in code/data/fetch_github.py to automatically
+    switch to next repo if llm count < 10 in current repo.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Repo_switch_threshold:_llm_count_%3C_10
+  kind: magnitude
+  raw_text: The fallback logic in fetch_github.py switches to the next repo if the
+    llm count is less than 10 in the current repo.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:35:31Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Audit sample size formula: max(min_threshold, ceil(proportion * N_LLM))'
+  claim_id: c_1607cba9
+  context: Implement code/audit/manual_validation.py logic to select stratified sample
+    of size determined by a minimum threshold or a fixed proportion of the population,
+    specifically max(min_threshold, ceil(proportion * N_LLM)), execute human-judgment
+    checklist, and log results to data/audit/manual_audit_results.json.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Audit_sample_size_formula:_max(min_threshold,_ceil(proportio
+  kind: entity_fact
+  raw_text: The audit sample size is determined by max(min_threshold, ceil(proportion
+    * N_LLM)).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:36:07Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Error rate threshold: 0.05'
+  claim_id: c_f2c93857
+  context: Implement error rate calculation logic in code/audit/manual_validation.py
+    to compare manual results against automated labels AND the secondary detector
+    score (FR-007) as ground truth, calculate the labeling error rate, write the result
+    to data/audit/error_rate.json, and raise a runtime error if the rate exceeds 0.05
+    as defined in SC-004.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A runtime error is raised if the labeling error rate exceeds 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:36:42Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Primary analysis: independent two-sample t-tests'
+  claim_id: c_3a735a00
+  context: Implement code/analysis/statistical_tests.py to perform independent two-sample
+    t-tests as PRIMARY analysis (per FR-004) comparing llm vs human groups for comment
+    density and time-to-merge, outputting p-values, t-statistics, and effect sizes
+    (Cohen's d).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_analysis:_independent_two-sample_t-tests
+  kind: entity_fact
+  raw_text: Independent two-sample t-tests are the primary analysis method comparing
+    llm vs human groups.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:37:32Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Sensitivity analysis: Mann-Whitney U tests'
+  claim_id: c_7f003251
+  context: Implement Mann-Whitney U tests as sensitivity analysis in code/analysis/statistical_tests.py
+    to verify robustness of t-test results.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sensitivity_analysis:_Mann-Whitney_U_tests
+  kind: entity_fact
+  raw_text: Mann-Whitney U tests are used as a sensitivity analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:38:26Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Effect size metric: Cohen''s d'
+  claim_id: c_0497e85c
+  context: "Implement calculation of effect sizes (Cohen's d) and significance determination\
+    \ (\u03B1 = 0.05) in code/analysis/statistical_tests.py."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Effect_size_metric:_Cohen's_d
+  kind: entity_fact
+  raw_text: Effect sizes are calculated using Cohen's d.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:40:58Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Significance threshold: alpha = 0.05'
+  claim_id: c_6daf1689
+  context: "Implement calculation of effect sizes (Cohen's d) and significance determination\
+    \ (\u03B1 = 0.05) in code/analysis/statistical_tests.py."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: Significance determination uses an alpha level of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-10T03:41:19Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Gate block condition: error rate > 0.05'
+  claim_id: c_12a41c1a
+  context: Implement logic in code/analysis/generate_results_report.py to read the
+    error rate from data/audit/error_rate.json (produced by T019b) and write a gate_status
+    flag to data/processed/gate_status.json (block final report generation if rate
+    > 0.05); do not block Phase 4 execution, only final aggregation.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Gate_block_condition:_error_rate_%3E_0.05
+  kind: magnitude
+  raw_text: The gate status blocks final report generation if the error rate is greater
+    than 0.05.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-10T03:42:02Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: manual validation sample size rule max(10, ceil(0.10 * N_LLM))
+  claim_id: c_8f35a084
+  context: Create code/audit/manual_validation.py skeleton for the audit sample size
+    rule (max(10, ceil(0.10 * N_LLM)))
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Manual_validation_sample_size_rule_max(10,_ceil(0.10_*_N_LLM
+  kind: entity_fact
+  raw_text: The sample size rule for manual validation is defined as max(10, ceil(0.10
+    * N_LLM)).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:56:54Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: complexity fallback threshold 6GB memory usage
+  claim_id: c_374097e8
+  context: Implement fallback logic in code/analysis/complexity.py to use standard
+    metrics if memory usage > 6GB (Assumption 3)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Complexity_fallback_threshold_6GB_memory_usage
+  kind: entity_fact
+  raw_text: The fallback logic in code/analysis/complexity.py uses standard metrics
+    if memory usage exceeds 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:57:01Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: fetch limit 200 PRs
+  claim_id: c_95eb3b23
+  context: Implement code/data/fetch_github.py to fetch up to 200 PRs from prioritized
+    list, handling pagination, API backoff, and saving raw JSON payloads to data/raw/
+    with SHA-256 checksums
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fetch script is configured to fetch up to 200 PRs from the prioritized
+    list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:57:07Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: ambiguous confidence threshold 0.6
+  claim_id: c_eafd0bf5
+  context: flag ambiguous cases (confidence < 0.6) by adding a 'flagged' boolean column
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ambiguous_confidence_threshold_0.6
+  kind: magnitude
+  raw_text: Ambiguous cases are flagged if the confidence score is less than 0.6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:57:18Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: audit sample size formula max(min_threshold, ceil(proportion * N_LLM))
+  claim_id: c_036d1c00
+  context: Implement code/audit/manual_validation.py logic to select stratified sample
+    of size determined by a minimum threshold or a fixed proportion of the population,
+    specifically max(min_threshold, ceil(proportion * N_LLM))
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Audit_sample_size_formula_max(min_threshold,_ceil(proportion
+  kind: entity_fact
+  raw_text: The audit sample size calculation uses a formula of max(min_threshold,
+    ceil(proportion * N_LLM)).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:57:25Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: labeling error rate threshold 0.05
+  claim_id: c_28c40481
+  context: calculate the labeling error rate, write the result to data/audit/error_rate.json,
+    and raise a runtime error if the rate exceeds 0.05 as defined in SC-004
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A runtime error is raised if the labeling error rate exceeds 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:57:41Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: report generation block error rate 0.05
+  claim_id: c_3f3cd420
+  context: read the error rate from data/audit/error_rate.json (produced by T019b)
+    and write a gate_status flag to data/processed/gate_status.json (block final report
+    generation if rate > 0.05)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The final report generation is blocked if the error rate from data/audit/error_rate.json
+    exceeds 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T15:57:48Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Research question: classification of Copilot bot users'
+  claim_id: c_2618f2eb
+  context: 'Unit test test_copilot_signature_match in tests/unit/test_classification.py:
+    The research question is to determine the classification of Copilot bot users.
+    The method involves labeling Copilot bot users as llm with high confidence.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Research_question:_classification_of_Copilot_bot_users
+  kind: entity_fact
+  raw_text: The research question is to determine the classification of Copilot bot
+    users.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T15:21:21Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Ambiguous case threshold: confidence < 0.6'
+  claim_id: c_fad7a332
+  context: 'Implement code/data/classify_prs.py primary logic: label llm or human
+    based on commit message/bot signatures; MUST populate confidence_score (float)
+    for every PR (normalized scale); flag ambiguous cases (confidence < 0.6) by adding
+    a ''flagged'' boolean column'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ambiguous_case_threshold:_confidence_%3C_0.6
+  kind: magnitude
+  raw_text: The threshold for flagging ambiguous cases is a confidence score of less
+    than 0.6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T15:21:47Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Error rate threshold: 0.05'
+  claim_id: c_757ef26c
+  context: Implement error rate calculation logic in code/audit/manual_validation.py
+    to compare manual results against automated labels AND the secondary detector
+    score (FR-007) as ground truth, calculate the labeling error rate, write the result
+    to data/audit/error_rate.json, and raise a runtime error if the rate exceeds 0.05
+    as defined in SC-004
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The error rate threshold for raising a runtime error is 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T15:22:25Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Primary statistical analysis: independent two-sample t-test'
+  claim_id: c_d73a2754
+  context: Implement code/analysis/statistical_tests.py to perform independent two-sample
+    t-tests as PRIMARY analysis (per FR-004) comparing llm vs human groups for comment
+    density and time-to-merge, outputting p-values, t-statistics, and effect sizes
+    (Cohen's d)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_statistical_analysis:_independent_two-sample_t-test
+  kind: entity_fact
+  raw_text: The primary statistical analysis method is the independent two-sample
+    t-test.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T15:22:55Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Significance level alpha: 0.05'
+  claim_id: c_9cc37bdc
+  context: "Implement calculation of effect sizes (Cohen's d) and significance determination\
+    \ (\u03B1 = 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value))\
+    \ in code/analysis/statistical_tests.py"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The significance level (alpha) for significance determination is 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T15:23:07Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Fetch limit: 200 PRs'
+  claim_id: c_3a3cfe9e
+  context: Implement code/data/fetch_github.py to fetch up to 200 PRs from prioritized
+    list, handling pagination, API backoff, and saving raw JSON payloads to data/raw/
+    with SHA-256 checksums (Constitution Principle III)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project fetches up to 200 PRs from prioritized repos.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T15:23:24Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Repo fallback threshold: LLM count < 10'
+  claim_id: c_3d877082
+  context: Implement fallback logic in code/data/fetch_github.py to automatically
+    switch to next repo if llm count < 10 in current repo
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Repo_fallback_threshold:_LLM_count_%3C_10
+  kind: magnitude
+  raw_text: The fallback logic switches to the next repo if the LLM count is less
+    than 10 in the current repo.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T15:23:54Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Audit sample size rule: max(10, ceil(0.10 * N_LLM))'
+  claim_id: c_0c3a7891
+  context: Create code/audit/manual_validation.py skeleton for the audit sample size
+    rule (max(10, ceil(0.10 * N_LLM)))
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The audit sample size rule is max(10, ceil(0.10 * N_LLM)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T15:24:18Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Memory usage fallback threshold: 6GB'
+  claim_id: c_60e281e6
+  context: Implement fallback logic in code/analysis/complexity.py to use standard
+    metrics if memory usage > 6GB (Assumption 3)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Memory_usage_fallback_threshold:_6GB
+  kind: entity_fact
+  raw_text: The fallback logic for complexity metrics triggers if memory usage exceeds
+    6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T15:24:54Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'User story priority order: P1, P2, P3'
+  claim_id: c_db993f18
+  context: 'Phase 3: User Story 1 - Data Acquisition and LLM Classification (Priority:
+    P1) ... Phase 4: User Story 2 - Metric Extraction and Statistical Comparison (Priority:
+    P2) ... Phase 5: User Story 3 - Complexity Scoring and Visualization (Priority:
+    P3)'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/User_story_priority_order:_P1,_P2,_P3
+  kind: entity_fact
+  raw_text: The priority user stories are ordered P1, P2, and P3.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T15:25:52Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: flag ambiguous cases if confidence score is less than 0.6
+  claim_id: c_52ad71bd
+  context: 'T014 [US1] Implement `code/data/classify_prs.py` primary logic: label
+    `llm` or `human` based on commit message/bot signatures; **MUST** populate `confidence_score`
+    (float) for **every** PR (normalized scale); flag ambiguous cases (confidence
+    < 0.6) by adding a ''flagged'' boolean column'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_ambiguous_cases_if_confidence_score_is_less_than_0.6
+  kind: magnitude
+  raw_text: flag ambiguous cases (confidence < 0.6) by adding a 'flagged' boolean
+    column
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:32:14Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: message with no signature yields confidence less than 0.6
+  claim_id: c_c70f4b92
+  context: 'T010c [P] [US1] Unit test `test_ambiguous_message_confidence` in `tests/unit/test_classification.py`:
+    asserts message with no signature yields confidence < 0.6'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Message_with_no_signature_yields_confidence_less_than_0.6
+  kind: magnitude
+  raw_text: assert message with no signature yields confidence < 0.6
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:32:59Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: code entropy calculation returns float greater than 0 for random code
+  claim_id: c_97d59316
+  context: 'T011a [P] [US1] Unit test `test_entropy_calculation` in `tests/unit/test_detection.py`:
+    asserts code entropy calculation returns float > 0 for random code'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Code_entropy_calculation_returns_float_greater_than_0_for_ra
+  kind: magnitude
+  raw_text: asserts code entropy calculation returns float > 0 for random code
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:33:29Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: use standard metrics if memory usage exceeds 6GB
+  claim_id: c_2813b242
+  context: T032 [US3] Implement fallback logic in `code/analysis/complexity.py` to
+    use standard metrics if memory usage > 6GB (Assumption 3)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_standard_metrics_if_memory_usage_exceeds_6GB
+  kind: entity_fact
+  raw_text: Implement fallback logic in `code/analysis/complexity.py` to use standard
+    metrics if memory usage > 6GB
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:34:09Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 2
+  canonical: fetch up to 200 PRs from prioritized list
+  claim_id: c_112c5382
+  context: T013 [US1] Implement `code/data/fetch_github.py` to fetch up to 200 PRs
+    from prioritized list, handling pagination, API backoff, and saving raw JSON payloads
+    to `data/raw/` with SHA-256 checksums (Constitution Principle III)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement `code/data/fetch_github.py` to fetch up to 200 PRs from prioritized
+    list
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:34:09Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: block final report generation if error rate exceeds 0.05
+  claim_id: c_851b06d0
+  context: T028 [US2] Implement logic in `code/analysis/generate_results_report.py`
+    to read the error rate from `data/audit/error_rate.json` (produced by T019b) and
+    write a `gate_status` flag to `data/processed/gate_status.json` (block final report
+    generation if rate > 0.05)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: block final report generation if rate > 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:34:10Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: raise runtime error if error rate exceeds 0.05
+  claim_id: c_fdfa1856
+  context: T019b [US1] [SC-004] Implement error rate calculation logic in `code/audit/manual_validation.py`
+    to compare manual results against automated labels using **Human Expert Judgment
+    as ground truth per SC-004** (secondary detector is only a validation metric,
+    NOT ground truth). Calculate the labeling error rate, write the result to `data/audit/error_rate.json`,
+    and raise a runtime error if the rate exceeds **0.05 as defined in SC-004**.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: raise a runtime error if the rate exceeds 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:34:31Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: audit sample size is max of minimum threshold and 10 percent of N LLM
+  claim_id: c_7a71d1c9
+  context: T009 Create `code/audit/manual_validation.py` skeleton for the audit sample
+    size rule (`max(minimum_threshold, ceil(0.10 * N_LLM))`)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: audit sample size rule (`max(minimum_threshold, ceil(0.10 * N_LLM))`)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:34:53Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: select stratified sample using max of minimum threshold and proportion
+    times N LLM
+  claim_id: c_a736442f
+  context: T019a [US1] Implement `code/audit/manual_validation.py` logic to select
+    stratified sample of size determined by a minimum threshold or a fixed proportion
+    of the population, specifically `max(min_threshold, ceil(proportion * N_LLM))`,
+    execute human-judgment checklist, and log results to `data/audit/manual_audit_results.json`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Select_stratified_sample_using_max_of_minimum_threshold_and
+  kind: entity_fact
+  raw_text: select stratified sample of size determined by a minimum threshold or
+    a fixed proportion of the population, specifically `max(min_threshold, ceil(proportion
+    * N_LLM))`
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:35:23Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/docs/DEPLOYMENT.md
+  attempts: 1
+  canonical: Minimum 8GB RAM required for full dataset processing
+  claim_id: c_57380dce
+  context: Prerequisites section listing system requirements.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Minimum_8GB_RAM_required_for_full_dataset_processing
+  kind: entity_fact
+  raw_text: Minimum 8GB RAM for full dataset processing
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:48:06Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/docs/DEPLOYMENT.md
+  attempts: 1
+  canonical: Approximately 20GB disk space required for raw and processed data
+  claim_id: c_f0807c39
+  context: Prerequisites section listing system requirements.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Approximately_20GB_disk_space_required_for_raw_and_processed
+  kind: entity_fact
+  raw_text: Approximately 20GB disk space for raw and processed data
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:48:55Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/docs/DEPLOYMENT.md
+  attempts: 1
+  canonical: GitHub authenticated API requests limit is 5000 per hour
+  claim_id: c_ef96ab0b
+  context: Troubleshooting section regarding GitHub API Rate Limiting solutions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'authenticated requests: 5000/hour'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-18T23:49:19Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Prioritized repository list includes psf/requests, microsoft/vscode,
+    and numpy/numpy
+  claim_id: c_befa1dbd
+  context: T005 Create code/utils/config.py defining repo list (psf/requests, microsoft/vscode,
+    numpy/numpy), thresholds, and API settings
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prioritized_repository_list_includes_psf/requests,_microsoft
+  kind: entity_fact
+  raw_text: The plan lists 'psf/requests', 'microsoft/vscode', and 'numpy/numpy' as
+    the prioritized repository list.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:44:39Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Fetch up to 200 PRs from prioritized list
+  claim_id: c_fbd58990
+  context: T013 [US1] Implement code/data/fetch_github.py to fetch up to 200 PRs from
+    prioritized list, handling pagination, API backoff, and saving raw JSON payloads
+    to data/raw/ with SHA-256 checksums
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation fetches up to 200 PRs from the prioritized list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:44:58Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Flag ambiguous cases if confidence score is less than 0.6
+  claim_id: c_309926ee
+  context: T014 [US1] ... flag ambiguous cases (confidence < 0.6) by adding a 'flagged'
+    boolean column
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_ambiguous_cases_if_confidence_score_is_less_than_0.6
+  kind: magnitude
+  raw_text: Ambiguous cases are flagged if the confidence score is less than 0.6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:45:23Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Switch to next repo if LLM count is less than 10
+  claim_id: c_fb4fc41b
+  context: T018 [US1] Implement fallback logic in code/data/fetch_github.py to automatically
+    switch to next repo if llm count < 10 in current repo
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Switch_to_next_repo_if_LLM_count_is_less_than_10
+  kind: magnitude
+  raw_text: The system switches to the next repository if the LLM count is less than
+    10 in the current repository.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:46:13Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Gate status is blocked if error rate exceeds 0.05
+  claim_id: c_35fe3935
+  context: 'T028 [US2] ... Logic: If error rate > 0.05, set status to ''blocked''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The gate status is set to 'blocked' if the manual audit error rate exceeds
+    0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:46:32Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Gate status is exploratory if N_LLM is less than 10
+  claim_id: c_64f46878
+  context: T028 [US2] ... If N_LLM < 10, set status to 'exploratory'.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Gate_status_is_exploratory_if_N_LLM_is_less_than_10
+  kind: magnitude
+  raw_text: The gate status is set to 'exploratory' if the number of LLM PRs is less
+    than 10.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:46:51Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Primary statistical analysis uses independent two-sample t-tests
+  claim_id: c_7d8c7a25
+  context: T024a [US2] ... Implement code/analysis/statistical_tests.py to perform
+    independent two-sample t-tests as PRIMARY analysis (per FR-004) comparing llm
+    vs human groups
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Primary_statistical_analysis_uses_independent_two-sample_t-t
+  kind: entity_fact
+  raw_text: The primary statistical analysis uses independent two-sample t-tests.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:47:21Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: 'Cohen''s d interpretation: small < 0.2, medium < 0.5, large > 0.8'
+  claim_id: c_20f7ecef
+  context: T047 [US2] ... Add a helper function to classify the magnitude of Cohen's
+    d (e.g., small < 0.2, medium < 0.5, large > 0.8) and append this qualitative interpretation
+    to the JSON output.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: A related effect size is r2, the coefficient of determination (also referred
+        to as R2 or "r-squared"), calculated as the square of the Pearson correlation
+        r.  In the case of paired data, this is a measure of the proportion of variance
+        shared by the two variables, and varies from 0 to 1. For example, with an
+        r of 0.21 the coefficient of determination is 0.0441, meaning that 4.4% of
+        the variance of either variable is shared with the other variable.  The r2
+        is always positive, so does not convey the direction of the correlation between
+        the two variables.
+      source_id: Effect size
+      url: https://en.wikipedia.org/wiki/Effect_size
+      value: '0.2'
+    filled: true
+  kind: magnitude
+  raw_text: Cohen's d effect sizes are interpreted as small if less than 0.2, medium
+    if less than 0.5, and large if greater than 0.8.
+  resolved_value: '0.2'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T17:47:34Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Fallback logic triggered if memory usage exceeds 6GB
+  claim_id: c_fa83690e
+  context: T032 [US3] ... Implement fallback logic in code/analysis/complexity.py
+    to use standard metrics if memory usage > 6GB (Assumption 3)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_logic_triggered_if_memory_usage_exceeds_6GB
+  kind: entity_fact
+  raw_text: A fallback logic is triggered if memory usage exceeds 6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:47:55Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 0
+  canonical: 'Cohen''s d interpretation: small < 0.2, medium < 0.5, large > 0.8'
+  claim_id: c_ec36923d
+  context: Add a helper function to classify the magnitude of Cohen's d (e.g., small
+    < 0.2, medium < 0.5, large > 0.8) and append this qualitative interpretation
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: A related effect size is r2, the coefficient of determination (also referred
+        to as R2 or "r-squared"), calculated as the square of the Pearson correlation
+        r.  In the case of paired data, this is a measure of the proportion of variance
+        shared by the two variables, and varies from 0 to 1. For example, with an
+        r of 0.21 the coefficient of determination is 0.0441, meaning that 4.4% of
+        the variance of either variable is shared with the other variable.  The r2
+        is always positive, so does not convey the direction of the correlation between
+        the two variables.
+      source_id: Effect size
+      url: https://en.wikipedia.org/wiki/Effect_size
+      value: '0.2'
+    filled: true
+  kind: magnitude
+  raw_text: Cohen's d effect size is interpreted as small if less than 0.2, medium
+    if less than 0.5, and large if greater than 0.8.
+  resolved_value: '0.2'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T17:48:12Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 0
+  canonical: Significance determination uses alpha level of 0.05
+  claim_id: c_fcd3dfd7
+  context: "Implement calculation of effect sizes (Cohen's d) and significance determination\
+    \ (\u03B1 = 0.05)"
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "The error that a practising statistician would consider the more important\
+        \ to avoid (which is a subjective judgment) is called the error of the first\
+        \ kind. The first demand of the mathematical theory is to deduce such test\
+        \ criteria as would ensure that the probability of committing an error of\
+        \ the first kind would equal (or approximately equal, or not exceed) a preassigned\
+        \ number \u03B1, such as \u03B1 = 0.05 or 0.01, etc. This number is called\
+        \ the level of significance."
+      source_id: P-value
+      url: https://en.wikipedia.org/wiki/P-value
+      value: '0.05'
+    filled: true
+  kind: numeric
+  raw_text: The significance determination uses an alpha level of 0.05.
+  resolved_value: '0.05'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T17:48:12Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Prioritized repositories are psf/requests, microsoft/vscode, and numpy/numpy
+  claim_id: c_526257ea
+  context: Create code/utils/config.py defining repo list (psf/requests, microsoft/vscode,
+    numpy/numpy), thresholds, and API settings
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Prioritized_repositories_are_psf/requests,_microsoft/vscode,
+  kind: entity_fact
+  raw_text: The plan lists 'psf/requests', 'microsoft/vscode', 'numpy/numpy' as the
+    prioritized repository list.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:48:14Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Fetch up to 200 PRs from prioritized list
+  claim_id: c_ea0651de
+  context: Implement code/data/fetch_github.py to fetch up to 200 PRs from prioritized
+    list, handling pagination, API backoff, and saving raw JSON payloads
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The implementation fetches up to 200 PRs from the prioritized list.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:48:14Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Flag ambiguous cases if confidence score is less than 0.6
+  claim_id: c_bcd70918
+  context: flag ambiguous cases (confidence < 0.6) by adding a 'flagged' boolean column
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Flag_ambiguous_cases_if_confidence_score_is_less_than_0.6
+  kind: magnitude
+  raw_text: Ambiguous cases are flagged if the confidence score is less than 0.6.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:48:16Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Switch to next repo if LLM count is less than 10
+  claim_id: c_29539a5b
+  context: Implement fallback logic in code/data/fetch_github.py to automatically
+    switch to next repo if llm count < 10 in current repo
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Switch_to_next_repo_if_LLM_count_is_less_than_10
+  kind: magnitude
+  raw_text: The fallback logic switches to the next repo if the LLM count is less
+    than 10 in the current repo.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:48:35Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Manual audit error rate threshold is 0.05
+  claim_id: c_a656734d
+  context: 'Logic: If error rate > 0.05, set status to ''blocked''. If N_LLM < 10,
+    set status to ''exploratory''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The manual audit error rate threshold is set at 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:48:53Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Status is exploratory if N_LLM is less than 10
+  claim_id: c_fd387d13
+  context: If error rate > 0.05, set status to 'blocked'. If N_LLM < 10, set status
+    to 'exploratory'.
+  evidence:
+    asserted: '10.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: The pipeline status is marked as 'exploratory' if the number of LLM-generated
+    PRs is less than 10.
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-04T17:48:53Z'
+- artifact_path: projects/PROJ-320-evaluating-the-impact-of-code-generation/specs/001-evaluating-the-impact-of-code-generation/tasks.md
+  attempts: 1
+  canonical: Fallback to standard metrics if memory usage exceeds 6GB
+  claim_id: c_eac188d4
+  context: Implement fallback logic in code/analysis/complexity.py to use standard
+    metrics if memory usage > 6GB (Assumption 3)
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fallback_to_standard_metrics_if_memory_usage_exceeds_6GB
+  kind: entity_fact
+  raw_text: The system uses a fallback logic to standard metrics if memory usage exceeds
+    6GB.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-04T17:49:08Z'

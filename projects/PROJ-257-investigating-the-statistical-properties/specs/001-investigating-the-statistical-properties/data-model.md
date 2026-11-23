@@ -2,64 +2,83 @@
 
 ## Entities & Attributes
 
-### 1. GWTC_Catalog (Observational)
-Represents the preprocessed observational gravitational-wave transient catalog.
-- **event_id**: `string` (Unique identifier, e.g., "GW150914")
-- **component_mass_1**: `float` (Primary mass in solar masses, $M_\odot$)
-- **component_mass_2**: `float` (Secondary mass in solar masses, $M_\odot$)
-- **mass_ratio**: `float` ($q = m_2 / m_1$, $0 < q \le 1$)
-- **effective_spin**: `float` ($\chi_{eff}$, dimensionless)
-- **posterior_samples**: `list[float]` (Optional: Raw samples for uncertainty analysis, flattened or stored separately)
+### 1. GWTC_Catalog (observational)
+- `event_id`: string  
+- `component_mass_1`: number ≥ 0 (M⊙)  
+- `component_mass_2`: number ≥ 0 (M⊙)  
+- `mass_ratio`: number (0 < q ≤ 1)  
+- `effective_spin`: number (‑1 ≤ χ_eff ≤ 1)  
+- `formation_channel`: enum `"GWTC_observed"`  
+- `data_status`: enum `"real"`
 
-### 2. Simulation_Dataset (Synthetic)
-Represents the generated synthetic population based on the Power-law spin hypothesis.
-- **event_id**: `string` (Synthetic ID, e.g., "SIM_001")
-- **component_mass_1**: `float` ($M_\odot$)
-- **component_mass_2**: `float` ($M_\odot$)
-- **mass_ratio**: `float` ($q$)
-- **effective_spin**: `float` ($\chi_{eff}$)
-- **formation_channel**: `string` (Literal: "synthetic_power_law")
-- **generation_method**: `string` (Literal: "power_law_spin_distribution")
+### 2. Simulation_Dataset (official release)
+- `event_id`: string (`SIM_001`…)  
+- `component_mass_1`: number ≥ 0  
+- `component_mass_2`: number ≥ 0  
+- `mass_ratio`: number (0 < q ≤ 1)  
+- `effective_spin`: number (‑1 ≤ χ_eff ≤ 1)  
+- `formation_channel`: enum `"official_IllustrisTNG_EAGLE"`  
+- `generation_method`: enum `"official_release"`  
+- `data_status`: enum `"real"`
 
-### 3. Statistical_Test_Result
-Output of the KS test and subsequent corrections.
-- **parameter_name**: `string` (e.g., "mass_ratio", "effective_spin")
-- **ks_statistic**: `float` (D statistic)
-- **p_value**: `float` (Raw p-value)
-- **bonferroni_adjusted_p_value**: `float` (Corrected p-value)
-- **significance_flag**: `boolean` (True if $p < \alpha_{adjusted}$)
-- **borderline_flag**: `boolean` (True if significance flips across $\alpha$ sweep)
-- **alpha_sweep_results**: `list<object>` (Details of sensitivity analysis)
+### 3. Data_Availability_Report
+- `source_name`: string (`"GWTC-1"` / `"GWTC-2"` / `"Simulation_Catalog"` )  
+- `status`: enum `"verified"` | `"unavailable"`  
+- `reason`: string (explanation when status is `"unavailable"` )  
+- `checksum`: string | null (SHA‑256 of accepted file)
 
-### 4. Power_Analysis_Result
-Output of the power limitation check.
-- **observational_sample_size**: `integer`
-- **simulation_sample_size**: `integer`
-- **power_limitation_flag**: `boolean` (True if sim size < 50% of obs size)
-- **minimum_detectable_effect_size**: `float` (MDES value)
-- **limitation_note**: `string` (Human-readable warning)
+### 4. Selection_Weights
+- `event_id`: string  
+- `weight`: number ≥ 0 (inverse detection probability)  
+- `scope`: enum `"detection_space"` | `"intrinsic_space"`
 
-### 5. Visualization_Output
-Generated figures.
-- **figure_id**: `string` (e.g., "fig_mass_ratio_kde")
-- **parameter_name**: `string`
-- **format**: `string` (Literal: "PNG")
-- **resolution_dpi**: `integer` (Literal: 300)
-- **file_path**: `string` (Relative path to output)
-- **divergence_regions**: `list<object>` (Regions where $p < 0.05$)
+### 5. Statistical_Test_Result
+- `parameter_name`: `"mass_ratio"` | `"effective_spin"` | `"joint"`  
+- `ks_statistic`: number [0, 1] *(null for joint test)*  
+- `energy_distance`: number [0, ∞] *(null for marginal tests)*  
+- `p_value`: number [0, 1]  
+- `bonferroni_adjusted_p_value`: number [0, 1] *(null for joint test)*  
+- `significance_flag`: boolean  
+- `borderline_flag`: boolean  
+- `alpha_sweep_results`: array of `{alpha: number, is_significant: boolean}`  
+- `scope`: `"detection_space"` | `"intrinsic_space"`  
+- `data_status`: `"real"` | `"synthetic"`  
+- `power_analysis`: object  
+  - `observational_sample_size`: integer ≥ 0  
+  - `simulation_sample_size`: integer ≥ 0  
+  - `power_limitation_flag`: boolean  
+  - `monte_carlo_mdes`: number *(deferred)*  
+  - `limitation_note`: string  
+- `performance_metrics` *(optional)*: object  
+  - `runtime_seconds`: number  
+  - `peak_memory_gb`: number  
+  - `peak_disk_gb`: number  
 
-### 6. Selection_Weights
-Weights derived from Inverse Probability Weighting (IPW) to correct for selection bias.
-- **event_id**: `string` (Reference to the event in GWTC_Catalog)
-- **weight**: `float` (Inverse of detection probability)
-- **detection_space_flag**: `boolean` (True if weight is only valid within detection space)
+### 6. Visualization_Output
+- `figure_id`: string (`"mass_ratio_kde"` | `"effective_spin_kde"` | `"joint_density"` )  
+- `parameter_name`: `"mass_ratio"` | `"effective_spin"` | `"joint"`  
+- `format`: `"PNG"`  
+- `resolution_dpi`: integer ≥ 300  
+- `file_path`: string (relative)  
+- `divergence_regions`: array of `{lower_bound: number, upper_bound: number}` *(empty for joint figure)*
 
-## Data Flow
+### 7. Performance_Metrics
+- `runtime_seconds`: number  
+- `peak_memory_gb`: number  
+- `peak_disk_gb`: number  
 
-1. **Raw Download** (Zenodo) $\to$ `data/raw/gwtc_1_posteriors.h5` (or similar)
-2. **Preprocessing** $\to$ `data/processed/obs_catalog.csv` (GWTC_Catalog schema)
-3. **Synthetic Generation** $\to$ `data/processed/sim_catalog.csv` (Simulation_Dataset schema)
-4. **Selection Bias Correction** $\to$ `data/processed/selection_weights.csv` (Selection_Weights schema)
-5. **Analysis** $\to$ `data/results/ks_results.json` (Statistical_Test_Result schema)
-6. **Power Check** $\to$ `data/results/power_analysis.json` (Power_Analysis_Result schema)
-7. **Visualization** $\to$ `outputs/figures/*.png` (Visualization_Output schema)
+## Data Flow Overview
+
+1. **T001** → raw GWTC archives → `raw_gwtc.schema.yaml`  
+2. **T002** → `data_availability.json` → `data_availability.schema.yaml`  
+3. **T002‑download** → official simulation release → `simulation_catalog.schema.yaml` (must succeed; otherwise abort).  
+4. **T003/T004** → `obs_catalog.csv` → `gwtc_catalog.schema.yaml`  
+5. **T005** → `selection_weights.csv` → `dataset.schema.yaml` (weights validated separately)  
+6. **T006/T007** → `ks_results.json` → `statistical_test_result.schema.yaml`  
+7. **T008** → PNG figures + `figure_manifest.json` → `visualization_output.schema.yaml`  
+8. **T009** → `performance_metrics.json` (optional fields in `statistical_test_result.schema.yaml`)  
+9. **T010** → `final_report.md` (free‑form, references the above artifacts).
+
+All intermediate files are version‑hashed and recorded in project state.
+
+--- 

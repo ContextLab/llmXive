@@ -1,3 +1,5 @@
 """
-Test suite for llmXive Solar Irradiance Reconstruction.
+Test package for the solar irradiance reconstruction project.
+
+Contains unit tests, integration tests, and performance tests.
 """

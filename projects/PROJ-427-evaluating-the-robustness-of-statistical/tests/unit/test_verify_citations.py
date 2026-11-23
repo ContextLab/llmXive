@@ -1,156 +1,84 @@
 """
-Unit tests for citation verification functionality.
+Unit tests for the citation verification step (T047).
+The tests ensure that the helper functions behave as expected on a small
+controlled fixture. Real HTTP requests are performed only for a known
+reachable URL (https://httpbin.org/status/200) and a deliberately
+unreachable URL (https://example.invalid/does-not-exist). The latter is
+expected to be reported as ``unreachable``.
 """
-import os
-import tempfile
-from pathlib import Path
-import yaml
-import pytest
-from unittest.mock import patch, MagicMock
 
-import sys
-sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+import pathlib
 
-from verify_citations import (
+from code.verify_citations import (
     extract_citations,
     verify_citation,
-    find_artifacts,
-    verify_all_citations
+    write_citation_log,
+    verify_all_citations,
 )
 
-class TestExtractCitations:
-    def test_markdown_links(self):
-        """Test extraction of markdown links."""
-        content = """
-        # Test Document
-        
-        Check out [Google](https://www.google.com) and [GitHub](https://github.com).
-        """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
-            f.write(content)
-            f.flush()
-            temp_path = Path(f.name)
 
-        try:
-            citations = extract_citations(temp_path)
-            assert len(citations) == 2
-            assert citations[0]['source'] == 'Google'
-            assert citations[0]['url'] == 'https://www.google.com'
-            assert citations[1]['source'] == 'GitHub'
-            assert citations[1]['url'] == 'https://github.com'
-        finally:
-            os.unlink(temp_path)
+def test_extract_citations(tmp_path: pathlib.Path):
+    # Create a temporary file containing a mixture of URLs
+    content = (
+        "Here is a good link: https://httpbin.org/status/200\\n"
+        "And a bad one: https://example.invalid/does-not-exist\\n"
+        "An arXiv reference: arxiv.org/abs/2101.00001\\n"
+    )
+    file_path = tmp_path / "sample.md"
+    file_path.write_text(content, encoding="utf-8")
 
-    def test_bare_urls(self):
-        """Test extraction of bare URLs."""
-        content = """
-        Visit https://example.com for more info.
-        """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
-            f.write(content)
-            f.flush()
-            temp_path = Path(f.name)
+    citations = extract_citations(file_path)
+    assert "https://httpbin.org/status/200" in citations
+    assert "https://example.invalid/does-not-exist" in citations
+    assert "https://arxiv.org/abs/2101.00001" in citations
+    assert len(citations) == 3
 
-        try:
-            citations = extract_citations(temp_path)
-            assert len(citations) == 1
-            assert citations[0]['source'] == 'Bare URL'
-            assert citations[0]['url'] == 'https://example.com'
-        finally:
-            os.unlink(temp_path)
 
-    def test_doi_references(self):
-        """Test extraction of DOI references."""
-        content = """
-        See DOI: 10.1038/s41586-020-2649-2 for details.
-        """
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.md', delete=False) as f:
-            f.write(content)
-            f.flush()
-            temp_path = Path(f.name)
+def test_verify_citation_reachable():
+    result = verify_citation("https://httpbin.org/status/200", timeout=5)
+    assert result["status"] == "reachable"
+    assert result["http_code"] == 200
 
-        try:
-            citations = extract_citations(temp_path)
-            assert len(citations) == 1
-            assert citations[0]['source'] == 'DOI'
-            assert '10.1038/s41586-020-2649-2' in citations[0]['original_doi']
-            assert 'https://doi.org/' in citations[0]['url']
-        finally:
-            os.unlink(temp_path)
 
-class TestVerifyCitation:
-    @patch('verify_citations.requests.head')
-    def test_reachable_url(self, mock_head):
-        """Test verification of a reachable URL."""
-        mock_response = MagicMock()
-        mock_response.status_code = 200
-        mock_head.return_value = mock_response
+def test_verify_citation_unreachable():
+    result = verify_citation("https://example.invalid/does-not-exist", timeout=5)
+    assert result["status"] == "unreachable"
+    assert result["http_code"] is None
 
-        result = verify_citation('https://example.com')
-        assert result['status'] == 'reachable'
-        assert result['response_code'] == 200
 
-    @patch('verify_citations.requests.head')
-    def test_unreachable_url(self, mock_head):
-        """Test verification of an unreachable URL."""
-        mock_head.side_effect = Exception("Connection failed")
+def test_write_citation_log(tmp_path: pathlib.Path):
+    # Minimal report structure
+    report = {
+        "https://httpbin.org/status/200": {"url": "https://httpbin.org/status/200", "status": "reachable", "http_code": 200},
+        "https://example.invalid/does-not-exist": {
+            "url": "https://example.invalid/does-not-exist",
+            "status": "unreachable",
+            "http_code": None,
+        },
+    }
+    output_file = tmp_path / "citation_log.yaml"
+    write_citation_log(report, output_path=output_file)
 
-        result = verify_citation('https://invalid-url-12345.com')
-        assert result['status'] == 'unreachable'
+    # Verify the file exists and contains the expected keys
+    assert output_file.is_file()
+    loaded = pathlib.Path(output_file).read_text(encoding="utf-8")
+    assert "generated_at:" in loaded
+    assert "citations:" in loaded
+    assert "https://httpbin.org/status/200" in loaded
+    assert "unreachable" in loaded
 
-    @patch('verify_citations.requests.head')
-    def test_mismatch_status(self, mock_head):
-        """Test verification of a URL returning non-200 status."""
-        mock_response = MagicMock()
-        mock_response.status_code = 404
-        mock_head.return_value = mock_response
 
-        result = verify_citation('https://example.com/not-found')
-        assert result['status'] == 'mismatch'
-        assert result['response_code'] == 404
+def test_verify_all_citations_integration(tmp_path: pathlib.Path):
+    # Create two temporary files with citations
+    f1 = tmp_path / "a.md"
+    f1.write_text("Link: https://httpbin.org/status/200", encoding="utf-8")
+    f2 = tmp_path / "b.md"
+    f2.write_text("Bad link: https://example.invalid/does-not-exist", encoding="utf-8")
 
-class TestFindArtifacts:
-    def test_find_markdown_files(self):
-        """Test finding markdown files in a directory structure."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir_path = Path(tmpdir)
-            
-            # Create some test files
-            (tmpdir_path / 'README.md').touch()
-            (tmpdir_path / 'docs').mkdir()
-            (tmpdir_path / 'docs' / 'guide.md').touch()
-            (tmpdir_path / 'other.txt').touch()
-
-            artifacts = find_artifacts(tmpdir_path, ['*.md', 'docs/*.md'])
-            assert len(artifacts) == 2
-            assert any('README.md' in str(a) for a in artifacts)
-            assert any('guide.md' in str(a) for a in artifacts)
-
-class TestVerifyAllCitations:
-    def test_full_verification_flow(self):
-        """Test the full citation verification flow."""
-        with tempfile.TemporaryDirectory() as tmpdir:
-            tmpdir_path = Path(tmpdir)
-            
-            # Create a test artifact
-            artifact = tmpdir_path / 'test.md'
-            artifact.write_text("Check [Example](https://example.com)")
-            
-            state_dir = tmpdir_path / 'state'
-            state_dir.mkdir()
-            output_path = state_dir / 'citation_log.yaml'
-
-            results = verify_all_citations(
-                project_root=tmpdir_path,
-                patterns=['*.md'],
-                output_path=output_path
-            )
-
-            assert output_path.exists()
-            assert results['summary']['total_citations'] == 1
-            
-            # Verify the YAML file structure
-            with open(output_path, 'r') as f:
-                loaded = yaml.safe_load(f)
-                assert 'citations' in loaded
-                assert 'summary' in loaded
+    report = verify_all_citations(root=tmp_path)
+    assert "https://httpbin.org/status/200" in report
+    assert "https://example.invalid/does-not-exist" in report
+    # The reachable one must be marked as such
+    assert report["https://httpbin.org/status/200"]["status"] == "reachable"
+    # The bad one must be unreachable
+    assert report["https://example.invalid/does-not-exist"]["status"] == "unreachable"

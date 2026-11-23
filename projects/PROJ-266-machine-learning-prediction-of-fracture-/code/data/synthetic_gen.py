@@ -1,196 +1,294 @@
-"""
-Synthetic Microstructure Generator for Fracture Toughness Prediction.
-
-Generates >= 2,000 synthetic microstructure images with physics-informed
-K_IC (fracture toughness) values based on simulated grain structures.
-
-Output:
-  - data/raw/synthetic_microstructures_*.png
-  - data/raw/synthetic_metadata.json
-"""
-
 import os
 import json
+import hashlib
 import numpy as np
 from PIL import Image, ImageDraw, ImageFilter
 import random
-import argparse
 from pathlib import Path
+from typing import List, Dict, Any, Tuple
 
-# Ensure reproducibility
-RANDOM_SEED = 42
-random.seed(RANDOM_SEED)
-np.random.seed(RANDOM_SEED)
+# Import CONFIG from the shared config module to ensure consistency
+from code.utils.config import CONFIG
 
-# Configuration
-NUM_SAMPLES = 2500  # Exceeds the >= 2000 requirement
-IMAGE_SIZE = 128    # Standardized size for downstream processing
-OUTPUT_DIR = Path("data/raw")
-METADATA_FILE = OUTPUT_DIR / "synthetic_metadata.json"
-
-# Physics-informed parameters (approximate ranges for common alloys)
-# K_IC ranges in MPa√m:
-# Aluminum alloys: 20 - 40
-# Steel alloys: 50 - 150
-# Titanium alloys: 50 - 120
-ALLOY_FAMILIES = {
-    "Al": {"min_k": 20.0, "max_k": 40.0, "color": (200, 200, 200)},
-    "Steel": {"min_k": 50.0, "max_k": 150.0, "color": (100, 100, 100)},
-    "Ti": {"min_k": 50.0, "max_k": 120.0, "color": (180, 180, 180)}
+# Constants for synthetic generation
+ALLOY_FAMILIES = ['steel', 'Al', 'Ti']
+BASE_K_IC_VALUES = {
+    'steel': 120.0,
+    'Al': 45.0,
+    'Ti': 80.0
 }
+ALPHA_COEFF = 0.5  # Grain size coefficient
+BETA_COEFF = 1.2   # Precipitate density coefficient
+NOISE_STD = 5.0    # Standard deviation for noise
 
-def generate_grain_structure(size: int, num_grains: int, seed: int) -> np.ndarray:
+def generate_grain_structure(
+    width: int,
+    height: int,
+    grain_size: float,
+    num_grains: int,
+    seed: int
+) -> Image.Image:
     """
-    Generates a synthetic microstructure image using a Voronoi-like approach
-    to simulate grain boundaries.
-    """
-    np.random.seed(seed)
-    img = np.zeros((size, size), dtype=np.uint8)
-    draw = ImageDraw.ImageDraw(Image.fromarray(img))
-
-    # Generate random grain centers
-    centers = [(random.randint(0, size - 1), random.randint(0, size - 1)) for _ in range(num_grains)]
-
-    # Assign random colors/grayscale values to grains
-    grain_values = [random.randint(50, 200) for _ in range(num_grains)]
-
-    # Create a rough Voronoi-like segmentation by distance
-    # For efficiency in pure Python/PIL, we simulate grain shapes with polygons
-    # or simply fill regions from centers outward.
-    # A simpler, robust method for synthetic data: Random polygons.
+    Generates a synthetic microstructure image representing grain boundaries.
     
-    # Create a blank image for drawing
-    pil_img = Image.new('L', (size, size), 0)
-    draw = ImageDraw.Draw(pil_img)
-
-    for i, center in enumerate(centers):
-        # Random grain size
-        radius = random.randint(5, 15)
-        # Random shape variation
-        points = []
-        for angle in np.linspace(0, 2 * np.pi, 8):
-            r = radius * (0.8 + 0.4 * np.random.rand())
-            x = int(center[0] + r * np.cos(angle))
-            y = int(center[1] + r * np.sin(angle))
-            points.append((x, y))
+    Args:
+        width: Image width in pixels.
+        height: Image height in pixels.
+        grain_size: Average grain size (used to determine number of grains).
+        num_grains: Number of Voronoi-like regions to generate.
+        seed: Random seed for reproducibility.
         
-        draw.polygon(points, fill=grain_values[i])
+    Returns:
+        PIL Image representing the microstructure.
+    """
+    random.seed(seed)
+    np.random.seed(seed)
     
-    # Add some noise to simulate real imaging
-    np_img = np.array(pil_img)
-    noise = np.random.normal(0, 5, np_img.shape).astype(np.int16)
-    np_img = np.clip(np_img.astype(np.int16) + noise, 0, 255).astype(np.uint8)
+    img = Image.new('L', (width, height), color=128)
+    draw = ImageDraw.Draw(img)
     
-    return np_img
+    # Generate random seed points for grains
+    points = []
+    for _ in range(num_grains):
+        x = random.randint(0, width)
+        y = random.randint(0, height)
+        points.append((x, y))
+    
+    # Assign random colors (grayscale values) to each grain
+    grain_colors = [random.randint(0, 200) for _ in range(num_grains)]
+    
+    # Simple Voronoi-like tessellation by distance
+    for y in range(height):
+        for x in range(width):
+            min_dist = float('inf')
+            closest_idx = 0
+            for i, (px, py) in enumerate(points):
+                dist = (x - px)**2 + (y - py)**2
+                if dist < min_dist:
+                    min_dist = dist
+                    closest_idx = i
+            img.putpixel((x, y), grain_colors[closest_idx])
+    
+    # Apply slight blur to simulate grain boundary diffusion
+    img = img.filter(ImageFilter.GaussianBlur(radius=1))
+    
+    return img
 
-def calculate_physics_informed_k_ic(alloy_family: str, microstructure_params: dict) -> float:
+def calculate_physics_informed_k_ic(
+    grain_size: float,
+    precipitate_density: float,
+    alloy_family: str
+) -> float:
     """
-    Calculates K_IC based on alloy family and microstructure parameters.
+    Calculates K_IC based on the synthetic ground truth formula defined in research.md.
     
-    Physics-informed logic:
-    - Grain size (d): Hall-Petch relationship (K_IC ~ k * d^(-1/2))
-    - Porosity: Reduces toughness
-    - Precipitate density: Can increase or decrease depending on mechanism
+    Formula: K_IC = base_value + alpha*grain_size + beta*precipitate_density + noise
+    
+    Args:
+        grain_size: Grain size in microns.
+        precipitate_density: Density of precipitates (arbitrary units).
+        alloy_family: The alloy family ('steel', 'Al', 'Ti').
+        
+    Returns:
+        Calculated K_IC value.
     """
-    base_range = ALLOY_FAMILIES[alloy_family]
-    base_k = (base_range["min_k"] + base_range["max_k"]) / 2.0
+    base_value = BASE_K_IC_VALUES.get(alloy_family, 100.0)
+    noise = np.random.normal(0, NOISE_STD)
+    k_ic = base_value + ALPHA_COEFF * grain_size + BETA_COEFF * precipitate_density + noise
+    return float(k_ic)
+
+def generate_sample_metadata(
+    image_path: str,
+    grain_size: float,
+    precipitate_density: float,
+    alloy_family: str,
+    k_ic: float,
+    magnification_calibration: float,
+    section_thickness: float
+) -> Dict[str, Any]:
+    """
+    Generates a metadata dictionary for a single sample.
     
-    # Hall-Petch effect: Smaller grains -> Higher toughness (simplified)
-    grain_size = microstructure_params["grain_size"] # pixels
-    hp_factor = 1.0 + (20.0 / max(grain_size, 1)) # Normalize around 20px
+    Args:
+        image_path: Path to the generated image.
+        grain_size: Simulated grain size.
+        precipitate_density: Simulated precipitate density.
+        alloy_family: Alloy family label.
+        k_ic: Calculated fracture toughness.
+        magnification_calibration: Pixels per micron.
+        section_thickness: Section thickness in nm.
+        
+    Returns:
+        Dictionary containing sample metadata.
+    """
+    return {
+        "image_path": image_path,
+        "alloy_family": alloy_family,
+        "grain_size_microns": grain_size,
+        "precipitate_density": precipitate_density,
+        "k_ic": k_ic,
+        "magnification_calibration": magnification_calibration,
+        "section_thickness_nm": section_thickness
+    }
+
+def generate_dataset(target_size: int, output_dir: str) -> List[Dict[str, Any]]:
+    """
+    Generates the full synthetic dataset of microstructure images and metadata.
     
-    # Porosity effect: Higher porosity -> Lower toughness
-    porosity = microstructure_params["porosity"]
-    porosity_factor = 1.0 - (porosity * 0.5) # Up to 50% reduction at max porosity
+    Args:
+        target_size: Number of samples to generate (from CONFIG['target_sample_size']).
+        output_dir: Directory to save images and metadata.
+        
+    Returns:
+        List of metadata dictionaries.
+    """
+    # Ensure output directories exist
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
     
-    # Combine factors
-    calculated_k = base_k * hp_factor * porosity_factor
+    # Initialize RNG with split_seed for reproducible alloy assignment
+    split_seed = CONFIG.get('split_seed', 42)
+    random.seed(split_seed)
+    np.random.seed(split_seed)
     
-    # Clamp to physical limits
-    calculated_k = max(base_range["min_k"], min(base_range["max_k"], calculated_k))
+    metadata_list = []
+    image_files = []
     
-    return round(calculated_k, 2)
+    # Ensure at least one sample per alloy family
+    guaranteed_families = ALLOY_FAMILIES.copy()
+    random.shuffle(guaranteed_families)
+    
+    for i, family in enumerate(guaranteed_families):
+        idx = i
+        # Generate parameters
+        grain_size = np.random.uniform(5.0, 50.0)
+        precipitate_density = np.random.uniform(0.1, 2.0)
+        
+        # Sample preparation metadata
+        magnification_calibration = np.random.uniform(10.0, 100.0) # pixels/micron
+        section_thickness = np.random.uniform(10.0, 50.0) # nm
+        
+        k_ic = calculate_physics_informed_k_ic(grain_size, precipitate_density, family)
+        
+        # Generate image
+        img = generate_grain_structure(
+            width=128,
+            height=128,
+            grain_size=grain_size,
+            num_grains=int(10 + grain_size),
+            seed=split_seed + idx
+        )
+        
+        img_filename = f"sample_{idx:04d}.png"
+        img_path = os.path.join(output_dir, img_filename)
+        img.save(img_path)
+        
+        # Record metadata
+        meta = generate_sample_metadata(
+            image_path=img_filename, # Store relative path
+            grain_size=grain_size,
+            precipitate_density=precipitate_density,
+            alloy_family=family,
+            k_ic=k_ic,
+            magnification_calibration=magnification_calibration,
+            section_thickness=section_thickness
+        )
+        metadata_list.append(meta)
+        image_files.append(img_filename)
+    
+    # Generate remaining samples
+    remaining_count = target_size - len(guaranteed_families)
+    for i in range(remaining_count):
+        idx = len(guaranteed_families) + i
+        family = random.choice(ALLOY_FAMILIES)
+        
+        grain_size = np.random.uniform(5.0, 50.0)
+        precipitate_density = np.random.uniform(0.1, 2.0)
+        
+        magnification_calibration = np.random.uniform(10.0, 100.0)
+        section_thickness = np.random.uniform(10.0, 50.0)
+        
+        k_ic = calculate_physics_informed_k_ic(grain_size, precipitate_density, family)
+        
+        img = generate_grain_structure(
+            width=128,
+            height=128,
+            grain_size=grain_size,
+            num_grains=int(10 + grain_size),
+            seed=split_seed + idx
+        )
+        
+        img_filename = f"sample_{idx:04d}.png"
+        img_path = os.path.join(output_dir, img_filename)
+        img.save(img_path)
+        
+        meta = generate_sample_metadata(
+            image_path=img_filename,
+            grain_size=grain_size,
+            precipitate_density=precipitate_density,
+            alloy_family=family,
+            k_ic=k_ic,
+            magnification_calibration=magnification_calibration,
+            section_thickness=section_thickness
+        )
+        metadata_list.append(meta)
+        image_files.append(img_filename)
+    
+    return metadata_list
+
+def compute_sha256_checksum(file_path: str) -> str:
+    """
+    Computes the SHA-256 checksum of a file.
+    
+    Args:
+        file_path: Path to the file.
+        
+    Returns:
+        Hexadecimal string of the SHA-256 hash.
+    """
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
 
 def main():
     """
-    Main execution function to generate synthetic dataset.
+    Main entry point for the synthetic dataset generation.
+    Produces images, metadata.json, and the required checksum file.
     """
-    print(f"Starting synthetic microstructure generation...")
-    print(f"Target samples: {NUM_SAMPLES}")
+    # Get configuration
+    target_size = CONFIG.get('target_sample_size', 500)
+    raw_data_dir = 'data/raw'
+    benchmark_dir = 'data/benchmarks'
     
-    # Ensure output directory exists
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    # Ensure directories exist
+    Path(raw_data_dir).mkdir(parents=True, exist_ok=True)
+    Path(benchmark_dir).mkdir(parents=True, exist_ok=True)
     
-    metadata_records = []
+    print(f"Generating {target_size} synthetic samples...")
     
-    for i in range(NUM_SAMPLES):
-        # 1. Select Alloy Family (stratified roughly)
-        alloy_family = random.choice(list(ALLOY_FAMILIES.keys()))
-        
-        # 2. Generate Microstructure Parameters
-        num_grains = random.randint(10, 30)
-        grain_size = random.uniform(5.0, 20.0) # Simulated pixel scale
-        porosity = random.uniform(0.0, 0.15)   # 0% to 15%
-        resolution_um = random.uniform(0.5, 2.0) # um/pixel
-        
-        # 3. Generate Image
-        seed_val = i + RANDOM_SEED
-        img_array = generate_grain_structure(IMAGE_SIZE, num_grains, seed_val)
-        
-        # 4. Calculate Physics-Informed K_IC
-        k_ic = calculate_physics_informed_k_ic(alloy_family, {
-            "grain_size": grain_size,
-            "porosity": porosity
-        })
-        
-        # 5. Save Image
-        img_filename = f"synthetic_microstructure_{i:04d}.png"
-        img_path = OUTPUT_DIR / img_filename
-        
-        # Save as grayscale PNG
-        img_pil = Image.fromarray(img_array, mode='L')
-        img_pil.save(img_path)
-        
-        # 6. Record Metadata
-        record = {
-            "id": i,
-            "filename": img_filename,
-            "alloy_family": alloy_family,
-            "k_ic_mpa_sqrtm": k_ic,
-            "microstructure_params": {
-                "num_grains": num_grains,
-                "grain_size_um": grain_size, # Approximate mapping
-                "porosity": porosity,
-                "resolution_um": resolution_um,
-                "preparation_protocol": "SEM" if random.random() > 0.5 else "TEM"
-            },
-            "seed": seed_val
-        }
-        metadata_records.append(record)
-        
-        if (i + 1) % 500 == 0:
-            print(f"Generated {i + 1} / {NUM_SAMPLES} samples...")
-
-    # Save Metadata JSON
-    with open(METADATA_FILE, 'w') as f:
-        json.dump({
-            "version": "1.0",
-            "total_samples": len(metadata_records),
-            "generation_seed": RANDOM_SEED,
-            "records": metadata_records
-        }, f, indent=2)
+    # Generate dataset
+    metadata = generate_dataset(target_size, raw_data_dir)
     
-    print(f"Generation complete.")
-    print(f"Total images saved: {len(metadata_records)}")
-    print(f"Metadata saved to: {METADATA_FILE}")
+    # Save metadata to JSON
+    metadata_path = os.path.join(raw_data_dir, 'metadata.json')
+    with open(metadata_path, 'w') as f:
+        json.dump(metadata, f, indent=2)
     
-    # Verification Step
-    if len(metadata_records) < 2000:
-        print(f"ERROR: Generated {len(metadata_records)} samples, expected >= 2000.")
-        return 1
-    else:
-        print(f"VERIFICATION PASSED: Generated {len(metadata_records)} samples (>= 2000).")
-        return 0
+    print(f"Metadata saved to {metadata_path}")
+    
+    # Compute and save SHA-256 checksum (Constitution Principle III)
+    checksum_hash = compute_sha256_checksum(metadata_path)
+    checksum_data = {
+        "metadata_file": "data/raw/metadata.json",
+        "sha256": checksum_hash
+    }
+    checksum_path = os.path.join(benchmark_dir, 'metadata_checksum.json')
+    with open(checksum_path, 'w') as f:
+        json.dump(checksum_data, f, indent=2)
+    
+    print(f"Checksum saved to {checksum_path}")
+    print(f"Synthetic generation complete. Total samples: {len(metadata)}")
 
 if __name__ == "__main__":
-    exit(main())
+    main()

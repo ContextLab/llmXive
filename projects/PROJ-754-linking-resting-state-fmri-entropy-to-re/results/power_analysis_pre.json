@@ -1,0 +1,7 @@
+{
+  "alpha": 0.05,
+  "effect_size_f2": 0.05,
+  "n_subjects": 200,
+  "power": 0.05126430669464255,
+  "underpowered": true
+}

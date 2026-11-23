@@ -1,109 +1,99 @@
-"""download_data.py
------------------
-Fetch the OQMD dataset, filter for Li‑rich rock‑salt structures, and
-save the filtered data to the project's raw data directory.
-
-The script is intended to be run directly:
-    python code/download_data.py
-
-It logs a warning if the number of filtered samples is below a
-predefined threshold.
-"""
-
-from pathlib import Path
+import os
 import logging
-
+from pathlib import Path
 import pandas as pd
 from pymatgen.core import Composition
 from matminer.datasets import load_dataset
-
-# Local imports
+from config import RAW_DATA_DIR
 from utils.logging import setup_logger
 
+# Setup logger
+logger = setup_logger(__name__)
 
-# ----------------------------------------------------------------------
-# Configuration
-# ----------------------------------------------------------------------
-MIN_SAMPLE_THRESHOLD = 100  # Minimum acceptable number of filtered rows
-
-# Resolve the project root (two levels up from this file) and the raw data dir
-PROJECT_ROOT = Path(__file__).resolve().parents[2]
-RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
-RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-OUTPUT_FILE = RAW_DATA_DIR / "oqmd_li_rocksalt.csv"
-
-
-# ----------------------------------------------------------------------
-# Helper functions
-# ----------------------------------------------------------------------
-def is_li_rich(composition_str: str) -> bool:
+def is_li_rich(composition_str: str, li_threshold: float = 0.3) -> bool:
     """
-    Return True if the composition contains lithium.
+    Check if a composition is Li-rich.
+
+    Args:
+        composition_str: Composition string (e.g., "Li2O")
+        li_threshold: Minimum Li fraction to be considered Li-rich
+
+    Returns:
+        True if Li-rich, False otherwise
     """
     try:
         comp = Composition(composition_str)
-        return "Li" in comp.as_dict()
-    except Exception:  # pragma: no cover
+        li_fraction = comp.get_el_amt_dict().get('Li', 0) / sum(comp.get_el_amt_dict().values())
+        return li_fraction >= li_threshold
+    except Exception as e:
+        logger.warning(f"Failed to parse composition {composition_str}: {e}")
         return False
 
-
-def is_rocksalt(spacegroup) -> bool:
+def is_rocksalt(composition_str: str) -> bool:
     """
-    Rock‑salt structures are typically in space group 225 (Fm-3m).
+    Check if a composition is likely to form a rock-salt structure.
+
+    Args:
+        composition_str: Composition string
+
+    Returns:
+        True if likely rock-salt, False otherwise
     """
     try:
-        return int(spacegroup) == 225
-    except Exception:  # pragma: no cover
+        comp = Composition(composition_str)
+        elements = list(comp.elements)
+
+        # Rock-salt typically has 2 elements with 1:1 ratio
+        if len(elements) != 2:
+            return False
+
+        amounts = [comp.get_el_amt_dict()[str(el)] for el in elements]
+        ratio = min(amounts) / max(amounts)
+
+        return 0.9 <= ratio <= 1.1
+    except Exception as e:
+        logger.warning(f"Failed to check rock-salt for {composition_str}: {e}")
         return False
 
+def main():
+    """
+    Download and filter OQMD data for Li-rich rock-salt structures.
+    """
+    logger.info("Starting data download and filtering...")
 
-# ----------------------------------------------------------------------
-# Main execution
-# ----------------------------------------------------------------------
-def main() -> None:
-    logger: logging.Logger = setup_logger(__name__)
-    logger.info("Starting OQMD data download via matminer.")
-
-    # Load the full OQMD dataset
     try:
-        df = load_dataset("oqmd")
-    except Exception as exc:  # pragma: no cover
-        logger.error(f"Failed to load OQMD dataset: {exc}")
+        # Load OQMD dataset (using a subset for demonstration)
+        # In production, download the full dataset
+        logger.info("Loading OQMD dataset...")
+        df = load_dataset("oqmd_entries", shuffle=False)
+
+        # Filter for Li-rich compositions
+        logger.info("Filtering for Li-rich compositions...")
+        df['is_li_rich'] = df['composition'].apply(is_li_rich)
+        df_li_rich = df[df['is_li_rich']].copy()
+
+        # Filter for rock-salt structures
+        logger.info("Filtering for rock-salt structures...")
+        df_li_rich['is_rocksalt'] = df_li_rich['composition'].apply(is_rocksalt)
+        df_filtered = df_li_rich[df_li_rich['is_rocksalt']].copy()
+
+        # Log sample count
+        sample_count = len(df_filtered)
+        logger.info(f"Filtered dataset contains {sample_count} entries")
+
+        if sample_count < 100:
+            logger.warning(f"Sample count ({sample_count}) is below threshold of 100. Proceeding with available data.")
+
+        # Save to raw data directory
+        output_path = RAW_DATA_DIR / "oqmd_filtered.csv"
+        df_filtered.to_csv(output_path, index=False)
+        logger.info(f"Saved filtered data to {output_path}")
+
+        return df_filtered
+
+    except Exception as e:
+        logger.error(f"Failed to download or filter data: {e}")
         raise
-
-    logger.info(f"OQMD dataset loaded with {len(df)} total entries.")
-
-    # Ensure required columns exist
-    required_cols = {"composition", "spacegroup"}
-    missing = required_cols - set(df.columns)
-    if missing:
-        logger.error(f"Missing expected columns in OQMD dataset: {missing}")
-        raise RuntimeError("Dataset does not contain required columns.")
-
-    # Apply filters
-    mask_li = df["composition"].apply(is_li_rich)
-    mask_rs = df["spacegroup"].apply(is_rocksalt)
-    filtered_df = df[mask_li & mask_rs].copy()
-
-    logger.info(
-        f"Filtered dataset contains {len(filtered_df)} Li‑rich rock‑salt entries."
-    )
-
-    if len(filtered_df) < MIN_SAMPLE_THRESHOLD:
-        logger.warning(
-            f"Number of filtered samples ({len(filtered_df)}) is below the "
-            f"threshold of {MIN_SAMPLE_THRESHOLD}."
-        )
-
-    # Save filtered data
-    try:
-        filtered_df.to_csv(OUTPUT_FILE, index=False)
-        logger.info(f"Filtered data saved to {OUTPUT_FILE}")
-    except Exception as exc:  # pragma: no cover
-        logger.error(f"Failed to write filtered data: {exc}")
-        raise
-
 
 if __name__ == "__main__":
     main()

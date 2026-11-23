@@ -1,0 +1,142 @@
+T001a:
+  reason: "The `code/` and `tests/` directories exist, but the required `data/` directory\
+    \ and its subfolders (`data/raw/`, `data/simulation/`, `data/visualization/`,\
+    \ `data/reports/`) are missing. The task\u2019s core requirement of creating the\
+    \ full project directory structure is not satisfied."
+  task: fb6366a964b9d75063d91750d7a692b210901628a15f50de342cca7d1c5a433f
+T001b:
+  reason: Checked the repository and found only `requirements.txt` present with the
+    correct package list; the required `.gitignore` and `README.md` files are missing.
+    The task is not fully satisfied until those two configuration files are added.
+  task: 848cbaff78e552f10f96fd6a6d9f0deacf5660421486d8dccbea065280898bd8
+T005:
+  reason: 'declared artifact(s) missing/empty/invalid: data/simulation_metadata.json,
+    code/simulation/schemas/metadata_schema.json'
+  task: d64bdddea7a43b5c2eb23603716e4c6924584b6cb23a756ce1eff83e8f04d07d
+T006:
+  task: 9844a56975b9a8df16bb04425cc31714b120d785465ac22863675a5ad9a1e6e1
+T007:
+  task: 4847d1f20349b5f6e539ee1af5dacc7d9f5d02c5daea6711201aafb84f8933dc
+T008:
+  reason: 'the task writes platform-owned path(s) inside the project: `.github/workflows/sim.yml`
+    (shadows `.github/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 5fe7edf44d882725906678385d3ccf4eec91402d205c96c008973e5ced9c4dc2
+T009:
+  reason: 'declared artifact(s) missing/empty/invalid: data/raw/, data/simulation_metadata.json'
+  task: 72a920d48b72f90a6e3c02193a10f34b31cf8a59d80f97ffe8520d9e5df6a971
+T010:
+  reason: The file `tests/unit/test_data_generator.py` exists, but the test calls
+    `generate_normal_data(100, mean=5, std=2, seed=42)`, which does not match the
+    function signature (`generate_normal_data(mean, std, n, rng=None)`) and includes
+    an unsupported `seed` argument. Consequently the unit test will raise a `TypeError`
+    and does not actually verify that the generated data respects the specified distribution
+    parameters. The test needs to be corrected to use the proper arguments (e.g.,
+    `generate_normal_data(mean=5, std=2, n=100)`) and optionally pass a reproducible
+    RNG.
+  task: 1632dc6c969461b163b43c4af7de6ef480a1681c41c91b319e770857c6d414ba
+T011a:
+  reason: "The provided `tests/unit/test_chi_squared_fallback.py` contains a `test_chi_squared_fallback_2x2`\
+    \ that does not match the task specification: it calls `run_chi_squared_with_fallback`\
+    \ as if it returns a tuple, asserts a non\u2011existent method name `\"fisher_fallback\"\
+    ,` and misuses `check_low_expected_counts`. The actual utility returns a dict\
+    \ with method values like `\"fisher_exact\"` or `\"chi2_yates\"`. Consequently\
+    \ the test will fail and does not correctly verify that a 2\xD72 table with expected\
+    \ count\u202F\u2248\u202F3 triggers the Fisher/Yates fallback. The test must be\
+    \ rewritten to call the function correctly, ch"
+  task: b5d794ce5b97c252f7a83561eb099567a6823943208d6a5e6fd5f8e9ee8f3fdf
+T011b:
+  task: e9cc6f08acbc39e10cb714d18102ee4b70dc22b0452d4f03d5a8efc62c10f299
+T012:
+  task: ef93e93d603b68a83f0c68923896b0d5c88d57e844b578fb157ccce7d87f6a61
+T012b:
+  task: 24542dd799f02cdfa9101692d6802f8d9ba91399856bd0bd17f8588e64a8d005
+T013:
+  task: 036dd9c3fb75eedca0f7cab142518bf6d10dc720f768625c85c958bbd3898355
+T013b:
+  task: 9a488ce3b6e7247a2a3da4a84b7fd6a6d3d13f3b47dcc6e1443fe8123579d1ee
+T014a:
+  task: 1113e683e1ae66cbc82fc1cd654b9203535a949253dfca8fc1f127f65180813f
+T014b:
+  task: c246141da051fd9cd07ba70bb78f0b6111844c6ef954b3660b2e3e4d2b80c71a
+T015a:
+  task: 7fe6a3023c3d32c5ca7cb42ed33f099a40fa71a094a4ebf8cd483becd1804e9d
+T015b:
+  task: 237c10d0b3a8717900fa0489e7784cb6fd5e79b6ac7875c6d564f20e8db50677
+T016:
+  reason: 'declared artifact(s) missing/empty/invalid: data/simulation/p_values_raw.csv'
+  task: 2e5665b2601ca2dfafccf89e75069dea2bad9ed3e5cfd72ed6d47f90b98a3c18
+T017:
+  task: 4aa577100cc63e6f2988325c4a5c11a0d6f28f57b4173c62b719ad0b05f09ac2
+T018:
+  reason: 'declared artifact(s) missing/empty/invalid: data/simulation/error_rates_summary.csv'
+  task: cc09497b137eee97f5515c43a6d8cfe94472266ed42ff96e46eda9b523654606
+T019:
+  task: cb9334f6e8975a9e95f480ba8c8ad59b51cf4c28d8e4ae14c0e725b0d2f7e647
+T020:
+  task: d49a7619f2d515e9b5d27a1271580782571a566476204cf8f4aef1461a50615e
+T021:
+  task: 8f56985dd7565cd859015daf75786a573fe5beed586ad2d3d1609831e69a82f6
+T022:
+  task: 642795b2aaa5541f98a2d8c7043513bc87872cc07142fb6f529dce3ee51b76bc
+T023:
+  reason: 'declared artifact(s) missing/empty/invalid: data/simulation/thresholds.json'
+  task: 82fc10642c1942c5bdbb122901c2f7cf3269e9a8ed519a8e6f8cff109c9782c4
+T024:
+  task: b43b3f6344d9c2747be8e18ea7e7b14b80e152d494ba346b04a3036e56a576ca
+T025:
+  task: cfdce7dd03ee5a25c3dd53613121d60b89514495a825cb23078aca179b18d463
+T026:
+  task: ca5581f1ead22031e5de91a65b7ef97887bf3b445a57496d6d7b3e4a9c94270c
+T027:
+  reason: 'declared artifact(s) missing/empty/invalid: data/visualization/'
+  task: 47fc26e2d3e3e827a80e75977e5deb2784466865fe1d18652ceb2683d595ffc5
+T028:
+  task: bfda4e72e79c719083b2956ae02ef080906e102cd06ce8db8ee15be7d263808a
+T029a:
+  task: a1a49f86673f93533006fff9b018d76442ca0e6d287484da7a7e50f5266444b7
+T029b:
+  task: 0a318e459c11ecb258aab7f612ef884bc5c26c676f77bfbdf6a21dbbae51eaa1
+T029c:
+  task: 44a9c92601bd79e07f9d3f303467ad6fc16d3e109d9ce21f0d9740e2d43dad83
+T029d:
+  task: a429db7492ba3ebdcc19dd25e90d92a952149fa3f743c53e4ffb250eacd3287d
+T030:
+  task: fa8ef6090e502b5b33167d8b9cb79ab4ba9463b0605f63f17d034d6148146c6d
+T031:
+  reason: 'declared artifact(s) missing/empty/invalid: data/simulation/real_data_pvalues.csv'
+  task: 5713705eeacaafea0287531302b069f9e646237b46c0827523fdd5dc00e417ec
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: data/simulation/real_data_power.json'
+  task: c44001b894a95ce0f1812527ffd294960d549544caec1bd45a513f2ace2a252a
+T033:
+  reason: 'declared artifact(s) missing/empty/invalid: data/reports/validation_report.md'
+  task: 70a6c1157526768ca82631b8f89260463db882308696729da0008812eac51945
+T034:
+  reason: 'declared artifact(s) missing/empty/invalid: data/simulation/validation_metrics.json'
+  task: 1ca7a721fd3321538e01ae5f6c398eeebe5fa35cd5fef2c08893903b0c1920f0
+T035:
+  task: 5580ff82f69a2a76f37db126429923432977441794f9fbdb5d6873711053eba4
+T036a:
+  task: 5dcf0e1c55ab0a6ae53a6f9aa17669990f90c7c52be433149214d35a3f306c51
+T036b:
+  task: e2becbec607faaf8d20d6049e4aa7ede49c20fbdac64196b8ded9dc10f79a6e0
+T037:
+  task: 8137bb800471b93e238a708471bbb78e4f8a929ddfcda9fa1076e43bb96d1af7
+T038:
+  task: 3ddaf1bac64b2666da25ffbb5c0b6524e8947a7d42a71301dcae6e3e58a536ac
+T039:
+  task: ce21031214c2439a03d4a266d9f4a115e7c9f477cdf521a99fa8ad348c2acbfc
+T040:
+  task: 09e6e88f1a5ec8a5a1cf375c0d2dd79ffbf984a07fc44de8f175b5a050732c48
+T041:
+  task: dc788a9218106b88f89fa1c9a77a9fe0403813999543c6deaf71e598b7939b76
+T042:
+  task: 1b0cf51143aa5d24e2e998bfed132b75a9cdfbd88d6c078b136252542a7e4703
+T043:
+  task: 3b8d2aef3f0c7d1d122d038a9044eff369d77746677815640479d7a63ae0022f
+T044:
+  task: 50a09185c44c9a3277e7d70e6c4ff83f0f5c8cff3380218e579a614e5bd8247a
+T045:
+  task: ab1150ae12c915b6dedbed97d309551c332152754b88fc2623a44c846ab8948d

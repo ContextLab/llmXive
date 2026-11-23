@@ -1,78 +1,161 @@
 $schema: http://json-schema.org/draft-07/schema#
-title: Time Perception Dataset Schema
+title: Predictive Coding Time Perception Dataset Schema
 description: |
-  Schema defining the required structure for time perception datasets
-  used in the predictive coding error analysis pipeline.
+  Schema for datasets used in the predictive coding time perception study.
+  Enforces presence of critical columns required for Markov surprisal calculation
+  and mixed-effects modeling.
+
 type: object
 required:
   - columns
+  - min_rows
+
 properties:
   columns:
-    type: array
-    description: List of required column definitions
-    minItems: 3
-    items:
-      type: object
-      required:
-        - name
-        - type
-        - description
-      properties:
-        name:
-          type: string
-          description: The exact column name as it appears in the CSV
-        type:
-          type: string
-          enum:
-            - integer
-            - float
-            - string
-            - category
-          description: The expected data type
-        description:
-          type: string
-          description: Brief description of the data contained in the column
-        required:
-          type: boolean
-          default: true
-          description: Whether this column is mandatory for analysis
+    type: object
+    description: Required column definitions
+    required:
+      - duration_estimate
+      - stimulus_sequence
+      - participant_id
+    properties:
+      duration_estimate:
+        type: object
+        description: |
+          Subjective or objective duration estimate in milliseconds or seconds.
+          Used as the dependent variable in the LMM.
+        properties:
+          type:
+            type: string
+            enum: [float, int]
+          description:
+            type: string
+            const: "Duration estimate (ms or s)"
+          required:
+            type: boolean
+            const: true
+      stimulus_sequence:
+        type: object
+        description: |
+          Categorical or numerical sequence of stimuli.
+          Used to calculate transition probabilities and surprisal.
+          Must be orderable (temporal sequence).
+        properties:
+          type:
+            type: string
+            enum: [string, int, float]
+          description:
+            type: string
+            const: "Stimulus identifier in temporal order"
+          required:
+            type: boolean
+            const: true
+      participant_id:
+        type: object
+        description: |
+          Unique identifier for the participant.
+          Used as the grouping factor in random effects (1 | Participant_ID).
+        properties:
+          type:
+            type: string
+            enum: [string, int]
+          description:
+            type: string
+            const: "Unique participant identifier"
+          required:
+            type: boolean
+            const: true
+      condition_label:
+        type: object
+        description: |
+          Optional: Condition label (e.g., 'high_surprisal', 'low_surprisal').
+          Used for grouping in effect size calculations.
+        properties:
+          type:
+            type: string
+            enum: [string, int]
+          description:
+            type: string
+            const: "Experimental condition label"
+          required:
+            type: boolean
+            const: false
+      sequence_length:
+        type: object
+        description: |
+          Optional: Running count of stimuli in the current sequence.
+          Used as a covariate in the LMM.
+        properties:
+          type:
+            type: string
+            enum: [int]
+          description:
+            type: string
+            const: "Number of stimuli in current sequence"
+          required:
+            type: boolean
+            const: false
+      modality:
+        type: object
+        description: |
+          Optional: Sensory modality of the stimulus (e.g., 'visual', 'auditory').
+          Used as a fixed effect covariate.
+        properties:
+          type:
+            type: string
+            enum: [string]
+          description:
+            type: string
+            const: "Sensory modality"
+          required:
+            type: boolean
+            const: false
 
-  required_columns:
+  min_rows:
+    type: integer
+    description: Minimum number of rows required for the dataset to be valid
+    const: 100
+
+  validation_rules:
     type: array
-    description: Explicit list of mandatory column names for validation
+    description: Additional validation rules applied during Gate 0
     items:
       type: string
-    minItems: 3
-    contains:
-      const: duration_estimate
-    contains:
-      const: stimulus_sequence
-    contains:
-      const: participant_id
+    const:
+      - "stimulus_sequence must be non-empty strings or integers"
+      - "duration_estimate must be positive numbers"
+      - "participant_id must not be null"
+      - "Sequential order must be preserved (no shuffling)"
 
 examples:
   - columns:
-      - name: duration_estimate
+      duration_estimate:
         type: float
-        description: Participant's estimated duration of the stimulus in milliseconds
+        description: "Duration estimate (ms)"
         required: true
-      - name: stimulus_sequence
+      stimulus_sequence:
         type: string
-        description: The sequence of stimuli presented (e.g., 'A-B-C' or encoded string)
+        description: "Stimulus identifier in temporal order"
         required: true
-      - name: participant_id
-        type: integer
-        description: Unique identifier for the participant
+      participant_id:
+        type: string
+        description: "Unique participant identifier"
         required: true
-      - name: condition
-        type: category
-        description: Experimental condition label (e.g., 'predictable', 'random')
+      condition_label:
+        type: string
+        description: "Experimental condition label"
         required: false
-      - name: actual_duration
-        type: float
-        description: Ground truth duration of the stimulus in milliseconds
+      sequence_length:
+        type: int
+        description: "Number of stimuli in current sequence"
         required: false
-      - name: trial_id
-        type: integer
-        description: Unique identifier for the trial
+      modality:
+        type: string
+        description: "Sensory modality"
         required: false
+    min_rows: 100
+    validation_rules:
+      - "stimulus_sequence must be non-empty strings or integers"
+      - "duration_estimate must be positive numbers"
+      - "participant_id must not be null"
+      - "Sequential order must be preserved (no shuffling)"

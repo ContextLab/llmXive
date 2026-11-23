@@ -1,0 +1,13 @@
+status: none
+intent: download metallic glass composition dataset Zenodo 10.5281/zenodo.5778205
+  python package dataset
+required_fields:
+- composition
+- detected_target_type
+- target_value
+- atomic_size_mismatch
+- mixing_enthalpy
+- electronegativity
+cache_key: 3445cc4fc4f144d94268fccc6d4f9345a32b50f343058c92eb47f7c824bbd207
+searched_at: '2026-10-20T06:40:46.839808+00:00'
+retry_count: 1

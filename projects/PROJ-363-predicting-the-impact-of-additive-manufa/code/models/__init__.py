@@ -1,3 +1,1 @@
-"""
-Model training and evaluation utilities.
-"""
+# Models module package

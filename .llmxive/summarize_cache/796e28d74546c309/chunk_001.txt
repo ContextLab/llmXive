@@ -1,0 +1,49 @@
+2. **Given** an aggregated dataset with 100-299 records, **When** the validation step runs, **Then** the system MUST output a warning `data_insufficiency_warning`, proceed with the analysis, and set the `study_scope` to "pilot_study" in the report. (See SC-004)
+3. **Given** a dataset with >= 300 records, **When** the validation step runs, **Then** the system proceeds normally with `study_scope` set to "full_study". (See SC-004)
+
+---
+
+### Edge Cases
+
+- What happens when the aggregated dataset contains an insufficient number of records after preprocessing? (The system must still run but flag a power limitation).
+- How does the system handle a material class in the test set that has zero representation in the training set during leave-one-out validation? (The error should be recorded, but the pipeline must not crash).
+- What happens if a specific LST parameter (e.g., `pulse_duration`) has zero variance across all records? (The feature must be dropped or handled to prevent model singularity).
+
+## Requirements *(mandatory)*
+
+### Functional Requirements
+
+- **FR-001**: System MUST ingest tabular data from at least 3 distinct sources (OpenML, HuggingFace, literature supplements) and merge them into a single dataframe with standardized column names for process parameters, material properties, and wear outcomes. A "distinct source" is defined as a unique repository URL or a distinct published paper with a separate supplement. The system MUST verify the presence of LST-specific columns (pulse_duration, power, scanning_speed, wear_rate) before proceeding. (See US-1)
+- **FR-002**: System MUST drop any record where a required predictor variable (`pulse_duration`, `power`, `scanning_speed`, `pattern_geometry`, `hardness`, `elastic_modulus`) is missing. The system MUST NOT impute missing predictor values. However, if `contact_load` or `sliding_speed` are missing, the record MUST be retained with the raw `wear_rate` value and a flag `normalization_method='raw'` set, as these are optional for the *normalized* target calculation only. These 'raw' records MUST NOT be mixed into the primary training set (see FR-013). (See US-1)
+- **FR-003**: System MUST train at least three distinct regression models (Linear Regression, Random Forest Regressor, Gradient Boosting Regressor) using scikit-learn on a CPU-only environment. The system MUST NOT utilize GPU acceleration. (See US-2)
+- **FR-004**: System MUST perform hyperparameter optimization via grid search over a minimum of 10 distinct total grid points (combinations of `n_estimators`, `max_depth`, and `learning_rate`) using 5-fold cross-validation. (See US-2)
+- **FR-005**: System MUST compute and report SHAP (SHapley Additive exPlanations) values for the best-performing model to rank feature importance and visualize non-linear dependencies. (See US-3)
+- **FR-006**: System MUST execute a leave-one-material-class-out cross-validation to assess model generalizability across different base materials. If fewer than 3 material classes exist in the dataset, the system MUST fallback to K-Fold cross-validation (K=5), log a warning, and explicitly state that the research question has shifted to "within-material prediction" rather than "cross-material generalizability". If the normalized subset size per class is < 30, the system MUST fallback to Linear Regression only to avoid overfitting on small samples. (See US-2)
+- **FR-007**: System MUST explicitly frame all reported correlations as associational and avoid causal language unless the dataset includes randomized assignment. (See US-2)
+- **FR-008**: System MUST apply a permutation-based significance testing framework (minimum 2000 permutations) to generate p-values for feature importance. If no features meet the p < 0.05 threshold, the system MUST report `no_significant_features`. If the variance of p-values across features is > 0.05, the system MUST flag `unstable_significance`. A feature is considered "suggestive" if p < 0.1 but >= 0.05. (See US-3)
+- **FR-009**: System MUST normalize raw wear rate values to a specific wear coefficient (K) using Archard's law. The system MUST first convert `wear_rate` (linear or mass) to Volume (V) using density and contact area data from the source metadata. If `contact_load` or `sliding_speed` are missing, the system MUST retain the record using the raw `wear_rate` and set the flag `normalization_method='raw'`. (See US-1)
+- **FR-010**: System MUST perform Variance Inflation Factor (VIF) diagnostics on the feature set. If any pair of features has a VIF > 5, the system MUST exclude the feature with the highest VIF value from the pair and re-calculate until all VIFs are ≤ 5, to mitigate collinearity issues. (See US-3)
+- **FR-011**: System MUST perform a sensitivity analysis comparing the performance of the best model trained on the 'normalized-only' subset versus the 'full' (normalized + raw) subset. The system MUST report the difference in R² and MAE between these two models. (See US-2)
+- **FR-012**: System MUST report a `data_source_limitation` warning if fewer than 3 distinct sources are found, but must proceed with available data. (See US-1)
+- **FR-013**: System MUST train the primary regression model (FR-003) ONLY on the subset of records where `normalization_method='normalized'`. The 'raw' subset is reserved exclusively for the sensitivity analysis (FR-011) and must not be mixed into the primary training set. (See US-2)
+- **FR-014**: System MUST perform a power analysis before model training. If the power analysis indicates < 0.8 power for the expected effect size (α=0.05), the system MUST switch to a simpler model (Linear Regression) or report a `power_insufficiency` warning. (See US-2)
+- **FR-015**: System MUST define a deterministic resolution strategy for VIF > 5 (see FR-010) and ensure the final model uses only the reduced feature set. (See US-3)
+- **FR-016**: System MUST enforce a runtime limit of 6 hours for the entire pipeline (ingestion to SHAP generation). If the pipeline exceeds this limit, the system MUST terminate with exit code 1 and log a `runtime_timeout` error. (See US-2)
+- **FR-017**: System MUST perform a statistical validity check on the 'raw' subset before including it in the sensitivity analysis. The system MUST run Shapiro-Wilk (normality) and Levene's (homogeneity) tests. If p < 0.05 for either, the 'raw' subset MUST be excluded from the sensitivity analysis and the system MUST report `raw_subset_invalid`. (See US-2)
+- **FR-018**: System MUST handle unit conversions for Archard's law normalization. If `wear_rate` is reported in linear (mm) or mass (mg) units, the system MUST apply density and geometry conversions to derive Volume (V) before calculating the wear coefficient K. (See US-1)
+
+### Key Entities
+
+- **LSTRecord**: A single experimental instance containing process parameters (pulse duration, power, scanning speed, pattern geometry), material properties (hardness, elastic modulus), and the target outcome (wear_rate).
+- **ModelPerformance**: A record storing the R², MAE, and RMSE metrics for a specific model configuration on both training and test splits.
+- **FeatureImportance**: A mapping of each input feature to its SHAP value magnitude, indicating its contribution to the wear_rate prediction.
+
+## Success Criteria *(mandatory)*
+
+### Measurable Outcomes
+
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
+
+- **SC-001**: The coefficient of determination (R²) of the best-performing model on the held-out test set is measured against the baseline Linear Regression R² to quantify the improvement from non-linear modeling. (See US-2)

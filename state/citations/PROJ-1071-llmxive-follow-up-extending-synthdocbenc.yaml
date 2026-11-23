@@ -1,0 +1,11 @@
+- artifact_hash: 946d15b9b0638f46287cae0282ab283f2ce61e3785fc6234ac859c10933f1f04
+  artifact_path: projects/PROJ-1071-llmxive-follow-up-extending-synthdocbenc/quickstart.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: UB-Mannheim
+  fetched_title: "Home \xB7 UB-Mannheim/tesseract Wiki \xB7 GitHub"
+  kind: url
+  value: https://github.com/UB-Mannheim/tesseract/wiki
+  verification_status: pending
+  verified_against_url: https://github.com/UB-Mannheim/tesseract/wiki
+  verified_at: '2026-09-06T20:44:23.127466Z'

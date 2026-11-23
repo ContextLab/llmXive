@@ -1,91 +1,125 @@
-"""
-Schema definitions for LLM code detection results.
-"""
 from dataclasses import dataclass, field
 from typing import List, Optional, Dict, Any
 from enum import Enum
 import json
 
+# Import the Severity enum defined in the extraction schema.
+# This avoids duplication and keeps a single source of truth for severity levels.
+from code.src.extraction.schema import Severity
+
 
 class ConfidenceLevel(Enum):
     """Confidence levels for LLM code detection."""
-    LOW = "low"
-    MEDIUM = "medium"
     HIGH = "high"
-    UNCERTAIN = "uncertain"
+    MEDIUM = "medium"
+    LOW = "low"
+    NONE = "none"
 
 
 @dataclass
 class LLMCodeDetectionResult:
+    """Result of LLM-generated code detection for a single PR."""
+    pr_id: str
+    repo: str
+    llm_code_flag: bool
+    confidence: ConfidenceLevel
+    matched_patterns: List[str] = field(default_factory=list)
+    file_paths: List[str] = field(default_factory=list)
+    error_message: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert to dictionary for JSON serialization."""
+        return {
+            'pr_id': self.pr_id,
+            'repo': self.repo,
+            'llm_code_flag': self.llm_code_flag,
+            'confidence': self.confidence.value,
+            'matched_patterns': self.matched_patterns,
+            'file_paths': self.file_paths,
+            'error_message': self.error_message
+        }
+
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'LLMCodeDetectionResult':
+        """Create instance from dictionary."""
+        return cls(
+            pr_id=data['pr_id'],
+            repo=data['repo'],
+            llm_code_flag=data['llm_code_flag'],
+            confidence=ConfidenceLevel(data['confidence']),
+            matched_patterns=data.get('matched_patterns', []),
+            file_paths=data.get('file_paths', []),
+            error_message=data.get('error_message')
+        )
+
+
+@dataclass
+class BugDetection:
     """
-    Result of detecting LLM-generated code in a PR diff.
+    Represents a detected bug within a PR diff.
 
     Attributes:
-        pr_id: Unique identifier for the pull request.
-        file_path: Path to the file within the PR.
-        line_start: Starting line number of the detected code snippet.
-        line_end: Ending line number of the detected code snippet.
-        detected: Boolean flag indicating if LLM-generated code was found.
-        confidence: Confidence level of the detection (low, medium, high, uncertain).
-        heuristic_name: Name of the heuristic or method used for detection.
-        heuristic_details: Dictionary containing details about the heuristic match.
-        raw_snippet: Optional raw text snippet of the detected code.
-        metadata: Additional metadata for the detection event.
+        pr_id: ID of the PR where the bug was found
+        file_path: Path to the file containing the bug
+        line_start: Starting line number of the bug
+        line_end: Ending line number of the bug
+        severity: Severity level of the bug
+        description: Text description of the bug
+        detection_method: Method used to detect (e.g., "llm", "heuristic", "human")
+        confidence: Confidence score (0.0 to 1.0)
+        is_confirmed: Whether the bug has been confirmed by human review
     """
     pr_id: str
     file_path: str
     line_start: int
     line_end: int
-    detected: bool
-    confidence: ConfidenceLevel
-    heuristic_name: str
-    heuristic_details: Dict[str, Any] = field(default_factory=dict)
-    raw_snippet: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
+    severity: Severity
+    description: str
+    detection_method: str
+    confidence: float = 0.0
+    is_confirmed: bool = False
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the detection result to a dictionary for JSON serialization."""
+        """Convert BugDetection to a dictionary for JSON serialization."""
         return {
             "pr_id": self.pr_id,
             "file_path": self.file_path,
             "line_start": self.line_start,
             "line_end": self.line_end,
-            "detected": self.detected,
-            "confidence": self.confidence.value,
-            "heuristic_name": self.heuristic_name,
-            "heuristic_details": self.heuristic_details,
-            "raw_snippet": self.raw_snippet,
-            "metadata": self.metadata
+            "severity": str(self.severity),
+            "description": self.description,
+            "detection_method": self.detection_method,
+            "confidence": self.confidence,
+            "is_confirmed": self.is_confirmed,
         }
 
-    def to_json(self, indent: int = 2) -> str:
-        """Serialize the detection result to a JSON string."""
-        return json.dumps(self.to_dict(), indent=indent)
-
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "LLMCodeDetectionResult":
-        """Create an LLMCodeDetectionResult instance from a dictionary."""
-        confidence_val = data.get("confidence")
-        if isinstance(confidence_val, str):
-            confidence_val = ConfidenceLevel(confidence_val)
-        elif confidence_val is None:
-            confidence_val = ConfidenceLevel.UNCERTAIN
+    def from_dict(cls, data: Dict[str, Any]) -> "BugDetection":
+        """Create a BugDetection instance from a dictionary."""
+        severity_str = data.get("severity", "info")
+        if isinstance(severity_str, str):
+            severity = Severity.from_string(severity_str)
+        else:
+            severity = severity_str
 
         return cls(
-            pr_id=data["pr_id"],
-            file_path=data["file_path"],
-            line_start=data["line_start"],
-            line_end=data["line_end"],
-            detected=data["detected"],
-            confidence=confidence_val,
-            heuristic_name=data.get("heuristic_name", "unknown"),
-            heuristic_details=data.get("heuristic_details", {}),
-            raw_snippet=data.get("raw_snippet"),
-            metadata=data.get("metadata", {})
+            pr_id=data.get("pr_id", ""),
+            file_path=data.get("file_path", ""),
+            line_start=data.get("line_start", 0),
+            line_end=data.get("line_end", 0),
+            severity=severity,
+            description=data.get("description", ""),
+            detection_method=data.get("detection_method", "unknown"),
+            confidence=data.get("confidence", 0.0),
+            is_confirmed=data.get("is_confirmed", False),
         )
 
+    def to_json(self) -> str:
+        """Serialize BugDetection to JSON string."""
+        return json.dumps(self.to_dict(), indent=2)
+
     @classmethod
-    def from_json(cls, json_str: str) -> "LLMCodeDetectionResult":
-        """Create an LLMCodeDetectionResult instance from a JSON string."""
+    def from_json(cls, json_str: str) -> "BugDetection":
+        """Deserialize BugDetection from JSON string."""
         data = json.loads(json_str)
         return cls.from_dict(data)

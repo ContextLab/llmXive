@@ -1,6 +1,6 @@
 # Informed Consent Form
 
-## Study Title: The Impact of Visual Detail on False Memory Susceptibility
+## Study Title: The Impact of Visual Detail on False Memory Susceptibility (PROJ-317)
 
 ## Principal Investigator
 [Researcher Name]
@@ -32,15 +32,21 @@ While there are no direct benefits to you, your participation will help advance 
 Your participation is entirely voluntary. You may choose not to participate or withdraw at any time without any negative consequences.
 
 ## Data Confidentiality
-All data collected will be anonymized. Your responses will be stored securely and accessed only by the research team. No personally identifiable information (PII) will be published or shared.
+All data collected will be anonymized. Your responses will be stored securely and accessed only by the research team. No personally identifiable information (PII) will be published or shared. Data will be anonymized according to GDPR Art. 6 & 7, ensuring that no direct or indirect identifiers are linked to your responses. The data will be used solely for research purposes within project PROJ-317.
 
-## Data Retention
-Data will be retained for [X] years in accordance with institutional policies, after which it will be securely deleted.
+## Data Usage
+Your data will be used for the primary purpose of analyzing false memory susceptibility in relation to visual detail. Access to your anonymized data will be restricted to the core research team involved in this study. We adhere strictly to GDPR guidelines regarding data privacy and security. Your responses may also be used for secondary analyses related to cognitive psychology, but always in an aggregated and anonymized form.
 
-## Contact Information
-If you have questions about the study, please contact:
+## Right to Withdraw
+You have the right to withdraw from this study at any time without penalty. If you choose to withdraw, your data will be removed from the analysis as soon as reasonably possible. Your decision to participate or withdraw will not affect any other services provided by [Institution].
+
+## Contact Info
+If you have questions about this research, please contact:
 - [Researcher Name]: [Email]
 - [Institutional Review Board]: [Email/Phone]
+
+## GDPR-compliant Anonymization Workflow
+I consent to participate in this study (Project ID: PROJ-317). I understand my data will be anonymized (GDPR Art. 6 & 7). **Anonymization Workflow**: All PII (names, emails, IPs) is stripped from the dataset *at the moment of ingestion* by the `code/participants/session.py` script. The resulting raw data stored in `data/responses/` contains only pseudonymous IDs and is checksummed. I have the right to withdraw at any time, and I can contact the PI at [email]. Data Usage: Responses will be used for statistical analysis only.
 
 ## Consent Statement
 By proceeding, you confirm that:
@@ -49,6 +55,3 @@ By proceeding, you confirm that:
 - You voluntarily agree to participate in this study.
 
 [ ] I consent to participate in this study.
-
----
-*This template is compliant with GDPR requirements for data protection and informed consent.*

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "cond-mat/0309395",
+  "judged_at": "2026-07-29T10:18:38Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"researchstudio-reel: automate the last mile of research from paper to \" computer science",
+  "rationale": "The candidate paper has been withdrawn and contains no abstract or content, meaning it provides no measurable connection to the user's mechanism, domain, variables, or empirical setting required for inclusion in a literature review.",
+  "relevant": false
+}

@@ -140,5 +140,15 @@
     "main.bbl",
     "main.tex",
     "references.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "e2c8e9cc3166740946ec87032a4956c6bfc1383d6eda6f7db93f2b4067ef025e",
+      "bytes": 1292895
+    },
+    "original.pdf": {
+      "sha256": "86a0dc9dcf1520c323ed11f1343d4a4a265c832d1961c67edee8b978889fec59",
+      "bytes": 1258368
+    }
+  }
 }

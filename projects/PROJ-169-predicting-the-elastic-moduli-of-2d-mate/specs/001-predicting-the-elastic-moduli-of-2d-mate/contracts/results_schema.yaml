@@ -1,0 +1,125 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Generalization Metrics Schema"
+description: "Schema for data/results/generalization_metrics.json"
+type: "object"
+properties:
+  surrogate:
+    type: "object"
+    properties:
+      young_mape:
+        type: "number"
+      shear_mape:
+        type: "number"
+      poisson_mae:
+        type: "number"
+    required:
+      - young_mape
+      - shear_mape
+      - poisson_mae
+  baseline_composition:
+    type: "object"
+    properties:
+      young_mape:
+        type: "number"
+      shear_mape:
+        type: "number"
+      poisson_mae:
+        type: "number"
+    required:
+      - young_mape
+      - shear_mape
+      - poisson_mae
+  relative_mape_reduction:
+    type: "object"
+    properties:
+      young:
+        type: "number"
+        description: "Relative reduction in Young's MAPE vs baseline (fractional improvement)."
+      shear:
+        type: "number"
+        description: "Relative reduction in shear MAPE vs baseline."
+      poisson_mae_reduction:
+        type: "number"
+        description: "Relative reduction in Poisson MAE vs baseline."
+    required:
+      - young
+      - shear
+      - poisson_mae_reduction
+  significance:
+    type: "object"
+    properties:
+      method:
+        type: "string"
+        description: "Paired bootstrap, 1000 resamples, Holm‑corrected."
+      p_values:
+        type: "object"
+        properties:
+          young:
+            type: "number"
+          shear:
+            type: "number"
+          poisson:
+            type: "number"
+        required:
+          - young
+          - shear
+          - poisson
+    required:
+      - method
+      - p_values
+  intra_vs_inter_family:
+    type: "object"
+    properties:
+      intra_family_mape:
+        type: "number"
+        description: "Mean MAPE across the 5‑fold family‑stratified CV (families present in train/val)."
+      inter_family_mape:
+        type: "number"
+        description: "Test‑set MAPE on families **unseen** during training."
+    required:
+      - intra_family_mape
+      - inter_family_mape
+  inference_time:
+    type: "object"
+    properties:
+      per_material_ms:
+        type: "array"
+        items:
+          type: "number"
+      median_ms:
+        type: "number"
+      limit_ms:
+        type: "number"
+        description: "Configured inference time limit (≤ 200 ms)."
+      within_limit:
+        type: "boolean"
+    required:
+      - per_material_ms
+      - median_ms
+      - limit_ms
+      - within_limit
+  test_set_size:
+    type: "integer"
+  gates:
+    type: "object"
+    properties:
+      sc_002_baseline_reduction:
+        type: "boolean"
+      sc_003_inference_time:
+        type: "boolean"
+      sc_006_accuracy:
+        type: "boolean"
+    required:
+      - sc_002_baseline_reduction
+      - sc_003_inference_time
+      - sc_006_accuracy
+required:
+  - surrogate
+  - baseline_composition
+  - relative_mape_reduction
+  - significance
+  - intra_vs_inter_family
+  - inference_time
+  - test_set_size
+  - gates
+additionalProperties: false

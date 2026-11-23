@@ -1,200 +1,210 @@
-"""
-Error handling module for molecular conductivity pipeline.
-Implements FR-012: Error handling for invalid SMILES and missing conductivity.
-"""
 import logging
 from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
 from rdkit import Chem
 from rdkit.Chem import AllChem
+from code.config import TARGET_VAR, DATA_PATH
 
 logger = logging.getLogger(__name__)
 
 def validate_smiles_batch(smiles_list: List[str]) -> Tuple[List[str], List[str], List[str]]:
     """
-    Validate a batch of SMILES strings.
+    Validates a batch of SMILES strings.
     
-    Args:
-        smiles_list: List of SMILES strings to validate
-        
     Returns:
-        Tuple of (valid_smiles, invalid_smiles, error_messages)
+        valid_smiles: List of successfully parsed SMILES
+        invalid_smiles: List of SMILES that failed parsing
+        error_messages: List of error messages corresponding to invalid SMILES
     """
     valid_smiles = []
     invalid_smiles = []
     error_messages = []
-    
+
     for smiles in smiles_list:
-        try:
-            if not isinstance(smiles, str) or not smiles.strip():
-                invalid_smiles.append(smiles)
-                error_messages.append("Empty or non-string SMILES")
-                continue
-                
-            mol = Chem.MolFromSmiles(smiles)
-            if mol is None:
-                invalid_smiles.append(smiles)
-                error_messages.append("RDKit failed to parse SMILES")
-            else:
-                # Additional validation: check if molecule has at least one atom
-                if mol.GetNumAtoms() == 0:
-                    invalid_smiles.append(smiles)
-                    error_messages.append("Molecule has no atoms")
-                else:
-                    valid_smiles.append(smiles)
-                    error_messages.append("")
-                    
-        except Exception as e:
+        if not isinstance(smiles, str) or not smiles.strip():
+            invalid_smiles.append(str(smiles))
+            error_messages.append("Empty or non-string SMILES")
+            continue
+        
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
             invalid_smiles.append(smiles)
-            error_messages.append(f"Exception during validation: {str(e)}")
-            
+            error_messages.append("RDKit failed to parse SMILES")
+        else:
+            valid_smiles.append(smiles)
+    
     return valid_smiles, invalid_smiles, error_messages
 
-def check_conductivity_column(df: pd.DataFrame) -> Tuple[bool, Optional[str]]:
+def check_conductivity_column(df: pd.DataFrame) -> bool:
     """
-    Check if the DataFrame contains a valid conductivity column.
+    Checks if the target variable column exists in the DataFrame.
     
     Args:
-        df: DataFrame to check
+        df: DataFrame containing molecular data
         
     Returns:
-        Tuple of (has_conductivity, column_name)
-        If conductivity is found, returns (True, column_name)
-        If conductivity is missing, returns (False, None)
+        True if the target column exists, False otherwise
+        
+    Raises:
+        ValueError: If the target variable is missing from the dataset
     """
-    possible_names = ['conductivity', 'log_conductivity', 'conductivity_log', 'log_cond']
-    
-    for col in possible_names:
-        if col in df.columns:
-            # Check if the column has valid numeric data
-            if df[col].dtype not in ['float64', 'int64', 'float32', 'int32']:
-                try:
-                    df[col] = pd.to_numeric(df[col], errors='raise')
-                except (ValueError, TypeError):
-                    logger.warning(f"Column '{col}' could not be converted to numeric")
-                    continue
-                    
-            # Check for missing values
-            if df[col].isna().all():
-                logger.warning(f"Column '{col}' contains only NaN values")
-                continue
-                
-            return True, col
-            
-    logger.error("No valid conductivity column found in DataFrame")
-    logger.error(f"Available columns: {list(df.columns)}")
-    return False, None
+    if TARGET_VAR not in df.columns:
+        available_cols = list(df.columns)
+        logger.error(f"Target variable '{TARGET_VAR}' not found in dataset.")
+        logger.error(f"Available columns: {available_cols}")
+        
+        # Check for common fallbacks
+        if 'conductivity' in df.columns:
+            logger.warning("Found 'conductivity' column but config TARGET_VAR is different.")
+        if 'HOMO_LUMO_gap' in df.columns:
+            logger.warning("Found 'HOMO_LUMO_gap' column which might be a fallback target.")
+        
+        raise ValueError(f"Missing target variable '{TARGET_VAR}' in dataset. "
+                       f"Ensure the data contains the required conductivity column or "
+                       f"update config.py TARGET_VAR if using a proxy.")
+    return True
 
-def handle_invalid_smiles(df: pd.DataFrame, smiles_col: str = 'smiles') -> pd.DataFrame:
+def handle_invalid_smiles(df: pd.DataFrame, valid_smiles_col: str = 'smiles') -> pd.DataFrame:
     """
-    Handle invalid SMILES in the DataFrame by marking them and logging.
+    Filters out invalid SMILES from the DataFrame and logs the issue.
     
     Args:
-        df: DataFrame with SMILES column
-        smiles_col: Name of the SMILES column
+        df: Input DataFrame with a 'smiles' column
+        valid_smiles_col: Name of the column containing SMILES strings
         
     Returns:
-        DataFrame with 'valid' and 'error_msg' columns added
+        DataFrame containing only valid molecules
     """
-    if smiles_col not in df.columns:
-        raise ValueError(f"SMILES column '{smiles_col}' not found in DataFrame")
-        
-    valid_smiles, invalid_smiles, error_messages = validate_smiles_batch(df[smiles_col].tolist())
+    valid_count = 0
+    invalid_count = 0
+    invalid_indices = []
     
-    df['valid'] = df[smiles_col].apply(lambda x: x in valid_smiles)
-    df['error_msg'] = df[smiles_col].apply(lambda x: error_messages[valid_smiles.index(x)] if x in valid_smiles else error_messages[invalid_smiles.index(x)])
-    
-    invalid_count = df['valid'].sum() == 0
-    if invalid_count > 0:
-        logger.warning(f"Found {invalid_count} invalid SMILES out of {len(df)} total")
-        for idx, row in df[df['valid'] == False].iterrows():
-            logger.warning(f"Invalid SMILES at index {idx}: {row[smiles_col]} - {row['error_msg']}")
+    for idx, row in df.iterrows():
+        smiles = row[valid_smiles_col]
+        if pd.isna(smiles) or not isinstance(smiles, str) or not smiles.strip():
+            invalid_indices.append(idx)
+            invalid_count += 1
+            continue
             
+        mol = Chem.MolFromSmiles(smiles)
+        if mol is None:
+            invalid_indices.append(idx)
+            invalid_count += 1
+            logger.warning(f"Invalid SMILES at index {idx}: '{smiles[:50]}...'")
+        else:
+            valid_count += 1
+    
+    if invalid_count > 0:
+        logger.warning(f"Removing {invalid_count} invalid SMILES entries. "
+                     f"Keeping {valid_count} valid entries.")
+        df_clean = df.drop(index=invalid_indices).reset_index(drop=True)
+        return df_clean
+    
     return df
 
 def handle_missing_conductivity(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Handle missing conductivity data by filtering or logging.
+    Handles missing conductivity values by logging and removing rows with NaN.
     
     Args:
-        df: DataFrame with conductivity column
+        df: DataFrame containing the target variable column
         
     Returns:
-        DataFrame with rows containing missing conductivity removed
+        DataFrame with rows containing missing target values removed
         
     Raises:
-        ValueError: If no valid conductivity data exists
+        ValueError: If all target values are missing
     """
-    has_conductivity, col_name = check_conductivity_column(df)
+    if TARGET_VAR not in df.columns:
+        raise ValueError(f"Cannot handle missing {TARGET_VAR}: column not found.")
     
-    if not has_conductivity:
-        raise ValueError("No valid conductivity column found in DataFrame")
-        
-    original_count = len(df)
-    df = df.dropna(subset=[col_name])
-    removed_count = original_count - len(df)
+    missing_mask = df[TARGET_VAR].isna()
+    missing_count = missing_mask.sum()
+    total_count = len(df)
     
-    if removed_count > 0:
-        logger.warning(f"Removed {removed_count} rows with missing conductivity values")
+    if missing_count > 0:
+        logger.warning(f"Found {missing_count} rows with missing {TARGET_VAR} values "
+                     f"({(missing_count/total_count)*100:.2f}% of data).")
+        df_clean = df.dropna(subset=[TARGET_VAR]).reset_index(drop=True)
         
-    if len(df) == 0:
-        raise ValueError("All rows had missing conductivity values - no valid data remaining")
+        if len(df_clean) == 0:
+            raise ValueError(f"All {total_count} rows had missing {TARGET_VAR} values. "
+                           "Dataset is unusable.")
         
-    logger.info(f"Remaining {len(df)} rows with valid conductivity data")
+        logger.info(f"Retained {len(df_clean)} rows after removing missing target values.")
+        return df_clean
+    
     return df
 
-def process_molecule_with_error_handling(smiles: str) -> Optional[Dict[str, Any]]:
+def process_molecule_with_error_handling(smiles: str, target_val: Optional[float] = None) -> Dict[str, Any]:
     """
-    Process a single SMILES string with comprehensive error handling.
+    Processes a single molecule with comprehensive error handling.
     
     Args:
         smiles: SMILES string to process
+        target_val: Optional target value (conductivity)
         
     Returns:
-        Dictionary with processing result or None if invalid
+        Dictionary with processing status and data
     """
-    try:
-        mol = Chem.MolFromSmiles(smiles)
-        if mol is None:
-            logger.warning(f"Failed to parse SMILES: {smiles}")
-            return None
-            
-        if mol.GetNumAtoms() == 0:
-            logger.warning(f"SMILES results in empty molecule: {smiles}")
-            return None
-            
-        return {
-            'smiles': smiles,
-            'valid': True,
-            'mol': mol,
-            'num_atoms': mol.GetNumAtoms(),
-            'num_bonds': mol.GetNumBonds()
-        }
-        
-    except Exception as e:
-        logger.error(f"Exception processing SMILES {smiles}: {str(e)}")
-        return None
+    result = {
+        'smiles': smiles,
+        'status': 'pending',
+        'error_msg': None,
+        'molecule': None,
+        'target': target_val
+    }
+    
+    # Validate SMILES
+    if not isinstance(smiles, str) or not smiles.strip():
+        result['status'] = 'invalid'
+        result['error_msg'] = 'Empty or non-string SMILES'
+        return result
+    
+    mol = Chem.MolFromSmiles(smiles)
+    if mol is None:
+        result['status'] = 'invalid'
+        result['error_msg'] = 'RDKit failed to parse SMILES'
+        return result
+    
+    result['molecule'] = mol
+    result['status'] = 'valid'
+    
+    # Check target value if provided
+    if target_val is not None and pd.isna(target_val):
+        result['status'] = 'missing_target'
+        result['error_msg'] = 'Target value is NaN'
+    
+    return result
 
-def validate_target_range(values: pd.Series, min_range: float = 3.0) -> Tuple[bool, float]:
+def validate_target_range(df: pd.DataFrame, min_range: float = 3.0) -> bool:
     """
-    Validate that the target variable has sufficient dynamic range.
+    Validates that the target variable has sufficient dynamic range.
     
     Args:
-        values: Series of target values
-        min_range: Minimum required log range
+        df: DataFrame containing the target variable
+        min_range: Minimum required range (max - min)
         
     Returns:
-        Tuple of (is_valid, actual_range)
+        True if range is sufficient, False otherwise
+        
+    Raises:
+        ValueError: If target column is missing or range is insufficient
     """
-    valid_values = values.dropna()
-    if len(valid_values) == 0:
-        logger.error("No valid values in target series")
-        return False, 0.0
-        
-    actual_range = valid_values.max() - valid_values.min()
-    is_valid = actual_range >= min_range
+    if TARGET_VAR not in df.columns:
+        raise ValueError(f"Target column '{TARGET_VAR}' not found in DataFrame.")
     
-    if not is_valid:
-        logger.warning(f"Target range ({actual_range:.2f}) is below minimum ({min_range})")
-        
-    return is_valid, actual_range
+    target_data = df[TARGET_VAR].dropna()
+    
+    if len(target_data) == 0:
+        raise ValueError("No valid target values found after removing NaNs.")
+    
+    actual_range = target_data.max() - target_data.min()
+    
+    if actual_range < min_range:
+        logger.warning(f"Target variable range ({actual_range:.2f}) is less than "
+                     f"required minimum ({min_range}). Model performance may be limited.")
+        return False
+    
+    logger.info(f"Target variable range ({actual_range:.2f}) meets minimum requirement ({min_range}).")
+    return True

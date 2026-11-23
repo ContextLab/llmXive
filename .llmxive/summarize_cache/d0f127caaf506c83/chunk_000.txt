@@ -1,0 +1,111 @@
+# Implementation Plan: Predicting the Yield Strength of High‑Entropy Alloys
+
+**Branch**: `feature/heal-predict-yield` | **Date**: 2026‑08‑07 | **Spec**: [link](spec.md)
+**Input**: Feature specification from `/specs/feature/heal-predict-yield/spec.md`
+
+## Summary
+Develop an end‑to‑end CPU‑first pipeline that (1) acquires a curated experimental HEA yield‑strength dataset (user‑provided), (2) validates inputs against JSON schema contracts, (3) computes deterministic compositional descriptors, (4) mitigates collinearity, (5) trains a Random Forest regressor with 5‑fold CV, (6) evaluates on a held‑out test set reporting robust statistics, (7) computes permutation importance with a sufficiently large number of permutations per feature and assesses significance via empirical p‑values with Holm‑Bonferroni correction, (8) records all provenance in a reproducibility manifest, (9) generates a markdown report, and (10) enforces linting and runtime constraints. All functional requirements (FR‑001 – FR‑013) and success criteria (SC‑001 – SC‑008) are covered.
+
+## Technical Context
+- **Language/Version**: Python 3.11
+- **Primary Dependencies**: `pandas==2.2.*`, `numpy==1.26.*`, `scikit‑learn==1.5.*`, `scipy==1.14.*`, `joblib==1.4.*`, `jsonschema==4.22.*`, `pyyaml==6.0.*`, `tqdm==4.66.*`, `ruff==0.5.*`
+- **Storage**: File‑system (CSV, Parquet, JSON) under `data/` and `outputs/`
+- **Testing**: `pytest==8.2.*` with contract‑validation fixtures
+- **Target Platform**: Linux GitHub Actions runner (2 CPU cores, ~7 GB RAM; runtime ≤ 6 h)
+- **Constraints**: Fixed a predetermined number of permutations (FR‑012); no adaptive permutation count.
+
+## Constitution Check
+| Principle | Check |
+|-----------|-------|
+| I. Reproducibility | Random seeds pinned; `requirements.txt` version‑locked; pipeline re‑runnable on fresh runner. |
+| II. Verified Accuracy | No external citations beyond the curated dataset reference (internal). |
+| III. Data Hygiene | Dataset checksum recorded; transformations create new files; no PII. |
+| IV. Single Source of Truth | Every figure/metric in `report.md` traces to a row in `data/raw/heas_raw.csv` and a code block in `src/`. |
+| V. Versioning Discipline | All artifacts hashed; hashes stored in `state.yaml`. |
+| VI. Deterministic Descriptor Engineering | Descriptor functions in `src/descriptors.py`; elemental property table version‑controlled (`data/elemental_properties.csv`). |
+| VII. Statistical Rigor and Uncertainty Quantification | 5‑fold CV, bootstrap CI (≥ 1 000 resamples), permutation importance with empirical p‑values, Holm‑Bonferroni correction, VIF analysis, power reporting. |
+
+## Project Structure
+```text
+specs/heal-predict-yield/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+└── contracts/
+ ├── dataset.schema.yaml
+ ├── elemental_properties.schema.yaml
+ ├── hea_composition.schema.yaml
+ ├── descriptor.schema.yaml
+ ├── processed_data.schema.yaml
+ ├── model_output.schema.yaml
+ ├── metrics.schema.yaml
+ └── model_metrics.schema.yaml
+
+src/
+├── __init__.py
+├── descriptors.py # deterministic descriptor calculations
+├── data_loader.py # download + validation
+├── model.py # RandomForest wrapper
+├── evaluate.py # metrics, bootstrap CI, permutation importance
+├── manifest.py # reproducibility manifest writer
+└── cli.py # entry‑point `python -m src.cli run`
+
+tests/
+├── contract/
+│ └── test_contracts.py # jsonschema validation
+├── unit/
+│ ├── test_descriptors.py
+│ ├── test_model.py
+│ └── test_evaluate.py
+└── integration/
+ └── test_end_to_end.py
+
+data/
+├── raw/
+│ └── heas_raw.csv # user‑provided curated dataset
+├── derived/
+│ ├── descriptors.parquet
+│ └── train_test_split.pkl
+└── elemental_properties.csv # reference table for descriptor calculations
+
+outputs/
+├── model.joblib
+├── manifest.json
+└── report.md
+```
+
+## Phase Mapping (FR / SC coverage)
+
+| Phase | Description | FR(s) addressed | SC(s) addressed |
+|-------|-------------|-----------------|-----------------|
+| **0. Research & Dataset Strategy** | Evaluate availability of curated HEA yield‑strength dataset; define fallback if unavailable. | FR‑001, FR‑013 | SC‑001‑SC‑008 (via justification) |
+| **1. Data Acquisition** | Expect user‑provided CSV at `data/raw/heas_raw.csv`. Compute SHA‑256 checksum; abort with clear error if file missing. | FR‑001, FR‑009 | SC‑005 |
+| **2. Schema Validation** | Validate raw CSV against `contracts/dataset.schema.yaml`; each row against `contracts/hea_composition.schema.yaml`. | FR‑013, FR‑009 | SC‑005 |
+| **3. Descriptor Calculation** | Compute deterministic descriptors (δ, Δχ, VEC, mixing entropy, melting‑temp variance) using `contracts/elemental_properties.schema.yaml`. Validate resulting table against `contracts/descriptor.schema.yaml`. | FR‑002, FR‑006 (via downstream importance) | SC‑006 (stability) |
+| **3b. Processed Data Validation** | Validate `data/derived/descriptors.parquet` against `contracts/processed_data.schema.yaml`. | FR‑013 | SC‑005 |
+| **4. Collinearity Mitigation** | Compute VIF for each descriptor. If any VIF > 5, drop the highest‑VIF feature or apply PCA to orthogonalise descriptors. Record VIFs and mitigation decisions in manifest. | FR‑002 (via clean features) | SC‑006 |
+| **5. Train‑Test Split** | Stratified split (fixed seed) into [deferred] train / [deferred] hold‑out; store split metadata. | FR‑003 | SC‑006 |
+| **6. Model Training** | Fit `RandomForestRegressor` (n_estimators=500, max_features='sqrt') on training set; store model artifact. | FR‑003 | SC‑001‑SC‑002 (via evaluation) |
+| **7. Cross‑Validation & Power** | k‑fold cross‑validation on training data; collect R², Pearson r, and bootstrap 95 % CI (1 000 resamples). Compute observed effect size (Cohen’s f²) and report achieved power; if N < 50 emit low‑power warning. | FR‑003 | SC‑001‑SC‑002 (confidence) |
+| **8. Performance Evaluation** | Predict on held‑out test set; compute: • R² • Pearson r with bootstrap CI and bootstrap p‑value • Spearman ρ with bootstrap CI • Two‑tailed p‑value for Pearson (via bootstrap) • Apply Holm‑Bonferroni correction for the three correlation‑related tests. | FR‑004 | SC‑001‑SC‑002 (significance) |
+| **9. Permutation Importance** | For each descriptor, run exactly **1 000** permutations (FR‑005, FR‑012). Compute empirical p‑value as proportion of permuted importances ≥ observed. Apply Holm‑Bonferroni correction across all descriptors. | FR‑005, FR‑006 | SC‑003 |
+| **10. Reproducibility Manifest** | Record random seeds, hyperparameters, library versions, timestamps, dataset checksum, descriptor version hash, VIF values, and any feature‑dropping decisions. | FR‑007, FR‑011 | SC‑007 |
+| **11. Report Generation** | Assemble `report.md` with dataset stats, CV results, test‑set metrics (both Pearson & Spearman), importance table (top‑5 stable), VIF summary, manifest excerpt, runtime summary, and data‑limitation warning if N < 50. | FR‑008, FR‑010 | SC‑004‑SC‑008 |
+| **12. Model & Metrics Validation** | Validate `outputs/model.joblib` and `outputs/metrics.json` against `contracts/model_output.schema.yaml` and `contracts/metrics.schema.yaml` (and `model_metrics.schema.yaml`). | FR‑007, FR‑011 | SC‑007 |
+| **13. Linting & CI** | Run `ruff` linter; enforce ≤ 5 warnings (SC‑008). | FR‑011 | SC‑008 |
+| **14. Edge‑Case Handling** | Validate input CSV for missing element fields (abort with FR‑009) and duplicate rows (deduplicate). | FR‑009 | SC‑005 |
+
+## Timeline (estimated on CI runner)
+
+| Phase | Approx. CPU‑hours |
+|-------|-------------------|
+| Data Acquisition & Validation | 0.2 |
+| Descriptor Calculation & Validation | 0.4 |
+| Collinearity Mitigation | 0.1 |
+| Model Training (RF, 500 trees) | 0.8 |
+| CV & Bootstrap (1 000 resamples) | 0.5 |
+| Permutation Importance (1 000 × 5 features) | 0.6 |
+| Reporting & Linting | 0.2 |
+| **Total** | **≈ 3.0 h** (If runtime exceeds a predefined duration threshold, `n_estimators` is reduced to 300; the pipeline will abort and report the violation, satisfying FR‑010). |
+

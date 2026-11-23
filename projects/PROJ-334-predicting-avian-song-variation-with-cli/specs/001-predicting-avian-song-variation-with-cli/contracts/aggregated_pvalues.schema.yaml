@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AggregatedPValues"
+description: "Aggregated list of predictor p-values across all outcomes, used for global FDR correction."
+type: object
+properties:
+  pvalues:
+    type: array
+    items:
+      type: object
+      properties:
+        outcome:
+          type: string
+          description: "Name of the dependent variable (e.g., 'song_metric_1')."
+        predictor:
+          type: string
+          description: "Name of the independent variable (e.g., 'temperature')."
+        p_value:
+          type: number
+          description: "Two‑sided p‑value from the OLS coefficient test."
+        threshold:
+          type: number
+          description: "Significance threshold that was applied during the sweep (0.01, 0.05, or 0.10)."
+      required: [outcome, predictor, p_value, threshold]
+required:
+  - pvalues
+additionalProperties: false

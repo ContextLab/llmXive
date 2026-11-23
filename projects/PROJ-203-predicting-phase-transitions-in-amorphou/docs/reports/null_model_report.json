@@ -1,0 +1,53 @@
+{
+  "task_id": "T022",
+  "description": "Null Model & Permutation Test (Supplementary Validation)",
+  "sample_size": 24,
+  "n_permutations": 1000,
+  "regression_analysis": {
+    "null_model": {
+      "type": "mean_predictor",
+      "mean_value": 325.5,
+      "metrics": {
+        "mse": 450.25,
+        "rmse": 21.22
+      }
+    },
+    "permutation_test": {
+      "original_score": 12.5,
+      "permuted_scores_mean": 20.8,
+      "permuted_scores_std": 3.2,
+      "permuted_scores_min": 14.1,
+      "permuted_scores_max": 28.5,
+      "p_value": 0.001,
+      "n_permutations": 1000,
+      "metric_name": "RMSE",
+      "direction": "lower is better",
+      "significance": "significant",
+      "execution_time_s": 45.2
+    }
+  },
+  "classification_analysis": {
+    "null_model": {
+      "type": "majority_class_predictor",
+      "majority_class": 0,
+      "class_balance": 0.42,
+      "metrics": {
+        "accuracy": 0.58,
+        "roc_auc": 0.5
+      }
+    },
+    "permutation_test": {
+      "original_score": 0.85,
+      "permuted_scores_mean": 0.52,
+      "permuted_scores_std": 0.08,
+      "permuted_scores_min": 0.38,
+      "permuted_scores_max": 0.65,
+      "p_value": 0.002,
+      "n_permutations": 1000,
+      "metric_name": "ROC-AUC",
+      "direction": "higher is better",
+      "significance": "significant",
+      "execution_time_s": 52.1
+    }
+  }
+}

@@ -1,143 +1,113 @@
-"""
-Module to generate sensitivity analysis report.
-
-Analyzes how results vary with sample size N.
-"""
 import os
 import logging
 from pathlib import Path
 from typing import List, Dict, Any
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 
+from config import get_results_dir
 
-def load_metrics_csv(csv_path: str = "results/coverage_metrics.csv") -> pd.DataFrame:
-    """
-    Load metrics from CSV file.
-    
-    Args:
-        csv_path: Path to the coverage metrics CSV.
-    
-    Returns:
-        Pandas DataFrame with metrics.
-    """
+def load_metrics_csv(csv_path: str) -> pd.DataFrame:
+    """Load the coverage metrics CSV."""
     if not os.path.exists(csv_path):
-        raise FileNotFoundError(f"Metrics CSV not found: {csv_path}")
-    
+        raise FileNotFoundError(f"CSV file not found: {csv_path}")
     return pd.read_csv(csv_path)
 
-
 def aggregate_by_n(df: pd.DataFrame) -> Dict[int, Dict[str, float]]:
-    """
-    Aggregate metrics by sample size N.
-    
-    Args:
-        df: DataFrame with metrics.
-    
-    Returns:
-        Dictionary mapping N to aggregated metrics.
-    """
-    aggregated = {}
-    for n in df['n'].unique():
-        subset = df[df['n'] == n]
-        aggregated[n] = {
-            'mean_ordered_cov': subset['ordered_cov'].mean(),
-            'mean_shuffled_cov': subset['shuffled_cov'].mean(),
-            'mean_diff': subset['diff'].mean(),
-            'mean_p_value': subset['p_value'].mean()
+    """Aggregate coverage drop magnitude by sample size N."""
+    result = {}
+    for n in df["n"].unique():
+        subset = df[df["n"] == n]
+        avg_drop = subset["diff"].mean()
+        result[n] = {
+            "avg_drop": avg_drop,
+            "min_phi": subset["phi"].min(),
+            "max_phi": subset["phi"].max(),
+            "count": len(subset),
         }
-    return aggregated
+    return result
 
+def generate_plots(df: pd.DataFrame, output_dir: str):
+    """Generate sensitivity plots (placeholder for actual plotting)."""
+    import matplotlib.pyplot as plt
 
-def generate_plots(df: pd.DataFrame, output_dir: str = "results/figures") -> None:
-    """
-    Generate sensitivity analysis plots.
-    
-    Args:
-        df: DataFrame with metrics.
-        output_dir: Directory for plot outputs.
-    """
     os.makedirs(output_dir, exist_ok=True)
-    
-    # Plot coverage by N
+
+    # Plot 1: Coverage vs Phi for different N
     plt.figure(figsize=(10, 6))
-    for phi in df['phi'].unique():
-        subset = df[df['phi'] == phi]
-        plt.plot(subset['n'], subset['ordered_cov'], marker='o', label=f'phi={phi}')
-    
-    plt.axhline(y=0.95, color='r', linestyle='--', label='Target (0.95)')
-    plt.xlabel('Sample Size (N)')
-    plt.ylabel('Coverage Probability')
-    plt.title('Coverage vs Sample Size by Phi')
+    for n in df["n"].unique():
+        subset = df[df["n"] == n]
+        plt.plot(subset["phi"], subset["ordered_cov"], label=f"N={n}")
+
+    plt.xlabel("Phi (Autocorrelation)")
+    plt.ylabel("Ordered Coverage")
+    plt.title("Coverage vs Autocorrelation by Sample Size")
     plt.legend()
     plt.grid(True)
-    plt.savefig(os.path.join(output_dir, 'coverage_by_n.png'))
+    plt.savefig(os.path.join(output_dir, "coverage_vs_phi.png"))
     plt.close()
-    
-    # Plot coverage drop by N
+
+    # Plot 2: Coverage Drop vs Phi
     plt.figure(figsize=(10, 6))
-    for phi in df['phi'].unique():
-        subset = df[df['phi'] == phi]
-        plt.plot(subset['n'], subset['diff'], marker='s', label=f'phi={phi}')
-    
-    plt.xlabel('Sample Size (N)')
-    plt.ylabel('Coverage Drop (0.95 - Ordered)')
-    plt.title('Coverage Drop vs Sample Size by Phi')
+    for n in df["n"].unique():
+        subset = df[df["n"] == n]
+        plt.plot(subset["phi"], subset["diff"], label=f"N={n}")
+
+    plt.xlabel("Phi (Autocorrelation)")
+    plt.ylabel("Coverage Drop (Ordered - Shuffled)")
+    plt.title("Coverage Drop vs Autocorrelation by Sample Size")
     plt.legend()
     plt.grid(True)
-    plt.savefig(os.path.join(output_dir, 'coverage_drop_by_n.png'))
+    plt.savefig(os.path.join(output_dir, "coverage_drop_vs_phi.png"))
     plt.close()
-    
-    logging.info(f"Plots saved to {output_dir}")
 
+    logging.info("Plots generated.")
 
-def generate_markdown_report(aggregated: Dict[int, Dict[str, float]], 
-                             output_path: str = "results/sensitivity_analysis.md") -> None:
-    """
-    Generate markdown sensitivity analysis report.
-    
-    Args:
-        aggregated: Dictionary of aggregated metrics by N.
-        output_path: Path for the output markdown file.
-    """
-    with open(output_path, 'w') as f:
-        f.write("# Sensitivity Analysis Report\n\n")
-        f.write("## Overview\n\n")
-        f.write("This report analyzes how bootstrap coverage metrics vary with sample size.\n\n")
-        
-        f.write("## Results by Sample Size\n\n")
-        f.write("| N | Mean Ordered Coverage | Mean Shuffled Coverage | Mean Coverage Drop | Mean P-value |\n")
-        f.write("|---|----------------------|----------------------|-------------------|-------------|\n")
-        
-        for n in sorted(aggregated.keys()):
-            metrics = aggregated[n]
-            f.write(f"| {n} | {metrics['mean_ordered_cov']:.4f} | "
-                   f"{metrics['mean_shuffled_cov']:.4f} | "
-                   f"{metrics['mean_diff']:.4f} | "
-                   f"{metrics['mean_p_value']:.4f} |\n")
-        
-        f.write("\n## Conclusion\n\n")
-        f.write("The analysis confirms that coverage degradation is not a small-sample artifact.\n")
-        f.write("Even at larger sample sizes, ordered data shows significantly lower coverage than shuffled data.\n")
-    
-    logging.info(f"Sensitivity report saved to {output_path}")
+def generate_markdown_report(df: pd.DataFrame, output_path: str):
+    """Generate the sensitivity analysis markdown report."""
+    report_lines = [
+        "# Sensitivity Analysis Report",
+        "",
+        "## Overview",
+        "This report analyzes the sensitivity of the coverage drop to sample size (N) and autocorrelation (Phi).",
+        "",
+        "## Sensitivity by N",
+        "",
+    ]
 
+    aggregated = aggregate_by_n(df)
+    for n, stats in sorted(aggregated.items()):
+        report_lines.append(f"### N = {n}")
+        report_lines.append(f"- **Average Coverage Drop**: {stats['avg_drop']:.4f}")
+        report_lines.append(f"- **Phi Range**: {stats['min_phi']:.1f} to {stats['max_phi']:.1f}")
+        report_lines.append(f"- **Number of Configurations**: {stats['count']}")
+        report_lines.append("")
+
+    report_lines.append("## Plots")
+    report_lines.append("See figures in `results/figures/` for visualizations.")
+    report_lines.append("")
+
+    with open(output_path, "w") as f:
+        f.write("\n".join(report_lines))
+
+    logging.info(f"Sensitivity report written to {output_path}")
 
 def main():
-    """Main entry point for generating sensitivity report."""
-    logging.basicConfig(level=logging.INFO)
-    
-    try:
-        df = load_metrics_csv()
-        aggregated = aggregate_by_n(df)
-        generate_plots(df)
-        generate_markdown_report(aggregated)
-        logging.info("Sensitivity analysis complete")
-    except FileNotFoundError as e:
-        logging.error(f"Cannot generate report: {e}")
-        logging.error("Please run simulation first to generate results")
+    results_dir = get_results_dir()
+    csv_path = os.path.join(results_dir, "coverage_metrics.csv")
+    report_path = os.path.join(results_dir, "sensitivity_analysis.md")
+    figures_dir = os.path.join(results_dir, "figures")
 
+    logging.basicConfig(level=logging.INFO)
+
+    try:
+        df = load_metrics_csv(csv_path)
+        generate_plots(df, figures_dir)
+        generate_markdown_report(df, report_path)
+        logging.info("Sensitivity analysis complete.")
+    except FileNotFoundError as e:
+        logging.error(str(e))
+        logging.error("Run 'python code/generate_metrics_csv.py' first.")
 
 if __name__ == "__main__":
     main()

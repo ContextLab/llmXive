@@ -1,0 +1,11 @@
+status: none
+intent: download synthetic coupled Lorenz oscillator trajectories python package dataset
+required_fields:
+- time
+- x_i
+- y_i
+- z_i
+- noise_std
+cache_key: 1633bc550c116bcde95566c1dd986eb86fdb5f974e94c9f411c9d7e812c93b69
+searched_at: '2026-10-29T12:24:32.086070+00:00'
+retry_count: 1

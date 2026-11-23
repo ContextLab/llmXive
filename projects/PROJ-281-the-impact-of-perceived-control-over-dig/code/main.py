@@ -1,159 +1,182 @@
+"""
+Main pipeline orchestrator for the llmXive automated science pipeline.
+Implements runtime monitoring and enforcement of the 6-hour limit.
+"""
 import argparse
 import logging
+import signal
 import sys
+import time
 from pathlib import Path
-from code.config import (
-    CONFIG,
-    DATA_PROCESSED_DIR,
-)
-from services.data_ingestion import run_data_ingestion_pipeline
-from services.anxiety_scoring import run_full_scoring_pipeline
-from services.proxy_extractor import run_full_proxy_pipeline
-from services.coverage_validation import run_coverage_validation
-import pandas as pd
-import json
 
+# Import from existing API surface
+from config import Config, RuntimeLimitExceededError, enforce_runtime_limit, cancel_runtime_limit
+from services.data_ingestion import run_data_ingestion_pipeline
+from services.anxiety_scoring import run_full_scoring_pipeline_from_config as run_stage_2
+from services.proxy_extractor import run_full_proxy_pipeline
+from services.merge_and_save import run_merge_and_save_pipeline
+from analysis.statistical_test import run_statistical_analysis_pipeline
+from viz.save_visualization import run_visualization_pipeline
+
+# Setup logging
 logging.basicConfig(
     level=logging.INFO,
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
+def setup_runtime_monitor():
+    """
+    Sets up the runtime monitor to log elapsed time and enforce the 6-hour limit.
+    This implements T004b: Integrate runtime monitor into code/main.py.
+    """
+    start_time = time.time()
+    
+    def signal_handler(signum, frame):
+        elapsed = time.time() - start_time
+        logger.error(f"Runtime limit exceeded after {elapsed:.2f} seconds ({elapsed/3600:.2f} hours).")
+        cancel_runtime_limit()
+        raise RuntimeLimitExceededError(f"Pipeline exceeded maximum runtime of {Config.RUNTIME_LIMIT_HOURS} hours.")
+
+    # Set up the signal handler for the runtime limit
+    signal.signal(signal.SIGALRM, signal_handler)
+    signal.alarm(Config.RUNTIME_LIMIT_SECONDS)
+    
+    logger.info(f"Runtime monitor initialized. Limit: {Config.RUNTIME_LIMIT_HOURS} hours ({Config.RUNTIME_LIMIT_SECONDS} seconds).")
+    return start_time
+
 def stage_01_data_ingestion():
+    """Stage 1: Data Ingestion"""
     logger.info("Starting Stage 1: Data Ingestion")
-    run_data_ingestion_pipeline()
-    logger.info("Stage 1 Complete")
+    try:
+        run_data_ingestion_pipeline()
+        logger.info("Stage 1 completed successfully.")
+    except Exception as e:
+        logger.error(f"Stage 1 failed: {e}")
+        raise
 
 def stage_02_preprocessing():
+    """Stage 2: Preprocessing (Language & Gibberish filtering)"""
     logger.info("Starting Stage 2: Preprocessing")
-    # Preprocessing logic integrated into scoring pipeline per T014a
-    logger.info("Stage 2 Complete (Integrated with Scoring)")
+    # This stage is handled within the anxiety scoring pipeline in current implementation
+    # or can be extracted if needed. For now, we assume it runs as part of stage 3
+    # or is a no-op if integrated.
+    # Based on task list, T014b/T014c are completed, so we assume data is preprocessed.
+    # We log the start of the next logical block which includes scoring.
+    logger.info("Stage 2 (Preprocessing) assumed complete or integrated into Stage 3.")
 
 def stage_03_anxiety_scoring():
+    """Stage 3: Anxiety Scoring"""
     logger.info("Starting Stage 3: Anxiety Scoring")
-    run_full_scoring_pipeline()
-    logger.info("Stage 3 Complete")
+    try:
+        run_stage_2()
+        logger.info("Stage 3 completed successfully.")
+    except Exception as e:
+        logger.error(f"Stage 3 failed: {e}")
+        raise
 
 def stage_04_proxy_extraction():
+    """Stage 4: Proxy Extraction"""
     logger.info("Starting Stage 4: Proxy Extraction")
-    run_full_proxy_pipeline()
-    logger.info("Stage 4 Complete")
+    try:
+        run_full_proxy_pipeline()
+        logger.info("Stage 4 completed successfully.")
+    except Exception as e:
+        logger.error(f"Stage 4 failed: {e}")
+        raise
 
 def stage_05_merge_and_validate():
-    """
-    Merges pre-filtered anxiety scores and proxy results.
-    Confirms confidence filtering was applied (by reading pre-filtered source).
-    Saves the final merged dataset to data/processed/final_analysis.csv.
-    """
+    """Stage 5: Merge and Validate"""
     logger.info("Starting Stage 5: Merge and Validate")
-
-    scoring_path = DATA_PROCESSED_DIR / "scoring_results.csv"
-    proxy_path = DATA_PROCESSED_DIR / "proxy_results.csv"
-    output_path = DATA_PROCESSED_DIR / "final_analysis.csv"
-
-    if not scoring_path.exists():
-        raise FileNotFoundError(f"Scoring results not found at {scoring_path}. Run Stage 3 first.")
-    if not proxy_path.exists():
-        raise FileNotFoundError(f"Proxy results not found at {proxy_path}. Run Stage 4 first.")
-
-    # Load pre-filtered data
-    # Note: T016 ensures scoring_results.csv is already filtered by confidence >= 0.6
-    df_scores = pd.read_csv(scoring_path)
-    df_proxies = pd.read_csv(proxy_path)
-
-    logger.info(f"Loaded {len(df_scores)} scored records (pre-filtered).")
-    logger.info(f"Loaded {len(df_proxies)} proxy records.")
-
-    # Merge on post_id
-    # Ensure both have post_id column
-    if 'post_id' not in df_scores.columns:
-        raise ValueError("scoring_results.csv missing 'post_id' column")
-    if 'post_id' not in df_proxies.columns:
-        raise ValueError("proxy_results.csv missing 'post_id' column")
-
-    df_merged = pd.merge(
-        df_scores,
-        df_proxies,
-        on='post_id',
-        how='inner'
-    )
-
-    logger.info(f"Merged dataset size: {len(df_merged)} rows.")
-    
-    if len(df_merged) == 0:
-        logger.warning("Merge resulted in 0 rows. Check key alignment.")
-
-    # Save final analysis dataset
-    df_merged.to_csv(output_path, index=False)
-    logger.info(f"Final analysis dataset saved to {output_path}")
-
-    # Validation: Confirm confidence filtering was applied
-    # Since we read from scoring_results.csv (output of T017 which applies T016 filter),
-    # we just log a confirmation.
-    if 'confidence_score' in df_merged.columns:
-        min_conf = df_merged['confidence_score'].min()
-        logger.info(f"Confidence filter confirmation: Minimum confidence in merged data is {min_conf:.4f}.")
-        if min_conf < CONFIG.get('CONFIDENCE_THRESHOLD', 0.6):
-            logger.warning(f"Minimum confidence {min_conf} is below threshold {CONFIG.get('CONFIDENCE_THRESHOLD', 0.6)}.")
-
-    logger.info("Stage 5 Complete")
+    try:
+        run_merge_and_save_pipeline()
+        logger.info("Stage 5 completed successfully.")
+    except Exception as e:
+        logger.error(f"Stage 5 failed: {e}")
+        raise
 
 def stage_06_statistical_analysis():
+    """Stage 6: Statistical Analysis"""
     logger.info("Starting Stage 6: Statistical Analysis")
-    # This is handled by code/analysis/statistical_test.py via main.py logic later
-    # Or called explicitly if needed here. For now, placeholder for pipeline flow.
-    logger.info("Stage 6 Complete (Logic in statistical_test.py)")
+    try:
+        run_statistical_analysis_pipeline()
+        logger.info("Stage 6 completed successfully.")
+    except Exception as e:
+        logger.error(f"Stage 6 failed: {e}")
+        raise
 
 def stage_07_visualization():
+    """Stage 7: Visualization"""
     logger.info("Starting Stage 7: Visualization")
-    # Handled by code/viz/plot_results.py
-    logger.info("Stage 7 Complete")
+    try:
+        run_visualization_pipeline()
+        logger.info("Stage 7 completed successfully.")
+    except Exception as e:
+        logger.error(f"Stage 7 failed: {e}")
+        raise
 
 def run_pipeline():
     """
-    Orchestrates the full research pipeline.
+    Orchestrates the full pipeline with runtime monitoring.
     """
-    logger.info("Starting llmXive Research Pipeline")
+    start_time = setup_runtime_monitor()
     
     try:
+        logger.info("Pipeline started.")
+        
+        # Execute stages sequentially
         stage_01_data_ingestion()
         stage_02_preprocessing()
         stage_03_anxiety_scoring()
         stage_04_proxy_extraction()
-        stage_05_merge_and_validate() # T032 implementation
+        stage_05_merge_and_validate()
         stage_06_statistical_analysis()
         stage_07_visualization()
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}", exc_info=True)
+        
+        elapsed = time.time() - start_time
+        logger.info(f"Pipeline completed successfully in {elapsed:.2f} seconds.")
+        
+    except RuntimeLimitExceededError:
+        logger.error("Pipeline terminated due to runtime limit.")
         sys.exit(1)
-
-    logger.info("Pipeline completed successfully.")
+    except Exception as e:
+        logger.error(f"Pipeline failed with error: {e}")
+        sys.exit(1)
+    finally:
+        cancel_runtime_limit()
 
 def main():
-    parser = argparse.ArgumentParser(description="Run the Perceived Control Anxiety Research Pipeline")
-    parser.add_argument("--stage", type=int, help="Run specific stage number (1-7)", default=None)
-    parser.add_argument("--full", action="store_true", help="Run full pipeline", default=False)
-    
+    parser = argparse.ArgumentParser(description="Run the full research pipeline.")
+    parser.add_argument("--stage", type=int, choices=[1, 2, 3, 4, 5, 6, 7], 
+                        help="Run a specific stage only (default: all stages)")
     args = parser.parse_args()
 
-    if args.full or args.stage is None:
-        run_pipeline()
+    if args.stage:
+        logger.warning("Running specific stage only. Runtime limit still enforced.")
+        start_time = setup_runtime_monitor()
+        try:
+            if args.stage == 1:
+                stage_01_data_ingestion()
+            elif args.stage == 2:
+                stage_02_preprocessing()
+            elif args.stage == 3:
+                stage_03_anxiety_scoring()
+            elif args.stage == 4:
+                stage_04_proxy_extraction()
+            elif args.stage == 5:
+                stage_05_merge_and_validate()
+            elif args.stage == 6:
+                stage_06_statistical_analysis()
+            elif args.stage == 7:
+                stage_07_visualization()
+            logger.info(f"Stage {args.stage} completed.")
+        finally:
+            cancel_runtime_limit()
     else:
-        stages = {
-            1: stage_01_data_ingestion,
-            2: stage_02_preprocessing,
-            3: stage_03_anxiety_scoring,
-            4: stage_04_proxy_extraction,
-            5: stage_05_merge_and_validate,
-            6: stage_06_statistical_analysis,
-            7: stage_07_visualization,
-        }
-        if args.stage not in stages:
-            logger.error(f"Invalid stage: {args.stage}")
-            sys.exit(1)
-        
-        logger.info(f"Running Stage {args.stage} only")
-        stages[args.stage]()
+        run_pipeline()
 
 if __name__ == "__main__":
     main()

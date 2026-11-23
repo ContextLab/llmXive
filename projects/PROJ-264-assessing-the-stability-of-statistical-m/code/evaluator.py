@@ -1,162 +1,180 @@
 import logging
+import tracemalloc
 from typing import Any, Dict, Generator, List, Optional, Tuple
+
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import RepeatedStratifiedKFold, StratifiedKFold
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
-from sklearn.svm import LinearSVC
+from sklearn.svm import SVC
+from sklearn.model_selection import RepeatedStratifiedKFold, StratifiedKFold
+from sklearn.metrics import accuracy_score, f1_score
 from sklearn.pipeline import Pipeline
-from code.utils import set_seed, setup_logging, PipelineError, log_and_reraise, safe_execute
-from code.preprocessor import create_preprocessing_pipeline, preprocess_data
+
+from .preprocessor import create_preprocessing_pipeline
+from .utils import set_seed
 
 logger = logging.getLogger(__name__)
 
-def evaluate_model_on_splits(
-    X_train: np.ndarray,
-    y_train: np.ndarray,
-    X_test: np.ndarray,
-    y_test: np.ndarray,
-    model_name: str,
-    random_state: int
-) -> Tuple[float, float]:
+MODELS = {
+    "LogisticRegression": LogisticRegression(max_iter=1000, random_state=42),
+    "RandomForest": RandomForestClassifier(n_estimators=100, random_state=42),
+    "LinearSVM": SVC(kernel="linear", random_state=42),
+}
+
+def _profile_memory(func):
     """
-    Trains a specific model on the provided split and returns Accuracy and F1.
+    Decorator to profile peak memory usage of a function using tracemalloc.
+    Logs the peak memory in MB to the logger.
+    """
+    def wrapper(*args, **kwargs):
+        tracemalloc.start()
+        try:
+            result = func(*args, **kwargs)
+            current, peak = tracemalloc.get_traced_memory()
+            logger.info(f"Peak memory usage in {func.__name__}: {peak / 1024 / 1024:.2f} MB")
+            return result
+        finally:
+            tracemalloc.stop()
+    return wrapper
+
+@_profile_memory
+def evaluate_model_on_splits(
+    X: np.ndarray,
+    y: np.ndarray,
+    model_name: str,
+    train_idx: np.ndarray,
+    test_idx: np.ndarray,
+    dataset_id: int,
+) -> Dict[str, Any]:
+    """
+    Trains a model on a specific train/test split and calculates metrics.
     
-    Implements the training loop for:
-    1. Logistic Regression
-    2. Random Forest (n_estimators=100)
-    3. Linear SVM
+    This function ensures leakage prevention by:
+    1. Creating a fresh preprocessing pipeline for the training data only.
+    2. Fitting the preprocessor on train data.
+    3. Transforming both train and test data.
+    4. Fitting the model on transformed train data.
+    5. Predicting on transformed test data.
+    6. Calculating Accuracy and F1 score on the test set.
     
     Args:
-        X_train: Training features
-        y_train: Training labels
-        X_test: Test features
-        y_test: Test labels
-        model_name: Name of the model to instantiate ('lr', 'rf', 'svm')
-        random_state: Seed for reproducibility
+        X: Full feature array.
+        y: Full target array.
+        model_name: Key for the model in MODELS dict.
+        train_idx: Indices for training set.
+        test_idx: Indices for test set.
+        dataset_id: OpenML ID for logging.
         
     Returns:
-        Tuple of (accuracy, f1_score)
+        Dictionary with model_name, dataset_id, accuracy, and f1_score.
     """
-    set_seed(random_state)
+    if model_name not in MODELS:
+        raise ValueError(f"Unknown model: {model_name}")
     
-    # Define models based on task requirements
-    if model_name == 'lr':
-        model = LogisticRegression(random_state=random_state, max_iter=1000)
-    elif model_name == 'rf':
-        model = RandomForestClassifier(n_estimators=100, random_state=random_state)
-    elif model_name == 'svm':
-        model = LinearSVC(random_state=random_state, max_iter=1000)
-    else:
-        raise PipelineError(f"Unknown model: {model_name}")
+    # Split data
+    X_train, X_test = X[train_idx], X[test_idx]
+    y_train, y_test = y[train_idx], y[test_idx]
     
-    # Preprocessing pipeline (fit on train, transform train and test)
-    # Note: T006 handles the leakage-safe aspect. We assume X is numeric here
-    # as per standard preprocessing flow in this project.
-    pipeline = create_preprocessing_pipeline()
+    # Create preprocessing pipeline (Imputer + Scaler)
+    # This ensures scaling parameters are fit ONLY on training data
+    preprocessor = create_preprocessing_pipeline()
     
-    try:
-        # Fit preprocessor and model
-        # The pipeline handles imputation and scaling internally
-        pipeline.fit(X_train, y_train)
-        
-        # Predict
-        y_pred = pipeline.predict(X_test)
-        
-        # Calculate metrics
-        from sklearn.metrics import accuracy_score, f1_score
-        acc = accuracy_score(y_test, y_pred)
-        f1 = f1_score(y_test, y_pred, average='binary')
-        
-        return acc, f1
-    except Exception as e:
-        log_and_reraise(logger, f"Error evaluating {model_name} on split", e)
+    # Fit preprocessor on training data only
+    X_train_processed = preprocessor.fit_transform(X_train)
+    
+    # Transform test data using training statistics
+    X_test_processed = preprocessor.transform(X_test)
+    
+    # Initialize and fit model
+    model = MODELS[model_name]
+    model.fit(X_train_processed, y_train)
+    
+    # Predict
+    y_pred = model.predict(X_test_processed)
+    
+    # Calculate metrics INSIDE the loop on the hold-out fold
+    acc = accuracy_score(y_test, y_pred)
+    f1 = f1_score(y_test, y_pred, zero_division=0)
+    
+    return {
+        "dataset_id": dataset_id,
+        "model_name": model_name,
+        "accuracy": acc,
+        "f1_score": f1,
+    }
 
+@_profile_memory
 def run_repeated_stratified_cv(
     X: np.ndarray,
     y: np.ndarray,
     dataset_id: int,
-    models: List[str] = None,
     n_splits: int = 10,
     n_repeats: int = 10,
-    random_state: int = 42
-) -> Generator[Dict[str, Any], None, None]:
+    random_state: int = 42,
+) -> List[Dict[str, Any]]:
     """
-    Executes repeated stratified k-fold cross-validation for multiple models.
-    
-    This function implements the core training loop for User Story 1.
-    It yields results for each fold/repeat/model combination.
+    Runs repeated stratified k-fold cross-validation for all configured models.
     
     Args:
-        X: Feature matrix
-        y: Target vector
-        dataset_id: OpenML ID of the dataset
-        models: List of model names to evaluate (default: ['lr', 'rf', 'svm'])
-        n_splits: Number of folds
-        n_repeats: Number of repeats
-        random_state: Base random state
+        X: Feature array.
+        y: Target array.
+        dataset_id: OpenML ID.
+        n_splits: Number of folds.
+        n_repeats: Number of repeats.
+        random_state: Random seed.
         
-    Yields:
-        Dictionary containing dataset_id, model_name, fold_id, repeat_id, accuracy, f1_score
+    Returns:
+        List of dictionaries containing metrics for every fold/repeat/model.
     """
-    if models is None:
-        models = ['lr', 'rf', 'svm']
-    
     set_seed(random_state)
     
-    rskf = RepeatedStratifiedKFold(n_splits=n_splits, n_repeats=n_repeats, random_state=random_state)
+    results = []
     
-    repeat_id = 0
-    # RepeatedStratifiedKFold splits are generated sequentially.
-    # We need to track which repeat we are in.
-    # sklearn's iterator yields (train_idx, test_idx) pairs.
-    # We can infer repeat_id by grouping splits, but simpler is to track manually
-    # if we know the total splits per repeat. However, the iterator doesn't expose repeat directly.
-    # We will iterate and track based on the split count.
+    # Check sample size constraint
+    n_samples = len(X)
+    if n_samples < 100:
+        logger.warning(f"Dataset {dataset_id} has {n_samples} samples (<100). Skipping.")
+        return results
     
-    total_splits_per_repeat = n_splits
-    current_repeat = 0
-    split_count_in_repeat = 0
+    logger.info(f"Starting Repeated Stratified CV for dataset {dataset_id} ({n_samples} samples)")
     
-    for train_idx, test_idx in rskf.split(X, y):
-        if split_count_in_repeat == 0:
-            current_repeat += 1
-            split_count_in_repeat = 0
-            
-        X_train, X_test = X[train_idx], X[test_idx]
-        y_train, y_test = y[train_idx], y[test_idx]
-        
-        for model_name in models:
-            acc, f1 = evaluate_model_on_splits(
-                X_train, y_train, X_test, y_test, 
-                model_name, random_state + current_repeat + split_count_in_repeat
+    cv = RepeatedStratifiedKFold(
+        n_splits=n_splits, 
+        n_repeats=n_repeats, 
+        random_state=random_state
+    )
+    
+    for repeat_idx, (train_idx, test_idx) in enumerate(cv.split(X, y)):
+        for model_name in MODELS.keys():
+            metrics = evaluate_model_on_splits(
+                X=X,
+                y=y,
+                model_name=model_name,
+                train_idx=train_idx,
+                test_idx=test_idx,
+                dataset_id=dataset_id,
             )
+            metrics["fold_id"] = repeat_idx % n_splits + 1 # Simplified fold ID tracking per repeat
+            metrics["repeat_id"] = repeat_idx + 1
+            results.append(metrics)
             
-            yield {
-                'dataset_id': dataset_id,
-                'model_name': model_name,
-                'fold_id': split_count_in_repeat + 1,
-                'repeat_id': current_repeat,
-                'accuracy': acc,
-                'f1_score': f1
-            }
-        
-        split_count_in_repeat += 1
+    logger.info(f"Completed CV for dataset {dataset_id}. Generated {len(results)} records.")
+    return results
 
+@_profile_memory
 def run_repeated_stratified_cv_corrected(
     X: np.ndarray,
     y: np.ndarray,
     dataset_id: int,
-    models: List[str] = None,
     n_splits: int = 10,
     n_repeats: int = 10,
-    random_state: int = 42
-) -> Generator[Dict[str, Any], None, None]:
+    random_state: int = 42,
+) -> List[Dict[str, Any]]:
     """
-    Alternative implementation with explicit repeat tracking logic if needed.
-    Currently aliases to run_repeated_stratified_cv as the logic is sound.
+    Wrapper for run_repeated_stratified_cv to maintain API compatibility
+    or for future corrected logic if needed.
     """
-    yield from run_repeated_stratified_cv(
-        X, y, dataset_id, models, n_splits, n_repeats, random_state
+    return run_repeated_stratified_cv(
+        X, y, dataset_id, n_splits, n_repeats, random_state
     )

@@ -1,0 +1,29 @@
+T000b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `state/dataset_candidates.json` file showing the required `verified` flag\
+    \ and `missing_columns` list was provided, nor any evidence of metadata fetching\
+    \ and column checks. The task\u2019s core output is missing."
+T000c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `state/dataset_candidates.json` was examined, and no `state/claim_status.json`\
+    \ was created or shown to contain the required status field. The implementer provided\
+    \ no code, script, or output demonstrating the time\u2011resolved analysis check,\
+    \ so the task\u2019s required artifact is missing."
+T005a:
+  c: false
+  h: efd6fce88ec46c4f9ae86c3b1b7bdd9ccf7972aed68769836de648da3f33aa45
+  r: "The repository contains `code/synthetic_generator.py`, but the file is truncated\
+    \ and does not clearly show that it generates a flat\u2011float column `spike_time_ms`\
+    \ via a Poisson process with \u03BB=50\u202FHz and seed\u202F42. Moreover, the\
+    \ required schema file `contracts/dataset.schema.yaml` is missing, so the generator\
+    \ cannot be verified against the contract. The missing schema and incomplete implementation\
+    \ prevent the task from being considered fulfilled."
+T013e:
+  c: false
+  h: 9763bf9ba906f32d91aa6159d9a82fcde3445571c330462c918c99679aae6b0a
+  r: "The provided `code/ingestion.py` contains no logic that checks spike\u2011sorting\
+    \ metadata (SNR or Isolation Distance) and does not create a markdown report.\
+    \ Moreover, the required file `data/processed/spike_sorting_validation_report.md`\
+    \ is absent. Both the validation implementation and the generated report are missing."

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Analysis Report: Political News Exposure & Implicit Bias</title>
+    <style>
+        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; max-width: 900px; margin: 0 auto; padding: 20px; }
+        h1, h2, h3 { color: #2c3e50; }
+        h1 { border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        h2 { margin-top: 30px; border-bottom: 1px solid #eee; padding-bottom: 5px; }
+        table { width: 100%; border-collapse: collapse; margin: 15px 0; font-size: 0.9em; }
+        th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
+        th { background-color: #f2f2f2; }
+        .plot-container { text-align: center; margin: 20px 0; }
+        .plot-img { max-width: 100%; height: auto; border: 1px solid #ddd; }
+        .method-section { background: #f9f9f9; padding: 15px; border-radius: 5px; }
+        .warning { color: #d9534f; font-weight: bold; }
+        .success { color: #5cb85c; font-weight: bold; }
+        pre { background: #f4f4f4; padding: 10px; overflow-x: auto; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Report: The Impact of Self-Reported Political News Exposure on Implicit Political Bias</h1>
+    
+    <section class="method-section">
+        <h2>1. Methods</h2>
+        <p><strong>Data Source:</strong> Project Implicit "Political IAT" dataset.</p>
+        <p><strong>Preprocessing:</strong> Missing data handled using Multiple Imputation by Chained Equations (MICE) with 5 imputations.</p>
+        <p><strong>Primary Model:</strong> Linear regression of IAT D-Score on Z-scored News Exposure, Political Ideology, and their interaction.</p>
+        <p><strong>Robustness:</strong> Bootstrap resampling (n=1000), Alpha sensitivity analysis (0.01, 0.05, 0.10), and covariate adjustment.</p>
+    </section>
+
+    <section>
+        <h2>2. Primary Model Results</h2>
+        {% if primary_model is not none and primary_model|length > 0 %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Coefficient</th>
+                        <th>Std. Error</th>
+                        <th>t-value</th>
+                        <th>P-value</th>
+                        <th>Significant?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in primary_model.iterrows() %}
+                        {% set idx, val = row %}
+                        <tr>
+                            <td>{{ val['variable'] }}</td>
+                            <td>{{ "%.4f"|format(val['coef']) }}</td>
+                            <td>{{ "%.4f"|format(val['std_err']) }}</td>
+                            <td>{{ "%.4f"|format(val['tvalue']) }}</td>
+                            <td>{{ "%.4f"|format(val['pvalue']) }}</td>
+                            <td>{% if val['pvalue'] < 0.05 %}<span class="success">Yes</span>{% else %}No{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="warning">No primary model results found.</p>
+        {% endif %}
+    </section>
+
+    <section>
+        <h2>3. Interaction Plot</h2>
+        {% if interaction_plot %}
+            <div class="plot-container">
+                <img src="data:image/png;base64,{{ interaction_plot }}" alt="Interaction Plot" class="plot-img">
+                <p><em>Figure 1: Relationship between News Exposure and IAT Score by Political Ideology.</em></p>
+            </div>
+        {% else %}
+            <p class="warning">Interaction plot could not be generated (missing data or columns).</p>
+        {% endif %}
+    </section>
+
+    <section>
+        <h2>4. Robustness Checks</h2>
+        {% if robustness is not none and robustness|length > 0 %}
+            <h3>4.1 Alpha Sensitivity</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Alpha Level</th>
+                        <th>Significant?</th>
+                        <th>Coefficient</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in robustness.iterrows() %}
+                        {% set idx, val = row %}
+                        {% if 'alpha' in val and val['alpha'] is not none %}
+                        <tr>
+                            <td>{{ val['alpha'] }}</td>
+                            <td>{% if val['significant'] %}<span class="success">Yes</span>{% else %}No{% endif %}</td>
+                            <td>{{ "%.4f"|format(val['coef']) }}</td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <h3>4.2 Bootstrap Analysis</h3>
+            {% if bootstrap_plot %}
+                <div class="plot-container">
+                    <img src="data:image/png;base64,{{ bootstrap_plot }}" alt="Bootstrap Plot" class="plot-img">
+                    <p><em>Figure 2: Bootstrap distribution of the interaction term coefficient.</em></p>
+                </div>
+            {% else %}
+                <p><em>Bootstrap distribution plot not available.</em></p>
+            {% endif %}
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Metric</th>
+                        <th>Value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in robustness.iterrows() %}
+                        {% set idx, val = row %}
+                        {% if 'bootstrap_ci_lower' in val and val['bootstrap_ci_lower'] is not none %}
+                        <tr>
+                            <td>95% CI Lower</td>
+                            <td>{{ "%.4f"|format(val['bootstrap_ci_lower']) }}</td>
+                        </tr>
+                        <tr>
+                            <td>95% CI Upper</td>
+                            <td>{{ "%.4f"|format(val['bootstrap_ci_upper']) }}</td>
+                        </tr>
+                        <tr>
+                            <td>Monte Carlo SE</td>
+                            <td>{{ "%.4f"|format(val['monte_carlo_se']) }}</td>
+                        </tr>
+                        {% endif %}
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="warning">No robustness metrics found.</p>
+        {% endif %}
+    </section>
+
+    <section>
+        <h2>5. Power Analysis</h2>
+        {% if power is not none and power|length > 0 %}
+            <table>
+                <thead>
+                    <tr>
+                        <th>Observed Power</th>
+                        <th>Required N</th>
+                        <th>Effect Size</th>
+                        <th>Target Met?</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in power.iterrows() %}
+                        {% set idx, val = row %}
+                        <tr>
+                            <td>{{ "%.4f"|format(val['observed_power']) }}</td>
+                            <td>{{ val['required_n'] }}</td>
+                            <td>{{ "%.4f"|format(val['effect_size']) }}</td>
+                            <td>{% if val['met_target'] %}<span class="success">Yes</span>{% else %}No{% endif %}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="warning">No power analysis results found.</p>
+        {% endif %}
+    </section>
+
+    <section>
+        <h2>6. Binary Model Comparison</h2>
+        {% if binary_model is not none and binary_model|length > 0 %}
+            <p><em>Model using median-split ideology (Binary) instead of continuous.</em></p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Variable</th>
+                        <th>Coefficient</th>
+                        <th>P-value</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in binary_model.iterrows() %}
+                        {% set idx, val = row %}
+                        <tr>
+                            <td>{{ val['variable'] }}</td>
+                            <td>{{ "%.4f"|format(val['coef']) }}</td>
+                            <td>{{ "%.4f"|format(val['pvalue']) }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p class="warning">Binary model results not found.</p>
+        {% endif %}
+    </section>
+
+    <footer>
+        <p><em>Report generated automatically by the llmXive pipeline.</em></p>
+    </footer>
+</body>
+</html>

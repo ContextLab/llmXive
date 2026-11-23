@@ -1,140 +1,105 @@
-"""
-Unit tests for data hygiene utilities (checksum.py).
-"""
-
-import hashlib
-import tempfile
 import os
+import tempfile
 from pathlib import Path
 import pytest
 
-from code.utils.checksum import (
-    calculate_md5,
-    calculate_sha256,
-    verify_checksum,
-    validate_input_file
-)
+# Import the functions from the module under test
+from code.utils.checksum import calculate_md5, calculate_sha256, verify_checksum, validate_input_file
 
+class TestChecksumUtilities:
+    """Unit tests for checksum utilities."""
 
-@pytest.fixture
-def temp_file():
-    """Create a temporary file with known content for testing."""
-    content = b"Test data for checksum validation."
-    with tempfile.NamedTemporaryFile(delete=False) as f:
-        f.write(content)
-        temp_path = f.name
-    yield temp_path, content
-    os.unlink(temp_path)
+    def test_calculate_md5_existing_file(self, tmp_path):
+        """Test MD5 calculation on an existing file."""
+        test_file = tmp_path / "test.txt"
+        test_content = b"Hello, World!"
+        test_file.write_bytes(test_content)
+        
+        md5_hash = calculate_md5(test_file)
+        # Pre-calculated MD5 for "Hello, World!"
+        expected_md5 = "65a8e27d8879283831b664bd8b7f0ad4"
+        
+        assert md5_hash == expected_md5
 
+    def test_calculate_sha256_existing_file(self, tmp_path):
+        """Test SHA256 calculation on an existing file."""
+        test_file = tmp_path / "test.txt"
+        test_content = b"Hello, World!"
+        test_file.write_bytes(test_content)
+        
+        sha256_hash = calculate_sha256(test_file)
+        # Pre-calculated SHA256 for "Hello, World!"
+        expected_sha256 = "dffd6021bb2bd5b0af676290809ec3a53191dd81c7f70a4b28688a362182986f"
+        
+        assert sha256_hash == expected_sha256
 
-@pytest.fixture
-def empty_file():
-    """Create an empty temporary file."""
-    with tempfile.NamedTemporaryFile(delete=False) as f:
-        temp_path = f.name
-    yield temp_path
-    os.unlink(temp_path)
-
-
-class TestCalculateMD5:
-    def test_calculate_md5_known_value(self, temp_file):
-        """Test MD5 calculation against a known value."""
-        file_path, content = temp_file
-        expected_md5 = hashlib.md5(content).hexdigest()
-        result = calculate_md5(file_path)
-        assert result == expected_md5
-
-    def test_calculate_md5_empty_file(self, empty_file):
-        """Test MD5 calculation on an empty file."""
-        expected_md5 = hashlib.md5(b"").hexdigest()
-        result = calculate_md5(empty_file)
-        assert result == expected_md5
-
-    def test_calculate_md5_file_not_found(self):
-        """Test that FileNotFoundError is raised for missing file."""
+    def test_calculate_checksum_missing_file(self):
+        """Test that calculating checksum on a missing file raises FileNotFoundError."""
         with pytest.raises(FileNotFoundError):
             calculate_md5("/nonexistent/path/file.txt")
-
-
-class TestCalculateSHA256:
-    def test_calculate_sha256_known_value(self, temp_file):
-        """Test SHA256 calculation against a known value."""
-        file_path, content = temp_file
-        expected_sha256 = hashlib.sha256(content).hexdigest()
-        result = calculate_sha256(file_path)
-        assert result == expected_sha256
-
-    def test_calculate_sha256_empty_file(self, empty_file):
-        """Test SHA256 calculation on an empty file."""
-        expected_sha256 = hashlib.sha256(b"").hexdigest()
-        result = calculate_sha256(empty_file)
-        assert result == expected_sha256
-
-    def test_calculate_sha256_file_not_found(self):
-        """Test that FileNotFoundError is raised for missing file."""
+        
         with pytest.raises(FileNotFoundError):
             calculate_sha256("/nonexistent/path/file.txt")
 
+    def test_verify_checksum_match(self, tmp_path):
+        """Test checksum verification when values match."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("Test content")
+        
+        actual_md5 = calculate_md5(test_file)
+        assert verify_checksum(test_file, actual_md5, "md5") is True
+        
+        actual_sha256 = calculate_sha256(test_file)
+        assert verify_checksum(test_file, actual_sha256, "sha256") is True
 
-class TestVerifyChecksum:
-    def test_verify_checksum_success(self, temp_file):
-        """Test successful checksum verification."""
-        file_path, content = temp_file
-        expected_md5 = hashlib.md5(content).hexdigest()
-        is_valid, calculated = verify_checksum(file_path, expected_md5, "md5")
+    def test_verify_checksum_mismatch(self, tmp_path):
+        """Test checksum verification when values do not match."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("Test content")
+        
+        wrong_checksum = "0" * 32  # Invalid MD5
+        assert verify_checksum(test_file, wrong_checksum, "md5") is False
+
+    def test_verify_checksum_invalid_algorithm(self, tmp_path):
+        """Test that an invalid algorithm raises ValueError."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("Test content")
+        
+        with pytest.raises(ValueError):
+            verify_checksum(test_file, "some_hash", "invalid_algo")
+
+    def test_validate_input_file_exists(self, tmp_path):
+        """Test validation of an existing file."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("Test content")
+        
+        is_valid, error = validate_input_file(test_file)
         assert is_valid is True
-        assert calculated == expected_md5
+        assert error is None
 
-    def test_verify_checksum_failure(self, temp_file):
-        """Test checksum verification failure with wrong expected value."""
-        file_path, _ = temp_file
-        is_valid, calculated = verify_checksum(file_path, "wrong_checksum", "md5")
+    def test_validate_input_file_missing(self):
+        """Test validation of a missing file."""
+        is_valid, error = validate_input_file("/nonexistent/file.txt")
         assert is_valid is False
-        assert calculated != "wrong_checksum"
+        assert "File not found" in error
 
-    def test_verify_checksum_file_not_found(self):
-        """Test verification fails gracefully for missing file."""
-        with pytest.raises(FileNotFoundError):
-            verify_checksum("/nonexistent/file.txt", "abc123")
+    def test_validate_input_file_checksum_match(self, tmp_path):
+        """Test validation with matching checksum."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("Test content")
+        
+        expected_md5 = calculate_md5(test_file)
+        is_valid, error = validate_input_file(test_file, required_checksum=expected_md5)
+        
+        assert is_valid is True
+        assert error is None
 
-    def test_verify_checksum_invalid_algorithm(self, temp_file):
-        """Test that ValueError is raised for unsupported algorithm."""
-        file_path, _ = temp_file
-        with pytest.raises(ValueError, match="Unsupported algorithm"):
-            verify_checksum(file_path, "abc123", "invalid_algo")
-
-
-class TestValidateInputFile:
-    def test_validate_input_file_success(self, temp_file):
-        """Test successful validation with no expected checksums."""
-        file_path, _ = temp_file
-        result = validate_input_file(file_path)
-        assert result["valid"] is True
-        assert "md5" in result["checksums"]
-        assert "sha256" in result["checksums"]
-        assert len(result["errors"]) == 0
-
-    def test_validate_input_file_with_matching_checksum(self, temp_file):
-        """Test validation with matching expected checksums."""
-        file_path, content = temp_file
-        expected = {
-            "md5": hashlib.md5(content).hexdigest(),
-            "sha256": hashlib.sha256(content).hexdigest()
-        }
-        result = validate_input_file(file_path, expected)
-        assert result["valid"] is True
-        assert len(result["errors"]) == 0
-
-    def test_validate_input_file_with_mismatched_checksum(self, temp_file):
-        """Test validation with mismatched expected checksum."""
-        file_path, _ = temp_file
-        expected = {"md5": "wrong_checksum"}
-        result = validate_input_file(file_path, expected)
-        assert result["valid"] is False
-        assert any("MD5 mismatch" in err for err in result["errors"])
-
-    def test_validate_input_file_not_found(self):
-        """Test validation for missing file."""
-        result = validate_input_file("/nonexistent/file.txt")
-        assert result["valid"] is False
-        assert any("File not found" in err for err in result["errors"])
+    def test_validate_input_file_checksum_mismatch(self, tmp_path):
+        """Test validation with mismatched checksum."""
+        test_file = tmp_path / "test.txt"
+        test_file.write_text("Test content")
+        
+        is_valid, error = validate_input_file(test_file, required_checksum="invalid_hash")
+        
+        assert is_valid is False
+        assert "Checksum mismatch" in error

@@ -1,0 +1,17 @@
+T006g:
+  c: false
+  h: 133f07e6ccbd28d9c53676232e6df6d3005279b323cf3c9890b9a872f1cd1feb
+  r: "The provided `src/utils/data_loader.py` only contains code for fetching the\
+    \ WISE\u2011Verified dataset and does not implement any function that retrieves\
+    \ the IA\u2011Bench \u201Chuman\u2011verified reference descriptions\u201D, validates\
+    \ their schema, or writes them to `data/raw/ia-bench/references.jsonl`. Moreover,\
+    \ the required `data/raw/ia-bench/references.jsonl` file is absent. Both the implementation\
+    \ and the expected output are missing."
+T009:
+  c: false
+  h: 25992f594f7d765b69031765dee018f19d1087d0f8ee0b1334bbcd7f94a4fe14
+  r: "The provided `tests/unit/test_scoring.py` file exists and contains the static\u2011\
+    analysis checks, but the required source module `src/scoring/syntactic_features.py`\
+    \ is missing, causing the `test_file_exists` assertion to fail and rendering the\
+    \ unit test unusable. The missing source file must be added for the test to be\
+    \ meaningful."

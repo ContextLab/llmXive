@@ -1,140 +1,122 @@
 """
-Unit tests for the iterative VIF retraining logic (T039).
+Unit tests for iterative VIF retraining logic (T039).
 """
 import pytest
-import numpy as np
 import pandas as pd
+import numpy as np
 import os
-import json
 import tempfile
-import shutil
+import json
 
 from code.vif_iterative_retrain import (
-    prepare_features_and_target,
+    calculate_vif_scores,
     iterative_vif_retrain,
-    train_model,
-    evaluate_model
+    prepare_features_and_target
 )
-from code.config import SEED, VIF_THRESHOLD
 
-# Mock data for testing
+
 @pytest.fixture
-def mock_data():
-    """Create a mock DataFrame with high VIF features."""
-    np.random.seed(SEED)
-    n_samples = 100
-    # Create highly correlated features
-    base = np.random.randn(n_samples)
-    f1 = base + np.random.normal(0, 0.1, n_samples)
-    f2 = base * 2 + np.random.normal(0, 0.1, n_samples)  # Highly correlated with f1
-    f3 = np.random.randn(n_samples)  # Independent
-    f4 = np.random.randn(n_samples)  # Independent
-    target = f1 + f3 + np.random.normal(0, 0.5, n_samples)
-
-    smiles = [f"SMILES_{i}" for i in range(n_samples)]
-    status = ["valid"] * n_samples
+def sample_data():
+    """Create a sample dataframe with known VIF properties."""
+    # Create features with some correlation to trigger VIF > 10
+    np.random.seed(42)
+    n = 100
+    X1 = np.random.randn(n)
+    X2 = X1 * 5 + np.random.randn(n) * 0.1  # Highly correlated with X1
+    X3 = np.random.randn(n)
+    X4 = np.random.randn(n)
+    y = X1 + X2 + X3 + np.random.randn(n) * 0.5
 
     df = pd.DataFrame({
-        "smiles": smiles,
-        "status": status,
-        "f1": f1,
-        "f2": f2,
-        "f3": f3,
-        "f4": f4,
-        "conductivity": target
+        'smiles': ['SMILES' + str(i) for i in range(n)],
+        'status': ['valid'] * n,
+        'feature_1': X1,
+        'feature_2': X2,
+        'feature_3': X3,
+        'feature_4': X4,
+        'log_conductivity': y
     })
     return df
 
-@pytest.fixture
-def temp_dir():
-    """Create a temporary directory for test outputs."""
-    tmpdir = tempfile.mkdtemp()
-    yield tmpdir
-    shutil.rmtree(tmpdir)
 
-def test_prepare_features_and_target(mock_data):
-    """Test feature and target preparation."""
-    X, y, feature_names = prepare_features_and_target(mock_data, 'conductivity')
-    assert X.shape[0] == mock_data.shape[0]
-    assert len(feature_names) == 4  # f1, f2, f3, f4
-    assert 'f1' in feature_names
-    assert 'f2' in feature_names
-    assert len(y) == mock_data.shape[0]
+def test_calculate_vif_scores_basic(sample_data):
+    """Test that VIF scores are calculated correctly."""
+    exclude_cols = ['smiles', 'status', 'log_conductivity']
+    X, y, feature_names = prepare_features_and_target(sample_data, 'log_conductivity', exclude_cols)
 
-def test_train_model_rf():
-    """Test Random Forest model training."""
-    np.random.seed(SEED)
-    X = np.random.randn(50, 5)
-    y = np.random.randn(50)
-    model = train_model(X, y, model_type='rf')
-    assert model is not None
-    assert hasattr(model, 'predict')
+    vif_scores = calculate_vif_scores(X, feature_names)
 
-def test_train_model_gb():
-    """Test Gradient Boosting model training."""
-    np.random.seed(SEED)
-    X = np.random.randn(50, 5)
-    y = np.random.randn(50)
-    model = train_model(X, y, model_type='gb')
-    assert model is not None
-    assert hasattr(model, 'predict')
+    assert isinstance(vif_scores, dict)
+    assert len(vif_scores) == 4
+    assert all(isinstance(v, float) for v in vif_scores.values())
+    # feature_2 should have high VIF due to correlation with feature_1
+    assert vif_scores['feature_2'] > 10.0
 
-def test_evaluate_model():
-    """Test model evaluation."""
-    np.random.seed(SEED)
-    X_train = np.random.randn(50, 5)
-    y_train = np.random.randn(50)
-    X_test = np.random.randn(20, 5)
-    y_test = np.random.randn(20)
 
-    model = train_model(X_train, y_train, model_type='rf')
-    metrics = evaluate_model(model, X_test, y_test)
+def test_iterative_vif_retrain_excludes_high_vif(sample_data):
+    """Test that the loop excludes features with VIF > 10."""
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, "vif_results.json")
+        csv_path = os.path.join(tmpdir, "data.csv")
+        sample_data.to_csv(csv_path, index=False)
 
-    assert 'r2' in metrics
-    assert 'mae' in metrics
-    assert isinstance(metrics['r2'], float)
-    assert isinstance(metrics['mae'], float)
+        # Reload to ensure clean state
+        df = pd.read_csv(csv_path)
 
-def test_iterative_vif_retrain(mock_data, temp_dir):
-    """Test the full iterative VIF retraining loop."""
-    # Save mock data to temp file
-    data_path = os.path.join(temp_dir, "test_descriptors.csv")
-    mock_data.to_csv(data_path, index=False)
+        results = iterative_vif_retrain(
+            df=df,
+            target_col='log_conductivity',
+            output_path=output_path,
+            vif_threshold=10.0,
+            model_type='rf',
+            cv_folds=2  # Use fewer folds for speed in test
+        )
 
-    output_path = os.path.join(temp_dir, "test_vif_log.json")
+        # Check that feature_2 (highly correlated) was excluded
+        assert 'feature_2' in results['excluded_features']
+        # Check that final VIFs are all <= 10
+        for vif in results['final_vif_scores'].values():
+            assert vif <= 10.0
+        # Check that results were saved
+        assert os.path.exists(output_path)
+        with open(output_path, 'r') as f:
+            saved_results = json.load(f)
+            assert saved_results['excluded_features'] == results['excluded_features']
 
-    # Run the iterative retraining
-    result = iterative_vif_retrain(
-        data_path=data_path,
-        target_col="conductivity",
-        model_type="rf",
-        output_path=output_path,
-        vif_threshold=VIF_THRESHOLD
-    )
 
-    # Verify output file exists
-    assert os.path.exists(output_path)
+def test_iterative_vif_retrain_stops_when_all_vif_ok(sample_data):
+    """Test that the loop stops when no VIF > threshold."""
+    # Create data with low correlation
+    np.random.seed(42)
+    n = 100
+    X1 = np.random.randn(n)
+    X2 = np.random.randn(n)
+    X3 = np.random.randn(n)
+    y = X1 + X2 + X3 + np.random.randn(n) * 0.5
 
-    # Verify result structure
-    assert 'threshold' in result
-    assert 'log' in result
-    assert 'final_features' in result
-    assert 'final_metrics' in result
+    df = pd.DataFrame({
+        'smiles': ['SMILES' + str(i) for i in range(n)],
+        'status': ['valid'] * n,
+        'f1': X1,
+        'f2': X2,
+        'f3': X3,
+        'log_conductivity': y
+    })
 
-    # Verify that at least one feature was removed (since f1 and f2 are highly correlated)
-    # We expect f2 to be removed first due to high VIF
-    assert len(result['removed_features']) > 0
-    assert len(result['final_features']) < 4  # Should have removed at least one
+    with tempfile.TemporaryDirectory() as tmpdir:
+        output_path = os.path.join(tmpdir, "vif_results.json")
 
-    # Verify final VIF scores are all below threshold
-    if result['final_vif_scores']:
-        assert all(v <= VIF_THRESHOLD for v in result['final_vif_scores'])
+        results = iterative_vif_retrain(
+            df=df,
+            target_col='log_conductivity',
+            output_path=output_path,
+            vif_threshold=10.0,
+            model_type='rf',
+            cv_folds=2
+        )
 
-    # Verify log entries
-    for entry in result['log']:
-        assert 'iteration' in entry
-        assert 'removed_feature' in entry
-        assert 'remaining_features' in entry
-        assert 'metrics' in entry
-        assert 'r2' in entry['metrics']
-        assert 'mae' in entry['metrics']
+        # No features should be excluded
+        assert len(results['excluded_features']) == 0
+        # All final VIFs should be <= 10
+        for vif in results['final_vif_scores'].values():
+            assert vif <= 10.0

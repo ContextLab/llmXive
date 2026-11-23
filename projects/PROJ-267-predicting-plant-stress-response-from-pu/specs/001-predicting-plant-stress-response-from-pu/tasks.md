@@ -1,171 +1,129 @@
 # Tasks: Predicting Plant Stress Response from Publicly Available Proteomic Data
 
-**Input**: Design documents from `/specs/001-predict-plant-stress-response/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, contracts (`dataset.schema.yaml`, `model_output.schema.yaml`), original idea, prior `tasks.md`, verifier feedback.  
+**Branch**: `001-predict-plant-stress-response`
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001a [P] Create project directory structure: `mkdir -p code/data_ingestion code/modeling code/reporting code/utils tests data/raw data/processed results logs docs`.
-- [ ] T001b [P] Verify directory structure exists and is writable.
-
-- [X] T002 Create `code/requirements.txt` containing pinned versions for: pandas==2.0.3, scikit-learn==1.3.0, matplotlib==3.7.2, seaborn==0.12.2, rpy2==3.5.13, requests==2.31.0, psutil==5.9.5, imp3==1.2.0. **Note: `imp3` is required for LCM MinProb imputation.**
-- [ ] T003 [P] Configure linting (flake8) and formatting (black) tools
+The tasks follow the three‑phase research template (setup → full study → reproducible handoff).  
+All tasks are unchecked; they will be marked ✅ only after the described artifact is produced and the verification step passes.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [X] **T001** [US1] Create the project skeleton, add a `logs/` directory, and document a runnable quick‑start command.  
+  - **Artifacts**: `data/raw/`, `data/processed/`, `logs/`, `results/`, `code/main.py`, `quickstart.md`, `docs/structure.txt`  
+  - **Verification**: Running `python -m code.main --stage quickstart` on a clean runner creates `logs/pipeline.log` and exits with status 0; the command and its output are reproduced verbatim in `quickstart.md`; `docs/structure.txt` contains a tree listing of the repository.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] **T017** [Constitution I] Create a reproducibility module (`code/utils/constants.py`) that pins all random seeds for numpy, random, and scikit-learn.  
+  - **Artifacts**: `code/utils/constants.py`  
+  - **Verification**: A test script verifies that `np.random.seed` and `random.seed` are called using the constants defined in the module; all stochastic components in `code/` are verified to import and use these constants.
 
-- [ ] T004 Setup `code/utils/config.py` for random seeds, paths, species/stress constants, and **Reference-Validator threshold** (default 0.7, configurable).
-- [ ] T005 [P] Implement data schema validation using Pydantic or simple dict checks for `data/raw/` and `data/processed/`.
-- [ ] T006 [P] Setup logging infrastructure to capture warnings (e.g., dropped rows, missing data) to `logs/pipeline.log`.
-- [X] T007 Create base data loading utilities in `code/utils/data_utils.py` (CSV/Parquet I/O).
-- [X] T008 Implement checksum verification utility in `code/utils/checksums.py` for SHA-256 validation of raw downloads.
-- [X] T023 [P] Create `docs/deviation_log.md` documenting the decision logic for LOOCV vs 5-fold CV (based on sample size n < 50). **This document must exist before T019 runs.** (Constitution Principle VI).
+- [ ] **T003** [US1] Provide a project‑wide logger (`code/utils/logger.py`) and ensure **all** pipeline modules import and use it.   <!-- FAILED-IN-EXECUTION: code/utils/verify_logging_imports.py exit=1 -->
+  - **Artifacts**: `code/utils/logger.py`, updated imports in `code/data/*.py`, `code/models/*.py`, `code/viz/*.py`  
+  - **Verification**: After a full pipeline run, `logs/pipeline.log` contains INFO entries for dropped rows, missing‑column warnings, and any raised errors; a script scans the `code/` directory to verify that every module imports and uses `get_logger`.
 
-### Phase 2.5: Data Verification & Feasibility Gate (Critical)
+- [ ] **T002** [US1] Implement real‑data ingestion that streams download of GEO/ProteomeXchange files, verifies SHA‑256 checksums, and selects the dataset with the largest sample size (n) per species-stress pair (breaking ties by earliest publication date) per FR-001; abort on failure (no silent fallback).   <!-- FAILED-IN-EXECUTION: code/data/ingest.py exit=1 -->
+  - **Artifacts**: `code/data/download.py`, `code/utils/checksums.py`, `data/raw/` (populated with the test accession GSE14784 and a matching ProteomeXchange file), `data/raw/checksums.sha256`  
+  - **Verification**: After `python -m code.main --stage ingest`, the raw files exist and are > 1 KB; `checksums.sha256` matches; any download error raises an exception and the CI job fails (no fallback).
 
-**Purpose**: Ensure all data sources are real, reachable, and that no fabrication occurs. This phase runs AFTER Foundation but BEFORE User Story 1.
+- [ ] **T004** [US1] Implement fold-wise preprocessing to avoid data leakage (Constitution VI): for each CV fold, apply low‑abundance filter (< 50 % detection), median imputation, and batch‑effect correction with `pycombat` on the training split and apply the resulting parameters to the test split; perform identifier mapping via R `biomaRt` through `rpy2`, and merge proteomic & transcriptomic tables into the unified matrix.  
+  - **Artifacts**: `code/data/preprocess.py`, `data/processed/unified_matrix.csv`  
+  - **Verification**: `unified_matrix.csv` validates against `contracts/dataset.schema.yaml`; `logs/pipeline.log` records the number of rows dropped due to unmapped identifiers and columns dropped because > 90 % missing.
 
-- [X] T035 [P] [US1] Implement `code/data_ingestion/verify_sources.py` to validate that all citations in `research.md` are verified against primary sources. **Input: `research.md`. Logic: Fetch primary source metadata, verify title-token overlap ≥ threshold (from config.py), verify semantic relevance. Fail if any citation fails validation.** (Constitution Principle II).
-- [X] T036 [P] [US1] Implement `code/data_ingestion/sanity_check.py` to verify that the merged dataset contains **real** measured values (no `random.*` generated numbers, no constant columns with fake IDs). **Fail if any synthetic placeholder data is detected.**
-- [X] T037 [P] [US1] Implement `code/data_ingestion/sample_check.py` to ensure at least 5 samples exist per stress condition for Arabidopsis, Rice, or Wheat. **If n < 5 for all species, trigger the "Data Unavailable" halt path and exit cleanly.**
+- [ ] **T005** Add schema‑validation utilities and unit tests.  
+  - **Artifacts**: `code/utils/schema_check.py`, `tests/unit/test_schema_validation.py`  
+  - **Verification**: `python -c "from code.utils.schema_check import validate_dataset; validate_dataset('data/processed/unified_matrix.csv')"` exits without error; `pytest -q tests/unit/test_schema_validation.py` passes.
 
-**Checkpoint**: Data is verified real and sufficient. Proceed to User Story 1 only if T035-T037 pass.
+- [ ] **T006** Perform the data‑inventory check required by FR‑009; if the ≥ 3 paired‑sample threshold is not met for a species‑stress pair, record a “Data Insufficient” status and trigger the fallback path.  
+  - **Artifacts**: `code/data/inventory_check.py`, `results/data_completeness.json` (contains per‑species‑stress counts and a boolean `paired_enough`)  
+  - **Verification**: Running the pipeline prints a concise message indicating either “Paired data sufficient – proceeding to regression” or “Paired data insufficient – invoking fallback classification (FR‑010)”. The JSON file matches the message.
 
----
-
-## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
-
-**Goal**: Automatically download, normalize, merge, and impute public proteomic and transcriptomic datasets for Arabidopsis, rice, and wheat under drought, salinity, and heat.
-
-**Independent Test**: The pipeline can be fully tested by running the data ingestion script against a known subset of GEO/ProteomeXchange IDs and verifying that the output is a single, normalized CSV matrix containing protein abundances and matched gene expression values with no missing rows for the specified species/stress.
-
-### Implementation for User Story 1
-
-- [X] T011 [P] [US1] Implement `code/data_ingestion/download.py` to fetch raw data from NCBI GEO/ProteomeXchange. **Input: `research.md` (contains explicit URLs). Logic: Read URLs from research.md, validate domain (ncbi.nlm.nih.gov, proteomexchange.org, ebi.ac.uk), download files. Raise ValueError if file size < 1KB or domain invalid.** (FR-001).
-- [ ] T012 [P] [US1] Implement `code/data_ingestion/normalize.py` to filter low‑abundance proteins (<50% detection) and apply **Left-Censored Missing (LCM) imputation** using the **`imp3` library (MinProb algorithm)**. **MUST pin `imp3` version in requirements.txt. If `imp3` is unavailable, document deviation in `docs/deviation_log.md`.** (FR-002).
-- [X] T013 [US1] Implement `code/data_ingestion/merge.py` to map UniProt → Ensembl IDs. **Primary Method: `biomaRt R package (version 2023-10)` via `rpy2`.** **Logic: Install biomaRt v2023-10 via Rscript if missing. Attempt mapping. If biomaRt fails for any ID, raise `RuntimeError` and log failure. DO NOT use fallbacks.** (FR-003, Constitution I).
-- [X] T014 [US1] Implement `code/data_ingestion/pipeline.py` to orchestrate download → normalize → merge, handling metadata ambiguity (exclude or flag ambiguous records). Include logging for exclusion reasons. (FR-001‑FR‑003).
-
-### Phase 3.6: Integration Metrics (Run AFTER T014)
-
-**Purpose**: Verify implementation tasks and calculate metrics based on pipeline output.
-
-- [X] T009 [US1] Unit test for **LCM (MinProb)** imputation logic in `tests/unit/test_ingestion.py`. **Functions: `test_lcm_imputation_minprob`, `test_lcm_imputation_filter_low_abundance`.** (Synthetic censored data).
-- [X] T010 [US1] Unit test for identifier‑mapping logic in `tests/unit/test_ingestion.py`. **Functions: `test_biomaRt_mapping`, `test_biomaRt_failure_raises_error`.** (No fallbacks).
-- [~] T018 [US1] Implement `code/data_ingestion/completeness.py` to calculate `Data Completeness %` = (Retained Datasets / Initial Query Results) × 100 and write to `results/data_completeness.json`. **Input: Output of T014 (pipeline.py).** (SC‑004).
-
-**Checkpoint**: At this point, User Story 1 should be fully functional, tested, and ready for modeling.
+- [ ] **T018** [Plan Step 9] Implement the pre-study power analysis to determine if the available sample size is sufficient for the anticipated effect size before proceeding to modeling.  
+  - **Artifacts**: `code/utils/power_analysis.py`, `results/power_analysis.json`  
+  - **Verification**: `results/power_analysis.json` contains a `power_sufficient` boolean and the required sample size calculation based on literature-derived effect sizes.
 
 ---
 
-## Phase 4: User Story 2 - Baseline Model Training and Cross‑Stress Validation (Priority: P2)
+## Phase 2 – Complete the study and validate its evidence  
 
-**Goal**: Train Random Forest and SVR models using 5‑fold CV (if n ≥ 50) or LOOCV (if n < 50), include Stress-Blind baseline, Null model, and Target-Permutation control test.
+- [ ] **T007** Train Random Forest and SVR regression models on within‑stress data using 5-fold cross‑validation (or LOOCV if n < 50) and include one‑hot encoded species covariates, ensuring all stochastic processes use the pinned seeds from `code/utils/constants.py`.  
+  - **Artifacts**: `code/models/train_regressor.py`, `results/within_stress_metrics.json` (per‑fold R², RMSE for each model)  
+  - **Verification**: The JSON file conforms to `model_output.schema.yaml` (except `train_stress` = `test_stress` for within‑stress runs) and includes a non‑null `r2` > ‑1.
 
-**Independent Test**: The modeling module can be tested independently by feeding it a static, pre-saved CSV of the preprocessed data and verifying that it outputs a JSON report containing R² scores, RMSE values, and feature‑importance rankings for both within-stress and cross-stress validation splits.
+- [ ] **T008** Perform cross‑stress evaluation, compute a null‑model baseline, and run the shuffled‑target permutation control (p < 0.05 required).  
+  - **Artifacts**: `code/models/evaluate_cross_stress.py`, `results/cross_stress_metrics.json`, `results/null_model_metrics.json`, `results/shuffled_target_control.json` (contains `shuffled_target_p`)  
+  - **Verification**: `cross_stress_metrics.json` lists `train_stress` ≠ `test_stress` entries; `null_model_metrics.json` reports `null_model_r2`; `shuffled_target_control.json` reports `shuffled_target_p` < 0.05.
 
-### Phase 4.0: Modeling Infrastructure (Prerequisites)
+- [ ] **T009** Extract the top‑20 protein feature importances for each regression model and write them to a JSON file that validates against `model_output.schema.yaml`.  
+  - **Artifacts**: `code/models/feature_importance.py`, `results/feature_importance.json` (contains `model_type`, `cv_strategy`, and a list of 20 proteins with importance scores)  
+  - **Verification**: JSON schema validation succeeds; the list length is exactly 20 and all importance scores are > 0.
 
-**Purpose**: Essential infrastructure for modeling that must be ready before training begins
+- [ ] **T010** Generate publication‑ready figures directly from the metric JSONs:  
+    1. Scatter plot of predicted vs. actual gene expression (`results/figures/prediction_scatter.png`).  
+    2. Heat‑map of R² values for every training‑stress → testing‑stress pair (`results/figures/cross_stress_heatmap.png`).  
+    3. Bar chart of the top‑20 feature importances (`results/figures/feature_importance_bar.png`).  
+  - **Artifacts**: `code/viz/plots.py`, PNG files under `results/figures/`  
+  - **Verification**: Each PNG is non‑empty, saved at ≥ 300 dpi, and an automated contrast‑check script verifies that all figures meet the minimum colour-contrast ratio of 4.5:1 (SC-008).
 
-- [ ] T032 [P] Implement checkpointing utility in `code/modeling/checkpoint.py` to save intermediate model state and partial results after each CV fold. **This utility must be available before T019 runs.** (Risk Mitigation).
+- [ ] **T011** Record total CPU time and peak memory usage, enforce the 6‑hour / 7 GB limits, and write `results/runtime_metrics.json`.  
+  - **Artifacts**: `code/utils/metrics.py`, `results/runtime_metrics.json` (fields: `cpu_time_seconds`, `peak_memory_gb`, `limit_exceeded` boolean)  
+  - **Verification**: The pipeline aborts with a non‑zero exit code if limits are exceeded; otherwise `limit_exceeded` is `false`.
 
-### Implementation for User Story 2
-
-- [ ] T019 [US2] Implement `code/modeling/train.py` to train `RandomForestRegressor` and `SVR`. Logic:
- * Read sample size from `results/data_completeness.json` or runtime check.
- * If **n ≥ 50** → perform 5‑fold CV; else → perform LOOCV (per `docs/deviation_log.md` T023).
- * All preprocessing (normalization, imputation, feature selection) must occur **inside** each CV fold (SC‑005).
- * Hyperparameters: `n_estimators=100`, `max_depth=10` (RF); `kernel='rbf'`, `C=1.0` (SVR).
- * Output: `results/within_stress_metrics.json` (R², RMSE per fold). (FR‑004, Plan Threshold n < 50).
-- [ ] T024 [US2] Implement `code/modeling/cross_stress_eval.py` to perform **Cross-Stress Evaluation**. Logic:
- * Train models on **Stress A** (e.g., Drought) and test on **Stress B** (e.g., Salinity).
- * Repeat for all valid stress pairs.
- * Output: `results/cross_stress_metrics.json` (R², RMSE for each pair). (SC‑002, FR‑005).
-- [ ] T020a [US2] Implement `code/modeling/baselines.py` to train **Within-Stress Baseline** models (RF & SVR) on the original (non‑residualized) protein matrix using the same CV strategy as T019. Store R² and RMSE for comparison. (Addresses SC‑001, SC‑002 numerator).
-- [ ] T020c [US2] Implement `code/modeling/metrics.py` to calculate the **'drop in R²'** metric. Logic:
- * Read `results/within_stress_metrics.json` (from T019/T020a).
- * Read `results/cross_stress_metrics.json` (from T024).
- * Calculate `Drop = R²(Within-Stress) - R²(Cross-Stress)`.
- * Output: `results/r2_drop.json`. (SC‑002).
-- [ ] T021a [US2] Implement `code/modeling/evaluate.py` to perform Null Model comparison (predict mean) and calculate improvement in R² over RF/SVR (SC‑001).
-- [ ] T021b [US2] Implement **Stress-Label Permutation Control Test**. Logic:
- * Shuffle `StressCondition` labels relative to predictors.
- * Retrain models with same CV strategy.
- * Perform **Permutation Test (1000 iterations)** to calculate p-value comparing real R² vs shuffled R².
- * Output: `results/shuffle_control.json` (p-value). Raise error if p >= 0.05. (FR‑005, Control for Stress-Label Leakage).
-- [ ] T022 [US2] Implement `code/modeling/feature_importance.py` to extract and rank the top proteins by absolute importance score for each model (FR‑006).
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] **T012** If the data‑inventory check (T006) indicated insufficient paired samples, run the fallback proteomics‑only classification (FR‑010): train a Random Forest classifier to predict stress condition and report accuracy and F1‑score.  
+  - **Artifacts**: `code/models/train_classifier.py`, `results/fallback_classification.json` (fields: `accuracy`, `f1_score`, `model_type` = `"RandomForestClassifier"`)  
+  - **Verification**: Accuracy ≥ 0.70 and F1 ≥ 0.65; JSON schema validation (custom schema defined in `contracts/fallback_classifier.schema.yaml`).
 
 ---
 
-## Phase 5: User Story 3 - Visualization and Reproducibility Reporting (Priority: P3)
+## Phase 3 – Reproducible results and paper handoff  
 
-**Goal**: Generate publication‑ready figures (scatter, confusion matrix, feature importance) and runtime metrics report.
+- [ ] **T013** Update documentation: `README.md` with installation steps, concrete GEO/ProteomeXchange accession URLs, usage examples, and a “Results” section that cites the generated artifact files. Add comprehensive docstrings to every public function in `code/`.  
+  - **Artifacts**: `README.md`, updated docstrings across `code/`  
+  - **Verification**: `pydocstyle code/` reports no missing docstrings; the README builds without broken links.
 
-**Independent Test**: The reporting module can be tested by providing it with a dummy model object and a sample prediction array, verifying that it generates PNG files for all required plot types and a text summary of execution time and memory usage.
+- [ ] **T019** [Constitution V] Implement an artifact tracking utility that computes SHA-256 hashes of all generated files and updates the project state file.  
+  - **Artifacts**: `code/utils/state_manager.py`, updated `state/projects/PROJ-267-predicting-plant-stress-response-from-pu.yaml`  
+  - **Verification**: The project state file contains a complete `artifact_hashes` map that matches the actual disk content of all produced files.
 
-**Dependency**: This phase runs AFTER Phase 4 (US2) completes.
+- [ ] **T014** Execute the full reproducible workflow (`python -m code.main --stage all`) on a clean runner, confirm that all previous artifacts are regenerated identically, and write a results summary.  
+  - **Artifacts**: `docs/results_summary.md` (methods, actual findings, negative outcomes, limitations, and handoff statement)  
+  - **Verification**: A fresh run produces JSON/CSV/PNG files whose content hashes match those recorded in `state/projects/PROJ-267-predicting-plant-stress-response-from-pu.yaml`.
 
-### Implementation for User Story 3
+- [ ] **T015** Verify the Quickstart workflow on a clean environment, capture the console output, and store it as `quickstart_run.log`.  
+  - **Artifacts**: `quickstart_run.log`  
+  - **Verification**: Log shows successful execution of the end‑to‑end pipeline (or graceful fallback) with exit status 0; the log is referenced in `quickstart.md`.
 
-- [ ] T026 [US3] Implement `code/reporting/plots.py` to generate scatter plots (Predicted vs Actual with regression line & R² annotation), cross‑stress heatmaps, and feature‑importance bar charts (FR‑007).
-- [ ] T027 [US3] Implement `code/reporting/metrics.py` to log total CPU time and peak memory usage to `results/runtime_metrics.json` (FR‑008).
-- [ ] T028 [US3] Integrate plotting and metrics into a final `code/reporting/generate_report.py` script that produces the summary JSON and PNGs.
-- [ ] T029 [US3] Add a sanity‑check in `metrics.py` that verifies input data is not a mock object (e.g., non‑zero variance, required attributes) before writing runtime metrics.
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] **T016** Generate a directory‑tree listing for the `docs/` folder and store it in `docs/structure.txt`.  
+  - **Artifacts**: `docs/structure.txt` (produced e.g., by `tree -a docs/ > docs/structure.txt`)  
+  - **Verification**: File is non‑empty and matches the actual repository layout.
 
 ---
 
-## Phase N: Polish & Cross‑Cutting Concerns
+## Dependency & Requirement Coverage  
 
-**Purpose**: Improvements that affect multiple user stories
+| Spec ID | Task(s) | Command demonstrating completion |
+|---------|---------|-----------------------------------|
+| FR‑001 (download, largest‑n selection) | T002 | `python -m code.main --stage ingest` → `data/raw/` |
+| FR‑002 (filter, median imputation) | T004 | `data/processed/unified_matrix.csv` + log entries |
+| FR‑003 (biomaRt merge) | T004 | Mapping statistics in `logs/pipeline.log` |
+| FR‑004 (RF / SVR on CPU) | T007 | `results/within_stress_metrics.json` |
+| FR‑005 (CV, cross‑stress, controls) | T007, T008 | `results/cross_stress_metrics.json`, `results/shuffled_target_control.json` |
+| FR‑006 (feature importance) | T009 | `results/feature_importance.json` |
+| FR‑007 (figures) | T010 | PNG files under `results/figures/` |
+| FR‑008 (runtime metrics) | T011 | `results/runtime_metrics.json` |
+| FR‑009 (data‑inventory) | T006 | `results/data_completeness.json` |
+| FR‑010 (fallback classification) | T012 | `results/fallback_classification.json` (if invoked) |
+| SC‑001 (vs null model) | T008 | `results/null_model_metrics.json` |
+| SC‑002 (R² drop) | T008 | `results/cross_stress_metrics.json` |
+| SC‑003 (resource limits) | T011, T014 | Limit assertions in `results/runtime_metrics.json` |
+| SC‑004 (data completeness) | T006 | `results/data_completeness.json` |
+| SC‑005 (CV integrity) | T004, T007 | Fold-wise logic in `code/data/preprocess.py` |
+| SC‑006 (fallback classification performance) | T012 | Accuracy ≥ 0.70, F1 ≥ 0.65 |
+| SC‑008 (visual accessibility) | T010 | Contrast-check script verification |
+| SC‑009 (permutation test) | T008 | `shuffled_target_p` < 0.05 in `results/shuffled_target_control.json` |
 
-- [ ] T030 [P] Code Quality & Documentation: 1. Update `README.md` with installation steps and usage examples. 2. Add docstrings to all public functions in `code/`. 3. Extract common I/O logic into `code/utils/io.py`. 4. Remove unused imports and variables.
-- [ ] T033 [P] Additional unit tests in `tests/unit/` covering edge cases (all‑missing columns, mismatched IDs).
-- [ ] T034 Run `quickstart.md` validation to ensure full pipeline reproducibility.
+**Execution order** (respecting data flow, reproducibility, and logger dependency):  
+
+T001 → T017 → T003 → T002 → T004 → T005 → T006 → T018 → T007 → T008 → T009 → T010 → T011 → T012 → T013 → T019 → T014 → T015 → T016.
+
+All tasks remain unchecked until their artifacts are produced and the verification steps succeed.

@@ -1,14 +1,14 @@
-# Quickstart: Predicting Molecular Descriptors
+# Quickstart: Predicting Molecular Descriptors from Quantum Chemical Calculations with Machine Learning
 
 ## Prerequisites
 
 - Python 3.11+
 - `pip`
-- Git
+- Access to a GitHub Actions runner (or local machine with sufficient RAM).
 
 ## Installation
 
-1. **Clone the repository** (or navigate to the project directory).
+1. **Clone the repository** and navigate to the project directory.
 2. **Create a virtual environment**:
    ```bash
    python -m venv venv
@@ -16,50 +16,62 @@
    ```
 3. **Install dependencies**:
    ```bash
-   pip install -r code/requirements.txt
+   pip install -r requirements.txt
    ```
 
-## Running the Pipeline
+## Data Preparation
 
-The pipeline is executed in four sequential stages. Ensure you have sufficient disk space and RAM.
+The pipeline automatically downloads the QM9 dataset from HuggingFace.
 
-### Step 1: Data Download & Verification
-Downloads the QM9 dataset from the verified HuggingFace source and computes checksums.
-```bash
-python code/download.py
-```
-*Output*: `data/raw/qm9_full.parquet`
+1. **Run the download script**:
+   ```bash
+   python code/download_data.py
+   ```
+   This will fetch the dataset and save it to `data/raw/`.
 
-### Step 2: Feature Extraction
-Generates 2D fingerprints and 3D graph features. Includes memory monitoring.
-```bash
-python code/extract.py
-```
-*Output*: `data/processed/2d_features.npy`, `data/processed/3d_graphs.pkl`, `data/processed/labels.npy`
+2. **Extract features**:
+   ```bash
+   python code/extract_features.py
+   ```
+   This script:
+   - Streams the dataset.
+   - Performs memory monitoring and dynamic downsampling if needed.
+   - Generates 2D and 3D feature matrices.
+   - Saves processed data to `data/processed/`.
 
-### Step 3: Model Training & Cross-Validation
-Trains Random Forest models with 5-fold CV.
-```bash
-python code/train.py
-```
-*Output*: `artifacts/models/*.pkl`, `artifacts/metrics/cv_results.json`
+## Model Training
 
-### Step 4: Analysis & Reporting
-Computes relative error increase, generates parity plots, and checks stability.
-```bash
-python code/analyze.py
-```
-*Output*: `artifacts/metrics/comparison_table.csv`, `artifacts/plots/*.png`
+1. **Train the models**:
+   ```bash
+   python code/train_models.py
+   ```
+   This runs 5-fold cross-validation for both 2D and 3D models and saves the trained models and metrics.
+
+## Analysis & Reporting
+
+1. **Generate the final report and plots**:
+   ```bash
+   python code/analyze_results.py
+   ```
+   This computes the Relative Error Increase (REI), performs statistical tests, and generates parity plots.
 
 ## Verification
 
-To verify the installation and pipeline integrity:
-```bash
-pytest tests/ -v
-```
-Ensure all tests pass, particularly `test_memory_monitor` and `test_feature_alignment`.
+To verify the pipeline:
+
+1. **Check outputs**: Ensure `artifacts/metrics/analysis_report.json` exists and contains valid REI values.
+2. **Run tests**:
+   ```bash
+   pytest tests/
+   ```
+3. **Static Analysis**:
+   ```bash
+   mypy code/
+   ruff check code/
+   ```
 
 ## Troubleshooting
 
-- **Memory Error**: If the process is killed due to OOM, the `extract.py` script automatically downsamples the dataset. Check `data/processed/downsample_log.txt` for details.
-- **Download Failure**: If the HuggingFace URL is unreachable, the script retries 3 times. If it fails, check your internet connection or proxy settings.
+- **Memory Error**: If the script fails due to memory, check the logs for the "Downsampling to N=..." message. The script automatically reduces the sample size.
+- **Dataset Missing**: Ensure internet access is available to download from HuggingFace.
+- **Import Errors**: Verify that `rdkit` and `scikit-learn` are installed correctly (`pip install rdkit scikit-learn`).

@@ -837,3 +837,299 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-12T07:09:51Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: produce 200 FITS files with Nside=256 injecting specific k values
+  claim_id: c_96f779aa
+  context: T018 [US2] Implement inject_sme_coefficient() in code/data/simulation.py
+    to produce 200 FITS files in data/simulations/ with Nside=256 (sub-sampled for
+    RAM), injecting specific k values (Plan Task 1.3)
+  evidence:
+    asserted: '200.0'
+    authority: scipy.constants.k (CODATA 2018, exact by SI definition)
+    constant: boltzmann
+    corrected: true
+    mode: approximate
+    true_value: 1.380649e-23
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?k
+  kind: numeric
+  raw_text: Implement inject_sme_coefficient() in code/data/simulation.py to produce
+    200 FITS files in data/simulations/ with Nside=256 (sub-sampled for RAM), injecting
+    specific k values (Plan Task 1.3)
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 2bfb0d3513311088eea23af05f5f28fc2ef73a6a80811bbb243001626363f07f
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T03:59:39Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: produce 200 FITS files with Nside=256 and realistic noise
+  claim_id: c_22bc314a
+  context: T019 [US2] Implement generate_isotropic_null() in code/data/simulation.py
+    to produce 200 FITS files in data/simulations/ with Nside=256 and realistic noise
+    (using config-defined noise models) (Plan Task 1.3)
+  evidence:
+    asserted: '200.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Implement generate_isotropic_null() in code/data/simulation.py to produce
+    200 FITS files in data/simulations/ with Nside=256 and realistic noise (using
+    config-defined noise models) (Plan Task 1.3)
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-23T03:59:39Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: fetch SMICA EE TE maps and masks from ESA Legacy Archive
+  claim_id: c_c65a6295
+  context: 'T024 [US1] Implement code/data/downloader.py: Fetch SMICA, EE, TE maps
+    and masks from ESA Legacy Archive (FITS) with retry logic'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_SMICA_EE_TE_maps_and_masks_from_ESA_Legacy_Archive
+  kind: entity_fact
+  raw_text: Fetch SMICA, EE, TE maps and masks from ESA Legacy Archive (FITS) with
+    retry logic
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T04:00:13Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: verify masked pixels are zeroed
+  claim_id: c_1a66a5b9
+  context: 'T022 [P] [US1] Unit test tests/test_data.py::test_mask_application: Verify
+    masked pixels are zeroed'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_masked_pixels_are_zeroed
+  kind: entity_fact
+  raw_text: Verify masked pixels are zeroed
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T04:00:54Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: compute TT EE TE spectra for l less than 200
+  claim_id: c_ed3737a4
+  context: 'T034 [P] [US2] Implement code/analysis/power_spectra.py: Compute TT, EE,
+    TE spectra for l < 200 using healpy.anafast'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Compute_TT_EE_TE_spectra_for_l_less_than_200
+  kind: magnitude
+  raw_text: Compute TT, EE, TE spectra for l < 200 using healpy.anafast
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T04:01:52Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: calculate BipoSH coefficients for L=2 and L=3 modes
+  claim_id: c_212cbfd0
+  context: 'T036 [US2] Implement code/analysis/anisotropy.py: Calculate BipoSH coefficients
+    for L=2 (Quadrupole) and L=3 (Octupole) modes'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate BipoSH coefficients for L=2 (Quadrupole) and L=3 (Octupole)
+    modes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T04:02:37Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: run MCMC sampling with 100 walkers 2000 burn-in and 8000 samples
+  claim_id: c_516bfa31
+  context: 'T046 [US3] Implement code/analysis/inference.py: Run MCMC sampling (100
+    walkers, 2000 burn-in, 8000 samples total) using emcee to derive posterior for
+    k_(V)00^(5)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MCMC sampling (100 walkers, 2000 burn-in, 8000 samples total) using
+    emcee to derive posterior for k_(V)00^(5)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T04:03:13Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: check ESS if less than 200 issue warning and save trace plot
+  claim_id: c_03907ea4
+  context: 'T047 [US3] Implement convergence monitoring in code/analysis/inference.py:
+    Check ESS; if < 200, issue warning and save trace plot'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Check_ESS_if_less_than_200_issue_warning_and_save_trace_plot
+  kind: magnitude
+  raw_text: Check ESS; if < 200, issue warning and save trace plot
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T04:03:33Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: apply Benjamini-Hochberg FDR correction to p-values from BipoSH modes
+    L=2 and L=3
+  claim_id: c_f924e4e5
+  context: 'T048 [US3] Implement code/analysis/inference.py: Apply Benjamini-Hochberg
+    FDR correction to p-values from BipoSH modes (L=2,3)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply Benjamini-Hochberg FDR correction to p-values from BipoSH modes
+    (L=2,3)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T04:03:54Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Produce 200 FITS files with Nside=256 via inject_sme_coefficient
+  claim_id: c_14a8679b
+  context: 'Phase 2, Task T018: Implement inject_sme_coefficient() in code/data/simulation.py
+    to produce 200 FITS files in data/simulations/ with Nside=256 (sub-sampled for
+    RAM), injecting specific k values (Plan Task 1.3)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement inject_sme_coefficient() in code/data/simulation.py to produce
+    200 FITS files in data/simulations/ with Nside=256
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T04:05:17Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Produce 200 FITS files with Nside=256 via generate_isotropic_null
+  claim_id: c_c5d0f624
+  context: 'Phase 2, Task T019: Implement generate_isotropic_null() in code/data/simulation.py
+    to produce 200 FITS files in data/simulations/ with Nside=256 and realistic noise
+    (using config-defined noise models) (Plan Task 1.3)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement generate_isotropic_null() in code/data/simulation.py to produce
+    200 FITS files in data/simulations/ with Nside=256
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T04:05:30Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Fetch SMICA EE TE maps and masks from ESA Legacy Archive
+  claim_id: c_b871a0e1
+  context: 'Phase 3, Task T024: Implement code/data/downloader.py: Fetch SMICA, EE,
+    TE maps and masks from ESA Legacy Archive (FITS) with retry logic'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_SMICA_EE_TE_maps_and_masks_from_ESA_Legacy_Archive
+  kind: entity_fact
+  raw_text: Fetch SMICA, EE, TE maps and masks from ESA Legacy Archive
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T04:06:14Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Compute TT EE TE spectra for l < 200
+  claim_id: c_4a8ac29e
+  context: 'Phase 4, Task T034: Implement code/analysis/power_spectra.py: Compute
+    TT, EE, TE spectra for l < 200 using healpy.anafast'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compute TT, EE, TE spectra for l < 200
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T04:06:14Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Calculate BipoSH coefficients for L=2 and L=3 modes
+  claim_id: c_1f5c3c82
+  context: 'Phase 4, Task T036: Implement code/analysis/anisotropy.py: Calculate BipoSH
+    coefficients for L=2 (Quadrupole) and L=3 (Octupole) modes'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate BipoSH coefficients for L=2 (Quadrupole) and L=3 (Octupole)
+    modes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T04:06:14Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Run MCMC with 100 walkers 2000 burn-in 8000 samples
+  claim_id: c_2ddd903f
+  context: 'Phase 5, Task T046: Implement code/analysis/inference.py: Run MCMC sampling
+    (100 walkers, 2000 burn-in, 8000 samples total) using emcee to derive posterior
+    for k_(V)00^(5)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run MCMC sampling with 100 walkers, 2000 burn-in, 8000 samples total
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T04:06:47Z'
+- artifact_path: projects/PROJ-201-testing-lorentz-violation-with-publicly-/specs/001-testing-lorentz-violation-with-publicly/tasks.md
+  attempts: 1
+  canonical: Check ESS threshold of 200
+  claim_id: c_1d83d0ad
+  context: 'Phase 5, Task T047: Implement convergence monitoring in code/analysis/inference.py:
+    Check ESS; if < 200, issue warning and save trace plot'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Check ESS; if < 200, issue warning and save trace plot
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-23T04:06:47Z'

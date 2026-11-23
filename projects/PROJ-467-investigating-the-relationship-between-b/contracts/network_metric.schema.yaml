@@ -1,0 +1,43 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Network Metric Schema
+description: Schema for validating static and dynamic network metrics computed from fMRI data.
+type: object
+required:
+  - subject_id
+  - modularity_q
+  - segregation_index
+  - flexibility
+properties:
+  subject_id:
+    type: string
+    description: Unique identifier for the subject.
+  modularity_q:
+    type: number
+    description: Louvain modularity Q value.
+    minimum: 0
+    maximum: 1
+  segregation_index:
+    type: number
+    description: Network segregation index.
+    minimum: 0
+    maximum: 1
+  flexibility:
+    type: number
+    description: Average node flexibility across windows.
+    minimum: 0
+    maximum: 1
+  dynamic_modularity:
+    type: array
+    items:
+      type: number
+    description: Time series of modularity values across sliding windows.
+  window_length_s:
+    type: integer
+    description: Sliding window length in seconds.
+  step_size_s:
+    type: integer
+    description: Step size between windows in seconds.
+  threshold:
+    type: number
+    description: Correlation threshold used for graph construction.
+additionalProperties: true

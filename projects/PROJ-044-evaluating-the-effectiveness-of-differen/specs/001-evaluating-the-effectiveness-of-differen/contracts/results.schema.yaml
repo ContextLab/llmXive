@@ -1,0 +1,62 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Results Schema"
+description: "Schema for the aggregated training results CSV."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the run (e.g., '0.1_1.0_42_DP')."
+  dataset:
+    type: "string"
+    enum:
+      - "FEMNIST"
+    description: "Dataset name."
+  alpha:
+    type: "number"
+    description: "Dirichlet concentration parameter."
+  epsilon:
+    anyOf:
+      - type: "number"
+      - type: "string"
+        enum: ["inf"]
+    description: "Target privacy budget (ε) or the string \"inf\" for non‑DP baseline."
+  seed:
+    type: "integer"
+    description: "Random seed."
+  round:
+    type: "integer"
+    description: "Training round number."
+  global_accuracy:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Global test accuracy."
+  majority_accuracy:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Average accuracy of majority clients."
+  minority_accuracy:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Mean accuracy of minority clients."
+  delta:
+    type: "number"
+    description: "Privacy parameter δ = 1e‑5."
+  actual_epsilon:
+    type: "number"
+    description: "Cumulative ε from Moments Accountant."
+  is_dp:
+    type: "boolean"
+    description: "True for DP runs, False for baseline."
+  is_time_limited:
+    type: "boolean"
+    description: "True if early‑stop triggered by time budget."
+  utility_collapse:
+    type: "boolean"
+    description: "True if global_accuracy < 1/62 (random‑guess threshold)."
+  rounds_to_80:
+    type: "integer"
+    description: "First round where global_accuracy ≥ 0.80."
+additionalProperties: false

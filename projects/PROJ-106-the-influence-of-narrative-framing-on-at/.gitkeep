@@ -1,0 +1,14 @@
+# This file ensures the directory structure exists in version control.
+# The following directories are required by the project specification:
+# code/
+#   - __init__.py
+#   - utils/
+#     - __init__.py
+# data/
+#   - __init__.py
+#   - raw/
+#   - processed/
+#   - stimuli/
+#   - ethics/
+# tests/
+#   - __init__.py

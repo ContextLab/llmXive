@@ -1,0 +1,12 @@
+status: none
+intent: download HumanEval MBPP openai_humaneval dataset python package dataset
+required_fields:
+- task_id
+- prompt
+- entry_point
+- canonical_solution
+- test_cases
+- language
+cache_key: c54bec365e50514b3d2f795a484256714916d72b3470615d0b0992a0ae04fca9
+searched_at: '2026-08-04T03:20:25.018338+00:00'
+retry_count: 1

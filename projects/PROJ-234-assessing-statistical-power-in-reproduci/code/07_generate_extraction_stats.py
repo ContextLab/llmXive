@@ -1,3 +1,10 @@
+"""
+T027: Generate extraction statistics from parsed publication data.
+
+Reads data/processed/extracted_params.json and generates
+data/processed/extraction_stats.json containing success_rate and
+failure_reasons counts.
+"""
 import json
 import os
 import sys
@@ -5,150 +12,106 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, List
 
-# Ensure the code directory is in the path for imports if run as a script
-# but rely on the project structure for module imports.
-# We assume this script is run from the project root.
+# Import logging config from existing utility
+from utils.logging_config import setup_logging
 
-def load_extracted_params(filepath: str) -> List[Dict[str, Any]]:
-    """Load the extracted parameters from the JSON file."""
-    if not os.path.exists(filepath):
-        raise FileNotFoundError(f"Input file not found: {filepath}")
+def load_extracted_params(input_path: str) -> List[Dict[str, Any]]:
+    """Load the extracted parameters JSON file."""
+    path = Path(input_path)
+    if not path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
     
-    with open(filepath, 'r', encoding='utf-8') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         data = json.load(f)
     
-    # Handle case where the file contains a list directly or a dict with a key
-    if isinstance(data, list):
-        return data
-    elif isinstance(data, dict):
-        # Common pattern in these pipelines is a key like 'records' or 'data'
-        # If not found, try to return the dict itself if it looks like a record
-        # But spec implies a list of records.
-        for key in ['records', 'data', 'entries']:
-            if key in data:
-                return data[key]
-        # Fallback: if it's a single record wrapped in a dict, wrap it
-        return [data]
-    else:
-        raise ValueError("Unexpected data format in extracted_params.json")
+    if not isinstance(data, list):
+        raise ValueError(f"Expected a list of records in {input_path}, got {type(data)}")
+    
+    return data
 
-def generate_extraction_stats(input_path: str, output_path: str) -> Dict[str, Any]:
+def generate_extraction_stats(records: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Generate extraction statistics based on the status field in the extracted data.
+    Calculate extraction statistics from the parsed records.
     
-    Calculates:
-    - success_rate: fraction of records with status 'success' (or not in failure categories)
-    - failure_reasons: counts of 'paywalled', 'unparseable', 'insufficient data'
-    
-    Args:
-        input_path: Path to data/processed/extracted_params.json
-        output_path: Path to data/processed/extraction_stats.json
-        
-    Returns:
-        The stats dictionary.
+    Returns a dictionary with:
+    - success_rate: float (0.0 to 1.0)
+    - failure_reasons: dict with counts for "paywalled", "unparseable", "insufficient data"
     """
-    records = load_extracted_params(input_path)
-    
     if not records:
-        stats = {
+        return {
             "success_rate": 0.0,
             "failure_reasons": {
                 "paywalled": 0,
                 "unparseable": 0,
                 "insufficient data": 0
-            },
-            "total_records": 0
+            }
         }
-        # Write output even if empty
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w', encoding='utf-8') as f:
-            json.dump(stats, f, indent=2)
-        return stats
-
-    failure_counts = {
+    
+    total = len(records)
+    success_count = 0
+    failure_reasons = {
         "paywalled": 0,
         "unparseable": 0,
         "insufficient data": 0
     }
     
-    total = len(records)
-    success_count = 0
-    
     for record in records:
-        status = record.get('status', '').lower()
+        status = record.get("status", "unknown")
         
-        if status == 'success':
+        if status == "success":
             success_count += 1
-        elif status == 'paywalled':
-            failure_counts['paywalled'] += 1
-        elif status == 'unparseable':
-            failure_counts['unparseable'] += 1
-        elif status == 'insufficient data':
-            failure_counts['insufficient data'] += 1
+        elif status in failure_reasons:
+            failure_reasons[status] += 1
         else:
-            # Treat unknown statuses as failures or log warning?
-            # Based on T024, only specific statuses are expected.
-            # We'll count unknowns as 'unparseable' for safety or ignore.
-            # Let's log a warning but not count in specific buckets unless specified.
-            # To be safe, we count it as a failure but not in the specific buckets
-            # unless the logic implies only these 3 exist.
-            # The task asks for counts of these 3 specifically.
+            # Any other status is treated as a failure but not categorized
+            # We could add it to a generic "other" bucket if needed, 
+            # but for now we just don't count it in success.
             pass
     
-    # Calculate success rate
-    # Success is typically when data was extracted (status == 'success')
-    # However, sometimes 'abstract' source is still success. 
-    # Assuming 'success' status is the target.
     success_rate = success_count / total if total > 0 else 0.0
     
-    stats = {
-        "success_rate": round(success_rate, 4),
-        "failure_reasons": failure_counts,
-        "total_records": total,
-        "success_count": success_count
+    return {
+        "success_rate": success_rate,
+        "failure_reasons": failure_reasons
     }
-    
-    # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir:
-        os.makedirs(output_dir, exist_ok=True)
-    
-    with open(output_path, 'w', encoding='utf-8') as f:
-        json.dump(stats, f, indent=2)
-    
-    return stats
 
 def main():
-    # Define paths relative to project root
-    project_root = Path(__file__).resolve().parent.parent
-    input_file = project_root / "data" / "processed" / "extracted_params.json"
-    output_file = project_root / "data" / "processed" / "extraction_stats.json"
-    
+    """Main entry point for generating extraction statistics."""
     # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    logger = logging.getLogger(__name__)
+    logger = setup_logging()
     
-    logger.info(f"Loading data from {input_file}")
+    input_file = "data/processed/extracted_params.json"
+    output_file = "data/processed/extraction_stats.json"
+    
+    logger.info(f"Starting extraction stats generation from {input_file}")
     
     try:
-        stats = generate_extraction_stats(str(input_file), str(output_file))
-        logger.info(f"Extraction statistics generated successfully: {stats}")
-        logger.info(f"Output written to {output_file}")
+        records = load_extracted_params(input_file)
+        logger.info(f"Loaded {len(records)} records")
         
-        # Print summary to stdout for immediate verification
-        print(f"Total Records: {stats['total_records']}")
-        print(f"Success Rate: {stats['success_rate']:.2%}")
-        print(f"Failure Reasons: {stats['failure_reasons']}")
+        stats = generate_extraction_stats(records)
+        
+        # Ensure output directory exists
+        Path(output_file).parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(output_file, 'w', encoding='utf-8') as f:
+            json.dump(stats, f, indent=2)
+        
+        logger.info(f"Successfully wrote extraction stats to {output_file}")
+        logger.info(f"Success rate: {stats['success_rate']:.2%}")
+        logger.info(f"Failure reasons: {stats['failure_reasons']}")
+        
+        return 0
         
     except FileNotFoundError as e:
         logger.error(f"Input file not found: {e}")
-        sys.exit(1)
+        return 1
+    except json.JSONDecodeError as e:
+        logger.error(f"Invalid JSON in input file: {e}")
+        return 1
     except Exception as e:
-        logger.error(f"Error generating stats: {e}")
-        sys.exit(1)
+        logger.error(f"Unexpected error: {e}")
+        return 1
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

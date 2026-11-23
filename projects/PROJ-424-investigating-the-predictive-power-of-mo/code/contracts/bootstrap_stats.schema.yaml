@@ -1,0 +1,57 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: BootstrapStats
+description: Schema for bootstrap resampling statistics on MAE distributions.
+type: object
+required:
+  - solvent
+  - timescale
+  - mean_mae
+  - std_mae
+  - ci_95_lower
+  - ci_95_upper
+  - n_iterations
+  - timestamp
+properties:
+  solvent:
+    type: string
+    description: Name of the solvent
+    enum:
+      - water
+      - ethanol
+      - acetone
+  timescale:
+    type: string
+    description: Simulation duration
+  mean_mae:
+    type: number
+    description: Mean Mean Absolute Error across bootstrap iterations
+  std_mae:
+    type: number
+    description: Standard deviation of MAE across bootstrap iterations
+  ci_95_lower:
+    type: number
+    description: Lower bound of 95% confidence interval (percentile method)
+  ci_95_upper:
+    type: number
+    description: Upper bound of 95% confidence interval (percentile method)
+  n_iterations:
+    type: integer
+    description: Number of bootstrap iterations performed
+    minimum: 1
+  ci_method:
+    type: string
+    description: Method used for confidence interval calculation
+    const: "percentile"
+  fallback_triggered:
+    type: boolean
+    description: Whether the iteration count was reduced due to wall-clock time limits
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of when the analysis was performed
+  raw_mae_values:
+    type: array
+    items:
+      type: number
+    description: Optional: List of raw MAE values from each iteration (truncated if too large)
+    maxItems: 1000

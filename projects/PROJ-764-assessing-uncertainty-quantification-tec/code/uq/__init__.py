@@ -1,3 +1,1 @@
-"""
-Uncertainty Quantification module.
-"""
+# UQ package

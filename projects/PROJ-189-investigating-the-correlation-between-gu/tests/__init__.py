@@ -1,1 +1,1 @@
-# Tests package for PROJ-189
+# Tests package initialization

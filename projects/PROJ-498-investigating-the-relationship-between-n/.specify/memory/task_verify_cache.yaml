@@ -1,0 +1,74 @@
+T001:
+  c: true
+  h: e54db423064dace6b1dc32c9339d742cfe2b48c2ae61f33858c06d369192694f
+  r: Checked the repository tree showing `projects/PROJ-498-investigating-the-relationship-between-n/`
+    with the required `code/`, `data/`, and `tests/` subfolders, and the `.tasks/T001.code_create_directories.py.log`
+    confirming the script created the structure successfully.
+  sig: 2b7b8e502d669e488da4227d2f0cc4aef3dd58aeaed5d423a69cf5360c1e16db
+T002:
+  c: false
+  h: 15e6ca1696237c8e74e3675e6b46d328f5a4210806770b96030b7451c99f695b
+  r: The `requirements.txt` file exists and contains all the required pinned dependencies,
+    but there is no provided evidence (e.g., install logs, command output, or test
+    results) showing that `pip install -r requirements.txt` actually runs successfully
+    without version conflicts. Adding such verification output is needed to satisfy
+    the task.
+  sig: 4635606f5e43eadc02ebee4fa7a6085eeeeead27a3e451533e869e193a330765
+T003:
+  c: false
+  h: e3141d0be28566ac6b420936e6773f2e3d844b1734dcdeceaea3f10f5f773c2c
+  r: "The evidence contains no linting configuration files (e.g., `pyproject.toml`,\
+    \ `.flake8`, `.isort.cfg`) nor any recorded output showing `black --check .`,\
+    \ `flake8 .`, or `isort --check-only .` returning exit code\u202F0. Without these\
+    \ artifacts or execution logs, the requirement to configure and verify linting/formatting\
+    \ cannot be confirmed."
+  sig: 7285f389787a77e0c238ead6b66c47f71d4184c1d3c18177482e906a1cd5c9cd
+T013:
+  c: false
+  h: af4f9df700bef4fbda1521515e71ef7778884d69a60a974931eb835a4fa812f4
+  r: The repository lacks the required `data/selected_dataset_id.txt` and the generated
+    `data/raw/checksums.json`. Moreover, the provided `code/download.py` is incomplete
+    (truncated) and does not actually perform the download or create the checksums
+    file, nor does it exit with the specified error code when the ID file is missing.
+    These essential artifacts and behaviors are absent.
+T014:
+  c: false
+  h: dc0a5a07d3c251ee37b2fe359c2332fa3ab90e6f5377a8b7041e28b87222958c
+  r: "The provided `code/preprocess.py` contains a band\u2011pass filter but lacks\
+    \ any `psutil` memory monitoring, `try/finally` logging, or code that writes `peak_rss_gb`\
+    \ to `data/metrics/memory_profile.json`. The required JSON file is absent, and\
+    \ `data/exclusions.csv` does not contain any entry with reason \u201Cmemory_limit_exceeded\u201D\
+    . The memory\u2011constraint portion of the task is therefore unimplemented."
+T016:
+  c: false
+  h: b5a814fcdcb90419cf4c139708b3846aae55e32307f8df8c6d0bd0c029394610
+  r: "The repository contains a `code/preprocess.py` file, but it is truncated, lacks\
+    \ any RSS monitoring with `psutil`, and does not include the required `try/finally`\
+    \ block that writes `data/metrics/memory_profile.json` when peak RSS exceeds 6.5\u202F\
+    GB. Moreover, the `data/metrics/memory_profile.json` file is missing entirely.\
+    \ Consequently, the task\u2019s memory\u2011constraint and verification requirements\
+    \ are not satisfied."
+T017:
+  c: false
+  h: c81d42818e5d1042ded484090b5050cd21dacac35d8404208257c232d0c5b8a7
+  r: The provided `data/exclusions.csv` contains only the header and no exclusion
+    entries, indicating that no subjects were logged as excluded. The required logic
+    to detect subjects with <10 valid trials per condition or >50% artifact removal
+    and to record them with the appropriate reason is therefore not demonstrated.
+    The artifact file must contain rows with `subject_id` and `reason` for any subjects
+    meeting the exclusion criteria.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, notebook, or documentation implementing Bonferroni correction
+    for the theta and gamma band analyses is present. The provided information only
+    restates the feature specification without delivering the required artifact, so
+    the task is not satisfied.
+T041:
+  c: false
+  h: 50a969f20ac348221b5f2eff77b068a9d7abc8d0eb6ea841c586ce441aec6faa
+  r: "The repository does not contain a `projects/PROJ-498-investigating-the-relationship-between-n/README.md`\
+    \ file with the required \u201CUsage\u201D section, nor any evidence that such\
+    \ a section was added. Additionally, the referenced `data/selected_dataset_id.txt`\
+    \ file is missing, which contradicts the claim that the command runs without manual\
+    \ dataset ID. The documentation update therefore has not been provided."

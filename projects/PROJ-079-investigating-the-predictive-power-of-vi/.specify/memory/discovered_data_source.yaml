@@ -1,0 +1,15 @@
+status: none
+intent: NCBI GEO NCBI Virus viral genome host transcriptome merged dataset python
+  package dataset
+required_fields:
+- sample_id
+- virus_accession
+- virus_genome_fasta
+- host_gene_symbol
+- normalized_expression
+- interferon_response_score
+- study_accession
+- metadata
+cache_key: 80965a36454a65e75de9f7bbd490e2d8e6ab10563afcbad6d2a36912e6858bc8
+searched_at: '2026-10-12T09:56:22.841810+00:00'
+retry_count: 1

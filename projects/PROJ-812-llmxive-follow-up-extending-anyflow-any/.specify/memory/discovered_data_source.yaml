@@ -1,0 +1,14 @@
+status: none
+intent: UCF101 Kinetics MovieNet shot boundary detection dataset download python package
+  dataset
+required_fields:
+- video_id
+- video_path_or_url
+- "continuity_score (0.0\u20111.0)"
+- shot_boundary_timestamps
+- label (continuous/abrupt)
+- frame_rate
+- duration_seconds
+cache_key: 09ca81a75adae3ceb0d244f115b029bdf4e3c96ca29f31a969eb0c7ad7153cb6
+searched_at: '2026-11-11T03:19:08.677102+00:00'
+retry_count: 1

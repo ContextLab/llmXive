@@ -1,0 +1,53 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "RobustnessMetric"
+description: "Schema for the evaluation results of a student model on the SubtleCue testbed."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the inference run."
+  model_id:
+    type: "string"
+    description: "Foreign key to the StudentModel."
+  auc_score:
+    type: "number"
+    description: "Area Under the Curve (AUC-ROC) score."
+    minimum: 0
+    maximum: 1
+  inference_latency_ms:
+    type: "number"
+    description: "Average inference latency per sample in milliseconds."
+    minimum: 0
+  peak_ram_gb:
+    type: "number"
+    description: "Peak RAM usage in gigabytes during inference."
+    minimum: 0
+  threshold:
+    type: "number"
+    description: "Decision threshold used for classification."
+    minimum: 0
+    maximum: 1
+  fpr_rate:
+    type: "number"
+    description: "False Positive Rate."
+    minimum: 0
+    maximum: 1
+  fnr_rate:
+    type: "number"
+    description: "False Negative Rate."
+    minimum: 0
+    maximum: 1
+  oom_occurred:
+    type: "boolean"
+    description: "Whether an Out-Of-Memory error occurred during this run."
+required:
+  - run_id
+  - model_id
+  - auc_score
+  - inference_latency_ms
+  - peak_ram_gb
+  - threshold
+  - fpr_rate
+  - fnr_rate
+  - oom_occurred
+additionalProperties: false

@@ -1,0 +1,15 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Semantic Entropy Scores"
+description: "Schema for entropy scores associated with prompts."
+type: "object"
+properties:
+  prompt_id:
+    type: "string"
+    description: "Unique identifier for the prompt."
+  semantic_entropy:
+    type: "number"
+    description: "Estimated semantic entropy (Shannon) of the prompt."
+required:
+  - prompt_id
+  - semantic_entropy
+additionalProperties: false

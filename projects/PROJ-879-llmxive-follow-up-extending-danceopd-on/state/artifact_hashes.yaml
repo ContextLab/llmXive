@@ -1,0 +1,5 @@
+# This file is populated by T042 (code/00_data_fetch.py)
+# It contains the SHA256 hash of the raw stream buffer for each dataset
+# T043 (code/00_verify_data_sources.py) will compare file hashes against these
+source_stream_hash_imagenet_samples.parquet: "pending_fetch"
+source_stream_hash_laion_samples.parquet: "pending_fetch"

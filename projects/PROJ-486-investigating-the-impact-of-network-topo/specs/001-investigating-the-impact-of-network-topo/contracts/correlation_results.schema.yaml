@@ -1,70 +1,54 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Correlation Results Schema
-description: Schema for the JSON output containing statistical results.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Correlation Results Schema"
+type: "object"
 properties:
-  analysis_metadata:
-    type: object
-    properties:
-      timestamp:
-        type: string
-        format: date-time
-      atlas_type:
-        type: string
-      n_subjects:
-        type: integer
-      power_warning:
-        type: boolean
-        description: "True if N < 30."
-      collinearity_warning:
-        type: boolean
-        description: "True if VIF > 5."
-      data_gap_halted:
-        type: boolean
-        description: "True if the pipeline halted due to missing data."
-      data_source:
-        type: string
-        description: "Source of the entrainment data (e.g., 'real', 'synthetic')."
-    required:
-      - timestamp
-      - atlas_type
-      - n_subjects
-      - power_warning
-      - collinearity_warning
-      - data_gap_halted
-      - data_source
-  results:
-    type: array
-    items:
-      type: object
-      properties:
-        metric_name:
-          type: string
-          enum:
-            - "clustering_coefficient"
-            - "characteristic_path_length"
-        correlation_coefficient:
-          type: number
-          description: "Univariate Spearman r."
-        partial_correlation_coefficient:
-          type: number
-          description: "Partial correlation r controlling for the other metric."
-        raw_p_value:
-          type: number
-        adjusted_p_value:
-          type: number
-        is_significant:
-          type: boolean
-          description: "True only if p_adj < 0.05."
-      required:
-        - metric_name
-        - correlation_coefficient
-        - partial_correlation_coefficient
-        - raw_p_value
-        - adjusted_p_value
-        - is_significant
-    description: "List of results for each topology metric. Empty if data_gap_halted is true."
+  model_id:
+    type: "string"
+    description: "Unique ID for the model run"
+  predictor:
+    type: "string"
+    enum: ["Clustering_Coefficient", "Characteristic_Path_Length"]
+    description: "Predictor variable name"
+  coefficient:
+    type: "number"
+    description: "Standardized regression coefficient (or orthogonalized coefficient if VIF > 5)"
+  p_value:
+    type: "number"
+    description: "Raw p-value (or p-value for orthogonalized predictor)"
+  adjusted_p_value:
+    type: "number"
+    description: "Holm-Bonferroni corrected p-value"
+  is_significant:
+    type: "boolean"
+    description: "True if adjusted_p_value < 0.05"
+  vif:
+    type: "number"
+    description: "Variance Inflation Factor"
+  collinearity_warning:
+    type: "boolean"
+    description: "True if VIF > 5 (Orthogonalization applied)"
+  power_warning:
+    type: "boolean"
+    description: "True if N < 30"
+  r_squared:
+    type: "number"
+    description: "Model R-squared (joint if collinearity warning)"
+  effect_size_r:
+    type: "number"
+    description: "Pearson/Spearman correlation coefficient (r) between predictor and outcome"
+  method_note:
+    type: "string"
+    description: "Optional note about method used (e.g., 'Orthogonalized' if VIF > 5)"
 required:
-  - analysis_metadata
-  - results
+  - "model_id"
+  - "predictor"
+  - "coefficient"
+  - "p_value"
+  - "adjusted_p_value"
+  - "is_significant"
+  - "vif"
+  - "collinearity_warning"
+  - "power_warning"
+  - "r_squared"
+  - "effect_size_r"
 additionalProperties: false

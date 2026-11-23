@@ -1,0 +1,84 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-proj-203"
+version = "0.1.0"
+description = "Predicting Phase Transitions in Amorphous Solids Using Machine Learning"
+requires-python = ">=3.10"
+dependencies = [
+    "numpy",
+    "pandas",
+    "scikit-learn",
+    "scipy",
+    "matplotlib",
+    "seaborn",
+    "shap",
+    "mdtraj",
+    "openmm",
+    "pyyaml",
+    "lammps",
+    "datasets",
+    "python-dotenv",
+]
+
+[tool.black]
+# Black formatting configuration
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | models
+    | docs
+)/
+'''
+
+[tool.ruff]
+# Ruff configuration (mirrors .ruff.toml for CI consistency)
+line-length = 88
+target-version = "py310"
+exclude = [
+    ".git",
+    "__pycache__",
+    "*.pyc",
+    "data/",
+    "models/",
+    "docs/",
+    "venv",
+    ".venv",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "C90", "UP", "N", "B", "C4", "SIM", "TCH"]
+ignore = ["E501", "F403", "SIM105"]
+
+[tool.ruff.lint.per-file-ignores]
+"code/__init__.py" = ["F401", "F403"]
+"code/models/__init__.py" = ["F401"]
+"code/utils/__init__.py" = ["F401"]
+"code/data/__init__.py" = ["F401"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "data", "models", "utils"]
+force-single-line = false
+lines-after-imports = 2
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"

@@ -1,0 +1,84 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence was provided that the required directory hierarchy (`projects/PROJ-057-investigating-the-impact-of-compiler-opt/...`)
+    actually exists; the response contains only the task description and specifications,
+    with no listing, screenshot, or command output confirming the `mkdir` execution.
+    The implementer must supply proof that the directories were created (e.g., a tree
+    listing or command output).
+T004:
+  c: false
+  h: c21530d8ba68e3c18d4a5a9ca27e98f85618adfe8e13c4dc955338d5933e88dc
+  r: The repository contains `code/benchmarks/config.py`, but the required input file
+    `flags.yaml` and the output file `data/raw/combinations.json` are absent, and
+    the provided snippet does not show a CLI that writes the generated combinations
+    to the specified JSON path. Without these artifacts the verification step cannot
+    be performed.
+T005:
+  c: false
+  h: e1e9ab4332c1e095d80b5f3a650f13c3ce7a4d9aa76b25ce80af835470b4b432
+  r: "The repository contains a partially implemented `tensor_generator.py`, but the\
+    \ required `data/raw/.hashes/` directory (and the `<SEED>.sha256` files) are missing,\
+    \ and the script\u2019s CLI/verification logic is truncated, so it does not demonstrably\
+    \ generate and store the hashes as specified. The next implementer must ensure\
+    \ the script creates `data/raw/.hashes/` and writes the correct SHA\u2011256 hash\
+    \ files for each fixed seed."
+T006:
+  c: false
+  h: c2fff4f6dba570a1acaef65fbb017301744cf2fd1f25f2efc9343348df60fc79
+  r: The `reference.py` file is truncated, contains a bug in `decimal_softmax` (returns
+    undefined `res`), lacks a LayerNorm implementation, and does not include the test/verification
+    logic that writes `data/raw/.hashes/ref_2x2.sha256`. Moreover, the required hash
+    file is missing from the repository.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, logs, plots, or any other artifacts were provided; the\
+    \ claim lacks any tangible evidence that the required compiler\u2011flag benchmarking\
+    \ system, high\u2011precision reference engine, statistical analysis, or visualizations\
+    \ were actually implemented. The implementer must supply the concrete artifacts\
+    \ (e.g., source code, JSONL logs, CSV metrics, and Pareto plots) for verification."
+T017:
+  c: false
+  h: 07f85fa02cdfa58baa470091250a2ce3779454921a13ebbd69f7f9a62ccc349c
+  r: "The repository contains a `stability_check.py` script with a `detect_nan_in_tensor`\
+    \ helper, but there is no evidence that it processes logs, excludes runs with\
+    \ NaNs, logs the offending flag configurations, or writes the required `data/intermediates/filtered_stable_runs.csv`.\
+    \ Moreover, the expected CSV file is absent from the project. The task\u2019s\
+    \ core output is therefore missing."
+T023:
+  c: false
+  h: a6a04eef6ac6f4a9d2cba0bdba58ca6906ab56bfeb23f0db53d62e54f48ff681
+  r: "The required artifact `data/results/stability_metrics.csv` does not exist, so\
+    \ the aggregation step cannot be verified. The missing file means the task\u2019\
+    s output (the CSV with the specified columns) was not produced."
+T031:
+  c: false
+  h: db828874011271221cd3a218f7e3c2cd6688c02974845d1a37f8d9bab2cd1d2b
+  r: "The required output file `data/results/pareto_frontier_final.png` does not exist,\
+    \ and the provided `code/analysis/viz.py` is incomplete (truncated) with no evidence\
+    \ that it generates the plot while excluding configurations with error\u202F>\u202F\
+    1e\u20115. The task\u2019s core deliverable is missing."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer only supplied a feature specification excerpt and did not provide
+    any evidence (scripts, logs, or results) that the `quickstart.md` validation was
+    actually run on fresh runners. No validation output, reproducibility report, or
+    related artifacts are present, so the task requirement is unmet.
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No compilation scripts, benchmark code, stability comparison tools, or analysis\
+    \ notebooks are present; the required artifacts for the three user stories (kernel\
+    \ compilation/execution, numerical stability measurement, statistical analysis)\
+    \ are missing, so the task\u2019s modularity and code\u2011cleanup goals are not\
+    \ demonstrated."
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No updated `spec.md` file or diff output is provided; without the edited specification\
+    \ showing \u201CWelch's Independent Samples t-test\u201D replacing \u201Cpaired\
+    \ t-tests\u201D and an accompanying verification against `plan.md`, the requirement\
+    \ cannot be confirmed. The implementer must supply the modified `spec.md` (or\
+    \ its relevant excerpt) and the diff evidence."

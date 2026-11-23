@@ -1,0 +1,14 @@
+status: none
+intent: download ARC-Bench 25-topic subset from HuggingFace datasets library python
+  package dataset
+required_fields:
+- error_trace
+- resolution_path
+- task_prompt
+- raw_error_log
+- ground_truth_resolution
+- task_context
+- structural_feature_label
+cache_key: 80b248fa160d4b52b33a4a4c1e48d83af6c977aeaaa12134810c3c9feba3e934
+searched_at: '2026-10-22T21:35:47.543730+00:00'
+retry_count: 1

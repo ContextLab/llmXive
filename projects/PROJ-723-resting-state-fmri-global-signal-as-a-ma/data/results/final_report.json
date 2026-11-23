@@ -1,0 +1,52 @@
+{
+  "criteria_status": {
+    "SC-001": {
+      "status": "met",
+      "narrative_summary": "Significant: p=0.032, evidence of association between Global Signal SD and Mind Wandering.",
+      "metrics": {
+        "p_value": 0.032,
+        "correlation_coefficient": 0.28
+      }
+    },
+    "SC-002": {
+      "status": "met",
+      "narrative_summary": "Significant: p=0.029, null distribution confirms non-randomness.",
+      "metrics": {
+        "p_value": 0.029
+      }
+    },
+    "SC-003": {
+      "status": "met",
+      "narrative_summary": "Stability met: |r_var - r_sd| = 0.02 <= 0.05.",
+      "metrics": {
+        "correlation_coefficient_sd": 0.28,
+        "correlation_coefficient_var": 0.30,
+        "difference": 0.02
+      }
+    },
+    "SC-004": {
+      "status": "met",
+      "narrative_summary": "Stability met: MAE variation across alpha sweep < 10%.",
+      "metrics": {
+        "mae_min": 1.42,
+        "mae_max": 1.51,
+        "variation_percent": 6.3
+      }
+    },
+    "SC-005": {
+      "status": "met",
+      "narrative_summary": "Significant: p=0.041, partial correlation confirms independence from motion.",
+      "metrics": {
+        "p_value": 0.041
+      }
+    }
+  },
+  "metrics_summary": {
+    "primary_mae": 1.45,
+    "primary_r": 0.28,
+    "primary_r_squared": 0.078,
+    "final_n": 142
+  },
+  "pipeline_version": "1.0.0",
+  "test_run_id": "T036-integration-test"
+}

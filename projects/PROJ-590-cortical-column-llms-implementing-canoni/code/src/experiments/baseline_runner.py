@@ -1,285 +1,232 @@
-"""
-Baseline Runner for Cortical Column LLMs Project.
-
-Manages experiment configuration, logging, and orchestration for the baseline
-Transformer training runs as specified in User Story 1 (US1).
-"""
-
 import json
 import logging
 import os
 import sys
 import time
+import numpy as np
 from dataclasses import dataclass, field, asdict
-from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Tuple, Optional, Dict, Any
 
-import torch
-import psutil
+# Ensure we can import from src if running as script or module
+if __name__ == "__main__" and "code" not in sys.path:
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
 
-# Import from existing project modules as per API surface
-from src.training.trainer import run_training, TrainingConfig, TrainingMetrics
-from src.data.benchmarks import generate_synthetic_dataset, SyntheticTaskType
+from src.data.benchmarks import load_data
 
+logger = logging.getLogger(__name__)
 
 @dataclass
 class ExperimentConfig:
-    """Configuration for a single baseline experiment run."""
-    experiment_id: str
-    task_type: SyntheticTaskType
     seed: int = 42
-    max_epochs: int = 10
-    batch_size: int = 32
-    learning_rate: float = 1e-4
-    hidden_dim: int = 128
-    num_layers: int = 3
-    num_heads: int = 4
-    dropout: float = 0.1
-    output_dir: str = "data/results"
-    log_level: str = "INFO"
-
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
+    data_path: str = "data/results/test_data_polynomial.npy"
+    model_path: str = "data/models/baseline.pt"
+    output_path: str = "data/results/experiment_result.json"
 
 @dataclass
 class ExperimentResult:
-    """Stores the outcome of a baseline experiment run."""
-    experiment_id: str
-    task_type: str
-    seed: int
-    start_time: str
-    end_time: str
-    duration_seconds: float
-    metrics: Dict[str, float]
-    resource_usage: Dict[str, float]
-    config_snapshot: Dict[str, Any]
-    status: str  # 'success', 'failed', 'timeout'
-    error_message: Optional[str] = None
-
-    def to_dict(self) -> Dict[str, Any]:
-        return asdict(self)
-
+    config: ExperimentConfig
+    mae: float = 0.0
+    rmse: float = 0.0
+    inference_time_sec: float = 0.0
+    n_samples: int = 0
+    success: bool = False
+    error: Optional[str] = None
 
 class BaselineRunner:
-    """
-    Orchestrates baseline Transformer experiments.
-
-    Handles:
-    - Configuration management
-    - Logging setup (file and console)
-    - Dataset generation
-    - Training execution
-    - Result aggregation and storage
-    """
-
     def __init__(self, config: ExperimentConfig):
         self.config = config
-        self.experiment_id = config.experiment_id
-        self.output_dir = Path(config.output_dir)
-        self.results_file = self.output_dir / f"baseline_{self.experiment_id}.json"
-        self.log_file = self.output_dir / f"baseline_{self.experiment_id}.log"
+        self.X_test: Optional[np.ndarray] = None
+        self.y_test: Optional[np.ndarray] = None
+        self.y_pred: Optional[np.ndarray] = None
+        self.model = None
 
-        # Ensure output directories exist
-        self.output_dir.mkdir(parents=True, exist_ok=True)
-
-        # Setup logging
-        self._setup_logging()
-
-        self.logger = logging.getLogger(f"BaselineRunner.{self.experiment_id}")
-
-    def _setup_logging(self) -> None:
-        """Configure logging for the experiment."""
-        log_level = getattr(logging, self.config.log_level.upper(), logging.INFO)
-
-        # Clear existing handlers to avoid duplicates in repeated runs
-        logger = logging.getLogger(f"BaselineRunner.{self.experiment_id}")
-        logger.handlers.clear()
-        logger.setLevel(log_level)
-
-        # File handler
-        fh = logging.FileHandler(self.log_file)
-        fh.setLevel(log_level)
-        fh.setFormatter(logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        ))
-        logger.addHandler(fh)
-
-        # Console handler
-        ch = logging.StreamHandler()
-        ch.setLevel(log_level)
-        ch.setFormatter(logging.Formatter('%(levelname)s: %(message)s'))
-        logger.addHandler(ch)
-
-    def _get_resource_usage(self) -> Dict[str, float]:
-        """Capture current system resource usage."""
-        process = psutil.Process(os.getpid())
-        memory_info = process.memory_info()
-
-        return {
-            "rss_mb": memory_info.rss / (1024 * 1024),
-            "vms_mb": memory_info.vms / (1024 * 1024),
-            "cpu_percent": psutil.cpu_percent(interval=0.1),
-            "num_threads": process.num_threads()
-        }
-
-    def _generate_dataset(self, split: str) -> Dict[str, torch.Tensor]:
+    def load_test_data(self) -> Tuple[np.ndarray, np.ndarray]:
         """
-        Generate synthetic dataset for the configured task type.
-
-        Args:
-            split: One of 'train', 'val', 'test'
-
+        Load test data from the specified file path.
+        
+        This implements T014a: Load Test Data.
+        
         Returns:
-            Dictionary with 'inputs' and 'targets' tensors.
+            Tuple of (X_test, y_test)
+        
+        Raises:
+            FileNotFoundError: If the data file does not exist.
+            ValueError: If the data format is invalid.
         """
-        self.logger.info(f"Generating {split} dataset for task: {self.config.task_type}")
-
-        # Determine dataset size based on split
-        if split == 'train':
-            n_samples = 5000
-        elif split == 'val':
-            n_samples = 1000
-        else:
-            n_samples = 1000
-
-        # Generate with deterministic seeding
-        dataset = generate_synthetic_dataset(
-            task_type=self.config.task_type,
-            n_samples=n_samples,
-            seed=self.config.seed + (1000 if split == 'val' else 2000 if split == 'test' else 0)
-        )
-
-        return dataset
-
-    def run(self) -> ExperimentResult:
-        """
-        Execute the full experiment pipeline.
-
-        Returns:
-            ExperimentResult containing metrics and status.
-        """
-        start_time_str = datetime.now().isoformat()
-        start_time = time.time()
-
-        self.logger.info(f"Starting experiment: {self.experiment_id}")
-        self.logger.info(f"Configuration: {json.dumps(self.config.to_dict(), indent=2)}")
-
+        data_path = Path(self.config.data_path)
+        
+        if not data_path.exists():
+            raise FileNotFoundError(
+                f"Test data file not found at: {data_path}. "
+                f"Ensure T008c (generate_polynomial_test_data) has been executed."
+            )
+        
+        logger.info(f"Loading test data from: {data_path}")
+        
         try:
-            # Generate datasets
-            train_data = self._generate_dataset('train')
-            val_data = self._generate_dataset('val')
-            test_data = self._generate_dataset('test')
-
-            self.logger.info(f"Dataset sizes - Train: {len(train_data['inputs'])}, "
-                             f"Val: {len(val_data['inputs'])}, Test: {len(test_data['inputs'])}")
-
-            # Setup training configuration
-            training_config = TrainingConfig(
-                seed=self.config.seed,
-                max_epochs=self.config.max_epochs,
-                batch_size=self.config.batch_size,
-                learning_rate=self.config.learning_rate,
-                hidden_dim=self.config.hidden_dim,
-                num_layers=self.config.num_layers,
-                num_heads=self.config.num_heads,
-                dropout=self.config.dropout,
-                device='cpu',  # Enforce CPU as per project constraints
-                log_interval=10
-            )
-
-            # Run training
-            self.logger.info("Starting training loop...")
-            metrics = run_training(
-                model_type='baseline_transformer',
-                train_data=train_data,
-                val_data=val_data,
-                test_data=test_data,
-                config=training_config
-            )
-
-            # Capture final resource usage
-            resource_usage = self._get_resource_usage()
-
-            end_time = time.time()
-            end_time_str = datetime.now().isoformat()
-
-            result = ExperimentResult(
-                experiment_id=self.experiment_id,
-                task_type=self.config.task_type,
-                seed=self.config.seed,
-                start_time=start_time_str,
-                end_time=end_time_str,
-                duration_seconds=end_time - start_time,
-                metrics=metrics,
-                resource_usage=resource_usage,
-                config_snapshot=self.config.to_dict(),
-                status='success'
-            )
-
-            self.logger.info(f"Experiment completed successfully. "
-                             f"Duration: {result.duration_seconds:.2f}s, "
-                             f"Test MAE: {metrics.get('test_mae', 'N/A')}")
-
-            # Save results
-            self._save_result(result)
-
-            return result
-
+            # load_data returns a dict with 'X' and 'y' keys based on benchmarks.py
+            data_dict = load_data(str(data_path))
+            
+            if not isinstance(data_dict, dict):
+                raise ValueError(f"Expected dict from load_data, got {type(data_dict)}")
+            
+            if 'X' not in data_dict or 'y' not in data_dict:
+                raise ValueError(f"Data dict missing 'X' or 'y' keys: {data_dict.keys()}")
+            
+            X_test = data_dict['X']
+            y_test = data_dict['y']
+            
+            # Ensure proper types
+            if not isinstance(X_test, np.ndarray):
+                X_test = np.array(X_test)
+            if not isinstance(y_test, np.ndarray):
+                y_test = np.array(y_test)
+            
+            logger.info(f"Loaded test data: X shape={X_test.shape}, y shape={y_test.shape}")
+            
+            self.X_test = X_test
+            self.y_test = y_test
+            
+            return X_test, y_test
+            
         except Exception as e:
-            end_time = time.time()
-            self.logger.error(f"Experiment failed with error: {str(e)}", exc_info=True)
+            logger.error(f"Failed to load test data: {e}")
+            raise
 
+    def run_inference(self) -> np.ndarray:
+        """Run inference on loaded test data."""
+        if self.X_test is None or self.y_test is None:
+            raise RuntimeError("Test data not loaded. Call load_test_data first.")
+        
+        if self.model is None:
+            raise RuntimeError("Model not loaded.")
+        
+        logger.info("Running inference...")
+        start_time = time.time()
+        
+        # Ensure model is in eval mode
+        self.model.eval()
+        
+        # Move data to device if needed (assuming CPU for this task)
+        with torch.no_grad():
+            # Convert numpy to torch tensors if necessary
+            X_tensor = torch.FloatTensor(self.X_test)
+            y_pred_tensor = self.model(X_tensor)
+            self.y_pred = y_pred_tensor.numpy()
+        
+        self.inference_time_sec = time.time() - start_time
+        logger.info(f"Inference completed in {self.inference_time_sec:.4f}s")
+        
+        return self.y_pred
+
+    def compute_generalization_mae(self) -> float:
+        """Compute MAE between predictions and true values."""
+        if self.y_pred is None or self.y_test is None:
+            raise RuntimeError("Cannot compute MAE. Ensure inference has been run.")
+        
+        mae = np.mean(np.abs(self.y_test - self.y_pred))
+        logger.info(f"Generalization MAE: {mae:.6f}")
+        return mae
+
+    def write_generalization_report(self, mae: float, output_file: Optional[str] = None) -> str:
+        """Write generalization report to markdown file."""
+        if output_file is None:
+            output_file = self.config.output_path.replace('.json', '.md')
+        
+        report_path = Path(output_file)
+        report_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(report_path, 'w') as f:
+            f.write("# Generalization Report\n\n")
+            f.write(f"**Test Data**: {self.config.data_path}\n\n")
+            f.write(f"**Model**: {self.config.model_path}\n\n")
+            f.write(f"**MAE**: {mae:.6f}\n\n")
+            f.write(f"**Inference Time**: {self.inference_time_sec:.4f}s\n\n")
+            f.write(f"**Samples**: {len(self.y_test)}\n\n")
+            f.write("## Conclusion\n\n")
+            f.write(f"The baseline model achieved a MAE of {mae:.6f} on the polynomial test set.\n")
+        
+        logger.info(f"Report written to: {report_path}")
+        return str(report_path)
+
+    def run_experiment(self) -> ExperimentResult:
+        """Run the full experiment pipeline."""
+        try:
+            # Load test data
+            X_test, y_test = self.load_test_data()
+            
+            # Load model (placeholder for T011a_run)
+            # This assumes the model is saved as a torch state dict or full model
+            import torch
+            import torch.nn as nn
+            from src.models.baseline_transformer import BaselineTransformer
+            
+            self.model = BaselineTransformer()
+            if os.path.exists(self.config.model_path):
+                state_dict = torch.load(self.config.model_path, map_location='cpu')
+                self.model.load_state_dict(state_dict)
+            else:
+                raise FileNotFoundError(f"Model file not found: {self.config.model_path}")
+            
+            # Run inference
+            y_pred = self.run_inference()
+            
+            # Compute metrics
+            mae = self.compute_generalization_mae()
+            rmse = np.sqrt(np.mean((self.y_test - y_pred) ** 2))
+            
+            # Write report
+            self.write_generalization_report(mae)
+            
             return ExperimentResult(
-                experiment_id=self.experiment_id,
-                task_type=self.config.task_type,
-                seed=self.config.seed,
-                start_time=start_time_str,
-                end_time=datetime.now().isoformat(),
-                duration_seconds=end_time - start_time,
-                metrics={},
-                resource_usage=self._get_resource_usage(),
-                config_snapshot=self.config.to_dict(),
-                status='failed',
-                error_message=str(e)
+                config=self.config,
+                mae=mae,
+                rmse=rmse,
+                inference_time_sec=self.inference_time_sec,
+                n_samples=len(y_test),
+                success=True
             )
-
-    def _save_result(self, result: ExperimentResult) -> None:
-        """Save experiment result to JSON file."""
-        result_dict = result.to_dict()
-
-        with open(self.results_file, 'w') as f:
-            json.dump(result_dict, f, indent=2, default=str)
-
-        self.logger.info(f"Results saved to: {self.results_file}")
-
+            
+        except Exception as e:
+            logger.exception("Experiment failed")
+            return ExperimentResult(
+                config=self.config,
+                success=False,
+                error=str(e)
+            )
 
 def main():
-    """Entry point for running a baseline experiment."""
-    # Default configuration for a standard run
+    import argparse
+    parser = argparse.ArgumentParser(description="Run baseline experiment")
+    parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument("--data", type=str, default="data/results/test_data_polynomial.npy")
+    parser.add_argument("--model", type=str, default="data/models/baseline.pt")
+    parser.add_argument("--output", type=str, default="data/results/experiment_result.json")
+    args = parser.parse_args()
+    
+    logging.basicConfig(level=logging.INFO)
+    
     config = ExperimentConfig(
-        experiment_id="lorenz_baseline_001",
-        task_type="lorenz_attractor",
-        seed=42,
-        max_epochs=15,
-        batch_size=32,
-        learning_rate=1e-3,
-        hidden_dim=256,
-        num_layers=4,
-        num_heads=8,
-        dropout=0.1,
-        output_dir="data/results",
-        log_level="INFO"
+        seed=args.seed,
+        data_path=args.data,
+        model_path=args.model,
+        output_path=args.output
     )
-
+    
     runner = BaselineRunner(config)
-    result = runner.run()
-
-    # Exit with non-zero code if experiment failed
-    if result.status == 'failed':
+    result = runner.run_experiment()
+    
+    # Save result as JSON
+    with open(args.output, 'w') as f:
+        json.dump(asdict(result), f, indent=2)
+    
+    if result.success:
+        print(f"Experiment successful. MAE: {result.mae:.6f}")
+        sys.exit(0)
+    else:
+        print(f"Experiment failed: {result.error}")
         sys.exit(1)
-
 
 if __name__ == "__main__":
     main()

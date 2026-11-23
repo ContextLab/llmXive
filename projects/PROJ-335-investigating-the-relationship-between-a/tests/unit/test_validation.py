@@ -1,202 +1,159 @@
-"""
-Unit tests for dataset validation logic in code/utils/validation.py.
-
-This module specifically tests the validation utility for missing behavioral measures
-as required by User Story 1 (T010).
-"""
-import os
+"""Unit tests for the FR-006 validation utility (T005)."""
 import sys
-import tempfile
-import pytest
-import pandas as pd
 from pathlib import Path
 
-# Add the code directory to the path to allow imports
-# Assuming this test runs from the project root or tests/unit
-code_dir = Path(__file__).parent.parent / "code"
-if str(code_dir) not in sys.path:
-    sys.path.insert(0, str(code_dir))
+import numpy as np
+import pandas as pd
+import pytest
 
-from utils.validation import (
-    validate_behavioral_metrics,
-    exit_on_validation_failure,
-    load_and_validate_csv,
-    log_error
-)
-import logging
+# Make code/ importable regardless of pytest invocation directory
+sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "code"))
 
-# Configure logging for tests to avoid handler duplication issues
-logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+from utils import validation as V
 
 
-class TestValidateBehavioralMetrics:
-    """Tests for the validate_behavioral_metrics function."""
+class TestEegChannels:
+    def test_valid_channels_pass(self):
+        assert V.validate_eeg_channels(
+            ["F3", "F4", "Fz", "P3", "P4", "Pz", "Cz"],
+            {"F3", "F4", "Fz", "P3", "P4", "Pz"}) is True
 
-    def test_valid_behavioral_metrics(self):
-        """Test that a dataframe with required behavioral columns passes validation."""
-        # Create a mock dataframe with required columns
-        data = {
-            'subject_id': ['S01', 'S02'],
-            'k_score': [2.5, 3.0],
-            'd_prime': [1.2, 1.5],
-            'accuracy': [0.85, 0.90]
-        }
-        df = pd.DataFrame(data)
+    def test_missing_channel_halts_with_fr006_code(self, capsys):
+        with pytest.raises(SystemExit) as exc:
+            V.validate_eeg_channels(["Fz", "Cz"], {"Fz", "Pz"})
+        assert exc.value.code == V.ERR_FR006_EEG_CHANNELS == 10
+        err = capsys.readouterr().err
+        assert "FR-006" in err
+        assert "Missing required electrode" in err
 
-        # Required columns for this test
-        required_cols = {'k_score', 'd_prime'}
+    def test_missing_channel_message_lists_names(self, capsys):
+        with pytest.raises(SystemExit):
+            V.validate_eeg_channels(["Fz"], {"F3", "Pz"})
+        assert "F3" in capsys.readouterr().err
+        assert "Pz" in capsys.readouterr().err
 
-        # This should not raise an exception
-        result = validate_behavioral_metrics(df, required_cols)
-        assert result is True
 
-    def test_missing_k_score(self):
-        """Test that missing k_score column triggers validation failure."""
-        data = {
-            'subject_id': ['S01', 'S02'],
-            'd_prime': [1.2, 1.5],
-            'accuracy': [0.85, 0.90]
-        }
-        df = pd.DataFrame(data)
-        required_cols = {'k_score', 'd_prime'}
+class TestBehavioralMetrics:
+    def test_valid_metrics_pass(self):
+        assert V.validate_behavioral_metrics(
+            {"k_score": 3.2, "d_prime": 2.1}) is True
 
-        # This should return False or raise an error depending on implementation
-        # Based on the task description, it should detect missing measures
-        result = validate_behavioral_metrics(df, required_cols)
-        assert result is False
+    def test_missing_behavioral_halts_with_fr006_code(self, capsys):
+        with pytest.raises(SystemExit) as exc:
+            V.validate_behavioral_metrics({"accuracy": 0.8})
+        assert exc.value.code == V.ERR_FR006_BEHAVIORAL == 11
+        err = capsys.readouterr().err
+        assert "Missing behavioral measures" in err
+        assert "k_score" in err and "d_prime" in err
 
-    def test_missing_d_prime(self):
-        """Test that missing d_prime column triggers validation failure."""
-        data = {
-            'subject_id': ['S01', 'S02'],
-            'k_score': [2.5, 3.0],
-            'accuracy': [0.85, 0.90]
-        }
-        df = pd.DataFrame(data)
-        required_cols = {'k_score', 'd_prime'}
+    def test_null_metric_halts(self):
+        with pytest.raises(SystemExit) as exc:
+            V.validate_behavioral_metrics({"k_score": None,
+                                           "d_prime": 1.0})
+        assert exc.value.code == V.ERR_FR006_BEHAVIORAL
 
-        result = validate_behavioral_metrics(df, required_cols)
-        assert result is False
+    def test_nan_metric_halts(self):
+        with pytest.raises(SystemExit) as exc:
+            V.validate_behavioral_metrics({"k_score": float("nan"),
+                                           "d_prime": 1.0})
+        assert exc.value.code == V.ERR_FR006_BEHAVIORAL
 
-    def test_missing_all_behavioral_measures(self):
-        """Test that completely missing behavioral measures triggers failure."""
-        data = {
-            'subject_id': ['S01', 'S02'],
-            'reaction_time': [0.5, 0.6]
-        }
-        df = pd.DataFrame(data)
-        required_cols = {'k_score', 'd_prime'}
 
-        result = validate_behavioral_metrics(df, required_cols)
-        assert result is False
+class TestTrialTimestamps:
+    def test_valid_timestamps_pass(self):
+        assert V.validate_trial_timestamps([0.0, 1.1, 2.2]) is True
 
-    def test_empty_dataframe(self):
-        """Test that an empty dataframe triggers validation failure."""
-        df = pd.DataFrame()
-        required_cols = {'k_score', 'd_prime'}
+    def test_none_halts_with_fr006_code(self):
+        with pytest.raises(SystemExit) as exc:
+            V.validate_trial_timestamps(None)
+        assert exc.value.code == V.ERR_FR006_TRIAL_TIMESTAMPS == 12
 
-        result = validate_behavioral_metrics(df, required_cols)
-        # An empty dataframe should fail validation for behavioral metrics
-        assert result is False
+    def test_empty_halts(self):
+        with pytest.raises(SystemExit) as exc:
+            V.validate_trial_timestamps([])
+        assert exc.value.code == V.ERR_FR006_TRIAL_TIMESTAMPS
 
-    def test_partial_missing_columns(self):
-        """Test that having some but not all required columns fails."""
-        data = {
-            'subject_id': ['S01'],
-            'k_score': [2.5],
-            # d_prime is missing
-            'accuracy': [0.85]
-        }
-        df = pd.DataFrame(data)
-        required_cols = {'k_score', 'd_prime'}
+    def test_non_numeric_halts(self):
+        with pytest.raises(SystemExit) as exc:
+            V.validate_trial_timestamps(["a", "b"])
+        assert exc.value.code == V.ERR_FR006_TRIAL_TIMESTAMPS
 
-        result = validate_behavioral_metrics(df, required_cols)
-        assert result is False
+
+class TestDataframeAndCsv:
+    def test_empty_dataframe_halts(self):
+        with pytest.raises(SystemExit) as exc:
+            V.validate_dataframe_not_empty(pd.DataFrame())
+        assert exc.value.code == V.ERR_FR006_EMPTY_DATA == 15
+
+    def test_missing_file_halts(self, tmp_path):
+        with pytest.raises(SystemExit) as exc:
+            V.validate_file_exists(tmp_path / "nope.csv")
+        assert exc.value.code == V.ERR_FR006_FILE_NOT_FOUND == 16
+
+    def test_load_and_validate_csv_ok(self, tmp_path):
+        p = tmp_path / "m.csv"
+        pd.DataFrame({"subject": ["s1"], "k_score": [2.0]}).to_csv(
+            p, index=False)
+        df = V.load_and_validate_csv(p, ["subject", "k_score"])
+        assert list(df.columns) == ["subject", "k_score"]
+
+    def test_load_and_validate_csv_missing_column(self, tmp_path):
+        p = tmp_path / "m.csv"
+        pd.DataFrame({"subject": ["s1"]}).to_csv(p, index=False)
+        with pytest.raises(SystemExit) as exc:
+            V.load_and_validate_csv(p, ["subject", "k_score"])
+        assert exc.value.code == V.ERR_FR006_MISSING_COLUMNS == 13
+
+
+class TestDatasetFields:
+    def test_missing_fields_halts(self):
+        with pytest.raises(SystemExit) as exc:
+            V.validate_dataset({"id": "ds000248"},
+                               ["id", "participants"])
+        assert exc.value.code == V.ERR_FR006_DATASET_FIELDS == 14
+
+    def test_valid_dataset_passes(self):
+        assert V.validate_dataset(
+            {"id": "ds000248", "participants": 52},
+            ["id", "participants"]) is True
 
 
 class TestExitOnValidationFailure:
-    """Tests for the exit_on_validation_failure function."""
+    def test_true_condition_continues(self):
+        V.exit_on_validation_failure(True, "should not fire")
 
-    def test_exit_on_failure(self):
-        """Test that the function exits when validation fails."""
-        is_valid = False
-        error_message = "Test validation failure"
-        
-        # We need to catch the SystemExit
-        with pytest.raises(SystemExit) as exc_info:
-            exit_on_validation_failure(is_valid, error_message)
-        
-        assert exc_info.value.code != 0
-
-    def test_no_exit_on_success(self):
-        """Test that the function does not exit when validation passes."""
-        is_valid = True
-        error_message = "This should not be printed"
-        
-        # Should not raise SystemExit
-        try:
-            exit_on_validation_failure(is_valid, error_message)
-        except SystemExit:
-            pytest.fail("exit_on_validation_failure should not exit on valid data")
+    def test_false_condition_halts_with_code(self):
+        with pytest.raises(SystemExit) as exc:
+            V.exit_on_validation_failure(False, "bad",
+                                         V.ERR_FR006_BEHAVIORAL)
+        assert exc.value.code == V.ERR_FR006_BEHAVIORAL
 
 
-class TestLoadAndValidateCsv:
-    """Tests for the load_and_validate_csv function."""
+class TestPowerRequirements:
+    def test_insufficient_halts_exit_1(self, tmp_path):
+        out = tmp_path / "power_status.json"
+        with pytest.raises(SystemExit) as exc:
+            V.check_power_requirements(10, out)
+        assert exc.value.code == 1
 
-    def test_load_valid_csv(self):
-        """Test loading and validating a valid CSV file."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            f.write("subject_id,k_score,d_prime\n")
-            f.write("S01,2.5,1.2\n")
-            f.write("S02,3.0,1.5\n")
-            temp_path = f.name
+    def test_limited_writes_status(self, tmp_path):
+        out = tmp_path / "power_status.json"
+        status = V.check_power_requirements(40, out)
+        assert status == "LIMITED"
+        import json
+        data = json.loads(out.read_text())
+        assert data["n_count"] == 40
+        assert data["status"] == "LIMITED"
 
-        try:
-            df = load_and_validate_csv(temp_path)
-            assert df is not None
-            assert len(df) == 2
-            assert 'k_score' in df.columns
-            assert 'd_prime' in df.columns
-        finally:
-            os.unlink(temp_path)
-
-    def test_load_missing_csv(self):
-        """Test that loading a non-existent CSV raises an error."""
-        with pytest.raises(FileNotFoundError):
-            load_and_validate_csv("non_existent_file.csv")
-
-    def test_load_empty_csv(self):
-        """Test loading an empty CSV file."""
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
-            f.write("subject_id,k_score,d_prime\n")
-            temp_path = f.name
-
-        try:
-            df = load_and_validate_csv(temp_path)
-            # Should return an empty dataframe or raise an error depending on implementation
-            assert df is not None
-            assert len(df) == 0
-        finally:
-            os.unlink(temp_path)
+    def test_sufficient_ok(self, tmp_path):
+        out = tmp_path / "power_status.json"
+        assert V.check_power_requirements(60, out) == "OK"
 
 
-class TestLogError:
-    """Tests for the log_error function."""
-
-    def test_log_error_format(self):
-        """Test that log_error formats the message correctly."""
-        # Capture log output by checking if the function runs without error
-        # The actual log output is hard to capture in a simple unit test without complex mocking
-        # We test that it doesn't crash
-        log_error("Missing behavioral measures: k_score, d_prime")
-        # If we reach here, the function executed without crashing
-        assert True
-
-    def test_log_error_with_code(self):
-        """Test log_error with an error code."""
-        log_error("Missing behavioral measures", error_code="FR-006")
-        assert True
-
-
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+class TestErrorCodeRegistry:
+    def test_all_codes_distinct_and_documented(self):
+        codes = list(V.ERROR_CODES.values())
+        assert len(codes) == len(set(codes))
+        for name in ["FR006_EEG_CHANNELS", "FR006_BEHAVIORAL",
+                     "FR006_TRIAL_TIMESTAMPS"]:
+            assert name in V.ERROR_CODES

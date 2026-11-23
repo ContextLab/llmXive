@@ -1,0 +1,12 @@
+T001:
+  c: false
+  h: 59dc133a4b7d9a114dc7d25bf91e85d8b4d14692f31a53e4cba4b411c13001ac
+  r: "The `data/raw/nist_refs.json.sha256` file records a hash that does **not** match\
+    \ the actual contents of `nist_refs.json` (computed hash\u202F=\u202Fa81b3f2b\u2026\
+    , recorded\u202F=\u202F6c9f020e\u2026). Consequently `load_refs()` raises a checksum\u2011\
+    mismatch error, causing the `test_load_valid` and `test_checksum_matches` unit\
+    \ tests to fail. Moreover, `loader.py` raises a `FileNotFoundError` when a temporary\
+    \ JSON file lacks a `.sha256` file, contradicting the `test_malformed_schema`\
+    \ expectation that checksum verification be skipped. Fix the checksum file and\
+    \ adjust the loader\u2019s checksum logic (or test expectations) so that al"
+  sig: 4db3cf72d2fdc781d17ac5068bcd3662253ae196b457348471f41fa06e545009

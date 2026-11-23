@@ -1,285 +1,188 @@
-# Tasks: Investigating the Correlation Between Dietary Fiber Intake and Gut Microbiome Composition
+# Tasks: Investigating the Correlation Between Dietary Fiber Intake and Gut Microbiome Composition  
 
-**Input**: Design documents from `/specs/001-gene-regulation/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan:
- - Directories: `src/`, `src/ingestion/`, `src/preprocessing/`, `src/analysis/`, `src/utils/`, `tests/`, `tests/contract/`, `tests/integration/`, `tests/unit/`, `data/raw/`, `data/processed/`, `data/processed/results/`, `docs/`, `state/`
- - Files: `src/main.py`, `src/utils/logger.py`, `src/utils/power_analysis.py`, `tests/test_schemas.py`, `requirements.txt`, `README.md`
-- [ ] T002 Initialize Python 3.11 project with `requirements.txt` containing pinned versions:
- - `pandas==2.0.3`, `scikit-learn==1.3.0`, `scipy==1.11.1`, `numpy==1.24.3`, `requests==2.31.0`, `pyyaml==6.0.1`, `joblib==1.3.1`, `miceforest==5.3.3`, `rpy2==3.5.11`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T004 [P] Setup `pytest` configuration and test directory structure
+**Inputs**: `spec.md`, `plan.md`, data‑model, contracts, and any existing checked artifacts.  
+All tasks write to project‑owned paths under `data/`, `results/`, or `code/`.  
+Tasks are ordered to respect data flow; later tasks depend on the outputs of earlier ones.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Data acquisition & harmonisation (US‑1, priority P1)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] **T001** `[US-1]` **Download American Gut Project (AGP) raw 16S tables & metadata**   <!-- FAILED-IN-EXECUTION: code/src/ingestion/agp_loader.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/src/ingestion/agp_loader.py exit=1 -->
+  *File*: `code/src/ingestion/agp_loader.py`  
+  *Action*: Use `datasets.load_dataset("american_gut/agp_diet", streaming=True)` to stream the data, write the raw files to `data/raw/agp/` (e.g., `agp_counts.tsv`, `agp_metadata.tsv`). Generate SHA‑256 checksums stored in `data/state/agp_checksums.json`.  
+  *Verification*: Run `python -m code.src.ingestion.agp_loader` and confirm both files exist, are non‑empty, and the checksum file contains two entries.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] **T002** `[US-1]` **Download UK Biobank (UKBB) raw 16S tables & metadata – required cohort**  
+  *File*: `code/src/ingestion/ukbb_loader.py`  
+  *Action*: Load `datasets.load_dataset("ukbiobank/gut_microbiome", streaming=True)`. Write raw files to `data/raw/ukbb/` (`ukbb_counts.tsv`, `ukbb_metadata.tsv`) and record SHA‑256 checksums in `data/state/ukbb_checksums.json`. **If the dataset is unavailable, raise a RuntimeError indicating that UKBB is mandatory; no fallback dataset is permitted.**  
+  *Verification*: Execute the script; both raw files must be present and checksum file populated. Failure to fetch UKBB aborts the pipeline, satisfying FR‑001.
 
-Examples of foundational tasks (adjust based on your project):
+- [ ] **T003** `[US-1]` **Harmonise and filter the two cohorts**  
+  *File*: `code/src/preprocessing/harmonizer.py`  
+  *Action*:  
+  1. Load the raw count and metadata files from AGP and UKBB.  
+  2. Convert any fiber‑intake unit to **g/day**.  
+  3. Keep only samples with `read_depth ≥ 5 000` and `0 ≤ fiber_intake_g ≤ 200`.  
+  4. Add a `cohort` column (`AGP` or `UKBB`).  
+  5. Write the unified, filtered table to `data/processed/harmonized.tsv`.  
+  *Verification*: Run the script and then validate `data/processed/harmonized.tsv` against `contracts/dataset.schema.yaml` using the provided pytest contract test.
 
-- [ ] T005 Implement `src/utils/logger.py` for standardized logging
-- [ ] T006 Implement `src/utils/power_analysis.py` for calculating statistical power and margin of error (CPU-tractable)
-- [ ] T006b Execute Power Analysis: Run `src/utils/power_analysis.py` on the harmonized dataset (once available) to generate `data/processed/results/power_analysis_report.tsv` containing calculated power and margin of error. **Depends on**: T014 (data availability). <!-- FAILED: unspecified -->
-- [ ] T007 Create `src/preprocessing/id_generator.py` to generate SHA256 sample IDs (cohort + original_id)
-- [~] T008 Setup data directory structure (`data/raw/`, `data/processed/`, `data/processed/results/`)
-- [ ] T009 [P] Implement `src/preprocessing/covariate_handler.py` for MICE imputation (using `miceforest`) and missing data exclusion logic (>20% missing); **Configure complete logging**: Setup `src/utils/logger.py` with handlers for all analysis steps, including specific formatters for MaAsLin2 execution status, convergence warnings, and R-package output capture.
+- [ ] **T003a** `[US-1]` **Verify unified dataset meets minimum sample‑size**  
+  *File*: `code/src/preprocessing/sample_size_check.py`  
+  *Action*: Count total rows in `data/processed/harmonized.tsv`; assert `>= 1000`. Write a short report `results/state/sample_size_report.txt`.  
+  *Verification*: CI fails if the count is < 1000, satisfying SC‑007.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Ingestion and Harmonization (Priority: P1) 🎯 MVP
-
-**Goal**: Download, filter, and harmonize American Gut Project (AGP) and UK Biobank (UKBB) data into a unified dataset.
-
-**Independent Test**: Verify that the pipeline successfully downloads both datasets, filters samples correctly (≥5,000 reads, 0–200 g/day fiber), and outputs a unified CSV/TSV file with consistent column names and units.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [X] T010 [P] [US1] Contract test for data schema validation in `tests/contract/test_schemas.py`
-- [~] T011 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_pipeline.py` <!-- FAILED: unspecified -->
-
-### Implementation for User Story 1
-
-- [ ] T012 [P] [US1] Implement `src/ingestion/agp_loader.py` to download AGP data from Qiita (verify URL/ID first)
-- [ ] T013 [P] [US1] Implement `src/ingestion/ukbb_loader.py` to download UKBB data from canonical sources (verify URL/ID first)
-- [ ] T014 [US1] Implement `src/ingestion/harmonizer.py` to:
- - Convert all fiber units to g/day
- - Filter samples with <5,000 reads
- - Filter samples with fiber intake <0 or >200 g/day
- - Exclude samples with missing fiber data
- - Merge into `data/processed/merged_harmonized.tsv`
-- [ ] T015 [US1] Add validation logic to ensure no PII leaks and checksums are recorded in `state/`
-- [ ] T016 [US1] Add logging for ingestion steps (download status, filter counts, harmonization results)
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] **T004** `[US-1]` **Handle missing covariates**  
+  *File*: `code/src/preprocessing/covariate_cleaner.py`  
+  *Action*:  
+  1. Exclude samples with > 20 % missing covariate values (age, BMI, antibiotic_use, sex, batch).  
+  2. Median‑impute numeric covariates; mode‑impute categorical covariates.  
+  3. Output the cleaned dataset to `data/processed/harmonized_clean.tsv`.  
+  *Verification*: After execution, check that no column contains `NaN` and that the number of rows matches the log file `data/state/covariate_exclusion.log`.
 
 ---
 
-## Phase 4: User Story 2 - Compositional Transformation and Correlation Analysis (Priority: P2)
+## Phase 2 – Compositional transformation & primary association (US‑2, priority P2)
 
-**Goal**: Apply CLR transformation and compute fiber-taxa associations using MaAsLin2 with FDR correction.
+- [ ] **T005** `[US-2]` **Apply Bayesian‑multiplicative replacement + CLR transformation to taxon counts**  
+  *File*: `code/src/preprocessing/clr_transform.py`  
+  *Action*:  
+  1. Read `data/processed/harmonized_clean.tsv`.  
+  2. Add a pseudocount of `1e‑6` to zero‑inflated taxa (using `zCompositions::cmultRepl`).  
+  3. Perform centred‑log‑ratio (CLR) transformation on the taxon matrix.  
+  4. Save the CLR matrix to `data/processed/clr_matrix.tsv`.  
+  *Verification*: Confirm that the file contains no `NaN`/`Inf` values and that the first few rows are printed in the log `data/state/clr_log.txt`.
 
-**Independent Test**: Run correlation analysis on a small synthetic dataset with known associations and covariates, verifying output matches expected coefficients and corrected p-values.
+- [ ] **T006** `[US-2]` **Spearman correlation (with bootstrap SE) and BH FDR correction**  
+  *File*: `code/src/analysis/spearman_bootstrap.py`  
+  *Action*:  
+  1. Compute residuals of fiber intake and each CLR taxon after regressing out covariates (`age`, `BMI`, `sex`, `antibiotic_use`, `read_depth`).  
+  2. Calculate Spearman ρ for each taxon (`scipy.stats.spearmanr`).  
+  3. Estimate standard error via 1 000 non‑parametric bootstrap resamples.  
+  4. Apply Benjamini‑Hochberg FDR correction to the raw p‑values, producing q‑values.  
+  5. Write results to `results/association/spearman.tsv` with columns matching `correlation_result.schema.yaml` (`taxon`, `spearman_rho`, `spearman_se`, `raw_p_value`, `q_value`, `significant`).  
+  *Verification*: Run the script and then validate the TSV against `contracts/correlation_result.schema.yaml`.
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+- [ ] **T007** `[US-2]` **MaAsLin2 multivariable association on CLR data with BH correction**  
+  *File*: `code/src/analysis/maaslin2_association.R` (invoked via `rpy2`)  
+  *Action*:  
+  1. Feed `data/processed/clr_matrix.tsv` and the cleaned metadata (`harmonized_clean.tsv`) to MaAsLin2, adjusting for `age`, `BMI`, `sex`, `antibiotic_use`, and `read_depth`.  
+  2. Export beta coefficients, raw p‑values, and apply Benjamini‑Hochberg FDR correction to obtain q‑values.  
+  3. Write to `results/association/maaslin2.tsv` with columns `taxon`, `beta_coefficient`, `raw_p_value`, `q_value`, `significant`.  
+  *Verification*: After execution, merge with the Spearman file (see T008) and run the contract test on the merged TSV.
 
-- [ ] T018 [P] [US2] Contract test for MaAsLin2 output schema in `tests/contract/test_maaslin2_schema.py`
-- [ ] T019 [P] [US2] Integration test for CLR transformation in `tests/integration/test_clr.py`
-
-### Implementation for User Story 2
-
-- [ ] T023 [US2] Integrate with User Story 1 components: Ensure `data/processed/merged_harmonized.tsv` is available and validated as input for downstream tasks. **Depends on**: T014.
-- [ ] T020 [P] [US2] Implement `src/preprocessing/clr_transform.py` to:
- - Add a pseudocount for zero-inflated taxa
- - Apply centered log-ratio (CLR) transformation
- - Output to `data/processed/clr_transformed.tsv`
-- [ ] T020b [P] [US2] Generate Pseudocount Validation Report: Run a diagnostic test to verify the chosen pseudocount strategy satisfies Constitution Principle VI (e.g., check impact on zero-inflated taxa distribution) and output results to `data/processed/results/pseudocount_validation.txt`.
-- [ ] T021 [US2] Implement `src/analysis/correlation_maaslin2.py` to:
- - Invoke MaAsLin2 (via `rpy2` or `subprocess`) on CLR data
- - Adjust for covariates (age, BMI, antibiotic use)
- - Output raw p-values, effect sizes (beta), and standard errors
-- [ ] T021b [US2] Implement Spearman ρ calculation in `src/analysis/correlation_maaslin2.py`:
- - Compute Spearman correlation coefficients between fiber intake and CLR-transformed taxa abundances.
- - **Calculate Standard Error (SE)** for the Spearman coefficient (e.g., via Fisher's z-transformation).
- - Output `data/processed/results/spearman_correlations.tsv` containing: taxon, spearman_rho, standard_error.
-- [ ] T022 [US2] Implement FDR correction (Benjamini-Hochberg) in `src/analysis/correlation_maaslin2.py`:
- - Calculate q-values
- - Filter and save results to `data/processed/results/association_results.tsv`
-- [ ] T024 [US2] Integrate with User Story 1 components: Load harmonized data from `data/processed/merged_harmonized.tsv` as input for transformation and analysis.
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Differential Abundance and Cross-Cohort Validation (Priority: P3)
-
-**Goal**: Perform differential abundance testing (ANCOM-II/DESeq2 as robustness checks), evaluate replication via continuous beta-coefficients, and report summary statistics.
-
-**Independent Test**: Run differential abundance pipeline on both datasets independently, verify output format, and confirm replication status is accurately flagged.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T026 [P] [US3] Contract test for differential abundance output in `tests/contract/test_diff_abundance_schema.py`
-- [ ] T027 [P] [US3] Integration test for cross-cohort validation in `tests/integration/test_validation.py`
-
-### Implementation for User Story 3
-
-- [ ] T028 [P] [US3] Implement `src/analysis/validation_cross_cohort.py` robustness checks:
- - Define high-fiber (top quartile) and low-fiber (bottom quartile) groups per cohort based on the harmonized dataset.
- - **Execute ANCOM-II and DESeq2**: Run on the full harmonized dataset. **If** RAM projection exceeds 7GB, automatically perform a random stratified downsampling (by cohort) *before* running the analysis to ensure feasibility, ensuring the sample is representative of all taxa.
- - Output `data/processed/results/diff_abundance_agp.tsv` and `data/processed/results/diff_abundance_ukbb.tsv` containing taxa, method, q-value, effect_size, direction (filtered for q < 0.05).
- - **Calculate Absolute Median Fiber Intake**: Compute and report the absolute median fiber intake (g/day) for the high-fiber and low-fiber groups in each cohort based on the dataset used for analysis.
-- [ ] T029 [US3] Implement replication logic in `src/analysis/validation_cross_cohort.py`:
- - **Compare ANCOM-II/DESeq2 Results**: Evaluate replication status by comparing significant taxa (q < 0.05) from ANCOM-II and DESeq2 between the AGP and UKBB cohorts.
- - Flag consistent directionality (same sign of effect size) for taxa significant in both cohorts.
- - Mark non-replicable taxa as 'non-replicable' based on disagreement in ANCOM-II/DESeq2 results.
- - Calculate and report cross-cohort replication rate based on ANCOM-II/DESeq2 findings.
- - (Secondary) Compare continuous beta-coefficients from MaAsLin2 as an additional robustness check.
-- [ ] T030 [US3] Generate final summary table in `data/processed/results/final_summary.tsv` containing:
- - Taxon, method, q-value, effect_size (beta), **Standard Error for Spearman ρ (if included)**, direction
- - **Replication status** (based on ANCOM-II/DESeq2 and MaAsLin2)
- - Median fiber intake for high/low groups
- - Confidence intervals (calculated as beta ± 1.96 * SE)
-- [ ] T031 [US3] Integrate power analysis results (from T006/T006b) into final report to distinguish true null effects from underpowered results.
-- [ ] T031b [US3] **Explicitly format and output** power analysis metrics:
- - Extract calculated statistical power and margin of error from `data/processed/results/power_analysis_report.tsv`.
- - Append these metrics to the final summary table or a dedicated `power_analysis_report.tsv`.
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] **T008** `[US-2]` **Merge Spearman and MaAsLin2 results into a single association table**  
+  *File*: `code/src/analysis/merge_association.py`  
+  *Action*: Join `spearman.tsv` and `maaslin2.tsv` on `taxon`, keep all required fields, add a `cohort` column derived from the original sample metadata, and output `results/association/association_combined.tsv`.  
+  *Verification*: Validate the merged file against `contracts/correlation_result.schema.yaml` (all required fields present).
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 3 – Differential abundance & cross‑cohort validation (US‑3, priority P3)
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] **T009** `[US-3]` **Define high‑ and low‑fiber groups per cohort (75th / 25th percentiles)**  
+  *File*: `code/src/analysis/fiber_groups.py`  
+  *Action*: Compute cohort‑specific quartiles on `fiber_intake_g`, assign samples to `high` or `low` groups, and write a mapping file `data/processed/fiber_group_assignments.tsv`.  
+  *Verification*: Assert that for each cohort `high` count == floor(0.25 * cohort_size) and `low` count == floor(0.25 * cohort_size). Fail the task if the counts differ.
 
-- [ ] T032 [P] Documentation updates in `docs/` (README, quickstart)
-- [ ] T033 Code cleanup and refactoring (remove unused imports, optimize memory usage)
-- [ ] T034 Performance optimization to ensure ≤6h runtime on CPU-only runner (sample datasets if necessary)
-- [ ] T035 [P] Additional unit tests in `tests/unit/` for edge cases (zero-inflation, missing covariates)
-- [ ] T036 Run `quickstart.md` validation to ensure end-to-end reproducibility
-- [ ] T037 Verify all artifacts (CSV/TSV) are deterministic and reproducible (check random seeds)
+- [ ] **T010** `[US-3]` **ANCOM‑II on relative abundances (per cohort)**  
+  *File*: `code/src/analysis/ancom2.R` (called via `rpy2`)  
+  *Action*:  
+  1. Convert CLR‑transformed values back to relative abundances.  
+  2. Run ANCOM‑II separately for AGP and UKBB using the high/low group assignments.  
+  3. Output `results/differential/ancom_agp.tsv` and `results/differential/ancom_ukbb.tsv` with columns `taxon_id`, `method`, `q_value`, `effect_size`, `direction`.  
+  *Verification*: Each TSV must pass `contracts/diff_abundance.schema.yaml`.
 
----
+- [ ] **T011** `[US-3]` **DESeq2 on CLR‑transformed data (per cohort)**  
+  *File*: `code/src/analysis/deseq2_clr.R` (called via `rpy2`)  
+  *Action*:  
+  1. Use the CLR‑transformed matrix (`data/processed/clr_matrix.tsv`) as continuous input to DESeq2 (treating CLR values as expression‑like measurements).  
+  2. Run DESeq2 with the high/low group design for each cohort.  
+  3. Write `results/differential/deseq2_agp.tsv` and `results/differential/deseq2_ukbb.tsv` matching the diff‑abundance schema.  
+  *Verification*: Contract validation against `contracts/diff_abundance.schema.yaml`.
 
-## Dependencies & Execution Order
+- [ ] **T012** `[US-3]` **Cross‑cohort replication flagging (per‑taxon)**  
+  *File*: `code/src/analysis/cross_cohort_replication.py`  
+  *Action*:  
+  1. For each taxon‑method pair, check whether `q_value < 0.05` in **both** cohorts and whether `direction` matches.  
+  2. Add a boolean column `replicated` (true/false).  
+  3. Produce a unified file `results/differential/replication_status.tsv`.  
+  *Verification*: Confirm the presence of a boolean `replicated` column, and that its values follow the defined logic.
 
-### Phase Dependencies
+- [ ] **T012b** `[US-3]` **Compute overall cross‑cohort replication rate**  
+  *File*: `code/src/analysis/replication_rate.py`  
+  *Action*: Read `replication_status.tsv`, calculate the percentage of taxa that are replicated (both cohorts significant with same direction), and write `results/summary/replication_rate.txt` (e.g., `Replication rate: 57.32%`).  
+  *Verification*: The file must contain a single line matching the regex `Replication rate: \d+\.\d{2}%`.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires harmonized data from US1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires results from US1 and US2 for validation
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] **T013** `[US-3]` **Calculate absolute median fiber intake for high/low groups**  
+  *File*: `code/src/analysis/fiber_medians.py`  
+  *Action*: Compute median `fiber_intake_g` for the high‑ and low‑fiber groups within each cohort and write `results/summary/fiber_medians.tsv` (columns: `cohort`, `group`, `median_fiber_g`).  
+  *Verification*: Ensure exactly two rows per cohort (`high` and `low`) and that each `median_fiber_g` lies within 0–200 g/day.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 4 – Measurement‑error simulation & power analysis (supporting US‑2)
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data schema validation in tests/contract/test_schemas.py"
-Task: "Integration test for ingestion pipeline in tests/integration/test_pipeline.py"
+- [ ] **T014** `[US-2]` **Synthetic measurement‑error simulation**  
+  *File*: `code/src/simulation/measurement_error.py`  
+  *Action*:  
+  1. Generate a synthetic dataset with known β = 0.1 for a subset of taxa.  
+  2. Add Gaussian noise (SD = 10 % of mean fiber) to the fiber vector.  
+  3. Run the same Spearman + MaAsLin2 pipelines (reuse T006‑T008).  
+  4. Report median absolute bias (|estimated − true| / true) in `results/simulation/measurement_error_report.tsv`.  
+  *Verification*: The report contains a column `bias` and the median is ≤ 0.10.
 
-# Launch all models for User Story 1 together:
-Task: "Implement src/ingestion/agp_loader.py"
-Task: "Implement src/ingestion/ukbb_loader.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
+- [ ] **T015** `[US-2]` **A‑priori power analysis for both statistical components**  
+  *File*: `code/src/power/power_analysis.py`  
+  *Action*:  
+  1. Use `statsmodels.stats.power.CorrelationPower` to compute required sample size for detecting ρ ≈ 0.15 at α = 0.05, 80 % power (Spearman component).  
+  2. Use `statsmodels.stats.power.FTestPower` for the MaAsLin2 linear model (effect size β = 0.1).  
+  3. Write a summary `results/power/power_requirements.tsv` (columns: `test`, `required_n`, `achieved_n`, `power`).  
+  4. If the achieved power for either cohort falls below 0.8, write a warning file `results/power/power_warning.txt` and **halt downstream analyses** (tasks T010‑T013 must read this flag and, if present, add a `power_flag = "underpowered"` column to their outputs).  
+  *Verification*: Run the script; the warning file appears only when appropriate and contains the cohort name(s).
 
 ---
 
-## Notes
+## Phase 5 – Visualisation & final reporting
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All data downloads must use real, reachable URLs (Qiita, UKBB). No synthetic/fake data for input.
-- **CRITICAL**: All statistical tests must run on CPU-only runners (no GPU, no 8-bit/4-bit quantization requiring CUDA).
-- **CRITICAL**: Tasks must respect data flow: ingestion (US1) → transformation/analysis (US2) → validation (US3).
-- **STRATEGY**: Primary analysis uses MaAsLin2 (continuous model). ANCOM-II/DESeq2 are executed on the full dataset (or a deterministic stratified sample if RAM constrained) as robustness checks to satisfy Spec requirements.
+- [ ] **T016** `[US-3]` **Volcano plots for ANCOM‑II and DESeq2**  
+  *File*: `code/src/visualisation/volcano_plots.R` (called via `rpy2`)  
+  *Action*: Generate two PNG files (`results/figures/volcano_ancom.png`, `results/figures/volcano_deseq2.png`) showing –log10(q) vs. effect size, colour‑coded by significance.  
+  *Verification*: Files exist, are non‑empty, and the script prints the number of significant points.
+
+- [ ] **T017** `[US-2]` **CLR‑based PCA ordination coloured by fiber quartile**  
+  *File*: `code/src/visualisation/pca_clr.R` (called via `rpy2`)  
+  *Action*: Perform PCA on the CLR matrix, colour points by high/low fiber group per cohort, and save `results/figures/pca_clr_agp.png` and `results/figures/pca_clr_ukbb.png`.  
+  *Verification*: PNGs exist and the proportion of variance explained is logged.
+
+- [ ] **T018** `[US-3]` **Assemble final summary table**  
+  *File*: `code/src/report/final_summary.py`  
+  *Action*: Merge:  
+    - `association_combined.tsv` (T008)  
+    - Differential‑abundance files (`ancom_*.tsv`, `deseq2_*.tsv`)  
+    - `replication_status.tsv` (T012)  
+    - `replication_rate.txt` (T012b)  
+    - `fiber_medians.tsv` (T013)  
+    - Power information (`power_requirements.tsv`, `power_warning.txt` if present)  
+    Produce `results/final_summary.tsv` containing for each taxon: method, q‑value, effect size, direction, replicated flag, median fiber values for both cohorts, and a `power_flag` column when applicable.  
+  *Verification*: The file contains all required columns, passes a custom schema test (`tests/contract/test_final_summary_schema.py`), and the first few rows are printed in the log.
+
+- [ ] **T019** `[US-3]` **Generate markdown report linking all artefacts**  
+  *File*: `docs/report.md`  
+  *Action*: Auto‑populate a markdown document that (a) describes methods, (b) lists key tables with file paths, (c) embeds the PNG figures, and (d) summarises the replication rate and power analysis outcome.  
+  *Verification*: Render the markdown with `pandoc` in a CI step; the resulting HTML contains all figures and tables.
+
+---
+
+## Phase 6 – Verification & reproducibility (continuous)
+
+- [ ] **T020** `Contract‑based unit tests`  
+  *File*: `tests/contract/` (existing)  
+  *Action*: Run `pytest -q tests/contract` after every major task. All tests must pass before the next phase begins.  
+  *Verification*: CI step reports “0 failures”.
+
+- [ ] **T021** `Determinism check`  
+  *File*: `code/src/utils/determinism_check.py`  
+  *Action*: Run the full pipeline twice with the same random seed, compute SHA‑256 hashes of all files under `results/`, and write a comparison report `results/state/determinism_report.txt`.  
+  *Verification*: The report states “All hashes match” → pipeline is deterministic.

@@ -1,100 +1,62 @@
-"""
-Contract test for disease incidence data validation.
-
-This test verifies that the disease incidence schema contract correctly
-validates disease incidence records.
-"""
 import pytest
 import yaml
+import tempfile
+import os
 from pathlib import Path
-import pandas as pd
 from jsonschema import ValidationError
-from analysis.validation_utils import (
-    load_schema,
-    validate_record,
-    validate_dataframe_records
-)
+from analysis.validation_utils import load_schema, validate_record
 
+@pytest.fixture
+def schema():
+    return load_schema("disease-incidence.schema.yaml")
 
-def test_disease_incidence_schema_structure():
-    """Verify the disease incidence schema file exists and has correct structure."""
-    schema_path = Path("specs/contracts/disease_incidence.schema.yaml")
-    assert schema_path.exists(), f"Schema file not found: {schema_path}"
-    
-    with open(schema_path, 'r') as f:
-        schema = yaml.safe_load(f)
-        
-    assert "$schema" in schema
+def test_disease_incidence_schema_structure(schema):
+    assert "type" in schema
     assert schema["type"] == "object"
     assert "properties" in schema
-    assert "required" in schema
+    assert len(schema["properties"]) > 0
 
-
-def test_disease_incidence_schema_validates_correct_record():
-    """Test that a valid disease incidence record passes validation."""
-    schema_path = Path("specs/contracts/disease_incidence.schema.yaml")
-    schema = load_schema(schema_path)
-    
-    valid_record = {
-        "sample_id": "S001",
-        "disease_type": "Fungal blight",
-        "incidence_rate": 0.15,
-        "measurement_date": "2023-06-15"
+def test_disease_incidence_schema_validates_correct_record(schema):
+    record = {
+        "sample_id": "S123",
+        "plant_species": "Tomato",
+        "gps_coordinates": [37.7749, -122.4194],
+        "soil_type": "Loam",
+        "disease_incidence": 0.5,
+        "measurement_date": "2024-01-01"
     }
-    
-    assert validate_record(valid_record, schema, "disease_incidence_schema") is True
+    validate_record(record, schema)
 
-
-def test_disease_incidence_schema_rejects_missing_required():
-    """Test that a record missing required fields fails validation."""
-    schema_path = Path("specs/contracts/disease_incidence.schema.yaml")
-    schema = load_schema(schema_path)
-    
-    # Missing 'incidence_rate'
-    invalid_record = {
-        "sample_id": "S001",
-        "disease_type": "Fungal blight",
-        "measurement_date": "2023-06-15"
+def test_disease_incidence_schema_rejects_missing_required(schema):
+    record = {
+        "plant_species": "Tomato",
+        "gps_coordinates": [37.7749, -122.4194],
+        "soil_type": "Loam",
+        "disease_incidence": 0.5
     }
-    
-    assert validate_record(invalid_record, schema, "disease_incidence_schema") is False
+    with pytest.raises(ValidationError):
+        validate_record(record, schema)
 
-
-def test_disease_incidence_schema_rejects_invalid_range():
-    """Test that incidence_rate outside 0-1 range fails validation."""
-    schema_path = Path("specs/contracts/disease_incidence.schema.yaml")
-    schema = load_schema(schema_path)
-    
-    # incidence_rate > 1.0
-    invalid_record = {
-        "sample_id": "S001",
-        "disease_type": "Fungal blight",
-        "incidence_rate": 1.5,
-        "measurement_date": "2023-06-15"
+def test_disease_incidence_schema_rejects_invalid_range(schema):
+    record = {
+        "sample_id": "S123",
+        "plant_species": "Tomato",
+        "gps_coordinates": [37.7749, -122.4194],
+        "soil_type": "Loam",
+        "disease_incidence": 1.5,
+        "measurement_date": "2024-01-01"
     }
-    
-    assert validate_record(invalid_record, schema, "disease_incidence_schema") is False
+    with pytest.raises(ValidationError):
+        validate_record(record, schema)
 
-
-def test_disease_incidence_schema_validates_dataframe():
-    """Test validating a DataFrame of disease incidence records."""
-    schema_path = Path("specs/contracts/disease_incidence.schema.yaml")
-    schema = load_schema(schema_path)
-    
-    df = pd.DataFrame([
-        {
-            "sample_id": "S001",
-            "disease_type": "Fungal blight",
-            "incidence_rate": 0.15,
-            "measurement_date": "2023-06-15"
-        },
-        {
-            "sample_id": "S002",
-            "disease_type": "Bacterial wilt",
-            "incidence_rate": 0.05,
-            "measurement_date": "2023-06-20"
-        }
-    ])
-    
-    results = validate_dataframe_records(df, schema, "disease_incidence_schema", strict=True)
-    assert all(r["valid"] for r in results)
+def test_disease_incidence_schema_validates_dataframe(schema):
+  import pandas as pd
+  data = [
+      {"sample_id": "S1", "plant_species": "Tomato", "gps_coordinates": [37.7749, -122.4194], "soil_type": "Loam", "disease_incidence": 0.5, "measurement_date": "2024-01-01"},
+      {"sample_id": "S2", "plant_species": "Potato", "gps_coordinates": [34.0522, -118.2437], "soil_type": "Sandy", "disease_incidence": 0.2, "measurement_date": "2024-02-15"}
+  ]
+  df = pd.DataFrame(data)
+  try:
+    validate_dataframe_records(df, schema)
+  except ValidationError as e:
+      assert False, f"Validation failed for dataframe: {e}"

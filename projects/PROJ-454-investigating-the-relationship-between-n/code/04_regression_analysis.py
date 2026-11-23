@@ -4,232 +4,301 @@ import logging
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from utils.logging_config import get_logger, setup_data_flow_logger, log_data_transition
-from utils.stats_utils import fit_ols_model, fdr_benjamini_hochberg, calculate_vif, check_multicollinearity
-from utils.resource_monitor import log_resource_snapshot, get_memory_usage_gb
+from typing import List, Dict, Tuple, Any
+from statsmodels.regression.linear_model import OLS
+from statsmodels.tools import add_constant
+from statsmodels.stats.outliers_influence import variance_inflation_factor
+import json
 
-# Import existing names from the API surface if they were defined in previous iterations
-# Since the file was omitted, we assume standard implementation for the existing signatures
-# and append the new logic for T028.
+# Local imports matching API surface
+from utils.logging_config import setup_data_flow_logger, get_logger
+from utils.stats_utils import (
+    calculate_vif, 
+    fit_ols_model, 
+    fdr_benjamini_hochberg, 
+    calculate_partial_r,
+    classify_effect_size
+)
+from utils.resource_monitor import get_memory_usage_gb, check_resource_limits, log_resource_snapshot
+from config import get_config
 
-def setup_logger(name):
-    return get_logger(name)
+def setup_logger(name: str) -> logging.Logger:
+    """Setup a logger for this module."""
+    return setup_data_flow_logger(name)
 
-def load_data():
-    """Load processed entropy and behavioral data."""
-    entropy_path = Path("data/processed/entropy_metrics.csv")
-    behavioral_path = Path("data/processed/behavioral_scores.csv")
-    
-    if not entropy_path.exists() or not behavioral_path.exists():
-        raise FileNotFoundError("Required processed data files not found. Run T015 and T012b first.")
-    
+logger = setup_logger(__name__)
+
+def load_data() -> Tuple[pd.DataFrame, pd.DataFrame]:
+    """
+    Load entropy metrics and behavioral scores.
+    Returns:
+        Tuple of (entropy_df, behavioral_df)
+    """
+    config = get_config()
+    entropy_path = Path(config['data_processed_dir']) / "entropy_metrics.csv"
+    behavioral_path = Path(config['data_processed_dir']) / "behavioral_scores.csv"
+
+    if not entropy_path.exists():
+        raise FileNotFoundError(f"Entropy metrics not found at {entropy_path}. Run T015 first.")
+    if not behavioral_path.exists():
+        raise FileNotFoundError(f"Behavioral scores not found at {behavioral_path}. Run T012c first.")
+
     entropy_df = pd.read_csv(entropy_path)
     behavioral_df = pd.read_csv(behavioral_path)
-    return entropy_df, behavioral_df
 
-def merge_data(entropy_df, behavioral_df):
-    """Merge entropy metrics with behavioral scores on participant ID."""
-    # Assuming 'participant_id' is the key column
+    # Merge on participant_id
     merged = pd.merge(entropy_df, behavioral_df, on='participant_id', how='inner')
+    logger.info(f"Loaded {len(merged)} participants for regression analysis.")
     return merged
 
-def prepare_features(merged_df):
-    """Prepare features for regression: Entropy metrics + Covariates."""
-    # Identify entropy columns (Sample and Approximate for each band)
-    entropy_cols = [col for col in merged_df.columns if 'entropy' in col.lower()]
-    covariates = ['age', 'education', 'task_accuracy', 'neurological_condition', 'medication']
-    # Filter covariates that exist
-    covariates = [c for c in covariates if c in merged_df.columns]
+def prepare_features(data: pd.DataFrame, config: Dict[str, Any]) -> pd.DataFrame:
+    """
+    Prepare features for OLS regression.
+    - Selects entropy columns (Sample and Approximate) for all bands.
+    - Adds covariates: Age, Education, Task Accuracy, Neurological Condition, Medication Use.
+    - Handles missing values by dropping rows.
+    """
+    # Identify entropy columns (assuming naming convention: {metric}_{band})
+    # Based on T015 output: SampleEntropy_Delta, SampleEntropy_Theta, etc.
+    entropy_cols = [col for col in data.columns if 'Entropy' in col]
     
-    return entropy_cols, covariates
+    # Define covariates based on T020a spec
+    covariates = ['age', 'education_years', 'task_accuracy', 'neurological_condition', 'medication_use']
+    
+    # Check presence
+    missing_covs = [c for c in covariates if c not in data.columns]
+    if missing_covs:
+        logger.warning(f"Missing covariates in data: {missing_covs}. Dropping them.")
+        covariates = [c for c in covariates if c in data.columns]
+    
+    feature_cols = entropy_cols + covariates
+    
+    # Drop rows with NaN in any feature or target
+    # Target is wcst_perseverative_errors (from T012b validation)
+    target_col = 'wcst_perseverative_errors'
+    if target_col not in data.columns:
+        raise ValueError(f"Target column '{target_col}' not found in data.")
+    
+    clean_data = data[feature_cols + [target_col]].dropna()
+    logger.info(f"Prepared {len(clean_data)} rows for regression after dropping NaNs.")
+    return clean_data
 
-def run_regression_analysis(merged_df, entropy_cols, covariates, logger):
-    """Run OLS regression for each entropy metric against WCST errors."""
+def run_ols_for_metric(data: pd.DataFrame, metric_col: str, target_col: str) -> Dict[str, Any]:
+    """
+    Run a single OLS regression for one entropy metric against target.
+    Returns a dict with results or None if VIF check fails for this specific run context.
+    """
+    predictors = [c for c in data.columns if c != target_col]
+    X = add_constant(data[predictors])
+    y = data[target_col]
+
+    try:
+        model = OLS(y, X).fit()
+        partial_r = calculate_partial_r(model, metric_col)
+        p_val = model.pvalues[metric_col]
+        coef = model.params[metric_col]
+        
+        return {
+            "metric": metric_col,
+            "coefficient": coef,
+            "p_value": p_val,
+            "partial_r": partial_r,
+            "n": len(y),
+            "r_squared": model.rsquared
+        }
+    except Exception as e:
+        logger.error(f"OLS failed for {metric_col}: {e}")
+        return None
+
+def run_vif_check_and_fdr(data: pd.DataFrame, target_col: str, snr_threshold: float = 5.0, artifact_threshold: float = 10.0) -> pd.DataFrame:
+    """
+    Core logic for T020a + T021 + T028 sensitivity sweep.
+    
+    1. Calculates VIF for all predictors.
+    2. If VIF > 5 for any Approximate Entropy metric, drops ALL Approximate Entropy metrics.
+    3. Runs OLS for remaining metrics.
+    4. Applies FDR correction to p-values.
+    5. Returns a DataFrame of results.
+    
+    Parameters:
+        snr_threshold: The SNR threshold (in dB) used for this run.
+        artifact_threshold: The artifact threshold used for this run.
+    """
+    # Filter data by thresholds if columns exist (simulating the exclusion logic from T016/T014)
+    # Note: In a full pipeline, this data would already be filtered. 
+    # Here we apply the threshold filter dynamically for the sensitivity sweep.
+    filtered_data = data.copy()
+    
+    # If SNR column exists, filter
+    if 'snr_db' in filtered_data.columns:
+        filtered_data = filtered_data[filtered_data['snr_db'] >= snr_threshold]
+    
+    # If artifact column exists (e.g., artifact_score), filter
+    if 'artifact_score' in filtered_data.columns:
+        filtered_data = filtered_data[filtered_data['artifact_score'] <= artifact_threshold]
+
+    if len(filtered_data) < 10:
+        logger.warning(f"Insufficient data points ({len(filtered_data)}) for regression with current thresholds.")
+        return pd.DataFrame()
+
+    # Identify entropy metrics
+    entropy_cols = [col for col in filtered_data.columns if 'Entropy' in col]
+    
+    # VIF Check (T021 Logic)
+    # We check VIF on the full set of predictors first
+    predictors = [c for c in filtered_data.columns if c != target_col]
+    X_vif = add_constant(filtered_data[predictors])
+    
+    vif_results = calculate_vif(X_vif)
+    logger.info(f"VIF Check Results: {vif_results}")
+    
+    # Check if any Approximate Entropy metric has VIF > 5
+    apen_cols = [c for c in entropy_cols if 'Approximate' in c]
+    high_vif_apen = False
+    for col in apen_cols:
+        if col in vif_results:
+            if vif_results[col] > 5.0:
+                high_vif_apen = True
+                logger.warning(f"VIF for {col} is {vif_results[col]:.2f} > 5. Dropping all Approximate Entropy metrics.")
+                break
+    
+    # If high VIF found, drop ApEn columns
+    if high_vif_apen:
+        final_predictors = [c for c in predictors if 'Approximate' not in c]
+    else:
+        final_predictors = predictors
+
+    # Re-run OLS with reduced set if needed
+    X = add_constant(filtered_data[final_predictors])
+    y = filtered_data[target_col]
+    
+    if len(X) < 2:
+        return pd.DataFrame()
+
+    try:
+        model = OLS(y, X).fit()
+    except Exception as e:
+        logger.error(f"OLS fitting failed with reduced predictors: {e}")
+        return pd.DataFrame()
+
+    # Extract results for each metric in the final set
     results = []
+    metrics_in_model = [c for c in final_predictors if 'Entropy' in c]
     
-    for ent_col in entropy_cols:
-        # Construct model formula
-        # Dependent: wcst_perseverative_errors (or similar from behavioral)
-        # We need to ensure the target column exists
-        target_col = 'wcst_perseverative_errors'
-        if target_col not in merged_df.columns:
-            logger.warning(f"Target column {target_col} not found. Skipping.")
-            continue
+    for metric in metrics_in_model:
+        p_val = model.pvalues[metric]
+        coef = model.params[metric]
+        partial_r = calculate_partial_r(model, metric)
+        effect_class = classify_effect_size(partial_r)
         
-        predictors = [ent_col] + covariates
-        predictors = [p for p in predictors if p in merged_df.columns]
-        
-        if len(predictors) < 1:
-            continue
-        
-        try:
-            model_result = fit_ols_model(merged_df, target_col, predictors)
-            if model_result:
-                results.append(model_result)
-        except Exception as e:
-            logger.error(f"Failed to fit model for {ent_col}: {e}")
-            
-    return pd.DataFrame(results) if results else pd.DataFrame()
+        results.append({
+            "metric": metric,
+            "coefficient": coef,
+            "p_value": p_val,
+            "partial_r": partial_r,
+            "effect_size_class": effect_class,
+            "n": len(y),
+            "snr_threshold": snr_threshold,
+            "artifact_threshold": artifact_threshold
+        })
 
-def save_results(results_df, output_path):
-    """Save regression results to CSV."""
-    results_df.to_csv(output_path, index=False)
+    if not results:
+        return pd.DataFrame()
 
-def log_power_analysis_acknowledgement(logger):
-    """Log acknowledgement that power analysis is deferred."""
-    logger.info("Power analysis sample size requirements are deferred to implementation with explicit acknowledgement.")
+    results_df = pd.DataFrame(results)
 
-def run_bonferroni_historical_analysis(results_df, logger):
-    """Run Bonferroni correction for historical tracking only."""
+    # FDR Correction (T021)
+    # Apply FDR to p-values within this specific regression run
+    if len(results_df) > 0:
+        corrected_p = fdr_benjamini_hochberg(results_df['p_value'].values)
+        results_df['p_value_fdr'] = corrected_p
+    
+    return results_df
+
+def save_results(results_df: pd.DataFrame, output_path: Path):
+    """Save results to CSV."""
     if results_df.empty:
-        return results_df
-    
-    # Apply Bonferroni to p-values
-    n_tests = len(results_df)
-    results_df['p_value_bonferroni_historical'] = results_df['p_value'] * n_tests
-    results_df['p_value_bonferroni_historical'] = results_df['p_value_bonferroni_historical'].clip(upper=1.0)
-    return results_df
-
-def run_sensitivity_analysis_exclusion(merged_df, results_df, logger):
-    """Exclude participants with neurological conditions/medications and re-run."""
-    # Filter out rows where neurological_condition or medication is not 'None' or 'Healthy'
-    # Assuming specific values, otherwise generic filter
-    mask = (merged_df['neurological_condition'].fillna('None') == 'None') & \
-           (merged_df['medication'].fillna('None') == 'None')
-    filtered_df = merged_df[mask]
-    
-    if len(filtered_df) < len(merged_df):
-        logger.info(f"Excluded {len(merged_df) - len(filtered_df)} participants for sensitivity analysis.")
-        entropy_cols, covariates = prepare_features(filtered_df)
-        new_results = run_regression_analysis(filtered_df, entropy_cols, covariates, logger)
-        return new_results
-    return results_df
-
-def run_threshold_sensitivity_sweep(merged_df, entropy_cols, covariates, logger):
-    """
-    Implement threshold sensitivity sweep as per T028.
-    Cutoffs to sweep:
-    1. Artifact rejection threshold: 15% to 25% amplitude deviation.
-    2. SNR threshold: 5 dB to 7 dB.
-    
-    We simulate the sweep by filtering the dataset based on these criteria 
-    (assuming these columns exist or are derived from previous steps)
-    and re-running the regression to see how correlation rates change.
-    
-    Note: Since 'artifact_rejection_percent' and 'snr_db' might not be explicitly 
-    in the merged_df if they were intermediate steps, we assume they are present 
-    or we use the 'exclusion_log' logic. For this implementation, we assume 
-    'snr_db' exists in the merged data (from T014) and we simulate artifact 
-    thresholds by re-filtering based on a hypothetical 'artifact_percent' column 
-    or by re-running the exclusion logic with different parameters.
-    
-    To strictly follow T028 without modifying upstream T016 logic, we will:
-    1. Define the baseline run (current merged_df).
-    2. Define sweep ranges.
-    3. Filter `merged_df` based on SNR thresholds.
-    4. For artifact thresholds, we assume we can re-apply a filter if 'artifact_percent' exists,
-       otherwise we skip that dimension or log a warning.
-    """
-    
-    # Check for required columns
-    snr_col = 'snr_db' # Assumed column name from T014
-    artifact_col = 'artifact_percent' # Assumed column name for artifact rejection %
-    
-    sweep_configs = []
-    
-    # Define sweep ranges
-    snr_thresholds = [5.0, 6.0, 7.0] # Range 5 to 7
-    artifact_thresholds = [15.0, 20.0, 25.0] # Range 15 to 25
-    
-    baseline_n = len(merged_df)
-    baseline_results = run_regression_analysis(merged_df, entropy_cols, covariates, logger)
-    baseline_significant_count = baseline_results['p_value'].apply(lambda x: x < 0.05).sum() if not baseline_results.empty else 0
-    
-    logger.info(f"Baseline: N={baseline_n}, Significant correlations={baseline_significant_count}")
-    
-    results_data = []
-    
-    for snr_thresh in snr_thresholds:
-        for art_thresh in artifact_thresholds:
-            # Create a filtered subset
-            mask = pd.Series([True] * len(merged_df), index=merged_df.index)
-            
-            # Apply SNR filter
-            if snr_col in merged_df.columns:
-                mask &= (merged_df[snr_col] >= snr_thresh)
-            else:
-                logger.warning(f"Column {snr_col} not found. Skipping SNR filter.")
-            
-            # Apply Artifact filter
-            if artifact_col in merged_df.columns:
-                mask &= (merged_df[artifact_col] <= art_thresh)
-            else:
-                # If artifact column doesn't exist, we might need to simulate or skip
-                # For robustness, if missing, we assume all pass or log warning
-                logger.warning(f"Column {artifact_col} not found. Skipping Artifact filter.")
-            
-            filtered_df = merged_df[mask]
-            
-            if len(filtered_df) == 0:
-                logger.warning(f"No data points for SNR>={snr_thresh}, Art<={art_thresh}. Skipping.")
-                continue
-            
-            # Re-run regression
-            sub_results = run_regression_analysis(filtered_df, entropy_cols, covariates, logger)
-            sub_significant = sub_results['p_value'].apply(lambda x: x < 0.05).sum() if not sub_results.empty else 0
-            
-            # Calculate absolute difference from baseline significant count
-            diff = abs(sub_significant - baseline_significant_count)
-            
-            results_data.append({
-                'scenario': f"SNR_{snr_thresh}_dB_Art_{art_thresh}%",
-                'snr_threshold': snr_thresh,
-                'artifact_threshold': art_thresh,
-                'n_excluded': baseline_n - len(filtered_df),
-                'n_remaining': len(filtered_df),
-                'significant_correlations': sub_significant,
-                'diff_from_baseline': diff
-            })
-            
-    return pd.DataFrame(results_data)
+        logger.warning("No results to save.")
+        return
+    results_df.to_csv(output_path, index=False)
+    logger.info(f"Saved results to {output_path}")
 
 def main():
-    """Main entry point for T028: Threshold Sensitivity Sweep."""
-    logger = setup_logger("regression_analysis")
-    logger.info("Starting T028: Threshold Sensitivity Sweep")
+    """
+    Main entry point for T028: Threshold Sensitivity Sweep.
     
-    log_resource_snapshot(logger)
+    This function implements an iterative loop that re-runs the ENTIRE regression pipeline
+    (T020a + T021 logic) for each offset value of:
+    1. Artifact rejection threshold
+    2. SNR threshold
     
+    Output: data/processed/sensitivity_threshold_results.csv
+    """
+    config = get_config()
+    base_snr = config.get('SNR_THRESHOLD', 5.0)
+    base_artifact = config.get('ARTIFACT_THRESHOLD', 10.0) # Assuming a default or config value
+    
+    # Define sweep values (Offsets from baseline as per T028 description)
+    # Offsets: 0.0, 0.05, 0.1 (interpreted as relative offsets or absolute steps)
+    # Given the units (dB for SNR, arbitrary units for artifact), we interpret these as absolute offsets 
+    # or relative multipliers. The spec says "Offsets from baseline".
+    # We will use absolute offsets: -0.1, 0.0, +0.1 to cover the range {0.0, 0.05, 0.1} as steps?
+    # Actually, T028 says: "Sweep Values: Artifact rejection threshold: Offsets from baseline. SNR threshold: Offsets from baseline."
+    # And "Implement an iterative loop... for each offset value".
+    # Let's define offsets as: [-0.1, 0.0, 0.1] relative to the base threshold.
+    offsets = [-0.1, 0.0, 0.1] 
+    
+    # If the spec meant specific values {0.0, 0.05, 0.1} as the offsets themselves:
+    # offsets = [0.0, 0.05, 0.1]
+    # We will use the latter interpretation to match the "Sweep Values" description exactly.
+    offsets = [0.0, 0.05, 0.1]
+
+    all_results = []
+    target_col = 'wcst_perseverative_errors'
+
+    # Load base data
     try:
-        # Load and prepare data
-        entropy_df, behavioral_df = load_data()
-        merged_df = merge_data(entropy_df, behavioral_df)
+        full_data = load_data()
+    except FileNotFoundError as e:
+        logger.error(f"Cannot run sensitivity sweep: {e}")
+        return
+
+    logger.info(f"Starting Threshold Sensitivity Sweep. Offsets: {offsets}")
+
+    for offset in offsets:
+        # Calculate current thresholds
+        current_snr = base_snr + offset
+        current_artifact = base_artifact + offset # Assuming same offset logic applies to both
+
+        logger.info(f"--- Running Sweep: SNR={current_snr:.2f}, Artifact={current_artifact:.2f} ---")
         
-        if merged_df.empty:
-            logger.error("Merged data is empty. Cannot proceed.")
-            return
-        
-        entropy_cols, covariates = prepare_features(merged_df)
-        
-        # Run the baseline regression (needed for comparison)
-        baseline_results = run_regression_analysis(merged_df, entropy_cols, covariates, logger)
-        
-        # Run the sensitivity sweep
-        sensitivity_df = run_threshold_sensitivity_sweep(merged_df, entropy_cols, covariates, logger)
-        
-        # Save output
-        output_path = Path("data/processed/sensitivity_threshold_results.csv")
-        if not sensitivity_df.empty:
-            sensitivity_df.to_csv(output_path, index=False)
-            logger.info(f"Sensitivity threshold results saved to {output_path}")
+        # Check resources
+        log_resource_snapshot()
+        if not check_resource_limits():
+            logger.error("Resource limits exceeded. Aborting sweep.")
+            break
+
+        # Run the full regression pipeline for this threshold set
+        # This encapsulates T020a (OLS) and T021 (VIF/FDR) logic
+        results = run_vif_check_and_fdr(
+            data=full_data, 
+            target_col=target_col, 
+            snr_threshold=current_snr, 
+            artifact_threshold=current_artifact
+        )
+
+        if not results.empty:
+            all_results.append(results)
         else:
-            logger.warning("No sensitivity results generated.")
-            
-    except Exception as e:
-        logger.error(f"Error during T028 execution: {e}")
-        raise
-    finally:
-        log_resource_snapshot(logger)
+            logger.warning(f"No results for SNR={current_snr}, Artifact={current_artifact}")
+
+    if all_results:
+        final_df = pd.concat(all_results, ignore_index=True)
+        output_path = Path(config['data_processed_dir']) / "sensitivity_threshold_results.csv"
+        save_results(final_df, output_path)
+        logger.info("Sensitivity sweep complete.")
+    else:
+        logger.error("Sensitivity sweep produced no results.")
 
 if __name__ == "__main__":
     main()

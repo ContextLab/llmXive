@@ -1,0 +1,44 @@
+{
+  "total_tasks": 10,
+  "total_2d_failures": 4,
+  "breakdown": {
+    "projection_loss": 2,
+    "action_restriction": 1,
+    "other": 1
+  },
+  "details": [
+    {
+      "task_id": "task_001",
+      "task_type": "occlusion",
+      "reason": "projection_loss",
+      "baseline_success": true,
+      "2d_success": false
+    },
+    {
+      "task_id": "task_003",
+      "task_type": "depth",
+      "reason": "action_restriction",
+      "baseline_success": true,
+      "2d_success": false
+    },
+    {
+      "task_id": "task_005",
+      "task_type": "occlusion",
+      "reason": "projection_loss",
+      "baseline_success": true,
+      "2d_success": false
+    },
+    {
+      "task_id": "task_007",
+      "task_type": "occlusion",
+      "reason": "other",
+      "baseline_success": false,
+      "2d_success": false
+    }
+  ],
+  "percentages": {
+    "projection_loss": 50.0,
+    "action_restriction": 25.0,
+    "other": 25.0
+  }
+}

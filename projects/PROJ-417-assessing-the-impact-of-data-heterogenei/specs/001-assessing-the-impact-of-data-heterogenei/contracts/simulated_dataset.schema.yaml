@@ -1,52 +1,36 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: SimulatedDataset
-description: >
-  Schema for a single simulated meta-analysis dataset replicate.
-  Contains the true parameters used for generation and the resulting
-  study-level data points.
 type: object
 required:
   - replicate_id
-  - true_tau_squared
-  - true_mu
-  - heterogeneity_level
-  - studies
+  - tau_squared
+  - true_effect
+  - study_effects
+  - study_se
+  - study_sizes
+  - k
+  - sweep_type
 properties:
   replicate_id:
-    type: string
-    description: Unique identifier for this replicate (e.g., "tau0.1_rep001")
-  true_tau_squared:
-    type: number
-    description: The ground-truth between-study variance (tau^2) used for generation.
-  true_mu:
-    type: number
-    description: The ground-truth overall effect size (mu) used for generation.
-  heterogeneity_level:
-    type: string
-    description: The categorical level name (e.g., "low", "moderate", "high") corresponding to the tau^2.
-  num_studies:
     type: integer
-    minimum: 1
-    description: Number of studies in this replicate.
-  studies:
+  tau_squared:
+    type: number
+  true_effect:
+    type: number
+  study_effects:
     type: array
-    description: List of study-level data points.
     items:
-      type: object
-      required:
-        - study_id
-        - effect_size
-        - standard_error
-        - sample_size
-      properties:
-        study_id:
-          type: integer
-        effect_size:
-          type: number
-        standard_error:
-          type: number
-          minimum: 0
-        sample_size:
-          type: integer
-          minimum: 1
-additionalProperties: false
+      type: number
+  study_se:
+    type: array
+    items:
+      type: number
+  study_sizes:
+    type: array
+    items:
+      type: integer
+  k:
+    type: integer
+  sweep_type:
+    type: string
+    enum:
+      - primary
+      - sensitivity

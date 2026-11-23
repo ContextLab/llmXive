@@ -1,0 +1,45 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Trajectory Schema
+description: >
+  Schema for CHERRL trajectory data containing reward hacking signals.
+  Defines the structure for seed_id, bias_type, timestep, and reward metrics
+  (J_biased, J_unbiased, J_gold) as per FR-001 and FR-002.
+type: object
+required:
+  - seed_id
+  - bias_type
+  - timestep
+  - J_biased
+  - J_unbiased
+  - J_gold
+properties:
+  seed_id:
+    type: integer
+    description: Unique identifier for the random seed used in the trajectory generation.
+    minimum: 0
+  bias_type:
+    type: string
+    description: The type of reward bias applied (e.g., Lexical, Format, Tone, Self-praise).
+    enum:
+      - Lexical
+      - Format
+      - Tone
+      - Self-praise
+      - None
+  timestep:
+    type: integer
+    description: The current step index in the trajectory.
+    minimum: 0
+  J_biased:
+    type: number
+    description: The cumulative reward score calculated using the biased rubric.
+    minimum: -Infinity
+  J_unbiased:
+    type: number
+    description: The cumulative reward score calculated using the unbiased rubric.
+    minimum: -Infinity
+  J_gold:
+    type: number
+    description: The ground truth reward score calculated using the gold standard rubric.
+    minimum: -Infinity
+additionalProperties: false

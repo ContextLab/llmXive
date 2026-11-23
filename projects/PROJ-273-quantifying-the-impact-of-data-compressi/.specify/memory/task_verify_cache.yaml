@@ -1,28 +1,47 @@
-T008:
+T002:
+  c: false
+  h: 1a8425ca8d66bd03933017b970c02002aeba2addcb7bb5658a37a16c0699943a
+  r: "The provided `amendment_draft.md` only lists FR\u2011001, FR\u2011003, FR\u2011\
+    005, FR\u2011007, FR\u2011009, FR\u2011010, SC\u2011003, SC\u2011004 without giving\
+    \ the required exact replacement text, and it omits SC\u2011005 and SC\u2011006\
+    \ entirely; the three user\u2011story narratives are also missing. The artifact\
+    \ does not meet the task\u2019s specification."
+T004:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pytest configuration file (e.g., pytest.ini, pyproject.toml, or similar)\
-    \ containing coverage thresholds and a 300\u2011second timeout setting was provided,\
-    \ nor any CI workflow showing these settings. Without such artifacts, the requirement\
-    \ cannot be verified as met."
+  r: "No updated `spec.md` file containing the exact amended text for FR\u2011005\
+    \ and Constitution Principle VII is provided; without the artifact we cannot confirm\
+    \ the required formal amendment was made. The implementer must supply the modified\
+    \ `spec.md` with the new wording authorizing Bilby/Dynesty as the Parameter Estimation\
+    \ engine."
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required `data/raw/`, `data/interim/`, `data/processed/`,
+    or `data/external/` directories is provided; the implementer did not supply any
+    artifact confirming the directory structure exists.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `tests/` directory or its required subfolders (`unit/`, `integration/`,
+    `contract/`) is present in the provided artifacts; the implementer did not supply
+    any file listings or screenshots confirming the structure.
 T009:
   c: true
-  h: 3f27a849474f402b58150182f6a5bbef820642a652c6471a8e848a13f0c90cfd
-  r: "The repository contains `tests/unit/test_inject.py`, a non\u2011empty test file\
-    \ that imports `inject_synthetic_signal` and includes `assert snr > 8.0` as required.\
-    \ The presence of the test satisfies the task specification."
+  h: 910b1ff19aefba13dd156f74838d7cded8bdbaeea374164169d2c95cb4f839e4
+  r: "The repository contains a non\u2011empty `tests/unit/test_inject.py` (\u2248\
+    3\u202FKB) that imports `inject_synthetic_signal` from `src/data/inject.py` and\
+    \ includes the required assertion `assert snr > 8.0`. This satisfies the task\
+    \ of writing the unit test."
 T010:
   c: false
   h: 6d83dcaa0a0612fefe5a6b0183ea8115a55fb589767f27f8892d22dd5c32f473
   r: "The provided `tests/unit/test_validate.py` is truncated (ends mid\u2011function)\
     \ and thus not a complete, runnable test suite, and the required `src/data/validate.py`\
     \ module is missing, so the unit test cannot be executed."
-T015:
+T012:
   c: false
   h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, script, or output files were provided that demonstrate a loop fetching\
-    \ additional noise segments in batches, validating them, and ensuring \u226512\
-    \ valid events with complete spin metadata. Without such artifacts, the requirement\
-    \ cannot be verified. The implementer must supply the actual implementation (e.g.,\
-    \ a function or module) and evidence (logs, test results, or data files) showing\
-    \ the batch\u2011fetching and validation logic works as specified."
+  r: No evidence of a `spec.md` file containing the required amendment was provided;
+    the implementer did not supply the updated file or show the exact replacement
+    text, so we cannot confirm the specification was modified as required.

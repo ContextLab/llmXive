@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis results schema"
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    description: "Network metric name, e.g. 'global_efficiency'."
+  correlation_r:
+    type: "number"
+    minimum: -1
+    maximum: 1
+    description: "Partial correlation coefficient with the MER score."
+  p_value:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Raw two‑tailed p‑value."
+  p_value_fdr:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Benjamini‑Hochberg FDR‑adjusted p‑value."
+  significant:
+    type: "boolean"
+    description: "True if p_value_fdr < 0.05."
+  sample_size:
+    type: "integer"
+    minimum: 1
+    description: "Number of subjects in the test."
+  power_achieved:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Achieved power for detecting r = 0.20 at alpha = 0.05."
+  required_N:
+    type: "integer"
+    description: "Minimum sample size needed for r ≥ 0.20, power ≥ 0.80, α = 0.05."
+  actual_N:
+    type: "integer"
+    description: "Number of subjects used in the analysis."
+required:
+  - metric_name
+  - correlation_r
+  - p_value
+  - p_value_fdr
+  - significant
+  - sample_size
+  - power_achieved
+  - required_N
+  - actual_N
+additionalProperties: false

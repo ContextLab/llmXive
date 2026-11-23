@@ -1,0 +1,17 @@
+0e220c976ad6ec6b9df9450a28de6467  ./annotation_hashes.txt
+4846306d0ce000ab65f9b54c8fe57de3  ./GCF_905234905.1_RUG30194_assembly_report.txt
+f75eff90a79a7a95d4ae63fd993e59be  ./GCF_905234905.1_RUG30194_assembly_stats.txt
+5b10c9f0b46bbb2cfdbbe77eadee4db2  ./GCF_905234905.1_RUG30194_cds_from_genomic.fna.gz
+5eb97a683db131d36dc15f7288fce049  ./GCF_905234905.1_RUG30194_fcs_report.txt
+e48ca134af1781cbbb986d98cc5cc6bf  ./GCF_905234905.1_RUG30194_feature_count.txt
+7f8bef67584143128f00a35c08a7c0df  ./GCF_905234905.1_RUG30194_feature_table.txt.gz
+f9d0ca847686f77ba74803477225c3ed  ./GCF_905234905.1_RUG30194_genomic.fna.gz
+298093f2d3b5e0181fd5516969bbcf97  ./GCF_905234905.1_RUG30194_genomic_gaps.txt.gz
+cf8455fbbafb8e187d46e90cfbe10381  ./GCF_905234905.1_RUG30194_genomic.gbff.gz
+990b72ba45e83d1ab009c687014272ff  ./GCF_905234905.1_RUG30194_genomic.gff.gz
+dc89a33c2c1e2e9e4c0b567c18da4e26  ./GCF_905234905.1_RUG30194_genomic.gtf.gz
+324cd03b30df710fae62b4f9accc468d  ./GCF_905234905.1_RUG30194_protein.faa.gz
+13d83eaca8b2543c7daff14c95765814  ./GCF_905234905.1_RUG30194_protein.gpff.gz
+3b313e0855e0116793c0b970cecf67c5  ./GCF_905234905.1_RUG30194_rna_from_genomic.fna.gz
+9e8e7ade5cff9219b92f826d0b0c94e5  ./GCF_905234905.1_RUG30194_translated_cds.faa.gz
+da5fe5341682182cae0a626683142a95  ./GCF_905234905.1_RUG30194_wgsmaster.gbff.gz

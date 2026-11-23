@@ -1,1 +1,2 @@
-# Placeholder to ensure directory exists
+# This directory stores raw, unprocessed data files.
+# Do not edit files here manually; use ingestion scripts to populate.

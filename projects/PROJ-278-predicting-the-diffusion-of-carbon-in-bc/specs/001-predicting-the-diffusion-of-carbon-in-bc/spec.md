@@ -29,13 +29,13 @@ The researcher MUST be able to train Random Forest, XGBoost, and Elastic Net mod
 
 **Why this priority**: This story delivers the core scientific analysis: quantifying the predictive power of composition alone. It directly addresses the research question regarding the fraction of variance explainable by composition.
 
-**Independent Test**: This story is complete when the training pipeline produces a `model_results.json` containing $R^2$ scores for all three models on the test set, and the total runtime of the training job does not exceed 6 hours on a GitHub Actions `ubuntu-latest` runner.
+**Independent Test**: This story is complete when the training pipeline produces a `model_results.json` containing $R^2$ scores for all three models on the test set, and the total runtime of the training job does not exceed a practical threshold on a GitHub Actions `ubuntu-latest` runner.
 
 **Acceptance Scenarios**:
 
 1. **Given** a split dataset with a training set of [deferred] samples and a test set of [deferred] samples, **When** the Random Forest model is trained with a max depth constraint, **Then** the model achieves an $R^2$ score calculated on the held-out test set.
-2. **Given** three candidate algorithms (RF, XGBoost, Elastic Net), **When** the grid search runs with 15 combinations, **Then** the system identifies the best-performing model based on cross-validated $R^2$ and records the optimal hyperparameters.
-3. **Given** the best model and a linear baseline, **When** a permutation test (10,000 iterations) is performed on the prediction errors, **Then** the system outputs a p-value indicating whether the ML model significantly outperforms the linear baseline at $\alpha=0.05$.
+2. **Given** three candidate algorithms (RF, XGBoost, Elastic Net), **When** the grid search runs with multiple combinations, **Then** the system identifies the best-performing model based on cross-validated $R^2$ and records the optimal hyperparameters.
+3. **Given** the best model and a linear baseline, **When** a permutation test is performed on the prediction errors, **Then** the system outputs a p-value indicating whether the ML model significantly outperforms the linear baseline at $\alpha=0.05$.
 
 ---
 
@@ -56,7 +56,7 @@ The researcher MUST be able to extract SHAP values to rank compositional descrip
 ### Edge Cases
 
 - What happens if the NIST/Materials Project repositories return zero entries matching the strict "BCC + Carbon Diffusion" criteria? The system MUST raise a specific `DataInsufficientError` halting the pipeline rather than training on an empty set.
-- How does the system handle entries where atomic fractions do not sum to 1.0 due to rounding errors in the source data? The system MUST normalize fractions to sum to 1.0 before feature engineering.
+- How does the system handle entries where atomic fractions do not sum to 1.0 due to rounding errors in the source data? The system MUST normalize fractions to sum to unity before feature engineering.
 - What happens if the dataset size is too small (<30 samples) for reliable 5-fold cross-validation? The system MUST fall back to a leave-one-out strategy or report a `PowerWarning` in the output log.
 
 ## Requirements

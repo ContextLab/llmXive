@@ -1,0 +1,56 @@
+- **FR-006**: The system MUST evaluate predictions by scoring **all** gene‑pair correlation scores (full, imbalanced set) against STRING high‑confidence interactions (combined score ≥ 700, excluding the co‑expression evidence channel). It MUST also generate a **balanced** negative subset (size = positive set) for a secondary sanity‑check analysis. AUROC and AUPRC are computed on the full set; the balanced subset results are reported for diagnostics. (See US-1)
+
+- **FR-007**: The system MUST generate a degree‑preserving random‑graph baseline (using multiple rewiring iterations) and report baseline AUROC/AUPRC for significance assessment per species. (See US-1)
+
+- **FR-008**: The system MUST perform GO enrichment on the union of genes participating in predicted PPIs for each species, using GOATOOLS, and report adjusted p‑values (FDR ≤ 0.05) in `go_enrichment_<species>.tsv`. **The background gene set is the filtered‑gene universe that passed the CPM filter and was successfully mapped to STRING IDs**. (See US-1)
+
+- **FR-009**: The system MUST orchestrate all steps via a Makefile with targets `all`, `evaluate`, `enrich`, `summary`, and optionally `clean`. The `all` target runs the full pipeline and must complete within **≤ 6 hours** wall‑clock on a GitHub Actions runner (2 CPU, 7 GB RAM). With the gene‑set limit of [deferred] this runtime is feasible given block‑wise streaming. (See US-1)
+
+- **FR-010**: The system MUST log all major actions, warnings, and errors to `pipeline.log` in **JSON‑Line** format, each entry containing `timestamp`, `level`, `message`, and `schema_version`. (See US-1)
+
+- **FR-011**: The system MUST produce a separate predicted edge‑list file named `predicted_ppi_<species>.tsv` for each species processed. The file **must contain columns `protein_id_1` and `protein_id_2`** followed by the correlation coefficient. (See US-1)
+
+- **FR-012**: The system MUST accept a CLI flag `--seed <int>` to set a global random seed. All stochastic processes (e.g., random‑graph baseline generation, negative sampling, bootstrap resampling) MUST use this seed, ensuring that re‑runs with the same seed and identical input data produce identical output files, thereby satisfying reproducibility requirements. (See US-1)
+
+- **FR-013**: The system MUST validate each `predicted_ppi_<species>.tsv` file against `contracts/predicted_edges.schema.yaml`; any schema violations must cause the pipeline to abort with an error message. (See US-1)
+
+- **FR-014**: The system MUST detect when multiple GEO series are combined for a species and apply batch‑effect correction (e.g., ComBat or limma's `removeBatchEffect`) prior to correlation calculation. If metadata are incomplete, surrogate variable analysis (SVA) shall be applied as a fallback. Additionally, the pipeline MUST assess and remove expression‑level and gene‑length confounds by regressing them out before correlation. (See US-1)
+
+- **FR-016**: The evaluation step MUST treat STRING high‑confidence edges as positives **and** explicitly sample a set of gene‑pair negatives not present in STRING (the complement of STRING high‑confidence set) to mitigate asymmetric false‑negative bias. (See US-1)
+
+- **FR-017**: After each Make target, the pipeline MUST run a verification script that checks the presence and parsability (valid TSV/JSON/YAML) of all required output files for each species, aborting with an error if any check fails. (See US-1)
+
+- **FR-018**: `evaluation_metrics.json` MUST contain the field `baseline_p` (float) representing the p‑value of the random‑graph baseline AUROC/AUPRC comparison, as required by `contracts/evaluation.schema.yaml`. (See US-1)
+
+- **FR-019**: The system MUST validate `evaluation_metrics.json` against `contracts/evaluation.schema.yaml` and abort with a descriptive error if validation fails. (See US-1)
+
+- **FR-020**: The system MUST retain the raw correlation scores for **all** gene‑pair candidates (or a statistically representative random sample) to enable unbiased AUROC/AUPRC computation prior to any thresholding; the scores are written in block‑wise gzipped TSV files (`raw_correlations_<species>.tsv.gz`) to respect memory constraints. (See US-1)
+
+- **FR-021**: The system MUST generate a comprehensive summary report `summary_<species>.txt` for each processed species that includes (i) total number of predicted edges, (ii) evaluation metrics (AUROC, AUPRC, baseline p), (iii) the top enriched GO terms with adjusted p‑values, and (iv) a concise construct‑validity justification citing the literature and the threshold‑sensitivity analysis (see FR‑026). (See US-1)
+
+- **FR-022**: The system MUST report the top enriched GO terms (ranked by adjusted p‑value) in the summary report for each species. (See US-1)
+
+- **FR-023**: The system MUST perform a correlation‑threshold sensitivity analysis for thresholds ranging from a low value up to 0.90 (e.g., the low‑threshold case, 0.80, 0.85, 0.90). For each threshold it must record the number of predicted edges, AUROC, and AUPRC, and write the results to `threshold_sensitivity_<species>.tsv`. The analysis uses the global random seed for reproducibility. (See US-1)
+
+- **FR-024**: The system MUST handle cases where no GO term meets the significance threshold by writing a single line “No significant enrichment” to `go_enrichment_<species>.tsv` and continuing without error. (See US-1)
+
+- **FR-025**: The system MUST save raw correlation scores for all gene‑pair candidates to `raw_correlations_<species>.tsv.gz` before any thresholding; this file is required for unbiased AUROC/AUPRC computation. (See US-1)
+
+- **FR-026**: The system MUST provide a construct‑validity justification by citing literature that demonstrates high‑threshold co‑expression predicts physical interactions in plants (e.g., Zhang et al., Nat Commun. 2020; Lee et al., Plant Cell 2021) and must include the sensitivity analysis defined in FR‑023. This justification is written into the per‑species summary report (`summary_<species>.txt`). (See US-1)
+
+- **FR-028**: The system MUST produce a final report (`final_report.txt`) that aggregates per‑species summaries, presents overall performance statistics, and restates the construct‑validity justification for the entire study. (See US-1)
+
+- **FR-030**: The system MUST validate each `threshold_sensitivity_<species>.tsv` against `contracts/threshold_sensitivity.schema.yaml`; validation failures abort the pipeline with a clear error. (See US-1)
+
+- **FR-032**: The system MUST define a negative‑sampling strategy for evaluation: draw a set of gene‑pair negatives equal in size to the positive set, sampled uniformly from all possible gene pairs **absent from STRING** (the complement of the high‑confidence STRING set), using the global random seed. Class‑imbalance metrics (e.g., precision‑recall curves) shall be reported alongside AUROC/AUPRC. (See US-1)
+
+- **FR-034**: The system MUST ensure that logging conforms to a versioned JSON‑Line schema (`pipeline_log.schema.yaml`), containing fields `timestamp`, `level`, `message`, and `schema_version`. (See US-1)
+
+- **FR-035**: The system MUST retain reproducibility by recording the exact command‑line invocation, software versions, and random seed in `pipeline.log`. (See US-1)
+
+- **FR-045**: The system MUST apply Benjamini‑Hochberg FDR correction to correlation‑test p‑values and retain an edge only if the adjusted p‑value ≤ 0.05. This controls the false‑positive rate given the massive multiple‑testing burden. (See US-1)
+
+### Key Entities *(include if feature involves data)*
+
+- **RNA‑seq Sample**: Represents a single GEO accession; attributes include raw count matrix, sample metadata, and normalized expression vector.
+- **Gene**: Biological entity identified by TAIR ID (or species‑specific identifier); attributes include normalized expression values and mapped STRING protein ID.

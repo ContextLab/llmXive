@@ -1,117 +1,209 @@
+"""
+Data loading module.
+Handles loading of real data or generation of synthetic data for CI/testing.
+"""
 import argparse
 import os
 import sys
+import json
+import hashlib
+import logging
 import pandas as pd
+import numpy as np
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional, Dict, Any
+from datetime import datetime
 
-from ..config import get_project_root, get_data_path
+from config import get_project_root, get_data_path
+from utils.logging import get_logger
 
-def load_response_logs(logs_path: Optional[Path] = None) -> pd.DataFrame:
-    """
-    Load raw response logs from the specified path.
-    
-    Args:
-        logs_path: Path to the raw logs directory or specific file.
-        
-    Returns:
-        DataFrame containing the loaded response logs.
-    """
-    if logs_path is None:
-        data_path = get_data_path()
-        logs_path = data_path / "raw" / "responses"
-    
-    if logs_path.is_file():
-        files = [logs_path]
-    elif logs_path.is_dir():
-        files = list(logs_path.glob("*.csv"))
-        if not files:
-            raise FileNotFoundError(f"No CSV files found in {logs_path}")
-    else:
-        raise FileNotFoundError(f"Path not found: {logs_path}")
-    
-    dfs = []
-    for file in files:
-        try:
-            df = pd.read_csv(file)
-            dfs.append(df)
-        except Exception as e:
-            print(f"Warning: Could not read {file}: {e}", file=sys.stderr)
-    
-    if not dfs:
-        raise ValueError("No valid data files found to load.")
-    
-    return pd.concat(dfs, ignore_index=True)
+logger = get_logger(__name__)
+
+def compute_sha256(file_path: Path) -> str:
+    """Compute SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def verify_checksum(file_path: Path, stored_hash: str) -> bool:
+    """Verify file checksum against stored hash."""
+    current_hash = compute_sha256(file_path)
+    return current_hash == stored_hash
 
 def generate_synthetic_response_logs(
-    output_path: Path,
-    n_participants: int = 100,
-    n_trials: int = 40,
-    seed: int = 42
-) -> None:
+    n_participants: int = 60,
+    seed: int = 42,
+    null_effect: bool = False
+) -> pd.DataFrame:
     """
-    Generate synthetic response logs for CI/testing purposes.
+    Generate synthetic response logs for testing.
     
     Args:
-        output_path: Path to save the synthetic logs.
         n_participants: Number of synthetic participants.
-        n_trials: Number of trials per participant.
         seed: Random seed for reproducibility.
+        null_effect: If True, generate data with no effect (D-scores ~ 0).
+    
+    Returns:
+        DataFrame with synthetic response logs.
     """
-    import numpy as np
     np.random.seed(seed)
     
-    records = []
-    for p_id in range(1, n_participants + 1):
-        for t_id in range(1, n_trials + 1):
-            # Simulate reaction times (normal distribution, truncated)
-            rt = np.random.normal(500, 100)
-            rt = np.clip(rt, 300, 2000)
-            
-            # Simulate correctness (90% correct)
-            is_correct = 1 if np.random.random() > 0.1 else 0
-            
-            # Simulate session (1 or 2)
-            session_id = 1 if t_id <= n_trials // 2 else 2
-            
-            records.append({
-                "participant_id": f"P{p_id:03d}",
-                "session_id": session_id,
-                "trial_id": t_id,
-                "reaction_time": rt,
-                "is_correct": is_correct,
-                "timestamp": "2023-01-01T12:00:00"
-            })
+    # Define blocks and trials
+    blocks = ["Practice1", "Test1", "Practice2", "Test2", "Test3"]
+    trials_per_block = [20, 40, 20, 40, 40]
     
-    df = pd.DataFrame(records)
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(output_path, index=False)
-    print(f"Generated synthetic logs at {output_path}")
+    data = []
+    for p_idx in range(n_participants):
+        participant_id = f"P{p_idx:03d}"
+        
+        for block_idx, block_name in enumerate(blocks):
+            n_trials = trials_per_block[block_idx]
+            for trial_idx in range(n_trials):
+                # Simulate reaction time (normal distribution, truncated)
+                rt = np.random.normal(600, 100)
+                rt = np.clip(rt, 300, 10000)
+                
+                # Simulate correctness (mostly correct)
+                is_correct = np.random.random() > 0.05
+                
+                # Simulate stimulus condition (simplified)
+                # In a real IAT, this would depend on block and set
+                stimulus_type = "Compatible" if block_idx in [1, 3] else "Incompatible"
+                
+                data.append({
+                    "participant_id": participant_id,
+                    "session_id": f"S{block_idx}",
+                    "trial_number": trial_idx,
+                    "block_name": block_name,
+                    "reaction_time_ms": rt,
+                    "is_correct": is_correct,
+                    "stimulus_type": stimulus_type,
+                    "timestamp": datetime.now().isoformat()
+                })
+    
+    df = pd.DataFrame(data)
+    
+    # If null_effect is True, ensure D-scores will be near zero
+    if null_effect:
+        # Adjust reaction times to minimize difference between conditions
+        # This is a simplified approach; real null-effect generation would be more nuanced
+        compatible_mask = df["stimulus_type"] == "Compatible"
+        incompatible_mask = df["stimulus_type"] == "Incompatible"
+        
+        mean_rt = df["reaction_time_ms"].mean()
+        df.loc[compatible_mask, "reaction_time_ms"] = mean_rt + np.random.normal(0, 10, compatible_mask.sum())
+        df.loc[incompatible_mask, "reaction_time_ms"] = mean_rt + np.random.normal(0, 10, incompatible_mask.sum())
+    
+    return df
 
-def main() -> int:
-    """Main entry point for data loading script."""
-    parser = argparse.ArgumentParser(description="Load or generate response logs.")
-    parser.add_argument("--null-effect", action="store_true", help="Generate synthetic data for CI.")
-    parser.add_argument("--output", type=str, help="Output path for synthetic data.")
-    parser.add_argument("--input", type=str, help="Input path for real data.")
+def load_response_logs(
+    null_effect: bool = False,
+    output_path: Optional[Path] = None
+) -> pd.DataFrame:
+    """
+    Load response logs from real data or generate synthetic data.
+    
+    Args:
+        null_effect: If True, generate synthetic data with null effect.
+        output_path: Path to save generated synthetic data (optional).
+    
+    Returns:
+        DataFrame with response logs.
+    
+    Raises:
+        RuntimeError: If real data is missing and not in CI/null-effect mode.
+    """
+    project_root = get_project_root()
+    data_path = get_data_path()
+    
+    # Check for real data
+    real_data_path = data_path / "raw" / "responses" / "participants.csv"
+    
+    if real_data_path.exists():
+        logger.info(f"Loading real data from {real_data_path}")
+        df = pd.read_csv(real_data_path)
+        
+        # Verify checksum if exists
+        checksum_path = data_path / "checksums.json"
+        if checksum_path.exists():
+            with open(checksum_path, "r") as f:
+                checksums = json.load(f)
+            
+            expected_hash = checksums.get(str(real_data_path.relative_to(project_root)))
+            if expected_hash:
+                if not verify_checksum(real_data_path, expected_hash):
+                    raise ValueError("Data checksum mismatch! File may be corrupted.")
+                logger.info("Data checksum verified.")
+        else:
+            # Generate checksum on first run
+            current_hash = compute_sha256(real_data_path)
+            checksums = {}
+            if checksum_path.exists():
+                with open(checksum_path, "r") as f:
+                    checksums = json.load(f)
+            checksums[str(real_data_path.relative_to(project_root))] = current_hash
+            with open(checksum_path, "w") as f:
+                json.dump(checksums, f, indent=2)
+            logger.info(f"Generated and stored checksum for {real_data_path}")
+        
+        return df
+    
+    # No real data found
+    if os.environ.get("GITHUB_ACTIONS") or null_effect:
+        logger.warning("Real data not found. Generating synthetic data.")
+        df = generate_synthetic_response_logs(n_participants=60, seed=42, null_effect=null_effect)
+        
+        # Save synthetic data if output_path provided
+        if output_path:
+            output_path.parent.mkdir(parents=True, exist_ok=True)
+            df.to_csv(output_path, index=False)
+            logger.info(f"Synthetic data saved to {output_path}")
+        
+        return df
+    else:
+        raise RuntimeError(
+            "Real data not found and not in CI/null-effect mode. "
+            "Please provide real data or run with --null-effect flag."
+        )
+
+def main(null_effect: bool = False) -> None:
+    """
+    Main entry point for data loading.
+    
+    Args:
+        null_effect: If True, generate synthetic data with null effect.
+    """
+    logger.info("Starting data loading...")
+    
+    df = load_response_logs(null_effect=null_effect)
+    
+    # Save processed data
+    data_path = get_data_path()
+    processed_dir = data_path / "processed"
+    processed_dir.mkdir(parents=True, exist_ok=True)
+    
+    output_path = processed_dir / "response_logs.csv"
+    df.to_csv(output_path, index=False)
+    logger.info(f"Response logs saved to {output_path}")
+    
+    logger.info("Data loading completed.")
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(description="Load response logs")
+    parser.add_argument(
+        "--null-effect",
+        action="store_true",
+        help="Generate synthetic data with null effect"
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        help="Output path for synthetic data"
+    )
     
     args = parser.parse_args()
     
-    if args.null_effect:
-        if not args.output:
-            args.output = str(get_data_path() / "raw" / "responses" / "synthetic_logs.csv")
-        generate_synthetic_response_logs(Path(args.output))
-    else:
-        if not args.input:
-            args.input = str(get_data_path() / "raw" / "responses")
-        try:
-            df = load_response_logs(Path(args.input))
-            print(f"Loaded {len(df)} rows from {args.input}")
-        except Exception as e:
-            print(f"Error loading data: {e}", file=sys.stderr)
-            return 1
-    
-    return 0
-
-if __name__ == "__main__":
-    sys.exit(main())
+    output_path = Path(args.output) if args.output else None
+    main(null_effect=args.null_effect)

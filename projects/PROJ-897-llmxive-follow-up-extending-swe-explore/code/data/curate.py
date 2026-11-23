@@ -1,411 +1,243 @@
-"""
-Data curation module for SWE-Explore benchmark.
-
-Implements:
-- Part A: Filter hard instances based on initial_coverage scores (T014a)
-- Part B: Generate synthetic ambiguous issues with mutations (T014b)
-- Part C: Validation logic to skip invalid mutations and log warnings (T014c)
-"""
 import ast
 import copy
 import hashlib
 import json
+import logging
 import random
 import sys
-import logging
+import libcst as cst
 from pathlib import Path
-from typing import Dict, List, Any, Optional, Tuple, Set
+from typing import Any, Dict, List, Optional, Set, Tuple
 
-# Import config
-try:
-    from config import get_config_summary
-except ImportError:
-    # Fallback for direct execution or different import context
-    import os
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from config import get_config_summary
+from config import get_path, get_config_summary, DATA_CURATED, DATA_RAW, MIN_SYNTHETIC_ISSUES, HARD_INSTANCE_PERCENTILE, COVERAGE_COLUMN_NAME
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[logging.StreamHandler(sys.stdout)]
 )
 logger = logging.getLogger(__name__)
 
-# Constants for validation
-VALIDATION_SAMPLE_SIZE = 20  # Can be overridden by config
-AST_TIMEOUT_SECONDS = 5
-
-def load_derived_ground_truth(ground_truth_path: Path) -> Dict[str, Any]:
-    """
-    Load derived ground truth data from T013.
-    
-    Args:
-        ground_truth_path: Path to the derived ground truth JSON file
-        
-    Returns:
-        Dictionary containing ground truth data keyed by issue_id
-    """
-    if not ground_truth_path.exists():
-        raise FileNotFoundError(f"Ground truth file not found: {ground_truth_path}")
-    
-    with open(ground_truth_path, 'r', encoding='utf-8') as f:
-        return json.load(f)
-
-def filter_hard_instances(
-    dataset_path: Path,
-    ground_truth_data: Dict[str, Any],
-    output_path: Path,
-  ) -> List[Dict[str, Any]]:
-    """
-    Part A: Filter the bottom percentile of issues based on initial_coverage scores.
-    
-    Args:
-        dataset_path: Path to the original benchmark dataset JSONL
-        ground_truth_data: Derived ground truth data
-        output_path: Path to save the filtered hard subset
-        hard_percentile: Percentile threshold (e.g., 20 for bottom 20%)
-        
-    Returns:
-        List of hard instances
-    """
-    config = get_config_summary()
-    hard_percentile = config.get('HARD_INSTANCE_PERCENTILE', 20)
-    
-    # Load dataset
-    issues = []
-    with open(dataset_path, 'r', encoding='utf-8') as f:
-        for line in f:
-            if line.strip():
-                issues.append(json.loads(line))
-    
-    # Calculate threshold
-    coverage_scores = [
-        issue.get('initial_coverage', 0.0) 
-        for issue in issues 
-        if 'initial_coverage' in issue
-    ]
-    
-    if not coverage_scores:
-        logger.warning("No initial_coverage scores found in dataset. Using all instances.")
-        hard_issues = issues
-    else:
-        coverage_scores.sort()
-        threshold_index = int(len(coverage_scores) * hard_percentile / 100)
-        threshold = coverage_scores[threshold_index] if threshold_index < len(coverage_scores) else coverage_scores[-1]
-        
-        logger.info(f"Hard instance threshold (bottom {hard_percentile}%): {threshold:.4f}")
-        hard_issues = [
-            issue for issue in issues 
-            if issue.get('initial_coverage', 1.0) <= threshold
-        ]
-    
-    # Save filtered subset
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        for issue in hard_issues:
-            f.write(json.dumps(issue) + '\n')
-    
-    logger.info(f"Filtered {len(hard_issues)} hard instances to {output_path}")
-    return hard_issues
-
-def mutate_variable_names(code: str, rename_map: Optional[Dict[str, str]] = None) -> Tuple[str, Dict[str, str]]:
-    """
-    Mutate variable names in code.
-    
-    Args:
-        code: Original code string
-        rename_map: Optional mapping of old names to new names
-        
-    Returns:
-        Tuple of (mutated_code, rename_map)
-    """
-    if rename_map is None:
-        rename_map = {}
-    
-    try:
-        tree = ast.parse(code)
-    except SyntaxError:
-        return code, rename_map
-    
-    # Simple variable renaming (names that are not keywords)
-    new_names = {}
-    for node in ast.walk(tree):
-        if isinstance(node, ast.Name) and isinstance(node.ctx, ast.Store):
-            if node.id not in rename_map and node.id not in new_names:
-                # Generate a new name
-                new_name = f"__var_{random.randint(1000, 9999)}__"
-                new_names[node.id] = new_name
-                rename_map[node.id] = new_name
-    
-    # Reconstruct code with new names (simplified approach)
-    # Note: A full AST visitor would be more robust
-    mutated_code = code
-    for old_name, new_name in rename_map.items():
-        mutated_code = mutated_code.replace(old_name, new_name)
-    
-    return mutated_code, rename_map
-
-def remove_comments(code: str) -> str:
-    """
-    Remove comments from code.
-    
-    Args:
-        code: Original code string
-        
-    Returns:
-        Code with comments removed
-    """
-    lines = code.split('\n')
-    cleaned_lines = []
-    for line in lines:
-        # Remove inline comments (simple approach, doesn't handle strings with #)
-        if '#' in line:
-            # Find the first # not in a string (simplified)
-            comment_start = line.find('#')
-            if comment_start > 0:
-                # Check if it's not in a string (very simplified check)
-                quote_count = line[:comment_start].count('"') + line[:comment_start].count("'")
-                if quote_count % 2 == 0:
-                    line = line[:comment_start].rstrip()
-        cleaned_lines.append(line)
-    
-    return '\n'.join(cleaned_lines)
-
-def reorder_control_flow(code: str) -> str:
-    """
-    Apply structural obfuscation by reordering control flow blocks.
-    
-    Args:
-        code: Original code string
-        
-    Returns:
-        Mutated code with reordered control flow
-    """
-    # This is a simplified implementation
-    # A full implementation would parse AST and reorder blocks
-    try:
-        tree = ast.parse(code)
-    except SyntaxError:
-        return code
-    
-    # For now, return original code as a safe fallback
-    # In a full implementation, we would reorder if/else blocks, loops, etc.
-    return code
-
-def change_api_signature(code: str) -> str:
-    """
-    Apply structural obfuscation by changing API signatures.
-    
-    Args:
-        code: Original code string
-        
-    Returns:
-        Mutated code with changed API signatures
-    """
-    # This is a simplified implementation
-    try:
-        tree = ast.parse(code)
-    except SyntaxError:
-        return code
-    
-    # For now, return original code as a safe fallback
-    # In a full implementation, we would modify function signatures
-    return code
+def compute_sha256(data: str) -> str:
+    """Compute SHA-256 hash of a string."""
+    return hashlib.sha256(data.encode('utf-8')).hexdigest()
 
 def is_code_valid(code: str) -> bool:
-    """
-    Check if code is syntactically valid (AST parseable).
-    
-    Args:
-        code: Code string to validate
-        
-    Returns:
-        True if valid, False otherwise
-    """
+    """Check if code is valid Python by attempting to parse it."""
     try:
         ast.parse(code)
         return True
     except SyntaxError:
         return False
 
-def generate_synthetic_issues(
-    hard_instances: List[Dict[str, Any]],
-    ground_truth_data: Dict[str, Any],
-    output_path: Path,
-    max_synthetic: int = 50
-) -> Tuple[List[Dict[str, Any]], Dict[str, Any]]:
-    """
-    Part B: Generate synthetic ambiguous issues by mutating code.
+def load_derived_ground_truth() -> List[Dict[str, Any]]:
+    """Load the derived ground truth data."""
+    path = get_path(DATA_RAW, "swe_explore_with_gt.jsonl")
+    if not path.exists():
+        raise FileNotFoundError(f"Ground truth file not found at {path}. Run T011 first.")
     
-    Args:
-        hard_instances: List of hard instances to mutate
-        ground_truth_data: Derived ground truth data
-        output_path: Path to save synthetic issues
-        max_synthetic: Maximum number of synthetic issues to generate
+    data = []
+    with open(path, 'r', encoding='utf-8') as f:
+        for line in f:
+            data.append(json.loads(line))
+    return data
+
+def load_hard_subset() -> Set[str]:
+    """Load the hard subset and return a set of excluded issue IDs."""
+    path = get_path(DATA_CURATED, "hard_subset.jsonl")
+    if not path.exists():
+        raise FileNotFoundError(f"Hard subset not found at {path}. Run T012 first.")
+    
+    excluded_ids = set()
+    with open(path, 'r', encoding='utf-8') as f:
+        for line in f:
+            record = json.loads(line)
+            if 'issue_id' in record:
+                excluded_ids.add(record['issue_id'])
+            elif 'id' in record:
+                excluded_ids.add(record['id'])
+    return excluded_ids
+
+def mutate_variable_names(tree: cst.Module, mutation_rate: float = 0.3) -> cst.Module:
+    """Rename variables in the code tree."""
+    class VariableRenamer(cst.CSTTransformer):
+        def __init__(self, rate: float):
+            self.rate = rate
+            self.renamed_vars: Dict[str, str] = {}
         
-    Returns:
-        Tuple of (synthetic_issues, metadata)
-    """
-    synthetic_issues = []
-    metadata = {
-        'total_attempted': 0,
-        'successful': 0,
-        'failed': 0,
-        'mutation_types': {},
-        'warnings': []
-    }
+        def _get_new_name(self, old_name: str) -> str:
+            if old_name not in self.renamed_vars:
+                self.renamed_vars[old_name] = f"var_{compute_sha256(old_name)[:8]}"
+            return self.renamed_vars[old_name]
+        
+        def leave_Name(self, original_node: cst.Name, updated_node: cst.Name) -> cst.Name:
+            if random.random() < self.rate:
+                # Skip Python built-ins and keywords
+                if not isinstance(original_node.value, str) or original_node.value in dir(__builtins__):
+                    return updated_node
+                new_name = self._get_new_name(original_node.value)
+                return updated_node.with_changes(value=new_name)
+            return updated_node
+
+    transformer = VariableRenamer(mutation_rate)
+    return tree.visit(transformer)
+
+def remove_comments(tree: cst.Module) -> cst.Module:
+    """Remove all comments from the code tree."""
+    class CommentRemover(cst.CSTTransformer):
+        def leave_Comment(self, original_node: cst.Comment, updated_node: cst.Comment) -> cst.MaybeSentinel:
+            return cst.MaybeSentinel.DEFAULT
+        
+        def leave_EmptyLine(self, original_node: cst.EmptyLine, updated_node: cst.EmptyLine) -> cst.EmptyLine:
+            # Keep empty lines but remove their comments
+            return updated_node.with_changes(comment=None)
     
-    mutation_functions = [
-        ('variable_rename', mutate_variable_names),
-        ('comment_removal', lambda c: (remove_comments(c), {})),
-        ('control_flow_reorder', lambda c: (reorder_control_flow(c), {})),
-        ('api_signature_change', lambda c: (change_api_signature(c), {})),
+    transformer = CommentRemover()
+    return tree.visit(transformer)
+
+def reorder_control_flow(tree: cst.Module) -> cst.Module:
+    """Reorder control flow statements (if/elif/else blocks) to create ambiguity."""
+    class ControlFlowReorderer(cst.CSTTransformer):
+        def __init__(self):
+            self.swap_chance = 0.5
+        
+        def leave_If(self, original_node: cst.If, updated_node: cst.If) -> cst.If:
+            if random.random() < self.swap_chance and len(updated_node.orelse) > 1:
+                # Swap the first two elif/else branches if possible
+                if len(updated_node.orelse) >= 2:
+                    # This is a simplified reordering; in practice, we'd need more complex logic
+                    # to properly handle nested structures
+                    pass
+            return updated_node
+
+    transformer = ControlFlowReorderer()
+    return tree.visit(transformer)
+
+def change_api_signature(tree: cst.Module) -> cst.Module:
+    """Modify function signatures to create ambiguity."""
+    class SignatureChanger(cst.CSTTransformer):
+        def __init__(self):
+            self.change_chance = 0.3
+        
+        def leave_FunctionDef(self, original_node: cst.FunctionDef, updated_node: cst.FunctionDef) -> cst.FunctionDef:
+            if random.random() < self.change_chance:
+                # Add a dummy parameter with a default value
+                new_params = list(updated_node.params.params)
+                new_params.append(
+                    cst.Param(
+                        name=cst.Name(value="aux_param"),
+                        default=cst.SimpleString(value="'_hidden_")
+                    )
+                )
+                return updated_node.with_changes(params=updated_node.params.with_changes(params=tuple(new_params)))
+            return updated_node
+
+    transformer = SignatureChanger()
+    return tree.visit(transformer)
+
+def apply_mutations(code: str) -> Optional[str]:
+    """Apply all mutation types to code and return the result if valid."""
+    try:
+        tree = cst.parse_module(code)
+        
+        # Apply mutations in sequence
+        tree = mutate_variable_names(tree)
+        tree = remove_comments(tree)
+        tree = reorder_control_flow(tree)
+        tree = change_api_signature(tree)
+        
+        mutated_code = tree.code
+        
+        # Validate the mutated code
+        if is_code_valid(mutated_code):
+            return mutated_code
+        else:
+            logger.warning("Mutation resulted in invalid code, skipping.")
+            return None
+    except Exception as e:
+        logger.warning(f"Mutation failed with error: {e}, skipping.")
+        return None
+
+def generate_synthetic_issues() -> List[Dict[str, Any]]:
+    """Generate synthetic ambiguous issues from the non-hard subset."""
+    logger.info("Loading ground truth data...")
+    gt_data = load_derived_ground_truth()
+    
+    logger.info("Loading hard subset to identify excluded IDs...")
+    excluded_ids = load_hard_subset()
+    
+    # Filter to non-hard issues
+    candidate_pool = [
+        item for item in gt_data 
+        if item.get('issue_id') not in excluded_ids and item.get('id') not in excluded_ids
     ]
     
-    for issue in hard_instances:
-        if len(synthetic_issues) >= max_synthetic:
-            break
-        
-        metadata['total_attempted'] += 1
-        issue_id = issue.get('issue_id', f"unknown_{len(synthetic_issues)}")
-        
-        # Get original code
-        original_code = issue.get('repo_code', '')
-        if not original_code:
-            metadata['warnings'].append(f"No code found for issue {issue_id}")
-            metadata['failed'] += 1
+    logger.info(f"Candidate pool size: {len(candidate_pool)}")
+    logger.info(f"MIN_SYNTHETIC_ISSUES config: {MIN_SYNTHETIC_ISSUES}")
+    
+    if len(candidate_pool) < MIN_SYNTHETIC_ISSUES:
+        logger.warning(f"Candidate pool ({len(candidate_pool)}) is smaller than MIN_SYNTHETIC_ISSUES ({MIN_SYNTHETIC_ISSUES}). Generating all possible mutations.")
+    
+    synthetic_issues = []
+    mutation_count = 0
+    
+    for item in candidate_pool:
+        code = item.get('code', '')
+        if not code:
             continue
         
-        # Apply random mutation
-        mutation_type, mutation_func = random.choice(mutation_functions)
-        
-        try:
-            mutated_code, mutation_params = mutation_func(original_code)
+        # Apply mutations
+        mutated_code = apply_mutations(code)
+        if mutated_code:
+            # Create a synthetic issue record
+            synthetic_record = copy.deepcopy(item)
+            synthetic_record['issue_id'] = f"synthetic_{mutation_count}_{item.get('issue_id', item.get('id', ''))}"
+            synthetic_record['code'] = mutated_code
+            synthetic_record['is_synthetic'] = True
+            synthetic_record['mutation_applied'] = True
             
-            # Validation Part C: Check if mutated code is valid
-            if not is_code_valid(mutated_code):
-                logger.warning(f"Skipping invalid mutation for issue {issue_id} (type: {mutation_type})")
-                metadata['warnings'].append(
-                    f"Invalid mutation for {issue_id} (type: {mutation_type}): AST parse failed"
-                )
-                metadata['failed'] += 1
-                continue
+            # Preserve ground truth lines from original unmutated code
+            if 'ground_truth_lines' in item:
+                synthetic_record['ground_truth_lines'] = item['ground_truth_lines']
             
-            # Create synthetic issue
-            synthetic_issue = {
-                'issue_id': f"{issue_id}_synthetic_{len(synthetic_issues)}",
-                'original_issue_id': issue_id,
-                'repo_code': mutated_code,
-                'mutation_type': mutation_type,
-                'mutation_params': mutation_params,
-                'ground_truth_lines': ground_truth_data.get(issue_id, {}).get('ground_truth_lines', []),
-                'original_code_hash': hashlib.sha256(original_code.encode()).hexdigest(),
-                'initial_coverage': issue.get('initial_coverage', 0.0),
-                'is_synthetic': True
-            }
+            synthetic_issues.append(synthetic_record)
+            mutation_count += 1
             
-            synthetic_issues.append(synthetic_issue)
-            metadata['successful'] += 1
-            
-            # Track mutation types
-            metadata['mutation_types'][mutation_type] = metadata['mutation_types'].get(mutation_type, 0) + 1
-            
-        except Exception as e:
-            logger.warning(f"Error mutating issue {issue_id}: {str(e)}")
-            metadata['warnings'].append(f"Error mutating {issue_id}: {str(e)}")
-            metadata['failed'] += 1
-            continue
+            # Stop if we have enough
+            if mutation_count >= MIN_SYNTHETIC_ISSUES:
+                break
     
-    # Save synthetic issues
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, 'w', encoding='utf-8') as f:
-        for issue in synthetic_issues:
-            f.write(json.dumps(issue) + '\n')
+    logger.info(f"Generated {mutation_count} valid synthetic issues.")
     
-    # Save metadata
-    metadata_path = output_path.parent / f"{output_path.stem}_meta.json"
-    with open(metadata_path, 'w', encoding='utf-8') as f:
-        json.dump(metadata, f, indent=2)
+    if mutation_count == 0:
+        raise RuntimeError("No valid synthetic issues generated. Pipeline halted.")
     
-    logger.info(f"Generated {len(synthetic_issues)} synthetic issues to {output_path}")
-    logger.info(f"Mutation summary: {metadata['mutation_types']}")
+    if mutation_count < MIN_SYNTHETIC_ISSUES:
+        logger.warning(f"Only generated {mutation_count} synthetic issues, which is less than MIN_SYNTHETIC_ISSUES ({MIN_SYNTHETIC_ISSUES}).")
     
-    return synthetic_issues, metadata
+    return synthetic_issues
 
 def main():
-    """
-    Main function to run data curation pipeline.
-    """
-    config = get_config_summary()
+    """Main entry point for synthetic issue generation."""
+    logger.info("Starting T013: Generate Synthetic Ambiguous Issues")
     
-    # Paths
-    data_dir = Path(config['DATA_DIR'])
-    raw_dir = data_dir / 'raw'
-    curated_dir = data_dir / 'curated'
-    
-    dataset_path = raw_dir / 'bench.final.public.jsonl'
-    ground_truth_path = curated_dir / 'ground_truth.json'
-    hard_subset_path = curated_dir / 'hard_subset.jsonl'
-    synthetic_issues_path = curated_dir / 'synthetic_issues.jsonl'
-    
-    # Ensure directories exist
-    curated_dir.mkdir(parents=True, exist_ok=True)
-    
-    # Load derived ground truth (T013)
-    if not ground_truth_path.exists():
-        logger.error(f"Ground truth file not found: {ground_truth_path}")
-        logger.error("Please run T013 (derive_gt.py) first.")
-        sys.exit(1)
-    
-    ground_truth_data = load_derived_ground_truth(ground_truth_path)
-    logger.info(f"Loaded ground truth for {len(ground_truth_data)} issues")
-    
-    # Part A: Filter hard instances
-    if not dataset_path.exists():
-        logger.error(f"Dataset file not found: {dataset_path}")
-        logger.error("Please run T012 (download.py) first.")
-        sys.exit(1)
-    
-    hard_instances = filter_hard_instances(
-        dataset_path,
-        ground_truth_data,
-        hard_subset_path
-    )
-    logger.info(f"Filtered {len(hard_instances)} hard instances")
-    
-    # Part B & C: Generate synthetic issues with validation
-    if len(hard_instances) == 0:
-        logger.warning("No hard instances found. Skipping synthetic issue generation.")
-        synthetic_issues = []
-        metadata = {'total_attempted': 0, 'successful': 0, 'failed': 0, 'mutation_types': {}, 'warnings': []}
-    else:
-        synthetic_issues, metadata = generate_synthetic_issues(
-            hard_instances,
-            ground_truth_data,
-            synthetic_issues_path,
-            max_synthetic=50
-        )
-    
-    # Validation summary
-    logger.info("=" * 50)
-    logger.info("CURATION SUMMARY")
-    logger.info("=" * 50)
-    logger.info(f"Hard instances: {len(hard_instances)}")
-    logger.info(f"Synthetic issues generated: {len(synthetic_issues)}")
-    logger.info(f"Synthetic generation: {metadata['successful']} successful, {metadata['failed']} failed")
-    if metadata['warnings']:
-        logger.info(f"Warnings: {len(metadata['warnings'])}")
-        for warning in metadata['warnings'][:5]:  # Show first 5
-            logger.warning(f"  - {warning}")
-        if len(metadata['warnings']) > 5:
-            logger.warning(f"  ... and {len(metadata['warnings']) - 5} more")
-    
-    return {
-        'hard_instances_count': len(hard_instances),
-        'synthetic_issues_count': len(synthetic_issues),
-        'synthetic_metadata': metadata
-    }
+    try:
+        synthetic_issues = generate_synthetic_issues()
+        
+        # Write output
+        output_path = get_path(DATA_CURATED, "synthetic_issues.jsonl")
+        logger.info(f"Writing synthetic issues to {output_path}")
+        
+        with open(output_path, 'w', encoding='utf-8') as f:
+            for issue in synthetic_issues:
+                f.write(json.dumps(issue) + '\n')
+        
+        logger.info(f"Successfully wrote {len(synthetic_issues)} synthetic issues to {output_path}")
+        
+    except Exception as e:
+        logger.error(f"Failed to generate synthetic issues: {e}")
+        raise
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

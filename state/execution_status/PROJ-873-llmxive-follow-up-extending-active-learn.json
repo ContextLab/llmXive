@@ -1,0 +1,17 @@
+{
+  "project_id": "PROJ-873-llmxive-follow-up-extending-active-learn",
+  "ok": false,
+  "reason": "1 run-book script(s) missing (plan/impl path mismatch): python code/main.py --dataset scifact --redundancy 0.4 --seeds 30; 1 command(s) failed: python -m pytest tests/integration/test_full_pipeline.py -v (rc=2); 8 declared deliverable(s) absent: data/processed/clusters.json; data/processed/injected_datasets.json; data/processed/unique_subset.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --dataset scifact --redundancy 0.4 --seeds 30 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-extending-active-learn/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-873-llmxive-follow-up-extending-active-learn/code/main.py': [Errno 2] No such file or directory",
+    "python -m pytest tests/integration/test_full_pipeline.py -v -> rc=2\n    strap._gcd_import(name[level:], package, level)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n<frozen importlib._bootstrap>:1204: in _gcd_import\n    ???\n<frozen importlib._bootstrap>:1176: in _find_and_load\n    ???\n<frozen importlib._bootstrap>:1147: in _find_and_load_unlocked\n    ???\n<frozen importlib._bootstrap>:690: in _load_unlocked\n    ???\ncode/.venv/lib/python3.11/site-packages/_pytest/assertion/rewrite.py:188: in exec_module\n    exec(co, module.__dict__)\ntests/integration/test_full_pipeline.py:11: "
+  ],
+  "fix_rounds": 7,
+  "model_tier": 0,
+  "total_attempts": 7,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-16T13:52:41Z"
+}

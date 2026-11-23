@@ -1,0 +1,18 @@
+status: none
+intent: download preprocessed 16S rRNA feature tables wetland NCBI SRA Zenodo python
+  package dataset
+required_fields:
+- sample_id
+- asv_id
+- otu_id
+- count
+- taxonomy
+- wetland_id
+- establishment_stage
+- nitrogen_removal_rate
+- phosphorus_removal_rate
+- read_depth
+- sequencing_platform
+cache_key: 301a93ecd9be5c2049e77f47db771fdae3e8c49ea065985785d638dd23a1c7f6
+searched_at: '2026-07-29T04:45:38.206823+00:00'
+retry_count: 1

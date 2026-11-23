@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.15327",
+  "judged_at": "2026-07-20T10:13:34Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the validity of statistical significance in randomized controlled trials with missing data statistics",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the validity of statistical testing (specifically Type I error control and power) in the presence of missing data, which is the core mechanism and variable of the user's question regarding Randomized Controlled Trials. Although the paper proposes a specific method rather than a general review, it provides the necessary empirical and theoretical baseline for assessing statistical significance under the exact conditions (missing dat",
+  "relevant": true
+}

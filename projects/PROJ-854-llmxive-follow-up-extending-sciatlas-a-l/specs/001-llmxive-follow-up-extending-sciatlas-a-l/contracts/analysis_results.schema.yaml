@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResultsSchema"
+description: "Schema for statistical analysis results."
+type: "object"
+properties:
+  correlation:
+    type: "object"
+    properties:
+      method:
+        type: "string"
+        description: "Statistical method used (e.g., Spearman)."
+      coefficient:
+        type: "number"
+        description: "Correlation coefficient."
+      p_value:
+        type: "number"
+        description: "P-value."
+      corrected_p_value:
+        type: "number"
+        description: "P-value after multiple-comparison correction."
+      correction_method:
+        type: "string"
+        description: "Method used for correction (e.g., Bonferroni, BH)."
+  regression:
+    type: "object"
+    properties:
+      model_type:
+        type: "string"
+        description: "Model type (e.g., Linear Regression)."
+      coefficients:
+        type: "object"
+        description: "Map of predictor names to coefficients."
+      r_squared:
+        type: "number"
+        description: "R-squared value."
+      is_associational:
+        type: "boolean"
+        description: "Must be true. Labels result as associational."
+      vif_scores:
+        type: "object"
+        description: "Variance Inflation Factor scores for predictors."
+required:
+  - "correlation"
+  - "regression"
+additionalProperties: true

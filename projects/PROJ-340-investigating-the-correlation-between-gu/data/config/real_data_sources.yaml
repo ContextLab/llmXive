@@ -1,0 +1,15 @@
+# Real Data Source Configuration for PROJ-340
+# This file defines the sources for real data ingestion.
+# If no verified source is available, the pipeline must fail loudly.
+
+sources:
+  - name: "Mock Test Data for T113"
+    type: "local_test"
+    path: "data/raw/test_perfect_collinearity.csv"
+    description: "Synthetic data specifically generated for T113 collinearity integration test. Not for production analysis."
+    verified: false
+    note: "This is a local test artifact, not a public dataset."
+
+# NOTE: No public real-data source is currently configured for this project.
+# The pipeline is configured to fail if real data is required but not found.
+# T113 uses a locally generated test file to verify the collinearity logic.

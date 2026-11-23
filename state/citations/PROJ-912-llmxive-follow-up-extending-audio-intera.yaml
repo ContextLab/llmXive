@@ -1,0 +1,22 @@
+- artifact_hash: 2e320fde706c639bef6fbe2161453c2da47069e0a8119a171545ed6cfdb3e20b
+  artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: "ashraq/esc50 \xB7 Datasets at Hugging Face"
+  kind: url
+  value: https://huggingface.co/datasets/ashraq/esc50`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/ashraq/esc50
+  verified_at: '2026-07-31T17:01:59.232739Z'
+- artifact_hash: 2e320fde706c639bef6fbe2161453c2da47069e0a8119a171545ed6cfdb3e20b
+  artifact_path: projects/PROJ-912-llmxive-follow-up-extending-audio-intera/specs/001-llmxive-follow-up-extending-audio-intera/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/sanchit-gandhi/urban-sound-8k`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/sanchit-gandhi/urban-sound-8k
+  verified_at: '2026-07-31T17:01:59.232739Z'

@@ -1,0 +1,8 @@
+{
+  "complete": false,
+  "reason": "The file `docs/research.md` is present, but the \u201cSample CSV excerpt\u201d table it shows (e.g., counts 2002, 1999, \u2026 for N\u202f=\u202f10\u2074,\u202fp\u202f=\u202f5) does not match the actual CSV file `data/phi_counts_N10000_p5.csv` (which contains counts 3452, 1775, 1874, \u2026). Hence the markdown does not contain tables correctly copied from the CSV as required.",
+  "seconds": 5.237,
+  "evidence_sha256": "4c5c9dc7466a6c1d24eaa7d208b735947cf0ba06274c7347179d1b7d47f74077",
+  "report_sha256": "910dc3e25001e1da667705d45b303e1a69f3a1c86df994526085be98a2244323",
+  "scope": "Read-only task review; no scientific artifacts or task/cache state changed"
+}

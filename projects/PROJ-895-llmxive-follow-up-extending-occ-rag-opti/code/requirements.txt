@@ -1,0 +1,6 @@
+torch (cpu-only)
+transformers
+scikit-learn
+pandas
+numpy
+datasets

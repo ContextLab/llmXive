@@ -1,5 +1,5 @@
-'|collinearity greater handled than threshold using vif':
-  quote: arXiv:2306.06751v1 [stat.ME] 11 Jun 2023
-  source_id: '2306.06751'
-  url: https://arxiv.org/abs/2306.06751
-  value: '5'
+'|check collinearity handling included vif':
+  quote: 'P1533: Q113107166'
+  source_id: Q113106917
+  url: https://www.wikidata.org/wiki/Q113106917
+  value: '33'

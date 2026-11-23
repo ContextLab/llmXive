@@ -1,0 +1,49 @@
+%YAML 1.2
+---
+$schema: http://json-schema.org/draft-07/schema#
+title: Motif Extraction Output Schema
+description: >
+  Schema for validating the output of User Story 3 (Motif Extraction).
+  Defines the structure for clustered high-importance substructures,
+  their statistical significance, and pharmacophore matching results.
+type: array
+items:
+  type: object
+  required:
+    - cluster_id
+    - p_value
+    - is_significant
+    - pharmacophore_match
+    - rmsd
+  properties:
+    cluster_id:
+      type: integer
+      description: Unique identifier for the motif cluster.
+      minimum: 0
+    p_value:
+      type: number
+      description: >
+        Statistical p-value derived from the validation process 
+        (e.g., permutation test or t-test with FDR correction).
+      minimum: 0.0
+      maximum: 1.0
+    is_significant:
+      type: boolean
+      description: >
+        Flag indicating if the motif is statistically significant 
+        based on the p-value threshold (alpha=0.05).
+    pharmacophore_match:
+      type: string
+      description: >
+        ID or name of the matched pharmacophore from the reference set.
+        If no match is found, this field should be a specific null indicator 
+        (e.g., "null" or an empty string, depending on downstream parsing), 
+        but the schema expects a string type.
+        Per T039, matches are determined via Kabsch algorithm (RMSD < 1.5 Å).
+    rmsd:
+      type: number
+      description: >
+        Root Mean Square Deviation in Ångströms between the extracted motif 
+        and the matched pharmacophore reference.
+      minimum: 0.0
+  additionalProperties: false

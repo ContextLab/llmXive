@@ -1,0 +1,98 @@
+# Output Schema Contract for llmXive Follow-up Pipeline
+# Defines the structure of data/processed/features.json
+# Generated for Task T001f
+---
+type: object
+description: >-
+  Schema for the processed features file containing statistical descriptors
+  of teacher entanglement and scalar distillation loss metrics.
+required:
+  - sample_id
+  - variance
+  - entropy
+  - skewness
+  - kurtosis
+  - dominant_eigenvalue
+  - fidelity_loss
+properties:
+  sample_id:
+    type: string
+    description: Unique identifier for the sample (e.g., from the Z-Reward dataset)
+    pattern: "^[a-zA-Z0-9_-]+$"
+  
+  variance:
+    type: number
+    description: >-
+      Per-sample variance of the teacher's 4-dimensional score distribution.
+      Represents the spread of scores across dimensions for a single sample.
+      Calculated as the mean of squared deviations from the mean score.
+    minimum: 0
+    default: 0.0
+  
+  entropy:
+    type: number
+    description: >-
+      Per-sample entropy of the teacher's score distribution.
+      Measures the uncertainty or disorder in the dimension scores.
+      Calculated using normalized probabilities derived from softmax or direct normalization.
+      Zero if variance is zero (degenerate distribution).
+    minimum: 0
+    default: 0.0
+  
+  skewness:
+    type: number
+    description: >-
+      Per-sample skewness of the teacher's score distribution.
+      Measures the asymmetry of the distribution around the mean.
+      Positive skew indicates a longer tail on the right.
+    default: 0.0
+  
+  kurtosis:
+    type: number
+    description: >-
+      Per-sample kurtosis of the teacher's score distribution.
+      Measures the "tailedness" of the distribution.
+      Excess kurtosis (kurtosis - 3) is often used; here we store raw kurtosis.
+    default: 3.0
+  
+  dominant_eigenvalue:
+    type: number
+    description: >-
+      Global dominant eigenvalue of the 4x4 covariance matrix of teacher scores
+      across the entire dataset. This is a constant value repeated for every sample,
+      representing the dataset-wide entanglement context.
+      Calculated as the largest eigenvalue of the global covariance matrix.
+    minimum: 0
+    default: 0.0
+  
+  fidelity_loss:
+    type: number
+    description: >-
+      Dimensional fidelity loss: Mean Absolute Error (MAE) between the student's
+      scalar output and the human-annotated score for the primary quality dimension.
+      The primary dimension is selected based on metadata (T014).
+      Higher values indicate greater discrepancy between student scalar and human judgment.
+    minimum: 0
+    default: 0.0
+  
+  primary_dimension:
+    type: string
+    description: >-
+      The name of the primary quality dimension used for fidelity loss calculation.
+      Derived from metadata or defaulting to the first schema dimension.
+    enum:
+      - Alignment
+      - Realism
+      - Aesthetics
+      - Plausibility
+
+additionalProperties: false
+example:
+  sample_id: "zreward_sample_001"
+  variance: 0.045
+  entropy: 1.38
+  skewness: 0.12
+  kurtosis: 2.95
+  dominant_eigenvalue: 0.85
+  fidelity_loss: 0.15
+  primary_dimension: "Alignment"

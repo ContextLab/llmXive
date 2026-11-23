@@ -1,0 +1,139 @@
+T001a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required directory tree is provided \u2013 the response contains\
+    \ only the task description and specifications, but no listing, screenshot, or\
+    \ confirmation that the `mkdir -p \u2026` command was executed and the folders\
+    \ exist. The implementer must show that the specified directories have been created\
+    \ (e.g., a directory listing or similar proof)."
+T001b:
+  c: true
+  h: c81e59721fd02278e39aca9b43034d18daac9bd28febf8447040d4e70070619f
+  r: "The historical execution record shows `code/01_setup_permissions.py` ran with\
+    \ exit code 0, and its stderr log explicitly demonstrates the required conditional\
+    \ behavior: \"Mode 'Data Insufficient': setting data/raw to read-execute only\
+    \ (chmod 555)\" plus writing a permissions report \u2014 matching T001b's requirement\
+    \ to apply chmod 555 only in Data Insufficient/Underpowered modes. No contradicting\
+    \ evidence or later edits are present, and the mode-conditional logic (rather\
+    \ than an unconditional chmod) is evidenced by the logged mode check."
+  sig: 7682656fdfeb35aab32ba49bfb3da8456eafeca29a43d0fed03020727ace15bc
+T002:
+  c: true
+  h: 2c65b778f622b1ef85b151492ece588ee21d21e07eeba244199c480aaecaf174
+  r: The `requirements.txt` file exists at the project root with exactly the eight
+    pinned dependencies (mne, scikit-learn, numpy, pandas, scipy, statsmodels, pyyaml,
+    pytest) matching the specified versions and byte-for-byte the expected content.
+    The pip install step is environment setup; the file artifact itself fully satisfies
+    the task's deliverable.
+  sig: 6d17d7ec8e75b7dc53036dcb47b236cb371ca9f7e65a8108cea07a507bff89f7
+T004:
+  c: true
+  h: c6764baefa2cc0e206769b899d4a44ee8483763514f432b2ab68c306d81e8ec3
+  r: 'The file `code/utils/config.py` exists (957 bytes) and contains all required
+    elements: path constants (PROJECT_ROOT, DATA_RAW, etc.), BANDS = [''delta'', ''theta'',
+    ''alpha'', ''beta'', ''gamma''], LOWER_FREQ_HZ = 1.0, ALPHA = 0.05 (p=0.05), and
+    R2_EXPECTED = 0.1, plus a seed-relevant structure and directory setup. No placeholders
+    or stubs are present.'
+  sig: 27599f36377b0cee42ecb012de09c40bf6c07e707f0e12bb08ecb88204e86aae
+T005:
+  c: false
+  h: 39978c88df8ef9f74c36adcdbe76a00ba0f25f69e45ab9fba5ccb856d7e9f582
+  r: "The `io_helpers.py` file is truncated \u2013 the `write_checksum_to_state` function\
+    \ is incomplete and does not actually write to the required `state/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p.yaml`\
+    \ (which is also missing). Additionally, no artifact\u2011hashing helper is present.\
+    \ These missing pieces prevent the task from being fully satisfied."
+T006:
+  c: true
+  h: 26762d1f3496c863a0cbff1ad78986d6c402f79078f3fced7f8df9dc84dc38c6
+  r: 'The schema file exists at its canonical resolved location (`specs/001-neural-oscillations-as-a-biomarker-for-p/contracts/dataset.schema.yaml`,
+    1103 bytes) and its content matches the task exactly: required fields `subject_id`,
+    `channel`, `time`, `voltage`, `condition` with appropriate types/constraints,
+    `additionalProperties: false`, and no `mode_flag` or other non-specified fields.
+    The historical test log failures are solely because the test script hardcodes
+    the requested (non-normalized) path `specs/001-neural-oscillations-tDCS-biomarker/...`
+    rather than the canonical slug path the collector'
+  sig: aa3132a955b1d7c3deba548e8e124cd28a1b2a0c8800130c51c59acb94ccfc35
+T007:
+  c: true
+  h: d4418cf7eb9cb685447130880aca3a9e3affe5071e5d8b83f65f139bfc334089
+  r: "The schema file exists (4564 bytes) at the resolved contracts path and defines\
+    \ both required artifacts \u2014 `feature_matrix` (subject/channel, five band\
+    \ powers, PLV/wPLI connectivity, tDCS_response) and `model_metrics` (model_type,\
+    \ best_alpha, CV metrics, coefficients, normality test, mode_flag) \u2014 consistent\
+    \ with plan.md Phases 5\u20138, and it explicitly excludes `sensitivity_table`.\
+    \ Minor nits (plan.md names the feature file `features.csv` while the schema says\
+    \ `feature_matrix.csv`, and adjusted R\xB2 from Phase 8 is not a named field)\
+    \ do not undermine the task's core requirement of defining the two ou"
+  sig: dc172b49f4ad4ba850835beb3d14d703fb9ca10821302ff4258ca7670c89e508
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No logging configuration files, code snippets, or generated `logs/pipeline.log`
+    with rotation settings are present. The required artifact (a functional logging
+    infrastructure capturing warnings, mode switches, and resource usage with log
+    rotation) is missing, so the task is not satisfied.
+T009a:
+  c: true
+  h: dc414adc58209a0295e0e9c87d8d1089aff77bcc0d5cd6a78dedc5a390315bc9
+  r: 'The execution log shows `code/reports/preregister.py` ran successfully (exit
+    0), writing `pre-registration.json` with a SHA-256 analysis plan hash, timestamp,
+    parameters (r2_target=0.1, power=0.8, alpha=0.05), and an explicit placeholder
+    predictor count (`k_predictors: null`, status "placeholder"), exactly as T009a
+    requires. The two preregistration tests (hash format and contents) passed, and
+    the notes confirm it was generated before T011.'
+  sig: 3d9369a25e8dd35016646f36ac3e6128b271919fbeb45a998017a4e68f2faeee
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No integration test code, test configuration, or execution logs were provided;
+    the claim lacks any artifact (e.g., a pytest file, CI script, or test output)
+    demonstrating that modeling is skipped when the mode flag is **Data Insufficient**.
+    The required test artifact is missing.
+T023:
+  c: false
+  h: 3337bd7eb9b542b1d596b9b66013b32d7f214b6443bf6f354f3895f647a3c4c5
+  r: "The repository contains a partially shown `code/02_feature_extraction.py` that\
+    \ defines a Welch\u2011based power computation, but the file is truncated and\
+    \ does not include any logic to write the results to `data/processed/spectral_power.csv`.\
+    \ Moreover, the required output CSV file is absent from the project directory.\
+    \ The task\u2019s core deliverable \u2013 a generated spectral power CSV \u2013\
+    \ is therefore missing."
+T025:
+  c: false
+  h: 6855aae0e6dc19f50665bffb3caf55388ab414a85f62128bcc349cfb5c2dedf9
+  r: "The required output file `data/processed/feature_matrix.csv` does not exist,\
+    \ and the provided `code/02_feature_extraction.py` is truncated (ends mid\u2011\
+    function), indicating the feature\u2011matrix assembly is not fully implemented.\
+    \ The task\u2019s deliverable is therefore missing."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, notebooks, or output files implementing nested cross\u2011\
+    validation for Ridge/Rank\u2011Ridge regression (or the required data\u2011ingestion/preprocessing\
+    \ pipeline) were provided. The claim lacks any tangible artifact to verify that\
+    \ the nested CV logic, model fitting, and mode handling were actually implemented.\
+    \ The next implementer must supply the concrete implementation (e.g., a Python\
+    \ module or notebook) and any generated artifacts (e.g., `verified_source_manifest.json`,\
+    \ model evaluation results) to satisfy the task."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, log file, or manifest (e.g., `verified_source_manifest.json`) was supplied\
+    \ to demonstrate that a mode flag is read, that non\u2011Primary mode triggers\
+    \ the \u201CModeling Skipped: Data Insufficient\u201D log, and that the behavior\
+    \ matches the specification. The required artifact is missing, so the task is\
+    \ not satisfied."
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the task description and project specifications;\
+    \ there is no code, output file, log, or results showing that a Shapiro\u2011\
+    Wilk test was performed, that a non\u2011normal outcome triggered a switch, or\
+    \ that a Rank\u2011Ridge regression model was actually fitted and logged. These\
+    \ required artifacts are missing."
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test execution logs, reports, or output files are provided to demonstrate\
+    \ that unit tests T010\u2011T011a were run and all passed; the claim lacks any\
+    \ concrete artifact confirming the required pass criteria."

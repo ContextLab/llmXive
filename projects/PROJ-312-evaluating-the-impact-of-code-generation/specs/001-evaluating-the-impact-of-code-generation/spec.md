@@ -55,7 +55,7 @@ The system MUST generate a boxplot comparing the distribution of turnaround time
 
 ### Edge Cases
 
-- What happens when a repository has fewer than 50 PRs after filtering? The system MUST skip the repository, log a warning with the specific count (e.g., "Skipping repo X: only Y PRs found, threshold 50"), and exclude it from the final analysis.
+- What happens when a repository has an insufficient number of PRs after filtering? The system MUST skip the repository, log a warning with the specific count (e.g., "Skipping repo X: only Y PRs found, threshold T"), and exclude it from the final analysis.
 - How does the system handle repositories where no AI-assisted PRs are found? The system must log this scenario and exclude the repository from the final analysis rather than crashing.
 - What happens when GitHub API rate limits are exceeded? The system must implement exponential backoff with a maximum of 3 retries before failing gracefully.
 - How does the system handle PRs with missing merged_at timestamps (still open)? The system must exclude these PRs from the turnaround time calculation and log the exclusion count.
@@ -64,7 +64,7 @@ The system MUST generate a boxplot comparing the distribution of turnaround time
 
 ### Functional Requirements
 
-- **FR-001**: System MUST fetch pull request metadata from the GitHub REST API for the top 10 Python and JavaScript repositories by star count, including created_at, merged_at, labels, and commit messages, AND fetch the list of commits for each PR to inspect commit messages (See US-1)
+- **FR-001**: System MUST fetch pull request metadata from the GitHub REST API for the top Python and JavaScript repositories by star count, including created_at, merged_at, labels, and commit messages, AND fetch the list of commits for each PR to inspect commit messages (See US-1)
 - **FR-002**: System MUST classify PRs as AI-assisted if commit messages contain "copilot" or "ai-generated" keywords or if labels "ai-generated", "copilot-assisted", or "llm-code" are present; otherwise, classify as non-AI-labeled (See US-1)
 - **FR-003**: System MUST calculate turnaround time in total calendar hours (wall-clock time) as the difference between merged_at and created_at timestamps, without excluding weekends or holidays (See US-1)
 - **FR-004**: System MUST perform descriptive statistics (mean, median, standard deviation, quartiles) for both AI and non-AI-labeled PR groups (See US-2)
@@ -98,7 +98,7 @@ The system MUST generate a boxplot comparing the distribution of turnaround time
 
 ## Assumptions
 
-- The top 10 Python and JavaScript repositories by star count on GitHub contain sufficient numbers of both AI-assisted and non-AI-labeled PRs for meaningful statistical analysis
+- A selection of highly starred Python and JavaScript repositories on GitHub contain sufficient numbers of both AI-assisted and non-AI-labeled PRs for meaningful statistical analysis.
 - GitHub API rate limits for authenticated users will not prevent complete data acquisition within the standard execution window..
 - The GitHub API provides consistent and accurate timestamps for PR creation and merge events across all repositories
 - Commit message keywords ("copilot", "ai-generated") and specific PR labels ("ai-generated", "copilot-assisted", "llm-code") provide primary indicators of AI-assisted contributions, subject to validation via manual spot-check (See FR-011)

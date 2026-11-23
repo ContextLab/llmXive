@@ -1,0 +1,2 @@
+# This file ensures the data/interim directory is tracked by git
+# but the directory itself is ignored for large files via .gitignore

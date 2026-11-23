@@ -1,0 +1,13 @@
+status: none
+intent: download NREL NSRDB multi-year hourly solar irradiance temperature dataset
+  python package dataset
+required_fields:
+- latitude
+- longitude
+- datetime
+- global_horizontal_irradiance
+- direct_normal_irradiance
+- air_temperature
+cache_key: 8536edd45d158bd43f6ffa12243a2db176580885bac27d75fc2062fd23e30c91
+searched_at: '2026-08-15T13:18:58.742528+00:00'
+retry_count: 1

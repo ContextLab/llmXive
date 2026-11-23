@@ -1,0 +1,29 @@
+# Unresolved panel concerns (address in this revision)
+
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+
+**Why it was kicked back**: 56 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
+
+## Unresolved concerns
+
+- FR-006 requires the system to 'flag the result as Low Power - Interpret with Caution' and proceed to generate the story, but Task T005b mandates raising a `LowPowerError` and halting pipeline execution immediately. This creates a missing task for the 'propagation' of the low-power flag to the final story (Edge Cases) without stopping the pipeline.
+- FR-003 requires a specific JSON array output with static thresholds (p < 0.05, |r| > 0.15). Task T021a instructs a 'sweep' of thresholds and generation of a range of results, which does not match the single deterministic artifact required by FR-003. No task exists to implement the specific FR-003 output format (static thresholds).
+- US-2 and Edge Cases require generating SQL/Python queries to test counterfactuals with retry logic. Task T024 is marked incomplete (`- [ ]`) and lacks the explicit implementation of the retry logic and query generation required to satisfy the 'Independent Test' for US-2.
+- FR-003 and SC-002 require a specific JSON output including `stability_score` and `validity_status`. Task T021b is marked incomplete and depends on T023c (also incomplete) to define the schema. There is no completed task ensuring the final FR-003 artifact includes these specific fields.
+- The spec's Edge Cases require reporting 'Low Power' flags in the final story. Task T005d (incomplete) is the only task addressing this propagation, but it is not linked to the final synthesis logic in US-3 (T028a/T029), leaving the requirement for 'flagging' in the final output unimplemented.
+- SC-004 requires measuring 'Verification Traceability' as the percentage of claims with valid, executable citations. Task T035 defines the regex and logic but is marked incomplete (`- [ ]`). No completed task exists to execute this metric calculation and write the result to `output/traceability_metrics.json`.
+- SC-001 requires calculating the arithmetic mean of expert scores. Task T034 is marked incomplete (`- [ ]`) and relies on T032b/c (also incomplete) for the expert scores. No completed task exists to aggregate these metrics and write to `output/metrics_report.json`.
+- SC-001 requires a Kappa check protocol (≥ 0.6) with a 4th expert fallback. Task T032b is marked incomplete (`- [ ]`) and depends on T032a/d (incomplete). The logic for triggering the 4th expert and halting on failure is not implemented.
+- SC-001 requires calculating the arithmetic mean of valid expert scores. Task T032c is marked incomplete (`- [ ]`) and depends on T032b. No completed task exists to perform this calculation.
+- SC-001 requires the logic to dispatch stories to experts or the simulation interface. Task T032d is marked incomplete (`- [ ]`). No completed task exists to implement the dispatch logic.
+- SC-001 requires generating blinded story pairs. Task T032a is marked incomplete (`- [ ]`). No completed task exists to implement the metadata stripping and pair generation.
+- US-3 requires independent testing of the synthesis logic. Task T026a (Unit test) is marked incomplete (`- [ ]`). No completed task exists to verify the synthesis logic.
+- US-3 requires independent testing of the full pipeline. Task T026b (Integration test) is marked incomplete (`- [ ]`). No completed task exists to verify the full pipeline.
+- US-3 requires generating raw synthesis text. Task T028a is marked incomplete (`- [ ]`). No completed task exists to implement the synthesis logic.
+- US-3 requires embedding verifiable data query references. Task T028b is marked incomplete (`- [ ]`). No completed task exists to implement citation generation.
+- US-3 and FR-007 require sanitizing causal language. Task T028c is marked incomplete (`- [ ]`). No completed task exists to implement the sanitization step.
+- US-3 requires finalizing the synthesis. Task T029 is marked incomplete (`- [ ]`). No completed task exists to integrate the synthesis, citations, and sanitization.
+- US-3 requires neutrality logic for conflicting narratives. Task T030 is marked incomplete (`- [ ]`). No completed task exists to implement this logic.
+- SC-002 requires calculating Confirmation Bias. Task T031 is marked incomplete (`- [ ]`). No completed task exists to implement the bias metric calculation.
+- Plan.md Phase 1 and Risk Mitigation require streaming logic for large datasets. Task T005c is marked incomplete (`- [ ]`). No completed task exists to implement streaming for datasets > 7GB.
+- Plan.md requires `tests/unit/` and `tests/integration/` directory structure with pytest configuration. Task T008 is marked incomplete (`- [ ]`). No completed task exists to set up the test infrastructure.

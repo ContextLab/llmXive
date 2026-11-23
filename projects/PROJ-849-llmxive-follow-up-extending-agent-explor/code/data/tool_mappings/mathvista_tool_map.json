@@ -1,0 +1,12 @@
+{
+  "default_tools": {
+    "tool_descriptions": [
+      "Use Python for arithmetic calculations.",
+      "Use Python to parse and extract information from text.",
+      "Use Python to perform geometric calculations.",
+      "Use Python to solve algebraic equations.",
+      "Use Python to analyze statistical data."
+    ]
+  },
+  "problem_specific": {}
+}

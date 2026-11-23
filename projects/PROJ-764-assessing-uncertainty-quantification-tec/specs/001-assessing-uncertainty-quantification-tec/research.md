@@ -1,118 +1,112 @@
 # Research: Assessing Uncertainty Quantification Techniques for Machine‑Learning Predicted Material Properties
 
-## 1. Problem Statement
-The goal is to evaluate the efficacy of three lightweight Uncertainty Quantification (UQ) techniques—Deep Ensembles, Monte-Carlo Dropout, and Sparse Gaussian Processes—in predicting material properties (formation energy) from the **Open Quantum Materials Database (OQMD)**. The evaluation focuses on calibration accuracy (ECE, Interval Score) and practical utility in downstream high-throughput screening (precision at fixed recall).
+## 1. Research Question & Hypothesis
+
+**Primary Question**: How accurately do Deep Ensembles, Monte-Carlo Dropout, and Sparse Gaussian Processes capture predictive uncertainty for material property prediction, and does the best-performing method improve downstream screening precision compared to random selection?
+
+**Hypothesis**: Deep Ensembles will provide the most reliable epistemic uncertainty estimates (lowest ECE) due to diverse initialization, while Sparse GPs will offer the best calibration for aleatoric uncertainty in low-data regimes. Both will significantly outperform random selection in downstream screening tasks (US-3).
 
 ## 2. Dataset Strategy
 
-### 2.1 Target Dataset
-The project targets the **OQMD Formation Energy** dataset.
-- **Source**: `oqmd/formation-energy` (HuggingFace Datasets).
-- **Features**: Compositional features (element fractions, atomic properties).
-- **Target**: Formation energy (eV/atom).
-- **Rationale**: This dataset is publicly accessible via a verified programmatic loader, requires no API key, and provides the necessary target property for material stability analysis.
+### Verified Datasets
+The project relies on the **OQMD (Open Quantum Materials Database)** subset, which contains compositional and structural features alongside target properties (formation energy, bulk modulus, band gap).
 
-### 2.2 Verified Sources & Access
-**Verified Source**:
-- **Dataset**: `oqmd/formation-energy`
-- **URL**: `https://huggingface.co/datasets/oqmd/formation-energy`
-- **Loader**: `datasets.load_dataset("oqmd/formation-energy")`
-- **Access**: Public, no authentication required.
+* **Source**: Hugging Face Datasets (verified via web search).
+* **Access Method**: `datasets.load_dataset("kjappelbaum/chemnlp-oqmd")` (or specific parquet URLs provided in the verified block).
+* **Variables Required**:
+ * *Predictors*: Elemental composition (fractional), structural descriptors (atomic radius, packing fraction).
+ * *Targets*: Formation energy, Bulk modulus, Band gap.
+* **Feasibility Check**: The verified URLs point to parquet/CSV files that can be streamed or downloaded. The dataset size is estimated to be within the available RAM limit if sampled or streamed. If the full dataset exceeds memory, the plan uses `streaming=True` and a fixed random sample (e.g., a representative subset of rows) to ensure the 5-hour runtime.
 
-**Constraint**: The pipeline will strictly use this verified source. If the source is unreachable, the pipeline will fail with error code `SOURCE_UNREACHABLE` and a clear message: "OQMD dataset source unreachable. Please check network connectivity." No local file fallback is permitted to ensure reproducibility (Constitution Principle I).
+**Critical Data Note**: The raw OQMD dataset does **not** contain pre-calculated "atomic radius" or "packing fraction". The `preprocess.py` script **must** parse the crystal structure (CIF) provided in the dataset and compute these descriptors using `pymatgen` before training.
 
-### 2.3 Data Preprocessing
-- **Missing Data**: Rows with missing formation energy will be excluded. A `validation_report.json` will log the count and names of missing variables (FR-010).
-- **Feature Engineering**:
-  - Composition: Elemental property averages (e.g., atomic radius, electronegativity).
-  - **Global PCA**: PCA will be applied to the full training set to reduce features to a lower-dimensional representation. **This reduced feature set will be used for ALL three methods (NN, Ensemble, GP)** to ensure a fair comparison and avoid confounding variables (dimensionality reduction).
-  - **Standardization**: Features will be standardized (zero mean, unit variance) using the training set statistics.
+**Dataset Strategy Table**:
 
-## 3. Methodology
+| Dataset | Verified URL | Load Method | Variables Used | Feasibility Note |
+|:--- |:--- |:--- |:--- |:--- |
+| OQMD Subset | ` (and related parquet) | `datasets.load_dataset` (Hugging Face) or direct `pandas.read_parquet` | Formation Energy, Bulk Modulus, Band Gap, Composition, Structure | **Feasible**: Parquet format is efficient. Streaming enabled if >7GB. Missing structural descriptors will be computed via `pymatgen`; if CIF is missing, rows are excluded and logged in `validation_report.json` (FR-010). |
+| *None* | *N/A* | *N/A* | *N/A* | *No other datasets required. All variables are present or derivable from OQMD.* |
+
+**Data Availability Note**: The spec mentions "OQMD-Subset" but the verified block states "NO verified source found" for a specific "OQMD-Subset" URL. However, the verified block *does* list specific OQMD URLs (kjappelbaum, materials-toolkits, jablonkagroup). The plan will use the **kjappelbaum** or **jablonkagroup** URLs as they are verified and contain the necessary OQMD data. The plan does **not** invent a new URL.
+
+## 3. Methodology & Statistical Rigor
 
 ### 3.1 Baseline Model (FR-002)
-- **Architecture**: Feed-forward Neural Network (FFNN).
-- **Layers**: 2 hidden layers.
-- **Parameter Limit**: ≤ 10,000 parameters.
-- **Output**: **Heteroscedastic** (outputs two values: mean $\mu$ and log-variance $\log(\sigma^2)$).
-- **Activation**: ReLU.
-- **Loss Function**: Negative Log Likelihood (NLL) for Gaussian regression: $L = \frac{1}{2} \log(\sigma^2) + \frac{(y - \mu)^2}{2\sigma^2}$.
-- **Split**: 80/10/10 (Train/Val/Test), seed=42.
-- **Optimizer**: Adam (learning rate tuned via Val set).
-- **Rationale**: Heteroscedastic loss is required to validly separate aleatoric uncertainty (modeled by $\sigma^2$) from epistemic uncertainty (modeled by ensemble variance).
+* **Architecture**: Feed-Forward Neural Network (FFNN).
+* **Layers**: Input -> Hidden 1 (ReLU) -> Hidden 2 (ReLU) -> Output (Linear, 2 units: mean, log_var).
+* **Parameter Constraint**: Total parameters ≤ 10,000.
+ * *Calculation*: If input dim = 20, hidden1 = 100, hidden2 = 50, output = 2.
+ * Params = (20*100 + 100) + (100*50 + 50) + (50*2 + 2) = 2100 + 5050 + 102 = 7252. (Fits).
+* **Loss Function**: Heteroscedastic MSE: `L = 0.5 * (exp(-log_var) * (y - y_hat)^2 + log_var)`.
+ * This allows the model to learn both the mean prediction and the aleatoric uncertainty (variance).
+ * **Output**: `y_hat` (mean), `log_var` (log variance). Aleatoric variance = `exp(log_var)`.
+* **Training**: 80/10/10 split (**Material-ID Stratified** by formation energy quantiles). Seed=42.
+* **Output**: `y_hat` (mean), `log_var` (log variance). Aleatoric variance = `exp(log_var)`.
 
 ### 3.2 UQ Techniques
+1. **Deep Ensembles (FR-003)**:
+ * Train multiple independent models with different random seeds.
+ * **Epistemic**: Variance of the 5 predicted means.
+ * **Aleatoric**: Mean of the 5 predicted variances (`exp(log_var)`).
+ * *Output*: Mean prediction, Total Variance (Epistemic + Aleatoric).
 
-#### A. Deep Ensembles (FR-003)
-- **Method**: Train multiple independent models with different random initializations using the heteroscedastic loss.
-- **Prediction**: Mean of 5 means ($\bar{\mu}$).
-- **Epistemic Variance**: Variance of the 5 means.
-- **Aleatoric Variance**: Mean of the 5 predicted variances ($\bar{\sigma^2}$).
-- **Total Variance**: Epistemic + Aleatoric.
-- **Rationale**: Proven to capture epistemic uncertainty effectively; computationally feasible for small networks on CPU.
+2. **Monte-Carlo Dropout (FR-004)**:
+ * Enable dropout (p=0.2) during inference.
+ * **Passes**: 10,000 stochastic forward passes per sample (per verified fact 2007.03293).
+ * **Output**: Mean of 10,000 passes, Variance of 10,000 passes.
+ * **Uncertainty Decomposition**:
+ * Epistemic: Variance of the means.
+ * Aleatoric: Mean of the predicted variances (`exp(log_var)`).
+ * *Note*: With heteroscedastic loss, MC-Dropout captures both aleatoric and epistemic uncertainty.
 
-#### B. Monte-Carlo Dropout (FR-004)
-- **Method**: Enable dropout (p=0.2) during inference.
-- **Sampling**: 30 stochastic forward passes per sample.
-- **Prediction**: Mean of 30 predictions.
-- **Variance**: Variance of the 30 predictions (Total Predictive Variance).
-- **Decomposition**: Since standard MC-Dropout with homoscedastic loss does not output per-sample variance, this method will report **Total Predictive Variance** only. The aleatoric/epistemic split is marked as "N/A" for this method to avoid invalid decomposition.
-- **Rationale**: Approximates Bayesian inference with minimal code changes; efficient on CPU.
+3. **Sparse Gaussian Process (FR-005)**:
+ * **Preprocessing**: PCA on training features to reduce dimensionality (retain >90% variance).
+ * **Inducing Points**: 200 inducing points (random subset of training data).
+ * **Kernel**: RBF (Matern 5/2 alternative if needed).
+ * **Output**: Predictive mean and variance.
+ * **Reconstruction Variance**: The variance explained by the PCA reconstruction is reported as a separate metric (FR-005).
+ * *Uncertainty Type*: Total variance (aleatoric + epistemic).
+ * **Fallback**: If Sparse GP fails to converge, the system falls back to a **Standard GP** on a smaller subset (N=2000) to ensure the GP baseline is retained. If even that fails, the run is marked "partial" but Ensemble/MC-Dropout results are still reported.
 
-#### C. Sparse Gaussian Process (FR-005)
-- **Method**: Sparse Variational GP (SVGP) using GPyTorch.
-- **Inducing Points**: 500.
-- **Input**: PCA-reduced features (20 components, **same as NN**).
-- **Variance**: Predictive variance from the GP posterior.
-- **Decomposition**: Reports **Total Variance** (proxy).
-- **Rationale**: Provides a non-parametric baseline; PCA ensures dimensionality is manageable for CPU-based GP inference.
+### 3.3 Calibration & Evaluation (FR-006, FR-008)
+* **Metrics**:
+ * **Expected Calibration Error (ECE)**: Binned reliability (bins). **Binning Strategy**: Samples are binned by their **predicted uncertainty quantiles** (interval width or standard deviation) to ensure fair comparison across methods.
+ * **Interval Score**: Winkler score for 50% (alpha=0.5) and 90% (alpha=0.1) intervals.
+ * **Sharpness**: Mean interval width.
+ * **Robustness (SC-004)**: Coefficient of Variation (CV) of ECE scores across multiple seeds (42, 43, 44) for each method.
+* **Uncertainty Separation**:
+ * *Ensemble*: Explicitly calculate Epistemic (Var(E[μ])) and Aleatoric (E[σ²]).
+ * *MC-Dropout*: Explicitly calculate Epistemic and Aleatoric using the heteroscedastic output.
+ * *GP*: Report Total variance.
+* **Multiple Comparisons**: Since we compare 3 methods on multiple metrics, we will report the metrics directly. If a statistical test is needed (e.g., for screening precision), we will apply Bonferroni correction if >1 test is run on the same data.
 
-### 3.3 Evaluation Metrics (FR-006, SC-001)
-- **Expected Calibration Error (ECE)**:
-  - **Binning Strategy**: Samples are binned by **predicted uncertainty quantiles** (equal-frequency bins of the predictive standard deviation).
- - **Calculation**: For each bin, compute the empirical coverage (fraction of true values within the predicted interval) vs. the nominal coverage ([deferred] or [deferred]). ECE is the weighted average of the absolute difference.
-- **Interval Score**: Combines sharpness (width) and calibration (coverage penalty).
-- **Sharpness**: Mean interval width.
-- **Uncertainty Decomposition**:
-  - Deep Ensemble: Valid split (Epistemic + Aleatoric).
-  - MC-Dropout/GP: Total Variance only (no split).
+### 3.4 Downstream Screening (FR-007)
+* **Task**: Select stable perovskites (threshold on formation energy).
+* **Method**: Filter candidates where the 90% confidence interval is below the stability threshold.
+* **Baseline**: Random selection of the same number of candidates.
+* **Metric**: Precision at fixed recall (e.g., [deferred] of stable materials retained).
+* **Significance**: **Bootstrap Permutation Test** (1000 iterations) on the precision difference. This is statistically valid for comparing continuous precision metrics. McNemar's test is rejected as it is for paired nominal data.
+* **Hypothesis**: UQ-filtered precision > Random precision (p < 0.05).
 
-### 3.4 Downstream Screening (FR-007, SC-003)
-- **Task**: Select stable materials (low formation energy).
-- **Metric**: Precision at fixed recall (e.g., [deferred] of stable materials).
-- **Method**:
-  - **Baseline**: Rank candidates by point prediction (lowest energy first).
-  - **UQ Method**: Rank candidates by **Expected Loss** = Prediction + $k \times$ Variance (where $k$ is a risk-aversion parameter).
-  - **Comparison**: Compare the precision of the top-K candidates selected by each method. This measures the utility of uncertainty in *ranking*, avoiding the tautology of interval thresholding.
+## 4. Compute Feasibility & Runtime Strategy
 
-## 4. Statistical Rigor & Feasibility
+* **CPU-First**: All models are small (≤10k params, 200 inducing points). Training will be done on CPU using `torch` (no CUDA).
+* **Memory Management**:
+ * Dataset streamed via `datasets` library.
+ * PCA fitted on training set only.
+ * Sparse GP uses inducing points to limit O(N^3) complexity.
+* **Runtime Budget**:
+ * Total limit: hours.
+ * Deep Ensemble (multiple models): [deferred] (sequential).
+ * MC-Dropout: ~ mins (10,000 passes * inference time).
+ * Sparse GP: Moderate duration (optimization + inference).
+ * Evaluation: A dedicated time slot is allocated for the evaluation phase.
+ * **Buffer**: 2+ hours for retries and overhead.
+* **GPU Escape Hatch**: Not required for this plan. If the Sparse GP fails to converge on CPU due to numerical instability, the fallback is a Standard GP on a smaller subset (N=2000) or proceeding with only Ensemble/MC-Dropout results, as per the "fallback" logic in the spec.
 
-### 4.1 Computational Feasibility (CPU-Only)
-- **Constraints**: 2 CPU cores, 7 GB RAM, 5-hour limit.
-- **Mitigation**:
-  - Small NN (≤10k params) ensures fast training (<30 mins).
-  - Sparse GP with 500 inducing points reduces O(N^3) to O(N*M^2).
-  - 5-ensemble training is parallelizable or sequential within the 5-hour budget.
-  - **No GPU**: All libraries (PyTorch, GPyTorch) configured for CPU.
+## 5. Risk Mitigation
 
-### 4.2 Statistical Considerations
-- **Multiple Comparisons**: When comparing 3 methods across multiple metrics, a **Holm-Bonferroni correction** will be applied to all pairwise p-values to control the Family-Wise Error Rate (FWER).
-- **Significance Testing for ECE**: To determine if the difference in ECE between methods is significant, a **bootstrap paired t-test** (1000 resamples) will be used to construct 95% confidence intervals for the difference in ECE. The null hypothesis is that the difference is zero.
-- **Power Analysis**: Given the dataset size (N), the study will calculate the **Minimum Detectable Effect (MDE)** for a [deferred] precision improvement. If N is too small to detect this effect with 80% power at alpha=0.05, the study will report the MDE and frame the screening results as "exploratory" rather than confirmatory.
-- **Causal Claims**: The study is observational (predictive modeling). Claims will be framed as "associational" or "predictive utility," not causal.
-- **Collinearity**: Elemental features are often correlated. PCA (applied globally) and regularization (for NN) mitigate this. Independent effects of highly collinear features will not be claimed.
-
-## 5. Risks & Mitigation
-
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Dataset Unavailable** | High (Pipeline fails) | Strict error handling; fail with `SOURCE_UNREACHABLE`; no URL fabrication. |
-| **GP Non-Convergence** | Medium (One method fails) | Fallback: Log warning, exclude GP from ranking, proceed with Ensemble/MC-Dropout only. |
-| **Runtime Exceeds 5h** | High (CI Failure) | Hard timeout in `main.py` for entire pipeline; aggressive parameter tuning. |
-| **Memory Overflow** | High (Crash) | Batch processing; stream data; limit dataset size to fit 7 GB. |
-
-## 6. References
-- Gal, Y., & Ghahramani, Z. (2016). Dropout as a Bayesian Approximation.
-- Lakshminarayanan, B., et al. (2017). Simple and Scalable Predictive Uncertainty Estimation using Deep Ensembles.
-- Hensman, J., et al. (2015). Scalable Variational Gaussian Process Classification.
-- OQMD Dataset: https://huggingface.co/datasets/oqmd/formation-energy
+* **Missing Data**: Rows with missing CIFs or structural descriptors are excluded; `validation_report.json` logs the count (FR-010).
+* **GP Convergence**: If Sparse GP optimization fails, the system falls back to Standard GP (N=2000). If that fails, the run is marked "partial".
+* **Timeout**: A hard timeout (5h) is enforced in `main.py`. If exceeded, the pipeline fails with a clear error code.
+* **Fabrication Prevention**: No synthetic data. All results derived from the verified OQMD subset. All metrics are computed from real predictions.

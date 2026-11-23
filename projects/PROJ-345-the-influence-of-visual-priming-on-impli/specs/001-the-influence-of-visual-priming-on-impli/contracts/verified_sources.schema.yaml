@@ -1,0 +1,27 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Verified Sources Registry Schema"
+type: "object"
+properties:
+  sources:
+    type: "array"
+    description: "Authoritative list of verified dataset URLs; takes precedence over research.md if both exist"
+    items:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+          description: "Short dataset name"
+        url:
+          type: "string"
+          description: "Directly downloadable URL (no OAuth)"
+        format:
+          type: "string"
+          description: "File format, e.g. parquet, csv, json"
+      required:
+        - name
+        - url
+        - format
+      additionalProperties: false
+required:
+  - sources
+additionalProperties: false

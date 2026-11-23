@@ -1,0 +1,116 @@
+T000:
+  c: false
+  h: 043249aa754156072fb79c8958ea191a4c2e6acdb4013bd3dcf957aade577d23
+  r: "The spec file exists and includes the required version entries, but it does\
+    \ not contain the conditional pivot logic referencing HDBSCAN (or K\u2011Means\
+    \ on residuals) as required, and FR\u2011006 lacks the explicit 0.1 step specification.\
+    \ Moreover, the required output file `data/processed/spec_alignment_log.txt` is\
+    \ missing."
+  sig: 7c7f6364542b4be10247472635dad67c8ba1be51f5a02a93363b8d08d0b398fb
+T001:
+  c: true
+  h: b1c12b114501e30288ef3b9d7bba2581eca66a6808c3131fc3c41c597c4e6def
+  r: "The repository contains the project root `projects/PROJ-786-multi-property-trade-offs-in-alloy-desig/`\
+    \ and all required sub\u2011directories (`code/`, `data/`, `tests/`, `docs/`,\
+    \ `data/raw/`, `data/processed/`, `tests/contract/`, `tests/integration/`, `tests/unit/`).\
+    \ Each of these directories includes a `.gitkeep` file, confirming the initialized\
+    \ structure."
+  sig: b446e63cea57692fe171675ef878937881d18b34798a819acc382406946079b2
+T002:
+  c: true
+  h: 77360afa47259a4d7b0ade0d0c4e93935da027eb8c53d16e03e7c89ab05c7b2d
+  r: "Checked the `requirements.txt` file (262\u202Fbytes) located at the project\
+    \ root. It contains all listed packages (pandas, scikit-learn, numpy, scipy, deap,\
+    \ matplotlib, seaborn, requests, pyyaml, pyarrow, pymatgen, mendeleev, python-dotenv,\
+    \ hdbscan) with exact `==major.minor.patch` pins, satisfying the task\u2019s requirement."
+  sig: fd2c2b4bd6f21ee0d6625b317ed8bc55d949b7b02e237e414a3b39eed2fa491f
+T003:
+  c: true
+  h: a51b2c02456356efc3e8155881a63f35efe926f7573186cd2bb8b3747d1eec6d
+  r: "Checked the presence and contents of `pyproject.toml`, `.ruff.toml`, and `.black.toml`;\
+    \ all three files exist, are non\u2011empty, and contain appropriate ruff and\
+    \ black configuration sections with project\u2011specific settings."
+  sig: c2a6c641ae38ff3fc3be1f850b696d12c5905aef026e2239d1818d33ac1d6076
+T004:
+  c: false
+  h: ed4243a31aa279b8deed4588283e4fd66778a7c533e41c3d770b17e330ad2132
+  r: "Checked the project root for the required `data/raw/.gitkeep` and `data/processed/.gitkeep`\
+    \ files; neither the directories nor the placeholder files are present in the\
+    \ repository. The task\u2019s core deliverable \u2013 the directory structure\
+    \ with `.gitkeep` files \u2013 is missing."
+  sig: f28bba0d6521722dfa6f5dff4da7b43a54080e1f99f890f567a9bf8cbc7a93be
+T005:
+  c: false
+  h: 2d7f74b2e263fa846c829b65059e4a4de1da775af9904b98e97aaa8f3bb70b36
+  r: The repository contains the `code/versioning.py` script, but the required state
+    file `state/projects/PROJ-786-multi-property-trade-offs-in-alloy-desig.yaml` is
+    missing and there is no evidence (e.g., execution logs or the generated YAML)
+    showing that the script was run, produced the updated YAML, and logged hash computation.
+    The implementer must provide a run of the script that creates/updates the YAML
+    file and includes the corresponding console/log output.
+  sig: 97118deffa09cccf41ccf2586021bdb9444057cb63bda0bbf2b728f97e98b7dc
+T006:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or output artifacts (e.g., ingestion script, encoded CSV,\
+    \ trained model files, or Pareto visualizations) were provided. The required deliverables\
+    \ for User Story\u202F1 (data extraction, filtering, and composition encoding)\
+    \ and the subsequent stories are absent, so the task is not satisfied."
+T011:
+  c: false
+  h: b41117917c220c407c178da43d52db2606720a4cd4af15da740d59086ac6de63
+  r: "The required output file `data/processed/encoded_alloys.csv` is missing, so\
+    \ the integration test cannot fully validate the pipeline. Moreover, the test\
+    \ only checks for three columns and does not enforce the exact schema (e.g., `element_features`)\
+    \ nor verify that no extra columns exist, which deviates from the task\u2019s\
+    \ specification. The next implementer must generate the CSV file and extend the\
+    \ test to assert the exact set of columns and their types, including the `element_features`\
+    \ list/array column."
+T015:
+  c: false
+  h: 72f6a4991b9ac805648794a66508c53b1603a92a98a55a0701b782134d3d164d
+  r: "The repository contains `code/main.py`, but the required output file `data/processed/encoded_alloys.csv`\
+    \ is missing, and the script\u2019s truncated content does not demonstrate that\
+    \ it writes to that path. Without the CSV artifact (or evidence the script creates\
+    \ it), the task\u2019s core requirement is unmet."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration file, or log output showing the required logging of total\
+    \ fetched, filtered, and encoded record counts was provided. The task demands\
+    \ an implementation that records these three metrics during data ingestion, but\
+    \ no artifact demonstrating such logging exists. The implementer must add the\
+    \ logging statements (e.g., using Python\u2019s logging module) and supply the\
+    \ updated script or module as evidence."
+T021:
+  c: false
+  h: 5e6312ab24b1fe7f3e9a2fefd66ed392f531c4ef07cf5fbce2ae6fe2af0fc849
+  r: "The repository lacks the required output artifacts (`data/processed/loso_test_points.csv`\
+    \ and `data/processed/model_validation_report.json`). Moreover, the provided `code/model_training.py`\
+    \ is truncated and shows no implementation of LOSO\u2011CV, R\xB2 threshold handling,\
+    \ critical logging, or fallback to Poisson Anomaly mode. The task therefore remains\
+    \ unfinished."
+T023:
+  c: false
+  h: 7dcca89949c2e51b8bf9fe7cd575f50b1ff76d5cd0353ef3600ca075baa8af4b
+  r: "The repository lacks the required `data/processed/model_validation_report.json`\
+    \ and the output `data/results/pareto_frontier.csv`. Moreover, the provided `code/pareto_optimization.py`\
+    \ is truncated and does not contain a complete NSGA\u2011II implementation, convex\u2011\
+    hull boundary checks, distance\u2011to\u2011hull flagging, reliability\u2011mask\
+    \ handling, or CSV generation. These essential components are missing, so the\
+    \ task is not satisfied."
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, tests, or documentation were provided showing that predictions are clamped
+    to physical limits or that extrapolated points are flagged; the artifact list
+    is empty, so the required logic cannot be verified.
+T032:
+  c: false
+  h: 37c9113e2e04282f6c6cc79f7cf5068192431ee719e006ba6f02f185d6591f51
+  r: "The repository contains only a partial `code/cluster_analysis.py` focused on\
+    \ K\u2011Means and utility loading; it does not implement an HDBSCAN parameter\
+    \ sweep, decoupled\u2011region re\u2011evaluation, Jaccard robustness calculation,\
+    \ or writing of `data/processed/sensitivity_analysis.csv` (the file is absent).\
+    \ Consequently the required sensitivity analysis artifact is missing and the code\
+    \ does not satisfy the task specifications."

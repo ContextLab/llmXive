@@ -115,5 +115,15 @@
     "sections/conclusion.tex",
     "sections/contributors.tex",
     "sections/references.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "c65f2ffe2876ff92d9cd077e1b56245c1fc8f1eb4431d9d1e8a84b0f7d375e6b",
+      "bytes": 36972895
+    },
+    "original.pdf": {
+      "sha256": "9614b876cda35416a389690b164df91f9600d61121faab1801a2afb94524d647",
+      "bytes": 36766475
+    }
+  }
 }

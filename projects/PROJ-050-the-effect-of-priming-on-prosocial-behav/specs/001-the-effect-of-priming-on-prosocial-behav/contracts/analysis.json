@@ -6,8 +6,8 @@
     "model": "Linear Mixed-Effects Model"
   },
   "outputs": {
-    "report": "results/stats_report.json",
-    "plot": "results/boxplot.png",
+    "report": "data/results/model_results.json",
+    "plot": "data/results/prosocial_distribution.png",
     "metrics": ["p_value", "coefficient", "confidence_interval", "sensitivity_results"]
   }
 }

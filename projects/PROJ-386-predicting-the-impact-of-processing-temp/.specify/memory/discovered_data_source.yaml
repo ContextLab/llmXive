@@ -1,0 +1,10 @@
+status: none
+intent: NOMAD OpenML Citrination Materials Project rolling temperature grain size
+  alloy composition dataset python package
+required_fields:
+- rolling_temperature
+- alloy_composition_wt_percent
+- grain_size
+cache_key: f1164b19498a98c3b89eaf95cd122f60adc5eb86e68377e802bf7b99b7710bcc
+searched_at: '2026-10-09T23:21:16.025837+00:00'
+retry_count: 1

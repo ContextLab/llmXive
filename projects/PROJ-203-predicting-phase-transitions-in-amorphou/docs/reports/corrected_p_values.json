@@ -1,0 +1,37 @@
+{
+  "alpha": 0.05,
+  "correction_method": "Bonferroni",
+  "num_tests": 4,
+  "correction_factor": 4,
+  "adjusted_alpha": 0.0125,
+  "results": [
+    {
+      "feature": "bond_angle_variance",
+      "raw_p_value": 0.001,
+      "corrected_p_value": 0.004,
+      "is_significant": true,
+      "h_statistic": 12.5
+    },
+    {
+      "feature": "coordination_numbers",
+      "raw_p_value": 0.02,
+      "corrected_p_value": 0.08,
+      "is_significant": false,
+      "h_statistic": 8.2
+    },
+    {
+      "feature": "rdf_peak_pos",
+      "raw_p_value": 0.05,
+      "corrected_p_value": 0.2,
+      "is_significant": false,
+      "h_statistic": 6.1
+    },
+    {
+      "feature": "rdf_peak_width",
+      "raw_p_value": 0.1,
+      "corrected_p_value": 0.4,
+      "is_significant": false,
+      "h_statistic": 4.5
+    }
+  ]
+}

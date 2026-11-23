@@ -1,443 +1,241 @@
-"""
-Preprocessing module for llmXive structured text generation pipeline.
-
-Provides image loading, resizing, normalization, and tensor conversion
-utilities shared across all user stories.
-"""
-
 import os
 import logging
 import hashlib
-from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, List, Union
-
-import numpy as np
-from PIL import Image
+import warnings
 import torch
+import numpy as np
+import json
+import pandas as pd
+from pathlib import Path
+from typing import Dict, Any, Optional, Tuple, List, Iterator, Union
 from torch.utils.data import Dataset, DataLoader
+import pyarrow.parquet as pq
 
 from config import get_config_dict, ensure_dirs
+from models.rf_encoder import RFEncoder, create_rf_encoder
 from data.loaders import load_publaynet
 
-# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Constants
-DEFAULT_IMAGE_SIZE = (224, 224)
-DEFAULT_MEAN = [0.485, 0.456, 0.406]
-DEFAULT_STD = [0.229, 0.224, 0.225]
-
 class ImagePreprocessingError(Exception):
-    """Custom exception for image preprocessing failures."""
+    """Custom exception for preprocessing errors."""
     pass
 
-def load_image(image_path: Union[str, Path], mode: str = "RGB") -> Image.Image:
+def load_image(image_path: str) -> np.ndarray:
     """
-    Load an image from disk.
-    
-    Args:
-        image_path: Path to the image file.
-        mode: PIL image mode ('RGB', 'L', etc.).
-        
-    Returns:
-        Loaded PIL Image.
-        
-    Raises:
-        ImagePreprocessingError: If image cannot be loaded or is corrupted.
+    Load an image from disk using PIL and convert to numpy array.
     """
     try:
-        img = Image.open(image_path)
-        # Ensure correct mode
-        if img.mode != mode:
-            img = img.convert(mode)
-        return img
+        from PIL import Image
+        img = Image.open(image_path).convert("RGB")
+        return np.array(img)
     except Exception as e:
         raise ImagePreprocessingError(f"Failed to load image {image_path}: {e}")
 
-def resize_image(
-    image: Image.Image, 
-    size: Tuple[int, int] = DEFAULT_IMAGE_SIZE, 
-    resample: int = Image.BILINEAR
-) -> Image.Image:
+def resize_image(image: np.ndarray, target_size: Tuple[int, int] = (224, 224)) -> np.ndarray:
     """
-    Resize image to specified dimensions.
-    
-    Args:
-        image: Input PIL Image.
-        size: Target (width, height).
-        resample: Resampling filter.
-        
-    Returns:
-        Resized PIL Image.
+    Resize image to target dimensions.
     """
-    return image.resize(size, resample)
+    try:
+        from PIL import Image
+        img_pil = Image.fromarray(image)
+        resized = img_pil.resize(target_size, Image.Resampling.LANCZOS)
+        return np.array(resized)
+    except Exception as e:
+        raise ImagePreprocessingError(f"Failed to resize image: {e}")
 
-def normalize_image(
-    image: Image.Image,
-    mean: List[float] = DEFAULT_MEAN,
-    std: List[float] = DEFAULT_STD
-) -> np.ndarray:
+def normalize_image(image: np.ndarray) -> np.ndarray:
     """
-    Normalize image pixel values to [0, 1] and apply standard normalization.
-    
-    Args:
-        image: Input PIL Image.
-        mean: Mean values for each channel.
-        std: Standard deviation values for each channel.
-        
-    Returns:
-        Normalized numpy array of shape (C, H, W).
+    Normalize image pixel values to [0, 1] range if in 0-255 range.
     """
-    # Convert to numpy array
-    img_array = np.array(image).astype(np.float32)
-    
-    # Normalize to [0, 1]
-    img_array /= 255.0
-    
-    # Ensure 3 channels
-    if len(img_array.shape) == 2:
-        img_array = np.stack([img_array] * 3, axis=-1)
-    
-    # Transpose to (C, H, W)
-    img_array = np.transpose(img_array, (2, 0, 1))
-    
-    # Apply normalization
-    for c, m, s in zip(range(len(mean)), mean, std):
-        img_array[c] = (img_array[c] - m) / s
-    
-    return img_array
+    if image.max() > 1.0:
+        return image.astype(np.float32) / 255.0
+    return image.astype(np.float32)
+
+def image_to_tensor(image: np.ndarray) -> torch.Tensor:
+    """
+    Convert numpy image array to PyTorch tensor (C, H, W).
+    """
+    if image.ndim == 3:
+        # H, W, C -> C, H, W
+        tensor = torch.from_numpy(image).permute(2, 0, 1)
+    else:
+        tensor = torch.from_numpy(image)
+    return tensor.float()
 
 def detect_and_clamp_nans(tensor: torch.Tensor) -> torch.Tensor:
     """
-    Detect NaN values in a tensor and clamp them to 0.
-    
-    Args:
-        tensor: Input tensor.
-        
-    Returns:
-        Tensor with NaNs replaced by 0.
+    Detect NaNs and Inf in tensor and clamp them to zero.
     """
-    if torch.isnan(tensor).any():
-        logger.warning("NaN values detected in tensor, clamping to 0.")
-        tensor = torch.nan_to_num(tensor, nan=0.0, posinf=1e6, neginf=-1e6)
+    if torch.isnan(tensor).any() or torch.isinf(tensor).any():
+        logger.warning("Detected NaN or Inf values in tensor. Clamping to 0.")
+        tensor = torch.where(torch.isnan(tensor), torch.tensor(0.0), tensor)
+        tensor = torch.where(torch.isinf(tensor), torch.tensor(0.0), tensor)
     return tensor
 
-def image_to_tensor(
-    image: Image.Image,
-    size: Tuple[int, int] = DEFAULT_IMAGE_SIZE,
-    mean: List[float] = DEFAULT_MEAN,
-    std: List[float] = DEFAULT_STD,
-    clamp_nans: bool = True
-) -> torch.Tensor:
+def pad_or_truncate_sequence(sequence: List[float], target_len: int, pad_value: float = 0.0) -> List[float]:
     """
-    Convert PIL Image to normalized torch tensor.
-    
-    Args:
-        image: Input PIL Image.
-        size: Target size for resizing.
-        mean: Mean for normalization.
-        std: Std for normalization.
-        clamp_nans: Whether to clamp NaN values.
+    Pad or truncate a sequence to target length.
+    """
+    if len(sequence) >= target_len:
+        return sequence[:target_len]
+    return sequence + [pad_value] * (target_len - len(sequence))
+
+def handle_corruption(image_shape: Tuple[int, int]) -> List[float]:
+    """
+    Return a minimal valid structure for blank/corrupted images.
+    Returns a sequence of zeros representing a minimal token sequence.
+    """
+    # Assuming a minimal token sequence length of 10 for corruption handling
+    return [0.0] * 10
+
+def extract_tokens(model: RFEncoder, image_tensor: torch.Tensor) -> List[float]:
+    """
+    Extract intermediate representation tokens from the frozen RF encoder.
+    Expects image_tensor in shape (C, H, W).
+    Returns a list of token embeddings (flattened).
+    """
+    model.eval()
+    with torch.no_grad():
+        # Ensure input is batched: (B, C, H, W)
+        if image_tensor.dim() == 3:
+            image_tensor = image_tensor.unsqueeze(0)
         
-    Returns:
-        Normalized torch tensor of shape (1, C, H, W).
+        try:
+            # Forward pass through encoder only
+            # The RFEncoder wrapper should handle the LayoutLMv3 extraction
+            # and return the hidden states (tokens)
+            output = model(image_tensor)
+            
+            # output is expected to be a dict or tensor containing hidden states
+            if isinstance(output, dict):
+                # Assuming 'last_hidden_state' or similar key
+                tokens = output.get('last_hidden_state', output.get('hidden_states', None))
+                if tokens is None:
+                    raise ImagePreprocessingError("Model output does not contain expected token keys.")
+            else:
+                tokens = output
+            
+            # Flatten tokens to a 1D list of floats
+            # Shape: (B, Seq_Len, Hidden_Dim) -> (Seq_Len * Hidden_Dim)
+            tokens_np = tokens.cpu().numpy().flatten()
+            return tokens_np.tolist()
+            
+        except Exception as e:
+            raise ImagePreprocessingError(f"Failed to extract tokens: {e}")
+
+def pad_sequences(tokens_list: List[List[float]], max_len: int) -> List[List[float]]:
     """
-    # Resize
-    resized = resize_image(image, size)
-    
-    # Normalize
-    normalized = normalize_image(resized, mean, std)
-    
-    # Convert to tensor
-    tensor = torch.from_numpy(normalized).unsqueeze(0)
-    
-    # Clamp NaNs if requested
-    if clamp_nans:
+    Pad a list of token sequences to a fixed context window (max_len).
+    """
+    return [pad_or_truncate_sequence(seq, max_len) for seq in tokens_list]
+
+def load_and_preprocess_image(model: RFEncoder, image_path: str, max_tokens: int = 512) -> List[float]:
+    """
+    Full pipeline: load, resize, normalize, extract tokens, clamp nans.
+    """
+    try:
+        img = load_image(image_path)
+        img = resize_image(img)
+        img = normalize_image(img)
+        tensor = image_to_tensor(img)
         tensor = detect_and_clamp_nans(tensor)
-    
-    return tensor
-
-def load_and_preprocess_image(
-    image_path: Union[str, Path],
-    size: Tuple[int, int] = DEFAULT_IMAGE_SIZE,
-    mean: List[float] = DEFAULT_MEAN,
-    std: List[float] = DEFAULT_STD
-) -> torch.Tensor:
-    """
-    Load, resize, and normalize an image in one step.
-    
-    Args:
-        image_path: Path to image file.
-        size: Target size.
-        mean: Mean for normalization.
-        std: Std for normalization.
         
-    Returns:
-        Normalized torch tensor.
-    """
-    image = load_image(image_path)
-    return image_to_tensor(image, size, mean, std)
+        tokens = extract_tokens(model, tensor)
+        return tokens
+    except Exception as e:
+        logger.error(f"Error processing {image_path}: {e}")
+        # Return minimal valid structure on error
+        return handle_corruption((224, 224))
 
 class PubLayNetPreprocessedDataset(Dataset):
     """
-    Dataset wrapper for PubLayNet that loads and preprocesses images.
-    
-    This dataset uses the real PubLayNet data from HuggingFace and applies
-    on-the-fly preprocessing (resize, normalize) to avoid memory issues.
+    Dataset class for RF token pairs.
+    Loads from the parquet file produced by T016.
     """
-    
-    def __init__(
-        self,
-        split: str = "train",
-        size: Tuple[int, int] = DEFAULT_IMAGE_SIZE,
-        mean: List[float] = DEFAULT_MEAN,
-        std: List[float] = DEFAULT_STD,
-        max_samples: Optional[int] = None
-    ):
-        """
-        Initialize the dataset.
+    def __init__(self, parquet_path: str, config: Dict[str, Any]):
+        super().__init__()
+        self.parquet_path = parquet_path
+        self.config = config
+        self.max_len = config.get('max_context_window', 512)
         
-        Args:
-            split: Dataset split ('train', 'validation', 'test').
-            size: Target image size.
-            mean: Normalization mean.
-            std: Normalization std.
-            max_samples: Maximum number of samples to load (for testing).
-        """
-        self.split = split
-        self.size = size
-        self.mean = mean
-        self.std = std
-        self.max_samples = max_samples
+        if not os.path.exists(parquet_path):
+            raise FileNotFoundError(f"Token artifact not found: {parquet_path}")
         
-        # Load the dataset
-        logger.info(f"Loading PubLayNet split '{split}'...")
-        self.dataset = load_publaynet()
+        # Load parquet into pandas
+        self.df = pd.read_parquet(parquet_path)
         
-        # Select split
-        if split not in self.dataset:
-            raise ValueError(f"Split '{split}' not found. Available: {list(self.dataset.keys())}")
+        # Ensure necessary columns exist
+        if 'tokens' not in self.df.columns:
+            raise ValueError("Parquet file must contain 'tokens' column.")
         
-        self.data = self.dataset[split]
-        
-        # Limit samples if requested
-        if max_samples is not None and len(self.data) > max_samples:
-            logger.info(f"Limiting to {max_samples} samples.")
-            self.data = self.data.select(range(max_samples))
-        
-        logger.info(f"Dataset loaded: {len(self.data)} samples.")
-    
-    def __len__(self) -> int:
-        return len(self.data)
-    
-    def __getitem__(self, idx: int) -> Dict[str, Any]:
-        """
-        Get a preprocessed sample.
-        
-        Args:
-            idx: Sample index.
-            
-        Returns:
-            Dictionary with 'image' tensor and 'annotation' dict.
-        """
-        sample = self.data[idx]
-        
-        # Load and preprocess image
-        image_path = sample['image_path']
-        if not os.path.exists(image_path):
-            # Fallback: try to reconstruct path from image_id
-            image_id = sample.get('image_id', f'image_{idx}')
-            # In real usage, the loader should have downloaded images
-            # For now, we raise an error
-            raise FileNotFoundError(f"Image not found: {image_path}")
-        
-        try:
-            image_tensor = load_and_preprocess_image(
-                image_path, self.size, self.mean, self.std
-            )
-        except Exception as e:
-            logger.warning(f"Failed to process image {image_path}: {e}. Skipping.")
-            # Return a minimal valid structure for corrupted images
-            image_tensor = torch.zeros((1, 3, self.size[1], self.size[0]))
-        
-        return {
-            'image': image_tensor,
-            'annotation': sample['annotation'],
-            'image_id': sample.get('image_id', idx)
-        }
+        logger.info(f"Loaded {len(self.df)} samples from {parquet_path}")
 
-def create_preprocessing_dataloader(
-    split: str = "train",
-    batch_size: int = 8,
-    num_workers: int = 0,
-    size: Tuple[int, int] = DEFAULT_IMAGE_SIZE,
-    max_samples: Optional[int] = None
-) -> DataLoader:
-    """
-    Create a DataLoader for preprocessed PubLayNet data.
-    
-    Args:
-        split: Dataset split.
-        batch_size: Batch size.
-        num_workers: Number of worker processes.
-        size: Image size.
-        max_samples: Maximum samples to load.
+    def __len__(self):
+        return len(self.df)
+
+    def __getitem__(self, idx):
+        row = self.df.iloc[idx]
+        tokens = row['tokens']
         
-    Returns:
-        DataLoader instance.
+        # If tokens is stored as a string (e.g. JSON), parse it
+        if isinstance(tokens, str):
+            tokens = json.loads(tokens)
+        
+        # Pad or truncate to fixed context window
+        tokens = pad_or_truncate_sequence(tokens, self.max_len)
+        
+        # Convert to tensor
+        x = torch.tensor(tokens, dtype=torch.float32)
+        
+        # Create a dummy target for now (US2 will define real targets)
+        # For T023, we just need the DataLoader structure for RF tokens
+        # Target could be the original text/structure if available, or dummy
+        y = torch.zeros(1, dtype=torch.long) # Placeholder target
+        
+        return x, y
+
+def create_preprocessing_dataloader(parquet_path: str, config: Dict[str, Any], batch_size: int = 4) -> DataLoader:
     """
-    dataset = PubLayNetPreprocessedDataset(
-        split=split,
-        size=size,
-        max_samples=max_samples
+    Create a PyTorch DataLoader for the RF token pairs.
+    """
+    dataset = PubLayNetPreprocessedDataset(parquet_path, config)
+    dataloader = DataLoader(
+        dataset, 
+        batch_size=batch_size, 
+        shuffle=False, 
+        num_workers=0, # Keep 0 for CPU-only compatibility as per constraints
+        drop_last=False
     )
-    
-    return DataLoader(
-        dataset,
-        batch_size=batch_size,
-        shuffle=(split == "train"),
-        num_workers=num_workers,
-        pin_memory=False  # Disable for CPU-only compatibility
-    )
+    return dataloader
 
 def main():
     """
-    Main function to demonstrate preprocessing pipeline.
-    
-    This script loads a small subset of PubLayNet, preprocesses images,
-    and saves a sample of preprocessed tensors to disk.
+    Main entry point to test the DataLoader creation.
     """
-    # Ensure output directory exists
-    ensure_dirs()
-    output_dir = Path("data/preprocessed")
-    output_dir.mkdir(parents=True, exist_ok=True)
+    config = get_config_dict()
+    ensure_dirs(config)
     
-    # Create dataloader with small sample for demo
-    logger.info("Creating dataloader...")
-    dataloader = create_preprocessing_dataloader(
-        split="validation",
-        batch_size=4,
-        num_workers=0,
-        max_samples=10  # Small sample for demo
-    )
+    # Path to the tokens.parquet produced by T016
+    # Assuming standard output path from T016
+    tokens_path = Path(config.get('data_dir', 'data')) / 'processed' / 'tokens.parquet'
     
-    # Process and save a few samples
-    sample_count = 0
-    for batch_idx, batch in enumerate(dataloader):
-        images = batch['image']
-        annotations = batch['annotation']
-        image_ids = batch['image_id']
-        
-        logger.info(f"Batch {batch_idx}: {images.shape[0]} samples")
-        
-        for i, (img, ann, img_id) in enumerate(zip(images, annotations, image_ids)):
-            # Save tensor to disk
-            output_path = output_dir / f"preprocessed_{img_id}_{sample_count}.pt"
-            torch.save({
-                'image': img,
-                'annotation': ann,
-                'image_id': img_id
-            }, output_path)
-            
-            sample_count += 1
-            if sample_count >= 5:  # Save 5 samples
-                break
-        
-        if sample_count >= 5:
+    if not tokens_path.exists():
+        logger.error(f"Required artifact {tokens_path} not found. Run T016 first.")
+        # In a real pipeline, this would be a hard failure
+        return
+    
+    logger.info(f"Creating DataLoader for {tokens_path}")
+    dataloader = create_preprocessing_dataloader(str(tokens_path), config, batch_size=4)
+    
+    # Iterate over a few batches to verify
+    for i, (x, y) in enumerate(dataloader):
+        logger.info(f"Batch {i}: x shape {x.shape}, y shape {y.shape}")
+        if i >= 2:
             break
     
-    logger.info(f"Saved {sample_count} preprocessed samples to {output_dir}")
-    
-    # Also save a summary
-    summary = {
-        'total_samples_processed': sample_count,
-        'image_size': DEFAULT_IMAGE_SIZE,
-        'mean': DEFAULT_MEAN,
-        'std': DEFAULT_STD
-    }
-    
-    summary_path = output_dir / "preprocessing_summary.json"
-    import json
-    with open(summary_path, 'w') as f:
-        json.dump(summary, f, indent=2)
-    
-    logger.info(f"Summary saved to {summary_path}")
+    logger.info("DataLoader verification successful.")
 
 if __name__ == "__main__":
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Preprocess PubLayNet images")
-    parser.add_argument("--split", type=str, default="validation",
-                      choices=["train", "validation", "test"],
-                      help="Dataset split to process")
-    parser.add_argument("--max-samples", type=int, default=10,
-                      help="Maximum number of samples to process")
-    parser.add_argument("--batch-size", type=int, default=4,
-                      help="Batch size for dataloader")
-    
-    args = parser.parse_args()
-    
-    # Override defaults
-    import sys
-    sys.argv = [sys.argv[0]]  # Clear args for main()
-    
-    # Run with custom args
-    # Temporarily patch main to accept args
-    original_main = main
-    
-    def main_with_args():
-        global DEFAULT_IMAGE_SIZE, DEFAULT_MEAN, DEFAULT_STD
-        # Create dataloader with custom args
-        ensure_dirs()
-        output_dir = Path("data/preprocessed")
-        output_dir.mkdir(parents=True, exist_ok=True)
-        
-        logger.info(f"Processing split '{args.split}' with max {args.max_samples} samples...")
-        dataloader = create_preprocessing_dataloader(
-            split=args.split,
-            batch_size=args.batch_size,
-            num_workers=0,
-            max_samples=args.max_samples
-        )
-        
-        sample_count = 0
-        for batch_idx, batch in enumerate(dataloader):
-            images = batch['image']
-            annotations = batch['annotation']
-            image_ids = batch['image_id']
-            
-            logger.info(f"Batch {batch_idx}: {images.shape[0]} samples")
-            
-            for i, (img, ann, img_id) in enumerate(zip(images, annotations, image_ids)):
-                output_path = output_dir / f"preprocessed_{img_id}_{sample_count}.pt"
-                torch.save({
-                    'image': img,
-                    'annotation': ann,
-                    'image_id': img_id
-                }, output_path)
-                
-                sample_count += 1
-                if sample_count >= args.max_samples:
-                    break
-            
-            if sample_count >= args.max_samples:
-                break
-        
-        logger.info(f"Saved {sample_count} preprocessed samples to {output_dir}")
-        
-        summary = {
-            'total_samples_processed': sample_count,
-            'image_size': DEFAULT_IMAGE_SIZE,
-            'mean': DEFAULT_MEAN,
-            'std': DEFAULT_STD,
-            'split': args.split
-        }
-        
-        summary_path = output_dir / "preprocessing_summary.json"
-        import json
-        with open(summary_path, 'w') as f:
-            json.dump(summary, f, indent=2)
-        
-        logger.info(f"Summary saved to {summary_path}")
-    
-    main_with_args()
+    main()

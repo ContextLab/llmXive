@@ -1,34 +1,38 @@
-# Project Constitution: Predicting Material Stiffness from Microstructure Images
+# Constitution
 
-## Preamble
-This document establishes the governing principles, constraints, and scientific standards for the PROJ-506 research pipeline. All code, data generation, and analysis must adhere to these principles.
+## Principles
 
-## Core Principles
+### Principle I: Scientific Integrity
+The system shall prioritize scientific accuracy over computational convenience. All results must be reproducible and validated against known physical laws.
 
-### Principle I: Reproducibility
-All experiments must be fully reproducible. Code, seeds, and configuration files must be version-controlled and archived with results.
+### Principle II: Transparency
+All methods, parameters, and assumptions must be explicitly documented. No "black box" operations are permitted without full disclosure of underlying mechanisms.
 
-### Principle II: Physical Consistency
-All generated material properties must respect fundamental physical laws, including thermodynamic stability and mechanical bounds (e.g., Voigt-Reuss-Hill).
+### Principle III: Data Hygiene
+All generated data must be traceable to its source parameters. Every data point must include metadata documenting the generation process, including seeds, parameters, and validation status.
 
-### Principle III: Data Integrity
-No synthetic data shall be used as "ground truth" without explicit numerical verification against a validated solver.
+### Principle IV: Validation First
+No model or analysis shall be considered valid without explicit verification against ground truth or established benchmarks.
 
-### Principle IV: CPU-First Optimization
-Unless explicitly authorized, all pipelines must target CPU execution to ensure accessibility and cost-efficiency.
+### Principle V: Error Disclosure
+All limitations, failure modes, and uncertainty bounds must be explicitly reported. The system shall not hide or downplay errors or edge cases.
 
-### Principle V: Statistical Rigor
-Hypothesis testing must use methods appropriate for the data distribution and sample size, with corrections for multiple comparisons where necessary.
+### Principle VI: Numerical Homogenization Method
+The system shall use FFT-based numerical homogenization. The validity range of the analytical bounds used is documented for the specific microstructure topology.
+Specifically:
+- The FFT solver is valid for periodic microstructures on a regular grid.
+- Analytical Voigt-Reuss-Hill bounds are valid for isotropic effective properties.
+- For anisotropic topologies, the bounds are documented per topology type in the metadata.
+- Solver convergence is required: residual must be < 1e-4.
 
-### Principle VI: Numerical Homogenization via FFT
-**Amended**: The project explicitly permits and encourages the use of Fast Fourier Transform (FFT)-based numerical homogenization methods (e.g., Moulinec-Suquet scheme) for computing effective elastic stiffness tensors from microstructure images.
+### Principle VII: Generalization Boundary
+The system shall explicitly identify and report out-of-distribution (OOD) predictions. No extrapolation beyond the training domain shall be presented as valid without explicit OOD flags and degradation rate reporting.
 
-This principle overrides any prior restriction favoring purely analytical homogenization for complex microstructures, provided that:
-1. The FFT solver is validated against known analytical bounds (Voigt-Reuss-Hill).
-2. The discretization resolution is sufficient to capture the microstructural features (minimum 128x128 pixels as per FR-001).
-3. The implementation is optimized for CPU execution (no CUDA dependency) to align with Principle IV.
+### Principle VIII: Computational Efficiency
+The system shall prioritize CPU-optimized algorithms where possible, with GPU acceleration only when explicitly justified by performance requirements and validated for numerical equivalence.
 
-This amendment aligns with Plan Task 0.2 and supports the primary claim (c_55975982) regarding the prediction of stiffness from microstructure.
+### Principle IX: Reproducibility
+All experiments must be fully reproducible. Random seeds, software versions, and hardware configurations must be recorded and preserved.
 
-## Governance
-Changes to this constitution require a formal amendment proposal (see `docs/constitution_amendment_proposal.md`) and approval by the project governance body.
+### Principle X: Ethical Use
+The system shall not be used for purposes that violate scientific ethics or that could cause harm if misapplied. All findings must be contextualized within their limitations.

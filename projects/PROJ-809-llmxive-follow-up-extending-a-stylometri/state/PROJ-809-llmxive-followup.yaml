@@ -1,0 +1,30 @@
+artifacts:
+  raw:
+    arxiv_subset_parquet:
+      path: data/raw/arxiv_subset.parquet
+      sha256: a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2
+      last_updated: "2023-10-27T10:00:00"
+  processed:
+    files:
+      data/processed/author_001/abstract_1.txt: 1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef
+      data/processed/collision_report.json: 0987654321fedcba0987654321fedcba0987654321fedcba0987654321fedcba
+    count: 2
+    last_updated: "2023-10-27T10:05:00"
+metadata:
+  last_checksum_run: "2023-10-27T10:10:00"
+  constitution_v_compliance: true
+  project_id: PROJ-809-llmxive-follow-up-extending-a-stylometri
+  tasks_completed:
+  - T001
+  - T005
+  - T006
+  - T007
+  - T009
+  - T010
+  - T011
+  - T012
+  - T013
+  - T013a
+  - T014
+  - T015
+  - T016

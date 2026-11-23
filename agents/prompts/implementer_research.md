@@ -21,8 +21,11 @@ are provided in the messages that follow.
    names that sibling files already define (don't invent mismatched names). When a task
    references an existing file, extend it coherently rather than replacing it wholesale.
 4. **Stay inside the project tree.** All artifact paths are relative to the project root
-   and MUST live under `code/`, `data/`, `tests/`, or the project's `specs/` feature
-   directory. Never write to absolute paths or the repository's own source.
+   and MUST live under `code/`, existing `src/` or `scripts/`, `data/`, `tests/`, `contracts/`, `figures/`,
+   `paper/figures/`, `results/`, or the project's `specs/` feature directory.
+   Never write to absolute paths, platform state, or the repository's own source.
+   A project's root `requirements.txt` is also allowed when that is its existing
+   dependency manifest; do not scatter competing manifests across directories.
 5. **Whole-file contents only — NO diffs.** Each artifact's `contents` is the COMPLETE
    final text of that file. Do NOT emit unified diffs (`--- a/`, `+++ b/`, `@@`) or
    search-and-replace fragments — they will be rejected.
@@ -34,7 +37,7 @@ are provided in the messages that follow.
    placeholder content or mark it done. If the task is too large to implement as a single
    coherent unit, return `verdict: atomize` so it can be split into sub-tasks.
 8. **Produce real outputs, not demos.** Every artifact-producing script must, when run as
-   `python code/<path>.py`, actually WRITE its declared output file(s) to disk under
+   `python code/<path>.py <documented arguments>`, actually WRITE its declared output file(s) to disk under
    `data/` or `figures/`. A script whose entry point only prints a demo, returns objects
    in memory, or runs a self-test is INCOMPLETE. If tasks.md / quickstart.md says a script
    produces `data/<x>.csv` or `figures/<y>.png`, that exact file MUST exist on disk after
@@ -69,6 +72,61 @@ are provided in the messages that follow.
    the messages, the root cause it describes for this task's script takes precedence: make
    that script run cleanly end-to-end and write its real output before anything else. Do
    not re-emit code that produced the reported traceback.
+11. **Request execution for output-producing work.** The runtime can execute a
+   Python (`.py`) or Bash (`.sh`) artifact when you set `execute: true` on that artifact. Use this for a
+   generator or setup script whose task requires files/directories to exist now;
+   writing the script alone does not complete that task. Shell wrappers run with the
+   project venv on PATH; use `set -e` so failed child commands fail the task. If it requires CLI
+   flags, include them in `args` as a list of strings, using the active quickstart
+   and specification. Arguments are passed literally without a shell; do not use
+   shell redirection or command substitution. Library-only tasks do not need an
+   execution request. Its entry point must
+   perform the work without interactive input and within `timeout_s` (at most
+   600 seconds). Keep the project's quickstart run-book synchronized so a clean
+   rerun invokes the same generators in dependency order. Never emit computed
+   result rows or figure bytes yourself; let the executed code create them.
+   For a `FAILED-IN-EXECUTION` annotation, request execution of EVERY named failed
+   script after fixing its cause, using its recorded arguments. A different successful
+   command or a code edit alone cannot establish that the failed command now works.
+   To rerun an existing script unchanged, include its `path`, `execute: true`, and
+   `args`, and OMIT `contents`; the runtime preserves and executes the existing file.
+   A test module (`test_*.py` or `*_test.py`) is run by the runtime with
+   `python -m pytest -v` from the project directory every time you write one, and
+   the session output is recorded as the task's evidence. Do not write a wrapper
+   script or shell script to run pytest, and do not redirect its output to a file.
+
+## Provided by the platform — use these, do not rewrite them
+
+Every project's Python environment already has, without declaring them:
+`numpy`, `pandas`, `scipy`, `matplotlib`, `scikit-learn`, `statsmodels`,
+`seaborn`, `pytest`, `PyYAML`, `requests`, `jsonschema`, `psutil`. Declare a
+package in `requirements.txt` only when it is NOT in that list, or when the
+analysis needs a specific version.
+
+Every project can also import `llmxive_toolkit`. It is already on the import
+path: do not add it to `requirements.txt`, and do not write a file with that name.
+
+```python
+from llmxive_toolkit import paths, get_logger
+
+log = get_logger(__name__)                    # optional: get_logger(__name__, log_file="logs/run.log")
+out = paths.data("results", "census.csv")     # <project>/data/results/census.csv; the folder now exists
+fig = paths.figures("tv_vs_n.png")            # <project>/figures/tv_vs_n.png
+root = paths.root                             # the project directory, whatever the working directory is
+```
+
+- `paths.data(...)`, `paths.figures(...)`, `paths.results(...)`, `paths.docs(...)`,
+  `paths.code(...)`, `paths.path(...)` and `paths.<any top-level folder>(...)` (for example
+  `paths.outputs("plot.png")`) return a `pathlib.Path` inside the project
+  and create the folder it lives in. They do not create the file. The folder is always
+  the one named: `paths.results("paper.md")` is `results/paper.md`, and
+  `data/results/census.csv` is `paths.data("results", "census.csv")`.
+- So do NOT write directory-creation scripts, `ensure_dirs` helpers, a logging
+  module, or `sys.path` edits to find the project root. Do NOT create a file
+  named after a standard-library module (`logging.py`, `code.py`, `io.py`,
+  `types.py`, `json.py`): it replaces the real one for every script in the project.
+- The Python environment itself belongs to the platform. Never create, inspect,
+  scan or delete a virtual environment from project code or tests.
 
 ## Output format (STRICT)
 
@@ -80,6 +138,9 @@ task_id: {{next_task_id}}
 verdict: completed        # one of: completed | failed | atomize
 artifacts:
   - path: code/<relative/path>.py
+    execute: true          # for an output-producing script; false for a library
+    args: []               # required CLI flags/values as separate strings
+    timeout_s: 300
     contents: |
       <the COMPLETE contents of this file, indented under the block scalar>
   - path: tests/<relative/path>.py
@@ -87,11 +148,17 @@ artifacts:
       <complete file contents>
 ```
 
-- For `verdict: completed` you MUST include at least one artifact with non-empty
-  `contents`.
+- For `verdict: completed` include at least one artifact with non-empty `contents`
+  or an execution request for an existing script. Omit `contents` only when executing
+  an existing file unchanged; new or modified files need complete contents.
 - For `verdict: failed` output only `task_id`, `verdict: failed`, and a `reason:` line.
 - For `verdict: atomize` output only `task_id`, `verdict: atomize`, and a `reason:` line.
 - Use a literal block scalar (`contents: |`) so code indentation and newlines are
   preserved verbatim. Indent every content line by the same amount under `contents:`.
+- That includes every line of a multi-line string. A line that starts at the left
+  margin ends the block and the whole reply is lost. To produce a text file (Markdown,
+  a write-up, a table), make it its own artifact with its own `path:` and `contents: |`,
+  or build it in Python from a list of short strings; do not paste a long document
+  into a triple-quoted string.
 
 Implement task {{next_task_id}} now.

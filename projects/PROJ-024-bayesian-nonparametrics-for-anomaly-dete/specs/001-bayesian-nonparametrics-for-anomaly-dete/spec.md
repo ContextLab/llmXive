@@ -129,7 +129,7 @@ The system MUST validate that the entire analysis pipeline (data loading, slidin
 
 - **SC-001**: The distinctness of dynamic signatures (oscillation frequency/rate of change) is measured against the ground-truth injection timestamps of transient anomalies versus gradual drift, quantified as Cohen's d ≥ 0.5 (See US-1)
 - **SC-002**: The time-to-detection advantage of DP-GMM over baselines is measured against the Wilcoxon signed-rank test p-value across the three datasets (See US-2)
-- **SC-003**: The stability of the detection threshold is measured against the variation in false-positive rates across the sensitivity sweep {0.01, 0.05, 0.1} (threshold selected on validation set applied to test set) (See US-3)
+- **SC-003**: The stability of the detection threshold is measured against the variation in false-positive rates across the sensitivity sweep. (threshold selected on validation set applied to test set) (See US-3)
 - **SC-004**: The computational feasibility is measured against the peak RAM usage (<7 GB) and total runtime (<6 hours) on the GitHub Actions runner (See US-4)
 - **SC-005**: The statistical power for detecting anomalies is measured against the observed number of anomalies in the dataset (target ≥10); if <10, the system proceeds with bootstrap resampling as per FR-012 (See US-1)
 - **SC-006**: The fallback to bootstrap resampling is measured against the successful execution of the bootstrap procedure when anomaly count <10 (See US-1)

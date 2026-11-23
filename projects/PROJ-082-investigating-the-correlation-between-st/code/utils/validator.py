@@ -1,203 +1,223 @@
+"""
+Validation utilities for the research pipeline.
+Provides functions to validate effect sizes, study rows, file sizes,
+and generated plots.
+"""
 import logging
 import math
 import os
+import sys
+import json
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
+
+# Import from project utils
 from utils.logger import get_logger, log_error_context
+from utils.config import get_project_root
 
 logger = get_logger(__name__)
 
-MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024  # 5 MB
+# Constants for validation
+MAX_PLOT_SIZE_MB = 5.0
+PLOT_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.pdf', '.svg']
 
-def validate_effect_size(r: float, n: int) -> Tuple[bool, Optional[str]]:
-    """
-    Validate effect size parameters.
-    
-    Args:
-        r: Correlation coefficient.
-        n: Sample size.
-    
-    Returns:
-        Tuple of (is_valid, error_message).
-    """
-    if not isinstance(n, int) or n <= 0:
-        return False, f"Invalid sample size: {n}. Must be a positive integer."
-    
-    if not isinstance(r, (int, float)) or math.isnan(r) or math.isinf(r):
-        return False, f"Invalid correlation coefficient: {r}. Must be a number."
-    
-    if not -1.0 <= r <= 1.0:
-        return False, f"Correlation coefficient out of range: {r}. Must be between -1 and 1."
-    
-    return True, None
 
-def validate_study_row(row: Dict[str, Any]) -> Tuple[bool, Optional[str]]:
+def validate_effect_size(r_value: float) -> bool:
     """
-    Validate a study row from the input data.
-    
+    Validate that an effect size (r) is within the valid range [-1, 1].
+
     Args:
-        row: Dictionary containing study data.
-    
+        r_value: The correlation coefficient to validate.
+
     Returns:
-        Tuple of (is_valid, error_message).
+        True if valid, False otherwise.
     """
-    required_fields = ["study_id", "tract", "r", "n"]
-    
+    if not isinstance(r_value, (int, float)):
+        return False
+    return -1.0 <= r_value <= 1.0
+
+
+def validate_study_row(row: Dict[str, Any]) -> Tuple[bool, List[str]]:
+    """
+    Validate a study row for required fields and data types.
+
+    Args:
+        row: A dictionary representing a study record.
+
+    Returns:
+        A tuple of (is_valid, list_of_errors).
+    """
+    errors = []
+    required_fields = ['author', 'year', 'tract']
+
+    # Check required fields
     for field in required_fields:
-        if field not in row:
-            return False, f"Missing required field: {field}"
-    
-    is_valid_r, err_r = validate_effect_size(row.get("r"), row.get("n"))
-    if not is_valid_r:
-        return False, f"Invalid effect size data: {err_r}"
-    
-    # Validate tract name is not empty
-    if not row.get("tract") or not str(row.get("tract")).strip():
-        return False, "Tract name is missing or empty"
-    
-    return True, None
+        if field not in row or not row[field]:
+            errors.append(f"Missing or empty required field: {field}")
 
-def filter_valid_studies(studies: List[Dict[str, Any]]) -> Tuple[List[Dict[str, Any]], List[Dict[str, Any]]]:
+    # Check numeric fields if present
+    if 'r' in row and row['r'] is not None:
+        try:
+            r_val = float(row['r'])
+            if not validate_effect_size(r_val):
+                errors.append(f"Invalid r value: {row['r']} (must be between -1 and 1)")
+        except (ValueError, TypeError):
+            errors.append(f"Non-numeric r value: {row['r']}")
+
+    if 'n' in row and row['n'] is not None:
+        try:
+            n_val = int(row['n'])
+            if n_val <= 0:
+                errors.append(f"Invalid n value: {row['n']} (must be positive)")
+        except (ValueError, TypeError):
+            errors.append(f"Non-numeric n value: {row['n']}")
+
+    return len(errors) == 0, errors
+
+
+def filter_valid_studies(studies: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
     """
-    Filter a list of studies, separating valid and invalid entries.
-    
+    Filter a list of studies, keeping only those that pass validation.
+
     Args:
         studies: List of study dictionaries.
-    
+
     Returns:
-        Tuple of (valid_studies, invalid_studies_with_reasons).
+        List of valid study dictionaries.
     """
-    valid = []
-    invalid = []
-    
-    for i, study in enumerate(studies):
-        is_valid, reason = validate_study_row(study)
+    valid_studies = []
+    for study in studies:
+        is_valid, _ = validate_study_row(study)
         if is_valid:
-            valid.append(study)
+            valid_studies.append(study)
         else:
-            invalid.append({
-                "index": i,
-                "study_id": study.get("study_id", f"unknown_{i}"),
-                "reason": reason
-            })
-            log_error_context(logger, ValueError(reason), {"study_id": study.get("study_id"), "row_index": i})
-    
-    return valid, invalid
+            logger.warning(f"Filtered out invalid study: {study.get('author', 'Unknown')}")
+    return valid_studies
 
-def validate_file_size(file_path: str, max_size_bytes: int = MAX_FILE_SIZE_BYTES) -> Tuple[bool, Optional[str]]:
-    """
-    Validate that a generated file does not exceed the maximum allowed size.
-    
-    Args:
-        file_path: Path to the file to validate.
-        max_size_bytes: Maximum allowed file size in bytes (default 5MB).
-    
-    Returns:
-        Tuple of (is_valid, error_message).
-    """
-    path = Path(file_path)
-    
-    if not path.exists():
-        return False, f"File does not exist: {file_path}"
-    
-    file_size = path.stat().st_size
-    
-    if file_size > max_size_bytes:
-        size_mb = file_size / (1024 * 1024)
-        max_mb = max_size_bytes / (1024 * 1024)
-        return False, f"File size {size_mb:.2f}MB exceeds limit {max_mb}MB"
-    
-    logger.info(f"File validation passed: {file_path} ({file_size} bytes)")
-    return True, None
 
-def validate_generated_plots(plot_dir: str, max_size_bytes: int = MAX_FILE_SIZE_BYTES) -> Tuple[bool, List[Dict[str, Any]]]:
+def validate_file_size(file_path: Path, max_size_mb: float = MAX_PLOT_SIZE_MB) -> Tuple[bool, float]:
     """
-    Validate all PNG files in a directory against size constraints.
-    
+    Validate that a file size is below the specified threshold.
+
     Args:
-        plot_dir: Path to the directory containing generated plots.
-        max_size_bytes: Maximum allowed file size in bytes (default 5MB).
-    
+        file_path: Path to the file to check.
+        max_size_mb: Maximum allowed file size in megabytes.
+
     Returns:
-        Tuple of (all_valid, list_of_validation_results).
+        A tuple of (is_valid, actual_size_mb).
     """
-    dir_path = Path(plot_dir)
-    
-    if not dir_path.exists():
-        return False, [{"directory": plot_dir, "error": "Directory does not exist"}]
-    
-    results = []
-    all_valid = True
-    
-    png_files = list(dir_path.glob("*.png"))
-    
-    if not png_files:
-        logger.warning(f"No PNG files found in {plot_dir}")
-        return True, []
-    
-    for png_file in png_files:
-        is_valid, error = validate_file_size(str(png_file), max_size_bytes)
-        result = {
-            "file": str(png_file),
-            "size_bytes": png_file.stat().st_size,
-            "valid": is_valid
+    if not file_path.exists():
+        return False, 0.0
+
+    size_bytes = file_path.stat().st_size
+    size_mb = size_bytes / (1024 * 1024)
+    return size_mb <= max_size_mb, size_mb
+
+
+def validate_generated_plots(plot_paths: List[Path]) -> Dict[str, Any]:
+    """
+    Validate a list of generated plot files.
+
+    Checks:
+    1. File existence
+    2. File size < 5MB
+    3. Valid extension
+
+    Args:
+        plot_paths: List of paths to plot files.
+
+    Returns:
+        A dictionary with validation results.
+    """
+    results = {
+        'overall_status': 'pass',
+        'failed_plots': [],
+        'details': []
+    }
+
+    for plot_path in plot_paths:
+        detail = {
+            'path': str(plot_path),
+            'exists': plot_path.exists(),
+            'size_mb': 0.0,
+            'valid_size': False,
+            'valid_extension': False
         }
-        if not is_valid:
-            result["error"] = error
-            all_valid = False
-            logger.error(f"Plot validation failed: {error}")
+
+        # Check extension
+        ext = plot_path.suffix.lower()
+        detail['valid_extension'] = ext in PLOT_EXTENSIONS
+
+        # Check existence and size
+        if plot_path.exists():
+            valid_size, size_mb = validate_file_size(plot_path)
+            detail['size_mb'] = round(size_mb, 2)
+            detail['valid_size'] = valid_size
+
+            if not valid_size:
+                results['overall_status'] = 'fail'
+                results['failed_plots'].append(str(plot_path))
+                logger.error(f"Plot file too large: {plot_path} ({size_mb:.2f} MB)")
         else:
-            logger.info(f"Plot validation passed: {png_file.name} ({result['size_bytes']} bytes)")
-        results.append(result)
-    
-    return all_valid, results
+            results['overall_status'] = 'fail'
+            results['failed_plots'].append(str(plot_path))
+            logger.error(f"Plot file missing: {plot_path}")
+
+        results['details'].append(detail)
+
+    return results
+
+
+def run_validation_and_report(plot_paths: List[Path], output_path: Optional[Path] = None) -> int:
+    """
+    Run validation on generated plots and write a report.
+
+    Args:
+        plot_paths: List of paths to validate.
+        output_path: Path to write the validation report. If None, uses default location.
+
+    Returns:
+        Exit code: 0 if all pass, 2 if any fail (non-fatal for retry logic).
+    """
+    project_root = get_project_root()
+    if output_path is None:
+        output_path = project_root / 'data' / 'derived' / 'validation_report.json'
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Validate plots
+    validation_result = validate_generated_plots(plot_paths)
+
+    # Write report
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(validation_result, f, indent=2)
+
+    logger.info(f"Validation report written to: {output_path}")
+    logger.info(f"Overall status: {validation_result['overall_status']}")
+
+    # Return exit code based on status
+    if validation_result['overall_status'] == 'fail':
+        logger.warning("Validation failed. Returning exit code 2 for retry logic.")
+        return 2
+    else:
+        logger.info("Validation passed.")
+        return 0
+
 
 def main():
-    """CLI entry point for validation utilities."""
-    import argparse
-    import json
-    
-    parser = argparse.ArgumentParser(description="Study data and artifact validation")
-    parser.add_argument("--input", help="Path to input JSON file containing studies")
-    parser.add_argument("--plots", help="Path to directory containing generated plots for size validation")
-    
-    args = parser.parse_args()
-    
-    exit_code = 0
-    
-    if args.input:
-        with open(args.input, "r") as f:
-            data = json.load(f)
-        
-        studies = data if isinstance(data, list) else data.get("studies", [])
-        
-        valid, invalid = filter_valid_studies(studies)
-        
-        print(f"Total studies: {len(studies)}")
-        print(f"Valid: {len(valid)}")
-        print(f"Invalid: {len(invalid)}")
-        
-        if invalid:
-            print("\nInvalid studies:")
-            for item in invalid:
-                print(f"  - {item['study_id']}: {item['reason']}")
-            exit_code = 1
-    
-    if args.plots:
-        all_valid, results = validate_generated_plots(args.plots)
-        
-        print(f"\nPlot Validation Results ({args.plots}):")
-        for res in results:
-            status = "PASS" if res["valid"] else "FAIL"
-            print(f"  [{status}] {res['file']} ({res['size_bytes']} bytes)")
-            if not res["valid"] and "error" in res:
-                print(f"       Reason: {res['error']}")
-        
-        if not all_valid:
-            exit_code = 1
-    
-    return exit_code
+    """
+    Main entry point for running validation from command line.
+    Expects plot paths as arguments.
+    """
+    if len(sys.argv) < 2:
+        print("Usage: python -m utils.validator <plot_path_1> [plot_path_2] ...")
+        sys.exit(1)
 
-if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    plot_paths = [Path(p) for p in sys.argv[1:]]
+    exit_code = run_validation_and_report(plot_paths)
+    sys.exit(exit_code)
+
+
+if __name__ == '__main__':
+    main()

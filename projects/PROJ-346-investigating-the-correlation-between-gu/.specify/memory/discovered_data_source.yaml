@@ -1,0 +1,18 @@
+status: none
+intent: download American Gut 16S microbiome and NHANES cognitive scores python package
+  dataset
+required_fields:
+- sample_id
+- participant_id
+- age
+- sex
+- BMI
+- read_depth
+- taxon_id
+- taxon_abundance
+- cognitive_flexibility_score
+- cognitive_test_name
+- z_score_normalized
+cache_key: 96b7b63530e5aeb3d0ecb0b20d5e4977917dd62636d0faa29192407cb1e79235
+searched_at: '2026-10-11T16:14:57.626686+00:00'
+retry_count: 1

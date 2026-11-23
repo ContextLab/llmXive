@@ -1,0 +1,16 @@
+type: object
+properties:
+  excluded_days_count:
+    type: integer
+    description: Number of days excluded due to n_mood_ratings < 2
+  reason:
+    type: string
+    description: Reason for exclusion (e.g., "n_mood_ratings < 2")
+  data_source_url:
+    type: string
+    description: URL of the source dataset (OSF or HF)
+required:
+  - excluded_days_count
+  - reason
+  - data_source_url
+additionalProperties: false

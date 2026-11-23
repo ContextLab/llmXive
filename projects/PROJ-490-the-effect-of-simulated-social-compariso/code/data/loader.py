@@ -2,145 +2,178 @@ import os
 import hashlib
 import logging
 from pathlib import Path
-from typing import Dict, Any, Optional
-
+from typing import Dict, Any, Optional, Union
 import pandas as pd
 import yaml
 
 from utils.logger import get_logger, log_execution_start, log_execution_end
-from utils.validators import validate_dataframe_schema, load_schema
 from data.config import get_config
 
 logger = get_logger(__name__)
 
-def calculate_file_hash(file_path: Path) -> str:
-    """Calculate SHA-256 hash of a file."""
+def calculate_file_hash(file_path: Union[str, Path]) -> str:
+    """
+    Calculate SHA-256 hash of a file.
+    
+    Args:
+        file_path: Path to the file to hash.
+        
+    Returns:
+        Hexadecimal string of the SHA-256 hash.
+        
+    Raises:
+        FileNotFoundError: If the file does not exist.
+        IOError: If the file cannot be read.
+    """
+    file_path = Path(file_path)
+    if not file_path.exists():
+        raise FileNotFoundError(f"File not found: {file_path}")
+    
     sha256_hash = hashlib.sha256()
-    with open(file_path, "rb") as f:
-        for byte_block in iter(lambda: f.read(4096), b""):
-            sha256_hash.update(byte_block)
-    return sha256_hash.hexdigest()
+    try:
+        with open(file_path, "rb") as f:
+            for byte_block in iter(lambda: f.read(4096), b""):
+                sha256_hash.update(byte_block)
+        return sha256_hash.hexdigest()
+    except IOError as e:
+        logger.error(f"Error reading file {file_path} for hashing: {e}")
+        raise
 
-def load_data_to_raw(data_source_type: str, data: pd.DataFrame, raw_output_path: Path) -> Dict[str, Any]:
+def load_data_to_raw(
+    source_path: Union[str, Path],
+    target_dir: Optional[Union[str, Path]] = None
+) -> Path:
     """
-    Saves the provided DataFrame to the `data/raw` directory as a CSV.
+    Copy or move a data file (CSV) to the data/raw directory.
+    If the source is already in data/raw, it verifies existence.
+    If the source is from download.py (synthetic or real), it copies it.
     
     Args:
-        data_source_type: Either 'real' or 'synthetic'.
-        data: The pandas DataFrame to save.
-        raw_output_path: The full path where the CSV should be written.
+        source_path: Path to the source data file (CSV).
+        target_dir: Optional target directory. Defaults to project's data/raw.
         
     Returns:
-        A dictionary containing the file path, hash, and source type.
-    """
-    logger.info(f"Saving {data_source_type} data to {raw_output_path}")
-    
-    # Ensure directory exists
-    raw_output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save to CSV
-    data.to_csv(raw_output_path, index=False)
-    
-    # Calculate checksum
-    file_hash = calculate_file_hash(raw_output_path)
-    
-    logger.info(f"Saved {raw_output_path.name} (SHA-256: {file_hash[:16]}...)")
-    
-    return {
-        "path": str(raw_output_path),
-        "hash": file_hash,
-        "source_type": data_source_type,
-        "rows": len(data),
-        "columns": list(data.columns)
-    }
-
-def write_artifact_hashes_to_state(project_state_path: Path, artifact_info: Dict[str, Any]) -> None:
-    """
-    Appends or updates the artifact hash information in the project state YAML file.
-    
-    Args:
-        project_state_path: Path to the state YAML file.
-        artifact_info: Dictionary containing path, hash, source_type, etc.
-    """
-    state_data = {}
-    
-    if project_state_path.exists():
-        with open(project_state_path, 'r') as f:
-            state_data = yaml.safe_load(f) or {}
-    
-    # Ensure structure exists
-    if 'artifact_hashes' not in state_data:
-        state_data['artifact_hashes'] = {}
-    
-    # Update with new artifact info
-    # Keying by the filename for uniqueness within raw data
-    filename = Path(artifact_info['path']).name
-    state_data['artifact_hashes'][filename] = {
-        "path": artifact_info['path'],
-        "hash": artifact_info['hash'],
-        "source_type": artifact_info['source_type'],
-        "rows": artifact_info['rows'],
-        "columns": artifact_info['columns']
-    }
-    
-    # Write back to file
-    with open(project_state_path, 'w') as f:
-        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
-    
-    logger.info(f"Updated state file at {project_state_path}")
-
-def run_loader(
-    data: pd.DataFrame, 
-    data_source_type: str, 
-    output_filename: str = "dataset.csv"
-) -> Dict[str, Any]:
-    """
-    Main entry point for T012.
-    1. Validates the data against the dataset schema.
-    2. Saves the data to `data/raw`.
-    3. Writes checksums to `state/projects/PROJ-490-the-effect-of-simulated-social-compariso.yaml`.
-    
-    Args:
-        data: The DataFrame to save (from download.py).
-        data_source_type: 'real' or 'synthetic'.
-        output_filename: Name of the file to save in data/raw.
+        Path to the file in data/raw.
         
-    Returns:
-        The artifact info dictionary.
+    Raises:
+        FileNotFoundError: If source file does not exist.
+        ValueError: If file extension is not .csv.
     """
-    log_execution_start(logger, "T012_Loader")
+    source_path = Path(source_path)
+    if not source_path.exists():
+        raise FileNotFoundError(f"Source data file not found: {source_path}")
+    
+    if source_path.suffix.lower() != '.csv':
+        raise ValueError(f"Expected CSV file, got: {source_path.suffix}")
     
     config = get_config()
-    project_root = config.project_root
-    raw_dir = project_root / "data" / "raw"
-    state_dir = project_root / "state" / "projects"
-    state_file = state_dir / "PROJ-490-the-effect-of-simulated-social-compariso.yaml"
+    target_dir = Path(target_dir) if target_dir else config.data_raw_dir
+    target_dir.mkdir(parents=True, exist_ok=True)
     
-    # Ensure state directory exists
-    state_dir.mkdir(parents=True, exist_ok=True)
+    target_path = target_dir / source_path.name
     
-    # Validate schema if available
+    # Copy the file to data/raw
+    import shutil
+    shutil.copy2(source_path, target_path)
+    logger.info(f"Copied data to raw: {target_path}")
+    
+    return target_path
+
+def write_artifact_hashes_to_state(
+    file_paths: list,
+    state_key: str = "artifact_hashes"
+) -> None:
+    """
+    Calculate SHA-256 hashes for a list of files and write them to the project state YAML.
+    
+    Args:
+        file_paths: List of file paths to hash.
+        state_key: The key in the state YAML where hashes will be stored.
+        
+    Raises:
+        FileNotFoundError: If any file in the list does not exist.
+        IOError: If the state file cannot be read or written.
+    """
+    config = get_config()
+    state_file = config.state_project_file
+    state_file.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Load existing state or initialize
+    if state_file.exists():
+        try:
+            with open(state_file, 'r') as f:
+                state_data = yaml.safe_load(f) or {}
+        except yaml.YAMLError as e:
+            logger.error(f"Error parsing state file {state_file}: {e}")
+            raise
+    else:
+        state_data = {}
+    
+    if state_key not in state_data:
+        state_data[state_key] = {}
+    
+    hashes = {}
+    for path in file_paths:
+        path = Path(path)
+        if not path.exists():
+            raise FileNotFoundError(f"Cannot hash missing file: {path}")
+        
+        file_hash = calculate_file_hash(path)
+        hashes[path.name] = file_hash
+        logger.debug(f"Hash for {path.name}: {file_hash}")
+    
+    state_data[state_key].update(hashes)
+    
+    # Write back to state file
     try:
-        schema_path = project_root / "contracts" / "dataset.schema.yaml"
-        if schema_path.exists():
-            schema = load_schema(schema_path)
-            validate_dataframe_schema(data, schema)
-            logger.info("Data validated against dataset schema successfully.")
-        else:
-            logger.warning("Dataset schema not found, skipping validation.")
-    except Exception as e:
-        logger.error(f"Schema validation failed: {e}")
-        raise e
+        with open(state_file, 'w') as f:
+            yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
+        logger.info(f"Updated artifact hashes in state file: {state_file}")
+    except IOError as e:
+        logger.error(f"Error writing state file {state_file}: {e}")
+        raise
+
+def run_loader(
+    source_files: list,
+    target_dir: Optional[Union[str, Path]] = None
+) -> Dict[str, Any]:
+    """
+    Main entry point for the loader task.
+    Copies source files to data/raw, calculates their hashes, and updates the state file.
     
-    # Construct output path
-    output_path = raw_dir / output_filename
+    Args:
+        source_files: List of paths to data files (CSV) to load.
+        target_dir: Optional target directory for raw data.
+        
+    Returns:
+        Dictionary containing:
+            - 'raw_files': List of paths to files in data/raw.
+            - 'hashes': Dictionary of filename -> hash.
+            - 'state_file': Path to the updated state file.
+    """
+    log_execution_start(logger, "run_loader")
     
-    # Save and hash
-    artifact_info = load_data_to_raw(data_source_type, data, output_path)
+    if not source_files:
+        logger.warning("No source files provided to loader.")
+        return {
+            'raw_files': [],
+            'hashes': {},
+            'state_file': str(get_config().state_project_file)
+        }
     
-    # Update state file
-    write_artifact_hashes_to_state(state_file, artifact_info)
+    raw_file_paths = []
+    for source in source_files:
+        raw_path = load_data_to_raw(source, target_dir)
+        raw_file_paths.append(raw_path)
     
-    log_execution_end(logger, "T012_Loader")
+    write_artifact_hashes_to_state(raw_file_paths)
     
-    return artifact_info
+    config = get_config()
+    result = {
+        'raw_files': [str(p) for p in raw_file_paths],
+        'hashes': {p.name: calculate_file_hash(p) for p in raw_file_paths},
+        'state_file': str(config.state_project_file)
+    }
+    
+    log_execution_end(logger, "run_loader")
+    return result

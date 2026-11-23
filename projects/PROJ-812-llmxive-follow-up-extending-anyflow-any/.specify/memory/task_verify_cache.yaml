@@ -1,0 +1,83 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of the required directories (`code/`, `data/raw/`, `data/processed/`,
+    `tests/unit/`, `tests/integration/`) is presented; the implementer provided no
+    file listings or screenshots showing the structure, so the claim cannot be verified.
+    The missing artifact is the actual creation of the specified folder hierarchy.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `pyproject.toml` with Black
+    settings, `.ruff.toml` or `ruff.toml`, `.flake8`) or scripts to install/run ruff/flake8/black
+    are present. Without these artifacts the requirement to configure linting and
+    formatting tools is not satisfied.
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No pytest configuration files (e.g., `pytest.ini`, `conftest.py`) or a test directory
+    structure are present in the provided artifacts. Without these concrete files,
+    the claim of having set up pytest cannot be verified. The implementer must add
+    the required pytest config and create the appropriate test folder hierarchy.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No files or code defining the required base schemas (annotation, metric, result,\
+    \ sensitivity) are present in a `contracts/` directory, nor any excerpt showing\
+    \ their contents. The implementer\u2019s claim lacks concrete artifacts, so the\
+    \ task is not satisfied."
+T008a:
+  c: false
+  h: d01a0ae7257fd46cc9f337aac38a38b12fe49b8e6974a7b33317fbba9a419f73
+  r: "The provided `annotation_tool.py` is truncated and never defines the Streamlit\
+    \ UI that lets a user view only pixel frames, choose \u201Ccontinuous\u201D or\
+    \ \u201Ccut\u201D, and enter a score; it also lacks a column for the required\
+    \ label in the saved CSV. Moreover, the expected output file `data/raw/manually_verified_pool.csv`\
+    \ does not exist. The implementation therefore does not meet the task specifications."
+T008b:
+  c: false
+  h: 6d75a47168e3ca9f2760a23f6f8bb32572f55e427745a2975a18d4b4a8d0cd72
+  r: "The repository contains the `define_verification_workflow.py` script, but the\
+    \ required output file `data/raw/verification_workflow.md` is missing; the script\
+    \ does not appear to write the markdown document to that location. The task\u2019\
+    s primary deliverable is therefore not present."
+T008c:
+  c: false
+  h: 848e2df6ae0e479dc156dc492617dec17c616fb6b6639ed20f8a09593e45d339
+  r: The repository contains `code/data_curation/setup_experts.py`, but it never writes
+    `data/raw/experts.json` or `data/raw/rubric_definition.md`, and those files are
+    absent from the project. The required output artifacts are missing, so the task
+    is not fulfilled.
+T009:
+  c: false
+  h: dde4f6a0db7679da1efad4e771ca809d89c11b8e8c555f7ca16742e83e854b74
+  r: "The script `code/data_curation/download_clips.py` exists and references `data/raw/manually_verified_pool.csv`,\
+    \ but that CSV file is missing, causing the script to fail at runtime. Without\
+    \ the required input pool the stratified sampling and clip downloading cannot\
+    \ be performed, so the task\u2019s core requirement is not satisfied. The missing\
+    \ CSV (and any incomplete download logic) must be provided for the task to be\
+    \ complete."
+T011a:
+  c: false
+  h: fbea06fad2e3cbafe26ae70c2f6564bcb0036434cb4341d8cd522da31fc5ae63
+  r: "The provided `annotate_pilot.py` script is incomplete (truncated) and references\
+    \ a required input file `data/raw/pilot_subset_ids.csv` that does not exist, so\
+    \ the app cannot run. Moreover, the script does not clearly implement dual\u2011\
+    annotator handling or enforce strict blinding, and the expected output file `data/raw/calibration_scores.csv`\
+    \ is absent. These missing pieces must be added for the task to be considered\
+    \ complete."
+T011b:
+  c: false
+  h: 052840428239d985702261fb5c9dac358140f68edca916d67fb677c3c7bdffa3
+  r: "The provided `validate_kappa.py` is truncated and does not contain the full\
+    \ logic to compute Kappa, write `kappa_report.json`, or enforce the hard\u2011\
+    halt with exit code\u202F1. Moreover, the required input CSV (`data/raw/calibration_scores.csv`)\
+    \ and the expected output JSON are absent. The task therefore remains unfinished."
+T011c:
+  c: false
+  h: d5dff48806d87da6f8dc65d847475ef9039b3021d06bafe37457b62a7ee6e530
+  r: "The required output file `data/processed/pilot_correlation.json` is missing,\
+    \ and the provided `run_pilot_inference.py` script is incomplete (contains placeholder\
+    \ comments and no concrete inference, correlation, or halt\u2011logic implementation).\
+    \ The task\u2019s core functionality and resulting artifact are therefore not\
+    \ satisfied."

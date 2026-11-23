@@ -1,218 +1,216 @@
 """
-Data download module for the Moral Machine dataset.
+Data download and subsetting utilities for the Moral Machine dataset.
 
-Fetches a subset of the Moral Machine data (<= 50k rows) with fallback logic
-for broken URLs. Implements FR-001.
+This module handles fetching the raw Moral Machine data, verifying checksums,
+and creating a stratified subset for efficient processing.
 """
 import os
 import sys
 import hashlib
 import logging
-from pathlib import Path
-from typing import Optional, Tuple, List, Dict, Any
 import requests
+from pathlib import Path
+from typing import Optional, Dict, Any, Tuple
+
 import pandas as pd
-from urllib.parse import urljoin
+from sklearn.model_selection import train_test_split
 
-# Project-relative imports
-from utils.logger import get_logger, log_error_to_file
-from utils.checksum import compute_file_sha256
-
-# Configure logging for this module
-logger = get_logger(__name__)
+# Configure logging
+logger = logging.getLogger(__name__)
 
 # Constants
-MORAL_MACHINE_BASE_URL = "https://storage.googleapis.com/moral-machine/moral_machine_data.csv"
-FALLBACK_URLS = [
-    "https://raw.githubusercontent.com/ProjectMoralMachine/dataset/main/moral_machine_data.csv",
-    "https://storage.googleapis.com/moral-machine/moral_machine_data_backup.csv",
-]
+MORAL_MACHINE_URL = "https://raw.githubusercontent.com/robinlovelace/moral-machine/master/moral_machine.csv"
+CHECKSUM_URL = "https://raw.githubusercontent.com/robinlovelace/moral-machine/master/moral_machine.csv.sha256"
+RAW_DATA_DIR = Path("data/raw")
+OUTPUT_FILE = RAW_DATA_DIR / "moral_machine_subset.csv"
 MAX_ROWS = 50000
-CHECKSUM_FILE = "data/raw/moral_machine_checksum.txt"
-RAW_DATA_DIR = "data/raw"
-PROCESSED_DATA_DIR = "data/processed"
+RANDOM_SEED = 42
+STRATIFY_COLUMNS = ["outcome", "species"]
 
-def download_from_url(
-    url: str, 
-    output_path: Path, 
-    max_rows: int = MAX_ROWS,
-    timeout: int = 30
-) -> Tuple[bool, Optional[str]]:
+
+def compute_file_sha256(file_path: Path) -> str:
+    """Compute SHA256 checksum of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+
+def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
+    """Verify the SHA256 checksum of a file."""
+    computed = compute_file_sha256(file_path)
+    return computed.lower() == expected_checksum.lower().strip()
+
+
+def download_from_url(url: str, dest_path: Path, timeout: int = 300) -> Path:
     """
-    Download data from a URL and save to output_path.
-    
+    Download a file from a URL to a local path.
+
     Args:
-        url: The URL to download from
-        output_path: Path to save the downloaded file
-        max_rows: Maximum number of rows to fetch (if supported by source)
-        timeout: Request timeout in seconds
-        
+        url: The URL to download from.
+        dest_path: The local path to save the file.
+        timeout: Request timeout in seconds.
+
     Returns:
-        Tuple of (success: bool, error_message: Optional[str])
+        The path to the downloaded file.
+
+    Raises:
+        RuntimeError: If the download fails or the file cannot be written.
     """
-    logger.info(f"Attempting to download from: {url}")
+    dest_path.parent.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Downloading {url} to {dest_path}...")
+
     try:
-        response = requests.get(url, timeout=timeout, stream=True)
+        response = requests.get(url, stream=True, timeout=timeout)
         response.raise_for_status()
-        
-        # For CSV sources that support streaming, we'll read line by line
-        # to respect max_rows limit
-        output_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(output_path, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-        
-        # Validate file size
-        file_size = output_path.stat().st_size
-        if file_size == 0:
-            return False, "Downloaded file is empty"
-        
-        logger.info(f"Successfully downloaded {file_size} bytes from {url}")
-        return True, None
-        
+
+        total_size = int(response.headers.get('content-length', 0))
+        block_size = 1024  # 1 Kibibyte
+
+        with open(dest_path, 'wb') as f:
+            downloaded = 0
+            for chunk in response.iter_content(chunk_size=block_size):
+                if chunk:
+                    f.write(chunk)
+                    downloaded += len(chunk)
+                    if total_size > 0:
+                        progress = (downloaded / total_size) * 100
+                        logger.debug(f"Download progress: {progress:.2f}%")
+
+        logger.info(f"Download complete: {dest_path} ({downloaded} bytes)")
+        return dest_path
+
     except requests.exceptions.RequestException as e:
-        error_msg = f"Failed to download from {url}: {str(e)}"
-        logger.warning(error_msg)
-        return False, error_msg
-    except Exception as e:
-        error_msg = f"Unexpected error downloading from {url}: {str(e)}"
-        logger.error(error_msg)
-        return False, error_msg
+        logger.error(f"Failed to download from {url}: {e}")
+        raise RuntimeError(f"Download failed: {e}")
 
-def verify_checksum(file_path: Path) -> bool:
-    """
-    Verify the checksum of a downloaded file.
-    
-    Args:
-        file_path: Path to the file to verify
-        
-    Returns:
-        True if checksum matches or no checksum file exists, False otherwise
-    """
-    if not file_path.exists():
-        return False
-        
-    current_checksum = compute_file_sha256(file_path)
-    checksum_file = Path(RAW_DATA_DIR) / CHECKSUM_FILE
-    
-    if checksum_file.exists():
-        with open(checksum_file, 'r') as f:
-            stored_checksum = f.read().strip()
-            if current_checksum != stored_checksum:
-                logger.warning(f"Checksum mismatch for {file_path}")
-                logger.warning(f"  Stored: {stored_checksum}")
-                logger.warning(f"  Current: {current_checksum}")
-                return False
-        logger.info(f"Checksum verified for {file_path}")
-        return True
-    else:
-        # Save new checksum
-        checksum_file.parent.mkdir(parents=True, exist_ok=True)
-        with open(checksum_file, 'w') as f:
-            f.write(current_checksum)
-        logger.info(f"Saved checksum for {file_path}")
-        return True
 
-def subset_csv(input_path: Path, output_path: Path, max_rows: int = MAX_ROWS) -> bool:
+def download_moral_machine_data() -> Path:
     """
-    Create a subset of the CSV file with specified maximum rows.
-    
-    Args:
-        input_path: Path to the full CSV file
-        output_path: Path to save the subset
-        max_rows: Maximum number of rows to include
-        
+    Download the full Moral Machine dataset and verify its checksum.
+
     Returns:
-        True if successful, False otherwise
+        Path to the downloaded raw CSV file.
     """
-    try:
-        logger.info(f"Creating subset of {input_path} with max {max_rows} rows")
-        
-        # Read only the header and first max_rows+1 lines (header + data)
-        df = pd.read_csv(input_path, nrows=max_rows)
-        
+    raw_file = RAW_DATA_DIR / "moral_machine_full.csv"
+
+    if raw_file.exists():
+        logger.info(f"Raw data already exists at {raw_file}. Skipping download.")
+        # Verify checksum if possible, otherwise assume valid
+        try:
+            # Attempt to fetch checksum for verification
+            checksum_resp = requests.get(CHECKSUM_URL, timeout=30)
+            if checksum_resp.status_code == 200:
+                expected_checksum = checksum_resp.text.strip()
+                if verify_checksum(raw_file, expected_checksum):
+                    logger.info("Checksum verification passed.")
+                else:
+                    logger.warning("Checksum mismatch. Re-downloading...")
+                    raw_file.unlink()
+                return raw_file
+        except Exception as e:
+            logger.warning(f"Could not verify checksum: {e}")
+
+    download_from_url(MORAL_MACHINE_URL, raw_file)
+    return raw_file
+
+
+def subset_csv(
+    input_path: Path,
+    output_path: Path,
+    max_rows: int = MAX_ROWS,
+    seed: int = RANDOM_SEED,
+    stratify_cols: list = None
+) -> Path:
+    """
+    Load a CSV, perform stratified sampling, and save the subset.
+
+    This function ensures the output contains exactly `max_rows` (or fewer if
+    the dataset is smaller) rows, maintaining the distribution of the
+    specified stratification columns.
+
+    Args:
+        input_path: Path to the input CSV.
+        output_path: Path to save the subset CSV.
+        max_rows: Maximum number of rows to keep.
+        seed: Random seed for reproducibility.
+        stratify_cols: List of column names to use for stratification.
+
+    Returns:
+        Path to the output subset CSV.
+    """
+    if stratify_cols is None:
+        stratify_cols = STRATIFY_COLUMNS
+
+    logger.info(f"Loading {input_path}...")
+    df = pd.read_csv(input_path)
+    total_rows = len(df)
+    logger.info(f"Loaded {total_rows} rows.")
+
+    if total_rows <= max_rows:
+        logger.warning(f"Dataset ({total_rows} rows) is smaller than target ({max_rows}). Saving full dataset.")
         output_path.parent.mkdir(parents=True, exist_ok=True)
         df.to_csv(output_path, index=False)
-        
-        logger.info(f"Created subset with {len(df)} rows at {output_path}")
-        return True
-        
-    except Exception as e:
-        error_msg = f"Failed to create subset: {str(e)}"
-        logger.error(error_msg)
-        return False
+        return output_path
 
-def download_moral_machine_data(
-    target_dir: Optional[Path] = None,
-    max_rows: int = MAX_ROWS
-) -> Tuple[bool, Path, Optional[str]]:
-    """
-    Main function to download and prepare Moral Machine data.
-    
-    Implements FR-001: Fetches data with broken-URL fallback logic.
-    
-    Args:
-        target_dir: Directory to save the data (defaults to data/raw)
-        max_rows: Maximum number of rows to fetch
-        
-    Returns:
-        Tuple of (success: bool, output_path: Path, error_message: Optional[str])
-    """
-    if target_dir is None:
-        target_dir = Path(RAW_DATA_DIR)
-        
-    target_dir.mkdir(parents=True, exist_ok=True)
-    full_output = target_dir / "moral_machine_full.csv"
-    subset_output = target_dir / "moral_machine_subset.csv"
-    
-    # Try primary URL
-    all_urls = [MORAL_MACHINE_BASE_URL] + FALLBACK_URLS
-    
-    for url in all_urls:
-        logger.info(f"Trying URL: {url}")
-        success, error = download_from_url(url, full_output, max_rows=None)
-        
-        if success:
-            # Verify checksum
-            if verify_checksum(full_output):
-                # Create subset
-                if subset_csv(full_output, subset_output, max_rows):
-                    # Remove full file to save space
-                    try:
-                        full_output.unlink()
-                        logger.info(f"Removed full file: {full_output}")
-                    except Exception as e:
-                        logger.warning(f"Could not remove full file: {e}")
-                    
-                    return True, subset_output, None
-                else:
-                    return False, subset_output, "Failed to create subset"
-            else:
-                return False, full_output, "Checksum verification failed"
+    # Check if stratification columns exist
+    missing_cols = [col for col in stratify_cols if col not in df.columns]
+    if missing_cols:
+        logger.warning(f"Stratification columns {missing_cols} not found. Falling back to random sampling.")
+        df_sample = df.sample(n=max_rows, random_state=seed)
+    else:
+        # Filter out rows with missing values in stratification columns to avoid errors
+        df_clean = df.dropna(subset=stratify_cols)
+        if len(df_clean) < max_rows:
+            logger.warning(f"Cleaned dataset ({len(df_clean)} rows) is smaller than target. Saving all clean rows.")
+            df_sample = df_clean
         else:
-            logger.warning(f"Failed to download from {url}: {error}")
-            continue
-    
-    # All URLs failed
-    error_msg = f"All download URLs failed. Last error: {error}"
-    log_error_to_file(error_msg, "data_download_errors.log")
-    return False, subset_output, error_msg
+            # Stratified sample
+            # We need to sample n=max_rows from the whole dataframe, preserving ratios
+            # sklearn's train_test_split is perfect for this
+            _, df_sample = train_test_split(
+                df_clean,
+                train_size=max_rows,
+                random_state=seed,
+                stratify=df_clean[stratify_cols]
+            )
+            logger.info(f"Stratified sampling completed. Selected {len(df_sample)} rows.")
+
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    df_sample.to_csv(output_path, index=False)
+    logger.info(f"Subset saved to {output_path} ({len(df_sample)} rows).")
+    return output_path
+
 
 def main():
-    """Main entry point for downloading data."""
-    logger.info("Starting Moral Machine data download")
-    
-    success, output_path, error = download_moral_machine_data()
-    
-    if success:
-        logger.info(f"Download completed successfully: {output_path}")
-        print(f"SUCCESS: Data downloaded to {output_path}")
-        sys.exit(0)
-    else:
-        logger.error(f"Download failed: {error}")
-        print(f"FAILED: {error}")
-        sys.exit(1)
+    """Main entry point for the download and subsetting pipeline."""
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+
+    try:
+        # Step 1: Download full data
+        raw_path = download_moral_machine_data()
+
+        # Step 2: Subset the data
+        subset_path = subset_csv(
+            input_path=raw_path,
+            output_path=OUTPUT_FILE,
+            max_rows=MAX_ROWS,
+            seed=RANDOM_SEED,
+            stratify_cols=STRATIFY_COLUMNS
+        )
+
+        logger.info(f"Pipeline complete. Output: {subset_path}")
+        return 0
+
+    except Exception as e:
+        logger.error(f"Pipeline failed: {e}")
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

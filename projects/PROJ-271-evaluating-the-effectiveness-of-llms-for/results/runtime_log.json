@@ -1,0 +1,29 @@
+{
+  "timestamp": "2024-01-15 14:30:00",
+  "subset_size": 50,
+  "total_sample_size": 800,
+  "timing": {
+    "data_pipeline_seconds": 125.5,
+    "semantic_analysis_seconds": 3420.2,
+    "total_subset_seconds": 3545.7
+  },
+  "extrapolation": {
+    "subset_size": 50,
+    "subset_time_seconds": 3545.7,
+    "time_per_function_seconds": 70.914,
+    "total_sample_size": 800,
+    "extrapolated_total_time_seconds": 56731.2,
+    "extrapolated_total_time_hours": 15.76,
+    "constraint_hours": 6.0,
+    "is_compliant": false,
+    "margin_hours": -9.76
+  },
+  "compliance_status": "FAIL",
+  "notes": [
+    "Subset size: 50 functions",
+    "Total sample size: 800 functions",
+    "Extrapolated runtime: 15.76 hours",
+    "Constraint: 6.0 hours",
+    "Margin: -9.76 hours"
+  ]
+}

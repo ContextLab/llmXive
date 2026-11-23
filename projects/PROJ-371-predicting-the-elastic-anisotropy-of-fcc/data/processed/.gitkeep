@@ -1,2 +1,2 @@
-# This directory stores cleaned, feature-engineered, and model-ready datasets.
-# Output from src/data/clean.py and src/data/features.py is saved here.
+# This directory stores processed/cleaned data files ready for modeling.
+# Do not commit large binary files here.

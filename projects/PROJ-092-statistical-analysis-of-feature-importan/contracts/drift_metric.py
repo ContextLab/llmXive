@@ -1,90 +1,61 @@
 """
-Data schema definitions for the drift_metric entity.
-Defines the structure for drift measurements between windows.
+Drift metric contract definitions.
+
+These models capture the output of the pairwise drift analysis between
+consecutive windows.
 """
-from dataclasses import dataclass
+
+from __future__ import annotations
+
 from typing import Optional
-from enum import Enum
+
+from pydantic import BaseModel, Field, validator
 
 
-class DriftType(Enum):
-    """Type of drift detected."""
-    CONCEPT = "concept"
-    COVARIATE = "covariate"
-    DATA_DRIFT = "data_drift"
-
-
-@dataclass
-class RankCorrelationMetric:
+class DriftMetric(BaseModel):
     """
-    Schema for Spearman rank correlation between two windows.
-    """
-    window_t: int
-    window_t_plus_1: int
-    rho: float
-    p_value: float
-    significant_at_005: bool = False
-    magnitude: str = "none"  # none, low, medium, high
+    Represents the drift statistics between two consecutive windows.
 
-    def __post_init__(self):
-        """Classify magnitude based on |rho| deviation from 1."""
-        deviation = abs(1.0 - abs(self.rho))
-        if deviation < 0.1:
-            self.magnitude = "none"
-        elif deviation < 0.3:
-            self.magnitude = "low"
-        elif deviation < 0.5:
-            self.magnitude = "medium"
-        else:
-            self.magnitude = "high"
-        
-        self.significant_at_005 = self.p_value < 0.05
+    Attributes
+    ----------
+    window_start: Identifier (e.g., integer index) of the earlier window.
+    window_end: Identifier of the later window.
+    spearman_rho: Spearman rank‑correlation coefficient.
+    spearman_p_value: Two‑tailed p‑value associated with the rho.
+    high_drift: Boolean flag indicating whether the drift is considered
+                significant (based on block‑permutation p‑value < 0.05).
+    block_perm_p_value: Optional p‑value from the block permutation test.
+    """
 
-@dataclass
-class TrendMetric:
-    """
-    Schema for Mann-Kendall trend test results.
-    """
-    sequence_type: str  # e.g., "rho_sequence"
-    kendall_tau: float
-    p_value: float
-    trend_direction: str  # "increasing", "decreasing", "no_trend"
-    sample_size: int
-    is_significant: bool = False
+    window_start: int = Field(..., description="Index of the earlier window.")
+    window_end: int = Field(..., description="Index of the later window.")
+    spearman_rho: float = Field(
+        ..., description="Spearman rank correlation between feature rankings."
+    )
+    spearman_p_value: float = Field(
+        ..., description="Two‑tailed p‑value for the Spearman rho."
+    )
+    high_drift: bool = Field(
+        ..., description="True if drift is flagged as significant."
+    )
+    block_perm_p_value: Optional[float] = Field(
+        None,
+        description=(
+            "P‑value from the block permutation significance test. "
+            "If None, the test was not performed."
+        ),
+    )
 
-    def __post_init__(self):
-        """Determine trend direction and significance."""
-        if self.kendall_tau > 0.1:
-            self.trend_direction = "increasing"
-        elif self.kendall_tau < -0.1:
-            self.trend_direction = "decreasing"
-        else:
-            self.trend_direction = "no_trend"
-        
-        self.is_significant = self.p_value < 0.05
+    @validator("spearman_rho")
+    def rho_in_range(cls, v: float) -> float:
+        """Spearman rho must be between -1 and 1."""
+        if not -1.0 <= v <= 1.0:
+            raise ValueError("spearman_rho must be in [-1, 1]")
+        return v
 
-@dataclass
-class NullBaselineResult:
-    """
-    Schema for Null Model Baseline results.
-    """
-    mean_rho: float
-    std_rho: float
-    n_permutations: int
-    observed_rho_mean: float
-    z_score: float
-    p_value: float
-
-@dataclass
-class GlobalStats:
-    """
-    Schema for aggregated global statistics.
-    """
-    mean_rho: float
-    trend_direction: str
-    p_value: float
-    stable_window_count: int
-    total_windows: int
-    model_failures: int
-    avg_model_r_squared: Optional[float] = None
-    high_drift_count: int = 0
+    @validator("spearman_p_value", "block_perm_p_value", each_item=True)
+    def pvalue_in_range(cls, v: Optional[float]) -> Optional[float]:
+        """All p‑values must be in the interval [0, 1]."""
+        if v is not None and not 0.0 <= v <= 1.0:
+            raise ValueError("p‑values must be between 0 and 1")
+        return v

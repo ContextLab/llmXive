@@ -4,9 +4,9 @@
 
 ## Summary
 
-This project implements a reproducible research pipeline to evaluate the security implications of using different Large Language Models (LLMs) for code generation. The system downloads a specific set of pre-trained code models (StarCoder-Base, CodeGen, GPT-NeoX), generates code snippets from a standardized set of **30 prompts** (10 filtered from CodeXGLUE + 20 handcrafted web-security prompts), and analyzes the output using static analysis tools (Bandit, Semgrep, CodeQL). The pipeline computes vulnerability density and severity metrics, applies non-parametric statistical tests (Kruskal-Wallis, Dunn's post-hoc with Bonferroni correction), and performs robustness checks via Zero-Inflated Negative Binomial (ZINB) regression. A **Manual Calibration** phase validates scanner outputs against human expert review to estimate False Positive Rates (FPR). All outputs are visualized and reported in a structured format.
+This project implements a reproducible research pipeline to evaluate the security implications of using different Large Language Models (LLMs) for code generation. The system downloads a specific set of pre-trained code models (StarCoder-Base, CodeGen, GPT-NeoX), generates code snippets from a standardized set of **30 prompts** (A subset of prompts filtered from CodeXGLUE combined with handcrafted web-security prompts), and analyzes the output using static analysis tools (Bandit, Semgrep, CodeQL). The pipeline computes vulnerability density and severity metrics, applies non-parametric statistical tests (Kruskal-Wallis, Dunn's post-hoc with Bonferroni correction), and performs robustness checks via Zero-Inflated Negative Binomial (ZINB) regression. A **Manual Calibration** phase validates scanner outputs against human expert review to estimate False Positive Rates (FPR). All outputs are visualized and reported in a structured format.
 
-**Note on Scope**: The original spec (FR-002) requested 250 prompts. Due to GitHub Actions free-tier constraints (7GB RAM, 6h limit) and the heavy resource cost of CodeQL, the plan reduces this to **30 prompts** (N=90 total snippets). This reduction is necessary to ensure the pipeline completes within a designated time window without OOM errors. The spec requires a formal amendment to align FR-002 and SC-005 with this feasible N=90.
+**Note on Scope**: The original spec (FR-002) requested 250 prompts. Due to GitHub Actions free-tier constraints (limited RAM, 6h limit) and the heavy resource cost of CodeQL, the plan reduces this to **30 prompts** (N=90 total snippets). This reduction is necessary to ensure the pipeline completes within a designated time window without OOM errors. The spec requires a formal amendment to align FR-002 and SC-005 with this feasible N=90.
 
 ## Technical Context
 
@@ -18,14 +18,14 @@ This project implements a reproducible research pipeline to evaluate the securit
 **Project Type**: Computational research pipeline (CLI-based).  
 **Performance Goals**: 
 - **Total Runtime**: ≤ 6 hours.
-- **Breakdown**: Model Load/Unload (h) + Generation (several hours) + Analysis (1.5h) + Stats/Report (0.5h).
-- **Memory**: B model (low-precision) ~5GB RAM; remaining sufficient memory for OS, Python runtime, and sequential scanner subprocesses.
+- **Breakdown**: Model Load/Unload (h) + Generation (several hours) + Analysis (h) + Stats/Report (h).
+- **Memory**: B model (low-precision) requires moderate RAM.; remaining sufficient memory for OS, Python runtime, and sequential scanner subprocesses.
 **Constraints**: 
 - No GPU/CUDA.
 - **4-bit quantization applied to ALL models** (7B, 2B, 1.3B) to control for the quantization confounder.
 - Strict timeout: fixed duration per generation, a bounded time limit per scanner run.
 - Deterministic randomness via pinned seeds.
-**Scale/Scope**: 30 prompts, 3 models, ~90 code snippets, A multiple-scanner setup will be employed..
+**Scale/Scope**: A set of prompts, 3 models, and approximately 90 code snippets, A multiple-scanner setup will be employed..
 
 ## Constitution Check
 
@@ -39,7 +39,7 @@ This project implements a reproducible research pipeline to evaluate the securit
 | **IV. Single Source of Truth** | **PASS** | Statistical results and figures will be generated directly from the analysis CSV; no hand-typed numbers in reports. |
 | **V. Versioning Discipline** | **PASS** | Artifacts in `data/` will carry content hashes; `state.yaml` updated via `update_state.py` on artifact change (recording `artifact_hashes` and `updated_at` as per Constitution Principle V). |
 | **VI. Security-Analysis Reproducibility** | **PASS** | Plan specifies exact tool versions and deterministic CSV output format; tool version changes trigger re-runs. |
-| **VII. Prompt-Set Transparency** | **PASS** | Prompt manifest (10 CodeXGLUE filtered + 20 handcrafted) stored in `data/prompts/manifest.json` and `data/prompts/handcrafted.json` with checksums; versioned and referenced in `code/generate.py` as the source of truth. |
+| **VII. Prompt-Set Transparency** | **PASS** | Prompt manifest (A subset of CodeXGLUE filtered examples plus a set of handcrafted examples will be used. The research question and method remain as defined in the plan, consistent with prior work (DOI/Author-Year).) stored in `data/prompts/manifest.json` and `data/prompts/handcrafted.json` with checksums; versioned and referenced in `code/generate.py` as the source of truth. |
 
 ## Project Structure
 
@@ -116,7 +116,7 @@ projects/PROJ-152-evaluating-the-impact-of-code-generation/
 
 ### Phase 1: Analysis & Validation
 - **Task 1.1**: Run static analyzers (Bandit, Semgrep, CodeQL) on generated code. **Timeout: s per scan**.
-- **Task 1.2**: Map scanner severities to 1-5 ordinal scale.
+- **Task 1.2**: Map scanner severities to -5 ordinal scale.
 - **Task 1.3**: **Manual Calibration**: Select a stratified sample of 10 snippets per model (N=30 total). Human experts label vulnerabilities. Calculate Inter-Rater Reliability (Kappa) and **False Positive Rate (FPR) per scanner/model**.
 - **Task 1.4**: If Kappa < 0.6, refine mapping function and repeat calibration.
 - **Task 1.5**: Compute V/100LOC and mean severity, **applying FPR correction** to vulnerability counts.
@@ -138,7 +138,7 @@ projects/PROJ-152-evaluating-the-impact-of-code-generation/
 |----|-------------|--------------|
 | FR-001 | Download 3 models (4-bit) | Task 0.2 (All models 4-bit) |
 | FR-002 | Generate 250 prompts | **AMENDED**: Plan uses 30 prompts (Task 0.3) due to resource constraints. |
-| FR-003 | Run 3 scanners | Task 1.1 (with 300s timeout) |
+| FR-003 | Run scanners | Task (with Timeout set to a moderate duration.) |
 | FR-003b | Map severity 1-5 | Task 1.2 (Validated by Task 1.3) |
 | FR-004 | Compute V/100LOC | Task 1.5 (with FPR correction) |
 | FR-004b | Document "proxy" metric | Research.md Section 1 |

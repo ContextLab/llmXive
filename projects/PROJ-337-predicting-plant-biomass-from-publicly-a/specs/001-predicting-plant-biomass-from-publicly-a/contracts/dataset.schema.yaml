@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisReadyDataset"
+description: "Schema for the final analysis-ready dataset containing spectral bands, biomass, and metadata."
+type: "object"
+properties:
+  scene_id:
+    type: "string"
+    description: "Unique identifier for the scene."
+  site_id:
+    type: "string"
+    description: "Unique identifier for the site."
+  reflectance_bands:
+    type: "array"
+    items:
+      type: "number"
+    description: "List of reflectance values for each spectral band."
+  biomass:
+    type: "number"
+    description: "Ground-truth biomass value (kg/m²)."
+  structural_proxy:
+    type: "number"
+    nullable: true
+    description: "Canopy height or similar structural proxy (if available)."
+  atmospheric_corrected:
+    type: "boolean"
+    description: "Flag indicating if atmospheric correction was applied."
+  location:
+    type: "object"
+    properties:
+      latitude:
+        type: "number"
+      longitude:
+        type: "number"
+      elevation:
+        type: "number"
+    required: ["latitude", "longitude"]
+    description: "Geographic location of the site."
+required:
+  - "scene_id"
+  - "site_id"
+  - "reflectance_bands"
+  - "biomass"
+  - "atmospheric_corrected"
+additionalProperties: false

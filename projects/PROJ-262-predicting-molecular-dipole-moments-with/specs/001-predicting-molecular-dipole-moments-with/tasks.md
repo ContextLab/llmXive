@@ -1,6 +1,6 @@
 # Tasks: Predicting Molecular Dipole Moments with Graph Neural Networks
 
-**Input**: Design documents from `/specs/001-predicting-molecular-dipole-moments/`  
+**Input**: Design documents from `/specs/001-predicting-molecular-dipole-moments/`
 **Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
@@ -11,11 +11,12 @@
 
 - **[P]**: Can run in parallel (different files, no dependencies)
 - **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- **[Doc]**: Documentation task (updates research.md, README, etc.)
 - Include exact file paths in descriptions
 
 ## Path Conventions
 
-- **Single project**: `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/`, `tests/`, `data/`, `state/`
+- **Single project**: `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/`, `tests/`, `data/`, `state/`, `specs/`
 - **Web app**: `backend/src/`, `frontend/src/`
 - **Mobile**: `api/src/`, `ios/src/` or `android/src/`
 - **Paths shown below match plan.md structure under `projects/PROJ-262-predicting-molecular-dipole-moments-with/`
@@ -25,7 +26,7 @@
 **Purpose**: Project initialization and basic structure per FR‑030 Constitution requirements for reproducibility and versioning discipline
 
 - [X] T001 Create project structure with exact directories: `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/`, `tests/`, `data/raw/`, `data/processed/`, `data/checkpoints/`, `data/reports/`, `results/`, `state/`, `specs/` in `projects/PROJ-262-predicting-molecular-dipole-moments-with/`
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/requirements.txt` (pins `numpy<2.0`, `pandas>=2.0`, `scipy>=1.11`, `torch>=2.0`, `torch-geometric>=2.4`, `rdkit>=2023.9`, `scikit-learn>=1.3`)
+- [X] T002 Initialize Python project with `requirements.txt` in `projects/PROJ-predicting-molecular-dipole-moments-with/code/requirements.txt` (pins exact versions per spec.md Technical Context: PyTorch, PyTorch Geometric, RDKit, scikit-learn, pandas, numpy)
 - [X] T003 [P] Configure linting and formatting tools (black, flake, isort) in `.pre-commit-config.yaml`
 
 ---
@@ -38,16 +39,20 @@
 - [X] T005 [P] Initialize state tracking with `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml`
 - [X] T006 [P] Configure pytest with the current contract test framework in `projects/PROJ-262-predicting-molecular-dipole-moments-with/tests/`.
 - [X] T007 [P] Create YAML contract schema files in `projects/PROJ-262-predicting-molecular-dipole-moments-with/tests/contracts/`
-  - `molecule.schema.yaml`: `molecule_id (str)`, `atoms (list)`, `coordinates (list of [float,float,float])`, `dipole (float)`.
-  - `feature_set.schema.yaml`: `molecule_id (str)`, `features_2d (list of float)`, `features_3d (list of float)`.
-  - `model_output.schema.yaml`: `molecule_id (str)`, `predicted_dipole (float)`, `true_dipole (float)`.
+ - `molecule.schema.yaml`: `molecule_id (str)`, `atoms (list)`, `coordinates (list of [float,float,float])`, `dipole (float)`.
+ - `feature_set.schema.yaml`: `molecule_id (str)`, `features_2d (list of float)`, `features_3d (list of float)`.
+ - `model_output.schema.yaml`: `molecule_id (str)`, `predicted_dipole (float)`, `true_dipole (float)`.
 - [X] T008 Configure environment configuration management with `.env.example` and `config.py` in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/`
 - [X] T009 [P] Setup reproducibility framework in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/reproducibility.py` – pins `random.seed`, `numpy.random.seed`, `torch.manual_seed` with a consistent fixed value to ensure reproducibility..
-- [X] T049 [P] Implement a time‑limit wrapper (`@time_limit(T*60*60)`) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/pipeline_time_limit.py` (FR‑010, SC‑003), where **T** represents a configurable time duration.
-- [X] T050 [P] Enforce a CPU‑core constraint using the `@cpu_limit()` decorator in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/cpu_constraint.py` (FR‑010, SC‑003)
+- [X] T049 [P] Implement a time‑limit wrapper (`@time_limit(T**60)`) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/pipeline_time_limit.py` (FR‑010, SC‑003), where **T** represents a configurable time duration.
+- [X] T050 [P] Enforce a CPU‑core constraint using the `@cpu_limit()` decorator in `projects/PROJ-predicting-molecular-dipole-moments-with/code/utils/cpu_constraint.py` (FR‑010, SC‑003)
 - [X] T052 [P] Enforce memory constraint (< 8 GB) (`@memory_limit(8*1024**3)`) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/memory_constraint.py` (FR‑013)
+- [X] T055 [P] Implement the aggregate pipeline execution wrapper in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/pipeline_orchestrator.py` that wraps the entire pipeline execution, enforces the total runtime limit (FR‑010, SC‑003), logs start/end times and peak memory usage, and fails loudly if the limit is exceeded. This task consumes the decorators from T049, T050, T052.
 - [X] T090 [P] Implement `reference-validator` script in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/reference_validator.py` to verify DOI strings against local registry and compute content hashes (supports T015, T053).
 - [X] T091 [P] Run `reference-validator` to verify DOI 10.1038/sdata.2014.22 local metadata and record hash in `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml` (no external URL fetching, satisfies Constitution Principle II).
+- [X] T015 [Foundational] [P] Verify DOI 10.1038/sdata.2014.22 exists in local reference registry and record its hash in `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml` (depends on T090, T091). This is a prerequisite for US1.
+- [X] T021 [Foundational] [P] Implement retry logic for DOI inaccessibility in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/download_qm9.py` (FAIL LOUDLY on persistent failure, no synthetic fallback). **Moved from Phase 3 to Phase 2 to ensure utility availability.**
+- [X] T210 [Foundational] [P] [Doc] Update `research.md` to explicitly document scope boundaries: state that physical measurement validation (e.g., Stark-effect spectroscopy) is out-of-scope and that QM DFT reference data (BLYP (Wikidata Q138548786, https://www.wikidata.org/wiki/Q138548786)/level per the dataset specification) serves as the sole ground truth (Addresses FR-011, Spec Assumptions).
 
 **Checkpoint**: Foundation ready – user story implementation can now begin in parallel
 
@@ -55,104 +60,224 @@
 
 ## Phase 3: User Story 1 – Dataset Preparation and Baseline Feature Extraction (Priority: P1)
 
-**Goal**: Download QM9 dataset, filter to a 10 k random subset, extract both 3D coordinates and 2D descriptors for baseline comparison.
+**Goal**: Download QM9 dataset, filter to a random subset, extract both 3D coordinates and 2D descriptors for baseline comparison.
 
-**Independent Test**: Verify data files exist, subset size equals 10 k, and both 3D and 2D feature matrices are generated with no missing values.
-
-- [ ] T100 [P] [US1] Contract test for molecule schema (`tests/contract/test_molecule_schema.py`)
-- [ ] T101 [P] [US1] Contract test for feature_set schema (`tests/contract/test_feature_set_schema.py`)
-- [ ] T102 [P] [US1] Integration test for QM9 download pipeline with memory profiling (`tests/integration/test_qm9_download.py`)
-- [ ] T103 [P] [US1] Unit test for 3D coordinate extraction (`tests/unit/test_extract_3d_coords.py`)
-- [ ] T104 [P] [US1] Unit test for 2D descriptor generation (`tests/unit/test_extract_2d_descriptors.py`)
+**Independent Test**: Verify data files exist, subset size is substantial, and both 3D and 2D feature matrices are generated with no missing values.
 
 ### Implementation for User Story 1
 
-- [X] T015 [US1] Verify DOI 10.1038/sdata.2014.22 exists in local reference registry and record its hash in `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml` (depends on T090, T091)
-- [X] T016 [US1] Create a reproducible random subset in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/create_subset.py` (seed 42) such that the resulting dataset is of a manageable size for initial prototyping and testing.
-- [X] T017 [US1] Implement 3D coordinate, atom type, and bond connectivity extraction in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/preprocess_3d.py` (FR‑002, depends on T016)
-- [X] T018 [US1] Implement 2D Morgan fingerprints and Coulomb matrix generation in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/extract_2d_descriptors.py` (FR‑003, depends on T016)
-- [X] T019 [US1] Add validation for missing 3D coordinates in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/handle_missing_coords.py` – generates `data/reports/excluded_molecules.csv` with columns `molecule_id`, `exclusion_reason` (enum: `missing_3d`, `invalid_structure`), `exclusion_timestamp`.
-- [X] T020 [US1] Generate output files: `data/processed/molecules_10k.parquet`, `features_3d.parquet`, `features_2d.parquet`
-- [X] T021 [US1] Implement retry/fallback logic for DOI inaccessibility in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/download_qm9.py`
+- [ ] T019a [US1] [FR-001, FR-002] Implement filtering and exclusion logic in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/handle_missing_coords.py` – the script generates `data/reports/excluded_molecules.csv` with columns `molecule_id`, `exclusion_reason` (enum: `missing_3d`, `invalid_structure`), `exclusion_timestamp`. **Dependencies**: T021. **Note**: This task runs BEFORE T016a to ensure subset calculation uses valid data. **Output**: `data/reports/excluded_molecules.csv`. <!-- FAILED: unspecified -->
+- [ ] T016a [US1] [FR-001, FR-002] Implement fixed-size subset generation in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/create_subset.py` (seed=42, size=5000). **Logic**: Randomly sample a representative subset of molecules from the filtered dataset (output of T019a). **Dependencies**: T019a. **Note**: Removed dynamic pilot logic to ensure reproducibility. Output `data/processed/subset_final.parquet`. <!-- FAILED: unspecified --> <!-- FAILED: unspecified --> <!-- ATOMIZE: requested -->
+- [X] T105 [US1] [P] Verify existence and schema of `excluded_molecules.csv` generated by T019a in `tests/contract/test_excluded_molecules.py` – assert columns match spec and update state hash.
+- [X] T017 [US1] [FR-002] [P] Implement 3D coordinate, atom type, and bond connectivity extraction in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/preprocess_3d.py` (FR‑002, depends on T016a, T019a). This task also outputs the final processed features.
+- [X] T018 [US1] [FR-003] [P] Implement 2D Morgan fingerprints and **Topological Coulomb Matrices** generation in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/data/extract_2d_descriptors.py` (FR‑003, depends on T016a, T019a). **Note**: Generates both Morgan fingerprints and Topological Coulomb Matrices (using graph distances), and includes BOTH in the Random Forest baseline inputs (T029) to satisfy FR-003 baseline comparison requirement.
 
-**Checkpoint**: User Story 1 fully functional and testable independently
+### Tests for User Story 1
+
+- [ ] T100 [P] [US1] Contract test for molecule schema (`tests/contract/test_molecule_schema.py`) – Implement `test_molecule_schema_validates_missing_coordinates` to assert that molecules with missing 3D coordinates are flagged and excluded.
+- [ ] T101 [P] [US1] Contract test for feature_set schema (`tests/contract/test_feature_set_schema.py`) – Implement `test_feature_set_schema_validates_nan_values` to assert that feature vectors contain no NaN values.
+- [ ] T102 [P] [US1] Integration test for QM9 download pipeline with memory profiling (`tests/integration/test_qm9_download.py`) – Implement `test_qm9_download_memory_under_8gb` to verify verify memory usage stays within 8GB limit during download.
+- [ ] T103 [P] [US1] Unit test for 3D coordinate extraction (`tests/unit/test_extract_3d_coords.py`) – Implement `test_extract_3d_coords_handles_nan_and_missing_atoms` to assert correct handling of NaN values and missing atoms.
+- [ ] T104 [P] [US1] Unit test for 2D descriptor generation (`tests/unit/test_extract_2d_descriptors.py`) – Implement `test_2d_descriptors_verify_fingerprint_length_and_matrix_symmetry` to assert Morgan fingerprint length and Coulomb matrix symmetry.
+
+**Checkpoint**: User Story 1 fully functional and testable independently
 
 ---
 
 ## Phase 4: User Story 2 – Model Training and Evaluation Pipeline (Priority: P2)
 
-**Goal**: Train lightweight SchNet‑style GNN and Random Forest baseline on identical train/test splits, evaluate both on held‑out test set using MAE and RMSE for dipole moments (a sufficient number of epochs with early stopping).
+**Goal**: Train lightweight SchNet‑style GNN and Random Forest baseline on identical train/test splits, evaluate both on held‑out test set using MAE and RMSE for dipole moments (50 epochs with early stopping patience=10).
 
 **Independent Test**: Verify training with 50 epochs and early stopping (patience=10), both models produce MAE and RMSE scores on test set, and Confidence intervals are computed across random seeds.
 
-### Tests for User Story 2
-
-- [ ] T106 [P] [US2] Contract test for model_output schema (`tests/contract/test_model_output_schema.py`)
-- [ ] T107 [P] [US2] Integration test for GNN training pipeline (`tests/integration/test_gnn_training.py`)
-- [ ] T108 [P] [US2] Integration test for Random Forest training pipeline (`tests/integration/test_rf_training.py`)
-- [ ] T109 [P] [US2] Unit test for MAE/RMSE metric computation (`tests/unit/test_metrics.py`)
-
 ### Implementation for User Story 2
 
-- [X] T026 [P] [US2] Implement SchNet‑style GNN architecture in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/models/schnet_gnn.py` (FR‑004, CPU‑only)
-- [X] T027 [P] [US2] Implement Random Forest baseline in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/models/random_forest_baseline.py` (FR‑005)
-- [X] T028 [US2] Implement GNN training with 5 seeds, 50 epochs, early stopping (patience = 10) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py` – compute variance of RMSE across seeds and ensure it is recorded (fulfills SC‑005).
-- [X] T029 [US2] Train Random Forest baseline with seeds in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py` – also records RMSE variance.
-- [X] T030 [US2] Implement identical train/test split generation across seeds in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/split_data.py`
-- [X] T031 [US2] Implement MAE and RMSE metric computation in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/evaluate.py` (FR‑006)
-- [X] T032 [US2] Compute MAE/RMSE against QM9 dipole‑moment reference values on the held‑out test split (fulfills FR‑011 without external data).
-- [X] T033 [US2] Save model checkpoints to `data/checkpoints/model_seed_{N}.pt` and `rf_seed_{N}.pkl` – each checkpoint includes model state dict, training config, seed, and timestamp.
-- [X] T034 [US2] Generate `results/metrics.csv` with columns `seed`, `model`, `mae`, `rmse`, `mae_ci_lower`, `mae_ci_upper`, `rmse_ci_lower`, `rmse_ci_upper` – CI computed via bootstrap (95 % confidence) within this task.
+- [ ] T030 [US2] [FR-005, SC-005] [P] Implement identical train/test split generation across seeds in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/split_data.py`. **Dependencies**: T017, T018.
+- [ ] T026 [P] [US2] [FR-004] Implement SchNet‑style GNN architecture in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/models/schnet_gnn.py` (FR‑004, CPU‑only)
+- [ ] T027 [P] [US2] [FR-005] Implement Random Forest baseline in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/models/random_forest_baseline.py` (FR‑005)
+- [ ] T028 [US2] [FR-005, SC-005] Implement GNN training with **random seeds**, 50 epochs, early stopping (hard-coded patience=10) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_gnn.py` – compute variance of RMSE across seeds, generate confidence intervals, and ensure they are recorded (fulfills SC‑005).
+- [ ] T029 [US2] [FR-005, SC-005] Train Random Forest baseline with **multiple seeds** in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_rf.py` – also records RMSE variance and confidence intervals. **Note**: Uses BOTH Morgan fingerprints and Topological Coulomb Matrices as defined in plan.md and FR-003.
+- [ ] T031 [US2] [FR-006] Implement MAE and RMSE metric computation in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/evaluate.py` (FR‑006)
+- [ ] T032 [US2] [FR-011] Compute MAE/RMSE against QM9 DFT reference values (not experimental) (fulfills FR-011) using the DFT reference data already present in the QM9 dataset.
+- [ ] T033 [US2] [FR-006] Save model checkpoints to `data/checkpoints/model_seed_{N}.pt` and `rf_seed_{N}.pkl` – each checkpoint includes model state dict, training config, seed, and timestamp.
+- [ ] T034 [US2] [FR-012] Generate `results/metrics.csv` with columns `seed`, `model`, `mae`, `rmse`, `mae_ci_lower`, `mae_ci_upper`, `rmse_ci_lower`, `rmse_ci_upper` (per FR-012 and Plan.md Technical Context).
 
-**Checkpoint**: User Stories 1 & 2 functional
+### Ablation Study & Combined Baseline (Plan.md Phase 2 Requirements)
+
+- [ ] T042 [US2] [FR-004, SC-001] [P] Implement SchNet-Randomized architecture in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/models/schnet_randomized.py` – shuffles 3D coordinates to isolate geometry contribution.
+- [ ] T043 [US2] [FR-004, SC-001] [P] Implement SchNet-2D architecture in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/models/schnet_2d.py` – identical architecture without 3D coordinates.
+- [ ] T044 [US2] [FR-004, SC-001] Train SchNet-Randomized and SchNetD models with **multiple seeds**, 50 epochs, early stopping in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/train_ablation.py` – records metrics for causal control analysis.
+
+### Tests for User Story 2
+
+- [ ] T106 [P] [US2] Contract test for model_output schema (`tests/contract/test_model_output_schema.py`) – Implement `test_model_output_schema_validates_prediction_range` to assert predicted dipoles are within physical bounds.
+- [ ] T107 [P] [US2] Integration test for GNN training pipeline (`tests/integration/test_gnn_training.py`) – Implement `test_gnn_training_converges_within__epochs` to assert convergence criteria.
+- [ ] T108 [P] [US2] Integration test for Random Forest training pipeline (`tests/integration/test_rf_training.py`) – Implement `test_rf_training_rmse_variance_under_threshold` to assert stability across seeds.
+- [ ] T109 [P] [US2] Unit test for MAE/RMSE metric computation (`tests/unit/test_metrics.py`) – Implement `test_metrics_handles_empty_input_and_nan` to assert correct edge case handling.
+
+**Checkpoint**: User Stories 1 & 2 functional
 
 ---
 
-## Phase 5: User Story 3 – Feature Attribution and Statistical Significance Analysis (Priority: P3)
+## Phase 5: User Story 3 – Feature Attribution, Physics Constraints, and Statistical Validation (Priority: P3)
 
-**Goal**: Apply permutation importance to Random Forest and saliency mapping to GNN embeddings, perform paired t‑tests to confirm statistical significance of the performance delta.
+**Goal**: Apply feature attribution and perform rigorous statistical significance testing to address reviewer concerns regarding physical realism, experimental validation standards, and conformational ensembles.
 
-**Independent Test**: Verify feature importance rankings are generated, t-test p-values are computed, and structural contributions are ranked.
-
-### Tests for User Story 3
-
-- [ ] T111 [P] [US3] Integration test for permutation importance pipeline (`tests/integration/test_permutation_importance.py`)
-- [ ] T112 [P] [US3] Integration test for saliency mapping pipeline (`tests/integration/test_saliency_mapping.py`)
-- [ ] T113 [P] [US3] Unit test for paired t‑test computation (`tests/unit/test_statistical_tests.py`)
+**Independent Test**: (Wikidata Q126592664, https://www.wikidata.org/wiki/Q126592664), and t-tests confirm significance with explicit reporting of error margins.
 
 ### Implementation for User Story 3
 
-- [X] T038 [P] [US3] Implement permutation importance for Random Forest in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/attribution/permutation_importance.py` (FR‑007)
-- [X] T039 [P] [US3] Implement saliency mapping for GNN node embeddings in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/attribution/saliency_mapping.py` (FR‑007)
-- [X] T040 [US3] Rank structural contributions (e.g., electronegative atom placement, local bond angles) and (FR‑007, SC‑002)
-- [X] T041 [US3] Implement paired t‑tests (α = 0.05) comparing RMSE distributions in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/statistical_tests.py` (FR‑008, SC‑004)
-- [X] T042 [US3] Generate `results/attributions.json` with feature importance rankings
-- [X] T043 [US3] Generate `results/significance.csv` with columns `seed`, `t_statistic`, `p_value`, `significant_at_alpha_0.05` (FR‑008)
-- [X] T045 [US3] Visualize feature‑importance maps on representative molecules (e.g., `data/processed/attributions_*.png`) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/visualize_features.py` (FR‑009)
+- [ ] T039a [US3] [FR-007, SC-002] [P] Implement enhanced attribution calculation in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/attribution.py` using **Permutation Importance** for Random Forest and **Saliency Mapping (Input Gradients and Integrated Gradients)** for GNN. **Dependencies**: T017, T018, T028, T029. **Note**: Calculates raw scores; mapping and verification are separate tasks. Output: `results/attribution_scores.json`.
+- [ ] T039b [US3] [FR-007, SC-002] [P] Implement chemical feature mapping in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/feature_mapper.py`. Uses RDKit to map feature indices to chemical descriptions via `GetAtomSymbol` and `GetPeriodicTable`. **Dependencies**: T039a.
+- [ ] T039c [US3] [FR-007, SC-002] [P] Implement statistical verification and reporting in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/analysis/verify_attribution.py`. Outputs `results/attribution_ranking.json` with schema: `[{feature_name, score, p_value, rank}]`. Verifies at least 3 distinct physical features are significant. **Dependencies**: T039b.
+- [ ] T040 [US3] [FR-011] [P] Implement a "Validation Protocol & Limitations" report generator in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/validation_report.py`. This tool must generate `data/reports/validation_protocol.md` (Markdown format) with specific table columns for error margins, explicitly stating: (1) The ground truth is QM9 DFT data (BLYP/6-31G* level, verified via T091), (2) The limitations regarding hydration state and the use of a **Single Lowest-Energy Conformer** per molecule, and (3) The specific error margins (MAE/RMSE) achieved against the DFT standard. **Dependencies**: T017, T018.
+- [ ] T041 [US3] [FR-008, SC-004] [P] Update `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/training/evaluate.py` to compute and report **paired t-tests (α=0.05)** as the primary method (per Spec FR-008, SC-004) comparing RMSE distributions between GNN and baseline. **Include Wilcoxon signed-rank test as a secondary robustness check ONLY**. This task depends on T028 (GNN training), T029 (RF training), and T030 (splits). **Note**: The Plan.md Methodology specified Wilcoxon as primary; this task aligns with the Spec's mandatory requirement. Wilcoxon is explicitly marked as secondary only.
+- [ ] T045 [US3] [FR-011, Spec Assumptions] [P] [Doc] Implement "Scope Limitations" report generator in `projects/PROJ-262-predicting-molecular-dipole-moments-with/code/utils/scope_limitations.py`. This task explicitly generates `data/reports/scope_limitations.md` to document: (1) **Conformational Ensemble Sampling** is out-of-scope (Spec Assumptions), (2) **Physical measurement validation** is out-of-scope (FR-011), and (3) The model uses **no hardcoded physical constants** (FR-004). This task directly addresses the requirement to document limitations as a concrete implementation step. **Dependencies**: T040, T041. **Note**: Also implements code enforcement in `constraint_enforcer.py` to block GPU fallback and ensemble sampling.
+- [ ] T046 [US3] [FR-010, FR-013] [P] Implement constraint enforcement in `projects/PROJ-predicting-molecular-dipole-moments-with/code/utils/constraint_enforcer.py`. Ensures code explicitly blocks GPU fallback and ensemble sampling to adhere to limited CPU core and time constraints. **Dependencies**: T049, T050, T052.
 
-**Checkpoint**: All user stories independently functional
+### Tests for User Story 3
 
----
+- [ ] T113 [P] [US3] Unit test for attribution ranking (`tests/unit/test_attribution_ranking.py`) – Implement `test_physical_features_ranked_significant` to verify that electronegativity and bond angle features appear in the top 3 attributed features.
+- [ ] T114 [P] [US3] Contract test for validation report (`tests/contract/test_validation_report.py`) – Implement `test_validation_report_contains_limitations_and_error_bounds` to assert the report explicitly states the DFT ground truth and single-conformer limitations.
+- [ ] T115 [P] [US3] Contract test for scope limitations report (`tests/contract/test_scope_limitations.py`) – Implement `test_scope_limitations_documents_out_of_scope_items` to assert the report explicitly lists ensemble sampling and experimental validation as out-of-scope.
 
-## Phase 6: Validation and Requirements Alignment
-
-**Purpose**: Verify that all functional requirements (FR‑001 – FR‑013) and success criteria (SC‑001 – SC‑005) are satisfied, and that documentation complies with the constitution.
-
-- [X] T053 [P] Run reference-validator script (T090, T091) to verify local DOI metadata matches registered references; no external URL fetching performed (satisfies Constitution Principle II and 'no URL fabrication' constraint).
-- [X] T054 [P] Populate documentation files with required sections (overview, installation, usage, results, limitations) in `projects/PROJ-262-predicting-molecular-dipole-moments-with/specs/001-predicting-molecular-dipole-moments-with/`.
-- [X] T057 [P] Quick‑start validation checks for existence of all data files, non‑NaN metrics, and at least one attribution visualisation; fails otherwise.
-- [X] T058 [P] Summary includes MAE/RMSE with 95 % CI, top‑5 feature importance entries, paired‑t‑test p‑values, and links to generated figures.
-- [X] T059 [P] State file `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml` follows YAML schema with `completed_at`, `artifact_hashes` (SHA‑256 per file), and `updated_at`.
-- [X] T094 [P] Validate total pipeline runtime: Read `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml` (updated_at) and `results/metrics.csv` to calculate total elapsed time from data download to final metric generation; Verify against a predefined time limit. (SC‑003, FR‑010).
-
-**Checkpoint**: All functional requirements verified against spec and constitution.
+**Checkpoint**: User Story 3 complete; all reviewer concerns regarding physical constraints, stereoisomer differentiation, and validation standards addressed.
 
 ---
 
-## Phase 7: Documentation & Polish
+## Phase 6: Reviewer Response Documentation & Final Polish
 
-**Purpose**: Final documentation, end‑to‑end validation, and project cleanup.
+**Note**: This phase documents specific reviewer concerns and the project's adherence to scope by explicitly stating limitations as required by Spec Assumptions.
+**Note**: Tasks in Phase 6 are NOT parallel-safe ([P] removed) as they all update `research.md`.
 
-- [X] T093 [P] Update `research.md` with explicit limitations: gas-phase DFT data only, single conformer per molecule, no experimental validation or hydration analysis performed (aligns with spec assumptions).
+- [ ] T130 [US3] [FR-011, Spec Assumptions] [Doc] [Review: Rosalind Franklin] Update `research.md` to explicitly document that **Conformational Ensemble Sampling** is out-of-scope per Spec Assumptions. State that the project uses a single lowest-energy conformer per molecule and that ensemble sampling is documented as future work. This addresses the concern that "conformational isomers... have different dipole moments" by acknowledging the limitation. **Traceability**: Addresses Spec Assumptions, FR-011. **Depends on**: T045.
+- [ ] T131 [US3] [FR-011, Spec Assumptions] [Doc] [Review: Linus Pauling, Marie Curie] Update `research.md` to explicitly document that the model architecture adheres strictly to **FR-004** (lightweight SchNet-style GNN) without hardcoded physical constants (e.g., C-N bond length 1.32 Å) or physics-informed loss terms. State that the model learns geometry from data without bias injection. This addresses the concern about "unauthorized scope creep". **Traceability**: Addresses FR-004, FR-011. **Depends on**: T130, T045.
+- [ ] T132 [US3] [FR-011, Spec Assumptions] [Doc] [Review: Marie Curie] Update `research.md` to explicitly document that **Physical measurement validation** (e.g., Stark-effect spectroscopy) is out-of-scope per Spec Assumptions and FR-011. State that the ground truth is QM9 DFT data (BLYP/6-31G* level) and that experimental validation is a downstream research requirement. This addresses the concern about "benchmark comparison against experimental data". **Traceability**: Addresses FR-011, Spec Assumptions. **Depends on**: T131, T045.
 
-**Checkpoint**: All user stories independently functional and validated against reviewer concerns.
+**Checkpoint**: All reviewer concerns addressed with specific documentation, ensuring scope compliance and traceability.
+
+---
+
+## Phase 7: Polish & Documentation
+
+**Purpose**: Finalize reports, update documentation with new physical constraints, and ensure all artifacts are hashed.
+
+- [ ] T116 [P] [Doc] Update `quickstart.md` to explain the new physical descriptor features and how to interpret the **ablation variant results** and **Input Gradient maps**. Add specific sections: "Interpreting Ablation Results" (explaining SchNet-Randomized vs SchNet-2D) and "Reading Input Gradient Maps" (explaining saliency visualization).
+- [ ] T117 [P] [Constitution, FR-030] Run `code/utils/hygiene.py` to compute SHA-256 hashes for all new artifacts (`results/attribution.json`, `data/reports/excluded_molecules.csv`, `results/metrics.csv`, `data/reports/scope_limitations.md`, model checkpoints) and update `state/projects/PROJ-262-predicting-molecular-dipole-moments-with.yaml`. **Note**: This is the centralized task for state updates; T019a no longer updates state.
+- [ ] T118 [P] [SC-003, SC-005] Run the full pipeline end-to-end with the new constraints to verify the runtime limit is still met and the verify the RMSE variance remains < 10% (verify the value in `results/metrics.csv`). **Output**: `results/pipeline_validation.log` recording variance value and pass/fail status.
+
+---
+
+## Dependencies & Execution Order
+
+### Phase Dependencies
+
+- **Setup (Phase 1)**: No dependencies - can start immediately
+- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
+- **User Stories (Phase 3+)**: All depend on Foundational phase completion
+ - User stories can then proceed in parallel (if staffed)
+ - Or sequentially in priority order (P1 → P2 → P3)
+- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Reviewer Response (Phase 6)**: Depends on US3 completion (T039a, T039b, T039c, T040, T041, T045) and foundational physics modules.
+
+### User Story Dependencies
+
+- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
+- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - May integrate with US1 but should be independently testable
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 (data) and US2 (model outputs) for attribution and statistical analysis. **Specifically requires T018 (2D descriptors) and T017 (3D features) to be implemented before T039a (attribution) can be fully effective.**
+- **Reviewer Response (Phase 6)**: Depends on T039a-c (attribution), T040 (validation report), T041 (stats), and T045 (scope limitations) to provide the necessary outputs for physical constraint integration and benchmark comparison.
+
+### Within Each User Story
+
+- Tests (if included) MUST be written and FAIL before implementation
+- Models before services
+- Services before endpoints
+- Core implementation before integration
+- Story complete before moving to next priority
+
+### Parallel Opportunities
+
+- All Setup tasks marked [P] can run in parallel
+- All Foundational tasks marked [P] can run in parallel (within Phase 2)
+- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
+- All tests for a user story marked [P] can run in parallel
+- Models within a story marked [P] can run in parallel
+- Different user stories can be worked on in parallel by different team members
+- Tasks in Phase 6 (T130, T131, T132) are **NOT** parallel-safe as they all modify `research.md`.
+
+---
+
+## Parallel Example: User Story 3 & Phase 6
+
+```bash
+# Launch all attribution and reporting tasks together (except Phase 6):
+Task: "Implement enhanced attribution calculation in code/analysis/attribution.py"
+Task: "Implement chemical feature mapping in code/analysis/feature_mapper.py"
+Task: "Implement statistical verification and reporting in code/analysis/verify_attribution.py"
+
+# Launch all ablation study tasks together:
+Task: "Implement SchNet-Randomized and SchNet-2D architectures in code/models/"
+Task: "Train ablation variants in code/training/train_ablation.py"
+
+# Phase 6 tasks are sequential:
+Task: "Document Conformational Ensemble Sampling limitation (T130)" -> THEN ->
+Task: "Document Model Architecture scope (T131)" -> THEN ->
+Task: "Document Physical Measurement validation scope (T132)"
+```
+
+---
+
+## Implementation Strategy
+
+### MVP First (User Story 1 Only)
+
+1. Complete Phase 1: Setup
+2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
+3. Complete Phase 3: User Story 1
+4. **STOP and VALIDATE**: Test User Story 1 independently
+5. Deploy/demo if ready
+
+### Incremental Delivery
+
+1. Complete Setup + Foundational → Foundation ready
+2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
+3. Add User Story 2 → Test independently → Deploy/Demo
+4. Add User Story 3 → Test independently → Deploy/Demo (Addresses all reviewer concerns)
+5. Add Phase 6 (Reviewer Response) → Test independently → Deploy/Demo (Addresses physical constraints and validation protocols)
+6. Each story adds value without breaking previous stories
+
+### Parallel Team Strategy
+
+With multiple developers:
+
+1. Team completes Setup + Foundational together
+2. Once Foundational is done:
+ - Developer A: User Story 1 (Data Prep)
+ - Developer B: User Story 2 (Model Training)
+ - Developer C: User Story 3 (Physics Constraints & Attribution)
+ - Developer D: Phase 6 (Reviewer Response - Documentation of limitations)
+3. Stories complete and integrate independently
+
+---
+
+## Notes
+
+- [P] tasks = different files, no dependencies
+- [Story] label maps task to specific user story for traceability
+- Each user story should be independently completable and testable
+- Verify tests fail before implementing
+- Commit after each task or logical group
+- Stop at any checkpoint to validate story independently
+- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- **Reviewers Addressed**:
+ - **Scientific Rigor**: Tasks T039a-c, T040, T041, T045 (Feature attribution, validation protocol, paired t-tests, scope limitations).
+ - **Ablation Study**: Tasks T042-T044 (Geometry isolation).
+ - **Data Integrity**: Tasks T018, T029 (Full descriptor usage per FR-003).
+ - **Scope Compliance**: Task T045 (Explicit documentation of single-conformer limitation and out-of-scope items).
+ - **Constraint Preservation**: All tasks now use 5 seeds (T028, T029, T044) and Spec-mandated methods (T039, T041). T046 enforces CPU constraints.
+ - **Out-of-Scope Removal**: Phase 8 (T119-T129) removed to comply with Spec Assumptions and FR-011.
+ - **Reviewer Specifics**:
+ - **Linus Pauling**: T131 (Documentation of model architecture scope).
+ - **Marie Curie**: T131, T132 (Documentation of validation scope).
+ - **Rosalind Franklin**: T130 (Documentation of ensemble sampling limitation).
+ - **Richard Feynman**: N/A (Physics-informed loss out-of-scope per Spec).

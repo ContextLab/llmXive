@@ -17,7 +17,7 @@ This project implements a statistical analysis pipeline to investigate the effec
 **Project Type**: computational-research-pipeline  
 **Performance Goals**: Complete end-to-end analysis (including A sufficient number of bootstrap iterations) within ≤6 hours on 2 CPU cores, ~7 GB RAM.  
 **Constraints**: NO GPU/CUDA; NO heavy deep learning; synthetic data only if real data lacks required variables (RSES, INCOM, pre/post); strict framing of results as "Pipeline Validation" for synthetic data.  
-**Scale/Scope**: N ≥ 100 participants; single ANCOVA model; 1,000 bootstrap iterations.
+**Scale/Scope**: N ≥ 100 participants; single ANCOVA model; A sufficient number of bootstrap iterations.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
 
@@ -65,7 +65,7 @@ projects/PROJ-490-the-effect-of-simulated-social-compariso/
 │   │   └── config.py          # Seed management
 │   ├── analysis/
 │   │   ├── regression.py      # Model fitting (ANCOVA), assumption checks (visual + stat)
-│   │   ├── bootstrap.py       # 1,000 iterations stability
+│   │   ├── bootstrap.py       # A sufficient number of iterations stability
 │   │   └── sensitivity.py     # Threshold sweeps, parameter recovery, MNAR sensitivity
 │   └── utils/
 │       ├── logger.py
@@ -89,6 +89,6 @@ projects/PROJ-490-the-effect-of-simulated-social-compariso/
 | :--- | :--- | :--- |
 | **Synthetic Data Generator** | Required by FR-011/US-1 as a fallback if no real dataset contains RSES+INCOM+Pre/Post. | Simple mock data lacks ground-truth parameters for parameter recovery validation (FR-011, SC-005). |
 | **MICE Imputation** | Required by FR-002 for missingness < 20%. | Mean/median imputation introduces bias and violates the statistical rigor requirement for correlation structures. |
-| **Bootstrap (1,000 iters)** | Required by FR-005/SC-004 for stability. | Single run lacks confidence in effect stability; analytical standard errors are insufficient for non-normal distributions. |
+| **Bootstrap (a sufficient number of iterations)** | Required by FR-005/SC-004 for stability. | Single run lacks confidence in effect stability; analytical standard errors are insufficient for non-normal distributions. |
 | **ANCOVA Model** | Required to avoid mathematical coupling (regressing change on baseline). | Change-score regression is statistically invalid for this hypothesis; ANCOVA is the standard correction. |
 | **Visual Diagnostics** | Required for robust assumption checking (Shapiro/Breusch-Pagan have low power). | Sole reliance on p-values is methodologically weak for small samples; visual checks are mandatory. |

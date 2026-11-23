@@ -1,270 +1,178 @@
 """
-Validation module for injected data scenarios.
+Validation utilities for the gravitational wave resolution impact study.
 
-Implements US-2, Scenario 3: Validate that for injected data scenarios,
-the calculated bias is effectively zero (< 1e-6).
+This module implements validation logic for injected data scenarios,
+uncertainty scaling, and bias threshold checking as per US-2 requirements.
 """
+
 import logging
 import os
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple
+from typing import Dict, Any, Optional, Tuple, List
 
 import numpy as np
 
 from code.config import DATA_DIR, RESULTS_DIR
-from code.analysis.metrics import load_posterior_from_file, calculate_bias
-from code.utils.logging_config import get_derivation_logger
 
-logger = get_derivation_logger(__name__)
+logger = logging.getLogger(__name__)
 
 
-def validate_injection_bias(
-    posterior_path: Path,
-    injection_truth: Dict[str, float],
-    tolerance: float = 1e-6
-) -> Tuple[bool, Dict[str, Any]]:
+def scale_uncertainty_to_90_ci(uncertainty_1sigma: float) -> float:
     """
-    Validate that bias for injected data is effectively zero.
-    
-    This function loads a posterior distribution generated from injected data,
-    calculates the bias against the known injection truth, and verifies that
-    the bias is below the specified tolerance threshold.
-    
+    Scale a 1-sigma statistical uncertainty to a 90% confidence interval width.
+
+    Uses the standard normality assumption: 90% CI ≈ 1.645 * σ.
+
     Args:
-        posterior_path: Path to the posterior distribution file (HDF5 or JSON)
-        injection_truth: Dictionary mapping parameter names to their true injected values
-        tolerance: Maximum acceptable bias value (default: 1e-6)
-        
+        uncertainty_1sigma: The 1-sigma uncertainty value.
+
     Returns:
-        Tuple of (is_valid, details_dict) where:
-            - is_valid: True if all biases are < tolerance
-            - details_dict: Contains bias values, pass/fail status per parameter,
-                            and overall validation result
+        The scaled 90% confidence interval width.
     """
-    if not posterior_path.exists():
-        error_msg = f"Posterior file not found: {posterior_path}"
-        logger.error(error_msg)
-        return False, {
-            "error": error_msg,
-            "is_valid": False,
-            "posterior_path": str(posterior_path)
-        }
-    
-    try:
-        posterior_data = load_posterior_from_file(posterior_path)
-    except Exception as e:
-        error_msg = f"Failed to load posterior from {posterior_path}: {str(e)}"
-        logger.error(error_msg)
-        return False, {
-            "error": error_msg,
-            "is_valid": False,
-            "posterior_path": str(posterior_path)
-        }
-    
-    # Extract posterior samples for comparison
-    samples = posterior_data.get("samples", {})
-    if not samples:
-        error_msg = "No samples found in posterior data"
-        logger.error(error_msg)
-        return False, {
-            "error": error_msg,
-            "is_valid": False,
-            "posterior_path": str(posterior_path)
-        }
-    
-    # Calculate bias for each parameter present in injection truth
-    bias_results = {}
-    all_pass = True
-    
-    for param_name, true_value in injection_truth.items():
-        if param_name not in samples:
-            logger.warning(f"Parameter '{param_name}' not found in posterior samples")
-            bias_results[param_name] = {
-                "true_value": true_value,
-                "bias": None,
-                "passed": False,
-                "reason": "parameter_missing"
-            }
-            all_pass = False
-            continue
-        
-        # Calculate posterior mean for the parameter
-        param_samples = np.array(samples[param_name])
-        posterior_mean = np.mean(param_samples)
-        
-        # Calculate absolute bias
+    if uncertainty_1sigma is None or np.isnan(uncertainty_1sigma) or uncertainty_1sigma <= 0:
+        raise ValueError(f"Invalid 1-sigma uncertainty: {uncertainty_1sigma}. Must be positive and finite.")
+
+    # Standard normal 90% CI factor
+    factor = 1.645
+    return uncertainty_1sigma * factor
+
+
+def scale_catalog_uncertainties(catalog_params: Dict[str, Any]) -> Dict[str, float]:
+    """
+    Scale catalog-reported uncertainties to 90% confidence intervals.
+
+    Args:
+        catalog_params: Dictionary containing catalog parameters with uncertainty keys
+                        (e.g., 'mass_1_err', 'chi_eff_err').
+
+    Returns:
+        Dictionary with scaled 90% CI uncertainties.
+    """
+    scaled = {}
+    for key, value in catalog_params.items():
+        if key.endswith('_err') and isinstance(value, (int, float)):
+            scaled[key] = scale_uncertainty_to_90_ci(float(value))
+        else:
+            scaled[key] = value
+    return scaled
+
+
+def check_bias_against_catalog_ci(
+    bias_values: Dict[str, float],
+    catalog_uncertainties_90ci: Dict[str, float],
+    threshold_factor: float = 1.0
+) -> Dict[str, bool]:
+    """
+    Check if bias values exceed the catalog-reported 90% confidence interval.
+
+    Args:
+        bias_values: Dictionary of parameter biases (e.g., {'mass_1': 0.05, 'chi_eff': 0.01}).
+        catalog_uncertainties_90ci: Dictionary of 90% CI uncertainties for comparison.
+        threshold_factor: Multiplier for the uncertainty threshold (default 1.0).
+
+    Returns:
+        Dictionary indicating whether each bias exceeds the threshold.
+    """
+    exceeded = {}
+    for param, bias in bias_values.items():
+        # Map bias key to uncertainty key (e.g., 'mass_1' -> 'mass_1_err')
+        err_key = f"{param}_err"
+        if err_key in catalog_uncertainties_90ci:
+            threshold = abs(catalog_uncertainties_90ci[err_key]) * threshold_factor
+            exceeded[param] = abs(bias) > threshold
+        else:
+            logger.warning(f"No catalog uncertainty found for parameter '{param}'. Skipping check.")
+            exceeded[param] = False
+    return exceeded
+
+
+def validate_injected_data_scenario(
+    posterior_samples: Dict[str, np.ndarray],
+    injected_parameters: Dict[str, float],
+    tolerance: float = 1e-6
+) -> Tuple[bool, Dict[str, float]]:
+    """
+    Validate that bias in injected data scenarios is effectively zero.
+
+    For simulated injection scenarios, the posterior should recover the injected
+    parameters with bias < tolerance (default 1e-6).
+
+    Args:
+        posterior_samples: Dictionary of parameter names to posterior sample arrays.
+        injected_parameters: Dictionary of true injected parameter values.
+        tolerance: Maximum acceptable absolute bias (default 1e-6).
+
+    Returns:
+        Tuple of (is_valid, bias_dict):
+            - is_valid: True if all biases are below tolerance.
+            - bias_dict: Dictionary of absolute biases for each parameter.
+
+    Raises:
+        ValueError: If posterior_samples or injected_parameters are empty or mismatched.
+    """
+    if not posterior_samples or not injected_parameters:
+        raise ValueError("posterior_samples and injected_parameters must not be empty.")
+
+    common_params = set(posterior_samples.keys()) & set(injected_parameters.keys())
+    if not common_params:
+        raise ValueError("No common parameters between posterior and injection.")
+
+    bias_dict = {}
+    all_valid = True
+
+    for param in common_params:
+        samples = posterior_samples[param]
+        true_value = injected_parameters[param]
+
+        # Calculate mean of posterior samples
+        posterior_mean = np.mean(samples)
         bias = abs(posterior_mean - true_value)
-        
-        # Check against tolerance
-        passed = bias < tolerance
-        
-        bias_results[param_name] = {
-            "true_value": true_value,
-            "posterior_mean": posterior_mean,
-            "bias": bias,
-            "tolerance": tolerance,
-            "passed": passed
-        }
-        
-        if not passed:
-            all_pass = False
+        bias_dict[param] = bias
+
+        if bias >= tolerance:
+            all_valid = False
             logger.warning(
-                f"Bias for '{param_name}' ({bias:.2e}) exceeds tolerance ({tolerance})"
+                f"Bias for '{param}' ({bias:.2e}) exceeds tolerance ({tolerance:.2e}). "
+                f"Posterior mean: {posterior_mean:.6e}, Injected: {true_value:.6e}"
             )
         else:
-            logger.info(
-                f"Bias for '{param_name}' ({bias:.2e}) within tolerance ({tolerance})"
-            )
-    
-    result = {
-        "is_valid": all_pass,
-        "bias_results": bias_results,
-        "posterior_path": str(posterior_path),
-        "tolerance": tolerance
-    }
-    
-    return all_pass, result
+            logger.info(f"Bias for '{param}' ({bias:.2e}) within tolerance.")
 
-
-def run_injection_validation(
-    event_id: str,
-    resolution_config: str,
-    tolerance: float = 1e-6
-) -> Dict[str, Any]:
-    """
-    Run full injection validation for a specific event and resolution.
-    
-    This function locates the posterior file for a given event and resolution,
-    retrieves the injection truth values (assumed to be stored in metadata or
-    a separate truth file), and performs the bias validation.
-    
-    Args:
-        event_id: Identifier for the gravitational wave event (e.g., 'GW150914')
-        resolution_config: Resolution configuration string (e.g., '4096Hz_16bit')
-        tolerance: Maximum acceptable bias value
-        
-    Returns:
-        Dictionary containing validation results and metadata
-    """
-    logger.info(f"Running injection validation for {event_id} at {resolution_config}")
-    
-    # Construct expected posterior path
-    posterior_dir = RESULTS_DIR / "posteriors" / event_id
-    posterior_file = posterior_dir / f"{event_id}_{resolution_config}_posterior.hdf5"
-    
-    # For injected data, we assume truth values are stored in a companion file
-    # or in the posterior metadata. Attempt to load from metadata first.
-    try:
-        posterior_data = load_posterior_from_file(posterior_file)
-        injection_truth = posterior_data.get("injection_truth", {})
-        
-        if not injection_truth:
-            # Try to load from companion truth file
-            truth_file = posterior_dir / f"{event_id}_{resolution_config}_truth.json"
-            if truth_file.exists():
-                import json
-                with open(truth_file, 'r') as f:
-                    injection_truth = json.load(f)
-            else:
-                raise ValueError("No injection truth found for validation")
-        
-    except FileNotFoundError:
-        error_msg = f"Posterior file not found: {posterior_file}"
-        logger.error(error_msg)
-        return {
-            "status": "failed",
-            "error": error_msg,
-            "event_id": event_id,
-            "resolution_config": resolution_config
-        }
-    except Exception as e:
-        error_msg = f"Failed to retrieve injection truth: {str(e)}"
-        logger.error(error_msg)
-        return {
-            "status": "failed",
-            "error": error_msg,
-            "event_id": event_id,
-            "resolution_config": resolution_config
-        }
-    
-    # Perform validation
-    is_valid, details = validate_injection_bias(
-        posterior_file, 
-        injection_truth, 
-        tolerance
-    )
-    
-    result = {
-        "status": "passed" if is_valid else "failed",
-        "event_id": event_id,
-        "resolution_config": resolution_config,
-        "tolerance": tolerance,
-        "details": details
-    }
-    
-    logger.info(
-        f"Validation {result['status'].upper()} for {event_id} at {resolution_config}"
-    )
-    
-    return result
+    return all_valid, bias_dict
 
 
 def main():
     """
-    Main entry point for injection validation script.
-    
-    This function runs validation on all available injected event post
-      eriors and outputs a summary report.
+    Main entry point for validation testing.
+
+    This function demonstrates the validation logic for injected data scenarios.
+    In a real execution, it would load actual posterior files and injection metadata.
     """
-    logger.info("Starting injection validation for all events")
-    
-    # Define test cases - these would normally be discovered dynamically
-    test_cases = [
-        # Example: event_id, resolution_config
-        ("GW150914", "4096Hz_32bit"),
-        ("GW150914", "2048Hz_32bit"),
-        ("GW150914", "1024Hz_32bit"),
-        # Add more test cases as needed
-    ]
-    
-    results = []
-    passed_count = 0
-    failed_count = 0
-    error_count = 0
-    
-    for event_id, resolution_config in test_cases:
-        result = run_injection_validation(event_id, resolution_config)
-        results.append(result)
-        
-        if result["status"] == "passed":
-            passed_count += 1
-        elif result["status"] == "failed":
-            failed_count += 1
-        else:
-            error_count += 1
-    
-    # Output summary
-    summary = {
-        "total_tests": len(test_cases),
-        "passed": passed_count,
-        "failed": failed_count,
-        "errors": error_count,
-        "results": results
+    logging.basicConfig(level=logging.INFO)
+
+    # Example demonstration with synthetic data (for testing purposes only)
+    # In production, this would load real data from disk
+    injected = {
+        'mass_1': 30.0,
+        'mass_2': 25.0,
+        'chi_eff': 0.0
     }
-    
-    logger.info(f"Validation complete: {passed_count} passed, {failed_count} failed, {error_count} errors")
-    
-    # Save results to file
-    output_path = RESULTS_DIR / "metrics" / "injection_validation_summary.json"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    import json
-    with open(output_path, 'w') as f:
-        json.dump(summary, f, indent=2)
-    
-    logger.info(f"Summary saved to {output_path}")
-    
-    return summary
+
+    # Simulate a posterior that perfectly recovers injection (ideal case)
+    posterior = {
+        'mass_1': np.random.normal(30.0, 0.0001, 1000),
+        'mass_2': np.random.normal(25.0, 0.0001, 1000),
+        'chi_eff': np.random.normal(0.0, 0.0001, 1000)
+    }
+
+    is_valid, biases = validate_injected_data_scenario(posterior, injected, tolerance=1e-6)
+
+    print(f"Validation Result: {'PASS' if is_valid else 'FAIL'}")
+    print("Biases:")
+    for param, bias in biases.items():
+        print(f"  {param}: {bias:.2e}")
+
+    return is_valid
 
 
 if __name__ == "__main__":

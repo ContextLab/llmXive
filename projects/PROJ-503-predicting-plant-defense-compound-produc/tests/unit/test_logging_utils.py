@@ -1,3 +1,8 @@
+"""
+test_logging_utils.py
+
+Unit tests for logging utilities.
+"""
 import json
 import csv
 import os
@@ -6,180 +11,196 @@ import shutil
 from pathlib import Path
 import pytest
 
-# We need to temporarily adjust the module path to test in isolation
-# by mocking the _PROJECT_ROOT or by testing the functions that don't depend on it directly
-# However, since the functions write to specific paths, we will test the logic
-# by creating a temporary directory structure that mimics the project.
+# We need to mock the PROJECT_ROOT and LOGS_DIR in logging_utils
+# Since the module uses absolute paths based on __file__, we'll test
+# the functions by directly manipulating the files they create.
 
+# Import the module
 import sys
-from unittest.mock import patch, MagicMock
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / "code"))
 
-# Add the code directory to the path
-code_dir = Path(__file__).resolve().parent.parent.parent / "code"
-sys.path.insert(0, str(code_dir))
-
-import logging_utils
+from logging_utils import (
+    log_data_pairing_mismatch,
+    log_data_pairing_mismatches_batch,
+    get_pairing_log_stats,
+    log_zero_variance_feature,
+    log_zero_variance_features_batch,
+    get_filtering_log_stats,
+    DATA_PAIRING_LOG,
+    FEATURE_FILTERING_LOG,
+    LOGS_DIR
+)
 
 
 @pytest.fixture
-def temp_project_structure():
-    """Create a temporary directory structure mimicking the project."""
-    temp_root = tempfile.mkdtemp()
-    temp_code = Path(temp_root) / "code"
-    temp_logs = Path(temp_root) / "logs"
-    temp_code.mkdir()
-    temp_logs.mkdir()
+def clean_logs():
+    """Fixture to clean up log files before and after tests."""
+    # Clean up before test
+    if LOGS_DIR.exists():
+        shutil.rmtree(LOGS_DIR)
+    LOGS_DIR.mkdir(parents=True, exist_ok=True)
 
-    # Patch the _PROJECT_ROOT in logging_utils to point to our temp root
-    with patch.object(logging_utils, '_PROJECT_ROOT', Path(temp_root)):
-        with patch.object(logging_utils, '_LOGS_DIR', temp_logs):
-            with patch.object(logging_utils, '_PAIRING_LOG_PATH', temp_logs / "data_pairing.json"):
-                with patch.object(logging_utils, '_FILTERING_LOG_PATH', temp_logs / "feature_filtering.csv"):
-                    yield {
-                        "root": Path(temp_root),
-                        "logs": temp_logs,
-                        "pairing_log": temp_logs / "data_pairing.json",
-                        "filtering_log": temp_logs / "feature_filtering.csv"
-                    }
+    yield
 
-    shutil.rmtree(temp_root)
+    # Clean up after test
+    if LOGS_DIR.exists():
+        shutil.rmtree(LOGS_DIR)
 
-def test_log_data_pairing_mismatch(temp_project_structure):
-    """Test logging a single pairing mismatch."""
-    logging_utils.log_data_pairing_mismatch(
-        sample_id="sample_123",
-        expression_source="GSE12345",
-        metabolite_source="MB12345",
-        reason="no_sample_level_pair"
-    )
 
-    assert temp_project_structure["pairing_log"].exists()
+class TestDataPairingMismatch:
+    """Tests for data pairing mismatch logging functions."""
 
-    with open(temp_project_structure["pairing_log"], 'r') as f:
-        data = json.load(f)
+    def test_log_single_mismatch_creates_file(self, clean_logs):
+        """Test that logging a single mismatch creates the JSON file."""
+        log_data_pairing_mismatch(
+            sample_id="TEST_001",
+            expression_source="geo_test",
+            metabolite_source="mw_test",
+            reason="test_reason"
+        )
 
-    assert len(data) == 1
-    assert data[0]["sample_id"] == "sample_123"
-    assert data[0]["expression_source"] == "GSE12345"
-    assert data[0]["metabolite_source"] == "MB12345"
-    assert data[0]["reason"] == "no_sample_level_pair"
-    assert "timestamp" in data[0]
+        assert DATA_PAIRING_LOG.exists()
 
-def test_log_data_pairing_mismatches_batch(temp_project_structure):
-    """Test logging a batch of pairing mismatches."""
-    mismatches = [
-        {"sample_id": "s1", "expression_source": "e1", "metabolite_source": "m1", "reason": "missing"},
-        {"sample_id": "s2", "expression_source": "e2", "metabolite_source": "m2", "reason": "mismatch"}
-    ]
+        with open(DATA_PAIRING_LOG, 'r', encoding='utf-8') as f:
+            data = json.load(f)
 
-    logging_utils.log_data_pairing_mismatches_batch(mismatches)
+        assert isinstance(data, list)
+        assert len(data) == 1
+        assert data[0]["sample_id"] == "TEST_001"
+        assert data[0]["expression_source"] == "geo_test"
+        assert data[0]["metabolite_source"] == "mw_test"
+        assert data[0]["reason"] == "test_reason"
+        assert "timestamp" in data[0]
 
-    with open(temp_project_structure["pairing_log"], 'r') as f:
-        data = json.load(f)
+    def test_log_multiple_mismatches_appends(self, clean_logs):
+        """Test that logging multiple mismatches appends to the file."""
+        log_data_pairing_mismatch(
+            sample_id="TEST_001",
+            expression_source="geo_test",
+            metabolite_source="mw_test",
+            reason="reason1"
+        )
+        log_data_pairing_mismatch(
+            sample_id="TEST_002",
+            expression_source="geo_test",
+            metabolite_source="mw_test",
+            reason="reason2"
+        )
 
-    assert len(data) == 2
-    assert data[0]["sample_id"] == "s1"
-    assert data[1]["sample_id"] == "s2"
+        with open(DATA_PAIRING_LOG, 'r', encoding='utf-8') as f:
+            data = json.load(f)
 
-def test_get_pairing_log_stats(temp_project_structure):
-    """Test getting pairing log statistics."""
-    # Initially empty
-    stats = logging_utils.get_pairing_log_stats()
-    assert stats["total_mismatches"] == 0
+        assert len(data) == 2
+        assert data[0]["sample_id"] == "TEST_001"
+        assert data[1]["sample_id"] == "TEST_002"
 
-    # Add some data
-    logging_utils.log_data_pairing_mismatch("s1", "e1", "m1", "reason_a")
-    logging_utils.log_data_pairing_mismatch("s2", "e2", "m2", "reason_a")
-    logging_utils.log_data_pairing_mismatch("s3", "e3", "m3", "reason_b")
+    def test_batch_logging(self, clean_logs):
+        """Test batch logging of mismatches."""
+        mismatches = [
+            {"sample_id": "BATCH_001", "expression_source": "geo", "metabolite_source": "mw", "reason": "r1"},
+            {"sample_id": "BATCH_002", "expression_source": "geo", "metabolite_source": "mw", "reason": "r2"},
+            {"sample_id": "BATCH_003", "expression_source": "geo", "metabolite_source": "mw", "reason": "r3"}
+        ]
+        log_data_pairing_mismatches_batch(mismatches)
 
-    stats = logging_utils.get_pairing_log_stats()
-    assert stats["total_mismatches"] == 3
-    assert stats["by_reason"]["reason_a"] == 2
-    assert stats["by_reason"]["reason_b"] == 1
+        stats = get_pairing_log_stats()
+        assert stats["total_mismatches"] == 3
+        assert stats["unique_sample_ids"] == 3
 
-def test_log_zero_variance_feature(temp_project_structure):
-    """Test logging a single zero-variance feature."""
-    logging_utils.log_zero_variance_feature(
-        gene_id="AT1G01010",
-        variance=0.0,
-        reason="zero_variance"
-    )
+    def test_get_pairing_log_stats_empty(self, clean_logs):
+        """Test stats when no log exists."""
+        stats = get_pairing_log_stats()
+        assert stats["total_mismatches"] == 0
+        assert stats["unique_sample_ids"] == 0
+        assert stats["reason_counts"] == {}
 
-    assert temp_project_structure["filtering_log"].exists()
+    def test_get_pairing_log_stats_populated(self, clean_logs):
+        """Test stats when log has entries."""
+        log_data_pairing_mismatch("S1", "E", "M", "reason1")
+        log_data_pairing_mismatch("S2", "E", "M", "reason1")
+        log_data_pairing_mismatch("S3", "E", "M", "reason2")
 
-    with open(temp_project_structure["filtering_log"], 'r') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
+        stats = get_pairing_log_stats()
+        assert stats["total_mismatches"] == 3
+        assert stats["unique_sample_ids"] == 3
+        assert stats["reason_counts"]["reason1"] == 2
+        assert stats["reason_counts"]["reason2"] == 1
 
-    assert len(rows) == 1
-    assert rows[0]["gene_id"] == "AT1G01010"
-    assert rows[0]["reason"] == "zero_variance"
-    assert "timestamp" in rows[0]
 
-def test_log_zero_variance_features_batch(temp_project_structure):
-    """Test logging a batch of zero-variance features."""
-    features = [
-        {"gene_id": "AT1G01010", "variance": 0.0, "reason": "zero_variance"},
-        {"gene_id": "AT1G01020", "variance": 1e-15, "reason": "low_variance"}
-    ]
+class TestZeroVarianceFeature:
+    """Tests for zero-variance feature logging functions."""
 
-    logging_utils.log_zero_variance_features_batch(features)
+    def test_log_single_feature_creates_file(self, clean_logs):
+        """Test that logging a single feature creates the CSV file."""
+        log_zero_variance_feature(
+            gene_id="AT1G01010",
+            variance=0.0,
+            reason="zero_variance"
+        )
 
-    with open(temp_project_structure["filtering_log"], 'r') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
+        assert FEATURE_FILTERING_LOG.exists()
 
-    assert len(rows) == 2
-    assert rows[0]["gene_id"] == "AT1G01010"
-    assert rows[1]["gene_id"] == "AT1G01020"
+        with open(FEATURE_FILTERING_LOG, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
 
-def test_get_filtering_log_stats(temp_project_structure):
-    """Test getting filtering log statistics."""
-    # Initially empty
-    stats = logging_utils.get_filtering_log_stats()
-    assert stats["total_filtered"] == 0
+        assert len(rows) == 1
+        assert rows[0]["gene_id"] == "AT1G01010"
+        assert rows[0]["variance"] == "0.00e+00"
+        assert rows[0]["reason"] == "zero_variance"
 
-    # Add some data
-    logging_utils.log_zero_variance_feature("g1", 0.0, "reason_a")
-    logging_utils.log_zero_variance_feature("g2", 0.0, "reason_a")
-    logging_utils.log_zero_variance_feature("g3", 1e-12, "reason_b")
+    def test_log_multiple_features_appends(self, clean_logs):
+        """Test that logging multiple features appends to the file."""
+        log_zero_variance_feature("AT1G01010", 0.0, "zero_variance")
+        log_zero_variance_feature("AT1G01020", 1e-15, "near_zero")
 
-    stats = logging_utils.get_filtering_log_stats()
-    assert stats["total_filtered"] == 3
-    assert stats["by_reason"]["reason_a"] == 2
-    assert stats["by_reason"]["reason_b"] == 1
+        with open(FEATURE_FILTERING_LOG, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
 
-def test_append_to_existing_pairing_log(temp_project_structure):
-    """Test that new entries are appended to existing log."""
-    # Write initial data
-    initial_data = [{"sample_id": "initial", "expression_source": "e", "metabolite_source": "m", "reason": "r"}]
-    with open(temp_project_structure["pairing_log"], 'w') as f:
-        json.dump(initial_data, f)
+        assert len(rows) == 2
+        assert rows[0]["gene_id"] == "AT1G01010"
+        assert rows[1]["gene_id"] == "AT1G01020"
 
-    # Add new entry
-    logging_utils.log_data_pairing_mismatch("new", "e", "m", "r")
+    def test_batch_logging(self, clean_logs):
+        """Test batch logging of zero-variance features."""
+        features = [
+            {"gene_id": "AT1G01010", "variance": 0.0, "reason": "zero"},
+            {"gene_id": "AT1G01020", "variance": 1e-15, "reason": "near_zero"},
+            {"gene_id": "AT1G01030", "variance": 5e-11, "reason": "low"}
+        ]
+        log_zero_variance_features_batch(features)
 
-    with open(temp_project_structure["pairing_log"], 'r') as f:
-        data = json.load(f)
+        stats = get_filtering_log_stats()
+        assert stats["total_filtered"] == 3
+        assert stats["unique_genes"] == 3
 
-    assert len(data) == 2
-    assert data[0]["sample_id"] == "initial"
-    assert data[1]["sample_id"] == "new"
+    def test_get_filtering_log_stats_empty(self, clean_logs):
+        """Test stats when no log exists."""
+        stats = get_filtering_log_stats()
+        assert stats["total_filtered"] == 0
+        assert stats["unique_genes"] == 0
+        assert stats["reason_counts"] == {}
 
-def test_append_to_existing_filtering_log(temp_project_structure):
-    """Test that new entries are appended to existing log."""
-    # Write initial data with header
-    initial_data = "gene_id,variance,reason,timestamp\ng1,0.0,zero_variance,2023-01-01T00:00:00\n"
-    with open(temp_project_structure["filtering_log"], 'w') as f:
-        f.write(initial_data)
+    def test_get_filtering_log_stats_populated(self, clean_logs):
+        """Test stats when log has entries."""
+        log_zero_variance_feature("G1", 0.0, "reason1")
+        log_zero_variance_feature("G2", 0.0, "reason1")
+        log_zero_variance_feature("G3", 0.0, "reason2")
 
-    # Add new entry
-    logging_utils.log_zero_variance_feature("g2", 0.0, "zero_variance")
+        stats = get_filtering_log_stats()
+        assert stats["total_filtered"] == 3
+        assert stats["unique_genes"] == 3
+        assert stats["reason_counts"]["reason1"] == 2
+        assert stats["reason_counts"]["reason2"] == 1
 
-    with open(temp_project_structure["filtering_log"], 'r') as f:
-        reader = csv.DictReader(f)
-        rows = list(reader)
+    def test_variance_formatting(self, clean_logs):
+        """Test that variance is formatted in scientific notation."""
+        log_zero_variance_feature("AT1G01010", 1.23e-15, "test")
 
-    assert len(rows) == 2
-    assert rows[0]["gene_id"] == "g1"
-    assert rows[1]["gene_id"] == "g2"
+        with open(FEATURE_FILTERING_LOG, 'r', encoding='utf-8') as f:
+            reader = csv.DictReader(f)
+            rows = list(reader)
+
+        # Check that variance is in scientific notation
+        assert "e" in rows[0]["variance"] or "E" in rows[0]["variance"]

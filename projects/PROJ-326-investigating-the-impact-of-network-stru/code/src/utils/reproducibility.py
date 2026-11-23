@@ -1,138 +1,75 @@
-import json
+"""
+Utilities for reproducibility: seed management, run ID generation, and data directory handling.
+"""
 import os
-import random
-from datetime import datetime
+import uuid
+from datetime import datetime, timezone
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
-
-from .logging import log_run, get_run_log, clear_run_log
-from .config import load_config
-
-def ensure_data_directory(data_dir: Optional[Union[str, Path]] = None) -> Path:
-    """Ensure the data directory exists."""
-    if data_dir is None:
-        # Default to project root data/
-        project_root = Path(__file__).resolve().parents[2]
-        data_dir = project_root / "data"
-    else:
-        data_dir = Path(data_dir)
-    
-    data_dir.mkdir(parents=True, exist_ok=True)
-    return data_dir
+from typing import Optional
 
 def generate_run_id() -> str:
-    """Generate a unique run ID based on timestamp and random component."""
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    random_component = random.randint(1000, 9999)
-    return f"{timestamp}_{random_component}"
+    """
+    Generate a unique run ID based on timestamp and a UUID.
+    Format: YYYYMMDD_HHMMSS_uuid4
+    """
+    timestamp = datetime.now(timezone.utc).strftime("%Y%m%d_%H%M%S")
+    unique_id = str(uuid.uuid4())[:8]
+    return f"{timestamp}_{unique_id}"
 
-def inject_seed_to_log(
-    seed: int,
-    data_dir: Optional[Union[str, Path]] = None,
-    run_id: Optional[str] = None,
-    metadata: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+def ensure_data_directory(file_path: Path) -> None:
     """
-    Inject specific random seeds used during a run into data/run_log.json.
-    
-    This function ensures reproducibility by recording the seed used for a specific run
-    directly into the run log, rather than updating the global config.yaml.
-    
-    Args:
-        seed: The random seed value to inject.
-        data_dir: Optional path to the data directory. Defaults to project/data.
-        run_id: Optional specific run ID. If None, a new one is generated.
-        metadata: Optional additional metadata to include with the seed entry.
-        
-    Returns:
-        The updated run log entry for this seed injection.
+    Ensure the directory for the given file path exists.
     """
-    # Ensure data directory exists
-    data_path = ensure_data_directory(data_dir)
-    log_file = data_path / "run_log.json"
-    
-    # Generate or use provided run ID
-    if run_id is None:
-        run_id = generate_run_id()
-    
-    # Prepare the seed entry
-    entry = {
-        "run_id": run_id,
-        "seed": seed,
-        "timestamp": datetime.now().isoformat(),
-        "source": "seed_injection",
-        "metadata": metadata or {}
-    }
-    
-    # Initialize random generators with the seed
+    directory = file_path.parent
+    if not directory.exists():
+        directory.mkdir(parents=True, exist_ok=True)
+
+def set_global_seed(seed: int) -> None:
+    """
+    Set global random seeds for reproducibility.
+    This function should be called at the start of any script.
+    """
+    import random
+    import numpy as np
+    try:
+        import torch
+        torch.manual_seed(seed)
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed_all(seed)
+    except ImportError:
+        pass # PyTorch not installed
+
     random.seed(seed)
-    
-    # Log the entry using the logging infrastructure
-    # This will append to the run_log.json file
-    log_run(entry)
-    
-    return entry
+    np.random.seed(seed)
 
-def get_latest_run_seed(data_dir: Optional[Union[str, Path]] = None) -> Optional[int]:
+def inject_seed_to_log(log_path: Path, seed_info: dict) -> None:
     """
-    Retrieve the seed from the most recent run in the log.
+    Inject seed information into an existing run log.
     
     Args:
-        data_dir: Optional path to the data directory.
-        
-    Returns:
-        The seed integer if found, None otherwise.
+        log_path: Path to the run log JSON file.
+        seed_info: Dictionary containing seed information to inject.
     """
-    data_path = ensure_data_directory(data_dir)
-    log_file = data_path / "run_log.json"
+    import json
     
-    if not log_file.exists():
-        return None
+    ensure_data_directory(log_path)
     
-    try:
-        log_data = get_run_log(data_path)
-        if not log_data:
-            return None
+    if log_path.exists():
+        with open(log_path, 'r') as f:
+            try:
+                data = json.load(f)
+            except json.JSONDecodeError:
+                data = []
+    else:
+        data = []
+    
+    if not isinstance(data, list):
+        data = []
         
-        # Find the most recent entry that contains a seed
-        for entry in reversed(log_data):
-            if "seed" in entry:
-                return entry["seed"]
-                
-        return None
-    except (json.JSONDecodeError, KeyError):
-        return None
-
-def verify_reproducibility(
-    expected_seed: int,
-    data_dir: Optional[Union[str, Path]] = None,
-    run_id: Optional[str] = None
-) -> bool:
-    """
-    Verify that a specific seed was recorded in the run log.
+    data.append({
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "seeds": seed_info
+    })
     
-    Args:
-        expected_seed: The seed value to verify.
-        data_dir: Optional path to the data directory.
-        run_id: Optional specific run ID to check.
-        
-    Returns:
-        True if the seed was found in the log, False otherwise.
-    """
-    data_path = ensure_data_directory(data_dir)
-    log_file = data_path / "run_log.json"
-    
-    if not log_file.exists():
-        return False
-    
-    try:
-        log_data = get_run_log(data_path)
-        
-        for entry in log_data:
-            if entry.get("seed") == expected_seed:
-                if run_id is None or entry.get("run_id") == run_id:
-                    return True
-                    
-        return False
-    except (json.JSONDecodeError, KeyError):
-        return False
+    with open(log_path, 'w') as f:
+        json.dump(data, f, indent=2)

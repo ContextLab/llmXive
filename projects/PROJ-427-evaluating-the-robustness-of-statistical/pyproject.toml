@@ -1,11 +1,39 @@
+# pyproject.toml – Project metadata and tool configuration
+#
+# This file defines the build system requirements and configures the
+# Black code formatter. Linting tools (ruff, flake8) use their own
+# dedicated configuration files (.ruff.toml and .flake8).
+#
+# For more information on the format, see https://peps.python.org/pep-0518/
 [build-system]
-requires = ["setuptools", "wheel"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "proj-427-evaluating-robustness-of-statistical"
+version = "0.1.0"
+description = "Evaluating the robustness of statistical methods to common data errors."
+authors = [{name = "Your Name", email = "you@example.com"}]
+requires-python = ">=3.11"
+# Core dependencies – the full list is defined in requirements.txt,
+# but we also declare them here for completeness.
+dependencies = [
+    "pandas",
+    "numpy",
+    "scipy",
+    "statsmodels",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
+    "pytest",
+]
+
 [tool.black]
+# Black formatting configuration – line length must match the linting tools.
 line-length = 88
-target-version = ["py38"]
+target-version = ["py311"]
 include = '\.pyi?$'
+# Exclude typical non‑source directories.
 exclude = '''
 /(
     \.git
@@ -17,12 +45,11 @@ exclude = '''
   | buck-out
   | build
   | dist
+  | data
+  | results
+  | state
+  | docs
 )/
 '''
-
-[tool.ruff]
-line-length = 88
-select = ["E", "F", "W", "C90"]
-ignore = []
-exclude = ["__init__.py", "setup.py"]
-target-version = "py38"
+# Use the default Black behavior (no string normalization, no trailing commas for
+# single‑line collections, etc.). Adjust if project conventions differ.

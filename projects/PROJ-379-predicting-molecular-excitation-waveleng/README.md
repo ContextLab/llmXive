@@ -1,113 +1,180 @@
-# Predicting Molecular Excitation Wavelengths from SMILES with Graph Neural Networks
+# PROJ-379: Predicting Molecular Excitation Wavelengths with Graph Neural Networks
 
-This project implements a pipeline to predict molecular excitation wavelengths ($\lambda_{max}$) from SMILES strings using Graph Neural Networks (GNNs). It follows a rigorous scientific protocol including data ingestion, scaffold-based splitting, model training, and statistical validation.
-
-## Prerequisites
-
-- Python 3.9+
-- 7GB+ RAM (CPU-only execution)
-- pip and virtual environment tools
+## Overview
+This project implements a pipeline to predict molecular excitation wavelengths (λmax) from SMILES strings using Graph Neural Networks (GNNs) and baseline models. The pipeline ingests real UV-Vis spectral data, processes it into scaffold-split datasets, trains models on CPU, and performs rigorous statistical evaluation including power analysis and feature attribution.
 
 ## Quickstart
 
 ### 1. Environment Setup
 
-Create a virtual environment and install dependencies:
-
 ```bash
+# Create virtual environment
 python -m venv venv
 source venv/bin/activate # On Windows: venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-**Dependencies**:
-- `rdkit==2023.9.5`
-- `torch==2.1.0+cpu`
-- `torch-geometric==2.4.0`
-- `pandas==2.1.0`
-- `scikit-learn==1.3.0`
-- `numpy==1.24.0`
-- `pyyaml==6.0.1`
-- `pytest==7.4.0`
-- `datasets` (for HuggingFace dataset loading)
+### 2. Data Ingestion and Preprocessing
 
-### 2. Data Fetching
-
-The pipeline automatically fetches real UV-Vis spectral data from the HuggingFace dataset `zjunlp/UV-Vis-ML` during the ingestion step. No manual download is required.
-
-To verify the data directory structure:
+Run the full data pipeline to fetch real UV-Vis data from PubChem/SDBS, process molecules, and generate scaffold splits:
 
 ```bash
-python code/create_dirs.py
-```
-
-This ensures `data/raw/`, `data/processed/`, `code/`, `tests/`, and `docs/` exist.
-
-### 3. Running the Pipeline End-to-End
-
-Execute the full pipeline in sequence:
-
-```bash
-# Step 1: Ingest and validate data
+# Fetch and process data
 python code/ingest.py
 
-# Step 2: Split data by scaffold
+# Validate data integrity
+python code/validate_data.py
+
+# Generate scaffold splits
 python code/split.py
 
-# Step 3: Train GNN and Baseline models
-python code/train.py
-
-# Step 4: Evaluate and compute metrics
-python code/evaluate.py
-
-# Step 5: Generate feature attribution and sensitivity analysis
-python code/explain.py
-python code/sensitivity.py
+# Merge data with splits
+python code/merge_split.py
 ```
 
-### 4. Outputs
+**Output**: `data/processed/cleaned.csv`, `data/processed/split_indices.json`, `data/processed/train_val_test.csv`
 
-After successful execution, check the following artifacts:
+### 3. Model Training
 
-- `data/raw/processed.csv`: Cleaned molecular data with SMILES, $\lambda_{max}$, and scaffold IDs.
-- `data/processed/metrics.json`: Performance metrics (MAE, R², Wilcoxon p-value, SC-001 status).
-- `data/processed/redundancy_masks.json`: Collinearity flags and redundancy masks.
-- `data/processed/attribution_results.json`: Feature attribution results.
-- `model.pt`: Trained GNN model weights.
-
-### 5. Testing
-
-Run the test suite to verify implementation:
+Train the GNN model and baseline on CPU:
 
 ```bash
-pytest tests/ -v
+python code/train.py
 ```
+
+**Output**: `data/processed/model.pt`, `data/processed/timing.json`
+
+### 4. Evaluation and Metrics
+
+Evaluate model performance and compute statistical metrics:
+
+```bash
+python code/evaluate.py
+```
+
+**Output**: `data/processed/metrics_partial.json`, `data/processed/power_analysis.json`
+
+### 5. Feature Attribution and Sensitivity Analysis
+
+Analyze feature importance and perform sensitivity sweeps:
+
+```bash
+# Check collinearity and generate redundancy masks
+python code/collinearity_check.py
+
+# Compute raw attribution
+python code/explain.py
+
+# Apply masks to attribution
+python code/apply_mask.py
+
+# Run sensitivity sweep
+python code/sensitivity.py
+
+# Generate sensitivity report
+python code/generate_sensitivity_report.py
+```
+
+**Output**: `data/processed/redundancy_masks.json`, `data/processed/raw_attribution.json`, `data/processed/masked_attribution.json`, `data/processed/sensitivity_report.csv`
+
+### 6. Aggregate Results
+
+Generate the final metrics summary:
+
+```bash
+python code/analyze_results.py
+```
+
+**Output**: `data/processed/metrics.json`
+
+## Interpreting `metrics.json`
+
+The final `metrics.json` file contains the complete evaluation results:
+
+```json
+{
+ "mae": 25.3,
+ "r2": 0.82,
+ "wilcoxon_p_value": 0.003,
+ "confidence_interval_95": [15.2, 35.4],
+ "sc001_status": "PASS",
+ "collinearity_flags": {
+ "ecfp_correlation": false,
+ "gnn_similarity": false
+ },
+ "redundancy_masks": {
+ "molecule_1": [0, 1, 0,...],
+ "molecule_2": [1, 0, 0,...]
+ },
+ "power_status": {
+ "n": 150,
+ "effect_size": 0.65,
+ "power_status": "ADEQUATE"
+ },
+ "attribution_results": {
+ "top_contributing_atoms": [...],
+ "masked_weights": [...]
+ }
+}
+```
+
+### Key Fields Explained
+
+- **`mae`**: Mean Absolute Error in nanometers. Lower is better. Success threshold: < 30 nm.
+- **`r2`**: Coefficient of determination. Higher is better (closer to 1.0).
+- **`wilcoxon_p_value`**: p-value from Wilcoxon signed-rank test comparing GNN vs baseline. < 0.05 indicates significant improvement.
+- **`confidence_interval_95`**: 95% confidence interval for the MAE difference between models.
+- **`sc001_status`**: "PASS" if p < 0.05 AND MAE < 30 nm; otherwise "FAIL".
+- **`collinearity_flags`**: Indicates whether ECFP bits or GNN subgraphs show high correlation (>0.9).
+- **`redundancy_masks`**: Binary masks applied to attribution weights to remove spurious contributions from redundant substructures.
+- **`power_status`**: Test set size (n), effect size (Cohen's d), and whether power is adequate (n ≥ 50).
+- **`attribution_results`**: Final masked attribution weights identifying molecular substructures contributing to λmax predictions.
 
 ## Project Structure
 
 ```
-.
-├── code/ # Implementation scripts
-│ ├── ingest.py # Data ingestion from HuggingFace
-│ ├── split.py # Scaffold-based splitting
-│ ├── model.py # GNN and Baseline definitions
+projects/PROJ-379-predicting-molecular-excitation-waveleng/
+├── code/
+│ ├── ingest.py # Data ingestion from PubChem/SDBS
+│ ├── validate_data.py # Data validity checks
+│ ├── split.py # Scaffold splitting
+│ ├── merge_split.py # Merge data with splits
+│ ├── model.py # GNN and baseline models
 │ ├── train.py # Training loop
-│ ├── evaluate.py # Evaluation and statistical tests
+│ ├── evaluate.py # Evaluation and statistics
+│ ├── collinearity_check.py # Collinearity detection
 │ ├── explain.py # Feature attribution
+│ ├── apply_mask.py # Apply redundancy masks
 │ ├── sensitivity.py # Sensitivity analysis
-│ ├── utils.py # RDKit helpers and logging
+│ ├── generate_sensitivity_report.py # Report generation
+│ ├── analyze_results.py # Aggregate final metrics
+│ ├── timing_logger.py # Pipeline timing
+│ ├── utils.py # Utility functions
+│ ├── models.py # Pydantic data models
 │ └──...
 ├── data/
-│ ├── raw/ # Raw and processed datasets
-│ └── processed/ # Intermediate and final artifacts
-├── tests/ # Unit and integration tests
+│ ├── raw/ # Raw downloaded data
+│ └── processed/ # Cleaned data, splits, models, metrics
+├── tests/ # Test suite
 ├── docs/ # Documentation
 ├── requirements.txt # Dependencies
 └── README.md # This file
 ```
 
-## Notes
+## Requirements
 
-- All computations are CPU-only to ensure compatibility with constrained environments.
-- The pipeline enforces a minimum test set size of 50 molecules for statistical power. [UNRESOLVED-CLAIM: c_838e26cd — status=not_enough_info]
-- Scaffold splitting ensures no data leakage between train, validation, and test sets.
+- Python 3.9+
+- CPU-only execution (no GPU required)
+- Memory: ≤7GB RAM
+- Time: ≤6 hours for full pipeline
+
+## Data Sources
+
+- **Primary**: PubChem and SDBS (Spectral Database for Organic Compounds)
+- **Secondary**: HuggingFace `zjunlp/UV-Vis-ML` dataset (fallback only)
+
+## License
+
+MIT License

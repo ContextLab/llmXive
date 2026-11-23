@@ -1,0 +1,189 @@
+- artifact_path: projects/PROJ-177-investigating-the-validity-of-the-equipa/docs/methodology_notes.md
+  attempts: 1
+  canonical: Energy dissipation in granular gases occurs primarily through inelastic
+    collisions
+  claim_id: c_ff9e30e8
+  context: 'Collisional Proxy: In granular gases, energy dissipation occurs primarily
+    through inelastic collisions. The variance of acceleration serves as a robust
+    statistical proxy for the intensity of these impulsive events.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Energy_dissipation_in_granular_gases_occurs_primarily_throug
+  kind: entity_fact
+  raw_text: In granular gases, energy dissipation occurs primarily through inelastic
+    collisions.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:55:51Z'
+- artifact_path: projects/PROJ-177-investigating-the-validity-of-the-equipa/docs/methodology_notes.md
+  attempts: 1
+  canonical: Variance of acceleration correlates with second moment of velocity fluctuations
+  claim_id: c_957f5a6a
+  context: "Since a \u221D \u0394v, the variance of acceleration correlates with the\
+    \ second moment of velocity fluctuations, providing a localized measure of non-thermal\
+    \ agitation."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Variance_of_acceleration_correlates_with_second_moment_of_ve
+  kind: entity_fact
+  raw_text: The variance of acceleration correlates with the second moment of velocity
+    fluctuations.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:57:07Z'
+- artifact_path: projects/PROJ-177-investigating-the-validity-of-the-equipa/docs/methodology_notes.md
+  attempts: 1
+  canonical: Goldhirsch I Rapid Granular Flows Annual Review of Fluid Mechanics 35
+    267-293 2003
+  claim_id: c_e8256144
+  context: 'Reference: Goldhirsch, I. (2003). Rapid Granular Flows. Annual Review
+    of Fluid Mechanics, 35, 267-293. (Concept of granular temperature and fluctuation
+    energy).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Goldhirsch, I. (2003). Rapid Granular Flows. Annual Review of Fluid Mechanics,
+    35, 267-293.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T01:57:15Z'
+- artifact_path: projects/PROJ-177-investigating-the-validity-of-the-equipa/specs/001-investigating-the-validity-of-the-equipa/tasks.md
+  attempts: 1
+  canonical: log warning and set gap_flag column if gap exceeds threshold
+  claim_id: c_aa9a25a1
+  context: 'Implement code/ingestion.py function to handle missing frames via linear
+    interpolation or flagging (Edge Case: missing frames).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_warning_and_set_gap_flag_column_if_gap_exceeds_threshold
+  kind: entity_fact
+  raw_text: If a gap exceeds the configured threshold, log a warning and set a gap_flag
+    column.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T02:09:06Z'
+- artifact_path: projects/PROJ-177-investigating-the-validity-of-the-equipa/specs/001-investigating-the-validity-of-the-equipa/tasks.md
+  attempts: 1
+  canonical: vibrational energy equals mass times variance of acceleration
+  claim_id: c_c898ff6b
+  context: Implement code/ingestion.py function to calculate E_trans, E_rot, E_pot,
+    and E_vib using independent physics formulas. E_vib uses the mass-scaled variance-of-acceleration
+    definition from T018b.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Vibrational_energy_equals_mass_times_variance_of_acceleratio
+  kind: entity_fact
+  raw_text: E_vib = m * var(a)
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T02:13:12Z'
+- artifact_path: projects/PROJ-177-investigating-the-validity-of-the-equipa/specs/001-investigating-the-validity-of-the-equipa/tasks.md
+  attempts: 1
+  canonical: exclude segments where frequency variance exceeds 5% of mean
+  claim_id: c_04d70b1b
+  context: 'Handle non-stationary (chirped) driving signals: compute instantaneous
+    frequency via Hilbert transform, generate artifacts/chirp_mask.csv flagging segments
+    where frequency variance > 5% of the mean.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Exclude flagged segments from downstream analysis where frequency variance
+    > 5% of the mean.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T02:13:12Z'
+- artifact_path: projects/PROJ-177-investigating-the-validity-of-the-equipa/specs/001-investigating-the-validity-of-the-equipa/tasks.md
+  attempts: 1
+  canonical: raise DataExclusionWarning if more than 20% of frames in a time window
+    are excluded
+  claim_id: c_2e96696a
+  context: Implement code/ingestion.py function verify_chirp_segments to explicitly
+    count the number of frames excluded due to the chirp_mask.csv (from T029) and
+    log the percentage of total data lost.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Raise_DataExclusionWarning_if_more_than_20%25_of_frames_in_a_t
+  kind: magnitude
+  raw_text: If >20% of frames in a specific time window are excluded, raise a DataExclusionWarning
+    and flag the bin in artifacts/exclusion_report.json.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T02:13:19Z'
+- artifact_path: projects/PROJ-177-investigating-the-validity-of-the-equipa/specs/001-investigating-the-validity-of-the-equipa/tasks.md
+  attempts: 1
+  canonical: log warning and flag model fit if Variance Inflation Factor exceeds 5
+  claim_id: c_72870c0e
+  context: Implement code/regression.py function check_multicollinearity to calculate
+    the Variance Inflation Factor (VIF) for the frequency and roughness predictors.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 5, log a warning in artifacts/regression_diagnostics.json and
+    flag the model fit as potentially unstable.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T02:13:19Z'
+- artifact_path: projects/PROJ-177-investigating-the-validity-of-the-equipa/specs/001-investigating-the-validity-of-the-equipa/tasks.md
+  attempts: 1
+  canonical: ensure no chi-squared bin has expected count less than 5
+  claim_id: c_3bfb1ab6
+  context: Implement code/stats.py function calculate_effective_bins to dynamically
+    adjust Chi-squared bin counts based on the n_samples reported in T057, ensuring
+    no bin has an expected count < 5.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_no_chi-squared_bin_has_expected_count_less_than_5
+  kind: magnitude
+  raw_text: Ensure no bin has an expected count < 5.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T02:13:42Z'
+- artifact_path: projects/PROJ-177-investigating-the-validity-of-the-equipa/specs/001-investigating-the-validity-of-the-equipa/tasks.md
+  attempts: 1
+  canonical: verify regression coefficients match within 1% tolerance
+  claim_id: c_cca2726c
+  context: 'Independent Test: Run regression on synthetic dataset with known slope/intercept;
+    verify calculated coefficients match within 1% tolerance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify calculated coefficients match within 1% tolerance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-08T02:13:42Z'

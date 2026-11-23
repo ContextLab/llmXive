@@ -2,138 +2,117 @@ $schema: "http://json-schema.org/draft-07/schema#"
 title: "Validation Report Schema"
 type: "object"
 properties:
-  dataset_stats:
+  mae:
+    type: "number"
+    description: "Mean Absolute Error on the validation set."
+  pearson_r:
+    type: "number"
+    description: "Pearson correlation coefficient between predicted and observed PC_raw."
+  spearman_rho:
+    type: "number"
+    description: "Spearman rank correlation coefficient."
+  shapiro_wilk_stat:
+    type: "number"
+    description: "Shapiro-Wilk test statistic for residual normality."
+  shapiro_wilk_p:
+    type: "number"
+    description: "Shapiro-Wilk test p-value."
+  permutation_test:
     type: "object"
     properties:
-      total_records:
+      n_shuffles:
         type: "integer"
-      train_records:
-        type: "integer"
-      val_records:
-        type: "integer"
-    required:
-      - total_records
-      - train_records
-      - val_records
-  model_metrics:
-    type: "object"
-    properties:
-      baseline:
-        type: "object"
-        properties:
-          mae:
-            type: "number"
-          pearson_r:
-            type: "number"
-          spearman_rho:
-            type: "number"
-          permutation_p_value:
-            type: "number"
-          description: "Two-sided p-value from conditional test (1k or 10k shuffles)"
-        required:
-          - mae
-          - pearson_r
-          - spearman_rho
-          - permutation_p_value
-      control_3d_only:
-        type: "object"
-        properties:
-          mae:
-            type: "number"
-          pearson_r:
-            type: "number"
-          spearman_rho:
-            type: "number"
-        required:
-          - mae
-          - pearson_r
-          - spearman_rho
-      upper_bound:
-        type: "object"
-        properties:
-          mae:
-            type: "number"
-          pearson_r:
-            type: "number"
-          spearman_rho:
-            type: "number"
-        required:
-          - mae
-          - pearson_r
-          - spearman_rho
-    required:
-      - baseline
-      - control_3d_only
-      - upper_bound
-  robustness_analysis:
-    type: "object"
-    properties:
-      thresholds:
-        type: "array"
-        items:
-          type: "object"
-          properties:
-            threshold:
-              type: "number"
-            pearson_r:
-              type: "number"
-            permutation_p_value:
-              type: "number"
-            bonferroni_corrected_p:
-              type: "number"
-          required:
-            - threshold
-            - pearson_r
-            - permutation_p_value
-            - bonferroni_corrected_p
-    required:
-      - thresholds
-  diagnostics:
-    type: "object"
-    properties:
-      max_vif:
+        const: 10000
+      p_value:
         type: "number"
-        description: "Maximum Variance Inflation Factor"
-      vif_flags:
+        description: "Two-sided p-value from permutation test."
+      actual_shuffles:
+        type: "integer"
+        description: "Actual number of shuffles performed (may be < 10000 if timeout occurred)."
+    required:
+      - n_shuffles
+      - p_value
+      - actual_shuffles
+  bonferroni_correction:
+    type: "object"
+    properties:
+      alpha_initial:
+        type: "number"
+        const: 0.05
+      n_tests:
+        type: "integer"
+        const: 3
+      alpha_corrected:
+        type: "number"
+      is_significant:
+        type: "boolean"
+    required:
+      - alpha_initial
+      - n_tests
+      - alpha_corrected
+      - is_significant
+  vif_diagnostics:
+    type: "object"
+    properties:
+      flagged_features:
         type: "array"
         items:
           type: "string"
-        description: "List of features with VIF > 5"
-      partial_corr:
+        description: "List of features with VIF > 5."
+      max_vif:
         type: "number"
-        description: "Partial correlation controlling for composition"
-      shapiro_wilk_p:
-        type: "number"
-        description: "Shapiro-Wilk p-value on CAPE residuals"
-      residual_spearman_rho:
-        type: "number"
-        description: "Spearman's rho on CAPE residuals"
     required:
+      - flagged_features
       - max_vif
-      - vif_flags
-      - partial_corr
-      - shapiro_wilk_p
-      - residual_spearman_rho
-  success_criteria:
+  sensitivity_analysis:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        threshold:
+          type: "number"
+        spearman_rho:
+          type: "number"
+        mae:
+          type: "number"
+        p_value:
+          type: "number"
+      required:
+        - threshold
+        - spearman_rho
+        - mae
+        - p_value
+    description: "Results of the threshold sweep {0.5, 0.6, 0.7}."
+  residual_analysis:
     type: "object"
     properties:
-      sc_001_met:
-        type: "boolean"
-      sc_002_met:
-        type: "boolean"
-      sc_003_met:
-        type: "boolean"
-      sc_004_met:
+      correlation_with_composition:
+        type: "number"
+        description: "Correlation of model residuals with atom‑type composition."
+    required:
+      - correlation_with_composition
+  target_distribution:
+    type: "object"
+    properties:
+      shapiro_stat:
+        type: "number"
+      shapiro_p:
+        type: "number"
+      is_normal:
         type: "boolean"
     required:
-      - sc_001_met
-      - sc_002_met
-      - sc_003_met
-      - sc_004_met
+      - shapiro_stat
+      - shapiro_p
+      - is_normal
 required:
-  - dataset_stats
-  - model_metrics
-  - robustness_analysis
-  - diagnostics
-  - success_criteria
-additionalProperties: false
+  - mae
+  - pearson_r
+  - spearman_rho
+  - shapiro_wilk_stat
+  - shapiro_wilk_p
+  - permutation_test
+  - bonferroni_correction
+  - vif_diagnostics
+  - sensitivity_analysis
+  - residual_analysis
+  - target_distribution

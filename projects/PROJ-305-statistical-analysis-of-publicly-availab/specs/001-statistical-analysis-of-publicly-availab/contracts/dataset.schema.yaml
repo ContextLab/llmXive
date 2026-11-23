@@ -14,7 +14,7 @@ properties:
     description: "MedDRA System Organ Class code."
   SOC_NAME:
     type: string
-    description: "Human-readable name of the System Organ Class."
+    description: "Human‑readable name of the System Organ Class."
   REPT_DATE:
     type: string
     format: date

@@ -1,2 +1,1 @@
-# This directory stores raw data files downloaded from external sources (e.g., NIST, Materials Project).
-# Do not modify these files directly.
+# This file ensures the directory is tracked by git.

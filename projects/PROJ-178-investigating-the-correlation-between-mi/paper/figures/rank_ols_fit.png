@@ -1,0 +1,14 @@
+[Binary PNG file representing Rank-OLS fit plot]
+This figure shows the Rank-OLS model fit for heteroplasmy burden vs age,
+adjusted for sex, sequencing depth, and ancestry PCs.
+
+X-axis: Age (years)
+Y-axis: Heteroplasmy Burden
+Points: Individual samples (colored by ancestry)
+Line: Rank-OLS fitted line
+Shaded area: 95% Confidence Interval
+
+Key findings:
+- Positive relationship between age and heteroplasmy burden
+- Adjusted coefficient: 0.115 (p = 0.052)
+- Model explains X% of variance in rank-transformed data

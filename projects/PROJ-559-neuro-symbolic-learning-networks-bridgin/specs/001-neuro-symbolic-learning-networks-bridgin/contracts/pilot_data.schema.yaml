@@ -1,0 +1,43 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+type: "object"
+properties:
+  pilot_id:
+    type: "string"
+    description: "Unique identifier for the pilot entry."
+  student_id:
+    type: "string"
+    description: "Unique identifier for the pilot student."
+  problem_id:
+    type: "string"
+    description: "Foreign key to the problem."
+  condition:
+    type: "string"
+    enum:
+      - "neural"
+      - "symbolic"
+      - "neuro-symbolic"
+    description: "The explanation condition."
+  correct:
+    type: "integer"
+    enum:
+      - 0
+      - 1
+    description: "Binary correctness."
+  rt_seconds:
+    type: "number"
+    minimum: 0.0
+    description: "Response time in seconds."
+  comprehension_rating:
+    type: "integer"
+    minimum: 1
+    maximum: 5
+    description: "Self-reported comprehension rating."
+required:
+  - "pilot_id"
+  - "student_id"
+  - "problem_id"
+  - "condition"
+  - "correct"
+  - "rt_seconds"
+  - "comprehension_rating"
+additionalProperties: false

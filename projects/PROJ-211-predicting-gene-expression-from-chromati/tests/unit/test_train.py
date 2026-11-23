@@ -1,95 +1,75 @@
-"""
-Unit tests for the Elastic Net training module.
-"""
 import os
 import sys
-import tempfile
 import json
-import pickle
+import tempfile
 import unittest
-import numpy as np
 import pandas as pd
+import numpy as np
+from unittest.mock import patch, MagicMock
 
-# Add project root to path
-project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-if project_root not in sys.path:
-    sys.path.insert(0, project_root)
+# Add code directory to path
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'code'))
 
-from code.train import train_elastic_net, run_training_for_cell_line
-from code.utils import load_config
+from train import load_variable_peaks, run_cross_validation, train_elastic_net
 
-class TestElasticNetTraining(unittest.TestCase):
-    
+class TestTrainElasticNet(unittest.TestCase):
+
     def setUp(self):
-        # Create a simple synthetic dataset for testing
-        np.random.seed(42)
-        n_samples = 100
-        n_features = 50
+        self.temp_dir = tempfile.TemporaryDirectory()
+        self.input_path = os.path.join(self.temp_dir.name, "test_imputed.csv")
         
-        # Generate features
-        X = np.random.randn(n_samples, n_features)
-        # Generate target with some linear relationship
-        true_coef = np.random.randn(n_features)
-        y = X @ true_coef + np.random.randn(n_samples) * 0.1
-        
-        self.X = X
-        self.y = y
-        self.temp_dir = tempfile.mkdtemp()
+        # Create a mock input file
+        # Structure: Gene_ID, CellLine_Peak1, CellLine_Peak2, CellLine_Expression
+        data = {
+            'Gene_ID': ['Gene1', 'Gene2', 'Gene3', 'Gene4', 'Gene5'],
+            'GM12878_peak_1': [1.0, 2.0, 3.0, 4.0, 5.0],
+            'GM12878_peak_2': [2.0, 3.0, 4.0, 5.0, 6.0],
+            'GM12878_expression': [10.0, 20.0, 30.0, 40.0, 50.0],
+            'K562_peak_1': [1.5, 2.5, 3.5, 4.5, 5.5],
+            'K562_peak_2': [2.5, 3.5, 4.5, 5.5, 6.5],
+            'K562_expression': [15.0, 25.0, 35.0, 45.0, 55.0]
+        }
+        df = pd.DataFrame(data)
+        df.to_csv(self.input_path, index=False)
 
     def tearDown(self):
-        # Clean up temp files if any
-        pass
+        self.temp_dir.cleanup()
 
-    def test_train_elastic_net_basic(self):
-        """Test basic training of Elastic Net."""
-        model, cv_results, scaler = train_elastic_net(self.X, self.y, alpha=0.5, cv_folds=3)
+    def test_load_variable_peaks_splits_cell_lines(self):
+        gene_ids, cell_line_features = load_variable_peaks(self.input_path)
+        
+        self.assertIn('GM12878', cell_line_features)
+        self.assertIn('K562', cell_line_features)
+        
+        gm12878_df = cell_line_features['GM12878']
+        self.assertIn('GM12878_peak_1', gm12878_df.columns)
+        self.assertIn('GM12878_peak_2', gm12878_df.columns)
+        self.assertIn('GM12878_expression', gm12878_df.columns)
+        
+        self.assertEqual(len(gene_ids), 5)
+
+    def test_run_cross_validation(self):
+        # Create simple numpy arrays
+        X = np.random.rand(100, 10)
+        y = np.random.rand(100)
+        
+        results = run_cross_validation(X, y)
+        
+        self.assertIn('mean_scores', results)
+        self.assertIn('best_alpha', results)
+        self.assertIn('mean_cv_score', results)
+        self.assertIsInstance(results['mean_scores'], list)
+        self.assertGreater(len(results['mean_scores']), 0)
+
+    def test_train_elastic_net(self):
+        X = np.random.rand(50, 5)
+        y = np.random.rand(50)
+        
+        model = train_elastic_net(X, y)
         
         self.assertIsNotNone(model)
-        self.assertEqual(model.l1_ratio, 0.5)
-        self.assertIn("best_alpha", cv_results)
-        self.assertIn("best_score", cv_results)
-        self.assertIsNotNone(scaler)
-        
-        # Check that model can predict
-        predictions = model.predict(self.X)
-        self.assertEqual(predictions.shape, self.y.shape)
-
-    def test_run_training_for_cell_line(self):
-        """Test the full training pipeline for a cell line."""
-        # Create a dummy input CSV
-        df = pd.DataFrame({
-            'gene': [f'gene_{i}' for i in range(100)],
-            'cell_line': ['GM12878'] * 100,
-            'expression': np.random.randn(100),
-            **{f'peak_{i}': np.random.randn(100) for i in range(20)}
-        })
-        
-        input_path = os.path.join(self.temp_dir, 'test_variable_peaks.csv')
-        df.to_csv(input_path, index=False)
-        
-        model_path = os.path.join(self.temp_dir, 'test_model.pkl')
-        score_path = os.path.join(self.temp_dir, 'test_scores.json')
-        
-        success = run_training_for_cell_line(
-            'GM12878', input_path, model_path, score_path
-        )
-        
-        self.assertTrue(success)
-        self.assertTrue(os.path.exists(model_path))
-        self.assertTrue(os.path.exists(score_path))
-        
-        # Check model content
-        with open(model_path, 'rb') as f:
-            model_data = pickle.load(f)
-        self.assertIn('model', model_data)
-        self.assertIn('scaler', model_data)
-        self.assertEqual(model_data['cell_line'], 'GM12878')
-        
-        # Check scores content
-        with open(score_path, 'r') as f:
-            scores = json.load(f)
-        self.assertIn('best_alpha', scores)
-        self.assertEqual(scores['cell_line'], 'GM12878')
+        self.assertTrue(hasattr(model, 'coef_'))
+        self.assertTrue(hasattr(model, 'intercept_'))
 
 if __name__ == '__main__':
     unittest.main()

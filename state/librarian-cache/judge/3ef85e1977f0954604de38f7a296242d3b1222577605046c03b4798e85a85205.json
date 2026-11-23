@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1606.03797",
+  "judged_at": "2026-07-20T00:49:50Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular surface charge distribution from quantum chemical calculations chemistry",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology reference and (a) by addressing the core mechanism of electrostatics calculations and the visualization of molecular potential surfaces, which are the direct precursors to predicting surface charge distributions. Although it focuses on clarifying visualization units rather than a specific prediction algorithm, it establishes the canonical framework for interpreting the quantum chemical outputs required for the user's task.",
+  "relevant": true
+}

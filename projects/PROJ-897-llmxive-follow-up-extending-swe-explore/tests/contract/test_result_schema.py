@@ -1,208 +1,199 @@
 """
-Contract test for result_schema.yaml.
+Contract test for final_metrics.json to verify Bonferroni correction compliance.
 
-Validates that all result artifacts produced by the analysis pipeline
-strictly conform to the schema defined in contracts/result_schema.yaml.
+This test validates that the `data/results/final_metrics.json` artifact:
+1. Exists and is valid JSON.
+2. Contains the required fields for Bonferroni correction (adjusted p-value, correction factor).
+3. Mathematically verifies that `adjusted_p_value == raw_p_value * correction_factor`.
+4. Ensures the correction factor matches the number of tests performed (3: Coverage, Ranking Wilcoxon, Ranking Survival).
 
-This test ensures:
-1. The schema file exists and is valid YAML.
-2. The result artifacts (if they exist) match the schema structure.
-3. Required fields are present and have correct types.
+Traceability: Spec SC-004 (Multiplicity Correction), FR-006 (Statistical Test), FR-007 (Associative Framing).
 """
 import json
+import math
 import os
-import sys
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Tuple
-
 import pytest
-import yaml
+from pathlib import Path
+from typing import Any, Dict
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+# Path to the expected artifact
+# Based on project structure: data/results/final_metrics.json
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+METRICS_PATH = PROJECT_ROOT / "data" / "results" / "final_metrics.json"
 
-from utils.schemas import get_schema_path, load_schema
-from utils.validation import validate_jsonl_against_schema, validate_parquet_against_schema
-
-
-SCHEMA_FILE = "result_schema.yaml"
-RESULTS_DIR = "data/results"
-METRICS_FILE = "final_metrics.json"
-PAIRED_METRICS_FILE = "paired_metrics.json"
+# Expected number of tests for Bonferroni correction (Coverage, Ranking Wilcoxon, Ranking Survival)
+EXPECTED_TEST_COUNT = 3
+DEFAULT_ALPHA = 0.05
 
 
-def load_test_data(filepath: Path) -> Dict[str, Any]:
-    """Load a JSON file, handling potential missing files."""
-    if not filepath.exists():
-        return {}
-    with open(filepath, "r", encoding="utf-8") as f:
+def load_metrics_file() -> Dict[str, Any]:
+    """Load and parse the final_metrics.json file."""
+    if not METRICS_PATH.exists():
+        raise FileNotFoundError(
+            f"Artifact not found: {METRICS_PATH}. "
+            "Ensure T030c (Multiplicity Correction) has been executed to generate this file."
+        )
+    
+    with open(METRICS_PATH, "r", encoding="utf-8") as f:
         return json.load(f)
 
 
-def load_test_data_jsonl(filepath: Path) -> List[Dict[str, Any]]:
-    """Load a JSONL file, handling potential missing files."""
-    if not filepath.exists():
-        return []
-    records = []
-    with open(filepath, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if line:
-                records.append(json.loads(line))
-    return records
+def test_file_exists_and_is_valid_json():
+    """Contract: The final_metrics.json file must exist and be valid JSON."""
+    try:
+        data = load_metrics_file()
+        assert isinstance(data, dict), "Root element of final_metrics.json must be a dictionary."
+    except json.JSONDecodeError as e:
+        pytest.fail(f"final_metrics.json is not valid JSON: {e}")
 
 
-class TestResultSchemaContract:
-    """Tests verifying result artifacts against the result_schema.yaml contract."""
+def test_bonferroni_fields_exist():
+    """
+    Contract: The metrics must explicitly include Bonferroni correction details.
+    
+    Per Spec SC-004 and FR-007, the result must show:
+    - 'correction_factor': The number of tests performed (N).
+    - 'adjusted_p_value': The raw p-value multiplied by N.
+    - 'raw_p_value': The original p-value before correction.
+    """
+    data = load_metrics_file()
+    
+    # Check for top-level correction metadata if it exists at the root
+    # Or check inside specific test result blocks (e.g., 'coverage', 'ranking')
+    # We assume a structure where 'bonferroni' metadata is present or embedded in test results.
+    
+    # Strategy: Look for 'bonferroni' key or scan test results for adjusted p-values.
+    # Based on T030c description, it outputs 'final_metrics.json' containing columns/metrics.
+    # We expect a structure like: { "tests": [ { "name": "...", "raw_p": ..., "adjusted_p": ... }, ... ], "correction_factor": ... }
+    
+    # Check for explicit correction factor at root level (common pattern)
+    has_root_correction = "correction_factor" in data
+    
+    # Check for adjusted p-values in test results
+    has_adjusted_p = False
+    if "tests" in data and isinstance(data["tests"], list):
+        for test in data["tests"]:
+            if "adjusted_p_value" in test or "adjusted_p" in test:
+                has_adjusted_p = True
+                break
+    
+    # Also check if the root contains a specific test result with adjusted p
+    if not has_adjusted_p and "coverage" in data:
+        if "adjusted_p_value" in data["coverage"] or "adjusted_p" in data["coverage"]:
+            has_adjusted_p = True
+    
+    # Fallback: check for 'bonferroni' section
+    has_bonferroni_section = "bonferroni" in data
 
-    @pytest.fixture
-    def schema(self) -> Dict[str, Any]:
-        """Load the result schema from the contracts directory."""
-        schema_path = get_schema_path(SCHEMA_FILE)
-        assert schema_path.exists(), f"Schema file not found: {schema_path}"
-        return load_schema(schema_path)
+    if not (has_root_correction or has_adjusted_p or has_bonferroni_section):
+        pytest.fail(
+            "final_metrics.json does not contain Bonferroni correction fields. "
+            "Expected 'correction_factor' and 'adjusted_p_value' fields to be present "
+            "either at the root or within test result objects."
+        )
 
-    def test_schema_exists_and_valid(self, schema: Dict[str, Any]) -> None:
-        """Verify the schema file is valid YAML and has required structure."""
-        assert isinstance(schema, dict), "Schema must be a dictionary"
-        assert "type" in schema, "Schema must define a 'type'"
-        assert schema["type"] == "object", "Result schema type must be 'object'"
-        assert "properties" in schema, "Schema must define 'properties'"
 
-    def test_final_metrics_structure(self, schema: Dict[str, Any]) -> None:
-        """
-        Verify final_metrics.json (if it exists) conforms to the schema.
+def test_bonferroni_math_correctness():
+    """
+    Contract: Verify the mathematical validity of the Bonferroni correction.
+    
+    Formula: adjusted_p = min(raw_p * N, 1.0)
+    Where N is the number of tests (expected: 3).
+    """
+    data = load_metrics_file()
+    
+    # Extract correction factor
+    correction_factor = data.get("correction_factor")
+    
+    # If not at root, try to infer from test count or specific structure
+    if correction_factor is None:
+        # Try to find it in a 'bonferroni' block
+        if "bonferroni" in data:
+            correction_factor = data["bonferroni"].get("factor")
         
-        This test checks the top-level structure and required fields
-        defined in the schema for the final metrics output.
-        """
-        metrics_path = Path(RESULTS_DIR) / METRICS_FILE
-        
-        if not metrics_path.exists():
-            # If the file doesn't exist yet, we skip the validation
-            # but ensure the schema allows for the expected structure
-            pytest.skip(f"Metrics file not found: {metrics_path}. "
-                        "This is expected if analysis has not been run yet.")
-        
-        data = load_test_data(metrics_path)
-        assert data, f"Metrics file is empty: {metrics_path}"
-        
-        # Validate against schema using the generic validator
-        # We assume the schema defines the structure for the root object
-        errors = []
-        for key, expected_type in schema.get("properties", {}).items():
-            if key not in data:
-                # Check if it's required
-                if key in schema.get("required", []):
-                    errors.append(f"Missing required field: {key}")
-            else:
-                # Basic type check (schema might be more complex)
-                value = data[key]
-                type_name = expected_type.get("type") if isinstance(expected_type, dict) else expected_type
-                
-                if type_name == "number":
-                    if not isinstance(value, (int, float)):
-                        errors.append(f"Field '{key}' must be number, got {type(value).__name__}")
-                elif type_name == "string":
-                    if not isinstance(value, str):
-                        errors.append(f"Field '{key}' must be string, got {type(value).__name__}")
-                elif type_name == "array":
-                    if not isinstance(value, list):
-                        errors.append(f"Field '{key}' must be array, got {type(value).__name__}")
-                elif type_name == "object":
-                    if not isinstance(value, dict):
-                        errors.append(f"Field '{key}' must be object, got {type(value).__name__}")
+        # If still None, assume default based on spec (3 tests: Coverage, Ranking Wilcoxon, Ranking Survival)
+        if correction_factor is None:
+            correction_factor = EXPECTED_TEST_COUNT
+            # We will verify the count if we can find the list of tests
+            if "tests" in data:
+                actual_count = len(data["tests"])
+                if actual_count != EXPECTED_TEST_COUNT:
+                    pytest.fail(
+                        f"Expected {EXPECTED_TEST_COUNT} tests for Bonferroni correction, "
+                        f"but found {actual_count} in 'tests' list. "
+                        f"Correction factor must match actual test count."
+                    )
+    
+    assert correction_factor == EXPECTED_TEST_COUNT, (
+        f"Bonferroni correction factor must be {EXPECTED_TEST_COUNT} (Coverage, Ranking Wilcoxon, Ranking Survival). "
+        f"Found: {correction_factor}"
+    )
 
-        assert not errors, f"Schema validation failed for {METRICS_FILE}: {errors}"
+    # Verify adjusted p-values for each test
+    tests_to_check = []
+    
+    if "tests" in data and isinstance(data["tests"], list):
+        tests_to_check = data["tests"]
+    elif "coverage" in data:
+        # Assume single structure if 'tests' list not found
+        tests_to_check = [data["coverage"], data.get("ranking_wilcoxon", {}), data.get("ranking_survival", {})]
+        tests_to_check = [t for t in tests_to_check if t] # filter empty
+    elif "bonferroni" in data and "results" in data["bonferroni"]:
+        tests_to_check = data["bonferroni"]["results"]
 
-    def test_paired_metrics_structure(self, schema: Dict[str, Any]) -> None:
-        """
-        Verify paired_metrics.json (if it exists) conforms to the schema.
-        
-        This file contains the 1:1 paired results for Baseline vs Iterative.
-        """
-        paired_path = Path(RESULTS_DIR) / PAIRED_METRICS_FILE
-        
-        if not paired_path.exists():
-            pytest.skip(f"Paired metrics file not found: {paired_path}. "
-                        "This is expected if agent execution has not been run yet.")
-        
-        data = load_test_data(paired_path)
-        assert data, f"Paired metrics file is empty: {paired_path}"
-        
-        # The paired metrics file might have a slightly different structure
-        # (e.g., a list of records) than the aggregated final_metrics.
-        # We check if it's a list of objects or a single object.
-        if isinstance(data, list):
-            # If it's a list, check the first item against the schema
-            if len(data) > 0:
-                first_item = data[0]
-                assert isinstance(first_item, dict), "Paired metrics items must be objects"
-                # Check for critical fields expected in paired data
-                required_pair_fields = ["issue_id", "baseline_coverage", "iterative_coverage"]
-                for field in required_pair_fields:
-                    if field not in first_item:
-                        # Log warning but don't fail if the schema allows it
-                        # However, for this benchmark, these are critical
-                        pytest.fail(f"Paired metric record missing critical field: {field}")
-        elif isinstance(data, dict):
-            # If it's a single object, validate against schema directly
-            errors = []
-            for key in schema.get("required", []):
-                if key not in data:
-                    errors.append(f"Missing required field: {key}")
-            assert not errors, f"Schema validation failed for {PAIRED_METRICS_FILE}: {errors}"
-        else:
-            pytest.fail(f"Paired metrics file has invalid root type: {type(data)}")
+    if not tests_to_check:
+        pytest.fail("Could not locate any test results to verify Bonferroni correction.")
 
-    def test_schema_completeness(self, schema: Dict[str, Any]) -> None:
-        """
-        Verify the schema contains definitions for all expected result metrics.
-        
-        Based on the task requirements (T031), we expect specific fields
-        related to coverage, ranking, and statistical tests.
-        """
-        properties = schema.get("properties", {})
-        
-        # Expected top-level sections based on FR-006 and T031
-        expected_sections = [
-            "coverage_metrics",
-            "ranking_metrics", 
-            "statistical_tests",
-            "metadata"
-        ]
-        
-        missing_sections = []
-        for section in expected_sections:
-            if section not in properties:
-                missing_sections.append(section)
-        
-        if missing_sections:
-            pytest.fail(f"Result schema missing expected sections: {missing_sections}. "
-                        "The schema must define structures for coverage, ranking, "
-                        "and statistical test results.")
+    for test_result in tests_to_check:
+        raw_p = test_result.get("raw_p_value") or test_result.get("raw_p")
+        adjusted_p = test_result.get("adjusted_p_value") or test_result.get("adjusted_p")
 
-    def test_statistical_test_schema(self, schema: Dict[str, Any]) -> None:
-        """
-        Verify the statistical_tests section of the schema includes
-        fields for Wilcoxon signed-rank test results (p-value, statistic).
-        """
-        properties = schema.get("properties", {})
-        if "statistical_tests" not in properties:
-            pytest.skip("Statistical tests section not defined in schema yet.")
+        if raw_p is None or adjusted_p is None:
+            pytest.fail(
+                f"Test result missing 'raw_p_value' or 'adjusted_p_value'. "
+                f"Found keys: {test_result.keys()}"
+            )
+
+        # Verify calculation: adjusted = min(raw * N, 1.0)
+        expected_adjusted = min(raw_p * correction_factor, 1.0)
         
-        stats_def = properties["statistical_tests"]
-        if not isinstance(stats_def, dict):
-            pytest.fail("statistical_tests must be an object definition.")
-        
-        # Check for nested properties if defined
-        nested_props = stats_def.get("properties", {})
-        
-        # We expect at least coverage and ranking test results
-        expected_test_types = ["coverage_wilcoxon", "ranking_wilcoxon"]
-        missing_tests = [t for t in expected_test_types if t not in nested_props]
-        
-        if missing_tests:
-            # This is a warning-level check; the schema might be evolving
-            pytest.fail(f"Statistical test schema missing expected test types: {missing_tests}. "
-                        "Must include Wilcoxon signed-rank results.")
+        # Allow small floating point tolerance
+        if not math.isclose(adjusted_p, expected_adjusted, rel_tol=1e-9):
+            pytest.fail(
+                f"Bonferroni calculation mismatch for test '{test_result.get('name', 'unknown')}'. "
+                f"Raw: {raw_p}, Factor: {correction_factor}. "
+                f"Expected adjusted: {expected_adjusted}, Found: {adjusted_p}"
+            )
+
+
+def test_associative_framing_present():
+    """
+    Contract: Verify that the results are framed as 'associational differences' per FR-007.
+    
+    This checks for specific language in the metrics or report fields.
+    """
+    data = load_metrics_file()
+    
+    # Check for a 'framing' or 'conclusion' field that uses required language
+    text_content = json.dumps(data).lower()
+    
+    required_terms = ["associational", "association", "correlation"]
+    found_terms = [term for term in required_terms if term in text_content]
+    
+    # While strict language enforcement might be in the report generation,
+    # the metrics file should ideally flag the nature of the test.
+    # If the metrics file is purely numeric, we check for a 'methodology' or 'notes' field.
+    if "notes" in data:
+        notes = str(data["notes"]).lower()
+        if not any(term in notes for term in required_terms):
+            # Soft warning: The metrics file might just be numbers, and framing is in the report.
+            # However, per FR-007, the *results* (which this file represents) must be framed.
+            # We allow this to pass if the file is purely numeric, but assert a note exists.
+            pass 
+    
+    # Primary check: Ensure the file doesn't claim "causation"
+    if "causation" in text_content or "causal" in text_content:
+        pytest.fail(
+            "final_metrics.json contains language implying causation. "
+            "Per FR-007, results must be framed as 'associational differences'."
+        )

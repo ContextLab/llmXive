@@ -1,2 +1,2 @@
-# This file ensures the data/raw directory is tracked by git
-.
+# This directory stores raw ingested data from external sources
+# Do not commit actual data files, only .gitkeep to preserve directory structure

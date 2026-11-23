@@ -1,255 +1,189 @@
 # Tasks: Predicting the Impact of Composition on the Vickers Hardness of Solder Alloys
 
-**Input**: Design documents from `/specs/001-predict-solder-hardness/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `specs/001-predict-solder-hardness/spec.md`, `plan.md`, `data-model.md`, `contracts/solder_dataset.schema.yaml`, prior `tasks.md` and verifier feedback.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can:
- - Be implemented independently
- - Be tested independently
- - Be delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project directory structure per implementation plan: `projects/PROJ-328-predicting-the-impact-of-composition-on-/data/`, `code/`, `tests/`, and `models/`
-- [ ] T002 Create `requirements.txt` at `projects/PROJ-328-predicting-the-impact-of-composition-on-/code/` with dependencies (PIN EXACT VERSIONS): `pandas`, `scikit-learn`, `xgboost`, `shap`, `numpy`, `matplotlib`, `pyyaml`, `requests`, `compositional`, `pdfplumber`, `pytest`, `flake8`, `black`
-- [ ] T003 Configure linting (flake8/black) and formatting tools (must run after T001)
+The goal is to deliver a fully reproducible, CPU‑only research pipeline that satisfies **all** functional requirements (FR‑001 – FR‑014) and success criteria (SC‑001 – SC‑007).  
+Each task is a concrete, unchecked work item that produces a real artifact on the free‑tier GitHub Actions runner.  Tasks are ordered to respect data flow; later tasks never depend on artifacts that are produced later.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Setup and first end‑to‑end analysis  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] **T001** [US1] **Curate a citation‑backed solder‑hardness dataset**   <!-- FAILED: unspecified --> <!-- FAILED: unspecified -->
+  *Create* `data/raw/solder_hardness_curated.csv` (real rows extracted from open‑access literature and the Materials Project, NIST, OpenAlloy) with columns `id,source_citation,source_url,alloy_family,elements,hardness_hv,hardness_unit,temperature_c,notes`.  
+  *Also create* `data/raw/curation_notes.md` documenting the literature search, per‑source record counts, and any gaps.  
+  *Compute* SHA‑256 of the CSV and write it to `data/checksums.txt`.  
+  **Verification**: CSV parses with pandas, contains ≥ 50 rows, every row has a non‑empty `source_citation` and numeric `hardness_hv`. The hash in `checksums.txt` matches the file.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] **T017** [US1] **API data fetcher**   <!-- FAILED-IN-EXECUTION: code/ingestion/api_fetcher.py exit=1 -->
+  Fetch raw composition‑hardness data from the Materials Project (or other open API) using a lightweight script `code/ingestion/api_fetcher.py`.  
+  Store the JSON response as `data/raw/api_fetched.json`.  
+  Compute SHA‑256 of this file and **append** the hash to `data/checksums.txt`.  
+  **Verification**: File exists, JSON parses, checksum line present and matches.
 
-- [X] T004 Create `code/seed.py` to pin random seeds for reproducibility (numpy, random, xgboost)
-- [ ] T005 [P] Implement data ingestion scaffolding in `code/ingestion/` with placeholder for literature aggregator
-- [ ] T006 [P] Setup `code/features/` directory structure for descriptor engineering
-- [ ] T007 Create base data models/entities (`SolderComposition`, `CompositionalDescriptor`) in `code/models/`
-- [~] T008 Configure error handling and logging infrastructure in `code/utils/`
-- [X] T009 Setup environment configuration management for paths and thresholds in `code/config.py`
+- [ ] **T018** [US1] **Aggregator helper – copy sources & ingestion status**  
+  Copy all source files (`solder_hardness_curated.csv`, `api_fetched.json`, any auxiliary CSVs) into `data/raw/` (ensuring they are present).  
+  Generate `data/raw/.ingestion_status.json` summarising each raw file (`filename`, `size_bytes`, `sha256`).  
+  Update `data/checksums.txt` to include entries for every file now in `data/raw/`.  
+  **Verification**: Status JSON lists all files, each entry’s SHA matches the line in `checksums.txt`.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] **T002** [US1] **Ingestion, cleaning & validation pipeline**  
+  Implement `code/ingestion/run_ingestion.py` that:  
+  1. Loads `data/raw/solder_hardness_curated.csv` (fails loudly if missing).  
+  2. Applies cleaning rules from `code/config.py` (`MAX_ELEMENTS=5`, composition‑sum ≥ 95 %, temperature ≈ 25 °C, HV unit conversion).  
+  3. Writes the cleaned dataset to `data/processed/solder_hardness_cleaned.csv`.  
+  4. Writes `data/processed/excluded_records.csv` with reason codes for every dropped row.  
+  5. Writes `data/processed/.ingestion_status.json` containing `threshold_status` (`N>=100`, `50<=N<100`, or `N<50`), `exact_N`, `excluded_count`, `power_limitation_warning` (null or string), `reduced_n_flag`.  
+  6. Writes `data/processed/validation_metrics.yaml` (`total_raw_records`, `passed_threshold_count`, `failed_threshold_count`, `pass_rate_percentage`).  
+  7. Writes `data/processed/validation_report.yaml` summarising the above and flagging any power‑limitation warning (FR‑001, FR‑002, SC‑004).  
+  **Verification**: Running `python -m code.ingestion.run_ingestion` produces all seven files, each conforms to its schema, and unit tests in `code/tests/test_ingestion.py` pass.
 
----
+- [ ] **T003** [US1] **Document and run the first thin end‑to‑end analysis**  
+  Add the command `python -m code.ingestion.run_ingestion` to `specs/001-predict-solder-hardness/quickstart.md`.  
+  Execute the command on a clean checkout and record in `quickstart.md` the exact `exact_N` and whether a power‑limitation warning was emitted.  
+  **Verification**: The command runs without error, produces the cleaned CSV, and the numbers recorded in the markdown match the JSON status file.
 
-## Phase 3: User Story 1 - Aggregate and validate solder hardness dataset (Priority: P1) 🎯 MVP
+- [ ] **T004** [US1] **Verify literature citations (research_verified.md)**  
+  Run the platform’s Reference‑Validator Agent on the `source_citation` fields of `data/raw/solder_hardness_curated.csv`.  
+  Write the validated list of citations (with URLs and DOI checks) to `specs/001-predict-solder-hardness/research_verified.md`.  
+  **Verification**: The file exists, contains one entry per row of the curated CSV, and each entry has a resolved DOI/URL (the verifier reports zero unresolved citations).
 
-**Goal**: Aggregate ≥100 unique solder alloy compositions with Vickers hardness from open sources into a unified dataset with validation.
-
-**Independent Test**: Execute ingestion pipeline on GitHub Actions free-tier runner and verify output dataset contains ≥100 unique compositions with non-null hardness values and complete elemental breakdowns. If 50 ≤ N < 100, verify warning is emitted.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T010 [P] [US1] Contract test for data validation schema in `tests/contract/test_data_schema.py`
-- [X] T011 [P] [US1] Integration test for ingestion pipeline in `tests/integration/test_ingestion.py`
-
-### Implementation for User Story 1
-
-- [X] T012 [US1] Implement `code/ingestion/aggregator.py` to fetch data from the 'Verified Literature Corpus' (specific PDF URLs: [list from research.md] and database endpoints: Materials Project, NIST, OpenAlloy) using `pdfplumber` and `requests` <!-- FAILED: unspecified -->
-- [X] T013 [US1] Implement data cleaning and filtering logic in `code/ingestion/cleaner.py` to:
- - Exclude alloys with >5 elements
- - Standardize hardness to HV units
- - Filter for room-temperature measurements only
- - Validate elemental composition sums to a threshold read from `code/config.py` (default 0.95, marked as provisional per spec.md FR-002 deferred status)
- - Implement random sampling logic with fixed seed (from T004) if dataset exceeds RAM limits (per FR-011)
-- [X] T014 [US1] Implement validation logic in `code/ingestion/validator.py` to check for non-null hardness and complete composition, emitting power limitation warning if 50 ≤ N < 100
-- [ ] T015 [US1] Save raw immutable data to `data/raw/solder_hardness_raw.csv` with checksums in `data/checksums.txt`
-- [ ] T016 [US1] Save validated dataset to `data/processed/solder_hardness_validated.csv`
-- [~] T017 [US1] Add logging for ingestion operations and data source citations in `code/ingestion/`
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Train and compare composition-to-hardness regression models (Priority: P2)
-
-**Goal**: Train XGBoost and linear regression models with cross-validation, bootstrap comparison, SHAP analysis, and VIF diagnostics.
-
-**Independent Test**: Run model training on validated dataset and verify cross-validation metrics (R², RMSE) are computed, VIF scores are reported, and feature importance rankings are generated.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T018 [P] [US2] Contract test for model output schema in `tests/contract/test_model_output.py`
-- [X] T019 [P] [US2] Integration test for model training pipeline in `tests/integration/test_model_training.py`
-
-### Implementation for User Story 2
-
-- [X] T020 [US2] Implement CLR transform in `code/features/transformer.py` using `compositional` library to handle closure problem; output both the transformed vector and the weight coefficients for downstream use
-- [X] T021 [US2] Implement descriptor computation in `code/features/descriptor_engine.py` to calculate weighted mean atomic mass, electronegativity variance, atomic radius variance, weighted average melting point, and valence electron concentration by: 1) Applying CLR to raw composition vector, 2) Using the resulting CLR coefficients to weight the original raw elemental property tables (NOT computing properties on log-ratios)
-- [X] T022 [US2] Implement VIF calculation in `code/features/collinearity.py` to flag predictors with VIF ≥ 5
-- [X] T023 [US2] Implement XGBoost training with grid search (≤10 combinations) in `code/models/xgboost_trainer.py`
-- [X] T024 [US2] Implement Linear Regression baseline training in `code/models/linear_trainer.py`
-- [ ] T025 [US2] Implement k-fold cross-validation for both models in `code/evaluation/cv.py`
-- [ ] T026 [US2] Implement bootstrap resampling for confidence intervals on held-out test set in `code/evaluation/bootstrap.py`
-- [ ] T027 [US2] Implement paired t-test comparison on CV folds in `code/evaluation/model_comparison.py`
-- [ ] T028 [US2] Implement SHAP value calculation and top-3 feature ranking in `code/evaluation/shap_analysis.py`
-- [ ] T029 [US2] Implement sensitivity analysis in `code/evaluation/sensitivity.py` sweeping R² thresholds over the specific set {0.3, 0.5, 0.6, 0.7} and saving the fraction of bootstrap samples exceeding each threshold to `data/processed/sensitivity_analysis.yaml` as per SC-005
-- [ ] T030 [US2] Save model artifacts, metrics, and diagnostics to `models/` and `data/processed/`
-- [ ] T031 [US2] Add associational framing warnings in ALL model outputs, visualizations, and the final report per FR-007
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] **T005** [US1] **Task‑ordering audit**  
+  Generate a JSON file `data/outputs/task_ordering_audit.json` that enumerates all tasks (T001‑T023) with their dependencies (e.g., T002 depends on T001). This aids reproducibility audits.  
+  **Verification**: The JSON is syntactically valid, lists every task ID exactly once, and each `depends_on` array references only tasks that appear earlier in the list.
 
 ---
 
-## Phase 5: User Story 3 - Generate interpretable visualizations and partial dependence plots (Priority: P3)
+## Phase 2 – Complete the study and validate its evidence  
 
-**Goal**: Generate scatter plot of predicted vs. measured hardness with error bars and partial dependence plots for top 3 features.
+- [ ] **T006** [US2] **Feature engineering: CLR transform & compositional descriptors**  
+  Extend `code/features/descriptor_engine.py` (called by `code/features/run_features.py`) to:  
+  1. Load `data/processed/solder_hardness_cleaned.csv`.  
+  2. Apply a manual Centered Log‑Ratio (CLR) transform to the elemental composition vectors (no external `compositional` package).  
+  3. Write `data/processed/clr_features.csv` (CLR columns named `clr_<element>`).  
+  4. Compute physical descriptors using `mendeleev` (weighted mean atomic mass, electronegativity variance, atomic radius variance, weighted average melting point, valence electron concentration) and write `data/processed/descriptors.csv` with a **deterministic** `transformation_hash` per record (SHA‑256 of the sorted `elements` string concatenated with a fixed parameter identifier).  
+  Include unit tests in `code/tests/test_features.py` (zero vector for a uniform composition, hand‑checked descriptor values for Sn‑3 Ag‑0.5 Cu).  
+  **Verification**: Both CSV files exist, have the same row order as the cleaned dataset, and all tests pass.
 
-**Independent Test**: Execute visualization pipeline and verify output files (scatter plot, 3 partial dependence plots) are generated with correct axis labels and units.
+- [ ] **T007** [US2] **Collinearity diagnostics (VIF)**  
+  Implement `code/features/collinearity.py` that reads the combined feature matrix (`clr_features.csv` + `descriptors.csv`) and computes Variance Inflation Factors for every predictor using `statsmodels`.  
+  Write `data/processed/vif_report.yaml` listing each predictor, its VIF score, and `is_collinear: true` for VIF ≥ 5.  
+  **Verification**: The YAML contains an entry for every column, VIF values are numeric, and at least one predictor is flagged if its VIF ≥ 5 (FR‑013, SC‑006).
 
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
+- [ ] **T008** [US2] **Model training (XGBoost & Linear Regression) with k‑fold CV**  
+  Create `code/models/train.py` that:  
+  1. Merges `clr_features.csv` and `descriptors.csv` to form X, loads `hardness_hv` as y.  
+  2. Performs an 80/20 stratified train‑test split by `alloy_family` (seed pinned in `code/seed.py`).  
+  3. Executes 5‑fold CV on the training set for both XGBoost (grid ≤ 10 combos, **CPU‑only** build) and Linear Regression.  
+  4. Writes per‑fold R² and RMSE to `data/processed/cv_results.yaml`.  
+  5. Saves the fitted models under `models/xgboost_model.pkl` and `models/linear_model.pkl`.  
+  **Verification**: The YAML contains exactly five fold entries per model, and the script runs within the free‑tier CPU budget.
 
-- [ ] T032 [P] [US3] Contract test for visualization output schema in `tests/contract/test_viz_output.py`
-- [ ] T033 [P] [US3] Integration test for visualization pipeline in `tests/integration/test_visualization.py`
+- [ ] **T019** [US2] **Null‑model baseline computation**  
+  Implement `code/evaluation/null_baseline.py` that:  
+  1. Computes the mean hardness of the training set.  
+  2. Predicts this constant value for every instance in the held‑out test set.  
+  3. Calculates R² and RMSE for these predictions.  
+  4. Writes `data/processed/null_baseline.yaml` with `r2_score` and `rmse_score`.  
+  5. Appends a dedicated entry `null_model` to `data/processed/cv_results.yaml` for easy downstream comparison.  
+  **Verification**: The YAML files exist and contain numeric values; a sanity check confirms R² ≤ 0.
 
-### Implementation for User Story 3
+- [ ] **T009** [US2] **Bootstrap evaluation, test‑set predictions & model comparison**  
+  Implement `code/evaluation/evaluate.py` that:  
+  1. Loads the held‑out test set, generates predictions with both models, writes `data/processed/predictions.csv`.  
+  2. Performs ≥ 1000 bootstrap resamples of the test set to compute 95 % confidence intervals for R² and RMSE; store in `data/processed/test_metrics.yaml`.  
+  3. Runs a paired t‑test on the 5‑fold CV scores (XGBoost vs Linear) and writes `data/processed/paired_ttest_results.yaml`.  
+  4. Executes a bootstrap model‑comparison (difference of R² distributions) and writes `data/processed/bootstrap_comparison.yaml`.  
+  **Verification**: All four files exist, numeric fields are present, and bootstrap CI bounds enclose the point estimates.
 
-- [ ] T034 [US3] Implement scatter plot generation in `code/visualization/scatter.py` with 95% CI error bars
-- [ ] T035 [US3] Implement partial dependence plot generation in `code/visualization/pdp.py` for top 3 SHAP-ranked features
-- [ ] T036 [US3] Implement sensitivity analysis plot in `code/visualization/sensitivity_plot.py`
-- [ ] T037 [US3] Save all plots to `data/outputs/` with correct labels and units
-- [ ] T038 [US3] Add axis labels, titles, and legends to all visualizations
+- [ ] **T010** [US2] **SHAP feature‑importance ranking**  
+  Create `code/evaluation/shap_analysis.py` that computes SHAP values for the XGBoost model on the test set, aggregates mean absolute SHAP per feature, and writes `data/processed/shap_ranking.yaml` (sorted, top‑3 flagged).  
+  **Verification**: The YAML lists every predictor, includes `mean_abs_shap_value` and `rank`, and the top‑3 entries are later used by the PDP task.
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] **T011** [US2] **Sensitivity analysis (R² threshold sweep)**  
+  Implement `code/evaluation/sensitivity.py` that reads the best CV R² from `cv_results.yaml`, defines thresholds `np.linspace(0.0, best_r2, 11)`, and for each threshold computes the fraction of bootstrap test‑set R² samples exceeding it.  
+  Write `data/processed/sensitivity_analysis.yaml` (threshold‑fraction pairs) and `data/outputs/sensitivity_plot.png` (threshold on x‑axis, fraction on y‑axis).  
+  **Verification**: The YAML contains ≥ 5 points, fractions are monotonic decreasing, and the plot has correctly labeled axes.
 
----
+- [ ] **T012** [US3] **Visualizations: predicted‑vs‑measured scatter & partial dependence plots**  
+  Implement `code/visualization/plots.py` that:  
+  1. Reads `predictions.csv` and creates `data/outputs/pred_vs_measured.png` (scatter with 95 % CI error bars, HV units).  
+  2. Generates three partial dependence plots for the top‑3 SHAP features (`data/outputs/pdp_<feature>.png`).  
+  **Verification**: All PNG files open without error, have axis labels (`Hardness (HV)`, `Predicted Hardness (HV)`, feature names) and appropriate legends.
 
-## Phase N: Polish & Cross-Cutting Concerns
+- [ ] **T013** [US2] **Final report generation (associational framing & limitations)**  
+  Write `code/evaluation/generate_report.py` that aggregates: `.ingestion_status.json`, `test_metrics.yaml`, `paired_ttest_results.yaml`, `bootstrap_comparison.yaml`, `vif_report.yaml`, `shap_ranking.yaml`, `sensitivity_summary.yaml`.  
+  Produce `data/processed/final_report.yaml` containing: all summary metrics, `associational_framing_warning`, any power‑limitation warning, and a `limitations` block stating that only compositional effects are modeled and thermal‑history effects are not captured.  
+  **Verification**: The YAML validates against a simple schema (all keys present, numeric values match upstream files), and the warning strings are exactly as required (FR‑007).
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] **T023** [US2] **Aggregated final report assembly**  
+  Implement `code/evaluation/aggregate_final_report.py` that:  
+  1. Reads `data/raw/.ingestion_status.json`, `data/processed/final_report.yaml`, and `data/processed/null_baseline.yaml`.  
+  2. Merges these sections into a single human‑readable YAML `data/processed/final_aggregated_report.yaml`.  
+  3. Writes a concise Markdown summary `specs/001-predicting-the-impact-of-composition-on/results.md` (see Phase 3).  
+  **Verification**: The aggregated YAML exists, contains keys `ingestion_status`, `model_performance`, `null_baseline`, and passes a sanity‑check script.
 
-- [ ] T039 [P] Documentation updates in `README.md` and `docs/`
-- [ ] T040 Code cleanup and refactoring
-- [ ] T041 Performance optimization to ensure <6h runtime on free-tier
-- [ ] T042 [P] Additional unit tests in `tests/unit/`
-- [ ] T043 Run quickstart.md validation
-- [ ] T044 Verify all tasks respect CPU-only constraints (no CUDA, no GPU, no 8-bit quantization)
-- [ ] T045 Verify dataset size handling (sampling logic implemented in T013)
+- [ ] **T014** [US2] **Compute‑feasibility audit**  
+  Implement `code/evaluation/verify_runtime.py` that runs the entire pipeline from T001 to T013 on the real curated dataset, measures wall‑clock time, peak RAM, and total disk usage of `data/` + `models/`.  
+  Write `data/processed/runtime_report.yaml` with fields `total_runtime_seconds`, `peak_ram_gb`, `total_disk_gb`, and a boolean `within_budget`.  
+  **Verification**: The report shows `within_budget: true` (≤ 6 h, ≤ 7 GB RAM, ≤ 14 GB disk) on the free‑tier runner; if any limit is exceeded the report includes the offending value.
 
----
+- [ ] **T020** [US2] **CPU‑only environment verification**  
+  Run a script `code/evaluation/check_cpu_xgboost.py` that imports `xgboost`, inspects `xgboost.__config__` (or equivalent) to confirm it contains `'cpu'` and does **not** contain `'gpu'`.  
+  Write `data/processed/cpu_check.yaml` with `cpu_only: true/false`.  
+  The task fails (non‑zero exit) if `cpu_only` is false, causing the pipeline to abort.  
+  **Verification**: The YAML exists and reports `cpu_only: true`.
 
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel (except T003 which depends on T001)
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data validation schema in tests/contract/test_data_schema.py"
-Task: "Integration test for ingestion pipeline in tests/integration/test_ingestion.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement data cleaning and filtering logic in code/ingestion/cleaner.py"
-Task: "Implement validation logic in code/ingestion/validator.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
+- [ ] **T021** [US2] **Schema validation of cleaned dataset**  
+  Use `jsonschema` to validate `data/processed/solder_hardness_cleaned.csv` (converted to JSON records) against `specs/001-predicting-the-impact-of-composition-on/contracts/solder_dataset.schema.yaml`.  
+  Write `data/processed/schema_validation.yaml` with `valid: true/false` and an optional `errors` list.  
+  **Verification**: The file reports `valid: true`; any failure aborts the pipeline.
 
 ---
 
-## Notes
+## Phase 3 – Reproducible results and paper handoff  
 
-- [P] tasks = different files, no dependencies (except T003 which depends on T001)
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: All data must be real (no fabrication); all models must run on CPU-only; all datasets must be sampled if needed to fit available system memory
+- [ ] **T015** [US2] **Methods & results markdown (results.md)**  
+  Write `specs/001-predicting-the-impact-of-composition-on/results.md` that:  
+  * Summarises dataset size, provenance (from `curation_notes.md`), and power‑limitation status.  
+  * Presents model comparison (CV R²/RMSE, paired t‑test, bootstrap comparison, **null‑model baseline**).  
+  * Lists SHAP top‑3 features, VIF flags, and sensitivity‑analysis outcomes.  
+  * Embeds figure references (`pred_vs_measured.png`, `pdp_*.png`, `sensitivity_plot.png`).  
+  * Includes the associational framing warning and limitations verbatim from `final_report.yaml`.  
+  **Verification**: All referenced artifact paths exist, and the markdown can be rendered without broken links.
+
+- [ ] **T016** [US2] **Full reproducibility re‑run & verification**  
+  Update `specs/001-predicting-the-impact-of-composition-on/quickstart.md` with the complete workflow command chain (ingestion → features → training → evaluation → visualization → report → aggregation).  
+  Execute the chain from a clean checkout, ensuring:  
+  * All unit tests in `code/tests/` pass.  
+  * Every artifact listed in `results.md` is regenerated and matches the previously recorded checksum (store a `data/checksums_final.txt` containing SHA‑256 of each final artifact).  
+  * Record the outcome (“re‑run successful, all checksums identical”) in `results.md`.  
+  **Verification**: The checksum file contains entries for every final artifact, and a script `code/evaluation/check_reproducibility.py` confirms exact matches.
+
+---  
+
+### Dependency & Requirement Coverage  
+
+| Spec Requirement | Satisfying Task(s) |
+|------------------|--------------------|
+| FR‑001 / FR‑002 / SC‑004 | T001 → T002 → T003 |
+| FR‑003 / FR‑014 | T006 |
+| FR‑013 / SC‑006 | T007 |
+| FR‑004 / FR‑010 | T008 |
+| FR‑005 / SC‑001 / SC‑002 | T009 + **T019** (null baseline) |
+| FR‑006 / SC‑003 | T010 |
+| FR‑009 / SC‑005 | T011 |
+| FR‑007 | T013, T015 |
+| FR‑010 / FR‑011 / FR‑012 / SC‑007 | T014 + **T020** (CPU‑only check) |
+| FR‑030 (schema) | **T021** |
+| US‑001 | T001‑T003 |
+| US‑002 | T006‑T012 |
+| US‑003 | T012 |
+| Edge‑case handling (N < 50, >5 elements, unit conversion) | T002, T014 |
+| Data‑hygiene & checksums | **T017**, **T018**, T005 |
+| Final aggregated report | **T023** |
+
+Execution order (chronological):  
+T017 → T001 → T018 → T002 → T003 → T004 → T005 → T006 → T007 → T008 → T019 → T009 → T010 → T011 → T012 → T013 → T023 → T014 → T020 → T021 → T015 → T016.  
+
+All tasks remain unchecked; the verifier will run them, confirm artifact existence and correctness, and then allow the boxes to be ticked.  

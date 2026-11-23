@@ -1,52 +1,71 @@
-# Implementation Plan: llmXive follow-up: extending "EvalVerse" with CPU-tractable Feature Distillation
+# Implementation Plan: VLM Proxy Dimension Mimicry & Bias Characterization
 
-**Branch**: `001-llmxive-feature-distillation` | **Date**: 2026-07-11 | **Spec**: `specs/001-llmxive-feature-distillation/spec.md`
-**Input**: Feature specification from `/specs/001-llmxive-feature-distillation/spec.md`
+**Branch**: `PROJ-899-vlm-proxy-mimicry` | **Date**: 2026-07-12 | **Spec**: `specs/001-llmxive-follow-up-extending-evalverse-pi/spec.md`
 
 ## Summary
-
-This feature implements a CPU-tractable pipeline to evaluate the sufficiency of low-level visual and audio features (optical flow, HOG, histograms, spectral centroids) in predicting **human expert-annotated cinematic quality dimensions** from the EvalVerse dataset. The system will train regularized linear and shallow tree-based models to map these features to **human expert sub-dimension scores** (the ground truth), calculating Pearson/Spearman correlations with bootstrapped confidence intervals. Dimensions failing to meet a correlation threshold (lower 95% CI < 0.70) will be flagged as "VLM-required," while those exceeding 0.85 will be "feature-sufficient." A preliminary validation step (FR-009) confirms that any optional VLM proxy aligns with human experts (r ≥ 0.70), but the main study always uses human expert scores as the target variable. A sensitivity analysis of thresholds, baseline comparisons (Mean Predictor, Shuffled Features), memory/time profiling for GitHub Actions constraints, and permutation-based multiple-comparison correction ensure methodological rigor.
+This plan implements a CPU-tractable pipeline to determine which **VLM-generated scores** in the **verified VLM proxy datasets** (VLM_SingleAction2, vlm_split, vlmsareblind) are predictable by low-level features (optical flow, audio). The study explicitly reframes the goal as **"VLM Bias Characterization"** (measuring the extent to which VLM scores rely on low-level cues) rather than "Human Viability," acknowledging that the ground truth is VLM output and that the datasets contain **action-based** scores, not "cinematic dimensions." The approach calculates Pearson/Spearman correlations with bootstrapped 95% CIs using `scipy.stats.bootstrap`, validates against Mean/Shuffled baselines, and performs a full sensitivity analysis on the correlation threshold. All execution is constrained to a limited number of CPU cores, ~7GB RAM, and 6 hours, utilizing streaming for dataset access. The sample size N is dynamically determined by the available clips in the verified datasets.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
-**Primary Dependencies**: `opencv-python` (CPU-only), `librosa`, `scikit-learn`, `xgboost` (CPU build), `pandas`, `numpy`, `scipy`, `psutil` (for memory profiling).
-**Storage**: Local filesystem (`data/raw`, `data/processed`), CSV/Parquet for intermediate results.
-**Testing**: `pytest` for unit tests of feature extraction and model logic; integration tests for pipeline execution on sample data.
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 vCPU, ~7GB RAM).
-**Project Type**: Data science research pipeline / CLI tool.
-**Performance Goals**: Process N=10,000 clips within 6 hours; peak memory < 7GB; per-clip inference < 1.8 seconds (derived from 6h/10k).
-**Constraints**: No GPU/CUDA; no heavy LLM inference; strict adherence to 7GB RAM limit; all random seeds pinned.
-**Scale/Scope**: A large-scale collection of video clips (EvalVerse subset); A set of low-level features per clip will be extracted.
-
-> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase.
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `datasets` (streaming), `scipy` (bootstrap), `pandas`, `numpy`, `scikit-learn`, `librosa` (audio), `opencv-python` (video), `pyarrow`, `statsmodels` (FDR), `tracemalloc`.  
+**Storage**: Local scratch space for streaming shards; `data/processed/` for final artifacts (CSV/JSON).  
+**Testing**: `pytest` with contract validation against YAML schemas.  
+**Target Platform**: GitHub Actions Free Tier (Linux, 2 vCPU, ~7GB RAM).  
+**Project Type**: Data Analysis Pipeline / CLI Tool.  
+**Performance Goals**: Process **all available clips (N = dynamic)** within 6 hours; Peak RAM < 6.5GB (safety margin).  
+**Constraints**: CPU-only (no CUDA); Streaming mode mandatory; No hardcoded metrics (all derived from real computation); **No synthetic data**.  
+**Scale/Scope**: Verified VLM proxy datasets (N determined at runtime, expected to be within a moderate range); Dimensions discovered dynamically (Action-based).
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*Gates determined based on constitution file:*
 
-| Principle | Status | Action / Justification |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates `requirements.txt` with pinned versions, pinned random seeds in `code/`, and immutable data fetching from canonical sources or local cache with checksums. |
-| **II. Verified Accuracy** | **PASS** | EvalVerse is sourced via manual user download and verified by local SHA-256 checksumming upon first download. The checksum is recorded in `state/projects/.../artifact_hashes` as the source of truth for data integrity. This satisfies Principle II's requirement for verified, immutable data without requiring a public URL. A script (`scripts/checksum_data.py`) formalizes this verification process. VLM reference scores (if used for validation only, per FR-009) are sourced from EvalVerse metadata or optional external sources; no fabricated URLs are used. |
-| **III. Data Hygiene** | **PASS** | Plan mandates checksumming raw data (EvalVerse local download via SHA-256), preserving raw files, and writing derived data to new filenames with documented derivation steps. |
-| **IV. Single Source of Truth** | **PASS** | Plan structures output so all figures/stats in the final report trace back to specific rows in `data/processed` generated by `code/`. |
-| **V. Versioning Discipline** | **PASS** | Plan requires content hashes for all artifacts with automated updates to project state. Mechanism: A pre-commit hook and GitHub Actions workflow (`.github/workflows/versioning.yml`) computes SHA-256 hash for every artifact upon change, updates `state/projects/.../artifact_hashes` with the new hash and ISO 8601 timestamp, and increments the project's `updated_at` field. This is enforced automatically on every commit. |
-| **VI. Low-Level Feature Fidelity** | **PASS** | The entire scope is defined by the correlation of hand-crafted features (FR-001, FR-002) against **human expert ground truth** (not VLM proxy), with explicit flags for "feature-sufficient" vs "VLM-required" based on the 0.85/0.70 thresholds. |
-| **VII. Resource-Constrained Validation** | **PASS** | Plan includes FR-006 (memory/time profiling) and explicitly targets the 2-core/7GB environment, flagging any model exceeding these limits as non-viable. |
+1.  **Reproducibility (Principle I)**:
+    *   **Action**: `requirements.txt` will pin exact versions. All scripts will accept a `--seed` argument (default `42`).
+    *   **Action**: External data fetched via `datasets.load_dataset(..., streaming=True, trust_remote_code=True)` from verified HuggingFace URLs only.
+    *   **Action**: No random data generation; all results derived from the real verified dataset stream.
+
+2.  **Verified Accuracy (Principle II)**:
+    *   **Action**: **All citations in `plan.md` and `research.md` will strictly reference the "Verified datasets" block provided in the prompt.** No fabricated URLs.
+    *   **Action**: The plan explicitly acknowledges the "VLM Mimicry" nature of the study and does not claim human ground truth.
+    *   **Action**: A pre-commit check will scan `plan.md` for any URLs not in the verified block.
+
+3.  **Data Hygiene (Principle III)**:
+    *   **Action**: Raw data is never modified. Derived artifacts (`correlations.csv`, `baseline_results.csv`, etc.) are written to `data/processed/` with new filenames.
+    *   **Action**: PII scan will be run on `data/` artifacts before commit.
+
+4.  **Single Source of Truth (Principle IV)**:
+    *   **Action**: `data/processed/dimension_viability.csv` will be the *only* source for the "VLM-Reliance-High" classification. The paper generation step will read directly from this file.
+    *   **Action**: The `confidence` column in the data model is handled explicitly: "low" confidence (CI lower < 0.85 but point estimate > 0.85) results in a classification of "VLM-Reliance-Low" or "Ambiguous", **not** "feature-sufficient". This ensures the binary classification logic remains unambiguous.
+
+5.  **Versioning Discipline (Principle V)**:
+    *   **Action**: The pipeline will compute SHA-256 hashes for every input shard and output file, recording them in `state/.../artifact_hashes`.
+
+6.  **Low-Level Feature Fidelity (Principle VI)**:
+    *   **Action**: Correlation logic explicitly separates "optical flow magnitude" from "audio spectral centroid".
+    *   **Action**: The threshold is applied *only* to the calculated Pearson r, not hardcoded in decision logic without the calculation.
+
+7.  **Resource-Constrained Validation (Principle VII)**:
+    *   **Action**: `src/data/profiles.py` will implement memory tracking (`tracemalloc`) per clip.
+    *   **Action**: If a single clip exceeds 50MB RAM, the pipeline will abort with a "Constraint Violation" error.
 
 ## Project Structure
 
 ### Documentation (this feature)
 
 ```text
-specs/001-llmxive-feature-distillation/
+specs/001-llmxive-follow-up-extending-evalverse-pi/
 ├── plan.md              # This file
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output (generated later)
+└── contracts/           # Phase 1 output
+    ├── correlation_result.schema.yaml
+    ├── baseline_result.schema.yaml
+    ├── permutation_result.schema.yaml
+    ├── profiling_result.schema.yaml
+    └── viability_result.schema.yaml
 ```
 
 ### Source Code (repository root)
@@ -54,43 +73,137 @@ specs/001-llmxive-feature-distillation/
 ```text
 src/
 ├── data/
-│   ├── download.py           # Validates local EvalVerse data (checksumming)
-│   ├── preprocess.py         # Extracts low-level features (OpenCV, Librosa)
-│   └── profiles.py           # Memory/time profiling logic; populates FeatureVector.memory_peak
+│   ├── loader.py          # Streaming dataset loading
+│   ├── profiles.py        # Memory/CPU profiling logic (outputs profiling_logs.json)
+│   └── extractors.py      # Optical flow, audio feature extraction
 ├── models/
-│   ├── train.py              # Trains Ridge/Lasso/XGBoost models against human expert scores
-│   ├── evaluate.py           # Calculates correlations, CIs, sensitivity analysis, baseline comparisons
-│   └── metrics.py            # Helper for bootstrapping, stability checks, permutation tests, multiple-comparison correction
-├── reports/
-│   └── generate.py           # Generates final summary tables and flags
+│   ├── metrics.py         # Correlation, bootstrap, permutation tests, FDR
+│   └── evaluate.py        # Baseline calculations (Mean, Shuffled)
 ├── cli/
-│   └── run_pipeline.py       # Main entry point for the full pipeline
-├── config.py                 # Constants, seeds, thresholds (0.70, 0.85)
-└── utils.py                  # Logging, error handling, file I/O
-
-scripts/
-├── checksum_data.py          # Computes and records SHA-256 checksum for EvalVerse data
+│   └── run_pipeline.py    # Orchestration: Load -> Extract -> Correlate -> Report
+├── reports/
+│   └── generate.py        # Final viability report generation
+└── utils/
+    └── config.py          # Seed, threshold, and path configuration
 
 tests/
-├── contract/                 # Validates against YAML schemas
-├── integration/              # Runs full pipeline on a 10-clip sample
-└── unit/                     # Tests feature extraction (synthetic video/audio)
+├── contract/
+│   └── test_schemas.py    # Validates output CSVs against YAML schemas
+├── integration/
+│   └── test_pipeline.py   # End-to-end small sample run
+└── unit/
+    └── test_metrics.py    # Unit tests for bootstrap logic
 
-.github/
-└── workflows/
-    └── versioning.yml        # Automated content-hash computation and state update for Principle V
+data/
+├── raw/                   # (Empty, streaming only)
+└── processed/
+    ├── scores.csv                 # Input: VLM scores (extracted from stream)
+    ├── correlations.csv           # Output: Correlation results
+    ├── baseline_predictions.csv   # Output: Baseline metrics (RMSE, R2)
+    ├── permutation_raw.csv        # Output: Raw permutation results
+    ├── max_t_stats.csv            # Output: Max-T aggregated stats
+    ├── permutation_results.csv    # Output: FDR corrected p-values
+    ├── dimension_viability.csv    # Output: Final classification
+    ├── profiling_logs.json        # Output: Memory/time logs
+    ├── batch_raw_logs.json        # Output: Batch processing logs
+    ├── sensitivity_matrix.json    # Output: Sensitivity analysis matrix
+    └── scaling_projection.json    # Output: Linear scaling projection
 ```
 
-**Structure Decision**: Selected Option 1 (Single project) with a modular `src/` layout. This aligns with the research nature of the project, keeping data processing, modeling, and reporting tightly coupled but separable for testing. The `cli/` directory provides a single entry point for the GitHub Actions runner.
+**Structure Decision**: Single project structure selected to minimize overhead and maximize memory efficiency for the 7GB constraint. All processing is pipelined (stream -> extract -> aggregate) to avoid holding the full dataset in memory.
 
 ## Complexity Tracking
 
 | Violation | Why Needed | Simpler Alternative Rejected Because |
 |-----------|------------|-------------------------------------|
-| **Preliminary Validation (FR-009)** | Required as a gate to validate any optional VLM proxy against human expert scores (r ≥ 0.70). If validation fails, the study halts or proceeds with human scores only. This ensures the main target variable (human expert scores) is aligned with any VLM proxy before it is used in secondary analyses. | Skipping this step risks using a flawed VLM proxy in optional secondary validations, which could confound results if the proxy is biased. |
-| **Sensitivity Analysis (FR-005)** | Required by US-3 to ensure decision boundaries are robust and not artifacts of a single cutoff. | A single-threshold analysis would fail to address the methodological soundness requirement and risk false positives in "feature-sufficient" classification. |
-| **Bootstrapping (FR-007)** | Required by US-1 to generate 95% CIs for correlation coefficients, as point estimates are insufficient for statistical rigor. | Simple standard error approximations may be unreliable for non-normal distributions of correlation coefficients in small samples. |
-| **Baseline Comparisons** | Required to contextualize the correlation of the low-level model against baselines (Mean Predictor, Shuffled Features). Without baselines, an absolute correlation value is hard to interpret and may mask insufficient predictive power. A permutation test ensures the model significantly exceeds random chance (p < 0.05). | Reporting only the low-level model's correlation could lead to false positives if the model barely exceeds random chance. |
-| **Permutation-Based Multiple-Comparison Correction** | Required because cinematic dimensions are likely correlated. Standard FDR corrections assume independence; a permutation-based FWER control accounts for observed target correlation structure. | Naive Bonferroni correction alone would be overly conservative and risk false negatives. |
-| **Human Expert Scores as Primary Target** | Required to directly answer the research question: "Do low-level features explain human expert judgments?" Using human expert scores avoids a circular validity loop where a VLM proxy (inherently high-level semantic) is used to validate low-level features. | Using VLM scores as the main target would confound the research question: low correlation would reflect VLM's reliance on semantics, not low-level feature insufficiency for human judgment. |
+| Streaming Architecture | Verified datasets may exceed 7GB RAM. | Loading the full dataset would cause OOM (Out of Memory) on the CI runner. |
+| Bootstrap (a sufficient number of resamples) | Required for robust 95% CI per FR-004/FR-007. | Asymptotic normal approximations are unreliable for small sample sizes or skewed distributions in video metrics. |
+| Permutation Test (iterations) | Required for robust significance (FR-005). | The permutation test *generates* the null distribution of p-values, which are *then* corrected using Benjamini-Hochberg. Simple p-values without permutation do not account for the multiple comparisons problem inherent in testing 15+ dimensions. |
+| Max-T Aggregation | Required for family-wise error control. | Standard FDR on raw p-values is insufficient for the specific "max-T" distribution of the permutation test. |
 
+## Phase Breakdown
+
+### Phase 0: Data Ingestion & Dimension Discovery
+- **Input**: Verified HuggingFace datasets (streaming).
+- **Action**: Scan an initial set of clips to identify unique dimension labels. (e.g., "action_type", "score_type").
+- **Output**: `data/processed/dimensions_list.json`.
+- **Constraint**: If no dimensions are found, abort.
+
+### Phase 0.5: Proxy Validation Gate (FR-009)
+- **Input**: `dimensions_list.json`.
+- **Action**: Verify that the dimensions found in the proxy data match the expected "Action" or "Score" types. If the data contains "Cinematic" dimensions (unlikely) or if the mapping is ambiguous, **ABORT** with error `PROXY_MISMATCH`.
+- **Output**: `data/processed/proxy_validation_status.json` (status: "PASS" or "ABORT").
+- **Gate**: If status is "ABORT", the pipeline stops. No correlation is run on mismatched data.
+
+### Phase 0.6: Power Analysis
+- **Input**: Expected N from Phase 0.
+- **Action**: Calculate minimum N required to detect r=0.85 with 95% power, alpha=0.05.
+- **Output**: `data/processed/power_analysis.json` (min_n, expected_n, power_status).
+- **Gate**: If expected_n < min_n, flag results as "Underpowered" in final report. This directly addresses the risk of Type II error for high thresholds.
+
+### Phase 1: Feature Extraction & Profiling
+- **Input**: Stream of video clips.
+- **Action**: Extract optical flow and audio features. Track memory/time per clip.
+- **Output**: `data/profiling_logs.json` (with `clip_id`, `artifact_hash`, `git_commit`, `seed`, `peak_memory_mb`, `processing_time_ms`).
+- **Gate**: Abort if `peak_memory_mb > 6500` or `projected_time > 5.5h`.
+
+### Phase 1.5: Linear Scaling Validation (FR-006)
+- **Input**: `profiling_logs.json` (first 100 clips).
+- **Action**: Measure average time per clip. Project total time for N clips.
+- **Output**: `data/processed/scaling_projection.json`.
+- **Gate**: If projected time > 6h, abort.
+
+### Phase 2: Correlation Analysis
+- **Input**: Extracted features and VLM scores.
+- **Action**: Calculate Pearson/Spearman correlations per dimension.
+- **Method**: `scipy.stats.bootstrap` with `method="basic"`, `n_resamples=1000`.
+- **Output**: `data/processed/correlations.csv` (columns: `dimension`, `feature_type`, `pearson_r`, `pearson_ci_lower`, `pearson_ci_upper`, `spearman_r`, `n_samples`, `p_value`).
+
+### Phase 2.5: Batch Processing (T022a)
+- **Input**: `data/processed/scores.csv` (generated from stream).
+- **Action**: Process clips in batches of a fixed size. Log timing per batch.
+- **Output**: `data/processed/batch_raw_logs.json`.
+
+### Phase 3: Baseline Validation
+- **Input**: Features and scores.
+- **Action**: Compute Mean and Shuffled baselines.
+- **Output**: `data/processed/baseline_predictions.csv` (columns: `dimension`, `predictor_type`, `rmse`, `r2`).
+- **Note**: R² must be calculated for both baselines.
+
+### Phase 4: Permutation & Sensitivity
+- **Input**: Features and scores.
+- **Action**: Run a sufficient number of permutations per dimension to ensure statistical robustness. Aggregate Max-T statistics. Apply Benjamini-Hochberg FDR correction.
+- **Output**: `data/processed/permutation_raw.csv`, `data/processed/max_t_stats.csv`, `data/processed/permutation_results.csv` (columns: `dimension`, `raw_p`, `adjusted_p`).
+- **Action**: Sweep thresholds across the full valid range.
+
+### Phase 4.5: Permutation Execution (T020a)
+- **Action**: Run 10,000 permutations. Shuffle labels, recalculate statistics, write to `data/processed/permutation_raw.csv`.
+
+### Phase 4.6: Max-T Aggregation (T020b)
+- **Action**: Aggregate Max-T statistics from permutation results. Write to `data/processed/max_t_stats.csv`.
+
+### Phase 4.7: FDR Correction (T020c)
+- **Action**: Apply `statsmodels.stats.multitest.multipletests` to p-values. Write to `data/processed/permutation_results.csv`.
+
+### Phase 5: Viability Classification & Reporting
+- **Input**: All previous outputs.
+- **Action**: Classify dimensions as "VLM-Reliance-High" or "VLM-Reliance-Low" based on threshold sweep and adjusted p-values. **Explicitly state that "Feature-Sufficient" is not claimed due to lack of human ground truth.**
+- **Action**: If `power_status` is "Underpowered", classification is "Underpowered".
+- **Action**: If `confidence` is "low" (CI lower < 0.85), classification is "VLM-Reliance-Low".
+- **Output**: `data/processed/dimension_viability.csv`, `data/processed/batch_raw_logs.json`.
+- **Action**: Generate final report via `src/reports/generate.py`.
+
+## Statistical Rigor & Limitations
+
+- **Multiple Comparisons**: Benjamini-Hochberg FDR correction applied to all p-values. Max-T aggregation used for permutation tests.
+- **Power Analysis**: If N < 30 for a dimension, the CI will be wide. The plan will flag the result as "low power" and not make a definitive "feature-sufficient" claim.
+- **Causal Claims**: None. The analysis is strictly associational (VLM Mimicry).
+- **Threshold Justification**: The 0.85 threshold is treated as a "High-Reliance" marker, not a "Human Sufficiency" cutoff. The report will show the threshold at which classification changes.
+- **Data Reality**: The sample size N is determined by the verified datasets. The "10k clips" goal is replaced by "all available clips (N = dynamic)".
+- **Winner's Curse Mitigation**: Classification requires the **lower bound** of the 95% CI to exceed the threshold. Point estimates alone are insufficient.
+
+## Compute Feasibility
+
+- **CPU-Only**: The method relies on statistical correlation and simple feature extraction (OpenCV/Librosa), which are highly optimized for CPU. No GPU is required.
+- **Streaming**: The use of `datasets` streaming ensures that even if the underlying dataset is large, the RAM usage remains constant as only one clip is processed at a time.
+- **No Fabrication**: All results are derived from the real data in the verified HuggingFace URLs. No synthetic data or "toy" datasets are used.

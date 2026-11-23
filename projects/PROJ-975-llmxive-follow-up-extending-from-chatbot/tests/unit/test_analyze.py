@@ -47,6 +47,7 @@ def test_piecewise_regression(sample_data_csv):
     assert 'breakpoint' in result
     assert 'slope_pre' in result
     assert 'slope_post' in result
+    # The breakpoint should be within the range of the data
     assert 10 <= result['breakpoint'] <= 100
 
 def test_calculate_vif(sample_data_csv):

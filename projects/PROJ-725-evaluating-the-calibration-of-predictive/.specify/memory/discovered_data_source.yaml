@@ -1,0 +1,8 @@
+status: none
+intent: OpenML UCI Boston Housing regression datasets python package dataset
+required_fields:
+- features
+- target
+cache_key: e5a4be08b0eb8308b267edfc62ea0da6bc18c5138a51963e3dc40cafc4943261
+searched_at: '2026-08-17T13:28:35.276883+00:00'
+retry_count: 1

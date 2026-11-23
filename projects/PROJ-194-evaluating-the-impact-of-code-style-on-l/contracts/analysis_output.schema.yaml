@@ -1,68 +1,63 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: AnalysisOutput
-description: Schema for the final aggregated analysis report and summary tables.
+title: Analysis Output Report
+description: Schema for the final aggregated analysis report.
 type: object
 required:
   - report_id
   - generated_at
-  - summary_statistics
+  - summary
+  - detailed_results
+  - visualizations
   - semantic_opacity_analysis
-  - correlation_analysis
-  - files_generated
 properties:
   report_id:
     type: string
-    description: Unique identifier for the final report.
+    description: Unique identifier for this report.
   generated_at:
     type: string
     format: date-time
-    description: Timestamp of report generation.
-  summary_statistics:
+    description: ISO 8601 timestamp of report generation.
+  summary:
     type: object
-    description: High-level summary of the study results.
+    description: High-level summary of findings.
     properties:
-      total_functions:
-        type: integer
-      total_variants:
+      total_variants_analyzed:
         type: integer
       total_tasks_executed:
         type: integer
-      overall_success_rate:
-        type: number
-  semantic_opacity_analysis:
-    type: object
-    description: Specific comparison results for the "Semantic Opacity" condition vs baseline.
-    properties:
-      opacity_group_mean:
-        type: number
-      baseline_group_mean:
-        type: number
-      difference:
-        type: number
-      p_value:
-        type: number
-      is_significant:
-        type: boolean
-  correlation_analysis:
-    type: object
-    description: Analysis of token count vs performance drop.
-    properties:
-      correlation_coefficient:
-        type: number
-      p_value:
-        type: number
-      description:
+      primary_finding:
         type: string
-  files_generated:
+        description: One-sentence summary of the main result.
+  detailed_results:
     type: array
-    description: List of output files produced by this analysis.
+    items:
+      $ref: "statistical_result.schema.yaml"
+    description: List of detailed statistical results per metric.
+  visualizations:
+    type: array
     items:
       type: object
       properties:
-        path:
-          type: string
         type:
           type: string
-          enum: ["pdf", "csv", "json"]
-        size_bytes:
-          type: integer
+          enum: ["interaction_plot", "bar_chart", "scatter_plot"]
+        file_path:
+          type: string
+        description:
+          type: string
+    description: List of generated visualization file paths and descriptions.
+  semantic_opacity_analysis:
+    type: object
+    description: Specific analysis comparing Semantic Opacity vs Baseline.
+    properties:
+      performance_drop_percentage:
+        type: number
+        format: float
+      statistical_significance:
+        type: boolean
+      p_value:
+        type: number
+        format: float
+      conclusion:
+        type: string
+additionalProperties: false

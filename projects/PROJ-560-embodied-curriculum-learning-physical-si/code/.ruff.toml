@@ -1,16 +1,50 @@
 [lint]
-select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "ARG"]
-ignore = ["E501", "B008"]
+# Enable pycodestyle (`E`) and Pyflakes (`F`) codes by default.
+select = ["E", "F", "I", "N", "W", "UP"]
+ignore = []
+
+# Allow autofix for all enabled rules (when `--fix` is provided).
 fixable = ["ALL"]
 unfixable = []
-dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
-allowed-confusables = []
 
-[lint.per-file-ignores]
-"code/tests/*" = ["S101"]
+# Exclude a few files from linting.
+exclude = [
+  ".bzr",
+  ".direnv",
+  ".eggs",
+  ".git",
+  ".git-rewrite",
+  ".hg",
+  ".mypy_cache",
+  ".nox",
+  ".pants.d",
+  ".pytype",
+  ".ruff_cache",
+  ".svn",
+  ".tox",
+  ".venv",
+  "__pypackages__",
+  "_build",
+  "buck-out",
+  "build",
+  "dist",
+  "node_modules",
+  "venv",
+]
+
+# Same as `per-file-ignores` but for the `lint` section.
+per-file-ignores = {}
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+# Assume Python 3.10+
+target-version = "py310"
 
 [format]
-quote-style = "double"
+# Use spaces for indentation.
 indent-style = "space"
-skip-magic-trailing-comma = false
-line-ending = "auto"
+# Use double quotes for strings.
+quote-style = "double"
+# Wrap lines at 88 characters.
+line-width = 88

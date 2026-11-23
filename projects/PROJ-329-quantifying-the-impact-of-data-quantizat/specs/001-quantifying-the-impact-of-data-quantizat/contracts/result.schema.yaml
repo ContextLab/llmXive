@@ -7,14 +7,48 @@ properties:
     type: "string"
     description: "Reference to the source waveform."
   bit_depth:
-    type: "integer"
-    description: "Bit depth used for this signal."
+    type: ["integer", "null"]
+    description: "Bit depth used for this signal (null for float64 baseline)."
   inference_method:
     type: "string"
-    enum: ["MCMC", "Fisher", "Hybrid"]
-    description: "Method used for parameter estimation."
+    enum: ["MCMC"]
+    description: "Method used for parameter estimation (uniform MCMC across all SNR ranges)."
   mean_params:
     type: "object"
+    properties:
+      chirp_mass:
+        type: "number"
+        description: "Posterior mean chirp mass (solar masses)."
+      spin:
+        type: "number"
+        description: "Posterior mean dimensionless spin (combined)."
+      distance:
+        type: "number"
+        description: "Posterior mean luminosity distance (Mpc)."
+    required: ["chirp_mass", "spin", "distance"]
+  mse:
+    type: "object"
+    properties:
+      chirp_mass:
+        type: "number"
+        description: "Mean Squared Error for chirp mass."
+      spin:
+        type: "number"
+        description: "Mean Squared Error for spin."
+      distance:
+        type: "number"
+        description: "Mean Squared Error for distance."
+    required: ["chirp_mass", "spin", "distance"]
+  convergence_status:
+    type: "string"
+    enum: ["success", "failed", "non-detection"]
+    description: "Status of the inference run."
+  snr:
+    type: "number"
+    description: "Injected Signal‑to‑Noise Ratio."
+  delta:
+    type: "object"
+    description: "Per‑parameter quantization‑induced bias (Δₖ = E_quant,ₖ − E_inst,ₖ)."
     properties:
       chirp_mass:
         type: "number"
@@ -22,22 +56,9 @@ properties:
         type: "number"
       distance:
         type: "number"
-    required: ["chirp_mass", "distance"]
-  mse:
-    type: "object"
-    properties:
-      chirp_mass:
-        type: "number"
-        description: "Mean Squared Error for chirp mass."
-      distance:
-        type: "number"
-        description: "Mean Squared Error for luminosity distance."
-    required: ["chirp_mass", "distance"]
-  convergence_status:
+    required: ["chirp_mass", "spin", "distance"]
+  data_type:
     type: "string"
-    enum: ["success", "failed", "non-detection"]
-    description: "Status of the inference run."
-  snr:
-    type: "number"
-    description: "SNR of the injected signal."
-required: ["waveform_id", "bit_depth", "mean_params", "mse", "convergence_status", "snr"]
+    enum: ["float64", "quantized"]
+    description: "Indicates whether this result corresponds to a float64 baseline or a quantized signal."
+required: ["waveform_id", "bit_depth", "inference_method", "mean_params", "mse", "convergence_status", "snr", "delta", "data_type"]

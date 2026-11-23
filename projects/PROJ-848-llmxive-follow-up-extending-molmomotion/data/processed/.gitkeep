@@ -1,0 +1,2 @@
+# Placeholder to keep data/processed/ under version control.
+# Derived artifacts (subsampled_instances.parquet, instruction_pairs.jsonl) go here.

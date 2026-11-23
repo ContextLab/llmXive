@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2210.06697",
+  "judged_at": "2026-10-21T19:10:39Z",
+  "model": "zai-org.glm-5.3",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "virtual reality exposure therapy for anxiety: a meta-analysis psychology",
+  "rationale": "The paper empirically measures anxiety induction in virtual reality environments, which is the core mechanism underlying VRET (criterion a/b) — it establishes how VR stimulus parameters drive anxiety responses, directly relevant to a literature review on VR exposure therapy for anxiety.",
+  "relevant": true
+}

@@ -1,0 +1,28 @@
+# Project directory initialization marker
+initialized_at: 2026-10-16T18:24:56.718731+00:00
+project_root: /home/runner/work/llmXive/llmXive/projects/PROJ-030-predicting-crystal-structures-from-molec
+directories:
+  - code
+  - code/ingestion
+  - code/modeling
+  - code/analysis
+  - code/utils
+  - code/execution
+  - data
+  - data/raw
+  - data/processed
+  - data/processing
+  - data/results
+  - data/validation
+  - data/models
+  - data/splits
+  - logs
+  - tests
+  - tests/unit
+  - tests/integration
+  - state/projects
+  - figures
+newly_created:
+  - data/splits
+  - state/projects
+  - figures

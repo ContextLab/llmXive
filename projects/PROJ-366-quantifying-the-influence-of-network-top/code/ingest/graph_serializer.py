@@ -1,8 +1,8 @@
 """
-Graph serializer module for saving and loading atomic graphs.
+Graph Serialization Module for User Story 1.
 
-This module handles serialization of graph data to disk with checksums
-for data integrity verification.
+Implements serialization of AtomicGraph objects to pickle files in data/processed/graphs/.
+Generates checksums for integrity verification.
 """
 import os
 import json
@@ -10,143 +10,189 @@ import pickle
 import hashlib
 import logging
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, List, Optional
 
+from config import get_config, get_paths
+from ingest.graph_builder import build_graph_from_xyz
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-def calculate_checksum(data: Dict[str, Any]) -> str:
-    """
-    Calculate SHA256 checksum for graph data.
-    
-    Args:
-        data: Graph data dictionary
-        
-    Returns:
-        Hex string of SHA256 hash
-    """
-    # Serialize to JSON with sorted keys for consistency
-    serialized = json.dumps(data, sort_keys=True).encode('utf-8')
-    return hashlib.sha256(serialized).hexdigest()
 
-def serialize_graph(
-    graph_data: Dict[str, Any],
-    output_path: Path,
-    format: str = "json"
-) -> str:
+def calculate_checksum(file_path: Path) -> str:
     """
-    Serialize a single graph to disk.
+    Calculate SHA-256 checksum of a file.
     
     Args:
-        graph_data: Graph dictionary
-        output_path: Path to save the graph
-        format: Serialization format ('json' or 'pickle')
+        file_path: Path to the file to checksum.
         
     Returns:
-        Checksum of the saved file
+        Hex digest of the SHA-256 hash.
     """
-    output_path = Path(output_path)
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+
+def serialize_graph(graph_data: Dict[str, Any], output_path: Path) -> str:
+    """
+    Serialize a single graph dictionary to a pickle file.
+    
+    Args:
+        graph_data: The graph dictionary containing nodes, edges, and metadata.
+        output_path: Path where the pickle file will be written.
+        
+    Returns:
+        The calculated checksum of the serialized file.
+        
+    Raises:
+        IOError: If the file cannot be written.
+    """
     output_path.parent.mkdir(parents=True, exist_ok=True)
     
-    checksum = calculate_checksum(graph_data)
-    
-    if format == "json":
-        with open(output_path, 'w') as f:
-            json.dump(graph_data, f, indent=2)
-    elif format == "pickle":
-        with open(output_path, 'wb') as f:
-            pickle.dump(graph_data, f)
-    else:
-        raise ValueError(f"Unsupported format: {format}")
-    
-    # Store checksum in metadata
-    graph_data["metadata"]["checksum"] = checksum
-    graph_data["metadata"]["saved_path"] = str(output_path)
-    
-    logger.info(f"Serialized graph to {output_path} (checksum: {checksum[:8]}...)")
+    with open(output_path, 'wb') as f:
+        pickle.dump(graph_data, f, protocol=pickle.HIGHEST_PROTOCOL)
+        
+    checksum = calculate_checksum(output_path)
+    logger.info(f"Serialized graph to {output_path} (Checksum: {checksum[:16]}...)")
     return checksum
 
+
 def serialize_directory_graphs(
-    graphs: List[Dict[str, Any]],
-    output_dir: Path,
-    format: str = "json"
+    raw_dir: Optional[Path] = None,
+    output_dir: Optional[Path] = None,
+    sample_ids: Optional[List[str]] = None
 ) -> Dict[str, str]:
     """
-    Serialize multiple graphs to a directory.
+    Process XYZ files from raw directory, build graphs, and serialize them.
+    
+    This function implements T015a:
+    1. Scans the raw directory for valid XYZ files (or uses provided sample_ids).
+    2. Builds atomic graphs using build_graph_from_xyz with 3.0 Angstrom cutoff.
+    3. Serializes each graph to data/processed/graphs/graph_<sample_id>.pkl.
+    4. Returns a mapping of sample_id to file_path for verification.
     
     Args:
-        graphs: List of graph dictionaries
-        output_dir: Directory to save graphs
-        format: Serialization format
+        raw_dir: Path to data/raw/ (defaults to config).
+        output_dir: Path to data/processed/graphs/ (defaults to config).
+        sample_ids: Optional list of specific sample IDs to process.
         
     Returns:
-        Dictionary mapping filenames to checksums
+        Dictionary mapping sample_id to the path of the generated pickle file.
     """
-    output_dir = Path(output_dir)
-    output_dir.mkdir(parents=True, exist_ok=True)
+    config = get_config()
+    paths = get_paths()
     
-    checksums = {}
+    if raw_dir is None:
+        raw_dir = paths['raw_data']
+    if output_dir is None:
+        output_dir = paths['processed_graphs']
+        
+    logger.info(f"Reading samples from: {raw_dir}")
+    logger.info(f"Writing serialized graphs to: {output_dir}")
     
-    for i, graph in enumerate(graphs):
-        source = graph.get("metadata", {}).get("source_file", f"graph_{i}")
-        filename = Path(source).stem + f".{format}"
-        output_path = output_dir / filename
+    # Determine which samples to process
+    xyz_files = []
+    if sample_ids:
+        for sid in sample_ids:
+            # Expect format sample_<id>.xyz
+            fname = f"sample_{sid}.xyz"
+            fpath = raw_dir / fname
+            if not fpath.exists():
+                logger.warning(f"Sample file not found: {fpath}")
+            else:
+                xyz_files.append((sid, fpath))
+    else:
+        # Scan directory
+        for f in raw_dir.glob("sample_*.xyz"):
+            sid = f.stem.replace("sample_", "")
+            xyz_files.append((sid, f))
+    
+    if not xyz_files:
+        raise FileNotFoundError(
+            f"No XYZ files found in {raw_dir}. "
+            "Ensure T013a (sample generation) has been completed."
+        )
         
-        checksum = serialize_graph(graph, output_path, format)
-        checksums[str(output_path)] = checksum
-        
-    return checksums
+    logger.info(f"Found {len(xyz_files)} XYZ files to process.")
+    
+    results = {}
+    cutoff = config.get('graph_builder', {}).get('cutoff', 3.0)
+    
+    for sample_id, xyz_path in xyz_files:
+        try:
+            logger.info(f"Building graph for sample {sample_id}...")
+            # Build graph using the existing builder
+            graph_data = build_graph_from_xyz(str(xyz_path), cutoff=cutoff)
+            
+            # Validate graph structure briefly
+            if 'nodes' not in graph_data or 'edges' not in graph_data:
+                raise ValueError(f"Invalid graph structure for {sample_id}")
+                
+            # Define output path
+            output_file = output_dir / f"graph_{sample_id}.pkl"
+            
+            # Serialize
+            checksum = serialize_graph(graph_data, output_file)
+            
+            results[sample_id] = {
+                'file': str(output_file),
+                'checksum': checksum,
+                'nodes': len(graph_data['nodes']),
+                'edges': len(graph_data['edges'])
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to process sample {sample_id}: {e}", exc_info=True)
+            raise
+            
+    logger.info(f"Successfully serialized {len(results)} graphs.")
+    return results
 
-def save_checksum_manifest(
-    checksums: Dict[str, str],
-    manifest_path: Path
-):
+
+def save_checksum_manifest(results: Dict[str, Any], manifest_path: Optional[Path] = None) -> None:
     """
-    Save a manifest of file checksums.
+    Save the checksums and metadata to a JSON manifest.
     
     Args:
-        checksums: Dictionary mapping paths to checksums
-        manifest_path: Path to save the manifest
+        results: Dictionary of results from serialize_directory_graphs.
+        manifest_path: Path to write the manifest (defaults to data/checksums.json).
     """
-    manifest_path = Path(manifest_path)
+    if manifest_path is None:
+        paths = get_paths()
+        manifest_path = paths['root'] / 'data' / 'checksums.json'
+        
     manifest_path.parent.mkdir(parents=True, exist_ok=True)
     
-    manifest_data = {
-        "version": "1.0",
-        "algorithm": "sha256",
-        "files": checksums
-    }
-    
     with open(manifest_path, 'w') as f:
-        json.dump(manifest_data, f, indent=2)
-    
+        json.dump(results, f, indent=2)
+        
     logger.info(f"Saved checksum manifest to {manifest_path}")
 
+
 def main():
-    """Main entry point for serialization script."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Serialize atomic graphs to disk")
-    parser.add_argument("--input", type=Path, required=True, help="Input directory with graph JSON files")
-    parser.add_argument("--output", type=Path, required=True, help="Output directory for serialized graphs")
-    parser.add_argument("--format", choices=["json", "pickle"], default="json", help="Serialization format")
-    parser.add_argument("--manifest", type=Path, help="Path to save checksum manifest")
-    
-    args = parser.parse_args()
-    
-    # Load graphs from input directory
-    graphs = []
-    for json_file in args.input.glob("*.json"):
-        with open(json_file, 'r') as f:
-            graphs.append(json.load(f))
-    
-    logger.info(f"Loaded {len(graphs)} graphs from {args.input}")
-    
-    # Serialize
-    checksums = serialize_directory_graphs(graphs, args.output, args.format)
-    
-    # Save manifest if requested
-    if args.manifest:
-        save_checksum_manifest(checksums, args.manifest)
+    """
+    Entry point for the graph serialization script.
+    """
+    try:
+        # Run serialization
+        results = serialize_directory_graphs()
+        
+        # Save manifest
+        save_checksum_manifest(results)
+        
+        logger.info("Graph serialization completed successfully.")
+        
+    except Exception as e:
+        logger.error(f"Serialization pipeline failed: {e}", exc_info=True)
+        raise
+
 
 if __name__ == "__main__":
     main()

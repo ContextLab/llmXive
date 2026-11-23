@@ -1,0 +1,23 @@
+# Black configuration override if needed
+# By default, Black reads from pyproject.toml
+# This file exists for IDEs that look specifically for .black.toml
+
+[tool.black]
+line-length = 100
+target-version = ['py39', 'py310', 'py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | __pycache__
+)/
+'''

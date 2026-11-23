@@ -1,15 +1,3 @@
-"""
-Artifact Hashing Utility for llmXive.
-
-This module computes cryptographic hashes (SHA-256) for all artifacts
-generated during the research pipeline to ensure reproducibility and
-integrity verification.
-
-It scans the `data/`, `data/models/`, `data/results/`, and `code/` directories
-(excluding __pycache__ and .pyc files), computes hashes, and writes a
-manifest to `state/artifact_manifest.json`.
-"""
-
 import hashlib
 import json
 import os
@@ -17,135 +5,131 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Any
 
-# Configuration relative to project root
-PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
-TARGET_DIRS = [
-    PROJECT_ROOT / "data",
-    PROJECT_ROOT / "code",
+# Configuration for artifact scanning
+ARTIFACT_DIRS = [
+    "data/raw",
+    "data/processed",
+    "data/results",
+    "data/models",
+    "src/features",
+    "src/modeling",
+    "src/intervention",
+    "src/eval",
+    "src/utils",
 ]
-OUTPUT_FILE = PROJECT_ROOT / "state" / "artifact_manifest.json"
-EXCLUDE_EXTENSIONS = {".pyc", ".pyo", ".pyd", ".so", ".dll", ".exe"}
-EXCLUDE_DIRS = {"__pycache__", ".git", ".tox", "node_modules", ".pytest_cache"}
+EXCLUDE_PATTERNS = {".git", "__pycache__", ".pyc", ".tmp", ".log"}
+MANIFEST_PATH = "state/artifact_manifest.json"
 
-def compute_file_hash(file_path: Path) -> str:
-    """
-    Compute SHA-256 hash of a file by reading it in chunks.
-    
-    Args:
-        file_path: Path to the file to hash.
-        
-    Returns:
-        Hexadecimal string of the SHA-256 hash.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        PermissionError: If the file cannot be read.
-    """
-    sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for chunk in iter(lambda: f.read(65536), b""):
-                sha256_hash.update(chunk)
-        return sha256_hash.hexdigest()
-    except FileNotFoundError:
-        raise FileNotFoundError(f"Cannot hash missing file: {file_path}")
-    except PermissionError:
-        raise PermissionError(f"Permission denied reading file: {file_path}")
 
-def scan_artifacts() -> List[Path]:
+def compute_file_hash(file_path: Path, algorithm: str = "sha256") -> str:
     """
-    Recursively scan target directories for valid artifact files.
-    
-    Returns:
-        List of Path objects for files to be hashed.
+    Compute the cryptographic hash of a file.
+    Reads in chunks to handle large files without OOM.
     """
+    hasher = hashlib.new(algorithm)
+    if not file_path.exists():
+        raise FileNotFoundError(f"Artifact file not found: {file_path}")
+
+    with open(file_path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+
+def scan_artifacts(base_dir: Path, artifact_dirs: List[str] = None) -> List[Dict[str, Any]]:
+    """
+    Recursively scan project directories for artifacts and compute their hashes.
+    Returns a list of dicts: {'path': str, 'hash': str, 'size': int, 'type': str}
+    """
+    if artifact_dirs is None:
+        artifact_dirs = ARTIFACT_DIRS
+
     artifacts = []
-    for target_dir in TARGET_DIRS:
+    base_path = Path(base_dir)
+
+    for rel_dir in artifact_dirs:
+        target_dir = base_path / rel_dir
         if not target_dir.exists():
-            print(f"Warning: Target directory does not exist, skipping: {target_dir}", file=sys.stderr)
+            # Skip non-existent directories (e.g., empty data folders)
             continue
-        
-        for root, dirs, files in os.walk(target_dir):
-            # Filter out excluded directories in-place
-            dirs[:] = [d for d in dirs if d not in EXCLUDE_DIRS]
-            
-            for file in files:
-                file_path = Path(root) / file
-                if file_path.suffix in EXCLUDE_EXTENSIONS:
+
+        for file_path in target_dir.rglob("*"):
+            if file_path.is_file():
+                # Check exclusion patterns
+                if any(exc in str(file_path) for exc in EXCLUDE_PATTERNS):
                     continue
-                if file_path.is_file():
-                    artifacts.append(file_path)
+
+                try:
+                    file_hash = compute_file_hash(file_path)
+                    artifacts.append({
+                        "path": str(file_path.relative_to(base_path)),
+                        "hash": file_hash,
+                        "size": file_path.stat().st_size,
+                        "type": file_path.suffix,
+                        "mtime": file_path.stat().st_mtime
+                    })
+                except Exception as e:
+                    # Log error but continue scanning other files
+                    print(f"Warning: Could not hash {file_path}: {e}", file=sys.stderr)
+
     return artifacts
 
-def generate_manifest(artifacts: List[Path]) -> Dict[str, Any]:
+
+def generate_manifest(artifacts: List[Dict[str, Any]], project_root: Path) -> Dict[str, Any]:
     """
-    Generate a manifest dictionary containing file paths and their hashes.
-    
-    Args:
-        artifacts: List of file paths to hash.
-        
-    Returns:
-        Dictionary containing metadata and a list of artifact records.
+    Generate a manifest dictionary containing metadata and a list of artifact hashes.
     """
-    manifest = {
-        "version": "1.0",
-        "generated_at": "", # Will be set by caller if needed, or left empty for deterministic checks
-        "total_files": len(artifacts),
-        "artifacts": []
+    import time
+    return {
+        "project_root": str(project_root),
+        "generated_at": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "algorithm": "sha256",
+        "total_artifacts": len(artifacts),
+        "artifacts": artifacts,
+        "summary": {
+            "total_size_bytes": sum(a["size"] for a in artifacts),
+            "by_type": {}
+        }
     }
-    
-    # Sort for deterministic output order
-    sorted_artifacts = sorted(artifacts, key=lambda p: str(p))
-    
-    for file_path in sorted_artifacts:
-        try:
-            file_hash = compute_file_hash(file_path)
-            relative_path = str(file_path.relative_to(PROJECT_ROOT))
-            size_bytes = file_path.stat().st_size
-            manifest["artifacts"].append({
-                "path": relative_path,
-                "hash": file_hash,
-                "size_bytes": size_bytes
-            })
-        except (FileNotFoundError, PermissionError) as e:
-            # Log error but continue processing other files
-            print(f"Error hashing {file_path}: {e}", file=sys.stderr)
-            continue
-            
-    return manifest
 
-def save_manifest(manifest: Dict[str, Any]) -> None:
-    """
-    Save the manifest to the specified output file.
-    
-    Args:
-        manifest: The manifest dictionary to save.
-    """
-    OUTPUT_FILE.parent.mkdir(parents=True, exist_ok=True)
-    with open(OUTPUT_FILE, "w", encoding="utf-8") as f:
-        json.dump(manifest, f, indent=2, sort_keys=True)
-    print(f"Manifest saved to: {OUTPUT_FILE}")
 
-def main():
+def save_manifest(manifest: Dict[str, Any], output_path: Path) -> None:
     """
-    Main entry point for the artifact hashing utility.
-    
-    Scans target directories, computes hashes, and saves the manifest.
+    Save the manifest to a JSON file. Creates parent directories if needed.
     """
-    print("Starting artifact hashing scan...")
-    artifacts = scan_artifacts()
-    
-    if not artifacts:
-        print("No artifacts found to hash.")
-        # Still generate an empty manifest to indicate a successful run with no files
-        manifest = generate_manifest([])
-        save_manifest(manifest)
-        return
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(manifest, f, indent=2)
 
-    print(f"Found {len(artifacts)} files to hash.")
-    manifest = generate_manifest(artifacts)
-    save_manifest(manifest)
-    print("Artifact hashing completed successfully.")
+
+def main() -> int:
+    """
+    Entry point for the hash artifacts utility.
+    Scans project directories, generates a manifest, and saves it to state/.
+    Returns 0 on success, 1 on failure.
+    """
+    project_root = Path.cwd()
+    print(f"Scanning artifacts in: {project_root}")
+
+    try:
+        artifacts = scan_artifacts(project_root)
+        if not artifacts:
+            print("No artifacts found to hash.")
+            # Still generate an empty manifest to indicate successful scan
+            manifest = generate_manifest([], project_root)
+        else:
+            manifest = generate_manifest(artifacts, project_root)
+
+        output_path = project_root / MANIFEST_PATH
+        save_manifest(manifest, output_path)
+        print(f"Manifest saved to: {output_path}")
+        print(f"Total artifacts hashed: {manifest['total_artifacts']}")
+        return 0
+
+    except Exception as e:
+        print(f"Error during artifact hashing: {e}", file=sys.stderr)
+        return 1
+
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

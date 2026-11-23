@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TokenSequence"
+description: "Schema for a generated token sequence with validity labels."
+type: "object"
+properties:
+  sequence_id:
+    type: "string"
+    description: "Unique identifier for the sequence (UUID)."
+  task_type:
+    type: "string"
+    enum: ["gsm8k", "minigrid"]
+    description: "Type of task the sequence belongs to."
+  prompt_id:
+    type: "string"
+    description: "Reference to the input prompt."
+  tokens:
+    type: "array"
+    items:
+      type: "integer"
+    description: "List of token IDs generated."
+  ground_truth:
+    type: "string"
+    description: "The reference solution string or sequence."
+  validity_labels:
+    type: "array"
+    items:
+      type: "integer"
+      enum: [0, 1]
+    description: "Binary validity flags (0=invalid, 1=valid) for each token."
+required:
+  - sequence_id
+  - task_type
+  - prompt_id
+  - tokens
+  - ground_truth
+  - validity_labels
+additionalProperties: false

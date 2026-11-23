@@ -1,19 +1,39 @@
 import os
+from pathlib import Path
 from setuptools import setup, find_packages
-from setup_directories import create_directories
-from setup_state import create_state_structure
 
-# Ensure directory structure exists before installation
 def run_setup():
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    create_directories(base_dir)
-    create_state_structure(base_dir)
+    """
+    Entry point for project setup.
+    Orchestrates the creation of directories and state files.
+    """
+    # Import local modules
+    from code.setup_directories import create_directories
+    from code.setup_state import create_state_structure
+    from code.utils.logger import setup_logging
+
+    # Setup logging
+    logger = setup_logging()
+    logger.info("Starting project setup...")
+
+    # Create directory structure
+    logger.info("Creating directory structure...")
+    created_count = create_directories()
+    logger.info(f"Created {created_count} new directories.")
+
+    # Create state structure
+    logger.info("Creating state structure...")
+    state_file = create_state_structure()
+    logger.info(f"State file created at: {state_file}")
+
+    logger.info("Project setup complete.")
+    return True
 
 if __name__ == "__main__":
-    run_setup()
-    setup(
-        name="llmxive-polymer-blends",
-        version="0.1.0",
-        packages=find_packages(where="."),
-        python_requires=">=3.11",
-    )
+    success = run_setup()
+    if success:
+        print("Setup completed successfully.")
+        exit(0)
+    else:
+        print("Setup failed.")
+        exit(1)

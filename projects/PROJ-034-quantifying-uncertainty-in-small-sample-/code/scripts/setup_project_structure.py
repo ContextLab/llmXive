@@ -1,59 +1,115 @@
 import os
 import sys
 from pathlib import Path
+import subprocess
+import json
+
+# Define the directory and file structure based on plan.md requirements
+STRUCTURE = [
+    # Code modules
+    "code/simulation",
+    "code/models",
+    "code/metrics",
+    "code/validation",
+    "code/plots",
+    "code/scripts",
+    
+    # Data directories
+    "data/raw",
+    "data/simulated",
+    "data/results",
+    
+    # Test directories
+    "tests/unit",
+    "tests/integration",
+    
+    # Docs
+    "docs/paper"
+]
 
 def create_directories():
-    """Create the project directory structure as per implementation plan."""
-    # Define all required directories relative to project root
-    # Assuming this script is run from the project root or code/scripts
-    base_path = Path(__file__).parent.parent.parent  # Go up from code/scripts to root
+    """Create the entire directory tree defined in plan.md."""
+    root = Path(os.getcwd())
+    created_paths = []
+    
+    for path_str in STRUCTURE:
+        full_path = root / path_str
+        full_path.mkdir(parents=True, exist_ok=True)
+        created_paths.append(str(full_path.resolve()))
+        
+        # Create .gitkeep files in data directories to ensure they are tracked
+        if path_str.startswith("data/"):
+            gitkeep_path = full_path / ".gitkeep"
+            gitkeep_path.touch(exist_ok=True)
+            created_paths.append(str(gitkeep_path.resolve()))
+    
+    return created_paths
 
-    directories = [
-        "code/simulation",
-        "code/models",
-        "code/metrics",
-        "code/validation",
-        "code/plots",
-        "code/scripts",
-        "data/raw",
-        "data/simulated",
-        "data/results",
-        "tests/unit",
-        "tests/integration",
-        "docs/paper",
-    ]
+def generate_tree_manifest(created_paths):
+    """Generate a JSON manifest of all created absolute paths."""
+    # Sort paths for deterministic output
+    created_paths.sort()
+    
+    manifest = {
+        "description": "Project directory structure manifest for PROJ-034",
+        "created_paths": created_paths,
+        "total_items": len(created_paths)
+    }
+    
+    output_path = Path(os.getcwd()) / "tree_manifest.json"
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(manifest, f, indent=2)
+    
+    return str(output_path.resolve())
 
-    created_count = 0
-    for dir_path in directories:
-        full_path = base_path / dir_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {full_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {full_path}")
-
-    # Create .gitkeep files in data directories to ensure they are tracked
-    data_dirs = [
-        "data/raw",
-        "data/simulated",
-        "data/results",
-    ]
-    for dir_path in data_dirs:
-        full_path = base_path / dir_path
-        gitkeep_path = full_path / ".gitkeep"
-        if not gitkeep_path.exists():
-            gitkeep_path.touch()
-            print(f"Created .gitkeep in: {full_path}")
-            created_count += 1
-
-    print(f"\nTotal directories/files created: {created_count}")
-    return True
+def build_tree_python():
+    """Build the tree structure using subprocess if available, else fallback."""
+    try:
+        # Try using the system 'tree' command
+        result = subprocess.run(
+            ["tree", "-a", "."],
+            cwd=os.getcwd(),
+            capture_output=True,
+            text=True,
+            check=True
+        )
+        return result.stdout
+    except (subprocess.CalledProcessError, FileNotFoundError):
+        # Fallback: generate a simple text representation if 'tree' is not installed
+        lines = ["."]
+        for root, dirs, files in os.walk("."):
+            # Skip hidden directories and venv
+            dirs[:] = [d for d in dirs if not d.startswith('.') and d != 'venv']
+            
+            level = root.replace(".", "").count(os.sep)
+            indent = " " * 2 * level
+            lines.append(f"{indent}{os.path.basename(root)}/")
+            sub_indent = " " * 2 * (level + 1)
+            for file in files:
+                if file != ".gitkeep":
+                    lines.append(f"{sub_indent}{file}")
+                else:
+                    lines.append(f"{sub_indent}.gitkeep")
+        return "\n".join(lines)
 
 def main():
-    """Entry point for the script."""
-    success = create_directories()
-    sys.exit(0 if success else 1)
+    """Main entry point for setting up the project structure."""
+    print("Creating project directory structure...")
+    created_paths = create_directories()
+    print(f"Created {len(created_paths)} paths.")
+    
+    print("Generating tree manifest...")
+    manifest_path = generate_tree_manifest(created_paths)
+    print(f"Manifest saved to: {manifest_path}")
+    
+    # Also generate a human-readable tree output for verification
+    tree_output = build_tree_python()
+    tree_txt_path = Path(os.getcwd()) / "tree_manifest.txt"
+    with open(tree_txt_path, 'w', encoding='utf-8') as f:
+        f.write(tree_output)
+    print(f"Tree output saved to: {tree_txt_path}")
+    
+    return 0
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

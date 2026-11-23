@@ -1,29 +1,30 @@
+"""
+Data models and entities for the project.
+"""
 from pydantic import BaseModel, Field
-from typing import Optional
+from typing import Optional, List
 from datetime import datetime
 
 class ImageStimulus(BaseModel):
-    """Model for image stimulus metadata."""
+    """Represents an image stimulus used in the experiment."""
     path: str
-    edge_density: float = Field(..., ge=0.0, le=1.0)
-    entropy: float = Field(..., ge=0.0)
-    fractal_dim: float = Field(..., ge=1.0, le=3.0)
+    edge_density: float
+    entropy: float
+    fractal_dim: float
+    complexity_category: Optional[str] = None  # 'Low' or 'High'
 
 class ParticipantResponse(BaseModel):
-    """Model for participant response data."""
+    """Represents a single trial response from a participant."""
     participant_id: str
-    session_id: int
-    reaction_time: float = Field(..., gt=0.0)
+    session_id: str
+    reaction_time: float
     is_correct: bool
-    timestamp: Optional[datetime] = None
+    timestamp: datetime
 
 class AggregatedScore(BaseModel):
-    """Model for aggregated D-score results."""
+    """Represents an aggregated D-score for a participant session."""
     participant_id: str
-    session_id: int
-    d_score: Optional[float] = None
-    n_trials_valid: int = Field(..., ge=0)
-    status: str = Field(..., pattern="^(valid|insufficient_trials|calculation_failed)$")
-
-if __name__ == "__main__":
-    print("Models module loaded.")
+    session_id: str
+    d_score: float
+    n_trials_valid: int
+    status: str  # 'valid', 'excluded', etc.

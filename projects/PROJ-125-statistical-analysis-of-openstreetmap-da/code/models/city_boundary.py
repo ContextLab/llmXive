@@ -1,5 +1,11 @@
 """
-CityBoundary model for storing administrative boundary data.
+CityBoundary model for storing and validating study area boundaries.
+
+This model handles:
+- WKT/Polygon geometry validation
+- CRS identification and validation
+- Bounding box calculations
+- Metadata tracking (source, acquisition date)
 """
 from typing import Any, Dict, Optional, List
 from dataclasses import dataclass, field
@@ -14,103 +20,78 @@ logger = logging.getLogger(__name__)
 @dataclass
 class CityBoundary(BaseModel):
     """
-    Represents a city boundary with metadata.
+    Represents a city boundary for the study area.
     
     Attributes:
-        city_name: Name of the city
-        country: Country code or name
-        crs: Coordinate Reference System (e.g., EPSG:4326)
-        bounds: Bounding box [minx, miny, maxx, maxy]
-        geometry_type: Type of geometry (e.g., 'Polygon', 'MultiPolygon')
-        area_km2: Approximate area in square kilometers
+        city_name: Human-readable name of the city
+        wkt_geometry: Well-Known Text representation of the boundary polygon
+        crs_epsg: EPSG code of the coordinate reference system
         source: Data source (e.g., 'OpenStreetMap', 'GADM')
-        metadata: Additional arbitrary metadata
+        acquisition_date: Date the boundary data was acquired
+        bbox: Optional pre-calculated bounding box [minx, miny, maxx, maxy]
+        metadata: Additional key-value metadata
     """
     city_name: str
-    country: str
-    crs: str = "EPSG:4326"
-    bounds: Optional[List[float]] = None
-    geometry_type: str = "Polygon"
-    area_km2: Optional[float] = None
+    wkt_geometry: str
+    crs_epsg: int
     source: str = "OpenStreetMap"
+    acquisition_date: Optional[str] = None
+    bbox: Optional[List[float]] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
 
-    def validate(self) -> bool:
-        """Validate CityBoundary schema."""
-        if not self.city_name or not isinstance(self.city_name, str):
-            logger.error("City name must be a non-empty string")
-            return False
-        
-        if not self.country or not isinstance(self.country, str):
-            logger.error("Country must be a non-empty string")
-            return False
-        
-        if self.bounds:
-            if len(self.bounds) != 4:
-                logger.error("Bounds must be a list of 4 floats [minx, miny, maxx, maxy]")
-                return False
-            if self.bounds[0] >= self.bounds[2] or self.bounds[1] >= self.bounds[3]:
-                logger.error("Invalid bounds: min must be less than max")
-                return False
-        
-        if not self.crs.startswith("EPSG:"):
-            logger.warning(f"CRS format may be non-standard: {self.crs}")
-        
-        return True
+    def __post_init__(self) -> None:
+        """Validate geometry and CRS after initialization."""
+        self._validate_geometry()
+        self._validate_crs()
+        if self.bbox is None:
+            self.bbox = self._calculate_bbox()
+
+    def _validate_geometry(self) -> None:
+        """Validate that WKT geometry is parseable and represents a valid polygon."""
+        try:
+            from shapely.wkt import loads
+            geom = loads(self.wkt_geometry)
+            if not geom.is_valid:
+                logger.warning(f"Geometry for {self.city_name} is invalid: {geom.is_valid_reason}")
+            if not geom.is_empty:
+                if not geom.geom_type in ['Polygon', 'MultiPolygon']:
+                    raise ValueError(f"Expected Polygon or MultiPolygon, got {geom.geom_type}")
+        except ImportError:
+            logger.warning("Shapely not installed, skipping geometry validation")
+        except Exception as e:
+            raise ValueError(f"Invalid WKT geometry: {e}")
+
+    def _validate_crs(self) -> None:
+        """Validate that CRS is a valid EPSG code."""
+        if not isinstance(self.crs_epsg, int) or self.crs_epsg < 1:
+            raise ValueError(f"Invalid EPSG code: {self.crs_epsg}")
+
+    def _calculate_bbox(self) -> List[float]:
+        """Calculate bounding box from WKT geometry."""
+        try:
+            from shapely.wkt import loads
+            geom = loads(self.wkt_geometry)
+            minx, miny, maxx, maxy = geom.bounds
+            return [minx, miny, maxx, maxy]
+        except ImportError:
+            logger.warning("Shapely not installed, cannot calculate bbox")
+            return [0.0, 0.0, 0.0, 0.0]
+        except Exception as e:
+            logger.error(f"Failed to calculate bbox: {e}")
+            return [0.0, 0.0, 0.0, 0.0]
+
+    def get_geometry_object(self):
+        """Return Shapely geometry object if available."""
+        try:
+            from shapely.wkt import loads
+            return loads(self.wkt_geometry)
+        except ImportError:
+            raise RuntimeError("Shapely required for geometry operations")
 
     @classmethod
-    def from_geojson(cls, geojson_data: Dict[str, Any]) -> "CityBoundary":
-        """
-        Create a CityBoundary from GeoJSON data.
-        
-        Args:
-            geojson_data: GeoJSON Feature or FeatureCollection
-        
-        Returns:
-            CityBoundary instance
-        """
-        if geojson_data.get("type") == "FeatureCollection":
-            features = geojson_data.get("features", [])
-            if not features:
-                raise ValueError("Empty FeatureCollection")
-            geojson_data = features[0]
-        
-        if geojson_data.get("type") != "Feature":
-            raise ValueError("Expected GeoJSON Feature")
-        
-        props = geojson_data.get("properties", {})
-        geometry = geojson_data.get("geometry", {})
-        
-        # Extract bounds from geometry if not in properties
-        bounds = props.get("bounds")
-        if not bounds and geometry.get("coordinates"):
-            # Simple bounds calculation (assumes valid coordinates)
-            coords = geometry["coordinates"]
-            if geometry["type"] == "Polygon":
-                coords = coords[0]
-            elif geometry["type"] == "MultiPolygon":
-                coords = [c for p in coords for c in p]
-            
-            if coords:
-                lons = [c[0] for c in coords]
-                lats = [c[1] for c in coords]
-                bounds = [min(lons), min(lats), max(lons), max(lats)]
-        
-        # Try to infer city name from properties
-        city_name = props.get("name") or props.get("name_en") or props.get("city")
-        if not city_name:
-            raise ValueError("Could not determine city name from GeoJSON")
-        
-        country = props.get("country") or props.get("iso_a2") or "Unknown"
-        area = props.get("area_km2") or props.get("area")
-        
-        return cls(
-            city_name=str(city_name),
-            country=str(country),
-            crs=props.get("crs", "EPSG:4326"),
-            bounds=bounds,
-            geometry_type=geometry.get("type", "Polygon"),
-            area_km2=float(area) if area else None,
-            source=props.get("source", "OpenStreetMap"),
-            metadata={k: v for k, v in props.items() if k not in ["name", "name_en", "city", "country", "iso_a2", "area_km2", "area", "bounds", "crs", "source"]}
-        )
+    def _validate_required_fields(cls, data: Dict[str, Any]) -> None:
+        """Validate required fields for CityBoundary."""
+        required = ['city_name', 'wkt_geometry', 'crs_epsg']
+        missing = [f for f in required if f not in data]
+        if missing:
+            raise ValueError(f"Missing required fields: {missing}")

@@ -1,0 +1,28 @@
+# Standalone ruff configuration for CLI usage
+# Extends the settings in pyproject.toml but ensures CLI finds it immediately
+
+target-version = "py39"
+line-length = 100
+
+exclude = [
+    ".git",
+    ".venv",
+    "venv",
+    ".mypy_cache",
+    ".pytest_cache",
+    "__pycache__",
+    "data",
+    "reports",
+    "build",
+    "dist",
+    "*.egg-info"
+]
+
+[lint]
+select = ["E", "W", "F", "I", "C", "B"]
+ignore = ["E501", "B008", "C901"]
+
+[lint.isort]
+known-first-party = ["code"]
+force-single-line = false
+lines-after-imports = 2

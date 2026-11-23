@@ -1,37 +1,50 @@
-# Data files
+# Data artifacts and raw downloads
 data/raw_cif/
-*.pt
-*.csv
-*.json
-*.png
-*.pdf
+data/*.csv
+data/*.npy
+data/*.json
+data/dataset*.csv
+data/features_matrix.npy
+data/targets.npy
+data/dataset_intermediate.csv
+data/dataset_with_metrics.csv
+data/dataset_filtered.csv
+data/dataset.csv
 
-# Python cache
+# Model checkpoints
+models/*.pt
+models/*.pth
+models/*.h5
+models/*.onnx
+
+# Python cache and environment
 __pycache__/
 *.py[cod]
-$py.class
-
-# Environment
+*$py.class
 .env
 .venv/
 venv/
 ENV/
+env/
 
-# IDE
+# IDE and editor files
 .idea/
 .vscode/
 *.swp
 *.swo
-
-# OS
+*~
 .DS_Store
-Thumbs.db
 
-# Logs
+# Logs and temporary files
 *.log
 logs/
-
-# Temporary files
 tmp/
-temp/
-*.tmp
+.pytest_cache/
+.mypy_cache/
+
+# Results and figures (optional exclusion if desired, but often kept for sharing)
+# Uncomment to exclude:
+# results/*.json
+# results/*.html
+# figures/*.png
+# figures/*.pdf

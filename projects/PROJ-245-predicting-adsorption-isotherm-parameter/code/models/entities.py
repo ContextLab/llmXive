@@ -1,13 +1,16 @@
 """
-Core data entities for the adsorption isotherm prediction pipeline.
+Base data classes and entities for the adsorption isotherm prediction pipeline.
 
-This module defines the fundamental data classes representing adsorbates,
-adsorbents, and the target isotherm parameters used throughout the project.
+This module defines the core domain entities: Adsorbate, Adsorbent, and IsothermParameter.
+These classes serve as the structured representation of molecular and material data
+used throughout the pipeline.
 """
+
 from dataclasses import dataclass, field
 from typing import Optional, Dict, Any, List
 from enum import Enum
 import json
+import hashlib
 
 
 class AdsorbateState(Enum):
@@ -15,132 +18,253 @@ class AdsorbateState(Enum):
     GAS = "gas"
     LIQUID = "liquid"
     SUPERCRITICAL = "supercritical"
-    SOLID = "solid"
+    UNKNOWN = "unknown"
 
 
 @dataclass
 class Adsorbate:
     """
-    Represents a chemical adsorbate molecule.
+    Represents an adsorbate molecule.
     
     Attributes:
-        material_id: Unique identifier for the material instance.
-        smi: SMILES string representation of the molecule.
-        iupac_name: Official IUPAC name.
-        common_name: Common or trade name.
-        molecular_weight: Molecular weight in g/mol.
-        state: Physical state at standard conditions.
-        kinetic_diameter: Kinetic diameter in Angstroms (Å).
-        polarizability: Molecular polarizability in Å³.
-        dipole_moment: Dipole moment in Debye.
-        quadrupole_moment: Quadrupole moment (tensor or scalar representation).
-        h_bond_donors: Number of hydrogen bond donors.
-        h_bond_acceptors: Number of hydrogen bond acceptors.
-        van_der_waals_volume: van der Waals volume in Å³.
-        surface_area: Molecular surface area in Å².
-        logp: Partition coefficient (octanol-water).
-        metadata: Additional arbitrary properties.
+        mol_id: Unique identifier for the molecule (e.g., SMILES string or InChIKey)
+        name: Common name of the molecule
+        molecular_weight: Molecular weight in g/mol
+        polarizability: Polarizability in Å³
+        kinetic_diameter: Kinetic diameter in Å
+        polar_surface_area: Polar surface area in Å²
+        h_bond_donors: Number of hydrogen bond donors
+        h_bond_acceptors: Number of hydrogen bond acceptors
+        vdw_volume: Van der Waals volume in Å³
+        quadrupole_moment: Quadrupole moment (optional)
+        lj_energy_param: Lennard-Jones energy parameter (optional)
+        state: Physical state of the adsorbate
+        descriptors: Dictionary of additional calculated descriptors
     """
-    material_id: str
-    smi: str
-    iupac_name: Optional[str] = None
-    common_name: Optional[str] = None
+    mol_id: str
+    name: Optional[str] = None
     molecular_weight: Optional[float] = None
-    state: Optional[AdsorbateState] = None
-    kinetic_diameter: Optional[float] = None  # Å
-    polarizability: Optional[float] = None  # Å³
-    dipole_moment: Optional[float] = None  # Debye
-    quadrupole_moment: Optional[float] = None  # Debye·Å (or appropriate unit)
+    polarizability: Optional[float] = None
+    kinetic_diameter: Optional[float] = None
+    polar_surface_area: Optional[float] = None
     h_bond_donors: Optional[int] = None
     h_bond_acceptors: Optional[int] = None
-    van_der_waals_volume: Optional[float] = None  # Å³
-    surface_area: Optional[float] = None  # Å²
-    logp: Optional[float] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
+    vdw_volume: Optional[float] = None
+    quadrupole_moment: Optional[float] = None
+    lj_energy_param: Optional[float] = None
+    state: AdsorbateState = AdsorbateState.UNKNOWN
+    descriptors: Dict[str, Any] = field(default_factory=dict)
+    
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the instance to a dictionary, serializing enums."""
-        data = self.__dict__.copy()
-        if self.state is not None:
-            data['state'] = self.state.value
-        return data
-
+        """Convert the Adsorbate instance to a dictionary."""
+        return {
+            "mol_id": self.mol_id,
+            "name": self.name,
+            "molecular_weight": self.molecular_weight,
+            "polarizability": self.polarizability,
+            "kinetic_diameter": self.kinetic_diameter,
+            "polar_surface_area": self.polar_surface_area,
+            "h_bond_donors": self.h_bond_donors,
+            "h_bond_acceptors": self.h_bond_acceptors,
+            "vdw_volume": self.vdw_volume,
+            "quadrupole_moment": self.quadrupole_moment,
+            "lj_energy_param": self.lj_energy_param,
+            "state": self.state.value,
+            "descriptors": self.descriptors
+        }
+    
+    def descriptor_hash(self) -> str:
+        """
+        Generate a hash based on the descriptor values.
+        Used for identifying identical adsorbates with potentially conflicting targets.
+        """
+        hashable_values = [
+            self.molecular_weight,
+            self.polarizability,
+            self.kinetic_diameter,
+            self.polar_surface_area,
+            self.h_bond_donors,
+            self.h_bond_acceptors,
+            self.vdw_volume,
+            self.quadrupole_moment,
+            self.lj_energy_param
+        ]
+        # Convert to string representation for hashing
+        str_repr = str(tuple(hashable_values))
+        return hashlib.md5(str_repr.encode()).hexdigest()
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "Adsorbate":
+        """Create an Adsorbate instance from a dictionary."""
+        state = data.get("state", "unknown")
+        if isinstance(state, str):
+            try:
+                state = AdsorbateState(state)
+            except ValueError:
+                state = AdsorbateState.UNKNOWN
+        
+        return cls(
+            mol_id=data["mol_id"],
+            name=data.get("name"),
+            molecular_weight=data.get("molecular_weight"),
+            polarizability=data.get("polarizability"),
+            kinetic_diameter=data.get("kinetic_diameter"),
+            polar_surface_area=data.get("polar_surface_area"),
+            h_bond_donors=data.get("h_bond_donors"),
+            h_bond_acceptors=data.get("h_bond_acceptors"),
+            vdw_volume=data.get("vdw_volume"),
+            quadrupole_moment=data.get("quadrupole_moment"),
+            lj_energy_param=data.get("lj_energy_param"),
+            state=state,
+            descriptors=data.get("descriptors", {})
+        )
+    
     def to_json(self) -> str:
-        """Serialize the instance to a JSON string."""
+        """Serialize the Adsorbate to a JSON string."""
         return json.dumps(self.to_dict(), indent=2)
+    
+    @classmethod
+    def from_json(cls, json_str: str) -> "Adsorbate":
+        """Create an Adsorbate instance from a JSON string."""
+        data = json.loads(json_str)
+        return cls.from_dict(data)
 
 
 @dataclass
 class Adsorbent:
     """
-    Represents a porous material (adsorbent) used for adsorption.
+    Represents an adsorbent material (e.g., MOF, CNT, zeolite).
     
     Attributes:
-        material_id: Unique identifier for the material.
-        name: Common name or identifier (e.g., "MOF-5", "CNT").
-        type: Material class (e.g., "MOF", "CNT", "Zeolite", "Activated Carbon").
-        surface_area: BET surface area in m²/g.
-        pore_volume: Total pore volume in cm³/g.
-        pore_size_distribution: List of pore sizes in nm (optional).
-        functional_groups: List of surface functional groups.
-        synthesis_method: Brief description of synthesis.
-        metadata: Additional properties.
+        material_id: Unique identifier for the material
+        name: Name of the material
+        type: Material type (e.g., "MOF", "CNT", "Zeolite")
+        surface_area: BET surface area in m²/g
+        pore_volume: Total pore volume in cm³/g
+        pore_size: Average pore size in Å
+        isotherm_type: Type of isotherm observed (e.g., "Type I", "Type II")
+        synthesis_method: Method used for synthesis (optional)
+        properties: Dictionary of additional material properties
     """
     material_id: str
-    name: str
+    name: Optional[str] = None
     type: Optional[str] = None
-    surface_area: Optional[float] = None  # m²/g
-    pore_volume: Optional[float] = None  # cm³/g
-    pore_size_distribution: Optional[List[float]] = None  # nm
-    functional_groups: Optional[List[str]] = None
+    surface_area: Optional[float] = None
+    pore_volume: Optional[float] = None
+    pore_size: Optional[float] = None
+    isotherm_type: Optional[str] = None
     synthesis_method: Optional[str] = None
-    metadata: Dict[str, Any] = field(default_factory=dict)
-
+    properties: Dict[str, Any] = field(default_factory=dict)
+    
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the instance to a dictionary."""
-        return self.__dict__.copy()
-
+        """Convert the Adsorbent instance to a dictionary."""
+        return {
+            "material_id": self.material_id,
+            "name": self.name,
+            "type": self.type,
+            "surface_area": self.surface_area,
+            "pore_volume": self.pore_volume,
+            "pore_size": self.pore_size,
+            "isotherm_type": self.isotherm_type,
+            "synthesis_method": self.synthesis_method,
+            "properties": self.properties
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "Adsorbent":
+        """Create an Adsorbent instance from a dictionary."""
+        return cls(
+            material_id=data["material_id"],
+            name=data.get("name"),
+            type=data.get("type"),
+            surface_area=data.get("surface_area"),
+            pore_volume=data.get("pore_volume"),
+            pore_size=data.get("pore_size"),
+            isotherm_type=data.get("isotherm_type"),
+            synthesis_method=data.get("synthesis_method"),
+            properties=data.get("properties", {})
+        )
+    
     def to_json(self) -> str:
-        """Serialize the instance to a JSON string."""
+        """Serialize the Adsorbent to a JSON string."""
         return json.dumps(self.to_dict(), indent=2)
+    
+    @classmethod
+    def from_json(cls, json_str: str) -> "Adsorbent":
+        """Create an Adsorbent instance from a JSON string."""
+        data = json.loads(json_str)
+        return cls.from_dict(data)
 
 
 @dataclass
 class IsothermParameter:
     """
-    Represents the target isotherm parameters derived from experimental or simulated data.
-    
-    This class holds the regression targets for the machine learning models.
+    Represents an isotherm parameter measurement.
     
     Attributes:
-        record_id: Unique identifier for the specific adsorption measurement record.
-        adsorbate_id: Reference to the Adsorbate material_id.
-        adsorbent_id: Reference to the Adsorbent material_id.
-        temperature: Temperature in Kelvin.
-        pressure_unit: Unit of pressure (e.g., 'bar', 'Pa', 'atm').
-        langmuir_capacity: Langmuir maximum capacity (q_max) in mol/kg or mmol/g.
-        langmuir_k: Langmuir affinity constant (K_L) in 1/pressure_unit.
-        henry_constant: Henry's law constant (K_H) in mol/kg/bar (or similar).
-        isotherm_type: Type of isotherm (e.g., "Type I", "Type II").
-        source: Origin of the data (e.g., "NIST", "Synthetic", "Literature").
-        metadata: Additional experimental conditions or notes.
+        param_id: Unique identifier for the parameter measurement
+        material_id: Reference to the adsorbent material
+        mol_id: Reference to the adsorbate molecule
+        parameter_type: Type of parameter (e.g., "Langmuir_capacity", "Henry_constant")
+        value: Numerical value of the parameter
+        unit: Unit of measurement
+        temperature: Temperature at which measurement was taken (K)
+        pressure: Pressure at which measurement was taken (bar)
+        source: Source of the data (e.g., "synthetic", "NIST", "literature")
+        confidence: Confidence score or uncertainty estimate (optional)
+        metadata: Additional metadata about the measurement
     """
-    record_id: str
-    adsorbate_id: str
-    adsorbent_id: str
-    temperature: float  # Kelvin
-    pressure_unit: str = "bar"
-    langmuir_capacity: Optional[float] = None  # mol/kg
-    langmuir_k: Optional[float] = None  # 1/bar
-    henry_constant: Optional[float] = None  # mol/kg/bar
-    isotherm_type: Optional[str] = None
-    source: Optional[str] = None
+    param_id: str
+    material_id: str
+    mol_id: str
+    parameter_type: str
+    value: float
+    unit: str
+    temperature: Optional[float] = None
+    pressure: Optional[float] = None
+    source: str = "unknown"
+    confidence: Optional[float] = None
     metadata: Dict[str, Any] = field(default_factory=dict)
-
+    
     def to_dict(self) -> Dict[str, Any]:
-        """Convert the instance to a dictionary."""
-        return self.__dict__.copy()
-
+        """Convert the IsothermParameter instance to a dictionary."""
+        return {
+            "param_id": self.param_id,
+            "material_id": self.material_id,
+            "mol_id": self.mol_id,
+            "parameter_type": self.parameter_type,
+            "value": self.value,
+            "unit": self.unit,
+            "temperature": self.temperature,
+            "pressure": self.pressure,
+            "source": self.source,
+            "confidence": self.confidence,
+            "metadata": self.metadata
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> "IsothermParameter":
+        """Create an IsothermParameter instance from a dictionary."""
+        return cls(
+            param_id=data["param_id"],
+            material_id=data["material_id"],
+            mol_id=data["mol_id"],
+            parameter_type=data["parameter_type"],
+            value=data["value"],
+            unit=data["unit"],
+            temperature=data.get("temperature"),
+            pressure=data.get("pressure"),
+            source=data.get("source", "unknown"),
+            confidence=data.get("confidence"),
+            metadata=data.get("metadata", {})
+        )
+    
     def to_json(self) -> str:
-        """Serialize the instance to a JSON string."""
+        """Serialize the IsothermParameter to a JSON string."""
         return json.dumps(self.to_dict(), indent=2)
+    
+    @classmethod
+    def from_json(cls, json_str: str) -> "IsothermParameter":
+        """Create an IsothermParameter instance from a JSON string."""
+        data = json.loads(json_str)
+        return cls.from_dict(data)

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2601.11688",
+  "judged_at": "2026-08-21T12:35:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "evaluating the use of llms for automated documentation generation from code commits computer science",
+  "rationale": "The paper focuses on \"Traceability Link Recovery\" (mapping specifications to code) rather than \"Automated Documentation Generation\" (creating documentation from code), representing a distinct construct that shares only the broad domain of LLMs and code. While both involve LLMs and code, the direction of information flow and the specific task (recovery vs. generation) are fundamentally different, failing to meet the criteria for same-mechanism evidence or shared variables under the strict inclusi",
+  "relevant": false
+}

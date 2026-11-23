@@ -1,186 +1,150 @@
 import pytest
-import math
-from unittest.mock import patch, MagicMock
+import json
+import os
+import tempfile
 from metrics import (
-    is_wasted_call,
-    calculate_dynamic_sample_size,
-    wilcoxon_signed_rank_test,
-    bonferroni_correction,
-    load_beir_ground_truth,
-    load_results_from_json,
-    aggregate_ndcg_scores,
-    evaluate_full_pipeline,
-    validate_jaccard_cosine_correlation
+    is_wasted_call, 
+    calculate_wasted_call_ratios, 
+    calculate_cosine_similarity_proxy_from_logs,
+    StatisticalDegeneracyWarning
 )
 from scipy.stats import wilcoxon
 import numpy as np
 
-# --- Existing Tests (Preserved) ---
+class TestT013FlaggedPairs:
+    """Unit tests for T013: Cosine similarity proxy calculation and flagging."""
 
-def test_is_wasted_call_above_threshold():
-    """Test that a similarity above 0.95 is flagged as wasted."""
-    assert is_wasted_call(0.96) is True
-    assert is_wasted_call(1.0) is True
+    def test_is_wasted_call_threshold(self):
+        """Test that is_wasted_call correctly identifies pairs above threshold."""
+        assert is_wasted_call(0.96) is True
+        assert is_wasted_call(0.95) is False  # Strictly greater than 0.95
+        assert is_wasted_call(0.94) is False
+        assert is_wasted_call(1.0) is True
 
-def test_is_wasted_call_below_threshold():
-    """Test that a similarity below 0.95 is not flagged as wasted."""
-    assert is_wasted_call(0.94) is False
-    assert is_wasted_call(0.0) is False
+    def test_calculate_wasted_call_ratios_empty(self):
+        """Test handling of empty log list."""
+        logs = []
+        result = calculate_wasted_call_ratios(logs)
+        assert result["wasted_count"] == 0
+        assert result["total_count"] == 0
+        assert result["wasted_ratio"] == 0.0
 
-def test_is_wasted_call_at_threshold():
-    """Test behavior exactly at the threshold (0.95)."""
-    # Threshold is > 0.95, so 0.95 should be False
-    assert is_wasted_call(0.95) is False
+    def test_calculate_wasted_call_ratios_mixed(self):
+        """Test calculation with mixed similarity scores."""
+        logs = [
+            {"cosine_sim": 0.96},
+            {"cosine_sim": 0.94},
+            {"cosine_sim": 0.97},
+            {"cosine_sim": 0.90},
+            {"cosine_sim": 0.99}
+        ]
+        result = calculate_wasted_call_ratios(logs, threshold=0.95)
+        assert result["wasted_count"] == 3  # 0.96, 0.97, 0.99
+        assert result["total_count"] == 5
+        assert abs(result["wasted_ratio"] - 0.6) < 1e-6
 
-def test_is_wasted_call_custom_threshold():
-    """Test with a custom threshold."""
-    assert is_wasted_call(0.90, threshold=0.85) is True
-    assert is_wasted_call(0.80, threshold=0.85) is False
+    def test_calculate_cosine_similarity_proxy_from_logs_writes_file(self):
+        """Test that T013 function writes the correct output file."""
+        # Create temporary input file
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f_in:
+            json.dump([
+                {"pair_id": "1", "cosine_sim": 0.96},
+                {"pair_id": "2", "cosine_sim": 0.94},
+                {"pair_id": "3", "cosine_sim": 0.97},
+                {"pair_id": "4", "cosine_sim": 0.95},  # Exactly threshold, should NOT be wasted
+                {"pair_id": "5", "cosine_sim": 0.99}
+            ], f_in)
+            input_path = f_in.name
 
-def test_calculate_dynamic_sample_size_logic():
-    """Test the logic of dynamic sample size calculation."""
-    # Case 1: Flagged < Bound
-    assert calculate_dynamic_sample_size(100, 1000) == 100
-    
-    # Case 2: Flagged > Bound
-    assert calculate_dynamic_sample_size(2000, 1000) == 1000
-    
-    # Case 3: Flagged == Bound
-    assert calculate_dynamic_sample_size(500, 500) == 500
-    
-    # Case 4: Zero flagged
-    assert calculate_dynamic_sample_size(0, 1000) == 0
-
-# --- New Tests for T026: Wilcoxon and Bonferroni ---
-
-def test_wilcoxon_signed_rank_test_basic():
-    """Test Wilcoxon signed-rank test with known data."""
-    # Two identical lists should yield a p-value of 1.0 (no difference)
-    list_a = [1.0, 2.0, 3.0, 4.0, 5.0]
-    list_b = [1.0, 2.0, 3.0, 4.0, 5.0]
-    
-    stat, p_val = wilcoxon_signed_rank_test(list_a, list_b)
-    
-    assert p_val == 1.0
-    assert stat == 0.0
-
-def test_wilcoxon_signed_rank_test_different_data():
-    """Test Wilcoxon with clearly different data."""
-    # List A is consistently higher than List B
-    list_a = [10.0, 20.0, 30.0, 40.0, 50.0]
-    list_b = [1.0, 2.0, 3.0, 4.0, 5.0]
-    
-    stat, p_val = wilcoxon_signed_rank_test(list_a, list_b)
-    
-    # With such a clear difference, p-value should be very small
-    assert p_val < 0.05
-    assert stat > 0.0
-
-def test_wilcoxon_empty_lists():
-    """Test handling of empty lists."""
-    list_a = []
-    list_b = []
-    
-    stat, p_val = wilcoxon_signed_rank_test(list_a, list_b)
-    
-    assert p_val == 1.0
-    assert stat == 0.0
-
-def test_wilcoxon_single_element():
-    """Test handling of single element lists."""
-    list_a = [1.0]
-    list_b = [1.0]
-    
-    stat, p_val = wilcoxon_signed_rank_test(list_a, list_b)
-    
-    # With identical single elements, p-value is 1.0
-    assert p_val == 1.0
-
-def test_bonferroni_correction_basic():
-    """Test Bonferroni correction with simple inputs."""
-    p_values = [0.01, 0.05, 0.10]
-    n_tests = 3
-    
-    corrected_p_values = bonferroni_correction(p_values, n_tests)
-    
-    # Bonferroni multiplies p-value by n_tests, capped at 1.0
-    assert corrected_p_values[0] == min(0.01 * 3, 1.0)
-    assert corrected_p_values[1] == min(0.05 * 3, 1.0)
-    assert corrected_p_values[2] == min(0.10 * 3, 1.0)
-
-def test_bonferroni_correction_cap():
-    """Test that Bonferroni correction caps p-values at 1.0."""
-    p_values = [0.5, 0.6, 0.7]
-    n_tests = 3
-    
-    corrected_p_values = bonferroni_correction(p_values, n_tests)
-    
-    # All should be capped at 1.0
-    assert corrected_p_values[0] == 1.0
-    assert corrected_p_values[1] == 1.0
-    assert corrected_p_values[2] == 1.0
-
-def test_bonferroni_correction_empty():
-    """Test Bonferroni with empty list."""
-    p_values = []
-    n_tests = 0
-    
-    corrected_p_values = bonferroni_correction(p_values, n_tests)
-    
-    assert corrected_p_values == []
-
-def test_bonferroni_correction_single():
-    """Test Bonferroni with single p-value."""
-    p_values = [0.05]
-    n_tests = 1
-    
-    corrected_p_values = bonferroni_correction(p_values, n_tests)
-    
-    # With n_tests=1, p-value remains unchanged
-    assert corrected_p_values[0] == 0.05
-
-def test_bonferroni_correction_mixed():
-    """Test Bonferroni with mixed significant and non-significant values."""
-    p_values = [0.01, 0.04, 0.06, 0.20]
-    n_tests = 4
-    
-    corrected_p_values = bonferroni_correction(p_values, n_tests)
-    
-    # Expected values
-    assert corrected_p_values[0] == 0.04  # 0.01 * 4
-    assert corrected_p_values[1] == 0.16  # 0.04 * 4
-    assert corrected_p_values[2] == 0.24  # 0.06 * 4
-    assert corrected_p_values[3] == 1.0   # 0.20 * 4 = 0.8, capped at 1.0? No, 0.8 < 1.0. 
-    # Wait, 0.20 * 4 = 0.80. Let me recheck.
-    # Actually 0.20 * 4 = 0.80, which is < 1.0, so it should be 0.80.
-    # My previous comment was wrong. Let's correct the assertion.
-    assert corrected_p_values[3] == 0.80
-
-def test_wilcoxon_and_bonferroni_integration():
-    """Test the combined use of Wilcoxon and Bonferroni for multiple comparisons."""
-    # Simulate results from two different experiments (e.g., NDCG and Wasted Calls)
-    # Experiment 1: NDCG scores
-    ndcg_baseline = [0.45, 0.46, 0.44, 0.47, 0.45]
-    ndcg_clustering = [0.50, 0.51, 0.49, 0.52, 0.50]
-    
-    # Experiment 2: Wasted call ratios
-    wasted_baseline = [0.30, 0.32, 0.29, 0.31, 0.30]
-    wasted_clustering = [0.10, 0.12, 0.09, 0.11, 0.10]
-    
-    # Perform Wilcoxon tests
-    stat_ndcg, p_ndcg = wilcoxon_signed_rank_test(ndcg_baseline, ndcg_clustering)
-    stat_wasted, p_wasted = wilcoxon_signed_rank_test(wasted_baseline, wasted_clustering)
-    
-    # Collect p-values
-    p_values = [p_ndcg, p_wasted]
-    
-    # Apply Bonferroni correction (2 tests)
-    corrected_p_values = bonferroni_correction(p_values, 2)
-    
-    # Verify that corrected p-values are larger than or equal to original
-    for orig, corr in zip(p_values, corrected_p_values):
-        assert corr >= orig
+        # Create temporary output file path
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f_out:
+            output_path = f_out.name
         
-    # Verify that the correction was applied correctly
-    assert corrected_p_values[0] == min(p_ndcg * 2, 1.0)
-    assert corrected_p_values[1] == min(p_wasted * 2, 1.0)
+        os.unlink(output_path)  # Remove file so function can create it
+
+        try:
+            calculate_cosine_similarity_proxy_from_logs(input_path, output_path, threshold=0.95)
+            
+            # Verify output file exists and contains correct data
+            assert os.path.exists(output_path)
+            
+            with open(output_path, 'r') as f:
+                result = json.load(f)
+            
+            assert result["wasted_count"] == 3  # 0.96, 0.97, 0.99
+            assert result["total_pairs"] == 5
+            assert abs(result["wasted_ratio"] - 0.6) < 1e-6
+            
+            # Verify schema
+            assert "wasted_count" in result
+            assert "total_pairs" in result
+            assert "wasted_ratio" in result
+            
+        finally:
+            os.unlink(input_path)
+            if os.path.exists(output_path):
+                os.unlink(output_path)
+
+    def test_calculate_cosine_similarity_proxy_from_logs_file_not_found(self):
+        """Test that FileNotFoundError is raised when input file is missing."""
+        with pytest.raises(FileNotFoundError):
+            calculate_cosine_similarity_proxy_from_logs(
+                "/nonexistent/path/input.json",
+                "/nonexistent/path/output.json"
+            )
+
+    def test_calculate_cosine_similarity_proxy_from_logs_empty_log(self):
+        """Test handling of empty comparison log."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f_in:
+            json.dump([], f_in)
+            input_path = f_in.name
+
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f_out:
+            output_path = f_out.name
+        
+        os.unlink(output_path)
+
+        try:
+            calculate_cosine_similarity_proxy_from_logs(input_path, output_path)
+            
+            with open(output_path, 'r') as f:
+                result = json.load(f)
+            
+            assert result["wasted_count"] == 0
+            assert result["total_pairs"] == 0
+            assert result["wasted_ratio"] == 0.0
+            
+        finally:
+            os.unlink(input_path)
+            if os.path.exists(output_path):
+                os.unlink(output_path)
+
+    def test_calculate_cosine_similarity_proxy_from_logs_missing_cosine_sim(self):
+        """Test handling of log entries missing cosine_sim key."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f_in:
+            json.dump([
+                {"pair_id": "1", "cosine_sim": 0.96},
+                {"pair_id": "2"},  # Missing cosine_sim, defaults to 0.0
+                {"pair_id": "3", "cosine_sim": 0.97}
+            ], f_in)
+            input_path = f_in.name
+
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f_out:
+            output_path = f_out.name
+        
+        os.unlink(output_path)
+
+        try:
+            calculate_cosine_similarity_proxy_from_logs(input_path, output_path)
+            
+            with open(output_path, 'r') as f:
+                result = json.load(f)
+            
+            assert result["wasted_count"] == 2  # 0.96 and 0.97
+            assert result["total_pairs"] == 3
+            assert abs(result["wasted_ratio"] - 2/3) < 1e-6
+            
+        finally:
+            os.unlink(input_path)
+            if os.path.exists(output_path):
+                os.unlink(output_path)

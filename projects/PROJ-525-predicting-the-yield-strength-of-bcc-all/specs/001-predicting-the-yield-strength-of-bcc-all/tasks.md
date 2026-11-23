@@ -1,260 +1,92 @@
 # Tasks: Predicting Yield Strength of BCC Alloys
 
-**Input**: Design documents from `/specs/001-bcc-yield-strength/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, `data-model.md`, all contracts under `specs/001-predicting-the-yield-strength-of-bcc-all/contracts/`, and the reviewer comment concerning the source of binary interaction parameters.
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+## Phase 1 – Project scaffolding & first end‑to‑end run
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+- [ ] T001 [US1] Create the canonical project directory tree, a pinned `code/requirements.txt`, and minimal lint/format configuration files.   <!-- FAILED-IN-EXECUTION: code/main.py exit=1 -->
+  - **Paths**: `data/raw/`, `data/processed/`, `data/logs/`, `data/results/`, `code/`, `code/tests/`, `figures/`, `reports/`, each containing a `.gitkeep`; `code/requirements.txt` listing exact versions of `pandas`, `numpy`, `scikit-learn`, `scipy`, `periodictable`, `requests`, `pyyaml`, `ruff`, `black`; `.ruff.toml` and `.pre-commit-config.yaml` enabling `ruff` and `black`.  
+  - **Verification**: `tree` (or equivalent) shows all directories with a `.gitkeep`; `pip install -r code/requirements.txt` succeeds without version conflicts; `ruff --quiet .` and `black --check .` both exit with code 0.
 
-## Format: `[ID] [P?] [Story] Description`
+- [ ] T002 [US1] Implement a reproducible download script that fetches the MPEA dataset from the canonical Figshare URL associated with DOI 10.1038/s41597-020-00768-9, writes the file to `data/raw/mpea_raw.csv`, and fails loudly on any network, HTTP, or schema error.  
+  - **Path**: `code/download.py` (executable via `python -m code.download`).  
+  - **Verification**: Running the module on a clean runner creates `data/raw/mpea_raw.csv` containing the required columns (`composition`, `yield_strength`, `crystal_structure`). A forced bad URL raises an exception and exits non‑zero; no fallback file is written. The exact URL used is documented in `quickstart.md`.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T003 [US1] Add a unit‑test suite for the download step.  
+  - **Path**: `code/tests/test_download.py`.  
+  - **Verification**: `pytest code/tests/test_download.py -q` passes; tests include a mock‑response failure case that confirms the script raises without creating a file.
 
-## Path Conventions
+## Phase 2 – Data curation, filtering, and scarcity handling
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T004 [US1] Implement `code/data_ingestion.py` to (a) read `data/raw/mpea_raw.csv`, (b) filter for rows where `crystal_structure == "BCC"` and `yield_strength` is numeric, (c) normalize each elemental composition to sum to 1.0, (d) log every rejected entry with a reason code to `data/logs/rejected_entries.log`, (e) aggregate duplicate compositions by averaging yield strengths and recording the standard deviation in `data/logs/aggregation.log`, (f) halt with exit‑code 1 and stderr message `DATA_SCARCITY: Insufficient BCC alloys (N < 80)` if the post‑filter count is < 80, (g) add the mandatory fields `yield_definition`, `source_reference`, and `processing_status` (set to `"filtered"` or `"aggregated"` as appropriate) to each record, and (h) validate every output row against `contracts/bcc_alloy.schema.yaml`.  
+  - **Outputs**: `data/processed/bcc_filtered.csv` (status `filtered`) and `data/processed/bcc_aggregated.csv` (status `aggregated`).  
+  - **Verification**: Running the module on the real download produces both CSVs; each row passes JSON‑schema validation; `aggregation.log` contains an entry for every duplicated composition; `rejected_entries.log` contains at least one reason code; a synthetic fixture with < 80 rows triggers the exact error message and non‑zero exit.
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- [ ] T005 [US1] Add unit‑tests for the ingestion pipeline covering (i) removal of non‑BCC rows, (ii) exclusion of non‑numeric yield entries, (iii) composition normalization (sum ≈ 1.0), (iv) proper aggregation of duplicates, and (v) the scarcity‑gate behavior.  
+  - **Path**: `code/tests/test_data_ingestion.py`.  
+  - **Verification**: All tests pass under `pytest`; the scarcity test uses a temporary CSV with 50 rows and asserts the script exits with code 1 and the correct error string.
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+## Phase 3 – Binary‑interaction parameters (NIST‑JANAF) and feature engineering
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+- [ ] T006 [US2] Provide a curated binary‑interaction‑parameter file `data/raw/nist_janaf_params.json` containing the Ω<sub>ij</sub> values from the **NIST‑JANAF Thermochemical Tables (2022 edition)**. Document the source DOI/URL and version in a header comment.  
+  - **Verification**: The JSON file includes entries for every element pair present in the filtered dataset; `code/utils.py` supplies a checksum function that confirms the file’s SHA‑256 matches the documented source hash.
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T007 [US2] Implement `code/features.py` that (a) loads elemental properties from the static `periodictable` library, (b) reads `data/raw/nist_janaf_params.json` for Ω<sub>ij</sub>, (c) computes scalar descriptors δ, VEC, mixing entropy, mixing enthalpy, and electronegativity difference per the formulas in `data-model.md`, (d) performs a self‑contained ILR transformation using a Helmert basis (no external `skbio`), (e) catches any domain errors (e.g., `log(0)`) and substitutes `0.0` while logging the alloy ID to `data/logs/descriptor_errors.log`, (f) raises a custom `MissingElementReference` error if an element symbol is not in the periodic table, and (g) raises `MissingBinaryInteractionParameter` if a required Ω<sub>ij</sub> pair is absent. The module writes `data/processed/features_engineered.csv` conforming to `contracts/compositional_descriptor.schema.yaml`.  
+  - **Verification**: Running the module on the aggregated CSV produces a features file with one row per alloy, no NaN values, and a matching schema validation; a deliberately malformed element triggers the expected exception; a missing Ω<sub>ij</sub> pair raises the named error; `descriptor_errors.log` contains entries only for compositions that legitimately caused a log‑zero situation.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T008 [US2] Add unit‑tests for the feature‑engineering module, including (i) a reference alloy (`Mo‑25Nb‑25Ta‑25W`) whose descriptor values are pre‑computed to 1e‑6 relative tolerance, (ii) verification that an unknown element raises `MissingElementReference`, (iii) verification that a missing Ω<sub>ij</sub> raises `MissingBinaryInteractionParameter`, and (iv) that the ILR basis is orthonormal and that the inverse CLR round‑trip recovers the original composition within 1e‑12.  
+  - **Path**: `code/tests/test_features.py`.  
+  - **Verification**: All tests pass under `pytest`; the orthonormality test asserts `V.T @ V ≈ I`.
 
-**Purpose**: Project initialization and basic structure
+- [ ] T018 [US2] **Feature‑selection/complementarity enforcement** – After descriptor calculation, run an L1‑regularized linear model (or RFE) on the combined feature set and verify that at least one scalar descriptor and one ILR feature survive. If the condition fails, abort with exit code 1 and message `COMPLEMENTARITY_FAILURE`.  
+  - **Verification**: The task writes a short log `data/logs/feature_selection.log`; downstream model training tasks depend on the filtered feature file `data/processed/features_selected.csv`.
 
-- [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python 3.11 project with scikit-learn, pandas, numpy, periodictable, skbio, scipy, requests dependencies
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [ ] T019 [US2] **Independent feature‑engineering test** – Add `code/tests/test_features_independent.py` that builds a minimal synthetic BCC CSV (three alloys), runs `code/features.py` directly, and checks that the output conforms to `contracts/compositional_descriptor.schema.yaml` without invoking the full ingestion pipeline.  
+  - **Verification**: `pytest code/tests/test_features_independent.py` passes, demonstrating US‑2 is independently testable.
 
----
+## Phase 4 – Baseline model & quick sanity check
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T009 [US3] Implement `code/models.py` with a thin end‑to‑end workflow that (a) loads `features_engineered.csv`, (b) creates a stratified 80/20 train‑test split using four quantile bins of the target variable (ensuring duplicated compositions stay together), (c) trains three regressors (RandomForestRegressor, GradientBoostingRegressor, Ridge) on the training split with a single 5‑fold CV pass, (d) evaluates each model on the hold‑out set producing R², MAE, RMSE, and (e) writes a JSON file `data/results/initial_model_comparison.json` containing these metrics plus a baseline mean‑predictor R² for reference.  
+  - **Verification**: Executing `python -m code.models --mode quick` produces the JSON file; repeated runs with the same `random_state=42` yield identical numbers (tolerance 1e‑8). The JSON schema matches a simplified version of `results.schema.yaml` (only the three scalar metrics are required at this stage).
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T010 [US3] Add a quick‑run test `code/tests/test_models_quick.py` that asserts the JSON file exists, contains three model entries, and that each R² is ≥ 0.0.  
+  - **Verification**: `pytest code/tests/test_models_quick.py` passes.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+## Phase 5 – Full validation (repeated CV, bootstrap CI, permutation importance)
 
-Examples of foundational tasks (adjust based on your project):
+- [ ] T011 [US3] Extend `code/models.py` (or a new function) to perform **Repeated 5‑Fold Cross‑Validation with 10 repeats** on the training split for all three models, using the full combined feature vector (scalar + ILR). Compute the mean R², MAE, RMSE across repeats and write `data/results/cv_results.json`.  
+  - **Verification**: The JSON contains, for each model, `r_squared_mean`, `mae_mean`, `rmse_mean`, and `validation_method: "Repeated5FoldCV(10)"`. Values are deterministic with the fixed seed.
 
-- [ ] T004 Setup `data/raw`, `data/processed`, `data/logs` directories with `.gitkeep` and checksum scripts
-- [ ] T005 [P] Implement `code/config.py` with fixed random seeds, path constants, and CI resource limits
-- [ ] T006 [P] Setup `code/utils.py` for logging, checksumming (SHA-256), and error handling infrastructure
-- [ ] T007a [P] Define `AlloyRecord` and `CompositionalDescriptor` data classes in `code/models.py`; define `ilr_transformed_features` as a list of floats without placeholder logic
-- [ ] T007b [P] Implement `code/models.py` initialization logic to ensure `ilr_transformed_features` is an empty list by default, to be populated by T027c
-- [ ] T008 Configure `requirements.txt` with pinned versions for reproducibility
-- [ ] T009 Setup environment configuration management for local vs. CI paths
+- [ ] T012 [US3] Implement bootstrap uncertainty quantification: for each model, resample the hold‑out predictions 1000 times, compute the percentile 95 % confidence interval for R², and store the intervals in `data/results/bootstrap_ci.json`. Also compute permutation importance (`sklearn.inspection.permutation_importance`) for **all three models**, extract the top‑5 features, and calculate stability metrics (median Spearman correlation of importance ranks across CV repeats and rank standard deviation). Write results to `data/results/permutation_importance.json`, matching the structure required by `contracts/results.schema.yaml`.  
+  - **Verification**: The CI JSON contains `[lower, upper]` arrays for each model; the permutation JSON includes a `feature_importance` map of five features, a `feature_stability` object with `spearman_correlation` and `rank_std_dev`. All numbers are reproducible with the same seed.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T013 [US3] Add comprehensive tests `code/tests/test_models_full.py` that (a) confirm the presence and correct schema of `cv_results.json`, `bootstrap_ci.json`, and `permutation_importance.json`, (b) verify that the best‑model’s R² CI does **not** include the baseline mean‑predictor R² (fulfilling SC‑001), (c) assert that `mae_mean` ≤ 50 MPa yields `practical_utility.mae_vs_threshold = true` (used later in the final report), (d) validate that the descriptor‑error count equals the number of fallback 0.0 values (fulfilling SC‑006).  
+  - **Verification**: All assertions pass on the real dataset; failures would cause the CI to include the baseline, which the test would flag.
 
----
+- [ ] T020 [US3] **MAE vs. experimental uncertainty** – After model evaluation, compare the reported MAE to the experimental uncertainty (~45 MPa). Record a boolean flag `mae_vs_uncertainty` and the numeric difference in `reports/results.json` under `practical_utility`.  
+  - **Verification**: The flag is present and correctly reflects the comparison; unit‑test `code/tests/test_mae_uncertainty.py` checks the logic.
 
-## Phase 3: User Story 1 - Data Curation and BCC Filtering (Priority: P1) 🎯 MVP
+- [ ] T021 [US3] **Descriptor‑error count validation** – Count entries in `data/logs/descriptor_errors.log` and verify that the same number of alloys received a fallback value of 0.0 during feature calculation. Include this count and the validation result in `reports/results.json`.  
+  - **Verification**: The task writes `data/logs/descriptor_error_validation.log` and the JSON field `descriptor_error_count_match` (true/false). Unit‑test confirms equality.
 
-**Goal**: Obtain a clean, filtered dataset containing only BCC alloys with valid yield strength and complete compositions.
+- [ ] T022 [US3] **Metadata coverage (Phase 0.5)** – Scan the original MPEA CSV for optional testing‑condition columns (temperature, strain‑rate). Log the fraction of rows that contain complete metadata to `data/logs/confounding_metadata.log` and propagate this fraction into `reports/results.json` as `metadata_coverage_fraction`.  
+  - **Verification**: The log file exists, contains a single line with the fraction (e.g., `0.68`), and the JSON field matches.
 
-**Independent Test**: The system can be tested by executing the data ingestion pipeline and verifying that the output CSV contains zero entries with missing yield strength, zero entries with non-BCC crystal structures, and that all composition rows sum to 1.0 (atomic fraction).
+## Phase 6 – Consolidated results report
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T014 [US3] Assemble `reports/results.json` that (a) records `experiment_id` (UUID generated at runtime), `feature_set_type: "combined"`, the final `n_samples` (post‑filter count), the descriptor‑error count from `descriptor_errors.log`, the aggregation statistics from `aggregation.log`, and the confounding‑metadata coverage fraction from `data/logs/confounding_metadata.log`, (b) includes a `models` array where each element conforms exactly to `contracts/results.schema.yaml` (populated from the three JSON artifacts produced in T011–T012), (c) adds the `practical_utility` fields (`mae_vs_threshold`, `mae_value`, `mae_vs_uncertainty`), and (d) records the SC‑001 significance outcome as a free‑text field `statistical_significance` (e.g., `"significant"` or `"non‑significant"`).  
+  - **Verification**: Running a single command `python -m code.report` produces `reports/results.json` that validates against `contracts/results.schema.yaml` (using a small validation script). The file references no manually typed numbers; all values are read from prior result artifacts.
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+## Phase 7 – Figures, tables, and documentation handoff
 
-- [ ] T010 [P] [US1] Unit test for BCC filtering logic in `tests/unit/test_data_ingestion.py`
-- [ ] T011 [P] [US1] Unit test for composition normalization (sum=1.0) in `tests/unit/test_data_ingestion.py`
-- [ ] T012 [P] [US1] Unit test for handling non-numeric yield strength values in `tests/unit/test_data_ingestion.py`
+- [ ] T015 [US3] Generate a model‑comparison table (`figures/model_comparison.csv`) and a scatter plot of measured vs. predicted yield strength for the best model (`figures/prediction_scatter.png`). The table includes mean R² with CI, MAE, RMSE, and baseline values. The plot includes a 1:1 reference line, axis labels with units (MPa), and a legend indicating the model type. After creation, compute a SHA‑256 checksum of the PNG and append it to `data/logs/figures_checksum.log`.  
+  - **Verification**: The CSV file contains the expected columns; the PNG is produced without error; `figures_checksum.log` contains a line `<sha256>  prediction_scatter.png`.
 
-### Implementation for User Story 1
+- [ ] T016 [US3] Write a concise methods‑and‑results markdown file `paper/methods_results.md` that (a) cites the exact data provenance (MPEA DOI, NIST‑JANAF parameter source URL), (b) describes each pipeline stage with file‑path references, (c) reports SC‑001 and SC‑002 outcomes verbatim from `reports/results.json`, (d) discusses limitations (power analysis, metadata scarcity), and (e) explicitly states that `mae_vs_threshold` is a reported comparison, not a gating criterion.  
+  - **Verification**: A reviewer script checks that every quantitative claim (e.g., R² value, CI bounds, MAE) appears as a substring of `reports/results.json`; the document contains no placeholder text.
 
-- [ ] T013 [US1] Implement `code/data_ingestion.py` to download MPEA database from DOI: 10.1038/s41597-020-00768-9 and save to `data/raw/mpea_raw.csv`
-- [ ] T014 [US1] Implement filtering logic in `code/data_ingestion.py` to exclude non-BCC phases and null yield strength
-- [ ] T015 [US1] Implement composition normalization in `code/data_ingestion.py` to ensure rows sum to 1.0 with logging
-- [ ] T016 [US1] Implement logic to average duplicate compositions or select median, logging the method used
-- [ ] T017 [US1] Implement data scarcity check: Halt with exit code 1 and "DATA_SCARCITY: Insufficient BCC alloys (N < 80)" if N < 80
-- [ ] T018 [US1] Save filtered dataset to `data/processed/bcc_filtered.csv` and rejected entries to `data/logs/rejected_entries.log`
+- [ ] T017 [US3] Perform a full reproducibility run in a clean temporary environment: (a) create a fresh virtual environment, install from `code/requirements.txt`, (b) execute the documented command chain in `quickstart.md` (`python -m code.download && python -m code.data_ingestion && python -m code.features && python -m code.models && python -m code.report`), (c) run `pytest code/tests/` and confirm all tests pass, (d) compare the newly generated `reports/results.json` hash to the previously committed one (they must match). Document the outcome in `quickstart.md` under a newly added “Reproducibility Check” section.  
+  - **Verification**: The reproducibility script exits with code 0 and prints “Reproducibility check passed”. Any mismatch aborts with a clear error message.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Compositional Feature Engineering (Priority: P2)
-
-**Goal**: Generate derived compositional descriptors and ILR-transformed features for regression modeling.
-
-**Independent Test**: The system can be tested by running the feature engineering module on a fixed reference alloy ({{claim:c_03b67f39}}) and verifying that the calculated descriptors match manually calculated reference values within a relative tolerance of ≤ 1e-6.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T019 [P] [US2] Unit test for atomic radius mismatch (δ) calculation in `tests/unit/test_feature_engineering.py`
-- [ ] T020 [P] [US2] Unit test for VEC and mixing entropy/enthalpy calculations in `tests/unit/test_feature_engineering.py`
-- [ ] T021 [P] [US2] Unit test for ILR transformation logic in `tests/unit/test_feature_engineering.py`
-- [ ] T022 [P] [US2] Unit test for handling missing element references (error logging) in `tests/unit/test_feature_engineering.py`
-
-### Implementation for User Story 2
-
-- [ ] T023 [US2] Implement `code/feature_engineering.py` to load periodic table data (atomic radius, electronegativity, valence)
-- [ ] T025a [US2] Download and verify binary interaction parameters (Ω_ij) from the NIST-JANAF thermodynamic database (or specified CALPHAD source) and save to `data/raw/thermo_params_nist_janaf.json`; verify checksum
-- [ ] T024 [US2] Implement calculation of scalar descriptors: δ, VEC, mixing entropy, mixing enthalpy (using sourced Ω_ij from T025a), electronegativity difference
-- [ ] T026 [US2] Implement Isometric Log-Ratio (ILR) transformation on compositional features using `skbio`
-- [ ] T027a [US2] Implement concatenation of ILR-transformed features and scalar descriptors into a single feature matrix
-- [ ] T027c [US2] Populate `ilr_transformed_features` in the `CompositionalDescriptor` data class with the output from T026
-- [ ] T029 [US2] Implement Pre-Filter Dimensionality Reduction (PCA) on the concatenated feature matrix to mitigate overfitting for N < 100; retain components explaining the majority of variance
-- [ ] T030 [US2] Implement Residualization of scalar descriptors against ILR coordinates to ensure geometric independence and mitigate multicollinearity
-- [ ] T031 [US2] Apply L1 regularization if N < 100, else Recursive Feature Elimination (RFE) on the PCA/Residualized feature matrix to select the most predictive subset
-- [ ] T028 [US2] Implement pre-analysis independence check to detect circular validation between thermodynamic parameters and yield strength
-- [ ] T032 [US2] Save engineered dataset to `data/processed/features_engineered.csv` with full traceability log
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Regression Modeling and Validation (Priority: P3)
-
-**Goal**: Train models, evaluate performance, and generate confidence intervals using nested cross-validation.
-
-**Independent Test**: The system can be tested by running the training script with a fixed random seed and verifying that the reported R², MAE, and RMSE values match expected values within a predefined tolerance threshold, and that the bootstrapped confidence intervals are generated using the specified method.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T033 [P] [US3] Unit test for stratified split logic in `tests/unit/test_modeling.py`
-- [ ] T034 [P] [US3] Unit test for nested cross-validation implementation in `tests/unit/test_modeling.py`
-- [ ] T035 [P] [US3] Unit test for bootstrap confidence interval calculation in `tests/unit/test_modeling.py`
-
-### Implementation for User Story 3
-
-- [ ] T033 [US3] Implement `code/modeling.py` to perform a stratified train-test split based on 4 quantile bins of yield strength; save `train_split` and `test_split` artifacts
-- [ ] T034 [US3] Implement Random Forest, Gradient Boosting, and Ridge Regression training with k-fold cross-validation within the training set
-- [ ] T035 [US3] Implement nested cross-validation strategy (Repeated Stratified K-Fold) applied ONLY to the `train_split` from T033 to avoid data leakage
-- [ ] T036a [US3] Run nested cross-validation to generate a distribution of R² scores
-- [ ] T036b [US3] Perform bootstrap resamples on the DISTRIBUTION of scores generated by T036a (nested CV) to generate multiple bootstrap iterations
-- [ ] T037 [US3] Calculate confidence intervals for R² using the percentile method on the bootstrapped distribution from T036b
-- [ ] T038a [US3] Implement permutation importance testing to rank the most predictive features for each bootstrap iteration
-- [ ] T041 [US3] Extract feature importance ranks from the bootstrap resamples generated in T038a, calculate the standard deviation of these ranks across resamples, and verify SC-003 (std dev < 2.0); run `code/validate_success.py` against `reports/model_comparison_report.json` to verify MAE ≤ 50 MPa AND R² > null baseline
-- [ ] T038b [US3] Generate final report comparing R², MAE, RMSE for all models and identifying the best performer; save to `reports/model_comparison_report.json`
-- [ ] T039 [US3] Implement `code/traceability.py` to extract metrics from logs and update `state/projects/PROJ-525-predicting-the-yield-strength-of-bcc-all.yaml`
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T040 [P] Documentation updates in `README.md` and `quickstart.md`
-- [ ] T041 Code cleanup and refactoring for readability
-- [ ] T042 Performance optimization to ensure full pipeline runs < 6 hours on CI
-- [ ] T043 [P] Additional unit tests for edge cases (log domain errors, missing elements)
-- [ ] T044 Run quickstart.md validation to ensure end-to-end reproducibility
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 feature output
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for BCC filtering logic in tests/unit/test_data_ingestion.py"
-Task: "Unit test for composition normalization (sum=1.0) in tests/unit/test_data_ingestion.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/data_ingestion.py to download MPEA database"
-Task: "Implement filtering logic in code/data_ingestion.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- [ ] T023 [US3] Update `quickstart.md` to include a “Reproducibility Check” subsection that describes the steps in T017 and records the hash‑comparison result.  
+  - **Verification**: The markdown file contains the new subsection; the CI test `code/tests/test_quickstart.py` checks for its presence.

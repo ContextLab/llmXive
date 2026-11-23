@@ -1,0 +1,104 @@
+T006:
+  c: true
+  h: d2197dbfc618d0c0b45c6ba8ba6d63861dddf7d5a86da9061905c4e5318a4592
+  r: "The `code/logging_config.py` file exists, is non\u2011empty, and defines functions\
+    \ to initialize logging, write pairwise comparison entries to a JSONL file, and\
+    \ collect resource usage stats for a JSON resource log, matching the task\u2019\
+    s specifications. The actual log files are runtime outputs and need not exist\
+    \ beforehand."
+T013:
+  c: false
+  h: 29b1682228a3082bd2b352a17842a1277a738bdd6da0e8dcdfbdac8789b602a5
+  r: The repository contains a partially implemented `code/metrics.py` with helper
+    functions, but it never reads `data/processed/comparison_log.json`, computes cosine
+    similarities with the `all-MiniLM-L6-v2` model, flags pairs, or writes `data/results/flagged_pairs_count.json`.
+    Moreover, both `data/processed/comparison_log.json` and `data/results/flagged_pairs_count.json`
+    are absent. The required execution and output artifacts are missing.
+T013b:
+  c: false
+  h: c0922e3dad97a807712e0b94aecd0798c2fcd5667b5b92f0e5dbb57179b10fb2
+  r: "The `code/metrics.py` file only defines a helper `calculate_dynamic_sample_size`\
+    \ and never reads `data/results/flagged_pairs_count.json`, never writes `sample_config.json`,\
+    \ and does not implement the edge\u2011case handling or required schema. Moreover,\
+    \ `data/results/flagged_pairs_count.json` is missing, and the existing `sample_config.json`\
+    \ does not follow the specified schema (it lacks `minimum_threshold`, `percentage`,\
+    \ and `skip_validation`, and its values are inconsistent). The task is therefore\
+    \ not fulfilled."
+T013c:
+  c: false
+  h: 20f9c79f679ab56cd0fe2ab9d640803d1a169f2f1bcd1f50d7f98bd347248d82
+  r: "The required input file `data/processed/comparison_log.json` does not exist,\
+    \ and the expected output file `data/results/consensus_sample.json` is also missing.\
+    \ No script or code implementing the filtering, sampling, and writing of indices\
+    \ is present. Consequently the task\u2019s core requirements are not satisfied."
+T014:
+  c: false
+  h: 91479be911863d9810100bc760750c69df2be7da5387e0d4ce1c9e1e05be8806
+  r: The required output files `data/processed/unique_subset.json` and `data/results/us1_baseline_metrics.json`
+    are missing, so the baseline ranker was not actually executed and no metrics were
+    recorded. Additionally, the provided `code/ranker.py` is truncated and does not
+    show the logic that writes these files or verifies the validation status before
+    proceeding. The task therefore remains unfinished.
+T019:
+  c: false
+  h: 96296957c986942207ca42fece3101dbc6c07a5fb8bfb6ab4fee27a3faa9f70a
+  r: "The required file `tests/integration/test_full_pipeline.py` is missing, so no\
+    \ integration test exists to verify full pipeline execution with the specified\
+    \ resource limits. The task\u2019s primary artifact is absent."
+T032:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `docs/` files or modifications to `README.md` are provided; the only
+    evidence is a specification excerpt and no actual documentation artifacts are
+    present to verify the claimed updates. The implementer must supply the revised
+    documentation files showing the required changes.
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, diff, or documentation artifacts showing any cleanup or refactoring
+    are present; the only evidence is the task description itself, which does not
+    demonstrate that any readability improvements were made. The required artifact
+    (refactored code files or a summary of changes) is missing.
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that any new unit\u2011test files were added under\
+    \ `tests/unit/`, nor any content showing tests for strict thresholds or low\u2011\
+    budget edge cases. Without the actual test files or their contents, the requirement\
+    \ cannot be confirmed as satisfied."
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of running or validating the `quickstart.md` (e.g., execution logs,
+    reproduced results, or a validation report) is provided; the implementer supplied
+    only the feature specification excerpt, which does not address the required quickstart
+    reproducibility check.
+T043:
+  c: false
+  h: 8c4615bb2f3cb6fafea0adce15abe96a75a92e2821e2f7041b0e9fd5b578ae67
+  r: "The provided `code/data_loader.py` ends abruptly and contains no implementation\
+    \ of the \u201CSemantic Similarity Threshold Validator\u201D, nor any code that\
+    \ writes `data/processed/validation_status.json`. The required JSON file is absent,\
+    \ so the task\u2019s execution and output requirements are not satisfied."
+T058:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or documentation for the \u201CParameter Adaptation\
+    \ Fallback\u201D mechanism was provided; the only material present is the specification\
+    \ excerpt, which does not contain the required implementation artifact. Consequently,\
+    \ there is no evidence that the fallback behavior (used by T012/T043 for injection\
+    \ retries) exists or functions as required."
+T059:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or test artifact demonstrating the required fallback\
+    \ behavior is present. The implementer did not provide any implementation that\
+    \ checks the false\u2011positive merge rate, relaxes the Jaccard threshold, logs\
+    \ the adjustment, or raises `ClusteringFailureError` when the rate remains >\u202F\
+    10\u202F%. These are essential to satisfy task T059."
+T065a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The review found no `code/schemas/injected_datasets.json` or `code/schemas/clusters.json`\
+    \ files, nor any inline JSON schema definitions for these artifacts. Without the\
+    \ required schema files, the task\u2019s deliverable is missing."

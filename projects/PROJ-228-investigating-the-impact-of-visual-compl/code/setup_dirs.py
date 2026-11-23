@@ -1,42 +1,88 @@
+"""
+Module to create the project directory structure.
+Implements T001: Create code and tests directory structure.
+"""
 import os
 from pathlib import Path
 
 
-def create_data_directories():
-    """Create data directory structure: data/raw, data/interim, data/results."""
-    base = Path("data")
-    (base / "raw").mkdir(parents=True, exist_ok=True)
-    (base / "interim").mkdir(parents=True, exist_ok=True)
-    (base / "results").mkdir(parents=True, exist_ok=True)
-    return base
+def create_data_directories(base_dir: Path) -> None:
+    """Create data subdirectories: raw, interim, processed."""
+    data_dir = base_dir / "data"
+    dirs = ["raw", "interim", "processed"]
+    for d in dirs:
+        (data_dir / d).mkdir(parents=True, exist_ok=True)
 
 
-def create_docs_directory():
-    """Create documentation directory structure: docs."""
-    docs_dir = Path("docs")
-    docs_dir.mkdir(parents=True, exist_ok=True)
-    return docs_dir
+def create_test_directories(base_dir: Path) -> None:
+    """Create test subdirectories: unit, integration."""
+    tests_dir = base_dir / "tests"
+    dirs = ["unit", "integration"]
+    for d in dirs:
+        (tests_dir / d).mkdir(parents=True, exist_ok=True)
 
 
-def create_test_directories():
-    """Create test directory structure: tests/unit, tests/integration."""
-    base = Path("tests")
-    (base / "unit").mkdir(parents=True, exist_ok=True)
-    (base / "integration").mkdir(parents=True, exist_ok=True)
-    return base
+def create_source_directories(base_dir: Path) -> None:
+    """Create source directory."""
+    (base_dir / "code").mkdir(parents=True, exist_ok=True)
 
 
-def create_source_directories():
-    """Create source directory structure: code."""
-    code_dir = Path("code")
-    code_dir.mkdir(parents=True, exist_ok=True)
-    return code_dir
+def create_docs_directory(base_dir: Path) -> None:
+    """Create docs directory."""
+    (base_dir / "docs").mkdir(parents=True, exist_ok=True)
 
 
-def create_all_directories():
-    """Create all required project directories."""
-    create_source_directories()
-    create_data_directories()
-    create_test_directories()
-    create_docs_directory()
-    return True
+def create_all_directories(project_root: Path = None) -> None:
+    """
+    Create the full project directory structure required for T001.
+    
+    Creates:
+    - code/
+    - tests/unit/
+    - tests/integration/
+    - data/raw/
+    - data/interim/
+    - data/processed/
+    - docs/ (bonus for future use)
+    """
+    if project_root is None:
+        project_root = Path.cwd()
+    
+    create_source_directories(project_root)
+    create_test_directories(project_root)
+    create_data_directories(project_root)
+    create_docs_directory(project_root)
+    
+    # Verify creation
+    expected_dirs = [
+        "code",
+        "tests/unit",
+        "tests/integration",
+        "data/raw",
+        "data/interim",
+        "data/processed",
+        "docs"
+    ]
+    
+    missing = []
+    for d in expected_dirs:
+        full_path = project_root / d
+        if not full_path.exists():
+            missing.append(str(full_path))
+    
+    if missing:
+        raise RuntimeError(f"Failed to create directories: {missing}")
+
+
+def main() -> None:
+    """Entry point for script execution."""
+    print("Creating project directory structure...")
+    create_all_directories()
+    print("Directory structure created successfully.")
+    print("Created directories:")
+    for d in ["code", "tests/unit", "tests/integration", "data/raw", "data/interim", "data/processed", "docs"]:
+        print(f"  - {d}/")
+
+
+if __name__ == "__main__":
+    main()

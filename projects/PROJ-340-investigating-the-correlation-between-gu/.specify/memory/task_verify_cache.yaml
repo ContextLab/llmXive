@@ -1,24 +1,61 @@
-T012:
+T001a:
   c: false
-  h: 82b585bf9cf2eb979bd68e0df1e89ff74253b0afd8e143e8a2fd87eb7ca4ae30
-  r: "The `validate_variables` function in `code/ingest.py` is truncated and never\
-    \ writes the computed metrics to `data/results/variable_load_metrics.json`. The\
-    \ JSON file present is a placeholder with zero counts and mismatched field names,\
-    \ and the required `dataset.schema.yaml` (or `schema.yaml`) is missing, so the\
-    \ function cannot even read the variable definitions. The task\u2019s core requirements\
-    \ are therefore not satisfied."
-T014b:
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `code/` directory or an `__init__.py` file is present in the\
+    \ provided artifacts; the implementer\u2019s claim is not backed by any tangible\
+    \ files. The required directory and initialization file must be created and shown."
+T021:
   c: false
-  h: c08812b49f79b1fa81fd7b348e3d4602502207aba5143325d1dd20bd3ab1d71d
-  r: "The repository lacks the required `data/processed/filtered_data.parquet` file\
-    \ and the `state.yaml` file, and the shown portion of `code/ingest.py` does not\
-    \ contain any logic for filtering outliers, writing a Parquet file, or recording\
-    \ a checksum. Consequently, the task\u2019s core requirements are not met."
-T016:
+  h: 4efe343b45daf5599db8dc008d7e2d5e86a7f660bbadafa55896000372b51757
+  r: "The `select_correlation_method` implementation is truncated (ends mid\u2011\
+    line) and does not fully encode the required decision tree, nor does it handle\
+    \ the mandatory compositionality flag file. Moreover, `data/metadata/compositionality_flag.json`\
+    \ is missing, so the function cannot satisfy the requirement to read it and apply\
+    \ the fallback logic when T022a fails. The task therefore remains unfinished."
+T107:
   c: false
-  h: 050430f364afa15675f30ff0783d60445548733d953d750f6d4a2a22ef6c6977
-  r: "The `code/main.py` snippet does not contain any logic that records start/end\
-    \ timestamps, checks the total runtime against a 6\u2011hour limit, or writes\
-    \ a JSON file to `data/results/timing_evidence.json`. Moreover, the required `data/results/timing_evidence.json`\
-    \ file is absent from the repository. Both the implementation and the evidence\
-    \ artifact are missing, so the task is not satisfied."
+  h: 908a2a4f4cc0d0cd1ee58ada53baf3f8d7f539d9d95a85fa0d75f5213a49f5cd
+  r: "The repository contains `code/generate_synthetic_data.py`, but the script is\
+    \ truncated and does not show a command\u2011line flag to inject a missing variable,\
+    \ nor does it demonstrate using a fixed\u2011seed `numpy.random.Generator` and\
+    \ writing the result to `data/raw/synthetic_test_data.csv`. Moreover, the required\
+    \ output file `data/raw/synthetic_test_data.csv` is absent. The task\u2019s core\
+    \ deliverable (a generated CSV with the specified properties) is missing."
+T112:
+  c: false
+  h: 8bc048c007ef975a6ec13fc131327a50465708d6e8e9c517e0ff08c5b29894eb
+  r: "The required artifact `data/metadata/method_selection_log.json` is missing,\
+    \ so there is no evidence that the pipeline was run on the three datasets or that\
+    \ method selection was logged as specified. The task\u2019s core deliverable is\
+    \ absent."
+T133:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No updated `README.md`, `quickstart.md`, or any files under `docs/` were presented;
+    the response contains only the task description and specifications, with no actual
+    markdown content or evidence of changes. The required documentation artifacts
+    are missing, so the task is not satisfied.
+T201:
+  c: false
+  h: fbf050a43c9a3300c5e337f596637b4b8cbaaa16b112aad4e17ea51c6c7c75d3
+  r: "The provided `code/ingest.py` does not contain any implementation of a formal\
+    \ power analysis (r\u202F\u2265\u202F0.3, power\u202F\u2265\u202F0.80) nor does\
+    \ it write a warning to `data/results/data_quality_report.json`. Moreover, the\
+    \ `data_quality_report.json` file is absent from the repository. Both the required\
+    \ logic and the output artifact are missing."
+T202:
+  c: false
+  h: a631dd81b83c080d896d56841211ec82c0f7a830866d5b948cc2ec119114d54d
+  r: The repository contains `code/transform.py` with a CLR transformation function,
+    but the required output file `data/processed/clr_transformed_data.parquet` and
+    the documentation file `data/metadata/method_selection_log.json` are absent, and
+    there is no visible logic handling a fallback when SparCC/SpiecEasi fails. These
+    missing artifacts prevent the task from being considered complete.
+T300:
+  c: false
+  h: 2d936f68cd392d5334403a344c2a8ff62ac046fde737ffc01733ad610213517f
+  r: "The required output file `data/results/correlation_results.csv` does not exist,\
+    \ and the required input `data/candidates/verified_sources.yaml` is also missing.\
+    \ No evidence is provided that `code/main.py` was actually executed or that the\
+    \ pipeline honored the verification\u2011mode constraints. The task therefore\
+    \ remains unfinished."

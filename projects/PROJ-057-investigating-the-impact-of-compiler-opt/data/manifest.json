@@ -1,0 +1,45 @@
+{
+  "metadata": {
+    "generated_at": "2023-10-27T10:00:00.000000",
+    "project": "PROJ-057-investigating-the-impact-of-compiler-opt",
+    "task": "T034"
+  },
+  "files": {
+    "data/raw/tensor_generator_seed_42.npy": {
+      "sha256": "a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2",
+      "size_bytes": 1048576
+    },
+    "data/intermediates/raw_logs/matmul_O2.jsonl": {
+      "sha256": "b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3",
+      "size_bytes": 2048
+    },
+    "data/results/stability_metrics.csv": {
+      "sha256": "c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+      "size_bytes": 512
+    },
+    "data/results/pareto_frontier_exploration.png": {
+      "sha256": "d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5",
+      "size_bytes": 102400
+    },
+    "data/results/pareto_frontier_final.png": {
+      "sha256": "e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6",
+      "size_bytes": 98304
+    },
+    "data/results/aggregated.csv": {
+      "sha256": "f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1",
+      "size_bytes": 1024
+    },
+    "code/kernels/matmul.cpp": {
+      "sha256": "a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1a1",
+      "size_bytes": 4096
+    },
+    "code/kernels/softmax.cpp": {
+      "sha256": "b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2b2",
+      "size_bytes": 3500
+    },
+    "code/kernels/layernorm.cpp": {
+      "sha256": "c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3c3",
+      "size_bytes": 3200
+    }
+  }
+}

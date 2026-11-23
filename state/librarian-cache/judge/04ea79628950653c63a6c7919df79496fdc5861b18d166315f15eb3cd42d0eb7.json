@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2510.22758",
+  "judged_at": "2026-07-19T21:48:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"geneb: why genomic models are hard to compare\" linguistics",
+  "rationale": "The paper focuses on evaluating empathetic speech language models using vocal cues and dialogue benchmarks, which is a distinct domain from the user's question regarding the comparison of genomic models and their linguistic properties. There is no overlap in the biological mechanism, data type (genomic vs. spoken audio), or the specific methodological challenge of comparing models across different genomic architectures.",
+  "relevant": false
+}

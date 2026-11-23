@@ -1,0 +1,31 @@
+# Ignore data directory to avoid committing raw and processed datasets
+data/
+
+# Ignore Python cache directories
+__pycache__/
+
+# Optional: ignore compiled bytecode files
+*.pyc
+*.pyo
+*.pyd
+
+# Ignore virtual environment directories if any are created locally
+venv/
+.venv/
+
+# Ignore Jupyter notebook checkpoints
+.ipynb_checkpoints/
+
+# Ignore IDE/editor specific files
+.idea/
+.vscode/
+
+# Ignore logs
+logs/
+
+# Ignore temporary files
+*.tmp
+*.log
+*.bak
+
+# End of .gitignore

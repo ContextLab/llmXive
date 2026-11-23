@@ -1,0 +1,23 @@
+status: verified
+kind: pypi_package
+ref: datasets
+access_python: 'from datasets import load_dataset
+
+  # Load the PubChem-10M-Canonicalized dataset from Hugging Face
+
+  # This dataset is memory-mapped, so len() is fast even for 10M records
+
+  ds = load_dataset(''sagawa/pubchem-10m-canonicalized'', split=''train'')
+
+  print(f''RECORDS={len(ds)}'')
+
+  print(f''FIELDS=smiles'')'
+record_count: 8999964
+sample_fields:
+- smiles
+field_coverage: 1.0
+required_fields:
+- smiles
+intent: PubChem-10M-Canonicalized organic molecules SMILES dataset from PubChem database
+  python package dataset
+cache_key: e647a06fa3958a104774a3e72bb52ce061ff18a51ba6927c183c19f042ef6bb3

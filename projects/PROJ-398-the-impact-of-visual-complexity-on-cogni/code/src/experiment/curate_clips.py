@@ -1,203 +1,218 @@
 """
-Curate meeting background video clips.
+src/experiment/curate_clips.py
 
-This script scans a directory containing video clips (downloaded by
-``src.experiment.fetch_clips``), filters them according to technical
-criteria, and writes a CSV manifest of the curated clips.
+Implements the curation step for meeting background video clips.
+It filters fetched clips based on resolution and duration criteria
+and records provenance information.
 
-Criteria
----------
-* Resolution must be at least 640 × 360 pixels.
-* Duration must be **≤ 10 seconds**.
-
-The output CSV is written to ``data/processed/curated_clips.csv`` and
-contains the following columns:
-
-* ``clip_path`` – relative path to the video file (POSIX style)
-* ``width`` – video width in pixels
-* ``height`` – video height in pixels
-* ``duration_sec`` – video duration in seconds (float, rounded to 3 dp)
-
-The script can be executed directly:
-
-.. code-block:: bash
-
-    python code/src/experiment/curate_clips.py
-    # optional arguments:
-    #   --input-dir  Path to the directory containing raw clips
-    #   --output-csv Path to the CSV file to write (default:
-    #                data/processed/curated_clips.csv)
-
-The implementation deliberately avoids heavy third‑party video libraries;
-it uses OpenCV (already a project dependency) which works in headless
-environments.
+Expected outputs:
+  - data/processed/curated_clips.csv
+  - data/metadata/curated_manifest.json
 """
 
 import argparse
 import csv
+import json
 import os
 from pathlib import Path
-from typing import List, Tuple
+from typing import List, Dict, Any
 
 import cv2
 
 # ----------------------------------------------------------------------
-# Helper utilities
+# Configuration constants
 # ----------------------------------------------------------------------
+# Minimum resolution (width x height) and maximum duration (seconds)
+MIN_WIDTH = 640
+MIN_HEIGHT = 360
+MAX_DURATION_SECONDS = 10.0
 
+# Input and output locations (relative to project root)
+RAW_CLIPS_DIR = Path("data/stimuli/raw")
+PROCESSED_CSV_PATH = Path("data/processed/curated_clips.csv")
+CURATED_MANIFEST_PATH = Path("data/metadata/curated_manifest.json")
+DATASET_MANIFEST_PATH = Path("data/metadata/dataset_manifest.json")
 
-def _get_video_properties(video_path: Path) -> Tuple[int, int, float]:
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def get_video_info(video_path: Path) -> Dict[str, Any]:
     """
-    Return (width, height, duration_seconds) for a video file.
+    Extract basic video metadata using OpenCV.
 
-    Parameters
-    ----------
-    video_path: Path
-        Path to the video file.
-
-    Returns
-    -------
-    width: int
-        Width in pixels.
-    height: int
-        Height in pixels.
-    duration_sec: float
-        Duration in seconds (rounded to 3 decimal places).
-
-    Raises
-    ------
-    RuntimeError
-        If the file cannot be opened or properties cannot be read.
+    Returns a dictionary with keys:
+      - width (int)
+      - height (int)
+      - duration (float, seconds)
+      - fps (float)
+      - frame_count (int)
     """
+    if not video_path.is_file():
+        raise FileNotFoundError(f"Video file not found: {video_path}")
+
     cap = cv2.VideoCapture(str(video_path))
     if not cap.isOpened():
-        raise RuntimeError(f"Unable to open video file: {video_path}")
+        raise RuntimeError(f"Failed to open video file: {video_path}")
 
     width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH))
     height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT))
     fps = cap.get(cv2.CAP_PROP_FPS)
-    frame_count = cap.get(cv2.CAP_PROP_FRAME_COUNT)
+    frame_count = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
 
-    # Guard against missing FPS (some containers report 0)
-    if fps <= 0:
-        # Approximate using frame count and a fallback of 30 fps
-        fps = 30.0
+    # Guard against division by zero
+    duration = (
+        frame_count / fps if fps and fps > 0 else 0.0
+    )
 
-    duration_sec = frame_count / fps if fps else 0.0
     cap.release()
-    return width, height, round(duration_sec, 3)
 
+    return {
+        "width": width,
+        "height": height,
+        "duration": duration,
+        "fps": fps,
+        "frame_count": frame_count,
+    }
 
-def _meets_criteria(width: int, height: int, duration_sec: float) -> bool:
+def meets_criteria(info: Dict[str, Any]) -> bool:
     """
-    Evaluate whether a clip satisfies the technical criteria.
-
-    - Minimum resolution: 640 × 360
-    - Maximum duration: 10 seconds
+    Determine whether a video meets the curation criteria.
     """
-    return (width >= 640) and (height >= 360) and (duration_sec <= 10.0)
+    return (
+        info["width"] >= MIN_WIDTH
+        and info["height"] >= MIN_HEIGHT
+        and info["duration"] <= MAX_DURATION_SECONDS
+    )
 
-
-# ----------------------------------------------------------------------
-# Core curation logic
-# ----------------------------------------------------------------------
-
-
-def curate_clips(
-    input_dir: Path, output_csv: Path, video_extensions: List[str] = None
-) -> List[Path]:
+def load_dataset_manifest() -> Dict[str, Any]:
     """
-    Scan ``input_dir`` for video files, filter them, and write a CSV.
-
-    Parameters
-    ----------
-    input_dir: Path
-        Directory containing raw video clips.
-    output_csv: Path
-        Destination CSV file.
-    video_extensions: list of str, optional
-        File extensions to consider as videos (case‑insensitive).
-        Defaults to common formats.
-
-    Returns
-    -------
-    List[Path]
-        List of paths (relative to the project root) for clips that
-        satisfied the criteria.
+    Load the dataset manifest generated by T032 (fetch_clips).
+    The manifest is expected at `data/metadata/dataset_manifest.json`.
     """
-    if video_extensions is None:
-        video_extensions = [".mp4", ".avi", ".mov", ".mkv", ".webm"]
+    if not DATASET_MANIFEST_PATH.is_file():
+        raise FileNotFoundError(
+            f"Dataset manifest not found at {DATASET_MANIFEST_PATH}"
+        )
+    with DATASET_MANIFEST_PATH.open("r", encoding="utf-8") as fp:
+        return json.load(fp)
 
-    input_dir = input_dir.resolve()
-    output_csv = output_csv.resolve()
-    output_csv.parent.mkdir(parents=True, exist_ok=True)
+def get_video_files() -> List[Path]:
+    """
+    Return a list of video file paths found under the raw clips directory.
+    Recognised extensions are common video containers.
+    """
+    if not RAW_CLIPS_DIR.is_dir():
+        raise FileNotFoundError(
+            f"Raw clips directory does not exist: {RAW_CLIPS_DIR}"
+        )
+    video_exts = {".mp4", ".avi", ".mov", ".mkv", ".webm"}
+    return [
+        p
+        for p in RAW_CLIPS_DIR.rglob("*")
+        if p.is_file() and p.suffix.lower() in video_exts
+    ]
 
-    curated_records = []
+def curate_clips() -> None:
+    """
+    Main curation routine:
+    1. Load the dataset manifest for provenance.
+    2. Enumerate all fetched video clips.
+    3. Filter clips according to resolution and duration criteria.
+    4. Write a CSV with the curated set.
+    5. Write a manifest JSON documenting provenance and filter criteria.
+    """
+    # Ensure output directories exist
+    PROCESSED_CSV_PATH.parent.mkdir(parents=True, exist_ok=True)
+    CURATED_MANIFEST_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-    for file_path in input_dir.rglob("*"):
-        if not file_path.is_file():
-            continue
-        if file_path.suffix.lower() not in video_extensions:
-            continue
+    # Load provenance information
+    dataset_manifest = load_dataset_manifest()
+    source_version = dataset_manifest.get("dataset_version")
+    source_url = dataset_manifest.get("source_url")
 
+    video_files = get_video_files()
+    if not video_files:
+        raise RuntimeError(
+            f"No video files found in {RAW_CLIPS_DIR}. "
+            "Ensure T032 (fetch_clips) has been executed."
+        )
+
+    curated_records: List[Dict[str, Any]] = []
+
+    for video_path in video_files:
         try:
-            width, height, duration_sec = _get_video_properties(file_path)
-        except Exception as exc:
-            # Log to stdout; in a real system we would use logging.
-            print(f"Skipping unreadable video {file_path}: {exc}")
+            info = get_video_info(video_path)
+        except Exception as e:
+            # Log and skip problematic files
+            print(f"Skipping {video_path}: {e}")
             continue
 
-        if _meets_criteria(width, height, duration_sec):
-            # Store paths relative to the repository root for portability.
-            rel_path = file_path.relative_to(Path.cwd())
-            curated_records.append(
-                {
-                    "clip_path": str(rel_path).replace(os.sep, "/"),
-                    "width": width,
-                    "height": height,
-                    "duration_sec": duration_sec,
-                }
-            )
+        if meets_criteria(info):
+            record = {
+                "video_path": str(video_path),
+                "width": info["width"],
+                "height": info["height"],
+                "duration_seconds": round(info["duration"], 3),
+            }
+            curated_records.append(record)
 
     # Write CSV
-    fieldnames = ["clip_path", "width", "height", "duration_sec"]
-    with output_csv.open("w", newline="", encoding="utf-8") as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+    csv_fieldnames = [
+        "video_path",
+        "width",
+        "height",
+        "duration_seconds",
+    ]
+    with PROCESSED_CSV_PATH.open("w", newline="", encoding="utf-8") as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=csv_fieldnames)
         writer.writeheader()
-        for row in curated_records:
-            writer.writerow(row)
+        for rec in curated_records:
+            writer.writerow(rec)
 
-    return [Path(r["clip_path"]) for r in curated_records]
+    # Write curated manifest
+    curated_manifest = {
+        "source_dataset_version": source_version,
+        "source_url": source_url,
+        "filter_criteria": {
+            "min_width": MIN_WIDTH,
+            "min_height": MIN_HEIGHT,
+            "max_duration_seconds": MAX_DURATION_SECONDS,
+        },
+        "curated_count": len(curated_records),
+    }
+    with CURATED_MANIFEST_PATH.open("w", encoding="utf-8") as fp:
+        json.dump(curated_manifest, fp, indent=2)
+
+    print(
+        f"Curated {len(curated_records)} clips written to {PROCESSED_CSV_PATH}"
+    )
+    print(f"Curated manifest written to {CURATED_MANIFEST_PATH}")
 
 # ----------------------------------------------------------------------
-# CLI entry point
+# CLI handling
 # ----------------------------------------------------------------------
-
-
-def _parse_args() -> argparse.Namespace:
+def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(
-        description="Curate meeting background video clips."
+        description="Curate fetched meeting background video clips."
     )
+    # No mandatory CLI arguments – all paths are convention‑based.
+    # Optional flag to force re‑creation of outputs.
     parser.add_argument(
-        "--input-dir",
-        type=Path,
-        default=Path("data/raw/clips"),
-        help="Directory containing raw video clips (default: data/raw/clips).",
-    )
-    parser.add_argument(
-        "--output-csv",
-        type=Path,
-        default=Path("data/processed/curated_clips.csv"),
-        help="Path to the output CSV file (default: data/processed/curated_clips.csv).",
+        "--force",
+        action="store_true",
+        help="Overwrite existing curated files if they already exist.",
     )
     return parser.parse_args()
 
-
 def main() -> None:
-    args = _parse_args()
-    curated = curate_clips(args.input_dir, args.output_csv)
-    print(f"Curated {len(curated)} clips → {args.output_csv}")
-
+    args = parse_arguments()
+    if PROCESSED_CSV_PATH.exists() or CURATED_MANIFEST_PATH.exists():
+        if not args.force:
+            print(
+                "Curated outputs already exist. Use --force to overwrite."
+            )
+            return
+    curate_clips()
 
 if __name__ == "__main__":
     main()

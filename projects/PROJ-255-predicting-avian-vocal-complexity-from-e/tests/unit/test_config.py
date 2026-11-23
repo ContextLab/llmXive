@@ -1,65 +1,169 @@
 import os
-import sys
 import pytest
+from pathlib import Path
 import tempfile
 import shutil
 
-# Add the project root to the path to allow importing from src.utils
-# Assuming the project structure places tests at root and code in 'code' (based on constraints)
-# But the API surface shows files like code/setup_data_dirs.py.
-# The task requires testing src/utils/config.py.
-# We need to ensure src is importable.
-project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-code_dir = os.path.join(project_root, "code")
-src_dir = os.path.join(project_root, "src")
+# Import the functions to test
+from src.utils.config import (
+    get_project_root,
+    get_data_dir,
+    get_raw_data_dir,
+    get_interim_data_dir,
+    get_processed_data_dir,
+    get_figures_dir,
+    ensure_directories
+)
 
-if code_dir not in sys.path:
-    sys.path.insert(0, code_dir)
-if src_dir not in sys.path:
-    sys.path.insert(0, src_dir)
 
-try:
-    from utils.config import get_project_root, SEED, RANDOM_SEED, CONFIG_PATH
-except ImportError as e:
-    # Fallback if structure is slightly different or we are running in a specific context
-    # Try relative to where the test file is
-    sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "..", "src"))
-    from utils.config import get_project_root, SEED, RANDOM_SEED, CONFIG_PATH
+class TestProjectRoot:
+    """Tests for get_project_root function."""
 
-class TestConfigUtils:
-    def test_seed_is_integer(self):
-        """Verify SEED is an integer."""
-        assert isinstance(SEED, int), "SEED must be an integer"
-
-    def test_random_seed_is_integer(self):
-        """Verify RANDOM_SEED is an integer."""
-        assert isinstance(RANDOM_SEED, int), "RANDOM_SEED must be an integer"
-
-    def test_config_path_exists_or_is_string(self):
-        """Verify CONFIG_PATH is a string."""
-        assert isinstance(CONFIG_PATH, str), "CONFIG_PATH must be a string"
-
-    def test_get_project_root_returns_string(self):
-        """Verify get_project_root returns a string path."""
+    def test_returns_path_object(self):
+        """Test that get_project_root returns a Path object."""
         root = get_project_root()
-        assert isinstance(root, str), "get_project_root must return a string"
-        assert len(root) > 0, "get_project_root must return a non-empty string"
+        assert isinstance(root, Path)
 
-    def test_get_project_root_is_absolute(self):
-        """Verify get_project_root returns an absolute path."""
+    def test_root_exists(self):
+        """Test that the returned root path exists on the filesystem."""
         root = get_project_root()
-        assert os.path.isabs(root), "get_project_root must return an absolute path"
+        assert root.exists()
 
-    def test_get_project_root_matches_current_dir(self):
-        """Verify get_project_root matches the directory of the config file."""
-        # We infer the project root by going up from the config module location
-        # Assuming utils.config is at src/utils/config.py
-        config_file_dir = os.path.dirname(__file__) # This is tests/unit
-        # Navigate up to project root (tests -> src -> project_root? No, usually tests is at root)
-        # Based on constraints: "All artifact paths are relative to the project root and MUST live under code/, data/, tests/, or specs/"
-        # So tests/ is at root.
-        # get_project_root() should return the directory containing 'tests', 'code', 'data', 'src'.
+    def test_root_is_absolute(self):
+        """Test that the returned root path is absolute."""
         root = get_project_root()
-        # Check if 'tests' directory exists in root
-        assert os.path.isdir(os.path.join(root, "tests")), "Project root should contain 'tests' directory"
-        assert os.path.isdir(os.path.join(root, "code")), "Project root should contain 'code' directory"
+        assert root.is_absolute()
+
+
+class TestDataDirectories:
+    """Tests for directory getter functions."""
+
+    def test_get_data_dir_returns_path(self):
+        """Test that get_data_dir returns a Path object."""
+        data_dir = get_data_dir()
+        assert isinstance(data_dir, Path)
+
+    def test_get_raw_data_dir_returns_path(self):
+        """Test that get_raw_data_dir returns a Path object."""
+        raw_dir = get_raw_data_dir()
+        assert isinstance(raw_dir, Path)
+
+    def test_get_interim_data_dir_returns_path(self):
+        """Test that get_interim_data_dir returns a Path object."""
+        interim_dir = get_interim_data_dir()
+        assert isinstance(interim_dir, Path)
+
+    def test_get_processed_data_dir_returns_path(self):
+        """Test that get_processed_data_dir returns a Path object."""
+        processed_dir = get_processed_data_dir()
+        assert isinstance(processed_dir, Path)
+
+    def test_get_figures_dir_returns_path(self):
+        """Test that get_figures_dir returns a Path object."""
+        fig_dir = get_figures_dir()
+        assert isinstance(fig_dir, Path)
+
+    def test_directory_hierarchy_correct(self):
+        """Test that data directories are subdirectories of the project root."""
+        root = get_project_root()
+        data_dir = get_data_dir()
+        raw_dir = get_raw_data_dir()
+        interim_dir = get_interim_data_dir()
+        processed_dir = get_processed_data_dir()
+        fig_dir = get_figures_dir()
+
+        # All data dirs should be under the project root
+        assert str(data_dir).startswith(str(root))
+        assert str(raw_dir).startswith(str(data_dir))
+        assert str(interim_dir).startswith(str(data_dir))
+        assert str(processed_dir).startswith(str(data_dir))
+        assert str(fig_dir).startswith(str(data_dir))
+
+
+class TestEnsureDirectories:
+    """Tests for ensure_directories function."""
+
+    def test_creates_all_standard_directories(self):
+        """Test that ensure_directories creates all required directories."""
+        # Use a temporary directory to test directory creation without side effects
+        with tempfile.TemporaryDirectory() as tmpdir:
+            # Temporarily override the project root for testing
+            original_root_func = get_project_root
+            
+            # Mock get_project_root to return our temp directory
+            import src.utils.config as config_module
+            
+            def mock_get_project_root():
+                return Path(tmpdir)
+            
+            config_module.get_project_root = mock_get_project_root
+            
+            try:
+                # Call the function
+                ensure_directories()
+                
+                # Verify directories were created
+                data_dir = get_data_dir()
+                raw_dir = get_raw_data_dir()
+                interim_dir = get_interim_data_dir()
+                processed_dir = get_processed_data_dir()
+                fig_dir = get_figures_dir()
+                
+                assert data_dir.exists()
+                assert data_dir.is_dir()
+                assert raw_dir.exists()
+                assert raw_dir.is_dir()
+                assert interim_dir.exists()
+                assert interim_dir.is_dir()
+                assert processed_dir.exists()
+                assert processed_dir.is_dir()
+                assert fig_dir.exists()
+                assert fig_dir.is_dir()
+            finally:
+                # Restore original function
+                config_module.get_project_root = original_root_func
+
+    def test_idempotent(self):
+        """Test that calling ensure_directories multiple times is safe."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            import src.utils.config as config_module
+            
+            def mock_get_project_root():
+                return Path(tmpdir)
+            
+            original_root_func = config_module.get_project_root
+            config_module.get_project_root = mock_get_project_root
+            
+            try:
+                # Call twice
+                ensure_directories()
+                ensure_directories()
+                
+                # Should still exist
+                assert get_data_dir().exists()
+                assert get_raw_data_dir().exists()
+            finally:
+                config_module.get_project_root = original_root_func
+
+    def test_handles_existing_directories(self):
+        """Test that ensure_directories doesn't fail if directories already exist."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            import src.utils.config as config_module
+            
+            def mock_get_project_root():
+                return Path(tmpdir)
+            
+            original_root_func = config_module.get_project_root
+            config_module.get_project_root = mock_get_project_root
+            
+            try:
+                # Create directories manually first
+                ensure_directories()
+                
+                # Call again - should not raise
+                ensure_directories()
+                
+                # Verify they still exist
+                assert get_data_dir().exists()
+            finally:
+                config_module.get_project_root = original_root_func

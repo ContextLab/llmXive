@@ -48,5 +48,15 @@
     "figures/motivation_envbase_vs_envfree.pdf",
     "figures/questions_ablation.pdf",
     "figures/latency_distribution.pdf"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "29f42ac936a1610999f9794f7bada510c46234486ef4506104f6e1c02ab6e1da",
+      "bytes": 1587792
+    },
+    "original.pdf": {
+      "sha256": "d1e8f075ea6f925b49f3a8b01f48fd0192a09aa8a48999e89a38165548f41a2d",
+      "bytes": 1553196
+    }
+  }
 }

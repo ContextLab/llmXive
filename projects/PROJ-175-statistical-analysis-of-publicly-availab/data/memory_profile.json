@@ -1,0 +1,11 @@
+{
+  "task": "T035a",
+  "dataset": "jnh1994/Recipe1M",
+  "mode": "streaming",
+  "rows_processed": 0,
+  "peak_memory_gb": 0.0,
+  "limit_gb": 6.0,
+  "status": "success",
+  "duration_seconds": 0.0,
+  "output_files": []
+}

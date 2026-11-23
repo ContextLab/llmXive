@@ -1,0 +1,24 @@
+{
+  "project_id": "PROJ-845-llmxive-follow-up-extending-qwen-image-f",
+  "ok": false,
+  "reason": "9 run-book script(s) missing (plan/impl path mismatch): python code/main.py --phase generate --output data/raw/; python code/main.py --phase validate_entropy --input data/raw/; python code/main.py --phase teacher_traces --input data/raw/ --output data/raw/; 5 declared deliverable(s) absent: data/processed/statistical_results.json; data/raw/high_entropy.csv; data/raw/low_entropy.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --phase generate --output data/raw/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --phase validate_entropy --input data/raw/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --phase teacher_traces --input data/raw/ --output data/raw/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --phase validate_traces --input data/raw/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --phase validate_generalization --input data/raw/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --phase distill --input data/raw/ --output data/processed/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --phase evaluate --input data/processed/ --output data/processed/ -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --phase analyze --input data/processed/ --output data/processed/stats.json -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/main.py': [Errno 2] No such file or directory",
+    "python code/main.py --phase report --input data/processed/stats.json --output report.txt -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-845-llmxive-follow-up-extending-qwen-image-f/code/main.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-22T06:28:21Z"
+}

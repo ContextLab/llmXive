@@ -65,5 +65,15 @@
     "seed/bytedance.jpg",
     "seed/ByteSans-Medium.ttf",
     "seed/bytesans.tfm"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "dd233827028376fb592120db09cb2b02a5470e1349aca4ae6e2e9942cc5b92da",
+      "bytes": 35836422
+    },
+    "original.pdf": {
+      "sha256": "47a1ba1cc5d5019538cdffc7aa9d2273efb8a9e6c939a99b4d0d5e9b1bb74c6d",
+      "bytes": 35807040
+    }
+  }
 }

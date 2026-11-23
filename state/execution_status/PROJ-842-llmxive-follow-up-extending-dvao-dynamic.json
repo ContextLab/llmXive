@@ -1,0 +1,18 @@
+{
+  "project_id": "PROJ-842-llmxive-follow-up-extending-dvao-dynamic",
+  "ok": false,
+  "reason": "2 run-book script(s) missing (plan/impl path mismatch): python run_experiment.py --full-sweep; python run_experiment.py --N 10 --k 0.05 --runs 5; 1 command(s) failed: python code/src/derivation/sample_complexity.py --output docs/theoretical_derivation.md (rc=1); 2 declared deliverable(s) absent: data/processed/empirical_results.json; data/processed/statistical_report.json",
+  "artifacts": [],
+  "failures": [
+    "python run_experiment.py --full-sweep -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/run_experiment.py': [Errno 2] No such file or directory",
+    "python run_experiment.py --N 10 --k 0.05 --runs 5 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/run_experiment.py': [Errno 2] No such file or directory",
+    "python code/src/derivation/sample_complexity.py --output docs/theoretical_derivation.md -> rc=1\n    Starting Sample Complexity Derivation...\n\nTraceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/code/src/derivation/sample_complexity.py\", line 260, in <module>\n    main()\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-842-llmxive-follow-up-extending-dvao-dynamic/code/src/derivation/sample_complexity.py\", line 231, in main\n    result = derive_sample_complexity_bound()\n             ^^^^^^^^^^^^^^^^^^^^^^^^^"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-05T23:04:06Z"
+}

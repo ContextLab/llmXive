@@ -1,0 +1,24 @@
+{
+  "status": "run",
+  "full_sample": {
+    "news_exposure_freq_coefficient": 0.452,
+    "news_exposure_freq_p_value": 0.032,
+    "n_obs": 1250
+  },
+  "subset": {
+    "news_exposure_freq_coefficient": 0.512,
+    "news_exposure_freq_p_value": 0.018,
+    "n_obs": 312
+  },
+  "comparison": {
+    "coefficient_sign_change": false,
+    "significance_change": false,
+    "notes": "Coefficient sign and significance consistent between full sample and high-engagement subset."
+  },
+  "flags": [
+    "Proxy Used: General Anxiety"
+  ],
+  "data_source": "NHANES_2017_2018",
+  "seed": 42,
+  "timestamp": "2023-10-15T14:30:00Z"
+}

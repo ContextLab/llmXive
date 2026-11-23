@@ -1,3 +1,4 @@
 """
-Test suite for the llmXive automated science pipeline.
+Tests package for the llmXive fMRI entropy project.
 """
+pass

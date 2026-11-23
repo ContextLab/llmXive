@@ -35,5 +35,15 @@
     "images/support_vs_reward_auc_1p7b_8b_colored_paper.pdf",
     "images/1p7b_8b_mean.pdf",
     "images/trust_region.pdf"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "09dbd496fc47436b44f029d1abc7103dc312e81cd40c45f73ded2f09c8b03993",
+      "bytes": 840476
+    },
+    "original.pdf": {
+      "sha256": "5e3fe30fe337a52102906b3c2170b44fcd7e499f8cdac673090c2385b8f95b70",
+      "bytes": 805670
+    }
+  }
 }

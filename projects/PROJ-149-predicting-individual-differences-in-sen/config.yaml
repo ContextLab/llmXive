@@ -1,0 +1,30 @@
+# Project Configuration for EEG Sensory Speed Analysis
+# Generated for PROJ-149
+
+paths:
+  data_raw: data/raw
+  data_interim: data/interim
+  data_processed: data/processed
+  figures: figures
+  code: code
+
+filter_params:
+  low_cut: 1.0
+  high_cut: 40.0
+  notch_freqs:
+    - 50.0
+    - 60.0
+  variance_threshold: 3.0
+
+bands:
+  delta: [1.0, 4.0]
+  theta: [4.0, 8.0]
+  alpha: [8.0, 13.0]
+  low_beta: [13.0, 20.0]
+  high_beta: [20.0, 30.0]
+  gamma: [30.0, 40.0]
+
+modeling:
+  cv_folds: 5
+  bonferroni_bands: 6
+  alpha_threshold: 0.05

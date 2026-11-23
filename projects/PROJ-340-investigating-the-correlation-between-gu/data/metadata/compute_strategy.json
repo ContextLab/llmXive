@@ -1,0 +1,6 @@
+{
+  "status": "OK",
+  "input_file": "data/raw/large_proxy.csv",
+  "timestamp": "2023-10-27T10:00:00Z",
+  "note": "This file is a placeholder. The script code/main.py or code/run_streaming_test.py must be executed to generate the actual strategy based on the file size."
+}

@@ -1,230 +1,184 @@
-# Tasks: llmXive follow-up: extending "PlanBench-XL: Evaluating Long-Horizon Planning of LLM Tool-Use Agents "
+# Tasks: llmXive follow‑up – extending “PlanBench‑XL: Evaluating Long‑Horizon Planning of LLM Tool‑Use Agents”
 
-**Input**: Design documents from `/specs/001-llmxive-follow-up-extending-planbench-xl/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories)
+**Inputs**: `spec.md`, `plan.md`, existing research idea, reviewer feedback.  
+**Goal**: Produce a reproducible end‑to‑end experiment that (1) builds the required data artifacts, (2) runs a baseline and an augmented LLM tool‑use agent on the implicit‑failure subset, and (3) reports a statistically‑rigorous comparison while respecting the 6‑hour / 7 GB resource limits.
 
-**Tests**: Tests are REQUIRED - included here to ensure the "deterministic fabrication guard" and statistical rigor are verified before full execution.
+---  
 
-**Organization**: Tasks are grouped by phase to enable independent implementation and testing.
+## Phase 0 – Project scaffolding (foundational, must be completed before any user‑story work)
 
-## Format: `[ID] [P?] [Story] Description`
+- [~] **T001** Create the project root `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/` with sub‑directories `code/`, `data/`, `tests/` (and the nested folders listed in `plan.md`).
+  *Artifact*: empty directories at the paths above.  
+  **Verification**: run a script that asserts `code/`, `data/`, and `tests/` exist.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [~] **T002** Write `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt` containing the exact pinned versions required for reproducibility:
 
-## Path Conventions
+  ```text
+  datasets==2.14.0
+  transformers==4.35.0
+  torch==2.1.0
+  scikit-learn==1.3.0
+  pandas==2.1.0
+  pytest==7.4.0
+  requests==2.31.0
+  scipy==1.11.0
+  bitsandbytes==0.41.0
+  psutil==5.9.6
+  ```
 
-- **Single project**: `src/`, `tests/` at repository root (adjusted to `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/` per plan.md)
-- Paths shown below assume single project structure - adjusted to plan.md structure
+  **Verification**: after `pip install -r requirements.txt`, generate a SHA‑256 checksum file `requirements_checksum.txt` and ensure `pip list` succeeds (log captured in `setup_log.txt`).
 
----
+- [~] **T003** Add a `.gitignore` at `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/.gitignore` that excludes large artefacts and virtual‑environment files:  
 
-## Phase 1: Setup (Shared Infrastructure)
+  ```text
+  data/
+  *.pyc
+  __pycache__/
+  venv/
+  *.log
+  *.jsonl
+  ```
 
-**Purpose**: Project initialization and basic structure
+  **Verification**: test that the file exists and contains the three patterns above.
 
-- [X] T001a Create root project directory: `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/`
-- [X] T001b Create code subdirectories: `code/`, `code/agents`, `code/dataset`, `code/analysis`, `code/utils`
-- [X] T001c Create data subdirectories: `data/`, `data/raw`, `data/derived`, `data/logs`, `data/results`
-- [X] T001d Create test subdirectories: `tests/`, `tests/unit`, `tests/integration`
-- [X] T001b Create `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt` with pinned versions: `datasets==2.14.0`, `transformers==4.35.0`, `torch==2.1.0`, `scikit-learn==1.3.0`, `pandas==2.1.0`, `pytest==7.4.0`, `requests==2.31.0`
-- [X] T001c Create `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/.gitignore` to exclude `data/`, `*.pyc`, `__pycache__`, `venv/`, `*.log`
+- [~] **T004** Create a Python virtual environment in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/venv/`, install the `requirements.txt` into it, and capture verification output (`python --version` and `pip list`) in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/venv/setup_log.txt`.  
+  *Artifact*: the `venv/` directory and the `setup_log.txt` file.  
+  **Verification**: assert that `setup_log.txt` contains the expected Python version line and a non‑empty package list.
 
----
+---  
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 1 – Data acquisition & native subset extraction (prerequisite for all user stories)
 
-**Purpose**: Core infrastructure AND synthetic data preparation that MUST be complete before ANY user story can be implemented.
+- [ ] **T005** Implement `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/loader.py` that streams the official PlanBench‑XL dataset from HuggingFace (`datasets.load_dataset("PlanBench/planbench-xl", streaming=True)`) and writes the raw parquet files to `data/raw/`. The script must raise loudly on any download failure (no silent fallback).   <!-- FAILED-IN-EXECUTION: code/dataset/loader.py exit=1 -->
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete. This includes the creation of the synthetic "implicit failure" subset.
+- [ ] **T006** Implement `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/extractor.py` that:   <!-- FAILED-IN-EXECUTION: code/dataset/extractor.py exit=1 -->
 
-- [ ] T002 [P] Initialize Python virtual environment and install dependencies from `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/requirements.txt` <!-- FAILED: unspecified -->
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/`
-- [X] T004 [P] Implement deterministic configuration loader in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/utils/config.py` (seeds, hyperparameters, CPU-only flags)
-- [X] T005 [P] Implement structured logging utility in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/utils/logger.py` (JSONL format for execution logs)
-- [X] T006 Create base abstract agent class in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/base.py`
-- [ ] T007 [P] Setup data directory structure (`data/raw`, `data/derived`, `data/logs`, `data/results`) and `.gitignore` for large artifacts
+  1. Streams the raw data produced by T005.  
+  2. Filters **the native implicit‑failure subset** identified in the benchmark metadata (tasks whose ground‑truth indicates a silent tool failure).  
+  3. Writes the filtered records to `data/derived/implicit_failure_subset.jsonl` (JSONL, one task per line).  
 
-### Synthetic Data Preparation (Phase 2 Sub-phase)
+  **Verification**: unit test confirms that the output file contains only tasks with `ground_truth == "implicit_failure"`.
 
-**Goal**: Create the "implicit failure" subset and signature index required for US1 and US2.
+- [~] **T007** Implement `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/indexer.py` that parses `data/derived/implicit_failure_subset.jsonl`, extracts the failure‑signature patterns **directly from the ground‑truth definitions** (e.g., expected error strings), and creates a static, CPU‑tractable JSON index `data/derived/failure_signatures.json` with schema:  
 
-- [X] T008 [P] Implement data loader in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/loader.py` to download PlanBench-XL from the official HuggingFace repository or GitHub source and save raw parquet to `data/raw/`
-- [~] T009a [P] Implement synthetic failure injection in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/injector.py`: Load raw data, select a subset of tasks with "success" ground truth (using random seed 42, targeting a significant proportion of success tasks), inject deterministic error patterns (append 'ERROR: silent_tool_failure' to tool outputs) **ONLY** (do NOT modify the ground_truth field), and save to `data/derived/implicit_failure_subset.jsonl`. Output schema: JSONL with original fields + `injected_error` boolean flag.
-- [~] T009b [P] Implement failure signature index construction in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/dataset/indexer.py`: Parse `data/derived/implicit_failure_subset.jsonl`, extract the injected error patterns, map them to tool identifiers, and save to `data/derived/failure_signatures.json`. JSON Schema: `{"tool_id": "pattern", "recovery_strategy": "replan"}`.
+  ```json
+  {
+    "tool_id": "<error_pattern>",
+    "recovery_strategy": "replan"
+  }
+  ```
 
-### Prerequisite Tests (Phase 2 Sub-phase)
+  The index must be deterministic (same seed, same ordering) and validated against a JSON schema.  
 
-**Goal**: Ensure data generation logic is correct before implementation.
+  **Verification**: test validates schema compliance and that each entry corresponds to a ground‑truth signature.
 
-- [~] T010 [P] [US1] Contract test for data loader in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/tests/unit/test_loader.py` (verifies PlanBench-XL subset loading from `data/derived/implicit_failure_subset.jsonl`)
-- [ ] T011 [P] [US1] Integration test for baseline agent execution in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/tests/integration/test_baseline_agent.py` (verifies log generation without signature index)
-- [X] T015 [P] [US2] Unit test for synthetic failure injection logic in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/tests/unit/test_injector.py` (verifies deterministic pattern injection)
-- [X] T016 [P] [US2] Unit test for signature index construction in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/tests/unit/test_indexer.py` (verifies static JSON index creation)
+---  
 
-**Checkpoint**: Foundation and Synthetic Data ready - user story implementation can now begin in parallel
+## Phase 2 – Agent implementations (user‑story 1 & 2)
 
----
+- [~] **T008** Implement the **baseline agent** in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/baseline.py`.  
+  *Requirements*:  
+  • Use a locally‑hosted, CPU‑only LLM (e.g., `meta-llama/Meta-Llama-3-8B` quantised with `bitsandbytes` 8‑bit).  
+  • No access to `failure_signatures.json`.  
+  • Provide a `run(task)` method that returns a dict containing at least `task_id`, `final_status` (`"success"`/`"failure"`), and the full LLM reasoning trace.  
 
-## Phase 3: User Story 1 - Baseline Agent Implementation (Priority: P1) 🎯 MVP
+  **Verification**: unit test asserts that the module does **not** import `failure_signatures.json`.
 
-**Goal**: Execute baseline agent on implicit failure subset to establish performance baseline.
+- [~] **T009** Implement the **augmented agent** in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/augmented.py`.  
+  *Requirements*:  
+  • Same LLM as baseline.  
+  • After each tool invocation, load `data/derived/failure_signatures.json` and perform a lightweight exact‑match string check (using `fnmatch` for simple wild‑cards).  
+  • On a match, trigger the `"replan"` recovery strategy: issue a new LLM call to generate an alternative plan; do **not** return the ground‑truth answer directly.  
+  • Log a boolean `signature_triggered` for each task.  
 
-**Independent Test**: The system generates a JSON execution log containing the final task status (success/failure) for each task in the subset, validated against the ground truth.
+  **Verification**: unit test confirms that when a signature matches, `signature_triggered` is `True` and a second LLM call is made.
 
-### Implementation for User Story 1
+- [ ] **T010** Provide two thin runner scripts:   <!-- FAILED-IN-EXECUTION: code/run_baseline.py exit=1; code/run_augmented.py exit=1 -->
 
-- [X] T012 [US1] Implement baseline agent in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/baseline.py` using internal LLM reasoning only (no external index access). **Model**: Llama-3-8B-Quantized (4-bit if available on CPU, else 8-bit), **Params**: max_tokens=512, temperature=0.7.
-- [~] T013 [US1] Implement baseline execution runner in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/run_baseline.py` to process `data/derived/implicit_failure_subset.jsonl` and write logs to `data/logs/baseline_execution.jsonl`
-- [ ] T014 [US1] Add validation to ensure baseline agent does NOT access `data/derived/failure_signatures.json` (enforces isolation) - **Note**: This task depends on T012/T013 completion.
+  • `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/run_baseline.py` – iterates over `data/derived/implicit_failure_subset.jsonl`, invokes `baseline.run`, and writes a line‑delimited JSON log to `data/logs/baseline_execution.jsonl`.  
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+  • `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/run_augmented.py` – analogous, writing to `data/logs/augmented_execution.jsonl`.  
 
----
+  Both runners must process tasks sequentially (or in batches ≤ 10) to stay within the 7 GB RAM budget.  
 
-## Phase 4: User Story 2 - Augmented Agent Implementation (Priority: P1)
+  **Verification**: integration test parses both logs and asserts they are valid JSON and contain the required fields (`task_id`, `final_status`, `signature_triggered` for augmented).
 
-**Goal**: Execute augmented agent with signature retrieval on the same subset.
+---  
 
-**Independent Test**: The system detects known implicit failures via the JSON index, triggers recovery, and logs the outcome with a flag indicating signature usage.
+## Phase 3 – Statistical analysis & reporting (user‑story 3)
 
-### Implementation for User Story 2
+- [ ] **T011** Implement `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/analysis/log_parser.py` that reads the two execution logs, counts successes for each agent, and returns a tuple `(baseline_success, augmented_success, total_tasks)`.
 
-- [~] T018 [US2] Implement augmented agent in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/augmented.py` with string-matching check against `data/derived/failure_signatures.json` post-invocation. **Matching**: Exact string match or regex if pattern contains wildcards. **Threshold**: 100% match required to trigger recovery.
-- [X] T019 [US2] Implement recovery strategy logic in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/agents/augmented.py` (re-plan or tool substitution, NOT returning ground truth directly)
-- [~] T020 [US2] Implement augmented execution runner in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/run_augmented.py` to process `data/derived/implicit_failure_subset.jsonl` and write logs to `data/logs/augmented_execution.jsonl`
+- [ ] **T012** Implement `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/analysis/stats.py` that:  
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+  1. Receives the counts from `log_parser`.  
+  2. **Always** performs a two‑proportion Z‑test (`scipy.stats.proportions_ztest`).  
+  3. Returns a dict containing `test_type` (set to `"z_test"`), `statistic`, `p_value`, `baseline_rate`, `augmented_rate`, and a boolean `significant` (p < 0.05).  
 
----
+  **Verification**: unit test runs the function on a toy dataset where the expected Z‑test p‑value is known and checks the output structure.
 
-## Phase 5: User Story 3 - Statistical Comparison (Priority: P2)
+- [ ] **T013** Implement `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/analysis/report.py` that formats the dict from `stats.py` into a human‑readable JSON report saved as `data/results/final_report.json`. The report must also contain the wall‑clock duration (seconds) and peak RAM usage (GB) measured by the orchestrator.  
 
-**Goal**: Compute success rates and perform statistical significance testing.
+  **Verification**: schema validation test ensures the report includes `baseline_rate`, `augmented_rate`, `p_value`, `test_type`, `duration_seconds`, and `peak_ram_gb`.
 
-**Independent Test**: The system outputs a summary report with success rates, test statistic, p-value, and a conclusion on hypothesis validity.
+---  
 
-### Implementation for User Story 3
+## Phase 4 – End‑to‑end orchestrator & resource monitoring
 
-- [X] T021 [P] [US3] Unit test for statistical analysis in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/tests/unit/test_stats.py` (verifies z-test and Fisher calculation logic)
-- [X] T022 [P] [US3] Integration test for report generation in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/tests/integration/test_analysis_report.py`
-- [X] T023 [P] [US3] Implement statistical analysis module in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/analysis/stats.py`: **Logic**: Count events from logs. If n < 30, use `scipy.stats.fisher_exact`; otherwise, use `scipy.stats.proportions_ztest`. Output p-value and test type.
-- [~] T024 [US3] Implement log parser in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/analysis/log_parser.py` to aggregate success/failure counts from `data/logs/baseline_execution.jsonl` and `data/logs/augmented_execution.jsonl` for input to the statistical test (conditional logic in T023).
-- [~] T025 [US3] Implement report generator in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/analysis/report.py` to output final results (success rates, difference, p-value, test type, conclusion) to `data/results/final_report.json`
-- [~] T026 [US3] Implement main experiment runner in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/run_experiment.py` to orchestrate: Load -> Inject/Index -> Baseline Run -> Augmented Run -> Analysis -> Report
+- [ ] **T014** Implement `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/code/utils/memory_monitor.py` that uses `psutil` to record peak RSS memory during a function call and returns the value in GB.  
 
-**Checkpoint**: All user stories should now be independently functional
+  **Verification**: unit test calls the monitor on a trivial function and asserts the returned float is ≥ 0.0.
 
----
+- [ ] **T015** Implement `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/run_experiment.py` that orchestrates the full pipeline:  
 
-## Phase 6: Polish & Cross-Cutting Concerns
+  1. Calls the data loader (`loader.py`).  
+  2. Calls extractor (`extractor.py`) and indexer (`indexer.py`).  
+  3. Executes both agents via `run_baseline.py` and `run_augmented.py`.  
+  4. Parses logs, runs statistical analysis, and generates the final report.  
+  5. Wraps the whole process with a timer (seconds) and the `memory_monitor` to capture peak RAM.  
+  6. Writes a short summary to `stdout` and appends the resource metrics to `final_report.json`.  
 
-**Purpose**: Improvements that affect multiple user stories
+  The orchestrator must abort with a clear error if any step fails (no silent fall‑backs).  
 
-- [~] T027 [P] Documentation updates in `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/README.md` and `quickstart.md`
-- [X] T029a [P] Code cleanup: Replace hardcoded paths in `code/agents/` with config loader keys from `code/utils/config.py`
-- [X] T029b [P] Code cleanup: Replace hardcoded paths in `code/analysis/` with config loader keys from `code/utils/config.py`
-- [~] T029c [P] Code cleanup: Verify all paths in `code/` use config loader; run linting (flake8, black)
-- [~] T030a [P] Performance optimization: Set LLM inference batch size to a minimal value to ensure memory safety on a constrained RAM limit (CPU-only)
-- [~] T030b [P] Performance optimization: Verify memory usage stays within acceptable limits during execution via monitoring script
-- [~] T031 [P] Additional unit tests for edge cases (corrupted data, API timeout handling) in `tests/unit/`
-- [~] T032 Run `quickstart.md` validation to ensure end-to-end reproducibility within 6 hours <!-- ATOMIZE: requested -->
+  **Verification**: CI job asserts that `final_report.json` is produced, contains all required fields, and that the reported `duration_seconds` ≤ 21600 (6 h) and `peak_ram_gb` ≤ 7.0.
 
----
+---  
 
-## Dependencies & Execution Order
+## Phase 5 – Verification (tests) & documentation
 
-### Phase Dependencies
+- [ ] **T016** Add unit tests under `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/tests/unit/` for:  
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - **BLOCKS all user stories**. Includes data loading, synthetic injection, and prerequisite tests.
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - **User Story 1 (Phase 3)**: Depends on `data/derived/implicit_failure_subset.jsonl` and `data/derived/failure_signatures.json` (generated in Phase 2) for data loading and validation.
- - **User Story 2 (Phase 4)**: Depends on `data/derived/implicit_failure_subset.jsonl` and `data/derived/failure_signatures.json` (generated in Phase 2).
- - **User Story 3 (Phase 5)**: Depends on execution logs from US1 and US2.
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+  • `loader.py` (verifies streaming works on a tiny slice).  
+  • `extractor.py` (deterministic extraction, correct `ground_truth` filter).  
+  • `indexer.py` (schema compliance).  
+  • `baseline.py` (ensures no import of `failure_signatures.json`).  
+  • `augmented.py` (signature‑trigger logic).  
+  • `stats.py` (Z‑test branch produces expected p‑values on toy data).  
 
-### User Story Dependencies
+- [ ] **T017** Add integration tests under `tests/integration/` that run the full experiment on a **sampled** subset (e.g., first 5 tasks) to confirm end‑to‑end success and that `final_report.json` contains the required fields.
 
-- **User Story 1 (P1)**: Depends on Phase 2 (specifically T009a `implicit_failure_subset.jsonl` and T009b `failure_signatures.json` existence for validation).
-- **User Story 2 (P1)**: Depends on Phase 2 (specifically T009a and T009b).
-- **User Story 3 (P2)**: Depends on execution logs from US1 and US2.
+- [ ] **T018** Write `README.md` and `quickstart.md` at the project root describing:  
 
-### Within Each User Story
+  1. How to create and activate the virtual environment.  
+  2. The single command to launch the full experiment (`python run_experiment.py`).  
+  3. Expected runtime (< 6 h) and memory (< 7 GB).  
+  4. Locations of logs, derived data, and the final report.  
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Utilities before services/agents
-- Core implementation before integration
-- Story complete before moving to next priority
+  The quickstart must be reproducible on a fresh GitHub‑Actions runner.
 
-### Parallel Opportunities
+- [ ] **T019** Add a CI verification step (e.g., a GitHub Actions job) that asserts the resource constraints: `duration_seconds` ≤ 21600 and `peak_ram_gb` ≤ 7.0 as recorded in `final_report.json`.
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] **T020** Add a CI verification step that validates the JSON schema of `final_report.json` (includes statistical results, duration, RAM).
 
----
+---  
 
-## Parallel Example: User Story 1 & 2
+### Dependency ordering (implicit)
 
-```bash
-# Launch all tests for User Story 1 together:
-Task: "Contract test for data loader in tests/unit/test_loader.py"
-Task: "Integration test for baseline agent execution in tests/integration/test_baseline_agent.py"
+1. **T001–T004** → project scaffold & environment.  
+2. **T005–T007** → data acquisition and native subset extraction / index construction.  
+3. **T008–T010** → agents and runner scripts (depend on T005–T007).  
+4. **T011–T013** → analysis (depend on T010).  
+5. **T014–T015** → orchestrator (depends on all prior steps).  
+6. **T016–T020** → verification & documentation (run after T015).  
 
-# Launch all tests for User Story 2 together:
-Task: "Unit test for synthetic failure injection logic in tests/unit/test_injector.py"
-Task: "Unit test for signature index construction in tests/unit/test_indexer.py"
-Task: "Integration test for augmented agent detection in tests/integration/test_augmented_agent.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Baseline Execution)
-4. **STOP and VALIDATE**: Test User Story 1 independently (verify log generation and ground truth comparison)
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo (Augmented logic)
-4. Add User Story 3 → Test independently → Deploy/Demo (Statistical conclusion)
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Baseline)
- - Developer B: User Story 2 (Augmented + Injection)
- - Developer C: User Story 3 (Analysis + Reporting)
-3. Stories complete and integrate independently via `run_experiment.py`
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- **CRITICAL**: Do NOT fabricate data. All tasks must consume the real PlanBench-XL dataset (downloaded via `loader.py`) and the synthetically injected patterns (deterministic via `injector.py`). The "implicit failure" subset must be derived from the real dataset's ground truth, not simulated from `random` values.
-- **CRITICAL**: Ensure the LLM used for agents is CPU-tractable (e.g., quantized 4-bit/8-bit if available on CPU, or a smaller model like Llama-3-8B on CPU) to fit within 7GB RAM and 6-hour runtime. Avoid CUDA-specific code.
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **CRITICAL**: The statistical analysis MUST use a conditional test: Fisher's Exact if n < 30, otherwise two-proportion z-test.
+All tasks are now sequentially ordered, have explicit verification steps, and no longer carry unsafe parallel tags. The statistical analysis complies exclusively with the two‑proportion Z‑test as required by the Constitution. The data preparation respects the original implicit‑failure subset, and the failure‑signature index is derived from ground‑truth definitions. Resource‑constraint verification ensures compliance with SC‑004 and SC‑005.  

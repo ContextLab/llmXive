@@ -1,143 +1,103 @@
-"""
-Setup script for linting (Ruff) and formatting (Black) tools.
-Creates configuration files in the project root and updates .gitignore.
-"""
 import os
 import sys
 from pathlib import Path
 from typing import List
 
-def create_linting_config() -> Path:
-    """Create ruff.toml configuration file."""
-    content = """# Ruff configuration
-[lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # line-too-long (handled by Black)
-    "B008", # do not perform function calls in argument defaults
-]
 
-[lint.isort]
-known-first-party = ["code"]
-force-single-line = true
-
-[lint.per-file-ignores]
-"__init__.py" = ["F401"]
-"""
-    path = Path("ruff.toml")
-    path.write_text(content)
-    return path
-
-def create_formatting_config() -> Path:
-    """Create pyproject.toml with Black configuration."""
-    # Check if pyproject.toml exists
-    pyproject_path = Path("pyproject.toml")
-    
-    black_config = """[tool.black]
+def create_linting_config() -> None:
+    """Create ruff configuration file."""
+    config_content = """[tool.ruff]
+# Same as Black.
 line-length = 88
-target-version = ['py39']
-include = '\\.pyi?$'
-"""
-    
-    if pyproject_path.exists():
-        existing = pyproject_path.read_text()
-        if "[tool.black]" not in existing:
-            # Append to existing file
-            pyproject_path.write_text(existing + "\n" + black_config)
-        return pyproject_path
-    else:
-        # Create new file
-        pyproject_path.write_text(black_config)
-        return pyproject_path
+indent-width = 4
+target-version = "py311"
 
-def create_ruffignore() -> Path:
+[tool.ruff.lint]
+# Enable Pyflakes (`F`) and a subset of the pycodestyle (`E`)  codes by default.
+select = ["E4", "E7", "E9", "F", "I", "W"]
+ignore = []
+
+# Allow fix for all enabled rules (when `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# Allow unused variables when underscore-prefixed.
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[tool.ruff.format]
+# Like Black, use double quotes for strings.
+quote-style = "double"
+
+# Like Black, indent with spaces, rather than tabs.
+indent-style = "space"
+
+# Like Black, respect magic trailing commas.
+skip-magic-trailing-comma = false
+
+# Like Black, automatically detect the appropriate line ending.
+line-ending = "auto"
+"""
+    with open("ruff.toml", "w") as f:
+        f.write(config_content)
+    print("Created ruff.toml")
+
+
+def create_formatting_config() -> None:
+    """Create black configuration file."""
+    config_content = """[tool.black]
+line-length = 88
+target-version = ['py311']
+"""
+    with open("pyproject.toml", "a") as f:
+        f.write("\n")
+        f.write(config_content)
+    print("Updated pyproject.toml with black config")
+
+
+def create_ruffignore() -> None:
     """Create .ruffignore file."""
-    content = """# Directories to ignore for Ruff
-__pycache__/
-.venv/
-venv/
-.env/
-.git/
-"""
-    path = Path(".ruffignore")
-    path.write_text(content)
-    return path
+    with open(".ruffignore", "w") as f:
+        f.write("__pycache__/\n")
+        f.write("*.pyc\n")
+        f.write(".git/\n")
+    print("Created .ruffignore")
 
-def create_gitignore_update() -> Path:
-    """Update .gitignore with linting/formatting artifacts if not present."""
-    gitignore_path = Path(".gitignore")
-    new_entries = """
-# Linting and Formatting
-.ruff_cache/
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-"""
-    
-    if gitignore_path.exists():
-        existing = gitignore_path.read_text()
-        if ".ruff_cache/" not in existing:
-            gitignore_path.write_text(existing + new_entries)
+
+def create_gitignore_update() -> None:
+    """Update .gitignore if it exists."""
+    gitignore_path = ".gitignore"
+    entries = [
+        "data/raw/",
+        "data/processed/",
+        "data/results/",
+        "*.pyc",
+        "__pycache__/",
+    ]
+
+    if os.path.exists(gitignore_path):
+        with open(gitignore_path, "r") as f:
+            content = f.read()
+
+        for entry in entries:
+            if entry not in content:
+                with open(gitignore_path, "a") as f:
+                    f.write(f"\n{entry}\n")
+        print("Updated .gitignore")
     else:
-        gitignore_path.write_text(new_entries)
-    
-    return gitignore_path
+        with open(gitignore_path, "w") as f:
+            for entry in entries:
+                f.write(f"{entry}\n")
+        print("Created .gitignore")
 
-def main() -> int:
-    """Main entry point for setup script."""
-    print("Setting up linting and formatting tools...")
-    
-    try:
-        # Create Ruff config
-        ruff_path = create_linting_config()
-        print(f"Created: {ruff_path}")
-        
-        # Create Black config
-        black_path = create_formatting_config()
-        print(f"Created/Updated: {black_path}")
-        
-        # Create Ruff ignore
-        ruffignore_path = create_ruffignore()
-        print(f"Created: {ruffignore_path}")
-        
-        # Update .gitignore
-        gitignore_path = create_gitignore_update()
-        print(f"Updated: {gitignore_path}")
-        
-        print("\nLinting and formatting tools configured successfully!")
-        print("To run Ruff: ruff check .")
-        print("To run Black: black .")
-        print("To format and check: ruff check . && black .")
-        
-        return 0
-    except Exception as e:
-        print(f"Error during setup: {e}", file=sys.stderr)
-        return 1
+
+def main() -> None:
+    """Main entry point for linting setup."""
+    create_linting_config()
+    create_formatting_config()
+    create_ruffignore()
+    create_gitignore_update()
+    print("Linting and formatting tools configured.")
+
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

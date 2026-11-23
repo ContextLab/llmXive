@@ -1,0 +1,35 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quantifying-data-resolution-impact"
+version = "0.1.0"
+description = "Quantifying the impact of data resolution on gravitational wave signal detection"
+requires-python = ">=3.10"
+dependencies = [
+    "pycbc>=2.2.0",
+    "scipy>=1.10.0",
+    "numpy>=1.24.0",
+    "pandas>=2.0.0",
+    "gwosc>=0.7.0",
+    "pytest>=7.0.0",
+    "memory-profiler>=0.60.0",
+    "scikit-learn>=1.2.0",
+    "ruff>=0.1.0",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+include = '\.pyi?$'

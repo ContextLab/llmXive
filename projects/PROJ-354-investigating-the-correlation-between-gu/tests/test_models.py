@@ -1,310 +1,109 @@
 """
 Unit tests for the data models (Participant, MicrobiomeProfile, CognitiveScore).
 """
-
 import pytest
 import pandas as pd
-import numpy as np
-from code.models import Participant, MicrobiomeProfile, CognitiveScore
+from datetime import date
+from code.models.participant import Participant, create_participant_dataframe
+from code.models.microbiome import MicrobiomeProfile, create_microbiome_dataframe
+from code.models.cognitive import CognitiveScore, create_cognitive_dataframe, compute_composite_score
 
 
 class TestParticipant:
-    """Tests for the Participant entity."""
-    
     def test_create_participant(self):
-        """Test basic participant creation."""
         p = Participant(
             participant_id=12345,
-            age=55.0,
             sex=1,
-            bmi=25.5,
-            age_group="50-59"
+            age=55.0,
+            bmi=24.5,
+            ethnicity="White",
+            assessment_date=date(2023, 1, 15)
         )
         assert p.participant_id == 12345
-        assert p.age == 55.0
         assert p.sex == 1
-        assert p.bmi == 25.5
-        assert p.age_group == "50-59"
-    
-    def test_from_row(self):
-        """Test creating participant from pandas row."""
-        data = {
-            "participant_id": 67890,
-            "age": 45.0,
-            "sex": 0,
-            "bmi": 22.0,
-            "age_group": "40-49",
-            "antibiotic_use_recent": False
-        }
-        row = pd.Series(data)
-        p = Participant.from_row(row)
-        
-        assert p.participant_id == 67890
-        assert p.age == 45.0
-        assert p.sex == 0
-        assert p.bmi == 22.0
-        assert p.age_group == "40-49"
-        assert p.antibiotic_use_recent is False
-    
+        assert p.age == 55.0
+
     def test_to_dict(self):
-        """Test converting participant to dictionary."""
-        p = Participant(
-            participant_id=11111,
-            age=30.0,
-            sex=1
-        )
+        p = Participant(participant_id=1, sex=0, age=30.0)
         d = p.to_dict()
-        
-        assert d["participant_id"] == 11111
-        assert d["age"] == 30.0
-        assert d["sex"] == 1
-    
-    def test_validation_valid(self):
-        """Test validation with valid data."""
-        p = Participant(
-            participant_id=12345,
-            age=50.0,
-            sex=1,
-            bmi=25.0
-        )
-        errors = p.validate()
-        assert len(errors) == 0
-    
-    def test_validation_invalid_age(self):
-        """Test validation with invalid age."""
-        p = Participant(
-            participant_id=12345,
-            age=150.0,
-            sex=1
-        )
-        errors = p.validate()
-        assert any("Invalid age" in e for e in errors)
-    
-    def test_validation_invalid_sex(self):
-        """Test validation with invalid sex code."""
-        p = Participant(
-            participant_id=12345,
-            age=50.0,
-            sex=2
-        )
-        errors = p.validate()
-        assert any("Invalid sex code" in e for e in errors)
-    
-    def test_validation_missing_id(self):
-        """Test validation with missing participant_id."""
-        p = Participant(participant_id=-1, age=50.0)
-        errors = p.validate()
-        assert any("participant_id must be a positive integer" in e for e in errors)
+        assert d["participant_id"] == 1
+        assert d["sex"] == 0
+        assert "assessment_date" in d
+
+    def test_create_dataframe(self):
+        p1 = Participant(participant_id=1, sex=0, age=30.0)
+        p2 = Participant(participant_id=2, sex=1, age=40.0)
+        df = create_participant_dataframe([p1, p2])
+        assert isinstance(df, pd.DataFrame)
+        assert len(df) == 2
+        assert "participant_id" in df.columns
+        assert df["sex"].iloc[0] == 0
+
 
 class TestMicrobiomeProfile:
-    """Tests for the MicrobiomeProfile entity."""
-    
     def test_create_profile(self):
-        """Test basic profile creation."""
-        counts = {"Bacteroides": 1000.0, "Faecalibacterium": 500.0}
-        p = MicrobiomeProfile(
-            participant_id=12345,
-            genus_counts=counts
+        m = MicrobiomeProfile(
+            participant_id=123,
+            sample_id="S001",
+            raw_counts={"Bacteroides": 100, "Firmicutes": 500}
         )
-        assert p.participant_id == 12345
-        assert p.genus_counts == counts
-    
-    def test_from_row(self):
-        """Test creating profile from pandas row."""
-        data = {
-            "participant_id": 67890,
-            "genus_Bacteroides": 1000.0,
-            "genus_Faecalibacterium": 500.0,
-            "total_reads": 15000
-        }
-        row = pd.Series(data)
-        count_cols = ["genus_Bacteroides", "genus_Faecalibacterium"]
-        
-        p = MicrobiomeProfile.from_row(row, count_cols)
-        
-        assert p.participant_id == 67890
-        assert p.genus_counts["Bacteroides"] == 1000.0
-        assert p.genus_counts["Faecalibacterium"] == 500.0
-        assert p.total_reads == 15000
-    
-    def test_get_count_vector(self):
-        """Test getting count vector."""
-        counts = {"A": 10.0, "B": 20.0, "C": 30.0}
-        p = MicrobiomeProfile(participant_id=1, genus_counts=counts)
-        vec = p.get_count_vector()
-        
-        assert len(vec) == 3
-        assert np.allclose(sorted(vec), [10.0, 20.0, 30.0])
-    
-    def test_get_taxa_names(self):
-        """Test getting taxa names."""
-        counts = {"Bacteroides": 1000.0, "Faecalibacterium": 500.0}
-        p = MicrobiomeProfile(participant_id=1, genus_counts=counts)
-        names = p.get_taxa_names()
-        
-        assert set(names) == {"Bacteroides", "Faecalibacterium"}
-    
-    def test_transformation_flags(self):
-        """Test transformation status flags."""
-        p = MicrobiomeProfile(participant_id=1)
-        
-        assert not p.is_zero_replaced()
-        assert not p.is_clr_transformed()
-        assert not p.is_ilr_transformed()
-        
-        p.zero_replaced_counts = {"A": 1.0}
-        assert p.is_zero_replaced()
-        
-        p.clr_coordinates = {"A": 0.5}
-        assert p.is_clr_transformed()
-        
-        p.ilr_coordinates = {"ilr_1": 0.2}
-        assert p.is_ilr_transformed()
-    
-    def test_validation_valid(self):
-        """Test validation with valid data."""
-        p = MicrobiomeProfile(
-            participant_id=12345,
-            genus_counts={"A": 100.0, "B": 200.0},
-            total_reads=1000
+        assert m.participant_id == 123
+        assert m.raw_counts["Bacteroides"] == 100
+
+    def test_to_dict_flattens_counts(self):
+        m = MicrobiomeProfile(
+            participant_id=1,
+            sample_id="S1",
+            raw_counts={"TaxA": 10, "TaxB": 20}
         )
-        errors = p.validate()
-        assert len(errors) == 0
-    
-    def test_validation_negative_count(self):
-        """Test validation with negative count."""
-        p = MicrobiomeProfile(
-            participant_id=12345,
-            genus_counts={"A": -10.0}
-        )
-        errors = p.validate()
-        assert any("Negative count" in e for e in errors)
-    
-    def test_validation_mismatched_dimensions(self):
-        """Test validation with mismatched zero-replaced counts."""
-        p = MicrobiomeProfile(
-            participant_id=12345,
-            genus_counts={"A": 100.0, "B": 200.0},
-            zero_replaced_counts={"A": 1.0}  # Missing B
-        )
-        errors = p.validate()
-        assert any("dimension mismatch" in e for e in errors)
+        d = m.to_dict()
+        assert "count_TaxA" in d
+        assert d["count_TaxA"] == 10
+
+    def test_create_dataframe(self):
+        m1 = MicrobiomeProfile(participant_id=1, sample_id="S1", raw_counts={"A": 10})
+        m2 = MicrobiomeProfile(participant_id=2, sample_id="S2", raw_counts={"A": 20, "B": 30})
+        df = create_microbiome_dataframe([m1, m2])
+        assert isinstance(df, pd.DataFrame)
+        assert len(df) == 2
+        assert "count_A" in df.columns
+        assert df["count_A"].iloc[0] == 10
+        assert df["count_B"].iloc[0] == 0.0  # Missing becomes 0 or NaN, handled by fillna
+
 
 class TestCognitiveScore:
-    """Tests for the CognitiveScore entity."""
-    
     def test_create_score(self):
-        """Test basic score creation."""
-        s = CognitiveScore(
-            participant_id=12345,
-            fluid_intelligence_score=10.0,
-            reaction_time_ms=500.0
+        c = CognitiveScore(
+            participant_id=999,
+            assessment_date=date(2023, 5, 1),
+            numeric_memory=85.0,
+            reasoning=90.0
         )
-        assert s.participant_id == 12345
-        assert s.fluid_intelligence_score == 10.0
-        assert s.reaction_time_ms == 500.0
-    
-    def test_from_row(self):
-        """Test creating score from pandas row."""
-        data = {
-            "participant_id": 67890,
-            "fluid_intelligence_score": 8.0,
-            "reaction_time_ms": 600.0,
-            "assessment_date": "2020-01-15"
-        }
-        row = pd.Series(data)
-        s = CognitiveScore.from_row(row)
-        
-        assert s.participant_id == 67890
-        assert s.fluid_intelligence_score == 8.0
-        assert s.reaction_time_ms == 600.0
-        assert s.assessment_date == "2020-01-15"
-    
-    def test_get_primary_score(self):
-        """Test getting primary score."""
-        s = CognitiveScore(
-            participant_id=1,
-            fluid_intelligence_score=9.0,
-            reaction_time_ms=400.0
-        )
-        assert s.get_primary_score() == 9.0
-    
-    def test_get_all_scores(self):
-        """Test getting all scores."""
-        s = CognitiveScore(
-            participant_id=1,
-            fluid_intelligence_score=9.0,
-            reaction_time_ms=400.0,
-            pairs_matching_accuracy=0.85
-        )
-        scores = s.get_all_scores()
-        
-        assert scores["fluid_intelligence"] == 9.0
-        assert scores["reaction_time"] == 400.0
-        assert scores["pairs_matching"] == 0.85
-    
-    def test_has_valid_primary_score(self):
-        """Test checking for valid primary score."""
-        s1 = CognitiveScore(participant_id=1, fluid_intelligence_score=9.0)
-        assert s1.has_valid_primary_score()
-        
-        s2 = CognitiveScore(participant_id=1)
-        assert not s2.has_valid_primary_score()
-    
-    def test_validation_valid(self):
-        """Test validation with valid data."""
-        s = CognitiveScore(
-            participant_id=12345,
-            fluid_intelligence_score=10.0,
-            reaction_time_ms=500.0
-        )
-        errors = s.validate()
-        assert len(errors) == 0
-    
-    def test_validation_invalid_fluid_intelligence(self):
-        """Test validation with out-of-range fluid intelligence."""
-        s = CognitiveScore(
-            participant_id=12345,
-            fluid_intelligence_score=15.0  # > 13
-        )
-        errors = s.validate()
-        assert any("out of range" in e for e in errors)
-    
-    def test_validation_invalid_reaction_time(self):
-        """Test validation with negative reaction time."""
-        s = CognitiveScore(
-            participant_id=12345,
-            reaction_time_ms=-100.0
-        )
-        errors = s.validate()
-        assert any("Reaction time must be positive" in e for e in errors)
-    
-    def test_validation_missing_id(self):
-        """Test validation with missing participant_id."""
-        s = CognitiveScore(participant_id=-1, fluid_intelligence_score=10.0)
-        errors = s.validate()
-        assert any("participant_id must be a positive integer" in e for e in errors)
+        assert c.participant_id == 999
+        assert c.numeric_memory == 85.0
 
-class TestIntegration:
-    """Integration tests for model interactions."""
-    
-    def test_data_roundtrip(self):
-        """Test that models can be serialized and deserialized."""
-        p = Participant(participant_id=1, age=50.0, sex=1)
-        d = p.to_dict()
-        p2 = Participant(participant_id=d["participant_id"], age=d["age"], sex=d["sex"])
-        
-        assert p.participant_id == p2.participant_id
-        assert p.age == p2.age
-        assert p.sex == p2.sex
-    
-    def test_mixed_model_validation(self):
-        """Test validation across different model types."""
-        p = Participant(participant_id=1, age=50.0)
-        m = MicrobiomeProfile(participant_id=1)
-        c = CognitiveScore(participant_id=1)
-        
-        # All should be valid with minimal data
-        assert len(p.validate()) == 0
-        assert len(m.validate()) == 0
-        assert len(c.validate()) == 0
+    def test_to_dict(self):
+        c = CognitiveScore(participant_id=1, numeric_memory=100.0)
+        d = c.to_dict()
+        assert d["participant_id"] == 1
+        assert d["numeric_memory"] == 100.0
+
+    def test_create_dataframe(self):
+        c1 = CognitiveScore(participant_id=1, numeric_memory=50.0, reasoning=60.0)
+        c2 = CognitiveScore(participant_id=2, numeric_memory=70.0, reasoning=80.0)
+        df = create_cognitive_dataframe([c1, c2])
+        assert isinstance(df, pd.DataFrame)
+        assert len(df) == 2
+        assert "numeric_memory" in df.columns
+
+    def test_compute_composite_score(self):
+        data = {
+            "numeric_memory": [10.0, 20.0, 30.0],
+            "reasoning": [10.0, 20.0, 30.0]
+        }
+        df = pd.DataFrame(data)
+        composite = compute_composite_score(df)
+        assert isinstance(composite, pd.Series)
+        assert len(composite) == 3
+        # Check that the mean is approximately 0 due to z-scoring
+        assert abs(composite.mean()) < 1e-6

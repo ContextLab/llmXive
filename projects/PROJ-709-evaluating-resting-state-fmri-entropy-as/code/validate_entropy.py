@@ -1,6 +1,20 @@
 """
-Task T019: Validation of Entropy Features
-Ensures no NaN values in the final CSV and verifies biologically plausible ranges.
+Validation module for entropy feature outputs.
+
+This module implements T019: Add validation to ensure no NaN values in the final
+CSV and verify that entropy values lie within a biologically plausible range.
+
+Biological Plausibility Range for Sample Entropy (SampEn):
+- SampEn is typically non-negative.
+- For fMRI time series with m=2, r=0.2*SD, values usually fall between 0.0 and 2.5.
+- Values > 3.0 are extremely rare and likely indicate noise or artifacts.
+- Values < 0.0 are mathematically impossible for SampEn.
+
+Success Criteria:
+- No NaN values in the feature matrix.
+- All values >= 0.0.
+- All values <= 3.0 (configurable upper bound).
+- Report generation with summary statistics.
 """
 import os
 import sys
@@ -9,157 +23,223 @@ import argparse
 import numpy as np
 import pandas as pd
 from pathlib import Path
+from typing import Tuple, Optional, Dict, Any
 
-# Add parent directory to path to allow imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# Import config for hyperparameters
+import config
 
-from config import ATLAS_N, TARGET_LENGTH
-from utils import setup_logger
-
-# Configuration for biological plausibility
-# Sample Entropy (SampEn) for fMRI time series (N=120, m=2) typically falls in range [0.1, 1.5]
-# Values < 0.05 indicate near-perfect predictability (noise/artifact)
-# Values > 3.0 indicate extreme randomness (likely artifact or calculation error)
-MIN_ENTROPY_THRESHOLD = 0.0
-MAX_ENTROPY_THRESHOLD = 3.0
-MIN_ROWS = 10  # Expect at least some subjects
-MIN_COLS = ATLAS_N + 1  # 200 parcels + 1 subject ID column (or similar)
+# Setup logger
+def setup_logger(name: str, log_file: Optional[str] = None) -> logging.Logger:
+    """Setup a logger with console and optional file handler."""
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+    
+    # Console handler
+    ch = logging.StreamHandler()
+    ch.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    ch.setFormatter(formatter)
+    logger.addHandler(ch)
+    
+    # File handler if specified
+    if log_file:
+        fh = logging.FileHandler(log_file)
+        fh.setLevel(logging.INFO)
+        fh.setFormatter(formatter)
+        logger.addHandler(fh)
+    
+    return logger
 
 logger = setup_logger(__name__)
 
-def validate_entropy_csv(
-    input_path: str,
-    min_entropy: float = MIN_ENTROPY_THRESHOLD,
-    max_entropy: float = MAX_ENTROPY_THRESHOLD,
-    min_rows: int = MIN_ROWS,
-    min_cols: int = MIN_COLS
-) -> dict:
-    """
-    Validates the entropy feature CSV file.
+# Biologically plausible range constants
+DEFAULT_MIN_ENTROPY = 0.0
+DEFAULT_MAX_ENTROPY = 3.0
 
+def validate_entropy_csv(
+    csv_path: str,
+    min_val: float = DEFAULT_MIN_ENTROPY,
+    max_val: float = DEFAULT_MAX_ENTROPY
+) -> Tuple[bool, Dict[str, Any]]:
+    """
+    Validate the entropy features CSV file.
+    
     Checks:
     1. File exists and is readable.
-    2. No NaN values in numeric columns.
-    3. All entropy values are within [min_entropy, max_entropy].
-    4. Shape is reasonable (rows >= min_rows, cols >= min_cols).
-
+    2. No NaN values in the feature columns.
+    3. All values are within the biologically plausible range [min_val, max_val].
+    
     Args:
-        input_path: Path to the CSV file.
-        min_entropy: Minimum allowed entropy value.
-        max_entropy: Maximum allowed entropy value.
-        min_rows: Minimum expected number of rows.
-        min_cols: Minimum expected number of columns.
-
+        csv_path: Path to the entropy features CSV file.
+        min_val: Minimum acceptable entropy value (default: 0.0).
+        max_val: Maximum acceptable entropy value (default: 3.0).
+    
     Returns:
-        dict: Validation results including status, error messages, and stats.
+        Tuple of (is_valid, details_dict) where:
+            - is_valid: True if all checks pass.
+            - details_dict: Contains statistics and error messages if any.
+    
+    Raises:
+        FileNotFoundError: If the CSV file does not exist.
+        ValueError: If the CSV is empty or has no data rows.
     """
-    results = {
-        "status": "passed",
-        "errors": [],
-        "warnings": [],
-        "stats": {}
-    }
-
-    path = Path(input_path)
-    if not path.exists():
-        results["status"] = "failed"
-        results["errors"].append(f"File not found: {input_path}")
-        return results
-
+    csv_path = Path(csv_path)
+    
+    if not csv_path.exists():
+        raise FileNotFoundError(f"CSV file not found: {csv_path}")
+    
+    logger.info(f"Validating entropy CSV: {csv_path}")
+    
+    # Load the CSV
     try:
-        df = pd.read_csv(input_path)
+        df = pd.read_csv(csv_path)
     except Exception as e:
-        results["status"] = "failed"
-        results["errors"].append(f"Failed to read CSV: {str(e)}")
-        return results
-
-    # Check shape
-    n_rows, n_cols = df.shape
-    results["stats"]["shape"] = (n_rows, n_cols)
-
-    if n_rows < min_rows:
-        results["warnings"].append(f"Low number of rows: {n_rows} < {min_rows}")
+        raise ValueError(f"Failed to read CSV: {e}")
     
-    if n_cols < min_cols:
-        results["warnings"].append(f"Low number of columns: {n_cols} < {min_cols}")
-
-    # Identify numeric columns (excluding ID columns if any)
-    # Assuming first column might be ID, rest are entropy values
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+    if df.empty:
+        raise ValueError("CSV file is empty")
     
-    if not numeric_cols:
-        results["status"] = "failed"
-        results["errors"].append("No numeric columns found in CSV")
-        return results
-
-    # Check for NaN values
-    nan_counts = df[numeric_cols].isna().sum()
-    total_nan = nan_counts.sum()
-
-    if total_nan > 0:
-        results["status"] = "failed"
-        results["errors"].append(f"Found {total_nan} NaN values in numeric columns.")
-        for col, count in nan_counts[nan_counts > 0].items():
-            results["errors"].append(f"  - Column '{col}': {count} NaNs")
+    # Identify feature columns (exclude subject_id if present)
+    # Assuming first column is subject_id or similar identifier
+    feature_columns = [col for col in df.columns if col != 'subject_id']
+    
+    if not feature_columns:
+        raise ValueError("No feature columns found in CSV")
+    
+    logger.info(f"Found {len(feature_columns)} feature columns")
+    logger.info(f"Dataset shape: {df.shape}")
+    
+    # Check 1: No NaN values
+    nan_counts = df[feature_columns].isna().sum()
+    total_nans = nan_counts.sum()
+    
+    details = {
+        "file_path": str(csv_path),
+        "shape": list(df.shape),
+        "n_subjects": len(df),
+        "n_features": len(feature_columns),
+        "total_nans": int(total_nans),
+        "nan_per_feature": nan_counts.to_dict(),
+        "min_entropy": float(df[feature_columns].min().min()),
+        "max_entropy": float(df[feature_columns].max().max()),
+        "mean_entropy": float(df[feature_columns].mean().mean()),
+        "std_entropy": float(df[feature_columns].std().mean()),
+        "is_valid": True,
+        "errors": []
+    }
+    
+    if total_nans > 0:
+        msg = f"Found {total_nans} NaN values in the feature matrix"
+        logger.error(msg)
+        details["errors"].append(msg)
+        details["is_valid"] = False
     else:
-        results["stats"]["nan_count"] = 0
-
-    # Check value ranges
-    all_values = df[numeric_cols].values.flatten()
-    min_val = np.min(all_values)
-    max_val = np.max(all_values)
-
-    results["stats"]["min_value"] = float(min_val)
-    results["stats"]["max_value"] = float(max_val)
-    results["stats"]["mean_value"] = float(np.mean(all_values))
-    results["stats"]["std_value"] = float(np.std(all_values))
-
-    if min_val < min_entropy:
-        results["warnings"].append(f"Minimum value {min_val:.4f} is below threshold {min_entropy}")
+        logger.info("✓ No NaN values found")
     
-    if max_val > max_entropy:
-        results["status"] = "failed"
-        results["errors"].append(f"Maximum value {max_val:.4f} exceeds threshold {max_entropy}")
-        results["errors"].append("This indicates potential calculation errors or artifacts.")
-
-    return results
+    # Check 2: Values within biologically plausible range
+    out_of_range_low = (df[feature_columns] < min_val).sum().sum()
+    out_of_range_high = (df[feature_columns] > max_val).sum().sum()
+    
+    if out_of_range_low > 0:
+        msg = f"Found {out_of_range_low} values below minimum threshold ({min_val})"
+        logger.warning(msg)
+        details["errors"].append(msg)
+        details["is_valid"] = False
+        details["n_below_min"] = int(out_of_range_low)
+    else:
+        logger.info(f"✓ All values >= {min_val}")
+    
+    if out_of_range_high > 0:
+        msg = f"Found {out_of_range_high} values above maximum threshold ({max_val})"
+        logger.warning(msg)
+        details["errors"].append(msg)
+        details["is_valid"] = False
+        details["n_above_max"] = int(out_of_range_high)
+    else:
+        logger.info(f"✓ All values <= {max_val}")
+    
+    return details["is_valid"], details
 
 def main():
-    parser = argparse.ArgumentParser(description="Validate entropy feature CSV output")
-    parser.add_argument(
-        "--input", 
-        type=str, 
-        default="data/processed/subject_entropy_features.csv",
-        help="Path to the entropy features CSV"
+    """
+    Main entry point for entropy validation script.
+    
+    Usage:
+        python code/validate_entropy.py --input data/processed/subject_entropy_features.csv
+    """
+    parser = argparse.ArgumentParser(
+        description="Validate entropy features CSV for NaN values and biological plausibility."
     )
+    parser.add_argument(
+        "--input", "-i",
+        type=str,
+        required=True,
+        help="Path to the entropy features CSV file to validate."
+    )
+    parser.add_argument(
+        "--min",
+        type=float,
+        default=DEFAULT_MIN_ENTROPY,
+        help=f"Minimum acceptable entropy value (default: {DEFAULT_MIN_ENTROPY})"
+    )
+    parser.add_argument(
+        "--max",
+        type=float,
+        default=DEFAULT_MAX_ENTROPY,
+        help=f"Maximum acceptable entropy value (default: {DEFAULT_MAX_ENTROPY})"
+    )
+    parser.add_argument(
+        "--output", "-o",
+        type=str,
+        default=None,
+        help="Path to write validation report JSON (optional)."
+    )
+    
     args = parser.parse_args()
-
-    logger.info(f"Validating entropy features from: {args.input}")
     
-    results = validate_entropy_csv(args.input)
-    
-    if results["status"] == "passed":
-        logger.info("✅ Validation PASSED")
-    else:
-        logger.error("❌ Validation FAILED")
-    
-    if results["warnings"]:
-        logger.warning("⚠️ Warnings:")
-        for w in results["warnings"]:
-            logger.warning(f"   {w}")
-    
-    if results["errors"]:
-        logger.error("🚫 Errors:")
-        for e in results["errors"]:
-            logger.error(f"   {e}")
-
-    logger.info(f"Stats: {results['stats']}")
-
-    # Exit with error code if failed
-    if results["status"] != "passed":
-        sys.exit(1)
-
-    return results
+    try:
+        is_valid, details = validate_entropy_csv(
+            args.input,
+            min_val=args.min,
+            max_val=args.max
+        )
+        
+        # Print summary
+        print("\n" + "="*60)
+        print("ENTROPY VALIDATION REPORT")
+        print("="*60)
+        print(f"File: {details['file_path']}")
+        print(f"Shape: {details['n_subjects']} subjects x {details['n_features']} features")
+        print(f"Total NaNs: {details['total_nans']}")
+        print(f"Min Entropy: {details['min_entropy']:.4f}")
+        print(f"Max Entropy: {details['max_entropy']:.4f}")
+        print(f"Mean Entropy: {details['mean_entropy']:.4f}")
+        print(f"Std Entropy: {details['std_entropy']:.4f}")
+        print("-"*60)
+        
+        if details["is_valid"]:
+            print("RESULT: ✓ VALID - All checks passed.")
+        else:
+            print("RESULT: ✗ INVALID - One or more checks failed.")
+            print("Errors:")
+            for err in details["errors"]:
+                print(f"  - {err}")
+        
+        print("="*60 + "\n")
+        
+        # Write JSON report if requested
+        if args.output:
+            import json
+            with open(args.output, 'w') as f:
+                json.dump(details, f, indent=2)
+            logger.info(f"Validation report written to: {args.output}")
+        
+        # Exit with appropriate code
+        sys.exit(0 if details["is_valid"] else 1)
+        
+    except Exception as e:
+        logger.error(f"Validation failed with error: {e}")
+        sys.exit(2)
 
 if __name__ == "__main__":
     main()

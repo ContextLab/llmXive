@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1112.0918",
+  "judged_at": "2026-07-16T18:42:18Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the sensitivity of regression coefficients to dataset subset selection statistics",
+  "rationale": "The paper focuses on the methodology and consistency of *variable selection* (choosing which predictors to include) via best subset regression, whereas the user's question concerns the *sensitivity of estimated regression coefficients* to the specific *selection of data subsets* (rows/samples). While both involve the word \"subset,\" they address distinct statistical constructs: one is about model sparsity and predictor inclusion (independent variable selection), and the other is about the stabili",
+  "relevant": false
+}

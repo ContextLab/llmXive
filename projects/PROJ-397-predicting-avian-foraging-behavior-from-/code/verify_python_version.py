@@ -1,22 +1,20 @@
-"""
-Verify that the current Python environment is version 3.11.x.
-This script is part of task T002 initialization.
-"""
 import sys
+import re
+import logging
 
 def main():
-    version_info = sys.version_info
-    major = version_info.major
-    minor = version_info.minor
-
-    print(f"Detected Python version: {major}.{minor}.{version_info.micro}")
-
-    if major == 3 and minor == 11:
-        print("SUCCESS: Python 3.11.x is active.")
+    """
+    Verify that the running Python version is 3.11.x.
+    Exits with code 1 if the version is not supported.
+    """
+    version = sys.version_info
+    logging.basicConfig(level=logging.INFO, format='%(levelname)s: %(message)s')
+    
+    if version.major == 3 and version.minor == 11:
+        logging.info(f"Python version {version.major}.{version.minor}.{version.micro} is supported.")
         return 0
     else:
-        print(f"ERROR: Expected Python 3.11.x, but found {major}.{minor}.x")
-        print("Please activate a Python 3.11 virtual environment.")
+        logging.error(f"Python version {version.major}.{version.minor}.{version.micro} is not supported. Requires 3.11.x.")
         return 1
 
 if __name__ == "__main__":

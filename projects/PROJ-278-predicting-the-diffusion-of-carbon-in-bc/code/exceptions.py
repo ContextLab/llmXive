@@ -1,11 +1,12 @@
+"""Custom exceptions for the project."""
 class DataInsufficientError(Exception):
-    """Raised when the dataset is too small for the requested operation."""
+    """Raised when data is missing, insufficient, or invalid."""
     pass
 
-class PowerWarning(Warning):
-    """Warning raised when statistical power is low (e.g., small sample size)."""
+class PowerWarning(Exception):
+    """Raised when sample size is too low for robust statistical power."""
     pass
 
 class SHAPError(Exception):
-    """Raised when SHAP value computation fails."""
+    """Raised when SHAP computation fails."""
     pass

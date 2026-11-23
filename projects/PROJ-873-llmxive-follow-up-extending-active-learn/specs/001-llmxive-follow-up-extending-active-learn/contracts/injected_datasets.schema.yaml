@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Injected Datasets Schema"
+description: "Schema for data/processed/injected_datasets.json containing original and synthetic documents."
+type: "object"
+properties:
+  meta:
+    type: "object"
+    properties:
+      source_dataset:
+        type: "string"
+        description: "Original BEIR dataset name (e.g., nfcorpus)."
+      injection_seed:
+        type: "integer"
+        description: "Random seed used for synthetic injection."
+      injection_method:
+        type: "string"
+        enum: ["exact_copy_perturbation", "combined"]
+      timestamp:
+        type: "string"
+        format: "date-time"
+  documents:
+    type: "array"
+    items:
+      type: "object"
+      required:
+        - "doc_id"
+        - "document"
+        - "is_synthetic"
+      properties:
+        doc_id:
+          type: "string"
+          description: "Unique identifier for the document."
+        original_doc_id:
+          type:
+            - "string"
+            - "null"
+          description: "Reference to the original document if synthetic, else null."
+        document:
+          type: "string"
+          description: "The text content of the document."
+        is_synthetic:
+          type: "boolean"
+          description: "True if the document was generated via injection."
+        cluster_id:
+          type:
+            - "string"
+            - "null"
+          description: "MinHash-LSH cluster ID (assigned later)."
+required:
+  - "meta"
+  - "documents"

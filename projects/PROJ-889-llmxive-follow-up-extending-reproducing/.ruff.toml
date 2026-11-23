@@ -1,0 +1,78 @@
+# Ruff configuration for llmXive project
+# Enforces PEP8 and Google style conventions
+# Rules: E (Error), F (Pyflakes), W (Warning), I (Import), N (Naming)
+
+[lint]
+# Select specific rule categories
+select = [
+    "E",  # pycodestyle errors
+    "F",  # Pyflakes
+    "W",  # pycodestyle warnings
+    "I",  # isort (import sorting)
+    "N",  # pep8-naming
+]
+
+# Ignore specific rules if necessary (add only if absolutely required)
+ignore = []
+
+# Allow autofix for selected rules
+fixable = ["ALL"]
+unfixable = []
+
+# Exclude specific files or directories
+exclude = [
+    ".git",
+    "__pycache__",
+    "data/raw",
+    "data/processed",
+    "build",
+    "dist",
+    "*.egg-info",
+]
+
+# Maximum line length (PEP8 recommends 79, but 88 is common for Black compatibility)
+# We use 88 to align with Black's default, ensuring consistency
+line-length = 88
+
+# Target Python version
+target-version = "py311"
+
+[lint.per-file-ignores]
+# Example: Ignore specific rules for test files if needed
+# "tests/*" = ["S101"]  # Allow assert statements in tests
+
+[lint.isort]
+# Configuration for import sorting (I rules)
+# Use Black-compatible settings
+known-first-party = ["code", "tests"]
+force-single-line = false
+lines-after-imports = 2
+order-by-type = true
+relative-imports-order = "closest-to-furthest"
+
+[lint.pyflakes]
+# Configuration for Pyflakes (F rules)
+# No specific overrides needed for basic usage
+
+[lint.pep8-naming]
+# Configuration for Naming conventions (N rules)
+# Enforce Google style for function and variable names (snake_case)
+# Enforce Class names (CapWords)
+ignore-names = [
+    "setUp",
+    "tearDown",
+    "setUpClass",
+    "tearDownClass",
+    "setUpModule",
+    "tearDownModule",
+]
+
+[format]
+# Configuration for formatting (if using ruff format instead of black)
+# Since we use black (T003b), this section is minimal or can be omitted
+# But keeping for completeness if ruff format is enabled later
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+docstring-code-format = false

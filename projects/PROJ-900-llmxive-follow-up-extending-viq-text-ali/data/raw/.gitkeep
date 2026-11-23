@@ -1,0 +1,3 @@
+# Raw data directory for llmXive project
+# Contains unprocessed source data (COCO, ImageNet)
+# Do not edit files here; data is fetched programmatically

@@ -1,3 +1,3 @@
 """
-Utility modules for logging, configuration, and unit conversion.
+utils package initialization.
 """

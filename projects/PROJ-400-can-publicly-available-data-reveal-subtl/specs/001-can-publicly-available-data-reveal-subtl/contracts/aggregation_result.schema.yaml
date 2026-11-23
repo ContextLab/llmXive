@@ -1,0 +1,59 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AggregationResult"
+type: "object"
+required:
+  - "nucleus"
+  - "combined_limit"
+  - "combined_confidence_level"
+  - "conversion_factors"
+  - "source_references"
+  - "permutation_p_value"
+  - "high_influence_flags"
+  - "validation_status"
+  - "model_type"
+properties:
+  nucleus:
+    type: "string"
+    description: "Canonical nucleus identifier."
+  combined_limit:
+    type: "number"
+ description: "Most stringent [deferred] CL upper limit after aggregation."
+  combined_confidence_level:
+    type: "number"
+    enum: [0.90]
+    description: "Fixed confidence level (high confidence)."
+  conversion_factors:
+    type: "array"
+    items:
+      type: "number"
+    description: "List of conversion factors applied to each contributing limit."
+  source_references:
+    type: "array"
+    items:
+      type: "string"
+      format: "uri"
+    description: "URLs of all studies contributing to the combined bound."
+  permutation_p_value:
+    type: "number"
+    description: "Empirical p‑value from 10 000 permutations (clamped to [1e-10, 1-1e-10])."
+  high_influence_flags:
+    type: "array"
+    items:
+      type: "string"
+    description: "Experiments whose removal changes the bound >10 %."
+  bootstrap_distribution:
+    type: "array"
+    items:
+      type: "number"
+    description: "Optional: combined limits from each bootstrap sample."
+  validation_status:
+    type: "string"
+    enum: ["tighter", "equal", "looser"]
+    description: "Comparison of the combined bound against the neutron‑EDM benchmark."
+  provenance_log:
+    type: "string"
+    description: "Path to the log entry for this nucleus."
+  model_type:
+    type: "string"
+    enum: ["upper-limit aggregation"]
+    description: "Fixed descriptor of the analysis type."

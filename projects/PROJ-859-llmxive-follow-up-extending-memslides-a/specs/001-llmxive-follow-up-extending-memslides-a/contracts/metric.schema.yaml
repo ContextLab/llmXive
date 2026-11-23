@@ -1,0 +1,30 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Structural Metrics Schema"
+description: "Schema for extracted structural metrics from execution traces."
+type: "object"
+required:
+  - "session_id"
+  - "sequence_entropy"
+  - "tool_repetition_freq"
+  - "arg_semantic_variance"
+properties:
+  session_id:
+    type: "string"
+    description: "Reference to raw trace."
+  sequence_entropy:
+    type: "number"
+    description: "Shannon entropy of the tool sequence."
+    minimum: 0
+  tool_repetition_freq:
+    type: "number"
+    description: "Frequency of repeated tool calls."
+    minimum: 0
+  arg_semantic_variance:
+    type: "number"
+    description: "Variance of argument embeddings."
+    minimum: 0
+  trace_length:
+    type: "integer"
+    description: "Number of turns in the trace."
+    minimum: 1
+additionalProperties: false

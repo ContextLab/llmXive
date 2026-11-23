@@ -2,80 +2,112 @@
 
 ## Prerequisites
 
-*   Python 3.11+
-*   Git
-*   Access to a Linux environment (recommended for SLR data processing).
-*   **Note**: A verified source for LAGEOS/Etalon SLR data and composition metadata is currently **missing** from the project's verified dataset block. The pipeline will **fail** with a `DataUnavailableError` until a verified URL is added to the `# Verified datasets` block.
+- Python 3.11+
+- `pip` or `conda`
+- Access to GitHub Actions (for CI) or local Linux environment
 
 ## Installation
 
-1.  **Clone the repository**:
-    ```bash
-    git clone <repo-url>
-    cd <project-dir>
-    ```
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-752-testing-the-equivalence-principle-with-s
+   ```
 
-2.  **Create a virtual environment**:
-    ```bash
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    ```
+2. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-3.  **Install dependencies**:
-    ```bash
-    pip install -r code/requirements.txt
-    ```
+3. **Verify environment**:
+   ```bash
+   python -c "import scipy; import pandas; print('OK')"
+   ```
 
-## Data Setup
+## Configuration
 
-1.  **Verify Data Availability**:
-    *   Check the `# Verified datasets` block in `research.md`. If no valid URL exists for LAGEOS/Etalon SLR data, the pipeline cannot run.
-    *   If a verified URL is available, run:
-        ```bash
-        python code/data/ingestion.py --satellites LAGEOS-1,LAGEOS-2,ETALON-1,ETALON-2,STARLETTE
-        ```
-    *   **Manual Data**: If you have manually downloaded data from a verified source (e.g., a verified HuggingFace mirror), place it in `data/raw/`. Ensure filenames match the pattern `slr_{satellite_id}_*.parquet`.
+Create `code/config.yaml` (or edit the default):
 
-2.  **Verify Data**:
-    *   Check that `data/raw/` contains files with ≥ 500 points per satellite.
-    *   Run the checksum validation:
-        ```bash
-        python code/utils/validate_data.py --dir data/raw
-        ```
+```yaml
+data:
+  sources:
+    - name: "SLR NoteSense"
+      url: "https://huggingface.co/datasets/vennsa/SLR-NoteSense/resolve/main/100.csv"
+    - name: "Open SLR Turkish"
+      url: "https://huggingface.co/datasets/emre/Open_SLR108_Turkish_10_hours/resolve/main/TR.zip"
+    - name: "ILRS Archive"
+      url: "https://ilrs.cddis.eosdis.nasa.gov/" # Programmatic access
+  min_arc_days: 30  # Minimum temporal arc length (replaces 500 points)
+  max_residual_cm: 2.0
+
+dynamics:
+  geopotential_models:
+    - "GGM05C"
+    - "EGM2008"
+    - "GOCO06s"
+  drag_model: "Jacchia"
+
+analysis:
+  correction_method: "Bonferroni"  # Options: Bonferroni, Holm-Bonferroni, Benjamini-Hochberg
+  significance_level: 0.05
+  target_precision: 1e-15
+```
 
 ## Running the Pipeline
 
-Execute the full analysis pipeline:
+### 1. Ingest Data
 
 ```bash
-python code/main.py
+python code/ingestion/downloader.py --config code/config.yaml
 ```
 
-This will:
-1.  Ingest and preprocess data.
-2.  Perform **joint** orbit determination for satellite pairs.
-3.  Calculate the Eötvös parameter ($\\eta$) and confidence intervals.
-4.  Run sensitivity analysis with multiple geopotential models.
-5.  Generate a diagnostic report in `data/results/report.html`.
+*Output*: `data/processed/normal_points.csv`, `logs/pipeline.log` (includes HTTP 403 retry logs and data sufficiency warnings).
 
-## Verification
+### 2. Run Orbit Determination
 
-1.  **Check Outputs**:
-    *   `data/results/eotvos_results.csv`: Contains the final $\\eta$ estimates.
-    *   `data/results/orbit_solutions/`: Contains JSON files for each satellite pair's joint fit.
-    *   `data/results/report.html`: Visual summary of the analysis.
+```bash
+python code/dynamics/solver.py --config code/config.yaml
+```
 
-2.  **Run Tests**:
-    ```bash
-    pytest code/tests/ -v
-    ```
+*Output*: `data/processed/orbit_solutions.json`
 
-3.  **Reproducibility**:
-    *   Ensure `random_seed` in `config.py` is pinned.
-    *   Re-run the pipeline; outputs should match exactly (within floating-point tolerance).
+### 3. Compute Eötvös Parameter
+
+```bash
+python code/analysis/eotvos.py --config code/config.yaml
+```
+
+*Output*: `data/processed/eotvos_results.csv`
+
+### 4. Validation & Reporting
+
+```bash
+python code/analysis/validation.py --config code/config.yaml
+```
+
+*Output*: 
+- `data/reports/summary.pdf`
+- `data/reports/sensitivity_plot.png`
+- `data/reports/diagnostic_report.csv` (Contains: $\chi^2$ improvement, final $\eta$ limit, post-fit residuals CSV)
+- `data/reports/data_gap_report.txt` (If ILRS data is missing)
+
+## Testing
+
+Run unit tests:
+
+```bash
+pytest tests/unit/ -v
+```
+
+Run contract tests:
+
+```bash
+pytest tests/contract/ -v
+```
 
 ## Troubleshooting
 
-*   **"DataUnavailableError"**: The pipeline found no verified source for the required satellites in the `# Verified datasets` block. You must add a verified URL to proceed.
-*   **"Convergence failed"**: Check `data/results/orbit_solutions/` for the `converged` flag. If false, the solver may have hit the iteration limit. Adjust tolerance in `config.py`.
-*   **"Memory Error"**: Reduce the data subset size in `config.py` or run on a machine with more RAM.
+- **HTTP 403 Error**: The downloader implements exponential backoff (3 attempts). If it fails, check `logs/pipeline.log` for the specific error.
+- **Insufficient Data**: If a satellite has < 30 days of arc length, it will be skipped with a warning in `logs/pipeline.log`.
+- **Missing Metadata**: If satellite composition metadata is missing, the system will skip the satellite and log a warning.
+- **Memory Error**: Ensure `streaming=True` is set in the config for large datasets.

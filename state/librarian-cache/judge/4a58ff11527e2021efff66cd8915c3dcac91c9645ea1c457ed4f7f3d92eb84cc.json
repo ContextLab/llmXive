@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2610.00223",
+  "judged_at": "2026-10-12T00:45:56Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"anti-self-distillation for reasoning rl via pointwise mutual informati\" computer science",
+  "rationale": "The paper studies the environmental carbon footprint of a large Arabic language model, which bears no relation to anti-self-distillation, reasoning reinforcement learning, or pointwise mutual information; thus it does not address any mechanism, variable, or domain relevant to the user's question.",
+  "relevant": false
+}

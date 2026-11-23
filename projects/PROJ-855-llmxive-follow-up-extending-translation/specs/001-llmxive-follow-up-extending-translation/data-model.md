@@ -1,93 +1,71 @@
 # Data Model: llmXive follow-up: extending "Translation as a Bridging Action"
 
-## Overview
+## 1. Entity Overview
+- **ManipulationEpisode** – core record (translation trajectory, object bounds, stability label).  
+- **StabilityMetric** – intermediate values (`tipping_angle`, `slippage_distance`) used only for labeling; **not stored in the final processed datasets**.  
+- **PredictionResult** – model predictions and evaluation metrics.
 
-This document defines the data structures for the synthetic generation pipeline, the training dataset, and the model outputs. All data is stored in Parquet format for efficient I/O and schema enforcement.
+## 2. Schemas (refer to `specs/001-llmxive-follow-up/contracts/`)
 
-## Entities
+### Raw Dataset (`synthetic_episodes.parquet`)
+| Column | Type | Description | Constraints |
+|--------|------|-------------|-------------|
+| `episode_id` | int64 | Unique episode identifier | Primary key |
+| `geometry_id` | string | Geometry identifier (required for disjoint split) | Non‑null |
+| `translation_sequence` | list[float] | Flattened (x,y,z) translation vectors (seq_len × 3) | Fixed length, meters |
+| `initial_bounds` | list[float] | Bounding box `[min_x, min_y, min_z, max_x, max_y, max_z]` | Length = 6 |
+| `tipping_angle` | float32 | Max tipping angle (°) | Used for labeling |
+| `slippage_distance` | float32 | Max slippage (m) | Used for labeling |
+| `stability_label` | int8 | 1 = success, 0 = failure | Derived via thresholds |
+| `timestamp` | string | ISO‑8601 generation time | For reproducibility |
+| `mass_distribution` | float32 | **(Retained only for internal analysis; **not** part of processed inputs or model features)** |
+| `friction_coeff` | float32 | **(Retained only for internal analysis; **not** part of processed inputs or model features)** |
 
-### 1. ManipulationEpisode
-A single record representing one bi-manual manipulation attempt.
+**Forbidden columns**: `rotation_quaternion`, `joint_torque`, `force_sensor`, `angular_velocity` (Constitution VII).
 
-**Source**: `code/generate_data.py`  
-**Target**: `data/raw/episodes.parquet`
+### Processed Datasets (`train.parquet`, `test.parquet`)
+| Column | Type | Description |
+|--------|------|-------------|
+| `episode_id` | int64 | From raw |
+| `geometry_id` | string | From raw |
+| `translation_sequence` | list[float] | Model input (translation only) |
+| `initial_bounds` | list[float] | Geometry baseline input |
+| `stability_label` | int8 | Target |
 
-| Column Name | Type | Description | Constraints |
-| :--- | :--- | :--- | :--- |
-| `episode_id` | `string` | Unique identifier (UUID) | Unique, non-null |
-| `geometry` | `struct` | Initial object bounding box | Contains `min_x`, `min_y`, `min_z`, `max_x`, `max_y`, `max_z` |
-| `translation_sequence` | `list<list<float>>` | Sequence of 3D translation vectors | Shape: [T, 3]; T=10 (time steps) |
-| `tipping_angle` | `float` | Max deviation of COM from base (degrees) | ≥ 0.0 |
-| `slippage_distance` | `float` | Max relative displacement at contact (meters) | ≥ 0.0 |
-| `stability_label` | `int` | Binary outcome (1=Success, 0=Failure) | 0 or 1 |
-| `metadata` | `struct` | Simulation parameters | Contains `seed`, `object_mass`, `friction_coeff`, `noise_sigma` |
+*Note*: `mass_distribution` and `friction_coeff` are **excluded** from these processed files to avoid hidden confounds and to ensure the translation‑only signal integrity.
 
-**Derived Logic**:
-*   `stability_label` = 1 if `tipping_angle` < 15.0 AND `slippage_distance` < 0.02
-*   `stability_label` = 0 otherwise
-*   **Exclusion**: No columns for rotation, torque, or force exist.
+### Model Artifacts
+- `trained_model.pt` – PyTorch state dict (Transformer).  
+- `geometry_baseline.pt` – MLP state dict.  
+- `random_baseline.pt` – Shuffled‑translation model state dict.  
 
-### 2. TrainingBatch
-A processed batch of episodes prepared for model input.
+Each model is accompanied by a JSON metadata file (`model_meta.json`) containing `parameter_count`, `architecture`, and training hyper‑parameters (conforms to `contracts/model.schema.yaml`).
 
-**Source**: `code/utils/data_utils.py`  
-**Target**: `data/processed/train_batch_*.parquet`
+### Metrics Report (`metrics_report.json`)
+Conforms to `contracts/report.schema.yaml`. Contains:
+- accuracies (main, baselines, control)  
+- AUC‑ROC, confusion matrix, McNemar p‑values  
+- `accuracy_improvement` (main – baseline) **and** separate fields for geometry and random improvements (optional)  
+- `sensitivity_variance` (noise sweep)  
+- runtime & peak RAM  
+- `associational_framing: true`  
 
-| Column Name | Type | Description |
-| :--- | :--- | :--- |
-| `input_translation` | `tensor` | Normalized translation sequence (T, 3) |
-| `input_geometry` | `tensor` | Normalized bounding box (6) |
-| `target_label` | `int` | Stability label |
+## 3. Data Flow
+```mermaid
+graph TD
+    A[PyBullet Simulation] --> B[data/raw/synthetic_episodes.parquet]
+    B --> C[data/checksums.json]
+    B --> D[data/processed/train.parquet]
+    B --> E[data/processed/test.parquet]
+    D --> F[train_model.py] --> G[data/processed/trained_model.pt]
+    D --> H[train_baseline.py] --> I[data/processed/geometry_baseline.pt]
+    D --> J[train_control.py] --> K[data/processed/random_baseline.pt]
+    G & I & K --> L[evaluate.py] --> M[data/processed/metrics_report.json]
+    B --> N[sensitivity.py] --> O[data/sweep/variance_report.json]
+```
 
-### 3. ModelPrediction
-Output of the inference/evaluation step.
+All steps are validated against the appropriate JSON schemas before proceeding.
 
-**Source**: `code/evaluate.py`  
-**Target**: `data/processed/predictions.parquet`
+---
 
-| Column Name | Type | Description |
-| :--- | :--- | :--- |
-| `episode_id` | `string` | Reference to original episode |
-| `model_pred_prob` | `float` | Probability of success (0.0-1.0) |
-| `model_pred_label` | `int` | Thresholded prediction (0.5) |
-| `baseline_pred_label` | `int` | Prediction from geometry-only model |
-| `shuffled_pred_label` | `int` | Prediction from shuffled-translation model |
-| `actual_label` | `int` | Ground truth |
-| `correct_model` | `bool` | True if `model_pred_label` == `actual_label` |
-| `correct_baseline` | `bool` | True if `baseline_pred_label` == `actual_label` |
-| `correct_shuffled` | `bool` | True if `shuffled_pred_label` == `actual_label` |
 
-### 4. MetricsReport
-Final statistics linked to data checksums for traceability (Principle IV).
-
-**Source**: `code/evaluate.py`  
-**Target**: `data/processed/metrics_report.json`
-
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `data_checksum` | `string` | Hash of `data/raw/episodes.parquet` from `data/checksums.json` |
-| `model_accuracy` | `float` | Accuracy of translation-only model on test set |
-| `baseline_accuracy` | `float` | Accuracy of geometry-only baseline |
-| `shuffled_accuracy` | `float` | Accuracy of shuffled-translation control |
-| `accuracy_diff_vs_baseline` | `float` | `model_accuracy` - `baseline_accuracy` |
-| `accuracy_diff_vs_shuffled` | `float` | `model_accuracy` - `shuffled_accuracy` |
-| `mcnemar_pvalue_baseline` | `float` | p-value from McNemar's test (Model vs. Baseline) |
-| `mcnemar_pvalue_shuffled` | `float` | p-value from McNemar's test (Model vs. Shuffled) |
-| `timestamp` | `string` | ISO timestamp of generation |
-
-## Data Flow
-
-1.  **Generation**: `generate_data.py` → `ManipulationEpisode` (Raw Parquet).
-2.  **Validation**: Schema check against `contracts/dataset.schema.yaml`; checksum recorded in `data/checksums.json`.
-3.  **State Sync**: `data/checksums.json` synchronized with `state/projects/...yaml` (Principle V).
-4.  **Preprocessing**: `data_utils.py` → `TrainingBatch` (Normalized tensors).
-5.  **Training**: `train_model.py` → Model Weights (`.pt`).
-6.  **Evaluation**: `evaluate.py` → `ModelPrediction` (Parquet) AND `MetricsReport` (JSON).
-7.  **Analysis**: `evaluate.py` → McNemar's Test Statistics (in `MetricsReport`).
-
-## Constraints & Validations
-
-*   **Translation Only**: Validation script MUST fail if any column containing "rot", "quat", "torque", or "force" is detected in the raw dataset.
-*   **Label Consistency**: `tipping_angle` and `slippage_distance` MUST be re-calculated from the raw physics log if the label is missing or inconsistent.
-*   **Novelty**: Test set geometries MUST be disjoint from training set geometries (checked by hash of bounding box parameters).
-*   **Traceability**: `MetricsReport` MUST contain the `data_checksum` matching the input data to satisfy Principle IV.

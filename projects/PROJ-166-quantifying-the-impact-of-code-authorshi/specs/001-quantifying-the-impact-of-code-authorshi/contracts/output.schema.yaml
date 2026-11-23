@@ -1,0 +1,105 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model Output Schema"
+description: "Schema for the statistical model results and robustness checks."
+type: "object"
+properties:
+  main_model:
+    type: "object"
+    description: "Results for the primary Negative Binomial GLM."
+    properties:
+      coefficients:
+        type: "object"
+        additionalProperties:
+          type: "object"
+          properties:
+            estimate:
+              type: "number"
+            std_err:
+              type: "number"
+            p_value:
+              type: "number"
+            conf_int_lower:
+              type: "number"
+            conf_int_upper:
+              type: "number"
+          required:
+            - estimate
+            - std_err
+            - p_value
+            - conf_int_lower
+            - conf_int_upper
+      dispersion_alpha:
+        type: "number"
+        description: "Estimated dispersion parameter for Negative Binomial."
+      convergence_status:
+        type: "string"
+        description: "Status of model convergence (e.g., 'converged', 'failed')."
+      raw_p_values:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of raw p-values for BH correction."
+      adjusted_p_values:
+        type: "array"
+        items:
+          type: "number"
+        description: "List of BH-adjusted p-values."
+    required:
+      - coefficients
+      - dispersion_alpha
+      - convergence_status
+      - raw_p_values
+      - adjusted_p_values
+  robustness_checks:
+    type: "array"
+    description: "Results from subsampling and alternative metric analyses."
+    items:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+          description: "Name of the robustness check (e.g., 'Python Only', 'Entropy Metric', 'ZINB Model', 'Ridge Model')."
+        coefficients:
+          type: "object"
+          additionalProperties:
+            type: "object"
+            properties:
+              estimate:
+                type: "number"
+              std_err:
+                type: "number"
+              p_value:
+                type: "number"
+            required:
+              - estimate
+              - std_err
+              - p_value
+        dispersion_alpha:
+          type: "number"
+        convergence_status:
+          type: "string"
+      required:
+        - name
+        - coefficients
+        - dispersion_alpha
+        - convergence_status
+  metadata:
+    type: "object"
+    properties:
+      total_repos:
+        type: "integer"
+      excluded_repos:
+        type: "array"
+        items:
+          type: "string"
+        description: "List of repo IDs excluded due to matching or cloning failures."
+      seed:
+        type: "integer"
+        description: "Random seed used for reproducibility."
+    required:
+      - total_repos
+      - seed
+required:
+  - main_model
+  - robustness_checks
+  - metadata

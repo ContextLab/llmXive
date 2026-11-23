@@ -1,3 +1,3 @@
 """
-Source package for the neural correlates of simulated social exclusion study.
+Source package for the Neural Correlates of Simulated Social Exclusion pipeline.
 """

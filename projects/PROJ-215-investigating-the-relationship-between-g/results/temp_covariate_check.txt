@@ -1,0 +1,6 @@
+SC-005 Covariate Adjustment Check
+-----------------------------------
+Total Taxa Analyzed: 142
+Max Delta (|p_adj - p_unadj|): 0.000000
+Threshold (0.05) Met: True
+Note: This check verifies if the covariate adjustment significantly altered the p-values.

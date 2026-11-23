@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "manifest_schema.json",
+  "title": "Data Manifest Schema",
+  "description": "Strict schema for data_manifest.json defining required fields for scientific data sources.",
+  "type": "object",
+  "properties": {
+    "sources": {
+      "type": "array",
+      "description": "List of data sources included in the manifest.",
+      "items": {
+        "type": "object",
+        "properties": {
+          "source_type": {
+            "type": "string",
+            "description": "Type of data source (e.g., 'thermodynamic', 'experimental', 'simulation').",
+            "enum": ["thermodynamic", "experimental", "simulation", "literature"]
+          },
+          "source_id": {
+            "type": "string",
+            "description": "Unique identifier for the source within the project context.",
+            "minLength": 1
+          },
+          "doi": {
+            "type": ["string", "null"],
+            "description": "Digital Object Identifier if available. Null if not applicable.",
+            "pattern": "^10\\..*/.*$"
+          },
+          "url": {
+            "type": ["string", "null"],
+            "description": "Direct URL to the data source if available. Null if not applicable.",
+            "format": "uri"
+          },
+          "checksum": {
+            "type": ["string", "null"],
+            "description": "SHA-256 checksum of the downloaded file for integrity verification. Null if not yet computed.",
+            "pattern": "^[a-fA-F0-9]{64}$"
+          },
+          "description": {
+            "type": ["string", "null"],
+            "description": "Optional human-readable description of the source."
+          },
+          "access_date": {
+            "type": ["string", "null"],
+            "description": "Date the data was accessed in ISO 8601 format (YYYY-MM-DD).",
+            "format": "date"
+          }
+        },
+        "required": ["source_type", "source_id"],
+        "additionalProperties": false
+      },
+      "minItems": 1
+    },
+    "version": {
+      "type": "string",
+      "description": "Schema version of this manifest.",
+      "default": "1.0.0"
+    },
+    "generated_at": {
+      "type": "string",
+      "description": "Timestamp of manifest generation in ISO 8601 format.",
+      "format": "date-time"
+    }
+  },
+  "required": ["sources", "version", "generated_at"],
+  "additionalProperties": false
+}

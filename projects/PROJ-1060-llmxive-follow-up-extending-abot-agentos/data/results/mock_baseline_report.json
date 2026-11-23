@@ -1,0 +1,15 @@
+{
+  "total_tasks": 20,
+  "successful_tasks": 15,
+  "success_rate": 0.75,
+  "avg_latency_ms": 142.35,
+  "avg_memory_mb": 267.82,
+  "avg_steps": 8.95,
+  "error_distribution": {
+    "navigation_error": 2,
+    "object_interaction_failure": 2,
+    "planning_error": 1
+  },
+  "seed_used": 42,
+  "is_synthetic": true
+}

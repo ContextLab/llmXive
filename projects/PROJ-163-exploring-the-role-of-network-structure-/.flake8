@@ -1,0 +1,11 @@
+[flake8]
+max-line-length = 88
+exclude = .git,.tox,.venv,build,dist,data/raw,data/processed
+ignore = E501,W503
+# Ensure compatibility with Black
+# E501: line too long (handled by black)
+# W503: line break before binary operator (incompatible with black)
+count = False
+statistics = False
+show-source = True
+verbose = 0

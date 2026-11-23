@@ -1,0 +1,15 @@
+status: none
+intent: download EmbodiedWorldBench task trace dataset and ALFWorld python package
+  dataset
+required_fields:
+- task_id
+- environment_id
+- dialogue
+- spatial_coords
+- temporal_seq
+- timestamp
+- outcome
+- object_ids
+cache_key: 3d0ecd0ccf7295a3345cc44ca17cbc043300f0e86f355168ef09eace3981bdab
+searched_at: '2026-10-23T03:38:56.068295+00:00'
+retry_count: 1

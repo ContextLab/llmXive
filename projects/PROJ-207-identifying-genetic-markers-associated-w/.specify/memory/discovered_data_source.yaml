@@ -1,0 +1,17 @@
+status: none
+intent: Apis mellifera CCD whole genome sequencing dataset PRJNA639195 PRJNA566029
+  HuggingFace python package dataset
+required_fields:
+- sample_id
+- chromosome
+- position
+- reference_allele
+- alternate_allele
+- genotype
+- health_status
+- geographic_region
+- sampling_year
+- varroa_mite_count
+cache_key: b2cbe48d4c8899111780610572d8e23baa673ccf595704ed756cca8476f50596
+searched_at: '2026-10-11T14:37:48.979105+00:00'
+retry_count: 1

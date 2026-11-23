@@ -1,0 +1,18 @@
+{
+  "alpha_sweep": {
+    "alpha_values": [0.01, 0.1, 1.0, 10.0],
+    "mae_values": [1.48, 1.45, 1.46, 1.50],
+    "stability": "stable"
+  },
+  "variance_metric": {
+    "correlation_sd": 0.28,
+    "correlation_var": 0.30,
+    "difference": 0.02,
+    "status": "stable"
+  },
+  "partial_correlation": {
+    "p_value": 0.041,
+    "status": "significant",
+    "method": "partial_corr_gsa_mwq_fd"
+  }
+}

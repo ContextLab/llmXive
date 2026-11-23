@@ -6,7 +6,7 @@ failed_stage: null
 field: biology
 human_escalation_reason: null
 id: PROJ-181-predicting-species-distribution-shifts-u
-last_run_id: 3f6fb38f-1f32-4d5f-97df-632602e7b4fc
+last_run_id: 72534111-1be1-455f-8d4c-4011a9dcc86d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -16,4 +16,4 @@ speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-181-predicting-species-distribution-shifts-u/specs/001-predicting-species-distribution-shifts-u
 title: Predicting Species Distribution Shifts Using Historical Occurrence Records
   and Climate Data
-updated_at: '2026-07-02T18:35:16.887666Z'
+updated_at: '2026-10-23T12:35:23.103990Z'

@@ -1,0 +1,15 @@
+status: none
+intent: download GEO GSE21857 GSE167633 Metabolomics Workbench ST002565 KEGG pathway
+  paired expression metabolite python package dataset
+required_fields:
+- sample_id
+- species
+- gene_id
+- tpm_fpkm
+- metabolite_id
+- metabolite_concentration_log
+- herbivore_stress_flag
+- kegg_pathway
+cache_key: 85ea5e08d278d8e4b98bd441c12e43b309d8c3c3d36ac504c373102c351007ca
+searched_at: '2026-08-11T01:37:59.756963+00:00'
+retry_count: 1

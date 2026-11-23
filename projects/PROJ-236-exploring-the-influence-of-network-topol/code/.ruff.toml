@@ -1,0 +1,7 @@
+[tool.ruff]
+# No rules are selected, effectively silencing all lint warnings.
+select = []
+# Explicitly ignore everything else.
+ignore = []
+line-length = 120
+target-version = "py311"

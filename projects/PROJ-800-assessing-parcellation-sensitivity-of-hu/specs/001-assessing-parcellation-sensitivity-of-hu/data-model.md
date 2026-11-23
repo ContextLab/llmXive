@@ -1,42 +1,65 @@
 # Data Model: Assessing Parcellation Sensitivity of Hub Resilience in Healthy Connectomes
 
-## 1. Entity Relationship Overview
+## Overview
+This document defines the data structures used throughout the pipeline. All models are implemented in `code/models/` and validated against the contracts in `contracts/`.
 
-The data model consists of three primary layers: **Raw Input**, **Processed Connectivity**, and **Analysis Results**.
+## Core Entities
 
-1.  **Raw Input**: NIfTI files (fMRI time-series).
-2.  **Processed Connectivity**: Adjacency matrices (numpy arrays) and node labels.
-3.  **Analysis Results**: Centrality scores, hub sets, overlap metrics, and statistical outputs.
+### 1. AdjacencyMatrix
+Represents the connectivity matrix for a single subject under a specific parcellation scheme.
 
-## 2. Data Flow & Transformation
+*   **Attributes**:
+    *   `subject_id`: Unique identifier for the subject.
+    *   `atlas_name`: Name of the atlas (e.g., "AAL-90", "Schaefer-200").
+    *   `node_count`: Integer, number of nodes (N).
+    *   `matrix`: 2D numpy array (N x N), symmetric, weighted.
+    *   `node_labels`: List of strings, names of brain regions.
+    *   `checksum`: SHA256 hash of the matrix data.
+*   **Constraints**:
+    *   Matrix must be symmetric.
+    *   Diagonal must be zero.
+    *   Values must be non-negative (correlation-based).
 
-1.  **Download**: Raw fMRI (NIfTI) $\rightarrow$ `data/raw/`
-2.  **Masking**: Raw fMRI + Atlas $\rightarrow$ Time-series (N x T)
-3.  **Correlation**: Time-series $\rightarrow$ Adjacency Matrix (N x N) $\rightarrow$ `data/processed/matrices/`
-4.  **Centrality**: Adjacency Matrix $\rightarrow$ Centrality Scores (N x 1) $\rightarrow$ `data/processed/centrality/`
-5.  **Hub Definition**: Centrality Scores $\rightarrow$ Hub Set (Boolean mask or list of IDs)
-6.  **Overlap**: Hub Set A + Hub Set B $\rightarrow$ Jaccard/Dice $\rightarrow$ `data/results/stats.csv`
-7.  **Normalization**: Calculate Expected Jaccard for random sets of sizes |A|, |B| $\rightarrow$ `data/results/stats.csv`
-8.  **Permutation**: Hub Sets + Null Model $\rightarrow$ P-value $\rightarrow$ `data/results/stats.csv`
+### 2. CentralityScore
+Stores centrality metrics for a single subject's graph.
 
-## 3. Schema Definitions
+*   **Attributes**:
+    *   `subject_id`: Unique identifier.
+    *   `atlas_name`: Name of the atlas.
+    *   `metric_type`: "degree" or "betweenness".
+    *   `scores`: 1D numpy array (N,), centrality value for each node.
+    *   `rank_order`: 1D numpy array (N,), rank of each node (1 = highest).
+*   **Constraints**:
+    *   Length of `scores` must equal `node_count` of the corresponding `AdjacencyMatrix`.
+    *   No missing values (NaN).
 
-### Adjacency Matrix (Intermediate)
-*   **Format**: `.npz` (compressed numpy) or `.csv`
-*   **Content**: Symmetric matrix of correlation coefficients.
-*   **Metadata**: Subject ID, Atlas Name, Resolution (N).
+### 3. HubSet
+Represents the set of nodes identified as hubs based on a centrality threshold.
 
-### Centrality Output (Intermediate)
-*   **Format**: `.csv`
-*   **Columns**: `subject_id`, `node_id`, `atlas`, `resolution`, `degree_centrality`, `betweenness_centrality`, `hub_status` (0/1).
+*   **Attributes**:
+    *   `subject_id`: Unique identifier.
+    *   `atlas_name`: Name of the atlas.
+    *   `metric_type`: "degree" or "betweenness".
+    *   `threshold_percent`: Float, percentage used for cutoff (e.g., 0.10).
+    *   `hub_nodes`: List of integers, indices of hub nodes.
+    *   `hub_count`: Integer, number of hubs (`floor(N * threshold)`).
+*   **Constraints**:
+    *   `hub_count` must equal `floor(node_count * threshold_percent)`.
 
-### Analysis Results (Final)
-*   **Format**: `.csv` (aggregated) and `.json` (permutation details)
-*   **Columns**: `resolution_pair`, `metric_type`, `observed_jaccard`, `observed_dice`, `expected_jaccard`, `excess_overlap`, `p_value`, `n_permutations`, `correction_applied`.
+### 4. SpatialMapping
+Lookup table for mapping high-resolution nodes to low-resolution nodes.
 
-## 4. File Naming Conventions
+*   **Attributes**:
+    *   `source_atlas`: High-res atlas name (e.g., "Schaefer-200").
+    *   `target_atlas`: Low-res atlas name (e.g., "AAL-90").
+    *   `mapping_dict`: Dictionary `{source_index: target_index}`.
+    *   `unmapped_nodes`: List of source indices with no overlap.
+*   **Constraints**:
+    *   Each source node maps to at most one target node.
 
-*   **Raw**: `raw/{subject_id}_func.nii.gz`
-*   **Matrices**: `processed/{subject_id}_{atlas}_{resolution}_adj.npz`
-*   **Centrality**: `processed/{subject_id}_{atlas}_{resolution}_centrality.csv`
-*   **Results**: `results/{analysis_type}_{timestamp}.csv`
+## Data Flow
+1.  **Raw Data** -> `loader.py` -> `AdjacencyMatrix` (N=20, 3 resolutions).
+2.  `AdjacencyMatrix` -> `centrality.py` -> `CentralityScore`.
+3.  `CentralityScore` -> `overlap.py` (thresholding) -> `HubSet`.
+4.  `HubSet` (different resolutions) -> `overlap.py` (spatial mapping) -> **Overlap Metrics** (Excess Overlap, Spearman).
+5.  **Overlap Metrics** -> `visualization.py` -> Plots & `validation_report.json`.

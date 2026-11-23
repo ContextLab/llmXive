@@ -1,0 +1,72 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory tree or file list was provided showing that the required `projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/`
+    hierarchy (with `code/`, `data/`, `tests/`, `paper/`, `state/` subfolders) actually
+    exists. The claim lacks concrete evidence of the created project structure.
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, data files, or output reports were supplied; the implementer did not\
+    \ provide the extraction script, generated CSV dataset, model\u2011training script,\
+    \ or evaluation results required by the user stories. Consequently the task\u2019\
+    s deliverables are missing."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No linting or formatting configuration files (e.g., `.ruff.toml`, `.flake8`,
+    or `pyproject.toml` sections for Black) are present in the provided evidence,
+    so the requirement to configure ruff/flake8 and Black is not satisfied. The task
+    lacks the necessary artifacts.
+T008a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `data-model.md` file containing a YAML block with the required
+    `MethodNode` fields (`paper_id`, `title`, `year`, `outgoing_edges`, `incoming_citations`)
+    was provided. The implementer must add the specified schema to the indicated path.
+T008b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No file or YAML block was presented; the required `data-model.md` entry defining
+    the `RetractionLabel` schema with the fields `paper_id`, `status`, `source`, and
+    `retraction_reason` is absent. The implementer must add the specified schema to
+    the indicated path.
+T008c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No YAML block defining the `TopologicalFeatures` schema was presented in the
+    provided evidence, nor is there any indication that `projects/PROJ-815-llmxive-follow-up-extending-intern-atlas/specs/001-llmxive-follow-up-extending-intern-atlas/data-model.md`
+    was modified to include the required fields. The task therefore remains unfulfilled.
+T013:
+  c: false
+  h: 967cc5796055e0dc1805859e15fcb24f44df845a25bfd2d53c469334ed436546
+  r: "The required script `code/data/extract_intern_atlas.py` does not exist, so no\
+    \ code loads the graph, filters by year, or calls any abort function. Moreover,\
+    \ the provided `code/utils/graph_utils.py` excerpt does not contain an `abort_if_llm_inferred()`\
+    \ implementation, so the enforcement step cannot be performed. The task\u2019\
+    s core functionality is therefore missing."
+T016:
+  c: false
+  h: 20ab6f6bc2bdcfee41866e18e28f4f50be2790717895af6494d0de10c6cfe16f
+  r: "The repository lacks the required `data/processed/features_2010_2018.csv` file,\
+    \ and the shown portion of `code/data/merge_retractions.py` does not contain the\
+    \ `map_retraction_status` or `convert_to_binary` implementations. Additionally,\
+    \ the test file `tests/unit/test_label_mapping.py` is truncated, missing the full\
+    \ set of assertions. These missing/unfinished artifacts mean the label\u2011mapping\
+    \ logic and its verification are not fully delivered."
+T017:
+  c: false
+  h: 2e2effd951f4c12cde3b19573f4700bb0019c768312336e43b23437ab04ff0e3
+  r: "The `run_extraction.py` file is present but the visible portion does not show\
+    \ the orchestrator logic that calls T013\u2011T016, checks for ground\u2011truth\
+    \ labels, and aborts with the exact required message. Moreover, the required output\
+    \ file `data/processed/features_2010_2018.csv` is absent. The next implementer\
+    \ must add the missing pipeline function, ensure it invokes the prior tasks, implements\
+    \ the exact abort message, and generates the specified CSV."
+T017b:
+  c: false
+  h: 0cb3d4fed4df324f82264c34fdd9cff6392c4369d9b881883cd125a4c82e953a
+  r: The required artifacts (`data/processed/features_2010_2018.csv` and the schema
+    file `specs/001-llmxive-follow-up-extending-intern-atlas/contracts/dataset.schema.yaml`)
+    are missing, so no schema validation could have been performed. The task is therefore
+    not satisfied.

@@ -1,154 +1,194 @@
 """
-Unit test for Benjamini-Hochberg correction logic (T025).
-
-Asserts adjusted p-values match reference implementation.
+Unit tests for code/modeling/correlation.py.
+Tests correlation calculations, Benjamini-Hochberg correction, and data loading.
 """
 import numpy as np
-from statsmodels.stats.multitest import multipletests
 import pandas as pd
+import pytest
 from pathlib import Path
-import sys
-import os
+import tempfile
 
-# Ensure project root is in path for imports if running directly
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+from modeling.correlation import (
+    load_primary_dataset,
+    calculate_correlation,
+    benjamini_hochberg_correction,
+    compute_correlations,
+    write_correlation_results
+)
 
-from utils.config import get_config
+class TestLoadPrimaryDataset:
+    def test_load_primary_dataset_exists(self):
+        """Should load a valid CSV file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = Path(tmpdir) / "test_data.csv"
+            df = pd.DataFrame({
+                "sample_id": ["s1", "s2"],
+                "PCE": [10.0, 15.0],
+                "correlation_length": [1.0, 2.0]
+            })
+            df.to_csv(csv_path, index=False)
+            
+            result = load_primary_dataset(str(csv_path))
+            assert result is not None
+            assert len(result) == 2
+            assert "PCE" in result.columns
 
+    def test_load_primary_dataset_missing_columns(self):
+        """Should handle missing required columns gracefully."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = Path(tmpdir) / "test_data.csv"
+            df = pd.DataFrame({
+                "sample_id": ["s1", "s2"],
+                "PCE": [10.0, 15.0]
+                # Missing correlation_length
+            })
+            df.to_csv(csv_path, index=False)
+            
+            # Should raise a KeyError or similar
+            with pytest.raises(KeyError):
+                load_primary_dataset(str(csv_path))
 
-def benjamini_hochberg_reference(p_values, alpha=0.05):
-    """
-    Reference implementation of Benjamini-Hochberg correction (FDR).
-    
-    Calculates adjusted p-values manually to verify against project logic
-    or standard library implementations like statsmodels.
-    
-    Args:
-        p_values: Array-like of raw p-values.
-        alpha: Significance level (unused in calculation but part of interface).
+class TestCalculateCorrelation:
+    def test_perfect_positive_correlation(self):
+        """Perfect positive correlation should return r=1."""
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([2, 4, 6, 8, 10])
+        r, p = calculate_correlation(x, y, method="pearson")
+        assert np.isclose(r, 1.0)
+        assert p < 0.05
+
+    def test_perfect_negative_correlation(self):
+        """Perfect negative correlation should return r=-1."""
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([10, 8, 6, 4, 2])
+        r, p = calculate_correlation(x, y, method="pearson")
+        assert np.isclose(r, -1.0)
+        assert p < 0.05
+
+    def test_no_correlation(self):
+        """Uncorrelated data should return r near 0."""
+        np.random.seed(42)
+        x = np.random.randn(100)
+        y = np.random.randn(100)
+        r, p = calculate_correlation(x, y, method="pearson")
+        assert np.abs(r) < 0.2  # With 100 samples, r should be small
+        assert p > 0.05
+
+    def test_spearman_correlation(self):
+        """Spearman correlation should handle non-linear monotonic relationships."""
+        x = np.array([1, 2, 3, 4, 5])
+        y = np.array([1, 4, 9, 16, 25])  # Quadratic, but monotonic
+        r, p = calculate_correlation(x, y, method="spearman")
+        assert np.isclose(r, 1.0)
+        assert p < 0.05
+
+    def test_correlation_with_nan(self):
+        """Should handle NaN values appropriately."""
+        x = np.array([1, 2, np.nan, 4, 5])
+        y = np.array([2, 4, 6, 8, 10])
+        # Should raise or return NaN depending on implementation
+        # We expect it to raise or handle gracefully
+        with pytest.raises((ValueError, TypeError)):
+            calculate_correlation(x, y, method="pearson")
+
+class TestBenjaminiHochbergCorrection:
+    def test_bh_correction_reduces_p_values(self):
+        """BH correction should increase p-values (make them more conservative)."""
+        p_values = np.array([0.01, 0.02, 0.03, 0.04, 0.05])
+        adjusted = benjamini_hochberg_correction(p_values)
+        # Adjusted p-values should be >= original
+        assert np.all(adjusted >= p_values)
+
+    def test_bh_correction_monotonic(self):
+        """BH adjusted p-values should be monotonically increasing."""
+        p_values = np.array([0.05, 0.01, 0.03, 0.02, 0.04])
+        adjusted = benjamini_hochberg_correction(p_values)
+        # After sorting by original p-value, adjusted should be monotonic
+        sorted_indices = np.argsort(p_values)
+        sorted_adjusted = adjusted[sorted_indices]
+        assert np.all(np.diff(sorted_adjusted) >= 0)
+
+    def test_bh_correction_all_significant(self):
+        """If all p-values are very small, all should remain significant."""
+        p_values = np.array([0.001, 0.002, 0.003])
+        adjusted = benjamini_hochberg_correction(p_values)
+        assert np.all(adjusted < 0.05)
+
+    def test_bh_correction_all_insignificant(self):
+        """If all p-values are large, all should remain insignificant."""
+        p_values = np.array([0.5, 0.6, 0.7])
+        adjusted = benjamini_hochberg_correction(p_values)
+        assert np.all(adjusted >= 0.05)
+
+    def test_bh_correction_single_value(self):
+        """BH correction on single value should return the value."""
+        p_values = np.array([0.03])
+        adjusted = benjamini_hochberg_correction(p_values)
+        assert np.isclose(adjusted[0], 0.03)
+
+    def test_bh_correction_reference(self):
+        """Compare against known reference values."""
+        # Reference: p = [0.001, 0.005, 0.01, 0.02, 0.05]
+        # Adjusted: [0.005, 0.005, 0.0167, 0.025, 0.05]
+        p_values = np.array([0.001, 0.005, 0.01, 0.02, 0.05])
+        adjusted = benjamini_hochberg_correction(p_values)
         
-    Returns:
-        np.ndarray: Adjusted p-values.
-    """
-    p_values = np.asarray(p_values)
-    n = len(p_values)
-    if n == 0:
-        return np.array([])
-        
-    # Sort p-values and keep track of original indices
-    sorted_indices = np.argsort(p_values)
-    sorted_p = p_values[sorted_indices]
-    
-    # Calculate raw adjusted p-values: p * n / rank
-    # Rank is 1-based index in the sorted array
-    ranks = np.arange(1, n + 1)
-    adjusted_p = sorted_p * n / ranks
-    
-    # Initialize result array
-    result = np.zeros(n)
-    
-    # Assign calculated values back to original positions
-    # But first, we need to ensure monotonicity from the end
-    # The standard BH procedure ensures that adjusted p-values are non-decreasing
-    # when sorted by raw p-value. We enforce this by taking the minimum from the right.
-    
-    # We work on the sorted adjusted p-values to enforce monotonicity
-    # adjusted_p[i] = min(adjusted_p[i], adjusted_p[i+1], ..., adjusted_p[n-1])
-    for i in range(n - 2, -1, -1):
-        adjusted_p[i] = min(adjusted_p[i], adjusted_p[i + 1])
-        
-    # Clamp values to 1.0
-    adjusted_p = np.minimum(adjusted_p, 1.0)
-    
-    # Place back into original order
-    result[sorted_indices] = adjusted_p
-    
-    return result
+        expected = np.array([0.005, 0.005, 0.01666667, 0.025, 0.05])
+        assert np.allclose(adjusted, expected, rtol=1e-4)
 
+class TestComputeCorrelations:
+    def test_compute_correlations_returns_dataframe(self):
+        """Should return a DataFrame with correlation results."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = Path(tmpdir) / "test_data.csv"
+            df = pd.DataFrame({
+                "sample_id": [f"s{i}" for i in range(20)],
+                "PCE": np.random.randn(20),
+                "metric1": np.random.randn(20),
+                "metric2": np.random.randn(20)
+            })
+            df.to_csv(csv_path, index=False)
+            
+            result = compute_correlations(str(csv_path))
+            assert isinstance(result, pd.DataFrame)
+            assert "metric" in result.columns
+            assert "correlation" in result.columns
+            assert "p_value" in result.columns
+            assert "adj_p_value" in result.columns
 
-def test_bh_correction_logic():
-    """
-    Test that the BH correction logic matches the reference implementation.
-    
-    This test generates synthetic p-values (as input data for the statistical
-    function, not fake research results) and verifies that our manual reference
-    implementation matches the output of statsmodels, which is the standard
-    library implementation expected to be used in the project.
-    """
-    # Generate random p-values for testing the algorithm logic
-    np.random.seed(42)
-    n_tests = 20
-    p_values = np.random.uniform(0, 1, n_tests)
-    
-    # 1. Compute reference using our manual implementation
-    ref_adjusted = benjamini_hochberg_reference(p_values)
-    
-    # 2. Compute using statsmodels (the standard library expected in the project)
-    #    multipletests returns: (reject, p_corrected, p_corrected_sidak, p_corrected_holm)
-    #    For FDR 'fdr_bh', the second return value is the BH adjusted p-values.
-    reject, adj_p_statsmodels, _, _ = multipletests(
-        p_values, alpha=0.05, method='fdr_bh'
-    )
-    
-    # 3. Assert that both implementations produce nearly identical results
-    #    Floating point arithmetic might differ slightly, so we use allclose
-    assert np.allclose(ref_adjusted, adj_p_statsmodels, rtol=1e-10, atol=1e-15), (
-        f"Benjamini-Hochberg logic mismatch.\n"
-        f"Reference (manual): {ref_adjusted}\n"
-        f"Statsmodels:        {adj_p_statsmodels}\n"
-        f"Difference:         {np.abs(ref_adjusted - adj_p_statsmodels)}"
-    )
-    
-    # 4. Additional sanity checks
-    #    Adjusted p-values should always be >= raw p-values (monotonicity)
-    assert np.all(adj_p_statsmodels >= p_values), (
-        "Adjusted p-values must be >= raw p-values"
-    )
-    
-    #    Adjusted p-values should be <= 1.0
-    assert np.all(adj_p_statsmodels <= 1.0), (
-        "Adjusted p-values must be <= 1.0"
-    )
-    
-    #    If raw p-value is 0, adjusted should be 0 (or very close)
-    #    If raw p-value is 1, adjusted should be 1
-    
-    print("✓ Benjamini-Hochberg correction logic verified successfully.")
-    print(f"  Tested with {n_tests} random p-values.")
-    print(f"  Max deviation from reference: {np.max(np.abs(ref_adjusted - adj_p_statsmodels)):.2e}")
+    def test_compute_correlations_correct_columns(self):
+        """Should compute correlations for all numeric columns except PCE."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            csv_path = Path(tmpdir) / "test_data.csv"
+            df = pd.DataFrame({
+                "sample_id": [f"s{i}" for i in range(10)],
+                "PCE": np.random.randn(10),
+                "corr_len": np.random.randn(10),
+                "spec_power": np.random.randn(10)
+            })
+            df.to_csv(csv_path, index=False)
+            
+            result = compute_correlations(str(csv_path))
+            assert len(result) == 2  # corr_len and spec_power
+            assert "corr_len" in result["metric"].values
+            assert "spec_power" in result["metric"].values
 
-
-def test_bh_edge_cases():
-    """
-    Test BH correction with edge cases: empty array, single value, all zeros.
-    """
-    # Empty array
-    assert len(benjamini_hochberg_reference([])) == 0
-    
-    # Single value
-    single_p = np.array([0.05])
-    ref_single = benjamini_hochberg_reference(single_p)
-    reject_single, adj_single, _, _ = multipletests(single_p, method='fdr_bh')
-    assert np.isclose(ref_single[0], adj_single[0])
-    
-    # All zeros
-    zeros = np.array([0.0, 0.0, 0.0])
-    ref_zeros = benjamini_hochberg_reference(zeros)
-    reject_zeros, adj_zeros, _, _ = multipletests(zeros, method='fdr_bh')
-    assert np.allclose(ref_zeros, adj_zeros)
-    
-    # All ones
-    ones = np.array([1.0, 1.0, 1.0])
-    ref_ones = benjamini_hochberg_reference(ones)
-    reject_ones, adj_ones, _, _ = multipletests(ones, method='fdr_bh')
-    assert np.allclose(ref_ones, adj_ones)
-    
-    print("✓ Edge cases passed.")
-
-
-if __name__ == "__main__":
-    test_bh_correction_logic()
-    test_bh_edge_cases()
-    print("\nAll tests passed for T025.")
+class TestWriteCorrelationResults:
+    def test_write_correlation_results_creates_file(self):
+        """Should create the output CSV file."""
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = Path(tmpdir) / "correlations.csv"
+            df = pd.DataFrame({
+                "metric": ["m1", "m2"],
+                "correlation": [0.5, -0.3],
+                "p_value": [0.01, 0.05],
+                "adj_p_value": [0.02, 0.05]
+            })
+            
+            write_correlation_results(df, str(output_path))
+            assert output_path.exists()
+            
+            loaded = pd.read_csv(output_path)
+            assert len(loaded) == 2
+            assert "metric" in loaded.columns
+            assert "correlation" in loaded.columns

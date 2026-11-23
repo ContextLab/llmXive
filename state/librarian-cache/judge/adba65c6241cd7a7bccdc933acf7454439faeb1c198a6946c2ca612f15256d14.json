@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2402.19171",
+  "judged_at": "2026-08-12T07:37:23Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"kwai keye-vl-2.0 technical report\" computer science",
+  "rationale": "The paper focuses on software architecture design optimization and diversity metrics, which is an off-domain topic relative to the user's question about Large Language Models (LLMs) and the specific \"Kwai Keye-VL-2.0\" technical report. There is no measurable connection to the mechanisms, variables, or empirical setting of LLMs or vision-language models, failing all inclusion criteria (a-f) and triggering the \"off-domain entirely\" rejection rule.",
+  "relevant": false
+}

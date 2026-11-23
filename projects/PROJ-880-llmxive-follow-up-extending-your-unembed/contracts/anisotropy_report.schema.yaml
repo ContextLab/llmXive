@@ -1,0 +1,29 @@
+# Schema for anisotropy_deviation output (anisotropy_deviation.json)
+# Generated for T036: Final verification of all JSON outputs against contract schemas
+type: object
+required:
+  - reference_value
+  - deviation
+properties:
+  reference_value:
+    type: number
+    description: Within-language baseline similarity
+  observed_value:
+    type: number
+    description: Observed cross-lingual similarity
+  deviation:
+    type: number
+    description: Absolute deviation from reference
+  confidence_interval:
+    type: object
+    required:
+      - lower
+      - upper
+    properties:
+      lower:
+        type: number
+      upper:
+        type: number
+  bootstrap_iterations:
+    type: integer
+    description: Number of bootstrap iterations

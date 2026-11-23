@@ -1,57 +1,41 @@
-# PROJ-361: Investigating the Relationship Between Brain Network Topology and Susceptibility to Visual Illusions
+# Brain Network Topology and Visual Illusions
 
-## Overview
-This project investigates the relationship between resting-state brain network topology and individual susceptibility to visual illusions (Müller-Lyer and Ponzo). We utilize data from the OpenNeuro ds004285 dataset. [UNRESOLVED-CLAIM: c_ee403c1d — status=not_enough_info]
+## Development Setup
 
-## Project Structure
-```
-.
-├── code/ # Source code
-│ ├── utils/ # Utility modules (DB schema, config, logging)
-│ ├── preprocessing/ # Data acquisition and preprocessing pipelines
-│ ├── topology/ # Network metric computation
-│ ├── behavioral/ # Behavioral data extraction
-│ └── analysis/ # Statistical analysis and reporting
-├── data/ # Data storage (raw, processed, behavioral)
-│ ├── raw/ # Downloaded raw data
-│ ├── processed/ # Preprocessed and analyzed data
-│ └── metadata_registry.db # SQLite metadata index
-├── tests/ # Unit and integration tests
-├── docs/ # Documentation
-├── requirements.txt # Python dependencies
-├── pyproject.toml # Project configuration (black, mypy, etc.)
-└── README.md # This file
-```
+### Prerequisites
+- Python 3.11+
+- pip
 
-## Setup
-1. Ensure Python 3.11+ is installed.
-2. Create a virtual environment:
- ```bash
- python -m venv venv
- source venv/bin/activate # On Windows: venv\Scripts\activate
- ```
-3. Install dependencies:
- ```bash
- pip install -r requirements.txt
- ```
-
-## Usage
-### Initialize Database
-The metadata registry is initialized automatically by `code/utils/db_schema.py`.
-```python
-from code.utils.db_schema import init_db
-conn = init_db()
-# Use conn to register subjects and files
-```
-
-### Running the Pipeline
-Refer to individual task implementations in `code/` for specific pipeline steps.
-
-## Testing
-Run tests using pytest:
+### Installation
 ```bash
-pytest tests/
+pip install -r requirements.txt
 ```
 
-## License
-MIT License
+### Tooling Configuration
+This project uses:
+- **flake8** for linting (configured in `.flake8`)
+- **black** for code formatting (configured in `pyproject.toml`)
+- **isort** for import sorting (configured in `pyproject.toml`)
+- **mypy** for static type checking (configured in `mypy.ini`)
+
+To verify your environment:
+```bash
+python code/utils/setup_tooling.py
+```
+
+### Running Checks
+```bash
+# Format code
+black code/ tests/
+isort code/ tests/
+
+# Lint code
+flake8 code/ tests/
+
+# Type check
+mypy code/ tests/
+```
+
+### CI Integration
+Ensure all checks pass before committing. Consider setting up a `pre-commit` hook
+(see T007) to run these automatically.

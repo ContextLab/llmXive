@@ -1,3 +1,3 @@
-# llmXive Project: Residue Distribution of Euler's Totient Function
-# This package contains the core analysis logic.
-pass
+"""
+Initialization file for the code package.
+"""

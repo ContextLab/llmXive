@@ -6,7 +6,7 @@ import os
 import sys
 import json
 from pathlib import Path
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Dict, List, Any
 
 # Add project root to path for imports
@@ -20,15 +20,14 @@ from utils.validators import validate_file_syntax, get_language_from_extension
 logger = get_logger("validate_dataset")
 
 def load_samples_from_dir(dir_path: Path) -> List[Dict[str, Any]]:
-    """Loads metadata from sidecar JSON files or infers from filenames."""
+    """
+    Loads metadata from sidecar JSON files or infers from filenames.
+    Scans for code files (.py, .java) in the directory tree.
+    """
     samples = []
     if not dir_path.exists():
+        logger.warning(f"Directory does not exist: {dir_path}")
         return samples
-    
-    # We expect metadata files (e.g., sample_id.json) or we scan for code files
-    # The task implies we have samples in data/raw/human_samples and data/raw/llm_samples
-    # We will scan for code files and look for corresponding metadata if available,
-    # or just validate the code files directly.
     
     for file_path in dir_path.rglob("*"):
         if file_path.is_file() and file_path.suffix.lower() in ['.py', '.java']:
@@ -41,7 +40,7 @@ def load_samples_from_dir(dir_path: Path) -> List[Dict[str, Any]]:
 
 def validate_samples(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
     """
-    Validates a list of sample dictionaries.
+    Validates a list of sample dictionaries using the shared validator.
     Returns a summary and a list of failures.
     """
     total = len(samples)
@@ -74,9 +73,9 @@ def validate_samples(samples: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 def main():
     config = get_config()
-    human_dir = config["raw_human_dir"]
-    llm_dir = config["raw_llm_dir"]
-    output_dir = config["intermediate_dir"]
+    human_dir = Path(config["raw_human_dir"])
+    llm_dir = Path(config["raw_llm_dir"])
+    output_dir = Path(config["intermediate_dir"])
     output_file = output_dir / "validation_report.json"
 
     # Ensure output directory exists
@@ -84,11 +83,13 @@ def main():
 
     logger.info(f"Validating Human Samples in: {human_dir}")
     human_samples = load_samples_from_dir(human_dir)
+    logger.info(f"Found {len(human_samples)} human sample files.")
     human_results = validate_samples(human_samples)
     logger.info(f"Human Samples: {human_results['valid']}/{human_results['total']} valid")
 
     logger.info(f"Validating LLM Samples in: {llm_dir}")
     llm_samples = load_samples_from_dir(llm_dir)
+    logger.info(f"Found {len(llm_samples)} LLM sample files.")
     llm_results = validate_samples(llm_samples)
     logger.info(f"LLM Samples: {llm_results['valid']}/{llm_results['total']} valid")
 
@@ -100,6 +101,8 @@ def main():
     else:
         validation_rate = 0.0
 
+    # Per task spec: Do not impose a hard threshold to auto-halt, 
+    # but report the status and flag if critically low.
     report = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
         "threshold_target": 0.95,
@@ -116,10 +119,12 @@ def main():
 
     logger.info(f"Validation report written to: {output_file}")
     
-    if not report["meets_threshold"]:
-        logger.warning(f"Validation rate {validation_rate:.2%} is below 95% threshold.")
-        # In a real CI, we might exit with error code here, but for this task
-        # we just log and produce the report as requested.
+    if total_samples == 0:
+        logger.error("No samples found to validate. Check data collection steps.")
+    elif not report["meets_threshold"]:
+        logger.warning(f"Validation rate {validation_rate:.2%} is below 95% target.")
+        if validation_rate < 0.50:
+            logger.critical("CRITICAL: Validation rate is critically low (<50%). Manual review required.")
     else:
         logger.info("Dataset validation passed threshold.")
 

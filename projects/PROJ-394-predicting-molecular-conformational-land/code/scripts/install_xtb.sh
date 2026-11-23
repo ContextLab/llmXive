@@ -1,53 +1,36 @@
 #!/bin/bash
-#
-# install_xtb.sh
-# Installs the GFN2-xTB (xtb) binary library required for energy calculations.
-#
-# Prerequisites:
-#   - Option 1 (Preferred): conda/mamba installed and active
-#   - Option 2: apt-get (Debian/Ubuntu) for system installation
-#
-# This script does NOT install via pip as xtb is a C++ binary.
-#
+# Script to install xtb via conda-forge or system package manager
+# xtb is a C++ binary and cannot be installed via pip.
 
 set -e
 
-echo "=== Installing GFN2-xTB (xtb) ==="
+echo "Attempting to install xtb..."
 
-# Check for conda
+# Try conda first (preferred)
 if command -v conda &> /dev/null; then
-    echo "Detected conda. Installing xtb via conda-forge..."
+    echo "Conda detected. Installing xtb from conda-forge..."
     conda install -c conda-forge xtb -y
-    echo "xtb installed via conda."
+    echo "xtb installed successfully via conda."
     exit 0
 fi
 
-# Check for mamba
-if command -v mamba &> /dev/null; then
-    echo "Detected mamba. Installing xtb via conda-forge..."
-    mamba install -c conda-forge xtb -y
-    echo "xtb installed via mamba."
-    exit 0
-fi
-
-# Fallback to apt (Debian/Ubuntu)
+# Try apt (Ubuntu/Debian)
 if command -v apt-get &> /dev/null; then
-    echo "Conda not found. Attempting system installation via apt-get..."
-    # Update package list
-    sudo apt-get update -qq
-    # Install xtb (package name may vary by distro, usually 'xtb' or 'libxtb-dev')
-    # Note: On some systems, the binary might be in a different package or not available in default repos.
-    # If 'xtb' is not found, users may need to add a PPA or build from source.
-    if sudo apt-get install -y xtb; then
-        echo "xtb installed via apt-get."
-        exit 0
-    else
-        echo "ERROR: Could not install xtb via apt-get. Package 'xtb' not found in default repositories."
-        echo "Please install xtb manually via conda-forge or build from source: https://xtb-docs.readthedocs.io/"
-        exit 1
-    fi
+    echo "Apt detected. Installing xtb via apt..."
+    sudo apt-get update
+    sudo apt-get install -y xtb
+    echo "xtb installed successfully via apt."
+    exit 0
 fi
 
-echo "ERROR: No supported package manager (conda, mamba, apt-get) found."
-echo "Please install xtb manually. See: https://xtb-docs.readthedocs.io/en/latest/installation.html"
+# Try brew (macOS)
+if command -v brew &> /dev/null; then
+    echo "Brew detected. Installing xtb via brew..."
+    brew install xtb
+    echo "xtb installed successfully via brew."
+    exit 0
+fi
+
+echo "ERROR: Could not find a suitable package manager (conda, apt, brew) to install xtb."
+echo "Please install xtb manually from https://xtb-docs.readthedocs.io/"
 exit 1

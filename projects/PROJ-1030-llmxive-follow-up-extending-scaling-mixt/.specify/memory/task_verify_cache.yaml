@@ -1,0 +1,45 @@
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The only information provided is the high\u2011level feature specification and\
+    \ user stories; there are no code, configuration files, or documentation showing\
+    \ that error handling and logging (especially a \u201CFAIL LOUDLY\u201D mechanism\
+    \ for data fetch) have been set up. Consequently, the required artifact \u2013\
+    \ a configured error\u2011handling and logging infrastructure \u2013 is missing."
+T017:
+  c: false
+  h: c44822d3f132d1f81b70a0eb924c6a0289e6a31adb0754da75cffef908e28685
+  r: "The `code/utils/log_memory.py` file exists but is truncated (the `log_memory_usage`\
+    \ function is incomplete) and never writes to the required `data/processed/memory_log.json`.\
+    \ Moreover, the JSON log file itself is missing, so the task\u2019s requirement\
+    \ to record peak RAM usage to that path is not fulfilled."
+T032:
+  c: false
+  h: 8cfb46c7baaf8b3f5baf1b2d2294086fb9eaac1db22fc8b24883bb2c0b25e22d
+  r: The required output file `data/processed/activation_distribution.json` does not
+    exist, and the provided `compute_baseline.py` script is truncated (ends with `logger.in`)
+    and never actually writes the JSON to the expected location. Consequently the
+    baseline distribution has not been computed and saved as required.
+T032#1:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `metrics.json` (or any other file) containing the calculated precision, recall,\
+    \ F1 scores and the required \u201Crandom guessing\u201D baseline is present.\
+    \ The claim provides only a textual description of the task; without the actual\
+    \ JSON output and evidence that the baseline uses the exact filtered test\u2011\
+    set IDs, the requirement is not satisfied. The implementer must supply a non\u2011\
+    empty `metrics.json` file with the computed metrics and baseline values."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No SHAP or other feature\u2011importance analysis code, results, or visualizations\
+    \ were provided, nor any comparison against the baseline distribution from T032.1.\
+    \ The claim lacks any artifact (script, notebook, data files, or report) that\
+    \ demonstrates the required analysis, so the task is not satisfied."
+T040:
+  c: false
+  h: 68d93afc30f084acec20740ca343ec409c2c0898acc23d16aabae9cea4cbec59
+  r: "The required artifacts `data/processed/memory_log.json` and `data/processed/memory_verification.json`\
+    \ are absent, so the verification script cannot run and no pass/fail result is\
+    \ recorded. The task\u2019s core requirement\u2014checking peak RAM usage and\
+    \ producing a verification report\u2014is therefore unmet."

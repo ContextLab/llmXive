@@ -1,8 +1,3 @@
-"""
-Pipeline timing and validation utilities for Task T042.
-
-Verifies total pipeline runtime is within the 6-hour constraint.
-"""
 import os
 import sys
 import time
@@ -10,209 +5,166 @@ import logging
 import subprocess
 import argparse
 from pathlib import Path
-from typing import Optional, Dict, Any
-
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parent.parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+from typing import Dict, Any, Optional, Tuple
 
 from utils.logging_config import get_logger, log_pipeline_event
 
 logger = get_logger(__name__)
 
-# Constants
-MAX_RUNTIME_SECONDS = 6 * 60 * 60  # 6 hours
-PIPELINE_SCRIPTS = [
+# Define the sequence of scripts that constitute the full pipeline
+PIPELINE_STAGES = [
     "code/data/download.py",
     "code/data/descriptors.py",
     "code/data/preprocess.py",
     "code/models/train.py",
     "code/models/predict.py",
     "code/models/generate_candidates_report.py",
-    "code/viz/plot.py",
 ]
 
-def run_pipeline_script(script_rel_path: str, dry_run: bool = False) -> Dict[str, Any]:
+MAX_RUNTIME_HOURS = 6
+MAX_RUNTIME_SECONDS = MAX_RUNTIME_HOURS * 3600
+
+def run_pipeline_script(script_rel_path: str, timeout_seconds: Optional[int] = None) -> Tuple[bool, float, str]:
     """
-    Execute a single pipeline script and measure its runtime.
+    Executes a single pipeline script and returns execution status, duration, and output.
     
     Args:
-        script_rel_path: Relative path to the script from project root.
-        dry_run: If True, only log what would be run without executing.
+        script_rel_path: Relative path from project root to the script.
+        timeout_seconds: Optional timeout in seconds.
         
     Returns:
-        Dictionary with execution status and timing information.
+        Tuple of (success, duration_seconds, output_log)
     """
-    script_path = project_root / script_rel_path
-    
+    script_path = Path(script_rel_path)
     if not script_path.exists():
-        logger.warning(f"Script not found: {script_path}")
-        return {
-            "script": script_rel_path,
-            "status": "skipped",
-            "reason": "file_not_found",
-            "runtime_seconds": 0,
-        }
+        logger.error(f"Script not found: {script_path}")
+        return False, 0.0, f"Script not found: {script_path}"
 
-    logger.info(f"Executing: {script_rel_path}")
-    
-    if dry_run:
-        logger.info(f"DRY RUN: Would execute python {script_path}")
-        return {
-            "script": script_rel_path,
-            "status": "dry_run",
-            "runtime_seconds": 0,
-        }
-
+    logger.info(f"Starting stage: {script_rel_path}")
     start_time = time.time()
+    
     try:
-        # Run the script with timeout protection (e.g., 7 hours per script max)
-        timeout_seconds = 7 * 60 * 60
+        cmd = [sys.executable, str(script_path)]
+        env = os.environ.copy()
+        
+        # Run the script
         result = subprocess.run(
-            [sys.executable, str(script_path)],
-            cwd=project_root,
+            cmd,
             capture_output=True,
             text=True,
             timeout=timeout_seconds,
+            env=env
         )
         
-        runtime = time.time() - start_time
+        duration = time.time() - start_time
+        output = result.stdout + "\n" + result.stderr
         
-        if result.returncode == 0:
-            logger.info(f"Completed {script_rel_path} in {runtime:.2f}s")
-            return {
-                "script": script_rel_path,
-                "status": "success",
-                "runtime_seconds": runtime,
-                "stdout_lines": len(result.stdout.splitlines()),
-                "stderr_lines": len(result.stderr.splitlines()),
-            }
-        else:
-            logger.error(f"Failed {script_rel_path} with return code {result.returncode}")
-            logger.error(f"Stderr: {result.stderr[:500]}")
-            return {
-                "script": script_rel_path,
-                "status": "failed",
-                "runtime_seconds": runtime,
-                "return_code": result.returncode,
-                "error": result.stderr[:500],
-            }
-            
-    except subprocess.TimeoutExpired:
-        runtime = time.time() - start_time
-        logger.error(f"Timeout expired for {script_rel_path} after {timeout_seconds}s")
-        return {
-            "script": script_rel_path,
-            "status": "timeout",
-            "runtime_seconds": runtime,
-            "reason": f"exceeded {timeout_seconds}s limit",
-        }
-    except Exception as e:
-        runtime = time.time() - start_time
-        logger.error(f"Exception running {script_rel_path}: {str(e)}")
-        return {
-            "script": script_rel_path,
-            "status": "error",
-            "runtime_seconds": runtime,
-            "error": str(e),
-        }
+        if result.returncode != 0:
+            logger.error(f"Stage failed: {script_rel_path} (Exit code: {result.returncode})")
+            logger.error(f"Output: {output}")
+            return False, duration, output
+        
+        logger.info(f"Stage completed: {script_rel_path} in {duration:.2f}s")
+        return True, duration, output
 
-def run_full_pipeline_validation(dry_run: bool = False) -> Dict[str, Any]:
+    except subprocess.TimeoutExpired:
+        duration = time.time() - start_time
+        logger.error(f"Stage timed out: {script_rel_path}")
+        return False, duration, f"Timeout after {timeout_seconds}s"
+    except Exception as e:
+        duration = time.time() - start_time
+        logger.error(f"Stage exception: {script_rel_path} - {str(e)}")
+        return False, duration, str(e)
+
+def run_full_pipeline_validation(output_path: str = "results/pipeline_timing_report.txt") -> bool:
     """
-    Run the full pipeline validation to measure total runtime.
+    Runs the full pipeline sequentially, measures total time, and writes a validation report.
     
     Args:
-        dry_run: If True, simulate execution without running scripts.
+        output_path: Path to save the timing report.
         
     Returns:
-        Summary dictionary with total runtime and status.
+        True if total runtime <= MAX_RUNTIME_HOURS, False otherwise.
     """
-    logger.info("Starting pipeline runtime validation")
-    log_pipeline_event("T042_START", "Beginning pipeline runtime verification")
+    logger.info("Starting full pipeline timing validation...")
     
-    results = []
-    total_runtime = 0.0
-    failed_scripts = []
-    
-    for script in PIPELINE_SCRIPTS:
-        result = run_pipeline_script(script, dry_run=dry_run)
-        results.append(result)
+    total_start = time.time()
+    stage_results = []
+    all_passed = True
+
+    for stage in PIPELINE_STAGES:
+        success, duration, output = run_pipeline_script(stage)
+        stage_results.append({
+            "stage": stage,
+            "success": success,
+            "duration_seconds": duration
+        })
         
-        if result["status"] in ["success", "dry_run"]:
-            total_runtime += result.get("runtime_seconds", 0)
-        elif result["status"] in ["failed", "timeout", "error"]:
-            failed_scripts.append(script)
+        if not success:
+            all_passed = False
+            logger.error(f"Pipeline aborted at stage: {stage}")
+            break
+
+    total_duration = time.time() - total_start
     
-    total_runtime_hours = total_runtime / 3600.0
-    passed = total_runtime <= MAX_RUNTIME_SECONDS and len(failed_scripts) == 0
+    # Determine pass/fail based on time constraint
+    passed_time_check = total_duration <= MAX_RUNTIME_SECONDS
     
-    summary = {
-        "total_runtime_seconds": total_runtime,
-        "total_runtime_hours": total_runtime_hours,
-        "max_allowed_hours": 6.0,
-        "passed": passed,
-        "script_count": len(PIPELINE_SCRIPTS),
-        "success_count": len([r for r in results if r["status"] == "success"]),
-        "failed_scripts": failed_scripts,
-        "results": results,
-    }
+    # Generate report
+    report_lines = [
+        "=" * 60,
+        "PIPELINE TIMING VALIDATION REPORT",
+        "=" * 60,
+        f"Max Allowed Runtime: {MAX_RUNTIME_HOURS} hours ({MAX_RUNTIME_SECONDS} seconds)",
+        f"Total Actual Runtime: {total_duration:.2f} seconds ({total_duration/3600:.2f} hours)",
+        f"Time Constraint Met: {'PASS' if passed_time_check else 'FAIL'}",
+        "-" * 60,
+        "Stage Breakdown:",
+        "-" * 60,
+    ]
+
+    for res in stage_results:
+        status = "OK" if res["success"] else "FAILED"
+        report_lines.append(
+            f"{res['stage']}: {status} ({res['duration_seconds']:.2f}s)"
+        )
+
+    report_lines.append("-" * 60)
+    report_lines.append(f"Overall Result: {'PASS' if (all_passed and passed_time_check) else 'FAIL'}")
+    report_lines.append("=" * 60)
+
+    report_text = "\n".join(report_lines)
+    logger.info(report_text)
+
+    # Ensure results directory exists
+    output_file = Path(output_path)
+    output_file.parent.mkdir(parents=True, exist_ok=True)
     
-    # Log summary
-    log_pipeline_event(
-        "T042_SUMMARY",
-        f"Pipeline validation: {total_runtime_hours:.2f}h / 6h limit. "
-        f"Passed: {passed}. Failed scripts: {len(failed_scripts)}"
-    )
+    with open(output_file, 'w') as f:
+        f.write(report_text)
+
+    logger.info(f"Timing report saved to {output_path}")
     
-    if passed:
-        logger.info(f"✅ PIPELINE VALIDATION PASSED: {total_runtime_hours:.2f} hours <= 6 hours")
-    else:
-        logger.error(f"❌ PIPELINE VALIDATION FAILED: {total_runtime_hours:.2f} hours > 6 hours or {len(failed_scripts)} failures")
-        
-    return summary
+    return all_passed and passed_time_check
 
 def main():
-    """Main entry point for pipeline timing verification."""
-    parser = argparse.ArgumentParser(
-        description="Verify total pipeline runtime is within 6 hours."
-    )
+    """Entry point for running the timing validation."""
+    parser = argparse.ArgumentParser(description="Verify total pipeline runtime <= 6 hours")
     parser.add_argument(
-        "--dry-run",
-        action="store_true",
-        help="Simulate execution without running scripts."
+        "--output", 
+        type=str, 
+        default="results/pipeline_timing_report.txt",
+        help="Path to save the timing report"
     )
-    parser.add_argument(
-        "--verbose",
-        action="store_true",
-        help="Enable verbose logging."
-    )
-    
     args = parser.parse_args()
+
+    success = run_full_pipeline_validation(output_path=args.output)
     
-    if args.verbose:
-        logging.getLogger().setLevel(logging.DEBUG)
-    
-    summary = run_full_pipeline_validation(dry_run=args.dry_run)
-    
-    # Print summary to stdout for easy parsing
-    print("\n" + "="*60)
-    print("PIPELINE RUNTIME VALIDATION REPORT")
-    print("="*60)
-    print(f"Total Runtime: {summary['total_runtime_hours']:.2f} hours")
-    print(f"Allowed Limit: {summary['max_allowed_hours']} hours")
-    print(f"Status: {'PASSED' if summary['passed'] else 'FAILED'}")
-    print(f"Scripts Executed: {summary['success_count']}/{summary['script_count']}")
-    
-    if summary['failed_scripts']:
-        print(f"Failed Scripts: {', '.join(summary['failed_scripts'])}")
-    
-    print("="*60)
-    
-    # Return exit code based on validation result
-    if summary['passed']:
+    if success:
+        logger.info("SUCCESS: Pipeline runtime is within the 6-hour limit.")
         sys.exit(0)
     else:
+        logger.error("FAILURE: Pipeline runtime exceeded 6 hours or a stage failed.")
         sys.exit(1)
 
 if __name__ == "__main__":

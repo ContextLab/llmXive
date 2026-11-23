@@ -11,6 +11,7 @@ from llmxive.agents.grounding_guard import _number_anchor_re  # reuse number for
 from llmxive.agents.prompts import load_prompt
 from llmxive.backends.router import reasoning_chat
 from llmxive.librarian.verify import jaccard_tokens
+from llmxive.speckit.yaml_extract import outer_fenced_body
 
 logger = logging.getLogger(__name__)
 
@@ -69,14 +70,7 @@ def locate_passages(full_text: str, *, claim: str, number: str | None) -> list[s
 def _parse_verdict(reply: str) -> Verdict:
     import yaml
 
-    raw = (reply or "").strip()
-    if raw.startswith("```"):
-        lines = raw.splitlines()
-        if lines and lines[0].startswith("```"):
-            lines = lines[1:]
-        if lines and lines[-1].strip() == "```":
-            lines = lines[:-1]
-        raw = "\n".join(lines).strip()
+    raw = outer_fenced_body(reply)
     try:
         obj = yaml.safe_load(raw)
     except Exception:
@@ -125,7 +119,12 @@ def assess(claim: str, doc: Any, *, backend: Any, model: str | None,
         reply = getattr(resp, "text", "") or ""
         if not reply.strip():
             raise ValueError("empty entailment reply")
-        return _parse_verdict(reply)
+        verdict = _parse_verdict(reply)
+        if verdict.status in {"grounded", "contradicted"}:
+            quote = " ".join(verdict.evidence.split())
+            if not quote or quote not in " ".join(joined.split()):
+                return Verdict("not_found", "", "supporting quote is absent from retrieved passages")
+        return verdict
     except Exception as exc:
         logger.warning("grounding assess: entailment failed (%s); -> not_found", exc)
         return Verdict("not_found", "", f"entailment error: {type(exc).__name__}")

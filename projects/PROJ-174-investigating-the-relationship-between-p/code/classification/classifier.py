@@ -1,24 +1,17 @@
-"""
-Sliding-window logistic regression classifier for real-time cognitive load estimation.
-
-Implements a fixed-duration lookback window for feature extraction, updating the classifier
-every 200ms. Uses L2 regularization to prevent overfitting.
-"""
-
 import os
 import sys
 import logging
 import numpy as np
 import pandas as pd
 from pathlib import Path
-from typing import Dict, List, Tuple, Optional, Any
-from datetime import datetime
+from typing import List, Dict, Any, Tuple
 from sklearn.linear_model import LogisticRegression
 from sklearn.preprocessing import StandardScaler
-from sklearn.pipeline import Pipeline
 from sklearn.model_selection import train_test_split
-import argparse
 import time
+
+from config import load_config
+from preprocessing.features import extract_features
 
 # Configure logging
 logging.basicConfig(
@@ -27,291 +20,243 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-# Constants
-UPDATE_INTERVAL_MS = 200  # Update classifier every 200ms
-LOOKBACK_WINDOW_SEC = 5.0  # Fixed-duration lookback window for features
-L2_REGULARIZATION_C = 1.0  # Inverse of regularization strength
-
 def extract_sliding_window_features(
-    df: pd.DataFrame,
-    window_size_sec: float,
-    sampling_rate_hz: float = 1000.0
-) -> List[Dict[str, float]]:
+    pupil_data: pd.DataFrame,
+    window_size: int = 2000,  # 2000ms window (assuming 1000Hz sampling)
+    step_size: int = 200     # Update every 200ms
+) -> pd.DataFrame:
     """
-    Extract features from a sliding window of pupil data.
+    Extract features from sliding windows of pupil data.
 
     Args:
-        df: DataFrame with 'timestamp' and 'pupil_diameter' columns
-        window_size_sec: Size of the lookback window in seconds
-        sampling_rate_hz: Assumed sampling rate of the data
+        pupil_data: DataFrame with timestamp and pupil diameter
+        window_size: Window size in milliseconds
+        step_size: Step size between windows in milliseconds
 
     Returns:
-        List of feature dictionaries for each valid window
+        DataFrame with window features
     """
-    if 'timestamp' not in df.columns or 'pupil_diameter' not in df.columns:
-        raise ValueError("DataFrame must contain 'timestamp' and 'pupil_diameter' columns")
+    # Ensure data is sorted by timestamp
+    pupil_data = pupil_data.sort_values('timestamp')
 
-    # Convert timestamps to numeric (seconds since epoch)
-    if df['timestamp'].dtype == 'object':
-        df = df.copy()
-        df['timestamp'] = pd.to_datetime(df['timestamp']).astype(np.int64) // 10**9
+    features = []
+    window_ms = window_size
+    step_ms = step_size
 
-    features_list = []
-    window_samples = int(window_size_sec * sampling_rate_hz)
+    timestamps = pupil_data['timestamp'].values
+    pupil = pupil_data['pupil_diameter'].values
 
-    # Iterate through the data with the sliding window
-    for i in range(window_samples, len(df)):
-        window_data = df.iloc[i - window_samples:i]
-        pupil_values = window_data['pupil_diameter'].values
+    # Convert to indices (assuming 1ms resolution for simplicity, adjust if needed)
+    # In real data, convert ms to sample indices based on sampling rate
+    # For this implementation, we assume 1 sample = 1ms for simplicity
 
-        # Skip windows with too many NaNs (>30%)
-        if np.isnan(pupil_values).sum() / len(pupil_values) > 0.3:
+    for i in range(0, len(timestamps) - window_ms, step_ms):
+        window_data = pupil[i:i+window_ms]
+        if len(window_data) < window_ms // 2:
             continue
 
         # Compute features
-        features = {
-            'timestamp': df.iloc[i]['timestamp'],
-            'mean_pupil': np.nanmean(pupil_values),
-            'std_pupil': np.nanstd(pupil_values),
-            'min_pupil': np.nanmin(pupil_values),
-            'max_pupil': np.nanmax(pupil_values),
-            'pupil_range': np.nanmax(pupil_values) - np.nanmin(pupil_values),
-            'pupil_trend': (pupil_values[-1] - pupil_values[0]) / len(pupil_values) if len(pupil_values) > 1 else 0.0,
-            'fixation_count': 0  # Placeholder, would be computed from x,y if available
+        feat = {
+            'window_start_idx': i,
+            'mean_pupil': np.mean(window_data),
+            'std_pupil': np.std(window_data),
+            'max_pupil': np.max(window_data),
+            'min_pupil': np.min(window_data),
+            'slope': np.polyfit(range(len(window_data)), window_data, 1)[0] if len(window_data) > 1 else 0
         }
+        features.append(feat)
 
-        # Add derived features
-        if 'x' in df.columns and 'y' in df.columns:
-            x_vals = df.iloc[i - window_samples:i]['x'].values
-            y_vals = df.iloc[i - window_samples:i]['y'].values
-            fixation_distance = np.sqrt(np.diff(x_vals)**2 + np.diff(y_vals)**2)
-            features['fixation_count'] = np.sum(fixation_distance < 0.1)  # Threshold for fixation
-            features['avg_fixation_distance'] = np.mean(fixation_distance)
-
-        features_list.append(features)
-
-    return features_list
+    return pd.DataFrame(features)
 
 def prepare_training_data(
     features_df: pd.DataFrame,
-    label_column: str = 'search_time_median_split'
-) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    labels: pd.Series,
+    test_size: float = 0.2
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.Series, pd.Series]:
     """
-    Prepare data for training the classifier.
+    Prepare training and test data for classification.
 
     Args:
-        features_df: DataFrame with extracted features
-        label_column: Name of the column containing ground truth labels
+        features_df: DataFrame of features
+        labels: Series of labels (low/high cognitive load)
+        test_size: Fraction of data to use for testing
 
     Returns:
-        X_train, X_test, y_train, y_test
+        Tuple of (X_train, X_test, y_train, y_test)
     """
-    if label_column not in features_df.columns:
-        raise ValueError(f"Label column '{label_column}' not found in features DataFrame")
-
-    feature_cols = [col for col in features_df.columns if col not in ['timestamp', label_column]]
-    X = features_df[feature_cols].values
-    y = features_df[label_column].values
-
-    # Remove rows with NaN in features
-    mask = ~np.isnan(X).any(axis=1) & ~np.isnan(y)
-    X = X[mask]
-    y = y[mask]
-
-    if len(X) == 0:
-        raise ValueError("No valid data points after cleaning")
+    X = features_df.drop(columns=['window_start_idx'], errors='ignore')
+    y = labels
 
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42, stratify=y
+        X, y, test_size=test_size, random_state=42, stratify=y
     )
 
     return X_train, X_test, y_train, y_test
 
 def train_classifier(
-    X_train: np.ndarray,
-    y_train: np.ndarray
-) -> Pipeline:
+    X_train: pd.DataFrame,
+    y_train: pd.Series,
+    l2_regularization: float = 1.0
+) -> Tuple[LogisticRegression, StandardScaler]:
     """
     Train a logistic regression classifier with L2 regularization.
 
     Args:
         X_train: Training features
         y_train: Training labels
+        l2_regularization: Inverse of regularization strength (C parameter)
 
     Returns:
-        Trained Pipeline with StandardScaler and LogisticRegression
+        Tuple of (trained model, scaler)
     """
-    classifier = Pipeline([
-        ('scaler', StandardScaler()),
-        ('clf', LogisticRegression(
-            C=L2_REGULARIZATION_C,
-            penalty='l2',
-            solver='lbfgs',
-            max_iter=1000,
-            random_state=42
-        ))
-    ])
+    scaler = StandardScaler()
+    X_train_scaled = scaler.fit_transform(X_train)
 
-    classifier.fit(X_train, y_train)
-    logger.info(f"Classifier trained with accuracy: {classifier.score(X_train, y_train):.3f}")
-    return classifier
+    model = LogisticRegression(
+        C=l2_regularization,
+        solver='lbfgs',
+        max_iter=1000,
+        random_state=42
+    )
+    model.fit(X_train_scaled, y_train)
+
+    return model, scaler
 
 def update_classifier_periodically(
-    data_stream: pd.DataFrame,
-    update_interval_ms: int = UPDATE_INTERVAL_MS,
-    window_size_sec: float = LOOKBACK_WINDOW_SEC,
-    label_column: str = 'search_time_median_split'
-) -> Tuple[Pipeline, List[Dict[str, Any]]]:
+    model: LogisticRegression,
+    scaler: StandardScaler,
+    new_features: pd.DataFrame,
+    new_labels: pd.Series,
+    update_interval_ms: int = 200
+) -> Tuple[LogisticRegression, StandardScaler]:
     """
-    Update the classifier every 200ms using the latest data in the stream.
+    Update the classifier periodically with new data.
 
     Args:
-        data_stream: DataFrame with continuous data stream
-        update_interval_ms: Time between classifier updates in milliseconds
-        window_size_sec: Lookback window size for feature extraction
-        label_column: Column name for ground truth labels
+        model: Current model
+        scaler: Current scaler
+        new_features: New feature data
+        new_labels: New labels
+        update_interval_ms: Interval for updates (not used for batch update here)
 
     Returns:
-        Final trained classifier and list of update metadata
+        Tuple of (updated model, updated scaler)
     """
-    update_interval_sec = update_interval_ms / 1000.0
-    last_update_time = time.time()
-    updates = []
-    current_classifier = None
+    # In a real-time system, we would use partial_fit
+    # Here we retrain on accumulated data for simplicity
+    X_new = new_features.drop(columns=['window_start_idx'], errors='ignore')
+    y_new = new_labels
 
-    # Process data in chunks corresponding to update intervals
-    # For simulation, we'll iterate through the data with the specified interval
-    data_points_per_update = int(update_interval_sec * 1000)  # Assuming 1000 Hz sampling
+    # Combine old and new data (simulated)
+    # In practice, we would maintain a buffer of recent data
+    X_combined = X_new
+    y_combined = y_new
 
-    for start_idx in range(0, len(data_stream) - int(LOOKBACK_WINDOW_SEC * 1000), data_points_per_update):
-        current_time = time.time()
-        elapsed = current_time - last_update_time
+    X_scaled = scaler.transform(X_combined)
+    model.fit(X_scaled, y_combined)
 
-        if elapsed >= update_interval_sec:
-            # Extract features for the current window
-            window_end = start_idx + int(LOOKBACK_WINDOW_SEC * 1000)
-            window_data = data_stream.iloc[start_idx:window_end]
-
-            if len(window_data) < int(LOOKBACK_WINDOW_SEC * 1000 * 0.7):  # Skip if not enough data
-                continue
-
-            try:
-                features_list = extract_sliding_window_features(window_data, window_size_sec)
-                if len(features_list) < 10:  # Need minimum data points for training
-                    continue
-
-                features_df = pd.DataFrame(features_list)
-
-                if label_column not in features_df.columns:
-                    # Create synthetic labels for demonstration if not present
-                    # In real usage, this should come from ground truth
-                    logger.warning(f"Label column '{label_column}' not found. Using placeholder labels.")
-                    median_val = features_df['mean_pupil'].median()
-                    features_df[label_column] = (features_df['mean_pupil'] > median_val).astype(int)
-
-                X_train, X_test, y_train, y_test = prepare_training_data(features_df, label_column)
-                current_classifier = train_classifier(X_train, y_train)
-
-                # Record update metadata
-                update_info = {
-                    'timestamp': datetime.now().isoformat(),
-                    'window_start_idx': start_idx,
-                    'window_end_idx': window_end,
-                    'samples_processed': len(window_data),
-                    'training_samples': len(X_train),
-                    'test_samples': len(X_test),
-                    'test_accuracy': float(current_classifier.score(X_test, y_test))
-                }
-                updates.append(update_info)
-
-                last_update_time = current_time
-                logger.info(f"Classifier updated. Test accuracy: {update_info['test_accuracy']:.3f}")
-
-            except Exception as e:
-                logger.error(f"Error during classifier update: {e}")
-                continue
-
-    return current_classifier, updates
+    return model, scaler
 
 def run_classification_pipeline(
-    input_path: str,
-    output_path: str,
-    label_column: str = 'search_time_median_split'
-) -> None:
+    pupil_data_path: Path,
+    search_time_path: Path,
+    output_path: Path,
+    config: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
     """
     Run the full classification pipeline.
 
     Args:
-        input_path: Path to input data file
+        pupil_data_path: Path to preprocessed pupil data
+        search_time_path: Path to search time data for labeling
         output_path: Path to save classification results
+        config: Configuration dictionary
+
+    Returns:
+        Dictionary with pipeline results
     """
-    logger.info(f"Loading data from {input_path}")
-    data = pd.read_csv(input_path)
+    logger.info("Starting classification pipeline")
 
-    if 'pupil_diameter' not in data.columns:
-        raise ValueError("Input data must contain 'pupil_diameter' column")
+    # Load data
+    pupil_df = pd.read_csv(pupil_data_path)
+    search_time_df = pd.read_csv(search_time_path)
 
-    # Ensure required columns exist
-    if 'timestamp' not in data.columns:
-        data['timestamp'] = range(len(data))
+    # Extract features
+    features_df = extract_sliding_window_features(pupil_df)
 
-    logger.info(f"Running sliding-window classifier with {UPDATE_INTERVAL_MS}ms update interval")
-    classifier, updates = update_classifier_periodically(
-        data,
-        update_interval_ms=UPDATE_INTERVAL_MS,
-        window_size_sec=LOOKBACK_WINDOW_SEC,
-        label_column=label_column
-    )
+    # Label data (using median split of search time)
+    # Merge search time with features
+    # Note: In a real scenario, we'd need to align timestamps properly
+    # For this implementation, we assume a direct mapping or use trial-level aggregation
 
-    if classifier is None:
-        raise RuntimeError("Failed to train any classifier")
+    # Simple aggregation: assign search time to each window based on nearest trial
+    # This is a placeholder logic; real implementation needs precise temporal alignment
+    if 'trial_id' in search_time_df.columns and 'trial_id' in pupil_df.columns:
+        merged = pd.merge(
+            features_df,
+            search_time_df[['trial_id', 'search_time']],
+            on='trial_id',
+            how='left'
+        )
+    else:
+        # Fallback: use median search time for all
+        median_time = search_time_df['search_time'].median()
+        merged = features_df.copy()
+        merged['search_time'] = median_time
 
-    # Generate predictions for the entire dataset
-    all_features = extract_sliding_window_features(data, LOOKBACK_WINDOW_SEC)
-    features_df = pd.DataFrame(all_features)
+    # Create labels (1 = high load, 0 = low load)
+    median_search_time = merged['search_time'].median()
+    merged['label'] = (merged['search_time'] > median_search_time).astype(int)
 
-    if label_column not in features_df.columns:
-        median_val = features_df['mean_pupil'].median()
-        features_df[label_column] = (features_df['mean_pupil'] > median_val).astype(int)
+    # Prepare training data
+    X_train, X_test, y_train, y_test = prepare_training_data(merged, merged['label'])
 
-    feature_cols = [col for col in features_df.columns if col not in ['timestamp', label_column]]
-    X = features_df[feature_cols].values
-    y_true = features_df[label_column].values
+    # Train classifier
+    model, scaler = train_classifier(X_train, y_train)
 
-    y_pred = classifier.predict(X)
-    y_proba = classifier.predict_proba(X)
+    # Predict on test set
+    X_test_scaled = scaler.transform(X_test)
+    y_pred = model.predict(X_test_scaled)
+    y_prob = model.predict_proba(X_test_scaled)[:, 1]
 
-    # Create output DataFrame
-    output_df = features_df.copy()
-    output_df['predicted_class'] = y_pred
-    output_df['predicted_probability'] = y_proba[:, 1] if y_proba.shape[1] == 2 else y_proba[:, 0]
-    output_df['status'] = 'UNVALIDATED'  # As per T029 requirements
+    # Create output dataframe
+    output_df = pd.DataFrame({
+        'window_start_idx': X_test['window_start_idx'] if 'window_start_idx' in X_test.columns else range(len(y_pred)),
+        'predicted_probability': y_prob,
+        'true_label': y_test.values,
+        'predicted_label': y_pred
+    })
 
     # Save results
+    if not output_path.parent.exists():
+        output_path.parent.mkdir(parents=True, exist_ok=True)
     output_df.to_csv(output_path, index=False)
+
     logger.info(f"Classification results saved to {output_path}")
 
-    # Save update metadata
-    updates_path = output_path.replace('.csv', '_updates.json')
-    import json
-    with open(updates_path, 'w') as f:
-        json.dump(updates, f, indent=2)
-    logger.info(f"Classifier update metadata saved to {updates_path}")
+    return {
+        'n_samples': len(y_test),
+        'accuracy': np.mean(y_pred == y_test.values),
+        'output_path': str(output_path)
+    }
 
 def main():
-    parser = argparse.ArgumentParser(description='Sliding-window logistic regression classifier')
-    parser.add_argument('--input', type=str, required=True, help='Input data file path')
-    parser.add_argument('--output', type=str, required=True, help='Output results file path')
-    parser.add_argument('--label-column', type=str, default='search_time_median_split',
-                        help='Column name for ground truth labels')
-
+    """CLI entry point for classification pipeline."""
+    import argparse
+    parser = argparse.ArgumentParser(description="Run sliding-window logistic regression classification")
+    parser.add_argument("--pupil-data", type=str, required=True, help="Path to pupil data CSV")
+    parser.add_argument("--search-time", type=str, required=True, help="Path to search time CSV")
+    parser.add_argument("--output", type=str, default="results/classification_results.csv", help="Output path")
+    parser.add_argument("--config", type=str, default="code/config.yaml", help="Config path")
     args = parser.parse_args()
 
-    try:
-        run_classification_pipeline(args.input, args.output, args.label_column)
-    except Exception as e:
-        logger.error(f"Pipeline failed: {e}")
-        sys.exit(1)
+    config = load_config(args.config) if os.path.exists(args.config) else None
+    run_classification_pipeline(
+        Path(args.pupil_data),
+        Path(args.search_time),
+        Path(args.output),
+        config
+    )
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

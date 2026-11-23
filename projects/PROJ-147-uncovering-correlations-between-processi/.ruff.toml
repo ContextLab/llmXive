@@ -1,0 +1,25 @@
+# Ruff configuration file
+# Extends default rules with project-specific settings
+
+line-length = 100
+target-version = "py311"
+
+[lint]
+# Enable pycodestyle (`E`), Pyflakes (`F`), and isort (`I`)
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+    "UP",  # pyupgrade
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in testing)
+]
+
+[lint.isort]
+known-first-party = ["code", "tests"]
+force-sort-within-sections = true

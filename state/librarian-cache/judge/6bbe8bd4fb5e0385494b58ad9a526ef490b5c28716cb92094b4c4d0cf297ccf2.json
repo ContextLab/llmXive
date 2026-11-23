@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1809.11144",
+  "judged_at": "2026-08-08T06:36:31Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"humanoid-gpt: scaling data and structure for zero-shot motion tracking\" computer science",
+  "rationale": "The paper describes a physical humanoid robot platform (hardware, mechanics, and ROS software) rather than the \"Humanoid-GPT\" machine learning model, data scaling, or zero-shot motion tracking algorithms referenced in the user's question. It fails all inclusion criteria (a-f) because it does not measure the same biological/algorithmic mechanism, share the same dependent variables (LLM performance), or provide a foundational method for the specific deep learning architecture in question, represen",
+  "relevant": false
+}

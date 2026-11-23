@@ -1,0 +1,5 @@
+# Documentation Dependencies
+# These are required to build the documentation locally if using Sphinx or similar tools.
+# The core analysis dependencies are in code/requirements.txt.
+sphinx>=4.0.0
+sphinx-rtd-theme>=0.5.0

@@ -1,0 +1,27 @@
+# Black configuration for llmXive project
+# This file configures the Black code formatter for the project.
+# Used by: black code/
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''
+# Formatting style
+skip-string-normalization = false
+# Enable preview style formatting (optional, can be toggled)
+preview = false
+# Maximum line length for comments and docstrings
+# (Black respects the line-length setting for these as well)

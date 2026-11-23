@@ -1,95 +1,95 @@
 """
-Logging infrastructure for the llmXive research pipeline.
-
-Provides centralized configuration for logging to both console and files,
-ensuring consistent formatting and log levels across the project.
+Logging utilities for the pipeline.
 """
-
 import logging
 import os
 from pathlib import Path
 from typing import Optional
+import time
 
 from config import load_paths
 
 
-def setup_logging(
-    log_level: str = "INFO",
-    log_file: Optional[str] = None,
-    project_root: Optional[Path] = None,
-) -> logging.Logger:
+def setup_logging(log_level: str = "INFO") -> logging.Logger:
     """
-    Configure and return a project logger with console and optional file handlers.
-
-    This function sets up a root logger (or a named 'research' logger) with:
-    - A console handler outputting to stdout with a specific format.
-    - An optional file handler if `log_file` is provided.
+    Setup logging configuration.
 
     Args:
-        log_level: String representation of the log level (e.g., 'DEBUG', 'INFO').
-        log_file: Relative path to the log file from the project root. If None,
-                  only console logging is configured.
-        project_root: The root directory of the project. If None, inferred from
-                      the config module.
+        log_level: The logging level (e.g., 'INFO', 'DEBUG').
 
     Returns:
-        logging.Logger: The configured logger instance.
-
-    Examples:
-        >>> logger = setup_logging(log_level="DEBUG", log_file="logs/app.log")
-        >>> logger.info("Logging initialized successfully")
+        The root logger.
     """
-    # Resolve project root if not provided
-    if project_root is None:
-        paths = load_paths()
-        project_root = paths.get("project_root", Path("."))
+    paths = load_paths()
+    log_dir = paths.get("logs", Path("data/logs"))
+    Path(log_dir).mkdir(parents=True, exist_ok=True)
 
-    # Ensure log directory exists
-    log_dir = project_root / "data" / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
+    log_file = Path(log_dir) / "pipeline.log"
 
-    # Configure the logger
-    logger = logging.getLogger("research")
-    logger.setLevel(getattr(logging, log_level.upper(), logging.INFO))
-
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
-
-    # Formatter
-    formatter = logging.Formatter(
-        fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
+    # Configure logging
+    logging.basicConfig(
+        level=getattr(logging, log_level.upper(), logging.INFO),
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        handlers=[
+            logging.FileHandler(log_file),
+            logging.StreamHandler()
+        ]
     )
 
-    # Console Handler
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
-
-    # File Handler (optional)
-    if log_file:
-        full_log_path = project_root / log_file
-        # Ensure parent directories for the log file exist
-        full_log_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        file_handler = logging.FileHandler(str(full_log_path))
-        file_handler.setLevel(logging.DEBUG)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-
-    return logger
+    return logging.getLogger(__name__)
 
 
-def get_logger(name: str = "research") -> logging.Logger:
+def get_logger(name: str) -> logging.Logger:
     """
-    Retrieve a logger by name. Assumes setup_logging has been called.
+    Get a logger with the specified name.
 
     Args:
-        name: The name of the logger to retrieve.
+        name: The logger name.
 
     Returns:
-        logging.Logger: The logger instance.
+        The logger instance.
     """
     return logging.getLogger(name)
+
+
+class PhaseTimer:
+    """
+    Timer for tracking the duration of pipeline phases.
+    """
+
+    def __init__(self, phase_name: str, logger: Optional[logging.Logger] = None):
+        """
+        Initialize the PhaseTimer.
+
+        Args:
+            phase_name: The name of the phase.
+            logger: Optional logger instance.
+        """
+        self.phase_name = phase_name
+        self.logger = logger or get_logger(__name__)
+        self.start_time: Optional[float] = None
+        self.end_time: Optional[float] = None
+
+    def start(self) -> None:
+        """Start the timer."""
+        self.start_time = time.time()
+        self.logger.info(f"Starting phase: {self.phase_name}")
+
+    def stop(self) -> float:
+        """
+        Stop the timer and return the duration.
+
+        Returns:
+            The duration in seconds.
+        """
+        self.end_time = time.time()
+        duration = self.end_time - self.start_time
+        self.logger.info(f"Completed phase: {self.phase_name} in {duration:.2f} seconds")
+        return duration
+
+    def __enter__(self) -> "PhaseTimer":
+        self.start()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb) -> None:
+        self.stop()

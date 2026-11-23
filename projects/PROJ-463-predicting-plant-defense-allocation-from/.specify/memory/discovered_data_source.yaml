@@ -1,0 +1,18 @@
+status: none
+intent: NCBI GEO SRA plant herbivory RNA-seq dataset download python package dataset
+required_fields:
+- sample_id
+- accession_id
+- species
+- tissue
+- herbivory_type
+- treatment_condition
+- biological_replicate
+- fastq_url
+- raw_reads_path
+- metadata_json
+- batch_id
+- tpm_matrix
+cache_key: 941a08c6e542be788c99847203331042eb8d8f1a380f8867c1412ef538f82bad
+searched_at: '2026-10-18T12:33:27.652982+00:00'
+retry_count: 1

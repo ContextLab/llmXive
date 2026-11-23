@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1612.02739",
+  "judged_at": "2026-07-30T10:45:39Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"in-context world modeling for robotic control\" computer science",
+  "rationale": "The paper focuses on autonomous control strategies for robot morphology under partial observability using safety conditions and tactile exploration, which does not address the user's specific question about \"In-Context World Modeling\" (a mechanism involving LLMs or sequence models performing world modeling within the context window). While both involve robotics and control, the candidate paper lacks the core mechanism (in-context learning/world modeling) or the specific domain (LLM-based approac",
+  "relevant": false
+}

@@ -1,0 +1,19 @@
+status: none
+intent: amorphous glass shear molecular dynamics trajectory dataset site:materialscloud.org
+  python package dataset
+required_fields:
+- particle_id
+- timestep
+- x
+- y
+- z
+- box_vectors
+- stress_tensor_xx
+- stress_tensor_yy
+- stress_tensor_zz
+- stress_tensor_xy
+- stress_tensor_xz
+- stress_tensor_yz
+cache_key: 3f8d4aa621143d34d9180748363322020f37dd603811e50dcf968633db3517cf
+searched_at: '2026-10-11T02:33:56.094169+00:00'
+retry_count: 1

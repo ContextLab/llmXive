@@ -1,0 +1,12 @@
+status: none
+intent: download RNA-seq count matrix with batch and condition metadata Geo170K Paul
+  RNA-Seq TCGA PRAD GEO ENCODE recount3 python package dataset
+required_fields:
+- gene_id
+- sample_id
+- raw_count
+- batch_id
+- condition_label
+cache_key: dccc8488a42afb926bbe8a31838706e2398b3453094fe8635d699f5a81cfd8e4
+searched_at: '2026-10-10T07:29:42.840381+00:00'
+retry_count: 1

@@ -1,0 +1,2500 @@
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Chi-squared test implementation uses Sturges' rule for binning continuous
+    variables
+  claim_id: c_23759c91
+  context: Task T023 requires implementing run_chi_squared with automatic binning
+    logic using Sturges' rule for continuous variables.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P1533: Q21449779'
+      source_id: Q103833088
+      url: https://www.wikidata.org/wiki/Q103833088
+      value: Q21449779
+    filled: true
+  kind: entity_fact
+  raw_text: Sturges' rule for binning
+  resolved_value: Q21449779
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T09:40:34Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Dataset configuration includes 11 specific UCI and OpenML dataset IDs
+  claim_id: c_50e233fc
+  context: Task T034a requires generating data/config/datasets.yaml containing a list
+    of verified datasets with specific IDs.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: uciml/iris, uciml/wine, uciml/breast-cancer-wisconsin, uciml/heart-statlog,
+    uciml/ionosphere, uciml/credit-a, uciml/credit-g, uciml/hepatitis, uciml/horse-colic,
+    openml/d/2, openml/d/3, openml/d/11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:40:45Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Vectorizing generate_synthetic_data using NumPy array operations yields
+    a 2x speedup
+  claim_id: c_651fcdb1
+  context: Task T042a specifies that vectorizing the generate_synthetic_data function
+    using NumPy array operations instead of Python loops is a deliverable for a 2x
+    speedup.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Vectorizing_generate_synthetic_data_using_NumPy_array_operat
+  kind: entity_fact
+  raw_text: 2x speedup in generation step
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:41:13Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Simulation loop parallelization is limited to 2 workers
+  claim_id: c_1e9b5c15
+  context: Task T042b specifies parallelizing the simulation loop using multiprocessing
+    limited to 2 workers for CPU constraints.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: limited to 2 workers
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:41:38Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Simulation loop optimization target is 20% time reduction or under 6
+    hours runtime
+  claim_id: c_66212e62
+  context: Task T041 sets a target to reduce simulation loop time by 20% or ensure
+    the runtime is less than 6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Reduce simulation loop time by 20% or ensure < 6h runtime
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:41:38Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Error rate plot compares empirical rate against nominal alpha of 0.05
+  claim_id: c_eb621a68
+  context: Task T030 requires generating a plot showing empirical rate versus alpha=0.05
+    with 95% CI.
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: alpha=0.05
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T09:41:38Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Null hypothesis generation targets a mean difference of 0
+  claim_id: c_92d53ff8
+  context: The independent test for User Story 1 requires generating a dataset with
+    null hypothesis where mean diff = 0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mean diff = 0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:43:03Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Alternative hypothesis generation targets a mean difference of 1.0
+  claim_id: c_79fa2e65
+  context: The independent test for User Story 1 requires generating a dataset with
+    alternative hypothesis where mean diff = 1.0.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: mean diff = 1.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:43:03Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Null hypothesis mean difference verification threshold is less than 0.01
+  claim_id: c_5782b286
+  context: The independent test for User Story 1 requires verifying mean difference
+    < 0.01 for the null hypothesis.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_mean_difference_verification_threshold_is_le
+  kind: magnitude
+  raw_text: mean difference < 0.01
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:43:20Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Alternative hypothesis mean difference verification threshold is within
+    0.05 of 1.0
+  claim_id: c_1e1cf005
+  context: The independent test for User Story 1 requires verifying |mean_diff - 1.0|
+    < 0.05 for the alternative hypothesis.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: '|mean_diff - 1.0| < 0.05'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:43:36Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Zero-variance edge case handling triggers when standard deviation is
+    less than 1e-9
+  claim_id: c_b93cba2d
+  context: Task T013 specifies handling zero-variance edge cases by skipping iterations
+    if std_dev < 1e-9.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Zero-variance_edge_case_handling_triggers_when_standard_devi
+  kind: magnitude
+  raw_text: std_dev < 1e-9
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:43:52Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Standardization scaling properties target mean of 0 and standard deviation
+    of 1
+  claim_id: c_d67882ed
+  context: Task T015 requires a contract test for Standardization scaling properties
+    verifying mean=0 and std=1.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "In statistics, a standard normal table, also called the unit normal\
+        \ table or Z table, is a mathematical table for the values of \u03A6, the\
+        \ cumulative distribution function of the normal distribution.  It is used\
+        \ to find the probability that a statistic is observed below, above, or between\
+        \ values on the standard normal distribution, and by extension, any normal\
+        \ distribution.  Since probability tables cannot be printed for every normal\
+        \ distribution, as there are an infinite variety of normal distributions,\
+        \ it is common practice to convert a normal to a standard normal (known as\
+        \ a z-score) and then use the standard normal table to find probabilities."
+      source_id: Standard normal table
+      url: https://en.wikipedia.org/wiki/Standard_normal_table
+      value: standard normal distribution
+    filled: true
+  kind: numeric
+  raw_text: mean=0, std=1
+  resolved_value: standard normal distribution
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T09:44:00Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Min-Max scaling properties target minimum of 0 and maximum of 1
+  claim_id: c_4e4b402c
+  context: Task T016 requires a contract test for Min-Max scaling properties verifying
+    min=0 and max=1.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: min=0, max=1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:44:24Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Chi-squared test automatic binning uses Sturges' rule
+  claim_id: c_962a031e
+  context: 'T023 [US2] Implement run_chi_squared in code/analysis/tests.py with automatic
+    binning logic using Sturges'' rule for continuous variables. Deliverable: Function
+    must explicitly implement {{claim:c_23759c91}} (Wikidata Q103833088, https://www.wikidata.org/wiki/Q103833088).'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts:
+      - channel: wikidata
+        source_id: Q21449779
+        url: https://www.wikidata.org/wiki/Q21449779
+        value: STKS11
+      quote: Sturges
+      source_id: Q103833088
+      url: https://www.wikidata.org/wiki/Q103833088
+      value: Sturges
+    filled: true
+  kind: entity_fact
+  raw_text: Implement run_chi_squared in code/analysis/tests.py with automatic binning
+    logic using Sturges' rule for continuous variables.
+  resolved_value: Sturges
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T09:50:00Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Null hypothesis dataset mean difference verification threshold is 0.01
+  claim_id: c_748609ff
+  context: 'Independent Test: Generate a dataset with null hypothesis (mean diff =
+    0) and verify mean difference < 0.01; generate alternative (mean diff = 1.0) and
+    verify |mean_diff - 1.0| < 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a dataset with null hypothesis (mean diff = 0) and verify mean
+    difference < 0.01
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:50:20Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Alternative hypothesis dataset mean difference verification threshold
+    is 0.05
+  claim_id: c_cb19d58a
+  context: 'Independent Test: Generate a dataset with null hypothesis (mean diff =
+    0) and verify mean difference < 0.01; generate alternative (mean diff = 1.0) and
+    verify |mean_diff - 1.0| < 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate alternative hypothesis (mean diff = 1.0) and verify |mean_diff
+    - 1.0| < 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:50:37Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Zero variance edge case triggers skip if standard deviation is less than
+    1e-9
+  claim_id: c_16d56bdc
+  context: 'T013 [US1] Add logic to handle zero-variance edge cases in code/simulation/generator.py:
+    Log WARNING with message ''Skipping iteration: zero variance detected'' if std_dev
+    < 1e-9 and skip the specific iteration. Condition: if std_dev < 1e-9.'
+  evidence:
+    asserted: 1e-09
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: 'Log WARNING with message ''Skipping iteration: zero variance detected''
+    if std_dev < 1e-9 and skip the specific iteration'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-07-18T09:50:37Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Standardization scaling properties verified against Wikipedia Standard
+    normal table
+  claim_id: c_7e5d3e82
+  context: 'Independent Test: Apply Standardization to a fixed dataset, verify {{claim:c_d67882ed}}
+    (Wikipedia: Standard normal table, https://en.wikipedia.org/wiki/Standard_normal_table),
+    and confirm t-test p-value stability compared to unscaled data.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Standardization_scaling_properties_verified_against_Wikipedi
+  kind: entity_fact
+  raw_text: Contract test for Standardization scaling properties ({{claim:c_d67882ed}})
+    in code/tests/unit/preprocessing/test_scaling.py
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:50:56Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Empirical error rate calculation formula is count less than alpha divided
+    by total
+  claim_id: c_8fbd16ab
+  context: T025 [P] [US3] Contract test for empirical error rate calculation (count
+    < alpha / total) in code/tests/unit/analysis/test_metrics.py
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Empirical_error_rate_calculation_formula_is_count_less_than
+  kind: magnitude
+  raw_text: Verify empirical error rate calculation (count < alpha / total)
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:51:14Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Scaling method deviations compared against nominal alpha of 0.05
+  claim_id: c_2a42e89b
+  context: T032 [US3] Generate summary report comparing deviations of each scaling
+    method from nominal 0.05
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate summary report comparing deviations of each scaling method from
+    nominal 0.05
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:51:35Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Iris dataset pipeline validation includes scaling, testing, and report
+    generation
+  claim_id: c_5868c301
+  context: 'Independent Test: Run pipeline on Iris dataset, verify scaling, testing,
+    and report generation without crashing.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Iris_dataset_pipeline_validation_includes_scaling,_testing,
+  kind: entity_fact
+  raw_text: Verify scaling, testing, and report generation on Iris dataset without
+    crashing
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:51:55Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Dataset configuration list includes 11 specific UCI and OpenML dataset
+    IDs
+  claim_id: c_990a7434
+  context: 'T034a [US4] Create Dataset Configuration: Generate data/config/datasets.yaml
+    containing the list of verified datasets (IDs: uciml/iris, uciml/wine, uciml/breast-cancer-wisconsin,
+    uciml/heart-statlog, uciml/ionosphere, uciml/credit-a, uciml/credit-g, uciml/hepatitis,
+    uciml/horse-colic, openml/d/2, openml/d/3, openml/d/11).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Generate data/config/datasets.yaml containing the list of verified datasets
+    (IDs: uciml/iris, uciml/wine, uciml/breast-cancer-wisconsin, uciml/heart-statlog,
+    uciml/ionosphere, uciml/credit-a, uciml/credit-g, uciml/hepatitis, uciml/horse-colic,
+    openml/d/2, openml/d/3, openml/d/11)'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:52:07Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Simulation loop time reduced by 20% or runtime ensured under 6 hours
+  claim_id: c_9e66be45
+  context: 'T041 Code cleanup and refactoring of code/simulation/generator.py for
+    performance. Target: Reduce simulation loop time by 20% or ensure < 6h runtime.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Refactored code with benchmark results showing runtime improvement
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:52:07Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Vectorization of generate_synthetic_data yields 2x speedup
+  claim_id: c_1c870145
+  context: 'T042a [P] Vectorize generate_synthetic_data in code/simulation/generator.py
+    using NumPy array operations instead of Python loops. Deliverable: 2x speedup
+    in generation step.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Vectorization_of_generate_synthetic_data_yields_2x_speedup
+  kind: entity_fact
+  raw_text: 'Deliverable: 2x speedup in generation step'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:52:31Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Simulation loop parallelization limited to 2 workers
+  claim_id: c_cc8d6d6a
+  context: 'T042b [P] Parallelize simulation loop in code/main.py using multiprocessing
+    (limited to 2 workers for CPU constraint). Deliverable: Linear speedup up to 2
+    cores.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Parallelize simulation loop in code/main.py using multiprocessing (limited
+    to 2 workers for CPU constraint)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:52:42Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Chi-squared test implementation uses Sturges' rule for binning
+  claim_id: c_1499d466
+  context: T023 [US2] Implement `run_chi_squared` in `code/analysis/tests.py` with
+    automatic binning logic using **Sturges' rule** for continuous variables.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi-squared_test_implementation_uses_Sturges'_rule_for_binni
+  kind: entity_fact
+  raw_text: Function must explicitly implement {{claim:c_23759c91}} (Wikidata Q103833088,
+    https://www.wikidata.org/wiki/Q103833088).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:54:20Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Chi-squared test implementation uses Sturges' rule for binning
+  claim_id: c_fce97246
+  context: 'T023 [US2] Implement `run_chi_squared` in `code/analysis/tests.py` with
+    automatic binning logic using **Sturges'' rule** for continuous variables. **Deliverable**:
+    Function must explicitly implement {{claim:c_23759c91}} (Wikidata Q103833088,
+    https://www.wikidata.org/wiki/Q103833088).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi-squared_test_implementation_uses_Sturges'_rule_for_binni
+  kind: entity_fact
+  raw_text: The implementation must explicitly implement Sturges' rule for continuous
+    variables.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:56:10Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Chi-squared test implementation uses Sturges' rule
+  claim_id: c_cce1bea6
+  context: 'T023 [US2] Implement `run_chi_squared` in `code/analysis/tests.py` with
+    automatic binning logic using **Sturges'' rule** for continuous variables. **Deliverable**:
+    Function must explicitly implement {{claim:c_23759c91}} (Wikidata Q103833088,
+    https://www.wikidata.org/wiki/Q103833088).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Chi-squared_test_implementation_uses_Sturges'_rule
+  kind: entity_fact
+  raw_text: The implementation must use Sturges' rule for continuous variables.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:56:37Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: 'Mixed-effects model formula for real-world data: deviation ~ scaling_method
+    + (1|dataset_id)'
+  claim_id: c_a5ecb057
+  context: 'T031b [US3] Implement mixed-effects model analysis (statsmodels) in `code/analysis/metrics.py`
+    for **real-world data**: Fit mixed-effects model with `scaling_method` as fixed
+    effect, `dataset_id` as random effect. Dependent variable: `deviation from nominal
+    alpha`. Output: `results/mixed_effects_summary.csv`. **Formula**: `deviation ~
+    scaling_method + (1|dataset_id)`.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: dataset_id)
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Mixed-effects_model_formula_for_real-world_data:_deviation_~
+    source_value: https://en.wikipedia.org/wiki/Mixed-effects_model_formula_for_real-world_data:_deviation_~
+    subject: 'Mixed-effects model formula for real-world data: deviation ~ scaling_method
+      + (1'
+  kind: relational
+  raw_text: The mixed-effects model analysis for real-world data uses 'scaling_method'
+    as a fixed effect and 'dataset_id' as a random effect.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:57:04Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: 'Mixed-effects model formula for synthetic data: deviation ~ scaling_method
+    + distribution_type + (1|simulation_batch)'
+  claim_id: c_79ca6743
+  context: 'T031a [US3] Implement mixed-effects model analysis (statsmodels) in `code/analysis/metrics.py`
+    for **synthetic data**: Fit mixed-effects model with `scaling_method` and `distribution_type`
+    as fixed effects, and `simulation_batch` as the random effect. Dependent variable:
+    `deviation from nominal alpha`. Output: `results/mixed_effects_synthetic.csv`.
+    **Formula**: `deviation ~ scaling_method + distribution_type + (1|simulation_batch)`.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: simulation_batch)
+    relation: ''
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Mixed-effects_model_formula_for_synthetic_data:_deviation_~
+    source_value: https://en.wikipedia.org/wiki/Mixed-effects_model_formula_for_synthetic_data:_deviation_~_
+    subject: 'Mixed-effects model formula for synthetic data: deviation ~ scaling_method
+      + distribution_type + (1'
+  kind: relational
+  raw_text: The mixed-effects model analysis for synthetic data uses 'scaling_method'
+    and 'distribution_type' as fixed effects, and 'simulation_batch' as the random
+    effect.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:58:01Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: List of verified datasets includes 11 specific UCI and OpenML IDs
+  claim_id: c_763e7bff
+  context: 'T034a [US4] **Create Dataset Configuration**: Generate `data/config/datasets.yaml`
+    containing the list of verified datasets (IDs: `uciml/iris`, `uciml/wine`, `uciml/breast-cancer-wisconsin`,
+    `uciml/heart-statlog`, `uciml/ionosphere`, `uciml/credit-a`, `uciml/credit-g`,
+    `uciml/hepatitis`, `uciml/horse-colic`, `openml/d/2`, `openml/d/3`, `openml/d/11`).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The dataset configuration includes datasets with IDs: uciml/iris, uciml/wine,
+    uciml/breast-cancer-wisconsin, uciml/heart-statlog, uciml/ionosphere, uciml/credit-a,
+    uciml/credit-g, uciml/hepatitis, uciml/horse-colic, openml/d/2, openml/d/3, and
+    openml/d/11.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T09:58:14Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Clopper-Pearson exact method range for n=100 p=0.05 is 0.001 to 0.149
+  claim_id: c_4efc89c8
+  context: 'Contract test for confidence interval calculation. Deliverable: Implement
+    CI calculation using normal approximation and verify against known binomial values
+    for n=100, p=0.05 (expected range: 0.001 to 0.149 using Clopper-Pearson exact
+    method).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'expected range: 0.001 to 0.149 using Clopper-Pearson exact method'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:23:50Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: List of verified dataset IDs includes uciml/iris, uciml/wine, uciml/breast-cancer-wisconsin,
+    uciml/heart-statlog, uciml/ionosphere, uciml/credit-a, uciml/credit-g, uciml/hepatitis,
+    uciml/horse-colic, openml/d/2, openml/d/3, openml/d/11
+  claim_id: c_ef60a69c
+  context: 'Create Dataset Configuration: Generate data/config/datasets.yaml containing
+    the list of verified datasets (IDs: uciml/iris, uciml/wine, uciml/breast-cancer-wisconsin,
+    uciml/heart-statlog, uciml/ionosphere, uciml/credit-a, uciml/credit-g, uciml/hepatitis,
+    uciml/horse-colic, openml/d/2, openml/d/3, openml/d/11).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'IDs: uciml/iris, uciml/wine, uciml/breast-cancer-wisconsin, uciml/heart-statlog,
+    uciml/ionosphere, uciml/credit-a, uciml/credit-g, uciml/hepatitis, uciml/horse-colic,
+    openml/d/2, openml/d/3, openml/d/11'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:24:12Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: List of verified datasets includes uciml/iris, uciml/wine, uciml/breast-cancer-wisconsin,
+    uciml/heart-statlog, uciml/ionosphere, uciml/credit-a, uciml/credit-g, uciml/hepatitis,
+    uciml/horse-colic, openml/d/2, openml/d/3, openml/d/11
+  claim_id: c_1fcc9720
+  context: 'Create Dataset Configuration: Generate data/config/datasets.yaml containing
+    the list of verified datasets (IDs: uciml/iris, uciml/wine, uciml/breast-cancer-wisconsin,
+    uciml/heart-statlog, uciml/ionosphere, uciml/credit-a, uciml/credit-g, uciml/hepatitis,
+    uciml/horse-colic, openml/d/2, openml/d/3, openml/d/11).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Include metadata (source, expected size) for each. If any dataset is unavailable,
+    the ingestion loop must log a warning and skip it (T034b) to ensure robustness;
+    do not fall back to synthetic data. ... openml/d/2, openml/d/3, openml/d/11
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-18T22:30:56Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/results/comparison_report.md
+  attempts: 1
+  canonical: Average Type I Error Rate for synthetic data is 0.0500
+  claim_id: c_9645aa36
+  context: '### Synthetic Data
+
+    - Average Type I Error Rate: 0.0500
+
+    - Average Power: 0.8000'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Average Type I Error Rate: 0.0500'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:52:47Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/results/comparison_report.md
+  attempts: 1
+  canonical: Average Power for synthetic data is 0.8000
+  claim_id: c_131855b9
+  context: '### Synthetic Data
+
+    - Average Type I Error Rate: 0.0500
+
+    - Average Power: 0.8000'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Average Power: 0.8000'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:55:17Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/results/comparison_report.md
+  attempts: 1
+  canonical: Average Type I Error Rate for real-world data is 0.0500
+  claim_id: c_d73e38d4
+  context: '### Real-World Data
+
+    - Average Type I Error Rate: 0.0500
+
+    - Average Power: 0.8000'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Average Type I Error Rate: 0.0500'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:55:17Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/results/comparison_report.md
+  attempts: 1
+  canonical: Average Power for real-world data is 0.8000
+  claim_id: c_8f4a19be
+  context: '### Real-World Data
+
+    - Average Type I Error Rate: 0.0500
+
+    - Average Power: 0.8000'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Average Power: 0.8000'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:55:18Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/results/comparison_report.md
+  attempts: 1
+  canonical: Mean absolute difference in Type I error rates between synthetic and
+    real-world data is 0.0000
+  claim_id: c_6a38d1d6
+  context: '## Conclusion
+
+    The mean absolute difference in Type I error rates is 0.0000, indicating close
+    alignment between synthetic and real-world performance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The mean absolute difference in Type I error rates is 0.0000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T01:59:06Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/results/comparison_report.md
+  attempts: 1
+  canonical: Correlation coefficient for error rates across scaling methods is 1.0000
+  claim_id: c_175b9902
+  context: 'The mean absolute difference in Type I error rates is 0.0000, indicating
+    close alignment between synthetic and real-world performance.
+
+    The correlation coefficient for error rates across scaling methods is 1.0000.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation coefficient for error rates across scaling methods is
+    1.0000
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:00:45Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Verify dataset accessibility returns 200 OK or valid metadata
+  claim_id: c_60c8b20d
+  context: 'T027a [US4] **Fetch Dataset Metadata**: Implement a script in `code/preprocessing/ingestion.py`
+    to fetch metadata for all candidate datasets listed in `research.md`. **Requirement**:
+    The script must verify which datasets are accessible.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must verify which datasets are accessible (returning 200 OK
+    or valid metadata).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:06:11Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Log output must contain batch ID on every batch start
+  claim_id: c_7797a232
+  context: 'T005b [P] Configure log levels for `code/simulation/logger.py` to handle
+    `DEBUG`, `INFO`, `WARNING`, `ERROR` with file rotation to `logs/simulation.log`
+    using `RotatingFileHandler` with `maxBytes=10MB` and `backupCount=5`. **Deliverable**:
+    Ensure logger explicitly logs the random seed and simulation batch ID on every
+    batch start as required by Constitution Principle VI.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_output_must_contain_batch_ID_on_every_batch_start
+  kind: entity_fact
+  raw_text: The log output must contain the batch ID on every batch start.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:06:36Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Logger file rotation maxBytes 10MB backupCount 5
+  claim_id: c_9c7d9e24
+  context: T005b [P] Configure log levels for `code/simulation/logger.py` to handle
+    `DEBUG`, `INFO`, `WARNING`, `ERROR` with file rotation to `logs/simulation.log`
+    using `RotatingFileHandler` with `maxBytes=10MB` and `backupCount=5`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The logger must use maxBytes=10MB and backupCount=5 for file rotation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:06:47Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Log format string asctime name levelname message
+  claim_id: c_276bd0cc
+  context: T005a [P] Create `code/simulation/logger.py` with `setup_logger` function
+    that returns a logger instance configured with `logging.INFO` and a specific format
+    string `'%(asctime)s - %(name)s - %(levelname)s - %(message)s'`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_format_string_asctime_name_levelname_message
+  kind: entity_fact
+  raw_text: The log format string must be '%(asctime)s - %(name)s - %(levelname)s
+    - %(message)s'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:07:06Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Enforce minimum 10000 iterations per configuration
+  claim_id: c_b1b716a0
+  context: 'T063 [US3] **Enforce Iteration Threshold**: Implement logic in `code/main.py`
+    to enforce minimum 10,000 iterations per config. **Deliverable**: Function `enforce_iteration_threshold`
+    in `code/main.py`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must enforce a minimum of 10,000 iterations per configuration.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:09:35Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Exit with code 99 if iterations < 10000 when time limit exceeded
+  claim_id: c_82dd88d8
+  context: 'T064 [US3] **Time-Limit Enforcement & Budget Verification**: ... **Action**:
+    If the limit is exceeded, save partial results to `results/partial_checkpoint.csv`,
+    log the number of completed iterations, and exit with code 99 if `completed_iterations
+    < 10000`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system must exit with code 99 if completed_iterations < 10,000 when
+    the time limit is exceeded.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:09:35Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Configuration matrix includes Normal Skewed Heteroscedastic distributions
+  claim_id: c_00161bc4
+  context: 'T065 [US3] **Define Configuration Matrix**: Explicitly define the configuration
+    matrix in `code/simulation/config.py` as a list of dictionaries: `distribution_types`
+    (Normal, Skewed, Heteroscedastic)...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Configuration_matrix_includes_Normal_Skewed_Heteroscedastic
+  kind: entity_fact
+  raw_text: 'The configuration matrix must include distribution types: Normal, Skewed,
+    Heteroscedastic.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:10:03Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Configuration matrix includes t-test ANOVA Chi-squared tests
+  claim_id: c_b706c47b
+  context: 'T065 [US3] **Define Configuration Matrix**: ... `test_types` (t-test,
+    ANOVA, Chi-squared).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Configuration_matrix_includes_t-test_ANOVA_Chi-squared_tests
+  kind: entity_fact
+  raw_text: 'The configuration matrix must include test types: t-test, ANOVA, Chi-squared.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:10:21Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Null hypothesis mean difference < 0.01
+  claim_id: c_0bd3996e
+  context: 'Independent Test: Generate a dataset with null hypothesis (mean diff =
+    0) and verify mean difference < 0.01...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The null hypothesis ground truth must have a mean difference < 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:10:21Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Alternative hypothesis mean difference 1.0 tolerance 0.05
+  claim_id: c_4f82f785
+  context: '...generate alternative (mean diff = 1.0) and verify |mean_diff - 1.0|
+    < 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The alternative hypothesis ground truth must have a mean difference of
+    1.0 with a tolerance of |mean_diff - 1.0| < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:10:26Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Skip iterations if std_dev < 1e-9
+  claim_id: c_c4f7f5ec
+  context: 'T013 [US1] Add logic to handle zero-variance edge cases in `code/simulation/generator.py`:
+    Log `WARNING` with message ''Skipping iteration: zero variance detected'' if `std_dev
+    < 1e-9 ` and skip the specific iteration.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The generator must skip iterations if std_dev < 1e-9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:10:26Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Chi-squared test merge bins if expected count < 5
+  claim_id: c_832b5748
+  context: 'T023 [US2] ... **Logic**: If a bin has an expected count < 5, merge with
+    the left neighbor...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Chi-squared test must merge bins if expected count < 5.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:10:27Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Use Clopper-Pearson exact method for confidence intervals
+  claim_id: c_77b0a8b2
+  context: 'T061 [US3] **Production CI Implementation**: Implement `calculate_confidence_interval`
+    in `code/analysis/metrics.py` using the Clopper-Pearson exact method.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Clopper-Pearson_exact_method_for_confidence_intervals
+  kind: entity_fact
+  raw_text: The Clopper-Pearson exact method must be used for confidence interval
+    calculation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:11:49Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Synthetic mixed-effects model uses config_id as random effect
+  claim_id: c_c57412da
+  context: 'T053 [US3/US4] **Implement Mixed-Effects Model Analysis**: ... For Synthetic
+    Data: Model `deviation ~ scaling_method + (1 | config_id)` where `config_id` is
+    a **random effect** (per FR-010).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthetic_mixed-effects_model_uses_config_id_as_random_effec
+  kind: entity_fact
+  raw_text: The mixed-effects model for synthetic data must use config_id as a random
+    effect.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:11:58Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Real-world mixed-effects model uses dataset_id as random effect
+  claim_id: c_204acab4
+  context: 'T053 [US3/US4] **Implement Mixed-Effects Model Analysis**: ... For Real-World
+    Data: Model `deviation ~ scaling_method + (1 | dataset_id)` where `dataset_id`
+    is a random effect.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Real-world_mixed-effects_model_uses_dataset_id_as_random_eff
+  kind: entity_fact
+  raw_text: The mixed-effects model for real-world data must use dataset_id as a random
+    effect.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:12:19Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis tests alpha levels 0.01 0.05 0.10
+  claim_id: c_d8921c62
+  context: 'T057 [US3] **Implement Sensitivity Analysis for Alpha Thresholds**: ...
+    **New Requirement**: FR-011 (Sensitivity Analysis) mandates testing alpha levels
+    0.01, 0.05, and 0.10.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis must test alpha levels 0.01, 0.05, and 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:12:36Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Integration test runs pipeline on at least 3 additional datasets excluding
+    Iris
+  claim_id: c_284b76af
+  context: 'T055 [US4] **Validate Real-World Pipeline on Non-Iris Datasets**: Extend
+    the integration test in `code/tests/integration/test_real_world.py` to run the
+    full pipeline on at least 3 additional datasets from `data/config/datasets.yaml`
+    (excluding Iris).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Integration_test_runs_pipeline_on_at_least_3_additional_data
+  kind: magnitude
+  raw_text: The integration test must run the full pipeline on at least 3 additional
+    datasets excluding Iris.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:14:22Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Log level WARNING for zero variance in generator
+  claim_id: c_516c7f6d
+  context: 'T013 [US1] Add logic to handle zero-variance edge cases in `code/simulation/generator.py`:
+    Log `WARNING` with message ''Skipping iteration: zero variance detected'' if `std_dev
+    < 1e-9 ` and skip the specific iteration. **Condition**: `if std_dev < 1e-9 `.
+    **Log Level**: `WARNING`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Log_level_WARNING_for_zero_variance_in_generator
+  kind: entity_fact
+  raw_text: The log level for zero variance detection in generator must be WARNING.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-22T02:14:42Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Dataset streaming threshold is 7GB
+  claim_id: c_27903e76
+  context: 'Refactor code/preprocessing/ingestion.py to use datasets.load_dataset(...,
+    streaming=True) for large public datasets. Requirement: Check dataset size.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_streaming_threshold_is_7GB
+  kind: entity_fact
+  raw_text: If size < 7GB, load fully into memory. If size >= 7GB, stream and process
+    in chunks to compute statistics or sample a fixed number of rows.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T16:05:10Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Sample-and-test strategy uses 5000 rows
+  claim_id: c_92d3ed38
+  context: 'Implement a ''sample-and-test'' strategy: stream N=5000 rows, then run
+    the standard test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stream N=5000 rows, then run the standard test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T16:05:14Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Log warning if available datasets are fewer than 10
+  claim_id: c_0f2dfe21
+  context: Filter to accessible datasets. Log warnings if <10 available.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Log_warning_if_available_datasets_are_fewer_than_10
+  kind: magnitude
+  raw_text: Log warnings if <10 available datasets.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T16:05:23Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Configuration matrix includes Normal (skew 0, kurt 3), Skewed (skew 2.0,
+    kurt 3), and Heteroscedastic (skew 0, kurt 3, variance ratio 2.0)
+  claim_id: c_ebadfd18
+  context: 'Mandatory Configurations: The matrix MUST include at least three distinct
+    configurations.'
+  evidence:
+    candidates:
+    - - ''
+      - 3.0
+    - - ''
+      - 0.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Configuration_matrix_includes_Normal_(skew_0,_kurt_3),_Skewe
+  kind: magnitude
+  raw_text: 'The matrix MUST include at least three distinct configurations: 1. {''type'':
+    ''Normal'', ''skew'': 0, ''kurt'': 3}, 2. {''type'': ''Skewed'', ''skew'': 2.0,
+    ''kurt'': 3}, 3. {''type'': ''Heteroscedastic'', ''skew'': 0, ''kurt'': 3, ''group_variance_ratio'':
+    2.0}.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-07-24T16:05:28Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Null hypothesis mean difference verification threshold is 0.01
+  claim_id: c_f87d5d22
+  context: 'Independent Test: Generate a dataset with null hypothesis (mean diff =
+    0) and verify mean difference < 0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify mean difference < 0.01 for null hypothesis generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T16:05:29Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Alternative hypothesis mean difference verification threshold is 0.05
+  claim_id: c_a2ab9fd3
+  context: generate alternative (mean diff = 1.0) and verify |mean_diff - 1.0| < 0.05.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify |mean_diff - 1.0| < 0.05 for alternative hypothesis generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T16:05:35Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Zero variance edge case threshold is 1e-9
+  claim_id: c_93e11dac
+  context: 'Log WARNING with message ''Skipping iteration: zero variance detected''
+    if std_dev < 1e-9 and skip the specific iteration.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Skip the specific iteration if std_dev < 1e-9.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T16:05:35Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Chi-squared bin merging threshold is expected count 5
+  claim_id: c_ad078d0e
+  context: If a bin has an expected count < 5, merge with the left neighbor; if the
+    left neighbor is empty or < 5, merge with the right neighbor.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If a bin has an expected count < 5, merge with the left neighbor.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T16:05:36Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Empirical error rate calculation uses alpha threshold 0.05
+  claim_id: c_00c5ab88
+  context: 'Independent Test: Feed a set of pre-calculated p-values into aggregation
+    logic and verify that the calculated empirical error rate matches the proportion
+    of p-values < 0.05.'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Verify that the calculated empirical error rate matches the proportion
+    of p-values < 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-07-24T16:05:36Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Simulation loop dynamic scaling triggers at 5.5 hours with 6 hour deadline
+  claim_id: c_d1737d10
+  context: 'Dynamic Scaling: If elapsed time > 5.5 hours, calculate remaining_iterations
+    to ensure completion by 6 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If elapsed time > 5.5 hours, calculate remaining_iterations to ensure
+    completion by 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T16:05:36Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Mixed-effects model verification requires p-value less than 0.05 for
+    scaling method
+  claim_id: c_4506f479
+  context: 'Verification: Test asserting p-value < 0.05 for scaling_method on real-world
+    data and that synthetic data is included in the analysis with the correct random-effect
+    structure for config_id.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Mixed-effects_model_verification_requires_p-value_less_than
+  kind: magnitude
+  raw_text: Test asserting p-value < 0.05 for scaling_method on real-world data.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T16:05:43Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Comparison report metrics include Mean Absolute Difference and Pearson
+    Correlation Coefficient
+  claim_id: c_66bdf33d
+  context: 'Metrics: Calculate Mean_Absolute_Difference (mean of |synthetic_p - real_p|)
+    and Correlation_Coefficient (Pearson correlation between synthetic and real p-values).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Comparison_report_metrics_include_Mean_Absolute_Difference_a
+  kind: entity_fact
+  raw_text: Calculate Mean_Absolute_Difference (mean of |synthetic_p - real_p|) and
+    Correlation_Coefficient (Pearson correlation between synthetic and real p-values).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T16:05:52Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Numerical stability check logs warnings for p-value differences exceeding
+    negligible threshold
+  claim_id: c_de0f8c73
+  context: 'Requirement: Log any p-value differences as warnings if they exceed a
+    negligible threshold., as these indicate potential numerical instability rather
+    than statistical change.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Numerical_stability_check_logs_warnings_for_p-value_differen
+  kind: entity_fact
+  raw_text: Log any p-value differences as warnings if they exceed a negligible threshold.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-24T16:06:00Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: load fully into memory if dataset size is less than 7GB
+  claim_id: c_125a4e96
+  context: 'Requirement: Check dataset size. If size < 7GB, load fully into memory.
+    If size >= 7GB, stream and process in chunks to compute statistics or sample a
+    fixed number of rows (e.g., a representative subset).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Load_fully_into_memory_if_dataset_size_is_less_than_7GB
+  kind: magnitude
+  raw_text: If size < 7GB, load fully into memory.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:44:49Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: stream 5000 rows then run standard test
+  claim_id: c_bb8aab52
+  context: 'Adapt `code/analysis/tests.py` to accept chunked/streamed data via a `data_stream`
+    or `sample_size` argument. Implement a ''sample-and-test'' strategy: stream N=5000
+    rows, then run the standard test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stream N=5000 rows, then run the standard test
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:45:55Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: configuration matrix must include at least 3 distinct configurations
+  claim_id: c_5a24588e
+  context: 'Mandatory Configurations: The matrix MUST include at least three distinct
+    configurations: 1. `{''type'': ''Normal'', ''skew'': 0, ''kurt'': 3}`, 2. `{''type'':
+    ''Skewed'', ''skew'': non-zero, ''kurt'': 3}`, 3. `{''type'': ''Heteroscedastic'',
+    ''skew'': 0, ''kurt'': 3, ''group_variance_ratio'': non-unity}`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Configuration_matrix_must_include_at_least_3_distinct_config
+  kind: magnitude
+  raw_text: The matrix MUST include at least three distinct configurations
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:46:24Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: verify mean difference is less than 0.01 for null hypothesis
+  claim_id: c_2349411d
+  context: 'Independent Test: Generate a dataset with null hypothesis (mean diff =
+    0) and verify mean difference < 0.01; generate alternative (mean diff = 1.0) and
+    verify |mean_diff - 1.0| < 0.05.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_mean_difference_is_less_than_0.01_for_null_hypothesis
+  kind: magnitude
+  raw_text: generate a dataset with null hypothesis (mean diff = 0) and verify mean
+    difference < 0.01
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:47:09Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: verify absolute difference between mean difference and 1.0 is less than
+    0.05 for alternative hypothesis
+  claim_id: c_b17ef5c0
+  context: 'Independent Test: Generate a dataset with null hypothesis (mean diff =
+    0) and verify mean difference < 0.01; generate alternative (mean diff = 1.0) and
+    verify |mean_diff - 1.0| < 0.05.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_absolute_difference_between_mean_difference_and_1.0_i
+  kind: magnitude
+  raw_text: generate alternative (mean diff = 1.0) and verify |mean_diff - 1.0| <
+    0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:47:29Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: standardization scaling results in mean 0 and std 1
+  claim_id: c_b746925b
+  context: Contract test for Standardization scaling properties (mean=0, std=1) in
+    `code/tests/unit/preprocessing/test_scaling.py`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Standardization_scaling_results_in_mean_0_and_std_1
+  kind: causal
+  raw_text: Standardization scaling properties (mean=0, std=1)
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:47:31Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: min-max scaling results in min 0 and max 1
+  claim_id: c_f2ad5365
+  context: Contract test for Min-Max scaling properties (min=0, max=1) in `code/tests/unit/preprocessing/test_scaling.py`
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Min-max_scaling_results_in_min_0_and_max_1
+  kind: causal
+  raw_text: Min-Max scaling properties (min=0, max=1)
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:47:33Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: use Clopper-Pearson exact method for confidence intervals
+  claim_id: c_cd5d0bb8
+  context: 'CI Method: Use Clopper-Pearson exact method for confidence intervals.
+    **Input Format**: Expects a DataFrame or path to `results/simulation_results.csv`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Use_Clopper-Pearson_exact_method_for_confidence_intervals
+  kind: entity_fact
+  raw_text: Clopper-Pearson exact method for confidence intervals
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:47:53Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: target iterations must be at least 10000 per configuration
+  claim_id: c_2b875c51
+  context: 'Hard Constraint: Target iterations MUST be at least 10,000 per configuration
+    (FR-004, Constitution Principle VI).'
+  evidence:
+    entailment_evidence: Target iterations must be at least 10000 per configuration
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Target_iterations_must_be_at_least_10000_per_configuration
+  kind: magnitude
+  raw_text: Target iterations MUST be at least 10,000 per configuration
+  resolved_value: target iterations must be at least 10000 per configuration
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T10:47:55Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: run must fail if elapsed time exceeds 5.5 hours and iterations are not
+    reached
+  claim_id: c_27df91e5
+  context: 'Fallback: If elapsed time > 5.5 hours and [deferred] iterations have not
+    been reached, the run MUST FAIL with exit code indicating an unspecified error
+    condition.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If elapsed time > 5.5 hours and [deferred] iterations have not been reached,
+    the run MUST FAIL
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:47:55Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: test significance thresholds 0.01 0.05 and 0.10
+  claim_id: c_d927ac1c
+  context: 'Explicit Alpha Levels: Test a range of significance thresholds, including
+    stringent levels: `[0.01, 0.05, 0.10]`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Test a range of significance thresholds, including stringent levels:
+    [0.01, 0.05, 0.10]'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:48:12Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: run must fail if fully processed dataset count is less than 10
+  claim_id: c_8cae3138
+  context: 'Requirement: If the count of fully processed datasets is < 10, the run
+    MUST FAIL with exit code 99 and log ''FIDELITY VIOLATION: Less than 10 full datasets
+    ingested''.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_must_fail_if_fully_processed_dataset_count_is_less_than
+  kind: magnitude
+  raw_text: If the count of fully processed datasets is < 10, the run MUST FAIL
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:48:49Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: theoretical error rate is 0.05
+  claim_id: c_f1834938
+  context: 'Requirement: Generate a report `results/simulation_validity_report.md`
+    with a table comparing `config_id`, `scaling_method`, `measured_error_rate`, `theoretical_error_rate`
+    (0.05), and `deviation`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: theoretical_error_rate (0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:49:09Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Seed config schema keys are batch_id with values containing seed, timestamp,
+    config_hash
+  claim_id: c_fe868329
+  context: 'T005d Define Seed Config Schema: Create data/config/seed_schema.json defining
+    the schema for data/config/seed_config.json. Requirement: The schema must be an
+    object where keys are batch_id and values are objects containing seed, timestamp,
+    and config_hash.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Seed_config_schema_keys_are_batch_id_with_values_containing
+  kind: entity_fact
+  raw_text: The schema must be an object where keys are batch_id and values are objects
+    containing seed, timestamp, and config_hash.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:51:48Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Seed config JSON structure is batch_id mapping to seed int, timestamp
+    str, config_hash str
+  claim_id: c_df5f78f4
+  context: 'T005b Implement Logger and Seed Persistence: The JSON structure MUST be
+    { "batch_id": { "seed": int, "timestamp": str, "config_hash": str } }.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Seed_config_JSON_structure_is_batch_id_mapping_to_seed_int,
+  kind: entity_fact
+  raw_text: 'The JSON structure MUST be { "batch_id": { "seed": int, "timestamp":
+    str, "config_hash": str } }.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:52:06Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Config matrix must include Normal skew 0 kurt 3, Skewed non-zero skew
+    kurt 3, Heteroscedastic skew 0 kurt 3 non-unity variance ratio
+  claim_id: c_cedabf13
+  context: 'T065 Define Configuration Matrix with Explicit Moments: Mandatory Configurations:
+    The matrix MUST include at least three distinct configurations: 1. {''type'':
+    ''Normal'', ''skew'': 0, ''kurt'': 3}, 2. {''type'': ''Skewed'', ''skew'': non-zero,
+    ''kurt'': 3}, 3. {''type'': ''Heteroscedastic'', ''skew'': 0, ''kurt'': 3, ''group_variance_ratio'':
+    non-unity}.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Config_matrix_must_include_Normal_skew_0_kurt_3,_Skewed_non-
+  kind: magnitude
+  raw_text: 'The matrix MUST include at least three distinct configurations: 1. {''type'':
+    ''Normal'', ''skew'': 0, ''kurt'': 3}, 2. {''type'': ''Skewed'', ''skew'': non-zero,
+    ''kurt'': 3}, 3. {''type'': ''Heteroscedastic'', ''skew'': 0, ''kurt'': 3, ''group_variance_ratio'':
+    non-unity}.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:52:39Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Null hypothesis mean diff 0 verified < 0.01; alternative mean diff 1.0
+    verified |mean_diff - 1.0| < 0.05
+  claim_id: c_10bbae32
+  context: 'Independent Test: Generate a dataset with null hypothesis (mean diff =
+    0) and verify mean difference < 0.01; generate alternative (mean diff = 1.0) and
+    verify |mean_diff - 1.0| < 0.05.'
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: < 0.05
+    relation: mean_diff - 1.0
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_mean_diff_0_verified_%3C_0.01;_alternative_mea
+    source_value: https://en.wikipedia.org/wiki/Null_hypothesis_mean_diff_0_verified_<_0.01;_alternative_mea
+    subject: Null hypothesis mean diff 0 verified < 0.01; alternative mean diff 1.0
+      verified
+  kind: relational
+  raw_text: Generate a dataset with null hypothesis (mean diff = 0) and verify mean
+    difference < 0.01; generate alternative (mean diff = 1.0) and verify |mean_diff
+    - 1.0| < 0.05.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:53:13Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Data fetch failure raises RuntimeError identifying missing source
+  claim_id: c_ab261aff
+  context: 'T025 Enforce Fail-Loudly Data Fetch: If datasets.load_dataset or a URL
+    fetch fails, the function must raise a RuntimeError with a clear message identifying
+    the missing source.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_fetch_failure_raises_RuntimeError_identifying_missing_s
+  kind: entity_fact
+  raw_text: The function must raise a RuntimeError with a clear message identifying
+    the missing source if datasets.load_dataset or a URL fetch fails.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:53:52Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Run fails with exit code 99 if fully processed datasets count < 10
+  claim_id: c_318b7382
+  context: 'T056b Enforce Minimum Full Dataset Count: If the count of fully processed
+    datasets is < 10, the run MUST FAIL with exit code 99 and log ''FIDELITY VIOLATION:
+    Less than 10 full datasets ingested''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Run_fails_with_exit_code_99_if_fully_processed_datasets_coun
+  kind: magnitude
+  raw_text: 'The run MUST FAIL with exit code 99 and log ''FIDELITY VIOLATION: Less
+    than 10 full datasets ingested'' if the count of fully processed datasets is <
+    10.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:54:17Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Run fails with exit code 99 if iterations < 10000 and elapsed time >
+    5.5 hours
+  claim_id: c_59ae7e77
+  context: 'T028a Implement Simulation Loop Orchestration: If elapsed time > 5.5 hours
+    and [deferred] iterations have not been reached, the run MUST FAIL with exit code
+    indicating an unspecified error condition. and log ''FIDELITY VIOLATION: Insufficient
+    iterations (<10,000) due to time limit''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The run MUST FAIL with exit code 99 and log ''FIDELITY VIOLATION: Insufficient
+    iterations (<10,000) due to time limit'' if elapsed time > 5.5 hours and deferred
+    iterations have not been reached.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:54:18Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Target iteration count is 10000
+  claim_id: c_d462be4d
+  context: 'T028d Implement Iteration Logic Enforcement: Logic: if elapsed_time <
+    5.5h and iterations < 10000: continue; else if iterations < 10000: fail_run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target iteration count is 10,000.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:54:35Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Alpha levels tested are 0.01, 0.05, 0.10
+  claim_id: c_1112d50f
+  context: 'T057 Implement Sensitivity Analysis for Alpha Thresholds: Explicit Alpha
+    Levels: Test a range of significance thresholds, including stringent levels: [0.01,
+    0.05, 0.10].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The explicit alpha levels to test are 0.01, 0.05, and 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:54:52Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Sampling log message includes dataset size > 7GB and sample size
+  claim_id: c_b552a053
+  context: 'T035b Log Sampling Justification: Log message must include ''Sampling
+    applied due to dataset size > 7GB'' and the sample size.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sampling_log_message_includes_dataset_size_%3E_7GB_and_sample_
+  kind: entity_fact
+  raw_text: The log message must include 'Sampling applied due to dataset size > 7GB'
+    and the sample size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:55:16Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Chi-squared bin merge logic for expected count < 5
+  claim_id: c_bf19618e
+  context: 'T023 Implement run_chi_squared: If a bin has an expected count < 5, merge
+    with the left neighbor; if the left neighbor is empty or < 5, merge with the right
+    neighbor.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If a bin has an expected count < 5, merge with the left neighbor; if the
+    left neighbor is empty or < 5, merge with the right neighbor.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:55:16Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Zero variance skip if std_dev < 1e-9
+  claim_id: c_cac20f77
+  context: 'T013 Add logic to handle zero-variance edge cases: Log WARNING with message
+    ''Skipping iteration: zero variance detected'' if std_dev < 1e-9 and skip the
+    specific iteration.'
+  evidence:
+    asserted: 1e-09
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'If std_dev < 1e-9, log WARNING ''Skipping iteration: zero variance detected''
+    and skip the specific iteration.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-09T10:55:17Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Deviation defined as absolute difference between p_value and alpha
+  claim_id: c_cef33b61
+  context: 'T053 Implement Mixed-Effects Model Analysis: Deviation Definition: deviation
+    = |p_value - alpha|.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Deviation_defined_as_absolute_difference_between_p_value_and
+  kind: entity_fact
+  raw_text: The deviation is defined as |p_value - alpha|.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:55:35Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Validity report table compares measured error rate to theoretical 0.05
+  claim_id: c_12c152cc
+  context: 'T071 Generate Simulation Validity Report: Generate a report results/simulation_validity_report.md
+    with a table comparing config_id, scaling_method, measured_error_rate, theoretical_error_rate
+    (0.05), and deviation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The report must include a table comparing config_id, scaling_method, measured_error_rate,
+    theoretical_error_rate (0.05), and deviation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:56:25Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Comparison report table compares synthetic and real-world error rates
+    and effect sizes
+  claim_id: c_9e7eb547
+  context: 'T039 Implement Comparison Report Generation: Content: Must include a table
+    comparing synthetic vs real-world error rates and effect sizes.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Comparison_report_table_compares_synthetic_and_real-world_er
+  kind: entity_fact
+  raw_text: The report must include a table comparing synthetic vs real-world error
+    rates and effect sizes.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:57:04Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Comparison metrics are Mean Absolute Difference and Pearson Correlation
+    Coefficient
+  claim_id: c_df7daf22
+  context: 'T039 Implement Comparison Report Generation: Metrics: Calculate Mean_Absolute_Difference
+    (mean of |synthetic_p - real_p|) and Correlation_Coefficient (Pearson correlation
+    between synthetic and real p-values).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Comparison_metrics_are_Mean_Absolute_Difference_and_Pearson
+  kind: entity_fact
+  raw_text: The metrics include Mean_Absolute_Difference and Correlation_Coefficient
+    (Pearson correlation between synthetic and real p-values).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T10:57:32Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 0
+  canonical: Empirical error rate calculation uses p-value threshold of 0.05
+  claim_id: c_f18ea381
+  context: 'User Story 3 Independent Test: Feed a set of pre-calculated p-values into
+    aggregation logic and verify that the calculated empirical error rate matches
+    the proportion of p-values < 0.05.'
+  evidence:
+    asserted: '0.05'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Verify the calculated empirical error rate matches the proportion of p-values
+    < 0.05.
+  resolved_value: '3.14'
+  resolver: approximate
+  source_hash: 336c111b2d0d1906b828681a00c474fc2156b56508119868992b7f2e5dbe7a6f
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T15:40:04Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Dataset loading threshold is 7GB
+  claim_id: c_fc560d3b
+  context: 'T024: Implement Smart Streaming Loader. Refactor code/preprocessing/ingestion.py
+    to use datasets.load_dataset(..., streaming=True) for large public datasets.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_loading_threshold_is_7GB
+  kind: entity_fact
+  raw_text: If dataset size < 7GB, load fully into memory. If size >= 7GB, stream
+    and process in chunks to compute statistics or sample a fixed number of rows.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:40:40Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Sample size for chunked data testing is 5000 rows
+  claim_id: c_b5300333
+  context: 'T026: Adapt code/analysis/tests.py to accept chunked/streamed data via
+    a data_stream or sample_size argument. Implement a ''sample-and-test'' strategy.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Stream N=5000 rows, then run the standard test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:41:05Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Null hypothesis generation mean difference tolerance is 0.01
+  claim_id: c_1843c66b
+  context: 'User Story 1 Independent Test: Generate a dataset with null hypothesis
+    (mean diff = 0) and verify mean difference < 0.01.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify mean difference < 0.01 for null hypothesis generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:41:05Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Alternative hypothesis generation mean difference tolerance is 0.05
+  claim_id: c_3d3da0c2
+  context: 'User Story 1 Independent Test: generate alternative (mean diff = 1.0)
+    and verify |mean_diff - 1.0| < 0.05.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify |mean_diff - 1.0| < 0.05 for alternative hypothesis generation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:41:49Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Zero variance edge case threshold is 1e-9
+  claim_id: c_949400c0
+  context: 'T013: Add logic to handle zero-variance edge cases in code/simulation/generator.py.'
+  evidence:
+    asserted: 1e-09
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Log WARNING with message ''Skipping iteration: zero variance detected''
+    if std_dev < 1e-9.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T15:41:49Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Chi-squared bin expected count threshold is 5
+  claim_id: c_395c6d86
+  context: 'T023: Implement run_chi_squared with binning logic. Edge Case Handling:
+    If a bin has an expected count < 5, merge with the left neighbor.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If a bin has an expected count < 5, merge with the left neighbor.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:41:50Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Simulation run time limit is 5.5 hours
+  claim_id: c_f00e1f81
+  context: 'T028a: Implement Simulation Loop Orchestration. Fallback: If elapsed time
+    > 5.5 hours and [deferred] iterations have not been reached, the run MUST FAIL.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If elapsed time > 5.5 hours and [deferred] iterations have not been reached,
+    the run MUST FAIL with exit code indicating an unspecified error condition.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:41:50Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Minimum iteration count is 10,000
+  claim_id: c_fa445672
+  context: 'T028a: Implement Simulation Loop Orchestration. Log ''FIDELITY VIOLATION:
+    Insufficient iterations (<10,000) due to time limit''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Log ''FIDELITY VIOLATION: Insufficient iterations (<10,000) due to time
+    limit''.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:41:51Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Iteration enforcement fails if count is below 10,000
+  claim_id: c_85121872
+  context: 'T028d: Implement Iteration Logic Enforcement. Logic: if elapsed_time <
+    5.5h and iterations < 10000: continue; else if iterations < 10000: fail_run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'If time limit is approached BEFORE [deferred] iterations are complete,
+    the run MUST FAIL. Logic: if elapsed_time < 5.5h and iterations < 10000: continue;
+    else if iterations < 10000: fail_run.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:41:51Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Alpha levels for sensitivity analysis are 0.01, 0.05, and 0.10
+  claim_id: c_702bf1b3
+  context: 'T057: Implement Sensitivity Analysis for Alpha Thresholds. Explicit Alpha
+    Levels: Test a range of significance thresholds, including stringent levels: [0.01,
+    0.05, 0.10].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Test a range of significance thresholds, including stringent levels:
+    [0.01, 0.05, 0.10].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:42:19Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Mixed-effects significance threshold is 0.05
+  claim_id: c_01bfeaa0
+  context: 'T069: Analyze and Report Mixed-Effects Significance. Logic: If p-value
+    >= 0.05, explicitly report ''SC-007 FAILED: Scaling method not significant''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Report if p-value for the fixed effect scaling_method is < 0.05.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:42:20Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Theoretical error rate baseline is 0.05
+  claim_id: c_d1ef8ec2
+  context: 'T071: Generate Simulation Validity Report. Compare measured deviations
+    (error rate vs theoretical baseline) against theoretical expectations. theoretical_error_rate
+    (0.05).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Compare measured deviations against theoretical expectations with theoretical_error_rate
+    (0.05).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:43:03Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Sampling justification log threshold is 7GB
+  claim_id: c_31fd7d18
+  context: 'T035b: Log Sampling Justification. Log message must include ''Sampling
+    applied due to dataset size > 7GB'' and the sample size.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sampling_justification_log_threshold_is_7GB
+  kind: entity_fact
+  raw_text: Log message must include 'Sampling applied due to dataset size > 7GB'
+    and the sample size.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:43:35Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Minimum full dataset count requirement is 10
+  claim_id: c_d34d56b3
+  context: 'T056b: Enforce Minimum Full Dataset Count. If the count of fully processed
+    datasets is < 10, the run MUST FAIL with exit code 99.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_full_dataset_count_requirement_is_10
+  kind: magnitude
+  raw_text: 'If the count of fully processed datasets is < 10, the run MUST FAIL with
+    exit code 99 and log ''FIDELITY VIOLATION: Less than 10 full datasets ingested''.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:44:29Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Dataset loading strategy switches from full memory load to streaming
+    at 7GB size threshold
+  claim_id: c_c3ac4399
+  context: 'T024 [US4] Implement Smart Streaming Loader: Refactor code/preprocessing/ingestion.py
+    to use datasets.load_dataset(..., streaming=True) for large public datasets.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset_loading_strategy_switches_from_full_memory_load_to_s
+  kind: entity_fact
+  raw_text: If size < 7GB, load fully into memory. If size >= 7GB, stream and process
+    in chunks to compute statistics or sample a fixed number of rows.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:46:27Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Sample-and-test strategy streams 5000 rows before running standard test
+  claim_id: c_c96e9fe5
+  context: 'T026 [US4] Adapt code/analysis/tests.py to accept chunked/streamed data
+    via a data_stream or sample_size argument. Implement a ''sample-and-test'' strategy:
+    stream N=5000 rows, then run the standard test.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: stream N=5000 rows, then run the standard test.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:46:28Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: 'Simulation configuration matrix requires at least three distinct configurations:
+    Normal (skew 0, kurt 3), Skewed (non-zero skew, kurt 3), and Heteroscedastic (skew
+    0, kurt 3, non-unity variance ratio)'
+  claim_id: c_5aa2b1cf
+  context: 'T065 [US1] Define Configuration Matrix with Explicit Moments: Define the
+    CONFIG_MATRIX in code/simulation/config.py as a list of SimulationConfig objects.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Simulation_configuration_matrix_requires_at_least_three_dist
+  kind: magnitude
+  raw_text: 'The matrix MUST include at least three distinct configurations: 1. {''type'':
+    ''Normal'', ''skew'': 0, ''kurt'': 3}, 2. {''type'': ''Skewed'', ''skew'': non-zero,
+    ''kurt'': 3}, 3. {''type'': ''Heteroscedastic'', ''skew'': 0, ''kurt'': 3, ''group_variance_ratio'':
+    non-unity}.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:47:12Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Null hypothesis generation verification requires mean difference less
+    than 0.01
+  claim_id: c_b0f01f43
+  context: 'Independent Test: Generate a dataset with null hypothesis (mean diff =
+    0) and verify mean difference < 0.01; generate alternative (mean diff = 1.0) and
+    verify |mean_diff - 1.0| < 0.05.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Null_hypothesis_generation_verification_requires_mean_differ
+  kind: magnitude
+  raw_text: verify mean difference < 0.01
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:47:36Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Alternative hypothesis generation verification requires absolute difference
+    from 1.0 less than 0.05
+  claim_id: c_e521724b
+  context: 'Independent Test: Generate a dataset with null hypothesis (mean diff =
+    0) and verify mean difference < 0.01; generate alternative (mean diff = 1.0) and
+    verify |mean_diff - 1.0| < 0.05.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Alternative_hypothesis_generation_verification_requires_abso
+  kind: magnitude
+  raw_text: verify |mean_diff - 1.0| < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:48:05Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Ground truth validation logs failures if null mean difference is 0.01
+    or greater or alternative deviation from 1.0 is 0.05 or greater
+  claim_id: c_38849430
+  context: T012 [US1] Implement ground truth validation logic in code/simulation/generator.py
+    that returns a boolean and logs assertion failures if mean_diff >= 0.01 for null
+    or |mean_diff - 1.0| >= 0.05 for alternative.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: log assertion failures if mean_diff >= 0.01 for null or |mean_diff - 1.0|
+    >= 0.05 for alternative.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:48:34Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Zero variance edge case triggers warning skip if standard deviation is
+    less than 1e-9
+  claim_id: c_fc46105e
+  context: 'T013 [US1] Add logic to handle zero-variance edge cases in code/simulation/generator.py:
+    Log WARNING with message ''Skipping iteration: zero variance detected'' if std_dev
+    < 1e-9 and skip the specific iteration.'
+  evidence:
+    asserted: 1e-09
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: magnitude
+  raw_text: 'log WARNING with message ''Skipping iteration: zero variance detected''
+    if std_dev < 1e-9'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-08T15:48:34Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Simulation run fails with exit code 99 if 5.5 hours elapsed before reaching
+    target iterations
+  claim_id: c_72a526cb
+  context: 'T028a [US3] Implement Simulation Loop Orchestration: ... Fallback: If
+    elapsed time > 5.5 hours and [deferred] iterations have not been reached, the
+    run MUST FAIL with exit code indicating an unspecified error condition.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: if elapsed time > 5.5 hours and [deferred] iterations have not been reached,
+    the run MUST FAIL
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:48:35Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Fidelity violation logged when iterations are below 10,000 due to time
+    limit
+  claim_id: c_f6aacad3
+  context: 'T028a [US3] ... log ''FIDELITY VIOLATION: Insufficient iterations (<10,000)
+    due to time limit''. DO NOT reduce target iterations.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'log ''FIDELITY VIOLATION: Insufficient iterations (<10,000) due to time
+    limit'''
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:48:35Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Iteration logic fails run if time limit reached before 10,000 iterations
+    are completed
+  claim_id: c_818d63e1
+  context: 'T028d [US3] Implement Iteration Logic Enforcement: ... Logic: if elapsed_time
+    < 5.5h and iterations < 10000: continue; else if iterations < 10000: fail_run.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'if elapsed_time < 5.5h and iterations < 10000: continue; else if iterations
+    < 10000: fail_run'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:48:35Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis tests alpha levels at 0.01, 0.05, and 0.10
+  claim_id: c_0d8297a8
+  context: 'T057 [US3] Implement Sensitivity Analysis for Alpha Thresholds: ... Explicit
+    Alpha Levels: Test a range of significance thresholds, including stringent levels:
+    [0.01, 0.05, 0.10].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Test a range of significance thresholds, including stringent levels:
+    [0.01, 0.05, 0.10].'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:48:36Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Pipeline fails with exit code 99 if fewer than 10 full datasets are processed
+  claim_id: c_735a35fe
+  context: 'T056b [US4] Enforce Minimum Full Dataset Count: ... Requirement: If the
+    count of fully processed datasets is < 10, the run MUST FAIL with exit code 99
+    and log ''FIDELITY VIOLATION: Less than 10 full datasets ingested''.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pipeline_fails_with_exit_code_99_if_fewer_than_10_full_datas
+  kind: magnitude
+  raw_text: If the count of fully processed datasets is < 10, the run MUST FAIL with
+    exit code 99
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:49:16Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Comparison report calculates Mean Absolute Difference and Pearson Correlation
+    Coefficient between synthetic and real p-values
+  claim_id: c_b8d51bd8
+  context: 'T039 [US4] Implement Comparison Report Generation: ... Metrics: Calculate
+    Mean_Absolute_Difference (mean of |synthetic_p - real_p|) and Correlation_Coefficient
+    (Pearson correlation between synthetic and real p-values).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Comparison_report_calculates_Mean_Absolute_Difference_and_Pe
+  kind: entity_fact
+  raw_text: Calculate Mean_Absolute_Difference (mean of |synthetic_p - real_p|) and
+    Correlation_Coefficient (Pearson correlation between synthetic and real p-values).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:49:55Z'
+- artifact_path: projects/PROJ-541-evaluating-the-impact-of-data-scaling-on/specs/001-evaluating-the-impact-of-data-scaling-on/tasks.md
+  attempts: 1
+  canonical: Simulation validity report compares measured error rate against theoretical
+    baseline of 0.05
+  claim_id: c_c4d0f190
+  context: 'T071 [US3] Generate Simulation Validity Report: ... table comparing config_id,
+    scaling_method, measured_error_rate, theoretical_error_rate (0.05), and deviation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: theoretical_error_rate (0.05)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T15:50:35Z'

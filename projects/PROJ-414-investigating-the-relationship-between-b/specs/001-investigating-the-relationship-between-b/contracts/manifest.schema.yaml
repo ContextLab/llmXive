@@ -1,0 +1,69 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Master Manifest Row (Single Source of Truth)"
+type: object
+required:
+  - subject_id
+  - excluded
+properties:
+  subject_id:
+    type: string
+    description: "Participant identifier; one row per processed subject."
+  excluded:
+    type: boolean
+    description: "True if the subject was excluded from the association analysis."
+  exclusion_reason:
+    type: string
+    description: "Reason for exclusion (e.g., '>20% bad volumes'); empty string if not excluded."
+  mean_global_efficiency:
+    type: number
+    description: "Window‑averaged global efficiency descriptor (ROI‑based); optional for excluded subjects."
+  mean_modularity:
+    type: number
+    description: "Window‑averaged modularity descriptor (ROI‑based); optional for excluded subjects."
+  mean_participation_coefficient:
+    type: number
+    description: "Window‑averaged participation coefficient descriptor (ROI‑based); optional for excluded subjects."
+  age:
+    type: number
+    description: "Age in years, if present in the raw data."
+  fd:
+    type: number
+    description: "Motion metric (frame‑wise displacement proxy), if present."
+  years_of_training:
+    type: number
+    description: "Years of musical training, if present."
+  task_condition:
+    type: string
+    description: "Task label (Improvisation/Scripted), if present."
+  instrument_type:
+    type: string
+    description: "Instrument type covariate, if present."
+  musical_genre:
+    type: string
+    description: "Musical genre covariate, if present."
+  practice_intensity:
+    type: number
+    description: "Practice intensity covariant (sic) covariate, if present."
+  education_level:
+    type: string
+    description: "Education level covariate, if present."
+  skill_proxy_value:
+    type: number
+    description: "Value of the real skill‑proxy column for this subject, if present."
+  skill_proxy_used:
+    type: string
+    description: "Which column served as the skill proxy, or \"none\" (expected halt path)."
+  pc_scores:
+    type: object
+    description: "Mapping of pc name to score; keys are dynamic (e.g., pc_1)."
+    additionalProperties:
+      type: number
+  fdr_p_values:
+    type: object
+    description: "Mapping of pc name to FDR‑corrected p‑value for the association, if computed."
+    additionalProperties:
+      type: number
+  power_status:
+    type: string
+    description: "Outcome of the power analysis : \"adequate\", \"underpowered_association_skipped\", or \"not_applicable_descriptive_only\"."
+additionalProperties: true

@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Statistical Summary"
+description: "Schema for the final statistical analysis report."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    enum:
+      - "mann_whitney_u"
+    description: "Statistical test used."
+  p_value:
+    type: "number"
+    description: "P-value from the test."
+  effect_size:
+    type: "number"
+    description: "Calculated effect size (e.g., Cohen's d or rank-biserial)."
+  is_exploratory:
+    type: "boolean"
+    description: "True if effect_size < 0.5."
+  conclusion:
+    type: "string"
+    description: "Human-readable conclusion string."
+  sample_size_uniform:
+    type: "integer"
+    description: "Number of seeds for Uniform regime."
+  sample_size_dopd:
+    type: "integer"
+    description: "Number of seeds for DOPD regime."
+  coefficient_of_variation:
+    type: "number"
+    description: "Coefficient of Variation (std_dev / mean) of generalization accuracy."
+required:
+  - "test_type"
+  - "p_value"
+  - "effect_size"
+  - "is_exploratory"
+  - "conclusion"
+  - "sample_size_uniform"
+  - "sample_size_dopd"
+  - "coefficient_of_variation"
+additionalProperties: false

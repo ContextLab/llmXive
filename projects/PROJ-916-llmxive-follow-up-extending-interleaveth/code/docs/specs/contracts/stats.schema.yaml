@@ -1,0 +1,44 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: StatisticalReport
+description: Schema for statistical analysis reports
+
+type: object
+properties:
+  experiment_id:
+    type: string
+  baseline:
+    type: string
+  method:
+    type: string
+  metrics:
+    type: object
+    properties:
+      mean_baseline:
+        type: number
+      mean_method:
+        type: number
+      p_value:
+        type: number
+      effect_size:
+        type: number
+      confidence_interval:
+        type: array
+        items:
+          type: number
+      sample_size:
+        type: integer
+    required:
+      - mean_baseline
+      - mean_method
+      - p_value
+      - effect_size
+      - sample_size
+  conclusion:
+    type: string
+
+required:
+  - experiment_id
+  - baseline
+  - method
+  - metrics
+  - conclusion

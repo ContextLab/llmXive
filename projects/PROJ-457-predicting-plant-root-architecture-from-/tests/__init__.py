@@ -1,2 +1,1 @@
-# llmXive Project: Tests Package
-# Package initialization for tests module
+"""Test package for PROJ-457."""

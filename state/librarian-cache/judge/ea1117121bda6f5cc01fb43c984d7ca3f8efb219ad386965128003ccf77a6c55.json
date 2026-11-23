@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2607.06291",
+  "judged_at": "2026-07-18T19:00:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"alayaworld: long-horizon and playable video world generation\" computer science",
+  "rationale": "This paper is the foundational source for the \"AlayaWorld\" system explicitly named in the user's research question, satisfying category (d) as the canonical reference for the framework the user intends to extend. Additionally, it establishes the empirical baseline and technical architecture (category c and a) that any follow-up work on \"llmXive\" extending this specific system must cite.",
+  "relevant": true
+}

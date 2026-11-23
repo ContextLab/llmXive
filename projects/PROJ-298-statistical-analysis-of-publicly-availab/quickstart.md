@@ -1,180 +1,241 @@
 # Quick Start Guide
 
+This guide provides step-by-step instructions to reproduce all analysis results for the Statistical Analysis of Stack Overflow Question Tags project.
+
 ## Prerequisites
 
-- Python 3.11 or higher
-- pip package manager
-- 64GB RAM recommended
-- ~50GB disk space for raw data
-- Internet connection for data fetching
+- Python 3.9 or higher
+- 14GB+ free disk space
+- 7GB+ available RAM
+- Internet connection for data download
 
-## Step 1: Clone and Setup
+## Step 1: Setup Environment
 
 ```bash
-# Navigate to project root
-cd projects/PROJ-298-statistical-analysis-of-publicly-availab
-
-# Create virtual environment
+# Create and activate virtual environment
 python -m venv venv
-source venv/bin/activate # Linux/Mac
-# venv\\Scripts\\activate # Windows
+source venv/bin/activate # On Windows: venv\Scripts\activate
 
 # Install dependencies
 pip install -r code/requirements.txt
 ```
 
-## Step 2: Initialize Data Structure
+## Step 2: Initialize Project Structure
 
-This step creates the required directory structure and fetches taxonomy data.
+Run the directory setup script:
 
 ```bash
-python code/data/setup_data_structure.py
+python code/setup_directories.py
 ```
 
-**Expected Output**:
-- `data/events/reference_calendar.json`
-- `data/taxonomy/survey_2023.json`
-- Directory structure: `data/raw/`, `data/processed/`, `data/events/`, `data/taxonomy/`
+This creates the necessary directory structure:
+- `data/raw/`
+- `data/processed/`
+- `data/taxonomy/`
+- `data/events/`
 
-## Step 3: Download Stack Overflow Data
+## Step 3: Generate Taxonomy and Reference Files
 
-Fetches PostsTags data from Stack Exchange dump or HuggingFace fallback.
+```bash
+python code/data/generate_taxonomies.py
+```
+
+This downloads and processes:
+- Stack Overflow Developer Survey 2023 taxonomy → `data/taxonomy/survey_2023.json`
+- Reference calendar for events → `data/events/reference_calendar.json`
+
+## Step 4: Download and Preprocess Data
+
+### Download Stack Overflow Data
 
 ```bash
 python code/data/download.py
 ```
 
-**Expected Output**:
-- `data/raw/posts_tags.json` (or chunked files for large datasets)
-- Progress logs showing download status
+This fetches PostsTags data from Stack Exchange Data Dump (streaming to manage memory) and saves to `data/raw/posts_tags.jsonl`.
 
-**Note**: This may take 30-60 minutes depending on network speed.
-
-## Step 4: Preprocess Data
-
-Aggregates raw data into monthly frequencies and filters tags with ≥12 months of data.
+### Preprocess Data
 
 ```bash
 python code/data/preprocess.py
 ```
 
-**Expected Output**:
-- `data/processed/monthly_frequencies.json`
-- Summary statistics of processed tags
+This aggregates tag frequencies into monthly bins, normalizes tags, and filters for tags with ≥12 months of data. Output: `data/processed/processed_data.json`.
 
-## Step 5: Run Analysis Pipelines
+## Step 5: Run Trend Analysis (User Story 1)
 
-Execute the three main analysis modules in sequence:
-
-### 5.1 Trend Analysis (User Story 1)
+### Analyze Trends
 
 ```bash
-# Detect trends using Modified Mann-Kendall
 python code/analysis/trends.py
+```
 
-# Calculate confidence intervals via bootstrapping
-python code/analysis/bootstrapping.py
+Performs Modified Mann-Kendall test, calculates Theil-Sen slopes, applies Benjamini-Hochberg correction, and computes power analysis. Output: `data/processed/trend_intermediate.json`.
 
-# Compute correlations with GitHub/NPM metrics
+### Fetch External Metrics
+
+```bash
+python code/data/external.py
+```
+
+Fetches GitHub stars and NPM downloads for mapped tags. Output: `data/processed/external_metrics.json`.
+
+### Map Tags to Repositories
+
+```bash
 python code/analysis/correlation.py
+```
 
-# Generate final trend results
+Maps tags to GitHub repos and NPM packages. Output: `data/processed/tag_mappings.json`.
+
+### Calculate Correlations
+
+The correlation calculation is integrated in the correlation module. Output: `data/processed/correlation_results.json`.
+
+### Bootstrap Confidence Intervals
+
+```bash
+python code/analysis/bootstrapping.py
+```
+
+Calculates 95% confidence intervals for Theil-Sen slopes. Output: `data/processed/confidence_interval.json`.
+
+### Aggregate Trend Results
+
+```bash
 python code/analysis/generate_trend_results.py
 ```
 
-**Expected Output**: `data/processed/trend_results.json`, `data/processed/confidence_interval.json`
+Merges all trend analysis outputs. Output: `data/processed/trend_results.json`.
 
-### 5.2 Decomposition (User Story 2)
+## Step 6: Run Decomposition Analysis (User Story 2)
+
+### Run Decomposition Pipeline
 
 ```bash
-# Perform STL/Hodrick-Prescott decomposition
 python code/analysis/decomposition.py
+```
 
-# Generate decomposition results
+Performs ADF tests, STL/Hodrick-Prescott decomposition, Ljung-Box tests, and Rayleigh tests. Output: `data/processed/decomposition_intermediate.json`.
+
+### Generate Decomposition Results
+
+```bash
 python code/analysis/generate_decomposition_results.py
 ```
 
-**Expected Output**: `data/processed/decomposition_results.json`
+Aggregates decomposition outputs. Output: `data/processed/decomposition_results.json`.
 
-### 5.3 Clustering (User Story 3)
+### Generate Plots
 
 ```bash
-# Compute co-occurrence clusters
-python code/analysis/clustering.py
+python code/viz/plots.py
+```
 
-# Generate cluster results
+Creates decomposition visualizations. Output: `figures/decomposition_plots/`
+
+## Step 7: Run Clustering Analysis (User Story 3)
+
+### Run Clustering Pipeline
+
+```bash
+python code/analysis/clustering.py
+```
+
+Computes Jaccard similarity matrix, performs hierarchical clustering, runs permutation tests, and calculates cluster alignment scores. Output: `data/processed/cluster_results.json`.
+
+### Generate Cluster Results
+
+```bash
 python code/analysis/generate_cluster_results.py
 ```
 
-**Expected Output**: `data/processed/cluster_results.json`
+Finalizes cluster analysis outputs.
 
-## Step 6: Reproduce Notebooks
+## Step 8: Verify Results
 
-Ensure all Jupyter notebooks execute successfully with the generated data:
+### Check Limitation Disclosures
 
 ```bash
-# Execute trend analysis notebook
-jupyter nbconvert --to notebook --execute notebooks/02_trend_analysis.ipynb --inplace
-
-# Execute decomposition notebook
-jupyter nbconvert --to notebook --execute notebooks/03_decomposition.ipynb --inplace
-
-# Execute clustering notebook
-jupyter nbconvert --to notebook --execute notebooks/04_clustering.ipynb --inplace
+python code/verification/verify_limitations.py
 ```
 
-**Validation**: Each notebook should complete without errors and display visualizations.
+Verifies all generated files contain mandatory limitation headers/footers.
 
-## Step 7: Run Tests
+### Validate Contracts
 
 ```bash
-# Contract tests
-pytest tests/contract/ -v
-
-# Integration tests
-pytest tests/integration/ -v
+python code/utils/contract_validation.py
 ```
 
-## Step 8: Verify State
+Validates all artifacts against their schema contracts.
 
-Check that all artifacts have valid checksums:
+## Step 9: Run Notebooks (Optional)
+
+For interactive exploration, run the Jupyter notebooks:
 
 ```bash
-python code/utils/state_manager.py
+jupyter notebook notebooks/02_trend_analysis.ipynb
+jupyter notebook notebooks/03_decomposition.ipynb
+jupyter notebook notebooks/04_clustering.ipynb
+```
+
+## Expected Outputs
+
+After completing all steps, you should have:
+
+```
+data/
+├── processed/
+│ ├── processed_data.json
+│ ├── trend_intermediate.json
+│ ├── external_metrics.json
+│ ├── tag_mappings.json
+│ ├── correlation_results.json
+│ ├── confidence_interval.json
+│ ├── trend_results.json
+│ ├── decomposition_intermediate.json
+│ ├── decomposition_results.json
+│ └── cluster_results.json
+├── taxonomy/
+│ └── survey_2023.json
+└── events/
+ └── reference_calendar.json
+
+figures/
+└── decomposition_plots/
+ └── [various PNG files]
 ```
 
 ## Troubleshooting
 
 ### Memory Issues
-If you encounter MemoryError:
-- Reduce the number of tags processed (modify `code/data/preprocess.py`)
-- Increase swap space
-- Use a machine with more RAM
 
-### API Rate Limits
-If GitHub/NPM API calls fail:
-- Add authentication tokens to environment variables
-- Implement retry logic with exponential backoff
+If you encounter memory errors, ensure you're using the streaming download option and have at least 7GB RAM available.
+
+### Network Issues
+
+If data download fails, check your internet connection and ensure you can access:
+- Stack Exchange Data Dump
+- GitHub API
+- NPM API
 
 ### Missing Dependencies
-Ensure all packages are installed:
-```bash
-pip install -r code/requirements.txt --upgrade
-```
 
-## Expected Runtime
+Re-run `pip install -r code/requirements.txt` to ensure all dependencies are installed.
 
-- Full pipeline (download → analysis → notebooks): ~4-6 hours on CPU-only runner
-- Individual analysis modules: 30-90 minutes each
-- Notebook execution: 15-30 minutes each
+## Performance Notes
 
-## Output Verification
+- Full pipeline execution: ~4-6 hours on CPU-only runner
+- Data download: ~30 minutes (streaming)
+- Trend analysis: ~1-2 hours
+- Decomposition: ~1 hour
+- Clustering: ~1-2 hours
 
-After completion, verify these files exist:
-- `data/processed/trend_results.json`
-- `data/processed/confidence_interval.json`
-- `data/processed/decomposition_results.json`
-- `data/processed/cluster_results.json`
-- `state/projects/PROJ-298-statistical-analysis-of-publicly-availab.yaml`
+## Next Steps
 
-All notebooks should have `.nbconvert.ipynb` or updated timestamps indicating successful execution.
+After reproducing results, you can:
+- Modify analysis parameters in the configuration files
+- Add new tags for analysis
+- Extend the taxonomy with additional categories
+- Create custom visualizations in the notebooks

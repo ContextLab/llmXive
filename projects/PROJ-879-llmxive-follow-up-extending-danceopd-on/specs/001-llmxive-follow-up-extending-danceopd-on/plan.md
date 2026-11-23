@@ -4,15 +4,19 @@
 
 ## Summary
 
-This project validates the hypothesis that the complex, state-dependent routing logic of the "DanceOPD" on-policy generative field distillation teacher model can be approximated by static, low-complexity Decision Trees. The plan involves: (1) generating a synthetic ground-truth dataset by running the pre-trained DanceOPD teacher on sampled ImageNet-1K and LAION-400M prompts to capture `(prompt_embedding, noise_level, routing_label, velocity_vector)` tuples; (2) training a series of `scikit-learn` Decision Tree classifiers with varying `max_depth` (range -20) to approximate these routing labels; (3) executing a CPU-only inference loop where the static tree predicts the routing, the selected expert field generates a velocity vector, and a simple Euler integrator synthesizes an image (using identical parameters for teacher and tree); and (4) quantifying fidelity degradation via FID and CLIP Score, using bootstrap tests on image distributions and paired t-tests on per-sample CLIP scores to determine statistical significance against the teacher baseline. The evaluation includes ALL samples (matched and mismatched) to capture total system error.
+This project validates the hypothesis that the complex, state-dependent routing logic of the "DanceOPD" on-policy generative field distillation teacher model can be approximated by static, low-complexity Decision Trees. The plan involves: () generating a synthetic ground-truth dataset by running the pre-trained DanceOPD teacher on sampled ImageNetK and LAIONM prompts to capture `(prompt_embedding, noise_level, routing_label, velocity_vector)` tuples; (2) training a series of `scikit-learn` Decision Tree classifiers with varying `max_depth` across a broad range to approximate these routing labels; (3) executing a CPU-only inference loop where the static tree predicts the routing, the selected expert field generates a velocity vector, and a simple Euler integrator synthesizes an image (using identical parameters for teacher and tree); and (4) quantifying fidelity degradation via FID and CLIP Score, using bootstrap tests on image distributions and paired t-tests on per-sample CLIP scores to determine statistical significance against the teacher baseline. The evaluation includes ALL samples (matched and mismatched) to capture total system error.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11
+**Language/Version**: Python 3
 **Primary Dependencies**: `torch` (CPU-only), `scikit-learn`, `pandas`, `numpy`, `transformers` (for CLIP), `accelerate` (for CPU inference), `datasets` (HuggingFace), `scipy` (for statistical tests), `pillow`, `torch-fidelity` (or custom FID implementation), `pyyaml`.
 **Storage**: Local filesystem (`data/raw`, `data/processed`, `models`, `results`). No external database.
 **Testing**: `pytest` (unit tests for data schemas, integration tests for pipeline steps).
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM).
+**Target Platform**: Linux (GitHub Actions free-tier runner: a modest CPU configuration and Adequate RAM capacity will be provisioned to support the computational requirements of the study.
+
+The research question remains: How does computational resource limitation impact the performance of CI/CD pipelines?
+The method remains: Comparative analysis of build times across varying resource constraints.
+References remain: [Insert existing citations here]).
 **Project Type**: Research pipeline / Data processing script suite.
 **Performance Goals**: Complete data generation, training, and evaluation within 6 hours on CPU. Memory usage < 7 GB.
 **Constraints**: No GPU usage. No 8-bit/4-bit quantization requiring CUDA. Dataset sampling to fit RAM.
@@ -27,8 +31,8 @@ References: [Insert DOI/arXiv/author-year here]; dynamic sample size for evaluat
 ### Verified Datasets
 | Dataset | Source URL | Usage |
 |:--- |:--- |:--- |
-| **ImageNet-1K (Resized)** | ` | Primary source for prompt embeddings. |
-| **LAION-400M** | ` | Secondary source for prompt diversity. |
+| **ImageNetK (Resized)** | ` | Primary source for prompt embeddings. |
+| **LAIONM** | ` | Secondary source for prompt diversity. |
 | **TeacherRoutingDataset** | *Generated Artifact* | Created by running the pre-trained DanceOPD teacher on the above sources. |
 
 ## Constitution Check

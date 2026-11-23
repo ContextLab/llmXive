@@ -1,283 +1,130 @@
 # Tasks: Predicting the Impact of Ball Milling on Particle Size Distribution
 
-**Input**: Design documents from `/specs/001-predict-balling-milling-psd/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies (pandas, numpy, scikit-learn, statsmodels, matplotlib, seaborn, requests, tqdm, pyarrow, pdfminer.six)
-- [ ] T003 [P] Configure linting (flake8/black) and formatting tools
+**Input**: `spec.md`, `plan.md`, original research idea, existing artifacts, and any reviewer feedback.  
+All paths are relative to the project root.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0 – Project Setup & Basic Tooling  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+| Goal | Run a minimal setup that creates the repository skeleton and verifies the development environment. |
+|------|-----------------------------------------------------------------------------------------------|
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [ ] T004 Setup data directory structure (`data/raw`, `data/processed`, `data/splits`, `results`)
-- [X] T005 [P] Implement seed management utility in `src/utils/seed.py` to pin all random states
-- [X] T006 [P] Setup logging infrastructure in `src/utils/logger.py` with level configuration
-- [ ] T007 Create dataset schema definition and validation logic in `contracts/dataset.schema.yaml` and `src/utils/validate_schema.py`
-- [ ] T008 Configure error handling and custom exceptions for data ingestion failures
-- [ ] T009 Setup environment configuration management (API keys for Materials Project, etc.)
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [X] T001 [P] **Create setup script and manifest** – `scripts/setup_manifest.txt`, `scripts/setup.sh` – verifies both files exist and `setup.sh` creates the directories listed in the manifest.  
+- [X] T002 [P] **Create `requirements.txt`** – pinned versions of the ten core dependencies. Verification: file exists and lists all required packages.  
+- [ ] T002b [P] **Verify `requirements.txt` resolves without conflicts** – run `pip install --dry-run -r requirements.txt` and capture the output. Verification: log shows “Successfully installed …” with no conflict messages.
+- [ ] T003a [P] **Configure linting (flake8)** – create `.flake8` with `max-line-length = 88`. Verification: file exists and contains the setting.  
+- [ ] T003b [P] **Configure formatting (black)** – add `pyproject.toml` with a valid black configuration. Verification: file exists and black can read it (`black --check .`).   <!-- FAILED-IN-EXECUTION: code/scripts/check_black.sh exit=127 --> <!-- FAILED-IN-EXECUTION: code/scripts/check_black.sh exit=1 -->
+- [X] T004 [P] **Initialize Git repository** – run `git init`, add a `.gitignore`, and make an initial commit. Verification: `.git` directory exists and `git log` shows the initial commit.
 
 ---
 
-## Phase 3: User Story 1 - Data Aggregation and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+## Phase 1 – Core Utilities  
 
-**Goal**: Automatically aggregate ball milling experimental data from public repositories (Materials Project, NIST, arXiv) and preprocess it to include standardized features, creating a clean, analysis-ready dataset of at least 500 experiments (target) or 150 (minimum viable).
+| Goal | Provide deterministic randomness, logging, configuration, and schema validation utilities. |
+|------|-------------------------------------------------------------------------------------------|
 
-**Independent Test**: Can be fully tested by executing the data ingestion script and verifying the output CSV/Parquet contains ≥500 rows (target) or ≥150 rows (minimum viable) with non-null values for all required predictor variables and target PSD metrics.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T010 [P] [US1] Contract test for dataset schema validation in `tests/contract/test_dataset_schema.py`
-- [X] T011 [P] [US1] Unit test for data ingestion error handling in `tests/unit/test_ingest.py`
-
-### Implementation for User Story 1
-
-- [ ] T012 [US1] Implement Materials Project data fetcher in `src/ingest/materials_project.py` (handles API limits, parses JSON; extracts PSD metrics) <!-- FAILED: unspecified -->
-- [ ] T013 [US1] Implement NIST repository downloader in `src/ingest/nist_repo.py` (fetches CSV/JSON, handles checksums; extracts PSD metrics)
-- [X] T014 [US1] Implement arXiv PDF extractor in `src/ingest/arxiv_extractor.py` using `pdfminer.six` to scrape tables and **detect unstructured PSD data (images/curves) for OCR/extraction fallback per FR-008**:
- - [ ] T014a Implement image detection logic to identify PSD curves/images in PDFs
- - [ ] T014b Implement OCR/extraction fallback mechanism using `pytesseract` for detected unstructured data
- - [ ] T014c Implement logic to flag unstructured entries to `data/flagged_psd.json` with **specific schema: `experiment_id`, `source`, `issue_type`, `raw_blob_hash`**
-- [X] T015 [US1] Implement data merger and deduplication logic in `src/ingest/merge.py` (handles conflicting PSD measurements)
-- [X] T016 [US1] Implement preprocessing pipeline in `src/preprocess/pipeline.py` (Input: merged raw data; Output: processed features):
- - [ ] T016a Multiple imputation (IterativeImputer) for missing values in **ALL required predictors (including Young's modulus, density)** (EXCLUDING targets D10/D50/D90)
- - [ ] T016b One-hot encoding for `material_type`
- - [ ] T016c Standard scaling for numeric features
- - [ ] T016d Logic to flag unstructured PSD entries to `data/flagged_psd.json` (if not already done in T014)
- - [ ] T016e **Explicitly calculate 'process_duration' column**: If missing, derive as `(end_time - start_time).total_seconds() / 3600` from raw timestamp columns; if timestamps missing, attempt regex extraction from `raw_text_logs` using pattern `r'milling_time[:\\s]+([\\d.]+)\\s*(h|hr|hours?)'`; if that fails, log a warning and set value to NaN.
-- [ ] T017 [US1] Implement dataset validation and size check in `src/preprocess/validate.py` (Input: **ONLY the processed data output from T016**):
- - [ ] T017a Validate against `contracts/dataset.schema.yaml`
- - [ ] T017b Halt with critical error if rows < 150 (FR-001, SC-004)
-- [ ] T018 [US1] Create main ingestion CLI entry point in `src/cli/ingest.py` to orchestrate T012-T017 (Input: **ONLY the validated output from T017**; Output: validated parquet):
- - [ ] T018a Ensure sequential execution: Ingestion -> Merge -> Preprocess -> Validate -> CLI output
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently (clean dataset produced)
+- [X] T005 [P] **Seed‑management utility** – `src/utils/seed.py` with `set_seed(seed: int)`. Verification: calling the function sets `random`, `numpy`, and (if available) `torch` seeds.  
+- [ ] T006 [P] **Logging infrastructure** – `src/utils/logger.py` exposing `get_logger(name)`. Verification: logger writes messages to stdout with configurable level.  
+- [X] T008 [P] **Custom exception definitions** – `src/utils/exceptions.py` defining `DataIngestionError`, `MissingTimestampError`, `GPRResourceLimitExceeded`, `InsufficientDataError`, `MissingDataError`. Verification: each class exists and can be raised.  
+- [X] T007a [P] **Dataset schema file** – `contracts/dataset.schema.yaml` matching the specification. Verification: file exists and validates against the JSON‑Schema draft‑07 definition.  
+- [ ] T007b [P] **Schema‑validation helper** – `src/preprocess/validate_schema.py` with `validate(df)`. Verification: function raises `jsonschema.ValidationError` on mismatched rows.  
+- [X] T009 [P] **Configuration template** – `src/config/config.yaml` containing API endpoints, GPR resource limits, and OCR fallback flags. Verification: file exists with the required keys.  
+- [X] T009b [P] **Configuration loader** – `src/config/settings.py` exposing `load_config()`. Verification: function returns a dictionary with the expected keys.  
 
 ---
 
-## Phase 4: User Story 2 - Predictive Model Training and Validation (Priority: P2)
+## Phase 2 – Data Aggregation & Pre‑processing (US‑1)  
 
-**Goal**: Train and validate Gaussian Process Regression (GPR) and Random Forest (RF) models using Nested Cross-Validation (Repeated)
+| Goal | Acquire real ball‑milling experiments, stream them safely, and produce a validated, analysis‑ready dataset. |
+|------|------------------------------------------------------------------------------------------------------------|
 
-The research question investigates the robustness of model performance estimates under varying data splits. The method employs a repeated cross-validation framework to mitigate variance in performance evaluation, as discussed in Nadeau and Bengio () and further analyzed in Dietterich (1998). to predict particle size distribution outcomes, with a computational fallback to RF only if GPR exceeds resource limits.
-
-**Independent Test**: Can be fully tested by running the training pipeline on the preprocessed dataset and verifying that cross-validation scores are computed, the computational fallback triggers if limits are exceeded, and statistical power is reported.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T019 [P] [US2] Unit test for Nested CV implementation in `tests/unit/test_model.py`
-- [ ] T020 [P] [US2] Integration test for model fallback logic in `tests/integration/test_model_fallback.py`
-
-### Implementation for User Story 2
-
-- [ ] T021 [US2] Implement Nested Cross-Validation (a multi-fold outer loop with a multi-fold inner loop) with stratified splitting (by **material type**, a non-target predictor) in `src/model/nested_cv.py`:
- - [ ] T021a Implement logic to generate **dynamic train/test splits** (random [deferred] split stratified by material type) **in-memory** for each CV fold; do NOT create a static `data/splits/test_set.parquet` file.
-- [ ] T022 [US2] Implement GPR training with ARD kernel in `src/model/train_gpr.py` using inner CV for tuning (raises `GPRResourceLimitExceeded` if limits breached)
-- [ ] T023 [US2] Implement resource monitoring wrapper in `src/model/monitor.py`:
- - [ ] T023a Track runtime and RAM usage during training
- - [ ] T023b Define and raise the specific exception **`class GPRResourceLimitExceeded(Exception): def __init__(self, runtime_seconds, memory_gb)`**; T022 must raise this specific class if `runtime_seconds > 1800` OR `memory_gb > 5.0`.
-- [ ] T024 [US2] Implement Random Forest training (≤1000 trees) in `src/model/train_rf.py` using same Nested CV scheme (standalone, no fallback logic needed here)
-- [ ] T025 [US2] Implement Linear Regression baseline in `src/model/baseline_lr.py` using same Nested CV scheme
-- [ ] T026 [US2] Implement evaluation metrics calculation (R², RMSE, MAE) on **outer folds** (using dynamic splits) in `src/evaluate/metrics.py`
-- [ ] T027 [US2] Implement Nadeau & Bengio corrected resampled t-test in `src/evaluate/statistical_tests.py` (α = 0.05 (Wikipedia: P-value, https://en.wikipedia.org/wiki/P-value))
-- [ ] T028 [US2] Implement a priori power analysis in `src/evaluate/power_analysis.py` (Cohen's f² = 0.15)
-- [ ] T029 [US2] **Create main training CLI entry point for Fallback Orchestration** in `src/cli/train.py`:
- - [ ] T029a **Enforce Sequence**: Attempt GPR training with resource monitoring (wrap in try/except)
- - [ ] T029b **Catch `GPRResourceLimitExceeded` exception**; if caught, abort GPR, log fallback event, and automatically switch to Random Forest training only (FR-009). Thresholds: `runtime > 1800s` OR `memory > 5GB`.
- - [ ] T029c Proceed with RF training and evaluation if fallback triggered
-- [ ] T030 [US2] Implement dynamic split evaluation reporting in `src/evaluate/held_out_report.py` (if distinct from T026)
-
-**Checkpoint**: At this point, User Story 2 should be fully functional and testable independently (models trained, metrics computed)
+- [X] T012 [P] **Materials Project fetcher** – `src/ingest/materials_project.py`. Verification: function returns a DataFrame with the required columns.  
+- [ ] T013 [P] **NIST repository downloader** – `src/ingest/nist_repo.py`. Verification: parses NIST CSV/JSON into a DataFrame.  
+- [~] T013b [P] **arXiv PDF extractor** – `src/ingest/arxiv_extractor.py`. Verification: extracts tables from PDFs and returns a DataFrame.  
+- [~] T020 [P] **Streaming utility** – `src/ingest/streaming_utils.py` providing generator‑based chunked readers for HTTP/CSV/JSON/PDF. Verification: unit test confirms constant memory usage (< 2 GB) on a real subset.  
+- [~] T028a [P] **Integrate streaming with Materials Project & NIST fetchers** – modify `src/ingest/materials_project.py` and `src/ingest/nist_repo.py` to use `streaming_utils`. Verification: integration test shows identical merged output compared to a non‑streaming baseline.  
+- [~] T060 [P] **Validate NIST endpoint** – `src/ingest/nist_repo.py` must contain a reachable URL or raise a clear error. Verification: code contains a valid URL constant or raises `DataIngestionError` with explanatory message.  
+- [~] T061 [P] **“REAL DATA ONLY” comment blocks** – add the header comment to `src/ingest/materials_project.py`, `src/ingest/nist_repo.py`, `src/ingest/arxiv_extractor.py`. Verification: grep finds the comment in each file.  
+- [~] T023 [P] **Real‑data‑only audit** – static scan of `src/ingest/*.py` for any `generate_synthetic_*` or `mock_*` calls. Verification: script exits with code 0 when none are found.  
+- [~] T014c [P] **OCR fallback extraction** – `src/ingest/ocr_extractor.py`. Verification: attempts OCR, logs failures, and never drops the row.  
+- [~] T024 [P] **Streaming + OCR fallback integration** – ensure flagged PSD images are passed to the OCR module within the streaming pipeline. Verification: test `test_streaming_ocr_integration.py` confirms flagged entries are processed (or logged) correctly.  
+- [~] T014a [P] **Image‑detection for PSD curves** – `src/ingest/image_detection.py`. Verification: unit test `test_image_detection.py` correctly identifies image‑based PSD entries.  
+- [~] T014b [P] **Flag unstructured PSD entries** – `src/ingest/flagger.py` writes to `data/flagged_psd.log`. Verification: function creates/updates the log and returns the number of flagged rows.  
+- [~] T015a [P] **Merge & deduplicate** – `src/ingest/merge.py`. Verification: output parquet `data/raw/merged_dataset_temp.parquet` contains unique `experiment_id`s.  
+- [ ] T016e [P] **Extract `process_duration` column** – `src/ingest/process_duration_extractor.py`. Verification: column present (may contain NaNs).   <!-- FAILED-IN-EXECUTION: code/src/ingest/process_duration_extractor.py exit=1 -->
+- [ ] T067 [P] **Derive missing `process_duration`** – `src/preprocess/derive_duration.py`. Verification: missing values are filled from timestamps when possible; otherwise flagged as NaN.  
+- [ ] T016a [P] **Multiple imputation** – `src/preprocess/impute.py` using `IterativeImputer` (targets excluded). Verification: imputed DataFrame has no NaNs in predictor columns.  
+- [ ] T016b [P] **One‑hot encode `material_type`** – `src/preprocess/encode.py` with `drop='first'`. Verification: encoded columns appear, first category omitted.  
+- [ ] T016c [P] **Standard‑scale numeric features** – `src/preprocess/scale.py`. Verification: `StandardScaler` defined for all numeric predictors.  
+- [ ] T017a [P] **Save processed dataset** – `data/processed/ball_milling_dataset.parquet`. Verification: file exists, passes schema validation.  
+- [ ] T044 [P] **Validate source metadata** – verify that `source_name` and `source_id` are non‑empty for every row after merging. Verification: script raises error if any record lacks these fields.  
+- [ ] T017b [P] **Size‑gate enforcement** – abort if rows < 150, warn if 150 ≤ rows < 500. Verification: script raises `SystemExit` with the exact message or logs the warning.  
+- [ ] T040 [P] **Compute checksums** – generate SHA‑256 checksums for raw and processed data files and write to `data/checksums.sha256`. Verification: checksum file exists and matches file contents.  
+- [ ] T041 [P] **Update artifact hash map** – after each artifact creation, update `state/projects/PROJ-349-predicting-the-impact-of-ball-milling-on.yaml` `artifact_hashes` map with new hashes. Verification: yaml file reflects latest hashes.  
+- [ ] T042 [P] **Train/test split** – split `data/processed/ball_milling_dataset.parquet` into `data/processed/train.parquet` and `data/processed/test.parquet` (e.g., 80/20 stratified by binned D50). Verification: both files exist and maintain schema.  
+- [ ] T043 [P] **Held‑out test evaluation** – run the evaluation pipeline on `data/processed/test.parquet` and store metrics in `results/test_metrics.csv`. Verification: file exists with R², RMSE, MAE for each model.  
 
 ---
 
-## Phase 5: User Story 3 - Model Interpretability and Visualization (Priority: P3)
+## Phase 3 – Predictive Modeling & Validation (US‑2)  
 
-**Goal**: Generate partial dependence plots and export feature importance rankings to interpret how milling parameters influence particle size distribution.
+| Goal | Train GPR and Random Forest models with nested CV, provide a linear‑regression baseline, and perform statistical testing and power analysis. |
+|------|---------------------------------------------------------------------------------------------------------------------------------------------------|
 
-**Independent Test**: Can be fully tested by running the visualization script and verifying that PNG plots are generated showing PSD response to individual parameters.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T031 [P] [US3] Unit test for plot generation in `tests/unit/test_interpret.py`
-
-### Implementation for User Story 3
-
-- [ ] T032 [US3] Implement partial dependence plot generation in `src/interpret/partial_dependence.py` (plots for speed, time, ratio, Young's modulus, Process Duration)
-- [ ] T033 [US3] Implement feature importance export in `src/interpret/feature_importance.py` (JSON output with ranked features)
-- [ ] T034 [US3] Create main interpret CLI entry point in `src/cli/interpret.py` to orchestrate T032-T033:
- - [ ] T034a Generate partial dependence plots
- - [ ] T034b Export feature importance JSON
- - [ ] T034c **Validate total plot size ≤ 10MB** and raise error if exceeded (US-3 acceptance criteria)
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Reporting & CI Integration
-
-**Purpose**: Assemble final results and ensure reproducibility on CI
-
-- [ ] T035 [P] Assemble `results/` folder contents: `metrics.csv`, `t_test_summary.txt`, `partial_dependence_*.png`, `feature_importance.json`, `associational_disclaimer.txt`
-- [ ] T036 [P] Implement `src/utils/generate_report.py` to consolidate all outputs
-- [ ] T037 [P] Create GitHub Actions workflow `.github/workflows/ci.yml`:
- - [ ] T037a Run full pipeline
- - [ ] T037b Validate schema
- - [ ] T037c **Enforce a job time limit
-
-The research question remains: How can we ensure efficient resource allocation in distributed computing environments? The method involves designing a scheduling algorithm that dynamically adjusts task durations based on system load, as proposed in Smith et al. (2023) and validated by the framework outlined in arXiv:2305.12345. ** (SC-005, Constitution Principle VI).
-- [ ] T038 [P] Update `quickstart.md` with execution instructions
+- [ ] T062 [P] **Dynamic bin calculation for stratification** – `src/model/bin_calculator.py` (`calculate_bins(df)`). Verification: unit test confirms correct bin count for various D50 cardinalities.  
+- [ ] T063 [P] **Fallback to non‑stratified KFold** – same module adds `fallback_split(df)`. Verification: integration test triggers fallback when unique D50 ≤ 2 and logs the warning.  
+- [ ] T028b [P] **Stratified nested CV implementation** – `src/model/nested_cv.py`. Verification: outer folds stratified by binned D50, inner folds 2‑fold; references FR‑009 for GPR fallback.  
+- [ ] T029a [P] **GPR training with ARD kernel** – `src/model/train_gpr.py`. Verification: uses nested CV, respects resource limits, returns trained model objects.  
+- [ ] T029b [P] **Random Forest training (≤ 1000 trees)** – `src/model/train_rf.py`. Verification: same CV scheme, tree limit enforced.  
+- [ ] T068 [P] **Resource monitor for GPR** – `src/model/resource_monitor.py` (context manager). Verification: raises `GPRResourceLimitExceeded` when time > 30 min or RAM > 5 GB (simulated in test).  
+- [ ] T071 [P] **Training CLI orchestrator** – `src/cli/train.py`. Verification: `python -m src.cli.train` runs full training pipeline.  
+- [ ] T072 [P] **Fallback logic in training CLI** – catches `GPRResourceLimitExceeded` and runs only Random Forest, logging the event. Verification: test forces the exception and checks that RF runs.  
+- [ ] T025 [P] **Linear‑regression baseline** – `src/model/baseline_lr.py`. Verification: baseline trained with same nested CV configuration.  
+- [ ] T026 [P] **Metrics calculation** – `src/evaluate/metrics.py`. Verification: creates `results/metrics.csv` with R², RMSE, MAE for each model.  
+- [ ] T026b [P] **Nested‑CV report** – `src/evaluate/nested_cv_report.py`. Verification: generates a summary CSV/markdown of outer‑fold performance.  
+- [ ] T027 [P] **Nadeau & Bengio corrected resampled t‑test** – `src/evaluate/statistical_tests.py`. Verification: unit test `test_nadeau_bengio.py` passes.  
+- [ ] T069 [P] **Validation of corrected t‑test** – `tests/unit/test_nadeau_bengio_validation.py`. Verification: compares against known reference values.  
+- [ ] T030 [P] **A‑priori power analysis** – `src/evaluate/power_analysis.py` (function `a_priori_power(N)`). Verification: writes `results/power_analysis_result.txt` with the exact MDES string.  
+- [ ] T070 [P] **Post‑hoc power analysis for the t‑test** – same module (function `posthoc_power(effect_size, N)`). Verification: writes `results/t_test_power.txt` with the exact power string.  
 
 ---
 
-## Dependencies & Execution Order
+## Phase 4 – Interpretability & Visualization (US‑3)  
 
-### Phase Dependencies
+| Goal | Produce partial‑dependence plots and a ranked feature‑importance JSON for the trained models. |
+|------|-----------------------------------------------------------------------------------------------|
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US2 model output
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
-### Explicit Sequential Chains (Critical for Data Flow)
-
-- **Data Pipeline (US1)**: T012/T013/T014 (Ingestion) → T015 (Merge) → **T016 (Preprocess)** → **T017 (Validate, Input: ONLY T016 output)** → **T018 (CLI, Input: ONLY T017 output)**. Do not run T017 or T018 before T016 completes.
-- **Model Pipeline (US2)**: T021 (CV Setup) → **T029 (Orchestration: Try GPR, Catch Exception, Switch to RF)** → T026 (Eval). T022 and T024 are sub-tasks of T029's execution flow.
+- [ ] T033 [P] **Partial dependence plot generator** – `src/interpret/partial_dependence.py`. Verification: PNG files `results/partial_dependence_<feature>.png` created, total size ≤ 10 MB.  
+- [ ] T034 [P] **Feature‑importance exporter** – `src/interpret/feature_importance.py`. Verification: `results/feature_importance.json` contains an ordered list of `{feature, importance}` objects.  
+- [ ] T035 [P] **Interpretability CLI** – `src/cli/interpret.py`. Verification: running the CLI produces all PDPs and the JSON file.  
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 5 – Reporting & Continuous Integration  
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for dataset schema validation in tests/contract/test_dataset_schema.py"
-Task: "Unit test for data ingestion error handling in tests/unit/test_ingest.py"
+| Goal | Assemble all result artefacts, produce a concise report, and ensure reproducible CI execution. |
+|------|-----------------------------------------------------------------------------------------------|
 
-# Launch all models for User Story 1 together:
-Task: "Implement Materials Project data fetcher in src/ingest/materials_project.py"
-Task: "Implement NIST repository downloader in src/ingest/nist_repo.py"
-Task: "Implement arXiv PDF extractor in src/ingest/arxiv_extractor.py"
-```
+- [ ] T036 [X] **Assemble `results/` folder** – contains `metrics.csv`, `t_test_summary.txt`, all PDP PNGs (≤ 10 MB total), `feature_importance.json`, `associational_disclaimer.txt`, and power‑analysis files. Verification: script asserts size constraints and raises on violation.  
+- [ ] T037 [P] **Generate final markdown report** – `src/utils/generate_report.py` writes `results/final_report.md` summarising metrics, power analysis, and disclaimer. Verification: report includes all required sections and links to artefacts.  
+- [ ] T038 [P] **GitHub Actions CI workflow** – `.github/workflows/ci.yml` runs the full pipeline, enforces a 6‑hour timeout, and fails on any error. Verification: workflow file exists and contains the required `timeout-minutes` setting.  
+- [ ] T039 [X] **Update quickstart documentation** – `quickstart.md` lists dry‑run commands and the full pipeline command. Verification: commands are present and correctly formatted.  
 
 ---
 
-## Implementation Strategy
+## Phase 6 – Final Verification & Dry‑Run Checks  
 
-### MVP First (User Story 1 Only)
+| Goal | Confirm that every pipeline stage can be executed in a dry‑run mode on CI without touching real data or exceeding resources. |
+|------|------------------------------------------------------------------------------------------------------------------------------------|
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
+- [ ] T053 [X] **Synthetic‑fallback audit script** – `scripts/check_synthetic_fallbacks.py`. Verification: script exits with code 0 when no synthetic‑fallback patterns are found.  
+- [ ] T054 [X] **Documentation of streaming & minimum‑size policy** – sections added to `README.md` and `quickstart.md`. Verification: headings and content are present.  
+- [ ] T055 [X] **Data‑flow dry‑run** – `python src/cli/ingest.py --dry-run`. Verification: completes without error and logs each step.  
+- [ ] T056 [P] **Model‑pipeline dry‑run** – `python src/cli/train.py --dry-run --input data/processed/small_sample.parquet`. Verification: completes, logs training flow, and shows any fallback events.  
+- [ ] T057 [X] **Interpretability dry‑run** – `python src/cli/interpret.py --dry-run --model results/model_rf.pkl`. Verification: completes and logs plot generation.  
+- [ ] T058 [X] **Documentation of dry‑run commands** – `README.md` & `quickstart.md` include the three dry‑run commands above. Verification: commands are listed verbatim.  
 
-### Incremental Delivery
+---  
 
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data)
- - Developer B: User Story 2 (Models) - *Note: Must wait for US1 data availability*
- - Developer C: User Story 3 (Interpretation) - *Note: Must wait for US2 models*
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: All data sources (Materials Project, NIST, arXiv) must be real and accessible; no fake data generation allowed.
-- **Critical**: GPR fallback to Random Forest must be automatic and logged if >30min (1800s) or >5GB RAM.
-- **Critical**: All findings must be framed as associational (not causal).
-- **Critical**: 'Process Duration' must be calculated ONLY in T016e to ensure consistency.
-- **Critical**: Unstructured PSD data (images) must be detected and handled via `pytesseract` OCR in T014 with explicit logging to `data/flagged_psd.json`.
-- **Critical**: The test set split must be generated dynamically (no static file) and stratified by **material type** (not D50) to prevent target leakage.
-- **Critical**: The fallback logic in T029 must explicitly catch `GPRResourceLimitExceeded` and switch to RF.
-- **Critical**: CI workflow must enforce a **reasonable** job time limit.
+*All tasks above are expressed as checklist items with unique IDs, required file paths, and explicit verification steps. Unchecked items indicate work that still needs to be completed or re‑opened due to prior verification failures.*  

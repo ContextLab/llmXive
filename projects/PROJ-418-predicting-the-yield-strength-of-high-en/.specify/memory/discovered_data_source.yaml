@@ -1,0 +1,19 @@
+status: none
+intent: download HEA yield strength dataset Zenodo and Materials Project elemental
+  properties python package dataset
+required_fields:
+- alloy_id
+- element_symbols
+- element_fractions
+- yield_strength_MPa
+- measurement_temperature_K
+- phase_label
+- source_doi
+- element
+- atomic_number
+- atomic_radius
+- electronegativity
+- melting_point
+cache_key: 7ab6f05e13daa017c923306664c69e3d15097bcbf5d7bf75c5b8a8c25d1f1d59
+searched_at: '2026-10-30T06:13:52.525039+00:00'
+retry_count: 1

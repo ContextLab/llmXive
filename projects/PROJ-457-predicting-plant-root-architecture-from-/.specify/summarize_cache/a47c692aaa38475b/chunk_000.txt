@@ -1,0 +1,96 @@
+# Implementation Plan: Predicting Plant Root Architecture from Soil Nutrient Availability
+
+**Branch**: `001-predict-root-architecture` | **Date**: 2024-10-11 | **Spec**: `specs/001-predict-root-architecture/spec.md`  
+**Input**: Feature specification from `/specs/001-predict-root-architecture/spec.md`
+
+## Summary
+The pipeline will (1) ingest an **open, verified merged dataset** that already contains both root phenotypes and soil nutrient measurements (or abort if none is available), (2) filter and preprocess the data (species‑wise minimum n ≥ 30, log‑transform root metrics, z‑score nutrients, two‑stage missing‑data handling with bias assessment), (3) fit a Linear Mixed‑Effects Model (LMM) with species random intercepts and fixed effects for phosphorus, nitrogen, and optional covariates (soil moisture, temperature, elevation), (4) fit a baseline Random Forest regressor, (5) evaluate both models with species‑stratified 5‑fold cross‑validation, (6) apply Benjamini‑Hochberg FDR correction, VIF checks for **all** fixed predictors, and an a priori power analysis, (7) conduct sensitivity analyses (literature‑based effect‑size ranges with fallback), (8) generate partial‑dependence plots, (9) compile a PDF report that includes the mandatory associational statement and passes a causal‑language lint check, (10) record all artifacts, content hashes, and success‑criteria metrics as the **Single Source of Truth**, and (11) compute checksums for raw inputs. All functional requirements (FR‑001 … FR‑029) and success criteria (SC‑001 … SC‑011) are addressed by concrete tasks below.
+
+## Technical Context
+
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pandas==2.2.1`, `numpy==1.26.4`, `scikit-learn==1.4.2`, `statsmodels==0.14.2`, `matplotlib==3.8.4`, `seaborn==0.13.2`, `datasets==2.18.0`, `pyyaml==6.0.1`, `scipy==1.13.0`, `tqdm==4.66.2`  
+**Storage**: `data/` (raw, processed) and `artifacts/` (metrics, plots, report)  
+**Testing**: `pytest` with contract tests under `tests/contract/`  
+**Target Platform**: GitHub Actions free‑tier (Linux, 2 CPU cores, ~7 GB RAM, no GPU) – all methods are CPU‑compatible.  
+**Constraints**: Memory ≤ 4 GB, total runtime ≤ 6 h, total plot size ≤ 100 MB.  
+
+## Constitution Check
+
+| Principle | Status | Note |
+|-----------|--------|------|
+| I. Reproducibility | PASS | Random seeds pinned; `requirements.txt` used. |
+| II. Verified Accuracy | PASS | All external datasets have verified URLs; no invented sources. |
+| III. Data Hygiene | PASS | Raw files checksummed (Task T034) and hashes recorded in project state. |
+| IV. Single Source of Truth | PASS | `artifacts/metrics.json` designated SSoT (Task T036). |
+| V. Versioning Discipline | PASS | Content hashes for every generated artifact recorded (Task T032). |
+| VI. Cross‑Species Stratified Validation | PASS | CV folds split by `species`. |
+| VII. Nutrient‑Specific Metric Normalization | PASS | Log‑transform of root traits; z‑score of nutrients (when present). |
+
+## Project Structure
+```text
+specs/001-predict-root-architecture/
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── dataset.schema.yaml
+│   ├── model_results.schema.yaml
+│   └── output.schema.yaml
+└── tasks.md            # generated later by /speckit-tasks
+
+projects/PROJ-457-predicting-plant-root-architecture-from-/
+├── code/
+│   ├── requirements.txt
+│   ├── ingestion.py
+│   ├── preprocessing.py
+│   ├── modeling.py
+│   ├── visualization.py
+│   └── utils.py
+├── data/
+│   ├── raw/
+│   └── processed/
+├── artifacts/
+│   ├── metrics.json
+│   ├── logs/
+│   │   ├── fallback.log
+│   │   └── checksum.log
+│   └── reports/
+│       ├── plots/
+│       └── final_report.pdf
+├── tests/
+│   └── contract/
+│       └── test_schemas.py
+└── state/
+    └── projects/PROJ-457-predicting-plant-root-architecture-from-.yaml
+```
+
+## Task List (Phase‑wise)
+
+| ID | Description | FR / SC Covered | Dependencies |
+|----|-------------|----------------|--------------|
+| **T001** | Create project directory skeleton (`code/`, `data/raw/`, `data/processed/`, `artifacts/`, `tests/contract/`). | – | – |
+| **T002** | Write `code/requirements.txt` with exact pinned versions. | – | T001 |
+| **T003** | Write `contracts/dataset.schema.yaml`. | – | T001 |
+| **T004** | Write `contracts/model_results.schema.yaml`. | – | T001 |
+| **T005** | Write `contracts/output.schema.yaml`. | – | T001 |
+| **T006** | Write contract test suite `tests/contract/test_schemas.py` containing: <br>• `test_merged_dataset_schema_validates_columns` <br>• `test_model_results_schema_validates_structure` <br>• `test_output_schema_validates_structure` | – | T003‑T005 |
+| **T007** | Download a **verified merged dataset** that already contains both root phenotypes and soil nutrients via HuggingFace (e.g., `datasets.load_dataset("blanchon/merged_dataset")`). | FR‑001, FR‑002 | T001 |
+| **T008** | Verify that at least one merged dataset was successfully loaded. If none are reachable, log the error to `artifacts/logs/fallback.log` and **abort the pipeline**. | FR‑001, FR‑002, data_resources-f0e6b8fe | T007 |
+| **T009** | Filter loaded data: keep only rows where `data_source_type == "observational"` (FR‑012). | FR‑012 | T007 |
+| **T010** | Compute per‑species observation counts; **exclude species with < 30** rows (aligns with FR‑024 power requirement). Log excluded species. | FR‑001, SC‑005, methodology-1c729f43 | T009 |
+| **T011** | Assess missing‑nutrient percentages per species. Apply FR‑025 logic: <br>• If >30 % missing for a nutrient → exclude species. <br>• If ≤30 % missing → impute missing values with species‑level mean and log bias assessment. | FR‑025 | T010 |
+| **T012** | Log‑transform root metrics (`log(x + 1e-6)`). | FR‑003, VII | T011 |
+| **T013** | Z‑score normalize nutrient columns (`phosphorus`, `nitrogen`) when present. | FR‑003, VII | T012 |
+| **T014** | Impute remaining missing nutrient values (if any) using k‑NN (k=5, Euclidean) with fallback to mean (FR‑003). | FR‑003 | T013 |
+| **T015** | Save the fully preprocessed dataset to `data/processed/merged_dataset.parquet`. | FR‑003 | T014 |
+| **T016** | Generate species‑stratified 5‑fold CV splits; store split indices in `artifacts/cv_splits.pkl`. | FR‑006, VI | T015 |
+| **T017** | Fit **Linear Mixed‑Effects Model (LMM)** with random intercept for `species` and fixed effects for `phosphorus`, `nitrogen`, **plus optional covariates** (`soil_moisture`, `temperature`, `elevation`) when available (FR‑004, FR‑026). Use REML and Satterthwaite p‑values. | FR‑004, FR‑026 | T016 |
+| **T018b** | Extract optional environmental covariates (soil_moisture, temperature, elevation) from the merged dataset; record missingness per species and make them available for modeling. | FR‑026 | T015 |
+| **T018** | Fit **Random Forest** regressor (`max_depth=5`, `random_state=42`) (FR‑005). | FR‑005 | T016 |
+| **T019** | Compute per‑fold performance metrics (adjusted R², RMSE) for both models; aggregate mean out‑of‑sample R² (FR‑006). | FR‑006, SC‑002 | T017, T018 |
+| **T020** | Apply **Benjamini‑Hochberg FDR** correction to the six coefficient tests (P & N × three traits) (FR‑010). | FR‑010, SC‑003, scientific_soundness-f8c285b9 | T019 |
+| **T021** | Compute **Variance Inflation Factor (VIF)** for **all** fixed‑effect predictors (P, N, soil_moisture, temperature, elevation); log warning if any VIF > 5. | FR‑008 | T019 |
+| **T022** | Perform **F‑test** for overall LMM significance; store p‑value (FR‑008). | FR‑008 | T017 |
+| **T023** | **A priori Power Analysis**: before filtering, compute required sample size per species to achieve ≥80 % power for detecting a medium effect (Cohen f² = 0.15) at α = 0.05 using `statsmodels.stats.power.FTestPower`. Record the required n (≥30) and later verify that filtered dataset meets it (FR‑024, SC‑009). | FR‑024, SC‑009, scientific_soundness-153c2f27 | – |

@@ -1,0 +1,547 @@
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: fixed sample size tier percentages are 10, 25, 50, 75, and 90
+  claim_id: c_e08a9496
+  context: 'Task T017 defines Sample Size Tiers and Configuration: Generate `research.md`
+    ... explicitly documenting the rationale for the fixed sample size tier percentages
+    [10, 25, 50, 75, 90].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate `research.md` in `specs/001-sensitivity-regression-coefficients/`
+    explicitly documenting the rationale for the fixed sample size tier percentages
+    [10, 25, 50, 75, 90].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:46:49Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: verified datasets include UCI:Auto and HuggingFace:california_housing
+  claim_id: c_ba9f657d
+  context: 'Task T017 ... and `VERIFIED_DATASETS = {''UCI:Auto'': ''...'', ''HuggingFace:california_housing'':
+    ''...''}`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verified_datasets_include_UCI:Auto_and_HuggingFace:californi
+  kind: entity_fact
+  raw_text: 'Implement `src/utils/config.py` to define `VERIFIED_DATASETS = {''UCI:Auto'':
+    ''...'', ''HuggingFace:california_housing'': ''...''}`.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:47:32Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: verified dataset IDs include UCI:Auto, HuggingFace:california_housing,
+    UCI:Concrete, and HuggingFace:concrete_strength
+  claim_id: c_b6ee8e57
+  context: Task T011a ... Ensure `src/utils/config.py` contains the full list of verified
+    dataset IDs and URLs (e.g., 'UCI:Auto', 'HuggingFace:california_housing', 'UCI:Concrete',
+    'HuggingFace:concrete_strength').
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verified_dataset_IDs_include_UCI:Auto,_HuggingFace:californi
+  kind: entity_fact
+  raw_text: Populate Verified Dataset URLs ... (e.g., 'UCI:Auto', 'HuggingFace:california_housing',
+    'UCI:Concrete', 'HuggingFace:concrete_strength').
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:48:18Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: datasets exceeding 100000 rows are subsampled to 100000 rows
+  claim_id: c_31d7b78d
+  context: 'Task T013 ... Rule: If dataset > 100k rows, subsample to 100k rows; do
+    not generate synthetic data.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If dataset > 100k rows, subsample to 100k rows; do not generate synthetic
+    data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:48:56Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: multicollinearity is handled when condition number exceeds 30
+  claim_id: c_6dfe2cf4
+  context: Task T015 ... classify violation severity ... and handle multicollinearity
+    (condition number > 30).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Handle multicollinearity (condition number > 30).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:48:56Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: subsampled Breusch-Pagan statistic stability verified with less than
+    5 percent deviation
+  claim_id: c_c3c61819
+  context: Task T016 ... Compare subsampled BP stat against the BP stat computed on
+    the largest available sample ... to verify stability (<5% deviation).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subsampled_Breusch-Pagan_statistic_stability_verified_with_l
+  kind: magnitude
+  raw_text: Compare subsampled BP stat against the BP stat computed on the largest
+    available sample ... to verify stability (<5% deviation).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:49:51Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: datasets exceeding 100000 rows are subsampled to 100000 rows using random
+    sampling with seed 42
+  claim_id: c_789b5847
+  context: Task T019 ... implement logic ... to immediately subsample datasets > 100k
+    rows to exactly 100k rows using random sampling (seed=42) if the estimated RAM
+    usage exceeds a substantial threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Subsample datasets > 100k rows to exactly 100k rows using random sampling
+    (seed=42) if the estimated RAM usage exceeds a substantial threshold.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:50:21Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: singularity detection tested with condition number exceeding 1e15
+  claim_id: c_30c155a1
+  context: Task T021 ... Unit test for singularity detection ... using input data
+    with a fixed two-dimensional shape and condition number > 1e15, expecting a specific
+    `LinAlgError`.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Singularity_detection_tested_with_condition_number_exceeding
+  kind: entity_fact
+  raw_text: Verify singularity detection ... using input data ... with a fixed two-dimensional
+    shape and condition number > 1e15, expecting a specific `LinAlgError`.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:50:58Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: subset size must be at least 10 times the number of predictors
+  claim_id: c_38312884
+  context: "Task T025 ... Implement constraint check ... to ensure subset size \u2265\
+    \ 10 \xD7 number of predictors before fitting."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subset_size_must_be_at_least_10_times_the_number_of_predicto
+  kind: magnitude
+  raw_text: "Implement constraint check ... to ensure subset size \u2265 10 \xD7 number\
+    \ of predictors before fitting."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:52:26Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: empirical standard deviation calculated across initial 200 valid subsets
+    per tier
+  claim_id: c_9a242654
+  context: Task T026 ... to calculate empirical standard deviation of coefficients
+    across the initial 200 valid subsets per tier.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate empirical standard deviation of coefficients across the initial
+    200 valid subsets per tier.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:54:04Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: convergence verified when standard error of standard deviation is less
+    than 5 percent
+  claim_id: c_1eba65e4
+  context: Task T035 ... Implement function ... to verify convergence (SE of SD <
+    5%).
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Convergence_verified_when_standard_error_of_standard_deviati
+  kind: magnitude
+  raw_text: Verify convergence (SE of SD < 5%).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:54:27Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: subset generation expands to a maximum of 500 subsets per tier
+  claim_id: c_1d261d1c
+  context: Task T035 ... If SE of SD >= 5%, generate additional subsets in increments
+    per tier (up to a maximum of 500 subsets per tier) and re-calculate.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate additional subsets in increments per tier (up to a maximum of
+    500 subsets per tier) and re-calculate.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:54:38Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: error or warning raised if standard error of standard deviation remains
+    5 percent or higher after 500 subsets per tier
+  claim_id: c_48601cbd
+  context: Task T036 ... raises an error or logs a warning if the Standard Error of
+    the SD >= 5% after reaching the maximum subset limit (500 per tier).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raise an error or log a warning if the Standard Error of the SD >= 5%
+    after reaching the maximum subset limit (500 per tier).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:54:38Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: Breusch-Pagan p-value cutoffs swept across 0.01, 0.05, and 0.10
+  claim_id: c_7d10ebb5
+  context: Task T043a ... sweep Breusch-Pagan p-value cutoffs across standard significance
+    levels (e.g., 0.01, 0.05, 0.10).
+  evidence:
+    asserted: '0.01'
+    authority: scipy.constants.G (CODATA 2018)
+    constant: gravitational
+    corrected: true
+    mode: approximate
+    true_value: 6.6743e-11
+    url: https://physics.nist.gov/cgi-bin/cuu/Value?bg
+  kind: numeric
+  raw_text: Sweep Breusch-Pagan p-value cutoffs across standard significance levels
+    (e.g., 0.01, 0.05, 0.10).
+  resolved_value: '0'
+  resolver: approximate
+  source_hash: 16b9e93ae6af4b3aeb9369d1fe412957a076db9d43662f67d44f3a07c85ec513
+  source_type: external
+  status: verified
+  updated_at: '2026-08-31T01:54:38Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: full pipeline execution time limited to 6 hours on small dataset subset
+  claim_id: c_8074a4b7
+  context: Task T041 ... Run `quickstart.md` validation to ensure full pipeline executes
+    within 6 hours on small dataset subset.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Ensure full pipeline executes within 6 hours on small dataset subset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T01:54:56Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: streaming mandatory for datasets exceeding 7GB RAM
+  claim_id: c_a9401d89
+  context: 'Critical Compute Rule: CPU-only execution is enforced. Streaming is mandatory
+    for datasets > 7GB RAM; subsampling only if streaming fails...'
+  evidence:
+    entailment_evidence: Wikipedia does not have an article with this exact name.
+    entailment_status: contradicted
+    source_url: https://en.wikipedia.org/wiki/Streaming_mandatory_for_datasets_exceeding_7GB_RAM
+  kind: entity_fact
+  raw_text: Streaming is mandatory for datasets > 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-08-31T02:00:47Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: Required Python packages and versions for the project
+  claim_id: c_44ca18a4
+  context: Task T002 specifies the contents of requirements.txt including specific
+    version constraints for data science and testing libraries.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires pandas>=2.0, numpy>=1.24, scipy>=1.10, statsmodels>=0.14,
+    scikit-learn>=1.2, pyyaml>=6.0, datasets>=2.14, pytest>=7.4, linearmodels>=4.3,
+    ruff>=0.1.0, and black>=23.0.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:05:27Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: Sample size tier percentages are 10, 25, 50, 75, and 90
+  claim_id: c_a34e44b9
+  context: Task T017 defines sample size tiers and configuration, explicitly documenting
+    the rationale for these fixed tier percentages.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sample size tiers are defined as percentages [10, 25, 50, 75, 90].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:05:49Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: List of verified dataset IDs used in the project
+  claim_id: c_6494b613
+  context: Task T017 and T011a specify the verified dataset IDs and URLs that must
+    be included in the configuration.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/List_of_verified_dataset_IDs_used_in_the_project
+  kind: entity_fact
+  raw_text: The verified datasets include 'UCI:Auto', 'HuggingFace:california_housing',
+    'UCI:Concrete', and 'HuggingFace:concrete_strength'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:06:12Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: Subsampling threshold for datasets exceeding 100k rows
+  claim_id: c_96913c19
+  context: Task T013 states that if a dataset has more than 100k rows, it must be
+    subsampled to 100k rows rather than generating synthetic data.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Subsampling_threshold_for_datasets_exceeding_100k_rows
+  kind: magnitude
+  raw_text: Datasets with more than 100,000 rows are subsampled to 100,000 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:10:03Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: Condition number threshold for multicollinearity
+  claim_id: c_5a99dd53
+  context: Task T015 requires logic to classify violation severity and handle multicollinearity
+    specifically when the condition number exceeds 30.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Condition_number_threshold_for_multicollinearity
+  kind: magnitude
+  raw_text: Multicollinearity is handled when the condition number is greater than
+    30.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:10:18Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: Stability verification threshold for Breusch-Pagan statistic
+  claim_id: c_11dd53b4
+  context: Task T016 requires comparing subsampled BP stats against the largest available
+    sample to ensure the deviation is less than 5%.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Stability_verification_threshold_for_Breusch-Pagan_statistic
+  kind: magnitude
+  raw_text: Subsampled BP stats are compared against the full dataset BP stat to verify
+    stability with less than 5% deviation.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:10:22Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: Number of sample size tiers for resampling
+  claim_id: c_be4a2654
+  context: Task T023 describes the implementation of the resampling engine to generate
+    subsets across 5 tiers defined in the configuration.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The resampling engine generates random subsets across 5 sample size tiers.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:10:26Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: Initial number of subsets per tier for standard deviation calculation
+  claim_id: c_f9c68b7c
+  context: Task T026 specifies calculating the empirical standard deviation based
+    on an initial set of 200 valid subsets per tier.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The aggregator calculates the empirical standard deviation of coefficients
+    across an initial 200 valid subsets per tier.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:10:40Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: Convergence threshold for Standard Error of SD
+  claim_id: c_a4686e23
+  context: Task T035 defines the convergence logic where the process continues if
+    the SE of SD is greater than or equal to 5%.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Convergence_threshold_for_Standard_Error_of_SD
+  kind: magnitude
+  raw_text: Convergence is verified if the Standard Error of the standard deviation
+    is less than 5%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:13:45Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: Maximum subset limit per tier
+  claim_id: c_2196380e
+  context: Task T035 states that if convergence is not reached, additional subsets
+    are generated up to a maximum of 500 per tier.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum number of subsets per tier is 500.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:14:00Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: Minimum subset size relative to number of predictors
+  claim_id: c_2992aa08
+  context: Task T025 implements a constraint check to ensure the subset size is at
+    least 10 times the number of predictors.
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_subset_size_relative_to_number_of_predictors
+  kind: magnitude
+  raw_text: A subset size must be at least 10 times the number of predictors before
+    fitting an OLS model.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:14:16Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: Breusch-Pagan p-value cutoffs for sensitivity sweep
+  claim_id: c_ba3eab9e
+  context: Task T043a describes sweeping Breusch-Pagan p-value cutoffs across these
+    specific standard significance levels.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sensitivity sweeps are performed across standard significance levels of
+    0.01, 0.05, and 0.10.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:14:26Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: Maximum execution time for the full pipeline
+  claim_id: c_d42f7fd1
+  context: Task T041 requires validating that the quickstart pipeline executes within
+    6 hours.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The full pipeline is expected to execute within 6 hours on a small dataset
+    subset.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:17:20Z'
+- artifact_path: projects/PROJ-372-assessing-the-sensitivity-of-regression-/specs/001-assessing-the-sensitivity-of-regression/tasks.md
+  attempts: 1
+  canonical: Streaming requirement for datasets exceeding 7GB
+  claim_id: c_440f393d
+  context: Notes section specifies that streaming is mandatory for datasets greater
+    than 7GB RAM, with subsampling only if streaming fails.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Streaming_requirement_for_datasets_exceeding_7GB
+  kind: entity_fact
+  raw_text: Streaming is mandatory for datasets larger than 7GB of RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-31T02:19:28Z'

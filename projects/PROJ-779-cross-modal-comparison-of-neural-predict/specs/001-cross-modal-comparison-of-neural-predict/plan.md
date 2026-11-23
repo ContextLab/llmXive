@@ -74,14 +74,14 @@ code/
 ## Phase Breakdown & FR/SC Mapping
 
 ### Phase 0: Data Acquisition & Validation (FR-001, FR-008, FR-009, FR-011)
-- **Action**: Download Auditory (ds000246) and Visual (ds000117) datasets from OpenNeuro.
+- **Action**: Download Auditory and Visual datasets from OpenNeuro.
 - **Validation**: Check sampling rate (≥500 Hz) and trial counts (≥100 oddball, ≥300 standard).
 - **FR Mapping**: FR-001 (Download/Validate), FR-008 (Trial count error), FR-009 (Missing modality), FR-011 (Sampling rate error).
 - **SC Mapping**: SC-004 (Feasibility check starts here).
 - **Data Source**: `mne.datasets` fetches ds000246 and ds000117. If fetch fails, pipeline halts with "Dataset Not Found" error.
 
 ### Phase 1: Preprocessing (FR-002, FR-010)
-- **Action**: Apply bandpass (0.5–40 Hz), ICA, re-referencing.
+- **Action**: Apply bandpass (low-frequency cutoff to 40 Hz), ICA, re-referencing.
 - **Validation**: Log artifact rejection rates; halt if SNR too low for MNE.
 - **FR Mapping**: FR-002 (Preprocessing), FR-010 (MNE failure handling).
 - **SC Mapping**: SC-004 (Runtime constraint).
@@ -95,7 +95,7 @@ code/
 
 ### Phase 3: Source Localization (FR-005, FR-014)
 - **Action**: Apply MNE with ICBM152 head model, **Depth Weighting**, and **Orientation Normalization** to correct for cortical depth bias (Heschl's vs Calcarine).
-- **Sensitivity**: Sweep spatial smoothing (σ ∈ {,, 15} mm).
+- **Sensitivity**: Sweep spatial smoothing (σ ∈ {small, medium, large} mm).
 - **FR Mapping**: FR-005 (MNE/Source), FR-014 (Sensitivity analysis).
 - **Output**: Source strength maps and `localization_uncertainty_cv` (Coefficient of Variation across the sweep).
 - **SC Mapping**: SC-002 (Source overlap).

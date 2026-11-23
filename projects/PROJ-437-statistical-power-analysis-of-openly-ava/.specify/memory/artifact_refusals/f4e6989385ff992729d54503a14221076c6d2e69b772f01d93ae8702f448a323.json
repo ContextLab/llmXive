@@ -1,0 +1,7 @@
+{
+  "task_id": "V03",
+  "fingerprint": "ea7dab214e380bf89b2a096adb7ab3e23d9e170d8edaa6ea16cd1c2fded34bb1",
+  "count": 1,
+  "model": "openai.gpt-oss-120b",
+  "reason": "[implementer] refusing to write 'code/preprocess/roi_extractor.py': imports nonexistent names from sibling files: `from utils.memory_monitor import get_current_memory_usage_gb` (available: DEFAULT_FREE_MEMORY_RATIO, Path, logger, logging, monitor_and_ensure_memory, os, psutil). Either change the import to use names that exist, or include the missing definitions in this task's `artifacts` list."
+}

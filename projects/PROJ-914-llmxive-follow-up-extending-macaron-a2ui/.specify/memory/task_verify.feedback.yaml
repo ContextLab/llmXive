@@ -1,0 +1,170 @@
+T001:
+  task: 54a495866385b3e514303f6d11f36e353a163259c0cfd0c50f8ee8f649105b03
+T002:
+  task: aa84a85eeb93bd50c09411b346edfca5c67eeca87b7cb7b3d2420596569d1cea
+T003:
+  reason: "The provided `.ruff.toml` only contains an `extend = \"pyproject.toml\"\
+    ` line and does not specify the required rule selections (E, W, F) nor set `max-line-length\
+    \ = 88`. Consequently the artifact does not meet the task\u2019s specification,\
+    \ and there is no evidence that `ruff check code/` passes with those settings.\
+    \ The file must be updated to include the rule list and line\u2011length configuration."
+  task: 32d5ee33752de02860773ed32df8372405cf8c67d47edc12c09282972ed8b393
+T004:
+  reason: "The repository contains no `.gitignore` file (or it is empty), and no evidence\
+    \ (e.g., `git status` output) that the required ignore patterns are in place.\
+    \ The task\u2019s required artifact is missing."
+  task: 8cb0b2cd451d5928802271f43843f2aa8c2ef89fcd1a4aeae9d0da939e1a62cb
+T005:
+  task: 260639c76e8fd74e2ac8f461c0fc2e4bed4738bfb2d9f71937095788935da98c
+T006:
+  task: e2e6040f96350d663a1d6fa608494b605c11040eebb79c96cfa58150fa40c088
+T007:
+  task: c3203afc870cd1f1d511c0b5b11157752d449d79762a92935317f1803ab1dfb1
+T008:
+  task: 88d1468e0e7cef4bcc46d44fb2acb27c85b90296cd4949f03fb5939065624ea5
+T009:
+  task: 8f87668134bb986f688596e5db4135eb9fb1fb09ab8780cc12754592bf5a0e7a
+T010:
+  task: 02af275139a2efef32d042650c9f37e6e9eab4109e0c6077e09980493531a39b
+T011:
+  task: 6a5d95f184322b1de31d96ecd45440e1944f650d893b6386b9f5212520de07c2
+T012:
+  task: 336a42b6cb111f398d2bb25ef7c38f3078d32f274ac88d1f85616813f560f7b9
+T012b-CLI:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/annotate_cli.py'
+  task: ac77f162b5850d399dc99ae1190e7c9d460fd68cfbfc973131e6368e0dc8f4e6
+T013:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/validate_annotation.py'
+  task: 24bbbe08a626a542f3b2f1e48ad2a09da300fd95b6b2801c81f52418ae7d27ee
+T014:
+  task: 3d3a60816057f3ae923339995b11843fe5f0f2105334511c242b578810099021
+T015:
+  task: 31b755337f26cd54776ab6931c68b1b8d4a40ff5b103a2d15a963e3151999e90
+T015b:
+  task: 55f5ba0b8948d522751e98a2c2f65966b769bfa613c897df271f1bd6caff5ff6
+T015c:
+  task: e21909aa5a6bbe352ce40935c5d0462a7b3a42a27875d194c7ec9afd29566c50
+T015d:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/annotate_cli.py,
+    data/human_scores.json'
+  task: 7429f6a82edc4330466dd4d7c93b85d60b04b01a101db54cf6f804c4f0c4829d
+T015d-Gen:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/generate_placeholder_scores.py,
+    data/human_scores.json'
+  task: 9d88d3529cf2d41432f6fc970858bd59d8b3dd3f16c832ec08feb5e698808039
+T015d-Load:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/load_human_scores.py,
+    data/human_scores.json'
+  task: e771e613677a087948bd09dd4918c97cf61bc4b75dfd9d24c744c366cdc32f42
+T015e:
+  reason: 'declared artifact(s) missing/empty/invalid: code/data/generate_placeholder_scores.py,
+    data/human_scores.json'
+  task: 0c4fa4319b2be376ef46c40590813f41847a3df5ffdf1f51996ca4b19bd09f18
+T016:
+  task: 0c6b68941d3f42d2876eceafe5330a7bc3453bf2b3a8f2cfe02b235453eac30e
+T017:
+  task: 4e4692e704bcd4b362cb0ae63a4f3e5f551810eb026aff73f585549e4016f8d9
+T018:
+  task: a72026c3f62a9b51c3b7ed1fdc556c6dc4d801b36c655a2117a5f2f12995d396
+T019:
+  task: cd235a93490253ccb1d5f30a05453fec06fed885306db6a933d1d9dbfdc19c53
+T019b-Run:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/router_model/'
+  task: 1917d70e8c2f9f5f84b7ce117e5f74e50be0b52cf2e259e9da56c0482fb89a31
+T019b-Verify:
+  task: d05152ad0992b5a2e2276ba10779c9b0666e9a7f7a5c3628f9a6bf113c86d0ea
+T020:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/router.py'
+  task: 79190141bee03549b57b422d4d36b919b8d1bfe011200a63c5751fe2bd08bfea
+T020#1:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/router.py'
+  task: 79190141bee03549b57b422d4d36b919b8d1bfe011200a63c5751fe2bd08bfea
+T020b:
+  task: e6536b40825a792b5d8d7232656c7433fb45642fe595e11ab476863391be9f44
+T021:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/fallback.py'
+  task: 873dcc9511195bd4b14f0f29af92757f682bf76c44e248bcf41d03aa169fc7f6
+T021b:
+  task: 18cdb5f4e48be026e87deefc3643b797a5ae8d77b438c26cd4ca3585ee089a37
+T022:
+  task: d3006f4e07936e5a28105723e4a46b6b6b2268556cb7d2d658f696ac45a5aedf
+T023:
+  task: 34b277000c4b1c678ebc2b72346798dfac8b202ce421adf515921cd0b8add855
+T023b:
+  task: 2e174472f27a9d29fbd58f0ed1fb9b20131ca2b8a985b7596f0d2bcc93c2694e
+T024a:
+  task: 5317fd9a8e634ce82bf2fb1f08488564b3dcf946af51881d69fd30501b28be6e
+T024b:
+  task: 250728509c15753626cb267caf9690ddffccef143b9729c2adf38270c2bac439
+T024c:
+  task: e233f022171dded624c691d8dbc28fcf8c72b03b561326b9522b53bcaf6c2e36
+T026:
+  task: 03df2c012a9d139f1296a1fea28051fb22b14a95aef6f731047769a6d0ea934b
+T027:
+  task: 7851c6b567c34875f95259f13dfec0c02a27e4859aefd3ee176bae84cdf58c04
+T027b:
+  task: 9e4d0a46384c2fbcd6207c5f26c8561285a06d0d15fe9d625b9d55802c29c99c
+T029:
+  task: be9d6547be62213a78d07c75d025dde37177c0df015177a05c8609cec3199458
+T030:
+  task: f8e369cfc16257b6f35d5d013bef9e35333f75bf22003d43aa55b2f503e53b50
+T031:
+  task: 779f757d3891bad5efa2976afd7b1b06d098da404d52423ff1fdc33ba8075188
+T032:
+  task: f84976225225cb6e1711fc4969acccb7a88ae31bbc5a30be559629a1d4ac0382
+T032a:
+  task: 7a2d4be3348c2e18011994c2180e5c538c7d0201db1d14fd1eabc4a6329533e1
+T033:
+  task: ad0ccd316a6bf1bf364a71cc57510c1fd1dc9f08390ac2c54516926f28c954f4
+T033a:
+  task: 8f09f39126ef15da58063eced8492a81a8821bc7e1f0c151a215f9c436c8934e
+T033b:
+  task: 73d6c80d45ff997df9f9ce10f06f253a75e053ce40fc85db65944a3cc76a2d62
+T034a:
+  task: d610ff6e0318d092b771f16e7f4daba4fec854512570ed0a6c598c82a6b4802f
+T034b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/threshold_finder.py'
+  task: 1ea77eb387fcb65c25ecbdad84d79927b467bfc22fb05ae947d56539d41fda9e
+T034c:
+  task: 0e0b81e0635449602fee83e35187768f5738b974ca9350d0f0b7c837e4eb6f74
+T034d:
+  task: 60eb0793fdfc2ab4ab4de3df75aeae4542de73a53a42ec2e593fb73191418c63
+T035:
+  task: 47f42336e0c79bf5ee54190b861213c4166f01e6a655316274c90f45ba1d03fd
+T036:
+  task: b55ce04685397e78f2b870b6db84dec3961859837b5993f50798b40825650433
+T037:
+  task: cf092eb824a085b2bcb061c0d4cd3252413686cb437832543e8843e15568e100
+T037a:
+  task: e3a5fb5fa409fb6fb78597f1601c1f13ea7b09ada7daeeab30b2f141d5754f67
+T038:
+  task: 024ea3aada4471dfc32eaebfcbdfba2f5e32211028b177195eb89925aaf29ddb
+T039:
+  task: 02cdc632d966f8c4f26df7d425cf0c7b2c2aaea3be4a06f9a1eeb423f68bcb5a
+T040:
+  task: 7e40aee5d79db4c47ef86614eb77227c38293683dfb07f6425c9bb06d7ac40b7
+T041:
+  task: 7f9c85fb60d3dbbc18ccee92c7f71aac01b4dbf6ea47141a92bfadff2f24a7d9
+T042:
+  task: bfaed8af83e2177b39f4a4e646a0b124cfdb7b27d2e6f52b694d4d98137092c6
+T043:
+  task: e0a8001bf0a6c78148158a06edc70af86f711050f41f29d5be0b69995b2e6457
+T044:
+  task: 84aed2e3c6d798753840178c42ea8af4d95fa5199ad5d469b1b31e35430a09a7
+T045a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/router.py'
+  task: 2e00e94719416271418a84569b660b7b429df500013e89b6c9fc6275a5af1888
+T045b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/router.py'
+  task: a3e6eddb2f2719dae63cc5ad25715fd46eab2f39d65fdbdd2da0c9ce4288ee08
+T046:
+  task: 7f40023c173b0179cf469038afdd2e8b9ec77aeea3064fe470e68ed556d5b741
+T047:
+  reason: 'declared artifact(s) missing/empty/invalid: code/models/fallback.py'
+  task: 4aec89bfc663f1f63069e79eec9cc6c44db5a6e1affe53b08f28f442102a8d10
+T048:
+  task: 06142edfd4e445da1a5d858ecf91e08db3cf375909d93bd678427258bdf9aa08
+T049:
+  task: 36359e8e7612210141561563183b1222d0ef92b63dd9d78ab1108de41de62d91
+T050:
+  task: ef3365ca614355b9a27f1638494cca74b58fcb7cf1dab01630583ca2d91b00e4

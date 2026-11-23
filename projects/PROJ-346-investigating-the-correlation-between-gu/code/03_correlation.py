@@ -9,251 +9,176 @@ import numpy as np
 from scipy.stats import spearmanr
 from statsmodels.stats.multitest import multipletests
 
-# Import shared utilities from utils
-from utils import (
-    get_project_root_path,
-    get_data_processed_path,
-    get_data_qc_path,
-    ensure_directory,
-    setup_logger,
-    get_logger
-)
-from config import get_project_root
+# Import from utils for path handling and constants
+# Note: Using relative import logic compatible with the project structure
+try:
+    from utils import get_data_processed_path, get_data_qc_path, setup_logger, sanitize_file_path
+except ImportError:
+    # Fallback for direct execution if path manipulation is needed
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
+    from utils import get_data_processed_path, get_data_qc_path, setup_logger, sanitize_file_path
 
-# Configure logging
-logger = setup_logger("correlation_analysis")
+logger = setup_logger("correlation")
 
-def load_merged_data() -> pd.DataFrame:
-    """
-    Load the merged dataset from the processed directory.
-    Checks for existence and handles the Data Gap scenario.
-    """
-    root = get_project_root_path()
-    data_dir = get_data_processed_path(root)
-    merged_path = data_dir / "merged_dataset.parquet"
-
+def load_merged_data():
+    """Load the merged dataset from the processed directory."""
+    processed_dir = get_data_processed_path()
+    merged_path = processed_dir / "merged_dataset.parquet"
+    
     if not merged_path.exists():
-        logger.warning("Merged dataset not found at %s. Data Gap detected.", merged_path)
+        logger.warning(f"Merged dataset not found at {merged_path}. Skipping correlation analysis.")
         return None
     
+    logger.info(f"Loading merged data from {merged_path}")
     try:
         df = pd.read_parquet(merged_path)
-        logger.info("Loaded merged dataset with %d samples and %d features.", len(df), df.shape[1])
         return df
     except Exception as e:
-        logger.error("Failed to load merged dataset: %s", str(e))
+        logger.error(f"Failed to load merged data: {e}")
         return None
 
-def compute_spearman_correlations(df: pd.DataFrame, chunk_size: int = 1000) -> pd.DataFrame:
+def compute_spearman_correlations(df):
     """
-    Compute Spearman correlations between microbiome taxa and cognitive scores.
-    Implements memory chunking to handle large datasets (N=10,000+) efficiently.
-    
-    Args:
-        df: The merged dataset containing taxa and cognitive scores.
-        chunk_size: Number of cognitive variables to process in parallel per chunk.
-    
-    Returns:
-        DataFrame with columns: ['taxa', 'cognitive_var', 'correlation', 'pvalue']
+    Compute Spearman rank correlations between taxa and cognitive scores.
+    Explicitly labels outputs as 'associational'.
     """
     if df is None or df.empty:
-        logger.warning("Cannot compute correlations on empty or None DataFrame.")
-        return pd.DataFrame(columns=['taxa', 'cognitive_var', 'correlation', 'pvalue'])
+        logger.warning("Empty or None dataframe provided for correlation.")
+        return None
 
-    # Identify columns
-    # Assumption: Cognitive scores are numeric columns not in the taxa list, 
-    # or we explicitly define them. For this implementation, we assume 
-    # columns starting with 'cog_' or specific names are cognitive, 
-    # and others are taxa. 
-    # A more robust approach: check schema or config. 
-    # Here we infer: if 'cognitive_score_z' exists, use it. Otherwise, assume all numeric 
-    # columns except taxa columns are targets.
+    # Identify columns: assume 'taxon_name' is not a predictor, 'z_score' is target
+    # We need columns that are numeric and represent taxa abundances
+    # Based on schema: taxon_name (str), relative_abundance (float), z_score (float)
     
-    # Heuristic: Columns containing 'cog' or 'score' are targets.
-    # For robustness, let's assume the merged data has a specific structure defined in spec.
-    # If not, we take the last numeric column as the target if only one exists, 
-    # or iterate all non-taxon numeric columns.
+    # Pivot or select relevant columns
+    # Assuming the dataframe is wide: rows = samples, columns = taxa + z_score
+    # Filter for numeric columns
+    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
     
-    # Let's assume the cognitive score column is named 'cognitive_score_z' based on T013.
-    # If not present, we fall back to the first numeric column that isn't an ID.
-    cognitive_cols = [c for c in df.columns if 'cog' in c.lower() or 'score' in c.lower()]
-    if not cognitive_cols:
-        # Fallback: all numeric columns that are not obvious IDs
-        numeric_cols = df.select_dtypes(include=[np.number]).columns
-        cognitive_cols = [c for c in numeric_cols if not c.endswith('_id') and c != 'sample_id']
+    if 'z_score' not in numeric_cols:
+        logger.error("z_score column not found in numeric data.")
+        return None
     
-    if not cognitive_cols:
-        logger.error("No cognitive score columns found in dataset.")
-        return pd.DataFrame(columns=['taxa', 'cognitive_var', 'correlation', 'pvalue'])
-    
-    # Assume all other numeric columns are taxa
-    taxa_cols = [c for c in df.select_dtypes(include=[np.number]).columns if c not in cognitive_cols]
+    taxa_cols = [c for c in numeric_cols if c != 'z_score']
     
     if not taxa_cols:
-        logger.warning("No taxa columns found in dataset.")
-        return pd.DataFrame(columns=['taxa', 'cognitive_var', 'correlation', 'pvalue'])
+        logger.warning("No taxa columns found for correlation.")
+        return None
 
-    logger.info("Computing correlations for %d taxa vs %d cognitive variables.", len(taxa_cols), len(cognitive_cols))
-
+    logger.info(f"Computing Spearman correlations for {len(taxa_cols)} taxa against z_score.")
+    
     results = []
-    n_taxa = len(taxa_cols)
-    
-    # Process cognitive variables in chunks to manage memory if needed,
-    # though the main constraint is usually the pairwise calculation.
-    # We will iterate through cognitive variables and compute correlations with all taxa.
-    
-    total_pairs = len(taxa_cols) * len(cognitive_cols)
-    logger.info("Total correlation pairs to compute: %d", total_pairs)
-
-    for i, cog_col in enumerate(cognitive_cols):
-        if i % 10 == 0:
-            logger.debug("Processing cognitive variable %d/%d: %s", i+1, len(cognitive_cols), cog_col)
-        
-        cog_data = df[cog_col].dropna()
-        taxa_indices = cog_data.index
-        
-        # Filter taxa data to match the non-NaN indices of the cognitive variable
-        # This is more efficient than passing NaNs to spearmanr which might raise warnings
-        taxa_subset = df.loc[taxa_indices, taxa_cols]
-        
-        # Chunking the taxa calculation to avoid massive intermediate arrays if N is huge
-        # Although spearmanr is vectorized, we can chunk the loop over taxa_cols
-        for j in range(0, n_taxa, chunk_size):
-            chunk_taxa = taxa_cols[j:j+chunk_size]
-            chunk_data = taxa_subset[chunk_taxa]
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        for taxa in taxa_cols:
+            # Handle missing values by dropping rows for this pair
+            valid_data = df[[taxa, 'z_score']].dropna()
+            if len(valid_data) < 3:
+                continue
             
-            # Vectorized Spearman correlation
-            # scipy.stats.spearmanr returns a SpearmanResult object
-            # When x is 1D and y is 2D, it computes correlation between x and each column of y
-            try:
-                with warnings.catch_warnings():
-                    warnings.simplefilter("ignore")
-                    corr_res = spearmanr(cog_data, chunk_data, axis=0)
-                
-                # corr_res.correlation is a 1D array if x is 1D and y is 2D
-                # corr_res.pvalue is a 1D array
-                correlations = corr_res.correlation
-                pvalues = corr_res.pvalue
-                
-                if isinstance(correlations, (int, float)):
-                    correlations = [correlations]
-                    pvalues = [pvalues]
-                
-                for k, taxon in enumerate(chunk_taxa):
-                    results.append({
-                        'taxa': taxon,
-                        'cognitive_var': cog_col,
-                        'correlation': float(correlations[k]),
-                        'pvalue': float(pvalues[k])
-                    })
-            except Exception as e:
-                logger.warning("Error computing correlation for %s vs %s: %s", cog_col, chunk_taxa, str(e))
-
+            corr, p_val = spearmanr(valid_data[taxa], valid_data['z_score'])
+            
+            results.append({
+                'taxon': taxa,
+                'correlation_coefficient': corr,
+                'p_value': p_val,
+                'n_samples': len(valid_data),
+                'framing': 'associational',  # Explicit FR-005 labeling
+                'method': 'Spearman Rank Correlation'
+            })
+    
+    if not results:
+        return pd.DataFrame()
+        
     return pd.DataFrame(results)
 
-def apply_fdr_correction(df_results: pd.DataFrame, alpha: float = 0.05) -> pd.DataFrame:
-    """
-    Apply Benjamini-Hochberg FDR correction to p-values.
-    
-    Args:
-        df_results: DataFrame with 'pvalue' column.
-        alpha: Significance threshold.
-    
-    Returns:
-        DataFrame with added 'qvalue' and 'significant' columns.
-    """
+def apply_fdr_correction(df_results):
+    """Apply Benjamini-Hochberg FDR correction to p-values."""
     if df_results is None or df_results.empty:
         return df_results
+    
+    p_values = df_results['p_value'].values
+    if len(p_values) == 0:
+        return df_results
 
-    logger.info("Applying FDR correction to %d results.", len(df_results))
-    
-    # Group by cognitive variable to correct within each test set, or global?
-    # Typically, we correct across all tests.
-    pvals = df_results['pvalue'].values
-    
+    # multipletests returns (reject, pval_corrected, pval_corrected, alphacSidak)
+    # We use method='fdr_bh' for Benjamini-Hochberg
     try:
-        reject, pvals_corrected, _, _ = multipletests(pvals, alpha=alpha, method='fdr_bh')
-        df_results = df_results.copy()
-        df_results['qvalue'] = pvals_corrected
-        df_results['significant'] = reject
+        reject, pvals_corrected, _, _ = multipletests(p_values, method='fdr_bh')
+        df_results['q_value'] = pvals_corrected
+        df_results['is_significant'] = reject & (pvals_corrected < 0.05)
     except Exception as e:
-        logger.error("FDR correction failed: %s", str(e))
-        df_results['qvalue'] = np.nan
-        df_results['significant'] = False
-
+        logger.error(f"FDR correction failed: {e}")
+        df_results['q_value'] = np.nan
+        df_results['is_significant'] = False
+    
     return df_results
 
-def save_correlation_results(df_results: pd.DataFrame, df_fdr: pd.DataFrame):
-    """
-    Save correlation results and FDR-corrected results to disk.
-    """
-    root = get_project_root_path()
-    processed_dir = get_data_processed_path(root)
-    ensure_directory(processed_dir)
+def save_correlation_results(df_results):
+    """Save correlation results to data/processed/ with metadata."""
+    if df_results is None or df_results.empty:
+        logger.warning("No results to save.")
+        return
 
-    corr_path = processed_dir / "correlation_results_raw.parquet"
-    fdr_path = processed_dir / "correlation_results_fdr.parquet"
-    json_path = processed_dir / "correlation_summary.json"
-
-    if df_results is not None and not df_results.empty:
-        df_results.to_parquet(corr_path, index=False)
-        logger.info("Saved raw correlation results to %s", corr_path)
+    processed_dir = get_data_processed_path()
+    output_path = processed_dir / "correlation_results.json"
     
-    if df_fdr is not None and not df_fdr.empty:
-        df_fdr.to_parquet(fdr_path, index=False)
-        logger.info("Saved FDR-corrected results to %s", fdr_path)
-        
-        # Generate summary JSON
-        summary = {
-            "total_pairs": len(df_fdr),
-            "significant_pairs": int(df_fdr['significant'].sum()),
-            "mean_correlation": float(df_fdr['correlation'].mean()) if not df_fdr.empty else 0.0,
-            "min_correlation": float(df_fdr['correlation'].min()) if not df_fdr.empty else 0.0,
-            "max_correlation": float(df_fdr['correlation'].max()) if not df_fdr.empty else 0.0,
-            "q_threshold": 0.05
-        }
-        
-        with open(json_path, 'w') as f:
-            json.dump(summary, f, indent=2)
-        logger.info("Saved summary to %s", json_path)
-    else:
-        logger.warning("No results to save for FDR.")
+    # Ensure output is in a committed location if data/processed is gitignored
+    # The prompt noted "every produced artifact is gitignored". 
+    # We will save to the declared path but also ensure it's written.
+    # If the runner expects it in a specific non-ignored spot, we rely on the quickstart logic.
+    # However, the task says "Save ... to data/processed/".
+    
+    # Convert to dict for JSON serialization
+    results_dict = df_results.to_dict(orient='records')
+    
+    # Add top-level metadata
+    output_data = {
+        'metadata': {
+            'analysis_type': 'correlation',
+            'method': 'Spearman Rank Correlation',
+            'correction': 'Benjamini-Hochberg FDR',
+            'framing': 'associational only',  # FR-005 requirement
+            'timestamp': pd.Timestamp.now().isoformat(),
+            'description': 'Associational analysis of gut microbiome and cognitive flexibility.'
+        },
+        'results': results_dict
+    }
+    
+    with open(output_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
+    
+    logger.info(f"Saved correlation results to {output_path}")
 
 def main():
-    """
-    Main entry point for the correlation analysis pipeline.
-    Handles the Data Gap scenario gracefully.
-    """
-    logger.info("Starting correlation analysis (T036 optimized).")
+    """Main entry point for correlation analysis."""
+    logger.info("Starting correlation analysis (FR-003, FR-004).")
     
     # Load data
     df = load_merged_data()
     
     if df is None:
-        logger.info("Data Gap detected. Skipping correlation analysis.")
-        # Create a dummy file or log to indicate N/A
-        root = get_project_root_path()
-        processed_dir = get_data_processed_path(root)
-        ensure_directory(processed_dir)
-        gap_log = processed_dir / "correlation_gap_status.json"
-        with open(gap_log, 'w') as f:
-            json.dump({"status": "N/A", "reason": "Merged dataset missing (Data Gap)"}, f)
+        logger.info("No merged data available. Exiting gracefully.")
+        # Create a minimal result file indicating N/A to satisfy the run-book if needed
+        # But per instructions, we must NOT fake results. We just exit.
         return
 
-    # Compute correlations with chunking
-    df_corr = compute_spearman_correlations(df, chunk_size=500)
+    # Compute correlations
+    df_corr = compute_spearman_correlations(df)
     
-    if df_corr.empty:
+    if df_corr is None or df_corr.empty:
         logger.warning("No correlations computed.")
         return
 
     # Apply FDR
-    df_fdr = apply_fdr_correction(df_corr)
+    df_corr = apply_fdr_correction(df_corr)
     
     # Save results
-    save_correlation_results(df_corr, df_fdr)
+    save_correlation_results(df_corr)
     
-    logger.info("Correlation analysis completed successfully.")
+    # Log summary
+    n_sig = df_corr['is_significant'].sum() if 'is_significant' in df_corr.columns else 0
+    logger.info(f"Analysis complete. {len(df_corr)} taxa tested, {n_sig} significant (q < 0.05).")
 
 if __name__ == "__main__":
     main()

@@ -1,163 +1,156 @@
 """
-Compositional data transformation utilities.
-
-Implements the Centered Log-Ratio (CLR) transformation to handle
-the closure problem in compositional data (where components sum to 1 or 100%).
+CLRTransformer: Applies Centered Log-Ratio transform to compositional data.
+Addresses the closure problem (sum-to-one constraint) by mapping to Euclidean space.
 """
-
 import numpy as np
 import logging
+import json
+import pandas as pd
 from typing import Tuple, Optional, Dict, Any
-from compositional import clr, ilr, alr
+from pathlib import Path
+from compositional import clr
+from utils.logging_config import get_logger
+from seed import set_seed
 
-logger = logging.getLogger(__name__)
+logger = get_logger(__name__)
 
 class CLRTransformer:
     """
-    Transformer for applying Centered Log-Ratio (CLR) transformation
-    to compositional data.
-    
-    The CLR transformation maps data from the simplex to real space,
-    allowing standard statistical methods to be applied.
-    
-    Attributes:
-        elements (list): Ordered list of element names in the composition.
-        has_fit (bool): Whether the transformer has been fitted.
+    Transformer for applying Centered Log-Ratio (CLR) transformation to compositional data.
     """
-    
-    def __init__(self, elements: Optional[list] = None):
+
+    def __init__(self, pseudo_count: float = 1e-6):
         """
-        Initialize the CLRTransformer.
-        
+        Initialize the CLR Transformer.
+
         Args:
-            elements: Optional list of element names. If provided, the transformer
-                     will validate that input data matches this ordering.
+            pseudo_count: Small value added to compositions to avoid log(0).
         """
-        self.elements = elements if elements else []
-        self.has_fit = False
-        self.logger = logging.getLogger(__name__)
-    
+        self.pseudo_count = pseudo_count
+        logger.info(f"CLRTransformer initialized with pseudo_count={pseudo_count}")
+
     def fit(self, X: np.ndarray) -> 'CLRTransformer':
         """
-        Fit the transformer to the data (no-op for CLR, but validates input).
-        
+        Fit the transformer (no-op for CLR, but required for sklearn compatibility).
+
         Args:
-            X: Array of compositional data, shape (n_samples, n_components).
-        
+            X: Compositional data array of shape (n_samples, n_components).
+
         Returns:
-            self: The fitted transformer.
-        
-        Raises:
-            ValueError: If input data contains zeros or negative values.
+            self
         """
-        if X is None or X.size == 0:
-            raise ValueError("Input data cannot be empty")
-        
-        if np.any(X <= 0):
-            # CLR requires strictly positive values
-            # Replace zeros with a small pseudo-count
-            self.logger.warning(
-                "Input contains zeros or negative values. "
-                "Replacing with small pseudo-count (1e-6) for CLR transformation."
-            )
-            X = np.where(X <= 0, 1e-6, X)
-        
-        if self.elements and X.shape[1] != len(self.elements):
-            raise ValueError(
-                f"Expected {len(self.elements)} components, got {X.shape[1]}"
-            )
-        
-        self.has_fit = True
         return self
-    
+
     def transform(self, X: np.ndarray) -> np.ndarray:
         """
-        Apply CLR transformation to the data.
-        
+        Apply CLR transform to the data.
+
         Args:
-            X: Array of compositional data, shape (n_samples, n_components).
-        
+            X: Compositional data array of shape (n_samples, n_components).
+
         Returns:
-            np.ndarray: CLR-transformed data, same shape as input.
-        
-        Raises:
-            ValueError: If transform is called before fit.
+            Transformed data array of shape (n_samples, n_components).
         """
-        if not self.has_fit:
-            raise ValueError("Transformer must be fitted before transform")
-        
-        # Handle zeros/negatives again for safety
-        X_clean = np.where(X <= 0, 1e-6, X)
-        
-        # Apply CLR transformation using compositional library
-        # clr returns the centered log-ratio transformed data
+        if X is None or X.size == 0:
+            raise ValueError("Input array cannot be empty")
+
+        # Ensure we don't have zeros which would cause log(0)
+        X_safe = np.clip(X, self.pseudo_count, None)
+
+        # Normalize to ensure sum is 1 if not already
+        sums = X_safe.sum(axis=1, keepdims=True)
+        sums = np.where(sums == 0, 1, sums)
+        X_normalized = X_safe / sums
+
+        # Apply CLR using the compositional library
         try:
-            X_clr = clr(X_clean)
+            X_clr = clr(X_normalized)
         except Exception as e:
-            self.logger.error(f"CLR transformation failed: {e}")
+            logger.error(f"CLR transformation failed: {e}")
             raise
-        
+
         return X_clr
-    
+
     def fit_transform(self, X: np.ndarray) -> np.ndarray:
         """
-        Fit and transform the data in one step.
-        
-        Args:
-            X: Array of compositional data, shape (n_samples, n_components).
-        
-        Returns:
-            np.ndarray: CLR-transformed data.
+        Fit and transform the data.
         """
         self.fit(X)
         return self.transform(X)
-    
-    def get_inverse_transform(self, X_clr: np.ndarray) -> np.ndarray:
-        """
-        Apply inverse CLR transformation to recover original composition.
-        
-        Args:
-            X_clr: CLR-transformed data.
-        
-        Returns:
-            np.ndarray: Original compositional data (normalized).
-        """
-        try:
-            # Inverse CLR: exp(x) / sum(exp(x))
-            X_inv = np.exp(X_clr)
-            X_norm = X_inv / X_inv.sum(axis=1, keepdims=True)
-            return X_norm
-        except Exception as e:
-            self.logger.error(f"Inverse CLR transformation failed: {e}")
-            raise
-    
-    def get_weights(self) -> np.ndarray:
-        """
-        Get the weight coefficients for the CLR transformation.
-        
-        For CLR, the transformation is:
-            y_i = log(x_i / g(x))
-        where g(x) is the geometric mean of the composition.
-        
-        Returns:
-            np.ndarray: Weight coefficients (1/n for each component in the denominator).
-        """
-        if not self.has_fit:
-            raise ValueError("Transformer must be fitted first")
-        
-        n = len(self.elements) if self.elements else 1
-        # The CLR transformation can be expressed as a linear combination
-        # with weights: [1, 1, ..., 1] for numerator and [-1/n, -1/n, ...] for denominator
-        # This returns the effective weights for feature engineering
-        return np.ones(n) / n
-    
-    def get_feature_names_out(self) -> list:
-        """
-        Get feature names for the transformed data.
-        
-        Returns:
-            list: List of feature names with '_clr' suffix.
-        """
-        if not self.elements:
-            return [f"component_{i}_clr" for i in range(10)]  # Default
-        return [f"{elem}_clr" for elem in self.elements]
+
+def main():
+    """
+    Main entry point.
+    Reads cleaned solder data, applies CLR transform, and writes output.
+    """
+    logger.info("Starting CLR Transformation Pipeline")
+    set_seed(42)
+
+    # Paths
+    input_path = Path("data/processed/solder_hardness_cleaned.csv")
+    output_path = Path("data/processed/clr_features.csv")
+    report_path = Path("data/processed/transformer_report.json")
+
+    # Verify input exists
+    if not input_path.exists():
+        raise FileNotFoundError(
+            f"Required input file not found: {input_path}. "
+            "Run T013 (cleaner) first to generate solder_hardness_cleaned.csv."
+        )
+
+    # Load data
+    df = pd.read_csv(input_path)
+    logger.info(f"Loaded {len(df)} records from {input_path}")
+
+    # Identify composition columns (exclude target and metadata)
+    exclude_cols = ['hardness_hv', 'alloy_family', 'source_citation', 'alloy_id']
+    # Also exclude non-elemental columns if any (e.g. measurement_temp_c)
+    composition_cols = [c for c in df.columns if c not in exclude_cols and not c.startswith('meta_')]
+
+    if not composition_cols:
+        raise ValueError("No composition columns found in input data.")
+
+    logger.info(f"Identified composition columns: {composition_cols}")
+
+    # Extract composition matrix
+    X = df[composition_cols].values.astype(float)
+
+    # Handle potential NaNs in composition (replace with 0, then add pseudo_count in transform)
+    # But cleaner should have handled this. Let's be safe.
+    X = np.nan_to_num(X, nan=0.0)
+
+    # Transform
+    transformer = CLRTransformer()
+    X_clr = transformer.fit_transform(X)
+
+    # Create output DataFrame
+    # Keep only the transformed values, named as clr_<col>
+    clr_cols = [f"clr_{c}" for c in composition_cols]
+    df_clr = pd.DataFrame(X_clr, columns=clr_cols)
+
+    # Add an index or ID to link back if needed (assuming row order is preserved)
+    # We'll just save the features as requested
+    df_clr.to_csv(output_path, index=False)
+
+    logger.info(f"CLR features written to {output_path} with shape {X_clr.shape}")
+
+    # Write a simple verification report
+    report = {
+        "status": "success",
+        "input_file": str(input_path),
+        "output_file": str(output_path),
+        "input_shape": list(X.shape),
+        "output_shape": list(X_clr.shape),
+        "composition_columns": composition_cols,
+        "output_columns": clr_cols,
+        "row_sums_check": float(np.abs(X_clr.sum(axis=1)).mean()) # Should be ~0
+    }
+
+    with open(report_path, 'w') as f:
+        json.dump(report, f, indent=2)
+
+    logger.info(f"Verification report written to {report_path}")
+    logger.info("CLR Transformation Pipeline completed successfully")
+
+if __name__ == "__main__":
+    main()

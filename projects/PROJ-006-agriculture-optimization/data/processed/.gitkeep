@@ -1,0 +1,2 @@
+# This file ensures the data/processed directory is tracked by git.
+# Generated artifacts will be placed here by the pipeline.

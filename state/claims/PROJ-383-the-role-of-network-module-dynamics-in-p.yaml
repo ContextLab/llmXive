@@ -589,3 +589,139 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-08T01:20:35Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: exclude subjects with mean fractional displacement greater than 0.2mm
+  claim_id: c_15ce486f
+  context: 'Implement subject exclusion logic in code/ingestion/preprocess.py: exclude
+    subjects with mean FD > 0.2mm'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Exclude_subjects_with_mean_fractional_displacement_greater_t
+  kind: magnitude
+  raw_text: exclude subjects with mean FD > 0.2mm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:49:30Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: scrub time points with fractional displacement greater than 0.2mm
+  claim_id: c_8bde8b3b
+  context: 'Implement motion scrubbing and regression in code/ingestion/preprocess.py:
+    scrub time points with FD > 0.2mm'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Scrub_time_points_with_fractional_displacement_greater_than
+  kind: magnitude
+  raw_text: scrub time points with FD > 0.2mm
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:49:59Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: enforce 7GB peak RSS limit
+  claim_id: c_03054388
+  context: "Setup memory monitoring utility code/utils/memory_monitor.py using psutil\
+    \ to track peak RSS and enforce \u22647GB limit"
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Enforce_7GB_peak_RSS_limit
+  kind: entity_fact
+  raw_text: "verify \u22647GB limit"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:50:29Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: fetch data for 100 subjects
+  claim_id: c_bf5f10b3
+  context: Implement code/ingestion/download_hcp.py to fetch rs-fMRI and n-back data
+    for 100 subjects from OpenNeuro ds001734
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 100 subjects
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:50:58Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: run Multilayer Modularity Optimization for 100 iterations
+  claim_id: c_fe4d0c65
+  context: Implement Multilayer Modularity Optimization (MMO) using leidenalg (resolution
+    sufficient for the analysis, 100 iterations)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 100 iterations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:52:17Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: perform permutation test with 1000 permutations
+  claim_id: c_3c9aefe7
+  context: Unit test for permutation test logic (1,000 permutations, p-value correction)
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1,000 permutations
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:52:57Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: compare p-values across window lengths of 30s, 60s, and 90s
+  claim_id: c_87370bb4
+  context: Implement sensitivity analysis logic to compare p-values across window
+    lengths (30s, 60s, 90s) and verify stability
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compare_p-values_across_window_lengths_of_30s,_60s,_and_90s
+  kind: entity_fact
+  raw_text: 30s, 60s, 90s
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:53:47Z'
+- artifact_path: projects/PROJ-383-the-role-of-network-module-dynamics-in-p/specs/001-the-role-of-network-module-dynamics-in-p/tasks.md
+  attempts: 1
+  canonical: verify stability with maximum difference less than 0.05
+  claim_id: c_7b39f76d
+  context: verify stability (max diff < 0.05)
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_stability_with_maximum_difference_less_than_0.05
+  kind: magnitude
+  raw_text: max diff < 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-09T09:54:36Z'

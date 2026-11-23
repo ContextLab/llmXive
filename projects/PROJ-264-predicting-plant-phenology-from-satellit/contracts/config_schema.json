@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Plant Phenology Pipeline Configuration",
+  "description": "Schema for configuration adhering to T004 requirements.",
+  "type": "object",
+  "properties": {
+    "project_root": {
+      "type": "string",
+      "description": "Absolute path to the project root directory."
+    },
+    "data_dir": {
+      "type": "string",
+      "description": "Absolute path to the data directory."
+    },
+    "raw_data_dir": {
+      "type": "string",
+      "description": "Absolute path to the raw data subdirectory."
+    },
+    "processed_data_dir": {
+      "type": "string",
+      "description": "Absolute path to the processed data subdirectory."
+    },
+    "artifacts_dir": {
+      "type": "string",
+      "description": "Absolute path to the artifacts directory."
+    },
+    "models_dir": {
+      "type": "string",
+      "description": "Absolute path to the models subdirectory."
+    },
+    "seed": {
+      "type": "integer",
+      "description": "Random seed for reproducibility.",
+      "minimum": 0
+    },
+    "api_keys": {
+      "type": "object",
+      "description": "Dictionary of API keys. Keys are service names, values are secret strings.",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "gee_credentials_path": {
+      "type": ["string", "null"],
+      "description": "Path to the Google Earth Engine service account JSON file."
+    },
+    "nature_notebook_api_key": {
+      "type": ["string", "null"],
+      "description": "API key for Nature's Notebook (NN) service."
+    }
+  },
+  "required": [
+    "project_root",
+    "data_dir",
+    "raw_data_dir",
+    "processed_data_dir",
+    "artifacts_dir",
+    "models_dir",
+    "seed"
+  ],
+  "additionalProperties": false
+}

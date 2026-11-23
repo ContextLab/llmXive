@@ -56,5 +56,15 @@
     "sections/5conclusion.tex",
     "sections/7appendix.tex",
     "unifiedreward.cls"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "dbf1551e0c535b10b7f181aba8d735027bdd23cc40865b20a0fb4b796355c83b",
+      "bytes": 34828276
+    },
+    "original.pdf": {
+      "sha256": "c3ffda5f6cd3b497d23b266990bc8cba5b1b9f5c5383031ea8628b3bb1db5882",
+      "bytes": 34779789
+    }
+  }
 }

@@ -1,0 +1,63 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+.pyc
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# Virtual environments
+venv/
+.venv/
+env/
+.env
+
+# Test / coverage artifacts
+.pytest_cache/
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+
+# Research data artifacts (large / regenerable via code/data/download.py)
+data/raw/
+data/processed/
+data/gold/
+data/final/
+data/intermediate/
+data/validation/
+*.jsonl.tmp
+
+# Model caches and checkpoints
+models/
+checkpoints/
+hf_cache/
+*.safetensors
+*.bin
+*.pt
+*.pth
+*.onnx
+
+# Logs
+logs/
+*.log
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Jupyter
+.ipynb_checkpoints/
+
+# Temporary files
+*.tmp
+*.bak
+~$*

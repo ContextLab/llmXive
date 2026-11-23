@@ -1,0 +1,4 @@
+# Explicit ruff configuration file for the project root.
+# Extends the settings in pyproject.toml but allows for project-specific overrides
+# if needed in the future.
+extend = "pyproject.toml"

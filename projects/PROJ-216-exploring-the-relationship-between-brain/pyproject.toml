@@ -1,0 +1,42 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-brain-intelligence"
+version = "0.1.0"
+description = "Exploring the Relationship Between Brain Network Dynamics and Fluid Intelligence"
+requires-python = ">=3.11"
+dependencies = [
+    "nibabel",
+    "nilearn",
+    "networkx",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "openneuro-py",
+    "dipy",
+    "black",
+    "ruff",
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+
+[tool.ruff]
+select = ['E', 'F', 'W']
+ignore = []
+line-length = 88
+target-version = 'py311'
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+
+[tool.setuptools.packages.find]
+where = ["code"]
+include = ["*"]

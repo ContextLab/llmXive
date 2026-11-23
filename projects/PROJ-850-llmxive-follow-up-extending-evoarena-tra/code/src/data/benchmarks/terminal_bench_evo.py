@@ -1,104 +1,129 @@
 import json
 import random
-from pathlib import Path
 import sys
 import os
+from pathlib import Path
 from typing import List, Dict, Any, Optional
-import numpy as np
-import torch
+from src.utils.seeding import set_deterministic_seed
+from datasets import load_dataset
+import logging
 
-# Import seeding utility
-try:
-    from src.utils.seeding import set_deterministic_seed
-except ImportError:
-    sys.path.append(str(Path(__file__).parent.parent.parent))
-    from utils.seeding import set_deterministic_seed
+# Configure logging
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
-# Set seed at module load time
-set_deterministic_seed(42)
+def read_sample_size_from_research_md() -> int:
+    """
+    Reads the sample_size from specs/001-evoconflict-filtering/research.md.
+    Returns a default of 100 if the file or key is missing.
+    """
+    research_path = Path("specs/001-evoconflict-filtering/research.md")
+    if not research_path.exists():
+        logger.warning(f"research.md not found at {research_path}. Defaulting to N=100.")
+        return 100
 
-from src.data.generators.power_analysis import update_research_md
-
-def read_sample_size_from_research_md(research_md_path: Path) -> int:
-    """Read sample size from research.md, fallback to 50 if not found."""
-    if not research_md_path.exists():
-        return 50
+    try:
+        with open(research_path, 'r') as f:
+            content = f.read()
+            # Simple YAML-like parsing for the specific key
+            for line in content.splitlines():
+                if line.strip().startswith('sample_size:'):
+                    val = line.split(':', 1)[1].strip()
+                    return int(val)
+    except Exception as e:
+        logger.error(f"Error reading sample_size from research.md: {e}")
+        return 100
     
-    content = research_md_path.read_text()
-    for line in content.split('\n'):
-        if line.strip().startswith("sample_size:"):
-            try:
-                return int(line.split(":")[1].strip())
-            except (ValueError, IndexError):
-                return 50
-    return 50
+    logger.warning("sample_size key not found in research.md. Defaulting to N=100.")
+    return 100
 
-def generate_synthetic_benchmark_tasks(n_tasks: int) -> List[Dict[str, Any]]:
-    """Generate synthetic benchmark tasks for Terminal-Bench-Evo."""
+def load_real_dataset_sample() -> List[Dict[str, Any]]:
+    """
+    Attempts to download the 'Terminal-Bench-Evo' dataset from HuggingFace.
+    If the download fails (dataset not found or network error), it raises an exception
+    immediately (FAIL LOUDLY) as per T006 requirements.
+    """
+    dataset_id = "Terminal-Bench-Evo"
+    sample_size = read_sample_size_from_research_md()
+    logger.info(f"Attempting to download real dataset: {dataset_id} (Sample N={sample_size})")
+
+    try:
+        # Attempt to load the dataset from HuggingFace
+        # streaming=True is used to avoid downloading the full dataset if it's large,
+        # but we collect exactly 'sample_size' items.
+        dataset = load_dataset(dataset_id, split="train", streaming=True)
+        
+        collected_tasks = []
+        count = 0
+        for item in dataset:
+            if count >= sample_size:
+                break
+            collected_tasks.append(item)
+            count += 1
+
+        if count == 0:
+            raise ValueError("Dataset loaded but contained 0 items.")
+        
+        logger.info(f"Successfully downloaded {count} items from {dataset_id}.")
+        return collected_tasks
+
+    except Exception as e:
+        # FAIL LOUDLY: Do not fallback here. Let the caller handle the exception.
+        raise RuntimeError(f"CRITICAL: Failed to download real dataset '{dataset_id}'. "
+                           f"Real data source unavailable. Exception: {e}")
+
+def generate_synthetic_benchmark_tasks() -> List[Dict[str, Any]]:
+    """
+    Generates synthetic benchmark tasks as a fallback if real data is unavailable.
+    This function is intended to be called by the T006-SYNTH task or the main
+    fallback logic if T006 fails.
+    """
+    set_deterministic_seed()
+    sample_size = read_sample_size_from_research_md()
+    logger.info(f"Generating synthetic benchmark tasks (N={sample_size})")
+    
     tasks = []
-    
-    task_templates = [
-        {
-            "description": "Update the user's credit balance to a new value.",
-            "command": "update_credits",
-            "expected_state": "credits_updated"
-        },
-        {
-            "description": "Change the system version to a specific release.",
-            "command": "update_version",
-            "expected_state": "version_changed"
-        },
-        {
-            "description": "Toggle the database connection status.",
-            "command": "toggle_db",
-            "expected_state": "db_status_changed"
-        },
-        {
-            "description": "Record the time of the last user login.",
-            "command": "log_login",
-            "expected_state": "login_logged"
-        },
-        {
-            "description": "Adjust the temperature setting.",
-            "command": "set_temperature",
-            "expected_state": "temp_updated"
+    for i in range(sample_size):
+        task = {
+            "task_id": f"synth_task_{i:04d}",
+            "instruction": f"Perform a version update on file config_{i}.json",
+            "initial_state": {"file": f"config_{i}.json", "version": 1, "content": f"old_data_{i}"},
+            "target_state": {"file": f"config_{i}.json", "version": 2, "content": f"new_data_{i}"},
+            "is_contradiction": False, # Synthetic tasks are initially non-contradictory unless modified
+            "patch": f"Updated config_{i}.json to version 2"
         }
-    ]
-    
-    for i in range(n_tasks):
-        template = random.choice(task_templates)
-        tasks.append({
-            "task_id": f"evo_{i:04d}",
-            "description": template["description"],
-            "command": template["command"],
-            "expected_state": template["expected_state"],
-            "initial_state": "system_ready",
-            "difficulty": random.choice(["easy", "medium", "hard"])
-        })
+        tasks.append(task)
     
     return tasks
 
 def main():
-    """Main entry point for Terminal-Bench-Evo dataset verification/generation."""
-    project_root = Path(__file__).parent.parent.parent.parent
-    research_md_path = project_root / "specs" / "001-evoconflict-filtering" / "research.md"
-    output_path = project_root / "data" / "raw" / "terminal_bench_evo.jsonl"
-    
-    # Read sample size
-    n_tasks = read_sample_size_from_research_md(research_md_path)
-    
-    print(f"Generating {n_tasks} synthetic benchmark tasks...")
-    tasks = generate_synthetic_benchmark_tasks(n_tasks)
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Write to JSONL
-    with open(output_path, 'w') as f:
-        for task in tasks:
-            f.write(json.dumps(task) + '\n')
-    
-    print(f"Generated dataset saved to {output_path}")
+    """
+    Main entry point for T006: Dataset Verification.
+    1. Attempts to load real data.
+    2. If successful, writes to data/raw/terminal_bench_evo.jsonl.
+    3. If failed, raises an exception (FAIL LOUDLY) so T006-SYNTH can be triggered externally.
+    """
+    output_dir = Path("data/raw")
+    output_dir.mkdir(parents=True, exist_ok=True)
+    output_file = output_dir / "terminal_bench_evo.jsonl"
+
+    try:
+        # Try to get real data
+        data = load_real_dataset_sample()
+        
+        # Write to JSONL
+        with open(output_file, 'w', encoding='utf-8') as f:
+            for item in data:
+                f.write(json.dumps(item) + '\n')
+        
+        logger.info(f"Real dataset successfully written to {output_file}")
+        return 0
+
+    except Exception as e:
+        logger.critical(f"Real dataset download failed: {e}")
+        logger.critical("T006 FAILED LOUDLY. Please execute T006-SYNTH to generate synthetic data.")
+        # Re-raise to ensure the pipeline knows this specific task failed
+        raise
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

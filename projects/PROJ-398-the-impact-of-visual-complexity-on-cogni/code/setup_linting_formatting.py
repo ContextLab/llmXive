@@ -1,105 +1,80 @@
 import os
 import sys
-from pathlib import Path
 import subprocess
+from pathlib import Path
+from typing import Tuple
 
 def ensure_config_dir() -> Path:
     """
-    Ensure that a ``config`` directory exists at the project root.
-
-    Returns
-    -------
-    Path
-        Path object pointing to the configuration directory.
+    Ensure the directory where configuration files will be placed exists.
+    For this project we store linting/formatting config files inside the
+    ``code`` directory to satisfy the repository layout constraints.
     """
-    config_dir = Path.cwd() / "config"
+    config_dir = Path(__file__).resolve().parent
     config_dir.mkdir(parents=True, exist_ok=True)
     return config_dir
 
-
-def create_ruff_config(config_dir: Path) -> None:
+def create_ruff_config(config_dir: Path) -> Path:
     """
-    Write a minimal ``.ruff.toml`` configuration file.
-
-    Parameters
-    ----------
-    config_dir : Path
-        Directory where the configuration file should be placed.
+    Create a basic ``.ruff.toml`` configuration file.
     """
+    ruff_content = """[format]
+indent-style = "space"
+line-length = 88
+
+[lint]
+select = ["E", "F", "W", "C90"]
+ignore = []
+exclude = ["__pycache__", ".git", "build", "dist"]
+"""
     ruff_path = config_dir / ".ruff.toml"
-    ruff_content = """[tool.ruff]
+    ruff_path.write_text(ruff_content.strip() + "\n")
+    return ruff_path
+
+def create_black_config(config_dir: Path) -> Path:
+    """
+    Create a ``pyproject.toml`` file with Black configuration.
+    The same file also holds a minimal Ruff configuration section so that
+    both tools are configured from a single location.
+    """
+    pyproject_content = """[tool.black]
+line-length = 88
+target-version = ["py311"]
+skip-string-normalization = false
+
+[tool.ruff]
 line-length = 88
 select = ["E", "F", "W", "C90"]
 ignore = []
+exclude = ["__pycache__", ".git", "build", "dist"]
 """
-    ruff_path.write_text(ruff_content)
-    print(f"Created Ruff config at {ruff_path}")
+    pyproject_path = config_dir / "pyproject.toml"
+    pyproject_path.write_text(pyproject_content.strip() + "\n")
+    return pyproject_path
 
-
-def create_black_config(_: Path) -> None:
+def update_requirements(config_dir: Path) -> Path:
     """
-    Write (or extend) a ``pyproject.toml`` file with Black configuration.
-    The function writes the file at the repository root.
+    Ensure that ``ruff`` and ``black`` are listed in ``requirements.txt``.
+    If the file does not exist it will be created.
     """
-    pyproject_path = Path.cwd() / "pyproject.toml"
-    black_section = """
-[tool.black]
-line-length = 88
-target-version = ['py311']
-"""
-    if pyproject_path.exists():
-        existing = pyproject_path.read_text()
-        if "[tool.black]" not in existing:
-            with pyproject_path.open("a") as f:
-                f.write("\n" + black_section.strip() + "\n")
-            print(f"Appended Black config to existing {pyproject_path}")
-        else:
-            print(f"Black config already present in {pyproject_path}")
-    else:
-        pyproject_path.write_text(black_section.strip() + "\n")
-        print(f"Created new {pyproject_path} with Black config")
-
-
-def update_requirements() -> None:
-    """
-    Ensure that ``requirements.txt`` exists and contains pinned versions of
-    ``ruff`` and ``black`` (alongside any pre‑existing dependencies).
-    """
-    req_path = Path.cwd() / "requirements.txt"
-    # Pin versions – these are known‑good versions at the time of implementation.
-    needed = {
-        "ruff==0.6.0",
-        "black==24.2.0",
-    }
-    if req_path.exists():
-        existing = {
-            line.strip()
-            for line in req_path.read_text().splitlines()
-            if line.strip() and not line.strip().startswith("#")
-        }
-        combined = existing.union(needed)
-    else:
-        combined = needed
-
-    # Write sorted for deterministic output
-    req_path.write_text("\n".join(sorted(combined)) + "\n")
-    print(f"Updated requirements at {req_path}")
-
+    req_path = config_dir / "requirements.txt"
+    if not req_path.exists():
+        req_path.touch()
+    existing = {line.strip() for line in req_path.read_text().splitlines() if line.strip()}
+    needed = {"ruff", "black"}
+    combined = sorted(existing.union(needed))
+    req_path.write_text("\n".join(combined) + "\n")
+    return req_path
 
 def main() -> None:
     """
-    Entry point: create configuration files and update requirements.
+    Entry point: generate configuration files and update requirements.
     """
-    try:
-        config_dir = ensure_config_dir()
-        create_ruff_config(config_dir)
-        create_black_config(config_dir)
-        update_requirements()
-        print("✅ Linting (ruff) and formatting (black) tools configured successfully.")
-    except Exception as exc:
-        print(f"❌ Failed to configure linting/formatting tools: {exc}", file=sys.stderr)
-        sys.exit(1)
-
+    config_dir = ensure_config_dir()
+    create_ruff_config(config_dir)
+    create_black_config(config_dir)
+    update_requirements(config_dir)
+    print(f"Linting and formatting configuration files have been created in {config_dir}")
 
 if __name__ == "__main__":
     main()

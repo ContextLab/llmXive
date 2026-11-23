@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CorrelationResult"
+description: "Statistical outcome of the correlation analysis between a topological metric and thermal conductivity."
+type: "object"
+properties:
+  metric_name:
+    type: "string"
+    description: "Name of the topological metric (e.g., 'clustering_coefficient')."
+  correlation_coefficient:
+    type: "number"
+    description: "Pearson or Spearman correlation coefficient."
+  p_value_raw:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Uncorrected p-value."
+  p_value_corrected:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Bonferroni-corrected p-value."
+  is_significant:
+    type: "boolean"
+    description: "True if p_value_corrected < 0.05."
+  sample_size:
+    type: "integer"
+    minimum: 0
+    description: "Number of snapshots used in the analysis (N)."
+  power:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Post-hoc statistical power."
+  mode:
+    type: "string"
+    enum:
+      - "real"
+      - "synthetic"
+    description: "Indicates whether the data is real or synthetically generated."
+required:
+  - metric_name
+  - correlation_coefficient
+  - p_value_raw
+  - p_value_corrected
+  - is_significant
+  - sample_size
+  - power
+  - mode

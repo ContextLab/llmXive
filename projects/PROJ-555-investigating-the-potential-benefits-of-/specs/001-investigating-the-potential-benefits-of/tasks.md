@@ -1,268 +1,168 @@
 # Tasks: Investigating the Potential Benefits of Ecotourism in Regenerating Deforested Areas
 
-**Input**: Design documents from `/specs/001-ecotourism-regeneration/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories)
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/` at repository root
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create `code/__init__.py` and `tests/__init__.py`
-- [X] T002 Initialize `requirements.txt` with landsatxplore, rasterio, xarray, scikit-learn, statsmodels, pandas, pyyaml, pydantic
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T004 Create base configuration module `code/config.py` (constants, thresholds, paths)
-- [X] T005 [P] Setup logging infrastructure in `code/logging_config.py`
-- [X] T006a [P] [Data-Model] Create `site.schema.yaml` schema definition in `specs/001-ecotourism-regeneration/contracts/` using Pydantic models
-- [X] T006b [P] [Data-Model] Create `timeseries.schema.yaml` schema definition in `specs/001-ecotourism-regeneration/contracts/` using Pydantic models
-- [ ] T006c [P] [Data-Model] Create `output.schema.yaml` schema definition in `specs/001-ecotourism-regeneration/contracts/` using Pydantic models
-- [ ] T007 Implement memory-safe chunking utility in `code/utils/chunking.py` to ensure peak RAM <7GB
-- [ ] T008 Create data directory structure and `.gitkeep` files for `data/raw/landsat`, `data/processed`, `data/ecotourism`
-- [ ] T009 [FR-003] Fetch CHIRPS precipitation and MODIS temperature data for a multi-decadal period spanning the early 21st century.; output to `data/processed/climate_covariates.parquet` with monthly resolution; use CHIRPS API and NASA POWER API
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Acquisition and Preprocessing (Priority: P1) 🎯 MVP
-
-**Goal**: Ingest, clean, and align Landsat satellite imagery time series with ecotourism site metadata for the defined study period (2000-2023).
-
-**Independent Test**: Verify that the system outputs a consolidated CSV/Parquet file containing a representative set of paired sites with valid NDVI time series, and that data volume fits within 7GB RAM without crashing.
-
-### Tests for User Story 1 (OPTIONAL) ⚠️
-
-> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
-
-- [ ] T010 [P] [US1] Unit test for chunked download logic in `tests/unit/test_data_acquisition.py`
-- [~] T011 [P] [US1] Unit test for cloud masking logic in `tests/unit/test_preprocessing.py` <!-- SKIPPED: YAML+regex parse failed (while scanning a simple key
- in "<unicode string>", line 8, column 1:
- The test includes a fallback imp...
- ^
-could not find expected ':'
- in "<unicode string>", line 10, column 1:
- The tests are designed to fail i...
- ^) -->
-- [X] T012 [US1] Integration test for full pipeline run on a subset of 2 sites in `tests/integration/test_pipeline.py`
-
-### Implementation for User Story 1
-
-- [ ] T012b [US1] Generate `data/raw/site_coordinates.csv` containing paired site coordinates (ecotourism and control) with biome and protection status metadata
-- [ ] T012c [US1] Generate `data/ecotourism/revenue_data.csv` containing placeholder or real visitor/revenue data for multiple sites.; create `data/ecotourism/metadata.json` with source info <!-- FAILED: unspecified -->
-- [~] T013 [US1] Implement `code/data_acquisition.py`: Download Landsat Level-2 data via USGS API for 30 paired sites using chunked streaming; load site coordinates from `data/raw/site_coordinates.csv`
- *Note: Implements Landsat 8/9 only (Landsat ceased operation in 2011.). Requires T044 to update spec.md FR-001.*
-- [~] T014 [US1] Implement `code/data_acquisition.py`: Log all API query parameters and versions to `data/raw/query_log.json`
-- [X] T015 [US1] Implement `code/preprocessing.py`: Calculate NDVI from surface reflectance bands
-- [X] T016 [US1] Implement `code/preprocessing.py`: Apply cloud masking using USGS QA band or Fmask algorithm <!-- ATOMIZE: requested -->
-- [~] T017 [US1] Implement `code/preprocessing.py`: Pair sites logic (same biome, similar initial NDVI drop ±10%); exclude sites with >50% data gaps; output consolidated `data/processed/ndvi_timeseries.parquet` and `data/processed/site_metadata.csv`
-- [~] T018 [US1] Implement `code/preprocessing.py`: Fetch and validate ecotourism revenue/visitor data from `data/ecotourism/revenue_data.csv`; output to `data/processed/ecotourism_data.csv` with metadata in `data/ecotourism/metadata.json`
-- [X] T029 [US1] [FR-007] [Edge-Cases] Implement `code/preprocessing.py`: Handle missing revenue data: if revenue column is null, use visitor count; if both null, exclude site. Log substitution in metadata.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Deforestation Detection and Recovery Trajectory Modeling (Priority: P2)
-
-**Goal**: Automatically detect deforestation events (NDVI drop ≥0.30 sustained over 2 years) and calculate recovery trajectories using non-linear asymptotic models.
-
-**Independent Test**: Run detection on synthetic data with known events; verify break-point identification and model fit (R² ≥ 0.95).
-
-### Tests for User Story 2 (OPTIONAL) ⚠️
-
-- [X] T021 [P] [US2] Unit test for break-point detection algorithm in `tests/unit/test_detection.py`
-- [X] T022 [P] [US2] Unit test for asymptotic model fitting in `tests/unit/test_detection.py`
-
-### Implementation for User Story 2
-
-- [X] T023 [US2] Implement `code/detection.py`: Deforestation event detection logic (NDVI drop ≥0.30, sustained ≥2 years)
- *Note: Spec.md FR-002 defines deforestation as '2-year sustained drop' which may contradict 'break-point' logic. Task implements spec as written but flags for review.*
-- [X] T024 [US2] Implement `code/detection.py`: Filter sites with no clear deforestation event (NDVI drop <0.30)
-- [X] T025 [US2] Implement `code/detection.py`: Fit non-linear asymptotic model (logistic/Gompertz) to recovery phase (mid-to-long term); verify R² ≥ 0.95
- *Note: If non-linear fit fails (R² < 0.95), linear slope is the ACCEPTED metric.*
-- [X] T026 [US2] Implement `code/detection.py`: Fallback to linear slope calculation for an initial short-term window if asymptotic fit fails (R² < 0.95); mark as ACCEPTED metric per spec FR-002
-- [X] T027 [US2] Implement `code/detection.py`: Handle "incomplete recovery" cases (recovery period <5 years) - flag and exclude from primary slope analysis
-- [ ] T028 [US2] Generate `data/processed/recovery_trajectories.parquet` containing event start/end, severity, and trajectory parameters
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Statistical Inference and Sensitivity Analysis (Priority: P3)
-
-**Goal**: Fit linear mixed-effects models to test ecotourism association with regeneration, control for covariates, and perform sensitivity analysis on thresholds.
-
-**Independent Test**: Run model on processed dataset; verify output includes coefficients, p-values, and sensitivity report across thresholds.
-
-### Tests for User Story 3 (OPTIONAL) ⚠️
-
-- [ ] T030 [P] [US3] Unit test for mixed-effects model convergence in `tests/unit/test_modeling.py`
-- [ ] T031 [P] [US3] Unit test for sensitivity analysis logic in `tests/unit/test_modeling.py`
-
-### Implementation for User Story 3
-
-- [ ] T032 [US3] [FR-003] Load climate covariates from `data/processed/climate_covariates.parquet` (produced by T009) for use in mixed-effects model; control for precipitation (CHIRPS) and temperature (MODIS)
-- [ ] T033 [US3] Implement `code/modeling.py`: Fit Linear Mixed-Effects Model (LMM) with 'pair' as random effect, controlling for climate and initial severity; apply Bonferroni/Holm correction per [FR-005]
-- [ ] T034 [US3] Implement `code/modeling.py`: Sensitivity analysis sweeping revenue thresholds (low, medium, and high tiers) and proxy variables (revenue vs. visitor count); perform sensitivity comparison between revenue-based and visitor-count-based models as required by [FR-007] and Edge Cases
-- [ ] T035 [US3] Implement `code/report.py`: Generate final report with regression coefficients, CIs, sensitivity tables, and data quality pass/fail flags; output to `data/processed/final_report.json` per [FR-006]
-- [ ] T036 [US3] Implement `code/report.py`: Output `data/processed/sensitivity_analysis.csv` per [FR-004]
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T037 [P] Documentation updates: Create `README.md` with setup instructions
-- [ ] T038 [P] Documentation updates: Create `specs/001-ecotourism-regeneration/data-model.md` with entity descriptions
-- [ ] T039 [P] Documentation updates: Create `specs/001-ecotourism-regeneration/methodology.md` with data source citations and traceability to metadata entries
-- [ ] T040 Code cleanup and refactoring
-- [ ] T041 [P] [SC-005] [FR-001] Performance optimization: Verify peak memory usage ≤7GB during full pipeline run
-- [ ] T042 [P] Additional unit tests for edge cases (cloudy data, missing revenue) in `tests/unit/`
-- [ ] T043 Run `quickstart.md` validation to ensure reproducibility on CPU-only runner
-
----
-
-## Revision Tasks: Addressing Spec/Plan Clarifications
-
-**Purpose**: Explicitly address reviewer concerns regarding Landsat operational dates, site counts, and model convergence strategies.
-
-- [ ] T044 [P] [FR-001] [US-1] Update `specs/001-ecotourism-regeneration/spec.md` to replace "Landsat 5/8/9 " with "Landsat 8/9" in FR-001 and US-1 to reflect operational reality (Landsat missions ceased operation in 2011. [UNRESOLVED-CLAIM: c_b7c434d6 — status=not_enough_info]).
-- [ ] T045 [P] [SC-001] Update `specs/001-ecotourism-regeneration/spec.md` to replace "[deferred]" in SC-001 with the explicit number "30".
-- [ ] T046 [P] [FR-002] Update `specs/001-ecotourism-regeneration/spec.md` FR-002 to explicitly state that if non-linear asymptotic fitting fails (R² < 0.95), the linear slope fallback is the primary accepted metric for that site.
-- [ ] T047 [P] [Plan] Update `specs/001-ecotourism-regeneration/plan.md` to confirm the 30-site target and document the specific revenue thresholds used in the sensitivity analysis.
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
- - T009 depends on T006 (schema) to write valid parquet files.
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User Story 1 (P1): Can start after Foundational. T013 depends on T012b. T018 depends on T013. T029 depends on T018.
- - User Story 2 (P2): Depends on US1 completion (requires `data/processed/ndvi_timeseries.parquet` and `data/processed/ecotourism_data.csv`).
- - User Story 3 (P3): Depends on US2 completion (requires `data/processed/recovery_trajectories.parquet`).
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-- **Revision Tasks**: Can be executed in parallel with Phase 1/2 or immediately after spec review.
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: T012b -> T013 -> T015/T016 -> T017 -> T018 -> T029
-- **User Story 2 (P2)**: Depends on US1 completion
-- **User Story 3 (P3)**: Depends on US2 completion
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] (T005, T006a-c, T007) can run in parallel. T009 is NOT [P] as it depends on T006.
-- Once Foundational phase completes, User Story 1 can start.
-- Within US1: T012b must complete before T013. T013 must complete before T015/T016. T015/T016 can run in parallel. T017 depends on T015/T016. T018 depends on T013 (and T012c). T029 depends on T018.
-- Once US1 completes, User Story 2 can start.
-- Once US2 completes, User Story 3 can start.
-- All tests for a user story marked [P] can run in parallel.
-- Revision tasks (T044-T047) can be executed in parallel with development tasks as they only modify documentation.
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (T012b -> T013 -> T015 -> T017 -> T018 -> T029)
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational (T006a-c, T005, T007) together. T009 waits for T006.
-2. Once Foundational is done:
- - Developer A: User Story 1 (T012b -> T013 -> T015 -> T017 -> T018 -> T029)
- - Developer B: Revision Tasks (T044-T047)
-3. Once US1 completes:
- - Developer A: User Story 2
-4. Once US2 completes:
- - Developer A: User Story 3
-5. Stories complete and integrate sequentially
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies (within same phase/story)
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- Spec.md Update Required: Landsat 5 reference in FR-001/US1 Acceptance Scenarios contradicts operational reality; update to Landsat 8/9 only (T044).
-- Spec.md Update Required: SC-001 '[deferred]' site count needs explicit number (30) (T045).
-- Spec.md Update Required: FR-002 '2-year sustained drop' definition may need clarification to align with 'break-point' logic.
-- Spec.md Update Required: FR-002 non-linear model requirement for short windows risks non-convergence; linear fallback is ACCEPTED metric if R² < 0.95 (T046).
+**Inputs**: `specs/001-investigating-the-potential-benefits-of/spec.md`, `plan.md`, `data-model.md`, contracts.  
+**Scope**: Observational study (no causal claims) of ecotourism association with NDVI recovery rates, 2000‑2023, ≤30 paired sites, CPU‑only, RAM < 7 GB, real data only.
+
+## Phase 1 – Data acquisition, preprocessing, and first end‑to‑end run  
+
+- [ ] T001 [US1] Verify core specification clauses and log failures.   <!-- FAILED-IN-EXECUTION: code/fetch_site_coordinates.py exit=1; code/main.py exit=1 -->
+  - Open `specs/001-investigating-the-potential-benefits-of/spec.md`.  
+  - Confirm that **SC‑001** contains the phrase “up to 30 valid sites”.  
+  - Confirm that **FR‑002** includes the note about the linear‑slope fallback.  
+  - If either check fails, write a descriptive error entry to `state/spec_validation.log` and raise `RuntimeError` to halt the pipeline.  
+  - Verification: `grep -q "up to 30 valid sites" spec.md && grep -q "linear slope fallback" spec.md` succeeds; `state/spec_validation.log` is non‑empty only on failure.
+
+- [X] T002 Create required project directory hierarchy with placeholder files.  
+  - Make the following directories (if they do not exist): `data/raw/landsat/`, `data/processed/`, `data/ecotourism/`, `data/results/`, `figures/`.  
+  - Add an empty `.gitkeep` file in each directory to guarantee its presence in version control.  
+  - Verification: `find data -type d -exec test -e {}/.gitkeep \; -print` lists all created folders.
+
+- [ ] T003 [US1] Retrieve protected‑area metadata (WDPA) and produce site metadata.   <!-- FAILED-IN-EXECUTION: code/fetch_site_coordinates.py exit=1 -->
+  - Download the canonical WDPA CSV from `[UNRESOLVED-CLAIM: https://d1gam3xoknrgr2.cloudfront.net/current/WDPA_WDOECM_csv.zip` — HTTP 404].  
+  - Stream the zip, filter for candidate sites, and write `data/processed/site_metadata.csv` with columns `site_id,site_type,latitude,longitude,biome,protection_status,pairing_id`.  
+  - Log the exact request URL, HTTP status, and timestamp to `data/raw/query_log.json`.  
+  - On any network or schema error, raise `RuntimeError` and write details to `data/raw/fetch_error.log`.  
+  - Verification: `csvstat data/processed/site_metadata.csv` shows ≥ 2 rows; `data/raw/query_log.json` contains a non‑empty entry.
+
+- [ ] T004 [US1] Acquire ecotourism economic records and generate metadata.  
+  - Download revenue and visitor‑count CSVs from the URLs listed in the plan’s verified report list (e.g., `[UNRESOLVED-CLAIM: https://example.org/ecotourism/revenue.csv` — HTTP 404]).  
+  - Store raw files under `data/ecotourism/`.  
+  - Create `data/ecotourism/metadata.json` listing, for each site, `source_name`, `retrieval_date`, and `preprocessing_steps`.  
+  - If a site lacks a revenue value, substitute the visitor count as the proxy variable and record `"proxy_used": "visitor_count"` in the JSON entry.  
+  - Verification: `jq . data/ecotourism/metadata.json` shows entries for all sites; no site entry has both `revenue` and `proxy_used` missing.
+
+- [ ] T005 [US1] Download Landsat Level‑2 Surface Reflectance scenes in RAM‑safe batches.  
+  - Read `data/processed/site_metadata.csv` to obtain site coordinates.  
+  - Use `landsatxplore` to query the USGS API for scenes covering 2000‑2023 for each site.  
+  - Process scenes in chunked batches; monitor memory via `psutil`. If RAM usage exceeds 7 GB, raise `MemoryError` and abort the current batch.  
+  - Save each scene under `data/raw/landsat/` preserving the original filename.  
+  - After each successful download, compute a SHA‑256 checksum and append `{scene_id: checksum}` to `data/raw/landsat/checksums.json`.  
+  - On any download failure, raise `RuntimeError` and log to `data/raw/fetch_error.log`.  
+  - Verification: At least two `.tif` files exist in `data/raw/landsat/`; `checksums.json` contains a matching entry for each; a simulated OOM triggers a `MemoryError`.
+
+- [ ] T006 [US1] Compute NDVI time series with quality control and schema validation.  
+  - For each downloaded scene, apply cloud masking (retain pixels with `cloud_cover ≤ 20 %`).  
+  - For Landsat 7 SLC‑off scenes, apply gap‑masking before NDVI calculation.  
+  - Compute NDVI = (NIR‑Red) / (NIR + Red) and emit per‑pixel records: `site_id, date, ndvi, scene_id, cloud_cover, qa_pixel, qa_radsat, is_valid`.  
+  - Store the aggregated per‑site series as `data/processed/ndvi_timeseries.parquet`.  
+  - Validate every record against `specs/001-investigating-the-potential-benefits-of/contracts/timeseries.schema.yaml` (using the generated Pydantic model). Ensure no nulls in `site_id`, `date`, `ndvi`.  
+  - Include unit tests in `code/tests/test_preprocessing.py` for cloud masking and NDVI formula.  
+  - Verification: `pytest code/tests/test_preprocessing.py` passes; parquet file contains ≥ 2 sites; schema validation succeeds.
+
+## Phase 2 – Modeling, sensitivity, and final reporting  
+
+- [ ] T007 [US2] Fetch climate covariates (CHIRPS precipitation & MODIS LST) and store them.  
+  - For each site‑year, query the CHIRPS point API (`[UNRESOLVED-CLAIM: https://data.chc.ucsb.edu/products/CHIRPS-2.0/` — HTTP 404]) to obtain monthly precipitation totals.  
+  - Query the NASA POWER API (`[UNRESOLVED-CLAIM: https://power.larc.nasa.gov/api/temporal/monthly/point` — HTTP 404]) for monthly land‑surface temperature.  
+  - Stream responses to avoid loading the entire dataset in memory; write rows `site_id, year, month, precip_mm, temp_c` to `data/processed/climate_covariates.parquet`.  
+  - Log every HTTP request (URL, status, timestamp) to `data/raw/query_log.json`.  
+  - **Verification**: Ensure **both** precipitation and temperature are present for every site‑year combination; raise `RuntimeError` if any pair is missing. Also confirm that the `year` column contains no nulls.  
+  - On any API error, raise `RuntimeError` and record details in `data/raw/fetch_error.log`.  
+  - Verification: Parquet contains > 0 rows; `query_log.json` has entries for both APIs; a forced 404 aborts with a logged error.
+
+- [ ] T008 [US2] Pair ecotourism sites with control sites and merge economic data.  
+  - Using `data/processed/site_metadata.csv`, match each ecotourism site to a control site in the same biome and with initial NDVI severity difference ≤ 10 %.  
+  - Write the pairing table to `data/processed/site_pairs.csv` (columns `ecotourism_site_id, control_site_id`).  
+  - Merge the economic dataframe (`data/ecotourism/`) using the proxy logic from T004 and output `data/processed/ecotourism_data.csv`.  
+  - **Verification**: Confirm that every pair satisfies the biome‑match and severity‑difference criteria; abort with `RuntimeError` if any pair violates the ≤ 10 % rule. Also verify equal numbers of ecotourism and control rows and no missing proxy values.  
+  - Verification: `site_pairs.csv` has equal numbers of ecotourism and control rows; `ecotourism_data.csv` contains no missing values in the proxy column.
+
+- [ ] T009 [US2] Detect deforestation events and fit recovery‑trajectory models.  
+  - Scan `ndvi_timeseries.parquet` for each site to locate break‑points where NDVI drops ≥ 0.30 and remains below that threshold for ≥ 2 years.  
+  - For each detected event, fit a non‑linear asymptotic model (logistic or Gompertz) using `scipy.optimize.curve_fit`. Compute R².  
+  - If R² < 0.95, fall back to a linear slope fitted over the recovery window (per FR‑002).  
+  - Write results to `data/processed/recovery_trajectories.parquet` with fields `site_id, event_start, event_end, severity, trajectory_params, model_type, r_squared`.  
+  - **Verification**: Assert that every recorded event meets the ≥ 0.30 NDVI drop and ≥ 2‑year duration thresholds; raise `RuntimeError` otherwise.  
+  - Include unit tests in `code/tests/test_detection.py` for breakpoint detection and fallback logic.  
+  - Verification: `pytest code/tests/test_detection.py` passes; parquet contains no nulls in `model_type` or `r_squared`.
+
+- [ ] T010 [US3] Fit the Linear Mixed‑Effects Model, apply multiple‑comparison correction, and perform sensitivity sweeps.  
+  - Using `statsmodels`’ `MixedLM`, model the recovery slope (or linear fallback slope) as the outcome with fixed effects: `ecotourism_status`, `precipitation`, `temperature`, `initial_severity`. Include a random intercept for each ecotourism‑control pair.  
+  - Apply Holm correction to raw p‑values (fallback to Bonferroni if Holm fails).  
+  - Count converged fits; require ≥ 90 % of site‑pairs to converge. Abort with error if the threshold is not met.  
+  - Sensitivity analysis: sweep three revenue thresholds (1 000, 10 000, 50 000 USD) and both proxy variables (`revenue_usd`, `visitor_count`). For each configuration, refit the model and record `r_squared`, `AIC`, `convergence`.  
+  - Write primary model output to `data/results/lmm_results.json` (coefficients, SE, 95 % CI, raw & corrected p‑values).  
+  - Write the full sensitivity table to `data/results/sensitivity_analysis.csv` respecting the `SensitivityArtifact` contract.  
+  - **Verification**: Confirm that the corrected p‑values were produced using Holm (or Bonferroni) and that the correction method is recorded in the results metadata.  
+  - Unit tests in `code/tests/test_modeling.py` verify convergence counting and correction implementation.  
+  - Verification: `pytest code/tests/test_modeling.py` passes; `convergence_check.json` reports ≥ 90 % converged; `sensitivity_analysis.csv` has 6 rows (3 thresholds × 2 proxies).
+
+- [ ] T015 Extend the `FinalReport` contract to include confidence‑interval fields and add a validation test.  
+  - Edit `specs/001-investigating-the-potential-benefits-of/contracts/output.schema.yaml` so that each entry in `regression_coefficients` is an object with keys `estimate`, `ci_lower`, `ci_upper` (all floats).  
+  - Regenerate the Pydantic model via `code/utils/schema_loader.py`.  
+  - Add `code/tests/test_output_schema.py` that loads a sample JSON containing CI fields and asserts successful validation.  
+  - Verification: `pytest code/tests/test_output_schema.py` passes; downstream tasks (T011) validate against the updated schema without error.
+
+- [ ] T011 [FR‑006] Generate final reports (CSV + JSON) compliant with the updated `FinalReport` schema.  
+  - Assemble regression coefficients (including `estimate`, `ci_lower`, `ci_upper`) from `lmm_results.json`.  
+  - Embed the full sensitivity list (from T010) and any data‑quality flags (e.g., low‑R² recoveries, proxy substitutions) into a JSON object matching `specs/001-investigating-the-potential-benefits-of/contracts/output.schema.yaml`.  
+  - Write `data/results/final_report.json` and copy it to `data/processed/final_report.json`.  
+  - Also produce a CSV version `data/processed/final_report.csv` with columns `variable, estimate, ci_lower, ci_upper, p_value, corrected_p_value`.  
+  - Run a schema validation step (`pydantic` loader) to ensure the JSON conforms; abort with error if validation fails.  
+  - **Verification**: Ensure that every coefficient entry includes non‑null `ci_lower` and `ci_upper` fields before validation.  
+  - Verification: `python -m code.report --validate` exits with status 0; both JSON and CSV files exist and contain the required fields.
+
+- [ ] T012 Write a deterministic research narrative (`research.md`).  
+  - Create `specs/001-investigating-the-potential-benefits-of/research.md`.  
+  - The script `code/utils/render_report.py` reads `final_report.json` and `sensitivity_analysis.csv` and injects all numeric results via Jinja2 placeholders, guaranteeing no hand‑typed numbers.  
+  - Include sections: Methods (data sources, preprocessing, detection, modeling), Results (effect sizes, confidence intervals, corrected p‑values), Sensitivity (tables), Limitations (e.g., sites excluded, proxy substitution).  
+  - **Verification**: After rendering, confirm that no Jinja2 placeholder tokens remain (`{{` or `}}`) **and** that a predefined list of required statistics (e.g., `ecotourism_effect`, `precipitation_coeff`) appears in the document; raise `RuntimeError` if any are missing.  
+  - Verification: `grep -q "{{" research.md && echo "placeholders remain"` returns non‑zero; script runs without error; required stats present.
+
+- [ ] T013 Execute a clean re‑run from the documented quick‑start command and produce the paper handoff.  
+  - Follow the command documented in `quickstart.md` on a fresh runner.  
+  - Ensure all `pytest` suites pass, all schema validations succeed, and the final artifacts (`final_report.json`, `figures/`, `tables/`) are regenerated.  
+  - Generate `specs/001-investigating-the-potential-benefits-of/paper_handoff.md` listing exact repository paths for all deliverables, summarising effect sizes and corrected p‑values.  
+  - Verification: Fresh run ends with exit code 0; `paper_handoff.md` exists and references existing files.
+
+## Phase 3 – Reproducibility, compliance, and contract updates  
+
+- [ ] T014 Consolidate all file checksums into a manifest and update project state.  
+  - Merge `data/raw/landsat/checksums.json` with any additional checksum files into `data/raw/checksums_manifest.json`.  
+  - Run `code/utils/update_state_hashes.py` to write the manifest entries into `state/projects/PROJ-555-investigating-the-potential-benefits-of-.yaml` under `artifact_hashes`.  
+  - Verification: The state YAML contains a hash entry for every file under `data/`; mismatches raise `RuntimeError`.
+
+- [ ] T016 Validate ecotourism metadata completeness.  
+  - Load `data/ecotourism/metadata.json` and confirm that every entry contains the keys `source_name`, `retrieval_date`, and `preprocessing_steps`.  
+  - Raise `RuntimeError` if any entry is missing a required field.  
+  - Verification: Script exits with status 0 only when all entries are complete.
+
+- [ ] T017 Validate absence of nulls in critical ‘year’ fields across all output datasets.  
+  - Scan `data/processed/climate_covariates.parquet`, `data/processed/site_pairs.csv`, and any other tables for null values in the `year` column.  
+  - Raise `RuntimeError` if any nulls are found.  
+  - Verification: Passes only when all year fields are populated.
+
+- [ ] T018 Verify pairing criteria adherence.  
+  - Re‑evaluate the `site_pairs.csv` to ensure each ecotourism‑control pair shares the same `biome` and that the absolute difference in `initial_ndvi` ≤ 0.10.  
+  - Abort with `RuntimeError` on any violation.  
+  - Verification: Successful only when all pairs meet the criteria.
+
+- [ ] T019 Verify multiple‑comparison correction application.  
+  - Inspect `data/results/lmm_results.json` to confirm that corrected p‑values were derived using Holm correction (or Bonferroni fallback) and that the method used is recorded in the result metadata.  
+  - Raise `RuntimeError` if correction is absent or method not recorded.  
+  - Verification: Passes when correction metadata is present and correct.
+
+- [ ] T020 Verify detection thresholds compliance.  
+  - Re‑run a lightweight check on `recovery_trajectories.parquet` to ensure every recorded event satisfies NDVI drop ≥ 0.30 and duration ≥ 2 years.  
+  - Raise `RuntimeError` on any breach.  
+  - Verification: Passes only when all events meet thresholds.
+
+- [ ] T021 Full end‑to‑end pipeline verification on maximum load.  
+  - Execute the complete pipeline (T003‑T020) on a curated set of 30 valid sites using streaming/chunked processing.  
+  - Monitor peak RAM usage; assert it stays below 7 GB.  
+  - After completion, confirm that all previous verification tasks (T014‑T020) succeed.  
+  - Verification: Pipeline finishes without memory error and all downstream checks pass.
+
+- [ ] T022 Run Reference‑Validator Agent to verify all external citations meet Constitution Principle II.  
+  - Invoke the platform’s citation‑validation utility on the repository.  
+  - Abort with `RuntimeError` if any citation fails the Verified Accuracy check.  
+  - Verification: Successful only when all citations are validated.
+
+- [ ] T023 Update the FinalReport schema with CI fields **before** any consumer tasks (already handled by T015).  
+  - No additional action; placeholder to document ordering compliance.
+
+- [ ] T024 Ensure final report JSON includes CI fields (handled in T011 verification).  
+  - No additional action; placeholder to document compliance.
+
+- [ ] T025 Confirm research narrative injection completeness (handled in T012 verification).  
+  - No additional action; placeholder to document compliance.

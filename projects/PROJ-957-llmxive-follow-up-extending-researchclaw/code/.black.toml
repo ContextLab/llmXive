@@ -1,0 +1,3 @@
+# Black configuration for llmXive project
+# Extends pyproject.toml settings.
+extend = "pyproject.toml"

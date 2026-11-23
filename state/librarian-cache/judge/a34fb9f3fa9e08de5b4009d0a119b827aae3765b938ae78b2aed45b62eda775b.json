@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1408.5265",
+  "judged_at": "2026-08-04T19:01:00Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting avian migration patterns from publicly available ebird data biology",
+  "rationale": "The paper focuses on a video game simulation (\"Angry Birds\") and uses the term \"bird\" in a fictional context, which constitutes a distinct construct sharing only a homonym keyword with the user's question about real-world avian biology and migration. It has no measurable connection to the user's domain (ecology), variables (migration patterns), or empirical setting (eBird data).",
+  "relevant": false
+}

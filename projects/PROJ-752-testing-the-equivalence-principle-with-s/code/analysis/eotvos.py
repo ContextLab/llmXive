@@ -1,173 +1,201 @@
-"""
-Eotvos Parameter Estimation Module
-
-Computes the Eotvos parameter (η) and its 95% confidence interval
-from the joint orbit solution covariance matrix.
-"""
 import numpy as np
 from typing import Dict, Tuple, Optional
 from dataclasses import dataclass, field
+import json
+import os
+import sys
+import logging
 
-from models.estimator import OrbitSolution, extract_joint_parameters
-from utils.logging import get_logger, AnalysisError
+# Add project root to path to ensure imports work when running as script
+if "code" not in sys.path:
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    if project_root not in sys.path:
+        sys.path.insert(0, project_root)
+
+from utils.logging import get_logger, log_progress, log_error, AnalysisError
+from config import get_config
 
 logger = get_logger(__name__)
 
-
 @dataclass
 class EotvosResult:
-    """Container for the Eotvos parameter estimation results."""
+    """
+    Container for the calculated Eötvös parameter and associated statistics.
+    """
     eta: float
     eta_std: float
-    eta_ci_95_lower: float
-    eta_ci_95_upper: float
+    eta_95_ci_lower: float
+    eta_95_ci_upper: float
     ac: float
     g: float
-    covariance_ac_g: np.ndarray
-    success: bool
-    message: str = field(default="")
+    ac_std: float
+    covariance_matrix: np.ndarray
+    source_file: str
+    timestamp: str = field(default_factory=lambda: "N/A")
 
     def to_dict(self) -> Dict:
-        """Convert result to a JSON-serializable dictionary."""
         return {
             "eta": self.eta,
             "eta_std": self.eta_std,
-            "eta_ci_95_lower": self.eta_ci_95_lower,
-            "eta_ci_95_upper": self.eta_ci_95_upper,
+            "eta_95_ci_lower": self.eta_95_ci_lower,
+            "eta_95_ci_upper": self.eta_95_ci_upper,
             "ac": self.ac,
             "g": self.g,
-            "covariance_ac_g": self.covariance_ac_g.tolist(),
-            "success": self.success,
-            "message": self.message
+            "ac_std": self.ac_std,
+            "covariance_matrix": self.covariance_matrix.tolist(),
+            "source_file": self.source_file,
+            "timestamp": self.timestamp
         }
 
-
-def compute_eotvos_parameter(solution: OrbitSolution) -> EotvosResult:
+def compute_eotvos_parameter(params: Dict) -> EotvosResult:
     """
-    Compute the Eotvos parameter η = |a_c| / g and its 95% confidence interval.
-
-    This function extracts the differential acceleration (a_c) and local gravity (g)
-    from the joint orbit solution, then calculates η and propagates the uncertainty
-    from the joint covariance matrix.
-
+    Compute the Eötvös parameter ($\eta$) and its 95% Confidence Interval.
+    
+    This function consumes the output dictionary from T025 (extract_joint_parameters).
+    
+    Formula: $\eta = |a_c| / g$
+    
+    Error Propagation (First-order Taylor approximation):
+    $\sigma_\eta \approx \frac{1}{g} \sigma_{a_c}$
+    (Assuming $g$ is a deterministic constant derived from the state vector, 
+    and $a_c$ is the stochastic parameter from the covariance matrix).
+    
     Args:
-        solution: The joint orbit solution object containing parameters and covariance.
-
+        params (Dict): Dictionary containing 'ac', 'g', and 'covariance' (2D numpy array).
+                       Expected keys: 'ac', 'g', 'covariance'.
+                       'ac' is the differential acceleration parameter.
+                       'g' is the local gravity magnitude.
+                       'covariance' is the joint covariance matrix where the first element
+                       (index 0,0) corresponds to the variance of 'ac'.
+    
     Returns:
-        EotvosResult object containing η, its uncertainty, 95% CI, and diagnostic info.
-
+        EotvosResult: Object containing the calculated eta, standard deviation, and CI.
+    
     Raises:
-        AnalysisError: If the solution is invalid or covariance extraction fails.
+        AnalysisError: If input parameters are missing, invalid, or non-converged.
     """
-    logger.info("Computing Eotvos parameter from joint solution...")
-
-    try:
-        # Extract parameters and covariance from the joint solution
-        params = extract_joint_parameters(solution)
-        ac = params['ac']
-        g = params['g']
-        cov_matrix = params['covariance']
-
-        # Validate inputs
-        if not isinstance(cov_matrix, np.ndarray):
-            raise AnalysisError("Covariance matrix must be a numpy array.")
-
-        if cov_matrix.shape != (2, 2):
-            raise AnalysisError(
-                f"Expected 2x2 covariance matrix for [ac, g], got shape {cov_matrix.shape}"
-            )
-
-        if g == 0:
-            raise AnalysisError("Local gravity g is zero, cannot compute η.")
-
-        # Compute η
-        eta = abs(ac) / g
-        logger.info(f"Computed η = {eta:.6e}")
-
-        # Uncertainty propagation using the delta method
-        # η = |ac| / g
-        # For small uncertainties, the variance is approximated by:
-        # Var(η) ≈ (∂η/∂ac)^2 * Var(ac) + (∂η/∂g)^2 * Var(g) + 2*(∂η/∂ac)*(∂η/∂g)*Cov(ac,g)
-
-        # Partial derivatives evaluated at the solution
-        # dη/dac = sign(ac) / g  (using sign to handle the absolute value)
-        # dη/dg = -|ac| / g^2 = -η / g
-
-        sign_ac = 1.0 if ac >= 0 else -1.0
-        d_eta_d_ac = sign_ac / g
-        d_eta_d_g = -eta / g
-
-        # Extract variances and covariance from the matrix
-        # Assuming cov_matrix[0,0] is Var(ac), cov_matrix[1,1] is Var(g), cov_matrix[0,1] is Cov(ac,g)
-        var_ac = cov_matrix[0, 0]
-        var_g = cov_matrix[1, 1]
-        cov_ac_g = cov_matrix[0, 1]
-
-        # Compute variance of η
-        var_eta = (
-            (d_eta_d_ac ** 2) * var_ac +
-            (d_eta_d_g ** 2) * var_g +
-            2 * d_eta_d_ac * d_eta_d_g * cov_ac_g
-        )
-
-        if var_eta < 0:
-            # Numerical issue: clamp to zero if slightly negative
-            logger.warning(f"Computed negative variance for η ({var_eta}), clamping to 0.")
-            var_eta = 0.0
-
-        std_eta = np.sqrt(var_eta)
-
-        # Compute 95% Confidence Interval (using normal approximation, z=1.96)
-        z_score = 1.96
-        eta_ci_lower = eta - z_score * std_eta
-        eta_ci_upper = eta + z_score * std_eta
-
-        logger.info(f"η = {eta:.6e} ± {std_eta:.6e} (95% CI: [{eta_ci_lower:.6e}, {eta_ci_upper:.6e}])")
-
-        return EotvosResult(
-            eta=eta,
-            eta_std=std_eta,
-            eta_ci_95_lower=eta_ci_lower,
-            eta_ci_95_upper=eta_ci_upper,
-            ac=ac,
-            g=g,
-            covariance_ac_g=cov_matrix,
-            success=True,
-            message="Computation successful."
-        )
-
-    except KeyError as e:
-        msg = f"Failed to extract required parameters from solution: {e}"
-        logger.error(msg)
-        raise AnalysisError(msg) from e
-    except Exception as e:
-        msg = f"Unexpected error during Eotvos computation: {e}"
-        logger.error(msg)
-        raise AnalysisError(msg) from e
-
-
-def run_eotvos_analysis(solution: OrbitSolution, output_path: Optional[str] = None) -> EotvosResult:
-    """
-    Run the full Eotvos analysis pipeline.
-
-    This is a convenience wrapper that computes the parameter and optionally
-    saves the result to a file.
-
-    Args:
-        solution: The joint orbit solution.
-        output_path: Optional path to save the result as JSON.
-
-    Returns:
-        EotvosResult object.
-    """
-    result = compute_eotvos_parameter(solution)
-
-    if output_path:
-        import json
-        import os
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(result.to_dict(), f, indent=2)
-        logger.info(f"Eotvos result saved to {output_path}")
-
+    log_progress(logger, "Computing Eötvös parameter from joint solution...")
+    
+    required_keys = ['ac', 'g', 'covariance']
+    for key in required_keys:
+        if key not in params:
+            raise AnalysisError(f"Missing required key '{key}' in input parameters. "
+                                f"Ensure T025 (extract_joint_parameters) has populated the dictionary correctly.")
+    
+    ac = params['ac']
+    g = params['g']
+    cov_matrix = params['covariance']
+    
+    if not isinstance(cov_matrix, np.ndarray):
+        cov_matrix = np.array(cov_matrix)
+    
+    if cov_matrix.ndim != 2 or cov_matrix.shape[0] != cov_matrix.shape[1]:
+        raise AnalysisError(f"Covariance matrix must be a square 2D array. Got shape: {cov_matrix.shape}")
+    
+    if g <= 0:
+        raise AnalysisError(f"Local gravity 'g' must be positive. Got: {g}")
+    
+    # Extract variance of ac (assumed to be the first parameter in the joint vector)
+    # If the joint solution has more parameters, ac is at index 0 based on T025 logic
+    ac_variance = cov_matrix[0, 0]
+    
+    if ac_variance < 0:
+        raise AnalysisError(f"Negative variance detected for ac: {ac_variance}. "
+                            "This indicates a non-positive-definite covariance matrix or numerical instability.")
+    
+    ac_std = np.sqrt(ac_variance)
+    
+    # Calculate eta = |ac| / g
+    eta = abs(ac) / g
+    
+    # Calculate standard deviation of eta using error propagation
+    # sigma_eta = (1/g) * sigma_ac
+    eta_std = ac_std / g
+    
+    # Calculate 95% Confidence Interval
+    # For a normal distribution, 95% CI is approx mean +/- 1.96 * std
+    z_score_95 = 1.96
+    eta_95_ci_lower = eta - (z_score_95 * eta_std)
+    eta_95_ci_upper = eta + (z_score_95 * eta_std)
+    
+    result = EotvosResult(
+        eta=eta,
+        eta_std=eta_std,
+        eta_95_ci_lower=eta_95_ci_lower,
+        eta_95_ci_upper=eta_95_ci_upper,
+        ac=ac,
+        g=g,
+        ac_std=ac_std,
+        covariance_matrix=cov_matrix,
+        source_file=params.get('source_file', 'unknown')
+    )
+    
+    log_progress(logger, f"Calculated eta: {eta:.4e} +/- {eta_std:.4e} (95% CI: [{eta_95_ci_lower:.4e}, {eta_95_ci_upper:.4e}])")
+    
     return result
+
+def run_eotvos_analysis(input_file: str, output_file: str) -> EotvosResult:
+    """
+    Main entry point to run the Eötvös analysis on a saved joint solution.
+    
+    Args:
+        input_file (str): Path to the JSON file containing the output of T025 
+                          (extract_joint_parameters).
+        output_file (str): Path where the EotvosResult JSON will be saved.
+    
+    Returns:
+        EotvosResult: The computed result object.
+    
+    Raises:
+        FileNotFoundError: If input_file does not exist.
+        json.JSONDecodeError: If input_file is not valid JSON.
+        AnalysisError: If computation fails.
+    """
+    if not os.path.exists(input_file):
+        raise FileNotFoundError(f"Input file not found: {input_file}")
+    
+    logger.info(f"Loading joint parameters from {input_file}")
+    with open(input_file, 'r') as f:
+        params = json.load(f)
+    
+    # Ensure covariance is loaded as numpy array
+    if 'covariance' in params and isinstance(params['covariance'], list):
+        params['covariance'] = np.array(params['covariance'])
+    
+    result = compute_eotvos_parameter(params)
+    
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_file), exist_ok=True)
+    
+    logger.info(f"Saving Eötvös result to {output_file}")
+    with open(output_file, 'w') as f:
+        json.dump(result.to_dict(), f, indent=2)
+    
+    return result
+
+def main():
+    """
+    CLI entry point for T026.
+    Expects paths to the joint solution parameters and output file.
+    """
+    import argparse
+    
+    parser = argparse.ArgumentParser(description="Compute Eötvös parameter from joint orbit solution.")
+    parser.add_argument("--input", type=str, required=True, 
+                        help="Path to the JSON file with joint parameters (from T025).")
+    parser.add_argument("--output", type=str, required=True,
+                        help="Path to save the Eötvös result JSON.")
+    
+    args = parser.parse_args()
+    
+    try:
+        result = run_eotvos_analysis(args.input, args.output)
+        print(f"Analysis complete. Result saved to: {args.output}")
+        print(f"Eötvös Parameter (η): {result.eta:.6e}")
+        print(f"95% CI: [{result.eta_95_ci_lower:.6e}, {result.eta_95_ci_upper:.6e}]")
+    except Exception as e:
+        log_error(logger, f"Failed to compute Eötvös parameter: {e}")
+        raise
+
+if __name__ == "__main__":
+    main()

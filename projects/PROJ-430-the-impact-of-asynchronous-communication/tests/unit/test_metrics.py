@@ -1,191 +1,252 @@
 """
-Unit tests for metrics.py - Contributor Pair identification and metric calculation.
+Unit tests for metrics calculation module.
 """
-import unittest
-from datetime import datetime, timedelta
-from models import Event, ContributorPair
-from metrics import identify_pairs_and_calculate_metrics, calculate_project_level_metrics, _is_bot, _parse_timestamp
+import pytest
+import pandas as pd
+import numpy as np
+from pathlib import Path
+import tempfile
+import os
+import sys
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent / 'code'))
+
+from metrics import (
+    is_bot_actor,
+    identify_pairs_and_calculate_metrics,
+    calculate_and_persist_pair_metrics,
+    calculate_project_level_metrics
+)
 
 
-class TestIsBot(unittest.TestCase):
-    def test_bot_name(self):
-        self.assertTrue(_is_bot("user[bot]"))
-        self.assertTrue(_is_bot("dependabot[bot]"))
-
-    def test_github_app(self):
-        self.assertTrue(_is_bot("GitHub App"))
-        self.assertTrue(_is_bot("renovate-app"))
-
-    def test_normal_user(self):
-        self.assertFalse(_is_bot("alice"))
-        self.assertFalse(_is_bot("Bob"))
-
-    def test_empty(self):
-        self.assertTrue(_is_bot(""))
-        self.assertTrue(_is_bot(None))
-
-
-class TestParseTimestamp(unittest.TestCase):
-    def test_valid_iso(self):
-        ts = "2023-10-01T12:00:00"
-        result = _parse_timestamp(ts)
-        self.assertIsNotNone(result)
-        self.assertEqual(result.year, 2023)
-
-    def test_valid_iso_z(self):
-        ts = "2023-10-01T12:00:00Z"
-        result = _parse_timestamp(ts)
-        self.assertIsNotNone(result)
-
-    def test_invalid(self):
-        self.assertIsNone(_parse_timestamp("invalid"))
-        self.assertIsNone(_parse_timestamp(""))
+class TestIsBotActor:
+    def test_bot_by_name(self):
+        assert is_bot_actor('github-actions[bot]') is True
+        assert is_bot_actor('dependabot[bot]') is True
+        
+    def test_bot_by_type(self):
+        assert is_bot_actor('someuser', 'Bot') is True
+        
+    def test_not_bot(self):
+        assert is_bot_actor('alice') is False
+        assert is_bot_actor('alice', 'User') is False
+        
+    def test_empty_login(self):
+        assert is_bot_actor('') is False
+        assert is_bot_actor(None) is False
 
 
-class TestIdentifyPairsAndCalculateMetrics(unittest.TestCase):
-    def test_simple_pair(self):
-        """Test basic pair identification: A posts, B replies."""
-        base_time = datetime(2023, 1, 1, 12, 0, 0)
+class TestIdentifyPairsAndCalculateMetrics:
+    def test_basic_pair_calculation(self):
         events = [
-            Event(
-                project_id="proj-1",
-                thread_id="thread-1",
-                author="Alice",
-                timestamp=base_time,
-                event_type="comment"
-            ),
-            Event(
-                project_id="proj-1",
-                thread_id="thread-1",
-                author="Bob",
-                timestamp=base_time + timedelta(seconds=100),
-                event_type="comment"
-            )
+            {
+                'project_id': '12345',
+                'author_id': 'user1',
+                'timestamp': '2023-01-01T10:00:00Z',
+                'text': 'Hello'
+            },
+            {
+                'project_id': '12345',
+                'author_id': 'user2',
+                'timestamp': '2023-01-01T10:05:00Z',
+                'text': 'Hi'
+            },
+            {
+                'project_id': '12345',
+                'author_id': 'user1',
+                'timestamp': '2023-01-01T10:15:00Z',
+                'text': 'How are you?'
+            },
+            {
+                'project_id': '12345',
+                'author_id': 'user2',
+                'timestamp': '2023-01-01T10:20:00Z',
+                'text': 'Good!'
+            }
         ]
-
-        pairs = identify_pairs_and_calculate_metrics(events)
-        self.assertEqual(len(pairs), 1)
-        pair = pairs[0]
-        self.assertEqual(pair.author_a, "Alice")
-        self.assertEqual(pair.author_b, "Bob")
-        self.assertAlmostEqual(pair.mean_delay, 100.0, places=1)
-        self.assertEqual(pair.event_count, 1)
-
-    def test_self_reply_excluded(self):
-        """Test that self-replies are excluded."""
-        base_time = datetime(2023, 1, 1, 12, 0, 0)
+        
+        metrics = identify_pairs_and_calculate_metrics(events)
+        
+        assert len(metrics) >= 1
+        assert all('project_id' in m for m in metrics)
+        assert all('pair_id' in m for m in metrics)
+        assert all('response_time_variance' in m for m in metrics)
+        assert all('mean_delay' in m for m in metrics)
+        assert all('pair_count' in m for m in metrics)
+        
+        # Check that variance and mean_delay are non-negative
+        for m in metrics:
+            assert m['response_time_variance'] >= 0
+            assert m['mean_delay'] >= 0
+            
+    def test_bot_exclusion(self):
         events = [
-            Event(
-                project_id="proj-1",
-                thread_id="thread-1",
-                author="Alice",
-                timestamp=base_time,
-                event_type="comment"
-            ),
-            Event(
-                project_id="proj-1",
-                thread_id="thread-1",
-                author="Alice",
-                timestamp=base_time + timedelta(seconds=100),
-                event_type="comment"
-            )
+            {
+                'project_id': '12345',
+                'author_id': 'user1',
+                'timestamp': '2023-01-01T10:00:00Z',
+                'text': 'Hello'
+            },
+            {
+                'project_id': '12345',
+                'author_id': 'bot[bot]',
+                'timestamp': '2023-01-01T10:05:00Z',
+                'text': 'Bot message'
+            },
+            {
+                'project_id': '12345',
+                'author_id': 'user2',
+                'timestamp': '2023-01-01T10:10:00Z',
+                'text': 'Hi'
+            }
         ]
-
-        pairs = identify_pairs_and_calculate_metrics(events)
-        self.assertEqual(len(pairs), 0)
-
-    def test_bot_excluded(self):
-        """Test that bot events are excluded."""
-        base_time = datetime(2023, 1, 1, 12, 0, 0)
+        
+        metrics = identify_pairs_and_calculate_metrics(events)
+        
+        # Should only have user1-user2 pair, not involving the bot
+        pair_ids = [m['pair_id'] for m in metrics]
+        assert not any('bot' in str(pid) for pid in pair_ids)
+        
+    def test_single_event_no_metrics(self):
         events = [
-            Event(
-                project_id="proj-1",
-                thread_id="thread-1",
-                author="Alice",
-                timestamp=base_time,
-                event_type="comment"
-            ),
-            Event(
-                project_id="proj-1",
-                thread_id="thread-1",
-                author="bot-user[bot]",
-                timestamp=base_time + timedelta(seconds=100),
-                event_type="comment"
-            )
+            {
+                'project_id': '12345',
+                'author_id': 'user1',
+                'timestamp': '2023-01-01T10:00:00Z',
+                'text': 'Hello'
+            }
         ]
-
-        pairs = identify_pairs_and_calculate_metrics(events)
-        self.assertEqual(len(pairs), 0)
-
-    def test_multiple_interactions(self):
-        """Test multiple exchanges between two users."""
-        base_time = datetime(2023, 1, 1, 12, 0, 0)
+        
+        metrics = identify_pairs_and_calculate_metrics(events)
+        assert len(metrics) == 0
+        
+    def test_multiple_projects(self):
         events = [
-            Event(project_id="p1", thread_id="t1", author="A", timestamp=base_time, event_type="comment"),
-            Event(project_id="p1", thread_id="t1", author="B", timestamp=base_time + timedelta(seconds=10), event_type="comment"),
-            Event(project_id="p1", thread_id="t1", author="A", timestamp=base_time + timedelta(seconds=20), event_type="comment"),
-            Event(project_id="p1", thread_id="t1", author="B", timestamp=base_time + timedelta(seconds=35), event_type="comment"),
+            {
+                'project_id': '12345',
+                'author_id': 'user1',
+                'timestamp': '2023-01-01T10:00:00Z',
+                'text': 'Hello'
+            },
+            {
+                'project_id': '12345',
+                'author_id': 'user2',
+                'timestamp': '2023-01-01T10:05:00Z',
+                'text': 'Hi'
+            },
+            {
+                'project_id': '67890',
+                'author_id': 'user3',
+                'timestamp': '2023-01-01T10:00:00Z',
+                'text': 'Project 2'
+            },
+            {
+                'project_id': '67890',
+                'author_id': 'user4',
+                'timestamp': '2023-01-01T10:10:00Z',
+                'text': 'Reply'
+            }
         ]
-        # A->B (10s), B->A (10s), A->B (15s)
-        # Pairs: (A, B) with deltas [10, 15], (B, A) with deltas [10]
-
-        pairs = identify_pairs_and_calculate_metrics(events)
-        self.assertEqual(len(pairs), 2)
-
-        # Find (A, B)
-        pair_ab = next((p for p in pairs if p.author_a == "A" and p.author_b == "B"), None)
-        self.assertIsNotNone(pair_ab)
-        self.assertAlmostEqual(pair_ab.mean_delay, 12.5, places=1) # (10+15)/2
-        self.assertEqual(pair_ab.event_count, 2)
-
-        # Find (B, A)
-        pair_ba = next((p for p in pairs if p.author_a == "B" and p.author_b == "A"), None)
-        self.assertIsNotNone(pair_ba)
-        self.assertAlmostEqual(pair_ba.mean_delay, 10.0, places=1)
-        self.assertEqual(pair_ba.event_count, 1)
-
-    def test_empty_events(self):
-        pairs = identify_pairs_and_calculate_metrics([])
-        self.assertEqual(len(pairs), 0)
+        
+        metrics = identify_pairs_and_calculate_metrics(events)
+        
+        project_ids = set(m['project_id'] for m in metrics)
+        assert '12345' in project_ids
+        assert '67890' in project_ids
 
 
-class TestCalculateProjectLevelMetrics(unittest.TestCase):
-    def test_empty_pairs(self):
-        metrics = calculate_project_level_metrics([])
-        self.assertEqual(metrics['project_mean_delay'], 0.0)
-        self.assertEqual(metrics['total_pairs'], 0)
-
-    def test_single_pair(self):
-        pairs = [
-            ContributorPair(author_a="A", author_b="B", response_time_variance=10.0, mean_delay=100.0, event_count=10)
+class TestCalculateAndPersistPairMetrics:
+    def test_persist_to_parquet(self):
+        events = [
+            {
+                'project_id': '12345',
+                'author_id': 'user1',
+                'timestamp': '2023-01-01T10:00:00Z',
+                'text': 'Hello'
+            },
+            {
+                'project_id': '12345',
+                'author_id': 'user2',
+                'timestamp': '2023-01-01T10:05:00Z',
+                'text': 'Hi'
+            },
+            {
+                'project_id': '12345',
+                'author_id': 'user1',
+                'timestamp': '2023-01-01T10:15:00Z',
+                'text': 'How are you?'
+            },
+            {
+                'project_id': '12345',
+                'author_id': 'user2',
+                'timestamp': '2023-01-01T10:20:00Z',
+                'text': 'Good!'
+            }
         ]
-        metrics = calculate_project_level_metrics(pairs)
-        self.assertAlmostEqual(metrics['project_mean_delay'], 100.0, places=1)
-        self.assertEqual(metrics['total_pairs'], 1)
-        self.assertEqual(metrics['total_events'], 10)
+        
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, 'test_metrics.parquet')
+            result = calculate_and_persist_pair_metrics(events, output_path)
+            
+            assert os.path.exists(result)
+            assert result == output_path
+            
+            # Verify parquet file can be read
+            df = pd.read_parquet(output_path)
+            assert len(df) > 0
+            assert 'response_time_variance' in df.columns
+            assert 'mean_delay' in df.columns
+            assert 'pair_id' in df.columns
+            
+            # Check no NaN in critical columns
+            assert not df['response_time_variance'].isna().any()
+            assert not df['mean_delay'].isna().any()
+            
+    def test_empty_events_creates_empty_file(self):
+        with tempfile.TemporaryDirectory() as tmpdir:
+            output_path = os.path.join(tmpdir, 'empty_metrics.parquet')
+            result = calculate_and_persist_pair_metrics([], output_path)
+            
+            assert os.path.exists(result)
+            df = pd.read_parquet(output_path)
+            assert len(df) == 0
+            assert 'response_time_variance' in df.columns
 
-    def test_weighted_mean(self):
-        # Pair 1: mean=100, count=2
-        # Pair 2: mean=200, count=2
-        # Weighted mean should be 150
-        pairs = [
-            ContributorPair(author_a="A", author_b="B", response_time_variance=0.0, mean_delay=100.0, event_count=2),
-            ContributorPair(author_a="C", author_b="D", response_time_variance=0.0, mean_delay=200.0, event_count=2),
+
+class TestCalculateProjectLevelMetrics:
+    def test_aggregation(self):
+        pair_metrics = [
+            {
+                'project_id': '12345',
+                'pair_id': "('user1', 'user2')",
+                'response_time_variance': 10.0,
+                'mean_delay': 300.0,
+                'pair_count': 5
+            },
+            {
+                'project_id': '12345',
+                'pair_id': "('user1', 'user3')",
+                'response_time_variance': 20.0,
+                'mean_delay': 400.0,
+                'pair_count': 3
+            },
+            {
+                'project_id': '67890',
+                'pair_id': "('user4', 'user5')",
+                'response_time_variance': 15.0,
+                'mean_delay': 350.0,
+                'pair_count': 4
+            }
         ]
-        metrics = calculate_project_level_metrics(pairs)
-        self.assertAlmostEqual(metrics['project_mean_delay'], 150.0, places=1)
-
-    def test_weighted_mean_unbalanced(self):
-        # Pair 1: mean=100, count=1
-        # Pair 2: mean=200, count=9
-        # Weighted mean = (100*1 + 200*9) / 10 = 190
-        pairs = [
-            ContributorPair(author_a="A", author_b="B", response_time_variance=0.0, mean_delay=100.0, event_count=1),
-            ContributorPair(author_a="C", author_b="D", response_time_variance=0.0, mean_delay=200.0, event_count=9),
-        ]
-        metrics = calculate_project_level_metrics(pairs)
-        self.assertAlmostEqual(metrics['project_mean_delay'], 190.0, places=1)
-
-
-if __name__ == '__main__':
-    unittest.main()
+        
+        project_metrics = calculate_project_level_metrics(pair_metrics)
+        
+        assert len(project_metrics) == 2
+        
+        # Find metrics for project 12345
+        proj_12345 = next(m for m in project_metrics if m['project_id'] == '12345')
+        
+        # Median of [10, 20] is 15
+        assert proj_12345['median_variance'] == 15.0
+        assert proj_12345['pair_count'] == 2

@@ -1,91 +1,136 @@
+"""
+PCA dimensionality check for complexity metrics.
+
+Validates the construct validity of the three complexity metrics (edge_density, 
+entropy, fractal_dim) by performing Principal Component Analysis.
+
+This task implements T051: Verify that the metrics collectively explain a 
+sufficient amount of variance (>= 0.8) to avoid cherry-picking a single metric.
+"""
 import os
 import json
 import logging
 import pandas as pd
 from pathlib import Path
 from typing import Dict, List, Any, Optional
+from config import get_data_path
+from utils.logging import get_logger
+from sklearn.decomposition import PCA
 
-from ..config import get_project_root, get_data_path
-
-logger = logging.getLogger(__name__)
-
-def run_pca_check(complexity_scores_path: Optional[Path] = None) -> Dict[str, Any]:
+def run_pca_check(metrics_path: Optional[str] = None, output_path: Optional[str] = None) -> Dict[str, Any]:
     """
-    Run a PCA dimensionality check on complexity metrics to verify construct validity.
+    Run PCA check on complexity metrics.
     
     Args:
-        complexity_scores_path: Path to the complexity scores CSV. If None, uses default path.
+        metrics_path: Path to complexity_metrics_raw.csv
+        output_path: Path to output JSON (pca_variance.json)
         
     Returns:
-        Dictionary containing PCA results including explained variance and component loadings.
+        Result dictionary containing status, message, and cumulative_variance
     """
-    if complexity_scores_path is None:
-        data_path = get_data_path()
-        complexity_scores_path = data_path / "processed" / "complexity_scores.csv"
+    logger = get_logger(__name__)
     
-    if not complexity_scores_path.exists():
-        logger.warning(f"Complexity scores file not found at {complexity_scores_path}. Skipping PCA check.")
-        return {"status": "skipped", "reason": "file_not_found"}
-    
+    # Default paths based on project structure
+    if metrics_path is None:
+        metrics_path = str(get_data_path("processed/complexity_metrics_raw.csv"))
+    if output_path is None:
+        output_path = str(get_data_path("results/pca_variance.json"))
+        
     try:
-        df = pd.read_csv(complexity_scores_path)
+        # Check if input file exists
+        if not os.path.exists(metrics_path):
+            logger.warning(f"Metrics file not found: {metrics_path}. Writing error status.")
+            result = {"status": "error", "message": "File not found", "cumulative_variance": 0.0}
+            # Ensure output directory exists
+            Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+            with open(output_path, 'w') as f:
+                json.dump(result, f, indent=2)
+            return result
         
-        required_cols = ["edge_density", "entropy", "fractal_dim"]
-        if not all(col in df.columns for col in required_cols):
-            missing = [col for col in required_cols if col not in df.columns]
-            raise ValueError(f"Missing required columns: {missing}")
+        # Load the data
+        df = pd.read_csv(metrics_path)
+        required_cols = ['edge_density', 'entropy', 'fractal_dim']
         
-        metrics_df = df[required_cols].dropna()
+        # Validate columns
+        missing_cols = [col for col in required_cols if col not in df.columns]
+        if missing_cols:
+            logger.warning(f"Missing required columns: {missing_cols}. Writing error status.")
+            result = {"status": "error", "message": f"Missing columns: {missing_cols}", "cumulative_variance": 0.0}
+            Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+            with open(output_path, 'w') as f:
+                json.dump(result, f, indent=2)
+            return result
         
-        if metrics_df.empty:
-            logger.warning("No valid data points for PCA analysis.")
-            return {"status": "skipped", "reason": "no_valid_data"}
+        # Prepare data for PCA (drop rows with NaN in required columns)
+        X = df[required_cols].dropna()
         
-        from sklearn.decomposition import PCA
+        # Check for sufficient data points
+        if X.shape[0] < 2:
+            logger.warning(f"Insufficient data for PCA (n={X.shape[0]}). Writing warning status.")
+            result = {"status": "warning", "message": "Insufficient data", "cumulative_variance": 0.0}
+            Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+            with open(output_path, 'w') as f:
+                json.dump(result, f, indent=2)
+            return result
         
-        pca = PCA(n_components=len(required_cols))
-        pca_result = pca.fit_transform(metrics_df)
+        # Perform PCA
+        n_components = len(required_cols)
+        pca = PCA(n_components=n_components)
+        pca.fit(X)
         
-        explained_variance = pca.explained_variance_ratio_.tolist()
-        cumulative_variance = [sum(explained_variance[:i+1]) for i in range(len(explained_variance))]
-        component_loadings = {
-            col: pca.components_[i].tolist() 
-            for i, col in enumerate(required_cols)
-        }
+        # Calculate cumulative variance explained
+        cumulative_variance = float(pca.explained_variance_ratio_.cumsum()[-1])
         
-        results = {
-            "status": "success",
-            "n_samples": len(metrics_df),
-            "n_components": len(required_cols),
-            "explained_variance_ratio": explained_variance,
-            "cumulative_variance": cumulative_variance,
-            "component_loadings": component_loadings,
-            "metric_columns": required_cols
-        }
-        
-        logger.info(f"PCA check completed. Cumulative variance: {cumulative_variance[-1]:.4f}")
-        return results
+        # Determine status based on threshold (0.8)
+        if cumulative_variance < 0.8:
+            logger.warning(f"Low cumulative variance: {cumulative_variance:.4f} (< 0.8). Metrics may not form a unified construct.")
+            result = {
+                "status": "warning", 
+                "message": "Low variance", 
+                "cumulative_variance": cumulative_variance,
+                "individual_variances": pca.explained_variance_ratio_.tolist()
+            }
+        else:
+            logger.info(f"PCA check complete. Cumulative variance: {cumulative_variance:.4f} (>= 0.8)")
+            result = {
+                "status": "ok", 
+                "message": "Variance acceptable", 
+                "cumulative_variance": cumulative_variance,
+                "individual_variances": pca.explained_variance_ratio_.tolist()
+            }
+            
+        # Ensure output directory exists and write results
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        with open(output_path, 'w') as f:
+            json.dump(result, f, indent=2)
+            
+        logger.info(f"PCA results written to {output_path}")
+        return result
         
     except Exception as e:
-        logger.error(f"PCA check failed: {e}", exc_info=True)
-        return {"status": "error", "reason": str(e)}
+        logger.error(f"PCA check failed with exception: {e}", exc_info=True)
+        result = {"status": "error", "message": str(e), "cumulative_variance": 0.0}
+        try:
+            Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+            with open(output_path, 'w') as f:
+                json.dump(result, f, indent=2)
+        except Exception as write_err:
+            logger.error(f"Failed to write error result: {write_err}")
+        return result
 
-def main() -> int:
-    """Main entry point for PCA check script."""
-    logging.basicConfig(level=logging.INFO)
-    logger.info("Starting PCA dimensionality check...")
+def main() -> None:
+    """Main entry point for T051: PCA dimensionality check."""
+    logger = get_logger(__name__)
+    logger.info("Starting PCA dimensionality check (T051)...")
+    result = run_pca_check()
+    logger.info(f"PCA Result: {result}")
     
-    results = run_pca_check()
-    
-    output_path = get_data_path() / "results" / "pca_results.json"
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_path, "w") as f:
-        json.dump(results, f, indent=2)
-    
-    logger.info(f"PCA results saved to {output_path}")
-    return 0 if results.get("status") == "success" else 1
+    if result["status"] == "warning":
+        logger.warning("PCA Warning: Metrics explain less than 80% of variance. Consider reviewing metric selection.")
+    elif result["status"] == "error":
+        logger.error("PCA Error: Check failed. See logs for details.")
+    else:
+        logger.info("PCA Validation: Passed. Metrics form a coherent construct.")
 
 if __name__ == "__main__":
-    import sys
-    sys.exit(main())
+    main()

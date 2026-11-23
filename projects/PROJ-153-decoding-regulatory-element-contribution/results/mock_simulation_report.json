@@ -1,0 +1,86 @@
+{
+  "timestamp": "2024-01-15T10:30:00.000000",
+  "task_id": "T62c",
+  "total_scripts": 11,
+  "successful_scripts": 11,
+  "failed_scripts": 0,
+  "expected_outputs": 25,
+  "found_outputs": 25,
+  "missing_outputs": 0,
+  "script_results": {
+    "03_annotate.py": {
+      "success": true,
+      "error": null
+    },
+    "04_filter.py": {
+      "success": true,
+      "error": null
+    },
+    "05b_check_collinearity.py": {
+      "success": true,
+      "error": null
+    },
+    "05b_compute_delta_signal.py": {
+      "success": true,
+      "error": null
+    },
+    "05c_compute_weights.py": {
+      "success": true,
+      "error": null
+    },
+    "05_validate_cre_gating.py": {
+      "success": true,
+      "error": null
+    },
+    "06_fit_gls_with_r2.py": {
+      "success": true,
+      "error": null
+    },
+    "08_visualize.py": {
+      "success": true,
+      "error": null
+    },
+    "10_generate_reports_with_r2.py": {
+      "success": true,
+      "error": null
+    },
+    "00_verify_manifest.py": {
+      "success": true,
+      "error": null
+    },
+    "01_stream_eqtl.py": {
+      "success": true,
+      "error": null
+    }
+  },
+  "missing_files": [],
+  "found_files": [
+    "data/processed/CRE_merged.bed",
+    "data/processed/peak_signal_matrix.tsv",
+    "data/processed/null_region_signal.bed",
+    "data/processed/delta_peak_signal.tsv",
+    "data/processed/motif_validation_flags.tsv",
+    "data/processed/vif_flags.tsv",
+    "data/processed/weights.tsv",
+    "data/processed/cre_all_vif_filtered.tsv",
+    "data/processed/weighted_delta_signal.tsv",
+    "data/processed/lmm_results.tsv",
+    "results/CRE_ranked_heatshock.md",
+    "results/CRE_ranked_osmotic.md",
+    "results/CRE_ranked_oxidative.md",
+    "data/processed/top_cres_threshold_0.01.tsv",
+    "data/processed/top_cres_threshold_0.05.tsv",
+    "data/processed/top_cres_threshold_0.10.tsv",
+    "results/fdr_sweep_summary.tsv",
+    "results/permutation_pvalue.csv",
+    "results/permutation_checkpoint.pkl",
+    "results/Statistical_summary.pdf",
+    "results/bias_sensitivity.csv",
+    "tracks/heatshock_CRE_signal.bw",
+    "tracks/osmotic_CRE_signal.bw",
+    "tracks/oxidative_CRE_signal.bw",
+    "results/summit_match_stats.tsv",
+    "data/processed/cre_validation_log.yaml",
+    "results/traceability_manifest.json"
+  ]
+}

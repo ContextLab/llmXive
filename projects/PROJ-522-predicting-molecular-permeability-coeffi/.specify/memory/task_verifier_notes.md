@@ -1,0 +1,15 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T001b** — No evidence of any `__init__.py` files in the `code/` or `tests/` subdirectories is provided; without seeing those files we cannot confirm they exist and are non‑empty. The required package initializer files are missing from the artifact set.
+- **T001c** — No `.gitkeep` files are present in any `data/` subdirectory; the repository lacks the required placeholder files to preserve empty directories in version control. The task therefore remains undone.
+- **T012a** — The `code/ingestion.py` file exists but does not contain logic to write the fetched datasets to `data/raw/*.parquet`, and the three required parquet files are absent from the repository. Consequently the task’s output requirement is not satisfied.
+- **T012c** — The `deduplicate_smiles` function is present and correctly aggregates duplicates, but the script never writes the resulting DataFrame to `data/processed/deduplicated.csv`, and that CSV file is missing. Additionally, the provided `ingestion.py` is truncated, so the saving step is not implemented. The required output artifact is absent.
+- **T012d** — The required output files `data/processed/exclusion_log.json` and `data/processed/validation_report.json` are absent, and the provided `code/ingestion.py` (as shown) does not contain logic to filter rows with missing permeability values, log exclusion reasons, write the validation report, or raise an error when fewer than 500 unique compounds remain. These core requirements are missing.
+- **T012e** — The `code/ingestion.py` file is truncated (the `merge_sources` implementation ends abruptly and never writes the merged CSV), and the required output file `data/processed/merged_dataset.csv` does not exist. Both the function implementation and the expected artifact are missing.
+- **T014** — declared artifact(s) missing/empty/invalid: data/processed/exclusion_log.json
+- **T017** — No streaming implementation script, test, or logs were provided; there is no artifact demonstrating that dataset loading with `streaming=True` enforces a < 2 GB memory limit and fails when the full dataset cannot fit. The required code and evidence are missing.
+- **T017e** — The repository contains `code/escape_hatch.py`, but the provided excerpt never writes the required `data/processed/escape_hatch_log.json` (the file is missing) and the script appears to trigger a training script rather than re‑run the ingestion step. Consequently the required output file with the specified schema is not produced, so the task is not fully satisfied.
+- **T022b** — declared artifact(s) missing/empty/invalid: data/processed/predictions.csv
+- **T024** — declared artifact(s) missing/empty/invalid: data/processed/statistical_comparison.csv

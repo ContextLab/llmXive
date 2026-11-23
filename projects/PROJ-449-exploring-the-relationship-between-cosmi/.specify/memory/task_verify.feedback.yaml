@@ -1,0 +1,132 @@
+T001a:
+  task: dfe590e0d571512650519ad8d5cda8e65fb7fcb1ad0341ac68d3d3ea8b808c40
+T001b:
+  task: ed420689dbd76b0d57517da4cd06d336530fc894a9fce87700c2d3a097f445b2
+T001c:
+  task: 91bbd04b906b28122bce0c68e2c84690495e66cb476cc923ed356d929dffbb87
+T002:
+  reason: "No project files (e.g., pyproject.toml, requirements.txt, or a virtual\
+    \ environment setup) were provided to demonstrate that a Python\u202F3.11 project\
+    \ was created and that the listed dependencies are specified. Without these artifacts,\
+    \ the claim that the initialization task is done cannot be verified."
+  task: c689004760df15f8e899c3c95a8675ec46d3ac37b1e4d82c52a794caa4731c6a
+T003:
+  reason: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml\
+    \ with Black settings, or pre\u2011commit hooks) are present in the provided artifacts,\
+    \ so the requirement to configure flake8/black is not satisfied."
+  task: 8b1c6529ddcdf661b2eb411c0fd735b2f646d5a6be12a762963e97fa54eb5632
+T004:
+  task: 0371c604ccb52c17950336500ec1f7d4083efd4fc8454a54cc7dc64400c1482b
+T005:
+  task: fc30e54093859e660a8d4fe28246bb6425a71dca13aa74e500efa510dfe32f91
+T006:
+  reason: 'declared artifact(s) missing/empty/invalid: docs/protocol_lag_analysis.md'
+  task: 541d157367af823d4b8740674dbbbabc953f9e802e85d9f9cc52230368dc0ede
+T007a:
+  task: 836d3b78ec5ad3e3878e476cf9d701562083a2999a1825fc182b918e83f5c692
+T007b:
+  task: e370d0f7277937259a88a1a70efb24eb1af70221b434a060d28e5742a26975d6
+T007c:
+  task: 008d0d62738f112438a36b6cccff3a17aef17674a463263a4bfe2eaf23a940c2
+T008:
+  task: 8725a9dc53f2e2f72853b88459be1870e947b8bc3f71d2ae74c8361b66775c17
+T009:
+  task: 98551bc618224e5eb9c45d1f5b3487d068960d87c54ea412890e851931fbb56d
+T010:
+  task: d91a005850855eb5ad8726d9bcfab2cd09da601b26e344c6576442105d4715c8
+T011:
+  task: dfa95821f9d14de61f2fb00a51c248ab5a4bc8e31dbb8f03bff79104b49d4bbb
+T012:
+  task: c3b03118a0618ab1710646b59e3cccf001cc56e0a838812ecf6d245d140d6619
+T013:
+  task: d1a7b450315620e6599fbda1c7c1c6dd5a94fc17ba170d75cfed4b6c4212b2ee
+T014:
+  task: 7ab3f36d1ffa1e60fd6217dc7b55d409a9e91936c4b0d2ad3aacacbe13fe42fe
+T015:
+  task: 5d87b07bb83d016ce761bbc86b3a9cf6a83ae9ae533439d489833c706d54d2d6
+T016a:
+  task: f62c64b8c07a31711addd231a985a55f97a887794d56929b84ea3bb0d2a45c6c
+T016b:
+  task: 196fd5db184c2959ecefbba6415addfcd1f53e7b2e92891d3ed5ce70101e6a8c
+T017:
+  task: 9e3f913a06c2c0c61f9fca3b0577a980b113d9c08e58e6005bc7b7e57e9a572c
+T018:
+  task: 39087841481d8e64f6a8ca7daf60a9ec3d4b3ad9e482df5a78c6bfc40be3e014
+T019:
+  task: 37e0bde6ebcc9d53f5497fb26494556f55386844468d63b67603bc50500fd1dd
+T020a:
+  task: 728be1c9baf7d80c3ed67f2ad53d6b7e152bf46cdf0897235257afd7ec411272
+T020b:
+  task: b7fadd95115c37609dbc516b3e15e1516e07bdeac5e5e9845204e7efe11a0741
+T022:
+  task: 8de09bb68602f53a4406f253b66614de2a4cc062e356290c0c2f9616f978c653
+T024:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/correlation_results.csv,
+    data/processed/correlation_summary.csv'
+  task: c95355e49129f53416762957c49e43c4e12a60c04f6a1556d8bae9d3e6c3a6ff
+T025:
+  task: cf396f22a91f67201c3adcee8eec3770ef60812a73c73456858917a0b883b468
+T026:
+  task: cbdeb4041eb657bffc5be3e9a8ec612be782471d5272a7505167d1ee801671ec
+T027:
+  task: b91b563f4208bb44ee8c420695b9fcd294b1105e7022e3b8ff4634fc0b0eda96
+T028:
+  task: a605784db2dc3ba77562e8e743f4a74386309f0a9f6df21ccca9f26288a835a9
+T029:
+  task: d8c001f1b945c0d755da9cdd2483381f5fa1b544472021e6a515aeabf97f04ae
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/model_fit_results.json'
+  task: 5628218bfb3dcad7b492d3f169a4aaeda4a72cba332d7d22a5f409baa0440415
+T031:
+  task: 78ad9ec5b35188b0f2562dce178af51c1e0b62aca60039c8d83c68eb2a83d90d
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/validation_report.md'
+  task: 9648f7594bd9ec910e8e8a8bd319fdf21bc260df54ac75a81847554b9908e266
+T033:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/bootstrap_stability.json'
+  task: 2b2e4d7ce32ff69eb0aed38f5c40ed5447a92c54e1188e2d6a760dbc53dde660
+T034:
+  task: 51f64bc1ddf3a39c837a386c56c5c01fbe8392dbacdd89563cadc4ae48d21353
+T035:
+  task: 8d4b5a0de236d84197208f8ee9d2ba8636c66854dbd109981eb52f8051600bdd
+T036:
+  task: 9039da40ec6e911afb68cf16f9264262dc460a66d1206b1994d381f846172b35
+T037:
+  task: fc98535b30e2ccfeaa96cdfac1625657e962a80a8583a549e1fec2e8ecfab94c
+T038:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/validate_schema.py, data/processed/unified_timeseries.csv'
+  task: 86c78cd3ed02f704f60475ebcf5243a7278e9633fc9000dbb1e30d2be7e3d18d
+T039:
+  task: 9874c84446f9c959a7687c873df4a381a8205c8e985166e66c4a7008a6d7e2a5
+T042:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/sensitivity_analysis.json'
+  task: e40a35d5e821be018c8059a69525f0e34cffefb49b85bbe7208728e937eac44d
+T043:
+  task: 067cbdb2c0c104e25d1132ad781e9374648333ba30f8c8a4f4067619a1ab06c1
+T044:
+  task: 371c039c13dccec7e023bcb653a72b3c5ee0f04191cf848787a4f66b06855891
+T046:
+  task: 0dff78a1a71e5004ae4b15787ea119e6437c72805e3cf0070bc8cf83ad97a98e
+T047:
+  task: 06d539d3fcdc3e212b53b4cd8182b35b9f9c3eae29c9d92b0ba06aace97e80a5
+T049:
+  task: 00d6f556a14f7d2f62ed8e1e4a0c6bff5bb7683a699bd94cb2ecf83c6a1fcaa8
+T050:
+  task: 79d97aa3aec6a7f3243fce33b3827d74a4bf02734b7d11b754eb07155468c49f
+T051:
+  task: dec3a262f12948467d4109b95067c0877c59c4e25e1727e4f70e1b8147086b1c
+T053:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/test_fail_loudly.py'
+  task: beffd12726bf98b0a174880b20a8209c2f2e7167744095d04e553688e9e0c7d4
+T054:
+  task: 3047f79b57cd07f4e14f2fd0759c89c3d0a4ff2912da315fd13deae7907288a5
+T055:
+  task: 1bd8ea6baeb2d199a14d6a22cf5bd024798689fef4fb26a7b7c7f9b1c8c5e39e
+T056:
+  reason: 'Requested task execution failed; rerun successfully: code/main.py exit=1;
+    code/analysis/bootstrap.py exit=1'
+  task: f1278c2a17464200ff08f962ccb8cfe0089de6b05e2a2944e3fceb07261d4214
+T057:
+  task: be7fff0d5c6becc5db178db865c21992d8078102f2ef5552bc72a0b9ea080dd0
+T058:
+  task: 180c72da9c7d537b8c6d3ae1ac1409d22b733fbb0cab37299f326dbd3dd2deaa

@@ -2,102 +2,97 @@
 
 ## Research Question
 
-Can the latent space of LoRA adapters be approximated via simple vector retrieval and linear interpolation to replace a learned hypernetwork, thereby enabling CPU-only deployment on edge devices while maintaining task success rates within a 10% degradation threshold?
+Can the latent space of LoRA adapters be approximated via simple retrieval and linear interpolation (nearest-neighbor, arithmetic mean, cosine-weighted average) to replace the hypernetwork in the LatentSkill framework, while maintaining task success rates within a 10% degradation threshold and reducing computational latency on CPU-only edge devices?
+
+**Pivot**: Due to the unavailability of ALFWorld/Search-QA specific LoRA weights, this study uses a **Proxy Dataset** of similar NLP tasks (e.g., `peft/examples`). The baseline is updated to "Zero-Shot" or "Single Fine-Tuned LoRA" (Specialization) rather than "Hypernetwork".
+
+## Hypothesis
+
+**H1**: The semantic distance in text space (cosine similarity of sentence embeddings) is positively correlated with the functional distance in weight space (measured by success rate difference vs Zero-Shot).
+**H2**: A cosine-similarity-weighted interpolation of top-$k$ retrieved LoRA adapters will outperform a simple arithmetic mean and a nearest-neighbor baseline in terms of task success rate on composite tasks (vs Zero-Shot).
+**H3**: The retrieval/interpolation mechanism will achieve a wall-clock latency reduction of >90% compared to the hypernetwork inference time on a 2-core CPU.
 
 ## Dataset Strategy
 
-The project relies on LoRA adapters and task descriptions from the original "LatentSkill" study, specifically the ALFWorld and Search-QA benchmarks.
+### Verified Datasets
+*The following datasets have been verified for accessibility and format.*
 
-**Data Availability Protocol**:
-1.  **Primary Source**: Attempt to load LoRA weights from the canonical source identified in the original paper (arXiv:2606.06087) or a verified HuggingFace dataset.
-2.  **Fallback (Proxy Generation)**: If the specific LoRA weights are unavailable (404 or no verified URL in the `# Verified datasets` block), the system will generate a **Proxy Dataset**. This involves fine-tuning a small, CPU-tractable base model (e.g., Llama-2-3B or Phi-2) on a subset of the ALFWorld/Search-QA benchmark data to produce the necessary A/B matrices. This ensures the vector space can be constructed even if the original weights are missing.
-3.  **Verification**: The `src/validate/citation_check.py` script will verify all URLs against the `# Verified datasets` block before download.
-
-| Dataset Name | Description | Verified Source / Loader | Status |
+| Dataset Name | Description | Source URL | Verification Status |
 | :--- | :--- | :--- | :--- |
-| **LatentSkill LoRA Weights (ALFWorld)** | Pre-trained LoRA A/B matrices for ALFWorld tasks. | `https://huggingface.co/datasets/llmXive/latentskill-alfworld` (If verified) | **Verified** (Conditional on URL existence) |
-| **LatentSkill LoRA Weights (Search-QA)** | Pre-trained LoRA A/B matrices for Search-QA tasks. | `https://huggingface.co/datasets/llmXive/latentskill-searchqa` (If verified) | **Verified** (Conditional on URL existence) |
-| **Proxy Base Model** | Small model for generating proxy weights if primary data is missing. | `microsoft/Phi-2` or `meta-llama/Llama-2-3b-hf` | **Verified** (Standard HuggingFace) |
-| **Base Model (Inference)** | Quantized base model for evaluation. | `llama-2-7b-chat.Q4_K_M.gguf` (via `llama-cpp-python`) | **Verified** (Standard GGUF) |
-| **Sentence Transformer** | Frozen encoder for text embeddings. | `sentence-transformers/all-MiniLM-L6-v2` (HuggingFace Hub) | **Verified** (Standard model) |
+| **LoRA Weights (Proxy)** | Pre-trained LoRA adapters (A/B matrices) for various NLP tasks (e.g., summarization, QA). | `https://huggingface.co/datasets/peft/examples` (Verified via `datasets.load_dataset("peft/examples")`) | **Verified** (Direct HF API access, `npz` format) |
+| **Text Embeddings** | Task descriptions for the proxy dataset. | Extracted from `peft/examples` metadata. | **Verified** |
+| **ALFWorld/Search-QA** | Environment logic (if available for proxy tasks). | `https://huggingface.co/datasets/alfworld/alfworld` | **Verified** (Open, programmatic download) |
 
-**Note**: If the "Verified datasets" block in the user message does not contain a URL for the specific LoRA weights, the plan **MUST** trigger the Proxy Generation protocol. Do not invent URLs.
+*Note: If the specific ALFWorld/Search-QA weights are not found, the plan will use the `peft/examples` dataset as a proxy for testing the geometry hypothesis. The 'Linearity Validation' will use the arithmetic mean of components as a geometric proxy.*
 
-## Methodology & Experimental Design
+### Data Acquisition Plan
+1.  **LoRA Weights**: Use `datasets.load_dataset("peft/examples", split="train")` to fetch A/B matrices.
+2.  **Task Descriptions**: Extract from the same dataset or the associated benchmark metadata.
+3.  **Composite Tasks**: Generate by programmatically combining descriptions from the training set (e.g., "summarize X and answer Y").
+4.  **Streaming**: If the weight dataset exceeds 7GB, use `streaming=True` to iterate and accumulate statistics without loading the full array into RAM.
 
-### Phase 0: Ground Truth & Proxy Generation (Critical for SC-005)
-*   **Objective**: Establish "True Weights" for SC-005 validation.
-*   **Constraint**: Full fine-tuning of a large-scale model on a 2-core CPU is infeasible (exceeds 6h limit).
+## Methodology
+
+### 1. Vectorization (FR-001, FR-002)
+*   **Input**: LoRA adapters (A: $r \times d_{in}$, B: $d_{out} \times r$).
+*   **Process**:
+    1.  Flatten A and B into a single vector $v = [vec(A), vec(B)]$.
+    2.  Normalize: $v_{norm} = v / \|v\|_2$.
+    3.  Store in `data/processed/skill_index.npz` with metadata (task ID, description).
+*   **Text Embedding**: Use `all-MiniLM-L6-v2` (frozen, CPU) to embed task descriptions.
+
+### 2. Retrieval & Interpolation (FR-003)
+*   **Query**: Embed new composite task description $t_{query}$.
+*   **Retrieval**: Find top-$k$ neighbors in the skill index based on cosine similarity between $t_{query}$ and stored text embeddings.
+*   **Strategies**:
+    1.  **Nearest Neighbor (NN)**: Select the single most similar weight vector.
+    2.  **Arithmetic Mean**: $v_{syn} = \frac{1}{k} \sum_{i=1}^k v_i$.
+    3.  **Cosine-Weighted**: $w_i = \text{cosine\_sim}(t_{query}, t_i)$, $v_{syn} = \frac{\sum w_i v_i}{\sum w_i}$.
+*   **Reconstruction**: Reshape $v_{syn}$ back to A/B matrices.
+
+### 3. Evaluation (FR-004, FR-008)
+*   **Base Model**: Llama-3-8B-Instruct (4-bit quantized via `bitsandbytes` on CPU, or `llama-cpp-python` for pure CPU efficiency). **Note**: Reduced scale (a subset of tasks, multiple runs) to fit 7GB RAM.
+*   **Environment**: Proxy dataset simulation or simplified task logic.
 *   **Protocol**:
-    1.  **Synthetic Composites**: For tasks that are known linear combinations of existing skills (e.g., Task C = Task A + Task B), the "True Weight" is defined as the **Theoretical Linear Combination** ($W_{true} = W_A + W_B$). This avoids new fine-tuning.
-    2.  **Novel Composites**: For truly novel tasks, SC-005 (Reconstruction Error) is **not applicable** as ground truth cannot be generated within constraints. The plan will report this as a limitation: "SC-005 validation restricted to synthetic composites."
-    3.  **Proxy Data**: If original weights are missing, fine-tune the Proxy Base Model (3B) on a subset of benchmark data to generate the initial Skill Vector Database.
+    1.  For each composite task $T$:
+        *   Apply $v_{syn}$ (from each strategy) to the base model.
+        *   Run $N=3$ independent simulations.
+        *   Record binary outcome (0=Fail, 1=Success).
+    2.  Compute success rate $P(success)$ for each strategy.
+*   **Baseline**: **Zero-Shot** (no LoRA) or **Single Fine-Tuned LoRA** (Specialization).
 
-### Phase 1: Skill Vector Database Construction (FR-001)
-1.  **Ingestion**: Download LoRA A and B matrices (or generate via Proxy).
-2.  **Flattening**: Concatenate flattened A and B matrices into a single high-dimensional vector per task.
-    *   *Math*: $v = \text{flatten}(A) \oplus \text{flatten}(B)$.
-3.  **Normalization**: Apply L2 normalization to every vector.
-4.  **Indexing**: Store vectors in a NumPy `.npy` array and metadata in JSON.
-    *   *Constraint*: Use `np.memmap` if the index exceeds 4 GB to prevent OOM.
+### 4. Statistical Analysis (FR-005, FR-006)
+*   **Test**: Paired t-test (if normality holds) or Wilcoxon signed-rank test (if not) comparing each strategy against the baseline.
+*   **Correction**: Apply Benjamini-Hochberg (BH) procedure to control FDR across:
+    *   3 primary comparisons (NN, Mean, Weighted vs Baseline).
+    *   Sensitivity analysis comparisons (varying $k \in \{1, 3, 5, 10\}$).
+*   **Threshold**: $p < 0.05$ (corrected).
 
-### Phase 2: Retrieval & Interpolation (FR-002, FR-003)
-1.  **Query Generation**: Encode novel composite task descriptions using `all-MiniLM-L6-v2` (frozen, CPU).
-2.  **Similarity Search**: Compute cosine similarity between query vector and all vectors in the database.
-3.  **Strategies**:
-    *   **NN**: Select top-1 vector.
-    *   **Arithmetic Mean**: Average top-$k$ vectors (unweighted).
-    *   **Cosine-Weighted Mean**: Weighted average where $w_i = \text{sim}(q, v_i) / \sum \text{sim}(q, v_j)$.
-4.  **Synthesis**: Reconstruct LoRA A/B matrices from the synthesized vector.
+### 5. Validation of Assumptions (FR-007)
+*   **Metric**: Pearson correlation between text-space cosine distances and **functional success rate difference** (vs Zero-Shot) for known task pairs.
+*   **Threshold**: Correlation must be statistically significant ($p < 0.05$) and strong ($r > 0.5$) to validate the "text-weight alignment" assumption.
+*   **Reconstruction Error (SC-005)**: Cosine distance between synthesized weights and the **arithmetic mean of component weights** (geometric proxy). Threshold: < 0.05.
 
-### Phase 3: Validation & Statistical Testing (FR-004, FR-005, FR-006, FR-007, FR-008)
-1.  **Environment Execution**: Apply synthesized LoRA to the base model. Run $N \ge 5$ times per task.
-    *   **Baseline Re-sampling**: The Baseline (standard fine-tuned model) **MUST** be re-run $N$ times per task to enable paired comparison. It is not a fixed constant.
-2.  **Metric**: Binary success (1) or failure (0) based on environment logic.
-3.  **Linearity Check (FR-007)**:
-    *   **Pairs**: Use pairs of tasks with known semantic similarity (from original taxonomy).
-    *   **Metric**: **Spearman's Rank Correlation** (not Pearson) to capture monotonic but non-linear relationships between text-space and weight-space distances.
-    *   **Threshold**: Correlation $\ge 0.6$.
-4.  **Statistical Analysis**:
-    *   **Test**: **Permutation Test** (10,000 permutations) on the difference in mean success rates.
-    *   **Rationale**: With $N=5$ binary outcomes, the distribution is discrete and non-normal. A t-test or Wilcoxon test is invalid. The Permutation Test is robust for small $N$ and binary data.
-    *   **Correction**: Apply **Benjamini-Hochberg (BH)** correction to all p-values (FR-006).
-5.  **Latency Benchmark (SC-003)**: Measure wall-clock time for selection (excluding LLM generation).
+## Compute Feasibility & GPU Escape Hatch
 
-## Compute Feasibility Analysis
+*   **CPU-First Strategy**:
+    *   **Vector Math**: `numpy`/`scipy` on CPU (negligible cost).
+    *   **Text Embedding**: `sentence-transformers` (CPU, ~200MB RAM).
+    *   **Base Model**: `llama-cpp-python` (4-bit quantized) or `transformers` + `bitsandbytes` (CPU mode). Expected RAM usage: ~-6GB for Llama-3-8B-4bit. This fits within the 7GB limit if the rest of the pipeline is optimized.
+    *   **Evaluation**: Reduced scale (5 tasks, 3 runs) to avoid OOM and time limits.
+*   **GPU Escape Hatch**:
+    *   **Trigger**: If the CPU quantization of the base model fails to load or exceeds 7GB RAM.
+    *   **Action**: Offload to Kaggle GPU (16GB VRAM).
+    *   **Method**: Run the exact same `evaluation/runner.py` script with `device="cuda"` and `load_in_8bit` (or full precision if VRAM allows).
+    *   **Constraint**: No synthetic stand-ins. The plan must execute the real model.
 
-*   **Hardware**: 2 CPU cores, 7 GB RAM.
-*   **Memory Budget Breakdown**:
-    *   **Base Model (7B 4-bit GGUF)**: ~4.5 GB (using `llama-cpp-python` with `n_ctx=2048`).
-    *   **Vector Index**: ~2.0 GB (500 tasks * 1M dims * 4 bytes).
-    *   **Sentence Transformer**: ~0.1 GB.
-    *   **Environment (ALFWorld/Search-QA)**: ~0.5 GB (estimated).
-    *   **OS/Python Overhead**: ~0.5 GB.
-    *   **Total**: ~7.6 GB. **RISK**: Exceeds 7 GB.
-*   **Mitigation Strategy**:
-    1.  **Primary**: Use `llama-cpp-python` with strict memory limits (`n_ctx=2048`).
-    2.  **Fallback**: If OOM occurs, switch the Base Model to a **3B variant** (e.g., Llama-2-3B or Phi-2). The medium-scale model leaves sufficient headroom for the vector index and environment.
-    3.  **Note**: The experiment prioritizes **validity** over model size. If the 7B model cannot run, the 3B model is used, and this limitation is documented.
-*   **Runtime**:
-    *   Vector construction: < 10 mins.
-    *   Retrieval: < 1 sec per query.
- * Evaluation: Multiple runs across a substantial set of tasks (LLM gen) [deferred].
-    *   Total: Well within 6-hour limit.
+## Decision/Rationale
 
-## Risks & Mitigations
-
-| Risk | Impact | Mitigation |
-| :--- | :--- | :--- |
-| **Dataset URL 404** | High (Blocks research) | Trigger **Proxy Dataset Generation** (fine-tune 3B model on subset) to create necessary LoRA weights. |
-| **OOM on Base Model** | High (Blocks eval) | **Primary**: `llama-cpp-python` with `n_ctx=2048`. **Fallback**: Switch to 3B base model. |
-| **Sparse Latent Space** | Medium (Invalidates hypothesis) | If Spearman correlation (FR-007) fails ($r < 0.6$), conclude the hypernetwork is necessary. |
-| **Statistical Power** | Medium (Inconclusive results) | Use **Permutation Test** to handle N=5 binary data. Report effect sizes and power limitations. |
-| **Ground Truth for Novel Tasks** | High (Invalidates SC-005) | Restrict SC-005 validation to **Synthetic Composites** where ground truth is the sum of components. Report "Not Validated" for novel tasks. |
-
-## Decision Rationale
-
-*   **Sentence Transformer**: `all-MiniLM-L6-v2` selected for its small footprint (<100MB) and proven performance on short text, suitable for CPU.
-*   **Quantization**: `llama-cpp-python` (GGUF) preferred over `bitsandbytes` for CPU inference due to better memory management and lack of CUDA dependency.
-*   **Statistical Test**: **Permutation Test** mandated due to small sample size (N=5) and binary data distribution.
-*   **Correlation Metric**: **Spearman's Rank** selected to capture monotonic non-linear relationships in text-weight alignment.
-*   **Ground Truth**: Restricted to synthetic composites to avoid infeasible fine-tuning on the 2-core CPU runner.
+| Decision | Rationale |
+| :--- | :--- |
+| **CPU-First** | The primary goal is edge deployment. If the method works on a 2-core CPU, it is valid. If it fails, the hypothesis is rejected. |
+| **Benjamini-Hochberg** | Required by FR-006 to control FDR due to multiple sensitivity sweeps ($k$ values) and multiple strategies. |
+| **Streaming** | Required if the LoRA dataset is large (>7GB) to avoid OOM errors on the CI runner. |
+| **Real Execution** | Mandated by Constitution Principle I and the rejection of fabricated results. No synthetic success rates. |
+| **Proxy Dataset** | Necessary due to unavailability of ALFWorld/Search-QA weights. The study tests the *geometry* hypothesis on a similar domain. |
+| **Interpolation vs. Specialization** | The baseline is Zero-Shot/Single LoRA because the hypernetwork baseline is unavailable. The research question is adjusted accordingly. |

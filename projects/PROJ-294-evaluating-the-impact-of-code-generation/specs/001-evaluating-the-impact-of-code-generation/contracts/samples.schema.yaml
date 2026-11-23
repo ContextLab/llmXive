@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Sample Data Schema"
+description: "Schema for data/generated/*.json"
+type: "array"
+items:
+  type: "object"
+  required:
+    - task_id
+    - model_source
+    - generated_code
+    - generation_status
+    - timestamp
+  properties:
+    task_id:
+      type: "string"
+      pattern: "^HumanEval/[0-9]+$"
+    model_source:
+      type: "string"
+      enum:
+        - "human"
+        - "codegen"
+        - "llama"
+    generated_code:
+      type: "string"
+      description: "The generated or extracted code"
+    generation_status:
+      type: "string"
+      enum:
+        - "success"
+        - "failed"
+        - "timeout"
+    error_message:
+      type: "string"
+      nullable: true
+      description: "Error message if generation failed"
+    timestamp:
+      type: "string"
+      format: "date-time"
+  additionalProperties: false

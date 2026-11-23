@@ -1,65 +1,51 @@
 # Data Model: Quantify Dataset Sparsity Impact
 
-## 1. Entities
+## 1. Entity Definitions
 
-### 1.1 MaterialEntry
-Represents a single material structure.
-*   `material_id`: Unique identifier (string).
-*   `composition`: Dict of element -> count (e.g., `{"Fe": 2, "O": 3}`).
-*   `formation_energy_per_atom`: Target variable (float, eV/atom).
-*   `descriptors`: Dict of derived features (floats).
-*   `source`: "MaterialsProject" or "Local".
+### MaterialEntry
+Represents a single material structure in the dataset.
+- `material_id`: Unique identifier (string).
+- `composition`: Chemical formula string (e.g., "Fe2O3").
+- `formation_energy_per_atom`: Target variable (float).
+- `elemental_descriptors`: Dict of computed features (avg atomic number, electronegativity, etc.).
+- `is_in_test_set`: Boolean flag.
 
-### 1.2 FixedTestSet
-Represents the static holdout set used for all evaluations.
-*   `test_set_id`: Unique identifier (e.g., "fixed_test_2024").
-*   `material_ids`: List of `material_id`s included (list of strings).
-*   `fraction`: Proportion of full dataset (e.g., 0.20).
-*   `source`: "MaterialsProject" or "Local".
-*   `checksum`: SHA256 hash of the file content.
-
-### 1.3 SparsitySubset
+### SparsitySubset
 Represents a specific training split.
-*   `subset_id`: Unique identifier (string).
-*   `sparsity_level`: Percentage of the 30k RSS (float, e.g., 0.05, 0.10).
-*   `seed`: Random seed used (int).
-*   `material_ids`: List of `material_id`s included (list of strings).
-*   `stratification_method`: "kmeans_fingerprint".
-*   `validation_status`: "passed" or "failed" (based on JS divergence/KS-test).
+- `subset_id`: Unique identifier (string).
+- `sparsity_level`: Percentage of full dataset (float, e.g., 5.0).
+- `seed`: Random seed used for generation (int).
+- `row_indices`: List of indices into the full dataset.
+- `parent_subset_id`: Reference to the subset from which this was sampled (for nesting validation).
 
-### 1.4 PerformanceMetric
+### PerformanceMetric
 Represents the result of a model evaluation.
-*   `run_id`: Unique identifier.
-*   `model_type`: "GPR" or "RF".
-*   `subset_id`: Link to `SparsitySubset`.
-*   `test_set_id`: Link to `FixedTestSet`.
-*   `seed`: Random seed.
-*   `metric_type`: "RMSE", "MAE", "CalibrationSlope", "PredictiveVariance".
-*   `value`: Float.
-*   `std_dev`: Float (across CV folds).
+- `subset_id`: Reference to SparsitySubset.
+- `model_type`: String ("GPR" or "RF").
+- `metric_name`: String ("RMSE", "MAE", "CalibrationSlope").
+- `value`: Float.
+- `fold_id`: Integer (if cross-validated).
 
-## 2. Data Flow
+## 2. Data Flow Diagram
 
-1.  **Ingestion**: `MaterialsProject` API -> `raw/mp_data.csv` (MaterialEntry).
-2.  **Test Split**: `raw/mp_data.csv` -> `processed/test_set.csv` (FixedTestSet) AND `processed/training_pool.csv` (30k RSS).
-3.  **Preprocessing**: `training_pool.csv` -> `processed/descriptors.csv` (MaterialEntry + Descriptors).
-4.  **Subsampling**: `processed/descriptors.csv` + `config/sparsity_levels.json` -> `processed/subset_<id>.csv` (SparsitySubset).
-5.  **Validation**: Run stratification validation on `subset_<id>.csv`. If failed, regenerate.
-6.  **Training**: `subset_<id>.csv` -> `models/<model_type>_<subset_id>.pkl`.
-7.  **Evaluation**: `models/*.pkl` + `processed/test_set.csv` -> `results/metrics.csv` (PerformanceMetric).
-8.  **Analysis**: `results/metrics.csv` -> `results/statistical_summary.json`.
+```mermaid
+graph TD
+    A[Materials Project API] -->|Download| B(raw_pool.csv)
+    B -->|Filter| C[filtered_pool.csv]
+    C -->|Descriptors| D[descriptors_pool.csv]
+    D -->|Impute| E[full_pool_final.csv]
+    E -->|Split (20% Test)| F[Fixed Test Set] & G[Training Pool]
+    G -->|Nested Subsampling (100% -> 50% -> ... -> 5%)| H[Sparsity Subsets]
+    H -->|Validate (Corr >= 0.95)| I[Validated Subsets]
+    I -->|Train (GPR FITC, RF)| J[Model Artifacts]
+    J -->|Evaluate on F| K[Performance Metrics]
+    K -->|Analyze (LMM, Tukey)| L[ANOVA Results & Plots]
+    L -->|Calibration Report| M[data/results/calibration_report.json]
+```
 
-## 3. File Formats
+## 3. Storage Schema
 
-*   **Input/Output**: CSV (comma-separated, UTF-8).
-*   **Models**: Pickle (`.pkl`) - versioned.
-*   **Metadata**: JSON.
-*   **Plots**: PNG (high resolution).
-
-## 4. Constraints & Validation
-
-*   **Formation Energy**: Must be non-null.
-*   **Descriptors**: Must be non-null. Imputation (mean) applied if missing, logged.
-*   **Sparsity Levels**: Must be percentages of the 30k RSS (not full 150k).
-*   **Memory**: No single file > 2GB.
-*   **Test Set Independence**: The `test_set_id` must be distinct from any `subset_id`.
+- **Raw Data**: `data/raw/raw_pool.csv` (CSV, unmodified API dump).
+- **Processed Data**: `data/processed/filtered_pool.csv`, `data/processed/descriptors_pool.csv`, `data/processed/full_pool_final.csv`, `data/processed/test_set.csv`.
+- **Metadata**: `data/metadata/` (JSON files for checksums, sparsity configs `sparsity_<level>_<seed>.json`).
+- **Results**: `data/results/` (Pickle models, CSV metrics, PNG plots, `calibration_report.json`).

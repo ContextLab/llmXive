@@ -1,0 +1,32 @@
+T001:
+  c: false
+  h: d8278354164a806e054b805a0af8df9f4320eb9d2f43c32b84c520ad2aed11da
+  r: The required directories `data/results/` and `paper/` are missing from the project
+    layout, even though they appear in `results/dir_listing.txt`. The task explicitly
+    demands these directories be created, so the implementation is incomplete.
+  sig: f83d1742687e69373fa30cf74c62404e670ede9589077867967cd09302d84f10
+T003:
+  c: true
+  h: 190aca7581f5291e3ae967d97170cb0c8469fcc9ab5f756eb034fd9480237f5c
+  r: "Checked `code/ci_workflow_doc.md` (contains \u201Cci_limits.py\u201D), `README.md`\
+    \ (references \u201Cci_workflow_doc.md\u201D), and both appear in `results/dir_listing.txt`.\
+    \ All required links and file presence are verified."
+  sig: 968c4a41acb1c83d5b3d943fc348768b2ff4f8abd4cbf9dbc2d270f14863ee2f
+T006:
+  c: false
+  h: bca5db07155fba9e5ab395bd9ed27a87836704f385a4b36956848f4fca849675
+  r: "The required `code/Snakefile` (defining all listed rules and the abort behavior\
+    \ for `verify_data_availability`) is not present in the provided evidence, nor\
+    \ is any execution output showing the expected abort message or DAG generation.\
+    \ Without this file, the task\u2019s core deliverable is missing."
+  sig: 4df0434fddedb3dfe87908dff318655ecfc6ba6407f83b5161ae0ad74295fd06
+T007:
+  c: false
+  h: ef0629743a3c573902f36479d82b0cbd4d62aa5777408e812ed9b96d2c7d324e
+  r: "The `data/manifest.json` present does not contain entries for the three required\
+    \ GEO accessions (it only lists a dummy \u201CTEST001\u201D record), so the required\
+    \ fields (`dataset_id`, `source_url`, `status`, `checksum`, `raw_file_path`, `processed_file_path`)\
+    \ are not recorded as specified. Additionally, the schema file `dimensionality/contracts/dataset.schema.yaml`\
+    \ needed for the jsonschema validation is missing. These issues prevent the task\
+    \ from being considered genuinely completed."
+  sig: 815e8bf5ac76583bdc0a2846245bcffa53f1d1a95698a8dc17d52dfa62dece52

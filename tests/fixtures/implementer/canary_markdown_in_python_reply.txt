@@ -1,0 +1,104 @@
+```yaml
+task_id: T010
+verdict: completed
+artifacts:
+  - path: code/totient_census/generate_paper.py
+    execute: true
+    args: []
+    timeout_s: 300
+    contents: |
+      import pandas as pd
+      from llmxive_toolkit import paths, get_logger
+
+      log = get_logger(__name__)
+
+      def generate_writeup():
+          # Load data from summary.csv
+          summary_path = paths.data("summary.csv")
+          df = pd.read_csv(summary_path)
+
+          # Prepare the results table in Markdown format
+          # Columns: N, p, Uncond Denom, Cond Denom, Zero Mass, Uncond TV, Cond TV
+          table_rows = []
+          for _, row in df.iterrows():
+              table_rows.append(
+                  f"| {int(row['N']):,.0f} | {int(row['p'])} | {int(row['unconditional_denominator']):,.0f} | "
+                  f"{int(row['conditional_denominator']):,.0f} | {int(row['zero_residue_mass']):,.0f} | "
+                  f"{row['unconditional_tv']:.5f} | {row['conditional_tv']:.5f} |"
+              )
+          
+          table_md = "\n".join(table_rows)
+          table_header = "| N | p | Uncond Denom | Cond Denom | Zero Mass | Uncond TV | Cond TV |\n|---|---|---|---|---|---|---|"
+          full_table = f"{table_header}\n{table_md}"
+
+          # Analyze monotonicity from the data
+          interpretation_parts = []
+          for p in [5, 7, 11]:
+              p_data = df[df['p'] == p]
+              u_mono = p_data['unconditional_monotone'].iloc[0]
+              c_mono = p_data['conditional_monotone'].iloc[0]
+              
+              u_status = "monotone decreasing" if u_mono else "non-monotone (increases with N)"
+              c_status = "monotone decreasing" if c_mono else "non-monotone (contains reversals)"
+              
+              interpretation_parts.append(
+                  f"- **p = {p}**: The unconditional TV is {u_status}, while the conditional TV is {c_status}."
+              )
+          
+          interpretation_md = "\n".join(interpretation_parts)
+
+          # Construct the full paper
+          paper_content = f"""# Finite-range residue imbalance of Euler's totient
+
+## 1. Methodology
+
+This study investigates the distribution of Euler's totient function $\\phi(n)$ modulo $p$ for $p \\in {{5, 7, 11\\}}$ across ranges $N \\in {{10^3, 10^4, 10^5, 10^6\\}}$.
+
+### Computational Pipeline
+- **Sieve**: We compute $\\phi(n)$ for all $1 \\le n \\le 10^6$ using a linear integer sieve, ensuring $\\phi(1)=1$ is correctly included.
+- **Independent Verification**: The sieve output is verified by recomputing $\\phi(n)$ via the coprime counting definition ($\\phi(n) = \\sum_{k=1}^n [\\gcd(k,n)=1]$) for all $n \\le 1000$ and a fixed-seed random sample of 200 values in the range $(1000, 10^6]$.
+- **Counting**: For each pair $(N, p)$, we calculate the frequency of residues $r \\in \{0, \\dots, p-1\}$.
+- **Total Variation (TV)**: We measure the discrepancy from uniformity using the Total Variation distance:
+  - **Unconditional TV**: $TV_{uncond} = \\frac{1}{2} \\sum_{r=0}^{p-1} |\\frac{c_r}{N} - \\frac{1}{p}|$
+  - **Conditional TV**: $TV_{cond} = \\frac{1}{2} \\sum_{r=1}^{p-1} |\\frac{c_r}{D} - \\frac{1}{p-1}|$
+- **Denominators**: The unconditional denominator is $N$. The conditional denominator $D$ is the count of $n \\le N$ such that $p \\nmid \\phi(n)$.
+- **Zero-Denominator Guard**: To prevent numerical instability, the system implements an explicit guard that detects and reports any instance where $D=0$ before performing division.
+
+## 2. Results
+
+### Summary Table
+The following table summarizes the denominators and measured TV distances for the census.
+
+{full_table}
+
+### Visualization
+The relationship between the range $N$ and the discrepancy from uniformity is visualized in the figure below.
+
+![TV versus N](data/figures/tv_vs_N.png)
+
+## 3. Interpretation
+
+### Monotonicity and Finite-Range Behavior
+Based on the measured TV sequences:
+{interpretation_md}
+
+The unconditional TV increases consistently with $N$ across all moduli, reflecting the growing mass of the zero-residue class. In contrast, the conditional TV generally decreases, though reversals are observed for $p=11$.
+
+### Theoretical Context
+These finite-range measurements are consistent with the asymptotic results of Lebowitz-Lockard, Pollack, and Singha Roy (2021, arXiv:2105.12850). The cited theorem proves that for $p \\ge 5$, the totient values *coprime to p* are uniformly distributed across the $p-1$ nonzero residue classes as $N \\to \\infty$. 
+
+It is critical to distinguish this conditional uniformity from unconditional uniformity. Our results demonstrate that while the conditional population approaches uniformity, the unconditional population does not, due to the dominance of the zero-residue class. These results are finite-range observations and do not constitute a proof of asymptotic convergence.
+
+## References
+- Lebowitz-Lockard, Pollack, and Singha Roy (2021). *Distribution mod p of Euler's totient and the sum of proper divisors*. arXiv:2105.12850. [https://arxiv.org/abs/2105.12850](https://arxiv.org/abs/2105.12850)
+"""
+          # Write to paper/writeup.md
+          output_path = paths.path("paper", "writeup.md")
+          with open(output_path, "w", encoding="utf-8") as f:
+              f.write(paper_content)
+          
+          log.info(f"Successfully wrote research paper to {output_path}")
+
+      if __name__ == "__main__":
+          generate_writeup()
+```

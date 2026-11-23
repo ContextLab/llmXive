@@ -1,0 +1,11 @@
+status: none
+intent: Materials Project OMDB NIST Materials Data Repository rolling process texture
+  coefficients python package dataset
+required_fields:
+- processing parameters
+- texture coefficients
+- pole figure data
+- alloy family
+cache_key: 94d9b93d28b1ad3d4a1c51c0d259a08cb820734b90a1de814e18fc22e32dac15
+searched_at: '2026-10-12T05:29:40.907920+00:00'
+retry_count: 1

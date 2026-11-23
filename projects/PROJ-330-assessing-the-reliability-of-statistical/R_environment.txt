@@ -1,0 +1,24 @@
+# R 4.3+ Environment Configuration
+# This file documents the required R version and packages for PROJ-330.
+# Ensure R version >= 4.3.0 is installed.
+#
+# Installation instructions:
+# 1. Install R 4.3+ from https://cran.r-project.org/
+# 2. Install packages via renv or manually:
+#    install.packages("renv")
+#    renv::init()
+#    install.packages(c("DESeq2", "edgeR", "BiocManager", "ggplot2", "dplyr", "tidyr"))
+#
+# Required R Packages:
+# - DESeq2 (BiocManager::install("DESeq2"))
+# - edgeR (BiocManager::install("edgeR"))
+# - ggplot2
+# - dplyr
+# - tidyr
+# - BiocManager
+#
+# Version constraints:
+# R >= 4.3.0
+# DESeq2 >= 1.40.0
+# edgeR >= 4.0.0
+# ggplot2 >= 3.4.0

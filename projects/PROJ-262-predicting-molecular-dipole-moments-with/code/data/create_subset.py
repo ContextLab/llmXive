@@ -1,89 +1,86 @@
 from __future__ import annotations
-
 import pandas as pd
 import numpy as np
 from typing import Optional
 import sys
 from pathlib import Path
-import tarfile
-import random
 
-def create_reproducible_subset(raw_data_path: Path, output_path: Path, size: int, seed: int):
+def create_reproducible_subset(
+    input_path: str | Path,
+    output_path: str | Path,
+    subset_size: int = 5000,
+    seed: int = 42,
+) -> None:
     """
-    Creates a reproducible random subset of the QM9 dataset.
-    
-    Since QM9 is binary (.npz), we first need to load the molecule IDs (indices)
-    and then select a subset. We assume the raw_data_path points to the directory
-    containing the extracted QM9 files.
-    
-    We will generate a CSV with molecule_id (index) and placeholders for data that
-    will be filled by the 3D/2D extraction steps.
+    Create a deterministic subset of molecules from the QM9 dataset.
+
+    This function loads the full QM9 dataset (or a pre-processed version),
+    applies a deterministic shuffle using the provided seed, selects the
+    first `subset_size` molecules, and saves the result as a Parquet file.
+
+    Args:
+        input_path: Path to the input dataset (CSV or Parquet).
+        output_path: Path where the subset will be saved (Parquet).
+        subset_size: Number of molecules to include in the subset.
+        seed: Random seed for reproducibility.
     """
-    # Set seed
-    random.seed(seed)
-    np.random.seed(seed)
-    
-    # Determine total number of molecules
-    # We need to find the .npz file again to count molecules
-    npz_file = None
-    if raw_data_path.is_dir():
-        candidates = list(raw_data_path.glob("*.npz")) + list(raw_data_path.glob("*.npy"))
-        if not candidates:
-            raise FileNotFoundError(f"No data files found in {raw_data_path}")
-        npz_file = candidates[0]
+    input_path = Path(input_path)
+    output_path = Path(output_path)
+
+    if not input_path.exists():
+        raise FileNotFoundError(f"Input file not found: {input_path}")
+
+    # Load data
+    if input_path.suffix == ".parquet":
+        df = pd.read_parquet(input_path)
+    elif input_path.suffix == ".csv":
+        df = pd.read_csv(input_path)
     else:
-        npz_file = raw_data_path
-    
-    print(f"Loading {npz_file} to determine dataset size...")
-    try:
-        data = np.load(npz_file, allow_pickle=True)
-        if isinstance(data, np.ndarray) and data.dtype == object:
-            raw_data = data[0] if len(data) > 0 else data
-        else:
-            raw_data = data
-        
-        if isinstance(raw_data, dict):
-            atom_numbers = raw_data.get('atom_numbers')
-            if atom_numbers is None and 'Z' in raw_data:
-                atom_numbers = raw_data['Z']
-            if atom_numbers is None:
-                raise KeyError("Cannot find atom_numbers")
-            n_molecules = atom_numbers.shape[0]
-        else:
-            # Fallback for structured arrays
-            n_molecules = len(data)
-    except Exception as e:
-        print(f"Warning: Could not determine dataset size from {npz_file}: {e}", file=sys.stderr)
-        print("Assuming standard QM9 size of 133,885 molecules.", file=sys.stderr)
-        n_molecules = 133885
+        raise ValueError(f"Unsupported input format: {input_path.suffix}")
 
-    print(f"Total molecules in dataset: {n_molecules}")
-    
-    if size > n_molecules:
-        print(f"Requested size {size} exceeds dataset size {n_molecules}. Using all.")
-        size = n_molecules
-    
-    # Generate random indices
-    indices = np.random.choice(n_molecules, size=size, replace=False)
-    indices.sort() # Sort for reproducibility in reading if needed
-    
-    # Create a simple CSV with molecule_id (index)
-    # The downstream steps will use these indices to fetch actual data from the .npz
-    df = pd.DataFrame({
-        'molecule_id': [f"qm9_{int(i)}" for i in indices],
-        'original_index': indices
-    })
-    
-    print(f"Writing subset of {size} molecules to {output_path}...")
-    df.to_csv(output_path, index=False)
-    print("Subset created successfully.")
+    # Ensure reproducibility
+    np.random.seed(seed)
+
+    # Shuffle deterministically
+    df_shuffled = df.sample(frac=1, random_state=seed).reset_index(drop=True)
+
+    # Select subset
+    if len(df_shuffled) < subset_size:
+        raise ValueError(
+            f"Dataset has {len(df_shuffled)} molecules, but requested subset size is {subset_size}"
+        )
+    df_subset = df_shuffled.head(subset_size)
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Save subset
+    df_subset.to_parquet(output_path, index=False)
+    print(f"Created subset of {subset_size} molecules at {output_path}")
+
+def main() -> None:
+    """Main entry point for the subset creation script."""
+    # Default paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent.parent
+    input_file = project_root / "data" / "raw" / "qm9_full.parquet"
+    output_file = project_root / "data" / "processed" / "subset_final.parquet"
+
+    # Check if input exists; if not, look for CSV fallback
+    if not input_file.exists():
+        csv_input = project_root / "data" / "raw" / "qm9_full.csv"
+        if csv_input.exists():
+            input_file = csv_input
+        else:
+            raise FileNotFoundError(
+                f"No input dataset found. Expected {project_root / 'data' / 'raw'} / qm9_full.[parquet|csv]"
+            )
+
+    create_reproducible_subset(
+        input_path=input_file,
+        output_path=output_file,
+        subset_size=5000,
+        seed=42,
+    )
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--raw", type=str, required=True)
-    parser.add_argument("--output", type=str, required=True)
-    parser.add_argument("--size", type=int, default=10000)
-    parser.add_argument("--seed", type=int, default=42)
-    args = parser.parse_args()
-    create_reproducible_subset(Path(args.raw), Path(args.output), args.size, args.seed)
+    main()

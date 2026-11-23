@@ -33,7 +33,7 @@ As a researcher, I want to apply standard t-tests and F-tests to the synthetic n
 **Acceptance Scenarios**:
 
 1. **Given** a synthetic dataset with $p$ features and known null ground truth, **When** t-tests and F-tests are applied to each feature (comparing to theoretical mean), **Then** exactly $p$ p-values are collected for each test type with no missing values.
-2. **Given** 1000 simulation iterations per setting, **When** hypothesis tests are executed, **Then** all iterations complete successfully without runtime errors on CPU-only infrastructure.
+2. **Given** Multiple simulation iterations per setting, **When** hypothesis tests are executed, **Then** all iterations complete successfully without runtime errors on CPU-only infrastructure.
 
 ---
 
@@ -98,5 +98,5 @@ As a researcher, I want to analyze the collected p-values using Kolmogorov-Smirn
 - Standard t-tests and F-tests from scipy.stats will handle high-dimensional data without numerical overflow or underflow for the specified parameter ranges
 - The permutation test implementation will correctly respect the correlation structure of the data to provide a valid Gold Standard
 - All statistical findings will be framed as associational observations about p-value behavior under violated assumptions, not as causal claims about hypothesis test validity
-- The power limitation of 1000 iterations per setting is acknowledged as a constraint; results should be interpreted with appropriate uncertainty bounds
+- The power limitation of a fixed number of iterations per setting is acknowledged as a constraint.; results should be interpreted with appropriate uncertainty bounds
 - When correlation structures approach perfect ($\rho > 0.95$), numerical instability may occur in matrix operations; the system will use regularization (adding small diagonal term $\epsilon = 10^{-6}$) to ensure invertibility

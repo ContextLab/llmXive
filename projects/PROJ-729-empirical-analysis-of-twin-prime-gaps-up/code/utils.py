@@ -1,65 +1,78 @@
+"""
+Utility Functions Module.
+
+Provides logging setup, memory monitoring, and error handling.
+"""
+
 import sys
 import logging
 import resource
 import time
 from contextlib import contextmanager
-from typing import Optional
+from typing import Optional, Union
 
-def setup_logging(level: int = logging.INFO) -> logging.Logger:
+def setup_logging(level: Union[int, str] = logging.INFO) -> logging.Logger:
     """
-    Configure and return the project logger.
+    Configure and return a logger.
+
+    Parameters
+    ----------
+    level : int or str, optional
+        If an integer, it is interpreted as a logging level (e.g., logging.INFO).
+        If a string, it is interpreted as the logger name; the logging level
+        defaults to INFO. This flexibility allows callers such as
+        ``setup_logging("validate_schema")`` (which passes a name) to work
+        without raising ``ValueError: Unknown level``.
     """
-    logger = logging.getLogger("llmXive")
-    logger.setLevel(level)
-    
-    if not logger.handlers:
-        handler = logging.StreamHandler(sys.stdout)
-        handler.setLevel(level)
-        formatter = logging.Formatter(
-            '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    # Determine if ``level`` is a logger name or a logging level.
+    if isinstance(level, str):
+        logger_name = level
+        log_level = logging.INFO
+    else:
+        logger_name = None
+        log_level = level
+
+    # Configure the root logger only once.
+    if not logging.getLogger().hasHandlers():
+        logging.basicConfig(
+            level=log_level,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+            datefmt='%Y-%m-%d %H:%M:%S'
         )
-        handler.setFormatter(formatter)
-        logger.addHandler(handler)
-        
-    return logger
+    # Return the requested logger (named or root).
+    return logging.getLogger(logger_name) if logger_name else logging.getLogger()
 
 def get_memory_usage_mb() -> float:
     """
-    Returns the current memory usage of the process in MB.
+    Get the current peak memory usage of the process in MB.
     """
     usage = resource.getrusage(resource.RUSAGE_SELF)
-    # ru_maxrss is in kilobytes on Linux/macOS
+    # ru_maxrss is in KB on Linux/macOS
     return usage.ru_maxrss / 1024.0
 
 @contextmanager
-def track_resources(name: str = "operation"):
+def track_resources(label: str = "Operation"):
     """
-    Context manager to track execution time and peak memory usage.
-    Yields a dict with 'elapsed_seconds' and 'peak_memory_mb'.
+    Context manager to track time and memory usage.
     """
     start_time = time.time()
     start_mem = get_memory_usage_mb()
-    peak_mem = start_mem
     
     try:
-        yield {
-            "elapsed_seconds": 0.0,
-            "peak_memory_mb": 0.0
-        }
+        yield
     finally:
-        elapsed = time.time() - start_time
-        current_mem = get_memory_usage_mb()
-        peak_mem = max(start_mem, current_mem)
+        end_time = time.time()
+        end_mem = get_memory_usage_mb()
+        duration = end_time - start_time
+        mem_used = end_mem - start_mem
         
-        # Update the yielded dict if it was used, or just log
-        logging.getLogger("llmXive").info(
-            f"{name}: {elapsed:.2f}s elapsed, Peak Memory: {peak_mem:.2f} MB"
-        )
+        logger = logging.getLogger(__name__)
+        logger.info(f"{label} completed in {duration:.2f}s. Peak memory: {end_mem:.2f} MB")
 
-def exit_with_error(message: str, code: int = 1):
+def exit_with_error(message: str, code: int = 1) -> None:
     """
     Log an error message and exit with the specified code.
     """
-    logger = logging.getLogger("llmXive")
-    logger.error(message)
+    logger = logging.getLogger(__name__)
+    logger.error(f"ERROR: {message}")
     sys.exit(code)

@@ -1,0 +1,99 @@
+project_id: PROJ-683-researchclawbench-a-benchmark-for-end-to
+round: 4
+revision_kind: paper_writing
+from_stage: paper_review
+to_stage: paper_tasked
+worst_severity: writing
+seed_action_items:
+- id: auditdef00000
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "\u00b9", "class": "source_fixable", "recommendation": "bibstyle is
+    producing superscripts; force \\bibliographystyle{unsrt}", "page": 5}'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/paper/source/
+  location: page 5
+- id: auditdef00001
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "(Bunting et al., 2018)", "class": "source_fixable", "recommendation":
+    "normalize_references should rewrite \\citet/\\citep to plain \\cite on this sour'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/paper/source/
+  location: page 25
+- id: auditdef00002
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "(Garner et al., 2021)", "class": "source_fixable", "recommendation":
+    "normalize_references should rewrite \\citet/\\citep to plain \\cite on this sourc'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/paper/source/
+  location: page 25
+- id: auditdef00003
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "(Garner et al., 2021)", "class": "source_fixable", "recommendation":
+    "normalize_references should rewrite \\citet/\\citep to plain \\cite on this sourc'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/paper/source/
+  location: page 25
+- id: auditdef00004
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "(Garner et al., 2021)", "class": "source_fixable", "recommendation":
+    "normalize_references should rewrite \\citet/\\citep to plain \\cite on this sourc'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/paper/source/
+  location: page 25
+- id: auditdef00005
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "(Emanuel et al., 2006)", "class": "source_fixable", "recommendation":
+    "normalize_references should rewrite \\citet/\\citep to plain \\cite on this sour'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/paper/source/
+  location: page 25
+- id: auditdef00006
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "(Trinh et al., 2024)", "class": "source_fixable", "recommendation":
+    "normalize_references should rewrite \\citet/\\citep to plain \\cite on this source'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/paper/source/
+  location: page 61
+- id: auditdef00007
+  text: 'Rendering-audit defect (non_square_bracket_cite): {"kind": "non_square_bracket_cite",
+    "evidence": "(Vaswani et al., 2017)", "class": "source_fixable", "recommendation":
+    "normalize_references should rewrite \\citet/\\citep to plain \\cite on this sour'
+  severity: writing
+  engine_severity: writing
+  reviewer: pdf-auditor
+  artifact: projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/paper/source/
+  location: page 70
+kickback_reason: 'spec 023 / FR-023: compile/audit repair round'
+kickback_artifact_links:
+- projects/PROJ-683-researchclawbench-a-benchmark-for-end-to/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 8 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-07-16T14:55:17.928303+00:00'

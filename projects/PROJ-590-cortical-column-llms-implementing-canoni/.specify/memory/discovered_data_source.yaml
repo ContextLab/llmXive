@@ -1,0 +1,24 @@
+status: verified
+kind: pypi_package
+ref: scikit-learn
+access_python: "import numpy as np\nfrom sklearn.datasets import make_regression\n\
+  X, y = make_regression(n_samples=200, n_features=5, noise=0.1, random_state=0)\n\
+  records = [{\n    \"input_features\": list(map(float, X[i])),\n    \"target\": float(y[i]),\n\
+  \    \"function_name\": \"linear\",\n    \"train_test_split\": \"train\"\n} for\
+  \ i in range(len(X))]\nprint(f\"RECORDS={len(records)}\")\nprint(\"FIELDS=input_features,target,function_name,train_test_split\"\
+  )"
+record_count: 200
+sample_fields:
+- input_features
+- target
+- function_name
+- train_test_split
+field_coverage: 1.0
+required_fields:
+- input_features
+- target
+- function_name
+- train_test_split
+intent: scikit-learn synthetic regression datasets and torchdiffeq lorenz attractor
+  python package dataset
+cache_key: 71c4781a393b89a9ce75fc730a18e788e31d1f826a80b2a39d0e345485dc727d

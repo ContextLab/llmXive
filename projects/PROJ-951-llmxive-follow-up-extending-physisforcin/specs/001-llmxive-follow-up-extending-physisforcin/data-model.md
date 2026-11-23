@@ -1,82 +1,43 @@
-# Data Model: llmXive follow-up: extending "PhysisForcing: Physics Reinforced World Simulator for Robotic Manipula"
+# Data Model: llmXive follow‑up: extending "PhysisForcing"
 
 ## Overview
 
-This document defines the data structures, schemas, and relationships for the `llmXive follow-up` project. The data model supports the pipeline: Generation → Filtering → Training → Evaluation.
+Four core entities, each with a contract schema under `specs/001-llmxive-physs-filter/contracts/`.
 
-## Entity Definitions
+| Entity | Description | Primary Fields |
+|--------|-------------|----------------|
+| **VideoSample** | A Wan2.1‑generated robotic‑manipulation video with generation metadata and filter outcome. | `video_id`, `prompt`, `video_path`, `generation_timestamp`, `physics_score`, `filter_status`, `condition` |
+| **PhysicsScore** | Per‑video PyBullet filter output (raw 0–100 internally; normalized 0–1 when written). | `video_id`, `physics_score`, `trajectory_continuity`, `contact_conservation`, `simulation_status`, `passed_filter` |
+| **CuratedDataset** | Manifest of VideoSamples per condition (filtered / unfiltered). | `dataset_id`, `condition`, `total_samples`, `threshold_percentile`, `threshold_score`, `discard_percent`, `retention_rate`, `samples`, `created_at` |
+| **TrainedModel** | ≈ a multi‑million‑parameter distilled diffusion model checkpoint + training metadata. (No formal schema provided; validated informally via training logs.) | `model_id`, `condition`, `checkpoint_path`, `training_epochs`, `final_train_loss`, `training_duration_seconds`, `seed`, `timestamp` |
+| **BenchmarkResult / EvaluationResult** | R‑Bench / PAI‑Bench / MuJoCo scores and TOST outcome per model. | `model_id`, `baseline_model_id`, `r_bench_score`, `pai_bench_score`, `mujoco_physics_score`, `sample_count`, `tost_p_value`, `test_used`, `equivalence_margin`, `equivalent`, `performance_gap_percent`, `pybullet_mujoco_correlation` |
 
-### 1. VideoSample
-A single generated robotic manipulation video with associated metadata.
+## Storage Layout
 
-**Fields**:
-- `id`: Unique identifier (UUID).
-- `prompt`: The text prompt used for generation.
-- `video_path`: Relative path to the MP4 file.
-- `physics_score`: Float (0.0–1.0) from the PyBullet filter.
-- `pass_status`: Boolean (True if score ≥ 60th percentile).
-- `generation_timestamp`: ISO 8601 timestamp.
-- `checksum`: SHA-256 hash of the video file.
-- `batch_id`: Identifier for the generation batch (A, B, C).
+```text
+data/
+├── raw/
+│   └── wan21_videos/          # immutable downloads + SHA‑256 checksums
+├── derived/
+│   ├── video_samples/         # one VideoSample JSON per video
+│   ├── physics_scores/        # one PhysicsScore JSON per video
+│   ├── manifests/             # curated_*.json, unfiltered_*.json
+│   └── models/                # diffusion checkpoints (filtered / unfiltered)
+└── reports/                   # benchmark_*.json, tost_results.json, final_summary.md
+```
 
-### 2. CuratedDataset
-A collection of `VideoSample` entities that passed the physics filter.
+## Score Normalization
 
-**Fields**:
-- `dataset_id`: Unique identifier for the curated batch.
-- `total_samples`: Count of videos in the dataset.
-- `discarded_count`: Count of videos discarded.
-- `samples`: List of `VideoSample` objects.
-- `threshold_score`: The 60th percentile score used for filtering.
-- `augmentation_applied`: Boolean (True if FR-009 augmentation was triggered).
+- PyBullet produces raw scores on a **0–100** scale.
+- Scores are **normalized to 0–1** when written to `physics_score.schema.yaml` / `video_sample.schema.yaml`.
+- The curated minimum is the **60th percentile** with raw score = 60 (source: 2506.09162, https://arxiv.org/abs/2506.09162) → normalized threshold **0.60**, stored as `threshold_score`; any video with normalized < 0.60 is discarded. The `filter_discard_percent` (default 40) is recorded for reporting only.
 
-### 3. TrainedModel
-The distilled diffusion model trained on the `CuratedDataset`.
+## Data Hygiene
 
-**Fields**:
-- `model_id`: Unique identifier.
-- `architecture`: String (e.g., "Diffusion-50M").
-- `training_config`: JSON object containing hyperparameters.
-- `weights_path`: Relative path to model weights.
-- `training_log`: List of epoch-wise metrics (loss, learning rate).
-- `training_timestamp`: ISO 8601 timestamp.
+- Every raw file SHA‑256‑checksummed; hashes recorded in the project state file.
+- Raw data never modified in place; all transformations write new files under `data/derived/`.
+- No PII in committed data.
 
-### 4. BenchmarkResult
-The output metrics for a specific model on R-Bench and PAI-Bench.
+## Single Source of Truth
 
-**Fields**:
-- `result_id`: Unique identifier.
-- `model_id`: Reference to `TrainedModel`.
-- `r_bench_score`: Float.
-- `pai_bench_score`: Float.
-- `physics_consistency_score`: Float (average score of generated evaluation videos).
-- `statistical_test`: Object containing `test_type`, `p_value`, `comparability_flag`, `batch_effect_variance`.
-
-### 5. AugmentationConfig
-Configuration for data augmentation applied to the dataset.
-
-**Fields**:
-- `config_id`: Unique identifier.
-- `dataset_id`: Reference to `CuratedDataset`.
-- `technique`: String (e.g., "temporal_jittering", "geometric_flipping").
-- `parameters`: JSON object containing augmentation parameters.
-- `trigger_reason`: String (e.g., "n < 30").
-
-## Data Flow
-
-1.  **Generation**: `VideoSample` entities are created and stored in `data/raw/`.
-2.  **Filtering**: `VideoSample` entities are scored and filtered. Passing samples are moved to `data/curated/` and aggregated into a `CuratedDataset`.
-3.  **Training**: The `CuratedDataset` is used to train a `TrainedModel`.
-4.  **Evaluation**: The `TrainedModel` is evaluated, producing `BenchmarkResult` entities stored in `data/eval/`.
-
-## Storage Format
-
--   **Videos**: MP4 format (H.264 codec).
--   **Metadata**: JSON (for small datasets) or Parquet (for large datasets).
--   **Checkpoints**: PyTorch `.pt` files.
--   **Logs**: JSONL format.
-
-## Versioning
-
--   All data files are versioned via content hashing (SHA-256).
--   The `state/projects/PROJ-951-llmxive-follow-up-extending-physisforcin.yaml` file tracks the latest version of each artifact.
+Every figure, statistic, and conclusion in `final_summary.md` is read programmatically from the JSON/CSV artifacts above (SC‑001–SC‑006); no hand‑typed derived numbers.

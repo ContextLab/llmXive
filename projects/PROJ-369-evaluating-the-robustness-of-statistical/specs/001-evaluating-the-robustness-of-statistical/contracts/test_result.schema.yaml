@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TestResult Schema"
+description: "Schema for hypothesis test outcomes including estimated H and N_eff."
+type: "object"
+properties:
+  test_type:
+    type: "string"
+    enum:
+      - "t_test"
+      - "f_test"
+    description: "Type of hypothesis test"
+  p_value:
+    type: "number"
+    description: "Calculated p-value"
+  rejection:
+    type: "boolean"
+    description: "Whether null hypothesis was rejected"
+  dataset_id:
+    type: "string"
+    description: "ID of the dataset tested"
+  iteration:
+    type: "integer"
+    description: "Monte Carlo iteration number"
+  hurst_estimated:
+    type: "number"
+    description: "Estimated Hurst exponent (or true H for synthetic)"
+  n_eff:
+    type: "number"
+    description: "Effective Sample Size"
+required:
+  - test_type
+  - p_value
+  - rejection
+  - dataset_id
+  - iteration
+  - hurst_estimated
+  - n_eff

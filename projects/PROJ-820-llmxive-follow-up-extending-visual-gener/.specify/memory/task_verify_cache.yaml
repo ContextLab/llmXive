@@ -1,0 +1,79 @@
+T001:
+  c: true
+  h: 74b9ae0ae7d8624a445f6617fe241d7377b58f8a4ba3b92834b4234952d7d0c9
+  r: "Checked `code/data/make_scenes.py` (deterministic seed\u202F=\u202F42) and the\
+    \ generated CSVs `data/raw/scene_descriptions.csv` (500 rows) and `data/raw/validation_scenes.csv`\
+    \ (50 rows). Unit\u2011test log confirms the files exist, have the required row\
+    \ counts, and every description matches a predefined template."
+  sig: 92322de55c051b45e031b62ae0b9a1c3b0948497e91afb8494ba8310c28abb01
+T002:
+  c: false
+  h: 315891ad9f49b6113ee265071610ee1366210063e4f1197bd2a7a324666d5717
+  r: "The repository contains `code/simulation/physics_engine.py`, but the required\
+    \ per\u2011scene JSON files are absent (only the log file exists) and the contradiction\
+    \ log lacks the `contradiction_rate` field. Moreover, the unit test suite fails\
+    \ because it cannot locate the schema file at the path it expects, so the test\
+    \ verification does not pass. Consequently the implementation does not meet the\
+    \ task\u2019s output, validation, or contradiction\u2011rate requirements."
+  sig: 083ac12c8421c0b9e96ded87631cd58db1c31fe72b9b2860c6111f22bac4ab1f
+T003:
+  c: false
+  h: 2193e0b5d855fc89b4e84479eb277cb93375836424d997d6c033c5d8158991d7
+  r: "The `prompt_engine.py` script runs and creates baseline/experimental files,\
+    \ and unit tests pass, but the required physics\u2011constraint JSON files are\
+    \ absent (e.g., `data/derived/physics_constraints/scene_0001.json` is missing).\
+    \ Consequently the generated `{scene_id}_experimental.txt` files contain only\
+    \ the original description (no descriptor), violating the task\u2019s requirement\
+    \ that each experimental prompt include the deterministic `natural_language_descriptor`\
+    \ from its JSON. The missing JSON artifacts must be provided and the script verified\
+    \ to incorporate their descriptors."
+  sig: 58010eb53cb8e4686acc3a08977d01e4cd4dea1496f4eed5cbfc8057a1616999
+T004:
+  c: false
+  h: af8af974b1ee70ecc8231894751abfeed39ed4addd946d8d803488c66d4b907d
+  r: "The required `data/derived/seed_manifest.json` does not exist, no PNG images\
+    \ are present under `data/derived/generated_images/{baseline,experimental}/`,\
+    \ and the expected `seed_lock_status.json` and `generation_failure_log.json` are\
+    \ missing. Additionally, the unit\u2011test log shows errors preventing the seed\u2011\
+    locking pipeline from running. These missing artifacts mean the deterministic\
+    \ seed\u2011locking task is not fulfilled."
+  sig: 7a00867060734cc453204df614a93fdfe5b3bbf75ed8e1c924ac37d9d972b3cf
+T005:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `__init__.py` files are shown for the `simulation`, `generation`, `evaluation`,
+    or `analysis` subdirectories, and there is no evidence that they exist on disk.
+    The required package initializer files are missing, so the task is not satisfied.
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No configuration files, scripts, or documentation were presented that define
+    or manage random seed settings and model path variables. Without concrete artifacts
+    (e.g., a `.env` file, a config module, or usage examples), the claim that environment
+    configuration management has been set up cannot be verified.
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, tests, or documentation implementing a seed\u2011locking\
+    \ mechanism is present. The task required a concrete implementation that guarantees\
+    \ the Baseline and Experimental generation runs use the same random seed for a\
+    \ given scene ID, but no artifact (e.g., a function, module, or script) was provided\
+    \ to demonstrate this behavior. The implementer must add the seed\u2011locking\
+    \ code (and ideally a test showing identical seeds produce identical random streams\
+    \ for both groups)."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, configuration, or log files were presented that show a retry mechanism\
+    \ with a maximum attempt count for generation failures, nor any logging of \u201C\
+    Generation Failure\u201D when the limit is exceeded. The required artifact is\
+    \ missing, so the task is not satisfied."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No image files are present in the repository under `data/derived/generated_images/`\
+    \ for the Baseline, Experimental, or Control groups, nor any script output or\
+    \ logs showing that images were generated and saved. Without these artifacts,\
+    \ the requirement to \u201CSave generated images \u2026 and ensure all three groups\
+    \ are fully generated\u201D is not met. The next implementer must produce the\
+    \ PNG files (or at least a demonstrable listing) for every scene ID in each group."

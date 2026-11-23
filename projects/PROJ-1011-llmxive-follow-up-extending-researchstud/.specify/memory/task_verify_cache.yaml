@@ -1,0 +1,88 @@
+T001:
+  c: true
+  h: 11ea7072e66140afcb276233e95f29ed2f32db695636d4ead4acdcd006245d7e
+  r: The project root `projects/PROJ-1011-llmxive-follow-up-extending-researchstud/`
+    exists with non-empty `code/`, `data/`, and `tests/` directories (each containing
+    multiple real files, not just `.gitkeep` markers). The verification test `tests/test_scaffold_directories.py::test_scaffold_directories`
+    passed (exit 0, 1 passed), and `code/scaffold.py` ran successfully verifying 16
+    directories, directly matching the task's stated verification criterion.
+  sig: d563c096f7be5d6cadd0cb6ba9e55a8d897e0128daa114d0784d62622e9afee3
+T002:
+  c: true
+  h: 51eeb91e552045f4316cbb64a3d93e7e3c3987fc454e5813aa020f458b6edab8
+  r: 'Both artifacts exist with substantive content: `requirements.txt` contains fully
+    pinned Python 3.11 dependencies (all `==` pins, no ranges), and `run_pipeline.sh`
+    is a real orchestration script with argument parsing, health-check, and stage
+    invocations. The test log shows `test_requirements_present` and `test_run_pipeline_executable`
+    both passed, and the dry-run execution log confirms the script runs successfully
+    with exit 0.'
+  sig: 942a5a68f8b4736e81bf0299d2f5e2b9b3feb085f900b0da6536b6ab79159795
+T003:
+  c: true
+  h: cfc34f448d9c9ffccca415c99662d58c441030e19f951c9f0ea2748817697fe8
+  r: The `quickstart.md` file exists (3555 bytes, collector-confirmed at the canonical
+    spec path) and contains the exact required command `./run_pipeline.sh --stage
+    all` near the top, plus substantive, non-placeholder quickstart content (prerequisites,
+    installation, pipeline steps, verification, troubleshooting) consistent with the
+    project spec.
+  sig: 077ed329313a3adbfa67dc58eb6a889b73d8a5144e37d302d9dbe653a83be44c
+T004:
+  c: false
+  h: d6839615be7280e5f42405a375ec581014c65a7d9f1fc304adaf3dc4a5c096bd
+  r: "The three data directories exist (each with a `.gitkeep`), but the required\
+    \ `data/CHECKSUMS` manifest is not confirmed present in the collected evidence,\
+    \ and the task's own verification test `test_data_dirs_and_checksum` FAILED (exit\
+    \ 1) with `FileExistsError: .../data/CHECKSUMS` \u2014 the toolkit's `paths.data()`\
+    \ helper tries to mkdir a parent that collides with the existing CHECKSUMS file.\
+    \ The implementer must fix the path handling (or ensure CHECKSUMS exists and the\
+    \ test passes) and provide evidence of a passing verification run."
+  sig: 56c930c18f3ecc67d227856c66f14131dffe2ff467ed00d26c3945f38be7d4ff
+T005:
+  c: true
+  h: ed9846a7e24e79dd7d5041645dad8a862e67d8f32c6fdbef5aa899e330844fc7
+  r: "Checked `code/utils/config.py`, which defines `set_seed` (setting `random.seed`,\
+    \ `np.random.seed`, and `torch.manual_seed` when available) and calls it on import,\
+    \ fulfilling the seed\u2011pinning requirement verified by the test."
+  sig: 5df60079e8c4bf153456efca6896a3912b6bd88216f4ac212826fbb466875026
+T007:
+  c: true
+  h: 200b02ea7286307b878533ce78ad5fdfd5610e7078663657cb8de4380bd3f309
+  r: "The verification test `tests/unit/test_model_classes.py` was executed by the\
+    \ platform (exit 0, 6 passed) and imports each required class (Abstract, PatternCard,\
+    \ Proposal, Rating), validating schema conformance via jsonschema plus group/rating\
+    \ constraints \u2014 exactly the task's stated verification. The one file shown\
+    \ in full (`code/models/abstract.py`) is a real, non-stub data model with serialization,\
+    \ hashing, and round-trip logic consistent with the spec's required metadata fields\
+    \ (title, abstract_text, venue, acceptance_status)."
+  sig: bfff87d376a50e4910857b3707f55b21f31df7af656675de0f840296160b6f7b
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer supplied no code, script, tests, or documentation showing that
+    URLs are now validated with loud failures for unreachable or paywalled links,
+    nor any evidence that synthetic data generation was removed. The required validation
+    implementation is missing.
+T024b:
+  c: false
+  h: 104bd9cad40f37d96e47ddee96b74d247176607f3ce7ea1767701e90424390e2
+  r: "The repository lacks the required input file `data/results/generated_proposals.jsonl`\
+    \ and the output file `data/results/power_analysis_config.json`. Moreover, the\
+    \ shown portion of `code/05_statistical_analysis.py` does not contain any implementation\
+    \ that reads `n` from the generated proposals and writes the power\u2011analysis\
+    \ configuration as specified. These essential artifacts and functionality are\
+    \ missing."
+T036:
+  c: false
+  h: a0c5d620aa388651ac9a6c88b3a66ae893f5dab06756d35f0c0ea236157f01af
+  r: The repository lacks a `calculate_validity_improvement()` implementation in `code/05_statistical_analysis.py`
+    (the shown code is truncated and does not contain that function), and the required
+    output file `data/results/validity_metrics.json` is absent. Both the core function
+    and its result file are missing, so the task is not satisfied.
+T037:
+  c: false
+  h: 7499b10e8486c31ec35f65e15deae274bb5878fd96f59eed76b38b6a0ca7e30c
+  r: "The repository lacks the required `data/results/analysis_report.md` file, and\
+    \ the provided `code/05_statistical_analysis.py` does not contain any assertion\
+    \ or parser logic that checks for the phrase \u201Cassociational, not causal\u201D\
+    . Both the artifact and the verification code are missing, so the task is not\
+    \ satisfied."

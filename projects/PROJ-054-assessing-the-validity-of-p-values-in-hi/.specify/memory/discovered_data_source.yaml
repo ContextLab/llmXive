@@ -1,0 +1,12 @@
+status: none
+intent: synthetic high-dimensional dataset generation python package with correlation
+  matrix Gene Expression Omnibus TCGA python package dataset
+required_fields:
+- sample_id
+- feature_1
+- feature_2
+- '...'
+- feature_p
+cache_key: dfd5cda885897a6437b7b0f6b4c541d3bfd01aa93f035bfee6a28a8b5b5368ba
+searched_at: '2026-09-22T15:23:08.305699+00:00'
+retry_count: 1

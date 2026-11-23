@@ -1,70 +1,105 @@
-%YAML 1.2
----
-name: merged_filtered_dataset
-description: >
-  Schema for the processed dataset resulting from merging stellar flare
-  catalogs with exoplanet parameters, filtered for M-dwarfs with >= 10 flares.
-  Used as input for physics modeling and statistical analysis.
-source_file: data/processed/merged_filtered.csv
-version: 1.0.0
-columns:
-  - name: star_id
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Merged Filtered Stellar-Exoplanet Dataset Schema"
+description: >-
+  Schema for the intermediate dataset produced by the data ingestion
+  pipeline (User Story 1): data/processed/merged_filtered.csv. This file
+  contains merged stellar flare and exoplanet data, filtered for M-dwarf
+  hosts with >= 10 recorded flare events. Each row represents one planet
+  orbiting a filtered M-dwarf host.
+type: object
+required:
+  - star_id
+  - flare_count
+  - radius
+  - mass
+  - semi_major_axis
+  - density
+  - age
+properties:
+  star_id:
     type: string
-    description: Unique identifier for the host star (e.g., TIC ID or Gaia ID)
-    nullable: false
-    constraints:
-      - not_empty
-  - name: flare_count
+    description: "Unique identifier for the host star (e.g., TIC ID or Gaia ID); join key used to merge flare and exoplanet datasets"
+    minLength: 1
+  planet_name:
+    type: string
+    description: "Name of the orbiting exoplanet (e.g., 'GJ 1214 b'), when available"
+  host_star_id:
+    type: string
+    description: "Primary key used for merging flare and exoplanet datasets (same value space as star_id)"
+    minLength: 1
+  flare_count:
     type: integer
-    description: Total number of flare events detected for this star
-    nullable: false
-    constraints:
-      - minimum: 10
-        reason: "Filter applied: Exclude systems with < 10 flare events"
-  - name: radius
-    type: float
-    description: Stellar radius in solar units (R_sun)
-    nullable: false
-    unit: R_sun
-    constraints:
-      - positive
-  - name: mass
-    type: float
-    description: Stellar mass in solar units (M_sun)
-    nullable: false
-    unit: M_sun
-    constraints:
-      - positive
-  - name: semi_major_axis
-    type: float
-    description: Planet semi-major axis in astronomical units (AU)
-    nullable: false
-    unit: AU
-    constraints:
-      - positive
-  - name: density
-    type: float
-    description: Planet bulk density in g/cm^3
-    nullable: true
-    unit: g/cm^3
-    constraints:
-      - positive
-        allow_null: true
-  - name: age
-    type: float
-    description: System age in Gyr. If missing in source, populated with DEFAULT_M_DWARF_AGE
-    nullable: true
-    unit: Gyr
-    constraints:
-      - positive
-        allow_null: false
-        default_source: "config.DEFAULT_M_DWARF_AGE"
-metadata:
-  filtering_criteria:
-    - "Host star must be an M-dwarf (mass < 0.6 M_sun)"
-    - "Flare count >= 10"
-    - "No missing values in mass, radius, or semi_major_axis"
-  imputation_policy:
-    age: "If missing, set to DEFAULT_M_DWARF_AGE and log warning"
-  generated_by: "code/data_ingestion.py::filter_and_impute"
-...
+    description: "Total number of detected flare events for this host star"
+    minimum: 10
+  radius:
+    type: number
+    description: "Stellar radius in solar radii (R_sun)"
+    unit: "R_sun"
+    exclusiveMinimum: 0
+  mass:
+    type: number
+    description: "Stellar mass in solar masses (M_sun); must be < 0.6 for M-dwarf hosts"
+    unit: "M_sun"
+    exclusiveMinimum: 0
+    maximum: 0.6
+  semi_major_axis:
+    type: number
+    description: "Planetary semi-major axis in astronomical units (AU)"
+    unit: "AU"
+    exclusiveMinimum: 0
+  density:
+    type: ["number", "null"]
+    description: "Planetary bulk density in g/cm^3 (nullable; not required for physics pipeline)"
+    unit: "g/cm^3"
+  age:
+    type: number
+    description: "System age in Gyr; if missing in source data, filled with config.DEFAULT_M_DWARF_AGE"
+    unit: "Gyr"
+    exclusiveMinimum: 0
+  rotation_period:
+    type: ["number", "null"]
+    description: "Host star rotation period in days (used by Wright et al. 2018 L_X relation; nullable triggers fallback proxy)"
+    unit: "days"
+  system_age_imputed:
+    type: boolean
+    description: "True if system_age was missing in the source and imputed with DEFAULT_M_DWARF_AGE (SC-006)"
+  rotation_period_missing:
+    type: boolean
+    description: "True if rotation period was missing and the record is flagged for fallback XUV handling (FR-003 dependency)"
+additionalProperties: true
+constraints:
+  stellar_type:
+    description: "Only M-dwarf hosts are included (heuristic: stellar mass < 0.6 M_sun)"
+    value: "M-dwarf"
+  min_flare_count:
+    description: "Minimum number of flare events required for retention (FR-002)"
+    value: 10
+  non_nullable_columns:
+    description: "Columns that must be populated with no null values (SC-002)"
+    value:
+      - star_id
+      - flare_count
+      - radius
+      - mass
+      - semi_major_axis
+      - age
+source_file:
+  description: "Relative path of the CSV file this schema validates"
+  value: "data/processed/merged_filtered.csv"
+examples:
+  - star_id: "TIC 300100827"
+    planet_name: "LHS 3844 b"
+    flare_count: 15
+    radius: 0.19
+    mass: 0.16
+    semi_major_axis: 0.00622
+    density: 5.5
+    age: 7.6
+    system_age_imputed: false
+    rotation_period_missing: false
+notes: >-
+  This schema validates a single record (row) of merged_filtered.csv.
+  The CSV as a whole is validated row-by-row by jsonschema; the
+  constraints block documents the filtering guarantees (M-dwarf host,
+  >= 10 flares, non-null required physics columns) that the ingestion
+  pipeline enforces before writing the file.

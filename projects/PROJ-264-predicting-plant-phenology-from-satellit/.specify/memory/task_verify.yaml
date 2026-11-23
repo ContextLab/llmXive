@@ -1,8 +1,17 @@
-? T002 Initialize Python 3.11 project with `requirements.txt` pinning `pandas`, `numpy`,
-  `xgboost`, `lightgbm`, `scikit-learn`, `geopandas`, `earthengine-api`, `requests`
-: 2
-T002 {{claim:c_1ed3d08c}}: 1
-T003 [P] Configure linting (ruff) and formatting (black) tools: 2
-? T004 Implement `src/config.py` adhering to JSON Schema contract defined in `contracts/config_schema.json`
-  for paths, seeds, and API keys (no hardcoded secrets)
-: 1
+T001a: 2
+T002: 1
+T004: 1
+T008: 1
+T022: 1
+T022b: 1
+T023: 2
+T024: 1
+T024a: 1
+T025: 1
+T025b: 1
+T028: 1
+T029: 1
+T039: 1
+T040: 1
+T042: 1
+T043: 1

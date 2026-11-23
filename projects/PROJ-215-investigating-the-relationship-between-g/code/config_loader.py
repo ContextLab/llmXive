@@ -1,165 +1,121 @@
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
+from code.config import ensure_directories, get_output_path
+from utils.logging import get_logger
 
-# Try to import dotenv, but make it optional so the module loads even if not installed
 try:
     from dotenv import load_dotenv
-    HAS_DOTENV = True
+    DOTENV_AVAILABLE = True
 except ImportError:
-    HAS_DOTENV = False
-    load_dotenv = None  # type: ignore
+    DOTENV_AVAILABLE = False
+    load_dotenv = None
 
-from code.config import ensure_directories, get_output_path
-
-# Project root is assumed to be the parent of the 'code' directory
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-ENV_FILE_PATH = PROJECT_ROOT / ".env"
-
-
-def load_environment_variables(env_path: Optional[Path] = None) -> bool:
+def load_environment_variables(env_path: Optional[str] = None) -> None:
     """
     Load environment variables from a .env file if it exists.
-
-    Args:
-        env_path: Path to the .env file. Defaults to PROJECT_ROOT/.env
-
-    Returns:
-        bool: True if variables were loaded successfully, False otherwise.
+    If the file is not found, the function simply does nothing (no error raised).
     """
-    target_path = env_path or ENV_FILE_PATH
-
-    if not target_path.exists():
-        # No .env file found; this is not an error, just a no-op
-        return False
-
-    if not HAS_DOTENV:
-        # dotenv is not installed; try to manually parse the file
-        _manual_load_env(target_path)
-        return True
-
-    return bool(load_dotenv(dotenv_path=target_path, override=False))
-
-
-def _manual_load_env(env_path: Path) -> None:
-    """
-    Manually parse a .env file and set environment variables.
-    This is a fallback when python-dotenv is not installed.
-
-    Supports lines like: KEY=value, KEY="value", KEY='value'
-    Ignores comments (lines starting with #) and empty lines.
-    """
-    if not env_path.exists():
+    if not DOTENV_AVAILABLE:
+        logger = get_logger()
+        logger.warning("python-dotenv is not installed. Environment variables from .env will not be loaded.")
         return
 
-    with open(env_path, "r", encoding="utf-8") as f:
-        for line in f:
-            line = line.strip()
-            if not line or line.startswith("#"):
-                continue
+    if env_path is None:
+        # Look for .env in the project root
+        project_root = Path(__file__).resolve().parent.parent
+        env_file = project_root / ".env"
+    else:
+        env_file = Path(env_path)
 
-            if "=" not in line:
-                continue
-
-            key, _, value = line.partition("=")
-            key = key.strip()
-            value = value.strip()
-
-            # Remove surrounding quotes if present
-            if (value.startswith('"') and value.endswith('"')) or \
-               (value.startswith("'") and value.endswith("'")):
-                value = value[1:-1]
-
-            os.environ[key] = value
-
+    if env_file.exists():
+        load_dotenv(dotenv_path=env_file)
+        logger = get_logger()
+        logger.info(f"Loaded environment variables from {env_file}")
+    else:
+        logger = get_logger()
+        logger.info(f"No .env file found at {env_file}. Using system environment variables.")
 
 def get_config_value(key: str, default: Optional[str] = None) -> Optional[str]:
     """
     Retrieve a configuration value from environment variables.
-
-    Args:
-        key: The environment variable name.
-        default: Default value if the key is not found.
-
-    Returns:
-        The value of the environment variable or the default.
+    Falls back to the provided default if the key is not set.
     """
     return os.getenv(key, default)
-
 
 def get_int_config(key: str, default: Optional[int] = None) -> Optional[int]:
     """
     Retrieve an integer configuration value from environment variables.
-
-    Args:
-        key: The environment variable name.
-        default: Default value if the key is not found or cannot be parsed.
-
-    Returns:
-        The integer value or the default.
+    Raises ValueError if the value cannot be converted to int.
     """
-    val_str = os.getenv(key)
-    if val_str is None:
+    value = os.getenv(key)
+    if value is None:
         return default
     try:
-        return int(val_str)
+        return int(value)
     except ValueError:
-        return default
-
+        raise ValueError(f"Environment variable '{key}' must be an integer, got '{value}'")
 
 def get_float_config(key: str, default: Optional[float] = None) -> Optional[float]:
     """
     Retrieve a float configuration value from environment variables.
-
-    Args:
-        key: The environment variable name.
-        default: Default value if the key is not found or cannot be parsed.
-
-    Returns:
-        The float value or the default.
+    Raises ValueError if the value cannot be converted to float.
     """
-    val_str = os.getenv(key)
-    if val_str is None:
+    value = os.getenv(key)
+    if value is None:
         return default
     try:
-        return float(val_str)
+        return float(value)
     except ValueError:
-        return default
-
+        raise ValueError(f"Environment variable '{key}' must be a float, got '{value}'")
 
 def get_bool_config(key: str, default: bool = False) -> bool:
     """
     Retrieve a boolean configuration value from environment variables.
-
-    Accepts: 'true', '1', 'yes', 'on' (case-insensitive) as True.
-    Everything else is False.
-
-    Args:
-        key: The environment variable name.
-        default: Default value if the key is not found.
-
-    Returns:
-        The boolean value or the default.
+    Accepts common boolean string representations: 'true', '1', 'yes', 'on' -> True
+    'false', '0', 'no', 'off' -> False
     """
-    val_str = os.getenv(key)
-    if val_str is None:
+    value = os.getenv(key)
+    if value is None:
         return default
-    return val_str.lower() in ("true", "1", "yes", "on")
+    
+    if isinstance(value, bool):
+        return value
 
+    true_values = {'true', '1', 'yes', 'on', 'enabled'}
+    false_values = {'false', '0', 'no', 'off', 'disabled'}
+
+    val_lower = value.lower().strip()
+    
+    if val_lower in true_values:
+        return True
+    elif val_lower in false_values:
+        return False
+    else:
+        raise ValueError(f"Environment variable '{key}' has an invalid boolean value: '{value}'")
 
 def initialize_config() -> Dict[str, Any]:
     """
-    Initialize the configuration by loading .env and ensuring directories exist.
-
-    Returns:
-        A dictionary containing the loaded configuration state.
+    Main entry point to initialize the configuration system.
+    1. Loads environment variables from .env if available.
+    2. Ensures necessary directories exist.
+    3. Returns a dictionary of key configuration values.
     """
-    loaded = load_environment_variables()
+    # Load environment variables
+    load_environment_variables()
+
+    # Ensure directories
     ensure_directories()
 
-    return {
-        "env_loaded": loaded,
-        "env_file_path": str(ENV_FILE_PATH),
-        "project_root": str(PROJECT_ROOT),
-        "dotenv_available": HAS_DOTENV,
+    logger = get_logger()
+    logger.info("Configuration initialized successfully.")
+
+    # Return a sample config dict that can be extended
+    config = {
+        "data_dir": get_output_path("data"),
+        "results_dir": get_output_path("results"),
+        "random_seed": get_int_config("RANDOM_SEEED", 42),
+        "verbose": get_bool_config("VERBOSE", False),
     }
+
+    return config

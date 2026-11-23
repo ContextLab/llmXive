@@ -1,1 +1,3 @@
-# Training package
+"""
+training subpackage initializer.
+"""

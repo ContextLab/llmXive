@@ -34,5 +34,15 @@
     "fancyhdr.sty",
     "main.tex",
     "natbib.sty"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "a18f00ae627be0fc7d3d217d25ad0cf575e213a7100b1a3d09e774d2874c9ec3",
+      "bytes": 475307
+    },
+    "original.pdf": {
+      "sha256": "c6231f2e6452e4cb7fa0ab714b578aea4f1bf4c948ae24fd8df6201f381fc4df",
+      "bytes": 438672
+    }
+  }
 }

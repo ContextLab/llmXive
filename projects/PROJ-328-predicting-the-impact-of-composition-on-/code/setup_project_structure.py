@@ -1,68 +1,119 @@
-"""
-Project Structure Setup Script for PROJ-328.
-
-Creates the required directory hierarchy:
-- projects/PROJ-328-predicting-the-impact-of-composition-on-/data/
-- projects/PROJ-328-predicting-the-impact-of-composition-on-/code/
-- projects/PROJ-328-predicting-the-impact-of-composition-on-/tests/
-- projects/PROJ-328-predicting-the-impact-of-composition-on-/models/
-
-Also creates necessary subdirectories for data organization.
-"""
 import os
 import sys
+import logging
 from pathlib import Path
 
-
-def main():
-    """Create the project directory structure."""
-    # Define the project root based on the task description
-    project_root_name = "PROJ-328-predicting-the-impact-of-composition-on-"
-    project_root = Path("projects") / project_root_name
-
-    # Define required directories
+def setup_directories(root_path: Path) -> None:
+    """
+    Create the required directory structure for the project.
+    This function is idempotent (safe to run multiple times).
+    """
     directories = [
-        project_root,
-        project_root / "data",
-        project_root / "data" / "raw",
-        project_root / "data" / "processed",
-        project_root / "data" / "outputs",
-        project_root / "data" / "checksums",
-        project_root / "code",
-        project_root / "tests",
-        project_root / "tests" / "contract",
-        project_root / "tests" / "integration",
-        project_root / "tests" / "unit",
-        project_root / "models",
-        project_root / "specs",
+        "data/raw",
+        "data/processed",
+        "data/outputs",
+        "code/ingestion",
+        "code/features",
+        "code/models",
+        "code/evaluation",
+        "code/visualization",
+        "code/utils",
+        "tests/contract",
+        "tests/integration",
     ]
 
-    created_count = 0
-    existing_count = 0
+    for dir_path in directories:
+        full_path = root_path / dir_path
+        full_path.mkdir(parents=True, exist_ok=True)
+        # Ensure __init__.py exists in Python package directories
+        if dir_path.startswith("code/") or dir_path.startswith("tests/"):
+            init_file = full_path / "__init__.py"
+            if not init_file.exists():
+                init_file.touch()
 
-    for directory in directories:
-        if not directory.exists():
-            directory.mkdir(parents=True, exist_ok=True)
-            created_count += 1
-            print(f"Created directory: {directory}")
-        else:
-            existing_count += 1
-            print(f"Directory already exists: {directory}")
+def verify_directory_structure(root_path: Path) -> bool:
+    """
+    Verify that all required directories exist.
+    Returns True if all directories exist, False otherwise.
+    """
+    required_dirs = [
+        "data/raw",
+        "data/processed",
+        "data/outputs",
+        "code/ingestion",
+        "code/features",
+        "code/models",
+        "code/evaluation",
+        "code/visualization",
+        "code/utils",
+        "tests/contract",
+        "tests/integration",
+    ]
 
-    # Create .gitkeep files to ensure directories are tracked by git
-    for directory in directories:
-        gitkeep = directory / ".gitkeep"
-        if not gitkeep.exists():
-            gitkeep.touch()
-            print(f"Created .gitkeep in: {directory}")
+    all_exist = True
+    for dir_path in required_dirs:
+        full_path = root_path / dir_path
+        if not full_path.exists():
+            logging.error(f"Missing required directory: {full_path}")
+            all_exist = False
+        elif not full_path.is_dir():
+            logging.error(f"Path exists but is not a directory: {full_path}")
+            all_exist = False
 
-    print(f"\nProject structure setup complete.")
-    print(f"Created {created_count} new directories.")
-    print(f"Found {existing_count} existing directories.")
-    print(f"Project root: {project_root.absolute()}")
+    return all_exist
 
-    return 0
+def main():
+    """
+    Main entry point for directory setup and verification.
+    """
+    # Determine project root (assume script is in code/ directory)
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
 
+    # Set up logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+
+    logger = logging.getLogger(__name__)
+
+    # First, setup directories if they don't exist
+    logger.info(f"Setting up directories at: {project_root}")
+    setup_directories(project_root)
+
+    # Then verify the structure
+    logger.info("Verifying directory structure...")
+    if verify_directory_structure(project_root):
+        logger.info("✅ All required directories exist.")
+
+        # Print the directory tree for verification (simulating ls -R)
+        logger.info("\nDirectory structure verification (simulating 'ls -R'):")
+        print("\n--- data/ ---")
+        for item in sorted((project_root / "data").rglob("*")):
+            if item.is_dir():
+                print(f"{item.relative_to(project_root)}/")
+            else:
+                print(f"  {item.relative_to(project_root)}")
+
+        print("\n--- code/ ---")
+        for item in sorted((project_root / "code").rglob("*")):
+            if item.is_dir():
+                print(f"{item.relative_to(project_root)}/")
+            else:
+                print(f"  {item.relative_to(project_root)}")
+
+        print("\n--- tests/ ---")
+        for item in sorted((project_root / "tests").rglob("*")):
+            if item.is_dir():
+                print(f"{item.relative_to(project_root)}/")
+            else:
+                print(f"  {item.relative_to(project_root)}")
+
+        return 0
+    else:
+        logger.error("❌ Directory structure verification failed.")
+        return 1
 
 if __name__ == "__main__":
     sys.exit(main())

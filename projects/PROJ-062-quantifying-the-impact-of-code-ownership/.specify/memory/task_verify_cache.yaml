@@ -1,0 +1,86 @@
+T001:
+  c: true
+  h: 0f4471497cc48111bd81072197c2f58e31d438aaf44e326a34379659a4527d22
+  r: "The `projects/PROJ-062-quantifying-the-impact-of-code-ownership/` directory\
+    \ exists, is populated with the expected top\u2011level files and sub\u2011folders\
+    \ (e.g., `code/`, `data/`, `docs/`, `plan.md`, etc.), satisfying the requirement\
+    \ to create the project structure per the implementation plan."
+T002:
+  c: true
+  h: 6f8f9847735913c06bb8a0a34febe3e43e23966e0d77be336e596b41943fc804
+  r: "The `requirements.txt` file is present, non\u2011empty, and includes all required\
+    \ packages (GitPython, scikit-learn, scipy, pandas, numpy, radon, matplotlib,\
+    \ pyyaml); extra entries do not violate the task."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., .flake8, pyproject.toml/black\
+    \ settings, or pre\u2011commit hooks) are present in the provided artifacts, and\
+    \ the evidence only contains specifications unrelated to linting. Consequently\
+    \ the requirement to configure flake8/black is not satisfied."
+T004:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No directory structure or `.gitkeep` files were presented as evidence; the claim
+    lacks any tangible artifact showing that `data/raw/`, `data/intermediate/`, and
+    `data/results/` exist with the required placeholder files. The implementer must
+    create those directories and include a `.gitkeep` (or equivalent) file in each
+    to satisfy the task.
+T005:
+  c: true
+  h: d48f6001686c96d39e9a07be4b914e75fd9bc3e7dbde36f79ed9f1dc34c83ab9
+  r: "The file `code/utils/backoff.py` exists, contains a full implementation with\
+    \ exponential backoff (base\u202F\u2265\u202F60\u202Fs, max\u202F3 retries), and\
+    \ provides functions/decorator for GitHub API requests handling rate\u2011limit\
+    \ responses. No placeholders or missing logic are present."
+T006:
+  c: true
+  h: aece95caae6d5aec10864522e7fc06df63c7900fa0ab096979eea3c082610d5f
+  r: "The `code/utils/path_normalizer.py` file is present (4\u202FKB) and defines\
+    \ `normalize_path` that lower\u2011cases the input, replaces back\u2011slashes\
+    \ with forward slashes, removes leading/trailing slashes, and strips a wide range\
+    \ of file extensions\u2014fulfilling FR\u2011009\u2019s requirements. No placeholders\
+    \ or stubs are present."
+T007:
+  c: false
+  h: 665884d3b99235e0b64b33edaa999abcfcea97aacbb9b96122697918238deeaf
+  r: The provided `code/config.py` defines helper functions but does not declare a
+    `RANDOM_SEED = 42` constant, nor does it contain any documentation stating that
+    the seed is passed to statistical analysis scripts or logged in final artifacts.
+    Consequently, the core requirements of task T007 are not met.
+T008:
+  c: false
+  h: 7931175ed1331b6ef1ed1267b42cff7259b0d532006c0b25255f5fb0ed54e360
+  r: The provided `code/__init__.py` contains only a docstring and does not set up
+    any logging infrastructure (e.g., configuring a logger, handlers, or writing logs
+    to disk). The required logging setup is missing, so the task is not fulfilled.
+T032:
+  c: false
+  h: c323d49cc34862dc5518425e06c30553b83611807760c3505caee6bc0198cd04
+  r: The provided `code/statistical_analysis.py` is truncated (ends abruptly at `if
+    to`) and does not contain a complete implementation that writes the required CSV.
+    Moreover, the expected output file `data/results/sensitivity_pvalue.csv` is missing.
+    The task therefore remains unfinished.
+T033:
+  c: false
+  h: 5c12f45e1169825d417fc698e7f9c12154d8abd7bce68f7823c3220afd7ad59f
+  r: "The required output file `data/results/sensitivity_rho.csv` does not exist,\
+    \ and the provided excerpt of `code/statistical_analysis.py` shows no implementation\
+    \ of a correlation\u2011magnitude (rho) sweep using the set\u202F{0.2,\u202F0.3,\u202F\
+    0.4} nor any code that writes the specified CSV with the columns `cutoff`, `count_significant`,\
+    \ `count_total`. The task therefore remains unfinished."
+T035:
+  c: false
+  h: 0c471b7f0e5dab55a344325a5001cf1020b5beea60906ca77163093a4632cb5e
+  r: The repository contains a `code/main.py` but the file is truncated and does not
+    show a complete `generate_final_report` implementation that writes a JSON file
+    with the required phrase. Moreover, the expected output file `data/results/final_report.json`
+    is absent. Both the artifact and its content required by the task are missing.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, refactored scripts, or performance logs were supplied; without artifacts\
+    \ showing the RAM usage and runtime after cleanup, we cannot confirm that the\
+    \ code meets the \u22647\u202FGB RAM and \u22646\u202Fhour runtime constraints.\
+    \ The required evidence (e.g., updated source files, profiling output, or benchmark\
+    \ reports) is missing."

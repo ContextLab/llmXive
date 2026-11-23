@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-926-llmxive-follow-up-extending-role-agent-b",
+  "stage": "planned",
+  "class": "permanent",
+  "fingerprint": "template_rejection",
+  "consecutive_count": 1,
+  "first_seen": "2026-07-23T18:53:08.278420+00:00",
+  "last_seen": "2026-07-23T18:53:08.278420+00:00",
+  "retry_after": null,
+  "last_error": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md.\n  Rules fired: unfilled_bracket_density=6 distinct bracket placeholders (7 occurrences); sample=['[FR-001, FR-002]', '[FR-001, FR-003]', '[FR-001, FR-005]']\n  Missing context: High density of [bracketed] placeholders \u2014 likely never filled in by the emitter; ensure the emitter received real project context.\n  Project progression points are NOT incremented.\n  Fix by supplying the missing inputs and re-running, or by abstaining cleanly.",
+  "evidence": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-926-llmxive-follow-up-extending-role-agent-b/specs/001-llmxive-follow-up-extending-role-agent-b/tasks.md. Rules fired: unfilled_bracket_density=6 distinct bracket placeholders (7 occurrences); sample=['[FR-001, FR-002]', '[FR-001, FR-003]', '[FR-001, FR-005]'] Missing context: High density of [brackete",
+  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
+  "status": "rerouted"
+}

@@ -1,0 +1,23 @@
+{
+  "project_id": "PROJ-587-episodic-future-thinking-in-llms-impleme",
+  "ok": false,
+  "reason": "8 run-book script(s) missing (plan/impl path mismatch): python src/utils/loaders.py --fetch; python src/utils/init_config.py; python src/episodic_memory/store.py --build",
+  "artifacts": [],
+  "failures": [
+    "python src/utils/loaders.py --fetch -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/src/utils/loaders.py': [Errno 2] No such file or directory",
+    "python src/utils/init_config.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/src/utils/init_config.py': [Errno 2] No such file or directory",
+    "python src/episodic_memory/store.py --build -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/src/episodic_memory/store.py': [Errno 2] No such file or directory",
+    "python src/planning/generator.py --mode baseline --tasks 50 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/src/planning/generator.py': [Errno 2] No such file or directory",
+    "python src/planning/generator.py --mode episodic --tasks 50 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/src/planning/generator.py': [Errno 2] No such file or directory",
+    "python src/evaluation/sensitivity.py --thresholds 0.70 0.75 0.80 -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/src/evaluation/sensitivity.py': [Errno 2] No such file or directory",
+    "python src/evaluation/accuracy.py --mixed-effects -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/src/evaluation/accuracy.py': [Errno 2] No such file or directory",
+    "python src/evaluation/confidence.py --counterfactual -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-587-episodic-future-thinking-in-llms-impleme/src/evaluation/confidence.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 7,
+  "model_tier": 0,
+  "total_attempts": 7,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-09-12T19:13:52Z"
+}

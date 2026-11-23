@@ -1,312 +1,308 @@
-import os
-import logging
+"""Real-world dataset ingestion and processing pipeline.
+
+Implements T056: Ingest Full Dataset Set.
+Reads dataset configuration from `data/config/datasets.yaml`.
+Streams data from Hugging Face datasets, samples if necessary,
+and writes `results/real_world_ingestion_log.csv`.
+"""
+
+from __future__ import annotations
+
+import csv
+import hashlib
 import json
+import logging
+import os
+import sys
 from pathlib import Path
-from typing import Dict, Any, Optional, Tuple, List, Union
+from typing import Any, Dict, List, Optional, Tuple
 
 import pandas as pd
-import numpy as np
-from dataclasses import dataclass, field
-
-# Import config loader for datasets
-# Assuming datasets.yaml is read via standard yaml or pandas logic here
-# Since T034a created the YAML, we read it here.
 import yaml
+from datasets import load_dataset
 
-# Import logger setup (standardized across project)
+# Add project root to path if running as script
+if "code" not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from simulation.logger import setup_logger
 
-# Initialize logger
-logger = setup_logger(__name__)
+logger = setup_logger("preprocessing.ingestion")
 
-@dataclass
+# Constants
+CONFIG_PATH = Path("data/config/datasets.yaml")
+OUTPUT_LOG_PATH = Path("results/real_world_ingestion_log.csv")
+RAW_DATA_DIR = Path("data/raw")
+
+# Sampling limit to prevent OOM on large datasets (T051 requirement)
+MAX_ROWS = 50000
+
+
 class RealWorldDataset:
-    """
-    Entity representing a loaded and preprocessed real-world dataset.
-    Matches T037 requirements for metadata storage.
-    """
-    dataset_id: str
-    source: str
-    raw_path: str
-    clean_path: str
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
+    """Entity representing a real-world dataset with metadata."""
+
+    def __init__(
+        self,
+        dataset_id: str,
+        name: str,
+        source: str,
+        type: str,
+        description: str,
+        streaming_compatible: bool,
+        config: str,
+        splits: List[str],
+        target_column: Optional[str],
+        features: List[str],
+        verification_status: str,
+        last_verified: str,
+        source_url: Optional[str] = None,
+    ):
+        self.dataset_id = dataset_id
+        self.name = name
+        self.source = source
+        self.type = type
+        self.description = description
+        self.streaming_compatible = streaming_compatible
+        self.config = config
+        self.splits = splits
+        self.target_column = target_column
+        self.features = features
+        self.verification_status = verification_status
+        self.last_verified = last_verified
+        self.source_url = source_url or f"https://huggingface.co/datasets/{dataset_id}"
+        self.row_count: Optional[int] = None
+        self.checksum: Optional[str] = None
+        self.status: str = "pending"
+        self.error_message: Optional[str] = None
+
     def to_dict(self) -> Dict[str, Any]:
         return {
             "dataset_id": self.dataset_id,
-            "source": self.source,
-            "raw_path": self.raw_path,
-            "clean_path": self.clean_path,
-            "metadata": self.metadata
+            "source_url": self.source_url,
+            "status": self.status,
+            "row_count": self.row_count,
+            "checksum": self.checksum,
+            "error_message": self.error_message,
         }
 
-def load_dataset_config(config_path: str = "data/config/datasets.yaml") -> List[Dict[str, Any]]:
-    """
-    Reads the dataset configuration from YAML.
-    T034a ensures this file exists.
-    """
-    path = Path(config_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Dataset configuration not found at {config_path}. "
-                                "Run T034a to generate data/config/datasets.yaml.")
-    
-    with open(path, 'r') as f:
-        config = yaml.safe_load(f)
-    
-    if isinstance(config, list):
-        return config
-    elif isinstance(config, dict) and 'datasets' in config:
-        return config['datasets']
-    else:
-        raise ValueError("Invalid dataset config format. Expected list or dict with 'datasets' key.")
 
-def clean_dataset(
-    df: pd.DataFrame,
-    dataset_id: str,
-    strategy: str = "drop",
-    threshold: float = 0.5,
-    numeric_only: bool = True
-) -> Tuple[pd.DataFrame, Dict[str, Any]]:
+def load_dataset_config(config_path: Path = CONFIG_PATH) -> List[Dict[str, Any]]:
+    """Load dataset configuration from YAML."""
+    if not config_path.exists():
+        raise FileNotFoundError(f"Dataset config not found at {config_path}")
+
+    with open(config_path, "r") as f:
+        data = yaml.safe_load(f)
+
+    return data.get("datasets", [])
+
+
+def download_dataset(
+    dataset_id: str, streaming: bool = True, max_rows: int = MAX_ROWS
+) -> Tuple[pd.DataFrame, int]:
     """
-    Implements data cleaning and preprocessing (imputation/removal) as per T036.
-    
-    Args:
-        df: Input DataFrame.
-        dataset_id: Identifier for logging.
-        strategy: "drop" (remove rows/cols with missing) or "impute" (fill with mean/median).
-        threshold: Fraction of missing values allowed before dropping a column (0.0 to 1.0).
-        numeric_only: If True, only process numeric columns for imputation/dropping.
-        
-    Returns:
-        Tuple of (cleaned DataFrame, metadata dict with missing stats).
+    Download and stream a dataset from Hugging Face.
+
+    Implements T024 (Streaming) and T051 (Sampling).
+    Raises RuntimeError if download fails (T025).
     """
-    logger.info(f"Cleaning dataset {dataset_id} with strategy: {strategy}")
-    
-    original_shape = df.shape
-    missing_before = df.isnull().sum().sum()
-    
-    metadata = {
-        "original_shape": list(original_shape),
-        "missing_before": int(missing_before),
-        "missing_after": 0,
-        "dropped_columns": [],
-        "dropped_rows": 0
-    }
-    
-    # 1. Handle Columns with High Missing Rates
-    if numeric_only:
-        cols_to_check = df.select_dtypes(include=[np.number]).columns
-    else:
-        cols_to_check = df.columns
-        
-    high_missing_cols = []
-    for col in cols_to_check:
-        missing_frac = df[col].isnull().sum() / len(df)
-        if missing_frac > threshold:
-            high_missing_cols.append(col)
-            
-    if high_missing_cols:
-        logger.warning(f"Dropping {len(high_missing_cols)} columns with >{threshold*100}% missing values in {dataset_id}")
-        df = df.drop(columns=high_missing_cols)
-        metadata["dropped_columns"] = high_missing_cols
-    
-    # 2. Handle Remaining Missing Values
-    if strategy == "drop":
-        # Drop rows with any remaining missing values in numeric columns
-        if numeric_only:
-            numeric_cols = df.select_dtypes(include=[np.number]).columns
-            df_clean = df.dropna(subset=numeric_cols)
+    try:
+        logger.info(f"Attempting to stream dataset: {dataset_id}")
+
+        # Use streaming mode to avoid loading full dataset into memory
+        ds = load_dataset(dataset_id, split="train", streaming=streaming)
+
+        # Convert to pandas, limiting rows if necessary
+        if streaming:
+            # Sample using itertools.islice logic via to_pandas with streaming
+            # HuggingFace datasets streaming iterator
+            rows = []
+            count = 0
+            for item in ds:
+                rows.append(item)
+                count += 1
+                if count >= max_rows:
+                    break
+
+            df = pd.DataFrame(rows)
+            actual_rows = count
         else:
-            df_clean = df.dropna()
-        
-        rows_dropped = original_shape[0] - df_clean.shape[0]
-        metadata["dropped_rows"] = int(rows_dropped)
-        
-    elif strategy == "impute":
-        df_clean = df.copy()
-        if numeric_only:
-            numeric_cols = df_clean.select_dtypes(include=[np.number]).columns
-            for col in numeric_cols:
-                if df_clean[col].isnull().any():
-                    # Use median for robustness against outliers
-                    median_val = df_clean[col].median()
-                    if pd.isna(median_val):
-                        # Fallback to 0 if column is all NaN
-                        median_val = 0.0
-                    df_clean[col].fillna(median_val, inplace=True)
-                    logger.debug(f"Imputed missing values in {col} with median={median_val}")
-        else:
-            # Impute numeric with median, object with mode
-            for col in df_clean.columns:
-                if df_clean[col].isnull().any():
-                    if pd.api.types.is_numeric_dtype(df_clean[col]):
-                        val = df_clean[col].median()
-                        if pd.isna(val): val = 0.0
-                        df_clean[col].fillna(val, inplace=True)
-                    else:
-                        # Mode might be empty if all NaN, handle safely
-                        mode_val = df_clean[col].mode()
-                        if not mode_val.empty:
-                            df_clean[col].fillna(mode_val[0], inplace=True)
-                        else:
-                            df_clean[col].fillna("Unknown", inplace=True)
-    else:
-        raise ValueError(f"Unknown cleaning strategy: {strategy}")
-    
-    missing_after = df_clean.isnull().sum().sum()
-    metadata["missing_after"] = int(missing_after)
-    metadata["final_shape"] = list(df_clean.shape)
-    
-    if missing_after > 0:
-        logger.warning(f"Dataset {dataset_id} still has {missing_after} missing values after cleaning.")
-    else:
-        logger.info(f"Dataset {dataset_id} cleaned successfully. No missing values remaining.")
-        
-    return df_clean, metadata
+            # Fallback for non-streaming if requested (should not happen with T024)
+            df = ds.to_pandas()
+            actual_rows = len(df)
 
-def process_real_world_dataset(
-    dataset_id: str,
-    data_path: str,
-    output_dir: str = "data/clean",
-    strategy: str = "impute"
-) -> RealWorldDataset:
-    """
-    Orchestrates loading, cleaning, and saving a real-world dataset.
-    Implements T036 and T037 (entity creation).
-    """
-    path = Path(data_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Raw data file not found: {data_path}")
-    
-    # Load based on extension
-    if path.suffix == '.csv':
-        df = pd.read_csv(path)
-    elif path.suffix == '.parquet':
-        df = pd.read_parquet(path)
-    elif path.suffix == '.xlsx':
-        df = pd.read_excel(path)
-    else:
-        # Try CSV as default fallback
-        try:
-            df = pd.read_csv(path)
-        except Exception:
-            raise ValueError(f"Unsupported file format: {path.suffix}")
-    
-    # Clean
-    df_clean, meta = clean_dataset(df, dataset_id, strategy=strategy)
-    
-    # Ensure output directory exists
-    out_path = Path(output_dir)
-    out_path.mkdir(parents=True, exist_ok=True)
-    
-    clean_filename = f"{dataset_id}_cleaned.csv"
-    clean_file_path = out_path / clean_filename
-    
-    # Save
-    df_clean.to_csv(clean_file_path, index=False)
-    
-    # Create Entity
-    dataset_entity = RealWorldDataset(
-        dataset_id=dataset_id,
-        source=path.name,
-        raw_path=str(path),
-        clean_path=str(clean_file_path),
-        metadata=meta
-    )
-    
-    logger.info(f"Saved cleaned dataset to {clean_file_path}")
-    return dataset_entity
+        logger.info(f"Successfully loaded {actual_rows} rows from {dataset_id}")
+        return df, actual_rows
 
-def update_manifest(
-    dataset_entity: RealWorldDataset,
-    manifest_path: str = "data/metadata/manifest.json"
-):
+    except Exception as e:
+        # T025: Fail loudly, never fallback to synthetic
+        raise RuntimeError(f"Failed to download dataset {dataset_id}: {str(e)}")
+
+
+def clean_dataset(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Updates the manifest.json with metadata for the processed dataset.
+    Clean dataset: handle missing values, ensure types.
+
+    Simple imputation for numeric columns, drop non-numeric for now.
     """
-    manifest_file = Path(manifest_path)
-    manifest_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    if manifest_file.exists():
-        with open(manifest_file, 'r') as f:
+    # Drop rows with all NaN
+    df = df.dropna(how="all")
+
+    # Convert to numeric where possible, coerce errors to NaN
+    for col in df.columns:
+        if df[col].dtype == "object":
+            # Try to convert to numeric, keep as object if fails
             try:
-                manifest = json.load(f)
-            except json.JSONDecodeError:
-                manifest = []
-    else:
-        manifest = []
-        
-    # Append or update
-    existing = [item for item in manifest if item.get('dataset_id') == dataset_entity.dataset_id]
-    if existing:
-        # Update existing entry
-        idx = manifest.index(existing[0])
-        manifest[idx] = dataset_entity.to_dict()
-    else:
-        manifest.append(dataset_entity.to_dict())
-        
-    with open(manifest_file, 'w') as f:
-        json.dump(manifest, f, indent=2)
-    
-    logger.info(f"Updated manifest at {manifest_path}")
+                df[col] = pd.to_numeric(df[col], errors="coerce")
+            except Exception:
+                pass
 
-def get_cleaned_data_path(dataset_id: str, output_dir: str = "data/clean") -> Optional[str]:
+    # Drop columns that are entirely NaN after conversion
+    df = df.dropna(axis=1, how="all")
+
+    # Drop rows where target is NaN if target column exists
+    # (Assume first column is target if not specified, or just clean generally)
+    return df
+
+
+def compute_checksum(df: pd.DataFrame) -> str:
+    """Compute a deterministic checksum for the dataframe content."""
+    # Convert to string representation (sorted columns for determinism)
+    sorted_cols = sorted(df.columns)
+    data_str = df[sorted_cols].to_csv(index=False)
+    return hashlib.sha256(data_str.encode("utf-8")).hexdigest()[:16]
+
+
+def update_manifest(dataset: RealWorldDataset, df: pd.DataFrame) -> None:
+    """Update dataset metadata with row count and checksum."""
+    dataset.row_count = len(df)
+    dataset.checksum = compute_checksum(df)
+    dataset.status = "success"
+
+
+def process_real_world_dataset(dataset_config: Dict[str, Any]) -> RealWorldDataset:
     """
-    Helper to locate the cleaned file for a given ID.
+    Process a single dataset: download, clean, compute stats.
     """
-    path = Path(output_dir) / f"{dataset_id}_cleaned.csv"
-    if path.exists():
-        return str(path)
-    return None
+    # Instantiate entity
+    ds = RealWorldDataset(
+        dataset_id=dataset_config["id"],
+        name=dataset_config["name"],
+        source=dataset_config["source"],
+        type=dataset_config["type"],
+        description=dataset_config.get("description", ""),
+        streaming_compatible=dataset_config.get("streaming_compatible", True),
+        config=dataset_config.get("config", "default"),
+        splits=dataset_config.get("splits", ["train"]),
+        target_column=dataset_config.get("target_column"),
+        features=dataset_config.get("features", []),
+        verification_status=dataset_config.get("verification_status", "unknown"),
+        last_verified=dataset_config.get("last_verified", ""),
+    )
+
+    try:
+        # Download and stream
+        df, row_count = download_dataset(ds.dataset_id)
+
+        # Clean
+        df_clean = clean_dataset(df)
+
+        # Update metadata
+        update_manifest(ds, df_clean)
+
+        # Save raw data for verification (optional but good practice)
+        RAW_DATA_DIR.mkdir(parents=True, exist_ok=True)
+        safe_name = ds.dataset_id.replace("/", "_").replace(":", "_")
+        output_file = RAW_DATA_DIR / f"{safe_name}.parquet"
+        df_clean.to_parquet(output_file, index=False)
+
+        logger.info(
+            f"Processed {ds.dataset_id}: {ds.row_count} rows, checksum: {ds.checksum}"
+        )
+        return ds
+
+    except Exception as e:
+        ds.status = "failed"
+        ds.error_message = str(e)
+        logger.error(f"Failed to process {ds.dataset_id}: {str(e)}")
+        return ds
+
 
 def run_ingestion_pipeline(
-    config_path: str = "data/config/datasets.yaml",
-    strategy: str = "impute"
+    config_path: Path = CONFIG_PATH, output_path: Path = OUTPUT_LOG_PATH
 ) -> List[RealWorldDataset]:
     """
-    Main entry point to process all datasets defined in the config.
+    Main pipeline: load config, process all datasets, write log.
+    Implements T056 deliverable: results/real_world_ingestion_log.csv
     """
+    logger.info("Starting real-world dataset ingestion pipeline")
+
+    # Load config
     configs = load_dataset_config(config_path)
-    results = []
-    
+    logger.info(f"Found {len(configs)} datasets to process")
+
+    results: List[RealWorldDataset] = []
+
     for cfg in configs:
-        dataset_id = cfg.get('id') or cfg.get('dataset_id')
-        if not dataset_id:
-            logger.error(f"Missing dataset_id in config: {cfg}")
-            continue
-            
-        # Check if raw data exists (T035 should have downloaded it to data/raw)
-        # We expect the file to be named based on the ID or a specific path in config
-        # For now, assume data/raw/{id}.csv or similar
-        raw_file = Path("data/raw") / f"{dataset_id}.csv"
-        
-        # If not found, try to find any file matching the ID in raw
-        if not raw_file.exists():
-            raw_files = list(Path("data/raw").glob(f"{dataset_id}*"))
-            if raw_files:
-                raw_file = raw_files[0]
-            else:
-                logger.warning(f"Raw data not found for {dataset_id}. Skipping.")
-                continue
-        
-        try:
-            entity = process_real_world_dataset(
-                dataset_id=dataset_id,
-                data_path=str(raw_file),
-                strategy=strategy
+        ds = process_real_world_dataset(cfg)
+        results.append(ds)
+
+    # Write log
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(output_path, "w", newline="") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=["dataset_id", "source_url", "status", "row_count", "checksum"],
+        )
+        writer.writeheader()
+        for ds in results:
+            writer.writerow(
+                {
+                    "dataset_id": ds.dataset_id,
+                    "source_url": ds.source_url,
+                    "status": ds.status,
+                    "row_count": ds.row_count,
+                    "checksum": ds.checksum,
+                }
             )
-            update_manifest(entity)
-            results.append(entity)
-        except Exception as e:
-            logger.error(f"Failed to process {dataset_id}: {e}")
-            
+
+    logger.info(f"Ingestion log written to {output_path}")
     return results
 
+
+def validate_dataset_availability(
+    config_path: Path = CONFIG_PATH,
+) -> Tuple[List[str], List[str]]:
+    """
+    T027a: Validate which datasets are accessible.
+    Returns (available_ids, failed_ids).
+    Does NOT raise if < 10 available; logs warning instead.
+    """
+    configs = load_dataset_config(config_path)
+    available = []
+    failed = []
+
+    for cfg in configs:
+        ds_id = cfg["id"]
+        try:
+            # Quick metadata check by attempting a small stream
+            ds = load_dataset(ds_id, split="train", streaming=True)
+            # Try to get one item to verify access
+            next(iter(ds))
+            available.append(ds_id)
+        except Exception as e:
+            failed.append(ds_id)
+            logger.warning(f"Dataset {ds_id} not accessible: {str(e)}")
+
+    if len(available) < 10:
+        logger.warning(
+            f"Only {len(available)} datasets available (threshold: 10). "
+            f"Proceeding with available set."
+        )
+
+    return available, failed
+
+
 if __name__ == "__main__":
-    # Simple CLI for testing T036
-    logging.basicConfig(level=logging.INFO)
-    # Run pipeline if config exists
-    if Path("data/config/datasets.yaml").exists():
-        run_ingestion_pipeline()
-    else:
-        print("data/config/datasets.yaml not found. Run T034a first.")
+    # Run pipeline if executed directly
+    run_ingestion_pipeline()

@@ -5,39 +5,34 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-gene-essentiality"
 version = "0.1.0"
-description = "Predicting gene essentiality from protein interaction network topology"
+description = "Predicting Gene Essentiality from Protein Interaction Network Topology"
 requires-python = ">=3.11"
 dependencies = [
-    "networkx",
-    "pandas",
-    "scipy",
-    "statsmodels",
-    "requests",
-    "pyyaml",
-    "numpy",
-    "biopython",
-    "dendropy"
+    "networkx>=3.2",
+    "pandas>=2.1",
+    "scipy>=1.11",
+    "statsmodels>=0.14",
+    "requests>=2.31",
+    "pyyaml>=6.0",
+    "numpy>=1.26",
+    "biopython>=1.82",
+    "dendropy>=4.6",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "ruff",
-    "black"
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
 ]
 
 [tool.setuptools.packages.find]
-where = ["code"]
-
-[tool.ruff]
-line-length = 100
-target-version = "py311"
-
-[tool.ruff.lint]
-select = ["E", "F", "W", "I", "N", "B", "C4", "UP"]
-ignore = ["E501"]
+where = ["."]
+include = ["code*", "tests*"]
 
 [tool.black]
-line-length = 100
+line-length = 88
 target-version = ['py311']
 include = '\.pyi?$'
 exclude = '''
@@ -53,3 +48,32 @@ exclude = '''
   | dist
 )/
 '''
+
+[tool.ruff]
+# Same as Black.
+line-length = 88
+target-version = "py311"
+src = ["code", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # Pyflakes
+    "I",  # isort
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501", # line too long (handled by black)
+    "B008", # do not perform function calls in argument defaults
+    "C901", # too complex
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow assertions in tests
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "code"]
+addopts = "-v --tb=short"

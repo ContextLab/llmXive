@@ -17,9 +17,8 @@ TESTS_DIR = PROJECT_ROOT / "tests"
 # Configuration Constants
 # T004: Updated to reflect Plan's override of Spec's CID requirement.
 # Using a representative random sample from the HuggingFace dataset instead of CID 1-5000.
-# NOTE: DATASET_ID includes the exact claim string as per task specification.
 SEED = 42
-DATASET_ID = "sagawa/pubchem-10m-canonicalized [UNRESOLVED-CLAIM: c_bdb94909 — status=not_enough_info] "
+DATASET_ID = "sagawa/pubchem-10m-canonicalized"
 CHUNK_SIZE = 500
 TIMEOUT_SECONDS = 60
 MAX_RETRIES = 3

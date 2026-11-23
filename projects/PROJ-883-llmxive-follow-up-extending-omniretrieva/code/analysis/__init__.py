@@ -1,1 +1,2 @@
-# Analysis package
+# Package initialization for statistical analysis.
+pass

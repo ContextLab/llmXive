@@ -1,0 +1,15 @@
+Directory Creation Log
+======================
+Project: PROJ-251-investigating-the-correlation-between-gu
+Task: T001
+Timestamp: 2024-01-01T00:00:00
+
+Directories Created:
+1. code/
+2. data/raw/
+3. data/processed/
+4. data/results/
+5. specs/001-investigating-the-correlation-between-gu/contracts/
+
+Verification: All directories successfully created.
+Status: SUCCESS

@@ -1,0 +1,34 @@
+{
+  "project_id": "PROJ-1072-llmxive-follow-up-extending-blind-spots",
+  "tasks": [
+    {
+      "task_key": "T025",
+      "reject_count": 1,
+      "last_reason": "No code, configuration, or documentation implementing the memory\u2011guard fallback logic is present; the required artifact (e.g., a module that detects OOM, switches to a 4\u2011bit quantized model or trims the context window) is missing, so the task\u2019s requirement is not satisfied.",
+      "first_seen": "2026-10-05T03:16:40.513082+00:00",
+      "last_seen": "2026-10-05T03:16:40.513082+00:00"
+    },
+    {
+      "task_key": "T026",
+      "reject_count": 1,
+      "last_reason": "declared artifact(s) missing/empty/invalid: data/traces/cot_traces.jsonl",
+      "first_seen": "2026-10-05T03:16:40.514241+00:00",
+      "last_seen": "2026-10-05T03:16:40.514241+00:00"
+    },
+    {
+      "task_key": "T027",
+      "reject_count": 1,
+      "last_reason": "The required `data/results/runtime_status.json` and the generated `data/results/underpowered_report.json` are both missing, so the stopping\u2011rule logic cannot be verified as implemented. The task\u2019s output artifacts are absent.",
+      "first_seen": "2026-10-05T03:16:42.440246+00:00",
+      "last_seen": "2026-10-05T03:16:42.440246+00:00"
+    },
+    {
+      "task_key": "T029",
+      "reject_count": 1,
+      "last_reason": "No code, script, or output files were provided that demonstrate the implementation of exact string matching for first/last character offsets within the defined token windows, nor any tests or documentation showing it works on the first and last trace segments. The required artifact is missing, so the task is not satisfied.",
+      "first_seen": "2026-10-05T03:16:42.441661+00:00",
+      "last_seen": "2026-10-05T03:16:42.441661+00:00"
+    }
+  ],
+  "updated_at": "2026-10-05T03:16:42.441661+00:00"
+}

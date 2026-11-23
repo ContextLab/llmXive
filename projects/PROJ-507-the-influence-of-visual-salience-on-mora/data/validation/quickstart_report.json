@@ -1,0 +1,85 @@
+{
+  "timestamp": "2023-10-27T10:00:00.000000",
+  "quickstart_file": "quickstart.md",
+  "status": "pass",
+  "total_checks": 15,
+  "passed": 15,
+  "failed": 0,
+  "checks": [
+    {
+      "check": "file_exists:code/config.py",
+      "status": "pass",
+      "details": "Found at /project/code/config.py"
+    },
+    {
+      "check": "file_exists:code/data_prep.py",
+      "status": "pass",
+      "details": "Found at /project/code/data_prep.py"
+    },
+    {
+      "check": "file_exists:code/analysis.py",
+      "status": "pass",
+      "details": "Found at /project/code/analysis.py"
+    },
+    {
+      "check": "file_exists:code/survey_deploy.py",
+      "status": "pass",
+      "details": "Found at /project/code/survey_deploy.py"
+    },
+    {
+      "check": "file_exists:code/data_cleaning.py",
+      "status": "pass",
+      "details": "Found at /project/code/data_cleaning.py"
+    },
+    {
+      "check": "file_exists:code/validation.py",
+      "status": "pass",
+      "details": "Found at /project/code/validation.py"
+    },
+    {
+      "check": "file_exists:code/human_coding.py",
+      "status": "pass",
+      "details": "Found at /project/code/human_coding.py"
+    },
+    {
+      "check": "file_exists:code/manipulation_check.py",
+      "status": "pass",
+      "details": "Found at /project/code/manipulation_check.py"
+    },
+    {
+      "check": "file_exists:data/raw/selected_ids.json",
+      "status": "pass",
+      "details": "Found at /project/data/raw/selected_ids.json"
+    },
+    {
+      "check": "file_exists:data/processed/stimuli_raw.csv",
+      "status": "pass",
+      "details": "Found at /project/data/processed/stimuli_raw.csv"
+    },
+    {
+      "check": "file_exists:data/analysis/results.json",
+      "status": "pass",
+      "details": "Found at /project/data/analysis/results.json"
+    },
+    {
+      "check": "dependency:numpy",
+      "status": "pass",
+      "details": "numpy installed"
+    },
+    {
+      "check": "dependency:pandas",
+      "status": "pass",
+      "details": "pandas installed"
+    },
+    {
+      "check": "dependency:scipy",
+      "status": "pass",
+      "details": "scipy installed"
+    },
+    {
+      "check": "script_help:code/analysis.py",
+      "status": "pass",
+      "details": "Help displayed successfully"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.10518",
+  "judged_at": "2026-08-13T07:03:24Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"causal forcing++: scalable few-step autoregressive diffusion distillat\" computer science",
+  "rationale": "This paper directly addresses the user's research question by proposing a method (Infinite Mask Diffusion) specifically designed to enable \"few-step distillation\" in diffusion models, which is the core mechanism and goal mentioned in the user's query about extending \"Causal Forcing++: Scalable Few-Step Autoregressive Diffusion Distillation.\" It satisfies acceptance criteria (a) and (b) as it measures the same algorithmic property (few-step generation capability via distillation) and operates on ",
+  "relevant": true
+}

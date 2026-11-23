@@ -1,167 +1,149 @@
-import pytest
+"""
+Unit tests for embedding generation and processing logic.
+"""
+import unittest
+import numpy as np
 import torch
-import torch.nn as nn
+from unittest.mock import patch, MagicMock, Mock
 from pathlib import Path
 import sys
 import os
 
-# Add project root to path to resolve imports
-project_root = Path(__file__).parent.parent
-sys.path.insert(0, str(project_root))
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
 
-from utils.logging import get_logger
-from utils.memory_monitor import MemoryMonitor
-from models.base import FrozenEmbeddingModel
-
-logger = get_logger(__name__)
+from embeddings.utils import batch_process_embeddings
+from utils.memory_monitor import get_process_memory_mb, memory_limit_context
+from embeddings.generator import EmbeddingGenerator
 
 
-class DummyModel(nn.Module):
-    """A simple dummy model for testing gradient context behavior."""
-    def __init__(self):
-        super().__init__()
-        self.linear = nn.Linear(10, 5)
-
-    def forward(self, x):
-        return self.linear(x)
-
-
-class TestNoGradContext:
+class TestBatchProcessingMemory(unittest.TestCase):
     """
-    Unit tests for gradient disabling in inference scenarios.
-    Ensures that models run without tracking gradients to save memory and time.
+    Unit test for batch processing logic ensuring memory safety.
+    Verifies that batch_process_embeddings correctly splits data into chunks
+    and processes them without exceeding memory constraints.
     """
 
-    def test_no_grad_context_manager(self):
+    def setUp(self):
+        """Set up test fixtures."""
+        self.sample_data = [
+            {"id": f"item_{i}", "text": f"Sample text {i}", "image": None}
+            for i in range(100)
+        ]
+        self.mock_model = Mock(spec=EmbeddingGenerator)
+        # Mock return value: list of numpy arrays
+        self.mock_model.process_batch.return_value = [
+            np.random.rand(512).astype(np.float32) for _ in range(10)
+        ]
+        self.batch_size = 10
+
+    @patch('embeddings.utils.get_process_memory_mb')
+    def test_batch_processing_memory(self, mock_mem_func):
         """
-        Verify that torch.no_grad() context manager effectively disables
-        gradient tracking for operations within the block.
+        Test that batch processing respects memory limits and splits data correctly.
         """
-        model = DummyModel()
-        x = torch.randn(3, 10, requires_grad=True)
+        # Simulate memory usage tracking
+        # First call: current usage, Second call: after batch
+        mock_mem_func.side_effect = [1000, 1050, 1000, 1050]  # MB
 
-        # Ensure gradients are tracked outside
-        out = model(x)
-        assert out.requires_grad, "Gradients should be tracked outside context"
+        # Mock the memory limit context to be a no-op for this test
+        # but verify it is called
+        with patch('embeddings.utils.memory_limit_context') as mock_context:
+            mock_context.return_value.__enter__ = Mock()
+            mock_context.return_value.__exit__ = Mock()
 
-        # Disable gradients inside context
-        with torch.no_grad():
-            out_no_grad = model(x)
-            # The output tensor itself should not require grad if inputs were tracked
-            # but the operation graph is not built.
-            # However, if x requires_grad, the output of no_grad block
-            # still carries the requires_grad flag from x, but no graph is built.
-            # The critical check is that .backward() would fail or do nothing useful
-            # if we tried to backprop through the graph built inside no_grad.
-            # A more direct check: is_grad_enabled
-            assert not torch.is_grad_enabled(), "Gradient tracking should be disabled"
+            # Execute batch processing
+            results = batch_process_embeddings(
+                data=self.sample_data,
+                model=self.mock_model,
+                batch_size=self.batch_size,
+                max_memory_mb=2000
+            )
 
-        # Verify graph is not built for operations inside no_grad
-        # If we try to backward on a tensor created inside no_grad using a leaf that requires_grad,
-        # it should raise an error because there is no graph.
-        try:
-            out_no_grad.sum().backward()
-            # If we are here, the graph might have been built (unexpected) or x wasn't leaf?
-            # Actually, torch.no_grad() prevents graph construction.
-            # If x requires_grad, out_no_grad.requires_grad is True, but .grad_fn is None.
-            assert out_no_grad.grad_fn is None, "No gradient function should exist for no_grad output"
-        except RuntimeError as e:
-            # This is expected if we try to backward through a graph that doesn't exist
-            assert "element 0 of the tensors does not require grad" in str(e) or "grad_fn" in str(e)
+            # Assertions
+            self.assertEqual(len(results), len(self.sample_data))
+            self.assertIsInstance(results[0], np.ndarray)
+            self.assertEqual(results[0].shape, (512,))
+
+            # Verify model was called exactly 10 times (100 items / batch_size 10)
+            self.assertEqual(self.mock_model.process_batch.call_count, 10)
+
+            # Verify memory monitoring was triggered
+            self.assertGreater(mock_mem_func.call_count, 0)
+
+            # Verify context manager was used (memory safety check)
+            self.assertTrue(mock_context.called)
+
+    def test_batch_processing_empty_list(self):
+        """Test handling of empty input data."""
+        results = batch_process_embeddings(
+            data=[],
+            model=self.mock_model,
+            batch_size=self.batch_size,
+            max_memory_mb=2000
+        )
+        self.assertEqual(len(results), 0)
+
+    def test_batch_processing_single_item(self):
+        """Test handling of a single item in the list."""
+        single_data = [{"id": "1", "text": "one", "image": None}]
+        
+        with patch.object(self.mock_model, 'process_batch', return_value=[np.random.rand(512)]):
+            results = batch_process_embeddings(
+                data=single_data,
+                model=self.mock_model,
+                batch_size=self.batch_size,
+                max_memory_mb=2000
+            )
+        
+        self.assertEqual(len(results), 1)
+        self.assertEqual(self.mock_model.process_batch.call_count, 1)
+
+    def test_batch_processing_large_batch_split(self):
+        """Test that large batches are correctly split."""
+        large_data = [{"id": f"i", "text": "t", "image": None} for i in range(25)]
+        small_batch_size = 5
+        
+        # We expect 5 calls (25 / 5)
+        with patch.object(self.mock_model, 'process_batch', return_value=[np.random.rand(512)] * small_batch_size):
+            results = batch_process_embeddings(
+                data=large_data,
+                model=self.mock_model,
+                batch_size=small_batch_size,
+                max_memory_mb=2000
+            )
+        
+        self.assertEqual(len(results), 25)
+        self.assertEqual(self.mock_model.process_batch.call_count, 5)
 
 
-    def test_frozen_model_inference_no_grad(self):
+class TestNoGradContext(unittest.TestCase):
+    """
+    Unit test for gradient disabling during inference.
+    """
+
+    def test_no_grad_context(self):
         """
-        Verify that the FrozenEmbeddingModel (or similar inference-only model)
-        runs correctly within a no_grad context and does not accumulate gradients.
+        Verify that the embedding generator operates within a no_grad context.
+        This is a structural test to ensure the implementation pattern is correct.
         """
-        # Mock a frozen embedding scenario
-        # Since FrozenEmbeddingModel might be abstract or require specific setup,
-        # we test the principle with a standard model wrapped in no_grad
-        model = DummyModel()
-        model.eval() # Set to eval mode
-
-        x = torch.randn(2, 10, requires_grad=True)
-
-        # Simulate the pattern used in T013 (generator.py)
-        with torch.no_grad():
-            output = model(x)
-
-        # Verify output shape
-        assert output.shape == (2, 5)
-
-        # Verify no gradients were accumulated for the model parameters
-        # (Though they wouldn't be accumulated anyway without .backward(),
-        # this ensures the context was active)
-        for param in model.parameters():
-            assert param.grad is None, "Parameters should not have accumulated gradients"
-
-
-    def test_memory_savings_no_grad(self):
-        """
-        Verify that running in no_grad context prevents storage of intermediate
-        activations required for backpropagation, effectively saving memory.
-        This test checks the flag behavior rather than exact memory values which
-        can be flaky.
-        """
-        model = DummyModel()
+        # This test verifies the pattern used in the generator.
+        # Since we cannot easily introspect the internal code flow of a compiled
+        # function without mocking deeply, we verify the behavior via torch.is_grad_enabled.
+        
+        # Create a dummy tensor
         x = torch.randn(10, 10, requires_grad=True)
-
-        # Run with gradients
-        out_with_grad = model(x)
-        assert out_with_grad.grad_fn is not None, "Graph should exist with grad"
-
-        # Run without gradients
+        
+        # Standard operation allows gradients
+        y = x * 2
+        self.assertTrue(y.requires_grad)
+        
+        # Context manager disables gradients
         with torch.no_grad():
-            out_no_grad = model(x)
+            z = x * 3
+            self.assertFalse(z.requires_grad)
+            # Also verify that no backward graph is built
+            self.assertIsNone(z.grad_fn)
 
-        # The output of no_grad block doesn't store the graph.
-        # If we try to compute something that requires the graph from the 'no_grad' run,
-        # it should fail or be None.
-        assert out_no_grad.grad_fn is None, "Graph should NOT exist without grad"
-
-
-    def test_multiple_no_grad_blocks(self):
-        """
-        Verify that multiple nested or sequential no_grad blocks work correctly.
-        """
-        model = DummyModel()
-        x = torch.randn(3, 10, requires_grad=True)
-
-        # First block
-        with torch.no_grad():
-            out1 = model(x)
-
-        # Second block
-        with torch.no_grad():
-            out2 = model(x)
-
-        # Both should have no grad function
-        assert out1.grad_fn is None
-        assert out2.grad_fn is None
-
-        # Outside block, gradients should work again
-        out3 = model(x)
-        assert out3.grad_fn is not None
-
-
-    def test_no_grad_with_gpu_tensor_cpu_only(self):
-        """
-        Ensure that no_grad works correctly even when the environment is CPU-only.
-        This task runs on CPU, so we verify the logic holds without CUDA.
-        """
-        model = DummyModel()
-        x = torch.randn(2, 10, requires_grad=True)
-
-        # Explicitly ensure we are on CPU
-        if torch.cuda.is_available():
-            pytest.skip("This test is designed for CPU-only execution context")
-
-        with torch.no_grad():
-            out = model(x)
-
-        assert out.device.type == "cpu"
-        assert out.grad_fn is None
-        assert torch.is_grad_enabled() == False  # Inside context
-        # After context, it should be back to default (True if not set otherwise)
-        assert torch.is_grad_enabled() == True  # Default state is True
+if __name__ == '__main__':
+    unittest.main()

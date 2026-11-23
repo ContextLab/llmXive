@@ -1,0 +1,8 @@
+[
+  {
+    "data_file": "runtime_log.json",
+    "required": [
+      "paths"
+    ]
+  }
+]

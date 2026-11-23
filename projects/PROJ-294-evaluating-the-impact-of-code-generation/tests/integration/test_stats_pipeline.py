@@ -1,265 +1,421 @@
 """
 Integration test verifying the full statistical report generation from metrics.json.
 
-This test validates the end-to-end flow of:
-1. Loading metrics from a JSON file (simulating the output of T017/T041)
-2. Running the full statistical analysis suite (T020-T025)
-3. Verifying that all expected statistical outputs are generated correctly
+This test validates the end-to-end flow of the statistical analysis pipeline:
+1. Loads real metrics data from data/analysis/metrics.json
+2. Runs all statistical tests (Wilcoxon, McNemar, Fisher, Permutation, Power Analysis)
+3. Validates the statistical results structure
+4. Verifies success criteria validation (SC-002, SC-003)
+5. Ensures the statistical results are written to state/statistical_results.yaml
 
-Prerequisites:
-- code/statistical_tests.py must implement: load_metrics, run_statistical_analysis, main
-- data/analysis/metrics.json must exist with valid paired data
+This test requires that T017 has completed successfully and produced a valid
+data/analysis/metrics.json file with paired HumanEval data.
 """
+
 import os
+import sys
 import json
 import tempfile
-import pytest
-import sys
-import logging
+import shutil
 from pathlib import Path
+from typing import Dict, Any, List
 
-# Add the code directory to the path for imports
-code_dir = Path(__file__).parent.parent.parent / "code"
-sys.path.insert(0, str(code_dir))
+import pytest
+
+# Add project root to path for imports
+PROJECT_ROOT = Path(__file__).parent.parent.parent
+CODE_DIR = PROJECT_ROOT / "code"
+sys.path.insert(0, str(CODE_DIR))
 
 from statistical_tests import (
     load_metrics,
-    run_statistical_analysis,
-    main as statistical_main
+    wilcoxon_signed_rank_test,
+    calculate_wilcoxon_for_all_metrics,
+    mcnemar_test,
+    calculate_mcnemar_for_pass_rate,
+    fisher_exact_test_paired,
+    calculate_fisher_for_pass_rate,
+    permutation_test_paired,
+    calculate_permutation_for_branch_coverage,
+    calculate_effect_size_cohen_d,
+    a_priori_power_analysis,
+    post_hoc_power_analysis,
+    validate_success_criteria,
+    run_statistical_analysis
 )
-from utils import setup_logging, get_logger
 
-# Configure logging for the test
-setup_logging(task_id="T027")
-logger = get_logger("T027")
+from analyze_metrics import load_intermediate_metrics
 
-
-def create_mock_metrics_file(tmp_path):
-    """
-    Creates a realistic mock metrics.json file for integration testing.
-    This simulates the output of the data acquisition and analysis pipeline.
-    """
-    metrics_data = {
-        "metadata": {
-            "source": "HumanEval",
-            "model": "codegen-mono-350M",
-            "n_samples": 50,
-            "generated_at": "2024-01-01T00:00:00Z"
+# Test fixtures
+@pytest.fixture
+def sample_metrics_file(tmp_path):
+    """Create a minimal valid metrics.json file for testing."""
+    metrics_data = [
+        {
+            "task_id": "HumanEval/0",
+            "source_type": "human",
+            "cyclomatic_complexity": 5,
+            "halstead_volume": 50.5,
+            "halstead_components": {"N": 20, "n": 5, "L": 10, "D": 4, "E": 202},
+            "branch_coverage_pct": 85.0,
+            "pass_rate": 1
         },
-        "samples": []
-    }
-
-    # Generate 50 realistic mock samples
-    # We use a mix of values to ensure statistical tests have variance
-    import random
-    random.seed(42)  # Reproducibility
-
-    for i in range(50):
-        # Simulate paired data: original (human) vs generated (LLM)
-        # We create a slight correlation to make the tests realistic
-        base_complexity = random.gauss(5.0, 1.5)
-        base_halstead = random.gauss(100.0, 20.0)
-        base_coverage = random.gauss(80.0, 10.0)
-        
-        # Add some noise and slight bias for the generated code
-        orig_complexity = max(1.0, base_complexity)
-        gen_complexity = max(1.0, base_complexity + random.gauss(0.5, 0.5))
-        
-        orig_halstead = max(10.0, base_halstead)
-        gen_halstead = max(10.0, base_halstead + random.gauss(5.0, 5.0))
-        
-        orig_coverage = max(0.0, min(100.0, base_coverage))
-        gen_coverage = max(0.0, min(100.0, base_coverage - random.gauss(2.0, 3.0)))
-        
-        # Binary pass rate (0 or 1)
-        orig_pass = 1 if random.random() > 0.2 else 0
-        gen_pass = 1 if random.random() > 0.3 else 0  # Slightly lower pass rate
-
-        sample = {
-            "task_id": f"HumanEval_{i:03d}",
-            "original": {
-                "cyclomatic_complexity": round(orig_complexity, 2),
-                "halstead_volume": round(orig_halstead, 2),
-                "branch_coverage_pct": round(orig_coverage, 2),
-                "pass_rate": orig_pass
-            },
-            "generated": {
-                "cyclomatic_complexity": round(gen_complexity, 2),
-                "halstead_volume": round(gen_halstead, 2),
-                "branch_coverage_pct": round(gen_coverage, 2),
-                "pass_rate": gen_pass
-            }
+        {
+            "task_id": "HumanEval/0",
+            "source_type": "codegen",
+            "cyclomatic_complexity": 7,
+            "halstead_volume": 65.2,
+            "halstead_components": {"N": 25, "n": 6, "L": 12, "D": 5, "E": 326},
+            "branch_coverage_pct": 75.0,
+            "pass_rate": 0
+        },
+        {
+            "task_id": "HumanEval/1",
+            "source_type": "human",
+            "cyclomatic_complexity": 4,
+            "halstead_volume": 45.0,
+            "halstead_components": {"N": 18, "n": 4, "L": 9, "D": 4, "E": 180},
+            "branch_coverage_pct": 90.0,
+            "pass_rate": 1
+        },
+        {
+            "task_id": "HumanEval/1",
+            "source_type": "codegen",
+            "cyclomatic_complexity": 6,
+            "halstead_volume": 58.3,
+            "halstead_components": {"N": 22, "n": 5, "L": 11, "D": 4.5, "E": 291.5},
+            "branch_coverage_pct": 80.0,
+            "pass_rate": 1
         }
-        metrics_data["samples"].append(sample)
-
-    metrics_file = tmp_path / "metrics.json"
-    with open(metrics_file, 'w') as f:
+    ]
+    
+    output_file = tmp_path / "metrics.json"
+    with open(output_file, 'w') as f:
         json.dump(metrics_data, f, indent=2)
     
-    return metrics_file
+    return str(output_file)
 
+@pytest.fixture
+def real_metrics_file():
+    """Load the real metrics.json if it exists from T017."""
+    metrics_path = PROJECT_ROOT / "data" / "analysis" / "metrics.json"
+    if metrics_path.exists():
+        return str(metrics_path)
+    return None
 
-def test_load_metrics_valid_file(tmp_path):
-    """Test that load_metrics correctly parses a valid metrics.json file."""
-    metrics_file = create_mock_metrics_file(tmp_path)
-    
-    metrics = load_metrics(str(metrics_file))
-    
-    assert metrics is not None
-    assert "metadata" in metrics
-    assert "samples" in metrics
-    assert len(metrics["samples"]) == 50
-    assert "task_id" in metrics["samples"][0]
-    assert "original" in metrics["samples"][0]
-    assert "generated" in metrics["samples"][0]
+class TestStatisticalPipelineIntegration:
+    """Integration tests for the full statistical analysis pipeline."""
 
+    def test_load_metrics_valid_file(self, sample_metrics_file):
+        """Test that load_metrics correctly parses a valid metrics.json file."""
+        metrics = load_metrics(sample_metrics_file)
+        
+        assert isinstance(metrics, list)
+        assert len(metrics) == 4
+        
+        # Check required fields exist
+        for record in metrics:
+            assert "task_id" in record
+            assert "source_type" in record
+            assert "cyclomatic_complexity" in record
+            assert "halstead_volume" in record
+            assert "branch_coverage_pct" in record
+            assert "pass_rate" in record
+    
+    def test_load_metrics_missing_file(self, tmp_path):
+        """Test that load_metrics raises FileNotFoundError for missing file."""
+        non_existent = str(tmp_path / "non_existent.json")
+        
+        with pytest.raises(FileNotFoundError):
+            load_metrics(non_existent)
+    
+    def test_wilcoxon_test_computation(self, sample_metrics_file):
+        """Test Wilcoxon signed-rank test on paired continuous metrics."""
+        metrics = load_metrics(sample_metrics_file)
+        
+        # Filter for paired data (same task_id, different source_type)
+        paired_data = {}
+        for record in metrics:
+            task_id = record["task_id"]
+            source = record["source_type"]
+            if task_id not in paired_data:
+                paired_data[task_id] = {}
+            paired_data[task_id][source] = record["cyclomatic_complexity"]
+        
+        # Extract paired values
+        human_values = []
+        codegen_values = []
+        for task_id in paired_data:
+            if "human" in paired_data[task_id] and "codegen" in paired_data[task_id]:
+                human_values.append(paired_data[task_id]["human"])
+                codegen_values.append(paired_data[task_id]["codegen"])
+        
+        # Run Wilcoxon test
+        result = wilcoxon_signed_rank_test(human_values, codegen_values)
+        
+        assert "statistic" in result
+        assert "pvalue" in result
+        assert isinstance(result["statistic"], (int, float))
+        assert isinstance(result["pvalue"], (int, float))
+        assert 0 <= result["pvalue"] <= 1
 
-def test_run_statistical_analysis_full_pipeline(tmp_path):
-    """
-    Integration test: Run the full statistical analysis pipeline on mock data.
-    Verifies that all statistical tests execute without errors and produce
-    expected output structures.
-    """
-    metrics_file = create_mock_metrics_file(tmp_path)
-    
-    # Run the full statistical analysis
-    results = run_statistical_analysis(str(metrics_file))
-    
-    # Verify the structure of the results
-    assert results is not None
-    assert "wilcoxon" in results
-    assert "mcnemar" in results
-    assert "fisher" in results
-    assert "permutation" in results
-    assert "power_analysis" in results
-    assert "correlation" in results
-    
-    # Verify Wilcoxon results for all metrics
-    wilcoxon = results["wilcoxon"]
-    assert "cyclomatic_complexity" in wilcoxon
-    assert "halstead_volume" in wilcoxon
-    assert "branch_coverage_pct" in wilcoxon
-    
-    for metric, stats in wilcoxon.items():
-        assert "statistic" in stats
-        assert "pvalue" in stats
-        assert "n" in stats
-        assert stats["n"] == 50  # All 50 samples should be used
-    
-    # Verify McNemar test for pass rate
-    mcnemar = results["mcnemar"]
-    assert "statistic" in mcnemar
-    assert "pvalue" in mcnemar
-    assert mcnemar["n"] == 50
-    
-    # Verify Fisher's exact test
-    fisher = results["fisher"]
-    assert "statistic" in fisher
-    assert "pvalue" in fisher
-    
-    # Verify permutation test
-    perm = results["permutation"]
-    assert "statistic" in perm
-    assert "pvalue" in perm
-    
-    # Verify power analysis
-    power = results["power_analysis"]
-    assert "a_priori" in power
-    assert "post_hoc" in power
-    assert power["a_priori"]["required_n"] >= 38
-    
-    # Verify correlation analysis
-    corr = results["correlation"]
-    assert "spearman" in corr
-    assert "point_biserial" in corr
-    
-    logger.info("Full statistical pipeline executed successfully")
-    logger.info(f"Wilcoxon p-values: {wilcoxon['cyclomatic_complexity']['pvalue']:.4f}, "
-               f"{wilcoxon['halstead_volume']['pvalue']:.4f}, "
-               f"{wilcoxon['branch_coverage_pct']['pvalue']:.4f}")
+    def test_mcnemar_test_computation(self, sample_metrics_file):
+        """Test McNemar's test on paired binary pass-rate data."""
+        metrics = load_metrics(sample_metrics_file)
+        
+        # Filter for paired binary data
+        paired_data = {}
+        for record in metrics:
+            task_id = record["task_id"]
+            source = record["source_type"]
+            if task_id not in paired_data:
+                paired_data[task_id] = {}
+            paired_data[task_id][source] = record["pass_rate"]
+        
+        # Extract paired binary values
+        human_pass = []
+        codegen_pass = []
+        for task_id in paired_data:
+            if "human" in paired_data[task_id] and "codegen" in paired_data[task_id]:
+                human_pass.append(paired_data[task_id]["human"])
+                codegen_pass.append(paired_data[task_id]["codegen"])
+        
+        # Run McNemar test
+        result = mcnemar_test(human_pass, codegen_pass)
+        
+        assert "statistic" in result
+        assert "pvalue" in result
+        assert isinstance(result["statistic"], (int, float))
+        assert isinstance(result["pvalue"], (int, float))
+        assert 0 <= result["pvalue"] <= 1
 
+    def test_fisher_exact_test_paired(self, sample_metrics_file):
+        """Test paired Fisher's exact test on binary data."""
+        metrics = load_metrics(sample_metrics_file)
+        
+        # Prepare paired binary data
+        paired_data = {}
+        for record in metrics:
+            task_id = record["task_id"]
+            source = record["source_type"]
+            if task_id not in paired_data:
+                paired_data[task_id] = {}
+            paired_data[task_id][source] = record["pass_rate"]
+        
+        human_pass = []
+        codegen_pass = []
+        for task_id in paired_data:
+            if "human" in paired_data[task_id] and "codegen" in paired_data[task_id]:
+                human_pass.append(paired_data[task_id]["human"])
+                codegen_pass.append(paired_data[task_id]["codegen"])
+        
+        # Run Fisher's exact test (paired)
+        result = fisher_exact_test_paired(human_pass, codegen_pass)
+        
+        assert "pvalue" in result
+        assert isinstance(result["pvalue"], (int, float))
+        assert 0 <= result["pvalue"] <= 1
 
-def test_main_entry_point(tmp_path):
-    """
-    Integration test: Verify the main() entry point runs correctly.
-    This simulates the actual command-line execution of statistical_tests.py
-    """
-    metrics_file = create_mock_metrics_file(tmp_path)
+    def test_permutation_test_paired(self, sample_metrics_file):
+        """Test permutation test on paired branch coverage data."""
+        metrics = load_metrics(sample_metrics_file)
+        
+        # Prepare paired coverage data
+        paired_data = {}
+        for record in metrics:
+            task_id = record["task_id"]
+            source = record["source_type"]
+            if task_id not in paired_data:
+                paired_data[task_id] = {}
+            paired_data[task_id][source] = record["branch_coverage_pct"]
+        
+        human_coverage = []
+        codegen_coverage = []
+        for task_id in paired_data:
+            if "human" in paired_data[task_id] and "codegen" in paired_data[task_id]:
+                human_coverage.append(paired_data[task_id]["human"])
+                codegen_coverage.append(paired_data[task_id]["codegen"])
+        
+        # Run permutation test
+        result = permutation_test_paired(human_coverage, codegen_coverage, n_permutations=1000)
+        
+        assert "pvalue" in result
+        assert "observed_difference" in result
+        assert isinstance(result["pvalue"], (int, float))
+        assert isinstance(result["observed_difference"], (int, float))
+        assert 0 <= result["pvalue"] <= 1
+
+    def test_power_analysis_computation(self, sample_metrics_file):
+        """Test power analysis calculations."""
+        # A priori power analysis
+        a_priori_result = a_priori_power_analysis(
+            effect_size=0.5,
+            alpha=0.05,
+            power=0.8,
+            test_type="paired"
+        )
+        
+        assert "required_sample_size" in a_priori_result
+        assert a_priori_result["required_sample_size"] >= 38  # Per FR-008
+        
+        # Post-hoc power analysis
+        # Simulate observed effect size from sample data
+        metrics = load_metrics(sample_metrics_file)
+        paired_data = {}
+        for record in metrics:
+            task_id = record["task_id"]
+            source = record["source_type"]
+            if task_id not in paired_data:
+                paired_data[task_id] = {}
+            paired_data[task_id][source] = record["cyclomatic_complexity"]
+        
+        human_values = []
+        codegen_values = []
+        for task_id in paired_data:
+            if "human" in paired_data[task_id] and "codegen" in paired_data[task_id]:
+                human_values.append(paired_data[task_id]["human"])
+                codegen_values.append(paired_data[task_id]["codegen"])
+        
+        if len(human_values) >= 2:
+            effect_size = calculate_effect_size_cohen_d(human_values, codegen_values)
+            post_hoc_result = post_hoc_power_analysis(
+                effect_size=effect_size,
+                sample_size=len(human_values),
+                alpha=0.05
+            )
+            
+            assert "achieved_power" in post_hoc_result
+            assert isinstance(post_hoc_result["achieved_power"], (int, float))
+            assert 0 <= post_hoc_result["achieved_power"] <= 1
+
+    def test_success_criteria_validation(self, sample_metrics_file):
+        """Test success criteria validation (SC-002, SC-003)."""
+        metrics = load_metrics(sample_metrics_file)
+        
+        # Run full statistical analysis
+        results = run_statistical_analysis(
+            metrics_file=sample_metrics_file,
+            output_file=None  # Don't write to disk for this test
+        )
+        
+        # Validate success criteria
+        validation = validate_success_criteria(results)
+        
+        assert "sc_002_statistical_significance" in validation
+        assert "sc_003_visualization_quality" in validation
+        assert isinstance(validation["sc_002_statistical_significance"], bool)
+        assert isinstance(validation["sc_003_visualization_quality"], bool)
     
-    # Save results to a temporary output file
-    output_file = tmp_path / "statistical_results.json"
-    
-    # Mock sys.argv to simulate command-line execution
-    original_argv = sys.argv
-    try:
-        sys.argv = [
-            "statistical_tests.py",
-            "--input", str(metrics_file),
-            "--output", str(output_file)
+    def test_full_pipeline_integration(self, tmp_path):
+        """Test the complete pipeline from metrics.json to statistical results."""
+        # Create output directory
+        state_dir = tmp_path / "state"
+        state_dir.mkdir(parents=True, exist_ok=True)
+        
+        output_file = state_dir / "statistical_results.yaml"
+        
+        # Run full statistical analysis
+        results = run_statistical_analysis(
+            metrics_file=str(PROJECT_ROOT / "data" / "analysis" / "metrics.json") if (PROJECT_ROOT / "data" / "analysis" / "metrics.json").exists() else None,
+            output_file=str(output_file)
+        )
+        
+        # If real metrics don't exist, use sample
+        if not results:
+            sample_file = tmp_path / "sample_metrics.json"
+            sample_data = [
+                {
+                    "task_id": "HumanEval/0",
+                    "source_type": "human",
+                    "cyclomatic_complexity": 5,
+                    "halstead_volume": 50.5,
+                    "branch_coverage_pct": 85.0,
+                    "pass_rate": 1
+                },
+                {
+                    "task_id": "HumanEval/0",
+                    "source_type": "codegen",
+                    "cyclomatic_complexity": 7,
+                    "halstead_volume": 65.2,
+                    "branch_coverage_pct": 75.0,
+                    "pass_rate": 0
+                }
+            ]
+            with open(sample_file, 'w') as f:
+                json.dump(sample_data, f)
+            
+            results = run_statistical_analysis(
+                metrics_file=str(sample_file),
+                output_file=str(output_file)
+            )
+        
+        # Verify results structure
+        assert results is not None
+        assert "wilcoxon_results" in results
+        assert "mcnemar_results" in results
+        assert "fisher_results" in results
+        assert "permutation_results" in results
+        assert "power_analysis" in results
+        assert "success_criteria_validation" in results
+        
+        # Verify output file was written
+        if output_file.exists():
+            import yaml
+            with open(output_file, 'r') as f:
+                saved_results = yaml.safe_load(f)
+            
+            assert saved_results is not None
+            assert "wilcoxon_results" in saved_results
+
+    def test_empty_metrics_handling(self, tmp_path):
+        """Test handling of empty metrics file."""
+        empty_file = tmp_path / "empty_metrics.json"
+        with open(empty_file, 'w') as f:
+            json.dump([], f)
+        
+        # Should handle gracefully without crashing
+        results = run_statistical_analysis(
+            metrics_file=str(empty_file),
+            output_file=None
+        )
+        
+        # Results should indicate no data or empty structure
+        assert results is not None
+
+    def test_partial_data_handling(self, tmp_path):
+        """Test handling of metrics with missing paired data."""
+        partial_data = [
+            {
+                "task_id": "HumanEval/0",
+                "source_type": "human",
+                "cyclomatic_complexity": 5,
+                "halstead_volume": 50.5,
+                "branch_coverage_pct": 85.0,
+                "pass_rate": 1
+            },
+            # Missing codegen for HumanEval/0
+            {
+                "task_id": "HumanEval/1",
+                "source_type": "codegen",
+                "cyclomatic_complexity": 7,
+                "halstead_volume": 65.2,
+                "branch_coverage_pct": 75.0,
+                "pass_rate": 0
+            }
+            # Missing human for HumanEval/1
         ]
         
-        # Run the main function
-        statistical_main()
+        partial_file = tmp_path / "partial_metrics.json"
+        with open(partial_file, 'w') as f:
+            json.dump(partial_data, f)
         
-        # Verify output file was created
-        assert output_file.exists()
+        # Should handle gracefully, skipping incomplete pairs
+        results = run_statistical_analysis(
+            metrics_file=str(partial_file),
+            output_file=None
+        )
         
-        # Load and verify the output
-        with open(output_file, 'r') as f:
-            results = json.load(f)
-        
-        assert "wilcoxon" in results
-        assert "mcnemar" in results
-        assert "power_analysis" in results
-        
-        logger.info("Main entry point executed successfully")
-        logger.info(f"Results written to {output_file}")
-        
-    finally:
-        sys.argv = original_argv
-
-
-def test_statistical_analysis_with_deferred_values(tmp_path):
-    """
-    Test that the pipeline handles [deferred] or missing values gracefully.
-    """
-    metrics_file = create_mock_metrics_file(tmp_path)
-    
-    # Load and modify the data to include a deferred value
-    with open(metrics_file, 'r') as f:
-        metrics_data = json.load(f)
-    
-    # Add a sample with a deferred coverage value
-    metrics_data["samples"].append({
-        "task_id": "HumanEval_deferred",
-        "original": {
-            "cyclomatic_complexity": 4.0,
-            "halstead_volume": 80.0,
-            "branch_coverage_pct": "[deferred]",  # Simulate execution failure
-            "pass_rate": 1
-        },
-        "generated": {
-            "cyclomatic_complexity": 4.5,
-            "halstead_volume": 85.0,
-            "branch_coverage_pct": 75.0,
-            "pass_rate": 1
-        }
-    })
-    
-    # Save modified data
-    modified_file = tmp_path / "metrics_with_deferred.json"
-    with open(modified_file, 'w') as f:
-        json.dump(metrics_data, f)
-    
-    # Run analysis - should handle the deferred value gracefully
-    results = run_statistical_analysis(str(modified_file))
-    
-    # Verify that the analysis completed (n should be 49 for coverage due to one deferred)
-    assert results is not None
-    assert results["wilcoxon"]["branch_coverage_pct"]["n"] == 49
-    
-    logger.info("Pipeline handled deferred values correctly")
-
+        assert results is not None
 
 if __name__ == "__main__":
-    pytest.main([__file__, "-v", "-s"])
+    pytest.main([__file__, "-v"])

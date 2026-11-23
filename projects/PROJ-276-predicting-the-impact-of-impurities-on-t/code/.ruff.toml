@@ -1,0 +1,25 @@
+# Ruff configuration file
+# This file is a duplicate of settings in pyproject.toml for IDE compatibility
+# but explicitly defined here for tools that prefer standalone config.
+
+line-length = 88
+target-version = "py39"
+
+[lint]
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+]
+ignore = [
+    "E501",
+    "B008",
+    "C901",
+]
+
+[lint.isort]
+known-first-party = ["src", "scripts", "tests"]
+force-sort-within-sections = true

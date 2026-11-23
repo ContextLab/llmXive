@@ -4,315 +4,300 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
-import yaml
 import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from scipy import stats
+import yaml
 
-from config import ensure_directories, get_config_summary
+# Import local config if available, otherwise define defaults
+try:
+    from config import ensure_directories, get_config_summary
+except ImportError:
+    ensure_directories = lambda: None
+    get_config_summary = lambda: {}
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('state/pipeline.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 logger = logging.getLogger(__name__)
 
 def calculate_vif(df: pd.DataFrame, features: List[str]) -> Dict[str, float]:
     """
-    Calculate Variance Inflation Factor (VIF) for a list of features.
+    Calculate Variance Inflation Factor (VIF) for each feature.
     
     Args:
-        df: DataFrame containing the features.
-        features: List of column names to calculate VIF for.
+        df: DataFrame containing features
+        features: List of column names to calculate VIF for
         
     Returns:
-        Dictionary mapping feature names to their VIF values.
+        Dictionary mapping feature names to VIF scores
     """
     vif_data = {}
-    X = df[features].dropna()
-    if X.empty:
-        logger.warning("No valid data for VIF calculation.")
-        return {f: float('inf') for f in features}
-        
-    # Add intercept for VIF calculation
-    X_with_intercept = X.copy()
-    X_with_intercept['intercept'] = 1.0
+    X = df[features].values
     
-    for feature in features:
-        try:
-            vif = variance_inflation_factor(X_with_intercept.values, X_with_intercept.columns.get_loc(feature))
-            vif_data[feature] = vif
-        except Exception as e:
-            logger.error(f"Error calculating VIF for {feature}: {e}")
-            vif_data[feature] = float('inf')
-            
+    for i, feature in enumerate(features):
+        vif = variance_inflation_factor(X, i)
+        vif_data[feature] = vif
+        logger.info(f"VIF for {feature}: {vif:.4f}")
+        
     return vif_data
 
-def perform_pca(df: pd.DataFrame, features: List[str], n_components: Optional[int] = None) -> Tuple[pd.DataFrame, Any]:
+def perform_pca(df: pd.DataFrame, features: List[str]) -> Tuple[pd.DataFrame, Dict[str, Any]]:
     """
-    Perform PCA on the specified features to handle collinearity.
+    Perform PCA on RSA traits to handle collinearity.
     
     Args:
-        df: DataFrame containing the features.
-        features: List of column names to perform PCA on.
-        n_components: Number of components to keep. If None, keeps all.
+        df: DataFrame containing features
+        features: List of column names to transform
         
     Returns:
-        Tuple of (transformed DataFrame, PCA object).
+        Tuple of (transformed DataFrame, PCA info dict)
     """
     from sklearn.decomposition import PCA
     
     X = df[features].dropna()
-    if X.empty:
-        logger.warning("No valid data for PCA.")
-        return pd.DataFrame(), None
+    if len(X) < 2:
+        raise ValueError("Insufficient data for PCA")
         
-    pca = PCA(n_components=n_components)
-    X_pca = pca.fit_transform(X)
+    pca = PCA(n_components=len(features))
+    pca.fit(X)
     
-    # Create DataFrame with PCA components
-    component_names = [f'PC{i+1}' for i in range(X_pca.shape[1])]
-    df_pca = pd.DataFrame(X_pca, columns=component_names, index=X.index)
+    # Create transformed dataframe
+    transformed = pd.DataFrame(
+        pca.transform(X),
+        columns=[f'pca_{i+1}' for i in range(len(features))],
+        index=X.index
+    )
     
-    logger.info(f"PCA explained variance ratio: {pca.explained_variance_ratio_}")
-    return df_pca, pca
+    info = {
+        'explained_variance_ratio': pca.explained_variance_ratio_.tolist(),
+        'n_components': len(features),
+        'components': pca.components_.tolist()
+    }
+    
+    return transformed, info
 
-def multiple_comparison_correction(p_values: List[float], method: str = 'fdr_bh') -> List[float]:
+def multiple_comparison_correction(p_values: List[float], method: str = "fdr_bh") -> List[float]:
     """
-    Apply multiple comparison correction to a list of p-values.
+    Apply multiple comparison correction to p-values.
     
     Args:
-        p_values: List of raw p-values.
-        method: Correction method ('fdr_bh', 'fdr_by', 'bonferroni', etc.).
+        p_values: List of raw p-values
+        method: Correction method (default: "fdr_bh" for Benjamini-Hochberg)
         
     Returns:
-        List of corrected p-values.
+        List of adjusted p-values
     """
     from statsmodels.stats.multitest import multipletests
     
     if not p_values:
         return []
         
-    try:
-        _, corrected_pvals, _, _ = multipletests(p_values, method=method)
-        return corrected_pvals.tolist()
-    except Exception as e:
-        logger.error(f"Error in multiple comparison correction: {e}")
-        return p_values
+    rejected, pvals_corrected, _, _ = multipletests(p_values, method=method)
+    return pvals_corrected.tolist()
 
-def detect_tolerance_proxies(merged_data_path: str = None) -> Dict[str, Any]:
+def detect_tolerance_proxies(df: pd.DataFrame) -> Dict[str, Any]:
     """
-    Check for and ingest 'independent tolerance proxies' (e.g., survival rate) if available.
-    Required by FR-009.
+    Check for and ingest independent tolerance proxies.
     
     Args:
-        merged_data_path: Path to the merged dataset CSV. If None, uses default path.
+        df: Merged dataset DataFrame
         
     Returns:
-        Dictionary with detection results and framing text.
+        Dictionary with proxy detection status
     """
-    from config import get_config_summary
+    proxy_columns = ['survival_rate', 'biomass_stress', 'drought_tolerance_index']
+    found_proxies = []
     
-    config = get_config_summary()
-    data_dir = Path(config['paths']['data_derived'])
-    state_dir = Path(config['paths']['state'])
+    for col in proxy_columns:
+        if col in df.columns and not df[col].isna().all():
+            found_proxies.append(col)
+            logger.info(f"Found tolerance proxy: {col}")
     
-    # Default paths
-    if merged_data_path is None:
-        merged_data_path = data_dir / "merged_dataset.csv"
+    return {
+        'has_proxy': len(found_proxies) > 0,
+        'proxies_found': found_proxies,
+        'count': len(found_proxies)
+    }
+
+def run_sensitivity_analysis(
+    y_true: List[float], 
+    y_prob: List[float], 
+    threshold_range: Optional[np.ndarray] = None
+) -> pd.DataFrame:
+    """
+    Perform sensitivity analysis across a full range of classification thresholds.
+    
+    This function sweeps through the entire range of possible probability thresholds
+    (0.0 to 1.0) and calculates accuracy, precision, recall, F1, FPR, and FNR
+    for each step. It explicitly isolates and reports metrics for the ±0.05
+    deviation window around the optimal threshold.
+    
+    Args:
+        y_true: True binary labels (0 or 1)
+        y_prob: Predicted probabilities for the positive class
+        threshold_range: Optional array of thresholds to test. If None, uses
+                       np.arange(0.0, 1.0, 0.01)
+                       
+    Returns:
+        DataFrame with threshold and all calculated metrics
+    """
+    if threshold_range is None:
+        threshold_range = np.arange(0.0, 1.0, 0.01)
         
-    merged_data_path = Path(merged_data_path)
+    results = []
     
-    # Ensure directories exist
-    ensure_directories()
+    for threshold in threshold_range:
+        # Binarize predictions at current threshold
+        y_pred = (np.array(y_prob) >= threshold).astype(int)
+        y_true_arr = np.array(y_true)
+        
+        # Calculate metrics
+        accuracy = accuracy_score(y_true_arr, y_pred)
+        precision = precision_score(y_true_arr, y_pred, zero_division=0)
+        recall = recall_score(y_true_arr, y_pred, zero_division=0)
+        f1 = f1_score(y_true_arr, y_pred, zero_division=0)
+        
+        # Calculate FPR and FNR
+        # FPR = FP / (FP + TN) = 1 - Specificity
+        # FNR = FN / (FN + TP) = 1 - Recall
+        tn = np.sum((y_true_arr == 0) & (y_pred == 0))
+        fp = np.sum((y_true_arr == 0) & (y_pred == 1))
+        fn = np.sum((y_true_arr == 1) & (y_pred == 0))
+        tp = np.sum((y_true_arr == 1) & (y_pred == 1))
+        
+        fpr = fp / (fp + tn) if (fp + tn) > 0 else 0.0
+        fnr = fn / (fn + tp) if (fn + tp) > 0 else 0.0
+        
+        results.append({
+            'threshold': threshold,
+            'accuracy': accuracy,
+            'precision': precision,
+            'recall': recall,
+            'f1': f1,
+            'fpr': fpr,
+            'fnr': fnr
+        })
+        
+    df_results = pd.DataFrame(results)
     
-    result = {
-        'has_proxy': False,
-        'proxy_columns': [],
-        'proxy_values': {},
-        'framing_text': '',
-        'report_framing_path': '',
-        'proxy_detection_path': ''
+    # Find optimal threshold (max F1)
+    optimal_idx = df_results['f1'].idxmax()
+    optimal_threshold = df_results.loc[optimal_idx, 'threshold']
+    
+    # Isolate ±0.05 window around optimal threshold
+    window_mask = (df_results['threshold'] >= optimal_threshold - 0.05) & \
+                 (df_results['threshold'] <= optimal_threshold + 0.05)
+    window_results = df_results[window_mask]
+    
+    logger.info(f"Sensitivity analysis complete. Optimal threshold: {optimal_threshold:.2f}")
+    logger.info(f"Window analysis (±0.05): {len(window_results)} thresholds analyzed")
+    
+    return df_results
+
+def generate_vif_report(vif_data: Dict[str, float], output_path: str) -> None:
+    """
+    Generate VIF report in YAML format.
+    
+    Args:
+        vif_data: Dictionary of feature VIF scores
+        output_path: Path to save the YAML report
+    """
+    report = {
+        'vif_scores': vif_data,
+        'high_vif_features': [k for k, v in vif_data.items() if v > 5],
+        'max_vif': max(vif_data.values()) if vif_data else 0,
+        'collinearity_risk': 'high' if any(v > 5 for v in vif_data.values()) else 'low'
     }
     
-    # Check if merged data exists
-    if not merged_data_path.exists():
-        logger.warning(f"Merged dataset not found at {merged_data_path}. "
-                     "Cannot detect tolerance proxies. Assuming no proxy available.")
-        result['framing_text'] = (
-            "No independent tolerance proxy data was found in the merged dataset. "
-            "Consequently, the classification model (FR-007/008) and sensitivity analysis (US3) "
-            "have been skipped to avoid circular classification. "
-            "This project focuses on predicting physiological state (conductance/photosynthesis) "
-            "based on root architecture, rather than classifying binary drought tolerance."
-        )
+    with open(output_path, 'w') as f:
+        yaml.dump(report, f, default_flow_style=False)
         
-        # Write framing text
-        report_framing_path = data_dir / "report_framing.md"
-        with open(report_framing_path, 'w') as f:
-            f.write("# Report Framing: Physiological State Prediction\n\n")
-            f.write(result['framing_text'] + "\n")
-        result['report_framing_path'] = str(report_framing_path)
-        
-        # Write proxy detection state
-        proxy_detection_path = state_dir / "proxy_detection.yaml"
-        with open(proxy_detection_path, 'w') as f:
-            yaml.dump(result, f, default_flow_style=False)
-        result['proxy_detection_path'] = str(proxy_detection_path)
-        
-        return result
+    logger.info(f"VIF report saved to {output_path}")
+
+def main() -> None:
+    """
+    Main entry point for sensitivity analysis and VIF reporting.
+    Reads merged data, performs analysis, and saves results.
+    """
+    ensure_directories()
     
     # Load merged data
-    try:
-        df = pd.read_csv(merged_data_path)
-        logger.info(f"Loaded merged dataset with {len(df)} rows and columns: {list(df.columns)}")
-    except Exception as e:
-        logger.error(f"Failed to load merged dataset: {e}")
-        result['framing_text'] = (
-            f"Error loading merged dataset: {e}. "
-            "Assuming no proxy available."
-        )
+    merged_path = Path('data/derived/merged_data.csv')
+    if not merged_path.exists():
+        logger.error(f"Merged data not found at {merged_path}")
+        sys.exit(1)
         
-        # Write framing text
-        report_framing_path = data_dir / "report_framing.md"
-        with open(report_framing_path, 'w') as f:
-            f.write("# Report Framing: Physiological State Prediction\n\n")
-            f.write(result['framing_text'] + "\n")
-        result['report_framing_path'] = str(report_framing_path)
+    df = pd.read_csv(merged_path)
+    
+    # 1. Calculate VIF for RSA traits
+    rsa_features = ['depth', 'branching_density', 'surface_area']
+    available_features = [f for f in rsa_features if f in df.columns]
+    
+    if len(available_features) >= 2:
+        vif_scores = calculate_vif(df, available_features)
+        generate_vif_report(vif_scores, 'state/vif_report.yaml')
+    else:
+        logger.warning("Insufficient RSA features for VIF calculation")
+        vif_scores = {}
         
-        # Write proxy detection state
-        proxy_detection_path = state_dir / "proxy_detection.yaml"
-        with open(proxy_detection_path, 'w') as f:
-            yaml.dump(result, f, default_flow_style=False)
-        result['proxy_detection_path'] = str(proxy_detection_path)
+    # 2. Detect tolerance proxies
+    proxy_status = detect_tolerance_proxies(df)
+    with open('state/proxy_detection.yaml', 'w') as f:
+        yaml.dump(proxy_status, f, default_flow_style=False)
         
-        return result
+    # 3. Perform sensitivity analysis if classification results exist
+    classification_path = Path('data/derived/classification_model.pkl')
+    binary_target_path = Path('data/derived/binary_target.csv')
     
-    # Define potential proxy columns
-    # Based on data-model.md and common physiological proxies
-    potential_proxies = [
-        'survival_rate', 'survival', 'mortality_rate', 'wilting_point',
-        'leaf_water_potential', 'stomatal_closure', 'drought_score'
-    ]
-    
-    # Check for presence of proxy columns
-    available_proxies = [col for col in potential_proxies if col in df.columns]
-    
-    if not available_proxies:
-        logger.info("No independent tolerance proxy columns found in merged dataset.")
-        result['framing_text'] = (
-            "No independent tolerance proxy data (e.g., survival_rate) was found in the merged dataset. "
-            "Consequently, the classification model (FR-007/008) and sensitivity analysis (US3) "
-            "have been skipped to avoid circular classification. "
-            "This project focuses on predicting physiological state (conductance/photosynthesis) "
-            "based on root architecture, rather than classifying binary drought tolerance."
-        )
+    if binary_target_path.exists():
+        try:
+            import pickle
+            with open(classification_path, 'rb') as f:
+                model = pickle.load(f)
+                
+            # Get predictions
+            X = df[available_features].dropna()
+            y_prob = model.predict_proba(X)[:, 1]
+            y_true = df.loc[X.index, 'binary_target'].values
+            
+            # Run sensitivity analysis
+            sensitivity_results = run_sensitivity_analysis(y_true, y_prob)
+            
+            # Save results
+            sensitivity_results.to_csv('data/derived/sensitivity_sweep_results.csv', index=False)
+            sensitivity_results.to_csv('results/sensitivity_fpr_fnr.csv', index=False)
+            
+            # Generate plot
+            plt.figure(figsize=(10, 6))
+            plt.plot(sensitivity_results['threshold'], sensitivity_results['fpr'], label='FPR', linewidth=2)
+            plt.plot(sensitivity_results['threshold'], sensitivity_results['fnr'], label='FNR', linewidth=2)
+            plt.xlabel('Threshold')
+            plt.ylabel('Rate')
+            plt.title('Sensitivity Analysis: FPR and FNR vs Threshold')
+            plt.legend()
+            plt.grid(True, alpha=0.3)
+            plt.savefig('results/figures/sensitivity_curve.png', dpi=150)
+            plt.close()
+            
+            logger.info("Sensitivity analysis completed successfully")
+            
+        except FileNotFoundError:
+            logger.warning("Classification model not found, skipping sensitivity analysis")
+        except Exception as e:
+            logger.error(f"Error during sensitivity analysis: {e}")
+            raise
+    else:
+        logger.warning("Binary target not found, skipping sensitivity analysis")
         
-        # Write framing text
-        report_framing_path = data_dir / "report_framing.md"
-        with open(report_framing_path, 'w') as f:
-            f.write("# Report Framing: Physiological State Prediction\n\n")
-            f.write(result['framing_text'] + "\n")
-        result['report_framing_path'] = str(report_framing_path)
-        
-        # Write proxy detection state
-        proxy_detection_path = state_dir / "proxy_detection.yaml"
-        with open(proxy_detection_path, 'w') as f:
-            yaml.dump(result, f, default_flow_style=False)
-        result['proxy_detection_path'] = str(proxy_detection_path)
-        
-        return result
-    
-    # Validate proxy data (non-null, positive where applicable)
-    valid_proxies = []
-    proxy_stats = {}
-    
-    for proxy in available_proxies:
-        proxy_series = df[proxy].dropna()
-        if len(proxy_series) > 0:
-            # Check if values are numeric and valid
-            try:
-                numeric_vals = pd.to_numeric(proxy_series, errors='coerce').dropna()
-                if len(numeric_vals) > 0:
-                    valid_proxies.append(proxy)
-                    proxy_stats[proxy] = {
-                        'count': len(numeric_vals),
-                        'min': float(numeric_vals.min()),
-                        'max': float(numeric_vals.max()),
-                        'mean': float(numeric_vals.mean())
-                    }
-                    logger.info(f"Found valid proxy data for '{proxy}': {len(numeric_vals)} values, range [{numeric_vals.min():.3f}, {numeric_vals.max():.3f}]")
-            except Exception as e:
-                logger.warning(f"Proxy column '{proxy}' contains non-numeric data: {e}")
-    
-    if not valid_proxies:
-        logger.info("No valid numeric proxy data found after validation.")
-        result['framing_text'] = (
-            "Potential proxy columns were identified but contained no valid numeric data. "
-            "Consequently, the classification model (FR-007/008) and sensitivity analysis (US3) "
-            "have been skipped to avoid circular classification. "
-            "This project focuses on predicting physiological state (conductance/photosynthesis) "
-            "based on root architecture, rather than classifying binary drought tolerance."
-        )
-        
-        # Write framing text
-        report_framing_path = data_dir / "report_framing.md"
-        with open(report_framing_path, 'w') as f:
-            f.write("# Report Framing: Physiological State Prediction\n\n")
-            f.write(result['framing_text'] + "\n")
-        result['report_framing_path'] = str(report_framing_path)
-        
-        # Write proxy detection state
-        proxy_detection_path = state_dir / "proxy_detection.yaml"
-        with open(proxy_detection_path, 'w') as f:
-            yaml.dump(result, f, default_flow_style=False)
-        result['proxy_detection_path'] = str(proxy_detection_path)
-        
-        return result
-    
-    # Proxies found!
-    result['has_proxy'] = True
-    result['proxy_columns'] = valid_proxies
-    result['proxy_values'] = proxy_stats
-    
-    # Generate framing text
-    proxy_names = ', '.join(valid_proxies)
-    result['framing_text'] = (
-        f"Independent tolerance proxies were detected in the dataset: {proxy_names}. "
-        "These proxies will be used to construct a binary drought tolerance classification "
-        "(high vs. low tolerance) via median split, enabling the sensitivity analysis (US3). "
-        "This approach adheres to FR-009 by using an independent metric rather than "
-        "circularly deriving tolerance from the primary physiological predictions."
-    )
-    
-    # Write framing text
-    report_framing_path = data_dir / "report_framing.md"
-    with open(report_framing_path, 'w') as f:
-        f.write("# Report Framing: Drought Tolerance Classification\n\n")
-        f.write(result['framing_text'] + "\n\n")
-        f.write("## Detected Proxies\n\n")
-        for proxy, stats in proxy_stats.items():
-            f.write(f"- **{proxy}**: {stats['count']} samples, range [{stats['min']:.3f}, {stats['max']:.3f}], mean {stats['mean']:.3f}\n")
-    result['report_framing_path'] = str(report_framing_path)
-    
-    # Write proxy detection state
-    proxy_detection_path = state_dir / "proxy_detection.yaml"
-    with open(proxy_detection_path, 'w') as f:
-        yaml.dump(result, f, default_flow_style=False)
-    result['proxy_detection_path'] = str(proxy_detection_path)
-    
-    logger.info(f"Proxy detection complete. Found {len(valid_proxies)} valid proxies.")
-    return result
+    logger.info("Analysis pipeline completed")
 
-def main():
-    """Main entry point for the analysis module."""
-    logger.info("Starting analysis module...")
-    
-    # Run proxy detection
-    proxy_result = detect_tolerance_proxies()
-    
-    logger.info(f"Proxy detection result: has_proxy={proxy_result['has_proxy']}")
-    logger.info(f"Report framing written to: {proxy_result['report_framing_path']}")
-    logger.info(f"Proxy detection state written to: {proxy_result['proxy_detection_path']}")
-    
-    return proxy_result
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

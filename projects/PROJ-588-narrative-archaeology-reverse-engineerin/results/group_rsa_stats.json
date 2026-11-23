@@ -1,0 +1,63 @@
+{
+  "n_subjects": 5,
+  "analysis_type": "Fisher's Z aggregation",
+  "formula": "Z = 0.5 * ln((1+r)/(1-r))",
+  "results": {
+    "hippocampus": {
+      "early_late": {
+        "mean_r": 0.4235,
+        "mean_z": 0.4532,
+        "std_z": 0.0891,
+        "n_subjects": 5
+      },
+      "early_early": {
+        "mean_r": 0.7812,
+        "mean_z": 1.0489,
+        "std_z": 0.0723,
+        "n_subjects": 5
+      }
+    },
+    "mPFC": {
+      "early_late": {
+        "mean_r": 0.3156,
+        "mean_z": 0.3267,
+        "std_z": 0.0945,
+        "n_subjects": 5
+      },
+      "early_early": {
+        "mean_r": 0.6934,
+        "mean_z": 0.8567,
+        "std_z": 0.0812,
+        "n_subjects": 5
+      }
+    },
+    "PCC": {
+      "early_late": {
+        "mean_r": 0.2845,
+        "mean_z": 0.2912,
+        "std_z": 0.1023,
+        "n_subjects": 5
+      },
+      "early_early": {
+        "mean_r": 0.6523,
+        "mean_z": 0.7789,
+        "std_z": 0.0934,
+        "n_subjects": 5
+      }
+    },
+    "lateral_temporal": {
+      "early_late": {
+        "mean_r": 0.3567,
+        "mean_z": 0.3723,
+        "std_z": 0.0876,
+        "n_subjects": 5
+      },
+      "early_early": {
+        "mean_r": 0.7123,
+        "mean_z": 0.8912,
+        "std_z": 0.0756,
+        "n_subjects": 5
+      }
+    }
+  }
+}

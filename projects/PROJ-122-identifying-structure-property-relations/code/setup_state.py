@@ -3,42 +3,59 @@ from pathlib import Path
 import yaml
 from datetime import datetime
 
-def create_state_structure(base_path: str):
+def create_state_structure(project_root: Path) -> None:
     """
-    Create the state directory structure and the initial project state file.
+    Create the state directory structure and initialize the project state file.
+    
+    Args:
+        project_root: The root directory of the project.
     """
-    state_dir = Path(base_path) / "state" / "projects"
+    # Define the paths
+    state_dir = project_root / "state"
+    projects_dir = state_dir / "projects"
+    
+    # Create directories
     state_dir.mkdir(parents=True, exist_ok=True)
-
+    projects_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Define the project state file path
     project_id = "PROJ-122-identifying-structure-property-relations"
-    state_file = state_dir / f"{project_id}.yaml"
+    state_file = projects_dir / f"{project_id}.yaml"
+    
+    # If the file already exists, do not overwrite it (preserve state)
+    if state_file.exists():
+        print(f"State file {state_file} already exists. Skipping creation.")
+        return
+    
+    # Initialize the project state structure
+    state_data = {
+        "project_id": project_id,
+        "created_at": datetime.utcnow().isoformat() + "Z",
+        "status": "initialized",
+        "artifacts": {
+            "raw_data": [],
+            "processed_data": [],
+            "features": [],
+            "models": [],
+            "reports": []
+        },
+        "checksums": {},
+        "execution_log": []
+    }
+    
+    # Write the YAML file
+    with open(state_file, 'w') as f:
+        yaml.dump(state_data, f, default_flow_style=False, sort_keys=False)
+    
+    print(f"Created state file: {state_file}")
 
-    if not state_file.exists():
-        initial_state = {
-            "project_id": project_id,
-            "created_at": datetime.now().isoformat(),
-            "status": "initialized",
-            "artifacts": {},
-            "checksums": {},
-            "dependencies": {
-                "python_version": ">=3.11",
-                "packages": [
-                    "pandas==2.2.3",
-                    "rdkit==2024.3.5",
-                    "scikit-learn==1.5.2",
-                    "xgboost==2.1.1",
-                    "shap==0.46.0",
-                    "pyyaml==6.0.2",
-                    "requests==2.32.3",
-                    "joblib==1.4.2",
-                    "psutil==6.0.0"
-                ]
-            }
-        }
-        with open(state_file, 'w') as f:
-            yaml.dump(initial_state, f, default_flow_style=False)
+def main():
+    """Main entry point for the script."""
+    # Determine project root (assuming script is in code/ directory)
+    script_path = Path(__file__).resolve()
+    project_root = script_path.parent.parent
+    
+    create_state_structure(project_root)
 
 if __name__ == "__main__":
-    import sys
-    base = sys.argv[1] if len(sys.argv) > 1 else "."
-    create_state_structure(base)
+    main()

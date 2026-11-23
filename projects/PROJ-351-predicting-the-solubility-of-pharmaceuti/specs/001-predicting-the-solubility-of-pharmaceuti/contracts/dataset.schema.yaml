@@ -1,40 +1,136 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "ESOL Dataset Schema"
 description: "Schema for the cleaned and processed ESOL dataset used in the solubility prediction pipeline."
-type: object
+type: "object"
 properties:
-  smiles:
-    type: string
-    description: "Canonical SMILES string representing the molecular structure."
-    pattern: "^[A-Za-z0-9@#$%&*()\\[\\]{}\\-+=/\\\\\\.\\^\\|~]+$"
-  logS:
-    type: number
-    description: "Experimental aqueous solubility in log(mol/L)."
-    minimum: -15.0
-    maximum: 5.0
-  valid:
-    type: boolean
-    description: "Flag indicating if the SMILES was successfully parsed by RDKit."
-  fingerprint:
-    type: array
-    items:
-      type: integer
-      enum: [0, 1]
-    description: "Morgan fingerprint bit vector (2048 bits)."
-    minItems: 2048
-    maxItems: 2048
-  graph_features:
-    type: object
-    description: "Node and edge features for GNN (stored as serialized tensors or JSON)."
+  metadata:
+    type: "object"
     properties:
-      node_features:
-        type: array
-        description: "List of node feature vectors."
-      edge_index:
-        type: array
-        description: "Edge connectivity indices."
+      source_url:
+        type: "string"
+        description: "The verified URL from which the dataset was downloaded."
+      checksum:
+        type: "string"
+        description: "SHA-256 checksum of the raw downloaded file."
+      total_rows_raw:
+        type: "integer"
+        description: "Total number of rows in the original CSV."
+      rows_excluded:
+        type: "integer"
+        description: "Number of rows excluded due to invalid SMILES or missing logS."
+      rows_final:
+        type: "integer"
+        description: "Number of valid rows remaining."
+  splits:
+    type: "object"
+    properties:
+      fold_1:
+        type: "object"
+        properties:
+          train_indices:
+            type: "array"
+            items:
+              type: "integer"
+          val_indices:
+            type: "array"
+            items:
+              type: "integer"
+          test_indices:
+            type: "array"
+            items:
+              type: "integer"
+      fold_2:
+        type: "object"
+        properties:
+          train_indices:
+            type: "array"
+            items:
+              type: "integer"
+          val_indices:
+            type: "array"
+            items:
+              type: "integer"
+          test_indices:
+            type: "array"
+            items:
+              type: "integer"
+      fold_3:
+        type: "object"
+        properties:
+          train_indices:
+            type: "array"
+            items:
+              type: "integer"
+          val_indices:
+            type: "array"
+            items:
+              type: "integer"
+          test_indices:
+            type: "array"
+            items:
+              type: "integer"
+      fold_4:
+        type: "object"
+        properties:
+          train_indices:
+            type: "array"
+            items:
+              type: "integer"
+          val_indices:
+            type: "array"
+            items:
+              type: "integer"
+          test_indices:
+            type: "array"
+            items:
+              type: "integer"
+      fold_5:
+        type: "object"
+        properties:
+          train_indices:
+            type: "array"
+            items:
+              type: "integer"
+          val_indices:
+            type: "array"
+            items:
+              type: "integer"
+          test_indices:
+            type: "array"
+            items:
+              type: "integer"
+      scaffold_distribution:
+        type: "object"
+        description: "Mapping of unique scaffolds to their assigned fold."
+  molecules:
+    type: "array"
+    description: "List of molecule objects (truncated for schema definition)."
+    items:
+      type: "object"
+      properties:
+        id:
+          type: "integer"
+        smiles:
+          type: "string"
+          description: "Canonical SMILES string."
+        logS:
+          type: "number"
+          description: "Measured solubility in mol/L."
+        scaffold:
+          type: "string"
+          description: "Bemis-Murcko scaffold string."
+        features:
+          type: "object"
+          properties:
+            fingerprint:
+              type: "array"
+              items:
+                type: "integer"
+              description: "Morgan fingerprint bit vector (2048 bits)."
+            graph_tensor:
+              type: "object"
+              description: "PyTorch Geometric Data object representation (node/edge features)."
 required:
-  - smiles
-  - logS
-  - valid
-additionalProperties: false
+  - "metadata"
+  - "splits"
+  - "molecules"

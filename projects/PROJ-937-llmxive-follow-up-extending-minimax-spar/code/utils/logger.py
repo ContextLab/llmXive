@@ -1,10 +1,10 @@
 """
-Structured logging and resource usage tracking for llmXive.
+Structured logging and resource monitoring for llmXive.
 
-This module provides:
-1. A structured logger that outputs JSON-formatted logs.
-2. Periodic memory (RAM) and CPU usage tracking via a background thread.
-3. Integration with the project's config system.
+Provides:
+- StructuredFormatter: JSON-formatted log output.
+- ResourceMonitor: Background thread tracking RAM/CPU usage.
+- Factory functions for task-specific and global loggers.
 """
 
 import json
@@ -15,196 +15,309 @@ import sys
 import threading
 import time
 from datetime import datetime
-from typing import Any, Dict, Optional, Tuple
+from typing import Dict, Any, Optional, List
+from pathlib import Path
 
-import psutil
+# Optional import for resource monitoring (Unix/Linux/macOS)
+try:
+    import resource
+    HAS_RESOURCE = True
+except ImportError:
+    HAS_RESOURCE = False
+    resource = None  # type: ignore
 
-# Import project config to ensure consistency
-# Note: Assuming utils.config is in the same package or accessible via PYTHONPATH
-from .config import get_default_config
+# Optional import for psutil (cross-platform, more accurate on Windows)
+try:
+    import psutil
+    HAS_PSUTIL = True
+except ImportError:
+    HAS_PSUTIL = False
+    psutil = None  # type: ignore
 
+from utils.config import get_default_config
 
-class ResourceMonitor:
-    """
-    Background thread that periodically logs memory and CPU usage.
-    Stops gracefully when the main thread exits or stop() is called.
-    """
+# Constants
+DEFAULT_LOG_LEVEL = logging.INFO
+DEFAULT_LOG_FILE = "data/logs/run.log"
+DEFAULT_MONITOR_INTERVAL = 5.0  # seconds
 
-    def __init__(self, logger: logging.Logger, interval_seconds: float = 10.0, warning_threshold_gb: float = 6.5):
-        self.logger = logger
-        self.interval = interval_seconds
-        self.warning_threshold_gb = warning_threshold_gb
-        self._stop_event = threading.Event()
-        self._thread: Optional[threading.Thread] = None
-        self.process = psutil.Process(os.getpid())
-
-    def _get_usage(self) -> Tuple[float, float]:
-        """Returns (memory_mb, cpu_percent)"""
-        mem_info = self.process.memory_info()
-        mem_mb = mem_info.rss / (1024 * 1024)
-        cpu_pct = self.process.cpu_percent()
-        return mem_mb, cpu_pct
-
-    def _run(self):
-        while not self._stop_event.is_set():
-            mem_mb, cpu_pct = self._get_usage()
-            mem_gb = mem_mb / 1024.0
-
-            log_entry = {
-                "event": "resource_usage",
-                "timestamp": datetime.utcnow().isoformat(),
-                "memory_mb": round(mem_mb, 2),
-                "memory_gb": round(mem_gb, 4),
-                "cpu_percent": round(cpu_pct, 2),
-                "platform": platform.platform(),
-                "python_version": platform.python_version()
-            }
-
-            # Log at INFO level normally
-            self.logger.info("Resource Usage", extra={"resource": log_entry})
-
-            # Check thresholds and log warning if exceeded
-            if mem_gb > self.warning_threshold_gb:
-                self.logger.warning(
-                    f"Memory usage ({mem_gb:.2f} GB) exceeds threshold ({self.warning_threshold_gb} GB)",
-                    extra={"resource": log_entry}
-                )
-
-            # Wait for interval or stop signal
-            self._stop_event.wait(self.interval)
-
-    def start(self):
-        """Start the background monitoring thread."""
-        if self._thread is not None and self._thread.is_alive():
-            return
-        self._thread = threading.Thread(target=self._run, daemon=True)
-        self._thread.start()
-
-    def stop(self):
-        """Stop the background monitoring thread."""
-        self._stop_event.set()
-        if self._thread:
-            self._thread.join(timeout=2.0)
-            self._thread = None
+# Global state for loggers
+_global_logger: Optional[logging.Logger] = None
+_monitor_thread: Optional[threading.Thread] = None
+_monitor_stop_event: Optional[threading.Event] = None
 
 
 class StructuredFormatter(logging.Formatter):
     """
-    Custom formatter that outputs logs as JSON lines.
-    Adds standard fields: timestamp, level, logger, message, and extra data.
+    A logging formatter that outputs JSON-structured logs.
+    Includes timestamp, level, logger name, message, and optional extra fields.
     """
 
     def format(self, record: logging.LogRecord) -> str:
-        log_data = {
-            "timestamp": datetime.utcnow().isoformat(),
+        log_entry: Dict[str, Any] = {
+            "timestamp": datetime.utcnow().isoformat() + "Z",
             "level": record.levelname,
             "logger": record.name,
             "message": record.getMessage(),
             "module": record.module,
             "function": record.funcName,
             "line": record.lineno,
-            "thread": record.threadName,
+            "platform": platform.system(),
+            "python_version": platform.python_version(),
         }
 
         # Add extra fields if present
-        if hasattr(record, "resource"):
-            log_data["resource"] = record.resource
-        
-        # Handle exception info if present
-        if record.exc_info:
-            log_data["exception"] = self.formatException(record.exc_info)
+        if hasattr(record, "extra_data"):
+            log_entry["data"] = record.extra_data
 
-        return json.dumps(log_data, default=str)
+        # Add exception info if present
+        if record.exc_info:
+            log_entry["exception"] = self.formatException(record.exc_info)
+
+        return json.dumps(log_entry)
+
+
+class ResourceMonitor:
+    """
+    Background thread that periodically logs memory and CPU usage.
+    Uses psutil if available, otherwise falls back to resource module (Unix only).
+    """
+
+    def __init__(
+        self,
+        logger: Optional[logging.Logger] = None,
+        interval: float = DEFAULT_MONITOR_INTERVAL,
+        log_level: int = logging.INFO,
+        output_path: Optional[str] = None,
+    ):
+        self.logger = logger or get_global_logger()
+        self.interval = interval
+        self.log_level = log_level
+        self.output_path = output_path or DEFAULT_LOG_FILE
+        self._stop_event = threading.Event()
+        self._thread: Optional[threading.Thread] = None
+        self._snapshots: List[Dict[str, Any]] = []
+
+    def start(self) -> None:
+        """Start the monitoring thread."""
+        if self._thread and self._thread.is_alive():
+            return
+
+        self._stop_event.clear()
+        self._thread = threading.Thread(target=self._run, daemon=True)
+        self._thread.start()
+        self.logger.info("ResourceMonitor started", extra={"extra_data": {"interval": self.interval}})
+
+    def stop(self, timeout: float = 2.0) -> None:
+        """Stop the monitoring thread."""
+        if not self._thread:
+            return
+
+        self._stop_event.set()
+        self._thread.join(timeout=timeout)
+        self.logger.info("ResourceMonitor stopped")
+        self._thread = None
+
+    def _run(self) -> None:
+        """Main loop for the monitoring thread."""
+        while not self._stop_event.is_set():
+            try:
+                snapshot = self._get_snapshot()
+                self._snapshots.append(snapshot)
+                self.logger.log(
+                    self.log_level,
+                    "Resource snapshot",
+                    extra={"extra_data": snapshot},
+                )
+            except Exception as e:
+                self.logger.error(f"Error capturing resource snapshot: {e}", exc_info=True)
+
+            self._stop_event.wait(self.interval)
+
+    def _get_snapshot(self) -> Dict[str, Any]:
+        """Capture current memory and CPU usage."""
+        snapshot: Dict[str, Any] = {
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "pid": os.getpid(),
+        }
+
+        if HAS_PSUTIL and psutil:
+            process = psutil.Process(os.getpid())
+            mem_info = process.memory_info()
+            snapshot["memory_rss_mb"] = mem_info.rss / (1024 * 1024)
+            snapshot["memory_vms_mb"] = mem_info.vms / (1024 * 1024)
+            snapshot["cpu_percent"] = process.cpu_percent(interval=0)
+            snapshot["total_memory_mb"] = psutil.virtual_memory().total / (1024 * 1024)
+            snapshot["available_memory_mb"] = psutil.virtual_memory().available / (1024 * 1024)
+        elif HAS_RESOURCE and resource:
+            # Unix fallback
+            rusage = resource.getrusage(resource.RUSAGE_SELF)
+            snapshot["memory_max_mb"] = rusage.ru_maxrss / 1024  # kB to MB on Linux
+            snapshot["user_cpu_time"] = rusage.ru_utime
+            snapshot["system_cpu_time"] = rusage.ru_stime
+            # Note: resource module doesn't provide current CPU% easily
+            snapshot["cpu_percent"] = None
+        else:
+            snapshot["error"] = "No resource monitoring library available (psutil or resource)"
+            snapshot["cpu_percent"] = None
+
+        return snapshot
+
+    def get_snapshots(self) -> List[Dict[str, Any]]:
+        """Return all collected snapshots."""
+        return self._snapshots.copy()
+
+
+def setup_logger(
+    name: str,
+    level: int = DEFAULT_LOG_LEVEL,
+    log_file: Optional[str] = None,
+    use_json: bool = True,
+) -> logging.Logger:
+    """
+    Set up a logger with optional file handler and structured formatting.
+
+    Args:
+        name: Logger name (usually __name__).
+        level: Logging level.
+        log_file: Path to log file. If None, only console output.
+        use_json: If True, use StructuredFormatter; else use standard format.
+
+    Returns:
+        Configured logger instance.
+    """
+    logger = logging.getLogger(name)
+    logger.setLevel(level)
+
+    # Avoid duplicate handlers
+    if logger.handlers:
+        logger.handlers.clear()
+
+    # Console handler
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setLevel(level)
+
+    if use_json:
+        console_handler.setFormatter(StructuredFormatter())
+    else:
+        console_handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+            )
+        )
+
+    logger.addHandler(console_handler)
+
+    # File handler
+    if log_file:
+        log_path = Path(log_file)
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        file_handler = logging.FileHandler(log_file)
+        file_handler.setLevel(level)
+        file_handler.setFormatter(StructuredFormatter() if use_json else logging.Formatter(
+            "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        ))
+        logger.addHandler(file_handler)
+
+    return logger
 
 
 def get_structured_logger(
-    name: str = "llmxive",
-    log_level: int = logging.INFO,
+    name: str,
     log_file: Optional[str] = None,
-    enable_resource_monitor: bool = True,
-    resource_interval: float = 10.0,
-    warning_threshold_gb: float = 6.5
-) -> Tuple[logging.Logger, Optional[ResourceMonitor]]:
+    level: int = DEFAULT_LOG_LEVEL,
+) -> logging.Logger:
     """
-    Create a structured logger with optional resource monitoring.
+    Get a structured (JSON) logger for a specific component.
 
     Args:
-        name: Logger name (usually __name__)
-        log_level: Logging level (e.g., logging.INFO)
-        log_file: Optional path to log file. If None, logs to stdout.
-        enable_resource_monitor: If True, starts a background thread to track RAM/CPU.
-        resource_interval: Interval in seconds for resource checks.
-        warning_threshold_gb: Memory threshold (GB) to trigger a warning log.
+        name: Logger name.
+        log_file: Optional log file path.
+        level: Logging level.
 
     Returns:
-        Tuple of (logger, resource_monitor_instance).
-        resource_monitor is None if enable_resource_monitor is False.
+        Configured logger.
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(log_level)
-
-    # Avoid adding handlers multiple times if called repeatedly
-    if not logger.handlers:
-        # Create formatter
-        formatter = StructuredFormatter()
-
-        # Handler for file or stdout
-        if log_file:
-            handler = logging.FileHandler(log_file)
-        else:
-            handler = logging.StreamHandler(sys.stdout)
-        
-        handler.setFormatter(formatter)
-        handler.setLevel(log_level)
-        logger.addHandler(handler)
-
-    resource_monitor = None
-    if enable_resource_monitor:
-        resource_monitor = ResourceMonitor(
-            logger, 
-            interval_seconds=resource_interval, 
-            warning_threshold_gb=warning_threshold_gb
-        )
-        resource_monitor.start()
-
-    return logger, resource_monitor
+    return setup_logger(name, level=level, log_file=log_file, use_json=True)
 
 
-def get_logger_for_task(task_id: str, log_dir: str = "data/logs") -> Tuple[logging.Logger, Optional[ResourceMonitor]]:
+def get_logger_for_task(
+    task_name: str,
+    run_id: Optional[str] = None,
+    level: int = DEFAULT_LOG_LEVEL,
+) -> logging.Logger:
     """
-    Convenience function to get a logger for a specific task, saving logs to data/logs.
-    
+    Get a logger for a specific task run, with file output.
+
     Args:
-        task_id: The task identifier (e.g., "T005")
-        log_dir: Directory to store logs.
-        
+        task_name: Name of the task (e.g., "T005").
+        run_id: Optional run identifier.
+        level: Logging level.
+
     Returns:
-        Tuple of (logger, resource_monitor)
+        Configured logger.
     """
-    os.makedirs(log_dir, exist_ok=True)
-    log_file = os.path.join(log_dir, f"{task_id}.log")
-    
-    return get_structured_logger(
-        name=f"llmxive.{task_id}",
-        log_file=log_file,
-        enable_resource_monitor=True
+    # Build log path
+    log_dir = Path("data/logs")
+    log_dir.mkdir(parents=True, exist_ok=True)
+
+    if run_id:
+        log_file = log_dir / f"{task_name}_{run_id}.log"
+    else:
+        log_file = log_dir / f"{task_name}.log"
+
+    return setup_logger(
+        name=f"llmxive.{task_name}",
+        level=level,
+        log_file=str(log_file),
+        use_json=True,
     )
 
 
-# Convenience function to get a global logger instance for the project
-_global_logger: Optional[logging.Logger] = None
-_global_monitor: Optional[ResourceMonitor] = None
+def get_global_logger() -> logging.Logger:
+    """
+    Get or create the global project logger.
 
-def get_global_logger() -> Tuple[logging.Logger, ResourceMonitor]:
+    Returns:
+        Global logger instance.
     """
-    Returns a singleton global logger and resource monitor for the project.
-    Initializes on first call.
-    """
-    global _global_logger, _global_monitor
+    global _global_logger
     if _global_logger is None:
-        _global_logger, _global_monitor = get_structured_logger(
+        _global_logger = setup_logger(
             name="llmxive.global",
-            log_level=logging.INFO,
-            enable_resource_monitor=True
+            level=DEFAULT_LOG_LEVEL,
+            log_file=DEFAULT_LOG_FILE,
+            use_json=True,
         )
-    return _global_logger, _global_monitor
+    return _global_logger
+
+
+def get_current_resource_snapshot() -> Dict[str, Any]:
+    """
+    Get a one-off resource snapshot (synchronous).
+
+    Returns:
+        Dictionary with current memory and CPU stats.
+    """
+    monitor = ResourceMonitor(logger=get_global_logger())
+    return monitor._get_snapshot()
+
+
+def log_resource_usage(
+    logger: Optional[logging.Logger] = None,
+    message: str = "Resource usage",
+) -> Dict[str, Any]:
+    """
+    Log a one-off resource snapshot.
+
+    Args:
+        logger: Logger to use.
+        message: Log message.
+
+    Returns:
+        Snapshot dictionary.
+    """
+    logger = logger or get_global_logger()
+    snapshot = get_current_resource_snapshot()
+    logger.info(message, extra={"extra_data": snapshot})
+    return snapshot

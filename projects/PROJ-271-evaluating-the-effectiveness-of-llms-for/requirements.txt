@@ -8,5 +8,3 @@ scikit-learn
 statsmodels
 numpy
 psutil
-flake8
-black

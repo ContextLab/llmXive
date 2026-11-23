@@ -1,59 +1,64 @@
-"""
-Script to initialize the project directory structure for the
-Statistical Analysis of Publicly Available Movie Review Sentiment and Box Office Revenue project.
+"""Create the project directory structure per the implementation plan (T001).
 
-This script creates the necessary folders as defined in the implementation plan:
-- code/ (already exists as root for this script, but ensures subfolders)
-- tests/
-- data/ (with subfolders: raw/, processed/, logs/)
-- results/ (with subfolders: tables/, figures/)
-- specs/ (with subfolders: 001-sentiment-revenue-lag-analysis/contracts/)
+Creates the required top-level folders (code/, tests/, data/, results/,
+specs/) plus the subdirectories defined in plan.md (data/raw, data/processed,
+data/logs, results/figures) and drops .gitkeep markers so the empty
+directories are preserved in version control.
 """
-import os
-import sys
 
-# Define the relative paths to create from the project root
-# Assuming this script is run from the project root
-directories = [
+from pathlib import Path
+
+from llmxive_toolkit import paths, get_logger
+
+log = get_logger(__name__)
+
+REQUIRED_DIRS = [
     "code",
+    "code/tests",
     "tests",
+    "data",
     "data/raw",
     "data/processed",
     "data/logs",
-    "results/tables",
+    "results",
     "results/figures",
-    "specs/001-sentiment-revenue-lag-analysis/contracts",
+    "specs",
+    "specs/001-sentiment-revenue-lag-analysis",
+    "specs/001-statistical-analysis-of-publicly-availab/contracts",
 ]
 
-def create_structure():
-    created_count = 0
-    for dir_path in directories:
-        full_path = os.path.join(os.getcwd(), dir_path)
-        if not os.path.exists(full_path):
-            os.makedirs(full_path)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {dir_path}")
 
-    if created_count == 0:
-        print("No new directories were created. Structure already exists.")
+def create_structure() -> list:
+    """Create all required directories and .gitkeep markers.
+
+    Returns the list of directories that were created (empty if all
+    already existed).
+    """
+    created = []
+    for rel in REQUIRED_DIRS:
+        d = paths.path(rel)
+        if not d.exists():
+            d.mkdir(parents=True, exist_ok=True)
+            created.append(rel)
+            log.info("Created directory: %s", d)
+        keep = d / ".gitkeep"
+        if not keep.exists():
+            keep.write_text("", encoding="utf-8")
+    return created
+
+
+def main() -> None:
+    created = create_structure()
+    if created:
+        print("Created directories:")
+        for rel in created:
+            print(f"  {rel}")
     else:
-        print(f"\nSuccessfully created {created_count} directory entries.")
-    
-    # Verify structure
-    print("\nVerifying structure...")
-    all_good = True
-    for dir_path in directories:
-        full_path = os.path.join(os.getcwd(), dir_path)
-        if not os.path.isdir(full_path):
-            print(f"ERROR: Failed to create or verify {dir_path}")
-            all_good = False
-    
-    if all_good:
-        print("All directories verified successfully.")
-        return 0
-    return 1
+        print("All required directories already exist.")
+    print("Project structure is complete:")
+    for rel in REQUIRED_DIRS:
+        print(f"  {paths.path(rel)}")
+
 
 if __name__ == "__main__":
-    sys.exit(create_structure())
+    main()

@@ -1,0 +1,26 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Model Output"
+type: object
+required:
+  - model_path
+  - cv_metrics_path
+  - feature_importance_path
+  - sensitivity_report_path
+  - model_sha256
+properties:
+  model_path:
+    type: string
+    const: "data/models/random_forest_model.pkl"
+  cv_metrics_path:
+    type: string
+    const: "data/models/cv_metrics.json"
+  feature_importance_path:
+    type: string
+    const: "data/reports/feature_importance.csv"
+  sensitivity_report_path:
+    type: string
+    const: "data/reports/sensitivity_report.json"
+  model_sha256:
+    type: string
+    description: "SHA-256 checksum of the serialized model."
+additionalProperties: false

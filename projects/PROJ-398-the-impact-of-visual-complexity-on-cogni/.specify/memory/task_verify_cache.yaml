@@ -1,0 +1,57 @@
+T006a:
+  c: false
+  h: e889e004704359f8319a4fd1a0871c3935ce18ec227c6792a55233b11a713f1f
+  r: The required `src/config.py` file (defining `GLOBAL_SEED`) is missing, and the
+    provided `tests/test_seed_enforcement.py` is truncated and contains a typo (`cpu().n`)
+    and does not include the statsmodels verification portion, so the test is not
+    fully implemented.
+T011:
+  c: false
+  h: 92b9ecce86e5f22dab8ef042be4d17288476908627bd2bcc195a36d4eb2aac12
+  r: "The provided `src/experiment/pilot_interface.py` lacks any Streamlit UI code,\
+    \ does not implement a mock server, and is truncated (e.g., `append_rating` is\
+    \ unfinished). Moreover, the required `data/measurements/cohort.json` file is\
+    \ missing entirely. These missing components mean the task\u2019s specifications\
+    \ are not satisfied."
+T018a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `tests/data/` directory (or any files within it) was provided;
+    the claim lacks any visible artifact showing isolated test data directories have
+    been created. The required folder structure is missing, so the task is not satisfied.
+T019:
+  c: false
+  h: 325c4a1f1bba74d0eb2282384785a78aec705fc002fbb6fa2a5043223bffb171
+  r: "The required output files `data/processed/metrics.csv` and `data/derived/performance_log.txt`\
+    \ are absent, so the pipeline does not produce the mandated artifacts (CSV adhering\
+    \ to the BackgroundFrame schema and a performance log with timing/RAM stats).\
+    \ Without these files, the task\u2019s deliverables are not fulfilled."
+T028a:
+  c: false
+  h: 4cecdc35c085c06d477d9195f761b8c0fc21a90840a573412e81991912c8b7d6
+  r: "The repository contains a fully\u2011featured `src/experiment/rt_mechanism.py`\
+    \ that implements timing, stimulus handling, and response capture, but the required\
+    \ output artifact `data/derived/rt_measurements.json` is absent. The task explicitly\
+    \ demands that this JSON file be generated, so the implementation is not considered\
+    \ complete until the script creates and writes the measurements to that path."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, configuration, or documentation was provided that shows logic\
+    \ to detect and flag records lacking TLX (NASA\u2011TLX) or RT (reaction\u2011\
+    time) values. Without an artifact demonstrating the added flagging mechanism,\
+    \ the requirement cannot be confirmed as met."
+T032a:
+  c: false
+  h: 9bfe9d0f846b1cae29ee96ae5e54b93afd6891c8a6dbd29b7c3af9a3b44545e9
+  r: "The required `data/metadata/dataset_manifest.json` file is missing, so no dataset\
+    \ version, source URL, or checksum manifest has been recorded as specified. The\
+    \ task\u2019s core artifact does not exist."
+T074:
+  c: false
+  h: 27dab8af8113a5e39478ce93a6073f3a15d403d75ca93d66d4ae081da145efb3
+  r: "The required output file `data/derived/individual_metric_correlations.csv` does\
+    \ not exist, and the provided `src/metrics/validate.py` is truncated before the\
+    \ correlation\u2011computing logic is shown, giving no proof that per\u2011metric\
+    \ Pearson correlations are actually calculated and saved. The task\u2019s core\
+    \ artifact is missing."

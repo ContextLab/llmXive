@@ -1,0 +1,48 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: AlloyRecord Schema
+type: object
+properties:
+  composition:
+    type: string
+    description: "String representation of ternary alloy (e.g., Zr50Cu30Al20)"
+  elements:
+    type: array
+    items:
+      type: string
+    minItems: 3
+    maxItems: 3
+  fractions:
+    type: array
+    items:
+      type: number
+      minimum: 0
+      maximum: 1
+    minItems: 3
+    maxItems: 3
+  critical_cooling_rate:
+    type: number
+    minimum: 0
+    description: "Target variable in K/s"
+  mixing_enthalpy:
+    type: number
+    description: "kJ/mol"
+  atomic_size_difference:
+    type: number
+    description: "Dimensionless"
+  electronegativity_variance:
+    type: number
+    description: "Dimensionless"
+  source_label:
+    type: string
+  exclusion_reason:
+    type: ["string", "null"]
+required:
+  - composition
+  - elements
+  - fractions
+  - critical_cooling_rate
+  - mixing_enthalpy
+  - atomic_size_difference
+  - electronegativity_variance
+  - source_label
+additionalProperties: false

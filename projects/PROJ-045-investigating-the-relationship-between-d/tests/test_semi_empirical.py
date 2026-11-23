@@ -1,161 +1,219 @@
 """
-Tests for semi-empirical defect energy calculations.
+Tests for semi-empirical defect energy estimation module.
 """
-import json
-import os
-import tempfile
-from pathlib import Path
 
+import json
 import pytest
-from pymatgen.core import Structure, Lattice
+from pathlib import Path
+import numpy as np
+
+from pymatgen.core import Structure
 
 from semi_empirical import (
+    calculate_bvs_deviation,
     calculate_bvs_energy,
+    validate_semi_empirical_against_dft,
     estimate_defect_energies,
-    load_dft_results,
     run_semi_empirical_analysis
 )
-from models import DefectType
+
 
 @pytest.fixture
 def sample_structure():
-    """Create a simple Li-O structure for testing."""
-    lattice = Lattice.cubic(4.0)
+    """Create a sample Li7La3Zr2O12 structure for testing."""
+    # Create a simple cubic structure for testing
+    lattice = [[4.0, 0, 0], [0, 4.0, 0], [0, 0, 4.0]]
+    species = ["Li", "La", "Zr", "O"]
     coords = [
-        [0, 0, 0],
+        [0.0, 0.0, 0.0],
         [0.5, 0.5, 0.5],
-        [0.5, 0, 0],
-        [0, 0.5, 0],
-        [0, 0, 0.5],
+        [0.25, 0.25, 0.25],
+        [0.125, 0.125, 0.125]
     ]
-    species = ["Li", "O", "Li", "Li", "Li"]
     return Structure(lattice, species, coords)
 
-@pytest.fixture
-def sample_compositions():
-    """Create sample composition data."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        structure_path = Path(tmpdir) / "test_structure.cif"
-        # Create a dummy CIF file
-        with open(structure_path, "w") as f:
-            f.write("""
-            data_test
-            _cell_length_a 4.0
-            _cell_length_b 4.0
-            _cell_length_c 4.0
-            _cell_angle_alpha 90
-            _cell_angle_beta 90
-            _cell_angle_gamma 90
-            _symmetry_space_group_name_H-M 'P m -3 m'
-            loop_
-            _atom_site_label
-            _atom_site_type_symbol
-            _atom_site_fract_x
-            _atom_site_fract_y
-            _atom_site_fract_z
-            Li1 Li 0.0 0.0 0.0
-            O1 O 0.5 0.5 0.5
-            """)
 
-        return [
-            {
-                "id": "comp_1",
-                "structure_path": str(structure_path),
-                "defect_type": "vacancy",
-                "defect_site": 0
-            },
-            {
-                "id": "comp_2",
-                "structure_path": str(structure_path),
-                "defect_type": "interstitial",
-                "defect_site": 1
-            }
-        ]
+@pytest.fixture
+def sample_dft_results():
+    """Create sample DFT results for validation testing."""
+    return [
+        {
+            'composition_id': 'comp_0001',
+            'formation_energy': -2.5,
+            'structure': None
+        },
+        {
+            'composition_id': 'comp_0002',
+            'formation_energy': -3.1,
+            'structure': None
+        },
+        {
+            'composition_id': 'comp_0003',
+            'formation_energy': -2.8,
+            'structure': None
+        }
+    ]
+
+
+@pytest.fixture
+def sample_semi_empirical_results():
+    """Create sample semi-empirical results for validation testing."""
+    return [
+        {
+            'composition_id': 'comp_0001',
+            'energy': -2.4,
+            'bvs_energy': 0.1
+        },
+        {
+            'composition_id': 'comp_0002',
+            'energy': -3.0,
+            'bvs_energy': 0.15
+        },
+        {
+            'composition_id': 'comp_0003',
+            'energy': -2.7,
+            'bvs_energy': 0.12
+        }
+    ]
+
+
+def test_calculate_bvs_deviation(sample_structure):
+    """Test BVS deviation calculation."""
+    deviations = calculate_bvs_deviation(sample_structure)
+
+    assert isinstance(deviations, dict)
+    assert len(deviations) == len(sample_structure)
+
+    # All deviations should be numeric (or NaN)
+    for idx, dev in deviations.items():
+        assert isinstance(dev, (float, int)) or np.isnan(dev)
+
 
 def test_calculate_bvs_energy(sample_structure):
     """Test BVS energy calculation."""
-    energy = calculate_bvs_energy(
-        sample_structure,
-        DefectType.vacancy,
-        0
-    )
+    energy = calculate_bvs_energy(sample_structure)
+
+    assert isinstance(energy, float)
+    assert energy >= 0.0, "Energy should be non-negative"
+
+
+def test_calculate_bvs_energy_with_defects(sample_structure):
+    """Test BVS energy calculation with specific defect indices."""
+    defect_indices = [0, 2]
+    energy = calculate_bvs_energy(sample_structure, defect_indices)
+
     assert isinstance(energy, float)
     assert energy >= 0.0
 
-def test_estimate_defect_energies(sample_compositions):
-    """Test defect energy estimation for multiple compositions."""
-    results = estimate_defect_energies(sample_compositions)
 
-    assert len(results) == 2
-    for r in results:
-        assert "id" in r
-        assert "energy" in r
-        assert "method" in r
-        assert r["method"] == "semi_empirical_bvs"
-        if r.get("energy") is not None:
-            assert isinstance(r["energy"], float)
+def test_validate_semi_empirical_against_dft(sample_semi_empirical_results, sample_dft_results):
+    """Test validation of semi-empirical results against DFT."""
+    stats = validate_semi_empirical_against_dft(
+        sample_semi_empirical_results,
+        sample_dft_results
+    )
 
-def test_load_dft_results():
-    """Test loading DFT results from JSON."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        dft_path = Path(tmpdir) / "dft_results.json"
-        data = {
-            "results": [
-                {"id": "comp_1", "energy": 2.5},
-                {"id": "comp_2", "energy": 3.0}
-            ]
+    assert 'correlation' in stats
+    assert 'mean_absolute_error' in stats
+    assert 'root_mean_squared_error' in stats
+    assert 'r_squared' in stats
+    assert 'comparison_count' in stats
+    assert 'status' in stats
+
+    # Check that comparison count matches
+    assert stats['comparison_count'] == 3
+
+    # Check that status is 'complete'
+    assert stats['status'] == 'complete'
+
+
+def test_validate_empty_results():
+    """Test validation with empty result lists."""
+    stats = validate_semi_empirical_against_dft([], [])
+
+    assert stats['status'] == 'incomplete'
+    assert stats['comparison_count'] == 0
+
+
+def test_validate_insufficient_data(sample_semi_empirical_results, sample_dft_results):
+    """Test validation with insufficient matching data."""
+    # Modify results to have no matching composition IDs
+    modified_se_results = [
+        {
+            'composition_id': 'comp_9999',
+            'energy': -2.4
         }
-        with open(dft_path, "w") as f:
-            json.dump(data, f)
+    ]
 
-        results = load_dft_results(str(dft_path))
+    stats = validate_semi_empirical_against_dft(
+        modified_se_results,
+        sample_dft_results
+    )
 
-        assert "comp_1" in results
-        assert results["comp_1"] == 2.5
-        assert "comp_2" in results
-        assert results["comp_2"] == 3.0
+    assert stats['status'] == 'insufficient_data'
+    assert stats['comparison_count'] == 0
 
-def test_run_semi_empirical_analysis(sample_compositions):
-    """Test full semi-empirical analysis pipeline."""
-    with tempfile.TemporaryDirectory() as tmpdir:
-        input_path = Path(tmpdir) / "compositions.json"
-        output_path = Path(tmpdir) / "results.json"
 
-        with open(input_path, "w") as f:
-            json.dump(sample_compositions, f)
+def test_estimate_defect_energies(sample_structure):
+    """Test defect energy estimation."""
+    structures = [sample_structure]
+    defect_types = ['vacancy', 'interstitial']
 
-        summary = run_semi_empirical_analysis(
-            input_compositions_path=str(input_path),
-            output_path=str(output_path)
-        )
+    results = estimate_defect_energies(structures, defect_types)
 
-        assert "total_compositions" in summary
-        assert "successful" in summary
-        assert "results" in summary
-        assert Path(output_path).exists()
+    assert isinstance(results, list)
+    assert len(results) == 1
 
-        # Verify output file content
-        with open(output_path, "r") as f:
-            saved_data = json.load(f)
+    result = results[0]
+    assert 'composition_id' in result
+    assert 'bvs_energy' in result
+    assert 'total_energy' in result
+    assert 'energy_unit' in result
+    assert result['energy_unit'] == 'eV'
 
-        assert saved_data["total_compositions"] == len(sample_compositions)
 
-def test_validation_against_dft(sample_compositions):
-    """Test validation of BVS results against DFT."""
-    dft_results = {
-        "comp_1": 2.0,
-        "comp_2": 3.0
-    }
+def test_estimate_defect_energies_with_concentration(sample_structure):
+    """Test defect energy estimation with concentration scaling."""
+    structures = [sample_structure]
+    defect_types = ['vacancy']
+    concentrations = [0.1]
 
-    results = estimate_defect_energies(sample_compositions, dft_results)
+    results = estimate_defect_energies(structures, defect_types, concentrations)
 
-    # First 3 should attempt validation
-    for i, r in enumerate(results):
-        if i < 3:
-            assert "validation_status" in r
-            # Status should be one of: validated, unvalidated_high_deviation, low_fidelity
-            assert r["validation_status"] in [
-                "validated",
-                "unvalidated_high_deviation",
-                "low_fidelity"
-            ]
+    assert len(results) == 1
+    assert 'total_energy' in results[0]
+
+
+def test_run_semi_empirical_analysis(tmp_path):
+    """Test complete semi-empirical analysis pipeline."""
+    # Create a temporary DFT results file
+    dft_results = [
+        {
+            'composition_id': 'comp_0001',
+            'formation_energy': -2.5,
+            'structure': None
+        }
+    ]
+
+    dft_file = tmp_path / "dft_results.json"
+    with open(dft_file, 'w') as f:
+        json.dump(dft_results, f)
+
+    output_file = tmp_path / "semi_empirical_results.json"
+
+    # Run analysis
+    results = run_semi_empirical_analysis(str(dft_file), str(output_file))
+
+    assert results['status'] == 'complete'
+    assert 'semi_empirical_results' in results
+    assert 'validation_stats' in results
+
+    # Check that output file was created
+    assert output_file.exists()
+
+    # Verify output file contents
+    with open(output_file, 'r') as f:
+        saved_results = json.load(f)
+
+    assert 'status' in saved_results
+    assert saved_results['status'] == 'complete'

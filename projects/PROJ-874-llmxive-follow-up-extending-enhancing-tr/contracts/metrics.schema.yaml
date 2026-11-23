@@ -1,98 +1,77 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Evaluation Metrics Schema
-description: >
-  Schema for validating the output of the evaluation pipeline (T030, T017).
-  Covers VBench, FVD, Object Permanence, and statistical analysis results.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "llmXive Metrics Report"
+description: "Schema for metrics reports generated during evaluation and analysis."
 type: object
 required:
-  - experiment_id
-  - timestamp
+  - video_id
+  - condition
   - metrics
-  - statistical_summary
+  - timestamp
 properties:
-  experiment_id:
-    type: string
-    description: Unique identifier for the run (e.g., UUID or hash of config).
-  timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of the analysis.
   video_id:
     type: string
-    description: Identifier of the video being analyzed (optional in aggregate reports).
+    description: "Unique identifier for the video"
   condition:
     type: string
     enum:
-      - baseline-naive
-      - baseline-full
-      - flow-corrected
-    description: The experimental condition applied.
+      - "baseline-full"
+      - "baseline-naive"
+      - "corrected"
+    description: "The experimental condition under which the video was generated"
+  timestamp:
+    type: string
+    format: date-time
+    description: "ISO 8601 timestamp of when the metrics were calculated"
   metrics:
     type: object
-    required:
-      - vbench_score
-      - fvd
-      - object_permanence
+    description: "Dictionary of metric names to their values"
     properties:
       vbench_score:
         type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Overall VBench score (0-1).
+        minimum: 0
+        maximum: 1
+        description: "VBench overall score"
       fvd:
         type: number
-        minimum: 0.0
-        description: Frechet Video Distance (lower is better).
+        description: "Frechet Video Distance (lower is better)"
       object_permanence:
         type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: Object permanence score (0-1).
-      duration_seconds:
+        minimum: 0
+        maximum: 1
+        description: "Object permanence score"
+      inference_time_seconds:
         type: number
-        minimum: 0.0
-        description: Wall-clock time for processing this video.
-      frame_count:
-        type: integer
-        minimum: 1
-        description: Number of frames in the video.
-  statistical_summary:
-    type: object
-    description: Results of the statistical tests (T027, T028).
-    required:
-      - test_type
-      - p_value
-      - power_sufficient
-    properties:
-      test_type:
+        minimum: 0
+        description: "Time taken for inference in seconds"
+      total_wall_clock_time:
         type: string
-        enum:
-          - wilcoxon
-          - t-test
-          - skipped
-        description: Type of statistical test performed.
-      p_value:
+        format: date-time
+        description: "Total wall clock time for the process (ISO 8601 duration or timestamp)"
+      flow_estimation_time:
         type: number
-        minimum: 0.0
-        maximum: 1.0
-        description: P-value from the test.
-      power_sufficient:
-        type: boolean
-        description: True if power >= 0.8 (from T030a), False otherwise.
-      effect_size:
+        minimum: 0
+        description: "Time taken for optical flow estimation in seconds"
+      memory_peak_mb:
         type: number
-        description: Cohen's d or effect size metric (optional).
-      confidence_interval:
-        type: array
-        items:
-          type: number
-        minItems: 2
-        maxItems: 2
-        description: 95% Confidence Interval [lower, upper].
-  failure_flags:
+        minimum: 0
+        description: "Peak memory usage in MB"
+    additionalProperties:
+      type: number
+      description: "Allow other numeric metrics"
+  failures:
     type: array
-    description: List of specific failure reasons if any (T029).
+    description: "List of any failures or warnings encountered during metric calculation"
     items:
-      type: string
-    default: []
+      type: object
+      properties:
+        type:
+          type: string
+          description: "Type of failure (e.g., 'timeout', 'oom', 'invalid_input')"
+        message:
+          type: string
+          description: "Human-readable error message"
+        frame_idx:
+          type: integer
+          minimum: 0
+          description: "Frame index where failure occurred (if applicable)"
 additionalProperties: false

@@ -1,92 +1,66 @@
-"""
-T036 Implementation: Save final visualization to disk.
-
-This module loads the generated plot from the visualization pipeline
-and saves it as a PNG file to the project's data/processed directory.
-"""
 import logging
 import sys
 from pathlib import Path
-
-# Ensure project root is in path for imports if running directly
-if str(Path(__file__).resolve().parent.parent) not in sys.path:
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-
 from code.config import CONFIG
 from code.viz.plot_results import run_visualization_pipeline
 
 logger = logging.getLogger(__name__)
 
-def save_visualization(output_path: str = None) -> Path:
+def save_visualization():
     """
-    Runs the visualization pipeline and saves the resulting figure to disk.
-
-    Args:
-        output_path: Optional override for the output path. Defaults to
-                     CONFIG.OUTPUT_PLOT_PATH if not provided.
-
-    Returns:
-        Path: The absolute path to the saved PNG file.
-
-    Raises:
-        FileNotFoundError: If the plot file is not generated.
-        RuntimeError: If the visualization pipeline fails.
+    Saves the final correlation plot to data/processed/correlation_plot.png.
+    Ensures dimensions are 6x6 inches, DPI 300, and uses seaborn.darkgrid style.
     """
-    if output_path is None:
-        output_path = CONFIG.OUTPUT_PLOT_PATH
-
-    output_file = Path(output_path)
+    logger.info("Starting visualization save process (T036)...")
     
-    # Ensure the directory exists
-    output_file.parent.mkdir(parents=True, exist_ok=True)
+    # Run the plotting pipeline to generate the figure in memory
+    fig, ax = run_visualization_pipeline()
+    
+    if fig is None:
+        logger.error("Visualization pipeline failed to generate a figure.")
+        raise RuntimeError("Failed to generate visualization figure.")
 
-    logger.info(f"Starting visualization pipeline to save to {output_file}")
+    # Configure specific T036 requirements:
+    # 1. Dimensions: 6x6 inches
+    # 2. DPI: 300
+    # 3. Style: seaborn.darkgrid (applied in plot_results.py, but ensuring save params)
+    
+    output_path = Path(CONFIG["OUTPUT_DIR"]) / "correlation_plot.png"
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
-    try:
-        # Run the existing visualization pipeline which generates the figure
-        # and returns the matplotlib figure object (or None if it handles save internally).
-        # Based on T035, run_visualization_pipeline generates the plot.
-        fig = run_visualization_pipeline()
-
-        if fig is None:
-            # If the pipeline doesn't return the figure, we might need to access current
-            # figure or the pipeline might have already saved it.
-            # Let's assume the pipeline creates the figure but T036 is responsible for saving.
-            import matplotlib.pyplot as plt
-            fig = plt.gcf()
-            if fig is None:
-                raise RuntimeError("Visualization pipeline did not produce a figure.")
-
-        # Save the figure
-        fig.savefig(
-            output_file,
-            dpi=300,
-            bbox_inches='tight',
-            facecolor='white',
-            edgecolor='none'
-        )
-
-        if not output_file.exists():
-            raise FileNotFoundError(f"Failed to create file at {output_file}")
-
-        logger.info(f"Visualization successfully saved to {output_file}")
-        return output_file
-
-    except Exception as e:
-        logger.error(f"Error saving visualization: {e}", exc_info=True)
-        raise
+    logger.info(f"Saving figure to {output_path} (6x6 inches, 300 DPI)...")
+    
+    # Save with explicit parameters
+    fig.savefig(
+        output_path,
+        dpi=300,
+        bbox_inches='tight',
+        facecolor='white',
+        edgecolor='none'
+    )
+    
+    logger.info(f"Successfully saved visualization to {output_path}")
+    
+    # Verify file existence and size
+    if not output_path.exists():
+        raise FileNotFoundError(f"Failed to write file to {output_path}")
+    
+    size_kb = output_path.stat().st_size / 1024
+    logger.info(f"Saved file size: {size_kb:.2f} KB")
+    
+    return output_path
 
 def main():
-    """Entry point for T036 execution."""
+    """Entry point for the save visualization script."""
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     try:
         save_visualization()
-        print(f"SUCCESS: Visualization saved to {CONFIG.OUTPUT_PLOT_PATH}")
+        logger.info("T036 completed successfully.")
     except Exception as e:
-        print(f"FAILED: {e}")
+        logger.error(f"Error during T036 execution: {e}", exc_info=True)
         sys.exit(1)
 
 if __name__ == "__main__":

@@ -1,0 +1,6 @@
+# PhysicalNode JSON Schema
+# Minimal schema for contract validation tests.
+# No required fields; additional properties allowed.
+type: object
+additionalProperties: true
+required: []

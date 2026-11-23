@@ -1,72 +1,70 @@
 # Quickstart: The Effect of Personalized Feedback Timing on Skill Acquisition
 
 ## Prerequisites
+
 - Python 3.11+
-- Git
-- Access to GitHub Actions (for CI) or a local environment with sufficient RAM.
+- `pip`
+- Access to the internet (for downloading OULAD data)
 
 ## Installation
 
-1.  **Clone and Setup**:
-    ```bash
-    git clone <repo-url>
-    cd projects/PROJ-438-the-effect-of-personalized-feedback-timi
-    python -m venv venv
-    source venv/bin/activate  # On Windows: venv\Scripts\activate
-    pip install -r requirements.txt
-    ```
-
-2.  **Verify Dependencies**:
-    Ensure `statsmodels`, `pandas`, and `numpy` are installed.
-    ```bash
-    python -c "import statsmodels; import pandas; print('OK')"
-    ```
+1. **Clone the repository** (or navigate to the project directory).
+2. **Create a virtual environment**:
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   ```
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ## Running the Pipeline
 
-### 1. Download Data
-Download the OULAD dataset and cache it locally.
+The full pipeline can be executed end-to-end via the main script:
+
 ```bash
-python code/download_data.py
+python code/main.py
 ```
-*Output*: `data/raw/oulad.json` and `data/checksums.txt`.
 
-### 2. Preprocess Data
-Filter courses and extract learner records.
+This will:
+1. Download data from the verified OULAD sources.
+2. Preprocess and filter records.
+3. Calculate feedback intervals and bin learners.
+4. Fit the Cluster-Robust OLS model.
+5. Perform Tukey HSD post-hoc tests.
+6. Run the sensitivity analysis sweep.
+7. Save all artifacts to `data/processed/`.
+
+### Running Individual Steps
+
+- **Download Data**: `python code/download.py`
+- **Preprocess**: `python code/preprocess.py`
+- **Model & Test**: `python code/modeling.py`
+- **Sensitivity**: `python code/sensitivity.py`
+
+## Validating Results
+
+After running the pipeline, verify the existence of the required artifacts:
+
 ```bash
-python code/preprocess.py
+ls -lh data/processed/
+# Expected:
+# - learners_raw.csv
+# - learners_binned.csv
+# - results_metrics.csv
+# - significance_stability_report.csv
 ```
-*Output*: `data/processed/courses_filtered.csv`, `data/processed/learner_intervals.csv`.
 
-### 3. Run Analysis
-Fit the Cluster-Robust OLS and perform post-hoc tests.
-```bash
-python code/models.py
-```
-*Output*: `data/processed/ols_results.csv`.
+Run the test suite to ensure logic correctness:
 
-### 4. Sensitivity Analysis
-Run the boundary sweep.
-```bash
-python code/sensitivity.py
-```
-*Output*: `data/processed/sensitivity_results.csv`.
-
-### 5. Generate Report
-Compile results and literature checks.
-```bash
-python code/report.py
-```
-*Output*: `data/processed/final_report.md`.
-
-## Testing
-
-Run the unit tests to verify logic:
 ```bash
 pytest tests/ -v
 ```
 
-## Troubleshooting
-- **Missing Timestamps**: If the pipeline fails due to missing `response_timestamp`, check the `missing_response_flag` in `learner_intervals.csv`. The analysis proceeds with the forum reply proxy if available.
-- **Memory Error**: If RAM usage exceeds 7GB, the pipeline will automatically sample to N=5,000 learners (log message: "Sampling to N=5000").
-- **Model Convergence**: If the model fails, check for collinearity or insufficient data in specific groups.
+## Reproducibility
+
+To ensure reproducibility:
+- Random seeds are set in `code/main.py` (default: 42).
+- Data sources are hardcoded to the verified URLs in `code/download.py`.
+- All outputs are deterministic given the same input data.

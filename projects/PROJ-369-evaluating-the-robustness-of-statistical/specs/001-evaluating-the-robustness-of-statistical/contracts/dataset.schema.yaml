@@ -1,0 +1,67 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "TimeSeries Dataset Schema"
+description: "Schema for raw and processed time series data"
+type: "object"
+properties:
+  source:
+    type: "string"
+    description: "Dataset source (e.g., NOAA, Yahoo)"
+  series_id:
+    type: "string"
+    description: "Unique identifier"
+  raw_values:
+    type: "array"
+    items:
+      type: "number"
+    description: "Original values"
+  processed_values:
+    type: "array"
+    items:
+      type: "number"
+    description: "Stationary/detrended values"
+  missing_count:
+    type: "integer"
+    description: "Number of missing values before interpolation"
+  stationarity_status:
+    type: "object"
+    properties:
+      adf_p:
+        type: "number"
+        description: "ADF test p-value"
+      differencing_count:
+        type: "integer"
+        description: "Number of differencing steps"
+      detrended:
+        type: "boolean"
+        description: "Whether detrending was applied"
+      method:
+        type: "string"
+        enum:
+          - "unit_root_differenced"
+          - "long_memory_preserved"
+          - "detrended_only"
+        description: "Method used to handle non-stationarity."
+  acf_lag_20:
+    type: "array"
+    items:
+      type: "number"
+    description: "Autocorrelation up to lag 20"
+  hurst_exponent:
+    type: "number"
+    description: "Estimated Hurst exponent"
+  spectral_peak_ratio:
+    type: "number"
+    description: "Spectral density peak ratio"
+  n_eff:
+    type: "number"
+    description: "Effective Sample Size"
+required:
+  - source
+  - series_id
+  - raw_values
+  - processed_values
+  - stationarity_status
+  - acf_lag_20
+  - hurst_exponent
+  - spectral_peak_ratio
+  - n_eff

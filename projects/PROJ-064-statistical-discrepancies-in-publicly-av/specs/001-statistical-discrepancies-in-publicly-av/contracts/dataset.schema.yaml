@@ -1,0 +1,48 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Election Discrepancy Dataset Schema"
+description: "Schema for the unified election dataset after ingestion and discrepancy calculation."
+type: "object"
+properties:
+  county_fips:
+    type: "string"
+    description: "FIPS code for the county."
+  county_name:
+    type: "string"
+    description: "Name of the county."
+  precinct_id:
+    type: "string"
+    description: "Unique identifier for the precinct."
+  precinct_sum_votes:
+    type: "integer"
+    description: "Sum of all candidate votes in the precinct."
+    minimum: 0
+  county_reported_total:
+    type: "integer"
+    description: "Total votes reported by the county."
+    minimum: 0
+  discrepancy_abs:
+    type: "number"
+    description: "Absolute difference between precinct sum and county total."
+    minimum: 0
+  discrepancy_pct:
+    type: "number"
+    description: "Relative discrepancy as a percentage."
+    minimum: 0
+    nullable: true
+  data_quality_flag:
+    type: "string"
+    enum:
+      - "OK"
+      - "MISSING_PRECINCT"
+      - "ZERO_DENOM"
+      - "DIRECTIONAL_ANOMALY"
+    description: "Flag indicating data quality issues."
+required:
+  - county_fips
+  - county_name
+  - precinct_id
+  - precinct_sum_votes
+  - county_reported_total
+  - discrepancy_abs
+  - data_quality_flag
+additionalProperties: false

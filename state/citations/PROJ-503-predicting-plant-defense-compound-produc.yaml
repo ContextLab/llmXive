@@ -1,91 +1,112 @@
-- artifact_hash: 7e9934228dfed81f8f0388d0402401594ef048eb6e3ff2579a17ab00b2b5c4d9
+- artifact_hash: 59338e4c0eb69debd84341a139a2473d565bd702e616252a8337ddddea08803e
+  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/research.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: GEO Accession viewer
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE21857`
+  verification_status: pending
+  verified_against_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE21857
+  verified_at: '2026-07-29T10:01:21.837461Z'
+- artifact_hash: 59338e4c0eb69debd84341a139a2473d565bd702e616252a8337ddddea08803e
+  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: GEO Accession viewer
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE167633`
+  verification_status: pending
+  verified_against_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE167633
+  verified_at: '2026-07-29T10:01:21.837461Z'
+- artifact_hash: 59338e4c0eb69debd84341a139a2473d565bd702e616252a8337ddddea08803e
+  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/research.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: Metabolomics Workbench
+  kind: url
+  value: https://www.metabolomicsworkbench.org/data/study.php?STUDY_ID=ST002565`
+  verification_status: pending
+  verified_against_url: https://www.metabolomicsworkbench.org/data/study.php?STUDY_ID=ST002565
+  verified_at: '2026-07-29T10:01:21.837461Z'
+- artifact_hash: 59338e4c0eb69debd84341a139a2473d565bd702e616252a8337ddddea08803e
+  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/specs/001-predicting-plant-defense-compound-produc/research.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'KEGG PATHWAY: Terpenoid backbone biosynthesis'
+  kind: url
+  value: https://www.kegg.jp/kegg-bin/show_pathway?map=ko00900`
+  verification_status: pending
+  verified_against_url: https://www.kegg.jp/kegg-bin/show_pathway?map=ko00900
+  verified_at: '2026-07-29T10:01:21.837461Z'
+- artifact_hash: e7fa75e6fa9bf2d7e7f87477df72abb0f446a05f6386dda626e3b024a01dc9d9
   artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
   cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: GEO Accession viewer
+  kind: url
+  value: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi
+  verification_status: pending
+  verified_against_url: https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi
+  verified_at: '2026-08-01T01:32:59.021218Z'
+- artifact_hash: e7fa75e6fa9bf2d7e7f87477df72abb0f446a05f6386dda626e3b024a01dc9d9
+  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: Metabolomics Workbench
+  kind: url
+  value: https://www.metabolomicsworkbench.org/data/study.php?STUDY_ID=ST002565
+  verification_status: pending
+  verified_against_url: https://www.metabolomicsworkbench.org/data/study.php?STUDY_ID=ST002565
+  verified_at: '2026-08-01T01:32:59.021218Z'
+- artifact_hash: e7fa75e6fa9bf2d7e7f87477df72abb0f446a05f6386dda626e3b024a01dc9d9
+  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
+  cite_id: c-003
   cited_authors: []
   cited_title: null
   fetched_title: Home - GEO - NCBI
   kind: url
   value: https://www.ncbi.nlm.nih.gov/geo/
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://www.ncbi.nlm.nih.gov/geo/
-  verified_at: '2026-07-02T18:14:20.114628Z'
-- artifact_hash: 7e9934228dfed81f8f0388d0402401594ef048eb6e3ff2579a17ab00b2b5c4d9
+  verified_at: '2026-08-01T01:32:59.021218Z'
+- artifact_hash: e7fa75e6fa9bf2d7e7f87477df72abb0f446a05f6386dda626e3b024a01dc9d9
   artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
-  cite_id: c-002
+  cite_id: c-004
   cited_authors: []
   cited_title: null
   fetched_title: 'Metabolomics Workbench : Home'
   kind: url
   value: https://www.metabolomicsworkbench.org/
-  verification_status: verified
-  verified_against_url: https://www.metabolomicsworkbench.org/
-  verified_at: '2026-07-02T18:14:20.114628Z'
-- artifact_hash: 7e9934228dfed81f8f0388d0402401594ef048eb6e3ff2579a17ab00b2b5c4d9
-  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
-  cite_id: c-003
-  cited_authors: []
-  cited_title: null
-  fetched_title: 'KEGG: Kyoto Encyclopedia of Genes and Genomes'
-  kind: url
-  value: https://www.kegg.jp/
-  verification_status: verified
-  verified_against_url: https://www.kegg.jp/
-  verified_at: '2026-07-02T18:14:20.114628Z'
-- artifact_hash: 7e9934228dfed81f8f0388d0402401594ef048eb6e3ff2579a17ab00b2b5c4d9
-  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
-  cite_id: c-004
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.arabidopsis.org/
   verification_status: pending
-  verified_against_url: https://www.arabidopsis.org/
-  verified_at: '2026-07-02T18:14:20.114628Z'
-- artifact_hash: 7e9934228dfed81f8f0388d0402401594ef048eb6e3ff2579a17ab00b2b5c4d9
+  verified_against_url: https://www.metabolomicsworkbench.org/
+  verified_at: '2026-08-01T01:32:59.021218Z'
+- artifact_hash: e7fa75e6fa9bf2d7e7f87477df72abb0f446a05f6386dda626e3b024a01dc9d9
   artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
   cite_id: c-005
-  cited_authors: []
-  cited_title: null
-  fetched_title: Sol Genomics Network
-  kind: url
-  value: https://solgenomics.net/
-  verification_status: verified
-  verified_against_url: https://solgenomics.net/
-  verified_at: '2026-07-02T18:14:20.114628Z'
-- artifact_hash: 7e9934228dfed81f8f0388d0402401594ef048eb6e3ff2579a17ab00b2b5c4d9
-  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
-  cite_id: c-006
   cited_authors: []
   cited_title: null
   fetched_title: <i>cis</i>-Golgi phosphate transporters harboring an EXS domain are
     essential for plant growth and development
   kind: doi
   value: 10.1093/plphys/kiad123
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://doi.org/10.1093/plphys/kiad123
-  verified_at: '2026-07-02T18:14:20.114628Z'
-- artifact_hash: 7e9934228dfed81f8f0388d0402401594ef048eb6e3ff2579a17ab00b2b5c4d9
+  verified_at: '2026-08-01T01:32:59.021218Z'
+- artifact_hash: e7fa75e6fa9bf2d7e7f87477df72abb0f446a05f6386dda626e3b024a01dc9d9
   artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
-  cite_id: c-007
+  cite_id: c-006
   cited_authors: []
   cited_title: null
-  fetched_title: "An inducible potato (<i>E,E</i>)\u2010farnesol synthase confers\
-    \ tolerance against bacterial pathogens in potato and tobacco"
+  fetched_title: Asymmetric wall ingrowth deposition in Arabidopsis phloem parenchyma
+    transfer cells is tightly associated with sieve elements
   kind: doi
-  value: 10.1111/tpj.15890
-  verification_status: verified
-  verified_against_url: https://doi.org/10.1111/tpj.15890
-  verified_at: '2026-07-02T18:14:20.114628Z'
-- artifact_hash: 7e9934228dfed81f8f0388d0402401594ef048eb6e3ff2579a17ab00b2b5c4d9
-  artifact_path: projects/PROJ-503-predicting-plant-defense-compound-produc/docs/research.md
-  cite_id: c-008
-  cited_authors: []
-  cited_title: null
-  fetched_title: "Antioxidant Activity and Metabolite Profiling of Xylocarpus granatum\
-    \ Extracts Using Gas Chromatography\u2013Mass Spectrometry"
-  kind: doi
-  value: 10.3390/metabo13020156
-  verification_status: verified
-  verified_against_url: https://doi.org/10.3390/metabo13020156
-  verified_at: '2026-07-02T18:14:20.114628Z'
+  value: 10.1093/jxb/erac234
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1093/jxb/erac234
+  verified_at: '2026-08-01T01:32:59.021218Z'

@@ -1,0 +1,53 @@
+{
+  "recorded_at": "2026-10-09T14:23:00Z",
+  "scope": "isolated research accepted; interrupted after paper task failure routed back to research",
+  "provenance": {
+    "source_head": "d366a5e6ee1d2120b23fc569fee081fd87bb2b3a",
+    "recorded_at": "2026-10-09T12:54:17.875968+00:00",
+    "project": "PROJ-9999-totient-canary",
+    "seed_sha256": "595ade6304d1de9dac90bacae2809b59f532abe65e7474cc3882ae38e1b0aaea",
+    "fresh_initial_state": true,
+    "prior_failed_runs_preserved": [
+      "/private/tmp/llmxive-canary-clean-20261008",
+      "/private/tmp/llmxive-canary-rescoped-20261009"
+    ],
+    "paid_opt_in": false,
+    "production_scientific_guards": true,
+    "unmerged_platform_patch": "PR1526 head17772328d06fa0ab059548f7eae72e264ffd52c0",
+    "focused_validation": "28 passed (sandbox paths, accepted root test execution, exhaustion routing, task authoring)"
+  },
+  "milestones_utc": {
+    "research_complete": "2026-10-09T13:10:05Z",
+    "research_accepted": "2026-10-09T13:26:18Z",
+    "paper_drafting_init": "2026-10-09T13:29:06Z",
+    "paper_specified": "2026-10-09T13:33:10Z",
+    "paper_clarified": "2026-10-09T13:38:38Z",
+    "paper_planned": "2026-10-09T13:47:08Z",
+    "paper_tasked": "2026-10-09T14:04:14Z"
+  },
+  "independent_data_audit": {
+    "scope": "independent check of a data snapshot; not full pipeline acceptance",
+    "project": "/private/tmp/llmxive-canary-fresh-20261009-1250/projects/PROJ-9999-totient-canary",
+    "sha256": {
+      "residue_counts.json": "a9c3de5eec620f013ae105e345c2b191512228804376c850f5ae1cb0c2b95402",
+      "tv_summary.json": "938d0b671ba55ac8d14f12462ce9ae8a803ab240a71da1e1e279ead485d67e31"
+    },
+    "counts_rows": 12,
+    "tv_rows": 24,
+    "independent_gcd_checks": 1000,
+    "max_n": 1000000,
+    "seconds": 0.231,
+    "result": "pass"
+  },
+  "scientific_artifacts_manually_edited": false,
+  "pipeline_state_manually_reset": false,
+  "full_pipeline_accepted": false,
+  "failure": {
+    "observed_at": "2026-10-09T14:04:32Z",
+    "from_stage": "paper_tasked",
+    "incorrect_to_stage": "planned",
+    "error": "TaskFormatError: Paper tasker produced no executable task identities",
+    "action": "runner interrupted; scientific artifacts and state preserved",
+    "fix_pr": 1539
+  }
+}

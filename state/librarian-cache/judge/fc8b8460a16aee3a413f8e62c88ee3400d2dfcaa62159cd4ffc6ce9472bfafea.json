@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1602.00245",
+  "judged_at": "2026-08-26T09:27:07Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"toward generalist autonomous research via hypothesis-tree refinement\" linguistics",
+  "rationale": "The paper is a general methodological tutorial on Bayesian statistics for linguistics and does not address the specific mechanism of \"hypothesis-tree refinement,\" autonomous research agents, or the LLMXive framework mentioned in the user's question. It fails to meet any inclusion criteria (a-f) as it lacks the specific domain (autonomous LLM research), the specific mechanism (hypothesis trees), and is not a foundational reference for the specific technique the user is extending.",
+  "relevant": false
+}

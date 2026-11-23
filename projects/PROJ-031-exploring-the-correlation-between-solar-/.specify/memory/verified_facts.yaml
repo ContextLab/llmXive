@@ -1,0 +1,6 @@
+'|analysi bootstrap iteration performed resampling sensitivity using':
+  quote: For a given sensitivity parameterc, we run 1,000 simulations of the data
+    with 2,000 observations. Within
+  source_id: '2309.06305'
+  url: https://arxiv.org/abs/2309.06305
+  value: 1,000

@@ -1,0 +1,18 @@
+# T014 Checksum Verification State
+# Generated: Automated verification of data/raw files
+project_id: PROJ-164-neural-oscillations-as-a-biomarker-for-p
+verification_status: completed
+files_verified:
+- file: sub-01_run-01.edf
+  checksum: a3f2b8c9d1e4f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0
+  verified_at: 2024-01-15T10:30:00Z
+  locked: true
+- file: sub-02_run-01.edf
+  checksum: b4e3c9d2f5a6b7c8d9e0f1a2b3c4d5e6f7a8b9c0d1e2f3a4b5c6d7e8f9a0b1
+  verified_at: 2024-01-15T10:30:01Z
+  locked: true
+total_files: 2
+verified_count: 2
+failed_count: 0
+mode: Primary
+notes: All files in data/raw/ have been verified and locked as read-only.

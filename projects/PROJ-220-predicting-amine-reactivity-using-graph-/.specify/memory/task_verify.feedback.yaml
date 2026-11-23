@@ -1,0 +1,132 @@
+T001a:
+  reason: The required directory `specs/001-predicting-amine-reactivity/` is missing,
+    and the `data/raw`, `data/processed`, `data/derived`, and `artifacts` subfolders
+    are not present in the provided file tree. Without these directories the specified
+    project structure is not fully created.
+  task: 1f0b7036e56cff49c7df2c32ca1d448482c263e8995df07ba955c0977f3919d2
+T001b:
+  task: bcdc7fc2c3f92badf16ea3f4d643f03020555cabf9a703ef656d393e5d0ccf0d
+T002:
+  reason: "The provided `pyproject.toml` correctly lists the required dependencies,\
+    \ but there is no accompanying virtual\u2011environment setup script or any evidence\
+    \ that rdkit version compatibility with torch and torch\u2011geometric was verified.\
+    \ The task explicitly required such a verification step, which is missing."
+  task: 1fad95568d64fe6bf7ec7b982726d344509026b97c00a49e0858403842070530
+T003a:
+  reason: The `[tool.ruff]` section in `pyproject.toml` is missing the required `select`
+    configuration for rules E4, E7, E9, and F.
+  task: cdf99b84244f4a57c25bb1005f344c94685565b99e6de95ea99708649b7073eb
+T003b:
+  reason: The required `.gitignore` file is missing from the provided artifacts. No
+    evidence of its existence or content was supplied.
+  task: ba5f2704f995a44e73d346a08c719cf6d45266d97090adfb43220c4ac596a957
+T004:
+  task: 91f266d82b485d17df3061568cfe5caeab9ba15af6e0df8c27dfcd4c11c98678
+T005:
+  task: 6771ff97cf382d08992c305a94c8db46b080de41d26fd676875a722081c948eb
+T006:
+  task: d14fa436513747d859e491514aec695bef6345d6934088b2f69238f51e46fc67
+T007a:
+  task: 02e68e51e4d76f13ccc6bb61bbc8d0d71251d56443c0897cf842fb46b910bc6b
+T007a0:
+  task: 97f88bb12b90df5a21b60d7a01fe1f953c3b05dc331b691100ba163537cc8d76
+T008:
+  task: d819ba5a2bd309774d73d48908f19ae7c5de322dd9ecfae69aa5d3713f4b4667
+T009a:
+  task: d7e7e1d1b7dfa800f090a430587ee227b5e653527498eba91266361cfedb465c
+T009b:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_citation_gate_blocking.py'
+  task: ce3e2b3aef9aa582ae49d2889dc7ce1e5a703338ad0ea2ccda940a67763c1fb5
+T010:
+  task: 70b605c550e03127d8f65eacb45efca8b36f283be91c1701f4df0fe4d7600677
+T011a:
+  task: 6be88ca717119aa43e309b8a17b5ced8b83afff8cb2709425eb43e7a70ec0f3a
+T011b:
+  task: 12c5dbc6c32a328372b43fad17b99fb60fd32d8ccc632e9bf46a94b495e998f8
+T012:
+  task: 17e64e044b8be1f717aadab44ab6ff594224e9a6d885ba0fec5b0b208291ce76
+T013:
+  task: de24211d27081874a2d8a24c93df26eea3b14e387b6b6503050066dadeb61982
+T014:
+  task: 42f6f70180fe071eeb363e7687d283f3a4f0b415f8a305d92f01ca422cb15e82
+T015:
+  task: 5fee883e56230ffdac0ea29cbda6787d5de0ccdd7c02f9ee21d7f5fb2de40e2d
+T016:
+  task: af600002413e0202d2f45cda96a007b6844ce07705daac422291305850dc9cb4
+T017:
+  task: 7ea53ebc24147c77c0850d5fbbefb165626c89528398c477068fce337a531998
+T018a:
+  task: dde5ecaeaf642e5e31e71ade09dd281ca492c0ab9484f943d963ede2b1d61842
+T018b:
+  task: cbcc3bd33bfcddc074bc6cd32ae0136713fae26c30b42acfcda90ebcaeea8038
+T019:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_dataset_completeness.py'
+  task: 016e891fc93531f0bcbb9462c55feb69f7c2545061eac0f720142d87c5d206eb
+T020:
+  task: 5c19477c600da0473b0fbbba0084f8a091f829a890c5c33b394bb02703c71150
+T021:
+  task: 5128988e651e7fae4024bc7026ea815c955f473ad360bab04bfe2dadc5824071
+T022:
+  task: 9b2246d06782a0fbea1b4ab9209e3bc3b25b7497a4de441b6a8bc415e7c648a1
+T023:
+  task: bc2f71b951b4c228d94a14f851c7468351ca3739620735f5e3ae85f8574cda84
+T024:
+  task: ba3158d5a9dffaa5fb82ddf7553ed72f06754e69709bfd4466f135bacc960d41
+T025:
+  task: aa219cd57b3bb39d0f87b42f1cd6e822cd4b3b69153e45f07545dcc7d9366182
+T026:
+  task: 213c39370792506c59cf63e770f3a6f3f73d45f683a4f2875873d0a9cea854a7
+T027:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/training_metrics.json'
+  task: 49c116fb3200f013ea4de547097c3079e5edc4eab07f77f714585cace86f2bc6
+T028:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_predictions.py'
+  task: abb0d1cadd1d4961423b49538726d0d91c3877411d7fc1970f73c4859c8bc537
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/contract/test_feature_importance.py'
+  task: 9e9240267f92fa4bdc157e10fd26283957b7a8390bbdff4b8901ddccbdb437a1
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/integration/test_interpretability_flow.py'
+  task: 1569a06fae06b95941fbb08fb3e6d0f59b3a97bc29fd4ee2c0056f50226ae91e
+T031:
+  task: 789ca257e3899bbbe9141681595cfc5b8af5ae0b37415a795fbc248237a84fed
+T032:
+  reason: 'declared artifact(s) missing/empty/invalid: data/derived/shap_plots/'
+  task: 06cca76e8900eba38bae032e1af6765bea070fea6743ad04048e8c4a59b6e986
+T033:
+  task: ea7149e29e8c14b37b17f0d11f85a4584bfd512f21f3ada60858c303855c6aa7
+T034:
+  task: 375a0abff4dc735b3bf3dae62cffd3978b80c7e93390dec8e4bf0e035aeed0d4
+T035:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_interpretability_report.py,
+    data/derived/interpretability_report.json'
+  task: e922e4b72da07c1c4f3c1f0a63215a09589b5387d185d575dccc97768ccd087f
+T036:
+  task: 5acb854fbdde11810b5e2082e546f31347b88b9a9225c88b99a4b758ae6ebe74
+T037:
+  task: dabf8c9d65df7e3c843ea7e84ec29a1b8046a20054a2767bfa5f726acaa14257
+T038:
+  task: 9aa8ab668dd7004700f560cd82f1f6769b07f24562125c57b8b3f48a4d3d4380
+T039:
+  task: 2bf208fdaa45d65b0a9eaec33bbce04f9cd352174935e7fac0b8ac5f06ba271a
+T040:
+  task: e264f12e05bd421d0432e31b80e59d72191b608d847fe0fec50f1da5f403ab07
+T041:
+  task: d16d7430cead996a923e540c2258f1d862febb77935fae6059c247c30de1303b
+T042:
+  task: 0a3960bd13327cbea3d91053c89a9f44ae73599950013b196a3bb666889af8b4
+T042a:
+  task: b78de1febee47529162a8a751c0257ffce4111253af0c36f7d7efae806965a4b
+T042b:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_data_fetch_error.py'
+  task: 6b44ed94158a08b1b85a74b3d57cfe3b17f12722194d6c95302a19849941892f
+T043:
+  task: 32198510d052882a5ebf0d8cccc7f31c458c2f7ce76d211cdf26913a8ecfa021
+T045:
+  task: e434e84d0515425812dbfb9e3fd5d34c55db3fc6ff05bb04033975f04f93489c
+T046:
+  task: ffcb8aee31babf5930360731ba2415859a5e98926e5f5045c893e48193712c57
+T047:
+  task: 85baa4f3a588362b8722484dd5b40fddb0455c19933e7da0a9f2cc3e809afdae
+T049:
+  task: 32b236f5b77116aef91dd4b78578b029c3007fc53a396a48fde28c53b37b9c70

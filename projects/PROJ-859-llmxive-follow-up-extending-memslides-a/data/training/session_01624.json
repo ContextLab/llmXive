@@ -1,0 +1,131 @@
+{
+  "trace_id": "training_42_01624",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 11,
+  "tool_sequence": [
+    "update_layout",
+    "update_layout",
+    "update_layout",
+    "apply_theme",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "insert_text",
+    "insert_text",
+    "apply_theme",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 31.4246,
+        "padding": 95.2169
+      }
+    },
+    {
+      "step": 1,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 91.6424,
+        "padding": 23.3102
+      }
+    },
+    {
+      "step": 2,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 25.863,
+        "padding": 55.0485
+      }
+    },
+    {
+      "step": 3,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 96.8446,
+        "saturation": 63.0132
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 36.5084,
+        "y": 85.8277,
+        "width": 56.9372,
+        "height": 50.6228,
+        "data_points": 96.9113
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 18.8857,
+        "y": 56.7876,
+        "width": 12.9849,
+        "height": 85.3502,
+        "data_points": 54.6964
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 46.548,
+        "y": 38.5043,
+        "width": 59.2013,
+        "height": 61.2207,
+        "data_points": 1.4713
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 55.464,
+        "y": 76.4081,
+        "length": 31.3479
+      }
+    },
+    {
+      "step": 8,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 79.4279,
+        "y": 39.2381,
+        "length": 83.426
+      }
+    },
+    {
+      "step": 9,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 88.3711,
+        "saturation": 5.0637
+      }
+    },
+    {
+      "step": 10,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 15.3648,
+        "y": 94.8919,
+        "length": 76.402
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.373004,
+    "tool_repetition_freq": 0.636364,
+    "arg_semantic_variance": 805.937979
+  },
+  "final_state": {
+    "dominant_tool": "update_layout",
+    "slide_element_count": 8,
+    "layout_hash": "42-1624-update_layout"
+  }
+}

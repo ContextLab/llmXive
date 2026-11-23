@@ -1,104 +1,81 @@
 # Analysis Plan: Missing Data Handling and Imputation Strategies
 
-**Project**: PROJ-008-psychology-research
-**Study**: Mindfulness Components and Delivery Formats in ASD Social Skills
-**Date**: 2026-04-29
-**Version**: 1.0
+This document outlines the statistical strategies for handling missing data in the meta-analysis of mindfulness interventions for social skills in children with Autism Spectrum Disorder (ASD). The plan adheres to PRISMA guidelines and addresses the specific constraints of secondary analysis of registry data.
 
-## 1. Overview
+## 1. Missing Data Strategy
 
-This document details the protocols for handling missing data in the meta-analysis of mindfulness-based interventions for social skills in children with Autism Spectrum Disorder (ASD). Given that this study relies on secondary analysis of data from ClinicalTrials.gov and OSF (Constitution Principle VI), missing data will primarily arise from:
-1. **Item Non-Response**: Missing means, standard deviations, or sample sizes in reported study results.
-2. **Unit Non-Response**: Studies that meet inclusion criteria but lack sufficient data to calculate effect sizes.
-3. **Attrition**: Participant dropout rates reported in the included studies.
+Missing data in this meta-analysis primarily arises from:
+1. **Registry Metadata Gaps**: ClinicalTrials.gov or OSF records may lack specific fields (e.g., exact age range, specific outcome measures, rater blinding status).
+2. **Outcome Reporting**: Studies may report aggregate statistics (means/SDs) for some outcomes but not others, or report only p-values.
+3. **Follow-up Attrition**: Loss to follow-up in longitudinal arms.
 
-All handling strategies adhere to the **Constitution Principle V (Fail Fast)**: if data is insufficient to proceed with a valid statistical estimate, the study is excluded from that specific analysis rather than imputed blindly.
+The following table details the handling methods for each data type:
 
-## 2. Missing Data Mechanisms Assessment
+| Data Element | Missingness Mechanism Assumption | Handling Strategy | Criteria for Exclusion |
+|:--- |:--- |:--- |:--- |
+| **Study Inclusion Criteria** (Age, Diagnosis, Outcomes) | Missing Not At Random (MNAR) | **Strict Exclusion**. If mandatory inclusion fields (Age 6-12, ASD diagnosis, Social Outcome) are missing and cannot be inferred from the abstract, the study is excluded. | Abstract also missing or insufficient to verify criteria. |
+| **Rater Blinding Status** | Missing At Random (MAR) | **Sensitivity Analysis**. Studies are categorized as "Blinded", "Unblinded", or "Unknown". The primary analysis includes all. A secondary analysis excludes "Unknown" to test bias impact. | N/A |
+| **Effect Size Components** (Mean, SD, N) | Missing At Random (MAR) | **Imputation or Estimation**. If SD is missing but SE or CI is provided, SD is calculated. If N is missing for a subgroup, it is estimated from total N if proportions are known. | No convertible statistic available; study excluded from quantitative synthesis. |
+| **Follow-up Duration** | Missing At Random (MAR) | **Categorical Imputation**. If exact duration is missing, the study is assigned to the "Not Reported" category for subgroup analysis. | N/A |
+| **Intervention Components** | Missing At Random (MAR) | **Text Extraction**. If not explicitly listed, the 'description' and 'abstract' fields are scanned for keywords (breathing, body scan, etc.). | No keywords found; assigned "None" or "Unclassified". |
 
-Before applying any imputation, the mechanism of missingness will be assessed where possible:
-- **Missing Completely at Random (MCAR)**: Likely for studies with incomplete reporting due to formatting or transcription errors.
-- **Missing at Random (MAR)**: Possible if missingness correlates with observed variables (e.g., older studies reporting fewer covariates).
-- **Missing Not at Random (MNAR)**: Possible if studies with non-significant results are less likely to report detailed standard deviations.
+## 2. Imputation Method
 
-**Diagnostic Check**: For variables with >5% missingness, a Little's MCAR test will be conducted if the dataset size (N) permits (N ≥ 30). If N < 30 (common in meta-analyses of niche interventions), we will assume MAR and proceed with conservative imputation or exclusion.
+When effect size components are partially missing, we apply the following deterministic transformations to recover the missing values before calculating Hedges' *g*. These methods are preferred over stochastic imputation for meta-analysis to preserve the integrity of the variance estimates.
 
-## 3. Strategies by Data Type
+### 2.1. Standard Deviation (SD) Imputation
 
-### 3.1. Missing Means and Standard Deviations (Primary Outcomes)
+If the Standard Deviation ($SD$) is missing but the Standard Error ($SE$) or Confidence Interval ($CI$) is reported, $SD$ is calculated as follows:
 
-The calculation of Hedges' *g* requires the mean ($M$), standard deviation ($SD$), and sample size ($n$) for both intervention and control groups at pre- and post-treatment timepoints.
+**From Standard Error:**
+$$ SD = SE \times \sqrt{N} $$
+Where $N$ is the sample size of the respective group (treatment or control).
 
-**Strategy A: Contact Authors**
-- If primary data is missing but the study is otherwise eligible, a standardized inquiry will be sent to the corresponding author.
-- **Timeout**: If no response is received within 14 days, the study moves to Strategy B.
+**From 95% Confidence Interval:**
+$$ SD = \frac{CI_{upper} - CI_{lower}}{2 \times 1.96} \times \sqrt{N} $$
+*Note: If the reported CI is not 95%, the multiplier $1.96$ is adjusted to the appropriate $t$-value or $z$-value based on the reported degrees of freedom.*
 
-**Strategy B: Derivation from Statistics**
-- If $SE$ (Standard Error) or $CI$ (Confidence Interval) is reported, $SD$ will be reconstructed using standard formulas:
- $$SD = SE \times \sqrt{n}$$
- $$SD = \frac{Upper\ Limit - Lower\ Limit}{2 \times t_{critical}} \times \sqrt{n}$$
-- If $F$-statistics or $t$-statistics are reported for the group difference, $SD$ can be back-calculated from the effect size estimate.
+### 2.2. Hedges' *g* Calculation with Small-Sample Correction
 
-**Strategy C: Imputation from Correlated Studies**
-- If $SD$ is missing but $M$ is present, we will impute the $SD$ using the **pooled standard deviation** of all other studies in the dataset with similar characteristics (same age group, same outcome measure, same intervention type).
-- **Formula**: $SD_{imputed} = SD_{pooled\_subgroup}$
-- **Constraint**: This is only applied if the subgroup size $k \geq 3$. If $k < 3$, the study is excluded from the quantitative synthesis for that specific outcome.
+Once means ($M$), standard deviations ($SD$), and sample sizes ($N$) are established for treatment ($T$) and control ($C$) groups, the pooled standard deviation ($SD_{pooled}$) is calculated:
 
-**Strategy D: Exclusion**
-- If means or sample sizes are missing and cannot be derived or imputed, the study is excluded from the meta-analysis for that specific outcome.
-- **Documentation**: All excluded studies are logged in `data/raw/excluded_studies.log` with the reason code `MISSING_DATA`.
+$$ SD_{pooled} = \sqrt{\frac{(N_T - 1)SD_T^2 + (N_C - 1)SD_C^2}{N_T + N_C - 2}} $$
 
-### 3.2. Missing Sample Sizes (Attrition)
+The raw effect size (Cohen's *d*) is:
+$$ d = \frac{M_T - M_C}{SD_{pooled}} $$
 
-- **Intention-to-Treat (ITT) vs. Per-Protocol**: We will prioritize ITT data ($n$ at baseline) if reported. If only Per-Protocol data is available, we will use it but flag the study for sensitivity analysis.
-- **Attrition Rate Calculation**: If dropout rates are missing, we will assume 0% attrition for the primary analysis but conduct a sensitivity analysis assuming a 20% attrition rate (conservative estimate for pediatric ASD trials) to assess robustness.
+To correct for small-sample bias, Hedges' *g* is computed using the correction factor $J$:
+$$ g = J \times d $$
+$$ J = 1 - \frac{3}{4(N_T + N_C) - 9} $$
 
-### 3.3. Missing Follow-up Data
+### 2.3. Variance of Hedges' *g*
 
-- If follow-up data (3-month or 6-month) is missing for a study that has post-treatment data, the study contributes to the post-treatment analysis but is excluded from the follow-up subgroup analysis.
-- No imputation will be performed for follow-up data to avoid introducing bias regarding long-term efficacy.
+The sampling variance ($v_g$) required for the random-effects model is calculated as:
+$$ v_g = \frac{N_T + N_C}{N_T N_C} + \frac{g^2}{2(N_T + N_C)} $$
 
-## 4. Imputation Algorithms
+## 3. Sensitivity Analysis
 
-All imputation logic is implemented in `code/data/cleaner.py` (Task T016) and `code/analysis/effect_sizes.py` (Task T024).
+To assess the robustness of the meta-analytic results against missing data assumptions and potential bias, the following sensitivity analyses will be conducted:
 
-### 4.1. Single Imputation for SD (Pooled Mean)
-```python
-def impute_sd_from_pooled(df, group_col, sd_col):
- """
- Replaces NaN in sd_col with the mean SD of the same group_col category.
- Only applied if category count >= 3.
- """
- # Implementation details in code/data/cleaner.py
- pass
-```
+### 3.1. Blinding Bias Sensitivity
+**Criteria**: Compare the pooled effect size ($g$) and heterogeneity ($I^2$) between:
+1. **Full Set**: All included studies (treating "Unknown" blinding as a separate subgroup).
+2. **Restricted Set**: Only studies with explicitly reported "Blinded" raters.
+3. **Exclusion Set**: Studies with "Unblinded" or "Unknown" raters are removed.
 
-### 4.2. Sensitivity Analysis (Multiple Imputation)
-- For the primary report, we will use the single imputation strategy (Strategy C) to maintain transparency.
-- A sensitivity analysis using **Multiple Imputation by Chained Equations (MICE)** will be prepared if $N \geq 10$ studies have missing SDs. This will use the `statsmodels` or `sklearn.impute` libraries.
-- If $N < 10$, MICE is suppressed (per FR-014) to prevent overfitting, and the single imputation or exclusion strategy is used.
+**Decision Rule**: If the pooled effect size in the "Restricted Set" differs by more than 0.2 standard deviations from the "Full Set", or if the direction of the effect changes, the result is considered sensitive to rater bias.
 
-## 5. Sensitivity Analysis Plan
+### 3.2. Imputation Method Sensitivity
+**Criteria**: For studies where SD was imputed from CI or SE:
+1. **Primary**: Include imputed studies.
+2. **Secondary**: Exclude all studies requiring SD imputation.
 
-To ensure the robustness of results against missing data assumptions:
+**Decision Rule**: If the exclusion of imputed studies significantly alters the heterogeneity ($I^2$) or statistical significance ($p < 0.05$) of the pooled effect, the imputation strategy is flagged as a limiting factor.
 
-1. **Complete Case Analysis**: Run meta-analysis only on studies with zero missing data.
-2. **Imputed Dataset Analysis**: Run meta-analysis using the imputed values described in Section 3.
-3. **Worst-Case Scenario**: Assume missing SDs are 1.5x the pooled SD (increasing variance, reducing effect size significance).
-4. **Comparison**: If the direction of the pooled effect size changes or statistical significance is lost between Complete Case and Imputed analyses, the result will be reported as "Sensitive to missing data handling" in `docs/results.md`.
+### 3.3. Missing Outcome Sensitivity
+**Criteria**: Compare results when studies with missing "Social Skill" specific outcome measures (relying on proxy measures) are included vs. excluded.
+**Decision Rule**: If the effect size magnitude changes by >15%, the definition of "social skill outcome" is refined in the protocol.
 
-## 6. Reporting Standards
+## 4. Documentation of Missing Data
 
-- **PRISMA Flow Diagram**: Will explicitly state the number of studies excluded due to missing data.
-- **Table of Characteristics**: Will include a column indicating "Data Completeness" (e.g., "Full", "Imputed SD", "Excluded").
-- **Code Transparency**: All imputation logic and flags will be visible in the `data/processed/cleaned_studies.csv` via a `data_quality_flag` column.
-
-## 7. Software Implementation
-
-- **Imputation Logic**: `code/data/cleaner.py` (Task T016)
-- **Effect Size Calculation**: `code/analysis/effect_sizes.py` (Task T024)
-- **Sensitivity Checks**: `code/analysis/meta_analysis.py` (Task T025)
-- **Logging**: All imputation events are logged via `utils.logging.log_event` with `event_type='MISSING_DATA_HANDLING'`.
-
----
-*This plan is subject to update if the actual data from ClinicalTrials.gov and OSF reveals patterns of missingness not anticipated here.*
+All decisions regarding exclusion due to missing mandatory fields or imputation of effect size components will be logged in `data/raw/excluded_studies.log` (JSONL format) and summarized in the `docs/results.md` report. The number of studies excluded for each reason will be reported in the PRISMA flow diagram description.

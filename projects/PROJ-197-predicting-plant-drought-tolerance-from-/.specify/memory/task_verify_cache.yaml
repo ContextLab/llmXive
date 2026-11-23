@@ -1,0 +1,55 @@
+T012:
+  c: false
+  h: ae833df3bd6aa20fd900d4015a14e0fa3f834935b3740e5dd6a9a2c4d4a73e4c
+  r: "The repository contains a `code/data/generate.py` file, but it is truncated\
+    \ and lacks the required checks for T011b failure, real\u2011data detection/bypass,\
+    \ and the final write\u2011out of `data/processed/synthetic_genomics.csv` (the\
+    \ CSV file is missing). Consequently the script does not fully implement the specified\
+    \ synthetic data generation logic nor produce the required output file."
+T014a:
+  c: false
+  h: b6c1e96703ff8672a12d46f6d32bf5823f7654258f9e0fd977abfc0fed71064d
+  r: The required file `data/processed/real_phylo_matrix.npy` does not exist, so the
+    script cannot perform the existence check mandated by the task. Moreover, the
+    provided `code/data/ingest.py` is truncated and shows no concrete logic for handling
+    missing continuous traits based on that check. Both the dependency file and the
+    necessary handling code are missing.
+T016a:
+  c: false
+  h: 299fedf05a9003a2b4bea70ef3b3d30a19e3f9fe0790c7a57cf39a8252776260
+  r: "The required output file `data/processed/synthetic_phylo_matrix.npy` does not\
+    \ exist, and the provided `code/data/generate.py` only contains code for synthetic\
+    \ genomic feature generation (truncated) with no implementation of a symmetric\
+    \ phylogenetic distance matrix or saving to the specified path. The task\u2019\
+    s core requirement is therefore unmet."
+T016c:
+  c: false
+  h: f76c2a2d7de634529296fcb01ef8eaec422a60c325b0b62ef27e1b62fb390d5b
+  r: "The repository contains `code/data/download.py`, but the shown code is truncated\
+    \ and does not demonstrate the required function that fetches a tree, saves it\
+    \ to `data/raw/phylo_tree.newick`, and handles `VALIDATION_MODE` as specified.\
+    \ Moreover, the expected output file `data/raw/phylo_tree.newick` is absent. The\
+    \ task\u2019s core requirement\u2014producing a real phylogenetic tree file or\
+    \ logging the failure message\u2014is not met."
+T021:
+  c: false
+  h: b49d2262a0797b8405043de10a930febabf2dc2f062ff4d23b376e433fcf52db
+  r: The `train.py` file is truncated and does not contain a complete `train_knn_baseline`
+    implementation, and neither `data/processed/real_phylo_matrix.npy` nor `data/processed/synthetic_phylo_matrix.npy`
+    exist, so the required KNN baseline logic and necessary input data are missing.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No documentation files from `docs/reports/` were provided, nor any excerpt showing\
+    \ a limitation note about synthetic data. Without the actual updated docs, we\
+    \ cannot confirm the required artifact exists or contains the specified information.\
+    \ The implementer must add the updated report file(s) with the synthetic\u2011\
+    data limitation note."
+T037:
+  c: false
+  h: 4fed8601f1ef528d6267d40841c3f605a47521d6ca636c6e3675ccd1302bf9b4
+  r: "The provided `ingest.py` is truncated and does not contain code that records\
+    \ the excluded species IDs or writes them to `data/logs/metrics.json`. Moreover,\
+    \ `metrics.json` is empty (`{}`), lacking the required `\"excluded_species\"`\
+    \ list. The task\u2019s requirement to log exact excluded IDs and store them in\
+    \ the metrics file is therefore not satisfied."

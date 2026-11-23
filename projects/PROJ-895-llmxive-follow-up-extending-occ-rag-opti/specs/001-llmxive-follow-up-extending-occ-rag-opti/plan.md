@@ -5,7 +5,7 @@
 
 ## Summary
 
-This feature implements a gradient-free sensitivity analysis to test the hypothesis that faithful, context-grounded multi-hop reasoning in the OCC-RAG model relies on a sparse, localized sub-network. The plan covers: () independent single-unit masking to rank sensitivity, (2) construction of a pruned model retaining only critical parameters, (3) lightweight CPU-only fine-tuning to recover performance (with a control), and (4) statistical validation via paired t-test comparing sensitivity-ranked vs. random pruning. All operations are constrained to CPU-only execution within GitHub Actions free-tier limits (limited RAM, 6h runtime) using layer-wise loading.
+This feature implements a gradient-free sensitivity analysis to test the hypothesis that faithful, context-grounded multi-hop reasoning in the OCC-RAG model relies on a sparse, localized sub-network. The plan covers: () independent single-unit masking to rank sensitivity, (2) construction of a pruned model retaining only critical parameters, (3) lightweight CPU-only fine-tuning to recover performance (with a control), and (4) statistical validation via paired t-test comparing sensitivity-ranked vs. random pruning. All operations are constrained to CPU-only execution within GitHub Actions free-tier limits (limited RAM, bounded runtime) using layer-wise loading.
 
 ## Technical Context
 
@@ -16,8 +16,8 @@ This feature implements a gradient-free sensitivity analysis to test the hypothe
 **Target Platform**: Linux (GitHub Actions free-tier runner)  
 **Project Type**: computational research / data science  
 **Performance Goals**: Memory < 7 GB RAM (via layer-wise loading); Runtime < 6 hours for full pipeline on sampled data  
-**Constraints**: No GPU/CUDA; no 8-bit/4-bit quantization; no deep-net training from scratch; dataset sampling required if A full dataset exceeds RAM capacity.; **10k** fine-tuning subset explicitly defined  
-**Scale/Scope**: Large-scale model (frozen for inference, pruned for fine-tuning); **10k** synthetic examples for fine-tuning; A large synthetic corpus for sensitivity analysis (sampled)
+**Constraints**: No GPU/CUDA; no 8-bit/4-bit quantization; no deep-net training from scratch; dataset sampling required if A full dataset exceeds RAM capacity.; **k** fine-tuning subset explicitly defined  
+**Scale/Scope**: Large-scale model (frozen for inference, pruned for fine-tuning); **k** synthetic examples for fine-tuning; A large synthetic corpus for sensitivity analysis (sampled)
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 

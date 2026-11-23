@@ -1,0 +1,8 @@
+project_id: PROJ-487
+branch: 001-news-volume-anxiety
+created: "2026-06-27"
+artifact_hashes:
+  gdelt_events.csv: 5d41402abc4b2a76b9719d911017c592
+  google_trends.csv: 7d865e959b2466918c9863afca942d0f
+status: active
+last_updated: "2026-06-27T12:00:00Z"

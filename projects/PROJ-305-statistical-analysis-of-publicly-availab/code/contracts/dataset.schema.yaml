@@ -1,0 +1,11 @@
+# Dataset Schema for VAERS COVID-19 Vaccine Adverse Event Analysis
+# Defines required columns for raw data validation
+required_columns:
+  - VAX_TYPE
+  - SOC_CODE
+  - REPT_DATE
+  - AGE
+  - LLT
+  - ID
+description: "Schema for validating raw VAERS CSV files before processing"
+version: "1.0"

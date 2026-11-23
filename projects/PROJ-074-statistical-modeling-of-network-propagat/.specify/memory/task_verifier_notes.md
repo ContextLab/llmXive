@@ -1,0 +1,9 @@
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T002** — Requested task execution failed; rerun successfully: code/setup/verify_environment.py exit=1; code/setup/setup_env.sh exit=1
+- **T003** — The evidence provides only the project root location and no concrete files configuring ruff or black (e.g., a `pyproject.toml` with `[tool.black]` / `[tool.ruff]` sections, `.ruff.toml`, or pre‑commit hook definitions). Without these configuration artifacts, the task “Configure linting (ruff) and formatting (black) tools” is not satisfied. Adding the appropriate config files (and optionally a `requirements-dev.txt` or `pre-commit` setup) is required.
+- **T005** — Checked `run_pipeline.sh` (7 437 bytes). It sets `OMP_NUM_THREADS=2`, provides placeholder stage sections and logs to `pipeline.log`, but the memory‑monitoring hook aborts when **available** memory is below 7 GB rather than when RAM usage exceeds 7 GB as required. The logic is inverted, so the task’s memory‑limit requirement is not met.
+- **T010** — The evidence collector shows no artifacts for this task — no code implementing node-limit validation, no `skipped_cascades.log`, and no execution evidence that a cascade exceeding 2,000 nodes was actually logged and skipped. The task's claim cannot be verified from any on-disk artifact; the implementer must add the validation logic (e.g., in the ingestion/pipeline code) and demonstrate a run where an oversized cascade's identifier is recorded in `skipped_cascades.log` and excluded from processing.
+- **T019** — declared artifact(s) missing/empty/invalid: model_spec.yaml

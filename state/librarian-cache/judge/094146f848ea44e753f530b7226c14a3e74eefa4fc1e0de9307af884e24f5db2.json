@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2603.01691",
+  "judged_at": "2026-10-12T00:46:05Z",
+  "model": "openai.gpt-oss-120b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"anti-self-distillation for reasoning rl via pointwise mutual informati\" computer science",
+  "rationale": "The paper focuses on adapting and evaluating a Slovene instruction language model, without addressing anti-self-distillation, pointwise mutual information, or reasoning‑oriented reinforcement learning, so it does not meet any inclusion criteria (a‑f).",
+  "relevant": false
+}

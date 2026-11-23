@@ -1,0 +1,14 @@
+status: none
+intent: S-AgentK 3D scene geometry download python package dataset
+required_fields:
+- scene_id
+- object_id
+- object_type
+- position_x
+- position_y
+- position_z
+- relation_type
+- related_object_id
+cache_key: 3782a628f7b65315bc56136f198ce590488aaddd85823abcd7d38fbaef031f15
+searched_at: '2026-11-09T21:12:36.289728+00:00'
+retry_count: 1

@@ -1,0 +1,44 @@
+T001:
+  c: true
+  h: 0e67f0e7b2ca892794ecab6e7c51d1ffe3d8f7432572e0f37627bd594cd0b527
+  r: "The repository includes a top\u2011level `code/` folder and within it the required\
+    \ subdirectories `agent/`, `memory/`, `metrics/`, `analysis/`, `data/`, `utils/`,\
+    \ and `tests/`, satisfying the directory\u2011structure requirement."
+T002:
+  c: false
+  h: 1e67820277ca867bc78d83bded944da3525e635b050e69d92d21dc399e63b571
+  r: "The only artifact present is the `requirements.txt` file; there is no evidence\
+    \ of a Python virtual environment being created (e.g., a `venv/` directory, `pyproject.toml`,\
+    \ `Pipfile.lock`, or a `pip freeze`/`requirements.txt` generated after installation).\
+    \ Without a concrete virtual environment and installed packages, the task \u201C\
+    initialize Python virtual environment and install dependencies\u201D is not fulfilled."
+T003:
+  c: true
+  h: 6a8f48a699ee5bc981d2b2b3059142218fec6ad2cb02676bfb7b5f889e088997
+  r: "The `code/.pre-commit-config.yaml` file exists and contains properly configured\
+    \ `black` and `flake8` hooks with appropriate versions and arguments, fulfilling\
+    \ the task\u2019s requirement to set up linting and formatting tools."
+T004:
+  c: false
+  h: a7c176acbaef14e90c8a87a253f107151e2ad3cc035c510b97acde0d76bd44a8
+  r: "The provided `code/data/loaders.py` does not attempt to call `gymnasium.make('hanabi-v0')`\
+    \ or `datasets.load_dataset('coqa')`, nor does it log errors or write a `data/verification_status.json`\
+    \ file with the required schema. Additionally, the `data/verification_status.json`\
+    \ file is absent. The task\u2019s verification and output requirements are therefore\
+    \ unmet."
+T004b:
+  c: true
+  h: 5dad52d1a27392b9fb29600493cabe4d5f136a3b7f84ed0105542b11ec3301b0
+  r: "The `code/data/synthetic.py` file is present and implements deterministic extraction\
+    \ of cue\u2011response pairs from supplied real context spans, enforces a minimum\
+    \ of 10 pairs (via `MIN_CUES_PER_GAME` and validation logic), and raises errors\
+    \ instead of fabricating data. No placeholder or random generation is used, satisfying\
+    \ the synthetic fallback requirement."
+T004c:
+  c: false
+  h: d54a1d4b4dcc4042f4585909a3bc394140c21d11b9745554cc250461d00cb14d
+  r: "The `loaders.py` file only defines a synthetic\u2011fallback flag and raises\
+    \ a `KeyError`; it never invokes the T004b synthetic generator, does not tie fallback\
+    \ to a failed verification step, and does not log `[FALLBACK] Synthetic cues generated\
+    \ for dataset [NAME]` to `experiment.log`. Consequently the required fallback\
+    \ logic is not implemented."

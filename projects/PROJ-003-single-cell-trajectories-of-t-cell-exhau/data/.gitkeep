@@ -1,0 +1,4 @@
+# This directory structure is managed by the pipeline
+# data/raw/ - Raw downloaded data
+# data/processed/ - Normalized and QC-filtered data
+# data/results/ - Final analysis outputs

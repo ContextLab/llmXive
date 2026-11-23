@@ -1,0 +1,43 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Detection Metric Schema
+description: Schema for validation of aggregated detection probability metrics per resolution.
+type: object
+required:
+  - p_value
+  - method
+  - detection_probability
+  - resolution
+  - n_injections
+properties:
+  p_value:
+    type: number
+    description: Statistical p-value from the significance test (e.g., Welch's t-test).
+    minimum: 0
+    maximum: 1
+  method:
+    type: string
+    description: Name of the statistical method used (e.g., "Welch's t-test", "Mann-Whitney U").
+  detection_probability:
+    type: number
+    description: Fraction of injections with re-weighted SNR > 8.
+    minimum: 0
+    maximum: 1
+  resolution:
+    type: integer
+    description: Sampling frequency of the data in Hz.
+    minimum: 64
+  n_injections:
+    type: integer
+    description: Number of injections performed for this resolution.
+    minimum: 1
+  confidence_interval_95:
+    type: array
+    description: Optional 95% confidence interval for the detection probability [lower, upper].
+    items:
+      type: number
+    minItems: 2
+    maxItems: 2
+  comparison_resolution:
+    type: integer
+    description: Optional resolution used as the baseline for comparison.
+additionalProperties: false

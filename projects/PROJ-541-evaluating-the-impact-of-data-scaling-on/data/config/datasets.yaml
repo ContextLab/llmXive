@@ -1,76 +1,152 @@
-# Dataset Configuration for Real-World Validation (US4)
-# This file lists verified datasets from UCI and OpenML to be used in the pipeline.
-# Format: ID, Source, Expected Size (approximate rows), Description
+# Verified Real-World Datasets Configuration
+# Generated for PROJ-541: Evaluating the Impact of Data Scaling on Robustness of Statistical Tests
+# Sources verified against research.md and Hugging Face Datasets registry.
+# These datasets are programmatically accessible and suitable for streaming ingestion.
 
 datasets:
   - id: "uciml/iris"
-    source: "UCI Machine Learning Repository"
-    expected_size: 150
-    description: "Classic iris flower classification dataset with 4 features."
-    type: "classification"
-    
-  - id: "uciml/wine"
-    source: "UCI Machine Learning Repository"
-    expected_size: 178
-    description: "Chemical analysis of wines grown in the same region of Italy."
-    type: "classification"
-    
-  - id: "uciml/breast-cancer-wisconsin"
-    source: "UCI Machine Learning Repository"
-    expected_size: 699
-    description: "Breast cancer diagnosis data with benign/malignant labels."
-    type: "classification"
-    
-  - id: "uciml/heart-statlog"
-    source: "UCI Machine Learning Repository"
-    expected_size: 270
-    description: "Heart disease diagnosis data from the Statlog project."
-    type: "classification"
-    
-  - id: "uciml/ionosphere"
-    source: "UCI Machine Learning Repository"
-    expected_size: 351
-    description: "Radar signals from the ionosphere, binary classification."
-    type: "classification"
-    
-  - id: "uciml/credit-a"
-    source: "UCI Machine Learning Repository"
-    expected_size: 690
-    description: "Australian credit card application approval data."
-    type: "classification"
-    
-  - id: "uciml/credit-g"
-    source: "UCI Machine Learning Repository"
-    expected_size: 1000
-    description: "German credit risk assessment data."
-    type: "classification"
-    
-  - id: "uciml/hepatitis"
-    source: "UCI Machine Learning Repository"
-    expected_size: 155
-    description: "Hepatitis patient data for survival prediction."
-    type: "classification"
-    
-  - id: "uciml/horse-colic"
-    source: "UCI Machine Learning Repository"
-    expected_size: 368
-    description: "Horse colic veterinary data, missing values expected."
-    type: "classification"
-    
-  - id: "openml/d/2"
+    name: "Iris Dataset"
+    source: "UCI"
+    type: "tabular"
+    description: "Classic classification dataset with 150 samples, 4 features. Ideal for testing scaling effects on small datasets."
+    streaming_compatible: true
+    config: "default"
+    splits: ["train", "test"]
+    target_column: "label"
+    features:
+      - "sepal_length"
+      - "sepal_width"
+      - "petal_length"
+      - "petal_width"
+    verification_status: "verified"
+    last_verified: "2026-07-18"
+
+  - id: "scikit-learn/digits"
+    name: "Optical Recognition of Handwritten Digits"
+    source: "UCI / Scikit-learn"
+    type: "tabular"
+    description: "8x8 images of handwritten digits (64 features). 1797 samples. Good for medium-sized scaling tests."
+    streaming_compatible: true
+    config: "default"
+    splits: ["train", "test"]
+    target_column: "target"
+    features:
+      - "pixel_0"
+      - "pixel_1"
+      - "pixel_2"
+      - "pixel_3"
+      - "pixel_4"
+      - "pixel_5"
+      - "pixel_6"
+      - "pixel_7"
+      - "pixel_8"
+      - "pixel_9"
+      - "pixel_10"
+      - "pixel_11"
+      - "pixel_12"
+      - "pixel_13"
+      - "pixel_14"
+      - "pixel_15"
+      - "pixel_16"
+      - "pixel_17"
+      - "pixel_18"
+      - "pixel_19"
+      - "pixel_20"
+      - "pixel_21"
+      - "pixel_22"
+      - "pixel_23"
+      - "pixel_24"
+      - "pixel_25"
+      - "pixel_26"
+      - "pixel_27"
+      - "pixel_28"
+      - "pixel_29"
+      - "pixel_30"
+      - "pixel_31"
+      - "pixel_32"
+      - "pixel_33"
+      - "pixel_34"
+      - "pixel_35"
+      - "pixel_36"
+      - "pixel_37"
+      - "pixel_38"
+      - "pixel_39"
+      - "pixel_40"
+      - "pixel_41"
+      - "pixel_42"
+      - "pixel_43"
+      - "pixel_44"
+      - "pixel_45"
+      - "pixel_46"
+      - "pixel_47"
+      - "pixel_48"
+      - "pixel_49"
+      - "pixel_50"
+      - "pixel_51"
+      - "pixel_52"
+      - "pixel_53"
+      - "pixel_54"
+      - "pixel_55"
+      - "pixel_56"
+      - "pixel_57"
+      - "pixel_58"
+      - "pixel_59"
+      - "pixel_60"
+      - "pixel_61"
+      - "pixel_62"
+      - "pixel_63"
+    verification_status: "verified"
+    last_verified: "2026-07-18"
+
+  - id: "davidblass/healthcare-dataset-stroke-data"
+    name: "Healthcare Dataset - Stroke Data"
+    source: "Kaggle (Mirrored via Hugging Face)"
+    type: "tabular"
+    description: "Patient data including age, hypertension, heart disease, and stroke outcome. Contains missing values for robustness testing."
+    streaming_compatible: true
+    config: "default"
+    splits: ["train"]
+    target_column: "stroke"
+    features:
+      - "id"
+      - "gender"
+      - "age"
+      - "hypertension"
+      - "heart_disease"
+      - "ever_married"
+      - "work_type"
+      - "Residence_type"
+      - "avg_glucose_level"
+      - "bmi"
+      - "smoking_status"
+    verification_status: "verified"
+    last_verified: "2026-07-18"
+
+  - id: "openml/openml-20"
+    name: "OpenML-20 (AutoMPG)"
     source: "OpenML"
-    expected_size: 1000
-    description: "Adult income prediction dataset (OpenML ID 2)."
-    type: "classification"
-    
-  - id: "openml/d/3"
-    source: "OpenML"
-    expected_size: 2000
-    description: "Vehicle classification dataset (OpenML ID 3)."
-    type: "classification"
-    
-  - id: "openml/d/11"
-    source: "OpenML"
-    expected_size: 500
-    description: "Heart disease dataset (OpenML ID 11)."
-    type: "classification"
+    type: "tabular"
+    description: "Auto MPG dataset for regression analysis. Good for testing continuous variable scaling."
+    streaming_compatible: true
+    config: "default"
+    splits: ["train"]
+    target_column: "mpg"
+    features:
+      - "cylinders"
+      - "displacement"
+      - "horsepower"
+      - "weight"
+      - "acceleration"
+      - "model_year"
+      - "origin"
+    verification_status: "verified"
+    last_verified: "2026-07-18"
+
+# Metadata
+metadata:
+  generated_by: "T048 Dataset Configuration Update"
+  project_id: "PROJ-541"
+  total_datasets: 4
+  verification_method: "Hugging Face Datasets API"
+  notes: "All datasets are verified to be accessible via `datasets.load_dataset` with streaming=True.
+         Datasets selected to cover small (Iris), medium (Digits), and real-world messy (Stroke, AutoMPG) scenarios."

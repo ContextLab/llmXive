@@ -18,7 +18,8 @@ properties:
         type: integer
       checksum:
         type: string
-        description: "SHA-256 checksum of this file (recorded in state/)"
+        description: "SHA-256 checksum of this file (recorded in state/)."
+    additionalProperties: false
   labels:
     type: array
     items:
@@ -60,4 +61,5 @@ properties:
         type: number
         minimum: 0.0
         maximum: 1.0
+    additionalProperties: false
 additionalProperties: false

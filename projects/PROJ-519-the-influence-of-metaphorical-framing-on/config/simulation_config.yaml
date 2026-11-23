@@ -1,0 +1,57 @@
+# Simulation and Execution Configuration
+# Used for pinned random seeds, synthetic data parameters (experimental only),
+# and sampling thresholds.
+#
+# Note: This file is distinct from environment variables (see .env).
+# It controls algorithmic behavior and dataset generation constraints.
+
+# --- Random Seeds ---
+# Ensure reproducibility across all stochastic processes
+random_seed: 42
+numpy_seed: 42
+torch_seed: 42  # If PyTorch is introduced later
+
+# --- Synthetic Data Parameters (Experimental Only) ---
+# These parameters are used ONLY when generating simulated participants
+# for testing the pipeline (e.g., T013, T013b).
+# Real data collection (T013b, T014a) ignores these.
+synthetic_data:
+  # Default number of participants to generate if none specified
+  corpus_size: 1000
+  # Distribution of conditions: Battle, Journey, Medical (Control)
+  condition_distribution:
+    battle: 0.33
+    journey: 0.33
+    medical: 0.34
+  # Demographic ranges for simulation
+  demographics:
+    age_min: 18
+    age_max: 65
+    gender_options: ["Male", "Female", "Non-binary", "Prefer not to say"]
+
+# --- Runtime & Sampling Constraints ---
+# Prevents runaway processes on large datasets (US2)
+execution_limits:
+  # Maximum allowed runtime for a single script execution
+  MAX_RUNTIME_SECONDS: 3600
+  # Fallback sample size if streaming exceeds memory/time limits
+  # Used in T025b for stratified sampling
+  SAMPLE_SIZE_FALLBACK: 5000
+  # Memory limit in GB (soft warning threshold)
+  MAX_MEMORY_GB: 7.0
+
+# --- Logging & Verbose Settings ---
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  # Enable detailed debug logs for data ingestion steps
+  debug_data_ingestion: false
+
+# --- Feature Flags ---
+# Toggle behavior for specific research requirements
+features:
+  # If True, US2 loader will attempt real fetch first and fail loudly if missing
+  # If False, it might allow fallback to static file without warning (not recommended)
+  USE_REAL_DATA_ONLY: true
+  # Enable attention check logic in data validation
+  ENABLE_ATTENTION_CHECKS: true

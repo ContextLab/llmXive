@@ -1,0 +1,17 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Exclusion Report Schema"
+type: "object"
+properties:
+  mol_id:
+    type: "string"
+    description: "Unique molecule identifier"
+  reason:
+    type: "string"
+    description: "Reason for exclusion (e.g., missing_3d_coords)"
+  original_row:
+    type: "integer"
+    description: "Original row index in raw dataset"
+required:
+  - mol_id
+  - reason
+  - original_row

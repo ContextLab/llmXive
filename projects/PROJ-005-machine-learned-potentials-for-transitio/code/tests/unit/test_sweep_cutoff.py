@@ -1,132 +1,117 @@
 """
-Unit tests for sweep_cutoff.py sensitivity analysis logic.
+Unit tests for T017: sweep_cutoff sensitivity analysis.
 """
 import json
 import tempfile
 from pathlib import Path
-from unittest.mock import patch, MagicMock
 import numpy as np
 import pandas as pd
 import pytest
 
 from src.data.sweep_cutoff import (
+    build_adjacency_matrix,
+    calculate_edge_feature_stability,
     analyze_cutoff,
-    parse_atomic_features,
-    run_sensitivity_analysis,
-    CUTOFF_VALUES
+    get_project_root
 )
 
-class TestAnalyzeCutoff:
-    def test_empty_graph(self):
-        """Test handling of a graph with 0 nodes."""
-        atomic_numbers = np.array([])
-        positions = np.array([]).reshape(0, 3)
-        
-        result = analyze_cutoff(atomic_numbers, positions, 3.5)
-        
-        assert result["num_nodes"] == 0
-        assert result["num_edges"] == 0
-        assert result["density"] == 0.0
-        assert result["avg_coordination"] == 0.0
-
-    def test_single_node(self):
-        """Test handling of a graph with 1 node."""
-        atomic_numbers = np.array([6])  # Carbon
-        positions = np.array([[0.0, 0.0, 0.0]])
-        
-        result = analyze_cutoff(atomic_numbers, positions, 3.5)
-        
-        assert result["num_nodes"] == 1
-        assert result["num_edges"] == 0
-        assert result["density"] == 0.0
-        assert result["avg_coordination"] == 0.0
-
-    def test_two_nodes_within_cutoff(self):
-        """Test graph with two nodes within cutoff distance."""
-        atomic_numbers = np.array([6, 6])
-        positions = np.array([[0.0, 0.0, 0.0], [2.0, 0.0, 0.0]])  # 2.0 Angstroms apart
-        
-        result = analyze_cutoff(atomic_numbers, positions, 2.5)
-        
-        assert result["num_nodes"] == 2
-        assert result["num_edges"] == 1
-        assert result["density"] == 1.0  # Max edges for 2 nodes is 1
-        assert result["avg_coordination"] == 1.0
-        assert result["max_coordination"] == 1
-
-    def test_two_nodes_outside_cutoff(self):
-        """Test graph with two nodes outside cutoff distance."""
-        atomic_numbers = np.array([6, 6])
-        positions = np.array([[0.0, 0.0, 0.0], [4.0, 0.0, 0.0]])  # 4.0 Angstroms apart
-        
-        result = analyze_cutoff(atomic_numbers, positions, 3.5)
-        
-        assert result["num_nodes"] == 2
-        assert result["num_edges"] == 0
-        assert result["density"] == 0.0
-        assert result["avg_coordination"] == 0.0
-
-    def test_stability_score_calculation(self):
-        """Test that stability score is calculated correctly."""
-        # Create a graph with uniform edge lengths (perfect stability)
-        atomic_numbers = np.array([6, 6, 6])
-        # Equilateral triangle with side ~2.0
+class TestBuildAdjacencyMatrix:
+    def test_simple_triangle(self):
+        # 3 atoms forming a triangle with side ~1.5 Angstroms
+        # Cutoff 2.0 should connect all
         positions = np.array([
             [0.0, 0.0, 0.0],
-            [2.0, 0.0, 0.0],
-            [1.0, np.sqrt(3.0), 0.0]
+            [1.5, 0.0, 0.0],
+            [0.0, 1.5, 0.0]
+        ])
+        adj = build_adjacency_matrix(positions, cutoff=2.0)
+        
+        # Distances: (0,1)=1.5, (0,2)=1.5, (1,2)=~2.12
+        # With cutoff 2.0:
+        # 0-1: True
+        # 0-2: True
+        # 1-2: False (2.12 > 2.0)
+        
+        assert adj[0, 1] == True
+        assert adj[1, 0] == True
+        assert adj[0, 2] == True
+        assert adj[2, 0] == True
+        assert adj[1, 2] == False
+        assert adj[2, 1] == False
+        assert np.all(np.diag(adj) == False) # No self loops
+
+    def test_cutoff_sensitivity(self):
+        positions = np.array([
+            [0.0, 0.0, 0.0],
+            [2.5, 0.0, 0.0]
         ])
         
-        result = analyze_cutoff(atomic_numbers, positions, 2.5)
+        # Cutoff 2.0 -> disconnected
+        adj_2 = build_adjacency_matrix(positions, cutoff=2.0)
+        assert np.sum(adj_2) == 0
         
-        # Variance should be 0 (or near 0 due to float precision)
-        assert result["feature_stability_score"] >= 0.9  # High stability
-        assert result["num_edges"] == 3
+        # Cutoff 3.0 -> connected
+        adj_3 = build_adjacency_matrix(positions, cutoff=3.0)
+        assert np.sum(adj_3) == 2 # 0-1 and 1-0
 
-class TestParseAtomicFeatures:
-    def test_parse_valid_row(self):
-        """Test parsing a valid row from the dataframe."""
-        row_data = {
-            'atomic_numbers': [6, 7, 8],
-            'positions': [[0, 0, 0], [1, 1, 1], [2, 2, 2]]
-        }
-        row = MagicMock()
-        row.__getitem__ = lambda self, key: row_data[key]
+class TestCalculateEdgeFeatureStability:
+    def test_single_molecule(self):
+        # Single molecule, 4 atoms in a line
+        # Positions: 0, 1, 2, 3 Angstroms apart
+        positions = [np.array([
+            [0.0, 0.0, 0.0],
+            [1.0, 0.0, 0.0],
+            [2.0, 0.0, 0.0],
+            [3.0, 0.0, 0.0]
+        ])]
+        atomic_numbers = [[6, 6, 6, 6]] # Carbon
         
-        atomic_numbers, positions = parse_atomic_features(row)
+        cutoffs = [1.5, 2.5]
+        results = calculate_edge_feature_stability(atomic_numbers, positions, cutoffs)
         
-        assert isinstance(atomic_numbers, np.ndarray)
-        assert isinstance(positions, np.ndarray)
-        assert len(atomic_numbers) == 3
-        assert positions.shape == (3, 3)
+        # Cutoff 1.5: connects 0-1, 1-2. (2-3 is 1.0? No, 2.0-3.0 is 1.0. Wait.
+        # Positions: 0, 1, 2, 3.
+        # Distances:
+        # 0-1: 1.0 (< 1.5) -> Connected
+        # 1-2: 1.0 (< 1.5) -> Connected
+        # 2-3: 1.0 (< 1.5) -> Connected
+        # 0-2: 2.0 (> 1.5) -> No
+        # 1-3: 2.0 (> 1.5) -> No
+        # Edges: (0,1), (1,0), (1,2), (2,1), (2,3), (3,2) -> 6 edges
+        
+        assert results[1.5]["edge_count"] == 6
+        
+        # Cutoff 2.5:
+        # 0-2: 2.0 (< 2.5) -> Connected
+        # 1-3: 2.0 (< 2.5) -> Connected
+        # 0-3: 3.0 (> 2.5) -> No
+        # New edges: (0,2), (2,0), (1,3), (3,1) -> 4 new
+        # Total: 6 + 4 = 10
+        
+        assert results[2.5]["edge_count"] == 10
 
-class TestRunSensitivityAnalysis:
-    def test_run_on_mock_dataframe(self):
-        """Test running the analysis on a mock dataframe."""
-        # Create a mock dataframe
-        data = {
-            'atomic_numbers': [
-                [6, 6],
-                [6, 6, 6]
-            ],
-            'positions': [
-                [[0, 0, 0], [2, 0, 0]],
-                [[0, 0, 0], [2, 0, 0], [1, 1.732, 0]]
-            ]
-        }
-        df = pd.DataFrame(data)
+class TestAnalyzeCutoff:
+    def test_output_structure(self):
+        positions = [np.array([[0.0, 0.0, 0.0], [1.0, 0.0, 0.0]])]
+        atomic_numbers = [[1, 1]]
+        cutoffs = [1.5, 2.0]
         
-        results = run_sensitivity_analysis(df)
+        result = analyze_cutoff(atomic_numbers, positions, cutoffs)
         
-        assert isinstance(results, list)
-        assert len(results) == len(CUTOFF_VALUES)
+        assert "cutoffs_tested" in result
+        assert "metrics_per_cutoff" in result
+        assert "stability_analysis" in result
+        assert "summary" in result
         
-        # Check structure of first result
-        first_result = results[0]
-        assert "cutoff" in first_result
-        assert "avg_num_nodes" in first_result
-        assert "avg_density" in first_result
+        assert 1.5 in result["metrics_per_cutoff"]
+        assert 2.0 in result["metrics_per_cutoff"]
         
-        # Verify cutoff value matches
-        assert first_result["cutoff"] in CUTOFF_VALUES
-        assert first_result["num_samples_processed"] == 2
+        # Check stability analysis length
+        assert len(result["stability_analysis"]) == 1
+
+class TestGetProjectRoot:
+    def test_returns_path(self):
+        root = get_project_root()
+        assert isinstance(root, Path)
+        # Should be an absolute path
+        assert root.is_absolute()

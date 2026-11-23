@@ -1,63 +1,88 @@
 import os
 import logging
-from pathlib import Path
 import pytest
-from setup_logging import setup_logging, get_data_quality_logger, get_model_diagnostics_logger, LOG_DIR
+from pathlib import Path
+import sys
+
+# Ensure code directory is in path
+sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+
+from setup_logging import (
+    ensure_directories,
+    get_data_quality_logger,
+    get_model_diagnostics_logger,
+    get_exclusion_logger,
+    LOG_DIR
+)
 
 @pytest.fixture(autouse=True)
-def ensure_log_dir():
-    """Ensure the log directory exists before each test."""
-    LOG_DIR.mkdir(parents=True, exist_ok=True)
-    yield
-    # Cleanup: Remove generated log files after test to keep results clean
-    for file in LOG_DIR.glob("*.log"):
-        file.unlink()
+def setup_log_dir(tmp_path, monkeypatch):
+    """Fixture to redirect logs to a temporary directory for testing."""
+    temp_log_dir = tmp_path / "logs"
+    monkeypatch.setattr("setup_logging.LOG_DIR", str(temp_log_dir))
+    # Re-import to pick up the monkeypatched value if necessary, 
+    # but since LOG_DIR is evaluated at import time in the module, 
+    # we ensure the function uses the module-level variable correctly.
+    # The setup_logging module reads LOG_DIR at import. 
+    # To make this test robust, we will reload the module or ensure the functions 
+    # read the variable dynamically. 
+    # Given the current implementation, LOG_DIR is read at module load.
+    # We will rely on the fact that we are running in a fresh process or 
+    # monkeypatching the module attribute directly.
+    import setup_logging
+    setup_logging.LOG_DIR = str(temp_log_dir)
+    return temp_log_dir
 
-def test_setup_logging_creates_directory():
-    """Verify that setup_logging ensures the results/logs directory exists."""
-    setup_logging()
-    assert LOG_DIR.exists(), "Log directory should be created by setup_logging"
-    assert LOG_DIR.is_dir(), "Log path should be a directory"
+def test_ensure_directories_creates_path(setup_log_dir):
+    """Test that ensure_directories creates the log directory if it doesn't exist."""
+    new_dir = setup_log_dir / "subdir"
+    # The function should create the base LOG_DIR, but we can test creation logic
+    # by calling the internal logic or ensuring the base exists.
+    assert setup_log_dir.exists()
 
-def test_get_data_quality_logger_creates_file():
-    """Verify that the data quality logger creates a log file upon first use."""
-    logger = get_data_quality_logger("test_dq")
-    logger.info("Test message for data quality logger")
+def test_get_data_quality_logger_writes_file(setup_log_dir):
+    """Test that the data quality logger creates a file."""
+    logger = get_data_quality_logger()
+    # Clear handlers to avoid duplicates from previous runs if any
+    logger.handlers.clear()
     
-    # Check that at least one log file exists
-    log_files = list(LOG_DIR.glob("data_quality_*.log"))
-    assert len(log_files) > 0, "Data quality log file should be created"
+    # Re-attach handlers using the setup logic manually for test isolation
+    # or rely on the fact that the logger is configured once.
+    # We will trigger a log write.
+    logger.info("Test data quality entry")
     
-    # Verify the file is not empty
-    log_file = log_files[0]
-    assert log_file.stat().st_size > 0, "Log file should contain the test message"
+    # Check that a file was created
+    files = list(setup_log_dir.glob("data_quality_*.log"))
+    assert len(files) >= 1, f"Expected data quality log file, found: {files}"
 
-def test_get_model_diagnostics_logger_creates_file():
-    """Verify that the model diagnostics logger creates a log file upon first use."""
-    logger = get_model_diagnostics_logger("test_md")
-    logger.info("Test message for model diagnostics logger")
+def test_get_model_diagnostics_logger_writes_file(setup_log_dir):
+    """Test that the model diagnostics logger creates a file."""
+    logger = get_model_diagnostics_logger()
+    logger.handlers.clear()
+    logger.info("Test model diagnostic entry")
     
-    # Check that at least one log file exists
-    log_files = list(LOG_DIR.glob("model_diagnostics_*.log"))
-    assert len(log_files) > 0, "Model diagnostics log file should be created"
-    
-    # Verify the file is not empty
-    log_file = log_files[0]
-    assert log_file.stat().st_size > 0, "Log file should contain the test message"
+    files = list(setup_log_dir.glob("model_diagnostics_*.log"))
+    assert len(files) >= 1, f"Expected model diagnostics log file, found: {files}"
 
-def test_loggers_write_correct_format():
-    """Verify that log entries contain expected timestamp and level."""
-    dq_logger = get_data_quality_logger("test_format")
-    msg = "Format test message"
-    dq_logger.warning(msg)
+def test_get_exclusion_logger_writes_file(setup_log_dir):
+    """Test that the exclusion logger creates a file."""
+    logger = get_exclusion_logger()
+    logger.handlers.clear()
+    logger.warning("Test exclusion entry")
     
-    log_files = list(LOG_DIR.glob("data_quality_*.log"))
-    assert len(log_files) > 0
+    files = list(setup_log_dir.glob("exclusion_*.log"))
+    assert len(files) >= 1, f"Expected exclusion log file, found: {files}"
+
+def test_log_content_format(setup_log_dir):
+    """Test that log files contain expected formatting."""
+    logger = get_data_quality_logger()
+    logger.handlers.clear()
+    logger.info("Specific test message")
     
-    with open(log_files[0], 'r') as f:
-        content = f.read()
+    files = list(setup_log_dir.glob("data_quality_*.log"))
+    assert files
     
-    assert "WARNING" in content, "Log should contain the level"
-    assert msg in content, "Log should contain the message"
-    # Basic check for timestamp format (YYYY-MM-DD)
-    assert len(content) > 20, "Log entry should include a timestamp"
+    content = files[0].read_text()
+    assert "Specific test message" in content
+    assert "INFO" in content
+    assert "data_quality" in content

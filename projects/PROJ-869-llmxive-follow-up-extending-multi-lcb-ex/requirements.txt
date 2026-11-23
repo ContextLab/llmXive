@@ -1,0 +1,7 @@
+# Core scientific dependencies (pinned versions)
+datasets>=2.0.0
+pyarrow>=12.0.0
+pandas>=2.2.0
+# Existing environment already provides: numpy, scipy, matplotlib,
+# scikit-learn, statsmodels, seaborn, pytest, PyYAML, requests,
+# jsonschema, psutil

@@ -1,0 +1,19 @@
+status: none
+intent: download North American bird occurrence dataset GBIF eBird WorldClim v2 climate
+  rasters python package dataset
+required_fields:
+- species_name
+- observation_id
+- source_dataset
+- observation_date
+- year
+- month
+- decimal_latitude
+- decimal_longitude
+- climate_bio1_temperature_mean
+- climate_bio12_annual_precipitation
+- climate_bio2_mean_diurnal_range
+- climate_bio3_isothermality
+cache_key: c7e2403659eaa85f61418f6b86829706643cc034f2d6fabdf29e6ea09521a2a0
+searched_at: '2026-10-23T12:40:16.326790+00:00'
+retry_count: 1

@@ -6,7 +6,7 @@ failed_stage: null
 field: other
 human_escalation_reason: null
 id: PROJ-819-llmxive-follow-up-extending-heterogeneou
-last_run_id: 978894d2-ee90-49bf-938d-82dfa173d6c1
+last_run_id: 61bcff4d-50f4-4866-81fb-217d42fa1357
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-819-llmxive-follow-up-extending-heterogeneou/specs/001-llmxive-follow-up-extending-heterogeneou
 title: 'llmXive follow-up: extending "Heterogeneous Scientific Foundation Model Collaboration"'
-updated_at: '2026-07-12T21:49:27.040677Z'
+updated_at: '2026-08-13T20:15:08.547789Z'

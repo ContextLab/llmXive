@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LIVConstraint Schema"
+description: "Schema for a derived Lorentz Invariance Violation constraint."
+type: "object"
+properties:
+  grb_id:
+    type: "string"
+    description: "Foreign key to GRBEvent. Use 'global' for aggregate results."
+  energy_scale_gev:
+    type: "number"
+    minimum: 0
+    description: "Upper bound on E_QG in GeV."
+  confidence_level:
+    type: "number"
+    minimum: 0
+    maximum: 1
+    description: "Confidence level (e.g., 0.95)."
+  method:
+    type: "string"
+    description: "Method used (e.g., 'hierarchical_bayesian', 'null_test')."
+  null_consistency:
+    type: "boolean"
+    description: "True if the result is consistent with the null distribution."
+  population_weight:
+    type: "number"
+    minimum: 0
+    description: "Weight of this burst in the global regression (0 to 1)."
+  intrinsic_lag_mean:
+    type: ["number", "null"]
+    description: "Estimated mean of the intrinsic lag population (ms)."
+  intrinsic_lag_std:
+    type: ["number", "null"]
+    description: "Estimated standard deviation of the intrinsic lag population (ms)."
+required:
+  - grb_id
+  - energy_scale_gev
+  - confidence_level
+  - method
+  - null_consistency
+additionalProperties: false

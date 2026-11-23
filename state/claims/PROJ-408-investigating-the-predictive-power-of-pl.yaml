@@ -1,0 +1,185 @@
+- artifact_path: projects/PROJ-408-investigating-the-predictive-power-of-pl/specs/001-investigating-the-predictive-power-of-pl/tasks.md
+  attempts: 1
+  canonical: Enforce linting rules F401 and ANN001
+  claim_id: c_f23160f3
+  context: 'Configure linting (ruff/flake) and formatting (black) tools. **Constraint**:
+    Must enforce specific error codes `F401` (unused import) and `ANN001` (missing
+    type hint) via `ruff.toml` or `pyproject.toml`.'
+  evidence:
+    entailment_evidence: Enforce linting rules F401 and ANN001
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Enforce_linting_rules_F401_and_ANN001
+  kind: entity_fact
+  raw_text: Must enforce specific error codes `F401` (unused import) and `ANN001`
+    (missing type hint) via `ruff.toml` or `pyproject.toml`.
+  resolved_value: Enforce linting rules F401 and ANN001
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T14:49:37Z'
+- artifact_path: projects/PROJ-408-investigating-the-predictive-power-of-pl/specs/001-investigating-the-predictive-power-of-pl/tasks.md
+  attempts: 1
+  canonical: Verify mafft and fasttree installation via version command
+  claim_id: c_9e628246
+  context: 'Install system binaries `mafft` and `fasttree` on the runner via `apt-get
+    install mafft fasttree`. **Constraint**: Must verify binaries are in PATH by running
+    `mafft --version` and `FastTree --version` before proceeding.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Verify_mafft_and_fasttree_installation_via_version_command
+  kind: entity_fact
+  raw_text: Must verify binaries are in PATH by running `mafft --version` and `FastTree
+    --version` before proceeding.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T15:07:39Z'
+- artifact_path: projects/PROJ-408-investigating-the-predictive-power-of-pl/specs/001-investigating-the-predictive-power-of-pl/tasks.md
+  attempts: 1
+  canonical: Species list retention target of 80%
+  claim_id: c_632fb54d
+  context: "Generate `data/raw/species_list.txt` containing the target list of plant\
+    \ species with valid NCBI Taxonomy IDs and KEGG organism codes. **Source**: Run\
+    \ `scripts/fetch_species_list.py` which queries a verified public source (e.g.,\
+    \ a curated list from a published paper or a specific KEGG/NCBI query script)\
+    \ to populate this file. **Constraint**: This file MUST exist before T020a runs.\
+    \ **Format**: One species per line, `NCBI_ID\tKEGG_CODE\tScientificName`. **Threshold**:\
+    \ Target list must support at least 80% retention."
+  evidence:
+    entailment_evidence: Species list retention target of 80%
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Species_list_retention_target_of_80%25
+  kind: magnitude
+  raw_text: Target list must support at least 80% retention.
+  resolved_value: Species list retention target of 80%
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T15:07:42Z'
+- artifact_path: projects/PROJ-408-investigating-the-predictive-power-of-pl/specs/001-investigating-the-predictive-power-of-pl/tasks.md
+  attempts: 1
+  canonical: Data loss calculation formula
+  claim_id: c_ed7d204a
+  context: 'Implement `code/main.py`: Orchestration logic. **Constraint**: Must read
+    `data/raw/species_list.txt` (from T009) to calculate ''Total Target''. **Pre-condition**:
+    Must verify `data/raw/species_list.txt` exists before proceeding; if missing,
+    raise `FileNotFoundError`. Must distinguish between ''total data loss'' (>20%
+    species missing BOTH sequence AND metabolite data -> HALT) and ''partial exclusion''
+    (species missing KEGG only -> EXCLUDE from matrix, RETAIN in tree, LOG warning).
+    **Formula**: Data Loss = (Species with NO Sequence AND NO Metabolite) / Total
+    Target. **Threshold**: Halt if >20%.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Data_loss_calculation_formula
+  kind: entity_fact
+  raw_text: Data Loss = (Species with NO Sequence AND NO Metabolite) / Total Target.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T15:24:39Z'
+- artifact_path: projects/PROJ-408-investigating-the-predictive-power-of-pl/specs/001-investigating-the-predictive-power-of-pl/tasks.md
+  attempts: 1
+  canonical: Data loss threshold of 20%
+  claim_id: c_ddad7ffb
+  context: 'Implement `code/main.py`: Orchestration logic. **Constraint**: Must read
+    `data/raw/species_list.txt` (from T009) to calculate ''Total Target''. **Pre-condition**:
+    Must verify `data/raw/species_list.txt` exists before proceeding; if missing,
+    raise `FileNotFoundError`. Must distinguish between ''total data loss'' (>20%
+    species missing BOTH sequence AND metabolite data -> HALT) and ''partial exclusion''
+    (species missing KEGG only -> EXCLUDE from matrix, RETAIN in tree, LOG warning).
+    **Formula**: Data Loss = (Species with NO Sequence AND NO Metabolite) / Total
+    Target. **Threshold**: Halt if >20%.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Halt if >20%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T15:24:39Z'
+- artifact_path: projects/PROJ-408-investigating-the-predictive-power-of-pl/specs/001-investigating-the-predictive-power-of-pl/tasks.md
+  attempts: 1
+  canonical: Checksums stored in state file
+  claim_id: c_77d1e3b8
+  context: 'Save raw downloads to `data/raw/` with checksums. **Constraint**: Must
+    update `state/projects/PROJ-408-investigating-the-predictive-power-of-pl.yaml`
+    `artifact_hashes.data_raw` map with checksums (primary source of truth); local
+    `checksums.txt` is secondary only.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Must update `state/projects/PROJ-408-investigating-the-predictive-power-of-pl.yaml`
+    `artifact_hashes.data_raw` map with checksums
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T15:41:02Z'
+- artifact_path: projects/PROJ-408-investigating-the-predictive-power-of-pl/specs/001-investigating-the-predictive-power-of-pl/tasks.md
+  attempts: 1
+  canonical: Mafft binary with thread flags
+  claim_id: c_063eb406
+  context: 'Implement `code/phylo_pipeline.py`: Multi-locus sequence alignment using
+    the `mafft` binary (via subprocess). **Input**: Concatenated FASTA from a designated
+    sample. **Output**: Aligned FASTA. **Constraint**: Must use `mafft` binary with
+    `--thread` flags; no alternative aligners.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Mafft_binary_with_thread_flags
+  kind: entity_fact
+  raw_text: Must use `mafft` binary with `--thread` flags
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-13T15:56:55Z'
+- artifact_path: projects/PROJ-408-investigating-the-predictive-power-of-pl/specs/001-investigating-the-predictive-power-of-pl/tasks.md
+  attempts: 1
+  canonical: Image DPI of 300
+  claim_id: c_3384731e
+  context: "Ensure all figures meet high-resolution standards (DPI \u2265 300). **Constraint**:\
+    \ Must save as PNG with `dpi=300` parameter."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The first relatively affordable flatbed scanner for personal computers
+        appeared in February 1987 with Hewlett-Packard's ScanJet, which was capable
+        of scanning 4-bit (64-shade) grayscale images at a maximum resolution of 300
+        dpi. By the beginning of 1988, the ScanJet had accounted for 27 percent of
+        all scanner sales in terms of dollar volume, per Gartner Dataquest. In February
+        1989, the company introduced the ScanJet Plus, which increased the bit depth
+        to 8 bits (256 shades) while costing only US$200 more than the original ScanJet's
+        $1990 (equivalent to $5,169 in 2025). This led to a massive price drop in
+        grayscale scanners with equivalent or lesser features in the market. The number
+        of third-party developers producing software and hardware supporting these
+        scanners jumped dramatically in turn, effectively popularizing the scanner
+        for the personal computer user. By 1999, the cost of the average color-capable
+        scanner had dropped to $300 (equivalent to $580 in 2025). That year, Computer
+        Shopper declared 1999 "the year that scanners finally became a mainstream
+        commodity".
+      source_id: Image scanner
+      url: https://en.wikipedia.org/wiki/Image_scanner
+      value: '300'
+    filled: true
+  kind: numeric
+  raw_text: Must save as PNG with `dpi=300` parameter.
+  resolved_value: '300'
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-13T16:12:29Z'

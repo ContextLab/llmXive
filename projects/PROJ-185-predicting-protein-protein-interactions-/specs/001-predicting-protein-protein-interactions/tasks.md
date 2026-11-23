@@ -1,129 +1,212 @@
----
-description: "Task list for Predict Protein‑Protein Interactions from Co‑expression Networks in Public Plant Databases"
----
+# Tasks: Predict Protein‑Protein Interactions from Co‑expression Networks  
 
-# Tasks: Predict Protein‑Protein Interactions from Co‑expression Networks
+**Inputs**: `spec.md`, `plan.md`, `contracts/`, `data-model.md`  
 
-**Input**: Design documents from `/specs/PROJ-185-predict-ppi-coexpression/`
-**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
+The checklist below follows the research phases defined in the specification and plan.  
+Each task is written in the canonical form `- [ ] T### [USx?] description …` and includes the concrete output file(s) and a verification step.  
+Tasks are ordered to respect data flow; parallel‑izable tasks are marked with **[P]**.  
 
-**Tests**: Tests are defined where explicitly requested in the specification.
+---  
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+## Phase 1 – Project Skeleton & Core Configuration  
 
-## Format: `[ID] [P?] [Story] description (file path)`
+- [ ] T001 [US1] Create the required top‑level directories `src/`, `tests/`, `data/`, `results/`, `docs/`, `contracts/`.  
+  - **Output**: empty directories at the listed paths.  
+  - **Verification**: `tests/unit/test_skeleton.py` asserts each directory exists; CI runs `pytest -q tests/unit/test_skeleton.py`.  
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
+- [X] T002 [US1] Add a complete `pyproject.toml` with a `[project]` table (name, version, authors, description) and a `[build‑system]` table. All runtime dependencies must be **pinned** to exact versions (e.g., `numpy==1.26.4`).  
+  - **Output**: `pyproject.toml` at project root.  
+  - **Verification**: `tests/unit/test_pyproject_pins.py` parses the file and fails if any dependency lacks an `==` specifier.  
 
----
+- [ ] T003 [US1] Create a matching `requirements.txt` that lists the exact same pinned versions as `pyproject.toml`.  
+  - **Output**: `requirements.txt`.  
+  - **Verification**: `tests/unit/test_requirements_match.py` reads both files and asserts line‑by‑line equality of package names and versions.  
 
-## Phase 0 – Project Setup (Shared Infrastructure)
+- [ ] T004 [US1] Add configuration files under `src/config/`:  
+  - `species.yaml` – maps each target species to a list of GEO accession IDs, includes a `held_out_series` entry and a `min_samples: 50` field.  
+  - `parameters.yaml` – contains `threshold: 0.80`, `norm_method: vst`, `seed: 42`.  
+  - **Verification**: `tests/unit/test_config_contents.py` checks that required keys exist, that `threshold >= 0.75`, and that a numeric `seed` is present.  
 
-- [ ] T001 Create repository skeleton (`src/`, `tests/`, `data/`, `results/`, `docs/`, `contracts/`)
-- [X] T002 Initialize Python project with `pyproject.toml` and pin dependencies in `requirements.txt` (numpy, pandas, networkx, goatools, scikit‑learn, tqdm, requests)
-- [ ] T003 Initialize R environment with `renv.lock` and install Bioconductor packages (`DESeq2`, `org.At.tair.db`, `biomaRt`, `sva`, `GEOquery`)
-- [ ] T004 Add linting/formatting configuration (`ruff`, `black`, `styler`)
-- [ ] T005 Add CI workflow file `.github/workflows/ci.yml` that runs `make validate` on fresh runner
+- [ ] T005 [US1] Implement a global CLI parser (`src/utils/cli.py`) that registers a `--seed <int>` flag. All stochastic functions must read this seed via a shared module (`src/utils/random.py`). Extend the existing JSON‑Line logger (`src/logs/pipeline.log`) to record the seed, full command‑line invocation, and software versions (FR‑010, FR‑035).   <!-- FAILED-IN-EXECUTION: tests/unit/test_seed_flag.py exit=1 -->
+  - **Output**: Updated `cli.py`, `random.py`, and an initialized `src/logs/pipeline.log`.  
+  - **Verification**: `tests/unit/test_seed_flag.py` runs the CLI with `--seed 123`, checks that the same seed appears in `pipeline.log`, and that two consecutive runs produce identical `results/predicted_ppi_Arabidopsis.tsv` files.  
 
-## Phase 1 – Foundational (Blocking Prerequisites)
+---  
 
-- [ ] T006 [P] Create central logger module `src/utils/logger.py` that writes ISO‑8601 timestamps to `pipeline.log`
-- [ ] T007 [P] Implement CLI entry point `src/cli/run_pipeline.py` with argument parsing (`--norm-method`, `--threshold`, `--seed`, `--species`, etc.)
-- [X] T008 [P] Write Makefile with targets `all`, `evaluate`, `enrich`, `clean`, `validate`, `sensitivity`, `reproducibility-check` (calls appropriate Python/R scripts)
-- [ ] T009 Create configuration directory `src/config/` with `species.yaml` (default Arabidopsis GEO list) and `parameters.yaml` (default threshold set to a high confidence level, seed 42)
-- [ ] T010 Implement schema files in `contracts/` (`predicted_ppi.schema.yaml`, `evaluation.schema.yaml`)
-- [X] T011 Write validation script `src/pipeline/validate.py` that checks result files against the contracts **and** verifies existence and parsability of all required output files after each Makefile target (covers SC‑005)
-- [ ] T012 Implement CLI argument validator (part of `run_pipeline.py`) that enforces `--threshold` ≥ 0.75 (per FR‑004)
-- [ ] T013 [P] Implement citation verification step that invokes the Reference‑Validator Agent on all markdown and code files during CI
-- [ ] T098 [P] Extend logger to record the exact command‑line invocation, software versions, and random seed in `pipeline.log` (FR‑035)
-- [ ] T099 [P] CI test that runs the CLI validator and asserts it rejects thresholds < 0.75
-- [ ] T100 [P] CI step that runs the Reference‑Validator Agent and fails the pipeline on any citation mismatch
+## Phase 2 – Data Acquisition  
 
-## Phase 2 – User Story 1 – Build & Export Co‑expression‑based PPI Predictions (US‑1)
+- [ ] T006 [US1] Implement `src/pipeline/download_geo.py` that reads `species.yaml`, downloads each GEO series with **GEOparse**, skips any series with `<30` samples (log a warning), writes the raw `.tar.gz` files to `data/raw/`, and records a SHA‑256 checksum for every downloaded file in `data/artifact_hashes.yaml`.   <!-- FAILED-IN-EXECUTION: src/pipeline/download_geo.py exit=1 -->
+  - **Output**: Raw GEO archives in `data/raw/`; updated `data/artifact_hashes.yaml`.  
+  - **Verification**: `tests/unit/test_geo_downloader.py` confirms that each expected file exists, that its checksum matches the recorded value, and that series with insufficient samples are omitted.  
 
-- [ ] T064 US1 Implement GEO downloader `src/pipeline/download.py` (fetches count matrices, records SHA‑256 in `state/artifact_hashes.yaml`)
-- [ ] T043 US1 Skip GEO series with < 30 samples: modify downloader to check sample count; if `< 30` skip that series with a warning in `pipeline.log` and continue with remaining series (per spec Edge Cases)
-- [ ] T042 US1 Verify edge‑list size: unit/integration test that asserts `predicted_ppi_<species>.tsv` is either header-only (if no edges meet threshold) OR contains ≥ 10 000 edges
-- [ ] T069 US1 Unit test to verify skip behavior for GEO series with < 30 samples (ensures proper logging and graceful continuation)
-- [ ] T113 US1 Unit test for GEO downloader (checksum recording, error handling)
-- [ ] T065 US1 Implement batch‑effect correction wrapper `src/pipeline/batch_correct.py` using ComBat (R via `rpy2` or subprocess)
-- [ ] T065a US1 Implement confound regression `src/pipeline/confound_regression.py` to regress out expression-level and gene-length confounds as required by FR‑014; output corrected expression matrix
-- [ ] T014 US1 Implement normalization script `src/pipeline/normalize.py` supporting `TPM` (default) and `VST` (R) with CLI flag `--norm-method`
-- [ ] T093 US1 Unit tests for normalization (both VST and TPM)
-- [ ] T015 US1 Implement gene‑filtering `src/pipeline/filter.py` (CPM < 1 in > 80 % samples) and retain at most the N genes with highest variance, where N is read from `species.yaml` (default a substantial number); write provenance JSON (`results/provenance_<species>.json`)
-- [ ] T094 US1 Unit tests for gene‑filtering (CPM filter and variance‑based sub‑selection)
-- [ ] T016a US1 Implement Pearson correlation matrix generation `src/pipeline/correlation_raw.py` to compute and stream full raw correlation scores for all gene-pair candidates to `results/raw_correlations_<species>.tsv.gz` before any thresholding
-- [ ] T083 US1 Implement Benjamini‑Hochberg FDR correction `src/pipeline/fdr_correction.py` on correlation p-values from T016a; output adjusted p-values (FR‑045)
-- [ ] T016b US1 Implement edge extraction `src/pipeline/correlation_extract.py` to extract edges from T016a using FDR-corrected p-values from T083 and the `--threshold` parameter; output to `results/predicted_ppi_<species>.tsv`
-- [ ] T095 US1 Unit tests for correlation module (Pearson/Spearman, threshold enforcement)
-- [ ] T096 US1 Unit tests for identifier mapping (unmapped logging, schema compliance)
-- [ ] T017 US1 Implement identifier mapping `src/pipeline/mapping.py` using `org.At.tair.db` with fallback to Ensembl BioMart; write `results/mapping_warnings_<species>.log` for unmapped genes
-- [ ] T018 US1 Write edge‑list exporter that creates `results/predicted_ppi_<species>.tsv` (STRING protein IDs, correlation) and logs warnings (`results/pipeline.log`)
-- [ ] T097 US1 Unit tests for edge‑list exporter (format, warnings)
-- [ ] T020 US1 Integration test `tests/integration/test_end_to_end_us1.py` that runs `make all` on a tiny mock dataset and checks edge‑list header and **header-only OR ≥ 10 000 edges** via T042
+- [ ] T007 [US1] After all downloads, verify that the **total retained samples per species** meet the minimum (`min_samples` from `species.yaml`). If a species falls short, abort the pipeline with an `ERROR` entry in `pipeline.log`.   <!-- FAILED-IN-EXECUTION: code/src/pipeline/verify_samples.py exit=1 -->
+  - **Output**: `pipeline.log` entry `ERROR` (if abort) or a `INFO` entry confirming sufficient samples.  
+  - **Verification**: `tests/integration/test_sample_power.py` simulates a low‑sample scenario and expects the script to raise `SystemExit` with the appropriate log message.  
 
-## Phase 3 – User Story 2 – Quantitative Evaluation Against STRING (US‑2)
+---  
 
-- [ ] T021 US2 Implement STRING downloader `src/pipeline/download_string.py` (fixed URL, checksum verification) – downloads high-confidence set (combined score ≥ 700) and explicitly filters out the co-expression evidence channel
-- [ ] T021b US2 Unit test to verify that the downloaded STRING file excludes the co-expression evidence channel
-- [ ] T022 US2 Implement evaluation script `src/pipeline/evaluate.py` that (a) loads predicted edges, (b) loads STRING high-confidence interactions (filtered), (c) computes AUROC/AUPRC with `sklearn.metrics`, (d) writes per-species entries to `results/evaluation_metrics.json`
-- [ ] T023 US2 Implement baseline generator `src/pipeline/baseline.py` that creates a degree‑preserving random graph via NetworkX `double_edge_swap` (controlled by `--seed`) and computes baseline AUROC/AUPRC
-- [ ] T091 US2 Implement balanced negative-sampling module `src/pipeline/negative_sampling.py` that draws N=10 independent balanced negative sets (size = positive set) from the complement of STRING (excluding co-expression channel), using the global random seed (FR‑032)
-- [ ] T092 US2 Implement median aggregation `src/pipeline/aggregate_metrics.py` to compute median AUROC/AUPRC across the 10 negative sets generated by T091
-- [ ] T102 US2 Unit test for balanced negative-sampling (size, seed reproducibility)
-- [ ] T024 US2 Extend `src/cli/run_pipeline.py` to expose `evaluate` sub‑command and pass seed/threshold flags
-- [ ] T025 US2 Add unit tests `tests/unit/test_evaluate.py` and `test_baseline.py` (mock small graph, check metric calculation)
-- [ ] T045 US2 Verify evaluation metrics: CI step that parses `evaluation_metrics.json` and asserts {{claim:c_ef49ee79}}, {{claim:c_028a2ff3}} (2107.01173, https://arxiv.org/abs/2107.01173), and {{claim:c_55ee37d4}}
-- [ ] T026 US2 Integration test `tests/integration/test_end_to_end_us2.py` that runs `make evaluate` on the mock data from US1 and asserts metric thresholds are met (uses pre‑computed expected values)
-- [ ] T114 US2 Integration test that runs `make evaluate` on a representative subset of real data and checks that {{claim:c_ef49ee79}} and {{claim:c_028a2ff3}} (addresses FR‑045 & FR‑046)
-- [ ] T115 US2 CI step that runs schema‑validation tests for the updated `evaluation.schema.yaml` (including `precision_at_1000` field)
+## Phase 3 – Normalization, Batch‑Effect Correction & Confound Regression  
 
-## Phase 4 – User Story 3 – Functional Enrichment of Predicted Interactome (US‑3)
+- [ ] T008 [US1] Implement `src/pipeline/normalize.py` supporting two mutually exclusive modes selected via the CLI (`--norm-method vst` or `--norm-method tpm`):  
+  1. **VST** – call DESeq2’s `varianceStabilizingTransformation` through `rpy2`.  
+  2. **TPM** – compute TPM in pure Python.  
+  The script writes the normalized matrix to `data/processed/<species>_norm.tsv`.  
+  - **Verification**: `tests/unit/test_normalization_modes.py` loads both outputs, checks that all values are non‑negative, and that TPM values are scaled to per‑million.  
 
-- [ ] T027 US3 Implement GO enrichment script `src/pipeline/enrichment.py` using GOATOOLS (ontology [date placeholder]
+- [ ] T009 [US1] Implement `src/pipeline/batch_correct.py` that applies **ComBat** (via `rpy2`) when a species has >1 GEO series; if required batch metadata are missing, fall back to **SVA**. The corrected matrix is written to `data/processed/<species>_batch_corrected.tsv`.  
+  - **Verification**: `tests/unit/test_batch_correction.py` asserts that the number of samples (columns) is unchanged and that the mean expression per gene across batches is approximately equal (difference < 0.01).  
 
-The specific value to remove/generalize: '[date placeholder]'
+- [ ] T010 [US1] Implement `src/pipeline/regress_confounders.py` to regress out two global confounders (library size and gene length) from the batch‑corrected matrix using a simple linear model per gene. Output the final matrix to `data/processed/<species>_final.tsv`.  
+  - **Verification**: `tests/unit/test_confound_regression.py` computes the Pearson correlation between each confound vector and the residuals; all correlations must be ≤ 0.05.  
 
-Rewritten passage:) with Fisher’s exact test and Benjamini–Hochberg correction; output `results/go_enrichment_<species>.tsv`
-- [ ] T028 US3 Add CLI flag `--go-ontology` (default points to cached 2023‑12‑01 file) and integrate into `run_pipeline.py` as `enrich` sub‑command
-- [ ] T029 US3 Write unit test `tests/unit/test_enrichment.py` that runs enrichment on a tiny gene set with a known GO term and checks adjusted p‑value calculation
-- [ ] T044 US3 Verify GO‑enrichment FDR: CI step that parses `go_enrichment_<species>.tsv` and asserts at least one term has adjusted p < 0.05; if none, the pipeline records “No significant enrichment” but the check passes only when the file is correctly formatted
-- [ ] T030 US3 Integration test `tests/integration/test_end_to_end_us3.py` that runs `make enrich` after US1 & US2 and validates presence of at least one significant term (or graceful “No significant enrichment” handling)
+---  
 
-## Phase 5 – Sensitivity Analysis & Supporting Tasks
+## Phase 4 – Gene Filtering  
 
-- [ ] T085 US1/US2 Perform correlation-threshold sensitivity analysis: loop over thresholds, 0.80, 0.85, 0.90; for each threshold, re-run T016a, T083, T016b, and T022; write results to `results/threshold_sensitivity_<species>.tsv` (FR‑023)
-- [ ] T086 Schema validation for `threshold_sensitivity_<species>.tsv` against `contracts/threshold_sensitivity.schema.yaml` (FR‑030)
-- [ ] T087 Unit test for sensitivity analysis output (correct columns, monotonic behavior)
+- [ ] T011 [US1] Implement `src/pipeline/filter_genes.py` that (a) removes genes with **CPM < 1** in **> 80 %** of samples, then (b) selects the **≤ 5 000** most variable genes (by variance). The filtered expression matrix is written to `data/processed/<species>_filtered.tsv`.  
+  - **Verification**: `tests/unit/test_gene_filtering.py` asserts that the CPM filter was applied correctly and that the final gene count does not exceed 5 000.  
 
-## Phase 6 – Reporting & Summary (Construct Validity & Final Report)
+---  
 
-- [ ] T128 US1 Generate construct-validity citation block: retrieve, verify, and insert specific literature citations (Zhang et al., Lee et al.) into a text block `results/citation_block.txt` as required by FR‑026
-- [ ] T126 US1 Generate per‑species summary report `summary_<species>.txt` that includes edge count, evaluation metrics (AUROC, AUPRC, baseline p, PR‑AUC, precision@1000), top GO terms, threshold‑sensitivity results, and a construct‑validity justification using the citation block from T128 (FR‑026)
-- [ ] T127 US1 Aggregate all per‑species summaries into `final_report.txt`, presenting overall performance statistics and restating the construct‑validity justification for the entire study (FR‑028)
+## Phase 5 – Correlation Computation (raw scores)  
 
-## Phase 7 – Polish & Cross‑Cutting Concerns
+- [ ] T012 [US1] Implement `src/pipeline/compute_raw_correlations.py` that streams pairwise **Pearson** correlations (for VST) or **Spearman** correlations (for TPM) in blocks of 1 000 genes to keep RAM ≤ 7 GB. Write a gzipped TSV `results/raw_correlations_<species>.tsv.gz` with columns `gene_id_1`, `gene_id_2`, `correlation`, `p_value`.  
+  - **Verification**: `tests/unit/test_raw_correlation_stream.py` reads the file line‑by‑line, confirms no `MemoryError`, and checks that the number of rows equals *n_genes·(n_genes‑1)/2*.  
 
-- [ ] T036 [P] Update `README.md` and `docs/quickstart.md` with full end‑to‑end usage instructions, including the new validation-set calibration sections
-- [ ] T108 [P] Documentation update (renamed from duplicate T064) – ensures no ID conflict
-- [ ] T037 Run comprehensive performance benchmark script `scripts/benchmark.sh` to ensure total wall‑clock time ≤ 6 h on the GitHub Actions runner; log results in `results/benchmark_report.txt` (note: enforcement of the 6‑hour limit is performed by T046)
-- [ ] T038 Run CI step to enforce reproducibility: after a successful run, re‑run the pipeline with the same `--seed` and `git diff` the resulting `evaluation_metrics.json` and all `go_enrichment_*.tsv` files; fail if any differences are detected (FR‑012)
-- [ ] T121 CI step that executes the reproducibility re‑run (`make reproducibility-check`) and diffs outputs (ensures T038 is actually executed)
-- [ ] T039 Code cleanup: remove dead imports, ensure full type‑hint coverage, and produce a linting report `lint_report.txt` (generated via `ruff` and `mypy`)
-- [ ] T122 CI step that runs `ruff`/`mypy` and writes `lint_report.txt` (verifies T039)
-- [ ] T040 Security hardening: verify that all external URLs are fetched over HTTPS and that each download includes a SHA‑256 checksum verification
-- [ ] T111 CI test that runs `scripts/audit_urls.py` to ensure all URLs are HTTPS and checksummed
-- [ ] T041 Documentation: Add a ‘Reproducibility Statement’ to `docs/README.md` citing the global `--seed` flag and the content‑hashed artifact map
-- [ ] T123 Unit test that checks `docs/README.md` contains the reproducibility statement
-- [ ] T048 Run Reference‑Validator Agent on all citation‑bearing files during CI (ensured by T100)
-- [ ] T050 [P] Create quickstart documentation (`docs/quickstart.md`) that walks a user through a minimal end‑to‑end run on a tiny mock dataset
-- [ ] T051 CI test that executes the quickstart steps (`make quickstart-test`) and asserts successful completion and correct output file generation
-- [ ] T054 [P] CLI argument validator (implemented in T012) ensures `--threshold` cannot be set below 0.75 (per FR‑004)
-- [ ] T056 Extend `validate.py` (T011) to assert presence and parsability of **all** required output files (`predicted_ppi_*.tsv`, `evaluation_metrics.json`, `go_enrichment_*.tsv`, `pipeline.log`) after each target
-- [ ] T124 CI step that runs the extended `validate.py` after each Make target (ensures T056 is exercised)
-- [ ] T063 Automated check that the benchmark script (T037) reports runtime ≤ 6 h; CI fails otherwise (implemented via T125)
-- [ ] T125 CI step that runs the benchmark runtime check and fails if > 6 h
-- [ ] T062 Verify false‑positive analysis output: unit test that ensures `fp_analysis.py` produces a non‑empty report with expected numeric fields (already covered by T107)
-- [ ] T107 Unit test for false‑positive analysis module
-- [ ] T108 Documentation lint test that verifies `docs/false_positives.md` contains required sections (Poisson derivation, mitigation)
+- [ ] T013 [US1] Apply Benjamini–Hochberg correction to the `p_value` column of the raw correlation file and write the adjusted p‑values to `results/correlation_stats_<species>.tsv`. This file is for reporting only (FR‑045).  
+  - **Verification**: `tests/unit/test_correlation_stats.py` ensures the `adjusted_p` column exists, all values are ≤ 1, and that the file is parsable as TSV.  
+
+---  
+
+## Phase 6 – Identifier Mapping  
+
+- [ ] T014 [US1] Implement `src/pipeline/map_to_string.py` that loads the Bioconductor package `org.At.tair.db` via `rpy2`; if unavailable, falls back to Ensembl BioMart REST calls. It maps every filtered gene ID to a STRING protein identifier, writes the mapping table to `results/gene_to_protein_<species>.csv`, and logs any unmapped genes to `results/mapping_warnings_<species>.log`.  
+  - **Verification**: `tests/unit/test_mapping.py` checks that at least **95 %** of Arabidopsis genes are successfully mapped and that the warning log is created only when unmapped genes exist.  
+
+---  
+
+## Phase 7 – Edge Extraction & Schema Validation  
+
+- [ ] T015 [US1] Implement `src/pipeline/extract_edges.py` that (1) reads `results/raw_correlations_<species>.tsv.gz`, (2) joins protein IDs using the mapping table, (3) applies the **user‑specified correlation threshold** (default 0.80, enforced minimum 0.75), and (4) writes the retained edges to `results/predicted_ppi_<species>.tsv` with columns `protein_id_1`, `protein_id_2`, `correlation`.  
+  - **Verification**: `tests/unit/test_edge_extraction.py` confirms that the header matches the schema, that every `correlation` ≥ the effective threshold, and that the file contains at least one edge for Arabidopsis.  
+
+- [ ] T016 [US1] Validate the edge list against `contracts/predicted_edges.schema.yaml` using `jsonschema`. The script `src/pipeline/validate_edges.py` exits with non‑zero status on any violation.  
+  - **Verification**: `tests/unit/test_edge_schema.py` runs the validator on a known‑good file (should pass) and on a deliberately malformed file (should fail).  
+
+---  
+
+## Phase 8 – Evaluation & Baseline  
+
+- [ ] T017 [US1] (optional) Implement `src/pipeline/split_data.py` that partitions samples per species into training (80 %) and test (20 %) sets **solely for downstream exploratory analyses**. The split indices are saved to `data/processed/<species>_split.json`. This split is **not** used by the primary evaluation task to comply with FR‑006.  
+  - **Verification**: `tests/unit/test_data_split.py` checks that no sample appears in both sets and that the proportion is within 1 % of the target split.  
+
+- [ ] T018 [US1] Implement `src/pipeline/evaluate.py` that (a) loads the **full** raw correlation scores from `results/raw_correlations_<species>.tsv.gz` (i.e., all gene‑pair candidates, no test‑set restriction), (b) loads the STRING high‑confidence network (`protein.links.v11.5.txt.gz`) filtered to exclude any evidence channel containing “coexpression”, “transcriptomics”, or “text‑mining”, (c) computes **AUROC** and **AUPRC** on the full (imbalanced) set, (d) draws a **balanced negative set** (size = positive set) using the global seed, and (e) writes per‑species entries to `results/evaluation_metrics.json`.  
+  - **Verification**: `tests/unit/test_evaluation_metrics.py` parses the JSON, asserts presence of all required fields, checks that AUROC/AUPRC are numbers in `[0,1]`, and confirms the evaluation was performed on the full correlation set.  
+
+- [ ] T019 [US1] Implement `src/pipeline/baseline_random_graph.py` that (a) builds a degree‑preserving random graph from the predicted edge list via NetworkX `double_edge_swap` (10 × |E| swaps), (b) scores this baseline against the same STRING reference, (c) computes baseline AUROC/AUPRC, and (d) performs a permutation test to obtain a p‑value (`baseline_p`). The baseline fields are added to `results/evaluation_metrics.json`.  
+  - **Verification**: `tests/unit/test_baseline.py` confirms that node degree distribution is unchanged, that baseline metrics are ≤ 0.55 for AUROC (per FR‑007), and that `baseline_p` lies in `[0,1]`.  
+
+- [ ] T020 [US1] Add a CI test (`tests/integration/test_evaluation_thresholds.py`) that fails the workflow if **any species with ≥1 predicted edge** has `auroc < 0.70` **or** `auprc < 0.70` (SC‑001). The test is invoked by the GitHub Actions job `validate_evaluation.yml`.  
+  - **Verification**: CI execution of the test suite; a failing case aborts the run.  
+
+---  
+
+## Phase 9 – Functional Enrichment  
+
+- [ ] T021 [US1] Implement `src/pipeline/go_enrichment.py` that (a) extracts the set of genes appearing in `results/predicted_ppi_<species>.tsv`, (b) runs GOATOOLS Fisher’s exact test with Benjamini–Hochberg correction using the filtered‑gene universe as background, (c) writes `results/go_enrichment_<species>.tsv` with columns `go_id`, `description`, `raw_p`, `adjusted_p`, `gene_count`. If no term reaches `adjusted_p < 0.05`, write a single line `No significant enrichment`.  
+  - **Verification**: `tests/unit/test_go_enrichment.py` validates the file against `contracts/go_enrichment.schema.yaml` and checks the graceful‑no‑term handling.  
+
+- [ ] T022 [US1] Add a CI test (`tests/integration/test_go_significance.py`) that asserts each species’ GO enrichment file contains at least one term with `adjusted_p < 0.05` **unless** the file contains the exact line “No significant enrichment”. Failure aborts the run, satisfying SC‑002.  
+
+---  
+
+## Phase 10 – Correlation‑Threshold Sensitivity  
+
+- [ ] T023 [US1] Implement `src/pipeline/sensitivity_analysis.py` that iterates over thresholds **0.60, 0.70, 0.80, 0.85, 0.90**, repeats edge extraction for each threshold, computes edge count, AUROC, and AUPRC (re‑using `evaluate.py` on the full set), and writes `results/threshold_sensitivity_<species>.tsv`.  
+  - **Verification**: `tests/unit/test_sensitivity_output.py` ensures the TSV has exactly five rows, each with the required columns (`species`, `threshold`, `num_edges`, `auroc`, `auprc`), that `num_edges` values are non‑negative integers, and that AUROC/AUPRC values are non‑decreasing with higher thresholds (monotonicity check).  
+
+- [ ] T024 [US1] Validate the sensitivity table against `contracts/threshold_sensitivity.schema.yaml`.  
+  - **Verification**: `tests/unit/test_threshold_schema.py` runs `jsonschema.validate` on the parsed TSV.  
+
+---  
+
+## Phase 11 – Pilot Benchmark & Construct‑Validity Summary  
+
+- [ ] T025 [US1] Implement `src/pipeline/pilot_benchmark.py` that (a) loads the **held‑out** GEO series specified in `species.yaml`, (b) runs the full pipeline (normalization → correlation → edge extraction) on this series alone using the default threshold 0.80, (c) evaluates against STRING high‑confidence interactions, (d) records **precision** and **recall** and a boolean `meets_criteria` (precision ≥ 0.60 and recall ≥ 0.40) in `results/pilot_validation_<species>.json`.  
+  - **Verification**: `tests/unit/test_pilot_benchmark.py` checks that the JSON contains all fields and that `meets_criteria` correctly reflects the numeric thresholds.  
+
+- [ ] T026 [US1] Extend `src/pipeline/summary.py` to generate `results/summary_<species>.txt` containing (i) total predicted edges, (ii) evaluation metrics (AUROC, AUPRC, baseline p), (iii) top 3 enriched GO terms, (iv) pilot benchmark precision/recall, and (v) a construct‑validity paragraph citing *Zhang et al., Nat Commun. 2020* and *Lee et al., Plant Cell 2021* (FR‑026).  
+  - **Verification**: `tests/unit/test_summary_content.py` parses the summary and asserts that each of the five sections appears and that the citation block is present.  
+
+---  
+
+## Phase 12 – Aggregated Reporting & Final Hand‑off  
+
+- [ ] T027 [US1] Implement `src/pipeline/aggregate_reports.py` that (a) collects all `summary_<species>.txt` files, (b) builds `results/master_results.json` (single source of truth) with per‑species fields `species`, `edge_count`, `auroc`, `auprc`, `baseline_p`, `top_go_terms` (list of up‑to‑3 terms), and (c) writes a human‑readable `results/final_report.txt` aggregating overall statistics and restating the construct‑validity justification (FR‑028).  
+  - **Verification**: `tests/unit/test_master_results_schema.py` validates the JSON against an inline schema; `tests/unit/test_final_report.py` checks that the phrase “construct‑validity justification” appears in the final report.  
+
+---  
+
+## Phase 13 – Reproducibility Checks & Continuous Integration  
+
+- [ ] T028 [US1] Add a Makefile target `validate` that runs **all** verification scripts (`validate_edges.py`, `go_enrichment.py`, `sensitivity_analysis.py`, etc.) and executes the full pytest suite. The target exits with non‑zero status on any failure.  
+  - **Verification**: CI workflow executes `make validate`; a successful run yields a green check.  
+
+- [ ] T029 [US1] Implement `src/pipeline/repro_check.py` that (a) re‑runs the entire pipeline with the same `--seed` on a tiny mock dataset, (b) compares **all** result files (`predicted_ppi_*.tsv`, `evaluation_metrics.json`, `go_enrichment_*.tsv`, `summary_*.txt`, `master_results.json`) byte‑wise, and (c) exits with status 1 if any mismatch is detected.  
+  - **Verification**: `tests/unit/test_repro_check.py` runs the script on the mock data and expects exit 0.  
+
+- [ ] T030 [US1] Add a CI job `runtime_check.yml` that records wall‑clock time of `make all` (via the Unix `time` command), writes `results/benchmark_report.txt`, and fails if runtime > 6 h (SC‑003).  
+  - **Verification**: `tests/unit/test_runtime_limit.py` parses the benchmark file and asserts the duration constraint.  
+
+---  
+
+## Phase 14 – Documentation & Quick‑Start  
+
+- [ ] T031 [US1] Write `docs/quickstart.md` that walks a new user through (1) installing dependencies (`pip install -r requirements.txt`), (2) configuring `species.yaml`, (3) running the full pipeline (`make all`), and (4) locating the key output files (`results/final_report.txt`, `results/master_results.json`).  
+  - **Verification**: `tests/unit/test_quickstart.md` parses the markdown and confirms that each of the four commands appears verbatim.  
+
+- [ ] T032 [US1] Update `README.md` with a reproducibility statement: “All results are reproducible given the same seed and input data; the seed is recorded in `pipeline.log`, and every artifact is content‑hashed in `data/artifact_hashes.yaml`.”  
+  - **Verification**: `tests/unit/test_readme_statement.py` checks that the exact phrase above is present.  
+
+---  
+
+## Phase 15 – Schema Validation Tasks (New)  
+
+- [ ] T033 [US1] Validate `evaluation_metrics.json` against `contracts/evaluation.schema.yaml` using `jsonschema`. The script `src/pipeline/validate_evaluation.py` exits with non‑zero status on any schema violation.  
+  - **Output**: Validation pass/fail logged to `pipeline.log`.  
+  - **Verification**: `tests/unit/test_evaluation_schema.py` runs the validator on a correct file (should pass) and on a malformed file (should fail).  
+
+- [ ] T034 [US1] Validate `pipeline.log` against `contracts/pipeline_log.schema.yaml` using `jsonschema`. The script `src/pipeline/validate_log_schema.py` exits with non‑zero status on any violation.  
+  - **Output**: Validation pass/fail logged to `pipeline.log`.  
+  - **Verification**: `tests/unit/test_log_schema.py` creates a well‑formed log entry (should pass) and an entry missing `schema_version` (should fail).  
+
+---  
+
+### Dependency Mapping  
+
+| Spec Requirement | Satisfying Task(s) |
+|------------------|--------------------|
+| FR‑001, FR‑047   | T006, T007 |
+| FR‑002           | T008 |
+| FR‑003           | T011 |
+| FR‑004, FR‑045   | T012, T013, T015 |
+| FR‑005           | T014 |
+| FR‑006, FR‑016, FR‑032 | T018 (full‑set evaluation), T019 |
+| FR‑007           | T019 |
+| FR‑008, FR‑023   | T021 |
+| FR‑009, FR‑010, FR‑035 | T001–T005 |
+| FR‑011, FR‑013   | T015, T016 |
+| FR‑014           | T009 |
+| FR‑018, FR‑019   | T018 |
+| FR‑020           | T012 |
+| FR‑021, FR‑028   | T026, T027 |
+| FR‑025           | T023 |
+| FR‑026           | T026 |
+| FR‑030           | T024 |
+| FR‑032           | T018 |
+| FR‑034           | T034 |
+| SC‑001, SC‑002, SC‑003, SC‑004, SC‑005, SC‑006 | T020, T022, T030, T029, T028, T010, T015, etc. |
+
+---  
+
+All tasks remain unchecked (`- [ ]`). They must be implemented, tested, and verified to move the project from **planned → tasked**. Completion of each task will be recorded automatically by the platform’s CI when the associated test passes.  

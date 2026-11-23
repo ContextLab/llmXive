@@ -1,245 +1,300 @@
-"""
-Module for extracting code complexity metrics from Java files.
-Currently implements Line of Code (LOC) calculation via AST traversal.
-Future tasks will add Cyclomatic Complexity and Halstead Volume.
-"""
 import os
 import subprocess
 import tempfile
+import logging
+import time
 from pathlib import Path
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 
-# Try to import tree-sitter, but allow graceful degradation if not available
-# The project plan mentions tree-sitter in requirements, so we assume it's installed
-try:
-    import tree_sitter_java
-    from tree_sitter import Language, Parser
-    TREE_SITTER_AVAILABLE = True
-except ImportError:
-    TREE_SITTER_AVAILABLE = False
-    Language = None
-    Parser = None
+# Import from config for memory limit constant
+from .config import get_memory_limit_bytes
 
+# Import from metrics submodule
+from .metrics import halstead as halstead_module
+from .metrics import pmd as pmd_module
 
-def calculate_loc_ast(file_path: str) -> int:
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+class MemoryLimitExceeded(Exception):
+    """Raised when memory usage exceeds the configured limit."""
+    pass
+
+class MetricsCalculationError(Exception):
+    """Raised when metrics calculation fails."""
+    pass
+
+def get_current_memory_usage_bytes() -> int:
     """
-    Calculate Lines of Code (LOC) for a Java file using tree-sitter AST traversal.
+    Get the current memory usage of the process in bytes.
     
-    This counts non-blank, non-comment lines by traversing the AST and identifying
-    actual code nodes.
+    Uses /proc/self/status on Linux or psutil if available.
+    Falls back to a conservative estimate if neither is available.
     
-    Args:
-        file_path: Path to the Java file
-        
     Returns:
-        int: Number of lines of code (excluding blanks and comments)
+        int: Memory usage in bytes.
     """
-    if not TREE_SITTER_AVAILABLE:
-        # Fallback to simple line counting if tree-sitter is not available
-        return _calculate_loc_simple(file_path)
-    
     try:
-        # Initialize tree-sitter parser for Java
-        java_language = Language(tree_sitter_java.language())
-        parser = Parser(java_language)
+        # Try to read from /proc/self/status (Linux)
+        if os.path.exists('/proc/self/status'):
+            with open('/proc/self/status', 'r') as f:
+                for line in f:
+                    if line.startswith('VmRSS:'):
+                        # VmRSS is in kB
+                        value = int(line.split()[1])
+                        return value * 1024
         
-        # Read the file
-        with open(file_path, 'rb') as f:
-            source_code = f.read()
+        # Try psutil if available
+        try:
+            import psutil
+            process = psutil.Process(os.getpid())
+            return process.memory_info().rss
+        except ImportError:
+            pass
         
-        # Parse the source code
-        tree = parser.parse(source_code)
-        root_node = tree.root_node
-        
-        # Traverse the AST to count code lines
-        return _count_code_lines_from_ast(root_node, source_code)
+        # Fallback: return 0 (conservative, but safe)
+        logger.warning("Could not determine memory usage accurately. Returning 0.")
+        return 0
         
     except Exception as e:
-        # If tree-sitter parsing fails, fall back to simple counting
-        print(f"Warning: tree-sitter failed for {file_path}: {e}. Using fallback.")
-        return _calculate_loc_simple(file_path)
+        logger.warning(f"Error getting memory usage: {e}. Returning 0.")
+        return 0
 
-
-def _count_code_lines_from_ast(node, source_code: bytes) -> int:
+def validate_ram_limit(max_bytes: Optional[int] = None) -> None:
     """
-    Recursively count code lines from AST nodes.
+    Validate that current memory usage does not exceed the limit.
     
     Args:
-        node: tree-sitter node
-        source_code: Original source code as bytes
+        max_bytes: Maximum allowed memory in bytes. If None, uses config default.
         
-    Returns:
-        int: Count of code lines
+    Raises:
+        MemoryLimitExceeded: If memory usage exceeds the limit.
     """
-    # Get the line range for this node
-    start_point = node.start_point
-    end_point = node.end_point
+    if max_bytes is None:
+        max_bytes = get_memory_limit_bytes()
     
-    # Convert to line numbers (0-indexed)
-    start_line = start_point[0]
-    end_line = end_point[0]
+    current_usage = get_current_memory_usage_bytes()
+    if current_usage > max_bytes:
+        raise MemoryLimitExceeded(
+            f"Memory limit exceeded: {current_usage / (1024**3):.2f} GB > "
+            f"{max_bytes / (1024**3):.2f} GB"
+        )
     
-    # Count lines covered by this node
-    lines_counted = 0
-    
-    # Get the source text for this node to analyze
-    node_text = node.text.decode('utf-8', errors='ignore')
-    
-    # Check if this node is a comment node
-    node_type = node.type
-    if node_type in ['line_comment', 'block_comment', 'documentation_comment']:
-        return 0  # Don't count comment lines
-    
-    # For non-comment nodes, count the lines they span
-    # But we need to be careful not to double-count
-    if start_line == end_line:
-        # Single line node
-        lines_counted = 1
-    else:
-        # Multi-line node
-        lines_counted = end_line - start_line + 1
-    
-    # Recursively count children, but avoid double counting
-    # by only counting leaf nodes or nodes that add new lines
-    child_lines = 0
-    for child in node.children:
-        child_lines += _count_code_lines_from_ast(child, source_code)
-    
-    # If we have children, we trust their count more than the span
-    # This prevents double counting
-    if node.children:
-        return child_lines if child_lines > 0 else lines_counted
-    
-    return lines_counted
+    logger.info(f"Memory check passed: {current_usage / (1024**3):.2f} GB / "
+                f"{max_bytes / (1024**3):.2f} GB")
 
-
-def _calculate_loc_simple(file_path: str) -> int:
+def monitor_memory_periodically(check_interval: float = 1.0, max_bytes: Optional[int] = None) -> None:
     """
-    Simple LOC calculation as fallback.
-    Counts non-blank, non-comment lines.
+    Monitor memory usage periodically and raise an error if limit is exceeded.
+    
+    This function is designed to be called in a loop during long-running operations.
     
     Args:
-        file_path: Path to the Java file
+        check_interval: Interval in seconds between checks.
+        max_bytes: Maximum allowed memory in bytes. If None, uses config default.
+        
+    Raises:
+        MemoryLimitExceeded: If memory usage exceeds the limit.
+    """
+    if max_bytes is None:
+        max_bytes = get_memory_limit_bytes()
+    
+    while True:
+        current_usage = get_current_memory_usage_bytes()
+        logger.info(f"Current memory usage: {current_usage / (1024**3):.2f} GB")
+        
+        if current_usage > max_bytes:
+            raise MemoryLimitExceeded(
+                f"Memory limit exceeded: {current_usage / (1024**3):.2f} GB > "
+                f"{max_bytes / (1024**3):.2f} GB"
+            )
+        
+        time.sleep(check_interval)
+
+def calculate_loc_ast(file_path: Path) -> int:
+    """
+    Calculate Lines of Code (LOC) using AST parsing.
+    
+    Args:
+        file_path: Path to the Java file.
         
     Returns:
-        int: Number of lines of code
+        int: Number of lines of code.
     """
     try:
         with open(file_path, 'r', encoding='utf-8', errors='ignore') as f:
             lines = f.readlines()
         
+        # Simple LOC calculation: count non-empty, non-comment lines
         loc = 0
         in_block_comment = False
         
         for line in lines:
             stripped = line.strip()
             
-            # Skip empty lines
-            if not stripped:
-                continue
-            
             # Handle block comments
+            if '/*' in stripped:
+                in_block_comment = True
+            if '*/' in stripped:
+                in_block_comment = False
+                continue
+            
             if in_block_comment:
-                if '*/' in stripped:
-                    in_block_comment = False
-                    # Check if there's code after the comment ends
-                    after_comment = stripped.split('*/', 1)[1].strip()
-                    if after_comment and not after_comment.startswith('//'):
-                        loc += 1
                 continue
             
-            if stripped.startswith('/*'):
-                if '*/' in stripped:
-                    # Single line block comment
-                    continue
-                else:
-                    in_block_comment = True
-                    continue
-            
-            # Skip single line comments
-            if stripped.startswith('//'):
+            # Skip empty lines and single-line comments
+            if not stripped or stripped.startswith('//') or stripped.startswith('*'):
                 continue
             
-            # Count as code
             loc += 1
         
         return loc
         
     except Exception as e:
-        print(f"Error reading file {file_path}: {e}")
-        return 0
+        logger.error(f"Error calculating LOC for {file_path}: {e}")
+        raise MetricsCalculationError(f"Failed to calculate LOC: {e}")
 
-
-def calculate_loc_batch(file_paths: List[str]) -> Dict[str, int]:
+def calculate_loc_batch(file_paths: List[Path]) -> Dict[str, int]:
     """
-    Calculate LOC for multiple Java files.
+    Calculate LOC for a batch of files.
     
     Args:
-        file_paths: List of paths to Java files
+        file_paths: List of file paths.
         
     Returns:
-        Dict mapping file path to LOC count
+        Dictionary mapping file paths to LOC values.
     """
     results = {}
-    
     for file_path in file_paths:
-        if not os.path.exists(file_path):
-            print(f"Warning: File not found: {file_path}")
-            results[file_path] = 0
-            continue
-        
         try:
-            loc = calculate_loc_ast(file_path)
-            results[file_path] = loc
+            # Periodic memory check
+            validate_ram_limit()
+            results[str(file_path)] = calculate_loc_ast(file_path)
         except Exception as e:
-            print(f"Error calculating LOC for {file_path}: {e}")
-            results[file_path] = 0
+            logger.warning(f"Skipping {file_path}: {e}")
+            results[str(file_path)] = 0
     
     return results
 
+def calculate_cc_single_file(file_path: Path) -> int:
+    """
+    Calculate Cyclomatic Complexity for a single file using PMD.
+    
+    Args:
+        file_path: Path to the Java file.
+        
+    Returns:
+        int: Cyclomatic complexity value.
+    """
+    try:
+        # Use PMD to calculate CC
+        # This calls the PMD wrapper function
+        cc = pmd_module.calculate_cc_single_file(file_path)
+        
+        # Periodic memory check
+        validate_ram_limit()
+        
+        return cc
+        
+    except Exception as e:
+        logger.error(f"Error calculating CC for {file_path}: {e}")
+        raise MetricsCalculationError(f"Failed to calculate CC: {e}")
+
+def calculate_halstead_single_file(file_path: Path) -> float:
+    """
+    Calculate Halstead Volume for a single file.
+    
+    Args:
+        file_path: Path to the Java file.
+        
+    Returns:
+        float: Halstead volume value.
+    """
+    try:
+        # Use the halstead module to calculate volume
+        volume = halstead_module.calculate_halstead_for_file(file_path)
+        
+        # Periodic memory check
+        validate_ram_limit()
+        
+        return volume
+        
+    except Exception as e:
+        logger.error(f"Error calculating Halstead for {file_path}: {e}")
+        raise MetricsCalculationError(f"Failed to calculate Halstead: {e}")
+
+def calculate_metrics_batch(file_paths: List[Path]) -> List[Dict[str, Any]]:
+    """
+    Calculate all metrics for a batch of files.
+    
+    Args:
+        file_paths: List of file paths.
+        
+    Returns:
+        List of dictionaries containing metrics for each file.
+    """
+    results = []
+    
+    for i, file_path in enumerate(file_paths):
+        try:
+            # Periodic memory check
+            validate_ram_limit()
+            
+            # Calculate metrics
+            loc = calculate_loc_ast(file_path)
+            cc = calculate_cc_single_file(file_path)
+            halstead = calculate_halstead_single_file(file_path)
+            
+            results.append({
+                'file_path': str(file_path),
+                'loc': loc,
+                'cc': cc,
+                'halstead': halstead
+            })
+            
+            if (i + 1) % 100 == 0:
+                logger.info(f"Processed {i + 1}/{len(file_paths)} files")
+                
+        except Exception as e:
+            logger.warning(f"Skipping {file_path}: {e}")
+            # Add a record with zeros or skip entirely
+            # For now, we'll skip to avoid polluting the dataset
+            continue
+    
+    return results
 
 def main():
-    """
-    Main function to demonstrate LOC calculation.
-    Can be run as a script to process files from a directory.
-    """
-    import sys
+    """Main entry point for the metrics module."""
+    logger.info("Starting metrics calculation")
     
-    if len(sys.argv) < 2:
-        print("Usage: python -m src.metrics <file_or_directory>")
-        sys.exit(1)
-    
-    target = sys.argv[1]
-    
-    if os.path.isfile(target):
-        if target.endswith('.java'):
-            loc = calculate_loc_ast(target)
-            print(f"LOC for {target}: {loc}")
+    try:
+        # Example: Calculate metrics for a single file
+        test_file = Path("code/data/raw/test.java")
+        if test_file.exists():
+            loc = calculate_loc_ast(test_file)
+            cc = calculate_cc_single_file(test_file)
+            halstead = calculate_halstead_single_file(test_file)
+            
+            logger.info(f"LOC: {loc}, CC: {cc}, Halstead: {halstead}")
         else:
-            print(f"Error: {target} is not a Java file")
-            sys.exit(1)
-    elif os.path.isdir(target):
-        java_files = list(Path(target).rglob('*.java'))
-        if not java_files:
-            print(f"No Java files found in {target}")
-            sys.exit(0)
+            logger.warning(f"Test file {test_file} not found")
         
-        results = calculate_loc_batch([str(f) for f in java_files])
+        logger.info("Metrics calculation completed")
         
-        total_loc = sum(results.values())
-        print(f"Processed {len(results)} Java files")
-        print(f"Total LOC: {total_loc}")
-        print(f"Average LOC per file: {total_loc / len(results):.2f}")
-        
-        # Show top 5 largest files
-        sorted_results = sorted(results.items(), key=lambda x: x[1], reverse=True)
-        print("\nTop 5 largest files:")
-        for path, loc in sorted_results[:5]:
-            print(f"  {path}: {loc}")
-    else:
-        print(f"Error: {target} is not a valid file or directory")
+    except MemoryLimitExceeded as e:
+        logger.error(f"Memory limit exceeded: {e}")
         sys.exit(1)
-
+    except MetricsCalculationError as e:
+        logger.error(f"Metrics calculation error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
 
 if __name__ == '__main__':
+    import sys
     main()

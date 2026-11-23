@@ -1,16 +1,3 @@
-"""
-T029: Generate model_report.json with metrics, hyperparameters, and statistical test results.
-
-This script aggregates the outputs from the training and evaluation phases to produce
-the final model report artifact as required by FR-007.
-
-Expected Inputs:
-  - data/artifacts/best_model_config.json (from code/models/train.py)
-  - data/artifacts/evaluation_results.json (from code/models/evaluate.py)
-
-Expected Output:
-  - data/artifacts/model_report.json
-"""
 import os
 import sys
 import json
@@ -18,126 +5,137 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, Optional
 
-# Add project root to path to allow imports from sibling modules
+# Add project root to path for imports if running as script
 project_root = Path(__file__).resolve().parent.parent.parent
-sys.path.insert(0, str(project_root))
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
 
-from utils.config import get_paths, ensure_directories
-from utils.logging_config import get_logger
-from utils.provenance import record_artifact, compute_file_checksum
+from utils.config import get_paths
+from utils.provenance import record_artifact
 
-logger = get_logger(__name__)
+logger = logging.getLogger(__name__)
 
-def load_json_file(file_path: Path) -> Optional[Dict[str, Any]]:
-    """Load a JSON file and return its contents."""
+def load_json_file(file_path: Path) -> Dict[str, Any]:
+    """Load a JSON file and return its contents as a dictionary."""
     if not file_path.exists():
-        logger.error(f"Required input file not found: {file_path}")
-        return None
+        raise FileNotFoundError(f"File not found: {file_path}")
     
-    try:
-        with open(file_path, 'r') as f:
-            return json.load(f)
-    except json.JSONDecodeError as e:
-        logger.error(f"Failed to decode JSON from {file_path}: {e}")
-        return None
+    with open(file_path, 'r') as f:
+        return json.load(f)
 
 def generate_model_report(
-    train_results: Dict[str, Any],
-    eval_results: Dict[str, Any]
-) -> Dict[str, Any]:
+    metrics: Dict[str, float],
+    hyperparameters: Dict[str, Any],
+    statistical_test: Dict[str, Any],
+    output_path: Path
+) -> None:
     """
-    Combine training and evaluation results into the final model report structure.
+    Generate the model report JSON file matching contracts/model_output.schema.yaml.
     
-    The report structure must contain:
-    {
-        "metrics": { "R2": float, "MAE": float, "RMSE": float },
-        "hyperparameters": { ... },
-        "statistical_test": { "method": str, "p_value": float, "confidence_interval": [float, float] }
-    }
+    Args:
+        metrics: Dictionary with keys R2, MAE, RMSE (floats)
+        hyperparameters: Dictionary of best hyperparameters found during grid search
+        statistical_test: Dictionary with keys method (str), p_value (float), 
+                         confidence_interval (list[float])
+        output_path: Path where the report will be saved
     """
-    # Extract metrics from evaluation results
-    # Assuming eval_results contains a 'metrics' key with R2, MAE, RMSE
-    metrics = eval_results.get('metrics', {})
-    
-    # Extract hyperparameters from training results
-    # Assuming train_results contains a 'best_params' or 'hyperparameters' key
-    hyperparameters = train_results.get('best_params', train_results.get('hyperparameters', {}))
-    
-    # Extract statistical test results
-    # Assuming eval_results contains a 'statistical_test' key
-    stat_test = eval_results.get('statistical_test', {})
-    
+    # Validate required fields
+    required_metrics = ['R2', 'MAE', 'RMSE']
+    for key in required_metrics:
+        if key not in metrics:
+            raise ValueError(f"Missing required metric: {key}")
+        if not isinstance(metrics[key], (int, float)):
+            raise TypeError(f"Metric {key} must be a float, got {type(metrics[key])}")
+
+    if 'method' not in statistical_test or 'p_value' not in statistical_test or 'confidence_interval' not in statistical_test:
+        raise ValueError("statistical_test must contain 'method', 'p_value', and 'confidence_interval'")
+
+    if not isinstance(statistical_test['confidence_interval'], list) or len(statistical_test['confidence_interval']) != 2:
+        raise ValueError("confidence_interval must be a list of two floats")
+
     report = {
         "metrics": {
-            "R2": metrics.get("R2", 0.0),
-            "MAE": metrics.get("MAE", 0.0),
-            "RMSE": metrics.get("RMSE", 0.0)
+            "R2": float(metrics['R2']),
+            "MAE": float(metrics['MAE']),
+            "RMSE": float(metrics['RMSE'])
         },
         "hyperparameters": hyperparameters,
         "statistical_test": {
-            "method": stat_test.get("method", "unknown"),
-            "p_value": stat_test.get("p_value", 0.0),
-            "confidence_interval": stat_test.get("confidence_interval", [0.0, 0.0])
+            "method": str(statistical_test['method']),
+            "p_value": float(statistical_test['p_value']),
+            "confidence_interval": [float(x) for x in statistical_test['confidence_interval']]
         }
     }
+
+    # Ensure output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Write report
+    with open(output_path, 'w') as f:
+        json.dump(report, f, indent=2)
     
-    return report
+    logger.info(f"Model report saved to: {output_path}")
 
 def main():
     """
-    Main entry point for generating the model report.
+    Main entry point to generate the model report.
     
-    1. Loads training results (best model config/hyperparameters).
-    2. Loads evaluation results (metrics, statistical tests).
-    3. Merges them into the required JSON structure.
-    4. Saves to data/artifacts/model_report.json.
-    5. Records provenance for the new artifact.
+    This script is intended to be run after T026 (grid search) and T027 (statistical comparison)
+    have completed and produced their respective output files.
+    
+    Expected inputs (from previous tasks):
+    - data/processed/model_metrics.json: Contains R2, MAE, RMSE
+    - data/processed/best_hyperparameters.json: Contains best hyperparameters
+    - data/processed/statistical_test_results.json: Contains test method, p-value, CI
+    
+    Output:
+    - artifacts/model_report.json: Final report matching the schema
     """
-    paths = get_paths()
-    ensure_directories()
-    
-    # Define input paths based on the pipeline flow
-    # T026/T025 should have written the best model config here
-    train_output_path = paths["data"] / "artifacts" / "best_model_config.json"
-    
-    # T027/T028 should have written the evaluation results here
-    eval_output_path = paths["data"] / "artifacts" / "evaluation_results.json"
-    
-    # Define output path
-    output_path = paths["data"] / "artifacts" / "model_report.json"
-    
-    logger.info(f"Loading training results from: {train_output_path}")
-    train_data = load_json_file(train_output_path)
-    
-    logger.info(f"Loading evaluation results from: {eval_output_path}")
-    eval_data = load_json_file(eval_output_path)
-    
-    if train_data is None or eval_data is None:
-        logger.error("Failed to load required input files. Cannot generate report.")
-        sys.exit(1)
-    
-    logger.info("Generating model report...")
-    report = generate_model_report(train_data, eval_data)
-    
-    # Write the report to disk
-    try:
-        with open(output_path, 'w') as f:
-            json.dump(report, f, indent=2)
-        logger.info(f"Model report successfully written to: {output_path}")
-    except IOError as e:
-        logger.error(f"Failed to write model report: {e}")
-        sys.exit(1)
-    
-    # Record provenance
-    checksum = compute_file_checksum(output_path)
-    record_artifact(
-        artifact_path=str(output_path.relative_to(project_root)),
-        checksum=checksum,
-        task_id="T029",
-        description="Model performance report with metrics, hyperparameters, and statistical tests"
+    # Setup logging
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
-    
-    logger.info("Task T029 completed successfully.")
 
-if __name__ == "__main__":
+    paths = get_paths()
+    artifacts_dir = paths['artifacts']
+    
+    # Define input paths (produced by T026 and T027)
+    metrics_path = paths['processed'] / 'model_metrics.json'
+    hyperparams_path = paths['processed'] / 'best_hyperparameters.json'
+    stats_path = paths['processed'] / 'statistical_test_results.json'
+    
+    output_path = artifacts_dir / 'model_report.json'
+
+    try:
+        # Load inputs
+        logger.info(f"Loading metrics from {metrics_path}")
+        metrics = load_json_file(metrics_path)
+        
+        logger.info(f"Loading hyperparameters from {hyperparams_path}")
+        hyperparameters = load_json_file(hyperparams_path)
+        
+        logger.info(f"Loading statistical test results from {stats_path}")
+        statistical_test = load_json_file(stats_path)
+
+        # Generate report
+        generate_model_report(metrics, hyperparameters, statistical_test, output_path)
+
+        # Record provenance
+        record_artifact(output_path, paths['state'])
+        
+        logger.info("Task T029 completed successfully.")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Missing input file: {e}")
+        logger.error("Ensure T026 and T027 have completed successfully.")
+        sys.exit(1)
+    except (ValueError, TypeError, KeyError) as e:
+        logger.error(f"Invalid data format in input files: {e}")
+        sys.exit(1)
+    except Exception as e:
+        logger.error(f"Unexpected error: {e}")
+        sys.exit(1)
+
+if __name__ == '__main__':
     main()

@@ -1,0 +1,14 @@
+# Development dependencies for PROJ-424
+# Includes linting and formatting tools
+ruff>=0.1.0
+black>=23.0.0
+# Core project dependencies (referenced from requirements.txt)
+gromacs
+mdanalysis
+numpy
+pandas
+scipy
+matplotlib
+seaborn
+scikit-learn
+pyyaml

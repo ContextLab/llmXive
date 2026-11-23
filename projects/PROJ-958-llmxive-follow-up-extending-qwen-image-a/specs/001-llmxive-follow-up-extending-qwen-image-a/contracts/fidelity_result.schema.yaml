@@ -1,0 +1,80 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Fidelity Result Record"
+description: "Schema for the fidelity measurement and delta calculation between Baseline (Full Agent/Proxy) and Hybrid (Rule-Expanded) images. Based on REAL generated images. Includes counterfactual sampling flag."
+type: "object"
+required:
+  - prompt_id
+  - hybrid_image_path
+  - hybrid_clip_score
+  - domain
+  - routing_category
+  - is_counterfactual_sample
+  - reference_independence_flag
+properties:
+  prompt_id:
+    type: "string"
+    description: "Reference to the prompt ID."
+  baseline_image_path:
+    type: ["string", "null"]
+    description: "Relative path to the Baseline image (Full Agent/Proxy generated from original prompt). Nullable if not generated (non-counterfactual Low/Med)."
+    nullable: true
+  hybrid_image_path:
+    type: "string"
+    description: "Relative path to the Hybrid image (Lightweight or Agent generated from expanded prompt)."
+  baseline_clip_score:
+    type: ["number", "null"]
+    description: "CLIP score for the Baseline image against the reference text. Null if baseline not generated (non-counterfactual Low/Med)."
+    minimum: 0.0
+    maximum: 1.0
+  hybrid_clip_score:
+    type: "number"
+    description: "CLIP score for the Hybrid image against the reference text."
+    minimum: 0.0
+    maximum: 1.0
+  fidelity_delta:
+    type: ["number", "null"]
+    description: "Difference: hybrid_clip_score - baseline_clip_score. Null if baseline is missing."
+  domain:
+    type: "string"
+    description: "Visual domain for stratification."
+  routing_category:
+    type: "string"
+    description: "Routing category based on ambiguity score."
+    enum:
+      - "low"
+      - "medium"
+      - "high"
+  is_counterfactual_sample:
+    type: "boolean"
+    description: "True if this Low/Medium prompt was randomly selected for Baseline execution."
+  latency_baseline:
+    type: ["number", "null"]
+    description: "Latency for baseline (ms). Null if not generated."
+  latency_hybrid:
+    type: "number"
+    description: "Latency for hybrid (ms)."
+  efficiency_gain:
+    type: ["number", "null"]
+    description: "Percentage reduction in latency. Null if baseline not generated."
+  token_count_baseline:
+    type: ["number", "null"]
+    description: "Token count for baseline. Null for diffusion models (SDXL); use inference_steps instead."
+  token_count_hybrid:
+    type: ["number", "null"]
+    description: "Token count for hybrid. Null for diffusion models (SDXL); use inference_steps instead."
+  inference_steps_baseline:
+    type: ["integer", "null"]
+    description: "Inference steps for baseline (if diffusion model)."
+  inference_steps_hybrid:
+    type: ["integer", "null"]
+    description: "Inference steps for hybrid (if diffusion model)."
+  structural_detail_score_baseline:
+    type: ["number", "null"]
+    description: "Structural detail score for baseline."
+  structural_detail_score_hybrid:
+    type: "number"
+    description: "Structural detail score for hybrid."
+  reference_independence_flag:
+    type: "string"
+    description: "PASS or FAIL based on reference description independence check."
+additionalProperties: false

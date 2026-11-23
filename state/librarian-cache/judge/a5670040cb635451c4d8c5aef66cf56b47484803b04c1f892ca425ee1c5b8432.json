@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2403.16514",
+  "judged_at": "2026-08-13T09:47:03Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of self-talk on resilience to microaggressions psychology",
+  "rationale": "The paper focuses on the linguistic classification and detection of racial microaggressions on social media using NLP, which does not measure the psychological mechanism of self-talk, the construct of resilience, or the causal impact of self-talk on resilience to microaggressions. While it shares the domain of \"microaggressions,\" it addresses a distinct construct (content moderation and linguistic signatures) rather than the user's specific variables (self-talk and resilience), failing to meet t",
+  "relevant": false
+}

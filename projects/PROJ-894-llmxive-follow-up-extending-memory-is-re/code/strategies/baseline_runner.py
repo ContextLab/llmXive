@@ -1,27 +1,26 @@
 """
-Baseline execution runner for the 'Full' active reconstruction strategy.
-Executes tasks from the LoCoMo benchmark using the FullTraversal strategy
-and logs results to data/processed/baseline_results.csv.
+Baseline Execution Runner for User Story 1.
+
+Executes the "Full" active reconstruction strategy on LoCoMo benchmark tasks.
+Logs task_id, accuracy, nodes_visited, latency_ms, and status to a CSV file.
+Handles degenerate/unresolved states as specified in T006/T037.
 """
 import os
 import sys
 import time
 import json
 import logging
+import csv
 from pathlib import Path
-from typing import List, Dict, Any, Tuple
+from typing import List, Dict, Any, Optional, Tuple
 
-# Add parent directory to path for imports if running as script
-if __name__ == "__main__":
-    parent_dir = Path(__file__).parent.parent
-    if str(parent_dir) not in sys.path:
-        sys.path.insert(0, str(parent_dir))
+# Project imports based on API surface
+from data_loader import load_raw_data, load_graphs
+from strategies.full import run_full_strategy
+from runner import TimeoutHandler, TimeoutError
+from graph_utils import validate_graph, get_graph_statistics
 
-from data_loader import fetch_locomo_dataset, save_raw_data, ensure_output_dirs
-from graph_utils import build_memory_graph, validate_graph
-from strategies.full import FullTraversal
-from runner import run_batch, TimeoutHandler
-
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
@@ -29,156 +28,189 @@ logging.basicConfig(
 logger = logging.getLogger(__name__)
 
 # Constants
-OUTPUT_DIR = Path("data/processed")
-RESULTS_FILE = OUTPUT_DIR / "baseline_results.csv"
-DATASET_NAME = "locomo/locomo-benchmark"
-DATASET_SPLIT = "test"
-TIMEOUT_SECONDS = 300
+RAW_DATA_PATH = "data/raw/locomo.csv"
+GRAPHS_PATH = "data/intermediate/graphs_raw.json"
+OUTPUT_PATH = "data/processed/baseline_results.csv"
+TIMEOUT_SECONDS = 60  # Default timeout per task
 
-def evaluate_task(task_id: str, context: Dict[str, Any]) -> Dict[str, Any]:
-    """
-    Execute a single LoCoMo task using the Full traversal strategy.
-    
-    Args:
-        task_id: Unique identifier for the task.
-        context: Dictionary containing 'question', 'context', 'answer', and graph data.
-    
-    Returns:
-        Dictionary with task_id, accuracy, nodes_visited, latency_ms.
-    """
-    start_time = time.time()
-    
-    try:
-        # Extract task components
-        question = context.get("question", "")
-        context_text = context.get("context", "")
-        ground_truth = context.get("answer", "")
-        
-        # Build memory graph from context
-        # Note: graph_utils.build_memory_graph expects specific input format.
-        # Assuming it takes the text context and constructs the graph.
-        graph = build_memory_graph(context_text)
-        
-        if not validate_graph(graph):
-            logger.warning(f"Task {task_id}: Graph validation failed. Skipping.")
-            return {
-                "task_id": task_id,
-                "accuracy": 0.0,
-                "nodes_visited": 0,
-                "latency_ms": (time.time() - start_time) * 1000,
-                "status": "graph_invalid"
-            }
-        
-        # Initialize the Full Traversal strategy
-        strategy = FullTraversal()
-        
-        # Execute the strategy
-        # The strategy should return a result containing the answer and traversal stats
-        result = strategy.execute(graph, question)
-        
-        # Determine accuracy (simple string match or semantic similarity)
-        # For this implementation, we assume the strategy returns a 'predicted_answer'
-        predicted_answer = result.get("predicted_answer", "")
-        
-        # Simple evaluation: exact match or contains key entities
-        # In a real scenario, use a more robust metric (e.g., BLEU, ROUGE, or LLM-based judge)
-        accuracy = 1.0 if predicted_answer.lower() == ground_truth.lower() else 0.0
-        
-        # Fallback: if the strategy returns a confidence score or partial match logic
-        # For now, we rely on the strategy's internal logic to provide the answer.
-        # If the strategy returns 'success' and the answer is close enough, we count it.
-        if result.get("success", False) and not accuracy:
-            # Heuristic check: if the predicted answer contains the ground truth
-            if ground_truth.lower() in predicted_answer.lower():
-                accuracy = 0.5 # Partial credit
-            else:
-                accuracy = 0.0
-        
-        nodes_visited = result.get("nodes_visited", 0)
-        
-        return {
-            "task_id": task_id,
-            "accuracy": accuracy,
-            "nodes_visited": nodes_visited,
-            "latency_ms": (time.time() - start_time) * 1000,
-            "status": "success"
-        }
-        
-    except Exception as e:
-        logger.error(f"Task {task_id} failed with error: {e}", exc_info=True)
-        return {
-            "task_id": task_id,
-            "accuracy": 0.0,
-            "nodes_visited": 0,
-            "latency_ms": (time.time() - start_time) * 1000,
-            "status": "error",
-            "error": str(e)
-        }
+def normalize_answer(answer: str) -> str:
+    """Normalize answer string for comparison."""
+    if not answer:
+        return ""
+    return answer.strip().lower()
 
 def load_tasks() -> List[Dict[str, Any]]:
+    """Load raw LoCoMo tasks from CSV."""
+    if not os.path.exists(RAW_DATA_PATH):
+        raise FileNotFoundError(f"Raw data file not found: {RAW_DATA_PATH}")
+    return load_raw_data(RAW_DATA_PATH)
+
+def evaluate_task(
+    task: Dict[str, Any], 
+    graph: Dict[str, List[Dict[str, Any]]], 
+    timeout: int = TIMEOUT_SECONDS
+) -> Dict[str, Any]:
     """
-    Load tasks from the LoCoMo dataset.
+    Evaluate a single task using the Full Active Reconstruction Strategy.
     
+    Args:
+        task: Dictionary containing 'task_id', 'question', 'context', 'answer'
+        graph: Dictionary mapping task_id to list of edges
+        timeout: Maximum seconds allowed for execution
+        
     Returns:
-        List of task dictionaries with 'id', 'context' (question, context, answer).
+        Dictionary with task_id, accuracy, nodes_visited, latency_ms, status
     """
-    logger.info(f"Loading dataset {DATASET_NAME} (split: {DATASET_SPLIT})...")
+    task_id = task.get('task_id', task.get('id', 'unknown'))
+    question = task.get('question', '')
+    ground_truth = normalize_answer(task.get('answer', ''))
     
-    # Ensure output directories exist for raw data
-    ensure_output_dirs()
+    result = {
+        'task_id': task_id,
+        'accuracy': None,
+        'nodes_visited': 0,
+        'latency_ms': 0.0,
+        'status': 'UNRESOLVED'
+    }
+
+    # Check if graph exists for this task
+    task_graph_edges = graph.get(task_id, [])
     
+    # Degenerate Graph Handling (T037)
+    if not task_graph_edges:
+        logger.warning(f"Task {task_id}: No edges found in graph. Status: DEGENERATE")
+        result['status'] = 'DEGENERATE'
+        return result
+
+    # Validate graph structure
     try:
-        # Fetch the dataset (this function is expected to download and cache the data)
-        dataset = fetch_locomo_dataset(DATASET_NAME, split=DATASET_SPLIT)
-        
-        tasks = []
-        for i, item in enumerate(dataset):
-            task = {
-                "id": f"locoma_test_{i}",
-                "context": {
-                    "question": item.get("question", ""),
-                    "context": item.get("context", ""),
-                    "answer": item.get("answer", "")
-                }
-            }
-            tasks.append(task)
-        
-        logger.info(f"Loaded {len(tasks)} tasks.")
-        return tasks
-        
+        is_valid, stats = validate_graph(task_graph_edges)
+        if not is_valid:
+            logger.warning(f"Task {task_id}: Invalid graph structure. Status: DEGENERATE")
+            result['status'] = 'DEGENERATE'
+            return result
     except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
-        raise
+        logger.error(f"Task {task_id}: Graph validation failed: {e}")
+        result['status'] = 'ERROR'
+        return result
+
+    # Run the Full Strategy with timeout
+    start_time = time.time()
+    try:
+        with TimeoutHandler(seconds=timeout):
+            # Run the traversal strategy
+            # Expected return from run_full_strategy: 
+            # {'nodes_visited': int, 'visited_nodes': list, 'success': bool, 'answer': str, ...}
+            strategy_result = run_full_strategy(
+                question=question,
+                edges=task_graph_edges,
+                ground_truth=ground_truth
+            )
+            
+            end_time = time.time()
+            latency_ms = (end_time - start_time) * 1000.0
+            
+            # Extract metrics
+            nodes_visited = strategy_result.get('nodes_visited', 0)
+            success = strategy_result.get('success', False)
+            predicted_answer = strategy_result.get('answer', '')
+            
+            # Calculate accuracy (binary match for now, or partial if needed)
+            # Assuming strict match for baseline
+            is_correct = normalize_answer(predicted_answer) == ground_truth if ground_truth else False
+            accuracy = 1.0 if is_correct else 0.0
+            
+            result['accuracy'] = accuracy
+            result['nodes_visited'] = nodes_visited
+            result['latency_ms'] = latency_ms
+            result['status'] = 'COMPLETED' if success else 'UNRESOLVED'
+            
+    except TimeoutError:
+        end_time = time.time()
+        result['latency_ms'] = (end_time - start_time) * 1000.0
+        result['status'] = 'TIMEOUT'
+        logger.warning(f"Task {task_id}: Execution timed out.")
+    except Exception as e:
+        end_time = time.time()
+        result['latency_ms'] = (end_time - start_time) * 1000.0
+        result['status'] = 'ERROR'
+        logger.error(f"Task {task_id}: Execution failed with error: {e}")
+
+    return result
+
+def save_results_to_csv(results: List[Dict[str, Any]], output_path: str):
+    """Save results to a CSV file."""
+    if not results:
+        logger.warning("No results to save.")
+        return
+
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    fieldnames = ['task_id', 'accuracy', 'nodes_visited', 'latency_ms', 'status']
+    
+    with open(output_path, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer.writeheader()
+        for row in results:
+            writer.writerow(row)
+    
+    logger.info(f"Results saved to {output_path}")
 
 def main():
-    """Main entry point for the baseline execution runner."""
-    logger.info("Starting Baseline Execution Runner (Full Strategy)")
+    """Main entry point for the baseline runner."""
+    logger.info("Starting Baseline Execution Runner...")
     
-    # Ensure output directory exists
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    # Ensure output directories exist
+    os.makedirs(os.path.dirname(OUTPUT_PATH), exist_ok=True)
     
     # Load tasks
-    tasks = load_tasks()
+    try:
+        tasks = load_tasks()
+        logger.info(f"Loaded {len(tasks)} tasks from {RAW_DATA_PATH}")
+    except Exception as e:
+        logger.error(f"Failed to load tasks: {e}")
+        sys.exit(1)
+
+    # Load graphs
+    if not os.path.exists(GRAPHS_PATH):
+        logger.error(f"Graph file not found: {GRAPHS_PATH}. Run T011a-1 first.")
+        sys.exit(1)
     
-    if not tasks:
-        logger.warning("No tasks loaded. Exiting.")
-        return
+    try:
+        with open(GRAPHS_PATH, 'r', encoding='utf-8') as f:
+            graphs = json.load(f)
+        logger.info(f"Loaded graphs for {len(graphs)} tasks from {GRAPHS_PATH}")
+    except Exception as e:
+        logger.error(f"Failed to load graphs: {e}")
+        sys.exit(1)
+
+    # Process tasks
+    results = []
+    total = len(tasks)
     
-    # Define the executor function
-    executor_func = evaluate_task
+    for i, task in enumerate(tasks):
+        task_id = task.get('task_id', task.get('id', 'unknown'))
+        logger.info(f"Processing task {i+1}/{total}: {task_id}")
+        
+        result = evaluate_task(task, graphs)
+        results.append(result)
+        
+        # Log intermediate status
+        logger.info(f"  -> Status: {result['status']}, Accuracy: {result['accuracy']}, Nodes: {result['nodes_visited']}")
+
+    # Save results
+    save_results_to_csv(results, OUTPUT_PATH)
     
-    # Run the batch
-    output_path = str(RESULTS_FILE)
-    logger.info(f"Executing {len(tasks)} tasks with timeout={TIMEOUT_SECONDS}s...")
+    # Summary
+    completed = sum(1 for r in results if r['status'] == 'COMPLETED')
+    timeout = sum(1 for r in results if r['status'] == 'TIMEOUT')
+    degenerate = sum(1 for r in results if r['status'] == 'DEGENERATE')
+    unresolved = sum(1 for r in results if r['status'] == 'UNRESOLVED')
     
-    run_batch(
-        tasks=tasks,
-        executor=executor_func,
-        output_path=output_path,
-        timeout_seconds=TIMEOUT_SECONDS
-    )
+    logger.info(f"Baseline Execution Complete. Total: {total}, Completed: {completed}, "
+                f"Timeout: {timeout}, Degenerate: {degenerate}, Unresolved: {unresolved}")
     
-    logger.info(f"Baseline execution complete. Results saved to {output_path}")
+    return results
 
 if __name__ == "__main__":
     main()

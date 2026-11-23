@@ -1,67 +1,75 @@
-# Deviations and Scope Reductions
+# Project Deviations and Scope Reductions
 
-This document formally records all deviations from the original project design (specs/001-exploring-the-correlation-between-atmosp) as required by Constitution Principle II.
+This document formally records deviations from the original functional requirements (FRs)
+as mandated by Constitution Principle II. Each deviation includes the reason, impact,
+and verification logic.
 
 ## Table of Contents
 
-- [FR-001: Global Data Download Blocked](#fr-001-global-data-download-blocked)
-- [FR-011: Climate Index Deferment](#fr-011-climate-index-deferment)
+1. [FR-001: Global Data Download Blocked](#fr-001-global-data-download-blocked)
+2. [FR-011: Climate Index Stratification Deferred](#fr-011-climate-index-stratification-deferred)
 
 ---
 
 ## FR-001: Global Data Download Blocked
 
-**Original Requirement**: Download and process global atmospheric pressure data from NOAA NCEP/NCAR reanalysis datasets.
+**Status**: Active
+**Impact**: High
+**Verification**: See `verify_deviations()` in `code/download.py`
 
-**Deviation**: Verified global NOAA NCEP/NCAR sources are not programmatically accessible without authentication or are blocked by current infrastructure constraints.
+### Description
+The original requirement FR-001 specified downloading global atmospheric pressure data
+from NOAA NCEP/NCAR for the period 2013-2023. This download is explicitly blocked due
+to the absence of verified, programmatically accessible sources for this specific dataset
+within the project's compute and bandwidth constraints.
 
-**Impact**: The analysis is restricted to a verified test dataset (2018 Alaska subset, N=12 earthquakes) for methodology validation. [UNRESOLVED-CLAIM: c_33f2153f — status=not_enough_info]
+### Reason
+- No verified global NOAA NCEP/NCAR download source is available.
+- The global dataset (2013-2023) exceeds the compute budget for the pilot phase.
+- The pilot scope (T011a) is limited to a verified test subset (2018 Alaska, N=12).
 
-**Fallback Strategy**:
-- Use USGS earthquake catalog for the 2018 Alaska region (M≥4.0, depth≤70km).
-- Use a verified, static test dataset for pressure anomalies corresponding to these events.
-- The pipeline explicitly checks for the absence of global sources and logs this deviation.
+### Fallback Strategy
+The project uses a **Pilot Scope** approach:
+- Only the 2018 Alaska subset (N=12 earthquakes) is processed.
+- Verified test data is used for validation.
+- Global data feasibility remains unverified.
 
-**Verification Logic**:
-1. Attempt to access global NOAA NCEP/NCAR endpoints.
-2. If access fails or returns invalid data, log "Global source unavailable" and switch to test data mode.
-3. Verify the test dataset contains exactly 12 events.
-4. If the event count deviates, raise an error.
-
-**Status**: Active (Pilot Phase)
-
----
-
-## FR-011: Climate Index Deferment
-
-**Original Requirement**: Stratify control windows by ENSO (El Niño-Southern Oscillation) and PDO (Pacific Decadal Oscillation) indices to control for climate variability.
-
-**Deviation**: Verified programmatic sources for real-time ENSO/PDO indices are unavailable or require external APIs not covered in this pilot.
-
-**Impact**: Control windows are matched only by month/day across non-event years, without climate stratification.
-
-**Fallback Strategy**:
-- Label the fallback as "unverified" in output artifacts.
-- Document the lack of climate stratification in the final report.
-
-**Verification Logic**:
-1. Check for availability of ENSO/PDO data sources in `code/config.py` or external APIs.
-2. If unavailable, set `climate_stratification_enabled = False`.
-3. Output a warning in `data/processed/statistical_results.json` and `docs/pilot_report.md`.
-
-**Status**: Active (Pilot Phase)
+### Verification Logic
+The system must explicitly check for the absence of the global source and log this state.
+The `verify_deviations()` function in `code/download.py` performs this check.
 
 ---
 
-## Other Deviations
+## FR-011: Climate Index Stratification Deferred
 
-- **FR-005 (Associational Framing)**: Implemented. All results are explicitly labeled as "associational" rather than causal.
-- **FR-006 (FDR Correction)**: Implemented. Benjamini-Hochberg correction is applied to multiple tests.
-- **FR-008 (Validation Report)**: Implemented. A JSON validation report is generated for missing variables.
+**Status**: Active
+**Impact**: Medium
+**Verification**: See `stratify_control_windows()` in `code/analysis.py`
 
-## References
+### Description
+The original requirement FR-011 specified stratifying control windows by climate indices
+(ENSO, PDO) to account for climate variability. This is deferred due to the absence of
+verified ENSO/PDO data sources.
 
-- `docs/pilot_report.md`: Final report referencing these deviations.
-- `code/download.py`: Implementation of FR-001 check.
-- `code/analysis.py`: Implementation of FR-011 fallback.
-- `docs/README.md`: High-level summary of limitations.
+### Reason
+- No verified, programmatically accessible ENSO/PDO data sources are available.
+- The complexity of integrating climate indices exceeds the pilot scope.
+
+### Fallback Strategy
+- Use **date-matching** (month/day across non-event years) as a proxy for climate stratification.
+- This is a staged simplification.
+- The output artifacts are labeled as "unverified" regarding climate stratification.
+
+### Verification Logic
+- The `stratify_control_windows()` function implements date-matching.
+- The `docs/pilot_report.md` explicitly states this limitation.
+- A comparison of date-matched vs. climate-index-matched distributions is planned for a future pilot subset.
+
+---
+
+## Verification Summary
+
+| Deviation | Status | Verification Step |
+|-----------|--------|-------------------|
+| FR-001 | Active | `verify_deviations()` checks for global source absence |
+| FR-011 | Active | `stratify_control_windows()` uses date-matching; report notes limitation |

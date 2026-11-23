@@ -1,0 +1,15 @@
+status: none
+intent: pip install CodeSearchNet Python dataset from HuggingFace repository python
+  package dataset
+required_fields:
+- function_name
+- function_code
+- docstring
+- original_url
+- repo_name
+- language
+- tokens
+- metadata
+cache_key: ac42edf4d2505ac72380ba4a91ccade3f7f8b2590f723fb0ca77db1987a7f760
+searched_at: '2026-10-11T11:19:16.780609+00:00'
+retry_count: 1

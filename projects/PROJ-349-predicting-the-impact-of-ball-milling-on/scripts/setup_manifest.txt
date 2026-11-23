@@ -1,0 +1,33 @@
+# Project Directory Structure Manifest
+# Generated for PROJ-349: Predicting the Impact of Ball Milling on Particle Size Distribution
+# This file lists the required directory structure for the project.
+
+src/
+src/cli/
+src/config/
+src/evaluate/
+src/ingest/
+src/interpret/
+src/model/
+src/preprocess/
+src/utils/
+
+tests/
+tests/contract/
+tests/integration/
+tests/unit/
+
+data/
+data/raw/
+data/processed/
+data/splits/
+
+results/
+
+contracts/
+
+.github/
+.github/workflows/
+
+scripts/
+docs/

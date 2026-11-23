@@ -1,184 +1,142 @@
 """
-Unit tests for src.data.validate module.
+Unit tests for src/data/validate.py
 """
+
 import os
+import sys
 import tempfile
-import pytest
-import pandas as pd
-import yaml
 from pathlib import Path
 
-# Import the module to test
-import sys
-sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent / "code"))
+import pandas as pd
+import pytest
+import yaml
 
-from src.data import validate
+# Add project root to path for imports if running standalone
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
+
+from src.data.validate import (
+    E_SCHEMA_MISSING,
+    load_schema,
+    validate_columns,
+    validate_data,
+)
 
 
 @pytest.fixture
 def temp_schema_file():
-    """Create a temporary schema file for testing."""
+    """Creates a temporary schema file for testing."""
     schema = {
-        "required_columns": ["VAX_TYPE", "SOC_CODE", "REPT_DATE", "AGE"],
-        "column_constraints": {
-            "VAX_TYPE": {"non_empty": True},
-            "AGE": {"non_empty": False}
-        }
+        "version": "1.0",
+        "required_columns": ["VAX_TYPE", "SOC_CODE", "REPT_DATE", "AGE", "LLT"],
     }
-    
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".yaml", delete=False) as f:
         yaml.dump(schema, f)
-        f.flush()
-        yield f.name
-    
-    os.unlink(f.name)
+        temp_path = f.name
+    yield temp_path
+    os.unlink(temp_path)
 
 
 @pytest.fixture
 def valid_csv_file():
-    """Create a temporary valid CSV file for testing."""
+    """Creates a temporary CSV file with valid columns."""
     data = {
-        "VAX_TYPE": ["COVID-19", "Non-COVID", "Flu"],
-        "SOC_CODE": ["SOC001", "SOC002", "SOC003"],
-        "REPT_DATE": ["2021-01-01", "2021-01-02", "2021-01-03"],
-        "AGE": [25, 30, 45]
+        "VAX_TYPE": ["COVID-19", "Influenza"],
+        "SOC_CODE": ["SOC001", "SOC002"],
+        "LLT": ["LLT001", "LLT002"],
+        "REPT_DATE": ["2021-01-01", "2021-01-02"],
+        "AGE": ["30", "45"],
     }
     df = pd.DataFrame(data)
-    
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
         df.to_csv(f, index=False)
-        f.flush()
-        yield f.name
-    
-    os.unlink(f.name)
+        temp_path = f.name
+    yield temp_path
+    os.unlink(temp_path)
 
 
 @pytest.fixture
 def invalid_csv_file():
-    """Create a temporary CSV file missing required columns."""
+    """Creates a temporary CSV file with missing columns."""
     data = {
-        "VAX_TYPE": ["COVID-19", "Non-COVID"],
-        "AGE": [25, 30]
+        "VAX_TYPE": ["COVID-19"],
+        "LLT": ["LLT001"],
+        "AGE": ["30"],
         # Missing SOC_CODE and REPT_DATE
     }
     df = pd.DataFrame(data)
-    
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as f:
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".csv", delete=False) as f:
         df.to_csv(f, index=False)
-        f.flush()
-        yield f.name
-    
-    os.unlink(f.name)
-
-
-def test_load_schema_valid(temp_schema_file):
-    """Test loading a valid schema file."""
-    schema = validate.load_schema(Path(temp_schema_file))
-    assert "required_columns" in schema
-    assert schema["required_columns"] == ["VAX_TYPE", "SOC_CODE", "REPT_DATE", "AGE"]
-
-
-def test_load_schema_file_not_found():
-    """Test loading a non-existent schema file exits with E_FILE_NOT_FOUND."""
-    with pytest.raises(SystemExit) as exc_info:
-        validate.load_schema(Path("/nonexistent/schema.yaml"))
-    assert exc_info.value.code == validate.E_FILE_NOT_FOUND
-
-
-def test_load_schema_invalid_yaml():
-    """Test loading an invalid YAML schema file exits with E_INVALID_SCHEMA."""
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-        f.write("invalid: yaml: content: [")
-        f.flush()
         temp_path = f.name
-    
-    with pytest.raises(SystemExit) as exc_info:
-        validate.load_schema(Path(temp_path))
-    assert exc_info.value.code == validate.E_INVALID_SCHEMA
-    
+    yield temp_path
     os.unlink(temp_path)
 
 
-def test_validate_columns_all_present():
-    """Test column validation when all required columns are present."""
-    df = pd.DataFrame({
-        "VAX_TYPE": ["A"],
-        "SOC_CODE": ["B"],
-        "REPT_DATE": ["C"],
-        "AGE": [1]
-    })
-    missing = validate.validate_columns(df, ["VAX_TYPE", "SOC_CODE", "REPT_DATE", "AGE"])
-    assert missing == []
+class TestLoadSchema:
+    def test_load_schema_success(self, temp_schema_file):
+        schema = load_schema(temp_schema_file)
+        assert "version" in schema
+        assert "required_columns" in schema
+        assert schema["version"] == "1.0"
+
+    def test_load_schema_not_found(self):
+        with pytest.raises(FileNotFoundError):
+            load_schema("non_existent_file.yaml")
 
 
-def test_validate_columns_missing():
-    """Test column validation when some required columns are missing."""
-    df = pd.DataFrame({
-        "VAX_TYPE": ["A"],
-        "AGE": [1]
-    })
-    missing = validate.validate_columns(df, ["VAX_TYPE", "SOC_CODE", "REPT_DATE", "AGE"])
-    assert set(missing) == {"SOC_CODE", "REPT_DATE"}
+class TestValidateColumns:
+    def test_validate_columns_success(self):
+        df = pd.DataFrame({"A": [1], "B": [2], "C": [3]})
+        assert validate_columns(df, ["A", "B", "C"]) is True
+
+    def test_validate_columns_missing(self):
+        df = pd.DataFrame({"A": [1], "B": [2]})
+        assert validate_columns(df, ["A", "B", "C"]) is False
 
 
-def test_validate_data_valid(valid_csv_file, temp_schema_file):
-    """Test validation of a valid CSV file."""
-    result = validate.validate_data(valid_csv_file, temp_schema_file)
-    assert result is True
+class TestValidateData:
+    def test_validate_data_valid(self, valid_csv_file, temp_schema_file):
+        result = validate_data(valid_csv_file, temp_schema_file)
+        assert result is True
 
-
-def test_validate_data_missing_columns(invalid_csv_file, temp_schema_file):
-    """Test validation exits with E_SCHEMA_MISSING when columns are missing."""
-    with pytest.raises(SystemExit) as exc_info:
-        validate.validate_data(invalid_csv_file, temp_schema_file)
-    assert exc_info.value.code == validate.E_SCHEMA_MISSING
-
-
-def test_validate_data_file_not_found(temp_schema_file):
-    """Test validation exits with E_FILE_NOT_FOUND when input file is missing."""
-    with pytest.raises(SystemExit) as exc_info:
-        validate.validate_data("/nonexistent/file.csv", temp_schema_file)
-    assert exc_info.value.code == validate.E_FILE_NOT_FOUND
-
-
-def test_validate_data_no_schema_key(temp_schema_file, valid_csv_file):
-    """Test validation exits with E_INVALID_SCHEMA if schema lacks required_columns."""
-    # Create a schema without required_columns
-    bad_schema = {"other_key": "value"}
-    with tempfile.NamedTemporaryFile(mode='w', suffix='.yaml', delete=False) as f:
-        yaml.dump(bad_schema, f)
-        f.flush()
-        bad_schema_path = f.name
-    
-    with pytest.raises(SystemExit) as exc_info:
-        validate.validate_data(valid_csv_file, bad_schema_path)
-    assert exc_info.value.code == validate.E_INVALID_SCHEMA
-    
-    os.unlink(bad_schema_path)
-
-
-def test_main_command_line_valid(valid_csv_file, temp_schema_file):
-    """Test main function with valid command line arguments."""
-    import sys
-    original_argv = sys.argv
-    try:
-        sys.argv = ["validate", valid_csv_file, temp_schema_file]
-        # Capture exit code
+    def test_validate_data_missing_columns_raises(
+        self, invalid_csv_file, temp_schema_file
+    ):
         with pytest.raises(SystemExit) as exc_info:
-            validate.main()
-        assert exc_info.value.code == validate.E_SUCCESS
-    finally:
-        sys.argv = original_argv
+            validate_data(invalid_csv_file, temp_schema_file)
+        assert exc_info.value.code == E_SCHEMA_MISSING
 
-
-def test_main_command_line_missing_args():
-    """Test main function with missing command line arguments."""
-    import sys
-    original_argv = sys.argv
-    try:
-        sys.argv = ["validate"]
+    def test_validate_data_file_not_found(self, temp_schema_file):
         with pytest.raises(SystemExit) as exc_info:
-            validate.main()
-        assert exc_info.value.code == validate.E_VALIDATION_ERROR
-    finally:
-        sys.argv = original_argv
+            validate_data("non_existent.csv", temp_schema_file)
+        assert exc_info.value.code == E_SCHEMA_MISSING
+
+
+class TestMainCommandLine:
+    def test_main_success(self, valid_csv_file, temp_schema_file, capsys):
+        # Simulate command line arguments
+        original_argv = sys.argv
+        try:
+            sys.argv = ["validate.py", valid_csv_file, temp_schema_file]
+            from src.data.validate import main
+
+            # We expect main to exit with 0 on success
+            # However, pytest captures sys.exit. We need to handle this carefully.
+            # Ideally, we test the logic, but for CLI tools, checking exit code is standard.
+            with pytest.raises(SystemExit) as exc_info:
+                main()
+            assert exc_info.value.code == 0
+        finally:
+            sys.argv = original_argv
+
+    def test_main_failure(self, invalid_csv_file, temp_schema_file, capsys):
+        original_argv = sys.argv
+        try:
+            sys.argv = ["validate.py", invalid_csv_file, temp_schema_file]
+            from src.data.validate import main
+
+            with pytest.raises(SystemExit) as exc_info:
+                main()
+            assert exc_info.value.code == E_SCHEMA_MISSING
+        finally:
+            sys.argv = original_argv

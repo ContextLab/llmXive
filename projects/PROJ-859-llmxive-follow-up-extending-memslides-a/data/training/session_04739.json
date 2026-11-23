@@ -1,0 +1,105 @@
+{
+  "trace_id": "training_42_04739",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 8,
+  "tool_sequence": [
+    "insert_chart",
+    "apply_theme",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_image",
+    "insert_text",
+    "insert_text"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 28.3227,
+        "y": 16.3912,
+        "width": 13.5126,
+        "height": 89.49,
+        "data_points": 5.2484
+      }
+    },
+    {
+      "step": 1,
+      "tool": "apply_theme",
+      "arguments": {
+        "hue": 42.8499,
+        "saturation": 41.4001
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 80.6306,
+        "y": 72.484,
+        "width": 8.0028,
+        "height": 43.1054
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 17.3356,
+        "y": 19.1171,
+        "width": 37.6263,
+        "height": 45.5419
+      }
+    },
+    {
+      "step": 4,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 26.2621,
+        "y": 55.4162,
+        "width": 4.7201,
+        "height": 79.6045
+      }
+    },
+    {
+      "step": 5,
+      "tool": "insert_image",
+      "arguments": {
+        "x": 30.7626,
+        "y": 94.197,
+        "width": 37.7792,
+        "height": 84.565
+      }
+    },
+    {
+      "step": 6,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 51.0839,
+        "y": 60.7211,
+        "length": 5.9588
+      }
+    },
+    {
+      "step": 7,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 27.7104,
+        "y": 69.6232,
+        "length": 58.699
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.213008,
+    "tool_repetition_freq": 0.5,
+    "arg_semantic_variance": 719.392679
+  },
+  "final_state": {
+    "dominant_tool": "insert_image",
+    "slide_element_count": 4,
+    "layout_hash": "42-4739-insert_image"
+  }
+}

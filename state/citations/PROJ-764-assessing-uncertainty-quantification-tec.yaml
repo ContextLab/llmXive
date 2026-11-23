@@ -1,44 +1,66 @@
-- artifact_hash: 07fa309038c11eeef9f22339823d02a68427e27c942d26de08a772b7d880f84e
+- artifact_hash: ecf69bd01145867f8027c06261812850b691a522501bba4ffa8b807f9a0d678a
+  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/docs/data_source_rationale.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OQMD
+  kind: url
+  value: http://oqmd.org/
+  verification_status: pending
+  verified_against_url: https://oqmd.org/
+  verified_at: '2026-08-30T11:55:01.367089Z'
+- artifact_hash: ecf69bd01145867f8027c06261812850b691a522501bba4ffa8b807f9a0d678a
+  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/docs/data_source_rationale.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://materialsproject.org/
+  verification_status: pending
+  verified_against_url: https://next-gen.materialsproject.org/
+  verified_at: '2026-08-30T11:55:01.367089Z'
+- artifact_hash: a03c2f789e907eeecef85b110dfc5656686aa4f12bad6368280bfdeae3a25957
   artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/spec.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://materialsproject.org/open`
+  value: https://huggingface.co/datasets/OQMD/OQMD-Subset
   verification_status: pending
-  verified_against_url: https://next-gen.materialsproject.org/open
-  verified_at: '2026-07-07T15:40:46.693114Z'
-- artifact_hash: cd44e052306513df4d54522ffbfd6651a54875b9f6c3b5b5d41d51ef9b3ee817
-  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/research.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://huggingface.co/datasets/oqmd/formation-energy`
-  verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/oqmd/formation-energy
-  verified_at: '2026-07-07T15:48:05.533534Z'
-- artifact_hash: cd44e052306513df4d54522ffbfd6651a54875b9f6c3b5b5d41d51ef9b3ee817
-  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/research.md
+  verified_against_url: https://huggingface.co/datasets/OQMD/OQMD-Subset
+  verified_at: '2026-09-09T19:51:19.822544Z'
+- artifact_hash: a03c2f789e907eeecef85b110dfc5656686aa4f12bad6368280bfdeae3a25957
+  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/spec.md
   cite_id: c-002
   cited_authors: []
   cited_title: null
   fetched_title: null
   kind: url
-  value: https://huggingface.co/datasets/oqmd/formation-energy
+  value: https://huggingface.co/datasets/OQMD/OQMD-Subset`
   verification_status: pending
-  verified_against_url: https://huggingface.co/datasets/oqmd/formation-energy
-  verified_at: '2026-07-07T15:48:05.533534Z'
-- artifact_hash: 6624b6f63911aaaf80a8ccac16ca4777e59da364844d4bdef14e25b918a7172b
-  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/quickstart.md
+  verified_against_url: https://huggingface.co/datasets/OQMD/OQMD-Subset
+  verified_at: '2026-09-09T19:51:19.822544Z'
+- artifact_hash: e1a147950e292d30fa906009bda7bac2bef369f7e215d18b20b33bad8fb6486f
+  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: cpu
+  fetched_title: targets.csv
   kind: url
-  value: https://download.pytorch.org/whl/cpu`
+  value: https://huggingface.co/datasets/kjappelbaum/chemnlp-oqmd/resolve/main/targets.csv`
   verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu
-  verified_at: '2026-07-07T15:48:26.220536Z'
+  verified_against_url: https://us.aws.cdn.hf.co/xet-bridge-us/652f6dabf08bb52d99755c55/f05282c156a6585cb0a087f40ca9b1f4db3620b1a4dcccd5ce606e2e957527d1?X-Xet-Cas-Uid=public&user_id=public&response-content-type=text%2Fcsv%3B+charset%3Dutf-8&xip=UGN9qLc67Uw&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27targets.csv%3B+filename%3D%22targets.csv%22%3B&Expires=1791360244&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly91cy5hd3MuY2RuLmhmLmNvL3hldC1icmlkZ2UtdXMvNjUyZjZkYWJmMDhiYjUyZDk5NzU1YzU1L2YwNTI4MmMxNTZhNjU4NWNiMGEwODdmNDBjYTliMWY0ZGIzNjIwYjFhNGRjY2NkNWNlNjA2ZTJlOTU3NTI3ZDFcXD9YLVhldC1DYXMtVWlkPXB1YmxpYyZ1c2VyX2lkPXB1YmxpYyZyZXNwb25zZS1jb250ZW50LXR5cGU9dGV4dCUyRmNzdiUzQitjaGFyc2V0JTNEdXRmLTgmeGlwPVVHTjlxTGM2N1V3JnJlc3BvbnNlLWNvbnRlbnQtZGlzcG9zaXRpb249aW5saW5lJTNCK2ZpbGVuYW1lJTJBJTNEVVRGLTglMjclMjd0YXJnZXRzLmNzdiUzQitmaWxlbmFtZSUzRCUyMnRhcmdldHMuY3N2JTIyJTNCIiwiQ29uZGl0aW9uIjp7IkRhdGVMZXNzVGhhbiI6eyJFcG9jaFRpbWUiOjE3OTEzNjAyNDR9fX1dfQ__&Signature=MEYCIQCyZQtA7ZsmqgPyCdlPAkfX6rK6j0qGdzTs%7EwBaLaOidwIhAKzQ0ICotXum4GnaKkdJH7D4q30B7DcUaz6FtLOb0hBx&Key-Pair-Id=01KXEF4KZ1B6FV465MAWR4M21F&Hash-Algorithm=SHA256
+  verified_at: '2026-10-07T07:04:04.019582Z'
+- artifact_hash: e2223d40e3e83ce0b85f8490023f9d4b1ec0724bcfa121fa440f55e97ee6d834
+  artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://huggingface.co/datasets/OQMD/OQMD-Subset`
+  verification_status: pending
+  verified_against_url: https://huggingface.co/datasets/OQMD/OQMD-Subset
+  verified_at: '2026-10-11T10:19:17.779923Z'

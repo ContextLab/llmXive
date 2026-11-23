@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MergedDataset",
+  "description": "Schema for the final merged dataset including derived fields.",
+  "type": "object",
+  "properties": {
+    "participant_id": {
+      "type": "string",
+      "description": "Unique identifier for the participant"
+    },
+    "latitude": {
+      "type": "number",
+      "description": "Latitude of the participant",
+      "minimum": -90.0,
+      "maximum": 90.0
+    },
+    "longitude": {
+      "type": "number",
+      "description": "Longitude of the participant",
+      "minimum": -180.0,
+      "maximum": 180.0
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp of the response"
+    },
+    "response_time": {
+      "type": "number",
+      "description": "Response time in milliseconds"
+    },
+    "country": {
+      "type": "string",
+      "description": "Country code or name"
+    },
+    "dilemma_id": {
+      "type": "string",
+      "description": "Unique identifier for the dilemma"
+    },
+    "grid_id": {
+      "type": "string",
+      "description": "Matched ERA5 grid identifier"
+    },
+    "temperature_celsius": {
+      "type": "number",
+      "description": "Matched temperature in Celsius"
+    },
+    "dilemma_choice": {
+      "type": "string",
+      "description": "Derived dilemma choice (e.g., 'save_many', 'save_few')"
+    },
+    "dilemma_complexity": {
+      "type": "number",
+      "description": "Derived complexity score of the dilemma"
+    },
+    "time_of_day": {
+      "type": "string",
+      "description": "Categorized time of day (e.g., 'morning', 'afternoon')"
+    },
+    "cultural_region": {
+      "type": "string",
+      "description": "Derived cultural region based on country"
+    }
+  },
+  "required": [
+    "participant_id",
+    "latitude",
+    "longitude",
+    "timestamp",
+    "response_time",
+    "country",
+    "dilemma_id",
+    "grid_id",
+    "temperature_celsius",
+    "dilemma_choice",
+    "dilemma_complexity",
+    "time_of_day",
+    "cultural_region"
+  ]
+}

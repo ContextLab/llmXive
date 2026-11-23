@@ -1,0 +1,17 @@
+pandas
+numpy
+scipy
+networkx
+scikit-learn
+matplotlib
+seaborn
+pydantic
+ase
+phonopy
+statsmodels
+pymatgen
+requests
+pytest
+pytest-cov
+ruff
+mypy

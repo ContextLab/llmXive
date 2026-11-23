@@ -9,7 +9,10 @@ backend declaration to configure.
 from __future__ import annotations
 
 import enum
+import hashlib
+import os
 from collections.abc import Iterable
+from functools import lru_cache
 from typing import TYPE_CHECKING
 
 from llmxive.backends.base import (
@@ -48,7 +51,22 @@ def make_backend(name: str) -> BaseBackend:
     cls = _REGISTRY.get(name)
     if cls is None:
         raise PermanentBackendError(f"unknown backend: {name!r}")
+    if cls is DartmouthBackend:
+        from llmxive.backends.dartmouth import _cloud_models_url, _ensure_api_key_env
+
+        _ensure_api_key_env()
+        # Keep outage history across agent calls, isolated by endpoint and auth.
+        # No raw credential is retained in the cache key or diagnostic output.
+        context = hashlib.sha256((
+            _cloud_models_url() + "\0" + os.environ.get("DARTMOUTH_CHAT_API_KEY", "")
+        ).encode()).hexdigest()
+        return _dartmouth_backend(context)
     return cls()
+
+
+@lru_cache(maxsize=8)
+def _dartmouth_backend(context: str) -> DartmouthBackend:
+    return DartmouthBackend()
 
 
 # ---------------------------------------------------------------------------
@@ -242,6 +260,7 @@ def _walker_route(
     reservation_authority: ReservationAuthority | None = None,
     route_id: str | None = None,
     reraise_model_unavailable: bool = False,
+    excluded_models: frozenset[str] = frozenset(),
 ) -> ChatResponse:
     """Shared body for the retired instance-taking walkers (spec 026 slice 5):
     delegate to ``route_chat`` (select() → execute()), adapting the caller's
@@ -274,10 +293,30 @@ def _walker_route(
     FR-002's proposal reroute needs the RAW ``ModelUnavailable`` to decide whether
     to try its relaxed second leg, which a ``BackendUnavailable`` has already
     erased. ``ChainExhausted`` is never affected — see the handler.
+
+    ``excluded_models`` omits request-local rejected producers (e.g. the model
+    that just returned a malformed revision) without changing the profile, the
+    capability policy or any circuit breaker. It is NOT a second selection
+    path: the ids are unioned into ``RequirementOverrides.exclude_models``, so
+    ``select()`` simply ranks the remaining eligible candidates.
     """
     from llmxive.model_selection.execute import ChainExhausted
     from llmxive.model_selection.route import route_chat
     from llmxive.model_selection.types import ModelUnavailable
+
+    if excluded_models:
+        from dataclasses import replace
+
+        from llmxive.model_selection.types import RequirementOverrides as _Overrides
+
+        overrides = (
+            _Overrides(exclude_models=frozenset(excluded_models))
+            if overrides is None
+            else replace(
+                overrides,
+                exclude_models=overrides.exclude_models | frozenset(excluded_models),
+            )
+        )
 
     injected_name = getattr(backend, "name", None) or "dartmouth"
 
@@ -333,6 +372,7 @@ def chat_with_model_fallback(
     reservation_authority: ReservationAuthority | None = None,
     route_id: str | None = None,
     reraise_model_unavailable: bool = False,
+    excluded_models: frozenset[str] = frozenset(),
 ) -> ChatResponse:
     """Convergence-panel / reviser reasoning call on a GIVEN backend (spec 026
     slice 5): a thin wrapper over :func:`_walker_route` → ``route_chat`` (select()
@@ -352,6 +392,9 @@ def chat_with_model_fallback(
     (FR-033a/FR-033), the durable ``route_id`` that makes a replayed call
     recognizable, and ``reraise_model_unavailable`` for the reroute. All default to
     a no-op, so the research/paper pipeline is untouched.
+
+    ``excluded_models`` omits request-local rejected producers without changing
+    the profile or any circuit breaker (see :func:`_walker_route`).
     """
     return _walker_route(
         backend, messages, model=model,
@@ -364,6 +407,7 @@ def chat_with_model_fallback(
         reservation_authority=reservation_authority,
         route_id=route_id,
         reraise_model_unavailable=reraise_model_unavailable,
+        excluded_models=excluded_models,
     )
 
 
@@ -376,6 +420,7 @@ def reasoning_chat(
     temperature: float | None = None,
     overrides: RequirementOverrides | None = None,
     profile: str = "standard_generation",
+    excluded_models: frozenset[str] = frozenset(),
 ) -> ChatResponse:
     """THE single entry point for a reasoning/analysis LLM call (spec 026 slice 5):
     a thin wrapper over :func:`_walker_route` → ``route_chat``. Every
@@ -388,7 +433,8 @@ def reasoning_chat(
     (spec 026 slice 7) selects the capability class for callers that resolve one
     from an ``AgentRegistryEntry``; default ``"standard_generation"`` preserves
     prior behavior for the many non-registry reasoning callers (claim/fill/
-    grounding/triage) that have no profile of their own.
+    grounding/triage) that have no profile of their own. ``excluded_models``
+    omits request-local rejected producers (see :func:`_walker_route`).
     """
     return _walker_route(
         backend, messages, model=model,
@@ -396,6 +442,7 @@ def reasoning_chat(
         temperature=temperature,
         overrides=overrides,
         profile=profile,
+        excluded_models=excluded_models,
     )
 
 

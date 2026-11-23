@@ -42,5 +42,15 @@
     "picture/webshop_rewrite249_gpt54_high_token_length_distribution_paper_aligned.png",
     "picture/webshop_rewrite249_gpt54_high_word_cloud_paper_aligned.png",
     "picture/webshop_terminalbench_recall_2panel.pdf"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "cbd64f2bb4f565d6043313c36d2cca4d14e38173048c5eb333067e113ed6ebfc",
+      "bytes": 1528956
+    },
+    "original.pdf": {
+      "sha256": "7f0585c4303667e0eb0f50b9eb04e0218c26f27f199e8a0085ac9016058b6502",
+      "bytes": 1508312
+    }
+  }
 }

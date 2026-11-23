@@ -1,299 +1,159 @@
 """
-Statistical analysis functions for cross-modal comparison of neural prediction error signals.
-
-This module implements:
-- Mixed-Effects Permutation Test for source strength modality comparison
-- Independent samples t-test for source strength comparison
-- TOST (Two One-Sided Tests) for equivalence testing
-- Benjamini-Hochberg correction for multiple comparisons
-
-All statistical tests are designed to work with CPU-only environments and limited RAM.
+Statistical analysis module for cross-modal comparison of neural prediction error signals.
+Implements permutation tests, t-tests, equivalence tests, and multiple comparison corrections.
 """
 
 import numpy as np
 from typing import Dict, Any, Optional, Tuple, List
 import logging
-
+from scipy import stats
 from code.utils.logger import get_logger
+from code.config import get_config
 
 logger = get_logger(__name__)
 
+
+class StatsError(Exception):
+    """Custom exception for statistical analysis errors."""
+    pass
+
+
 def mixed_effects_permutation_test(
-    group1: np.ndarray,
-    group2: np.ndarray,
-    n_permutations: int = 1000,
-    random_state: Optional[int] = None,
+    data_a: np.ndarray,
+    data_b: np.ndarray,
+    n_permutations: int = 5000,
+    seed: Optional[int] = None,
     alpha: float = 0.05
 ) -> Dict[str, Any]:
     """
-    Perform a mixed-effects permutation test for comparing source strength between two modalities.
-    
-    This test preserves the subject-level structure while permuting group labels,
-    making it suitable for within-subject designs common in EEG/MEG studies.
-    
-    Parameters
-    ----------
-    group1 : np.ndarray
-        Source strength data for first modality (subjects x sources)
-    group2 : np.ndarray
-        Source strength data for second modality (subjects x sources)
-    n_permutations : int
-        Number of permutations to perform (default: 1000)
-    random_state : int, optional
-        Random seed for reproducibility
-    alpha : float
-        Significance level for p-value calculation (default: 0.05)
-    
-    Returns
-    -------
-    dict
-        Dictionary containing:
-        - 'observed_t': The t-statistic for the observed data
-        - 'p_value': The permutation-based p-value
-        - 'permuted_t_distribution': Array of t-statistics from permuted data
-        - 'n_permutations': Number of permutations performed
-    
-    Raises
-    ------
-    ValueError
-        If input arrays have incompatible shapes or contain invalid values
+    Perform a mixed-effects permutation test for source strength modality comparison.
+
+    Args:
+        data_a: Source strength values for modality A (e.g., auditory).
+        data_b: Source strength values for modality B (e.g., visual).
+        n_permutations: Number of permutations to run.
+        seed: Random seed for reproducibility.
+        alpha: Significance level.
+
+    Returns:
+        Dictionary containing p-value, test statistic, and significance flag.
     """
-    if random_state is not None:
-        np.random.seed(random_state)
-    
-    # Validate inputs
-    if group1.shape != group2.shape:
-        raise ValueError(
-            f"Group shapes must match. Got {group1.shape} and {group2.shape}"
-        )
-    
-    if group1.shape[0] < 2:
-        raise ValueError(
-            f"Insufficient subjects for permutation test. Got {group1.shape[0]}, need at least 2"
-        )
-    
-    if np.any(np.isnan(group1)) or np.any(np.isnan(group2)):
-        raise ValueError("Input arrays contain NaN values. Please handle missing data before testing.")
-    
-    n_subjects, n_sources = group1.shape
-    
-    # Calculate observed t-statistic (paired t-test for within-subject design)
-    diff = group1 - group2
-    observed_t = _calculate_t_statistic(diff)
-    
-    logger.info(f"Observed t-statistic: {observed_t:.4f}")
-    
-    # Generate permutation distribution
-    permuted_t_distribution = np.zeros(n_permutations)
-    
+    if seed is not None:
+        np.random.seed(seed)
+
+    if len(data_a) < 2 or len(data_b) < 2:
+        raise StatsError("Both datasets must have at least 2 samples for permutation test.")
+
+    # Observed statistic (difference in means)
+    obs_stat = np.mean(data_a) - np.mean(data_b)
+
+    # Combine data
+    combined = np.concatenate([data_a, data_b])
+    n_a = len(data_a)
+    n_total = len(combined)
+
+    # Permutation distribution
+    perm_stats = np.zeros(n_permutations)
     for i in range(n_permutations):
-        # Randomly flip signs for each subject (preserves within-subject structure)
-        sign_flip = np.random.choice([-1, 1], size=n_subjects)
-        permuted_diff = diff * sign_flip[:, np.newaxis]
-        permuted_t = _calculate_t_statistic(permuted_diff)
-        permuted_t_distribution[i] = permuted_t
-    
-    # Calculate p-value (two-tailed)
-    # Count how many permuted statistics are as extreme or more extreme than observed
-    extreme_count = np.sum(np.abs(permuted_t_distribution) >= np.abs(observed_t))
-    p_value = (extreme_count + 1) / (n_permutations + 1)  # Add 1 for observed statistic
-    
-    logger.info(f"Permutation test completed. P-value: {p_value:.4f} ({n_permutations} permutations)")
-    
+        np.random.shuffle(combined)
+        perm_a = combined[:n_a]
+        perm_b = combined[n_a:]
+        perm_stats[i] = np.mean(perm_a) - np.mean(perm_b)
+
+    # Two-tailed p-value
+    p_value = (np.sum(np.abs(perm_stats) >= np.abs(obs_stat)) + 1) / (n_permutations + 1)
+
     return {
-        'observed_t': float(observed_t),
-        'p_value': float(p_value),
-        'permuted_t_distribution': permuted_t_distribution,
-        'n_permutations': n_permutations
+        "test_statistic": float(obs_stat),
+        "p_value": float(p_value),
+        "n_permutations": n_permutations,
+        "significant": bool(p_value < alpha),
+        "alpha": alpha
     }
 
-def _calculate_t_statistic(diff: np.ndarray) -> float:
-    """
-    Calculate t-statistic for difference data.
-    
-    Parameters
-    ----------
-    diff : np.ndarray
-        Difference data (subjects x sources)
-    
-    Returns
-    -------
-    float
-        Mean t-statistic across all sources
-    """
-    # Calculate t-statistic for each source
-    n_subjects = diff.shape[0]
-    mean_diff = np.mean(diff, axis=0)
-    std_diff = np.std(diff, axis=0, ddof=1)
-    
-    # Avoid division by zero
-    std_diff[std_diff == 0] = 1e-10
-    
-    t_values = mean_diff / (std_diff / np.sqrt(n_subjects))
-    
-    # Return mean t-statistic across sources (for global test)
-    return float(np.mean(t_values))
 
 def independent_samples_ttest(
-    group1: np.ndarray,
-    group2: np.ndarray,
-    alpha: float = 0.05
+    data_a: np.ndarray,
+    data_b: np.ndarray,
+    equal_var: bool = True
 ) -> Dict[str, Any]:
     """
-    Perform independent samples t-test for source strength comparison.
-    
-    Note: This is a simplified version that treats all subjects as independent,
-    which may not be appropriate for within-subject designs. Use with caution.
-    
-    Parameters
-    ----------
-    group1 : np.ndarray
-        Source strength data for first modality
-    group2 : np.ndarray
-        Source strength data for second modality
-    alpha : float
-        Significance level (default: 0.05)
-    
-    Returns
-    -------
-    dict
-        Dictionary containing:
-        - 't_statistic': The t-statistic
-        - 'p_value': The p-value
-        - 'degrees_of_freedom': Degrees of freedom
-        - 'significant': Boolean indicating if result is significant
+    Perform an independent samples t-test for source strength modality comparison.
+
+    Args:
+        data_a: Source strength values for modality A.
+        data_b: Source strength values for modality B.
+        equal_var: If True, perform standard t-test (assume equal variance).
+                   If False, perform Welch's t-test.
+
+    Returns:
+        Dictionary containing t-statistic, p-value, and degrees of freedom.
     """
-    # Flatten data for independent samples test
-    flat1 = group1.flatten()
-    flat2 = group2.flatten()
-    
-    n1, n2 = len(flat1), len(flat2)
-    mean1, mean2 = np.mean(flat1), np.mean(flat2)
-    var1, var2 = np.var(flat1, ddof=1), np.var(flat2, ddof=1)
-    
-    # Pooled standard error
-    se = np.sqrt(var1/n1 + var2/n2)
-    if se == 0:
-        se = 1e-10
-    
-    t_stat = (mean1 - mean2) / se
-    
-    # Degrees of freedom (Welch-Satterthwaite equation)
-    df = (var1/n1 + var2/n2)**2 / (
-        (var1/n1)**2/(n1-1) + (var2/n2)**2/(n2-1)
-    )
-    
-    # Two-tailed p-value approximation (using normal distribution for large samples)
-    # For exact p-value, would need scipy.stats.t.sf
-    p_value = 2 * (1 - _norm_cdf(abs(t_stat)))
-    
-    significant = p_value < alpha
-    
-    logger.info(f"Independent t-test: t={t_stat:.4f}, p={p_value:.4f}, df={df:.2f}")
-    
+    if len(data_a) < 2 or len(data_b) < 2:
+        raise StatsError("Both datasets must have at least 2 samples for t-test.")
+
+    t_stat, p_value = stats.ttest_ind(data_a, data_b, equal_var=equal_var)
+
     return {
-        't_statistic': float(t_stat),
-        'p_value': float(p_value),
-        'degrees_of_freedom': float(df),
-        'significant': significant
+        "t_statistic": float(t_stat),
+        "p_value": float(p_value),
+        "degrees_of_freedom": float(stats.ttest_ind(data_a, data_b, equal_var=equal_var).df if equal_var else np.nan),
+        "method": "independent_samples_ttest" if equal_var else "welch_ttest"
     }
 
-def _norm_cdf(x: float) -> float:
-    """
-    Approximate standard normal CDF using error function approximation.
-    
-    Parameters
-    ----------
-    x : float
-        Input value
-    
-    Returns
-    -------
-    float
-        Cumulative probability
-    """
-    # Approximation of standard normal CDF
-    t = 1.0 / (1.0 + 0.2316419 * abs(x))
-    d = 0.3989423 * np.exp(-x * x / 2.0)
-    p = d * t * (0.3193815 + t * (-0.3565638 + t * (1.781478 + t * (-1.821256 + t * 1.330274))))
-    if x > 0:
-        p = 1.0 - p
-    return p
 
 def tost_equivalence_test(
-    group1: np.ndarray,
-    group2: np.ndarray,
+    data_a: np.ndarray,
+    data_b: np.ndarray,
     equivalence_margin: float = 0.5,
     alpha: float = 0.05
 ) -> Dict[str, Any]:
     """
-    Perform Two One-Sided Tests (TOST) for equivalence testing.
-    
-    Tests whether the difference between groups is within a specified equivalence margin.
-    
-    Parameters
-    ----------
-    group1 : np.ndarray
-        Source strength data for first modality
-    group2 : np.ndarray
-        Source strength data for second modality
-    equivalence_margin : float
-        Maximum acceptable difference for equivalence (default: 0.5)
-    alpha : float
-        Significance level (default: 0.05)
-    
-    Returns
-    -------
-    dict
-        Dictionary containing:
-        - 't_lower': T-statistic for lower bound test
-        - 't_upper': T-statistic for upper bound test
-        - 'p_lower': P-value for lower bound test
-        - 'p_upper': P-value for upper bound test
-        - 'equivalent': Boolean indicating if groups are equivalent
-        - 'mean_difference': Observed mean difference
+    Perform Two One-Sided Tests (TOST) for equivalence of source strength.
+
+    Args:
+        data_a: Source strength values for modality A.
+        data_b: Source strength values for modality B.
+        equivalence_margin: The equivalence margin (delta).
+        alpha: Significance level.
+
+    Returns:
+        Dictionary containing p-values for both one-sided tests and equivalence decision.
     """
-    # Flatten data
-    flat1 = group1.flatten()
-    flat2 = group2.flatten()
-    
-    n1, n2 = len(flat1), len(flat2)
-    mean_diff = np.mean(flat1) - np.mean(flat2)
-    pooled_std = np.sqrt(
-        (np.var(flat1, ddof=1) + np.var(flat2, ddof=1)) / 2
-    )
-    
-    if pooled_std == 0:
-        pooled_std = 1e-10
-    
-    # Standard error of difference
-    se = pooled_std * np.sqrt(1/n1 + 1/n2)
-    
-    # Two one-sided tests
-    t_lower = (mean_diff - (-equivalence_margin)) / se
-    t_upper = (mean_diff - equivalence_margin) / se
-    
-    # P-values (one-tailed)
-    p_lower = 1 - _norm_cdf(t_lower)
-    p_upper = 1 - _norm_cdf(-t_upper)
-    
-    # Equivalence requires both tests to be significant
-    equivalent = (p_lower < alpha) and (p_upper < alpha)
-    
-    logger.info(
-        f"TOST: mean_diff={mean_diff:.4f}, margin={equivalence_margin}, "
-        f"p_lower={p_lower:.4f}, p_upper={p_upper:.4f}, equivalent={equivalent}"
-    )
-    
+    if len(data_a) < 2 or len(data_b) < 2:
+        raise StatsError("Both datasets must have at least 2 samples for TOST.")
+
+    mean_a = np.mean(data_a)
+    mean_b = np.mean(data_b)
+    std_a = np.std(data_a, ddof=1)
+    std_b = np.std(data_b, ddof=1)
+    n_a = len(data_a)
+    n_b = len(data_b)
+
+    pooled_se = np.sqrt((std_a**2 / n_a) + (std_b**2 / n_b))
+    diff = mean_a - mean_b
+
+    # Lower bound test: H0: diff <= -margin
+    t_lower = (diff + equivalence_margin) / pooled_se
+    p_lower = 1 - stats.t.cdf(t_lower, df=n_a + n_b - 2)
+
+    # Upper bound test: H0: diff >= margin
+    t_upper = (diff - equivalence_margin) / pooled_se
+    p_upper = stats.t.cdf(t_upper, df=n_a + n_b - 2)
+
+    # Equivalence is established if both p-values < alpha
+    is_equivalent = bool(p_lower < alpha and p_upper < alpha)
+
     return {
-        't_lower': float(t_lower),
-        't_upper': float(t_upper),
-        'p_lower': float(p_lower),
-        'p_upper': float(p_upper),
-        'equivalent': equivalent,
-        'mean_difference': float(mean_diff),
-        'equivalence_margin': float(equivalence_margin)
+        "t_statistic_lower": float(t_lower),
+        "t_statistic_upper": float(t_upper),
+        "p_value_lower": float(p_lower),
+        "p_value_upper": float(p_upper),
+        "equivalence_margin": float(equivalence_margin),
+        "is_equivalent": is_equivalent,
+        "alpha": alpha
     }
+
 
 def benjamini_hochberg_correction(
     p_values: List[float],
@@ -301,67 +161,120 @@ def benjamini_hochberg_correction(
 ) -> Dict[str, Any]:
     """
     Apply Benjamini-Hochberg correction for multiple comparisons.
-    
-    Controls the false discovery rate (FDR) across multiple hypothesis tests.
-    
-    Parameters
-    ----------
-    p_values : List[float]
-        List of p-values to correct
-    alpha : float
-        Target FDR level (default: 0.05)
-    
-    Returns
-    -------
-    dict
+
+    This function controls the False Discovery Rate (FDR) across a set of p-values.
+
+    Args:
+        p_values: List of raw p-values from multiple hypothesis tests.
+        alpha: Target False Discovery Rate (FDR) level.
+
+    Returns:
         Dictionary containing:
-        - 'corrected_p_values': Benjamini-Hochberg adjusted p-values
-        - 'significant': Boolean array indicating which tests are significant
-        - 'n_significant': Number of significant tests after correction
+            - corrected_p_values: The BH-adjusted p-values.
+            - is_significant: Boolean list indicating which tests are significant after correction.
+            - n_significant: Number of significant tests.
+            - threshold: The adaptive threshold used.
     """
     if not p_values:
-        return {
-            'corrected_p_values': [],
-            'significant': [],
-            'n_significant': 0
-        }
-    
-    n_tests = len(p_values)
+        raise StatsError("p_values list cannot be empty.")
+
+    if any(p < 0 or p > 1 for p in p_values):
+        raise StatsError("All p-values must be between 0 and 1.")
+
+    n = len(p_values)
     sorted_indices = np.argsort(p_values)
-    sorted_p_values = np.array(p_values)[sorted_indices]
-    
+    sorted_p_values = np.array([p_values[i] for i in sorted_indices])
+
     # Calculate BH critical values
-    critical_values = (np.arange(1, n_tests + 1) / n_tests) * alpha
-    
-    # Find largest k such that p_(k) <= critical_k
-    significant_mask = sorted_p_values <= critical_values
-    if not np.any(significant_mask):
-        corrected_p_values = np.ones(n_tests)
-        significant = np.zeros(n_tests, dtype=bool)
-    else:
-        k = np.max(np.where(significant_mask)[0])
-        # Adjust p-values
-        corrected_p_values = np.minimum.accumulate(
-            (sorted_p_values * n_tests) / (np.arange(1, n_tests + 1))
-        )
-        corrected_p_values = np.minimum(corrected_p_values, 1.0)
-        
-        # Reorder to original indices
-        final_corrected = np.zeros(n_tests)
-        final_corrected[sorted_indices] = corrected_p_values
-        
-        significant = final_corrected < alpha
-        corrected_p_values = final_corrected
-    
-    n_significant = int(np.sum(significant))
-    
-    logger.info(
-        f"BH correction: {n_significant}/{n_tests} tests significant "
-        f"(FDR={alpha})"
-    )
-    
+    # p_(i) <= (i/n) * alpha
+    # To get corrected p-values: p_corrected[i] = min(1, min_{j>=i} (p_j * n / j))
+    # We compute the adjusted p-values such that they are monotonically increasing
+    adjusted_p_values = np.zeros(n)
+    adjusted_p_values[-1] = sorted_p_values[-1] * n / n
+
+    for i in range(n - 2, -1, -1):
+        # The adjusted p-value is the minimum of the current scaled value
+        # and the next adjusted p-value (to ensure monotonicity)
+        current_scaled = sorted_p_values[i] * n / (i + 1)
+        adjusted_p_values[i] = min(current_scaled, adjusted_p_values[i + 1])
+
+    # Ensure no adjusted p-value exceeds 1.0
+    adjusted_p_values = np.minimum(adjusted_p_values, 1.0)
+
+    # Map back to original order
+    final_adjusted_p_values = np.zeros(n)
+    for idx, adj_val in zip(sorted_indices, adjusted_p_values):
+        final_adjusted_p_values[idx] = adj_val
+
+    # Determine significance
+    is_significant = final_adjusted_p_values < alpha
+    n_significant = int(np.sum(is_significant))
+
+    # Calculate the effective threshold for the smallest significant p-value
+    # The threshold is the largest (i/n)*alpha such that p_(i) <= (i/n)*alpha
+    # For simplicity, we report the alpha level used
+    threshold = alpha
+
+    logger.info(f"Benjamini-Hochberg correction applied to {n} tests. "
+                f"Found {n_significant} significant results at FDR={alpha}.")
+
     return {
-        'corrected_p_values': corrected_p_values.tolist(),
-        'significant': significant.tolist(),
-        'n_significant': n_significant
+        "raw_p_values": p_values,
+        "corrected_p_values": list(final_adjusted_p_values),
+        "is_significant": list(is_significant),
+        "n_significant": n_significant,
+        "n_total": n,
+        "alpha": alpha,
+        "method": "benjamini_hochberg_fdr"
     }
+
+
+def main():
+    """
+    Main entry point for running statistical analyses.
+    This function orchestrates the execution of various statistical tests
+    and saves results to the designated output directory.
+    """
+    config = get_config()
+    logger.info("Starting statistical analysis module.")
+
+    # Example usage with dummy data (in real execution, data would be loaded from artifacts)
+    # This is for demonstration of the API structure.
+    # In a real run, data would come from sensitivity analysis or source localization outputs.
+    dummy_data_a = np.random.normal(loc=0.5, scale=0.2, size=100)
+    dummy_data_b = np.random.normal(loc=0.6, scale=0.2, size=100)
+
+    # Run permutation test
+    try:
+        perm_result = mixed_effects_permutation_test(dummy_data_a, dummy_data_b)
+        logger.info(f"Permutation test result: p={perm_result['p_value']:.4f}")
+    except StatsError as e:
+        logger.error(f"Permutation test failed: {e}")
+
+    # Run t-test
+    try:
+        t_result = independent_samples_ttest(dummy_data_a, dummy_data_b)
+        logger.info(f"T-test result: t={t_result['t_statistic']:.4f}, p={t_result['p_value']:.4f}")
+    except StatsError as e:
+        logger.error(f"T-test failed: {e}")
+
+    # Run TOST
+    try:
+        tost_result = tost_equivalence_test(dummy_data_a, dummy_data_b)
+        logger.info(f"TOST result: equivalent={tost_result['is_equivalent']}")
+    except StatsError as e:
+        logger.error(f"TOST failed: {e}")
+
+    # Run BH correction on a set of dummy p-values (e.g., from multiple electrodes)
+    dummy_p_values = [0.01, 0.04, 0.03, 0.005, 0.08, 0.02]
+    try:
+        bh_result = benjamini_hochberg_correction(dummy_p_values)
+        logger.info(f"BH correction: {bh_result['n_significant']}/{bh_result['n_total']} significant")
+    except StatsError as e:
+        logger.error(f"BH correction failed: {e}")
+
+    logger.info("Statistical analysis module execution complete.")
+
+
+if __name__ == "__main__":
+    main()

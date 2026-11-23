@@ -1,4 +1,3 @@
 """
-Tests for llmXive Project: Exploring the Role of Network Structure in Superconducting Qubit Coupling
+Test package for the Superconducting Qubit Coupling Network Structure study.
 """
-pass

@@ -1,0 +1,14 @@
+{
+  "logistic_regression": {
+    "mean_roc_auc": 0.0,
+    "std_roc_auc": 0.0,
+    "mean_f1": 0.0,
+    "std_f1": 0.0
+  },
+  "random_forest": {
+    "mean_roc_auc": 0.0,
+    "std_roc_auc": 0.0,
+    "mean_f1": 0.0,
+    "std_f1": 0.0
+  }
+}

@@ -1,22 +1,57 @@
-# Ruff Configuration for PROJ-169
-line-length = 100
+[lint]
+# Enable strict rules: E (pycodestyle errors), F (Pyflakes), W (pycodestyle warnings), I (isort)
+select = ["E", "F", "W", "I"]
+
+# Ignore specific rules if needed (none for strict mode)
+ignore = []
+
+# Allow autofix for all enabled rules (if `--fix` is provided).
+fixable = ["ALL"]
+unfixable = []
+
+# A list of rule names to ignore.
+# You can add specific rules here if needed.
+extend-ignore = []
+
+# Exclude a list of directories or files from linting.
+exclude = [
+    ".git",
+    "__pycache__",
+    "data",
+    "venv",
+    ".venv",
+    "build",
+    "dist",
+    ".eggs",
+    "*.egg-info",
+]
+
+# Same as `--force-exclude`.
+force-exclude = false
+
+# A list of file patterns to include.
+extend-include = []
+
+# The line length to use for linting messages and autofixes.
+line-length = 88
+
+# The indentation width to use for linting messages.
+indent-width = 4
+
+# Target version of Python.
 target-version = "py311"
 
-[lint]
-select = [
-    "E",  # pycodestyle errors
-    "W",  # pycodestyle warnings
-    "F",  # Pyflakes
-    "I",  # isort
-    "B",  # flake8-bugbear
-    "C4", # flake8-comprehensions
-    "UP", # pyupgrade
-]
-ignore = [
-    "E501", # Line too long (handled by black)
-    "B008", # Do not perform function call in argument defaults (common in dataclasses)
-]
+[lint.per-file-ignores]
+# Ignore specific rules for specific files if necessary.
+# Example: "tests/*" = ["S101"]
 
 [lint.isort]
-known-first-party = ["data_models", "ingest", "model", "utils", "analysis"]
-known-third-party = ["pymatgen", "torch", "numpy", "pandas", "sklearn"]
+# Configuration for import sorting (I rules)
+known-first-party = ["code"]
+known-third-party = ["pymatgen", "torch", "torch_geometric", "shap", "pandas", "numpy", "sklearn", "yaml", "psutil"]
+force-single-line = false
+force-sort-within-sections = false
+lines-after-imports = 2
+no-lines-before = []
+order-by-type = true
+relative-imports-order = "closest-to-furthest"

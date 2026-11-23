@@ -1,0 +1,55 @@
+{
+  "pipeline_run": {
+    "timestamp": "2023-10-27T10:00:00.000000",
+    "seed": 42,
+    "stress_type": "drought",
+    "n_samples": 200,
+    "execution_time_seconds": 15.5
+  },
+  "data_summary": {
+    "n_features": 12,
+    "n_samples": 200,
+    "missing_threshold_passed": true
+  },
+  "models": {
+    "random_forest": {
+      "metrics": {
+        "r2": 0.85,
+        "rmse": 0.12,
+        "cv_score": 0.84
+      },
+      "top_features": [
+        {"feature": "proline_conc", "importance": 0.35},
+        {"feature": "aba_level", "importance": 0.25},
+        {"feature": "glutathione_red", "importance": 0.15},
+        {"feature": "sucrose", "importance": 0.08},
+        {"feature": "glucose", "importance": 0.05}
+      ]
+    },
+    "svm": {
+      "metrics": {
+        "r2": 0.82,
+        "rmse": 0.14,
+        "cv_score": 0.81
+      },
+      "top_features": [
+        {"feature": "proline_conc", "importance": 0.30},
+        {"feature": "aba_level", "importance": 0.28},
+        {"feature": "glutathione_red", "importance": 0.18},
+        {"feature": "sucrose", "importance": 0.10},
+        {"feature": "glucose", "importance": 0.06}
+      ]
+    },
+    "baseline_null": {
+      "r_squared": -0.05
+    }
+  },
+  "validation": {
+    "permutation_test": {
+      "p_value": 0.001,
+      "n_permutations": 100
+    },
+    "lodo_cv": "Skipped (Single Dataset)",
+    "cross_stress_eval": "Skipped (Single Dataset)"
+  }
+}

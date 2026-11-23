@@ -1,144 +1,93 @@
 # Implementation Plan: Predicting the Impact of Cold Work on Recrystallization Kinetics in Aluminum Alloys
 
-**Branch**: `001-predict-cold-work-kinetics` | **Date**: 2026-07-13 | **Spec**: `spec.md`
+**Branch**: `001-predict-cold-work-kinetics` | **Date**: 2026-07-13 | **Spec**: `specs/001-predict-cold-work-kinetics/spec.md`
 **Input**: Feature specification from `/specs/001-predict-cold-work-kinetics/spec.md`
 
 ## Summary
 
-This plan implements a fully reproducible CPU‑only pipeline to predict **raw** time‑to‑peak softening in aluminum alloys from cold work percentage, alloy composition, and annealing temperature. Because no verified public dataset containing all required variables currently exists, the pipeline falls back to a deterministic, version‑controlled synthetic generator. The synthetic data enable demonstration of the full analysis workflow while clearly flagging that empirical validation of the pinning hypothesis requires future acquisition of real experimental data.
-
-The pipeline:
-
-1. **Ingests** a user‑provided CSV (if present) or automatically generates a synthetic dataset via `code/simulate_data.py` (seed = 42).  
-2. **Cleans** missing values, clips extreme outliers, and **engineers** interaction features (`cold_work_pct * Mn_wt`, etc.).  
-3. **Computes** an Arrhenius‑normalized target (`time_to_peak_norm`) **only for exploratory visualizations**; the primary predictive model always uses the raw `time_to_peak`.  
-4. **Trains** a Random Forest Regressor (CPU‑only, `n_estimators=100`, `random_state=42`).  
-5. **Validates** with 5‑fold cross‑validation and an 80/20 held‑out test set (seed = 42).  
-6. **Evaluates** interaction significance via a **permutation test** that shuffles interaction columns while preserving main effects, reporting an empirical p‑value.  
-7. **Generates** feature‑importance, partial‑dependence, and permutation‑importance analyses to interpret the contribution of interaction terms.
-
-All steps respect the CI runner limits (≤ 6 h, ≤ 7 GB RAM) and conform to the project constitution.
+This project implements a predictive modeling pipeline to analyze the impact of cold work percentage and alloy composition (Mg, Si, Cu, Mn) on recrystallization kinetics (time-to-peak softening) in aluminum alloys. The primary approach involves generating a deterministic synthetic dataset (seed=42) to serve as the ground truth, engineering interaction features to capture pinning effects, training a Random Forest Regressor, and performing statistical significance testing via a **Delta-Permutation Test** and **SHAP Interaction Values**. The pipeline is strictly constrained to CPU-only execution on GitHub Actions free-tier runners.
 
 ## Technical Context
 
-- **Language/Version**: Python 3.11  
-- **Primary Dependencies**: `pandas==2.2.*`, `numpy==1.26.*`, `scikit-learn==1.5.*`, `scipy==1.13.*`, `pyyaml==6.*` (all CPU‑only wheels).  
-- **Storage**: CSV/Parquet in `data/` (raw, processed) and JSON in `results/`.  
-- **Testing**: `pytest` with unit tests for each pipeline stage.  
-- **Performance Goals**: Runtime < 6 h, Memory < 7 GB, R² > 0.6, MAE < 15 % of mean raw `time_to_peak`.  
-- **Constraints**: No GPU, dataset capped at 10 000 rows, deterministic random seeds.
+**Language/Version**: Python  
+**Primary Dependencies**: pandas, scikit-learn, numpy, shap, pytest  
+**Storage**: Local CSV/Parquet files in `data/` directory  
+**Testing**: pytest (unit and integration tests)  
+**Target Platform**: Linux (GitHub Actions free-tier runner)  
+**Project Type**: Data Science / Computational Materials Science CLI  
+**Performance Goals**: Complete full pipeline (ingest, train, test, analyze) within 6 hours; Memory usage < 4GB.  
+**Constraints**: CPU-only; Dataset size capped at <10,000 rows; No causal claims; No Arrhenius normalization of target.  
+**Scale/Scope**: Synthetic dataset generation; Single model training; Statistical validation of interaction terms.
 
-## Dataset Acquisition Strategy
-
-| Source | URL / Path | Status | Action |
-|--------|------------|--------|--------|
-| **User‑Provided CSV** | `data/raw/alloy_data.csv` (local) | **Verified** (user supplies) | Must contain all required columns (see Data Model). |
-| **Synthetic Generator** | `code/simulate_data.py` (deterministic, seed = 42) | **Verified** (internal, version‑controlled) | Generates `data/raw/synthetic_alloy_data.csv` with ≥ 100 rows. SHA‑256 checksum recorded in `state/projects/PROJ-240.yaml`. |
-| **External Repositories** | N/A | **Not Available** | No public dataset with the full variable set exists among verified sources. |
-
-> **Reproducibility Note**: The pipeline first checks for `data/raw/alloy_data.csv`. If absent, it runs `simulate_data.py` to create a deterministic synthetic dataset. This guarantees that a fresh GitHub Actions runner can always execute the full workflow without manual data upload, satisfying Constitution I.
-
-## Feature Engineering (FR‑002)
-
-- Interaction terms: `cold_work_pct * mg_wt`, `cold_work_pct * si_wt`, `cold_work_pct * cu_wt`, `cold_work_pct * mn_wt`.  
-- **Arrhenius normalization** (`time_to_peak_norm`) is computed **only for exploratory visualizations** using  
-  `t_norm = time_to_peak * exp(Q/R * (1/450 - 1/annealing_temp_k))` with `Q = 140 kJ/mol`.  
-  The normalized column is **never used** for model training or any success‑criteria calculation (prevents target leakage).
-
-## Modeling (FR‑003, FR‑004)
-
-- **Algorithm**: `sklearn.ensemble.RandomForestRegressor`.  
-- **Hyper‑parameters**: `n_estimators=100`, `max_depth=None`, `random_state=42`.  
-- **Data split**: 80/20 train‑test split (seed = 42), stratified by `alloy_series` when available.  
-- **Cross‑validation**: 5‑fold CV on the training set.  
-- **Outlier handling**: Clip `time_to_peak` > 1000 h to the 99th percentile; log clipped rows in `results/outlier_log.txt`.  
-- **Small‑sample guard**: Abort with a clear error if total rows < 50 (insufficient for 5‑fold CV).  
-
-## Statistical Significance of Interaction Terms (FR‑005)
-
-1. **Additive Model**: Predictors = `{cold_work_pct, mg_wt, si_wt, cu_wt, mn_wt}`.  
-2. **Interaction Model**: Additive predictors + the four interaction terms.  
-3. **Permutation Test** (N = 1 000 permutations, 2‑CPU parallelism):  
-   - For each permutation, independently shuffle each interaction column while leaving all main‑effect columns unchanged.  
-   - Re‑fit the Interaction Model on the permuted training data and compute 5‑fold CV R².  
-   - Compute ΔR²ᵢ = R²_interaction_permuted − R²_additive (additive model unchanged).  
-   - Empirical p‑value = ( #{ΔR²ᵢ ≥ ΔR²_observed} + 1 ) / (N + 1).  
-4. **Decision**: Interaction terms are **significant** if p < 0.05.  
-
-This non‑parametric test respects the Random Forest’s nature and provides a valid significance assessment.
-
-## Collinearity & Interpretation (FR‑006)
-
-- **Permutation Importance** quantifies each feature’s contribution after permuting its values.  
-- **Partial‑Dependence Plots** visualize marginal effects of the top interaction terms.  
-- **Collinearity Note**: Interaction terms are mathematically derived from main effects; importance scores are interpreted descriptively, not as independent causal effects. We do not claim causal inference beyond the observed associations.
-
-## Edge‑Case Handling
-
-- **Pure Aluminum** (all composition columns = 0): Interaction terms become zero; permutation test is reported as “N/A” for this subset.  
-- **Outliers**: Handled as described; logs stored in `results/outlier_log.txt`.  
-- **Insufficient Data**: Pipeline exits with an informative error; no metrics are produced.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-| Principle | Status | Notes |
-|-----------|--------|-------|
-| **I. Reproducibility** | **PASS** | Fixed seeds, deterministic synthetic fallback, automatic data generation. |
-| **II. Verified Accuracy** | **PASS** | Synthetic generator is version‑controlled and checksumed; literature values (e.g., Q = 140 kJ/mol) are cited from verified sources (Humphreys & Hatherly, 2004) with URLs in the bibliography. |
-| **III. Data Hygiene** | **PASS** | Raw files checksumed; transformations write new files; no PII. |
-| **IV. Single Source of Truth** | **PASS** | All metrics in `results/metrics.json`; figures derived from same data. |
-| **V. Versioning Discipline** | **PASS** | SHA‑256 of the raw data file recorded in `state/projects/PROJ-240.yaml` under `artifact_hashes`; CI fails on hash mismatch. |
-| **VI. Interaction‑Feature Explicitness** | **PASS** | Interaction columns are created, used in modeling, and reported separately. |
-| **VII. Computational Boundedness** | **PASS** | CPU‑only Random Forest; dataset capped at 10 k rows; runtime < 30 min in tests. |
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+
+| Principle | Status | Rationale |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **Pass** | Random seeds are pinned in the synthetic generator and model training.. All code is in `code/`. |
+| **II. Verified Accuracy** | **Pass** | Citations will be validated against primary sources (NIST, literature) via the Reference-Validator. No fabricated URLs. |
+| **III. Data Hygiene** | **Pass** | Raw synthetic data will be checksummed. Transformations (cleaning, feature engineering) will produce new files in `data/`. |
+| **IV. Single Source of Truth** | **Pass** | All metrics (R², MAE, p-values) will be derived directly from the `code/` execution logs and stored in `data/`. |
+| **V. Versioning Discipline** | **Pass** | Content hashes will be recorded in the state YAML for every data artifact. |
+| **VI. Interaction-Feature Explicitness** | **Pass** | The plan explicitly requires engineering `cold_work * Mn_content` and similar terms. **Crucially, the Permutation Test (comparing Additive vs. Interaction models) and SHAP Interaction Values are the specific mechanisms mandated to validate this principle.** |
+| **VII. Computational Boundedness for CI/CD** | **Pass** | Random Forest (CPU) and dataset size <10k rows are selected to fit within 2-CPU/4GB RAM constraints (Constitution Principle VII). |
 
 ## Project Structure
 
-```
+### Documentation (this feature)
+
+```text
 specs/001-predict-cold-work-kinetics/
-├── plan.md
-├── research.md
-├── data-model.md
-├── quickstart.md
-├── contracts/
+├── plan.md              # This file
+├── research.md          # Phase 0 output
+├── data-model.md        # Phase 1 output
+├── quickstart.md        # Phase 1 output
+├── contracts/           # Phase 1 output
 │   ├── dataset.schema.yaml
-│   └── metrics.schema.yaml
-└── tasks.md
+│   ├── metrics.schema.yaml
+│   └── model-output.schema.yaml
+└── tasks.md             # Phase 2 output
 ```
 
+### Source Code (repository root)
+
+```text
+projects/PROJ-240-predicting-the-impact-of-cold-work-on-re/code/
+├── __init__.py
+├── config.py            # Configuration (seeds, paths, thresholds)
+├── data/
+│   ├── __init__.py
+│   ├── generate_synthetic.py  # Synthetic generator (seed=42)
+│   ├── ingest.py        # Cleaning and imputation logic
+│   └── engineer.py      # Feature engineering (interactions)
+├── models/
+│   ├── __init__.py
+│   ├── train.py         # Random Forest training & CV
+│   └── evaluate.py      # Delta-Permutation Test & SHAP Interaction analysis
+├── utils/
+│   ├── __init__.py
+│   └── validators.py    # Data validation and outlier clipping
+└── main.py              # Pipeline orchestrator
+
+tests/
+├── __init__.py
+├── test_data_generation.py
+├── test_feature_engineering.py
+├── test_model_training.py
+└── test_statistical_tests.py
 ```
-code/
-├── ingestion.py
-├── features.py
-├── model.py
-├── stats.py
-├── simulate_data.py
-└── pipeline.py
-data/
-├── raw/
-│   └── alloy_data.csv   # user‑provided or generated automatically
-└── processed/
-    └── engineered_features.csv
-results/
-├── metrics.json
-└── figures/
-    ├── feature_importance.png
-    └── partial_dependence_*.png
-```
+
+**Structure Decision**: Selected the "Single Project" structure with modular separation (`data`, `models`, `utils`) to maintain clarity between data generation, feature engineering, and statistical analysis. This aligns with the Constitution's requirement for reproducibility and single-source-of-truth.
 
 ## Complexity Tracking
 
-| Violation | Why Needed | Simpler Alternative Rejected |
-|-----------|------------|------------------------------|
-| Interaction Features | Required by FR‑002 & Constitution VI to test the pinning hypothesis. | Simple additive model would not capture modulation effect; fails SC‑002. |
-| Permutation Test | Provides a valid significance test for non‑parametric Random Forests (addresses concerns 17c60a0d & d146a4d8). | Likelihood Ratio Test is invalid for RF; would produce meaningless p‑values. |
-| Deterministic Synthetic Fallback | Ensures reproducibility when no verified external dataset exists (Constitution I & II). | Manual upload would break reproducibility and require external intervention. |
-| Arrhenius Normalization Separation | Prevents leakage of predictor information into the target (addresses scientific_soundness‑b4a13f4a). | Using normalized target for training inflates R² and violates independence. |
-
-## Runtime & Resource Estimate
-
-- Data load & cleaning: < 30 s.  
-- Feature engineering: < 10 s.  
-- Random Forest training (100 trees, ≤ 10 k rows): **[deferred]** (well under 5 min on 2‑CPU CI).  
-- 5‑fold CV: **[deferred]**.  
-- Permutation test (1 000 perms, 2‑CPU parallelism): **[deferred]** (expected < 20 min).  
-- Total < 30 min, comfortably within CI limits.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| **Interaction Feature Engineering** | Essential to test the "pinning effect" hypothesis (Constitution Principle VI). | A simple additive model (cold work + composition) would fail to capture the non-linear modulation of kinetics by alloying elements, rendering the research question unanswerable. |
+| **Delta-Permutation Test** | Required to establish statistical significance of interaction terms beyond standard feature importance. | Standard permutation importance on a single model does not isolate the *incremental* gain of interactions over a baseline additive model. |
+| **SHAP Interaction Values** | Required to handle collinearity between main effects and interaction terms. | Standard feature importance (Gini/MDI) is biased towards correlated features and cannot isolate the unique contribution of the interaction term. |
+| **Synthetic Data Generation** | No verified public dataset exists with the specific combination of cold work %, specific alloying elements, and time-to-peak softening. | Using a generic dataset would require imputation of critical variables, introducing uncontrolled bias and violating Data Hygiene principles. |
+| **Dataset Size Cap (<10k)** | Required to fit within CI/CD memory constraints (Constitution Principle VII). | Larger datasets would exceed the RAM limit of the GitHub Actions free-tier runner, causing execution failure. |

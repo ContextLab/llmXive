@@ -3,91 +3,104 @@ import logging
 import os
 import random
 import time
-from pathlib import Path
 from typing import Any, Dict, Optional
+import requests
 
-from logging_config import get_logger
-
-logger = get_logger(__name__)
+# T014: Configurable threshold constant
+MIN_PR_THRESHOLD = 50
 
 def validate_json_schema(data: Any, schema_path: str) -> bool:
     """
-    Validates data against a JSON schema defined in a YAML file.
+    Validate data against a JSON schema.
     Returns True if valid, False otherwise.
-    Note: For a full implementation, we'd use a library like jsonschema.
-    Here we implement a basic structural check based on the simple schema definitions provided.
+    Logs errors if validation fails.
     """
     try:
-        with open(schema_path, 'r') as f:
-            # Assuming simple YAML parsing or JSON if format allows
-            # Since we can't import pyyaml if not installed, we assume the schema is simple enough
-            # or we rely on the fact that T004 created simple files.
-            # For robustness, we assume the environment has pyyaml or we parse manually if JSON-like.
-            # Given constraints, we'll do a basic check if the file exists and is readable.
-            import yaml
-            schema = yaml.safe_load(f)
+        import jsonschema
     except ImportError:
-        logger.warning("PyYAML not installed. Skipping detailed schema validation.")
+        logging.getLogger(__name__).error("jsonschema library not installed. Install with 'pip install jsonschema'")
+        return False
+
+    with open(schema_path, 'r') as f:
+        schema = json.load(f)
+
+    try:
+        jsonschema.validate(instance=data, schema=schema)
         return True
-    except FileNotFoundError:
-        logger.error(f"Schema file not found: {schema_path}")
-        return False
-    except Exception as e:
-        logger.error(f"Error loading schema: {e}")
+    except jsonschema.exceptions.ValidationError as e:
+        logging.getLogger(__name__).error(f"Schema validation failed: {e.message}")
         return False
 
-    # Basic validation logic for the specific schemas defined in T004
-    if not isinstance(data, dict):
-        logger.error("Data must be a dictionary.")
-        return False
+def log_api_headers(response: requests.Response, logger: logging.Logger):
+    """
+    Extract and log API rate limit headers.
+    Logs X-RateLimit-Remaining, X-RateLimit-Reset, and retry_count context.
+    """
+    remaining = response.headers.get('X-RateLimit-Remaining', 'N/A')
+    reset = response.headers.get('X-RateLimit-Reset', 'N/A')
     
-    required_fields = schema.get("required", [])
-    for field in required_fields:
-        if field not in data:
-            logger.error(f"Missing required field: {field}")
-            return False
+    # Extract retry_count from response context if available (mocked or real)
+    retry_count = getattr(response, 'retry_count', 0)
     
-    return True
+    log_msg = f"Rate Limit - Remaining: {remaining}, Reset: {reset}, Retry Count: {retry_count}"
+    logger.info(log_msg)
 
-def api_request_with_backoff(url: str, headers: Optional[Dict[str, str]] = None) -> Optional[Dict[str, Any]]:
+def api_request_with_backoff(url: str, headers: Dict[str, str], logger: logging.Logger, base_delay: float = 1.0, multiplier: float = 2.0, max_delay: float = 60.0, max_retries: int = 3) -> requests.Response:
     """
-    Makes an API request with exponential backoff and jitter.
+    Perform an API request with exponential backoff.
+    Parameters:
+      base_delay: 1s
+      multiplier: 2
+      max_delay: 60s
+      max_retries: 3
+      jitter: random non-negative percentage of delay
     """
-    base_delay = 1.0
-    max_delay = 60.0
-    multiplier = 2.0
-    max_retries = 5
-    
-    for attempt in range(max_retries):
+    attempt = 0
+    delay = base_delay
+
+    while attempt <= max_retries:
         try:
-            import urllib.request
-            import urllib.error
+            response = requests.get(url, headers=headers, timeout=30)
             
-            req = urllib.request.Request(url, headers=headers or {})
-            with urllib.request.urlopen(req, timeout=30) as response:
-                # Capture rate limit headers
-                if hasattr(response, 'headers'):
-                    capture_rate_limit_headers(dict(response.headers))
-                
-                return json.loads(response.read().decode('utf-8'))
-        
-        except urllib.error.HTTPError as e:
-            if e.code == 403 and "rate limit" in str(e.reason).lower():
-                logger.warning(f"Rate limit hit. Retrying in {base_delay}s...")
+            # If rate limited (403) or server error (5xx), retry
+            if response.status_code in [403, 500, 502, 503, 504]:
+                if attempt < max_retries:
+                    # Add jitter: random non-negative percentage of delay
+                    jitter = delay * random.uniform(0, 0.1)
+                    sleep_time = delay + jitter
+                    logger.warning(f"Rate limited or server error. Retrying in {sleep_time:.2f}s (Attempt {attempt+1}/{max_retries})")
+                    time.sleep(sleep_time)
+                    delay = min(delay * multiplier, max_delay)
+                    attempt += 1
+                    # Attach retry count to response for logging
+                    response.retry_count = attempt
+                    continue
+                else:
+                    logger.error(f"Max retries exceeded for {url}")
+                    return response
+            
+            # Success or other error (e.g., 404) -> return immediately
+            response.retry_count = attempt
+            return response
+
+        except requests.exceptions.RequestException as e:
+            if attempt < max_retries:
+                logger.warning(f"Request failed: {e}. Retrying in {delay:.2f}s")
+                time.sleep(delay)
+                delay = min(delay * multiplier, max_delay)
+                attempt += 1
             else:
-                logger.error(f"HTTP Error {e.code}: {e.reason}")
-                return None
-        
-        except Exception as e:
-            logger.error(f"Request failed: {e}")
-        
-        # Calculate delay with jitter
-        delay = min(base_delay * (multiplier ** attempt), max_delay)
-        jitter = delay * random.uniform(0, 0.5)
-        sleep_time = delay + jitter
-        
-        logger.info(f"Retrying in {sleep_time:.2f}s (Attempt {attempt + 1}/{max_retries})")
-        time.sleep(sleep_time)
-    
-    logger.error(f"Failed to fetch {url} after {max_retries} attempts.")
-    return None
+                logger.error(f"Max retries exceeded for {url} due to network error: {e}")
+                raise
+
+    # Should not reach here, but return last response if loop breaks unexpectedly
+    return response
+
+def save_excluded_repos(excluded_repos: list, output_path: str):
+    """
+    Save the list of excluded repository names to a text file.
+    Used by T014 to record repos with fewer than MIN_PR_THRESHOLD PRs.
+    """
+    with open(output_path, 'w') as f:
+        for repo_name in excluded_repos:
+            f.write(f"{repo_name}\n")

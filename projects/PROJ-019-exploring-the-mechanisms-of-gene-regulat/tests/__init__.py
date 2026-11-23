@@ -1,3 +1,3 @@
 """
-Test suite for Gene Regulation Analysis
+Test suite for the llmXive gene regulation pipeline.
 """

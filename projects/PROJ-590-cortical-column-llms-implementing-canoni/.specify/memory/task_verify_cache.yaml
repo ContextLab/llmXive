@@ -1,14 +1,77 @@
-T001:
+T001b:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No evidence of the required directories (`src/models`, `src/data`, `src/training`,
-    `src/experiments`, `tests`) is provided; the implementer did not supply any artifact
-    showing the project structure exists.
-T003:
+  h: 56c6d78497d368326ebe10d5859707403bf53bf8e2c247529009a5531503b405
+  r: "Checked `src/__init__.py` and `tests/__init__.py` \u2013 they exist, but none\
+    \ of the sub\u2011directories created under `src/` (e.g., `data/`, `experiments/`,\
+    \ `models/`, `training/`, `utils/`) or under `tests/` (e.g., `integration/`, `unit/`)\
+    \ contain an `__init__.py`. The task requires an `__init__.py` in **every** `src/`\
+    \ and `tests/` directory, so the missing package markers make the implementation\
+    \ incomplete."
+  sig: 57cf57a5605b1468d40add93928ea4b54a7d5664f0d26d20342d3c070409f22f
+T001c:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with Black\
-    \ settings, `.ruff.toml` or `ruff.toml` entries, pre\u2011commit hooks, or related\
-    \ scripts) are present in the provided evidence, so the requirement to configure\
-    \ Ruff and Black is not satisfied. The implementer must add the appropriate configuration\
-    \ files and ensure they are non\u2011empty and correctly set up."
+  h: 86acfa65527314304a3994bccbf91f4f75f4641ee68be86329897d2766fe67c9
+  r: The repository lacks a `.gitignore` file (or it was not found by the collector),
+    so the required ignore patterns for `data/` (with the specified exceptions) and
+    for `__pycache__`, `*.pyc`, `*.log` are not present. Adding a correctly configured
+    `.gitignore` is needed to satisfy task T001c.
+  sig: 58a129e8589f38966e92f3d38a7eedaf965c3ba853f6050e0739959a402cfea1
+T005:
+  c: false
+  h: e05302eb361476f529d3760a9aeab6e71462b8ede2dd92a5080afef5f3c5bcf1
+  r: "The provided `tests/conftest.py` exists and includes pytest-timeout configuration\
+    \ and a psutil\u2011based memory monitor, but it does not **atomically** set both\
+    \ the timeout and `psutil.Process.cpu_affinity` in a single step (it only reads\
+    \ affinity and logs warnings) and the memory limit is enforced only when `--strict-memory`\
+    \ is passed rather than being an unconditional assertion of RSS\u202F<\u202F7\u202F\
+    GB. These gaps mean the task\u2019s critical requirements are not fully met."
+  sig: 64c5f583bb3c45270eae2cffe691c9ae1cd49a9302fb32bc2fabefe9c995ea44
+T008c:
+  c: false
+  h: a5eea4278bb9e9f6f7d43fcf558774d23d57cafd0364a2d099c7e6a9eeb190aa
+  r: "The `generate_polynomial_test_data` function is only partially defined (truncated)\
+    \ and never creates or saves the required `data/results/test_data_polynomial.npy`.\
+    \ Moreover, the verification script `scripts/hash_artifacts.sh` is absent, so\
+    \ the required checksum check cannot be performed. The task\u2019s critical output\
+    \ file and verification steps are missing."
+T010b:
+  c: false
+  h: 465e3fff4a419e9acb74abde4cd1b1c88c32015e90e5ea0b547c4d808b0fccda
+  r: "The `log_gradient_norms` function in `src/training/homeostasis.py` does not\
+    \ match the required specification: it uses a `log_path` argument instead of the\
+    \ mandated `output_file` name, computes only a single total L2 norm rather than\
+    \ a dictionary of per\u2011parameter\u2011group norms, does not employ `model.register_full_backward_hook`,\
+    \ and lacks any file\u2011locking or atomic\u2011write mechanism for concurrent\
+    \ safety. These omissions mean the task\u2019s core requirements are not satisfied."
+  sig: 9a4cef717018956c024602f4006296660dc083c18e6ec49da6672c77abf523a7
+T011b:
+  c: true
+  h: 7665ec6ebdc3b6889a3be8a25687eb519f9bf6f9c9ba7a34047970e3ad862d23
+  r: The repository contains the required integration test file `tests/integration/test_baseline_training.py`,
+    which sets the log path to `data/logs/gradient_norms.json` under the project root
+    and includes logic to generate data, run a training step, invoke `log_gradient_norms`,
+    and assert that the JSON file exists and is valid. The missing `gradient_norms.json`
+    is a runtime artifact, not a repository requirement.
+T025a:
+  c: false
+  h: 11e24d9cd6b1a4d6655a6f92dc049f098a4797a79065a8ef80906cbf28af139d
+  r: The `generate_ablation_configs` function creates four variants with flags named
+    `enable_*` (and includes a `no_homeostasis` variant), not the three required variants
+    with `remove_recurrence` / `remove_inhibition` flags. Moreover, the expected output
+    file `data/configs/ablation_configs.json` does not exist. The implementation must
+    be corrected to produce exactly the three specified variants, use the required
+    flag names, and write the JSON file.
+T025b:
+  c: false
+  h: aa8f320cd449d4310e32a3bbe76177da62c3a10797d5771bc9b622265fcef83a
+  r: The repository contains a partially implemented `src/experiments/ablation.py`
+    (no `run_ablation_study` function is present in the shown code) and the required
+    output file `data/results/ablation_results.json` does not exist. Consequently
+    the task of orchestrating the three variant trainings and writing the results
+    JSON is not fulfilled.
+T050:
+  c: false
+  h: 832ec11fdf01e9411f02961f150a96464783611551d4a8cfc3aa23fc2c84150e
+  r: The required file `src/utils/scaling_analyzer.py` does not exist in the repository,
+    so the update cannot have been performed. The missing artifact must be added and
+    contain the appropriate updated code to satisfy the task.

@@ -1,67 +1,32 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Dataset Metadata Schema
-description: |
-  Schema for validating raw dataset metadata downloaded from OpenNeuro.
-  Ensures required fields for variable fit verification (WCST, Age) are present.
-type: object
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Neural Entropy Dataset Schema"
+type: "object"
 required:
-  - dataset_id
-  - source_url
-  - download_timestamp
-  - checksums
-  - behavioral_columns
+  - participant_id
+  - age
+  - education
+  - wcst_perseverative_errors
+  - task_accuracy
+  - neurological_condition
+  - medication_use
+  - raw_eeg_file
 properties:
-  dataset_id:
-    type: string
-    description: OpenNeuro dataset identifier (e.g., ds003104)
-  source_url:
-    type: string
-    format: uri
-    description: URL from which the dataset was fetched
-  download_timestamp:
-    type: string
-    format: date-time
-    description: ISO 8601 timestamp of the download
-  checksums:
-    type: object
-    description: MD5 checksums for integrity verification of downloaded files
-    additionalProperties:
-      type: string
-  behavioral_columns:
-    type: array
-    description: List of column names found in the behavioral data file
-    items:
-      type: string
-    minItems: 1
-  participant_count:
-    type: integer
+  participant_id:
+    type: "string"
+  age:
+    type: "integer"
     minimum: 0
-    description: Total number of participants in the raw dataset
-  age_range:
-    type: object
-    description: Range of ages in the dataset
-    required:
-      - min
-      - max
-    properties:
-      min:
-        type: integer
-        minimum: 0
-      max:
-        type: integer
-        minimum: 0
-  variable_fit_status:
-    type: string
-    enum:
-      - PASS
-      - FAIL
-      - PENDING
-    description: Result of the verify_variable_fit check
-  missing_variables:
-    type: array
-    description: List of required variables missing from the dataset
-    items:
-      type: string
-  raw_data_path:
-    type: string
-    description: Relative path to the raw data directory under data/raw/
+  education:
+    type: "string"
+  wcst_perseverative_errors:
+    type: "number"
+  task_accuracy:
+    type: "number"
+  neurological_condition:
+    type: "boolean"
+  medication_use:
+    type: "boolean"
+  raw_eeg_file:
+    type: "string"
+    pattern: ".*\\.(edf|bdf|vhdr|fif)$"
+    description: "Path to the raw EEG file (EDF/BDF/BrainVision/FIF)."

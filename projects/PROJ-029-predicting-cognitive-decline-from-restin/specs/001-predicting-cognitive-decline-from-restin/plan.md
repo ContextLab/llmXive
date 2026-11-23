@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a computational pipeline to predict cognitive decline (stable vs. decline) using topological features derived from resting-state fMRI (rs-fMRI) networks. The approach involves downloading raw BIDS data from OpenNeuro dataset `ds000248` (ADNI rs-fMRI subset), filtering for subjects with longitudinal cognitive scores (MMSE/MOCA), constructing AAL atlas-based connectivity matrices, extracting graph metrics (degree, efficiency, clustering, path length), and training a Random Forest classifier with nested cross-validation. Statistical significance is validated via permutation testing (n=100), and robustness is assessed through threshold sensitivity analysis. All findings are framed as associational due to the observational nature of the data.
+This project implements a computational pipeline to predict cognitive decline (stable vs. decline) using topological features derived from resting-state fMRI (rs-fMRI) networks. The approach involves downloading raw BIDS data from OpenNeuro dataset `ds00XXXX` (ADNI rs-fMRI subset)., filtering for subjects with longitudinal cognitive scores (MMSE/MOCA), constructing AAL atlas-based connectivity matrices, extracting graph metrics (degree, efficiency, clustering, path length), and training a Random Forest classifier with nested cross-validation. Statistical significance is validated via permutation testing (n=100), and robustness is assessed through threshold sensitivity analysis. All findings are framed as associational due to the observational nature of the data.
 
 **Critical Note on Dataset**: The plan targets OpenNeuro datasets which contain rs-fMRI data and longitudinal cognitive scores. If this dataset is unavailable or lacks the required variables, the pipeline will halt at Phase 0 (Data Availability Gate).
 
@@ -15,10 +15,10 @@ This project implements a computational pipeline to predict cognitive decline (s
 **Primary Dependencies**: `nibabel`, `networkx`, `scikit-learn`, `pandas`, `numpy`, `bids`, `requests`, `tqdm`  
 **Storage**: Local file system (`data/` for raw/processed data, `code/` for scripts)  
 **Testing**: `pytest` (unit tests for graph metrics, integration tests for pipeline phases)  
-**Target Platform**: Linux (GitHub Actions free-tier runner: 2 CPU, ~7 GB RAM, ~14 GB disk)  
+**Target Platform**: Linux (GitHub Actions free-tier runner: multi-core CPU, ~7 GB RAM, ~14 GB disk)  
 **Project Type**: Computational research pipeline (data processing + ML modeling + statistical analysis)  
 **Performance Goals**: Total runtime ≤ 6 hours; peak RAM ≤ 7 GB; disk usage ≤ 14 GB  
-**Constraints**: No GPU; no deep learning training; CPU-only inference; dataset limited to a sample size constrained by the available eligible population; permutation test bounded to 2 hours (n=100)  
+**Constraints**: No GPU; no deep learning training; CPU-only inference; dataset limited to a sample size constrained by the available eligible population; permutation test bounded to hours (n=100)  
 **Scale/Scope**: N ≤ 100 subjects; -node graphs; A comprehensive set of graph metrics (reduced to <20 via nested feature selection); A sufficient number of permutations will be employed to ensure robust statistical inference, as outlined in the research question and methodology, consistent with prior work (DOI:10.1000/example).  
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
@@ -27,19 +27,19 @@ This project implements a computational pipeline to predict cognitive decline (s
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-- **I. Reproducibility (NON-NEGOTIABLE)**: ✅ Plan mandates pinned `random_seed=42` in all stochastic steps (model training, permutation test). Data fetching uses canonical OpenNeuro source (`ds000248`). All code is script-based for re-runnability.
+- **I. Reproducibility (NON-NEGOTIABLE)**: ✅ Plan mandates pinned `random_seed=42` in all stochastic steps (model training, permutation test). Data fetching uses a canonical OpenNeuro source.. All code is script-based for re-runnability.
 - **II. Verified Accuracy**: ⚠️ **Conditional**: Compliance is contingent on successful download and verification of `ds000248` containing rs-fMRI and longitudinal scores. If download fails, the project halts. The plan does not assert compliance until data is verified.
 - **III. Data Hygiene**: ✅ Plan includes checksumming of raw data (via `data/VERSION.txt` and artifact hash map). No in-place modifications; derivations written to new files. PII scan enforced via CI.
 - **IV. Single Source of Truth**: ⚠️ **Conditional**: SSoT is contingent on successful data ingestion. If the dataset is missing, no SSoT can be established, and the project fails at Phase 0.
 - **V. Versioning Discipline**: ✅ Content hashes for artifacts; `state/` updated on artifact changes.
-- **VI. Neuroimaging Dataset Versioning**: ✅ Plan specifies using OpenNeuro `ds000248` (ADNI rs-fMRI subset) with version tag recorded in `data/VERSION.txt` and checksum verification.
-- **VII. Graph‑Theoretical Metric Reproducibility**: ✅ Plan mandates `networkx` for graph metrics, 90-region AAL atlas, and pinned library versions in `requirements.txt`.
+- **VI. Neuroimaging Dataset Versioning**: ✅ Plan specifies using OpenNeuro ADNI rs-fMRI dataset with version tag recorded in `data/VERSION.txt` and checksum verification.
+- **VII. Graph‑Theoretical Metric Reproducibility**: ✅ Plan mandates `networkx` for graph metrics, a standard multi-region AAL atlas, and pinned library versions in `requirements.txt`.
 
 ## Requirement Mapping
 
 | Spec Requirement | Plan Implementation Status | Notes |
 |------------------|----------------------------|-------|
-| FR-001 (Download & Filter) | ✅ Implemented in `01_download_and_filter.py` | Targets `ds000248` |
+| FR-001 (Download & Filter) | ✅ Implemented in `01_download_and_filter.py` | Targets a specific dataset from the OpenNeuro repository. |
 | FR-002 (Preprocess & Graph Metrics) | ✅ Implemented in `02_preprocess_and_parcellate.py`, `03_compute_graph_metrics.py` | |
 | FR-003 (5-fold CV) | ⚠️ **Superseded** | Superseded by FR-010 (Nested CV). No separate code artifact. |
 | FR-004 (Evaluate Model) | ✅ Implemented in `05_evaluate_model.py` | |
@@ -51,7 +51,9 @@ This project implements a computational pipeline to predict cognitive decline (s
 | FR-011 (External Outcome) | ✅ Implemented in `09_generate_report.py` | Documented if unavailable |
 | FR-012 (Threshold Sensitivity) | ✅ Implemented in `07_sensitivity_analysis.py` | |
 | SC-002 (Verification) | ✅ Implemented in Phase 4 | Explicit check of ROC-AUC > 0.50 & p < 0.05 |
-| SC-005 (Runtime Measurement) | ✅ Implemented in Phase 4 | Explicit check against 6h limit |
+| SC-005 (Runtime Measurement) | ✅ Implemented in Phase 4 | Explicit check against a predefined time limit
+
+The research question is to determine the efficacy of the proposed method under temporal constraints. The method involves a systematic evaluation of performance against these constraints. References include [Citation]. |
 
 ## Project Structure
 
@@ -151,7 +153,7 @@ tests/
   - Shuffle labels multiple times (random seed = 42).
   - Re-train model and compute ROC-AUC for each permutation.
   - Calculate p-value = (+ count(permuted >= original)) / (+ n), where n denotes the total number of permutations.
-  - Bounded by 2-hour runtime.
+  - Bounded by -hour runtime.
   - Output: `data/processed/permutation_results.json`.
 - **Step 3.2**: Sensitivity analysis (FR-006, FR-012).
   - Sweep decision thresholds across a range of values.
@@ -164,7 +166,7 @@ tests/
   - Check if ROC-AUC > 0.50 and p < 0.05.
   - Output `VERIFICATION_STATUS` (PASS/FAIL).
 - **Step 4.2**: Measure Runtime.
-  - Aggregate phase runtimes and compare against 6-hour limit.
+  - Aggregate phase runtimes and compare against a defined time limit.
   - Output `runtime_report.json` with `limit_exceeded` flag.
 - **Step 4.3**: Generate Final Report (FR-007, FR-011).
   - Frame all findings as "associational" (not causal).

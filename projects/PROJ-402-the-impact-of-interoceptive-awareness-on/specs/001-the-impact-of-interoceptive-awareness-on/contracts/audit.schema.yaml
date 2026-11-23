@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Data Audit Report Schema"
+description: "Schema for the data audit report JSON"
+type: "object"
+properties:
+  dataset_name:
+    type: "string"
+    description: "Name of the dataset audited"
+  schandry_task_present:
+    type: "boolean"
+    description: "Whether Schandry heartbeat task was found"
+  tsst_task_present:
+    type: "boolean"
+    description: "Whether TSST stress task was found"
+  total_subjects:
+    type: "integer"
+    description: "Total number of subjects in dataset"
+  subjects_with_schandry:
+    type: "integer"
+    description: "Number of subjects with Schandry data"
+  feasibility_status:
+    type: "string"
+    enum:
+      - "feasible"
+      - "feasibility_failure"
+    description: "Status of the study feasibility"
+  reason:
+    type: "string"
+    description: "Explanation if feasibility_status is 'feasibility_failure'"
+required:
+  - "dataset_name"
+  - "schandry_task_present"
+  - "tsst_task_present"
+  - "total_subjects"
+  - "subjects_with_schandry"
+  - "feasibility_status"
+  - "reason"
+additionalProperties: false

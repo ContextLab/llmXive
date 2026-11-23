@@ -6,303 +6,234 @@ from typing import List, Dict, Any, Optional, Tuple, Union
 import numpy as np
 from scipy import stats
 
-# Add project root to path if running as script
-if __name__ == "__main__":
-    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-    if project_root not in sys.path:
-        sys.path.insert(0, project_root)
-
-from data.utils import setup_logging, get_seed
-from evaluation.metrics import compute_r2
+from data.utils import setup_logging, set_seed, get_seed
 
 logger = logging.getLogger(__name__)
 
-def wilcoxon_signed_rank_test(sample1: List[float], sample2: List[float]) -> Tuple[float, float]:
+def wilcoxon_signed_rank_test(sample1: np.ndarray, sample2: np.ndarray) -> Dict[str, Any]:
     """
-    Perform Wilcoxon signed-rank test to compare two related samples.
+    Perform Wilcoxon signed-rank test between two paired samples.
     
     Args:
-        sample1: First sample of paired observations
-        sample2: Second sample of paired observations
+        sample1: First sample (e.g., GNN errors)
+        sample2: Second sample (e.g., RF errors)
         
     Returns:
-        Tuple of (statistic, p-value)
+        Dictionary with 'statistic' and 'pvalue'
     """
     if len(sample1) != len(sample2):
-        raise ValueError("Samples must have the same length for paired test")
-    
-    if len(sample1) < 3:
-        raise ValueError("Sample size must be at least 3 for Wilcoxon test")
-    
-    statistic, p_value = stats.wilcoxon(sample1, sample2)
-    return statistic, p_value
-
-def run_wilcoxon_on_metrics(gnn_metrics: List[float], rf_metrics: List[float]) -> Dict[str, Any]:
-    """
-    Run Wilcoxon test on model performance metrics.
-    
-    Args:
-        gnn_metrics: List of R2 scores from GNN model
-        rf_metrics: List of R2 scores from Random Forest model
+        raise ValueError("Samples must be of equal length for paired test")
+    if len(sample1) < 2:
+        raise ValueError("Samples must have at least 2 elements")
         
-    Returns:
-        Dictionary containing test results
-    """
-    if not gnn_metrics or not rf_metrics:
-        raise ValueError("Metrics lists cannot be empty")
-    
-    stat, p_val = wilcoxon_signed_rank_test(gnn_metrics, rf_metrics)
-    
+    statistic, pvalue = stats.wilcoxon(sample1, sample2)
     return {
-        "test": "wilcoxon_signed_rank",
-        "statistic": float(stat),
-        "p_value": float(p_val),
-        "gnn_mean": float(np.mean(gnn_metrics)),
-        "rf_mean": float(np.mean(rf_metrics)),
-        "interpretation": "significant" if p_val < 0.05 else "not significant"
+        "statistic": float(statistic),
+        "pvalue": float(pvalue)
     }
 
-def calculate_vif(features: np.ndarray, threshold: float = 5.0) -> Dict[str, Any]:
+def run_wilcoxon_on_metrics(
+    gnns_errors: List[float], 
+    rf_errors: List[float]
+) -> Dict[str, Any]:
     """
-    Calculate Variance Inflation Factor for features.
+    Run Wilcoxon test on lists of errors.
     
     Args:
-        features: 2D numpy array of features (n_samples, n_features)
-        threshold: VIF threshold for flagging multicollinearity
+        gnns_errors: List of errors from GNN model
+        rf_errors: List of errors from Random Forest model
         
     Returns:
-        Dictionary with VIF values and flagged features
+        Result dictionary from wilcoxon_signed_rank_test
     """
-    if features.shape[1] < 2:
-        return {
-            "vif_values": [],
-            "flagged_features": [],
-            "max_vif": 0.0,
-            "has_multicollinearity": False
-        }
+    arr1 = np.array(gnns_errors)
+    arr2 = np.array(rf_errors)
+    return wilcoxon_signed_rank_test(arr1, arr2)
+
+def calculate_vif(descriptors: np.ndarray, feature_names: Optional[List[str]] = None) -> Dict[str, float]:
+    """
+    Calculate Variance Inflation Factor for each feature.
     
-    n_samples, n_features = features.shape
+    Args:
+        descriptors: 2D numpy array of shape (n_samples, n_features)
+        feature_names: Optional list of feature names
+        
+    Returns:
+        Dictionary mapping feature names (or indices) to VIF values
+    """
+    n_samples, n_features = descriptors.shape
     if n_samples <= n_features:
-        logger.warning("Sample size too small for reliable VIF calculation")
-        return {
-            "vif_values": [np.inf] * n_features,
-            "flagged_features": list(range(n_features)),
-            "max_vif": np.inf,
-            "has_multicollinearity": True
-        }
+        raise ValueError("Need more samples than features for VIF calculation")
+        
+    vif_results = {}
+    X = descriptors
     
-    # Add intercept column
-    X_with_intercept = np.column_stack([np.ones(n_samples), features])
+    # Add intercept column for regression
+    X_with_intercept = np.column_stack([np.ones(n_samples), X])
     
-    vif_values = []
-    for i in range(1, X_with_intercept.shape[1]):
+    for i in range(n_features):
         # Regress feature i against all other features
-        y = X_with_intercept[:, i]
-        X = X_with_intercept[:, [j for j in range(1, X_with_intercept.shape[1]) if j != i]]
+        y = X[:, i]
+        # All other features (excluding i)
+        other_features_indices = [j for j in range(n_features) if j != i]
+        X_other = X[:, other_features_indices]
         
-        # Calculate R^2 for this regression
-        if X.shape[1] > 0:
-            # Simple OLS: (X'X)^-1 X'y
-            try:
-                coeffs = np.linalg.lstsq(X, y, rcond=None)[0]
-                y_pred = X @ coeffs
-                ss_res = np.sum((y - y_pred) ** 2)
-                ss_tot = np.sum((y - np.mean(y)) ** 2)
-                r2 = 1 - (ss_res / ss_tot) if ss_tot > 0 else 0
-                vif = 1 / (1 - r2) if (1 - r2) > 1e-10 else np.inf
-            except np.linalg.LinAlgError:
-                vif = np.inf
-        else:
-            vif = 1.0
+        # Add intercept
+        X_other_with_intercept = np.column_stack([np.ones(n_samples), X_other])
         
-        vif_values.append(vif)
-    
-    flagged = [i for i, v in enumerate(vif_values) if v > threshold]
-    
-    return {
-        "vif_values": [float(v) for v in vif_values],
-        "flagged_features": flagged,
-        "max_vif": float(max(vif_values)) if vif_values else 0.0,
-        "has_multicollinearity": len(flagged) > 0
-    }
+        # Fit linear regression: y = b0 + b1*x1 + ... + bn*xn
+        try:
+            coeffs, residuals, rank, s = np.linalg.lstsq(X_other_with_intercept, y, rcond=None)
+            if len(residuals) > 0:
+                rss = residuals[0]
+                # Total sum of squares
+                tss = np.sum((y - np.mean(y))**2)
+                if tss == 0:
+                    vif = float('inf')
+                else:
+                    r_squared = 1 - (rss / tss)
+                    if r_squared >= 1.0:
+                        vif = float('inf')
+                    else:
+                        vif = 1.0 / (1.0 - r_squared)
+            else:
+                # Fallback if residuals empty (perfect fit or singular)
+                vif = float('inf')
+        except np.linalg.LinAlgError:
+            vif = float('inf')
+            
+        name = feature_names[i] if feature_names else f"feature_{i}"
+        vif_results[name] = float(vif)
+        
+    return vif_results
 
 def sensitivity_analysis_sweep(
-    predictions: np.ndarray,
-    actuals: np.ndarray,
-    thresholds: Optional[List[float]] = None,
-    output_path: Optional[str] = None
-) -> List[Dict[str, float]]:
+    kfold_results_path: str,
+    output_path: str,
+    thresholds: Optional[List[float]] = None
+) -> Dict[str, Any]:
     """
     Perform sensitivity analysis by sweeping R² thresholds.
     
-    This function analyzes model performance robustness by evaluating
-    prediction accuracy across a range of R² threshold values. It calculates
-    true positive rate (TPR) and false positive rate (FPR) for each threshold
-    where a "positive" is defined as a prediction meeting the R² threshold
-    criterion relative to the actual value.
+    Logic:
+    1. Load k-fold cross-validation results (list of R² scores).
+    2. For each threshold in {0.25, 0.30, 0.35}:
+       - Calculate successful_prediction_rate = (count where R² > threshold) / total
+    3. Calculate stability_metric = std(successful_prediction_rate across thresholds).
+    4. Save results to JSON.
     
     Args:
-        predictions: Array of model predictions
-        actuals: Array of actual values
-        thresholds: List of R² thresholds to sweep (default: 0.1 to 0.5)
-        output_path: Optional path to save JSON results
+        kfold_results_path: Path to JSON file containing k-fold R² scores.
+        output_path: Path to write the sensitivity sweep JSON.
+        thresholds: List of thresholds to sweep (default: [0.25, 0.30, 0.35])
         
     Returns:
-        List of dictionaries with threshold, fpr, and tpr
+        Dictionary containing the full sweep results.
     """
     if thresholds is None:
-        thresholds = [0.1, 0.2, 0.3, 0.4, 0.5]
+        thresholds = [0.25, 0.30, 0.35]
+        
+    # Load k-fold results
+    if not os.path.exists(kfold_results_path):
+        raise FileNotFoundError(f"K-fold results file not found: {kfold_results_path}")
+        
+    with open(kfold_results_path, 'r') as f:
+        kfold_data = json.load(f)
+        
+    # Extract R² scores. Assume structure: {"r2_scores": [...]} or similar
+    r2_scores = []
+    if "r2_scores" in kfold_data:
+        r2_scores = kfold_data["r2_scores"]
+    elif isinstance(kfold_data, list):
+        # If it's just a list of scores
+        r2_scores = kfold_data
+    else:
+        # Try to find any list of floats
+        for key, val in kfold_data.items():
+            if isinstance(val, list) and len(val) > 0 and isinstance(val[0], (int, float)):
+                r2_scores = val
+                break
+                
+    if not r2_scores:
+        raise ValueError("Could not extract R² scores from k-fold results file")
+        
+    r2_array = np.array(r2_scores)
+    total_count = len(r2_array)
     
-    if len(predictions) != len(actuals):
-        raise ValueError("Predictions and actuals must have same length")
-    
-    if len(predictions) == 0:
-        raise ValueError("Input arrays cannot be empty")
+    logger.info(f"Loaded {total_count} R² scores from {kfold_results_path}")
     
     results = []
+    successful_rates = []
     
-    # Calculate overall R² for reference
-    overall_r2 = compute_r2(actuals, predictions)
-    logger.info(f"Overall model R²: {overall_r2:.4f}")
-    
-    # For each threshold, determine which predictions are "acceptable"
-    # We define "acceptable" as: (prediction - actual)^2 < (1 - threshold) * variance
-    # This is a proxy for R² contribution at the sample level
-    var_actuals = np.var(actuals)
-    if var_actuals < 1e-10:
-        logger.warning("Variance of actuals is near zero, using constant threshold")
-        var_actuals = 1.0
-    
-    # Calculate squared errors
-    squared_errors = (predictions - actuals) ** 2
-    
-    # Define "positive" as error being below the threshold-derived limit
-    # This simulates a binary classification of "good" vs "bad" predictions
     for thresh in thresholds:
-        # Threshold for squared error: lower threshold means stricter criteria
-        # R² = 1 - (SS_res / SS_tot), so for a single point contribution:
-        # We want points where local R² contribution > thresh
-        # Simplified: error < (1 - thresh) * local_variance
-        error_threshold = (1.0 - thresh) * var_actuals
-        
-        # Binary labels: 1 if prediction is "good" (error below threshold)
-        binary_labels = (squared_errors < error_threshold).astype(int)
-        
-        # Calculate TPR and FPR
-        # TPR = TP / (TP + FN) = proportion of actual "good" cases correctly identified
-        # FPR = FP / (FP + TN) = proportion of actual "bad" cases incorrectly identified as good
-        
-        # In this context, we treat the threshold itself as the "truth"
-        # and see how predictions align
-        # Since we don't have external "truth" labels, we use the threshold logic
-        # to define what "should be positive" and compare with model confidence
-        
-        # Alternative interpretation for sensitivity analysis:
-        # We sweep the threshold and measure how the model's "pass rate" changes
-        # TPR here represents the fraction of predictions that pass the threshold
-        # FPR represents the fraction that fail (conservative estimate)
-        
-        total_samples = len(binary_labels)
-        positives = np.sum(binary_labels)
-        negatives = total_samples - positives
-        
-        if positives == 0:
-            tpr = 0.0
-        else:
-            tpr = positives / total_samples
-        
-        if negatives == 0:
-            fpr = 0.0
-        else:
-            fpr = negatives / total_samples
+        # Count predictions where R² > threshold
+        count = np.sum(r2_array > thresh)
+        rate = count / total_count if total_count > 0 else 0.0
         
         results.append({
             "threshold": float(thresh),
-            "false_positive_rate": float(fpr),
-            "true_positive_rate": float(tpr)
+            "successful_prediction_rate": float(rate),
+            "count": int(count),
+            "total": int(total_count)
         })
+        successful_rates.append(rate)
         
-        logger.debug(f"Threshold {thresh:.2f}: TPR={tpr:.4f}, FPR={fpr:.4f}")
+    # Calculate stability metric: std of successful_prediction_rate across the sweep
+    stability_metric = float(np.std(successful_rates))
     
-    # Sort by threshold
-    results.sort(key=lambda x: x["threshold"])
+    output_data = {
+        "thresholds": thresholds,
+        "results": results,
+        "stability_metric": stability_metric,
+        "metric": "r2"
+    }
     
-    if output_path:
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'w') as f:
-            json.dump(results, f, indent=2)
-        logger.info(f"Sensitivity analysis results saved to {output_path}")
+    # Ensure output directory exists
+    output_dir = os.path.dirname(output_path)
+    if output_dir and not os.path.exists(output_dir):
+        os.makedirs(output_dir)
+        
+    with open(output_path, 'w') as f:
+        json.dump(output_data, f, indent=2)
+        
+    logger.info(f"Sensitivity sweep results written to {output_path}")
+    logger.info(f"Stability metric (std of rates): {stability_metric:.4f}")
     
-    return results
+    return output_data
 
 def main():
     """
-    Main entry point for sensitivity analysis task.
-    Loads model predictions from the processed dataset and runs the sweep.
+    Entry point for sensitivity analysis.
+    Expects k-fold results at code/evaluation/results/kfold_cv_results.json
+    Outputs to code/evaluation/results/sensitivity_sweep.json
     """
     setup_logging()
-    seed = get_seed()
-    np.random.seed(seed)
     
-    logger.info("Starting sensitivity analysis sweep (T033)")
+    # Paths relative to project root (code/ directory context)
+    # Assuming script runs from code/ or we adjust paths accordingly
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    kfold_path = os.path.join(base_dir, "evaluation", "results", "kfold_cv_results.json")
+    output_path = os.path.join(base_dir, "evaluation", "results", "sensitivity_sweep.json")
     
-    # Since we don't have actual model outputs yet in the pipeline (US2 not fully run),
-    # we generate a representative set of predictions based on the data distribution
-    # In a real pipeline, this would load from model outputs
+    # If kfold path doesn't exist, check alternative locations or fail
+    if not os.path.exists(kfold_path):
+        # Try relative to current working directory if running as script
+        kfold_path_alt = "evaluation/results/kfold_cv_results.json"
+        if os.path.exists(kfold_path_alt):
+            kfold_path = kfold_path_alt
+        else:
+            logger.error(f"K-fold results not found at {kfold_path} or {kfold_path_alt}")
+            # Fallback to a placeholder path if we are just testing structure, 
+            # but per strict rules, we must fail if real data isn't there.
+            # However, T031 should have produced this. If missing, we fail.
+            raise FileNotFoundError(f"Required input file not found: {kfold_path}")
     
-    # Load processed data if available
-    data_path = os.path.join(os.path.dirname(__file__), "..", "data", "processed", "polymers.h5")
-    
-    if os.path.exists(data_path):
-        try:
-            import h5py
-            with h5py.File(data_path, 'r') as f:
-                if 'permeability_log' in f:
-                    actuals = f['permeability_log'][:]
-                    # Generate synthetic predictions with realistic noise
-                    # to simulate model output for sensitivity analysis
-                    noise = np.random.normal(0, 0.15 * np.std(actuals), size=actuals.shape)
-                    predictions = actuals + noise
-                else:
-                    raise ValueError("Dataset missing permeability_log column")
-        except Exception as e:
-            logger.warning(f"Could not load real data: {e}. Using simulated data.")
-            # Fallback: generate realistic simulated data
-            actuals = np.random.normal(0, 1.0, size=1000)
-            noise = np.random.normal(0, 0.2, size=actuals.shape)
-            predictions = actuals + noise
-    else:
-        logger.warning("Processed dataset not found. Using simulated data for demonstration.")
-        # Generate realistic simulated data for the sensitivity analysis
-        # Permeability log values typically range from -10 to -2
-        actuals = np.random.uniform(-10, -2, size=1000)
-        # Add noise to simulate model predictions
-        noise = np.random.normal(0, 0.25 * np.std(actuals), size=actuals.shape)
-        predictions = actuals + noise
-    
-    # Define thresholds for sweep (low to moderate R² values)
-    thresholds = [0.1, 0.2, 0.3, 0.4, 0.5]
-    
-    output_path = os.path.join(os.path.dirname(__file__), "..", "data", "sensitivity_analysis.json")
-    
-    results = sensitivity_analysis_sweep(
-        predictions=predictions,
-        actuals=actuals,
-        thresholds=thresholds,
-        output_path=output_path
-    )
-    
-    logger.info(f"Sensitivity analysis complete. Results: {len(results)} thresholds evaluated.")
-    logger.info(f"Output saved to: {output_path}")
-    
-    # Print summary
-    print("\nSensitivity Analysis Summary:")
-    print("-" * 60)
-    for res in results:
-        print(f"Threshold: {res['threshold']:.2f} | TPR: {res['true_positive_rate']:.4f} | FPR: {res['false_positive_rate']:.4f}")
-    print("-" * 60)
-    
-    return results
+    try:
+        sensitivity_analysis_sweep(kfold_path, output_path)
+        print(f"Sensitivity analysis complete. Results saved to {output_path}")
+    except Exception as e:
+        logger.error(f"Sensitivity analysis failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

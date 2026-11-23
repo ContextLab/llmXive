@@ -5,54 +5,67 @@ from logging.handlers import RotatingFileHandler
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-LOG_DIR = Path("logs")
-LOG_FILE = LOG_DIR / "pipeline.log"
-
-def setup_logging():
-    LOG_DIR.mkdir(exist_ok=True)
+def setup_logging(log_file: str = "logs/pipeline.log", level: int = logging.INFO) -> None:
+    """
+    Configure logging infrastructure.
     
-    logger = logging.getLogger()
-    logger.setLevel(logging.INFO)
+    Args:
+        log_file: Path to log file
+        level: Logging level
+    """
+    log_path = Path(log_file)
+    log_path.parent.mkdir(parents=True, exist_ok=True)
     
-    # File handler with JSON formatting
-    file_handler = RotatingFileHandler(LOG_FILE, maxBytes=5*1024*1024, backupCount=3)
-    file_handler.setLevel(logging.INFO)
+    # Create formatter with JSON-like structure
+    formatter = logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     
-    # Custom formatter to output JSON
-    class JsonFormatter(logging.Formatter):
-        def format(self, record):
-            log_record = {
-                "timestamp": self.formatTime(record, "%Y-%m-%d %H:%M:%S"),
-                "level": record.levelname,
-                "message": record.getMessage(),
-                "module": record.module,
-                "function": record.funcName
-            }
-            if hasattr(record, 'extra_data'):
-                log_record.update(record.extra_data)
-            return json.dumps(log_record)
-
-    file_handler.setFormatter(JsonFormatter())
+    # File handler
+    file_handler = RotatingFileHandler(
+        log_file, 
+        maxBytes=10*1024*1024,  # 10MB
+        backupCount=5
+    )
+    file_handler.setFormatter(formatter)
+    file_handler.setLevel(level)
     
-    if not logger.handlers:
-        logger.addHandler(file_handler)
-    
-    # Console handler for immediate feedback
+    # Console handler
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.INFO)
-    console_handler.setFormatter(logging.Formatter('%(asctime)s - %(levelname)s - %(message)s'))
-    logger.addHandler(console_handler)
+    console_handler.setFormatter(formatter)
+    console_handler.setLevel(level)
+    
+    # Configure root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(level)
+    root_logger.addHandler(file_handler)
+    root_logger.addHandler(console_handler)
 
 def get_logger(name: str) -> logging.Logger:
+    """
+    Get a logger instance.
+    
+    Args:
+        name: Logger name
+        
+    Returns:
+        Logger instance
+    """
     return logging.getLogger(name)
 
-def capture_rate_limit_headers(headers: Dict[str, Any]):
+def capture_rate_limit_headers(headers: Dict[str, Any]) -> None:
     """
-    Captures GitHub rate limit headers and logs them.
+    Capture and log rate limit headers.
+    
+    Args:
+        headers: Response headers
     """
     remaining = headers.get("X-RateLimit-Remaining")
     reset = headers.get("X-RateLimit-Reset")
     
     if remaining is not None:
         logger = get_logger(__name__)
-        logger.info(f"Rate limit remaining: {remaining}, reset at: {reset}", extra={"extra_data": {"rate_limit_remaining": remaining, "rate_limit_reset": reset}})
+        logger.info(f"Rate limit remaining: {remaining}")
+    if reset is not None:
+        logger = get_logger(__name__)
+        logger.info(f"Rate limit reset: {reset}")

@@ -1,50 +1,60 @@
 # Data Model: Quantifying the Influence of Topological Defects on 2D Material Properties
 
+## Overview
+
+This document defines the data structures used throughout the pipeline, ensuring consistency between the acquisition, processing, and modeling stages. The model is designed to be extensible and strictly typed to support automated validation.
+
 ## Entity Definitions
 
 ### 1. DefectEntry
-Represents a single record of a material structure with a topological defect.
+Represents a single record of a defective 2D material structure.
 
 | Field | Type | Description | Constraints |
 | :--- | :--- | :--- | :--- |
-| `id` | string | Unique identifier | UUID |
-| `material` | string | Material type | Enum: ["graphene", "MoS2"] |
-| `defect_type` | string | Type of defect | Enum: ["dislocation", "grain_boundary", "vacancy", "substitution"] |
-| `defect_density` | float | Fraction of atoms affected | Range: [0.001, 0.1] |
-| `tilt_angle` | float | Grain boundary tilt angle (degrees) | Range: [0, 360] |
-| `synthesis_method` | string | Method of creation (optional) | String |
-| `grain_size` | float | Average grain size (optional) | > 0 |
-| `conductivity_raw` | float | Electronic conductivity (S/m) | > 0 |
-| `youngs_modulus_raw` | float | Young's modulus (GPa) | > 0 |
-| `fracture_energy_raw` | float | Fracture energy (J/m²) | > 0 |
-| `status` | string | Data quality flag | Enum: ["valid", "missing_fracture", "timeout"] |
+| `id` | str | Unique identifier (UUID or hash). | Required, Unique |
+| `material` | str | Material type (e.g., "graphene", "MoS2"). | Required |
+| `defect_type` | str | Type of defect (e.g., "dislocation", "grain_boundary", "vacancy"). | Required |
+| `defect_density` | float | Fraction of atoms affected. | ≥ 0, ≤ 0.1 |
+| `conductivity` | float | Electronic conductivity (S/m). | > 0 |
+| `youngs_modulus` | float | Young's modulus (GPa). | > 0 |
+| `fracture_energy` | float | Fracture energy (J/m²). | > 0 |
+| `synthesis_method` | str | Method used to create the defect (optional). | Optional |
+| `grain_size` | float | Grain size (nm) (optional). | Optional |
+| `source` | str | Source of the data (e.g., "MP_API", "Synthetic", "2022_CSV"). | Required |
+| `exclusion_flag` | str | Flag for missing data. | `[MISSING: requires exclusion]` or null |
 
 ### 2. MaterialProperty
-Derived properties normalized by **material‑level** pristine reference values (not per‑entry). Pristine references are fetched once per material from the Materials Project API and stored in `data/processed/pristine_refs.json`.
+Represents the normalized property values relative to pristine references.
 
-| Field | Type | Description | Formula |
+| Field | Type | Description | Constraints |
 | :--- | :--- | :--- | :--- |
-| `entry_id` | string | Foreign key to DefectEntry | - |
-| `delta_conductivity` | float | Relative change in conductivity | $(\sigma - \sigma_0) / \sigma_0$ |
-| `delta_youngs` | float | Relative change in Young's modulus | $(E - E_0) / E_0$ |
-| `delta_fracture` | float | Relative change in fracture strength | $(\sigma_f - \sigma_{f0}) / \sigma_{f0}$ |
+| `entry_id` | str | Reference to `DefectEntry.id`. | Required |
+| `delta_conductivity` | float | Relative change (Δσ/σ₀). | Real number |
+| `delta_youngs` | float | Relative change (ΔE/E₀). | Real number |
+| `delta_fracture` | float | Relative change (Δσ_f/σ_f₀). | Real number |
+| `pristine_conductivity` | float | Reference value σ₀. | > 0 |
+| `pristine_youngs` | float | Reference value E₀. | > 0 |
+| `pristine_fracture` | float | Reference value σ_f₀. | > 0 |
 
-### 3. RegressionModel
-Configuration and metrics for trained models.
+### 3. ModelOutput
+Represents the results of the Random Forest regression and statistical tests.
 
-| Field | Type | Description |
-| :--- | :--- | :--- |
-| `model_id` | string | Unique identifier |
-| `target_property` | string | Which property is modeled |
-| `r2_score` | float | Coefficient of determination |
-| `mape` | float | Mean Absolute Percentage Error |
-| `cv_std` | float | Standard deviation of R² across 5 folds |
-| `fdr_adjusted_p` | float | P‑value after Benjamini-Hochberg correction |
-| `collinearity_method` | string | Method used for collinearity (e.g., "Ridge", "Exclusion") |
+| Field | Type | Description | Constraints |
+| :--- | :--- | :--- | :--- |
+| `model_id` | str | Identifier for the model run. | Required |
+| `target_property` | str | The property modeled (e.g., "delta_conductivity"). | Required |
+| `r_squared` | float | R² score on test set. | [-1, 1] |
+| `mape` | float | Mean Absolute Percentage Error. | ≥ 0 |
+| `cv_std` | float | Standard deviation of R² across 5 folds. | ≥ 0 |
+| `feature_importance` | dict | Map of feature name to importance score. | Required |
+| `p_values` | dict | Map of feature name to p-value (from permutation). | [0, 1] |
+| `fdr_adjusted` | dict | Map of feature name to BH-adjusted p-value. | [0, 1] |
+| `collinearity_flags` | list | List of features with VIF > 5. | Optional |
 
 ## Data Flow
 
-1. **Ingest**: `01_data_acquisition.py` fetches pristine structures (API) and defect data (real CSV/JSON or synthetic).
-2. **Clean**: `02_data_processing.py` filters invalid entries, computes normalization using material‑level pristine references, and writes `features.csv` and `targets.csv`.
-3. **Model**: `03_modeling.py` trains RF models, performs CV, and saves `model_config.yaml`.
-4. **Infer**: `04_inference.py` runs permutation tests, applies FDR, conducts sensitivity analysis, and generates `Validation_Report.json` when needed.
+1.  **Acquisition**: `DefectEntry` raw data is ingested from API/CSV/Synthetic.
+2.  **Validation**: Missing values flagged with `[MISSING: requires exclusion]`; entries with `defect_density` ≤ 0 or NaN excluded.
+3.  **Normalization**: `MaterialProperty` created by dividing raw properties by pristine references (from MP API).
+4.  **Modeling**: `ModelOutput` generated from `MaterialProperty` features.
+5.  **Reporting**: Final results aggregated in `Validation_Report.json`.

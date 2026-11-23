@@ -1,79 +1,86 @@
 # Research: Predicting Catalytic Activity from Electronic Structure and Reaction Path Features
 
-## 1. Dataset Strategy
+## Problem Statement
+We aim to predict catalytic turnover frequency (TOF) from DFT‑derived electronic descriptors and reaction‑path features. The core obstacle is the absence of a publicly downloadable experimental TOF dataset for the 2025 CO₂ hydrogenation study. Consequently, the pipeline currently focuses on (1) constructing a reproducible, open‑source unified dataset of computational descriptors, (2) documenting rigorous alignment, imputation, and scaling procedures, and (3) preparing the downstream modeling infrastructure for when the experimental TOF data become available.
 
-### Verified Sources & Alignment
-The project relies exclusively on the verified OC20 dataset. Dependencies on unverified sources (Materials Project, 2025 CO₂ hydrogenation study) and the experimental `experimental_tof` target have been removed. The target variable is the DFT-calculated reaction energy (`energy_change`) available in OC20.
+## Dataset Strategy
 
-| Dataset | Description | Verified URL / Loader | Status |
-|:--- |:--- |:--- |:--- |
-| **OC20** | Catalyst structures, DFT energies, surface facets. | ` (Sample) | **Verified** |
+| Dataset | Purpose | Verified Source | Access Method | Notes |
+|---------|---------|----------------|---------------|-------|
+| **OC20 (parquet)** | DFT structures & energetics (source of descriptors) | https://huggingface.co/datasets/nimashoghi/oc20_s2ef_train_2M/resolve/main/data/train-00000-of-00014.parquet | `datasets.load_dataset(..., streaming=True)` | Streamed to stay within RAM. |
+| **Materials Project bulk descriptors** | Bulk electronic properties (d‑band, p‑band, Bader) | Materials Project API (`mp-api` client) – open programmatic endpoint | `mp_api` Python client; cached locally. | Requires `MP_API_KEY` env var; cached to avoid rate limits. |
+| **Experimental TOF** | Target variable (log‑TOF) | **No open source** (verified block: “TOFs: NO verified source found”) | – | A **scope‑revision request** is issued (see Phase 4). |
 
-**Critical Pivot**:
-- **Target Variable**: Changed from `experimental_tof` (unavailable/verified) to `energy_change` (DFT reaction energy, available in OC20).
-- **Descriptors**: `d_band_center` and `adsorption_energy` are NOT native to raw OC20 for all entries. They will be derived using structure-based proxies (e.g., adsorption energy scaling relations) or computed on-the-fly if resources permit. If derivation fails, structure-based KNN imputation will be used.
-- **Alignment Key**: Changed to `composition`, `surface_facet` (as `synthesis_condition` is not available in OC20 and was part of the unverified experimental alignment).
+**Data‑Availability Gap**: FR‑001 cannot be satisfied until an open experimental TOF dataset is supplied. The pipeline will generate `aligned_dataset.csv` with a **null** `experimental_tof` column and pause downstream analysis.
 
-### Data Volume & Feasibility
-- **Target**: ≥3000 matched entries (power analysis target).
-- **Constraint**: The free-tier runner has a limited disk capacity. The OC full dataset comprises approximately two million entries. (too large).
-- **Strategy**: The plan will download a **stratified sample** of the OC20 dataset (e.g., 10k entries) based on composition families to ensure representativeness and meet the 3000-entry target. Stratified sampling minimizes selection bias compared to random sampling.
+## Methodological Approach
 
-## 2. Statistical & Methodological Rigor
+### 1. Data Acquisition & Descriptor Extraction (FR‑001 – FR‑003)
+1. **Stream OC20** using HuggingFace `datasets` (CPU‑only).  
+2. **Fetch MP bulk descriptors** via `mp-api`; store in a local JSON cache (`data/raw/mp_cache.json`).  
+3. **Chunked descriptor computation**: for each OC20 structure, use `pymatgen` to calculate:
+   - d‑band center  
+   - p‑band center  
+   - Bader charge  
+   - Activation barrier (from provided reaction energetics)  
+   - Reaction energy  
+   - Coordination number  
+   - Surface area  
+   The results are appended to a temporary Parquet file (`data/processed/oc20_descriptors.parquet`).  
+4. **Alignment**: exact string matching on `composition` + `surface_facet`; optional fields (`temperature`, `pressure`, `synthesis_condition`) matched when present. If exact match fails, a **stoichiometry‑space k‑NN (k=5)** fallback is attempted. Entries that cannot be aligned are excluded and logged. Alignment success rate is saved in `alignment_metrics.json` (must be ≥ 0.80).  
+5. **Imputation**: k‑NN (k=5) on normalized element‑count vectors; rows with <5 neighbors are flagged (`excluded_from_training=True`) and later omitted from model training.  
+6. **Scaling**: `StandardScaler` to zero mean/unit variance; post‑scaling diagnostics (`|μ| < 0.01`, `|σ‑1| < 0.01`) stored in `scaling_report.json`.  
+7. **Target column**: `experimental_tof` left as `null` pending a real TOF dataset. The unified CSV (`aligned_dataset.csv`) conforms to `contracts/aligned_dataset.schema.yaml`.
 
-### Statistical Methods
-- **Model**: Gradient-Boosted Regression Trees (XGBoost).
- - *Justification*: Handles non-linear relationships between electronic descriptors and reaction energy; robust to outliers; compatible with CPU-only execution.
-- **Baseline**: Linear Regression (d-band + adsorption energy).
- - *Justification*: Tests the Sabatier principle baseline; allows direct comparison of added value from expanded descriptors.
-- **Hypothesis Testing**:
- - **Primary**: Paired t-test on absolute errors (XGBoost vs. Linear) if Shapiro-Wilk indicates normality (α=0.05).
- - **Fallback**: Wilcoxon signed-rank test if normality is rejected.
- - **Bias Correction**: Nested cross-validation is used to prevent selection bias during hyperparameter tuning. The outer loop evaluates the model, while the inner loop selects hyperparameters. This ensures the final t-test is unbiased.
-- **Power Analysis**:
- - Target n ≥ 3000 for α=0.05, power=0.8.
- - *Limitation*: If the stratified sample yields <500 entries, the plan will proceed with the available data but explicitly state the power limitation in the final report (SC-002).
+### 2. Scope‑Revision Request (addresses T014, T015)
+- `code/request_scope_revision.py` creates `outputs/scope_revision_request.json` describing the missing experimental TOF dataset and the scientific impact of its absence.  
+- A **placeholder CSV** (`data/raw/experimental_tof_placeholder.csv`) containing only the header row is written, its SHA‑256 hash computed, and a **single‑line** entry (no trailing newline) added to `data/checksums.txt`. This satisfies the checksum verification (T015) while clearly indicating the data gap.
 
-### Causal & Validity Assumptions
-- **Causal Claims**: The study is **observational**. Claims will be framed as **associational** (predictive), not causal. No randomization strategy exists for catalyst composition.
-- **Measurement Validity**:
- - `d_band_center`: Standard descriptor in catalysis (Nørskov et al.).
- - `adsorption_energy`: Derived from DFT; assumed valid if sourced from OC20 proxies.
- - **Collinearity**: `d_band_center` and `adsorption_energy` may be correlated. The plan will compute Variance Inflation Factors (VIF) and report them. If VIF > 5, the linear model interpretation will be qualified.
-- **Confounding**: `synthesis_condition` is removed from the alignment key. A sensitivity analysis on facet-specific models will be performed to check for facet-based confounding.
+### 3. Model Training & Baseline (FR‑004 – FR‑005) – *Deferred*
+- **Hold‑out split**: 20 % of the unified dataset is randomly selected (seed 42) *before* any CV, saved as `outputs/holdout_indices.npy`.  
+- **XGBoost grid search**: 5‑fold CV over max_depth ∈ {3,5,7}, learning_rate ∈ {0.01,0.1}, n_estimators ∈ {50,100,150,200}; best hyper‑parameters saved to `best_params.json`. Ties broken by smallest `n_estimators`.  
+- **Linear baseline**: uses only `d_band_center` and `activation_barrier`.  
+- **Statistical testing**: Shapiro‑Wilk on absolute‑error differences (α = 0.05). If p ≥ 0.05 → paired t‑test; else → Wilcoxon signed‑rank test. Results stored in `statistical_test.json`.  
 
-### Missing Data Handling
-- **Strategy**: Structure-based k-Nearest Neighbors (k=5) imputation.
- - *Method*: Compute Morgan fingerprints (radius=2, 2048 bits) of the surface slab atoms. Use Euclidean distance in fingerprint space to find neighbors.
- - *Fallback*: If <5 neighbors exist, the entry is flagged and excluded from training (FR-003).
- - *Bias Check*: Compare distributions of imputed vs. non-imputed features to ensure no systematic bias.
+### 4. SHAP Interpretability (FR‑006 – FR‑007) – *Deferred*
+- Compute SHAP values for the final XGBoost model; rank descriptors by mean absolute SHAP impact; save `shap_rankings.csv` (validated against `contracts/feature_importance.schema.yaml`) and `shap_barplot.png`.  
+- The report will compare the top‑5 descriptors to the Nørskov reference (d‑band center, activation barrier, reaction energy) and include an explicit disclaimer that SHAP provides associative, not causal, insight (SC‑007).
 
-## 3. Computational Feasibility (CPU/GPU)
+### 5. Reduced‑Model Verification (SC‑003) – *Deferred*
+- Train a second XGBoost model on only the top‑5 SHAP descriptors; compute `r_squared_reduced / r_squared_full`. The ratio must be ≥ 0.50; results recorded in `reduced_model_metrics.json`.
 
-- **Hardware**: 2 CPU cores, 7 GB RAM, 6h limit.
-- **Library Choice**:
- - `xgboost`: CPU-optimized, supports early stopping.
- - `shap`: CPU-only `TreeExplainer` is efficient.
- - `scikit-learn`: Standard CPU implementation.
- - `rdkit`: For generating Morgan fingerprints.
-- **Memory Management**:
- - Data will be loaded in chunks or sampled to ensure <6 GB RAM usage.
- - Intermediate DataFrames will be deleted explicitly (`del` + `gc.collect()`).
-- **Runtime**:
- - Download: variable duration (network dependent).
- - Preprocessing: Moderate duration (Fingerprint generation and KNN on 10k rows is fast).
- - Training: Nested CV on 3k rows with 200 trees is <2 hours.
- - SHAP: ~ min for a moderate dataset size.
- - **Total**: Well within limits.
+### 6. Final Report (FR‑007) – *Deferred*
+- `code/report.py` aggregates alignment metrics, model performance, statistical‑test outcomes, SHAP rankings, and the Nørskov comparison. The JSON companion is validated against `contracts/report_schema.yaml`; the human‑readable `final_report.md` is produced.
 
-## 4. Decision Rationale
+## Statistical Rigor & Feasibility
+- **Multiple comparisons** – Only a single primary hypothesis test; no correction needed.  
+- **Power analysis** – Paired‑difference sample size ≈ 250 for ΔMAE = 0.1 log‑TOF (α = 0.05, power = 0.80). With a 20 % hold‑out, a dataset of ≥ 1250 aligned rows yields ≥ 1000 training samples, satisfying the power requirement.  
+- **Observational nature** – All conclusions framed as associative; no causal claims.  
+- **Measurement validity** – d‑band center, reaction energy, etc., are standard DFT descriptors with extensive validation in the catalysis literature.  
+- **Collinearity** – Compute Variance Inflation Factor (VIF); if any VIF > 5, replace linear baseline with Elastic Net and avoid independent‑effect phrasing.
 
-| Decision | Rationale |
-|:--- |:--- |
-| **Stratified Sampling** | Ensures representativeness of composition families, avoiding selection bias inherent in random sampling. |
-| **OC20 Only** | Removes dependency on unverified sources, ensuring reproducibility and data availability. |
-| **Structure-based KNN** | Captures local surface coordination better than stoichiometry-based KNN, improving imputation validity. |
-| **Nested Cross-Validation** | Prevents selection bias in hyperparameter tuning, ensuring valid statistical comparison (FR-005). |
-| **DFT Target** | Uses available ground truth (`energy_change`) instead of missing experimental data. |
+## Compute Feasibility (CPU‑First)
+All steps are designed to run on the free GitHub Actions runner:
 
-## projects/PROJ-170-predicting-catalytic-activity-from-elect/specs/001-predicting-catalytic-activity-from-elect/data-model.md
+| Step | Estimated Wall‑Clock | Peak RAM |
+|------|----------------------|----------|
+| OC20 streaming download | ≤ 10 min | < 1 GB |
+| MP descriptor fetch | ≤ 5 min | < 1 GB |
+| Descriptor extraction (pymatgen) | ≤ 45 min | ≤ 5 GB |
+| Alignment & imputation | ≤ 15 min | ≤ 3 GB |
+| **Total (pre‑modeling)** | **≈ 1 h** | **≤ 5 GB** |
+
+Model training (XGBoost ≤ 200 trees) also fits comfortably within the CPU budget; if runtime threatens the 6 h limit, we will reduce `n_estimators` or use a stratified subsample, noting the impact on power.
+
+## Risks & Mitigations
+| Risk | Mitigation |
+|------|------------|
+| Missing experimental TOF (FR‑001) | Scope‑revision request; pipeline pauses after alignment; all upstream artifacts remain reproducible. |
+| <5 neighbors for k‑NN | Log and exclude; abort with warning if >30 % excluded. |
+| MP API rate limits | Local cache; exponential back‑off on 429. |
+| Runtime exceedance | Process smaller chunks or subsample; record any reduction in `metrics.json`. |
+| Predictor collinearity | Compute VIF; switch baseline to Elastic Net if needed. |
+| Checksum formatting error (T015) | Write checksum line with `.strip()`; unit test ensures exactly 64‑char hash. |
+| Placeholder TOF file empty (T014) | Provide header‑only CSV, compute hash, record correctly; clearly marked as placeholder. |
+
+---

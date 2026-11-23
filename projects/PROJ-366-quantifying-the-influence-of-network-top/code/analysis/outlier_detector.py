@@ -1,183 +1,209 @@
 """
-Outlier detection for extreme topological defects.
+Outlier detection for extreme topological defects in amorphous silicon graphs.
 
 Identifies samples where >15% of atoms have coordination number < 3 or > 6.
-Writes excluded sample IDs to data/processed/graphs/excluded_samples.json
-if config.yaml flag 'enforce_exclusion' is True.
-Otherwise, logs a warning but does not exclude.
+Excludes such samples and logs warnings.
 """
 import json
 import logging
 import pickle
 from pathlib import Path
 from typing import List, Dict, Any, Set
-
 import numpy as np
 
-# Import config utilities from existing module
-from config import get_config
+from config import get_config, get_paths
 
-# Setup logging
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
 logger = logging.getLogger(__name__)
 
-# Constants
-COORD_MIN_THRESHOLD = 3
-COORD_MAX_THRESHOLD = 6
-DEFECT_RATIO_THRESHOLD = 0.15  # 15%
-
-def load_graph_metrics(graph_path: Path) -> Dict[str, Any]:
-    """Load graph metrics from a serialized graph file."""
-    try:
-        with open(graph_path, 'rb') as f:
-            data = pickle.load(f)
-        return data
-    except Exception as e:
-        logger.error(f"Failed to load graph metrics from {graph_path}: {e}")
-        return {}
-
-def extract_node_degrees(graph_data: Dict[str, Any]) -> List[int]:
-    """Extract node degrees from graph data."""
-    # Graph data structure typically contains 'nodes' or 'adjacency' info
-    # We assume the metrics file contains 'node_degrees' or can be derived
-    if 'node_degrees' in graph_data:
-        return graph_data['node_degrees']
-    
-    # Fallback: try to derive from adjacency list if present
-    if 'adjacency' in graph_data:
-        adjacency = graph_data['adjacency']
-        degrees = [len(neighbors) for neighbors in adjacency]
-        return degrees
-    
-    logger.warning("Could not find node degrees in graph data")
-    return []
-
-def calculate_defect_ratio(node_degrees: List[int]) -> float:
-    """Calculate the ratio of atoms with extreme coordination."""
-    if not node_degrees:
-        return 0.0
-    
-    total_atoms = len(node_degrees)
-    if total_atoms == 0:
-        return 0.0
-    
-    # Count atoms with coordination < 3 or > 6
-    defect_count = sum(
-        1 for deg in node_degrees 
-        if deg < COORD_MIN_THRESHOLD or deg > COORD_MAX_THRESHOLD
-    )
-    
-    return defect_count / total_atoms
-
-def detect_outliers(graphs_dir: Path, exclude_file: Path) -> Set[str]:
+def load_graph_metrics(graphs_dir: Path) -> Dict[str, Any]:
     """
-    Detect outlier samples based on topological defects.
+    Load graph metrics from processed graphs directory.
     
     Args:
-        graphs_dir: Directory containing serialized graph files
-        exclude_file: Path to write excluded sample IDs
+        graphs_dir: Path to directory containing graph pickle files
         
     Returns:
-        Set of excluded sample IDs
+        Dictionary mapping sample_id to graph data
     """
-    config = get_config()
-    enforce_exclusion = config.get('enforce_exclusion', False)
+    graphs = {}
+    graphs_path = Path(graphs_dir)
     
-    excluded_ids: Set[str] = set()
-    
-    # Find all graph files
-    graph_files = list(graphs_dir.glob('*.pkl')) + list(graphs_dir.glob('*.pickle'))
-    
-    if not graph_files:
-        logger.warning(f"No graph files found in {graphs_dir}")
-        return excluded_ids
-    
-    logger.info(f"Processing {len(graph_files)} graph files for outlier detection")
-    
-    for graph_file in graph_files:
-        sample_id = graph_file.stem  # filename without extension
+    if not graphs_path.exists():
+        logger.error(f"Graphs directory not found: {graphs_path}")
+        return graphs
         
-        # Load graph metrics
-        graph_data = load_graph_metrics(graph_file)
-        if not graph_data:
-            logger.warning(f"Skipping {sample_id}: could not load graph data")
-            continue
-        
-        # Extract node degrees
-        node_degrees = extract_node_degrees(graph_data)
-        if not node_degrees:
-            logger.warning(f"Skipping {sample_id}: no node degrees found")
-            continue
-        
-        # Calculate defect ratio
-        defect_ratio = calculate_defect_ratio(node_degrees)
-        
-        if defect_ratio > DEFECT_RATIO_THRESHOLD:
-            if enforce_exclusion:
-                excluded_ids.add(sample_id)
-                logger.warning(
-                    f"Excluding sample '{sample_id}': "
-                    f"defect ratio {defect_ratio:.2%} > {DEFECT_RATIO_THRESHOLD:.2%} "
-                    f"({int(defect_ratio * len(node_degrees))}/{len(node_degrees)} atoms)"
-                )
-            else:
-                logger.warning(
-                    f"Sample '{sample_id}' has extreme topological defects: "
-                    f"defect ratio {defect_ratio:.2%} > {DEFECT_RATIO_THRESHOLD:.2%}. "
-                    f"Exclusion disabled (enforce_exclusion=False). Log only."
-                )
-        else:
-            logger.debug(
-                f"Sample '{sample_id}' passed outlier check: "
-                f"defect ratio {defect_ratio:.2%}"
-            )
-    
-    return excluded_ids
+    for pickle_file in graphs_path.glob("*.pkl"):
+        try:
+            with open(pickle_file, 'rb') as f:
+                graph_data = pickle.load(f)
+                sample_id = graph_data.get('graph_id', pickle_file.stem)
+                graphs[sample_id] = graph_data
+                logger.info(f"Loaded graph: {sample_id}")
+        except Exception as e:
+            logger.error(f"Failed to load {pickle_file}: {e}")
+            
+    return graphs
 
-def write_excluded_samples(excluded_ids: Set[str], exclude_file: Path) -> None:
-    """Write excluded sample IDs to JSON file."""
-    exclude_file.parent.mkdir(parents=True, exist_ok=True)
+def extract_node_degrees(graph_data: Dict[str, Any]) -> List[int]:
+    """
+    Extract node degrees from graph data.
     
-    output_data = {
-        "excluded_samples": sorted(list(excluded_ids)),
+    Args:
+        graph_data: Dictionary containing graph structure with 'nodes' list
+        
+    Returns:
+        List of node degrees
+    """
+    nodes = graph_data.get('nodes', [])
+    degrees = [node.get('degree', 0) for node in nodes]
+    return degrees
+
+def calculate_defect_ratio(degrees: List[int], min_coord: int = 3, max_coord: int = 6) -> float:
+    """
+    Calculate the ratio of defective atoms (coord < min_coord or coord > max_coord).
+    
+    Args:
+        degrees: List of node coordination numbers
+        min_coord: Minimum acceptable coordination number (default: 3)
+        max_coord: Maximum acceptable coordination number (default: 6)
+        
+    Returns:
+        Ratio of defective atoms (float between 0 and 1)
+    """
+    if not degrees:
+        return 0.0
+        
+    defective_count = sum(1 for d in degrees if d < min_coord or d > max_coord)
+    return defective_count / len(degrees)
+
+def detect_outliers(
+    graphs: Dict[str, Any],
+    defect_threshold: float = 0.15,
+    min_coord: int = 3,
+    max_coord: int = 6
+) -> Set[str]:
+    """
+    Detect outlier samples with excessive topological defects.
+    
+    A sample is considered an outlier if more than `defect_threshold` (default 15%)
+    of its atoms have coordination < min_coord or > max_coord.
+    
+    Args:
+        graphs: Dictionary of sample_id -> graph_data
+        defect_threshold: Maximum allowed defect ratio (default: 0.15)
+        min_coord: Minimum acceptable coordination number
+        max_coord: Maximum acceptable coordination number
+        
+    Returns:
+        Set of sample_ids that are outliers
+    """
+    outliers = set()
+    
+    for sample_id, graph_data in graphs.items():
+        degrees = extract_node_degrees(graph_data)
+        defect_ratio = calculate_defect_ratio(degrees, min_coord, max_coord)
+        
+        if defect_ratio > defect_threshold:
+            outliers.add(sample_id)
+            logger.warning(
+                f"OUTLIER DETECTED: Sample '{sample_id}' has {defect_ratio:.2%} "
+                f"defective atoms (coord < {min_coord} or > {max_coord}). "
+                f"Threshold: {defect_threshold:.2%}"
+            )
+            
+    return outliers
+
+def write_excluded_samples(
+    excluded_ids: Set[str],
+    output_path: Path,
+    defect_log_path: Path
+) -> None:
+    """
+    Write excluded sample IDs to JSON and log warnings.
+    
+    Args:
+        excluded_ids: Set of sample IDs to exclude
+        output_path: Path to write excluded_samples.json
+        defect_log_path: Path to write defect_log.txt
+    """
+    # Ensure parent directories exist
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    defect_log_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Write excluded samples JSON
+    excluded_data = {
+        "excluded_samples": list(excluded_ids),
         "count": len(excluded_ids),
-        "reason": "Extreme topological defects (>15% atoms with coord < 3 or > 6)"
+        "reason": "Extreme topological defects (>15% atoms with coordination < 3 or > 6)"
     }
     
-    with open(exclude_file, 'w') as f:
-        json.dump(output_data, f, indent=2)
+    with open(output_path, 'w') as f:
+        json.dump(excluded_data, f, indent=2)
+    logger.info(f"Written excluded samples to: {output_path}")
     
-    logger.info(f"Wrote {len(excluded_ids)} excluded sample IDs to {exclude_file}")
+    # Write defect log
+    with open(defect_log_path, 'w') as f:
+        f.write("Topological Defect Log\n")
+        f.write("=" * 50 + "\n")
+        f.write(f"Total excluded samples: {len(excluded_ids)}\n")
+        f.write(f"Exclusion criteria: >15% atoms with coordination < 3 or > 6\n\n")
+        
+        for sample_id in sorted(excluded_ids):
+            f.write(f"Sample ID: {sample_id}\n")
+            f.write(f"  Status: EXCLUDED\n")
+            f.write(f"  Reason: Extreme topological defects detected\n")
+            f.write("-" * 30 + "\n")
+            
+    logger.info(f"Written defect log to: {defect_log_path}")
 
 def main():
     """Main entry point for outlier detection."""
-    # Setup logging
-    logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
-    # Get paths from config
     config = get_config()
-    graphs_dir = Path(config['paths']['processed_graphs'])
-    exclude_file = Path(config['paths']['excluded_samples'])
+    paths = get_paths()
     
-    logger.info(f"Starting outlier detection")
-    logger.info(f"Graphs directory: {graphs_dir}")
-    logger.info(f"Exclusion file: {exclude_file}")
-    logger.info(f"Enforce exclusion: {config.get('enforce_exclusion', False)}")
+    graphs_dir = paths.get('processed_graphs', paths['data'] / 'processed' / 'graphs')
+    output_dir = paths['data'] / 'processed' / 'graphs'
+    
+    excluded_samples_path = output_dir / 'excluded_samples.json'
+    defect_log_path = output_dir / 'defect_log.txt'
+    
+    # Get configuration parameters
+    defect_threshold = config.get('outlier_detection', {}).get('defect_threshold', 0.15)
+    min_coord = config.get('outlier_detection', {}).get('min_coordination', 3)
+    max_coord = config.get('outlier_detection', {}).get('max_coordination', 6)
+    
+    logger.info(f"Starting outlier detection with threshold: {defect_threshold:.2%}")
+    logger.info(f"Coordination range: [{min_coord}, {max_coord}]")
+    
+    # Load graph metrics
+    graphs = load_graph_metrics(graphs_dir)
+    if not graphs:
+        logger.warning("No graphs found to process")
+        # Write empty excluded list
+        write_excluded_samples(set(), excluded_samples_path, defect_log_path)
+        return
+        
+    logger.info(f"Loaded {len(graphs)} graphs for analysis")
     
     # Detect outliers
-    excluded_ids = detect_outliers(graphs_dir, exclude_file)
+    excluded_ids = detect_outliers(
+        graphs,
+        defect_threshold=defect_threshold,
+        min_coord=min_coord,
+        max_coord=max_coord
+    )
+    
+    logger.info(f"Detected {len(excluded_ids)} outlier samples")
     
     # Write results
-    if excluded_ids:
-        write_excluded_samples(excluded_ids, exclude_file)
-    else:
-        logger.info("No outliers detected")
-        # Still create an empty exclusion file for downstream consistency
-        write_excluded_samples(set(), exclude_file)
+    write_excluded_samples(excluded_ids, excluded_samples_path, defect_log_path)
     
-    logger.info("Outlier detection completed")
+    logger.info("Outlier detection complete")
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

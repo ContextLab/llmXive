@@ -1,102 +1,84 @@
 # tests/integration/test_us1_centroids.R
-# Integration test: Verify full centroid generation for multiple species produces correct CSV schema
+# Integration test for User Story 1 (T013-T015a)
+# Verifies full centroid generation for multiple species produces correct CSV schema
 
 library(testthat)
-library(dplyr)
-library(readr)
-library(here)
 
-# Setup: Ensure necessary directories exist
-ensure_dir <- function(path) {
-  if (!dir.exists(path)) {
-    dir.create(path, recursive = TRUE)
-  }
-}
-
-test_that("full centroid generation produces correct CSV schema", {
-  # Skip if data files are not present (for CI/CD environments without data)
-  skip_if_not(file.exists(here("data", "raw", "gbif_raw_records.csv")), 
-              "Raw GBIF data not found. Run fetch_gbif.R first.")
+test_that("US1 Integration: Full centroid generation produces correct schema", {
+  # This test assumes the pipeline has run up to T015a
+  # We check the existence and schema of data/processed/centroids.csv
   
-  # Load the raw data
-  raw_data <- read_csv(here("data", "raw", "gbif_raw_records.csv"))
+  centroids_file <- "data/processed/centroids.csv"
   
-  # Verify raw data has expected columns
-  expect_true("decimalLatitude" %in% names(raw_data))
-  expect_true("decimalLongitude" %in% names(raw_data))
-  expect_true("year" %in% names(raw_data))
-  
-  # Simulate the process of computing centroids (simplified for integration test)
-  # In reality, this would involve extract_climate.R and compute_centroids.R
-  
-  # Group by species and period (we'll use a dummy period assignment for testing)
-  # For this test, we assume the raw data has a 'species' column or we can extract it
-  # Since GBIF data might not have a clean species column, we'll use 'scientificName'
-  
-  if ("scientificName" %in% names(raw_data)) {
-    # Mock period assignment based on year
-    raw_data <- raw_data %>%
-      mutate(
-        period = case_when(
-          year <= 2000 ~ "1970-2000",
-          TRUE ~ "1991-2020"
-        )
-      )
-    
-    # Compute dummy centroids (just mean of lat/lon for schema validation)
-    centroids <- raw_data %>%
-      group_by(scienceName = scientificName, period) %>%
-      summarise(
-        mean_lat = mean(decimalLatitude, na.rm = TRUE),
-        mean_lon = mean(decimalLongitude, na.rm = TRUE),
-        count = n(),
-        .groups = "drop"
-      )
-    
-    # Verify schema of centroids
-    expect_true("scienceName" %in% names(centroids))
-    expect_true("period" %in% names(centroids))
-    expect_true("mean_lat" %in% names(centroids))
-    expect_true("mean_lon" %in% names(centroids))
-    expect_true("count" %in% names(centroids))
-    
-    # Verify multiple rows per species (one per period)
-    # We need at least one species with data in both periods for this to be true
-    # For now, we just check that we have multiple rows
-    expect_true(nrow(centroids) > 0)
-    
-    # Check for multiple periods if data allows
-    unique_periods <- unique(centroids$period)
-    expect_true(length(unique_periods) >= 1)
-  } else {
-    # If scientificName is missing, we can't proceed with species-level aggregation
-    # This is a failure case we should handle
-    expect_false(TRUE, "scientificName column missing from raw data")
+  # Skip if file doesn't exist (pipeline not run yet)
+  if (!file.exists(centroids_file)) {
+    skip("data/processed/centroids.csv not found. Run pipeline first.")
   }
   
-  # Test that log file was generated (if logging is implemented)
-  log_file <- here("data", "logs", "fetch_gbif.log")
-  # Note: The log file path might vary based on utils.R implementation
-  # We'll check for any log file in the logs directory
-  log_dir <- here("data", "logs")
-  if (dir.exists(log_dir)) {
-    log_files <- list.files(log_dir, pattern = "\\.log$", full.names = TRUE)
-    expect_true(length(log_files) > 0, "Log files should be generated")
+  # Read the file
+  df <- read.csv(centroids_file, stringsAsFactors = FALSE)
+  
+  # Check required columns
+  required_cols <- c("species", "period", "temp", "precip", "record_count", "computed_at")
+  expect_true(all(required_cols %in% names(df)))
+  
+  # Check data types
+  expect_true(is.numeric(df$temp))
+  expect_true(is.numeric(df$precip))
+  expect_true(is.numeric(df$record_count))
+  expect_true(is.character(df$species))
+  expect_true(is.character(df$period))
+  
+  # Check period values
+  expect_true(all(df$period %in% c("1970-2000", "1991-2020")))
+  
+  # Check that we have at least one record per period for at least one species
+  # (Assuming the input data was valid)
+  if (nrow(df) > 0) {
+    expect_true(nrow(unique(df$species)) >= 1)
+    expect_true(nrow(unique(df$period)) >= 1)
   }
+  
+  # Check that record_count is positive
+  expect_true(all(df$record_count > 0))
+  
+  # Check that computed_at is a valid timestamp string
+  expect_true(all(grepl("\\d{4}-\\d{2}-\\d{2} \\d{2}:\\d{2}:\\d{2}", df$computed_at)))
 })
 
-test_that("handles multiple test species", {
-  # This test verifies that the pipeline can handle multiple species
-  # We'll check if the raw data contains records for multiple species
+test_that("US1 Integration: Centroids match raw data means", {
+  # If points_with_climate.csv exists, verify the means
+  points_file <- "data/processed/points_with_climate.csv"
+  centroids_file <- "data/processed/centroids.csv"
   
-  if (file.exists(here("data", "raw", "gbif_raw_records.csv"))) {
-    raw_data <- read_csv(here("data", "raw", "gbif_raw_records.csv"))
-    
-    if ("scientificName" %in% names(raw_data)) {
-      unique_species <- unique(raw_data$scientificName)
-      expect_true(length(unique_species) > 1, "Should have records for multiple species")
-    }
-  } else {
-    skip("Raw data file not found")
+  if (!file.exists(points_file) || !file.exists(centroids_file)) {
+    skip("Input or output files missing for verification.")
   }
+  
+  points_df <- read.csv(points_file, stringsAsFactors = FALSE)
+  centroids_df <- read.csv(centroids_file, stringsAsFactors = FALSE)
+  
+  # Filter valid rows
+  required_cols <- c("species", "period", "temp", "precip")
+  points_df$temp <- as.numeric(points_df$temp)
+  points_df$precip <- as.numeric(points_df$precip)
+  valid_rows <- complete.cases(points_df[, required_cols])
+  points_df <- points_df[valid_rows, ]
+  
+  # Compute expected means
+  expected_means <- aggregate(
+    cbind(temp, precip) ~ species + period,
+    data = points_df,
+    FUN = mean,
+    na.rm = TRUE
+  )
+  
+  # Merge with actual centroids
+  merged <- merge(centroids_df, expected_means, 
+                  by = c("species", "period"), 
+                  suffixes = c("_actual", "_expected"))
+  
+  # Check that means are approximately equal (allowing for floating point)
+  expect_true(all(abs(merged$temp_actual - merged$temp_expected) < 1e-6))
+  expect_true(all(abs(merged$precip_actual - merged$precip_expected) < 1e-6))
 })

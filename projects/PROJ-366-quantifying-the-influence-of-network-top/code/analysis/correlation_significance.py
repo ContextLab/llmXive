@@ -1,10 +1,3 @@
-"""
-Task T034: Implement Pearson correlation significance testing with Bonferroni correction.
-
-Reads the raw Pearson correlation results from T033a (correlation_pearson.json),
-applies Bonferroni correction to the p-values based on the number of tests (features),
-and outputs the corrected results to correlation_pearson_corrected.json.
-"""
 import json
 import logging
 import sys
@@ -12,146 +5,205 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional
 import numpy as np
 
-# Add project root to path for imports
-sys.path.insert(0, str(Path(__file__).parent.parent))
 from config import get_config, get_paths
 
+# Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('logs/correlation_significance.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
-def load_pearson_results(input_path: Path) -> List[Dict[str, Any]]:
-    """Load the raw Pearson correlation results from T033a."""
-    if not input_path.exists():
-        raise FileNotFoundError(f"Input file not found: {input_path}")
+def load_pearson_results(input_path: Optional[str] = None) -> List[Dict[str, Any]]:
+    """
+    Load Pearson correlation results from the output of T033a.
     
-    with open(input_path, 'r') as f:
+    Args:
+        input_path: Path to the correlation_pearson.json file. If None, uses config default.
+        
+    Returns:
+        List of dictionaries containing correlation results.
+    """
+    if input_path is None:
+        paths = get_paths()
+        input_path = str(paths["processed_model_outputs"] / "correlation_pearson.json")
+    
+    path_obj = Path(input_path)
+    if not path_obj.exists():
+        raise FileNotFoundError(f"Pearson results file not found: {input_path}")
+    
+    logger.info(f"Loading Pearson results from {input_path}")
+    with open(path_obj, 'r') as f:
         data = json.load(f)
     
-    # The structure from T033a is expected to be a list of results per feature
-    # or a dict containing a 'results' key. We handle both.
-    if isinstance(data, list):
-        return data
-    elif isinstance(data, dict) and 'results' in data:
-        return data['results']
-    else:
-        # Fallback: treat the whole dict as a single result if it looks like one
+    # Ensure we return a list of results (handle single result or list)
+    if isinstance(data, dict):
         return [data]
+    return data
 
-def apply_bonferroni_correction(results: List[Dict[str, Any]], num_tests: int) -> List[Dict[str, Any]]:
+def apply_bonferroni_correction(results: List[Dict[str, Any]], alpha: float = 0.05) -> List[Dict[str, Any]]:
     """
     Apply Bonferroni correction to p-values.
     
-    Corrected p-value = min(raw_p * num_tests, 1.0)
-    Significance threshold is adjusted: alpha_corrected = alpha / num_tests
+    The Bonferroni correction adjusts the significance threshold by dividing
+    the desired alpha level by the number of tests performed.
+    
+    Args:
+        results: List of correlation result dictionaries with 'p_value' and 'n_features' (or similar).
+        alpha: Desired significance level (default 0.05).
+        
+    Returns:
+        List of results with corrected p-values and significance flags.
     """
+    logger.info(f"Applying Bonferroni correction with alpha={alpha}")
+    
     corrected_results = []
-    
-    # Default alpha for significance
-    alpha = 0.05
-    alpha_corrected = alpha / num_tests if num_tests > 0 else alpha
-    
-    logger.info(f"Applying Bonferroni correction: {num_tests} tests, alpha_corrected = {alpha_corrected:.6f}")
-    
     for result in results:
-        raw_p = result.get('p_value', 1.0)
-        r_value = result.get('r', 0.0)
-        feature_name = result.get('feature', 'unknown')
+        p_value = result.get('p_value')
+        if p_value is None:
+            logger.warning("Skipping result without p_value")
+            corrected_results.append(result)
+            continue
         
-        # Bonferroni correction
-        corrected_p = min(raw_p * num_tests, 1.0)
+        # Determine number of tests (n_features tested)
+        # This assumes the Pearson analysis was done per feature
+        n_tests = result.get('n_features', result.get('n_samples', 1))
         
-        # Determine significance
-        is_significant = corrected_p < alpha_corrected
+        # Bonferroni correction: adjusted_p = p * n_tests
+        adjusted_p = min(p_value * n_tests, 1.0)
+        
+        # Significance at original alpha level
+        is_significant = adjusted_p < alpha
         
         # Interpretation
-        if is_significant:
-            if abs(r_value) > 0.7:
-                interpretation = "Strong significant correlation"
-            elif abs(r_value) > 0.4:
-                interpretation = "Moderate significant correlation"
-            else:
-                interpretation = "Weak significant correlation"
-        else:
-            interpretation = "Not significant after correction"
+        interpretation = "Significant" if is_significant else "Not Significant"
+        if not is_significant and p_value < alpha:
+            interpretation = "Significant before correction, Not Significant after correction"
         
         corrected_entry = {
-            "feature": feature_name,
-            "r": r_value,
-            "p_value_raw": raw_p,
-            "p_value_corrected": corrected_p,
-            "alpha_corrected": alpha_corrected,
-            "is_significant": is_significant,
-            "interpretation": interpretation
+            **result,
+            'adjusted_p_value': adjusted_p,
+            'bonferroni_threshold': alpha / n_tests,
+            'is_significant_after_correction': is_significant,
+            'interpretation': interpretation,
+            'correction_method': 'Bonferroni',
+            'n_tests': n_tests,
+            'alpha': alpha
         }
-        
         corrected_results.append(corrected_entry)
-        
+    
     return corrected_results
 
 def generate_summary(corrected_results: List[Dict[str, Any]]) -> Dict[str, Any]:
-    """Generate a summary of the corrected analysis."""
-    significant_count = sum(1 for r in corrected_results if r['is_significant'])
-    total_count = len(corrected_results)
+    """
+    Generate a summary of the corrected correlation results.
+    
+    Args:
+        corrected_results: List of results after Bonferroni correction.
+        
+    Returns:
+        Summary dictionary with aggregate statistics.
+    """
+    logger.info("Generating summary of corrected results")
+    
+    total_tests = len(corrected_results)
+    significant_count = sum(1 for r in corrected_results if r.get('is_significant_after_correction', False))
+    
+    significant_features = [
+        r.get('feature_name', f'feature_{i}') 
+        for i, r in enumerate(corrected_results) 
+        if r.get('is_significant_after_correction', False)
+    ]
     
     summary = {
-        "total_tests": total_count,
-        "significant_after_correction": significant_count,
-        "alpha_corrected": corrected_results[0]['alpha_corrected'] if corrected_results else 0.0,
-        "method": "Bonferroni",
-        "results": corrected_results
+        'total_correlations_tested': total_tests,
+        'significant_after_bonferroni': significant_count,
+        'non_significant_after_bonferroni': total_tests - significant_count,
+        'correction_method': 'Bonferroni',
+        'alpha_level': corrected_results[0].get('alpha', 0.05) if corrected_results else 0.05,
+        'significant_features': significant_features,
+        'summary_interpretation': (
+            f"Found {significant_count} out of {total_tests} features with statistically significant "
+            f"correlation after Bonferroni correction (alpha={summary['alpha_level']})."
+        )
     }
     
     return summary
 
-def save_corrected_results(output_path: Path, summary: Dict[str, Any]) -> None:
-    """Save the corrected results to the output file."""
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+def save_corrected_results(
+    corrected_results: List[Dict[str, Any]], 
+    summary: Dict[str, Any],
+    output_path: Optional[str] = None
+) -> Path:
+    """
+    Save the corrected correlation results and summary to JSON.
     
-    with open(output_path, 'w') as f:
-        json.dump(summary, f, indent=2)
-    
-    logger.info(f"Saved corrected results to {output_path}")
-
-def main() -> int:
-    """Main entry point for T034."""
-    try:
-        config = get_config()
+    Args:
+        corrected_results: List of results with Bonferroni correction applied.
+        summary: Summary dictionary.
+        output_path: Path for output file. If None, uses config default.
+        
+    Returns:
+        Path to the saved file.
+    """
+    if output_path is None:
         paths = get_paths()
+        output_path = str(paths["processed_model_outputs"] / "correlation_pearson_corrected.json")
+    
+    path_obj = Path(output_path)
+    path_obj.parent.mkdir(parents=True, exist_ok=True)
+    
+    output_data = {
+        'corrected_results': corrected_results,
+        'summary': summary,
+        'metadata': {
+            'generated_by': 'T034_Bonferroni_Correction',
+            'source_file': 'correlation_pearson.json'
+        }
+    }
+    
+    logger.info(f"Saving corrected results to {output_path}")
+    with open(path_obj, 'w') as f:
+        json.dump(output_data, f, indent=2)
+    
+    return path_obj
+
+def main():
+    """
+    Main entry point for T034: Pearson correlation significance testing with Bonferroni correction.
+    """
+    logger.info("Starting T034: Pearson correlation significance testing with Bonferroni correction")
+    
+    try:
+        # Load input
+        results = load_pearson_results()
+        if not results:
+            raise ValueError("No correlation results found to correct")
         
-        # Input path from T033a
-        input_file = paths['data_processed_model_outputs'] / "correlation_pearson.json"
-        output_file = paths['data_processed_model_outputs'] / "correlation_pearson_corrected.json"
+        # Apply Bonferroni correction
+        corrected_results = apply_bonferroni_correction(results)
         
-        logger.info(f"Loading Pearson results from {input_file}")
-        raw_results = load_pearson_results(input_file)
-        
-        if not raw_results:
-            logger.warning("No results found in input file. Creating empty output.")
-            summary = {"total_tests": 0, "significant_after_correction": 0, "results": []}
-            save_corrected_results(output_file, summary)
-            return 0
-        
-        # Determine number of tests (features)
-        num_tests = len(raw_results)
-        
-        logger.info(f"Applying Bonferroni correction to {num_tests} tests")
-        corrected_results = apply_bonferroni_correction(raw_results, num_tests)
-        
+        # Generate summary
         summary = generate_summary(corrected_results)
         
-        save_corrected_results(output_file, summary)
+        # Save output
+        output_path = save_corrected_results(corrected_results, summary)
         
-        # Log key findings
-        logger.info(f"Significant features after correction: {summary['significant_after_correction']}/{summary['total_tests']}")
+        logger.info(f"T034 completed successfully. Output saved to {output_path}")
+        print(f"Bonferroni correction complete. {summary['significant_after_bonferroni']} of {summary['total_correlations_tested']} features are significant.")
         
-        return 0
-        
+    except FileNotFoundError as e:
+        logger.error(f"Input file not found: {e}")
+        print(f"Error: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.error(f"Error in correlation significance testing: {e}", exc_info=True)
-        return 1
+        logger.error(f"Error during Bonferroni correction: {e}", exc_info=True)
+        print(f"Error: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

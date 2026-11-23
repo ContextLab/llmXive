@@ -1,0 +1,98 @@
+T001:
+  c: false
+  h: 0a6924cd24487ac9b754c30388818e9c08a6da2e197cca15eef0059d2c8d6bbd
+  r: The provided tree lacks the required empty `__init__.py` files in both `src/`
+    and `tests/`, and there are no `.gitkeep` files in `src/` or `tests/` as specified.
+    These missing artifacts mean the project structure does not meet the task requirements.
+T002:
+  c: true
+  h: b9e18924ebb70c8a0250058b74dfd32266a17a0eb41020ab78a8d24c4b312f83
+  r: The `requirements.txt` file is present and contains each of the eight specified
+    packages (`pandas`, `numpy`, `scikit-learn`, `networkx`, `scipy`, `datasets`,
+    `pyyaml`, `pytest`) on separate lines, exactly as required.
+T003:
+  c: true
+  h: 9d40a07dfe25f931a8090742d957c6bc5424424977883649b1efe055cdd8f890
+  r: "The `pyproject.toml` file is present, non\u2011empty, and includes `[tool.black]`\
+    \ and `[tool.ruff]` sections configuring Black and Ruff, as well as dev dependencies\
+    \ listing both tools. This satisfies the requirement to configure linting and\
+    \ formatting in `pyproject.toml`."
+T004:
+  c: true
+  h: cc70f19b52adcef2b4a26ffcf04b5195dff4ad7de7a54cfbc91ef34c346f9103
+  r: "The provided `src/config.py` defines the required hyperparameters with the correct\
+    \ default values and includes a `load_config` function that reads a YAML file\
+    \ using `yaml.safe_load` (pyyaml). The file is non\u2011empty and implements the\
+    \ requested functionality."
+T006:
+  c: true
+  h: ab9d7bd9e3d2aaf0dfcbc1c0edc4d554d707e8f765d8166bec22e9e0be25c1cd
+  r: "The `src/utils/io.py` file exists, is non\u2011empty, and provides deterministic\
+    \ JSON/Parquet read/write functions together with checksum calculation and verification\
+    \ utilities as specified."
+T007:
+  c: false
+  h: 9d472204ae17a66159e2ffbf7651eb77f22b30019b5784ea922db0ccab7ac8e9
+  r: '`src/entities.py` exists and defines the required classes, but `ItemNode` is
+    implemented as a regular class rather than a dataclass as the task explicitly
+    required. The file must define `ItemNode` using `@dataclass` (or otherwise be
+    a dataclass) to satisfy the specification.'
+T009a:
+  c: false
+  h: b4535a967562fce222fc3f8d191f9fc8ba63f33696bba1013d77b6d9659d7c3d
+  r: "The `src/utils/resource.py` file is truncated and does not contain a complete\
+    \ implementation of the enforcement logic (e.g., sampling to 500\u202Fk items\
+    \ and logging the action). Additionally, the required `results/resource_log.json`\
+    \ file is missing. Both the functional code and the log artifact are absent, so\
+    \ the task is not satisfied."
+T012:
+  c: false
+  h: 70c54121684bac094511253e356dd71b3d1d386fe11855ad20ca3674465b511c
+  r: The required artifact `tests/integration/test_graph.py` does not exist in the
+    repository, so no integration test for disconnected graph handling is present.
+    The task cannot be considered completed until this file is added with appropriate
+    test code.
+T018a:
+  c: false
+  h: c4d70fc5f87e23a31c2dbd880e0852d490fffc0c3bace8f4be0bf77b46662e99
+  r: "The required output file `results/greedy_only_metrics.json` does not exist,\
+    \ and the provided `src/main.py` snippet shows only pipeline orchestration without\
+    \ any code that computes or writes Greedy\u2011only baseline metrics. Consequently\
+    \ the task\u2019s core requirement is unmet."
+T024a:
+  c: false
+  h: 64f5270bcc80cb3f82d3968f393ea9153f8cffb4be8e5c103b4838f9a671fc26
+  r: The provided `src/evaluator.py` does not contain a `compare_metrics` function
+    (the file is truncated and shows no such implementation), and the required output
+    file `results/metrics_comparison.json` is absent. Both the function implementation
+    and the JSON result are missing, so the task is not satisfied.
+T024b:
+  c: false
+  h: 417b016a381d5e7f0874054dc2623d78bc825dc8c475111346ee41e28dadd4a0
+  r: The `results/greedy_paths.json` and `results/greedy_rectified_paths.json` files
+    are absent, so the pipeline does not produce the required output files. Additionally,
+    the provided `src/main.py` snippet does not show any code that writes those specific
+    JSON files with the required `["paths", "metrics"]` structure. The implementer
+    must add logic to generate and save these files for the full test set.
+T024c:
+  c: false
+  h: 417b016a381d5e7f0874054dc2623d78bc825dc8c475111346ee41e28dadd4a0
+  r: "The provided `src/main.py` shows only pipeline orchestration and does not contain\
+    \ any code that validates the schema of `results/greedy_paths.json` or `results/greedy_rectified_paths.json`.\
+    \ Additionally, the required JSON files are missing from the repository, so the\
+    \ validation logic cannot even be exercised. The task\u2019s core requirement\u2014\
+    implementing schema\u2011validation logic\u2014is not satisfied."
+T030:
+  c: false
+  h: 74710f908c7d855c4d02381898784cad7fa84e26b2c6aa9e3e0d8d94cb8be29c
+  r: "The `results/statistical_report.json` file does not exist, and the provided\
+    \ `src/main.py` (as shown) contains only pipeline orchestration and logging without\
+    \ any code that aggregates results or writes a statistical report with p\u2011\
+    values, confidence intervals, or sweep summaries. The required artifact is missing\
+    \ and the implementation does not fulfill the task\u2019s specification."
+T033:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No source files from the `src/` directory were provided, and there is no evidence\
+    \ that any public functions now contain comprehensive docstrings. The required\
+    \ artifact\u2014a fully docstring\u2011annotated codebase\u2014is missing."

@@ -1,3 +1,1 @@
-"""
-Utility modules for data generation, simulation, and statistical analysis.
-"""
+# Utils package for shared utilities

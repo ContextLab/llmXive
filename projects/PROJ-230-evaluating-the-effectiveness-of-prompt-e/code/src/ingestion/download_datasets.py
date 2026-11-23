@@ -1,171 +1,196 @@
 """
 Dataset Ingestion Module for PROJ-230.
 
-Fetches code translation pairs from HuggingFace datasets,
-caches raw data to data/raw/, and extracts python_code/javascript_code columns.
+This script streams the raw code translation datasets from HuggingFace
+and writes each row to a JSON Lines file under ``data/raw/``. It also
+records a log (``ingestion_log.json``) containing the dataset identifier,
+split name, and row count for each successfully fetched split.
+
+Datasets:
+- codeparrot/code-trans-py-js
+- bigcode/evaluation
+
+Outputs (per dataset/split):
+- data/raw/<safe_dataset_name>_<split>.jsonl   (one JSON object per line)
+- data/raw/ingestion_log.json                  (metadata about ingestion)
 """
-import os
-import sys
+
+import json
 import logging
-import traceback
+import sys
 from pathlib import Path
+from typing import List, Dict
 
-# Add project root to path to allow imports from src/
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+from huggingface_hub import hf_hub_download, RepositoryNotFoundError, HfHubHTTPError
 
-from datasets import load_dataset
-from src.utils.logging import get_logger, log_raw_output
+# Configure logger
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    formatter = logging.Formatter("%(asctime)s - %(name)s - %(levelname)s - %(message)s")
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
-# Configure logging
-logger = get_logger(__name__)
+# Resolve project root (four levels up from this file)
+PROJECT_ROOT = Path(__file__).resolve().parents[3]
+DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
+LOG_PATH = DATA_RAW_DIR / "ingestion_log.json"
 
-# Constants
-DATASET_NAMES = [
+# Datasets to ingest
+DATASET_IDS = [
     "codeparrot/code-trans-py-js",
-    "bigcode/evaluation"
+    "bigcode/evaluation",
 ]
-OUTPUT_DIR = Path(project_root) / "data" / "raw"
-OUTPUT_FILE = OUTPUT_DIR / "raw_code_corpus.parquet"
 
-def ensure_dirs():
-    """Ensure output directories exist."""
-    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    logger.info(f"Ensured output directory exists: {OUTPUT_DIR}")
+# Candidate filenames for the default split. Most HF code translation datasets expose a
+# ``train.jsonl`` file; we fall back to other common extensions if needed.
+CANDIDATE_FILENAMES = [
+    "train.jsonl",
+    "train.parquet",
+    "train.csv",
+    "train.txt",
+]
 
-def fetch_dataset(dataset_name: str):
-    """
-    Fetch a dataset from HuggingFace.
-    
-    Args:
-        dataset_name: Name of the dataset on HuggingFace.
-        
-    Returns:
-        Dataset object or None if failed.
-    """
-    logger.info(f"Fetching dataset: {dataset_name}")
+def ensure_dirs() -> None:
+    """Create the data/raw directory if it does not exist."""
     try:
-        # Load dataset with streaming to manage memory
-        ds = load_dataset(dataset_name, split="train", streaming=False)
-        logger.info(f"Successfully loaded {dataset_name}: {len(ds)} rows")
-        return ds
-    except Exception as e:
-        logger.error(f"Failed to load dataset {dataset_name}: {e}")
-        logger.error(traceback.format_exc())
-        return None
+        DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
+        logger.info(f"Ensured raw data directory exists: {DATA_RAW_DIR}")
+    except Exception as exc:
+        logger.error(f"Failed to create raw data directory: {exc}")
+        raise
 
-def extract_code_columns(dataset, source_col: str, target_col: str):
+def download_split(dataset_id: str, filename: str) -> Path:
     """
-    Extract and validate code columns from a dataset.
-    
+    Download a specific file from a HuggingFace dataset repository.
+
     Args:
-        dataset: The loaded dataset.
-        source_col: Name of the source code column (e.g., python_code).
-        target_col: Name of the target code column (e.g., javascript_code).
-        
+        dataset_id: The repository identifier on the Hub (e.g., ``codeparrot/code-trans-py-js``).
+        filename: The name of the file to download (e.g., ``train.jsonl``).
+
     Returns:
-        List of dicts with extracted code, or empty list if failed.
+        Path to the downloaded file in the local cache.
+
+    Raises:
+        RuntimeError: If the file cannot be downloaded.
     """
-    extracted = []
-    logger.info(f"Extracting columns '{source_col}' and '{target_col}'")
-    
-    for i, row in enumerate(dataset):
-        # Check if columns exist
-        if source_col not in row or target_col not in row:
-            if i < 5:  # Log only first few missing
-                logger.warning(f"Row {i} missing required columns")
-            continue
-        
-        src_code = row[source_col]
-        tgt_code = row[target_col]
-        
-        # Validate types and content
-        if not isinstance(src_code, str) or not isinstance(tgt_code, str):
-            if i < 5:
-                logger.warning(f"Row {i} has non-string code")
-            continue
-        
-        if not src_code.strip() or not tgt_code.strip():
-            if i < 5:
-                logger.warning(f"Row {i} has empty code")
-            continue
-        
-        extracted.append({
-            "source_language": "python",
-            "target_language": "javascript",
-            "python_code": src_code,
-            "javascript_code": tgt_code
-        })
-        
-        # Log progress every 1000 rows
-        if (i + 1) % 1000 == 0:
-            logger.info(f"Processed {i + 1} rows, extracted {len(extracted)} valid pairs")
+    try:
+        logger.info(f"Attempting to download {filename} from {dataset_id}")
+        local_path = hf_hub_download(
+            repo_id=dataset_id,
+            filename=filename,
+            repo_type="dataset",
+            cache_dir=str(PROJECT_ROOT / ".cache" / "huggingface"),
+            force_download=False,
+            resume_download=True,
+        )
+        logger.info(f"Successfully downloaded {filename} to {local_path}")
+        return Path(local_path)
+    except (RepositoryNotFoundError, HfHubHTTPError) as exc:
+        logger.warning(f"File {filename} not found in {dataset_id}: {exc}")
+        raise RuntimeError(f"Could not find {filename} in {dataset_id}") from exc
+    except Exception as exc:
+        logger.error(f"Unexpected error while downloading {filename} from {dataset_id}: {exc}")
+        raise RuntimeError(f"Failed to download {filename} from {dataset_id}") from exc
 
-    return extracted
+def stream_jsonl_to_output(source_path: Path, dest_path: Path) -> int:
+    """
+    Stream a JSONL file line‑by‑line into another JSONL file.
 
-def main():
-    """Main entry point for dataset ingestion."""
-    logger.info("Starting dataset ingestion pipeline")
+    Args:
+        source_path: Path to the source JSONL file (downloaded from HF).
+        dest_path: Path where the streamed output should be written.
+
+    Returns:
+        Number of rows written.
+    """
+    row_count = 0
+    with source_path.open("r", encoding="utf-8") as src_f, dest_path.open(
+        "w", encoding="utf-8"
+    ) as dst_f:
+        for line in src_f:
+            line = line.strip()
+            if not line:
+                continue
+            # Validate that the line is valid JSON; if not, skip.
+            try:
+                json_obj = json.loads(line)
+            except json.JSONDecodeError:
+                logger.debug(f"Skipping malformed JSON line at {source_path}:{row_count + 1}")
+                continue
+            dst_f.write(json.dumps(json_obj, ensure_ascii=False) + "\n")
+            row_count += 1
+    logger.info(f"Wrote {row_count} rows to {dest_path}")
+    return row_count
+
+def process_dataset(dataset_id: str) -> Dict[str, object]:
+    """
+    Process a single dataset: download the default split and stream it to
+    ``data/raw/<safe_name>_<split>.jsonl``.
+
+    Returns a dictionary suitable for inclusion in the ingestion log.
+    """
+    safe_name = dataset_id.replace("/", "_").replace("-", "_")
+    # The default split for these translation datasets is ``train``.
+    split_name = "train"
+
+    # Find a candidate file that exists in the repository.
+    downloaded_path: Path | None = None
+    for candidate in CANDIDATE_FILENAMES:
+        try:
+            downloaded_path = download_split(dataset_id, candidate)
+            # If we successfully downloaded, break.
+            break
+        except RuntimeError:
+            continue
+
+    if downloaded_path is None:
+        raise RuntimeError(
+            f"Could not locate a default split file for {dataset_id}. Tried: {CANDIDATE_FILENAMES}"
+        )
+
+    # Destination path under data/raw
+    dest_path = DATA_RAW_DIR / f"{safe_name}_{split_name}.jsonl"
+    logger.info(f"Streaming {downloaded_path} to {dest_path}")
+
+    row_count = stream_jsonl_to_output(downloaded_path, dest_path)
+
+    return {
+        "dataset_id": dataset_id,
+        "split": split_name,
+        "row_count": row_count,
+    }
+
+def main() -> None:
+    """Entry point for the ingestion script."""
+    logger.info("Starting dataset ingestion (streaming mode)...")
     ensure_dirs()
 
-    all_records = []
+    ingestion_log: List[Dict[str, object]] = []
 
-    for ds_name in DATASET_NAMES:
-        ds = fetch_dataset(ds_name)
-        if ds is None:
-            logger.warning(f"Skipping {ds_name} due to fetch failure")
-            continue
+    for dataset_id in DATASET_IDS:
+        try:
+            metadata = process_dataset(dataset_id)
+            ingestion_log.append(metadata)
+            logger.info(
+                f"Successfully processed {dataset_id} (rows: {metadata['row_count']})"
+            )
+        except Exception as exc:
+            logger.error(f"Aborting ingestion due to error with {dataset_id}: {exc}")
+            # Propagate the exception as required by the task spec.
+            raise
 
-        # Attempt to extract standard columns first
-        # Different datasets may have different column names
-        # We try common patterns
-        possible_source_cols = ["python_code", "source_code", "code", "python"]
-        possible_target_cols = ["javascript_code", "target_code", "translation", "javascript"]
+    # Write the ingestion log as JSON
+    try:
+        with LOG_PATH.open("w", encoding="utf-8") as log_f:
+            json.dump(ingestion_log, log_f, indent=2, ensure_ascii=False)
+        logger.info(f"Ingestion log written to {LOG_PATH}")
+    except Exception as exc:
+        logger.error(f"Failed to write ingestion log: {exc}")
+        raise
 
-        extracted = []
-        for src_col in possible_source_cols:
-            for tgt_col in possible_target_cols:
-                if src_col in ds.column_names and tgt_col in ds.column_names:
-                    logger.info(f"Found columns: {src_col} -> {tgt_col}")
-                    extracted = extract_code_columns(ds, src_col, tgt_col)
-                    if extracted:
-                        break
-            if extracted:
-                break
-        
-        if not extracted:
-            logger.warning(f"No valid code pairs found in {ds_name} with standard column names")
-            logger.info(f"Available columns in {ds_name}: {ds.column_names}")
-            continue
-
-        all_records.extend(extracted)
-        logger.info(f"Extracted {len(extracted)} pairs from {ds_name}")
-
-    if not all_records:
-        logger.error("No valid code pairs extracted from any dataset")
-        sys.exit(1)
-
-    logger.info(f"Total valid pairs collected: {len(all_records)}")
-
-    # Convert to pandas DataFrame for easy saving
-    import pandas as pd
-    df = pd.DataFrame(all_records)
-
-    # Save to parquet (efficient storage)
-    logger.info(f"Saving {len(df)} rows to {OUTPUT_FILE}")
-    df.to_parquet(OUTPUT_FILE, index=False)
-    
-    # Also save a CSV for quick inspection
-    csv_path = OUTPUT_DIR / "raw_code_corpus.csv"
-    df.to_csv(csv_path, index=False)
-    
-    logger.info(f"Saved raw corpus to {OUTPUT_FILE} and {csv_path}")
-    logger.info("Dataset ingestion completed successfully")
-
-    # Log a sample for audit
-    if len(df) > 0:
-        sample = df.iloc[0].to_dict()
-        log_raw_output("ingestion_sample", sample)
+    logger.info("Dataset ingestion completed successfully.")
 
 if __name__ == "__main__":
     main()

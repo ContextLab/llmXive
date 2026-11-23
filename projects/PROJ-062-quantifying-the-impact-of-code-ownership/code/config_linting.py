@@ -2,99 +2,99 @@ import subprocess
 import sys
 from pathlib import Path
 from typing import List, Tuple
+from utils.logging_utils import get_logger
 
-def run_command(cmd: List[str], check: bool = True) -> Tuple[int, str]:
+logger = get_logger(__name__)
+
+def run_command(cmd: List[str], cwd: Path = None) -> Tuple[int, str, str]:
     """
-    Execute a shell command and return the return code and output.
-    
-    Args:
-        cmd: Command and arguments as a list
-        check: If True, raise CalledProcessError on non-zero exit
-        
-    Returns:
-        Tuple of (return_code, output)
+    Run a shell command and return (returncode, stdout, stderr).
     """
     try:
         result = subprocess.run(
             cmd,
+            cwd=cwd,
             capture_output=True,
             text=True,
-            check=check
+            check=False
         )
-        return result.returncode, result.stdout
-    except subprocess.CalledProcessError as e:
-        return e.returncode, e.stdout + e.stderr
+        return result.returncode, result.stdout, result.stderr
+    except Exception as e:
+        logger.error(f"Command failed to execute: {e}")
+        return -1, "", str(e)
 
-def check_flake8() -> Tuple[int, str]:
+def check_flake8(project_root: Path) -> Tuple[bool, str]:
     """
-    Run flake8 on the code directory.
+    Run flake8 on the project.
+    Returns (success, message).
+    """
+    logger.info("Running flake8 checks...")
+    cmd = [sys.executable, "-m", "flake8", "code/", "tests/"]
+    returncode, stdout, stderr = run_command(cmd, cwd=project_root)
     
-    Returns:
-        Tuple of (return_code, output)
-    """
-    code_dir = Path(__file__).parent
-    cmd = [sys.executable, "-m", "flake8", str(code_dir)]
-    return run_command(cmd, check=False)
-
-def check_black(check: bool = True) -> Tuple[int, str]:
-    """
-    Run black in check mode on the code directory.
-    
-    Args:
-        check: If True, only check formatting (don't fix)
-        
-    Returns:
-        Tuple of (return_code, output)
-    """
-    code_dir = Path(__file__).parent
-    if check:
-        cmd = [sys.executable, "-m", "black", "--check", str(code_dir)]
+    if returncode == 0:
+        return True, "flake8 passed."
     else:
-        cmd = [sys.executable, "-m", "black", str(code_dir)]
-    return run_command(cmd, check=False)
+        logger.warning("flake8 found issues.")
+        return False, f"flake8 failed:\n{stdout}\n{stderr}"
 
-def fix_black() -> Tuple[int, str]:
+def check_black(project_root: Path, check_only: bool = True) -> Tuple[bool, str]:
     """
-    Run black to fix formatting issues in the code directory.
+    Run black on the project.
+    Returns (success, message).
+    """
+    logger.info("Running black checks...")
+    cmd = [sys.executable, "-m", "black", "--check", "code/", "tests/"]
+    if check_only:
+        cmd.append("--check")
     
-    Returns:
-        Tuple of (return_code, output)
-    """
-    return check_black(check=False)
+    returncode, stdout, stderr = run_command(cmd, cwd=project_root)
+    
+    if returncode == 0:
+        return True, "black passed."
+    else:
+        logger.warning("black found formatting issues.")
+        return False, f"black failed:\n{stdout}\n{stderr}"
 
-def setup_config_files() -> None:
+def fix_black(project_root: Path) -> Tuple[bool, str]:
+    """
+    Run black to fix formatting issues.
+    Returns (success, message).
+    """
+    logger.info("Running black to fix formatting...")
+    cmd = [sys.executable, "-m", "black", "code/", "tests/"]
+    returncode, stdout, stderr = run_command(cmd, cwd=project_root)
+    
+    if returncode == 0:
+        return True, "black fixed formatting."
+    else:
+        return False, f"black failed to fix:\n{stdout}\n{stderr}"
+
+def setup_config_files(project_root: Path) -> None:
     """
     Create configuration files for flake8 and black if they don't exist.
     """
-    root = Path(__file__).parent.parent
-    
-    # Create .flake8 configuration
-    flake8_config = root / ".flake8"
-    if not flake8_config.exists():
+    # .flake8
+    flake8_path = project_root / ".flake8"
+    if not flake8_path.exists():
+        logger.info(f"Creating {flake8_path}")
         content = """[flake8]
 max-line-length = 88
 extend-ignore = E203, W503
-exclude =
-    .git,
-    __pycache__,
-    build,
-    dist,
-    .eggs,
-    *.egg-info
+exclude = .git,__pycache__,build,dist,.eggs
+max-complexity = 10
 """
-        flake8_config.write_text(content)
-    
-    # Create pyproject.toml with black config if it doesn't exist
-    pyproject = root / "pyproject.toml"
-    if not pyproject.exists():
-        content = """[build-system]
-requires = ["setuptools>=45", "wheel"]
-build-backend = "setuptools.build_meta"
+        flake8_path.write_text(content)
+    else:
+        logger.debug(f"{flake8_path} already exists.")
 
-[tool.black]
+    # pyproject.toml (for black config)
+    pyproject_path = project_root / "pyproject.toml"
+    if not pyproject_path.exists():
+        logger.info(f"Creating {pyproject_path}")
+        content = """[tool.black]
 line-length = 88
 target-version = ['py311']
-include = '\\.pyi?$'
 exclude = '''
 /(
     \.git
@@ -109,47 +109,32 @@ exclude = '''
 )/
 '''
 """
-        pyproject.write_text(content)
+        pyproject_path.write_text(content)
+    else:
+        logger.debug(f"{pyproject_path} already exists.")
 
 def main() -> int:
     """
     Main entry point for linting configuration and checks.
-    
-    Returns:
-        Exit code (0 for success, 1 for failure)
     """
-    print("Setting up linting configuration files...")
-    setup_config_files()
+    project_root = Path(__file__).resolve().parent.parent
     
-    print("\nRunning flake8...")
-    code, output = check_flake8()
-    if code == 0:
-        print("✓ flake8 passed")
+    # Setup config files
+    setup_config_files(project_root)
+    
+    # Run checks
+    flake8_ok, flake8_msg = check_flake8(project_root)
+    black_ok, black_msg = check_black(project_root)
+    
+    print(flake8_msg)
+    print(black_msg)
+    
+    if flake8_ok and black_ok:
+        logger.info("All linting checks passed.")
+        return 0
     else:
-        print("✗ flake8 failed:")
-        print(output)
-    
-    print("\nRunning black check...")
-    code, output = check_black()
-    if code == 0:
-        print("✓ black check passed")
-    else:
-        print("✗ black check failed:")
-        print(output)
-        print("\nTo fix formatting issues, run: python code/config_linting.py --fix")
-    
-    return code
+        logger.warning("Some linting checks failed. Run 'python code/scripts/format_and_lint.py --fix' to fix formatting.")
+        return 1
 
 if __name__ == "__main__":
-    import sys
-    if len(sys.argv) > 1 and sys.argv[1] == "--fix":
-        print("Fixing formatting with black...")
-        code, output = fix_black()
-        if code == 0:
-            print("✓ Black formatting applied successfully")
-        else:
-            print("✗ Black failed to fix issues:")
-            print(output)
-        sys.exit(code)
-    else:
-        sys.exit(main())
+    sys.exit(main())

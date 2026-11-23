@@ -1,43 +1,46 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Regression Input Schema
-description: Schema for the flattened dataset used to train the collapse prediction model. Includes Human-Validated Collapse Margin (HVCM) as the target to break circularity.
+$schema: "http://json-schema.org/draft-07/schema#"
+title: RegressionInput
 type: object
-properties:
-  collapse_id:
-    type: string
-    description: Foreign key to the CollapseIntensity table.
-  model_name:
-    type: string
-    description: Name of the ASR model.
-  snr:
-    type: number
-    description: SNR value (feature).
-  rt60:
-    type: number
-    description: RT60 value (feature).
-  snr_sq:
-    type: number
-    description: SNR squared (feature).
-  rt60_sq:
-    type: number
-    description: RT60 squared (feature).
-  snr_rt60:
-    type: number
-    description: Interaction term (SNR * RT60).
-  target_hvcm:
-    type: number
-    description: Target variable for regression (Human-Validated Collapse Margin).
-  p_value_adjusted:
-    type: number
-    description: Adjusted p-value for the interaction term (Bonferroni/FDR corrected).
 required:
-  - collapse_id
+  - clip_id
   - model_name
   - snr
   - rt60
   - snr_sq
   - rt60_sq
   - snr_rt60
-  - target_hvcm
-  - p_value_adjusted
+  - baseline_wer
+  - transcript_perplexity
+  - inflection_step
+properties:
+  clip_id:
+    type: string
+    description: "Identifier of the audio clip (foreign key to source dataset)."
+  model_name:
+    type: string
+    description: "ASR model name (e.g., whisper_tiny)."
+  snr:
+    type: number
+    description: "Signal‑to‑Noise Ratio in dB."
+  rt60:
+    type: number
+    description: "Reverberation time (RT60) in seconds."
+  snr_sq:
+    type: number
+    description: "Squared SNR term (snr × snr)."
+  rt60_sq:
+    type: number
+    description: "Squared RT60 term (rt60 × rt60)."
+  snr_rt60:
+    type: number
+    description: "Interaction term (snr × rt60)."
+  baseline_wer:
+    type: number
+    description: "Baseline Word Error Rate on the clean clip."
+  transcript_perplexity:
+    type: number
+    description: "Per‑sentence sentence‑transformers perplexity as a proxy for transcript difficulty."
+  inflection_step:
+    type: integer
+    description: "Target variable – index of the maximum‑negative‑derivative step (inflection step)."
 additionalProperties: false

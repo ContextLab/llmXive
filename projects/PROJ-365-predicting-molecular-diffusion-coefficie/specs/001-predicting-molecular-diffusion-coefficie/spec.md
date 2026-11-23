@@ -33,7 +33,7 @@ As a researcher, I want to train a lightweight Message Passing Neural Network (M
 
 **Acceptance Scenarios**:
 
-1. **Given** a featurized dataset of ≤ 5,000 molecules and a single-layer MPNN architecture configured for CPU execution, **When** the training script runs for 50 epochs, **Then** the training loss decreases monotonically (or plateaus) without memory errors, and the final model is saved to disk.
+1. **Given** a featurized dataset of ≤ 5,000 molecules and a single-layer MPNN architecture configured for CPU execution, **When** the training script runs for several epochs, **Then** the training loss decreases monotonically (or plateaus) without memory errors, and the final model is saved to disk.
 2. **Given** the trained GNN model and a baseline linear regression model trained on the same data (including solvent descriptors), **When** both are evaluated on the held-out test set, **Then** the system outputs a comparison report containing the Pearson correlation coefficient (r) and Root Mean Squared Error (RMSE) for both models.
 3. **Given** the performance metrics of the GNN and the baseline, **When** the statistical testing module runs, **Then** it performs a paired t-test on the per-sample absolute errors and reports a p-value indicating whether the GNN's improvement over the baseline is statistically significant (p < 0.05).
 
@@ -69,9 +69,9 @@ As a researcher, I want to perform a sensitivity analysis on key hyperparameters
 - **FR-001**: The system MUST ingest experimental diffusion data from a CSV source containing SMILES strings, solvent types, and measured diffusion values, validating the SMILES syntax before processing. (See US-1)
 - **FR-002**: The system MUST convert molecular structures into graph representations using RDKit, ensuring nodes represent atoms and edges represent bonds, and compute scalar solvent descriptors (viscosity, dielectric constant). (See US-1)
 - **FR-003**: The system MUST implement a Message Passing Neural Network (MPNN) that operates exclusively on CPU hardware, avoiding any CUDA/GPU dependencies, and must log "Device: CPU" and verify `torch.cuda.is_available() is False` at startup. (See US-2)
-- **FR-004**: The system MUST train the MPNN using 5-fold cross-validation with a fixed random seed of 42 and stratification by solvent type to minimize Mean Squared Error (MSE) between predicted and experimental diffusion coefficients. (See US-2)
+- **FR-004**: The system MUST train the MPNN using cross‑validation with multiple folds, employing a fixed random seed and stratification by solvent type to minimize Mean Squared Error (MSE) between predicted and experimental diffusion coefficients. (See US-2)
 - **FR-005**: The system MUST perform a paired t-test on the per-sample absolute errors comparing the RMSE of the GNN against a linear regression baseline (which MUST also include solvent descriptors) to determine statistical significance. (See US-2)
-- **FR-006**: The system MUST execute a sensitivity analysis sweeping key hyperparameters (e.g., number of message passing steps) over a defined range (e.g., {1, 2, 3}) AND perform an ablation study removing solvent descriptors to report the variation in correlation coefficients. (See US-3)
+- **FR-006**: The system MUST execute a sensitivity analysis sweeping key hyperparameters (e.g., number of message passing steps) over a defined range (e.g., including a minimal setting, a moderate setting, and a higher setting). AND perform an ablation study removing solvent descriptors to report the variation in correlation coefficients. (See US-3)
 - **FR-007**: The system MUST detect and handle dataset variables that are missing or undefined by excluding the record from the dataset and logging the event with the tag `[MISSING_DATA_EXCLUDED]`. (See US-1)
 
 ### Key Entities

@@ -1,0 +1,38 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: MetricRecord
+description: Schema for a single metric snapshot at a time-step.
+type: object
+properties:
+  run_id:
+    type: string
+    description: "Foreign key to SimulationRun."
+  time_step:
+    type: integer
+    minimum: 0
+    maximum: 2000
+    description: "The step number (0 to [deferred])."
+  coherence_score:
+    type: number
+    description: "Deviation from physics oracle (lower is better)."
+  diversity_score:
+    type: number
+    description: "Event entropy (higher is better)."
+  step_latency_ms:
+    type: number
+    minimum: 0
+    description: "Time taken for this step in milliseconds."
+  is_valid:
+    type: boolean
+    description: "Whether the step passed physics constraints."
+  event_entropy:
+    type: number
+    description: "Entropy of the specific state transition (for rare event detection)."
+required:
+  - run_id
+  - time_step
+  - coherence_score
+  - diversity_score
+  - step_latency_ms
+  - is_valid
+  - event_entropy
+additionalProperties: false

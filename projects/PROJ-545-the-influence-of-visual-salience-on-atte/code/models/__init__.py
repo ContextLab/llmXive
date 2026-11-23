@@ -1,3 +1,3 @@
 """
-Model definitions and fitting utilities.
+Model definitions and fitting modules.
 """

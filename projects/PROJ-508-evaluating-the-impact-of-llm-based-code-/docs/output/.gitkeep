@@ -1,2 +1,2 @@
-# This directory stores generated reports and figures.
-# Files in this directory are generated and should not be committed to the repository.
+# This directory is required by Task T010 for final report outputs.
+# It serves as a placeholder to ensure the directory structure is tracked by git.

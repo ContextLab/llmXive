@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1710.01949",
+  "judged_at": "2026-07-24T18:54:09Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"domino: decoupling causal modeling from autoregressive drafting in spe\" linguistics",
+  "rationale": "The paper focuses on visually grounded speech models and semantic retrieval from untranscribed audio, which is a distinct domain from the user's question regarding causal modeling and autoregressive drafting in Large Language Models (LLMs). It does not measure the same mechanisms, variables, or empirical populations specified in the user's query, nor does it serve as a foundational reference for the specific \"Domino\" framework or LLM drafting techniques.",
+  "relevant": false
+}

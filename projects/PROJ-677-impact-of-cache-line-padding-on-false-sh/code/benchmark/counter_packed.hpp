@@ -1,22 +1,24 @@
 #ifndef COUNTER_PACKED_HPP
 #define COUNTER_PACKED_HPP
 
-#pragma pack(push, 1)
+#pragma pack(1)
+
+/**
+ * @struct CounterPacked
+ * @brief A struct containing three long integers packed tightly without padding.
+ * 
+ * This struct is designed to demonstrate false sharing in multi-threaded environments.
+ * By using #pragma pack(1), the compiler is instructed to pack the members with 1-byte alignment,
+ * resulting in a total size of 24 bytes (3 * 8 bytes on 64-bit systems).
+ * This compact layout ensures that multiple counters fit within a single cache line (typically 64 bytes),
+ * causing cache coherency traffic (false sharing) when different threads modify adjacent counters.
+ */
 struct CounterPacked {
-    long long value;
-    int tag;
-    char padding[2]; // To make total size 24 bytes (8 + 4 + 2 + padding to align next if needed, but pack forces 12 or 24 depending on implementation, let's ensure specific size)
+    long c1;
+    long c2;
+    long c3;
 };
-// Note: With #pragma pack(1), sizeof(CounterPacked) should be 14 (8+4+2) or similar depending on alignment of members.
-// The task spec mentioned 24 bytes. Let's explicitly pad to reach 24 if the natural size is smaller, 
-// or rely on the fact that without alignment, it's compact.
-// To strictly match "24 bytes" requirement from T007:
-// 8 (long long) + 4 (int) = 12. We need 12 more bytes.
-struct CounterPacked {
-    long long value;
-    int tag;
-    char extra[12]; // Total 8+4+12 = 24 bytes
-};
-#pragma pack(pop)
+
+#pragma pack() // Restore default packing alignment
 
 #endif // COUNTER_PACKED_HPP

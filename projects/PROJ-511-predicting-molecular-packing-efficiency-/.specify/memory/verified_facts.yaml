@@ -1,0 +1,5 @@
+'|dropout layer multi perceptron rate use':
+  quote: p = 0.1
+  source_id: '2002.02247'
+  url: https://arxiv.org/abs/2002.02247
+  value: '0.1'

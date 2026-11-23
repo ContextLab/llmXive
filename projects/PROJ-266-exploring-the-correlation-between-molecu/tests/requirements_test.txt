@@ -1,0 +1,3 @@
+# Test dependencies for T017
+pytest>=7.0.0
+# Note: RDKit, pandas, numpy are already in main requirements.txt

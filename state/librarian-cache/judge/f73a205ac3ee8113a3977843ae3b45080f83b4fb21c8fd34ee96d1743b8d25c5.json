@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1005.2143",
+  "judged_at": "2026-07-22T22:07:20Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting glass transition temperature from compositional descriptors with explainable boosting machines materials science",
+  "rationale": "This paper satisfies criterion (a) as it proposes a universal theoretical framework and mechanism for the glass transition temperature (Tg) and macromolecular motion, which is the core physical phenomenon the user aims to predict. Additionally, it meets criterion (d) by offering a foundational theoretical model (Eight-order mosaic structure theory) that explains the underlying physics of Tg, serving as a canonical reference for the domain even if it does not use the specific machine learning met",
+  "relevant": true
+}

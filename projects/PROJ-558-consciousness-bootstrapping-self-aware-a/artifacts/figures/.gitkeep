@@ -1,0 +1,2 @@
+# This file ensures the artifacts/figures directory is tracked by git.
+# Generated plots and figures will be stored here.

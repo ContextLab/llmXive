@@ -1,0 +1,14 @@
+status: none
+intent: RoboTurk language grounded robot manipulation dataset with feasibility labels
+  python package dataset
+required_fields:
+- action_text
+- spatial_relation_tags
+- robot_kinematic_model
+- joint_limits
+- gripper_type
+- feasibility_label
+- confidence_score
+cache_key: c2c5ed2b7c91cd96b2f08b45ffdf736537c07f7037eccfccb1aa416d034dab12
+searched_at: '2026-08-05T06:06:19.587368+00:00'
+retry_count: 1

@@ -1,0 +1,20 @@
+# Example Coarse and Fine Axis Definitions for Testing
+# Used by T011a for input validation demonstration
+
+coarse_axes:
+  - character: "Scrooge"
+    axis_name: "Greed"
+    description: "A tendency to prioritize wealth accumulation over human connection and moral values."
+  - character: "Elizabeth Bennet"
+    axis_name: "Pride"
+    description: "A strong sense of self-worth that can manifest as arrogance or judgment of others."
+
+fine_axes:
+  - character: "Scrooge"
+    axis_name: "Reluctance to Donate"
+    description: "Refusal to contribute money to charitable causes despite having ample means."
+    source_observation: "Scrooge's response to the gentlemen asking for a donation for the poor, suggesting prisons and workhouses instead."
+  - character: "Elizabeth Bennet"
+    axis_name: "Disdain for Darcy"
+    description: "Initial negative assessment of Darcy's character based on his pride and perceived slight."
+    source_observation: "Elizabeth's internal monologue after Darcy's first proposal, where she reflects on his arrogance."

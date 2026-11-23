@@ -1,0 +1,23 @@
+{
+  "logistic_regression": {
+    "predictions_proba": [],
+    "predictions": [],
+    "metrics_per_split": []
+  },
+  "random_forest": {
+    "predictions_proba": [],
+    "predictions": [],
+    "metrics_per_split": []
+  },
+  "config": {
+    "n_splits": 5,
+    "n_repeats": 10,
+    "total_splits": 50,
+    "random_seed": 42,
+    "metrics": [
+      "cc",
+      "halstead",
+      "loc"
+    ]
+  }
+}

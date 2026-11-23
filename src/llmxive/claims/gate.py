@@ -59,20 +59,25 @@ def strip_claim_artifacts(text: str, *, preserve_pointers: bool = False) -> str:
     value is never re-extractable round-to-round (SC-007). The default keeps the
     legacy behavior (also strip pointers) for every existing caller.
     """
-    cleaned = _UNRESOLVED_MARKER_RE.sub("", text)
+    patterns = [_UNRESOLVED_MARKER_RE]
     if not preserve_pointers:
-        cleaned = _STRAY_POINTER_RE.sub("", cleaned)
-    if cleaned == text:
-        # Nothing was removed → do NOT disturb intentional whitespace. The
-        # collapse below exists only to tidy the doubled spaces a removal leaves;
-        # running it unconditionally mangled aligned content (directory trees,
-        # ASCII tables) in clean docs. With no removal, return text byte-for-byte.
-        return text
-    # Collapse runs of spaces/tabs a removal leaves behind, without touching
-    # newlines (so paragraph structure is preserved). Also tidy " ." → ".".
-    cleaned = re.sub(r"[ \t]{2,}", " ", cleaned)
-    cleaned = re.sub(r" +([.,;:)])", r"\1", cleaned)
-    cleaned = re.sub(r"[ \t]+\n", "\n", cleaned)
+        patterns.append(_STRAY_POINTER_RE)
+    cleaned = text
+    for pattern in patterns:
+        # Only join whitespace made adjacent by THIS removal. Whole-document
+        # cleanup corrupts command arguments ("--output-dir ./out"), Python
+        # indentation and aligned tables whenever any other line had a marker.
+        for match in reversed(list(pattern.finditer(cleaned))):
+            start, end = match.span()
+            if start and cleaned[start - 1] in " \t":
+                if end < len(cleaned) and cleaned[end] in " \t":
+                    while end < len(cleaned) and cleaned[end] in " \t":
+                        end += 1
+                elif (end < len(cleaned) and cleaned[end] in ".,;:)"
+                      and not cleaned[end:].startswith(("./", "../"))):
+                    while start and cleaned[start - 1] in " \t":
+                        start -= 1
+            cleaned = cleaned[:start] + cleaned[end:]
     return cleaned
 
 

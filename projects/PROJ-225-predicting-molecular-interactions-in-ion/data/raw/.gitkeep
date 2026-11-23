@@ -1,0 +1,2 @@
+# This file ensures the directory exists for git tracking.
+# Real data files (e.g., ilthermo.parquet) will be generated here.

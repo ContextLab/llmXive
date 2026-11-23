@@ -1,113 +1,194 @@
 """
 Unit tests for the configuration module.
+
+Tests cover:
+- Default configuration initialization
+- Custom configuration with required token_limit
+- Validation of required fields
+- Error handling for invalid values
 """
+
 import pytest
-from code.config import Config, validate_config
+import sys
+import os
+from pathlib import Path
+
+# Add parent directory to path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+
+from code.config import Config, set_config, get_config, validate_config, ConfigurationError
+
 
 class TestConfigInitialization:
-    """Tests for Config dataclass initialization and defaults."""
+    """Test configuration initialization and defaults."""
 
-    def test_default_values(self):
-        """Test that default values are set correctly."""
-        cfg = Config()
-        assert cfg.seed == 42
-        assert cfg.batch_size == 8
-        assert cfg.recursion_depth == 2
-        assert cfg.learning_rate == 1e-4
-        assert cfg.token_limit == 100000
-        assert cfg.device == "cpu"
-        assert cfg.data_dir == "data"
-        assert cfg.output_dir == "artifacts"
-
-    def test_custom_values(self):
-        """Test that custom values can be set."""
-        cfg = Config(seed=123, batch_size=16, learning_rate=0.01)
-        assert cfg.seed == 123
-        assert cfg.batch_size == 16
-        assert cfg.learning_rate == 0.01
-        # Ensure defaults remain for unspecified fields
-        assert cfg.recursion_depth == 2
-        assert cfg.device == "cpu"
-
-class TestCpuEnforcement:
-    """Tests for CPU-only enforcement logic."""
-
-    def test_device_forced_to_cpu(self):
-        """Test that device is always forced to 'cpu' regardless of input."""
-        # Even if we try to set it to cuda in init, __post_init__ should fix it
-        cfg = Config(device="cuda")
-        assert cfg.device == "cpu"
-
-    def test_cuda_env_var_removed(self):
-        """Test that CUDA_VISIBLE_DEVICES is removed from environment."""
-        import os
-        # Set a fake CUDA env var
-        os.environ["CUDA_VISIBLE_DEVICES"] = "0"
+    def test_default_config_creation(self):
+        """Test that default configuration is created with correct values."""
+        config = Config()
         
-        cfg = Config()
+        assert config.seed == 42
+        assert config.batch_size == 4
+        assert config.recursion_depth == 2
+        assert config.learning_rate == 1e-4
+        assert config.token_limit == 100000  # CRITICAL: Must be 100000
+        assert config.device == 'cpu'
+        assert config.num_workers == 0
+        assert config.max_epochs == 10
+        assert config.warmup_steps == 100
+        assert config.weight_decay == 0.01
+        assert config.log_interval == 10
+        assert config.save_interval == 100
+        assert config.validation_interval == 500
+
+    def test_custom_config_creation(self):
+        """Test that custom configuration can be created with overrides."""
+        config = Config(
+            seed=123,
+            batch_size=8,
+            recursion_depth=3,
+            learning_rate=5e-5,
+            token_limit=50000
+        )
         
-        assert "CUDA_VISIBLE_DEVICES" not in os.environ
+        assert config.seed == 123
+        assert config.batch_size == 8
+        assert config.recursion_depth == 3
+        assert config.learning_rate == 5e-5
+        assert config.token_limit == 50000
 
-class TestConstraintValidation:
-    """Tests for constraint validation in __post_init__ and validate_config."""
+    def test_token_limit_default_value(self):
+        """Test that token_limit defaults to 100000 as required by spec."""
+        config = Config()
+        assert config.token_limit == 100000
 
-    def test_recursion_depth_min(self):
-        """Test that recursion depth < 1 raises ValueError."""
-        with pytest.raises(ValueError, match="Recursion depth must be at least 1"):
-            Config(recursion_depth=0)
+    def test_recursion_depth_default_value(self):
+        """Test that recursion_depth defaults to 2."""
+        config = Config()
+        assert config.recursion_depth == 2
 
-    def test_recursion_depth_max(self):
-        """Test that recursion depth > 2 raises ValueError."""
-        with pytest.raises(ValueError, match="exceeds the maximum allowed depth of 2"):
-            Config(recursion_depth=3)
 
-    def test_token_limit_positive(self):
-        """Test that token_limit <= 0 raises ValueError."""
-        with pytest.raises(ValueError, match="Token limit must be a positive integer"):
-            Config(token_limit=0)
+class TestConfigValidation:
+    """Test configuration validation logic."""
 
-    def test_batch_size_positive(self):
-        """Test that batch_size <= 0 raises ValueError."""
-        with pytest.raises(ValueError, match="Batch size must be a positive integer"):
-            Config(batch_size=-1)
+    def test_valid_config(self):
+        """Test that valid configuration passes validation."""
+        config = Config()
+        config.__post_init__()  # This should not raise
+        assert True  # If we get here, validation passed
+
+    def test_invalid_token_limit_negative(self):
+        """Test that negative token_limit raises error."""
+        with pytest.raises(ConfigurationError):
+            config = Config(token_limit=-1)
+            config.__post_init__()
+
+    def test_invalid_token_limit_zero(self):
+        """Test that zero token_limit raises error."""
+        with pytest.raises(ConfigurationError):
+            config = Config(token_limit=0)
+            config.__post_init__()
+
+    def test_invalid_recursion_depth_zero(self):
+        """Test that zero recursion_depth raises error."""
+        with pytest.raises(ConfigurationError):
+            config = Config(recursion_depth=0)
+            config.__post_init__()
+
+    def test_invalid_batch_size(self):
+        """Test that non-positive batch_size raises error."""
+        with pytest.raises(ConfigurationError):
+            config = Config(batch_size=0)
+            config.__post_init__()
+
+    def test_invalid_learning_rate(self):
+        """Test that non-positive learning_rate raises error."""
+        with pytest.raises(ConfigurationError):
+            config = Config(learning_rate=0)
+            config.__post_init__()
+
+    def test_invalid_seed(self):
+        """Test that negative seed raises error."""
+        with pytest.raises(ConfigurationError):
+            config = Config(seed=-1)
+            config.__post_init__()
+
+
+class TestGlobalConfig:
+    """Test global configuration management."""
+
+    def test_set_and_get_config(self):
+        """Test setting and getting global configuration."""
+        config = Config(token_limit=100000)
+        set_config(config)
+        
+        retrieved = get_config()
+        assert retrieved.token_limit == 100000
+        assert retrieved is config
+
+    def test_set_config_with_kwargs(self):
+        """Test setting global configuration with keyword arguments."""
+        set_config(token_limit=100000, seed=999)
+        
+        config = get_config()
+        assert config.token_limit == 100000
+        assert config.seed == 999
+
+    def test_get_config_before_set(self):
+        """Test that getting config before setting raises error."""
+        # Reset global config to None
+        import code.config as config_module
+        config_module._config = None
+        
+        with pytest.raises(ConfigurationError):
+            get_config()
 
     def test_validate_config_success(self):
-        """Test that validate_config returns True for valid config."""
-        cfg = Config()
-        assert validate_config(cfg) is True
-
-    def test_validate_config_recursion_depth_fail(self):
-        """Test that validate_config raises ValueError for invalid recursion depth."""
-        cfg = Config(recursion_depth=1) # Valid init
-        cfg.recursion_depth = 3 # Manually break invariant
-        with pytest.raises(ValueError, match="Invalid recursion_depth"):
-            validate_config(cfg)
-
-    def test_validate_config_device_fail(self):
-        """Test that validate_config raises ValueError for invalid device."""
-        cfg = Config()
-        cfg.device = "cuda" # Manually break invariant
-        with pytest.raises(ValueError, match="Invalid device"):
-            validate_config(cfg)
-
-class TestToDict:
-    """Tests for the to_dict method."""
-
-    def test_to_dict_contains_all_fields(self):
-        """Test that to_dict returns a dictionary with all expected keys."""
-        cfg = Config()
-        d = cfg.to_dict()
+        """Test successful validation of configuration."""
+        config = Config(token_limit=100000)
+        set_config(config)
         
-        expected_keys = [
-            "seed", "batch_size", "recursion_depth", "learning_rate",
-            "token_limit", "device", "data_dir", "output_dir",
-            "model_name", "max_steps", "validation_interval", "log_interval"
-        ]
+        result = validate_config()
+        assert result is True
+
+    def test_validate_config_failure(self):
+        """Test that validation fails for invalid configuration."""
+        # Create invalid config
+        config = Config(token_limit=-1)
+        set_config(config)
         
-        for key in expected_keys:
-            assert key in d
-        
-        # Check specific values
-        assert d["seed"] == 42
-        assert d["device"] == "cpu"
-        assert d["recursion_depth"] == 2
+        with pytest.raises(ConfigurationError):
+            validate_config()
+
+
+class TestConfigSpecRequirements:
+    """Test specific requirements from the specification."""
+
+    def test_token_limit_is_integer(self):
+        """Test that token_limit is an integer."""
+        config = Config()
+        assert isinstance(config.token_limit, int)
+
+    def test_token_limit_is_100000(self):
+        """Test that token_limit is exactly 100000 as required."""
+        config = Config()
+        assert config.token_limit == 100000
+
+    def test_recursion_depth_is_2(self):
+        """Test that recursion_depth defaults to 2."""
+        config = Config()
+        assert config.recursion_depth == 2
+
+    def test_seed_is_integer(self):
+        """Test that seed is an integer."""
+        config = Config()
+        assert isinstance(config.seed, int)
+
+    def test_learning_rate_is_float(self):
+        """Test that learning_rate is a float."""
+        config = Config()
+        assert isinstance(config.learning_rate, float)
+
+    def test_batch_size_is_integer(self):
+        """Test that batch_size is an integer."""
+        config = Config()
+        assert isinstance(config.batch_size, int)

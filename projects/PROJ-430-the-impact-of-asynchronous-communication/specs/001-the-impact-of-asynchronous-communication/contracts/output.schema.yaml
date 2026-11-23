@@ -8,7 +8,7 @@ properties:
     description: Unique identifier for the test run.
   test_type:
     type: string
-    enum: ["spearman", "regression", "stratified_language", "stratified_size"]
+    enum: ["spearman", "regression", "hlm", "stratified_language", "stratified_size"]
     description: Type of statistical test performed.
   coefficient:
     type: number

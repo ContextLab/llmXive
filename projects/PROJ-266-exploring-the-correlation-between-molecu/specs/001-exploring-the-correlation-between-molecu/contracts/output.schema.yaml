@@ -1,0 +1,24 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Generic Output Artifact Contract"
+type: object
+additionalProperties: false
+required:
+  - path
+  - type
+  - checksum
+properties:
+  path:
+    type: string
+    description: "Relative path to the output artifact within the project."
+  type:
+    type: string
+    enum:
+      - json
+      - csv
+      - png
+      - txt
+    description: "File type of the artifact."
+  checksum:
+    type: string
+    pattern: "^[a-fA-F0-9]{64}$"
+    description: "SHA‑256 checksum of the artifact."

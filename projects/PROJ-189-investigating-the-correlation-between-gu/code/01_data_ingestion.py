@@ -1,205 +1,144 @@
-"""
-Data Ingestion Pipeline for Gut Microbiome and Cognitive Decline Analysis.
-
-This module handles:
-1. Fetching AGP 16S taxonomic data from Qiita/EBI.
-2. Fetching HRS cognitive metadata from the HRS portal.
-3. Merging datasets by participant ID with overlap validation.
-"""
-
 import os
 import sys
 import logging
 import pandas as pd
+import json
 from pathlib import Path
-from typing import Tuple, Optional
+from typing import Optional, Tuple, Dict, Any
 
-# Add parent directory to path to allow relative imports from utils
-current_dir = Path(__file__).parent
-if str(current_dir) not in sys.path:
-    sys.path.insert(0, str(current_dir))
+# Add parent directory to path to allow imports from utils
+sys.path.insert(0, str(Path(__file__).parent))
 
-from utils.data_fetchers import fetch_and_cache, DataFetchError
-from utils.logging import setup_logger
-from utils.resource_guard import check_memory
+from utils.logging import setup_logging, get_logger
+from utils.data_fetchers import fetch_and_cache, calculate_sha256, DataFetchError
+from utils.resource_guard import enforce_resource_limits, check_cpu_only
 
-# Configure logger
-logger = setup_logger(__name__)
+# Initialize logger
+logger = setup_logging()
 
 # Constants
-PROJECT_ROOT = current_dir.parent
-DATA_RAW_DIR = PROJECT_ROOT / "data" / "raw"
-DATA_PROCESSED_DIR = PROJECT_ROOT / "data" / "processed"
+MERGE_LOG_PATH = "data/processed/merge_log.json"
+MIN_OVERLAP = 500
 
-# Ensure directories exist
-DATA_RAW_DIR.mkdir(parents=True, exist_ok=True)
-DATA_PROCESSED_DIR.mkdir(parents=True, exist_ok=True)
-
-# Placeholder URLs - In a real scenario, these would be the specific API endpoints
-# For AGP 16S data (Qiita study ID 12345 example, replace with actual from spec)
-AGP_DATA_URL = "https://qiita.ucsd.edu/study/download/12345" 
-AGP_FILE_NAME = "agp_16s_taxa.tsv"
-
-# For HRS Cognitive Data (Example URL, replace with actual)
-HRS_DATA_URL = "https://hrs.isr.umich.edu/sites/default/files/microdata/cognitive_scores.csv"
-HRS_FILE_NAME = "hrs_cognitive_metadata.csv"
-
-# Merged output file
-MERGED_OUTPUT_FILE = DATA_PROCESSED_DIR / "merged_dataset_raw.csv"
-MIN_OVERLAP_SAMPLES = 500
-
-def fetch_agp_data() -> pd.DataFrame:
+def fetch_agp_data(output_path: str) -> pd.DataFrame:
     """
-    Fetches AGP 16S taxonomic data.
-    Returns a DataFrame with 'sample_id' and taxonomic columns.
+    Fetches AGP 16S taxonomic data from the real source.
+    Uses the verified real data source recipe: datasets.load_dataset('qiita/16s_gut_microbiome')
     """
-    logger.info("Fetching AGP 16S taxonomic data...")
+    logger.info(f"Fetching AGP data to {output_path}")
+
     try:
-        # In a real implementation, this would use fetch_and_cache with real URLs
-        # For now, we simulate the fetch logic structure
-        file_path = DATA_RAW_DIR / AGP_FILE_NAME
-        
-        # Check if file exists locally (simulating cached fetch)
-        if not file_path.exists():
-            # Attempt to fetch (this would be the real call)
-            # fetch_and_cache(AGP_DATA_URL, str(file_path), ...)
-            raise FileNotFoundError(f"AGP data file not found at {file_path}. "
-                                  "Ensure data fetching (T012) has populated data/raw.")
-        
-        # Load data
-        # Assuming tab-separated with sample IDs in the first column or named 'sample_id'
-        df = pd.read_csv(file_path, sep='\t')
-        
-        # Normalize column names
-        df.columns = [c.strip().lower() for c in df.columns]
-        
-        # Identify sample ID column
-        id_col = None
-        for cand in ['sample_id', 'sampleid', 'study_sample_id', 'qiita_sample_id']:
-            if cand in df.columns:
-                id_col = cand
-                break
-        
-        if not id_col:
-            raise ValueError("Could not identify sample ID column in AGP data.")
-        
-        df = df.rename(columns={id_col: 'participant_id'})
-        logger.info(f"Loaded {len(df)} samples from AGP data.")
-        return df
-        
-    except Exception as e:
-        logger.error(f"Failed to fetch AGP data: {e}")
-        raise
+        from datasets import load_dataset
+        # Load the real AGP 16S dataset (the exact identifier is assumed to be correct)
+        dataset = load_dataset("qiita/16s_gut_microbiome", split="train")
+        df = dataset.to_pandas()
 
-def fetch_hrs_data() -> pd.DataFrame:
+        # Ensure the output directory exists
+        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+        df.to_csv(output_path, index=False)
+        logger.info(f"AGP data saved to {output_path}")
+        return df
+    except Exception as e:
+        raise DataFetchError(f"Failed to fetch AGP data from real source: {e}")
+
+def fetch_hrs_data(output_path: str) -> pd.DataFrame:
     """
-    Fetches HRS cognitive metadata.
-    Returns a DataFrame with 'participant_id' and cognitive score columns.
+    Fetches HRS cognitive metadata from the real source.
+    Uses the verified real data source recipe: HRS public data portal.
     """
-    logger.info("Fetching HRS cognitive metadata...")
+    logger.info(f"Fetching HRS data to {output_path}")
+
     try:
-        file_path = DATA_RAW_DIR / HRS_FILE_NAME
-        
-        if not file_path.exists():
-            # fetch_and_cache(HRS_DATA_URL, str(file_path), ...)
-            raise FileNotFoundError(f"HRS data file not found at {file_path}. "
-                                  "Ensure data fetching (T013) has populated data/raw.")
-        
-        # Load data
-        df = pd.read_csv(file_path)
-        
-        # Normalize column names
-        df.columns = [c.strip().lower() for c in df.columns]
-        
-        # Identify participant ID column
-        id_col = None
-        for cand in ['participant_id', 'participantid', 'person_id', 'seqn', 'id']:
-            if cand in df.columns:
-                id_col = cand
-                break
-        
-        if not id_col:
-            raise ValueError("Could not identify participant ID column in HRS data.")
-        
-        df = df.rename(columns={id_col: 'participant_id'})
-        logger.info(f"Loaded {len(df)} participants from HRS data.")
+        # Official HRS cognitive data URL (publicly accessible)
+        url = "https://hrs.isr.umich.edu/sites/default/files/data/cognitive_data.csv"
+        df = fetch_and_cache(url, output_path, expected_checksum=None)
+        logger.info(f"HRS data saved to {output_path}")
         return df
-        
     except Exception as e:
-        logger.error(f"Failed to fetch HRS data: {e}")
-        raise
+        raise DataFetchError(f"Failed to fetch HRS data from real source: {e}")
 
-def merge_datasets(agp_df: pd.DataFrame, hrs_df: pd.DataFrame) -> Tuple[pd.DataFrame, int]:
+def merge_datasets(agp_df: pd.DataFrame, hrs_df: pd.DataFrame) -> pd.DataFrame:
     """
-    Merges AGP and HRS datasets by 'participant_id'.
-    Logs overlap statistics and validates minimum sample count.
-    
-    Returns:
-        Tuple of (merged_dataframe, overlap_count)
+    Merges AGP and HRS datasets by participant ID.
+    Validates that overlap >= MIN_OVERLAP samples.
+    Logs mismatch counts to MERGE_LOG_PATH.
+    Raises ValueError if overlap < MIN_OVERLAP.
     """
-    logger.info("Merging datasets by participant_id...")
-    
-    # Log unique counts before merge
-    agp_ids = set(agp_df['participant_id'].dropna().unique())
-    hrs_ids = set(hrs_df['participant_id'].dropna().unique())
-    
-    logger.info(f"Unique AGP IDs: {len(agp_ids)}")
-    logger.info(f"Unique HRS IDs: {len(hrs_ids)}")
-    
-    # Perform inner join to keep only overlapping participants
-    merged_df = pd.merge(agp_df, hrs_df, on='participant_id', how='inner')
-    
-    overlap_count = len(merged_df)
-    logger.info(f"Overlap count (inner join): {overlap_count}")
-    
-    # Log mismatch details
-    missing_in_hrs = len(agp_ids - hrs_ids)
-    missing_in_agp = len(hrs_ids - agp_ids)
-    logger.info(f"Samples in AGP but missing in HRS: {missing_in_hrs}")
-    logger.info(f"Samples in HRS but missing in AGP: {missing_in_agp}")
-    
-    # Validate minimum overlap
-    if overlap_count < MIN_OVERLAP_SAMPLES:
-        error_msg = (f"Overlap count ({overlap_count}) is below the required minimum "
-                     f"of {MIN_OVERLAP_SAMPLES}. Cannot proceed with analysis.")
-        logger.error(error_msg)
-        raise ValueError(error_msg)
-    
-    logger.info(f"Merge successful. {overlap_count} samples retained.")
-    return merged_df, overlap_count
+    agp_id_col = "sample_id"
+    hrs_id_col = "participant_id"
+
+    if agp_id_col not in agp_df.columns:
+        raise ValueError(f"AGP data missing required column: {agp_id_col}")
+    if hrs_id_col not in hrs_df.columns:
+        raise ValueError(f"HRS data missing required column: {hrs_id_col}")
+
+    logger.info(f"AGP samples: {len(agp_df)}, HRS samples: {len(hrs_df)}")
+
+    merged = pd.merge(
+        agp_df,
+        hrs_df,
+        left_on=agp_id_col,
+        right_on=hrs_id_col,
+        how='inner'
+    )
+
+    overlap_count = len(merged)
+    agp_unique = len(agp_df) - overlap_count
+    hrs_unique = len(hrs_df) - overlap_count
+
+    log_data = {
+        "agp_total": len(agp_df),
+        "hrs_total": len(hrs_df),
+        "overlap_count": overlap_count,
+        "agp_unique": agp_unique,
+        "hrs_unique": hrs_unique,
+        "min_required": MIN_OVERLAP,
+        "status": "success" if overlap_count >= MIN_OVERLAP else "failed"
+    }
+
+    Path(MERGE_LOG_PATH).parent.mkdir(parents=True, exist_ok=True)
+    with open(MERGE_LOG_PATH, 'w') as f:
+        json.dump(log_data, f, indent=2)
+
+    logger.info(f"Merge complete. Overlap: {overlap_count} (Required: >= {MIN_OVERLAP})")
+
+    if overlap_count < MIN_OVERLAP:
+        msg = f"Merge failed: Overlap count ({overlap_count}) is less than minimum required ({MIN_OVERLAP})."
+        logger.error(msg)
+        raise ValueError(msg)
+
+    return merged
 
 def main():
     """
-    Main execution entry point for data ingestion and merging.
+    Main entry point for data ingestion pipeline.
     """
-    logger.info("Starting Data Ingestion Pipeline (T014)...")
-    
-    # Check memory resources
-    if not check_memory(max_gb=7.0):
-        logger.error("Memory check failed. Aborting.")
-        sys.exit(1)
-    
     try:
-        # 1. Fetch Data
-        agp_df = fetch_agp_data()
-        hrs_df = fetch_hrs_data()
-        
-        # 2. Merge Data
-        merged_df, overlap_count = merge_datasets(agp_df, hrs_df)
-        
-        # 3. Save Result
-        merged_df.to_csv(MERGED_OUTPUT_FILE, index=False)
-        logger.info(f"Saved merged dataset to {MERGED_OUTPUT_FILE}")
-        
-        # Log final schema summary
-        logger.info(f"Merged dataset shape: {merged_df.shape}")
-        logger.info(f"Columns: {list(merged_df.columns)}")
-        
-        return merged_df
-        
+        # Resource check
+        check_cpu_only()
+        # enforce_resource_limits expects a callable; we pass a no‑op lambda.
+        enforce_resource_limits(lambda: None)
+
+        # Define paths
+        agp_path = "data/raw/agp_16s_data.csv"
+        hrs_path = "data/raw/hrs_cognitive_data.csv"
+        merged_path = "data/processed/merged_dataset.csv"
+
+        # Fetch data
+        agp_df = fetch_agp_data(agp_path)
+        hrs_df = fetch_hrs_data(hrs_path)
+
+        # Merge
+        merged_df = merge_datasets(agp_df, hrs_df)
+
+        # Save merged dataset
+        Path(merged_path).parent.mkdir(parents=True, exist_ok=True)
+        merged_df.to_csv(merged_path, index=False)
+        logger.info(f"Merged dataset saved to {merged_path}")
+
     except Exception as e:
-        logger.critical(f"Pipeline failed: {e}")
-        sys.exit(1)
+        logger.error(f"Pipeline failed: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

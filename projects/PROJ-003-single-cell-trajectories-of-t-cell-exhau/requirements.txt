@@ -1,0 +1,9 @@
+# Core dependencies for the single‑cell T‑cell exhaustion project
+scanpy
+anndata
+pandas
+numpy
+pyyaml
+tqdm
+# SRA Toolkit is expected to be available via conda; the installer script
+# will attempt to install it if missing.

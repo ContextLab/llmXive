@@ -2,94 +2,109 @@
 
 ## Overview
 
-This document defines the data structures used throughout the pipeline, ensuring type safety and reproducibility. All data flows from `raw` (HumanEval) to `generated` (LLM code) to `analysis` (metrics) and finally to `results` (report data).
+This document defines the data structures used throughout the project, ensuring consistency across data acquisition, generation, analysis, and reporting.
 
-## Entity Definitions
+## Raw Data
 
-### 1. CodeSample
-Represents a single unit of code (human or LLM) linked to a specific HumanEval task.
+### HumanEval Dataset (`data/raw/humaneval.parquet`)
+- **Source**: HuggingFace `openai/openai_humaneval`
+- **Format**: Parquet
+- **Fields**:
+  - `task_id` (string): Unique identifier for the task (e.g., "HumanEval/0").
+  - `prompt` (string): The problem description.
+  - `entry_point` (string): The function name to test.
+  - `canonical_solution` (string): The reference human solution.
+  - `test` (string): The test suite code.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `task_id` | `str` | Unique identifier from HumanEval (e.g., "HumanEval/0"). |
-| `source_type` | `str` | Enum: `"human"`, `"codegen-350M"`, `"codellama-7b"`, `"codellama-3b"`. |
-| `raw_code` | `str` | The raw Python code string. |
-| `status` | `str` | Enum: `"success"`, `"failed_generation"`, `"failed_execution"`, `"failed_coverage"`. |
-| `error_log` | `str` | Optional error message if status is not "success". |
+## Generated Data
 
-### 2. MetricResult
-Computed static and dynamic analysis metrics for a `CodeSample`.
+### Human Samples (`data/generated/human_samples.json`)
+- **Format**: JSONL (JSON Lines)
+- **Fields**:
+  - `task_id` (string)
+  - `code` (string): The `canonical_solution` extracted from the raw dataset.
+  - `source` (string): "human"
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `task_id` | `str` | Links to `CodeSample`. |
-| `source_type` | `str` | Links to `CodeSample`. |
-| `cyclomatic_complexity` | `float` | From `radon`. `[deferred]` if execution fails. |
-| `halstead_volume` | `float` | From `radon`. `[deferred]` if execution fails. |
-| `branch_coverage_pct` | `float` | From `coverage.py` (0.0 to 100.0). `[deferred]` if execution fails. |
-| `pass_rate` | `int` | Binary: 1 (all tests pass), 0 (any failure). |
+### LLM Samples (`data/generated/codegen_samples.json`, `data/generated/sensitivity_samples.json`)
+- **Format**: JSONL
+- **Fields**:
+  - `task_id` (string)
+  - `code` (string): The generated code.
+  - `model` (string): "codegen-mono-4b", "codegen-mono-350m", or "codellama-3b-q4"
+  - `status` (string): "success" or "failed"
+  - `error` (string, optional): Error message if failed.
+  - `generation_time` (float): Time taken to generate.
 
-### 3. StatisticalTestResult
-Output of hypothesis testing.
+## Analysis Data
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `test_name` | `str` | e.g., "Wilcoxon Signed-Rank", "McNemar". |
-| `metric` | `str` | The metric being tested (e.g., "cyclomatic_complexity"). |
-| `statistic` | `float` | The test statistic value. |
-| `p_value` | `float` | The p-value. |
-| `significant` | `bool` | True if $p < 0.05$ (after correction). |
-| `null_hypothesis` | `str` | Text description of $H_0$. |
-| `conclusion` | `str` | Text interpretation of the result. |
+### Metrics (`data/analysis/metrics.json`)
+- **Format**: JSON
+- **Structure**: List of objects, one per task.
+- **Fields**:
+  - `task_id` (string)
+  - `model` (string): "human" or "llm" (with model name)
+  - `cyclomatic_complexity` (float): >= 0
+  - `static_branch_count` (integer): >= 0 (from radon)
+  - `dynamic_branch_coverage` (float): 0.0 to 1.0 (from coverage.py)
+  - `pass_rate` (float): 0.0 to 1.0
+  - `is_valid` (boolean): True if `pass_rate` >= 0.80
+  - `parse_error` (boolean): True if radon failed to parse
 
-### 4. PowerAnalysisResult
-Output of power analysis.
+### Valid Task IDs (`data/analysis/valid_task_ids.json`)
+- **Format**: JSON
+- **Structure**: List of strings (task IDs).
+- **Description**: Subset of tasks that passed the `pass_rate` filter. Used for secondary analysis.
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `analysis_type` | `str` | "a_priori" or "post_hoc". |
-| `effect_size` | `float` | Observed or assumed effect size (Cohen's d). |
-| `sample_size` | `int` | Number of paired samples. |
-| `power` | `float` | Achieved or target power. |
-| `alpha` | `float` | Significance threshold (0.05). |
-| `status` | `str` | "PASS" or "FAIL" based on power threshold. |
+### Full Sample Metrics (`data/analysis/full_sample_metrics.json`)
+- **Format**: JSON
+- **Structure**: Same as `metrics.json`.
+- **Description**: All tasks, including those with `pass_rate` < 0.80. Used for primary analysis to avoid bias.
 
-## File Formats
+### Statistical Results (`data/analysis/statistical_results.json`)
+- **Format**: JSON
+- **Fields**:
+  - `wilcoxon_p_value` (float): For valid pairs.
+  - `wilcoxon_statistic` (float)
+  - `ks_statistic` (float): For full sample.
+  - `ks_p_value` (float)
+  - `levene_statistic` (float): For variance comparison.
+  - `levene_p_value` (float)
+  - `mdes` (float): Minimum Detectable Effect Size (descriptive).
+  - `achieved_power` (float): Post-hoc power.
+  - `effect_size_ci_lower` (float): Lower bound of 95% CI.
+  - `effect_size_ci_upper` (float): Upper bound of 95% CI.
+  - `bias_analysis` (object): Results of MCAR test and difficulty comparison.
 
-### `data/analysis/metrics.json`
-A list of `MetricResult` objects.
-```json
-[
-  {
-    "task_id": "HumanEval/0",
-    "source_type": "human",
-    "cyclomatic_complexity": 2.0,
-    "halstead_volume": 15.5,
-    "branch_coverage_pct": 85.0,
-    "pass_rate": 1
-  },
-  {
-    "task_id": "HumanEval/0",
-    "source_type": "codegen-350M",
-    "cyclomatic_complexity": 3.0,
-    "halstead_volume": 18.2,
-    "branch_coverage_pct": 70.0,
-    "pass_rate": 0
-  }
-]
-```
+## Artifacts
 
-### `data/analysis/statistical_results.json`
-A list of `StatisticalTestResult` objects.
+### Artifact Hashes (`artifact_hashes.yaml`)
+- **Format**: YAML
+- **Structure**:
+  ```yaml
+  data/raw/humaneval.parquet: <sha256>
+  data/generated/human_samples.json: <sha256>
+  data/generated/codegen_samples.json: <sha256>
+  data/analysis/metrics.json: <sha256>
+  ...
+  ```
 
-### `state/artifact_hashes.yaml`
-Tracking file for reproducibility.
-```yaml
-dataset:
-  source: "openai/openai_humaneval"
-  hash: "sha256:..."
-  commit: "..."
-artifacts:
-  codegen_samples: "sha256:..."
-  codellama_samples: "sha256:..."
-```
+### Sandbox Execution Logs (`code/sandbox_execution.log`)
+- **Format**: Text
+- **Description**: Logs from `code/sandbox.py` detailing execution environment setup and any errors.
+- **Structure**: Timestamped entries with task ID, status, and error message.
+
+## Logging
+
+### Errors Log (`code/errors.log`)
+- **Format**: Text
+- **Content**: Timestamped error messages for generation and execution failures.
+
+## Metadata
+
+### Metadata (`data/metadata.yaml`)
+- **Format**: YAML
+- **Fields**:
+  - `dataset_version`: Git commit hash or version tag.
+  - `download_date`: ISO 8601 timestamp.
+  - `model_versions`: Dict of model names and versions.
+  - `quantization_level`: String (e.g., "Q4_K_M").

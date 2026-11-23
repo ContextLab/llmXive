@@ -1,50 +1,40 @@
-"""
-Logging infrastructure setup.
-"""
 import logging
 import os
 from pathlib import Path
-from ..config import OUTPUTS_LOGS_DIR
+from config import OUTPUTS_LOGS_DIR, LOG_LEVEL, LOG_FILE
 
-def setup_logger(name: str, log_file: str = None, level: int = logging.INFO) -> logging.Logger:
+_loggers = {}
+
+def setup_logger(name: str, level: int = LOG_LEVEL) -> logging.Logger:
     """
-    Set up a logger with file and console handlers.
-    
-    Args:
-        name: Logger name (typically __name__)
-        log_file: Optional path to log file. If None, only console handler is added.
-        level: Logging level (e.g., logging.INFO, logging.DEBUG)
-    
-    Returns:
-        Configured logger instance with console and optional file handlers.
+    Sets up a logger with file and console handlers.
+    Returns a logger instance, reusing it if it already exists.
     """
+    if name in _loggers:
+        return _loggers[name]
+
     logger = logging.getLogger(name)
     logger.setLevel(level)
+    logger.propagate = False
 
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
+    # Clear existing handlers to avoid duplicates if called multiple times
+    logger.handlers.clear()
 
-    # Formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
+    # File handler
+    OUTPUTS_LOGS_DIR.mkdir(parents=True, exist_ok=True)
+    file_handler = logging.FileHandler(LOG_FILE)
+    file_handler.setLevel(level)
+    file_format = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(file_format)
 
-    # Console Handler
-    ch = logging.StreamHandler()
-    ch.setLevel(level)
-    ch.setFormatter(formatter)
-    logger.addHandler(ch)
+    # Console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(level)
+    console_format = logging.Formatter('%(name)s - %(levelname)s - %(message)s')
+    console_handler.setFormatter(console_format)
 
-    # File Handler (if log_file provided)
-    if log_file:
-        # Ensure log directory exists
-        log_path = Path(log_file)
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        fh = logging.FileHandler(log_file)
-        fh.setLevel(level)
-        fh.setFormatter(formatter)
-        logger.addHandler(fh)
+    logger.addHandler(file_handler)
+    logger.addHandler(console_handler)
 
+    _loggers[name] = logger
     return logger

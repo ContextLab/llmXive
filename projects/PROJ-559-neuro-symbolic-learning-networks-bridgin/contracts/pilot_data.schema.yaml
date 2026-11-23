@@ -1,0 +1,36 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Pilot Data Schema
+description: Schema for human pilot dataset used in BKT calibration.
+type: object
+required:
+  - student_id
+  - problem_id
+  - correct
+  - rt_seconds
+  - comprehension_rating
+  - data_source
+properties:
+  student_id:
+    type: string
+    description: Unique identifier for the student.
+  problem_id:
+    type: string
+    description: Unique identifier for the problem.
+  correct:
+    type: integer
+    description: Binary indicator of correctness (1 for correct, 0 for incorrect).
+    minimum: 0
+    maximum: 1
+  rt_seconds:
+    type: number
+    description: Response time in seconds.
+    minimum: 0
+  comprehension_rating:
+    type: integer
+    description: Self-reported comprehension rating (1-5 scale).
+    minimum: 1
+    maximum: 5
+  data_source:
+    type: string
+    description: Source of the data (e.g., 'human_pilot').
+    const: human_pilot

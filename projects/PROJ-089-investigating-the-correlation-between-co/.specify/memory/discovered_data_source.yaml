@@ -1,0 +1,19 @@
+status: none
+intent: download GitHub repository churn metrics semgrep debt file-level python package
+  dataset
+required_fields:
+- repository_id
+- repository_name
+- language
+- file_path
+- commit_hash
+- commit_date
+- lines_added
+- lines_deleted
+- churn
+- semgrep_rule_id
+- semgrep_severity
+- semgrep_match_line
+cache_key: 2125cee1c3ef893e8d58c3b8004abac64fd3840a3141c625a6b715b871543c04
+searched_at: '2026-10-06T01:48:09.656442+00:00'
+retry_count: 1

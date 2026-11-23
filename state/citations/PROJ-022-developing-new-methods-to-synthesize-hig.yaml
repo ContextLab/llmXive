@@ -31,15 +31,3 @@
   verification_status: verified
   verified_against_url: https://cas-bridge.xethub.hf.co/xet-bridge-us/64a1c9f90d99521d90bda5ab/1f644aeca22ddbc282e8ec0b66215818838783811fb4c1b3fb99dd6937d8a28e?Expires=1784006778&Policy=eyJTdGF0ZW1lbnQiOlt7IlJlc291cmNlIjoiaHR0cHM6Ly9jYXMtYnJpZGdlLnhldGh1Yi5oZi5jby94ZXQtYnJpZGdlLXVzLzY0YTFjOWY5MGQ5OTUyMWQ5MGJkYTVhYi8xZjY0NGFlY2EyMmRkYmMyODJlOGVjMGI2NjIxNTgxODgzODc4MzgxMWZiNGMxYjNmYjk5ZGQ2OTM3ZDhhMjhlKiIsIkNvbmRpdGlvbiI6eyJEYXRlTGVzc1RoYW4iOnsiQVdTOkVwb2NoVGltZSI6MTc4NDAwNjc3OH19fV19&Signature=MEYCIQCZB7RAJYMWaYZ2GrLsiN%7ERV9YXcWgLUswAsv15j1FnhQIhAIAjeaAa1hsg-uOMXvvwuHT9YK4gbzHXefFz-tJTOVXH&Key-Pair-Id=K3EPXBYC3CKDRZ&X-Xet-Cas-Uid=public&response-content-disposition=inline%3B+filename*%3DUTF-8%27%27everything-00000-of-00009-42e3f6f9da399cf0.parquet%3B+filename%3D%22everything-00000-of-00009-42e3f6f9da399cf0.parquet%22%3B&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Credential=cas%2F20260714%2Fus-east-1%2Fs3%2Faws4_request&X-Amz-Date=20260714T042618Z&X-Amz-Expires=3600&X-Amz-SignedHeaders=host&X-Amz-Signature=82367bbaacaf1cc7f23c023e9b8886e4e7545eb8efa4c773e0a40d9b5a2f25d0
   verified_at: '2026-07-14T04:26:17.724962Z'
-- artifact_hash: 7dbc479b581946647b8d2dc84b2276ece924190bcfe8e977b0444833c95f8700
-  artifact_path: projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: Multilabel Classification Models for the Prediction of Cross-Coupling
-    Reaction Conditions
-  kind: doi
-  value: 10.1021/acs.jcim.0c01234
-  verification_status: verified
-  verified_against_url: https://doi.org/10.1021/acs.jcim.0c01234
-  verified_at: '2026-07-14T04:36:46.329739Z'

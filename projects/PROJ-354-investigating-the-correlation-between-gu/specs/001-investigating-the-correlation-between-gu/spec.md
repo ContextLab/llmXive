@@ -58,8 +58,8 @@ The research system must validate findings via interaction term analysis (Age_Gr
 ### Edge Cases
 
 - What happens when a participant has microbiome data but missing cognitive scores (or vice versa)? The system excludes the participant and logs the count.
-- How does the system handle taxa with zero counts in the ILR transformation? The system applies a pseudocount of 1×10⁻⁶ before transformation to avoid log(0).
-- What happens when the UK Biobank data download exceeds available disk space (~14 GB)? The system streams data in batches and removes intermediate files after processing.
+- How does the system handle taxa with zero counts in the ILR transformation? The system applies a small pseudocount before transformation to avoid log(0).
+- What happens when the UK Biobank data download exceeds available disk space (~ GB)? The system streams data in batches and removes intermediate files after processing.
 - How does the system handle participants with incomplete confounder data? The system excludes participants with >2 missing confounder values and logs the exclusion count.
 - What happens when the Benjamini-Hochberg correction produces no significant associations? The system reports the maximum adjusted p-value and effect size range rather than failing.
 
@@ -108,9 +108,9 @@ The research system must validate findings via interaction term analysis (Age_Gr
 - Microbiome data will be sampled or subset if necessary to fit within 7 GB RAM constraints
 - Effect sizes of standardized beta coefficients > 0.1 will constitute publishable evidence given the cohort size, per the idea's stated threshold
 - The Benjamini-Hochberg procedure will control the false discovery rate at α = 0.05 for multiple testing correction
-- The sensitivity analysis threshold sweep will use p-value cutoffs ∈ {0.01, 0.05, 0.1} as a concrete, CPU-trivial set
+- The sensitivity analysis threshold sweep will use p-value cutoffs spanning a range of conventional significance levels. as a concrete, CPU-trivial set
 - UK Biobank cognitive instruments (reaction time, numeric memory, reasoning) have been validated in prior work and will be used as-is without additional validation steps
-- Taxa with zero counts will be handled with a pseudocount of 1×10⁻⁶ before ILR transformation to avoid log(0)
+- Taxa with zero counts will be handled with a small pseudocount before ILR transformation. to avoid log(0)
 - Any threshold introduced (e.g., significance cutoff, effect size filter) will carry both a one-line justification naming its community-standard basis and a sensitivity analysis requirement
 - The analysis will not require GPU/CUDA accelerators, 8-bit/4-bit quantization, or large-model training — only classical statistics and scikit-learn on CPU are used
 - Diet and medication are treated as confounders based on established literature regarding gut-brain axis timing; a sensitivity analysis excluding them is required to check for over-control bias

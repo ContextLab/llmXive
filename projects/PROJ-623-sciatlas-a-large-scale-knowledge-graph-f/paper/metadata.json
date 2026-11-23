@@ -96,5 +96,15 @@
     "tables",
     "tables/edge_weight.tex",
     "tables/statistics.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "c7558d932cf5b6e8ba25f0586fac2de35621a8a619d56bc4b9f4998d08611c2e",
+      "bytes": 941791
+    },
+    "original.pdf": {
+      "sha256": "c26cc9f6ce1dacf89d33a9be61a881eee55a830ab05eace344d41f0ce53a8afa",
+      "bytes": 906089
+    }
+  }
 }

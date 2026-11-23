@@ -1,3 +1,2 @@
-"""
-Graph generators package.
-"""
+# Generators package initialization
+pass

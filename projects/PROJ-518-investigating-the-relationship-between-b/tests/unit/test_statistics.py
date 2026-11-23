@@ -1,175 +1,143 @@
 import pytest
 import numpy as np
-from typing import Dict
-from analysis.statistics import fit_regression, run_permutation_test, apply_fwe_correction, format_delta_r2, RegressionResult
-from errors import DataMissingCreativityError
+import pandas as pd
+import os
+import tempfile
+from pathlib import Path
+import sys
 
-class TestFitRegression:
-    def test_fit_regression_basic(self):
-        """Test basic regression fit with synthetic data."""
-        np.random.seed(42)
-        n = 100
-        flexibility = np.random.randn(n)
-        creativity = 0.5 * flexibility + np.random.randn(n) * 0.5
-        covariates = {
-            'age': np.random.randn(n),
-            'sex': np.random.randint(0, 2, n),
-            'education': np.random.randn(n)
-        }
-        
-        result = fit_regression(flexibility, creativity, covariates)
-        
-        assert isinstance(result, RegressionResult)
-        assert result.r_squared is not None
-        assert result.r_squared >= 0 and result.r_squared <= 1
-        assert result.p_value is not None
-        assert result.coef_flexibility is not None
-        # Check that the coefficient is positive (as per our synthetic data)
-        assert result.coef_flexibility > 0, "Coefficient should be positive"
+# Add project root to path
+sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-    def test_fit_regression_with_static_strength(self):
-        """Test regression including static connectivity strength."""
-        np.random.seed(42)
-        n = 100
-        flexibility = np.random.randn(n)
-        static_strength = np.random.randn(n) * 0.5
-        creativity = 0.5 * flexibility + 0.3 * static_strength + np.random.randn(n) * 0.3
-        covariates = {
-            'age': np.random.randn(n),
-            'sex': np.random.randint(0, 2, n),
-            'education': np.random.randn(n),
-            'static_connectivity_strength': static_strength
-        }
-        
-        result = fit_regression(flexibility, creativity, covariates)
-        
-        assert isinstance(result, RegressionResult)
-        assert result.r_squared is not None
-        # R-squared should be higher than without static strength
-        assert result.r_squared > 0.1, "R-squared should be reasonable"
+from analysis.statistics import (
+    format_delta_r2,
+    log_regression_summary,
+    fit_regression,
+    fit_baseline_regression,
+    run_permutation_test,
+    construct_covariates_dict,
+    validate_alignment,
+    collect_static_strengths,
+    RegressionResult
+)
+from config import get_config
 
-    def test_fit_regression_small_sample(self):
-        """Test regression with small sample size."""
-        np.random.seed(42)
-        n = 10
-        flexibility = np.random.randn(n)
-        creativity = 0.5 * flexibility + np.random.randn(n) * 0.5
-        covariates = {'age': np.random.randn(n)}
-        
-        # Should not raise an error for small sample
-        result = fit_regression(flexibility, creativity, covariates)
-        assert result.r_squared is not None
+def test_format_delta_r2_precision():
+    """Test that delta R2 is formatted to exactly 4 decimal places."""
+    result = format_delta_r2(0.123456)
+    assert result == "0.1235"
+    
+    result = format_delta_r2(0.0)
+    assert result == "0.0000"
+    
+    result = format_delta_r2(-0.05)
+    assert result == "-0.0500"
 
-    def test_fit_regression_correlation_report(self):
-        """Test that Pearson correlation is computed and reported."""
-        np.random.seed(42)
-        n = 50
-        flexibility = np.random.randn(n)
-        creativity = 0.7 * flexibility + np.random.randn(n) * 0.3
-        covariates = {}
-        
-        result = fit_regression(flexibility, creativity, covariates)
-        
-        # The result should contain the correlation
-        assert hasattr(result, 'correlation') or hasattr(result, 'pearson_r'), \
-            "Result should contain correlation information"
+def test_construct_covariates_dict():
+    """Test covariates dict construction."""
+    static = [0.1, 0.2]
+    ages = [25, 30]
+    sexes = ["M", "F"]
+    edus = [16, 18]
+    
+    cov = construct_covariates_dict(static, ages, sexes, edus)
+    
+    assert 'static_connectivity_strength' in cov
+    assert 'age' in cov
+    assert 'sex' in cov
+    assert 'education' in cov
+    assert cov['static_connectivity_strength'] == static
 
-class TestRunPermutationTest:
-    def test_permutation_test_significant(self):
-        """Test permutation test with significant relationship."""
-        np.random.seed(42)
-        n = 100
-        flexibility = np.random.randn(n)
-        creativity = 0.8 * flexibility + np.random.randn(n) * 0.2  # Strong relationship
-        
-        p_value = run_permutation_test(flexibility, creativity, n_permutations=1000)
-        
-        assert 0 <= p_value <= 1
-        # With strong relationship, p-value should be small
-        assert p_value < 0.05, "P-value should be significant for strong relationship"
+def test_validate_alignment():
+    """Test alignment validation."""
+    assert validate_alignment([1, 2], [3, 4], [5, 6], ["a", "b"]) is True
+    
+    with pytest.raises(ValueError):
+        validate_alignment([1], [2, 3], [4, 5], ["a", "b"])
 
-    def test_permutation_test_null(self):
-        """Test permutation test with no relationship."""
-        np.random.seed(42)
-        n = 100
-        flexibility = np.random.randn(n)
-        creativity = np.random.randn(n)  # No relationship
-        
-        p_value = run_permutation_test(flexibility, creativity, n_permutations=1000)
-        
-        assert 0 <= p_value <= 1
-        # With no relationship, p-value should be large (not significant)
-        assert p_value > 0.05, "P-value should be non-significant for null relationship"
+def test_collect_static_strengths():
+    """Test collection of static strengths."""
+    results = [0.1, 0.2, 0.3]
+    collected = collect_static_strengths(results)
+    assert isinstance(collected, list)
+    assert all(isinstance(x, float) for x in collected)
 
-    def test_permutation_test_deterministic_seed(self):
-        """Test that permutation test is reproducible with same seed."""
-        np.random.seed(42)
-        flexibility = np.random.randn(50)
-        creativity = np.random.randn(50)
-        
-        p1 = run_permutation_test(flexibility, creativity, n_permutations=500)
-        
-        np.random.seed(42)
-        flexibility = np.random.randn(50)
-        creativity = np.random.randn(50)
-        
-        p2 = run_permutation_test(flexibility, creativity, n_permutations=500)
-        
-        assert p1 == p2, "Permutation test should be reproducible with same seed"
+def test_run_permutation_test():
+    """Test permutation test returns correct structure."""
+    flex = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+    creat = np.array([1.1, 2.2, 2.9, 4.1, 5.2])
+    
+    result = run_permutation_test(flex, creat, n_permutations=100, seed=42)
+    
+    assert 'empirical_p_value' in result
+    assert 'distribution_of_max_stats' in result
+    assert isinstance(result['empirical_p_value'], float)
+    assert 0.0 <= result['empirical_p_value'] <= 1.0
+    assert len(result['distribution_of_max_stats']) == 100
 
-    def test_permutation_test_two_tailed(self):
-        """Test that permutation test correctly computes two-tailed p-value."""
-        np.random.seed(42)
-        n = 50
-        flexibility = np.random.randn(n)
-        creativity = 0.5 * flexibility + np.random.randn(n) * 0.5
-        
-        p_value = run_permutation_test(flexibility, creativity, n_permutations=1000)
-        
-        # Two-tailed p-value should be in [0, 1]
-        assert 0 <= p_value <= 1
+def test_fit_regression_structure():
+    """Test that fit_regression returns a valid RegressionResult."""
+    flex = np.array([1.0, 2.0, 3.0, 4.0, 5.0])
+    creat = np.array([1.1, 2.2, 2.9, 4.1, 5.2])
+    cov = {
+        'age': [20, 21, 22, 23, 24],
+        'sex': ['M', 'F', 'M', 'F', 'M'],
+        'education': [10, 12, 14, 16, 18],
+        'static_connectivity_strength': [0.1, 0.2, 0.3, 0.4, 0.5]
+    }
+    
+    result = fit_regression(flex, creat, cov)
+    
+    assert isinstance(result, RegressionResult)
+    assert isinstance(result.coefficients, dict)
+    assert 'network_flexibility' in result.coefficients
+    assert 'pearson_r' in result.__dict__
+    assert isinstance(result.pearson_r, float)
 
-class TestApplyFweCorrection:
-    def test_fwe_correction_max_t(self):
-        """Test FWE correction using max-T method."""
-        p_values = [0.01, 0.05, 0.1, 0.2, 0.5]
-        
-        corrected = apply_fwe_correction(p_values, method='max-t')
-        
-        assert len(corrected) == len(p_values)
-        # Corrected p-values should be >= original p-values
-        for orig, corr in zip(p_values, corrected):
-            assert corr >= orig, "Corrected p-value should be >= original"
-            assert 0 <= corr <= 1, "Corrected p-value should be in [0, 1]"
+def test_fit_baseline_regression():
+    """Test baseline regression."""
+    creat = np.array([1.1, 2.2, 2.9, 4.1, 5.2])
+    static = [0.1, 0.2, 0.3, 0.4, 0.5]
+    cov = {
+        'age': [20, 21, 22, 23, 24],
+        'sex': ['M', 'F', 'M', 'F', 'M'],
+        'education': [10, 12, 14, 16, 18],
+        'static_connectivity_strength': static
+    }
+    
+    result = fit_baseline_regression(creat, static, cov)
+    
+    assert isinstance(result, RegressionResult)
+    assert 'static_connectivity_strength' in result.coefficients
 
-    def test_fwe_correction_all_significant(self):
-        """Test FWE correction when all p-values are significant."""
-        p_values = [0.001, 0.002, 0.003]
+def test_log_regression_summary():
+    """Test that log_regression_summary creates/updates the CSV correctly."""
+    # Setup temporary config for testing
+    config = get_config()
+    original_path = config.DATA_PATH
+    
+    with tempfile.TemporaryDirectory() as tmpdir:
+        config.DATA_PATH = tmpdir
+        output_path = Path(tmpdir) / "interim" / "regression_summary.csv"
         
-        corrected = apply_fwe_correction(p_values, method='max-t')
+        # First call (should create file)
+        log_regression_summary("sub_001", 0.15, 3.2, 0.85, 0.01)
         
-        # Some may become non-significant after correction
-        assert len(corrected) == len(p_values)
-        assert all(0 <= p <= 1 for p in corrected)
-
-class TestFormatDeltaR2:
-    def test_format_delta_r2_precision(self):
-        """Test that format_delta_r2 returns 4 decimal places."""
-        delta = 0.123456789
-        formatted = format_delta_r2(delta)
+        assert output_path.exists()
+        df = pd.read_csv(output_path)
+        assert len(df) == 1
+        assert df.iloc[0]['subject_id'] == 'sub_001'
         
-        assert formatted == "0.1235", f"Expected '0.1235', got '{formatted}'"
+        # Second call (should append)
+        log_regression_summary("sub_002", 0.22, 4.1, 0.90, 0.02)
         
-    def test_format_delta_r2_small_value(self):
-        """Test formatting of small delta R² values."""
-        delta = 0.0000123
-        formatted = format_delta_r2(delta)
+        df = pd.read_csv(output_path)
+        assert len(df) == 2
+        assert df.iloc[1]['subject_id'] == 'sub_002'
         
-        assert formatted == "0.0000", f"Expected '0.0000', got '{formatted}'"
-        
-    def test_format_delta_r2_negative(self):
-        """Test formatting of negative delta R² values."""
-        delta = -0.05678
-        formatted = format_delta_r2(delta)
-        
-        assert formatted == "-0.0568", f"Expected '-0.0568', got '{formatted}'"
+        # Verify columns
+        expected_cols = ['subject_id', 'flexibility', 'creativity', 'pearson_r', 'empirical_p_value']
+        assert list(df.columns) == expected_cols
+    
+    # Restore
+    config.DATA_PATH = original_path

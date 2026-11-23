@@ -5,8 +5,10 @@ import traceback
 from datetime import datetime
 from typing import Any, Dict, Optional, List
 
-# Ensure the results directory exists
-RESULTS_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "results")
+# Ensure the results directory exists relative to project root
+# Project root is assumed to be two levels up from code/utils/
+PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+RESULTS_DIR = os.path.join(PROJECT_ROOT, "results")
 os.makedirs(RESULTS_DIR, exist_ok=True)
 
 PERFORMANCE_FILE = os.path.join(RESULTS_DIR, "performance.json")

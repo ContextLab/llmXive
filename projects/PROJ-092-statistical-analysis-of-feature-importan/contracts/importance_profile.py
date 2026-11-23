@@ -1,62 +1,45 @@
 """
-Data schema definitions for the importance_profile entity.
-Defines the structure for feature importance scores per window.
+Importance profile contract definitions.
+
+This module defines the schema for per‑window feature‑importance profiles
+produced by the training pipeline.
 """
-from dataclasses import dataclass, field
-from typing import List, Dict, Optional
-from enum import Enum
+
+from __future__ import annotations
+
+from typing import Dict
+
+from pydantic import BaseModel, Field, validator
 
 
-class ImportanceMethod(Enum):
-    """Enum for importance calculation methods."""
-    PERMUTATION = "permutation"
-    GAIN = "gain"
-    SHAP = "shap"
-
-
-@dataclass
-class ImportanceScore:
-    """Single feature importance score."""
-    feature_name: str
-    score: float
-    std_dev: float = 0.0
-    is_significant: bool = False
-
-@dataclass
-class ImportanceProfile:
+class ImportanceProfile(BaseModel):
     """
-    Schema for a feature importance profile for a specific window.
+    Feature‑importance profile for a single time window.
+
+    Attributes
+    ----------
+    window_id: Identifier for the window (e.g., integer or string).
+    r2_score: R² score of the trained model on this window.
+    importance: Mapping from feature name to its permutation‑importance score.
     """
-    window_id: int
-    window_start: str
-    window_end: str
-    method: ImportanceMethod
-    scores: List[ImportanceScore]
-    model_r_squared: Optional[float] = None
-    n_estimators: int = 100
-    max_depth: int = 10
-    seed: int = 42
 
-    def get_ranked_features(self) -> List[str]:
-        """Return feature names sorted by importance score (descending)."""
-        sorted_scores = sorted(self.scores, key=lambda x: x.score, reverse=True)
-        return [s.feature_name for s in sorted_scores]
+    window_id: str = Field(..., description="Identifier of the processed window.")
+    r2_score: float = Field(..., description="R² score of the model on this window.")
+    importance: Dict[str, float] = Field(
+        ..., description="Feature name → importance score mapping."
+    )
 
-    def get_score_dict(self) -> Dict[str, float]:
-        """Return a dictionary mapping feature names to scores."""
-        return {s.feature_name: s.score for s in self.scores}
+    @validator("r2_score")
+    def r2_in_range(cls, v: float) -> float:
+        """R² must be between 0 and 1 for regression tasks."""
+        if not 0.0 <= v <= 1.0:
+            raise ValueError("r2_score must be in [0, 1]")
+        return v
 
-    def to_csv_row(self) -> Dict[str, Any]:
-        """Flatten profile into a dictionary suitable for CSV export."""
-        row = {
-            "window_id": self.window_id,
-            "window_start": self.window_start,
-            "window_end": self.window_end,
-            "method": self.method.value,
-            "model_r_squared": self.model_r_squared,
-        }
-        # Add scores as columns
-        for score_obj in self.scores:
-            row[f"importance_{score_obj.feature_name}"] = score_obj.score
-            row[f"std_{score_obj.feature_name}"] = score_obj.std_dev
-        return row
+    @validator("importance")
+    def importance_non_negative(cls, v: Dict[str, float]) -> Dict[str, float]:
+        """Importance scores should be non‑negative."""
+        for feat, imp in v.items():
+            if imp < 0:
+                raise ValueError(f"Importance for feature '{feat}' is negative")
+        return v

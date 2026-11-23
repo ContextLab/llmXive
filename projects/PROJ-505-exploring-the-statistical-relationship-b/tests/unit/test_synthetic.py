@@ -24,7 +24,7 @@ project_root = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(project_root))
 
 from code.ingestion.generate_synthetic_data import generate_solar_wind_composition
-from utils.io import load_parquet
+from code.utils.io import load_parquet
 
 
 class TestSyntheticDataGenerator:
@@ -76,16 +76,6 @@ class TestSyntheticDataGenerator:
 
     def test_no_nans_in_critical_columns(self, temp_output_dir):
         """Verify critical columns (Dst, Kp) have no NaN values."""
-        df = generate_synthetic_data(
-            n_samples=100,
-            seed=42,
-            start_time=datetime(2020, 1, 1),
-            output_dir=temp_output_dir
-        )
-
-        # Note: The function name in the module is generate_solar_wind_composition
-        # but the test fixture calls generate_synthetic_data if not defined.
-        # Re-calling the actual function to be safe.
         df = generate_solar_wind_composition(
             n_samples=100,
             seed=42,

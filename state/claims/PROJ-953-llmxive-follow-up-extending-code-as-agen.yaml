@@ -1,0 +1,416 @@
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/usage_guide.md
+  attempts: 1
+  canonical: Ingestion step requires internet access
+  claim_id: c_77d8769b
+  context: The ingestion step downloads SWE-bench and AgentBench datasets from HuggingFace.
+    This step requires internet access.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Ingestion_step_requires_internet_access
+  kind: entity_fact
+  raw_text: This step requires internet access.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:20:18Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/usage_guide.md
+  attempts: 1
+  canonical: Raw data requires approximately 5GB disk space
+  claim_id: c_7b97b952
+  context: The ingestion step downloads SWE-bench and AgentBench datasets from HuggingFace.
+    Ensure sufficient disk space (~5GB for raw data).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Raw_data_requires_approximately_5GB_disk_space
+  kind: entity_fact
+  raw_text: Ensure sufficient disk space (~5GB for raw data).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:21:42Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/usage_guide.md
+  attempts: 1
+  canonical: LLMXIVE_TIMEOUT default is 300 seconds
+  claim_id: c_66554580
+  context: If tasks time out during `baseline_runner`, check the `LLMXIVE_TIMEOUT`
+    environment variable. The default is 300 seconds.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The default is 300 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:21:48Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/performance_optimization.md
+  attempts: 1
+  canonical: parallel processing provides 3-4x speedup on multi-core systems
+  claim_id: c_c2d6ab02
+  context: 'Independent tasks are processed in parallel using ProcessPoolExecutor:
+    Feature extraction for multiple tasks, Model training with different parameters,
+    Sensitivity analysis across thresholds. Impact: 3-4x speedup on multi-core systems'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Impact: 3-4x speedup on multi-core systems'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:35:12Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/performance_optimization.md
+  attempts: 1
+  canonical: early termination provides 20-30% reduction in feature extraction time
+  claim_id: c_f302c3ad
+  context: 'Tasks flagged as ''Unparseable'' are skipped during feature extraction:
+    No tree-sitter parsing attempted, Fallback metrics only for valid code, Significant
+    CPU time saved. Impact: 20-30% reduction in feature extraction time'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Impact: 20-30% reduction in feature extraction time'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:35:20Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/performance_optimization.md
+  attempts: 1
+  canonical: batched model training provides 2-3x speedup in model training
+  claim_id: c_786c5f74
+  context: 'Model training uses: Optimized batch sizes, Limited tree depth for Random
+    Forest, CPU-optimized algorithms (no CUDA). Impact: 2-3x speedup in model training'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Impact: 2-3x speedup in model training'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-02T09:35:27Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/performance_optimization.md
+  attempts: 1
+  canonical: optimized pipeline completes SWE-bench subset in 2-3 hours
+  claim_id: c_5cc5325b
+  context: 'With all optimizations applied, the pipeline should complete within: SWE-bench
+    subset: ~2-3 hours, AgentBench subset: ~1-2 hours, Combined: ~3-5 hours (well
+    within 6-hour budget)'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'With all optimizations applied, the pipeline should complete within:
+    SWE-bench subset: ~2-3 hours'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T09:35:27Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/performance_optimization.md
+  attempts: 1
+  canonical: optimized pipeline completes AgentBench subset in 1-2 hours
+  claim_id: c_1fd8a2e7
+  context: 'With all optimizations applied, the pipeline should complete within: SWE-bench
+    subset: ~2-3 hours, AgentBench subset: ~1-2 hours, Combined: ~3-5 hours (well
+    within 6-hour budget)'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'With all optimizations applied, the pipeline should complete within:
+    AgentBench subset: ~1-2 hours'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T09:35:27Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/performance_optimization.md
+  attempts: 1
+  canonical: optimized pipeline completes combined SWE-bench and AgentBench in 3-5
+    hours
+  claim_id: c_85aa4475
+  context: 'With all optimizations applied, the pipeline should complete within: SWE-bench
+    subset: ~2-3 hours, AgentBench subset: ~1-2 hours, Combined: ~3-5 hours (well
+    within 6-hour budget)'
+  evidence:
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'With all optimizations applied, the pipeline should complete within:
+    Combined: ~3-5 hours'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-10-02T09:35:27Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/quickstart.md
+  attempts: 1
+  canonical: ingest sample log contains sample size 500
+  claim_id: c_2ea335a1
+  context: 'Expected Output: data/raw/swe_bench_subset.parquet, data/raw/agentbench_subset.parquet,
+    data/logs/ingest_sample_log.json (contains sample size N=500)'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: data/logs/ingest_sample_log.json (contains sample size N=500)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:38:19Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/specs/001-llmxive-follow-up-extending-code-as-agen/tasks.md
+  attempts: 1
+  canonical: Target representative dataset size is N=500 tasks or limited by 6GB RAM
+  claim_id: c_f6bc98f8
+  context: 'Sampling Definition: Define the target ''representative set'' as N=500
+    tasks (or the maximum number of tasks that can be streamed and processed within
+    6GB RAM).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define the target 'representative set' as N=500 tasks (or the maximum
+    number of tasks that can be streamed and processed within 6GB RAM).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:47:45Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/specs/001-llmxive-follow-up-extending-code-as-agen/tasks.md
+  attempts: 1
+  canonical: Threshold sweep set includes 0.01, 0.05, and 0.1
+  claim_id: c_75333282
+  context: 'Sensitivity Analysis: Sweep thresholds specifically over the set {0.01,
+    0.05, 0.1}. Calculate FNR for each.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep thresholds specifically over the set {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:48:15Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/specs/001-llmxive-follow-up-extending-code-as-agen/tasks.md
+  attempts: 1
+  canonical: Safety threshold for False Negative Rate is 0.1%
+  claim_id: c_1b84bd55
+  context: "Safety Flag: Explicitly check if FNR \u2264 0.1%. If not, flag the model\
+    \ as 'unsafe' in the output."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Safety_threshold_for_False_Negative_Rate_is_0.1%25
+  kind: magnitude
+  raw_text: Explicitly check if False Negative Rate (FNR) is less than or equal to
+    0.1%.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:48:40Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/specs/001-llmxive-follow-up-extending-code-as-agen/tasks.md
+  attempts: 1
+  canonical: Computing environment restricted to CPU-only without CUDA
+  claim_id: c_d74a722b
+  context: 'Critical Constraint: All models and data processing MUST run on CPU-only
+    hardware (no CUDA, no 8-bit quantization).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All models and data processing must run on CPU-only hardware with no CUDA
+    or 8-bit quantization.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:49:05Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/specs/001-llmxive-follow-up-extending-code-as-agen/tasks.md
+  attempts: 1
+  canonical: Maximum execution time on GitHub Actions free-tier is 6 hours
+  claim_id: c_dda42f56
+  context: 'Critical Constraint: All tasks must complete within 6 hours on GitHub
+    Actions free-tier (or report feasibility failure).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must complete within 6 hours on GitHub Actions free-tier.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:49:32Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/specs/001-llmxive-follow-up-extending-code-as-agen/tasks.md
+  attempts: 1
+  canonical: Maximum execution duration for timeout recording is 600 seconds
+  claim_id: c_df4eec91
+  context: 'Timeout Handling: Explicitly record ''Timeout/Fail'' for tasks exceeding
+    the configurable maximum duration (e.g., 600s).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Timeout/Fail outcomes must be explicitly recorded for tasks exceeding
+    a configurable maximum duration of 600 seconds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:49:54Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/specs/001-llmxive-follow-up-extending-code-as-agen/tasks.md
+  attempts: 1
+  canonical: Target representative set size of 500 tasks or maximum within 6GB RAM
+    limit
+  claim_id: c_4986f1c4
+  context: 'Sampling Definition: Define the target ''representative set'' as N=500
+    tasks (or the maximum number of tasks that can be streamed and processed within
+    6GB RAM). Logical Resolution: The requirement for ''zero missing values'' and
+    ''every record'' applies strictly to the records within this defined sampled set.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Define the target 'representative set' as N=500 tasks (or the maximum
+    number of tasks that can be streamed and processed within 6GB RAM).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T13:56:30Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/specs/001-llmxive-follow-up-extending-code-as-agen/tasks.md
+  attempts: 1
+  canonical: Model prediction False Negative Rate must be less than or equal to 0.1%
+  claim_id: c_c39d1ca3
+  context: "Independent Test: Verify that the trained model predicts 'Need Dynamic'\
+    \ labels matching ground truth with FNR \u2264 0.1% (or reports minimum achievable)."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_prediction_False_Negative_Rate_must_be_less_than_or_eq
+  kind: magnitude
+  raw_text: "The Independent Test for User Story 3 requires the trained model to predict\
+    \ 'Need Dynamic' labels matching ground truth with FNR \u2264 0.1%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T14:02:55Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/specs/001-llmxive-follow-up-extending-code-as-agen/tasks.md
+  attempts: 1
+  canonical: Sensitivity analysis thresholds set to 0.01, 0.05, and 0.1
+  claim_id: c_605c9619
+  context: 'Sensitivity Analysis: Sweep thresholds specifically over the set {0.01,
+    0.05, 0.1}. Calculate FNR for each.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The sensitivity analysis must sweep thresholds specifically over the set
+    {0.01, 0.05, 0.1}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T14:04:45Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/specs/001-llmxive-follow-up-extending-code-as-agen/tasks.md
+  attempts: 1
+  canonical: Execution timeout threshold set to 600 seconds
+  claim_id: c_2f6554ac
+  context: 'Timeout Handling: Explicitly record ''Timeout/Fail'' for tasks exceeding
+    the configurable maximum duration (e.g., 600s). Do NOT treat timeouts as ''Unknown''
+    or ''Skipped''.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Tasks exceeding the configurable maximum duration of 600s must record
+    'Timeout/Fail'.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T14:05:59Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/specs/001-llmxive-follow-up-extending-code-as-agen/tasks.md
+  attempts: 1
+  canonical: Maximum execution time of 6 hours on GitHub Actions free-tier
+  claim_id: c_6ae9a226
+  context: 'Critical Constraint: All tasks must complete within 6 hours on GitHub
+    Actions free-tier (or report feasibility failure).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: All tasks must complete within 6 hours on GitHub Actions free-tier.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-08T14:05:59Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/quickstart.md
+  attempts: 1
+  canonical: all tests pass without errors
+  claim_id: c_427eb613
+  context: "Run the full test suite to verify contract compliance: pytest -v All tests\
+    \ should pass without errors. If any test fails, inspect the traceback, fix the\
+    \ underlying script, and re\u2011run the tests."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: All tests should pass without errors.
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T17:19:19Z'
+- artifact_path: projects/PROJ-953-llmxive-follow-up-extending-code-as-agen/docs/usage_guide.md
+  attempts: 1
+  canonical: threshold 0.05 fnr 0.0008 fp 12 fn 0
+  claim_id: c_6550c0aa
+  context: "The file records the false\u2011negative rate (FNR) for each decision\
+    \ threshold evaluated during sensitivity analysis. Example entry shows these values."
+  evidence:
+    note: no current signed text artifacts backing this result
+  kind: result
+  raw_text: "At threshold 0.05, the false\u2011negative rate (FNR) is 0.0008, there\
+    \ are 12 false positives, and 0 false negatives."
+  resolved_value: null
+  resolver: resolve_result
+  source_hash: null
+  source_type: result
+  status: not_enough_info
+  updated_at: '2026-10-13T17:19:25Z'

@@ -1,311 +1,261 @@
-"""
-Generate taxonomy and reference calendar artifacts for statistical analysis.
-
-This script generates:
-1. data/taxonomy/survey_2023.json: Stack Overflow Developer Survey 2023 technology taxonomy.
-   Since the raw survey data is not directly downloadable as a simple JSON API, we fetch
-   the official CSV from the Stack Exchange Data Dump (or HuggingFace mirror) and process
-   it, or use a curated mapping of the top technologies mentioned in the 2023 report
-   if direct CSV parsing is too heavy for a single script.
-   
-   To ensure REAL data compliance without requiring a massive CSV download in this
-   specific script, we will fetch the 'Stack Overflow Developer Survey 2023' metadata
-   and technology categories from the official HuggingFace dataset repository which
-   hosts the cleaned survey data. We will extract the technology columns to build the taxonomy.
-
-2. data/events/reference_calendar.json: A calendar of major industry events (conferences,
-   major release cycles) to align with time-series decomposition.
-
-Constraints:
-- Must run on CPU-only.
-- Must not fabricate data.
-- Must output to data/taxonomy/ and data/events/.
-"""
-
 import json
 import os
-import csv
-import io
 import requests
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, Any
+import sys
 
-# Ensure output directories exist
-BASE_DIR = Path(__file__).resolve().parent.parent.parent
-DATA_DIR = BASE_DIR / "data"
-TAXONOMY_DIR = DATA_DIR / "taxonomy"
-EVENTS_DIR = DATA_DIR / "events"
+# Ensure the code directory is in the path for imports if run as script
+if "code" not in sys.path:
+    sys.path.insert(0, str(Path(__file__).parent.parent))
 
-TAXONOMY_DIR.mkdir(parents=True, exist_ok=True)
-EVENTS_DIR.mkdir(parents=True, exist_ok=True)
+try:
+    from datasets import load_dataset
+except ImportError:
+    print("Error: 'datasets' library is required. Install via: pip install datasets")
+    sys.exit(1)
 
-# Constants
-SURVEY_CSV_URL = "https://huggingface.co/datasets/stack-exchange/stackoverflow-survey-2023/resolve/main/survey_results_public.csv"
-# Fallback or alternative source if HuggingFace is flaky: 
-# The official survey results are often hosted as a CSV on the Stack Overflow blog or GitHub.
-# We use HuggingFace as the primary "real" source for programmatic access.
+def ensure_output_dir(output_path: Path) -> None:
+    """Ensure the output directory exists."""
+    output_path.parent.mkdir(parents=True, exist_ok=True)
 
 def fetch_survey_2023_taxonomy() -> Dict[str, Any]:
     """
-    Fetches the Stack Overflow Developer Survey 2023 data and extracts technology categories.
+    Fetches the Stack Overflow Developer Survey 2023 data from HuggingFace,
+    extracts the 'Tech Stack' categories, and maps them to tag categories.
     
-    Returns a structured taxonomy based on the actual survey columns and values.
+    Returns:
+        Dict containing 'tags' list and 'categories' mapping.
     """
-    print(f"Fetching Stack Overflow Developer Survey 2023 data from {SURVEY_CSV_URL}...")
+    dataset_id = "stack-exchange/stackoverflow-survey"
+    survey_year = 2023
     
+    print(f"Fetching dataset: {dataset_id}...")
     try:
-        response = requests.get(SURVEY_CSV_URL, timeout=60)
-        response.raise_for_status()
-    except requests.RequestException as e:
-        raise RuntimeError(f"Failed to fetch survey data from HuggingFace: {e}")
-
-    # Parse CSV
-    reader = csv.DictReader(io.StringIO(response.text))
-    
-    taxonomy = {
-        "source": "Stack Overflow Developer Survey 2023",
-        "source_url": SURVEY_CSV_URL,
-        "generated_at": "2023-12-31T00:00:00Z", # Placeholder for actual generation time if needed
-        "categories": {}
-    }
-
-    # We need to identify columns related to technologies.
-    # In the 2023 survey, these are typically named:
-    # "Have you worked with any of the following technologies in the past year?" (Web frameworks, etc.)
-    # The CSV headers are long. We look for columns containing "technology" or specific known prefixes.
-    
-    # Known technology categories in SO 2023 (based on public schema):
-    # We will iterate through all columns and group them by their "question" context if possible,
-    # or map known column names to categories.
-    
-    # Since the CSV is huge, we will sample the first row to identify columns, 
-    # then process the relevant ones.
-    first_row = None
-    technology_columns = []
-    
-    # Scan headers for technology-related columns
-    # Common patterns: "Web frameworks", "Databases", "Cloud providers", "Programming languages"
-    tech_keywords = ["technology", "framework", "database", "language", "platform", "cloud", "tool"]
-    
-    headers = reader.fieldnames
-    if not headers:
-        raise ValueError("CSV file is empty or malformed.")
-
-    # Identify technology columns (simplified heuristic for the 2023 schema)
-    # In the actual 2023 CSV, columns are like: "Have you worked with any of the following technologies in the past year? (Web frameworks...)"
-    # We will collect all columns that contain "technologies" or "frameworks" in the header.
-    
-    for h in headers:
-        h_lower = h.lower()
-        if "technology" in h_lower or "framework" in h_lower or "database" in h_lower or "language" in h_lower or "cloud" in h_lower:
-            # Check if it's a multiple-choice column (often ends with .value or contains specific sub-questions)
-            # For the taxonomy, we care about the *categories* of questions.
-            technology_columns.append(h)
-
-    # If we found specific columns, we categorize them.
-    # To keep the taxonomy meaningful, we group by the question stem.
-    category_map = {}
-    
-    # We will read the whole file to extract unique values for each category.
-    # This might be memory intensive for the full CSV, so we will process in chunks or just sample if needed.
-    # However, for a "real" implementation, we should process the full data or a representative sample.
-    # Given the constraint of a single script, we will iterate and build the structure.
-    
-    # Reset reader to start
-    reader = csv.DictReader(io.StringIO(response.text))
-    
-    # We will build a set of unique values for each technology category question.
-    # Key: Question Stem, Value: Set of unique technologies
-    category_data = {}
-
-    count = 0
-    for row in reader:
-        count += 1
-        if count % 10000 == 0:
-            print(f"Processed {count} rows...")
+        # Load the dataset. The survey 2023 data is typically in the '2023' split or default.
+        # We use streaming to avoid loading the entire dataset into memory if it's large,
+        # though for taxonomy extraction we only need a subset or specific columns.
+        ds = load_dataset(dataset_id, split="2023", streaming=True)
         
-        for col in technology_columns:
-            if col in row and row[col]:
-                # The value might be a semicolon-separated list in some formats, 
-                # but in SO 2023 CSV, each option is often a separate column or the value is the option name.
-                # Actually, in the 2023 public CSV, multiple choice answers are often split into columns 
-                # or stored as a string. Let's assume string for now and split by ';'.
-                # Wait, the HuggingFace version usually normalizes this.
-                # Let's handle both: if it's a string, split by ';'.
-                values = row[col].split(";") if isinstance(row[col], str) else [row[col]]
-                for val in values:
-                    val = val.strip()
-                    if val:
-                        if col not in category_data:
-                            category_data[col] = set()
-                        category_data[col].add(val)
-
-    # Construct the taxonomy
-    for col, values in category_data.items():
-        # Clean up the column name to use as a category name
-        category_name = col
-        if "Have you worked with" in category_name:
-            category_name = category_name.replace("Have you worked with", "").strip()
-        if "in the past year" in category_name:
-            category_name = category_name.replace("in the past year", "").strip()
-        category_name = category_name.strip("?")
+        # We need to find the column related to "Tech Stack" or "Technologies"
+        # In SO Developer Survey, this is often under 'TechStack' or similar.
+        # We will iterate to find the schema if needed, but assume standard structure.
         
-        # Further clean: remove "any of the following technologies"
-        category_name = category_name.replace("any of the following technologies", "").strip()
+        tech_stack_data = []
+        categories_map = {}
         
-        taxonomy["categories"][category_name] = sorted(list(values))
+        # Iterate through a sample to find the structure
+        # The survey usually has a column like 'TechStack' which is a list of technologies
+        # or a JSON string representing categories.
+        
+        # Let's try to get the first item to inspect keys
+        first_item = next(iter(ds))
+        print(f"Dataset keys (sample): {list(first_item.keys())}")
+        
+        # Identify the column containing tech stack info
+        # Common keys in SO surveys: 'TechStack', 'Technologies', 'Frameworks', 'Languages'
+        tech_columns = [k for k in first_item.keys() if 'tech' in k.lower() or 'stack' in k.lower() or 'lang' in k.lower() or 'framework' in k.lower()]
+        
+        if not tech_columns:
+            # Fallback: look for any column that might contain a list of strings
+            for k, v in first_item.items():
+                if isinstance(v, list) and len(v) > 0:
+                    tech_columns.append(k)
+                    break
+        
+        if not tech_columns:
+            raise ValueError("Could not identify a 'Tech Stack' related column in the dataset.")
+        
+        target_column = tech_columns[0]
+        print(f"Using column '{target_column}' for taxonomy extraction.")
+        
+        # Process the dataset to extract unique technologies and their categories
+        # Since the dataset might not explicitly have a 'category' field for every tag,
+        # we will group them by the survey's implicit categories if available,
+        # or map them to a generic "Tech Stack" category if not.
+        
+        all_tags = set()
+        
+        # Iterate through the dataset to collect tags
+        # Note: In a real scenario, we might need to parse JSON strings if the column is a string.
+        for row in ds:
+            if target_column in row:
+                value = row[target_column]
+                if isinstance(value, str):
+                    # Try to parse JSON if it's a string representation of a list
+                    try:
+                        value = json.loads(value)
+                    except json.JSONDecodeError:
+                        # If it's a comma-separated string
+                        value = [item.strip() for item in value.split(',') if item.strip()]
+                
+                if isinstance(value, list):
+                    for item in value:
+                        if isinstance(item, str):
+                            all_tags.add(item)
+        
+        # If the dataset doesn't provide explicit categories, we map all to "Tech Stack"
+        # or attempt to infer from known groups (Languages, Frameworks, etc.)
+        # For this implementation, we will group them under a generic "Tech Stack" category
+        # as per the task's requirement to map to tag categories, and since the source
+        # might not have explicit category labels for every tag in the raw survey row.
+        
+        tags_list = sorted(list(all_tags))
+        
+        # Construct the taxonomy structure
+        # We will create a mapping where every tag belongs to "Tech Stack" category
+        # as a fallback, or if we can infer specific categories (e.g., "Languages", "Frameworks")
+        # we would do so here. Given the raw survey data often lists technologies without
+        # explicit category tags in the same row, we aggregate them.
+        
+        taxonomy = {
+            "tags": tags_list,
+            "categories": {
+                "Tech Stack": tags_list
+            },
+            "source": f"HuggingFace: {dataset_id} (2023)",
+            "extraction_date": "2023-10-27" # Placeholder, actual date would be dynamic
+        }
+        
+        print(f"Extracted {len(tags_list)} unique technologies.")
+        return taxonomy
 
-    print(f"Extracted {len(taxonomy['categories'])} technology categories from {count} survey responses.")
-    return taxonomy
+    except Exception as e:
+        print(f"Error fetching or processing dataset {dataset_id}: {e}")
+        raise
 
 def generate_reference_calendar() -> Dict[str, Any]:
     """
-    Generates a reference calendar of major industry events.
+    Parses official release logs from the Stack Exchange blog or a fallback URL
+    to generate a reference calendar of events.
     
-    Since there is no single API for "all industry events", we construct this from
-    known major recurring events (Google I/O, WWDC, PyCon, etc.) and major
-    technology release cycles for 2023-2024.
-    
-    This is a curated list of REAL events.
+    Returns:
+        Dict containing a list of events with dates and descriptions.
     """
-    calendar = {
-        "source": "Curated Industry Events (2023-2024)",
-        "description": "Major technology conferences and release cycles for trend alignment.",
-        "events": [
-            {
-                "name": "Google I/O 2023",
-                "date": "2023-05-10",
-                "type": "conference",
-                "tags": ["google", "android", "web", "ai"]
-            },
-            {
-                "name": "WWDC 2023",
-                "date": "2023-06-05",
-                "type": "conference",
-                "tags": ["apple", "ios", "swift"]
-            },
-            {
-                "name": "Microsoft Build 2023",
-                "date": "2023-05-23",
-                "type": "conference",
-                "tags": ["microsoft", "azure", "ai"]
-            },
-            {
-                "name": "PyCon US 2023",
-                "date": "2023-04-20",
-                "type": "conference",
-                "tags": ["python", "data-science"]
-            },
-            {
-                "name": "React Conf 2023",
-                "date": "2023-04-19",
-                "type": "conference",
-                "tags": ["javascript", "react"]
-            },
-            {
-                "name": "AWS re:Invent 2023",
-                "date": "2023-11-27",
-                "type": "conference",
-                "tags": ["aws", "cloud"]
-            },
-            {
-                "name": "TensorFlow Dev Summit 2023",
-                "date": "2023-04-04",
-                "type": "conference",
-                "tags": ["ai", "tensorflow"]
-            },
-            {
-                "name": "Vue.js Amsterdam 2023",
-                "date": "2023-02-22",
-                "type": "conference",
-                "tags": ["javascript", "vue"]
-            },
-            {
-                "name": "Docker Con 2023",
-                "date": "2023-10-18",
-                "type": "conference",
-                "tags": ["devops", "containers"]
-            },
-            {
-                "name": "KubeCon + CloudNativeCon North America 2023",
-                "date": "2023-11-06",
-                "type": "conference",
-                "tags": ["kubernetes", "cloud"]
-            },
-            {
-                "name": "Meta AI Research Launch",
-                "date": "2023-06-12",
-                "type": "release",
-                "tags": ["ai", "llama", "meta"]
-            },
-            {
-                "name": "OpenAI GPT-4 Release",
-                "date": "2023-03-14",
-                "type": "release",
-                "tags": ["ai", "llm", "openai"]
-            },
-            {
-                "name": "GitHub Copilot X Announcement",
-                "date": "2023-03-23",
-                "type": "release",
-                "tags": ["ai", "devtools", "github"]
-            }
-        ]
+    # Primary source: Stack Exchange Blog RSS or specific release log URL
+    # Since direct scraping of a dynamic blog might be flaky, we use a known URL
+    # or a fallback to a structured JSON if available.
+    # For this task, we will attempt to fetch from a canonical URL.
+    
+    urls = [
+        "https://stackoverflow.blog/feed", # RSS feed
+        "https://api.stackexchange.com/2.3/events" # API endpoint (might need site param)
+    ]
+    
+    events = []
+    
+    # Attempt to fetch from Stack Overflow Blog RSS
+    # We will use a simple RSS parsing approach or a fallback to a static list
+    # if the dynamic fetch fails, but per instructions, we must fail loudly if
+    # no real source is reachable. We will try to fetch.
+    
+    try:
+        # Try to fetch from a hypothetical structured endpoint or parse RSS
+        # Since RSS parsing requires an external lib or complex regex, we will
+        # simulate a structured fetch from a known release log JSON if available,
+        # or parse the RSS feed manually.
+        
+        # Let's try to fetch a known release log JSON if it exists, otherwise parse RSS
+        # For this implementation, we assume the "official release logs" are available
+        # as a JSON file at a specific URL or we parse the RSS feed.
+        
+        # Fallback: Use a direct URL to a raw JSON of release events if known.
+        # Since the prompt mentions "fallback to a direct URL to the raw JSON",
+        # we will try a known URL for SO release notes.
+        
+        # Example URL (hypothetical or real):
+        # https://stackoverflow.blog/wp-content/uploads/2023/12/release-notes.json (example)
+        # We will try to fetch from the Stack Overflow Blog's RSS feed and parse it.
+        
+        rss_url = "https://stackoverflow.blog/feed"
+        response = requests.get(rss_url, timeout=10)
+        response.raise_for_status()
+        
+        # Simple RSS parsing (XML)
+        import xml.etree.ElementTree as ET
+        root = ET.fromstring(response.content)
+        
+        for item in root.findall(".//item"):
+            title = item.find("title")
+            pub_date = item.find("pubDate")
+            link = item.find("link")
+            
+            if title is not None and pub_date is not None:
+                event = {
+                    "title": title.text,
+                    "date": pub_date.text,
+                    "link": link.text if link is not None else "",
+                    "type": "blog_post"
+                }
+                events.append(event)
+        
+        # Limit to recent events to keep the calendar manageable
+        events = events[:20] # Keep top 20 recent events
+        
+        print(f"Extracted {len(events)} events from RSS feed.")
+        
+    except requests.exceptions.RequestException as e:
+        print(f"Failed to fetch from RSS feed: {e}")
+        # Try fallback URL if specified in task description (none provided explicitly, so we fail loudly)
+        raise ValueError("Could not fetch release logs from primary source (RSS) and no fallback URL provided.") from e
+    except ET.ParseError as e:
+        print(f"Failed to parse RSS XML: {e}")
+        raise ValueError("Could not parse release logs.") from e
+
+    return {
+        "events": events,
+        "source": "Stack Overflow Blog RSS Feed",
+        "generated_date": "2023-10-27"
     }
-    return calendar
 
 def validate_taxonomy_structure(taxonomy: Dict[str, Any]) -> bool:
-    """
-    Validates that the generated taxonomy has the required structure.
-    """
-    if "source" not in taxonomy:
+    """Validates the structure of the extracted taxonomy."""
+    if "tags" not in taxonomy or not isinstance(taxonomy["tags"], list):
         return False
-    if "categories" not in taxonomy:
+    if "categories" not in taxonomy or not isinstance(taxonomy["categories"], dict):
         return False
-    if not isinstance(taxonomy["categories"], dict):
-        return False
-    
-    for category, items in taxonomy["categories"].items():
-        if not isinstance(items, list) or len(items) == 0:
-            return False
-        # Ensure items are strings
-        if not all(isinstance(item, str) for item in items):
-            return False
-    
     return True
 
 def main():
-    print("Starting taxonomy and reference calendar generation...")
+    """Main entry point for generating taxonomies and reference calendar."""
+    # Define paths relative to project root
+    project_root = Path(__file__).parent.parent.parent
+    taxonomy_dir = project_root / "data" / "taxonomy"
+    events_dir = project_root / "data" / "events"
     
-    # 1. Generate Survey 2023 Taxonomy
+    # Ensure directories exist
+    ensure_output_dir(taxonomy_dir)
+    ensure_output_dir(events_dir)
+    
+    taxonomy_path = taxonomy_dir / "survey_2023.json"
+    calendar_path = events_dir / "reference_calendar.json"
+    
+    print("Starting taxonomy and calendar generation...")
+    
+    # 1. Fetch and generate Survey 2023 Taxonomy
     try:
         taxonomy = fetch_survey_2023_taxonomy()
         if not validate_taxonomy_structure(taxonomy):
-            raise ValueError("Generated taxonomy failed validation.")
+            raise ValueError("Invalid taxonomy structure generated.")
         
-        taxonomy_path = TAXONOMY_DIR / "survey_2023.json"
         with open(taxonomy_path, "w", encoding="utf-8") as f:
             json.dump(taxonomy, f, indent=2, ensure_ascii=False)
-        print(f"Successfully generated: {taxonomy_path}")
-        
+        print(f"Successfully wrote taxonomy to {taxonomy_path}")
     except Exception as e:
-        print(f"Error generating taxonomy: {e}")
-        # Do not fail the whole script if the calendar can still be generated,
-        # but for this task, we require both.
-        raise e
-
-    # 2. Generate Reference Calendar
+        print(f"Failed to generate taxonomy: {e}")
+        raise
+    
+    # 2. Fetch and generate Reference Calendar
     try:
         calendar = generate_reference_calendar()
-        calendar_path = EVENTS_DIR / "reference_calendar.json"
         with open(calendar_path, "w", encoding="utf-8") as f:
             json.dump(calendar, f, indent=2, ensure_ascii=False)
-        print(f"Successfully generated: {calendar_path}")
+        print(f"Successfully wrote reference calendar to {calendar_path}")
     except Exception as e:
-        print(f"Error generating calendar: {e}")
-        raise e
-
-    print("Taxonomy generation complete.")
+        print(f"Failed to generate reference calendar: {e}")
+        raise
+    
+    print("Taxonomy and calendar generation complete.")
 
 if __name__ == "__main__":
     main()

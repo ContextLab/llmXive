@@ -1,0 +1,63 @@
+# Weather Data Schema
+# Defines the structure for meteorological records linked to plant disease observations.
+# Source: Open-Meteo API / NOAA (fallback)
+#
+# Fields:
+# - location_lat: Latitude of the observation location (float, WPS84)
+# - location_lon: Longitude of the observation location (float, WPS84)
+# - date_start: Start date of the weather aggregation period (string, ISO 8601 YYYY-MM-DD)
+# - date_end: End date of the weather aggregation period (string, ISO 8601 YYYY-MM-DD)
+# - mean_temp: Mean daily temperature over the period (float, Celsius)
+# - mean_humidity: Mean relative humidity over the period (float, percentage 0-100)
+# - total_precipitation: Total accumulated precipitation over the period (float, millimeters)
+
+type: object
+required:
+  - location_lat
+  - location_lon
+  - date_start
+  - date_end
+  - mean_temp
+  - mean_humidity
+  - total_precipitation
+
+properties:
+  location_lat:
+    type: number
+    description: Latitude coordinate (WGS84)
+    minimum: -90
+    maximum: 90
+    
+  location_lon:
+    type: number
+    description: Longitude coordinate (WGS84)
+    minimum: -180
+    maximum: 180
+    
+  date_start:
+    type: string
+    description: Start date of the weather window
+    format: date
+    
+  date_end:
+    type: string
+    description: End date of the weather window
+    format: date
+    
+  mean_temp:
+    type: number
+    description: Mean temperature in Celsius over the period
+    nullable: true
+    
+  mean_humidity:
+    type: number
+    description: Mean relative humidity in percentage (0-100)
+    minimum: 0
+    maximum: 100
+    nullable: true
+    
+  total_precipitation:
+    type: number
+    description: Total precipitation in millimeters
+    minimum: 0
+    nullable: true

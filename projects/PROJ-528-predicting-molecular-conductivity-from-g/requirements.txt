@@ -6,3 +6,8 @@ matplotlib
 seaborn
 pyyaml
 pytest
+networkx
+statsmodels
+joblib
+h5py
+datasets

@@ -1,0 +1,10 @@
+{
+  "properties": [
+    "materials_project/band_gap",
+    "materials_project/formation_energy"
+  ],
+  "status": "download_complete",
+  "successful": 2,
+  "total": 2,
+  "last_updated": "2026-09-29T18:38:19"
+}

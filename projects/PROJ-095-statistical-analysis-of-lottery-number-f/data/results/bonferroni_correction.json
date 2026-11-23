@@ -1,0 +1,22 @@
+{
+  "original_alpha": 0.05,
+  "number_of_tests": 2,
+  "corrected_alpha": 0.025,
+  "adjusted_p_values": {
+    "birthday": 0.06,
+    "consecutive": 0.14
+  },
+  "significance_results": {
+    "birthday": {
+      "adjusted_p_value": 0.06,
+      "is_significant": false,
+      "original_p_value": 0.03
+    },
+    "consecutive": {
+      "adjusted_p_value": 0.14,
+      "is_significant": false,
+      "original_p_value": 0.07
+    }
+  },
+  "method": "Bonferroni"
+}

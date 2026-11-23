@@ -1,0 +1,59 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Feature Importance Output
+description: Schema for permutation importance analysis results. Validates that importance scores sum to unity within a tolerance.
+type: object
+required:
+  - model_name
+  - feature_importance
+  - verification
+properties:
+  model_name:
+    type: string
+    description: Name of the model for which importance was calculated.
+  feature_importance:
+    type: object
+    description: Dictionary mapping feature names to their normalized importance scores.
+    additionalProperties:
+      type: number
+      minimum: 0
+  verification:
+    type: object
+    description: Metadata about the normalization check.
+    required:
+      - sum_of_importances
+      - tolerance
+      - is_valid
+    properties:
+      sum_of_importances:
+        type: number
+        description: The actual sum of all importance scores before rounding.
+      tolerance:
+        type: number
+        description: The tolerance threshold used for validation.
+      is_valid:
+        type: boolean
+        description: True if sum is within tolerance of 1.0.
+  metadata:
+    type: object
+    description: Optional metadata about the analysis run.
+    properties:
+      timestamp:
+        type: string
+        format: date-time
+      vif_threshold:
+        type: number
+        description: Variance Inflation Factor threshold used if multicollinearity was checked.
+examples:
+  - model_name: "RandomForest"
+    feature_importance:
+      temperature: 0.35
+      salinity: 0.25
+      nutrients: 0.20
+      chlorophyll-a: 0.20
+    verification:
+      sum_of_importances: 1.0
+      tolerance: 0.001
+      is_valid: true
+    metadata:
+      timestamp: "2023-10-27T10:00:00Z"
+      vif_threshold: 5.0

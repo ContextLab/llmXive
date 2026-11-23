@@ -1,0 +1,3 @@
+"""
+Schema contracts directory placeholder.
+"""

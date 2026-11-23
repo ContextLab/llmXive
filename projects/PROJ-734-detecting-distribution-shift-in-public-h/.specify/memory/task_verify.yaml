@@ -1,7 +1,11 @@
-'T001 Create project structure: `mkdir -p data/raw data/processed code tests code/contracts`': 2
-? 'T002 Create `requirements.txt` at root with: `numpy, scipy, pandas, scikit-learn,
-  matplotlib, seaborn, pyyaml, pytest, pydantic`'
-: 2
-T003 [P] Create `.flake8` and `pyproject.toml` with black/flake8 settings (max-line-length=88, exclude=venv): 2
-T005 [P] Create `contracts/config.schema.yaml` and implement validation in `code/main.py` using `pydantic`: 2
-T006 Create `contracts/dataset.schema.yaml` and `contracts/output.schema.yaml` for data integrity: 2
+T012a: 1
+T012b: 1
+T013: 1
+T013a: 1
+T025: 2
+T032: 2
+T033: 2
+T034: 2
+T037: 2
+T038: 1
+T039: 1

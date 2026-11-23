@@ -4,79 +4,103 @@ from typing import Dict, Any, Tuple, Optional, List
 import logging
 from prophet import Prophet
 from prophet.diagnostics import cross_validation
-from config import PROPHET_UNCERTAINTY_SAMPLES, RANDOM_SEED
+from config import set_seed, SEED
 
 logger = logging.getLogger(__name__)
 
 class ProphetModel:
-    """Prophet model wrapper for time series forecasting."""
-    
-    def __init__(self, uncertainty_samples: int = PROPHET_UNCERTAINTY_SAMPLES):
+    """
+    Prophet model wrapper.
+    Implements seed pinning for reproducibility.
+    """
+
+    def __init__(self, uncertainty_samples: int = 1000, changepoint_prior_scale: float = 0.05):
         self.uncertainty_samples = uncertainty_samples
+        self.changepoint_prior_scale = changepoint_prior_scale
         self.model = None
-        self.forecast = None
-        
-    def fit(self, train_series: pd.Series) -> 'ProphetModel':
-        """Fit the Prophet model to the training data.
-        
-        Args:
-            train_series: Training time series data (pd.Series with DatetimeIndex).
-            
-        Returns:
-            Self for method chaining.
+        self._set_seed()
+
+    def _set_seed(self):
+        """Ensure reproducibility by setting global seed."""
+        set_seed(SEED)
+
+    def fit(self, data: pd.DataFrame, date_col: str = 'ds', value_col: str = 'y') -> 'ProphetModel':
         """
-        try:
-            # Convert series to Prophet format
-            df = train_series.reset_index()
-            if len(df.columns) == 2:
-                df.columns = ['ds', 'y']
-            else:
-                # Ensure columns are named correctly
-                df = df.iloc[:, :2]
-                df.columns = ['ds', 'y']
-                
-            self.model = Prophet(
-                uncertainty_samples=self.uncertainty_samples,
-                seed=RANDOM_SEED
-            )
-            self.model.fit(df)
-            logger.info("Prophet model fitted successfully.")
-        except Exception as e:
-            logger.error(f"Prophet model fitting failed: {e}")
-            raise
-            
-        return self
-        
-    def predict_intervals(
-        self, 
-        steps: int, 
-        conf_int: float = 0.95
-    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
-        """Generate point forecasts and prediction intervals.
+        Fit the Prophet model to the data.
         
         Args:
-            steps: Number of steps to forecast.
-            conf_int: Confidence level for intervals (e.g., 0.95).
-            
+            data: DataFrame with date and value columns
+            date_col: Name of the date column
+            value_col: Name of the value column
+        
         Returns:
-            Tuple of (point_forecasts, lower_bound, upper_bound).
+            self
+        """
+        self._set_seed()
+        
+        # Prepare data
+        df = data[[date_col, value_col]].copy()
+        df.columns = ['ds', 'y']
+        
+        # Initialize and fit model
+        self.model = Prophet(
+            uncertainty_samples=self.uncertainty_samples,
+            changepoint_prior_scale=self.changepoint_prior_scale
+        )
+        
+        try:
+            self.model.fit(df)
+        except Exception as e:
+            logger.error(f"Prophet model fitting failed: {str(e)}")
+            raise
+        
+        return self
+
+    def predict(self, steps: int = 1, interval_width: float = 0.95) -> Dict[str, Any]:
+        """
+        Generate predictions and prediction intervals.
+        
+        Args:
+            steps: Number of steps to forecast
+            interval_width: Width of the prediction interval (e.g., 0.95 for 95%)
+        
+        Returns:
+            Dictionary with 'forecast', 'lower', 'upper' keys
         """
         if self.model is None:
-            raise RuntimeError("Model must be fitted before prediction.")
-            
+            raise ValueError("Model must be fitted before prediction")
+        
+        self._set_seed()
+        
         # Create future dataframe
-        last_date = self.model.history['ds'].max()
-        future = self.model.make_future_dataframe(periods=steps, freq='H')
-        
-        # Predict
+        future = self.model.make_future_dataframe(periods=steps, freq='D')
         forecast = self.model.predict(future)
-        self.forecast = forecast
         
-        # Extract recent forecasts
-        recent_forecast = forecast.tail(steps)
+        # Extract the last 'steps' predictions
+        last_steps = forecast.tail(steps)
         
-        point_forecasts = recent_forecast['yhat'].values
-        lower_bound = recent_forecast[f'yhat_lower'].values
-        upper_bound = recent_forecast[f'yhat_upper'].values
+        return {
+            'forecast': last_steps['yhat'].values,
+            'lower': last_steps['yhat_lower'].values,
+            'upper': last_steps['yhat_upper'].values
+        }
+
+    def get_intervals(self, steps: int = 1, confidence_levels: List[float] = [0.80, 0.95]) -> Dict[str, Any]:
+        """
+        Generate prediction intervals for multiple confidence levels.
         
-        return point_forecasts, lower_bound, upper_bound
+        Args:
+            steps: Number of steps to forecast
+            confidence_levels: List of confidence levels (e.g., [0.80, 0.95])
+        
+        Returns:
+            Dictionary mapping confidence level to (lower, upper) arrays
+        """
+        intervals = {}
+        for level in confidence_levels:
+            res = self.predict(steps=steps, interval_width=level)
+            intervals[level] = {
+                'lower': res['lower'],
+                'upper': res['upper']
+            }
+        return intervals

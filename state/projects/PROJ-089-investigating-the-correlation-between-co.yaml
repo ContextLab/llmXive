@@ -6,7 +6,7 @@ failed_stage: null
 field: computer science
 human_escalation_reason: null
 id: PROJ-089-investigating-the-correlation-between-co
-last_run_id: 318abed8-a6ab-4fe4-9180-4beef73b69a8
+last_run_id: b2ab6abd-dbc4-40bf-ac2c-85d86d54d708
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-089-investigating-the-correlation-between-co/specs/001-investigating-the-correlation-between-co
 title: Investigating the Correlation Between Code Churn and Technical Debt
-updated_at: '2026-07-10T03:40:30.002472Z'
+updated_at: '2026-10-06T01:44:15.734623Z'

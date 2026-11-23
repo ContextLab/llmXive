@@ -1,0 +1,11 @@
+rdkit
+lightgbm
+shap
+pandas
+numpy
+scikit-learn
+qm9pack
+pytest
+scipy
+pyarrow
+psutil

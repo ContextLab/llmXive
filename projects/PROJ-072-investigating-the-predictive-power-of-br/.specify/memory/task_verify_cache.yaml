@@ -1,0 +1,172 @@
+T002:
+  c: true
+  h: 7be3f04a12f572bb62bb29503e2c8f0cddef1e8cf385f133d4d9587dca345a26
+  r: "Checked the `requirements.txt` file (117\u202Fbytes) located at the project\
+    \ root; it contains all required dependencies (nibabel, numpy, pandas, scikit-learn,\
+    \ networkx, bctpy, scipy, huggingface_hub, nilearn, pydantic, joblib) and is non\u2011\
+    empty, satisfying the initialization task."
+  sig: 7cd19c7199096ac5d3468f606a6d5a8843f9a3ddac7f269086fc6ef868c67d0e
+T003:
+  c: false
+  h: 16ee9502f7cdbbf7927797d75a74e9fdb6542618e7789eff9c009a0990ff7831
+  r: "The evidence contains no linting or formatting configuration files (e.g., a\
+    \ `pyproject.toml` or `.ruff.toml` specifying ruff rules, a `black` configuration\
+    \ section, or a `pre-commit` hook invoking these tools). Without these artifacts,\
+    \ we cannot confirm that ruff and black have been set up for the project. Adding\
+    \ the appropriate configuration files and, optionally, a CI script or pre\u2011\
+    commit hook would satisfy the task."
+  sig: a3091352524f4113d0f5a7cee63e051dfec3e5a4f5dc4504e466d1216185872d
+T006:
+  c: false
+  h: aeac73118fb7fb48fc3080ec861cb90e13da798ba42051bbee79f9b7528bf22b
+  r: The `code/__init__.py` file exists, but it only contains a docstring and a version
+    string; there is no logging configuration (e.g., importing `logging` and setting
+    up handlers or `basicConfig`). The task required both the file creation **and**
+    the logging infrastructure, which is not present. Adding proper logging setup
+    to `__init__.py` (or an appropriate module) is needed.
+  sig: 7c9fcb59d1c05059af8b0663155edfa22bb0a9b24586ea4c177213579bd88b4a
+T007:
+  c: true
+  h: ba32f018f4b93a42d90795bbfcb89fee61f24b215b5c87f059d0602dea99c528
+  r: "Checked the file `data/metadata/schema.yaml` (3279\u202Fbytes) which exists\
+    \ at the required path and contains concrete YAML definitions for the three Pydantic\
+    \ models\u202F\u2014\u202FSubject, ConnectivityMatrix, and FeatureVector\u202F\
+    \u2014\u202Fwith appropriate field names, types, and validation constraints. No\
+    \ placeholders or stubs are present."
+  sig: a4791d252d9642f8146790b70c15340e514acef6453464c8d5dbe7c38f870f9d
+T008:
+  c: false
+  h: c0003dfc8ac4f9d78f36b6f3bae0def649cff4b9499ec84dac1975ffa1d1bde6
+  r: "The provided `code/main.py` implements the 6\u2011hour runtime limit and a DATA_GAP\
+    \ check, but it does **not** include any memory\u2011usage monitoring with `psutil`\
+    \ (checking >7\u202FGB RAM for 5 consecutive seconds) nor does it exit with code\u202F\
+    1 when that memory threshold is exceeded. Adding the required psutil\u2011based\
+    \ memory guard and the correct exit code is needed."
+  sig: 5e5828a8939e8c3d4a49c4aa561b6224469d4a576460430d85bf5537088a3454
+T009:
+  c: false
+  h: f2d317d880997c066f547d5827227501c91890625e4f426ee13e44346b7e2060
+  r: "The `tests/unit/test_preprocessing.py` file does not contain the required `test_download_url_exists`\
+    \ or `test_download_checksum` unit tests; it only tests metadata loading functions.\
+    \ Consequently, the task\u2019s specified tests are missing, and the referenced\
+    \ raw data file `data/raw/ds000030.zip` is also absent. The implementer must add\
+    \ the two download\u2011validation tests (and provide a real or mock dataset file\
+    \ for checksum verification)."
+  sig: 26692f2ebb476c39f83c5bd7aea380bf0476a1b4c38e5e1b3addbf5957aeb209
+T010:
+  c: false
+  h: 90a3c6b89dc703310ef8dafca75dc9d0fa00c98fa2a7b98b5901034826004f63
+  r: "The integration test file exists but it checks for a `.npy` matrix (`sub-001_matrix.npy`)\
+    \ and also expects a range check, while the task requires a `data/processed/test_subject_matrix.csv`\
+    \ 90\xD790 matrix with no NaNs. The required CSV file is missing, and the preprocessing\
+    \ code only saves a preprocessed NIfTI image, not a connectivity matrix CSV. Consequently\
+    \ the specified artifact and verification criteria are not satisfied."
+  sig: f7e506c2f9a1af8bf342df79b4376ad618e39262ca75ee6bcdba425887b95085
+T011:
+  c: true
+  h: cb14201184de76104f5de02244408101aba91ed9484214a04f2f82a120379a7c
+  r: "The `code/preprocessing/download.py` file contains full download functionality\
+    \ (e.g., `download_dataset`, URL handling) and a `process_metadata_and_exclude_subjects`\
+    \ routine that writes missing\u2011label exclusions to `data/metadata/exclusion_log.txt`,\
+    \ which is present and populated. The script therefore meets the specified requirement."
+  sig: ab5626da1cab5ce320e8f1cc9f4320aed0e691fa9e3acb0decb1df78f1a419ed
+T012:
+  c: true
+  h: 708988933a893297f6059abb6ef1153edbc5940868bd60a648827d5519844558
+  r: "The `code/preprocessing/preprocess.py` file (12060\u202Fbytes) implements motion\
+    \ correction, normalization, and band\u2011pass filtering using nilearn, generates\
+    \ an FSL\u2011style log header, and includes a compliance check for required markers.\
+    \ The log creation and verification functions satisfy the requirement to match\
+    \ FSL standard headers for Constitution Principle\u202FVI."
+  sig: 858acfa2c65325f10820ddfd63bc9c330d1104cdf5b6d193c4e625f8597e659f
+T013:
+  c: false
+  h: eced7e5ce9fca5efa19673126690c059882d484af1f1567f5e626348892fe645
+  r: "The provided `code/preprocessing/parcellate.py` exists but contains critical\
+    \ bugs: it calls `validate_and_regularize_matrix` with the wrong signature and\
+    \ assigns its tuple return value to `corr_matrix`, causing later shape accesses\
+    \ to fail. Consequently it cannot reliably generate valid 90\u202F\xD7\u202F90\
+    \ connectivity matrices, and no evidence of successful runs (e.g., saved `.npy`\
+    \ files without NaNs) is supplied. The implementation must be fixed to correctly\
+    \ validate/regularize the matrix and produce proper output files."
+  sig: 9d0de9e28a4b359e819b4e936f6901c44aa9bcb47c30c3b27d10218f0aae356b
+T015:
+  c: false
+  h: 3b8a3ffa506f5bbd3cd1cb7e323f0fca1c794cbe5464c8902d1c71474aac4cce
+  r: "Checked `code/preprocessing/metadata.py` (exists and contains logic to write\
+    \ `data/metadata/subject_labels.csv`) but the required output file `data/metadata/subject_labels.csv`\
+    \ is missing, so the task\u2019s verification conditions (file existence, correct\
+    \ schema, no NaNs) are not satisfied."
+  sig: b24d504e255aee493007c3f2d110dacc2b50941cf3281cbb5d30d3141fe4ab30
+T015.5:
+  c: false
+  h: dafd210989337e01f1ba5d7898a4fc3a546a33ece642cacc6cf17e6c93bcc40b
+  r: The provided `metadata.py` writes `analysis_config.json` with the correct key,
+    but it detects medication status by scanning `participants.tsv` columns rather
+    than looking for a `medication_status` field in OpenNeuro JSON sidecar files as
+    the task specifies. Moreover, there is no evidence that the JSON file was actually
+    created on disk. The implementation therefore does not meet the required detection
+    logic or produce the verified output.
+  sig: 225ae7f4919d719563e38358d13bdcf016acb34e14e84500a270dccef7b929eb
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, tests, or documentation were provided that show a validation step for
+    positive semi-definite matrices, any regularization applied when needed, or logging
+    of anomalies. The required artifact (implementation of the validation and logging)
+    is missing.
+T018:
+  c: false
+  h: 40c589f927528ffe8ce7b2ef849cbd73f217d14bb51a5f400344605b2a8edfd7
+  r: "The `tests/integration/test_graph_metrics.py` file is present but the `test_feature_extraction`\
+    \ function is truncated and never performs the required assertions on shape, NaNs,\
+    \ or column presence. Moreover, the expected output file `data/processed/features.csv`\
+    \ does not exist, so the integration test cannot succeed. The task\u2019s requirements\
+    \ are therefore not met."
+T021:
+  c: false
+  h: ca0f8a151bcac12d64a311ba33068a05c721a2f5a9652af86d6e48dce0bc541b
+  r: The provided `calculator.py` does not contain any code that checks pairwise feature
+    correlations, applies PCA, or writes a reduced matrix to `data/processed/features_pca.csv`,
+    nor does it log dropped features to `data/metadata/collinearity_log.txt`. Both
+    required output files are absent from the repository. The task therefore remains
+    unfinished.
+T022b:
+  c: false
+  h: 4f9dc73ea9678c8c501550e2b1ab3ddfd5b26355663f3b21954899458f888e11
+  r: "The repository contains the verification script, but the required `data/processed/features.csv`\
+    \ (and consequently the log file) is missing, so the script cannot actually confirm\
+    \ the presence of the required columns. The task\u2019s core requirement\u2014\
+    to assert that the CSV exists and includes the specified columns\u2014is not met."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a summary statistics report (mean and standard deviation per metric,
+    stratified by diagnostic group) was provided in the `docs/` directory, nor any
+    file showing such output. The required artifact is missing, so the task is not
+    satisfied.
+T025:
+  c: true
+  h: 41e2385b4b82aaa565fd05a06e9ae6fe8360c5f51614dee74a9dbff231b263b3
+  r: "The repository contains a non\u2011empty `tests/integration/test_classification.py`\
+    \ that defines `test_full_pipeline`, creates a synthetic dataset, runs the classification\
+    \ pipeline, checks that `data/processed/results.json` is created, loads it, verifies\
+    \ the presence of the required keys, and asserts that `significance_flag` is `False`\
+    \ for shuffled labels. No missing or placeholder code is evident."
+T027a:
+  c: false
+  h: f22b40e1c10cae3425e6d471cd622304c890f716dc0ed587ea31bb4ba8d656c8
+  r: "The `StabilitySelection` class in `code/classification/models.py` is only partially\
+    \ shown and ends abruptly (the loop body is incomplete, no feature\u2011selection\
+    \ logic, and no code to write `stable_features.csv`). Moreover, the required output\
+    \ file `data/processed/stable_features.csv` does not exist. Both the algorithm\
+    \ implementation and the required saved results are missing."
+T030:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or documented function implementing the calculation\
+    \ of Cohen's\u202Fd is present in the provided evidence. The task required a concrete\
+    \ implementation (e.g., a Python function that takes two groups of values and\
+    \ returns the Cohen's\u202Fd effect size), but the only material available is\
+    \ the high\u2011level project specification, with no artifact to verify. The required\
+    \ implementation is missing."

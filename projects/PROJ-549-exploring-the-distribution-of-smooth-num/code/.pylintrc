@@ -1,0 +1,42 @@
+[MAIN]
+jobs=0
+persistent=yes
+load-plugins=
+
+[MESSAGES CONTROL]
+disable=
+    C0114,  # missing-module-docstring
+    C0115,  # missing-class-docstring
+    C0116,  # missing-function-docstring
+    R0903,  # too-few-public-methods
+    R0913,  # too-many-arguments
+    R0914,  # too-many-locals
+    R0915,  # too-many-statements
+    R0912,  # too-many-branches
+    W0718,  # broad-exception-caught (we often catch specific errors but sometimes broad ones for safety)
+    W1203,  # logging-f-string (we use f-strings in logs for clarity)
+    W0613,  # unused-argument (sometimes needed for interface compatibility)
+    W0622,  # redefined-builtin (sometimes unavoidable)
+    C0301,  # line-too-long (handled by black/flake8)
+    C0326,  # bad-whitespace (handled by black)
+    E1136,  # unsubscriptable-object (type hint issues)
+    W0511,  # fixme (we use FIXMEs intentionally)
+
+[FORMAT]
+max-line-length=88
+max-module-lines=1000
+max-locals=25
+max-returns=6
+max-branches=12
+max-arguments=10
+
+[DESIGN]
+max-public-methods=20
+min-public-methods=1
+
+[BASIC]
+good-names=i,j,k,ex,_,f,x,y,h,u,v,w,n,m,p,q,r,s,t,c,d,e
+
+[TYPECHECK]
+ignored-modules=numpy,scipy,matplotlib
+generated-members=numpy.*,scipy.*,matplotlib.*

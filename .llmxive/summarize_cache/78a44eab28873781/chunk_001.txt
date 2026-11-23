@@ -1,0 +1,49 @@
+- **FR-006**: The system MUST perform a permutation-based significance test for feature importance by shuffling the input features (X) to generate a null distribution (N_permutations = 1,000 by default), calculating p-values against this null, and applying the Benjamini-Hochberg procedure to control the false discovery rate at a conventional threshold (FDR ≤ 0.05). The specific method (Benjamini-Hochberg), random seed, and iteration count MUST be logged and pinned in the code to ensure reproducibility. The system MUST also perform a sensitivity analysis by sweeping the significance threshold over a range of conventional levels (e.g., 0.01, 0.05, 0.1) and output a JSON table containing the mean rank and standard deviation of each feature's importance across the sweeps. (See US-3)
+- **FR-007**: The system MUST control for confounds by including caption length (number of tokens) and textual description complexity (defined strictly as the count of distinct noun phrases or named entities in the caption, derived solely from text) as covariates in the regression model to rule out spurious correlations. Image data MUST NOT be used for this covariate. (See US-3)
+- **FR-008**: The system MUST perform a sensitivity analysis on the human rating noise by injecting synthetic noise (Gaussian noise with varying standard deviations) into the human ratings and re-running the regression to assess the robustness of feature importance rankings. (See US-3)
+- **FR-009**: The system MUST validate the "Linguistic Uncertainty Proxy" (ln(perplexity)) by computing its correlation with a semantic entropy baseline or expert annotation on a held-out subset of captions. If the correlation coefficient is < 0.3, the system MUST log a warning and flag the construct validity risk in the final report. (See US-1)
+- **FR-010**: The system MUST detect zero variance in the target variable (deviation score) before training and halt with the error message "Target not learnable: zero variance detected". (See US-2)
+- **FR-011**: The system MUST handle captions that are too short to compute a meaningful dependency tree depth by excluding the sample from the training matrix and logging the exclusion reason with the specific caption ID. (See US-1)
+- **FR-012**: The system MUST handle missing values in the linguistic feature extraction (e.g., BERT perplexity failure) by catching the exception, logging the specific caption ID, and excluding that row from the final training matrix. (See US-1)
+
+### Constitution Enforcement
+
+To ensure compliance with Constitution Principle VI (Linguistic Feature Isolation) and Principle VII (CPU-Tractability), the system MUST enforce the following code-level constraints:
+- **CPU-Only Enforcement**: The `train.py` script MUST explicitly set `torch.set_num_threads` and `torch.set_num_interop_threads` to a fixed value at startup. Any import of `torch.cuda` or `tensorflow` with GPU devices MUST raise an `ImportError` if detected.
+- **Feature Isolation Enforcement**: The `features.py` script MUST NOT import any image processing libraries (e.g., `PIL`, `opencv`) or CLIP models. It MUST only import text-processing libraries (e.g., `spaCy`, `transformers`). Note: Covariates defined in FR-007 (textual description complexity) MUST be derived using text-only methods.
+- **Verification**: These enforcement rules MUST be verified via automated static analysis tests in `code/tests/test_constitution.py`, which assert that no forbidden imports exist in the specified modules.
+
+### Key Entities
+
+- **CaptionRecord**: Represents a single data point containing the raw text, computed linguistic features, CLIP score, human rating, and the derived deviation score.
+- **LinguisticFeatureVector**: A structured set of numerical values (entropy, depth, density, diversity) extracted from a caption, serving as the predictor set ($X$).
+- **DeviationScore**: A single floating-point value representing the magnitude of the gap between algorithmic and human judgment, serving as the target ($Y$).
+- **FeatureImportanceRanking**: A sorted list of objects (JSON array), where each object contains:
+  - `feature_name` (string): The name of the linguistic feature.
+  - `importance_score` (float): The mean decrease in performance when this feature is shuffled.
+  - `p_value` (float): The adjusted p-value from the permutation test.
+  - `mean_rank` (float): The mean rank across sensitivity sweeps (if applicable).
+  - `std_dev_rank` (float): The standard deviation of rank across sensitivity sweeps (if applicable).
+
+## Success Criteria
+
+### Measurable Outcomes
+
+> Planning docs state *what* will be measured and the *source/reference* it is
+> measured against; defer specific empirical values (counts, dataset sizes,
+> measured quantities, percentages) to the implementation/research phase.
+
+- **SC-001**: The Pearson correlation coefficient between the model's predicted deviation and the actual deviation is measured against a threshold of $r \ge 0.1$ with $p < 0.05$ to confirm the model explains variance. (See US-3)
+- **SC-002**: The memory footprint of the training process is measured against the 7 GB RAM limit defined in US-3. (See US-3)
+- **SC-003**: The total wall-clock time for the end-to-end pipeline (feature extraction + training + evaluation) is measured against the 6-hour CPU budget defined in US-3. (See US-3)
+- **SC-004**: The statistical significance of the top-ranked linguistic features is measured against a corrected p-value threshold of $p < 0.05$ (after Benjamini-Hochberg correction) to validate the findings. (See US-3)
+- **SC-005**: The sensitivity of the feature importance rankings is measured against a sweep of random seeds (specifically, iterating over multiple seeds, retraining, and aggregating mean rank and standard deviation) to ensure the results are robust and not artifacts of a specific initialization. (See US-3)
+
+## Assumptions
+
+- **Assumption about data availability**: The analysis relies exclusively on the 'pick-a-pic' dataset (or a verified HuggingFace subset) which contains explicit human preference ratings. Standard COCO datasets do not contain these ratings. If 'pick-a-pic' is unavailable, the system MUST halt (FR-003); no synthetic fallbacks are permitted.
+- **Assumption about computational constraints**: The linguistic feature extraction (BERT perplexity) can be performed on a CPU within a fixed time budget for the chosen dataset size; if the full dataset is too large, the analysis will operate on the full dataset or a verified subset, failing loudly if data is insufficient.
+- **Assumption about inference framing**: Since the design is observational (using existing dataset pairs without random assignment), all conclusions regarding the relationship between linguistic features and alignment deviation will be framed as associational, not causal.
+- **Assumption about measurement validity**: The "Linguistic Uncertainty Proxy" metric derived from BERT perplexity (defined as ln(perplexity)) is used as an operational proxy for linguistic/semantic uncertainty in this study, subject to validation per FR-009.
+- **Assumption about threshold justification**: No arbitrary classification thresholds are introduced; the analysis relies on continuous regression metrics (MSE, Pearson correlation) which do not require decision cutoffs, thereby avoiding the need for sensitivity analysis on thresholds (except for the significance threshold sweep in FR-006).
+- **Assumption about target noise**: The human rating is treated as the ground truth for the purpose of calculating the deviation score, despite the known risk of "noise-as-signal" where human rating variance may obscure the true alignment gap. The robustness of findings to this noise will be assessed via the sensitivity analysis in FR-008.

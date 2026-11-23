@@ -1,0 +1,279 @@
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: 2504 individuals in 1000 Genomes Project dataset
+  claim_id: c_99c4218e
+  context: 'The dataset includes 2,504 individuals across five continental populations:
+    African (AFR), Ad Mixed American (AMR), East Asian (EAS), European (EUR), and
+    South Asian (SAS).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset includes 2,504 individuals across five continental populations.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:22:58Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: Effect sizes beta 0.12 to 0.19 across continental populations
+  claim_id: c_6bb2ebc2
+  context: "The correlation was observed across all major continental populations,\
+    \ with effect sizes ranging from \u03B2 = 0.12 (EAS) to \u03B2 = 0.19 (AFR)."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Effect sizes ranged from \u03B2 = 0.12 (EAS) to \u03B2 = 0.19 (AFR)."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-07-31T13:23:22Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: Raw mitochondrial VCFs and metadata downloaded from 1000 Genomes Project
+    FTP server
+  claim_id: c_2c1d3adb
+  context: Raw mitochondrial VCFs and metadata were downloaded from the 1000 Genomes
+    Project FTP server. The metadata panel was specifically checked for the presence
+    of an 'age' column
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Raw mitochondrial VCFs and metadata were downloaded from the 1000 Genomes
+    Project FTP server.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:44:14Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: Study uses 1000 Genomes Project Phase 3 data for mtDNA variation analysis
+  claim_id: c_103b9c39
+  context: This project leverages the 1000 Genomes Project Phase 3 data to perform
+    a comprehensive analysis of mtDNA variation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The study leverages the 1000 Genomes Project Phase 3 data to perform a
+    comprehensive analysis of mtDNA variation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:45:01Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: Benjamini and Hochberg 1995 paper on controlling false discovery rate
+  claim_id: c_f95b5b87
+  context: All p-values generated from the statistical models were corrected using
+    the Benjamini-Hochberg procedure to control the false discovery rate.
+  evidence:
+    fill:
+      channel: theorem
+      conflicts: []
+      quote: "Society Series B, 57(1), 289\u2013300."
+      source_id: '2201.09350'
+      url: https://arxiv.org/abs/2201.09350
+      value: "289\u2013300"
+    filled: true
+  kind: numeric
+  raw_text: 'Benjamini, Y., & Hochberg, Y. (1995). Controlling the false discovery
+    rate: a practical and powerful approach to multiple testing.'
+  resolved_value: "289\u2013300"
+  resolver: fill:theorem
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-12T00:46:07Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: 1000 Genomes Project Consortium 2015 Nature paper on human genetic variation
+  claim_id: c_1a4e7f93
+  context: 'References: 1. 1000 Genomes Project Consortium. (2015). A global reference
+    for human genetic variation. Nature.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 1000 Genomes Project Consortium. (2015). A global reference for human
+    genetic variation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-12T00:47:07Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: 1000 Genomes Project Phase 3 dataset includes 5 continental populations
+  claim_id: c_2b581b24
+  context: We utilized mitochondrial VCF files and metadata from the 1000 Genomes
+    Project Phase 3. The dataset includes samples from five continental populations...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The dataset includes samples from five continental populations: African
+    (AFR), Admixed American (AMR), East Asian (EAS), European (EUR), and South Asian
+    (SAS).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T23:33:51Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: Haplogroup assignment success rate greater than 90 percent
+  claim_id: c_24a5350f
+  context: Haplogroup assignment was successful for >90% of samples. No single haplogroup
+    showed a significantly different slope compared to others...
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: (inclusive of all markers in H) from chrY VCF files of 1000 genome project.
+        This results in a matrix S of size L*N where L is the
+      source_id: '1304.3351'
+      url: https://arxiv.org/abs/1304.3351
+      value: '100'
+    filled: true
+  kind: magnitude
+  raw_text: Haplogroup assignment was successful for >90% of samples.
+  resolved_value: '100'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-27T23:34:14Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: Data obtained from 1000 Genomes Project Phase 3
+  claim_id: c_83590122
+  context: Data were obtained from the 1000 Genomes Project Phase 3. Mitochondrial
+    VCFs were downloaded from the canonical FTP site.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Data were obtained from the 1000 Genomes Project Phase 3.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-28T16:56:15Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: p-values remained significant after Benjamini-Hochberg correction
+  claim_id: c_e509e5a9
+  context: 'Multiple Testing: All p-values remained significant after Benjamini-Hochberg
+    correction.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/P-values_remained_significant_after_Benjamini-Hochberg_corre
+  kind: entity_fact
+  raw_text: All p-values remained significant after Benjamini-Hochberg correction.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T01:04:20Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: correlation coefficient stable across VAF thresholds 0.5% 1.0% 2.0%
+  claim_id: c_d68e140b
+  context: 'Threshold Robustness: The correlation coefficient remained stable across
+    VAF thresholds of 0.5%, 1.0%, and 2.0%, with a range of [X.XX, X.XX] and a standard
+    deviation of X.XX.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The correlation coefficient remained stable across VAF thresholds of 0.5%,
+    1.0%, and 2.0%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T01:04:20Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: significant correlations in continental ancestry groups AMR to AFR
+  claim_id: c_ab6a7844
+  context: 'Ancestry Subgroups: Significant correlations were observed in all continental
+    ancestry groups, with coefficients ranging from X.XX (AMR) to X.XX (AFR).'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Significant_correlations_in_continental_ancestry_groups_AMR
+  kind: entity_fact
+  raw_text: Significant correlations were observed in all continental ancestry groups,
+    with coefficients ranging from X.XX (AMR) to X.XX (AFR).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T01:04:52Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: percentage of samples successfully assigned to a haplogroup
+  claim_id: c_4d0138a2
+  context: 'Haplogroup Success Rate: XX% of samples were successfully assigned to
+    a haplogroup.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Percentage_of_samples_successfully_assigned_to_a_haplogroup
+  kind: entity_fact
+  raw_text: XX% of samples were successfully assigned to a haplogroup.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T01:05:23Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: variations in heteroplasmy burden across haplogroups
+  claim_id: c_15f488ce
+  context: 'Haplogroup-Specific Effects: Significant variations in heteroplasmy burden
+    were observed across haplogroups, with some haplogroups showing higher burden
+    at younger ages.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Variations_in_heteroplasmy_burden_across_haplogroups
+  kind: entity_fact
+  raw_text: Significant variations in heteroplasmy burden were observed across haplogroups,
+    with some haplogroups showing higher burden at younger ages.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T01:05:47Z'
+- artifact_path: projects/PROJ-178-investigating-the-correlation-between-mi/paper/draft.md
+  attempts: 1
+  canonical: percentage of samples failed haplogroup assignment
+  claim_id: c_99781d0d
+  context: 'Haplogroup Assignment: XX% of samples failed haplogroup assignment, which
+    may limit the power of haplogroup-specific analyses.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Percentage_of_samples_failed_haplogroup_assignment
+  kind: entity_fact
+  raw_text: XX% of samples failed haplogroup assignment.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-22T01:06:11Z'

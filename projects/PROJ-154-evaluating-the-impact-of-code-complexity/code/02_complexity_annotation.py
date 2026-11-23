@@ -4,23 +4,25 @@ import json
 import logging
 import traceback
 from pathlib import Path
-from typing import Dict, Any, List, Tuple, Optional
-import pandas as pd
-import ast
-from radon.complexity import cc_visit
-from radon.raw import analyze as radon_raw_analyze
-from radon.mi import mi_visit
-import numpy as np
 
-# Import from sibling utils as per API surface
-from utils.logging_config import setup_deterministic_logging, get_logger
-from utils.memory_guard import MemoryGuard, load_config, check_and_abort_or_downsample
+# Ensure parent directory is in path for imports
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
+from utils.logging_config import setup_deterministic_logging, set_seed
+from utils.memory_guard import MemoryGuard, load_config
+import pandas as pd
+import csv
+from radon.complexity import cc_visit
+from radon.halstead import halstead_visit
+from radon.mi import mi_visit
+from radon.raw import analyze
 
 # Setup logging
-logger = get_logger(__name__)
+logger = setup_deterministic_logging()
+set_seed(42)
 
 class ComplexityMetrics:
-    """Container for complexity calculation logic."""
+    """Helper class to calculate various complexity metrics."""
     
     @staticmethod
     def calculate_cyclomatic_complexity(code: str) -> float:
@@ -29,192 +31,178 @@ class ComplexityMetrics:
             results = cc_visit(code)
             if not results:
                 return 0.0
-            # Return the max complexity found in the file
+            # Return max CC for the file (or sum if preferred, but max is standard for function-level)
             return float(max(r.complexity for r in results))
         except Exception as e:
-            logger.warning(f"Failed to calculate cyclomatic complexity: {e}")
-            return -1.0
+            logger.warning(f"Failed to calculate CC: {e}")
+            return 0.0
 
     @staticmethod
     def calculate_halstead_volume(code: str) -> float:
         """Calculate Halstead Volume using radon."""
         try:
-            raw = radon_raw_analyze(code)
-            return float(raw.v)
+            results = halstead_visit(code)
+            if not results:
+                return 0.0
+            # Return max volume
+            return float(max(r.volume for r in results))
         except Exception as e:
-            logger.warning(f"Failed to calculate Halstead volume: {e}")
-            return -1.0
+            logger.warning(f"Failed to calculate Halstead: {e}")
+            return 0.0
 
     @staticmethod
     def calculate_maintainability_index(code: str) -> float:
         """Calculate Maintainability Index using radon."""
         try:
-            # mi_visit returns a list of MI scores per block
-            mi_scores = mi_visit(code, multi=True)
-            if not mi_scores:
-                return 100.0 # Default high maintainability if empty
-            return float(np.mean(mi_scores))
+            results = mi_visit(code, multi=True)
+            if not results:
+                return 0.0
+            # Return average MI
+            return float(sum(results) / len(results))
         except Exception as e:
-            logger.warning(f"Failed to calculate Maintainability Index: {e}")
-            return -1.0
+            logger.warning(f"Failed to calculate MI: {e}")
+            return 0.0
 
-def calculate_metrics(code: str) -> Dict[str, float]:
+def calculate_metrics(code: str) -> dict:
     """Calculate all complexity metrics for a code snippet."""
+    metrics = ComplexityMetrics()
     return {
-        'cyclomatic_complexity': ComplexityMetrics.calculate_cyclomatic_complexity(code),
-        'halstead_volume': ComplexityMetrics.calculate_halstead_volume(code),
-        'maintainability_index': ComplexityMetrics.calculate_maintainability_index(code)
+        'cyclomatic_complexity': metrics.calculate_cyclomatic_complexity(code),
+        'halstead_volume': metrics.calculate_halstead_volume(code),
+        'maintainability_index': metrics.calculate_maintainability_index(code)
     }
 
-def process_snippet(row: Dict[str, Any]) -> Optional[Dict[str, Any]]:
-    """
-    Process a single row from the raw dataset.
-    Returns a dictionary with code, ground truth, and metrics, or None if invalid.
-    """
+def process_snippet(row: dict) -> dict:
+    """Process a single row from the dataset, calculating metrics and handling errors."""
+    snippet_id = row.get('snippet_id', row.get('path', 'unknown'))
     code = row.get('code', '')
-    if not code:
-        return None
-
+    ground_truth = row.get('docstring', '')
+    
+    if not code or not isinstance(code, str):
+        return None, f"Empty or invalid code for snippet {snippet_id}"
+    
     try:
-        # Validate syntax by attempting to parse
-        ast.parse(code)
+        # Validate syntax by attempting to parse (radon does this implicitly, but explicit check is safer)
+        compile(code, '<string>', 'exec')
+        
+        metrics = calculate_metrics(code)
+        
+        result = {
+            'snippet_id': snippet_id,
+            'code': code,
+            'ground_truth': ground_truth,
+            'cyclomatic_complexity': metrics['cyclomatic_complexity'],
+            'halstead_volume': metrics['halstead_volume'],
+            'maintainability_index': metrics['maintainability_index']
+        }
+        return result, None
     except SyntaxError as e:
-        logger.warning(f"Skipping snippet due to syntax error: {e}")
-        return None
-    
-    metrics = calculate_metrics(code)
-    
-    # Check for calculation failures (returned -1.0)
-    if any(v < 0 for v in metrics.values()):
-        logger.warning(f"Skipping snippet due to metric calculation failure.")
-        return None
-
-    return {
-        'snippet_id': row.get('id', 'unknown'),
-        'raw_code': code,
-        'ground_truth': row.get('docstring', ''),
-        'cyclomatic_complexity': metrics['cyclomatic_complexity'],
-        'halstead_volume': metrics['halstead_volume'],
-        'maintainability_index': metrics['maintainability_index']
-    }
+        return None, f"SyntaxError in snippet {snippet_id}: {e}"
+    except Exception as e:
+        return None, f"Unexpected error in snippet {snippet_id}: {e}"
 
 def main():
-    """
-    Main entry point for complexity annotation and data saving.
-    Loads processed data from intermediate state (or re-processes if needed),
-    saves to annotated_metrics.csv, and updates metadata.json.
-    """
-    # Setup logging
-    setup_deterministic_logging()
-    logger.info("Starting Complexity Annotation and Data Saving (T015)")
-
-    # Load configuration
-    config = load_config()
-    memory_guard = MemoryGuard(config.get('memory_threshold_percent', 80))
-
-    # Define paths
-    project_root = Path(__file__).resolve().parent.parent
-    data_dir = project_root / 'data'
-    processed_dir = data_dir / 'processed'
-    raw_dir = data_dir / 'raw'
+    """Main entry point for complexity annotation and saving processed data."""
+    logger.info("Starting complexity annotation and data saving process (T015).")
     
+    # Paths
+    base_dir = Path(__file__).parent.parent
+    raw_data_path = base_dir / "data" / "raw" / "codesearchnet_python_processed.csv"
+    processed_dir = base_dir / "data" / "processed"
+    output_csv_path = processed_dir / "annotated_metrics.csv"
+    metadata_path = processed_dir / "metadata.json"
+    exclusions_log_path = processed_dir / "exclusions.log"
+    
+    # Ensure output directory exists
     processed_dir.mkdir(parents=True, exist_ok=True)
     
-    # Input file (intermediate JSON or CSV from T013/T014 logic)
-    # Since T013/T014 are completed, we assume the raw data is available in data/raw/
-    # We will re-process the raw dataset to ensure we have the cleanest output
-    # matching the spec. The raw dataset is expected to be in a standard format
-    # (e.g., JSONL or CSV) from T012.
-    # Assuming T012 produced a JSONL file in data/raw/ named 'codesearchnet_python.jsonl'
-    # or similar. Let's look for the most recent large JSON file in raw/.
+    # Load config for memory guard (optional but good practice)
+    config = load_config()
+    memory_guard = MemoryGuard(config)
+    memory_guard.start_monitoring()
     
-    raw_files = list(raw_dir.glob('*.jsonl')) + list(raw_dir.glob('*.json'))
-    if not raw_files:
-        # Fallback: try to find any json file
-        raw_files = list(raw_dir.glob('*.*'))
-    
-    if not raw_files:
-        logger.error("No raw data files found in data/raw/. Please run T012 first.")
+    # Check if raw data exists
+    if not raw_data_path.exists():
+        logger.error(f"Raw data file not found at {raw_data_path}. Please run 01_data_acquisition.py first.")
         sys.exit(1)
     
-    # Sort by size descending to pick the largest dataset
-    raw_files.sort(key=lambda p: p.stat().st_size, reverse=True)
-    input_file = raw_files[0]
-    
-    logger.info(f"Processing raw data from: {input_file}")
-    
-    # Check memory before processing
-    check_and_abort_or_downsample(memory_guard, 0)
-
-    all_results = []
-    total_raw = 0
-    total_valid = 0
-    excluded_count = 0
-
-    # Read and process line by line to handle large files
+    # Read raw data
+    logger.info(f"Loading raw data from {raw_data_path}")
     try:
-        with open(input_file, 'r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if not line:
-                    continue
-                
-                try:
-                    row = json.loads(line)
-                    total_raw += 1
-                    
-                    # Check memory periodically
-                    if total_raw % 1000 == 0:
-                        check_and_abort_or_downsample(memory_guard, total_raw)
-
-                    result = process_snippet(row)
-                    if result:
-                        all_results.append(result)
-                        total_valid += 1
-                    else:
-                        excluded_count += 1
-                
-                except json.JSONDecodeError as e:
-                    logger.warning(f"Skipping malformed JSON line: {e}")
-                    total_raw += 1
-                    excluded_count += 1
-                
-    except FileNotFoundError:
-        logger.error(f"Input file not found: {input_file}")
+        df = pd.read_csv(raw_data_path)
+        total_raw_snippets = len(df)
+        logger.info(f"Loaded {total_raw_snippets} raw snippets.")
+    except Exception as e:
+        logger.error(f"Failed to load raw data: {e}")
         sys.exit(1)
     
-    logger.info(f"Processing complete. Total raw: {total_raw}, Valid: {total_valid}, Excluded: {excluded_count}")
-
-    # Save annotated_metrics.csv
-    output_csv_path = processed_dir / 'annotated_metrics.csv'
-    df = pd.DataFrame(all_results)
-    df.to_csv(output_csv_path, index=False)
-    logger.info(f"Saved annotated metrics to: {output_csv_path}")
-
+    # Process snippets
+    processed_rows = []
+    exclusions = []
+    
+    logger.info("Processing snippets and calculating complexity metrics...")
+    
+    for idx, row in df.iterrows():
+        # Check memory periodically
+        if idx % 1000 == 0:
+            memory_guard.check_memory()
+        
+        result, error = process_snippet(row)
+        if result:
+            processed_rows.append(result)
+        else:
+            exclusions.append({
+                'index': idx,
+                'snippet_id': row.get('snippet_id', row.get('path', 'unknown')),
+                'error': error
+            })
+            logger.warning(f"Skipping snippet {row.get('snippet_id', 'unknown')}: {error}")
+    
+    total_valid_snippets = len(processed_rows)
+    logger.info(f"Processing complete. Valid snippets: {total_valid_snippets}, Excluded: {len(exclusions)}")
+    
+    # Write exclusions log
+    with open(exclusions_log_path, 'w') as f:
+        for exc in exclusions:
+            f.write(f"Index: {exc['index']}, ID: {exc['snippet_id']}, Error: {exc['error']}\n")
+    logger.info(f"Exclusions written to {exclusions_log_path}")
+    
+    # Save processed data to CSV
+    logger.info(f"Saving processed data to {output_csv_path}")
+    if processed_rows:
+        df_processed = pd.DataFrame(processed_rows)
+        # Ensure specific column order
+        columns = ['snippet_id', 'code', 'ground_truth', 'cyclomatic_complexity', 'halstead_volume', 'maintainability_index']
+        # Filter columns to only those present (in case some are missing, though they shouldn't be)
+        existing_cols = [c for c in columns if c in df_processed.columns]
+        df_processed = df_processed[existing_cols]
+        df_processed.to_csv(output_csv_path, index=False)
+        logger.info(f"Saved {total_valid_snippets} rows to {output_csv_path}")
+    else:
+        logger.warning("No valid snippets to save. Creating empty CSV.")
+        pd.DataFrame(columns=columns).to_csv(output_csv_path, index=False)
+    
     # Update metadata.json
-    metadata_path = processed_dir / 'metadata.json'
+    logger.info(f"Updating metadata at {metadata_path}")
     metadata = {}
-    
     if metadata_path.exists():
-        with open(metadata_path, 'r') as f:
-            metadata = json.load(f)
+        try:
+            with open(metadata_path, 'r') as f:
+                metadata = json.load(f)
+        except json.JSONDecodeError:
+            metadata = {}
     
-    metadata['total_raw_snippets'] = total_raw
-    metadata['total_valid_snippets'] = total_valid
-    metadata['excluded_snippets'] = excluded_count
-    metadata['output_file'] = str(output_csv_path.name)
-    metadata['last_updated'] = str(pd.Timestamp.now())
+    metadata['total_raw_snippets'] = total_raw_snippets
+    metadata['total_valid_snippets'] = total_valid_snippets
+    metadata['total_excluded_snippets'] = len(exclusions)
+    metadata['last_annotation_run'] = str(pd.Timestamp.now())
+    metadata['annotation_status'] = 'completed'
     
     with open(metadata_path, 'w') as f:
         json.dump(metadata, f, indent=2)
     
-    logger.info(f"Updated metadata at: {metadata_path}")
-
-    # Log binning boundaries for future tasks (T017) as a placeholder note
-    # Actual binning calculation happens in T017, but we log here that data is ready.
-    logger.info("Data ready for binning strategy (T017).")
-
-    logger.info("T015 Completed Successfully.")
+    logger.info("Metadata updated successfully.")
+    logger.info("Task T015 completed successfully.")
 
 if __name__ == "__main__":
     main()

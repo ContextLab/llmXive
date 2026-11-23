@@ -1,0 +1,85 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "PullRequest Dataset Schema"
+type: object
+properties:
+  pr_id:
+    type: string
+    description: "Unique PR identifier (e.g., repo#123)"
+  repo_id:
+    type: string
+    description: "Repository identifier (owner/repo)"
+  author_type:
+    type: string
+    enum:
+      - "human"
+      - "llm"
+    description: "Source of the code"
+  generation_source:
+    type: string
+    enum:
+      - "generation-from-scratch"
+      - "refactoring"
+      - "null"
+    description: "Cohort label for LLM snippets"
+  created_at:
+    type: string
+    format: date-time
+    description: "PR creation timestamp"
+  first_comment_at:
+    type: string
+    format: date-time
+    description: "First reviewer comment timestamp"
+  merge_at:
+    type: string
+    format: date-time
+    description: "PR merge timestamp (used for outcome)"
+  review_effort_duration:
+    type: number
+    description: "Seconds between first reviewer comment and merge (primary outcome)"
+  total_review_duration:
+    type: number
+    description: "Seconds between PR creation and merge (secondary outcome)"
+  file_size_loc:
+    type: integer
+    description: "Lines of code"
+  complexity_score:
+    type: number
+    description: "Cyclomatic complexity"
+  repo_activity_level:
+    type: integer
+    description: "Number of PRs in the repository"
+  ci_build_time:
+    type: number
+    description: "CI build duration in seconds"
+  semantic_similarity:
+    type: number
+    minimum: -1
+    maximum: 1
+    description: "Cosine similarity between snippet embedding and repository‑level centroid embedding"
+  source_code:
+    type: string
+    description: "Full code diff (human) or generated snippet (LLM)"
+  primary_language:
+    type: string
+    description: "Detected programming language"
+  commit_message_length:
+    type: integer
+    description: "Length of the commit message (pre‑treatment covariate)"
+required:
+  - pr_id
+  - repo_id
+  - author_type
+  - created_at
+  - first_comment_at
+  - merge_at
+  - review_effort_duration
+  - total_review_duration
+  - file_size_loc
+  - complexity_score
+  - repo_activity_level
+  - ci_build_time
+  - semantic_similarity
+  - source_code
+  - primary_language
+  - commit_message_length
+additionalProperties: false

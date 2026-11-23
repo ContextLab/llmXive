@@ -1,205 +1,195 @@
-"""
-Module to generate the 'unique subset' of a candidate list by removing
-near-duplicates identified during the synthetic redundancy injection phase (T012).
-
-This implements task T015a for US1: Generate the "unique subset" of the candidate
-list by removing near-duplicates identified in T012, serving US-1.
-"""
 import os
 import json
 import hashlib
 from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, asdict
-
-# Importing from existing project API surface
 from data_loader import load_injected_dataset, RedundancyCluster
 from models import CandidateList
-from logging_config import init_logging, log_resource_usage
-from config import get_config
+import logging
 
-logger = init_logging(__name__)
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
+@dataclass
+class UniqueSubsetResult:
+    """Result of generating the unique subset from a redundant candidate list."""
+    total_original_items: int
+    total_unique_items: int
+    removed_duplicates: int
+    removal_percentage: float
+    unique_indices: List[int]
+    output_path: str
 
-def identify_unique_representatives(
-    clusters: List[RedundancyCluster]
-) -> Dict[str, str]:
+def identify_unique_representatives(clusters: List[RedundancyCluster]) -> Tuple[Dict[int, int], List[int]]:
     """
-    Selects a single representative document ID from each redundancy cluster.
-    
-    Strategy: Select the document with the shortest text length (or first in list)
-    to represent the cluster, effectively removing the "near-duplicates".
+    Identifies the unique representative for each redundancy cluster.
     
     Args:
-        clusters: List of RedundancyCluster objects containing near-duplicate items.
-        
+        clusters: List of RedundancyCluster objects containing indices of near-duplicates.
+    
     Returns:
-        A dictionary mapping cluster_id -> representative_doc_id.
+        A tuple containing:
+        - A dict mapping original index -> representative index (for items in clusters)
+        - A list of indices that are unique representatives (one per cluster)
     """
-    representatives = {}
+    representative_map = {}
+    unique_indices = []
+
     for cluster in clusters:
-        if not cluster.items:
+        if not cluster.indices or len(cluster.indices) == 0:
             continue
         
-        # Select the first item as the representative (or could use shortest text)
-        # The items list contains dicts with 'id', 'text', 'query', etc.
-        representative_id = cluster.items[0]['id']
-        representatives[cluster.cluster_id] = representative_id
-        logger.info(f"Cluster {cluster.cluster_id}: Selected {representative_id} as representative. Size: {len(cluster.items)}")
+        # Select the first item in the cluster as the representative
+        # This is a deterministic choice; could be random or based on score if available
+        representative_idx = cluster.indices[0]
+        unique_indices.append(representative_idx)
         
-    return representatives
+        # Map all other items in the cluster to this representative
+        for idx in cluster.indices:
+            representative_map[idx] = representative_idx
 
+    return representative_map, unique_indices
 
-def filter_to_unique_subset(
-    candidate_list: CandidateList,
-    representatives: Dict[str, str]
-) -> CandidateList:
+def filter_to_unique_subset(candidate_list: CandidateList, clusters: List[RedundancyCluster]) -> CandidateList:
     """
-    Filters the full candidate list to keep only the unique representatives.
+    Filters the candidate list to remove near-duplicates, keeping only unique representatives.
     
     Args:
-        candidate_list: The full CandidateList (potentially with duplicates).
-        representatives: Dict mapping cluster_id to the chosen unique doc_id.
-        
+        candidate_list: The original CandidateList with redundant items.
+        clusters: List of RedundancyCluster objects identifying near-duplicate groups.
+    
     Returns:
         A new CandidateList containing only the unique representatives.
     """
-    # Create a set of IDs to keep
-    ids_to_keep = set(representatives.values())
+    _, unique_indices = identify_unique_representatives(clusters)
     
-    # Filter documents
-    unique_docs = [
-        doc for doc in candidate_list.documents
-        if doc['id'] in ids_to_keep
-    ]
+    # Sort indices to maintain original order
+    unique_indices.sort()
     
-    logger.info(f"Filtered candidate list: {len(candidate_list.documents)} -> {len(unique_docs)} unique documents.")
+    filtered_docs = [candidate_list.documents[i] for i in unique_indices]
+    filtered_scores = [candidate_list.scores[i] for i in unique_indices] if candidate_list.scores else None
+    filtered_query_ids = [candidate_list.query_ids[i] for i in unique_indices] if candidate_list.query_ids else None
     
-    # Return new CandidateList
     return CandidateList(
-        dataset_name=candidate_list.dataset_name,
-        documents=unique_docs,
-        query_ids=candidate_list.query_ids
+        documents=filtered_docs,
+        scores=filtered_scores,
+        query_ids=filtered_query_ids,
+        original_indices=unique_indices
     )
 
-
 def generate_unique_subset(
-    dataset_name: str,
-    output_dir: str = "data/processed"
-) -> Tuple[CandidateList, str]:
+    dataset_path: str,
+    clusters_path: str,
+    output_path: str,
+    force_overwrite: bool = False
+) -> UniqueSubsetResult:
     """
-    Main entry point to generate the unique subset for a specific dataset.
-    
-    This function:
-    1. Loads the injected dataset (generated by T012).
-    2. Extracts the redundancy clusters.
-    3. Identifies unique representatives.
-    4. Filters the candidate list.
-    5. Saves the result to disk.
+    Main function to generate the unique subset from an injected dataset.
     
     Args:
-        dataset_name: Name of the dataset (e.g., 'nfcorpus', 'scifact').
-        output_dir: Directory to save the output file.
-        
+        dataset_path: Path to the JSON file containing the injected dataset with clusters.
+        clusters_path: Path to the JSON file containing the redundancy clusters.
+        output_path: Path where the unique subset will be saved.
+        force_overwrite: Whether to overwrite existing output file.
+    
     Returns:
-        Tuple of (Unique CandidateList, path to saved JSON file).
+        UniqueSubsetResult containing statistics and output path.
     """
-    config = get_config()
+    logger.info(f"Loading injected dataset from {dataset_path}")
+    dataset = load_injected_dataset(dataset_path)
     
-    # Ensure output directory exists
-    os.makedirs(output_dir, exist_ok=True)
+    logger.info(f"Loading redundancy clusters from {clusters_path}")
+    with open(clusters_path, 'r', encoding='utf-8') as f:
+        clusters_data = json.load(f)
     
-    logger.info(f"Starting unique subset generation for dataset: {dataset_name}")
+    clusters = [RedundancyCluster(**cluster_dict) for cluster_dict in clusters_data]
     
-    # Load the injected dataset (which contains the clusters)
-    try:
-        injected_data = load_injected_dataset(dataset_name)
-    except FileNotFoundError as e:
-        logger.error(f"Could not find injected dataset for {dataset_name}. "
-                     f"Ensure T012 has run successfully. Error: {e}")
-        raise
+    total_original = len(dataset.documents)
+    logger.info(f"Total original items: {total_original}")
+    logger.info(f"Number of redundancy clusters: {len(clusters)}")
     
-    if not injected_data or 'clusters' not in injected_data:
-        raise ValueError(f"Loaded dataset for {dataset_name} is missing 'clusters' key. "
-                         "Did T012 run successfully?")
+    # Generate unique subset
+    unique_subset = filter_to_unique_subset(dataset, clusters)
+    total_unique = len(unique_subset.documents)
     
-    clusters = [RedundancyCluster(**c) for c in injected_data['clusters']]
-    full_candidate_list = injected_data['candidate_list']
+    removed_duplicates = total_original - total_unique
+    removal_percentage = (removed_duplicates / total_original * 100) if total_original > 0 else 0.0
     
-    # Convert dict to CandidateList object if necessary
-    if isinstance(full_candidate_list, dict):
-        full_candidate_list = CandidateList(**full_candidate_list)
-        
-    # Identify representatives
-    representatives = identify_unique_representatives(clusters)
+    logger.info(f"Total unique items: {total_unique}")
+    logger.info(f"Removed duplicates: {removed_duplicates}")
+    logger.info(f"Removal percentage: {removal_percentage:.2f}%")
     
-    # Filter to unique subset
-    unique_subset = filter_to_unique_subset(full_candidate_list, representatives)
+    # Save output
+    if os.path.exists(output_path) and not force_overwrite:
+        raise FileExistsError(f"Output file {output_path} already exists. Set force_overwrite=True to overwrite.")
     
-    # Save to disk
-    output_filename = f"{dataset_name}_unique_subset.json"
-    output_path = os.path.join(output_dir, output_filename)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
     
-    # Prepare data for JSON serialization
     output_data = {
-        "dataset_name": unique_subset.dataset_name,
+        "total_original_items": total_original,
+        "total_unique_items": total_unique,
+        "removed_duplicates": removed_duplicates,
+        "removal_percentage": removal_percentage,
+        "unique_indices": unique_subset.original_indices or list(range(total_unique)),
         "documents": unique_subset.documents,
+        "scores": unique_subset.scores,
         "query_ids": unique_subset.query_ids,
-        "metadata": {
-            "original_count": len(full_candidate_list.documents),
-            "unique_count": len(unique_subset.documents),
-            "clusters_processed": len(clusters),
-            "reduction_ratio": len(unique_subset.documents) / max(1, len(full_candidate_list.documents))
+        "cluster_summary": {
+            "num_clusters": len(clusters),
+            "cluster_sizes": [len(c.indices) for c in clusters]
         }
     }
     
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(output_data, f, indent=2, ensure_ascii=False)
-        
-    logger.info(f"Unique subset saved to: {output_path}")
-    logger.info(f"Reduction: {output_data['metadata']['original_count']} -> {output_data['metadata']['unique_count']} "
-                f"({output_data['metadata']['reduction_ratio']:.2%})")
     
-    return unique_subset, output_path
-
+    logger.info(f"Unique subset saved to {output_path}")
+    
+    return UniqueSubsetResult(
+        total_original_items=total_original,
+        total_unique_items=total_unique,
+        removed_duplicates=removed_duplicates,
+        removal_percentage=removal_percentage,
+        unique_indices=unique_subset.original_indices or list(range(total_unique)),
+        output_path=output_path
+    )
 
 def main():
-    """
-    Entry point for running the unique subset generation.
-    """
-    config = get_config()
-    init_logging(__name__)
+    """CLI entry point for generating the unique subset."""
+    import argparse
     
-    # Datasets to process (as defined in T005/T012)
-    datasets = ["nfcorpus", "scifact"]
+    parser = argparse.ArgumentParser(description="Generate unique subset from redundant candidate list")
+    parser.add_argument("--dataset", type=str, default="data/injected/nfcorpus_injected.json",
+                      help="Path to injected dataset JSON")
+    parser.add_argument("--clusters", type=str, default="data/injected/redundancy_clusters.json",
+                      help="Path to redundancy clusters JSON")
+    parser.add_argument("--output", type=str, default="data/unique_subset/nfcorpus_unique.json",
+                      help="Path to output unique subset JSON")
+    parser.add_argument("--force", action="store_true", help="Force overwrite existing output")
     
-    logger.info(f"Generating unique subsets for datasets: {datasets}")
+    args = parser.parse_args()
     
-    results = {}
-    for ds in datasets:
-        try:
-            unique_list, path = generate_unique_subset(ds)
-            results[ds] = {
-                "status": "success",
-                "path": path,
-                "unique_count": len(unique_list.documents)
-            }
-        except Exception as e:
-            logger.error(f"Failed to generate unique subset for {ds}: {e}")
-            results[ds] = {
-                "status": "failed",
-                "error": str(e)
-            }
-    
-    # Log summary
-    logger.info("Generation Summary:")
-    for ds, res in results.items():
-        logger.info(f"  {ds}: {res['status']}")
+    try:
+        result = generate_unique_subset(
+            dataset_path=args.dataset,
+            clusters_path=args.clusters,
+            output_path=args.output,
+            force_overwrite=args.force
+        )
         
-    if all(r['status'] == 'success' for r in results.values()):
-        logger.info("All unique subsets generated successfully.")
-    else:
-        logger.warning("Some unique subset generations failed.")
-
+        print(f"\n=== Unique Subset Generation Complete ===")
+        print(f"Original items: {result.total_original_items}")
+        print(f"Unique items: {result.total_unique_items}")
+        print(f"Removed duplicates: {result.removed_duplicates}")
+        print(f"Removal percentage: {result.removal_percentage:.2f}%")
+        print(f"Output saved to: {result.output_path}")
+        
+    except FileNotFoundError as e:
+        logger.error(f"Input file not found: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Error generating unique subset: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

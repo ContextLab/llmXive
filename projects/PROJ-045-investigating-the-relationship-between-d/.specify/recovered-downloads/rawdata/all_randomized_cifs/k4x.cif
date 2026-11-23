@@ -1,0 +1,51 @@
+# generated using pymatgen
+data_Li20.708Si2.7P3.3S24
+_symmetry_space_group_name_H-M   P4_2/nmc
+_cell_length_a   8.68385000
+_cell_length_b   8.68385000
+_cell_length_c   12.55589000
+_cell_angle_alpha   90.00000000
+_cell_angle_beta   90.00000000
+_cell_angle_gamma   90.00000000
+_symmetry_Int_Tables_number   137
+_chemical_formula_structural   Li20.708Si2.7P3.3S24
+_chemical_formula_sum   'Li20.708 Si2.7 P3.3 S24'
+_cell_volume   946.83025831
+_cell_formula_units_Z   1
+loop_
+ _symmetry_equiv_pos_site_id
+ _symmetry_equiv_pos_as_xyz
+  1  'x, y, z'
+  2  '-y+1/2, x+1/2, z+1/2'
+  3  '-x, -y, z'
+  4  'y+1/2, -x+1/2, z+1/2'
+  5  'x+1/2, -y+1/2, -z+1/2'
+  6  '-y, -x, -z'
+  7  '-x+1/2, y+1/2, -z+1/2'
+  8  'y, x, -z'
+  9  '-x+1/2, -y+1/2, -z+1/2'
+  10  'y, -x, -z'
+  11  'x+1/2, y+1/2, -z+1/2'
+  12  '-y, x, -z'
+  13  '-x, y, z'
+  14  'y+1/2, x+1/2, z+1/2'
+  15  'x, -y, z'
+  16  '-y+1/2, -x+1/2, z+1/2'
+loop_
+ _atom_site_type_symbol
+ _atom_site_label
+ _atom_site_symmetry_multiplicity
+ _atom_site_fract_x
+ _atom_site_fract_y
+ _atom_site_fract_z
+ _atom_site_occupancy
+  Li  Li0  16  0.22769974  0.24660517  0.69011078  0.458
+  Li  Li1  8  0.23995186  0.23995186  0.00000000  0.8
+  Li  Li2  4  0.00000000  0.00000000  0.22442839  0.829
+  Li  Li3  4  0.00000000  0.50000000  0.44806906  0.916
+  Si  Si4  4  0.00000000  0.50000000  0.18225226  0.675
+  P  P5  4  0.00000000  0.50000000  0.18225226  0.325
+  P  P6  2  0.00000000  0.00000000  0.50000000  1.0
+  S  S7  8  0.00000000  0.18175739  0.40336795  1.0
+  S  S8  8  0.00000000  0.29703700  0.78928109  1.0
+  S  S9  8  0.00000000  0.30234529  0.09397716  1.0

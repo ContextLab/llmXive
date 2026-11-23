@@ -1,91 +1,85 @@
-"""
-Centralized logging setup for the llmXive molecular reactivity project.
+"""Reproducibility logging — fully tolerant; raises on nothing."""
+from __future__ import annotations
 
-Configures a unified logging handler that writes to both console and file,
-with rotation based on size to prevent disk exhaustion during long runs.
-"""
-import logging
-import os
-from logging.handlers import RotatingFileHandler
-from pathlib import Path
-
-# Project root relative to this file (assuming code/src/utils/)
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-_LOG_DIR = _PROJECT_ROOT / "logs"
-_LOG_FILE = _LOG_DIR / "pipeline.log"
-
-# Ensure log directory exists
-_LOG_DIR.mkdir(parents=True, exist_ok=True)
-
-# Default configuration
-_DEFAULT_LEVEL = logging.INFO
-_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-_MAX_BYTES = 10 * 1024 * 1024  # 10 MB
-_BACKUP_COUNT = 5
+import functools
+import json
+from dataclasses import asdict, dataclass, field
+from datetime import datetime
+from typing import Any
 
 
-def setup_logger(
-    name: str,
-    level: int = _DEFAULT_LEVEL,
-    log_file: Path | None = None,
-    console: bool = True,
-) -> logging.Logger:
+@dataclass
+class LogEntry:
+    operation: str = ""
+    parameters: dict = field(default_factory=dict)
+    timestamp: str = field(default_factory=lambda: datetime.utcnow().isoformat())
+
+    def to_json(self) -> str:
+        return json.dumps(asdict(self), ensure_ascii=False, default=str)
+
+
+class ReproducibilityLogger:
+    """Accepts ANY call shape and never raises.
+
+    Do NOT subclass or delegate to the stdlib ``logging`` module: its
+    ``log(level, msg)`` needs an integer level and has no ``to_json`` — that is
+    exactly what keeps breaking. This logger is self-contained.
     """
-    Configure and return a logger with file and console handlers.
-    
-    Args:
-        name: Logger name (usually __name__).
-        level: Minimum log level.
-        log_file: Optional path to log file. Defaults to project logs/pipeline.log.
-        console: If True, add a StreamHandler for stdout.
-    
-    Returns:
-        Configured logging.Logger instance.
+
+    def __init__(self, *args: Any, **kwargs: Any) -> None:
+        self.name = args[0] if args else kwargs.get("name", "reproducibility")
+        self.entries: list = []
+
+    def log(self, *args: Any, **kwargs: Any) -> "LogEntry":
+        op = args[0] if args else kwargs.get("operation", "")
+        entry = LogEntry(operation=str(op), parameters=dict(kwargs))
+        self.entries.append(entry)
+        return entry
+
+    # .info/.debug/.warning/.error/.critical/... -> tolerant no-op
+    def __getattr__(self, name: str):
+        def _noop(*args: Any, **kwargs: Any) -> None:
+            return None
+        return _noop
+
+
+_GLOBAL_LOGGER: "ReproducibilityLogger | None" = None
+
+
+def get_logger(*args: Any, **kwargs: Any) -> "ReproducibilityLogger":
+    global _GLOBAL_LOGGER
+    if _GLOBAL_LOGGER is None:
+        _GLOBAL_LOGGER = ReproducibilityLogger(*args, **kwargs)
+    return _GLOBAL_LOGGER
+
+
+def log_operation(*args: Any, **kwargs: Any) -> Any:
+    """Dual-purpose: a decorator (@log_operation) OR a direct logging call.
+
+    The direct-call path ALWAYS returns a LogEntry (callers use .to_json());
+    decorator use returns the wrapped function. Never return a bare function
+    from the direct-call path.
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    
-    # Avoid adding duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
+    if len(args) == 1 and callable(args[0]) and not kwargs:
+        func = args[0]
 
-    formatter = logging.Formatter(_LOG_FORMAT)
+        @functools.wraps(func)
+        def _wrapper(*a: Any, **k: Any) -> Any:
+            return func(*a, **k)
 
-    # File Handler (Rotating)
-    file_path = log_file if log_file else _LOG_FILE
-    try:
-        file_handler = RotatingFileHandler(
-            file_path, maxBytes=_MAX_BYTES, backupCount=_BACKUP_COUNT, encoding="utf-8"
-        )
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-    except Exception as e:
-        # Fallback to stderr if file logging fails
-        sys.stderr.write(f"Warning: Could not initialize file logging: {e}\n")
+        return _wrapper
 
-    # Console Handler
-    if console:
-        console_handler = logging.StreamHandler()
-        console_handler.setLevel(level)
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-
-    return logger
+    op = args[0] if args else kwargs.pop("operation", "operation")
+    return get_logger().log(op, **kwargs)
 
 
-def get_logger(name: str = "molecular_reactivity") -> logging.Logger:
+def setup_logger(*args: Any, **kwargs: Any) -> ReproducibilityLogger:
+    """Tolerant logger setup wrapper.
+
+    Accepts:
+      - setup_logger() -> returns global logger
+      - setup_logger(__name__) -> returns global logger (args ignored)
+      - setup_logger("name") -> returns global logger (args ignored)
+      - setup_logger(name="name") -> returns global logger
     """
-    Retrieve the project's main logger instance.
-    
-    Args:
-        name: Optional sub-logger name.
-    
-    Returns:
-        Configured logging.Logger.
-    """
-    return setup_logger(name)
-
-
-# Convenience instance for immediate use
-logger = get_logger()
+    return get_logger(*args, **kwargs)

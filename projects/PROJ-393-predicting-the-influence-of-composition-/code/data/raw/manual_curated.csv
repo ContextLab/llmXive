@@ -1,0 +1,6 @@
+composition,coercivity_oe,saturation_magnetization_emu_g,source_type,synthesis_method
+Co2MnGa,120.0,110.0,Manual,Arc Melting
+NiMnSn,150.0,80.0,Manual,Sputtering
+Co2FeAl,95.0,105.0,Manual,Evaporation
+FeMnAl,200.0,90.0,Manual,Arc Melting
+Co2MnSi,110.0,100.0,Manual,Sputtering

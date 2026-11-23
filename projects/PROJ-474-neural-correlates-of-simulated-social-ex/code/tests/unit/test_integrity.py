@@ -1,12 +1,14 @@
-"""
-Unit tests for the data integrity checker module.
-"""
 import os
 import json
 import tempfile
 import pytest
 from pathlib import Path
 import hashlib
+import sys
+
+# Add project root to path
+project_root = Path(__file__).resolve().parent.parent.parent
+sys.path.insert(0, str(project_root))
 
 from src.integrity import (
     compute_file_hash,
@@ -16,179 +18,139 @@ from src.integrity import (
     verify_integrity,
     update_hashes,
     IntegrityError,
-    DEFAULT_DATA_DIR,
-    DEFAULT_STATE_DIR
+    get_state_path
 )
-
+from src.utils import get_logger
 
 @pytest.fixture
 def temp_dirs():
-    """Create temporary directories for testing."""
+    """Creates a temporary directory structure for testing."""
     with tempfile.TemporaryDirectory() as tmpdir:
         data_dir = Path(tmpdir) / "data"
-        state_dir = Path(tmpdir) / "state"
+        state_dir = Path(tmpdir) / "state" / "projects"
         data_dir.mkdir()
-        state_dir.mkdir()
-        yield data_dir, state_dir
-
+        state_dir.mkdir(parents=True)
+        yield {
+            "data": data_dir,
+            "state": state_dir,
+            "tmp": Path(tmpdir)
+        }
 
 @pytest.fixture
 def sample_files(temp_dirs):
-    """Create sample files in the data directory."""
-    data_dir, _ = temp_dirs
-    files = {}
+    """Creates sample files in the data directory."""
+    data_dir = temp_dirs["data"]
     
-    # Create a simple text file
-    file1 = data_dir / "test1.txt"
-    content1 = "Hello, World!"
-    file1.write_text(content1)
-    files["test1.txt"] = content1
+    # Create a text file
+    file1 = data_dir / "test.txt"
+    file1.write_text("Hello, World!")
+    
+    # Create a JSON file
+    file2 = data_dir / "config.json"
+    file2.write_text('{"key": "value"}')
     
     # Create a nested file
-    subdir = data_dir / "subdir"
-    subdir.mkdir()
-    file2 = subdir / "test2.txt"
-    content2 = "Nested content"
-    file2.write_text(content2)
-    files["subdir/test2.txt"] = content2
+    nested = data_dir / "subdir"
+    nested.mkdir()
+    file3 = nested / "data.nii.gz"
+    file3.write_bytes(b"fake_nifti_data")
     
-    # Create a binary file
-    file3 = data_dir / "binary.bin"
-    content3 = b"\x00\x01\x02\x03"
-    file3.write_bytes(content3)
-    files["binary.bin"] = content3
-    
-    return files, data_dir
-
+    return [file1, file2, file3]
 
 def test_compute_file_hash_sample_files(sample_files):
-    """Test hash computation for sample files."""
-    files, data_dir = sample_files
-    
-    for rel_path, content in files.items():
-        file_path = data_dir / rel_path
-        if isinstance(content, str):
-            expected_hash = hashlib.sha256(content.encode()).hexdigest()
-        else:
-            expected_hash = hashlib.sha256(content).hexdigest()
-        
-        computed_hash = compute_file_hash(file_path)
-        assert computed_hash == expected_hash, f"Hash mismatch for {rel_path}"
+    """Test that compute_file_hash returns correct SHA-256 for known content."""
+    file1 = sample_files[0]
+    expected_hash = hashlib.sha256(b"Hello, World!").hexdigest()
+    actual_hash = compute_file_hash(file1)
+    assert actual_hash == expected_hash
 
-
-def test_compute_file_hash_nonexistent():
-    """Test that computing hash of non-existent file raises FileNotFoundError."""
+def test_compute_file_hash_nonexistent(temp_dirs):
+    """Test that compute_file_hash raises FileNotFoundError for missing file."""
+    missing_file = temp_dirs["data"] / "does_not_exist.txt"
     with pytest.raises(FileNotFoundError):
-        compute_file_hash(Path("nonexistent_file.txt"))
+        compute_file_hash(missing_file)
 
+def test_generate_hashes(temp_dirs, sample_files):
+    """Test that generate_hashes finds all files and computes hashes."""
+    hashes = generate_hashes(temp_dirs["data"])
+    
+    # Check count (3 files)
+    assert len(hashes) == 3
+    
+    # Check keys are relative paths
+    assert any("test.txt" in k for k in hashes.keys())
+    assert any("config.json" in k for k in hashes.keys())
+    assert any("data.nii.gz" in k for k in hashes.keys())
+    
+    # Check values are valid hex strings
+    for h in hashes.values():
+        assert len(h) == 64  # SHA-256 hex length
 
-def test_generate_hashes(sample_files, temp_dirs):
-    """Test hash generation for all files in data directory."""
-    files, data_dir = sample_files
-    _, state_dir = temp_dirs
+def test_save_and_load_hashes(temp_dirs, sample_files):
+    """Test saving and loading hashes to/from state file."""
+    state_file = temp_dirs["state"] / "test.yaml"
+    hashes = generate_hashes(temp_dirs["data"])
     
-    hashes = generate_hashes(data_dir)
+    save_hashes(hashes, state_file)
     
-    assert len(hashes) == len(files), "Number of hashes should match number of files"
+    assert state_file.exists()
     
-    for rel_path, content in files.items():
-        assert rel_path in hashes, f"Missing hash for {rel_path}"
-        # Verify the hash is a valid SHA-256 hex string
-        assert len(hashes[rel_path]) == 64, "Hash should be 64 characters long"
-        assert all(c in '0123456789abcdef' for c in hashes[rel_path]), "Hash should be hex"
-
-
-def test_save_and_load_hashes(sample_files, temp_dirs):
-    """Test saving and loading hashes."""
-    files, data_dir = sample_files
-    _, state_dir = temp_dirs
-    
-    # Generate and save hashes
-    hashes = generate_hashes(data_dir)
-    save_hashes(hashes, state_dir)
-    
-    # Load hashes back
-    loaded_hashes = load_hashes(state_dir)
-    
-    assert loaded_hashes == hashes, "Loaded hashes should match saved hashes"
-
+    loaded = load_hashes(state_file)
+    assert loaded == hashes
 
 def test_load_hashes_no_file(temp_dirs):
-    """Test loading hashes when no file exists."""
-    _, state_dir = temp_dirs
-    
-    # Should return empty dict, not raise error
-    hashes = load_hashes(state_dir)
-    assert hashes == {}, "Should return empty dict when no hash store exists"
+    """Test loading from a non-existent state file returns empty dict."""
+    fake_path = temp_dirs["state"] / "non_existent.yaml"
+    loaded = load_hashes(fake_path)
+    assert loaded == {}
 
-
-def test_verify_integrity_match(sample_files, temp_dirs):
-    """Test verification when files match stored hashes."""
-    files, data_dir = sample_files
-    _, state_dir = temp_dirs
+def test_verify_integrity_match(temp_dirs, sample_files):
+    """Test verify_integrity passes when hashes match."""
+    state_file = temp_dirs["state"] / "test.yaml"
+    hashes = generate_hashes(temp_dirs["data"])
+    save_hashes(hashes, state_file)
     
-    # Generate and save hashes
-    hashes = generate_hashes(data_dir)
-    save_hashes(hashes, state_dir)
-    
-    # Verify should pass
-    result = verify_integrity(data_dir, state_dir)
-    assert result == hashes, "Verification should return current hashes"
+    # Should not raise
+    assert verify_integrity(temp_dirs["data"], state_file) is True
 
-
-def test_verify_integrity_mismatch(sample_files, temp_dirs):
-    """Test verification when files have changed."""
-    files, data_dir = sample_files
-    _, state_dir = temp_dirs
-    
-    # Generate and save hashes
-    hashes = generate_hashes(data_dir)
-    save_hashes(hashes, state_dir)
+def test_verify_integrity_mismatch(temp_dirs, sample_files):
+    """Test verify_integrity raises when file content changes."""
+    state_file = temp_dirs["state"] / "test.yaml"
+    hashes = generate_hashes(temp_dirs["data"])
+    save_hashes(hashes, state_file)
     
     # Modify a file
-    file_to_modify = data_dir / "test1.txt"
-    file_to_modify.write_text("Modified content")
+    file1 = sample_files[0]
+    file1.write_text("Modified content")
     
-    # Verify should detect mismatch
-    with pytest.raises(IntegrityError, match="Data integrity check failed"):
-        verify_integrity(data_dir, state_dir, strict=True)
-    
-    # Non-strict mode should return current hashes but not raise
-    result = verify_integrity(data_dir, state_dir, strict=False)
-    assert "test1.txt" in result
+    with pytest.raises(IntegrityError, match="Hash mismatch"):
+        verify_integrity(temp_dirs["data"], state_file)
 
+def test_verify_integrity_missing_file(temp_dirs, sample_files):
+    """Test verify_integrity raises when a tracked file is deleted."""
+    state_file = temp_dirs["state"] / "test.yaml"
+    hashes = generate_hashes(temp_dirs["data"])
+    save_hashes(hashes, state_file)
+    
+    # Delete a file
+    file1 = sample_files[0]
+    file1.unlink()
+    
+    with pytest.raises(IntegrityError, match="Missing artifact"):
+        verify_integrity(temp_dirs["data"], state_file)
 
-def test_verify_integrity_missing_file(sample_files, temp_dirs):
-    """Test verification when a file is missing."""
-    files, data_dir = sample_files
-    _, state_dir = temp_dirs
+def test_update_hashes(temp_dirs, sample_files):
+    """Test the update_hashes workflow."""
+    state_file = temp_dirs["state"] / "test.yaml"
     
-    # Generate and save hashes
-    hashes = generate_hashes(data_dir)
-    save_hashes(hashes, state_dir)
+    # Initial update
+    hashes = update_hashes(temp_dirs["data"], state_file)
+    assert len(hashes) == 3
     
-    # Remove a file
-    file_to_remove = data_dir / "test1.txt"
-    file_to_remove.unlink()
+    # Modify file
+    sample_files[0].write_text("New content")
     
-    # Verify should detect missing file (warning in non-strict, error in strict)
-    with pytest.raises(IntegrityError):
-        verify_integrity(data_dir, state_dir, strict=True)
-    
-    # Non-strict should succeed but log warning
-    result = verify_integrity(data_dir, state_dir, strict=False)
-    # The removed file should not be in the result
-    assert "test1.txt" not in result
-
-
-def test_update_hashes(sample_files, temp_dirs):
-    """Test the update_hashes convenience function."""
-    files, data_dir = sample_files
-    _, state_dir = temp_dirs
-    
-    # Update hashes
-    new_hashes = update_hashes(data_dir, state_dir)
-    
-    # Verify they were saved
-    loaded_hashes = load_hashes(state_dir)
-    assert loaded_hashes == new_hashes
+    # Update again
+    new_hashes = update_hashes(temp_dirs["data"], state_file)
+    assert new_hashes[str(sample_files[0].relative_to(temp_dirs["data"]))] != hashes[str(sample_files[0].relative_to(temp_dirs["data"]))]
+    assert len(new_hashes) == 3

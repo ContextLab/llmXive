@@ -1,0 +1,1259 @@
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Apply PCA to reduce features to exactly 20 components in data preprocessing
+  claim_id: c_ccda86fe
+  context: 'Phase 2: Foundational tasks including data preprocessing and configuration.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/data/preprocess.py to: 1) Read code/config.yaml for split_type
+    and seed, 2) Apply a stratified random split (train/validation/test) based on
+    the target variable if split_type is "stratified", 3) Apply PCA to reduce features
+    to exactly 20 components, 4) Exclude rows with missing critical features, 5) Output
+    data/processed/features_20pca.csv and generate a JSON log data/processed/exclusion_log.json
+    with schema {"excluded_count": int, "missing_columns": [str]}.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T00:50:45Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Default seed value is 42 for project configuration
+  claim_id: c_bf20eb0b
+  context: 'Phase 2: Foundational tasks including configuration setup.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/config.yaml with the following exact keys and values:
+    seed (int, default 42), split_ratio (list [0.8, 0.1, 0.1]), split_type (string,
+    MUST be "stratified"), and timeout_hours (float, 5.0).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T00:51:21Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Split ratio is set to 0.8, 0.1, 0.1 for train/validation/test
+  claim_id: c_76289e68
+  context: 'Phase 2: Foundational tasks including configuration setup.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement code/config.yaml with the following exact keys and values:
+    seed (int, default 42), split_ratio (list [0.8, 0.1, 0.1]), split_type (string,
+    MUST be "stratified"), and timeout_hours (float, 5.0).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T00:51:21Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Timeout limit for pipeline is set to 5.0 hours
+  claim_id: c_d5f67a4f
+  context: 'Phase 2: Foundational tasks including configuration setup.'
+  evidence:
+    asserted: '42.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'Implement code/config.yaml with the following exact keys and values:
+    seed (int, default 42), split_ratio (list [0.8, 0.1, 0.1]), split_type (string,
+    MUST be "stratified"), and timeout_hours (float, 5.0).'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-08-06T00:51:22Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Baseline neural network has 2 hidden layers and at most 10,000 parameters
+  claim_id: c_7bab9fa6
+  context: 'Phase 3: User Story 1 Implementation tasks for model training.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_neural_network_has_2_hidden_layers_and_at_most_10,0
+  kind: magnitude
+  raw_text: "Implement code/models/baseline_nn.py: 2 hidden layers, \u226410k params,\
+    \ heteroscedastic output head."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T00:51:55Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Full pipeline evaluation run 3 times with seeds 42, 43, and 44
+  claim_id: c_6d57bf75
+  context: 'Phase 4: User Story 2 Implementation tasks for calibration and reliability
+    evaluation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the full pipeline (data load -> train -> eval) exactly 3 times with
+    seeds 42, 43, 44 and aggregate the resulting ECE scores for each method into a
+    temporary file results/ece_scores_by_seed.json.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T00:52:33Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Robustness pass condition is Coefficient of Variation of ECE scores less
+    than or equal to 0.05
+  claim_id: c_c29a8fa9
+  context: 'Phase 4: User Story 2 Implementation tasks for robustness reporting.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Robustness_pass_condition_is_Coefficient_of_Variation_of_ECE
+  kind: magnitude
+  raw_text: "Compute Coefficient of Variation (CV) of ECE scores across the 3 runs\
+    \ from results/ece_scores_by_seed.json. MUST output results/robustness_report.json\
+    \ containing the CV value and a boolean pass (true if CV \u2264 0.05)."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-06T00:53:34Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: PCA reduces features to 20 components
+  claim_id: c_fdbce9cf
+  context: Apply a stratified random split (train/validation/test) based on the target
+    variable if split_type is stratified, Apply PCA to reduce features to exactly
+    20 components, Exclude rows with missing critical features
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply PCA to reduce features to exactly 20 components
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:12:57Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: MC Dropout runs 30 stochastic forward passes
+  claim_id: c_d41eca91
+  context: 'Implement code/models/mc_dropout.py: Enable dropout (p=0.2), run 30 stochastic
+    forward passes. Output artifact: results/models/mc_dropout_model.pt.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 30 stochastic forward passes
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:13:44Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Pipeline enforces 5-hour limit
+  claim_id: c_dadf913b
+  context: Implement global timeout wrapper in code/main.py to enforce 5-hour pipeline
+    limit, exiting with code 1 on timeout.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enforce 5-hour pipeline limit
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:14:54Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Pipeline runs 3 times with seeds 42, 43, 44
+  claim_id: c_8e9c9d1e
+  context: Run the full pipeline (data load -> train -> eval) exactly 3 times with
+    seeds 42, 43, 44 and aggregate the resulting ECE scores for each method into a
+    temporary file results/ece_scores_by_seed.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run the full pipeline exactly 3 times with seeds 42, 43, 44
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:15:19Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: ECE CV threshold is 0.05
+  claim_id: c_c7f8dc95
+  context: "MUST output results/robustness_report.json containing the CV value and\
+    \ a boolean pass (true if CV \u2264 0.05)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/ECE_CV_threshold_is_0.05
+  kind: magnitude
+  raw_text: Coefficient of Variation (CV) of ECE scores must be less than or equal
+    to 0.05
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:15:42Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Baseline FFNN has <= 10000 parameters
+  claim_id: c_3c329da6
+  context: "Implement code/models/baseline_nn.py: 2 hidden layers, \u226410k params,\
+    \ heteroscedastic output head."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_FFNN_has_%3C=_10000_parameters
+  kind: magnitude
+  raw_text: Baseline FFNN has less than or equal to 10k parameters
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:16:07Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Default seed is 42
+  claim_id: c_00fdc183
+  context: 'Implement code/config.yaml with the following exact keys and values: seed
+    (int, default 42), split_ratio (list [0.8, 0.1, 0.1]), split_type (string, MUST
+    be stratified), and timeout_hours (float, 5.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Default seed is 42
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:16:31Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Split ratio is 0.8, 0.1, 0.1
+  claim_id: c_245eca81
+  context: 'Implement code/config.yaml with the following exact keys and values: seed
+    (int, default 42), split_ratio (list [0.8, 0.1, 0.1]), split_type (string, MUST
+    be stratified), and timeout_hours (float, 5.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Split ratio is [0.8, 0.1, 0.1]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:17:00Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Timeout hours is 5.0
+  claim_id: c_9571db83
+  context: 'Implement code/config.yaml with the following exact keys and values: seed
+    (int, default 42), split_ratio (list [0.8, 0.1, 0.1]), split_type (string, MUST
+    be stratified), and timeout_hours (float, 5.0).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Timeout hours is 5.0
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-27T16:17:24Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/docs/data_source_rationale.md
+  attempts: 1
+  canonical: Pearson correlation coefficient > 0.95 between Materials Project and
+    OQMD formation energies for stable compounds
+  claim_id: c_2138b328
+  context: 'Both MP and OQMD are high-throughput DFT (Density Functional Theory) databases
+    calculated using similar functionals (GGA-PBE). - Correlation: Studies show a
+    Pearson correlation coefficient > 0.95 between MP and OQMD formation energies
+    for stable compounds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Studies show a Pearson correlation coefficient > 0.95 between MP and OQMD
+    formation energies for stable compounds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T11:54:16Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/docs/data_source_rationale.md
+  attempts: 1
+  canonical: Open Quantum Materials Database contains over 1.5 million entries
+  claim_id: c_7c748a93
+  context: 'Coverage: OQMD contains over 1.5 million entries, providing a sufficiently
+    large sample size for training robust Machine Learning models and assessing Uncertainty
+    Quantification (UQ) techniques.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: OQMD contains over 1.5 million entries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-30T11:55:01Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: UQ inference pipeline completes within 5 hours on CPU
+  claim_id: c_97818d26
+  context: 'Independent Test: The system ingests the dataset, trains the baseline,
+    runs UQ inference, and outputs a CSV with (prediction, lower_bound, upper_bound,
+    variance) without GPU errors within 5 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system ingests the dataset, trains the baseline, runs UQ inference,
+    and outputs a CSV with (prediction, lower_bound, upper_bound, variance) without
+    GPU errors within 5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T10:07:41Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Deep Ensemble uses 5 independently initialized models
+  claim_id: c_6579c7bf
+  context: 'T013 [P] [US1] Implement code/models/deep_ensemble.py: Train exactly 5
+    independently initialized copies of the baseline model and aggregate predictions
+    to estimate mean and variance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train exactly 5 independently initialized copies of the baseline model
+    and aggregate predictions to estimate mean and variance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T10:08:08Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: MC Dropout runs 30 stochastic forward passes
+  claim_id: c_4bd81b5f
+  context: 'T014 [P] [US1] Implement code/models/mc_dropout.py: Enable dropout (p=0.2),
+    run 30 stochastic forward passes per sample.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 30 stochastic forward passes per sample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T10:08:55Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: PCA reduces features to 20 principal components
+  claim_id: c_ad46e604
+  context: 'T006b1 [P] [US1] Implement code/data/preprocess.py (PCA Fit/Transform):
+    Read data/processed/raw_train.csv from T006a. Fit PCA on training set only to
+    reduce features to 20 principal components.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fit PCA on training set only to reduce features to 20 principal components.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T10:09:20Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Baseline model parameter count is at most 10000
+  claim_id: c_0c3825fe
+  context: "T012 [P] [US1] Implement code/models/baseline_nn.py: 2 hidden layers,\
+    \ \u226410k params, heteroscedastic output head. Verification: Before saving the\
+    \ model, calculate the total parameter count. Assert total_params <= 10000."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Baseline_model_parameter_count_is_at_most_10000
+  kind: magnitude
+  raw_text: Assert total_params <= 10000.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T10:10:58Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Robustness evaluation uses seeds 42, 43, and 44
+  claim_id: c_a5b14f35
+  context: 'T025a [P] [US2] REQUIRED: Implement code/run_seeds.py as a Seed Orchestrator.
+    Logic: Iterate over a fixed list of seeds (e.g., [, 43, 44].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate over a fixed list of seeds (e.g., [, 43, 44].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T10:11:30Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Robustness gate passes if Coefficient of Variation is at most 0.05
+  claim_id: c_79079158
+  context: "T025b [US2] REQUIRED: Implement the Coefficient of Variation (CV) calculation\
+    \ logic for ECE scores across seeds. Output: results/robustness_report.json containing:\
+    \ cv (float, or null if calculation fails), pass (boolean, true if CV \u2264 0.05\
+    \ AND cv is not null, else false), seeds_used (array of integers [42, 43, 44])."
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Robustness_gate_passes_if_Coefficient_of_Variation_is_at_mos
+  kind: magnitude
+  raw_text: "Pass is true if CV \u2264 0.05 AND cv is not null, else false."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T10:12:17Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Pipeline exits with code 1 if Coefficient of Variation exceeds 0.05
+  claim_id: c_b1058dfe
+  context: 'T026 [US2] REQUIRED: Implement the Robustness Gate in code/main.py. Logic:
+    After T025b completes, main.py must load results/robustness_report.json. If the
+    pass field is false, main.py MUST immediately exit with code 1 and print a clear
+    error message: Robustness Gate Failed: CV > 0.05.'
+  evidence:
+    asserted: '1.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: 'If the pass field is false, main.py MUST immediately exit with code 1
+    and print a clear error message: Robustness Gate Failed: CV > 0.05.'
+  resolved_value: '3'
+  resolver: approximate
+  source_hash: bbee1839183672eb198ff2587f62ecde8e85e5ea33536caf757eaed53fcf5895
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T10:12:17Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: System downloads and parses OQMD dataset for compositional and structural
+    features
+  claim_id: c_5542482f
+  context: 'Task T001a: Update spec.md to replace ''Materials Project'' with ''OQMD''
+    in FR-001.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/System_downloads_and_parses_OQMD_dataset_for_compositional_a
+  kind: entity_fact
+  raw_text: The system MUST download and parse the OQMD dataset to extract compositional
+    features and available structural descriptors (e.g., atomic radius mean, packing
+    fraction if present).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:20:08Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: SHA-256 hash of OQMD parquet file recorded in checksums.json
+  claim_id: c_843bd10c
+  context: 'Task T005: Data Download & Validation checksum requirement.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate SHA-256 hash of data/raw/oqmd.parquet and record it in data/checksums.json
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:20:24Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Stratified split of formation energy target using 10 quantile bins
+  claim_id: c_ca45773d
+  context: 'Task T006a: Split & Binning implementation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Apply a stratified random split (train/validation/test) based on the target
+    variable (formation_energy) using 10 quantile bins
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:20:47Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: PCA reduces features to 20 principal components on training set
+  claim_id: c_6d47f4f8
+  context: 'Task T006b: PCA & Exclusion implementation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fit PCA on training set only to reduce features to 20 principal components
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:21:13Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Deep ensemble trains 5 independent model copies
+  claim_id: c_5cf616f2
+  context: 'Task T013: Deep Ensemble Training logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Train exactly 5 independently initialized copies of the baseline model
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:21:39Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: MC Dropout inference uses 30 stochastic forward passes
+  claim_id: c_1c4f41bf
+  context: 'Task T014: MC Dropout Inference implementation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Run 30 stochastic forward passes per sample on the test set with model.train()
+    enabled
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:22:13Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Sparse GP fitted with 500 inducing points and RBF kernel
+  claim_id: c_e6781b0d
+  context: 'Task T015b: Sparse GP Fitting implementation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fit Sparse GP with 500 inducing points and RBF kernel using GPyTorch (CPU
+    mode)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:22:32Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: "Uncertainty bounds calculated via Gaussian assumption (mean \xB1 z*std)"
+  claim_id: c_218f2455
+  context: 'Task T016a: Model training and UQ inference logic.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Uncertainty_bounds_calculated_via_Gaussian_assumption_(mean
+  kind: entity_fact
+  raw_text: "Calculate bounds from variance using Gaussian assumption (mean \xB1 z*std)"
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:23:01Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Seed orchestrator iterates over seeds 42, 43, and 44
+  claim_id: c_263f180b
+  context: 'Task T025a: Seed Orchestrator logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate over a fixed list of seeds [42, 43, 44]
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:23:38Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Epistemic variance defined as variance of ensemble predictions per sample
+  claim_id: c_c2e76485
+  context: 'Task T022: Decomposition of aleatoric and epistemic uncertainty.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Epistemic_variance_defined_as_variance_of_ensemble_predictio
+  kind: entity_fact
+  raw_text: Epistemic variance equals variance of predictions across ensemble members
+    for a single sample
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:24:28Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Aleatoric variance defined as mean of predicted variances
+  claim_id: c_9dd2475e
+  context: 'Task T022: Decomposition of aleatoric and epistemic uncertainty.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Aleatoric_variance_defined_as_mean_of_predicted_variances
+  kind: entity_fact
+  raw_text: Aleatoric variance equals mean of predicted variances
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:24:59Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Epistemic variance validation requires non-negative values and correlation
+    > 0.9
+  claim_id: c_bfb718d1
+  context: 'Task T022c: Verification of UQ decomposition logic.'
+  evidence:
+    asserted: '0.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Validate that epistemic variance is non-negative and consistent with model
+    variance (correlation > 0.9)
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-03T15:25:00Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: CV calculation for ECE scores across 3 seeds
+  claim_id: c_efe6bcca
+  context: 'Task T025b: Coefficient of Variation calculation.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement the Coefficient of Variation (CV) calculation logic for ECE
+    scores across exactly 3 seeds (42, 43, 44)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:25:17Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Robustness gate passes if CV <= 0.1 and 3 seeds succeed
+  claim_id: c_d72b7a20
+  context: 'Task T025b: Robustness gate logic.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Pass if CV \u2264 0.1 AND cv is not null AND exactly 3 seeds succeeded"
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:25:17Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Fallback precision check requires 5% gain over random baseline if p-value
+    >= 0.05
+  claim_id: c_c65a25bb
+  context: 'Task T029b: McNemar''s test fallback logic.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Fallback_precision_check_requires_5%25_gain_over_random_baseli
+  kind: magnitude
+  raw_text: If McNemar's test is inconclusive (p-value >= 0.05), check if UQ method
+    precision is at least 5% higher than random baseline
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-03T15:25:36Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: UQ pipeline execution time under 5 hours on CPU
+  claim_id: c_e343d8de
+  context: 'Independent Test: The system ingests the dataset, trains the baseline,
+    runs UQ inference, and outputs a CSV with (prediction, lower_bound, upper_bound,
+    variance) without GPU errors within 5 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system ingests the dataset, trains the baseline, runs UQ inference,
+    and outputs a CSV with (prediction, lower_bound, upper_bound, variance) without
+    GPU errors within 5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:17:30Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: MC Dropout inference uses 30 stochastic forward passes
+  claim_id: c_7f645071
+  context: 'T014 [P] [US1] MC Dropout Training & Inference: ... Step 2 (Inference):
+    Enable dropout, run 30 stochastic forward passes per sample on the test set.'
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: overT = 10, 000 MC runs is given by sampling from the
+      source_id: '2007.03293'
+      url: https://arxiv.org/abs/2007.03293
+      value: 10,000
+    filled: true
+  kind: numeric
+  raw_text: Run 30 stochastic forward passes per sample on the test set for MC Dropout
+    inference.
+  resolved_value: 10,000
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T06:17:54Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: PCA transformer explains more than 90% of variance
+  claim_id: c_9cb6ff66
+  context: 'T006c [P] [US1] PCA Fitting: Fit PCA on training set only to reduce features
+    to a sufficient number of principal components. Verification: Assert that the
+    transformer explains >90% of variance.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/PCA_transformer_explains_more_than_90%25_of_variance
+  kind: magnitude
+  raw_text: 'Fit PCA on training set only to reduce features to a sufficient number
+    of principal components. Verification: Assert that the transformer explains >90%
+    of variance.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:18:49Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Data download retry logic uses 3 attempts
+  claim_id: c_00104796
+  context: 'T005 [US1] Data Download & Validation: Implement code/data/download.py
+    to fetch the OQMD Formation Energy dataset via HuggingFace. Requirement: Implement
+    retry logic with exponential backoff (up to 3 attempts) for network failures.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement retry logic with exponential backoff (up to 3 attempts) for
+    network failures.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:19:07Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Calibration evaluation includes ECE and Interval Score
+  claim_id: c_2bb500c3
+  context: 'Independent Test: Calculate ECE and Interval Score for specified confidence
+    intervals, generate reliability diagrams, and rank methods by ECE.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calibration_evaluation_includes_ECE_and_Interval_Score
+  kind: entity_fact
+  raw_text: Calculate ECE and Interval Score for specified confidence intervals, generate
+    reliability diagrams, and rank methods by ECE.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:19:36Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Robustness evaluation uses 3 specific seeds
+  claim_id: c_b8212966
+  context: 'T025a [P] [US2] Seed Orchestrator Logic: Logic: Iterate over a fixed list
+    of seeds [42, 43, 44].'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate over a fixed list of seeds [42, 43, 44].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:20:02Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Coefficient of Variation calculated across 3 seeds
+  claim_id: c_c2fc1311
+  context: 'T025c [US2] REQUIRED: Implement the Coefficient of Variation (CV) calculation
+    logic for ECE scores across exactly 3 seeds defined in code/config.yaml key robustness_seeds.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement the Coefficient of Variation (CV) calculation logic for ECE
+    scores across exactly 3 seeds defined in code/config.yaml key robustness_seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:20:23Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Robustness gate fails if fewer than 3 seeds succeed
+  claim_id: c_9399ad1f
+  context: 'T025c [US2] ... Error Handling: If < 3 seeds succeed, set cv=null and
+    pass=false.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Robustness_gate_fails_if_fewer_than_3_seeds_succeed
+  kind: magnitude
+  raw_text: If fewer than 3 seeds succeed, set cv=null and pass=false.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:20:49Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Statistical significance requires p-value less than 0.05 or precision
+    gain at least 0.05
+  claim_id: c_7fa660ce
+  context: 'T029b [US3] ... Success Logic: Evaluate two parallel conditions: (1) p-value
+    < 0.05 OR (2) precision gain >= screening_precision_gain_threshold (from config,
+    default 0.05).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_significance_requires_p-value_less_than_0.05_or
+  kind: magnitude
+  raw_text: 'Evaluate two parallel conditions: (1) p-value < 0.05 OR (2) precision
+    gain >= screening_precision_gain_threshold (from config, default 0.05).'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:21:20Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Sparse GP fallback reduces inducing points from 500 to 200
+  claim_id: c_efcda194
+  context: 'T040 [US2] GP Convergence Fallback: ... If the optimizer fails to converge
+    within the specified iterations, reduce the number of inducing points (e.g., from
+    500 to 200) and retry.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the Sparse GP optimization fails to converge within the specified iterations,
+    reduce the number of inducing points (e.g., from 500 to 200) and retry.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:21:51Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Baseline FFNN has 2 hidden layers and 10000 or fewer parameters
+  claim_id: c_6d882dc4
+  context: "T012 [US1] Implement code/models/baseline_nn.py: Define the architecture\
+    \ for a 2 hidden layer FFNN with \u226410k params and a heteroscedastic output\
+    \ head."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Define the architecture for a 2 hidden layer FFNN with \u226410k params\
+    \ and a heteroscedastic output head."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:22:12Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Confidence intervals use z-scores 0.674 and 1.645
+  claim_id: c_1a64fb7e
+  context: "T016a [US1] ... Inference: Run inference, calculate bounds from variance\
+    \ using Gaussian assumption (mean \xB1 z*std) for [deferred] (z=0.674) and [deferred]\
+    \ (z=1.645) intervals, and write CSV."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate bounds from variance using Gaussian assumption (mean \xB1 z*std)\
+    \ for [deferred] (z=0.674) and [deferred] (z=1.645) intervals."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:22:30Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 0
+  canonical: Epistemic variance validation requires correlation > 0.9 with model variance
+  claim_id: c_0083a079
+  context: Implement a verification script in `code/uq/validate_uq.py` that explicitly
+    asserts the aleatoric/epistemic decomposition logic is correctly applied to the
+    *Deep Ensemble* and *MC-Dropout* outputs specifically, validating that epistemic
+    variance is non-negative and consistent with model variance (correlation > 0.9).
+  evidence:
+    asserted: '0.9'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: Validate that epistemic variance is non-negative and consistent with model
+    variance (correlation > 0.9).
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-10-07T06:30:31Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: System outputs UQ inference CSV within 5 hours without GPU errors
+  claim_id: c_cda247ba
+  context: 'Independent Test: The system ingests the dataset, trains the baseline,
+    runs UQ inference, and outputs a CSV with (prediction, lower_bound, upper_bound,
+    variance) without GPU errors within 5 hours.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The system ingests the dataset, trains the baseline, runs UQ inference,
+    and outputs a CSV with (prediction, lower_bound, upper_bound, variance) without
+    GPU errors within 5 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:30:32Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Baseline FFNN architecture has 2 hidden layers and <= 10,000 parameters
+  claim_id: c_cee2696a
+  context: "Implement `code/models/baseline_nn.py`: Define the architecture for a\
+    \ 2 hidden layer FFNN with \u226410k params and a heteroscedastic output head.\
+    \ Verification: Include a function to calculate total parameters and assert `total_params\
+    \ <= 10000`."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Define the architecture for a 2 hidden layer FFNN with \u226410k params\
+    \ and a heteroscedastic output head."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:30:32Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: 'Deep Ensemble training executed for 5 seeds: 42, 43, 44, 45, 46'
+  claim_id: c_9ffc885b
+  context: 'Execute the training loop (T013) for exactly 5 independently initialized
+    copies (seeds [42, 43, 44, 45, 46]). Output: Save models to `results/models/ensemble/`
+    with unique filenames `ensemble_seed_<seed>.pt`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Execute the training loop for exactly 5 independently initialized copies
+    (seeds [42, 43, 44, 45, 46]).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:31:11Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: MC Dropout inference runs 30 stochastic forward passes per sample
+  claim_id: c_d8bab390
+  context: 'Step 2 (Inference): Enable dropout, run 30 stochastic forward passes per
+    sample on the test set. Output: Save inference results (predictions and variances)
+    to `results/uq_predictions_mc_dropout.csv`.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Enable dropout, run 30 stochastic forward passes per sample on the test
+    set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:31:34Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Sparse GP fitted using GPyTorch in CPU mode with RBF kernel
+  claim_id: c_e460011f
+  context: 'Fit Sparse GP with a suitable number of inducing points and RBF kernel
+    using GPyTorch (CPU mode). Saving: Save the fitted GP model to `results/models/sparse_gp_model.pt`.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Sparse_GP_fitted_using_GPyTorch_in_CPU_mode_with_RBF_kernel
+  kind: entity_fact
+  raw_text: Fit Sparse GP with a suitable number of inducing points and RBF kernel
+    using GPyTorch (CPU mode).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:31:59Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Confidence intervals calculated using z-scores 0.674 and 1.645
+  claim_id: c_6060c11f
+  context: "Run inference, calculate bounds from variance using Gaussian assumption\
+    \ (mean \xB1 z*std) for [deferred] (z=0.674) and [deferred] (z=1.645) intervals,\
+    \ and write CSV."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "Calculate bounds from variance using Gaussian assumption (mean \xB1 z*std)\
+    \ for [deferred] (z=0.674) and [deferred] (z=1.645) intervals."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:31:59Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Seed orchestrator iterates over seeds 42, 43, and 44
+  claim_id: c_10e1343a
+  context: 'Logic: Iterate over a fixed list of seeds [42, 43, 44]. For each seed,
+    invoke `code/models/run_single_seed.py` (T016a) with the specific seed argument.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Iterate over a fixed list of seeds [42, 43, 44].
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:31:59Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Epistemic variance defined as variance of predictions across ensemble
+    members
+  claim_id: c_fd96badf
+  context: 'Implement the calculation logic in `code/uq/metrics.py` to separate aleatoric
+    and epistemic uncertainty: Epistemic variance = variance of predictions across
+    ensemble members for a single sample, Aleatoric variance = mean of predicted variances.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Epistemic_variance_defined_as_variance_of_predictions_across
+  kind: entity_fact
+  raw_text: Epistemic variance = variance of predictions across ensemble members for
+    a single sample.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:32:46Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Aleatoric variance defined as mean of predicted variances
+  claim_id: c_5a03be09
+  context: 'Implement the calculation logic in `code/uq/metrics.py` to separate aleatoric
+    and epistemic uncertainty: Epistemic variance = variance of predictions across
+    ensemble members for a single sample, Aleatoric variance = mean of predicted variances.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Aleatoric_variance_defined_as_mean_of_predicted_variances
+  kind: entity_fact
+  raw_text: Aleatoric variance = mean of predicted variances.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:33:19Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Coefficient of Variation calculated for ECE scores across 3 seeds
+  claim_id: c_ef56e7f8
+  context: Implement the Coefficient of Variation (CV) calculation logic for ECE scores
+    across exactly 3 seeds defined in `code/config.yaml` key `robustness_seeds`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Calculate the Coefficient of Variation (CV) calculation logic for ECE
+    scores across exactly 3 seeds.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:33:39Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Coefficient of Variation formula is std(ECE) divided by mean(ECE)
+  claim_id: c_2ea1c6fb
+  context: "Output: `results/robustness_report.json` containing: `cv` (float, calculated\
+    \ as std(ECE)/mean(ECE), or null if mean=0), `pass` (boolean, true if CV \u2264\
+    \ `robustness_cv_threshold` (from config) AND cv is not null AND exactly 3 seeds\
+    \ succeeded, else false)..."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Coefficient_of_Variation_formula_is_std(ECE)_divided_by_mean
+  kind: entity_fact
+  raw_text: CV calculated as std(ECE)/mean(ECE).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:34:14Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Robustness check fails if fewer than 3 seeds succeed
+  claim_id: c_c39630d6
+  context: 'Gate: If pass is false, the pipeline MUST log a clear warning indicating
+    robustness failure but MUST NOT exit with error code 1 (per SC-004 reporting requirement).
+    Error Handling: If < 3 seeds succeed, set `cv=null` and `pass=false`.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Robustness_check_fails_if_fewer_than_3_seeds_succeed
+  kind: magnitude
+  raw_text: If fewer than 3 seeds succeed, set cv=null and pass=false.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:34:16Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Screening significance success requires p-value < 0.05 or precision gain
+    >= 0.05
+  claim_id: c_a5dfa623
+  context: 'Success Logic: Evaluate two parallel conditions: (1) p-value < 0.05 OR
+    (2) precision gain >= `screening_precision_gain_threshold` (from config, default
+    0.05). If either condition is met, record success; otherwise, record failure.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Evaluate two parallel conditions: (1) p-value < 0.05 OR (2) precision
+    gain >= screening_precision_gain_threshold (from config, default 0.05).'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:34:16Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: Data download fails loudly after 3 retries
+  claim_id: c_2daf1097
+  context: 'Requirement: Implement a strict `try/except` block that raises a `RuntimeError`
+    with a detailed message if the download fails after 3 retries. Constraint: DO
+    NOT implement a synthetic data fallback.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Implement a strict try/except block that raises a RuntimeError with a
+    detailed message if the download fails after 3 retries.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:34:35Z'
+- artifact_path: projects/PROJ-764-assessing-uncertainty-quantification-tec/specs/001-assessing-uncertainty-quantification-tec/tasks.md
+  attempts: 1
+  canonical: GP fallback reduces inducing points from 500 to 200 on convergence failure
+  claim_id: c_5eea36d0
+  context: 'Logic: If the optimizer fails to converge within the specified iterations,
+    reduce the number of inducing points (e.g., from 500 to 200) and retry. If it
+    still fails, log a warning and proceed with the Deep Ensemble and MC-Dropout results
+    only.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the optimizer fails to converge within the specified iterations, reduce
+    the number of inducing points (e.g., from 500 to 200) and retry.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-07T06:35:04Z'

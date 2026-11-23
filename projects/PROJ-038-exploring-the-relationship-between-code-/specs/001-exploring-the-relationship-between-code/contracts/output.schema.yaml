@@ -29,7 +29,7 @@ properties:
     minimum: 0.0
   p_value:
     type: number
-    description: "P-value from the Paired Permutation Test"
+    description: "P-value from the Paired Permutation Test (Sign-Flip). This field satisfies SC-003."
     minimum: 0.0
     maximum: 1.0
   feature_importance:

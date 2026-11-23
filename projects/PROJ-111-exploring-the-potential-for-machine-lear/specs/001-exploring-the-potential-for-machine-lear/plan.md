@@ -5,7 +5,7 @@
 
 ## Summary
 
-This project implements a CPU-tractable unsupervised machine learning pipeline to detect phase transitions in 2D isotropic spin systems (J1-J2 Heisenberg and XY models). The approach utilizes a Variational Autoencoder (VAE) to learn a compressed latent representation of Monte Carlo spin configurations. The critical temperature $T^*$ is identified via peak detection in the variance of the latent means, validated against independent physical observables (magnetic susceptibility) and Finite-Size Scaling (FSS) extrapolations. The implementation strictly adheres to the -hour runtime and 7 GB RAM constraints of the GitHub Actions free-tier runner.
+This project implements a CPU-tractable unsupervised machine learning pipeline to detect phase transitions in 2D isotropic spin systems (J1-J2 Heisenberg and XY models). The approach utilizes a Variational Autoencoder (VAE) to learn a compressed latent representation of Monte Carlo spin configurations. The critical temperature $T^*$ is identified via peak detection in the variance of the latent means, validated against independent physical observables (magnetic susceptibility) and Finite-Size Scaling (FSS) extrapolations. The implementation strictly adheres to the -hour runtime and standard memory constraints of the GitHub Actions free-tier runner.
 
 ## Technical Context
 
@@ -17,7 +17,7 @@ This project implements a CPU-tractable unsupervised machine learning pipeline t
 **Project Type**: Computational research / data science pipeline.  
 **Performance Goals**: Total runtime ≤ 6 hours; Memory footprint ≤ 6 GB.  
 **Constraints**: No GPU/CUDA; no 8-bit/4-bit quantization; no large-LLM inference. Data must be sampled or generated on-the-fly to fit memory.  
-**Scale/Scope**: Lattice sizes L=16 and L=24; Temperature range T=0.1 to T=3.0; Latent dimension 10.
+**Scale/Scope**: Lattice sizes L=16 and L=24; Temperature range T=0.1 to T=3.0; Latent dimension to be determined through hyperparameter optimization..
 
 ## Constitution Check
 

@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-180-evaluating-the-effectiveness-of-automate",
+  "ok": false,
+  "reason": "4 run-book script(s) missing (plan/impl path mismatch): python code/02_human_annotation.py; python code/03_alignment.py; python code/04_metrics.py; 1 command(s) failed: python code/01_data_acquisition.py (rc=1); 1 declared deliverable(s) absent: data/processed/heuristic_candidates.json",
+  "artifacts": [],
+  "failures": [
+    "python code/01_data_acquisition.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-180-evaluating-the-effectiveness-of-automate/code/01_data_acquisition.py\", line 11, in <module>\n    from utils.config import get_config, get_github_token, get_data_raw_dir, get_data_processed_dir\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-180-evaluating-the-effectiveness-of-automate/code/utils/config.py\", line 5, in <module>\n    from dotenv import load_dotenv\nModuleNotFoundError: No module named 'dotenv'",
+    "python code/02_human_annotation.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-180-evaluating-the-effectiveness-of-automate/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-180-evaluating-the-effectiveness-of-automate/code/02_human_annotation.py': [Errno 2] No such file or directory",
+    "python code/03_alignment.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-180-evaluating-the-effectiveness-of-automate/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-180-evaluating-the-effectiveness-of-automate/code/03_alignment.py': [Errno 2] No such file or directory",
+    "python code/04_metrics.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-180-evaluating-the-effectiveness-of-automate/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-180-evaluating-the-effectiveness-of-automate/code/04_metrics.py': [Errno 2] No such file or directory",
+    "python code/05_regression.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-180-evaluating-the-effectiveness-of-automate/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-180-evaluating-the-effectiveness-of-automate/code/05_regression.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-08T04:42:01Z"
+}

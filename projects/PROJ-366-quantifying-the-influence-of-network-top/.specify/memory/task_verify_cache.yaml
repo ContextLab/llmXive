@@ -1,0 +1,69 @@
+T013a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the ten pre\u2011equilibrated amorphous silicon configurations\
+    \ is present\u2014no files, directories, or data listings were provided. Consequently\
+    \ the required artifact (N\u202F=\u202F10 ready\u2011to\u2011use samples) is missing,\
+    \ so the claim cannot be verified as fulfilled."
+T013b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script output, log file, or report) was provided that shows\
+    \ the ingestion module was run on ten samples, nor any evidence that the resulting\
+    \ graphs contain the correct number of nodes and valid edges. Without such data\
+    \ the claim that the sample count and validity for N\u202F=\u202F10 have been\
+    \ verified cannot be confirmed."
+T015a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No files or code were found in `data/processed/graphs/` (or elsewhere) that serialize
+    the constructed atomic graphs as Pickle or Parquet files, nor any implementation
+    that writes such files. The required artifact is missing, so the task is not satisfied.
+T022b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No script, workflow description, log files, or result data for running Green\u2011\
+    Kubo simulations on the ten samples are present. The claim lacks any tangible\
+    \ artifact demonstrating that batch execution was orchestrated and completed for\
+    \ all N\u202F=\u202F10 configurations."
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or documentation implementing the convergence detection logic\
+    \ (relative change in heat current autocorrelation <\u202F1\u202F% in the last\
+    \ portion of the trajectory) was provided. The required artifact is missing, so\
+    \ the task is not satisfied."
+T025b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, module, test, or documentation for generating a checksum on serialized\
+    \ `ThermalSample` objects is present in the provided evidence. The implementer\u2019\
+    s claim cannot be verified because the required artifact (e.g., a function/method\
+    \ that computes and attaches a checksum, and associated unit tests) is missing."
+T026:
+  c: false
+  h: d0e02df48c7ef6bc066285ed254367818c2f93f62b2a8ca13fef54adeb310139
+  r: The required output file `data/processed/conductivities/convergence_report.json`
+    does not exist, so there is no way to verify its contents or that a thermal conductivity
+    value falls within the configurable range. The task therefore remains unfinished.
+T047:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md content was provided; without the file we cannot verify that it
+    contains a pipeline overview and execution instructions as required. The implementer
+    must supply the updated README.md file showing the requested documentation.
+T048:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No test logs, timing reports, or output artifacts are provided to demonstrate\
+    \ that a full integration test was run on representative samples and that the\
+    \ end\u2011to\u2011end pipeline completed within the required 6\u2011hour limit.\
+    \ The implementer must supply concrete evidence (e.g., execution logs, timestamps,\
+    \ success/failure summaries) showing the pipeline was exercised and met the time\
+    \ constraint."
+T050:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided no documentation files, README, or schema descriptions
+    for the `contracts/` directory, nor any evidence that such documentation was added.
+    The required artifact (documentation of schemas and data models) is missing.

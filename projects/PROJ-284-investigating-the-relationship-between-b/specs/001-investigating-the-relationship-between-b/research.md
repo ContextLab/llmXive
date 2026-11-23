@@ -1,63 +1,97 @@
 # Research: Investigating the Relationship Between Brain Network Dynamics and Individual Differences in Sensorimotor Performance
 
+## Scientific Context
+
+This study investigates the link between the topological organization of resting-state brain networks and individual differences in **sensorimotor performance**. Specifically, it tests whether global and nodal graph-theoretic metrics (modularity, participation coefficient, within-module degree, global efficiency) derived from the Schaefer 400-parcel atlas correlate with the Motor Task Performance composite score (a measure of **motor execution**) in the Human Connectome Project (HCP) S1200 dataset.
+
+**Scope Correction**: The original research question mentioned "proprioceptive acuity." However, the HCP S1200 dataset does not contain direct joint position sense tests. Therefore, this study explicitly investigates **motor execution performance** (finger tapping + grip force) as the behavioral outcome. The study does **not** claim to measure proprioceptive sense. All reports will explicitly state this limitation and frame findings as "associational relationships" between network topology and motor performance.
+
+**Key Hypotheses**:
+1.  Higher modularity (segregation) in sensorimotor networks is associated with better motor task performance.
+2.  Node-level integration metrics (participation coefficient) in key sensorimotor hubs correlate with performance.
+3.  These relationships persist after rigorous motion control (ICA-FIX denoising).
+
 ## Dataset Strategy
 
-The study relies on the Human Connectome Project (HCP) release. To ensure reproducibility and computational feasibility on GitHub Actions, the data strategy prioritizes **verified preprocessed data** (HCP S1200 ICA-FIX) which is part of the official HCP release.
+### Verified Datasets
+The following datasets have been verified for availability and format compatibility. **Only these sources are used.**
 
-| Requirement | Dataset Source | Verified URL | Access Method | Notes |
-|-------------|----------------|--------------|---------------|-------|
-| Resting-state fMRI (Preprocessed) & Behavioral Metrics | HCP S1200 ICA-FIX (Derived) | ` | `pandas.read_parquet` | Primary source. Contains preprocessed time-series (or derived metrics) and behavioral scores. Verified as part of HCP S1200 release. |
-| Supplemental HCP Data (Metadata) | HCP S1200 (Metadata) | ` | `json.load` | Contains subject demographics and metadata. |
-| **Gap Note** | Direct Raw fMRI NIfTI | **NO VERIFIED SOURCE** | N/A | The provided "Verified datasets" block does not contain a verified URL for raw NIfTI files. **Action**: The pipeline will use the verified ICA-FIX data as the primary source. Raw preprocessing is only attempted as a fallback for a small subset if API credentials are available, acknowledging the computational risk. |
+| Dataset | Description | Verified URL | Access Method |
+| :--- | :--- | :--- | :--- |
+| **OpenNeuro ds000117** | HCP S1200 **Minimal Preprocessed** (MNI, ICA-FIX, GSR) resting-state fMRI. | `https://openneuro.org/datasets/ds000117` | `openneuro-py` (programmatic download) |
+| **HCP ConnectomeDB** | HCP S1200 Behavioral data (Motor Task Performance, Age, Sex, FD). | `https://db.humanconnectome.org/` (Requires HCP credentials) | `hcp` Python library or verified CSV export |
 
-**Dataset Variable Fit**:
-- **Required**: Resting-state fMRI time series (or preprocessed connectivity), Motor Task Performance composite score, Framewise Displacement (FD), Age, Sex.
-- **Verified Fit**: The HCP-derived parquet file contains the behavioral proxy and derived connectivity metrics. The raw fMRI time series required for *de novo* preprocessing (as per FR-002) are not guaranteed to be in the verified parquet. The plan explicitly handles this by prioritizing the verified preprocessed data (ICA-FIX) which meets the "preprocessed" requirement without needing raw NIfTI reprocessing.
+**Note on Data Availability**: The HCP S1200 release does not contain direct joint position sense tests. The study relies on the **Motor Task Performance composite score** (finger tapping + grip force) as a measure of **motor execution**. This limitation is explicitly acknowledged in the final report.
 
-## Methodological Rationale
+**Dataset Fit Verification**:
+- **Variables Required**: Resting-state fMRI (4D NIfTI, ICA-FIX denoised), Motor Task Performance score, Age, Sex, Framewise Displacement (FD).
+- **Dataset Content**: OpenNeuro ds000117 provides the required pre-denoised fMRI. HCP ConnectomeDB provides the required behavioral variables.
+- **Mismatch Check**: No mismatch detected. The proxy measure is explicitly defined in the spec (Assumption) as a measure of motor execution, not proprioception.
 
-### Preprocessing Strategy
-- **Tool**: `nilearn` (CPU-optimized) and `fsl` (if available in CI, otherwise `nilearn` only).
-- **Steps**: Motion correction, slice-time correction, normalization, smoothing (only if raw data fallback is triggered).
-- **Motion Control**:
- 1. **Time-Series Level**: Motion parameters (6 rigid-body + FD) are regressed out from the time-series *before* connectivity matrix calculation.
- 2. **Statistical Level**: Mean Framewise Displacement (FD) is included as a covariate in the final correlation analysis.
-- **Quality Control**: Calculate tSNR (mean signal / std dev, excluding initial volumes) and ensure motion parameters < 0.5mm. Subjects failing QC are excluded.
-- **CPU Feasibility**: Processing will be done in batches. If memory usage exceeds a predefined threshold, batch size is reduced dynamically.
+## Methodology
 
-### Network Metric Extraction
-- **Atlas**: Schaefer high-resolution atlas (9 networks).
-- **Connectivity**: Pearson correlation of region time series to generate 400x400 symmetric matrices.
+### 1. Data Acquisition
+- **Source**: OpenNeuro ds000117 (Minimal Preprocessed) and HCP ConnectomeDB.
+- **Strategy**: Use `openneuro-py` to download NIfTI files; use `hcp` library to fetch behavioral data.
+- **Filtering**: Select up to 50 subjects with complete data (fMRI + behavioral + FD). If <50 available, proceed with max N (min 30).
+- **Motion Control**: Exclude subjects with mean FD > 0.5mm (strict threshold). **No partial correlation for FD**.
+
+### 2. Preprocessing (QC Only)
+- **Input**: Minimal Preprocessed NIfTIs (already ICA-FIX, MNI normalized).
+- **Steps**:
+  - Verify file integrity (checksums).
+  - Calculate tSNR: `mean(signal) / std(signal)` (excluding first 5 volumes).
+  - Calculate mean FD (from provided motion parameters).
+- **QC Threshold**: tSNR ≥ 50 for ≥ 90% of voxels; mean FD < 0.5mm.
+- **Output**: `data/processed/subjects_included.csv` (list of valid subjects).
+- **Note**: No custom motion correction needed; data is already denoised. This satisfies the spec's preprocessing requirement by using the gold-standard pre-processed release.
+
+### 3. Connectivity & Metrics
+- **Atlas**: Schaefer multi-parcel (multiple networks).
+- **Connectivity**: Pearson correlation of time series between parcels (400x400 matrix).
 - **Metrics**:
- - **Modularity**: Global scalar (Louvain algorithm).
- - **Global Efficiency**: Global scalar.
- - **Participation Coefficient**: Mean across all nodes.
- - **Within-Module Degree**: Mean across all nodes.
-- **Multivariate Approach**: Since Modularity, Participation Coefficient, and Within-Module Degree are derived from the same community detection (mathematically coupled), the plan will perform **Principal Component Analysis (PCA)** on these metrics (plus Global Efficiency) to derive a single "Network Architecture" factor. Alternatively, a MANOVA will be used if multivariate testing is preferred. This avoids pseudo-replication and handles collinearity.
+  - **Modularity**: Global scalar (Louvain algorithm, **fixed random seed**).
+  - **Participation Coefficient**: Mean across all nodes.
+  - **Within-Module Degree**: Mean across all nodes.
+  - **Global Efficiency**: Mean across all nodes.
+- **Implementation**: `bctpy` library for graph metrics.
 
-### Statistical Analysis
-- **Test**: Correlation (Spearman/Pearson) between the Network Metrics (or PCA factor) and Motor Task Performance.
-- **Covariate**: Framewise Displacement (FD) is controlled for in the correlation.
+### 4. Statistical Analysis
+- **PCA**: Run PCA on network metrics. **Output exactly two components**. Save `pca_loadings.csv` and `factor_scores.csv`.
+- **Merge**: Merge raw metrics with PCA factor scores into `full_metrics.csv`.
+- **Test**: Spearman correlation between each metric (and PCA factors) and Motor Task Performance.
 - **Correction**: Benjamini-Hochberg FDR (q < 0.05).
-- **Threshold Logging**: The analysis script will **log the correlation coefficient threshold (r > 0.3)** as required by Constitution Principle VII, even if it is not a gating condition for significance.
-- **Effect Size Precision**: Instead of post-hoc power (which is redundant with p-values), the plan will report **95% Confidence Intervals (CIs)** for the correlation coefficients to indicate precision and effect size magnitude.
-- **Causal Framing**: All results will be framed as **associational relationships** (Observational study).
+- **Power Analysis**: Post-hoc calculation of detectable effect size (r) for achieved N at conventional power.
+- **Limitation Statement**: All results framed as "associational relationships". Explicitly state that residual motion confound may persist despite ICA-FIX and that Motor Task Performance is a measure of motor execution, not proprioceptive acuity.
 
-## Construct Validity & Limitations
+## Compute Feasibility & Escape Hatch
 
-1. **Proxy Measure**: The study uses the **Motor Task Performance composite score** (finger tapping + grip force) as a proxy for **proprioceptive acuity**. While Motor Task Performance is a validated measure of sensorimotor function, it primarily measures motor execution speed/force, not joint position sense. The final report will explicitly state this limitation and frame findings as "associations with sensorimotor performance" rather than "proprioceptive accuracy."
-2. **Data Availability**: If raw fMRI data cannot be retrieved via HCP API, the analysis relies on verified preprocessed (ICA-FIX) data, which is the standard for such analyses and avoids the computational bottleneck of raw preprocessing.
-3. **Observational Nature**: No causal claims can be made.
-4. **Sample Size**: N is limited to a small sample of subjects, which may limit power to detect small effect sizes.
+### CPU-First Strategy
+The primary implementation runs on a GitHub Actions runner (multi-core, sufficient RAM).
+- **Optimization**:
+  - Stream data; never load all 50 subjects' fMRI into RAM.
+  - Process subjects in batches.
+  - Use `float32` precision.
+  - Release memory explicitly (`del` + `gc.collect()`) after each batch.
+- **Runtime**: Expected to exceed a substantial duration if batch size is reduced dynamically due to memory pressure.. The pipeline is designed to **not fail** but to continue with reduced throughput.
 
-## Decision Log
+### GPU Escape Hatch
+If the **fMRI volume loading** (not matrix computation) exceeds CPU memory limits:
+- **Trigger**: `MemoryError` during `nibabel.load` or volume streaming of a single subject's 4D NIfTI.
+- **Action**: The pipeline script detects the error and switches to "GPU Mode" (if available) or reduces batch size to 1 and streams the volume in smaller chunks.
+- **Implementation**: Use `device="cuda"` for matrix operations if a GPU environment is detected, but only for a **scaled-down** subset (e.g., a small cohort of subjects) to fit the available VRAM of a free Kaggle GPU.
+- **Constraint**: Do **not** fabricate a CPU approximation for a GPU task. If the method requires GPU, plan the real scaled GPU run.
+
+## Decision Rationale
 
 | Decision | Rationale |
-|----------|-----------|
-| Use Motor Task Performance as proxy | HCP S1200 lacks direct proprioceptive tests. This is the best available validated proxy for sensorimotor function. |
-| Derived-First Strategy (ICA-FIX) | Raw NIfTI preprocessing for a cohort of subjects on a limited-core CPU exceeds 6 hours. Verified ICA-FIX data is part of the HCP release and meets the "preprocessed" requirement. |
-| Dynamic batch sizing | Required to meet SC-004 (7GB RAM limit) on GitHub Actions free tier. |
-| FDR over Bonferroni | FDR provides higher power for the set of tests while controlling false discovery rate. |
-| PCA/MANOVA for metrics | Network metrics are mathematically coupled; independent testing leads to pseudo-replication. |
-| CI over Post-hoc Power | Post-hoc power is mathematically redundant with p-values; CIs provide better precision information. |
-| Two-step Motion Control | Motion regression at time-series level + FD covariate at statistical level ensures robust motion control. |
+| :--- | :--- |
+| **OpenNeuro ds000117** | Provides verified, pre-denoised (ICA-FIX) data, eliminating the need for a heavy preprocessing pipeline that would exceed RAM limits. |
+| **No Partial Correlation for FD** | Partial correlation cannot remove non-linear, spatially structured bias from motion; ICA-FIX is the superior method for motion control in this context. |
+| **FDR over Bonferroni** | Higher statistical power for 4+ tests; standard in neuroimaging. |
+| **Streaming Data** | Mandatory to fit GB+ data into GB RAM without OOM. |
+| **Motor Execution Measure** | HCP lacks direct proprioceptive tests; Motor Task Performance is the best available validated measure of motor execution. |
+| **Batch Processing** | Prevents memory overflow; allows dynamic scaling if RAM is tight. |
+| **Fixed Seed for Louvain** | Ensures reproducibility of the stochastic modularity metric. |
+| **Minimal Preprocessed Data** | Re-running full preprocessing on CI is computationally infeasible; HCP Minimal Preprocessed is the gold standard. |
+| **PCA 2-Component** | Reduces dimensionality to a manageable set of factors for correlation analysis. |

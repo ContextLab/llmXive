@@ -58,5 +58,15 @@
     "tables/formal/minerva_subject.tex",
     "tables/formal/sudoku_ablation_components.tex",
     "tables/formal/text.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "71059e1d4788f9bc72d724c554734181c8a351ce35975cce4b1ad81634f1a75d",
+      "bytes": 12079842
+    },
+    "original.pdf": {
+      "sha256": "9b09dc016a8be79ecdcf674a87fda188243912ab22983a17467486768e58ca74",
+      "bytes": 12035991
+    }
+  }
 }

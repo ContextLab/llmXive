@@ -1,0 +1,48 @@
+T001:
+  reason: 'Requested task execution failed; rerun successfully: code/run_tests.py
+    exit=1'
+  task: 97b0c43237307b37aa23060589816ffe3efaa2377d2d081969011e0ada982d2c
+T002:
+  reason: "The required artifacts `data/processed/perturbation_verification.json`,\
+    \ `data/processed/single_run_results.json`, `data/processed/convergence_report.json`,\
+    \ and `perturbation_verification.schema.yaml` are all MISSING from disk. The historical\
+    \ run log shows the command exited 0 but wrote to a wrong `processed/` directory\
+    \ (not `data/processed/`), and even those files are not present now; additionally,\
+    \ `data/checksums.yaml` contains three conflicting sha256 values for the same\
+    \ matrix file (e6bd1dbf\u2026, 1f9299fd\u2026, d4ec5bdf\u2026), indicating fabricated/inconsistent\
+    \ checksum records rather than a genuine v"
+  task: 3bc18bf71777263b156df5c173bfdf4409c7b1d0dc4dec15c49de3fdf2a4d06c
+T003:
+  reason: "The execution log shows both tests FAILED: the `python -m code.main --mode\
+    \ single ...` subprocess exited with status 1, and `data/processed/single_run_results.json`\
+    \ was never generated. The test file itself is well-formed, but the reproducibility\
+    \ integration test does not actually pass \u2014 the CLI invocation must be fixed\
+    \ (or the correct entry point/arguments used) so the run succeeds, produces the\
+    \ JSON, and the eigenvalue/byte-identity assertions are actually exercised."
+  task: 95ef4d09d66c12968d27d5c49ea4edcafcc67852156b0f05ca02703b07f650a9
+T004:
+  reason: 'Requested task execution failed; rerun successfully: code/analysis/sweep.py
+    exit=1'
+  task: 7b77848349fc920a64f97f18bf6ab5f1e1dc8443ef27196f2ea203a497efc016
+T005:
+  task: 3483f80ecbb50a86ab00a9b1c1ee7738b3bb74a455ecb1321ff8f47da9303caf
+T006:
+  task: 06457600a4a64b9b6422951fbb67a9fba694724d83c93da9c59933ce6799fdd2
+T007:
+  task: be85046cd2dc2ad424c932b700b971f8af94023bf17a41efef42ff87175f58bf
+T008:
+  task: 9a1ad350ab26d43fef6697eeaceb55c6bf1a30b0b19e92cfe6d78da16f8687ad
+T009:
+  task: 0956e350a9eae73628d4aedd5e2828324095f35d217633f0533435b2c58403b9
+T010:
+  task: 6d4846172840814b84f5e7fc91d1d4681aef58792bb77538db83e107f20b70a9
+T011:
+  task: 932d82b378d63f3ab12aada6b0cee6c69b6828ee36eed8e4aee67bd13bbd4e5c
+T012:
+  task: c34fe9aa397f1ddfe15609c2ae7f2d850ea1ab7ed364a09dfc90240e453dd064
+T013:
+  task: d80b7c28fbd112009c3955b1e92ac2094776af8188ddf28081d55c1dd23c060f
+T014:
+  task: ecc97b8a348e0d3ff71862e59ee42e6f8996ce6eafba15224107e6f206b4f396
+T015:
+  task: 5c77882af530a5ceda9526a54ae3337cb96486860e413f408d6802ccc38a6a50

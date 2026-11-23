@@ -1,0 +1,188 @@
+T001a:
+  task: d036adcd5cc966e91ebf582d72d58ed7705039804362320f968d53a233c16a35
+T001b:
+  task: 49b669271f68299a2f7616e5cd56b88a73e7302db707a1e8be4bf1bbf5975c61
+T002a:
+  task: fc560906927cfb711752536e5a74b21d618d715c2ea6bff5ea57f524bae38a53
+T002b:
+  task: b38fc75760299e14bfb6e43ae355884d10faaf774adfcfceb735e6c345f32a8f
+T002c:
+  task: 43734a70f3d14067adbd33d9d530672482a1af9db843ea8ac91d55bc0253ba17
+T003:
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T004:
+  task: a60c8aef163fb396a039198ac15815d4ef7781739c7b3255ff4cdb774f6668aa
+T004a:
+  reason: "The `data/README.md` exists but its \"Verified Datasets\" section contains\
+    \ no actual YAML list of verified dataset identifiers \u2014 only a commented-out\
+    \ \"MANUAL DATASET INJECTION PROTOCOL\" template with placeholder examples, plus\
+    \ a garbled status dump where most entries are marked \"failed\" and no entry\
+    \ has the required `- id: / source: / url:` object format. The blocked_status.json\
+    \ confirms the dataset IDs were invalid/unverified, so there are no verified datasets\
+    \ to list; the task's core deliverable (a populated YAML block of verified OpenML/HF\
+    \ IDs with URLs) is absent."
+  task: 1d2e6951b9203c1cb7004d2df84ab4dc46a8db550beee128adade5f23a84bab7
+T004b:
+  reason: "The required artifact `code/validate_ids.py` does not exist at all (collector\
+    \ reports MISSING), so the task's core deliverable \u2014 a script that validates\
+    \ the 'Verified datasets' block in `data/README.md` and writes a critical blocker\
+    \ if empty \u2014 was never implemented. While `data/blocked_status.json` and\
+    \ a blocker note exist, they appear to come from other pipeline steps, not from\
+    \ the required validation script; the implementer must create `code/validate_ids.py`\
+    \ implementing the described check and blocker-writing behavior."
+  task: 5119817afd0accac42204f541f9d19bdb386ce6a003be0766072a0398d6c5127
+T005:
+  task: f9bf6c3fee5d8306749c792fd0c672c546a40da7c2cac1ddcab87d9907fd59f1
+T006:
+  task: 13f6910c68fa4edc02bc1df2b7daa7ba8ea0b0429f90f260e212f553142514e1
+T007:
+  task: cf77aad7e652aa9f7bed0430bfdb860bd3c2247126dec4e363cbc36caf1a221c
+T008:
+  task: c156f832dabb6886f71d6da115bf3c99daf8b23c03ae86d99093042910b1879a
+T010:
+  task: 13d86f5165edcda9de6539c82626e05b0f3d0f0b2d51c6cf734eba7914453bd4
+T011:
+  task: adcc85fdbb237647b6a42f356059aa608e8fb4dc6d27587c8f9771e6a80c1fff
+T012a:
+  reason: '`code/read_ids.py` does not implement the required logic: instead of parsing
+    the ''Verified datasets'' YAML block in `data/README.md` (keys `id`, `source`,
+    `url`) and returning a list of dictionaries, it reads a different file (`data/dataset_ids.txt`)
+    and returns a list of `source:id` strings. Additionally, the ''Verified datasets''
+    section in `data/README.md` contains only commented-out example entries, so there
+    is no actual YAML dataset block to parse; the implementer must either populate
+    real verified entries or handle the documented manual-injection protocol, and
+    rewrite the parser to match th'
+  task: 14c3a4628117673f732ab2136b471941cd2f0b280fd0847e2c33dcf3c9ac70d1
+T012b:
+  reason: "`data/raw/checksums.json` is MISSING \u2014 the script writes checksums\
+    \ to `data/processed/checksums.json` instead, and the on-disk `data/blocked_status.json`\
+    \ shows the pipeline actually failed (\"No valid datasets found\"), so no checksums\
+    \ were ever stored. The code never retrieves source-provided checksums from a\
+    \ dataset metadata API nor verifies against them (`validate_checksum` is never\
+    \ called with an expected value), and `DataFetchError` is caught per-dataset and\
+    \ logged rather than halting execution immediately as required. There is also\
+    \ no evidence (tests or run logs) demonstrating `DataFetchEr"
+  task: 4c477cae534de5d8f131444b8d09ccafab6d4ed5a1061b747290911dd9ea811b
+T012c:
+  reason: "`code/filter.py` and `data/processed/exclusion_log.json` are both MISSING\
+    \ \u2014 the required deliverables do not exist. The only exclusion log present\
+    \ is at `data/exclusion_log.json` (wrong path) and references fabricated sample\
+    \ datasets (\"sample_non_sequential\", \"sample_no_predictability\") rather than\
+    \ the actual raw file `data/raw/openml_42279.csv`, and `data/blocked_status.json`\
+    \ indicates the pipeline never successfully processed real data."
+  task: ac77d71741c23dddd5de03dff0b4442b3be352badd866cbc2712c242bd4a2106
+T012d:
+  reason: '`code/update_readme.py` contains no blocker logic at all: it never counts
+    valid datasets, never writes a critical blocker entry to `data/README.md`, never
+    creates `data/blocked_status.json` with the required schema `{timestamp, reason,
+    exit_code: 1}`, and never halts (its `run_t013` only updates README sections).
+    The existing `data/blocked_status.json` has the wrong schema (a `status` field,
+    no `exit_code`) and appears to come from a different task, and `data/processed/exclusion_log.json`
+    is missing (the script would fabricate an empty one). The README''s "Dataset Status"
+    section is also corrup'
+  task: 601679d6dfcdce4c9bad97edc0032830b60c4ca8e2be45c4c97aba659cf9ddfe
+T015:
+  task: f0ae682076159032317c1f036cd3804ba610e19789cb6679a7762a6c9b5869d8
+T016a:
+  task: c067dc5f6adf847a2d27f5a93080e50e696f600946ac36dd9b7e590721d1a6e7
+T016b:
+  task: 27befe5cc45ae114b5f4752254afe0ac3d1d3dee794f79da5d40b2b87969b688
+T016c:
+  task: 55545af05481401195e5901838a26377351521f3384aebdadb8673d0479eeeb7
+T017:
+  task: 6bcf7db5af8526d3e61218edbe5425b3abf2b8dbf8cf92368ab4e770395e1c3b
+T017b:
+  task: 4953f646cb2d09ec33095eaa6bd1ea47ae0241331f6a8bbc627076f65ce91da8
+T019:
+  task: 94b4138921841c6372f77e82521a277a4c6a98e04e66a2ed28fdf6b41dfbcddf
+T020:
+  task: 7c03f6b4a04ca51c0d6067673fe6c71b353c84ad7b95b14aa77bcba2afb2d2e0
+T021a:
+  task: 745dd753258e25e8a7d1cf22878c9ea7ec6b1630481fc2a01f47750d432d55c3
+T021b:
+  task: ff550c3d2b8062f0f92303447ecefb13c81e52eb01e18b9e3dba2bc1ce8375c3
+T021c:
+  task: da4a2defb875d659e937c654bf2eb74c42e82fa832b047bf2004fce5621925af
+T021d:
+  task: 1cee1b40dcc9999c32dbffffa065b6a7b374fdc3599c09ddc701b45178cd2190
+T023a:
+  task: d6948cab723c8eaaceac1390f8a09cd4e34cb097deb53d6339cbe917496df1ea
+T023b:
+  task: bfc78a339226e3025434731c1ee5109472e697c4b2bb72a12dbbfd65dcfadaae
+T023c:
+  task: 6e28f544684c391462daac2c6197bcd830ef51d96a2fb547550a5fbe49f2ee3f
+T024:
+  task: f996d5046fe1216a225495e9963064602e31d64aed217a7077382a7e183ab381
+T025:
+  task: 1ec9d1fab46028afeaa419bae548d77414f7780a8cb7adcb5f02bbb619fa4ea4
+T025b:
+  task: 3651ee1a35928c83d102af5b9ca78a01fe127266a3f627ca76082718920bb6cf
+T025c:
+  task: 8ab76c31b185bad5259d702b3eb0197533289bd58463042e8ab682df0e729fa2
+T025d:
+  task: b1091f19b1e81898c1bf79766798237cfda7f8f927dca4352cb6f527e8a1ba3d
+T026:
+  task: fb6a7248d05d21a8e2f5d74e64376c4ca1cd76c36062921a73e5cadc28c1850d
+T027:
+  task: 6d874b0a93b62df3a5e8f484c6e31daa489931cb33022f86ad3e052c7f0cb871
+T028:
+  task: beba69b1e96aa9f364ed7a4514b63f736aad372696ce83a2c13f308dbe961bb6
+T028b:
+  task: a7885eaf7e0c313e6c64522994f28ad3ed5b34c13d55f6e1b1a7573a4cc8d1e7
+T029:
+  reason: 'declared artifact(s) missing/empty/invalid: Dockerfile, tests/integration/test_reproducibility.py'
+  task: 5de7258f6a08fbb5ce73e1d55d747faa1d8beaec9bf5d351af6c1a21d1c541f3
+T030:
+  task: 8f41b2b32b21c051e22ff8183948cb46d58436f31fba45665de703201beb7907
+T031:
+  task: ce0e66996a152f1eb61bb2b038dc4d8f444da7f327215456db1514939b26da4e
+T032:
+  task: dad78e5171452d5fb6854b5c45b221a42084a63621f313aca51b7f8140d8f324
+T033a:
+  task: 91a27c6f8f72e0907d62eeef5a425de45186b7ea0e0c1e23f7ae22d00384b467
+T033b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/run_pipeline.py'
+  task: 23f578137ae7d0cc6560f6c782eede5405e6a09a222712c486d5260e523a56d0
+T033c:
+  reason: 'declared artifact(s) missing/empty/invalid: Dockerfile'
+  task: 736ed76c12dc0747211cbdc23905c7e212fab4d331876ba4cdd0ed9c2cfd1904
+T033d:
+  reason: 'declared artifact(s) missing/empty/invalid: Dockerfile, code/run_pipeline.py'
+  task: d0d2b8831e7a12c740c4cf2f0d874798d8d23c214e9e1d2798edb891fd20541e
+T034a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/validate_runtime.py'
+  task: 0dcc0f25e36b2acba6c4364e77877fe38a278f15a911b662271e31f0275e067a
+T034b:
+  task: 0d6fd4b449cfe8d41a0a58d870af93e51a05814648ff1ba5e05032e5e091baba
+T034c:
+  task: 910148d8d62024b78b63c3c2cdcd6eeae4619801d9f485646e02f1257ce89fe8
+T034d:
+  reason: 'declared artifact(s) missing/empty/invalid: scripts/verify_env.sh'
+  task: 2e51fb1378b08f989df4233a3443e04840f27c91839b42f7930fb78ab251c444
+T034e:
+  task: 4ae67039bca53d6ce2f44c22226bccac74e93dd99d9b7ceeeb556e06e30ce02d
+T034f:
+  task: 2ecbfa65cd816106b936491010500bc9f517e215873995f5f197dac95fefecd8
+T034g:
+  task: 9481567880759ff84d9b76e6190433cf01778d39215152944ea179a542c604c5
+T041a:
+  task: e6bf4fbc7653c23a29c5ade8cd6cff06aadf9193c6640548bb05c1ab0a20abe5
+T041b:
+  task: 14ac6265b09f8750609aa003806700d2ab738084fbee361097c2a7a9f4db7f05
+T041c:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/markov_counts.json'
+  task: a76ef844f20ce002f1e259c97712e45080563c5a47945b781be4f3774f5c48b0
+T041d:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/markov_state.json'
+  task: edde5a348b47bbda8a567d854abc02f79cf79cae064e3457b77e8ceea0ae0277
+T042:
+  task: d23a710f0582662cb4cbd92f9a515f8008a1af602bf6aebaf1f93d2dba409404
+T043:
+  reason: 'declared artifact(s) missing/empty/invalid: code/check_covariates.py, data/processed/standardized.csv'
+  task: 443035fc3452efdf2b7191a08ad7f0a15cb080e28ccba897b8c8c0c9afb79a2f
+T050:
+  task: 4f5d444ab9f56a5f03659dc63280fe7042197297682202e1c1784f981f3564e4
+T051:
+  task: 88b3a47873ade0104417b6548f5433434b6cbb04dd36634dd585d1db42d86fec
+T052:
+  task: d1c3aef4af3280355c644b3d9b8d9829e52eb10554627fae24c817fee10a1f4f

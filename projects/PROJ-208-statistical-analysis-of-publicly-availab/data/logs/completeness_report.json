@@ -1,0 +1,45 @@
+{
+  "timestamp": "2024-01-16T10:30:45.123456Z",
+  "total_rows": 5,
+  "threshold": 0.95,
+  "overall_passes": true,
+  "column_details": {
+    "created_at": {
+      "total_rows": 5,
+      "missing_count": 0,
+      "completeness_ratio": 1.0,
+      "passes_threshold": true
+    },
+    "closed_at": {
+      "total_rows": 5,
+      "missing_count": 0,
+      "completeness_ratio": 1.0,
+      "passes_threshold": true
+    },
+    "labels": {
+      "total_rows": 5,
+      "missing_count": 0,
+      "completeness_ratio": 1.0,
+      "passes_threshold": true
+    },
+    "assignee": {
+      "total_rows": 5,
+      "missing_count": 1,
+      "completeness_ratio": 0.8,
+      "passes_threshold": false
+    },
+    "comments_count": {
+      "total_rows": 5,
+      "missing_count": 0,
+      "completeness_ratio": 1.0,
+      "passes_threshold": true
+    }
+  },
+  "missing_counts": {
+    "created_at": 0,
+    "closed_at": 0,
+    "labels": 0,
+    "assignee": 1,
+    "comments_count": 0
+  }
+}

@@ -1,0 +1,10 @@
+# Default configuration for Alloy Design Pipeline
+# This file is loaded if config.yaml is missing or values are not specified
+data_source: "OQMD/elastic_properties"
+raw_data_path: "data/raw/oqmd_data.csv"
+processed_dir: "data/processed"
+variance_threshold: 0.5
+random_seed: 42
+logging_level: "INFO"
+max_depth: 10
+subsample: 0.8

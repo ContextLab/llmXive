@@ -1,0 +1,5 @@
+'|bonferroni control error family holm level method rate significance wise':
+  quote: '0.05'
+  source_id: "Holm\u2013Bonferroni method"
+  url: "https://en.wikipedia.org/wiki/Holm\u2013Bonferroni_method"
+  value: '0.05'

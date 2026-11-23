@@ -9,6 +9,5 @@ tqdm
 numpy
 statsmodels
 linearmodels
-# Additional dependency required for TRY trait fetching
-# The script uses the requests library which is already listed,
-# but we explicitly keep it for clarity.
+pytest
+openpyxl

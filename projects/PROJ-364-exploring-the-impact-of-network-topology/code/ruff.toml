@@ -1,0 +1,21 @@
+# Ruff configuration file (redundant if in pyproject.toml, but kept for explicit tool invocation)
+# This file mirrors the settings in pyproject.toml for standalone ruff usage.
+
+target-version = "py311"
+line-length = 88
+select = [
+    "E",
+    "W",
+    "F",
+    "I",
+    "C",
+    "B",
+    "UP",
+]
+ignore = [
+    "E501",
+    "B008",
+]
+
+[per-file-ignores]
+"__init__.py" = ["F401"]

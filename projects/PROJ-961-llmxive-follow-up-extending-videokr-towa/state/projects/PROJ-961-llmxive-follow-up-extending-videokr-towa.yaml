@@ -1,0 +1,10 @@
+project_id: PROJ-961-llmxive-follow-up-extending-videokr-towa
+artifacts:
+  - path: data/processed/annotated_videokr.csv
+    hash: "pending"
+  - path: data/processed/threshold_results.json
+    hash: "pending"
+  - path: data/processed/gam_results.json
+    hash: "pending"
+  - path: data/processed/sensitivity_results.json
+    hash: "pending"

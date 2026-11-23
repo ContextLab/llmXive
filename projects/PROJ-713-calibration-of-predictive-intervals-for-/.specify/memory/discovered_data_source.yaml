@@ -1,0 +1,10 @@
+status: none
+intent: tsdl python package M4 dataset UCI electricity load python package dataset
+required_fields:
+- timestamp
+- value
+- series_id
+- frequency
+cache_key: 625c0c0882a744c6de1f802187b40dc85e5870a7f2365df0d51b052438c3f96c
+searched_at: '2026-10-12T14:16:45.581439+00:00'
+retry_count: 1

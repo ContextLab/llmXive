@@ -1,0 +1,113 @@
+T001:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No directory hierarchy or any file structure was provided as evidence; the claim\
+    \ that the project structure was created cannot be verified. The required artifact\u2014\
+    a populated folder hierarchy matching the plan\u2014is missing."
+T002:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact (e.g., a .git directory, initialization script, or confirmation output)
+    was provided to demonstrate that a Git repository has been created for the project.
+    The implementer must supply concrete evidence that the repository was initialized.
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `.gitignore` file content is provided; the evidence does not show that a file
+    exists with the required entries (`data/raw/`, `data/results/`, `__pycache__/`,
+    `*.pyc`). The implementer must supply the actual `.gitignore` file containing
+    those patterns.
+T008:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `main_pipeline.py` (or any code snippet) was provided, so there is no evidence\
+    \ that an entry\u2011point script was created or that it orchestrates the modular\
+    \ steps as required. The task remains undone until the file exists with the appropriate\
+    \ skeleton logic."
+T013a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The submission contains no code, notebook, script, or data file demonstrating
+    that Multiple Imputation by Chained Equations (MICE) was applied to the predictor
+    matrix `['age','gender','education','income','social_support','harassment_severity']`.
+    Without any artifact showing the imputation process or resulting imputed dataset,
+    the requirement is not satisfied. The next implementer must provide a concrete
+    implementation (e.g., Python/R script using `mice`/`IterativeImputer`) and the
+    resulting imputed data.
+T013b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, notebook, script, or data file was provided that creates the `harassment_exposure`
+    binary variable from the imputed `harassment_severity`. Without an actual artifact
+    showing the derivation (e.g., a Python/R script, a CSV column, or documented output),
+    the requirement is not met. The next implementer must supply a concrete implementation
+    and its resulting output.
+T013d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, notebook, or output file is provided that demonstrates listwise
+    deletion of rows with missing `depression`, `anxiety`, or `ptsd` after imputation
+    and derivation. Without such artifact, we cannot confirm the required handling
+    of outcome missingness was performed.
+T015:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The implementer provided only a textual description of the revised single\u2011\
+    dataset approach; no concrete artifact (e.g., validation script, cohort summary\
+    \ table, or data file) was supplied. Consequently, there is no evidence that the\
+    \ analysis cohort was actually validated as required."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No logging configuration code, files, or initialization scripts are present\
+    \ in the provided evidence; the task required setting up the pipeline\u2019s logging\
+    \ infrastructure, which is not demonstrated. The implementer must add a logging\
+    \ setup (e.g., a Python module configuring `logging`, a config file, and integration\
+    \ into the pipeline)."
+T019:
+  c: false
+  h: cfc7054afad0bc67260b2d9e20463b763235fc7cd034b571fbb659f6277b2c98
+  r: The required artifact `tests/unit/test_bootstrap_ci.py` does not exist in the
+    repository, so no unit test for the bootstrapping logic is present. The task cannot
+    be considered completed until this file is added with appropriate test code.
+T022:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file was provided that demonstrates the addition of\
+    \ a fallback mechanism to refit a standard OLS model when the robust model fails\
+    \ to converge, nor evidence that the status `E\u2011NONCONV\u2011001` is logged.\
+    \ The required artifact is missing."
+T025:
+  c: false
+  h: a849ccfee693f593fa88417603d98bac534b78e606bd303e5ff0a68f64bf872e
+  r: 'The `code/analysis/results.py` file is truncated and contains a syntax error
+    (`"std_error": ro`), and it never writes a markdown file to `data/results/regression_summary.md`.
+    Moreover, the required `regression_summary.md` file does not exist. The implementation
+    therefore does not fulfill the task of generating the summary report.'
+T028:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., CSV, spreadsheet, or markdown table) showing the interaction\
+    \ coefficients from the baseline run (T020) and from each sensitivity analysis,\
+    \ nor a computed table of their shifts, was provided. The implementer\u2019s response\
+    \ contains only the task description and project spec, without the required output."
+T072a:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided spec excerpt shows FR-001 and FR-002 marked as \u201C[REMOVED \u2026\
+    ]\u201D and includes a \u201CValidation Criteria (Revised SC-001)\u201D section,\
+    \ satisfying the required REMOVED and REVISED blocks."
+T073a:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided `spec.md` excerpt includes the Data Dictionary table, and every\
+    \ variable\u2019s Source entry is \u201CCyberbullying Survey 2021 (Sole Source)\u201D\
+    \ (or derived from it), satisfying the verification requirement."
+T074a:
+  c: true
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided specification excerpt includes Section\u202F5 \u201CMethodological\
+    \ Notes\u201D with a detailed \u201CRevised Approach\u201D subsection that explains\
+    \ the single\u2011dataset rationale, and a \u201CRejection of Dual\u2011Dataset\
+    \ Matching\u201D subsection that correctly addresses and rejects the \u201CSynthetic\
+    \ Cohort\u201D mention. This satisfies the verification requirement."

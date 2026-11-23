@@ -1,0 +1,6 @@
+pandas
+numpy
+pyarrow
+requests
+pyyaml
+zenodo-get

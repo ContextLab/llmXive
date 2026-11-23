@@ -65,5 +65,15 @@
     "tables/capability_comparison.tex",
     "tables/latency.tex",
     "tables/recall.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "debde9e8ee21471e071a6343a29a25aefa9e9e6e8fca259dd9b630aef421198e",
+      "bytes": 4220196
+    },
+    "original.pdf": {
+      "sha256": "06d71d14ca020d810c5efa4ae7de73959787c5e342a9b6d558fe0398a757d24e",
+      "bytes": 4102717
+    }
+  }
 }

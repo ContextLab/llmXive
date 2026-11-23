@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.14002",
+  "judged_at": "2026-08-09T06:25:47Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"minwm: a full-stack open-source framework for real-time interactive vi\" computer science",
+  "rationale": "The paper focuses on task offloading and resource allocation in Vehicular Edge Computing (VEC), which is a distinct domain from the user's question regarding a \"Full-Stack Open-Source Framework for Real-Time Interactive Vi\" (likely referring to Vision or Video) for LLMs. While both involve \"real-time\" and \"computing,\" the paper does not measure the same mechanism, variables, or empirical population as the user's specific framework for interactive LLMs, and it falls under the \"off-domain entirely",
+  "relevant": false
+}

@@ -110,5 +110,15 @@
     "tables/tab_exps_feb25_pass1_avg10_t0.2.tex",
     "tables/tab_exps_feb25_pass10_t1.0.tex",
     "tables/tab_exps_feb25_pass1_t0.2.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "0e39c6d568b844ab3eb24c6be5f8fe81dfc0bb703a6ae95a5e6b99dc5d63d110",
+      "bytes": 16781788
+    },
+    "original.pdf": {
+      "sha256": "37a1867f4056b97544b3122745ff9d05477986589a998a3eb1aadea1406345d9",
+      "bytes": 16739242
+    }
+  }
 }

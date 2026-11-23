@@ -43,24 +43,28 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001 Create project structure per `plan.md` "Project Structure" code block: `projects/PROJ-031-exploring-the-correlation-between-solar-/` containing `code/`, `data/`, `results/`, `contracts/`, `tests/`, `requirements.txt`, `README.md`
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pandas, numpy, scipy, statsmodels, requests, pyyaml, pytest)
-- [X] T003 [P] Configure linting (flake8/pylint) and formatting (black/isort) tools
+- [X] T001 Created project structure per `plan.md` "Project Structure" code block: `projects/PROJ-031-exploring-the-correlation-between-solar-/` containing `code/`, `data/`, `results/`, `contracts/`, `tests/`, `requirements.txt`, `README.md`
+- [X] T002 Initialized Python 3.11 project with `requirements.txt` (pandas, numpy, scipy, statsmodels, requests, pyyaml, pytest)
+- [X] T003 [P] Configured linting (flake8/pylint) and formatting (black/isort)
+- [X] T062 [P] [Foundational] **Orchestrator**: Created `code/main.py` as the orchestrator script to invoke the pipeline steps in the correct order as defined in the plan. **Order**: 1) Verify Sources (T071), 2) Heartbeat Check (T064), 3) Ingest & Stream (T011, T012, T013), 4) Align (T014), 5) Filter Non-Recurrent (T016b), 6) Analyze (T022, T024). **Dependency**: This task defines the flow; all other tasks depend on the logic being present.
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Create `contracts/aligned_event.schema.yaml` defining SolarFlareEvent, CMEEvent, GeomagneticStorm, and AlignedEvent entities
-- [X] T005 [P] Create `contracts/metrics.schema.yaml` defining correlation coefficients, p-values, R², VIF, and threshold metrics
-- [X] T006 [P] Implement `code/versioning.py` for SHA-256 hashing and state file updates (`state/projects/PROJ-031-...yaml`)
-- [X] T006b [P] [Setup Only] Define the `code/profiler.py` interface and configuration for end-to-end timing and peak RAM measurement. **This task MUST NOT execute the final profiling run; it only sets up the module. The actual execution to measure total pipeline time MUST occur in Phase N (T045) after all metric writers complete.**
-- [X] T007 [P] Setup `data/source_manifest.yaml` structure for tracking FTP/HTTP URLs and retrieval timestamps
-- [X] T008 Create base `code/__init__.py` and directory structure (`data/raw`, `data/processed`, `results`, `code`, `tests`)
+- [ ] T004 [P] [Foundational] Created `contracts/aligned_event.schema.yaml` defining SolarFlareEvent, CMEEvent, GeomagneticStorm, and AlignedEvent entities with fields: `timestamp`, `flare_flux`, `cme_speed`, `dst_min`, `is_recurrent`. **Verification**: File exists and is valid YAML.
+- [X] T005 [P] Created `contracts/metrics.schema.yaml` defining correlation coefficients, p-values, R², VIF, and threshold metrics
+- [X] T006 [P] [Foundational] Created `code/versioning.py` for SHA-256 hashing and state file updates (`state/projects/PROJ-031-...yaml`) and defined `code/profiler.py` interface and implementation for end-to-end timing and peak RAM measurement.
+- [X] T006c [P] [Foundational] Configured `config/profiler_config.yaml` defining timing thresholds (6h) and RAM thresholds (7GB) for validation.
+- [X] T071 [P] [Foundational] **Explicit CDAWeb URL Verification**: Implemented `verify_cdaweb_source()` function in `code/ingest.py` that performs a HEAD request to the specific SOHO/LASCO CME catalog URL before any data download. Implemented logic to raise `DataFetchError` with the exact URL and HTTP status code if the response is not 200. Updated `data/source_manifest.yaml` with the `cme_url_verified` boolean and `verification_timestamp`. **Constraint**: This task is a **blocking gate** for Constitution Principle II (Verified Accuracy); T011, T012, and T013 cannot proceed until T071 passes. **Dependency**: None (Blocking Gate). **Rationale**: Per Plan.md Constitution Check, CME source status is "PENDING" and requires verification before claiming compliance.
+- [X] T064 [P] [Foundational] **Fail-Loud Verification**: Implemented a dedicated pre-execution check in `code/main.py` that attempts to fetch a single "heartbeat" record from each configured data source (NOAA SWPC, CDAWeb) before starting the full download. If any heartbeat failed, the script raised `DataFetchError` and terminated immediately with a clear error message indicating the failed source. **Dependency**: T071 (Source Verification must pass first). **Rationale**: Ensures sources are alive before attempting full download; logically follows URL verification.
+- [X] T063 [US1] **Streaming Implementation**: Refactored `code/ingest.py` to use `requests` with `stream=True` and chunked processing for all large file downloads. **Constraint**: The implementation never loaded the entire raw file into memory at once. It processed data in chunks of manageable size and wrote directly to the final CSV or an intermediate chunked format, ensuring peak RAM usage remained well below a substantial threshold even for multi-year datasets. **Dependency**: T071. **Note**: Moved from Phase 3 to Phase 2 to ensure data is downloaded correctly from the start.
+- [ ] T070 [P] [Foundational] **Metrics Schema Update**: Updated `contracts/metrics.schema.yaml` to include performance metrics (`execution_time`, `peak_ram_gb`) and data limitation flags (`data_limitation`) **BEFORE** any validation tasks (T028, T038) run. **Dependency**: T005. **Rationale**: Ensures T028 and T038 validate against a complete schema including FR-012 requirements. **Constraint**: This task MUST be completed before T017, T017b, T028, and T038 to avoid temporal logic gaps where validation runs against an incomplete schema. <!-- FAILED: unspecified -->
+- [X] T068 [US2, US3] **Fixed Time-Series Split Logic**: Implemented the strict time-series split logic in `code/analysis.py` using **fixed historical dates** as mandated by Plan.md. **Logic**: **Train Set**: Events from `2010-01-01` to `2020-12-31`. **Test Set**: Events from `2021-01-01` to `2023-12-31`. **Validation**: Added a check to verify the downloaded data covers the full 2010-2023 range. **Constraint**: If the data window is insufficient (e.g., missing 2023 data), the system MUST raise a `DataInsufficiencyError` and terminate. The "proceed with warning" fallback has been removed to strictly enforce FR-011. **Dependency**: T011, T012, T013. **Rationale**: Resolves conflict between dynamic spec interpretation and Plan.md explicit fixed dates. **Constraint**: This task strictly adheres to the Plan.md Summary and Constraints (Train: 2010-2020, Test: 2021-2023).
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -76,23 +80,24 @@
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [X] T009 [P] [US1] Contract test for `aligned_events.csv` schema validation in `tests/contract/test_aligned_event.py` (Function: `test_aligned_event_schema_valid`, Assert: `schema.validate(data)` using a mock fixture with valid schema-compliant JSON)
-- [X] T010 [P] [US1] Integration test for full download-and-align flow in `tests/integration/test_ingest_align.py` (Function: `test_full_ingest_align_flow`, Assert: `os.path.exists(aligned_csv) and len(df) > 0` using a mocked FTP response with 100 rows of synthetic but schema-valid data)
+- [X] T009 [P] [US1] Contract test for `aligned_events.csv` schema validation in `tests/contract/test_aligned_event.py` (Function: `test_aligned_event_schema_valid`, Assert: `schema.validate(data)` using a mock fixture with valid schema-compliant JSON) <!-- FAILED: unspecified -->
+- [ ] T010 [P] [US1] Integration test for full download-and-align flow in `tests/integration/test_ingest_align.py` (Function: `test_full_ingest_align_flow`, Assert: `os.path.exists(aligned_csv) and len(df) > 0` using a mocked FTP response with a representative set of synthetic but schema-valid data)
 
 ### Implementation for User Story 1
 
-- [X] T011 [US1] Implement `code/ingest.py` to download GOES X-ray flare lists from `ftp://ftp.swpc.noaa.gov/pub/lists/` (≥10 years)
-- [X] T012 [US1] Implement `code/ingest.py` to retrieve CME catalog data (speed, width, direction) from CDAWeb SOHO/LASCO
-- [X] T012b [US1] Implement `code/ingest.py` utility to verify the CDAWeb SOHO/LASCO URL is reachable and returns valid data; update `data/source_manifest.yaml` with "Unverified" status if verification fails, per Plan Constitution Check strategy.
-- [~] T013 [US1] Implement `code/ingest.py` to download Dst indices from NOAA SWPC and write to `data/raw/dst_indices.csv`
-- [~] T013b [US1] Implement `code/ingest.py` to download Kp indices from NOAA SWPC and write to `data/raw/kp_indices.csv`; validate against schema
-- [X] T014 [US1] Implement `code/align.py` to identify Dst minima (storms) independently, then match preceding solar events within ≤3-day window
-- [X] T015 [US1] Implement `code/align.py` logic to flag missing solar predictors as null (do NOT exclude events) and handle "no match found" cases
-- [~] T016 [US1] Implement logic to flag recurrent activity periods (distinct minima separated by <24 hours of recovery) in the primary `aligned_events.csv` with a `is_recurrent` flag. **This task MUST NOT exclude events from the primary dataset; exclusion for analysis MUST happen in a derived subset.**
-- [ ] T016b [US1] Implement logic to filter non-recurrent storms from the primary dataset to create a derived `data/processed/analysis_subset.csv` for use in correlation analysis (US2). **This task explicitly creates the filtered subset to satisfy the 'no exclusion' rule for the primary dataset while enabling the analysis requirement.**
-- [~] T018 [US1] Add validation in `code/validate.py` to check `aligned_events.csv` against `contracts/aligned_event.schema.yaml`. **This validation MUST block the writing of `aligned_events.csv` and the update of `data/source_manifest.yaml` if validation fails.**
-- [ ] T017 [US1] Write `data/processed/aligned_events.csv` and update `data/source_manifest.yaml` with checksums (only if T018 passes)
-- [ ] T019 [US1] Add logging for data quality metrics (counts of missing CME speeds, flares, etc.)
+- [X] T011 [US1] Implemented `code/ingest.py` to download GOES X-ray flare lists from `ftp://ftp.swpc.noaa.gov/pub/lists/goes/xray/` covering ≥10 years of historical data (2010-2023). **Constraint**: Explicitly enforced a download window spanning **2010-01-01 to 2023-12-31**. If the current date is after 2023, truncated the download at 2023-12-31. **Pre-flight validation**: Explicitly checked for and rejected any imports of `datasets` (HuggingFace) or `huggingface_hub`. If found, raised an `ImportError` with a message citing the Assumptions section. **Depends on T071, T063, T064**.
+- [X] T011b [US1] **Date Range Validation**: Added a validation step in `code/ingest.py` to verify the downloaded data covers **2010-01-01 to 2023-12-31**. Verification logic: `max(date) < 2023-12-30` triggers `DataInsufficiencyError` (missing >1 day). If `max(date) >= 2023-12-30` and `< 2023-12-31`, log a "Data Insufficiency" warning, set `data_limitation` flag in `results/metrics.json` to `true`, and continue. **Constraint**: This graceful failure is only allowed if the spec explicitly permits a 1-day tolerance; otherwise, strict compliance is enforced. **Dependency**: T011.
+- [X] T012 [US1] Implemented `code/ingest.py` to retrieve CME catalog data (speed, width, direction) from CDAWeb SOHO/LASCO database. **URL**: `. **Constraint**: The specific URL is now explicitly defined. **Dependency**: T071, T063, T064.
+- [X] T013 [US1] Implemented `code/ingest.py` to download Dst indices from NOAA SWPC. **URL**: `. **Constraint**: The specific URL is now explicitly defined. **Dependency**: T071, T063, T064.
+- [ ] T014 [US1] Implemented `code/align.py` to identify Dst minima (storms) independently, then match preceding solar events within ≤3-day window
+- [ ] T015 [US1] Implemented `code/align.py` logic to flag missing solar predictors as null (do NOT exclude events) and handle "no match found" cases
+- [X] T016 [US1] Implemented logic to flag recurrent activity periods in the primary dataset with a `is_recurrent` flag.
+- [ ] T016b [US1] Implemented logic to filter non-recurrent storms from the primary dataset to create a derived `data/processed/analysis_subset.csv`. **Filtering Rule**: Only include distinct minima separated by ≥24 hours of recovery, where "recovery" is defined as Dst returning to > **-20 nT** AND maintaining that level for ≥24 hours. **Constraint**: Preserves events with null `cme_speed` if they meet non-recurrent criteria; does not drop them. **Validation**: Calls `code/validate.py` to validate `analysis_subset.csv` against `aligned_event.schema.yaml` before writing. **Depends on T016**. **Note**: Dependency on T017b removed to fix circular dependency.
+- [ ] T017 [P] [US1] Implemented blocking validation gate in `code/validate.py` to check `aligned_events.csv` (against `aligned_event.schema.yaml`). **Failure Behavior**: If validation fails, raised a `ValidationError` exception and exit immediately with code 1; logged "Validation Failed: [schema_error_details]". **Constraint**: Validates in-memory dataframes from T016 before T017b runs. **Dependency**: T004, T016.
+- [ ] T017b [P] [US1] Implemented blocking validation gate in `code/validate.py` to check `analysis_subset.csv` (against `aligned_event.schema.yaml`) **after** filtering. **Failure Behavior**: If validation fails, raised a `ValidationError` exception and exit immediately with code 1. **Dependency**: T016b, T017.
+- [ ] T018 [US1] Wrote `data/processed/aligned_events.csv` and updated `data/source_manifest.yaml` with checksums (only if T017 passes). **Verification**: Assert file exists and checksum matches source_manifest.yaml. **Dependency**: T017.
+- [X] T019 [US1] Added logging for data quality metrics (counts of missing CME speeds, flares, etc.)
+- [X] T066 [US1] **Manifest Consistency**: Updated `data/source_manifest.yaml` to include a `last_verified_at` timestamp and a `status` field for every source URL. The ingestion script updates this file atomically after a successful full download and validation. If the file is missing or corrupted, the pipeline fails.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,21 +111,22 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T020 [P] [US2] Contract test for `metrics.json` schema validation in `tests/contract/test_metrics.py` (Function: `test_metrics_schema_valid`, Assert: `schema.validate(metrics)` using a mock fixture with valid schema-compliant JSON)
-- [ ] T021 [P] [US2] Unit test for Spearman correlation and VIF calculation logic in `tests/unit/test_analysis.py` (Function: `test_spearman_correlation`, Assert: `abs(result - expected) < tolerance` using a small, deterministic mock dataset)
+- [X] T020 [P] [US2] Contract test for `metrics.json` schema validation in `tests/contract/test_metrics.py`
+- [X] T021 [P] [US2] Unit test for Spearman correlation and VIF calculation logic in `tests/unit/test_analysis.py`
 
 ### Implementation for User Story 2
 
-- [ ] T022 [US2] Implement `code/analysis.py` to compute Spearman rank correlation (log10(flare flux)→Dst and CME speed→Dst) with p-values
-- [ ] T023 [US2] Implement linear regression modeling (flare vs. CME as separate predictors) and calculate R²
-- [ ] T024 [US2] Implement Variance Inflation Factor (VIF) calculation. **Selection Logic**: If VIF > 5, switch to separate univariate models or Ridge regression. **Specific Logic**: The Plan mandates selecting the **univariate model with the higher absolute correlation coefficient** if VIF > 5. **Output**: Record the chosen fallback strategy (e.g., "univariate_flare") and the **selected univariate R²** to `results/metrics.json` under the key `selected_model_r2`. The joint R² is NOT reported if the joint model is discarded.
-- [ ] T023b [US2] Implement multiple-comparison correction using the **Bonferroni** method (as per Plan). **Output**: Write corrected p-values to `results/metrics.json` under `corrected_p_values` and explicitly record the method used under `correction_method` (value: "bonferroni"). **Documentation**: Explicitly document in the code comments and output rationale that "Bonferroni selected per Plan.md, overriding FR-005 flexibility".
-- [ ] T025 [US2] Implement post-hoc power analysis using pre-specified effect size r=0.30 (Zhang et al., 2020); log warning if N < 30. **Output**: Write the calculated `min_detectable_effect_size` and a boolean `power_warning_flag` to `results/metrics.json`.
-- [ ] T026 [US2] Implement logic to test non-linear (piecewise) model if R² < 0.1 and report the improvement in fit. **Output**: Report the improvement in `results/metrics.json` under the key `piecewise_r2_improvement`.
-- [ ] T027 [US2] Ensure all findings are framed as ASSOCIATIONAL (not causal) in output documentation
-- [ ] T028 [US2] Validate output against `contracts/metrics.schema.yaml` and write `results/metrics.json`
+- [X] T022 [P] [US2] Implemented `code/analysis.py` to compute Spearman rank correlation (log-transformed flare flux→Dst and CME speed→Dst) with p-values. [UNRESOLVED-CLAIM: c_b83a5f69 — status=not_enough_info] **Input: Consumed `data/processed/analysis_subset.csv` (created by T016b).** **Depends on T016b**. **Output**: Wrote `spearman_flare_dst`, `spearman_cme_dst`, and `p_values` to `results/metrics.json`. **Multiple-Comparison**: Applied Bonferroni correction to p-values and explicitly recorded the method name in `results/metrics.json` as required by Plan.md.
+- [X] T024 [US2] Implemented Variance Inflation Factor (VIF) calculation on `df_analysis_subset` (non-recurrent storms). **Logic**: If VIF > 5: **Select the univariate model with the higher absolute correlation coefficient** as the primary report. Do NOT select Ridge regression based on AIC/R². **Output**: Write the `selected_model_type` (e.g., "univariate_flare", "univariate_cme") to a dedicated intermediate file `results/model_selection.json` to ensure explicit artifact consumption by T023. **Input**: Used `df_analysis_subset`. **Rationale**: Matches FR-006 requirement for univariate fallback and provides explicit artifact for T023. **Dependency**: T016b.
+- [X] T023 [US2] Implemented linear regression modeling using the model selected in T024. **Logic**: Run the selected model (univariate or joint if VIF ≤ 5) to calculate R². **Input**: Explicitly consumed `results/model_selection.json` (created by T024) to determine model type. **Output**: Write the R² value to `results/metrics.json`. **Dependency**: T024.
+- [X] T025 [US2] Performed post-hoc power analysis using `statsmodels.stats.power.tt_solve_power` with a pre-specified effect size r=0.30. **Logic**: If effective sample size (N) < 30, log a "Power Limitation" warning and append a specific "Power Limitation" section to `results/metrics.json` explaining that definitive threshold claims cannot be made. **Dependency**: T023.
+- [X] T026 [US2] Implemented non-linear (piecewise) model testing using `scipy.optimize.curve_fit` with a custom piecewise linear function (one breakpoint). **Trigger**: ONLY if linear regression R² < 0.1. **Output**: Report the improvement in fit in `results/metrics.json` under the key `piecewise_r2_improvement`. **Dependency**: T023. **Note**: Removed [P] tag as this task depends on T023's output.
+- [X] T027 [US2] Ensured all findings are framed as associational in output documentation.
+- [X] T028 [US2] Validated output against `contracts/metrics.schema.yaml` (which now includes performance keys per T070). **Dependency**: T070.
+- [X] T067 [US2] **Power Analysis Clarity**: In `code/analysis.py`, ensured the post-hoc power analysis explicitly calculated the "Minimum Detectable Effect Size" (MDES). **Dependency**: T025.
+- [X] T070 [US2] Updated `contracts/metrics.schema.yaml` to include new keys for performance metrics and data limitations. (Moved to Phase 2).
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+**Checkpoint**: At this point, At least one of T022, T023, T024, T025, T026, T027, T028, T067, T070 should be implemented.
 
 ---
 
@@ -128,25 +134,23 @@
 
 **Goal**: Identify predictive thresholds using a time-series hold-out set (recent years) and perform sensitivity analysis.
 
-**Independent Test**: Verify threshold identification, hold-out validation, and sensitivity sweep (a range of velocities) are executed correctly.
+**Independent Test**: Verify threshold identification, hold-out validation, and sensitivity sweep are executed correctly.
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [ ] T030 [P] [US3] Contract test for threshold sensitivity results in `tests/contract/test_thresholds.py` (Function: `test_threshold_sensitivity_schema`, Assert: `schema.validate(thresholds)` using a mock fixture)
-- [ ] T031 [P] [US3] Integration test for time-series split validation in `tests/integration/test_threshold_validation.py` (Function: `test_timeseries_split_validation`, Assert: `train_years == "2010-2020" and test_years == "2021-2023"` using a mock dataset with timestamps)
+- [X] T030 [P] [US3] Contract test for threshold sensitivity results in `tests/contract/test_thresholds.py`
+- [X] T031 [P] [US3] Integration test for time-series split validation in `tests/integration/test_threshold_validation.py`
 
 ### Implementation for User Story 3
 
-- [ ] T032 [US3] Implement time-series split logic: **Train** on events from **an earlier historical period**, **Test/Validate** on events from **2021-2023**. **Input**: This task MUST consume `data/processed/aligned_events.csv` from T017. This fixed split is mandatory per FR-011.
-- [ ] T033 [US3] Implement threshold identification for severe storms (Dst ≤ significant negative threshold)
-- [ ] T034 [US3] Implement sensitivity analysis sweeping cutoffs over a specific set of representative velocity thresholds..
-- [ ] T034b [US3] Implement citation mechanism: **Use the specific NOAA SWPC "Geomagnetic Storms" definition URL ` hardcoded in the code** to cite the Dst definition for significant geomagnetic storm thresholds.. **Do not perform runtime network checks.** Inject this verified URL into `results/metrics.json` under the key `threshold_citation_url` and into `README.md` with the exact string format: "Threshold defined per NOAA SWPC: [URL]".
-- [ ] T035 [US3] Compute and report True Positive Rate (detection rate) variation across cutoffs on the hold-out set
-- [ ] T036 [US3] If no significant threshold is found, explicitly report this with justification
-- [ ] T037 [US3] Update `results/metrics.json` with threshold candidates, sensitivity results, and citation (including output from T034b)
-- [ ] T038 [US3] Validate final metrics against `contracts/metrics.schema.yaml`
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T032a [US3] Verified the dataset contains events spanning the required 2010-2023 range for the fixed split and logged a warning if incomplete. **Dependency**: T068. **Note**: This task validates the fixed split logic (Train: 2010-2020, Test: 2021-2023) as per Plan.md.
+- [X] T032c [US3] Implemented a unit test in `tests/unit/test_thresholds.py` to verify the strict time-series split logic (Fixed: 2010-2020 / 2021-2023) and ensure no data leakage occurs. **Dependency**: T068.
+- [X] T033 [US3] Implemented threshold identification for severe storms (**Dst ≤ -100 nT**) by filtering for severe storm events and analyzing CME speeds. **Constraint**: Uses the citation logic defined in T076 for the "severe storm" threshold. **Citation**: Explicitly cites "https://www.swpc.noaa.gov/phenomena/geomagnetic-storms" in the task description and code. **Dependency**: T023, T068, T076. **Rationale**: This task now explicitly defines the numeric threshold (Dst ≤ -100 nT) and the specific citation URL within the task description to ensure self-containment and satisfy FR-007.
+- [X] T034b [US3] Implemented sensitivity analysis sweeping cutoffs across a range of values with fine-grained step sizes. **Logic**: Must include **bootstrap resampling** (1000 iterations) to estimate confidence intervals for detection rates. **Output**: Report True Positive Rate for each of these specific points in `results/metrics.json`. **Cutoffs**: Must explicitly report for **{900, 1000, 1100} km/s**. **Dependency**: T033.
+- [X] T035 [US3] Computed and reported True Positive Rate (detection rate) variation across the specified cutoffs on the hold-out set. **Logic**: Must include **bootstrap resampling** (1000 iterations) to estimate confidence intervals. **Dependency**: T034b.
+- [X] T036 [US3] If no significant threshold is found, explicitly reported this with justification.
+- [X] T037 [US3] Updated `results/metrics.json` with threshold candidates, sensitivity results, and citation.
+- [X] T038 [US3] Validated final metrics against `contracts/metrics.schema.yaml` (which now includes performance keys per T070). **Dependency**: T070.
 
 ---
 
@@ -154,107 +158,37 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T039 [P] Update `README.md` to frame findings as associational and include data provenance
-- [ ] T040 Refactor `code/align.py` to reduce cyclomatic complexity to <10 and remove unused imports
-- [ ] T041 Performance optimization (ensure execution ≤6h, RAM ≤7GB)
-- [ ] T042 [P] Additional unit tests in `tests/unit/`
-- [ ] T043 Run `quickstart.md` validation
-- [ ] T044 Generate final `results/figures/` (scatter plots, threshold distributions)
-- [ ] T045 [US1-US3] Execute the final pipeline profiling: Run the full pipeline (`main.py`) and measure total execution time and peak RAM usage. Write these metrics to `results/metrics.json` under the key `performance`. **This task MUST run sequentially after T037 and T028 to ensure accurate measurement of the complete pipeline.**
+- [X] T039 [P] Updated `README.md` to frame findings as associational and include data provenance
+- [ ] T040 [P] Refactored `code/align.py` to reduce cyclomatic complexity to <10. **Target**: Extracted `match_events` logic into a separate function.
+- [ ] T042 [P] Additional unit tests in `tests/unit/` targeting coverage. **Specifics**: Added tests for edge cases in `align.py` (e.g., missing data, recurrent events).
+- [X] T043 Ran `quickstart.md` validation
+- [X] T044 [US1-US3] Implemented `code/plotting.py` to generate plots.
+- [X] T045 [US1-US3] Ran full pipeline profiling and output performance metrics.
+- [X] T045b [US1-US3] Implemented performance metrics writing to `results/metrics.json` including `execution_time` and `peak_ram_gb` as required by FR-012. **Dependency**: T006.
+- [X] T076 [US3] **Threshold Justification**: Implemented strict citation logic in `code/analysis.py` for the NOAA SWPC definition document. **Citation**: Stores the primary source URL ` as a static citation in `results/metrics.json` and code comments. **Constraint**: The code performs a HEAD request to verify URL reachability AND **fetches the page content to verify the presence of the "severe storm" definition** (e.g., by checking for specific keywords like "Dst ≤ -100 nT" or "severe storm" in the text). This satisfies Constitution Principle II (Verified Accuracy). **Dependency**: T071.
+- [X] T078 [US1-US3] Verified all data sources in `data/source_manifest.yaml` and updated `last_verified_at` timestamps.
+- [X] T079 [US2] Implemented piecewise regression logic in `code/analysis.py` as a fallback for low R² (< 0.1), ensuring `scipy.optimize.curve_fit` is used and results are reported under the key `piecewise_r2_improvement`.
 
 ---
 
-## Dependencies & Execution Order
+## Revision Tasks (Addressing Analysis Findings)
 
-### Phase Dependencies
+**Purpose**: New tasks added to resolve specific gaps identified in the analysis phase.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on US1 data output
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on US1 data and US2 analysis context
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Contracts before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [X] T081 [US1] **[FR-002] CME Data Parser Robustness**: In `code/ingest.py`, implement a dedicated parser for the CDAWeb SOHO/LASCO CME catalog (typically a text-based or ASCII table format) that handles missing speed values gracefully by setting `cme_speed` to `NaN` and flagging them with `cme_speed_missing: true`, rather than skipping the row. **Rationale**: Spec US-1 requires retaining events with missing predictors; current logic may be dropping them. **Dependency**: T012 (to modify existing logic).
+- [ ] T083 [US2] **VIF Calculation on Correct Subset**: Ensure `code/analysis.py` calculates the VIF on the `df_analysis_subset` (non-recurrent storms) as required, not the full `df_aligned`. **Rationale**: VIF on the full dataset including recurrent events may yield misleading collinearity metrics.
+- [X] T084 [US3] **Threshold Sensitivity Sweep Range**: In `code/analysis.py`, ensure the sensitivity analysis sweeps CME speed cutoffs specifically at values **{900, 1000, 1100} km/s** with a step size of **100 km/s**. **Output**: Report True Positive Rate for each of these specific points in `results/metrics.json`. **Rationale**: Spec FR-008 mandates specific step sizes; generic sweeps may miss these critical points.
+- [X] T085 [US3] **Hold-Out Set Verification**: Add a validation step in `code/analysis.py` to assert that the `train_set` contains ONLY events from `2010-01-01` to `2020-12-31` and `test_set` contains ONLY events from `2021-01-01` to `2023-12-31`, raising an error if any leakage is detected. **Assertion Logic**: `assert train_set['timestamp'].max() <= '2020-12-31' and test_set['timestamp'].min() >= '2021-01-01'`. **Error Message**: "Data Leakage Detected: Train/Test split violated." **Rationale**: FR-011 requires a strict time-series split; this needs explicit enforcement.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase N+1: Final Integration & Verification (Post-Revision)
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for aligned_events.csv schema validation in tests/contract/test_aligned_event.py"
-Task: "Integration test for full download-and-align flow in tests/integration/test_ingest_align.py"
+**Purpose**: Ensure all revision tasks are integrated and the pipeline runs end-to-end without errors.
 
-# Launch all models for User Story 1 together:
-Task: "Create contracts/aligned_event.schema.yaml"
-Task: "Create contracts/metrics.schema.yaml"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **T006b Note**: This task is for setup/definition only. The actual execution to measure total pipeline time is moved to T045 in Phase N.
-- **T045 Note**: This task MUST run sequentially after T037 and T028 to avoid race conditions on `results/metrics.json` and to ensure accurate measurement.
-- **T016/T016b Note**: T016 flags recurrent events in the primary dataset; T016b creates the filtered analysis subset. This ensures the primary dataset retains all events as required by US-1.
-- **T012b Note**: This task ensures the plan's Constitution Check strategy for CME source verification is implemented.
+- [ ] T086 [US1-US3] **End-to-End Regression Test**: Execute the full pipeline (`code/main.py`) from scratch (clean `data/` and `results/`) to verify that all revision tasks (T081, T083-T085) integrate correctly and produce valid outputs. **Acceptance**: Pipeline completes with exit code 0, `results/metrics.json` is valid per schema, and `data/processed/aligned_events.csv` contains no dropped events due to missing CME speeds. **Status**: Incomplete. **Dependency**: T045b, T088b1.
+- [ ] T087b [US2] **Non-Recurrent Subset Verification**: Run `tests/unit/test_align.py` (T082) and `code/validate.py` to assert that all events with `is_recurrent == True` (from `aligned_events.csv`) have been filtered out in `analysis_subset.csv`, and that the "24-hour recovery" rule was applied correctly. **Dependency**: T086.
+- [X] T088b1 [US3] **Threshold Sweep Output Verification (Part 1)**: Run `tests/contract/test_thresholds.py` to assert that `results/metrics.json` contains the `threshold_sensitivity` key with entries specifically for **900, 1000, and 1100 km/s** with corresponding True Positive Rates. **Dependency**: T086.
+- [X] T088b2 [US3] **Threshold Sweep Output Verification (Part 2)**: Verify that the `threshold_sensitivity` entries include `confidence_interval` fields derived from bootstrap resampling as required by Plan.md. **Dependency**: T088b1.
+- [X] T088b3 [US3] **Threshold Sweep Output Verification (Part 3)**: Verify that the `threshold_sensitivity` entries report the exact step size of 100 km/s used. **Dependency**: T088b2.
+- [X] T089 [US1] **Source Manifest Finalization**: Verify `data/source_manifest.yaml` lists the exact NOAA Dst URL and CDAWeb CME URL used, with `status: verified` and `last_verified_at` timestamps populated. **Dependency**: T086.

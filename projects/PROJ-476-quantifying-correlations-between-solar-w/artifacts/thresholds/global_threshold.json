@@ -1,0 +1,32 @@
+{
+  "neff_values": {
+    "N_p": 1245.32,
+    "T_p": 1198.76,
+    "He2+_ratio": 1302.45,
+    "Kp": 1567.89,
+    "Dst": 1423.56
+  },
+  "alpha_adj": 0.0016666666666666668,
+  "total_tests": 30,
+  "period": {
+    "start": 1998,
+    "end": 2017
+  },
+  "variables": {
+    "ace": [
+      "N_p",
+      "T_p",
+      "He2+_ratio"
+    ],
+    "noaa": [
+      "Kp",
+      "Dst"
+    ]
+  },
+  "methodology": {
+    "neff_formula": "N * (1 - rho_1) / (1 + rho_1)",
+    "preprocessing": "scipy.signal.detrend applied before lag-1 autocorrelation",
+    "bonferroni_divisor": 30,
+    "description": "Global thresholds calculated on full continuous time series (1998-2017)"
+  }
+}

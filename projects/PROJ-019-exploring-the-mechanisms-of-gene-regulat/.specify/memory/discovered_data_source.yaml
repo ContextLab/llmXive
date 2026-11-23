@@ -1,0 +1,18 @@
+status: none
+intent: ENCODE ATAC-seq and ChIP-seq peak files hg38 GM12878 K562 HepG2 python package
+  dataset
+required_fields:
+- chrom
+- start
+- end
+- name
+- score
+- strand
+- signalValue
+- pValue
+- qValue
+- summit
+- cell_type
+cache_key: 20184af34a785aa311ed6d8a14d1498f81e78d7fb336032f952e31b88b091362
+searched_at: '2026-08-21T04:52:41.386696+00:00'
+retry_count: 1

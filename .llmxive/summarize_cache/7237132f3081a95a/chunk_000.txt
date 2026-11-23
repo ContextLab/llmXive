@@ -1,0 +1,55 @@
+# Feature Specification: Evaluating Robustness of Statistical Methods to Non-Independence
+
+**Feature Branch**: `001-evaluating-the-robustness-of-statistical-methods-to-non-independence`  
+**Created**: 2023-10-27  
+**Status**: Draft  
+**Input**: User description: "Evaluating the Robustness of Statistical Methods to Non-Independence in Publicly Available Time Series"
+
+## User Scenarios & Testing *(mandatory)*
+
+### User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1)
+
+The system MUST successfully ingest multiple diverse public continuous time series datasets (NOAA, Yahoo Finance, UK National Grid Load), handle missing values via linear interpolation, and preprocess the data to isolate stochastic components. The system MUST first perform an Augmented Dickey-Fuller (ADF) test. If the ADF test indicates a unit root (p < 0.05), the system MUST difference the data until stationarity is achieved. If the series is stationary (ADF p ≥ 0.05), the system MUST then detrend the data using linear regression residuals. This ensures that observed error inflation is due to long-range dependence, not residual non-stationarity.
+
+**Why this priority**: Without clean, standardized, and stationary input data, no statistical analysis can proceed. This is the foundational step that enables all subsequent hypothesis testing and error rate calculations.
+
+**Independent Test**: Can be fully tested by running the data ingestion and preprocessing module against a fixed set of public URLs and verifying that the output is a clean, stationary (or differenced), detrended time series with no missing values and a documented preprocessing path (ADF result, differencing count, or detrending status).
+
+**Acceptance Scenarios**:
+
+1. **Given** a raw NOAA weather CSV with missing values (≥ 100 points), **When** the preprocessing pipeline executes, **Then** the output series has 0 missing values (filled via interpolation) and the series is either differenced (if ADF p < 0.05) or detrended (if ADF p ≥ 0.05).
+2. **Given** a Yahoo Finance price series with a clear unit root, **When** the ADF test runs, **Then** the system detects the unit root (p < 0.05) and applies differencing, resulting in a stationary series (ADF p ≥ 0.05).
+3. **Given** a UK National Grid Load dataset, **When** the pipeline processes it, **Then** the data is resampled to a consistent frequency (e.g., hourly) before stationarity testing and preprocessing.
+
+---
+
+### User Story 2 - Synthetic Ground-Truth Generation and Autocorrelation Quantification (Priority: P2)
+
+The system MUST generate synthetic time series with known ground-truth parameters (mean=0, known autocorrelation structure) to serve as the primary validation target. Specifically, it MUST generate fractional Gaussian noise (fGn) or ARFIMA processes with Hurst exponents in the set {0.5, 0.7, 0.8, 0.9} and lengths ≥ 1,000 points. Additionally, the system MUST compute the Autocorrelation Function (ACF) up to a sufficient lag to capture relevant temporal dependencies, the Hurst exponent, and the spectral density peak ratio for every synthetic and real series to quantify the degree of dependence. To demonstrate the effect of breaking dependence, the system MUST generate [deferred] shuffled (permuted) versions of each series. These shuffled versions serve to create a specific null distribution for comparison against the observed test statistics on the original series, isolating the inflation caused by autocorrelation as required by Constitution Principle VII. The system MUST verify the baseline validity of the testing framework by confirming the observed rejection rate on H=0.5 synthetic data matches the nominal alpha (0.05) within a 95% Clopper-Pearson binomial confidence interval for 10,000 trials before proceeding to the Hurst analysis.
+
+**Why this priority**: This step creates the essential "ground truth" (synthetic data with known mean=0 and known autocorrelation) required to measure Type I error inflation accurately. It also quantifies the "degree of long-range dependence" (the predictor variable). The shuffling is a mandatory step to create a null distribution for comparison, ensuring the isolation of inflation caused by dependence.
+
+**Independent Test**: Can be fully tested by generating a synthetic fGn series with H=0.8 and mean=0, verifying that the generated series has H ≈ 0.8 (within 0.05) and mean ≈ 0 (within 0.01), and confirming that the [deferred] shuffled versions exhibit an average ACF lag-1 statistically indistinguishable from zero (p > 0.05 for a t-test of the mean ACF lag-1 against 0).
+
+**Acceptance Scenarios**:
+
+1. **Given** a request to generate synthetic data with H=0.5, **When** the generator runs, **Then** the output series has an estimated Hurst exponent within 0.05 of 0.5 and a mean within 0.01 of 0.
+2. **Given** a request to generate synthetic data with H=0.7, **When** the generator runs, **Then** the output series has an estimated Hurst exponent within 0.05 of 0.7 and a mean within 0.01 of 0.
+3. **Given** a request to generate synthetic data with H=0.8, **When** the generator runs, **Then** the output series has an estimated Hurst exponent within 0.05 of 0.8 and a mean within 0.01 of 0.
+4. **Given** a request to generate synthetic data with H=0.9, **When** the generator runs, **Then** the output series has an estimated Hurst exponent within 0.05 of 0.9 and a mean within 0.01 of 0.
+5. **Given** a processed time series, **When** the shuffling module executes [deferred] iterations, **Then** the resulting set of [deferred] series exhibits an average ACF lag-1 statistically indistinguishable from zero (p > 0.05 for a t-test of the mean ACF lag-1 against 0), and the system constructs a null distribution from these values to compare against the observed test statistic of the original series.
+6. **Given** a noisy financial time series, **When** the spectral density is calculated, **Then** the peak ratio metric correctly identifies the dominant frequency component relative to the noise floor.
+7. **Given** a set of 10,000 synthetic null trials (H=0.5, mean=0), **When** a one-sample t-test is applied, **Then** the observed rejection rate is within the [deferred] Clopper-Pearson binomial confidence interval of the nominal 0.05 rate.
+
+---
+
+### User Story 3 - Hypothesis Testing and Error Rate Analysis (Priority: P3)
+
+The system MUST apply one-sample t-tests and F-tests to the synthetic (ground-truth) series and calculate the observed Type I error rate at α=0.05. The system MUST perform a sufficient number of Monte Carlo trials for each configuration to ensure statistical stability. The two-sample t-test is explicitly excluded from the analysis as it is invalid for detrended residuals with long-range dependence. Finally, the system must regress these error rates against the true Hurst exponent (for synthetic data) or the estimated Hurst exponent (for real data) to quantify the relationship. The regression model MUST calculate the Variance Inflation Factor (VIF) and Effective Sample Size (N_eff) to validate the mechanism of failure. The Max_ACF_Lag1 and spectral density metrics are for descriptive quantification ONLY and MUST NOT be used as predictors in the regression model. For real data, the system MUST compare the observed test statistics against the null distribution created from the [deferred] shuffled versions to isolate the inflation caused by non-independence.
+
+**Why this priority**: This is the core research output: measuring the discrepancy between nominal and actual error rates against the known ground truth. It directly answers the research question about robustness.
+
+**Independent Test**: Can be fully tested by running the analysis on synthetic data with H=0.5 (independent-like) and verifying the error rate is within the [deferred] Clopper-Pearson binomial confidence interval of 0.05, then running on H=0.9 data and reporting the regression slope and p-value.
+
+**Acceptance Scenarios**:
+

@@ -1,1 +1,1 @@
-# llmXive integration tests package
+# Integration tests package

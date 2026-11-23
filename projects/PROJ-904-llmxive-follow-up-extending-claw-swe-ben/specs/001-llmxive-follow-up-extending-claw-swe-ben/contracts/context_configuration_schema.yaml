@@ -1,0 +1,143 @@
+# Context Configuration Schema
+# Defines the structure of context configuration used to process task instances
+# for model inference.
+#
+# Version: 1.0.0
+#
+# This schema aligns with the ContextConfiguration dataclass in code/config.py
+
+schema_name: context_configuration
+version: "1.0.0"
+description: >
+  Represents the configuration for how context is constructed and processed
+  for a given task instance. Includes the strategy type, parameters, and
+  resulting processed context.
+
+fields:
+  - name: configuration_id
+    type: string
+    required: true
+    description: Unique identifier for this context configuration
+    example: "cfg_tfidf_1b_001"
+
+  - name: strategy_type
+    type: string
+    required: true
+    description: The context processing strategy used
+    enum:
+      - naive_truncation
+      - tfidf_retrieval
+      - diff_aware_window
+      - semantic_summarization
+    example: "tfidf_retrieval"
+
+  - name: model_size
+    type: string
+    required: true
+    description: Size of the model used for inference
+    enum:
+      - 1b
+      - 7b
+    example: "1b"
+
+  - name: parameters
+    type: object
+    required: true
+    description: Strategy-specific parameters
+    properties:
+      - name: max_tokens
+        type: integer
+        required: true
+        description: Maximum number of tokens allowed in the context
+        minimum: 1
+        example: 4096
+      - name: top_k
+        type: integer
+        required: false
+        description: Number of top snippets to retrieve (for retrieval strategies)
+        minimum: 1
+        example: 10
+      - name: similarity_threshold
+        type: number
+        required: false
+        description: Minimum similarity score for snippet inclusion
+        minimum: 0.0
+        maximum: 1.0
+        example: 0.75
+      - name: window_size
+        type: integer
+        required: false
+        description: Size of the sliding window for diff-aware strategy
+        minimum: 1
+        example: 50
+      - name: truncation_mode
+        type: string
+        required: false
+        description: Mode for naive truncation (e.g., "head", "tail", "middle")
+        enum:
+          - head
+          - tail
+          - middle
+        example: "head"
+
+  - name: processed_context
+    type: object
+    required: false
+    description: The resulting processed context after applying the strategy
+    properties:
+      - name: snippets
+        type: array
+        description: List of code snippets included in the context
+        items:
+          type: object
+          properties:
+            - name: file_path
+              type: string
+              required: true
+            - name: start_line
+              type: integer
+              required: true
+            - name: end_line
+              type: integer
+              required: true
+            - name: content
+              type: string
+              required: true
+            - name: relevance_score
+              type: number
+              required: false
+      - name: total_tokens
+        type: integer
+        required: true
+        description: Total token count of the processed context
+        minimum: 0
+      - name: truncation_applied
+        type: boolean
+        required: true
+        description: Whether truncation was applied to fit max_tokens
+
+  - name: fallback_applied
+    type: boolean
+    required: false
+    description: Whether the system fell back to naive truncation
+    default: false
+    example: false
+
+  - name: fallback_reason
+    type: string
+    required: false
+    description: Reason for fallback if applied
+    example: "No snippets retrieved by TF-IDF strategy"
+
+constraints:
+  - strategy_type must be one of the allowed enum values
+  - model_size must be one of the allowed enum values
+  - max_tokens must be positive
+  - If processed_context is present, it must have at least one snippet
+  - total_tokens must be >= 0
+
+usage_notes:
+  - This schema is used to validate context configurations before model inference
+  - The parameters object is strategy-specific; unused parameters may be omitted
+  - processed_context is populated by the context_processors.py module
+  - fallback_applied and fallback_reason are used for audit logging in T024

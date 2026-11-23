@@ -1,69 +1,96 @@
-# Data Model: llmXive follow-up: extending "EvalVerse" with CPU-tractable Feature Distillation
+# Data Model: VLM Proxy Dimension Mimicry & Bias Characterization
 
-## Entities
+## 1. Overview
+This document defines the schema for all data artifacts produced by the pipeline. All artifacts are stored in `data/processed/` as CSV or JSON files.
 
-### VideoClip
-Represents a single entry from the EvalVerse dataset.
-- **id**: `str` (Unique identifier, e.g., "clip_001")
-- **path**: `str` (Relative path to the video file in `data/raw/evalverse/`)
-- **duration**: `float` (Duration in seconds)
-- **has_audio**: `bool` (True if audio track exists)
-- **expert_scores**: `dict` (Mapping of dimension names to human expert scores, e.g., `{"camera_smoothness": 4.5}`)
-- **vlm_scores**: `dict` or `null` (Mapping of dimension names to VLM reference scores, e.g., `{"camera_smoothness": 4.3}`) — *Optional; used only for preliminary validation (FR-009) if available.*
-- **status**: `str` (e.g., "valid", "low-quality", "missing_audio")
+## 2. Input Data (Streaming)
+- **Source**: Verified HuggingFace Parquet files (VLM_SingleAction2, vlm_split, vlmsareblind).
+- **Fields**: `video_url`, `action_label`, `score` (VLM-generated), `metadata`.
+- **Processing**: No permanent storage of raw input; processed row-by-row.
 
-### FeatureVector
-Numerical representation of a video clip derived from hand-crafted algorithms.
-- **clip_id**: `str` (Foreign key to VideoClip)
-- **visual_features**: `list[float]` (Optical flow magnitude, variance, HOG density, histogram stats)
-- **audio_features**: `list[float]` or `null` (Spectral centroid, zero-crossing rate; null if no audio)
-- **extraction_time**: `float` (Time taken to extract features in seconds)
-- **memory_peak**: `float` (Peak memory usage during extraction in MB; populated by `profiles.py` module during feature extraction to satisfy FR-006)
-- **status**: `str` (e.g., "valid", "low-quality", "missing_audio")
+## 3. Output Artifacts
 
-### ModelPerformance
-Record of model evaluation metrics for a specific dimension trained against human expert ground truth.
-- **dimension**: `str` (e.g., "camera_smoothness")
-- **model_type**: `str` (e.g., "Ridge", "Lasso", "XGBoost")
-- **pearson_correlation**: `float` (Point estimate of correlation with human expert scores)
-- **spearman_correlation**: `float` (Point estimate of correlation with human expert scores)
-- **ci_lower_95**: `float` (Lower bound of 95% CI for Pearson)
-- **ci_upper_95**: `float` (Upper bound of 95% CI for Pearson)
-- **baseline_mean_predictor_r**: `float` (Correlation of mean predictor baseline; should be near 0)
-- **baseline_shuffled_features_r**: `float` (Correlation of shuffled-features baseline; should be near 0)
-- **exceeds_baselines_p_value**: `float` (Permutation test p-value for whether model exceeds baselines; must be < 0.05 for sufficiency)
-- **classification**: `str` (e.g., "feature-sufficient", "VLM-required", "ambiguous", "insufficient")
-- **threshold_sweep**: `dict` (Mapping of threshold values to classification outcomes for sensitivity analysis)
+### 3.1 `correlations.csv`
+Contains the correlation results for each dimension.
+- **Columns**:
+  - `dimension`: Name of the video dimension (discovered dynamically, e.g., "action_jump").
+  - `feature_type`: Type of low-level feature used (e.g., "optical_flow").
+  - `pearson_r`: Correlation coefficient.
+  - `pearson_ci_lower`: Lower bound of 95% CI.
+  - `pearson_ci_upper`: Upper bound of 95% CI.
+  - `spearman_r`: Spearman correlation.
+  - `n_samples`: Number of clips used.
+  - `p_value`: Raw p-value.
+  - `adjusted_p_value`: Benjamini-Hochberg adjusted p-value.
 
-### ValidationReport
-Record of the preliminary validation step (FR-009). This validates any optional VLM proxy against human expert scores but does NOT change the main target variable (which is always human expert scores).
-- **sample_size**: `int` (Number of clips used in validation)
-- **pearson_r**: `float` (Correlation between VLM and human expert scores)
-- **p_value**: `float` (Significance of the correlation)
-- **status**: `str` (e.g., "valid", "invalid", "no_vlm_available")
-- **timestamp**: `str` (ISO 8601)
-- **note**: `str` (If invalid, describes why; e.g., "r=0.65 < 0.70 threshold". If no VLM available, states "VLM scores not found in EvalVerse metadata; main study will use human expert scores only.")
+### 3.2 `baseline_predictions.csv`
+Contains the performance of baseline models.
+- **Columns**:
+  - `dimension`: Dimension name.
+  - `predictor_type`: "mean" or "shuffled".
+  - `rmse`: Root Mean Squared Error.
+  - `r2`: R-squared score.
 
-### DimensionCorrelationMatrix
-Record of the correlation structure among target dimensions (cinematic quality sub-dimensions). Used to inform permutation-based FWER control for multiple comparisons.
-- **dimensions**: `list[str]` (List of dimension names)
-- **correlation_matrix**: `list[list[float]]` (Symmetric matrix of Pearson correlations between dimensions)
-- **timestamp**: `str` (ISO 8601)
-- **note**: `str` (e.g., "Used to inform permutation-based FWER control for multiple comparisons. Accounts for observed correlation structure of target variables.")
+### 3.3 `permutation_raw.csv`
+Raw results from the permutation test (10,000 permutations).
+- **Columns**:
+  - `dimension`: Dimension name.
+  - `iteration`: Permutation iteration ID (0-9999).
+  - `permuted_r`: Correlation calculated on shuffled data.
 
-## Relationships
+### 3.4 `max_t_stats.csv`
+Aggregated Max-T statistics for multiple comparison control.
+- **Columns**:
+  - `dimension`: Dimension name.
+  - `max_t`: Maximum T-statistic observed across permutations.
+  - `p_value`: Adjusted p-value based on Max-T.
 
-- **VideoClip** `1` -- `N` **FeatureVector** (One clip generates one feature vector)
-- **FeatureVector** `N` -- `1` **ModelPerformance** (Features are used to train models for multiple dimensions)
-- **ValidationReport** `1` -- `N` **VideoClip** (One validation report covers a subset of clips)
-- **DimensionCorrelationMatrix** `1` -- `N` **ModelPerformance** (One correlation matrix informs multiple dimension analyses)
+### 3.5 `permutation_results.csv`
+Final permutation results with FDR correction.
+- **Columns**:
+  - `dimension`: Dimension name.
+  - `raw_p`: Raw p-value.
+  - `adjusted_p`: Benjamini-Hochberg adjusted p-value.
 
-## Data Flow
+### 3.6 `dimension_viability.csv`
+The final decision table.
+- **Columns**:
+  - `dimension`: Dimension name.
+  - `viability_status`: "VLM-Reliance-High", "VLM-Reliance-Low", "Underpowered", or "Ambiguous".
+  - `reason`: "CI Lower >= threshold", "CI Lower < threshold", "N < min_n", or "Point estimate > threshold but CI < threshold".
+  - `confidence`: "high" (CI lower > threshold), "low" (CI lower < threshold but point estimate > threshold), or "underpowered" (N < min_n).
+  - **Logic**: A "low" confidence state results in a `viability_status` of "VLM-Reliance-Low" or "Ambiguous", ensuring the classification is not "feature-sufficient".
 
-1. **Raw Data**: `data/raw/evalverse/` (Video files + metadata JSON with human expert scores)
-2. **Data Validation**: `scripts/checksum_data.py` computes SHA-256 checksum of raw data and records it in `state/projects/.../artifact_hashes` (Principle II verification)
-3. **Processed Data**: `data/processed/features.parquet` (Feature vectors; memory_peak field populated by profiles.py)
-4. **Validation**: `reports/validation.json` (ValidationReport; gates optional VLM usage but does not affect main target variable)
-5. **Model Data**: `data/processed/model_results.csv` (ModelPerformance records trained against human expert scores)
-6. **Dimension Correlation**: `data/processed/dimension_correlation_matrix.csv` (DimensionCorrelationMatrix for multiple-comparison control)
-7. **Reports**: `reports/summary.md` (Final summary with flags and classifications)
+### 3.7 `profiling_logs.json`
+Memory and time profiling data.
+- **Structure**: List of objects.
+  - `clip_id`: Unique identifier.
+  - `artifact_hash`: SHA-256 of the clip data.
+  - `git_commit`: Commit hash of the code.
+  - `seed`: Random seed used.
+  - `peak_memory_mb`: Peak RAM usage in MB.
+  - `processing_time_ms`: Time taken to process the clip.
+
+### 3.8 `batch_raw_logs.json`
+Batch processing logs.
+- **Structure**: List of objects.
+  - `batch_id`: Unique identifier.
+  - `start_index`: Start index of the batch.
+  - `end_index`: End index of the batch.
+  - `processing_time_ms`: Time taken to process the batch.
+
+### 3.9 `sensitivity_matrix.json`
+Sensitivity analysis matrix (SC-004).
+- **Structure**: Object mapping threshold -> list of dimensions with flip rates and stability indices.
+
+### 3.10 `scaling_projection.json`
+Linear scaling validation (FR-006).
+- **Structure**: Object with `expected_n`, `time_per_clip_ms`, `projected_total_time_h`.
+
+### 3.11 `power_analysis.json`
+Power analysis results (Phase 0.6).
+- **Structure**: Object with `min_n`, `expected_n`, `power_status` ("sufficient", "underpowered").
+
+## 4. Data Lineage
+- **Raw** (Streaming) -> **Extracted Features** (In-memory) -> **Correlations** (CSV) -> **Viability Decision** (CSV).
+- No data is modified in place. All derived files are new.

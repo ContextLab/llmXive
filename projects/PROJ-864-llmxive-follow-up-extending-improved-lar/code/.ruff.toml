@@ -1,0 +1,3 @@
+# Local override for code directory if needed, inheriting from root pyproject.toml
+# This file exists to ensure ruff works correctly when run from the code/ directory
+extend = "../pyproject.toml"

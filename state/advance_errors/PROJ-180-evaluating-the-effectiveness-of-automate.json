@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-180-evaluating-the-effectiveness-of-automate",
+  "stage": "clarified",
+  "class": "permanent",
+  "fingerprint": "template_rejection",
+  "consecutive_count": 1,
+  "first_seen": "2026-08-08T05:14:32.636267+00:00",
+  "last_seen": "2026-08-08T05:14:32.636267+00:00",
+  "retry_after": null,
+  "last_error": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/plan.md.\n  Rules fired: unfilled_bracket_density=6 distinct bracket placeholders (6 occurrences); sample=['[I. Reproducibility]', '[II. Verified Accuracy]', '[IV. Single\n  Missing context: High density of [bracketed] placeholders \u2014 likely never filled in by the emitter; ensure the emitter received real project context.\n  Project progression points are NOT incremented.\n  Fix by supplying the missing inputs and re-running, or by abstaining cleanly.",
+  "evidence": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-180-evaluating-the-effectiveness-of-automate/specs/001-evaluating-the-effectiveness-of-automate/plan.md. Rules fired: unfilled_bracket_density=6 distinct bracket placeholders (6 occurrences); sample=['[I. Reproducibility]', '[II. Verified Accuracy]', '[IV. Single Missing context: High density of [brack",
+  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
+  "status": "rerouted"
+}

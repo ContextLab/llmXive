@@ -1,0 +1,8 @@
+status: none
+intent: UCI Machine Learning Repository OpenML download python package dataset
+required_fields:
+- continuous numeric columns (at least 20)
+- optional class label column
+cache_key: 0f32d20b86a764762f1e82886bdbb2bad64a4365971afbaa4f315cd5716d9125
+searched_at: '2026-10-10T12:22:44.853810+00:00'
+retry_count: 1

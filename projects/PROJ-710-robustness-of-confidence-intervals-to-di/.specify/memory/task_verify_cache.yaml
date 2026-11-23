@@ -1,0 +1,16 @@
+T000:
+  c: false
+  h: 50fd5627e5e68f70b3e482364b59bb80d26d93877cedd6030e154803ce5b3bf8
+  r: The provided `requirements.txt` is at the project root (not in `code/`) and omits
+    the required `ucimlrepo` package; the `pyproject.toml` lists version ranges (`>=`)
+    instead of exact pins. A correctly placed, fully pinned requirements file (or
+    pyproject with exact versions) including all specified dependencies is missing.
+  sig: 145e42a204a07687047d45371273c3e6adf04f9a011a9d4f8447285de2f76057
+T003:
+  c: false
+  h: 2bd18fe6d60d6b725e002e0d9691337c7520ed733e5d95ff316da8868225d9fe
+  r: "The required `code/data/ground_truth.json` file does not exist, and the provided\
+    \ `synthetic_pop.py` generates only 1,000 populations of size 1,000 (variables\
+    \ `N_SIM` and `POPULATION_SIZE`) instead of the required 1,000,000\u2011sized\
+    \ synthetic populations. Both the output artifact and the generation specifications\
+    \ are missing/incorrect."

@@ -1,0 +1,45 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Task Trace Schema"
+description: "Schema for ALFWorld task traces used in symbolic memory construction."
+type: "object"
+properties:
+  trace_id:
+    type: "string"
+    description: "Unique identifier for the task trace."
+  dialogue:
+    type: "array"
+    description: "List of dialogue turns."
+    items:
+      type: "string"
+  spatial_coords:
+    type: "array"
+    description: "List of (x, y, z) coordinates. [OPTIONAL - If missing, spatial+temporal condition is pruned]."
+    items:
+      type: "array"
+      items:
+        type: "number"
+      minItems: 3
+      maxItems: 3
+    nullable: true
+  temporal_seq:
+    type: "array"
+    description: "List of timestamps or step indices. [OPTIONAL - If missing, spatial+temporal condition is pruned]."
+    items:
+      type: "integer"
+    nullable: true
+  outcome:
+    type: "integer"
+    description: "Binary success flag (0 or 1)."
+    enum:
+      - 0
+      - 1
+  ground_truth_path:
+    type: "array"
+    description: "List of nodes representing the correct path."
+    items:
+      type: "string"
+required:
+  - trace_id
+  - dialogue
+  - outcome
+additionalProperties: false

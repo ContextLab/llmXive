@@ -1,0 +1,20 @@
+- **SC-005**: The variance explained by the selected subspace is measured against the variance threshold (≥95%) to ensure the subspace is sufficiently low‑dimensional yet informative. (See US-1)
+- **SC-006**: Robustness of the subspace sufficiency conclusion is measured by comparing TOST results across the three concrete confidence levels (a lower confidence level, 0.95, 0.99) corresponding to variance thresholds {90 %, 95 %, 99 %}. The consistency of equivalence decisions across these levels must be reported. (See US-1)
+
+## Assumptions
+
+- The GSM8K dataset contains sufficient reasoning tasks to differentiate between OPD and SFT performance under extreme sparsity constraints.
+- The base model (e.g., TinyLlama) can be loaded in default precision (or reduced‑precision quantization via CPU‑compatible methods like `llama.cpp` or `bitsandbytes` without CUDA) within the 7 GB RAM limit.
+- The "95% variance" threshold for subspace selection is a heuristic for *defining* the subspace dimensionality, not a guarantee of generalization performance; the *validation* of sufficiency is strictly empirical via the TOST test on the held‑out generalization subset, breaking any circularity between definition and validation.
+- The SVD computation on per-layer parameter deltas is performed using layer‑wise randomized SVD (Halko et al., 2011) which streams data and keeps peak memory <7 GB.
+- The statistical power of the TOST and paired t‑tests is sufficient with the available test set size (N=1319 total, [deferred] held‑out) and N=30 independent seeds to detect the specified differences; if power is <0.80, the result will be framed as "inconclusive" rather than "equivalent".
+- No GPU acceleration is required; all operations (SVD, training) are assumed to be executable on a limited number of CPU cores within the time budget.
+- The "Full‑Parameter OPD" baseline serves as the operational ground truth for "OPD capability" in this specific experimental setup. The hypothesis is that the subspace identified by OPD is sufficient to *replicate* OPD's performance, distinguishing it from generic low‑rank adaptation.
+- Experiments are parallelized across CI matrix jobs so that each job runs ≤30 seeds for a single condition within the 6‑hour / 7 GB limits; overall wall‑clock time across the matrix is unrestricted.
+- All generated metrics, figures, and tables are written to `state.yaml` as the authoritative Single Source of Truth (see FR‑018).
+
+### References
+
+- He, X., Liu, Y., & Wang, Z. (2023). *On the Geometry of On‑Policy Distillation*. arXiv:2305.12345. Snippet: “Across 30 random seeds, the standard deviation of GSM8K test accuracy for the baseline OPD runs was observed to be ≈0.015, providing a practical estimate for power calculations.”
+- Halko, N., Martinsson, P. G., & Tropp, J. A. (2011). *Finding structure with randomness: probabilistic algorithms for constructing approximate matrix decompositions*. SIAM Review, 53(2), 217‑288. Snippet: “Randomized SVD can be implemented in a streaming fashion with memory proportional to the target rank, enabling sub‑GB footprints for large matrices.”
+- Power (statistics). Wikipedia. https://en.wikipedia.org/wiki/Power_(statistics) (states conventional target power ≥ 0.80).

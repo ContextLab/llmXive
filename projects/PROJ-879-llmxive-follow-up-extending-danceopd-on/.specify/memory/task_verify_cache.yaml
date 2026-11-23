@@ -1,0 +1,119 @@
+T001a:
+  c: true
+  h: 5a8a918617e02b7eafc986af359d1d2b2a7b09af7561a40dacd75247e8f7ad49
+  r: "Checked the repository listing showing the required directories (`code/`, `data/raw/`,\
+    \ `data/processed/`, `data/results/`, `models/`, `tests/\u2026`) all exist (each\
+    \ contains a `.gitkeep` placeholder) and the execution log of `create_structure.py`\
+    \ confirming the directories were created (or already present)."
+  sig: 8dda05ffdab534f195ff0c4de27b2f77f2e268542314306c1d6840809d72723f
+T001b:
+  c: false
+  h: 5dbefb39e1310a23be0aa89ec1d7a8cfb486a6cf056c9a3268e63fc152780bb0
+  r: The listed scripts (`code/main.py`, `code/00_data_fetch.py`, `code/00_data_stream.py`,
+    `code/00_teacher_inference.py`, `code/01_train_trees.py`, `code/02_evaluate_fidelity.py`,
+    etc.) exist, but they contain full implementations rather than being empty starter
+    placeholders as the task required. Consequently the requirement to add *empty*
+    starter scripts is not satisfied.
+  sig: 1e4e5a64725630a17717b27f5511f82de6d7d06373c60ed6fabea26658bd5b58
+T002:
+  c: false
+  h: a9570f531cf28ff2ac37e881d68e23b91310c297c73675266df4d35db44e4e6a
+  r: "Checked the `requirements.txt` file (122\u202Fbytes) which lists all required\
+    \ packages, but it only contains the generic `torch` entry and does not specify\
+    \ a CPU\u2011only build (e.g., `torch==X.Y.Z+cpu` or an explicit CPU\u2011only\
+    \ index). Without that specification the requirement is not satisfied. Adding\
+    \ a CPU\u2011only torch specification will complete the task."
+  sig: 49e464b171f68139da6d6967105c503baf9fdd55014a90ae8c936dc51bc38a5a
+T004:
+  c: true
+  h: 2b2a54ed5d356648c5ba3fcbfd1fb00f0bcce515a68d4c623d86ab836c585e46
+  r: "Checked `code/utils/config.py` (7446\u202Fbytes) which defines defaults `N_TARGET=2500`\
+    \ and `TIMEOUT_HOURS=6`, provides seed handling via `get_seed()`, and includes\
+    \ path and hyper\u2011parameter helper functions as required. The file is fully\
+    \ implemented and non\u2011empty."
+  sig: 3de037c5509af58ad3b9be7fdd7cdcfb99c89eded7af5bacebc722784bba5400
+T005:
+  c: false
+  h: 66d619032f3237ba00bad757618942a1c1cc2a052f574949489f7a925844d05c
+  r: The file `code/utils/metrics.py` is present, but both `calculate_clip_score`
+    and `calculate_fid` contain full implementations instead of stubs that raise `NotImplementedError`
+    as the task required. The required placeholder behavior is missing.
+  sig: acd99c9b3f627f35f2856fcd8f68db24d62548e504164fd82618fe7a4322b796
+T005b:
+  c: false
+  h: 4c2ea78aa4bfb0c99679b9ea093127b65b69a78b00e83919091cd0d3ac3f5060
+  r: "The evidence contains only a high\u2011level project description and no code,\
+    \ tests, or documentation showing that the CLIP\u202FViT\u2011B/32 and `torch\u2011\
+    fidelity` stubs have been replaced with functioning CPU\u2011only implementations.\
+    \ Required implementation files (e.g., Python modules providing the CLIP model\
+    \ and fidelity metrics) and any execution or test logs are missing."
+  sig: e206aa3824b02e92149b4ca9b625861a3ba3f2d134f1db67ac163033982bb8fc
+T020:
+  c: true
+  h: 0ebccd873271836e6b0723a290a18cbc1353b91bce25f9dc63673e46e4c86e8b
+  r: "The repository contains `code/01_train_trees.py` with a non\u2011empty `load_and_split_data`\
+    \ function that loads `data/processed/teacher_routing_dataset.parquet`, validates\
+    \ columns, flattens embeddings, encodes labels, and performs an 80/20 train\u2011\
+    test split (stratified when possible). This satisfies the requirement to implement\
+    \ the data splitting logic that consumes the specified Parquet file."
+T021d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a metadata file being validated against `specs/contracts/DecisionTreeMetadata.json`
+    is present, nor any indication that `state/` was updated with model hashes. The
+    required artifacts are missing, so the task is not satisfied.
+T030a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides only the task description and specifications; there are no
+    actual artifacts such as computed FID or CLIP score values, result tables, or
+    any files demonstrating that the pilot images were evaluated. Consequently, the
+    required output is missing.
+T030b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact (e.g., script output, variance values, log files, or report) showing\
+    \ that T030a was run on pilot images and that variance was estimated is present.\
+    \ The provided specification concerns unrelated teacher\u2011routing data generation\
+    \ and decision\u2011tree training, not the required pilot variance calculation.\
+    \ The task therefore lacks the necessary evidence of execution and results."
+T030c:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The provided evidence only describes data\u2011generation and decision\u2011\
+    tree pipelines; there is no sample\u2011size or power\u2011analysis calculation,\
+    \ nor any artifact (e.g., a report, script, or numeric result) showing the required\
+    \ sample size derived from pilot variance. Consequently the core requirement of\
+    \ T030c is not met."
+T030d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No artifact containing the computed FID and CLIP scores for the full images is
+    present; the claim provides only the task description and specifications, but
+    no data files, tables, or code outputs that demonstrate the required metrics have
+    been calculated. The required evidence is missing.
+T030e:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No statistical test results, code, or data artifacts (e.g., bootstrap FID distributions,\
+    \ paired t\u2011test outputs on CLIP scores, or a summary report) were provided;\
+    \ therefore the requirement to \u201Cperform statistical tests \u2026 using bootstrap\
+    \ testing and paired t\u2011tests\u201D is not satisfied. The implementer must\
+    \ supply the actual test calculations, figures/tables, and any accompanying scripts\
+    \ or notebooks."
+T042:
+  c: false
+  h: 43ca4794eb5d9a6fbfd4536c55513c7e0b8615a668c73291a82f1d0b1d194d8d
+  r: "The provided `code/00_data_fetch.py` is truncated and does not show the required\
+    \ logic (checksum verification, per\u2011chunk SHA256 aggregation, proper exit\u2011\
+    code handling, warnings for <2500 samples, etc.). Moreover, `state/artifact_hashes.yaml`\
+    \ still contains placeholder `\"pending_fetch\"` values, indicating the script\
+    \ never performed the streaming fetch or recorded real hashes. The implementation\
+    \ therefore does not meet the task\u2019s specifications."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, documentation, or any other artifact demonstrating that T042\
+    \ was extended with data\u2011source verification and hashing is present. The\
+    \ claim lacks concrete files (e.g., modified source files, unit\u2011test results,\
+    \ hash\u2011checking scripts) to prove the requirement was met."

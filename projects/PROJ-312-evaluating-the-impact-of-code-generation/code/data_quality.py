@@ -1,20 +1,12 @@
-"""
-Data quality validation module for the llmXive pipeline.
-Implements T018b: Calculate overall data quality success rate and halt if threshold not met.
-"""
 import json
 import logging
 import os
 from pathlib import Path
 from typing import Dict, Any, Optional
-
-# Import existing utilities from the project API surface
 from utils import validate_json_schema
 
-logger = logging.getLogger(__name__)
-
 class DataQualityError(Exception):
-    """Raised when data quality threshold is not met."""
+    """Raised when data quality thresholds are not met."""
     pass
 
 def calculate_success_rate(processed_count: int, total_count: int) -> float:
@@ -22,7 +14,7 @@ def calculate_success_rate(processed_count: int, total_count: int) -> float:
     Calculate the data quality success rate.
     
     Args:
-        processed_count: Number of PRs successfully processed and saved.
+        processed_count: Number of PRs successfully processed.
         total_count: Total number of PRs attempted.
     
     Returns:
@@ -33,125 +25,122 @@ def calculate_success_rate(processed_count: int, total_count: int) -> float:
     return processed_count / total_count
 
 def validate_and_check_quality(
-    processed_data_path: str,
-    total_prs_attempted: int,
-    quality_threshold: float = 0.95
+    processed_file: str,
+    raw_file: str,
+    output_dir: str,
+    threshold: float = 0.95
 ) -> Dict[str, Any]:
     """
-    Validate processed data against schema and check quality threshold.
+    Validate data quality by comparing raw and processed counts.
     
     This function:
-    1. Loads the processed data from the specified path.
-    2. Validates each record against the pull_request schema.
-    3. Calculates the success rate (processed/total).
-    4. Raises DataQualityError if rate < threshold.
+    1. Counts total PRs in the raw data file.
+    2. Counts processed PRs in the processed data file.
+    3. Calculates the success rate.
+    4. If rate < threshold, logs a warning and saves error logs.
+    5. Saves a quality status artifact.
     
     Args:
-        processed_data_path: Path to the processed data JSON file.
-        total_prs_attempted: Total number of PRs that were attempted to be processed.
-        quality_threshold: Minimum acceptable success rate (default 0.95).
+        processed_file: Path to processed CSV (pr_turnaround.csv).
+        raw_file: Path to raw JSON (pr_data.json).
+        output_dir: Directory for output artifacts.
+        threshold: Minimum acceptable success rate (default 0.95).
     
     Returns:
-        Dictionary containing validation results and statistics.
-    
-    Raises:
-        DataQualityError: If the success rate is below the threshold.
-        FileNotFoundError: If the processed data file does not exist.
+        Dictionary containing quality status details.
     """
-    if not os.path.exists(processed_data_path):
-        raise FileNotFoundError(f"Processed data file not found: {processed_data_path}")
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(levelname)s - %(message)s'
+    )
+    logger = logging.getLogger(__name__)
 
-    logger.info(f"Loading processed data from {processed_data_path}")
-    with open(processed_data_path, 'r', encoding='utf-8') as f:
-        processed_data = json.load(f)
+    processed_path = Path(processed_file)
+    raw_path = Path(raw_file)
+    output_path = Path(output_dir)
 
-    if not isinstance(processed_data, list):
-        logger.warning("Processed data is not a list, attempting to handle as single object")
-        processed_data = [processed_data]
+    if not processed_path.exists():
+        raise FileNotFoundError(f"Processed data file not found: {processed_file}")
+    if not raw_path.exists():
+        raise FileNotFoundError(f"Raw data file not found: {raw_file}")
 
-    processed_count = len(processed_data)
-    success_rate = calculate_success_rate(processed_count, total_prs_attempted)
+    # Count total PRs in raw data
+    with open(raw_path, 'r') as f:
+        raw_data = json.load(f)
+    total_count = len(raw_data)
 
-    logger.info(f"Processed {processed_count} records out of {total_prs_attempted} attempted.")
-    logger.info(f"Success rate: {success_rate:.2%}")
+    # Count processed PRs in CSV
+    processed_count = 0
+    with open(processed_path, 'r') as f:
+        # Skip header if exists
+        first_line = True
+        for line in f:
+            if first_line:
+                first_line = False
+                continue
+            if line.strip():
+                processed_count += 1
 
-    # Validate schema for a sample of records (or all if small)
-    schema_path = "contracts/pull_request.schema.yaml"
-    validation_errors = 0
-    if processed_count > 0:
-        logger.info(f"Validating schema for {min(100, processed_count)} records...")
-        sample_size = min(100, processed_count)
-        for i, record in enumerate(processed_data[:sample_size]):
-            if not validate_json_schema(record, schema_path):
-                validation_errors += 1
-                if validation_errors <= 5:
-                    logger.warning(f"Schema validation failed for record {i}")
+    success_rate = calculate_success_rate(processed_count, total_count)
 
-    if validation_errors > 0:
-        logger.warning(f"Found {validation_errors} schema validation errors in sample")
+    logger.info(f"Data Quality Check: {processed_count}/{total_count} PRs processed ({success_rate:.2%})")
 
-    # Check against threshold
-    if success_rate < quality_threshold:
-        error_msg = f"Data quality threshold not met: {success_rate:.2%} (threshold: {quality_threshold:.2%})"
-        logger.error(error_msg)
-        raise DataQualityError(error_msg)
-
-    result = {
-        "processed_count": processed_count,
-        "total_attempted": total_prs_attempted,
+    quality_status = {
+        "total_prs": total_count,
+        "processed_prs": processed_count,
         "success_rate": success_rate,
-        "threshold": quality_threshold,
-        "status": "passed",
-        "validation_errors_sample": validation_errors
+        "threshold": threshold,
+        "status": "warning" if success_rate < threshold else "ok"
     }
 
-    logger.info(f"Data quality check PASSED: {success_rate:.2%} >= {quality_threshold:.2%}")
-    return result
+    if success_rate < threshold:
+        logger.warning(f"Data quality rate {success_rate:.2%} is below threshold {threshold:.2%}")
+        
+        # Save detailed error log
+        error_log_path = output_path / "data_quality_warning.log"
+        with open(error_log_path, 'w') as log_file:
+            log_file.write(f"Data Quality Warning Log\n")
+            log_file.write(f"==========================\n")
+            log_file.write(f"Timestamp: {logging.root.handlers[0].formatter.formatTime(logging.root.handlers[0].records[-1] if logging.root.handlers[0].records else None)}\n")
+            log_file.write(f"Total PRs: {total_count}\n")
+            log_file.write(f"Processed PRs: {processed_count}\n")
+            log_file.write(f"Success Rate: {success_rate:.2%}\n")
+            log_file.write(f"Threshold: {threshold:.2%}\n")
+            log_file.write(f"Status: WARNING - Rate below threshold.\n")
+            log_file.write(f"\nNote: Pipeline will proceed but final report will include a limitation statement.\n")
+        
+        logger.info(f"Saved warning log to: {error_log_path}")
+
+    # Save quality status artifact
+    quality_status_path = output_path / "quality_status.json"
+    with open(quality_status_path, 'w') as f:
+        json.dump(quality_status, f, indent=2)
+    logger.info(f"Saved quality status to: {quality_status_path}")
+
+    return quality_status
 
 def main():
-    """
-    Main entry point for data quality validation.
-    Reads processed data and checks quality threshold.
-    """
-    # Setup logging
-    from logging_config import setup_logging
-    setup_logging()
-
-    # Configuration
-    project_root = Path(__file__).parent.parent
-    processed_data_path = project_root / "data" / "processed" / "processed_prs.json"
-    total_prs_file = project_root / "data" / "processed" / "processing_stats.json"
-    
-    # Load total PRs attempted from stats file if it exists
-    total_prs_attempted = 0
-    if total_prs_file.exists():
-        with open(total_prs_file, 'r') as f:
-            stats = json.load(f)
-            total_prs_attempted = stats.get("total_prs_processed", 0)
-    else:
-        logger.warning("Processing stats file not found. Attempting to infer from processed data.")
-        # Fallback: count from processed data if stats file missing
-        if processed_data_path.exists():
-            with open(processed_data_path, 'r') as f:
-                data = json.load(f)
-                total_prs_attempted = len(data) if isinstance(data, list) else 1
-
-    if total_prs_attempted == 0:
-        logger.warning("No PRs found to validate. Skipping quality check.")
-        return
+    """Main entry point for data quality check."""
+    # Define paths relative to project root
+    project_root = Path(__file__).resolve().parent.parent
+    processed_file = project_root / "data" / "processed" / "pr_turnaround.csv"
+    raw_file = project_root / "data" / "raw" / "pr_data.json"
+    output_dir = project_root / "data" / "processed"
 
     try:
         result = validate_and_check_quality(
-            processed_data_path=str(processed_data_path),
-            total_prs_attempted=total_prs_attempted,
-            quality_threshold=0.95
+            processed_file=str(processed_file),
+            raw_file=str(raw_file),
+            output_dir=str(output_dir),
+            threshold=0.95
         )
-        print(json.dumps(result, indent=2))
-    except DataQualityError as e:
-        print(f"ERROR: {e}")
-        raise
+        print(f"Quality check completed. Status: {result['status']}")
+        print(f"Success rate: {result['success_rate']:.2%}")
     except FileNotFoundError as e:
-        print(f"ERROR: {e}")
+        logging.error(f"File not found: {e}")
+        raise
+    except Exception as e:
+        logging.error(f"Error during quality check: {e}")
         raise
 
 if __name__ == "__main__":

@@ -1,32 +1,4 @@
-# Tool Versions for Automated Code Review Evaluation
-# Pinned versions as per Plan Constitution VI to ensure reproducibility
-# These versions correspond to the tools used in the data acquisition pipeline (US1)
-
-sonarqube_scanner:
-  tool: sonar-scanner-cli
-  version: "5.0.1.3006"
-  description: "SonarQube Scanner for static analysis"
-  docker_image: "sonarsource/sonar-scanner-cli"
-  docker_tag: "5.0.1.3006"
-
-deepsource_cli:
-  tool: deepsource-cli
-  version: "1.37.0"
-  description: "DeepSource CLI for automated code review"
-  binary_url: "https://deepsource.io/cli/deepsource-cli-1.37.0-linux-amd64.tar.gz"
-  checksum: "sha256:placeholder-update-with-real-checksum"
-
-codeclimate_engine:
-  tool: codeclimate-engine
-  version: "0.108.0"
-  description: "CodeClimate Engine for static analysis"
-  docker_image: "codeclimate/codeclimate"
-  docker_tag: "0.108.0"
-
-sentence_transformers_model:
-  library: sentence-transformers
-  library_version: "2.2.2"
-  model_name: all-MiniLM-L6-v2
-  model_revision: "8b3219a92973c328a8e22fadcfa821b5dc75636a"
-  description: "Pinned model for semantic similarity and alignment (FR-004, SC-005)"
-  source: "https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2"
+sonarqube: latest
+deepsource: latest
+codeclimate: latest
+sentence-transformers: all-MiniLM-L6-v2

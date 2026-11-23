@@ -1,0 +1,70 @@
+[
+  {
+    "claim": "For N=10000 and p=5, our unconditional TV was 0.1452.",
+    "status": "verified",
+    "value": "For N=10000 and p=5, our unconditional TV was 0.1452.",
+    "evidence": {
+      "result_artifacts": [
+        {
+          "path": "data/summary.json",
+          "sha256": "b9944833cec88031708e79f10fcf740ea4359852c98dea6c8f36879aebf528d4"
+        }
+      ],
+      "quote": "{\"N\":10000,\"p\":5,\"tv_unconditional\":0.1452}",
+      "note": "The passage lists tv_unconditional as 0.1452 for N=10000 and p=5.",
+      "artifact_sha256": "b3932d2f8ac39a7a7eaeec02345d5f878d038504ea2eab84b9becb6c57e0bd03"
+    },
+    "seconds": 3.17
+  },
+  {
+    "claim": "For N=10000 and p=5, our unconditional TV was 0.018.",
+    "status": "refuted",
+    "value": null,
+    "evidence": {
+      "result_artifacts": [
+        {
+          "path": "data/summary.json",
+          "sha256": "b9944833cec88031708e79f10fcf740ea4359852c98dea6c8f36879aebf528d4"
+        }
+      ],
+      "quote": "{\"N\":10000,\"p\":5,\"tv_unconditional\":0.1452}",
+      "note": "The passage lists tv_unconditional as 0.1452, not 0.018.",
+      "artifact_sha256": "b3932d2f8ac39a7a7eaeec02345d5f878d038504ea2eab84b9becb6c57e0bd03"
+    },
+    "seconds": 1.494
+  },
+  {
+    "claim": "For N=10000 and p=11, our unconditional TV was 0.1452.",
+    "status": "refuted",
+    "value": null,
+    "evidence": {
+      "result_artifacts": [
+        {
+          "path": "data/summary.json",
+          "sha256": "b9944833cec88031708e79f10fcf740ea4359852c98dea6c8f36879aebf528d4"
+        }
+      ],
+      "quote": "{\"N\":10000,\"p\":11,\"tv_unconditional\":0.043254545454545455}",
+      "note": "The passage reports a TV of 0.043254545454545455, not 0.1452.",
+      "artifact_sha256": "b3932d2f8ac39a7a7eaeec02345d5f878d038504ea2eab84b9becb6c57e0bd03"
+    },
+    "seconds": 1.848
+  },
+  {
+    "claim": "All validation tests passed.",
+    "status": "not_enough_info",
+    "value": null,
+    "evidence": {
+      "result_artifacts": [
+        {
+          "path": "data/summary.json",
+          "sha256": "b9944833cec88031708e79f10fcf740ea4359852c98dea6c8f36879aebf528d4"
+        }
+      ],
+      "quote": "",
+      "note": "no relevant passages",
+      "artifact_sha256": "b3932d2f8ac39a7a7eaeec02345d5f878d038504ea2eab84b9becb6c57e0bd03"
+    },
+    "seconds": 0.005
+  }
+]

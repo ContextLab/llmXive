@@ -61,10 +61,6 @@ def get_logger(name: str = "llmXive") -> logging.Logger:
     _logger.addHandler(console_handler)
 
     # File handler with rotation
-    if DEFAULT_LOG_FILE.exists():
-        # Ensure file exists for rotation to work correctly
-        pass
-
     file_handler = RotatingFileHandler(
         str(DEFAULT_LOG_FILE),
         maxBytes=MAX_BYTES,

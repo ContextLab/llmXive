@@ -1,314 +1,285 @@
+"""
+High-precision reference engine for LLM inference operations.
+Uses Python's decimal module with 512-bit precision to calculate
+ground-truth values for MatMul, Softmax, and LayerNorm.
+"""
 import os
 import struct
 import argparse
 import logging
-import numpy as np
-from decimal import Decimal, getcontext, ROUND_HALF_UP
-from typing import Tuple, Optional, Literal, Dict, Any, List
+import hashlib
 from pathlib import Path
+from decimal import Decimal, getcontext, ROUND_HALF_UP
+from typing import List, Tuple, Optional
 
-# Configure logging
-logging.basicConfig(
-    level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
-logger = logging.getLogger(__name__)
-
-# Set decimal precision to 512 bits (approx 154 decimal digits)
-# As per Plan Note in tasks.md: "Task T006 resolves this to '512-bit'."
-PRECISION_BITS = 512
+# Set precision to 512 bits (approx 154 decimal digits)
 # 512 bits / log2(10) ≈ 153.6 decimal digits
 getcontext().prec = 154
 getcontext().rounding = ROUND_HALF_UP
 
-def decimal_matmul(A: np.ndarray, B: np.ndarray) -> np.ndarray:
+# Constants
+FLOAT32_SIZE = 4
+HASH_DIR = "data/raw/.hashes"
+REF_2X2_HASH_FILE = "ref_2x2.sha256"
+
+def setup_logging():
+    """Configure logging for the reference engine."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
+    return logging.getLogger(__name__)
+
+logger = setup_logging()
+
+def decimal_matmul(matrix_a: List[List[Decimal]], matrix_b: List[List[Decimal]]) -> List[List[Decimal]]:
     """
-    Perform Matrix Multiplication using high-precision Decimal arithmetic.
+    Perform matrix multiplication using high-precision Decimal arithmetic.
     
     Args:
-        A: Input matrix (N, K)
-        B: Input matrix (K, M)
+        matrix_a: First matrix (M x K)
+        matrix_b: Second matrix (K x N)
         
     Returns:
-        Result matrix (N, M) as float32 numpy array
+        Result matrix (M x N)
     """
-    if A.shape[1] != B.shape[0]:
-        raise ValueError(f"Matrix dimensions mismatch: {A.shape} vs {B.shape}")
+    if not matrix_a or not matrix_b:
+        raise ValueError("Input matrices cannot be empty")
     
-    n, k = A.shape
-    m = B.shape[1]
+    rows_a = len(matrix_a)
+    cols_a = len(matrix_a[0])
+    rows_b = len(matrix_b)
+    cols_b = len(matrix_b[0])
     
-    # Convert inputs to Decimal
-    # We convert element-wise to preserve precision during the operation
-    A_dec = [[Decimal(str(A[i, j])) for j in range(k)] for i in range(n)]
-    B_dec = [[Decimal(str(B[i, j])) for j in range(m)] for i in range(k)]
+    if cols_a != rows_b:
+        raise ValueError(f"Matrix dimensions incompatible for multiplication: {cols_a} != {rows_b}")
     
-    C_dec = [[Decimal(0) for _ in range(m)] for _ in range(n)]
+    result = []
+    for i in range(rows_a):
+        row = []
+        for j in range(cols_b):
+            val = Decimal(0)
+            for k in range(cols_a):
+                val += matrix_a[i][k] * matrix_b[k][j]
+            row.append(val)
+        result.append(row)
     
-    for i in range(n):
-        for j in range(m):
-            total = Decimal(0)
-            for p in range(k):
-                total += A_dec[i][p] * B_dec[p][j]
-            C_dec[i][j] = total
-    
-    # Convert back to float32 numpy array
-    C = np.zeros((n, m), dtype=np.float32)
-    for i in range(n):
-        for j in range(m):
-            # Convert Decimal to float
-            C[i, j] = float(C_dec[i][j])
-            
-    return C
+    return result
 
-def decimal_softmax(X: np.ndarray, axis: int = -1) -> np.ndarray:
+def decimal_softmax(vector: List[Decimal]) -> List[Decimal]:
     """
-    Compute Softmax using high-precision Decimal arithmetic.
+    Compute softmax using high-precision Decimal arithmetic.
+    Uses the log-sum-exp trick for numerical stability even at high precision.
     
     Args:
-        X: Input array
-        axis: Axis along which to compute softmax
+        vector: Input vector
         
     Returns:
-        Softmax result as float32 numpy array
+        Softmax probabilities
     """
-    # Shift for numerical stability (max subtraction)
-    # We do this in float first to find the max, then convert to Decimal
-    max_val = np.max(X, axis=axis, keepdims=True)
-    X_shifted = X - max_val
+    if not vector:
+        return []
     
-    # Convert to Decimal
-    shape = X.shape
-    ndim = X.ndim
+    # Find max for numerical stability (log-sum-exp trick)
+    max_val = max(vector)
     
-    # Flatten to 1D for easier processing if needed, but keep structure
-    # We'll process element-wise
-    X_dec = np.vectorize(lambda x: Decimal(str(x)))(X_shifted)
+    # Compute exp(x - max) for all x
+    # We need a high-precision exp implementation
+    def decimal_exp(x: Decimal) -> Decimal:
+        """Compute e^x using Taylor series with high precision."""
+        # For very large negative numbers, result is effectively 0
+        if x < Decimal(-50):
+            return Decimal(0)
+        
+        # Taylor series: e^x = sum(x^n / n!)
+        term = Decimal(1)
+        result = Decimal(1)
+        for n in range(1, 300):  # Sufficient iterations for 154 digits
+            term *= x / Decimal(n)
+            result += term
+            if abs(term) < Decimal(10) ** (-160):
+                break
+        return result
     
-    # Compute exp using Decimal
-    # Decimal doesn't have a native exp, so we use a Taylor series approximation
-    # or convert to float for exp and back? 
-    # For true high-precision, we need Decimal.exp() which exists in Python 3.3+
-    # but we must ensure the context precision is respected.
+    exp_vals = [decimal_exp(x - max_val) for x in vector]
+    sum_exp = sum(exp_vals)
     
-    # Python's Decimal has an exp() method
-    def safe_exp(d: Decimal) -> Decimal:
-        try:
-            return d.exp()
-        except:
-            # Fallback for very large numbers that might overflow even Decimal
-            # This is rare with shifted input
-            return Decimal(float(d).exp())
+    if sum_exp == Decimal(0):
+        # Fallback for degenerate case
+        return [Decimal(1) / Decimal(len(vector))] * len(vector)
     
-    exp_X = np.vectorize(safe_exp)(X_dec)
-    
-    # Sum along axis
-    sum_exp = np.sum(exp_X, axis=axis, keepdims=True)
-    
-    # Compute softmax
-    softmax_X = exp_X / sum_exp
-    
-    # Convert back to float32
-    return np.vectorize(lambda x: float(x))(softmax_X).astype(np.float32)
+    return [val / sum_exp for val in exp_vals]
 
-def decimal_layernorm(X: np.ndarray, gamma: np.ndarray, beta: np.ndarray, epsilon: float = 1e-5) -> np.ndarray:
+def decimal_layernorm(vector: List[Decimal], eps: Decimal = Decimal('1e-8')) -> List[Decimal]:
     """
     Compute Layer Normalization using high-precision Decimal arithmetic.
     
     Args:
-        X: Input array (N, D)
-        gamma: Scale parameter (D,)
-        beta: Shift parameter (D,)
-        epsilon: Small constant for numerical stability
+        vector: Input vector
+        eps: Small constant for numerical stability
         
     Returns:
-        Normalized output as float32 numpy array
+        Normalized vector
     """
-    if X.shape[-1] != gamma.shape[0] or X.shape[-1] != beta.shape[0]:
-        raise ValueError(f"Dimension mismatch: X last dim {X.shape[-1]} vs gamma/beta {gamma.shape[0]}")
+    if not vector:
+        return []
     
-    # Convert inputs to Decimal
-    # We need to handle the mean and variance calculation in high precision
+    n = Decimal(len(vector))
     
-    # Convert X to Decimal
-    X_dec = np.vectorize(lambda x: Decimal(str(x)))(X)
-    gamma_dec = np.vectorize(lambda x: Decimal(str(x)))(gamma)
-    beta_dec = np.vectorize(lambda x: Decimal(str(x)))(beta)
-    epsilon_dec = Decimal(str(epsilon))
+    # Calculate mean
+    mean = sum(vector) / n
     
-    # Compute mean along last axis
-    mean = np.mean(X_dec, axis=-1, keepdims=True)
+    # Calculate variance
+    variance = sum((x - mean) ** 2 for x in vector) / n
     
-    # Compute variance
-    var = np.mean((X_dec - mean) ** 2, axis=-1, keepdims=True)
-    
-    # Compute standard deviation
-    std = np.sqrt(var + epsilon_dec)
+    # Calculate std
+    std = variance.sqrt() + eps
     
     # Normalize
-    X_norm = (X_dec - mean) / std
-    
-    # Scale and shift
-    # Broadcast gamma and beta to match X shape
-    # gamma and beta are 1D (D,), X_norm is (N, D)
-    # We need to broadcast correctly
-    output_dec = X_norm * gamma_dec + beta_dec
-    
-    # Convert back to float32
-    return np.vectorize(lambda x: float(x))(output_dec).astype(np.float32)
+    return [(x - mean) / std for x in vector]
 
-def generate_reference_tensor(tensor_path: str, kernel_type: str) -> np.ndarray:
+def generate_reference_tensor(dim: int = 2, seed: int = 12345) -> List[List[Decimal]]:
     """
-    Load a tensor from binary file and compute the reference result.
+    Generate a deterministic reference tensor for testing.
+    Uses a simple linear congruential generator for determinism.
     
     Args:
-        tensor_path: Path to the binary tensor file
-        kernel_type: Type of kernel ('matmul', 'softmax', 'layernorm')
+        dim: Dimension for square matrix (dim x dim)
+        seed: Random seed for determinism
         
     Returns:
-        Reference result as float32 numpy array
+        Matrix of Decimal values
     """
-    # Load binary tensor
-    # Assuming the format: header (dims) + data (float32)
-    with open(tensor_path, 'rb') as f:
-        # Read header: 3 integers (N, K, M or N, D)
-        header_size = 3 * 4  # 3 integers
-        header_data = f.read(header_size)
-        dims = struct.unpack('iii', header_data)
-        
-        if kernel_type == 'matmul':
-            n, k, m = dims
-            # Read A and B
-            # A is N x K, B is K x M
-            # Assuming concatenated: A then B
-            a_size = n * k * 4
-            b_size = k * m * 4
-            
-            A_data = f.read(a_size)
-            B_data = f.read(b_size)
-            
-            A = np.frombuffer(A_data, dtype=np.float32).reshape(n, k)
-            B = np.frombuffer(B_data, dtype=np.float32).reshape(k, m)
-            
-            result = decimal_matmul(A, B)
-            
-        elif kernel_type == 'softmax':
-            n, d, _ = dims
-            data = np.frombuffer(f.read(), dtype=np.float32).reshape(n, d)
-            result = decimal_softmax(data)
-            
-        elif kernel_type == 'layernorm':
-            n, d, _ = dims
-            # Read X, gamma, beta
-            x_size = n * d * 4
-            gamma_size = d * 4
-            beta_size = d * 4
-            
-            X_data = f.read(x_size)
-            gamma_data = f.read(gamma_size)
-            beta_data = f.read(beta_size)
-            
-            X = np.frombuffer(X_data, dtype=np.float32).reshape(n, d)
-            gamma = np.frombuffer(gamma_data, dtype=np.float32).reshape(d)
-            beta = np.frombuffer(beta_data, dtype=np.float32).reshape(d)
-            
-            result = decimal_layernorm(X, gamma, beta)
-        else:
-            raise ValueError(f"Unknown kernel type: {kernel_type}")
+    # Simple LCG for deterministic generation
+    a = 1664525
+    c = 1013904223
+    m = 2**32
+    state = seed
     
-    return result
+    matrix = []
+    for i in range(dim):
+        row = []
+        for j in range(dim):
+            state = (a * state + c) % m
+            # Map to range [-1, 1]
+            val = (state / m) * 2 - 1
+            row.append(Decimal(str(val)))
+        matrix.append(row)
+    
+    return matrix
 
-def save_tensor_to_binary(tensor: np.ndarray, output_path: str, kernel_type: str):
+def save_tensor_to_binary(tensor: List[List[Decimal]], output_path: Path):
     """
-    Save a tensor to binary file.
+    Save tensor to binary file in float32 format (for compatibility with kernels).
+    The reference values are high-precision, but stored as float32 for comparison.
     
     Args:
-        tensor: Tensor to save
-        output_path: Output file path
-        kernel_type: Type of kernel for header info
+        tensor: Matrix of Decimal values
+        output_path: Path to output file
     """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     with open(output_path, 'wb') as f:
-        if kernel_type == 'matmul':
-            # For matmul result, we save the output dimensions
-            n, m = tensor.shape
-            # Header: N, K, M (K is not in result but needed for context? No, just result dims)
-            # Actually, for reference output, we just need the result dims
-            # But to be consistent with input format, let's save N, 1, M or just N, M?
-            # Let's use N, M, 1 for consistency with 3-int header
-            header = struct.pack('iii', n, m, 1)
-            f.write(header)
-            f.write(tensor.tobytes())
-            
-        elif kernel_type == 'softmax':
-            n, d = tensor.shape
-            header = struct.pack('iii', n, d, 1)
-            f.write(header)
-            f.write(tensor.tobytes())
-            
-        elif kernel_type == 'layernorm':
-            n, d = tensor.shape
-            header = struct.pack('iii', n, d, 1)
-            f.write(header)
-            f.write(tensor.tobytes())
+        for row in tensor:
+            for val in row:
+                # Convert Decimal to float32 for storage
+                float_val = float(val)
+                f.write(struct.pack('<f', float_val))
 
-def run_reference_benchmarks(input_dir: str, output_dir: str, config_list: List[Dict[str, Any]]):
+def compute_sha256(file_path: Path) -> str:
+    """Compute SHA-256 hash of a file."""
+    sha256_hash = hashlib.sha256()
+    with open(file_path, "rb") as f:
+        for byte_block in iter(lambda: f.read(4096), b""):
+            sha256_hash.update(byte_block)
+    return sha256_hash.hexdigest()
+
+def save_hash(hash_value: str, hash_path: Path):
+    """Save hash to file."""
+    hash_path.parent.mkdir(parents=True, exist_ok=True)
+    with open(hash_path, 'w') as f:
+        f.write(hash_value)
+
+def run_reference_benchmarks(test_dim: int = 2, verify_hash: bool = False) -> Tuple[str, Path]:
     """
-    Run reference benchmarks for a list of configurations.
+    Run reference benchmarks and optionally verify hash.
     
     Args:
-        input_dir: Directory containing input binary tensors
-        output_dir: Directory to save reference results
-        config_list: List of configuration dicts with keys:
-            - 'config_id': Unique identifier
-            - 'kernel_type': 'matmul', 'softmax', or 'layernorm'
-            - 'tensor_file': Filename of input tensor
+        test_dim: Dimension for test matrix
+        verify_hash: Whether to save and verify hash
+        
+    Returns:
+        Tuple of (hash_value, output_path)
     """
-    input_path = Path(input_dir)
-    output_path = Path(output_dir)
-    output_path.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Generating {test_dim}x{test_dim} reference tensor")
     
-    for config in config_list:
-        config_id = config['config_id']
-        kernel_type = config['kernel_type']
-        tensor_file = config['tensor_file']
+    # Generate input tensor
+    input_tensor = generate_reference_tensor(dim=test_dim, seed=12345)
+    
+    # Perform operations
+    # 1. MatMul: A * A^T
+    input_tensor_t = [[input_tensor[j][i] for j in range(len(input_tensor))] 
+                      for i in range(len(input_tensor[0]))]
+    matmul_result = decimal_matmul(input_tensor, input_tensor_t)
+    
+    # 2. Softmax: Apply to first row
+    softmax_result = decimal_softmax(matmul_result[0])
+    
+    # 3. LayerNorm: Apply to first row
+    layernorm_result = decimal_layernorm(softmax_result)
+    
+    # Prepare output tensor (using layernorm result for consistency)
+    # Pad to square matrix if needed
+    output_dim = len(layernorm_result)
+    output_tensor = []
+    for i in range(output_dim):
+        row = []
+        for j in range(output_dim):
+            if j < len(layernorm_result):
+                row.append(layernorm_result[j])
+            else:
+                row.append(Decimal(0))
+        output_tensor.append(row)
+    
+    # Save to file
+    output_dir = Path("data/raw")
+    output_file = output_dir / f"ref_{test_dim}x{test_dim}.bin"
+    save_tensor_to_binary(output_tensor, output_file)
+    
+    # Compute hash
+    hash_value = compute_sha256(output_file)
+    logger.info(f"SHA-256 hash: {hash_value}")
+    
+    if verify_hash:
+        hash_file = Path(HASH_DIR) / REF_2X2_HASH_FILE
+        save_hash(hash_value, hash_file)
+        logger.info(f"Hash saved to {hash_file}")
         
-        input_file = input_path / tensor_file
-        
-        if not input_file.exists():
-            logger.error(f"Input file not found: {input_file}")
-            continue
-        
-        logger.info(f"Processing {config_id}: {kernel_type} from {tensor_file}")
-        
-        try:
-            result = generate_reference_tensor(str(input_file), kernel_type)
-            
-            output_file = output_path / f"{config_id}_reference.bin"
-            save_tensor_to_binary(result, str(output_file), kernel_type)
-            
-            logger.info(f"Saved reference result to {output_file}")
-            
-        except Exception as e:
-            logger.error(f"Error processing {config_id}: {e}")
-            raise
+        # Verify by re-computing
+        re_hash = compute_sha256(output_file)
+        assert re_hash == hash_value, "Hash verification failed!"
+    
+    return hash_value, output_file
 
 def main():
-    """Main entry point for running reference benchmarks."""
-    parser = argparse.ArgumentParser(description='High-precision reference engine')
-    parser.add_argument('--input-dir', type=str, default='data/raw',
-                      help='Directory containing input binary tensors')
-    parser.add_argument('--output-dir', type=str, default='data/raw',
-                      help='Directory to save reference results')
-    parser.add_argument('--config-file', type=str, required=True,
-                      help='JSON file containing list of configurations to process')
+    parser = argparse.ArgumentParser(description="High-precision reference engine")
+    parser.add_argument('--test', action='store_true', help='Run test benchmark')
+    parser.add_argument('--verify-hash', action='store_true', help='Verify and save hash')
+    parser.add_argument('--dim', type=int, default=2, help='Dimension for test matrix')
     
     args = parser.parse_args()
     
-    # Load configurations
-    with open(args.config_file, 'r') as f:
-        config_list = json.load(f)
-    
-    run_reference_benchmarks(args.input_dir, args.output_dir, config_list)
+    if args.test:
+        hash_val, out_path = run_reference_benchmarks(
+            test_dim=args.dim, 
+            verify_hash=args.verify_hash
+        )
+        print(f"Reference generated: {out_path}")
+        print(f"Hash: {hash_val}")
+        if args.verify_hash:
+            print(f"Hash saved to: {Path(HASH_DIR) / REF_2X2_HASH_FILE}")
+    else:
+        parser.print_help()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

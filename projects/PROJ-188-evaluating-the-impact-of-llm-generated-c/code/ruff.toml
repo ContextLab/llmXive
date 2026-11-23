@@ -1,0 +1,13 @@
+[lint]
+select = ["E", "F", "W", "I", "N", "B", "C4", "UP"]
+ignore = ["E501", "B008"]  # Ignore line length and some common false positives
+target-version = "py39"
+
+[format]
+line-length = 100
+indent-width = 4
+
+[lint.per-file-ignores]
+"code/__init__.py" = ["F401"]
+"code/utils/__init__.py" = ["F401"]
+"tests/*" = ["S101"]  # Allow asserts in tests

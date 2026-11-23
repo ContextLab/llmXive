@@ -1,0 +1,4 @@
+# Verified Citations Registry
+# This file must be populated by the research phase with real, verified DOIs.
+# If this list is empty and the pipeline is NOT in validation mode, the build will fail.
+dois: []

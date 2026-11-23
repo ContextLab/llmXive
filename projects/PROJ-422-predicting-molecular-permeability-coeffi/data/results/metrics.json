@@ -1,0 +1,8 @@
+{
+  "split_strategy": "random",
+  "stratify_column": null,
+  "train_size": 1,
+  "test_size": 0,
+  "max_distribution_diff": null,
+  "retention_rate": 1.0
+}

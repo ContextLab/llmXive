@@ -1,30 +1,32 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "HCP Dataset Schema"
-description: "Schema for the input HCP dataset (Parquet/CSV) containing structural and functional data. Validates the Subject entity."
-type: object
+title: "OpenNeuro HCP Dataset Schema"
+description: "Schema for the verified OpenNeuro ds000224 dataset used in structural-functional analysis."
+type: "object"
 properties:
   subject_id:
-    type: string
+    type: "string"
     description: "Unique identifier for the subject."
   structural_matrix:
-    type: array
-    description: "200x200 connectivity matrix."
+    type: "array"
     items:
-      type: array
-      items:
-        type: number
-  fMRI_timeseries:
-    type: array
-    description: "200xT time series array."
+      type: "number"
+    description: "Flattened structural connectivity matrix."
+  fMRI_time_series:
+    type: "array"
     items:
-      type: array
+      type: "array"
       items:
-        type: number
-  exclusion_reason:
-    type: ["string", "null"]
-    description: "Reason for exclusion if any (e.g., 'sparsity >90%')."
+        type: "number"
+    description: "2D array of fMRI time series (time x regions)."
+  metadata:
+    type: "object"
+    properties:
+      age:
+        type: "number"
+      sex:
+        type: "string"
+    description: "Subject metadata."
 required:
-  - subject_id
-  - structural_matrix
-  - fMRI_timeseries
-additionalProperties: false
+  - "subject_id"
+  - "structural_matrix"
+  - "fMRI_time_series"

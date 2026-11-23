@@ -1,3 +1,1 @@
-"""
-Unit Tests Package.
-"""
+# Unit tests package initialization

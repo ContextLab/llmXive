@@ -1,0 +1,9 @@
+status: none
+intent: '### User Story 1 - Data Acquisition and Feature Engineering (Priority: P1)
+  The system MUST ingest raw composition data from Dataset (2014 Experimental GFA),
+  parse elemental fractions, and compute physics-based descriptors (atomic radius,
+  electronegativity, valence electron count) and interaction fea'
+required_fields: []
+cache_key: 2894603c0052c5d39bb156cb433135cbf6daeac906e48f003201c607a8fdac17
+searched_at: '2026-10-10T15:30:13.044032+00:00'
+retry_count: 1

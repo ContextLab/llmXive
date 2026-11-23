@@ -1,0 +1,15 @@
+status: none
+intent: Simulated CMB maps Planck FFP10 CAMB HEALPix python package dataset
+required_fields:
+- pixel_index
+- temperature
+- Q_polarization
+- U_polarization
+- nside
+- simulation_id
+- cosmological_parameters (H0, Omega_m, ns, tau)
+- mask_fraction
+- mask_morphology
+cache_key: 51de09d33e23cd0ab7421cebce1ef647d8256765ee4bcad40afe7705731d1fc0
+searched_at: '2026-08-01T20:23:28.409630+00:00'
+retry_count: 1

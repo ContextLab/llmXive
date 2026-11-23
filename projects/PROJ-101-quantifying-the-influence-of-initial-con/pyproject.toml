@@ -1,0 +1,59 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-quantify-initial-conditions"
+version = "0.1.0"
+description = "Quantifying the influence of initial conditions on chaotic systems"
+requires-python = ">=3.11"
+dependencies = [
+    "numpy>=1.24.0",
+    "scipy>=1.10.0",
+    "matplotlib>=3.7.0",
+    "pandas>=2.0.0",
+    "pytest>=7.3.0",
+    "statsmodels>=0.14.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "ruff>=0.1.0",
+    "black>=23.0.0",
+]
+
+[tool.ruff]
+# Enable rules E, F, W as requested
+select = ["E", "F", "W"]
+# Line length configuration
+line-length = 88
+# Exclude common directories
+exclude = [
+    ".git",
+    ".tox",
+    "__pycache__",
+    "build",
+    "dist",
+]
+
+[tool.black]
+# Line length configuration
+line-length = 88
+# Target Python version
+target-version = ["py311"]
+# Exclude common directories
+exclude = '''
+(
+    \.git
+    | \.tox
+    | __pycache__
+    | build
+    | dist
+)
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --strict-markers"

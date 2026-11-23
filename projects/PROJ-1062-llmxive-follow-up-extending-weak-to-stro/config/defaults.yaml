@@ -1,0 +1,74 @@
+# llmXive Pipeline Configuration
+# Default values for all experiment parameters
+
+# Paths
+paths:
+  data_raw: "data/raw"
+  data_processed: "data/processed"
+  data_results: "data/results"
+  figures: "figures"
+  logs: "logs"
+  models_cache: ".cache/models"
+
+# Dataset settings
+dataset:
+  source: "HuggingFaceH4/aime_2024"
+  verified_field: "human_verified_label"
+  train_split: "train"
+  test_split: "test"
+  sample_size: 200
+  seed: 42
+
+# Model settings
+models:
+  teacher:
+    name: "meta-llama/Llama-2-7b-hf"
+    quantization: "int8"
+    cpu_offload: true
+  moe_student:
+    name: "HuggingFaceTB/SmolLM-135M"
+    quantization: "int8"
+    cpu_offload: true
+  ssm_student:
+    name: "state-spaces/mamba-130m"
+    quantization: "int8"
+    cpu_offload: true
+
+# Training settings
+training:
+  batch_size: 1
+  gradient_accumulation_steps: 4
+  max_steps: 1000
+  learning_rate: 1e-5
+  weight_decay: 0.01
+  warmup_steps: 100
+  seed: 42
+  time_limit_hours: 6
+
+# Memory constraints
+memory:
+  max_ram_gb: 7
+  warning_threshold: 0.9
+  hard_floor_batch_size: 1
+
+# Reward computation
+reward:
+  epsilon: 1e-8
+  smoothing_factor: 0.1
+
+# Statistical analysis
+statistics:
+  significance_level: 0.05
+  correction_method: "holm"
+  test_type: "wilcoxon"
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+
+# Experiment metadata
+experiment:
+  name: "weak-to-strong-generalization"
+  version: "0.1.0"
+  run_id: null  # Auto-generated if null

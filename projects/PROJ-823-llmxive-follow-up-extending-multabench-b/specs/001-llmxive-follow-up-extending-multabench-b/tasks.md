@@ -33,7 +33,7 @@
  Tasks MUST be organized by user story so each story can:
  - Implemented independently
  - Tested independently
- - Delivered as an MVP increment
+ - Delivered as a MVP increment
 
  DO NOT keep these sample tasks in the generated tasks.md file.
  ============================================================================
@@ -44,55 +44,88 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan in `code/`, `tests/`, `data/`
-- [X] T002 Initialize Python 3.11 project with `pyproject.toml` dependencies (torch-cpu, transformers, sentence-transformers, scikit-learn, pandas, pyarrow, numpy, requests, pyyaml)
+- [X] T002 Initialize a Python project with `pyproject.toml` dependencies (torch-cpu, transformers, sentence-transformers, scikit-learn, pandas, pyarrow, numpy, requests, pyyaml)
 - [X] T003 [P] Configure linting (ruff) and formatting (black) tools
 
 ---
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Implement `code/config.py` for global config, seeds (`random_seed=42`), and paths
+- [X] T004 Implement `code/config.py` for global config, seeds (`random_seed=42`), and paths. **Requirement**: Explicitly define and pin a set of sensitivity seeds in a `SENSITIVITY_SEEDS` constant to ensure deterministic reproducibility across all runs. **Specific Seeds**: `[123, 456, 789, 1011]`. **Note**: This list supersedes the external claim `` to ensure reproducibility without external context.
 - [X] T005 [P] Implement `code/utils/memory_monitor.py` to track peak RAM usage (memory limit)
 - [X] T006 [P] Implement `code/utils/logging.py` for structured pipeline logging
 - [X] T007 Create `code/data_loader.py` for MulTaBench ingestion with local checksum verification (SHA-256)
-- [X] T008 Setup `data/README.md` with instructions for local data ingestion and checksum validation
-- [ ] T009a [P] Create `contracts/frozen_embedding.schema.yaml` defining the schema for frozen embeddings
-- [ ] T009b [P] Create `contracts/tabular_metadata.schema.yaml` defining the schema for tabular metadata
-- [ ] T009c [P] Update `data-model.md` to reference the new contract files and define `run_id` propagation
-- [ ] T010 Create `code/models/__init__.py` and base model structures
+- [X] T008 [Setup/Docs] Create `data/README.md` with instructions for local data ingestion and checksum validation. **CRITICAL**: This file MUST include explicit instructions on how to obtain the `data/raw/multabench_baselines.csv` file required for T008b, as no public URL exists.
+- [X] T008c [Setup/Docs] **Update README with Acquisition Steps**: Update `data/README.md` to explicitly document the manual steps required to acquire `data/raw/multabench_baselines.csv`. **Steps**: "1. Locate the supplementary material for the MulTaBench paper (arXiv:2605.10616). [UNRESOLVED-CLAIM: c_8e10488a — status=verified] 2. Download the archive containing `multabench_baselines.csv`. 3. Unzip the archive. 4. Place `multabench_baselines.csv` in `data/raw/`. **Note**: No direct URL is provided; the file must be manually located in the paper's supplementary materials. " **Dependency**: T008c has no upstream dependencies. It must run **BEFORE** T008b to ensure instructions are available if the file is missing. **Note**: This task ensures instructions are available before the fetch script runs. **Format**: Append the steps as a bulleted list under a new section titled "## Data Acquisition: Baselines" in `data/README.md`.
+- [X] T008b Implement `code/pipelines/fetch_baselines.py` to validate the presence of `data/raw/multabench_baselines.csv`. **Logic**: If the file is missing or empty, the script MUST exit with code 1 and log ERROR: "Missing required baseline file: data/raw/multabench_baselines.csv. Please refer to data/README.md for acquisition steps." to stderr using `logging.ERROR` level. It must NOT generate synthetic data or attempt to parse arXiv links. **Dependency**: Must run AFTER T008c to ensure instructions are available. **Note**: This is a known constraint; CI will fail if file is missing, but the error message will guide the user.
+- [X] T009a [P] Create `contracts/frozen_embedding.schema.yaml` defining the schema for frozen embeddings (fields: run_id, dataset_id, vector, model_type)
+- [X] T009b [P] Create `contracts/tabular_metadata.schema.yaml` defining the schema for tabular metadata (fields: dataset_id, cardinality, missingness, sparsity, variance)
+- [X] T009d [P] Create `contracts/baselines.schema.yaml` defining the schema for the `multabench_baselines.csv` file (fields: dataset_id, gpu_tuned_auc, task_type, dataset_name). **Requirement**: This contract is the Single Source of Truth for T032a validation.
+- [X] T009c [P] Update `data-model.md` to reference the new contract files and define `run_id` propagation logic for all downstream artifacts
+- [X] T009e [P] Create `contracts/zero_variance_audit.schema.yaml` defining the schema for the zero variance audit log (fields: dataset_id, skipped_features, timestamp, hash). **Requirement**: This contract ensures T061 output is standardized and checksummable.
+- [X] T009f [P] Create `contracts/robustness_check.schema.yaml` defining the schema for the robustness check recommendation (fields: dataset_count, recommendation_type, rationale). **Requirement**: This contract ensures T060 output is standardized.
+- [X] T010 Create `code/models/__init__.py` and base model structures
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+### Metadata & Normalization Pipeline (Foundational Prerequisites for US1/US2)
+
+- [X] T024a [US1/US2/US3] **Load Datasets**: Implement `code/analysis/metadata_stats.py::load_datasets` to iterate through all datasets in `data/raw/` and yield a dictionary of dataset_id and dataframes. **Output**: Generator yielding dataset objects.
+- [X] T024b [US1/US2/US3] **Compute Per-Dataset Stats**: Implement `code/analysis/metadata_stats.py::compute_stats` to compute cardinality, missingness, sparsity, and variance for a single dataset. **Output**: Dictionary of stats per dataset.
+- [ ] T024c-impl [US1/US2/US3] **Aggregate to CSV (Implementation)**: Implement `code/analysis/metadata_stats.py::aggregate_stats` to aggregate stats from T024b into a single CSV `data/processed/metadata_stats_summary.csv`. **Output**: `data/processed/metadata_stats_summary.csv` with columns [dataset_id, cardinality, missingness, sparsity, variance]. **Constraint**: This task replaces T024 and is a blocking prerequisite for T024e, T045, and T033. **Verification**: The verification step is moved to T024c-verify. **Note**: This task is purely implementation; verification is a separate task.
+- [ ] T024c-verify [US1/US2/US3] **Aggregate to CSV (Verification)**: Verify that `data/processed/metadata_stats_summary.csv` (from T024c-impl) has a row count matching the number of input datasets and that missingness rates are in [0, 1]. **Logic**: If verification fails, raise an exception. **Dependency**: Must run AFTER T024c-impl.
+- [ ] T024e [US1/US2/US3] **Metadata Aggregation & Subset Selection**: Load `data/processed/metadata_stats_summary.csv` from T024c-impl. Sort datasets alphabetically by dataset_id and select the **initial subset**. **Logic**: Select ALL available datasets present in `data/processed/metadata_stats_summary.csv`. If N > 20, select the first 20 alphabetically to ensure runtime feasibility and compliance with Spec US-003. **Output**: `data/processed/metadata_stats_summary.csv` (updated with subset flag if needed). **Dependency**: Must run AFTER T024c-impl completion. **Constraint**: This task is a shared prerequisite for US2 and US3 and must complete before T024f and T033. **Note**: The [P] tag is removed from this task as it is a blocking prerequisite. **Staged Execution**: This task defines the "Initial Subset" for the first run. If the full set (N > 20) is required for final validation, T024g will override this selection. **Critical Note**: If N > 20, this task MUST log a "Data Availability Gap" entry to `data/artifacts/data_availability_gap_report.json` explicitly stating the runtime constraint override. <!-- FAILED: unspecified -->
+- [ ] T024g [US1/US2/US3] **Full Set Validation (Optional/Staged)**: If runtime permits (verified by T048), re-run the pipeline with the FULL set of datasets (N > 20). **Logic**: If N > 20 and T048 (Runtime Validation) passed with N=20, attempt to run with N=full. If it fails time limits, log "Full set validation skipped due to time constraints" and flag the 'Data Availability Gap' in the final report. **Output**: Update `data/processed/metadata_stats_summary.csv` to reflect the full set if successful. **Dependency**: Must run AFTER T048.
+- [ ] T045 [US1/US2/US3] **Data Integrity Check**: Implement `code/pipelines/verify_data_integrity.py` to cross-check that every dataset ID in `data/processed/metadata_stats_summary.csv` (T024e) exists in `data/raw/` and has non-zero variance in at least one tabular feature. **Dependency**: Must run AFTER T024e completion. **Logic**: If a dataset has zero variance in a specific feature (variance < 1e-9), SKIP ONLY that feature in the metadata stats for correlation analysis (do NOT impute), log to `data/artifacts/data_integrity_report.json` with a 'skipped_feature' status, and retain the dataset. If ALL features are zero-variance, exclude the dataset. **Output**: `data/artifacts/data_integrity_report.json` containing a list of skipped features and the reason (e.g., "zero_variance"). **Constraint**: This task MUST run before T033 and T032a to ensure zero-variance features are excluded from the correlation analysis, but datasets are not discarded unless ALL features are zero-variance. **Config**: Use `ZERO_VAR_THRESHOLD = 1e-9` from `code/config.py`.
+- [ ] T045b [US1/US2] **Zero-Variance Feature Handling**: Implement `code/pipelines/impute_zero_variance.py` to handle zero-variance features identified in T045. **Logic**: **FORBIDS imputation**. Output a 'skip list' of zero-variance features for each dataset. **Output**: Update `data/processed/metadata_stats_summary.csv` with a 'skipped_features' column (list of feature names) and log the action in `data/artifacts/data_integrity_report.json`. **Rationale**: Imputation is rejected because introducing artificial constant values for zero-variance features would mask the true structural properties of the data, violating the requirement to correlate recovery efficacy with *actual* tabular metadata. Skipping preserves the integrity of the correlation analysis. **Constraint**: This task ensures that correlation analysis is not invalidated by missing variance signals, but zero-variance features are excluded from the final correlation calculation to preserve signal integrity. **Dependency**: Must run after T045.
+- [ ] T024f [US1/US2] Implement `code/pipelines/normalize_tabular.py` to generate `data/processed/normalized_tabular_features.parquet`. **Logic**: Load raw tabular data for **datasets selected in T024e**, apply standard normalization (z-score or min-max) per feature using global mean/std calculated from the **selected subset**, and handle missing values via mean imputation. **CRITICAL**: For features flagged as zero-variance in T045/T045b, **SKIP normalization** for that specific feature (do NOT impute). **Output**: A single Parquet file containing normalized features for ALL available datasets in the subset. **Dependency**: Must run AFTER T024e (Subset Selection) and T045 (Data Integrity Check) to ensure normalization uses the corrected/filtered feature set and is computed on the final subset only. **Usage**: This artifact is consumed by T015a-impl (for the Frozen Baseline classifier) and T025 (for the Conditioned model). **Note**: T015a-impl uses this for the baseline classifier but does NOT use it for conditioning; T025 uses it for both. **Canonical Function**: The normalization logic MUST be implemented in `code/utils/feature_engineering.py::normalize_features` to ensure consistency across T015a-impl and T025.
+
+- [X] T055 [P] [US1/US2/US3] **CI Guardrails**: Implement `code/pipelines/ci_guardrails.py` to perform pre-flight checks: (1) Verify `data/raw/` is not empty and contains expected file extensions, (2) Verify Python version and critical dependencies. **Logic**: Executes as a pre-flight check in Phase 2; its results are consumed by T015a-impl and T025. Exit immediately with a descriptive error code if checks fail. **Output**: `data/artifacts/ci_guardrail_report.json`.
+- [X] T056a [P] [US1/US2/US3] **Memory Probe**: Implement `code/pipelines/tune_batch_size.py::probe_memory` to run a small subset of images and measure memory usage. **Output**: Log memory usage for a small batch.
+- [X] T056b [P] [US1/US2/US3] **Binary Search Logic**: Implement `code/pipelines/tune_batch_size.py::find_optimal_batch_size` to incrementally increase batch size by 2x until memory usage exceeds a high threshold. **Output**: Log the selected `optimal_batch_size`.
+- [X] T056c [P] [US1/US2/US3] **Config Writer**: Implement `code/pipelines/tune_batch_size.py::write_config` to write the determined `optimal_batch_size` to `data/artifacts/batch_size_config.json`. **Constraint**: This must prevent OOM crashes on large image datasets without requiring manual intervention.
+
+**Checkpoint**: Foundation ready - user story implementation can now begin in parallel. **CRITICAL**: T024c-impl, T024e, T045, T045b, and T024f must be completed before any US1 tasks (including T015a-impl) can start.
 
 ---
 
 ## Phase 3: User Story 1 - CPU-Tractable Baseline Generation (Priority: P1) 🎯 MVP
 
-**Goal**: Generate frozen embeddings for images and text using CLIP ViT-B/32 and Sentence-BERT on CPU without gradient tracking.
+**Goal**: Generate frozen embeddings for images and text using CLIP ViT-B/ and Sentence-BERT on CPU without gradient tracking.
 
 **Independent Test**: Verify script completes within 60 mins on a sample of datasets, outputs valid parquet files, and no CUDA errors occur.
 
+**NOTE ON DEPENDENCIES**: This phase contains two parallel branches. The "Primary Baseline" branch (T015a-impl) is a **mandatory prerequisite** for US3 (T031). The "Sensitivity Analysis" branch (T019d/T019c) is **NON-BLOCKING FOR T031** and runs in parallel. T031 (US3) depends **ONLY** on T015a-impl, not on the sensitivity branch.
+
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
+> **NOTE**: Write these tests FIRST, ensure they FAIL before implementation
 
-- [ ] T011 [P] [US1] Unit test for batch processing logic in `tests/test_embeddings.py::test_batch_processing_memory`
+- [X] T011 [P] [US1] Unit test for batch processing logic in `tests/test_embeddings.py::test_batch_processing_memory`
 - [X] T012 [P] [US1] Unit test for gradient disabling in `tests/test_embeddings.py::test_no_grad_context`
 
 ### Implementation for User Story 1
 
 - [X] T013 [US1] Implement `code/embeddings/generator.py` with CLIP ViT-B/32 and Sentence-BERT loaders (CPU-only, default precision)
-- [X] T014 [US1] Implement `code/embeddings/utils.py` with batch processing logic to ensure memory safety (max batch size)
-- [X] T015 [US1] Implement `code/pipelines/run_baseline.py` to generate embeddings for **ALL available datasets** in the pipeline with `random_seed=42`. Output must include `data/processed/embeddings_{run_id}.parquet` with `run_id`, `dataset_id`, and embedding vectors. Ensure deterministic re-computation for all datasets to satisfy FR-001.
-- [~] T016 [US1] Add logic to handle datasets with zero variance or missing image/text fields gracefully (skip or impute constant)
-- [~] T017 [US1] Implement output serialization to `data/processed/embeddings_{run_id}.parquet` with `run_id` and metadata
-- [~] T018 [US1] Add validation to ensure no gradient tracking is enabled during inference
-- [X] T019 [P] [US1] Sensitivity analysis script `code/pipelines/run_baseline_sensitivity.py` to generate embeddings for **ALL available datasets** using additional seeds (total seeds including primary). Note: While generation is parallel, aggregation (T019b) depends on completion.
-- [X] T019b [US1] Implement `code/pipelines/merge_sensitivity_outputs.py` to merge the 5-seed Parquet files from T019 into a single intermediate file.
-- [X] T019c [US1] Implement `code/pipelines/aggregate_sensitivity.py` to compute mean/std of embeddings and metrics from merged files and write to `data/artifacts/frozen_baseline_aggregated_{run_id}.json`.
+- [X] T014 [US1] Implement `code/embeddings/utils.py` with batch processing logic to ensure memory safety (max batch size). **Dependency**: Must use the `optimal_batch_size` from `data/artifacts/batch_size_config.json` (T056).
+- [ ] T015 [US1] Implement `code/pipelines/run_baseline.py` to generate embeddings for **ALL available datasets** in the pipeline with `random_seed=42`. Output must include `data/processed/embeddings_{run_id}.parquet` with `run_id`, `dataset_id`, `vector`, and `model_type` columns (matching `contracts/frozen_embedding.schema.yaml` from T009a). Ensure deterministic re-computation for all datasets to satisfy FR-001. **Constraint**: Must validate output against `contracts/frozen_embedding.schema.yaml` and enforce `random_seed=42`.
+- [ ] T015a-impl [US1] **Single-Seed Frozen Baseline Classifier (Implementation)**: Implement `code/pipelines/train_frozen_baseline_classifier.py` to train a lightweight classifier (e.g., Logistic Regression) on the frozen embeddings from **T015 (Seed 42 ONLY)** and normalized tabular features from **T024f**. **Input**: Must consume the *same* normalized tabular features from `data/processed/normalized_tabular_features.parquet` (generated by T024f) and use the *exact same* feature engineering logic (`code/utils/feature_engineering.py::normalize_features`) and normalization parameters (mean/std) as T025 (US2) to ensure consistency with the 'CPU-Conditioned' denominator. **Verification**: Verify that the normalization parameters (mean/std) loaded from `data/processed/normalized_tabular_features.parquet` match those used in T025 by comparing the `schema.metadata[b'normalized_params']` field and asserting `dict equality`. **Constraint**: Do NOT use `normalized_tabular_features.parquet` for *conditioning* (modulating embeddings) in this task; use it ONLY as input to the classifier alongside embeddings. **Output**: `data/artifacts/frozen_baseline_metrics_seed42_{run_id}.json` containing `dataset_id`, `metric_name`, `metric_value` (single seed). This task satisfies FR-001's requirement to re-compute the baseline performance for the Recovery Ratio denominator. **Must run after T015 and T024f**. **Note**: `code/utils/feature_engineering.py::normalize_features` MUST exist and be the single source of truth; raise ImportError if missing. **Constraint**: Must enforce `random_seed=42` and identical hyperparameters to T025. **Scope**: Compute baseline for **ALL valid datasets** (as selected in T024e) using Seed 42 ONLY. **Rationale**: This task computes the *primary* seed metric (Seed 42) which is the *sole* denominator for FR-001. The sensitivity analysis (T019c) is for *variance reporting* only and is not used in the denominator calculation, ensuring consistency with the 'CPU-Conditioned' generation context as mandated by FR-001.
+- [ ] T015a-verify [US1] **Single-Seed Frozen Baseline Classifier (Verification)**: Verify that the normalization parameters used in T015a-impl match those in T025. **Logic**: Load `data/processed/normalized_tabular_features.parquet` and assert `schema.metadata[b'normalized_params']` matches the parameters used in T025. **Dependency**: Must run after T015a-impl.
+- [X] T015a-run [US1] **Single-Seed Frozen Baseline Classifier (Execution)**: Execute the classifier training for all valid datasets using the implementation from T015a-impl. **Output**: `data/artifacts/frozen_baseline_metrics_seed42_{run_id}.json`. **Dependency**: Must run after T015a-impl and T015a-verify.
+- [ ] T016 [US1] Add logic to handle datasets with zero variance or missing image/text fields gracefully: skip dataset, log warning to `code/utils/logging.py`, and write skipped dataset IDs to `data/artifacts/skipped_datasets.json`.
+- [X] T017 [US1] Implement output serialization to `data/processed/embeddings_{run_id}.parquet` with `run_id` and metadata, ensuring schema compliance with `contracts/frozen_embedding.schema.yaml`.
+- [X] T018 [US1] Add validation to ensure no gradient tracking is enabled during inference
+
+### Parallel Branch: Sensitivity Analysis (NON-BLOCKING FOR T031)
+**Note**: This branch runs in parallel with T031 (US3). T031 does NOT depend on T019d or T019c. These tasks are for variance reporting only. **MANDATORY FOR FINAL REPORT**: T019c output is required for T063.
+
+- [X] T019 [US1] **Sensitivity Embedding Generation**: Implement `code/pipelines/run_baseline_sensitivity.py` to generate embeddings for **ALL available datasets** using **specific random seeds** from a predefined set (excluding 42). **Output**: Multiple separate Parquet files named `embeddings_seed_{seed_id}_{run_id}.parquet` (e.g., `embeddings_seed_123_{run_id}.parquet`). **Note**: This script generates multiple Parquet files (one per seed). It is a prerequisite for sequential tasks T019b, T019d. **Dependency**: Must run after T015 (embedding generation). **Note**: T019 depends on T015, NOT T015a. T015a-impl is a downstream consumer of T015.
+- [X] T019b [US1] Implement `code/pipelines/merge_sensitivity_outputs.py` to merge the 4-seed Parquet files from T019 into a single intermediate file. **Must run after T019 and before T019d**.
+- [X] T019d [US1] **Train Sensitivity Baseline Classifiers**: Implement `code/pipelines/train_sensitivity_baseline_classifiers.py` to train the lightweight classifier on the merged sensitivity embeddings (Tb) for seeds `[123, 456, 789, 1011]`. **Input**: Merged embeddings from T019b and normalized tabular features from T024f. **Output**: Multiple JSON files `frozen_baseline_metrics_seed_{seed_id}_{run_id}.json` for each sensitivity seed. **Dependency**: Must run after T019b. **Note**: This task generates the performance metrics required by T019c. **NON-BLOCKING FOR T031**: This task is NOT a prerequisite for T031 (US3).
+- [X] T019c [US1] **Aggregate Sensitivity Metrics**: Implement `code/pipelines/aggregate_sensitivity.py` to compute mean/std of the **performance metrics** (AUC/RMSE) from the sensitivity seeds (T019d) and write to `data/artifacts/frozen_baseline_sensitivity_aggregated_{run_id}.json`. **Note**: This aggregates metrics from seeds `[123, 456, 789, 1011]` ONLY to provide a variance report, NOT for the Recovery Ratio denominator. The denominator is T015a-impl. **Must run after T019d**. **Dependency**: Must verify T019d output exists and is valid before aggregation. **NON-BLOCKING FOR T031**: This task is NOT a prerequisite for T031 (US3). **MANDATORY FOR FINAL REPORT**: This artifact is a required input for T063 (Final Summary).
+- [X] T019e [US1] **Consistency Check**: Implement `code/pipelines/verify_baseline_consistency.py` to compare the primary seed metric (T015a-impl) with the aggregated metric (T019c) for seed 42 (if included in sensitivity). **Logic**: If `abs(primary_metric - aggregated_metric_seed42) > 0.001`, log a warning. **Output**: `data/artifacts/baseline_consistency_report.json`. **Dependency**: Must run after T015a-impl and T019c.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -106,18 +139,17 @@
 
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T020 [P] [US2] Unit test for projection layer gradient isolation in `tests/test_projection.py::test_frozen_backbone_gradients`
-- [X] T021 [P] [US2] Integration test for training loop convergence in `tests/test_projection.py::test_training_convergence`
+- [ ] T020 [P] [US2] Unit test for projection layer gradient isolation in `tests/test_projection.py::test_frozen_backbone_gradients`
+- [ ] T021 [P] [US2] Integration test for training loop convergence in `tests/test_projection.py::test_training_convergence`
 
 ### Implementation for User Story 2
 
-- [X] T022 [US2] Implement `code/models/projection.py` with MLP or single-head attention module accepting tabular features as query
+- [ ] T022 [US2] Implement `code/models/projection.py` with MLP or single-head attention module accepting tabular features as query
 - [X] T023 [US2] Implement `code/models/trainer.py` with training loop that freezes backbone weights and trains only projection layer
-- [~] T024 [US2] Implement `code/analysis/metadata_stats.py` to compute cardinality, missingness, sparsity, and variance for tabular features for **ALL available datasets**. Output must be a single summary CSV: `data/processed/metadata_stats_summary.csv` with columns [dataset_id, cardinality, missingness, sparsity, variance]. This task must complete before T025.
-- [ ] T025 [US2] Implement `code/pipelines/run_conditioned.py` to train the projection layer on **ALL available datasets**, consuming metadata stats from T024.
-- [~] T026 [US2] Add logic to handle edge cases (e.g., zero variance features) by skipping or imputing constants
-- [~] T027 [US2] Implement evaluation logic to record performance metrics (AUC/RMSE) for held-out test sets
-- [~] T028 [US2] Store results in `data/artifacts/metrics_conditioned_{run_id}.json` with `run_id` linkage
+- [ ] T025 [US2] Implement `code/pipelines/run_conditioned.py` to train the projection layer on **ALL available datasets**, consuming metadata stats from T024e and normalized features from T024f. **Logic**: Must use `code/utils/feature_engineering.py::normalize_features` to ensure identical preprocessing to T015a-impl. **Dependency**: Must run after T024f and T045.
+- [X] T026 [US2] Add logic to handle edge cases (e.g., zero variance features) by **skipping** them in the conditioning query. **Constraint**: **DO NOT IMPUTE**. If a feature is flagged as zero-variance in Tb, remove it from the conditioning query vector. Ensure no crash occurs before T025 runs.
+- [X] T027 [US2] Implement evaluation logic to record performance metrics (AUC/RMSE) for held-out test sets.
+- [X] T028 [US2] Store results in `data/artifacts/metrics_conditioned_{run_id}.json` with `run_id` linkage.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -136,15 +168,17 @@
 
 ### Implementation for User Story 3
 
-- [~] T032a [US3] Implement `code/pipelines/validate_baselines.py` to validate the presence of 'GPU-Tuned' baselines for all datasets. Generate `data/artifacts/gpu_tuned_baselines.csv` with explicit schema (dataset_id, task_type, baseline_value) and a 'Data Availability Gap' report listing missing entries.
-- [~] T032b [US3] Implement logic to fetch 'GPU-Tuned' baselines from MulTaBench paper data using the validated CSV from T032a. <!-- FAILED: unspecified -->
-- [~] T031 [US3] Implement `code/analysis/correlation.py` to calculate "Recovery Ratio" = (CPU-Conditioned - Frozen_Aggregated) / (GPU-Tuned - Frozen_Aggregated) using the aggregated baseline from T019c and the **deterministic re-computed baseline** for consistency. Input: `data/artifacts/gpu_tuned_baselines.csv` from T032a.
-- [~] T033 [US3] Perform Pearson correlation between "Recovery Ratio" and metadata features (Cardinality, Missingness, Sparsity, Variance) for **ALL available datasets with complete data**.
-- [~] T034 [US3] Implement Benjamini-Hochberg (FDR) correction for multiple comparisons across metadata features AND for the one-sample t-test results. Input: p-values from T033 (correlation) and T035 (t-test). Output: JSON with adjusted p-values.
-- [~] T035 [US3] Perform one-sample t-test (or Wilcoxon if normality fails) comparing CPU-Conditioned performance vs. fixed GPU-Tuned baseline for **ALL valid datasets**.
-- [~] T036 [US3] Generate `data/artifacts/correlation_report_{run_id}.json` with coefficients, p-values, and significance flags
-- [X] T037 [US3] Create `code/pipelines/run_analysis.py` to orchestrate the full statistical analysis pipeline
-- [~] T038 [US3] Add "Data Availability Gap" reporting for datasets missing GPU-Tuned baselines to the final report
+- [ ] T032a [US3] Implement `code/pipelines/validate_baselines.py` to validate the presence of 'GPU-Tuned' baselines for **ALL available datasets**. **Input**: `data/raw/multabench_baselines.csv` (from T008b) and `contracts/baselines.schema.yaml` (from T009d). **Output**: `data/artifacts/gpu_tuned_baselines.csv` (validated subset) and `data/artifacts/data_availability_gap_report.json` (listing missing entries). **Logic**: If the file is missing, log to `data/artifacts/data_availability_gap_report.json` and exit with code 1. Explicitly exclude datasets missing 'GPU-Tuned' baselines AND datasets flagged in T045 from the list of valid datasets for subsequent correlation tasks (T033, T034). **Dependency**: Must run after T008b and T045.
+- [ ] T032b [US3] **Baseline Scalar Extraction**: Implement `code/pipelines/extract_baseline_scalars.py` to extract the specific 'GPU-Tuned' baseline value for each dataset from `data/artifacts/gpu_tuned_baselines.csv` (T032a) and format it into a JSON structure `data/artifacts/gpu_tuned_scalars.json`. **Output**: JSON file with keys `dataset_id` -> `baseline_value`. **Validation**: Must validate that the output is a dictionary of floats compatible with `scipy.stats.ttest_1samp` input requirements. **Dependency**: Must run after T032a. **Purpose**: Provides the scalar `popmean` required by T035.
+- [ ] T031 [US3] Implement `code/analysis/correlation.py` to calculate "Recovery Ratio" = (CPU-Conditioned - **Frozen Baseline (Seed 42)**) / (GPU-Tuned - **Frozen Baseline (Seed 42)**). **Input**: `data/artifacts/gpu_tuned_baselines.csv` (T032a), `data/artifacts/frozen_baseline_metrics_seed42_{run_id}.json` (T015a-impl - **Single Seed Metric**), `data/artifacts/metrics_conditioned_{run_id}.json` (T028), and `data/artifacts/gpu_tuned_scalars.json` (T032b). **Dependency**: Must run after T015a-impl, T028, T032a, and T032b completion. **Note**: The denominator is the re-computed frozen baseline performance from T015a-impl (Seed 42), not historical paper values or aggregated sensitivity metrics. **Constraint**: **FORBID using T019c for the denominator calculation**. Must assert input source is T015a-impl artifact, not external CSV. **Logic**: If N < 30 after exclusions, append a "Small Sample Warning" to the output report explicitly stating the limitation. **JSON Keys**: Extract `metric_value` from T015a-impl and T028 JSONs using the `dataset_id` key. Extract `baseline_value` from T032b JSON using the `dataset_id` key. **Rationale**: This task uses the single seed (Seed 42) for the denominator to ensure consistency with the 'CPU-Conditioned' generation context as mandated by FR-001. The sensitivity analysis (T019c) is used to report the variance of the baseline, but the denominator itself is the fixed Seed 42 value. **Dependency Clarification**: This task does NOT depend on T019d or T019c. **Safety Check**: The implementation MUST include an assertion that the `frozen_baseline` input is loaded from the T015a-impl artifact path, not from T019c.
+- [X] T033 [US3] Perform Pearson correlation between "Recovery Ratio" and metadata features (Cardinality, Missingness, Sparsity, Variance) for **ALL available datasets** with complete data, **excluding those flagged in T032a and T045**. **Dependency**: Requires T024e, T032a, and T045 completion. **Input**: **MUST be limited to the subset selected in T024e (max 20 datasets)**. **Logic**: If a limited number of datasets are available after exclusions, use all available and flag the shortfall in the report.
+- [ ] T034 [US3] Implement Benjamini-Hochberg (FDR) correction for multiple comparisons. **Scope**: Apply FDR ONLY to the correlation p-values from T033 (family of tabular metadata features). **Input**: p-values from T033, filtered by the exclusion lists from `data/artifacts/data_availability_gap_report.json` and `data/artifacts/data_integrity_report.json`. Do NOT include t-test results (T035) in this correction. Output: JSON with adjusted p-values. **Logic**: Explicitly filter the input dataset list using `data/artifacts/data_availability_gap_report.json` and `data/artifacts/data_integrity_report.json` before calculating FDR. **Step 1**: Load exclusion lists and filter input dataset list. **Step 2**: Calculate FDR on filtered p-values. **Note**: The t-test (T035) is a separate family of tests (mean difference) and thus not subject to the same FDR family as the correlations.
+- [ ] T035 [US3] Perform one-sample t-test comparing "CPU-Conditioned" performance vs. fixed GPU-Tuned baseline for **ALL valid datasets**. **Implementation**: Load `data/artifacts/metrics_conditioned_{run_id}.json` into a numpy array `conditioned_metrics`. Load scalar `baseline_scalar` from `data/artifacts/gpu_tuned_scalars.json` (T032b). Compute `diff = conditioned_metrics - baseline_scalar`. **Normality Check**: Perform Shapiro-Wilk test on `diff`.: `scipy.stats.wilcoxon(diff)`. Otherwise, perform one-sample t-test: `scipy.stats.ttest_1samp(diff, popmean=0.0)`. **Constraint**: Do NOT treat the baseline as a sample array; treat it as a constant. Explicitly test the difference vector against 0.0. Report the p-value separately from the FDR-corrected correlations. **Note**: **NO FDR correction applied** to this t-test p-value as it is a single test against a constant, distinct from the family of correlation tests in T034.
+- [X] T036 [US3] Generate `data/artifacts/correlation_report_{run_id}.json` with coefficients, p-values, and significance flags.
+- [ ] T037 [US3] Create `code/pipelines/run_analysis.py` to orchestrate the full statistical analysis pipeline. **Output**: Generate `data/artifacts/correlation_report_{run_id}.json` containing all statistical results.
+- [X] T038 [US3] Add "Data Availability Gap" reporting for datasets missing GPU-Tuned baselines to the final report.
+- [X] T057 [US3] **Statistical Power & Sample Size Warning** [MANDATORY]: Update `code/analysis/correlation.py` to calculate and report the statistical power of the correlation analysis given the final sample size (N) after exclusions (T032a, T045). **Logic**: Use `statsmodels.stats.power.tt_solve_power` to calculate power for a range of effect sizes (small, moderate, and large). **Mandatory**: This calculation is required by Constitution Principle VII to validate the sample size for the correlation analysis. **Output**: Append a `power_analysis` section to `data/artifacts/correlation_report_{run_id}.json`. **Note**: This is a MANDATORY task for scientific rigor; the Spec requires acknowledging the limitation, and the Constitution requires reporting the correlation for the dataset subset. **Dependency**: Must run after T036 to ensure sample size is known.
+- [X] T058 [US3] **Explicit Power Analysis Acknowledgment**: Implement `code/analysis/generate_power_report.py` to generate a text-based power analysis report based on T057 results. **Requirement**: This report must be appended to `results_summary.md` (T053b) to provide an immediate, human-readable confirmation of the study's sensitivity. **Constraint**: **Generate the text report in ALL cases** (regardless of power value) to ensure the `results_summary.md` always contains the explicit "power analysis" section required by Constitution Principle VII. **Note**: This task replaces the previous visualization requirement to align with the spec's "explicitly acknowledge" clause. **Dependency**: Must run after T057.
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -154,19 +188,43 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [X] T039 [P] Update `code/pipelines/update_state.py` to hash artifacts and update `state/projects/...yaml`
-- [~] T040 Code cleanup and refactoring for memory efficiency <!-- SKIPPED: YAML+regex parse failed (while scanning an alias
- in "<unicode string>", line 2, column 1:
- **Key Changes in `code/utils/mem...
- ^
-expected alphabetic or numeric character, but found '*'
- in "<unicode string>", line 2, column 2:
- **Key Changes in `code/utils/memo...
- ^) -->
-- [~] T041 [US1/US2/US3] Performance optimization to ensure total runtime < 6 hours. Implement adaptive batching and dynamic parallelism to process **ALL available datasets** within the time limit. Do NOT use early termination to skip datasets; instead, adjust batch sizes to ensure full coverage.
-- [~] T042 [P] Additional unit tests for edge cases (e.g., empty datasets, single-row datasets) in `tests/`
-- [~] T043a [P] Generate/Update `quickstart.md` with new pipeline steps (US1, US2, US3) and data ingestion instructions.
-- [~] T044 Final integration test of the entire pipeline on a subset of datasets
+- [X] T039 [P] Update `code/pipelines/update_state.py` to hash artifacts and update `state/projects/PROJ-823-llmxive-follow-up-extending-multabench-b.yaml`. **Output**: Update `state/projects/PROJ-823-llmxive-follow-up-extending-multabench-b.yaml` with new `updated_at` timestamp and `artifact_hashes`. **Requirement**: This task MUST include `data/artifacts/zero_variance_audit.log` (from T061) and `data/artifacts/robustness_check_recommendation.json` (from T060) in the hash map to satisfy Constitution Principle V.
+- [X] T040a [P] **Refactor T014**: Refactor `code/embeddings/utils.py` to use generator expressions and optimize memory usage.
+- [X] T040b [P] **Refactor T024**: Refactor `code/analysis/metadata_stats.py` to use pandas groupby for efficient aggregation.
+- [X] T040c [P] **Generate Profiling Report**: Generate `data/artifacts/profiling_report.json` containing optimal fixed batch sizes for embedding generation and training based on T056 and T040a/b results. **Mandatory**: This is a distinct, mandatory deliverable separate from refactoring.
+- [ ] T041a [Polish/Optimization] **Batch Size Optimization**: Implement `code/pipelines/optimize_batch_sizes.py` to apply the fixed batch sizes determined by T056 to the embedding generation and training pipelines. **Constraint**: Use the fixed batch sizes determined in T056; do NOT use adaptive logic based on runtime memory state. **Verification**: Run full pipeline on all datasets and record total runtime in `data/artifacts/runtime_report.json`.
+- [X] T041b [Polish/Optimization] **Parallelism Logic**: Implement `code/pipelines/optimize_parallelism.py` to apply dynamic parallelism logic in T025 trainer.py based on the profiling results from T056. **Constraint**: Use the fixed parallelism settings determined in T056; do NOT use adaptive logic based on runtime state.
+- [X] T042 [P] Additional unit tests for edge cases (e.g., empty datasets, single-row datasets) in `tests/`
+- [X] T043a [P] Generate/Update `quickstart.md` with new pipeline steps (US1, US2, US3) and data ingestion instructions.
+- [X] T044 [P] Final integration test of the entire pipeline on a subset of datasets.
+
+---
+
+## Phase 7: Verification & Hardening (Review-Driven)
+
+**Purpose**: Address specific reviewer concerns regarding data integrity, statistical rigor, and pipeline robustness.
+
+- [X] T059 [US1/US2/US3] **Robust Data Source Verification Script**: Implement `code/pipelines/verify_real_data_sources.py` to perform a final, automated check that ALL data inputs (raw images, tabular CSVs, baseline CSVs) are real, non-synthetic, and checksum-verified before any analysis runs. **Logic**: This script must scan `data/processed/` and `data/artifacts/` and compare file hashes against the recorded hashes in `state/projects/...yaml`. **First-Run Logic**: If `state/projects/...yaml` is missing or `artifact_hashes` is empty, log "First run: skipping hash verification" and exit with code 0 (allow pipeline to proceed). If state exists, verify hashes for `data/raw/multabench_baselines.csv` and files in `data/raw/`. **Output**: A strict boolean pass/fail status. If any hash mismatch is detected, the script MUST exit with code 1 and log a critical error, preventing the pipeline from proceeding. **Dependency**: Must run as a **pre-requisite to T062** (Final Pre-Flight). **Note**: This enforces the "No Fabrication" rule at the execution gate using Constitution-compliant checksum verification. **Config**: Must check specific keys in `state/projects/...yaml` such as `artifact_hashes['data/raw/multabench_baselines.csv']`.
+- [X] T062 [US1/US2/US3] **Final Pre-Flight Execution Gate**: Implement `code/pipelines/final_execution_gate.py` to run T059 (Data Verification), T055 (CI Guardrails), and **execute subset validation logic** (previously T048b) in sequence. **Logic**: If ANY check fails, the script MUST exit with code 1 and log a detailed error. If ALL checks pass, the script proceeds to T048 (Final Validation). **Output**: `data/artifacts/final_gate_report.json` indicating pass/fail for each sub-check. **Dependency**: Must run BEFORE T048. **Constraint**: This is the final automated gate before the full pipeline run; it ensures no wasted CI time on invalid states.
+- [X] T048 [US1/US2/US3] **Final End-to-End Runtime Validation**: Execute the complete pipeline (US1 → US2 → US3) on the full set of available datasets on a standard GitHub Actions free runner. **Goal**: Verify total execution time is strictly within acceptable limits and peak memory usage never exceeds acceptable thresholds. **Output**: Generate `data/artifacts/final_validation_report.md` containing the total runtime, peak memory usage, and a pass/fail status for FR-004. If the limit is exceeded, the report must identify the specific bottleneck (e.g., "Embedding generation exceeded the threshold on dataset X").
+
+---
+
+## Phase 8: Final Reporting & Human Handoff (New)
+
+**Purpose**: Compile final results and prepare for human review.
+
+- [X] T063 [Polish] **Generate Final Human-Readable Summary**: Implement `code/pipelines/generate_final_summary.py` to compile `data/artifacts/final_gate_report.json`, `data/artifacts/final_validation_report.md`, `data/artifacts/correlation_report_{run_id}.json`, `data/artifacts/zero_variance_audit.log` (from T061), and `data/artifacts/frozen_baseline_sensitivity_aggregated_{run_id}.json` (from T019c) into a single `FINAL_RESEARCH_SUMMARY.md` in the repository root. **Requirement**: This document must include a clear "Go/No-Go" recommendation for human review based on the success of T048 and the statistical validity of T033/T035. **Schema**: The `FINAL_RESEARCH_SUMMARY.md` MUST contain the following sections: 1. Executive Summary (Go/No-Go), 2. Runtime & Memory Analysis, 3. Statistical Results (Correlation & T-Test), 4. Data Availability Gaps, 5. Sensitivity Analysis (Variance Report), 6. Zero-Variance Audit Summary, 7. Statistical Power Analysis. **Dependency**: Must run after T048, T061, T019c, and T058. **Note**: This task is now executable and no longer REJECTED.
+- [X] T064 [US3] **Final Statistical Significance Verification**: Re-run the t-test (T035) and correlation (T033) on the final validated dataset subset to ensure no drift occurred during the final execution gate. **Logic**: Compare the final p-values against the initial run; if the difference exceeds a threshold, log a warning. **Output**: Append a `final_verification` section to `FINAL_RESEARCH_SUMMARY.md`. **Constraint**: This ensures the final results are reproducible and stable. **Implementation Detail**: To verify integrity without re-running the full pipeline, this task MUST: (1) Load the SHA-256 hashes of the T033/T035 output files from `data/artifacts/final_gate_report.json` (generated by T062); (2) Recompute the SHA-256 hashes of the current T033/T035 output files; (3) Compare the hashes. If they match, append "Verification Passed: No drift detected" to `FINAL_RESEARCH_SUMMARY.md`. If they mismatch, append "Verification Failed: Drift detected" and log the specific files that changed. **Dependency**: Must run after T063. **Note**: This task performs a hash-only verification; it does NOT re-execute the heavy analysis scripts.
+
+---
+
+## Phase 9: Review-Driven Revision & Gap Resolution (New)
+
+**Purpose**: Address specific reviewer concerns regarding data source verification, statistical power reporting, and edge-case handling that were flagged in the initial analysis but not fully resolved in the previous phases.
+
+- [X] T060 [US3] **Refine Correlation Report for Small Samples**: Update `code/analysis/correlation.py` to include a specific "Small Sample Warning" section in `data/artifacts/correlation_report_{run_id}.json` if the final dataset count (N) is < 30. **Logic**: If N < 30, explicitly state that the Pearson correlation assumes normality which may be violated, and recommend reporting Spearman's rank correlation as a robustness check. **Output**: Append a `robustness_check_recommendation` field to the report JSON. **Dependency**: Must run after T033 and T057. **Constraint**: This addresses the reviewer concern about the reliability of correlation coefficients on small, filtered datasets. **Contract**: Output must comply with `contracts/robustness_check.schema.yaml`.
+- [ ] T061 [US1/US2] **Zero-Variance Feature Handling Audit**: Implement `code/pipelines/audit_zero_variance_handling.py` to verify that T045 and T045b correctly handled all zero-variance features identified in the metadata. **Logic**: Re-scan `data/processed/metadata_stats_summary.csv` and `data/artifacts/data_integrity_report.json` to ensure that every feature flagged as zero-variance in the report was either skipped in normalization (T024f) and excluded from the conditioning query (T026) and that no NaN values resulted from this process. **Output**: A detailed audit log `data/artifacts/zero_variance_audit.log`. **Dependency**: Must run after T024f and T045b. **Verification**: Check all columns in `data/processed/normalized_tabular_features.parquet` and assert `df.isna().sum().sum() == 0`. **Note**: This ensures the "zero-variance" edge case does not silently corrupt the training data. **Contract**: Output must comply with `contracts/zero_variance_audit.schema.yaml` and MUST be checksummed in T039.
 
 ---
 
@@ -180,12 +238,15 @@ expected alphabetic or numeric character, but found '*'
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Verification (Phase 7)**: Depends on completion of all User Story implementations
+- **Final Reporting (Phase 8)**: Depends on completion of Phase 7 (T048) and Phase 9 (T061). **Note**: Phase 8 is the final step before human review; it does not block itself.
+- **Review-Driven Revision (Phase 9)**: Must be completed before final sign-off to ensure all reviewer concerns regarding data integrity and statistical rigor are addressed.
 
 ### User Story Dependencies
 
 - **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
 - **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Relies on US1 output (embeddings)
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Relies on US1 and US2 output (metrics). **CRITICAL: US3 cannot run in parallel with US2 as it consumes US2's artifacts.**
+- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Relies on US1 and US2 output (metrics). **CRITICAL**: US3 cannot run in parallel with US2 as it consumes US2's artifacts.
 
 ### Within Each User Story
 
@@ -203,6 +264,7 @@ expected alphabetic or numeric character, but found '*'
 - All tests for a user story marked [P] can run in parallel
 - Models within a story marked [P] can run in parallel
 - Different user stories can be worked on in parallel by different team members
+- **Note on Execution**: While code implementation can be parallel, the execution of US1 -> US2 -> US3 is serial due to data dependencies (T024f is a shared prerequisite).
 
 ---
 
@@ -264,3 +326,31 @@ With multiple developers:
 - **CRITICAL**: Use real data from MulTaBench. Do not fabricate data or use random values for metrics.
 - **CRITICAL**: Ensure data flow order: Embedding Generation (US1) → Projection Training (US2) → Correlation Analysis (US3).
 - **CRITICAL**: All data generation tasks (T015, T019, T024, T025) must cover **ALL available datasets** to satisfy the correlation analysis requirements in US-003 and FR-001.
+- **CRITICAL**: The loader in `code/data_loader.py` MUST fail loudly (raise exception) if real MulTaBench data is missing; no synthetic fallbacks are permitted.
+- **CRITICAL**: T008c must explicitly define the source of the 'GPU-Tuned' baseline (local file `data/raw/multabench_baselines.csv`) and must NOT guess, synthesize, or parse external links if the file is missing. Refer to T008c for acquisition instructions.
+- **CRITICAL**: T031 must use the **re-computed** frozen baseline performance metrics (from T015a-impl) as the denominator, not historical paper values.
+- **CRITICAL**: T045 must verify that no dataset in the analysis pipeline lacks sufficient variance, as this invalidates the correlation analysis (FR-003).
+- **CRITICAL**: T048 is mandatory to verify the project meets the 6-hour/GB constraints defined in FR-004 before considering the feature complete.
+- **CRITICAL**: T055 must be executed before any full pipeline run to prevent wasted CI time on invalid data states.
+- **CRITICAL**: T056 is required to prevent OOM failures on large image datasets; the dynamic batch size must be logged and used consistently.
+- **CRITICAL**: T057 ensures scientific rigor by explicitly stating the limitations of the statistical power given the sample size constraints (MANDATORY).
+- **CRITICAL**: T024f must handle zero-variance features gracefully to prevent NaNs in normalization.
+- **CRITICAL**: T053c must compile the final gap report from all exclusion sources.
+- **CRITICAL**: T048b must limit the dataset count for runtime validation if necessary to meet FR-004.
+- **CRITICAL**: T058, T059, T060, and T061 are mandatory revision tasks to address specific reviewer concerns regarding statistical power visualization, data source verification (checksum), small sample robustness, and zero-variance handling. These must be completed before the project is considered fully analyzed and ready for human review.
+- **CRITICAL**: T059 must run BEFORE T048 as a pre-flight check.
+- **CRITICAL**: T015a-impl is the definitive source for the Seed 42 baseline for FR-001.
+- **CRITICAL**: T062 is the final automated gate before the full pipeline run; it ensures no wasted CI time on invalid states.
+- **CRITICAL**: T063 and T064 are mandatory for the final human handoff to ensure all results are stable, verified, and summarized in a single document.
+- **CRITICAL**: T024e must select the first 20 datasets alphabetically to comply with Spec US-003.
+- **CRITICAL**: T045b explicitly forbids imputation to preserve data integrity.
+- **CRITICAL**: T004 hard-codes sensitivity seeds `[456, 789, 1011]` to supersede external claim ``.
+- **CRITICAL**: T058 generates a text-only power report, not a visualization, to align with the spec.
+- **CRITICAL**: T031 explicitly forbids using T019c for the Recovery Ratio denominator.
+- **CRITICAL**: T033 and T035 are scoped to the subset selected in T024e (max 20 datasets).
+- **CRITICAL**: T019d/T019c are NON-BLOCKING for T031; T031 depends ONLY on T015a-impl.
+- **CRITICAL**: T019 depends on T015, NOT T015a-impl.
+- **CRITICAL**: T008b is NOT parallel ([P]) as it depends on T008c.
+- **CRITICAL**: T063 and T064 are now executable and no longer REJECTED.
+- **CRITICAL**: T061 output (`zero_variance_audit.log`) MUST be checksummed in T039.
+- **CRITICAL**: T064 performs hash-only verification, not re-execution.

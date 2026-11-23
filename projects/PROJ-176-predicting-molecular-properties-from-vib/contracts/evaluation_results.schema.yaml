@@ -1,37 +1,28 @@
-%YAML 1.2
----
-$schema: http://json-schema.org/draft-07/schema#
-title: Evaluation Results Schema
-description: >
-  Schema for statistical evaluation results including metrics and significance tests.
+schema_version: "1.0.0"
+description: "Schema for evaluation metrics and statistical test results"
 type: object
 required:
-  - metadata
-  - metrics
+  - summary
+  - metrics_by_property
   - statistical_tests
 properties:
-  metadata:
+  summary:
     type: object
     required:
+      - dataset_size
+      - model_used
       - evaluation_timestamp
-      - dataset_split
-      - model_version
     properties:
+      dataset_size:
+        type: integer
+        description: "Number of samples in the evaluation set"
+      model_used:
+        type: string
+        description: "Identifier for the model checkpoint used"
       evaluation_timestamp:
         type: string
         format: date-time
-      dataset_split:
-        type: string
-        enum:
-          - train
-          - validation
-          - test
-          - independent
-      model_version:
-        type: string
-      evaluation_script_hash:
-        type: string
-  metrics:
+  metrics_by_property:
     type: object
     required:
       - dipole_moment
@@ -42,120 +33,100 @@ properties:
         type: object
         required:
           - mae
-          - r_squared
+          - r2
+          - p_value_ttest
+          - bias_pass
         properties:
           mae:
             type: number
-            description: Mean Absolute Error
-          r_squared:
+            description: "Mean Absolute Error"
+          r2:
             type: number
-            description: Coefficient of Determination
+            description: "Coefficient of Determination"
+          p_value_ttest:
+            type: number
+            description: "P-value from paired t-test for mean error = 0"
+          bias_pass:
+            type: boolean
+            description: "True if p-value < 0.01 (indicates systematic bias)"
       polarizability:
         type: object
         required:
           - mae
-          - r_squared
+          - r2
+          - p_value_ttest
+          - bias_pass
         properties:
           mae:
             type: number
-          r_squared:
+          r2:
             type: number
+          p_value_ttest:
+            type: number
+          bias_pass:
+            type: boolean
       homo_lumo_gap:
         type: object
         required:
           - mae
-          - r_squared
+          - r2
+          - p_value_ttest
+          - bias_pass
         properties:
           mae:
             type: number
-          r_squared:
+          r2:
             type: number
+          p_value_ttest:
+            type: number
+          bias_pass:
+            type: boolean
   statistical_tests:
     type: object
     required:
-      - paired_t_test
+      - tost_results
+      - hotellings_t2
     properties:
-      paired_t_test:
+      tost_results:
         type: object
-        description: Primary validation test (mean error = 0)
+        description: "Results of Two One-Sided Tests for equivalence"
         properties:
           dipole_moment:
             type: object
             properties:
-              t_statistic:
+              p_value_low:
                 type: number
-              p_value:
+              p_value_high:
                 type: number
-              significant_at_0.05:
+              equivalence_passed:
                 type: boolean
           polarizability:
             type: object
             properties:
-              t_statistic:
+              p_value_low:
                 type: number
-              p_value:
+              p_value_high:
                 type: number
-              significant_at_0.05:
+              equivalence_passed:
                 type: boolean
           homo_lumo_gap:
             type: object
             properties:
-              t_statistic:
+              p_value_low:
                 type: number
-              p_value:
+              p_value_high:
                 type: number
-              significant_at_0.05:
-                type: boolean
-      tost_equivalence:
-        type: object
-        description: Secondary exploratory test
-        properties:
-          dipole_moment:
-            type: object
-            properties:
-              p_value_lower:
-                type: number
-              p_value_upper:
-                type: number
-              equivalent:
-                type: boolean
-          polarizability:
-            type: object
-            properties:
-              p_value_lower:
-                type: number
-              p_value_upper:
-                type: number
-              equivalent:
-                type: boolean
-          homo_lumo_gap:
-            type: object
-            properties:
-              p_value_lower:
-                type: number
-              p_value_upper:
-                type: number
-              equivalent:
+              equivalence_passed:
                 type: boolean
       hotellings_t2:
         type: object
-        description: Multivariate test for systematic bias
+        description: "Hotelling's T-squared test results for multivariate bias"
         properties:
-          t2_statistic:
+          statistic:
             type: number
           p_value:
             type: number
-          significant:
+          degrees_of_freedom:
+            type: integer
+          bias_detected:
             type: boolean
-  summary:
-    type: object
-    properties:
-      overall_status:
-        type: string
-        enum:
-          - passed
-          - failed
-          - inconclusive
-      notes:
-        type: string
-        description: Human-readable summary of findings

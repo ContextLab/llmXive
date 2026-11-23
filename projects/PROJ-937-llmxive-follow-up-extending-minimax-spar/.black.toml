@@ -1,0 +1,22 @@
+# Black configuration file
+# Note: Black typically reads from pyproject.toml, but this file
+# serves as a reference for the configuration used in pyproject.toml
+
+[tool.black]
+line-length = 88
+target-version = ['py311']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+)/
+'''

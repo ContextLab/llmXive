@@ -1,65 +1,54 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: "Training Dataset Schema"
-description: "Schema for the aggregated training dataset containing clustering descriptors and segregation energies."
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Training Dataset Row Schema"
+description: "One row of data/processed/training_set.csv linking clustering descriptors (computed on the bulk lattice only), covariates, and EAM segregation energy."
 type: object
 properties:
   sample_id:
     type: string
-    description: "Unique identifier for the sample."
+    description: "Unique training‑sample identifier."
   bulk_id:
     type: string
-    description: "Reference to the OQMD/MP bulk configuration ID."
+    description: "Originating BulkConfiguration identifier."
   gb_id:
     type: string
-    description: "Unique identifier for the grain boundary structure."
+    description: "GrainBoundaryStructure identifier."
   alloy_system:
     type: string
-    description: "Alloy family (e.g., 'Fe-Cr')."
+    description: "Alloy family, e.g. 'Fe-Cr'."
   impurity_species:
     type: string
     description: "Element symbol of the impurity."
   rdf_peak_value:
     type: number
-    description: "Peak value of the radial distribution function at the interface."
+    description: "RDF peak descriptor **computed on the bulk lattice only**."
   pair_corr_value:
     type: number
-    description: "Pair correlation statistic at the interface."
+    description: "Pair‑correlation statistic **computed on the bulk lattice only**."
   voronoi_count:
     type: integer
-    description: "Voronoi neighbor count for the impurity at the interface."
-  principal_component_1:
+    description: "Voronoi neighbor count **computed on the bulk lattice only**."
+  misorientation_angle:
     type: number
-    description: "First principal component of descriptors (PCA-transformed)."
-  principal_component_2:
-    type: number
-    description: "Second principal component of descriptors (PCA-transformed)."
-  principal_component_3:
-    type: number
-    description: "Third principal component of descriptors (PCA-transformed)."
+    description: "Misorientation angle of the grain boundary (degrees)."
+  boundary_plane:
+    type: string
+    description: "Boundary plane orientation (Miller indices)."
   local_lattice_strain:
     type: number
-    description: "Trace of the strain tensor (covariate)."
+    description: "Trace of the local strain tensor around the interface."
   atomic_radius:
     type: number
-    description: "Atomic radius of impurity (covariate)."
+    description: "Impurity atomic radius (standard elemental property)."
   electronegativity:
     type: number
-    description: "Electronegativity of impurity (covariate)."
+    description: "Impurity electronegativity (standard elemental property)."
   segregation_energy_eV:
     type: number
-    description: "Simulated segregation energy in eV (Leave-One-Out)."
-  vif_rdf:
-    type: number
-    description: "Variance Inflation Factor for the RDF feature."
-  vif_pair:
-    type: number
-    description: "Variance Inflation Factor for the pair correlation feature."
-  vif_voronoi:
-    type: number
-    description: "Variance Inflation Factor for the Voronoi count feature."
-  descriptive_framing:
+    description: "EAM segregation energy in eV."
+  split:
     type: string
-    description: "Pre-formatted text explaining joint relationships if VIF >= 10."
+    enum: ["train", "test"]
+    description: "Deterministic train/test assignment from the pinned seed."
 required:
   - sample_id
   - bulk_id
@@ -69,15 +58,11 @@ required:
   - rdf_peak_value
   - pair_corr_value
   - voronoi_count
-  - principal_component_1
-  - principal_component_2
-  - principal_component_3
+  - misorientation_angle
+  - boundary_plane
   - local_lattice_strain
   - atomic_radius
   - electronegativity
   - segregation_energy_eV
-  - vif_rdf
-  - vif_pair
-  - vif_voronoi
-  - descriptive_framing
+  - split
 additionalProperties: false

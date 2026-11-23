@@ -1,45 +1,40 @@
 # Implementation Plan: Self-improving LLM: recursive architecture refinement and re‑training
 
-**Branch**: `001-self-improving-llm-recursive-architectur` | **Date**: 2026-06-16 | **Spec**: `specs/001-self-improving-llm-recursive-architectur/spec.md`
+**Branch**: `001-self-improving-llm-recursive-architectur` | **Date**: 2026-06-16
+**Spec**: `projects/PROJ-561-self-improving-llm-recursive-architectur/specs/001-self-improving-llm-recursive-architectur/spec.md`
 **Input**: Feature specification from `/specs/001-self-improving-llm-recursive-architectur/spec.md`
 
 ## Summary
 
-This project implements a recursive self-improvement pipeline for a GPT 124M model. The system downloads a base checkpoint, prompts the model to propose a single architectural modification, applies the change (constrained to ≤30% parameter increase), re-trains for a short duration on an OpenWebText subset, and evaluates performance on GSM8K, ARC-Challenge, and Wikitext-2.
-
-**Critical Scope Adjustment**: Due to the strict 6-hour time limit and 7GB RAM constraint of the GitHub Actions free-tier runner, the **primary deliverable is a Single Cycle (US-1)**. The 3-cycle trajectory (US-2) is re-classified as a "Scaling Study" that will only be attempted if the single cycle completes successfully within 1.5 hours. If the single cycle exceeds the time limit, the job terminates, and the result is recorded as "Incomplete - Timeout".
-
-**Data Integrity Policy**: The pipeline enforces a strict **Fail-Fast** policy for all datasets (OpenWebText, GSM8K, ARC-Challenge, Wikitext-2). If these datasets cannot be loaded from their standard HuggingFace sources, the pipeline **terminates immediately** with a specific error code. **Synthetic data is NOT permitted for any part of the experiment**, including training or evaluation. Training on synthetic data renders the "recursive improvement" hypothesis untestable, and evaluation on synthetic data yields meaningless metrics. The experiment is designed to fail if verified data sources are unavailable.
-
-The implementation strictly adheres to CPU-only constraints and incorporates rigorous statistical validation (paired bootstrap) and separation of generative (modification proposal) and verification (benchmark evaluation) logic to prevent infinite regression, addressing concerns raised by simulated reviewers (von Neumann, Wolfram).
+This project implements a recursive pipeline where a GPT-2 124M model proposes architectural modifications, an external oracle validates them, and the model is re-trained on a subset of OpenWebText. The system executes up to three cycles, evaluating performance on GSMK, ARC-Challenge, and BoolQ benchmarks. The plan ensures strict adherence to the project constitution, particularly regarding reproducibility, data hygiene, and the separation of generative (modification proposal) and verification (evaluation) logic to prevent infinite regression. The implementation prioritizes CPU feasibility on GitHub Actions free-tier runners, utilizing streaming data access and a fallback strategy to reduce training subset size if time constraints are threatened.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `torch` (CPU-only build), `transformers`, `datasets`, `accelerate` (CPU config), `scikit-learn` (bootstrap), `scipy` (curve fitting), `pyyaml`, `pandas`  
-**Storage**: Local filesystem (`data/` for cached datasets, `results/` for metrics)  
-**Testing**: `pytest` (unit tests for modification logic, integration tests for pipeline cycles)  
-**Target Platform**: Linux (GitHub Actions `ubuntu-latest` free-tier)  
-**Project Type**: Computational research pipeline / CLI  
-**Performance Goals**: Single cycle runtime ≤1.5 hours; Peak RAM ≤7 GB; Evaluation latency ≤30 minutes per cycle  
-**Constraints**: No GPU/CUDA; No 8-bit/4-bit quantization; Parameter count ≤130% of baseline; Strict separation of generative and verification logic (Constitution Principle VII); No synthetic data for training or evaluation  
-**Scale/Scope**: cycle (Primary); 3 cycles (Scaling Study, conditional); ~10k-50k training samples (subset of OpenWebText); 3 benchmarks per cycle
+**Language/Version**: Python 3.10+
+**Primary Dependencies**: `torch` (CPU backend), `transformers`, `datasets`, `scikit-learn`, `pandas`, `psutil`, `pyyaml`
+**Storage**: Local filesystem (`data/raw`, `data/processed`, `results`)
+**Testing**: `pytest` (unit tests for schema, config, and pipeline logic)
+**Target Platform**: GitHub Actions `ubuntu-latest` (Free Tier: 2 CPU, ~7 GB RAM, no GPU)
+**Project Type**: Research Pipeline / CLI Tool
+**Performance Goals**: Complete 3 cycles within 12 hours; Peak RAM < 7 GB; Disk < 14 GB
+**Constraints**: No CUDA operations; Parameter count increase ≤ 30% from baseline; Strict separation of generative and verification logic (Constitution VII).
+**Scale/Scope**: refinement cycles; A substantial number of training samples per cycle (fallback to a reduced subset if time-constrained); Multiple benchmarks per cycle.
 
-> **Note on Dataset Availability**: The plan relies on OpenWebText, GSMK, and ARC-Challenge. If standard HuggingFace loaders fail to retrieve these datasets, the pipeline **terminates immediately**. No synthetic data is permitted as a fallback. The experiment is designed to fail gracefully if verified data sources are unavailable, ensuring that no invalid scientific claims are made.
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Rationale / Action |
+| Principle | Status | Evidence / Plan Action |
 | :--- | :--- | :--- |
-| **I. Reproducibility** | **PASS** | Plan mandates pinned `requirements.txt`, random seed fixing, and use of canonical dataset loaders. |
-| **II. Verified Accuracy** | **FAIL (if data unavailable)** | Plan requires citations to be validated against primary sources. If benchmark data is unavailable, the principle is **not** met, and the run is labeled "Failed - Data Unavailable". Synthetic data is not permitted for any part of the experiment. |
-| **III. Data Hygiene** | **PASS** | Plan includes checksumming of downloaded data and derivation logging. No in-place modification. |
-| **IV. Single Source of Truth** | **PASS** | All metrics trace to `results/trajectory.json` and `data/` artifacts. |
-| **V. Versioning Discipline** | **PASS** | Artifacts will carry content hashes; state file updated on change. |
-| **VI. Performance Metric Attribution** | **PASS** | Metrics (GSMK, ARC, ECE) are measured against pre-modification baselines using paired bootstrap. |
-| **VII. Data Source Independence** | **PASS** | **Critical Implementation Detail**: The "Generative Logic" (model proposing changes) uses **only** the training loss on OpenWebText and model weights. The evaluation set (GSM8K/ARC) is **never** used to generate the modification prompt. This addresses von Neumann's concern about infinite regression. |
+| **I. Reproducibility** | PASS | `requirements.txt` will pin all dependencies. Random seeds will be set in `code/utils/random.py`. External datasets fetched via `datasets` library with verified URLs. |
+| **II. Verified Accuracy** | PASS | All dataset URLs in `research.md` are from the verified block. **Runtime Check**: A pre-flight step in `code/utils/data_loader.py` will verify URLs against primary sources before execution. |
+| **III. Data Hygiene** | PASS | `code/utils/data_loader.py` will implement checksumming (SHA-256) for all downloaded raw files. Derivations written to new files. |
+| **IV. Single Source of Truth** | PASS | All metrics written to `results/trajectory.json` and `results/logs/cycle_N.log`. No hand-typed numbers in reports. |
+| **V. Versioning Discipline** | PASS | **Explicit Step**: A 'State File Update' step will hash artifacts and update `state/...yaml` after each cycle. |
+| **VI. Performance Metric Attribution** | PASS | Comparison logic explicitly compares pre-modification vs. post-modification states for each cycle. |
+| **VII. Data Source Independence** | PASS | **Critical**: The "External Oracle" (FR-021) and "Distinctness Validator" (FR-020) are implemented in `utils/validation.py`, separate from the "Model Proposal" module. Evaluation data is held-out. |
 
 ## Project Structure
 
@@ -58,51 +53,90 @@ specs/001-self-improving-llm-recursive-architectur/
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-561-self-improving-llm-recursive-architectur/
-├── code/
+code/
+├── __init__.py
+├── config.py                # FR-004, FR-003, FR-019, FR-020, FR-021, FR-011 (CONFIG ONLY)
+├── main.py                  # Entry point, orchestrates cycles
+├── utils/
 │   ├── __init__.py
-│   ├── requirements.txt
-│   ├── main.py                 # Entry point for pipeline
-│   ├── config.py               # Hyperparameters, seeds, constraints
-│   ├── pipeline/
-│   │   ├── __init__.py
-│   │   ├── loader.py           # Dataset loading (with Fail-Fast for all datasets)
-│   │   ├── model.py            # Model loading, modification application
-│   │   ├── trainer.py          # CPU training loop
-│   │   ├── evaluator.py        # Benchmark evaluation (GSM8K, ARC, ECE)
-│   │   └── stats.py            # Bootstrap testing, decay fitting
-│   ├── utils/
-│   │   ├── __init__.py
-│   │   ├── logging.py          # Structured logging, checkpointing
-│   │   └── memory.py           # RAM monitoring, gradient checkpointing
-│   └── tests/
-│       ├── test_pipeline.py
-│       ├── test_model_mod.py
-│       └── test_stats.py
-├── data/
-│   ├── raw/                    # Downloaded datasets (cached)
-│   └── processed/              # Preprocessed subsets
-├── results/
-│   ├── trajectory.json         # Main output artifact
-│   └── logs/                   # Cycle logs
-└── specs/                      # Specification docs
+│   ├── logging.py           # FR-009, FR-012, JSON logging
+│   ├── random.py            # Constitution I: Seed pinning
+│   ├── data_loader.py       # Constitution III: Checksums, streaming, URL verification
+│   └── validation.py        # FR-021: Oracle logic, FR-020: Distinctness, FR-011: Backoff
+├── models/
+│   ├── __init__.py
+│   ├── loader.py            # FR-001: CPU loading
+│   └── modifier.py          # FR-002, FR-019: Apply modification
+├── pipeline/
+│   ├── __init__.py
+│   ├── evaluator.py         # FR-005, FR-006: Benchmarks & Stats
+│   ├── trainer.py           # FR-004: Training loop, FLOPs
+│   ├── attempt_tracker.py   # FR-012, FR-007: Retry logic (generates log events)
+│   └── trajectory.py        # FR-009, FR-010: Regression & Trade-offs
+└── tests/
+    ├── __init__.py
+    ├── unit/
+    │   ├── test_config.py
+    │   ├── test_schema.py   # T013
+    │   ├── test_trainer.py  # T017a, T017b
+    │   └── test_attempt_tracker.py # T090
+    └── integration/
+        └── test_full_pipeline.py
+
+data/
+├── raw/                     # Downloaded datasets (checksummed)
+└── processed/               # Derived subsets
+
+results/
+├── logs/                    # JSON logs per cycle
+└── trajectory.json          # Aggregated metrics
 ```
 
-**Structure Decision**: Single project structure with modular `pipeline/` components. This ensures tight coupling between the modification logic and the training loop while maintaining separation of concerns (Generative vs. Verification) as required by Constitution Principle VII. The `utils/memory.py` module is critical for managing the 7GB RAM constraint on the free-tier runner.
+**Structure Decision**: Single project structure under `code/` to minimize overhead. `config.py` holds parameters only; validation logic (FR-020, FR-021) is in `utils/validation.py` to ensure separation of concerns.
+
+## Project Phases (Explicit Step Mapping)
+
+### Phase 0: Pre-flight & Data Loading
+1.  **Step 1.0: Pre-flight URL Verification** (FR-002, Constitution II): Verify all dataset URLs against primary sources before download.
+2.  **Step 1.1: API Retry with Backoff** (FR-011): Implement exponential backoff for HuggingFace calls. Max a limited number of retries.
+3.  **Step 1.2: Data Download & Checksumming** (Constitution III): Download datasets (OpenWebText, GSM8K, ARC, BoolQ) and record SHA-256 hashes.
+
+### Phase 1: Baseline & Capability Check
+1.  **Step 2.0: Model Loading** (FR-001): Load GPT 124M on CPU.
+2.  **Step 2.1: Baseline Capability Check** (Scientific Soundness): Evaluate baseline on benchmarks. If performance is near-random (<10% on GSM8K/ARC), flag limitation and proceed with caution or switch to zero-shot baseline.
+3.  **Step 2.2: Record Baseline Metrics** (SC-001, SC-002): Store Cycle 0 metrics.
+
+### Phase 2: Refinement Cycle Loop (Repeat up to 3 times)
+1.  **Step 3.0: Proposal Generation**: Prompt model for architectural modification.
+2.  **Step 3.1: Parameter Constraint Check** (FR-019, FR-003): Validate proposed change does not exceed a moderate parameter increase. Reject if violated.
+3.  **Step 3.2: Distinctness Validation** (FR-020, FR-002): Compare proposal against history. Ensure Hamming distance >= 1 or >5% parameter change. Reject if not distinct.
+4.  **Step 3.3: External Oracle Check** (FR-021): Validate proposal against fixed heuristics (e.g., parameter efficiency).
+5. **Step 3.4: Training** (FR-004): Train for a single epoch. **Fallback**: If estimated time > 2h, reduce training subset to [deferred] samples.
+6.  **Step 3.5: FLOPs Calculation** (FR-008): Use `torch.profiler` to record FLOPs with appropriate precision.
+7.  **Step 3.6: Evaluation** (FR-005): Evaluate on GSMK, ARC, and BoolQ
+
+The research question remains: To what extent can the proposed method improve reasoning performance across diverse benchmark tasks?
+
+The method remains: We will employ a zero-shot prompting strategy with chain-of-thought reasoning on standard natural language understanding and reasoning benchmarks.
+
+References:
+Clark et al. (2018) [arXiv identifier]
+Kwiatkowski et al. (2019) [DOI: /tacl_a_00276].
+8.  **Step 3.7: Statistical Analysis** (FR-006): Perform paired bootstrap with a sufficient number of resamples and Bonferroni correction. Calculate p-values.
+9.  **Step 3.8: Early Termination Check** (FR-015): If degradation >= 5% from baseline, terminate loop.
+10. **Step 3.9: State File Update** (Constitution V): Hash artifacts and update `state/...yaml`.
+
+### Phase 3: Trajectory & Trade-off Analysis
+1.  **Step 4.1: Linear Regression Fit** (FR-009): Fit linear model to performance data. Report slope, intercept, R2, trend.
+2.  **Step 4.2: Trade-off Calculation** (FR-010): Compute performance-per-FLOP and performance-per-hour.
+3.  **Step 4.3: Capacity Normalization** (Methodology): Analyze if improvements correlate with parameter count or topology.
 
 ## Complexity Tracking
 
-| Design Decision | Why Needed | Constraint / Mitigation |
-| :--- | :--- | :--- |
-| **Single Cycle Primary** | Required by US-1 to verify the mechanism. 3 cycles (US-2) is a scaling study due to time constraints. | Attempting 3 cycles on free-tier risks timeout, invalidating the entire experiment. |
-| **Fail-Fast for All Datasets** | Required to prevent invalid scientific claims on synthetic data. Synthetic data cannot measure reasoning or language modeling. | Allowing synthetic data for any part of the experiment would render the "recursive improvement" hypothesis untestable. |
-| **Paired Bootstrap Testing** | Required by US-1 and SC-001/002 to establish statistical significance without parametric assumptions on small benchmark samples. | Standard t-tests assume normality which may not hold for accuracy metrics on small held-out sets; bootstrap is more robust. |
-| **Memory Management Module** | Required to fit GPT-2 124M + training overhead into 7GB RAM. | Standard PyTorch loading often exceeds substantial memory thresholds with gradient accumulation; explicit gradient checkpointing, CPU offloading, and batch size reduction are necessary. |
-| **No Synthetic Data Fallback** | Required because synthetic data lacks semantic structure for training or evaluation. | Relying on synthetic data would invalidate the scientific hypothesis. |
-
-## Risk Mitigation
-
-- **RAM Overflow**: Use `gradient_checkpointing`, `batch_size=2` (reducing to 1 if >6.5GB), and a hard "Memory Watchdog" that proactively reduces batch size if RAM exceeds 6.5GB. If usage > 7GB, kill the process to prevent system crash.
-- **Timeout**: Strict time limit per cycle. If exceeded, terminate and log "Timeout".
-- **Dataset Unavailability**: Fail immediately for all datasets. No fallback to synthetic data.
-- **Model Proposal Failure**: Implement validation step. Retry up to 2 times. If still invalid, log failure and proceed to next cycle (or terminate if single cycle).
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| External Oracle (FR-021) | Prevents circular validation where the model validates its own changes. | A simple self-check would allow infinite regression and bias, violating Constitution VII. |
+| Attempt Tracker (FR-012) | Handles transient training failures without halting the entire experiment. | A simple retry loop without logging or cycle counting would obscure failure modes and violate FR-007. |
+| Streaming Data Loader | Essential for fitting >7GB RAM constraints with large datasets. | Loading full OpenWebText into RAM would crash the GitHub Actions runner. |
+| Pre-flight URL Check | Ensures data source stability (Constitution II). | Relying on static URLs without runtime verification risks using stale or moved data. |
+| FLOPs Profiler | Required for cost-effectiveness analysis (FR-008). | Estimating FLOPs theoretically ignores hardware-specific overhead and memory access patterns. |

@@ -1,0 +1,22 @@
+T001:
+  c: false
+  h: 29c8cdcd5622b9973060c12266b89aed4c4e814aa6b6b9d3a1e9d07551b7d034
+  r: "Checked the `code/src/audit/` directory (modules for extraction, reconstruction,\
+    \ Monte\u2011Carlo, power\u2011analysis, synthetic generation are present) and\
+    \ the `specs/.../quickstart.md` file (contains the exact command `python -m code.src.audit.run_audit\
+    \ data/input/urls.csv output/`). However, there is no evidence that running `python\
+    \ -m code.src.audit.run_audit --help` actually exits with status\u202F0, as required\
+    \ for verification. Provide execution logs or test output confirming the command\
+    \ runs successfully."
+  sig: 475eda5ee815340260bcad782b4f5e4283d51159c8f241dc8e2074daa09416ed
+T017:
+  c: false
+  h: fd229f784126d88a53fe88f4be920c6efde1ad3105b339acc175ba5c18bcbd6c
+  r: "The provided `urls.csv` does contain 300 distinct entries and `data/raw/` holds\
+    \ 300 HTML files with matching entries in `data/checksums.txt`, but there is no\
+    \ concrete evidence that each URL returned an HTTP\u202F200 response with HTML\
+    \ content, nor proof that the URLs actually point to *public A/B\u2011test summaries*\
+    \ (they appear to be generic blog posts about A/B testing). To satisfy the task,\
+    \ include logs or a manifest confirming successful 200 responses for every URL\
+    \ and verify that each URL is a genuine A/B\u2011test summary page."
+  sig: 4848240a1407ce924f9fe35e8bac098faf796312e3a3c42b1a719a520fd189ac

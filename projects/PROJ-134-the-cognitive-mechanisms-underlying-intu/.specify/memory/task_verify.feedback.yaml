@@ -1,0 +1,190 @@
+T001a:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/` (shadows
+    `state/`). A project owns data/, figures/, code/ and paper/; the platform owns
+    state/ and derives artifact hashes at verification time. Re-scope the step to
+    write only project-owned outputs.'
+  task: 04e7ce48c7f1c4af2e95f7d87196115ca4f916933683f666c05dc8d76451f37f
+T001b:
+  reason: The `data/raw/`, `data/processed/`, and `data/logs/` directories each contain
+    a `.gitkeep` file as required, but `data/config/` lacks a `.gitkeep` (it only
+    contains YAML files). Add a `.gitkeep` file to `data/config/` to satisfy the task.
+  task: 70ef16ad0b0d3fde6e73877965f499f2f3db8271940817a9b814bb0b0e86fcbc
+T002:
+  reason: Checked `requirements.txt` (found pymc>=5.0.0, missing exact `pymc==5.12.0`
+    and missing `torch`) and no `CHANGELOG.md` was present in the evidence. The file
+    does not meet the exact version and package list required, and the required changelog
+    documenting the PyMC5 deviation is absent.
+  task: 17f510852b2a4e428a1700bd31d9112b7b7feffbdc2f9f14f32e52d1450e5751
+T003:
+  reason: I inspected the project root (`projects/PROJ-134-the-cognitive-mechanisms-underlying-intu`)
+    for linting/formatting configuration artifacts (e.g., `pyproject.toml` with `[tool.black]`
+    or `[tool.ruff]`, a `.flake8` file, or dedicated `ruff.toml`/`black.toml`). No
+    such files or sections were present, so the required ruff/flake8 and black setup
+    is missing. Adding the appropriate configuration files and ensuring they are committed
+    will satisfy the task.
+  task: 12eb3694d23d28ce84ae756f0c3f11dba954bf3ec60afaaa5b3a23dcdb6ff57e
+T005:
+  task: a288659ed3774fc7c0c1027d768b8b75347140d96c8a75d805d63355d85b3dab
+T006a:
+  reason: "The file `code/utils/hashing.py` exists and defines `calculate_checksum`,\
+    \ but there is no provided evidence that the required verification command was\
+    \ actually run and produced a valid SHA\u2011256 hash. Execution output or test\
+    \ logs confirming the function works as specified are missing."
+  task: 4a87cf2fca1e23a4dd382d210ce29d5e36f5ddebe7ada095668bf6e6bf991401
+T006b:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/artifact_hashes.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 3f75c6921c6f58e6d4dae45fe92853c52588d9ba43ef5847a1b1776d3a02d444
+T007b:
+  task: 71ea204a594f6fda4b44d8bc91a9a0eb747a07f5da25396c2334f66b85d01a7b
+T008b:
+  task: 1e393c9f23bc24ea8e105efd4d5cddfe1c77a61065be54bfe66e322732ca3756
+T009:
+  task: 0e8c8fda02b24c74a4a3de4395adc2c4cbcdbf829ebb18a43019bc215c0b36b8
+T013:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/mdes_report.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: e236646b80c923b12da297c3b529586f19e1e749503d92caf56faa6e8b17829f
+T014-Real-Prep:
+  task: 017efac81b3644dfde9b98b367c7334e7bbd855e6711d718962b1deca718927b
+T014-Sim:
+  task: 54aa1eb9b2423de6bd18dd7308957477a8483ce0b470421599fed661ce4ebed8
+T015-Merge-Data:
+  task: 4aa40b67b1b3754a813d837c40211e893f091791cbc21ab58213823a2d80ed0f
+T016-Mapping-Logic:
+  task: c3b0a759d2f3e4c9639f33e1c2b74e5422cb308cec2425b58d162a9a37d7baa2
+T017-Logic:
+  task: 6917f19ef7b27ce1c044f2729938b67cf5bebe39aa6a03ea0cb06492e623b1ac
+T017-Report:
+  reason: 'declared artifact(s) missing/empty/invalid: code/reports/generate_norm_report.py,
+    data/logs/norm_validation.json'
+  task: 8e0ae763c4963867d20523c3721d9eb9a648bb91662f9386d256f1c37202ecbb
+T018-Simulation-Checksums:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/artifact_hashes.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: b9e4f7a9a5875ea1819d116b329d04df3e2cbfa5ceca7b14cf2929181479d651
+T022b:
+  task: 85c5d9be93647f2912e1a51b15a3f0065bc8d3f977ad6a4c9a63ab067053910e
+T022c:
+  task: db356db17d371978ff3cae707cb41e5c4d922e7e8dd3a95030fe86fe6a58ea5d
+T022d-Validate-PyMC5:
+  task: 34edddf63cc401e2abd254de56c85a9b9dd719bac698f20e96d7c8207e17ca3f
+T023-Sampling:
+  task: a105e300f4e43d21bc223b8e0259b740d7322043bd81d58e66ac22c4a4587f07
+T024-Baseline-LMM:
+  task: 1f9df5e2769716d2c840603dc40715927e05276626df4f20657d7c1c3584d75b
+T024-Comparison:
+  task: 9565d0a92ffbf82316930ac7b40901efc3fb27f05b821b038a0c1ed2c9641973
+T024-PPC:
+  task: cd41f6602e6634db7289c12b82221218757bb450b150d6ade228c8201e9fb2ca
+T027b-Delta-AIC-Report:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/simulation_delta_aic.py,
+    data/results/model_comparison.json, data/results/simulation_delta_aic.json'
+  task: c09cd6ec5e3ae020c39643760f960776efc4182dc024777eed1b5754ef1bfc28
+T027c-Param-Recovery-Real:
+  task: 4af08667ca734284596744517cac6f3b1017d92e8f0a31fe36ecb3808b1ed821
+T027c-Param-Recovery-Sim:
+  task: 31e31080479940609cf0651575924af47297da83bc42144b9a8cbc50a904cb21
+T027c-Sensitivity-Analysis:
+  task: 46b813caab608ba3bff1f4ab31a4a3f58c15613a2cc5ab2d29b32eea96aad18d
+T027c-Verify:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/verify_parameter_recovery.py,
+    data/results/parameter_recovery_sim.json, data/results/parameter_recovery_real.json'
+  task: 434a1425ba2c43a754bae2ebe9ba66df9e944c8733394212321cd3f093dade97
+T030-Regression:
+  task: 813d4ba845137a80f657967a2593b0b6718da87c32ecafaaea499eac413d09f9
+T030-Regression-Verify:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/verify_regression.py,
+    data/results/mixed_effects_bonferroni_results.json'
+  task: 2e75cba78862c8befc42bafdd814d3f6707ef5163e79fba3360d26726639b05a
+T033-Final-Report-Synthesis:
+  task: cc852892b8d82283ae94774977bd17e624d7a3b88c0c15e455fa3419286e0411
+T043:
+  task: 2ceed10e62f9ea2b12390c7eddeac81191680b923daf21d37a63df2d1ad447a2
+T044:
+  task: 7c60c0209b2aa9438c48ce93c69de35dcf506634bd54b491f56d127643c37b8f
+T045-Sensitivity-Link:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/sensitivity_link.py,
+    data/results/sensitivity_analysis.json, data/results/sensitivity_link_report.json'
+  task: ff1247cd12136ed99efda83ca0b4f3967ae637b073af65c5420eb6141d7cfd4d
+T045a:
+  task: 276e572f5e9eb6ef2306744b839f09f6d7c5dbf889040d6a82d6420367aaec39
+T045b:
+  reason: 'the task writes platform-owned path(s) inside the project: `state/mdes_report.yaml`
+    (shadows `state/`). A project owns data/, figures/, code/ and paper/; the platform
+    owns state/ and derives artifact hashes at verification time. Re-scope the step
+    to write only project-owned outputs.'
+  task: 1c82a6398597f561440c55e70d189d734f459979570155ec521664ed71189faa
+T046:
+  reason: 'declared artifact(s) missing/empty/invalid: code/analysis/validate_schema.py'
+  task: efd561b682a61d9dfc0bd76f044ea66e834fce1a93abd8f7d33b0c052d4c06cb
+T050:
+  task: 52f22b8915088f03bb48c6fa2a95057d5e5b9ec8afb79286eeb5964659b9dc2d
+T051:
+  task: ddb843d33cbf2af9ba019cf0300e9de3572ba00ebc972929091a1bd7a7d80b8d
+T054b:
+  task: b0064b359dc9f77e4d633624ff83a449351870bb422e3a8d8de8ea67cb6dea90
+T054b-Validate:
+  task: 4b1b4a33c9b6c25a627f9c614a4bc8482b32fe21220f678fc750019c9646b166
+T054c-Verify:
+  task: 523a47130425d1ebc756ef7d2a8f45b7835119a352e77f80b2bb5bb679013248
+T056-CLI:
+  task: 90811334bce40518edb5acd7c97e2765b1bc16d7f12e00de825f7fe75576f3cf
+T056-Orch:
+  task: 9fd3fdcf348caeebc7c6873513ba46bc0e2dd78832264b0f34bc89d2b1626337
+T056-Output:
+  task: 668377801d75dae9b3b3bea342e10c16b2a67379e1f4c6e2524f21eb63bebb11
+T061:
+  task: 3608376c034d5c10d66b9a1234f2f10eff5bfc4fdc207da5358b821615350217
+T062:
+  task: d1d9bd163a832295314ef3e0be3259b765d13c91463ffe3e997e0e947fc5de19
+T063:
+  task: 99bb9c3bd91877b0943ec26b7b04d82929e3b74bf573012f6f2b4ed3735676d4
+T065:
+  task: 561235bcf4ede504f64d791b2a0d50c8c4cfdc5eb0e497a954d2814907ec613c
+T066:
+  task: a4966378ffdb551ce66065281956d0bda088076c4b28ad2a1020e0905e90f1a7
+T067:
+  task: cf04b025f6e9d5c3194c8e4e6bbb4a7d23ed0ef4639fb15ede7b5bcaa883dcac
+T068:
+  task: 9e6193b16da8c8207c93e534a5ced205961959345fbe159f5f69425955e6a9d8
+T076a:
+  reason: 'declared artifact(s) missing/empty/invalid: code/unity_verification.py,
+    data/config/unity_simulation_fidelity.yaml'
+  task: cd857a1cb7847769519e7c279986d96fb2f13dba695b8f86f7dac22563124f43
+T076b:
+  reason: 'declared artifact(s) missing/empty/invalid: code/unity_verification.py,
+    data/logs/simulation_params.log'
+  task: 942c7e51f7f4e6743e7d60613ce58acd7dd801239bdeabe23ba1683c687f4d4a
+T076c:
+  reason: 'declared artifact(s) missing/empty/invalid: code/unity_verification.py,
+    data/config/simulation_run_params.yaml'
+  task: 0dfcae2acb0e7de929fc4e2963b49230177e5cc97e48803ef1f870e9eb7e2a06
+T078:
+  task: 2baa62c2a0f13524927eb8c578dd68d7d784b99b33882ef6726036f01e93ac2c
+T079:
+  task: 3c3218a4592c392f4c74d7eeb3750304ac1d70c0a9d4cf5d282b7c3e52f2bde7
+T080:
+  task: b6e8a25c39b74280678429241ac609346036f65b68a1095d4af615ea1a5dfd55
+T081:
+  task: dc9fd594904aad046fd4bf7915a7b6e3b90673e1c3440495e337cdd8893c2f19
+T090:
+  task: a29c92a8c0c2878f051ca018142dddcd441a378d1a72622b34efc64dec2ce746
+T092-Fetch-VR:
+  reason: 'Requested task execution failed; rerun successfully: code/data/fetch_real_vr.py
+    exit=1'
+  task: 0d5939e8e702caab083cdc508faab1fb942d670b5965a8fc37fdf0214c604d64
+T095:
+  task: 0d18383dbac0d5b5fcacc1f0d0b6d0bfad4b1f6cbe970f9a3e60585a6281c067
+T096-Exception:
+  task: ffad78ad02d6585ad26c0111a41902d29c0de22ee46461b730999c84a02f24b7
+T100:
+  task: 981a9e4850d251f231dca8e2f5a0b305cb95d4e35bce70fc12752dcb7de9555a
+T101:
+  task: 7028b970a4664e7078e255ac0b54e409453cdae76bc32588a193cfc4c33bfa19

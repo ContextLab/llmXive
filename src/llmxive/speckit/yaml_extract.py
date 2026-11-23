@@ -38,8 +38,55 @@ def parse_yaml_lenient(text: str) -> object:
     while lines and lines[0].strip() and not lines[0].lstrip().startswith(("---", "{", "[")) \
             and ":" not in lines[0]:
         lines.pop(0)
-    cleaned = "\n".join(lines)
+    cleaned = "\n".join(strip_trailing_markers(lines))
     return yaml.safe_load(cleaned)
 
 
-__all__ = ["parse_yaml_lenient"]
+#: A line that is only a code-fence marker or a YAML document separator.
+_MARKER_LINE_RE = re.compile(r"(?:```[\w-]*|---|\.\.\.)?[ \t]*")
+
+
+def strip_trailing_markers(lines: list[str]) -> list[str]:
+    """Drop blank / fence / separator lines from the END of a reply.
+
+    A reply that is correct YAML followed by one closing ``` (with no opening
+    fence) or a final ``---`` is not valid YAML: the fence is "a character that
+    cannot start any token" and the separator starts a second document.
+    PROJ-9999 canary, 2026-10-11: four consecutive implementer replies ended
+    that way. Each failed strict parsing, and the fallback then kept the stray
+    line as the last line of the file, so compilable Python was refused with
+    "SyntaxError at line 317" on a line the model had not written as code.
+
+    Only flush-left lines are dropped; an indented marker is content.
+    """
+    kept = list(lines)
+    while kept and _MARKER_LINE_RE.fullmatch(kept[-1]):
+        kept.pop()
+    return kept
+
+
+#: A line that opens a fenced block (``` or ```yaml) or closes one (```).
+_FENCE_LINE_RE = re.compile(r"```[\w-]*[ \t]*")
+
+
+def outer_fenced_body(text: str) -> str:
+    """Return what lies between the first fence line and the last bare one.
+
+    A model asked for one fenced document often adds a sentence before it or a
+    justification after it. Callers that removed a fence only when it closed on
+    the reply's LAST line then handed the whole reply to the parser, which
+    failed on the backtick and lost the answer (canary 9, 2026-10-11: a
+    reviser's self-audit ended ``` and continued "Audit notes supporting the
+    verdict: ..."). The outermost pair is used, so a fence quoted inside the
+    document stays part of it. Text with no such pair is returned stripped.
+    """
+    raw = (text or "").strip()
+    lines = raw.splitlines()
+    opening = next((i for i, ln in enumerate(lines) if _FENCE_LINE_RE.fullmatch(ln.strip())), None)
+    closing = next((i for i in range(len(lines) - 1, -1, -1) if lines[i].strip() == "```"), None)
+    if opening is None or closing is None or closing <= opening:
+        return raw
+    return "\n".join(lines[opening + 1:closing]).strip()
+
+
+__all__ = ["outer_fenced_body", "parse_yaml_lenient", "strip_trailing_markers"]

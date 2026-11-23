@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Ingested Alloy Entry"
+description: "Schema for a single row in data/processed/encoded_alloys.csv"
+type: "object"
+properties:
+  material_id:
+    type: "string"
+    description: "Unique identifier from OQMD"
+  composition:
+    type: "string"
+    description: "Original chemical formula (e.g., 'Fe0.8Ni0.2')"
+  bulk_modulus:
+    type: "number"
+    description: "Bulk Modulus in GPa (must be > 0)"
+    minimum: 0.0001
+  shear_modulus:
+    type: "number"
+    description: "Shear Modulus in GPa (must be > 0)"
+    minimum: 0.0001
+  avg_atomic_radius:
+    type: "number"
+    description: "Weighted average atomic radius (Angstroms)"
+  avg_electronegativity:
+    type: "number"
+    description: "Weighted average Pauling electronegativity"
+  element_count:
+    type: "integer"
+    description: "Number of distinct elements in the composition"
+    minimum: 1
+required:
+  - material_id
+  - composition
+  - bulk_modulus
+  - shear_modulus
+  - avg_atomic_radius
+  - avg_electronegativity
+  - element_count
+additionalProperties: true
+description: "Additional properties include element_fractions_* columns (e.g., Fe_frac) and ilr_features_* columns."

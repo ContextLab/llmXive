@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Defense Allocation Index"
+type: object
+required:
+  - species
+  - chemical_traits
+  - physical_traits
+  - index_value
+  - data_source
+properties:
+  species:
+    type: string
+    description: "Scientific name of the species"
+  chemical_traits:
+    type: object
+    properties:
+      Glucosinolates:
+        type: number
+      Alkaloids:
+        type: number
+      Phenolics:
+        type: number
+    description: "Standardized chemical defense trait values"
+  physical_traits:
+    type: object
+    properties:
+      Trichome_Density:
+        type: number
+      Leaf_Tensile_Strength:
+        type: number
+    description: "Standardized physical defense trait values"
+  index_value:
+    type: number
+    description: "Ratio of mean chemical to mean physical traits"
+  data_source:
+    type: string
+    enum:
+      - "TRY"
+      - "Phenoscape"
+      - "GBIF"
+      - "Literature"
+    description: "Primary source of the trait data"

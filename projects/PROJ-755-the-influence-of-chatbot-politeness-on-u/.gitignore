@@ -1,40 +1,40 @@
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-*.so
-.Python
-env/
-venv/
-ENV/
-.env
-.env.local
-
-# Data
+# Data directories (raw and processed)
 data/raw/*
 !data/raw/.gitkeep
 data/processed/*
 !data/processed/.gitkeep
-data/external/*
-!data/external/.gitkeep
-data/interim/*
-!data/interim/.gitkeep
 
-# Model caches
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+.python-version
+
+# Model caches (Hugging Face and others)
 .cache/
-hf_cache/
-transformers_cache/
+data/models/*
+!data/models/.gitkeep
 
-# IDE
+# IDE and editor files
 .idea/
 .vscode/
 *.swp
 *.swo
+*~
 
-# OS
-.DS_Store
-Thumbs.db
+# Environment files
+.env
+.env.local
+.env.*.local
 
 # Logs
 *.log
 logs/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/

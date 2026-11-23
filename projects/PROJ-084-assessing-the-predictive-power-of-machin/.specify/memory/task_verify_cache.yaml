@@ -1,0 +1,19 @@
+T001:
+  c: false
+  h: 02310befe6e8fc65088731077a36a703388acac5b0dbfc6eb1c65e2843461a76
+  r: "Checked `specs/.../contracts/output.schema.yaml` (valid YAML with required keys)\
+    \ and `code/utils/validators.py` (functions exist and use Pydantic). However `dataset.schema.yaml`\
+    \ is missing, causing `validate_dataset_schema` to fail the required smoke\u2011\
+    check, and `code/config.py` lacks the listed constants (`TRAIN_VAL_TEST_SPLIT_RATIOS`,\
+    \ `BATCH_SIZE_ROWS`, `SC003_HIGH_YIELD_PERCENTILE`, `SUBSET_SIZE`). These omissions\
+    \ prevent the task from being fully satisfied."
+  sig: 3681dc8abf0d26cfb5e43d2231bd8aa231155c5bd2187660d8246c823ce94957
+T010:
+  c: false
+  h: 99ddaf5c78959bc30a8ed17afce5774413327911d15089cd4257b875baf70176
+  r: The repository lacks the required input `data/processed/cleaned_reactions.parquet`
+    and the expected outputs `data/processed/scaffold_groups.parquet` and `data/results/scaffold_generation_log.txt`.
+    Moreover, `scaffold.py` creates a column named `murcko_scaffold` instead of the
+    mandated `scaffold_id`, and the script does not contain code to read the input,
+    write the parquet file, or log the unique scaffold count. These essential pieces
+    are missing, so the task is not fulfilled.

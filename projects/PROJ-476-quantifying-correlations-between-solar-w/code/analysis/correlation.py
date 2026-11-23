@@ -1,213 +1,297 @@
+"""
+Correlation analysis module for solar wind and geomagnetic indices.
+Implements lagged correlation, significance testing, and result aggregation.
+Updated to conform to the analysis_schema.schema.yaml:
+  - Column name for Bonferroni‑corrected p‑value is ``p_holm_bonferroni``.
+  - Adds ``effect_size_flag`` (|pearson_r| > 0.5).
+"""
 import os
 import pandas as pd
 import numpy as np
 from scipy import stats
 from datetime import timedelta
 from typing import Dict, List, Tuple, Optional
-from code.config import ACE_VARS, NOAA_VARS, TRAIN_START, TRAIN_END, TEST_START, TEST_END
+
 from code import logger
-from code.analysis.neff import calculate_neff
+from code.config import LAGS_HOURS, TOTAL_TESTS, SIGNIFICANCE_LEVEL
+from code.analysis.neff import calculate_effective_sample_size_neff
 
-# Configuration for Bonferroni correction
-# 3 ACE parameters (N_p, T_p, He2+_ratio)
-# 2 NOAA indices (Kp, Dst)
-# 5 lags (0, 1, 2, 3, 6 hours)
-N_PARAMS = len(ACE_VARS)
-N_INDICES = len(NOAA_VARS)
-N_LAGS = 5  # 0, 1, 2, 3, 6
-TOTAL_TESTS = N_PARAMS * N_INDICES * N_LAGS
-ALPHA_RAW = 0.05
-ALPHA_ADJ = ALPHA_RAW / TOTAL_TESTS
+# ----------------------------------------------------------------------
+# Constants
+# ----------------------------------------------------------------------
+# Default lags (kept for backward compatibility)
+DEFAULT_LAGS = [0, 1, 2, 3, 6, 12, 24, 48, 72]
+# Fixed divisor for the global Bonferroni correction (30 tests)
+BONFERRONI_DIVISOR = TOTAL_TESTS
 
-logger.info(f"Bonferroni configuration: {N_PARAMS} params x {N_INDICES} indices x {N_LAGS} lags = {TOTAL_TESTS} tests")
-logger.info(f"Adjusted alpha (Bonferroni): {ALPHA_ADJ:.6f}")
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def load_synced_data(data_path: Optional[str] = None) -> pd.DataFrame:
+    """
+    Load the synchronized dataset.
 
-def load_synced_data() -> pd.DataFrame:
-    """Load the synchronized dataset from the processed directory."""
-    path = "data/processed/synced.csv"
-    if not os.path.exists(path):
-        raise FileNotFoundError(f"Synced data not found at {path}. Run US1 pipeline first.")
-    df = pd.read_csv(path, parse_dates=['timestamp'])
-    logger.info(f"Loaded synced data: {df.shape[0]} rows, {df.shape[1]} columns")
+    Supports two calling patterns:
+    1. load_synced_data() -> loads default path from config
+    2. load_synced_data(data_path) -> loads from specified path
+
+    Args:
+        data_path: Optional path to the synced CSV file.
+
+    Returns:
+        pd.DataFrame: The loaded dataset
+    """
+    if data_path is None:
+        data_path = os.path.join("data", "processed", "synced.csv")
+
+    if not os.path.exists(data_path):
+        raise FileNotFoundError(f"Synced data file not found at {data_path}")
+
+    logger.info(f"Loading synced data from {data_path}")
+    df = pd.read_csv(data_path, parse_dates=["timestamp"])
     return df
+
+def shift_series(series: pd.Series, lag_hours: int) -> pd.Series:
+    """
+    Shift a time series forward by ``lag_hours`` to align with the predictor.
+
+    This shifts the geomagnetic index (response) forward so that the value
+    at time *t* corresponds to the solar wind composition at time *t - lag_hours*.
+
+    Args:
+        series: The time series to shift.
+        lag_hours: Number of hours to shift forward.
+
+    Returns:
+        pd.Series: The shifted series with NaNs introduced at the start.
+    """
+    if lag_hours == 0:
+        return series
+
+    # pandas.shift moves values to later timestamps (i.e. forward in time)
+    shifted = series.shift(lag_hours)
+    logger.debug(
+        f"Shifted series by {lag_hours} hours, introduced {shifted.isna().sum()} NaNs"
+    )
+    return shifted
 
 def compute_correlations_at_lag(
     df: pd.DataFrame,
-    param: str,
-    index_var: str,
+    x_col: str,
+    y_col: str,
     lag_hours: int,
-    neff: Optional[float] = None
-) -> Dict:
+) -> Dict[str, float]:
     """
-    Compute Pearson and Spearman correlations for a specific parameter, index, and lag.
-    
+    Compute Pearson and Spearman correlations at a specific lag.
+
     Args:
         df: The synchronized dataframe.
-        param: The ACE parameter name (e.g., 'N_p').
-        index_var: The NOAA index name (e.g., 'Kp').
-        lag_hours: The lag in hours (0, 1, 2, 3, 6).
-        neff: Optional pre-calculated effective sample size. If None, calculated from data.
-    
-    Returns:
-        Dictionary containing correlation metrics.
-    """
-    if lag_hours > 0:
-        # Shift the ACE data forward by lag_hours to simulate lagged effect
-        # If lag is positive, we align ACE(t) with Index(t+lag)
-        # In the dataframe, we shift the ACE column down by lag_hours
-        shift_rows = lag_hours
-        if shift_rows > 0:
-            df_shifted = df.copy()
-            df_shifted[param] = df_shifted[param].shift(shift_rows)
-            # Drop rows where the shifted value is NaN (the beginning of the series)
-            df_valid = df_shifted.dropna(subset=[param, index_var])
-        else:
-            df_valid = df
-    else:
-        df_valid = df.dropna(subset=[param, index_var])
+        x_col: Name of the composition parameter column.
+        y_col: Name of the geomagnetic index column.
+        lag_hours: The temporal lag in hours.
 
-    if len(df_valid) < 10:
-        logger.warning(f"Insufficient data for {param} vs {index_var} at lag {lag_hours}h: {len(df_valid)} rows")
+    Returns:
+        Dict containing ``pearson_r``, ``spearman_rho``, ``n_effective`` and ``n_raw``.
+    """
+    # Shift the response variable (geomagnetic index) forward by the lag
+    y_shifted = shift_series(df[y_col], lag_hours)
+
+    # Drop rows where either series is NaN
+    valid_mask = ~(y_shifted.isna() | df[x_col].isna())
+    x_valid = df.loc[valid_mask, x_col]
+    y_valid = y_shifted.loc[valid_mask]
+
+    n_valid = len(x_valid)
+    if n_valid < 10:
+        logger.warning(
+            f"Insufficient valid pairs ({n_valid}) for correlation at lag {lag_hours}"
+        )
         return {
-            'param': param,
-            'index': index_var,
-            'lag': lag_hours,
-            'pearson_r': np.nan,
-            'spearman_rho': np.nan,
-            'p_value_raw': np.nan,
-            'p_value_bonferroni': np.nan,
-            'n_obs': len(df_valid),
-            'neff': np.nan,
-            'is_significant': False
+            "pearson_r": np.nan,
+            "spearman_rho": np.nan,
+            "n_effective": np.nan,
+            "n_raw": n_valid,
         }
 
-    x = df_valid[param].values
-    y = df_valid[index_var].values
+    # Pearson correlation
+    pearson_r, _ = stats.pearsonr(x_valid, y_valid)
 
-    # Pearson
-    r, p_raw = stats.pearsonr(x, y)
-    
-    # Spearman
-    rho, p_spearman = stats.spearmanr(x, y)
+    # Spearman correlation
+    spearman_rho, _ = stats.spearmanr(x_valid, y_valid)
 
-    # Calculate Neff if not provided
-    if neff is None:
-        # We calculate Neff based on the overlapping valid data length
-        # However, the spec implies Neff is calculated on the FULL continuous series.
-        # For this function, we calculate it on the valid subset for accuracy in this specific window,
-        # but the main runner should ideally pass the global Neff or calculate it globally.
-        # Per T021, we use the Pyper & Peterman method on the residuals.
-        # Since we are in a generic function, we calculate it here on the valid data for this pair.
-        # NOTE: The global Neff calculation is handled in run_correlation_analysis for consistency.
-        # Here we compute a local estimate if not passed, but the global one is preferred for the threshold.
-        neff_local = calculate_neff(x)
-    else:
-        neff_local = neff
-
-    # Adjust p-value for Neff? 
-    # The spec says: "adjust p-values for autocorrelation (Neff)".
-    # Standard approach: Use Neff to adjust the degrees of freedom in the t-test for correlation significance.
-    # t = r * sqrt((Neff - 2) / (1 - r^2))
-    # But scipy.stats.pearsonr uses N-2. We can approximate the adjusted p-value by re-calculating it.
-    
-    if not np.isnan(r) and neff_local > 2:
-        t_stat = r * np.sqrt((neff_local - 2) / (1 - r**2 + 1e-10))
-        # Two-tailed p-value
-        p_adj = 2 * (1 - stats.t.cdf(abs(t_stat), neff_local - 2))
-    else:
-        p_adj = p_raw
-
-    # Bonferroni correction
-    p_bonf = min(p_adj * TOTAL_TESTS, 1.0)
-    is_significant = p_bonf < ALPHA_ADJ
-
-    logger.debug(f"Lag {lag_hours}h: {param} vs {index_var}, r={r:.4f}, p_raw={p_adj:.4e}, p_bonf={p_bonf:.4e}, sig={is_significant}")
+    # Effective sample size based on the shifted response series
+    n_eff = calculate_effective_sample_size_neff(y_valid)
 
     return {
-        'param': param,
-        'index': index_var,
-        'lag': lag_hours,
-        'pearson_r': r,
-        'spearman_rho': rho,
-        'p_value_raw': p_adj,
-        'p_value_bonferroni': p_bonf,
-        'n_obs': len(df_valid),
-        'neff': neff_local,
-        'is_significant': is_significant
+        "pearson_r": pearson_r,
+        "spearman_rho": spearman_rho,
+        "n_effective": n_eff,
+        "n_raw": n_valid,
     }
 
-def run_correlation_analysis(df: Optional[pd.DataFrame] = None, output_path: str = "data/processed/correlation_results.csv") -> pd.DataFrame:
+def compute_p_value_adjusted(r: float, n_eff: float) -> float:
     """
-    Run the full correlation analysis across all parameters, indices, and lags.
-    Implements FR-004: Bonferroni correction with dynamic divisor 30.
-    
+    Compute the two‑tailed p‑value for a correlation coefficient using the
+    effective sample size.
+
+    Uses the t‑statistic formula:
+        t = r * sqrt((n_eff - 2) / (1 - r**2))
+    and the survival function of the Student‑t distribution.
+
     Args:
-        df: Optional dataframe. If None, loads from disk.
-        output_path: Path to save the results CSV.
-    
+        r: Pearson correlation coefficient.
+        n_eff: Effective sample size.
+
     Returns:
-        DataFrame with all correlation results.
+        Two‑tailed p‑value (or ``np.nan`` if inputs are invalid).
     """
-    if df is None:
-        df = load_synced_data()
+    if np.isnan(r) or np.isnan(n_eff) or n_eff <= 2:
+        return np.nan
 
+    # Guard against |r| == 1 which would cause division by zero
+    if abs(r) >= 1.0:
+        return 0.0
+
+    t_stat = r * np.sqrt((n_eff - 2) / (1 - r**2))
+    p_value = 2 * stats.t.sf(np.abs(t_stat), df=n_eff - 2)
+    return p_value
+
+def apply_bonferroni_correction(p_raw: float, num_tests: int = BONFERRONI_DIVISOR) -> float:
+    """
+    Apply Bonferroni (Holm‑Bonferroni) correction to a raw p‑value.
+
+    The specification calls for a *Bonferroni* correction with a fixed
+    divisor of 30.  The implementation keeps the same semantics but
+    returns the corrected value capped at 1.0.
+
+    Args:
+        p_raw: Raw p‑value.
+        num_tests: Number of tests in the family (default 30).
+
+    Returns:
+        Bonferroni‑corrected p‑value.
+    """
+    corrected = p_raw * num_tests
+    return min(corrected, 1.0)
+
+def run_correlation_analysis(
+    df: pd.DataFrame,
+    composition_params: List[str],
+    geomagnetic_indices: List[str],
+    lags: List[int],
+    output_path: str,
+) -> pd.DataFrame:
+    """
+    Run the full lagged correlation analysis and write results.
+
+    The produced CSV conforms to ``contracts/analysis_schema.schema.yaml``.
+
+    Args:
+        df: The synchronized dataframe.
+        composition_params: List of composition parameter column names.
+        geomagnetic_indices: List of geomagnetic index column names.
+        lags: List of lag hours to test.
+        output_path: Path to write the results CSV.
+
+    Returns:
+        DataFrame containing the correlation results.
+    """
     results = []
-    
-    # Define lags explicitly
-    lags = [0, 1, 2, 3, 6]
 
-    logger.info(f"Starting correlation analysis for {len(ACE_VARS)} params x {len(NOAA_VARS)} indices x {len(lags)} lags")
-    logger.info(f"Using Bonferroni divisor: {TOTAL_TESTS} (Alpha adjusted to {ALPHA_ADJ})")
+    logger.info(
+        f"Starting correlation analysis for {len(composition_params)} parameters, "
+        f"{len(geomagnetic_indices)} indices, {len(lags)} lags"
+    )
 
-    # Pre-calculate global Neff for the full series if possible, or per variable
-    # The spec emphasizes global Neff for the threshold. 
-    # We will calculate Neff for each ACE variable on the full series (ignoring NaNs in the specific column)
-    # to use as the 'neff' argument for the correlation functions, ensuring consistency.
-    global_neff_map = {}
-    for var in ACE_VARS:
-        if var in df.columns:
-            clean_series = df[var].dropna()
-            if len(clean_series) > 10:
-                global_neff_map[var] = calculate_neff(clean_series.values)
-            else:
-                global_neff_map[var] = None
-        else:
-            global_neff_map[var] = None
-
-    for param in ACE_VARS:
-        if param not in df.columns:
-            logger.warning(f"ACE variable {param} not found in data, skipping.")
-            continue
-
-        for index_var in NOAA_VARS:
-            if index_var not in df.columns:
-                logger.warning(f"NOAA variable {index_var} not found in data, skipping.")
-                continue
-            
-            neff_for_param = global_neff_map.get(param)
-
+    for comp_param in composition_params:
+        for geom_index in geomagnetic_indices:
             for lag in lags:
-                res = compute_correlations_at_lag(
-                    df, 
-                    param, 
-                    index_var, 
-                    lag,
-                    neff=neff_for_param
+                logger.debug(
+                    f"Computing {comp_param} vs {geom_index} at lag {lag}h"
                 )
-                results.append(res)
+
+                try:
+                    stats_dict = compute_correlations_at_lag(
+                        df, comp_param, geom_index, lag
+                    )
+
+                    r = stats_dict["pearson_r"]
+                    rho = stats_dict["spearman_rho"]
+                    n_eff = stats_dict["n_effective"]
+
+                    # Raw p‑value using the effective sample size
+                    p_raw = compute_p_value_adjusted(r, n_eff)
+
+                    # Bonferroni‑corrected p‑value (named per schema)
+                    p_holm_bonferroni = apply_bonferroni_correction(p_raw)
+
+                    # Flags
+                    significance_flag = p_holm_bonferroni < SIGNIFICANCE_LEVEL
+                    effect_size_flag = abs(r) > 0.5 if not np.isnan(r) else False
+
+                    results.append(
+                        {
+                            "composition_parameter": comp_param,
+                            "geomagnetic_index": geom_index,
+                            "lag_hours": lag,
+                            "pearson_r": r,
+                            "spearman_rho": rho,
+                            "p_raw": p_raw,
+                            "p_holm_bonferroni": p_holm_bonferroni,
+                            "significance_flag": significance_flag,
+                            "effect_size_flag": effect_size_flag,
+                        }
+                    )
+
+                except Exception as e:
+                    logger.error(
+                        f"Error computing correlation for {comp_param} vs {geom_index} at lag {lag}h: {e}"
+                    )
+                    results.append(
+                        {
+                            "composition_parameter": comp_param,
+                            "geomagnetic_index": geom_index,
+                            "lag_hours": lag,
+                            "pearson_r": np.nan,
+                            "spearman_rho": np.nan,
+                            "p_raw": np.nan,
+                            "p_holm_bonferroni": np.nan,
+                            "significance_flag": False,
+                            "effect_size_flag": False,
+                        }
+                    )
 
     results_df = pd.DataFrame(results)
-    
-    # Sort for readability
-    results_df = results_df.sort_values(by=['param', 'index', 'lag'])
 
-    # Save to disk
+    # Write CSV – ensure directory exists
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
     results_df.to_csv(output_path, index=False)
-    logger.info(f"Correlation results saved to {output_path}")
-    logger.info(f"Significant findings (Bonferroni p < {ALPHA_ADJ}): {results_df['is_significant'].sum()}")
+    logger.info(f"Correlation results written to {output_path}")
 
     return results_df
 
-# Export for main.py
-__all__ = ['load_synced_data', 'compute_correlations_at_lag', 'run_correlation_analysis', 'ALPHA_ADJ', 'TOTAL_TESTS']
+def iterate_lagged_pairs(df: pd.DataFrame, lags: List[int]) -> List[Tuple[str, str, int]]:
+    """
+    Generate all (composition_parameter, geomagnetic_index, lag) tuples.
+
+    Args:
+        df: The synchronized dataframe.
+        lags: List of lag hours to test.
+
+    Returns:
+        List of tuples (comp_param, geom_index, lag)
+    """
+    composition_params = ["proton_density", "temperature", "helium_abundance"]
+    geomagnetic_indices = ["Kp", "Dst"]
+
+    # Filter to only columns present in dataframe
+    composition_params = [p for p in composition_params if p in df.columns]
+    geomagnetic_indices = [g for g in geomagnetic_indices if g in df.columns]
+
+    pairs = []
+    for comp in composition_params:
+        for geom in geomagnetic_indices:
+            for lag in lags:
+                pairs.append((comp, geom, lag))
+
+    return pairs

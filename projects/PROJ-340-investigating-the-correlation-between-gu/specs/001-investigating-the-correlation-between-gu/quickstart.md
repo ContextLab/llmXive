@@ -3,61 +3,61 @@
 ## Prerequisites
 
 - Python 3.11+
-- `pip`
-- Access to a GitHub Actions runner (for CI validation) or a local environment with 7GB+ RAM.
+- A dataset containing metagenomic counts and sleep metrics (CSV/TSV).
+- (Optional) A HuggingFace account if using a gated dataset.
 
 ## Installation
 
-1. **Clone the repository**:
-   ```bash
-   git clone <repo-url>
-   cd projects/PROJ-340-investigating-the-correlation-between-gu
-   ```
+1.  **Clone the repository** and navigate to the project directory.
+2.  **Create a virtual environment**:
+    ```bash
+    python -m venv venv
+    source venv/bin/activate  # On Windows: venv\Scripts\activate
+    ```
+3.  **Install dependencies**:
+    ```bash
+    pip install -r requirements.txt
+    ```
 
-2. **Create a virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
+## Data Preparation
 
-3. **Install dependencies**:
-   ```bash
-   pip install -r code/requirements.txt
-   ```
+Place your dataset in `data/raw/`. The file must be a CSV or TSV with the following columns:
+- `subject_id` (unique identifier)
+- One or more columns for microbial taxa (e.g., `Bacteroides`, `Firmicutes`)
+- One or more columns for sleep metrics (e.g., `REM_duration`, `SWS_duration`)
+
+*Note: If you do not have a real dataset, the system can generate synthetic data for testing using the `--synthetic` flag.*
 
 ## Running the Pipeline
 
-Since no verified real-world dataset is available in the provided list, the pipeline defaults to generating a **synthetic dataset** for validation.
+### Full Analysis (Real or Synthetic Data)
 
-1. **Generate Synthetic Data** (Optional, for testing):
-   ```bash
-   python code/ingest.py --mode synthetic --output data/raw/synthetic_data.csv
-   ```
-
-2. **Run the Full Analysis**:
-   ```bash
-   python code/main.py --input data/raw/synthetic_data.csv --output data/results/
-   ```
-
-   *Note: If you have a real dataset, replace `--input` with the path to your CSV.*
-
-## Expected Output
-
-- `data/results/correlation_results.json`: The main correlation matrix.
-- `data/results/diagnostics.json`: VIF, Power, and Sensitivity analysis.
-- `data/results/report.txt`: Human-readable summary (associational framing only).
-
-## Verification
-
-To verify the pipeline on a CI runner:
 ```bash
-# This command runs the test suite which includes the data ingestion check
-# and the full pipeline execution time limit check.
-pytest tests/integration/test_pipeline.py -v
+python code/main.py --input data/raw/your_dataset.csv --output data/results/
 ```
+
+### Synthetic Data Mode (Testing Only)
+
+```bash
+python code/main.py --synthetic --output data/results/synthetic_test/
+```
+
+### Validation Only
+
+```bash
+python code/main.py --validate-only --input data/raw/your_dataset.csv
+```
+
+## Output
+
+The pipeline will generate the following artifacts in `data/results/`:
+- `correlation_results.csv`: Full list of correlations with adjusted p-values.
+- `diagnostics.json`: Collinearity, VIF, and power analysis results.
+- `report.md`: Human-readable summary with associational framing.
+- `validation_report.json`: Success/failure status of data ingestion.
 
 ## Troubleshooting
 
-- **Error: "Dataset-variable fit check failed"**: Ensure your input CSV contains all required sleep metrics (e.g., `rem_duration_min`, `sws_duration_min`).
-- **Error: "Memory Limit Exceeded"**: Reduce the number of taxa in the input data. The pipeline is optimized for < 500 taxa.
-- **Warning: "Underpowered"**: The sample size `N` is too small to detect an effect of `r=0.3` with [deferred] power. The pipeline will still run but will flag this limitation.
+- **Dataset-variable fit check failed**: Ensure all required columns (taxa and sleep metrics) are present in the input file.
+- **Underpowered**: The sample size is too small to detect the expected effect size (r ≥ 0.3). Consider collecting more data or acknowledging the limitation in the report.
+- **Perfect Multicollinearity**: Two or more taxa are linearly dependent. The system will flag these and exclude them from VIF calculation.

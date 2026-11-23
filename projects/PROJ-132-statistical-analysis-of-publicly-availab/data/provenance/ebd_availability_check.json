@@ -1,0 +1,17 @@
+{
+  "task_id": "T005a",
+  "timestamp": "2023-10-27T10:00:00Z",
+  "verification_status": {
+    "full_ebd_available": false,
+    "verified_source": null,
+    "fallback_source": "vvud/eb-data",
+    "message": "Full EBD (North America 2020-2024) is not available via a verified public programmatic source. Proceeding with verified sample: vvud/eb-data."
+  },
+  "details": {
+    "checked_sources": [
+      "HuggingFace Datasets (full EBD)",
+      "eBird API"
+    ],
+    "verified_sample_exists": true
+  }
+}

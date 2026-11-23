@@ -1,0 +1,44 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Regression Result Schema
+description: Schema for data/results/regression_results.csv containing regression analysis outcomes.
+type: object
+properties:
+  outcome:
+    type: string
+    description: The dependent variable name used in the regression model.
+  predictor:
+    type: string
+    description: The independent variable name (coefficient estimate).
+  coef:
+    type: number
+    description: The estimated regression coefficient.
+  std_err:
+    type: number
+    description: The standard error of the coefficient estimate.
+  t_value:
+    type: number
+    description: The t-statistic for the coefficient.
+  p_value:
+    type: number
+    description: The p-value associated with the t-statistic.
+  trace_id:
+    type: string
+    pattern: '^[a-f0-9]{64}$'
+    description: SHA-256 hash identifying the source code and data version used to generate this result.
+required:
+  - outcome
+  - predictor
+  - coef
+  - std_err
+  - t_value
+  - p_value
+  - trace_id
+additionalProperties: false
+csv_columns:
+  - outcome
+  - predictor
+  - coef
+  - std_err
+  - t_value
+  - p_value
+  - trace_id

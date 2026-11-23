@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Performance Prediction Output Schema"
+description: "Schema for the model predictions and validation metrics (predictions.csv)"
+type: "object"
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the GENEB task"
+  architecture:
+    type: "string"
+    description: "Model architecture (e.g., 'Transformer', 'Mamba')"
+    enum:
+      - "Transformer"
+      - "Mamba"
+      - "CNN"
+      - "Hybrid"
+  predicted_mcc:
+    type: "number"
+    description: "Predicted macro-MCC score"
+    minimum: -1.0
+    maximum: 1.0
+  actual_mcc:
+    type: "number"
+    description: "Ground-truth macro-MCC score"
+    minimum: -1.0
+    maximum: 1.0
+  residual:
+    type: "number"
+    description: "Actual minus predicted MCC"
+    minimum: -2.0
+    maximum: 2.0
+  model_type:
+    type: "string"
+    description: "Type of regression model used"
+    enum:
+      - "Lasso"
+      - "ElasticNet"
+      - "RandomForest"
+  cv_fold:
+    type: "integer"
+    description: "Cross-validation fold number (1-5)"
+    minimum: 1
+    maximum: 5
+required:
+  - task_id
+  - architecture
+  - predicted_mcc
+  - actual_mcc
+  - residual
+  - model_type
+  - cv_fold
+additionalProperties: false

@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Output Metrics Schema"
+description: "Schema for the final CSV output of metrics."
+type: "object"
+properties:
+  function_id:
+    type: "string"
+  loc:
+    type: "integer"
+  nesting_depth:
+    type: "integer"
+  param_count:
+    type: "integer"
+  pep8_score:
+    type: "number"
+  has_docstring:
+    type: "boolean"
+  delta_complexity:
+    type: "number"
+  delta_pylint_score:
+    type: "number"
+  delta_warning_count:
+    type: "number"
+  relative_improvement_complexity:
+    type: "number"
+  relative_improvement_score:
+    type: "number"
+  status:
+    type: "string"
+required:
+  - function_id
+  - loc
+  - nesting_depth
+  - param_count
+  - delta_complexity
+  - delta_pylint_score
+  - delta_warning_count
+  - relative_improvement_complexity
+  - status
+additionalProperties: false

@@ -1,0 +1,5 @@
+{
+  "seed": 42,
+  "timestamp": "2023-10-27T10:00:00+00:00",
+  "description": "Base configuration for random seed management to ensure reproducibility per Principle I"
+}

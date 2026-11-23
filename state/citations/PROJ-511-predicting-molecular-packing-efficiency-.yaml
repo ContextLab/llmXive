@@ -1,15 +1,15 @@
-- artifact_hash: fc2f6ba4c4458b31df3874a661a47f016d17c2ce6e8c4a95601fc46a48101884
+- artifact_hash: 799bbfeef57f11c9d4a37d1e4c345c7f41b6d563e51375a0d6b513509203033f
   artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/spec.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
+  fetched_title: Crystallography Open Database
   kind: url
   value: https://www.crystallography.net/cod/`
-  verification_status: mismatch
-  verified_against_url: https://www.crystallography.net/cod/%60
-  verified_at: '2026-06-29T17:49:05.952944Z'
-- artifact_hash: fc2f6ba4c4458b31df3874a661a47f016d17c2ce6e8c4a95601fc46a48101884
+  verification_status: pending
+  verified_against_url: https://www.crystallography.net/cod/
+  verified_at: '2026-10-11T08:31:25.832003Z'
+- artifact_hash: 799bbfeef57f11c9d4a37d1e4c345c7f41b6d563e51375a0d6b513509203033f
   artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/spec.md
   cite_id: c-002
   cited_authors: []
@@ -17,28 +17,28 @@
   fetched_title: van der Waals Volumes and Radii
   kind: doi
   value: 10.1021/j100785a001
-  verification_status: verified
+  verification_status: pending
   verified_against_url: https://doi.org/10.1021/j100785a001
-  verified_at: '2026-06-29T17:49:05.952944Z'
-- artifact_hash: 8f748e573d214e2b5087ec5dca80af1d37d4bee93378dbb7de5f6d87257395c0
+  verified_at: '2026-10-11T08:31:25.832003Z'
+- artifact_hash: 185bc8ca1b54153d5190a1eb988ae79415c43222721b8a2ddc59d1702a028ce9
+  artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/plan.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: van der Waals Volumes and Radii
+  kind: doi
+  value: 10.1021/j100785a001
+  verification_status: pending
+  verified_against_url: https://doi.org/10.1021/j100785a001
+  verified_at: '2026-10-11T08:53:01.876549Z'
+- artifact_hash: b13e45f110f22e62232d0e984769791ad37ebc1ed2fbe9210186433e0e6c8ef7
   artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://www.crystallography.net/cod/organic/`
-  verification_status: mismatch
-  verified_against_url: https://www.crystallography.net/cod/organic/%60
-  verified_at: '2026-06-30T17:51:15.515166Z'
-- artifact_hash: a8e6b5edfdc8799e05f641c25dac2ecfc38fc53c3d77c17ad7a29f25805879aa
-  artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/quickstart.md
-  cite_id: c-001
-  cited_authors: []
-  cited_title: null
-  fetched_title: null
-  kind: url
-  value: https://download.pytorch.org/whl/cpu`
+  fetched_title: van der Waals Volumes and Radii
+  kind: doi
+  value: 10.1021/j100785a001
   verification_status: pending
-  verified_against_url: https://download.pytorch.org/whl/cpu%60
-  verified_at: '2026-06-30T17:51:42.989507Z'
+  verified_against_url: https://doi.org/10.1021/j100785a001
+  verified_at: '2026-10-11T08:53:17.735910Z'

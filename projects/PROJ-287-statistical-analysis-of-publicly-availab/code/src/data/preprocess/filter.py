@@ -2,139 +2,188 @@ import os
 import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Tuple
-
+import json
 from src.data.preprocess.tokenizer import TokenizationResult, load_preprocessed_data
 from src.utils.logging import get_logger
-from src.utils.config import ensure_directories
 
-# Configure logger for this module
 logger = get_logger(__name__)
 
-
 def filter_by_token_count(
-    tokenized_results: List[TokenizationResult],
+    records: List[Dict[str, Any]],
     min_tokens: int = 20
-) -> Tuple[List[TokenizationResult], int]:
+) -> Tuple[List[Dict[str, Any]], int, int]:
     """
-    Filter a list of tokenized results, excluding records with fewer than min_tokens.
-    
+    Filter records based on minimum token count.
+
     Args:
-        tokenized_results: List of TokenizationResult objects from the tokenizer.
-        min_tokens: Minimum number of tokens required to keep a record (default 20).
-        
+        records: List of tokenized record dictionaries.
+        min_tokens: Minimum number of tokens required to keep a record.
+
     Returns:
-        A tuple containing:
-            - List of TokenizationResult objects that passed the filter.
-            - Count of records excluded due to low token count.
+        Tuple containing:
+            - List of records that meet the token threshold.
+            - Count of excluded records.
+            - Count of processed records.
     """
-    if not tokenized_results:
-        logger.warning("No tokenized results provided for filtering.")
-        return [], 0
-
-    filtered_results = []
+    filtered_records = []
     excluded_count = 0
+    total_count = len(records)
 
-    for result in tokenized_results:
-        token_count = len(result.tokens)
+    for record in records:
+        token_count = len(record.get("tokens", []))
         if token_count >= min_tokens:
-            filtered_results.append(result)
+            filtered_records.append(record)
         else:
             excluded_count += 1
-            logger.debug(
-                f"Excluded record {result.id} (or similar identifier): "
-                f"token count {token_count} < {min_tokens}"
-            )
 
     logger.info(
-        f"Filtering complete: kept {len(filtered_results)} records, "
-        f"excluded {excluded_count} records (< {min_tokens} tokens)."
+        f"Token filtering: {total_count} total records, "
+        f"{len(filtered_records)} kept (>= {min_tokens} tokens), "
+        f"{excluded_count} excluded (< {min_tokens} tokens)."
     )
-    
-    return filtered_results, excluded_count
 
+    return filtered_records, excluded_count, total_count
 
 def process_and_filter(
-    input_path: str,
-    output_path: str,
-    min_tokens: int = 20
+    input_dir: str,
+    output_dir: str,
+    min_tokens: int = 20,
+    window_suffix: Optional[str] = None
 ) -> Dict[str, Any]:
     """
-    Load preprocessed data, filter by token count, and save the results.
-    
-    This function acts as the main entry point for the filtering stage of the pipeline.
-    It ensures the output directory exists, loads data from the specified input path,
-    applies the token count filter, and saves the filtered results to the output path.
-    
+    Load preprocessed data, filter by token count, and save results.
+
     Args:
-        input_path: Path to the input JSONL file containing tokenized results.
-        output_path: Path where the filtered JSONL file will be saved.
-        min_tokens: Minimum token threshold for inclusion (default 20).
-        
+        input_dir: Directory containing preprocessed JSONL files.
+        output_dir: Directory to save filtered CSV/JSONL files.
+        min_tokens: Minimum token threshold.
+        window_suffix: Optional suffix to identify specific window files.
+
     Returns:
-        Dictionary containing processing statistics:
-            - total_input: Number of records in input.
-            - kept: Number of records kept.
-            - excluded: Number of records excluded.
-            - output_path: Path to the saved file.
+        Dictionary with processing statistics.
     """
-    input_file = Path(input_path)
-    output_file = Path(output_path)
+    logger.info(f"Starting filter process for directory: {input_dir}")
     
-    if not input_file.exists():
-        raise FileNotFoundError(f"Input file not found: {input_file}")
+    input_path = Path(input_dir)
+    output_path = Path(output_dir)
+    output_path.mkdir(parents=True, exist_ok=True)
+
+    total_input_records = 0
+    total_output_records = 0
+    total_excluded = 0
+    files_processed = 0
+
+    # Find all JSONL files in input directory
+    jsonl_files = list(input_path.glob("*.jsonl"))
     
-    # Ensure output directory exists
-    ensure_directories([output_file.parent])
-    
-    logger.info(f"Loading tokenized data from {input_file}")
-    tokenized_results = load_preprocessed_data(input_file)
-    
-    logger.info(f"Loaded {len(tokenized_results)} records. Applying token filter (>= {min_tokens})...")
-    filtered_results, excluded_count = filter_by_token_count(tokenized_results, min_tokens)
-    
-    logger.info(f"Saving {len(filtered_results)} filtered records to {output_file}")
-    
-    # Reuse the save function from tokenizer module
-    from src.data.preprocess.tokenizer import save_tokenized_results
-    save_tokenized_results(filtered_results, output_file)
-    
+    if not jsonl_files:
+        logger.warning(f"No JSONL files found in {input_dir}")
+        return {
+            "status": "no_input",
+            "message": "No JSONL files found in input directory"
+        }
+
+    for jsonl_file in jsonl_files:
+        logger.info(f"Processing file: {jsonl_file.name}")
+        
+        # Load data using the tokenizer module's loader
+        records = load_preprocessed_data(str(jsonl_file))
+        
+        if not records:
+            logger.warning(f"No records loaded from {jsonl_file.name}")
+            continue
+
+        # Apply filter
+        filtered_records, excluded, total = filter_by_token_count(records, min_tokens)
+        
+        # Update totals
+        total_input_records += total
+        total_excluded += excluded
+        total_output_records += len(filtered_records)
+        files_processed += 1
+
+        # Determine output filename
+        if window_suffix:
+            output_filename = f"{jsonl_file.stem}_{window_suffix}.jsonl"
+        else:
+            output_filename = f"{jsonl_file.stem}_filtered.jsonl"
+        
+        output_file = output_path / output_filename
+
+        # Save filtered records
+        with open(output_file, "w", encoding="utf-8") as f:
+            for record in filtered_records:
+                f.write(json.dumps(record) + "\n")
+        
+        logger.info(f"Saved {len(filtered_records)} records to {output_file}")
+
     stats = {
-        "total_input": len(tokenized_results),
-        "kept": len(filtered_results),
-        "excluded": excluded_count,
-        "output_path": str(output_file),
-        "min_tokens": min_tokens
+        "status": "success",
+        "files_processed": files_processed,
+        "total_input_records": total_input_records,
+        "total_output_records": total_output_records,
+        "total_excluded": total_excluded,
+        "min_tokens_threshold": min_tokens,
+        "exclusion_rate": (total_excluded / total_input_records) if total_input_records > 0 else 0.0
     }
-    
+
+    logger.info(f"Filtering complete. Exclusion rate: {stats['exclusion_rate']:.2%}")
     return stats
 
-
 def main():
-    """
-    Command-line entry point for the filtering script.
-    
-    Expects environment variables or hardcoded defaults for input/output paths.
-    For this implementation, we assume the pipeline orchestrator sets the paths,
-    but we provide defaults for standalone testing if needed.
-    """
-    # Default paths relative to project root
-    # In a real pipeline, these might be passed via arguments or env vars
-    default_input = "data/raw/tokenized_abstracts.jsonl"
-    default_output = "data/processed/filtered_abstracts.jsonl"
-    
-    # Check if input exists; if not, log a clear error
-    if not os.path.exists(default_input):
-        logger.error(f"Input file {default_input} does not exist. "
-                     "Please ensure the tokenizer stage (T014) has run successfully.")
-        return 1
-    
-    stats = process_and_filter(default_input, default_output)
-    
-    logger.info("Filtering pipeline completed successfully.")
-    logger.info(f"Stats: {stats}")
-    
-    return 0
+    """Main entry point for running the filter module."""
+    import argparse
+    import sys
 
+    parser = argparse.ArgumentParser(description="Filter preprocessed abstracts by token count.")
+    parser.add_argument(
+        "--input-dir",
+        type=str,
+        required=True,
+        help="Directory containing preprocessed JSONL files."
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=str,
+        required=True,
+        help="Directory to save filtered JSONL files."
+    )
+    parser.add_argument(
+        "--min-tokens",
+        type=int,
+        default=20,
+        help="Minimum number of tokens required (default: 20)."
+    )
+    parser.add_argument(
+        "--window",
+        type=str,
+        default=None,
+        help="Optional window identifier for output naming."
+    )
+
+    args = parser.parse_args()
+
+    try:
+        result = process_and_filter(
+            input_dir=args.input_dir,
+            output_dir=args.output_dir,
+            min_tokens=args.min_tokens,
+            window_suffix=args.window
+        )
+        
+        if result["status"] == "success":
+            print(f"Successfully processed {result['files_processed']} files.")
+            print(f"Input records: {result['total_input_records']}")
+            print(f"Output records: {result['total_output_records']}")
+            print(f"Excluded records: {result['total_excluded']}")
+            sys.exit(0)
+        else:
+            print(f"Filtering failed: {result.get('message', 'Unknown error')}")
+            sys.exit(1)
+
+    except Exception as e:
+        logger.error(f"Critical error during filtering: {str(e)}", exc_info=True)
+        sys.exit(1)
 
 if __name__ == "__main__":
-    exit(main())
+    main()

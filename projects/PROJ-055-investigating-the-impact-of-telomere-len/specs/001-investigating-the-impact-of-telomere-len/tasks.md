@@ -1,249 +1,175 @@
-# Tasks: Investigating the Impact of Telomere Length on Lifespan Variation in Wild Bird Populations
-
-**Input**: Design documents from `/specs/001-telomere-lifespan-impact/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001A [P] Create data directory structure: `data/raw`, `data/processed`, `data/phylogeny`, `results`, `logs`, `contracts`, `tests`
-- [ ] T001B [P] Create code directory structure: `code/R`, `code/tests`
-- [X] T003 [P] Initialize a Python project with `requirements.txt` (pandas, requests, numpy, matplotlib, seaborn, rpy2, sha256 utilities) and an R environment with `renv.lock` (installing `rotl`, `lme4`, `phylolm`, `ape`, `caper`, `anage` via R)
-- [X] T004 [P] Configure linting (ruff/black) and formatting tools for both Python and R
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-Examples of foundational tasks (adjust based on your project):
-
-- [X] T005 [P] Implement `utils.py` with `generate_checksum(file_path)` and `update_state_file(hash_map)` functions for SHA256 validation
-- [ ] T005A [P] Initialize `state/projects/PROJ-055-investigating-the-impact-of-telomere-len.yaml` with empty `artifact_hashes` map and initial timestamp (depends on T005 for structure)
-- [X] T006 Create `run_pipeline.sh` orchestration script with input hash verification logic (depends on T005, T005A)
-- [X] T008 [P] Create base schema definitions in `contracts/dataset.schema.yaml` and `contracts/model_output.schema.yaml`
-- [X] T009 [P] Configure logging infrastructure to write to `logs/` and handle memory pressure detection (>6GB)
-- [~] T010 [P] Setup environment configuration management for API keys (Dryad/AnAge) and random seeds
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Data Integration and Cleaning Pipeline (Priority: P1) 🎯 MVP
-
-**Goal**: Automatically download, clean, standardize, and merge telomere and ecological data into a single analysis-ready CSV.
-
-**Independent Test**: Run ingestion script against a known subset; verify output CSV contains >90% of unique species, valid IDs, standardized units (kb), and no duplicates.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [~] T011 [P] [US1] Unit test for Dryad URL parsing and CSV loading in `tests/test_ingest.py`
-- [X] T012 [P] [US1] Unit test for unit conversion logic (qPCR to kb) in `tests/test_clean.py`
-- [X] T013 [P] [US1] Integration test for full merge pipeline with synthetic data in `tests/test_clean.py`
-
-### Implementation for User Story 1
-
-- [X] T014 [US1] Implement `code/01_discover_data.py` to query Dryad API and extract valid dataset IDs; halt if 0 results found.
-- [X] T015 [US1] Implement `code/02_ingest_data.py` to download raw CSVs from Dryad (using `requests`) and AnAge (using direct CSV fetch or `anage` R package via `rpy2`), applying SHA256 checksums. **Do NOT use `rotl` for AnAge data**.
-- [X] T016 [US1] Implement `code/03_clean_merge.py` to filter for wild-caught/early-life individuals, convert all telomere units to kilobases (kb), and log unconvertible records to `logs/unconvertible_units.csv`.
-- [~] T017 [US1] Implement merge logic in `code/03_clean_merge.py` to join telomere data with AnAge ecological data (migration, body mass) on species name; exclude unmatched records and log to `logs/missing_data_log.csv`. Include validation to ensure output `data/processed/merged_data.csv` meets schema requirements (columns: `species`, `telomere_length_kb`, `lifespan`, `migration_status`, `body_mass_g`) AND explicitly verifies the 'wild-caught' filter was applied.
-- [X] T019 [US1] Implement memory pressure check in `code/03_clean_merge.py` to trigger chunked processing or subsampling if RAM > 6GB.
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Statistical Modeling and Association Analysis (Priority: P2)
-
-**Goal**: Fit a PGLS model to quantify the association between telomere length and lifespan, accounting for phylogeny, and perform sensitivity analysis.
-
-**Independent Test**: Run modeling script; verify model converges, outputs fixed effect/p-value, and that p-value matches manual calculation on synthetic data.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T020 [P] [US2] Unit test for phylogenetic tree fetching via `rotl` in `tests/test_model.py`
-- [X] T021 [P] [US2] Unit test for PGLS formula construction and R script invocation in `tests/test_model.py`
-
-### Implementation for User Story 2
-
-- [~] T022 [US2] Implement `code/04_model_pglS.py` to extract unique species from `data/processed/merged_data.csv` and fetch the corresponding phylogenetic tree from `rotl` (Newick format) to `data/phylogeny/`. **Must run before T023/T024**.
-- [X] T023 [US2] Create `code/R/01_fit_pglS.R` to define and fit the PGLS model. Use `phylolm` (selected for iterative lambda estimation capability as per plan.md) to ensure phylogenetic covariance structure is derived from data. The model formula will be implemented as `lifespan ~ telomere_length` with the tree passed as the covariance matrix argument to match the conceptual requirement `lifespan ~ telomere_length + phylogenetic_covariance`.
-- [X] T024 [US2] Implement `code/04_model_pglS.py` to call the R script via `rpy2`, passing the merged data and tree, and capturing the summary statistics (coefficient, SE, p-value, lambda). Implement logic to handle low power cases (<15 species) by logging the exact string "Low Power: Phylogenetic inference unreliable" and skipping the modeling step (do not halt the entire pipeline abruptly) instead of failing or proceeding.
-- [~] T025 [US2] Implement `code/04_model_pglS.py` to save model results to `results/model_summary.csv` and log the phylogenetic signal (lambda).
-- [~] T026 [US2] Create `code/R/02_sensitivity.R` to perform LOOCV (if species count >= 10) or jackknife sensitivity analysis (if species count < 10), outputting `results/sensitivity_log.csv` with columns: `species_id`, `coefficient`, `se`, `p_value`, `method_justification`. **Depends on T025**.
-- [ ] T027A [US2] Implement wrapper in `code/04_model_pglS.py` to call `02_sensitivity.R`, log the justification for the chosen method (LOOCV vs jackknife based on species count), and validate the output schema of `sensitivity_log.csv`.
-- [ ] T027B [US2] Add validation to ensure the PGLS model correctly handles the `SpeciesRecord` entity aggregation: verify that input data is grouped by species and means calculated before modeling.
-- [ ] T030A [US2] Implement `code/05_visualize.py` to generate a forest plot of the fixed effects for the base model with 95% CI, saved as `results/association_forest.png`. **Depends on T025**.
-
-**Checkpoint**: At this point, User Story 2 should be fully functional and testable independently
-
----
-
-## Phase 5: User Story 3 - Ecological Moderator Analysis (Priority: P3)
-
-**Goal**: Test if the telomere-lifespan relationship varies by migratory behavior using an interaction term and generate visualizations.
-
-**Independent Test**: Run extended model; verify output includes interaction coefficient and standard error; verify plots are generated.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [X] T031 [P] [US3] Unit test for interaction term parsing in `tests/test_model.py`
-- [X] T032 [P] [US3] Unit test for plot generation (matplotlib/seaborn) in `tests/test_visualize.py`
-
-### Implementation for User Story 3
-
-- [ ] T033 [US3] Create `code/R/03_fit_moderator.R` to define and fit the extended PGLS model (`lifespan ~ telomere_length * migration_status`) using `phylolm` with interaction term logic, ensuring consistency with the base model engine.
-- [ ] T034 [US3] Update `code/04_model_pglS.py` (or create `code/06_moderator.py`) to call the moderator R script, read `results/model_summary.csv` from US2 to calculate AIC difference vs base model, extract the interaction coefficient and p-value. **Depends on T025**.
-- [ ] T035 [US3] Update `code/05_visualize.py` to generate a grouped scatter plot with separate regression lines for "Migratory" and "Resident" species, saved as `results/moderator_plot.png`. This task fulfills the FR-007 requirement for the moderator scatter plot. **Depends on T034**.
-- [ ] T036 [US3] Add validation to ensure `results/moderator_plot.png` correctly visualizes the interaction effect and species grouping.
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase 6: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T037A [P] Update README with installation steps and pipeline overview
-- [ ] T037B [P] Update quickstart.md with pipeline execution example and expected outputs
-- [ ] T038 Code cleanup and refactoring of `utils.py` and `run_pipeline.sh`
-- [ ] T041 Performance optimization for data loading (chunking) if RAM usage approaches limits
-- [ ] T042 [P] Additional unit tests for edge cases (missing data, unit conversion failures) in `tests/`
-- [ ] T043 Security hardening: Ensure no API keys are hardcoded in `code/`
-- [ ] T044 Run `quickstart.md` validation to ensure end-to-end reproducibility
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Depends on US1 completion (needs `data/processed/merged_data.csv`)
-- **User Story 3 (P3)**: Depends on US2 completion (needs base model results and data)
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2, except T006 which depends on T005/T005A)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Unit test for Dryad URL parsing in tests/test_ingest.py"
-Task: "Unit test for unit conversion logic in tests/test_clean.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement 02_ingest_data.py"
-Task: "Implement 03_clean_merge.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+# Tasks: Investigating the Impact of Telomere Length on Lifespan Variation in Wild Bird Populations  
+
+**Inputs**: `specs/001-telomere-lifespan-impact/spec.md`, `plan.md`, `data-model.md`, `contracts/`, prior task list and verifier feedback.
+
+## Phase 0 – Dependency Specification  
+
+- [ ] T001 [P] Create reproducible dependency manifests and verification script  
+  - **Description**: Add a Python `code/requirements.txt` listing exact versions of `pandas`, `numpy`, `requests`, `rpy2`, `matplotlib`, `seaborn`, `pytest`, `pyyaml`, `tqdm`. Add an R `code/R/requirements_R.txt` listing `lme4`, `lmerTest`, `metafor`, `ggplot2`, `patchwork`, `performance`.  
+  - **Verification**:  
+    - Files exist, are non‑empty, and contain version‑pinned entries.  
+    - Running `pip install -r code/requirements.txt` in a fresh venv succeeds (exit 0).  
+    - Running `Rscript code/R/verify_requirements.R` succeeds (exit 0) confirming all R packages are installed.  
+
+## Phase 1 – Configuration & Data Discovery  
+
+- [ ] T002 [US‑1] Populate `code/config.yaml` with verified Dryad DOIs and other URLs, and implement `code/01_discover_data.py`  
+  - **Description**: `code/01_discover_data.py` queries the Dryad API for datasets containing the keyword “telomere” and species‑level avian data, validates that each DOI returns HTTP 200, and writes a list of at least one real DOI to `config.yaml` under `dataset_ids`. Also records static URLs for the verified bird‑lifespan CSV and the AnAge/BirdLife ecological CSVs.  
+  - **Verification**:  
+    - After execution, `code/config.yaml` parses without error and contains a non‑empty `dataset_ids` list of real DOIs (e.g., `10.5061/dryad.abc123`).  
+    - `grep -R "http"` in the ingestion and cleaning scripts shows no hard‑coded URLs; all URLs are read from `config.yaml`.  
+
+- [ ] T003 [US‑1] Implement robust data‑ingestion pipeline (`code/02_ingest_data.py`)  
+  - **Description**: Reads `config.yaml`, streams each DOI listed in `dataset_ids` using `requests`, writes raw CSVs to `data/raw/` preserving original filenames, creates a SHA‑256 checksum file `data/raw/<filename>.sha256` for each download, and also downloads the verified lifespan and ecological CSVs to `data/raw/`. Any HTTP error raises an exception (no synthetic fallback).  
+  - **Verification**:  
+    - After run, every expected raw file exists and its corresponding `.sha256` file is non‑empty.  
+    - `sha256sum -c data/raw/*.sha256` returns all “OK”.  
+    - Unit tests `tests/test_ingest.py` assert `len(downloaded_files) == len(config["dataset_ids"]) + 2`.  
+
+## Phase 2 – Cleaning, Standardisation & Merging  
+
+- [ ] T004 [US‑1] Build full cleaning & merge workflow (`code/03_clean_merge.py`)  
+  - **Description**:  
+    - Loads all raw CSVs, validates species names via the OpenTree API.  
+    - Converts telomere measurements to kilobases (handles qPCR Ct → kb using documented conversion factors).  
+    - Filters to wild‑caught individuals only.  
+    - Merges telomere, lifespan, and ecological covariates on `species_id`.  
+    - Writes `data/processed/analysis_ready.csv` conforming to `contracts/dataset.schema.yaml`.  
+    - Generates logs: `logs/unit_conversion_log.csv`, `logs/merge_stats.csv`, `logs/missing_data_log.csv`, `logs/unconvertible_units.csv`.  
+  - **Verification**:  
+    - `data/processed/analysis_ready.csv` validates against the dataset schema (`jsonschema` validation script).  
+    - `logs/merge_stats.csv` reports a merge proportion ≥ 0.90 (fulfills SC‑001).  
+    - Unit tests `tests/test_clean_merge.py` check unit conversion correctness and that no hard‑coded file paths remain.  
+
+- [ ] T005 [US‑1] Verify dataset size (`code/04_verify_dataset_size.py`)  
+  - **Description**: Checks that `analysis_ready.csv` contains ≥ 500 rows and ≥ 10 distinct `species_id`s. If either condition fails, the script aborts with a clear error message.  
+  - **Verification**:  
+    - Script exits with status 0 only when both thresholds are met.  
+    - Error message includes the actual row and species counts for traceability.  
+
+## Phase 3 – Base Linear Mixed‑Effects Model (LMM)  
+
+- [ ] T006 [US‑2] Fit the base LMM (`code/05_fit_lmm_base.py`)  
+  - **Description**: Python driver uses `rpy2` to call `code/R/fit_base_lmm.R`, fitting  
+    `lifespan_days ~ telomere_length_kb + sex + age_at_measurement_days + body_mass_g + breeding_latitude + (1|species_id) + (1|batch_id)`.  
+    - Writes `results/model_base.csv` adhering to `contracts/model_output.schema.yaml`.  
+    - If `n_species < 15`, sets `low_power_flag: true`, adds `low_power_message: "Low Power: species‑level inference unreliable"` and logs the warning to `logs/low_power_base.txt`.  
+  - **Verification**:  
+    - `results/model_base.csv` passes schema validation.  
+    - `logs/base_model_fit.log` contains the model summary, AIC, and convergence status.  
+
+## Phase 4 – Interaction Model (Ecological Moderators)  
+
+- [ ] T007 [US‑3] Fit the interaction LMM (`code/06_fit_lmm_interaction.py`)  
+  - **Description**: Calls `code/R/fit_interaction_lmm.R` to fit  
+    `lifespan_days ~ telomere_length_kb * migration_status + telomere_length_kb * breeding_latitude + sex + age_at_measurement_days + body_mass_g + (1|species_id) + (1|batch_id)`.  
+    - Rows with `migration_status == "Unknown"` are retained as a distinct category.  
+    - Writes `results/model_interaction.csv` (same schema).  
+    - Computes ΔAIC versus the base model and records it in `delta_aic` field; also writes `logs/aic_comparison.txt`.  
+  - **Verification**:  
+    - `results/model_interaction.csv` validates against the schema.  
+    - `logs/interaction_exclusion_log.csv` reports the count of “Unknown” rows excluded from interaction coefficient estimation (should be zero because they are kept as a category).  
+
+## Phase 5 – Sensitivity & Power Analysis  
+
+- [ ] T008 [US‑2] Perform sensitivity checks and power simulation (`code/07_sensitivity_power.py`)  
+  - **Description**:  
+    - Reads `results/model_base.csv` for `n_species`.  
+    - If `n_species ≥ 10`, runs leave‑one‑out cross‑validation by species; otherwise performs jackknife by data source. Each iteration refits the base LMM and records `iteration_id`, `excluded_species` (or `excluded_source`), `coef_telomere`, `p_value_telomere` to `results/sensitivity_log.csv`.  
+    - If `n_species ≥ 15`, runs 1 000 simulation datasets mirroring observed variance components and effect sizes {0.05,0.10,0.15,0.20,0.25,0.30}; computes power to detect a standardized slope of 0.2 at α = 0.05 and writes `results/power_report.yaml`.  
+    - Writes method justification to `logs/sensitivity_method.txt`.  
+  - **Verification**:  
+    - `results/sensitivity_log.csv` exists, has one row per iteration, and the full‑sample coefficient lies within the recorded range.  
+    - When performed, `results/power_report.yaml` contains a numeric `power_estimate` between 0 and 1.  
+
+## Phase 6 – Random‑Effects Meta‑Analysis  
+
+- [ ] T009 [US‑2] Conduct species‑level meta‑analysis (`code/08_meta_analysis.py`)  
+  - **Description**:  
+    - For each species, fits an LMM (same covariates as the base model) to obtain a species‑specific telomere‑lifespan slope and its standard error.  
+    - Aggregates these slopes with `metafor::rma` (random‑effects).  
+    - Writes `results/meta_analysis.yaml` (conforms to `contracts/meta_analysis.schema.yaml`) containing per‑species rows plus a repeated `i2` field for the overall heterogeneity statistic.  
+    - Saves forest plot `results/meta_forest.png`.  
+  - **Verification**:  
+    - `results/meta_analysis.yaml` validates against the meta‑analysis schema.  
+    - `results/meta_forest.png` opens without error and its SHA‑256 checksum is recorded in `logs/meta_forest_checksum.txt`.  
+
+## Phase 7 – External Significance Validation (Permutation Test)  
+
+- [ ] T010 [US‑2] Run permutation test (`code/09_permutation_test.py`)  
+  - **Description**: Generates 10 000 permutations of `lifespan_days` (keeping covariates fixed), refits the base LMM for each permutation via `rpy2`, extracts the telomere coefficient, and computes the empirical p‑value as the proportion of permuted absolute coefficients ≥ the observed absolute coefficient.  
+    - Writes `results/permutation_pvalue.yaml` containing the empirical p‑value.  
+    - Updates `results/model_base.csv` and `results/model_interaction.csv` fields `permutation_pvalue` and `significance_flag` (true only if both model‑based p‑value and permutation p‑value < 0.05).  
+  - **Verification**:  
+    - `results/permutation_pvalue.yaml` contains a numeric value in [0,1].  
+    - The updated model CSVs still pass schema validation after the new fields are added.  
+
+## Phase 8 – Visualization  
+
+- [ ] T011 [US‑2] Produce deterministic visual summaries (`code/10_visualize.py`)  
+  - **Description**:  
+    - Reads the finalized model CSVs and meta‑analysis output.  
+    - Generates:  
+      1. Fixed‑effect forest plot → `results/association_forest.png`.  
+      2. Moderator plot (grouped scatter by `migration_status` and latitude gradient) → `results/moderator_plot.png`.  
+      3. Species‑level meta‑analysis forest plot (already produced in T009).  
+    - Computes SHA‑256 checksums for each PNG and records them in `logs/visualization_checksums.csv`.  
+  - **Verification**:  
+    - All PNGs exist, are ≥ 10 KB, and re‑running the script yields identical checksums (asserted in `tests/test_visualization.py`).  
+
+## Phase 9 – Validation & Reporting  
+
+- [ ] T012 Validate all artifacts and assemble report (`code/11_validate_report.py`)  
+  - **Description**:  
+    - Runs JSON‑Schema validation on `data/processed/analysis_ready.csv`, both model CSVs, and `results/meta_analysis.yaml`.  
+    - Checks that all checksum logs match the current file hashes.  
+    - Compiles `results/report.yaml` summarising every SC (SC‑001 … SC‑007), including dataset size, permutation p‑value, I², ΔAIC, power estimate, and the final `significance_flag`.  
+  - **Verification**:  
+    - The script exits with status 0 only when all validations succeed.  
+    - `results/report.yaml` contains entries for each measurable outcome defined in the specification.  
+
+## Phase 10 – Documentation & Paper‑Stage Hand‑off  
+
+- [ ] T013 Write a reproducible quick‑start guide and hand‑off section (`quickstart.md`)  
+  - **Description**:  
+    - Provides the exact command sequence to run the full pipeline from a fresh clone (e.g., `make all` or a series of `python` commands).  
+    - Lists expected artifact paths with their SHA‑256 checksums (generated by the pipeline).  
+    - Includes a “Paper‑Stage Hand‑off” subsection enumerating figures (`association_forest.png`, `moderator_plot.png`, `meta_forest.png`), tables (`model_base.csv`, `model_interaction.csv`, `meta_analysis.yaml`), limitations, and suggested figure/table captions.  
+  - **Verification**:  
+    - A fresh environment can follow the guide verbatim and reproduce identical checksums for all result files (validated by `tests/test_quickstart_repro.py`).  
+
+## Phase 11 – State‑Hash Management (optional but recommended)  
+
+- [ ] T014 Implement deterministic state‑hash updates (`code/utils.py` → `update_state_hashes`) and verify (`code/R/verify_state_hashes.R`)  
+  - **Description**:  
+    - `utils.update_state_hashes(root_paths)` walks `data/`, `results/`, and `logs/`, computes SHA‑256 for every file, and writes a mapping `relative_path: hash` to `state/projects/PROJ-055-investigating-the-impact-of-telomere-len.yaml`.  
+    - All pipeline scripts invoke this function as their final step.  
+    - `code/R/verify_state_hashes.R` reads the YAML and confirms each recorded hash matches the on‑disk file (exits 0 on success).  
+  - **Verification**:  
+    - After any pipeline stage, the state YAML exists and all hashes are correct.  
+    - Running the R verification script returns exit 0.  
+
+---  
+
+### Dependency Mapping (summary)
+
+| Specification Requirement | Satisfying Task(s) |
+|---------------------------|--------------------|
+| FR‑001, FR‑002, FR‑003    | T002, T003, T004   |
+| FR‑004                    | T006               |
+| FR‑005, FR‑008            | T007               |
+| FR‑006                    | T008               |
+| FR‑007                    | T011               |
+| FR‑009                    | T009               |
+| FR‑010                    | T010               |
+| FR‑011                    | T005               |
+| SC‑001                    | T004 (merge proportion) |
+| SC‑002                    | T006 (model p‑value) & T010 (empirical p‑value) |
+| SC‑003                    | T007 (ΔAIC) |
+| SC‑004                    | T008 (coefficient stability) |
+| SC‑005                    | T008 (power simulation) |
+| SC‑006                    | T009 (I²) |
+| SC‑007                    | T010 (dual‑p‑value flag) |
+| US‑1, US‑2, US‑3          | T003‑T011          |
+
+All tasks respect data flow, write only to project‑owned directories, avoid synthetic data, and are fully deterministic and reproducible, satisfying every functional and success‑criteria requirement from the specification.

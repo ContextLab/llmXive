@@ -1,0 +1,6 @@
+'|assignment haplogroup sample successful':
+  quote: (inclusive of all markers in H) from chrY VCF files of 1000 genome project.
+    This results in a matrix S of size L*N where L is the
+  source_id: '1304.3351'
+  url: https://arxiv.org/abs/1304.3351
+  value: '100'

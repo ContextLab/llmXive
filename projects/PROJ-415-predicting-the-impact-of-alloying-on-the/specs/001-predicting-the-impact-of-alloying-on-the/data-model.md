@@ -3,45 +3,87 @@
 ## Entity Definitions
 
 ### DiffusionRecord
-Represents a single experimental or simulation data point for diffusion in an alloy.
-- `id`: Unique identifier (UUID or row index).
-- `host_element`: String (e.g., "Ni", "Cu").
-- `solute_element`: String (e.g., "Cr", "Mn").
-- `crystal_structure`: String (Enum: "FCC", "BCC", "HCP").
-- `diffusion_mode`: String (Enum: "self", "solute", "impurity").
-- `activation_energy_eV`: Float (Target variable).
-- `solute_concentration_at_pct`: Float.
-- `solute_radius_pm`: Float (Source: Metallic Radii, Pauling/Wiberg).
-- `host_radius_pm`: Float (Source: Metallic Radii, Pauling/Wiberg).
-- `source_url`: String (Original dataset reference).
+| Field | Type | Description |
+|-------|------|-------------|
+| `host_element` | string | Chemical symbol of the host metal (e.g., "Ni"). |
+| `solute_element` | string | Chemical symbol of the solute element (e.g., "Cu"). |
+| `crystal_structure` | string (enum) | Must be `"FCC"`. |
+| `diffusion_mode` | string (enum) | `"self"` for baseline, `"solute"` or `"impurity"` for training. |
+| `concentration_at_percent` | number | Solute concentration in atomic %. Retained as a covariate in the inferential model. |
+| `activation_energy_eV` | number | Measured activation energy in eV. |
+| `source_id` | string | Identifier of the original NIST SRD 150 entry. |
 
 ### AtomicDescriptor
-Computed features derived from `DiffusionRecord`.
-- `size_mismatch`: Float = `(solute_radius - host_radius) / host_radius`.
-- `electronegativity_diff`: Float (Pauling scale).
-- `valence_electron_diff`: Integer.
-- `host_element_one_hot`: List of booleans (One-hot encoding for Host Metal fixed effects).
+| Field | Type | Description |
+|-------|------|-------------|
+| `host_radius` | number | Atomic radius of host (pm). |
+| `solute_radius` | number | Atomic radius of solute (pm). |
+| `size_mismatch` | number | `(solute_radius - host_radius) / host_radius`. |
+| `electronegativity_diff` | number | `|χ_solute - χ_host|` (Pauling scale). |
+| `valence_electron_diff` | integer | Difference in valence electron count. |
 
 ### ModelArtifact
-Output of the training process.
-- `model_type`: String ("RandomForest", "GradientBoosting", "LinearRegression").
-- `hyperparameters`: Dict (e.g., `{"max_depth": 5, "n_estimators": 100}`).
-- `performance_metrics`: Dict (e.g., `{"R2": 0.85, "RMSE": 0.12}`).
-- `coefficients`: Dict (Only for Linear Regression, e.g., `{"size_mismatch": 0.45}`).
-- `p_values`: Dict (Only for Linear Regression).
-- `bootstrap_ci`: Dict (95% CI for coefficients).
-- `power_analysis`: Dict (Minimum Detectable Effect, achieved power).
-- `sensitivity_analysis`: Dict (Threshold sweep results).
+| Field | Type | Description |
+|-------|------|-------------|
+| `model_type` | string (enum) | `"RandomForest"`, `"GradientBoosting"` or `"LinearRegression"`. |
+| `hyperparameters` | object | Tuned hyper-parameters (e.g., `max_depth`, `n_estimators`). |
+| `metrics` | object | `r_squared`, `rmse`, `mae`. |
+| `coefficients` | object | Present only for Linear Regression (size mismatch coefficient, intercept, etc.). |
+| `timestamp` | string (ISO 8601) | Creation time. |
+| `seed` | integer | Random seed used for training. |
 
-## Data Flow
-1.  **Raw Input** (`data/raw/*.csv` or API) -> **Acquisition** (`data/acquisition.py`) -> **Curated** (`data/curated/fcc_self_diffusion.csv`).
-2.  **Curated** + **Constants** -> **Features** (`data/curated/features.csv`).
-3.  **Features** -> **Model Training** -> **Artifacts** (`models/*.pkl`, `models/*.json`).
-4.  **Artifacts** + **Test Set** -> **Validation** -> **Reports** (`reports/validation_report.json`).
+## File Schemas
 
-## Constraints & Rules
-- **No Missing Values**: `solute_concentration` and radii must be present. Rows with missing values are excluded and logged.
-- **Unit Consistency**: All energies in eV; all radii in pm (Metallic).
-- **FCC Only**: Only records with `crystal_structure == "FCC"` and `diffusion_mode == "self"` are retained for the primary model.
-- **Ground Truth**: Target variable $\Delta E_a$ is calculated as $E_{alloy\_measured} - E_{pure\_host\_measured}$, using **experimentally measured** values from the dataset.
-- **Descriptor Consistency**: All descriptors must use **Metallic Radii** (Pauling/Wiberg) for FCC coordination.
+### Input: `data/raw/nist_diffusion_raw.csv`
+*Source*: NIST SRD 150 (or a verified mirror).  
+*Format*: CSV with columns matching **DiffusionRecord** plus any additional raw fields.
+
+### Output: `data/curated/baselines.csv`
+*Filter*: `crystal_structure == "FCC"` **and** `diffusion_mode == "self"` (per current FR-001).  
+*Columns*: `host_element`, `activation_energy_eV` (pure-host baseline \(Q_{\text{host}}\)).
+
+### Output: `data/curated/filtered.csv` (Single Source of Truth)
+*Conformance*: This file MUST validate against `contracts/dataset.schema.yaml`.  
+*Filter*: `crystal_structure == "FCC"`; `diffusion_mode` per FR-001 (self-only under the current spec; solute/impurity rows pending the flagged FR-001 spec amendment).  
+*Columns*:
+- `host_element`
+- `solute_element`
+- `concentration_at_percent` (covariate in the inferential model)
+- `activation_energy_eV`
+- `size_mismatch`
+- `electronegativity_diff`
+- `valence_electron_diff`
+- `baseline_shift_eV` (`activation_energy_eV - Q_host`)
+
+### Output: `models/final_rf.pkl`, `models/final_gb.pkl`
+*Format*: Pickle containing the trained scikit-learn model.
+
+### Output: `models/linear_coef.json`
+*Conformance*: This file MUST validate against `contracts/model_output.schema.yaml` (fields: `model_type`, `coefficients`, `statistics`, `metrics`).  
+*Format*: JSON with the multivariate linear model's coefficients (including `size_mismatch` and intercept), standard error, bootstrap p-value (percentile-inversion procedure, 10,000 resamples), and 95 % bootstrap CI.
+
+### Output: `validation/stability_index_report.json`
+*Format*: JSON adhering to `validation_report.schema.yaml` (threshold sweep data + stability index).
+
+## Data Flow Diagram
+```mermaid
+graph TD
+    A[NIST Raw Data] -->|streaming_loader| B{Data Availability Check}
+    B -- Fail --> C[HALT: No Data]
+    B -- Pass --> D[Filter: FCC self-diffusion per FR-001]
+    D --> E[Baseline Set (self)]
+    E --> F[Extract Q_host per host]
+    F --> G[Feature Engineering (size mismatch, etc.)]
+    G --> H[Merge baseline_shift]
+    H --> I[Train RF & GB]
+    H --> J[Train Linear Regression]
+    I --> K[Performance Metrics]
+    J --> L[Bootstrap Significance]
+    L --> M[Sensitivity Analysis]
+    M --> N[Stability Index Report]
+```
+
+## Assumptions & Constraints
+- Atomic radii and electronegativities are taken from the **pinned** `periodictable==0.20.1` library (Principle VII).  
+- All activation energies are in **eV**; concentrations are in **at %**.  
+- No personally identifying information is present in the diffusion dataset (Principle III).  

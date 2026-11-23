@@ -1,0 +1,12 @@
+status: none
+intent: PROSPERO social status risk taking meta analysis effect sizes download python
+  package dataset
+required_fields:
+- participant_id
+- status_condition
+- risk_behavior_score
+- outcome_measure
+- within_subject_flag
+cache_key: 27b1cd0d312e055ec12322feab65288a18ebe28c21b85b183bc970e181a7231a
+searched_at: '2026-08-24T09:38:11.475293+00:00'
+retry_count: 1

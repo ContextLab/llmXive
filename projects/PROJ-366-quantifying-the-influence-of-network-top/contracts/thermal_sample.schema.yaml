@@ -1,69 +1,59 @@
 $schema: http://json-schema.org/draft-07/schema#
 title: ThermalSample
-description: Schema for a thermal sample containing graph, conductivity, and metadata.
+description: >-
+  Schema for a thermal conductivity sample resulting from Green-Kubo simulation.
+  Corresponds to FR-002 and SC-003 requirements.
 type: object
-required:
-  - sample_id
-  - atomic_graph
-  - conductivity
-  - metadata
 properties:
-  sample_id:
+  graph_id:
     type: string
-    description: Unique identifier for the sample.
-  atomic_graph:
-    type: object
-    description: Embedded AtomicGraph structure.
-    properties:
-      sample_id:
-        type: string
-      node_count:
-        type: integer
-      edge_count:
-        type: integer
-      cutoff_distance:
-        type: number
-      nodes:
-        type: array
-      edges:
-        type: array
-      metadata:
-        type: object
+    description: Unique identifier linking to the atomic graph used for this sample.
   conductivity:
-    type: object
-    required:
-      - value
-      - unit
-      - converged
-    properties:
-      value:
-        type: number
-        description: Thermal conductivity value.
-      unit:
-        type: string
-        description: Unit of measurement (e.g., "W/mK").
-      converged:
-        type: boolean
-        description: Whether the simulation converged.
-      error_estimate:
-        type: number
-        description: Optional error estimate.
+    type: number
+    format: float
+    description: Computed thermal conductivity in W/(m·K).
+  converged:
+    type: boolean
+    description: Whether the Green-Kubo simulation has converged (relative change < 1%).
   metadata:
     type: object
-    required:
-      - simulation_time_ps
-      - checksum
+    description: Additional simulation metadata.
     properties:
       simulation_time_ps:
         type: number
-        description: Simulation duration in picoseconds.
-      checksum:
+        description: Total simulation time in picoseconds.
+      temperature_K:
+        type: number
+        description: Simulation temperature in Kelvin.
+      potential:
         type: string
-        description: SHA256 checksum of the underlying graph data.
-      lmm_version:
-        type: string
-      excluded:
-        type: boolean
-        description: Whether this sample was excluded due to outliers.
-      exclusion_reason:
-        type: string
+        description: Interatomic potential used (e.g., "Stillinger-Weber").
+      cores:
+        type: integer
+        description: Number of CPU cores used for simulation.
+      hcacf_relative_change:
+        type: number
+        description: Relative change in heat current autocorrelation in the final segment.
+      voronoi_volume_mean:
+        type: number
+        format: float
+        description: Mean Voronoi volume per atom (optional, from T027).
+        nullable: true
+      impurity_fraction:
+        type: number
+        format: float
+        description: Fraction of impurity atoms (optional, from T027).
+        nullable: true
+    required:
+      - simulation_time_ps
+      - temperature_K
+      - potential
+      - cores
+      - hcacf_relative_change
+    additionalProperties: true
+required:
+  - graph_id
+  - conductivity
+  - converged
+  - metadata
+additionalProperties: false

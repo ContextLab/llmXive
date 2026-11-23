@@ -1,8 +1,6 @@
 """
-schema.py
-
-Provides schema validation utilities for data integrity checks.
-Aligns with contracts/dataset.schema.yaml.
+Schema validation utilities for OULAD dataset processing.
+Implements validation functions aligned with contracts/dataset.schema.yaml
 """
 import os
 import yaml
@@ -10,285 +8,298 @@ import pandas as pd
 import numpy as np
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple, Any
-from logging_config import get_logger, info, error, warning
 
-logger = get_logger(__name__)
 
-def load_schema_from_file(schema_path: str) -> Dict:
+def load_schema_from_file(schema_path: str) -> Dict[str, Any]:
     """
-    Loads a schema definition from a YAML file.
+    Load schema definition from a YAML file.
     
     Args:
-        schema_path: Path to the YAML schema file.
+        schema_path: Path to the schema YAML file
         
     Returns:
-        Dictionary containing the schema definition.
+        Dictionary containing the schema definition
         
     Raises:
-        FileNotFoundError: If the schema file does not exist.
-        yaml.YAMLError: If the file is not valid YAML.
+        FileNotFoundError: If schema file doesn't exist
+        yaml.YAMLError: If YAML parsing fails
     """
     path = Path(schema_path)
     if not path.exists():
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
-    with open(path, 'r', encoding='utf-8') as f:
-        schema = yaml.safe_load(f)
-        
-    if not isinstance(schema, dict):
-        raise ValueError(f"Schema file {schema_path} must contain a top-level dictionary")
-        
-    return schema
+    with open(path, 'r') as f:
+        return yaml.safe_load(f)
 
-def validate_column_presence(df: pd.DataFrame, required_columns: List[str]) -> Tuple[bool, List[str]]:
+
+def get_schema_definition(schema: Dict[str, Any], artifact_type: str, 
+                          artifact_name: str) -> Dict[str, Any]:
     """
-    Checks if all required columns are present in the DataFrame.
+    Extract the specific schema definition for an artifact type and name.
     
     Args:
-        df: DataFrame to validate.
-        required_columns: List of column names that must exist.
+        schema: Full schema dictionary
+        artifact_type: 'input' or 'output'
+        artifact_name: Name of the artifact (e.g., 'students', 'learners_raw')
         
     Returns:
-        Tuple of (is_valid, list_of_missing_columns)
-    """
-    missing = [col for col in required_columns if col not in df.columns]
-    return len(missing) == 0, missing
-
-def validate_column_types(df: pd.DataFrame, schema: Dict) -> Tuple[bool, List[str]]:
-    """
-    Validates column types against the schema.
-    Schema format: {'column_name': {'type': 'object'|'number'|'boolean'|'datetime'}}
-    
-    Args:
-        df: DataFrame to validate.
-        schema: Schema dictionary defining column types.
-        
-    Returns:
-        Tuple of (is_valid, list_of_type_errors)
-    """
-    errors = []
-    for col, spec in schema.items():
-        if col not in df.columns:
-            continue  # Handled by validate_column_presence
-        
-        expected_type = spec.get('type')
-        if expected_type is None:
-            continue
-            
-        if expected_type == 'object':
-            # Pandas object is default for strings, or we can check for non-numeric
-            # Strictly, we ensure it's not numeric if the schema says 'object'
-            if pd.api.types.is_numeric_dtype(df[col]):
-                # Allow mixed types or strings in object columns
-                pass 
-        elif expected_type == 'number':
-            if not pd.api.types.is_numeric_dtype(df[col]):
-                errors.append(f"Column '{col}' is not numeric (expected 'number')")
-        elif expected_type == 'boolean':
-            if not pd.api.types.is_bool_dtype(df[col]):
-                errors.append(f"Column '{col}' is not boolean (expected 'boolean')")
-        elif expected_type == 'datetime':
-            if not pd.api.types.is_datetime64_any_dtype(df[col]):
-                errors.append(f"Column '{col}' is not datetime (expected 'datetime')")
-        elif expected_type == 'category':
-            # Check if it's categorical or string
-            if not (pd.api.types.is_categorical_dtype(df[col]) or pd.api.types.is_string_dtype(df[col])):
-                errors.append(f"Column '{col}' is not categorical (expected 'category')")
-    
-    return len(errors) == 0, errors
-
-def validate_null_values(df: pd.DataFrame, schema: Dict) -> Tuple[bool, List[str]]:
-    """
-    Validates that columns marked as 'nullable: false' do not have nulls.
-    
-    Args:
-        df: DataFrame to validate.
-        schema: Schema dictionary with 'nullable' constraints.
-        
-    Returns:
-        Tuple of (is_valid, list_of_null_errors)
-    """
-    errors = []
-    for col, spec in schema.items():
-        if col not in df.columns:
-            continue
-        
-        # Default to nullable=True if not specified
-        is_nullable = spec.get('nullable', True)
-        if not is_nullable:
-            null_count = df[col].isna().sum()
-            if null_count > 0:
-                errors.append(f"Column '{col}' has {null_count} null values but is marked non-nullable")
-    return len(errors) == 0, errors
-
-def validate_value_ranges(df: pd.DataFrame, schema: Dict) -> Tuple[bool, List[str]]:
-    """
-    Validates numeric ranges or categorical values.
-    
-    Args:
-        df: DataFrame to validate.
-        schema: Schema dictionary with 'min', 'max', or 'allowed_values'.
-        
-    Returns:
-        Tuple of (is_valid, list_of_range_errors)
-    """
-    errors = []
-    for col, spec in schema.items():
-        if col not in df.columns:
-            continue
-        
-        # Check min
-        if 'min' in spec:
-            if pd.api.types.is_numeric_dtype(df[col]):
-                min_val = df[col].min()
-                if pd.notna(min_val) and min_val < spec['min']:
-                    errors.append(f"Column '{col}' has values below {spec['min']} (min: {min_val})")
-            else:
-                errors.append(f"Column '{col}' has 'min' constraint but is not numeric")
-        
-        # Check max
-        if 'max' in spec:
-            if pd.api.types.is_numeric_dtype(df[col]):
-                max_val = df[col].max()
-                if pd.notna(max_val) and max_val > spec['max']:
-                    errors.append(f"Column '{col}' has values above {spec['max']} (max: {max_val})")
-            else:
-                errors.append(f"Column '{col}' has 'max' constraint but is not numeric")
-        
-        # Check allowed_values (categorical)
-        if 'allowed_values' in spec:
-            allowed = set(spec['allowed_values'])
-            # Filter out NaNs for the check
-            valid_mask = df[col].notna()
-            if valid_mask.any():
-                unique_vals = set(df.loc[valid_mask, col].unique())
-                invalid_vals = unique_vals - allowed
-                if invalid_vals:
-                    errors.append(f"Column '{col}' has values not in allowed list: {sorted(invalid_vals)}")
-    
-    return len(errors) == 0, errors
-
-def validate_categorical_values(df: pd.DataFrame, schema: Dict) -> Tuple[bool, List[str]]:
-    """
-    Validates categorical columns against allowed values.
-    Delegates to validate_value_ranges for 'allowed_values' checks.
-    
-    Args:
-        df: DataFrame to validate.
-        schema: Schema dictionary with 'allowed_values'.
-        
-    Returns:
-        Tuple of (is_valid, list_of_errors)
-    """
-    return validate_value_ranges(df, schema)
-
-def validate_schema(df: pd.DataFrame, schema: Dict) -> Tuple[bool, List[str]]:
-    """
-    Runs all validation checks defined in the schema.
-    
-    Args:
-        df: DataFrame to validate.
-        schema: Complete schema dictionary.
-        
-    Returns:
-        Tuple of (is_valid, list_of_all_errors)
-    """
-    errors = []
-    
-    # 1. Presence: Check all keys in schema are columns
-    required_columns = list(schema.keys())
-    ok, missing = validate_column_presence(df, required_columns)
-    if not ok:
-        errors.extend([f"Missing column: {m}" for m in missing])
-    
-    # 2. Types
-    ok, type_errors = validate_column_types(df, schema)
-    if not ok:
-        errors.extend(type_errors)
-    
-    # 3. Nulls
-    ok, null_errors = validate_null_values(df, schema)
-    if not ok:
-        errors.extend(null_errors)
-    
-    # 4. Ranges/Categories
-    ok, range_errors = validate_value_ranges(df, schema)
-    if not ok:
-        errors.extend(range_errors)
-    
-    return len(errors) == 0, errors
-
-def assert_valid_schema(df: pd.DataFrame, schema: Dict) -> bool:
-    """
-    Raises an error if schema validation fails.
-    
-    Args:
-        df: DataFrame to validate.
-        schema: Schema dictionary.
-        
-    Returns:
-        True if valid.
+        Schema definition for the specific artifact
         
     Raises:
-        ValueError: If validation fails.
+        KeyError: If artifact type or name not found in schema
     """
-    ok, errors = validate_schema(df, schema)
-    if not ok:
-        raise ValueError(f"Schema validation failed: {errors}")
-    logger.info("Schema validation passed")
-    return True
+    if artifact_type not in schema:
+        raise KeyError(f"Artifact type '{artifact_type}' not found in schema")
+    
+    if artifact_name not in schema[artifact_type]:
+        raise KeyError(f"Artifact '{artifact_name}' not found in {artifact_type}")
+    
+    return schema[artifact_type][artifact_name]
 
-def filter_valid_records(df: pd.DataFrame, schema: Dict) -> pd.DataFrame:
+
+def validate_column_presence(df: pd.DataFrame, required_columns: List[str]) -> bool:
     """
-    Returns a dataframe with only records that pass all schema validations.
-    Specifically handles non-nullable columns and allowed values.
+    Validate that all required columns exist in the DataFrame.
     
     Args:
-        df: DataFrame to filter.
-        schema: Schema dictionary.
+        df: DataFrame to validate
+        required_columns: List of column names that must be present
         
     Returns:
-        Filtered DataFrame.
+        True if all required columns exist, False otherwise
+    """
+    df_columns = set(df.columns)
+    required_set = set(required_columns)
+    return required_set.issubset(df_columns)
+
+
+def validate_column_types(df: pd.DataFrame, types_map: Dict[str, str]) -> bool:
+    """
+    Validate that columns have the expected data types.
+    
+    Args:
+        df: DataFrame to validate
+        types_map: Dictionary mapping column names to expected dtypes
+        
+    Returns:
+        True if all types match, False otherwise
+    """
+    for col, expected_type in types_map.items():
+        if col not in df.columns:
+            return False
+        
+        actual_type = str(df[col].dtype)
+        if actual_type != expected_type:
+            return False
+    
+    return True
+
+
+def validate_null_values(df: pd.DataFrame, critical_columns: List[str]) -> bool:
+    """
+    Validate that critical columns have no null values.
+    
+    Args:
+        df: DataFrame to validate
+        critical_columns: List of column names that must not contain nulls
+        
+    Returns:
+        True if no nulls in critical columns, False otherwise
+    """
+    for col in critical_columns:
+        if col not in df.columns:
+            return False
+        if df[col].isna().any():
+            return False
+    
+    return True
+
+
+def validate_value_ranges(df: pd.DataFrame, ranges_map: Dict[str, Dict[str, float]]) -> bool:
+    """
+    Validate that numeric columns fall within specified ranges.
+    
+    Args:
+        df: DataFrame to validate
+        ranges_map: Dictionary mapping column names to {'min': float, 'max': float}
+        
+    Returns:
+        True if all values in range, False otherwise
+    """
+    for col, range_spec in ranges_map.items():
+        if col not in df.columns:
+            return False
+        
+        min_val = range_spec.get('min', float('-inf'))
+        max_val = range_spec.get('max', float('inf'))
+        
+        col_min = df[col].min()
+        col_max = df[col].max()
+        
+        if col_min < min_val or col_max > max_val:
+            return False
+    
+    return True
+
+
+def validate_categorical_values(df: pd.DataFrame, 
+                                categorical_map: Dict[str, List[Any]]) -> bool:
+    """
+    Validate that categorical columns only contain allowed values.
+    
+    Args:
+        df: DataFrame to validate
+        categorical_map: Dictionary mapping column names to list of allowed values
+        
+    Returns:
+        True if all values are allowed, False otherwise
+    """
+    for col, allowed_values in categorical_map.items():
+        if col not in df.columns:
+            return False
+        
+        allowed_set = set(allowed_values)
+        actual_values = set(df[col].unique())
+        
+        if not actual_values.issubset(allowed_set):
+            return False
+    
+    return True
+
+
+def validate_schema(df: pd.DataFrame, schema_def: Dict[str, Any]) -> bool:
+    """
+    Comprehensive schema validation for a DataFrame.
+    
+    Args:
+        df: DataFrame to validate
+        schema_def: Schema definition dictionary containing:
+            - required_columns: List of required column names
+            - types: Dictionary of column -> expected dtype
+            - critical_columns: List of columns that cannot have nulls
+            - value_ranges: Optional dictionary of column -> {min, max}
+            - categorical_values: Optional dictionary of column -> allowed values
+        
+    Returns:
+        True if all validations pass, False otherwise
+    """
+    # Validate column presence
+    if 'required_columns' in schema_def:
+        if not validate_column_presence(df, schema_def['required_columns']):
+            return False
+    
+    # Validate column types
+    if 'types' in schema_def:
+        if not validate_column_types(df, schema_def['types']):
+            return False
+    
+    # Validate null values in critical columns
+    if 'critical_columns' in schema_def:
+        if not validate_null_values(df, schema_def['critical_columns']):
+            return False
+    
+    # Validate value ranges
+    if 'value_ranges' in schema_def:
+        if not validate_value_ranges(df, schema_def['value_ranges']):
+            return False
+    
+    # Validate categorical values
+    if 'categorical_values' in schema_def:
+        if not validate_categorical_values(df, schema_def['categorical_values']):
+            return False
+    
+    return True
+
+
+def assert_valid_schema(df: pd.DataFrame, schema_def: Dict[str, Any], 
+                        artifact_name: str = "unknown") -> None:
+    """
+    Assert that a DataFrame conforms to the schema, raising ValueError on failure.
+    
+    Args:
+        df: DataFrame to validate
+        schema_def: Schema definition dictionary
+        artifact_name: Name of the artifact for error messages
+        
+    Raises:
+        ValueError: If validation fails
+    """
+    if not validate_schema(df, schema_def):
+        missing_cols = []
+        if 'required_columns' in schema_def:
+            for col in schema_def['required_columns']:
+                if col not in df.columns:
+                    missing_cols.append(col)
+        
+        null_cols = []
+        if 'critical_columns' in schema_def:
+            for col in schema_def['critical_columns']:
+                if col in df.columns and df[col].isna().any():
+                    null_cols.append(col)
+        
+        error_msg = f"Schema validation failed for '{artifact_name}':\n"
+        if missing_cols:
+            error_msg += f"  Missing columns: {missing_cols}\n"
+        if null_cols:
+            error_msg += f"  Null values in critical columns: {null_cols}\n"
+        
+        raise ValueError(error_msg)
+
+
+def filter_valid_records(df: pd.DataFrame, schema_def: Dict[str, Any]) -> pd.DataFrame:
+    """
+    Filter a DataFrame to keep only records that pass schema validation.
+    
+    Args:
+        df: DataFrame to filter
+        schema_def: Schema definition dictionary
+        
+    Returns:
+        Filtered DataFrame with only valid records
     """
     mask = pd.Series(True, index=df.index)
     
-    for col, spec in schema.items():
-        if col not in df.columns:
-            continue
-        
-        # Handle non-nullable
-        if not spec.get('nullable', True):
-            mask = mask & df[col].notna()
-        
-        # Handle allowed_values
-        if 'allowed_values' in spec:
-            allowed = set(spec['allowed_values'])
-            # Keep rows where value is in allowed set OR is NaN (if nullable)
-            # If not nullable, NaN is already handled above, so we just check allowed
-            is_valid_val = df[col].isin(allowed)
-            is_null = df[col].isna()
-            
-            # If nullable, we allow NaN. If not nullable, is_null is False anyway due to previous step
-            # But we must ensure we don't drop NaNs if they are allowed by 'nullable' logic
-            # However, 'allowed_values' usually implies non-null valid set.
-            # Logic: Value must be in allowed set. If nullable, NaN is also acceptable.
-            if spec.get('nullable', True):
-                mask = mask & (is_valid_val | is_null)
-            else:
-                mask = mask & is_valid_val
+    # Filter by critical columns null check
+    if 'critical_columns' in schema_def:
+        for col in schema_def['critical_columns']:
+            if col in df.columns:
+                mask = mask & (~df[col].isna())
     
-    return df[mask].reset_index(drop=True)
+    # Filter by value ranges
+    if 'value_ranges' in schema_def:
+        for col, range_spec in schema_def['value_ranges'].items():
+            if col in df.columns:
+                min_val = range_spec.get('min', float('-inf'))
+                max_val = range_spec.get('max', float('inf'))
+                mask = mask & (df[col] >= min_val) & (df[col] <= max_val)
+    
+    # Filter by categorical values
+    if 'categorical_values' in schema_def:
+        for col, allowed_values in schema_def['categorical_values'].items():
+            if col in df.columns:
+                mask = mask & df[col].isin(allowed_values)
+    
+    return df[mask]
 
-def load_schema_and_validate(df: pd.DataFrame, schema_path: str) -> Tuple[bool, List[str]]:
+
+def load_schema_and_validate(schema_path: str, artifact_type: str, 
+                             artifact_name: str, df: pd.DataFrame) -> bool:
     """
-    Convenience function to load schema from file and validate a DataFrame.
+    Load schema from file and validate a DataFrame against it.
     
     Args:
-        df: DataFrame to validate.
-        schema_path: Path to the YAML schema file.
+        schema_path: Path to schema YAML file
+        artifact_type: 'input' or 'output'
+        artifact_name: Name of the artifact
+        df: DataFrame to validate
         
     Returns:
-        Tuple of (is_valid, list_of_errors)
+        True if validation passes, False otherwise
+        
+    Raises:
+        FileNotFoundError: If schema file not found
+        KeyError: If artifact not found in schema
     """
     schema = load_schema_from_file(schema_path)
-    return validate_schema(df, schema)
+    schema_def = get_schema_definition(schema, artifact_type, artifact_name)
+    return validate_schema(df, schema_def)

@@ -1,0 +1,15 @@
+# Ruff configuration file
+# Extends pyproject.toml settings if needed, or can be used standalone
+
+extend = "pyproject.toml"
+
+[lint]
+# Additional rules or overrides specific to ruff.toml can go here
+# For now, we rely on pyproject.toml for the main configuration
+extend-select = [
+  "UP", # pyupgrade
+  "SIM", # flake8-simplify
+]
+
+[lint.isort]
+known-first-party = ["code"]

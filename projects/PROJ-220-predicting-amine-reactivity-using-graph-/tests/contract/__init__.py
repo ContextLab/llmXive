@@ -1,0 +1,3 @@
+"""
+Contract tests package
+"""

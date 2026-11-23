@@ -3,115 +3,80 @@ import json
 import logging
 import pandas as pd
 from typing import Dict, Any
-
 from utils.logging import get_logger
 
 logger = get_logger(__name__)
 
-
 def write_data_status(
-    csv_path: str,
-    output_path: str,
-    count_threshold: int = 500,
-    power_threshold: int = 50
+    csv_path: str = "data/processed/hea_descriptors.csv",
+    output_json: str = "output/data_status.json"
 ) -> Dict[str, Any]:
     """
-    Generates a status report based on the row count of the processed HEA descriptors CSV.
-
-    Writes a JSON file to `output_path` containing:
-    - 'count': The number of rows in the CSV.
-    - 'count_warning': True if count < count_threshold (500), else False.
-    - 'power_status': 'insufficient_power' if count < power_threshold (50),
-                      'adequate_power' otherwise.
-
+    Reads the processed descriptor CSV, counts rows, and writes the status JSON.
+    
+    Implements the logic from T015:
+    1. Count rows in the CSV.
+    2. Set count_warning = True if count < 500.
+    3. Set power_status = True if count < 50.
+    4. Write output/data_status.json with schema:
+       { "count": int, "count_warning": bool, "power_status": bool, "timestamp": str }
+    
     Args:
-        csv_path: Path to the input CSV file (data/processed/hea_descriptors.csv).
-        output_path: Path to the output JSON file (output/data_status.json).
-        count_threshold: Threshold for data limitation warning.
-        power_threshold: Threshold for statistical power insufficiency.
-
+        csv_path: Path to the processed CSV file.
+        output_json: Path to write the status JSON.
+    
     Returns:
-        The status dictionary written to the JSON file.
+        The status dictionary.
     """
+    logger.info(f"Reading processed data from {csv_path} to compute status...")
+    
     if not os.path.exists(csv_path):
-        logger.error(f"Input CSV file not found: {csv_path}")
-        raise FileNotFoundError(f"Input CSV file not found: {csv_path}")
-
-    try:
+        logger.error(f"Processed data file not found at {csv_path}. Cannot write status.")
+        # If the file doesn't exist, we assume 0 count for the status report
+        count = 0
+    else:
         df = pd.read_csv(csv_path)
         count = len(df)
-    except Exception as e:
-        logger.error(f"Failed to read or count rows in {csv_path}: {e}")
-        raise
-
-    logger.info(f"Processed dataset contains {count} samples.")
-
-    count_warning = count < count_threshold
-    if count_warning:
-        logger.warning(
-            f"Data limitation warning: Sample size ({count}) is below "
-            f"threshold ({count_threshold}). Model reliability may be compromised."
-        )
-
-    if count < power_threshold:
-        power_status = "insufficient_power"
-        logger.warning(
-            f"INSUFFICIENT_POWER: N={count} < {power_threshold}. "
-            f"Statistical tests (permutation, bootstrap) will be skipped."
-        )
-    else:
-        power_status = "adequate_power"
-
+    
+    count_warning = count < 500
+    power_status = count < 50
+    
     status = {
         "count": count,
         "count_warning": count_warning,
         "power_status": power_status,
-        "thresholds": {
-            "count_warning_threshold": count_threshold,
-            "power_insufficient_threshold": power_threshold
-        }
+        "timestamp": pd.Timestamp.now().isoformat()
     }
-
+    
     # Ensure output directory exists
-    output_dir = os.path.dirname(output_path)
-    if output_dir and not os.path.exists(output_dir):
-        os.makedirs(output_dir)
-        logger.info(f"Created output directory: {output_dir}")
-
-    with open(output_path, 'w') as f:
+    os.makedirs(os.path.dirname(output_json), exist_ok=True)
+    
+    logger.info(f"Writing data status to {output_json}: {status}")
+    with open(output_json, 'w') as f:
         json.dump(status, f, indent=2)
-
-    logger.info(f"Data status written to: {output_path}")
+    
+    # Log warnings as required by T015
+    if count_warning:
+        logger.warning(f"DATA_LIMITATION_WARNING: Only {count} entries found. Statistical power may be reduced.")
+    if power_status:
+        logger.warning(f"DATA_LIMITATION_WARNING: Only {count} entries found. Statistical power is critically low.")
+        
     return status
-
 
 def main():
     """
     Main entry point for the status writer script.
-    Expects the processed CSV at data/processed/hea_descriptors.csv
-    and writes output to output/data_status.json.
+    Reads the processed descriptors and writes the status JSON.
     """
-    # Define paths relative to project root
-    # Assuming this script is run from the project root or code/ directory
-    # We use relative paths as per project conventions
-    csv_path = "data/processed/hea_descriptors.csv"
-    output_path = "output/data_status.json"
-
-    logger.info("Starting data status generation...")
     try:
-        status = write_data_status(csv_path, output_path)
-        logger.info(f"Status generation complete. Power Status: {status['power_status']}")
-    except FileNotFoundError as e:
-        logger.error(f"Terminating: {e}")
-        # Exit with specific error code if data is missing
-        # In a real pipeline, this might trigger a retry or alert
-        import sys
-        sys.exit(1)
+        write_data_status(
+            csv_path="data/processed/hea_descriptors.csv",
+            output_json="output/data_status.json"
+        )
+        logger.info("Data status written successfully.")
     except Exception as e:
-        logger.error(f"Unexpected error during status generation: {e}")
-        import sys
-        sys.exit(1)
-
+        logger.exception("Failed to write data status")
+        raise
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,8 @@
+{
+  "observed_mean_difference": 0.0,
+  "p_value": 0.0,
+  "effect_size": 0.0,
+  "n_folds": 0,
+  "n_iterations": 10000,
+  "significant": false
+}

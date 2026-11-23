@@ -1,0 +1,16 @@
+86dfcf65015a55966e873a66c23cd80d  ./annotation_hashes.txt
+3f6b57dc8005f3fa9de5290fa6db2f14  ./GCF_000328945.1_NSJ_assembly_report.txt
+c57775f24bcfb277987353825a4b4855  ./GCF_000328945.1_NSJ_assembly_stats.txt
+101f55e73ee0873eb42eafb1fcec872d  ./GCF_000328945.1_NSJ_cds_from_genomic.fna.gz
+f44068bfccdf123781a1be19debe46dc  ./GCF_000328945.1_NSJ_fcs_report.txt
+cf29513489b5740557c5357d1d8a77b5  ./GCF_000328945.1_NSJ_feature_count.txt
+c3861ba02abeed06dfee011b89142cea  ./GCF_000328945.1_NSJ_feature_table.txt.gz
+570f95a4f2d1cf027b54a66cb2022bce  ./GCF_000328945.1_NSJ_genomic.fna.gz
+dd05c94edc6edc4a9436c5d4d6c6294f  ./GCF_000328945.1_NSJ_genomic.gbff.gz
+deb703e26987d4dab9d39ef1ffa6d1be  ./GCF_000328945.1_NSJ_genomic.gff.gz
+9390a491a0490b5506829e471b3af56a  ./GCF_000328945.1_NSJ_genomic.gtf.gz
+2542daea7616e68c03d24b045fa9a2d6  ./GCF_000328945.1_NSJ_protein.faa.gz
+7267400410ff6ee66c9a198402d64755  ./GCF_000328945.1_NSJ_protein.gpff.gz
+791ee8984f558967cd57522746b476d9  ./GCF_000328945.1_NSJ_rna_from_genomic.fna.gz
+9bc31a5f466e63a087ae8a4208d1d50c  ./GCF_000328945.1_NSJ_translated_cds.faa.gz
+db531b2c7a0e55467fe2112945e99609  ./GCF_000328945.1_NSJ_wgsmaster.gbff.gz

@@ -1,68 +1,65 @@
-%YAML 1.2
----
+$schema: http://json-schema.org/draft-07/schema#
 title: Study Record Schema
-description: Schema for individual study records extracted for meta-analysis.
+description: Schema for individual study metadata, tract information, effect sizes, and qualitative descriptors in the meta-analysis pipeline.
 type: object
 required:
   - study_id
   - author
   - year
-  - tract_name
-  - effect_size_r
-  - sample_size_n
+  - tract
+  - r
+  - n
 properties:
   study_id:
     type: string
-    description: Unique identifier for the study (e.g., PMID or DOI).
-    pattern: "^[A-Za-z0-9._-]+$"
+    description: Unique identifier for the study (e.g., 'Author_Year_01').
+    pattern: '^[A-Za-z0-9_]+$'
+  
   author:
     type: string
-    description: First author's last name.
+    description: Primary author's last name.
     minLength: 1
+  
   year:
     type: integer
     description: Publication year.
     minimum: 1900
     maximum: 2100
-  tract_name:
+  
+  tract:
     type: string
-    description: Name of the brain tract (harmonized via JHU Atlas).
+    description: Name of the brain tract investigated (harmonized name preferred).
     minLength: 1
-  effect_size_r:
+  
+  r:
     type: number
-    description: Pearson correlation coefficient (r).
+    description: Pearson correlation coefficient reported in the study.
     minimum: -1.0
     maximum: 1.0
-  sample_size_n:
+  
+  n:
     type: integer
-    description: Total sample size of the study.
+    description: Sample size (number of participants).
     minimum: 1
-  qualitative_notes:
+  
+  qualitative_desc:
     type: string
-    description: Extracted qualitative descriptors regarding neural circuitry.
+    description: Qualitative description or narrative finding extracted from the study text.
     default: ""
-  direction:
-    type: string
-    enum:
-      - positive
-      - negative
-      - null
-    description: Direction of the correlation.
+  
   p_value:
     type: number
-    description: Reported p-value.
+    description: Reported p-value (optional, for conversion tasks).
     minimum: 0.0
     maximum: 1.0
-    nullable: true
-  no_qualitative_data:
-    type: boolean
-    description: Flag indicating if no specific descriptors were found.
-    default: false
-  source_file:
+    default: null
+  
+  notes:
     type: string
-    description: Original filename where this study was found.
-  extraction_timestamp:
+    description: Any additional notes or exclusion reasons.
+    default: ""
+  
+  extracted_from:
     type: string
-    format: date-time
-    description: ISO 8601 timestamp of extraction.
-additionalProperties: false
+    description: Source file or method of extraction (e.g., 'manual', 'nlp_logic', 'p_value_converter').
+    default: "unknown"

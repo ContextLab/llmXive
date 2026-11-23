@@ -6,7 +6,7 @@ failed_stage: null
 field: psychology
 human_escalation_reason: null
 id: PROJ-222-the-impact-of-predictive-coding-errors-o
-last_run_id: 197c6ab5-8309-4c9f-b300-bdc505c8fcac
+last_run_id: bcf53961-c6e1-483f-ae15-20ffc3bb3f0e
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-222-the-impact-of-predictive-coding-errors-o/specs/001-the-impact-of-predictive-coding-errors-o
 title: The Impact of Predictive Coding Errors on Subjective Time Perception
-updated_at: '2026-07-01T19:07:01.588952Z'
+updated_at: '2026-09-23T03:39:39.333540Z'

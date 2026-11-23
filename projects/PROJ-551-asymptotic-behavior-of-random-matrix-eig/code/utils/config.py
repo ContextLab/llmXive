@@ -1,140 +1,108 @@
 """
-Configuration management.
-Loads settings from YAML/JSON or uses defaults.
+Utility configuration module for the asymptotic random matrix project.
+
+This module provides a minimal set of helpers required by various analysis
+scripts.  All functions are deliberately lightweight and have no external
+dependencies beyond the Python standard library and the packages that are
+already available in the execution environment (numpy, etc.).
 """
+
 import os
 from pathlib import Path
-from typing import Any, Dict, Optional
-import yaml
+from typing import Dict, Any, Optional
 
-# Default configuration values
-DEFAULTS = {
-    "random_seed": 42,
-    "tolerance": 1e-10,
-    "max_iterations": 1000,
-    "matrix_size": 1000,
-    "num_eigenvalues": 10,
-    "perturbation_norm": 2.5,
-    "sparsity_density": 0.1,
-    "num_mc_iterations": 100,
-}
+# ----------------------------------------------------------------------
+# Default configuration constants
+# ----------------------------------------------------------------------
+# Tolerance used by the outlier detection rule (FR-004):
+# an eigenvalue is considered an outlier if it exceeds the theoretical
+# semicircle edge (2.0) by more than this amount.
+DEFAULT_OUTLIER_TOLERANCE: float = 0.05
 
-def get_project_paths() -> Dict[str, Any]:
+# Deterministic default base seed (SC-003: full reproducibility via
+# fixed seeds — never draw a seed from system entropy).
+DEFAULT_BASE_SEED: int = 42
+
+# ----------------------------------------------------------------------
+# Helper functions
+# ----------------------------------------------------------------------
+def get_outlier_tolerance() -> float:
     """
-    Returns a dictionary of paths for the project.
+    Return the outlier tolerance used throughout the pipeline.
+
+    The value can be overridden by the environment variable
+    ``OUTLIER_TOLERANCE``; otherwise the default ``0.05`` is returned.
     """
-    root = Path(__file__).parent.parent.parent
+    env_val = os.getenv("OUTLIER_TOLERANCE")
+    if env_val is not None:
+        try:
+            return float(env_val)
+        except ValueError:
+            # Fallback to default if the environment variable is malformed.
+            pass
+    return DEFAULT_OUTLIER_TOLERANCE
+
+def ensure_directories(base_path: Optional[Path] = None) -> None:
+    """
+    Create the standard project data directories if they do not already exist.
+
+    Parameters
+    ----------
+    base_path : pathlib.Path, optional
+        The root of the project. If ``None`` the current working directory
+        is used.
+    """
+    root = Path(base_path) if base_path is not None else Path.cwd()
+    for sub in [
+        root / "data" / "raw",
+        root / "data" / "processed",
+        root / "data" / "logs",
+        root / "data" / "figures",
+    ]:
+        sub.mkdir(parents=True, exist_ok=True)
+
+def get_project_paths(base_path: Optional[Path] = None) -> Dict[str, Path]:
+    """
+    Return a dictionary with the most common project-relative paths.
+
+    The keys match the ones used by the existing analysis scripts:
+
+    - ``processed``   -> ``data/processed``
+    - ``figures``     -> ``data/figures``
+    - ``raw``         -> ``data/raw``
+    - ``data_logs``   -> ``data/logs``
+
+    Parameters
+    ----------
+    base_path : pathlib.Path, optional
+        Base directory of the project. If omitted, ``Path.cwd()`` is used.
+
+    Returns
+    -------
+    dict
+        Mapping from logical name to absolute ``Path`` objects.
+    """
+    root = Path(base_path) if base_path is not None else Path.cwd()
     return {
-        "root": root,
-        "code": root / "code",
-        "data": {
-            "raw": root / "data" / "raw",
-            "processed": root / "data" / "processed",
-            "logs": root / "data" / "logs",
-            "figures": root / "data" / "figures",
-        },
-        "figures": root / "figures",
-        "specs": root / "specs",
-        "state": root / "state",
+        "processed": root / "data" / "processed",
+        "figures": root / "data" / "figures",
+        "raw": root / "data" / "raw",
+        "data_logs": root / "data" / "logs",
     }
 
-def load_config(config_path: Optional[str | Path] = None) -> Dict[str, Any]:
+def get_seed() -> int:
     """
-    Load configuration from a YAML file.
-    Defaults to 'config.yaml' in the project root if not specified.
-    
-    Returns a merged dictionary of default values and file values.
-    """
-    paths = get_project_paths()
-    if config_path is None:
-        config_path = paths["root"] / "config.yaml"
-    else:
-        config_path = Path(config_path)
-    
-    config = DEFAULTS.copy()
-    
-    if config_path.exists():
-        with open(config_path, 'r') as f:
-            file_config = yaml.safe_load(f)
-            if file_config:
-                config.update(file_config)
-    
-    # Ensure paths are resolved relative to root
-    if "output_dir" in config:
-        config["output_dir"] = paths["root"] / config["output_dir"]
-    
-    return config
+    Return the base seed for Monte-Carlo runs.
 
-def ensure_directories(config: Optional[Dict[str, Any]] = None) -> None:
+    The seed is read from the environment variable ``BASE_SEED`` if set
+    and well-formed; otherwise the fixed deterministic default
+    ``DEFAULT_BASE_SEED`` (42) is returned.  The seed is never drawn from
+    system entropy so that every run is fully reproducible (SC-003).
     """
-    Create all necessary directories for the project based on configuration.
-    """
-    if config is None:
-        config = load_config()
-    
-    paths = get_project_paths()
-    
-    # Create data subdirectories
-    for subdir in ["raw", "processed", "logs", "figures"]:
-        dir_path = paths["data"][subdir]
-        dir_path.mkdir(parents=True, exist_ok=True)
-    
-    # Create figures and state directories
-    paths["figures"].mkdir(parents=True, exist_ok=True)
-    paths["state"].mkdir(parents=True, exist_ok=True)
-
-def get_seed(config: Optional[Dict[str, Any]] = None) -> int:
-    """
-    Get the random seed from configuration.
-    """
-    if config is None:
-        config = load_config()
-    return config.get("random_seed", DEFAULTS["random_seed"])
-
-def get_tolerance(config: Optional[Dict[str, Any]] = None) -> float:
-    """
-    Get the numerical tolerance from configuration.
-    """
-    if config is None:
-        config = load_config()
-    return float(config.get("tolerance", DEFAULTS["tolerance"]))
-
-def get_matrix_size(config: Optional[Dict[str, Any]] = None) -> int:
-    """
-    Get the default matrix size from configuration.
-    """
-    if config is None:
-        config = load_config()
-    return int(config.get("matrix_size", DEFAULTS["matrix_size"]))
-
-def get_num_eigenvalues(config: Optional[Dict[str, Any]] = None) -> int:
-    """
-    Get the number of eigenvalues to compute from configuration.
-    """
-    if config is None:
-        config = load_config()
-    return int(config.get("num_eigenvalues", DEFAULTS["num_eigenvalues"]))
-
-def get_perturbation_norm(config: Optional[Dict[str, Any]] = None) -> float:
-    """
-    Get the perturbation norm from configuration.
-    """
-    if config is None:
-        config = load_config()
-    return float(config.get("perturbation_norm", DEFAULTS["perturbation_norm"]))
-
-def get_sparsity_density(config: Optional[Dict[str, Any]] = None) -> float:
-    """
-    Get the sparsity density from configuration.
-    """
-    if config is None:
-        config = load_config()
-    return float(config.get("sparsity_density", DEFAULTS["sparsity_density"]))
-
-def get_num_mc_iterations(config: Optional[Dict[str, Any]] = None) -> int:
-    """
-    Get the number of Monte Carlo iterations from configuration.
-    """
-    if config is None:
-        config = load_config()
-    return int(config.get("num_mc_iterations", DEFAULTS["num_mc_iterations"]))
+    env_seed = os.getenv("BASE_SEED")
+    if env_seed is not None:
+        try:
+            return int(env_seed)
+        except ValueError:
+            pass
+    return DEFAULT_BASE_SEED

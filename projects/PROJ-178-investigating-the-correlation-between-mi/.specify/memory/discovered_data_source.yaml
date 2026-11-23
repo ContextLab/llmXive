@@ -1,0 +1,12 @@
+status: none
+intent: download 1000 genomes phase 3 mitochondrial VCF sample metadata csv
+required_fields:
+- sample_id
+- heteroplasmy_burden
+- haplogroup
+- age
+- sex
+- ancestry_PCs
+cache_key: f7a9adeb4aa55bebecf695120925845336f6375614849571084083eb90e934e1
+searched_at: '2026-10-09T07:52:06.681556+00:00'
+retry_count: 1

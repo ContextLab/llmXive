@@ -1,0 +1,24 @@
+T027:
+  c: false
+  h: f288273237000be827a05ce0b241cd204192323b3a7a236a866a866ea95570d7
+  r: The required artifact `tests/integration/test_quality_pipeline.py` does not exist
+    in the repository, so no integration test for the quality assessment pipeline
+    is present. The task is therefore not satisfied.
+T051b:
+  c: false
+  h: f288273237000be827a05ce0b241cd204192323b3a7a236a866a866ea95570d7
+  r: "The required artifact `tests/integration/test_quality_pipeline.py` is missing\
+    \ from the repository, so no integration tests for US2 are present. Without this\
+    \ file, the task\u2019s requirement is not satisfied."
+T052a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No unit\u2011test files (e.g.,\u202Ftests/unit/test_experiment_*.py) or test\u2011\
+    run output were presented, and there is no evidence that the tests were executed\
+    \ or passed. The required artifact and its results are missing."
+T052b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No test execution logs, result files, or evidence of running `tests/unit/test_quality_*.py`
+    are present; the claim lacks any artifact confirming that the unit tests for US2
+    components were actually run.

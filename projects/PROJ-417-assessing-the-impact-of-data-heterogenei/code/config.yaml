@@ -1,0 +1,55 @@
+# Configuration for llmXive meta-analysis simulation project
+# This file defines all parameters for the simulation pipeline
+
+# Nominal confidence level for coverage calculations
+# Placeholder value to be resolved by T006b-resolve
+nominal_confidence_level: 0.95
+
+# Minimum number of studies for reliability flag
+min_studies_for_reliability: 5
+
+# Significance level for hypothesis tests
+significance_level: 0.05
+
+# Simulation parameters
+simulation_parameters:
+  replicate_counts:
+    primary_sweep: 500
+    sensitivity_sweep: 500
+    test_replicates: 1000
+  tau2_levels:
+    - 0.0
+    - 0.1
+    - 0.5
+    - 1.0
+    - 2.0
+  random_seed: 42
+
+# Synthetic base parameters (from Jackson et al., 2010)
+# Used when real data fetch fails or for controlled experiments
+synthetic_base_params:
+  mean_effect: 0.5
+  se_distribution:
+    type: "lognormal"
+    mu: 0.0
+    sigma: 1.0
+  study_count: 20
+  seed: 42
+  source_citation: "Jackson et al. (2010)"
+
+# Data source configuration
+data_source:
+  type: "synthetic"  # Options: "cochrane", "synthetic"
+  cochrane_url: "https://osf.io/..."  # Placeholder, will be updated by fetch script
+  synthetic_file: "data/raw/cochrane_base_synthetic.csv"
+
+# Output configuration
+output:
+  simulation_results_file: "data/results/simulation_raw.json"
+  estimation_results_file: "data/results/estimation_results.csv"
+  report_file: "data/results/report.md"
+  log_file: "data/results/simulation.log"
+  reml_failures_file: "data/results/reml_failures.json"
+  test_varianace_check_file: "data/results/test_variance_check.json"
+  test_homogeneity_check_file: "data/results/test_homogeneity_check.json"
+  sensitivity_sweep_file: "data/results/sensitivity_sweep.csv"

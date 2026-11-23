@@ -1,0 +1,57 @@
+# Unresolved panel concerns (address in this revision)
+
+The convergence panel for this stage could not resolve the concerns below within its round cap and kicked the project back for an IN-PLACE revision of the existing artifact. Revise the document to RESOLVE each concern — do NOT regenerate the document from scratch, and do NOT drop content that is not implicated by a concern.
+
+**Why it was kicked back**: 12 concern(s) remained unresolved after 3 round(s) at stage 'tasked'; worst unresolved severity = 'requirement'. Routing to 'clarified' with full provenance so the next worker can address the root cause.
+
+## Unresolved concerns
+
+- Task T2058‑Update claims to replace `[deferred]` placeholders, but the spec still contains several `[deferred]` entries (e.g., missingness levels in FR‑008), indicating incomplete amendment.
+- The specification (FR‑006) requires that the outcome variable be permuted **before** any cleaning step. The task list only contains verification task T074d that checks the permutation order, but there is no producer task that actually performs the permutation prior to cleaning. This violates the producer‑before‑consumer rule.
+- Task T1111 (Edit `spec.md` to remove unrelated paragraphs) lacks verification.
+- Task T1112 (Revise Success Criteria) lacks verification.
+- Task T1113 (Refine hypothesis section) lacks verification.
+- Task T2051 (Centralize Configuration) lacks verification.
+- Task T2053 (Remove Redundant Files) lacks verification.
+- Task T2100 (Consolidate remaining `t0*.py` scripts) lacks verification.
+- Task T2101 (Update `code/main.py` orchestration) lacks verification.
+- Task T2104 (Fix `code/analysis.py` logic) lacks verification.
+- Task T2105 (Ensure metric precision) lacks verification.
+- Task T2107 (Strengthen `code/data_loader.py`) lacks verification.
+
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T1235** — No `power_analysis.txt` file or its contents were presented, and there is no evidence that a power calculation meeting the specified parameters (d = 0.5, α = 0.05, power ≥ 0.8, 1:1 allocation) was performed. The required artifact is missing.
+- **T1219** — The repository lacks the required `contracts/cleaned_metrics.schema.yaml` file, so schema validation cannot be performed. Moreover, the provided excerpt of `code/reporting.py` does not include any implementation that consumes cleaning‑function metadata and writes `cleaned_metrics.json` with exactly the four specified numeric fields. Both the schema dependency and the core functionality are missing.
+- **T1220** — No code, diff, or audit output was provided showing that bootstrap calls were changed to use `config.BOOTSTRAP_ITERATIONS` and that any fallback logic was removed. Without these artifacts, we cannot confirm the required configuration update was made. The implementer must supply the modified source files (or a diff) and evidence (e.g., a static analysis report) that no fallback remains.
+
+# Recent reviewer / personality comments
+
+These are the most recent comments left on this project. Read them carefully and let them shape your decisions — call out any concrete objections, integrate concrete suggestions, and feel free to push back on weak or contradictory feedback. The aim is to evolve the project, not to mechanically execute every comment. NEVER copy bracketed attribution markers (e.g. `[Reviewer: some-name]`) into project artifacts — dense bracket markers are classified as unfilled template placeholders and the document is refused. When attribution matters, write it in plain prose (e.g. "per reviewer some-name").
+
+## `research_reviewer_implementation_correctness__2026-07-14__research.md`
+
+---
+action_items:
+- id: 89909621433f
+  severity: writing
+  text: 'Fix code/analysis.py: Remove the hardcoded p_value = 0.05 assignment. Replace
+    it with a call to scipy.stats.ttest_ind (for t-tests) and statsmodels (for regression)
+    to compute actual p-values. Correct the Cohen''s d calculation to use the pooled
+    standard deviation of the two specific groups being compared, not the global dataset
+    standard deviation. Re-run the pipeline to regenerate data/processed/baseline_metrics.json
+    and data/processed/cleaned_metrics.json with real values.'
+- id: b4e92c73e9a5
+  severity: writing
+  text: 'Update code/cleaning.py: Modify apply_iqr_outlier_removal, apply_mean_imputation,
+    and other cleaning functions to return a tuple (cleaned_df, metadata_dict) where
+    metadata_dict includes rows_removed and missing_values_remaining. Update code/reporting.py
+    to consume this metadata and ensure data/processed/cleaned_metrics.json includes
+    these fields.'
+- id: ba90641ab2f3
+  severity: writing
+  text: 'Correct Bootstrap Configuration: In code/main.py (or the specific task script
+    t045_conditional_bootstrap_reduction.py), ensure the BOOTSTRAP_ITERATIONS variable
+    from config.py (default 1000) is explicitly passed to the bootstrap function.

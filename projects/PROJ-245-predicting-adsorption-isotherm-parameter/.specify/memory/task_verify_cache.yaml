@@ -1,45 +1,115 @@
-T008:
+T014d:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code files, class definitions, or any other artifacts for the required base\
-    \ data classes/entities (Adsorbate, Adsorbent, IsothermParameter) are present\
-    \ in the provided evidence; the implementer\u2019s claim cannot be verified because\
-    \ the expected Python (or other language) files are missing. The task remains\
-    \ undone until concrete class implementations are added to the repository."
-T010:
+  h: 283703fc681b255bee78dd995b1ef1e87d913a7da6aeec5d461d670ba20f932e
+  r: "The repository contains `code/data/descriptors.py`, but the file does not show\
+    \ a function that reads the three `missing_descriptors_*.json` files and writes\
+    \ a combined `data/validation/missing_descriptors_report.json`. Moreover, the\
+    \ expected output file `data/validation/missing_descriptors_report.json` is absent\
+    \ from the project. The task\u2019s core requirement\u2014merging the descriptor\
+    \ logs into the report file\u2014is therefore not fulfilled."
+T014h:
   c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No pytest configuration file (e.g.,\u202F`pytest.ini`, `pyproject.toml` with\
-    \ `[tool.pytest]`) or any `tests/` directory hierarchy (`tests/unit`, `tests/integration`,\
-    \ `tests/contract`) is present in the provided artifacts. The implementer did\
-    \ not supply the required test setup files or folder structure."
+  h: a8ed1925184618a3d4397dfa93dd5f8335f28e8d230beb15f1637a1b176f2fb5
+  r: The provided `code/data/descriptors.py` does not contain a `cache_descriptors`
+    function (the excerpt shows other descriptor calculations but no caching logic),
+    and the required cache file `data/processed/descriptors_cache.parquet` is absent.
+    Both the function implementation and the output artifact are missing.
+T015a:
+  c: false
+  h: d4abf1ade4233b03cefa5ade7bfd0c5f6022f0f9919d4443bcfc1fa34f3da7cf
+  r: The `filter_and_normalize` function in `code/data/preprocess.py` is truncated
+    and contains placeholder logic (e.g., `normalize_units` does nothing, logging
+    of excluded entries is incomplete, and the file ends abruptly). Moreover, the
+    required `data/validation/exclusion_log.json` does not exist. The implementation
+    does not fully perform the specified filtering, normalization, and logging steps.
+T015b:
+  c: false
+  h: a762a57a3230aae0a83bbd52def5d738a0506be8bb730dc272f481249e7dd61c
+  r: "The `code/data/imputation.py` file is truncated and contains an undefined variable\
+    \ (`s`) and incomplete logic, so the `impute_pore_volume` function is not fully\
+    \ implemented. Moreover, the required input file `data/processed/target_filtered.parquet`,\
+    \ the output file `data/processed/imputed_dataset.parquet`, and the exclusion\
+    \ log `data/validation/exclusion_log.json` are all missing. The task\u2019s artifacts\
+    \ are therefore absent or non\u2011functional."
 T016:
   c: false
-  h: c568d5cf67a0b7f6d08d4803e8f76c7448b755c0abda1ea13f38af63a02faf0c
-  r: "The `code/data/preprocess.py` file does not contain any logic for detecting\
-    \ adsorbates with identical descriptor hashes but differing target values, nor\
-    \ does it write an `outliers.csv` file. Moreover, the required `data/processed/outliers.csv`\
-    \ file is absent from the repository. The task\u2019s core output is therefore\
-    \ missing."
-T024:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, script, or result files were provided that implement a mean\u2011\
-    predicting null model or demonstrate that the trained model\u2019s RMSE is significantly\
-    \ lower than the null model\u2019s RMSE. The required artifact (implementation\
-    \ and verification output) is missing, so the task is not satisfied."
-T025:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, notebook, script, or documentation implementing a permutation\u2011\
-    based p\u2011value calculation for feature importances was provided. The claim\
-    \ lacks any tangible artifact (e.g., a function, module, or test results) to verify\
-    \ that the required functionality exists or works. The implementer must supply\
-    \ the actual implementation and evidence (e.g., source file, usage example, and\
-    \ validation output)."
+  h: 9977c96c9e8b93cddfe5434babe6e26821ed931a0a2630bf24e1ba617b281340
+  r: "The provided `code/data/preprocess.py` does not contain a `detect_outliers`\
+    \ function (the visible portion shows only filtering/normalization utilities and\
+    \ is truncated before any outlier logic). Moreover, the required output file `data/validation/outliers_flagged.csv`\
+    \ is absent. Both the function implementation and the flagged\u2011outliers CSV\
+    \ are missing, so the task is not satisfied."
 T029:
   c: false
   h: 48c8b8e4fb8ee101011b1779c5cad1a3a2735261e85048ff31661bc1b3677b71
   r: "The required integration test file `tests/integration/test_feature_ranking.py`\
     \ does not exist in the repository, so the task\u2019s deliverable is missing.\
     \ No further content can be evaluated."
+T030:
+  c: false
+  h: 029f37a2799de1c917ee936f9d9b196bce8457a5c10bfc99d9b5e57aeae437bd
+  r: The repository contains `code/interpret/shap_analysis.py`, but the file is truncated
+    and does not show any logic that writes `data/results/shap_summary.json`. Moreover,
+    the expected output file `data/results/shap_summary.json` is absent from the project.
+    Consequently, the required artifact is missing and the task is not fulfilled.
+T034:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or generated report was provided that creates a diagnostic\
+    \ report when model R\xB2 falls below 0.5. The evidence lacks any artifact (e.g.,\
+    \ a function, CLI tool, or sample PDF/HTML) demonstrating the required behavior,\
+    \ so the task is not satisfied."
+T037:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md or docs/ files were presented, nor any excerpts showing that documentation
+    was actually updated. Without concrete evidence of the required files and their
+    content, we cannot confirm the documentation updates were performed. The implementer
+    must provide the updated README.md and the relevant files in the docs/ directory.
+T039b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, scripts, or performance reports were supplied showing that the identified
+    bottlenecks from `bottleneck_report.json` were addressed using chunking, multiprocessing,
+    or caching. The required optimized artifacts are missing, so the task is not satisfied.
+T039c:
+  c: false
+  h: b78c9ce8fbedb4c1539f49852c4863b836ea5514b7335d2a13f1e1360f1867a9
+  r: The provided `code/main.py` does not define or parse a `--mode dry_run` flag,
+    nor does it show logic that conditionally skips training while still running SHAP
+    analysis. The file is truncated before completing the pipeline and does not call
+    `persist_runtime_log`, and the required `data/benchmarks/runtime_log.json` is
+    absent. These missing pieces prevent the task from being satisfied.
+T045:
+  c: false
+  h: bd02ab47037b53553133fdc1a3af351e0a99eb006646ec55d485a0361d7dac38
+  r: The `code/models/audit.py` file is present but the shown source is truncated
+    (the `write_leakage_report` function is incomplete and there is no visible main
+    routine that aborts training on leakage). Moreover, the required output file `data/audit/leakage_report.json`
+    does not exist, indicating the script has not been executed or does not generate
+    the report as specified. The implementation therefore does not fully satisfy the
+    task requirements.
+T061:
+  c: true
+  h: bb20706fb17b432d4ceb5ec2f3732247ae416cc2b51f3f40839dc84f8880eae4
+  r: "The repository contains a non\u2011empty `code/data/merge.py` (4\u202FKB) that\
+    \ implements directory handling, chunk discovery, and a `merge_parquet_files`\
+    \ routine to read and concatenate Parquet chunks into `data/raw/merged_dataset.parquet`.\
+    \ No placeholder or stub code is present, satisfying the task\u2019s requirement\
+    \ to create the merging script. (The merged output file itself is an expected\
+    \ runtime product, not a required artifact.)"
+T066:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, tests, or documentation were provided that implements a descriptor\u2011\
+    leakage audit or extends the existing T045 leakage check. The required artifact\
+    \ (e.g., a function/module that verifies descriptors are not derived from test\u2011\
+    set targets) is missing, so the task is not satisfied."
+T068:
+  c: false
+  h: 69337dc92ac3dfd4b0cfcf266167ad0b2214d44694e46cb23f2b9875e75f0ae7
+  r: "The provided `null_model.py` does not contain a `null_model_top3` function that\
+    \ loads the top\u20113 features from `data/results/shap_summary.json`, filters\
+    \ the data, trains a mean\u2011predictor, and writes `null_model_top3_rmses.json`.\
+    \ Moreover, `data/results/shap_summary.json` and the expected output file `data/results/null_model_top3_rmses.json`\
+    \ are absent. The task requirements are therefore not met."

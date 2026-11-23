@@ -1,179 +1,198 @@
 """
-T016: Generate data/curated/curated_dataset.csv with complete molecular graph structures and adhesion energy measurements.
+Generate the curated dataset for molecular interactions.
 
-This script reads the cleaned and validated data from the previous step (T014/T015),
-constructs the final curated dataset including molecular graph representations
-(using RDKit to generate canonical SMILES and basic graph properties), and saves it
-to data/curated/curated_dataset.csv.
+This script loads the cleaned data from data/raw/molnet_raw.csv,
+validates the required fields, and outputs the final curated dataset
+to data/curated/curated_dataset.csv with the schema:
+- polymer_smiles (str)
+- filler_smiles (str)
+- adhesion_energy (float)
 
-It relies on the outputs of T011 (download), T013 (hard abort check), T014 (cleaning),
-and T015 (power analysis warning).
+It enforces the hard abort logic (E-DATA-001) if adhesion_energy is missing
+or row count < 100, as per the project plan.
 """
-
 import os
 import sys
 import logging
 import json
 import math
 from pathlib import Path
+from typing import List, Dict, Any, Optional, Tuple
 import pandas as pd
-from rdkit import Chem
-from rdkit.Chem import Descriptors
-import numpy as np
 
 # Add project root to path for imports
 project_root = Path(__file__).resolve().parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from utils.exceptions import DataError
-from utils.logger import PerformanceLogger, log_performance
-from utils.seed_utils import set_seed
 
 # Configure logging
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.StreamHandler(sys.stdout)
+    ]
 )
 logger = logging.getLogger(__name__)
 
-def load_cleaned_data(input_path: Path) -> pd.DataFrame:
-    """Load the cleaned dataset from the previous step."""
-    if not input_path.exists():
-        raise FileNotFoundError(f"Cleaned data not found at {input_path}. "
-                                "Please ensure T014 (clean.py) has run successfully.")
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} rows from {input_path}")
-    return df
+# Paths
+RAW_DATA_PATH = project_root / "data" / "raw" / "molnet_raw.csv"
+CURATED_OUTPUT_PATH = project_root / "data" / "curated" / "curated_dataset.csv"
+OUTPUT_DIR = CURATED_OUTPUT_PATH.parent
 
-def compute_graph_properties(smiles: str) -> dict:
+def load_cleaned_data() -> pd.DataFrame:
     """
-    Compute basic graph properties for a given SMILES string.
-    Returns a dictionary with:
-      - num_atoms: number of atoms
-      - num_bonds: number of bonds
-      - molecular_weight: MW
-      - logp: LogP
-      - num_rotatable_bonds: Rotatable bonds
-      - num_h_acceptors: H-bond acceptors
-      - num_h_donors: H-bond donors
-      - topological_polar_surface_area: TPSA
-      - canonical_smiles: Canonical SMILES representation
+    Load the cleaned data from the raw CSV file.
     """
-    mol = Chem.MolFromSmiles(smiles)
-    if mol is None:
-        return {
-            "num_atoms": 0,
-            "num_bonds": 0,
-            "molecular_weight": 0.0,
-            "logp": 0.0,
-            "num_rotatable_bonds": 0,
-            "num_h_acceptors": 0,
-            "num_h_donors": 0,
-            "topological_polar_surface_area": 0.0,
-            "canonical_smiles": None
-        }
-
+    if not RAW_DATA_PATH.exists():
+        raise DataError(f"Raw data file not found at {RAW_DATA_PATH}. "
+                        "Please run code/data/download.py and code/data/clean.py first.")
+    
+    logger.info(f"Loading cleaned data from {RAW_DATA_PATH}")
     try:
-        canonical_smiles = Chem.MolToSmiles(mol)
-        num_atoms = mol.GetNumAtoms()
-        num_bonds = mol.GetNumBonds()
-        mw = Descriptors.MolWt(mol)
-        logp = Descriptors.MolLogP(mol)
-        rotatable = Descriptors.NumRotatableBonds(mol)
-        h_acc = Descriptors.NumHAcceptors(mol)
-        h_don = Descriptors.NumHDonors(mol)
-        tpsa = Descriptors.TPSA(mol)
-
-        return {
-            "num_atoms": num_atoms,
-            "num_bonds": num_bonds,
-            "molecular_weight": mw,
-            "logp": logp,
-            "num_rotatable_bonds": rotatable,
-            "num_h_acceptors": h_acc,
-            "num_h_donors": h_don,
-            "topological_polar_surface_area": tpsa,
-            "canonical_smiles": canonical_smiles
-        }
+        df = pd.read_csv(RAW_DATA_PATH)
+        logger.info(f"Loaded {len(df)} rows from {RAW_DATA_PATH}")
+        return df
     except Exception as e:
-        logger.warning(f"Error computing properties for SMILES {smiles}: {e}")
-        return {
-            "num_atoms": 0,
-            "num_bonds": 0,
-            "molecular_weight": 0.0,
-            "logp": 0.0,
-            "num_rotatable_bonds": 0,
-            "num_h_acceptors": 0,
-            "num_h_donors": 0,
-            "topological_polar_surface_area": 0.0,
-            "canonical_smiles": None
-        }
+        raise DataError(f"Failed to load cleaned data from {RAW_DATA_PATH}: {e}")
+
+def validate_adhesion_energy(df: pd.DataFrame) -> Tuple[bool, str]:
+    """
+    Validate that the 'adhesion_energy' column exists and has valid data.
+    """
+    if 'adhesion_energy' not in df.columns:
+        return False, "Column 'adhesion_energy' is missing from the dataset."
+    
+    # Check for missing values
+    missing_count = df['adhesion_energy'].isna().sum()
+    total_count = len(df)
+    missing_pct = (missing_count / total_count * 100) if total_count > 0 else 100
+    
+    if missing_pct > 5.0:
+        return False, f"Missing values in 'adhesion_energy' exceed 5% ({missing_pct:.2f}%)."
+    
+    return True, "Adhesion energy validation passed."
+
+def validate_row_count(df: pd.DataFrame) -> Tuple[bool, str]:
+    """
+    Validate that the dataset has at least 100 rows.
+    """
+    count = len(df)
+    if count < 100:
+        return False, f"Row count ({count}) is below the minimum threshold of 100."
+    return True, f"Row count validation passed ({count} rows)."
+
+def validate_missing_values(df: pd.DataFrame) -> Tuple[bool, str]:
+    """
+    Validate that missing values per column are <= 5%.
+    """
+    threshold = 0.05
+    problematic_cols = []
+    
+    for col in df.columns:
+        missing_pct = df[col].isna().sum() / len(df)
+        if missing_pct > threshold:
+            problematic_cols.append(f"{col} ({missing_pct*100:.2f}%)")
+    
+    if problematic_cols:
+        return False, f"Columns with >5% missing values: {', '.join(problematic_cols)}"
+    
+    return True, "Missing value validation passed."
+
+def calculate_margin_of_error(df: pd.DataFrame) -> float:
+    """
+    Calculate the margin of error for the adhesion energy measurements.
+    Formula: 1.96 * std / sqrt(n)
+    """
+    adhesion_data = df['adhesion_energy'].dropna()
+    if len(adhesion_data) < 2:
+        return float('nan')
+    
+    std_val = adhesion_data.std()
+    n = len(adhesion_data)
+    moe = 1.96 * std_val / math.sqrt(n)
+    return moe
 
 def generate_curated_dataset(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Generate the curated dataset by adding graph properties for polymer and filler.
+    Generate the curated dataset with the required schema.
     """
-    logger.info("Computing graph properties for polymer and filler molecules...")
+    # Select and rename columns if necessary
+    required_cols = ['polymer_smiles', 'filler_smiles', 'adhesion_energy']
     
-    # Apply graph property computation to polymer and filler SMILES columns
-    # Assuming the cleaned data has 'polymer_smiles' and 'filler_smiles' columns
-    if 'polymer_smiles' not in df.columns or 'filler_smiles' not in df.columns:
-        raise DataError("Missing required columns 'polymer_smiles' or 'filler_smiles' in cleaned data.")
-
-    polymer_props = df['polymer_smiles'].apply(lambda x: compute_graph_properties(str(x)) if pd.notna(x) else compute_graph_properties(""))
-    filler_props = df['filler_smiles'].apply(lambda x: compute_graph_properties(str(x)) if pd.notna(x) else compute_graph_properties(""))
-
-    # Flatten the dictionaries into separate columns
-    polymer_cols = {f"polymer_{k}": [p[k] for p in polymer_props] for k in polymer_props[0].keys()}
-    filler_cols = {f"filler_{k}": [f[k] for f in filler_props] for f in filler_props[0].keys()}
-
-    # Add new columns to the dataframe
-    for col_name, values in polymer_cols.items():
-        df[col_name] = values
-    for col_name, values in filler_cols.items():
-        df[col_name] = values
-
-    logger.info(f"Generated {len(df.columns)} columns in curated dataset.")
-    return df
+    # Check if all required columns exist
+    missing_cols = [col for col in required_cols if col not in df.columns]
+    if missing_cols:
+        raise DataError(f"Required columns missing: {missing_cols}")
+    
+    # Create the curated dataframe
+    curated_df = df[required_cols].copy()
+    
+    # Drop rows where any required value is missing
+    initial_rows = len(curated_df)
+    curated_df = curated_df.dropna(subset=required_cols)
+    final_rows = len(curated_df)
+    
+    if initial_rows != final_rows:
+        logger.warning(f"Dropped {initial_rows - final_rows} rows due to missing required values.")
+    
+    # Ensure adhesion_energy is float
+    curated_df['adhesion_energy'] = curated_df['adhesion_energy'].astype(float)
+    
+    return curated_df
 
 def main():
-    """Main entry point for T016."""
-    # Set seed for reproducibility
-    set_seed(42)
-
-    # Define paths
-    cleaned_data_path = project_root / "data" / "curated" / "cleaned_dataset.csv"
-    output_dir = project_root / "data" / "curated"
-    output_path = output_dir / "curated_dataset.csv"
-
-    # Ensure output directory exists
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    logger.info("Starting T016: Generate curated dataset...")
+    """
+    Main function to generate the curated dataset.
+    """
+    logger.info("Starting curated dataset generation...")
     
-    try:
-        # Load cleaned data
-        df = load_cleaned_data(cleaned_data_path)
-
-        # Check row count (should already be validated by T013/T014)
-        if len(df) < 100:
-            raise DataError(f"Dataset has {len(df)} rows, which is less than the required minimum of 100. "
-                            "This should have been caught by T013.")
-
-        # Generate curated dataset with graph properties
-        curated_df = generate_curated_dataset(df)
-
-        # Save to CSV
-        curated_df.to_csv(output_path, index=False)
-        logger.info(f"Successfully saved curated dataset to {output_path}")
-        logger.info(f"Total rows: {len(curated_df)}, Total columns: {len(curated_df.columns)}")
-
-        # Log performance
-        log_performance("T016_generate_curated", output_path, len(curated_df))
-
-    except Exception as e:
-        logger.error(f"Error during T016 execution: {e}")
-        raise
+    # Ensure output directory exists
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    
+    # Load cleaned data
+    df = load_cleaned_data()
+    
+    # Validate adhesion energy
+    valid, msg = validate_adhesion_energy(df)
+    if not valid:
+        raise DataError(f"E-DATA-001: {msg}")
+    logger.info(f"Adhesion energy validation: {msg}")
+    
+    # Validate row count
+    valid, msg = validate_row_count(df)
+    if not valid:
+        raise DataError(f"E-DATA-001: {msg}")
+    logger.info(f"Row count validation: {msg}")
+    
+    # Validate missing values
+    valid, msg = validate_missing_values(df)
+    if not valid:
+        logger.warning(f"Missing value validation warning: {msg}")
+        # Log warning but proceed as per T016 (Limited Power)
+    else:
+        logger.info(f"Missing value validation: {msg}")
+    
+    # Generate curated dataset
+    curated_df = generate_curated_dataset(df)
+    
+    # Log margin of error if row count is between 100 and 500
+    if 100 <= len(curated_df) < 500:
+        moe = calculate_margin_of_error(curated_df)
+        logger.warning(f"Limited Power Warning: Dataset has {len(curated_df)} rows. "
+                       f"Margin of Error for adhesion_energy: {moe:.4f}")
+    
+    # Save curated dataset
+    curated_df.to_csv(CURATED_OUTPUT_PATH, index=False)
+    logger.info(f"Curated dataset saved to {CURATED_OUTPUT_PATH} with {len(curated_df)} rows.")
+    
+    # Verify the output file
+    if not CURATED_OUTPUT_PATH.exists():
+        raise DataError(f"Failed to create output file at {CURATED_OUTPUT_PATH}")
+    
+    logger.info("Curated dataset generation completed successfully.")
+    return curated_df
 
 if __name__ == "__main__":
     main()

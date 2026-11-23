@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2503.19586",
+  "judged_at": "2026-08-15T09:16:53Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"gemma 4 technical report\" linguistics",
+  "rationale": "This paper satisfies criterion (a) by measuring the same underlying mechanism (linguistic processing, surprisal, and model-brain alignment) in the same domain (large language models) as the user's question, even though it focuses on audio-language models and social-linguistic nuances rather than the specific \"Gemma 4\" text report. It also fits criterion (f) as a canonical study in the alternative-vocabulary cluster of \"model-brain alignment\" and \"surprisal\" which are standard metrics for evaluat",
+  "relevant": true
+}

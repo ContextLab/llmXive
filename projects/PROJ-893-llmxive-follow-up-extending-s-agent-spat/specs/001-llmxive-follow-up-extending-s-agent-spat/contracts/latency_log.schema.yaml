@@ -1,0 +1,52 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Latency Log Schema
+description: |
+  Schema for the latency log generated during solver execution.
+  Each line in the JSONL file represents one scene's timing data.
+type: object
+required:
+  - scene_id
+  - total_time_ms
+  - parse_time_ms
+  - solve_time_ms
+  - timestamp
+properties:
+  scene_id:
+    type: string
+    description: The ID of the scene.
+    pattern: "^scene_\\d+$"
+  total_time_ms:
+    type: number
+    format: float
+    minimum: 0
+    description: Total time taken for the scene processing.
+  parse_time_ms:
+    type: number
+    format: float
+    minimum: 0
+    description: Time taken to parse and extract constraints.
+  solve_time_ms:
+    type: number
+    format: float
+    minimum: 0
+    description: Time taken by the CSP engine to solve.
+  timestamp:
+    type: string
+    format: date-time
+    description: ISO 8601 timestamp of the execution.
+  status:
+    type: string
+    enum:
+      - success
+      - failed
+      - excluded
+    description: Outcome of the processing.
+  hardware_info:
+    type: object
+    description: Hardware info at the time of execution.
+    properties:
+      cpu_count:
+        type: integer
+      memory_available_gb:
+        type: number
+additionalProperties: false

@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1806.04801",
+  "judged_at": "2026-07-20T00:49:43Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting molecular surface charge distribution from quantum chemical calculations chemistry",
+  "rationale": "This paper satisfies criteria (a) and (d) as it presents a foundational algorithmic method (Harmonic Surface Mapping) for computing electrostatic potentials and surface charge distributions in molecular and crystalline systems, which is the core mechanism required to predict the user's target variable from quantum chemical inputs.",
+  "relevant": true
+}

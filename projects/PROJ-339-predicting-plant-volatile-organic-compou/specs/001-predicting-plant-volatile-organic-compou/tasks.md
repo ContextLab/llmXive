@@ -43,7 +43,7 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [X] T001a [P] Create project directories: `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `data/models/`, `specs/`
+- [X] T001a [P] Create project directories: `code/`, `tests/`, `data/raw/`, `data/processed/`, `data/results/`, `data/models/`, `data/reference/`, `specs/`
 - [X] T001b [P] Create `requirements.txt` with dependencies: `scikit-learn`, `pandas`, `numpy`, `shap`, `requests`, `biopython`, `pyyaml`, `memory-profiler`
 - [X] T001c [P] Create `.gitignore` to exclude `data/`, `__pycache__`, `*.pyc`, `*.pkl`
 - [X] T001d [P] Create `.env.example` with placeholder keys for data paths and seeds
@@ -52,16 +52,18 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can begin
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [X] T004 Implement `code/utils/hashing.py` for content checksumming of artifacts
-- [X] T005 [P] Create `code/generators/synthetic_data.py` as the canonical source for mock data (checksummed). Must output `data/raw/synthetic_arabidopsis_v1.csv`.
-- [X] T006 [P] Implement `code/utils/validation.py` for replicate checks and data type validation
-- [ ] T007 Create base data schemas in `specs/001-predict-voc-profiles/contracts/dataset.schema.yaml`
-- [ ] T008 Configure environment variable management for data paths and seeds
-- [X] T009 Implement `code/utils/imputation.py` for median/KNN strategies
+- [ ] T007a [P] [Foundational] Implement `specs/001-predict-voc-profiles/contracts/dataset.schema.yaml`. Define schema objects: 'Sample', 'GenomicFeature', 'EnvironmentalFeature', 'VOCProfile'. **Verification**: Validate schema against a dummy CSV using `pydantic` or `jsonschema`.
+- [X] T008a [P] [Foundational] Configure environment variable management by creating `code/utils/config.py` and defining variables: `DATA_PATH`, `RANDOM_SEED`, `MODEL_PATH`. **Verification**: Script loads `.env` and raises error if missing keys.
+- [X] T004 [Foundational] Implement `code/utils/hashing.py` for content checksumming of artifacts. **Verification**: Hash of a test file matches expected value.
+- [ ] T005 [Foundational] Implement `code/generators/synthetic_data.py` as the canonical source for mock data (checksummed). Must output `data/raw/synthetic_arabidopsis_v1.csv`. **Dependency**: T007a (schema), T008a (env config). **Verification**: Output matches schema defined in T007a.
+- [X] T005b [Foundational] Implement schema validation logic in `code/generators/synthetic_data.py` or a helper script to verify that the synthetic data schema matches the real-world schema of NCBI GEO and Metabolomics Workbench (as defined in T007a). **Verification**: Script runs against synthetic output and a reference schema loaded from `data/reference/real_world_schema.json`, passing only if structures align.
+- [X] T006 [P] [Foundational] Implement `code/utils/validation.py` for replicate checks and data type validation. **Verification**: Unit tests for `check_replicates` and `validate_types`.
+- [X] T009a [Foundational] Implement `code/utils/imputation.py` with **median imputation as the default strategy**. **Verification**: Unit tests for median imputation logic on dummy data. **Note**: Median is the defined strategy for the final pipeline run per FR-002.
+- [X] T009b [Foundational] Implement `code/utils/imputation.py` with **KNN imputation as an optional strategy**. **Verification**: Unit tests for KNN imputation logic on dummy data.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -69,24 +71,27 @@
 
 ## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
 
-**Goal**: Ingest paired RNA-seq and VOC data (real or synthetic), normalize to TPM, handle missing values, and merge by exact sample pairing.
+**Goal**: Ingest paired RNA-seq and VOC data (REAL ONLY), normalize to TPM, handle missing values, and merge by exact sample pairing.
 
-**Independent Test**: The pipeline executes on a sample subset (or synthetic data), producing a single merged CSV with ≥50 rows, normalized transcript counts, and valid VOC targets.
+**Independent Test**: The pipeline executes on a sample subset (or synthetic data for local testing ONLY), producing a single merged CSV with ≥50 rows, normalized transcript counts, and valid VOC targets.
 
 ### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
 
 > **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
 
-- [ ] T010 [P] [US1] Contract test for data ingestion output schema in `tests/test_ingest.py`
-- [ ] T011 [US1] Integration test for merge logic in `tests/test_merge.py` (Defines contract for T015; no dependency on T015 completion)
+- [X] T010 [P] [US1] Contract test for data ingestion output schema in `tests/test_ingest.py`
+- [X] T011 [US1] Integration test for merge logic in `tests/test_merge.py` (Defines contract for T015c; no dependency on T015c completion)
 
 ### Implementation for User Story 1
 
-- [ ] T012 [US1] Query NCBI GEO and Metabolomics Workbench for *Arabidopsis thaliana* stress studies using search strings "Arabidopsis thaliana" AND ("VOC" OR "volatile") AND "RNA-seq" AND "stress". Log results to `data/raw/query_log.json`. **If** `data/raw/query_log.json` is empty or contains no valid paired samples, immediately trigger T005 to generate synthetic data.
-- [X] T014 [US1] Implement TPM normalization and missing value imputation in `code/01_ingest.py`. **Note**: Imputation applies to non-critical fields; critical environmental fields (temp, light) are handled by T015 exclusion logic. (Depends on T012/T005 completion)
-- [X] T015 [US1] Implement `code/02_merge.py` to join genomic and VOC data ONLY on exact sample ID match. **Logic**: 1) Exclude conditions with <3 biological replicates (FR-011). 2) Exclude samples missing continuous environmental metadata for 'temperature' or 'light intensity' (FR-012). 3) Merge remaining data. (Depends on T014 completion; excludes data before imputation obscures missingness)
-- [~] T016 [US1] Implement aggregation of gene expression into pathway-level features (e.g., TPS families) to reduce dimensionality for the model. (Depends on T015 completion)
-- [ ] T017 [US1] Ensure output CSV `data/processed/merged_dataset.csv` has correct types and no non-numeric entries. Generate validation report at `data/results/data_validation_report.json`. (Depends on T016 completion)
+- [ ] T012 [US1] Implement `code/01_ingest.py` to query NCBI GEO and Metabolomics Workbench for *Arabidopsis thaliana* stress studies using search strings "Arabidopsis thaliana" AND ("VOC" OR "volatile") AND "RNA-seq" AND "stress". Log results to `data/raw/query_log.json`. **Primary Deliverable**: Ingest real paired data if available. **Critical Constraint**: If the query returns fewer than 50 valid paired samples, the script MUST **automatically invoke** `code/generators/synthetic_data.py` (T005) to generate synthetic data. Do NOT raise a `DataUnavailableError` or require manual flags. Synthetic data generation is automatic upon real data failure. (Depends on T007a, T008a, T005, T005b)
+- [X] T015b [US1] Implement environmental metadata filter in `code/02_merge.py`. **Logic**: **Exclude samples where ANY of the following are missing**: 'temperature', 'light intensity', OR 'CO2 level' (FR-012). (Depends on T009a)
+- [X] T015a [US1] Implement replicate check logic in `code/02_merge.py`. **Logic**: Filter out experimental conditions with <3 biological replicates (FR-011). (Depends on T015b)
+- [X] T014 [US1] Implement TPM normalization and missing value imputation in `code/01_ingest.py`. **Note**: Imputation applies to non-critical fields; critical environmental fields (temp, light, CO2) are handled by T015b exclusion logic. Uses default strategy from T009a. (Depends on T015a)
+- [ ] T017a [US1] Implement validation logic in `code/02_merge.py` to enforce types and generate `data/results/data_validation_report.json`. Ensure output CSV `data/processed/merged_dataset.csv` has correct types and no non-numeric entries. (Depends on T014)
+- [ ] T017b [US1] [Remediation] Explicitly generate `data/results/data_validation_report.json` with keys: `total_samples`, `excluded_samples`, `missing_values_imputed`, `validation_status`. **Verification**: File exists and contains valid JSON. (Depends on T017a)
+- [ ] T016a [US1] (Optional) Implement aggregation of gene expression into pathway-level features (e.g., mean TPM per TPS family) to reduce dimensionality. Output column naming: `tps_family_X_mean`. **Condition**: Only if raw feature count > 100. (Depends on T017a)
+- [ ] T016b [US1] [Remediation] Implement raw feature overlap calculation against known terpene synthase families (FR-008) using raw features. **Source**: Load reference list from `data/reference/tps_families.csv`. **Metric**: Calculate Jaccard index of top-ranked features vs reference list. (Depends on T017a)
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -101,16 +106,19 @@
 ### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T018 [P] [US2] Contract test for model metrics JSON schema in `tests/test_model.py`
-- [X] T019 [US2] Integration test for cross-validation loop in `tests/test_model.py` (Depends on T024 completion)
+- [X] T019 [US2] Integration test for cross-validation loop in `tests/test_model.py` (Depends on T021 completion)
 
 ### Implementation for User Story 2
 
-- [X] T020 [US2] Implement `code/03_train.py` using scikit-learn Random Forest Regressor (CPU only, no GPU/quantization).
-- [X] T021 [US2] Implement **Nested k-Fold Cross-Validation** (inner loop for tuning, outer loop for evaluation) in `code/03_train.py` as the primary strategy for FR-005.
-- [~] T022 [US2] Ensure imputation parameters are fitted ONLY on training folds to prevent leakage. (Depends on T020, T021)
-- [~] T023 [US2] Calculate and report R² and RMSE metrics in `data/results/model_metrics.json`.
-- [ ] T024 [US2] Save trained model artifact to `data/models/random_forest.pkl`. (Depends on T020 completion)
-- [~] T025 [US2] Inject associational disclaimer ("Findings are associational due to observational data") into `data/results/model_metrics.json` and `data/results/interpretation_report.json`. Verify via `tests/test_model.py`. (Depends on T024 completion)
+- [ ] T020 [US2] Implement `code/03_train.py` using scikit-learn Random Forest Regressor (CPU only, no GPU/quantization). (Depends on T017a)
+- [ ] T022a [US2] [Remediation] Refactor `code/03_train.py` to use `sklearn.pipeline.Pipeline` with `ColumnTransformer` for imputation. **Logic**: Ensure imputation parameters are fitted ONLY on training folds. (Depends on T020)
+- [ ] T022b [US2] [Remediation] Implement `ColumnTransformer` configuration in T022a to handle numeric and categorical columns separately. (Depends on T022a)
+- [ ] T022c [US2] [Remediation] Implement nested cross-validation loop structure in `code/03_train.py` (inner loop for tuning, outer for evaluation) to prevent data leakage. (Depends on T022b)
+- [ ] T021 [US2] Implement **Nested k-Fold Cross-Validation** (inner loop for tuning, outer loop for evaluation) in `code/03_train.py` as the primary strategy for FR-005. (Depends on T022c)
+- [ ] T023a [US2] Calculate R² and RMSE metrics in `code/03_train.py`. (Depends on T021)
+- [ ] T023b [US2] [Remediation] Write metrics to `data/results/model_metrics.json` with keys: `r2_score`, `rmse`, `baseline_r2`. **Verification**: File exists and contains valid JSON. (Depends on T023a)
+- [ ] T024a [US2] [Remediation] Save trained model artifact to `data/models/random_forest.pkl`. **Verification**: File exists and can be loaded. (Depends on T021)
+- [ ] T025a [US2] [Remediation] Inject associational disclaimer ("Findings are associational due to observational data") into **all** JSON outputs: `model_metrics.json`, `interpretation_report.json`, `data_validation_report.json`, and `stability_metrics.json`. Verify via `tests/test_model.py`. (Depends on T024a, T017b, T033a)
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -125,16 +133,17 @@
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
 - [X] T026 [P] [US3] Contract test for interpretation output schema in `tests/test_interpret.py`
-- [X] T027 [US3] Integration test for SHAP generation in `tests/test_interpret.py` (Depends on T033 completion)
+- [X] T027 [US3] Integration test for SHAP generation in `tests/test_interpret.py` (Depends on T028a completion)
 
 ### Implementation for User Story 3
 
-- [X] T028 [US3] Implement permutation feature importance calculation in `code/04_interpret.py`, generating p-values. (Depends on T024 completion) <!-- FAILED: unspecified -->
-- [ ] T029 [US3] Generate SHAP value visualizations and save to `data/results/shap_summary.png`. (Depends on T024 completion)
-- [ ] T030 [US3] Apply Benjamini-Hochberg correction to p-values from T028 (permutation test) and save corrected values to `data/results/feature_importance_pvalues.json` (FR-010).
-- [~] T031 [US3] Implement overlap statistics calculation against known terpene synthase gene families (FR-008) using the aggregated pathway features from T016.
-- [ ] T032 [US3] Generate final JSON report in `data/results/interpretation_report.json` with disclaimers and FDR values.
-- [ ] T033 [US3] Validate stability of feature importance rankings across CV folds by generating `data/results/stability_metrics.json` containing the standard deviation of feature ranks (SC-004). (Depends on T024 completion)
+- [ ] T028a [US3] Implement permutation feature importance calculation in `code/_interpret.py` using 1000 permutations to generate p-values. Output file: `data/results/feature_importance_pvalues.json`. (Depends on T024a)
+- [ ] T030 [US3] Apply Benjamini-Hochberg correction to p-values from T028a (permutation test) and **calculate the resulting False Discovery Rate (FDR) value**. Save corrected values and FDR metric to `data/results/feature_importance_pvalues_corrected.json` (FR-010, SC-005). **Deliverable**: Must include a key `fdr_threshold` in the output JSON representing the calculated FDR value. (Depends on T028a)
+- [ ] T031a [US3] [Remediation] Implement overlap statistics calculation against known terpene synthase gene families (FR-008) using raw features. **Source**: Load reference list from `data/reference/tps_families.csv`. **Metric**: Calculate Jaccard index of top-ranked features vs reference list. (Depends on T024a)
+- [ ] T031b [US3] [Remediation] Explicitly generate `data/results/overlap_statistics.json` with keys: `top_features`, `reference_features`, `jaccard_index`, `p_value`. **Verification**: File exists and contains valid JSON. (Depends on T031a)
+- [ ] T029 [US3] Generate SHAP value visualizations and save to `data/results/shap_summary.png`. (Depends on T024a)
+- [ ] T033a [US3] [Remediation] Validate stability of feature importance rankings across CV folds by generating `data/results/stability_metrics.json`. **Metric**: **Spearman correlation of ranks** across 5 folds. **Verification**: File exists and contains valid JSON. (Depends on T024a)
+- [ ] T032a [US3] [Remediation] Generate final JSON report in `code/05_report.py` at `data/results/interpretation_report.json`. **Keys**: `disclaimer`, `fdr_values`, `top_features`, `overlap_stats`, `shap_summary_path`, `stability_metrics_path`. **Verification**: File exists and contains valid JSON. (Depends on T030, T031b, T029, T033a)
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -144,11 +153,12 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T034 [P] Documentation updates in `quickstart.md` (include synthetic data generation command and full pipeline execution command) and `research.md` (update with data availability status).
+- [ ] T034a [P] Update `quickstart.md` with synthetic data generation command and full pipeline execution command.
+- [ ] T034b [P] Update `research.md` with data availability status.
 - [ ] T035 Run `ruff check` and `black --check` on `code/`, save output to `data/results/lint_report.txt`.
-- [~] T036 Run `memory_profiler` on the full pipeline, record peak RAM usage in `data/results/perf_metrics.json` (ensure <6GB).
-- [~] T037 [P] Additional unit tests for edge cases (missing data, <50 samples) in `tests/unit/`
-- [~] T038 Run `quickstart.md` validation to ensure end-to-end reproducibility
+- [ ] T036 Create `code/utils/perf_monitor.py` to wrap the pipeline execution, capture peak RAM, and write to `data/results/perf_metrics.json` (ensure <6GB).
+- [ ] T037 [P] Additional unit tests for edge cases in `tests/unit/`. **Functions**: `test_missing_data_handling` (asserts exclusion), `test_insufficient_samples` (asserts warning).
+- [ ] T038 Run `bash quickstart.sh` and verify exit code 0 and all artifacts generated.
 
 ---
 
@@ -244,3 +254,4 @@ With multiple developers:
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
 - **Critical Constraint**: All data tasks must use real URLs or the canonical synthetic generator; no fake/hardcoded data values.
 - **Critical Constraint**: All model training must be CPU-only; no GPU, no 8-bit/4-bit quantization.
+- **Critical Constraint**: Data ingestion MUST automatically fallback to synthetic data if real data is missing; no manual flags or silent failures.

@@ -1,95 +1,70 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "Analysis Output Schema"
-description: "Schema for the final statistical report JSON."
+title: "LMM Analysis Results"
+description: "Schema for the output of the Linear Mixed Model analysis."
 type: object
 properties:
-  primary_model:
+  model_info:
     type: object
     properties:
-      thread_type_Prime:
-        type: object
-        properties:
-          coef:
-            type: number
-          std_err:
-            type: number
-          p_value:
-            type: number
-            minimum: 0
-            maximum: 1
-          conf_int:
-            type: array
-            items:
-              type: number
-            minItems: 2
-            maxItems: 2
-        required:
-          - coef
-          - std_err
-          - p_value
-          - conf_int
-      singular_fit_fallback:
-        type: boolean
-        description: "True if user_id random effect was dropped."
-    required:
-      - thread_type_Prime
-      - singular_fit_fallback
-  sensitivity_analysis:
-    type: object
-    properties:
-      bootstrap_p_values:
-        type: array
-        items:
-          type: number
-        description: "P-values from 1,000 bootstrap resamples."
-      control_drop_p_values:
-        type: object
-        description: "P-values when dropping each control variable."
-      random_effect_variants:
-        type: object
-        description: "P-values for alternative random effect structures."
-    required:
-      - bootstrap_p_values
-  power_analysis:
-    type: object
-    properties:
-      effect_size_d:
-        type: number
-      sample_size:
-        type: integer
-      power:
-        type: number
-        minimum: 0
-        maximum: 1
-      warning:
+      formula:
         type: string
-        description: "Warning message if power < 80%."
-    required:
-      - effect_size_d
-      - sample_size
-      - power
-  validation:
-    type: object
-    properties:
-      cohen_kappa:
-        type: number
-        minimum: 0
-        maximum: 1
-      raters_count:
+        description: "The LMM formula used."
+      converged:
+        type: boolean
+        description: "Whether the model converged."
+      n_obs:
         type: integer
-        minimum: 3
-      neg_score_pearson_r:
-        type: number
-        minimum: -1
-        maximum: 1
-        description: "Pearson correlation between neg_score and VADER native neg."
+        description: "Number of observations."
+      n_groups:
+        type: object
+        description: "Number of groups per random effect."
+        properties:
+          subreddit:
+            type: integer
+          user_id:
+            type: integer
     required:
-      - cohen_kappa
-      - raters_count
-      - neg_score_pearson_r
+      - formula
+      - converged
+      - n_obs
+  fixed_effects:
+    type: array
+    description: "Fixed effect coefficients and statistics."
+    items:
+      type: object
+      properties:
+        term:
+          type: string
+        estimate:
+          type: number
+        std_error:
+          type: number
+        t_value:
+          type: number
+        p_value:
+          type: number
+      required:
+        - term
+        - estimate
+        - p_value
+  primary_hypothesis:
+    type: object
+    description: "Result for the primary hypothesis (thread_type effect)."
+    properties:
+      term:
+        type: string
+        const: "thread_type"
+      p_value:
+        type: number
+      is_significant:
+        type: boolean
+        description: "True if p_value < 0.05."
+    required:
+      - term
+      - p_value
+      - is_significant
 required:
-  - primary_model
-  - sensitivity_analysis
-  - power_analysis
-  - validation
-
+  - model_info
+  - fixed_effects
+  - primary_hypothesis
+additionalProperties: false

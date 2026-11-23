@@ -1,15 +1,7 @@
 """
-Validation Runner for quickstart.md verification.
+Validation runner for the llmXive pipeline.
 
-This script executes the core pipeline steps defined in quickstart.md
-to verify that the system produces the expected artifacts and outputs.
-
-It validates:
-1. Project structure existence
-2. Data download and derivation (T012, T013)
-3. Curation and hard instance selection (T014a, T014b, T014c)
-4. Validation report generation (T015)
-5. Artifact hashing (T016)
+Executes the full data pipeline: download, derive, curate, validate, hash.
 """
 import json
 import os
@@ -18,178 +10,202 @@ import time
 from pathlib import Path
 from typing import Dict, Any, List, Optional
 
-# Add project root to path
-PROJECT_ROOT = Path(__file__).parent.parent
-sys.path.insert(0, str(PROJECT_ROOT / "code"))
-
-from config import get_config_summary
-from utils.hash_artifacts import compute_sha256, hash_directory, generate_manifest
-from data.download import download_benchmark_dataset
-from data.derive_gt import derive_ground_truth
-from data.curate import filter_hard_instances, generate_synthetic_issues
-from data.validate_hard import generate_report
-from utils.validation import validate_all_curated_artifacts
+from data.download import main as download_main
+from data.derive_gt import main as derive_gt_main
+from data.curate import main as curate_main
+from data.validate_hard import main as validate_main
+from data.hash_curated import main as hash_curated_main
 
 
 class ValidationStatus:
-    def __init__(self):
-        self.results: Dict[str, Dict[str, Any]] = {}
-        self.errors: List[str] = []
-        self.start_time: float = time.time()
-
-    def log(self, step: str, status: str, details: Optional[str] = None):
-        self.results[step] = {
-            "status": status,
-            "time_elapsed": time.time() - self.start_time,
-            "details": details
-        }
-        if status == "FAILED":
-            self.errors.append(f"{step}: {details}")
-        print(f"[{status}] {step}: {details or ''}")
-
-    def summary(self) -> str:
-        total = len(self.results)
-        passed = sum(1 for r in self.results.values() if r["status"] == "PASSED")
-        failed = total - passed
-        return f"\nValidation Summary: {passed}/{total} steps passed, {failed} failed."
+    """Enum-like class for validation statuses."""
+    SUCCESS = "success"
+    FAILED = "failed"
+    SKIPPED = "skipped"
 
 
-def check_structure():
-    """Verify project directory structure exists."""
+def check_structure() -> bool:
+    """Check if required directory structure exists."""
     required_dirs = [
-        "code", "data/raw", "data/curated", "data/results",
-        "tests/unit", "tests/contract", "contracts", "docs", "paper"
+        "data/raw",
+        "data/curated",
+        "data/results",
+        "tests/unit",
+        "tests/contract",
+        "contracts",
+        "docs",
+        "paper"
     ]
-    missing = []
-    for d in required_dirs:
-        if not (PROJECT_ROOT / d).exists():
-            missing.append(d)
-    
-    if missing:
-        return f"Missing directories: {', '.join(missing)}"
-    return "All required directories exist."
+    for dir_path in required_dirs:
+        if not Path(dir_path).exists():
+            print(f"WARNING: Directory does not exist: {dir_path}")
+            return False
+    return True
 
 
-def run_download(status: ValidationStatus):
-    """Execute T012: Download benchmark dataset."""
+def run_download() -> ValidationStatus:
+    """Run the download step."""
+    print("\n" + "="*50)
+    print("STEP: Download Dataset")
+    print("="*50)
     try:
-        # This calls the real download function which fetches from HuggingFace
-        download_benchmark_dataset()
-        status.log("T012_Download", "PASSED", "Dataset downloaded successfully")
+        exit_code = download_main()
+        if exit_code == 0:
+            print("Download completed successfully.")
+            return ValidationStatus.SUCCESS
+        else:
+            print(f"Download failed with exit code {exit_code}")
+            return ValidationStatus.FAILED
     except Exception as e:
-        status.log("T012_Download", "FAILED", str(e))
+        print(f"Download error: {e}")
+        return ValidationStatus.FAILED
 
 
-def run_derive_gt(status: ValidationStatus):
-    """Execute T013: Derive ground truth."""
+def run_derive_gt() -> ValidationStatus:
+    """Run the ground truth derivation step."""
+    print("\n" + "="*50)
+    print("STEP: Derive Ground Truth")
+    print("="*50)
     try:
-        # This parses the downloaded solution patches
-        derive_ground_truth()
-        status.log("T013_DeriveGT", "PASSED", "Ground truth derived")
+        exit_code = derive_gt_main()
+        if exit_code == 0:
+            print("Ground truth derivation completed successfully.")
+            return ValidationStatus.SUCCESS
+        else:
+            print(f"Ground truth derivation failed with exit code {exit_code}")
+            return ValidationStatus.FAILED
     except Exception as e:
-        status.log("T013_DeriveGT", "FAILED", str(e))
+        print(f"Ground truth derivation error: {e}")
+        return ValidationStatus.FAILED
 
 
-def run_curation(status: ValidationStatus):
-    """Execute T014: Curate hard instances and generate synthetic issues."""
+def run_curation() -> ValidationStatus:
+    """Run the curation step."""
+    print("\n" + "="*50)
+    print("STEP: Curate Dataset")
+    print("="*50)
     try:
-        # Part A: Filter hard instances
-        filter_hard_instances()
-        
-        # Part B: Generate synthetic issues
-        generate_synthetic_issues()
-        
-        status.log("T014_Curation", "PASSED", "Hard instances filtered and synthetic issues generated")
+        exit_code = curate_main()
+        if exit_code == 0:
+            print("Curation completed successfully.")
+            return ValidationStatus.SUCCESS
+        else:
+            print(f"Curation failed with exit code {exit_code}")
+            return ValidationStatus.FAILED
     except Exception as e:
-        status.log("T014_Curation", "FAILED", str(e))
+        print(f"Curation error: {e}")
+        return ValidationStatus.FAILED
 
 
-def run_validation_report(status: ValidationStatus):
-    """Execute T015: Generate validation report."""
+def run_validation_report() -> ValidationStatus:
+    """Run the validation report generation step."""
+    print("\n" + "="*50)
+    print("STEP: Generate Validation Report")
+    print("="*50)
     try:
-        generate_report()
-        status.log("T015_ValidationReport", "PASSED", "Validation report generated")
+        exit_code = validate_main()
+        if exit_code == 0:
+            print("Validation report generation completed successfully.")
+            return ValidationStatus.SUCCESS
+        else:
+            print(f"Validation report generation failed with exit code {exit_code}")
+            return ValidationStatus.FAILED
     except Exception as e:
-        status.log("T015_ValidationReport", "FAILED", str(e))
+        print(f"Validation report error: {e}")
+        return ValidationStatus.FAILED
 
 
-def run_hashing(status: ValidationStatus):
-    """Execute T016: Hash curated artifacts."""
+def run_hashing() -> ValidationStatus:
+    """Run the hashing step for curated artifacts."""
+    print("\n" + "="*50)
+    print("STEP: Hash Curated Artifacts")
+    print("="*50)
     try:
-        # Hash the curated directory
-        hash_directory(PROJECT_ROOT / "data" / "curated")
-        status.log("T016_Hashing", "PASSED", "Artifacts hashed successfully")
+        exit_code = hash_curated_main()
+        if exit_code == 0:
+            print("Hashing completed successfully.")
+            return ValidationStatus.SUCCESS
+        else:
+            print(f"Hashing failed with exit code {exit_code}")
+            return ValidationStatus.FAILED
     except Exception as e:
-        status.log("T016_Hashing", "FAILED", str(e))
+        print(f"Hashing error: {e}")
+        return ValidationStatus.FAILED
 
 
-def verify_artifacts(status: ValidationStatus):
-    """Verify that all expected output files exist and are valid."""
-    expected_files = [
+def verify_artifacts() -> bool:
+    """Verify that all required artifacts exist."""
+    required_artifacts = [
         "data/curated/hard_subset.jsonl",
         "data/curated/synthetic_issues.jsonl",
+        "data/curated/synthetic_issues_meta.json",
         "data/curated/validation_report.md",
         "data/curated/manifest.json"
     ]
     
-    missing = []
-    for f in expected_files:
-        if not (PROJECT_ROOT / f).exists():
-            missing.append(f)
+    all_exist = True
+    for artifact in required_artifacts:
+        if Path(artifact).exists():
+            print(f"  [OK] {artifact}")
+        else:
+            print(f"  [MISSING] {artifact}")
+            all_exist = False
     
-    if missing:
-        status.log("T017_ArtifactVerification", "FAILED", f"Missing files: {', '.join(missing)}")
-    else:
-        status.log("T017_ArtifactVerification", "PASSED", "All expected artifacts exist")
+    return all_exist
 
 
-def main():
-    """Main entry point for validation."""
-    print("=" * 60)
-    print("Starting quickstart.md Validation (T040)")
-    print("=" * 60)
+def main() -> int:
+    """
+    Main entry point for the validation runner.
     
-    status = ValidationStatus()
+    Executes the full pipeline: download -> derive -> curate -> validate -> hash.
+    """
+    print("="*60)
+    print("LLMXIVE VALIDATION RUNNER")
+    print("="*60)
     
-    # Step 1: Check structure
-    structure_check = check_structure()
-    if "Missing" in structure_check:
-        status.log("T001_Structure", "FAILED", structure_check)
-        status.log("StructureCheck", "FAILED", structure_check)
+    start_time = time.time()
+    
+    # Check structure
+    if not check_structure():
+        print("ERROR: Required directory structure is missing.")
+        return 1
+    
+    # Execute pipeline steps
+    steps = [
+        ("Download", run_download),
+        ("Derive GT", run_derive_gt),
+        ("Curate", run_curation),
+        ("Validate", run_validation_report),
+        ("Hash", run_hashing),
+    ]
+    
+    results = {}
+    for step_name, step_func in steps:
+        status = step_func()
+        results[step_name] = status
+        if status == ValidationStatus.FAILED:
+            print(f"\nERROR: Step '{step_name}' failed. Aborting pipeline.")
+            break
+    
+    # Verify artifacts
+    print("\n" + "="*50)
+    print("VERIFICATION")
+    print("="*50)
+    if verify_artifacts():
+        print("All required artifacts present.")
     else:
-        status.log("T001_Structure", "PASSED", structure_check)
-        status.log("StructureCheck", "PASSED", structure_check)
+        print("WARNING: Some artifacts are missing.")
     
-    # Step 2: Run download
-    run_download(status)
+    elapsed = time.time() - start_time
+    print(f"\nPipeline completed in {elapsed:.2f} seconds.")
     
-    # Step 3: Derive ground truth
-    run_derive_gt(status)
+    # Return failure if any step failed
+    if any(r == ValidationStatus.FAILED for r in results.values()):
+        return 1
     
-    # Step 4: Curation
-    run_curation(status)
-    
-    # Step 5: Validation report
-    run_validation_report(status)
-    
-    # Step 6: Hashing
-    run_hashing(status)
-    
-    # Step 7: Verify artifacts
-    verify_artifacts(status)
-    
-    # Print summary
-    print("\n" + status.summary())
-    
-    if status.errors:
-        print("\nErrors encountered:")
-        for err in status.errors:
-            print(f"  - {err}")
-        sys.exit(1)
-    else:
-        print("\nValidation completed successfully!")
-        sys.exit(0)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -1,0 +1,18 @@
+- artifact_path: projects/PROJ-030-predicting-crystal-structures-from-molec/docs/power_analysis.md
+  attempts: 1
+  canonical: Cohen J 1988 Statistical Power Analysis for the Behavioral Sciences 2nd
+    ed Lawrence Erlbaum Associates
+  claim_id: c_25e90070
+  context: 'A value of 0.15 is a conservative estimate that ensures the study is powered
+    to detect even subtle but meaningful patterns. Reference: Cohen, J. (1988).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Cohen, J. (1988). Statistical Power Analysis for the Behavioral Sciences
+    (2nd ed.). Lawrence Erlbaum Associates.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T15:18:07Z'

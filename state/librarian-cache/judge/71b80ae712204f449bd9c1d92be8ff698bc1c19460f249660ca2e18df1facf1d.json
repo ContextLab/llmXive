@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2102.11577",
+  "judged_at": "2026-08-05T21:47:10Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of composition on the band gap of perovskite materials materials science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it directly measures the electronic band gap and optical properties of halide perovskites (ABX3) with varying compositions, providing the specific empirical data and theoretical framework (DFT) required to understand the relationship between material composition and band gap in this domain.",
+  "relevant": true
+}

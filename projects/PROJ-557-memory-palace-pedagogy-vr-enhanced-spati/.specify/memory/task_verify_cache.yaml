@@ -1,0 +1,94 @@
+T001:
+  c: false
+  h: 160a79a622388ae661f55d1d20130047e22272fa03610e1bd12547a8f79c7b88
+  r: No evidence of the required folder hierarchy (`data/raw`, `data/derived`, `code`,
+    `tests`, `results`) is provided; the response only contains a feature specification
+    and no actual project directories or files. The implementer must create and show
+    the specified project structure.
+T002:
+  c: false
+  h: 829035d32ff35b4ba8b1a6541bbb9467ea8491c8552cdaaaf5aee4c566406f4e
+  r: "The provided `requirements.txt` exists and lists the required packages, but\
+    \ it does not pin them to exact versions (it uses `>=` specifiers) and adds several\
+    \ unrelated packages, which does not satisfy the \u201Cpinning\u201D requirement\
+    \ of the task. The artifact must contain exact version pins (e.g., `pandas==2.0.0`)\
+    \ for the specified libraries."
+T003:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No linting or formatting configuration files (e.g., `pyproject.toml` with ruff/black\
+    \ settings, `.ruff.toml`, or pre\u2011commit hooks) are present, nor any evidence\
+    \ that ruff and black have been set up and run. The provided artifacts relate\
+    \ only to the memory\u2011load\u2011adaptive text feature and do not address the\
+    \ linting/formatting task. The required configuration is missing."
+T004:
+  c: false
+  h: 7f8ad1c9c1fe92e126b72c65b6d1cf92440d474e19075f9a3c8f238274c1ab09
+  r: "The `code/download.py` script expects a `datasets.ds004041.version_hash` entry\
+    \ in `data/metadata.yaml`, but the provided YAML has a different structure (`dataset.id`,\
+    \ `hash` placeholder) so the hash\u2011loading logic will fail. Moreover, `data/raw/`\
+    \ contains only a `.gitkeep` file\u2014no downloaded dataset files are present.\
+    \ The script therefore does not actually fetch and verify the required dataset\
+    \ as specified."
+T005:
+  c: true
+  h: fe536a46f2c9004fcca2d5118213640f50b66440d8582b8cba7f66519cd6ca33
+  r: "The `code/data_model.py` file is present and non\u2011empty, defines the four\
+    \ required dataclasses (`Participant`, `Passage`, `Window`, `AdaptationLabel`),\
+    \ and the `Passage` class includes a `simplified_text: Optional[str] = None` field,\
+    \ making it explicitly nullable as requested."
+T005b:
+  c: true
+  h: 54380c498fa4c0b73d16dd41534f0b24e74d14da3eef498d63fc363dec915f25
+  r: The file `code/preprocessing.py` contains a full `normalize_luminance_algorithm`
+    function implementing the required algorithm and includes `_load_screen_luminance_log`
+    / `ingest_screen_luminance_logs` with detailed docstrings and comments describing
+    how to ingest screen luminance logs from ds004041.
+T005c:
+  c: true
+  h: ef17fc483066590b857ee05f2395ba099bb56cba304a6672f494a9919d5c6922
+  r: "The `data/metadata.yaml` file exists (781\u202Fbytes) and includes a `limitations`\
+    \ entry explicitly stating that the dataset \u201CLacks simplified text for passages\u201D\
+    , satisfying the required flag for downstream graceful degradation."
+T012:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `preprocessing.py` file or any code implementing the required functions (`remove_blinks`,
+    `low_pass_filter`, `baseline_correct`, `normalize_luminance`) was provided. The
+    claim lacks the actual artifact, so the task is not satisfied.
+T013:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `cli_engine.py` file or implementations of `compute_moving_average_zscore`
+    and `identify_high_load_windows` were presented. The evidence consists only of
+    the task description and specifications, without any code, tests, or output confirming
+    that the required functions exist and work as described. The missing artifact
+    must be supplied and verified.
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a modified `cli_engine.py` is provided, nor any code, tests,\
+    \ or documentation showing that windows exceeding 3\u202FSD from the mean are\
+    \ flagged for exclusion. The required artifact is missing, so the task is not\
+    \ satisfied."
+T015:
+  c: false
+  h: 82aabeaa895acea5c99ca984c08bce2af1b2e842f380e37cbdc10b946765f108
+  r: "The repository contains a non\u2011empty `code/us1_main.py`, but the required\
+    \ output file `data/derived/cli_time_series.parquet` is missing, so the orchestration\
+    \ script\u2019s end\u2011to\u2011end result is not present. The task is therefore\
+    \ not fully satisfied."
+T021a:
+  c: false
+  h: 34a72f6bf5fee8c8da289638513f5243b79f9d019be529c72fa563488d37f859
+  r: The repository contains `code/simulation.py` that writes a Parquet file, but
+    `data/derived/passage_data.parquet` is absent, so the required output artifact
+    does not exist. The task is therefore not fully satisfied.
+T021b:
+  c: false
+  h: acfc4e1631968ecee692504561836a1dab6e815f516e84b8031d2d05cf96aa08
+  r: The `generate_counterfactual_text` function is a placeholder that simply returns
+    the original text instead of performing any simplification, and the script writes
+    its results to `data/derived/passage_data.parquet` rather than the required `data/derived/counterfactual_text.parquet`,
+    which is missing entirely. Both the proper simplification logic and the expected
+    output file are absent.

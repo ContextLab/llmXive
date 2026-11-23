@@ -1,0 +1,35 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "HEA Training Set Schema"
+description: "Schema for the filtered HEA training dataset (heas_train.csv)."
+type: object
+properties:
+  composition_id:
+    type: string
+    description: "Unique hash of the composition string"
+  elements:
+    type: string
+    description: "Comma-separated list of elements"
+  n_elements:
+    type: integer
+    minimum: 5
+    description: "Number of distinct elements (must be ≥ 5)"
+  formation_energy:
+    type: number
+    description: "Formation energy per atom (eV/atom)"
+  mixing_enthalpy:
+    type: number
+    description: "Mixing enthalpy (eV/atom)"
+  source:
+    type: string
+    description: "Data source identifier"
+    enum:
+      - "aflow"
+      - "mp"
+required:
+  - composition_id
+  - elements
+  - n_elements
+  - formation_energy
+  - mixing_enthalpy
+  - source
+additionalProperties: false

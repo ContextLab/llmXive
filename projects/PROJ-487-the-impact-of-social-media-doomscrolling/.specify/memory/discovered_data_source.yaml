@@ -1,0 +1,12 @@
+status: none
+intent: download GDELT 2.0 GKG dataset and Google Trends anxiety search volume python
+  package dataset
+required_fields:
+- date
+- negative_event_count
+- sentiment_score
+- anxiety_search_interest
+- search_term
+cache_key: 53e050448fff5b0a3cf19a2b616a264740f5384c0f005c36e523e654c76d0c70
+searched_at: '2026-10-09T21:18:43.641503+00:00'
+retry_count: 1

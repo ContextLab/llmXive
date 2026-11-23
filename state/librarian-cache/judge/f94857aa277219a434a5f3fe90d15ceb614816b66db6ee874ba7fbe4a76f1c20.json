@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2105.12921",
+  "judged_at": "2026-07-20T10:13:29Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the validity of statistical significance in randomized controlled trials with missing data statistics",
+  "rationale": "This paper satisfies criteria (a) and (b) by providing a foundational statistical method (score tests) to identify the specific missingness mechanism (MAR vs. MNAR) that is a prerequisite for assessing the validity of statistical significance in trials with missing data. It directly addresses the core statistical challenge of distinguishing between missingness mechanisms, which is the primary variable determining the validity of inference in the user's domain.",
+  "relevant": true
+}

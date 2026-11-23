@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1003.3081",
+  "judged_at": "2026-07-31T10:59:14Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predictive coding llms: implementing hierarchical error minimization computer science",
+  "rationale": "This paper satisfies criterion (d) as a foundational methodology/canonical reference for the \"hierarchical\" and \"modular\" network topologies that are central to implementing hierarchical error minimization in predictive coding models, and it addresses the \"hierarchical\" component of the user's question by establishing the relationship between hierarchical structure and stable network dynamics (criterion a). Although it focuses on biological neural networks rather than LLMs specifically, it provi",
+  "relevant": true
+}

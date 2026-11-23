@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-862-llmxive-follow-up-extending-formalizing",
+  "ok": false,
+  "reason": "1 command(s) failed: python code/main.py (rc=1); 11 declared deliverable(s) absent: data/processed/baseline_vectors.csv; data/processed/filtered_pairs_for_analysis.csv; data/processed/filtered_pairs_output_validity.csv",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-862-llmxive-follow-up-extending-formalizing/code/main.py\", line 37, in <module>\n    from validity_check import (\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-862-llmxive-follow-up-extending-formalizing/code/validity_check.py\", line 10, in <module>\n    from bert_score import score\nModuleNotFoundError: No module named 'bert_score'"
+  ],
+  "fix_rounds": 3,
+  "model_tier": 0,
+  "total_attempts": 3,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-08-20T00:03:45Z"
+}

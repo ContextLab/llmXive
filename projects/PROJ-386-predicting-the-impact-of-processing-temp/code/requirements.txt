@@ -6,6 +6,6 @@ pyyaml
 memory-profiler
 seaborn
 pytest
-ruff
-black
-pre-commit
+torch
+joblib
+matplotlib

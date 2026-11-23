@@ -1,118 +1,117 @@
 # Quickstart: Predicting Species Distribution Shifts
 
-## 1. Prerequisites
+## Prerequisites
+- **Python** 3.11 or newer
+- **System libraries**: GDAL ≥ 3.0, GEOS ≥ 3.8 (required by `geopandas` & `rasterio`)
+- **Internet** access for GBIF/eBird and WorldClim downloads
+- **Git** (to clone the repository)
 
-* Python 3.11+
-* `pip`
-* Internet access (for GBIF, eBird, WorldClim, CMIP6 downloads)
+## Installation
 
-## 2. Installation
+1. **Clone the repository**  
+   ```bash
+   git clone <repo-url>
+   cd projects/PROJ-181-predicting-species-distribution-shifts-u
+   ```
 
-```bash
-# Create virtual environment
-python -m venv venv
-source venv/bin/activate   # Windows: venv\Scripts\activate
+2. **Create a virtual environment**  
+   ```bash
+   python -m venv venv
+   source venv/bin/activate   # Windows: venv\Scripts\activate
+   ```
 
-# Install pinned dependencies
-pip install -r requirements.txt
-```
+3. **Install Python dependencies**  
+   ```bash
+   pip install -r code/requirements.txt
+   ```
 
-## 3. Data Download
+4. **Install system dependencies** (Linux/macOS)  
+   ```bash
+   # macOS
+   brew install gdal geos
 
-```bash
-# Historical occurrence (1970‑2000) and climate
-python code/download.py --species-list list_of_species.txt --year-range 1970,2000
+   # Ubuntu/Debian
+   sudo apt-get update
+   sudo apt-get install -y libgdal-dev libgeos-dev
+   ```
 
-# Recent occurrence (2005‑2020) for validation
-python code/download.py --species-list list_of_species.txt --year-range 2005,2020 --target recent
+5. **Verify linting configuration (T001 requirement)**  
+   A `.flake8` file **must exist at the repository root**. If it is missing, run:  
+   ```bash
+   touch .flake8
+   echo "[flake8]" > .flake8
+   echo "max-line-length = 88" >> .flake8
+   ```
 
-# Future climate raster (2050 SSP2‑4.5)
-python code/download.py --climate cmip6 --scenario SSP2-4.5 --year 2050
-```
+## Repository Scaffold (T001)
 
-## 4. Bias Correction (new)
-
-```bash
-python code/bias_correction.py --occurrence data/raw/occurrence_1970_2000.csv \
-    --output data/processed/bias_layer.tif
-```
-
-Creates `bias_layer.tif` that will be used for weighted background sampling.
-
-## 5. Preprocessing
-
-```bash
-python code/preprocess.py --input data/raw/occurrence_1970_2000.csv \
-    --bias-layer data/processed/bias_layer.tif \
-    --thinning-distance 10
-```
-
-* Filters for breeding months, removes duplicates, applies spatial thinning (≥10 km), extracts climate variables, and writes:
-  * `data/processed/filtered_thinned.csv`
-  * **`logs/preprocess_counts.yaml`**: A YAML log containing `species`, `before_count`, `after_count`, and `timestamp` for every species processed. This file is the Single Source of Truth for data reduction metrics.
-
-## 6. Baseline Model (new)
+Run the scaffold command to ensure required placeholder files exist:
 
 ```bash
-python code/baseline.py --data data/processed/filtered_thinned.csv \
-    --output metrics/baseline_performance.csv
+python code/main.py scaffold
 ```
 
-Computes a null model (constant prevalence) for SC‑001 baseline comparison.
+This command will:
 
-## 7. Model Training & Validation
+- Create a `.gitkeep` file in **metrics/** and **logs/** (required by T001).  
+- Ensure `.flake8` is present at the **project root** (not inside `code/`).  
+- Create empty `requirements.txt` and `pyproject.toml` if they do not exist.  
+- Populate each top‑level directory (`code/`, `data/raw/`, `data/processed/`, `models/`, `reports/`, `tests/`, `contracts/`) with a `.gitkeep`.  
+- Populate **metrics/** and **logs/** with a `.gitkeep` to satisfy the scaffold requirement.
 
+## Running the Pipeline
+
+The pipeline is orchestrated via `code/main.py`. Each sub‑command creates the required artifacts and logs.
+
+### Step 1 – Download Data (T004, T010)
 ```bash
-python code/train.py --data data/processed/filtered_thinned.csv --cv-blocks 5
+python code/main.py download
 ```
+- Streams GBIF/eBird occurrence records (historical period covering the late 20th century up to 2000 and recent period 2005‑2020).  
+- Streams WorldClim historical rasters and WorldClim CMIP6 2050 rasters tile‑by‑tile.  
+- **Downloads accompanying SHA‑256 checksum files, computes local checksums, and aborts on mismatch** (fulfills FR‑016).  
+- Implements exponential back‑off and retry logic to handle GBIF API rate limits (addresses T004 timeout).  
+- Populates `data/manifest.json` with URLs, timestamps, file sizes, and checksums.  
 
-* Trains Random Forest, Bioclim, and **Regularized Logistic Regression (PB)** models.  
-* Saves models to `data/artifacts/` and training metrics to `metrics/training_metrics.csv`.
-
-## 8. Future Projection
-
+### Step 2 – Preprocess (T003)
 ```bash
-python code/project.py --models data/artifacts/ --climate data/raw/cmip6_2050.tif
+python code/main.py preprocess
 ```
+- Filters breeding‑season records, removes duplicates, creates **two** bias‑layer rasters (historic & recent) as described in the plan, applies spatial thinning (≥ 10 km or dynamic 95th percentile), conducts VIF‑based collinearity mitigation, extracts climate variables, runs the **simulation‑based power analysis**, and writes `logs/preprocess_counts.yaml` (a non‑empty YAML list of count records conforming to `contracts/log_counts.schema.yaml`).  
+- Writes `data/processed/features.csv`, `data/processed/bias_layer_historic.tif`, `data/processed/bias_layer_recent.tif`, `metrics/data_sufficiency.json`, **`metrics/data_acquisition_completeness.json`** (SC‑004 report), and logs before/after counts to `logs/preprocess_counts.yaml`.  
+- All logs follow the configuration in `logs/logging_config.yaml`.
 
-Generates suitability maps for 2050 (`*.tif` per species/algorithm).
-
-## 9. Evaluation & Threshold Handling
-
+### Step 3 – Train Models (FR‑004)
 ```bash
-python code/evaluate.py --models data/artifacts/ \
-    --test-data data/raw/occurrence_2005_2020.csv \
-    --bias-layer data/processed/bias_layer.tif
+python code/main.py train
 ```
+- Checks for CUDA (`utils/gpu_check.py`) and exits with a clear log if a GPU is detected.  
+- Performs spatial block CV, trains Random Forest, Bioclim, and MaxEnt‑style models (with VIF‑filtered or PCA‑reduced predictors).  
+- Saves model pickles under `models/` with metadata fields **matching** `contracts/model_artifact.schema.yaml` (`modelID`, `species`, `algorithm`, `trainPeriod`, `testPeriod`, `auc`, `tss`, `filePath`, `seed`).  
+- Validates each model artifact against `contracts/model_artifact.schema.yaml`.  
 
-* Computes AUC, TSS, and re‑calibrates thresholds on the test set when ≥100 records are available (fallback to historical threshold otherwise).  
-* Writes `metrics/final_results.csv` and logs any `INSUFFICIENT_DATA` flags.
-
-## 10. Sensitivity Analysis (FR‑005, SC‑003)
-
+### Step 4 – Evaluate & Project (FR‑009, SC‑001, SC‑002)
 ```bash
-python code/sensitivity.py --metrics metrics/final_results.csv \
-    --output metrics/sensitivity_report.csv
+python code/main.py evaluate
 ```
+- **Bias‑corrected evaluation** on the recent 2005‑2020 test set using the **recent** bias‑layer (`bias_layer_recent.tif`).  
+- **Calibration check** (Brier < 0.2) before any projection.  
+- Calculates AUC, TSS, and Brier on recent occurrences; verifies that AUC ≥ 0.70 against a null model (SC‑001).  
+- Projects models onto 2050 climate, computes **MESS** similarity, and derives a **composite niche‑stability score** (calibrated ΔAUC + MESS).  
+- Runs hierarchical bootstrap (**≤ 500 iterations**) and Benjamini‑Hochberg correction across the five threshold tests **{0.40, 0.45, 0.50, 0.55, 0.60}** (FR‑009).  
+- Writes `metrics/model_performance.json` (contains all fields required by `contracts/model_metrics.schema.yaml`), `results/summary_table.csv`, and `logs/evaluate.log`.  
+- Generates individual `performance_metric.json` entries for each metric and validates them against `contracts/performance_metric.schema.yaml`.
 
-Sweeps Δ ∈ {0.01, 0.05, 0.10} and records headline rates (TPR, FPR, TSS) per model.
-
-## 11. Reporting & Disclaimer (FR‑008)
-
+### Step 5 – Generate Report
 ```bash
-# Copy the mandatory associational disclaimer into the report directory
-cp reports/associational_disclaimer.txt docs/disclaimer.txt
+python code/main.py report
 ```
+Creates `reports/findings.md` containing tables, ROC curves, calibration plots, MESS maps, bootstrap confidence intervals, and the mandatory disclaimer:  
+> **Findings are associational and assume niche stability** (FR‑001 context).
 
-All tables in `metrics/final_results.csv` reference this disclaimer, ensuring that findings are framed as observational.
+All generated files conform to the JSON/YAML contracts in `specs/001-predicting-species-distribution-shifts/contracts/`.
 
-## 12. Verification
+---
 
-* Check `metrics/final_results.csv` for:
-  * Species flagged as `INSUFFICIENT_DATA`.
-  * AUC/TSS for each algorithm.
-  * Niche‑stability degradation values.
-* Review `metrics/sensitivity_report.csv` for threshold sweep results.
-* **Verify `logs/preprocess_counts.yaml` exists and contains valid before/after counts for all processed species.**
-* Confirm `reports/associational_disclaimer.txt` is present in the final manuscript bundle.
+
 

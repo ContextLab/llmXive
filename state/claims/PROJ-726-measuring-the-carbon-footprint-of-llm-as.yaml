@@ -18,3 +18,459 @@
   source_type: external
   status: not_enough_info
   updated_at: '2026-07-06T13:10:27Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Synthesized Baseline Protocol uses average 30-60 minutes per prompt from
+    IEEE/ACM software engineering literature
+  claim_id: c_d75ae172
+  context: Task T006 requires validating hardcoded time values from a 2025 comparative
+    analysis paper; if missing, it mandates using literature values for human baseline
+    estimation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the 2025 paper data is missing, execute the Synthesized Baseline Protocol
+    using specific literature values (e.g., average 30-60 minutes per prompt from
+    IEEE/ACM software engineering literature) with explicit citation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:03:09Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: average human coding time is 30-60 minutes per prompt according to IEEE/ACM
+    software engineering literature
+  claim_id: c_96a5d6a8
+  context: T006 requires validating hardcoded time values or executing the Synthesized
+    Baseline Protocol using specific literature values if the 2025 paper data is missing.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Use specific literature values (e.g., average 30-60 minutes per prompt
+    from IEEE/ACM software engineering literature) with explicit citation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-05T13:06:41Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: average human coding time 30-60 minutes per prompt
+  claim_id: c_bbfad73f
+  context: execute the Synthesized Baseline Protocol using specific literature values
+    (e.g., average 30-60 minutes per prompt from IEEE/ACM software engineering literature)
+    with explicit citation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: average 30-60 minutes per prompt from IEEE/ACM software engineering literature
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T05:27:52Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: project runtime less than or equal to 6 hours
+  claim_id: c_2e535bcf
+  context: "Implement batch size throttling logic in `run_inference.py` to ensure\
+    \ runtime \u2264 6 hours."
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: The film's storyline draws loose inspiration from multiple real-life
+        geopolitical events and conflicts in South Asia, including the 1999 IC-814
+        hijacking, the 2001 Indian Parliament attack, the 2008 Mumbai attacks, and
+        developments linked to Pakistan's Operation Lyari. Principal photography for
+        Dhurandhar took place from July 2024 to October 2025 across multiple locations
+        in India and abroad, including the states and union territories of Punjab,
+        Maharashtra, Chandigarh, Ladakh and Himachal Pradesh, as well as Thailand.
+        The film features music composed by Shashwat Sachdev, cinematography by Vikash
+        Nowlakha, and editing by Shivkumar V. Panicker. With a runtime of 214 minutes,
+        Dhurandhar ranks as one of the longest Indian films ever produced.
+      source_id: Dhurandhar
+      url: https://en.wikipedia.org/wiki/Dhurandhar
+      value: 214 minutes
+    filled: true
+  kind: magnitude
+  raw_text: "runtime \u2264 6 hours"
+  resolved_value: 214 minutes
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-15T05:28:01Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: project RAM usage less than or equal to 7 GB
+  claim_id: c_a827245b
+  context: "Add memory profiling hooks to `utils.py` to ensure RAM \u2264 7 GB."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Project_RAM_usage_less_than_or_equal_to_7_GB
+  kind: magnitude
+  raw_text: "RAM \u2264 7 GB"
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-15T05:28:15Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: 'Synthesized Baseline Protocol failure condition: no valid literature
+    source identified'
+  claim_id: c_d7882ab0
+  context: Task T006 requires validating hardcoded time values from a 2025 paper or
+    executing a protocol using specific literature values, such as an average of 30-60
+    minutes per prompt from IEEE/ACM software engineering literature.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Synthesized_Baseline_Protocol_failure_condition:_no_valid_li
+  kind: entity_fact
+  raw_text: The task MUST fail ONLY if the Synthesized Baseline Protocol cannot identify
+    a valid literature source.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:02:05Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: average 30-60 minutes per prompt from IEEE/ACM software engineering literature
+  claim_id: c_0a8cdbf3
+  context: "T006 [P] Implement validate_baseline.py to synthesize local human baseline\
+    \ data: MUST validate that hardcoded time values from the 2025 comparative analysis\
+    \ paper (Table X, Section Y) represent raw developer time (minutes/hours), not\
+    \ pre-calculated CO\u2082. If the 2025 paper data is missing, execute the Synthesized\
+    \ Baseline Protocol using specific literature values (e.g., average 30-60 minutes\
+    \ per prompt from IEEE/ACM software engineering literature) with explicit citation."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If the 2025 paper data is missing, execute the Synthesized Baseline Protocol
+    using specific literature values (e.g., average 30-60 minutes per prompt from
+    IEEE/ACM software engineering literature) with explicit citation.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:07:05Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: average human coding time per prompt is 30-60 minutes
+  claim_id: c_39b8a06d
+  context: If the 2025 paper data is missing, execute the Synthesized Baseline Protocol
+    using specific literature values (e.g., average 30-60 minutes per prompt from
+    IEEE/ACM software engineering literature) with explicit citation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: average 30-60 minutes per prompt from IEEE/ACM software engineering literature
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-27T01:07:54Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: sample up to 200 prompts with seed 42
+  claim_id: c_03b52ca9
+  context: T004 Implement download_data.py to fetch CodeXGLUE Python code-generation
+    subset via HuggingFace datasets library. MUST sample up to 200 prompts using random
+    sampling with seed=42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST sample up to 200 prompts using random sampling with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:38:41Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: call datasets.set_seed(42) for deterministic reproducibility
+  claim_id: c_c4437449
+  context: T004 ... MUST explicitly call datasets.set_seed(42) and use a generator
+    parameter in the sampling function to ensure deterministic reproducibility across
+    library versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST explicitly call datasets.set_seed(42) and use a generator parameter
+    in the sampling function to ensure deterministic reproducibility across library
+    versions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:38:58Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: load openai-community/gpt2-medium in torch.float32 on CPU
+  claim_id: c_48941005
+  context: 'T010 [US1] Implement run_inference.py to load openai-community/gpt2-medium
+    (HuggingFace ID: openai-community/gpt2-medium) in default precision (torch.float32)
+    on CPU.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Load_openai-community/gpt2-medium_in_torch.float32_on_CPU
+  kind: entity_fact
+  raw_text: 'MUST load openai-community/gpt2-medium (HuggingFace ID: openai-community/gpt2-medium)
+    in default precision (torch.float32) on CPU.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:39:17Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: pass torch_dtype=torch.float32 to from_pretrained
+  claim_id: c_f7f4ff34
+  context: T010 ... MUST explicitly pass torch_dtype=torch.float32 to the from_pretrained
+    call to ensure deterministic precision.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Pass_torch_dtype%3Dtorch.float32_to_from_pretrained
+  kind: entity_fact
+  raw_text: MUST explicitly pass torch_dtype=torch.float32 to the from_pretrained
+    call to ensure deterministic precision.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:39:37Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: compare llm_co2_per_loc vs human_co2_per_loc as paired samples
+  claim_id: c_8a14520e
+  context: T031 [US3] Implement Paired-samples t-test (or Wilcoxon Signed-Rank) in
+    statistical_analysis.py. MUST compare llm_co2_per_loc vs human_co2_per_loc as
+    paired samples.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compare_llm_co2_per_loc_vs_human_co2_per_loc_as_paired_sampl
+  kind: entity_fact
+  raw_text: MUST compare llm_co2_per_loc vs human_co2_per_loc as paired samples.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:40:04Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: calculate test statistic, p-value, and effect size for t-test or Wilcoxon
+  claim_id: c_2758a8ee
+  context: T031 ... MUST calculate the test statistic, p-value, and effect size (Cohen's
+    d if t-test; rank-biserial if Wilcoxon).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_test_statistic,_p-value,_and_effect_size_for_t-tes
+  kind: entity_fact
+  raw_text: MUST calculate the test statistic, p-value, and effect size (Cohen's d
+    if t-test; rank-biserial if Wilcoxon).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:41:56Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: generate stability assessment artifact with mean differences and effect
+    sizes for low, medium, and high power models
+  claim_id: c_66545f07
+  context: T024 [US3] Perform Sensitivity Analysis ... MUST generate a stability assessment
+    artifact (data/outputs/stability_assessment.json) containing the consistency result
+    (stable if mean difference and effect size are consistent), the specific mean
+    differences and effect sizes for each power model, and the explicit stability
+    flag.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Generate_stability_assessment_artifact_with_mean_differences
+  kind: entity_fact
+  raw_text: MUST generate a stability assessment artifact (data/outputs/stability_assessment.json)
+    containing the consistency result, the specific mean differences and effect sizes
+    for each power model, and the explicit stability flag.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:42:22Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: stability assessment output schema with low, med, high mean_diff and
+    effect_size fields
+  claim_id: c_586fb536
+  context: 'T024 ... Output schema: {"low_mean_diff": float, "med_mean_diff": float,
+    "high_mean_diff": float, "low_effect_size": float, "med_effect_size": float, "high_effect_size":
+    float, "mean_diff_stable": bool, "effect_size_stable": bool, "stable": bool, "conclusion":
+    "string"}.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Stability_assessment_output_schema_with_low,_med,_high_mean
+  kind: entity_fact
+  raw_text: 'Output schema: {"low_mean_diff": float, "med_mean_diff": float, "high_mean_diff":
+    float, "low_effect_size": float, "med_effect_size": float, "high_effect_size":
+    float, "mean_diff_stable": bool, "effect_size_stable": bool, "stable": bool, "conclusion":
+    "string"}.'
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:42:41Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Sample 200 CodeXGLUE prompts with seed 42
+  claim_id: c_654cdf2c
+  context: T004 Implement download_data.py to fetch CodeXGLUE Python code-generation
+    subset via HuggingFace datasets library. MUST sample up to 200 prompts using random
+    sampling with seed=42.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST sample up to 200 prompts using random sampling with seed=42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:47:53Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Call datasets.set_seed(42) for deterministic reproducibility
+  claim_id: c_66a06881
+  context: T004 Implement download_data.py... MUST explicitly call datasets.set_seed(42)
+    and use a generator parameter in the sampling function to ensure deterministic
+    reproducibility across library versions.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: MUST explicitly call datasets.set_seed(42) and use a generator parameter
+    in the sampling function to ensure deterministic reproducibility across library
+    versions.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:47:53Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Output generated code string in result JSON for LOC counting
+  claim_id: c_27beb017
+  context: T010 [US1] Implement run_inference.py to load openai-community/gpt2-medium...
+    MUST output the generated code string in the result JSON to allow LOC counting.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output_generated_code_string_in_result_JSON_for_LOC_counting
+  kind: entity_fact
+  raw_text: MUST output the generated code string in the result JSON to allow LOC
+    counting.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:48:16Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Skip energy tracking for code failing syntax validation
+  claim_id: c_83cca464
+  context: T010 [US1] Implement run_inference.py... MUST skip energy tracking for
+    any code that fails the syntax validation from T010b.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Skip_energy_tracking_for_code_failing_syntax_validation
+  kind: entity_fact
+  raw_text: MUST skip energy tracking for any code that fails the syntax validation
+    from T010b.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:48:45Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Include full generated_code string in JSON for LOC verification
+  claim_id: c_cc89414e
+  context: T014 [US1] Generate data/processed/llm_inference_results.json containing...
+    MUST include the full generated_code string in the JSON to support downstream
+    LOC verification.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Include_full_generated_code_string_in_JSON_for_LOC_verificat
+  kind: entity_fact
+  raw_text: MUST include the full generated_code string in the JSON to support downstream
+    LOC verification.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:49:09Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Compare llm_co2_per_loc vs human_co2_per_loc as paired samples
+  claim_id: c_24f8cf04
+  context: T031 [US3] Implement Paired-samples t-test (or Wilcoxon Signed-Rank)...
+    MUST compare llm_co2_per_loc vs human_co2_per_loc as paired samples.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Compare_llm_co2_per_loc_vs_human_co2_per_loc_as_paired_sampl
+  kind: entity_fact
+  raw_text: MUST compare llm_co2_per_loc vs human_co2_per_loc as paired samples.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:49:10Z'
+- artifact_path: projects/PROJ-726-measuring-the-carbon-footprint-of-llm-as/specs/001-measuring-the-carbon-footprint-of-llm-as/tasks.md
+  attempts: 1
+  canonical: Calculate test statistic, p-value, and effect size (Cohen's d or rank-biserial)
+  claim_id: c_2faaf417
+  context: T031 [US3] Implement Paired-samples t-test... MUST calculate the test statistic,
+    p-value, and effect size (Cohen's d if t-test; rank-biserial if Wilcoxon).
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculate_test_statistic,_p-value,_and_effect_size_(Cohen%27s
+  kind: entity_fact
+  raw_text: MUST calculate the test statistic, p-value, and effect size (Cohen's d
+    if t-test; rank-biserial if Wilcoxon).
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-10-05T02:49:12Z'

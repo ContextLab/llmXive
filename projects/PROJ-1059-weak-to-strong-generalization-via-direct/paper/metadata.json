@@ -64,5 +64,15 @@
     "soramedium.tfm",
     "Sora-Medium.ttf",
     "sora.tfm"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "0ddd1cf1b304b02996e46f723754977c7bcbe95d695741f03672c897a6db0ada",
+      "bytes": 1456349
+    },
+    "original.pdf": {
+      "sha256": "8952ce6b3c7569c02119da40d2ccf46f834df2e26e1c70772affc67676260385",
+      "bytes": 1318820
+    }
+  }
 }

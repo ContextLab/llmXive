@@ -1,0 +1,40 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Processed Pull Request Record"
+type: object
+required:
+  - pr_id
+  - repo_name
+  - lines_changed
+  - comment_count
+  - review_active_seconds
+  - provenance_label
+properties:
+  pr_id:
+    type: integer
+  repo_name:
+    type: string
+  lines_changed:
+    type: integer
+    description: "Total lines added plus deleted."
+  comment_count:
+    type: integer
+  review_active_seconds:
+    type: number
+    description: "Seconds from first review comment to PR merge; falls back to review_duration_seconds if first_comment_timestamp is unavailable (limitation reported)."
+  review_duration_seconds:
+    type: number
+    description: "Total time from PR creation to merge."
+  comment_density:
+    type: number
+    description: "Review comments per line of changed code."
+  issue_severity:
+    type: string
+    enum: ["bug", "enhancement", "documentation", "other"]
+    description: "Primary severity label derived from PR labels."
+  provenance_label:
+    type: string
+    enum: ["LLM-generated", "Human-written", "Mixed"]
+    description: "Provenance classification per FR‑002 precedence rules."
+  creation_quarter:
+    type: string
+    description: "Fiscal quarter of PR creation (e.g., Q1‑2023)."

@@ -1,0 +1,64 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Model and Motif Results Schema"
+type: "object"
+properties:
+  training_metrics:
+    type: "object"
+    properties:
+      final_mse:
+        type: "number"
+      final_rmse:
+        type: "number"
+      epochs_trained:
+        type: "integer"
+      early_stopped:
+        type: "boolean"
+      percentage_within_1_unit:
+        type: "number"
+        description: "Percentage of test complexes with pKd prediction within ±1.0 unit (SC-001)"
+    required: ["final_mse", "final_rmse", "epochs_trained", "percentage_within_1_unit"]
+  motif_clusters:
+    type: "array"
+    description: "List of identified substructure clusters"
+    items:
+      type: "object"
+      properties:
+        cluster_id:
+          type: "integer"
+        size:
+          type: "integer"
+        centroid_coords:
+          type: "array"
+          items:
+            type: "number"
+          minItems: 3
+          maxItems: 3
+        pharmacophore_match:
+          type: "string"
+          description: "ID of matched pharmacophore or 'None'"
+        rmsd:
+          type: "number"
+          description: "RMSD to matched pharmacophore (Angstroms)"
+        p_value:
+          type: "number"
+          description: "Raw p-value from permutation test"
+        fdr_q_value:
+          type: "number"
+          description: "Benjamini-Hochberg corrected q-value"
+        is_significant:
+          type: "boolean"
+          description: "True if fdr_q_value < 0.01"
+      required: ["cluster_id", "size", "p_value", "fdr_q_value", "is_significant"]
+  metrics:
+    type: "object"
+    description: "Summary metrics for success criteria"
+    properties:
+      fraction_overlap:
+        type: "number"
+        description: "Fraction of identified motifs overlapping with known pharmacophores (SC-003)"
+      t_test_p_value:
+        type: "number"
+        description: "P-value from two-sample t-test comparing high/low affinity groups"
+    required: ["fraction_overlap", "t_test_p_value"]
+required: ["training_metrics", "motif_clusters", "metrics"]
+additionalProperties: false

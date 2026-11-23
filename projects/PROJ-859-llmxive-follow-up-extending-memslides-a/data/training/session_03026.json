@@ -1,0 +1,104 @@
+{
+  "trace_id": "training_42_03026",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 9,
+  "tool_sequence": [
+    "update_layout",
+    "insert_chart",
+    "insert_text",
+    "insert_text",
+    "delete_element",
+    "resize_element",
+    "resize_element",
+    "resize_element",
+    "delete_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "update_layout",
+      "arguments": {
+        "margin": 86.9601,
+        "padding": 62.8281
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 30.4807,
+        "y": 88.794,
+        "width": 43.7661,
+        "height": 90.5723,
+        "data_points": 40.8695
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 42.4042,
+        "y": 76.2856,
+        "length": 11.8742
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_text",
+      "arguments": {
+        "x": 57.0674,
+        "y": 15.1707,
+        "length": 85.5215
+      }
+    },
+    {
+      "step": 4,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 34.5327
+      }
+    },
+    {
+      "step": 5,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 35.3014,
+        "height": 95.4367
+      }
+    },
+    {
+      "step": 6,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 97.0901,
+        "height": 68.5478
+      }
+    },
+    {
+      "step": 7,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 78.761,
+        "height": 50.1044
+      }
+    },
+    {
+      "step": 8,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 81.3975
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.522955,
+    "tool_repetition_freq": 0.444444,
+    "arg_semantic_variance": 686.756188
+  },
+  "final_state": {
+    "dominant_tool": "resize_element",
+    "slide_element_count": 15,
+    "layout_hash": "42-3026-resize_element"
+  }
+}

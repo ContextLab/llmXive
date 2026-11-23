@@ -1,0 +1,25 @@
+{
+  "random_seed": 42,
+  "simulation": {
+    "sample_sizes": [10, 20, 30],
+    "confidence_levels": [0.90, 0.95, 0.99],
+    "n_replications": 1000,
+    "bootstrap_resamples": 1000,
+    "datasets": [
+      "wine",
+      "wine_quality_red",
+      "wine_quality_white",
+      "ionosphere",
+      "heart_disease"
+    ]
+  },
+  "paths": {
+    "data_dir": "data",
+    "raw_data_dir": "data/raw",
+    "processed_data_dir": "data/processed",
+    "outputs_dir": "outputs"
+  },
+  "logging": {
+    "level": "INFO"
+  }
+}

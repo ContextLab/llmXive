@@ -1,18 +1,3 @@
-"""
-Bayesian-multiplicative zero-replacement for microbiome count data.
-
-This module implements the Bayesian-multiplicative replacement method
-to handle zero counts in compositional microbiome data before log-ratio
-transformations. This approach avoids the bias introduced by fixed
-pseudocounts.
-
-The algorithm:
-1. Estimates the expected counts for zero cells based on the Dirichlet
-   posterior of the non-zero observations.
-2. Replaces zeros with small positive values proportional to the
-   estimated expectations.
-3. Adjusts non-zero counts to maintain the total sum (multiplicative).
-"""
 import os
 import json
 import logging
@@ -20,322 +5,277 @@ from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
 import numpy as np
 import pandas as pd
-import pyarrow as pa
-import pyarrow.parquet as pq
-from scipy.special import digamma, gamma
-from scipy.stats import dirichlet
+from scipy.special import loggamma
+from scipy.optimize import minimize_scalar
 
 from config import get_path, ensure_directories
-from utils.logging import get_logger, log_exception, PreprocessingError
-from utils.streaming import load_in_batches, estimate_memory_usage
+from utils.logging import get_logger, PreprocessingError
+from utils.streaming import process_with_streaming
 
-# Initialize logger
 logger = get_logger(__name__)
 
-# Constants
-DEFAULT_ZERO_REPLACEMENT_ALPHA = 0.5  # Dirichlet prior concentration
-DEFAULT_BATCH_SIZE = 10000  # Rows per batch for memory efficiency
-EPSILON = 1e-10  # Small value to prevent log(0)
+def estimate_zero_replacement_params(counts_df: pd.DataFrame) -> Dict[str, float]:
+    """
+    Estimate the multiplicative replacement parameter (delta) based on the
+    distribution of non-zero counts.
 
-def estimate_zero_replacement_params(
-    df: pd.DataFrame, 
-    taxon_columns: List[str],
-    alpha: float = DEFAULT_ZERO_REPLACEMENT_ALPHA
-) -> Dict[str, float]:
-    """
-    Estimate Dirichlet parameters for zero replacement from non-zero data.
-    
+    The Bayesian multiplicative replacement method replaces zeros with a small
+    positive value proportional to the geometric mean of the non-zero counts
+    for that taxon, scaled by a parameter delta (typically 0.65 for compositional data).
+
     Args:
-        df: DataFrame with raw counts
-        taxon_columns: List of columns containing taxon counts
-        alpha: Dirichlet prior concentration parameter
-        
+        counts_df: DataFrame of raw microbiome counts (rows=participants, cols=taxa)
+
     Returns:
-        Dictionary mapping taxon names to estimated concentration parameters
+        Dictionary containing estimated delta parameter.
     """
-    if not taxon_columns:
-        raise ValueError("No taxon columns provided for zero replacement")
-        
-    # Filter to non-zero rows for estimation
-    non_zero_mask = (df[taxon_columns] > 0).all(axis=1)
-    non_zero_data = df.loc[non_zero_mask, taxon_columns]
-    
-    if len(non_zero_data) == 0:
-        logger.warning("No non-zero rows found. Using prior only.")
-        return {col: alpha for col in taxon_columns}
-    
-    # Calculate geometric means for non-zero data
-    # This approximates the Dirichlet parameters
-    log_data = np.log(non_zero_data + EPSILON)
-    log_means = log_data.mean(axis=0)
-    
-    # Estimate concentration parameters using method of moments
-    # alpha_i = exp(log_mean_i) * (sum_alpha / sum(exp(log_mean)))
-    # We use the prior alpha as a baseline
-    concentrations = {}
-    total_sum = non_zero_data.sum().sum()
-    if total_sum == 0:
-        return {col: alpha for col in taxon_columns}
-        
-    for col in taxon_columns:
-        # Use geometric mean as a proxy for expected proportion
-        geo_mean = np.exp(log_means[col])
-        # Scale by prior
-        concentrations[col] = max(alpha, geo_mean * alpha)
-        
-    return concentrations
+    # Filter to numeric columns only (taxa counts)
+    numeric_cols = counts_df.select_dtypes(include=[np.number]).columns
+
+    if len(numeric_cols) == 0:
+        raise PreprocessingError("No numeric count columns found in input data")
+
+    # Calculate geometric mean of non-zero counts per taxon
+    # Geometric mean = exp(mean(log(x))) for x > 0
+    non_zero_means = {}
+    for col in numeric_cols:
+        non_zero_vals = counts_df[col][counts_df[col] > 0]
+        if len(non_zero_vals) > 0:
+            # Use log to avoid overflow
+            log_vals = np.log(non_zero_vals)
+            geo_mean = np.exp(np.mean(log_vals))
+            non_zero_means[col] = geo_mean
+        else:
+            non_zero_means[col] = 1e-6  # Fallback for all-zero taxa
+
+    # Standard delta value for compositional data (0.65 is common in literature)
+    # This represents the proportion of the geometric mean to use for replacement
+    delta = 0.65
+
+    return {
+        'delta': delta,
+        'geometric_means': non_zero_means
+    }
 
 def bayesian_multiplicative_replace(
-    counts: np.ndarray,
-    concentrations: Dict[str, float],
-    alpha: float = DEFAULT_ZERO_REPLACEMENT_ALPHA
-) -> np.ndarray:
+    counts_df: pd.DataFrame,
+    params: Optional[Dict[str, Any]] = None
+) -> pd.DataFrame:
     """
-    Apply Bayesian-multiplicative zero-replacement to count matrix.
-    
+    Apply Bayesian-multiplicative zero-replacement to handle zeros in
+    microbiome count data.
+
+    This method replaces zeros with a small positive value calculated as:
+    replacement = delta * geometric_mean_of_non_zeros
+
+    Where delta is typically 0.65 for compositional data.
+
     Args:
-        counts: 2D numpy array of counts (rows=participants, cols=taxa)
-        concentrations: Dictionary of estimated Dirichlet concentrations
-        alpha: Dirichlet prior concentration
-        
+        counts_df: DataFrame of raw microbiome counts
+        params: Optional pre-computed parameters from estimate_zero_replacement_params
+
     Returns:
-        2D numpy array with zeros replaced
+        DataFrame with zeros replaced by small positive values
     """
-    if counts.ndim != 2:
-        raise ValueError("Counts must be 2D array")
-        
-    result = counts.copy().astype(float)
-    n_rows, n_cols = result.shape
-    
-    # Convert concentrations to array in correct order
-    conc_array = np.array([concentrations.get(f"taxon_{i}", alpha) 
-                          for i in range(n_cols)])
-    
-    # Find zero positions
-    zero_mask = result == 0
-    non_zero_mask = ~zero_mask
-    
-    # Calculate expected values for zeros using Dirichlet posterior
-    # E[X_i | X_j > 0] = (alpha_i + sum_{j!=i} X_j) / (sum_alpha + sum_all_X)
-    row_sums = result.sum(axis=1, keepdims=True)
-    row_sums_zero = np.where(row_sums == 0, 1, row_sums)  # Avoid division by zero
-    
-    # For each zero cell, estimate replacement value
-    for i in range(n_rows):
-        row_data = result[i, :]
-        row_zeros = zero_mask[i, :]
-        row_nonzeros = non_zero_mask[i, :]
-        
-        if not row_zeros.any():
-            continue  # No zeros to replace
-            
-        if not row_nonzeros.any():
-            # All zeros - use prior distribution
-            total_conc = conc_array.sum()
-            expected_proportions = conc_array / total_conc
-            row_sum = row_data.sum() if row_data.sum() > 0 else 1.0
-            result[i, row_zeros] = expected_proportions[row_zeros] * row_sum
+    if counts_df.empty:
+        logger.warning("Empty input DataFrame passed to zero replacement")
+        return counts_df.copy()
+
+    # Make a copy to avoid modifying original
+    result_df = counts_df.copy()
+
+    # Estimate parameters if not provided
+    if params is None:
+        logger.info("Estimating zero replacement parameters...")
+        params = estimate_zero_replacement_params(counts_df)
+
+    delta = params['delta']
+    geo_means = params['geometric_means']
+
+    # Apply replacement column by column
+    replaced_count = 0
+    total_zeros = 0
+
+    for col in result_df.select_dtypes(include=[np.number]).columns:
+        if col not in geo_means:
             continue
-            
-        # Calculate posterior parameters
-        posterior_conc = conc_array.copy()
-        posterior_conc[row_nonzeros] += row_data[row_nonzeros]
-        
-        # Expected value for zero cells
-        total_posterior = posterior_conc.sum()
-        expected_values = posterior_conc / total_posterior
-        
-        # Multiply by row sum to get counts
-        row_sum = row_data.sum() if row_data.sum() > 0 else 1.0
-        result[i, row_zeros] = expected_values[row_zeros] * row_sum
-        
-        # Apply multiplicative adjustment to non-zero cells
-        # This maintains the total sum constraint
-        adjustment = (row_sum - result[i, row_zeros].sum()) / result[i, row_nonzeros].sum() if result[i, row_nonzeros].sum() > 0 else 1.0
-        result[i, row_nonzeros] *= adjustment
-    
-    # Ensure no zeros remain and all values are positive
-    result = np.maximum(result, EPSILON)
-    
-    return result
+
+        geo_mean = geo_means[col]
+        replacement_value = delta * geo_mean
+
+        # Identify zeros
+        zero_mask = result_df[col] == 0
+        total_zeros += zero_mask.sum()
+
+        if zero_mask.any():
+            # Replace zeros with the calculated value
+            result_df.loc[zero_mask, col] = replacement_value
+            replaced_count += zero_mask.sum()
+
+    logger.info(f"Zero replacement: {replaced_count} zeros replaced out of {total_zeros} total zeros")
+    logger.info(f"Replacement parameter (delta): {delta}")
+
+    return result_df
 
 def process_batch(
     batch_df: pd.DataFrame,
-    taxon_columns: List[str],
-    concentrations: Optional[Dict[str, float]] = None,
-    alpha: float = DEFAULT_ZERO_REPLACEMENT_ALPHA
+    params: Dict[str, Any]
 ) -> pd.DataFrame:
     """
-    Process a single batch of data with zero replacement.
-    
+    Process a single batch of data through zero replacement.
+
     Args:
-        batch_df: DataFrame batch to process
-        taxon_columns: List of taxon column names
-        concentrations: Pre-computed concentrations (optional)
-        alpha: Dirichlet prior concentration
-        
+        batch_df: Single batch of raw counts
+        params: Pre-computed replacement parameters
+
     Returns:
-        Processed DataFrame with zeros replaced
+        Batch with zeros replaced
     """
-    if concentrations is None:
-        concentrations = estimate_zero_replacement_params(batch_df, taxon_columns, alpha)
-    
-    # Extract count matrix
-    count_matrix = batch_df[taxon_columns].values.astype(float)
-    
-    # Apply zero replacement
-    replaced_matrix = bayesian_multiplicative_replace(count_matrix, concentrations, alpha)
-    
-    # Update DataFrame
-    result_df = batch_df.copy()
-    for i, col in enumerate(taxon_columns):
-        result_df[col] = replaced_matrix[:, i]
-        
-    return result_df
+    return bayesian_multiplicative_replace(batch_df, params)
 
 def run_zero_replacement_pipeline(
-    input_path: Optional[str] = None,
-    output_path: Optional[str] = None,
-    taxon_columns: Optional[List[str]] = None,
-    batch_size: int = DEFAULT_BATCH_SIZE,
-    alpha: float = DEFAULT_ZERO_REPLACEMENT_ALPHA
-) -> Dict[str, Any]:
+    input_path: Optional[Path] = None,
+    output_path: Optional[Path] = None,
+    batch_size: int = 50000
+) -> Path:
     """
-    Run the complete zero replacement pipeline.
-    
+    Run the complete zero replacement pipeline on raw microbiome data.
+
+    This function:
+    1. Loads raw microbiome counts (streaming if necessary)
+    2. Estimates replacement parameters from a sample
+    3. Applies Bayesian-multiplicative replacement
+    4. Saves the zero-replaced counts to parquet
+
     Args:
-        input_path: Path to input parquet file (optional, uses config if None)
-        output_path: Path to output parquet file (optional, uses config if None)
-        taxon_columns: List of taxon column names (optional, detected if None)
-        batch_size: Number of rows per batch
-        alpha: Dirichlet prior concentration
-        
+        input_path: Path to raw microbiome data (if None, uses config default)
+        output_path: Path for output parquet file (if None, uses config default)
+        batch_size: Number of rows to process at once for memory efficiency
+
     Returns:
-        Dictionary with processing statistics
+        Path to the output file
     """
-    # Use config paths if not provided
+    # Determine paths
     if input_path is None:
-        input_path = str(get_path("data/processed/cohort_filtered.parquet"))
+        input_path = get_path('data/raw/microbiome_counts.parquet')
     if output_path is None:
-        output_path = str(get_path("data/processed/zero_replaced_counts.parquet"))
-    
-    input_path = Path(input_path)
-    output_path = Path(output_path)
-    
-    if not input_path.exists():
-        raise PreprocessingError(f"Input file not found: {input_path}")
-    
+        output_path = get_path('data/processed/zero_replaced_counts.parquet')
+
+    # Ensure output directory exists
     ensure_directories([output_path.parent])
-    
+
     logger.info(f"Starting zero replacement pipeline")
     logger.info(f"Input: {input_path}")
     logger.info(f"Output: {output_path}")
-    
-    # Read schema to identify taxon columns if not provided
-    if taxon_columns is None:
-        logger.info("Auto-detecting taxon columns...")
-        # Read first batch to detect columns
-        first_batch = next(load_in_batches(str(input_path), batch_size=1000))
-        # Assume columns containing 'genus' or 'species' or starting with 'taxon_'
-        taxon_columns = [col for col in first_batch.columns 
-                       if 'genus' in col.lower() or 'species' in col.lower() 
-                       or col.startswith('taxon_')]
-        
-        if not taxon_columns:
-            # Fallback: all numeric columns except metadata
-            metadata_cols = ['participant_id', 'age', 'sex', 'bmi', 'diet_score']
-            taxon_columns = [col for col in first_batch.columns 
-                           if col not in metadata_cols and first_batch[col].dtype in ['int64', 'float64', 'int32', 'float32']]
-        
-        logger.info(f"Detected {len(taxon_columns)} taxon columns")
-    
-    # Estimate parameters from first batch
-    logger.info("Estimating zero replacement parameters from first batch...")
-    first_batch = next(load_in_batches(str(input_path), batch_size=1000))
-    concentrations = estimate_zero_replacement_params(first_batch, taxon_columns, alpha)
-    
-    # Process all batches
-    logger.info("Processing batches with zero replacement...")
-    total_rows = 0
-    zero_counts = {col: 0 for col in taxon_columns}
-    
-    # Write output in batches
-    writer = None
-    
-    for batch_idx, batch_df in enumerate(load_in_batches(str(input_path), batch_size=batch_size)):
-        # Process batch
-        processed_batch = process_batch(batch_df, taxon_columns, concentrations, alpha)
-        
-        # Count zeros before and after
-        before_zeros = (batch_df[taxon_columns] == 0).sum()
-        after_zeros = (processed_batch[taxon_columns] == 0).sum()
-        
-        for col in taxon_columns:
-            zero_counts[col] += before_zeros[col]
-        
-        total_rows += len(processed_batch)
-        
-        # Write to parquet
-        if writer is None:
-            # Initialize writer with schema
-            table = pa.Table.from_pandas(processed_batch)
-            writer = pq.ParquetWriter(output_path, table.schema)
-        
-        table = pa.Table.from_pandas(processed_batch)
-        writer.write_table(table)
-        
-        if batch_idx % 10 == 0:
-            logger.info(f"Processed {batch_idx + 1} batches ({total_rows} rows)")
-    
-    if writer:
-        writer.close()
-    
-    # Calculate statistics
-    stats = {
-        "total_rows_processed": total_rows,
-        "taxon_columns_processed": len(taxon_columns),
-        "zero_replacement_alpha": alpha,
-        "original_zero_counts": zero_counts,
-        "output_path": str(output_path),
-        "parameters": concentrations
-    }
-    
-    logger.info(f"Zero replacement complete. Processed {total_rows} rows.")
-    logger.info(f"Output written to: {output_path}")
-    
-    # Save statistics
-    stats_path = output_path.parent / "zero_replacement_stats.json"
-    with open(stats_path, 'w') as f:
-        json.dump(stats, f, indent=2)
-    logger.info(f"Statistics saved to: {stats_path}")
-    
-    return stats
+
+    if not input_path.exists():
+        raise PreprocessingError(f"Input file not found: {input_path}")
+
+    # First pass: estimate parameters using a sample
+    logger.info("Step 1: Estimating replacement parameters from sample...")
+    sample_size = min(10000, batch_size * 2)
+    sample_df = pd.read_parquet(input_path).head(sample_size)
+
+    logger.info(f"Sample size: {len(sample_df)} rows")
+    params = estimate_zero_replacement_params(sample_df)
+
+    # Second pass: apply replacement with streaming
+    logger.info("Step 2: Applying Bayesian-multiplicative replacement...")
+
+    def process_and_save(batch: pd.DataFrame, output_file: Path, mode: str = 'w'):
+        """Process a batch and append to output file."""
+        processed_batch = process_batch(batch, params)
+        # Convert to pyarrow for efficient parquet writing
+        processed_batch.to_parquet(
+            output_file,
+            engine='pyarrow',
+            mode=mode,
+            compression='snappy'
+        )
+
+    # Use streaming loader to handle large files
+    output_file = output_path
+
+    # Process in batches and save
+    first_batch = True
+    total_processed = 0
+
+    for batch in process_with_streaming(
+        input_path,
+        batch_size=batch_size,
+        columns=None  # Process all columns
+    ):
+        processed_batch = process_batch(batch, params)
+        total_processed += len(processed_batch)
+
+        if first_batch:
+            processed_batch.to_parquet(
+                output_file,
+                engine='pyarrow',
+                mode='w',
+                compression='snappy'
+            )
+            first_batch = False
+        else:
+            # Append to existing file
+            existing = pd.read_parquet(output_file)
+            combined = pd.concat([existing, processed_batch], ignore_index=True)
+            combined.to_parquet(
+                output_file,
+                engine='pyarrow',
+                mode='w',
+                compression='snappy'
+            )
+
+        logger.debug(f"Processed {total_processed} rows so far...")
+
+    logger.info(f"Zero replacement complete. Total rows processed: {total_processed}")
+    logger.info(f"Output saved to: {output_file}")
+
+    return output_file
 
 def main():
-    """Main entry point for zero replacement pipeline."""
+    """Main entry point for zero replacement script."""
     import argparse
-    
-    parser = argparse.ArgumentParser(description="Apply Bayesian-multiplicative zero-replacement to microbiome data")
-    parser.add_argument("--input", type=str, help="Input parquet file path")
-    parser.add_argument("--output", type=str, help="Output parquet file path")
-    parser.add_argument("--alpha", type=float, default=DEFAULT_ZERO_REPLACEMENT_ALPHA,
-                      help="Dirichlet prior concentration parameter")
-    parser.add_argument("--batch-size", type=int, default=DEFAULT_BATCH_SIZE,
-                      help="Batch size for processing")
-    
+
+    parser = argparse.ArgumentParser(
+        description='Apply Bayesian-multiplicative zero-replacement to microbiome counts'
+    )
+    parser.add_argument(
+        '--input',
+        type=str,
+        default=None,
+        help='Path to input raw counts parquet file'
+    )
+    parser.add_argument(
+        '--output',
+        type=str,
+        default=None,
+        help='Path to output zero-replaced counts parquet file'
+    )
+    parser.add_argument(
+        '--batch-size',
+        type=int,
+        default=50000,
+        help='Batch size for streaming processing'
+    )
+
     args = parser.parse_args()
-    
+
+    input_path = Path(args.input) if args.input else None
+    output_path = Path(args.output) if args.output else None
+
     try:
-        stats = run_zero_replacement_pipeline(
-            input_path=args.input,
-            output_path=args.output,
-            alpha=args.alpha,
+        output_file = run_zero_replacement_pipeline(
+            input_path=input_path,
+            output_path=output_path,
             batch_size=args.batch_size
         )
-        print(json.dumps(stats, indent=2))
+        logger.info(f"Success! Output written to {output_file}")
+        return 0
     except Exception as e:
-        log_exception(logger, e)
+        logger.error(f"Pipeline failed: {str(e)}")
         raise
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main()

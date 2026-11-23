@@ -6,7 +6,7 @@ failed_stage: null
 field: chemistry
 human_escalation_reason: null
 id: PROJ-528-predicting-molecular-conductivity-from-g
-last_run_id: bebdd9f5-0b3e-4181-af72-52e36ba16ce1
+last_run_id: 80b5a36e-725c-452f-b2d3-8c298841dcab
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-528-predicting-molecular-conductivity-from-g/specs/001-predicting-molecular-conductivity-from-g
 title: Predicting Molecular Conductivity from Graph-Based Features
-updated_at: '2026-07-02T07:03:00.200546Z'
+updated_at: '2026-10-12T09:54:35.707895Z'

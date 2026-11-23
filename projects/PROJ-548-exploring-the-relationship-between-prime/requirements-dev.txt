@@ -1,0 +1,5 @@
+# Development dependencies
+-r requirements.txt
+pre-commit
+pytest-cov
+mypy

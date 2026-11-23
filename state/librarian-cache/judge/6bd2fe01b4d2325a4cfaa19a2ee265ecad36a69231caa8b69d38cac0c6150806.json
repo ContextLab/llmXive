@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.01106",
+  "judged_at": "2026-08-24T18:29:26Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"domino: decoupling causal modeling from autoregressive drafting in spe\" linguistics",
+  "rationale": "This paper satisfies criteria (a) and (b) by investigating the same core mechanism (speculative decoding and its acceptance rates) and variables (architectural composition, perplexity degradation) as the user's question regarding \"Decoupling Causal Modeling from Autoregressive Drafting,\" even though it focuses on hybrid models rather than the specific \"Domino\" framework. It provides essential empirical evidence on how architectural heterogeneity impacts drafting viability, which is the fundament",
+  "relevant": true
+}

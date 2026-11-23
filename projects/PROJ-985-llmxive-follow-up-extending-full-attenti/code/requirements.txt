@@ -1,0 +1,17 @@
+transformers
+torch
+datasets
+scikit-learn
+spacy
+kenlm
+numpy
+pandas
+llama-cpp-python
+ruff
+black
+pytest
+psutil
+tracemalloc
+h5py
+pyarrow
+fastparquet

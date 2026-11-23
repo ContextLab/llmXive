@@ -1,0 +1,88 @@
+T001a:
+  task: 8985b0420880ec7b344ea8a413ac386a2037d0c30cd6416bad4cfd3b0e23425b
+T001b:
+  task: 2330792f93c500e914d8e0dd5d170b673e89dc3d49ca4fc8c4eea6175b94f537
+T002:
+  reason: "The lint check script ran (exit 0) but its own output shows `\"flake8\"\
+    : {\"available\": false}` and `\"black\": {\"available\": false}` with a warning\
+    \ that neither tool is on PATH \u2014 no flake8/black configuration files (e.g.,\
+    \ `.flake8`, `setup.cfg`, `pyproject.toml` sections) or installed tools are evidenced.\
+    \ The task was to configure linting and formatting tools, not merely to write\
+    \ a script that reports they are missing; the tools must actually be installed/configured\
+    \ and the lint check must run against them."
+  task: 9d1f279efe1e1408f34738dfe7550954d0efd8b073b5434d0b15d1ab049c4195
+T003:
+  task: d1d538e9d4d93a247ce096d3ede2c322142e5774df570698c764cad7ca79803f
+T004:
+  task: af0dce132026c12f10fc4a4b104ec512c55e1d709472b7aa934c85bf95b1c9a4
+T005:
+  task: 94391978822fad032232f2ed13ce5ab085611a3952154d23e193c3b028240f60
+T006:
+  reason: "The artifact `code/data/schemas.py` exists but contains no Pydantic models\
+    \ at all \u2014 the required `StratifiedSubset`, `SparseFeatures`, `WarpingResult`,\
+    \ and `MetricReport` classes are entirely absent (no `pydantic` import, no model\
+    \ definitions); the file only implements directory-creation/validation helpers.\
+    \ The directory-structure half of the task may be covered, but the core schema-model\
+    \ requirement is unmet."
+  task: 34301b179057430920a7d335eb63434602e1ee171dede2ea0b51a509282b0a84
+T007:
+  reason: "The file `code/data/download.py` exists and implements `check_url_accessibility`\
+    \ and a `load_dataset` call, but it never passes a `revision` argument \u2014\
+    \ `load_dataset(\"realestate10k\", split=\"train\")` omits the \"specific revision\"\
+    \ the task explicitly requires. Additionally, there is no execution evidence (no\
+    \ downloaded metadata JSON, logs, or run output) showing the download or URL validation\
+    \ actually succeeded, and `ds.to_dict()` on a large dataset would likely fail\
+    \ anyway."
+  task: 5b0423f247d0830bf3748aba052c4975377d84ceaf0026c1e787c22b4918acdb
+T008:
+  reason: "The script `code/data/stratify.py` exists and implements optical flow,\
+    \ texture entropy, ranking, n\u226550 abort (`sys.exit(1)`), seeded selection,\
+    \ and the four strata, but there is no evidence it ever ran successfully: `data/stratified/`\
+    \ contains only `.gitkeep` and a `stratification_metadata.json` reporting **0\
+    \ sequences in every stratum** and no Static-High/Static-Low/Fast-High/Fast-Low\
+    \ subdirectories, so the \"save metadata and move sequences to data/stratified/\"\
+    \ requirement is unmet. Moreover, that metadata file's schema (`strata_counts`,\
+    \ `selected_counts`, `motion_threshold: 50.0`) does not ma"
+  task: 27b61696b91fd0bc989d37efa84c1cd8961e54609d7857084aab1ebd87b16c0f
+T009:
+  reason: 'The script is broken and off-spec: it contains two conflicting duplicate
+    definitions (`is_fast_sequence`, `process_sequence`, `main`) appended after the
+    first `main()`, with dead code referencing an undefined `keypoints` variable;
+    it implements texture entropy via a hand-rolled LBP histogram instead of the required
+    `skimage.feature.greycomatrix`; and it saves JSON files rather than the required
+    `.npy` outputs in `data/features/`. The only output artifact, `data/features/all_features.json`,
+    is an empty list `[]` (stratified data is also empty, 0 sequences), so there is
+    no evidence the extractio'
+  task: e1b50521f71d5e98a00cc420c759ad5b13c839456e233fe341f43eb8a7ff0186
+T010:
+  task: c937a4f3cd9566b79ae6ebce6ebb3c42ed77c96106067a1af65697b285503bb0
+T011:
+  task: 252a77c8389eddf407b92994eb59414f1450348a313fa643c767737645cd7842
+T012:
+  task: 05e84bd745bb020e1e9787a227838648cd9f4d04f27bc3f9778b48f47080f49b
+T016b:
+  reason: 'Requested task execution failed; rerun successfully: code/data/dense_baseline.py
+    exit=1'
+  task: 5bac1024ff133d690d9d339d98b7af656a8866983b159200ddbd173a1c4db933
+T017:
+  task: 858163e51f2234c76249c9e12bbc3d2effa662a84f7cdff5484b150173d2a88d
+T018:
+  task: 77bffb2a3b39feba9ee4a0b42e042f4839bb67c8bfeb820301eb934a02ad45de
+T019:
+  task: e88116c5ed804933a0f73b85ffb31cce91069e65341e2a1a869665a54d1b1cc2
+T020:
+  task: 4a389c602355b7234fe3cc78dfd11fbf1561020c513d486441a173de55f82d25
+T021:
+  task: fb3bdea9213da1db169221a086711f38bb506bb5651531088fe76c28341f1d47
+T022:
+  task: 733319c1dcc9b283deba3ba71505507276285cd212d856850da58a18fb4e7a2f
+T023:
+  task: 28fe3ecf8491d6f3505c4dfab95015bdb367d5e3aecbff5b921362300c225a65
+T025:
+  task: db312c9028e206f8b77a375902b99d90d2f98f2ed02d3b6ba8480dc200f465e2
+T026:
+  task: 6756deafef44a994c671919b3b74fd0096618864d626e796c094bba03578e1c8
+T027:
+  task: c7a4bedebe4220a50e92e6785c596d2a7bbab0ef84469e02b79432f5bd6fe4eb
+T028:
+  task: dc40ebf410fc6f9d1870da932b53364f6c7d9cdd9825ac941af35b5796ee9775

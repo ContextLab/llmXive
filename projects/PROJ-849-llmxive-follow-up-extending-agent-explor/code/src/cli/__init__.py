@@ -1,0 +1,3 @@
+"""
+cli package initializer.
+"""

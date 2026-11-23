@@ -1,91 +1,109 @@
-# Quickstart: Predicting Molecular Halide Binding Affinities with Machine Learning
+# Quickstart: Predicting Molecular Halide Binding Affinities
 
 ## Prerequisites
-
-- Python 3.11+
-- Git
-- GitHub CLI (optional, for repo interaction)
+- Python 3.11 or newer  
+- `git` and internet access (for dataset download)  
+- Adequate RAM (GitHub Actions runner provides this automatically)
 
 ## Installation
+```bash
+# Navigate to the project directory
+cd projects/PROJ-446-predicting-molecular-halide-binding-affi
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/your-org/your-repo.git
-   cd your-repo
-   ```
+# Create a virtual environment
+python -m venv venv
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-2. **Create virtual environment**:
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows: venv\Scripts\activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r projects/PROJ-446-predicting-molecular-halide-binding-affi/code/requirements.txt
-   ```
+# Install dependencies
+pip install -r requirements.txt
+```
 
 ## Running the Pipeline
+Each step depends on the previous one. All scripts write to `data/processed/`. All ingestion steps handle expected network/scrape failures defensively and log warnings rather than exiting non‑zero.
 
 ### Step 1: Data Ingestion
 ```bash
-cd projects/PROJ-446-predicting-molecular-halide-binding-affi/code
-python 01_data_ingestion.py
+python code/01_data_ingestion.py
 ```
-- Downloads data from NIST/PubChem (or triggers simulation if insufficient).
-- **Note**: If no verified data is found, the pipeline switches to "Simulated Data Mode" and logs a warning.
-- Outputs: `data/processed/cleaned.csv`.
+Creates `data/processed/halide_binding_data.csv` and `data/processed/independent_eval_logp.csv`.  
+If real NIST/PubChem data are insufficient, the script automatically falls back to simulated data (FR‑011) and also creates the independent evaluation set. In Simulated mode each host carries a single halide measurement.
 
 ### Step 2: Feature Engineering
 ```bash
-python 02_feature_engineering.py
+python code/02_feature_engineering.py
 ```
-- Generates ECFP4 fingerprints and RDKit descriptors.
-- Outputs: `data/processed/features.csv`.
+Adds **one‑hot encoded halide_identity** columns (four binary columns) together with RDKit descriptors, ECFP‑like fingerprints, and standardized columns to the CSV.  
+The unit test `tests/test_feature_engineering.py` (top‑level `tests/` directory) imports the module via `sys.path.append('code')` and verifies that all required descriptor columns are present and correctly typed.
 
 ### Step 3: Model Training
 ```bash
-python 03_model_training.py
+python code/03_model_training.py
 ```
-- Trains RF and GB models with 5-fold cross-validation (host-identity split).
-- **Note**: If N < 10 per halide, the training completes but comparative analysis is skipped.
-- Outputs: `data/processed/models/`, `data/processed/results/cv_metrics.csv`.
+Trains Random Forest and Gradient Boosting models with host‑molecule `RepeatedGroupKFold` cross‑validation.  
+Outputs `data/processed/model_runs.json`.
 
-### Step 4: Feature Analysis
+### Step 4: Model Output Schema Validation
 ```bash
-python 04_feature_analysis.py
+python -m jsonschema -i data/processed/model_runs.json contracts/model_output.schema.yaml
 ```
-- Computes feature stability, generates partial dependence plots.
-- **Note**: In Simulated Data Mode, feature importance will trivially reflect the generation formula.
-- Outputs: `data/processed/results/feature_importance.csv`, `figures/`.
+Ensures the model output conforms to the contract (Task T009).
 
-### Step 5: Statistical Reporting
+### Step 5: Feature Analysis
 ```bash
-python 05_statistical_reporting.py
+python code/04_feature_analysis.py
 ```
-- Computes bootstrap CIs for performance differences across halides.
-- **Note**: If any halide group has <10 measurements, the comparison is aborted and the report states "underpowered".
-- Outputs: `docs/paper/report.md`, `data/processed/results/bootstrap_ci.csv`.
+Performs bootstrap stability analysis and the physical plausibility check on the top feature (`charge_density`). In Simulated mode the check result is annotated “trivially satisfied by construction (simulated data)”.  
+Outputs `data/processed/feature_analysis.json`.
 
-## Expected Outputs
+### Step 6: Partial Dependence Plots
+```bash
+python code/06_partial_dependence.py
+```
+Generates PDPs for the two most stable features and saves PNGs under `data/processed/figures/`.
 
-- `data/processed/cleaned.csv`: Cleaned dataset.
-- `data/processed/features.csv`: Feature matrix.
-- `data/processed/models/`: Trained model objects.
-- `docs/paper/report.md`: Final report with associational disclaimer.
-- `figures/`: Partial dependence plots, feature importance charts.
+### Step 7: Statistical Reporting
+```bash
+python code/05_statistical_reporting.py
+```
+Generates bootstrap confidence intervals, under‑power warnings, and the final `report.md`.  
+Also creates a machine‑readable `output_summary.json` that conforms to `contracts/output.schema.yaml`.
+
+### Step 8: Independent Evaluation on Hold‑Out Set
+```bash
+python code/07_independent_evaluation.py
+```
+Runs **after** statistical reporting. Loads `independent_eval_logp.csv`, makes predictions with the trained models, and **appends** an R²/RMSE section for this **feature‑independent** target set to the existing `report.md` (it does not regenerate the report).
+
+### Step 9: Runtime & Resource Logging
+```bash
+python -c "import json, pathlib; print(json.load(open('data/processed/training_log.json')).get('wall_time_seconds'))"
+```
+The `training_log.json` file records wall‑clock training time and peak RAM usage, satisfying SC‑003.
+
+### Step 10: Citation Verification
+The Reference‑Validator Agent automatically checks all URLs listed in `research.md`. No manual command is required; the CI pipeline runs this step after the statistical reporting stage.
+
+## Verification Checklist
+1. `data/processed/halide_binding_data.csv` exists and validates against `contracts/dataset.schema.yaml`.  
+2. `data/processed/independent_eval_logp.csv` exists and validates against `contracts/dataset.schema.yaml`.  
+3. `data/processed/model_runs.json` validates against `contracts/model_output.schema.yaml`.  
+4. `data/processed/feature_analysis.json` contains `feature_name`, `cv`, and `is_stable`.  
+5. `data/processed/figures/` contains at least two PNGs (`pdp_*.png`).  
+6. `data/processed/report.md` includes:
+   - Dataset summary (real vs simulated flag).  
+   - Per‑halide performance tables **or** abort notice.  
+   - Feature‑stability ranking.  
+   - Partial dependence plots.  
+   - Associational disclaimer.  
+   - Appended independent‑evaluation metrics (feature‑independent target).  
+7. `data/processed/output_summary.json` conforms to `contracts/output.schema.yaml`.  
+8. `data/processed/training_log.json` records wall‑clock runtime and peak RAM (SC‑003).  
+9. **SSoT**: `data/processed/results_master.json` aggregates all key results; every figure and table in the report references a key in this master JSON file (principle VII).
 
 ## Troubleshooting
+- **MemoryError**: Reduce the number of sampled SMILES (edit `MAX_HOSTS` in `01_data_ingestion.py`).  
+- **No data found**: Expected when the scrape fails; the script logs a warning and proceeds with simulated data (exit code 0).  
+- **RDKit import errors**: Install via `conda` (`conda install -c rdkit rdkit`) or use the `rdkit-pypi` wheel.  
 
-- **Insufficient Data**: If the pipeline logs "WARNING: Insufficient data", it has switched to simulated data mode. All outputs will be marked "Simulated Data Mode". **Comparative analysis is aborted.**
-- **Underpowered Analysis**: If the report states "underpowered", it means N < 10 per halide. No significance testing was performed.
-- **RAM Errors**: If training fails due to RAM, reduce dataset size or use smaller descriptor sets.
-- **SMILES Parsing Errors**: Check `logs/excluded_records.log` for invalid SMILES.
+---
 
-## Verification
-
-Run the test suite:
-```bash
-pytest tests/
-```
-- Verifies data cleaning, model training, and statistical reporting.

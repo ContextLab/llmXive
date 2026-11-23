@@ -1,0 +1,16 @@
+[lint]
+select = ["E", "F", "W", "I", "N", "D", "UP", "B", "C4", "SIM", "ARG"]
+ignore = ["D100", "D104", "D107", "ANN"]
+fixable = ["ALL"]
+unfixable = []
+dummy-variable-rgx = "^(_+|(_+[a-zA-Z0-9_]*[a-zA-Z0-9]+?))$"
+
+[format]
+quote-style = "double"
+indent-style = "space"
+skip-magic-trailing-comma = false
+line-ending = "auto"
+
+[lint.per-file-ignores]
+"tests/*" = ["D", "ANN"]
+"code/config.py" = ["D"]

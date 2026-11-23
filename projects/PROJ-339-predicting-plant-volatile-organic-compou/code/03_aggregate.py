@@ -1,9 +1,9 @@
 """
-Task T016: Implement aggregation of gene expression into pathway-level features.
-
-This module aggregates gene expression data into pathway-level features (e.g., TPS families)
-to reduce dimensionality for the model. It reads the merged dataset from T015,
-maps genes to pathways based on a provided mapping, and outputs an aggregated dataset.
+Module: 03_aggregate.py
+Task: T016a
+Description: Implements aggregation of gene expression into pathway-level features (TPS family means).
+Condition: Only executes if raw feature count > 100.
+Output: data/processed/merged_dataset_aggregated.csv
 """
 import os
 import sys
@@ -11,166 +11,143 @@ import json
 import pandas as pd
 import numpy as np
 from pathlib import Path
-from typing import Dict, List, Optional
 
-# Add project root to path for imports if running as script
-if __name__ == "__main__":
-    sys.path.insert(0, str(Path(__file__).parent.parent))
+# Ensure project root is in path for imports if running as script
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.append(str(PROJECT_ROOT))
 
-# Import existing utilities if needed, though this task is standalone logic
-# from utils.config import get_config
-# from utils.hashing import compute_file_hash
+# Constants
+INPUT_PATH = PROJECT_ROOT / "data" / "processed" / "merged_dataset.csv"
+OUTPUT_PATH = PROJECT_ROOT / "data" / "processed" / "merged_dataset_aggregated.csv"
+LOG_PATH = PROJECT_ROOT / "data" / "results" / "aggregation_log.json"
+TPS_REFERENCE_PATH = PROJECT_ROOT / "data" / "reference" / "tps_families.csv"
 
-def load_merged_data(input_path: str) -> pd.DataFrame:
-    """Load the merged dataset from the previous stage."""
-    path = Path(input_path)
-    if not path.exists():
-        raise FileNotFoundError(f"Merged dataset not found at {input_path}")
-    
-    df = pd.read_csv(path)
-    return df
+def ensure_dirs():
+    """Ensure output directories exist."""
+    OUTPUT_PATH.parent.mkdir(parents=True, exist_ok=True)
+    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
 
-def load_gene_pathway_mapping(mapping_path: str) -> Dict[str, List[str]]:
+def load_merged_data():
+    """Load the merged dataset from the preprocessing stage."""
+    if not INPUT_PATH.exists():
+        raise FileNotFoundError(f"Input file not found: {INPUT_PATH}. "
+                                "Please run code/02_merge.py first.")
+    return pd.read_csv(INPUT_PATH)
+
+def load_gene_pathway_mapping():
     """
-    Load gene to pathway mapping.
-    Expected format: JSON with keys as pathway names and values as lists of gene symbols.
-    Example: {"TPS_a": ["TPS1", "TPS2"], "TPS_b": ["TPS3"]}
+    Load the mapping of genes to TPS families.
+    Expected format: gene_id, tps_family
     """
-    path = Path(mapping_path)
-    if not path.exists():
-        # If mapping file doesn't exist, create a default one for TPS families based on common Arabidopsis knowledge
-        # This ensures the script runs even without a specific mapping file provided yet
-        default_mapping = {
-            "TPS_a": ["TPS1", "TPS2", "TPS3", "TPS4", "TPS5", "TPS6", "TPS7", "TPS8", "TPS9", "TPS10"],
-            "TPS_b": ["TPS11", "TPS12", "TPS13", "TPS14", "TPS15", "TPS16", "TPS17", "TPS18", "TPS19", "TPS20"],
-            "TPS_c": ["TPS21", "TPS22", "TPS23", "TPS24", "TPS25", "TPS26", "TPS27", "TPS28", "TPS29", "TPS30"],
-            "TPS_d": ["TPS31", "TPS32", "TPS33", "TPS34", "TPS35", "TPS36", "TPS37", "TPS38", "TPS39", "TPS40"],
-            "TPS_e": ["TPS41", "TPS42", "TPS43", "TPS44", "TPS45", "TPS46", "TPS47", "TPS48", "TPS49", "TPS50"],
-            "TPS_f": ["TPS51", "TPS52", "TPS53", "TPS54", "TPS55", "TPS56", "TPS57", "TPS58", "TPS59", "TPS60"],
-            "TPS_g": ["TPS61", "TPS62", "TPS63", "TPS64", "TPS65", "TPS66", "TPS67", "TPS68", "TPS69", "TPS70"],
-            "TPS_h": ["TPS71", "TPS72", "TPS73", "TPS74", "TPS75", "TPS76", "TPS77", "TPS78", "TPS79", "TPS80"],
-            "TPS_i": ["TPS81", "TPS82", "TPS83", "TPS84", "TPS85", "TPS86", "TPS87", "TPS88", "TPS89", "TPS90"],
-            "TPS_j": ["TPS91", "TPS92", "TPS93", "TPS94", "TPS95", "TPS96", "TPS97", "TPS98", "TPS99", "TPS100"]
-        }
-        
-        # Create the directory if it doesn't exist
-        path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Write default mapping
-        with open(path, 'w') as f:
-            json.dump(default_mapping, f, indent=2)
-        
-        return default_mapping
+    if not TPS_REFERENCE_PATH.exists():
+        # Fallback: if reference file is missing, we cannot perform aggregation.
+        # We return an empty mapping, effectively skipping aggregation.
+        return pd.DataFrame(columns=["gene_id", "tps_family"])
+    
+    return pd.read_csv(TPS_REFERENCE_PATH)
 
-    with open(path, 'r') as f:
-        return json.load(f)
+def aggregate_by_pathway(df, mapping):
+    """
+    Aggregate gene expression (TPM) into pathway-level features (TPS family means).
+    
+    Logic:
+    1. Identify columns representing gene expression (typically numeric, excluding metadata).
+    2. Filter columns that exist in the gene mapping.
+    3. Group by TPS family and calculate the mean TPM per sample.
+    4. Rename columns to 'tps_family_X_mean'.
+    5. Append to the original dataframe ONLY if raw feature count > 100.
+    """
+    if mapping.empty:
+        return df, False
 
-def aggregate_by_pathway(df: pd.DataFrame, mapping: Dict[str, List[str]], 
-                         gene_col: str = "gene_id", 
-                         pathway_col_prefix: str = "pathway_") -> pd.DataFrame:
-    """
-    Aggregate gene expression into pathway-level features.
+    # Identify gene columns (numeric columns that are not metadata)
+    # Heuristic: Metadata columns are usually strings or specific known names.
+    # We assume gene columns are numeric and match the gene_ids in the mapping.
+    gene_columns = [col for col in df.columns if col in mapping['gene_id'].values]
     
-    Args:
-        df: DataFrame with gene expression data
-        mapping: Dictionary mapping pathway names to lists of gene symbols
-        gene_col: Column name containing gene identifiers
-        pathway_col_prefix: Prefix for new pathway columns
+    raw_feature_count = len(gene_columns)
+    print(f"Detected {raw_feature_count} raw gene features.")
+
+    if raw_feature_count <= 100:
+        print(f"Condition met: Raw feature count ({raw_feature_count}) is <= 100. "
+              "Skipping aggregation.")
+        return df, False
+
+    print(f"Condition met: Raw feature count ({raw_feature_count}) > 100. "
+          "Performing aggregation.")
+
+    # Create a temporary dataframe for aggregation
+    agg_data = pd.DataFrame(index=df.index)
+    
+    # Group genes by TPS family
+    for family in mapping['tps_family'].unique():
+        family_genes = mapping[mapping['tps_family'] == family]['gene_id'].values
+        # Filter to only genes present in the dataset
+        present_genes = [g for g in family_genes if g in gene_columns]
         
-    Returns:
-        DataFrame with aggregated pathway features
-    """
-    # Identify numeric columns (expression data)
-    numeric_cols = df.select_dtypes(include=[np.number]).columns.tolist()
+        if present_genes:
+            # Calculate mean TPM across these genes for each sample
+            mean_col = df[present_genes].mean(axis=1)
+            agg_col_name = f"tps_family_{family}_mean"
+            agg_data[agg_col_name] = mean_col
+
+    if agg_data.empty:
+        print("No valid gene families found for aggregation.")
+        return df, False
+
+    # Concatenate original data with aggregated features
+    # We keep the original gene columns to preserve data integrity as per "extend" constraint
+    final_df = pd.concat([df, agg_data], axis=1)
     
-    # Create a mapping from gene to pathway
-    gene_to_pathway = {}
-    for pathway, genes in mapping.items():
-        for gene in genes:
-            gene_to_pathway[gene] = pathway
-    
-    # Group genes by pathway and aggregate
-    pathway_data = {}
-    
-    for pathway, genes in mapping.items():
-        # Filter genes that exist in the dataset
-        present_genes = [g for g in genes if g in df[gene_col].values]
-        
-        if not present_genes:
-            continue
-        
-        # Calculate mean expression for this pathway across all samples
-        pathway_values = []
-        for gene in present_genes:
-            gene_mask = df[gene_col] == gene
-            gene_row = df[gene_mask]
-            if len(gene_row) > 0:
-                # Take the expression values for this gene
-                gene_expr = gene_row[numeric_cols].mean(axis=1)
-                pathway_values.append(gene_expr)
-        
-        if pathway_values:
-            # Average across all genes in the pathway
-            pathway_agg = pd.concat(pathway_values, axis=1).mean(axis=1)
-            pathway_data[f"{pathway_col_prefix}{pathway}"] = pathway_agg
-        else:
-            # If no genes found, create a column of zeros
-            pathway_data[f"{pathway_col_prefix}{pathway}"] = [0.0] * len(df)
-    
-    # Create new DataFrame with non-expression columns and aggregated pathways
-    result_df = df[[col for col in df.columns if col not in numeric_cols and col != gene_col]].copy()
-    
-    # Add pathway features
-    for col_name, values in pathway_data.items():
-        result_df[col_name] = values.values if hasattr(values, 'values') else values
-    
-    return result_df
+    return final_df, True
+
+def save_log(aggregated, stats):
+    """Save a log of the aggregation process."""
+    log_data = {
+        "timestamp": str(pd.Timestamp.now()),
+        "input_file": str(INPUT_PATH),
+        "output_file": str(OUTPUT_PATH),
+        "aggregated": aggregated,
+        "stats": stats
+    }
+    with open(LOG_PATH, 'w') as f:
+        json.dump(log_data, f, indent=2)
 
 def main():
-    """Main execution function for T016."""
-    # Define paths
-    project_root = Path(__file__).parent.parent
-    input_path = project_root / "data" / "processed" / "merged_dataset.csv"
-    mapping_path = project_root / "data" / "raw" / "gene_pathway_mapping.json"
-    output_path = project_root / "data" / "processed" / "aggregated_dataset.csv"
+    """Main execution function."""
+    ensure_dirs()
     
-    print(f"Loading merged dataset from {input_path}")
-    df = load_merged_data(str(input_path))
-    print(f"Loaded {len(df)} samples with {len(df.columns)} columns")
+    try:
+        print(f"Loading merged data from {INPUT_PATH}...")
+        df = load_merged_data()
+        
+        print(f"Loading TPS family mapping from {TPS_REFERENCE_PATH}...")
+        mapping = load_gene_pathway_mapping()
+        
+        print("Performing pathway aggregation...")
+        result_df, was_aggregated = aggregate_by_pathway(df, mapping)
+        
+        if was_aggregated:
+            print(f"Saving aggregated dataset to {OUTPUT_PATH}...")
+            result_df.to_csv(OUTPUT_PATH, index=False)
+            
+            stats = {
+                "original_columns": len(df.columns),
+                "new_columns_added": len([c for c in result_df.columns if c.startswith("tps_family_")]),
+                "total_columns": len(result_df.columns)
+            }
+            save_log(True, stats)
+            print("Aggregation completed successfully.")
+        else:
+            print("Aggregation skipped. No output file generated.")
+            save_log(False, {"reason": "raw_feature_count <= 100 or no mapping"})
     
-    print(f"Loading gene-pathway mapping from {mapping_path}")
-    mapping = load_gene_pathway_mapping(str(mapping_path))
-    print(f"Loaded mapping for {len(mapping)} pathways")
-    
-    print("Aggregating gene expression into pathway-level features...")
-    aggregated_df = aggregate_by_pathway(df, mapping)
-    print(f"Aggregated dataset has {len(aggregated_df)} samples and {len(aggregated_df.columns)} columns")
-    
-    # Ensure output directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Save aggregated dataset
-    aggregated_df.to_csv(output_path, index=False)
-    print(f"Saved aggregated dataset to {output_path}")
-    
-    # Generate a summary report
-    report = {
-        "input_file": str(input_path),
-        "output_file": str(output_path),
-        "num_samples": len(aggregated_df),
-        "num_pathways": len(mapping),
-        "num_features": len(aggregated_df.columns),
-        "mapping_file": str(mapping_path),
-        "pathways_included": list(mapping.keys())
-    }
-    
-    report_path = project_root / "data" / "results" / "aggregation_report.json"
-    report_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(report_path, 'w') as f:
-        json.dump(report, f, indent=2)
-    
-    print(f"Generated aggregation report at {report_path}")
+    except FileNotFoundError as e:
+        print(f"Error: {e}")
+        sys.exit(1)
+    except Exception as e:
+        print(f"Unexpected error during aggregation: {e}")
+        raise
 
 if __name__ == "__main__":
     main()

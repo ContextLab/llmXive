@@ -12,7 +12,7 @@ properties:
   library_size:
     type: "integer"
     description: "Number of active skills in the library during this run."
-    enum: [10, 30, 50, 100]
+    enum: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
   pruning_enabled:
     type: "boolean"
     description: "Whether the pruning heuristic was active."

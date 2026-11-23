@@ -1,0 +1,103 @@
+{
+  "trace_id": "training_42_02995",
+  "dataset_split": "training",
+  "seed": 42,
+  "sequence_length": 8,
+  "tool_sequence": [
+    "delete_element",
+    "insert_chart",
+    "insert_chart",
+    "insert_chart",
+    "format_text",
+    "format_text",
+    "format_text",
+    "resize_element"
+  ],
+  "calls": [
+    {
+      "step": 0,
+      "tool": "delete_element",
+      "arguments": {
+        "element_id": 67.2987
+      }
+    },
+    {
+      "step": 1,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 16.7523,
+        "y": 77.6082,
+        "width": 5.8464,
+        "height": 87.7945,
+        "data_points": 60.459
+      }
+    },
+    {
+      "step": 2,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 79.442,
+        "y": 14.6952,
+        "width": 28.6274,
+        "height": 8.9166,
+        "data_points": 0.2499
+      }
+    },
+    {
+      "step": 3,
+      "tool": "insert_chart",
+      "arguments": {
+        "x": 31.4725,
+        "y": 75.447,
+        "width": 59.0001,
+        "height": 69.12,
+        "data_points": 72.6081
+      }
+    },
+    {
+      "step": 4,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 60.2813,
+        "x": 22.7685,
+        "y": 19.4311
+      }
+    },
+    {
+      "step": 5,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 84.9923,
+        "x": 5.1416,
+        "y": 33.6224
+      }
+    },
+    {
+      "step": 6,
+      "tool": "format_text",
+      "arguments": {
+        "font_size": 40.6189,
+        "x": 81.3265,
+        "y": 33.0758
+      }
+    },
+    {
+      "step": 7,
+      "tool": "resize_element",
+      "arguments": {
+        "width": 54.2407,
+        "height": 90.9573
+      }
+    }
+  ],
+  "structural_metrics": {
+    "sequence_entropy": 1.255482,
+    "tool_repetition_freq": 0.5,
+    "arg_semantic_variance": 833.383704
+  },
+  "final_state": {
+    "dominant_tool": "insert_chart",
+    "slide_element_count": 4,
+    "layout_hash": "42-2995-insert_chart"
+  }
+}

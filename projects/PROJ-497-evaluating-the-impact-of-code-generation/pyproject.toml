@@ -3,9 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "llmxive-code-vuln-density"
+name = "llmxive-eval-code-vuln-density"
 version = "0.1.0"
 description = "Evaluating the Impact of Code Generation Models on Code Vulnerability Density"
+readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "transformers",
@@ -17,15 +18,9 @@ dependencies = [
     "matplotlib",
     "seaborn",
     "pyyaml",
-    "pingouin"
-]
-
-[project.optional-dependencies]
-dev = [
+    "pingouin",
     "ruff",
     "black",
-    "pytest",
-    "pytest-cov"
 ]
 
 [tool.setuptools.packages.find]
@@ -33,7 +28,7 @@ where = ["code"]
 
 [tool.black]
 line-length = 88
-target-version = ['py311']
+target-version = ["py311"]
 include = '\.pyi?$'
 extend-exclude = '''
 /(
@@ -52,43 +47,35 @@ extend-exclude = '''
 [tool.ruff]
 line-length = 88
 target-version = "py311"
+include = ["code/**/*.py", "tests/**/*.py"]
+extend-exclude = [
+    "__pycache__",
+    "*.egg-info",
+    ".git",
+    ".venv",
+    "build",
+    "dist",
+]
+
+[tool.ruff.lint]
 select = [
     "E",   # pycodestyle errors
     "W",   # pycodestyle warnings
     "F",   # pyflakes
     "I",   # isort
+    "C",   # flake8-comprehensions
     "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
 ]
 ignore = [
     "E501", # line too long (handled by black)
     "B008", # do not perform function calls in argument defaults
     "C901", # too complex
 ]
-extend-exclude = [
-    "__pycache__",
-    ".venv",
-    "data",
-    "results",
-    "state"
-]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "code/__init__.py" = ["F401"]
-"code/main.py" = ["B008"]
+"tests/**/*.py" = ["F401", "E501"]
 
-[tool.ruff.isort]
-known-first-party = ["config", "download", "generate", "analyze", "stats", "main", "state_utils", "setup_project"]
-force-sort-within-sections = true
-
-[tool.pytest.ini_options]
-testpaths = ["tests"]
-python_files = "test_*.py"
-python_functions = "test_*"
-addopts = "-v --strict-markers"
-markers = [
-    "unit: Unit tests",
-    "integration: Integration tests",
-    "slow: Slow running tests"
-]
+[tool.ruff.lint.isort]
+known-first-party = ["config", "download", "generate", "analyze", "stats", "validator", "main", "state_utils", "setup_project"]
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]

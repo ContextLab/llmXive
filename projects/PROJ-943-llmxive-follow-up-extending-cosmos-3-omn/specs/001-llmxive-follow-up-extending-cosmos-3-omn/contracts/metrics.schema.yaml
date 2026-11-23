@@ -1,0 +1,72 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Performance Metrics Schema"
+description: "Schema for the comparative performance analysis results (Cross-Domain AUC)"
+type: "object"
+properties:
+  symbolic_domain:
+    type: "object"
+    properties:
+      accuracy:
+        type: "number"
+        description: "Accuracy on the symbolic reasoning task"
+      f1_score:
+        type: "number"
+        description: "F1 score on the symbolic reasoning task"
+      auc_roc:
+        type: "number"
+        description: "AUC-ROC on the symbolic reasoning task"
+    required:
+      - accuracy
+      - f1_score
+      - auc_roc
+  physics_cross_domain:
+    type: "object"
+    properties:
+      accuracy:
+        type: "number"
+        description: "Accuracy of the Symbolic Model on the Physics Task (Cross-Domain)"
+      f1_score:
+        type: "number"
+        description: "F1 score of the Symbolic Model on the Physics Task"
+      auc_roc:
+        type: "number"
+        description: "AUC-ROC of the Symbolic Model on the Physics Task"
+    required:
+      - accuracy
+      - f1_score
+      - auc_roc
+  statistical_test:
+    type: "object"
+    properties:
+      test_type:
+        type: "string"
+        enum:
+          - "bootstrap_confidence_interval"
+        description: "Type of statistical test performed (Bootstrap CI on Generalization Gap)"
+      generalization_gap:
+        type: "number"
+        description: "Difference in AUC (Symbolic - Physics Cross-Domain)"
+      gap_ci_lower:
+        type: "number"
+        description: "Lower bound of 95% CI for the generalization gap"
+      gap_ci_upper:
+        type: "number"
+        description: "Upper bound of 95% CI for the generalization gap"
+      significant:
+        type: "boolean"
+        description: "True if the 95% CI does not include 0"
+    required:
+      - test_type
+      - generalization_gap
+      - gap_ci_lower
+      - gap_ci_upper
+      - significant
+  degradation_magnitude:
+    type: "string"
+    description: "Qualitative description of the performance drop (e.g., 'AUC decreased by X%')"
+required:
+  - symbolic_domain
+  - physics_cross_domain
+  - statistical_test
+  - degradation_magnitude
+additionalProperties: false

@@ -1,313 +1,229 @@
+"""
+Fetch Pull Requests from GitHub API for repositories in the config list.
+Filters by keywords and saves raw data.
+"""
 import json
 import os
 import time
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-import pandas as pd
-import numpy as np
-from dataclasses import dataclass
+import requests
+import sys
 
-# Import from project structure
+# Add parent directory to path for imports if running as script
+sys.path.insert(0, str(Path(__file__).parent.parent))
+
 from config import (
-    GITHUB_TOKEN,
     RATE_LIMIT_HOURLY,
     BACKOFF_INITIAL,
     BACKOFF_MAX,
-    STRATIFICATION_SEED,
-    MAX_REVIEW_DAYS,
+    STRATIFICATION_SEED
 )
-from data.env_config import get_github_token, setup_github_credentials
-from data.logging_config import setup_logging, get_logger
-from data.rate_limiter import TokenBucketRateLimiter, create_limiter
+from data.logging_config import get_logger
+from data.env_config import get_github_token
+from data.rate_limiter import create_limiter
 
-# Setup logging
 logger = get_logger(__name__)
 
-# Keywords for LLM disclosure (used in T013 and T014)
-LLM_KEYWORDS = ["copilot", "llm", "generated", "ai-generated", "code generation"]
-
-@dataclass
 class RepoStats:
-    repo_id: str
-    star_count: int
-    pr_count: int
-    disclosing_count: int
-    disclosing_ratio: float
+    """Helper class to track repository statistics."""
+    def __init__(self, repo_id: str, star_count: int):
+        self.repo_id = repo_id
+        self.star_count = star_count
+        self.pr_count = 0
+        self.keyword_matches = 0
 
-def load_repo_list(repo_list_path: str = "data/config/repo_list.txt") -> List[Dict[str, Any]]:
-    """Load repository list from config file."""
+def load_repo_list(filepath: str) -> List[str]:
+    """
+    Load repository list from file.
+    Handles both 'owner/repo' and 'owner/repo,stars' formats.
+    Returns list of 'owner/repo' strings.
+    """
     repos = []
-    path = Path(repo_list_path)
+    path = Path(filepath)
     if not path.exists():
-        logger.error(f"Repo list file not found: {repo_list_path}")
-        return repos
+        raise FileNotFoundError(f"Repo list file not found: {filepath}")
 
-    with open(path, 'r') as f:
+    with open(path, 'r', encoding='utf-8') as f:
         for line in f:
             line = line.strip()
-            if line and not line.startswith('#'):
-                parts = line.split(',')
-                if len(parts) >= 2:
-                    repos.append({
-                        'repo_id': parts[0].strip(),
-                        'star_count': int(parts[1].strip())
-                    })
+            if not line or line.startswith('#'):
+                continue
+            # Handle potential star count suffix (e.g., "repo,1234")
+            parts = line.split(',')
+            repo_name = parts[0].strip()
+            if '/' in repo_name:
+                repos.append(repo_name)
+            else:
+                logger.warning(f"Skipping invalid repo format: {line}")
+
+    if not repos:
+        raise ValueError(f"No valid repositories found in {filepath}")
+
+    logger.info(f"Loaded {len(repos)} repositories from {filepath}")
     return repos
 
-def check_keywords(text: str) -> bool:
-    """Check if text contains any LLM disclosure keywords."""
-    if not text:
-        return False
-    text_lower = text.lower()
-    return any(keyword in text_lower for keyword in LLM_KEYWORDS)
+def check_keywords(title: str, body: str, keywords: List[str]) -> bool:
+    """
+    Check if any of the keywords appear in title or body.
+    Case-insensitive search.
+    """
+    text = f"{title} {body}".lower()
+    return any(kw.lower() in text for kw in keywords)
 
 def fetch_prs_for_repo(
     repo_id: str,
     token: str,
-    rate_limiter: TokenBucketRateLimiter
+    rate_limiter,
+    keywords: List[str],
+    min_stars: int = 1000
 ) -> List[Dict[str, Any]]:
-    """Fetch PRs for a specific repository from GitHub API."""
-    import requests
-
+    """
+    Fetch PRs for a single repository from GitHub API.
+    Filters by keywords and returns raw PR data.
+    """
+    prs = []
+    base_url = f"https://api.github.com/repos/{repo_id}/pulls"
     headers = {
-        "Authorization": f"Bearer {token}",
+        "Authorization": f"token {token}",
         "Accept": "application/vnd.github.v3+json"
     }
-    
-    prs = []
+    params = {
+        "state": "all",
+        "per_page": 100,
+        "sort": "created",
+        "direction": "desc"
+    }
+
     page = 1
-    
-    while True:
-        url = f"https://api.github.com/repos/{repo_id}/pulls"
-        params = {
-            "state": "all",
-            "per_page": 100,
-            "page": page
-        }
-        
+    total_fetched = 0
+    max_pages = 10  # Safety limit to prevent excessive API calls
+
+    logger.info(f"Fetching PRs for {repo_id}...")
+
+    while page <= max_pages:
         rate_limiter.wait_if_needed()
-        
+        params["page"] = page
+
         try:
-            response = requests.get(url, headers=headers, params=params, timeout=30)
-            response.raise_for_status()
-            
-            data = response.json()
-            if not data:
+            response = requests.get(base_url, headers=headers, params=params, timeout=30)
+
+            if response.status_code == 200:
+                page_prs = response.json()
+                if not page_prs:
+                    break
+
+                for pr in page_prs:
+                    # Fetch full PR details to get lines_changed
+                    pr_detail_url = pr.get("url")
+                    if pr_detail_url:
+                        pr_detail_resp = requests.get(pr_detail_url, headers=headers, timeout=30)
+                        if pr_detail_resp.status_code == 200:
+                            pr_data = pr_detail_resp.json()
+                        else:
+                            pr_data = pr
+                    else:
+                        pr_data = pr
+
+                    # Check keywords
+                    title = pr_data.get("title", "")
+                    body = pr_data.get("body", "")
+                    if check_keywords(title, body, keywords):
+                        prs.append({
+                            "repo": repo_id,
+                            "pr_number": pr_data.get("number"),
+                            "title": title,
+                            "body": body,
+                            "created_at": pr_data.get("created_at"),
+                            "merged_at": pr_data.get("merged_at"),
+                            "author": pr_data.get("user", {}).get("login", "unknown"),
+                            "lines_changed": pr_data.get("additions", 0) + pr_data.get("deletions", 0)
+                        })
+                        total_fetched += 1
+
+                if len(page_prs) < 100:
+                    break
+                page += 1
+            elif response.status_code == 403:
+                # Rate limited
+                if "rate limit" in response.text.lower():
+                    reset_time = int(response.headers.get("X-RateLimit-Reset", 0))
+                    wait_time = max(reset_time - int(time.time()) + 1, 60)
+                    logger.warning(f"Rate limit hit for {repo_id}. Waiting {wait_time}s...")
+                    time.sleep(wait_time)
+                    continue
+                else:
+                    logger.error(f"API error 403 for {repo_id}: {response.text}")
+                    break
+            else:
+                logger.error(f"API error {response.status_code} for {repo_id}: {response.text}")
                 break
-            
-            for pr in data:
-                prs.append({
-                    "repo": repo_id,
-                    "pr_number": pr["number"],
-                    "title": pr.get("title", ""),
-                    "body": pr.get("body", ""),
-                    "created_at": pr.get("created_at", ""),
-                    "merged_at": pr.get("merged_at", ""),
-                    "author": pr.get("user", {}).get("login", ""),
-                    "lines_changed": pr.get("additions", 0) + pr.get("deletions", 0),
-                    "state": pr.get("state", "")
-                })
-            
-            if len(data) < 100:
-                break
-            page += 1
-            
+
         except requests.exceptions.RequestException as e:
-            if hasattr(response, 'status_code') and response.status_code == 403:
-                logger.warning(f"Rate limited for repo {repo_id}. Backing off...")
-                rate_limiter.wait_if_needed(force_wait=True)
-                continue
-            logger.error(f"Error fetching PRs for {repo_id}: {e}")
+            logger.error(f"Request failed for {repo_id}: {e}")
             break
-    
+
+    logger.info(f"Fetched {len(prs)} keyword-matching PRs for {repo_id}")
     return prs
 
-def apply_stratified_sampling(
-    prs_df: pd.DataFrame,
-    repo_stats: List[RepoStats],
-    sample_size_per_bin: int = 50
-) -> pd.DataFrame:
+def apply_stratified_sampling(prs: List[Dict], star_bins: Dict[str, int], seed: int) -> List[Dict]:
     """
-    Apply stratified sampling based on repo star count bins.
-    Bins: 1k-10k, 10k-100k, >100k
+    Apply stratified sampling based on repository star counts.
+    This function is kept for API compatibility but not used in raw fetch.
     """
-    np.random.seed(STRATIFICATION_SEED)
-    
-    # Define bins
-    bins = [1000, 10000, 100000, float('inf')]
-    labels = ['1k-10k', '10k-100k', '>100k']
-    
-    # Add star count to PRs dataframe
-    repo_star_map = {r.repo_id: r.star_count for r in repo_stats}
-    prs_df['star_count'] = prs_df['repo'].map(repo_star_map)
-    
-    # Create bin column
-    prs_df['star_bin'] = pd.cut(
-        prs_df['star_count'],
-        bins=bins,
-        labels=labels,
-        right=False
-    )
-    
-    # Sample from each bin
-    sampled_dfs = []
-    for bin_label in labels:
-        bin_df = prs_df[prs_df['star_bin'] == bin_label]
-        if len(bin_df) > 0:
-            # Sample up to sample_size_per_bin
-            sample_size = min(len(bin_df), sample_size_per_bin)
-            sampled = bin_df.sample(n=sample_size, random_state=STRATIFICATION_SEED)
-            sampled_dfs.append(sampled)
-    
-    if sampled_dfs:
-        sampled_df = pd.concat(sampled_dfs, ignore_index=True)
-        return sampled_df
-    return prs_df
+    # Implementation would go here if sampling was needed at this stage
+    return prs
 
-def apply_exclusion_logic(
-    prs_df: pd.DataFrame,
-    repo_stats: List[RepoStats],
-    threshold: float = 0.5
-) -> pd.DataFrame:
+def apply_exclusion_logic(prs: List[Dict], threshold: float) -> List[Dict]:
     """
-    Exclude repositories where >50% of PRs contain LLM keywords.
+    Apply exclusion logic based on keyword density.
+    This function is kept for API compatibility but not used in raw fetch.
     """
-    # Calculate disclosing ratio for each repo
-    repo_disclosing_stats = {}
-    for repo_id, stats in zip(prs_df['repo'].unique(), repo_stats):
-        repo_prs = prs_df[prs_df['repo'] == repo_id]
-        total_prs = len(repo_prs)
-        if total_prs == 0:
-            continue
-        
-        disclosing_count = repo_prs['origin_label'].sum()
-        ratio = disclosing_count / total_prs
-        repo_disclosing_stats[repo_id] = ratio
-    
-    # Filter out repos exceeding threshold
-    included_repos = [
-        repo_id for repo_id, ratio in repo_disclosing_stats.items()
-        if ratio <= threshold
-    ]
-    
-    logger.info(f"Excluding repos with >{threshold*100}% disclosing PRs. "
-               f"Kept {len(included_repos)} repos, excluded {len(repo_disclosing_stats) - len(included_repos)}")
-    
-    filtered_df = prs_df[prs_df['repo'].isin(included_repos)].copy()
-    return filtered_df
+    # Implementation would go here if exclusion was needed at this stage
+    return prs
 
 def main():
-    """
-    Main execution for T014: Stratified sampling and exclusion logic.
-    
-    Reads raw PR data from T013 output, applies stratified sampling
-    and exclusion logic, saves filtered dataset.
-    """
-    setup_logging()
-    
-    # Initialize rate limiter
+    """Main entry point for fetching PRs."""
+    logger.info("Starting PR fetch process")
+
+    # Load configuration
     token = get_github_token()
     if not token:
-        logger.error("GitHub token not configured. Run setup first.")
-        return
-    
-    rate_limiter = create_limiter()
-    
-    # Load raw PR data (output from T013)
-    raw_data_path = Path("data/raw/prs_raw.json")
-    if not raw_data_path.exists():
-        logger.error(f"Raw data not found at {raw_data_path}. Run T013 first.")
-        return
-    
-    logger.info("Loading raw PR data...")
-    with open(raw_data_path, 'r') as f:
-        raw_prs = json.load(f)
-    
-    if not raw_prs:
-        logger.warning("No PRs found in raw data.")
-        return
-    
-    # Convert to DataFrame
-    df = pd.DataFrame(raw_prs)
-    
-    # Calculate origin_label (disclosing vs non-disclosing)
-    # This should have been done in T013, but we ensure it's here for safety
-    if 'origin_label' not in df.columns:
-        logger.info("Calculating origin_label from keywords...")
-        df['title_body'] = df['title'].fillna('') + ' ' + df['body'].fillna('')
-        df['origin_label'] = df['title_body'].apply(lambda x: 1 if check_keywords(x) else 0)
-    
-    # Load repo stats for stratification
-    repos = load_repo_list()
-    repo_stats = []
+        raise EnvironmentError("GitHub token not found. Set GITHUB_TOKEN environment variable.")
+
+    repo_list_path = "data/config/repo_list.txt"
+    output_path = "data/raw/prs_raw.json"
+
+    # Ensure output directory exists
+    Path(output_path).parent.mkdir(parents=True, exist_ok=True)
+
+    # Load repo list
+    repos = load_repo_list(repo_list_path)
+
+    # Initialize rate limiter
+    rate_limiter = create_limiter(RATE_LIMIT_HOURLY, BACKOFF_INITIAL, BACKOFF_MAX)
+
+    # Keywords to filter by
+    keywords = ["copilot", "llm", "generated"]
+
+    all_prs = []
+
     for repo in repos:
-        repo_id = repo['repo_id']
-        star_count = repo['star_count']
-        
-        # Count PRs for this repo
-        repo_prs = df[df['repo'] == repo_id]
-        pr_count = len(repo_prs)
-        disclosing_count = repo_prs['origin_label'].sum()
-        disclosing_ratio = disclosing_count / pr_count if pr_count > 0 else 0
-        
-        repo_stats.append(RepoStats(
-            repo_id=repo_id,
-            star_count=star_count,
-            pr_count=pr_count,
-            disclosing_count=disclosing_count,
-            disclosing_ratio=disclosing_ratio
-        ))
-    
-    logger.info(f"Loaded {len(repo_stats)} repositories for processing")
-    
-    # Step 1: Apply stratified sampling
-    logger.info("Applying stratified sampling...")
-    sampled_df = apply_stratified_sampling(df, repo_stats, sample_size_per_bin=100)
-    logger.info(f"Sampled {len(sampled_df)} PRs across star count bins")
-    
-    # Step 2: Apply exclusion logic (>50% exclusion)
-    logger.info("Applying >50% exclusion logic...")
-    filtered_df = apply_exclusion_logic(sampled_df, repo_stats, threshold=0.5)
-    logger.info(f"Final dataset: {len(filtered_df)} PRs after exclusion")
-    
-    # Prepare output columns
-    output_cols = [
-        'repo', 'pr_number', 'title', 'body', 'created_at', 
-        'merged_at', 'author', 'lines_changed', 'origin_label',
-        'star_count', 'star_bin'
-    ]
-    
-    # Ensure all columns exist
-    for col in output_cols:
-        if col not in filtered_df.columns:
-            filtered_df[col] = None
-    
-    output_df = filtered_df[output_cols]
-    
-    # Save to processed directory
-    output_path = Path("data/processed/sampled_prs.csv")
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    output_df.to_csv(output_path, index=False)
-    logger.info(f"Saved filtered dataset to {output_path}")
-    
-    # Log summary statistics
-    logger.info("=== Sampling Summary ===")
-    logger.info(f"Total raw PRs: {len(df)}")
-    logger.info(f"After stratified sampling: {len(sampled_df)}")
-    logger.info(f"After exclusion (>50% disclosing): {len(filtered_df)}")
-    logger.info(f"Disclosing ratio in final set: {filtered_df['origin_label'].mean():.2%}")
-    
-    # Log repo exclusion details
-    excluded_repos = [
-        r for r in repo_stats 
-        if r.repo_id not in filtered_df['repo'].unique()
-    ]
-    if excluded_repos:
-        logger.info("Excluded repos:")
-        for r in excluded_repos:
-            logger.info(f"  {r.repo_id}: {r.disclosing_ratio:.2%} disclosing ({r.disclosing_count}/{r.pr_count} PRs)")
+        try:
+            prs = fetch_prs_for_repo(repo, token, rate_limiter, keywords)
+            all_prs.extend(prs)
+        except Exception as e:
+            logger.error(f"Failed to process {repo}: {e}")
+            continue
+
+    # Save raw data
+    with open(output_path, 'w', encoding='utf-8') as f:
+        json.dump(all_prs, f, indent=2, default=str)
+
+    logger.info(f"Saved {len(all_prs)} PRs to {output_path}")
+
+    return all_prs
 
 if __name__ == "__main__":
     main()

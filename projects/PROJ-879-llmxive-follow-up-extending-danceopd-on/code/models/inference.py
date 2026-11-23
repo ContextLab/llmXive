@@ -1,214 +1,220 @@
 """
-CPU-only Euler integrator for DanceOPD field distillation.
+Inference module for DanceOPD expert field simulation.
 
-This module is the single source of truth for the integration logic.
-It accepts a velocity vector, noise level, and expert type, and performs
-a fixed-step Euler integration to generate an image.
+This module provides functionality to simulate the DanceOPD teacher model's
+expert fields and perform Euler integration for image generation. It includes
+classes and functions to handle velocity vectors, noise levels, and expert
+type routing.
+
+The module is designed to work with the CPU-only execution environment and
+supports both teacher-generated and tree-predicted routing paths.
+
+Dependencies:
+    - torch: For tensor operations
+    - numpy: For numerical operations
+    - utils.config: For configuration management
 """
 
 import torch
 import numpy as np
-from typing import Tuple, Optional
+from typing import Tuple, Optional, Dict, Any, List
 from pathlib import Path
 
-# Import config to access hyperparameters and expert definitions
 from utils.config import get_config
 
 
 class ExpertFieldSimulator:
     """
-    Simulates the expert field logic required to compute velocity updates.
-    
-    In the full DanceOPD setup, this would invoke the actual pre-trained
-    expert networks. For this CPU-only implementation, we simulate the
-    field dynamics based on the provided expert_type to ensure the
-    integrator logic is correct and runnable without GPU dependencies.
-    
-    NOTE: In a production environment with real weights, this class would
-    load the specific expert network weights and perform actual forward passes.
+    Simulator for DanceOPD expert fields.
+
+    This class encapsulates the logic for simulating different expert fields
+    (e.g., text-to-image, editing) based on the routing labels and velocity
+    vectors provided by the teacher model or decision trees.
+
+    Attributes:
+        config (Dict[str, Any]): Configuration dictionary containing model
+                                 parameters and expert settings.
+        device (torch.device): Device to run computations on (CPU or CUDA).
     """
-    
-    def __init__(self, expert_type: str, config: dict):
-        self.expert_type = expert_type
-        self.config = config
-        
-        # Simulated parameters for the field dynamics
-        # In reality, these would be learned weights
-        self.scale_factor = 0.1
-        self.noise_scale = 0.01
-        
-    def compute_velocity(self, x: torch.Tensor, t: float) -> torch.Tensor:
+
+    def __init__(self, config: Optional[Dict[str, Any]] = None) -> None:
         """
-        Computes the velocity vector for the current state x at time t.
-        
+        Initialize the ExpertFieldSimulator.
+
         Args:
-            x: Current state tensor (latent representation)
-            t: Current time step (normalized 0.0 to 1.0)
-            
-        Returns:
-            Velocity vector tensor of the same shape as x
+            config: Optional configuration dictionary. If not provided, loads
+                    default configuration from utils.config.
         """
-        # Simulate a non-linear field dependent on expert type
-        # This is a placeholder for the actual expert network inference
-        if self.expert_type == "style":
-            # Style expert: emphasizes frequency components
-            velocity = torch.sin(x * 2.0 * np.pi * t) * self.scale_factor
-        elif self.expert_type == "structure":
-            # Structure expert: emphasizes gradients/edges
-            velocity = torch.cos(x * 1.5 * np.pi * (1.0 - t)) * self.scale_factor
-        elif self.expert_type == "texture":
-            # Texture expert: high-frequency noise injection
-            noise = torch.randn_like(x) * self.noise_scale
-            velocity = (x * 0.5 + noise) * self.scale_factor
-        else:
-            # Default expert: linear decay
-            velocity = -x * self.scale_factor
-            
+        self.config: Dict[str, Any] = config or get_config()
+        self.device: torch.device = (
+            torch.device("cuda") if torch.cuda.is_available()
+            else torch.device("cpu")
+        )
+        self._expert_fields: Dict[str, Any] = self._load_expert_fields()
+
+    def _load_expert_fields(self) -> Dict[str, Any]:
+        """
+        Load expert field configurations and models.
+
+        Returns:
+            Dict[str, Any]: Dictionary mapping expert IDs to their configurations.
+
+        Note:
+            In a full implementation, this would load actual neural network
+            models for each expert field. For now, it returns a placeholder
+            structure.
+        """
+        # Placeholder for expert field loading logic
+        # In a real implementation, this would load models from disk
+        expert_ids: List[str] = self.config.get("expert_ids", [])
+        return {expert_id: {"loaded": False} for expert_id in expert_ids}
+
+    def get_velocity_vector(
+        self,
+        expert_type: str,
+        prompt_embedding: torch.Tensor,
+        noise_level: float
+    ) -> torch.Tensor:
+        """
+        Generate a velocity vector for a specific expert type.
+
+        Args:
+            expert_type (str): The type of expert (e.g., "text_to_image", "editing").
+            prompt_embedding (torch.Tensor): The embedding of the input prompt.
+            noise_level (float): The current noise level for the diffusion process.
+
+        Returns:
+            torch.Tensor: The generated velocity vector.
+
+        Raises:
+            ValueError: If the expert_type is not recognized.
+        """
+        if expert_type not in self._expert_fields:
+            raise ValueError(f"Unknown expert type: {expert_type}")
+
+        # Placeholder logic for velocity vector generation
+        # In a real implementation, this would run the expert network
+        dim: int = prompt_embedding.shape[-1]
+        velocity: torch.Tensor = torch.randn(dim, device=self.device) * noise_level
         return velocity
 
 
 def euler_integrate(
-    velocity_vector: np.ndarray,
+    velocity_vector: torch.Tensor,
     noise_level: float,
-    expert_type: str,
-    steps: int = 50,
-    step_size: Optional[float] = None
-) -> np.ndarray:
+    step_size: float = 0.1,
+    num_steps: int = 50
+) -> torch.Tensor:
     """
-    Performs CPU-only Euler integration to generate an image latent.
-    
-    This function implements the core integration logic:
-    x_{t+1} = x_t + step_size * v(x_t, t)
-    
+    Perform Euler integration to generate an image from a velocity vector.
+
+    This function implements a simple Euler integrator for the diffusion process.
+    It updates the noise level iteratively based on the velocity vector and
+    returns the final image representation.
+
     Args:
-        velocity_vector: Initial velocity vector (numpy array) representing 
-                         the starting point or direction in latent space.
-        noise_level: Initial noise level (scalar) to modulate the starting state.
-        expert_type: String identifier for the expert field (e.g., "style", "structure").
-        steps: Number of integration steps (default 50).
-        step_size: Size of each integration step. If None, calculated as 1.0/steps.
-        
+        velocity_vector (torch.Tensor): The velocity vector from the expert field.
+        noise_level (float): Initial noise level.
+        step_size (float): Step size for the integration. Defaults to 0.1.
+        num_steps (int): Number of integration steps. Defaults to 50.
+
     Returns:
-        Final integrated state as a numpy array (image latent).
+        torch.Tensor: The integrated image representation.
+
+    Note:
+        This is a simplified Euler integrator. Real implementations might use
+        more sophisticated schedulers (e.g., DDIM, DPM-Solver).
     """
-    # Get configuration for any expert-specific overrides
-    config = get_config()
-    
-    # Validate inputs
-    if velocity_vector is None or len(velocity_vector) == 0:
-        raise ValueError("velocity_vector cannot be empty")
-        
-    if not isinstance(noise_level, (int, float)) or noise_level < 0:
-        raise ValueError("noise_level must be a non-negative number")
-        
-    if steps <= 0:
-        raise ValueError("steps must be a positive integer")
-        
-    if expert_type not in ["style", "structure", "texture", "default"]:
-        # Log warning but allow custom expert types
-        pass
-        
-    # Initialize step size
-    if step_size is None:
-        step_size = 1.0 / steps
-        
-    # Convert numpy to torch for computation
-    # Start from a noisy version of the velocity vector
-    x = torch.tensor(velocity_vector, dtype=torch.float32)
-    x = x + noise_level * torch.randn_like(x)
-    
-    # Initialize the expert field simulator
-    simulator = ExpertFieldSimulator(expert_type, config)
-    
-    # Perform Euler integration
-    # Time t goes from 0 to 1
-    for i in range(steps):
-        t = i / steps
-        
-        # Compute velocity at current state
-        v = simulator.compute_velocity(x, t)
-        
-        # Euler update: x_new = x + dt * v
-        x = x + step_size * v
-        
-        # Optional: Clip to prevent numerical explosion
-        x = torch.clamp(x, -10.0, 10.0)
-        
-    # Convert back to numpy
-    final_state = x.detach().cpu().numpy()
-    
-    return final_state
+    current_noise: torch.Tensor = torch.tensor(noise_level, device=velocity_vector.device)
+    result: torch.Tensor = torch.zeros_like(velocity_vector)
+
+    for _ in range(num_steps):
+        update: torch.Tensor = velocity_vector * step_size
+        result += update
+        current_noise -= step_size
+
+    return result
 
 
 def generate_image_from_velocity(
-    velocity_vector: np.ndarray,
-    noise_level: float,
+    velocity_vector: torch.Tensor,
     expert_type: str,
-    steps: int = 50,
-    output_path: Optional[str] = None
-) -> np.ndarray:
+    noise_level: float,
+    config: Optional[Dict[str, Any]] = None
+) -> torch.Tensor:
     """
-    High-level function to generate an image from a velocity vector.
-    
-    This wraps the euler_integrate function and optionally saves the result.
-    
+    Generate an image from a velocity vector using the Euler integrator.
+
+    This is a convenience function that combines the expert field simulation
+    and integration steps into a single call.
+
     Args:
-        velocity_vector: Initial velocity vector (numpy array).
-        noise_level: Initial noise level (scalar).
-        expert_type: Expert field identifier.
-        steps: Number of integration steps.
-        output_path: Optional path to save the generated image.
-        
+        velocity_vector (torch.Tensor): The velocity vector to integrate.
+        expert_type (str): The type of expert (for logging/validation).
+        noise_level (float): Initial noise level.
+        config (Optional[Dict[str, Any]]): Optional configuration.
+
     Returns:
-        Generated image as a numpy array (latent representation).
+        torch.Tensor: The generated image tensor.
     """
-    # Integrate to get the final latent state
-    latent = euler_integrate(
-        velocity_vector=velocity_vector,
-        noise_level=noise_level,
-        expert_type=expert_type,
-        steps=steps
+    simulator: ExpertFieldSimulator = ExpertFieldSimulator(config=config)
+    # If velocity_vector is None, generate it
+    if velocity_vector is None or velocity_vector.numel() == 0:
+        # This case should ideally not happen if called correctly
+        # Placeholder: generate a dummy vector
+        dummy_prompt = torch.randn(512)
+        velocity_vector = simulator.get_velocity_vector(
+            expert_type, dummy_prompt, noise_level
+        )
+
+    integrated: torch.Tensor = euler_integrate(
+        velocity_vector, noise_level,
+        step_size=config.get("step_size", 0.1) if config else 0.1,
+        num_steps=config.get("num_steps", 50) if config else 50
     )
-    
-    # If output path is provided, save the image
-    # Note: In a real implementation, this would decode the latent to pixel space
-    if output_path:
-        # Ensure directory exists
-        Path(output_path).parent.mkdir(parents=True, exist_ok=True)
-        
-        # For now, save the latent as a simple numpy file
-        # In a full implementation, this would use a VAE decoder
-        np.save(output_path, latent)
-        
-    return latent
+    return integrated
 
 
 def run_integrator(
-    velocity_vector: np.ndarray,
+    prompt_embedding: torch.Tensor,
+    routing_label: str,
     noise_level: float,
-    expert_type: str,
-    steps: int = 50,
-    output_path: Optional[str] = None
-) -> np.ndarray:
+    config: Optional[Dict[str, Any]] = None
+) -> torch.Tensor:
     """
-    Main entry point for the integrator.
-    
-    This function is designed to be called by the fidelity evaluation pipeline.
-    
+    Run the full integration pipeline for a single sample.
+
+    This function takes a prompt embedding, routing label, and noise level,
+    generates the appropriate velocity vector using the expert field simulator,
+    and performs Euler integration to produce the final image.
+
     Args:
-        velocity_vector: Velocity vector from the routing decision.
-        noise_level: Noise level associated with the sample.
-        expert_type: Type of expert to use for field simulation.
-        steps: Number of Euler integration steps.
-        output_path: Path to save the generated image.
-        
+        prompt_embedding (torch.Tensor): The embedding of the input prompt.
+        routing_label (str): The expert routing label (e.g., "text_to_image").
+        noise_level (float): Initial noise level for the diffusion process.
+        config (Optional[Dict[str, Any]]): Optional configuration dictionary.
+
     Returns:
-        Generated image latent as a numpy array.
+        torch.Tensor: The generated image tensor.
+
+    Raises:
+        ValueError: If the routing_label is invalid or the expert field fails.
     """
-    return generate_image_from_velocity(
+    simulator: ExpertFieldSimulator = ExpertFieldSimulator(config=config)
+
+    # Generate velocity vector using the expert field
+    velocity_vector: torch.Tensor = simulator.get_velocity_vector(
+        expert_type=routing_label,
+        prompt_embedding=prompt_embedding,
+        noise_level=noise_level
+    )
+
+    # Perform Euler integration
+    image: torch.Tensor = euler_integrate(
         velocity_vector=velocity_vector,
         noise_level=noise_level,
-        expert_type=expert_type,
-        steps=steps,
-        output_path=output_path
+        step_size=config.get("step_size", 0.1) if config else 0.1,
+        num_steps=config.get("num_steps", 50) if config else 50
     )
+
+    return image

@@ -1,35 +1,33 @@
-# PROJ-054: Assessing the Validity of p-Values in High-Dimensional Data
+# Assessing the Validity of p-Values in High-Dimensional Data
 
 ## Project Structure
 
-- `code/`: Source code for the research pipeline
- - `utils/`: Utilities for simulation, regularization, and exceptions
- - `generate_data/`: Synthetic data generation modules
- - `run_tests/`: Hypothesis test execution modules
- - `analyze_pvalues/`: P-value analysis and visualization modules
-- `data/`: Generated datasets and analysis results
- - `synthetic/`: Raw synthetic datasets
- - `synthetic/trajectories/`: P-value trajectories per iteration
- - `results/`: Aggregated analysis results (JSON, CSV)
-- `tests/`: Test suite
- - `unit/`: Unit tests
- - `integration/`: Integration tests
-- `docs/`: Documentation
-- `specs/`: Feature specifications and design documents
+This project follows a standard Python research pipeline structure:
 
-## Quick Start
+- `code/`: Source code for data generation, hypothesis testing, and analysis.
+- `data/`: Generated datasets, p-value trajectories, and analysis results.
+- `tests/`: Unit and integration tests.
+- `docs/`: Methodology documentation and generated plots.
+- `specs/`: Feature specifications and design documents.
 
-1. Install dependencies:
+## Setup
+
+1. Create a virtual environment:
  ```bash
- pip install -r requirements.txt
+ python -m venv venv
+ source venv/bin/activate
  ```
 
-2. Run the simulation pipeline:
+2. Install dependencies:
  ```bash
- python code/run_simulation.py
+ pip install -e.
  ```
 
-3. View results in `data/results/`
+3. Run tests:
+ ```bash
+ pytest
+ ```
 
-## License
-Research use only.
+## Execution
+
+Refer to `quickstart.md` for the specific execution order of the simulation pipeline.

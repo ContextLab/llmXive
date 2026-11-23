@@ -1,0 +1,41 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "VIFReportSchema"
+description: "Schema for the Variance Inflation Factor report."
+type: object
+properties:
+  collinearity_warnings:
+    type: array
+    items:
+      type: object
+      properties:
+        predictor_pair:
+          type: array
+          items:
+            type: string
+          description: "Pair of predictors with perfect multicollinearity."
+        flag:
+          type: string
+          enum: ["Perfect Multicollinearity"]
+      required: ["predictor_pair", "flag"]
+  vif_values:
+    type: object
+    additionalProperties:
+      type: number
+      description: "VIF value for each predictor."
+  flagged_predictors:
+    type: array
+    items:
+      type: string
+      description: "List of predictors with VIF > 5."
+  summary:
+    type: object
+    properties:
+      total_predictors:
+        type: integer
+      max_vif:
+        type: number
+      is_collinear:
+        type: boolean
+    required: ["total_predictors", "max_vif", "is_collinear"]
+required: ["collinearity_warnings", "vif_values", "flagged_predictors", "summary"]
+additionalProperties: false

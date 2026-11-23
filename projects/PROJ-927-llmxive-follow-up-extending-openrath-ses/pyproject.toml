@@ -1,0 +1,44 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-openrath"
+version = "0.1.0"
+description = "Session-Centered Runtime State for Agent Systems"
+requires-python = ">=3.11"
+dependencies = [
+    "pytest==7.4.0",
+    "scipy==1.11.0",
+    "pandas==2.1.0",
+    "numpy==1.24.0",
+    "pyyaml==6.0.1",
+    "jsonschema==4.19.0",
+    "ruff==0.1.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | dist
+)/
+'''
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-v --tb=short"
+
+[tool.setuptools.packages.find]
+where = ["code"]

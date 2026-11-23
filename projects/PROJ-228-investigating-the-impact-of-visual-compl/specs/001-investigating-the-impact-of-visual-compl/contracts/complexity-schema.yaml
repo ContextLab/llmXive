@@ -1,47 +1,27 @@
 $schema: "http://json-schema.org/draft-07/schema#"
 title: "Stimulus Complexity Record"
-description: "Schema for a single stimulus frame with computed complexity metrics, confounds, and HRF-convolved scores."
+description: "Schema for a single timepoint (TR) with computed complexity metrics, confounds, and HRF-convolved scores."
 type: "object"
 properties:
-  frame_id:
+  tr_index:
     type: "integer"
-    description: "Unique identifier for the frame."
-  timestamp:
+    description: "Timepoint index (TR index)."
+  entropy_regressor:
     type: "number"
-    description: "Time of stimulus onset in seconds."
-  entropy_score:
+    description: "HRF-convolved LBP entropy value."
+  fractal_regressor:
     type: "number"
-    description: "Shannon entropy of the image."
-  fractal_dimension:
+    description: "HRF-convolved fractal dimension value."
+  luminance_regressor:
     type: "number"
-    description: "Fractal dimension of the image."
-  luminance:
+    description: "HRF-convolved luminance value (covariate)."
+  contrast_regressor:
     type: "number"
-    description: "Mean luminance of the image (confound)."
-  contrast:
-    type: "number"
-    description: "RMS contrast of the image (confound)."
-  hrf_convolved_entropy:
-    type: "number"
-    description: "Entropy convolved with HRF."
-  hrf_convolved_fractal:
-    type: "number"
-    description: "Fractal dimension convolved with HRF."
-  hrf_convolved_luminance:
-    type: "number"
-    description: "Luminance convolved with HRF."
-  hrf_convolved_contrast:
-    type: "number"
-    description: "Contrast convolved with HRF."
+    description: "HRF-convolved contrast value (covariate)."
 required:
-  - "frame_id"
-  - "timestamp"
-  - "entropy_score"
-  - "fractal_dimension"
-  - "luminance"
-  - "contrast"
-  - "hrf_convolved_entropy"
-  - "hrf_convolved_fractal"
-  - "hrf_convolved_luminance"
-  - "hrf_convolved_contrast"
+  - "tr_index"
+  - "entropy_regressor"
+  - "fractal_regressor"
+  - "luminance_regressor"
+  - "contrast_regressor"
 additionalProperties: false

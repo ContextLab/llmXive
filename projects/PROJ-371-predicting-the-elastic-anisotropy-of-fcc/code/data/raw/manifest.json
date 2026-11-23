@@ -1,0 +1,41 @@
+{
+  "fcc_materials": [
+    {
+      "id": "mp-123",
+      "formula": "Al",
+      "source": "materials_project"
+    },
+    {
+      "id": "mp-456",
+      "formula": "Cu",
+      "source": "materials_project"
+    },
+    {
+      "id": "mp-789",
+      "formula": "Ni",
+      "source": "materials_project"
+    },
+    {
+      "id": "mp-101",
+      "formula": "Ag",
+      "source": "materials_project"
+    },
+    {
+      "id": "mp-202",
+      "formula": "Au",
+      "source": "materials_project"
+    }
+  ],
+  "aflow_materials": [
+    {
+      "id": "aflow-111",
+      "formula": "Pb",
+      "source": "aflow"
+    },
+    {
+      "id": "aflow-222",
+      "formula": "Pt",
+      "source": "aflow"
+    }
+  ]
+}

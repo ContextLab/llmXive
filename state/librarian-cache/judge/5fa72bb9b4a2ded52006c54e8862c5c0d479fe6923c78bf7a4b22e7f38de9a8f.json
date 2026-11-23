@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1902.00995",
+  "judged_at": "2026-07-16T18:42:21Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the sensitivity of regression coefficients to dataset subset selection statistics",
+  "rationale": "This paper addresses the user's question by providing foundational methodology (category d) and empirical-theoretical bounds (category c) for how regression coefficient estimators (specifically their variance and error) behave under different dataset subset selection strategies (A-optimal design, volume sampling, and worst-case sampling). Although the paper focuses on experimental design rather than post-hoc sensitivity analysis, it directly measures the mechanism of how subset selection impacts",
+  "relevant": true
+}

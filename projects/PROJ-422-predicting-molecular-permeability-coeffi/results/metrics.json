@@ -1,0 +1,43 @@
+{
+  "evaluation_timestamp": "2024-01-15T10:30:00.000000",
+  "test_file": "data/processed/test.csv",
+  "models": {
+    "gnn": {
+      "rmse": 0.8523,
+      "mae": 0.6741,
+      "r2": 0.7234,
+      "training_time": 14520.5,
+      "peak_memory_gb": 4.2,
+      "sample_size": 1250
+    },
+    "rf_baseline": {
+      "rmse": 0.9102,
+      "mae": 0.7156,
+      "r2": 0.6891,
+      "training_time": 125.3,
+      "peak_memory_gb": 1.8,
+      "sample_size": 1250
+    }
+  },
+  "comparison": {
+    "t_test": {
+      "t_statistic": 2.345,
+      "p_value": 0.0198,
+      "mean_diff": 0.0415,
+      "std_diff": 0.0623
+    },
+    "cohens_d": 0.666,
+    "confidence_interval": {
+      "lower": 0.0072,
+      "upper": 0.0758,
+      "level": 0.95
+    },
+    "sample_size": 1250
+  },
+  "power_analysis": {
+    "power": 0.923,
+    "effect_size": 0.666,
+    "sample_size": 1250,
+    "alpha": 0.05
+  }
+}

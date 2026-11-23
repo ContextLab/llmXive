@@ -1,0 +1,123 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://llmxive.org/schemas/evolution_metrics.json",
+  "title": "Evolutionary Harness Metrics",
+  "description": "JSON Schema defining the aggregated metrics produced by the Evolutionary Harness. Includes performance, complexity, and explanation generation statistics.",
+  "type": "object",
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "description": "Unique identifier for the evolutionary run."
+    },
+    "seed": {
+      "type": "integer",
+      "description": "Random seed used for this run."
+    },
+    "condition": {
+      "type": "string",
+      "enum": ["baseline", "counterfactual"],
+      "description": "The experimental condition under which this run was executed."
+    },
+    "environment_id": {
+      "type": "string",
+      "description": "The environment ID used (including shift configuration if applicable)."
+    },
+    "performance_metrics": {
+      "type": "object",
+      "properties": {
+        "total_reward": {
+          "type": "number"
+        },
+        "average_reward": {
+          "type": "number"
+        },
+        "success_rate": {
+          "type": "number",
+          "minimum": 0.0,
+          "maximum": 1.0
+        },
+        "episodes_completed": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": ["total_reward", "average_reward", "episodes_completed"]
+    },
+    "complexity_metrics": {
+      "type": "object",
+      "properties": {
+        "cyclomatic_complexity": {
+          "type": "number",
+          "description": "McCabe cyclomatic complexity of the evolved policy."
+        },
+        "branch_count": {
+          "type": "integer",
+          "description": "Number of conditional branches in the policy."
+        },
+        "lines_of_code": {
+          "type": "integer",
+          "description": "Total lines of code in the policy."
+        }
+      },
+      "required": ["cyclomatic_complexity", "branch_count", "lines_of_code"]
+    },
+    "explanation_metrics": {
+      "type": "object",
+      "properties": {
+        "total_failures": {
+          "type": "integer",
+          "description": "Number of trajectory failures requiring explanation."
+        },
+        "successful_explanations": {
+          "type": "integer",
+          "description": "Number of explanations generated successfully."
+        },
+        "fallback_count": {
+          "type": "integer",
+          "description": "Number of times template fallback was used."
+        },
+        "timeout_count": {
+          "type": "integer",
+          "description": "Number of generation timeouts."
+        }
+      },
+      "required": ["total_failures", "successful_explanations", "fallback_count", "timeout_count"]
+    },
+    "shift_validation": {
+      "type": "object",
+      "description": "Metrics specific to dynamic shift validation (if applicable).",
+      "properties": {
+        "pre_shift_reward": {
+          "type": "number"
+        },
+        "post_shift_reward": {
+          "type": "number"
+        },
+        "performance_drop_magnitude": {
+          "type": "number"
+        },
+        "statistically_significant": {
+          "type": "boolean"
+        },
+        "p_value": {
+          "type": ["number", "null"]
+        }
+      }
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "run_id",
+    "seed",
+    "condition",
+    "environment_id",
+    "performance_metrics",
+    "complexity_metrics",
+    "explanation_metrics",
+    "timestamp"
+  ],
+  "additionalProperties": false
+}

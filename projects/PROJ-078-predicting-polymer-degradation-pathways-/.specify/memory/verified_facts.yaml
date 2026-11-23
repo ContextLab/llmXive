@@ -1,0 +1,10 @@
+'|confidence flagging low prediction threshold':
+  quote: specifically, the authors set the confidence threshold to 0.6
+  source_id: '2312.01650'
+  url: https://arxiv.org/abs/2312.01650
+  value: '0.6'
+'|cross fold training use validation':
+  quote: 'Prostate MRI Segmentation: A 5-Fold Cross-Validation and Gate'
+  source_id: '2604.10702'
+  url: https://arxiv.org/abs/2604.10702
+  value: '5'

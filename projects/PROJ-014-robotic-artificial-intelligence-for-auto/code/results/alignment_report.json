@@ -1,0 +1,13 @@
+{
+  "status": "success",
+  "iou_scores": {
+    "depth_vs_grid": 1.0,
+    "rgb_edges_vs_depth_edges": 1.0
+  },
+  "threshold": 0.95,
+  "passed": true,
+  "details": [
+    "IoU (Depth vs Grid): 1.0000",
+    "IoU (RGB Edges vs Depth Edges): 1.0000"
+  ]
+}

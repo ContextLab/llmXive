@@ -9,7 +9,7 @@ This feature implements a research pipeline to evaluate Gaussian Process (GP) re
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
+**Language/Version**: Python  
 **Primary Dependencies**: `numpy`, `scipy`, `scikit-learn`, `pymc` (CPU-only build), `matplotlib`, `seaborn`, `pandas`, `pyyaml`, `bootstrapped`  
 **Storage**: Local file system (CSV/Parquet) under `data/`  
 **Testing**: `pytest` (unit tests for data injection, schema validation)  

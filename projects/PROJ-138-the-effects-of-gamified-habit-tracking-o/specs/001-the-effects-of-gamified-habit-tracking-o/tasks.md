@@ -5,7 +5,7 @@
 
 **Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each user story.
 
 ## Format: `[ID] [P?] [Story] Description`
 
@@ -33,7 +33,7 @@
  Tasks MUST be organized by user story so each story can be:
  - Implemented independently
  - Tested independently
- - Delivered as an MVP increment
+ - Delivered as a MVP increment
 
  DO NOT keep these sample tasks in the generated tasks.md file.
  ============================================================================
@@ -49,22 +49,76 @@
 
 ## Phase 2: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented. **CRITICAL**: This phase includes the Synthetic Data Generation and Power Analysis to ensure the pipeline can run in Simulation Mode as authorized by Plan.md.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
 Examples of foundational tasks (adjust based on your project):
 
-- [X] T002 [P] Initialize Python 3.11 project with requirements.txt dependencies (pandas, numpy, scikit-learn, statsmodels, lifelines, seaborn, matplotlib, pyyaml, pingouin, scipy)
+- [X] T002 [P] Initialize Python project with dependencies in `code/requirements.txt` (pandas, numpy, scikit-learn, statsmodels, lifelines, seaborn, matplotlib, pyyaml, pingouin, scipy, memory_profiler).
 - [X] T003 [P] Configure linting (flake8/black) and formatting tools
 - [X] T004 [P] Setup directory structure: `data/raw/`, `data/processed/`, `data/consent/`, `code/data/`, `code/analysis/`, `code/reports/`, `code/utils/`, `code/tests/`
 - [X] T005 [P] Implement `code/utils/config.py` for random seed pinning and environment configuration
 - [X] T006 [P] Setup `code/utils/logging.py` for structured logging of pipeline stages
-- [ ] T007 [P] Implement classes `User`, `BehavioralLog`, and `WeeklyAggregation` in `code/data/models.py` with attributes: `user_id` (str), `gamification_status` (bool), `conscientiousness_score` (float), `date` (datetime), `event_type` (str), `week_number` (int), `adherence_flag` (int), matching the Key Entities in spec.md. **Verification**: Assert `import code.data.models` succeeds and class attributes match spec.
+- [X] T007 [P] Implement classes `User`, `BehavioralLog`, and `WeeklyAggregation` in `code/data/models.py` with attributes: `user_id` (str), `gamification_status` (bool), `conscientiousness_score` (float), `date` (datetime), `event_type` (str), `week_number` (int), `adherence_flag` (int), matching the Key Entities in spec.md. **Verification**: Assert `import code.data.models` succeeds and class attributes match spec.
 - [X] T008 [P] Implement `code/utils/versioning.py` to calculate SHA-256 hashes of artifacts and update `state.yaml` (Constitution Principle V)
-- [ ] T009 [P] Setup `contracts/dataset.schema.yaml` defining required columns (User_ID, Gamified, Adherence, etc.) for validation
-- [~] T012a [P] [US1] Implement `check_consent()` function in `code/data/validation.py`: Verify `data/consent/` exists. **Logic**: If real data is present, halt if missing (FR-010). If synthetic data is used, **generate a synthetic consent artifact** (e.g., `data/consent/synthetic_consent_record.json`) explicitly stating the data is synthetic and approved for research, then proceed. This ensures the gate is never bypassed silently. (FR-010, Constitution Principle VI)
-- [~] T013a [P] [US1] Implement `code/data/synthetic_generator.py`: Generate a dataset with N=100 users. **Mechanism**: Simulate a 'self-report' survey response for each user to determine `gamified_status` (True if they reported using gamified apps, False otherwise), ensuring at least 30 users are `gamified_status=False` (non-gamified) and 70 are `True` (gamified). Include `conscientiousness_score` and `need_for_achievement` (simulated with known correlation). Pin random seed to a fixed value. **Output**: Write to `data/raw/synthetic_data.csv` in CSV format. (FR-008, FR-011) <!-- FAILED: unspecified -->
+- [X] T009 [Foundational] [FR-001a] Setup `contracts/dataset.schema.yaml` defining required columns (User_ID, Gamified, Adherence, Conscientiousness) and valid tag values for `gamified_app_usage`. **Explicitly mark `need_for_achievement` as OPTIONAL** in the schema to support conditional inclusion. **Verification**: Assert file exists, is valid YAML, and reflects optionality.
+- [X] T013a-0 [US1] [FR-010] Implement `code/data/validation.py` (Consent Artifact Generator):
+ 1. **Action**: Create a function `generate_simulation_consent()` that writes a fixed JSON artifact to `data/consent/simulation_consent_record.json`.
+ 2. **Content**: The JSON must contain `{"type": "simulation", "scope": "synthetic-only", "timestamp": "<ISO8601>", "note": "No human subjects involved. Data generated synthetically per Plan.md.", "audit_id": "SIM-001"}`.
+ 3. **Verification**: Assert the file is created with valid JSON and the required fields.
+ **Dependency**: None.
+ **Note**: This task ensures a valid consent artifact exists for synthetic mode, satisfying FR-010 without bypassing the check.
+
+- [X] T013a-1 [US1] [FR-001-Synthetic] Implement `code/data/synthetic_generator.py` (Data Generation Algorithm):
+ 1. **Algorithm**: Use `numpy.random.default_rng(seed=42)`.
+ 2. **Target N**: Generate **N=200 users** total (matching Plan.md target), ensuring at least 30 are non-gamified. Retry up to 5 times if the non-gamified floor is not met.
+ 3. **Traits**: Generate `conscientiousness_score` from N(3.5, 0.8).
+ 4. **Conditional Variable Logic**: **Config-Driven Inclusion**: Check a fixed config flag `INCLUDE_ACHIEVEMENT_SCORE` (default True). If True, generate `need_for_achievement` ~ N(3.5, 0.8) with a target correlation of rho=0.4 using Cholesky decomposition. If False, omit the column. **Do NOT use seed-dependent logic** to determine column presence.
+ 5. **Gamification**: Set `gamified_status` = True if reported using gamified apps, False otherwise.
+ 6. **Logs**: Generate **synthetic longitudinal event logs** (NOT cross-sectional survey data) simulating multiple weeks of daily logs per user.
+ 7. **Schema Definition**: Each log must have `user_id` (str), `date` (datetime), `event_type` (str), `value` (float).
+ 8. **Derivation Logic**: Explicitly define that `weekly_adherence_flag` is derived by counting events per week; flag = 1 if count > 0, else 0.
+ 9. **Scope Note**: This task implements the "Simulation Study" scope authorized by Plan.md.
+ 10. **Output**: Return a DataFrame of synthetic data. (FR-008, FR-011)
+ **Verification**: Assert the DataFrame contains specified columns and, if config is set, `need_for_achievement` is present. Verify that the presence of `need_for_achievement` is deterministic based on the config flag.
+
+- [X] T013a-2 [US1] Implement `code/data/synthetic_generator.py` (Write Artifacts):
+ 1. **Action**: Write the DataFrame from T013a-1 to `data/raw/synthetic_data.csv`.
+ 2. **Marker**: Write `data/raw/synthetic_data_marker.json` with `{"source": "synthetic", "n": <variable>}`.
+ 3. **Verification**: Assert file exists and marker file is created.
+ 4. **Scope Note**: Verify that `code/data/synthetic_generator.py` contains the comment: `# Scope Note: This synthetic generator implements the Simulation Study scope authorized by Plan.md`.
+ **Dependency**: T013a-1
+
+- [X] T013a-3 [US1] Implement `code/data/synthetic_generator.py` (Validate Group Sizes & Missing Columns):
+ 1. **Action**: Verify the generated dataset contains ≥30 non-gamified users AND ≥100 total valid records.
+ 2. **Missing Column Logic**: If `need_for_achievement` is missing (as per config), log "Column 'need_for_achievement' omitted from source data." and ensure the pipeline is prepared to proceed with Conscientiousness only (FR-002).
+ 3. **Tiered Logic**:
+ - If Total < 100: **HALT** with `sys.exit(1)` and log "CRITICAL: Data Insufficiency (< 100 records)." (FR-001).
+ - If 100 <= Total < 200: Log "WARNING: Sample size < 200 (N=<actual>). Proceeding with caution."
+ - If Total >= 200: Log "Success: Sample size target met."
+ 4. **Retry Logic**: If < 30 non-gamified users, retry generation (call T013a-1 logic) up to 5 times. If still < 30 after 5 attempts, raise a fatal error.
+ 5. **Verification**: Assert count of non-gamified users >= 30 and total records >= 100.
+ **Dependency**: T013a-1 (Direct dependency on generation logic for retry)
+
+- [X] T012a [US1] [FR-010] Implement `check_consent()` function in `code/data/validation.py`:
+ 1. **Check for Mode**: Check for the existence of `data/raw/synthetic_data_marker.json` **OR** a configuration flag `SIMULATION_MODE=true`.
+ - **If Present (Synthetic Mode)**: **DO NOT SKIP**. Instead, call `generate_simulation_consent()` (from T013a-0) to ensure `data/consent/simulation_consent_record.json` exists. Verify the artifact contains `audit_id` and `scope: "synthetic-only"`. Log "Synthetic data detected. Consent artifact generated for audit compliance." (FR-010, Constitution VI, Plan: "Crucial Scope Note"). **The check passes only if the artifact exists and is valid.**
+ - **If Absent (Real Data Mode)**: Check for `data/consent/` directory and original consent documentation.
+ - **If Missing**: **HALT** with `sys.exit(1)` and message "Error: Missing Consent for Real Data" (FR-010, Constitution VI).
+ - **If Present**: Verify the file contains a `timestamp` field and a `signature` field. (FR-010)
+ 2. **Dependency**: Must run AFTER T013a-2 to ensure the marker exists if in synthetic mode.
+ **Verification**: Assert that missing real consent causes exit code 1. Assert that synthetic mode generates the placeholder file with valid metadata and logs the specific scope note.
+
+- [X] T048 [US3] Implement `code/data/power_analysis.py`: Add a pre-flight calculation script that estimates statistical power for the planned N=200 simulation given the target interaction effect size.
+ 1. **Logic**: Use `statsmodels.stats.power` to calculate power for a mixed-effects logistic regression approximation.
+ 2. **Parameters**: Hardcode `effect_size_f2 = 0.15`, `alpha = 0.05`, `target_power = 0.80` in the script.
+ 3. **File Creation**: Ensure this script creates `code/data/power_analysis.py` with a `main()` entry point.
+ 4. **Output**: Write `data/processed/power_analysis_report.json` containing the estimated power, effect size, and sample size.
+ 5. **Remediation**: If power < 0.80, **automatically increment N by 100** and regenerate data (up to N=1000) before halting. Log each iteration. If N=1000 is reached and power < 0.80, **HALT** with `sys.exit(1)`.
+ 6. **Validation**: **HALT** the pipeline if power < 0.80 after remediation. Log "CRITICAL: Statistical power < 0.80. Study cannot proceed with statistical validity." (Plan: "Power Analysis Justification")
+ **Dependency**: Can run in parallel with T013a-1; its output is consumed by T032 for reporting.
+ **Verification**: Assert the script runs successfully, attempts remediation if needed, and halts only if power remains insufficient.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -85,10 +139,40 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 1
 
-- [X] T012b [P] [US1] Implement `calculate_cronbach_alpha()` function in `code/data/validation.py`: Calculate Cronbach's α for personality scales using `pingouin`. Handle missing items by excluding them from the calculation and logging the exclusion count (FR-011). **Dependency**: Requires data from T013b.
-- [~] T013b [US1] Implement `code/data/ingestion.py`: If `data/raw/habitica_data.csv` exists, load it and validate `gamified_app_usage` tags (FR-001a). Otherwise, execute `code/data/synthetic_generator.py` (T013a) with seed=42. Validate `gamified_app_usage` tags per FR-001a. Ensure non-gamified group size ≥ 30 (FR-008) by checking the output of T013a. If total valid records < 100 or non-gamified group < 30, log "Data Insufficiency" or "Group Imbalance" and halt.
+- [X] T013b [US1] Implement `code/data/ingestion.py`:
+ 1. **Priority**: Check for the existence of `data/raw/synthetic_data_marker.json` (validated by T012a).
+ - **If Present**: Load `data/raw/synthetic_data.csv`.
+ - **If Absent**: Attempt to fetch data from `HABITICA_API_URL` (from env).
+ 2. **Schema Validation (FR-001a)**:
+ - **Action**: Validate the loaded data against `contracts/dataset.schema.yaml`.
+ - **If Missing Tags**: If required tags (e.g., `gamified_app_usage`) are missing, **HALT** with `sys.exit(1)` and generate `data/reports/data_schema_mismatch_report.json` with error details. (FR-001a)
+ 3. **Data Source Availability**:
+ - **If API Fetch Fails**: If `HABITICA_API_URL` is configured and fetch fails (network error, 404, auth failure), generate `data/reports/data_insufficiency_report.json` containing the error details and exit with code 0 (graceful failure). (FR-001a, Edge Cases)
+ - **If Unconfigured**: If `HABITICA_API_URL` is not set, generate `data/reports/data_insufficiency_report.json` and exit with code 0. (FR-001a, Edge Cases)
+ 4. **Validation**: Ensure non-gamified group size ≥ 30 (FR-008). If total valid records < 100 or non-gamified group < 30, generate a "Data Insufficiency" report and exit gracefully. (FR-001, FR-001a, FR-008)
+ **Dependency**: Must run after T012a (consent).
+ **Verification**: Assert that missing real consent causes exit code 1. Assert that synthetic mode skips consent check.
+
 - [X] T014 [US1] Implement `code/data/aggregation.py`: Aggregate daily logs into `week_number` (sequential integers ≥ 1) and `weekly_adherence_flag` (binary 1/0) per user (FR-001b).
-- [ ] T017 [US1] Generate merged CSV in `data/processed/merged_data.csv` with all required columns (User_ID, Gamified, Adherence, Personality Scores). **Verification**: Assert file exists and contains expected columns.
+ **Dependency**: Requires output from T013b.
+
+- [X] T017 [US1] Generate merged CSV in `data/processed/merged_data.csv` with all required columns.
+ 1. **Action**: Call `code/data/aggregation.py` to process the data from T014.
+ 2. **Schema**: The output CSV MUST contain exactly these columns: `User_ID`, `gamified_status`, `conscientiousness_score`, `weekly_adherence_flag`, `week_number`.
+ 3. **Conditional Column**: If `need_for_achievement` exists in the source data, include it as `need_for_achievement`. If not, **exclude** it from the output.
+ 4. **Logging**: If `need_for_achievement` is excluded, log the exact message: "Column 'need_for_achievement' omitted from merged dataset as it was not present in source."
+ 5. **Verification**: Assert file exists and contains 'User_ID', 'gamified_status', 'conscientiousness_score', 'weekly_adherence_flag', 'week_number'. (FR-001b)
+ **Dependency**: Requires output from T014.
+
+- [X] T012b [US1] Implement `calculate_cronbach_alpha()` function in `code/data/validation.py`: Calculate Cronbach's α for personality scales using `pingouin`. Handle missing items by excluding them from the calculation and logging the exclusion count (FR-011). **Dependency**: Requires data from T017.
+ **Verification**: Assert function returns a float between 0 and 1. Assert log contains alpha value.
+
+- [X] T012c [US1] Implement `report_cronbach_alpha()` function in `code/utils/report-utils.py`:
+ 1. **Action**: Retrieve the Cronbach's Alpha value calculated in T012b.
+ 2. **Output**: Write the value to `data/processed/psychometrics.json` with the key `cronbach_alpha`.
+ 3. **Verification**: Assert the JSON file is created and contains the alpha value. (FR-011)
+ **Dependency**: Requires output from T012b.
+ **Note**: This value will be consumed by T032 for injection into the final report.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -107,13 +191,57 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Implementation for User Story 2
 
-- [X] T021 [US2] Implement VIF calculation in `code/analysis/modeling.py`: **First**, check if the `need_for_achievement` column exists in the dataset. If it does, calculate VIF for Conscientiousness and Need for Achievement. If VIF > 5, **drop "Need for Achievement"** (keeping Conscientiousness as primary moderator per Edge Cases) and log the removal. If the column does not exist, log the omission and proceed with Conscientiousness only (FR-002).
-- [X] T021b [US2] Implement fallback model logic in `code/analysis/modeling.py`: If both traits are removed or the interaction term is undefined, re-run the model with only Conscientiousness as a fixed effect. **Output**: Log the structural change to `logs/model_fallback.log`. <!-- FAILED: unspecified -->
-- [X] T020 [US2] Implement `code/analysis/modeling.py`: Fit mixed-effects logistic regression (fixed effects: Gamification, Conscientiousness, Interaction; random intercepts: User) (FR-002). **Dependency**: Must run after T021 completes.
-- [~] T022 [US2] Implement Benjamini-Hochberg (FDR) correction for multiple comparison tests. **Scope**: Apply correction strictly to the set of interaction terms and secondary personality traits (e.g., Need for Achievement interaction). Main effects (Gamification, Conscientiousness) are reported uncorrected unless they are part of the multiple comparison set defined in FR-007 (FR-007).
+- [X] T021 [US2] Implement VIF calculation and variable drop logic in `code/analysis/modeling.py`:
+ 1. **First**, check if `need_for_achievement` column exists.
+ 2. If yes, calculate VIF for Conscientiousness and Need for Achievement using `statsmodels.stats.outliers_influence.variance_inflation_factor`.
+ 3. If VIF > 5, **log** the removal to `logs/model_fallback.log` with message "Dropped Need for Achievement due to VIF > 5", and flag the variable for removal. (FR-002)
+ 4. **Apply Drop**: If flagged, remove it from the model formula immediately.
+ 5. If column does not exist, log omission and proceed with Conscientiousness only.
+ **Dependency**: Requires data from T017. **Must complete before T020b.**
+ **Note**: If `need_for_achievement` is missing (per T017 logic), skip VIF calculation for it and proceed with Conscientiousness only.
+
+- [X] T020b [US2] Implement `code/analysis/modeling.py` (Spec-Compliant Model):
+ 1. **Action**: Fit a mixed-effects logistic regression model with **random intercepts only**: `(1 | user_id)`.
+ 2. **Justification**: This adheres to Spec FR-002 and User Story 2 which explicitly mandate "random intercepts for users". **Plan.md "Complexity Tracking" explicitly states that random-slope models fail to identify between-subject group effects due to collinearity; thus, random-slope syntax `(gamified_status | user_id)` is strictly forbidden.**
+ 3. **Convergence Check**: Immediately after fitting, check for convergence warnings or singularity.
+ - **If Convergence Fails**: **HALT** with `sys.exit(1)` and log "CRITICAL: Mixed-effects model failed to converge. Study cannot proceed without valid mixed-effects modeling." **DO NOT FALL BACK** to fixed effects.
+ - **If Convergence Succeeds**: Proceed with random intercepts.
+ 4. **Output**: Save results to `data/processed/model_intercept_results.json` and include a `convergence_status` field ("success").
+ 5. **Verification**: Assert the model outputs the specified JSON and halts on convergence failure. (FR-002, Plan: "Complexity Tracking")
+ **Dependency**: Must run after T021.
+
+- [X] T022 [US2] Implement Benjamini-Hochberg (FDR) correction for multiple comparison tests in `code/analysis/modeling.py` and verify output.
+ 1. **Scope**:
+ - Dynamically determine the set of terms to correct: Include `Gamification_x_Conscientiousness` and `Gamification_x_NeedForAchievement` **only if** the corresponding main effects are present in the model.
+ - **Explicitly EXCLUDE** `week_number`, `time`, or any column containing temporal indices from the correction set as they are repeated measures (FR-007).
+ 2. **Action**: Apply correction to the selected set of interaction terms and secondary personality traits.
+ 3. **Verification**: Assert the correction list does not contain 'week_number' or temporal indices. (FR-007)
+ 4. **Output**: Write a verification log to `logs/fdr_verification.log` confirming the exclusion of temporal indices and listing the corrected terms. (FR-007)
+ 5. **Verification**: Assert the output contains corrected p-values for the interaction terms. (FR-007)
+ **Dependency**: Requires output from T020b.
+
 - [X] T023 [US2] Implement Leave-One-User-Out (LOUO) cross-validation in `code/analysis/modeling.py`; report average AUC and variance (US-2 Scenario 3).
+
+- [X] T049 [US2] Enhance `code/analysis/survival.py` to handle the "Zero Adherence" edge case explicitly.
+ 1. **Logic**: Identify users with `weekly_adherence_flag` = 0 for all observed weeks.
+ 2. **Action**: Mark these users as censored at `week_number=0` (or their last known active timestamp if any) in the survival analysis input.
+ 3. **Verification**: Ensure the Kaplan-Meier curve explicitly marks these censoring events to avoid bias in the hazard ratio calculation (Edge Case: "How does system handle users with zero adherence weeks?").
+ **Dependency**: Requires data from T017.
+
 - [X] T024 [US2] Implement `code/analysis/survival.py`: Count dropout events (consecutive weeks of non-adherence). If events < 10 per group, **generate a descriptive statistics report** and halt survival analysis (FR-009). If events ≥ 10, proceed to survival analysis.
-- [X] T025 [US2] Implement Kaplan-Meier curves and Cox proportional hazards model in `code/analysis/survival.py`, stratified by Conscientiousness quartiles (FR-003).
+ **Dependency**: Requires data from T017.
+
+- [X] T024a [US2] [FR-003] Implement `code/analysis/survival.py` (Stratification Logic):
+ 1. **Action**: Calculate Conscientiousness quartiles using `pd.qcut` on the `conscientiousness_score` column from the merged dataset.
+ 2. **Assignment**: Assign a new column `conscientiousness_quartile` (values 1, 2, 3, 4) to the dataset.
+ 3. **Validation**: Verify that each quartile has at least 5 users. If a quartile is empty, log a warning and merge with the adjacent quartile.
+ 4. **Output**: The dataset must now contain the `conscientiousness_quartile` column, ready for stratified analysis.
+ **Dependency**: Requires data from T017. **Must complete before T025.**
+
+- [X] T025 [US2] Implement Kaplan-Meier curves and Cox proportional hazards model in `code/analysis/survival.py`, **stratified by the `conscientiousness_quartile` column** (FR-003).
+ 1. **Action**: Use the `conscientiousness_quartile` column generated in T024a to stratify the survival analysis.
+ 2. **Output**: Generate Kaplan-Meier curves and Cox model results for each stratum.
+ **Dependency**: Requires output from T024a.
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -127,16 +255,34 @@ Examples of foundational tasks (adjust based on your project):
 
 ### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
 
-- [X] T027 [P] [US3] Contract test: Add function `test_bootstrap_variance` in `code/tests/test_robustness.py` that asserts the bootstrapping procedure generates [deferred] samples and reports a coefficient variance (regardless of value).
+- [X] T027 [P] [US3] Contract test: Add function `test_bootstrap_variance` in `code/tests/test_robustness.py` that asserts the bootstrapping procedure generates a sufficient number of samples to report a coefficient variance (regardless of value).
 - [X] T028 [P] [US3] Integration test: Add function `test_report_generation()` in `code/tests/test_report.py` that asserts the generated report contains Kaplan-Meier curves, sensitivity analysis tables, and the associational disclaimer.
 
 ### Implementation for User Story 3
 
-- [X] T029 [P] [US3] Implement `code/analysis/robustness.py`: Execute bootstrapping (sufficient iterations) to generate 95% CI for gamification effect size. **Output**: Report the coefficient variance across samples and the 95% CI. **Note**: Do not fail if variance > 0.01; report the value as part of the exploratory findings (FR-004, SC-004).
-- [X] T031 [US3] Implement sensitivity analysis in `code/reports/generate_report.py`: Vary adherence thresholds and **calculate/report the stability of the effect size (coefficient variance)** across thresholds (FR-005, SC-005).
-- [X] T030 [US3] Implement `code/reports/generate_report.py`: Generate HTML/PDF report containing usage trajectory plots, Kaplan-Meier survival curves, and sensitivity analysis tables. **Inject a header disclaimer programmatically**: "Findings are associational, not causal. The data is observational." (FR-005, FR-006).
-- [~] T032 [US3] Generate final report artifact `data/reports/final_analysis.html` by executing `code/reports/generate_report.py`. **Verification**: Assert file exists and contains required sections.
-- [~] T033 [US3] Run `code/utils/versioning.py` to hash all final artifacts and update `state.yaml` (Constitution Principle V).
+- [X] T029 [US3] Implement `code/analysis/robustness.py`: Execute bootstrapping (sufficient iterations) to generate confidence interval for gamification effect size. **Logic**:
+ 1. Use `sklearn.model_selection.StratifiedShuffleSplit` to ensure the ratio of gamified to non-gamified users remains constant (within 5%) across all samples.
+ 2. **Report**: Report the coefficient variance across samples and the corresponding confidence interval.
+ 3. **Robustness Status (Hard Gate)**: **HALT** the pipeline if variance >= 0.01. Log "CRITICAL: Bootstrap variance (>= 0.01) exceeded the robustness threshold (SC-004). Study cannot proceed." and exit with code 1. **DO NOT** continue with a "failed" status.
+ 4. **Output**: Write `data/processed/robustness_report.json` with `variance`, `ci`, and `robustness_status: "passed"`.
+ 5. **Verification**: Assert the report contains the variance value and the `robustness_status` flag. (FR-004, SC-004)
+ **Dependency**: Requires output from T020b.
+
+- [X] T031 [US3] Implement sensitivity analysis in `code/reports/generate_report.py`: Vary adherence thresholds over a set of discrete levels. (passed via `--thresholds` argument) and **calculate/report the stability of the effect size (coefficient variance)** across these thresholds (FR-005, SC-005). **Stability Criterion**: Variance < 0.05.
+ **Verification**: Assert the analysis iterates over the provided thresholds and reports stability.
+
+- [X] T032 [US3] [FR-005, FR-006, FR-011] Generate final report artifact `data/reports/final_analysis.html` by executing `code/reports/generate_report.py`. **Requirements**:
+ 1. **Language Audit**: Scan all generated text blocks (Methodology, Results, Conclusion) for causal verbs (e.g., 'causes', 'leads to', 'determines') and replace them with associational terms (e.g., 'is associated with', 'predicts', 'correlates with').
+ 2. **Disclaimer Injection**: Inject a header disclaimer programmatically: "Findings are associational, not causal. The data is observational." (FR-005, FR-006).
+ 3. **Data Binding**: Read `data/processed/psychometrics.json` (from T012c) and inject the Cronbach's Alpha value into the "Psychometric Validity" section. (FR-011)
+ 4. **Limitations**: Include a "Data Limitations" section explicitly stating: "Sample size (N=<actual>), synthetic nature of data, lack of external validation, and potential underpowering for interaction effects."
+ - **Source of Truth**: Read the actual sample size `N` from `data/processed/merged_data.csv` (count of unique `User_ID` rows) to populate `<actual>`. Do not use hardcoded values or planned N.
+ 5. **Methodology Limitations**: Append a "Methodology Limitations" subsection explicitly stating the "Simulation Study" nature, reliance on synthetic data with known ground truth, and the limitation of using a single random seed. **Explicitly state that Multi-Seed Sensitivity Analysis is out of scope for this phase as the study focuses on Parameter Recovery Error against a known ground truth, not empirical stability across seeds.**
+ 6. **Robustness Flag**: If `data/processed/robustness_report.json` contains `robustness_status: "failed"` (should not happen due to T029 hard gate, but for safety), inject a specific warning.
+ 7. **Verification**: Assert file exists, contains the "Data Limitations" section with the actual N, the Cronbach's Alpha value, the disclaimer, and no causal language. (FR-005, FR-006, FR-011, SC-004)
+ **Dependency**: Requires output from T029, T031, T012c.
+
+- [X] T033 [US3] Run `code/utils/versioning.py` to hash all final artifacts and update `state.yaml` (Constitution Principle V).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -146,102 +292,52 @@ Examples of foundational tasks (adjust based on your project):
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [~] T034 [P] Documentation updates: Update `README.md` with project overview and `quickstart.md` with execution instructions. **Specifics**: Ensure `quickstart.md` includes steps for synthetic data generation and consent verification.
-- [ ] T035 [P] Refactor `code/analysis/robustness.py` to use **chunked processing or generator-based iteration** to ensure peak memory usage remains within acceptable limits during bootstrapping, verified by a **memory profiling test**.
-- [ ] T036 [P] Optimize `code/analysis/robustness.py` by implementing **multiprocessing** for a sufficient number of bootstrap iterations to reduce runtime on CPU-only CI to < 30 minutes.
-- [ ] T037 [P] Additional unit tests for edge cases: Implement `code/tests/test_edge_cases.py` with functions `test_vif_high_collinearity` (verifies VIF > 5 handling) and `test_low_event_count` (verifies survival halt logic).
-- [ ] T038 Run quickstart.md validation: Execute `bash quickstart.sh`, assert exit code 0, and verify `data/processed/merged_data.csv` exists.
+- [X] T034 [P] Documentation updates: Update `README.md` with project overview and `specs/001-gamification-effects/quickstart.md` with execution instructions. **Specifics**: Ensure `quickstart.md` includes steps for synthetic data generation and consent verification.
+- [X] T035 [P] Refactor `code/analysis/robustness.py` to use **chunked processing or generator-based iteration** to ensure peak memory usage remains under **4GB** during bootstrapping, verified by a **memory_profiler** test. **Verification**: Add `tests/test_memory.py::test_peak_memory_under_GB` and assert it passes.
+- [X] T036 [P] Optimize `code/analysis/robustness.py` by implementing **multiprocessing** for 1,000 bootstrap iterations to reduce runtime on **GitHub Actions free-tier (2 CPU, 7GB RAM)** to < 30 minutes. **Verification**: Assert runtime < 30 minutes in CI logs.
+- [X] T037 [P] Additional unit tests for edge cases: Implement `code/tests/test_edge_cases.py` with functions `test_vif_high_collinearity` (verifies VIF > 5 handling), `test_low_event_count` (verifies survival halt logic), and `test_retry_logic` (verifies T013a-3 retry loop executes exactly 5 times before failing).
+- [X] T038 [US3] Run quickstart.md validation: Create `quickstart.sh` if it does not exist (copying steps from `quickstart.md`), make it executable, then run `bash quickstart.sh`. Assert exit code 0, verify `data/processed/merged_data.csv` exists, and run pre-flight dependency checks. **Pre-flight Check**: Assert that all dependency files (T009, T013a, T014) exist before execution. (FR-001b, Constitution V)
+ **Verification**: Assert exit code 0 and `data/processed/merged_data.csv` exists.
+
+- [X] T052 [US3] Implement `code/main.py` orchestration script to unify the pipeline execution flow.
+ 1. **Logic**: Create a sequential runner that imports and executes the following functions in order:
+ - `code.data.power_analysis.main()`
+ - `code.data.validation.check_consent()`
+ - `code.data.synthetic_generator.main()`
+ - `code.data.ingestion.main()`
+ - `code.data.aggregation.main()`
+ - `code.analysis.modeling.main()`
+ - `code.analysis.survival.main()`
+ - `code.analysis.robustness.main()`
+ - `code.reports.generate_report.main()`
+ 2. **Error Handling**: Implement try/except blocks to capture failures in any stage and write a structured error log to `logs/pipeline_error.log`.
+ 3. **Dependency**: Must run after T051 (Run-book reconciliation) and after all US1/US2/US3 implementations. **Note**: This task defines the flow for T048 and T013a-1 and should be implemented concurrently with components.
+ 4. **Verification**: Assert that running `python code/main.py` successfully produces `data/reports/final_analysis.html` without manual intervention. (Plan: "Orchestration script")
+
+**Checkpoint**: All user stories should now be independently functional
 
 ---
 
-## Dependencies & Execution Order
+## Phase N+1: Revision & Compliance (Post-Analysis Fixes)
 
-### Phase Dependencies
+**Purpose**: Address specific issues raised by `/speckit.analyze` regarding power analysis, edge case handling, and documentation completeness.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [X] T050 [US3] Update `code/reports/generate_report.py` to include a "Methodology Limitations" subsection.
+ 1. **Content**: Explicitly state the "Simulation Study" nature of the work, the reliance on synthetic data with known ground truth, and the specific limitation of using a **single random seed (42)**. Acknowledge that multi-seed sensitivity analysis is not in scope for this phase.
+ 2. **Action**: Append this section to the final report after the "Data Limitations" section.
+ 3. **Verification**: Assert the report contains the phrase "Simulation Study", "known ground truth", and "single random seed" in the limitations section. (Plan: "Crucial Scope Note")
 
-### User Story Dependencies
+- [X] T051 [US3] Reconcile run-book vs implementation for `code/main.py`: the quickstart run-book invokes this script but it does not exist. Either create `code/main.py`, or update the run-book (quickstart.md / plan.md) to invoke the script that actually implements this step. See `.specify/memory/execution_feedback.md` for the exact failing command and the scripts that DO exist.
+ **Verification**: Assert `code/main.py` exists and is executable.
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on aggregated data from US1
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on model outputs from US2
+- [X] T060 [US2] [Edge Case] Refine the "Zero Adherence" logic in `code/analysis/survival.py` (T049).
+ 1. **Clarification**: Ensure that users with `weekly_adherence_flag` = 0 for *all* weeks are censored at `week_number=0` (or `week_number=1` depending on 0-indexing) AND that this is explicitly logged as "Censored at baseline (no adherence events)".
+ 2. **Verification**: Add a unit test in `code/tests/test_edge_cases.py` (T037) that creates a synthetic user with zero adherence and asserts that the survival curve correctly marks this as a censoring event at the start, not as an "event" (dropout).
+ **Dependency**: Requires T049 to be implemented.
 
-### Within Each User Story
+- [X] T061 [US1] [FR-001a] Update `code/data/ingestion.py` (T013b) to explicitly handle the case where the synthetic data generator fails to produce the `need_for_achievement` column due to config settings.
+ 1. **Action**: Ensure the ingestion script checks the `contracts/dataset.schema.yaml` for *conditional* columns. If `need_for_achievement` is marked as "optional" in the schema (or missing from the generated CSV), the script must **not** raise a schema mismatch error, but instead log a warning and proceed with Conscientiousness only.
+ 2. **Verification**: Assert that running the pipeline with `INCLUDE_ACHIEVEMENT_SCORE=false` in `config.py` completes successfully without a "Schema Mismatch" error. (FR-002, FR-001a)
+ **Dependency**: Requires T013b and T009 (schema definition) to be updated to reflect conditional columns.
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for data ingestion schema validation in code/tests/test_ingestion.py"
-Task: "Integration test for weekly aggregation logic in code/tests/test_aggregation.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/data/validation.py"
-Task: "Implement code/data/ingestion.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
- - Developer B: User Story 2
- - Developer C: User Story 3
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Constraint**: All tasks must run on CPU-only CI (limited cores, limited RAM). No GPU models or 8-bit quantization allowed.
+- [X] T062 [US3] [FR-005] **REMOVED**: Task T062 (visual plot of seed sensitivity) has been removed as it depends on T059 (Multi-Seed Analysis), which is out of scope for this Simulation Study.

@@ -1,0 +1,39 @@
+# Python 3.11+ Dependencies for PROJ-422
+# Molecular Permeability Prediction Pipeline
+
+# Core Data & Chemistry
+rdkit>=2023.9.4
+pandas>=2.1.0
+numpy>=1.24.0
+
+# Deep Learning & Graphs
+torch>=2.1.0
+torch-geometric>=2.4.0
+# Note: PyTorch Geometric requires specific PyTorch version compatibility.
+# Install via: pip install torch-scatter torch-sparse torch-cluster torch-spline-conv torch-geometric -f https://data.pyg.org/whl/torch-2.1.0+cpu.html
+
+# Machine Learning
+scikit-learn>=1.3.0
+statsmodels>=0.14.0
+
+# Explainability
+shap>=0.44.0
+gnnexplainer>=0.1.0
+
+# Data Loading
+datasets>=2.14.0
+
+# Utilities
+pyyaml>=6.0.1
+tqdm>=4.66.0
+
+# Logging & Monitoring
+structlog>=23.2.0
+
+# Testing
+pytest>=7.4.0
+pytest-cov>=4.1.0
+
+# Linting & Formatting
+ruff>=0.1.0
+black>=23.10.0

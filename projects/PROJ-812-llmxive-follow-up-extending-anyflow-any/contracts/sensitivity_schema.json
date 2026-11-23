@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Sensitivity Analysis Contract",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["clip_id", "threshold", "sensitivity_score", "timestamp"],
+  "properties": {
+    "clip_id": {
+      "type": "string",
+      "description": "Unique identifier of the video clip."
+    },
+    "threshold": {
+      "type": "number",
+      "minimum": 0.0,
+      "description": "Threshold value used in the sensitivity sweep."
+    },
+    "sensitivity_score": {
+      "type": "number",
+      "minimum": 0.0,
+      "description": "Resulting performance metric (e.g., false‑positive rate)."
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the sensitivity measurement was taken."
+    }
+  }
+}

@@ -1,0 +1,39 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Analysis Results Schema"
+description: "Schema for the final analysis report including REI and statistical tests."
+type: "object"
+properties:
+  descriptor:
+    type: "string"
+    enum:
+      - "mu"
+      - "homo"
+      - "lumo"
+    description: "The molecular descriptor being analyzed."
+  mae_2d:
+    type: "number"
+    description: "Mean Absolute Error for the 2D model."
+  mae_3d:
+    type: "number"
+    description: "Mean Absolute Error for the 3D model."
+  reli:
+    type: "number"
+    description: "Relative Error Increase (2D vs 3D)."
+  p_value:
+    type: "number"
+    description: "P-value from the paired t-test."
+  failure_boundary:
+    type: "boolean"
+    description: "True if REI >= 10% OR p-value < 0.0167."
+  sample_size:
+    type: "integer"
+    description: "Number of molecules used in the analysis."
+required:
+  - descriptor
+  - mae_2d
+  - mae_3d
+  - reli
+  - p_value
+  - failure_boundary
+  - sample_size
+additionalProperties: false

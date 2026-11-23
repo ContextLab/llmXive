@@ -1,1 +1,1 @@
-# Utility scripts directory
+# Scripts package

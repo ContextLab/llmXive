@@ -1,0 +1,78 @@
+T003:
+  c: false
+  h: 672ce5e27825177952da26e7f6db5d8181cec77f22bf804ecee5040a0257dcbe
+  r: The `pyproject.toml` correctly contains the `ruff` and `black` configuration,
+    but the required artifact `data/logs/linting_config.json` does not exist, so the
+    verification step is missing. The task remains incomplete until this log file
+    is generated and saved.
+T007b:
+  c: false
+  h: ef729a03e7e24ae0b154897db1de2a63e30534c75e9c31687b22c760a75e0a30
+  r: "The required contract file `contracts/dataset.schema.yaml` is missing, so the\
+    \ generator cannot have derived the fields from it, and the `src/models/code_snippet.py`\
+    \ contains manually\u2011written field definitions (and is truncated). Consequently\
+    \ the artifact does not demonstrably satisfy the \u201Cgenerate from contract\u201D\
+    \ requirement."
+T008b:
+  c: false
+  h: e5e24d993ba4ac4bb19063b7086554ccd764e20b146f7906e65a0f4d239ed2b9
+  r: "The file `src/models/feature_vector.py` exists, but the required source contract\
+    \ `contracts/feature.schema.yaml` is missing, so we cannot verify that the model\
+    \ was generated from it or that the fields match the schema. The task\u2019s core\
+    \ requirement (generation from the contract) is therefore not satisfied."
+T009b:
+  c: false
+  h: c4354f84a4526d2015b7cb0f184bce8c7761d3dea58fb457bd42854e2fec93dc
+  r: "The required contract file `contracts/prediction.schema.yaml` is missing, so\
+    \ the generated `PredictionResult` cannot be verified against the source schema.\
+    \ Moreover, the fields in `src/models/prediction_result.py` are manually written\
+    \ rather than auto\u2011generated from the contract, violating the \u201Cno manual\
+    \ implementation\u201D constraint. The task therefore remains unfinished."
+T009e:
+  c: false
+  h: c7c5fe08d75e1a6b63d6a964d935e7d43659ca6fc8229fff390f0b6f0901e668
+  r: The `src/models/analysis_metric.py` file exists, but the required source schema
+    `contracts/analysis_metric.schema.yaml` is missing, so we cannot confirm that
+    the generated code matches the schema or that the generation script was actually
+    run. Additionally, there is no evidence that the task was executed after T009d.
+T012:
+  c: false
+  h: 2290225507890218f386783d3138ea862eeb4c7e07151e14fc43d987e0a8ba56
+  r: The required output files `data/processed/parsed_snippets.parquet` and `data/logs/dropped_samples.json`
+    are absent, and the referenced schema file is also missing, so the parsing, mapping,
+    and logging steps have not been demonstrated.
+T015:
+  c: false
+  h: f527a02f705bdc0a19233cadd5e5d8510cc98fe618b17c6465c9a39ae6ce3326
+  r: The required artifact `data/logs/orchestration_log.json` is missing, so the orchestration
+    flow has not been documented or validated as specified. No evidence of the defined
+    execution order, downstream task calls, schema validation, or adaptive batch sizing
+    is provided. The implementer must create the JSON log file with the expected contents.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The claim provides no updated `README.md` or any files under `docs/`; no evidence
+    of revised documentation is present. The required artifacts are missing, so the
+    documentation update task is not satisfied.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: The implementer provided only the task description and project spec but no concrete
+    artifacts such as a linting report, updated source files, or evidence that `ruff`
+    and `black` were run and all modules now contain type hints. Without these files
+    or a verification log, the requirement cannot be confirmed as satisfied.
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No profiling logs, batch\u2011size tuning scripts, or GPU\u2011offload implementation\
+    \ were supplied; the claim lacks any concrete artifact (e.g., benchmark tables,\
+    \ modified inference/feature\u2011extraction code, or instructions for using a\
+    \ free Kaggle GPU) required to demonstrate the performance optimizations."
+T044:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No test files, code changes, or documentation were provided showing new unit
+    tests for the specified edge cases (large snippet truncation and malformed code
+    handling). The claim lacks any concrete artifacts (e.g., pytest files, test case
+    listings, or CI reports) that demonstrate the expanded coverage, so the requirement
+    is not satisfied.

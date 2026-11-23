@@ -1,0 +1,68 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "DensityMeasurement"
+description: "Schema for a single interval density measurement record, including theoretical baseline and deviation ratio."
+type: "object"
+required:
+  - "config_id"
+  - "x"
+  - "y"
+  - "h"
+  - "start_offset"
+  - "u_value"
+  - "rho_theory"
+  - "count"
+  - "rho_observed"
+  - "deviation_ratio"
+  - "weight"
+  - "timestamp"
+properties:
+  config_id:
+    type: "string"
+    description: "Unique identifier for the parameter set (x, y, h)."
+  x:
+    type: "integer"
+    description: "The base start point of the interval."
+    minimum: 1
+    maximum: 1000000000
+  y:
+    type: "integer"
+    description: "The smoothness bound."
+    minimum: 2
+  h:
+    type: "integer"
+    description: "The length of the interval (fixed grid values)."
+    minimum: 1
+  start_offset:
+    type: "integer"
+    description: "Random offset applied to x to generate the interval start."
+    minimum: 0
+  u_value:
+    type: "number"
+    description: "Calculated parameter u = ln(x) / ln(y)."
+    minimum: 0.0
+  rho_theory:
+    type: "number"
+    description: "Theoretical Dickman density rho(u)."
+    minimum: 0.0
+  count:
+    type: "integer"
+    description: "Number of y-smooth integers found in the interval."
+    minimum: 0
+  rho_observed:
+    type: "number"
+    description: "Calculated observed density (count / h)."
+    minimum: 0.0
+    maximum: 1.0
+  deviation_ratio:
+    type: "number"
+    description: "Ratio of observed density to theoretical density (rho_observed / rho_theory)."
+    minimum: 0.0
+  weight:
+    type: "number"
+    description: "Statistical weight for Weighted Least Squares regression."
+    minimum: 0.0
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the measurement."
+additionalProperties: false

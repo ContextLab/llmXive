@@ -8,4 +8,5 @@ seaborn
 requests
 datasets
 pytest
-pyyaml
+memory-profiler
+ruff

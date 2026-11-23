@@ -1,0 +1,16 @@
+{
+  "sampled_node_count": 10,
+  "sampled_edge_count": 15,
+  "valid_bridging_count": 10,
+  "valid_cluster_count": 10,
+  "representativeness_passed": true,
+  "schema_passed": true,
+  "details": {
+    "schema_issues": {
+      "missing_clusters": 0,
+      "invalid_bridging": 0
+    },
+    "topology_check": "Passed: Multi-cluster, non-isolated",
+    "degree_distribution": "Non-trivial"
+  }
+}

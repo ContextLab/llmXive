@@ -1,0 +1,2 @@
+# This directory holds human-validated annotations and validation subsets.
+# Critical for breaking circularity in metric calculations.

@@ -1,104 +1,86 @@
 # Research: llmXive follow-up: extending "Foundation Protocol: A Coordination Layer for Agentic Society"
 
 ## Research Question
-What is the functional relationship between **actual context compression percentage** (via graph-traversal depth limits) and policy-violation error rates in multi-agent workflows, and where is the "safe operating zone" (error ≤ 1%)?
+What functional relationship exists between context compression (graph‑traversal depth limits) and policy‑violation error rate in synthetic multi‑agent workflows, and where does the “safe operating zone” threshold (error ≤ 1 %) lie?
 
 ## Dataset Strategy
 
-Since this study relies on **synthetic data generation** rather than external datasets, the "dataset" is the output of the `synthetic_workflow.py` generator. The generator is verified to produce:
-- **A set of unique workflows**.
-- **Delegation Depth**: Uniform distribution 1-20.
-- **Policy Complexity**: Uniform distribution 1-10 constraints.
-- **Variables**: Workflow ID, Depth, Complexity, Policy Nodes, Ground Truth State, **Actual Token Reduction %**.
+### Verified Datasets
+The experiment relies exclusively on **synthetically generated data**; no external open‑source dataset contains the required “policy graph” and “compression error” variables.
 
-**Verified Sources**:
-- No external dataset URL is required. The generator logic itself is the source.
-- **Tokenization**: Uses `tiktoken` (cl100k_base), a standard library with verified accuracy for LLM context simulation.
-- **Graph Library**: Uses `networkx`, verified for DAG generation and traversal.
+| Dataset | Source Type | Loader | Notes |
+|---|---|---|---|
+| Synthetic Workflows | Local generation (pm4py‑inspired) | `src/services/generator.py` | Deterministic, seeded, a substantial set of unique workflows with uniform depth distribution and varied policy complexity. |
+| Execution Logs | Local simulation | `src/services/executor.py` | Generates Full‑Context and Compressed‑Context logs; each log entry conforms to `execution_log.schema.yaml`. |
+| Step‑Level Outcomes | Derived from execution logs | `src/services/analyzer.py` (task **T‑Prepare‑Step‑Level‑Data**) | Flat table of per‑step binary outcomes (step_id, outcome = 0/1) used for GEE modeling. |
 
-**Dataset Strategy Table**:
-| Component | Source/Method | Verification Status |
-|-----------|---------------|---------------------|
-| Workflow Graphs | `synthetic_workflow.py` (Deterministic Python) | Verified logic (Phase 0) |
-| Policy Rules | Embedded in graph metadata (synthetic) | Verified logic (Phase 0) |
-| Token Counts | `tiktoken` (cl100k_base) | Verified library |
-| Ground Truth | `oracle_policy.py` (Independent Rule-Based Validator) | Verified logic (Phase 0) |
+All data are produced on‑the‑fly; no download step is required, satisfying the CI runner’s offline constraints.
 
-## Methodology
+### Data Generation & Simulation Logic
+1. **Workflow Generation** (`generator.py`):  
+   - Uses `networkx` to build directed graphs.  
+   - Delegation depth sampled uniformly from 1‑10, guaranteeing ≥ 25 workflows per depth.  
+   - Policy complexity sampled uniformly from 1‑20 (number of policy nodes).  
+   - Fixed random seed (`42`) guarantees reproducibility (Constitution I).  
+   - Each workflow is validated against the Oracle; unsolvable workflows are flagged `is_valid=False` and **excluded** from error‑rate calculations. The proportion of invalid workflows is recorded in `invalid_exclusion_report.json` (see T‑Invalid‑Exclusion‑Report).  
 
-### 1. Data Generation (FR-001)
-- **Method**: Python `networkx` to generate Directed Acyclic Graphs (DAGs).
-- **Parameters**:
-  - `N = 500` workflows.
-  - `Depth ~ Uniform(1, 20)`.
-  - `Complexity ~ Uniform(1, 10)`.
-  - `Seed`: Fixed (e.g., 42) for reproducibility.
-- **Output**: JSON file `data/raw/workflows.json`.
+2. **Oracle Policy Engine** (`models/policy.py`):  
+   - Deterministic state machine that **deduces** validity of each step from the *provided* policy context.  
+   - Returns a violation only when required deduction fails, not merely because a node is missing.  
+   - Completely independent of the compression algorithm (Constitution VI).
 
-### 2. Execution Engines
-- **Oracle Policy Engine (Ground Truth)**:
-  - A distinct, rule-based validator that defines the "correct" policy satisfaction for a given workflow.
-  - **Independence**: Logically separate from execution engines to prevent circular validation.
-- **Full Context Engine (Baseline Simulator)**:
-  - Traverses the entire policy graph.
-  - Calculates total token count using `tiktoken`.
-  - Validates against `oracle_policy.py`.
-  - Records `ground_truth_violations` (deviations between Full Context simulator and Oracle).
-- **Compressed Context Engine**:
-  - Applies BFS/DFS with `max_depth` parameter (e.g., 2, 4, 6, 8, 10).
-  - Extracts subgraph.
-  - Calculates token count of subgraph.
-  - Validates against `oracle_policy.py`.
-  - Records `compression_violations`.
-  - **Key Metric**: Calculates **Actual Token Reduction %** = `(Full_Tokens - Compressed_Tokens) / Full_Tokens` for **each workflow**.
-- **Compression Levels**: 5 levels (including "None" and "Max") to establish a curve.
+3. **Compression Simulation** (`compression.py` + `executor.py`):  
+   - Implements BFS/DFS with configurable depth limit `k`.  
+   - Token count obtained via `tiktoken` (`cl100k_base`) on the serialized subgraph.  
+   - Edge cases: `k=0` → `context_reduction_pct="[deferred]"`; single‑node graphs → same marker.  
 
-### 3. Statistical Analysis (FR-005, FR-006)
-- **Dependent Variable**: Policy-violation error (Binary: 1 if violation detected, 0 otherwise).
-- **Independent Variable**: **Actual Token Reduction %** (Continuous, calculated per workflow).
-- **Covariates**: Graph Depth, Policy Complexity (to control for confounding).
-- **Model**: **Logistic Regression** on the 500 individual workflow observations.
-  - Formula: `logit(P(Violation)) = β0 + β1*(Reduction %) + β2*(Depth) + β3*(Complexity)`.
-  - This approach utilizes the full variance in token reduction, avoiding the statistical underpowering of fitting a curve to 5 aggregated points.
-- **Threshold Identification**: Solve the logistic equation for `P(Violation) = 0.01` ([deferred] error) to find the specific `Reduction %` threshold.
-- **Confidence Interval**: Bootstrap (a sufficient number of resamples) to derive 95% CI for the threshold.
-- **Secondary Robustness Check**: Pairwise comparisons of error rates across the 5 discrete depth levels with **Bonferroni correction** to confirm monotonicity, but not as the primary method for threshold estimation.
+## Statistical Analysis Plan
 
-## Decision Rationale
+### 1. Step‑Level Binomial GEE
+- **Model**: Binomial Generalized Estimating Equations (GEE) with logit link, exchangeable correlation structure, clustering by `workflow_id`. Implemented via `statsmodels.genmod.generalized_estimating_equations.GEE`.  
+- **Data**: Flat per‑step binary outcome table (`step_id`, `outcome` = 0/1) generated by **T‑Prepare‑Step‑Level‑Data**.  
+- **Fixed Effects**: `context_reduction_pct` (continuous), `policy_complexity`, `delegation_depth`.  
+- **Goal**: Estimate the monotonic relationship; test significance of `context_reduction_pct`.
 
-### Why Synthetic Data?
-- **Control**: Real multi-agent logs are noisy and lack ground truth. Synthetic data allows precise control over depth and complexity variables.
-- **Reproducibility**: Deterministic generation ensures the exact same dataset can be regenerated for verification (Constitution Principle I).
-- **Ethics**: No PII or sensitive data involved.
+### 2. Multiple‑Comparison Correction
+- Primary ordered comparisons (depth levels) use **Cochran‑Armitage trend test** (no correction needed for ordered test).  
+- Any secondary pairwise depth comparisons receive **Bonferroni correction** to maintain family‑wise α = 0.05.
 
-### Why `tiktoken`?
-- **Accuracy**: Node count is a poor proxy for context size. `tiktoken` provides the actual token count used by LLMs (FR-009).
-- **CPU Efficiency**: `tiktoken` is a pure Python/C extension library that runs efficiently on CPU.
+### 3. Threshold Detection
+- Target: Identify the smallest `context_reduction_pct` where the **predicted** error rate first exceeds **[deferred]**.
+- Method: Interpolate the fitted GEE curve; compute a 95 % CI via **bootstrap** with **1000** resamples (per verified fact).  
+- Confidence interval: Report lower and upper bounds rounded to two decimal places.
 
-### Why Logistic Regression on Individual Observations?
-- **Statistical Validity**: Fitting a non-linear curve to 5 aggregated points is underpowered and prone to overfitting. Using 500 individual data points with a continuous predictor (actual reduction %) provides sufficient power to robustly estimate the threshold.
-- **Handling Confounding**: By including Depth and Complexity as covariates, we control for the fact that token reduction is not randomized but depends on graph topology.
+### 4. Monotonicity Diagnostic
+- After fitting, we compute the predicted error curve.  
+- **If the curve is monotonic**, we proceed to threshold extraction.  
+- **If non‑monotonicity is observed**, we **report** it as a substantive finding (including an optional isotonic regression plot for illustration only) and do **not** refit the model to enforce monotonicity.
 
-### Why `tiktoken`?
-- **Accuracy**: Node count is a poor proxy for context size. `tiktoken` provides the actual token count used by LLMs (FR-009).
-- **CPU Efficiency**: `tiktoken` is a pure Python/C extension library that runs efficiently on CPU.
+### 5. Power Analysis (formal, simulation‑based)
+- **Assumed effect size**: logistic coefficient = 0.10 per [deferred] context‑reduction (i.e., a 0.10 increase in log‑odds corresponding to a [deferred] reduction) and a target absolute error increase of ≥ 1 % at that reduction.
+- **Procedure**: Simulate 1000 synthetic datasets matching the planned design, embed the above effect size, fit the GEE each time, and record the proportion that detects a statistically significant error increase at the 1 % bound (α = 0.05, Bonferroni‑adjusted where applicable).  
+- The proportion is the estimated power and is reported in `run_metrics.json`.
 
-### Why Non-Linear Regression?
-- **Hypothesis**: The relationship is expected to be non-linear (diminishing returns). Small compressions may have 0 error, but beyond a threshold, errors spike. A linear model would miss this critical "safe zone" boundary.
+### 6. Edge‑Case Handling (already in plan)
+- Single‑node graphs and `compression_depth=0` produce `context_reduction_pct="[deferred]"`.  
+- These rows are **included in descriptive statistics** (mean token reduction, violation counts) and a separate **sensitivity analysis**, but are **excluded from the GEE regression** because they lack a numeric reduction value. This prevents selection bias while still reporting their impact.
 
-## Statistical Rigor Checklist
+### 7. Invalid‑Workflow Proportion Monitoring
+- The pipeline records `invalid_workflow_count` and `total_workflows` in `invalid_exclusion_report.json`.  
+- `run_metrics.json` includes the proportion `invalid_workflow_ratio = invalid_workflow_count / total_workflows`.  
+- This metric is examined during analysis to assess potential bias; if the ratio exceeds 10 % a warning is issued.
 
-- **Multiple Comparisons**: Bonferroni correction applied as a secondary check for pairwise depth comparisons.
-- **Sample Size**: A sufficient number of individual observations will be collected to provide adequate power for logistic regression (assuming medium effect size).
-- **Causal Claims**: The study claims an *associational* relationship between **token reduction %** and error. While **compression depth** is randomized, **token reduction %** is observational (confounded by graph topology). The regression model controls for these confounders (Depth, Complexity) to isolate the effect of token reduction.
-- **Measurement Validity**: `tiktoken` is the industry standard for token counting; `networkx` is the standard for graph traversal.
-- **Collinearity**: Depth and complexity are generated independently and included as covariates to mitigate collinearity with token reduction.
+## Compute Feasibility
+- **CPU‑First**: All libraries (`networkx`, `tiktoken`, `statsmodels`, `sklearn`) run on CPU. No GPU‑only components.  
+- **Memory**: 500 small graphs + logs ≈ 200 MB; well under 7 GB limit.  
+- **Runtime**: Estimated ≤ 2 h on 2 vCPU (generation ≈ several minutes, execution ≈ ≈ 1 h, analysis ≈ a few minutes, testing ≈ several minutes).  
 
-## Risk Assessment
-
-- **Risk**: Generator produces invalid workflows (impossible to satisfy).
-  - **Mitigation**: Filter out invalid workflows in Phase 0; record count of excluded workflows.
-- **Risk**: CPU timeout on GitHub Actions.
-  - **Mitigation**: Profile execution time in Phase 0; if > 3 hours, reduce sample size or optimize graph generation.
-- **Risk**: Memory overflow.
-  - **Mitigation**: Stream execution logs; do not load all 500 graphs into memory simultaneously if possible (process in batches).
+## Decision / Rationale
+- **Synthetic data** eliminates the need for unavailable external datasets and gives full control over depth/complexity variables.  
+- **CPU‑only** respects the resource‑constrained constraint (Constitution VII) and enables execution on free GitHub Actions runners.  
+- **Oracle independence** fulfills Constitution VI, preventing circular validation.  
+- **Step‑level binomial GEE** provides a statistically valid approach for binary outcomes, addressing the scientific‑soundness concern.  
+- **Explicit effect size** in power analysis makes the estimate interpretable.  
+- **Monotonicity diagnostic** reports non‑monotonicity rather than enforcing it, preserving scientific integrity.  
+- **Deferred rows** are handled transparently to avoid selection bias.  
+- **Adaptive sampling** concentrates runs near the anticipated inflection while keeping total runs manageable.  

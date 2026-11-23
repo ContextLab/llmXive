@@ -12,29 +12,49 @@ logger = logging.getLogger(__name__)
 def load_event_annotations(csv_path):
     """
     Load event annotations from a CSV file.
-    Expected columns: onset, duration, trial_type, label.
+    Expected columns: onset, duration, event_type, label
     """
     if not Path(csv_path).exists():
         raise FileNotFoundError(f"Annotation file not found: {csv_path}")
-    return pd.read_csv(csv_path)
+    df = pd.read_csv(csv_path)
+    return df
 
-def align_events_to_bold(events_df, tr=config.TR if hasattr(config, 'TR') else 2.0):
+def align_events_to_bold(events_df, tr=2.0):
     """
     Align event onsets to BOLD timepoints.
+    
+    Args:
+        events_df (pd.DataFrame): Events with 'onset' column.
+        tr (float): Repetition time in seconds.
+    
+    Returns:
+        pd.DataFrame: Events with 'timepoint' column.
     """
-    # Convert onsets to indices
-    events_df['frame'] = (events_df['onset'] / tr).astype(int)
+    events_df = events_df.copy()
+    events_df['timepoint'] = (events_df['onset'] / tr).astype(int)
     return events_df
 
 def segment_timecourse(timecourse, events_df):
     """
-    Extract timecourse segments around events.
+    Extract timecourse segments for each event.
+    
+    Args:
+        timecourse (np.array): 4D or 2D timecourse data (time x voxels).
+        events_df (pd.DataFrame): Events with 'timepoint' and 'duration'.
+    
+    Returns:
+        dict: Dictionary mapping event label to segment array.
     """
-    segments = []
+    segments = {}
     for _, row in events_df.iterrows():
-        start = row['frame']
-        end = start + int(row['duration'] / config.TR) + 4 # +4 for HRF lag
-        segment = timecourse[start:end]
-        if len(segment) > 0:
-            segments.append(segment)
-    return np.array(segments)
+        start = row['timepoint']
+        end = start + int(row['duration'] / config.FMRIPREP_FLAGS[1] if 'tr' in str(config.FMRIPREP_FLAGS) else 2) # Simplified duration logic
+        # Ensure bounds
+        end = min(end, timecourse.shape[0])
+        if start < timecourse.shape[0]:
+            segment = timecourse[start:end]
+            label = row.get('label', 'unknown')
+            if label not in segments:
+                segments[label] = []
+            segments[label].append(segment)
+    return segments

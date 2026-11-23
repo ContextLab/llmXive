@@ -1,0 +1,49 @@
+T003:
+  c: false
+  h: f3cb94143bf25cc749091ff8105c6ef61841c9fdd1387f273ed7f4f5279f8e06
+  r: The required `.gitignore` file at `projects/PROJ-871-llmxive-follow-up-extending-planbench-xl/.gitignore`
+    is not present in the provided artifacts, and therefore its contents cannot be
+    verified. The implementer must add the file with the specified ignore patterns.
+T004:
+  c: false
+  h: 83096bc77b58d34657838aea365a9c7be62cf11039e743a003cfe574cac9c361
+  r: "The `setup_log.txt` file exists but only shows pip install output; it does not\
+    \ contain the required `python --version` line nor the `pip list` output showing\
+    \ a non\u2011empty package list. The verification output is therefore missing."
+T007:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of the required `data/raw`, `data/derived`, `data/logs`, `data/results`\
+    \ directories or a `.gitignore` file was presented. The implementer\u2019s claim\
+    \ lacks the actual artifacts, so the task is not satisfied."
+T011:
+  c: false
+  h: 4342c86912f585d0263daeac2dc8c8ba6ac6f5a1f1565aa6fbe72985e520d792
+  r: "The integration test file exists but does not load or reference the required\
+    \ `data/derived/implicit_failure_subset.jsonl`; instead it uses an in\u2011test\
+    \ fabricated dataset. Moreover, the specified JSONL file is missing from the repository.\
+    \ The constraint to use that data source is therefore unmet."
+T014:
+  c: true
+  h: d1b199ebfef919b2f86a6490b9e4bbddb133cee52f8ad9be9547d4625e5f7df6
+  r: "The repository contains `tests/unit/test_isolation.py` with a `test_no_signature_access`\
+    \ that statically scans `baseline.py` for any reference to `data/derived/failure_signatures.json`\
+    \ (or related patterns) and fails if found, fulfilling the isolation validation\
+    \ requirement. The test file is non\u2011empty and correctly located for the project\u2019\
+    s test suite."
+T018:
+  c: false
+  h: 1d0d3134a7641c9dc115ca61a95ef7467b86b0e36660e6ae66b6c0c9424b3dcd
+  r: "The `augmented.py` file exists and contains a signature\u2011checking routine,\
+    \ but the required `data/derived/failure_signatures.json` file is missing, so\
+    \ the agent cannot perform the mandated lookup. Moreover, the matching logic uses\
+    \ substring/regex search rather than enforcing a 100\u202F% exact match, and the\
+    \ recovery method is only a placeholder. Both the data file and correct matching\
+    \ behavior need to be added for the task to be satisfied."
+T020:
+  c: false
+  h: 564038821ae9f66444249d5338c6179ba9e937124349f0146478d3dd293333c9
+  r: The `run_augmented.py` script is present, but the required input file `data/derived/implicit_failure_subset.jsonl`
+    does not exist, and the expected output log `data/logs/augmented_execution.jsonl`
+    was never created. Without the input dataset and resulting log, the runner cannot
+    be verified as processing the data as required.

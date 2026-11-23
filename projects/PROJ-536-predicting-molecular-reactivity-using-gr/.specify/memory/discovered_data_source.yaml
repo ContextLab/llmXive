@@ -1,0 +1,9 @@
+status: none
+intent: pip install USPTO reaction dataset balanced and full versions python package
+  dataset
+required_fields:
+- reaction_smiles
+- yield
+cache_key: 6a66bdc96b69e84684c5b9d78e313dd2fe733731704cc4104700c38338647124
+searched_at: '2026-10-25T09:48:17.726896+00:00'
+retry_count: 1

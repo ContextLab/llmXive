@@ -1,0 +1,9 @@
+{
+  "schema_v1_synthetic": {
+    "dataset_name": "synthetic_gut_sleep",
+    "description": "Synthetic dataset for pipeline validation study.",
+    "creation_date": "2024-01-01T00:00:00Z",
+    "chain_of_custody_log": null,
+    "data_generator_checksum": "d41d8cd98f00b204e9800998ecf8427e"
+  }
+}

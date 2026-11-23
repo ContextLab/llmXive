@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2112.00807",
+  "judged_at": "2026-08-10T12:46:56Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "estimating causal effects with doubly robust methods on observational data statistics",
+  "rationale": "This paper directly addresses the user's question by providing theoretical conditions and estimators for \"doubly robust\" methods in causal inference, which is the core mechanism requested. It falls under category (a) as it measures the same causal mechanism (doubly robust estimation) and category (d) as it serves as a foundational methodological reference for applying these techniques to complex treatment strategies in observational data.",
+  "relevant": true
+}

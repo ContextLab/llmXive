@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2412.16117",
+  "judged_at": "2026-07-31T13:16:17Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"scaling mixture-of-experts video pretraining for embodied intelligence\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it addresses the core mechanism of optimizing video pretraining and inference for Large Language Models (LLMs) in embodied or video understanding contexts. While the user's question references a specific MoE (Mixture-of-Experts) architecture, the candidate paper provides essential prior work on the same domain (video LLMs) by tackling the identical problem of computational redundancy and efficiency through token pruning, which is a canonical alternati",
+  "relevant": true
+}

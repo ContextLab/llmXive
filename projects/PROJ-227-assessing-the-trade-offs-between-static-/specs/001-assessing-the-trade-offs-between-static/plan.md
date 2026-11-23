@@ -13,7 +13,7 @@ This feature implements a research pipeline to assess the trade-offs between sta
 - **BigCode (TheStack)** samples are used for **Static-Only** analysis. They are excluded from the comparative statistical test (which requires paired dynamic oracles) but included in the "Static Detection Rate" report.
 - **Java/JS** samples are sourced from HumanEval-X and CodeXGLUE to ensure unit tests exist. If a language stratum has <30 samples, it is excluded from stratified testing and reported as a limitation.
 
-The implementation strictly adheres to resource constraints (2 CPU, 7GB RAM, 6h runtime) and reproducibility principles.
+The implementation strictly adheres to resource constraints (limited CPU, 7GB RAM, 6h runtime) and reproducibility principles.
 
 ## Technical Context
 

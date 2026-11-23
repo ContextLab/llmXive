@@ -1,0 +1,55 @@
+# Feature Specification: Predicting Rate Constants of SN1 Reactions from Molecular Structure
+
+**Feature Branch**: `001-predict-sn1-rate-constants`  
+**Created**: 2024-05-22  
+**Status**: Draft  
+**Input**: User description: "Predicting Rate Constants of SN1 Reactions from Molecular Structure"
+
+## User Scenarios & Testing
+
+### User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1)
+
+The system MUST ingest public SN1 kinetic datasets from HuggingFace (specifically `DTS-SN1-15-01-2024` and `SN18-All-20240204`), parse SMILES strings into molecular graphs using RDKit, and compute electronic descriptors (Gasteiger partial charges, topological indices) to produce a clean, stratified dataset ready for modeling. The system MUST verify the presence of explicit 'temperature' and 'solvent' columns in the source metadata *before* ingestion. If these columns are missing, the dataset MUST be excluded entirely. The system MUST also verify that explicit 'substrate class' (secondary/tertiary) labels exist in the source data; if missing, the dataset MUST be excluded entirely (no derivation allowed).
+
+**Why this priority**: Without a validated, reproducible dataset containing the required structural and kinetic variables, no modeling can occur. This is the foundational step that determines data quality and variable availability.
+
+**Independent Test**: Can be fully tested by running the ingestion script on a known subset of the `DTS-SN1-15-01-2024` dataset and verifying that the output CSV contains non-null values for all required columns (SMILES, rate constant, substrate class, temperature, solvent) and that electronic descriptors are computed without GPU acceleration.
+
+**Acceptance Scenarios**:
+
+1. **Given** a raw dataset file from HuggingFace containing SMILES, rate constants, and explicit substrate class labels, **When** the ingestion pipeline is executed, **Then** the output is a processed CSV where ≥ 95% of rows have valid molecular graphs and computed electronic descriptors (Gasteiger charges, topological indices).
+2. **Given** a dataset with mixed substrate classes (e.g., secondary, tertiary alkyl halides), **When** the stratification step is executed, **Then** the train/validation/test splits (70/15/15) maintain proportional representation of each substrate class with a variance of ≤ 5% from the original distribution (required to maintain distributional fidelity across splits). Stratification is performed ONLY if explicit substrate class labels exist in the source data. If labels are missing, the dataset is excluded.
+3. **Given** a dataset row with a missing rate constant, temperature, solvent, or unparseable SMILES, **When** the cleaning step is executed, **Then** the row is logged to an exclusion report and removed from the final training set, ensuring the final dataset has no missing values in predictor or outcome columns.
+4. **Given** a dataset where units are inconsistent (e.g., M⁻¹s⁻¹ vs s⁻¹), **When** the cleaning step is executed, **Then** the row is excluded and the exclusion reason is logged.
+
+### User Story 2 - Graph Neural Network Training and Evaluation (Priority: P2)
+
+The system MUST train a Message Passing Neural Network (MPNN) on the processed dataset using CPU-only inference, perform hyperparameter optimization via random search (≤50 configurations) within a Nested Cross-Validation framework, and evaluate performance against baselines (random, linear regression, and Kernel Ridge Regression) using R² and Mean Absolute Error (MAE). The system MUST enforce deterministic settings (seed=42, `torch.use_deterministic_algorithms(True)`) in `code/config.py` at the line calling `set_seed(42)` prior to data loading. The main script `code/main.py` MUST orchestrate this flow.
+
+**Why this priority**: This is the core research engine. It determines whether structural features alone can predict SN1 rates. The CPU-only constraint is critical for feasibility. Nested CV prevents selection bias from hyperparameter optimization.
+
+**Independent Test**: Can be fully tested by running the training script on the validation set, verifying that the model converges within the 6-hour CI limit, and that the test set R² score is calculated and compared against the linear regression and KRR baselines using Holm-Bonferroni correction.
+
+**Acceptance Scenarios**:
+
+1. **Given** a preprocessed dataset, **When** the MPNN training job starts, **Then** the job completes within 6 hours on a 2-core CPU runner without requesting GPU resources, and the final model weights are saved to the artifacts directory.
+2. **Given** the trained model and a held-out test set, **When** predictions are generated, **Then** the system outputs R² and MAE metrics, and a bootstrap-based comparison (sufficient resamples, fixed seed) confirms whether the MPNN performance is statistically significantly better than the linear regression and KRR baselines (p < 0.05 after Holm-Bonferroni correction) (required to establish statistical significance of model improvement).
+3. **Given** the hyperparameter search space (learning rate, hidden dimension, dropout), **When** the random search completes (≤50 configurations), **Then** the system selects the configuration with the highest validation R² from a set of sampled configurations and logs the top configurations with their respective metrics. The outer loop of the Nested CV must use scaffold splitting to ensure generalization to unseen chemistry.
+
+### User Story 3 - Interpretability and Sensitivity Analysis (Priority: P3)
+
+The system MUST generate feature importance analysis (using SHAP or attention weights) to identify structural attributions of rate, perform a sensitivity analysis on any decision thresholds or model hyperparameters to ensure robustness, and validate findings via perturbation studies. The system MUST frame SHAP results as "model attributions" and "associational" patterns, explicitly forbidding causal language (e.g., "determinants", "causes").
+
+**Why this priority**: Understanding *why* the model makes predictions is as important as the prediction accuracy itself for scientific validity. Sensitivity analysis ensures the findings are not artifacts of arbitrary parameter choices.
+
+**Independent Test**: Can be fully tested by generating a SHAP summary plot, a sensitivity report that sweeps a key parameter, and a perturbation study that removes top features to verify importance.
+
+**Acceptance Scenarios**:
+
+1. **Given** a trained MPNN model, **When** the interpretability module runs, **Then** it produces a ranked list of up to 10 structural features (atoms, bonds, or electronic descriptors) contributing most to rate prediction, with a corresponding SHAP summary plot. The output MUST NOT use causal language.
+2. **Given** a specific threshold or hyperparameter (e.g., a cutoff for descriptor inclusion), **When** the sensitivity analysis sweeps the value over a range of small magnitudes, **Then** the system reports the resulting variation in R² and MAE, confirming that the model's performance does not degrade significantly across the sweep (required to verify model stability against small perturbations in regularization thresholds and intermediate values).
+3. **Given** the final model, **When** the collinearity diagnostic is run on the predictors, **Then** the system identifies any pairs of distinct descriptor classes (e.g., topological vs. quantum) with a Variance Inflation Factor (VIF) > 5 and flags them for descriptive joint analysis (Gasteiger charges are excluded as they are derived from topology).
+4. **Given** the top features identified by SHAP, **When** the perturbation study runs, **Then** the system removes these features from the input and measures the drop in R², confirming that the importance scores correlate with predictive performance (serves as a robustness check).
+
+### Edge Cases
+

@@ -1,0 +1,34 @@
+- Tasks T040-T045 (Phase 6) implement features (H-bonding, ensembles, diffraction validation) and metrics explicitly requested by simulated reviewers, but the spec.md contains no functional requirements or success criteria authorizing this work. An implementer cannot verify if these tasks are required or how to validate them against the spec. These tasks must be removed or the spec must be updated to include corresponding FRs.
+- Task T009 description contains a copy-paste error: 'Create code/bondi_constants.py containing the exact Bondi (1964) [UNRESOLVED-CLAIM...]. (FR-018) and utility functions...'. The text repeats the file creation instruction and includes an unresolved claim placeholder. Rewrite to: 'Create code/bondi_constants.py containing the exact Bondi (1964) radii values and utility functions for volume calculation (FR-018, FR-003, FR-011).'
+- Task T015 defines CAPE as 'PC_raw / (Sum(V_vdW) / N_atoms)'. While mathematically equivalent to the spec's FR-011, the task description should explicitly quote the formula from FR-011 to ensure the implementer knows the source of truth and to avoid ambiguity in variable naming (e.g., 'Sum(V_vdW)' vs 'sum_vdw'). Add: 'Use the explicit formula from FR-011: CAPE = PC_raw / (Sum(V_vdW) / N_atoms)'.
+- Task T051 references an unresolved claim 'c_11ea237f' for the 6-hour runtime constraint. The spec SC-005 explicitly states '≤ 6 hours'. Replace the claim reference with the literal value '6 hours' to make the verification step deterministic.
+- Phase 6 (Tasks T040-T045) introduces features (H-bonding capacity, conformational ensembles, diffraction validation, simple rule analysis) and metrics explicitly requested by simulated reviewers, but the spec.md contains no functional requirements or success criteria authorizing this work. This constitutes unapproved scope creep violating Constitution Principle IV (Single Source of Truth) by introducing artifacts not traceable to the spec.
+- Tasks T027 and T029 reference unresolved claims ({{claim:c_4c058cec}}, {{claim:c_29c00ec6}}) for the permutation test shuffle count instead of the explicit '10,000 shuffles' mandated by spec.md FR-016 and FR-006. This placeholder prevents verification of compliance with the spec's statistical rigor requirements.
+- Task T025 specifies a '2-layer MLP' but relies on an unresolved claim (c_52b3d38f) for the parameter count constraint (≤100k) rather than hard-coding the spec.md FR-005 requirement. This risks implementation of a model exceeding the spec's parameter budget.
+- Task T018 mandates computing 3D descriptors from 'gas-phase minimized conformations' to prevent data leakage. However, spec.md FR-004 explicitly requires descriptors 'derived from the CIF coordinates' (crystal state), and FR-013 requires recording environmental covariates (temperature, lattice system) which imply modeling the experimental state. The task's gas-phase strategy contradicts the spec's requirement to model the specific environmental context of the crystal, creating a methodological violation.
+- Task T024 assembles features from 'data/dataset.csv' but does not explicitly mandate the 'gas-phase minimization' logic defined in T018. If T018's output is not strictly enforced as the sole source, T024 might use raw CIF coordinates (causing leakage) or skip minimization, violating the spec's intent for non-leaking descriptors.
+
+# Tasks an independent verifier REJECTED (redo these)
+
+A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
+
+- **T004** — declared artifact(s) missing/empty/invalid: schema.yaml
+
+# Recent reviewer / personality comments
+
+These are the most recent comments left on this project. Read them carefully and let them shape your decisions — call out any concrete objections, integrate concrete suggestions, and feel free to push back on weak or contradictory feedback. The aim is to evolve the project, not to mechanically execute every comment. NEVER copy bracketed attribution markers (e.g. `[Reviewer: some-name]`) into project artifacts — dense bracket markers are classified as unfilled template placeholders and the document is refused. When attribution matters, write it in plain prose (e.g. "per reviewer some-name").
+
+## `stephen-wolfram-simulated__2026-06-29__research.md`
+
+---
+action_items: []
+artifact_hash: d6b8a480acd7d60e133b93791f189ab0bad8b40de0ec66d7fa2af8de33a1e315
+artifact_path: projects/PROJ-511-predicting-molecular-packing-efficiency-/specs/001-predicting-molecular-packing-efficiency/spec.md
+backend: dartmouth
+feedback: It is now nearly forty years since I began systematically exploring the
+  computational universe of simple programs, and one of the most consistent findings
+  is that complex behavior often arises from incredibly simple rules. In the specification
+  for "Predicting Molecular Packing Efficiency in Crystals from SMILES Representations,"
+  I see a reliance on statistical analysis of string representations to predict a
+  physical outcome. While this is a standard approach in modern data science, it feels
+  some

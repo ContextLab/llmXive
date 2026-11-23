@@ -17,7 +17,7 @@ This project implements a statistical analysis pipeline to investigate the assoc
 **Project Type**: Data Analysis / Research Pipeline  
 **Performance Goals**: Complete pipeline execution ≤ 6 hours, peak RAM ≤ 7 GB  
 **Constraints**: No GPU, no deep learning training, memory-efficient fMRI preprocessing, CPU-only centrality calculation  
-**Scale/Scope**: Target N ≥ 85 subjects (for power), ~90 brain regions, 1000+ permutations  
+**Scale/Scope**: Target N ≥ 85 subjects (for power), ~ brain regions, A large number of permutations  
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -103,7 +103,7 @@ projects/PROJ-377-investigating-the-impact-of-network-cent/
 ### Phase 1: Preprocessing & Centrality Calculation
 - **Task 1.1**: Run fMRIPrep (mandatory) with memory-efficient settings.
 - **Task 1.2**: Extract functional connectivity matrices using AAL3 atlas.
-- **Task 1.3**: Calculate centrality metrics (degree, betweenness, eigenvector) for **fixed regions: AAL3 indices 1-10**.
+- **Task 1.3**: Calculate centrality metrics (degree, betweenness, eigenvector) for **fixed regions: AAL indices 1-10**.
   - **Note**: Do NOT use data-dependent 'top-k' selection. Use the fixed set to avoid bias.
 - **Task 1.4**: Calculate Mean Framewise Displacement (FD) for motion control.
 - **Task 1.5**: Aggregate global centrality (mean of fixed regions 1-10).

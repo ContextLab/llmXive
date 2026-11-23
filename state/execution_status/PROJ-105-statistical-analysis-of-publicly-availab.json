@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-105-statistical-analysis-of-publicly-availab",
+  "ok": false,
+  "reason": "4 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/diagnostics.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026tail data (MLE).     2. Generate n_bootstrap synthetic datasets from this fitte\u2026\u201d; code/diagnostics.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026Pareto.     3. For each synthetic dataset, estimate its x_min (usi\u2026\u201d; code/diagnostics.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026(n_bootstrap):         # Generate synthetic data from fitted Pareto(\u2026\u201d; 1 command(s) failed: python code/main.py --year 2022 (rc=2); 2 declared deliverable(s) absent: data/results/tail_index_estimate.json; data/results/tail_ks.json",
+  "artifacts": [],
+  "failures": [
+    "python code/main.py --year 2022 -> rc=2\n    2026-07-21 04:45:12,670 - pipeline - INFO - Starting Flight Delay Analysis Pipeline\n2026-07-21 04:45:12,670 - INFO - Starting Flight Delay Analysis Pipeline\n2026-07-21 04:45:12,670 - pipeline - INFO - Executing Stage 1: Data Acquisition and Pre-processing\n2026-07-21 04:45:12,670 - INFO - Executing Stage 1: Data Acquisition and Pre-processing\nusage: main.py [-h] --input INPUT --output OUTPUT [--summary SUMMARY]\n               [--zero-excluded-output ZERO_EXCLUDED_OUTPUT]\nmain.py: error: the following arguments are required: --input, --output"
+  ],
+  "fix_rounds": 2,
+  "model_tier": 0,
+  "total_attempts": 2,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-07-21T04:45:13Z"
+}

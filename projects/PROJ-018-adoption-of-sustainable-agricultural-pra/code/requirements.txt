@@ -6,3 +6,5 @@ pyyaml
 factor_analyzer
 evalues
 reportlab
+numpy  # auto-added: imported by run-book but missing from venv
+scipy  # auto-added: imported by run-book but missing from venv

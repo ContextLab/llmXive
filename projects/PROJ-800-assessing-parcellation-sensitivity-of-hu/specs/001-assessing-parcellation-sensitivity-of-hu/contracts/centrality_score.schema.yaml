@@ -1,0 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "CentralityScore"
+type: "object"
+properties:
+  subject_id:
+    type: "string"
+    description: "Unique identifier for the subject"
+  atlas_name:
+    type: "string"
+    description: "Name of the atlas"
+  metric_type:
+    type: "string"
+    enum:
+      - "degree"
+      - "betweenness"
+    description: "Centrality metric used"
+  scores_shape:
+    type: "array"
+    items:
+      type: "integer"
+    minItems: 1
+    maxItems: 1
+    description: "Shape of the scores array [N]"
+  rank_order_shape:
+    type: "array"
+    items:
+      type: "integer"
+    minItems: 1
+    maxItems: 1
+    description: "Shape of the rank order array [N]"
+required:
+  - subject_id
+  - atlas_name
+  - metric_type
+  - scores_shape
+  - rank_order_shape
+additionalProperties: false

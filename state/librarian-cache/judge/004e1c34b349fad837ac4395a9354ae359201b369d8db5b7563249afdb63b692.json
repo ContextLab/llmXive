@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2006.01205",
+  "judged_at": "2026-09-19T15:21:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"does vla even know the basics? measuring commonsense and world knowled\" computer science",
+  "rationale": "This paper belongs in the literature review because it provides foundational empirical evidence and canonical methodology for measuring \"commonsense reasoning\" in NLP models, which is the core dependent variable in the user's question about whether VLAs \"know the basics\" (category a and d). Although the paper focuses on text-only models (NLP) rather than Vision-Language Models (VLA), it establishes the standard benchmarks (SemEval-2020 Task 4) and evaluation frameworks that any follow-up study o",
+  "relevant": true
+}

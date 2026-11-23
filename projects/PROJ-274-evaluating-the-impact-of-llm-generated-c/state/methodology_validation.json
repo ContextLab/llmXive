@@ -1,0 +1,13 @@
+{
+  "status": "valid",
+  "research_file": "specs/001-evaluating-the-impact-of-llm-generated-c/research.md",
+  "forbidden_patterns_found": [],
+  "required_patterns_found": [
+    "welch's anova",
+    "pre-specified",
+    "primary test",
+    "post-hoc",
+    "diagnostics only"
+  ],
+  "message": "Methodology adheres to Critical Shift."
+}

@@ -1,3 +1,3 @@
-from .checkpoint import ModelCheckpoint
-
-__all__ = ["ModelCheckpoint"]
+"""
+Models package containing base wrappers and recursive architecture implementations.
+"""

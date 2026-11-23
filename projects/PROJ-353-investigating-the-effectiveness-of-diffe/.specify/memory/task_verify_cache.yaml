@@ -1,0 +1,23 @@
+T001:
+  c: false
+  h: e46a825a1c831e46b6c45fd563428a5bfa2bb98352de74dc076268302746dcde
+  r: "The required `artifacts/` directory is not present in the project layout (it\
+    \ is absent from the listed root directories), so the directory structure does\
+    \ not fully meet the task\u2019s specification. All other required paths and the\
+    \ verification script exist, but the missing `artifacts/` folder prevents the\
+    \ task from being complete."
+  sig: 8b5de60025ef09c5b4a9dd3316faffd58f19094d23901e68b014add4d08f716c
+T002:
+  c: true
+  h: 646925da374b84931e8ab48d4bd89f2ead8cd4a6fa2906393dfc453fa009d207
+  r: "Checked `requirements.txt` (297\u202Fbytes) which lists exact pinned versions\
+    \ for `networkx`, `torch`, `scikit-learn`, `lifelines`, `pandas`, `numpy`, and\
+    \ `pytest` as required (and includes additional packages, which does not violate\
+    \ the task)."
+  sig: 7070fcaccc519f0f2f545bd0dd571741c0ec6170559f6f238763236e7c23fc26
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `spec.md` file or its contents were provided, so we cannot verify that all\
+    \ occurrences of \u201C50\u201D were replaced with \u201C110\u201D in FR\u2011\
+    001 and US\u20111 Acceptance Scenario\u202F1. The required artifact is missing."

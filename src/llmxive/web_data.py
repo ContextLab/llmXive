@@ -253,10 +253,10 @@ _PIPELINE_STAGE_DISPLAY: list[dict[str, Any]] = [
      "description": "The plan is decomposed into an ordered, dependency-aware task list (`/speckit-tasks`), then cross-checked for consistency (`/speckit-analyze`).",
      "inputs": ["`plan.md` + contracts"], "outputs": ["`tasks.md`", "An analyze report (0 critical issues to proceed)"]},
     {"key": "in_progress", "name": "In progress", "lane": "research", "stage": Stage.IN_PROGRESS,
-     "description": "The implementer agent executes the task list — writing code, running real tests, collecting data — ticking tasks off until the plan is complete. The librarian agent verifies citations along the way.",
-     "inputs": ["`tasks.md`"], "outputs": ["Code under `projects/<id>/code/`", "Data under `projects/<id>/data/`", "All tasks checked off → research_complete"]},
+     "description": "The implementer writes code, runs commands, and collects data in bounded task batches. Independent verification checks actual artifacts and execution evidence before tasks count as complete. Refused writes or failed checks retain diagnostics for bounded revision and replanning; citations are checked along the way.",
+     "inputs": ["`tasks.md`"], "outputs": ["Code under `projects/<id>/code/`", "Data under `projects/<id>/data/`", "All tasks independently verified → research_complete"]},
     {"key": "research_review", "name": "Research review", "lane": "research", "stage": Stage.RESEARCH_REVIEW,
-     "description": "Seven specialist reviewers (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene) run the identify → revise → re-review convergence cycle. Acceptance requires unanimous acceptance from the panel within the 3-round cap; on non-convergence the project is kicked back with full provenance. There is no point system — human and simulated-personality reviews are advisory inputs routed through stage-aware triage.",
+     "description": "Eight review lenses (idea quality, creativity, implementation correctness, completeness, code quality, data quality, filesystem hygiene, and a generic reviewer) run the identify → revise → re-review convergence cycle. Acceptance requires unanimous acceptance from the panel within the 3-round cap; on non-convergence the project is kicked back with full provenance. There is no point system — human and simulated-personality reviews are advisory inputs routed through stage-aware triage.",
      "inputs": ["A research_complete project"], "outputs": ["Review records under `projects/<id>/reviews/research/`", "A verdict (accepted / minor revision / full revision / rejected)"]},
     # Paper lane
     {"key": "paper_init", "name": "Paper init", "lane": "paper", "stage": Stage.PAPER_DRAFTING_INIT,
@@ -272,16 +272,16 @@ _PIPELINE_STAGE_DISPLAY: list[dict[str, Any]] = [
      "description": "Writing, figure-generation, and statistics sub-tasks (tasks + analyze for the paper pipeline).",
      "inputs": ["The paper `plan.md`"], "outputs": ["`paper/.../tasks.md`", "Paper analyze report"]},
     {"key": "paper_drafting", "name": "Drafting", "lane": "paper", "stage": Stage.PAPER_IN_PROGRESS,
-     "description": "The paper-writing, figure-generation, and statistics agents draft the LaTeX, generate figures from the data, and run the analyses; LaTeX is built and citations are verified.",
+     "description": "The paper implementer creates the selected task's declared artifacts using the accepted research evidence. It can bootstrap an empty source directory. Each task requires independent verification; whole-paper implementation review follows completed tasks, with compilation, citation checks, and a source-bound proofreader receipt still required.",
      "inputs": ["`paper/.../tasks.md`", "The research data"], "outputs": ["`paper/source/main.tex` + figures", "A compiled PDF", "Verified citations"]},
     {"key": "paper_complete", "name": "Paper complete", "lane": "paper", "stage": Stage.PAPER_COMPLETE,
-     "description": "The draft compiles cleanly, all citations are verified, and the proofreader is satisfied — ready for paper review.",
+     "description": "The completed tasks and whole-paper implementation review have current acceptance evidence. The manuscript compiles and passes the citation and source-bound proofreader gates — ready for paper review.",
      "inputs": ["A drafted paper"], "outputs": ["A review-ready PDF + sources"]},
     {"key": "paper_review", "name": "Paper review", "lane": "paper", "stage": Stage.PAPER_REVIEW,
      "description": "Twelve specialist reviewers (writing, logic, claims, over-reach, safety/ethics, evidence, statistics, code, data, formatting, figures, jargon) run the identify → revise → re-review convergence cycle. Acceptance requires unanimous acceptance from the panel within the 3-round cap; on non-convergence the project is kicked back with full provenance. There is no point system.",
      "inputs": ["A paper-complete project"], "outputs": ["Review records under `projects/<id>/paper/reviews/`", "A verdict (accepted / minor / major-writing / major-science / fundamental flaws)"]},
     {"key": "posted", "name": "Posted", "lane": "paper", "stage": Stage.POSTED,
-     "description": "The paper is published — the PDF is final and an announcement goes out. The project is done.",
+     "description": "After paper acceptance and maintainer sign-off, the publication workflow posts the final PDF and records the publication artifacts.",
      "inputs": ["A paper-accepted project"], "outputs": ["A public PDF", "A posted announcement"]},
 ]
 
@@ -527,27 +527,29 @@ def _citation_summary(repo: Path, project_id: str) -> dict[str, int]:
     return out
 
 
-def _last_run_log(repo: Path, project_id: str, *, limit: int = 10) -> list[dict[str, Any]]:
+def _index_run_logs(repo: Path) -> dict[str, list[dict[str, Any]]]:
+    """Read the corpus once per dashboard build, grouped by project identity."""
+    index: dict[str, list[dict[str, Any]]] = {}
+    root = repo / "state" / "run-log"
+    if root.is_dir():
+        for month in sorted(root.iterdir()):
+            if not month.is_dir() or month.name.startswith("."):
+                continue
+            for path in sorted(month.glob("*.jsonl")):
+                for line in path.read_text(encoding="utf-8", errors="replace").splitlines():
+                    try:
+                        entry = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    if isinstance(entry, dict):
+                        index.setdefault(entry.get("project_id") or "", []).append(entry)
+    return index
+
+
+def _last_run_log(repo: Path, project_id: str, *, limit: int = 10, run_entries: list[dict[str, Any]] | None = None) -> list[dict[str, Any]]:
     out: list[dict[str, Any]] = []
-    log_root = repo / "state" / "run-log"
-    if not log_root.is_dir():
-        return out
-    # Walk months newest-first and collect entries until we have `limit`.
-    entries: list[dict[str, Any]] = []
-    for month_dir in sorted([d for d in log_root.iterdir() if d.is_dir() and not d.name.startswith(".")], reverse=True):
-        for jsonl in sorted(month_dir.glob("*.jsonl"), reverse=True):
-            for line in jsonl.read_text(encoding="utf-8").splitlines():
-                if not line.strip():
-                    continue
-                try:
-                    e = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                if e.get("project_id") != project_id:
-                    continue
-                entries.append(e)
-        if len(entries) >= limit:
-            break
+    entries = list(run_entries if run_entries is not None else
+                   _index_run_logs(repo).get(project_id, []))
     entries.sort(key=lambda e: e.get("ended_at", ""), reverse=True)
     for e in entries[:limit]:
         try:
@@ -845,13 +847,9 @@ def _project_description(repo: Path, project_id: str, *, max_chars: int = 320) -
     """
     pdir = _project_dir(repo, project_id)
     # Prefer the paper abstract when available.
-    paper_meta = pdir / "paper" / "metadata.json"
-    if paper_meta.is_file():
-        try:
-            meta = json.loads(paper_meta.read_text(encoding="utf-8", errors="replace"))
-        except (json.JSONDecodeError, OSError):
-            meta = {}
-        abstract = (meta.get("abstract") or "").strip() if isinstance(meta, dict) else ""
+    meta = _paper_metadata(pdir)
+    if meta:
+        abstract = str(meta.get("abstract") or "").strip()
         if abstract:
             if len(abstract) > max_chars:
                 abstract = abstract[:max_chars].rsplit(" ", 1)[0] + "…"
@@ -880,7 +878,7 @@ def _project_description(repo: Path, project_id: str, *, max_chars: int = 320) -
     return blob
 
 
-def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
+def _project_authors(repo: Path, project_id: str, *, run_entries: list[dict[str, Any]] | None = None) -> list[dict[str, str]]:
     """All entities (models + humans) that contributed to the project.
 
     Aggregates from:
@@ -991,38 +989,25 @@ def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
         add(name, "human", "paper_author")
 
     # 2. Run-log: every successful agent invocation contributes its model
-    runlog_root = repo / "state" / "run-log"
-    if runlog_root.is_dir():
-        for month_dir in runlog_root.iterdir():
-            if not month_dir.is_dir() or month_dir.name.startswith("."):
-                continue
-            for jsonl in month_dir.glob("*.jsonl"):
-                for line in jsonl.read_text(encoding="utf-8", errors="ignore").splitlines():
-                    if not line.strip():
-                        continue
-                    try:
-                        e = json.loads(line)
-                    except json.JSONDecodeError:
-                        continue
-                    if e.get("project_id") != project_id:
-                        continue
-                    # A run that produced a committed artifact counts as a
-                    # contribution. Personality (spec 008) and several other
-                    # agents log a SUCCESSFUL committing run as `committed`, not
-                    # `success` — filtering on `success` alone silently dropped
-                    # every persona (and other committed contributor) from the
-                    # project's Contributors block.
-                    if e.get("outcome") not in ("success", "committed"):
-                        continue
-                    model = (e.get("model_name") or "").strip()
-                    role = (e.get("agent_name") or "").strip()
-                    # Reviewed-Preprint invariant: credit reviewer runs only; a
-                    # modifier run (implementer/planner/tasker/reviser/etc.) must
-                    # never appear as an author of a paper we did not write.
-                    if is_preprint and "reviewer" not in role.lower():
-                        continue
-                    if model:
-                        add(model, "llm", role or "agent")
+    entries = run_entries if run_entries is not None else _index_run_logs(repo).get(project_id, [])
+    for e in entries:
+        # A run that produced a committed artifact counts as a
+        # contribution. Personality (spec 008) and several other
+        # agents log a SUCCESSFUL committing run as `committed`, not
+        # `success` — filtering on `success` alone silently dropped
+        # every persona (and other committed contributor) from the
+        # project's Contributors block.
+        if e.get("outcome") not in ("success", "committed"):
+            continue
+        model = (e.get("model_name") or "").strip()
+        role = (e.get("agent_name") or "").strip()
+        # Reviewed-Preprint invariant: credit reviewer runs only; a
+        # modifier run (implementer/planner/tasker/reviser/etc.) must
+        # never appear as an author of a paper we did not write.
+        if is_preprint and "reviewer" not in role.lower():
+            continue
+        if model:
+            add(model, "llm", role or "agent")
 
     # 3. Review records (both stages)
     for sub in ("reviews/research", "paper/reviews", "reviews/paper"):
@@ -1070,7 +1055,7 @@ def _project_authors(repo: Path, project_id: str) -> list[dict[str, str]]:
     return out
 
 
-def _project_to_entry(repo: Path, project: Project) -> dict[str, Any]:
+def _project_to_entry(repo: Path, project: Project, *, run_entries: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     research_total = float(sum(project.points_research.values()))
     paper_total = float(sum(project.points_paper.values()))
     links = _build_artifact_links(repo, project)
@@ -1087,7 +1072,7 @@ def _project_to_entry(repo: Path, project: Project) -> dict[str, Any]:
         "keywords": _project_keywords(repo, project.id),
         "description": _project_description(repo, project.id),
         "submitter": _project_submitter(repo, project.id),
-        "authors": _project_authors(repo, project.id),
+        "authors": _project_authors(repo, project.id, run_entries=run_entries),
         "speckit_research_dir": project.speckit_research_dir,
         "speckit_paper_dir": project.speckit_paper_dir,
         # Spec 012: revision_spec_path is set only when current_stage is
@@ -1106,7 +1091,7 @@ def _project_to_entry(repo: Path, project: Project) -> dict[str, Any]:
         "artifact_links": links,
         "current_artifact": _current_artifact(repo, project, links),
         "citation_summary": _citation_summary(repo, project.id),
-        "last_run_log": _last_run_log(repo, project.id),
+        "last_run_log": _last_run_log(repo, project.id, run_entries=run_entries),
         # Spec 023 / FR-024: the paper's TRUE compile/audit status from the
         # per-paper status record (state/paper_status/<id>.json) —
         # "audited" | "restyled_unaudited" | "fallback_original" — with
@@ -1234,6 +1219,15 @@ def _project_revision_history(repo: Path, project_id: str) -> list[dict[str, Any
         if not isinstance(r, dict):
             continue
         log_path = r.get("implementer_log_path") or ""
+        if log_path:
+            from llmxive.state.revision_paths import resolve_revision_path
+
+            try:
+                resolved = resolve_revision_path(repo, project_id, log_path)
+                if resolved.exists():
+                    log_path = resolved.relative_to(repo).as_posix()
+            except ValueError:
+                log_path = ""
         changelog_url = (
             f"https://github.com/ContextLab/llmXive/blob/main/{log_path}"
             if log_path else None
@@ -1658,7 +1652,69 @@ def _preprint_action_items(repo: Path, project_id: str) -> list[dict[str, Any]]:
     return out
 
 
-def _reviewed_preprint_entry(repo: Path, project: Project) -> dict[str, Any]:
+def _paper_metadata(pdir: Path) -> dict[str, Any]:
+    """``paper/metadata.json`` for one project, or ``{}``.
+
+    The canonical arXiv-parsed record: ``arxiv_id``, ``arxiv_url``, ``license``,
+    ``license_url``, ``authors``, ``abstract``, and ``committed_pdf_digests``.
+    """
+    path = pdir / "paper" / "metadata.json"
+    if not path.is_file():
+        return {}
+    try:
+        meta = json.loads(path.read_text(encoding="utf-8", errors="replace"))
+    except (json.JSONDecodeError, OSError):
+        return {}
+    return meta if isinstance(meta, dict) else {}
+
+
+def _preprint_source(pdir: Path) -> dict[str, Any]:
+    """Where the original paper lives, since this repository does not host it.
+
+    The ingested bodies (``original.pdf`` / ``original-llmxive.pdf``) carry the
+    arXiv Non-exclusive Distribution License, which grants distribution to
+    arXiv.org and is silent on anyone else, so they are neither committed nor
+    mirrored and ``original_pdf`` is ``None`` for them. The modal therefore has
+    to point at the paper AT ITS SOURCE and name the licence it is served under.
+
+    ``reviewed_version`` is the digest recorded when the paper was ingested
+    (``committed_pdf_digests``). It matters because the source URL serves the
+    CURRENT version: 5 of a random 12 ingested preprints already differ from the
+    bytes this repository's reviews were written against, so the modal must be
+    able to say which version was reviewed rather than implying the live PDF is
+    the reviewed one.
+    """
+    meta = _paper_metadata(pdir)
+    if not meta:
+        return {}
+    digests = meta.get("committed_pdf_digests")
+    digests = digests if isinstance(digests, dict) else {}
+    # Prefer the untouched body. Three ingests committed only the
+    # cover-prepended version, which carries the same body behind one llmXive
+    # page, so it attests the same reviewed paper -- but say WHICH file the
+    # digest is of rather than implying it is the raw original. A paper rebuilt
+    # from arXiv LaTeX source (main-llmxive.pdf, no ingested body) has nothing
+    # to attest and reports None.
+    reviewed: dict[str, Any] | None = None
+    for name in ("original.pdf", "original-llmxive.pdf"):
+        recorded = digests.get(name)
+        if isinstance(recorded, dict) and recorded.get("sha256"):
+            reviewed = {
+                "file": name,
+                "sha256": str(recorded.get("sha256") or ""),
+                "bytes": int(recorded.get("bytes") or 0),
+            }
+            break
+    return {
+        "arxiv_id": str(meta.get("arxiv_id") or ""),
+        "url": str(meta.get("arxiv_url") or ""),
+        "license": str(meta.get("license") or ""),
+        "license_url": str(meta.get("license_url") or ""),
+        "reviewed_version": reviewed,
+    }
+
+
+def _reviewed_preprint_entry(repo: Path, project: Project, *, run_entries: list[dict[str, Any]] | None = None) -> dict[str, Any]:
     """Enriched entry for the dashboard's Reviewed Preprints tab.
 
     Extends the standard project entry with a ``preprint`` block: provenance
@@ -1671,13 +1727,13 @@ def _reviewed_preprint_entry(repo: Path, project: Project) -> dict[str, Any]:
         load_preprint_manifest,
     )
 
-    entry = _project_to_entry(repo, project)
+    entry = _project_to_entry(repo, project, run_entries=run_entries)
     pdir = _project_dir(repo, project.id)
     manifest = load_preprint_manifest(pdir) or {}
 
     # Original authors (paper_author role) + review models (any reviewer role),
     # reusing the preprint-aware attribution (SSoT).
-    authors = _project_authors(repo, project.id)
+    authors = _project_authors(repo, project.id, run_entries=run_entries)
     original_authors = [a for a in authors if "paper_author" in (a.get("roles") or [])]
     review_models = [
         a for a in authors
@@ -1715,6 +1771,7 @@ def _reviewed_preprint_entry(repo: Path, project: Project) -> dict[str, Any]:
         "action_items": _preprint_action_items(repo, project.id),
         "original_pdf": _pdf("original-llmxive.pdf"),
         "peer_review_pdf": _pdf("peer-review-llmxive.pdf"),
+        "original_source": _preprint_source(pdir),
         "followup_project_id": followup_id,
     }
     return entry
@@ -1728,6 +1785,7 @@ def build_payload(repo: Path) -> dict[str, Any]:
     _ALIAS_CACHE.clear()
     registry_names = _load_agent_names(repo)
     projects = project_store.list_all(repo_root=repo)
+    run_index = _index_run_logs(repo)
     by_kind, human_rows = _collect_reviews(repo)
     ai_rows = _agent_contributors(repo)
     submitter_rows = _submitter_contributors(repo, projects)
@@ -1781,8 +1839,8 @@ def build_payload(repo: Path) -> dict[str, Any]:
         "schema_version": SCHEMA_VERSION,
         "generated_at": datetime.now(UTC).isoformat(),
         "aggregates": aggregates,
-        "projects": [_project_to_entry(repo, p) for p in non_preprints],
-        "reviewed_preprints": [_reviewed_preprint_entry(repo, p) for p in preprints],
+        "projects": [_project_to_entry(repo, p, run_entries=run_index.get(p.id, [])) for p in non_preprints],
+        "reviewed_preprints": [_reviewed_preprint_entry(repo, p, run_entries=run_index.get(p.id, [])) for p in preprints],
         "contributors": contributors,
         "agents": _build_agents_block(repo),
         "personalities": _build_personalities_block(repo),

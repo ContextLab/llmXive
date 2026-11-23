@@ -81,5 +81,15 @@
     "icml2026.bst",
     "icml2026.sty",
     "micro_vs_macro_v12.png"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "ffbb37ca0c31f728270be5e74e0e6d5d02f5d79b7986312fbfb1a351380e67ce",
+      "bytes": 18771369
+    },
+    "original.pdf": {
+      "sha256": "e2b8bf27c957f88b71da623d6880d3484725c96ed814432b26b62eae4eaaf10c",
+      "bytes": 18739356
+    }
+  }
 }

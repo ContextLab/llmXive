@@ -1,4 +1,60 @@
-- artifact_hash: 420d8f47c34c399d18568d3cace7d5039b135da6a5287bc1e27c010f4e33f825
+- artifact_hash: 11d1a547466a6fc826a0feacf6abd65b181512f574e054ee27e22ba81cc692fd
+  artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/docs/implementation_report.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: Pi - Wikipedia
+  kind: url
+  value: https://en.wikipedia.org/wiki/Pi
+  verification_status: pending
+  verified_against_url: https://en.wikipedia.org/wiki/Pi
+  verified_at: '2026-07-29T16:26:54.744342Z'
+- artifact_hash: ce3a027d00e36b17699d7fe66646488babea4546169a112a1dd7a8b31b1d08d1
+  artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/README.md
+  cite_id: c-001
+  cited_authors: []
+  cited_title: null
+  fetched_title: OpenML
+  kind: url
+  value: https://www.openml.org/
+  verification_status: pending
+  verified_against_url: https://www.openml.org/
+  verified_at: '2026-09-06T15:19:05.805973Z'
+- artifact_hash: ce3a027d00e36b17699d7fe66646488babea4546169a112a1dd7a8b31b1d08d1
+  artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/README.md
+  cite_id: c-002
+  cited_authors: []
+  cited_title: null
+  fetched_title: 'scikit-learn: machine learning in Python &mdash; scikit-learn 0.16.1
+    documentation'
+  kind: url
+  value: https://scikit-learn.org/
+  verification_status: pending
+  verified_against_url: https://scikit-learn.org/
+  verified_at: '2026-09-06T15:19:05.805973Z'
+- artifact_hash: ce3a027d00e36b17699d7fe66646488babea4546169a112a1dd7a8b31b1d08d1
+  artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/README.md
+  cite_id: c-003
+  cited_authors: []
+  cited_title: null
+  fetched_title: null
+  kind: url
+  value: https://www.statsmodels.org/
+  verification_status: pending
+  verified_against_url: https://www.statsmodels.org/
+  verified_at: '2026-09-06T15:19:05.805973Z'
+- artifact_hash: ce3a027d00e36b17699d7fe66646488babea4546169a112a1dd7a8b31b1d08d1
+  artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/README.md
+  cite_id: c-004
+  cited_authors: []
+  cited_title: null
+  fetched_title: Welcome to the Tidyverse
+  kind: doi
+  value: 10.21105/joss.01686
+  verification_status: pending
+  verified_against_url: https://doi.org/10.21105/joss.01686
+  verified_at: '2026-09-06T15:19:05.805973Z'
+- artifact_hash: 84c2399883e5d1bfb5eff8dfd0467d55c709c8dcbf8fc9dbf54ab1e6a0461f64
   artifact_path: projects/PROJ-504-evaluating-the-impact-of-variable-select/specs/001-evaluating-the-impact-of-variable-select/tasks.md
   cite_id: c-001
   cited_authors: []
@@ -8,4 +64,4 @@
   value: 10.21105/joss.01686
   verification_status: pending
   verified_against_url: https://doi.org/10.21105/joss.01686
-  verified_at: '2026-07-15T16:55:15.907716Z'
+  verified_at: '2026-10-09T23:16:03.973582Z'

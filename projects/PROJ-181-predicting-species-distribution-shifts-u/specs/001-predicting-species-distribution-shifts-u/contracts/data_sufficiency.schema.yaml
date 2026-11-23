@@ -1,0 +1,29 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Data Sufficiency Schema"
+description: "Schema for data sufficiency check results. Calculated power to detect a small AUC difference (source: statistical power analysis)."
+type: "object"
+properties:
+  species:
+    type: "string"
+    description: "Species name"
+  period:
+    type: "string"
+    description: "Time period (e.g., '1970-2000', '2005-2020')"
+  recordCount:
+    type: "integer"
+    description: "Number of records after thinning (logged for ALL species)"
+  status:
+    type: "string"
+    description: "Status ('SUFFICIENT' or 'INSUFFICIENT_DATA')"
+    enum:
+      - "SUFFICIENT"
+      - "INSUFFICIENT_DATA"
+  power_value:
+    type: "number"
+    description: "Calculated power for detecting a minimally meaningful AUC difference (source: statistical power analysis)"
+required:
+  - species
+  - period
+  - recordCount
+  - status
+additionalProperties: false

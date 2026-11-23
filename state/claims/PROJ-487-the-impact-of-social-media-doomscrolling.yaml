@@ -1,0 +1,1604 @@
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: statsmodels runs without CUDA errors on CPU environment
+  claim_id: c_d70cc8bf
+  context: T031 Verify CPU Feasibility task requires a Python script to import statsmodels
+    and pandas, attempt a trivial statistical operation, and assert that no CUDA warnings
+    or GPU imports occur.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script must exit with code 0 only if no GPU libraries are imported
+    and statsmodels runs without CUDA errors.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:28:59Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: fetch function retries exactly 3 times on failure
+  claim_id: c_8de48968
+  context: T010 Write Test for GDELT fetch logic includes a test asserting the function
+    retries exactly 3 times (mock.call_count == 3) after 2 failed requests followed
+    by a success.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The function retries exactly 3 times and returns the success response.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:29:24Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: fetch_google_trends raises ValueError for invalid keywords
+  claim_id: c_74074644
+  context: T011 Write Test for Google Trends fetch logic includes a test asserting
+    the function raises a ValueError with a message listing the invalid keyword when
+    passed a list containing one invalid keyword.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fetch_google_trends_raises_ValueError_for_invalid_keywords
+  kind: entity_fact
+  raw_text: The function raises a ValueError with a message listing the invalid keyword.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:29:47Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: fetch scripts exit with non-zero code on 500 errors
+  claim_id: c_70a53473
+  context: T014 Write Error Test implements a test asserting the script logs the error
+    and exits with a non-zero code when mocked 500 errors are returned for both fetch
+    scripts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The script logs the error and exits with a non-zero code.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:29:47Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: GDELT fetch logic has max 3 attempts with exponential backoff
+  claim_id: c_33d4931f
+  context: T012 Implement GDELT Fetch specifies including retry logic with a maximum
+    of 3 attempts and exponential backoff.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Max 3 attempts with exponential backoff.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:30:16Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Google Trends fetch logic has max 3 attempts
+  claim_id: c_2da75242
+  context: T013 Implement Google Trends Fetch specifies including retry logic with
+    a maximum of 3 attempts.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Max 3 attempts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:30:42Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: timestamp alignment uses intersection logic preserving zero values
+  claim_id: c_88fd3c28
+  context: T016 Write Test for timestamp alignment asserts the output DataFrame contains
+    only dates present in both input DataFrames (e.g., 2020-03 to 2020-06) and preserves
+    zero values.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Timestamp_alignment_uses_intersection_logic_preserving_zero
+  kind: entity_fact
+  raw_text: The output DataFrame contains only dates present in both input DataFrames
+    and preserves zero values.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:31:12Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: preprocessing uses linear interpolation for NaN values only
+  claim_id: c_c741f8e3
+  context: T018 Implement Alignment specifies to interpolate ONLY null/missing values
+    (NaN) using linear interpolation (method='linear', limit_direction='both') and
+    to skip zero-event counts.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Preprocessing_uses_linear_interpolation_for_NaN_values_only
+  kind: entity_fact
+  raw_text: Interpolate ONLY null/missing values (NaN) using linear interpolation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:31:38Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: differencing loop applies until p < 0.05
+  claim_id: c_aba5871b
+  context: "T019b Implement Differencing specifies that if p \u2265 0.05, apply differencing\
+    \ until the series is stationary."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "If p \u2265 0.05, apply differencing until stationary."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:31:38Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: data completeness must be at least 95%
+  claim_id: c_a6667a6c
+  context: "T021 Save Aligned Data & Check Completeness requires calculating data\
+    \ completeness (non-null rows / total days) and verifying it is \u2265 95%."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_completeness_must_be_at_least_95%25
+  kind: magnitude
+  raw_text: "Verify data completeness is \u2265 95%."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:32:20Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: data length must be at least 20 for Granger causality
+  claim_id: c_1ccdc0de
+  context: T022 Implement Data Length Check requires the script to exit with code
+    1 and a specific message if the time-series length is less than 20.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_length_must_be_at_least_20_for_Granger_causality
+  kind: magnitude
+  raw_text: Exit with code 1 if time-series length < 20.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:32:59Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: correlation calculation returns ~1.0 for perfect correlation and ~0.0
+    for no correlation
+  claim_id: c_f3fd99a1
+  context: T024 Write Test for correlation calculation asserts the Pearson coefficient
+    is ~1.0 for two perfectly correlated series and ~0.0 for two uncorrelated series.
+  evidence:
+    fill:
+      channel: wikipedia
+      conflicts: []
+      quote: "Several types of correlation coefficient exist, each with their own\
+        \ definition and range of usability and characteristics. They all assume values\
+        \ in the range from \u22121 to +1, where \xB11 indicates the strongest possible\
+        \ correlation and 0 indicates no correlation. As tools of analysis, correlation\
+        \ coefficients present certain problems, including the propensity of some\
+        \ types to be distorted by outliers and the possibility of incorrectly being\
+        \ used to infer a causal relationship between the variables (for more, see\
+        \ Correlation does not imply causation)."
+      source_id: Correlation coefficient
+      url: https://en.wikipedia.org/wiki/Correlation_coefficient
+      value: "\xB11"
+    filled: true
+  kind: numeric
+  raw_text: Pearson coefficient is ~1.0 for perfectly correlated series and ~0.0 for
+    uncorrelated series.
+  resolved_value: "\xB11"
+  resolver: fill:wikipedia
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-04T22:33:07Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Granger causality uses fixed-sweep lags 1, 2, 3, 7, 14
+  claim_id: c_ae95fe50
+  context: T025 Write Test and T027b Implement Sweep Loop specify a fixed-sweep loop
+    iterating lags {1, 2, 3, 7, 14} for Granger causality tests.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fixed-sweep loop iterates lags {1, 2, 3, 7, 14}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:33:41Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: system requirements are 2-core CPU, 7GB RAM, 6h runtime
+  claim_id: c_140d5fff
+  context: "Notes section specifies that all tasks must run on a 2-core CPU, with\
+    \ \u22647GB RAM, and \u22646h runtime, with no GPU/CUDA."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks MUST run on 2-core CPU, \u22647GB RAM, \u22646h runtime."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:34:22Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: GDELT fetch function retries exactly 3 times on failure
+  claim_id: c_3c4a9650
+  context: 'Implementation: Use responses to simulate 2 failed requests (500 errors)
+    followed by a success. Implement test_retry_logic_on_failure asserting the function
+    retries exactly 3 times (mock.call_count == 3) and returns the success response.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify the function retries exactly 3 times (mock.call_count == 3) and
+    returns the success response.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:45:10Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: GDELT fetch logic includes max 3 retry attempts with exponential backoff
+  claim_id: c_ce179342
+  context: 'Implement GDELT fetch logic in projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/fetch_gdelt.py.
+    Use EventCount metric for negative sentiment events. Include retry logic: Max
+    3 attempts, exponential backoff.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Include retry logic: Max 3 attempts, exponential backoff.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:45:41Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Google Trends fetch logic includes max 3 retry attempts
+  claim_id: c_73813b7a
+  context: 'Implement Google Trends fetch logic in projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/fetch_google_trends.py
+    for keywords ''anticipatory anxiety'', ''worry about future''. Include retry logic:
+    Max 3 attempts.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Include retry logic: Max 3 attempts.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:46:06Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Timestamp alignment intersection results in output containing only dates
+    present in both input ranges (2020-03 to 2020-06)
+  claim_id: c_824f4afc
+  context: 'Mock: Two DataFrames with different date ranges (e.g., 2020-01 to 2020-06
+    vs 2020-03 to 2020-09). Assertion: Verify the output DataFrame contains only dates
+    present in both (2020-03 to 2020-06) and preserves zero values.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address causal claim
+    source_url: https://en.wikipedia.org/wiki/Timestamp_alignment_intersection_results_in_output_containin
+  kind: causal
+  raw_text: Verify the output DataFrame contains only dates present in both (2020-03
+    to 2020-06) and preserves zero values.
+  resolved_value: null
+  resolver: resolve_causal
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:46:08Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Preprocessing uses linear interpolation for null/missing values
+  claim_id: c_3fd5b4ec
+  context: 'Implement timestamp alignment in projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/preprocess.py:
+    align to daily intervals (intersection), interpolate ONLY null/missing values
+    (NaN) using linear interpolation (method=''linear'', limit_direction=''both'').'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Preprocessing_uses_linear_interpolation_for_null/missing_val
+  kind: entity_fact
+  raw_text: interpolate ONLY null/missing values (NaN) using linear interpolation
+    (method='linear', limit_direction='both')
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:46:10Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Granger causality requires time-series length of at least 20
+  claim_id: c_2be91121
+  context: Implement validation in preprocess.py to exit with code 1 and message 'Insufficient
+    data for Granger causality' if time-series length < 20.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Granger_causality_requires_time-series_length_of_at_least_20
+  kind: magnitude
+  raw_text: exit with code 1 and message 'Insufficient data for Granger causality'
+    if time-series length < 20.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:46:50Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Pearson coefficient is approximately 1.0 for perfectly correlated series
+    and 0.0 for uncorrelated series
+  claim_id: c_370ebf5c
+  context: 'Mock: Two perfectly correlated series (y=x) and two uncorrelated series
+    (y=random). Assertion: Verify Pearson coefficient is ~1.0 for the first and ~0.0
+    for the second.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pearson coefficient is ~1.0 for the first and ~0.0 for the second.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:47:23Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Granger causality test performed for specific lags
+  claim_id: c_a332b5f5
+  context: 'Implement run_granger_lag(lag) function in analyze.py: perform Granger
+    causality test for a single lag.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Granger_causality_test_performed_for_specific_lags
+  kind: entity_fact
+  raw_text: perform Granger causality test for a single lag.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:47:50Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Granger causality analysis uses fixed-sweep lags 1, 2, 3, 7, and 14
+  claim_id: c_c0fc6033
+  context: 'Implement fixed-sweep loop in analyze.py: iterate lags {1, 2, 3, 7, 14}
+    and collect results.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: iterate lags {1, 2, 3, 7, 14} and collect results.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:48:11Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Tasks require 2-core CPU, 7GB RAM, and 6h runtime
+  claim_id: c_8d282b5f
+  context: "CPU Feasibility: All tasks MUST run on 2-core CPU, \u22647GB RAM, \u2264\
+    6h runtime. No GPU/CUDA."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks MUST run on 2-core CPU, \u22647GB RAM, \u22646h runtime."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-04T22:48:11Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Target date range 2020-01-01 to 2023-12-31
+  claim_id: c_5697c5f0
+  context: 'T013 [US1] Implement Google Trends Fetch: Implement Google Trends fetch
+    logic... for keywords ''anticipatory anxiety'', ''worry about future''. Target
+    Date Range: 2020-01-01 to 2023-12-31.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target date range for data acquisition is 2020-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:16:51Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Fixed-sweep lags 1, 2, 3, 7, 14
+  claim_id: c_672d0416
+  context: 'T027 [US3] Implement Granger Causality Analysis: Logic: 1. Sweep lags
+    {1, 2, 3, 7, 14}. 2. Apply Bonferroni-corrected threshold (p < 0.01)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Granger causality analysis uses a fixed-sweep of lags {1, 2, 3, 7,
+    14}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:17:10Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Bonferroni-corrected alpha 0.01
+  claim_id: c_2fe2f68d
+  context: 'T027 [US3] Implement Granger Causality Analysis: Logic: ... 2. Apply Bonferroni-corrected
+    threshold (p < 0.01) to determine significance for each lag.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: A Bonferroni-corrected alpha threshold of 0.01 is applied to determine
+    statistical significance.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:17:29Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Data completeness requirement 95%
+  claim_id: c_57402475
+  context: 'T019 [US2] Implement Preprocessing Logic: ... Include: Data completeness
+    check (>= 95%) and length check (>= 20 rows).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_completeness_requirement_95%25
+  kind: magnitude
+  raw_text: The statistical analysis requires at least 95% data completeness.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:17:58Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Minimum dataset length 20 rows
+  claim_id: c_490992bd
+  context: 'T019 [US2] Implement Preprocessing Logic: ... Include: Data completeness
+    check (>= 95%) and length check (>= 20 rows).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_dataset_length_20_rows
+  kind: magnitude
+  raw_text: The time-series dataset must contain at least 20 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:18:21Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Retry logic 3 attempts
+  claim_id: c_9af2a432
+  context: 'T010 [US1] Write Test: ... Implement test_retry_logic_on_failure asserting
+    the function retries exactly 3 times (mock.call_count == 3)...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The retry logic for GDELT and Google Trends fetches is configured for
+    exactly 3 attempts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:18:47Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Maximum runtime 6 hours
+  claim_id: c_5cb2db60
+  context: "Notes: CPU Feasibility: All tasks MUST run on 2-core CPU, \u22647GB RAM,\
+    \ \u22646h runtime."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires a maximum runtime of 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:19:11Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Maximum RAM 7GB
+  claim_id: c_6d1f3de7
+  context: "Notes: CPU Feasibility: All tasks MUST run on 2-core CPU, \u22647GB RAM,\
+    \ \u22646h runtime."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Maximum_RAM_7GB
+  kind: entity_fact
+  raw_text: The project requires a maximum of 7GB RAM.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:19:41Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: CPU constraint 2 cores
+  claim_id: c_5c854e41
+  context: "Notes: CPU Feasibility: All tasks MUST run on 2-core CPU, \u22647GB RAM,\
+    \ \u22646h runtime."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project is constrained to a 2-core CPU.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:20:01Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: target date range 2020-01-01 to 2023-12-31
+  claim_id: c_8fa7e039
+  context: 'Implement Google Trends fetch logic... Target Date Range: 2020-01-01 to
+    2023-12-31.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target date range for the data is 2020-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:21:48Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: fixed-sweep lags 1 2 3 7 14
+  claim_id: c_b005a175
+  context: "Statistical Rigor: Use fixed-sweep lags {1, 2, 3, 7, 14} and Bonferroni\
+    \ correction (\u03B1=0.05/5=0.01) as mandated by Spec FR-005 and SC-002."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The statistical analysis requires fixed-sweep lags of {1, 2, 3, 7, 14}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:22:17Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha 0.01
+  claim_id: c_23627078
+  context: "Statistical Rigor: Use fixed-sweep lags {1, 2, 3, 7, 14} and Bonferroni\
+    \ correction (\u03B1=0.05/5=0.01) as mandated by Spec FR-005 and SC-002."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis applies a Bonferroni-corrected alpha threshold of 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:22:46Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: data completeness 95 percent
+  claim_id: c_61bdd32c
+  context: 'Include: Data completeness check (>= 95%) and length check (>= 20 rows).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires a minimum data completeness of 95%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:22:46Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: minimum 20 rows
+  claim_id: c_ed608238
+  context: 'Include: Data completeness check (>= 95%) and length check (>= 20 rows).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Minimum_20_rows
+  kind: magnitude
+  raw_text: The dataset must contain at least 20 rows.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:23:18Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: retry exactly 3 times
+  claim_id: c_679f964a
+  context: Implement test_retry_logic_on_failure asserting the function retries exactly
+    3 times (mock.call_count == 3) and returns the success response.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The retry logic for API requests must attempt exactly 3 times.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:23:41Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: 2-core CPU 7GB RAM
+  claim_id: c_7f1a1ece
+  context: "CPU Feasibility: All tasks MUST run on 2-core CPU, \u22647GB RAM, \u2264\
+    6h runtime. No GPU/CUDA."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/2-core_CPU_7GB_RAM
+  kind: magnitude
+  raw_text: The system must run on a 2-core CPU with no more than 7GB RAM.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:24:43Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: maximum runtime 6 hours
+  claim_id: c_1abd4894
+  context: "CPU Feasibility: All tasks MUST run on 2-core CPU, \u22647GB RAM, \u2264\
+    6h runtime. No GPU/CUDA."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum runtime for all tasks is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:25:06Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: GDELT EventCount metric negative sentiment
+  claim_id: c_f3c471b0
+  context: Implement GDELT fetch logic... Use EventCount metric for negative sentiment
+    events.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GDELT_EventCount_metric_negative_sentiment
+  kind: entity_fact
+  raw_text: The GDELT fetch uses the EventCount metric for negative sentiment events.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:25:25Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Google Trends keywords anticipatory anxiety worry about future
+  claim_id: c_8bb922e2
+  context: Implement Google Trends fetch logic... for keywords 'anticipatory anxiety',
+    'worry about future'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Google_Trends_keywords_anticipatory_anxiety_worry_about_futu
+  kind: entity_fact
+  raw_text: Google Trends keywords include 'anticipatory anxiety' and 'worry about
+    future'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:25:45Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: linear interpolation NaN only
+  claim_id: c_df03b86f
+  context: interpolate ONLY null/missing values (NaN) using linear interpolation (method='linear',
+    limit_direction='both')...
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Linear_interpolation_NaN_only
+  kind: entity_fact
+  raw_text: Interpolation is limited to null or missing values (NaN) using linear
+    interpolation.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:26:05Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: dataset.schema.yaml JSON schema
+  claim_id: c_ee73be76
+  context: 'Create dataset schema file: Generate contracts/dataset.schema.yaml...
+    Exact Schema: JSON Schema...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Dataset.schema.yaml_JSON_schema
+  kind: entity_fact
+  raw_text: The project creates a JSON schema file named dataset.schema.yaml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:26:41Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: output.schema.yaml JSON schema
+  claim_id: c_2cccc661
+  context: 'Create output schema file: Generate contracts/output.schema.yaml... Exact
+    Schema: JSON Schema...'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Output.schema.yaml_JSON_schema
+  kind: entity_fact
+  raw_text: The project creates a JSON schema file named output.schema.yaml.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:27:16Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Black linter line-length 88
+  claim_id: c_f2824681
+  context: '[tool.black] line-length = 88 target-version = [''py311'']'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses the Black linter with a line-length of 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:27:44Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Flake8 max-line-length 88
+  claim_id: c_2dd437fe
+  context: '[tool.flake8] max-line-length = 88 ignore = [''E203'', ''W503'']'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project uses the Flake8 linter with a max-line-length of 88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:28:04Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Flake8 ignore E203 W503
+  claim_id: c_88769713
+  context: '[tool.flake8] max-line-length = 88 ignore = [''E203'', ''W503'']'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Flake8_ignore_E203_W503
+  kind: entity_fact
+  raw_text: The project ignores Flake8 errors E203 and W503.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:28:26Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Google Trends data target date range 2020-01-01 to 2023-12-31
+  claim_id: c_f4035508
+  context: 'Implement Google Trends fetch logic in `projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/fetch_google_trends.py`
+    for keywords ''anticipatory anxiety'', ''worry about future''. Target Date Range:
+    2020-01-01 to 2023-12-31.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target date range for Google Trends data is 2020-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:29:52Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Granger causality fixed-sweep lags 1 2 3 7 14
+  claim_id: c_76cb7635
+  context: 'Implement Granger causality tests in `analyze.py`. Logic: 1. Sweep lags
+    {1, 2, 3, 7, 14}. 2. Apply Bonferroni-corrected threshold (p < 0.01) to determine
+    significance for each lag.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Granger causality analysis uses a fixed-sweep of lags {1, 2, 3, 7,
+    14}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:29:52Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Bonferroni corrected alpha threshold 0.01
+  claim_id: c_68f804b1
+  context: Apply Bonferroni-corrected threshold (p < 0.01) to determine significance
+    for each lag. Calculate sensitivity (significance rate) based on the Bonferroni
+    threshold.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni-corrected alpha threshold for significance is 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:30:10Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Project CPU requirement 2-core 7GB RAM
+  claim_id: c_61566a3a
+  context: "CPU Feasibility: All tasks MUST run on 2-core CPU, \u22647GB RAM, \u2264\
+    6h runtime. No GPU/CUDA."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The project requires all tasks to run on a 2-core CPU with \u22647GB\
+    \ RAM."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:30:30Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Maximum task runtime 6 hours
+  claim_id: c_8c9398ae
+  context: "CPU Feasibility: All tasks MUST run on 2-core CPU, \u22647GB RAM, \u2264\
+    6h runtime. No GPU/CUDA."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The maximum runtime for all tasks is 6 hours.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:30:31Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: target date range 2020-01-01 to 2023-12-31
+  claim_id: c_ee4623ce
+  context: 'T013 [US1] Implement Google Trends Fetch: Implement Google Trends fetch
+    logic... Target Date Range: 2020-01-01 to 2023-12-31.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target date range for the study is 2020-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:31:28Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Granger causality fixed-sweep lags 1 2 3 7 14
+  claim_id: c_3cce7c24
+  context: 'T027 [US3] Implement Granger Causality Analysis: Logic: 1. Sweep lags
+    {1, 2, 3, 7, 14}.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Granger causality analysis uses a fixed-sweep of lags {1, 2, 3, 7,
+    14}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:31:29Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Bonferroni-corrected alpha 0.01
+  claim_id: c_b326b976
+  context: 'T027 [US3] Implement Granger Causality Analysis: Apply Bonferroni-corrected
+    threshold (p < 0.01) to determine significance for each lag.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni-corrected alpha threshold for significance is 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:31:29Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: data completeness check 95 percent
+  claim_id: c_4768941e
+  context: 'T019 [US2] Implement Preprocessing Logic: Include: Data completeness check
+    (>= 95%) and length check (>= 20 rows).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The project requires a minimum data completeness of 95%.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:31:29Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: time-series length check 20 rows
+  claim_id: c_ee1e06ba
+  context: 'T019 [US2] Implement Preprocessing Logic: Include: Data completeness check
+    (>= 95%) and length check (>= 20 rows).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The time-series data must have a minimum length of 20 rows.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:31:55Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: GDELT fetch retry logic 3 attempts
+  claim_id: c_8dce0cc7
+  context: 'T010 [US1] Write Test: Implement test_retry_logic_on_failure asserting
+    the function retries exactly 3 times.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The API retry logic for GDELT fetches is set to exactly 3 attempts.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:32:14Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Google Trends data retrieved for keywords anticipatory anxiety and worry
+    about future for date range 2020-01-01 to 2023-12-31
+  claim_id: c_0c8d4d5f
+  context: 'Phase 3, Task T013: Implement Google Trends Fetch'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Implement Google Trends fetch logic in projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/data/fetch_google_trends.py
+    for keywords ''anticipatory anxiety'', ''worry about future''. Target Date Range:
+    2020-01-01 to 2023-12-31.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:34:00Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Preprocessing requires data completeness of at least 95% and a minimum
+    of 20 rows
+  claim_id: c_33dead8b
+  context: 'Phase 4, Task T019: Implement Preprocessing Logic'
+  evidence:
+    candidates:
+    - - ''
+      - 95.0
+    - - ''
+      - 25.0
+    ordering_correct: false
+    source_url: https://en.wikipedia.org/wiki/Preprocessing_requires_data_completeness_of_at_least_95%25_and
+  kind: magnitude
+  raw_text: Include data completeness check (>= 95%) and length check (>= 20 rows).
+    Exit with code 1 if checks fail.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: refuted
+  updated_at: '2026-09-05T21:34:33Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Target date range for Google Trends fetch is 2020-01-01 to 2023-12-31
+  claim_id: c_7769d93c
+  context: 'Implement Google Trends fetch logic in fetch_google_trends.py for keywords
+    ''anticipatory anxiety'', ''worry about future''. Target Date Range: 2020-01-01
+    to 2023-12-31.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Target Date Range: 2020-01-01 to 2023-12-31.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:36:15Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Granger causality analysis sweeps lags 1, 2, 3, 7, and 14
+  claim_id: c_c9f33089
+  context: 'Implement Granger causality tests in analyze.py. Logic: 1. Sweep lags
+    {1, 2, 3, 7, 14}. 2. Apply Bonferroni-corrected threshold (p < 0.01) to determine
+    significance for each lag.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Sweep lags {1, 2, 3, 7, 14}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:36:39Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Data completeness check requires at least 95% and length check requires
+    at least 20 rows
+  claim_id: c_258b622a
+  context: 'Implement ADF test, differencing loop, and z-score normalization in preprocess.py.
+    Include: Data completeness check (>= 95%) and length check (>= 20 rows).'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_completeness_check_requires_at_least_95%25_and_length_che
+  kind: magnitude
+  raw_text: Data completeness check (>= 95%) and length check (>= 20 rows).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:37:11Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Pearson coefficient is approximately 1.0 for perfectly correlated series
+    and 0.0 for uncorrelated series
+  claim_id: c_8e90040f
+  context: 'Unit test for correlation calculation. Mock: Two perfectly correlated
+    series and two uncorrelated series. Assertion: Verify Pearson coefficient is ~1.0
+    for the first and ~0.0 for the second.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify Pearson coefficient is ~1.0 for the first and ~0.0 for the second.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:37:36Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: System constraints are 2-core CPU, 7GB RAM, and 6-hour runtime
+  claim_id: c_bc496d8d
+  context: "Notes: CPU Feasibility: All tasks MUST run on 2-core CPU, \u22647GB RAM,\
+    \ \u22646h runtime. No GPU/CUDA."
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "All tasks MUST run on 2-core CPU, \u22647GB RAM, \u22646h runtime."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:38:02Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Retry logic executes exactly 3 times on failure
+  claim_id: c_985db2d4
+  context: 'Write Test: Use responses to simulate 2 failed requests. Implement test_retry_logic_on_failure
+    asserting the function retries exactly 3 times (mock.call_count == 3).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: retry exactly 3 times (mock.call_count == 3)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-05T21:38:31Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/data/raw/README.md
+  attempts: 1
+  canonical: Dataset contains aggregated GDELT 2.0 negative sentiment event counts
+  claim_id: c_c6f360f0
+  context: This dataset contains aggregated event counts from the GDELT 2.0 Event
+    Database, specifically filtering for events with negative sentiment scores. It
+    serves as the primary input for analyzing the correlation between negative news
+    volume and anticipatory anxiety trends.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: This dataset contains aggregated event counts from the GDELT 2.0 Event
+    Database, specifically filtering for events with negative sentiment scores.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:28:44Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/data/raw/README.md
+  attempts: 1
+  canonical: GDELT data licensed under Creative Commons Attribution 4.0 International
+  claim_id: c_fec2e618
+  context: 'License
+
+    GDELT data is available under the Creative Commons Attribution 4.0 International
+    License.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: GDELT data is available under the Creative Commons Attribution 4.0 International
+    License.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:29:21Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/data/raw/README.md
+  attempts: 1
+  canonical: Dataset date range 2020-01-01 to 2023-12-31
+  claim_id: c_f8d54bef
+  context: "- Parameters:\n - `EventCode`: Negative sentiment event codes (e.g., protests,\
+    \ conflicts, disasters)\n - `StartDate`: 2020-01-01\n - `EndDate`: 2023-12-31\n\
+    \ - `Action`: Count"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The dataset covers the date range from 2020-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:29:41Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: target date range 2020-01-01 to 2023-12-31
+  claim_id: c_512f2766
+  context: 'Implement Google Trends fetch logic for keywords ''anticipatory anxiety'',
+    ''worry about future''. Target Date Range: 2020-01-01 to 2023-12-31.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'Target Date Range: 2020-01-01 to 2023-12-31'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:30:56Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Bonferroni calculation 0.05 divided by 5 equals 0.01
+  claim_id: c_b991431c
+  context: Explicitly document the Bonferroni calculation (0.05/5=0.01), list the
+    p-values for each lag, and state the pass/fail status.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Bonferroni calculation (0.05/5=0.01)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:31:31Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: data completeness must be greater than or equal to 95 percent
+  claim_id: c_a9d7facb
+  context: 'Calculate the percentage of days with valid values (non-null) in the target
+    date range. Requirement: Must be >= 95%.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_completeness_must_be_greater_than_or_equal_to_95_percen
+  kind: magnitude
+  raw_text: Must be >= 95% data completeness
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:32:05Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: length check greater than or equal to 20 rows
+  claim_id: c_3765774a
+  context: 'Include: Data completeness check (>= 95%) and length check (>= 20 rows).
+    Exit with a non-zero status code if checks fail.'
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: 'P4020: \mathsf{L}'
+      source_id: Q36253
+      url: https://www.wikidata.org/wiki/Q36253
+      value: '20'
+    filled: true
+  kind: magnitude
+  raw_text: Length check (>= 20 rows)
+  resolved_value: '20'
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T22:32:13Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Target date range 2020-01-01 to 2023-12-31
+  claim_id: c_5b8a216f
+  context: 'Target Date Range: 2020-01-01 to 2023-12-31. Include retry logic: A limited
+    number of attempts.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target date range for the analysis is 2020-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:33:43Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Data completeness requirement 95 percent
+  claim_id: c_d9da0b72
+  context: 'Requirement: Must be >= 95%. Output: Print the calculated percentage and
+    exit non-zero if < 95%.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_completeness_requirement_95_percent
+  kind: magnitude
+  raw_text: The analysis requires a data completeness percentage of at least 95% in
+    the target date range.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:34:36Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Minimum data rows 20
+  claim_id: c_298322b8
+  context: 'Include: Data completeness check (>= 95%) and length check (>= 20 (Wikidata
+    Q36253, https://www.wikidata.org/wiki/Q36253) rows).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis requires a minimum of 20 rows for the time series data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:36:07Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Bonferroni calculation 0.05 divided by 5 equals 0.01
+  claim_id: c_34ad10b4
+  context: 'Content: Explicitly document the Bonferroni calculation (0.05/5=0.01),
+    list the p-values for each lag, and state the pass/fail status.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni calculation divides 0.05 by 5 to equal 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:36:51Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Statistical validity requires at least one lag with p less than 0.01
+  claim_id: c_da7b0e72
+  context: 'Logic: Verify at least one lag in {1, 2, 3, 7, 14} has p < 0.01. Action:
+    If check fails, write a ''CRITICAL_FAILURE'' flag.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_validity_requires_at_least_one_lag_with_p_less_t
+  kind: magnitude
+  raw_text: The statistical validity check requires at least one lag in {1, 2, 3,
+    7, 14} to have a p-value less than 0.01.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:37:40Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Retry logic attempts 3 times
+  claim_id: c_7cab0a67
+  context: Implement `test_retry_logic_on_failure` asserting the function retries
+    exactly 3 times (`mock.call_count == 3`) and returns the success response.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The retry logic for API requests attempts to retry exactly 3 times on
+    failure.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:38:03Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: target date range 2020-01-01 to 2023-12-31
+  claim_id: c_fda69662
+  context: 'Target Date Range: 2020-01-01 to 2023-12-31. Include retry logic: A limited
+    number of attempts.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The target date range for the study is 2020-01-01 to 2023-12-31.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:46:34Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: GDELT 2.0 Event Database API used for negative news volume
+  claim_id: c_e55f8114
+  context: 'API Details: Use GDELT 2.0 Event Database API. Endpoint: (or equivalent
+    API endpoint). Parameters: Action=Count, EventCode (negative sentiment codes),
+    StartDate, EndDate.'
+  evidence:
+    asserted: '2.0'
+    authority: math.pi (IEEE-754 double, Python stdlib)
+    constant: pi
+    corrected: true
+    mode: approximate
+    true_value: 3.141592653589793
+    url: https://en.wikipedia.org/wiki/Pi
+  kind: numeric
+  raw_text: GDELT 2.0 Event Database API is used to retrieve historical time-series
+    data for aggregate negative news publication volume.
+  resolved_value: '3.1'
+  resolver: approximate
+  source_hash: 66209b077fa19b526acf9fb05a41616d3940c63a7bf7fb251749ce1d49874fd9
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T22:46:34Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Google Trends keywords anticipatory anxiety and worry about future
+  claim_id: c_5739cea2
+  context: Implement Google Trends fetch logic in ... for keywords 'anticipatory anxiety',
+    'worry about future'.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Google_Trends_keywords_anticipatory_anxiety_and_worry_about
+  kind: entity_fact
+  raw_text: Google Trends data is retrieved for the keywords 'anticipatory anxiety'
+    and 'worry about future'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:47:02Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: data completeness requirement 95 percent
+  claim_id: c_4ffe70a8
+  context: 'Calculate the percentage of days with valid values (non-null) in the target
+    date range. Requirement: Must be >= 95%.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Data_completeness_requirement_95_percent
+  kind: magnitude
+  raw_text: Data completeness must be at least 95% for valid values in the target
+    date range.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:47:30Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: minimum time series length 20 rows
+  claim_id: c_d966ac38
+  context: 'Include: Data completeness check (>= 95%) and length check (>= 20 (Wikidata
+    Q36253, https://www.wikidata.org/wiki/Q36253) rows).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The analysis requires a minimum of 20 rows for the time series data.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:47:30Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 2
+  canonical: Granger causality lags 1 2 3 7 14
+  claim_id: c_872eb7aa
+  context: 'Logic: 1. Sweep lags {,, 3, 7, 14}. 2. Apply Bonferroni-corrected threshold
+    (p < 0.01) to determine significance for each lag.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Granger causality analysis uses a fixed-sweep of lags {1, 2, 3, 7,
+    14}.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:47:31Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: Bonferroni calculation 0.05 divided by 5 equals 0.01
+  claim_id: c_09ba16de
+  context: Explicitly document the Bonferroni calculation (0.05/5=0.01), list the
+    p-values for each lag, and state the pass/fail status against SC-002 (p < 0.01
+    for at least one lag).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The Bonferroni correction is calculated as 0.05 divided by 5 equals 0.01.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:47:47Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: GDELT EventCount proxy for news exposure not social media consumption
+  claim_id: c_fbac3b9d
+  context: 'Data Source: GDELT EventCount (Negative Sentiment). This is a proxy for
+    ''news exposure'', not direct ''social media consumption''.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/GDELT_EventCount_proxy_for_news_exposure_not_social_media_co
+  kind: entity_fact
+  raw_text: GDELT EventCount (Negative Sentiment) is used as a proxy for 'news exposure'
+    rather than direct 'social media consumption'.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:48:02Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: social media amplification confounding variable
+  claim_id: c_fff50c32
+  context: This is not direct 'social media consumption' data. Social media amplification
+    is a confounding variable.
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Social_media_amplification_confounding_variable
+  kind: entity_fact
+  raw_text: Social media amplification is identified as a confounding variable in
+    the analysis.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:48:26Z'
+- artifact_path: projects/PROJ-487-the-impact-of-social-media-doomscrolling/specs/001-the-impact-of-social-media-doomscrolling/tasks.md
+  attempts: 1
+  canonical: fixed-sweep lags include short-term intervals
+  claim_id: c_42f44f41
+  context: "Statistical Rigor: Use fixed-sweep lags including short-term intervals.\
+    \ and Bonferroni correction (\u03B1=0.05/5=0.01) as mandated by Spec FR-005 and\
+    \ SC-002."
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Fixed-sweep_lags_include_short-term_intervals
+  kind: entity_fact
+  raw_text: The statistical analysis uses a fixed-sweep of lags including short-term
+    intervals.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T22:48:48Z'

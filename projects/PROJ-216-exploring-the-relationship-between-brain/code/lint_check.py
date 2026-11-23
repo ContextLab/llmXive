@@ -1,47 +1,33 @@
-"""
-Linting and formatting verification script.
-Checks code quality using ruff and black.
-"""
 import subprocess
 import sys
 from pathlib import Path
 
-def run_command(cmd: list[str]) -> int:
+def run_command(cmd: list) -> int:
     """Run a command and return the exit code."""
     try:
-        result = subprocess.run(cmd, check=False)
+        result = subprocess.run(cmd, check=False, capture_output=True, text=True)
+        if result.returncode != 0:
+            print(f"Command failed: {' '.join(cmd)}")
+            print(result.stdout)
+            print(result.stderr)
         return result.returncode
     except FileNotFoundError:
-        print(f"Error: Command '{' '.join(cmd)}' not found.")
-        print("Please install dependencies: pip install ruff black")
+        print(f"Command not found: {cmd[0]}")
         return 1
 
-def main() -> int:
+def main():
     """Run linting and formatting checks."""
-    project_root = Path(__file__).parent
-    print("Checking code style and formatting...")
-
-    # Check ruff
-    print("\n1. Running Ruff (linting)...")
-    ruff_code = run_command(["ruff", "check", str(project_root)])
-    if ruff_code == 0:
-        print("   ✓ Ruff passed")
-    else:
-        print("   ✗ Ruff failed")
-
-    # Check black
-    print("\n2. Running Black (formatting check)...")
-    black_code = run_command(["black", "--check", str(project_root)])
-    if black_code == 0:
-        print("   ✓ Black passed")
-    else:
-        print("   ✗ Black failed")
-
+    print("Running linting and formatting checks...")
+    
+    # Check if tools are available
+    ruff_code = run_command([sys.executable, "-m", "ruff", "check", "."])
+    black_code = run_command([sys.executable, "-m", "black", "--check", "."])
+    
     if ruff_code == 0 and black_code == 0:
-        print("\n✓ All checks passed!")
+        print("All checks passed!")
         return 0
     else:
-        print("\n✗ Some checks failed. Run 'ruff check --fix' and 'black .' to fix.")
+        print("Some checks failed. Please fix the issues.")
         return 1
 
 if __name__ == "__main__":

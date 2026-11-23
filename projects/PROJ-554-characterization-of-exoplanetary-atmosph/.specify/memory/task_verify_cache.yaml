@@ -1,0 +1,162 @@
+T001a:
+  c: false
+  h: 3d3d9de3b019c3a245feabe5e8cda48229b9c802f0a982bad3be5fc00919412a
+  r: "Checked the repository tree under `projects/PROJ-554-characterization-of-exoplanetary-atmosph/`.\
+    \ The `code/`, `tests/`, and `results/` directories are present, but the required\
+    \ `data/` directory is missing. The task\u2019s specification explicitly calls\
+    \ for a `data/` folder, so the directory structure is not fully created."
+  sig: 9ee66bef929c71e9f74d52d0d3ea0e996d5e007d9e7c156726a075684807314e
+T001b:
+  c: false
+  h: 271a6a37578ed4fed2d0520eb66687c9ef308f82d027efdb2dc254cfc1b75f7e
+  r: "Checked `projects/PROJ-554-characterization-of-exoplanetary-atmosph/requirements.txt`.\
+    \ The file lists the required packages but does **not** include pinned version\
+    \ specifiers (e.g., `petitRADTRANS==1.2.3`), violating the task\u2019s explicit\
+    \ demand for pinned versions. Additionally, extra unrelated packages are present,\
+    \ but the primary failure is the lack of version pins. The implementer must add\
+    \ exact version numbers for each listed dependency."
+  sig: 6bbfc68f98b79e5dcd2d956a9b303986b488096fb7260d497fc3f6c016e467d3
+T001c:
+  c: true
+  h: e3f27248ed7bbd607960002ff65804e140a9ec35fffde43a9ed5b83cb5d9850b
+  r: "The evidence includes a non\u2011empty `.ruff.toml` with full Ruff configuration\
+    \ and a `pyproject.toml` containing a `[tool.black]` section configuring Black,\
+    \ both located at the project root."
+  sig: 46138a3747a6aa87bdeef6feac7a5b090c3ab48e32d0149e6b1f64a874f1aad9
+T004:
+  c: true
+  h: 5b818e440fde18c37f740c803fb0c65d2d1edd0bde21c9b5ef878421ac8a9a5f
+  r: "Checked the `code/config.py` file (1994\u202Fbytes) which defines environment\u2011\
+    variable loading, a `Configuration` class with `data_dir`, `seed`, and `threads`\
+    \ (CPU thread limit) fields, seed\u2011setting logic, and helper functions for\
+    \ retrieving and validating the configuration. This satisfies the task\u2019s\
+    \ requirement to set up configuration loading for paths, seeds, and CPU thread\
+    \ limits."
+  sig: 8bf6abd34571d2878fcf9adc2e7381a4644f3502aeca32fa25f4d2fa5a988b84
+T005a:
+  c: true
+  h: aa1ba6ab7fb5936d6adfeb491a732796d553e7da23e85851187cc595bb520332
+  r: "Checked `code/utils.py` (5815\u202Fbytes) which defines a `setup_logging` function\
+    \ that configures a logger, sets the log level (default INFO, customizable), adds\
+    \ console and optional file handlers, and clears prior handlers \u2013 fulfilling\
+    \ the required logging setup and log\u2011level handling."
+  sig: e08fd23cfb0f66d030b7eebe23ec6899c255c0c64b247c00598fef46f5129fe2
+T005b:
+  c: true
+  h: 7aee9714675079e759ac74195406081efc16fe3a4314fbfec557ef3423f9f71e
+  r: "Checked `code/utils.py` (5815\u202Fbytes) which defines a suite of custom exception\
+    \ classes and provides a `retry_on_failure` decorator implementing retry\u2011\
+    with\u2011backoff logic, fulfilling the required error\u2011handling wrapper."
+  sig: aa5ae5ee2c52409dc94c1443e3b19c11df23d3b012a6118bfd190361dd8667eb
+T005c:
+  c: false
+  h: ba37210e237c0b8a5ee5f4c2b9df2d2eba3b4fb3e966a1d36909b1b012a50ed1
+  r: "The `code/utils.py` file is present, but the censored\u2011data helper functions\
+    \ reference `pd` (pandas) and `Dict` without importing them, so they will raise\
+    \ `NameError` when used. Missing imports mean the upper\u2011limit handling utilities\
+    \ are not functional, violating the task requirement."
+  sig: 9846f40ef3cd2c0f2a15c08c537988349b8b522cbcd78fe94da0caba7f47c603
+T006b:
+  c: true
+  h: f04edf9acba2ae479a0489640ff3e93ad84310e10f3a86c9ee37765f4d56a53b
+  r: "The evidence shows the `code/`, `tests/unit/`, `tests/contract/`, and `tests/integration/`\
+    \ directories all exist under the project root and contain multiple files (non\u2011\
+    empty listings are provided). This fulfills the task\u2019s requirement to create\
+    \ and verify those directories."
+  sig: 847b5068ff91b3dce9dc9cf7e4e53f79b279d7c0adf6b94f66561186765d1a3e
+T007:
+  c: true
+  h: 611b845f2824519dcaef65d8e00c4c4748e5a4033e263569e470d1ecbdc82558
+  r: "Checked `code/data_models.py` (1124\u202Fbytes) which defines the `ExoplanetSpectrum`\
+    \ and `RetrievalResult` dataclasses with appropriate fields and no placeholders.\
+    \ The file exists, is non\u2011empty, and implements the required base data models."
+  sig: cb684db62abc63fdad3b31203e23a6df9cb09737ee16fea9a90273f32dfe8e0c
+T008:
+  c: true
+  h: ed8449aa6a41c68c5fa199687f0bda8ead9a646eec3672abc2bf26c89d42a3ae
+  r: "Checked `code/config.py` (1994\u202Fbytes) which defines `load_env_vars()` that\
+    \ reads `API_KEY` from the environment and provides a `set_random_seed()` function\
+    \ to set Python and NumPy seeds. The module also uses `os.getenv` for other config\
+    \ values, fulfilling the environment\u2011variable handling and seed configuration\
+    \ requirement."
+  sig: 20dbc3aa5564c619c6aa2fb09670218026dfd73d481da813a68132dd07c2f80b
+T009:
+  c: true
+  h: bec0314e64f13a4a4dc6e959fb81762b2fec1d3522a126fd2cb941743d39d69a
+  r: Checked the presence and content of `tests/contract/test_metadata_schema.py`,
+    which defines the required `validate_metadata_schema` function and includes pytest
+    tests covering valid files, missing columns, null values, invalid categories,
+    and negative values, satisfying the contract test requirement.
+  sig: cbeb1083bf016dfd2d8a51fd0c4d0d62d8cbd13e2630b6ca139cb5ab6a323a5f
+T010:
+  c: false
+  h: 24900b347508a074672050e919540e935da93b5cc74f431398155af6657ca7ac
+  r: "The `tests/integration/test_download.py` file exists and defines `test_download_returns_valid_metadata`,\
+    \ but it performs a real API fetch (or optional local cache) instead of using\
+    \ mocked parameters as required. No mock objects or predefined mock query parameters\
+    \ are set up, so the integration test does not satisfy the \u201Cspecific mock\
+    \ parameters\u201D clause."
+  sig: 78b63cf83c5770bab7f81f004e327e449449e81e5267cca73fd1be15f620c478
+T013a:
+  c: false
+  h: ff4f46866d930bad15abb21a93f3a1f18ca14920ed5caa45b605063b77da0552
+  r: The repository lacks a `count_unique_planets` implementation in `code/download.py`
+    (the file shown does not contain such a function) and the required output `data/processed/count_report.json`
+    is absent. Both the core function and its deliverable are missing, so the task
+    is not satisfied.
+T013b:
+  c: false
+  h: 2fdd30fb262117876083fa4d6d0957a6b6d9b76a93d745be98f42a41fcd27695
+  r: The repository lacks the required `data/processed/sample_size_report.json` file,
+    and the shown portion of `code/download.py` does not contain a `validate_sample_size`
+    implementation (or any logic that reads a count, logs warnings, and writes the
+    JSON report). Both the artifact and the core function are missing, so the task
+    is not satisfied.
+T017:
+  c: false
+  h: 041e4faa232dd6c5184ab3378ed983b3b5aad816c4fd5956be2172ba4d044dd7
+  r: "The required artifact `tests/integration/test_retrieval.py` does not exist in\
+    \ the repository, so the integration test for retrieval on a sample spectrum is\
+    \ missing. Without this file, the task\u2019s deliverable is not provided."
+T020:
+  c: false
+  h: 4d973949ce7241bba652dd32a5d81d73b5c4731b9588451dd86aa61c47f175c6
+  r: "The `code/retrieval.py` file does not contain a complete implementation of `save_retrieval_results`\
+    \ (the shown code ends mid\u2011function and never defines that function). Moreover,\
+    \ the required output file `data/processed/retrieval_results.csv` is absent. Both\
+    \ the core function and the deliverable CSV are missing, so the task is not satisfied."
+T030a:
+  c: false
+  h: ef5f03f1ae7f534ddedacb5788b6c35f5276bd10ca8002656c2a650dd4612c46
+  r: The repository lacks the required `data/processed/mdc_stats.json` file, and the
+    provided `code/analysis.py` excerpt does not show an implementation of the `save_mdc_stats`
+    function (the file is truncated before any such definition). Both the artifact
+    and the core function are missing, so the task is not fulfilled.
+T030b:
+  c: false
+  h: 05c5dfe0056d10dce0b05c045b1462faa3262dd4c6bdc30d2f0433cc32b2dfee
+  r: The required output file `data/processed/analysis_results.json` does not exist,
+    and the provided `code/analysis.py` snippet shows no implementation of a `generate_analysis_results`
+    function (the file is truncated before any such logic). Consequently, the task
+    of aggregating the four JSON inputs and saving the combined result has not been
+    fulfilled.
+T038:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No README.md or quickstart.md files were presented, nor any excerpts showing
+    the claimed documentation changes. Without the actual updated files, we cannot
+    verify that the required documentation updates exist or contain the appropriate
+    content. The task therefore remains incomplete.
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, scripts, or documentation related to \u201Ccode cleanup and refactoring\u201D\
+    \ are present; the only evidence provided concerns data acquisition and analysis\
+    \ for exoplanet spectra, which does not satisfy the T039 cleanup task. The required\
+    \ refactored code artifacts are missing."
+T043:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No validation artifacts (e.g., logs, output files, or a report confirming that
+    quickstart.md was parsed and passed all checks) were provided; the claim lacks
+    any concrete evidence that the quickstart.md validation was actually performed.

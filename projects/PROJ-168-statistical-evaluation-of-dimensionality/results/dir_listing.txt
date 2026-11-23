@@ -1,0 +1,14 @@
+data
+data/embeddings
+data/clustering
+data/results
+data/raw
+data/processed
+data/metrics
+code
+code/scripts
+code/tests
+code/workflows
+results
+figures
+paper

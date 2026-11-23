@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1108.3457",
+  "judged_at": "2026-07-20T10:13:27Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "assessing the validity of statistical significance in randomized controlled trials with missing data statistics",
+  "rationale": "This paper is a canonical discussion on the statistical foundations of missing data (specifically within the Bayesian framework), which directly addresses the \"Missing Data statistics\" component of the user's question and serves as a foundational methodology reference (Category d) for assessing validity in this domain.",
+  "relevant": true
+}

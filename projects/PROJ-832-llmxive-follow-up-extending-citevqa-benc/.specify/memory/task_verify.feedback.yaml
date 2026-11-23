@@ -1,0 +1,107 @@
+T001a:
+  task: 7c8ddcbd17e21ee546517a7bf5738b01990af45b629721f62fa3625e396300d8
+T001b:
+  reason: "The two `__init__.py` files exist with valid package docstrings, but the\
+    \ evidence shows no `data/.gitkeep` or `scripts/.gitkeep` \u2014 the collector's\
+    \ artifact list contains only the two `__init__.py` files, so half of the required\
+    \ artifacts are missing (or unverified). The implementer must create the `data/`\
+    \ and `scripts/` directories with their `.gitkeep` markers."
+  task: 5d3a508100af7a9a2495f0df3cf22448f11a408f1e6819aaf12b933f08557071
+T002a:
+  task: b9c43f71e5bb381eed66849ccab600446adaf31500e873a3aef87e9293f210fe
+T002b:
+  reason: 'Requested task execution failed; rerun successfully: scripts/setup_venv.sh
+    exit=1'
+  task: 221f42e718da95bb72f1dd30e6dfa51711df3bda95859085a4d316da1b144a32
+T003:
+  task: ed499d1c554fe9eb2c7938008dd2c66373f31ce0c71ca26dc8c344cb81cd4782
+T004:
+  task: 7f9f828a258bc0be47afa23d5fc39dae7c88e38f859e042f878203ff9e8aab2b
+T005a:
+  reason: 'The only artifact, `data/verified_sources.json`, is a bare assertion of
+    success with no accompanying verification evidence (no command output, HTTP check,
+    or `load_dataset` execution log), and the record is internally malformed: the
+    `"timestamp"` field contains `"2.24.0"` (a library version string), not a timestamp,
+    and `"details"` claims a builder config was observed without any run evidence.
+    The implementer must actually probe the URL (e.g., `datasets.load_dataset` or
+    an HTTP request to `https://huggingface.co/datasets/citevqa` or the correct canonical
+    ID such as an org-qualified dataset nam'
+  task: aad29bdb951c57a8ec5f3227ec777bd88a98a636a4dd7ff7582c3bb500af593a
+T005b:
+  reason: "The file `data/baseline_saa_raw.json` exists, but its citation is a placeholder\
+    \ \u2014 \"arXiv preprint arXiv:2405.xxxxx\" \u2014 and the source reference (\"\
+    Das, D., et al. (2024)\") is not a verifiable, real citation, indicating the CiteVQA\
+    \ paper was not actually read and the 0.42 value cannot be traced to a genuine\
+    \ Table 2 entry. The task requires the actual scalar SAA mean from the paper with\
+    \ a real, complete source citation (correct authors, venue, arXiv ID, table/row\
+    \ identifier); the implementer must locate the real paper, extract the correct\
+    \ baseline SAA value, and replace the fabricated citation."
+  task: 05e29bf21d59e18cb913ee214d64121f6eaa87e7f111e0f6882e8a351193bbcc
+T006:
+  task: 12be2d6ebed819224cfc339c16a7f5ecbdf70bef546345ec2b29399ca737a9d8
+T007:
+  task: 45006d8c93f8723eeab0d478ababe3cc07fa9bdbe554e42f6c9fb243d916d357
+T008:
+  task: 019e811b2ef11ce2263473006c10f97aafc3ec1fd2316e44f0faee3c5681fc78
+T009:
+  task: af6f9f7a550123e0436461d569e6aeae6d72b90ad74a8563747e73e4aa778467
+T010:
+  task: a53c86dd2844c3190a0834e0622a327adfa7923fb0d2cb9c3d4fb0fca9d22b30
+T011:
+  task: a7f51ceaff010a68241ef7b241254a305f5429ab84ce9babbba3b11374a3cbd9
+T012:
+  task: f0de5afce195a2886ef5b516ff9b7a9057736b7dffb29a63ea9ee64cb27a2331
+T013:
+  task: 1b16f17f0a36560accb3699557f7f80826ebb9b46ff83d6466f570238b2a4993
+T014:
+  task: 6756aac6084795a9a0a9284b49512fdfd8e0203920a45daa43605512f18d351b
+T015:
+  task: a68728b09cb4a2b220f9a57f8d12a2125e82424233e994c5bb3062ac9d844676
+T016:
+  task: 5d4e8132559f0750ddc0b6a79e116cf61259a97ef8a73da16ea3ed2b41ed03f9
+T017:
+  task: e350825862a7593b2b60b78915a1fbcac1e9c9fdd72df8da92d05be1170bf3af
+T018a:
+  task: cf12d95e7f52b07cf360aa53b37a8c1a6c0a1a2745badc5f31fccfabee5eba1c
+T018b:
+  task: 98f6db47281b8f9e8cc23a8e34519c8dfeaba5db8a49269ad1380b5ee3c9ae33
+T019:
+  task: d31df7175411294bc42fbbbbca0c901aceb09d650e317eb52f572cdea9ae5889
+T020:
+  task: 87d44fbb8777e3bb4a653021baf6cc0daa65f472322911df159618217f9f850b
+T021:
+  task: a768986d226814c7de824d4a703f35418fd0bbae747c43dda43a55d8af168a13
+T022:
+  task: 397976c576b142bcf37ef7f18dc8077749ecb4408abdcb077a2a5d83fe5f939d
+T023:
+  task: 6835a0778d9a4f168508dea303d46cb5650873524df31a0509f77dcf07b17db4
+T023a:
+  task: a4bdad6c68f61f757e777c5b774d7dc2954b6fc22d7c42a8325359f0fc5b249c
+T024:
+  task: 78b96aa3898eef0603663a88c69b88e2448192e1890230af236f9fed15a629e7
+T024b:
+  task: fce304f74623097eb440e7b2745460953078677cd83cd70cba1e3aa6033461d6
+T025:
+  task: 86b122f410266862caeff44423ea07af5c42724ab69c256f71e3fa3aedad92e5
+T026:
+  task: 5c7e7a6d5395ae6b217355c6b69414d53fed294932169b3dd82febb08399eca5
+T027:
+  task: ce8f3d284d1ac53ee7eaeb06fb76e209250c71711710cfcc9e57a544fb40995a
+T028:
+  task: d83c0b2fcbca8eaf3be255fdce29bef6ab4af6585c9af05926bb176e98d1af24
+T029:
+  task: dd945472aa40f57d439fcd14859e20f8e90bf964592c47a89697bdfd8a90b6e1
+T030:
+  task: 6eb8e79ce8f4e7c5493ee25ab150972db8deefd071e5eedc9b559ce5e17831b6
+T031:
+  task: c00053a80f274ed8dc59c1394f7e92d44495909126ee84a0437f40bffcc0a864
+T032:
+  task: 5ad3c815870dd7dbba31cfc566ec222b2ae611b5f631e047db17710a7ccbd696
+T033:
+  task: f562653652a9277600195c7ce224e7808b393e654a595d5e1c4efcea73e20f86
+T034:
+  task: b1178d9c939d6a7b20d6c7cad8d9ba1213632d8cbf6d4c100b49f19f6e973f59
+T035:
+  task: b61311b9ec921f37116873f23642c1db8f0dbdf328b69e658a072b6db30f6caa
+T036:
+  task: bdae52ddb7af236137f5e675da9fa070be132e129a7cd34e11d54eda0335430d

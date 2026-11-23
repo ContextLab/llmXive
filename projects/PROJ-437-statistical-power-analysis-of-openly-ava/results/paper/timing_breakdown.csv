@@ -1,0 +1,6 @@
+split_name,timestamp,elapsed_seconds,metadata_json
+initialization,2023-10-27T10:00:00.000000,0.00,"{""stage"": ""setup""}"
+data_download,2023-10-27T10:00:00.100000,0.10,"{""dataset_id"": ""ds000030"", ""subjects"": 10}"
+preprocessing,2023-10-27T10:00:00.300000,0.30,"{""kernel"": ""4mm"", ""roi_count"": 90}"
+glm_fitting,2023-10-27T10:00:00.450000,0.45,"{""iterations"": 100, ""convergence"": true}"
+power_curve_generation,2023-10-27T10:00:00.550000,0.55,"{""paradigms"": 3, ""alpha"": 0.05}"

@@ -4,9 +4,8 @@ from pathlib import Path
 
 def create_directories():
     """
-    Creates the standard project directory structure for llmXive PROJ-331.
-    
-    Directories created relative to the project root:
+    Create the project directory structure as defined in T001.
+    Directories created:
     - code/
     - tests/
     - data/raw/
@@ -16,10 +15,12 @@ def create_directories():
     - state/
     
     Returns:
-        list: A list of absolute paths to the created directories.
+        list: List of created directory paths
     """
-    # Define relative paths based on project requirements
-    relative_paths = [
+    base_dir = Path(".")
+    
+    # Define the required directories relative to the project root
+    directories = [
         "code",
         "tests",
         "data/raw",
@@ -28,35 +29,37 @@ def create_directories():
         "results",
         "state"
     ]
+    
+    created_paths = []
+    
+    for dir_path in directories:
+        full_path = base_dir / dir_path
+        if not full_path.exists():
+            full_path.mkdir(parents=True, exist_ok=True)
+            created_paths.append(str(full_path))
+            print(f"Created directory: {full_path}")
+        else:
+            # Ensure it is actually a directory
+            if not full_path.is_dir():
+                raise NotADirectoryError(f"Path exists but is not a directory: {full_path}")
+            print(f"Directory already exists: {full_path}")
+    
+    return created_paths
 
-    # Determine project root (parent of the code directory)
-    # Assuming this script is run from the project root or code/
-    current_file = Path(__file__).resolve()
-    # Try to find project root by looking for a specific marker or just use parent of code/
-    # For robustness, we assume the script is in code/ and root is parent
-    project_root = current_file.parent.parent if current_file.name == "setup_project.py" else current_file.parent
-    
-    created_dirs = []
-    
-    for rel_path in relative_paths:
-        dir_path = project_root / rel_path
-        try:
-            dir_path.mkdir(parents=True, exist_ok=True)
-            created_dirs.append(str(dir_path))
-            print(f"Created directory: {dir_path}")
-        except PermissionError:
-            print(f"Error: Permission denied creating directory: {dir_path}", file=sys.stderr)
-        except Exception as e:
-            print(f"Error creating directory {dir_path}: {e}", file=sys.stderr)
-    
-    return created_dirs
+def main():
+    """
+    Main entry point for the project setup script.
+    Creates the required directory structure and exits.
+    """
+    print("Starting project directory creation...")
+    try:
+        created = create_directories()
+        print(f"Successfully created {len(created)} directories.")
+        print("Project structure ready.")
+        return 0
+    except Exception as e:
+        print(f"Error creating directories: {e}", file=sys.stderr)
+        return 1
 
 if __name__ == "__main__":
-    print("Initializing project directory structure...")
-    dirs = create_directories()
-    if dirs:
-        print(f"Successfully created {len(dirs)} directories.")
-        print("Structure ready.")
-    else:
-        print("No directories were created. Check permissions or paths.")
-        sys.exit(1)
+    sys.exit(main())

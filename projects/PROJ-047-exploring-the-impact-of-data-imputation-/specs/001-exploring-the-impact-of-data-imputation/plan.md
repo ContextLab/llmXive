@@ -18,7 +18,7 @@ This feature implements a simulation study to quantify the bias introduced by st
 **Project Type**: Computational research simulation.  
 **Performance Goals**: Complete 200 simulation runs + sensitivity analysis within 4 hours.  
 **Constraints**: No GPU, no CUDA, no 8-bit/4-bit quantization. Data subset to fit <7GB RAM.  
-**Scale/Scope**: Multiple simulation runs, Multiple MNAR parameter steps ($\beta \in \{,, 0.5, 0.8, 1.0\}$), imputation methods, estimators.  
+**Scale/Scope**: Multiple simulation runs, Multiple MNAR parameter steps ($\beta \in \{,,, 0.8, 1.0\}$), imputation methods, estimators.  
 **Power Analysis**: For N=1000 with expected missingness rate [deferred], effective N ≈ 700. Post-hoc power calculation (Phase 3 Task T033) verifies [deferred] power to detect moderate effect size (Cohen's d) in bias differences between methods. If power < 80%, limitation is explicitly flagged in paper.
 
 ## Constitution Check
@@ -105,7 +105,7 @@ projects/PROJ-047-exploring-the-impact-of-data-imputation-/
 
 **MNAR Injection** (Phase 2 Task T029b):
 - Missingness indicator $M$ generated via logistic model: $P(M=1|Y) = \text{logit}^{-1}(\alpha_{mnar} + \beta_{mnar} Y)$.
-- $\beta_{mnar}$ is swept: $\{0.0, 0.2, 0.5, 0.8, 1.0\}$.
+- $\beta_{mnar}$ is swept across a range of values including zero.
 - $\beta_{mnar} = 0$ represents MAR/MCAR (baseline).
 - $\beta_{mnar} > 0$ represents MNAR (missingness depends on unobserved $Y$).
 

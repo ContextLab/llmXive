@@ -1,0 +1,4 @@
+# This directory is intentionally left empty.
+# It serves as a placeholder for raw dataset files (e.g., Guava trajectories).
+# Files here are excluded from version control via .gitignore (data/raw/*).
+# Do not remove this file; it ensures the directory exists in the repository.

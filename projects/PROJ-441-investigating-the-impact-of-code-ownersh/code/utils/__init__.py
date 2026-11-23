@@ -1,8 +1,9 @@
 """
-Utility functions for configuration, logging, and path handling.
+Utility functions and configuration management.
 """
-from code.utils.config import load_env, set_seed, get_config, get_path
-from code.utils.logger import get_logger, log_event, init_logger
+
+from .config import load_env, set_seed, get_config, get_path
+from .logger import get_logger, log_event, init_logger
 
 __all__ = [
     "load_env",

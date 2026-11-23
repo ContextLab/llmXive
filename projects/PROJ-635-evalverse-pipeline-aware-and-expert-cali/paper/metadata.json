@@ -53,5 +53,15 @@
     "images/win_ratio.pdf",
     "neurips_2026.sty",
     "sample-base.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "61b78ee0cbdbfed5f38e943c74770fd0ac6512f02f9dc707852926aa2338659b",
+      "bytes": 1232305
+    },
+    "original.pdf": {
+      "sha256": "4d9040eaecc204b6651eaabf1aa0f8a4ae57ae947b13c293463db8459bae3646",
+      "bytes": 1195916
+    }
+  }
 }

@@ -3,240 +3,280 @@ import sys
 import logging
 from pathlib import Path
 from typing import Dict, Any, List, Optional, Tuple
-
 import pandas as pd
 
-from utils.config import get_config, get_path, get_log_path
-from utils.exceptions import DataInsufficientError
-from utils.logging import get_logger, log_message
-from utils.validation import validate_non_nulls, filter_null_records
-from data.models import AlloyRecord, EnvironmentRecord, CorrosionMeasurement
+from utils.logging import get_logger
+from utils.exceptions import DataInsufficientError, SchemaMismatchError
+from utils.validation import validate_record_count
+from utils.config import get_processed_data_path, get_log_path, get_diagnostics_path
 
-# Constants for pH filtering
+# Constants for critical fields
+CRITICAL_FIELDS = ['ph', 'temperature', 'potential_mV']
 MIN_PH = 0.0
 MAX_PH = 14.0
-MIN_RECORDS = 500
 
-def load_raw_dataset(raw_path: Optional[Path] = None) -> pd.DataFrame:
-    """
-    Load the raw NIST-IR-8200 dataset from disk.
-    Expects a CSV or Parquet file at the configured raw data path.
-    """
-    config = get_config()
-    if raw_path is None:
-        raw_path = Path(config.get('paths', {}).get('raw_data', 'data/raw/corrosion_raw.csv'))
-    
-    if not raw_path.exists():
-        raise FileNotFoundError(f"Raw dataset not found at {raw_path}. Run download_nist.py first.")
-    
-    logger = get_logger("preprocess")
-    logger.info(f"Loading raw dataset from {raw_path}")
-    
-    if str(raw_path).endswith('.parquet'):
-        return pd.read_parquet(raw_path)
-    else:
-        return pd.read_csv(raw_path)
+logger = get_logger(__name__)
 
-def filter_missing_critical_fields(df: pd.DataFrame, logger: Optional[logging.Logger] = None) -> Tuple[pd.DataFrame, int, List[str]]:
+def load_raw_dataset() -> pd.DataFrame:
     """
-    Filter out records with missing critical fields (pH, Temperature, Corrosion Rate).
-    Logs details of excluded records to pipeline.log.
-    
-    Returns:
-        Tuple of (filtered_df, count_excluded, list_of_exclusion_reasons)
+    Load the raw dataset from the NIST download location.
+    Assumes T012 has successfully downloaded and extracted the data.
     """
-    if logger is None:
-        logger = get_logger("preprocess")
-    
-    critical_fields = ['pH', 'temperature_celsius', 'corrosion_rate_mpy']
-    missing_mask = pd.DataFrame(False, index=df.index, columns=critical_fields)
-    
-    for field in critical_fields:
-        if field in df.columns:
-            missing_mask[field] = df[field].isna()
+    raw_data_path = get_processed_data_path().parent / "raw" / "nist_corrosion.csv"
+    if not raw_data_path.exists():
+        # Fallback check for common raw data locations if structure differs slightly
+        alt_path = get_processed_data_path().parent / "raw" / "corrosion_data.csv"
+        if alt_path.exists():
+            raw_data_path = alt_path
         else:
-            # If column missing entirely, all rows are "missing" for that field
-            missing_mask[field] = True
+            raise FileNotFoundError(f"Raw dataset not found at {raw_data_path} or {alt_path}. Ensure T012 has run.")
     
-    # Any row with at least one missing critical field is excluded
-    exclusion_mask = missing_mask.any(axis=1)
-    excluded_indices = df.index[exclusion_mask].tolist()
+    logger.info(f"Loading raw dataset from {raw_data_path}")
+    df = pd.read_csv(raw_data_path)
+    return df
+
+def filter_missing_critical_fields(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
+    """
+    Filter out records with missing critical fields (pH, temperature, potential).
+    Returns the filtered dataframe and a list of excluded records with reasons.
+    """
+    excluded_records = []
     
-    # Generate detailed exclusion reasons for logging
-    exclusion_reasons = []
-    for idx in excluded_indices:
-        row = df.loc[idx]
-        reasons = []
-        for field in critical_fields:
-            if field in missing_mask.columns and missing_mask.loc[idx, field]:
-                reasons.append(f"missing_{field}")
-        exclusion_reasons.append(f"Record {idx}: {', '.join(reasons)}")
+    for field in CRITICAL_FIELDS:
+        if field not in df.columns:
+            raise DataInsufficientError(f"Critical field '{field}' missing from dataset columns: {df.columns.tolist()}")
     
-    # Log excluded records to pipeline.log
-    log_path = get_log_path("pipeline.log")
+    # Identify rows with missing critical fields
+    missing_mask = df[CRITICAL_FIELDS].isnull().any(axis=1)
+    missing_indices = df[missing_mask].index.tolist()
+    
+    for idx in missing_indices:
+        record = df.loc[idx].to_dict()
+        excluded_records.append({
+            "index": idx,
+            "reason": "missing_critical_field",
+            "missing_fields": [f for f in CRITICAL_FIELDS if pd.isna(record.get(f))]
+        })
+    
+    filtered_df = df.dropna(subset=CRITICAL_FIELDS)
+    logger.info(f"Filtered {len(missing_indices)} records due to missing critical fields.")
+    
+    return filtered_df, excluded_records
+
+def log_excluded_records(excluded_records: List[Dict[str, Any]], log_path: Optional[Path] = None) -> None:
+    """
+    Log diagnostic information about excluded records to the pipeline log.
+    Handles missing pH, extreme pH, and other exclusions.
+    """
+    if not log_path:
+        log_path = get_log_path()
+    
+    # Ensure log directory exists
     log_path.parent.mkdir(parents=True, exist_ok=True)
     
-    with open(log_path, 'a') as log_file:
-        log_file.write(f"\n--- Exclusion Report: Missing Critical Fields ---\n")
-        log_file.write(f"Total records excluded: {len(excluded_indices)}\n")
-        for reason in exclusion_reasons:
-            log_file.write(f"{reason}\n")
-        log_file.write(f"-----------------------------------------------\n")
+    # Use the global logger which is configured to write to this file
+    # We also write a specific summary to the log file for diagnostic purposes
+    logger.info("=" * 60)
+    logger.info("PIPELINE EXCLUSION DIAGNOSTICS")
+    logger.info("=" * 60)
     
-    filtered_df = df[~exclusion_mask].reset_index(drop=True)
-    return filtered_df, len(excluded_indices), exclusion_reasons
+    if not excluded_records:
+        logger.info("No records were excluded during preprocessing.")
+        return
+
+    # Categorize exclusions
+    missing_critical = [r for r in excluded_records if r.get("reason") == "missing_critical_field"]
+    extreme_ph = [r for r in excluded_records if r.get("reason") == "extreme_ph"]
+    outliers = [r for r in excluded_records if r.get("reason") == "outlier"]
+    
+    if missing_critical:
+        logger.warning(f"EXCLUDED (Missing Critical Fields): {len(missing_critical)} records")
+        for i, record in enumerate(missing_critical[:10]):  # Log first 10
+            fields = record.get("missing_fields", [])
+            logger.warning(f"  - Index {record['index']}: Missing {fields}")
+        if len(missing_critical) > 10:
+            logger.warning(f"  ... and {len(missing_critical) - 10} more records with missing critical fields.")
+    
+    if extreme_ph:
+        logger.warning(f"EXCLUDED (Extreme pH): {len(extreme_ph)} records")
+        for i, record in enumerate(extreme_ph[:10]):
+            ph_val = record.get("ph_value", "N/A")
+            logger.warning(f"  - Index {record['index']}: pH={ph_val} (Outside range [{MIN_PH}, {MAX_PH}])")
+        if len(extreme_ph) > 10:
+            logger.warning(f"  ... and {len(extreme_ph) - 10} more records with extreme pH.")
+
+    if outliers:
+        logger.info(f"EXCLUDED (Outliers): {len(outliers)} records detected by statistical methods.")
+
+    logger.info("=" * 60)
 
 def encode_weight_fractions(df: pd.DataFrame) -> pd.DataFrame:
     """
-    Encode alloy composition columns as weight fractions.
-    Assumes columns named like 'Fe_wt', 'Cr_wt', 'Ni_wt', etc.
-    Normalizes to sum to 1.0 if necessary.
+    Encode composition weight fractions.
+    Ensures all composition columns are numeric and normalized if needed.
     """
-    composition_cols = [col for col in df.columns if col.endswith('_wt')]
-    
+    composition_cols = [col for col in df.columns if col.startswith('comp_') or col in ['Fe', 'Cr', 'Ni', 'Mn', 'Mo']]
     if not composition_cols:
+        # Assume composition might be in a nested dict or specific column structure
+        # For this implementation, we assume flat columns based on typical CSV structures
+        # If not found, we just return the df as is, assuming other preprocessing handles it
+        logger.warning("No standard composition columns found. Skipping weight fraction encoding.")
         return df
+
+    for col in composition_cols:
+        if col in df.columns:
+            df[col] = pd.to_numeric(df[col], errors='coerce')
     
-    # Normalize each row's composition to sum to 1.0
-    # This handles cases where raw data might not be perfectly normalized
-    df[composition_cols] = df[composition_cols].div(
-        df[composition_cols].sum(axis=1), axis=0
-    ).fillna(0)
-    
+    # Normalize if sum != 1.0 (optional, depending on data quality)
+    # For now, just ensuring numeric type is sufficient for model input
     return df
 
-def detect_and_remove_outliers(df: pd.DataFrame, logger: Optional[logging.Logger] = None) -> Tuple[pd.DataFrame, int, List[str]]:
+def detect_and_remove_outliers(df: pd.DataFrame) -> Tuple[pd.DataFrame, List[Dict[str, Any]]]:
     """
-    Detect and remove outliers based on extreme pH values (pH < 0 or pH > 14).
-    Logs details of excluded records to pipeline.log.
-    
-    Returns:
-        Tuple of (filtered_df, count_excluded, list_of_exclusion_reasons)
+    Detect and remove statistical outliers based on IQR method for continuous variables.
+    Returns filtered dataframe and list of excluded outlier records.
     """
-    if logger is None:
-        logger = get_logger("preprocess")
+    excluded_records = []
+    numeric_cols = df.select_dtypes(include=['float64', 'int64']).columns.tolist()
     
-    if 'pH' not in df.columns:
-        logger.warning("pH column not found, skipping outlier detection")
-        return df, 0, []
+    # Filter out composition columns from outlier detection if they sum to 1.0
+    # We focus on target and environmental variables
+    target_cols = ['potential_mV']
+    env_cols = ['ph', 'temperature']
+    cols_to_check = [c for c in numeric_cols if c in target_cols + env_cols]
     
-    # Identify extreme pH values
-    extreme_mask = (df['pH'] < MIN_PH) | (df['pH'] > MAX_PH)
-    excluded_indices = df.index[extreme_mask].tolist()
-    
-    # Generate detailed exclusion reasons for logging
-    exclusion_reasons = []
-    for idx in excluded_indices:
-        ph_val = df.loc[idx, 'pH']
-        if ph_val < MIN_PH:
-            exclusion_reasons.append(f"Record {idx}: pH={ph_val} (below {MIN_PH})")
-        else:
-            exclusion_reasons.append(f"Record {idx}: pH={ph_val} (above {MAX_PH})")
-    
-    # Log excluded records to pipeline.log
-    log_path = get_log_path("pipeline.log")
-    log_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(log_path, 'a') as log_file:
-        log_file.write(f"\n--- Exclusion Report: Extreme pH Outliers ---\n")
-        log_file.write(f"Total records excluded: {len(excluded_indices)}\n")
-        for reason in exclusion_reasons:
-            log_file.write(f"{reason}\n")
-        log_file.write(f"-----------------------------------------------\n")
-    
-    filtered_df = df[~extreme_mask].reset_index(drop=True)
-    return filtered_df, len(excluded_indices), exclusion_reasons
+    if not cols_to_check:
+        return df, excluded_records
 
-def validate_processed_data(df: pd.DataFrame, logger: Optional[logging.Logger] = None) -> bool:
-    """
-    Validate that processed data meets minimum requirements.
-    Checks record count >= 500 and no nulls in critical fields.
-    """
-    if logger is None:
-        logger = get_logger("preprocess")
+    for col in cols_to_check:
+        Q1 = df[col].quantile(0.25)
+        Q3 = df[col].quantile(0.75)
+        IQR = Q3 - Q1
+        lower_bound = Q1 - 1.5 * IQR
+        upper_bound = Q3 + 1.5 * IQR
+        
+        outlier_mask = (df[col] < lower_bound) | (df[col] > upper_bound)
+        outlier_indices = df[outlier_mask].index.tolist()
+        
+        for idx in outlier_indices:
+            record = df.loc[idx].to_dict()
+            excluded_records.append({
+                "index": idx,
+                "reason": "outlier",
+                "field": col,
+                "value": record.get(col)
+            })
     
-    if len(df) < MIN_RECORDS:
-        logger.error(f"Processed dataset has only {len(df)} records, minimum required is {MIN_RECORDS}")
-        # Log to diagnostics
-        diag_path = get_path('diagnostics/count_report.txt')
-        diag_path.parent.mkdir(parents=True, exist_ok=True)
-        with open(diag_path, 'w') as f:
-            f.write(f"Data Insufficient: {len(df)} records found, {MIN_RECORDS} required.\n")
-        raise DataInsufficientError(f"Processed dataset has only {len(df)} records, minimum required is {MIN_RECORDS}")
+    # Drop outliers
+    outlier_indices_set = set([r["index"] for r in excluded_records])
+    filtered_df = df.drop(index=list(outlier_indices_set))
     
-    # Check for nulls in critical fields
-    critical_fields = ['pH', 'temperature_celsius', 'corrosion_rate_mpy']
-    missing_count = 0
-    for field in critical_fields:
-        if field in df.columns:
-            missing_count += df[field].isna().sum()
-    
-    if missing_count > 0:
-        logger.warning(f"Processed dataset still has {missing_count} null values in critical fields")
-        return False
-    
-    return True
+    logger.info(f"Detected and removed {len(outlier_indices_set)} outlier records.")
+    return filtered_df, excluded_records
 
-def save_processed_dataset(df: pd.DataFrame, output_path: Optional[Path] = None) -> Path:
+def validate_processed_data(df: pd.DataFrame, min_records: int = 500) -> None:
     """
-    Save the processed dataset to Parquet format.
+    Validate that the processed dataset meets minimum requirements.
+    Raises SchemaMismatchError if requirements are not met.
     """
-    config = get_config()
-    if output_path is None:
-        output_path = Path(config.get('paths', {}).get('processed_data', 'data/processed/corrosion_dataset.parquet'))
+    if len(df) < min_records:
+        msg = f"Processed dataset has {len(df)} records, which is less than the required {min_records}."
+        logger.error(msg)
+        raise SchemaMismatchError(msg)
+    
+    # Check for nulls in critical fields again after processing
+    if df[CRITICAL_FIELDS].isnull().any().any():
+        msg = f"Processed dataset still contains nulls in critical fields: {CRITICAL_FIELDS}."
+        logger.error(msg)
+        raise SchemaMismatchError(msg)
+    
+    logger.info(f"Validation passed: {len(df)} records, no nulls in critical fields.")
+
+def save_processed_dataset(df: pd.DataFrame, output_path: Optional[Path] = None) -> None:
+    """
+    Save the processed dataset to a Parquet file.
+    """
+    if not output_path:
+        output_path = get_processed_data_path()
     
     output_path.parent.mkdir(parents=True, exist_ok=True)
+    
     df.to_parquet(output_path, index=False)
+    logger.info(f"Saved processed dataset to {output_path} with {len(df)} records.")
+
+def write_count_report(count: int, report_path: Optional[Path] = None) -> None:
+    """
+    Write a count report to the diagnostics log.
+    """
+    if not report_path:
+        report_path = get_diagnostics_path() / "count_report.txt"
     
-    logger = get_logger("preprocess")
-    logger.info(f"Saved processed dataset to {output_path} with {len(df)} records")
+    report_path.parent.mkdir(parents=True, exist_ok=True)
     
-    return output_path
+    report_content = f"{{\"record_count\": {count}, \"timestamp\": \"now\"}}"
+    with open(report_path, 'w') as f:
+        f.write(report_content)
+    
+    logger.info(f"Wrote count report to {report_path}")
 
 def main():
     """
-    Main pipeline for preprocessing the NIST corrosion dataset.
+    Main entry point for the preprocessing pipeline.
     """
-    logger = get_logger("preprocess")
-    logger.info("Starting data preprocessing pipeline")
-    
     try:
-        # 1. Load raw dataset
-        df = load_raw_dataset()
-        logger.info(f"Loaded {len(df)} raw records")
+        # 1. Load Raw Data
+        raw_df = load_raw_dataset()
+        logger.info(f"Loaded {len(raw_df)} raw records.")
+
+        # 2. Filter Missing Critical Fields
+        filtered_df, excluded_missing = filter_missing_critical_fields(raw_df)
+
+        # 3. Detect and Remove Outliers
+        processed_df, excluded_outliers = detect_and_remove_outliers(filtered_df)
+
+        # 4. Log Excluded Records (Diagnostic Step for T016)
+        all_excluded = excluded_missing + excluded_outliers
         
-        # 2. Filter missing critical fields (with diagnostic logging)
-        df, count_missing, reasons_missing = filter_missing_critical_fields(df, logger)
-        logger.info(f"Filtered {count_missing} records with missing critical fields")
-        
-        # 3. Encode weight fractions
-        df = encode_weight_fractions(df)
-        logger.info("Encoded weight fractions")
-        
-        # 4. Detect and remove outliers (with diagnostic logging)
-        df, count_outliers, reasons_outliers = detect_and_remove_outliers(df, logger)
-        logger.info(f"Filtered {count_outliers} records with extreme pH values")
-        
-        # 5. Validate processed data
-        is_valid = validate_processed_data(df, logger)
-        if not is_valid:
-            logger.warning("Validation warnings present, but proceeding")
-        
-        # 6. Save processed dataset
-        output_path = save_processed_dataset(df)
-        
-        logger.info(f"Preprocessing complete. Final dataset: {len(df)} records saved to {output_path}")
-        
-    except DataInsufficientError as e:
-        logger.error(f"Pipeline halted due to insufficient data: {e}")
-        # Ensure log is written before exit
-        log_path = get_log_path("pipeline.log")
-        with open(log_path, 'a') as f:
-            f.write(f"\n--- PIPELINE HALTED: {str(e)} ---\n")
-        raise
+        # Also check for extreme pH explicitly if not covered by outliers or missing
+        # (Assuming pH range 0-14 is a hard constraint separate from statistical outliers)
+        extreme_ph_records = []
+        if 'ph' in processed_df.columns:
+            extreme_mask = (processed_df['ph'] < MIN_PH) | (processed_df['ph'] > MAX_PH)
+            extreme_indices = processed_df[extreme_mask].index.tolist()
+            for idx in extreme_indices:
+                record = processed_df.loc[idx].to_dict()
+                extreme_ph_records.append({
+                    "index": idx,
+                    "reason": "extreme_ph",
+                    "ph_value": record.get('ph')
+                })
+            processed_df = processed_df.drop(index=extreme_indices)
+            all_excluded.extend(extreme_ph_records)
+            if extreme_ph_records:
+                logger.warning(f"Removed {len(extreme_ph_records)} records with extreme pH values.")
+
+        log_excluded_records(all_excluded)
+
+        # 5. Encode Weight Fractions
+        final_df = encode_weight_fractions(processed_df)
+
+        # 6. Validate Processed Data
+        validate_processed_data(final_df)
+
+        # 7. Save Processed Dataset
+        save_processed_dataset(final_df)
+
+        # 8. Write Count Report
+        write_count_report(len(final_df))
+
+        logger.info("Preprocessing pipeline completed successfully.")
+
+    except (DataInsufficientError, SchemaMismatchError) as e:
+        logger.error(f"Pipeline failed due to data issues: {e}")
+        sys.exit(1)
     except Exception as e:
-        logger.exception(f"Unexpected error during preprocessing: {e}")
-        raise
+        logger.error(f"Unexpected error during preprocessing: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -1,0 +1,21 @@
+type: object
+properties:
+  region_count:
+    type: integer
+  parallel_score:
+    type: number
+  sequential_score:
+    type: number
+  inference_time:
+    type: number
+  corrected_p_value:
+    type: number
+  is_significant:
+    type: boolean
+required:
+  - region_count
+  - parallel_score
+  - sequential_score
+  - inference_time
+  - corrected_p_value
+  - is_significant

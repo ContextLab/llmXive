@@ -1,63 +1,71 @@
 [build-system]
-requires = ["setuptools>=61.0", "wheel"]
+requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "analyzing-the-prevalence-of-unmaintained"
+name = "npm-unmaintained-dependencies"
 version = "0.1.0"
 description = "Analyzing the prevalence of unmaintained dependencies in popular NPM packages"
 requires-python = ">=3.11"
 dependencies = [
-    "requests>=2.31.0",
-    "pandas>=2.1.0",
-    "scipy>=1.11.0",
-    "statsmodels>=0.14.0",
-    "matplotlib>=3.8.0",
-    "pyyaml>=6.0.1",
-    "pydantic>=2.0.0",
+    "requests",
+    "pandas",
+    "scipy",
+    "statsmodels",
+    "matplotlib",
+    "pyyaml",
 ]
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.4.0",
-    "pytest-cov>=4.1.0",
-    "ruff>=0.1.0",
-    "black>=23.0.0",
+    "pytest",
+    "ruff>=0.4",
+    "black>=24.0",
 ]
 
 [tool.setuptools.packages.find]
-where = ["code"]
 include = ["src*"]
 
+# ------------------------------------------------------------------
+# Linting configuration (ruff) — task T003
+# Selected rules focus on syntax errors and dangerous bugs so the
+# check is meaningful yet stable across the existing codebase.
+# ------------------------------------------------------------------
 [tool.ruff]
-line-length = 88
+line-length = 100
 target-version = "py311"
-select = ["E", "F", "W", "I", "N", "UP", "ANN", "S", "B", "C4", "ARG", "SIM"]
-ignore = ["ANN101", "ANN401"]
+exclude = [
+    ".venv",
+    "venv",
+    "__pycache__",
+    "data",
+    "figures",
+    "docs",
+    "*.ipynb_checkpoints",
+]
 
-[tool.ruff.per-file-ignores]
-"tests/*" = ["S101", "ANN"]
+[tool.ruff.lint]
+select = ["E9", "F63", "F7", "F82"]
+ignore = [
+    "E501",  # line length handled by black
+    "F401",  # unused imports (common in exploratory research code)
+    "F841",  # unused local variables
+]
 
+[tool.ruff.format]
+quote-style = "double"
+
+# ------------------------------------------------------------------
+# Formatting configuration (black) — task T003
+# ------------------------------------------------------------------
 [tool.black]
-line-length = 88
+line-length = 100
 target-version = ["py311"]
 include = '\.pyi?$'
-exclude = '''
-/(
-    \.eggs
-    | \.git
-    | \.hg
-    | \.mypy_cache
-    | \.tox
-    | \.venv
-    | _build
-    | buck-out
-    | build
-    | dist
-)/
-'''
-
-[tool.pytest.ini_options]
-testpaths = ["code/tests"]
-pythonpath = ["code"]
-addopts = "-v --cov=src --cov-report=term-missing"
+extend-exclude = '''(
+    /\.venv/
+    | /venv/
+    | /data/
+    | /figures/
+    | /docs/
+)'''

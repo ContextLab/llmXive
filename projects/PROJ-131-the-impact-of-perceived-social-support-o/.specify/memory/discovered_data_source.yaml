@@ -1,0 +1,12 @@
+status: none
+intent: human gene interaction network curated dataset for interaction analysis python
+  package dataset
+required_fields:
+- sample_id
+- variable_a
+- variable_b
+- outcome
+- confounders
+cache_key: 17f91d49a508ae6962f577552469db2805445606ad555d2e2c8aef7785b37ee3
+searched_at: '2026-09-24T09:33:51.760579+00:00'
+retry_count: 1

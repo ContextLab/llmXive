@@ -1,0 +1,36 @@
+# Interpretability Analysis Configuration
+# Used by code/models/interpret.py for permutation importance analysis
+
+# Permutation importance settings
+permutation:
+  n_repeats: 10          # Number of times to permute each feature
+  random_state: 42       # Random seed for reproducibility
+  scoring: 'r2'          # Scoring metric (r2, neg_mean_squared_error, etc.)
+  n_jobs: 1              # Number of parallel jobs (1 for consistency)
+
+# Model configuration for retraining (if needed)
+models:
+  random_forest:
+    n_estimators: 100
+    max_depth: 10
+    min_samples_split: 5
+    random_state: 42
+    
+  gradient_boosting:
+    n_estimators: 100
+    max_depth: 5
+    learning_rate: 0.1
+    min_samples_split: 5
+    random_state: 42
+
+# Output settings
+output:
+  save_individual_results: true
+  save_summary: true
+  top_n_features: 5      # Number of top features to highlight
+
+# Logging
+logging:
+  level: INFO
+  include_feature_list: true
+  include_timing: true

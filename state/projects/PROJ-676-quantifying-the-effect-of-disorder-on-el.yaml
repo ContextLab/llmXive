@@ -6,7 +6,7 @@ failed_stage: null
 field: physics
 human_escalation_reason: null
 id: PROJ-676-quantifying-the-effect-of-disorder-on-el
-last_run_id: 8d829c2a-9665-4ac0-a48c-1d9f9538b253
+last_run_id: 3b427eda-2d3b-40d3-ab98-7fe225d4ee2a
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-676-quantifying-the-effect-of-disorder-on-el/specs/001-quantifying-the-effect-of-disorder-on-el
 title: Quantifying the Effect of Disorder on Electronic Transport in 1D Chains
-updated_at: '2026-07-14T22:17:13.974855Z'
+updated_at: '2026-10-15T05:32:04.344632Z'

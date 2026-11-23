@@ -1,0 +1,2 @@
+# Placeholder to ensure data/raw directory exists for test execution
+# Real data must be ingested via T012 before running full pipeline

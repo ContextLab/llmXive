@@ -1,78 +1,80 @@
 $schema: http://json-schema.org/draft-07/schema#
-$id: https://llmxive.org/schemas/phytoplankton_sample.schema.yaml
-title: Phytoplankton Sample Schema
+title: PhytoplanktonSample
 description: |
-  Schema for individual phytoplankton observation samples.
-  Represents a single spatiotemporal data point containing in-situ measurements
-  and associated environmental variables.
+  Schema for a single phytoplankton measurement point, containing location,
+  timestamp, chlorophyll-a concentration, and associated environmental drivers.
+  This represents the core data entity for the phytoplankton analysis pipeline.
 type: object
 required:
-  - sample_id
+  - lat
+  - lon
   - timestamp
-  - latitude
-  - longitude
-  - basin_id
-  - chl_a
-  - sst
+  - chlorophyll_a
+  - temp
   - salinity
+  - nutrients
 properties:
-  sample_id:
-    type: string
-    description: Unique identifier for the sample
-    pattern: "^[A-Z]{2}\\d{8}-[A-Z0-9]{6}$"
+  lat:
+    type: number
+    description: Latitude coordinate in decimal degrees (-90 to 90)
+    minimum: -90
+    maximum: 90
+  lon:
+    type: number
+    description: Longitude coordinate in decimal degrees (-180 to 180)
+    minimum: -180
+    maximum: 180
   timestamp:
     type: string
     format: date-time
-    description: ISO 8601 timestamp of the observation
-  latitude:
-    type: number
-    minimum: -90
-    maximum: 90
-    description: Latitude in decimal degrees (WGS84)
-  longitude:
-    type: number
-    minimum: -180
-    maximum: 180
-    description: Longitude in decimal degrees (WGS84)
-  basin_id:
+    description: ISO 8601 formatted datetime of measurement
+  basin:
     type: string
-    description: Ocean basin identifier (e.g., PACIFIC, ATLANTIC, INDIAN)
+    description: |
+      Ocean basin identifier (e.g., north_atlantic, south_pacific, indian_ocean).
+      Optional field populated during preprocessing.
     enum:
-      - PACIFIC
-      - ATLANTIC
-      - INDIAN
-      - ARCTIC
-      - SOUTHERN
-      - MEDITERRANEAN
-  chl_a:
+      - north_atlantic
+      - south_atlantic
+      - north_pacific
+      - south_pacific
+      - indian_ocean
+      - southern_ocean
+      - arctic
+      - unknown
+  chlorophyll_a:
     type: number
+    description: Chlorophyll-a concentration in mg/m³ (target variable)
     minimum: 0
-    description: Chlorophyll-a concentration in mg/m^3
-  sst:
+  temp:
     type: number
-    description: Sea Surface Temperature in degrees Celsius
+    description: Sea surface temperature in °C
+    minimum: -2
+    maximum: 40
   salinity:
     type: number
+    description: Sea surface salinity in PSU (Practical Salinity Units)
     minimum: 0
-    maximum: 45
-    description: Salinity in PSU (Practical Salinity Units)
-  depth:
+    maximum: 42
+  nutrients:
     type: number
+    description: Nutrient concentration (nitrate or equivalent) in μmol/L
     minimum: 0
-    description: Sampling depth in meters (optional)
-  data_source:
-    type: string
-    description: Source of the measurement (e.g., SeaBASS, MODIS, Reanalysis)
-  quality_flag:
-    type: string
-    enum:
-      - GOOD
-      - QUESTIONABLE
-      - BAD
-      - UNKNOWN
-    description: Data quality flag
-  uncertainty:
-    type: number
+  quality_flags:
+    type: integer
+    description: |
+      Quality flag bitmask for data reliability.
+      0 = good, 1 = cloud contaminated, 2 = high aerosol, 3+ = other issues.
+      Optional field from MODIS or other satellite sources.
     minimum: 0
-    description: Estimated measurement uncertainty
 additionalProperties: false
+examples:
+  - lat: 25.5
+    lon: -45.2
+    timestamp: "2015-06-15T12:00:00Z"
+    basin: north_atlantic
+    chlorophyll_a: 0.35
+    temp: 24.5
+    salinity: 36.2
+    nutrients: 0.8
+    quality_flags: 0

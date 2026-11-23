@@ -1,12 +1,8 @@
-# Byte-compiled / optimized / DLL files
+# Python
 __pycache__/
 *.py[cod]
 *$py.class
-
-# C extensions
 *.so
-
-# Distribution / packaging
 .Python
 build/
 develop-eggs/
@@ -24,59 +20,36 @@ wheels/
 .installed.cfg
 *.egg
 
-# PyInstaller
-*.manifest
-*.spec
-
-# Installer logs
-pip-log.txt
-pip-delete-this-directory.txt
-
-# Unit test / coverage reports
-htmlcov/
-.tox/
-.coverage
-.coverage.*
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-.hypothesis
-.pytest_cache
-
-# Translations
-*.mo
-*.pot
-
-# Environments
+# Environment variables (CRITICAL: Do not commit .env files with secrets/paths)
+code/.env
 .env
-.venv
-env/
-venv/
-ENV/
-env.bak/
-venv.bak/
+*.env.local
 
-# Jupyter Notebook
-.ipynb_checkpoints
-
-# pyenv
-.python-version
-
-# IDEs and OSs
+# IDE
 .idea/
 .vscode/
 *.swp
 *.swo
 *~
-.DS_Store
 
-# Project specific
-data/raw/*
-!data/raw/.gitkeep
-data/processed/*
-!data/processed/.gitkeep
-code/models/artifacts/*
-!code/models/artifacts/.gitkeep
-figures/*
-!figures/.gitkeep
+# OS
+.DS_Store
+Thumbs.db
+
+# Data (Optional: Uncomment if you want to ignore all data)
+# data/raw/*
+# data/processed/*
+# !data/raw/.gitkeep
+# !data/processed/.gitkeep
+
+# Logs
+*.log
+logs/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/

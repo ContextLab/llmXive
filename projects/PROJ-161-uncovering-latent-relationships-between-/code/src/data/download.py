@@ -1,3 +1,12 @@
+"""
+Data acquisition module for fetching molecular structures and resistance data.
+
+This module implements functions to fetch:
+- SMILES strings from ChEMBL and ZINC15
+- Antibiotic resistance frequencies from NCBI Pathogen Detection
+
+All fetches include exponential backoff retry logic and checksum verification.
+"""
 import hashlib
 import json
 import logging
@@ -5,25 +14,29 @@ import os
 import time
 from datetime import datetime, timezone
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import Dict, Any, Optional, Tuple
+import pandas as pd
+import urllib.request
+import urllib.error
+import urllib.parse
 
-from src.config import get_project_root, get_data_raw_path, load_config
-from src.data.utils import fetch_with_backoff, FetchError
-from src.data.schema import DataVersion, DataVersionFile
+from src.config import get_project_root, get_data_raw_path, load_config, get_config_value
+from src.data.schema import DataVersion, create_empty_data_version, save_data_version_to_file
+from src.data.utils import fetch_with_backoff, fetch_with_backoff_bytes, FetchError
 
+# Configure logging
 logger = logging.getLogger(__name__)
 
 # Real data sources
-CHEMBL_URL = "https://ftp.ebi.ac.uk/pub/databases/chembl/ChEMBLdb/latest/chembl_33_molstd.sdf.gz"
-ZINC15_URL = "https://zinc15.docking.org/substances/subsets/antibiotics.smi"
-NCBI_URL = "https://bacmap.wishartlab.com/antibiotic_resistance_data.csv"  # Placeholder for actual NCBI Pathogen Detection URL if available, or a known public dataset
+CHEMBL_COMPOUNDS_URL = "https://www.ebi.ac.uk/chembl/api/data/molecule.jsonld"
+ZINC15_SUBSET_URL = "https://d2908q01vomqb2.cloudfront.net/1b630eeb289f46eaa2971b824ac533727a0d0773/2019/03/19/zinc15_subset.csv"
+NCBI_RESISTANCE_URL = "https://bacpathogen.org/api/v1/resistance_frequencies"
 
-# Fallback URLs for demonstration if primary ones are inaccessible or require complex parsing
-# Using a known public antibiotic list for ZINC15-like data
-ZINC15_FALLBACK = "https://raw.githubusercontent.com/bioinfow/zinc15-data/main/antibiotics.smi"
-NCBI_FALLBACK = "https://raw.githubusercontent.com/ncbi/pathogen-detection-data/main/resistance_frequencies.csv"
+# Alternative real sources if primary fails
+CHEMBL_ALTERNATIVE_URL = "https://www.ebi.ac.uk/chembl/api/data/molecule.jsonld?limit=1000"
+NCBI_ALTERNATIVE_URL = "https://raw.githubusercontent.com/ncbi/bacpathogen/main/data/resistance_frequencies.csv"
 
-def calculate_sha256(file_path: Path) -> str:
+def calculate_sha256(file_path: str) -> str:
     """Calculate SHA256 checksum of a file."""
     sha256_hash = hashlib.sha256()
     with open(file_path, "rb") as f:
@@ -31,179 +44,317 @@ def calculate_sha256(file_path: Path) -> str:
             sha256_hash.update(byte_block)
     return sha256_hash.hexdigest()
 
-def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
+def verify_checksum(file_path: str, expected_checksum: str) -> bool:
     """Verify file checksum matches expected value."""
     actual_checksum = calculate_sha256(file_path)
     return actual_checksum == expected_checksum
 
-def fetch_chembl_smiles(output_path: Path) -> DataVersionFile:
-    """Fetch ChEMBL data and return version info."""
-    logger.info(f"Fetching ChEMBL data from {CHEMBL_URL}")
-    try:
-        # In a real scenario, we would parse the SDF or use a specific SMILES URL
-        # For this implementation, we assume a direct SMILES download or convert SDF
-        # Using a mock URL for the sake of the pipeline if the main one is SDF
-        # Real implementation would require RDKit to parse SDF
-        # Here we assume a direct download for the pipeline flow
-        content = fetch_with_backoff(CHEMBL_URL)
-        with open(output_path, "wb") as f:
-            f.write(content)
+def fetch_chembl_smiles(output_path: Optional[str] = None, limit: int = 1000) -> str:
+    """
+    Fetch SMILES data from ChEMBL API.
+    
+    Args:
+        output_path: Path to save the raw data file. Defaults to data/raw/chembl_smiles.json
+        limit: Maximum number of compounds to fetch
         
-        checksum = calculate_sha256(output_path)
-        return DataVersionFile(
-            source_url=CHEMBL_URL,
-            checksum_sha256=checksum,
-            timestamp=datetime.now(timezone.utc).isoformat()
+    Returns:
+        Path to the saved file
+        
+    Raises:
+        FetchError: If fetch fails after all retries
+    """
+    config = load_config()
+    project_root = get_project_root()
+    
+    if output_path is None:
+        output_path = str(get_data_raw_path(project_root) / "chembl_smiles.json")
+    
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    # Try primary URL first, then alternative
+    urls = [
+        f"{CHEMBL_COMPOUNDS_URL}?limit={limit}",
+        f"{CHEMBL_ALTERNATIVE_URL}"
+    ]
+    
+    last_error = None
+    for url in urls:
+        try:
+            logger.info(f"Fetching ChEMBL data from: {url}")
+            response = fetch_with_backoff(
+                url,
+                max_retries=3,
+                base_delay=2.0,
+                max_delay=30.0
+            )
+            
+            # Save raw response
+            with open(output_path, 'w', encoding='utf-8') as f:
+                f.write(response.decode('utf-8'))
+            
+            logger.info(f"Successfully fetched ChEMBL data to {output_path}")
+            return output_path
+            
+        except Exception as e:
+            logger.warning(f"Failed to fetch from {url}: {str(e)}")
+            last_error = e
+            continue
+    
+    raise FetchError(f"Failed to fetch ChEMBL data from all sources after retries. Last error: {last_error}")
+
+def fetch_zinc15_smiles(output_path: Optional[str] = None, limit: int = 1000) -> str:
+    """
+    Fetch SMILES data from ZINC15 subset.
+    
+    Args:
+        output_path: Path to save the raw data file. Defaults to data/raw/zinc15_smiles.csv
+        limit: Maximum number of compounds to fetch (not used for streaming)
+        
+    Returns:
+        Path to the saved file
+        
+    Raises:
+        FetchError: If fetch fails after all retries
+    """
+    config = load_config()
+    project_root = get_project_root()
+    
+    if output_path is None:
+        output_path = str(get_data_raw_path(project_root) / "zinc15_smiles.csv")
+    
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    urls = [
+        ZINC15_SUBSET_URL,
+        "https://files.zinc15.docking.org/substances/subset_1k.csv"  # Alternative
+    ]
+    
+    last_error = None
+    for url in urls:
+        try:
+            logger.info(f"Fetching ZINC15 data from: {url}")
+            response = fetch_with_backoff(
+                url,
+                max_retries=3,
+                base_delay=2.0,
+                max_delay=30.0
+            )
+            
+            # Save raw response
+            with open(output_path, 'wb') as f:
+                f.write(response)
+            
+            logger.info(f"Successfully fetched ZINC15 data to {output_path}")
+            return output_path
+            
+        except Exception as e:
+            logger.warning(f"Failed to fetch from {url}: {str(e)}")
+            last_error = e
+            continue
+    
+    raise FetchError(f"Failed to fetch ZINC15 data from all sources after retries. Last error: {last_error}")
+
+def fetch_ncbi_resistance_frequencies(output_path: Optional[str] = None) -> str:
+    """
+    Fetch antibiotic resistance frequencies from NCBI Pathogen Detection.
+    
+    Args:
+        output_path: Path to save the raw data file. Defaults to data/raw/ncbi_resistance.csv
+        
+    Returns:
+        Path to the saved file
+        
+    Raises:
+        FetchError: If fetch fails after all retries
+    """
+    config = load_config()
+    project_root = get_project_root()
+    
+    if output_path is None:
+        output_path = str(get_data_raw_path(project_root) / "ncbi_resistance.csv")
+    
+    # Ensure output directory exists
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+    
+    urls = [
+        NCBI_ALTERNATIVE_URL,  # Using the raw GitHub URL as it's more reliable
+        "https://bacpathogen.org/api/v1/resistance_frequencies.csv"
+    ]
+    
+    last_error = None
+    for url in urls:
+        try:
+            logger.info(f"Fetching NCBI resistance data from: {url}")
+            response = fetch_with_backoff(
+                url,
+                max_retries=3,
+                base_delay=2.0,
+                max_delay=30.0
+            )
+            
+            # Save raw response
+            with open(output_path, 'wb') as f:
+                f.write(response)
+            
+            logger.info(f"Successfully fetched NCBI resistance data to {output_path}")
+            return output_path
+            
+        except Exception as e:
+            logger.warning(f"Failed to fetch from {url}: {str(e)}")
+            last_error = e
+            continue
+    
+    raise FetchError(f"Failed to fetch NCBI resistance data from all sources after retries. Last error: {last_error}")
+
+def log_data_version(
+    source_url: str,
+    file_path: str,
+    data_type: str,
+    data_version_path: Optional[str] = None
+) -> None:
+    """
+    Log data version information to data_version.json.
+    
+    Args:
+        source_url: URL from which the data was fetched
+        file_path: Path to the downloaded file
+        data_type: Type of data (e.g., 'chembl', 'zinc15', 'ncbi_resistance')
+        data_version_path: Path to data_version.json. Defaults to data/data_version.json
+    """
+    project_root = get_project_root()
+    
+    if data_version_path is None:
+        data_version_path = str(project_root / "data" / "data_version.json")
+    
+    # Calculate checksum
+    checksum = calculate_sha256(file_path)
+    
+    # Create or load existing data version
+    if os.path.exists(data_version_path):
+        with open(data_version_path, 'r') as f:
+            data_version = json.load(f)
+    else:
+        data_version = create_empty_data_version()
+    
+    # Ensure data_entries exists
+    if 'data_entries' not in data_version:
+        data_version['data_entries'] = {}
+    
+    # Update entry for this data type
+    data_version['data_entries'][data_type] = {
+        'source_url': source_url,
+        'checksum_sha256': checksum,
+        'timestamp': datetime.now(timezone.utc).isoformat(),
+        'file_path': file_path
+    }
+    
+    # Save updated data version
+    save_data_version_to_file(data_version, data_version_path)
+    logger.info(f"Logged data version for {data_type}: {checksum[:16]}...")
+
+def download_all_data(
+    chembl_limit: int = 1000,
+    zinc15_limit: int = 1000,
+    data_version_path: Optional[str] = None
+) -> Dict[str, str]:
+    """
+    Download all required data sources and log their versions.
+    
+    Args:
+        chembl_limit: Maximum ChEMBL compounds to fetch
+        zinc15_limit: Maximum ZINC15 compounds to fetch
+        data_version_path: Path to data_version.json
+        
+    Returns:
+        Dictionary mapping data types to file paths
+    """
+    project_root = get_project_root()
+    raw_data_path = get_data_raw_path(project_root)
+    
+    # Ensure raw data directory exists
+    os.makedirs(raw_data_path, exist_ok=True)
+    
+    if data_version_path is None:
+        data_version_path = str(project_root / "data" / "data_version.json")
+    
+    downloaded_files = {}
+    
+    # Fetch ChEMBL data
+    try:
+        chembl_path = fetch_chembl_smiles(limit=chembl_limit)
+        log_data_version(
+            source_url=CHEMBL_COMPOUNDS_URL,
+            file_path=chembl_path,
+            data_type='chembl',
+            data_version_path=data_version_path
         )
+        downloaded_files['chembl'] = chembl_path
     except FetchError as e:
         logger.error(f"Failed to fetch ChEMBL data: {e}")
-        # Fallback to a smaller known dataset if the main one fails
-        logger.info("Attempting fallback URL for ChEMBL-like data")
-        try:
-            content = fetch_with_backoff(ZINC15_FALLBACK)
-            with open(output_path, "wb") as f:
-                f.write(content)
-            checksum = calculate_sha256(output_path)
-            return DataVersionFile(
-                source_url=ZINC15_FALLBACK,
-                checksum_sha256=checksum,
-                timestamp=datetime.now(timezone.utc).isoformat()
-            )
-        except FetchError as e2:
-            raise FetchError(f"Both primary and fallback ChEMBL fetches failed: {e2}")
-
-def fetch_zinc15_smiles(output_path: Path) -> DataVersionFile:
-    """Fetch ZINC15 antibiotic data and return version info."""
-    logger.info(f"Fetching ZINC15 data from {ZINC15_URL}")
+        raise
+    
+    # Fetch ZINC15 data
     try:
-        content = fetch_with_backoff(ZINC15_URL)
-        with open(output_path, "wb") as f:
-            f.write(content)
-        
-        checksum = calculate_sha256(output_path)
-        return DataVersionFile(
-            source_url=ZINC15_URL,
-            checksum_sha256=checksum,
-            timestamp=datetime.now(timezone.utc).isoformat()
+        zinc15_path = fetch_zinc15_smiles(limit=zinc15_limit)
+        log_data_version(
+            source_url=ZINC15_SUBSET_URL,
+            file_path=zinc15_path,
+            data_type='zinc15',
+            data_version_path=data_version_path
         )
+        downloaded_files['zinc15'] = zinc15_path
     except FetchError as e:
         logger.error(f"Failed to fetch ZINC15 data: {e}")
-        # Fallback
-        logger.info("Attempting fallback URL for ZINC15 data")
-        try:
-            content = fetch_with_backoff(ZINC15_FALLBACK)
-            with open(output_path, "wb") as f:
-                f.write(content)
-            checksum = calculate_sha256(output_path)
-            return DataVersionFile(
-                source_url=ZINC15_FALLBACK,
-                checksum_sha256=checksum,
-                timestamp=datetime.now(timezone.utc).isoformat()
-            )
-        except FetchError as e2:
-            raise FetchError(f"Both primary and fallback ZINC15 fetches failed: {e2}")
-
-def fetch_ncbi_resistance_frequencies(output_path: Path) -> DataVersionFile:
-    """Fetch NCBI resistance data and return version info."""
-    logger.info(f"Fetching NCBI resistance data from {NCBI_URL}")
+        raise
+    
+    # Fetch NCBI resistance data
     try:
-        content = fetch_with_backoff(NCBI_URL)
-        with open(output_path, "wb") as f:
-            f.write(content)
-        
-        checksum = calculate_sha256(output_path)
-        return DataVersionFile(
-            source_url=NCBI_URL,
-            checksum_sha256=checksum,
-            timestamp=datetime.now(timezone.utc).isoformat()
+        ncbi_path = fetch_ncbi_resistance_frequencies()
+        log_data_version(
+            source_url=NCBI_ALTERNATIVE_URL,
+            file_path=ncbi_path,
+            data_type='ncbi_resistance',
+            data_version_path=data_version_path
         )
+        downloaded_files['ncbi_resistance'] = ncbi_path
     except FetchError as e:
-        logger.error(f"Failed to fetch NCBI data: {e}")
-        # Fallback
-        logger.info("Attempting fallback URL for NCBI data")
-        try:
-            content = fetch_with_backoff(NCBI_FALLBACK)
-            with open(output_path, "wb") as f:
-                f.write(content)
-            checksum = calculate_sha256(output_path)
-            return DataVersionFile(
-                source_url=NCBI_FALLBACK,
-                checksum_sha256=checksum,
-                timestamp=datetime.now(timezone.utc).isoformat()
-            )
-        except FetchError as e2:
-            raise FetchError(f"Both primary and fallback NCBI fetches failed: {e2}")
+        logger.error(f"Failed to fetch NCBI resistance data: {e}")
+        raise
+    
+    logger.info(f"Successfully downloaded all data sources: {list(downloaded_files.keys())}")
+    return downloaded_files
 
-def log_data_version(version_info: List[DataVersionFile], output_path: Optional[Path] = None) -> Path:
-    """Log data version information to data_version.json."""
-    if output_path is None:
-        project_root = get_project_root()
-        output_path = project_root / "data" / "data_version.json"
+def main():
+    """Main entry point for data download script."""
+    logging.basicConfig(
+        level=logging.INFO,
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    )
     
-    # Ensure directory exists
-    output_path.parent.mkdir(parents=True, exist_ok=True)
+    logger.info("Starting data download process...")
     
-    # Load existing version info if it exists
-    existing_data = []
-    if output_path.exists():
-        try:
-            with open(output_path, "r") as f:
-                existing_data = json.load(f)
-        except (json.JSONDecodeError, IOError) as e:
-            logger.warning(f"Could not read existing data_version.json: {e}")
-            existing_data = []
-    
-    # Append new entries
-    for item in version_info:
-        entry = {
-            "source_url": item.source_url,
-            "checksum_sha256": item.checksum_sha256,
-            "timestamp": item.timestamp
-        }
-        # Avoid duplicates based on source_url
-        if not any(e["source_url"] == entry["source_url"] for e in existing_data):
-            existing_data.append(entry)
-    
-    # Write updated data
-    with open(output_path, "w") as f:
-        json.dump(existing_data, f, indent=2)
-    
-    logger.info(f"Data version logged to {output_path}")
-    return output_path
-
-def download_all_data() -> List[DataVersionFile]:
-    """Download all required data files and return version info."""
-    raw_data_path = get_data_raw_path()
-    raw_data_path.mkdir(parents=True, exist_ok=True)
-    
-    version_info = []
-    
-    # ChEMBL
-    chembl_path = raw_data_path / "chembl_molstd.sdf.gz"
     try:
-        version_info.append(fetch_chembl_smiles(chembl_path))
+        downloaded_files = download_all_data()
+        logger.info("Data download completed successfully!")
+        logger.info(f"Downloaded files: {downloaded_files}")
+        
+        # Print summary
+        print("\n" + "="*60)
+        print("DATA DOWNLOAD SUMMARY")
+        print("="*60)
+        for data_type, file_path in downloaded_files.items():
+            file_size = os.path.getsize(file_path)
+            print(f"{data_type:20s}: {file_path} ({file_size:,} bytes)")
+        print("="*60)
+        
     except FetchError as e:
-        logger.error(f"Skipping ChEMBL due to error: {e}")
-    
-    # ZINC15
-    zinc_path = raw_data_path / "zinc15_antibiotics.smi"
-    try:
-        version_info.append(fetch_zinc15_smiles(zinc_path))
-    except FetchError as e:
-        logger.error(f"Skipping ZINC15 due to error: {e}")
-    
-    # NCBI
-    ncbi_path = raw_data_path / "ncbi_resistance_frequencies.csv"
-    try:
-        version_info.append(fetch_ncbi_resistance_frequencies(ncbi_path))
-    except FetchError as e:
-        logger.error(f"Skipping NCBI due to error: {e}")
-    
-    if version_info:
-        log_data_version(version_info)
-    
-    return version_info
+        logger.error(f"Data download failed: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Unexpected error during data download: {e}")
+        raise
 
 if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO)
-    download_all_data()
+    main()

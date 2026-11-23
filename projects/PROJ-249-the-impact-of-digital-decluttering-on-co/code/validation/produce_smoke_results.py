@@ -1,0 +1,352 @@
+"""
+produce_smoke_results.py
+
+This script runs a lightweight "smoke" analysis on a simulated dataset.
+If the required simulated measurement file does not exist, it is generated
+deterministically using a fixed random seed. The analysis computes, for each
+metric, the mean change (post - baseline), a bootstrap confidence interval,
+an uncorrected p‑value, a Holm‑Bonferroni corrected p‑value, and Cohen's d
+effect size. Results are written to ``data/results/smoke_results.json`` in a
+format that conforms to ``contracts/analysis.schema.yaml``.
+"""
+
+import json
+from datetime import datetime
+from pathlib import Path
+
+import numpy as np
+import pandas as pd
+
+from llmxive_toolkit import paths, get_logger
+
+# Import the effect‑size helper
+from code.analysis.effect_sizes import calculate_cohens_d
+
+log = get_logger(__name__)
+
+# ----------------------------------------------------------------------
+# Helper dataclass for bootstrap results
+# ----------------------------------------------------------------------
+from dataclasses import dataclass
+
+@dataclass
+class BootstrapResult:
+    """Container for bootstrap output."""
+    mean_change: float
+    ci_lower: float
+    ci_upper: float
+    p_value: float
+    method_used: str = "bootstrap"
+
+
+# ----------------------------------------------------------------------
+# Bootstrap implementation (stand‑alone, no utils dependency)
+# ----------------------------------------------------------------------
+def calculate_bootstrap_ci(
+    baseline_values,
+    post_values,
+    n_resamples: int = 10_000,
+    confidence_level: float = 0.95,
+    seed: int | None = None,
+) -> BootstrapResult:
+    """
+    Compute a bootstrap confidence interval for the mean difference
+    (post - baseline) and a two‑sided p‑value.
+
+    Parameters
+    ----------
+    baseline_values : list[float] | np.ndarray
+        Baseline measurements.
+    post_values : list[float] | np.ndarray
+        Post‑intervention measurements (same participants, same order).
+    n_resamples : int
+        Number of bootstrap resamples.
+    confidence_level : float
+        Desired confidence level (e.g., 0.95).
+    seed : int | None
+        Random seed for reproducibility.
+
+    Returns
+    -------
+    BootstrapResult
+        Dataclass with mean change, CI bounds, p‑value and method name.
+    """
+    # Convert to NumPy arrays for speed
+    baseline = np.asarray(baseline_values, dtype=float)
+    post = np.asarray(post_values, dtype=float)
+
+    if baseline.size == 0 or post.size == 0:
+        raise ValueError("Baseline and post arrays must be non‑empty")
+    if baseline.shape != post.shape:
+        raise ValueError("Baseline and post arrays must have identical shape")
+
+    # Observed mean change
+    observed = float(np.mean(post - baseline))
+
+    rng = np.random.default_rng(seed)
+
+    # Bootstrap resampling of paired differences
+    diffs = []
+    n = baseline.shape[0]
+    for _ in range(n_resamples):
+        idx = rng.integers(0, n, size=n)
+        sample_diff = np.mean(post[idx] - baseline[idx])
+        diffs.append(sample_diff)
+    diffs = np.array(diffs)
+
+    # Confidence interval
+    lower_pct = (1.0 - confidence_level) / 2.0 * 100
+    upper_pct = (1.0 + confidence_level) / 2.0 * 100
+    ci_lower = float(np.percentile(diffs, lower_pct))
+    ci_upper = float(np.percentile(diffs, upper_pct))
+
+    # Two‑sided p‑value: proportion of bootstrap diffs whose absolute
+    # value is at least as extreme as the observed absolute mean change.
+    extreme = np.abs(diffs) >= abs(observed)
+    p_value = float(extreme.mean())
+
+    return BootstrapResult(
+        mean_change=observed,
+        ci_lower=ci_lower,
+        ci_upper=ci_upper,
+        p_value=p_value,
+    )
+
+
+# ----------------------------------------------------------------------
+# Helper functions for data loading, generation and Holm‑Bonferroni correction
+# ----------------------------------------------------------------------
+def _generate_simulated_measurements(csv_path: Path, n_participants: int = 20, seed: int = 20240521):
+    """
+    Create a deterministic simulated measurement_records CSV with baseline and post
+    rows for each of the four primary metrics. The file matches the schema required
+    by ``load_measurement_records``.
+    """
+    rng = np.random.default_rng(seed)
+
+    metrics = ["SART", "Ospan", "PSS-10", "PANAS-PA"]
+    rows = []
+
+    for pid_idx in range(1, n_participants + 1):
+        participant_id = f"P{pid_idx:03d}"
+        for metric in metrics:
+            # Baseline value drawn from a reasonable range per metric
+            if metric == "SART":
+                base = rng.uniform(30, 70)  # commission errors
+            elif metric == "Ospan":
+                base = rng.uniform(10, 30)  # span score
+            elif metric == "PSS-10":
+                base = rng.uniform(10, 30)  # stress score
+            else:  # PANAS-PA
+                base = rng.uniform(20, 40)  # positive affect
+
+            # Post value is baseline shifted by a small effect (d ≈ 0.3)
+            # Approximate the shift as 0.3 * a standard normal draw.
+            shift = 0.3 * rng.standard_normal()
+            post = base + shift
+
+            timestamp_base = datetime.utcnow().isoformat() + "Z"
+            timestamp_post = datetime.utcnow().isoformat() + "Z"
+
+            rows.append({
+                "id": f"{participant_id}_{metric}_baseline",
+                "participant_id": participant_id,
+                "phase": "baseline",
+                "metric_type": metric,
+                "value": f"{base:.3f}",
+                "timestamp": timestamp_base,
+                "quality_flag": "valid"
+            })
+            rows.append({
+                "id": f"{participant_id}_{metric}_post",
+                "participant_id": participant_id,
+                "phase": "post",
+                "metric_type": metric,
+                "value": f"{post:.3f}",
+                "timestamp": timestamp_post,
+                "quality_flag": "valid"
+            })
+
+    df = pd.DataFrame(rows)
+    # Ensure the required columns are present and in order
+    df = df[["id", "participant_id", "phase", "metric_type", "value", "timestamp", "quality_flag"]]
+    csv_path.parent.mkdir(parents=True, exist_ok=True)
+    df.to_csv(csv_path, index=False)
+    log.info(f"Generated simulated measurement file at {csv_path}")
+
+
+def load_measurement_records(csv_path: Path):
+    """
+    Load the simulated measurement records CSV and organise the data
+    into per‑metric baseline and post arrays.
+
+    Parameters
+    ----------
+    csv_path : Path
+        Path to ``measurement_records_sim.csv`` (generated by T003a or on‑the‑fly).
+
+    Returns
+    -------
+    dict
+        Mapping of metric name → dict with keys ``baseline`` and ``post``
+        each holding a list of float values.
+    """
+    df = pd.read_csv(csv_path, dtype=str)
+
+    required = {
+        "participant_id",
+        "phase",
+        "metric_type",
+        "value",
+        "quality_flag",
+    }
+    missing = required - set(df.columns)
+    if missing:
+        raise ValueError(f"Missing required columns in {csv_path}: {missing}")
+
+    # Keep only rows flagged as valid
+    df = df[df["quality_flag"] == "valid"]
+
+    # Convert value column to float
+    df["value"] = df["value"].astype(float)
+
+    metrics = {}
+    for metric, group in df.groupby("metric_type"):
+        # Pivot on phase to get baseline and post per participant
+        piv = group.pivot(index="participant_id", columns="phase", values="value")
+        # Drop participants missing either phase
+        piv = piv.dropna(subset=["baseline", "post"])
+        baseline_vals = piv["baseline"].tolist()
+        post_vals = piv["post"].tolist()
+        metrics[metric] = {"baseline": baseline_vals, "post": post_vals}
+    return metrics
+
+
+def holm_bonferroni_correction(p_values: dict) -> dict:
+    """
+    Perform Holm‑Bonferroni step‑down correction.
+
+    Parameters
+    ----------
+    p_values : dict
+        Mapping metric name → uncorrected p‑value (float).
+
+    Returns
+    -------
+    dict
+        Mapping metric name → corrected p‑value (float).
+    """
+    m = len(p_values)
+    # Sort by raw p‑value (ascending)
+    sorted_items = sorted(p_values.items(), key=lambda kv: kv[1])
+    corrected = {}
+    prev_adj = 0.0
+    for i, (metric, p) in enumerate(sorted_items):
+        rank = i + 1  # 1‑based
+        adj = p * (m - i)
+        adj = min(adj, 1.0)
+        # Enforce monotonicity (non‑decreasing)
+        adj = max(adj, prev_adj)
+        corrected[metric] = adj
+        prev_adj = adj
+    return corrected
+
+
+# ----------------------------------------------------------------------
+# Main analysis driver
+# ----------------------------------------------------------------------
+def run_analysis(measurements: dict):
+    """
+    Run the full analysis for each metric.
+
+    Returns a list of result dictionaries ready for JSON serialisation.
+    """
+    results = []
+    uncorrected_ps = {}
+
+    for metric, data in measurements.items():
+        baseline = data["baseline"]
+        post = data["post"]
+        n = len(baseline)
+
+        # Mean change
+        changes = np.array(post) - np.array(baseline)
+        mean_change = float(np.mean(changes))
+
+        # Bootstrap CI and p‑value
+        bootstrap_res = calculate_bootstrap_ci(
+            baseline_values=baseline,
+            post_values=post,
+            n_resamples=10_000,
+            confidence_level=0.95,
+            seed=20240521,
+        )
+
+        # Effect size (Cohen's d)
+        d = calculate_cohens_d(np.array(baseline), np.array(post))
+
+        # Store raw p‑value for Holm‑Bonferroni later
+        uncorrected_ps[metric] = bootstrap_res.p_value
+
+        result = {
+            "metric": metric,
+            "mean_change": bootstrap_res.mean_change,
+            "ci_lower": bootstrap_res.ci_lower,
+            "ci_upper": bootstrap_res.ci_upper,
+            "p_value_uncorrected": bootstrap_res.p_value,
+            "p_value_corrected": None,  # will be filled after correction
+            "effect_size_cohen_d": float(d),
+            "n_participants": int(n),
+            "method_used": bootstrap_res.method_used,
+        }
+        results.append(result)
+
+    # Apply Holm‑Bonferroni correction
+    corrected = holm_bonferroni_correction(uncorrected_ps)
+    for res in results:
+        res["p_value_corrected"] = corrected[res["metric"]]
+
+    return results
+
+
+def main():
+    """
+    Entry point for the smoke‑analysis script.
+    """
+    # Paths (using llmxive_toolkit helpers)
+    raw_measurements_path = paths.data("raw", "measurement_records_sim.csv")
+    output_path = paths.data("results", "smoke_results.json")
+
+    # If the simulated file does not exist, generate a deterministic one.
+    if not raw_measurements_path.is_file():
+        log.info("Simulated measurement file not found – generating on‑the‑fly.")
+        _generate_simulated_measurements(raw_measurements_path)
+
+    if not raw_measurements_path.is_file():
+        raise FileNotFoundError(
+            f"Simulated measurement file not found at {raw_measurements_path}. "
+            "Ensure T003a has been executed."
+        )
+
+    log.info(f"Loading simulated measurements from {raw_measurements_path}")
+    measurements = load_measurement_records(raw_measurements_path)
+
+    log.info("Running analysis on simulated data")
+    analysis_results = run_analysis(measurements)
+
+    payload = {
+        "generated_at": datetime.utcnow().isoformat() + "Z",
+        "metrics": analysis_results,
+    }
+
+    # Ensure the output directory exists
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    with open(output_path, "w", encoding="utf-8") as f:
+        json.dump(payload, f, indent=2)
+
+    log.info(f"Smoke analysis written to {output_path}")
+
+
+if __name__ == "__main__":
+    main()

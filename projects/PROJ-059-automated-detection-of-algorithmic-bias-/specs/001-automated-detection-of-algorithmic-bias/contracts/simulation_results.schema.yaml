@@ -1,0 +1,36 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Simulation Results Schema"
+description: "Schema for data/derived/simulation_results.csv containing fairness metrics from synthetic data."
+type: "object"
+properties:
+  repo_id:
+    type: "string"
+    description: "Repository ID associated with this simulation run."
+  injected_skew_magnitude:
+    type: "number"
+    description: "The controlled bias parameter used in the simulation."
+  demographic_parity_diff:
+    type: "number"
+    description: "Absolute difference in positive class rates between sensitive groups."
+  equalized_odds_diff:
+    type: "number"
+    description: "Absolute difference in Equalized Odds (TPR/FPR) between groups."
+  sample_size:
+    type: "integer"
+    minimum: 10
+    description: "Number of synthetic samples generated."
+  generation_seed:
+    type: "integer"
+    description: "Random seed used for reproducibility."
+  hash_check_passed:
+    type: "boolean"
+    description: "True if no string-hash overlap detected between synthetic data and source code."
+required:
+  - repo_id
+  - injected_skew_magnitude
+  - demographic_parity_diff
+  - equalized_odds_diff
+  - sample_size
+  - generation_seed
+  - hash_check_passed
+additionalProperties: false

@@ -1,0 +1,37 @@
+$schema: "https://json-schema.org/draft/2020-12/schema"
+title: "Ratings Schema (Deprecated Alias)"
+type: "object"
+required:
+  - rating_id
+  - participant_id
+  - stimulus_id
+  - relationship_context
+  - rating_score
+  - timestamp
+  - exclusion_flag
+properties:
+  rating_id:
+    type: "string"
+    pattern: "^R[0-9]{4}$"
+  participant_id:
+    type: "string"
+    pattern: "^[a-zA-Z0-9]{10,}$"
+  stimulus_id:
+    type: "string"
+    pattern: "^S[0-9]{3}$"
+  relationship_context:
+    type: "string"
+    enum:
+      - "Close Friend"
+      - "Acquaintance"
+  rating_score:
+    type: "integer"
+    minimum: 1
+    maximum: 7
+  timestamp:
+    type: "string"
+    format: "date-time"
+  exclusion_flag:
+    type: "boolean"
+    default: false
+additionalProperties: false

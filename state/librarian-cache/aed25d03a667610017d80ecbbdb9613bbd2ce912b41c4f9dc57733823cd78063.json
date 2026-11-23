@@ -1,5 +1,5 @@
 {
-  "fetched_at": "2026-07-04T15:38:22Z",
+  "fetched_at": "2026-10-07T07:08:25Z",
   "field": "computer science",
   "prompt_version": "1.6.0",
   "result": {
@@ -9,8 +9,8 @@
       "idea_body_excerpt": "llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players\"",
       "target_n": 5
     },
-    "duration_seconds": 52.356,
-    "ended_at": "2026-07-04T15:38:22Z",
+    "duration_seconds": 249.475,
+    "ended_at": "2026-10-07T07:08:25Z",
     "expansion": {
       "expanded_terms_ranked": [
         [
@@ -19,79 +19,79 @@
         ],
         [
           2,
-          "multi-agent generative world models"
+          "large language model multi-agent simulation"
         ],
         [
           3,
-          "scalable multi-agent simulation with LLMs"
+          "emergent behavior in generative agent environments"
         ],
         [
           4,
-          "agent-based generative world construction"
+          "scalable multi-agent world generation"
         ],
         [
           5,
-          "large language model multi-agent environments"
+          "LLM-driven procedural world building"
         ],
         [
           6,
-          "emergent behavior in generative multi-agent systems"
+          "generative agents beyond dyadic interaction"
         ],
         [
           7,
-          "LLM-driven multi-agent interaction modeling"
+          "multi-agent system world modeling"
         ],
         [
           8,
-          "generative simulation for multi-agent games"
+          "language model based environment synthesis"
         ],
         [
           9,
-          "autonomous agent world modeling beyond dyads"
+          "dynamic world simulation with generative AI"
         ],
         [
           10,
-          "multi-player generative environment synthesis"
+          "multi-player generative agent frameworks"
         ],
         [
           11,
-          "LLM-based social simulation for multiple agents"
+          "LLM-based interactive world generation"
         ],
         [
           12,
-          "generative agents in complex multi-agent worlds"
+          "scalable generative simulation for multiple agents"
         ],
         [
           13,
-          "scalable world generation for autonomous agents"
+          "emergent social dynamics in LLM worlds"
         ],
         [
           14,
-          "multi-agent coordination in generative worlds"
+          "generative multi-agent reinforcement learning environments"
         ],
         [
           15,
-          "language model agents in simulated environments"
+          "large language models for complex world simulation"
         ],
         [
           16,
-          "generative world models for game theory"
+          "autonomous agent world modeling"
         ],
         [
           17,
-          "multi-agent emergent dynamics in LLM simulations"
+          "generative AI for multi-agent narrative worlds"
         ],
         [
           18,
-          "procedural generation of multi-agent scenarios"
+          "LLM-powered virtual world construction"
         ],
         [
           19,
-          "LLM-powered multi-agent environment dynamics"
+          "multi-agent emergent behavior in simulated environments"
         ],
         [
           20,
-          "beyond two-player generative agent modeling"
+          "generative models for open-ended agent interaction"
         ]
       ],
       "original_term": "",
@@ -102,11 +102,11 @@
       "total_queries_issued": 1
     },
     "extracted_queries": [
-      "generative world models multi-agent simulation",
-      "Gamma-World multi-agent environment generation",
-      "emergent behavior multi-agent generative modeling",
-      "multi-agent world modeling scalability benchmark",
-      "procedural content generation multi-agent systems"
+      "generative world model multi-agent simulation",
+      "Gamma-World generative multi-agent environment",
+      "emergent behavior multi-agent system LLM",
+      "agent interaction dynamics synthetic evaluation",
+      "procedural content generation multi-agent training"
     ],
     "failure_reason": null,
     "librarian_prompt_version": "1.6.0",
@@ -120,16 +120,16 @@
       "sample_size_target": 1,
       "sampled_count": 1,
       "sampled_pointers": [
-        "2510.13343"
+        "2412.06333"
       ]
     },
     "per_query_hit_count": {
-      "Gamma-World multi-agent environment generation": 1,
-      "emergent behavior multi-agent generative modeling": 1,
-      "generative world models multi-agent simulation": 3,
+      "Gamma-World generative multi-agent environment": 1,
+      "agent interaction dynamics synthetic evaluation": 3,
+      "emergent behavior multi-agent system LLM": 1,
+      "generative world model multi-agent simulation": 3,
       "llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players\" computer science": 3,
-      "multi-agent world modeling scalability benchmark": 0,
-      "procedural content generation multi-agent systems": 3
+      "procedural content generation multi-agent training": 3
     },
     "relevance_judge": {
       "enabled": true,
@@ -144,7 +144,7 @@
       ]
     },
     "schema_version": "1.0.0",
-    "started_at": "2026-07-04T15:37:30Z",
+    "started_at": "2026-10-07T07:04:15Z",
     "term_input": {
       "normalized": "llmxive follow-up: extending \"gamma-world: generative multi-agent world modeling beyond two players\" computer science",
       "raw": "llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling Beyond Two Players\" computer science"
@@ -163,7 +163,7 @@
           "primary_pointer": "1211.0310"
         },
         "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Large Synoptic Survey Telescope: Dark Energy Science Collaboration')",
-        "failed_at": "2026-07-04T15:37:58Z",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -182,7 +182,7 @@
           "primary_pointer": "2512.16152"
         },
         "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Pulsar Science with the SKA Observatory')",
-        "failed_at": "2026-07-04T15:37:58Z",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -200,7 +200,7 @@
           "primary_pointer": "1002.2191"
         },
         "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Vision Based Game Development Using Human Computer Interaction')",
-        "failed_at": "2026-07-04T15:37:58Z",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -219,7 +219,7 @@
           "primary_pointer": "1311.5108"
         },
         "details": "query-relevance 0.286 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='A Methodology to Engineer and Validate Dynamic Multi-level Multi-agent Based Simulations')",
-        "failed_at": "2026-07-04T15:37:58Z",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -238,7 +238,7 @@
           "primary_pointer": "2604.03350"
         },
         "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='From Model-Based Screening to Data-Driven Surrogates: A Multi-Stage Workflow for Exploring Stochastic Agent-Based Models')",
-        "failed_at": "2026-07-04T15:37:58Z",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -256,24 +256,25 @@
           "primary_pointer": "2203.08975"
         },
         "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='A Survey of Multi-Agent Deep Reinforcement Learning with Communication')",
-        "failed_at": "2026-07-04T15:37:58Z",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
         "candidate": {
           "backend": "arxiv",
-          "claimed_abstract": "Multi-agent reinforcement learning focuses on training the behaviors of multiple learning agents that coexist in a shared environment. Recently, MARL models, such as the Multi-Agent Transformer (MAT) and ACtion dEpendent deep Q-learning (ACE), have significantly improved performance by leveraging sequential decision-making processes. Although these models can enhance performance, they do not explicitly consider the importance of the order in which agents make decisions. In this paper, we propose an Agent Order of Action Decisions-MAT (AOAD-MAT), a novel MAT model that considers the order in which agents make decisions. The proposed model explicitly incorporates the sequence of action decisions into the learning process, allowing the model to learn and predict the optimal order of agent actions. The AOAD-MAT model leverages a Transformer-based actor-critic architecture that dynamically adjusts the sequence of agent actions. To achieve this, we introduce a novel MARL architecture that cooperates with a subtask focused on predicting the next agent to act, integrated into a Proximal Policy Optimization based loss function to synergistically maximize the advantage of the sequential decision-making. The proposed method was validated through extensive experiments on the StarCraft Multi-Agent Challenge and Multi-Agent MuJoCo benchmarks. The experimental results show that the proposed AOAD-MAT model outperforms existing MAT and other baseline models, demonstrating the effectiveness of adjusting the AOAD order in MARL.",
+          "claimed_abstract": "The card game Hanabi is considered a strong medium for the testing and development of multi-agent reinforcement learning (MARL) algorithms, due to its cooperative nature, partial observability, limited communication and remarkable complexity. Previous research efforts have explored the capabilities of MARL algorithms within Hanabi, focusing largely on advanced architecture design and algorithmic manipulations to achieve state-of-the-art performance for various number of cooperators. However, this often leads to complex solution strategies with high computational cost and requiring large amounts of training data. For humans to solve the Hanabi game effectively, they require the use of conventions, which often allows for a means to implicitly convey ideas or knowledge based on a predefined, and mutually agreed upon, set of \"rules\" or principles. Multi-agent problems containing partial observability, especially when limited communication is present, can benefit greatly from the use of implicit knowledge sharing. In this paper, we propose a novel approach to augmenting an agent's action space using conventions, which act as a sequence of special cooperative actions that span over and include multiple time steps and multiple agents, requiring agents to actively opt in for it to reach fruition. These conventions are based on existing human conventions, and result in a significant improvement on the performance of existing techniques for self-play and cross-play for various number of cooperators within Hanabi.",
           "claimed_authors": [
-            "Shota Takayama",
-            "Katsuhide Fujita"
+            "F. Bredell",
+            "H. A. Engelbrecht",
+            "J. C. Schoeman"
           ],
-          "claimed_title": "AOAD-MAT: Transformer-based multi-agent deep reinforcement learning model considering agents' order of action decisions",
+          "claimed_title": "Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi",
           "claimed_venue": "arXiv",
-          "claimed_year": 2025,
-          "primary_pointer": "2510.13343"
+          "claimed_year": 2024,
+          "primary_pointer": "2412.06333"
         },
-        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title=\"AOAD-MAT: Transformer-based multi-agent deep reinforcement learning model considering agents' order of action decisions\")",
-        "failed_at": "2026-07-04T15:37:58Z",
+        "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Augmenting the action space with conventions to improve multi-agent cooperation in Hanabi')",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -292,7 +293,81 @@
           "primary_pointer": "2506.03053"
         },
         "details": "query-relevance 0.143 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='MAEBE: Multi-Agent Emergent Behavior Framework')",
-        "failed_at": "2026-07-04T15:37:58Z",
+        "failed_at": "2026-10-07T07:08:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "In this work, we present Gander, a native multimodal duplex interaction model that builds on MiniCPM-o 4.5 and is further adapted for realtime interaction with an asynchronous agent loop. In contrast to conventional turn based systems, Gander continuously processes streaming user inputs, enabling full-duplex interaction in both everyday conversations and complex workflow agent scenarios. Users can interrupt an ongoing response, while the model can proactively provide intermediate feedback or ask follow up questions. To natively support these capabilities, Gander adopts two key architectural designs: 1) a Cerebellum-Brain collaborative framework, Cerebellum is responsible for realtime interaction while the Brain handles complex reasoning and higher level agentic tasks. The two components interact continuously through tool calling and the agent orchestration runtime. 2) The Cerebellum is built upon a streaming Thinker-Talker architecture, where user inputs and model outputs are flattened into an ordered token stream at the chunk level. We evaluate Gander across conversational ability, interactive capability, understanding, and tool assisted task execution. Internal human evaluations show that Gander maintains natural and expressive spoken dialogue, while benchmark results demonstrate effective turn taking capability and encouraging results on spoken question answering and related understanding tasks. Gander also supports a range of challenging interaction settings, including background noise interference, multi-party interactions, and backchannel communication. While our current evaluation focuses on tool assisted settings, broader long horizon agent tasks and more diverse deployment conditions remain promising directions for further study. We release Gander together with its models, code, and data to facilitate further research and development in the community.",
+          "claimed_authors": [
+            " Orantqing",
+            "Shengpeng Ji",
+            "Junlong Tong",
+            "Jialong Zuo",
+            "Dongjie Fu",
+            "Di Cao",
+            "Yangzhuo Li",
+            "Shangda Wu",
+            " Franz",
+            " Evan",
+            "Theron Veyra",
+            "Changhao Pan",
+            "Jingyu Lu",
+            "Dongchao Yang",
+            "Zhifei Xie",
+            "Yang Tan",
+            "Xiaoyu Shen",
+            "Xiaoda Yang",
+            "Wenfu Wang",
+            "Teddy Sun",
+            "Steve Yves",
+            "Zhou Zhao"
+          ],
+          "claimed_title": "Multimodal Duplex Interaction Agent",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2609.08977"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Multimodal Duplex Interaction Agent')",
+        "failed_at": "2026-10-07T07:08:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Generative AI agents are increasingly used in interaction design to facilitate ideation and offer critique, often following their own internal reasoning. These interactions tend to add design ideas and expand the design space. Our work explores an antagonistic role for design agents, prompting designers to engage with stakeholder tension. We built an AI agent inspired by adversarial design theory that enacts constructive conflict. We examine the agent's influence in a between-subjects experiment with 45 design students across three conditions: Self Reflection (unsupported review of the design proposal), Stepwise Guidance (written prompts that walk designers through a constructive-conflict framework), and Interactive Engagement (an AI agent that enacts the constructive-conflict framework interactively by synthesizing stakeholder pushback). The latter two conditions share the framework but differ in whether it is self-enacted or agent-enacted. Results show that, compared with Self Reflection, both the Stepwise Guidance and Interactive Engagement groups reported significantly higher self-reconsideration and made more improvements to their design proposals. Compared with Stepwise Guidance, the antagonistic agent introduced more conflictual perspectives, and participants in the Interactive Engagement condition generated and discarded more ideas. These findings suggest that agent-enacted constructive conflict can turn reconsideration into concrete design actions and deepen engagement with divergent stakeholder perspectives.",
+          "claimed_authors": [
+            "Howard Ziyu Han",
+            "Nikolas Martelaro"
+          ],
+          "claimed_title": "Enacting Constructive Conflicts with AI Agents to Enhance Reconsideration among Novice Interaction Designers",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2026,
+          "primary_pointer": "2608.04166"
+        },
+        "details": "query-relevance 0.214 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Enacting Constructive Conflicts with AI Agents to Enhance Reconsideration among Novice Interaction Designers')",
+        "failed_at": "2026-10-07T07:08:10Z",
+        "reason": "query_irrelevant"
+      },
+      {
+        "candidate": {
+          "backend": "arxiv",
+          "claimed_abstract": "Recent advancements in visual generative models have enabled high-quality image and video generation, opening diverse applications. However, evaluating these models often demands sampling hundreds or thousands of images or videos, making the process computationally expensive, especially for diffusion-based models with inherently slow sampling. Moreover, existing evaluation methods rely on rigid pipelines that overlook specific user needs and provide numerical results without clear explanations. In contrast, humans can quickly form impressions of a model's capabilities by observing only a few samples. To mimic this, we propose the Evaluation Agent framework, which employs human-like strategies for efficient, dynamic, multi-round evaluations using only a few samples per round, while offering detailed, user-tailored analyses. It offers four key advantages: 1) efficiency, 2) promptable evaluation tailored to diverse user needs, 3) explainability beyond single numerical scores, and 4) scalability across various models and tools. Experiments show that Evaluation Agent reduces evaluation time to 10% of traditional methods while delivering comparable results. The Evaluation Agent framework is fully open-sourced to advance research in visual generative models and their efficient evaluation.",
+          "claimed_authors": [
+            "Fan Zhang",
+            "Shulin Tian",
+            "Ziqi Huang",
+            "Yu Qiao",
+            "Ziwei Liu"
+          ],
+          "claimed_title": "Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models",
+          "claimed_venue": "arXiv",
+          "claimed_year": 2024,
+          "primary_pointer": "2412.09645"
+        },
+        "details": "query-relevance 0.286 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Evaluation Agent: Efficient and Promptable Evaluation Framework for Visual Generative Models')",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -314,7 +389,7 @@
           "primary_pointer": "2007.06108"
         },
         "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Tabletop Roleplaying Games as Procedural Content Generators')",
-        "failed_at": "2026-07-04T15:37:58Z",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -331,7 +406,7 @@
           "primary_pointer": "2107.12533"
         },
         "details": "query-relevance 0.071 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Toward Co-creative Dungeon Generation via Transfer Learning')",
-        "failed_at": "2026-07-04T15:37:58Z",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       },
       {
@@ -352,7 +427,7 @@
           "primary_pointer": "2107.12524"
         },
         "details": "query-relevance 0.000 < 0.3 (query='llmXive follow-up: extending \"Gamma-World: Generative Multi-Agent World Modeling', candidate_title='Ensemble Learning For Mega Man Level Generation')",
-        "failed_at": "2026-07-04T15:37:58Z",
+        "failed_at": "2026-10-07T07:08:10Z",
         "reason": "query_irrelevant"
       }
     ],
@@ -381,7 +456,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-04T15:38:03Z"
+          "verified_at": "2026-10-07T07:08:15Z"
         }
       },
       {
@@ -409,7 +484,7 @@
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-04T15:38:04Z"
+          "verified_at": "2026-10-07T07:08:16Z"
         }
       },
       {
@@ -429,13 +504,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2510.13343",
           "http_status": 200,
-          "pdf_sample_score": 0.2742,
+          "pdf_sample_score": null,
           "query_relevance_score": 0.4,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-04T15:38:04Z"
+          "verified_at": "2026-10-07T07:08:16Z"
         }
       },
       {
@@ -456,13 +531,13 @@
           "backend": "arxiv",
           "final_url": "https://arxiv.org/abs/2412.06333",
           "http_status": 200,
-          "pdf_sample_score": null,
+          "pdf_sample_score": 0.3026,
           "query_relevance_score": 0.4,
           "redirect_chain": [],
           "summary_grounding_score": 1.0,
           "title_token_overlap_score": 1.0,
           "url_resolves": true,
-          "verified_at": "2026-07-04T15:38:05Z"
+          "verified_at": "2026-10-07T07:08:17Z"
         }
       }
     ]

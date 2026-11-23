@@ -1,0 +1,10 @@
+'|confirmed less significance statistical than threshold':
+  quote: In 1925, Ronald Fisher advanced the idea of statistical hypothesis testing,
+    which he called "tests of significance", in his publication Statistical Methods
+    for Research Workers. Fisher suggested a probability of one in twenty (0.05) as
+    a convenient cutoff level to reject the null hypothesis. In a 1933 paper, Jerzy
+    Neyman and Egon Pearson called this cutoff the significance level, which they
+    named
+  source_id: Statistical significance
+  url: https://en.wikipedia.org/wiki/Statistical_significance
+  value: '0.05'

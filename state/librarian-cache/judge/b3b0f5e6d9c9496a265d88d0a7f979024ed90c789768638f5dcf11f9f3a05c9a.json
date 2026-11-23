@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2512.18007",
+  "judged_at": "2026-08-01T12:43:44Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"dual latent memory in vision-language-action models for robotic manipu\" computer science",
+  "rationale": "This paper satisfies criteria (a) and (b) as it investigates the same domain (Vision-Language-Action models for robotic manipulation) and proposes a \"dual-head\" architecture that directly parallels the \"Dual Latent Memory\" mechanism mentioned in the user's query, providing essential prior work on architectural extensions for VLA motion reasoning.",
+  "relevant": true
+}

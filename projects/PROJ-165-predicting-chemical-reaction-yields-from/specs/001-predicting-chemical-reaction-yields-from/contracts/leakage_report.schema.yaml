@@ -1,0 +1,31 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LeakageReport"
+description: "Schema for the scaffold‑ and template‑leakage verification report."
+type: "object"
+properties:
+  total_samples:
+    type: "integer"
+    description: "Total number of reactions after filtering."
+  train_count:
+    type: "integer"
+    description: "Number of training samples."
+  val_count:
+    type: "integer"
+    description: "Number of validation samples."
+  test_count:
+    type: "integer"
+    description: "Number of test samples."
+  overlap_count:
+    type: "integer"
+    description: "Number of reaction‑template IDs appearing in more than one split."
+  is_valid:
+    type: "boolean"
+    description: "True if overlap_count == 0 (zero leakage)."
+required:
+  - total_samples
+  - train_count
+  - val_count
+  - test_count
+  - overlap_count
+  - is_valid
+additionalProperties: false

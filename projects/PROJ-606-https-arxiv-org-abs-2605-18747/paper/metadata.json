@@ -92,5 +92,15 @@
     "sections_revision/section2_2.tex",
     "sections_revision/section2_3.tex",
     "sections_revision/section_3_harness.tex"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "cd9f00598714af2f38c1e8a59e6bb6df27da5f977a0b781328dcc30d4999a000",
+      "bytes": 9893696
+    },
+    "original.pdf": {
+      "sha256": "ad647c5d1cb1302ec2d1b70302179f3b6f602fa818a75d25a28350127096fe9f",
+      "bytes": 9899740
+    }
+  }
 }

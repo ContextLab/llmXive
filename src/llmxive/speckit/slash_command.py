@@ -150,22 +150,37 @@ class SlashCommandAgent(abc.ABC):
 
         try:
             mechanical_output = self.mechanical_step(ctx)
-            messages = self.build_prompt(ctx, mechanical_output)
-            llm_response = chat_with_fallback(
-                messages,
-                profile=ctx.profile,
-                overrides=ctx.requirement_overrides,
-            )
-            backend_used = BackendName(llm_response.backend)
-            model_used = llm_response.model
-            llm_response_text = llm_response.text
-            outputs = self.write_artifacts(ctx, mechanical_output, llm_response)
-            # FR-026 point 1: validate citations on every artifact write.
-            # spec 020 FR-001: thread the planning/full stage class to the claim layer.
-            _validate_artifact_citations(
-                ctx, outputs, stage_label=self.claim_stage_label()
-            )
-        except Exception as exc:
+            if mechanical_output.get("skip_llm"):
+                outcome = Outcome.SKIPPED
+                model_used = "deterministic-no-llm"
+            else:
+                if mechanical_output.get("deterministic_write"):
+                    # A deterministic write makes NO model call, so there is no
+                    # selected backend to credit. Record the same sentinel pair the
+                    # deterministic publisher uses (agents/publisher.py): the no-LLM
+                    # model sentinel on the default serving backend.
+                    llm_response = ChatResponse(
+                        "", "deterministic-no-llm", BackendName.DARTMOUTH.value
+                    )
+                else:
+                    messages = self.build_prompt(ctx, mechanical_output)
+                    llm_response = chat_with_fallback(
+                        messages,
+                        profile=ctx.profile,
+                        overrides=ctx.requirement_overrides,
+                    )
+                backend_used = BackendName(llm_response.backend)
+                model_used = llm_response.model
+                llm_response_text = llm_response.text
+                outputs = self.write_artifacts(ctx, mechanical_output, llm_response)
+                # FR-026 point 1: validate citations on every artifact write.
+                # spec 020 FR-001: thread the planning/full stage class to the claim layer.
+                _validate_artifact_citations(
+                    ctx, outputs, stage_label=self.claim_stage_label()
+                )
+                if not outputs:
+                    outcome = Outcome.SKIPPED
+        except BaseException as exc:
             outcome = Outcome.FAILED
             failure_reason = f"{type(exc).__name__}: {exc}"
             raise
@@ -188,7 +203,7 @@ class SlashCommandAgent(abc.ABC):
                 failure_reason=failure_reason,
                 cost_estimate_usd=0.0,
             )
-            runlog.append_entry(entry)
+            runlog.append_entry(entry, repo_root=ctx.project_dir.parent.parent)
             _maybe_write_inspection(
                 agent=self,
                 ctx=ctx, started=started, ended=ended, outcome=outcome,
@@ -246,7 +261,8 @@ def _maybe_write_inspection(
             ),
             started_at=started,
             ended_at=ended,
-            outcome=("committed" if outcome == Outcome.SUCCESS else "failed"),
+            outcome=("committed" if outcome == Outcome.SUCCESS else
+                     "no-op" if outcome == Outcome.SKIPPED else "failed"),
             prompts={"system": sys_prompt, "user": usr_prompt},
             raw_response=llm_response_text,
             parsed_output={},
@@ -281,8 +297,14 @@ def _validate_artifact_citations(
     from llmxive.state.project import hash_file
 
     repo = ctx.project_dir.parent.parent
+    preservation_root = Path(os.path.abspath(ctx.project_dir / '.specify/recovered-artifacts'))
     for relpath in outputs:
         path = repo / relpath
+        # These are opaque originals preserved during filesystem recovery, not
+        # newly authored research. Keep them in provenance outputs but never
+        # rewrite their bytes through citation or claim processing.
+        if Path(os.path.abspath(path)).is_relative_to(preservation_root):
+            continue
         if not path.exists() or not path.is_file():
             continue
         if path.suffix.lower() not in {".md", ".markdown", ".tex"}:

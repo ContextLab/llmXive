@@ -1,0 +1,56 @@
+T002:
+  c: true
+  h: e6fae1c651927e3093c42e8bb50254bd407283473684acb57fee5eeab57a8ca9
+  r: "The `requirements.txt` file (205\u202Fbytes) was found at `projects/PROJ-518-investigating-the-relationship-between-b/requirements.txt`\
+    \ and contains pinned versions (`==`) for all required packages: nilearn, networkx,\
+    \ scikit-learn, numpy, pandas, matplotlib, scipy, brainconn, and statsmodels.\
+    \ Extra entries (e.g., safety, pyyaml, black, flake8) do not violate the task,\
+    \ which only mandates the presence and pinning of the listed dependencies."
+  sig: 0188a323a75a54bb4baa367e16f2c6471cb663d85dbcec608a0887255d86e6d5
+T005:
+  c: true
+  h: d8ab08e525ee3c41c39d3b6ef542eca45e53bbbe974cf5a8fc0b2d9ea0b063c1
+  r: Checked `code/config.py`, which defines `WINDOW_SIZES` (default `[20,30,40]`),
+    `STEP` (default `5`), `FWE_METHOD` (default `"max-t"`), and provides a working
+    `validate_fwe_config()` that raises on invalid methods. The file exists and contains
+    the required functionality.
+  sig: 217a42ea7dbe6f5881390cf88ec1b4a2e48241179cfc705acffd12ebf4978e6f
+T006:
+  c: true
+  h: 04ff7928ad0667ccbe1700f7f641d04e74c4081b3ea417ed3cbcfb5d80116f22
+  r: Checked `code/utils/logging.py`, which defines `log_exclusion(reason, subject_id)`,
+    validates the reason against a set that includes the required codes (`MISSING_SCAN`,
+    `MISSING_SCORE`, `HIGH_MOTION`), and appends a CSV row (subject_id, reason, timestamp)
+    to `data_interim/data_exclusion_log.txt`. The function and its behavior meet the
+    task specification.
+  sig: 874fd9819e8049b7880d31c20be4e2abc52eeffc24098ec7acec6842d6a86477
+T101:
+  c: true
+  h: 5afd48df9c896c912fbeb0b98b04d39b98c726541dad4fa0c9fcab1830fb94b4
+  r: 'I have verified the following:
+
+    1. `code/errors.py` defines the `DataMissingCreativityError` class.
+
+    2. `code/data/loader.py` implements `validate_caq_availability`, which imports
+    the error class and raises `DataMissingCreativityError("DATA_MISSING_CREATIVITY")`
+    when the CAQ field is missing or null.
+
+    3. `code/main.py` implements `run_validation`, which imports the error class,
+    catches it, logs the error, and calls `sys.exit(1)`.
+
+    4. `code/tests/contract/test_loader.py` contains tests for the success case, the
+    exception raising case, and the system exit case, all of which passed according
+    to the p'
+  sig: f8e6058bc6c343a1b857dc362d00d1dbb0909171d92b91ded9435aa8502b2ee3
+T103:
+  c: false
+  h: cf8f01c8eb64ba0786624a24f2ad757bcf27b994dc56bd34ea435482c26316ee
+  r: "The recorded pytest run of `code/tests/unit/test_filter_subjects.py` FAILED\
+    \ (exit 1): the test asserts `participant.fmri_path == fmri_004` but `filter_subjects`\
+    \ returns a toolkit-resolved absolute path while the test builds a relative one,\
+    \ so the single test covering all three exclusion codes does not pass. Additionally,\
+    \ the required output `data/interim/included_subjects.csv` does not exist, and\
+    \ the exclusion log contains only unrelated `FILE_NOT_FOUND`/SYSTEM entries rather\
+    \ than the MISSING_SCAN/MISSING_SCORE/HIGH_MOTION rows the tests should have produced\
+    \ \u2014 fix the path comparison (e.g., re"
+  sig: ff4cf64e898ad73c59a603f68312d3db6af1e0361f08e65956920c622eb035e4

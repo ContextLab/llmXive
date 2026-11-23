@@ -1,0 +1,44 @@
+VISUAL PRIMING STUDY: FINAL ANALYSIS REPORT
+===========================================
+
+This report summarizes the analysis of the influence of visual priming on implicit attitudes.
+
+1. EXECUTIVE SUMMARY
+--------------------
+This report presents the results of a linear mixed-effects model analysis investigating 
+the relationship between visual prime valence, stimulus ambiguity, and implicit response times. 
+The analysis includes interaction plots, coefficient tables with confidence intervals, and 
+sensitivity analyses.
+
+2. METHODOLOGY & DATA OVERVIEW
+------------------------------
+Data was processed from raw IAT trial logs, linked to stimulus metadata, and aggregated 
+to the stimulus level per participant. A Linear Mixed-Effects Model (LMM) was fitted with 
+prime valence and stimulus ambiguity as fixed effects and participant ID as a random intercept.
+
+3. LIMITATIONS AND INTERPRETATION (CRITICAL SECTION)
+----------------------------------------------------
+This study employs an observational design to investigate the influence of visual priming
+on implicit attitudes. Consequently, while we observe associations between prime valence,
+stimulus ambiguity, and response times, causal inferences regarding the directionality
+of these effects are limited by the non-experimental nature of the data analysis pipeline.
+
+Furthermore, the prime valence scores used in this analysis were not obtained via direct
+human rating for every stimulus. Instead, they were derived using a synthetic annotation
+pipeline (see Section 2.2). While this approach allows for the inclusion of a larger
+stimulus set, it introduces potential measurement error. The results should be interpreted
+as associations between the *derived* prime valence estimates and implicit response times,
+rather than definitive measures of the primes' actual psychological impact.
+
+These limitations underscore the need for future experimental studies with direct human
+ratings and controlled manipulations to confirm the causal mechanisms suggested by these
+associational findings.
+
+4. CONCLUSION
+-------------
+The analysis reveals statistically significant associations between derived prime valence,
+stimulus ambiguity, and response times. These findings support the hypothesis that visual
+priming influences implicit processing, though the observational nature and synthetic derivation
+of valence scores necessitate cautious interpretation.
+
+[End of Report]

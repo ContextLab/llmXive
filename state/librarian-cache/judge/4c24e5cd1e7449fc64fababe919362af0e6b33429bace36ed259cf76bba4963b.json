@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2404.17586",
+  "judged_at": "2026-08-12T00:35:48Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "leveraging llms for automated generation of code complexity metrics computer science",
+  "rationale": "The paper focuses on using LLMs to generate academic text from code, which is a distinct construct from the user's question about using LLMs to *measure* or *generate* code complexity metrics. This falls under the rejection rule for \"Distinct construct sharing only homonym keywords\" (both involve LLMs and code, but the mechanism and output are entirely different).",
+  "relevant": false
+}

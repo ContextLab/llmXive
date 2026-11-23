@@ -1,21 +1,18 @@
-# Core dependencies
-pandas
-numpy
-scipy
-networkx
-requests
-tqdm
-pyyaml
-llama-cpp-python
-datasets
-huggingface_hub
-pytest
-spacy
-statsmodels
-
-# Additional dependencies for report generation (T026)
-jinja2
-
-# Testing
-pytest
-pytest-cov
+# Pinned dependencies for PROJ-894 (llmXive follow-up: graph memory).
+# numpy is pinned to a 1.x line compatible with pyarrow 16 and the
+# platform's preinstalled scientific stack (a newer pyarrow demanding
+# numpy>=2 previously broke `import datasets`).
+numpy==1.26.4
+pandas==2.2.2
+scipy==1.13.1
+pyarrow==16.1.0
+datasets==2.19.2
+networkx==3.3
+sentence-transformers==3.0.1
+transformers==4.44.2
+bitsandbytes==0.43.3
+llama-cpp-python==0.2.90
+timeout-decorator==0.5.0
+pytest==8.2.2
+PyYAML==6.0.1
+requests==2.32.3

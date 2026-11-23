@@ -1,0 +1,8 @@
+{
+  "seed_id": 42,
+  "model_id": "microsoft/phi-2",
+  "mean_reward": 1.9984,
+  "mean_grad_norm": 0.00012,
+  "status": "STABLE",
+  "steps_computed": 100
+}

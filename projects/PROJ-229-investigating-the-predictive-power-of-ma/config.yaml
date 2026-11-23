@@ -1,47 +1,38 @@
-# Configuration for llmXive Phase-Change Material Prediction Pipeline
-# Generated during T004 setup
-
-# General settings
-project:
-  name: "llmXive-phase-change"
-  version: "0.1.0"
-  random_seed: 42
-
-# API Keys (Replace with actual keys or use environment variables)
-api_keys:
-  materials_project: ""  # Set via env var MP_API_KEY or here
-  nist: ""               # Set via env var NIST_API_KEY or here
+# Configuration for llmXive Pipeline
+# Generated for PROJ-229
 
 # Logging Configuration
 logging:
-  level: "INFO"          # DEBUG, INFO, WARNING, ERROR, CRITICAL
-  file: "logs/pipeline.log"
-  console: true
+  level: INFO  # Options: DEBUG, INFO, WARNING, ERROR, CRITICAL
+  file: "data/logs/pipeline.log" # Optional, set to null to disable file logging
+
+# API Keys (Set these via environment variables or fill in securely)
+api_keys:
+  materials_project: ""  # MP API Key
+  nist: ""               # NIST API Key (if applicable)
+
+# Random Seeds for Reproducibility
+random_seed: 42
 
 # Resource Constraints
-resources:
-  max_memory_gb: 7
-  time_limit_hours: 6
-  cpu_cores: 4
+memory_limit_gb: 7.0
+time_limit_hours: 24.0
 
-# Data Paths (Relative to project root)
-data:
-  raw_dir: "data/raw"
-  processed_dir: "data/processed"
-  results_dir: "data/results"
-  external_validation_file: "data/raw/literature_pcms.csv"
+# Analysis Parameters
+top_n: 10  # Number of top candidates to consider (Research Decision Required)
 
-# Model Configuration
-models:
-  baseline:
-    n_estimators: 100
-    max_depth: 10
-  symbolic:
-    timeout_hours: 4
-    max_evals: 10000
+# Data Fetching
+data_fetch:
+  max_retries: 3
+  timeout_seconds: 300
 
-# Validation Thresholds
+# Model Training
+model_training:
+  max_iterations: 1000
+  early_stopping_patience: 50
+
+# Validation
 validation:
-  min_r2: 0.0
-  min_n_overlap: 500
-  target_metric: "melting_point" # Options: "melting_point", "latent_heat"
+  nist_overlap_threshold: 500
+  r2_threshold: 0.0
+  correlation_threshold: 0.2

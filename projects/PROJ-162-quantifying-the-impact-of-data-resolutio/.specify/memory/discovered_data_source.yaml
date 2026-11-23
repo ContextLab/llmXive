@@ -1,0 +1,17 @@
+status: none
+intent: LALSuite simulated binary black hole waveforms dataset pip install python
+  package dataset
+required_fields:
+- time
+- strain
+- sampling_rate
+- mass1_solar_masses
+- mass2_solar_masses
+- luminosity_distance_mpc
+- spin1z
+- spin2z
+- waveform_model
+- metadata
+cache_key: 82b10203dd1cfc42039d6d9208261ecc7ee772451bda774d5a3bd43b00bdee93
+searched_at: '2026-08-24T15:47:59.723272+00:00'
+retry_count: 1

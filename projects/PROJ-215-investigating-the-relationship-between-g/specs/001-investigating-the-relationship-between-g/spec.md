@@ -9,7 +9,7 @@
 
 ### User Story 1 - Data Acquisition and Preprocessing Pipeline (Priority: P1)
 
-The system must successfully download, merge, and preprocess the American Gut Project (AGP) microbiome data (16S rRNA) and associated mental health metadata, filtering for valid samples and handling missing values to create a clean analysis-ready dataset.
+The system must successfully download, merge, and preprocess the American Gut Project (AGP) microbiome data (ribosomal RNA) and associated mental health metadata, filtering for valid samples and handling missing values to create a clean analysis-ready dataset.
 
 **Why this priority**: Without a clean, merged dataset containing both microbiome features and mental health scores, no statistical analysis can be performed. This is the foundational block for the entire research project.
 
@@ -18,7 +18,7 @@ The system must successfully download, merge, and preprocess the American Gut Pr
 **Acceptance Scenarios**:
 
 1. **Given** the AGP study ID (10317) is provided, **When** the ingestion script executes, **Then** the system downloads the OTU/ASV table and metadata, merges them on sample ID, and outputs a unified CSV file.
-2. **Given** a merged dataset with missing mental health scores, **When** the preprocessing step runs, **Then** samples with missing PHQ-9 or GAD-7 scores are filtered out, and the system logs the exclusion rate.
+2. **Given** a merged dataset with missing mental health scores, **When** the preprocessing step runs, **Then** samples with missing PHQ or GAD scores are filtered out, and the system logs the exclusion rate.
 3. **Given** the raw OTU table, **When** rarefaction and low-abundance filtering are applied, **Then** the output table contains only taxa with ≥ 0.1% prevalence and equal sequencing depth across all samples. If rarefaction results in >20% sample loss, the system must apply variance-stabilizing transformation (VST) instead and log the fallback.
 
 ---
@@ -107,7 +107,7 @@ If an independent cohort (e.g., UK Biobank, MetaHIT) is accessible, the system m
 
 ## Assumptions
 
-- The American Gut Project (AGP) public dataset (Study ID: 10317) contains both 16S rRNA sequencing data and valid mental health questionnaire responses (PHQ-9, GAD-7) for a sufficient number of overlapping samples.
+- The American Gut Project (AGP) public dataset contains both 16S rRNA sequencing data and valid mental health questionnaire responses (PHQ-9, GAD-7) for a sufficient number of overlapping samples.
 - The public API or download method for AGP data does not require authentication or paid access.
 - The analysis will be performed on a CPU-only environment (GitHub Actions free tier) with ≤ 7 GB RAM, requiring data sampling if the full dataset exceeds memory limits.
 - The mental health scores in the metadata are self-reported and valid for correlation analysis, despite potential confounding factors not captured in the dataset.

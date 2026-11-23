@@ -1,0 +1,50 @@
+description: |
+  Schema contract for Z-Reward dataset after discovery and validation.
+  Updated by T038: Schema Discovery and Validation.
+expected_logical_fields:
+  - prompt
+  - teacher_logits
+  - student_scalar
+  - human_annotations
+  - primary_dimension
+required_dimensions:
+  - Alignment
+  - Realism
+  - Aesthetics
+  - Plausibility
+actual_columns:
+  - prompt
+  - teacher_logits
+  - student_scalar
+  - human_annotation_Alignment
+  - human_annotation_Realism
+  - human_annotation_Aesthetics
+  - human_annotation_Plausibility
+  - primary_dimension
+row_count: 0
+column_types:
+  prompt: object
+  teacher_logits: object
+  student_scalar: float64
+  human_annotation_Alignment: float64
+  human_annotation_Realism: float64
+  human_annotation_Aesthetics: float64
+  human_annotation_Plausibility: float64
+  primary_dimension: object
+logical_field_mapping:
+  prompt: prompt
+  teacher_logits: teacher_logits
+  student_scalar: student_scalar
+  human_annotations:
+    - human_annotation_Alignment
+    - human_annotation_Realism
+    - human_annotation_Aesthetics
+    - human_annotation_Plausibility
+  primary_dimension: primary_dimension
+required_dimensions_found:
+  - human_annotation_Alignment
+  - human_annotation_Realism
+  - human_annotation_Aesthetics
+  - human_annotation_Plausibility
+validated: false
+validation_timestamp: null

@@ -1,0 +1,18 @@
+status: none
+intent: download EIA RECS and ACS microdata via IPUMS python package dataset
+required_fields:
+- household_id
+- census_tract
+- median_income
+- poverty_status
+- low_income_flag
+- solar_installation
+- microgrid_installation
+- treatment
+- energy_cost
+- energy_cost_burden
+- disposable_income
+- home_value
+cache_key: cadbbfdc601e035ecb65f11d398c3523e87ca28201478bfa8eca5c714ad1cdc1
+searched_at: '2026-09-08T22:08:23.318438+00:00'
+retry_count: 1

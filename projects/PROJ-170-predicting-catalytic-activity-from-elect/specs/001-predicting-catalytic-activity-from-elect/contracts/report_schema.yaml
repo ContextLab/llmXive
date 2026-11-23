@@ -1,0 +1,83 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Report Schema"
+description: "Schema for the machine‑readable companion of the final report (report.md)."
+type: "object"
+properties:
+  xgboost:
+    type: "object"
+    properties:
+      pearson_r:
+        type: "number"
+        description: "Pearson R of XGBoost model."
+      mae:
+        type: "number"
+        description: "MAE of XGBoost model (log‑TOF)."
+      r_squared:
+        type: "number"
+        description: "R² of XGBoost model."
+    required:
+      - pearson_r
+      - mae
+      - r_squared
+  linear_baseline:
+    type: "object"
+    properties:
+      pearson_r:
+        type: "number"
+        description: "Pearson R of linear baseline."
+      mae:
+        type: "number"
+        description: "MAE of linear baseline (log‑TOF)."
+      r_squared:
+        type: "number"
+        description: "R² of linear baseline."
+    required:
+      - pearson_r
+      - mae
+      - r_squared
+  statistical_test:
+    type: "object"
+    properties:
+      test_type:
+        type: "string"
+        enum:
+          - "paired_t_test"
+          - "wilcoxon_signed_rank"
+        description: "Statistical test used for error‑difference comparison."
+      p_value:
+        type: "number"
+        description: "P‑value from the test."
+      significant:
+        type: "boolean"
+        description: "True when both p < 0.05 and ΔMAE ≥ 0.1 log‑TOF."
+    required:
+      - test_type
+      - p_value
+      - significant
+  top_descriptors:
+    type: "array"
+    description: "Top‑5 descriptors ranked by mean absolute SHAP impact."
+    items:
+      type: "object"
+      properties:
+        name:
+          type: "string"
+          description: "Descriptor name."
+        shap_value:
+          type: "number"
+          description: "Mean absolute SHAP value."
+        matches_norskov:
+          type: "boolean"
+          description: "True if descriptor is in the Nørskov reference set (d‑band, activation barrier, reaction energy)."
+      required:
+        - name
+        - shap_value
+        - matches_norskov
+    minItems: 5
+    maxItems: 5
+required:
+  - xgboost
+  - linear_baseline
+  - statistical_test
+  - top_descriptors
+additionalProperties: false

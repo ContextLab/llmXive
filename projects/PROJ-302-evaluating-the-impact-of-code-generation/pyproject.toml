@@ -1,0 +1,97 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-eval-code-gen"
+version = "0.1.0"
+description = "Evaluating the Impact of Code Generation on Code Review Time"
+readme = "README.md"
+requires-python = ">=3.9"
+license = {text = "MIT"}
+authors = [
+    {name = "llmXive Team"}
+]
+dependencies = [
+    "datasets==2.14.0",
+    "scikit-learn==1.3.0",
+    "pandas==2.0.3",
+    "numpy==1.24.3",
+    "scipy==1.11.1",
+    "radon==6.0.1",
+    "torch==2.0.1",
+    "transformers==4.31.0",
+    "matplotlib==3.7.2",
+    "seaborn==0.12.2",
+    "pyyaml==6.0",
+    "requests==2.31.0",
+    "gitpython==3.1.32",
+    "pytest==7.4.0",
+    "ruff==0.0.287",
+    "black==23.7.0",
+    "parquet",
+    "pyarrow"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest-cov",
+    "black",
+    "ruff",
+    "mypy"
+]
+
+[tool.black]
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.nox
+  | \.pants\.d
+  | \.ruff_cache
+  | \.svn
+  | \.tox
+  | \.venv
+  | __pypackages__
+  | _build
+  | buck-out
+  | build
+  | dist
+  | node_modules
+  | venv
+  | data
+  | docs
+)/
+'''
+
+[tool.ruff]
+# This is handled by .ruff.toml, but we keep this section for compatibility if needed
+# to override or extend.
+line-length = 88
+target-version = "py39"
+extend-exclude = [
+    "data",
+    "docs"
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v --tb=short"
+filterwarnings = [
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]
+
+[tool.setuptools.packages.find]
+where = ["code"]
+# We are using a flat structure in code/, so we might need to adjust if using namespace packages
+# For now, assuming standard import structure: from analysis.matching import ...
+# This requires code/ to be in PYTHONPATH or installed as a package.
+# If running scripts directly from code/, we rely on relative imports or explicit path manipulation.

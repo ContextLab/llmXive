@@ -1,0 +1,5 @@
+'|base calculation cl100k encoding token use':
+  quote: GPT cl100k base 46.20 192.11 111.46 1.13 2.41x (Least Compact)
+  source_id: '2601.06142'
+  url: https://arxiv.org/abs/2601.06142
+  value: '111.46'

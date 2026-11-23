@@ -1,0 +1,15 @@
+b60cb9dd02c318867de4f86a4f8ad983  ./annotation_hashes.txt
+fd7f11f6590db73dec92b7994fead824  ./GCF_948444175.1_SRR17622767_bin.108_metawrap_v1.3_MAG_assembly_report.txt
+56208bea6c57e72ac09466476c9016bc  ./GCF_948444175.1_SRR17622767_bin.108_metawrap_v1.3_MAG_assembly_stats.txt
+e47dc993683af0b7504ae7eb98debe21  ./GCF_948444175.1_SRR17622767_bin.108_metawrap_v1.3_MAG_cds_from_genomic.fna.gz
+d0cb4d8fbbb8ac9f9b136ccd0b31bf28  ./GCF_948444175.1_SRR17622767_bin.108_metawrap_v1.3_MAG_feature_count.txt
+4a59a5646901f809af72f989cb88d13e  ./GCF_948444175.1_SRR17622767_bin.108_metawrap_v1.3_MAG_feature_table.txt.gz
+5a09ae4c1857285d4d4d7a416ebefc16  ./GCF_948444175.1_SRR17622767_bin.108_metawrap_v1.3_MAG_genomic.fna.gz
+e934425c878a7640f2038f08fa91a2a1  ./GCF_948444175.1_SRR17622767_bin.108_metawrap_v1.3_MAG_genomic.gbff.gz
+552ee3558f4653f2d866bd7b2f8a21d8  ./GCF_948444175.1_SRR17622767_bin.108_metawrap_v1.3_MAG_genomic.gff.gz
+91e6d587bbfc17b78e25325bd7e8de4e  ./GCF_948444175.1_SRR17622767_bin.108_metawrap_v1.3_MAG_genomic.gtf.gz
+af861ac79584c4e957fa27230033d410  ./GCF_948444175.1_SRR17622767_bin.108_metawrap_v1.3_MAG_protein.faa.gz
+1ea2afc6bbc1a2c74fef9a6372680b1f  ./GCF_948444175.1_SRR17622767_bin.108_metawrap_v1.3_MAG_protein.gpff.gz
+0eb02950f1baeb7af0bf0ef4b2351313  ./GCF_948444175.1_SRR17622767_bin.108_metawrap_v1.3_MAG_rna_from_genomic.fna.gz
+d9c2844ef4ee4d348ef7fe4322664f8f  ./GCF_948444175.1_SRR17622767_bin.108_metawrap_v1.3_MAG_translated_cds.faa.gz
+2897a8dd7dcf8a44ce4538528649a799  ./GCF_948444175.1_SRR17622767_bin.108_metawrap_v1.3_MAG_wgsmaster.gbff.gz

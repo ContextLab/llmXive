@@ -2,181 +2,185 @@ import numpy as np
 import pandas as pd
 from typing import List, Tuple, Optional
 import logging
+from scipy import stats
+from statsmodels.stats.multitest import multipletests
 
 logger = logging.getLogger(__name__)
 
 def calculate_correlation_pvalues(
-    df: pd.DataFrame, 
-    target_col: str, 
-    feature_cols: List[str]
-) -> pd.DataFrame:
+    df: pd.DataFrame,
+    target_col: str,
+    feature_cols: Optional[List[str]] = None
+) -> List[Tuple[str, float, float]]:
     """
     Calculate Pearson correlation coefficients and p-values between features and target.
-    
+
     Args:
-        df: DataFrame containing features and target
-        target_col: Name of the target column
-        feature_cols: List of feature column names
-        
+        df: DataFrame containing features and target.
+        target_col: Name of the target column.
+        feature_cols: List of feature columns to analyze. If None, all numeric columns
+                      excluding target are used.
+
     Returns:
-        DataFrame with columns: feature, correlation, p_value
+        List of tuples (feature_name, correlation_coefficient, p_value).
     """
+    if feature_cols is None:
+        # Select all numeric columns excluding the target
+        feature_cols = df.select_dtypes(include=[np.number]).columns.drop(target_col).tolist()
+
     results = []
-    target = df[target_col].dropna()
-    
     for col in feature_cols:
         if col not in df.columns:
             logger.warning(f"Feature {col} not found in DataFrame, skipping.")
             continue
-        
-        feature = df[col].dropna()
-        min_len = min(len(target), len(feature))
-        
-        if min_len < 3:
-            logger.warning(f"Insufficient data for {col}, skipping.")
+
+        # Drop rows where either feature or target is NaN
+        valid_mask = df[[col, target_col]].notna().all(axis=1)
+        x = df.loc[valid_mask, col].values
+        y = df.loc[valid_mask, target_col].values
+
+        if len(x) < 3:
+            logger.warning(f"Not enough data points for {col}, skipping.")
             continue
-        
-        # Align indices
-        common_idx = target.index.intersection(feature.index)
-        if len(common_idx) < 3:
-            logger.warning(f"Insufficient common data for {col}, skipping.")
-            continue
-        
-        x = feature.loc[common_idx]
-        y = target.loc[common_idx]
-        
-        # Calculate correlation and p-value
-        corr, p_val = x.corr(y), 0.0
-        try:
-            # Use scipy.stats if available, otherwise approximate
-            from scipy import stats
-            corr, p_val = stats.pearsonr(x, y)
-        except ImportError:
-            logger.warning("scipy not available, using numpy approximation for p-value")
-            # Fallback: simple t-statistic approximation for p-value
-            if abs(corr) < 1.0:
-                t_stat = corr * np.sqrt((len(x) - 2) / (1 - corr**2))
-                # Approximate p-value using t-distribution CDF (simple approximation)
-                # This is a rough approximation; scipy is preferred
-                p_val = 2 * (1 - 0.5 * (1 + np.sign(t_stat) * (1 - np.exp(-0.5 * t_stat**2 / (len(x) - 1)))))
-            else:
-                p_val = 0.0
-        
-        results.append({
-            'feature': col,
-            'correlation': corr,
-            'p_value': p_val
-        })
-    
-    return pd.DataFrame(results)
+
+        corr, p_val = stats.pearsonr(x, y)
+        results.append((col, corr, p_val))
+
+    return results
 
 def benjamini_hochberg(
-    p_values: List[float], 
+    p_values: List[float],
     alpha: float = 0.05
 ) -> Tuple[List[float], List[bool]]:
     """
     Apply Benjamini-Hochberg FDR correction to a list of p-values.
-    
+
     Args:
-        p_values: List of raw p-values
-        alpha: Significance level (default 0.05)
-        
+        p_values: List of p-values to correct.
+        alpha: Significance level (default 0.05).
+
     Returns:
-        Tuple of (adjusted_p_values, boolean_significance_list)
+        Tuple of (adjusted_p_values, rejection_mask).
+        adjusted_p_values: List of adjusted p-values.
+        rejection_mask: List of booleans indicating if the null hypothesis is rejected.
     """
     if not p_values:
         return [], []
-    
-    n = len(p_values)
-    sorted_indices = np.argsort(p_values)
-    sorted_pvals = np.array(p_values)[sorted_indices]
-    
-    # Calculate adjusted p-values
-    adjusted_pvals = np.zeros(n)
-    for i in range(n):
-        rank = i + 1
-        # BH formula: p_adj = p * n / rank
-        adj = sorted_pvals[i] * n / rank
-        # Ensure monotonicity: adjusted p-values should be non-decreasing
-        if i > 0:
-            adj = max(adj, adjusted_pvals[i-1])
-        adjusted_pvals[i] = min(adj, 1.0)  # Cap at 1.0
-    
-    # Reorder to original sequence
-    final_adjusted = np.zeros(n)
-    final_significance = np.zeros(n, dtype=bool)
-    for i, idx in enumerate(sorted_indices):
-        final_adjusted[idx] = adjusted_pvals[i]
-        final_significance[idx] = final_adjusted[idx] <= alpha
-    
-    return final_adjusted.tolist(), final_significance.tolist()
+
+    # Use statsmodels multipletests for robust BH correction
+    # method='fdr_bh' implements the Benjamini-Hochberg procedure
+    reject, pvals_corrected, _, _ = multipletests(p_values, alpha=alpha, method='fdr_bh')
+
+    return pvals_corrected.tolist(), reject.tolist()
 
 def apply_bh_correction_to_df(
-    df: pd.DataFrame, 
-    p_col: str = 'p_value', 
+    correlation_results: List[Tuple[str, float, float]],
     alpha: float = 0.05
 ) -> pd.DataFrame:
     """
-    Apply Benjamini-Hochberg correction to a DataFrame of p-values.
-    
+    Apply Benjamini-Hochberg correction to correlation results and return a DataFrame.
+
     Args:
-        df: DataFrame containing p-values (must have a column named p_col)
-        p_col: Name of the p-value column
-        alpha: Significance level
-        
+        correlation_results: List of (feature, corr, p_value) tuples.
+        alpha: Significance level.
+
     Returns:
-        DataFrame with added columns: 'adj_p_value' and 'is_significant'
+        DataFrame with columns: feature, correlation, p_value, adjusted_p_value, is_significant.
     """
-    if p_col not in df.columns:
-        raise ValueError(f"Column {p_col} not found in DataFrame")
-    
-    p_vals = df[p_col].tolist()
-    adj_p_vals, is_sig = benjamini_hochberg(p_vals, alpha)
-    
-    result = df.copy()
-    result['adj_p_value'] = adj_p_vals
-    result['is_significant'] = is_sig
-    
-    return result
+    if not correlation_results:
+        return pd.DataFrame(columns=['feature', 'correlation', 'p_value', 'adjusted_p_value', 'is_significant'])
+
+    df = pd.DataFrame(correlation_results, columns=['feature', 'correlation', 'p_value'])
+
+    # Extract p-values for correction
+    p_values = df['p_value'].tolist()
+
+    # Apply BH correction
+    adjusted_p_values, is_significant = benjamini_hochberg(p_values, alpha)
+
+    df['adjusted_p_value'] = adjusted_p_values
+    df['is_significant'] = is_significant
+
+    # Sort by adjusted p-value (ascending) then by feature name
+    df = df.sort_values(by=['adjusted_p_value', 'feature']).reset_index(drop=True)
+
+    return df
 
 def main():
     """
-    Main function to demonstrate BH correction on correlation data.
-    Expects data/processed/correlation_results.csv to exist.
+    CLI entry point for feature analysis with BH correction.
     """
+    import argparse
     import os
-    import json
-    from logging_config import setup_logging
 
-    setup_logging()
-    
-    input_path = 'data/processed/correlation_results.csv'
-    output_path = 'data/processed/correlation_results_fdr.csv'
-    
-    if not os.path.exists(input_path):
-        logger.error(f"Input file {input_path} not found. Run T041 first.")
-        return
-    
-    df = pd.read_csv(input_path)
-    logger.info(f"Loaded {len(df)} correlations from {input_path}")
-    
-    if 'p_value' not in df.columns:
-        logger.error("Column 'p_value' not found in input DataFrame")
-        return
-    
-    corrected_df = apply_bh_correction_to_df(df, p_col='p_value', alpha=0.05)
-    
+    parser = argparse.ArgumentParser(description="Apply Benjamini-Hochberg correction to feature correlations.")
+    parser.add_argument(
+        "--input",
+        type=str,
+        default="data/processed/descriptors.csv",
+        help="Path to input descriptors CSV."
+    )
+    parser.add_argument(
+        "--target",
+        type=str,
+        default="conductivity",
+        help="Name of the target column."
+    )
+    parser.add_argument(
+        "--output",
+        type=str,
+        default="data/processed/correlation_bh_results.csv",
+        help="Path to output CSV with BH corrected results."
+    )
+    parser.add_argument(
+        "--alpha",
+        type=float,
+        default=0.05,
+        help="Significance level for FDR correction."
+    )
+
+    args = parser.parse_args()
+
+    # Setup logging
+    logging.basicConfig(level=logging.INFO)
+
+    # Load data
+    if not os.path.exists(args.input):
+        logger.error(f"Input file not found: {args.input}")
+        return 1
+
+    df = pd.read_csv(args.input)
+
+    # Check if target exists
+    if args.target not in df.columns:
+        # Try to find a log-transformed version
+        log_target = f"log_{args.target}"
+        if log_target in df.columns:
+            logger.info(f"Target '{args.target}' not found. Using '{log_target}'.")
+            args.target = log_target
+        else:
+            logger.error(f"Target '{args.target}' (or '{log_target}') not found in data.")
+            return 1
+
+    # Calculate correlations
+    logger.info(f"Calculating correlations with target '{args.target}'...")
+    corr_results = calculate_correlation_pvalues(df, args.target)
+
+    if not corr_results:
+        logger.warning("No correlations calculated. Check data.")
+        return 0
+
+    # Apply BH correction
+    logger.info(f"Applying Benjamini-Hochberg correction (alpha={args.alpha})...")
+    corrected_df = apply_bh_correction_to_df(corr_results, args.alpha)
+
     # Save results
-    corrected_df.to_csv(output_path, index=False)
-    logger.info(f"Saved FDR-corrected results to {output_path}")
-    
-    # Log summary
-    significant_count = corrected_df['is_significant'].sum()
-    logger.info(f"Significant features after FDR correction (α=0.05): {significant_count}/{len(df)}")
-    
-    # Print top features
-    top_features = corrected_df.sort_values('adj_p_value').head(10)
-    logger.info("Top 10 features by adjusted p-value:\n" + top_features.to_string())
+    os.makedirs(os.path.dirname(args.output) or '.', exist_ok=True)
+    corrected_df.to_csv(args.output, index=False)
+    logger.info(f"Saved corrected results to {args.output}")
+    logger.info(f"Significant features (adjusted p < {args.alpha}): {corrected_df['is_significant'].sum()}")
+
+    return 0
 
 if __name__ == "__main__":
-    main()
+    exit(main())

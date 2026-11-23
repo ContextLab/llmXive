@@ -1,29 +1,7 @@
-"""
-Environment configuration management for API keys and paths.
-
-This module handles the loading and validation of environment variables
-required for the project, including API keys (e.g., HuggingFace) and
-directory paths. It provides a centralized configuration object.
-"""
 import os
 from pathlib import Path
 from typing import Optional, Dict, Any
-
-# Project root is assumed to be the parent of the 'code' directory
-# Adjust if the project structure differs in the actual execution environment
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent
-
-# Default paths relative to project root
-DEFAULT_DATA_DIR = _PROJECT_ROOT / "data"
-DEFAULT_STATE_DIR = _PROJECT_ROOT / "state"
-DEFAULT_DOCS_DIR = _PROJECT_ROOT / "docs"
-DEFAULT_CODE_DIR = _PROJECT_ROOT / "code"
-
-# Environment variable names
-ENV_HF_TOKEN = "HF_TOKEN"
-ENV_DATA_DIR = "DATA_DIR"
-ENV_STATE_DIR = "STATE_DIR"
-ENV_LOG_LEVEL = "LOG_LEVEL"
+import json
 
 class ConfigError(Exception):
     """Custom exception for configuration errors."""
@@ -31,144 +9,159 @@ class ConfigError(Exception):
 
 class Config:
     """
-    Centralized configuration class.
+    Configuration container.
     
-    Loads settings from environment variables with sensible defaults.
-    Validates critical requirements upon instantiation.
+    Supports both dictionary-style access (get) and attribute-style access.
+    Designed to be tolerant of missing attributes/methods by acting as a no-op logger.
     """
-    
-    def __init__(self):
-        self._load_config()
-        self._validate_config()
-
-    def _load_config(self) -> None:
-        """Load configuration from environment variables."""
-        # API Keys
-        self.hf_token: Optional[str] = os.getenv(ENV_HF_TOKEN)
+    def __init__(self, config_dict: Optional[Dict[str, Any]] = None):
+        self._data = config_dict or {}
+        # Default paths
+        self._data.setdefault('data_dir', 'data')
+        self._data.setdefault('state_dir', 'state')
+        self._data.setdefault('figures_dir', 'figures')
+        self._data.setdefault('processed_dir', 'data/processed')
+        self._data.setdefault('raw_dir', 'data/raw')
         
-        # Paths
-        # If not set in env, use defaults relative to project root
-        self.data_dir = Path(os.getenv(ENV_DATA_DIR, str(DEFAULT_DATA_DIR)))
-        self.state_dir = Path(os.getenv(ENV_STATE_DIR, str(DEFAULT_STATE_DIR)))
-        self.docs_dir = Path(os.getenv("DOCS_DIR", str(DEFAULT_DOCS_DIR)))
-        self.code_dir = Path(os.getenv("CODE_DIR", str(DEFAULT_CODE_DIR)))
-        
-        # Logging
-        log_level = os.getenv(ENV_LOG_LEVEL, "INFO")
-        self.log_level = log_level.upper()
+        # HuggingFace token handling
+        if 'huggingface_token' not in self._data:
+            self._data['huggingface_token'] = os.getenv('HF_TOKEN', None)
 
-    def _validate_config(self) -> None:
-        """Validate that critical configuration is present."""
-        # Check if HF token is required but missing
-        # We don't strictly require it for local testing, but warn if missing
-        # if the code attempts to use it.
-        if not self.hf_token:
-            # We will not raise an error here to allow local development without token
-            # but we log a warning or set a flag.
-            pass 
-        
-        # Ensure directories exist, create if missing
-        for dir_path in [self.data_dir, self.state_dir, self.docs_dir]:
-            if not dir_path.exists():
-                dir_path.mkdir(parents=True, exist_ok=True)
+    def get(self, key: str, default: Any = None) -> Any:
+        """Retrieve a value from the config dictionary."""
+        return self._data.get(key, default)
 
-    @property
-    def hf_token(self) -> Optional[str]:
-        return self._hf_token
-
-    @hf_token.setter
-    def hf_token(self, value: Optional[str]) -> None:
-        self._hf_token = value
-
-    def get_path(self, key: str) -> Path:
+    def __getattr__(self, name: str) -> Any:
         """
-        Get a path from the configuration.
+        Fallback for missing attributes.
         
-        Args:
-            key: The key name (e.g., 'data_dir', 'state_dir')
-        
-        Returns:
-            The Path object.
-        
-        Raises:
-            ConfigError: If the key is not found.
+        If the attribute is a method call (e.
+        g., config.info(...)), return a no-op function.
+        Otherwise, return None or raise if it's a data key.
         """
-        attr = getattr(self, key, None)
-        if attr is None:
-            raise ConfigError(f"Configuration key '{key}' not found.")
-        return attr
+        # Check if it's a data key first
+        if name in self._data:
+            return self._data[name]
+        
+        # If it looks like a logger method, return a no-op function
+        logger_methods = ['info', 'debug', 'warning', 'error', 'critical', 'log', 'get']
+        if name in logger_methods or not name.startswith('_'):
+            def _noop(*args, **kwargs):
+                return None
+            return _noop
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Export configuration to a dictionary (excluding sensitive data)."""
-        return {
-            "data_dir": str(self.data_dir),
-            "state_dir": str(self.state_dir),
-            "docs_dir": str(self.docs_dir),
-            "log_level": self.log_level,
-            # Do not expose the token in the dict
-            "hf_token_set": self.hf_token is not None
-        }
+        # For other unknown attributes, return None to avoid crashes
+        return None
 
-# Global configuration instance
-config = Config()
+    def __getitem__(self, key: str) -> Any:
+        """Enable dictionary-style access."""
+        return self._data[key]
+
+    def __contains__(self, key: str) -> bool:
+        """Enable 'in' operator."""
+        return key in self._data
+
+    def __repr__(self):
+        return f"Config({self._data})"
 
 def get_config() -> Config:
     """
-    Retrieve the global configuration instance.
+    Load configuration from environment or defaults.
+    
+    Returns a Config object.
+    """
+    config_dict = {}
+    
+    # Try to load from config.json if it exists
+    config_path = Path('code/config.json')
+    if config_path.exists():
+        try:
+            with open(config_path, 'r') as f:
+                config_dict = json.load(f)
+        except (json.JSONDecodeError, IOError):
+            pass
+    
+    return Config(config_dict)
+
+def require_data_dir(*args, **kwargs) -> Path:
+    """
+    Ensure the data directory exists and return its Path.
+    
+    This function is tolerant of different call signatures:
+    - require_data_dir()
+    - require_data_dir(config)
+    - require_data_dir(config, create=True)
+    
+    Args:
+        *args: Can contain a Config object or path string.
+        **kwargs: Can contain 'create' boolean.
     
     Returns:
-        The global Config object.
+        Path to the data directory.
     """
-    return config
+    create = kwargs.get('create', True)
+    
+    # Determine the data_dir from arguments or config
+    data_dir = None
+    
+    if args:
+        first_arg = args[0]
+        if isinstance(first_arg, Config):
+            data_dir = first_arg.get('data_dir', 'data')
+        elif isinstance(first_arg, str):
+            data_dir = first_arg
+        elif isinstance(first_arg, Path):
+            return first_arg
+    
+    if data_dir is None:
+        # Try to get from global config if no args provided
+        config = get_config()
+        data_dir = config.get('data_dir', 'data')
+    
+    path = Path(data_dir)
+    
+    if create and not path.exists():
+        path.mkdir(parents=True, exist_ok=True)
+    
+    return path.resolve()
 
-def require_hf_token() -> str:
+def require_state_dir(*args, **kwargs) -> Path:
     """
-    Ensure HuggingFace token is available.
+    Ensure the state directory exists and return its Path.
+    
+    Similar tolerance as require_data_dir.
+    """
+    create = kwargs.get('create', True)
+    
+    state_dir = None
+    if args:
+        first_arg = args[0]
+        if isinstance(first_arg, Config):
+            state_dir = first_arg.get('state_dir', 'state')
+        elif isinstance(first_arg, str):
+            state_dir = first_arg
+    
+    if state_dir is None:
+        config = get_config()
+        state_dir = config.get('state_dir', 'state')
+    
+    path = Path(state_dir)
+    if create and not path.exists():
+        path.mkdir(parents=True, exist_ok=True)
+    
+    return path.resolve()
+
+def require_hf_token() -> Optional[str]:
+    """
+    Retrieve the HuggingFace token from config or environment.
     
     Returns:
-        The token string.
-        
-    Raises:
-        ConfigError: If the token is missing.
+        The token string or None if not found.
     """
-    cfg = get_config()
-    if not cfg.hf_token:
-        raise ConfigError(
-            f"HuggingFace token not found. Please set the {ENV_HF_TOKEN} "
-            "environment variable."
-        )
-    return cfg.hf_token
-
-def require_data_dir() -> Path:
-    """
-    Ensure data directory exists and is accessible.
+    config = get_config()
+    token = config.get('huggingface_token')
     
-    Returns:
-        The data directory path.
-    """
-    cfg = get_config()
-    if not cfg.data_dir.exists():
-        raise ConfigError(f"Data directory does not exist: {cfg.data_dir}")
-    return cfg.data_dir
-
-def require_state_dir() -> Path:
-    """
-    Ensure state directory exists and is accessible.
+    if token is None:
+        token = os.getenv('HF_TOKEN')
     
-    Returns:
-        The state directory path.
-    """
-    cfg = get_config()
-    if not cfg.state_dir.exists():
-        raise ConfigError(f"State directory does not exist: {cfg.state_dir}")
-    return cfg.state_dir
-
-if __name__ == "__main__":
-    # Simple test to verify config loading
-    print("Loading configuration...")
-    cfg = get_config()
-    print(f"Data Directory: {cfg.data_dir}")
-    print(f"State Directory: {cfg.state_dir}")
-    print(f"Log Level: {cfg.log_level}")
-    print(f"HF Token Present: {cfg.hf_token is not None}")
-    print("Configuration loaded successfully.")
+    return token

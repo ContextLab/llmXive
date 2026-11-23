@@ -1,0 +1,2 @@
+# Extends pyproject.toml for specific editor integration if needed
+extend = "pyproject.toml"

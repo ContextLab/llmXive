@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "llmxive-gfr-prediction"
+version = "0.1.0"
+description = "Predicting the Glass Forming Region of Metallic Glass Alloys Using Machine Learning"
+requires-python = ">=3.11"
+dependencies = [
+    "scikit-learn",
+    "xgboost",
+    "pandas",
+    "numpy",
+    "shap",
+    "scipy",
+    "requests",
+    "pytest",
+    "black",
+    "ruff",
+    "pre-commit",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.ruff]
+line-length = 88
+target-version = "py311"
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]

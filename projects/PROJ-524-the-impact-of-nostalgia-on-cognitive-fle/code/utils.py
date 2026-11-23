@@ -1,154 +1,97 @@
 """
-Utility module for llmXive project: PROJ-524-the-impact-of-nostalgia-on-cognitive-fle.
-
-Provides:
-- SHA-256 checksum helpers for file integrity verification
-- Centralized logging setup
-- Versioning logic
+Utility functions for the llmXive pipeline.
 """
+
+import os
+import json
 import hashlib
 import logging
-import os
-import sys
+import time
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, Union
+from typing import Optional, Dict, Any, List
 
-# Project constants
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
-LOG_FILE = PROJECT_ROOT / "data" / "logs" / "pipeline.log"
-VERSION = "0.1.0"
+logger: Optional[logging.Logger] = None
 
-
-def setup_logging(
-    level: int = logging.INFO,
-    log_file: Optional[Union[str, Path]] = None,
-    name: str = "llmXive"
-) -> logging.Logger:
+def setup_logging(level: int = logging.INFO) -> logging.Logger:
     """
-    Configure and return a project logger with both file and console handlers.
+    Configure the global logger for the pipeline.
     
     Args:
-        level: Logging level (e.g., logging.INFO, logging.DEBUG)
-        log_file: Path to log file. Defaults to data/logs/pipeline.log relative to project root.
-        name: Logger name.
+        level: Logging level (INFO, DEBUG, WARNING, ERROR).
         
     Returns:
-        Configured logger instance.
+        The configured logger instance.
     """
-    logger = logging.getLogger(name)
-    logger.setLevel(level)
-    
-    # Prevent duplicate handlers if called multiple times
-    if logger.handlers:
-        return logger
-    
-    # Ensure log directory exists
-    if log_file is None:
-        log_file = LOG_FILE
-    else:
-        log_file = Path(log_file)
+    global logger
+    if logger is None:
+        logger = logging.getLogger("llmXive")
+        logger.setLevel(level)
         
-    log_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    # Create formatter
-    formatter = logging.Formatter(
-        '%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        datefmt='%Y-%m-%d %H:%M:%S'
-    )
-    
-    # File handler
-    try:
-        file_handler = logging.FileHandler(log_file)
-        file_handler.setLevel(level)
-        file_handler.setFormatter(formatter)
-        logger.addHandler(file_handler)
-    except (IOError, PermissionError) as e:
-        print(f"Warning: Could not create log file {log_file}: {e}", file=sys.stderr)
-    
-    # Console handler
-    console_handler = logging.StreamHandler(sys.stdout)
-    console_handler.setLevel(level)
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
+        if not logger.handlers:
+            handler = logging.StreamHandler()
+            formatter = logging.Formatter(
+                '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            )
+            handler.setFormatter(formatter)
+            logger.addHandler(handler)
     
     return logger
 
-
-def compute_sha256(file_path: Union[str, Path], chunk_size: int = 8192) -> str:
-    """
-    Compute the SHA-256 checksum of a file.
-    
-    Args:
-        file_path: Path to the file.
-        chunk_size: Size of chunks to read (default 8KB).
-        
-    Returns:
-        Hexadecimal string of the SHA-256 hash.
-        
-    Raises:
-        FileNotFoundError: If the file does not exist.
-        ValueError: If the path is not a file.
-    """
-    file_path = Path(file_path)
-    
-    if not file_path.exists():
-        raise FileNotFoundError(f"File not found: {file_path}")
-    if not file_path.is_file():
-        raise ValueError(f"Path is not a file: {file_path}")
-        
-    sha256_hash = hashlib.sha256()
-    
-    with open(file_path, "rb") as f:
-        for chunk in iter(lambda: f.read(chunk_size), b""):
-            sha256_hash.update(chunk)
-            
-    return sha256_hash.hexdigest()
-
-
-def verify_checksum(file_path: Union[str, Path], expected_checksum: str) -> bool:
-    """
-    Verify a file's SHA-256 checksum against an expected value.
-    
-    Args:
-        file_path: Path to the file.
-        expected_checksum: Expected SHA-256 hex string.
-        
-    Returns:
-        True if checksums match, False otherwise.
-    """
-    try:
-        actual_checksum = compute_sha256(file_path)
-        return actual_checksum.lower() == expected_checksum.lower()
-    except (FileNotFoundError, ValueError) as e:
-        logging.getLogger(__name__).error(f"Checksum verification failed: {e}")
-        return False
-
-
-def get_version() -> str:
-    """Return the current project version string."""
-    return VERSION
-
-
 def get_timestamp() -> str:
-    """Return current timestamp in ISO format."""
+    """Return the current timestamp as an ISO format string."""
     return datetime.now().isoformat()
 
+def log_info(msg: str) -> None:
+    """Log an info message."""
+    if logger:
+        logger.info(msg)
+    else:
+        print(f"INFO: {msg}")
 
-# Initialize default logger for module-level use
-_logger = setup_logging()
+def log_warning(msg: str) -> None:
+    """Log a warning message."""
+    if logger:
+        logger.warning(msg)
+    else:
+        print(f"WARNING: {msg}")
 
-def log_debug(msg: str):
-    _logger.debug(msg)
+def log_error(msg: str) -> None:
+    """Log an error message."""
+    if logger:
+        logger.error(msg)
+    else:
+        print(f"ERROR: {msg}")
 
-def log_info(msg: str):
-    _logger.info(msg)
+def compute_checksum(filepath: Path, algorithm: str = 'sha256') -> str:
+    """
+    Compute the checksum of a file.
+    
+    Args:
+        filepath: Path to the file.
+        algorithm: Hash algorithm to use (default: sha256).
+        
+    Returns:
+        Hexadecimal digest of the file.
+    """
+    hash_func = hashlib.new(algorithm)
+    with open(filepath, 'rb') as f:
+        for chunk in iter(lambda: f.read(4096), b""):
+            hash_func.update(chunk)
+    return hash_func.hexdigest()
 
-def log_warning(msg: str):
-    _logger.warning(msg)
+def ensure_dirs(paths: List[Path]) -> None:
+    """Ensure that a list of directories exists."""
+    for path in paths:
+        path.mkdir(parents=True, exist_ok=True)
 
-def log_error(msg: str):
-    _logger.error(msg)
+def save_json(data: Dict[str, Any], filepath: Path) -> None:
+    """Save a dictionary to a JSON file."""
+    filepath.parent.mkdir(parents=True, exist_ok=True)
+    with open(filepath, 'w') as f:
+        json.dump(data, f, indent=2)
 
-def log_critical(msg: str):
-    _logger.critical(msg)
+def load_json(filepath: Path) -> Dict[str, Any]:
+    """Load a dictionary from a JSON file."""
+    with open(filepath, 'r') as f:
+        return json.load(f)

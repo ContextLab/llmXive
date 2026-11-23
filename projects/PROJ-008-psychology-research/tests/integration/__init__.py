@@ -1,1 +1,3 @@
-# Integration tests
+"""
+Integration tests for psychology research pipeline.
+"""

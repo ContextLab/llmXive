@@ -1,0 +1,12 @@
+status: none
+intent: FAOSTAT land use data World Bank governance indicators CBNRM classification
+  python package dataset
+required_fields:
+- country_code
+- year
+- land_use_change_rate
+- governance_index
+- regime_type
+cache_key: 1b21398de869087aaf15b3714861553c955ea88681469b36f38227980fdecb67
+searched_at: '2026-10-07T03:44:53.634269+00:00'
+retry_count: 1

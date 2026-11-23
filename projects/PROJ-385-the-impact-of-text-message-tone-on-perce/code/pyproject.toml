@@ -1,0 +1,35 @@
+[project]
+name = "llmXive-text-tone-impact"
+version = "0.1.0"
+description = "Analysis of text message tone on perceived emotional support"
+requires-python = ">=3.10"
+
+[tool.black]
+line-length = 88
+target-version = ["py310"]
+include = ["\\.py$"]
+exclude = [
+    "\\.git/",
+    "\\.venv/",
+    "__pycache__/",
+    "build/",
+    "dist/",
+    "*.egg-info/"
+]
+
+[tool.ruff]
+line-length = 88
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E4", "E7", "F", "W"]
+ignore = []
+
+[tool.ruff.format]
+quote-style = "double"
+indent-width = 4
+line-ending = "auto"
+
+[tool.pytest]
+testpaths = ["tests"]
+pythonpath = ["code"]

@@ -1,82 +1,115 @@
 # Implementation Plan: Gut Microbiome and Cognitive Decline Analysis
 
-**Branch**: `001-gut-microbiome-cognition` | **Date**: 2024-05-21 | **Spec**: `specs/001-investigating-the-correlation-between-gu/spec.md`
+**Branch**: `001-gut-microbiome-cognition` | **Date**: 2026-10-25 | **Spec**: `specs/001-investigating-the-correlation-between-gu/spec.md`  
 **Input**: Feature specification from `specs/001-investigating-the-correlation-between-gu/spec.md`
 
 ## Summary
+Create a fully reproducible CPU‑only pipeline that (1) downloads the American Gut Project (AGP) 16S rRNA taxonomic table **directly from the Qiita/EBI repository** (official endpoint), (2) validates its SHA‑256 checksum, (3) **optionally** ingests a user‑provided **paired microbiome‑cognition dataset** (`data/raw/paired_dataset.parquet`) that already contains microbial genus abundances and cognitive scores for the same participants, (4) filters to participants age ≥ 60, (5) aborts with a clear diagnostic if the paired dataset is **missing or contains fewer than 200 participants** (a **Fatal Coverage Gap**), (6) proceeds with rarefaction, VIF screening, CLR transformation, covariate‑adjusted Spearman correlations, Random Forest modeling, linear regression, sensitivity sweeps, and power analyses **only when the paired dataset meets the size threshold**, A defined limit enforces a RAM guardrail., and (8) assembles all results (including checksum) into a single JSON file validated against contracts.
 
-This feature implements a computational pipeline to investigate associations between gut microbiome composition (16S rRNA data) and cognitive decline in aging populations. The technical approach involves ingesting American Gut Project (AGP) taxonomic data from the official Qiita/EBI repository and Health and Retirement Study (HRS) cognitive metadata from the official HRS portal, merging them by participant ID (if available), and filtering for age ≥ 60. The analysis uses **Cumulative Sum Scaling (CSS)** for normalization, **SparCC** and **SPIEC-EASI** for compositional correlation analysis, and **Random Forest** predictive modeling with nested cross-validation and **SHAP** interpretability. All steps are constrained to run on CPU-only GitHub Actions free-tier runners (≤7 GB RAM, ≤6 hours).
-
-**Critical Feasibility Note**: The plan explicitly treats the linkage of AGP and HRS via a shared participant ID as a "Fatal Coverage Gap" condition. If the official datasets do not share a common identifier, the project is terminated immediately; no synthetic data or simulation studies are used to approximate the research question.
+If the required paired dataset is not supplied, the pipeline stops after the provenance step, logs the deficiency, and **reports that the original research question cannot be answered with publicly available AGP and HRS data**. The specification must then be revised to provide an appropriate paired dataset or to adjust the research question.
 
 ## Technical Context
-
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `scikit-learn`, `scipy`, `statsmodels`, `scikit-bio`, `sparcc`, `shap`, `numpy`, `seaborn`, `pymice`  
-**Storage**: Local file system (CSV/TSV/Parquet) within `data/` and `code/` directories; no external database.  
-**Testing**: `pytest` with contract tests against YAML schemas.  
-**Target Platform**: Linux (GitHub Actions free-tier runner).  
-**Project Type**: Data science / Computational biology pipeline.  
-**Performance Goals**: Execution ≤ 6 hours, RAM ≤ 7 GB, Disk ≤ 14 GB.  
-**Constraints**: No GPU, no CUDA, no 8-bit quantization. Data must be subset/sampled to fit memory.  
-**Scale/Scope**: Analysis of merged samples (AGP+HRS overlap) and microbial genera.
+- **Language/Version**: Python 3.11  
+- **Primary Dependencies**: `pandas==2.2.*`, `numpy==1.26.*`, `scikit-learn==1.5.*`, `statsmodels==0.14.*`, `pingouin==0.5.*`, `shap==0.45.*`, `miceforest==5.6.*`, `datasets==2.20.*`, `psutil==5.9.*`  
+- **Storage**: Local filesystem under `data/` (raw, processed, results, provenance)  
+- **Testing**: `pytest` with contract tests in `tests/contract/`  
+- **Target Platform**: GitHub Actions free‑tier runner (Multiple CPU cores, ≤ 7 GB RAM, ≤ 14 GB disk)  
+- **Performance Goals**: End‑to‑end wall‑clock ≤ 6 h, peak RAM ≤ 6 GB  
+- **Constraints**: CPU‑only execution; no GPU required  
 
 ## Constitution Check
-
-*GATE: Must pass before Phase 0 research.*
-
-| Principle | Status | Action / Note |
-|-----------|--------|---------------|
-| **I. Reproducibility** | PASS | Plan mandates pinned `requirements.txt`, random seeds, and deterministic data fetching from official Qiita/EBI and HRS sources. |
-| **II. Verified Accuracy** | PASS | Plan restricts dataset citations to official sources (Qiita/EBI, HRS). No user-uploaded HuggingFace mirrors. |
-| **III. Data Hygiene** | PASS | Plan requires checksumming of raw data, immutable derivations (new filenames), and PII scanning. |
-| **IV. Single Source of Truth** | PASS | Plan ensures all figures/stats trace to `data/` rows and `code/` blocks. |
-| **V. Versioning Discipline** | PASS | Plan includes content hashing strategy for artifacts. |
-| **VI. Microbiome Data Provenance** | PASS | Plan explicitly sources AGP from official Qiita/EBI repository (Study ID) and HRS from official HRS portal, retaining sample IDs. |
-| **VII. Predictive Modeling Transparency** | PASS | Plan mandates logging of seeds, hyperparameters, and use of **SHAP values** for feature importance, archived alongside model artifacts. |
+| Principle | Status | Note |
+|-----------|--------|------|
+| I. Reproducibility | PASS | Fixed random seeds, deterministic downloads, checksum validation. |
+| II. Verified Accuracy | PASS | All URLs verified; AGP source is the official Qiita/EBI endpoint. |
+| III. Data Hygiene | PASS | Raw files immutable; each transformation writes a new file with recorded checksum. |
+| IV. Single Source of Truth | PASS | Every figure/statistic traces to a single row in `data/processed/paired_dataset.parquet` (when present) and a single code block. |
+| V. Versioning Discipline | PASS | All artifacts hashed; hashes stored in project state. |
+| VI. Microbiome Data Provenance | PASS | AGP taxonomic tables obtained directly from the official Qiita/EBI endpoint. |
+| VII. Predictive Modeling Transparency | PASS | Hyper‑parameters, seeds, performance, permutation null, VIF, and SHAP are logged and archived. |
+| **Spec Feasibility** | **FAIL** | No publicly available paired AGP‑HRS dataset exists. The pipeline therefore aborts early if a suitable paired dataset is not supplied, and the specification must be revised to provide one or to change the research question. |
 
 ## Project Structure
-
-### Documentation (this feature)
-
 ```text
 specs/001-investigating-the-correlation-between-gu/
-├── plan.md              # This file
-├── research.md          # Phase 0 output
-├── data-model.md        # Phase 1 output
-├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+├── plan.md
+├── research.md
+├── data-model.md
+├── quickstart.md
+├── contracts/
+│   ├── correlation.schema.yaml
+│   ├── dataset.schema.yaml
+│   ├── model.schema.yaml
+│   └── results.schema.yaml
+└── tasks.md   # generated later by /speckit-tasks
 ```
-
-### Source Code (repository root)
 
 ```text
 projects/PROJ-189-investigating-the-correlation-between-gu/
 ├── data/
-│   ├── raw/               # Downloaded AGP/HRS raw files (checksummed)
-│   ├── processed/         # Merged, CSS-normalized datasets
-│   └── models/            # Saved model artifacts (pickle/joblib)
+│   ├── raw/
+│   │   ├── agp.parquet          # downloaded from Qiita/EBI
+│   │   └── paired_dataset.parquet   # user‑provided paired microbiome‑cognition data
+│   ├── provenance/
+│   │   ├── expected_checksums.json
+│   │   └── observed_checksums.json
+│   ├── processed/
+│   │   ├── paired_dataset_age60.parquet          # only if ≥ 200 participants
+│   │   ├── clr_normalized.parquet
+│   │   └── imputed.parquet
+│   └── results/
+│       ├── correlations.json
+│       ├── model.json
+│       ├── linear_regression.json
+│       ├── sensitivity.json
+│       ├── unified_results.json
+│       ├── summary.md
+│       └── figures/
+│           ├── correlation_heatmap.png
+│           └── model_shap_summary.png
 ├── code/
-│   ├── requirements.txt   # Pinned dependencies
-│   ├── 01_data_ingestion.py
-│   ├── 02_preprocessing.py
-│   ├── 03_correlation_analysis.py
-│   ├── 04_predictive_modeling.py
-│   ├── 05_sensitivity_analysis.py
+│   ├── requirements.txt
+│   ├── 01_download_and_provenance.py
+│   ├── 02_load_and_filter.py
+│   ├── 03_correlation.py
+│   ├── 04_modeling.py
+│   ├── 05_linear_regression.py
+│   ├── 06_sensitivity.py
 │   └── utils/
-│       ├── metrics.py
-│       └── plot_helpers.py
+│       ├── io.py
+│       └── stats.py
 ├── tests/
-│   ├── contract/          # Tests validating against contracts/*.schema.yaml
-│   ├── integration/       # End-to-end pipeline tests
-│   └── unit/              # Unit tests for helper functions
+│   └── contract/
+│       ├── test_dataset_schema.py
+│       ├── test_correlation_schema.py
+│       ├── test_model_schema.py
+│       └── test_results_schema.py
 └── docs/
-    └── paper_draft.md     # Draft manuscript
+    └── paper_draft.md
 ```
 
-**Structure Decision**: Single project structure selected. The pipeline is linear (ingest → process → analyze → model) and does not require separate backend/frontend services. All logic resides in Python scripts under `code/` to ensure reproducibility and ease of CI execution. QIIME2 artifacts are not used; data is handled via CSV/Parquet.
+## Phase & Task Mapping (covers every FR & SC)
 
-## Complexity Tracking
+| Phase | Task ID | Script | Primary Output | FR / SC addressed |
+|-------|---------|--------|----------------|-------------------|
+| **0 – Provenance Validation** | **T001** | `code/01_download_and_provenance.py` | `data/provenance/observed_checksums.json` | FR‑001, FR‑002, SC‑001 |
+| **1 – Load Paired Dataset & Age Filter** | **T002** | `code/02_load_and_filter.py` | `data/processed/paired_dataset_age60.parquet` (if ≥ 200 rows) | FR‑001, SC‑001 |
+| **1‑a – Size Abort** | **T002‑ABORT** | `code/02_load_and_filter.py` (post‑load) | Log entry; abort if rows < 200 | FR‑001 (implicit), SC‑001 |
+| **2 – VIF Screening & Rarefaction** | **T003** | `code/02_load_and_filter.py` (VIF & rarefy) | Updated `paired_dataset_age60.parquet` (VIF‑flagged taxa removed) | FR‑010 |
+| **3 – CLR Transformation, BMI Imputation & Post‑CLR Collinearity** | **T004** | `code/02_load_and_filter.py` | `clr_normalized.parquet`, `imputed.parquet` | FR‑002, FR‑010 (post‑CLR), FR‑009 |
+| **4 – Covariate‑Adjusted Spearman + BH‑FDR** | **T005** | `code/03_correlation.py` | `data/results/correlations.json` | FR‑003, SC‑002 |
+| **5 – Random Forest (Nested CV)** | **T006** | `code/04_modeling.py` | `data/results/model.json` | FR‑004, FR‑008 |
+| **5‑a – Permutation Null Distribution** | **T007** | `code/04_modeling.py` (permutations) | Embedded in `model.json` | FR‑004, SC‑003 |
+| **6 – Standard Linear Regression** | **T014** | `code/05_linear_regression.py` | `data/results/linear_regression.json` | FR‑013, SC‑002 |
+| **7 – Rarefaction Depth Sensitivity Sweep** | **T009** | `code/06_sensitivity.py` | `data/results/sensitivity.json` | FR‑005 |
+| **8 – Power Analyses (Correlation & Regression)** | **T010** | `code/06_sensitivity.py` (power module) | Power warnings in `summary.md` | FR‑009, SC‑004 |
+| **9 – RAM Guardrail** | **T011** | `code/utils/stats.py` (monitor) invoked by all scripts | Runtime logs; automatic taxa truncation / permutation reduction if RAM > 6 GB | Internal safeguard (supports SC‑004) |
+| **10 – Unified Results Assembly (Checksums Included)** | **T012** | `code/06_sensitivity.py` | `data/results/unified_results.json` | FR‑001, FR‑011, all FR/SC (implicit) |
+| **11 – Reporting** | **T013** | `code/06_sensitivity.py` (summary generation) | `data/results/summary.md` | SC‑001 – SC‑004 |
 
-No complexity violations detected. The plan adheres strictly to the spec's constraints (CPU-only, limited RAM) by explicitly defining data sampling and method choices (e.g., Random Forest over deep learning, CSS over rarefaction) that fit the hardware.
+All tasks are deterministic, produce real files, and are validated by the contract tests listed in `tests/contract/`. Downstream tasks (4‑11) are **conditionally executed** only when the paired dataset exists and meets the ≥ 200 participant threshold; otherwise the pipeline stops after T002‑ABORT and reports the fatal coverage gap, satisfying SC‑001 by explicitly documenting the failure rather than fabricating data.
+
+---
+
+
+

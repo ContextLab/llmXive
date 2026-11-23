@@ -1,0 +1,17 @@
+c20ff344e818e9bc2ef33fc38f72a666  ./annotation_hashes.txt
+00d23ed991b09af6776a81ca67cc7b5d  ./GCF_000513435.1_HRSP_AJ67_assembly_report.txt
+15fcb3648b7cba369e6f3678ceccc69f  ./GCF_000513435.1_HRSP_AJ67_assembly_stats.txt
+78038ce81ee4a0609d209725974789c8  ./GCF_000513435.1_HRSP_AJ67_cds_from_genomic.fna.gz
+fc450afeb38ad0cf7e7ba1a386d924f9  ./GCF_000513435.1_HRSP_AJ67_fcs_report.txt
+299bba2b8ba23482829b8c245bbac38c  ./GCF_000513435.1_HRSP_AJ67_feature_count.txt
+482d44509f341f57dcc59bd94d9e8ff6  ./GCF_000513435.1_HRSP_AJ67_feature_table.txt.gz
+de0f423152dc660d407adec792bf163e  ./GCF_000513435.1_HRSP_AJ67_genomic.fna.gz
+8aec2e934b84c7a48f8dd9773cc3221f  ./GCF_000513435.1_HRSP_AJ67_genomic_gaps.txt.gz
+6af18db508bab2cd42339ba48cb3b7c3  ./GCF_000513435.1_HRSP_AJ67_genomic.gbff.gz
+c2d1e6031a00b0777c3816f1c7ee3f1a  ./GCF_000513435.1_HRSP_AJ67_genomic.gff.gz
+d63ba2962e4ccfde01cf7eb42e05a944  ./GCF_000513435.1_HRSP_AJ67_genomic.gtf.gz
+615a633dc9aba15dcbac792445ba9c02  ./GCF_000513435.1_HRSP_AJ67_protein.faa.gz
+5b41989da4c1bf7d19d9c5a76042bd8a  ./GCF_000513435.1_HRSP_AJ67_protein.gpff.gz
+92d85cc57e94c0a79e669a1c151bf44a  ./GCF_000513435.1_HRSP_AJ67_rna_from_genomic.fna.gz
+12222efd42c85733ef11a1e06013f391  ./GCF_000513435.1_HRSP_AJ67_translated_cds.faa.gz
+ba8f8bc7d27c9e3b60aed0da5b5c4350  ./GCF_000513435.1_HRSP_AJ67_wgsmaster.gbff.gz

@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "StatisticalResult"
+description: "Schema for aggregated statistical analysis results."
+type: "object"
+properties:
+  metric_type:
+    type: "string"
+    description: "Type of metric analyzed (e.g., 'lexical_spearman', 'syntactic_spearman')."
+  correlation_coefficient:
+    type: "number"
+    description: "Spearman correlation coefficient."
+  p_value:
+    type: "number"
+    description: "P-value for the correlation test."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of the 95% bootstrap confidence interval."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of the 95% bootstrap confidence interval."
+  n_samples:
+    type: "integer"
+    description: "Number of samples used in the analysis."
+  bootstrap_iterations:
+    type: "integer"
+    description: "Number of bootstrap iterations performed."
+  adjusted_alpha:
+    type: "number"
+    description: "Bonferroni-corrected alpha threshold."
+  significant:
+    type: "boolean"
+    description: "True if p_value < adjusted_alpha."
+  pseudo_r2:
+    type: "number"
+    description: "McFadden's Pseudo-R2 for the ordinal regression model."
+required:
+  - metric_type
+  - correlation_coefficient
+  - p_value
+  - ci_lower
+  - ci_upper
+  - n_samples
+  - bootstrap_iterations
+  - adjusted_alpha
+  - significant
+  - pseudo_r2
+additionalProperties: false

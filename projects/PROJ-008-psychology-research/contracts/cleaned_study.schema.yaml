@@ -1,133 +1,79 @@
-$schema: http://json-schema.org/draft-07/schema#
-title: Cleaned Study Schema
-description: >-
-  Schema for validated study records extracted from ClinicalTrials.gov and OSF.
-  Enforces inclusion criteria: Age 6-12, ASD diagnosis, Social Skill outcomes.
-  Used for contract testing (T011) and data integrity validation (T042).
+$schema: "http://json-schema.org/draft-07/schema#"
 type: object
 required:
-  - study_id
-  - source
+  - id
   - title
-  - population_age_min
-  - population_age_max
-  - asd_diagnosis_confirmed
+  - registry
+  - age_range
+  - diagnosis
+  - outcomes
   - intervention_components
   - delivery_format
-  - social_skill_domains
-  - n_total
-  - n_intervention
-  - n_control
-  - outcome_measure
-  - effect_size_available
+  - social_skill_domain
 properties:
-  study_id:
+  id:
     type: string
-    description: Unique identifier from source (e.g., NCT number or OSF ID)
-    pattern: "^[A-Za-z0-9_-]+$"
-  source:
-    type: string
-    enum:
-      - ClinicalTrials.gov
-      - OSF
-    description: Origin registry per Constitution Principle VI
+    description: "Unique identifier for the study"
   title:
     type: string
-    minLength: 1
-  description:
+    description: "Title of the study"
+  registry:
     type: string
-    nullable: true
-  publication_year:
-    type: integer
-    minimum: 1900
-    maximum: 2099
-    nullable: true
-  population_age_min:
-    type: integer
-    minimum: 6
-    maximum: 12
-    description: Minimum age of participants (Inclusion Criteria: 6-12)
-  population_age_max:
-    type: integer
-    minimum: 6
-    maximum: 12
-    description: Maximum age of participants
-  asd_diagnosis_confirmed:
-    type: boolean
-    description: True if all participants had confirmed ASD diagnosis
+    enum: ["ClinicalTrials.gov", "OSF"]
+    description: "Source registry of the study"
+  age_range:
+    type: object
+    required:
+      - min
+      - max
+    properties:
+      min:
+        type: integer
+        minimum: 6
+        description: "Minimum age of participants"
+      max:
+        type: integer
+        maximum: 12
+        description: "Maximum age of participants"
+  diagnosis:
+    type: string
+    const: "ASD"
+    description: "Diagnosis of participants (Autism Spectrum Disorder)"
+  outcomes:
+    type: array
+    items:
+      type: string
+    description: "List of outcome measures reported"
   intervention_components:
     type: array
     items:
-      $ref: "#/$defs/MindfulnessComponent"
-    minItems: 1
-    description: Specific mindfulness components extracted (e.g., Breathing, Body Scan)
+      type: string
+      enum: ["breathing", "body scan", "mindful movement", "mindful eating", "none"]
+    description: "Mindfulness intervention components present in the study"
   delivery_format:
-    $ref: "#/$defs/DeliveryFormat"
-    description: Format of intervention delivery (Individual, Group, etc.)
-  social_skill_domains:
-    type: array
-    items:
-      $ref: "#/$defs/SocialSkillDomain"
-    minItems: 1
-    description: Targeted social skill domains
-  n_total:
-    type: integer
-    minimum: 2
-    description: Total sample size
-  n_intervention:
-    type: integer
-    minimum: 1
-    description: Number of participants in intervention group
-  n_control:
-    type: integer
-    minimum: 1
-    description: Number of participants in control group
-  outcome_measure:
     type: string
-    description: Name of the primary social skill outcome measure
-  effect_size_available:
+    enum: ["caregiver-mediated", "child-led", "mixed", "not-reported"]
+    description: "Format of intervention delivery"
+  follow_up:
+    type: string
+    nullable: true
+    description: "Follow-up duration string (e.g., '3 months')"
+  abstract_text:
+    type: string
+    nullable: true
+    description: "Full text of the study abstract"
+  social_skill_domain:
+    type: string
+    enum: ["communication", "peer interaction", "emotional regulation", "mixed", "other"]
+    description: "Primary social skill domain targeted"
+  domain_notes:
+    type: string
+    nullable: true
+    description: "Unmatched domain descriptions captured when no keyword match found"
+  blinded_assessment_flag:
     type: boolean
-    description: Indicates if sufficient statistics exist for Hedges' g calculation
-  raw_data_link:
+    description: "True if outcome assessment was blinded to intervention status"
+  rater_type:
     type: string
-    format: uri
-    nullable: true
-    description: Link to raw data if available
-  notes:
-    type: string
-    nullable: true
-    description: Extraction notes or limitations
-$defs:
-  MindfulnessComponent:
-    type: string
-    enum:
-      - Breathing
-      - Body Scan
-      - Mindful Movement
-      - Loving Kindness
-      - Open Monitoring
-      - Focused Attention
-      - Acceptance
-      - Other
-    description: Standardized mindfulness component taxonomy
-  DeliveryFormat:
-    type: string
-    enum:
-      - Individual
-      - Group
-      - Parent-mediated
-      - School-based
-      - Hybrid
-      - Online
-    description: Delivery format taxonomy
-  SocialSkillDomain:
-    type: string
-    enum:
-      - Communication
-      - Social Interaction
-      - Emotional Regulation
-      - Peer Relationships
-      - Theory of Mind
-      - Adaptive Behavior
-      - Other
-    description: Targeted social skill domain taxonomy
+    enum: ["blinded", "unblinded", "mixed"]
+    description: "Type of rater used for primary outcome"

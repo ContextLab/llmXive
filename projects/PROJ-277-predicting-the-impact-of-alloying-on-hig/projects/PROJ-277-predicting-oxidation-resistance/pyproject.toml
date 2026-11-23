@@ -3,10 +3,10 @@ requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "predicting-oxidation-resistance"
+name = "llmxive-oxidation-predictor"
 version = "0.1.0"
 description = "Predicting the Impact of Alloying on High-Temperature Oxidation Resistance"
-readme = "README.md"
+authors = [{name = "llmXive Team"}]
 requires-python = ">=3.9"
 dependencies = [
     "pandas>=2.0.0",
@@ -17,22 +17,20 @@ dependencies = [
     "numpy>=1.24.0",
     "matplotlib>=3.7.0",
     "statsmodels>=0.14.0",
+    "scipy>=1.11.0",
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "mypy>=1.0.0",
+    "pytest>=7.0.0",
+    "pre-commit>=3.0.0"
 ]
 
 [project.optional-dependencies]
 dev = [
-    "flake8>=6.1.0",
-    "black>=23.7.0",
-    "pre-commit>=3.4.0",
-    "pytest>=7.4.0",
+    "pytest-cov>=4.0.0",
+    "ipykernel>=6.0.0",
+    "jupyter>=1.0.0"
 ]
-
-[project.scripts]
-oxidation-predict = "code.main:main"
-
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["code*", "tests*"]
 
 [tool.black]
 line-length = 88
@@ -40,38 +38,40 @@ target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | _build
-  | buck-out
-  | build
-  | dist
+    \.eggs
+    | \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
 )/
 '''
 
 [tool.flake8]
 max-line-length = 88
-extend-ignore = ["E203", "W503"]
+extend-ignore = "E203, W503"
 exclude = [
     ".git",
     "__pycache__",
+    "venv",
     "build",
     "dist",
     ".eggs",
-    "*.egg-info",
-    ".venv",
-    "venv",
+    "*.egg-info"
 ]
-per-file-ignores = [
-    "__init__.py:F401",
-]
-max-complexity = 10
+
+[tool.mypy]
+python_version = "3.9"
+warn_return_any = true
+warn_unused_configs = true
+ignore_missing_imports = true
+no_implicit_optional = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
-python_functions = ["test_*"]
 addopts = "-v --tb=short"

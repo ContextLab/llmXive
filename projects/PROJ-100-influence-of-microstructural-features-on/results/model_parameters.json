@@ -1,0 +1,24 @@
+{
+  "RandomForest": {
+    "n_estimators": 100,
+    "random_state": 42,
+    "n_jobs": 1,
+    "max_depth": null,
+    "min_samples_split": 2,
+    "min_samples_leaf": 1
+  },
+  "GradientBoosting": {
+    "n_estimators": 100,
+    "random_state": 42,
+    "max_depth": 5,
+    "learning_rate": 0.1,
+    "subsample": 1.0
+  },
+  "ElasticNet": {
+    "alpha": 0.1,
+    "l1_ratio": 0.5,
+    "random_state": 42,
+    "max_iter": 1000,
+    "tol": 0.0001
+  }
+}

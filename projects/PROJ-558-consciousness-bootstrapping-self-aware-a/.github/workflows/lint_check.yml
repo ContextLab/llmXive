@@ -1,0 +1,42 @@
+name: Lint and Format Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  lint-and-format:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install ruff black
+
+      - name: Run ruff check
+        run: |
+          python code/utils/lint_check.py
+
+      - name: Run black check
+        run: |
+          python code/utils/lint_check.py
+
+      - name: Verify exit code
+        run: |
+          python code/utils/lint_check.py
+          if [ $? -ne 0 ]; then
+            echo "Linting or formatting checks failed. Please run 'ruff check code/' and 'black --check code/' to fix issues."
+            exit 1
+          fi

@@ -7,6 +7,5 @@ pyyaml
 requests
 datasets
 joblib
-pytest
-ruff
-black
+huggingface_hub
+# Existing dependencies were retained; added huggingface_hb for dataset discovery.

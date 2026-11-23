@@ -1,8 +1,8 @@
 """
-Task T016: Add validation to ensure output parquet files match contracts/dataset.schema.yaml.
+Schema validation module for the microbiome-cognition correlation project.
 
-This script loads processed parquet files from data/processed/, validates them against
-the schema defined in contracts/dataset.schema.yaml, and reports any mismatches.
+Validates output parquet files against the dataset schema defined in 
+contracts/dataset.schema.yaml using pandera.
 """
 import os
 import sys
@@ -10,203 +10,216 @@ import logging
 import yaml
 from pathlib import Path
 import pandas as pd
-import json
+import pandera as pa
+from pandera.typing import Series
+from typing import Dict, Any, Optional
+import argparse
 
-# Add project root to path to import local modules
-project_root = Path(__file__).resolve().parent.parent
-if str(project_root) not in sys.path:
-    sys.path.insert(0, str(project_root))
+# Configure logging
+logger = logging.getLogger(__name__)
+if not logger.handlers:
+    handler = logging.StreamHandler(sys.stdout)
+    handler.setFormatter(logging.Formatter(
+        '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    ))
+    logger.addHandler(handler)
+    logger.setLevel(logging.INFO)
 
-from utils import get_data_processed_path, get_contracts_path, setup_logger, get_logger
-from schemas import MicrobialTaxa, CognitiveScore
+def get_project_root() -> Path:
+    """Get the project root directory."""
+    current = Path(__file__).resolve()
+    while current.name != 'llmXive' and current != current.parent:
+        current = current.parent
+    return current / 'projects' / 'PROJ-346-investigating-the-correlation-between-gu'
 
-# Setup logging
-setup_logger("validation", level=logging.INFO)
-logger = get_logger("validation")
-
-SCHEMA_FILE = "dataset.schema.yaml"
-MICROBIOME_OUTPUT = "microbiome_processed.parquet"
-COGNITIVE_OUTPUT = "cognitive_processed.parquet"
-
-def load_schema(schema_path: Path) -> dict:
-    """Load the YAML schema definition."""
+def load_schema(schema_path: Path) -> Dict[str, Any]:
+    """
+    Load the YAML schema definition from file.
+    
+    Args:
+        schema_path: Path to the schema YAML file
+        
+    Returns:
+        Dictionary containing the schema definition
+    """
     if not schema_path.exists():
-        logger.error(f"Schema file not found: {schema_path}")
         raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
     with open(schema_path, 'r') as f:
-        return yaml.safe_load(f)
+        schema_def = yaml.safe_load(f)
+    
+    if not schema_def:
+        raise ValueError("Schema file is empty or invalid YAML")
+    
+    return schema_def
 
-def validate_microbiome_schema(df: pd.DataFrame, schema: dict) -> tuple[bool, list[str]]:
+def create_pandera_schema(schema_def: Dict[str, Any]) -> pa.DataFrameSchema:
     """
-    Validate microbiome dataframe against the schema.
-    Returns (is_valid, list_of_errors).
+    Convert YAML schema definition to a pandera DataFrameSchema.
+    
+    Args:
+        schema_def: Dictionary containing schema definition from YAML
+        
+    Returns:
+        pandera DataFrameSchema object
     """
-    errors = []
-    expected_schema = schema.get("MicrobialTaxa", {})
+    columns = {}
     
-    # Check required columns
-    required_columns = expected_schema.get("required_columns", [])
-    actual_columns = set(df.columns)
-    
-    for col in required_columns:
-        if col not in actual_columns:
-            errors.append(f"Missing required column: {col}")
-    
-    # Check data types for specific columns if defined
-    type_mapping = expected_schema.get("column_types", {})
-    for col, expected_type in type_mapping.items():
-        if col in actual_columns:
-            actual_dtype = str(df[col].dtype)
-            # Simple type mapping for validation
-            type_map = {
-                'int': ['int64', 'int32', 'Int64'],
-                'float': ['float64', 'float32'],
-                'str': ['object', 'string'],
-                'datetime': ['datetime64[ns]']
-            }
+    # Handle MicrobialTaxa schema
+    if 'MicrobialTaxa' in schema_def:
+        taxa_fields = schema_def['MicrobialTaxa']
+        for field_name, field_props in taxa_fields.items():
+            dtype = field_props.get('type', 'str')
+            nullable = field_props.get('nullable', False)
+            required = field_props.get('required', True)
             
-            is_valid_type = False
-            for py_type, pandas_types in type_map.items():
-                if expected_type.lower() == py_type:
-                    if actual_dtype in pandas_types:
-                        is_valid_type = True
-                        break
+            # Map YAML types to pandera dtypes
+            if dtype == 'str':
+                pandera_dtype = pa.String
+            elif dtype == 'float':
+                pandera_dtype = pa.Float
+            elif dtype == 'int':
+                pandera_dtype = pa.Int
+            else:
+                pandera_dtype = pa.Object  # Fallback for unknown types
             
-            if not is_valid_type:
-                errors.append(f"Column '{col}' has type {actual_dtype}, expected {expected_type}")
+            # Add checks if specified
+            checks = []
+            if 'min_value' in field_props:
+                checks.append(pa.Check.gte(field_props['min_value']))
+            if 'max_value' in field_props:
+                checks.append(pa.Check.lte(field_props['max_value']))
+            if 'str_length' in field_props:
+                min_len = field_props['str_length'].get('min', 0)
+                max_len = field_props['str_length'].get('max', None)
+                checks.append(pa.Check.str_length(min_len, max_len))
+            
+            columns[field_name] = pa.Column(
+                pandera_dtype,
+                nullable=nullable,
+                required=required,
+                checks=checks if checks else None,
+                name=field_name
+            )
+    
+    # Handle CognitiveScore schema
+    if 'CognitiveScore' in schema_def:
+        cog_fields = schema_def['CognitiveScore']
+        for field_name, field_props in cog_fields.items():
+            dtype = field_props.get('type', 'str')
+            nullable = field_props.get('nullable', False)
+            required = field_props.get('required', True)
+            
+            if dtype == 'str':
+                pandera_dtype = pa.String
+            elif dtype == 'float':
+                pandera_dtype = pa.Float
+            elif dtype == 'int':
+                pandera_dtype = pa.Int
+            else:
+                pandera_dtype = pa.Object
+            
+            checks = []
+            if 'min_value' in field_props:
+                checks.append(pa.Check.gte(field_props['min_value']))
+            if 'max_value' in field_props:
+                checks.append(pa.Check.lte(field_props['max_value']))
+            
+            columns[field_name] = pa.Column(
+                pandera_dtype,
+                nullable=nullable,
+                required=required,
+                checks=checks if checks else None,
+                name=field_name
+            )
+    
+    return pa.DataFrameSchema(columns, name="DatasetSchema")
 
-    # Validate specific constraints if defined (e.g., non-negative values for abundance)
-    constraints = expected_schema.get("constraints", [])
-    for constraint in constraints:
-        col = constraint.get("column")
-        if col in actual_columns:
-            if constraint.get("type") == "non_negative":
-                if (df[col] < 0).any():
-                    errors.append(f"Column '{col}' contains negative values")
-            elif constraint.get("type") == "range":
-                min_val = constraint.get("min")
-                max_val = constraint.get("max")
-                if min_val is not None and (df[col] < min_val).any():
-                    errors.append(f"Column '{col}' contains values below {min_val}")
-                if max_val is not None and (df[col] > max_val).any():
-                    errors.append(f"Column '{col}' contains values above {max_val}")
-
-    return len(errors) == 0, errors
-
-def validate_cognitive_schema(df: pd.DataFrame, schema: dict) -> tuple[bool, list[str]]:
+def validate_file_against_schema(
+    file_path: Path, 
+    schema_path: Optional[Path] = None,
+    schema_name: str = "DatasetSchema"
+) -> bool:
     """
-    Validate cognitive dataframe against the schema.
-    Returns (is_valid, list_of_errors).
+    Validate a parquet file against the dataset schema.
+    
+    Args:
+        file_path: Path to the parquet file to validate
+        schema_path: Optional path to schema YAML (defaults to contracts/dataset.schema.yaml)
+        schema_name: Name of the schema to use (for future extensibility)
+        
+    Returns:
+        True if validation passes, False otherwise
+        
+    Raises:
+        FileNotFoundError: If file or schema doesn't exist
+        ValueError: If validation fails
     """
-    errors = []
-    expected_schema = schema.get("CognitiveScore", {})
+    if not file_path.exists():
+        raise FileNotFoundError(f"File to validate not found: {file_path}")
     
-    # Check required columns
-    required_columns = expected_schema.get("required_columns", [])
-    actual_columns = set(df.columns)
+    if schema_path is None:
+        contracts_path = get_project_root() / 'contracts'
+        schema_path = contracts_path / 'dataset.schema.yaml'
     
-    for col in required_columns:
-        if col not in actual_columns:
-            errors.append(f"Missing required column: {col}")
-    
-    # Check data types
-    type_mapping = expected_schema.get("column_types", {})
-    for col, expected_type in type_mapping.items():
-        if col in actual_columns:
-            actual_dtype = str(df[col].dtype)
-            type_map = {
-                'int': ['int64', 'int32', 'Int64'],
-                'float': ['float64', 'float32'],
-                'str': ['object', 'string'],
-                'datetime': ['datetime64[ns]']
-            }
-            
-            is_valid_type = False
-            for py_type, pandas_types in type_map.items():
-                if expected_type.lower() == py_type:
-                    if actual_dtype in pandas_types:
-                        is_valid_type = True
-                        break
-            
-            if not is_valid_type:
-                errors.append(f"Column '{col}' has type {actual_dtype}, expected {expected_type}")
-
-    # Validate constraints
-    constraints = expected_schema.get("constraints", [])
-    for constraint in constraints:
-        col = constraint.get("column")
-        if col in actual_columns:
-            if constraint.get("type") == "non_null":
-                if df[col].isnull().any():
-                    errors.append(f"Column '{col}' contains null values")
-            elif constraint.get("type") == "range":
-                min_val = constraint.get("min")
-                max_val = constraint.get("max")
-                if min_val is not None and (df[col] < min_val).any():
-                    errors.append(f"Column '{col}' contains values below {min_val}")
-                if max_val is not None and (df[col] > max_val).any():
-                    errors.append(f"Column '{col}' contains values above {max_val}")
-
-    return len(errors) == 0, errors
-
-def main():
-    """Main execution function for schema validation."""
-    logger.info("Starting schema validation for processed datasets...")
-    
-    # Paths
-    data_dir = get_data_processed_path()
-    contracts_dir = get_contracts_path()
-    schema_path = contracts_dir / SCHEMA_FILE
+    if not schema_path.exists():
+        raise FileNotFoundError(f"Schema file not found: {schema_path}")
     
     # Load schema
+    logger.info(f"Loading schema from {schema_path}")
+    schema_def = load_schema(schema_path)
+    schema = create_pandera_schema(schema_def)
+    
+    # Load data
+    logger.info(f"Loading data from {file_path}")
+    df = pd.read_parquet(file_path)
+    
+    logger.info(f"Validating {len(df)} rows against schema")
+    
     try:
-        schema = load_schema(schema_path)
-        logger.info(f"Schema loaded successfully from {schema_path}")
+        # Validate the dataframe
+        validated_df = schema.validate(df)
+        logger.info(f"Validation successful: {len(validated_df)} rows passed")
+        return True
+    except pa.errors.SchemaErrors as e:
+        logger.error(f"Schema validation failed with {len(e.schema_errors)} errors:")
+        for error in e.schema_errors:
+            logger.error(f"  - {error}")
+        raise ValueError(f"Schema validation failed: {e}")
+    except pa.errors.SchemaError as e:
+        logger.error(f"Schema validation failed: {e}")
+        raise ValueError(f"Schema validation failed: {e}")
+
+def main():
+    """Main entry point for schema validation."""
+    parser = argparse.ArgumentParser(
+        description="Validate parquet files against dataset schema"
+    )
+    parser.add_argument(
+        "--file",
+        type=str,
+        required=True,
+        help="Path to parquet file to validate"
+    )
+    parser.add_argument(
+        "--schema",
+        type=str,
+        default=None,
+        help="Path to schema YAML file (default: contracts/dataset.schema.yaml)"
+    )
+    
+    args = parser.parse_args()
+    
+    file_path = Path(args.file)
+    schema_path = Path(args.schema) if args.schema else None
+    
+    try:
+        if validate_file_against_schema(file_path, schema_path):
+            logger.info(f"SUCCESS: {file_path.name} passes schema validation")
+            sys.exit(0)
     except Exception as e:
-        logger.error(f"Failed to load schema: {e}")
-        return 1
-    
-    # Validate Microbiome Data
-    microbiome_path = data_dir / MICROBIOME_OUTPUT
-    if microbiome_path.exists():
-        logger.info(f"Validating microbiome data: {microbiome_path}")
-        try:
-            df_micro = pd.read_parquet(microbiome_path)
-            is_valid, errors = validate_microbiome_schema(df_micro, schema)
-            
-            if is_valid:
-                logger.info("Microbiome data validation PASSED")
-            else:
-                logger.error("Microbiome data validation FAILED:")
-                for err in errors:
-                    logger.error(f"  - {err}")
-        except Exception as e:
-            logger.error(f"Error reading or validating microbiome data: {e}")
-    else:
-        logger.warning(f"Microbiome data file not found: {microbiome_path}")
-    
-    # Validate Cognitive Data
-    cognitive_path = data_dir / COGNITIVE_OUTPUT
-    if cognitive_path.exists():
-        logger.info(f"Validating cognitive data: {cognitive_path}")
-        try:
-            df_cog = pd.read_parquet(cognitive_path)
-            is_valid, errors = validate_cognitive_schema(df_cog, schema)
-            
-            if is_valid:
-                logger.info("Cognitive data validation PASSED")
-            else:
-                logger.error("Cognitive data validation FAILED:")
-                for err in errors:
-                    logger.error(f"  - {err}")
-        except Exception as e:
-            logger.error(f"Error reading or validating cognitive data: {e}")
-    else:
-        logger.warning(f"Cognitive data file not found: {cognitive_path}")
-    
-    logger.info("Schema validation completed.")
-    return 0
+        logger.error(f"FAILED: {file_path.name} does not pass schema validation: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

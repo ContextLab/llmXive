@@ -1,94 +1,44 @@
-"""
-Provenance tracking for the gene regulation pipeline.
-Records dataset sources, accession IDs, and download timestamps.
-"""
 import json
 import os
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Dict, Any, Optional, List
-
 from code.config import DATA_PROCESSED_DIR
 
-PROVENANCE_FILE = Path(DATA_PROCESSED_DIR) / "provenance.json"
+PROVENANCE_FILE = DATA_PROCESSED_DIR / "provenance.json"
 
 def initialize_provenance() -> Dict[str, Any]:
-    """
-    Initialize a new provenance record.
-    """
+    """Initialize a new provenance record."""
     return {
         "created_at": datetime.now(timezone.utc).isoformat(),
-        "datasets": {},
+        "encode_accessions": [],
         "jaspar_version": None,
-        "encode_accessions": {}
+        "genome_build": None,
+        "pipeline_version": "0.1.0"
     }
 
 def load_provenance() -> Dict[str, Any]:
-    """
-    Load existing provenance or initialize new if not found.
-    """
+    """Load existing provenance or create new."""
     if PROVENANCE_FILE.exists():
         with open(PROVENANCE_FILE, 'r') as f:
             return json.load(f)
     return initialize_provenance()
 
-def save_provenance(provenance: Optional[Dict[str, Any]] = None) -> None:
-    """
-    Save provenance to disk.
-    """
-    if provenance is None:
-        provenance = load_provenance()
-    
-    # Ensure parent directory exists
+def save_provenance(record: Dict[str, Any]) -> None:
+    """Save provenance record to file."""
     PROVENANCE_FILE.parent.mkdir(parents=True, exist_ok=True)
-    
     with open(PROVENANCE_FILE, 'w') as f:
-        json.dump(provenance, f, indent=2)
+        json.dump(record, f, indent=2)
 
-def add_encode_accession(cell_type: str, accession: str, file_path: str) -> None:
-    """
-    Add an ENCODE accession ID to the provenance record.
-    """
-    provenance = load_provenance()
-    
-    if "encode_accessions" not in provenance:
-        provenance["encode_accessions"] = {}
-    
-    provenance["encode_accessions"][cell_type] = {
-        "accession": accession,
-        "file_path": file_path,
-        "downloaded_at": datetime.now(timezone.utc).isoformat()
-    }
-    
-    save_provenance(provenance)
+def add_encode_accession(record: Dict[str, Any], accession: str) -> None:
+    """Add an ENCODE accession ID to the record."""
+    if accession not in record["encode_accessions"]:
+        record["encode_accessions"].append(accession)
 
-def set_jaspar_version(version: str) -> None:
-    """
-    Set the JASPAR database version used.
-    """
-    provenance = load_provenance()
-    provenance["jaspar_version"] = version
-    provenance["updated_at"] = datetime.now(timezone.utc).isoformat()
-    save_provenance(provenance)
+def set_jaspar_version(record: Dict[str, Any], version: str) -> None:
+    """Set the JASPAR database version."""
+    record["jaspar_version"] = version
 
 def get_provenance_report() -> Dict[str, Any]:
-    """
-    Generate a summary report of the provenance.
-    """
-    provenance = load_provenance()
-    
-    report = {
-        "created_at": provenance.get("created_at"),
-        "jaspar_version": provenance.get("jaspar_version"),
-        "datasets": {},
-        "total_encode_accessions": len(provenance.get("encode_accessions", {}))
-    }
-    
-    for cell_type, info in provenance.get("encode_accessions", {}).items():
-        report["datasets"][cell_type] = {
-            "accession": info.get("accession"),
-            "file_path": info.get("file_path"),
-            "downloaded_at": info.get("downloaded_at")
-        }
-    
-    return report
+    """Get the current provenance report."""
+    return load_provenance()

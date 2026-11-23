@@ -1,0 +1,20 @@
+{
+  "project_id": "PROJ-280-investigating-microbial-community-succes",
+  "ok": false,
+  "reason": "5 command(s) failed: python code/01_retrieve_data.py (rc=1); python code/02_preprocess.py (rc=1); python code/03_diversity.py (rc=1); 2 declared deliverable(s) absent: data/processed/power_analysis_report.json; data/processed/sample_size_validation.json",
+  "artifacts": [],
+  "failures": [
+    "python code/01_retrieve_data.py -> rc=1\n    2026-07-29 04:45:10,549 - INFO - Starting data retrieval process...\n2026-07-29 04:45:10,549 - INFO - Validating configuration file: /home/runner/work/llmXive/llmXive/projects/PROJ-280-investigating-microbial-community-succes/data/config/dataset_ids.json\n2026-07-29 04:45:10,549 - ERROR - CRITICAL DATA GAP: Error during validation: Schema file not found: /home/runner/work/llmXive/llmXive/projects/PROJ-280-investigating-microbial-community-succes/data/contracts/dataset-config.schema.yaml",
+    "python code/02_preprocess.py -> rc=1\n    2026-07-29 04:45:11,322 - INFO - Starting Preprocessing Pipeline...\n2026-07-29 04:45:11,322 - ERROR - CRITICAL DATA GAP: No feature table found in data/raw/",
+    "python code/03_diversity.py -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-280-investigating-microbial-community-succes/code/03_diversity.py\", line 11, in <module>\n    from skbio.stats.distance import permanova, beta_diversity\nImportError: cannot import name 'beta_diversity' from 'skbio.stats.distance' (/home/runner/work/llmXive/llmXive/projects/PROJ-280-investigating-microbial-community-succes/code/.venv/lib/python3.11/site-packages/skbio/stats/distance/__init__.py)",
+    "python code/04_network.py -> rc=1\n    2026-07-29 04:45:13,388 - ERROR - Feature table not found. Ensure T012/T013 has run.",
+    "python code/05_correlation.py -> rc=1\n    2026-07-29 04:45:14,128 - ERROR - Required processed data files missing. Run T012/T013 first."
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-07-29T04:45:16Z"
+}

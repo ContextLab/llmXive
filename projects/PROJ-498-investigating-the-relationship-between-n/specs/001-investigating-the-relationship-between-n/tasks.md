@@ -1,238 +1,197 @@
 # Tasks: Investigating the Relationship Between Neural Synchrony and Attention Switching Costs
 
-**Input**: Design documents from `/specs/001-investigating-neural-synchrony-attention-switching/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
-
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
-
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001a [P] Create directory structure: `projects/PROJ-498-investigating-the-relationship-between-n/`, `projects/PROJ-498-investigating-the-relationship-between-n/code/`, `projects/PROJ-498-investigating-the-relationship-between-n/data/`, `projects/PROJ-498-investigating-the-relationship-between-n/tests/`
-- [X] T001b [P] Create subdirectories: `data/raw/`, `data/processed/`, `data/metrics/`, `data/trial_level/`, `code/`, `tests/unit/`, `tests/integration/`, `contracts/`, `logs/`
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T002 Initialize Python 3 project with dependencies in `requirements.txt` (strict version pinning required, e.g., 'mne==1.7.0', 'numpy==1.24.3', 'scipy==1.11.0', 'pandas==2.0.0', 'statsmodels==0.14.0', 'scikit-learn==1.3.0', 'pyyaml==6.0.1', 'openneuro-py==2.2.0', 'bids-validator==1.12.0')
-- [X] T003 [P] Configure linting and formatting tools (black, flake8, isort) in `projects/PROJ-498-investigating-the-relationship-between-n/`
-- [X] T004 Implement `code/update_state_hashes.py` to generate/verify content hashes for artifacts
-- [X] T005 Implement `code/config.py` with paths, seeds, and hyperparameters (bandpass low-frequency range to 45Hz, epoch to +2000ms, pre-stim to 0ms)
-- [X] T006 [P] Setup directory structure: `data/raw/`, `data/processed/`, `data/metrics/`, `data/trial_level/`, `code/`, `tests/`
-- [X] T007 Implement logging infrastructure to `logs/processing.log` and exclusion tracking to `data/exclusions.csv`
-- [X] T008 Create `contracts/data_gap_report.schema.yaml` for the "Data Gap Report" artifact (defines keys: `dataset_id`, `reason`, `timestamp`, `fallback_id` where `fallback_id` is OPTIONAL/NULLABLE and MUST be set to `null` if no dataset is found)
-- [X] T009 Create `contracts/sensitivity_report.schema.yaml` and `contracts/trial_level_analysis.schema.yaml`
-
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+**Input**: Design documents from `/specs/001-investigating-neural-synchrony-attention-switching/`  
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `data-model.md`, `contracts/`
 
 ---
 
-## Phase 3: User Story 1 - Preprocess and Epoch Public Task-Switching EEG Data (Priority: P1) 🎯 MVP
+## Phase 1 – Setup & First End‑to‑End Analysis  
 
-**Goal**: Download a verified task-switching dataset from OpenNeuro via dynamic search, preprocess it with strict memory constraints, and epoch it for analysis.
+**Goal**: Establish a reproducible project skeleton and basic tooling.  
 
-**Independent Test**: Run on a single subject; verify output contains valid epoch objects with correct time window and no NaN artifacts; verify peak RSS ≤ 6.5 GB.
+- [X] T001 [P] Create directory structure  
+  - `projects/PROJ-498-investigating-the-relationship-between-n/`  
+  - `projects/PROJ-498-investigating-the-relationship-between-n/code/`  
+  - `projects/PROJ-498-investigating-the-relationship-between-n/data/`  
+  - `projects/PROJ-498-investigating-the-relationship-between-n/tests/`  
+  - **Verification**: All directories exist on the filesystem.
 
-### Implementation for User Story 1
+- [ ] T002 [P] Initialise Python 3 project with pinned dependencies in `requirements.txt`  
+  - Includes `mne==1.7.0`, `numpy==1.24.3`, `scipy==1.11.0`, `pandas==2.0.0`, `statsmodels==0.14.0`, `scikit-learn==1.3.0`, `pyyaml==6.0.1`, `openneuro-py==2.2.0`, `bids-validator==1.12.0`.  
+  - **Verification**: `pip install -r requirements.txt` succeeds without version conflicts.
 
-- [X] T012 [US1] Implement `code/download.py` to: 1) Query OpenNeuro API for datasets containing 'task-switching' events FIRST; 2) If found, select the first valid dataset (preferring the designated dataset if present in results); 3) If no dataset found, generate `data/data_gap_report.json` adhering to `contracts/data_gap_report.schema.yaml` (with `fallback_id: null`) and halt.
-- [X] T013 [US1] Implement `code/download.py` to fetch raw data to `data/raw/` with checksumming (SHA-256)
-- [X] T014 [US1] Implement `code/preprocess.py` bandpass filter (1–45 Hz)
-- [ ] T015 [US1] Implement `code/preprocess.py` ICA-based artifact removal (reject components with kurtosis > 5 or spectral peak > 30 Hz)
-- [ ] T015b [US1] Implement `code/preprocess.py` notch filter (50/60Hz) if line noise detected; log intervention to `logs/processing.log` with specific format: "Notch filter applied at {freq}Hz for subject {id}"
-- [ ] T016 [US1] Implement `code/preprocess.py` epoching (-1000ms to +2000ms) around stimulus onset
-- [ ] T017 [US1] Implement logic to exclude subjects with <10 valid trials/condition (reason: "insufficient trials") or >50% artifact removal (reason: "excessive artifact removal"); log to `data/exclusions.csv` with columns: `subject_id`, `reason`
-- [ ] T018 [US1] Implement memory monitoring to ensure peak RSS ≤ 6.5 GB during sequential subject processing
-- [ ] T018b [US1] Implement global runtime wrapper in `code/main.py` that tracks total pipeline execution time; immediately log a timeout violation to `logs/processing.log` and `data/metrics/runtime_log.json` if total runtime exceeds several hours, then halt.
-- [ ] T018c [US1] Implement logic to generate `data/metrics/runtime_log.json` containing `start_time`, `end_time`, `total_duration_minutes`, and `status` (success/timeout) to verify SC-002.
-- [~] T019 [US1] Save clean epochs to `data/processed/` per subject (requires T004 for hashing)
+- [ ] T003 [P] Configure linting/formatting (`black`, `flake8`, `isort`) in the project root.  
+  - **Verification**: `black --check .`, `flake8 .`, and `isort --check-only .` all return exit code 0.
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T004 Implement `code/update_state_hashes.py` to generate SHA‑256 hashes for all pipeline artifacts and write a `state_hashes.json` manifest.  
+  - **Verification**: Running the script creates `state_hashes.json` with a non‑empty mapping.
 
----
+- [ ] T005 Implement `code/config.py` with global paths, random seeds, and hyper‑parameters. Must define:  
+  - `primary_window = (-500, 0)`  
+  - `sensitivity_windows = [(-600, 0), (-400, 0)]`  
+  - **Verification**: Importing `config` yields the two keys with the exact values above.
 
-## Phase 4: User Story 2 - Compute Pre-Stimulus Frontoparietal Synchrony Metrics (Priority: P2)
+- [ ] T006 Implement logging infrastructure (`logs/processing.log`) and exclusion tracking (`data/exclusions.csv`).  
+  - **Verification**: Log file is created on first write; `exclusions.csv` contains a header row.
 
-**Goal**: Calculate Phase-Locking Value (PLV) or weighted Phase-Lag Index (wPLI) between frontoparietal electrode pairs in the pre-stimulus window.
-**⚠️ DEPENDENCY**: Requires T019 (clean epochs) to be complete.
+- [ ] T007 Create contract `contracts/data_gap_report.schema.yaml` (schema for a Data Gap Report).  
+  - **Verification**: `jsonschema` validates a sample report against the schema.
 
-**Independent Test**: Compute PLV on a synthetic signal with known phase relationships; verify output matches theoretical expectation within 0.05 tolerance.
-
-### Implementation for User Story 2
-
-- [X] T022 [US2] Implement electrode mapping in `code/synchrony.py`: F3/F4, FC3/FC4 → DLPFC; P3/P4, CP3/CP4 → Parietal
-- [~] T023 [US2] Implement frequency band filtering for theta (–7 Hz) and gamma (–45 Hz)
-- [X] T024 [US2] Implement `code/synchrony.py` to compute wPLI/PLV for pre-stimulus window (a sufficiently long baseline period prior to stimulus onset)
-- [ ] T025 [US2] Save synchrony matrices to `data/metrics/synchrony_metrics.csv` with columns: `subject_id`, `pair_id`, `band`, `value` (aggregated as mean); requires T004 for hashing <!-- FAILED: unspecified -->
-- [~] T026 [US2] Ensure computation completes in ≤ 30 minutes per subject on CPU
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T008 Create contracts `contracts/sensitivity_report.schema.yaml` and `contracts/trial_level_analysis.schema.yaml`.  
+  - **Verification**: Both schemas load without syntax errors.
 
 ---
 
-## Phase 5: User Story 3 - Correlate Synchrony with Behavioral Switching Costs (Priority: P3)
+## Phase 2 – Foundational (Blocking Prerequisites)
 
-**Goal**: Compute attention switching costs and correlate with synchrony using permutation testing and mixed-effects models.
-**⚠️ DEPENDENCY**: Requires T019 (epochs) and T025 (synchrony metrics) to be complete.
+**Goal**: Resolve dataset discovery and enforce overall runtime limits before any scientific computation.
 
-**Independent Test**: Run on a mock null dataset (randomly shuffled data); verify Type I error rate ≤ 5% across 1000 iterations.
+- [ ] T010 Implement fallback logic that, when the designated dataset ID cannot be fetched, queries the OpenNeuro API for any dataset containing “task‑switching” events, writes the chosen ID to `data/selected_dataset_id.txt`, and, if **no** valid dataset is found, creates `data/results/data_gap_report.json` (conforming to `contracts/data_gap_report.schema.yaml`) and aborts the pipeline with exit code 1.  
+  - **Verification**: Running the script with a bogus ID produces a valid `data_gap_report.json`, logs the failure to `logs/processing.log`, and exits with code 1.
 
-### Implementation for User Story 3
+- [ ] T009 Implement `code/download.py` to (1) read `data/selected_dataset_id.txt`, (2) download the identified OpenNeuro dataset into `data/raw/`, (3) generate `data/raw/checksums.json` (SHA‑256 per file), and (4) verify that the checksum manifest exists and matches computed hashes.  
+  - **Verification**: After execution, `data/selected_dataset_id.txt` exists, `data/raw/` contains the downloaded BIDS hierarchy, `data/raw/checksums.json` lists a SHA‑256 entry for every file, and a validation step confirms the manifest’s integrity.
 
-- [X] T030 [US3] Implement `code/analysis.py` to compute switching costs (RT_switch - RT_stay) per subject
-- [X] T031 [US3] Implement `code/analysis.py` primary correlation: Pearson/Spearman between mean synchrony and switching costs <!-- ATOMIZE: requested -->
-- [X] T032 [US3] Implement `code/analysis.py` permutation testing with a sufficient number of iterations to ensure robust statistical inference (shuffling subject vectors) as mandated by FR-005; log iteration count.
-- [~] T033 [US3] Implement multiple-comparison correction (Bonferroni) for theta and gamma bands
-- [~] T034 [US3] Implement `code/analysis.py` sensitivity analysis: repeat correlation for windows [-600, 0] and [-400, 0]; validate stability (r change < 0.1, p < 0.05) against primary result; save `data/metrics/sensitivity_report.json` (requires T004)
-- [X] T035 [US3] Implement `code/analysis.py` secondary trial-level analysis: Linear Mixed-Effects model (`RT ~ Synchrony + (1|Subject)`) using `statsmodels`; handle missing trial-level synchrony by excluding rows
-- [ ] T036 [US3] Generate `data/trial_level/per_trial_synchrony.csv` with columns: `subject_id`, `trial_id`, `condition`, `synchrony`, `rt`; exclude rows with missing synchrony; requires T004
-- [ ] T037 [US3] Save final results to `data/metrics/correlation_results.json` and `data/metrics/trial_level_analysis.json` with keys: `correlation`, `p_value`, `framing_note` (must contain "associational"); generate `results_summary.md` containing the associational framing text; requires T004
-- [X] T038 [US3] Implement programmatic assertion in `code/analysis.py` to verify output JSON and `results_summary.md` contain "associational" framing as mandated by FR-008
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T011 Implement a global runtime wrapper in `code/main.py` that records start/end timestamps, writes `data/metrics/runtime_log.json` (fields: `start_time`, `end_time`, `total_duration_minutes`, `status`, `passed_6h_limit`), and aborts with a clear error if total wall‑clock time exceeds 6 h.  
+  - **Verification**: Simulating a long run (>6 h) triggers the abort and populates `runtime_log.json` with `status: "timeout"` and `passed_6h_limit: false`.
 
 ---
 
-## Phase N: Polish & Cross-Cutting Concerns
+## Phase 3 – User Story 1: Preprocess & Epoch Public Task‑Switching EEG Data (Priority P1)
 
-**Purpose**: Improvements that affect multiple user stories
+**Goal**: Obtain clean, time‑locked epochs for each subject while respecting memory constraints.
 
-- [X] T040 [P] Implement `code/main.py` pipeline orchestrator to run phases sequentially
-- [~] T041 [P] Add documentation updates in `projects/PROJ-498-investigating-the-relationship-between-n/README.md`
-- [X] T042 [P] Run `code/update_state_hashes.py` to update state file with new artifact hashes
-- [~] T043 [P] Verify `quickstart.md` validation <!-- FAILED: unspecified -->
-- [~] T044 [P] Code cleanup and refactoring for CPU efficiency
+- [ ] T012 Implement the **download step** for raw EEG files using the verified ID written by T009/T010.  
+  - Reads `data/selected_dataset_id.txt`, fetches the dataset into `data/raw/`, and updates `data/raw/checksums.json`.  
+  - **Verification**: After execution, `data/raw/` contains at least one subject folder and `checksums.json` lists a SHA‑256 entry for every file.
 
----
+- [ ] T013 Apply a 1‑45 Hz band‑pass filter to all raw recordings (`code/preprocess.py`).  
+  - **Verification**: The script writes a config file `data/processed/filter_config.json` containing `"low_cutoff": 1` and `"high_cutoff": 45`; a unit‑test confirms the filtered data’s frequency response matches this range.
 
-## Dependencies & Execution Order
+- [ ] T042 Enforce a 7 GB RAM limit during preprocessing. The script monitors peak RSS per subject and aborts with exit code 1 if the limit is exceeded, writing `data/metrics/memory_log.json` with `peak_rss_gb` per subject.  
+  - **Verification**: After preprocessing, `memory_log.json` exists and all `peak_rss_gb` entries are ≤ 7.0; any violation causes pipeline abort.
 
-### Phase Dependencies
+- [ ] T014 Apply a notch filter at 60 Hz (or the detected line‑noise frequency) **before** ICA. Log each application to `logs/processing.log` (format: `Notch filter applied at {freq}Hz for subject {id}`).  
+  - **Verification**: Log entries appear for every subject where line noise > 0.5 µV; the filtered data is saved to a temporary in‑memory buffer for the subsequent ICA step.
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] T015 Perform ICA decomposition on the band‑passed (and notch‑filtered) data using `mne.preprocessing.ICA(method='infomax', n_components='auto')`.  
+  - **Verification**: ICA objects are instantiated for each subject without raising warnings; the fitted ICA is saved as `data/processed/ica_{subject_id}.fif`.
 
-### User Story Dependencies
+- [ ] T016 Reject ICA components with **kurtosis > 5** or a spectral peak > 30 Hz and write `data/processed/rejected_components.csv` (columns: `component_id`, `kurtosis`, `spectral_peak_freq`).  
+  - **Verification**: The CSV exists, contains a header row, and lists any rejected components; if none are rejected, only the header is present.
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: MUST start after User Story 1 completion (requires clean epochs from T019)
-- **User Story 3 (P3)**: MUST start after User Story 1 and User Story 2 completion (requires epochs and synchrony metrics)
+- [ ] T017 Epoch the cleaned data from **‑1000 ms to +2000 ms** around stimulus onset and write per‑subject epoch files `data/processed/{subject_id}_epoched.fif`.  
+  - **Verification**: Each epoch file loads via `mne.read_epochs` and contains the expected number of trials per condition.
 
-### Within Each User Story
+- [ ] T018 Exclude subjects that (a) have < 10 valid trials per condition or (b) lose > 50 % of data after ICA rejection. Log exclusions to `data/exclusions.csv` with columns `subject_id`, `reason`, `details`.  
+  - **Verification**: `exclusions.csv` contains at least the header and any rows matching the criteria.
 
-- Implementation MUST be complete before integration tests run
-- Models/Config before Services
-- Services before Endpoints/Analysis
-- Core implementation before integration
-- Story complete before moving to next priority
+- [ ] T019 If **all** subjects are excluded, generate a `data/results/data_gap_report.json` (using the same schema as T010) with `reason: "all_subjects_excluded"` and abort the pipeline with exit code 1.  
+  - **Verification**: When no subjects survive, the JSON file is present, the pipeline exits with code 1, and the abort is logged.
 
-### Parallel Opportunities
+- [ ] T020 Save the final clean epochs (`*_epoched.fif`) to `data/processed/` and verify their integrity with a checksum manifest `data/processed/epoch_checksums.json`. Additionally, confirm that `data/results/data_gap_report.json` is created when appropriate (as per T019).  
+  - **Verification**: The manifest lists a SHA‑256 for each epoch file; re‑reading any epoch succeeds; presence/absence of `data_gap_report.json` is checked according to exclusion outcome.
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, User Story 1 can start
-- Once User Story 1 completes, User Story 2 can start
-- Once User Story 2 completes, User Story 3 can start
-- Different user stories cannot be worked on in parallel due to strict data-flow dependencies
+- [ ] T040 Record peak RSS during preprocessing and assert it does not exceed 6.5 GB. The script writes `data/metrics/memory_usage.json` with `peak_rss_gb` and fails the pipeline if the limit is breached.  
+  - **Verification**: `memory_usage.json` exists and all values ≤ 6.5; pipeline aborts otherwise.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 4 – User Story 2: Compute Pre‑Stimulus Frontoparietal Synchrony Metrics (Priority P2)
 
-```bash
-# Launch all setup tasks for User Story 1 together:
-Task: "Implement code/config.py with paths and seeds"
-Task: "Setup directory structure"
+**Goal**: Derive wPLI/PLV values for theta and gamma bands in the –500 ms → 0 ms window.
 
-# Launch implementation tasks sequentially:
-Task: "Implement download.py" -> "Implement preprocess.py" -> "Implement epoching"
-```
+- [ ] T021 Implement electrode‑pair mapping in `code/synchrony.py`:  
+  - DLPFC ≈ {F3, F4, FC3, FC4}  
+  - Parietal ≈ {P3, P4, CP3, CP4}  
+  - Frontoparietal pairs = `F3-P3`, `F3-P4`, `F4-P3`, `F4-P4`.  
+  - **Verification**: A function `get_frontoparietal_pairs()` returns the four string identifiers exactly as above.
 
----
+- [ ] T022 Filter each subject’s epoched data into **theta (4–7 Hz)** and **gamma (30–45 Hz)** bands **within the pre‑stimulus window** (`-500 ms to 0 ms`).  
+  - **Verification**: For a test subject, the filtered arrays have the expected shape and frequency content (checked via `scipy.signal.welch`).
 
-## Implementation Strategy
+- [ ] T023 Compute the **weighted Phase‑Lag Index (wPLI)** for each frontoparietal pair, band, and subject using the standard wPLI formula (MNE implementation). Store results in memory for the next step.  
+  - **Verification**: wPLI values lie in [0, 1]; a unit‑test on a synthetic 10 Hz phase‑locked signal yields wPLI ≈ 1.0 ± 0.05.
 
-### MVP First (User Story 1 Only)
+- [ ] T024 Write synchrony results to `data/metrics/synchrony_metrics.csv` with columns: `subject_id`, `condition` (`switch`/`stay`), `band` (`theta`/`gamma`), `pair_id` (`F3_P3` etc.), `wPLI`, `plv` (optional, may be empty), `mean_wPLI` (average across the four pairs for that subject‑band‑condition). Values are rounded to four decimal places.  
+  - **Verification**: CSV contains exactly four rows per subject per band (one per pair) plus an additional summary row per subject‑band; the `band` column contains only the two allowed strings.
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Sequential Team Strategy
-
-Due to data-flow dependencies:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1
-3. Once US1 completes:
- - Developer B: User Story 2
-4. Once US2 completes:
- - Developer C: User Story 3
+- [ ] T025 Enforce a **30‑minute per‑subject wall‑clock limit** for the entire synchrony pipeline (filtering + wPLI). If a subject exceeds this, log `subject_id,reason="synchrony_timeout"` to `data/exclusions.csv` and omit that subject from `synchrony_metrics.csv`.  
+  - **Verification**: Timing wrapper writes durations to `data/metrics/synchrony_timing.json`; subjects over the limit are present in `exclusions.csv`.
 
 ---
 
-## Notes
+## Phase 5 – User Story 3: Correlate Synchrony with Behavioral Switching Costs (Priority P3)
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: All tasks must run on CPU-only (limited cores, constrained RAM); no GPU/CUDA/8-bit quantization allowed.
-- **Critical**: No fabricated data; all inputs must come from real OpenNeuro datasets (searched dynamically).
-- **Critical**: All output files must adhere to the specified schemas and include required framing (associational).
+**Goal**: Produce subject‑level and trial‑level statistical evidence linking neural synchrony to attention‑switching costs.
+
+- [ ] T026 Compute behavioral metrics (mean RT for switch/stay, switching cost, accuracies, trial counts) per subject from `data/raw/` events and write `data/metrics/behavioral_metrics.csv` adhering to `contracts/behavioral_metrics.schema.yaml`.  
+  - **Verification**: JSON‑schema validation passes; the CSV contains one row per subject with all required fields.
+
+- [ ] T027 Perform the **primary subject‑level correlation** between each subject’s mean pre‑stimulus wPLI (averaged across pairs) and its switching cost. Use Pearson for normally‑distributed data, otherwise Spearman. Store intermediate vectors in `data/results/subject_corr_input.json`.  
+  - **Verification**: Correlation coefficient and raw p‑value are printed to stdout and saved to a temporary JSON.
+
+- [ ] T028 Run a **permutation test** (default = 1000 iterations, fallback = 500 with a logged warning) shuffling the synchrony vector relative to the switching‑cost vector. Record the empirical p‑value.  
+  - **Verification**: `data/metrics/permutation_log.json` records `n_permutations` and the empirical p‑value.
+
+- [ ] T029 Apply **Bonferroni correction** for the two frequency bands and write `data/results/correlation_results.json` conforming to `contracts/correlation_results.schema.yaml`. Include both raw and corrected p‑values, the number of permutations, confidence interval (95 %), and an `interpretation` string containing the word “associational”.  
+  - **Verification**: Schema validation succeeds; the `interpretation` field contains “associational”.
+
+- [ ] T030 Generate trial‑level dataset `data/trial_level/per_trial_synchrony.csv` linking each trial’s reaction time to its theta and gamma synchrony values (extracted from the same pre‑stimulus window). Rows with missing synchrony are omitted. Schema matches `contracts/synchrony_metrics.schema.yaml` where appropriate.  
+  - **Verification**: CSV loads without error; row count equals total valid trials across subjects.
+
+- [ ] T031 Fit a **Linear Mixed‑Effects (LME) model** (`RT ~ synchrony_theta + (1|subject_id)`) using `statsmodels`. Apply Bonferroni correction across the two bands. Write results to `data/results/trial_level_analysis.json` following `contracts/lmm_results.schema.yaml`.  
+  - **Verification**: JSON validates; fixed‑effect coefficient for synchrony is present, and the `interpretation` field contains “associational”.
+
+- [ ] T032 Conduct **sensitivity analysis**: repeat the primary correlation for the shifted pre‑stimulus windows `[-600, 0]` and `[-400, 0]`. Store each window’s `r` and `p` in `data/results/sensitivity_raw.json`.  
+  - **Verification**: `sensitivity_raw.json` contains entries for `primary`, `shift_-600_0`, and `shift_-400_0`.
+
+- [ ] T033 Compute **sensitivity metrics** (maximum absolute `r` change, whether all shifted `p` < 0.05) and write the final `data/results/sensitivity_report.json` conforming to `contracts/sensitivity_report.schema.yaml`. Include a boolean `stable` flag (True ⇔ `r_change_max < 0.1` **and** all shifted `p` < 0.05).  
+  - **Verification**: The JSON validates; `stable` is True for simulated data that meets the criteria.
+
+- [ ] T034 Consolidate final outputs: ensure `data/results/correlation_results.json`, `data/results/trial_level_analysis.json`, and `data/results/sensitivity_report.json` all exist, and generate a short human‑readable `results_summary.md` that explicitly states the findings are **associational** and notes any stability failures from the sensitivity report.  
+  - **Verification**: `results_summary.md` contains the word “associational” and mentions the `stable` flag.
+
+- [ ] T035 Add a programmatic assertion in `code/analysis.py` that aborts with exit code 1 if any of the final JSON files or `results_summary.md` lack the required “associational” phrasing. Log the failure to `data/validation_log.txt`.  
+  - **Verification**: Running the pipeline with a deliberately malformed summary triggers the abort and writes a clear error line to `validation_log.txt`.
+
+---
+
+## Phase 6 – Reproducible Results & Paper Handoff  
+
+**Goal**: Provide a clean hand‑off for downstream manuscript generation.
+
+- [ ] T036 Implement `code/main.py` orchestrator to run phases sequentially (Setup → Foundational → US1 → US2 → US3) and respect the global runtime wrapper.  
+  - **Verification**: `python code/main.py` completes the full pipeline on a small test dataset within the 6‑hour limit and exits with code 0.
+
+- [ ] T037 Update `README.md` (located at the project root) with a **Usage** section that:  
+  1. Describes the command `python code/main.py`.  
+  2. Explains that the pipeline reads `data/selected_dataset_id.txt` (produced by the dynamic OpenNeuro search).  
+  3. Notes that if the file is missing, the README should direct the user to the generated `data_gap_report.json`.  
+  - **Verification**: The README contains the three bullet points; no MkDocs build is required.
+
+- [ ] T038 Run `code/update_state_hashes.py` after the full pipeline to refresh `state_hashes.json`.  
+  - **Verification**: Manifest timestamps are newer than the previous run.
+
+- [ ] T039 Validate `quickstart.md` by executing its commands in a fresh virtual environment using the script `scripts/validate_quickstart.sh`; ensure all exit codes are 0 and expected artifacts appear.  
+  - **Verification**: The CI test invokes `scripts/validate_quickstart.sh` and reports success.
+
+- [ ] T041 Verify CPU‑only execution environment. The script checks that `CUDA_VISIBLE_DEVICES` is unset or empty and that `torch.cuda.is_available()` (if torch is present) returns `False`.  
+  - **Verification**: The check passes on the CI runner; any detection of GPU capability aborts with a clear error message.
+
+---
+
+### Dependency & Execution Order Summary  
+
+| Phase | Must complete before | Notes |
+|-------|---------------------|-------|
+| Phase 1 (Setup) | – | All tasks independent (`[P]`). |
+| Phase 2 (Foundational) | Phase 1 | T010 must run before T009; both provide the dataset ID required by downstream tasks. |
+| Phase 3 (User Story 1) | Phase 2 | Generates clean epochs and exclusion logs; includes memory‑usage and checksum verification. |
+| Phase 4 (User Story 2) | Phase 3 | Requires `data/processed/*_epoched.fif`. |
+| Phase 5 (User Story 3) | Phases 3 & 4 | Needs both synchrony metrics and behavioral metrics. |
+| Phase 6 (Polish) | All previous phases | Final orchestration, documentation, and CPU‑only verification. |
+
+--- 
+
+*All tasks marked `[P]` may be executed in parallel where their file targets differ. Tasks without `[P]` have explicit data‑flow dependencies and must respect the ordering shown above.* 

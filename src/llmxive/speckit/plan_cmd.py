@@ -22,6 +22,7 @@ from llmxive.agents.prompts import render_prompt
 from llmxive.backends.base import ChatMessage, ChatResponse
 from llmxive.backends.router import GENERATION_MAX_TOKENS, reasoning_chat
 from llmxive.librarian.dataset_resolver import (
+    ResolvedDatasets,
     render_planner_block,
     resolve_datasets,
 )
@@ -108,24 +109,32 @@ class PlannerAgent(SlashCommandAgent):
 
     def mechanical_step(self, ctx: SlashCommandContext) -> dict[str, Any]:
         feature_dir = self._feature_dir(ctx)
-        # Use absolute path so run_script (which joins with cwd) doesn't
-        # produce a doubled projects/<id>/projects/<id>/... path.
-        script = (ctx.project_dir / ".specify" / "scripts" / "bash" / "setup-plan.sh").resolve()
-        result = run_script(
-            str(script),
-            "--json",
-            cwd=ctx.project_dir,
-            expect_json=True,
-        )
+        # Python owns the active-feature pointer. A nested project may share
+        # its parent's `main` branch and have no feature.json (or a stale one).
+        # Existing plans are revision inputs; setup-plan.sh would overwrite
+        # them with a template before the model ever saw the prior design.
+        feature_dir.resolve().relative_to(ctx.project_dir.resolve())
+        plan_path = feature_dir / "plan.md"
+        if plan_path.is_file():
+            result = {"FEATURE_SPEC": str(feature_dir / "spec.md"),
+                      "IMPL_PLAN": str(plan_path), "SPECS_DIR": str(feature_dir)}
+        else:
+            script = (ctx.project_dir / ".specify/scripts/bash/setup-plan.sh").resolve()
+            result = run_script(
+                str(script), "--json", cwd=ctx.project_dir, expect_json=True,
+                extra_env={"SPECIFY_FEATURE_DIRECTORY": str(feature_dir.resolve()),
+                           "SPECIFY_FEATURE": feature_dir.name},
+            )
         spec_path = feature_dir / "spec.md"
         spec_text = spec_path.read_text(encoding="utf-8") if spec_path.exists() else ""
         # Weak resolver: reachable + format-sniffed cite-only candidates (a
         # candidate PROPOSER; no dead write-only manifest is persisted — D7).
+        from llmxive.execution.data_source import requires_external_data
         resolved = resolve_datasets(
             spec_text,
             project_dir=ctx.project_dir,
             repo_root=ctx.project_dir.parent.parent,
-        )
+        ) if requires_external_data(ctx.project_dir) else ResolvedDatasets(datasets=[])
         weak_block = render_planner_block(resolved)
         # PROACTIVE strong discovery at PLAN time (D11): run the SAME
         # records+field HARD-verifier the execution stage uses, sharing the SAME
@@ -192,11 +201,12 @@ class PlannerAgent(SlashCommandAgent):
         # Planner still receives the cite-only block instead of nothing.
         dataset_block = mechanical_output.get("dataset_block")
         if dataset_block is None:
+            from llmxive.execution.data_source import requires_external_data
             resolved = resolve_datasets(
                 spec_text,
                 project_dir=ctx.project_dir,
                 repo_root=repo,
-            )
+            ) if requires_external_data(ctx.project_dir) else ResolvedDatasets(datasets=[])
             dataset_block = render_planner_block(resolved)
         # Trustworthiness Phase 2: feed canonical verified facts back into the
         # planner. Pure addition — empty when no facts exist (byte-identical).
@@ -207,10 +217,30 @@ class PlannerAgent(SlashCommandAgent):
         verified_facts_block = render_verified_facts_block(
             load_verified_facts(ctx.project_dir)
         )
+        feature_dir = Path(mechanical_output.get("feature_dir", spec_path.parent))
+        existing = []
+        remaining = 80_000
+        candidates = [feature_dir / name for name in
+                      ("plan.md", "research.md", "data-model.md", "quickstart.md")]
+        candidates.extend(sorted((feature_dir / "contracts").glob("*")))
+        for path in candidates:
+            if not path.is_file() or path.suffix not in {".md", ".yaml", ".yml", ".json"}:
+                continue
+            text = path.read_text(encoding="utf-8")
+            if len(text) <= remaining:
+                existing.append(f"### {path.relative_to(feature_dir)}\n\n{text}")
+                remaining -= len(text)
+            else:
+                existing.append(f"### {path.relative_to(feature_dir)} (not loaded: context budget)")
+        existing_block = ("# Existing planning artifacts\n\nRevise these in place to address "
+                          "the supplied concerns. Preserve unaffected requirements, paths and "
+                          "methods; do not restart the design from its template.\n\n"
+                          + "\n\n".join(existing)) if existing else ""
         user = (
             f"# spec.md\n\n{spec_text}\n\n"
             f"# Project constitution\n\n{project_constitution}\n\n"
             f"# Plan template\n\n{plan_template}\n\n"
+            + (existing_block + "\n\n" if existing_block else "")
             + (dataset_block + "\n\n" if dataset_block else "")
             + (comments_block + "\n\n" if comments_block else "")
             + (verified_facts_block + "\n\n" if verified_facts_block else "")
@@ -255,29 +285,50 @@ class PlannerAgent(SlashCommandAgent):
         # artifacts on disk.
         assert_artifact_set_complete(files)
 
+        # Resolve the entire set before writing: two markers must never address
+        # the same file, otherwise a later snapshot can replace its original
+        # bytes with the first generated version and break rollback.
+        targets: dict[str, Path] = {}
+        seen_targets: dict[Path, str] = {}
+        feature_root = feature_dir.resolve()
+        for relpath in files:
+            relative = Path(relpath)
+            if (relative.is_absolute() or ".." in relative.parts
+                    or relative.as_posix() != relpath or "\\" in relpath):
+                raise ValueError(f"FILE marker must use a canonical relative path: {relpath}")
+            target = (feature_dir / relative).resolve()
+            target.relative_to(feature_root)
+            if target in seen_targets:
+                raise ValueError(
+                    f"FILE markers address the same artifact: {seen_targets[target]} and {relpath}"
+                )
+            seen_targets[target] = relpath
+            targets[relpath] = target
+
         written: list[str] = []
-        written_targets: list[Path] = []
+        written_targets: dict[Path, bytes | None] = {}
 
         def _unlink_all_written() -> None:
-            # Parity with guard_emit's unlink-on-fail: remove every artifact
-            # this invocation wrote so a refused set never pollutes the tree.
-            for t in written_targets:
-                if t.exists():
-                    t.unlink()
+            # A rejected revision must not delete the prior scientific plan.
+            for target, prior in written_targets.items():
+                if prior is None:
+                    target.unlink(missing_ok=True)
+                else:
+                    target.write_bytes(prior)
 
         from llmxive.speckit._diff_guard import refuse_if_diff
         try:
             for relpath, content in files.items():
-                target = feature_dir / relpath
+                target = targets[relpath]
                 target.parent.mkdir(parents=True, exist_ok=True)
                 # Spec 010 fix: refuse diff-shaped content per file before write.
                 refuse_if_diff(content, artifact_kind=relpath)
+                written_targets[target] = target.read_bytes() if target.is_file() else None
                 target.write_text(content + "\n", encoding="utf-8")
-                written_targets.append(target)
                 # FR-009: refuse to commit template artifacts; unlink + raise
                 if target.suffix == ".md":
                     guard_emit(target, repo_root=repo)
-                written.append(str(target.relative_to(repo)))
+                written.append(str((feature_dir / relpath).relative_to(repo)))
 
             # FR-007 then FR-006: data-model<->contracts consistency, then
             # research.md URL reachability. Both run after the per-file write

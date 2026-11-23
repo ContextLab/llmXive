@@ -1,3 +1,1 @@
-"""
-Model training, evaluation, and analysis modules.
-"""
+"""Model training and evaluation modules."""

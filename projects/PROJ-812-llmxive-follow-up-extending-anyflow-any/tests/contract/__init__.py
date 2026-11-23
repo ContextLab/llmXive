@@ -1,0 +1,1 @@
+# Empty init file for contract tests package

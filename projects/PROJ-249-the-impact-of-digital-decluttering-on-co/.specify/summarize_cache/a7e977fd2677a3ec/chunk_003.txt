@@ -1,0 +1,178 @@
+4. **Aggregate** daily compliance logs (`code/compliance/aggregate_compliance.py`).  
+5. **Merge** baseline and post measurement records (`code/pipeline/merge_data.py`).  
+6. **Run** the statistical analysis (`code/analysis/run_statistics.py`).  
+7. **Generate** visualizations (`code/viz/generate_plots.py`).  
+8. **Write** `results/statistical_summary.json` (single source of truth) and `results/pipeline.log` (includes a final line `STATUS: SUCCESS`).  
+
+> **Important**: The pipeline expects **real participant data** in `data/raw/`. If the directory is empty, the pipeline will stop with a validation error, prompting you to collect the required baseline and post‑intervention measurements.
+
+## Testing
+
+Run the full test suite to confirm schema compliance and pipeline integrity:
+
+```bash
+pytest -v
+```
+
+- **Unit tests** verify scoring functions against OSF reference implementations.  
+- **Contract tests** validate every output file against the JSON schemas in `contracts/`.  
+- **Integration test** runs the end‑to‑end pipeline on a **real** dataset (if present) and checks that `pipeline.log` reports `STATUS: SUCCESS`.
+
+## Troubleshooting
+
+| Symptom | Likely Cause | Fix |
+|---------|--------------|-----|
+| `validation error` on a CSV | Row violates schema (e.g., missing field) | Inspect the validation report; correct the source file. |
+| `checksum mismatch` | File was altered after checksum generation | Re‑run `python -m code.validation.generate_checksums` or regenerate the raw file. |
+| Pipeline exits with non‑zero code | One of the scripts failed (e.g., missing data) | Check `pipeline.log` for the failing step; ensure all required raw files are present and correctly formatted. |
+| Plots not appearing | `results/statistical_summary.json` missing required keys | Verify that the analysis step completed successfully; re‑run the pipeline. |
+| `pipeline.log` missing `STATUS: SUCCESS` | Unexpected crash or early termination | Review the log for error messages; address the indicated issue and re‑run. |
+
+---
+
+
+## projects/PROJ-249-the-impact-of-digital-decluttering-on-co/specs/001-the-impact-of-digital-decluttering-on-co/contracts/analysis.schema.yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AnalysisResult"
+description: "Schema for the output of the statistical analysis."
+type: "object"
+properties:
+  metric:
+    type: "string"
+    description: "The metric analyzed (e.g., SART)."
+  mean_change:
+    type: "number"
+    description: "Mean of (post - baseline)."
+  ci_lower:
+    type: "number"
+    description: "Lower bound of 95% bootstrap CI."
+  ci_upper:
+    type: "number"
+    description: "Upper bound of 95% bootstrap CI."
+  p_value_uncorrected:
+    type: "number"
+    description: "Uncorrected p-value."
+  p_value_corrected:
+    type: "number"
+    description: "Holm-Bonferroni corrected p-value."
+  effect_size_cohen_d:
+    type: "number"
+    description: "Cohen's d effect size."
+  n_participants:
+    type: "integer"
+    description: "Number of participants in the analysis."
+  method_used:
+    type: "string"
+    enum:
+      - "bootstrap"
+      - "wilcoxon"
+    description: "Method used for this metric (bootstrap primary, wilcoxon fallback)."
+required:
+  - "metric"
+  - "mean_change"
+  - "ci_lower"
+  - "ci_upper"
+  - "p_value_uncorrected"
+  - "p_value_corrected"
+  - "effect_size_cohen_d"
+  - "n_participants"
+  - "method_used"
+additionalProperties: false
+
+
+## projects/PROJ-249-the-impact-of-digital-decluttering-on-co/specs/001-the-impact-of-digital-decluttering-on-co/contracts/compliance.schema.yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ComplianceLog"
+description: "Schema for a daily digital decluttering compliance log."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique log identifier."
+  participant_id:
+    type: "string"
+    pattern: "^P\\d{3}$"
+    description: "Pseudonymous participant ID."
+  date:
+    type: "string"
+    format: "date"
+    description: "Date of the log entry (YYYY‑MM‑DD)."
+  social_media_minutes:
+    type: "integer"
+    minimum: 0
+    maximum: 1440
+    description: "Self-reported minutes of social media use."
+  news_consumption:
+    type: "boolean"
+    description: "True if news was consumed."
+  notifications_off:
+    type: "boolean"
+    description: "True if notifications were off."
+  is_compliant:
+    type: "boolean"
+    description: "Derived compliance status."
+  notes:
+    type: "string"
+    description: "Optional user notes."
+required:
+  - "id"
+  - "participant_id"
+  - "date"
+  - "social_media_minutes"
+  - "news_consumption"
+  - "notifications_off"
+  - "is_compliant"
+additionalProperties: false
+
+
+## projects/PROJ-249-the-impact-of-digital-decluttering-on-co/specs/001-the-impact-of-digital-decluttering-on-co/contracts/dataset.schema.yaml
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "MeasurementRecord"
+description: "Schema for a single cognitive or affective measurement record."
+type: "object"
+properties:
+  id:
+    type: "string"
+    description: "Unique record identifier."
+  participant_id:
+    type: "string"
+    pattern: "^P\\d{3}$"
+    description: "Pseudonymous participant ID."
+  phase:
+    type: "string"
+    enum:
+      - "baseline"
+      - "post"
+    description: "Study phase."
+  metric_type:
+    type: "string"
+    enum:
+      - "SART"
+      - "Ospan"
+      - "PSS-10"
+      - "PANAS-PA"
+      - "PANAS-NA"
+    description: "Type of metric recorded."
+  value:
+    type: "number"
+    description: "Raw score value."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "ISO 8601 timestamp of the measurement."
+  quality_flag:
+    type: "string"
+    enum:
+      - "valid"
+      - "low_attention"
+      - "missing"
+    description: "Data quality flag."
+required:
+  - "id"
+  - "participant_id"
+  - "phase"
+  - "metric_type"
+  - "value"
+  - "timestamp"
+  - "quality_flag"
+additionalProperties: false

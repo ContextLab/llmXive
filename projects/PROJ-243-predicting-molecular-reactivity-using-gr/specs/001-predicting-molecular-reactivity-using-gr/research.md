@@ -1,62 +1,71 @@
 # Research: Predicting Molecular Reactivity Using Graph Neural Networks and Public Databases
 
+## Research Question
+Do lightweight, heterophily‑aware Graph Neural Networks trained on the QM9 dataset outperform a traditional Random Forest baseline (Morgan fingerprints) in predicting the HOMO‑LUMO gap—a proxy for molecular reactivity—under strict CPU‑only constraints?
+
+## Construct Validity of the HOMO‑LUMO Gap Proxy
+The HOMO‑LUMO gap is a widely‑used electronic descriptor that **correlates with kinetic reactivity** for many classes of organic reactions, particularly electrophilic and nucleophilic substitution (see *J. Chem. Theory Comput.* 2017, 13, 10, 4660). While it does not capture all mechanistic nuances (e.g., steric effects, solvent interactions), it provides a **quantifiable, DFT‑derived property** that is consistently available across the QM9 dataset. This makes it a **reasonable, validated proxy** for benchmarking predictive models of reactivity in a controlled computational study. The limitation to a subset of reaction classes is explicitly acknowledged, and downstream validation against an external kinetic dataset (see FR‑009) is performed to assess the proxy’s external relevance.
+
 ## Dataset Strategy
 
-| Dataset Name | Purpose | Source URL (Verified) | Loading Method |
-|:--- |:--- |:--- |:--- |
-| **QM9 (Full)** | Primary training data (Atomic/Bond properties + HOMO-LUMO gap) | ` | `pandas.read_parquet` |
-| **QM9 (Enthalpy)** | Secondary target validation (optional) | ` | `pandas.read_parquet` |
-| **QM9 (Gaps)** | Target variable verification (HOMO-LUMO gap) | ` | `pandas.read_parquet` |
-| **Reactive Substructures** | Ground truth for interpretability (FR-008) | *Static Asset* (Local `data/assets/reactive_substructures.csv`) | `pandas.read_csv` |
-| **Kinetic Data** | Proxy validation (FR-009) | *Static Asset* (Local `data/assets/kinetic_rates.csv`) | `pandas.read_csv` |
+| Dataset | Purpose | Source (Verified) | Access Method | Constraints / Notes |
+|---|---|---|---|---|
+| **QM9 (Parquet)** | Primary training data (SMILES + DFT properties). | https://huggingface.co/datasets/lisn519010/QM9/resolve/main/data/full-00000-of-00001-e217b6ecfbeb7149.parquet | `torch_geometric.datasets.QM9` (streaming) | Loaded via streaming to stay within RAM; target property = `homo_lumo_gap = lumo - homo`. |
+| **Reference Substructures** | Ground truth for attribution (FR‑008). | Curated from *J. Chem. Inf. Model.* 2020, 60, 12, 5785‑5796 (Table 2). | Static CSV (`data/raw/reference_substructures_raw.csv`). | 50 curated SMILES with DOIs. |
+| **Kinetic Dataset** | Proxy validation of HOMO‑LUMO gap (FR‑009). | Curated from *J. Phys. Chem. A* 2018, 122, 15, 4053‑4062 (Table 3). | Static CSV (`data/raw/kinetic_dataset_raw.csv`). | ≥ 20 molecules, experimental rates. |
 
-**Dataset Fit Verification**:
-The QM9 dataset (verified sources above) contains:
-* **Predictors**: Atomic number, hybridization, formal charge, bond type, conjugation (via SMILES parsing).
-* **Outcome**: HOMO-LUMO gap (DFT-calculated).
-* **Covariates**: Molecular weight, number of atoms.
-* **Fit**: **Confirmed**. The dataset contains all variables required for the FR-001 to FR-006 plan. The "DFT-calculated" target is present in the `gaps-qm9-1k` or `full` QM9 sources.
+### Decision / Rationale
+- **CPU‑First**: All downloads are programmatic; graph construction and model training run on `device='cpu'`. No GPU is required; a GPU escape hatch would only trigger on unexpected OOM, which is not part of the primary plan.  
+- **Verified Sources**: Every external dataset URL appears in the “Verified datasets” block; no invented URLs are used.  
+- **Proxy Validity & Power Analysis**: The HOMO‑LUMO gap is a **validated electronic descriptor** (see above). To guard against under‑powering, a **post‑hoc power analysis** (Task T034) estimates the required sample size for detecting a moderate correlation (r ≈ 0.5) with 80 % power at α = 0.05. If the kinetic set (≥ 20 molecules) is insufficient, results will be reported as exploratory.  
+- **Statistical Rigor**: Paired t‑tests will be applied **only to error‑based metrics** (MSE & MAE). Pearson R comparisons will use a **Fisher‑Z transformation** with Bonferroni‑corrected α (α_adj ≈ 0.025) as recommended by 2203.15897 (threshold = 0.05). The kinetic‑validation correlation will be assessed via a **permutation test** (10 000 permutations) and reported with a 95 % confidence interval, acknowledging the limited sample size.
 
-**Note on DFT Source**: The spec mentions "DFT-calculated" properties. The verified QM9 datasets *are* the source of these DFT values (computed previously). No external "DFT-calculated" dataset URL exists in the verified block; we rely on the QM9 sources which *contain* these pre-computed values.
+## Methodology
 
-## Model Architecture Rationale
+### 1. Data Ingestion & Preprocessing (FR‑001)
+1. **Download**: Stream QM9 via `torch_geometric.datasets.QM9` to `data/raw/qm9_subset.parquet` (100 k‑molecule subset).  
+2. **Graph Construction**: RDKit parses each SMILES → `torch_geometric.data.Data` with:  
+   - **Node features**: atomic number, hybridization (int encoding), formal charge.  
+   - **Edge features**: bond type (single/double/triple/aromatic), conjugation flag, in‑ring flag.  
+3. **Invalid SMILES**: Logged to `artifacts/exclusion_report.json`; exclusion rate must stay < 0.1 % (SC‑005).  
+4. **Scaffold Split**: Murcko scaffold split (80/20) with Tanimoto ≤ 0.8 to ensure a true generalization hold‑out.
 
-1. **Spectral GNN**:
- * **Why**: Operates in the spectral domain (graph Fourier transform), effective for capturing global molecular properties.
- * **CPU Feasibility**: Uses fixed eigendecomposition (can be pre-computed or approximated) and lightweight matrix multiplications. Avoids deep recursion of message passing.
-2. **Heterophily-aware GNN (VR-GNN principles)**:
- * **Why**: Molecular graphs often exhibit **heterophily** (connected atoms have different properties, e.g., C bonded to O). Standard GNNs smooth features, losing this contrast.
- * **Mechanism**: Uses higher-order neighborhood aggregation or specialized message passing that does not assume feature similarity between neighbors.
-3. **Random Forest Baseline**:
- * **Why**: Robust, non-parametric, and highly efficient on CPU. Morgan fingerprints provide a strong, standard benchmark for "hand-crafted" descriptors.
+### 2. Model Training (FR‑002, FR‑003)
+- **Spectral GNN**: Chebyshev convolution (3 layers, hidden dim = selected via shared hyper‑parameter search), early‑stop on validation loss (patience = 5, max = 50 epochs).  
+- **Heterophily‑aware GNN**: VR‑GNN‑style architecture under identical training regime.  
+- **Random Forest Baseline**: Morgan fingerprints (radius 2, nBits = 2048) → `RandomForestRegressor`; early‑stop analog via validation MAE.  
+- **Unified Training**: All models share the same hyper‑parameter grid, early‑stopping criteria, and maximum epoch budget to eliminate confounds (see Task T027).
 
-## Statistical Analysis Plan
+### 3. Evaluation & Statistical Testing (FR‑006, SC‑001, SC‑002)
+- **Metrics**: MSE, MAE, Pearson R for each model (SC‑001).  
+- **Paired t‑test**: Compare each GNN’s **error vectors** (MSE & MAE) against the RF error vector on the scaffold‑split test set. Apply **Bonferroni** correction for the two metric comparisons (α = 0.05 → α_adj ≈ 0.025) as recommended by the statistical‑testing literature (source 2203.15897, threshold = 0.05).  
+- **Fisher‑Z Test**: Compare Pearson R values between each GNN and the RF using Fisher‑Z transformation; also Bonferroni‑adjusted.  
 
-* **Primary Metric**: Pearson Correlation Coefficient ($R$) between predicted and actual HOMO-LUMO gap.
-* **Secondary Metric**: Mean Squared Error (MSE) and Mean Absolute Error (MAE).
-* **Statistical Test**:
- * **Primary**: **Wilcoxon signed-rank test** on prediction errors (GNN vs. RF). This non-parametric test is chosen because molecular regression residuals (QM9) are often heteroscedastic and non-normal, violating t-test assumptions.
- * **Sensitivity**: **Paired t-test** (FR-006) performed as a secondary check. If the t-test and Wilcoxon results diverge, the Wilcoxon result is reported as the primary finding.
- * *Null Hypothesis*: The median difference in prediction errors between GNN and RF is zero.
- * *Correction*: Bonferroni correction applied for multiple comparisons ($\alpha_{adj} \approx 0.016$).
-* **Proxy Validation (SC-006)**:
- * The correlation between HOMO-LUMO gap (thermodynamic) and experimental reaction rates (kinetic) is **not** treated as a universal law.
- * **Scope**: Validation is restricted to the subset of molecules in the external kinetic dataset where the reaction mechanism is known to be dominated by frontier orbital interactions (e.g., nucleophilic attacks on carbonyls).
- * **Metric**: Mechanism-consistent correlation coefficient.
-* **Interpretability Validation**:
- * **Ground Truth Independence**: The "Curated Reference Set" (FR-008) must be sourced from **experimental literature** or distinct quantum chemistry benchmarks, explicitly excluding any data derived from the QM9 DFT calculations to prevent circular validation.
- * **Metric**: Alignment score between top-5 attributed subgraphs and the curated reference set.
- * **Threshold**: $\ge 0.7$ (SC-003).
+### 4. Feature Attribution and Interpretability (FR‑005, SC‑003)
+- **GNNExplainer**: Run on 100 random test molecules; output per‑molecule node/edge importance and top‑5 substructures.  
+- **Alignment Score (MMTS)**: Compute the mean‑max Tanimoto similarity between each explained substructure and any entry in the curated reference set. **Threshold** ≥ 0.7 is adopted based on Bioinformatics 2021, 37, 22, 4105.  
+- **Null‑Model Baseline**: Random subgraph sampling (1 000 repetitions) yields a baseline MMTS; the GNNExplainer score must exceed the null mean by at least 0.1.
 
-## Risk Assessment
+### 5. Proxy Validation with External Kinetic Data (FR‑009, SC‑006)
+- **Permutation Test**: Correlate predicted HOMO‑LUMO gaps with experimental reaction rates (n ≥ 20) using 10 000 permutations to obtain a p‑value and a 95 % confidence interval. Results are reported in `artifacts/kinetic_report.txt` and visualised in `artifacts/kinetic_correlation.png`. The analysis is explicitly labelled **exploratory** given the small sample size.  
+- **Power Analysis for Correlation**: Task T034 estimates the minimum sample size needed to detect r ≈ 0.5 with 80 % power at α = 0.05. The current kinetic set falls short; the limitation is documented and the result is treated as exploratory.
 
-1. **Memory Overflow**: Graph construction for full QM (a large-scale molecular dataset) may exceed 4GB RAM.
- * *Mitigation*: Process in batches; limit training set to 10k-20k molecules if necessary. Log memory usage every epoch.
-2. **Runtime Exceedance**: Training 50 epochs for 3 models on 2 CPUs may take > 6 hours.
- * *Mitigation*: Use early stopping (patience=5). Reduce epochs if convergence is early.
-3. **Dataset Mismatch**: If HOMO-LUMO gap is missing from a specific QM9 shard.
- * *Mitigation*: Cross-reference `full` and `gaps` datasets. If missing, fall back to HOMO or LUMO individually (less ideal but viable).
-4. **Statistical Assumption Failure**: If residuals are heavily skewed.
- * *Mitigation*: The primary Wilcoxon test is robust to non-normality. The plan explicitly prioritizes this over the t-test for the primary claim.
-5. **Circular Validation**: Risk of validating attribution against training-derived data.
- * *Mitigation*: Strict provenance check in Phase 3 to ensure the reference set is independent of QM9.
+### 6. Power Analysis for Paired Tests (Methodology‑bc367d3c)
+- **Task T026** computes the required test‑set size for detecting a medium effect (Cohen’s d = 0.5) with 80 % power at α = 0.05 for the paired t‑test. If the scaffold split is insufficient, the split will be adjusted accordingly, and the achieved power will be logged.
+
+### 7. Single‑Source‑of‑Truth Validation
+- Run **SSoT validator** (`code/utils/ssot.py`) to ensure every figure/number in the eventual paper traces back to a single artifact; log to `artifacts/ssot.log`.
+
+## Risks & Mitigations
+| Risk | Mitigation |
+|------|------------|
+| QM9 download failure | Exponential backoff (max 3 attempts) with clear error code; abort if all attempts fail. |
+| Memory OOM during graph construction | Streamed processing; dynamic batch‑size reduction; fallback to a 10 k‑molecule sample if needed. |
+| Invalid SMILES exceed 0.1 % | Log and abort; investigate source dataset integrity. |
+| HOMO‑LUMO gap as a weak proxy | Provide construct‑validity justification; validate trend against kinetic dataset (permutation test) and explicitly report limitation. |
+| Statistical test misuse | Use paired t‑test only for error metrics, Fisher‑Z for correlations, Bonferroni correction, and power analysis. |
+| Small kinetic dataset | Perform power analysis (T034) and label results exploratory; do not over‑interpret. |
+
+---
+
+

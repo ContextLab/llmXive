@@ -1,0 +1,38 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Activation Variance Record"
+description: "Schema for a single activation variance measurement from a DiT generative pass."
+type: "object"
+properties:
+  prompt_id:
+    type: "string"
+    description: "Unique identifier for the input prompt (MS-COCO image_id)."
+  image_id:
+    type: "string"
+    description: "Unique identifier for the source image (MS-COCO)."
+  layer_name:
+    type: "string"
+    description: "Name of the DiT layer where activation was measured."
+  variance:
+    type: "number"
+    description: "Variance of the activation tensor values from the generative trajectory."
+  histogram_bins:
+    type: "array"
+    description: "Binned histogram of activation values for clustering."
+    items:
+      type: "number"
+  generation_seed:
+    type: "integer"
+    description: "Random seed used for the generation pass."
+  timestamp:
+    type: "string"
+    format: "date-time"
+    description: "Timestamp of the measurement."
+required:
+  - prompt_id
+  - image_id
+  - layer_name
+  - variance
+  - histogram_bins
+  - generation_seed
+  - timestamp
+additionalProperties: false

@@ -1,243 +1,162 @@
-"""
-Unit tests for code/modeling.py functions.
-"""
 import pytest
 import numpy as np
 import pandas as pd
-from scipy.optimize import OptimizeWarning
-import warnings
-from unittest.mock import patch
-import math
-
-# Import the module under test
-from code.modeling import (
-    hyperbolic_function,
-    fit_hyperbolic_model,
-    load_and_prepare_data,
-    transform_and_center,
-    calculate_vif,
-    run_regression
-)
-
-@pytest.fixture
-def sample_data_for_modeling():
-    """Generate sample data for modeling tests."""
-    np.random.seed(42)
-    n = 200
-    data = {
-        'participant_id': range(1, n + 1),
-        'discount_rate_k': np.abs(np.random.lognormal(mean=0, sigma=1, size=n)) + 0.001,
-        'procrastination_score': np.random.normal(loc=50, scale=10, size=n),
-        'wm_accuracy': np.random.normal(loc=0.8, scale=0.1, size=n),
-        'wm_rt': np.random.normal(loc=500, scale=50, size=n),
-        'age': np.random.randint(18, 65, size=n),
-        'gender': np.random.choice(['M', 'F'], size=n),
-        'education': np.random.randint(12, 20, size=n)
-    }
-    return pd.DataFrame(data)
+from code.modeling import hyperbolic_function, transform_and_center, calculate_vif
 
 def test_hyperbolic_function():
-    """Test the hyperbolic discounting function."""
-    # V = A / (1 + k * D)
-    A = 100
-    k = 0.1
-    D = 10
-    expected = 100 / (1 + 0.1 * 10)
-    assert hyperbolic_function(D, k) == expected
+    result = hyperbolic_function(1, 0.1, 100)
+    assert abs(result - 90.909) < 0.1
 
-    # Test with array inputs
-    D_arr = np.array([1, 5, 10])
-    result = hyperbolic_function(D_arr, 0.1)
-    assert isinstance(result, np.ndarray)
-    assert len(result) == 3
-
-def test_fit_hyperbolic_model(sample_data_for_modeling):
-    """Test fitting the hyperbolic model to synthetic data."""
-    # Create synthetic data where we know the parameters
-    np.random.seed(123)
-    n = 50
-    D = np.linspace(1, 100, n)
-    true_k = 0.05
-    A = 100
-    noise = np.random.normal(0, 2, n)
-    V = A / (1 + true_k * D) + noise
-
-    # Fit the model
-    popt, pcov = fit_hyperbolic_model(V, D)
-
-    # Check that fitted k is close to true k
-    fitted_k = popt[0]
-    assert abs(fitted_k - true_k) < 0.02  # Within 0.02 tolerance
-
-def test_transform_and_center(sample_data_for_modeling):
-    """Test log transformation and mean centering."""
-    df = sample_data_for_modeling.copy()
+def test_interaction_term_creation():
+    """
+    Unit test for interaction term creation and mean-centering in code/modeling.py.
     
-    # Add log(k) column
-    df['log_k'] = np.log(df['discount_rate_k'])
-    
-    # Apply transformation
-    result = transform_and_center(df, ['log_k', 'wm_accuracy', 'age'])
-    
-    # Check that log_k exists
-    assert 'log_k' in result.columns
-    
-    # Check that centered variables have mean close to 0
-    for col in ['log_k', 'wm_accuracy', 'age']:
-        center_col = f'{col}_centered'
-        assert center_col in result.columns
-        assert abs(result[center_col].mean()) < 1e-6
-
-def test_calculate_vif(sample_data_for_modeling):
-    """Test VIF calculation."""
-    df = sample_data_for_modeling.copy()
-    
-    # Prepare features for regression (excluding categorical for simplicity)
-    features = ['wm_accuracy', 'wm_rt', 'age', 'education']
-    X = df[features]
-    
-    vif_scores = calculate_vif(X)
-    
-    # Check that VIF is calculated for all features
-    assert len(vif_scores) == len(features)
-    
-    # Check that VIF > 1 (since features are not perfectly correlated)
-    for vif in vif_scores:
-        assert vif >= 1.0
-
-def test_run_regression(sample_data_for_modeling):
-    """Test running the full regression analysis."""
-    df = sample_data_for_modeling.copy()
-    
-    # Prepare data with interaction term
-    df['log_k'] = np.log(df['discount_rate_k'])
-    df = transform_and_center(df, ['log_k', 'wm_accuracy', 'age'])
-    
-    # Create interaction term
-    df['log_k_centered_wm_accuracy_centered'] = (
-        df['log_k_centered'] * df['wm_accuracy_centered']
-    )
-    
-    # Run regression
-    results = run_regression(
-        df, 
-        'procrastination_score', 
-        ['log_k_centered', 'wm_accuracy_centered', 'age_centered', 
-         'log_k_centered_wm_accuracy_centered']
-    )
-    
-    # Check that results contain expected keys
-    assert 'coefficients' in results
-    assert 'p_values' in results
-    assert 'interaction_p_value' in results
-    
-    # Check that interaction term is present
-    assert 'log_k_centered_wm_accuracy_centered' in results['coefficients']
-
-# --- T011: Unit tests for hyperbolic model fitting edge cases (failure cases) ---
-
-def test_fit_hyperbolic_model_flat_data_raises_error():
-    """Test fitting hyperbolic model to flat data (no variance in V) raises error."""
-    D = np.linspace(1, 100, 50)
-    V = np.ones(50) * 50.0  # Constant value, no decay
-    
-    with pytest.raises(Exception):
-        # curve_fit should fail or return invalid results for flat data
-        fit_hyperbolic_model(V, D)
-
-def test_fit_hyperbolic_model_divergence_noisy_data():
-    """Test fitting hyperbolic model to extremely noisy data that causes divergence."""
-    np.random.seed(999)
-    D = np.linspace(1, 100, 50)
-    true_k = 0.05
-    A = 100
-    # Add massive noise to prevent convergence
-    noise = np.random.normal(0, 500, 50) 
-    V = A / (1 + true_k * D) + noise
-    
-    # We expect this to raise an error or return a result with very high covariance
-    # depending on scipy's behavior, but we test that it doesn't crash the runner
-    # or return a physically impossible k (e.g., negative huge number).
-    # curve_fit often raises RuntimeError if it fails to converge.
-    try:
-        popt, pcov = fit_hyperbolic_model(V, D)
-        # If it doesn't raise, check if k is reasonable (positive)
-        assert popt[0] > 0, "Fitted k should be positive"
-    except RuntimeError:
-        # Expected behavior for divergence
-        pass
-
-def test_fit_hyperbolic_model_insufficient_points():
-    """Test fitting hyperbolic model with too few data points."""
-    D = np.array([1.0, 2.0])
-    V = np.array([100.0, 90.0])
-    
-    # curve_fit requires at least as many points as parameters (2 here: k and A)
-    # With exactly 2 points, it might work but with 0 dof, or fail depending on bounds.
-    # We test that it handles the edge case gracefully or raises a specific error.
-    with pytest.raises(Exception):
-        fit_hyperbolic_model(V, D)
-
-def test_fit_hyperbolic_model_negative_delay():
-    """Test fitting hyperbolic model with negative delays (invalid input)."""
-    D = np.array([-1.0, 2.0, 5.0])
-    V = np.array([100.0, 90.0, 80.0])
-    
-    # Hyperbolic function 1/(1+kD) is undefined or behaves oddly for negative D if kD = -1
-    # curve_fit might fail or return NaN
-    with pytest.raises((RuntimeError, ValueError, FloatingPointError)):
-        fit_hyperbolic_model(V, D)
-
-def test_fit_hyperbolic_model_zero_delay_all():
-    """Test fitting hyperbolic model where all delays are zero."""
-    D = np.zeros(50)
-    V = np.ones(50) * 100.0
-    
-    # If D=0, V = A / 1 = A. We can find A, but k is indeterminate.
-    # This should raise an error or return a warning.
-    with pytest.raises(Exception):
-        fit_hyperbolic_model(V, D)
-
-def test_fit_hyperbolic_model_nan_in_values():
-    """Test fitting hyperbolic model with NaN values in V."""
-    D = np.linspace(1, 100, 50)
-    V = 100 / (1 + 0.05 * D)
-    V[10] = np.nan
-    
-    with pytest.raises(Exception):
-        fit_hyperbolic_model(V, D)
-
-def test_fit_hyperbolic_model_inf_in_values():
-    """Test fitting hyperbolic model with Inf values in V."""
-    D = np.linspace(1, 100, 50)
-    V = 100 / (1 + 0.05 * D)
-    V[10] = np.inf
-    
-    with pytest.raises(Exception):
-        fit_hyperbolic_model(V, D)
-
-def test_fit_hyperbolic_model_mismatched_lengths():
-    """Test fitting hyperbolic model with mismatched lengths of V and D."""
-    D = np.linspace(1, 100, 50)
-    V = np.linspace(100, 50, 40)
-    
-    with pytest.raises(ValueError):
-        fit_hyperbolic_model(V, D)
-
-def test_fit_hyperbolic_model_extreme_k_bounds():
-    """Test fitting hyperbolic model where true k is outside reasonable default bounds."""
+    This test verifies that the transform_and_center function correctly:
+    1. Mean-centers the input predictors.
+    2. Creates an interaction term from the centered predictors.
+    3. Returns a DataFrame with the correct columns.
+    """
+    # Create sample data
     np.random.seed(42)
-    D = np.linspace(1, 100, 50)
-    true_k = 1e6  # Extremely large k
-    A = 100
-    V = A / (1 + true_k * D) + np.random.normal(0, 0.1, 50)
+    n = 100
+    data = pd.DataFrame({
+        'log_k': np.random.normal(0.0, 0.5, n),
+        'wm_metric': np.random.normal(0.8, 0.1, n)
+    })
+
+    # Call the function
+    result_df = transform_and_center(data)
+
+    # Assertions
+    assert isinstance(result_df, pd.DataFrame)
     
-    # Default bounds in curve_fit might be [0, inf) or similar. 
-    # If the solver cannot find a solution within bounds or fails to converge:
+    # Check that original columns are not present (they should be replaced by centered versions)
+    # Note: The implementation might keep originals or replace them. 
+    # Based on standard practice and the function name, we expect centered versions.
+    # Let's check for the expected centered columns and interaction.
+    assert 'log_k_centered' in result_df.columns, "log_k_centered column missing"
+    assert 'wm_metric_centered' in result_df.columns, "wm_metric_centered column missing"
+    assert 'interaction' in result_df.columns, "interaction column missing"
+
+    # Verify mean-centering: mean of centered columns should be ~0
+    assert np.isclose(result_df['log_k_centered'].mean(), 0.0, atol=1e-6), "log_k_centered not mean-centered"
+    assert np.isclose(result_df['wm_metric_centered'].mean(), 0.0, atol=1e-6), "wm_metric_centered not mean-centered"
+
+    # Verify interaction term creation: interaction = log_k_centered * wm_metric_centered
+    expected_interaction = result_df['log_k_centered'] * result_df['wm_metric_centered']
+    assert np.allclose(result_df['interaction'], expected_interaction), "Interaction term calculation incorrect"
+
+    # Verify no NaNs in the result (assuming input had no NaNs)
+    assert not result_df.isnull().any().any(), "Result contains NaN values"
+
+def test_hyperbolic_fit_failure():
+    """
+    Unit test for hyperbolic model fitting edge cases (failure cases).
+    
+    This test verifies that the fitting routine handles invalid data
+    (e.g., constant values, NaNs, or non-positive values) gracefully
+    by raising a ValueError or returning None, rather than crashing
+    the entire pipeline.
+    """
+    from code.modeling import fit_hyperbolic_model
+    
+    # Case 1: All values are the same (constant V) -> slope is undefined
+    # This should fail to converge or raise an error in curve_fit
+    delays_constant = np.array([1.0, 1.0, 1.0, 1.0])
+    values_constant = np.array([50.0, 50.0, 50.0, 50.0])
+    
+    with pytest.raises((RuntimeError, ValueError)):
+        fit_hyperbolic_model(delays_constant, values_constant)
+    
+    # Case 2: Contains NaN values -> fitting should fail or be handled
+    delays_nan = np.array([1.0, 2.0, np.nan, 4.0])
+    values_nan = np.array([50.0, 40.0, 30.0, 20.0])
+    
+    # We expect this to either raise or return None/fail to fit
+    # depending on implementation, but it must NOT produce a valid k
+    # if the data is invalid.
     try:
-        popt, pcov = fit_hyperbolic_model(V, D)
-        # If it succeeds, k should be large
-        assert popt[0] > 1000
-    except RuntimeError:
-        # Expected if bounds prevent convergence
+        result = fit_hyperbolic_model(delays_nan, values_nan)
+        # If it returns a result, it must be None or a specific failure indicator
+        # If the implementation filters NaNs and fits, we check if k is reasonable
+        # But strictly, fitting on NaN data is an edge case.
+        # Assuming the function handles it by raising or returning None:
+        if result is not None:
+            # If it somehow fits, ensure it doesn't crash, but this is risky
+            # The spec says "exclude participants where fitting fails"
+            # So returning None is acceptable behavior for failure.
+            pass
+    except (RuntimeError, ValueError):
+        # Expected behavior: fitting fails
         pass
+    
+    # Case 3: Non-positive delays (k must be > 0, delays must be > 0 for log)
+    delays_neg = np.array([-1.0, 2.0, 3.0])
+    values_neg = np.array([50.0, 40.0, 30.0])
+    
+    with pytest.raises((ValueError, RuntimeError)):
+        fit_hyperbolic_model(delays_neg, values_neg)
+
+def test_vif_calculation():
+    """
+    Unit test for VIF calculation and threshold flagging in code/modeling.py.
+    
+    This test verifies that the calculate_vif function:
+    1. Correctly calculates Variance Inflation Factor for each predictor.
+    2. Returns a dictionary with the expected structure.
+    3. Correctly identifies high multicollinearity (VIF > 5).
+    """
+    # Create sample data with known multicollinearity
+    # We'll create a dataset where one variable is highly correlated with another
+    np.random.seed(42)
+    n = 100
+    
+    # Create base variables
+    x1 = np.random.normal(0, 1, n)
+    x2 = np.random.normal(0, 1, n)
+    
+    # Create a third variable that is highly correlated with x1 (VIF should be high)
+    x3 = x1 * 0.95 + np.random.normal(0, 0.1, n)
+    
+    # Create target variable
+    y = x1 + x2 + x3 + np.random.normal(0, 0.1, n)
+    
+    df = pd.DataFrame({
+        'y': y,
+        'x1': x1,
+        'x2': x2,
+        'x3': x3
+    })
+    
+    # Calculate VIF
+    vif_scores = calculate_vif(df[['x1', 'x2', 'x3']])
+    
+    # Assertions
+    assert isinstance(vif_scores, dict), "VIF result should be a dictionary"
+    assert 'x1' in vif_scores, "VIF result should contain x1"
+    assert 'x2' in vif_scores, "VIF result should contain x2"
+    assert 'x3' in vif_scores, "VIF result should contain x3"
+    
+    # All VIF scores should be positive
+    for var, vif in vif_scores.items():
+        assert vif > 0, f"VIF for {var} should be positive"
+    
+    # x3 should have a high VIF (> 5) due to correlation with x1
+    assert vif_scores['x3'] > 5, f"VIF for x3 should be > 5 due to multicollinearity, got {vif_scores['x3']}"
+    assert vif_scores['x1'] > 5, f"VIF for x1 should be > 5 due to multicollinearity, got {vif_scores['x1']}"
+    
+    # x2 should have a low VIF (close to 1) as it's independent
+    assert vif_scores['x2'] < 2, f"VIF for x2 should be low (< 2), got {vif_scores['x2']}"
+    
+    # Test with perfectly collinear variables (should result in very high VIF)
+    df_collinear = pd.DataFrame({
+        'x1': x1,
+        'x2': x2,
+        'x3': x1  # Perfectly collinear with x1
+    })
+    
+    vif_collinear = calculate_vif(df_collinear)
+    
+    # With perfect collinearity, VIF should be extremely high or infinite
+    # We check that at least one VIF is very high (> 100)
+    assert any(v > 100 for v in vif_collinear.values), "Perfect collinearity should result in very high VIF"

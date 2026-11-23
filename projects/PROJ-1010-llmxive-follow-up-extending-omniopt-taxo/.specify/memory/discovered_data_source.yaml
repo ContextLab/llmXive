@@ -1,0 +1,11 @@
+status: none
+intent: TinyImageNet OmniOpt benchmark gradient covariance spectral features python
+  package dataset
+required_fields:
+- model_identifier
+- spectral_radius
+- condition_number
+- tail_decay_exponent
+cache_key: fbd4601c4979c8f237fef723621a774728bbab5fb641ab3eaff0aa2e24ae82ce
+searched_at: '2026-10-25T15:31:44.535986+00:00'
+retry_count: 1

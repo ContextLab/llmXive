@@ -1,345 +1,302 @@
+"""
+Training utilities for llmXive models.
+
+Provides training loops, batch size tuning, and optimization utilities.
+"""
 import torch
 import torch.nn as nn
+import torch.optim as optim
 import numpy as np
 from typing import Dict, Any, Optional, List, Tuple
 from pathlib import Path
+from utils.logging import get_logger, log_info, log_error
+from utils.memory_monitor import memory_limit_context
+from models.base import ProjectionModel
 
-from models.base import FrozenEmbeddingModel, ProjectionModel
-from utils.logging import get_logger, log_info, log_error, log_debug
-from utils.memory_monitor import get_process_memory_mb, memory_limit_context
-from config import get_config
 
 logger = get_logger(__name__)
 
+
 class Trainer:
     """
-    Trainer for the tabular-conditioned projection model.
-    
-    This trainer freezes the backbone (frozen embedding model) and only
-    updates the projection layer weights during training.
+    Trainer class for projection models.
+
+    Handles training loops, loss computation, and optimization.
     """
 
     def __init__(
         self,
-        backbone: FrozenEmbeddingModel,
-        projection: ProjectionModel,
+        model: ProjectionModel,
+        optimizer: torch.optim.Optimizer,
+        criterion: nn.Module,
         device: str = "cpu",
-        learning_rate: float = 1e-3,
-        weight_decay: float = 1e-4,
-        max_memory_gb: float = 6.0,
+        gradient_clip: Optional[float] = None,
     ):
-        """
-        Initialize the trainer.
-        
-        Args:
-            backbone: The frozen embedding model (weights will be frozen).
-            projection: The projection model to train.
-            device: Device to run training on (default: "cpu").
-            learning_rate: Learning rate for the optimizer.
-            weight_decay: Weight decay for regularization.
-            max_memory_gb: Maximum memory usage in GB before stopping.
-        """
-        self.backbone = backbone
-        self.projection = projection
+        self.model = model
+        self.optimizer = optimizer
+        self.criterion = criterion
         self.device = device
-        self.max_memory_gb = max_memory_gb
-        
-        # Freeze backbone parameters
-        for param in self.backbone.parameters():
-            param.requires_grad = False
-        
-        # Ensure projection parameters are trainable
-        for param in self.projection.parameters():
-            param.requires_grad = True
-
-        # Move models to device
-        self.backbone.to(device)
-        self.projection.to(device)
-
-        # Setup optimizer (only for projection parameters)
-        self.optimizer = torch.optim.Adam(
-            self.projection.parameters(),
-            lr=learning_rate,
-            weight_decay=weight_decay,
-        )
-        
-        # Loss function
-        self.criterion = nn.MSELoss()
-        
-        log_info(logger, f"Trainer initialized on {device}", extra={"backbone_type": type(backbone).__name__, "projection_type": type(projection).__name__})
+        self.gradient_clip = gradient_clip
+        self.history: Dict[str, List[float]] = {"loss": [], "val_loss": []}
 
     def train_epoch(
         self,
         dataloader: torch.utils.data.DataLoader,
         epoch: int,
-    ) -> Dict[str, float]:
+    ) -> float:
         """
         Train for one epoch.
-        
+
         Args:
-            dataloader: DataLoader for the training data.
-            epoch: Current epoch number (for logging).
-            
+            dataloader: Training data loader.
+            epoch: Current epoch number.
+
         Returns:
-            Dictionary containing training metrics.
+            Average loss for the epoch.
         """
-        self.projection.train()
+        self.model.train()
         total_loss = 0.0
         num_batches = 0
-        
+
         for batch_idx, batch in enumerate(dataloader):
-            # Check memory usage
-            current_mem_gb = get_process_memory_mb() / 1024.0
-            if current_mem_gb > self.max_memory_gb:
-                log_error(
-                    logger,
-                    f"Memory limit exceeded: {current_mem_gb:.2f}GB > {self.max_memory_gb}GB",
-                    extra={"epoch": epoch, "batch": batch_idx}
-                )
-                break
-            
-            # Extract batch data
-            # Expected keys: 'frozen_embeddings', 'tabular_features', 'labels'
-            frozen_embeddings = batch['frozen_embeddings'].to(self.device)
-            tabular_features = batch['tabular_features'].to(self.device)
-            labels = batch['labels'].to(self.device)
-            
-            # Zero gradients
-            self.optimizer.zero_grad()
-            
+            # Move data to device
+            embeddings = batch["embeddings"].to(self.device)
+            conditions = batch.get("conditions", None)
+            if conditions is not None:
+                conditions = conditions.to(self.device)
+            targets = batch["targets"].to(self.device)
+
             # Forward pass
-            with torch.no_grad():
-                # Ensure backbone is in eval mode and no gradients
-                self.backbone.eval()
-                backbone_outputs = self.backbone(frozen_embeddings)
-                
-            # Projection forward pass (trainable)
-            projections = self.projection(backbone_outputs, tabular_features)
-            
+            self.optimizer.zero_grad()
+            outputs = self.model(embeddings, conditions)
+
             # Compute loss
-            loss = self.criterion(projections, labels)
-            
+            loss = self.criterion(outputs, targets)
+
             # Backward pass
             loss.backward()
-            
-            # Clip gradients to prevent explosion
-            torch.nn.utils.clip_grad_norm_(self.projection.parameters(), max_norm=1.0)
-            
-            # Optimizer step
+
+            # Gradient clipping
+            if self.gradient_clip is not None:
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), self.gradient_clip)
+
             self.optimizer.step()
-            
-            # Accumulate metrics
+
             total_loss += loss.item()
             num_batches += 1
-            
-            if batch_idx % 10 == 0:
-                log_debug(
-                    logger,
-                    f"Epoch {epoch}, Batch {batch_idx}, Loss: {loss.item():.4f}",
-                    extra={"epoch": epoch, "batch": batch_idx, "loss": loss.item()}
-                )
-        
-        avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
-        
-        log_info(
-            logger,
-            f"Epoch {epoch} completed, Average Loss: {avg_loss:.4f}",
-            extra={"epoch": epoch, "avg_loss": avg_loss, "num_batches": num_batches}
-        )
-        
-        return {"loss": avg_loss}
 
-    def validate(
+        avg_loss = total_loss / num_batches
+        self.history["loss"].append(avg_loss)
+        log_info(f"Epoch {epoch} - Train Loss: {avg_loss:.4f}")
+        return avg_loss
+
+    def evaluate(
         self,
         dataloader: torch.utils.data.DataLoader,
-    ) -> Dict[str, float]:
+    ) -> float:
         """
-        Validate the model on a dataset.
-        
+        Evaluate the model on a validation/test set.
+
         Args:
-            dataloader: DataLoader for validation data.
-            
+            dataloader: Validation/test data loader.
+
         Returns:
-            Dictionary containing validation metrics.
+            Average loss.
         """
-        self.projection.eval()
+        self.model.eval()
         total_loss = 0.0
         num_batches = 0
-        all_predictions = []
-        all_labels = []
-        
+
         with torch.no_grad():
             for batch in dataloader:
-                frozen_embeddings = batch['frozen_embeddings'].to(self.device)
-                tabular_features = batch['tabular_features'].to(self.device)
-                labels = batch['labels'].to(self.device)
-                
-                # Forward pass
-                backbone_outputs = self.backbone(frozen_embeddings)
-                projections = self.projection(backbone_outputs, tabular_features)
-                
-                loss = self.criterion(projections, labels)
-                
+                embeddings = batch["embeddings"].to(self.device)
+                conditions = batch.get("conditions", None)
+                if conditions is not None:
+                    conditions = conditions.to(self.device)
+                targets = batch["targets"].to(self.device)
+
+                outputs = self.model(embeddings, conditions)
+                loss = self.criterion(outputs, targets)
+
                 total_loss += loss.item()
                 num_batches += 1
-                
-                all_predictions.append(projections.cpu().numpy())
-                all_labels.append(labels.cpu().numpy())
-        
-        avg_loss = total_loss / num_batches if num_batches > 0 else 0.0
-        
-        # Concatenate all predictions and labels
-        all_predictions = np.concatenate(all_predictions, axis=0)
-        all_labels = np.concatenate(all_labels, axis=0)
-        
-        # Compute additional metrics
-        rmse = np.sqrt(np.mean((all_predictions - all_labels) ** 2))
-        mae = np.mean(np.abs(all_predictions - all_labels))
-        
-        metrics = {
-            "loss": avg_loss,
-            "rmse": rmse,
-            "mae": mae,
-        }
-        
-        log_info(
-            logger,
-            f"Validation completed, Loss: {avg_loss:.4f}, RMSE: {rmse:.4f}, MAE: {mae:.4f}",
-            extra={"loss": avg_loss, "rmse": rmse, "mae": mae}
-        )
-        
-        return metrics
 
-    def fit(
+        avg_loss = total_loss / num_batches
+        self.history["val_loss"].append(avg_loss)
+        log_info(f"Validation Loss: {avg_loss:.4f}")
+        return avg_loss
+
+    def train(
         self,
-        train_dataloader: torch.utils.data.DataLoader,
-        val_dataloader: torch.utils.data.DataLoader,
-        num_epochs: int = 10,
-        patience: int = 3,
+        train_loader: torch.utils.data.DataLoader,
+        val_loader: torch.utils.data.DataLoader,
+        epochs: int,
+        patience: int = 5,
         save_path: Optional[Path] = None,
-    ) -> Dict[str, List[Dict[str, float]]]:
+    ) -> Dict[str, Any]:
         """
-        Train the projection model for multiple epochs.
-        
+        Full training loop with early stopping.
+
         Args:
-            train_dataloader: DataLoader for training data.
-            val_dataloader: DataLoader for validation data.
-            num_epochs: Number of epochs to train.
-            patience: Early stopping patience.
+            train_loader: Training data loader.
+            val_loader: Validation data loader.
+            epochs: Maximum number of epochs.
+            patience: Patience for early stopping.
             save_path: Path to save the best model.
-            
+
         Returns:
-            Dictionary containing training history.
+            Training history.
         """
-        best_val_loss = float('inf')
+        best_val_loss = float("inf")
         patience_counter = 0
-        history = {"train": [], "val": []}
-        
-        log_info(
-            logger,
-            f"Starting training for {num_epochs} epochs",
-            extra={"num_epochs": num_epochs}
-        )
-        
-        for epoch in range(num_epochs):
-            # Train
-            train_metrics = self.train_epoch(train_dataloader, epoch)
-            history["train"].append(train_metrics)
-            
-            # Validate
-            val_metrics = self.validate(val_dataloader)
-            history["val"].append(val_metrics)
-            
+
+        for epoch in range(epochs):
+            train_loss = self.train_epoch(train_loader, epoch + 1)
+            val_loss = self.evaluate(val_loader)
+
             # Early stopping check
-            if val_metrics["loss"] < best_val_loss:
-                best_val_loss = val_metrics["loss"]
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
                 patience_counter = 0
-                
                 if save_path:
-                    self.save(save_path)
-                    log_info(
-                        logger,
-                        f"Saved best model to {save_path}",
-                        extra={"path": str(save_path), "val_loss": best_val_loss}
-                    )
+                  torch.save(self.model.state_dict(), save_path)
+                  log_info(f"Model saved to {save_path}")
             else:
                 patience_counter += 1
                 if patience_counter >= patience:
-                    log_info(
-                        logger,
-                        f"Early stopping triggered at epoch {epoch}",
-                        extra={"epoch": epoch, "patience": patience}
-                    )
+                    log_info(f"Early stopping at epoch {epoch + 1}")
                     break
-        
-        log_info(
-            logger,
-            f"Training completed. Best val loss: {best_val_loss:.4f}",
-            extra={"best_val_loss": best_val_loss}
-        )
-        
-        return history
 
-    def save(self, path: Path) -> None:
-        """
-        Save the projection model state.
-        
-        Args:
-            path: Path to save the model.
-        """
-        path = Path(path)
-        path.parent.mkdir(parents=True, exist_ok=True)
-        
-        torch.save(
-            {
-                "projection_state_dict": self.projection.state_dict(),
-                "optimizer_state_dict": self.optimizer.state_dict(),
-                "device": self.device,
-            },
-            path
-        )
-        
-        log_info(logger, f"Model saved to {path}", extra={"path": str(path)})
+        return self.history
 
-    def load(self, path: Path) -> None:
-        """
-        Load the projection model state.
-        
-        Args:
-            path: Path to load the model from.
-        """
-        path = Path(path)
-        
-        checkpoint = torch.load(path, map_location=self.device)
-        self.projection.load_state_dict(checkpoint["projection_state_dict"])
-        self.optimizer.load_state_dict(checkpoint["optimizer_state_dict"])
-        
-        log_info(logger, f"Model loaded from {path}", extra={"path": str(path)})
 
 def create_trainer(
-    backbone: FrozenEmbeddingModel,
-    projection: ProjectionModel,
-    config: Optional[Dict[str, Any]] = None,
+    model: ProjectionModel,
+    learning_rate: float = 1e-3,
+    weight_decay: float = 1e-4,
+    device: str = "cpu",
+    gradient_clip: Optional[float] = None,
+    loss_fn: Optional[nn.Module] = None,
 ) -> Trainer:
     """
     Factory function to create a Trainer instance.
-    
+
     Args:
-        backbone: The frozen embedding model.
-        projection: The projection model.
-        config: Optional configuration dictionary.
-            
+        model: The model to train.
+        learning_rate: Learning rate for the optimizer.
+        weight_decay: Weight decay for regularization.
+        device: Device to train on.
+        gradient_clip: Maximum norm for gradient clipping.
+        loss_fn: Loss function (default: MSELoss).
+
     Returns:
-        A configured Trainer instance.
+        A Trainer instance.
     """
-    if config is None:
-        config = get_config()
-    
-    return Trainer(
-        backbone=backbone,
-        projection=projection,
-        device=config.get("device", "cpu"),
-        learning_rate=config.get("learning_rate", 1e-3),
-        weight_decay=config.get("weight_decay", 1e-4),
-        max_memory_gb=config.get("max_memory_gb", 6.0),
+    if loss_fn is None:
+        loss_fn = nn.MSELoss()
+
+    optimizer = optim.AdamW(
+        model.parameters(),
+        lr=learning_rate,
+        weight_decay=weight_decay,
     )
+
+    return Trainer(
+        model=model,
+        optimizer=optimizer,
+        criterion=loss_fn,
+        device=device,
+        gradient_clip=gradient_clip,
+    )
+
+
+def train_with_batch_size_tuning(
+    model: ProjectionModel,
+    train_loader: torch.utils.data.DataLoader,
+    val_loader: torch.utils.data.DataLoader,
+    max_batch_size: int = 64,
+    memory_threshold_mb: float = 6000.0,
+    epochs: int = 10,
+    **trainer_kwargs,
+) -> Tuple[Trainer, Dict[str, Any]]:
+    """
+    Train with automatic batch size tuning to avoid OOM.
+
+    Args:
+        model: The model to train.
+        train_loader: Training data loader (will be re-sampled).
+        val_loader: Validation data loader.
+        max_batch_size: Maximum batch size to try.
+        memory_threshold_mb: Memory limit in MB.
+        epochs: Number of epochs to train.
+        **trainer_kwargs: Arguments for create_trainer.
+
+    Returns:
+        Tuple of (Trainer instance, tuning results).
+    """
+    import gc
+
+    best_batch_size = 1
+    found_safe = False
+
+    # Try increasing batch sizes
+    for bs in [2, 4, 8, 16, 32, 64, 128]:
+        if bs > max_batch_size:
+            break
+
+        try:
+            # Create a small subset to test memory
+            test_loader = torch.utils.data.DataLoader(
+                train_loader.dataset,
+                batch_size=bs,
+                shuffle=False,
+            )
+
+            # Run a single forward/backward pass
+            trainer = create_trainer(model, **trainer_kwargs)
+            trainer.model.train()
+
+            with memory_limit_context(memory_threshold_mb):
+                batch = next(iter(test_loader))
+                embeddings = batch["embeddings"].to(trainer.device)
+                conditions = batch.get("conditions", None)
+                if conditions is not None:
+                    conditions = conditions.to(trainer.device)
+                targets = batch["targets"].to(trainer.device)
+
+                outputs = trainer.model(embeddings, conditions)
+                loss = trainer.criterion(outputs, targets)
+                loss.backward()
+
+            best_batch_size = bs
+            found_safe = True
+            log_info(f"Batch size {bs} is safe.")
+            gc.collect()
+            torch.cuda.empty_cache() if hasattr(torch.cuda, 'empty_cache') else None
+
+        except RuntimeError as e:
+            if "out of memory" in str(e).lower():
+                log_info(f"Batch size {bs} caused OOM. Using previous safe size.")
+                break
+            else:
+                raise
+
+    if not found_safe:
+        log_error("Could not find a safe batch size. Using batch size 1.")
+        best_batch_size = 1
+
+    # Re-create trainer with optimal batch size
+    optimal_loader = torch.utils.data.DataLoader(
+        train_loader.dataset,
+        batch_size=best_batch_size,
+        shuffle=True,
+    )
+
+    trainer = create_trainer(model, **trainer_kwargs)
+    history = trainer.train(optimal_loader, val_loader, epochs=epochs)
+
+    return trainer, {
+        "optimal_batch_size": best_batch_size,
+        "max_batch_size_attempted": max_batch_size,
+        "training_history": history,
+    }

@@ -1,0 +1,4 @@
+2026-10-24 16:27:03,819 - src.features.feature_engineering_pipeline - INFO - Loaded 0 rows from data/processed/alloys_raw.csv
+2026-10-24 16:27:03,819 - src.features.feature_engineering_pipeline - WARNING - Input data is empty. Saving empty features file.
+2026-10-24 16:27:03,819 - src.features.feature_engineering_pipeline - INFO - Saved features to data/processed/alloys_features.csv (0 rows).
+2026-10-24 16:27:03,819 - scripts.run_feature_engineering - INFO - Feature Engineering Pipeline Script completed.

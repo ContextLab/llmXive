@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2605.04089",
+  "judged_at": "2026-07-27T07:43:14Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "developing a low-cost solar-powered water purification system energy",
+  "rationale": "This paper satisfies criteria (a) and (e) as it provides empirical evidence for a low-cost, solar-powered water purification mechanism (photocatalytic disinfection) in a relevant developing-world population, directly addressing the core variables of the user's proposed system.",
+  "relevant": true
+}

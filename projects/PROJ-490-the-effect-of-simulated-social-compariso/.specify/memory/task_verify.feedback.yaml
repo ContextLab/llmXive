@@ -1,0 +1,182 @@
+T001a:
+  task: 6cd6c02ebd6818bb3b3baf870f4cccccb2dcc06b352ece3ad5785690b2fd7be8
+T001b:
+  reason: "Checked the `requirements.txt` file (present and includes flake8, pylint,\
+    \ black). No `README.md` was found, nor any linting/formatting configuration files\
+    \ (e.g., `.flake8`, `.pylintrc`, `pyproject.toml`), so the task\u2019s requirement\
+    \ to configure the tools and provide a README is not satisfied."
+  task: c3a767e8797f54c10d8dfeddbfc13a0c53af6a6f2d2519151b006c9bde1bfd47
+T002a:
+  reason: "The collector reports `dataset.schema.yaml` as MISSING at the requested\
+    \ path, and although a file with that name appears in the `contracts/` directory\
+    \ listing, no content evidence was supplied to verify it contains the required\
+    \ field definitions (participant_id, pre/post_self_esteem, comparison_tendency,\
+    \ avatar_condition with enum [0,1]) or the N \u2265 100 validation rule (FR-001).\
+    \ The next implementer must ensure the schema file exists at `projects/PROJ-490-the-effect-of-simulated-social-compariso/contracts/dataset.schema.yaml`\
+    \ with the full explicit definitions and sample-size validation rule, a"
+  task: d724c43cccc203a5f48d576a617e118e46141788f5ac5c52fc1205695e650c7a
+T002b:
+  reason: The collector reports the requested `output.schema.yaml` as MISSING at its
+    expected location, and while a file of that name appears in the `contracts/` directory
+    listing, no content was collected for it, so I cannot verify it contains the required
+    schema (object with required `imputed_data_checksum` and `missingness_report`,
+    with `total_rows`/`rows_excluded`/`missingness_pct` properties). The implementer
+    must ensure the file exists at `projects/PROJ-490-the-effect-of-simulated-social-compariso/contracts/output.schema.yaml`
+    with exactly the specified definitions and provide its content as evide
+  task: a8861dee4f473ec8e0dc2f08e50a152fdb9b63f6b828970738dd91ecaea877a2
+T002c:
+  reason: The file `results.schema.yaml` does exist inside `projects/PROJ-490-the-effect-of-simulated-social-compariso/contracts/`
+    (per the directory listing), but no content was collected for it, so I cannot
+    verify it contains the required schema (object with required `coefficients`/`assumptions`/`data_source_type`,
+    the coefficient item fields `name`/`estimate`/`std_err`/`p_value`, the assumption
+    fields `shapiro_p`/`breusch_pagan_p`/`vif_max`, and the `["real","synthetic"]`
+    enum). The next implementer should re-run evidence collection (or provide the
+    file's contents) so the schema can be checked agains
+  task: 57d499b87e4680e2e5aa1c771e91147749f60f78de8595c984bba524a6866571
+T003:
+  task: d0928cfa728ab655ebae4326c36bea812332e3fc36798c3ade8ee989ae1e7b41
+T004:
+  task: 66d23b43f9050db3ddca1d69a4a63a8cd5ab95ae9367460f921e7c1bf7da5b7b
+T005:
+  task: 7fd45f4596c00317eaab9c3bf55fde64fa1a3537ca0ae2f56f5298865c516d0b
+T006:
+  task: 48bf9c3a2f5425f5d6f7332f71e3a2a7abf0e10bf346c71e8c7d5da0a86edfda
+T007:
+  task: 984b8e48a4c0b6eeace3f5fcce458827ca1f3609185e0549de807970adfabd16
+T008:
+  task: 20b8619d84234139390859929e8eec4576ee2bbfa2aafa08bb1d5db484444b21
+T009a:
+  task: 79f19cb01d79d3b647d13ac34f6cd1d1ba1143553cf1b5fd94ab74331a47907d
+T009b:
+  task: c7440259d739b27b2fbb644e9be4ed254773881bed662839c449d48c8c933f13
+T010:
+  task: bbdc7ca93a6081c59455463c6ab11886d7df59cda8ebd6bfbb24a809e39eae66
+T012:
+  task: b53892125554d966a76a4ed8d0aff541aae03ed17794f7e2d3214ac83a6ec714
+T013a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/pre_imputation_validation.json'
+  task: 44067d0346c2bcea4abd480883cd98898c8a10820457aab141fb655cb87cee10
+T013b:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/imputed_data.csv,
+    data/processed/post_imputation_validation.json'
+  task: 55d71e8e020f4d58d38df9ef0c21cd18683614cfd2ec0404060f0d987f861db1
+T014:
+  task: e5fa2f3f9af7f46134c12b649e1fea25c760fd9c03c090be1fc3ead306084b02
+T014a_new:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/pre_imputation_validation.json'
+  task: 9c8c51d2eff6a2d3eb8833153944cf8dfd4065ffc243eded8edd590fff7e5967
+T014b:
+  task: 3a31f095a0df831a3cd170c013bc2d4911c44fc4dd9c9524bd1ec2913c2bd79b
+T015:
+  task: 38fdf80dbcd519949738c706d28c7ee7acfe67105968b04ba6e26fad254204df
+T016:
+  task: b9447b7bc38b15df0486304205fc3f2dc41c20b2c304afcf02cd2c98d4f1bf3d
+T017:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/imputed_data.csv'
+  task: b9822b56a4f83c60a3a15fe88889e5837313d2123e07a387fece7a541599d6dc
+T018:
+  task: 2f433a793db4dc0f29aab94246e29bf4370f9709f70ce035f2ad6e3a1698ebe4
+T018a:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_regression.py'
+  task: 365b2584b5602ac24b87cc0f21e3490cfbd884895379404cf601357175548201
+T019:
+  task: 32183514ce0b4a2b39a38658cd3c681d33471ce9ff5818d2ba4d7dabcb7bcada
+T021:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/regression_coefficients.csv,
+    data/processed/model_diagnostics.json'
+  task: 280368e38eaf58764a05c32b0a1678db487b44f0f0ade75145ddd49bcae063b5
+T022:
+  task: 8fbabb14ae8ec95c70657b31268d11d399021b07696af1cdab71401959febc6d
+T023:
+  task: ee559fa24241429f06ebe59e93bae4eb0ea21cd9b80826cb82fd31bb17175c11
+T024:
+  task: bccbaa0cb5dbbc0ddc54d4f322a4f900b09faaca7b45e45b55c3df4521e58ce9
+T025:
+  task: ff0b590e159dfff2b89a0263fc1a59678de1b29a5672335c7e8bd37d948490e6
+T027:
+  task: f6319c813d0b1968fb7601d4e6bef93dd67cd918b849c973b74366423a96fbd2
+T028a:
+  task: c922beb08fb36fa2f1a9e26e7a678a288fe8bbb88369171214e8b330bd661b0c
+T028b:
+  task: 680612e3dd9934a8e09c819469703887589f303263aaca072b44666fe780d933
+T029_new:
+  task: b506b6eb439387e8fc18c4f3801d95b4ac61ac3d3786b2d6ae8ea15a70a043f3
+T030:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/final_report.json'
+  task: 95ab291a06744653bcf46ac98cb36becd6c5a4fef4efe582d07b37fdf089f791
+T030a:
+  reason: 'declared artifact(s) missing/empty/invalid: data/processed/final_report.json'
+  task: a899f4bc7c1f4bf2c66a54dba3eaf228f53fd0d6b6bf0af51c97f4347ba70197
+T031:
+  task: 39c4b7c2ec69296a6b2c42ab6e78af64b72a2e248ee415cf6970ec7dc584800b
+T032a:
+  task: 13b561188a7047ad7a48dfb6d4f9a89888b77272e399de172558e0a703216f5e
+T032b:
+  task: 1c2abe6515822ee5b4ebcac501c870ec44ba1d7585f49b2ae55956912f16a6aa
+T033:
+  task: 4855397f68d988286e7bdc689c3a7558c5ca508f269f437c802a81f1989dac7e
+T034:
+  reason: 'declared artifact(s) missing/empty/invalid: state/reproducibility_check.yaml'
+  task: 35a0f71c07c8051a43edce9a0bd7892ba1b7cd25121d263208f8ee77481f572e
+T035:
+  task: 0af0b418a8ce10d4ee39887a0ab922dc4f99bfdfb18674cdd87a1bf32d153056
+T050:
+  task: 0b06852b70a0b2caa9a75b0a378151b76b17d17cfc53d345507a40e9fc434435
+T051:
+  task: 4d31e210b1bacf0e3599f7a33f145a34c822258223be83436970c14bd94af7a5
+T052:
+  task: a3b75a377cfefed0dcc68b637f3ce7424c6e9b775100b0abbaad90cd397a6e66
+T054:
+  task: 6983f7f106d8ccf7f2b65f4842190627f1d74bf9c57cedc767b16c1aa27212d2
+T055:
+  task: 114a93019f3e91345dda1e69d4ed3d9d1a663011067752458a34387bc2cea1a2
+T057:
+  task: 7afaa484226d8db9aad9b48e47471dd603b4c81c1b809181c8ceaaa6b8ac0ebc
+T058:
+  task: 52f8277cccd6447a30a87f7e058a6b905cbd95d8ad56bf0812a3bb9d421f6298
+T059:
+  task: 28e384b5f8e62552fc6230d8c7df55a7a180ba9a3e57ac6f3f718b7dc95f350a
+T060:
+  task: dd260a588cabe050824bc718489a1581d4329c42d8fd89269ca009ebb2946e00
+T061:
+  task: be16a3f17a4c68b33f104e2a3a5ca0231c17f9f3d345f2a04e8a27209df4a8ed
+T062:
+  task: c4bbe1f531ee5d555d67e7aa3470a006e983e2791316f7be035065596b090fab
+T063_new:
+  task: 7f62d5a803f346fec1262aa0759dacfbacb96b79ab0f385e4beccc5ddc4d032b
+T064:
+  task: 063b08a523852c518e06052581fe6307e6d93d788e506c57df64ecefe18cfa28
+T065:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_data_fetch.py'
+  task: 0baa0373216bf4147e1587bb9ca6ac75274dd39357b9ce87150b2a8859801b0a
+T066:
+  task: 905b17d18b6d4a92705e45a59e5be3d62de15c7caffd66afc414b27481dae0eb
+T067:
+  task: 3682779bb3d4883b4181a5fe863f80fe93853bec3124c976a82d9769316696ce
+T068:
+  task: a89b6d3edb8e016012c58cbac5a0706f2088d95c75cbba666783eb8b9a3124e1
+T069:
+  task: d5bcffd5415ee6873924788913d46ba2b5dabfe7d594fbdac1293fe08ae32c7f
+T070:
+  task: 0c825c4dd0442e5f71a83697868c8dde626263fe0c058002ac7e49119c1c09e7
+T071:
+  task: 0a6e0e98ea13f9a25ddd53a5a57f1d76903d5ec7f5d42ab4a7ee3afc58216a56
+T072:
+  task: 0413546a3a674aa90a8f62654f2966d6e0edf431e5c2e61fd264ff985c5714f7
+T073:
+  task: 5fde1cceda9ff678d1f5cf035fa12ef2477e95faab90c9d48f34fd6da23c50f3
+T074:
+  task: 84b439b5f4805ffc918de5d8cac8ce1bb3d5c96ae3034ab39a75624c15d96f1b
+T075:
+  task: 1e4c08f9735d888719b42ff409f9bf106a7584e2d714ad69ad69307388e642b9
+T076b:
+  task: 353ae81348229fef274d24acb39ea8f7e0c5a1ba46a980595f32b86ea19702d8
+T077_new:
+  task: a5cbea8a9fc41e350040e21bde1157f1aede0ca4ee6d623415faebc7fe684010
+T078:
+  task: 7da9942ad79c38d9f53ae7ca9bb4f117fd7fdf12e05878f31e37bc3983c3b16a
+T079:
+  reason: 'declared artifact(s) missing/empty/invalid: tests/unit/test_data_fetch.py'
+  task: f4f46d64751098374c1069b0e3a540fc3a1f5c3556d162cd40c93fcee91721b5
+T080:
+  task: b4bb44eb0e70487e4e3f86c08deb712a7c729c3a814aaee1fc6ae4e0f4fecdaf

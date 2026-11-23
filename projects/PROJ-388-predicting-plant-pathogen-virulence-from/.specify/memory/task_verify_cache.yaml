@@ -1,0 +1,19 @@
+T006:
+  c: false
+  h: d4305494fe8f8132d4df6e015e287cea7b0112d0958ad3cd79d99681a6d18c33
+  r: "The required file `src/models/isolate.py` does not exist, so the class definition\
+    \ with the specified fields is missing. No artifact fulfills the task\u2019s requirement."
+T007:
+  c: false
+  h: a150385be15d99f27fa7654b5e1a5dbc29af5495d6830818d9cf9e55e98ae297
+  r: The required file `src/models/genomic_feature.py` does not exist, so the class
+    definition with the specified fields is missing. The implementer must create this
+    file and implement the `GenomicFeature` class accordingly.
+T059:
+  c: false
+  h: 47aa066202cdcd54d4cb6db6b5804a7c91b94dfd1c32d2f97106e49d77fb334b
+  r: "The required `src/utils/errors.py` file does not exist, and `src/analysis/correlation.py`\
+    \ is missing entirely. Moreover, the existing `src/data/download.py` does not\
+    \ define or use a `DataFetchError` nor implement the unified error\u2011handling\
+    \ pattern described in the task. The implementation therefore fails to meet the\
+    \ core requirements."

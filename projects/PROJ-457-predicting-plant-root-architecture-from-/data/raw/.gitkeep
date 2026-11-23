@@ -1,1 +1,2 @@
-# Raw data directory - stores downloaded source data
+# This file ensures the data/raw directory is tracked in git
+# Raw data files will be downloaded/added here

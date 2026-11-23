@@ -1,0 +1,25 @@
+[
+  {
+    "timestamp": "2024-01-15T10:00:00Z",
+    "step": "initial",
+    "batch_size": 5,
+    "available_memory_gb": 14.2,
+    "used_memory_gb": 2.1
+  },
+  {
+    "timestamp": "2024-01-15T10:00:05Z",
+    "event": "batch_reduction",
+    "old_batch_size": 5,
+    "new_batch_size": 2,
+    "reason": "Available memory critically low",
+    "available_memory_gb": 0.4,
+    "used_memory_gb": 13.8
+  },
+  {
+    "timestamp": "2024-01-15T10:00:10Z",
+    "step": "reduction_attempt",
+    "batch_size": 2,
+    "available_memory_gb": 1.8,
+    "used_memory_gb": 12.5
+  }
+]

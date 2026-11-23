@@ -1,0 +1,36 @@
+[project]
+name = "llmxive-synthdocbench"
+version = "0.1.0"
+description = "SynthDocBench: Evaluating Positional Bias in VLMs with Retrieval Augmentation"
+requires-python = ">=3.11"
+dependencies = [
+    "transformers",
+    "torch",
+    "faiss-cpu",
+    "pandas",
+    "scikit-learn",
+    "pytesseract",
+    "pdf2image",
+    "reportlab",
+    "PyMuPDF",
+    "sentence-transformers",
+    "Pillow",
+    "numpy",
+]
+
+[tool.black]
+line-length = 100
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "W", "F", "I", "C", "B"]
+ignore = ["E501"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]

@@ -1,0 +1,15 @@
+status: none
+intent: Materials Project HEA thermodynamic dataset parquet download python package
+  dataset
+required_fields:
+- composition
+- formation_energy_per_atom
+- mixing_enthalpy
+- energy_above_hull
+- elements
+- num_elements
+- atomic_fractions
+- entry_id
+cache_key: 04a95ea47ff96622252820a361af65bfc5cc83a3749657f4270d6ee0274f50d3
+searched_at: '2026-10-14T21:43:52.044832+00:00'
+retry_count: 1

@@ -1,23 +1,23 @@
 # Implementation Plan: The Impact of Aggregate Negative News Publication Volume on Anticipatory Anxiety
 
-**Branch**: `001-news-volume-anxiety` | **Date**: 2026-06-27 | **Spec**: `specs/001-news-volume-anxiety/spec.md`
+**Branch**: `001-news-volume-anxiety` | **Date**: 2026-10-27 | **Spec**: `specs/001-news-volume-anxiety/spec.md`
 **Input**: Feature specification from `/specs/001-news-volume-anxiety/spec.md`
 
 ## Summary
 
-This feature implements a CPU-tractable time-series analysis pipeline to investigate the relationship between aggregate negative news publication volume (proxied via GDELT EventCount) and population-level anticipatory anxiety (proxied via Google Trends search volume). The system fetches raw daily data, aligns timestamps, handles missing data via forward fill, and performs stationarity/cointegration testing. If cointegrated, an Error Correction Model (ECM) is used; otherwise, differencing is applied. The system then performs correlation and Granger causality tests using AIC/BIC for lag selection and Joint F-tests, avoiding Bonferroni correction. The analysis adheres to strict reproducibility and data hygiene standards defined in the project constitution, ensuring all results are reproducible on a free-tier GitHub Actions runner (CPU, ~7 GB RAM).
+This feature implements a time-series analysis pipeline to quantify the relationship between aggregate negative news publication volume (GDELT EventCount) and anticipatory anxiety indicators (Google Trends search volume). The technical approach involves fetching raw daily time-series data via AWS S3 bulk download (GDELT) and robust session-based fetching (Google Trends), preprocessing for stationarity (Seasonal Differencing -> STL Decomposition -> Cointegration Check), and performing statistical analysis including Pearson/Spearman correlation, Granger causality tests across multiple lags (with Holm-Bonferroni correction), and sensitivity analysis. The pipeline is designed to run entirely on CPU within 6 hours on a standard CI runner.
 
 ## Technical Context
 
-**Language/Version**: Python 3.11  
-**Primary Dependencies**: `pandas`, `numpy`, `statsmodels`, `requests`, `scikit-learn`, `matplotlib`, `seaborn`, `pyyaml`, `pytrends`  
-**Storage**: Local CSV files in `data/raw/` and `data/processed/`; no external database required.  
-**Testing**: `pytest` for unit tests on data alignment and statistical functions; integration tests via pipeline execution.  
-**Target Platform**: Linux (GitHub Actions free-tier runner).  
-**Project Type**: Data analysis pipeline / CLI script.  
-**Performance Goals**: Total runtime ≤ 6 hours; memory usage ≤ 7 GB; disk usage ≤ 14 GB.  
-**Constraints**: No GPU/CUDA; no deep learning models; no large-LLM inference; strict adherence to AIC/BIC lag selection and Joint F-tests (no Bonferroni).  
-**Scale/Scope**: Daily time-series data from a multi-year period; news volume and anxiety trends.
+**Language/Version**: Python 3.11
+**Primary Dependencies**: `pandas`, `numpy`, `statsmodels`, `requests`, `pytrends`, `pyyaml`, `matplotlib`, `scikit-learn`, `arch` (for ARCH-LM)
+**Storage**: Local CSV files (raw and processed) and JSON reports
+**Testing**: `pytest` with `unittest` fixtures for data validation
+**Target Platform**: Linux (GitHub Actions runner)
+**Project Type**: Data Science Pipeline / CLI
+**Performance Goals**: < 6 hours total runtime; < 7 GB RAM usage
+**Constraints**: CPU-only execution; no external API keys required for GDELT (public S3 access); Google Trends data must be fetched via `pytrends` with robust retry logic; strict adherence to stationarity checks and cointegration logic before analysis.
+**Scale/Scope**: Daily time-series data for a multi-year period (approximately four years of daily observations); analysis of multiple lag windows.
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -25,14 +25,14 @@ This feature implements a CPU-tractable time-series analysis pipeline to investi
 
 *GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Compliance Check | Status |
-|-----------|------------------|--------|
-| **I. Reproducibility** | All scripts will pin random seeds; external data fetched from canonical sources (GDELT, Google Trends) via documented APIs; `requirements.txt` will pin all dependencies. | ✅ Compliant |
-| **II. Verified Accuracy** | The API endpoints (GDELT, Google Trends) themselves are the primary sources and MUST be verified against the project's accuracy gate. The plan explicitly validates the source URL and documentation of these APIs as the "verified source" rather than relying on CSVs from the user message. | ✅ Compliant |
-| **III. Data Hygiene** | Raw data will be saved with checksums; derivations (aligned, normalized) saved as new files; no in-place modification. | ✅ Compliant |
-| **IV. Single Source of Truth** | All figures and statistics in the final report will trace back to specific rows in `data/processed/` and code blocks in `code/`. | ✅ Compliant |
-| **V. Versioning Discipline** | Artifacts will carry content hashes; state file updated on artifact changes. | ✅ Compliant |
-| **VI. Temporal Data Alignment** | Lag windows are determined algorithmically via AIC/BIC criteria with sensitivity analysis across short-term intervals ranging from one day to two weeks. The plan explicitly documents the algorithmic selection process and sensitivity analysis results in `research.md` and `code/`. | ✅ Compliant |
+| Principle | Status | Evidence / Action Plan |
+| :--- | :--- | :--- |
+| **I. Reproducibility** | **PASS** | Plan mandates `random_state` pinning in all sampling/analysis steps. External datasets (GDELT S3, Google Trends) are fetched via deterministic API calls with caching. `requirements.txt` will pin versions. |
+| **II. Verified Accuracy** | **PASS** | All citations in `research.md` reference verified literature (Salathé et al., 2012). The pipeline includes Task T015b to validate keyword stability and volume before analysis. Data checksums are recorded. |
+| **III. Data Hygiene** | **PASS** | Raw data (`data/raw/`) will be preserved. Processed data (`data/processed/`) will be new files with derivation logs. PII is not applicable to aggregate time-series. |
+| **IV. Single Source of Truth** | **PASS** | All figures and statistics in the final report will be generated directly from the `data/processed/` files via scripts, not hand-typed. |
+| **V. Versioning Discipline** | **PASS** | The plan includes a step to generate content hashes for all artifacts in `data/` and `code/`. |
+| **VI. Temporal Data Alignment** | **PASS** | Task T019 explicitly includes seasonal differencing, STL decomposition, ARCH-LM test, and cointegration checks. The `processed_timeseries.schema.yaml` contract is aligned with these steps. |
 
 ## Project Structure
 
@@ -44,40 +44,126 @@ specs/001-news-volume-anxiety/
 ├── research.md          # Phase 0 output
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
-├── contracts/           # Phase 1 output
+├── contracts/           # Phase 1 output (Static Design Artifacts)
 │   ├── dataset.schema.yaml
-│   └── output.schema.yaml
-└── tasks.md             # Phase 2 output (created later)
+│   ├── output.schema.yaml
+│   ├── processed_timeseries.schema.yaml
+│   ├── raw_news.schema.yaml
+│   └── raw_trends.schema.yaml
+└── tasks.md             # Phase 2 output (generated later)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-487-the-impact-of-social-media-doomscrolling/code/
+projects/PROJ-487-the-impact-of-social-media-doomscrolling/
 ├── data/
-│   ├── fetch_gdelt.py
-│   ├── fetch_google_trends.py
-│   ├── preprocess.py
-│   └── analyze.py
-├── tests/
-│   ├── test_preprocess.py
-│   └── test_analyze.py
-├── utils/
-│   └── logging.py
-├── requirements.txt
-└── main.py
-
-projects/PROJ-487-the-impact-of-social-media-doomscrolling/data/
-├── raw/
-│   ├── gdelt_events.csv
-│   └── google_trends.csv
-└── processed/
-    ├── aligned_timeseries.csv
-    └── stationarity_check.csv
+│   ├── raw/             # Raw CSVs from GDELT and Google Trends
+│   ├── processed/       # Aligned, stationary, normalized time-series
+│   └── reports/         # Generated PDF/HTML reports and plots
+├── code/
+│   ├── fetch/           # Scripts for data acquisition (T010, T015a, T015b)
+│   ├── preprocess/      # Scripts for cleaning, STL, Cointegration (T019)
+│   ├── analyze/         # Statistical analysis scripts (T029)
+│   ├── utils/           # Shared utilities, validation, Pydantic models
+│   │   └── models.py    # Pydantic models generated from contracts/
+│   ├── tests/           # Unit and integration tests
+│   ├── contracts/       # (Symlink or copy of static YAML schemas for runtime validation)
+│   └── main.py          # Pipeline orchestration
+└── requirements.txt
 ```
 
-**Structure Decision**: Single project structure chosen for simplicity and direct alignment with the data pipeline nature of the feature. No frontend/backend split required; all logic resides in `code/` with data in `data/`.
+**Structure Decision**: Single project structure chosen. The pipeline is linear (Fetch -> Preprocess -> Analyze -> Report), making a monolithic `code/` directory with functional sub-packages the most maintainable approach.
+**Contracts Clarification**: The `contracts/` directory in the documentation contains **static YAML schema definitions** (design artifacts). The `code/utils/models.py` contains **generated Pydantic models** derived from these YAML files for runtime validation. This resolves the ambiguity between design docs and generated code.
 
-**Schema Traceability**: The schema files in `contracts/` (`dataset.schema.yaml`, `output.schema.yaml`) are the machine-readable implementation of the entities (`TimeSeriesRecord`, `AnalysisResult`) defined in `data-model.md`. The `pyyaml` library is explicitly used in `preprocess.py` and `analyze.py` to validate data against these contracts during pipeline execution, ensuring Data Hygiene and SSoT principles.
+## Complexity Tracking
 
-**Complexity Tracking**: No violations detected. The single-project structure is sufficient for the data pipeline scope.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+| :--- | :--- | :--- |
+| **Seasonal Decomposition (STL)** | Time-series with weekly news cycles (e.g., weekend dips) require seasonal differencing or STL to avoid spurious regression. Simple first-order differencing fails for weekly seasonality. | Simple regression without seasonal adjustment would violate statistical rigor and produce invalid p-values. |
+| **Cointegration & ECM** | If the relationship is driven by long-run levels (sustained high news volume -> sustained anxiety), differencing destroys this signal. Cointegration tests preserve level relationships. | Blind differencing risks a 'null result' that is an artifact of the methodology rather than a true absence of correlation. |
+| **Holm-Bonferroni Correction** | Granger causality tests at different lags are dependent (nested models). Bonferroni is overly conservative and statistically inappropriate. | Bonferroni would likely suppress true predictive signals due to dependency structure. |
+| **AWS S3 Bulk Download** | GDELT EventQuery API is rate-limited and unsuitable for 4 years of daily aggregates. | The API approach would fail or require unrealistic retry logic for the full dataset. |
+
+## Implementation Phases
+
+### Phase 0: Data Acquisition & Validation (T010, T012, T015a, T015b)
+
+**Objective**: Fetch raw data and validate keyword stability.
+
+*   **T010**: Initialize project structure (`data/`, `code/`, `contracts/`).
+*   **T012**: **Fetch GDELT Data via AWS S3 Bulk Download**.
+    *   Download the GDELT GKG bulk files for a multi-year period from the public AWS S3 bucket.
+    *   Filter for `EventCount` with `AvgTone < 0` (negative sentiment).
+    *   Aggregate to daily frequency.
+    *   *Constraint*: Use `s3fs` or direct `wget` for bulk retrieval to avoid API rate limits.
+*   **T015a**: **Fetch Google Trends Data**.
+    *   Use `pytrends` to fetch daily search volume for primary keywords: "anticipatory anxiety", "worry about future".
+    *   Implement exponential backoff and retry logic with a bounded maximum number of attempts for anti-scraping measures..
+*   **T015b**: **Validate Keyword Stability (New)**.
+    *   Check if fetched time-series have sufficient volume (non-zero for >5% of days).
+    *   If a keyword fails, switch to fallback keywords: "stress about future", "pandemic fear".
+    *   *Action*: If all keywords fail, exit with error "Insufficient data for anxiety proxy".
+    *   *Output*: `data/raw/anxiety_trends.csv` with metadata on which keyword was used.
+
+### Phase 1: Preprocessing & Stationarity (T019)
+
+**Objective**: Clean, align, and ensure stationarity.
+
+*   **T019**: **Preprocess Data**.
+    *   **Alignment**: Merge GDELT and Trends on date (intersection). Preserve zero-event days.
+    *   **Missing Data**: Linear interpolation for nulls. Preserve explicit zeros.
+    *   **Stationarity Protocol**:
+        1.  **Seasonal Differencing**: Apply first-order differencing with lag=7 (weekly cycle) to both series.
+        2.  **ADF Test**: Test for stationarity.
+        3.  **STL Decomposition**: If still non-stationary, apply STL (Seasonal-Trend decomposition using Loess) to remove trend and seasonality.
+        4.  **Simple Differencing**: If STL fails, apply simple first-order differencing.
+    *   **Cointegration Check**: Test if original (non-differenced) series are cointegrated (Engle-Granger or Johansen).
+        *   *If Cointegrated*: Proceed to Error Correction Model (ECM) analysis.
+        *   *If Not Cointegrated*: Proceed with differenced series for Granger Causality.
+    *   **Variance Stability**: Perform ARCH-LM test on residuals.
+    *   **Normalization**: Z-score normalization (mean=0, std=1) of the final series.
+    *   *Output*: `data/processed/aligned_timeseries.csv` and `data/processed/stationarity_check.csv`.
+
+### Phase 2: Statistical Analysis (T029)
+
+**Objective**: Compute correlations, causality, and sensitivity.
+
+*   **T029a**: **Correlation Analysis**.
+    *   Compute Pearson and Spearman correlation coefficients.
+    *   Report p-values.
+*   **T029b**: **Granger Causality**.
+    *   Test at multiple short-to-medium lags and a short-term lag.
+    *   Apply **Holm-Bonferroni correction** for multiple comparisons (5 tests).
+    *   *Output*: p-values, F-statistics, significance flags.
+*   **T029c**: **Sensitivity Analysis**.
+    *   Sweep lag windows and report significance rate.
+    *   *Output*: `data/reports/analysis_results.json`.
+
+### Phase 3: Reporting (T030)
+
+**Objective**: Generate visualizations and final report.
+
+*   **T030a**: **Generate Plots** (Lag plots, correlation heatmaps).
+*   **T030b**: **Assemble Report** (HTML/PDF).
+*   **T030c**: **Validate Outputs** against `contracts/` schemas.
+
+## Task Dependencies
+
+*   T015b depends on T015a (data fetch).
+*   T019 depends on T012 and T015b (raw data).
+*   T029 depends on T019 (processed data).
+*   T030 depends on T029 (results).
+
+## Compute Feasibility
+
+*   **CPU-First**: All operations (pandas, statsmodels, arch) are CPU-bound.
+*   **Memory**: Dataset (sufficiently sized) fits easily in RAM.
+*   **Time**: Estimated runtime < 1 hour on a 2-core CPU.
+*   **GPU**: Not required.
+
+## Risk Mitigation
+
+*   **Google Trends Fragility**: `pytrends` is unofficial. Mitigation: Local caching of fetched data, retry logic, and fallback keywords.
+*   **GDELT Bulk Size**: S3 bulk download is large but manageable via streaming or chunked processing.
+*   **Stationarity Failure**: If STL fails, the pipeline logs a warning and proceeds with simple differencing, noting the limitation.

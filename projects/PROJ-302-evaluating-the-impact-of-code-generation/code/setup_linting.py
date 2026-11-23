@@ -1,76 +1,64 @@
 """
 Setup script for linting and formatting tools.
-
-This script installs and configures ruff and black for the project.
+This script ensures ruff and black are configured correctly and can be run.
 """
-
 import subprocess
 import sys
 from pathlib import Path
+import os
+import json
+import logging
 
-# Import configuration from utils
-sys.path.insert(0, str(Path(__file__).parent.parent))
-from code.utils.linting_config import create_combined_config, create_git_hooks
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+logger = logging.getLogger(__name__)
 
 def install_tools():
-    """Install black and ruff if not already installed."""
-    print("Checking for required tools...")
-    
+    """Install linting and formatting tools if not present."""
+    logger.info("Checking/Installing linting tools...")
     tools = [
-        ("black", "black"),
-        ("ruff", "ruff"),
+        "ruff==0.0.287",
+        "black==23.7.0",
+        "pre-commit==3.4.0",
     ]
-    
-    for package, command in tools:
+    for tool in tools:
         try:
-            subprocess.run(
-                [sys.executable, "-m", "pip", "show", package],
-                capture_output=True,
-                check=True
-            )
-            print(f"✓ {package} is already installed")
-        except subprocess.CalledProcessError:
-            print(f"Installing {package}...")
-            subprocess.run(
-                [sys.executable, "-m", "pip", "install", package],
-                check=True
-            )
-            print(f"✓ {package} installed successfully")
+            subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", tool])
+            logger.info(f"Installed {tool}")
+        except subprocess.CalledProcessError as e:
+            logger.error(f"Failed to install {tool}: {e}")
+            raise
+
+def create_ruff_config():
+    """Ensure .ruff.toml exists (created by task T003 artifacts, this verifies it)."""
+    ruff_config = Path(".ruff.toml")
+    if not ruff_config.exists():
+        logger.warning("Warning: .ruff.toml not found. Please ensure T003 artifacts are present.")
+    else:
+        logger.info("Found .ruff.toml configuration.")
+
+def create_black_config():
+    """Ensure pyproject.toml has black config (created by task T003 artifacts, this verifies it)."""
+    pyproject = Path("pyproject.toml")
+    if not pyproject.exists():
+        logger.warning("Warning: pyproject.toml not found. Please ensure T003 artifacts are present.")
+    else:
+        content = pyproject.read_text()
+        if "[tool.black]" in content:
+            logger.info("Found Black configuration in pyproject.toml.")
+        else:
+            logger.warning("Warning: Black configuration missing in pyproject.toml.")
 
 def main():
     """Main entry point for setup."""
-    print("=" * 60)
-    print("Setting up Linting and Formatting Tools")
-    print("=" * 60)
-    
-    # Install tools
-    install_tools()
-    
-    # Create configuration files
-    print("\nCreating configuration files...")
-    config_path = create_combined_config()
-    print(f"✓ Created {config_path}")
-    
-    # Create git hooks if .git exists
-    git_dir = Path(".git")
-    if git_dir.exists():
-        print("\nCreating git hooks...")
-        try:
-            create_git_hooks()
-            print("✓ Created pre-commit hook")
-        except Exception as e:
-            print(f"⚠ Warning: Could not create git hooks: {e}")
-    else:
-        print("\n⚠ No .git directory found. Skipping git hook creation.")
-    
-    print("\n" + "=" * 60)
-    print("Setup Complete!")
-    print("=" * 60)
-    print("\nNext steps:")
-    print("1. Format your code: black .")
-    print("2. Lint your code: ruff check .")
-    print("3. Fix linting issues: ruff check . --fix")
-    print("4. (Optional) Commit a test file to trigger the pre-commit hook")
+    logger.info("Starting linting and formatting setup...")
+    try:
+        install_tools()
+        create_ruff_config()
+        create_black_config()
+        logger.info("Setup complete. Run 'ruff check .' and 'black --check .' to verify.")
+    except Exception as e:
+        logger.error(f"Setup failed: {e}")
+        sys.exit(1)
 
 if __name__ == "__main__":
     main()

@@ -1,27 +1,35 @@
-"""
-Configuration hyperparameters for the project.
-"""
+import os
+from pathlib import Path
 
-# Sample Entropy parameters
-M = 2  # Embedding dimension
-R_FACTOR = 0.2  # Tolerance factor (multiplied by SD)
+# Project root
+PROJECT_ROOT = Path(__file__).parent.parent
 
-# Preprocessing parameters
-FD_THRESHOLD = 0.2  # Framewise Displacement threshold in mm
-TARGET_LENGTH = 120  # Target number of time points after scrubbing
-ATLAS_N = 200  # Number of parcels in the atlas
+# Data directories
+RAW_DATA_DIR = PROJECT_ROOT / "data" / "raw"
+PROCESSED_DATA_DIR = PROJECT_ROOT / "data" / "processed"
+DERIVED_DATA_DIR = PROJECT_ROOT / "data" / "derived"
 
-# Dataset parameters
-DATASET_ID = "ds000305"
-OPENNEURO_URL = "https://openneuro.org/datasets/ds000305"
+# Hyperparameters
+m = 2
+r_factor = 0.2
+fd_threshold = 0.2
+target_length = 120
+atlas_n = 200
+dataset_id = "ds000030"  # ADHD-200 dataset from OpenNeuro
 
-# Modeling parameters
-N_FOLDS = 5
-RIDGE_ALPHA = 1.0
-LOGISTIC_ALPHA = 1.0
+# Device configuration (CPU-only)
+device = "cpu"
 
-# Paths
-DATA_RAW_DIR = "data/raw"
-DATA_PROCESSED_DIR = "data/processed"
-DATA_DERIVED_DIR = "data/derived"
-CODE_DIR = "code"
+# Configuration dictionary
+CONFIG = {
+    'm': m,
+    'r_factor': r_factor,
+    'fd_threshold': fd_threshold,
+    'target_length': target_length,
+    'atlas_n': atlas_n,
+    'dataset_id': dataset_id,
+    'device': device,
+    'raw_data_dir': str(RAW_DATA_DIR),
+    'processed_data_dir': str(PROCESSED_DATA_DIR),
+    'derived_data_dir': str(DERIVED_DATA_DIR),
+}

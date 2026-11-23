@@ -24,17 +24,19 @@ properties:
         properties:
           achieved_power:
             type: number
-            description: "Post-hoc power achieved"
+            description: "Post‑hoc power achieved"
           target_power:
             type: number
             default: 0.80
           effect_size_target:
             type: number
             default: 0.5
+        additionalProperties: false
       model_type:
         type: string
         enum: ["Wilcoxon Signed-Rank Test (Paired)"]
         description: "Statistical model used (Wilcoxon for paired data)"
+    additionalProperties: false
   tests:
     type: array
     items:
@@ -51,24 +53,25 @@ properties:
           enum: ["churn", "bug_fix_latency"]
         statistic:
           type: number
-          description: "Wilcoxon W-statistic"
+          description: "Wilcoxon W‑statistic"
         p_value:
           type: number
           minimum: 0.0
           maximum: 1.0
         effect_size:
           type: number
-          description: "Cohen's d (marginal)"
+          description: "Rank‑biserial correlation"
         correction_method:
           type: string
-          enum: ["Benjamini-Hochberg"]
+          enum: ["Benjamini-Yekutieli"]
         adjusted_p_value:
           type: number
           minimum: 0.0
           maximum: 1.0
         significant:
           type: boolean
-          description: "True if adjusted p-value < 0.05"
+          description: "True if adjusted p‑value < 0.05"
+      additionalProperties: false
   figures:
     type: array
     items:
@@ -90,6 +93,7 @@ properties:
           type: integer
           maximum: 10485760
           description: "File size must be < 10 MB"
+      additionalProperties: false
   sensitivity_analysis:
     type: object
     description: "Bias correction based on ground truth misclassification"
@@ -109,4 +113,5 @@ properties:
         items:
           type: number
         description: "95% CI for the corrected effect size"
+    additionalProperties: false
 additionalProperties: false

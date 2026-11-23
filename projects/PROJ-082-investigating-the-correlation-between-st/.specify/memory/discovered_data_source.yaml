@@ -1,0 +1,14 @@
+status: none
+intent: OpenNeuro white matter diffusion MRI music preference correlation dataset
+  NeuroSynth BrainMap PubMed python package dataset
+required_fields:
+- study_id
+- author
+- year
+- tract_name
+- diffusion_metric
+- correlation_r
+- sample_size
+cache_key: 65a0af48cde5906a0571779dab24af766d1c9d4e52b0886405114ed25b665abc
+searched_at: '2026-09-17T03:23:32.686653+00:00'
+retry_count: 1

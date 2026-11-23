@@ -1,0 +1,13 @@
+status: none
+intent: openneuro pybids download ds000224 ds000230 python package dataset
+required_fields:
+- subject_id
+- session_id
+- bold_nifti_path
+- creativity_proxy_score
+- age
+- gender
+- covariates
+cache_key: aafd94fab789d35b568b0fb95506732da1064a0b35e42bcda973b29c91f757a5
+searched_at: '2026-08-26T16:45:03.236597+00:00'
+retry_count: 1

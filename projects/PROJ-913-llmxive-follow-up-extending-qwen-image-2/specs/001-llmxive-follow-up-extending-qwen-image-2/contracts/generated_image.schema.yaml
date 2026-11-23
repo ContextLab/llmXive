@@ -5,15 +5,16 @@ type: "object"
 properties:
   image_id:
     type: "string"
+    format: "uuid"
     description: "Unique identifier for the image (UUID)."
     pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
   prompt_id:
     type: "string"
+    format: "uuid"
     description: "Reference to the prompt."
     pattern: "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
   model_id:
     type: "string"
-    description: "Reference to the model."
     enum:
       - "base_qwen_image_2.0"
       - "rl_unified_qwen_image_2.0"
@@ -26,7 +27,6 @@ properties:
     pattern: "^data/outputs/(base|rl_unified)/.*\\.png$"
   dimensions:
     type: "array"
-    description: "Image dimensions (width, height)."
     items:
       type: "integer"
     minItems: 2

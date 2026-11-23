@@ -1,0 +1,9 @@
+status: none
+intent: download ESOL dataset from MoleculeNet using DeepChem python package dataset
+required_fields:
+- SMILES
+- measured_logS
+- exp
+cache_key: 87459f8907ee71d0ba301a21974cc910d4869272fb36ab2d9c2c172a3460e095
+searched_at: '2026-10-09T09:22:39.328198+00:00'
+retry_count: 1

@@ -1,0 +1,333 @@
+project_id: PROJ-562-a-stylometric-application-of-large-langu
+round: 1
+revision_kind: paper_science
+from_stage: paper_review
+to_stage: clarified
+worst_severity: science
+seed_action_items:
+- id: b37264814fb6
+  text: Section 3.4 claims '6 of the 8 authors' showed significant patterns for content-word-only
+    models, but Supp. Tab. 1 shows 7 significant p-values (Melville is the only non-significant).
+    Align text with data.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: c6f1341c5887
+  text: Section 3.4 claims '5 of the 8 authors' for function-word-only models, but
+    Supp. Tab. 2 shows 6 significant p-values (Austen and Melville non-significant
+    at p<0.05). Align text with data.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 607cb4a0673c
+  text: Section 3.4 claims '3 of the 8 authors' for POS-only models, but Supp. Tab.
+    3 shows 4 significant p-values (Austen, Dickens, Twain, Wells). Align text with
+    data.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 212c33ef9124
+  text: Code repository not provided for review. The paper claims code availability
+    at https://github.com/ContextLab/llm-stylometry but actual training scripts, data
+    preprocessing code, and evaluation pipelines are not accessible.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 930658d7217b
+  text: No test files or unit tests visible in provided artifacts. Reproducibility
+    cannot be verified without access to training scripts with hyperparameters, random
+    seed handling, and evaluation code.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: eab63c047100
+  text: Dependency specifications (requirements.txt, environment.yml, or setup.py)
+    not provided. Cannot verify dependency hygiene or reproducibility from scratch.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: bbbe0e117906
+  text: Project Gutenberg corpus version and download date not specified (Sec. 2.1).
+    Texts may change over time, affecting reproducibility.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 882dde832071
+  text: External GitHub repository link should include archive identifier or DOI for
+    permanence against link rot.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 1a15cdf99f6e
+  text: GPT-2 tokenizer version and Hugging Face Transformers library version not
+    documented in Methods section.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 2483247a8ad1
+  text: 'Supplementary Figure fig:t-stats-pos references the wrong image file: figs/t_stats_content_only.pdf
+    is used for both the content-words and POS ablation plots (supplement.tex, lines
+    257-263). This appears to be a copy-paste error; verify the correct file path
+    for the POS variant.'
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 6169eb6c26df
+  text: No alt text is provided for any of the 5 main figures or 8 supplementary figures.
+    Modern accessibility standards require descriptive alt text for screen readers.
+    Add alt text to each includegraphics command or provide figure descriptions in
+    the caption.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: e80e6975a132
+  text: Figure captions mention color-coded author models (e.g., Each color denotes
+    a model trained on a single authors work) but do not specify if the color scheme
+    is colorblind-accessible. Verify the palette meets WCAG 2.1 contrast requirements
+    or add a grayscale-printable alternative.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 1d6048608f5c
+  text: Figure fig:mds and fig:confusion-matrix are referenced as 3D MDS projection
+    and heatmap but do not include a colorbar/legend in the caption describing the
+    loss scale. Add explicit unit labels (cross-entropy loss, nats or bits) to the
+    axis or colorbar.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: aaa313725afe
+  text: Define 'df' in Table 1 caption as 'degrees of freedom' for non-statisticians.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 9b6cdcac5c52
+  text: Replace 'causal language modeling objective' with 'next-word prediction' in
+    Methods.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 136883f9dd3c
+  text: Define 'ablation' in Section 2.3 (e.g., 'controlled removal experiments').
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 7bb1fb6f358a
+  text: Simplify 'open-set attribution' and 'parameter-efficient fine-tuning' in Discussion.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: fcf3a7915f4b
+  text: In the Results section (Ablation Studies), the text claims specific counts
+    of authors showing significant patterns (e.g., '6 of the 8' for content words,
+    '5 of the 8' for function words, '3 of the 8' for POS). However, the Supplement
+    Tables (tab:t-tests-content, tab:t-tests-function, tab:t-tests-pos) show different
+    counts based on standard p < 0.05 thresholds (7, 6, and 4 respectively). The textual
+    conclusions do not strictly follow from the provided tabular evidence.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 84e32c28005a
+  text: The Methods section (Sec. 2.1) identifies the author as 'Rosemary Plumly Thompson',
+    while the Abstract, Introduction, and Oz attribution section refer to 'R. P. Thompson'
+    (commonly known as Ruth Plumly Thompson). This internal inconsistency in entity
+    naming undermines the precise identification of the data source.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 1ab84e21622c
+  text: Abstract claims to 'confirm' Oz book authorship (line 57). This is a settled
+    case. Reframe as validating against known attribution, not confirming contested
+    work.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 5fd06e06cc28
+  text: Define 'stylometric distance' (lines 357-362) more cautiously. Verify metric
+    properties or label as 'similarity measure' to avoid overclaiming theoretical
+    rigor.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 76d169071691
+  text: Align Abstract/Results generalizations (e.g., 'embodies unique writing style',
+    line 54) with Limitations section (lines 630+). Avoid implying broader validity
+    than the 8-author dataset supports.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 5340f8172ebd
+  text: Add a brief statement in the Discussion or Conclusion section explicitly distinguishing
+    the ethical implications of applying this method to historical texts versus living
+    individuals, noting potential risks regarding anonymity and misattribution for
+    contemporary works.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 25d29374f3f8
+  text: Report effect sizes (e.g., Cohen's d) for all t-tests in Table 1 and Supplementary
+    Tables to quantify stylistic separation magnitude.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: b7f510296d4e
+  text: Clarify sample sizes and independence assumptions for the ablation study statistical
+    comparisons (Sec. 3.4).
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 4e15f2e069f5
+  text: Discuss potential genre/period confounds given all 8 authors are classic English
+    literature (Methods, Sec. 2.1).
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 75800142aec6
+  text: Clarify sample sizes for t-tests in Table 1; reported degrees of freedom (e.g.,
+    df=11.27 for Twain) are inconsistent with pooling all 7 other authors' seeds (n=70)
+    and suggest averaging per seed (n=10), but the text implies pooling.
+  severity: science
+  engine_severity: science
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: b4fd6f78c17e
+  text: Address multiple comparisons correction for the 8 author tests and ablation
+    comparisons. While p-values are small, methodological rigor requires acknowledging
+    family-wise error rate control.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 38b97b1ac3c4
+  text: Report effect sizes (e.g., Cohen's d) alongside p-values for key t-tests to
+    quantify the magnitude of stylometric separation beyond statistical significance.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 8f98c5ec1070
+  text: 'Standardize table styling: Main text tables (e.g., line 315) use \hline while
+    Appendix (line 650) uses booktabs. Align to booktabs for consistency.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 2539657117dc
+  text: 'Fix cross-reference macros: Main text uses \crossentropyContent (expands
+    to ''1''), but Supplement labels are descriptive (e.g., \label{fig:all-losses-content}).
+    Ensure refs resolve correctly.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: b2cc2b54e0b6
+  text: 'Remove manual page breaks: Appendix tables in main-llmxive.tex (lines 730,
+    750, 770) contain hardcoded \newpage commands. Allow LaTeX to manage flow.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: af29fcd9a47c
+  text: 'Unify figure placement: Main text uses [t] (line 220), Supplement uses [h]
+    (supplement-llmxive.tex line 45). Prefer [t] or [p] for wide figures to avoid
+    layout breaks.'
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: 09fb3c51fa8a
+  text: Correct the repeated word 'the' in the caption of Figure 2 (Section 3) and
+    Figure 3 (Supplement).
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+- id: d74ac4f447c9
+  text: Standardize the capitalization of 'i.e.' in Figure 5 caption to match journal
+    style.
+  severity: writing
+  engine_severity: writing
+  reviewer: paper_reviewer
+  artifact: projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+  location: ''
+kickback_reason: 'advancement.evaluate: paper-review non-convergence; routing via
+  engine adapter.'
+kickback_artifact_links:
+- projects/PROJ-562-a-stylometric-application-of-large-langu/paper/source/
+stage_results:
+- name: specify
+  status: success
+- name: clarify
+  status: success
+  note: auto-resolved; deterministic adapter needs no clarifications
+- name: plan
+  status: success
+- name: tasks
+  status: success
+  note: 35 tasks emitted (one per concern)
+- name: analyze
+  status: success
+  iterations: 1
+  finding_count: 0
+final_outcome: ready_for_implementation
+produced_at: '2026-06-11T16:41:00.601589+00:00'

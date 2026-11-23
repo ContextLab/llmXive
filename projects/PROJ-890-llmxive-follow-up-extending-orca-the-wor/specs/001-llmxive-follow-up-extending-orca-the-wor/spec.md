@@ -93,7 +93,7 @@
 - **SC-002**: The statistical significance of the performance difference between the latent and pixel models is measured using a paired t-test with a significance threshold of $p < 0.05$ (See FR-005, US-2).
 - **SC-003**: The robustness of the causal signal is measured by comparing the performance gap when using a Decision Tree versus a Linear Probe as the readout mechanism (See FR-006, US-3).
 - **SC-004**: The contribution of the linguistic scaffolding is measured by comparing the accuracy of the model trained on full latents versus the model trained on "unconscious" latents only (See FR-007, US-3).
-- **SC-005**: The computational feasibility is measured by ensuring the total end-to-end pipeline (extraction, training, evaluation) completes within 6 hours on a 2 vCPU, 7GB RAM CPU-only runner (GitHub Actions ubuntu-latest equivalent) (See FR-001, US-1).
+- **SC-005**: The computational feasibility is measured by ensuring the total end-to-end pipeline (extraction, training, evaluation) completes within 6 hours on a A CPU-only runner with limited vCPU and RAM resources. (GitHub Actions ubuntu-latest equivalent) (See FR-001, US-1).
 - **SC-006**: The methodological validity is measured by ensuring no GPU-dependent libraries (e.g., CUDA, bitsandbytes) are imported or invoked during any stage of the analysis (See FR-001, US-1).
 - **SC-007**: The ground truth validity is measured by ensuring [deferred] of counterfactual labels are verified against an independent physics engine simulation (See FR-009).
 - **SC-008**: The vector arithmetic validity is measured by ensuring the vector injection method correctly predicts the physics engine outcome for at least 90% of the validation clips (See FR-010).

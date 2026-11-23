@@ -1,83 +1,107 @@
+"""
+Tests for the setup_directories module.
+Verifies that directory creation and file initialization work correctly.
+"""
 import os
-import tempfile
 import pytest
 from pathlib import Path
+import sys
 
-# Import the function from the sibling module
-# Since this test file is in tests/, and setup_directories.py is in code/,
-# we need to adjust the import path or assume the test runner handles it.
-# We will import directly assuming standard PYTHONPATH setup.
-try:
-    from code.setup_directories import ensure_directory_structure, _calculate_directory_checksum
-except ImportError:
-    # Fallback for direct execution if PYTHONPATH is not set
-    import sys
-    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-    from code.setup_directories import ensure_directory_structure, _calculate_directory_checksum
+# Add project root to path for imports
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
-def test_ensure_directory_structure_creates_dirs():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        # Set up a fake 'code' directory inside tmpdir to simulate structure
-        # ensure_directory_structure expects to be called from code/ context or passed base
-        # We pass base explicitly to avoid path guessing issues in tests
-        base = Path(tmpdir)
-        result = ensure_directory_structure(base)
-        
-        # Check paths exist
-        assert Path(result["paths"]["data_raw"]).exists()
-        assert Path(result["paths"]["data_processed"]).exists()
-        assert Path(result["paths"]["outputs"]).exists()
-        assert Path(result["paths"]["outputs_figures"]).exists()
-        assert Path(result["paths"]["outputs_reports"]).exists()
-        
-        # Check checksums are present
-        assert "data_raw" in result["checksums"]
-        assert "data_processed" in result["checksums"]
+from setup_directories import (
+    ensure_directory_structure,
+    create_initial_files,
+    calculate_directory_hash,
+    PROJECT_PATH,
+    DIRECTORIES_TO_CREATE
+)
 
-def test_checksum_empty_directory():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        d = Path(tmpdir) / "empty_dir"
-        d.mkdir()
+class TestDirectoryCreation:
+    def test_directories_exist_after_ensure(self, tmp_path, monkeypatch):
+        """Test that ensure_directory_structure creates all required directories."""
+        # Use a temporary path for testing to avoid polluting the real project
+        monkeypatch.setattr('setup_directories.PROJECT_PATH', tmp_path / "PROJ-065-assessing-the-generalizability-of-statis")
         
-        checksum = _calculate_directory_checksum(d)
+        ensure_directory_structure()
         
-        # The checksum of an empty directory should be consistent
-        assert checksum == hashlib.sha256(b"").hexdigest()
+        for dir_name in DIRECTORIES_TO_CREATE:
+            dir_path = tmp_path / "PROJ-065-assessing-the-generalizability-of-statis" / dir_name
+            assert dir_path.exists(), f"Directory {dir_name} was not created"
+            assert dir_path.is_dir(), f"{dir_name} is not a directory"
+            # Check for .gitkeep
+            gitkeep = dir_path / ".gitkeep"
+            assert gitkeep.exists(), f".gitkeep not created in {dir_name}"
 
-def test_checksum_non_empty_directory():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        d = Path(tmpdir) / "non_empty_dir"
-        d.mkdir()
-        (d / "file1.txt").write_text("content")
-        (d / "subdir").mkdir()
-        (d / "subdir" / "file2.txt").write_text("content")
-        
-        checksum = _calculate_directory_checksum(d)
-        
-        # Should not be the empty hash
-        assert checksum != hashlib.sha256(b"").hexdigest()
-        # Should be a valid hex string
-        assert len(checksum) == 64
-
-def test_directory_structure_idempotency():
-    with tempfile.TemporaryDirectory() as tmpdir:
-        base = Path(tmpdir)
+    def test_idempotency(self, tmp_path, monkeypatch):
+        """Test that running ensure_directory_structure multiple times doesn't fail."""
+        monkeypatch.setattr('setup_directories.PROJECT_PATH', tmp_path / "PROJ-065-assessing-the-generalizability-of-statis")
         
         # Run twice
-        result1 = ensure_directory_structure(base)
-        result2 = ensure_directory_structure(base)
+        ensure_directory_structure()
+        ensure_directory_structure()
         
-        # Paths should be identical
-        assert result1["paths"] == result2["paths"]
-        # Checksums should be identical (since dirs are empty)
-        assert result1["checksums"] == result2["checksums"]
+        # Verify directories still exist
+        for dir_name in DIRECTORIES_TO_CREATE:
+            dir_path = tmp_path / "PROJ-065-assessing-the-generalizability-of-statis" / dir_name
+            assert dir_path.exists()
 
-def test_gitkeep_creation():
-    # This test verifies that the .gitkeep files are created as artifacts
-    # in the implementation task.
-    # We check if the files exist in the current project structure relative to the repo root.
-    # Since we are in a simulated environment, we just verify the function works.
-    pass
+class TestFileCreation:
+    def test_requirements_txt_created(self, tmp_path, monkeypatch):
+        """Test that requirements.txt is created with content."""
+        monkeypatch.setattr('setup_directories.PROJECT_PATH', tmp_path / "PROJ-065-assessing-the-generalizability-of-statis")
+        
+        ensure_directory_structure()
+        create_initial_files()
+        
+        req_path = tmp_path / "PROJ-065-assessing-the-generalizability-of-statis" / "requirements.txt"
+        assert req_path.exists()
+        content = req_path.read_text()
+        assert "requests" in content
+        assert "pandas" in content
 
-if __name__ == "__main__":
-    pytest.main([__file__, "-v"])
+    def test_readme_md_created(self, tmp_path, monkeypatch):
+        """Test that README.md is created with content."""
+        monkeypatch.setattr('setup_directories.PROJECT_PATH', tmp_path / "PROJ-065-assessing-the-generalizability-of-statis")
+        
+        ensure_directory_structure()
+        create_initial_files()
+        
+        readme_path = tmp_path / "PROJ-065-assessing-the-generalizability-of-statis" / "README.md"
+        assert readme_path.exists()
+        content = readme_path.read_text()
+        assert "PROJ-065-assessing-the-generalizability-of-statis" in content
+
+class TestHashCalculation:
+    def test_hash_of_empty_directory(self, tmp_path, monkeypatch):
+        """Test hash calculation on an empty directory."""
+        test_dir = tmp_path / "test_empty"
+        test_dir.mkdir()
+        
+        hash_val = calculate_directory_hash(str(test_dir))
+        assert hash_val is not None
+        # Hash should be consistent
+        assert hash_val == calculate_directory_hash(str(test_dir))
+
+    def test_hash_of_directory_with_file(self, tmp_path, monkeypatch):
+        """Test hash calculation changes when file is added."""
+        test_dir = tmp_path / "test_with_file"
+        test_dir.mkdir()
+        
+        # Get initial hash
+        hash1 = calculate_directory_hash(str(test_dir))
+        
+        # Add a file
+        (test_dir / "test.txt").write_text("hello")
+        
+        # Get new hash
+        hash2 = calculate_directory_hash(str(test_dir))
+        
+        assert hash1 != hash2, "Hash should change when file is added"
+
+    def test_nonexistent_directory_returns_none(self, tmp_path):
+        """Test that hash calculation returns None for non-existent directory."""
+        result = calculate_directory_hash(str(tmp_path / "nonexistent"))
+        assert result is None

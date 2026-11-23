@@ -1,16 +1,15 @@
 """
-Seeding utilities for reproducible research.
+Random seed pinning for reproducibility.
 
-This module ensures deterministic behavior across numpy, random, and torch
-by pinning random seeds to a fixed value (42). It also provides verification
-utilities to confirm that outputs are deterministic upon re-runs.
+This module provides a small, well‑tested API used throughout the project
+and by the unit‑tests in ``tests/unit/test_seeding.py``.
 """
 
-import random
 import os
-from typing import Optional
+import random
+import hashlib
+from typing import Callable, Any, Optional
 
-# Attempt to import numpy and torch; handle cases where they are not installed
 try:
     import numpy as np
     HAS_NUMPY = True
@@ -19,115 +18,81 @@ except ImportError:
 
 try:
     import torch
-    HAS_TORCH = True
+    TORCH_AVAILABLE = True
 except ImportError:
-    HAS_TORCH = False
+    TORCH_AVAILABLE = False
 
-# Default seed value as per task requirements
-DEFAULT_SEED = 42
+DEFAULT_SEED: int = 42
 
+def set_all_seeds(seed: Optional[int] = DEFAULT_SEED) -> None:
+    """Set the global random seed for reproducibility across supported libraries."""
+    if seed is None:
+        seed = DEFAULT_SEED
 
-def set_seed(seed: int = DEFAULT_SEED) -> None:
-    """
-    Pin random seeds for numpy, random, and torch to ensure reproducibility.
-
-    Args:
-        seed (int): The seed value to use. Defaults to 42.
-    """
-    # Set seed for the built-in random module
     random.seed(seed)
 
-    # Set seed for numpy if available
     if HAS_NUMPY:
         np.random.seed(seed)
-        # Ensure deterministic behavior in numpy operations where possible
-        # Note: np.random.seed is deprecated in favor of Generator, but maintained for compatibility
-        # with older codebases. For new code, consider using np.random.default_rng(seed).
 
-    # Set seeds for torch if available
-    if HAS_TORCH:
+    if TORCH_AVAILABLE:
         torch.manual_seed(seed)
-        # Set seeds for CUDA if available
         if torch.cuda.is_available():
-            torch.cuda.manual_seed(seed)
-            torch.cuda.manual_seed_all(seed)  # If using multi-GPU
-            # Ensure deterministic behavior in CUDA operations
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
+            torch.cuda.manual_seed_all(seed)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
 
-        # Set environment variable for deterministic CuDNN behavior
-        os.environ['CUBLAS_WORKSPACE_CONFIG'] = ':4096:8'
-        os.environ['PYTHONHASHSEED'] = str(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
 
+def get_seed() -> int:
+    """Return the current default seed value."""
+    return DEFAULT_SEED
 
-def verify_determinism(seed: int = DEFAULT_SEED, runs: int = 2) -> bool:
+def verify_determinism(
+    func: Callable[[], Any],
+    seed: int = DEFAULT_SEED,
+    iterations: int = 2,
+) -> bool:
     """
-    Verify that setting the seed produces deterministic outputs.
-
-    This function runs a simple random operation twice and compares the results.
-    If the results are identical, the seed pinning is considered successful.
-
-    Args:
-        seed (int): The seed value to test. Defaults to 42.
-        runs (int): Number of times to run the verification. Defaults to 2.
-
-    Returns:
-        bool: True if all runs produce identical results, False otherwise.
+    Verify that a zero‑argument callable produces identical output across
+    repeated executions with the same random seed.
     """
-    if runs < 2:
-        raise ValueError("Number of runs must be at least 2 for verification.")
+    if iterations < 2:
+        raise ValueError("verify_determinism requires at least two iterations")
 
-    results = []
+    hashes = []
+    for _ in range(iterations):
+        set_all_seeds(seed)
+        result = func()
 
-    for i in range(runs):
-        set_seed(seed)
-        current_result = {}
+        if HAS_NUMPY and hasattr(result, "tobytes"):
+            data_bytes = result.tobytes()
+        elif isinstance(result, (list, tuple, dict, set)):
+            data_bytes = repr(result).encode()
+        else:
+            data_bytes = str(result).encode()
 
-        # Test random module
-        current_result['random'] = [random.random() for _ in range(5)]
+        hashes.append(hashlib.sha256(data_bytes).hexdigest())
 
-        # Test numpy if available
-        if HAS_NUMPY:
-            current_result['numpy'] = np.random.rand(5).tolist()
-
-        # Test torch if available
-        if HAS_TORCH:
-            current_result['torch'] = torch.rand(5).tolist()
-
-        results.append(current_result)
-
-    # Compare results from all runs
-    first_result = results[0]
-    for i in range(1, runs):
-        if results[i] != first_result:
-            return False
-
+    if len(set(hashes)) != 1:
+        raise RuntimeError("Function output is not deterministic")
     return True
 
-
 def main() -> None:
-    """
-    Main entry point to demonstrate seed pinning and verification.
-    """
+    """Simple demonstration of the seeding utilities."""
     print(f"Setting seed to {DEFAULT_SEED}...")
-    set_seed(DEFAULT_SEED)
+    set_all_seeds(DEFAULT_SEED)
 
-    # Demonstrate that seeds are set
-    print("\nDemonstrating random outputs after setting seed:")
-    print(f"  random.random(): {random.random()}")
-    if HAS_NUMPY:
-        print(f"  np.random.rand(): {np.random.rand()}")
-    if HAS_TORCH:
-        print(f"  torch.rand(): {torch.rand()}")
+    def dummy():
+        if HAS_NUMPY:
+            return np.random.rand(5)
+        return [random.random() for _ in range(5)]
 
-    # Verify determinism
-    print(f"\nVerifying determinism with {DEFAULT_SEED}...")
-    is_deterministic = verify_determinism(DEFAULT_SEED)
-    if is_deterministic:
-        print("  SUCCESS: Outputs are deterministic across runs.")
-    else:
-        print("  FAILURE: Outputs are NOT deterministic across runs.")
+    print("Running dummy operation...")
+    print(dummy())
 
+    print("Verifying determinism...")
+    deterministic = verify_determinism(dummy, DEFAULT_SEED)
+    print("Deterministic:", deterministic)
 
 if __name__ == "__main__":
     main()

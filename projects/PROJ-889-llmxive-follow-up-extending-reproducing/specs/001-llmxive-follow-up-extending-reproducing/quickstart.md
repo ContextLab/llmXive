@@ -1,97 +1,77 @@
-# Quickstart: llmXive follow-up: extending "Reproducing, Analyzing, and Detecting Reward Hacking in Rubric-Based R"
+# Quickstart: llmXive follow-up
 
 ## Prerequisites
 
 - Python 3.11+
-- `pip` or `poetry`
-- Access to the CHERRL repository (for data download)
+- Git
+- Access to GitHub Actions (for CI) or local environment
 
 ## Installation
 
-1.  **Clone the repository** and navigate to the project directory:
+1.  **Clone the repository**:
     ```bash
     git clone <repo-url>
     cd projects/PROJ-889-llmxive-follow-up-extending-reproducing
     ```
 
-2.  **Create a virtual environment**:
+2.  **Install dependencies**:
     ```bash
-    python -m venv .venv
-    source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+    pip install -r code/requirements.txt
     ```
 
-3.  **Install dependencies**:
+3.  **Verify environment**:
     ```bash
-    pip install -r requirements.txt
+    python -c "import pandas, scipy, datasets; print('All imports OK')"
     ```
-    **Note**: `requirements.txt` includes `jsonschema` for runtime schema validation and `scipy` for Wilcoxon signed-rank test.
-
-4.  **Download Data**:
-    - Download the CHERRL training logs from the canonical source (verified URL TBD by user).
-    - Place the raw log files in `data/raw/`.
-    - Ensure files are named consistently (e.g., `seed_01_lexical.csv`, `seed_01_format.csv`).
-    - If the canonical source is not available, the pipeline will halt with a clear error.
 
 ## Running the Pipeline
 
-### 1. Ingest and Compute Divergence (with Sensitivity Analysis)
-Run the ingestion script to compute $G(t)$, $\Delta G(t)$, z-scores, and perform hyperparameter grid search:
+### Step 1: Download Data
 ```bash
-python code/ingestion.py --input-dir data/raw --output data/processed/trajectories_divergence.csv
+python code/download_cherrl_logs.py
 ```
-**Output**: `trajectories_divergence.csv` with columns including `G_t`, `dG_t`, `z_score`, `hacked_label`, and metadata (`window_size`, `z_threshold`, `detection_method`).
+*Note: This script attempts to load from a verified source (arXiv/HF). If unavailable, it exits with a clear error. No synthetic data is generated.*
 
-### 2. Generate Ground Truth (with Extended Independence Check)
-Run the ground truth script to derive labels from $J_{\text{gold}}$ and check independence of both $J_{\text{unbiased}}$ and $J_{\text{biased}}$ against $J_{\text{gold}}$:
+### Step 2: Compute Divergence
 ```bash
-python code/ground_truth.py --input data/processed/trajectories_divergence.csv --output data/processed/trajectories_gt.csv
+python code/compute_divergence.py
 ```
-**Output**: `trajectories_gt.csv` with columns including `gt_hacked`, `correlation_J_unbiased_J_gold`, `correlation_J_biased_J_gold`, and `independence_check_passed`.
+*Output: `data/processed/divergence_signals.parquet`*
 
-*Note: If the independence check (FR-006) fails (either correlation > 0.8), this script will exit with an error and the correlation values. The dataset is considered invalid for this study.*
-
-### 3. Run Detection and Evaluation
-Run the full evaluation pipeline:
+### Step 3: Detect Hacking
 ```bash
-python code/evaluation.py --divergence data/processed/trajectories_divergence.csv --ground-truth data/processed/trajectories_gt.csv --output data/processed/metrics.csv
+python code/detect_hacking.py
 ```
-**Output**: `metrics.csv` with Precision, Recall, F1-scores, Wilcoxon/t-test results, effect sizes, and corrected p-values per bias type.
+*Output: `data/processed/hacking_labels.parquet`*
 
-**Conditional Step**: If the standard deviation of F1-scores across rubric types exceeds 0.15 (SC-003 fails), the system automatically triggers rubric-specific tuning:
+### Step 4: Evaluate
 ```bash
-python code/tune_rubric_specific.py --divergence data/processed/trajectories_divergence.csv --ground-truth data/processed/trajectories_gt.csv --output data/processed/metrics_rubric_specific.csv
+python code/evaluate.py
 ```
-**Output**: `metrics_rubric_specific.csv` with per-rubric thresholds and updated metrics.
+*Output: `data/processed/evaluation_report.json`*
 
-### 4. View Results
-The output `data/processed/metrics.csv` (or `metrics_rubric_specific.csv` if tuning was triggered) contains Precision, Recall, F1-scores, statistical test results, effect sizes, and corrected p-values per bias type.
+### Step 5: Benchmark Runtime
+```bash
+python code/benchmark_runtime.py
+```
+*Output: `data/processed/runtime_metrics.json`*
 
-## Testing
+## Running Tests
 
-Run the full test suite to verify correctness:
 ```bash
 pytest tests/ -v
 ```
+*Includes unit tests for edge cases (zero variance, missing timesteps) and integration tests for the full pipeline.*
 
-Run only contract validation tests:
-```bash
-pytest tests/contract/ -v
-```
+## Linting & Formatting
 
-Run only unit tests:
 ```bash
-pytest tests/unit/ -v
-```
-
-Run only integration tests:
-```bash
-pytest tests/integration/ -v
+ruff check code/
+black --check code/
 ```
 
 ## Troubleshooting
 
-- **Missing Data**: If `data/raw/` is empty, the pipeline will fail with a clear error. Ensure CHERRL logs are downloaded from the verified canonical source.
-- **Independence Check Failed**: If `ground_truth.py` exits with "Correlation > 0.8", the dataset is invalid for this study. The error message will report which correlation(s) exceeded the threshold. Investigate whether $J_{\text{unbiased}}$ or $J_{\text{biased}}$ (or both) are coupled to $J_{\text{gold}}$.
-- **Zero Variance**: The detector handles zero variance in $G(t)$ by setting $z\_score = 0$ or using an epsilon floor. No manual intervention required.
-- **Non-Normal Distribution**: If the Kolmogorov-Smirnov test indicates non-normal $G(t)$ (p < 0.05), the system automatically switches to IQR-based detection (`detection_method = "iqr"`). This is logged in the output metadata.
-- **Low Statistical Power**: With N=5 seeds, effect sizes may be small. The Wilcoxon test is more robust than a t-test for small samples. Review effect sizes and credible intervals alongside p-values.
+- **Zero Variance**: If $G(t)$ is constant, the z-score is set to 0 (see `utils.py`).
+- **Missing Timesteps**: Gaps are skipped/excluded, not interpolated (see `utils.py`).
+- **Independence Check Failed**: If $r > 0.8$ between $J_{\text{unbiased}}$ and $J_{\text{gold}}$, the pipeline halts with an error.

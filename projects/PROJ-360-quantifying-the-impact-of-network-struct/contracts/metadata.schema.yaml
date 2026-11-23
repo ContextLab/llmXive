@@ -1,0 +1,64 @@
+# JSON Schema for data/metadata.yaml
+# Defines the structure for recording raw CIF downloads and derived artifact checksums.
+$schema: "http://json-schema.org/draft-07/schema#"
+type: object
+required:
+  - created_at
+  - downloads
+  - derived_artifacts
+  - project_id
+  - schema_version
+properties:
+  created_at:
+    type: string
+    format: date-time
+    description: ISO‑8601 timestamp when the metadata file was created.
+  project_id:
+    type: string
+    description: Identifier of the project this metadata belongs to.
+  schema_version:
+    type: string
+    pattern: "^\\d+\\.\\d+\\.\\d+$"
+    description: Version of this metadata schema.
+  downloads:
+    type: array
+    description: Records for each raw CIF download.
+    items:
+      type: object
+      required:
+        - material_id
+        - cif_hash
+        - timestamp
+      properties:
+        material_id:
+          type: string
+          description: Materials Project identifier (e.g., "mp-1234").
+        cif_hash:
+          type: string
+          pattern: "^[a-f0-9]{64}$"
+          description: SHA‑256 checksum of the downloaded CIF file.
+        timestamp:
+          type: string
+          format: date-time
+          description: When the CIF was downloaded.
+  derived_artifacts:
+    type: array
+    description: Checksums for files derived from the raw CIFs (graphs, metrics, results, etc.).
+    items:
+      type: object
+      required:
+        - artifact_path
+        - sha256
+        - timestamp
+      properties:
+        artifact_path:
+          type: string
+          description: Relative path (from project root) to the derived artifact.
+        sha256:
+          type: string
+          pattern: "^[a-f0-9]{64}$"
+          description: SHA‑256 checksum of the artifact file.
+        timestamp:
+          type: string
+          format: date-time
+          description: When the checksum was recorded.

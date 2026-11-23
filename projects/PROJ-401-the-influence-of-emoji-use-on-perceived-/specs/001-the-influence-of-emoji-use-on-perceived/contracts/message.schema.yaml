@@ -1,0 +1,52 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Message"
+description: "Schema for a single text message record with extracted emoji features and intensity rating. Only valid if data is available."
+type: "object"
+properties:
+  message_id:
+    type: "string"
+    description: "Unique identifier for the message."
+  text_content:
+    type: "string"
+    description: "The raw text of the message."
+  emoji_present:
+    type: "boolean"
+    description: "True if at least one emoji is present."
+  emoji_count:
+    type: "integer"
+    description: "Total number of emoji characters."
+    minimum: 0
+  emoji_types:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of Unicode categories (e.g., 'Smileys')."
+  text_length:
+    type: "integer"
+    description: "Character count of text_content."
+    minimum: 0
+  punctuation_count:
+    type: "integer"
+    description: "Count of punctuation marks."
+    minimum: 0
+  intensity_score:
+    type: "integer"
+    description: "Perceived intensity (1-7). **Human-rated only.**"
+    minimum: 1
+    maximum: 7
+  source_type:
+    type: "string"
+    description: "Must be 'human_rated'. Synthetic sources are forbidden."
+    enum:
+      - "human_rated"
+required:
+  - message_id
+  - text_content
+  - emoji_present
+  - emoji_count
+  - emoji_types
+  - text_length
+  - punctuation_count
+  - intensity_score
+  - source_type
+additionalProperties: false

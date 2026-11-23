@@ -1,276 +1,253 @@
 """
-Inertia Tensor Calculation Module.
+Inertia Tensor Computation Module.
 
-Computes the reduced inertia tensor for dark matter haloes and derives
-eigenvalues for shape analysis.
+This module provides functions to compute the reduced inertia tensor of dark matter haloes,
+perform eigenvalue decomposition, and derive shape metrics (axial ratios and triaxiality).
+It is designed to work with chunked data streams to handle large datasets within memory constraints.
 """
 
 import numpy as np
-from typing import Tuple, Optional, Dict, Any
+from typing import Tuple, Optional, Dict, Any, List
+import logging
+
+logger = logging.getLogger(__name__)
+
+# Constants for numerical stability
+EPSILON = 1e-10
+MIN_PARTICLE_COUNT = 10000
 
 def compute_reduced_inertia_tensor(
-    positions: np.ndarray,
-    masses: Optional[np.ndarray] = None,
-    center: Optional[np.ndarray] = None
-) -> Tuple[np.ndarray, Dict[str, Any]]:
+    positions: np.ndarray, 
+    masses: Optional[np.ndarray] = None
+) -> np.ndarray:
     """
     Compute the reduced inertia tensor for a set of particle positions.
-
+    
     The reduced inertia tensor is defined as:
-    I_ij = sum_k (m_k * r_k_i * r_k_j) / sum_k (m_k * r_k^2)
-
-    where r_k is the distance of particle k from the center.
-
+    I_ij = sum_k (m_k * x_k_i * x_k_j) / sum_k (m_k * r_k^2)
+    
+    where:
+    - m_k is the mass of particle k (if provided, otherwise uniform)
+    - x_k_i is the i-th coordinate of particle k relative to the center of mass
+    - r_k is the distance of particle k from the center of mass
+    
     Args:
-        positions: Array of shape (N, 3) with particle positions.
-        masses: Optional array of shape (N,) with particle masses.
-                If None, all particles are assumed to have unit mass.
-        center: Optional array of shape (3,) for the center of the halo.
-                If None, the center of mass is computed.
-
+        positions: Array of shape (N, 3) containing particle positions.
+        masses: Optional array of shape (N,) containing particle masses. 
+                If None, uniform mass is assumed.
+                
     Returns:
-        Tuple containing:
-            - inertia_tensor: 3x3 numpy array of the inertia tensor.
-            - metadata: Dictionary with computation details (center, total_mass, etc.)
+        A 3x3 numpy array representing the reduced inertia tensor.
+        
+    Raises:
+        ValueError: If positions array is empty or has incorrect shape.
+        ValueError: If masses array length does not match positions.
     """
-    positions = np.asarray(positions, dtype=np.float64)
-    
-    if positions.shape[1] != 3:
-        raise ValueError(f"Positions must have shape (N, 3), got {positions.shape}")
-    
+    if positions.size == 0:
+        raise ValueError("Positions array cannot be empty.")
+        
+    if positions.ndim != 2 or positions.shape[1] != 3:
+        raise ValueError(f"Positions must be of shape (N, 3), got {positions.shape}.")
+        
     n_particles = positions.shape[0]
-    if n_particles == 0:
-        raise ValueError("Cannot compute inertia tensor for empty particle set")
     
-    # Compute center if not provided
-    if center is None:
-        if masses is not None:
-            masses = np.asarray(masses, dtype=np.float64)
-            center = np.average(positions, axis=0, weights=masses)
-        else:
-            center = np.mean(positions, axis=0)
+    if masses is not None:
+        if masses.shape[0] != n_particles:
+            raise ValueError(f"Masses length ({masses.shape[0]}) must match positions count ({n_particles}).")
+        if np.any(masses < 0):
+            raise ValueError("Particle masses cannot be negative.")
+    else:
+        masses = np.ones(n_particles)
+        
+    # Compute center of mass
+    total_mass = np.sum(masses)
+    if total_mass == 0:
+        raise ValueError("Total mass is zero, cannot compute center of mass.")
+        
+    com = np.sum(positions * masses[:, np.newaxis], axis=0) / total_mass
     
     # Compute relative positions
-    relative_positions = positions - center
+    rel_positions = positions - com
     
-    # Compute distances squared
-    r_squared = np.sum(relative_positions ** 2, axis=1)
+    # Compute squared distances
+    r_squared = np.sum(rel_positions ** 2, axis=1)
     
-    # Handle edge case where all particles are at the center
-    if np.all(r_squared == 0):
-        return np.zeros((3, 3)), {
-            "center": center,
-            "total_mass": 0.0 if masses is None else np.sum(masses),
-            "n_particles": n_particles,
-            "warning": "All particles at center, returning zero tensor"
-        }
-    
-    # Compute weights
-    if masses is not None:
-        masses = np.asarray(masses, dtype=np.float64)
-        weights = masses * r_squared
-        total_weight = np.sum(weights)
-    else:
-        weights = r_squared
-        total_weight = np.sum(weights)
-    
-    if total_weight == 0:
-        return np.zeros((3, 3)), {
-            "center": center,
-            "total_mass": 0.0 if masses is None else np.sum(masses),
-            "n_particles": n_particles,
-            "warning": "Total weight is zero, returning zero tensor"
-        }
-    
+    # Check for all particles at the center of mass (singular case)
+    if np.all(r_squared < EPSILON):
+        raise ValueError("All particles are at the center of mass; inertia tensor is singular.")
+        
     # Compute the inertia tensor components
-    # I_ij = sum_k (w_k * r_k_i * r_k_j) / total_weight
-    inertia_tensor = np.zeros((3, 3), dtype=np.float64)
-    
+    # I_ij = sum(m_k * x_k_i * x_k_j) / sum(m_k * r_k^2)
+    numerator = np.zeros((3, 3))
     for i in range(3):
         for j in range(3):
-            inertia_tensor[i, j] = np.sum(weights * relative_positions[:, i] * relative_positions[:, j])
+            numerator[i, j] = np.sum(masses * rel_positions[:, i] * rel_positions[:, j])
+            
+    denominator = np.sum(masses * r_squared)
     
-    inertia_tensor /= total_weight
+    inertia_tensor = numerator / denominator
     
-    metadata = {
-        "center": center,
-        "total_mass": 0.0 if masses is None else np.sum(masses),
-        "n_particles": n_particles,
-        "total_weight": total_weight
-    }
-    
-    return inertia_tensor, metadata
+    return inertia_tensor
 
 def compute_eigenvalues_and_eigenvectors(
-    inertia_tensor: np.ndarray,
-    sort_descending: bool = True
-) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    tensor: np.ndarray
+) -> Tuple[np.ndarray, np.ndarray]:
     """
-    Compute eigenvalues and eigenvectors of the inertia tensor.
-
+    Compute the eigenvalues and eigenvectors of a symmetric tensor.
+    
+    The inertia tensor is symmetric, so we use the specialized eig function
+    which is more efficient and numerically stable for symmetric matrices.
+    
     Args:
-        inertia_tensor: 3x3 symmetric matrix (typically from compute_reduced_inertia_tensor).
-        sort_descending: If True, sort eigenvalues in descending order (lambda_1 >= lambda_2 >= lambda_3).
-
+        tensor: A 3x3 symmetric numpy array.
+        
     Returns:
-        Tuple containing:
-            - eigenvalues: Array of 3 eigenvalues.
-            - eigenvectors: 3x3 matrix where columns are eigenvectors.
-            - metadata: Dictionary with computation details.
+        Tuple of (eigenvalues, eigenvectors) where:
+        - eigenvalues: 1D array of shape (3,) containing eigenvalues in ascending order.
+        - eigenvectors: 2D array of shape (3, 3) where columns are the corresponding eigenvectors.
+        
+    Raises:
+        ValueError: If tensor is not a 3x3 matrix.
+        LinAlgError: If eigenvalue decomposition fails (should not happen for symmetric tensors).
     """
-    inertia_tensor = np.asarray(inertia_tensor, dtype=np.float64)
+    if tensor.shape != (3, 3):
+        raise ValueError(f"Tensor must be a 3x3 matrix, got {tensor.shape}.")
+        
+    # Use eigh for symmetric/Hermitian matrices
+    eigenvalues, eigenvectors = np.linalg.eigh(tensor)
     
-    if inertia_tensor.shape != (3, 3):
-        raise ValueError(f"Inertia tensor must be 3x3, got {inertia_tensor.shape}")
+    # Sort eigenvalues in ascending order and reorder eigenvectors accordingly
+    sorted_indices = np.argsort(eigenvalues)
+    eigenvalues = eigenvalues[sorted_indices]
+    eigenvectors = eigenvectors[:, sorted_indices]
     
-    # Check for symmetry (within floating point tolerance)
-    if not np.allclose(inertia_tensor, inertia_tensor.T, atol=1e-10):
-        # Symmetrize if slightly asymmetric due to numerical errors
-        inertia_tensor = (inertia_tensor + inertia_tensor.T) / 2.0
+    # Ensure eigenvalues are non-negative (numerical errors might cause small negatives)
+    eigenvalues = np.maximum(eigenvalues, 0.0)
     
-    # Compute eigenvalues and eigenvectors
-    eigenvalues, eigenvectors = np.linalg.eigh(inertia_tensor)
-    
-    # Ensure eigenvalues are sorted
-    if sort_descending:
-        idx = np.argsort(eigenvalues)[::-1]
-        eigenvalues = eigenvalues[idx]
-        eigenvectors = eigenvectors[:, idx]
-    
-    # Check for numerical issues
-    metadata = {
-        "min_eigenvalue": float(np.min(eigenvalues)),
-        "max_eigenvalue": float(np.max(eigenvalues)),
-        "eigenvalue_range": float(np.max(eigenvalues) - np.min(eigenvalues)),
-        "is_positive_semidefinite": bool(np.all(eigenvalues >= -1e-10)),
-        "is_singular": bool(np.any(np.abs(eigenvalues) < 1e-10))
-    }
-    
-    return eigenvalues, eigenvectors, metadata
+    return eigenvalues, eigenvectors
 
 def compute_shape_from_inertia(
-    inertia_tensor: np.ndarray
-) -> Tuple[np.ndarray, np.ndarray, Dict[str, Any]]:
+    eigenvalues: np.ndarray
+) -> Tuple[float, float, float]:
     """
-    Compute axial ratios and triaxiality from the inertia tensor.
-
-    The axial ratios are computed as:
-    - b/a = sqrt(lambda_2 / lambda_1)
-    - c/a = sqrt(lambda_3 / lambda_1)
-
-    where lambda_1 >= lambda_2 >= lambda_3 are the eigenvalues.
-
-    Triaxiality is computed as:
-    - T = (lambda_1 - lambda_2) / (lambda_1 - lambda_3)
-
+    Compute shape metrics from the eigenvalues of the inertia tensor.
+    
+    The axial ratios are defined as:
+    b/a = sqrt(lambda_2 / lambda_1)
+    c/a = sqrt(lambda_3 / lambda_1)
+    
+    where lambda_1 >= lambda_2 >= lambda_3 are the eigenvalues in descending order.
+    
+    The triaxiality is defined as:
+    T = (lambda_1 - lambda_2) / (lambda_1 - lambda_3)
+    
     Args:
-        inertia_tensor: 3x3 inertia tensor.
-
+        eigenvalues: 1D array of shape (3,) containing eigenvalues.
+        
     Returns:
-        Tuple containing:
-            - eigenvalues: Sorted eigenvalues (descending).
-            - shape_metrics: Dictionary with b/a, c/a, and triaxiality.
-            - metadata: Computation metadata including validity flags.
+        Tuple of (b/a, c/a, triaxiality) where:
+        - b/a: Axis ratio between intermediate and major axes (0 < b/a <= 1).
+        - c/a: Axis ratio between minor and major axes (0 < c/a <= 1).
+        - triaxiality: Measure of deviation from spherical symmetry (0 <= T <= 1).
+        
+    Raises:
+        ValueError: If eigenvalues array is not of length 3.
+        ValueError: If eigenvalues are all zero (spherical symmetry with zero inertia).
     """
-    eigenvalues, eigenvectors, eig_meta = compute_eigenvalues_and_eigenvectors(inertia_tensor)
+    if eigenvalues.shape[0] != 3:
+        raise ValueError(f"Eigenvalues must be of length 3, got {eigenvalues.shape[0]}.")
+        
+    # Sort eigenvalues in descending order (lambda_1 >= lambda_2 >= lambda_3)
+    sorted_eigenvalues = np.sort(eigenvalues)[::-1]
+    lambda_1, lambda_2, lambda_3 = sorted_eigenvalues
     
-    # Check for validity
-    if eig_meta["is_singular"] or not eig_meta["is_positive_semidefinite"]:
-        return eigenvalues, {
-            "b_a_ratio": None,
-            "c_a_ratio": None,
-            "triaxiality": None,
-            "valid": False
-        }, eig_meta
-    
-    lambda_1, lambda_2, lambda_3 = eigenvalues
-    
+    # Check for degenerate cases
+    if lambda_1 < EPSILON:
+        raise ValueError("Major eigenvalue is near zero; cannot compute shape metrics.")
+        
     # Compute axial ratios
-    # Add small epsilon to avoid division by zero
-    epsilon = 1e-10
-    b_a_ratio = np.sqrt(max(0.0, lambda_2 / (lambda_1 + epsilon)))
-    c_a_ratio = np.sqrt(max(0.0, lambda_3 / (lambda_1 + epsilon)))
+    # Add small epsilon to denominator to avoid division by zero for spherical cases
+    b_a_ratio = np.sqrt(lambda_2 / (lambda_1 + EPSILON))
+    c_a_ratio = np.sqrt(lambda_3 / (lambda_1 + EPSILON))
     
     # Compute triaxiality
     # T = (lambda_1 - lambda_2) / (lambda_1 - lambda_3)
     denominator = lambda_1 - lambda_3
-    if abs(denominator) < epsilon:
-        # If all eigenvalues are nearly equal (spherical), T = 0.5 by convention
-        triaxiality = 0.5
+    if abs(denominator) < EPSILON:
+        # Perfectly spherical or prolate case
+        triaxiality = 0.0
     else:
         triaxiality = (lambda_1 - lambda_2) / denominator
+        
+    # Ensure triaxiality is within [0, 1]
+    triaxiality = np.clip(triaxiality, 0.0, 1.0)
     
-    # Validate ranges
-    b_a_valid = 0.0 < b_a_ratio <= 1.0
-    c_a_valid = 0.0 < c_a_ratio <= 1.0
-    t_valid = 0.0 <= triaxiality <= 1.0
+    # Ensure axial ratios are within (0, 1]
+    b_a_ratio = np.clip(b_a_ratio, 0.0, 1.0)
+    c_a_ratio = np.clip(c_a_ratio, 0.0, 1.0)
     
-    shape_metrics = {
-        "b_a_ratio": float(b_a_ratio),
-        "c_a_ratio": float(c_a_ratio),
-        "triaxiality": float(triaxiality),
-        "valid": b_a_valid and c_a_valid and t_valid
-    }
-    
-    return eigenvalues, shape_metrics, eig_meta
+    return b_a_ratio, c_a_ratio, triaxiality
 
 def process_halo_inertia(
     positions: np.ndarray,
     masses: Optional[np.ndarray] = None,
-    center: Optional[np.ndarray] = None
-) -> Dict[str, Any]:
+    particle_count: int = 0
+) -> Optional[Dict[str, Any]]:
     """
-    Complete pipeline for processing a single halo's inertia tensor.
-
+    Process a single halo to compute its shape metrics.
+    
+    This is a convenience function that chains together the inertia tensor computation,
+    eigenvalue decomposition, and shape metric derivation. It includes filtering
+    based on particle count to exclude low-resolution haloes.
+    
     Args:
-        positions: Array of shape (N, 3) with particle positions.
-        masses: Optional array of shape (N,) with particle masses.
-        center: Optional array of shape (3,) for the halo center.
-
+        positions: Array of shape (N, 3) containing particle positions.
+        masses: Optional array of shape (N,) containing particle masses.
+        particle_count: Total number of particles in the halo (for filtering).
+        
     Returns:
-        Dictionary containing:
-            - inertia_tensor: 3x3 computed tensor.
-            - eigenvalues: Sorted eigenvalues.
-            - eigenvectors: Corresponding eigenvectors.
-            - shape_metrics: Axial ratios and triaxiality.
-            - metadata: Computation metadata.
-            - valid: Boolean indicating if all computations succeeded.
+        A dictionary containing:
+        - 'b_a_ratio': float, axial ratio b/a
+        - 'c_a_ratio': float, axial ratio c/a
+        - 'triaxiality': float, triaxiality measure
+        - 'eigenvalues': array of shape (3,), sorted eigenvalues
+        - 'eigenvectors': array of shape (3, 3), corresponding eigenvectors
+        - 'inertia_tensor': array of shape (3, 3), reduced inertia tensor
+        - 'particle_count': int, number of particles used
+        
+        Returns None if the halo should be excluded (e.g., particle_count < MIN_PARTICLE_COUNT).
+        
+    Raises:
+        ValueError: If positions are invalid or matrix is singular.
     """
+    # Filter based on particle count
+    if particle_count < MIN_PARTICLE_COUNT:
+        logger.debug(f"Excluding halo with {particle_count} particles (< {MIN_PARTICLE_COUNT})")
+        return None
+        
     try:
-        inertia_tensor, tensor_meta = compute_reduced_inertia_tensor(
-            positions, masses=masses, center=center
-        )
+        # Compute reduced inertia tensor
+        inertia_tensor = compute_reduced_inertia_tensor(positions, masses)
         
-        eigenvalues, eigenvectors, eig_meta = compute_eigenvalues_and_eigenvectors(
-            inertia_tensor
-        )
+        # Compute eigenvalues and eigenvectors
+        eigenvalues, eigenvectors = compute_eigenvalues_and_eigenvectors(inertia_tensor)
         
-        _, shape_metrics, shape_meta = compute_shape_from_inertia(inertia_tensor)
+        # Compute shape metrics
+        b_a_ratio, c_a_ratio, triaxiality = compute_shape_from_inertia(eigenvalues)
         
         return {
-            "inertia_tensor": inertia_tensor.tolist(),
-            "eigenvalues": eigenvalues.tolist(),
-            "eigenvectors": eigenvectors.tolist(),
-            "shape_metrics": shape_metrics,
-            "metadata": {
-                **tensor_meta,
-                **eig_meta,
-                **shape_meta
-            },
-            "valid": shape_metrics["valid"]
+            'b_a_ratio': b_a_ratio,
+            'c_a_ratio': c_a_ratio,
+            'triaxiality': triaxiality,
+            'eigenvalues': eigenvalues,
+            'eigenvectors': eigenvectors,
+            'inertia_tensor': inertia_tensor,
+            'particle_count': particle_count
         }
         
+    except ValueError as e:
+        logger.warning(f"Failed to compute inertia tensor: {e}")
+        return None
     except Exception as e:
-        return {
-            "inertia_tensor": None,
-            "eigenvalues": None,
-            "eigenvectors": None,
-            "shape_metrics": {
-                "b_a_ratio": None,
-                "c_a_ratio": None,
-                "triaxiality": None,
-                "valid": False
-            },
-            "metadata": {"error": str(e)},
-            "valid": False
-        }
+        logger.error(f"Unexpected error processing halo inertia: {e}")
+        return None

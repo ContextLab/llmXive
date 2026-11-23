@@ -1,0 +1,22 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: Normalized Gap Dataset
+description: "Dataset containing normalized gaps between consecutive squarefree numbers."
+type: array
+items:
+  type: object
+  properties:
+    n:
+      type: integer
+      description: "The upper limit of the squarefree sequence"
+    raw_gap:
+      type: number
+      format: float
+      description: "The raw gap between consecutive squarefree numbers."
+    normalized_gap:
+      type: number
+      format: float
+      description: "The normalized gap (raw_gap / empirical_mean)."
+  required:
+    - n
+    - raw_gap
+    - normalized_gap

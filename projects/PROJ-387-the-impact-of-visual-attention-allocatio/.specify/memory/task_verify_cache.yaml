@@ -1,0 +1,132 @@
+T001:
+  c: false
+  h: 8f0b6fa3b408b876ebaaf19fd3095f01ac21f741b92ae5ecd16ea1d69f8f96cf
+  r: "The `scripts/run_pipeline.sh` file exists and correctly checks `data/processed/validation_status.txt`\
+    \ for the string \u201CHALT\u201D. However, the `code/` directory does not match\
+    \ the structure outlined in `plan.md`: it contains extra folders (`.tasks`, `__pycache__`,\
+    \ `data`, `models`, `scripts`) and lacks the expected files such as `ingestion/validate_data.py`,\
+    \ `analysis/lmm_model.py`, `reporting/visualize.py`, `utils/config.py`, etc. The\
+    \ required project structure is therefore not satisfied."
+  sig: 75f0d41ecca9a8e37ed2da9c55766785912ec29ef57e475de5d53f0f70a085c2
+T002:
+  c: false
+  h: 0db2b5b4fe0bfa5b640f3af14ba48520990a583800c8c2ea1704f0bca341587b
+  r: "The repository contains a correctly populated `requirements.txt` with the required\
+    \ packages, but there is no provided evidence (e.g., command output, log, or exit\u2011\
+    code capture) showing that `pip install -r requirements.txt` was executed and\
+    \ returned a zero exit status. The implementer must supply proof that the installation\
+    \ succeeds."
+  sig: 6e96bf5c272512bfd1718888e8f16c0072326e9d528ca47f934d8ef7a52f2bd6
+T003:
+  c: false
+  h: 9bd555dd99a6c3b47b771ff9cd89c7c45dad934100682e9e4efbf4d26cbf464e
+  r: "The `pyproject.toml` correctly contains `[tool.black]` and `[tool.flake8]` sections,\
+    \ but there is no provided evidence (e.g., command output, CI log, test file)\
+    \ showing that `black --check code/` was executed and returned exit code\u202F\
+    0. Without that verification artifact, the task\u2019s requirement is not fully\
+    \ satisfied."
+  sig: ef744566171ca6abf1e5cae00f9f219a80d16db2a8a87577272a547eb7de1351
+T004:
+  c: true
+  h: 8dcd671ad17b3ca8af42e89e6f0556b5a832e1de02844e1507f50d207d47e826
+  r: "The `code/utils/config.py` file exists, is non\u2011empty, and defines `RANDOM_SEED\
+    \ = 42` as required. The `code/utils/logger.py` file also exists, is non\u2011\
+    empty, and provides a global logger setup via `setup_logging` and `get_logger`.\
+    \ Both artifacts meet the task\u2019s specifications."
+  sig: 6c641c6f77ffc33360344167beaec06fa11d96756c71d909641537674d9cb77f
+T005:
+  c: true
+  h: 97d9d7e5bfb11282a82eb21c4c26eea7eeb6c5089a55e39d1b6bde87895cb151
+  r: "Checked the presence of the required directories (`data/raw/`, `data/processed/`,\
+    \ `data/eye-tracking/`, `data/valence/`, `output/plots/`, `output/results/`) which\
+    \ all exist (each containing a `.gitkeep` placeholder), satisfying the task\u2019\
+    s specification."
+  sig: 591cf09a665428a777ff9d044c17612b576ebfc96d3003c55e2926a26aa7c150
+T006:
+  c: true
+  h: 746d97a5e7548029aa5e84de73ab4b2f2a28827e5aca342df0332eec8d3163a6
+  r: "Checked `code/utils/data_integrity.py`, which contains a non\u2011empty implementation\
+    \ of `compute_checksum(file_path)` that reads the file and returns its MD5 hash\
+    \ as a hexadecimal string. This satisfies the stated deliverable."
+  sig: 4ce6430ff0c4e9c46e76abc98cc9a41de7a52adba82fdcc35689e0b673e907d1
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log file was provided that demonstrates the ingestion process\
+    \ halting with exit code\u202F1 and emitting the required `DATA_BLOCKER: Missing\
+    \ required variables` message when required columns are absent. The claim lacks\
+    \ any tangible artifact to verify the required behavior."
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or log output was provided that implements the required logging\
+    \ behavior (checking dataset count, logging the `DATA_BLOCKER` message and exiting\
+    \ on zero, or logging `Ingestion Success Rate: X%` on non\u2011zero). Without\
+    \ such artifacts, the task\u2019s deliverable cannot be confirmed as completed."
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or data artifact was provided that implements a loop over attention\u2011\
+    metric and valence\u2011category combinations and stores the resulting model outputs.\
+    \ The required implementation and stored results are missing."
+T023:
+  c: false
+  h: a856c442ce8e5ef98fa38e988c9c3baedfdafba47db423142b7ff60a7293b7ac
+  r: "The repository contains a partially\u2011implemented `sensitivity.py` but the\
+    \ script\u2019s entry point is truncated and never invokes `run_sensitivity_analysis`\
+    \ with the required thresholds {0.01,\u202F0.05,\u202F0.1}. Moreover, the expected\
+    \ output file `output/results/sensitivity_analysis.json` is absent from the disk.\
+    \ The deliverable is therefore not present and the implementation does not demonstrably\
+    \ meet the task\u2019s specifications."
+T024:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: 'No artifact showing result objects with an `association_label: "associational"`
+    field was provided; without such output the requirement of appending the label
+    to all results is not demonstrated.'
+T025:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "The submission contains only the task description and project specifications;\
+    \ there is no code, script, or log output that implements error handling for missing\
+    \ recall scores, logs a warning, skips the problematic rows, and continues processing.\
+    \ Consequently, the required artifact (the implemented error\u2011handling logic)\
+    \ is missing."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, or notebook implementing `pd.read_csv(chunksize=\u2026)` or\
+    \ `sample(n=\u2026)` was provided, nor any logs or measurements showing that data\
+    \ loading stays under 7\u202FGB RAM. The required artifact is missing, so the\
+    \ task is not satisfied."
+T039:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `visualize.py` script is present in `code/reporting/`, nor any generated\
+    \ plot files or code using matplotlib/seaborn. The required artifact is missing,\
+    \ so the task\u2019s deliverable is not satisfied."
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No plot files `output/plots/scatter_{valence}.png` for the required valence categories
+    are present; the implementer provided only a textual description and no actual
+    image artifacts, so the deliverable is missing.
+T041:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No histogram image files (e.g., `output/plots/hist_fixationduration_positive.png`)
+    are present; the claim provides only task description and requirements but no
+    actual plot artifacts, so the deliverable is missing.
+T042:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No plot files were provided, and there is no evidence that any figures were\
+    \ saved to `output/plots/` with axes labeled \u201CAttention Metric\u201D and\
+    \ \u201CRecall Accuracy\u201D. The required artifacts are missing, so the task\
+    \ is not satisfied."
+T045:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No documentation files in a `docs/` directory were presented, nor any excerpt
+    showing updates that describe data acquisition limitations. Without concrete evidence
+    of the required documentation changes, the task is not satisfied.

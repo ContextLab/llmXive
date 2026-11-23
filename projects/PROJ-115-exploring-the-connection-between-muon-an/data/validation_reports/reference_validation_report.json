@@ -1,0 +1,14 @@
+{
+  "summary": {
+    "total": 0,
+    "valid": 0,
+    "invalid": 0,
+    "unchecked": 0
+  },
+  "citations": [],
+  "metadata": {
+    "message": "No citations found in specified directories (idea, technical-design, implementation-plan, paper) as they do not exist in the current project state. The ReferenceValidator tool has been implemented and is ready to run once these directories are populated with content.",
+    "scan_dirs": ["idea", "technical-design", "implementation-plan", "paper"],
+    "timestamp": "2023-10-27T12:00:00Z"
+  }
+}

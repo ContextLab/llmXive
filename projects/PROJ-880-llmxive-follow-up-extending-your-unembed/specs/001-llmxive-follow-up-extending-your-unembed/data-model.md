@@ -1,93 +1,32 @@
-# Data Model: llmXive follow-up: extending "Your UnEmbedding Matrix is Secretly a Feature Lens for Text Embeddings"
+# Data Model: llmXive cross‑lingual edge‑spectrum analysis
 
 ## Overview
+The data model follows a linear derivation pipeline where raw model weights and corpora are transformed into geometric subspaces, which are then compared and validated against typological benchmarks.
 
-This document defines the data artifacts, schemas, and transformation logic for the `001-llmxive-crosslingual` feature. All data is stored in `projects/PROJ-880-llmxive-follow-up-extending-your-unembed/data/`.
+## Artifact Lineage
+1. **Raw Weights/Corpora** $\to$ `data/raw/`
+2. **SVD Extraction** $\to$ `data/derived/edge_spectrum.json`
+3. **Token Counting** $\to$ `data/derived/frequency_list_{lang}.json`
+4. **Vocab Mapping** $\to$ `data/derived/token_attribution_{model}.json`
+5. **Projection** $\to$ `data/derived/mean_embedding_{lang}.json` $\to$ `data/derived/cross_projection.json` $\to$ `data/derived/baseline_report.json`
+6. **Similarity Analysis** $\to$ `data/derived/similarity_matrix.json` $\to$ `data/derived/similarity_metric.json` $\to$ `data/derived/similarity_report.json`
+7. **Statistical Tests** $\to$ `data/derived/bootstrap_test.json` $\to$ `data/derived/permutation_test.json` $\to$ `data/derived/control_analysis.json`
+8. **Validation** $\to$ `data/derived/validation.json` $\to$ `data/derived/ablation_report.json`
+9. **Meta** $\to$ `data/derived/feasibility_report.json` $\to$ `data/derived/sensitivity_analysis.json`
 
-## Artifact Lifecycle
-
-1.  **Raw Data**: Downloaded from verified sources (RedPajama, OSCAR, WALS). Stored in `data/raw/`. Checksums recorded in `data/checksums.json`.
-2.  **Processed Data**: Frequency distributions, SVD results ($U_k$ matrices), token embeddings, and similarity matrices. Stored in `data/processed/`.
-3.  **Derived Artifacts**: Final JSON reports (similarity scores, p-values, token lists, WALS correlation). Stored in `data/reports/`.
-4.  **Code Artifacts**: Hashes of all source files in `code/` stored in `data/checksums.json`.
-
-## Data Dictionary
-
-### 1. Frequency Distribution (Input)
-*   **Source**: RedPajama (English), OSCAR (French/Chinese).
-*   **Format**: `.npy` (NumPy array).
-*   **Shape**: `(vocab_size,)`
-*   **Content**: Normalized token frequencies ($f_i = \frac{count_i}{\sum count}$).
-*   **Constraint**: Must match the vocabulary of the target model exactly. If vocabularies differ, a mapping layer is applied, or the analysis is restricted to the intersection.
-
-### 2. Edge Spectrum Matrix (Intermediate)
-*   **Source**: SVD of $W_U$.
-*   **Format**: `.npy`.
-*   **Shape**: `(hidden_size, k)` where $k=100$ (or $50$ if fallback).
-*   **Content**: Top-$k$ left singular vectors ($U_k$).
-*   **Constraint**: Columns must be orthonormal.
-
-### 3. Token Embedding Projection (Intermediate)
-*   **Source**: Model embeddings $E$ projected onto $U_k$.
-*   **Format**: `.npy`.
-*   **Shape**: `(N, k)` where $N$ is the number of top frequent tokens.
-*   **Content**: Projected embeddings for top-$N$ tokens.
-
-### 4. Similarity Report (Output)
-*   **Source**: Cosine similarity calculation.
-*   **Format**: `.json`.
-*   **Schema**: `contracts/similarity_report.schema.yaml`.
-*   **Content**: Pairwise cosine similarities and confidence intervals.
-
-### 5. Permutation Test Result (Output)
-*   **Source**: Statistical test.
-*   **Format**: `.json`.
-*   **Schema**: `contracts/permutation_result.schema.yaml`.
-*   **Content**: Observed statistic, p-value, null distribution summary.
-
-### 6. WALS Validation Report (Output)
-*   **Source**: Correlation calculation.
-*   **Format**: `.json`.
-*   **Schema**: `contracts/wals_validation.schema.yaml` (new).
-*   **Content**: Correlation coefficient, p-value, WALS features used.
-
-## Transformation Logic
-
-### T-01: Frequency Estimation
-*   **Input**: Raw text file (RedPajama/OSCAR).
-*   **Process**: Tokenize using the target model's tokenizer. Count tokens. Normalize.
-*   **Output**: `data/processed/freq_distributions/{model}_{lang}_freq.npy`.
-*   **Validation**: Sum of frequencies must be $1.0 \pm 1e-6$.
-
-### T-02: Subspace Extraction
-*   **Input**: Model weights ($W_U$).
-*   **Process**: `scipy.sparse.linalg.svds(W_U, k=100)`.
-*   **Output**: `data/processed/svd_results/{model}_uk.npy`.
-*   **Validation**: Columns are orthonormal; singular values are sorted descending.
-
-### T-03: Token Embedding Projection
-*   **Input**: Model embeddings $E$, frequency distribution $f$.
-*   **Process**: Select top-$N$ tokens. Compute $P = U_k^T \cdot E[T]$. Compute centroid $\hat{v} = \text{mean}(P)$.
-*   **Output**: `data/processed/embeddings/{model}_{lang}_projection.npy`.
-
-### T-04: Similarity Calculation
-*   **Input**: Two $U_k$ matrices.
-*   **Process**: Compute $S = \text{mean}(\text{cosine\_sim}(u_i, v_i))$ for $i=1..k$.
-*   **Output**: Scalar value.
-
-### T-05: Bootstrap Test
-*   **Input**: Observed similarity $S_{obs}$, Within-Language Baseline $S_{EN}$.
-*   **Process**: Generate a sufficient number of $S_{Cross}^{(b)}$ instances by resampling token frequencies.
-*   **Output**: P-value and confidence interval.
-
-### T-06: WALS Correlation
-*   **Input**: Subspace orientation, WALS features.
-*   **Process**: Compute Pearson correlation.
-*   **Output**: Correlation coefficient and p-value.
-
-## Constraints & Assumptions
-
-*   **Vocabulary Alignment**: If models have different vocabularies, the analysis is restricted to the intersection of tokens. If the intersection is < 50% of the vocabulary, the comparison is flagged as "Unreliable".
-*   **Memory**: All frequency arrays are stored in `float32` to minimize RAM usage.
-*   **Reproducibility**: All random seeds are set to `42` in `config.py`.
-*   **Artifact Hashing**: All files in `code/` and `data/` are hashed and recorded in `checksums.json`.
+## Core Schemas Mapping
+| Schema | Artifact | Key Constraints |
+|--------|----------|-----------------|
+| `edge_spectrum.schema.yaml` | `edge_spectrum.json` | `top_k` $\ge$ 1; `edge_vectors` must be float arrays. |
+| `frequency_list.schema.yaml` | `frequency_list_*.json` | `total_tokens` $\ge$ [deferred]. |
+| `token_attribution.schema.yaml` | `token_attribution_*.json` | `logit_weight` must be numeric. |
+| `mean_embedding.schema.yaml` | `mean_embedding_*.json` | Includes `condition_number` and `regularization_lambda`. |
+| `token_shift.schema.yaml` | `cross_projection.json` | Captures shift vector and mean embedding norm. |
+| `similarity_matrix.schema.yaml` | `similarity_matrix.json` | Scores in range $[-1, 1]$. |
+| `similarity_metric.schema.yaml` | `similarity_metric.json` | Delta similarity and confidence intervals. |
+| `permutation_test.schema.yaml` | `permutation_test.json` | `iterations` $\ge$ [deferred]; `p_value` $\ge$ 4 decimal places. |
+| `validation.schema.yaml` | `validation.json` | Pearson $r$ and 95% CI. |
+| `wals_correlation.schema.yaml` | `validation.json` (subset) | Specific WALS feature correlations. |
+| `wals_validation.schema.yaml` | `validation.json` (subset) | Rotation angle vs WALS. |
+| `feasibility_report.schema.yaml` | `feasibility_report.json` | `total_runtime_seconds` $\le$ [deferred] (6h). |
+| `vocab_alignment_warning.schema.yaml` | `edge_spectrum.json` (meta) | Overlap ratio and warning level. |

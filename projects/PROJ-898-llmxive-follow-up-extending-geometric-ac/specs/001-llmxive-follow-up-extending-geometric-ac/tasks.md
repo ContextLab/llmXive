@@ -1,234 +1,300 @@
 # Tasks: llmXive follow-up: extending "Geometric Action Model for Robot Policy Learning"
 
-**Input**: Design documents from `/specs/001-llmxive-gam-symbolic-planner/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Input**: Design documents from `/specs/001-llmxive-follow-up-extending-geometric-ac/`  
+**Prerequisites**: `plan.md` (required), `spec.md` (required for user stories), `research.md`, `data-model.md`, `contracts/`
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+**Tests**: The examples below include test tasks. Tests are OPTIONAL – only include them if explicitly requested in the feature specification.
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
-## Format: `[ID] [P?] [Story] Description`
+## Format: `[ID] [P?] [Story] description with exact artifact paths`
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- **[P]**: Can run in parallel (different files, no dependencies)  
+- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)  
+- Include exact file paths in descriptions  
 
-## Path Conventions
+## Phase 1: Setup and first end‑to‑end analysis
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+**Goal**: Run an executable analysis on valid, small real inputs early.  
 
-<!-- 
-  ============================================================================
-  IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
-  
-  The /speckit-tasks command MUST replace these with actual tasks based on:
-  - User stories from spec.md (with their priorities P1, P2, P3...)
-  - Feature requirements from plan.md
-  - Entities from data-model.md
-  - Endpoints from contracts/
-  
-  Tasks MUST be organized by user story so each story can be:
-  - Implemented independently
-  - Tested independently
-  - Delivered as an MVP increment
-  
-  DO NOT keep these sample tasks in the generated tasks.md file.
-  ============================================================================
--->
+- [X] T001a-reqs [P] Create `requirements.txt` with pinned dependencies: `pybullet`, `torch==2.0.0+cpu --index-url https://download.pytorch.org/whl/cpu`, `cvxpy`, `diff-taichi`, `scipy`, `pandas`, `numpy`, `pytest`.  
+  - **Verification**: Add a test `tests/integration/test_requirements_exist.py` that asserts the file exists and contains all listed packages.  
 
-## Phase 1: Setup (Shared Infrastructure)
+- [~] T001a-gitignore [P] Create `.gitignore` file excluding `data/`, `__pycache__/`, `*.pyc`, and environment files.  
+  - **Verification**: `tests/integration/test_gitignore_exists.py` checks file existence and required patterns.  
 
-**Purpose**: Project initialization and basic structure
+- [X] T001a-init [P] Create `code/__init__.py` and `tests/__init__.py`.  
+  - **Verification**: `tests/integration/test_init_files.py` asserts both files exist and are importable.  
 
-- [ ] T001a [P] Create project root structure per implementation plan (`projects/PROJ-898-llmxive-follow-up-extending-geometric-ac/`)
-- [ ] T001b [P] Create `code/`, `data/`, `tests/` directories
-- [ ] T001c [P] Create `.gitkeep` files in all data subdirectories (`data/raw`, `data/generated`, `data/results`)
+- [X] T001b [P] Create the three top‑level directories `code/`, `data/`, and `tests/`.  
+  - **Verification**: `tests/integration/test_directories_exist.py` asserts the directories exist.  
 
----
+- [~] T001c [P] Add a `.gitkeep` file to each of `data/raw/`, `data/generated/`, and `data/results/` so the directories exist in version control.  
+  - **Verification**: `tests/integration/test_gitkeep_files.py` checks the three `.gitkeep` files exist.  
 
-## Phase 2: Foundational (Blocking Prerequisites)
+### Phase 1 – Shared infrastructure (blocking prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [X] T002 (`requirements.txt`: pybullet, torch (cpu, `--index-url https://download.pytorch.org/whl/cpu`), cvxpy, diff-taichi, scipy, pandas, numpy, pytest)  
+- [~] T003 [P] Create `ruff.toml` and `.pre-commit-config.yaml` for linting and formatting.  
+  - **Verification**: `tests/integration/test_lint_config.py` runs `ruff --quiet` and ensures a successful exit.  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [~] T004 Setup data directory structure (`data/raw`, `data/generated`, `data/results`) and `.gitkeep` files.  
+- [~] T005 [P] Implement `code/utils.py` with logging, deterministic seeding (numpy/torch), and SHA‑256 hashing utilities.  
+  - **Verification**: `tests/unit/test_utils.py` imports the module and checks each utility function runs without error.  
 
-- [ ] T002 Initialize Python 3.11 project with pinned dependencies (`requirements.txt`: pybullet, torch (cpu), cvxpy, diffcp, scipy, pandas, numpy, pytest)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
-- [ ] T004 Setup data directory structure (`data/raw`, `data/generated`, `data/results`) and `.gitkeep` files
-- [ ] T005 [P] Implement `code/utils.py` with logging, deterministic seeding (numpy/torch), and SHA-256 hashing utilities
-- [ ] T006 [P] Create `code/gfm_wrapper.py` skeleton for loading frozen GFM weights (CPU-only, `eval()` mode)
-- [ ] T006a [P] [US2] Implement logic to ingest and validate 'original GAM training metadata' from `data/raw/` for baseline comparison (Prerequisite for T012)
-- [ ] T007 Create base configuration loader for experiment parameters (topology counts, timeout limits)
-- [ ] T008 Configure CI workflow for GitHub Actions (multi-core x_64, 6h timeout, no GPU)
-- [ ] T008a [P] [US2] Implement CPU-only profiling script to simulate solver execution and verify s/step assumption on 2-core hardware (FR-004)
+- [~] T007a [P] Create `code/config.yaml` defining experiment parameters (e.g., `topology_counts`, `timeout_limits`, `seed`, `trial_count`, `sim_fps`, `max_attempts`, `stiffness_range`, `target_zone`, `baseline_model_url`, `MAX_TASKS`).  
+  - **Verification**: `tests/unit/test_config_schema.py` validates the YAML against a schema.  
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [~] T007b [P] Implement `code/config.py` loader that parses `code/config.yaml` into a typed configuration object.  
+  - **Verification**: `tests/unit/test_config_loader.py` loads a sample config and checks attribute types.  
 
----
+- [~] T005-baseline-fetch [P] Fetch and validate `data/raw/gfm_baseline.pt` according to `code/config.yaml`. Abort with a clear error if the file cannot be obtained. No synthetic weights may be generated. <!-- FAILED: unspecified -->
+  - **Depends on** T007a  
+  - **Verification**: `tests/integration/test_baseline_fetch.py` asserts the file exists and matches a known checksum.  
 
-## Phase 3: User Story 1 - Synthetic Topology-Shift Test Set Generation (Priority: P1) 🎯 MVP
+- [~] T006-frozen [P] Implement `code/gfm_wrapper.py` (Frozen Inference Mode) to load frozen GFM weights from `data/raw/gfm_weights.pt` (CPU‑only, `eval()` mode) and expose `encode`/`decode` methods. Autograd must be disabled.  
+  - **Depends on** T046-fetch-gfm-weights  
+  - **Verification**: `tests/unit/test_gfm_frozen.py` loads the wrapper and asserts `requires_grad=False` for all parameters.  
 
-**Goal**: Generate a synthetic dataset of manipulation tasks with novel kinematic chains and deformable materials using PyBullet, ensuring zero overlap with original GAM training data.
+- [~] T006-diff [P] Implement `code/gfm_wrapper.py` (Differentiable Gradient‑Check Mode) that loads the same weights but **enables** autograd on inputs for finite‑difference verification.  
+  - **Depends on** T046-fetch-gfm-weights  
+  - **Verification**: `tests/unit/test_gfm_diff.py` checks that gradients flow through inputs but not through weights.  
 
-**Independent Test**: Run generation script; verify output contains valid physics states for a diverse set of distinct topologies; confirm checksum hash differs from original GAM metadata.
+- [ ] T008 [P] Add a GitHub Actions workflow `.github/workflows/ci.yml` that runs on a 2‑core x86_64 runner with no GPU, enforces the 6‑hour timeout, and installs `requirements.txt`.   <!-- FAILED: unspecified -->
+  - **Verification**: The CI run itself serves as verification; include a badge in README that asserts the workflow passes.  
 
-### Implementation for User Story 1
+- [ ] T009a-fetch-stats [US1] [Depends on T007b] Generate or fetch `data/raw/gam_reference_stats.json` (mean/covariance of training latents). Abort if unavailable.   <!-- FAILED-IN-EXECUTION: code/statistical_reference.py exit=1 --> <!-- FAILED-IN-EXECUTION: scripts/compute_reference_stats.py exit=1 -->
+  - **Verification**: `tests/integration/test_gam_stats_fetch.py` checks file existence and JSON schema.  
 
-- [ ] T009 [US1] Implement `code/data_generation.py` to generate a unified 'Topology-Shift Test Set' containing BOTH novel kinematic chains (variable hinge counts) AND deformable materials (soft ropes, cloth) in PyBullet, ensuring zero overlap with original GAM training data (FR-001)
-- [ ] T010 [US1] Add logic to record latent inputs and ground-truth actions for every timestep in `data/generated/`
-- [ ] T011 [US1] Implement error handling for physics simulation failures (crash recovery, state logging)
-- [ ] T012 [US1] Implement metadata checksumming for the unified test set and verify its hash against the baseline (ingested in T006a) to confirm zero overlap (FR-001)
-- [ ] T013 [US1] Create script `scripts/generate_test_set.py` to execute generation with configurable seeds
+- [ ] T040-contract-create [P] Generate `contracts/trial_log.schema.yaml` defining the single source of truth for trial logs. Validate against a JSON‑Schema validator.  
+  - **Verification**: `tests/unit/test_contract_schema.py` runs a validator on the created schema.  
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T041-data-model-define [P] Author `data-model.md` documenting all data entities (simulation states, latent trajectories, trial logs) and their relationships.  
+  - **Verification**: `tests/integration/test_data_model_exists.py` asserts file presence.  
 
----
+- [ ] T042-quickstart-write [P] Write `quickstart.md` with step‑by‑step instructions to run the full pipeline on a fresh runner.  
+  - **Verification**: `tests/integration/test_quickstart_exists.py` checks file existence and that all referenced scripts are reachable.  
 
-## Phase 4: User Story 2 - Symbolic Latent Planner Execution (Priority: P2)
+- [ ] T043-citation-validate [P] Invoke the Reference‑Validator Agent to check every external citation in `spec.md`, `plan.md`, and `research.md`. Fail the CI if any citation is invalid.  
+  - **Verification**: The CI step `run-citation-validator` returns non‑zero on failure.  
 
-**Goal**: Execute frozen GFM encoder/decoder and inject a differentiable symbolic solver to enforce geometric constraints in 3D space, running entirely on CPU.
+## Phase 2: User Story 1 – Synthetic Topology‑Shift Test Set Generation (Priority P1)
 
-**Independent Test**: Load frozen GFM, run symbolic planner on a single P1 test case, decode action, verify constraint satisfaction in PyBullet without GPU.
+**Goal**: Produce ≥ 100 novel manipulation tasks (kinematic chains & deformable objects) using PyBullet, with zero overlap against `training-topology-manifest.json`.  
 
-### Implementation for User Story 2
+- [ ] T008‑manifest‑gen [US1] [Depends on T009a-fetch-stats] Generate or load `data/raw/training-topology-manifest.json`. If no real manifest exists, abort (do **not** create a dummy).  
+  - **Verification**: `tests/integration/test_manifest_exists.py` ensures the manifest file is present and non‑empty.  
 
-- [ ] T014 [US2] Implement `code/symbolic_solver.py` using `cvxpy`/`diffcp` for differentiable constraint satisfaction (rigid/soft body) (Prerequisite for T016, T017, T018)
-- [ ] T015 [US2] Implement constraint logic for non-penetration and joint limits in physical 3D space (US-2, FR-003)
-- [ ] T016 [US2] Integrate `code/gfm_wrapper.py` to encode observations to latent space and decode solver outputs to 3D actions (Depends on T015)
-- [ ] T017 [US2] Implement timeout mechanism for solver steps (max a predefined time limit per step) to prevent CI hangs (Edge Case handling)
-- [ ] T018 [US2] Implement "infeasible" flag logic when constraints cannot be satisfied, recording trial as failure
-- [ ] T019 [US2] Implement latent drift detection (Mahalanobis distance) and flagging for out-of-distribution inputs
-- [ ] T019b [US2] [FR-003] Implement and run gradient verification test to ensure gradients flow from constraint violation loss, through the GFM decoder, to the solver parameters
-- [ ] T020 [US2] Create `code/inference_pipeline.py` to orchestrate encode -> solve -> decode -> simulate loop
-- [ ] T021 [US2] Add logging for inference latency (ms) and success/failure status for each trial
-- [ ] T021b [US2] [SC-001] Implement logic to measure and record the 'one-second collision-free duration' metric in raw data logs for each trial
-- [ ] T022a [US2] [US3] Implement script to run the baseline GAM (neural predictor) on the test set to generate comparison results for `data/results/`
+- [ ] T008‑drift‑calib [US1] [Depends on T009a-fetch-stats] Compute reference mean/covariance for latent‑drift detection and store as `data/raw/latent_drift_stats.json`.  
+  - **Verification**: `tests/unit/test_drift_calib.py` validates JSON structure.  
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T008‑latent‑validity [US1] [Depends on T006-frozen, T035-drift-detection] Run a quick sanity check: encode a few novel topologies, verify latent dimensionality, and log any Mahalanobis‑distance outliers to `data/results/latent_validity_log.json`.  
+  - **Verification**: `tests/unit/test_latent_validity.py` checks that the log file is created and contains expected fields.  
 
----
+- [ ] T009‑gen‑impl [US1] [Depends on T007a, T007b] Implement `code/data/generator.py` that builds random kinematic chains (variable hinge count) and soft‑body objects (rope/cloth) in PyBullet and records full simulation states.  
+  - **Verification**: `tests/unit/test_generator.py` runs the generator for a single trial and asserts a valid PyBullet world is created.  
 
-## Phase 5: User Story 3 - Comparative Statistical Analysis (Priority: P3)
+- [ ] T009‑gen‑unified [US1] [Depends on T008‑manifest‑gen, T009‑gen‑impl, T034] Execute a loop that generates unique topologies until **≥ 100** distinct entries are collected (or until `max_attempts` is reached). Abort with error if the target count is not met. Output to `data/generated/physics_states.json`.  
+  - **Verification**: `tests/integration/test_gen_unified_count.py` checks that at least 100 unique topologies are generated.  
 
-**Goal**: Compare symbolic-latent approach vs. baseline GAM using Fisher's Exact Test and paired t-test on success rates and latency.
+- [ ] T009‑verify‑overlap [US1] [Depends on T008‑manifest‑gen, T009‑gen‑unified, T034] Verify that none of the generated topology hashes appear in `training-topology-manifest.json`. Abort on any overlap. Write verified IDs to `data/generated/unique_topology_ids.json`.  
+  - **Verification**: `tests/unit/test_overlap_check.py` asserts no overlap and file creation.  
 
-**Independent Test**: Run analysis script on collected results; verify report includes p-values, CIs, and effect sizes for both metrics.
+- [ ] T009‑serialize [US1] [Depends on T009‑verify‑overlap] Serialize the full simulation histories (including per‑timestep vertex positions for deformable objects) to `data/generated/physics_states.json` **and** a CSV of latent trajectories to `data/generated/latent_trajectory.csv`.  
+  - **Verification**: `tests/integration/test_serialization.py` checks both files exist and conform to schemas.  
 
-### Implementation for User Story 3
+- [ ] T010a [US1] [Depends on T009‑serialize] Extract and store per‑timestep joint angles, vertex data, and object types in `data/generated/physics_states.json` using the schema `{object_type, vertex_data, joint_angles}`.  
+  - **Verification**: `tests/unit/test_extraction_schema.py` validates JSON against the schema.  
 
-- [ ] T023 [P] [US3] Implement `code/analysis.py` to load results from `data/results/` for both symbolic (T021/T021b) and baseline (T022a) approaches
-- [ ] T024 [US3] Implement Fisher's Exact Test for binary success/failure outcomes (FR-006)
-- [ ] T025 [US3] Implement paired t-test for inference latency comparisons (FR-006)
-- [ ] T026 [US3] Calculate and report % confidence intervals and Cohen's d effect sizes
-- [ ] T027 [US3] Generate final report `data/results/analysis_report.md` stating null hypothesis rejection status (α=0.05) and validating SC-001 (one-second duration)
-- [ ] T028 [US3] Create `scripts/run_analysis.py` to execute the full statistical comparison pipeline
+- [ ] T011 [US1] Implement robust error handling in `code/data/generator.py`: on PyBullet load or simulation failures, retry with exponential back‑off (max 5 attempts), log to `data/results/errors.log`, and skip the trial if unrecoverable. Include a unit test `tests/unit/test_crash_recovery.py`.  
+  - **Verification**: `tests/unit/test_error_handling.py` forces a failure and checks retry logic and logging.  
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T013 [US1] Create `scripts/generate_test_set.py` as a thin CLI wrapper that runs the generator with a configurable random seed.  
+  - **Verification**: `tests/integration/test_generate_cli.py` runs the script and asserts successful exit and file creation.  
 
----
+- [ ] T009b‑gt‑traj [US1] [Depends on T009‑serialize] Run high‑fidelity PyBullet simulations (no decoder) for a subset of generated topologies to produce ground‑truth trajectories. Store in `data/generated/ground_truth_traj.json`.  
+  - **Verification**: `tests/unit/test_ground_truth_traj.py` checks file creation and basic content.  
 
-## Phase N: Polish & Cross-Cutting Concerns
+- [ ] T009b‑gt‑decoder [US1] [Depends on T009‑serialize] Produce ground‑truth states for decoder validation and store in `data/generated/ground_truth_decoder.json`.  
+  - **Verification**: `tests/unit/test_ground_truth_decoder.py` validates file.  
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] T009‑mock [US1] [P] Generate a minimal mock dataset (5 entries) conforming to `contracts/trial_log.schema.yaml` with valid topology hashes. Store in `data/generated/mock_topology_data.json` for early solver development.  
+  - **Verification**: `tests/unit/test_mock_dataset.py` checks schema compliance.  
 
-- [ ] T029 [P] Update `README.md` with CLI usage instructions and project structure
-- [ ] T030 Code cleanup and refactoring of `code/` modules
-- [ ] T031 [P] Performance optimization for solver execution time (Target: Reduce solver latency to <300ms/step)
-- [ ] T032 [P] Additional unit tests for solver constraints and latent drift detection in `tests/unit/`
-- [ ] T033 Run `quickstart.md` validation to ensure end-to-end reproducibility
+## Phase 3: User Story 2 – Symbolic Latent Planner Execution (Priority P2)
 
----
+**Goal**: Run the frozen GFM encoder/decoder together with a differentiable symbolic solver on CPU, enforce geometric constraints, and verify constraint‑satisfaction ≥ 95 % while keeping reconstruction error ≤ 1.5× baseline.  
 
-## Dependencies & Execution Order
+- [ ] T014‑solver‑impl [US2] [Depends on T006-diff, T009‑mock] Implement `code/models/symbolic_solver.py` using DiffTaichi. The solver optimises latent variables but validates constraints **after decoding** to 3‑D space (non‑penetration, joint limits).  
+  - **Verification**: `tests/unit/test_solver_feasibility.py` runs the solver on a known feasible problem and asserts a solution is returned.  
 
-### Phase Dependencies
+- [ ] T014b‑fd‑verify [US2] [Depends on T014‑solver‑impl, T006-diff] Perform a finite‑difference check: perturb solver inputs by ε = 1e‑6, compute change in constraint‑violation loss, and assert non‑zero gradients for solver inputs while gradients w.r.t. frozen GFM weights remain zero. Output `data/results/finite_diff_verification.json`.  
+  - **Verification**: `tests/unit/test_finite_diff.py` checks the JSON for non‑zero gradient entries.  
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
+- [ ] T016 [US2] [Depends on T006-frozen, T014‑solver‑impl] Integrate `code/gfm_wrapper.py` (frozen mode) with `code/models/symbolic_solver.py` to form the full inference pipeline (encode → solve → decode).  
+  - **Verification**: `tests/integration/test_full_pipeline.py` runs a single end‑to‑end trial and asserts no exceptions.  
 
-### User Story Dependencies
+- [ ] T017 [US2] [Depends on T007a, T007b] Implement a per‑step timeout (configurable via `config.yaml`) inside the solver loop; on timeout, record `timeout=true` and `timeout_reason` in `data/results/trial_log.csv`.  
+  - **Verification**: `tests/unit/test_timeout_handler.py` forces a timeout and checks log entry.  
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Depends on T009 (data gen) for input data
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Depends on T021/T021b (inference results) and T022a (baseline results) for input data
+- [ ] T018 [US2] [Depends on T014‑solver‑impl, T007a, T007b] Implement an “infeasible” flag: if the solver cannot find a solution within the timeout or constraints are contradictory, record `infeasible=true` in the trial log.  
+  - **Verification**: `tests/unit/test_infeasible_flag.py` supplies an unsolvable problem and asserts the flag is set.  
 
-### Within Each User Story
+- [ ] T019‑decoder‑control [US2] [Depends on T006-frozen, T009‑serialize] Measure decoder reconstruction error **without** the solver (encode → decode) on a subset of test cases; write results to `data/results/decoder_control_log.json`.  
+  - **Verification**: `tests/unit/test_decoder_control.py` checks JSON content.  
 
-- Tests (if included) MUST be written and FAIL before implementation
-- Models before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
+- [ ] T019b‑symbolic‑mse [US2] [Depends on T006-frozen, T009b‑gt‑decoder, T020‑trial‑exec] Decode symbolic latent actions, compare to ground‑truth from `ground_truth_decoder.json`, and store MSE in `data/results/symbolic_decoder_mse.json`.  
+  - **Verification**: `tests/unit/test_symbolic_mse.py` validates MSE calculation.  
 
-### Parallel Opportunities
+- [ ] T022b‑baseline‑mse [US2] [Depends on T006-frozen, T009b‑gt‑decoder, T022a] Compute baseline decoder MSE analogously and store in `data/results/baseline_decoder_mse.json`.  
+  - **Verification**: `tests/unit/test_baseline_mse.py` validates.  
 
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T019c [US2] [Depends on T019b‑symbolic‑mse, T022b‑baseline‑mse] Verify that `symbolic_mse ≤ 1.5 × baseline_mse`. Write `data/results/decoder_ratio_check.json` with `ratio` and pass/fail flag.  
+  - **Verification**: `tests/unit/test_decoder_ratio.py` asserts the condition.  
 
----
+- [ ] T019d‑constraint‑sat [US2] [Depends on T020‑trial‑exec] Compute the overall constraint‑satisfaction rate across all symbolic trials; store in `data/results/constraint_satisfaction_log.json`.  
+  - **Verification**: `tests/unit/test_constraint_satisfaction.py` checks the rate calculation.  
 
-## Parallel Example: User Story 1
+- [ ] T019e‑combined‑verification [US2] [Depends on T019c, T019d‑constraint‑sat] Combine the two SC‑003 checks (MSE ratio & satisfaction rate) into `data/results/sc003_combined_verification.json`.  
+  - **Verification**: `tests/unit/test_combined_verification.py` validates both metrics present.  
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for [endpoint] in tests/contract/test_[name].py"
-Task: "Integration test for [user journey] in tests/integration/test_[name].py"
+- [ ] T023‑feasibility‑pilot [US3] [Depends on T021c] Run a small pilot (e.g., 5 trials) of the symbolic pipeline, measure total runtime, extrapolate to full experiment, and write `ci_time_limit_exceeded` flag to `data/results/feasibility_status.json`.  
+  - **Verification**: `tests/unit/test_feasibility_pilot.py` asserts flag is correctly set based on runtime.  
 
-# Launch all models for User Story 1 together:
-Task: "Create [Entity1] model in src/models/[entity1].py"
-Task: "Create [Entity2] model in src/models/[entity2].py"
-```
+- [ ] T020‑trial‑exec [US2] [Depends on T014‑solver‑impl, T016, T009‑serialize, T017, T018] Execute the full set of symbolic and baseline trials; output per‑trial JSONL records to `data/results/trial_logs.jsonl`.  
+  - **Verification**: `tests/integration/test_trial_execution.py` checks that the JSONL file exists, conforms to `contracts/trial_log.schema.yaml`, and contains required fields.  
 
----
+- [ ] T020b [US2] [SC‑005] Validate per‑step latency on a subset of symbolic trials; ensure `< 300 ms` per step and projected total < 6 h. Write `data/results/latency_validation.json`.  
+  - **Verification**: `tests/unit/test_latency_validation.py` asserts latency thresholds.  
 
-## Implementation Strategy
+- [ ] T021 Add logging for inference latency (ms) and success/failure status for each trial (implemented inside `code/evaluation/runner.py`).  
+  - **Verification**: `tests/unit/test_logging.py` confirms log files contain required columns.  
 
-### MVP First (User Story 1 Only)
+- [ ] T021c [US2] [P] Implement `calculate_success` in `code/evaluation/metrics.py` (collision = 0 AND distance < 5 cm for ≥ 1 s).  
+  - **Verification**: `tests/unit/test_success_metric.py` runs on known success/failure cases.  
 
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
+- [ ] T021b [US2] [SC‑001] Using `calculate_success`, produce `data/results/symbolic_results.csv` with columns `trial_id, approach, success, latency_ms, timeout, infeasible, timestamp`.  
+  - **Verification**: `tests/unit/test_symbolic_results_csv.py` validates schema compliance.  
 
-### Incremental Delivery
+- [ ] T022a [US3] [Depends on T005‑baseline‑fetch, T009‑serialize] Run the baseline GAM (`code/baseline_runner.py`) on the generated test set; write results to `data/results/baseline_results.csv`.  
+  - **Verification**: `tests/unit/test_baseline_results_csv.py` checks file and schema.  
 
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+- [ ] T023b‑ci‑time‑verify [US3] [Depends on T020‑trial‑exec] Record the final wall‑clock runtime and write `data/results/ci_time_limit_status.json`.  
+  - **Verification**: `tests/unit/test_ci_time_status.py` asserts runtime recorded and flag set correctly.  
 
-### Parallel Team Strategy
+## Phase 4: User Story 3 – Comparative Statistical Analysis (Priority P3)
 
-With multiple developers:
+**Goal**: Statistically compare symbolic vs. baseline on success rate (McNemar) and latency (Wilcoxon / paired t) and produce a reproducible report.  
 
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
-3. Stories complete and integrate independently
+- [ ] T023 [P] [US3] [Depends on T021c, T022a] Implement `code/analysis.py` to load `symbolic_results.csv` and `baseline_results.csv`.  
+  - **Verification**: `tests/integration/test_analysis_load.py` asserts successful loading.  
 
----
+- [ ] T024a‑load [US3] [Depends on T023] Add schema verification and data‑loading utilities inside `code/analysis.py`.  
+  - **Verification**: `tests/unit/test_schema_verification.py` checks validation passes.  
 
-## Notes
+- [ ] T024a‑detect‑censor [US3] [Depends on T021c, T022a] Scan both result CSVs for `timeout=true` or `infeasible=true`; output `data/results/censoring_status.json` (`symbolic_censored`, `baseline_censored`, `any_censored`).  
+  - **Verification**: `tests/unit/test_censor_detection.py` validates JSON.  
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- [ ] T024a‑select [US3] [Depends on T024a‑load, T024a‑detect‑censor]  
+  * Build two datasets:  
+    1. `dataset_success` – all trials (censored trials counted as failures) for McNemar.  
+    2. `dataset_latency` – only trials without `timeout=true` for latency testing.  
+  * Run Shapiro‑Wilk on latency differences; choose Wilcoxon if p < 0.05, else paired t‑test. Write the chosen test and rationale to `data/results/stat_test_selection.json`.  
+  - **Verification**: `tests/unit/test_test_selection.py` asserts correct test choice logic.  
+
+- [ ] T024a‑report [US3] [Depends on T024a‑select] Generate `data/results/analysis_report.md` containing a markdown table: Metric, Symbolic, Baseline, Difference, p‑value, 95 % CI, Effect Size.  
+  - **Verification**: `tests/unit/test_report_contents.py` checks for presence of all required fields.  
+
+- [ ] T024a‑validate [US3] [Depends on T024a‑report] Verify that the report includes success‑rate validation (≥ 1 s success window) and that all required p‑values are present.  
+  - **Verification**: `tests/unit/test_report_validation.py` asserts these conditions.  
+
+- [ ] T025‑validate‑experiment [US3] [Depends on T019e‑combined‑verification, T019d‑constraint‑sat] Load constraint‑satisfaction rate and combined verification; write overall pass/fail to `data/results/experiment_validation.json`.  
+  - **Verification**: `tests/unit/test_experiment_validation.py` checks pass/fail flag.  
+
+## Phase N: Polish & Cross‑Cutting Concerns
+
+- [ ] T029 [P] Update `README.md` with CLI usage instructions, project structure, and quick‑start example.  
+  - **Verification**: `tests/integration/test_readme_links.py` ensures no broken links.  
+
+- [ ] T030 Code cleanup and refactoring of all modules under `code/` (PEP‑8 compliance, type hints, docstrings).  
+  - **Verification**: `ruff check` passes with zero errors; `mypy` passes.  
+
+- [ ] [X] T032 [P] Add additional unit tests for solver constraints and latent‑drift detection in `tests/unit/`.  
+  - **Verification**: `pytest -q` reports >90% coverage.  
+
+- [ ] T033 [P] Run `scripts/validate_quickstart.sh` (or equivalent) to ensure end‑to‑end reproducibility; generate `data/results/quickstart_validation.json` with pass/fail status.  
+  - **Verification**: CI step asserts the JSON flag is true.  
+
+## Phase Revision: Addressing Analyze Findings (edge‑case & robustness tasks)
+
+- [ ] T034 [P] **Robust Topology Hashing** – Implement `code/utils/topology_hasher.py` that deterministically hashes kinematic chain specifications and soft‑body mesh parameters (links, joint types, material properties, vertex count). Used by T009‑gen‑unified and T009‑verify‑overlap.  
+  - **Verification**: `tests/unit/test_topology_hasher.py` checks deterministic output across runs.  
+
+- [ ] T035 [P] **Mahalanobis‑Distance Drift Detection** – In `code/evaluation/runner.py`, compute Mahalanobis distance between each latent vector and the reference stats (`latent_drift_stats.json`). If distance > threshold, record `drift_flag=true` in `trial_logs.jsonl` and log to `data/results/drift_events.json`.  
+  - **Verification**: `tests/unit/test_drift_detection.py` forces a high‑distance vector and checks flag.  
+
+- [ ] T036 [P] **Solver Timeout Handler** – Wrap the DiffTaichi solver call in `code/models/symbolic_solver.py` with a cross‑platform timeout (using `signal.alarm` on Unix or `threading.Timer` elsewhere). On timeout, set `timeout=true` in the trial log and return a `"timeout"` status.  
+  - **Verification**: `tests/unit/test_cross_platform_timeout.py` runs on both platforms (mocked) and asserts proper flag.  
+
+- [ ] T037 [P] **Censor‑Aware Statistical Analysis** – Extend `code/analysis.py` to treat `timeout` and `infeasible` flags as failures for McNemar’s test while excluding them from latency distributions, as required by the specification.  
+  - **Verification**: `tests/unit/test_censor_logic.py` validates correct inclusion/exclusion.  
+
+- [ ] T038 [P] **Deformable Material Parameterisation** – Extend `code/data/generator.py` to expose soft‑body parameters (Young’s modulus, Poisson’s ratio) and store them in `data/generated/physics_states.json`.  
+  - **Verification**: `tests/unit/test_deformable_params.py` checks new fields appear.  
+
+- [ ] T039 [P] **Differentiable Constraint Validation** – Ensure the constraint‑violation loss in `code/models/symbolic_solver.py` is fully differentiable w.r.t. latent variables; add a verification step that calls `torch.autograd.grad` and writes `data/results/gradient_flow_check.json`.  
+  - **Verification**: `tests/unit/test_gradient_flow.py` asserts non‑zero gradients.  
+
+- [ ] T040 [P] **Effect‑Size Calculation** – In `code/analysis.py`, compute Cohen’s h for success‑rate differences and Cohen’s d for latency differences; include these values in `analysis_report.md`.  
+  - **Verification**: `tests/unit/test_effect_size_in_report.py` checks the markdown includes both metrics.  
+
+- [ ] T041‑verify‑requirements [P] Verify `requirements.txt` contains exactly the pinned dependencies listed in T001a-reqs.  
+  - **Verification**: `tests/unit/test_requirements_pinned.py`.  
+
+- [ ] T042‑verify‑gitignore [P] Verify `.gitignore` contains the required patterns.  
+  - **Verification**: `tests/unit/test_gitignore_patterns.py`.  
+
+- [ ] T043‑verify‑init [P] Verify `code/__init__.py` and `tests/__init__.py` are importable.  
+  - **Verification**: `tests/unit/test_init_importable.py`.  
+
+- [ ] T044‑verify‑directories [P] Verify the existence of `code/`, `data/`, and `tests/`.  
+  - **Verification**: `tests/unit/test_top_level_dirs.py`.  
+
+- [ ] T045‑verify‑gitkeep [P] Verify `.gitkeep` files exist in each `data/*/` subdirectory.  
+  - **Verification**: `tests/unit/test_gitkeep_presence.py`.  
+
+- [ ] T046‑fetch-gfm-weights [P] Fetch the frozen GFM weights `data/raw/gfm_weights.pt` from the canonical model repository (e.g., a public URL). Abort with error if unavailable.  
+  - **Verification**: `tests/integration/test_gfm_weights_fetch.py` checks file existence and checksum.  
+
+- [ ] T047‑verify‑ruff-config [P] Run `ruff` against the repository; ensure no linting errors.  
+  - **Verification**: CI step `ruff check .` must exit zero.  
+
+- [ ] T048‑verify‑pre‑commit [P] Execute `pre-commit run --all-files`; ensure all hooks pass.  
+  - **Verification**: CI step `pre-commit run --all-files` must exit zero.  
+
+- [ ] T049‑verify‑config‑schema [P] Validate `code/config.yaml` against a predefined schema.  
+  - **Verification**: `tests/unit/test_config_schema_validation.py`.  
+
+- [ ] T050‑verify‑gfm‑wrapper‑frozen [P] Load `code/gfm_wrapper.py` in frozen mode and assert all parameters have `requires_grad=False`.  
+  - **Verification**: `tests/unit/test_gfm_wrapper_frozen_grad.py`.  
+
+- [ ] T051‑verify‑gfm‑wrapper‑diff [P] Load `code/gfm_wrapper.py` in diff mode and assert inputs are differentiable while weights remain frozen.  
+  - **Verification**: `tests/unit/test_gfm_wrapper_diff_grad.py`.  
+
+- [ ] T052‑verify‑solver‑gradient [P] Confirm that gradients flow from the constraint‑violation loss to latent variables but not through the decoder.  
+  - **Verification**: `tests/unit/test_solver_gradient_flow.py`.  
+
+- [ ] T053‑verify‑timeout‑behavior [P] Run the solver with a deliberately low timeout and ensure `timeout=true` is recorded.  
+  - **Verification**: `tests/unit/test_timeout_behavior.py`.  
+
+- [ ] T054‑verify‑infeasible‑flag [P] Supply an unsolvable constraint set and verify `infeasible=true` appears in trial logs.  
+  - **Verification**: `tests/unit/test_infeasible_flag_behavior.py`.  
+
+- [ ] T055‑verify‑latency‑threshold [P] Measure per‑step latency on a sample trial and assert it is below 300 ms.  
+  - **Verification**: `tests/unit/test_latency_threshold.py`.  
+
+- [ ] T056‑verify‑trial‑log‑schema [P] Validate that each line in `trial_logs.jsonl` conforms to `contracts/trial_log.schema.yaml`.  
+  - **Verification**: `tests/unit/test_trial_log_schema.py`.  
+
+- [ ] T057‑verify‑analysis‑report‑effect‑sizes [P] Ensure `analysis_report.md` includes both Cohen’s h and Cohen’s d values.  
+  - **Verification**: `tests/unit/test_report_effect_sizes_present.py`.  

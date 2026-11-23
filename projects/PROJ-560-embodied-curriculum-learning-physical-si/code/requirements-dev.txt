@@ -1,7 +1,6 @@
-# Development and Tooling Dependencies
-# Added for T003: Linting and Formatting tools
-ruff>=0.1.0
-black>=23.0.0
-mypy>=1.0.0
-pytest>=7.0.0
-pytest-cov>=4.0.0
+# Development dependencies for PROJ-560
+# Generated for task T003: Linting and Formatting configuration
+
+ruff==0.4.8
+black==24.4.2
+pre-commit==3.7.1

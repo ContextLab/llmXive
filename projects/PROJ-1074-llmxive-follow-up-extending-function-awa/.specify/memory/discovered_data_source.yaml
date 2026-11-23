@@ -1,0 +1,11 @@
+status: none
+intent: download GSM8K and LogiQA datasets from HuggingFace python package dataset
+required_fields:
+- id
+- question
+- answer
+- solution
+- options
+cache_key: 8ca9f968dd074d6b815d1488f7a2a1c48bfb72bbf00a88d85abb4acbc0ba18d5
+searched_at: '2026-09-06T16:20:39.261825+00:00'
+retry_count: 1

@@ -1,247 +1,105 @@
-"""
-EEG Helper Utilities for Preprocessing Pipeline.
-
-This module provides core signal processing functions for EEG data:
-- Band-pass filtering (Butterworth)
-- Notch filtering (for line noise)
-- Channel rejection based on variance thresholds
-- ICA-based artifact removal
-"""
-import numpy as np
 import mne
-from typing import List, Tuple, Optional, Dict
+import numpy as np
 
-def bandpass_filter(
-    raw: mne.io.Raw,
-    l_freq: float,
-    h_freq: float,
-    filter_length: str = 'auto',
-    l_trans_bandwidth: float = 'auto',
-    h_trans_bandwidth: float = 'auto',
-    n_jobs: int = 1,
-    copy: bool = True
-) -> mne.io.Raw:
+def bandpass_filter(raw, l_freq, h_freq):
     """
-    Apply a band-pass filter to the raw EEG data.
-
-    Parameters
-    ----------
-    raw : mne.io.Raw
-        The raw EEG data object.
-    l_freq : float
-        The lower cutoff frequency in Hz.
-    h_freq : float
-        The upper cutoff frequency in Hz.
-    filter_length : str, optional
-        The length of the filter kernel. Default is 'auto'.
-    l_trans_bandwidth : float or str, optional
-        The transition bandwidth for the low cutoff. Default is 'auto'.
-    h_trans_bandwidth : float or str, optional
-        The transition bandwidth for the high cutoff. Default is 'auto'.
-    n_jobs : int, optional
-        Number of jobs to run in parallel. Default is 1.
-    copy : bool, optional
-        If True, return a copy of the data. Default is True.
-
-    Returns
-    -------
-    mne.io.Raw
-        The filtered raw EEG data object.
+    Apply a bandpass filter to the raw data.
     """
-    if copy:
-        raw = raw.copy()
+    # Use MNE's built-in filter
+    # Note: MNE filters are applied in-place on the copy
+    raw_filtered = raw.copy()
+    raw_filtered.filter(l_freq=l_freq, h_freq=h_freq, method='fir', fir_design='firwin')
+    return raw_filtered
 
-    raw.filter(
-        l_freq=l_freq,
-        h_freq=h_freq,
-        filter_length=filter_length,
-        l_trans_bandwidth=l_trans_bandwidth,
-        h_trans_bandwidth=h_trans_bandwidth,
-        n_jobs=n_jobs,
-        method='fft',  # Using FFT method for efficiency on continuous data
-        verbose=False
-    )
-    return raw
-
-
-def notch_filter(
-    raw: mne.io.Raw,
-    freqs: List[float],
-    q: float = 30.0,
-    method: str = 'savgol',
-    copy: bool = True
-) -> mne.io.Raw:
+def notch_filter(raw, freq):
     """
     Apply a notch filter to remove line noise.
-
-    Parameters
-    ----------
-    raw : mne.io.Raw
-        The raw EEG data object.
-    freqs : list of float
-        The frequencies to notch out (e.g., [50, 100] or [60, 120]).
-    q : float, optional
-        Quality factor for the notch filter. Default is 30.0.
-    method : str, optional
-        The method to use for filtering. Options are 'savgol' or 'iir'. Default is 'savgol'.
-    copy : bool, optional
-        If True, return a copy of the data. Default is True.
-
-    Returns
-    -------
-    mne.io.Raw
-        The notched raw EEG data object.
     """
-    if copy:
-        raw = raw.copy()
+    raw_filtered = raw.copy()
+    raw_filtered.notch_filter(freqs=freq, method='fir', fir_design='firwin')
+    return raw_filtered
 
-    raw.notch_filter(
-        freqs=freqs,
-        q=q,
-        method=method,
-        verbose=False
-    )
-    return raw
-
-
-def reject_channels_by_variance(
-    raw: mne.io.Raw,
-    threshold: float = 3.0,
-    channel_names: Optional[List[str]] = None
-) -> Tuple[mne.io.Raw, List[str], Dict[str, float]]:
+def reject_high_variance_channels(raw, threshold_sd=3.0):
     """
-    Reject channels that have variance exceeding a threshold (in standard deviations).
-
-    Parameters
-    ----------
-    raw : mne.io.Raw
-        The raw EEG data object.
-    threshold : float, optional
-        The number of standard deviations above the mean variance to reject. Default is 3.0.
-    channel_names : list of str, optional
-        Specific channel names to evaluate. If None, all EEG channels are evaluated.
-
-    Returns
-    -------
-    tuple
-        A tuple containing:
-        - mne.io.Raw: The raw data with rejected channels dropped.
-        - list of str: The names of the rejected channels.
-        - dict: A mapping of channel names to their calculated variance (for logging).
+    Reject channels with variance > threshold_sd * std of channel variances.
+    Returns a list of rejected channel names.
     """
-    # Ensure we are working with a copy to avoid modifying the original if not intended
-    # Note: This function drops channels, so it returns a new object
+    raw.load_data()
     data = raw.get_data()
-    sfreq = raw.info['sfreq']
-    ch_names = raw.ch_names
+    channel_names = raw.ch_names
 
-    if channel_names is None:
-        # Filter for EEG channels only if mixed montage exists
-        eeg_indices = mne.pick_types(raw.info, eeg=True)
-        channel_names_to_check = [ch_names[i] for i in eeg_indices]
-        data_subset = data[eeg_indices, :]
-    else:
-        channel_names_to_check = channel_names
-        # Pick indices corresponding to provided names
-        indices = [ch_names.index(name) for name in channel_names_to_check]
-        data_subset = data[indices, :]
+    channel_variances = np.var(data, axis=1)
+    mean_var = np.mean(channel_variances)
+    std_var = np.std(channel_variances)
 
-    # Calculate variance for each channel
-    variances = np.var(data_subset, axis=1)
-    mean_var = np.mean(variances)
-    std_var = np.std(variances)
+    rejected_mask = channel_variances > (mean_var + threshold_sd * std_var)
+    rejected_channels = [ch for ch, rej in zip(channel_names, rejected_mask) if rej]
 
-    if std_var == 0:
-        # If no variance in variance (unlikely), reject none
-        rejected = []
-    else:
-        # Identify channels exceeding threshold
-        # We use the global mean and std of the variances
-        z_scores = (variances - mean_var) / std_var
-        bad_indices = np.where(z_scores > threshold)[0]
-        rejected = [channel_names_to_check[i] for i in bad_indices]
+    return rejected_channels
 
-    # Drop the bad channels
-    if rejected:
-        raw_dropped = raw.copy().drop_channels(rejected)
-    else:
-        raw_dropped = raw.copy()
-
-    # Create a dict of variances for logging purposes (only for checked channels)
-    var_log = {
-        name: float(variances[i])
-        for i, name in enumerate(channel_names_to_check)
-    }
-
-    return raw_dropped, rejected, var_log
-
-
-def apply_ica(
-    raw: mne.io.Raw,
-    method: str = 'fastica',
-    n_components: Optional[float] = None,
-    max_iter: int = 200,
-    random_state: int = 42,
-    ecg_epochs: Optional[mne.Epochs] = None,
-    eog_epochs: Optional[mne.Epochs] = None
-) -> Tuple[mne.preprocessing.ICA, List[int]]:
+def reject_channels_by_variance(raw, threshold_sd=3.0):
     """
-    Apply Independent Component Analysis (ICA) to identify and remove artifacts.
+    Reject channels whose variance exceeds ``threshold_sd`` standard deviations
+    above the mean variance across channels.
 
-    This function fits ICA to the data and returns the ICA object and a list
-    of component indices to exclude (typically identified via EOG/ECG correlation).
-    Note: This function does NOT automatically exclude components; it prepares
-    the ICA object and returns the indices of components that correlate with
-    EOG/ECG if epochs are provided.
+    Returns
+    -------
+    rejected_channels : list[str]
+        Names of channels that are marked as bad.
+    rejection_ratio : float
+        Fraction of total channels that were rejected (0‑1).
+    """
+    raw.load_data()
+    data = raw.get_data()
+    channel_names = raw.ch_names
+
+    channel_variances = np.var(data, axis=1)
+    mean_var = np.mean(channel_variances)
+    std_var = np.std(channel_variances)
+
+    rejected_mask = channel_variances > (mean_var + threshold_sd * std_var)
+    rejected_channels = [ch for ch, rej in zip(channel_names, rejected_mask) if rej]
+    rejection_ratio = len(rejected_channels) / len(channel_names) if channel_names else 0.0
+
+    return rejected_channels, rejection_ratio
+
+def apply_ica(raw, n_components=None):
+    """
+    Perform ICA cleaning on the raw EEG data.
 
     Parameters
     ----------
     raw : mne.io.Raw
-        The raw EEG data object (should be filtered and cleaned before ICA).
-    method : str, optional
-        The ICA algorithm to use. Options: 'fastica', 'infomax'. Default is 'fastica'.
-    n_components : float or int, optional
-        Number of components to keep. If float, it's a fraction of channels. Default is None (all).
-    max_iter : int, optional
-        Maximum number of iterations for ICA. Default is 200.
-    random_state : int, optional
-        Random seed for reproducibility. Default is 42.
-    ecg_epochs : mne.Epochs, optional
-        ECG epochs for identifying cardiac artifacts.
-    eog_epochs : mne.Epochs, optional
-        EOG epochs for identifying ocular artifacts.
+        The raw EEG object to be cleaned.
+    n_components : int | None
+        Number of ICA components to compute. If ``None`` MNE will choose a
+        suitable number based on the data dimensionality.
 
     Returns
     -------
-    tuple
-        A tuple containing:
-        - mne.preprocessing.ICA: The fitted ICA object.
-        - list of int: Indices of components identified as artifacts (if EOG/ECG epochs provided).
+    cleaned_raw : mne.io.Raw
+        The ICA‑cleaned raw data.
+    info : dict
+        Dictionary with metadata about the ICA step (currently only
+        ``n_components`` is stored).
     """
+    # Work on a copy to avoid mutating the original object outside this function
+    cleaned_raw = raw.copy()
+
+    # Initialise ICA
     ica = mne.preprocessing.ICA(
-        method=method,
         n_components=n_components,
-        max_iter=max_iter,
-        random_state=random_state,
-        verbose=False
+        random_state=42,
+        max_iter='auto',
+        method='fastica'
     )
+    # Fit ICA on the copy
+    ica.fit(cleaned_raw)
 
-    # Fit ICA on the raw data
-    ica.fit(raw)
+    # Apply the ICA solution (removes the identified artifact components)
+    ica.apply(cleaned_raw)
 
-    excluded_components = []
-
-    if eog_epochs is not None:
-        # Find EOG-related components
-        eog_indices, eog_scores = ica.find_bads_eog(eog_epochs)
-        excluded_components.extend(eog_indices)
-
-    if ecg_epochs is not None:
-        # Find ECG-related components
-        ecg_indices, ecg_scores = ica.find_bads_ecg(ecg_epochs)
-        excluded_components.extend(ecg_indices)
-
-    # Remove duplicates and sort
-    excluded_components = sorted(list(set(excluded_components)))
-
-    return ica, excluded_components
+    info = {
+        'n_components': n_components if n_components is not None else ica.n_components_
+    }
+    return cleaned_raw, info

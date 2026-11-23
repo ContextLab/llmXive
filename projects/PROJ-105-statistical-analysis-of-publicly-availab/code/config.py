@@ -9,27 +9,58 @@ It must be estimated dynamically via KS minimization at runtime.
 """
 
 import os
-from typing import Final
+import re
+from typing import Final, Optional
 
 # Random Seed for reproducibility
 RANDOM_SEED: Final[int] = 42
 
 # BTS Data Source
-# Canonical endpoint for Bureau of Transportation Statistics (BTS) On-Time Performance data.
-# This URL points to the public FTP/HTTP archive for the specific year.
-BTS_URL: Final[str] = (
-    "https://transtats.bts.gov/PreProcessed_Data/On_Time_Reporting_Carrier_On_Time_Performance_1987_present.json"
-)
-# Alternative direct CSV download pattern for specific year if JSON is not preferred,
-# but the task implies a canonical endpoint. We will use a standard HTTP fetchable URL.
-# Note: In production, this might need to be updated to the specific CSV generation endpoint
-# or a local cache path if the direct API changes.
-# For the purpose of this implementation, we define the base URL pattern.
+# Canonical endpoint pattern for Bureau of Transportation Statistics (BTS) On-Time Performance data.
+# The actual CSV files are named by year (e.g., On_Time_Data_2023.csv).
+# We define the base URL and a helper to construct the year-specific URL.
 BTS_BASE_URL: Final[str] = "https://transtats.bts.gov/PreProcessed_Data"
+
+# Validation regex for the expected filename pattern
+BTS_FILENAME_PATTERN: Final[str] = r"On_Time_Data_\d{4}\.csv"
+
+def get_bts_url(year: Optional[int] = None) -> str:
+    """
+    Construct the full URL for the BTS On-Time Performance CSV for a specific year.
+
+    Args:
+        year: The target year. If None, uses TARGET_YEAR.
+
+    Returns:
+        The full URL string.
+
+    Raises:
+        ValueError: If the year is invalid (not 4 digits or out of reasonable range).
+    """
+    target = year if year is not None else TARGET_YEAR
+
+    # Validate year
+    if not isinstance(target, int) or target < 1987 or target > 2030:
+        raise ValueError(f"Invalid target year: {target}. Must be between 1987 and 2030.")
+
+    filename = f"On_Time_Data_{target}.csv"
+    
+    # Validate filename pattern (defensive)
+    if not re.match(BTS_FILENAME_PATTERN, filename):
+        raise ValueError(f"Generated filename '{filename}' does not match expected pattern.")
+
+    return f"{BTS_BASE_URL}/{filename}"
 
 # Target Year for analysis (default to current year - 1, or a fixed historical year for testing)
 # This can be overridden by environment variable BTS_TARGET_YEAR
-TARGET_YEAR: Final[int] = int(os.getenv("BTS_TARGET_YEAR", "2023"))
+# Validation is performed in get_bts_url, but we ensure the default is reasonable here.
+_default_year = int(os.getenv("BTS_TARGET_YEAR", "2023"))
+if _default_year < 1987 or _default_year > 2030:
+    # Fallback if env var is garbage, though get_bts_url will catch it later.
+    # For config purity, we just store the raw env value or default, 
+    # relying on the getter for strict validation.
+    pass
+TARGET_YEAR: Final[int] = _default_year
 
 # Memory Limit
 # Maximum RAM allowed for processing in Gigabytes.

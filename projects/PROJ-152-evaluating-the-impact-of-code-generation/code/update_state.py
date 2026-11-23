@@ -1,97 +1,135 @@
 """
-update_state.py
+update_state.py - Manages state.yaml and artifact hashing per Constitution Principle V.
 
-Manages the project's state.yaml file and artifact hashing.
-Implements Constitution Principle V: Reproducibility via artifact checksums.
-
-This module provides utilities to:
-1. Calculate SHA-256 hashes for files.
-2. Update the `state.yaml` file with current artifact hashes and timestamps.
-3. Verify the integrity of previously recorded artifacts.
+This module provides utilities to track the state of project artifacts,
+compute their hashes, and maintain a persistent state file.
 """
 
 import hashlib
 import os
 import sys
+import json
+import yaml
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
-import yaml
+import config
 
-# Import path constants from config
-try:
-    from config import PROJECT_ROOT, STATE_FILE
-except ImportError:
-    # Fallback for standalone execution or if config is not yet fully linked
-    # This block ensures the script can be run directly for testing
-    _project_root = Path(__file__).resolve().parent.parent
-    PROJECT_ROOT = _project_root
-    STATE_FILE = PROJECT_ROOT / "state.yaml"
+# Constants
+STATE_FILE_PATH = Path(config.PROJECT_ROOT) / "state.yaml"
+EXCLUDE_PATTERNS = {
+    "__pycache__",
+    "*.pyc",
+    "*.pyo",
+    ".git",
+    ".pytest_cache",
+    "*.log",
+    "venv",
+    ".venv",
+    "node_modules",
+}
 
 
-def calculate_file_hash(file_path: Path) -> str:
+def calculate_file_hash(file_path: Path, algorithm: str = "sha256") -> str:
     """
-    Calculate the SHA-256 hash of a file.
+    Calculate the hash of a file's contents.
 
     Args:
         file_path: Path to the file to hash.
+        algorithm: Hash algorithm to use (default: sha256).
 
     Returns:
-        Hexadecimal string of the SHA-256 hash.
+        Hexadecimal hash string.
 
     Raises:
         FileNotFoundError: If the file does not exist.
-        PermissionError: If the file cannot be read.
+        IOError: If the file cannot be read.
     """
     if not file_path.exists():
         raise FileNotFoundError(f"File not found: {file_path}")
 
-    sha256_hash = hashlib.sha256()
-    try:
-        with open(file_path, "rb") as f:
-            for byte_block in iter(lambda: f.read(4096), b""):
-                sha256_hash.update(byte_block)
-        return sha256_hash.hexdigest()
-    except PermissionError as e:
-        raise PermissionError(f"Permission denied reading file: {file_path}") from e
+    hasher = hashlib.new(algorithm)
+    with open(file_path, "rb") as f:
+        # Read in chunks to handle large files
+        for chunk in iter(lambda: f.read(8192), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest()
+
+
+def calculate_directory_hash(dir_path: Path, algorithm: str = "sha256") -> str:
+    """
+    Calculate a deterministic hash for a directory's contents.
+
+    The hash is computed by sorting all files by relative path and
+    concatenating their individual hashes.
+
+    Args:
+        dir_path: Path to the directory to hash.
+        algorithm: Hash algorithm to use (default: sha256).
+
+    Returns:
+        Hexadecimal hash string representing the directory state.
+    """
+    if not dir_path.exists():
+        raise FileNotFoundError(f"Directory not found: {dir_path}")
+
+    hasher = hashlib.new(algorithm)
+    files = []
+
+    for root, dirs, filenames in os.walk(dir_path):
+        # Filter out excluded directories
+        dirs[:] = [d for d in dirs if d not in EXCLUDE_PATTERNS]
+
+        for filename in filenames:
+            # Skip excluded file patterns
+            if any(filename.endswith(ext) for ext in EXCLUDE_PATTERNS):
+                continue
+
+            file_path = Path(root) / filename
+            if file_path.is_file():
+                files.append((str(file_path.relative_to(dir_path)), file_path))
+
+    # Sort by relative path for determinism
+    files.sort(key=lambda x: x[0])
+
+    for rel_path, file_path in files:
+        # Include relative path in the hash
+        hasher.update(rel_path.encode("utf-8"))
+        hasher.update(b":")
+        try:
+            file_hash = calculate_file_hash(file_path, algorithm)
+            hasher.update(file_hash.encode("utf-8"))
+            hasher.update(b"\n")
+        except (FileNotFoundError, IOError) as e:
+            # Log but continue with other files
+            print(f"Warning: Could not hash {file_path}: {e}", file=sys.stderr)
+
+    return hasher.hexdigest()
 
 
 def load_state() -> Dict[str, Any]:
     """
     Load the current state from state.yaml.
-    If the file does not exist, returns an empty state structure.
 
     Returns:
-        Dictionary containing the current state.
+        Dictionary containing the state data, or an empty dict if file doesn't exist.
     """
-    if not STATE_FILE.exists():
+    if not STATE_FILE_PATH.exists():
         return {
-            "project": "PROJ-152-evaluating-the-impact-of-code-generation",
-            "version": "1.0.0",
-            "last_updated": None,
-            "artifacts": {}
+            "version": "1.0",
+            "updated_at": None,
+            "artifacts": {},
+            "directories": {},
         }
 
     try:
-        with open(STATE_FILE, "r", encoding="utf-8") as f:
+        with open(STATE_FILE_PATH, "r", encoding="utf-8") as f:
             state = yaml.safe_load(f)
-            if state is None:
-                return {
-                    "project": "PROJ-152-evaluating-the-impact-of-code-generation",
-                    "version": "1.0.0",
-                    "last_updated": None,
-                    "artifacts": {}
-                }
-            return state
+            return state if state else {}
     except yaml.YAMLError as e:
         print(f"Error parsing state.yaml: {e}", file=sys.stderr)
-        return {
-            "project": "PROJ-152-evaluating-the-impact-of-code-generation",
-            "version": "1.0.0",
-            "last_updated": None,
-            "artifacts": {}
-        }
+        return {}
 
 
 def save_state(state: Dict[str, Any]) -> None:
@@ -101,171 +139,262 @@ def save_state(state: Dict[str, Any]) -> None:
     Args:
         state: The state dictionary to save.
     """
-    # Ensure parent directory exists
-    STATE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    # Ensure state has required structure
+    if "version" not in state:
+        state["version"] = "1.0"
+    if "updated_at" not in state:
+        state["updated_at"] = datetime.now(timezone.utc).isoformat()
+    if "artifacts" not in state:
+        state["artifacts"] = {}
+    if "directories" not in state:
+        state["directories"] = {}
 
-    with open(STATE_FILE, "w", encoding="utf-8") as f:
-        yaml.dump(state, f, default_flow_style=False, sort_keys=False, allow_unicode=True)
+    # Update timestamp
+    state["updated_at"] = datetime.now(timezone.utc).isoformat()
+
+    # Write to file with proper formatting
+    with open(STATE_FILE_PATH, "w", encoding="utf-8") as f:
+        yaml.dump(state, f, default_flow_style=False, sort_keys=True, allow_unicode=True)
 
 
 def update_artifact_state(
-    artifact_path: Path,
-    relative_to: Optional[Path] = None,
-    description: Optional[str] = None
+    artifact_path: Path, state: Optional[Dict[str, Any]] = None
 ) -> Dict[str, Any]:
     """
-    Calculate hash for a single artifact and update the state.
+    Update the state entry for a specific artifact file.
 
     Args:
-        artifact_path: Absolute path to the artifact.
-        relative_to: Base path for the relative key in state.yaml (defaults to PROJECT_ROOT).
-        description: Optional description of the artifact.
+        artifact_path: Path to the artifact file.
+        state: Optional existing state dict (if None, loads from disk).
 
     Returns:
-        The updated artifact entry dictionary.
+        Updated state dictionary.
     """
-    if relative_to is None:
-        relative_to = PROJECT_ROOT
-
-    if not artifact_path.is_absolute():
-        artifact_path = PROJECT_ROOT / artifact_path
+    if state is None:
+        state = load_state()
 
     if not artifact_path.exists():
-        raise FileNotFoundError(f"Artifact not found during state update: {artifact_path}")
+        raise FileNotFoundError(f"Artifact not found: {artifact_path}")
 
+    relative_path = str(artifact_path.relative_to(config.PROJECT_ROOT))
     file_hash = calculate_file_hash(artifact_path)
-    relative_path = str(artifact_path.relative_to(relative_to))
 
-    state = load_state()
     state["artifacts"][relative_path] = {
         "hash": file_hash,
         "size_bytes": artifact_path.stat().st_size,
-        "description": description or "Auto-tracked artifact",
-        "updated_at": datetime.now(timezone.utc).isoformat()
+        "updated_at": datetime.now(timezone.utc).isoformat(),
     }
-    
-    state["last_updated"] = datetime.now(timezone.utc).isoformat()
-    save_state(state)
 
-    return state["artifacts"][relative_path]
+    return state
 
 
 def update_state_for_directory(
-    directory_path: Path,
-    extensions: Optional[List[str]] = None,
-    relative_to: Optional[Path] = None
-) -> int:
+    dir_path: Path, state: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
     """
-    Recursively hash all files in a directory and update state.
+    Update the state entry for a directory's contents.
 
     Args:
-        directory_path: Path to the directory to scan.
-        extensions: List of file extensions to include (e.g., ['.py', '.csv']). 
-                    If None, all files are included.
-        relative_to: Base path for relative keys.
+        dir_path: Path to the directory.
+        state: Optional existing state dict (if None, loads from disk).
 
     Returns:
-        Number of files processed.
+        Updated state dictionary.
     """
-    if relative_to is None:
-        relative_to = PROJECT_ROOT
+    if state is None:
+        state = load_state()
 
-    if not directory_path.exists():
-        raise FileNotFoundError(f"Directory not found: {directory_path}")
+    if not dir_path.exists():
+        raise FileNotFoundError(f"Directory not found: {dir_path}")
 
-    count = 0
-    for file_path in directory_path.rglob("*"):
-        if file_path.is_file():
-            if extensions is None or file_path.suffix in extensions:
-                try:
-                    update_artifact_state(file_path, relative_to)
-                    count += 1
-                except (FileNotFoundError, PermissionError) as e:
-                    print(f"Skipping {file_path}: {e}", file=sys.stderr)
-    return count
+    relative_path = str(dir_path.relative_to(config.PROJECT_ROOT))
+    dir_hash = calculate_directory_hash(dir_path)
+
+    # Count files
+    file_count = sum(
+        1
+        for _ in dir_path.rglob("*")
+        if _.is_file()
+        and _.parts[-1] not in EXCLUDE_PATTERNS
+        and not any(_.parts[-1].endswith(ext) for ext in EXCLUDE_PATTERNS)
+    )
+
+    state["directories"][relative_path] = {
+        "hash": dir_hash,
+        "file_count": file_count,
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+
+    return state
 
 
-def verify_artifacts() -> bool:
+def verify_artifacts(
+    artifacts: Optional[List[str]] = None, state: Optional[Dict[str, Any]] = None
+) -> Dict[str, Any]:
     """
-    Verify that all artifacts recorded in state.yaml match their current hashes.
+    Verify that tracked artifacts match their recorded hashes.
+
+    Args:
+        artifacts: Optional list of artifact paths to verify (relative to project root).
+                   If None, verifies all tracked artifacts.
+        state: Optional existing state dict (if None, loads from disk).
 
     Returns:
-        True if all artifacts match, False otherwise.
+        Dictionary with verification results:
+        {
+            "verified": List of successfully verified paths,
+            "failed": List of paths with hash mismatches or missing files,
+            "missing": List of paths recorded in state but not on disk,
+            "unchanged": List of paths matching their recorded hash
+        }
     """
-    state = load_state()
-    all_valid = True
+    if state is None:
+        state = load_state()
 
-    for relative_path, metadata in state.get("artifacts", {}).items():
-        full_path = PROJECT_ROOT / relative_path
-        if not full_path.exists():
-            print(f"MISSING: {relative_path}", file=sys.stderr)
-            all_valid = False
+    tracked = state.get("artifacts", {})
+
+    if artifacts is None:
+        artifacts_to_verify = list(tracked.keys())
+    else:
+        artifacts_to_verify = artifacts
+
+    results = {
+        "verified": [],
+        "failed": [],
+        "missing": [],
+        "unchanged": [],
+    }
+
+    for artifact_path_str in artifacts_to_verify:
+        artifact_path = config.PROJECT_ROOT / artifact_path_str
+
+        if not artifact_path.exists():
+            results["missing"].append(artifact_path_str)
+            results["failed"].append(artifact_path_str)
             continue
 
-        current_hash = calculate_file_hash(full_path)
-        if current_hash != metadata.get("hash"):
-            print(f"MISMATCH: {relative_path} (Expected: {metadata.get('hash')}, Got: {current_hash})", file=sys.stderr)
-            all_valid = False
-        else:
-            print(f"OK: {relative_path}")
+        try:
+            current_hash = calculate_file_hash(artifact_path)
+            recorded_hash = tracked.get(artifact_path_str, {}).get("hash")
 
-    return all_valid
+            if recorded_hash is None:
+                # Not tracked or missing hash entry
+                results["failed"].append(artifact_path_str)
+            elif current_hash == recorded_hash:
+                results["verified"].append(artifact_path_str)
+                results["unchanged"].append(artifact_path_str)
+            else:
+                results["failed"].append(artifact_path_str)
+        except Exception as e:
+            print(f"Error verifying {artifact_path_str}: {e}", file=sys.stderr)
+            results["failed"].append(artifact_path_str)
+
+    return results
 
 
-def main():
+def main() -> int:
     """
-    CLI entry point for state management.
+    CLI entry point for state management operations.
+
     Usage:
-      python code/update_state.py update [path]  -> Update state for specific path or all code/data
-      python code/update_state.py verify         -> Verify all recorded artifacts
-      python code/update_state.py show           -> Display current state
+        python code/update_state.py [command] [args...]
+
+    Commands:
+        init              - Initialize state.yaml with current artifacts
+        update [path]     - Update state for specific artifact or directory
+        verify [paths...] - Verify artifacts against recorded hashes
+        status            - Show current state summary
+
+    Returns:
+        Exit code (0 for success, 1 for error).
     """
     if len(sys.argv) < 2:
-        print("Usage: python code/update_state.py <command> [args]")
-        print("Commands: update, verify, show")
-        sys.exit(1)
+        print("Usage: python code/update_state.py <command> [args...]")
+        print("Commands: init, update, verify, status")
+        return 1
 
     command = sys.argv[1].lower()
 
-    if command == "update":
-        target = sys.argv[2] if len(sys.argv) > 2 else None
-        if target:
-            target_path = PROJECT_ROOT / target
+    try:
+        if command == "init":
+            state = {"artifacts": {}, "directories": {}}
+            # Scan code/, data/, tests/
+            for scan_dir in ["code", "data", "tests"]:
+                dir_path = config.PROJECT_ROOT / scan_dir
+                if dir_path.exists():
+                    state = update_state_for_directory(dir_path, state)
+            save_state(state)
+            print(f"Initialized state.yaml with {len(state['artifacts'])} artifacts")
+
+        elif command == "update":
+            if len(sys.argv) < 3:
+                print("Error: update requires a path argument")
+                return 1
+
+            target_path = config.PROJECT_ROOT / sys.argv[2]
+            state = load_state()
+
             if target_path.is_file():
-                update_artifact_state(target_path)
-                print(f"Updated state for: {target}")
+                state = update_artifact_state(target_path, state)
+                print(f"Updated artifact: {target_path}")
             elif target_path.is_dir():
-                count = update_state_for_directory(target_path)
-                print(f"Updated state for {count} files in: {target}")
+                state = update_state_for_directory(target_path, state)
+                print(f"Updated directory: {target_path}")
             else:
-                print(f"Path not found: {target}")
-                sys.exit(1)
+                print(f"Error: Path not found: {target_path}")
+                return 1
+
+            save_state(state)
+
+        elif command == "verify":
+            state = load_state()
+            artifacts = sys.argv[2:] if len(sys.argv) > 2 else None
+            results = verify_artifacts(artifacts, state)
+
+            print(f"Verification Results:")
+            print(f"  Verified: {len(results['verified'])}")
+            print(f"  Unchanged: {len(results['unchanged'])}")
+            print(f"  Failed: {len(results['failed'])}")
+            print(f"  Missing: {len(results['missing'])}")
+
+            if results["failed"]:
+                print("\nFailed artifacts:")
+                for path in results["failed"]:
+                    print(f"  - {path}")
+
+            if results["missing"]:
+                print("\nMissing artifacts:")
+                for path in results["missing"]:
+                    print(f"  - {path}")
+
+            return 0 if not results["failed"] and not results["missing"] else 1
+
+        elif command == "status":
+            state = load_state()
+            print(f"State File: {STATE_FILE_PATH}")
+            print(f"Version: {state.get('version', 'unknown')}")
+            print(f"Updated At: {state.get('updated_at', 'never')}")
+            print(f"Tracked Artifacts: {len(state.get('artifacts', {}))}")
+            print(f"Tracked Directories: {len(state.get('directories', {}))}")
+
+            # Show recent changes
+            artifacts = state.get("artifacts", {})
+            if artifacts:
+                print("\nRecent artifacts:")
+                for path, info in list(artifacts.items())[:5]:
+                    print(f"  - {path} ({info.get('size_bytes', 0)} bytes)")
+
         else:
-            # Default: update code, data, and figures directories if they exist
-            dirs_to_scan = ["code", "data", "figures"]
-            total = 0
-            for d in dirs_to_scan:
-                p = PROJECT_ROOT / d
-                if p.exists():
-                    count = update_state_for_directory(p)
-                    total += count
-            print(f"Updated state for {total} files in default directories.")
+            print(f"Unknown command: {command}")
+            print("Commands: init, update, verify, status")
+            return 1
 
-    elif command == "verify":
-        if verify_artifacts():
-            print("All artifacts verified successfully.")
-        else:
-            print("Verification failed. Check logs above.")
-            sys.exit(1)
+    except Exception as e:
+        print(f"Error: {e}", file=sys.stderr)
+        return 1
 
-    elif command == "show":
-        state = load_state()
-        print(yaml.dump(state, default_flow_style=False))
-
-    else:
-        print(f"Unknown command: {command}")
-        sys.exit(1)
+    return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

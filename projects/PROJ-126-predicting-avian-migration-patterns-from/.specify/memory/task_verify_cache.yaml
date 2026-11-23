@@ -1,0 +1,8 @@
+T001:
+  c: true
+  h: 2d658ba3303c4836bbcb544b44e3179bcd1fcab36beeea0a48087f25d97a626a
+  r: "Checked `code/config.py` (5009\u202Fbytes) \u2013 it defines deterministic seeds,\
+    \ directory path constants, a full\u2011continent bounding box (`FULL_CONTINENT_BBOX`),\
+    \ XGBoost default parameters (`XGB_PARAMS`), and other analysis settings, and\
+    \ imports without error."
+  sig: 593cca578752919eb02a06caf4d35a385953eb48bb85dc1b72268e3ff1722e7e

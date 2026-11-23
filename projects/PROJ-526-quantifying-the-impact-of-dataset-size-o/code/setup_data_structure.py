@@ -1,66 +1,47 @@
-"""
-Task T004: Create `data/` directory structure (`raw/`, `processed`) and `state/` for checksums.
-
-This script creates the necessary directory hierarchy for the project's data
-and state management as defined in the project plan.
-
-It relies on `code/setup_directories.py` for the core creation logic.
-"""
 import os
 from pathlib import Path
 from setup_directories import create_directories
 
-def main():
+def main() -> None:
     """
-    Creates the required directory structure for data and state.
-    
-    Directories created (relative to project root):
-    - data/raw/
-    - data/processed/
-    - state/
+    Entry point for creating the full project directory structure.
+    Calls setup_directories to create root and subdirectories (T001a & T001b).
     """
-    # Define the base paths relative to the project root
-    # Assuming this script runs from the project root or code/ directory
-    # We use a relative path strategy that works from the repo root.
+    project_root = Path.cwd()
     
-    # If running from code/, we need to go up one level to reach the project root
-    # However, the task description implies standard paths from root.
-    # Let's assume the script is invoked from the root or handles paths relative to itself.
-    
-    # Strategy: Determine project root (parent of 'code' folder)
-    current_file = Path(__file__).resolve()
-    code_dir = current_file.parent
-    project_root = code_dir.parent
-    
-    # Define relative paths to create
-    relative_paths = [
-        "data/raw",
-        "data/processed",
-        "state"
+    # Root directories (T001a)
+    root_dirs = [
+        "projects/PROJ-526-quantifying-the-impact-of-dataset-size-o",
+        "code",
+        "data",
+        "tests",
+        "state",
+        "docs"
     ]
     
-    created_paths = []
-    for rel_path in relative_paths:
-        full_path = project_root / rel_path
-        if not full_path.exists():
-            full_path.mkdir(parents=True, exist_ok=True)
-            created_paths.append(str(full_path))
-            print(f"Created directory: {full_path}")
-        else:
-            print(f"Directory already exists: {full_path}")
+    # Subdirectories (T001b)
+    sub_dirs = [
+        "data/raw",
+        "data/processed",
+        "tests/contract",
+        "tests/unit",
+        "tests/integration"
+    ]
+    
+    print(f"Creating full directory structure in: {project_root}")
+    create_directories(project_root, root_dirs)
+    create_directories(project_root, sub_dirs)
     
     # Verify creation
-    missing = []
-    for rel_path in relative_paths:
-        full_path = project_root / rel_path
-        if not full_path.exists():
-            missing.append(str(full_path))
-    
-    if missing:
-        raise RuntimeError(f"Failed to create directories: {missing}")
-    
-    print("Directory structure setup complete.")
-    return True
+    all_dirs = root_dirs + sub_dirs
+    for d in all_dirs:
+        if (project_root / d).exists():
+            print(f"  [OK] {d}")
+        else:
+            print(f"  [FAIL] {d}")
+            raise RuntimeError(f"Failed to create directory: {d}")
+
+    print("Full directory structure created successfully.")
 
 if __name__ == "__main__":
     main()

@@ -1,3 +1,10 @@
-T007 Create base data models and schema validation in `code/models/` (CityBoundary, RasterCovariate, TemperatureRaster): 2
-T008 Configure environment variable management (`.env` support) for API keys (Overpass/AWS): 2
-T009 [P] [US1] Unit test for Overpass API query construction in `tests/unit/test_ingest.py`: 2
+T015: 2
+T021: 1
+T032: 1
+T033: 1
+T035: 1
+T037: 2
+T038b: 2
+T039: 2
+T041: 2
+T042: 2

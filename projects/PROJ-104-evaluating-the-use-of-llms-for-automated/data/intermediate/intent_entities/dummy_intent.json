@@ -1,0 +1,10 @@
+{
+  "sample_id": "dummy_hash",
+  "type": "intent",
+  "entities": [
+    {
+      "entity": "example_intent",
+      "verified": false
+    }
+  ]
+}

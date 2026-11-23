@@ -1,154 +1,185 @@
-"""
-Configuration module for the llmXive AdaPlanBench extension project.
-
-Defines:
-  - PATHS: Absolute paths for data, code, and output directories.
-  - RANDOM_SEEDS: Fixed seeds for reproducibility across numpy, torch, and random.
-  - RESOURCE_LIMITS: Scaled vCPU and increased RAM limits for the execution environment.
-"""
-
 import os
 import random
+import subprocess
+import sys
+import logging
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Final
+from typing import Optional, Dict, Any
 
-# ============================================================================
-# Project Root & Directory Paths
-# ============================================================================
-# Determine project root based on the standard layout: <root>/code/config.py
-_PROJECT_ROOT: Final[Path] = Path(__file__).resolve().parent.parent
+# --- Custom Exceptions ---
+
+class DatasetBlockedException(Exception):
+    """Raised when the dataset is blocked or unavailable."""
+    pass
+
+class ResourceLimitExceeded(Exception):
+    """Raised when CPU or RAM usage exceeds configured limits."""
+    pass
+
+class PowerInsufficientError(Exception):
+    """Raised when statistical power is insufficient for the analysis."""
+    pass
+
+# --- Configuration Dataclasses ---
+
+@dataclass
+class ResourceLimits:
+    MAX_CPU_PERCENT: float = 90.0
+    MAX_RAM_GB: float = 6.5
+
+@dataclass
+class ModelConfig:
+    MODEL_NAME: str = "microsoft/phi-3-mini"
+    MAX_LENGTH: int = 2048
+    TEMPERATURE: float = 0.7
+    DEVICE: str = "cpu" # Default to CPU for safety in restricted envs
+
+@dataclass
+class DatasetConfig:
+    DATASET_ID: str = "llmXive/adaplanbench" # Placeholder ID
+    OFFICIAL_URL: str = "https://huggingface.co/datasets/llmXive/adaplanbench"
+    FILTER_MIN_CONSTRAINTS: int = 5
+
+@dataclass
+class AnalysisConfig:
+    ALPHA: float = 0.05
+    EFFECT_SIZE: float = 0.15
+    POWER_THRESHOLD: float = 0.80
+
+# --- Paths Class ---
 
 class Paths:
-    """Absolute paths for project directories."""
-
-    ROOT: Final[Path] = _PROJECT_ROOT
-    CODE: Final[Path] = ROOT / "code"
-    DATA_RAW: Final[Path] = ROOT / "data" / "raw"
-    DATA_PROCESSED: Final[Path] = ROOT / "data" / "processed"
-    DATA_FIGURES: Final[Path] = ROOT / "data" / "figures"
-    TESTS: Final[Path] = ROOT / "tests"
-    SPECS: Final[Path] = ROOT / "specs"
-    LOGS: Final[Path] = ROOT / "logs"
-
-    @classmethod
-    def ensure_exists(cls) -> None:
-        """Create all defined directories if they do not exist."""
-        for path in [
-            cls.DATA_RAW,
-            cls.DATA_PROCESSED,
-            cls.DATA_FIGURES,
-            cls.TESTS,
-            cls.SPECS,
-            cls.LOGS,
-        ]:
-            path.mkdir(parents=True, exist_ok=True)
-
-# ============================================================================
-# Random Seeds
-# ============================================================================
-# Fixed seed for reproducibility. Can be overridden via environment variable.
-_SEED_ENV = os.getenv("LLMXIVE_RANDOM_SEED")
-RANDOM_SEED: Final[int] = int(_SEED_ENV) if _SEED_ENV else 42
-
-def set_all_seeds(seed: int = RANDOM_SEED) -> None:
     """
-    Set random seeds for reproducibility across libraries.
-    Must be called before any random operations or model loading.
+    Manages project paths.
+    Provides attributes like RAW, PROCESSED, CODE, etc.
     """
+    def __init__(self, root: Optional[Path] = None):
+        if root is None:
+            # Assume current working directory is project root
+            root = Path.cwd()
+        self.ROOT = root
+        self.DATA = self.ROOT / "data"
+        self.DATA_RAW = self.DATA / "raw"
+        self.DATA_PROCESSED = self.DATA / "processed"
+        self.CODE = self.ROOT / "code"
+        self.SPECS = self.ROOT / "specs"
+        self.TESTS = self.ROOT / "tests"
+        self.FIGURES = self.DATA / "figures"
+
+    # Logger-style methods for tolerance
+    def info(self, *args, **kwargs):
+        logging.info(*args, **kwargs)
+    
+    def debug(self, *args, **kwargs):
+        logging.debug(*args, **kwargs)
+    
+    def warning(self, *args, **kwargs):
+        logging.warning(*args, **kwargs)
+    
+    def error(self, *args, **kwargs):
+        logging.error(*args, **kwargs)
+
+# --- Global State ---
+
+_paths_instance: Optional[Paths] = None
+_resource_limits_instance: Optional[ResourceLimits] = None
+_model_config_instance: Optional[ModelConfig] = None
+_dataset_config_instance: Optional[DatasetConfig] = None
+_analysis_config_instance: Optional[AnalysisConfig] = None
+
+# --- Getters ---
+
+def get_paths() -> Paths:
+    global _paths_instance
+    if _paths_instance is None:
+        _paths_instance = Paths()
+    return _paths_instance
+
+def get_resource_limits() -> ResourceLimits:
+    global _resource_limits_instance
+    if _resource_limits_instance is None:
+        _resource_limits_instance = ResourceLimits()
+    return _resource_limits_instance
+
+def get_model_config() -> ModelConfig:
+    global _model_config_instance
+    if _model_config_instance is None:
+        _model_config_instance = ModelConfig()
+    return _model_config_instance
+
+def get_dataset_config() -> DatasetConfig:
+    global _dataset_config_instance
+    if _dataset_config_instance is None:
+        _dataset_config_instance = DatasetConfig()
+    return _dataset_config_instance
+
+def get_analysis_config() -> AnalysisConfig:
+    global _analysis_config_instance
+    if _analysis_config_instance is None:
+        _analysis_config_instance = AnalysisConfig()
+    return _analysis_config_instance
+
+# --- Utility Functions ---
+
+def set_all_seeds(seed: int = 42):
+    """Set random seeds for reproducibility."""
     random.seed(seed)
-    try:
-        import numpy as np
-        np.random.seed(seed)
-    except ImportError:
-        pass  # numpy might not be installed yet during early setup
-
+    os.environ['PYTHONHASHSEED'] = str(seed)
+    # If torch is available
     try:
         import torch
         torch.manual_seed(seed)
         if torch.cuda.is_available():
             torch.cuda.manual_seed_all(seed)
-            torch.backends.cudnn.deterministic = True
-            torch.backends.cudnn.benchmark = False
     except ImportError:
-        pass  # torch might not be installed yet
+        pass
 
-# ============================================================================
-# Resource Limits
-# ============================================================================
-# Scaled vCPU and increased RAM limits for the execution environment.
-# These are soft limits used by the orchestration script (main.py) to fail fast.
-class ResourceLimits:
-    """Resource constraints for the execution environment."""
+def ensure_directories():
+    """Ensure all required directories exist."""
+    paths = get_paths()
+    dirs = [
+        paths.DATA_RAW,
+        paths.DATA_PROCESSED,
+        paths.CODE,
+        paths.SPECS,
+        paths.TESTS,
+        paths.FIGURES
+    ]
+    for d in dirs:
+        d.mkdir(parents=True, exist_ok=True)
 
-    # Scaled vCPU limit (e.g., 2 cores for parallel tasks, or 1 for strict serial)
-    MAX_VCPU: Final[int] = int(os.getenv("LLMXIVE_MAX_VCPU", "2"))
+def get_env_var(key: str, default: Optional[str] = None) -> Optional[str]:
+    """Get an environment variable."""
+    return os.environ.get(key, default)
 
-    # Increased RAM limit in GB (e.g., 8GB or 16GB depending on dataset size)
-    # Defaulting to 8GB as a safe baseline for SLMs and moderate datasets.
-    MAX_RAM_GB: Final[int] = int(os.getenv("LLMXIVE_MAX_RAM_GB", "8"))
+def parse_bool(value: Any) -> bool:
+    """Parse a boolean from string or bool."""
+    if isinstance(value, bool):
+        return value
+    if isinstance(value, str):
+        return value.lower() in ('true', '1', 'yes', 'on')
+    return bool(value)
 
-    # Timeout for a single task execution in seconds
-    TASK_TIMEOUT_SECONDS: Final[int] = int(os.getenv("LLMXIVE_TASK_TIMEOUT", "3600"))
+class ProjectLogger:
+    """Simple logger wrapper."""
+    def __init__(self, name: str):
+        self.logger = logging.getLogger(name)
+        if not self.logger.handlers:
+            handler = logging.StreamHandler(sys.stdout)
+            formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+            handler.setFormatter(formatter)
+            self.logger.addHandler(handler)
+            self.logger.setLevel(logging.INFO)
+    
+    def info(self, msg):
+        self.logger.info(msg)
+    
+    def error(self, msg):
+        self.logger.error(msg)
+    
+    def warning(self, msg):
+        self.logger.warning(msg)
 
-    # Memory usage threshold (fraction of MAX_RAM_GB) to trigger a warning
-    MEMORY_WARNING_THRESHOLD: Final[float] = 0.85
-
-    # Memory usage threshold (fraction of MAX_RAM_GB) to trigger a hard fail
-    MEMORY_FAIL_THRESHOLD: Final[float] = 0.95
-
-# ============================================================================
-# Model & Agent Configuration
-# ============================================================================
-class ModelConfig:
-    """Configuration for SLMs used in the agents."""
-
-    # Default model for generator and monolithic baseline (CPU-tractable)
-    DEFAULT_GENERATOR_MODEL: Final[str] = "microsoft/phi-2"
-    DEFAULT_MONOLITHIC_MODEL: Final[str] = "microsoft/phi-2"
-
-    # Precision for model loading (default: float32 for stability on CPU)
-    DEFAULT_PRECISION: Final[str] = "float32"
-
-    # Max tokens for generation
-    MAX_NEW_TOKENS: Final[int] = 512
-
-    # Temperature for generation (0.0 for deterministic, >0.0 for sampling)
-    GENERATION_TEMPERATURE: Final[float] = 0.7
-
-# ============================================================================
-# Dataset Configuration
-# ============================================================================
-class DatasetConfig:
-    """Configuration for the AdaPlanBench dataset."""
-
-    # Dataset name or path. Using the official HuggingFace dataset identifier.
-    DATASET_NAME: Final[str] = "adaplanbench/adaplanbench"
-
-    # Minimum number of progressive constraints to include in the filtered set
-    MIN_PROGRESSIVE_CONSTRAINTS: Final[int] = 5
-
-    # Split to use for evaluation
-    EVAL_SPLIT: Final[str] = "test"
-
-# ============================================================================
-# Analysis Configuration
-# ============================================================================
-class AnalysisConfig:
-    """Configuration for statistical analysis."""
-
-    # Significance level for hypothesis testing
-    ALPHA: Final[float] = 0.05
-
-    # Target power for power analysis
-    TARGET_POWER: Final[float] = 0.80
-
-    # Minimum effect size (Cohen's f²) to detect
-    MIN_EFFECT_SIZE: Final[float] = 0.15
-
-# ============================================================================
-# Initialization
-# ============================================================================
-# Ensure directories exist upon import (safe to call multiple times)
-Paths.ensure_exists()
-# Set seeds immediately to ensure reproducibility from the start
-set_all_seeds(RANDOM_SEED)
+def get_logger(name: str = "llmXive") -> ProjectLogger:
+    return ProjectLogger(name)

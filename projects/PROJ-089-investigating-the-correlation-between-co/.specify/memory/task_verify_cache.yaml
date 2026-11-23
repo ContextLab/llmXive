@@ -1,0 +1,109 @@
+T007b:
+  c: false
+  h: ed85f4d97774618e540531dc53ede8be8fe386ae4efdb071e4b77f7ddce983f8
+  r: "The provided `code/main.py` does not define the required stubs `run_extraction`,\
+    \ `run_analysis`, and `run_reporting`; it instead imports them from other modules.\
+    \ The timeout fallback uses a custom thread loop instead of `threading.Timer`,\
+    \ and there is no code that logs the total execution time in the required `TOTAL_TIME:\
+    \ {duration}s` format (the log file is missing). These omissions mean the task\u2019\
+    s specifications are not met."
+T007c:
+  c: false
+  h: ed85f4d97774618e540531dc53ede8be8fe386ae4efdb071e4b77f7ddce983f8
+  r: "The provided `code/main.py` shows timeout handling and writes \u201CTIMEOUT:\u201D\
+    \ entries to `data/logs/pipeline.log`, but there is no visible try/except block\
+    \ around repository processing, nor any logging of repository\u2011specific errors\
+    \ in the required `ERROR: {repo_id}: {message}` format. Additionally, the `data/logs/pipeline.log`\
+    \ file does not exist, indicating that error logging is not set up. The task\u2019\
+    s error\u2011handling wrapper is therefore not implemented."
+T007d:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `main.py` file or any code was presented that calls `run_extraction`, `run_analysis`,
+    and `run_reporting` sequentially, nor evidence that it runs the full pipeline
+    on mock data. The required artifact is missing.
+T011:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence of a `data_extraction.py` script or a populated `data/raw/git_history/`\
+    \ directory is provided; without these artifacts we cannot confirm that repositories\
+    \ were cloned and per\u2011file commit/line\u2011change data were extracted as\
+    \ required. The implementer must supply the script and the resulting raw git\u2011\
+    history files."
+T014:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No evidence of a `static_analysis.py` script or the required `data/raw/static_analysis/{repo_id}/semgrep_results.json`
+    files is present; without these artifacts the static analysis step and debt score
+    calculations cannot be confirmed. The implementer must provide the script and
+    the generated JSON results for each repository.
+T015b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No edited `spec.md` file is presented; the claim that the specification was\
+    \ updated to replace \u201Cchurn density\u201D/\u201Cdebt density\u201D with \u201C\
+    total_lines_changed\u201D and \u201Cdebt_score\u201D, and to change \u201Cdensity\
+    \ metrics\u201D to \u201Craw metrics + covariate control (avg_loc)\u201D, cannot\
+    \ be verified because the required artifact is missing. The next implementer must\
+    \ provide the updated `spec.md` containing the specified revisions."
+T020:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `analysis.py` file or any code implementing the required Pearson and Spearman
+    partial correlation calculations is provided; the evidence contains no artifact
+    to verify that the raw `total_lines_changed` vs `debt_score` correlation controlling
+    for `avg_loc` has been computed. The task therefore remains unfulfilled.
+T021:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `analysis.py` file or any code implementing the required meta\u2011analysis\
+    \ of Fisher\u2011transformed r coefficients is present. The artifact is missing\
+    \ entirely, so the task\u2019s core requirement (performing the meta\u2011analysis\
+    \ and controlling family\u2011wise error rate) is not satisfied."
+T026:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `visualization.py` file or any code, plot image, or related artifact was\
+    \ presented. Without the script that actually generates the required scatter plots\
+    \ (total_lines_changed vs. debt_score) with regression lines per repository, the\
+    \ task is not satisfied. The implementer must supply a non\u2011empty `visualization.py`\
+    \ implementing this functionality and, ideally, example output files."
+T027:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No `visualization.py` file containing code to annotate plots with the correlation\
+    \ coefficient and p\u2011value was provided, and the expected output directory\
+    \ `data/results/plots/` does not contain any generated plot files. The required\
+    \ artifact and its saved results are missing."
+T028b:
+  c: false
+  h: 92f45724ac6370d60a06903446b29af43dd6bfa7458fc16eadaf79b29f757cae
+  r: The `summary_report.txt` file does not exist, and `code/reporting.py` is incomplete
+    (the implementation is truncated and missing the logic to generate and write the
+    report). Both required artifacts are absent or unfinished, so the task is not
+    genuinely completed.
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `main.py` file was presented, and there is no evidence of checksum computation
+    or updates to any `state/projects/...yaml` file. The required artifact is missing,
+    so the task is not satisfied.
+T032a:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `quickstart.md` file or its contents were provided, so we cannot confirm that
+    installation and execution instructions were added as required. The implementer
+    must supply the updated `quickstart.md` showing the new instructions.
+T035:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `tests/unit/` directory or test files for the metric calculation logic are
+    present in the provided artifact list, so the claimed additional unit tests do
+    not exist. The task requires concrete test files to be added, which are missing.
+T036:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No artifact such as a validation log, report, or evidence that `quickstart.md`\
+    \ was executed and passed is present; the implementer provided no output confirming\
+    \ end\u2011to\u2011end reproducibility. The required proof of running the quickstart\
+    \ validation is missing."

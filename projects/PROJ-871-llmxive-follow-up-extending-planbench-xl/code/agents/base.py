@@ -2,19 +2,17 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional
 
 class BaseAgent(ABC):
-    """
-    Abstract base class for all agents in the llmXive pipeline.
-    """
+    """Abstract base class for all agents."""
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        self.config = config or {}
     
     @abstractmethod
-    def run(self, task: Dict[str, Any]) -> Dict[str, Any]:
-        """
-        Execute the agent on a given task.
-        
-        Args:
-            task: Dictionary containing task details.
-            
-        Returns:
-            Dictionary containing the execution result.
-        """
+    def execute(self, task: Dict[str, Any]) -> Dict[str, Any]:
+        """Execute the agent on a given task."""
+        pass
+    
+    @abstractmethod
+    def reset(self) -> None:
+        """Reset the agent state."""
         pass

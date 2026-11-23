@@ -70,7 +70,10 @@ local = [
 dev = [
   "pytest>=8",
   "pytest-asyncio",
-  "ruff",
+  # PINNED: an unpinned linter makes the CI lint gate fail on code that did
+  # not change, the first time a new ruff ships a rule. 0.17.0 reports RUF036,
+  # which 0.15.x did not, so a locally-clean tree failed the gate.
+  "ruff==0.17.0",
   "mypy",
   "types-PyYAML",
 ]
@@ -84,7 +87,7 @@ where = ["src"]
 include = ["llmxive*"]
 
 [tool.setuptools.package-data]
-llmxive = ["py.typed"]
+llmxive = ["py.typed", "execution/base_requirements.txt"]
 
 [tool.pytest.ini_options]
 markers = [

@@ -1,50 +1,69 @@
 """
-Project initialization script for T002.
-Validates requirements.txt and pyproject.toml existence and content.
+Project structure initialization script.
+Creates the necessary directory hierarchy for the brainnet project.
 """
 import os
+import sys
 from pathlib import Path
+
 
 def main():
     """
-    Initializes the Python 3.11 project structure for T002.
-    Verifies that requirements.txt and pyproject.toml are present and valid.
+    Creates the required project directories relative to the project root.
+    Exits with code 0 on success, 1 on failure.
     """
-    project_root = Path(__file__).parent
-    requirements_path = project_root / "requirements.txt"
-    pyproject_path = project_root / "pyproject.toml"
-
-    print(f"Initializing project in: {project_root}")
-
-    # Verify requirements.txt
-    if not requirements_path.exists():
-        raise FileNotFoundError(f"Missing requirements.txt at {requirements_path}")
-
-    with open(requirements_path, "r") as f:
-        content = f.read()
-        required_deps = [
-            "numpy", "pandas", "nilearn", "networkx", "scikit-learn",
-            "statsmodels", "pingouin", "datasets", "pytest", "jsonschema"
-        ]
-        missing = [dep for dep in required_deps if not any(dep in line for line in content.splitlines())]
-        if missing:
-            raise ValueError(f"Missing dependencies in requirements.txt: {missing}")
+    # Define the directory structure relative to the project root
+    # The script is located at code/setup_project.py, so we go up one level
+    project_root = Path(__file__).resolve().parent.parent
     
-    print("✓ requirements.txt validated successfully.")
-
-    # Verify pyproject.toml
-    if not pyproject_path.exists():
-        raise FileNotFoundError(f"Missing pyproject.toml at {pyproject_path}")
-
-    with open(pyproject_path, "r") as f:
-        content = f.read()
-        if "[project]" not in content or "requires-python" not in content:
-            raise ValueError("pyproject.toml is missing required [project] section or python version.")
+    directories = [
+        "src/brainnet",
+        "tests/unit",
+        "tests/contract",
+        "data/processed",
+        "data/raw",
+        "results/figures",
+        "metadata",
+        "contracts"
+    ]
     
-    print("✓ pyproject.toml validated successfully.")
+    created_count = 0
+    skipped_count = 0
+    
+    print(f"Initializing project structure at: {project_root}")
+    
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            try:
+                full_path.mkdir(parents=True, exist_ok=True)
+                print(f"Created: {full_path}")
+                created_count += 1
+            except OSError as e:
+                print(f"Error creating directory {full_path}: {e}", file=sys.stderr)
+                sys.exit(1)
+        else:
+            print(f"Already exists: {full_path}")
+            skipped_count += 1
+    
+    print(f"\nProject structure initialization complete.")
+    print(f"Created {created_count} new directories.")
+    print(f"Skipped {skipped_count} existing directories.")
+    
+    # Verify existence of all directories
+    missing = []
+    for dir_path in directories:
+        full_path = project_root / dir_path
+        if not full_path.exists():
+            missing.append(str(full_path))
+    
+    if missing:
+        print(f"ERROR: The following directories were not created: {missing}", file=sys.stderr)
+        sys.exit(1)
+    
+    print("Verification passed: All required directories exist.")
+    sys.exit(0)
 
-    print("Project initialization complete. Ready to run: pip install -e .")
-    return 0
 
 if __name__ == "__main__":
-    exit(main())
+    main()

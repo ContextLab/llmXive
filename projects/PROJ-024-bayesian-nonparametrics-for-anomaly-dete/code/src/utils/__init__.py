@@ -1,17 +1,16 @@
-"""
-Utilities package for Bayesian Nonparametrics Anomaly Detection.
-
-Constitution Principle V: Project Structure
-- All utilities in code/src/utils/
-- Proper __init__.py for package imports
-"""
-
-from .streaming import StreamingObservation
+# Utils package
+from .physical_cleanup import main as cleanup_main
+from .checksums import compute_file_checksum, verify_checksums
 from .memory_profiler import MemoryProfiler
-from .threshold import ThresholdCalibrator
+from .config_utils import load_config, validate_config_size
+from .streaming import StreamingObservation
 
 __all__ = [
-    'StreamingObservation',
+    'cleanup_main',
+    'compute_file_checksum',
+    'verify_checksums',
     'MemoryProfiler',
-    'ThresholdCalibrator'
+    'load_config',
+    'validate_config_size',
+    'StreamingObservation'
 ]

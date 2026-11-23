@@ -1,0 +1,26 @@
+    used (UCI HAR, UCI Shopper). If the files are not included in the repo, provide
+    a verified, executable command or script to download them to this directory.'
+- id: e976b9dc34e3
+  severity: writing
+  text: 'File: data/processed/data_quality_report.md (Create)'
+- id: 6579b10e6f73
+  severity: writing
+  text: 'Change: Record the dataset selection process: total datasets attempted, number
+    excluded (with reasons per spec edge cases), and the final n=2 sample. Explicitly
+    state that the sample size is a limitation and that aggregate statistics (median/IQR)
+    are unstable.'
+- id: 217af9a50ba6
+  severity: writing
+  text: 'File: code/data_loader.py (or scripts/download_data.sh)'
+- id: 945dbcad5b46
+  severity: writing
+  text: 'Change: Ensure the script explicitly fails (non-zero exit) if the download
+    from the verified URL fails, rather than silently falling back to mock data or
+    skipping the step. Add a log entry confirming the checksum of the downloaded file
+    matches the expected value.'
+artifact_hash: 21385be9ff6aabb87c4cf55fcdf382d57dcae8502dde76fbe91c17f85b06fa72
+artifact_path: projects/PROJ-256-quantifying-the-impact-of-data-cleaning-/specs/001-quantifying-the-impact-of-data-cleaning/tasks.md
+backend: dartmouth
+feedbac
+
+*[truncated]*

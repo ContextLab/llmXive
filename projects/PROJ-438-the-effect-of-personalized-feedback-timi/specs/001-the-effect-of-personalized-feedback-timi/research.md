@@ -1,77 +1,61 @@
 # Research: The Effect of Personalized Feedback Timing on Skill Acquisition
 
-## Research Question
-How does the temporal spacing of personalized feedback (immediate vs. delayed) affect learner performance and course completion rates in online learning environments?
+## Summary of Findings
+This research investigates whether **student response latency** (time from assessment submission to next student action) influences skill acquisition in online learning environments. Using the Open University Learning Analytics Dataset (OULAD), we hypothesize that immediate response (<2h) correlates with higher final grades compared to delayed (2-48h) or variable (>48h) response.
+
+**Critical Limitation**: The OULAD dataset does not contain instructor feedback timestamps. Therefore, "feedback timing" is redefined as "student response latency" (time to next forum post or assessment result). This measures **student engagement speed**, not instructor feedback delivery. The causal claim is limited to engagement, not feedback.
 
 ## Dataset Strategy
 
-| Dataset | Source (Verified URL) | Relevance | Access Method | Notes |
-|:--- |:--- |:--- |:---:--- |
-| **OULAD** | ` | Primary source for learner submission timestamps, forum activity, final grades, completion status, and course metadata. | `requests` (download JSON) -> `pandas` (load) | **Critical Check**: The raw OULAD schema typically lacks explicit `response_timestamp` (instructor feedback) fields. **The plan treats `response_timestamp` as conditional.** If missing, the primary predictor will be derived from the closest available proxy: **forum reply time** (time between student post and first instructor reply) or system log events. If no proxy exists, the dataset is flagged as insufficient for the specific hypothesis regarding *personalized* feedback timing. |
+The study utilizes the **Open University Learning Analytics Dataset (OULAD)**. The verified data sources for this project are:
 
-**Dataset Fit Verification**:
-- **Required Variables**: `student_id`, `course_id`, `submission_timestamp`, `proxy_response_timestamp` (derived from forum replies or system logs), `final_grade`, `is_complete`.
-- **Verification Status**: The implementation will inspect the schema of the specific JSON file. If explicit feedback timestamps are missing, the code will automatically switch to the `proxy_response_timestamp` logic. The primary analysis relies on this proxy if direct timestamps are absent.
-- **Sample Size**: Target ≥10,000 learners. If the specific JSON run is smaller, the analysis will report the actual N and adjust power expectations.
+| Dataset Name | Verified Source URL | Loader Method | Notes |
+|:--- |:--- |:--- |:--- |
+| OULAD Students | ` | `pandas.read_csv` | Primary source for student demographics and final grades. |
+| OULAD Events (Train 0) | ` | `pandas.read_parquet` | Contains event logs (submissions, forum posts) for interval calculation. |
+| OULAD Events (Train 1) | ` | `pandas.read_parquet` | Engineered features; cross-referenced for completeness. |
 
-## Methodology & Statistical Plan
+**Data Availability Check**:
+- **Required Variables**: `student_id`, `course_id`, `final_grade`, `is_complete`, `submission_timestamp`, `response_timestamp` (proxy).
+- **Verification**: The `students_data.csv` contains `final_grade` and `id_student`. The Parquet files contain event logs.
+- **Gap Analysis**: The spec assumes `response_timestamp` (instructor feedback) exists. **It does not.** The plan defines "response_timestamp" as the timestamp of the **next student event** (forum post or assessment result) following submission. This is a proxy for "feedback engagement."
+- **Feasibility**: Data is <1GB per file; streaming is not strictly required but will be used for safety (`chunksize` or `streaming=True` if supported) to stay under a moderate RAM footprint.
 
-### 1. Data Preprocessing (US-1, FR-001, FR-002)
-- **Download**: Fetch OULAD JSON from the verified URL. Cache locally. Compute checksum.
-- **Filter**: Retain only courses with both "assessment" and "forum" interaction events.
-- **Extract**: Pull `student_id`, `course_id`, `submission_timestamp`, and the **best available response proxy** (instructor reply timestamp or system feedback event).
-- **Handling Missing**: Learners with no response proxy are **flagged but retained** with a null indicator (`missing_response_flag=1`) to allow for sensitivity analysis and descriptive statistics. Courses with <50 learners are excluded (logging count).
+## Statistical Methodology
 
-### 2. Interval Calculation & Binning (US-2, FR-003, FR-004)
-- **Calculation**: Compute `interval_hours = (response_proxy_timestamp - submission_timestamp) / 3600`. Precision ≥0.1h.
-- **Binning**:
- - **Immediate**: `interval < 2.0` hours.
- - **Delayed**: `2.0 ≤ interval ≤ 48.0` hours.
- - **Variable**: `interval > 48.0` hours.
-- **Logic**: Use the median interval per learner for binning if multiple submissions exist.
-- **Theoretical Grounds**: These thresholds (2h/48h) are grounded in educational psychology literature (e.g., Hattie & Timperley, 2007) distinguishing between "immediate" consolidation windows and "delayed" reflection periods. This justifies the binning over a purely continuous model for the primary hypothesis.
+### Primary Analysis
+1. **Model**: Cluster-Robust Ordinary Least Squares (OLS).
+ - **Dependent Variable**: `final_grade` (continuous).
+ - **Independent Variable**: `feedback_group` (Categorical: Immediate, Delayed, Variable).
+ - **Clustering**: `course_id` (to account for course-level heterogeneity).
+ - **Covariates**: `num_of_past_attempts`, `gender`, `region`, `total_forum_posts`, `total_clicks` (to control for engagement confounding).
+2. **Diagnostic: ICC Check**: Before fitting, calculate the Intra-Class Correlation (ICC) for `feedback_group` by `course_id`. If ICC is high (>0.5), the treatment effect may be absorbed by course clustering. In this case, switch to a course-level fixed effects model.
+3. **Post-hoc**: Tukey HSD (Honest Significant Difference) to control family-wise error rate (FWER) across the 3 pairwise comparisons.
 
-### 3. Statistical Modeling (US-3, FR-005, FR-006)
-- **Method**: **Cluster-Robust Ordinary Least Squares (OLS)**.
- - **Justification of Random Effect Structure**: The data hierarchy has learners nested in courses. The predictor (feedback group) is aggregated at the student level (one value per student). A Linear Mixed-Effects Model (LMM) with `(1 | student_id)` is **statistically invalid** because there is no within-student variation in the predictor (a student cannot be in multiple groups). A course-level random effect `(1 | course_id)` is theoretically appropriate, but given the aggregated nature of the predictor, **Cluster-Robust OLS** (OLS with standard errors clustered by `course_id`) is the robust, equivalent, and simpler solution to handle non-independence.
- - **Fixed Effects**: `feedback_group` (Immediate, Delayed, Variable), `engagement_level` (covariate), `course_difficulty` (covariate if available).
- - **Outcome**: `final_grade` (continuous).
- - **Inference**:
- - **Primary**: Fixed effect estimates, p-values, Cohen's d.
- - **Correction**: Tukey HSD for pairwise comparisons (Immediate vs Delayed, Immediate vs Variable, Delayed vs Variable) to control family-wise error rate (SC-002).
- - **Framing**: Results framed as **associational** (observational study), not causal.
+### Selection Bias Control (FR-007)
+- **Propensity Score Matching (PSM) / Inverse Probability Weighting (IPW)**: To control for the confound that struggling students may receive (or wait for) delayed feedback, the plan will run a secondary analysis using IPW.
+- **Metrics**: Compare results with and without weighting to assess robustness.
 
-### 4. Confounding Control (Endogeneity)
-- **Issue**: The definition of the feedback group (median interval) may be confounded with general engagement (highly engaged students might receive faster feedback or interact more frequently).
-- **Control**: The model will include `submission_count` and `forum_activity_count` as covariates to partial out the effect of general engagement, separating it from the timing effect.
-- **Limitation**: The plan acknowledges that residual confounding may remain if engagement and timing are intrinsically linked in the platform's design.
+### Robustness & Sensitivity (FR-007)
+- **Sweep**: Bin boundaries will be swept (e.g., Immediate: <1h to <5h; Delayed: 1h-24h to 5h-72h).
+- **Metrics**:
+ - **Significance Stability**: Proportion of sweeps where the primary effect (Immediate > Delayed) remains significant (p < 0.05).
+ - **Significance Flip Rate**: Proportion of sweeps where the direction of the effect changes.
+- **Note**: If the underlying construct (student response latency) is validly measured, the sweep tests robustness. If the construct is invalid, the sweep cannot rescue the premise.
 
-### 5. Sensitivity Analysis (FR-007, SC-003)
-*Updated to address scientific soundness: Replaces trivial numerical shifts with meaningful window definition sweeps.*
-- **Procedure**:
- 1. **Window Definition Sweep**: Vary the "Immediate" and "Delayed" cutoffs to test robustness of the categorization logic.
- - **Scenario A**: 1h / 24h (Stricter immediate definition).
- - **Scenario B**: 4h / 72h (More lenient immediate definition).
- - **Scenario C**: 3h / 36h (Alternative standard).
- 2. **Continuous Check**: Fit a secondary model using `interval_hours` as a continuous predictor with **natural splines** (df=3) to check for non-linear relationships and avoid arbitrary binning entirely.
- 3. **Null Proxy Check**: Run the model excluding learners with `missing_response_flag=1` to ensure results are not driven by the proxy derivation.
-- **Metric**: "Significance stability" (proportion of shifts where the primary hypothesis p-value remains <0.05) and "significance flip rate".
+### Power & Validity
+- **Sample Size**: OULAD typically contains >20,000 students. With ~3 groups, power is sufficient to detect small effect sizes (d > 0.1) assuming [deferred] power.
+- **Construct Validity**: `final_grade` is a standard academic metric. FR-008 mandates validation via the Reference-Validator Agent. **Note**: The "student response latency" proxy is explicitly acknowledged as a measure of engagement, not instructor feedback.
+- **Collinearity**: Feedback timing (student response latency) is likely correlated with engagement. Controls for engagement (e.g., `total_forum_posts`) will be included to mitigate this.
+- **Endogeneity**: Acknowledged that engaged students may act faster. The model includes engagement covariates to control for this bias.
 
-### 6. Validity Check (FR-008)
-- **Action**: Include a literature citation or sensitivity check in the report validating "final grade" as a proxy for "skill acquisition".
-- **Fallback**: If no external validation data exists to correlate OULAD grades with external skill assessments, the report will explicitly state this as a **threat to construct validity** rather than assuming validity.
+## Proxy Validation Workflow (FR-008)
+1. **Agent Execution**: The Reference-Validator Agent will run on the literature citations.
+2. **Validation**: It will check title overlap (>=0.7) and validate "final grade" as a proxy for "skill acquisition" in OULAD context.
+3. **Pass/Fail**: If the agent fails, the study is flagged. (Current plan: "final grade" is accepted as a standard proxy; the "student response latency" proxy is the primary limitation).
 
-## Compute Feasibility
-- **Environment**: GitHub Actions Free Tier (2 CPU, ~7 GB RAM, ≤6h).
-- **Strategy**:
- - **Model**: Cluster-Robust OLS is computationally lightweight and CPU-tractable for N=10k.
- - **Sampling**: If runtime exceeds 6h or RAM > 7GB, sample to N=5,000 learners (power-adequate subset) as per Assumption.
- - **No GPU**: All operations are CPU-based.
- - **Libraries**: `pandas`, `numpy`, `statsmodels`, `scipy`.
+## Decision Rationale
 
-## Assumptions & Limitations
-- **Observational Nature**: No random assignment; claims are associational.
-- **Proxy Validity**: Final grade is a valid proxy for skill acquisition (requires FR-008 citation; if not possible, explicitly stated as a limitation).
-- **Timestamp Availability**: Explicit `response_timestamp` is likely missing; the analysis relies on the **forum reply proxy** if direct timestamps are absent. This is a primary constraint, not an edge case.
-- **Boundary Justification**: 2h/48h boundaries are based on community standards (requires literature citation in report).
-- **Endogeneity**: Residual confounding between engagement and timing may persist despite covariate control.
+- **CPU-First**: All statistical operations (OLS, Tukey HSD, PSM) are lightweight and run efficiently on minimal CPU resources. No GPU is required.
+- **Data Streaming**: While OULAD is small enough to fit in memory, the pipeline will use `chunksize` or `streaming` where applicable to demonstrate robustness against larger datasets and adhere to the RAM constraint strictly.
+- **Proxy Handling**: The plan explicitly defines `response_timestamp` as the next student event and documents this as a proxy for "feedback engagement," not "instructor feedback." This prevents fabrication.

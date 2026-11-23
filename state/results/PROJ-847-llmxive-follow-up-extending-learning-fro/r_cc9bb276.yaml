@@ -1,0 +1,15 @@
+captured:
+  path: outputs/adaptive_run.json
+  sha256: 2b89e785eed4b428c24bc957c5f5c2a9aa5f8062aaab86e65497b4b742616297
+created_at: '2026-10-19T20:09:00Z'
+env_sha: 2b89e785eed4b428
+hmac: b7c2e44de609e13af9c27bd4f142e6dbdccde207902a2d99b760f66871821fb2
+inputs:
+  command: quickstart run-book
+kind: table
+output_sha256: cc9bb276d718de806f4717208d12ca1924f783aa238edab7dbe91de21df8022b
+producer:
+  artifact: outputs/adaptive_run.json
+  stage: implementation_preview
+result_id: r_cc9bb276
+value: outputs/adaptive_run.json

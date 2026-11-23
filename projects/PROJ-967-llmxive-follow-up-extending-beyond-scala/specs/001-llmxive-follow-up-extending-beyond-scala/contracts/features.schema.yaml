@@ -1,0 +1,40 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Entanglement Features Schema"
+description: "Schema for the computed entanglement features and target variable. Statistical features are optional to allow for VIF filtering."
+type: object
+required:
+  - sample_id
+  - mean_teacher_score
+  - residual_error
+  - is_valid
+  - vif_filtered_features
+properties:
+  sample_id:
+    type: string
+    description: "Reference to the raw sample."
+  teacher_variance:
+    type: number
+    description: "Variance of the teacher's 4 dimension scores."
+  teacher_entropy:
+    type: number
+    description: "Shannon entropy of the teacher's score distribution."
+  teacher_skewness:
+    type: number
+    description: "Skewness of the teacher's score distribution."
+  teacher_kurtosis:
+    type: number
+    description: "Kurtosis of the teacher's score distribution."
+  mean_teacher_score:
+    type: number
+    description: "Mean of the teacher's 4 dimension scores."
+  residual_error:
+    type: number
+    description: "Target variable: Observed MAE - Theoretical Baseline."
+  is_valid:
+    type: boolean
+    description: "True if human annotation for target dimension exists."
+  vif_filtered_features:
+    type: array
+    description: "List of feature names retained after VIF filtering."
+    items:
+      type: string

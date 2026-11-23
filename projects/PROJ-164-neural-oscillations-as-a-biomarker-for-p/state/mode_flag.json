@@ -1,0 +1,8 @@
+{
+  "artifact": "mode_flag",
+  "task_id": "T012",
+  "timestamp": "2026-10-18T15:37:28.071045+00:00",
+  "mode_flag": "Data Insufficient",
+  "downstream_execution_skipped": true,
+  "source_manifest": "/home/runner/work/llmXive/llmXive/projects/PROJ-164-neural-oscillations-as-a-biomarker-for-p/data/verified_source_manifest.json"
+}

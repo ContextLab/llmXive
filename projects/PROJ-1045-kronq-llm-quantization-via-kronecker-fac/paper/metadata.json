@@ -38,5 +38,15 @@
     "figures/weight_distribution_llama3_70b.pdf",
     "figures/weight_distribution_llama2_70b.pdf",
     "natbib.sty"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "a03427cbec9a0fa80acf7ec737454e828a6e8f2932b693c8b082ef44bb2cbf8c",
+      "bytes": 6586502
+    },
+    "original.pdf": {
+      "sha256": "1f64f45a7a7981c89379aca3f7919d780b8924148d29d84cfa70b4320f0fd0cf",
+      "bytes": 6429627
+    }
+  }
 }

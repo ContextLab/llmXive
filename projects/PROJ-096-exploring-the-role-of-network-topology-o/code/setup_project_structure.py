@@ -1,46 +1,64 @@
+"""
+Project structure initialization script for llmXive pipeline.
+Creates required directory hierarchy for the research project.
+"""
 import os
 import sys
 from pathlib import Path
+import logging
 
-def main():
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
+def create_directories(base_path: Path, directories: list) -> None:
     """
-    Create the required project directory structure for PROJ-096.
-    Executes the equivalent of:
-    mkdir -p code/utils code/data data/processed data/checksums tests state/projects
-    """
-    # Define the project root relative to the current working directory
-    # Assuming the script is run from the project root: projects/PROJ-096-exploring-the-role-of-network-topology-o/
-    project_root = Path(".")
+    Create a list of directories under the base path.
     
-    # Define the directories to create
-    directories = [
+    Args:
+        base_path: The root directory for the project
+        directories: List of relative directory paths to create
+    """
+    for dir_path in directories:
+        full_path = base_path / dir_path
+        try:
+            full_path.mkdir(parents=True, exist_ok=True)
+            logger.info(f"Created directory: {full_path}")
+        except Exception as e:
+            logger.error(f"Failed to create directory {full_path}: {e}")
+            raise
+
+def main() -> None:
+    """
+    Main entry point for project structure setup.
+    Creates all required directories for the research pipeline.
+    """
+    # Determine project root based on task context
+    # The task specifies: projects/PROJ-096-exploring-the-role-of-network-topology-o/
+    project_root = Path(__file__).parent.parent / "projects" / "PROJ-096-exploring-the-role-of-network-topology-o"
+    
+    # Ensure project root exists
+    project_root.mkdir(parents=True, exist_ok=True)
+    logger.info(f"Project root: {project_root}")
+    
+    # Define all required directories relative to project root
+    required_dirs = [
         "code/utils",
         "code/data",
+        "data/raw",
         "data/processed",
         "data/checksums",
         "tests",
         "state/projects"
     ]
     
-    created_count = 0
-    for dir_name in directories:
-        dir_path = project_root / dir_name
-        if not dir_path.exists():
-            dir_path.mkdir(parents=True, exist_ok=True)
-            print(f"Created directory: {dir_path}")
-            created_count += 1
-        else:
-            print(f"Directory already exists: {dir_path}")
+    logger.info("Creating project directory structure...")
+    create_directories(project_root, required_dirs)
     
-    print(f"Project structure setup complete. {created_count} new directories created.")
-    
-    # Verify existence
-    all_exist = all((project_root / d).exists() for d in directories)
-    if not all_exist:
-        print("ERROR: Some directories failed to create.")
-        sys.exit(1)
-    
-    return 0
+    logger.info("Project structure initialization complete.")
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

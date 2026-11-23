@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2306.04338",
+  "judged_at": "2026-08-05T21:45:47Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "predicting the impact of alloying on magnetic properties via public data materials science",
+  "rationale": "The paper focuses on the risks of changing data sources in the context of official statistics and policy-making, which is an entirely different domain (social science/government data) from the user's question about predicting magnetic properties in materials science. It does not address the specific mechanism, variables, or empirical population required for the user's research, failing all inclusion criteria (a-f) and triggering the \"Off-domain entirely\" rejection rule.",
+  "relevant": false
+}

@@ -1,4 +1,8 @@
+"""
+Custom exception classes for the project.
+"""
 from typing import Optional, Dict, Any
+
 
 class BaseProjectError(Exception):
     """Base exception for all project-specific errors."""
@@ -16,7 +20,7 @@ class ModelConvergenceError(BaseProjectError):
     pass
 
 class CalibrationError(BaseProjectError):
-    """Raised when calibration metrics cannot be computed."""
+    """Raised during calibration process errors."""
     pass
 
 class DataValidationError(BaseProjectError):

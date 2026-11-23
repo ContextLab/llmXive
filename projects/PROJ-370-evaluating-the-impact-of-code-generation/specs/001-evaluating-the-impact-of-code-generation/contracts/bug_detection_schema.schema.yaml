@@ -16,10 +16,10 @@ properties:
     description: "Unique ID for the bug detection"
   source:
     type: "string"
+    description: "Source of the bug detection"
     enum:
       - "human"
       - "llm"
-    description: "Source of the bug detection"
   file_path:
     type: "string"
     description: "Relative file path in the repository"
@@ -33,12 +33,12 @@ properties:
     minimum: 1
   severity:
     type: "string"
+    description: "Severity classification of the bug"
     enum:
       - "critical"
       - "major"
       - "minor"
       - "style"
-    description: "Severity classification of the bug"
   description:
     type: "string"
     description: "Natural language description of the bug"
@@ -47,3 +47,6 @@ properties:
     description: "Optional confidence score (0.0 to 1.0)"
     minimum: 0.0
     maximum: 1.0
+  is_llm_only:
+    type: "boolean"
+    description: "True if not matched to any human bug (FR‑017)"

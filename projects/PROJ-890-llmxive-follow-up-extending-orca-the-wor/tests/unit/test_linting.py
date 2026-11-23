@@ -5,8 +5,6 @@ configured and that the codebase adheres to the defined style guide.
 """
 import os
 import subprocess
-import sys
-import tempfile
 from pathlib import Path
 
 import pytest

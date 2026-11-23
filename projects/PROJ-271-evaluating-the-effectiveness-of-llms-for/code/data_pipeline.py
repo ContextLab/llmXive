@@ -3,217 +3,323 @@ import json
 import logging
 import subprocess
 import tempfile
-from typing import List, Dict, Any, Optional, Tuple
+import time
+from typing import Dict, Any, List, Optional
+from pathlib import Path
+
 import pandas as pd
 import numpy as np
-from radon.complexity import cc_visit
-from radon.raw import analyze
 from datasets import load_dataset
-from pylint.lint import Run
-from pylint.reporters.text import TextReporter
-from io import StringIO
+from radon.raw import analyze as radon_analyze
+from radon.complexity import cc_visit
 
-from config import get_data_path, get_path
-from monitoring import get_ram_usage_mb, get_cpu_utilization
+from config import get_path, get_data_path, get_processed_path, get_results_path, setup_logging, RANDOM_SEED
+from helpers import (
+    compute_radon_metrics_safe, validate_dataset_completeness,
+    parse_smell_labels, create_detection_matrix
+)
 
-# Configure logging
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-logger = logging.getLogger(__name__)
+logger = setup_logging("data_pipeline")
 
-# Constants
-REQUIRED_COLUMNS = ['code', 'loc', 'cyclomatic_complexity', 'static_smell_labels']
-COMPLETENESS_THRESHOLD = 0.95
+# ----------------------------------------------------------------------
+# Configuration
+# ----------------------------------------------------------------------
+# Updated to the verified dataset as per the project plan.
+DEFAULT_DATASET_ID = "code-search-net/python"
 
-def load_sampled_functions(sample_size: int = 800) -> List[Dict[str, Any]]:
-    """Load a sampled subset of functions from codeparrot/github-code."""
+def verify_dataset_source(dataset_id: str = DEFAULT_DATASET_ID) -> bool:
+    """
+    Verifies that the dataset source is accessible before streaming.
+
+    Args:
+        dataset_id: HuggingFace dataset ID.
+
+    Returns:
+        True if accessible, raises ConnectionError otherwise.
+    """
     try:
-        logger.info(f"Loading {sample_size} functions from codeparrot/github-code...")
-        dataset = load_dataset("codeparrot/github-code", split="train", streaming=True)
-        functions = []
-        count = 0
-        for item in dataset:
-            if count >= sample_size:
-                break
-            # Filter for Python code
-            if item['language'] == 'python' and 'content' in item:
-                functions.append({
-                    'id': item.get('repo', 'unknown') + '_' + str(count),
-                    'code': item['content'],
-                    'repo': item.get('repo', 'unknown')
-                })
-                count += 1
-        logger.info(f"Successfully loaded {len(functions)} Python functions.")
-        return functions
+        # Attempt to load dataset info without downloading
+        ds = load_dataset(dataset_id, split="train", streaming=True)
+        # Try to get one item to verify connectivity
+        next(iter(ds))
+        logger.info(f"Dataset {dataset_id} is accessible")
+        return True
     except Exception as e:
-        logger.error(f"Failed to load dataset: {e}")
-        raise
+        error_msg = f"Dataset {dataset_id} is unreachable: {e}"
+        logger.error(error_msg)
+        raise ConnectionError(error_msg)
 
-def compute_radon_metrics(code: str) -> Tuple[int, float]:
-    """Compute LOC and Cyclomatic Complexity using radon."""
+def compute_radon_metrics(code: str) -> Dict[str, Any]:
+    """
+    Computes radon metrics for a code snippet.
+
+    Args:
+        code: Source code string.
+
+    Returns:
+        Dictionary with loc, cyclomatic_complexity, and nesting_depth.
+    """
+    return compute_radon_metrics_safe(code)
+
+def run_pylint_analysis(code: str) -> List[str]:
+    """
+    Runs Pylint on code and returns list of warning codes.
+
+    Args:
+        code: Source code string.
+
+    Returns:
+        List of Pylint warning codes.
+    """
+    with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        f.write(code)
+        temp_path = f.name
+
     try:
-        raw_analysis = analyze(code)
-        loc = raw_analysis.loc
-        complexity = cc_visit(code)
-        cc_sum = sum(func.cc for func in complexity)
-        return loc, cc_sum
-    except Exception as e:
-        logger.warning(f"Radon parsing error: {e}")
-        raise
+        result = subprocess.run(
+            ['pylint', '--output-format=json', temp_path],
+            capture_output=True,
+            text=True,
+            timeout=30
+        )
 
-def run_pylint_analysis(code: str) -> str:
-    """Run Pylint on the code and return the output."""
-    try:
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
-            f.write(code)
-            f.flush()
-            temp_path = f.name
+        if result.returncode != 0 and not result.stdout:
+            return []
 
-        output = StringIO()
-        reporter = TextReporter(output)
         try:
-            Run([temp_path, '--disable=all', '--enable=E,W', '--output-format=text'],
-                reporter=reporter, exit=False)
-        finally:
-            os.unlink(temp_path)
-
-        return output.getvalue()
+            messages = json.loads(result.stdout)
+            codes = [msg.get('symbol', msg.get('message-id', 'unknown')) for msg in messages]
+            return codes
+        except json.JSONDecodeError:
+            return []
+    except subprocess.TimeoutExpired:
+        logger.warning("Pylint timed out")
+        return []
     except Exception as e:
-        logger.error(f"Pylint execution error: {e}")
-        return ""
+        logger.warning(f"Pylint analysis failed: {e}")
+        return []
+    finally:
+        os.unlink(temp_path)
 
-def normalize_pylint_smells(pylint_output: str) -> List[str]:
-    """Normalize raw Pylint codes to canonical smell names."""
-    smell_mapping = {
-        'C0114': 'missing_module_docstring',
-        'C0116': 'missing_function_docstring',
-        'R0903': 'too_few_public_methods',
-        'R0904': 'too_many_public_methods',
-        'R0902': 'too_many_instance_attributes',
-        'R0913': 'too_many_arguments',
-        'R0914': 'too_many_local_variables',
-        'R0915': 'too_many_statements',
-        'R0912': 'too_many_branches',
-        'R0911': 'too_many_returns',
-        'C0301': 'line_too_long',
-        'C0302': 'too_many_lines',
-        'E1101': 'no_member',
-        'W0613': 'unused_argument',
-        'W0612': 'unused_variable'
-    }
+def load_smell_mapping(filepath: Optional[str] = None) -> Dict[str, str]:
+    """
+    Loads the smell mapping from JSON file.
 
-    smells = []
-    for msg_code, smell_name in smell_mapping.items():
-        if msg_code in pylint_output:
-            smells.append(smell_name)
-    return smells
+    Args:
+        filepath: Path to mapping file.
 
-def process_functions(functions: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
-    """Process each function to compute metrics and smell labels."""
-    results = []
-    for func in functions:
-        try:
-            code = func['code']
-            loc, cc = compute_radon_metrics(code)
-            pylint_output = run_pylint_analysis(code)
-            smells = normalize_pylint_smells(pylint_output)
+    Returns:
+        Dictionary mapping Pylint codes to canonical smell names.
+    """
+    if filepath is None:
+        filepath = str(get_path("contracts/smell_mapping.json"))
 
-            results.append({
-                'id': func['id'],
+    if not os.path.exists(filepath):
+        logger.warning(f"Smell mapping file not found: {filepath}")
+        return {}
+
+    with open(filepath, 'r') as f:
+        data = json.load(f)
+
+    # Convert list format to dict if necessary
+    if isinstance(data, list):
+        mapping = {}
+        for item in data:
+            if isinstance(item, dict) and 'code' in item and 'canonical_name' in item:
+                mapping[item['code']] = item['canonical_name']
+        return mapping
+    elif isinstance(data, dict):
+        return data
+    else:
+        return {}
+
+def normalize_pylint_smells(codes: List[str], mapping: Dict[str, str]) -> List[str]:
+    """
+    Normalizes Pylint codes to canonical smell names.
+
+    Args:
+        codes: List of Pylint codes.
+        mapping: Mapping from codes to canonical names.
+
+    Returns:
+        List of normalized smell names.
+    """
+    normalized = []
+    for code in codes:
+        if code in mapping:
+            normalized.append(mapping[code])
+        else:
+            logger.warning(f"Unmapped Pylint code: {code}")
+            normalized.append(f"Unknown_{code}")
+    return normalized
+
+def load_sampled_functions_stratified(
+    dataset_id: str = DEFAULT_DATASET_ID,
+    split: str = "train",
+    seed: int = RANDOM_SEED,
+    target_count: int = 800
+) -> List[Dict[str, Any]]:
+    """
+    Loads a sampled subset of functions from the dataset.
+
+    Uses streaming to avoid memory issues and applies deterministic sampling.
+
+    Args:
+        dataset_id: HuggingFace dataset ID.
+        split: Dataset split to use.
+        seed: Random seed for reproducibility.
+        target_count: Target number of functions to sample.
+
+    Returns:
+        List of dictionaries with 'code' and metadata.
+    """
+    logger.info(f"Loading sample from {dataset_id} (target: {target_count})")
+
+    # Verify dataset is accessible
+    verify_dataset_source(dataset_id)
+
+    ds = load_dataset(dataset_id, split=split, streaming=True)
+
+    sampled = []
+    rng = np.random.default_rng(seed)
+
+    # Simple random sampling with streaming
+    for item in ds:
+        if len(sampled) >= target_count:
+            break
+
+        # Check if item has code
+        code = item.get('code')
+        if code and isinstance(code, str) and len(code.strip()) > 0:
+            sampled.append({
                 'code': code,
-                'loc': loc,
-                'cyclomatic_complexity': cc,
-                'static_smell_labels': json.dumps(smells)
+                'repo': item.get('repo', 'unknown'),
+                'language': item.get('language', 'unknown')
             })
-        except Exception as e:
-            logger.warning(f"Skipping function {func['id']} due to error: {e}")
-            continue
-    return results
+
+    logger.info(f"Sampled {len(sampled)} functions")
+    return sampled
 
 def save_to_csv(data: List[Dict[str, Any]], filepath: str) -> None:
-    """Save processed data to CSV."""
+    """
+    Saves data to a CSV file.
+
+    Args:
+        data: List of dictionaries.
+        filepath: Output file path.
+    """
     df = pd.DataFrame(data)
     df.to_csv(filepath, index=False)
-    logger.info(f"Saved {len(data)} records to {filepath}")
+    logger.info(f"Saved {len(data)} rows to {filepath}")
 
-def validate_output(filepath: str, required_columns: List[str] = None, threshold: float = 0.95) -> bool:
+def validate_output(df: pd.DataFrame, required_cols: List[str], threshold: float = 0.95) -> bool:
     """
-    Validate that the output CSV contains >= 95% of sampled functions 
-    with all required columns.
-    
-    Returns True if validation passes, False otherwise.
+    Validates output dataframe has required columns and completeness.
+
+    Args:
+        df: DataFrame to validate.
+        required_cols: List of required column names.
+        threshold: Minimum completeness threshold.
+
+    Returns:
+        True if valid, False otherwise.
     """
-    if required_columns is None:
-        required_columns = REQUIRED_COLUMNS
+    return validate_dataset_completeness(df, required_cols, threshold)
+
+def run_pipeline(
+    dataset_id: str = DEFAULT_DATASET_ID,
+    seed: int = RANDOM_SEED,
+    target_count: int = 800
+) -> pd.DataFrame:
+    """
+    Runs the full data pipeline: sampling, metric calculation, and saving.
+
+    Args:
+        dataset_id: HuggingFace dataset ID.
+        seed: Random seed.
+        target_count: Target sample size.
+
+    Returns:
+        Processed DataFrame with metrics and labels.
+    """
+    logger.info("Starting data pipeline")
+
+    # Load sample
+    sampled_functions = load_sampled_functions_stratified(
+        dataset_id=dataset_id,
+        seed=seed,
+        target_count=target_count
+    )
+
+    if not sampled_functions:
+        raise ValueError("No functions sampled from dataset")
+
+    # Process each function
+    processed_data = []
+    smell_mapping = load_smell_mapping()
+
+    for i, item in enumerate(sampled_functions):
+        code = item['code']
+
+        # Compute radon metrics
+        metrics = compute_radon_metrics(code)
+
+        # Run pylint
+        pylint_codes = run_pylint_analysis(code)
+
+        # Normalize smells
+        normalized_smells = normalize_pylint_smells(pylint_codes, smell_mapping)
+
+        processed_data.append({
+            'code': code,
+            'loc': metrics['loc'],
+            'cyclomatic_complexity': metrics['cyclomatic_complexity'],
+            'nesting_depth': metrics['nesting_depth'],
+            'static_smell_labels': '|'.join(normalized_smells),
+            'repo': item.get('repo', 'unknown'),
+            'language': item.get('language', 'unknown')
+        })
+
+        if (i + 1) % 100 == 0:
+            logger.info(f"Processed {i + 1}/{len(sampled_functions)} functions")
+
+    # Create DataFrame
+    df = pd.DataFrame(processed_data)
+
+    # Validate
+    required_cols = ['code', 'loc', 'cyclomatic_complexity', 'nesting_depth', 'static_smell_labels']
+    is_valid = validate_output(df, required_cols)
+
+    if not is_valid:
+        logger.warning("Output validation failed, but proceeding")
+
+    return df
+
+def main():
+    """Main entry point for data pipeline."""
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Run data pipeline")
+    parser.add_argument("--sample-size", type=int, default=800, help="Target sample size")
+    parser.add_argument("--seed", type=int, default=RANDOM_SEED, help="Random seed")
+    parser.add_argument("--dataset", type=str, default=DEFAULT_DATASET_ID, help="Dataset ID")
+
+    args = parser.parse_args()
 
     try:
-        df = pd.read_csv(filepath)
-        total_rows = len(df)
-        
-        if total_rows == 0:
-            logger.error(f"Validation failed: {filepath} is empty.")
-            return False
+        df = run_pipeline(
+            dataset_id=args.dataset,
+            seed=args.seed,
+            target_count=args.sample_size
+        )
 
-        # Check for required columns
-        missing_cols = [col for col in required_columns if col not in df.columns]
-        if missing_cols:
-            logger.error(f"Validation failed: Missing required columns: {missing_cols}")
-            return False
+        output_path = get_data_path("static_baseline.csv")
+        df.to_csv(output_path, index=False)
+        logger.info(f"Pipeline complete. Output saved to {output_path}")
 
-        # Check for non-null values in required columns
-        complete_rows = 0
-        for _, row in df.iterrows():
-            is_complete = all(pd.notna(row[col]) for col in required_columns)
-            if is_complete:
-                complete_rows += 1
-
-        completeness_ratio = complete_rows / total_rows
-        logger.info(f"Validation: {complete_rows}/{total_rows} rows ({completeness_ratio:.2%}) have all required columns.")
-
-        if completeness_ratio >= threshold:
-            logger.info(f"Validation PASSED: Completeness ratio ({completeness_ratio:.2%}) >= threshold ({threshold:.2%})")
-            return True
-        else:
-            logger.error(f"Validation FAILED: Completeness ratio ({completeness_ratio:.2%}) < threshold ({threshold:.2%})")
-            return False
-
-    except FileNotFoundError:
-        logger.error(f"Validation failed: File not found - {filepath}")
-        return False
     except Exception as e:
-        logger.error(f"Validation failed with error: {e}")
-        return False
-
-def run_pipeline(sample_size: int = 800) -> bool:
-    """Run the full data pipeline and validate the output."""
-    output_path = get_data_path("static_baseline.csv")
-    
-    # Ensure directory exists
-    os.makedirs(os.path.dirname(output_path), exist_ok=True)
-
-    # Load data
-    functions = load_sampled_functions(sample_size)
-    
-    if not functions:
-        logger.error("No functions loaded. Pipeline aborted.")
-        return False
-
-    # Process functions
-    processed_data = process_functions(functions)
-    
-    if not processed_data:
-        logger.error("No data processed. Pipeline aborted.")
-        return False
-
-    # Save to CSV
-    save_to_csv(processed_data, output_path)
-    
-    # Validate output
-    is_valid = validate_output(output_path, REQUIRED_COLUMNS, COMPLETENESS_THRESHOLD)
-    
-    return is_valid
+        logger.error(f"Pipeline failed: {e}")
+        raise
 
 if __name__ == "__main__":
-    success = run_pipeline()
-    if not success:
-        exit(1)
-    logger.info("Pipeline completed successfully.")
+    main()

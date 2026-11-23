@@ -1,7 +1,11 @@
 """
 Script to execute Task T016: Define housekeeping genes.
 
-This script runs the housekeeping gene definition pipeline and generates checksums.
+This script invokes the preprocess.py module to identify housekeeping genes
+based on the coefficient of variation (CV) of gene expression across samples.
+
+Input: data/processed/imputed_expression.csv
+Output: data/processed/housekeeping_genes.csv
 """
 import os
 import sys
@@ -11,67 +15,59 @@ from utils import checksum_file
 
 logging.basicConfig(
     level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    handlers=[
-        logging.StreamHandler(sys.stdout),
-        logging.FileHandler('logs/t016.log')
-    ]
+    format='%(asctime)s - %(levelname)s - %(message)s'
 )
 logger = logging.getLogger(__name__)
 
 def main():
-    """Execute T016 pipeline."""
     input_file = "data/processed/imputed_expression.csv"
     output_file = "data/processed/housekeeping_genes.csv"
-    checksum_file_path = "logs/checksums.txt"
     
-    # Ensure directories exist
-    os.makedirs("data/processed", exist_ok=True)
-    os.makedirs("logs", exist_ok=True)
+    logger.info(f"Starting Task T016: Identifying housekeeping genes from {input_file}")
     
-    # Check if input file exists
     if not os.path.exists(input_file):
-        logger.error(f"Input file not found: {input_file}")
-        logger.error("Please run T014 first to generate imputed_expression.csv")
+        logger.error(f"Input file {input_file} not found. Task T016 cannot proceed.")
         sys.exit(1)
     
-    logger.info(f"Starting T016: Define housekeeping genes")
-    logger.info(f"Input: {input_file}")
-    logger.info(f"Output: {output_file}")
-    
-    # Run the preprocessing script
-    cmd = [
-        sys.executable, "code/preprocess.py",
-        "--input", input_file,
-        "--output", output_file,
-        "--n-genes", "500",
-        "--cv-threshold", "0.2",
-        "--gene-col", "gene_id"
-    ]
-    
+    # Check for blocked marker
+    blocked_marker = f"{input_file}.blocked"
+    if os.path.exists(blocked_marker):
+        logger.error(f"Input file {input_file} is blocked (marker exists). Task T016 cannot proceed.")
+        sys.exit(1)
+
     try:
+        # Run the preprocess module with the 'housekeeping' command
+        cmd = [
+            sys.executable, "code/preprocess.py", 
+            "housekeeping",
+            "--input", input_file,
+            "--output", output_file
+        ]
+        
         result = subprocess.run(cmd, check=True, capture_output=True, text=True)
-        logger.info("T016 preprocessing completed successfully")
-        logger.info(result.stdout)
+        
+        if result.stdout:
+            logger.info(result.stdout)
+        if result.stderr:
+            logger.warning(result.stderr) # Warnings are okay, but log them
+
+        if os.path.exists(output_file):
+            checksum = checksum_file(output_file)
+            logger.info(f"Task T016 completed successfully. Output: {output_file}, Checksum: {checksum}")
+            
+            # Optional: Record checksum in logs if needed, though task says record in state/...yaml
+            # For now, we just log it. The main pipeline might handle state updates.
+        else:
+            logger.error(f"Output file {output_file} was not created despite successful exit code.")
+            sys.exit(1)
+
     except subprocess.CalledProcessError as e:
-        logger.error(f"Error running preprocessing script: {e}")
+        logger.error(f"Task T016 failed during execution: {e}")
         logger.error(f"stderr: {e.stderr}")
         sys.exit(1)
-    
-    # Generate checksum
-    if os.path.exists(output_file):
-        checksum = checksum_file(output_file)
-        logger.info(f"Checksum for {output_file}: {checksum}")
-        
-        # Append to checksums log
-        with open(checksum_file_path, "a") as f:
-            f.write(f"{output_file}: {checksum}\n")
-        logger.info(f"Checksum recorded in {checksum_file_path}")
-    else:
-        logger.error(f"Output file not created: {output_file}")
+    except Exception as e:
+        logger.error(f"Unexpected error in T016 runner: {e}")
         sys.exit(1)
-    
-    logger.info("T016 completed successfully")
 
 if __name__ == "__main__":
     main()

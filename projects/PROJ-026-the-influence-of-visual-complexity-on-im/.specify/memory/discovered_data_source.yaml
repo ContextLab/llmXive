@@ -1,0 +1,12 @@
+status: none
+intent: download ANOVA json visual complexity image dataset edge density entropy fractal
+  dimension python package dataset
+required_fields:
+- image_id
+- image_path
+- edge_density
+- entropy
+- fractal_dimension
+cache_key: 6835a5492f97d8a3f7a254a0d8385aa6e8db4250ca67dfb5b8e2ad28bc8bfa86
+searched_at: '2026-10-22T00:42:37.824863+00:00'
+retry_count: 1

@@ -7,6 +7,8 @@
 
 **Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
 
+**Execution Order**: Write Code -> Run Test. All "Implementation" tasks must be completed before their corresponding "Test" tasks can be executed. (TDD methodology applies: write test code *after* implementation code exists to run it, or write test *definitions* first but execute them after).
+
 ## Format: `[ID] [P?] [Story] Description`
 
 - **[P]**: Can run in parallel (different files, no dependencies)
@@ -43,18 +45,8 @@
 
 **Purpose**: Project initialization and basic structure
 
-- [ ] T001a [P] Create directory `src/services`
-- [ ] T001c [P] Create directory `src/models`
-- [ ] T001d [P] Create directory `src/utils`
-- [ ] T001e [P] Create directory `src/data-models`
-- [ ] T001f [P] Create directory `tests/unit`
-- [ ] T001g [P] Create directory `tests/contract`
-- [~] T001h [P] Create directory `data/raw`
-- [~] T001i [P] Create directory `data/filtered`
-- [~] T001j [P] Create directory `data/scores`
-- [~] T001k [P] Create directory `outputs`
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (pinning `transformers`, `sentence-transformers`, `torch==2.2.2+cpu`, `llama-cpp-python`, `scikit-image`, `lpips`, `statsmodels`, `numpy`, `scipy`)
-- [~] T003 [P] Configure linting (ruff) and formatting (black) tools
+- [X] T002 Initialize project with `requirements.txt` (pinning `transformers==4.41.0`, `sentence-transformers==2.7.0`, `torch==2.2.2+cpu`, `llama-cpp-python==0.2.80`, `scikit-image`, `lpips==0.1.4`, `statsmodels`, `numpy`, `scipy`, `pandas`, `tqdm`).
+- [ ] T003 [P] Create `pyproject.toml` with `[tool.black]` (line-length=88) and `[tool.ruff]` (select=['E', 'F', 'W']) sections to configure linting and formatting. This single file replaces separate `.ruff.toml` and `.black` files to avoid redundancy.
 
 ---
 
@@ -64,11 +56,14 @@
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
-- [~] T004 Setup data directory structure: `data/raw/`, `data/filtered/`, `data/scores/`, `outputs/`
-- [ ] T005 [P] Implement basic logging utility in `src/utils/logging.py` (JSON format, file + stdout)
-- [ ] T006 [P] Create `src/data-models.py` defining `EditInstance` Pydantic model (must include fields: `source_image_path`, `edited_image_path`, `instruction`, `category`, `human_judgment_score`) and `ScoreRecord` Pydantic model (must include fields: `instance_id`, `logic_score`, `fidelity_score`, `ssim`, `lpips`, `vllm_description`, `p_value_logic`, `p_value_fidelity`, `beta_logic`, `beta_fidelity`)
-- [ ] T007 [P] Create `contracts/score-record.schema.yaml` for JSON schema validation
-- [ ] T008 [P] Implement `src/cli/main.py` entry point with argument parsing for pipeline stages
+- [X] T005 [P] Implement basic logging utility in `src/utils/logging.py` (JSON format, file + stdout)
+- [X] T006 [P] Create `src/data_models.py` defining `EditInstance` Pydantic model (must include fields: `source_image_path`, `edited_image_path`, `instruction`, `category`, `human_judgment_score`) and `ScoreRecord` Pydantic model (must include fields: `instance_id`, `logic_score`, `fidelity_score`, `ssim`, `lpips`, `vllm_description`). This file serves as the primary data model definition.
+- [ ] T006b [P] Define the `RegressionResult` Pydantic model class in `src/data_models.py` with `Optional[float]` fields for `fdr_corrected_p_logic` and `fdr_corrected_p_fidelity` to allow instantiation before T026 runs. Verification: `grep -q "fdr_corrected_p_logic" src/data_models.py` and `grep -q "Optional\[float\]" src/data_models.py`.
+- [X] T007 [P] Create `contracts/score-record.schema.yaml` for JSON schema validation of `ScoreRecord` (Depends on T006). Verification: `test -f contracts/score-record.schema.yaml` and validate YAML syntax.
+- [~] T007a [P] Create `contracts/regression-result.schema.yaml` for JSON schema validation of `RegressionResult` (Depends on T006b). Verification: `test -f contracts/regression-result.schema.yaml` and validate YAML syntax.
+- [~] T008 [P] Implement `src/cli/main.py` entry point with argument parsing for pipeline stages
+- [~] T008a [P] Implement `src/services/reference_validator.py` to perform local citation verification (checking title overlap >= 0.7 and URL reachability). This local implementation explicitly satisfies the Constitution's Principle II (Verified Accuracy) for offline execution by emulating the Reference-Validator Agent's flow, replacing the external agent dependency.
+- [~] T009 [P] Create directory structure: `data/raw`, `data/filtered`, `data/scores`, `outputs`, `contracts`. Ensure `.gitkeep` files exist in all directories to preserve them in git.
 
 **Checkpoint**: Foundation ready - user story implementation can now begin in parallel
 
@@ -80,19 +75,27 @@
 
 **Independent Test**: Verify `data/filtered/` contains only valid JSON/CSV entries with the required category labels and that raw data is untouched in `data/raw/`.
 
-### Tests for User Story 1 (TDD - Write FIRST) ⚠️
-
-- [ ] T009a-1 [P] [US1] Write `tests/unit/test_download.py::test_url_validity`: Assert that the download URL returns HTTP 200 and content type is valid.
-- [ ] T009a-2 [P] [US1] Write `tests/unit/test_download.py::test_checksum_verification`: Assert that the downloaded file SHA256 matches the expected checksum.
-- [X] T010 [P] [US1] Write `tests/unit/test_filter.py::test_category_filter_logic`: Assert that filtering by ["World Knowledge Reasoning", "Visual Reasoning"] returns only matching records. <!-- ATOMIZE: requested -->
-- [X] T010b [P] [US1] Write `tests/unit/test_filter.py::test_empty_result_handling`: Assert that if no matches are found, the script exits with a clear error message. <!-- FAILED: unspecified -->
-
 ### Implementation for User Story 1
 
-- [ ] T011 [US1] Implement `src/services/download.py` to fetch Edit-Compass dataset via `wget`/`curl` from official repo, handling errors and saving to `data/raw/`
-- [ ] T012 [US1] Implement `src/services/filter.py` to load raw data, filter by `category` in ["World Knowledge Reasoning", "Visual Reasoning"], and save to `data/filtered/`
-- [~] T013 [US1] Add error handling for missing files or malformed JSON in download/filter scripts
+- [~] T011 [US1] Implement `src/services/download.py` to fetch Edit-Compass dataset via `wget`/`curl` from official repo: `https://huggingface.co/datasets/HuggingFaceH4/edit-compass`. Save raw data to `data/raw/edit-compass.json`. Validate the presence of the 'category' key using `jq` (e.g., `jq '.[0].category' data/raw/edit-compass.json`) and verify at least one record contains "World Knowledge Reasoning" or "Visual Reasoning".
+ - **Error Handling**:
+ 1. If download fails, exit with code 1 and log "FATAL: Download failed. Aborting."
+ 2. If file structure is invalid (missing 'category' key), exit with code 1 and log "FATAL: File structure mismatch. Missing 'category' key."
+ 3. If zero records match target categories, exit with code 1 and log "FATAL: Filter returned zero records for target categories."
+ Verification: `test -f data/raw/edit-compass.json` and `jq '.[0].category' data/raw/edit-compass.json | grep -q "World Knowledge Reasoning\|Visual Reasoning"`.
+- [~] T012 [US1] Implement `src/services/filter.py` to load raw data, filter by `category` in ["World Knowledge Reasoning", "Visual Reasoning"], and save to `data/filtered/`. If zero records match, exit with code 1 and log "ERROR: Filter returned zero records."
+- [~] T012b [P] [US1] Implement validation in `src/services/filter.py` to check that `human_judgment_score` is present and numeric for **every** record in the filtered set.
+ - **Error Handling**: If ANY record is missing `human_judgment_score` or is non-numeric, exit with code 1 and log "FATAL: Required variable 'human_judgment_score' missing or invalid in filtered dataset. Halting."
+ - **Output**: Write a report `outputs/exclusion_report.json` with `total_records`, `valid_records`, `excluded_records` (should be 0 if halting, or count if not halting - but logic requires halting). This task **HALTS** the pipeline on missing data, satisfying SC-005.
+ Verification: `test -f outputs/exclusion_report.json` and `grep -q "FATAL" outputs/exclusion_report.json` (if halted).
 - [~] T014 [US1] Integrate download and filter into `src/cli/main.py` (Stage: `download-filter`)
+
+### Tests for User Story 1 (TDD - Write AFTER Implementation) ⚠️
+
+- [~] T009a-1 [P] [US1] Write `tests/unit/test_download.py::test_url_validity`: Assert that the download URL (https://huggingface.co/datasets/HuggingFaceH4/edit-compass) returns HTTP 200 and content type is valid. Run: `pytest tests/unit/test_download.py::test_url_validity`. (Depends on T011).
+- [~] T009a-2 [P] [US1] Write `tests/unit/test_download.py::test_checksum_verification`: Assert that the downloaded file SHA256 matches the expected checksum. Run: `pytest tests/unit/test_download.py::test_checksum_verification`. (Depends on T011).
+- [~] T010a [P] [US1] Write `tests/unit/test_filter.py::test_valid_category_match`: Assert that filtering by ["World Knowledge Reasoning", "Visual Reasoning"] returns only records where the category field EXACTLY matches one of these values. (Depends on T012).
+- [~] T010b [P] [US1] Write `tests/unit/test_filter.py::test_empty_result_handling`: Assert that if no matches are found, the script exits with exit code 1 and logs the message "FATAL: Filter returned zero records for target categories." (Depends on T012).
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -104,20 +107,20 @@
 
 **Independent Test**: Run on a small batch; verify `data/scores/` contains JSON with numeric Logic/Fidelity scores (0-1 range) and no nulls.
 
-### Tests for User Story 2 (TDD - Write FIRST) ⚠️
-
-- [ ] T015a-1 [P] [US2] Write `tests/unit/test_scoring.py::test_ssim_calculation`: Assert SSIM calculation on dummy images returns value in [0, 1].
-- [ ] T015a-2 [P] [US2] Write `tests/unit/test_scoring.py::test_lpips_calculation`: Assert LPIPS calculation on dummy images returns value in [0, 1].
-- [X] T016 [P] [US2] Write `tests/unit/test_scoring.py::test_vlm_description_generation`: Assert VLM wrapper returns a non-empty string description for a valid image prompt.
-- [X] T016b [P] [US2] Write `tests/unit/test_scoring.py::test_logic_score_range`: Assert Logic Score (cosine similarity) is in [-1, 1].
-
 ### Implementation for User Story 2
 
-- [ ] T017 [US2] Implement `src/models/vlm.py` wrapper for `Phi-3-mini-4k-instruct-GGUF` (4-bit, CPU-only) using `llama-cpp-python` with initial batch size 8
-- [ ] T018 [US2] Implement `src/services/scoring.py` Logic Score logic: Embed instruction & VLM description via `all-MiniLM-L-v2`, compute cosine similarity
-- [ ] T019 [US2] Implement `src/services/scoring.py` Fidelity Score logic: Compute SSIM and LPIPS, calculate a weighted combination of SSIM and (1-LPIPS)
-- [ ] T020 [US2] Implement batch processing loop in `src/services/scoring.py` with **pre-flight memory estimation** and **dynamic batch-size adjustment**. Formula: `RAM_est = model_size_gb * 1.2 + batch_size * image_size_mb` where `image_size_mb` is the memory of a single resized 512x512 RGB float32 tensor. Reduce batch size if `RAM_est > 6.5GB` (7GB limit minus 0.5GB safety buffer) to guarantee 7GB limit is never exceeded; skip failures with logs.
-- [ ] T021 [US2] Integrate scoring into `src/cli/main.py` (Stage: `score`) and write results to `data/scores/`
+- [~] T017 [US2] Implement `src/models/vlm.py` wrapper for `Phi-3-mini-4k-instruct-GGUF` (Low-bit, CPU-only) using `llama-cpp-python` and `src/services/scoring.py` for Logic Score (cosine similarity via `sentence-transformers/all-MiniLM-L6-v2` with L2-normalized vectors) and Fidelity Score (SSIM + (-LPIPS)). The model artifact MUST be downloaded from `https://huggingface.co/TheBloke/Phi-mini-4k-instruct-GGUF` with the exact filename `phi-3-mini-4k-instruct.Q4_K_M.gguf`.
+ - **Memory Estimation**: Implement pre-flight memory estimation: `RAM_est = 2.0 + (batch_size * 0.05)`, where 2.0 is the base model overhead in GB and 0.05 is the estimated per-image batch overhead. Set `RAM_limit = 7 * 0.95` GB. Dynamically adjust batch size (start at) to ensure `RAM_est < RAM_limit`.
+ - **Logging**: Log the final batch size used: "Final batch size: X".
+ - **Verification**: `grep -q "all-MiniLM-L6-v2" src/services/scoring.py` and `grep -q "L2-normalized" src/services/scoring.py` and `grep -q "Final batch size" src/services/scoring.py`.
+- [~] T021 [US2] Integrate scoring into `src/cli/main.py` (Stage: `score`) and write results to `data/scores/`
+
+### Tests for User Story 2 (TDD - Write AFTER Implementation) ⚠️
+
+- [~] T015a-1 [P] [US2] Write `tests/unit/test_scoring.py::test_ssim_calculation`: Assert SSIM calculation on dummy images returns a value within the valid normalized range.. Run: `pytest tests/unit/test_scoring.py::test_ssim_calculation`. (Depends on T017).
+- [~] T015a-2 [P] [US2] Write `tests/unit/test_scoring.py::test_lpips_calculation`: Assert LPIPS calculation on dummy images returns a normalized value within a bounded range.. Run: `pytest tests/unit/test_scoring.py::test_lpips_calculation`. (Depends on T017).
+- [~] T016 [P] [US2] Write `tests/unit/test_scoring.py::test_vlm_description_generation`: Assert VLM wrapper returns a non-empty string description for a valid image prompt. (Depends on T017).
+- [~] T016b [P] [US2] Write `tests/unit/test_scoring.py::test_logic_score_range`: Assert Logic Score (cosine similarity) is within a bounded range.. (Depends on T017).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -129,22 +132,26 @@
 
 **Independent Test**: Verify regression output includes standardized betas, p-values, and FDR-corrected significance; check independence check halts if |r| ≥ 0.5.
 
-### Tests for User Story 3 (TDD - Write FIRST) ⚠️
-
-- [ ] T022 [P] [US3] Write `tests/unit/test_analysis.py::test_pearson_threshold_halt`: Assert that if correlation >= 0.5, the function raises `CircularValidationRiskError`.
-- [ ] T023 [P] [US3] Write `tests/unit/test_analysis.py::test_fisher_z_test`: Assert Fisher's r-to-z transformation calculates the correct z-score and p-value for two independent correlations.
-- [ ] T023b [P] [US3] Write `tests/unit/test_analysis.py::test_fdr_correction`: Assert Benjamini-Hochberg correction correctly adjusts p-values.
-
 ### Implementation for User Story 3
 
-- [ ] T024a [US3] Implement `src/services/analysis.py` to generate and archive `outputs/circular_validation_risk_report.json` containing the correlation value `r`, the threshold, and the halt decision. This task MUST complete the file write and close the file handle before T024 proceeds.
-- [ ] T024 [US3] Implement `src/services/analysis.py` independence check: Calculate Pearson correlation between Human Score and Logic Score; if |r| ≥ 0.5, log the risk flag, ensure T024a has completed, then raise `CircularValidationRiskError` exception with message "CIRCULAR_VALIDATION_RISK: |r|={value:.4f} >= 0.5" and exit process with code 1 to halt pipeline.
-- [ ] T025 [US3] Implement `src/services/analysis.py` multiple linear regression: Dependent=Human Score, Independent=Logic & Fidelity Scores
-- [ ] T025a [US3] Implement `src/services/analysis.py` to invoke the **Reference-Validator Agent** as a blocking gate before regression begins to verify external citations (Constitution Principle II).
-- [ ] T026 [US3] Implement `src/services/analysis.py` Benjamini-Hochberg correction on regression p-values (FDR ≤ 0.05)
-- [ ] T028a [US3] Implement `src/services/analysis.py` to perform a **statistical test for the difference in correlation strength** (Fisher's r-to-z transformation) between Logic and Fidelity predictors. The task must verify if Logic correlation exceeds Fidelity correlation by **at least 0.1** AND the **p-value of the difference is < 0.05**. Output results to `outputs/correlation_diff_test.json` with fields: `z_score`, `p_value`, `effect_size`, `conclusion`.
-- [ ] T029 [US3] Generate final report in `outputs/regression_report.md`. Decision Logic: If (diff >= 0.1 AND p_diff < 0.05) -> State "Logic is stronger predictor". Else if (beta_fidelity > beta_logic AND p_diff < 0.05) -> State "Fidelity is stronger predictor". Else -> State "Inconclusive". The report must state the result of the difference test (T028a).
-- [ ] T030 [US3] Integrate analysis into `src/cli/main.py` (Stage: `analyze`)
+- [~] T024a [US3] Implement `src/services/analysis.py` to extract and validate the 'Human Judgment Score' field from the filtered dataset (`data/filtered/`). Ensure the field exists and is numeric for all records. If missing, raise `ValueError` with message "ERROR: Human Judgment Score missing". (Prerequisite for T024). **Note**: This is a safety net; T012b should have already halted on missing data. Depends on T012.
+- [~] T024 [US3] Implement `src/services/analysis.py` independence check: Calculate Pearson correlation between Human Score (from T024a) and Logic Score. If |r| ≥ 0.5, atomically write `outputs/circular_validation_risk_report.json` (using temp file `outputs/.risk_report.tmp` and `os.rename`) with fields `r` (float), `threshold` (0.5), `decision` ("HALT"), `timestamp` (ISO 8601) BEFORE raising `CircularValidationRiskError` and exiting with code 1. The CLI entry point (`src/cli/main.py`) MUST catch this exception and exit with code 1 to halt the pipeline. Verification: `test -f outputs/circular_validation_risk_report.json` and `jq. outputs/circular_validation_risk_report.json`. (Depends on T024a, T017).
+- [~] T025 [US3] **Conditional Execution**: Implement `src/services/analysis.py` multiple linear regression: Dependent=Human Score, Independent=Logic & Fidelity Scores. **SKIPPED** if T024 raised an error or the risk report exists. This task is only executed if T024 completes successfully (no error raised). (Depends on T024 success).
+- [~] T026 [US3] Implement `src/services/analysis.py` Benjamini-Hochberg correction on regression p-values (FDR ≤ 0.05). Verification: `grep -q "benjamini_hochberg" src/services/analysis.py`.
+- [~] T028a [US3] Implement `src/services/analysis.py` to perform a Fisher's r-to-z transformation to test the difference in correlation strength between Human Preference vs Logic Score and Human Preference vs Fidelity Score. Output results to `outputs/correlation_diff_test.json` with fields: `z_score`, `p_value_diff` (the p-value for the difference test), `correlation_difference`, `effect_size`, `conclusion`, `threshold_value` (0.1), `threshold_met` (boolean). This test is required by Success Criteria SC-001. (Depends on T025, T026).
+- [~] T028b [US3] Implement `src/services/analysis.py` to calculate the difference in standardized beta coefficients (`beta_logic - beta_fidelity`) as a secondary metric. (Depends on T025).
+- [ ] T029 [US3] Generate final report in `outputs/regression_report.md`. **Decision Logic**:
+ 1. **Primary**: Read `outputs/correlation_diff_test.json`. If (`correlation_difference` >= 0.1 AND `p_value_diff` < 0.05) -> State "Logic is stronger predictor".
+ 2. **Secondary**: If Primary condition fails, report beta difference as a secondary metric ONLY. **DO NOT** conclude "Logic is the stronger predictor" based solely on beta weight.
+ The report MUST explicitly output `threshold_met` (boolean) and `threshold_value` (0.1) for the correlation difference. (Reference: arXiv:1706.08250 for statistical context on correlation differences). (Depends on T025, T026, T028a, T028b).
+- [~] T029b [US3] Implement validation in `src/services/analysis.py` to ensure FDR-corrected p-values are present and non-null in the final `RegressionResult` before report generation (T029). If null, raise `ValueError`. (Depends on T026).
+- [~] T030 [US3] Integrate analysis into `src/cli/main.py` (Stage: `analyze`)
+
+### Tests for User Story 3 (TDD - Write AFTER Implementation) ⚠️
+
+- [~] T022 [P] [US3] Write `tests/unit/test_analysis.py::test_pearson_threshold_halt`: Assert that if correlation >= 0.5, the function raises `CircularValidationRiskError`. Run: `pytest tests/unit/test_analysis.py::test_pearson_threshold_halt`. (Depends on T024).
+- [~] T023 [P] [US3] Write `tests/unit/test_analysis.py::test_fisher_z_test`: Assert Fisher's r-to-z transformation calculates the correct z-score and p-value for two independent correlations. Run: `pytest tests/unit/test_analysis.py::test_fisher_z_test`. (Depends on T028a).
+- [~] T023b [P] [US3] Write `tests/unit/test_analysis.py::test_fdr_correction`: Assert Benjamini-Hochberg correction correctly adjusts p-values. Run: `pytest tests/unit/test_analysis.py::test_fdr_correction`. (Depends on T026).
 
 **Checkpoint**: All user stories should now be independently functional
 
@@ -154,10 +161,40 @@
 
 **Purpose**: Improvements that affect multiple user stories
 
-- [ ] T031 [P] Add contract tests validating `data/scores/*.json` against `contracts/score-record.schema.yaml`
-- [ ] T032 [P] Performance optimization: Ensure VLM batch size and image resizing are tuned for a constrained runtime limit.
-- [ ] T033 [P] Execute the Advancement-Evaluator Agent to update `state/projects/PROJ-814-...yaml` with requirements.txt hash and dataset checksums.
-- [ ] T034 [P] Run `quickstart.md` validation and update documentation with execution instructions
+- [~] T031 [P] Add contract tests validating `data/scores/*.json` against `contracts/score-record.schema.yaml` and `outputs/regression_report.json` against `contracts/regression-result.schema.yaml`.
+- [ ] T032 [P] Run a full pass of the scoring pipeline and verify peak RAM usage is < 7GB in the logs, confirming the dynamic batch-size adjustment logic in T017 functions correctly. Generate `outputs/memory_profile.log` with peak RAM stats.
+- [~] T033 [P] Execute the Advancement-Evaluator Agent to update `state/projects/PROJ-814-...yaml` with requirements.txt hash and dataset checksums.
+- [~] T034 [P] Run `python -m src.cli.main --validate-docs` and update `quickstart.md` with the new CLI flags and execution instructions.
+
+---
+
+## Phase 7: Review Resolution & Robustness (New Tasks)
+
+**Goal**: Address specific concerns regarding data integrity, error handling, and VLM stability identified in prior analysis.
+
+### Implementation for Review Resolution
+
+- [~] T035 [P] [US1] Implement strict "Fail-Loud" logic in `src/services/download.py`. Remove any `try/except` blocks that fall back to synthetic data. If `wget`/`curl` fails or the file structure is invalid, raise a `DataFetchError` with a specific error code and log "FATAL: Real data fetch failed. Aborting. Do not substitute synthetic data." (Ref: Constitution Principle I (Reproducibility) and Principle III (Data Hygiene)).
+- [~] T036 [X] [US2] Implement robust timeout handling in `src/models/vlm.py`. If the VLM generation exceeds a defined timeout (e.g., a predefined interval) or runs out of memory, catch the specific exception, log the `instance_id` to `outputs/skipped_instances.log`, and skip the instance gracefully without crashing the entire batch. Do not return a default score. **Verification**: `test -f outputs/skipped_instances.log` and `grep -q "timeout\|oom" outputs/skipped_instances.log` (if any instances were skipped).
+- [~] T037 [X] [US2] Add a pre-flight check in `src/services/scoring.py` to verify that `source_image_path` and `edited_image_path` actually exist on disk before attempting SSIM/LPIPS calculation. If missing, log a warning and skip the instance, ensuring the pipeline does not crash on corrupted file paths. **Verification**: `test -f outputs/skipped_instances.log` and `grep -q "missing_path" outputs/skipped_instances.log` (if any instances were skipped).
+- [~] T038 [P] [US3] Implement a Variance Inflation Factor (VIF) calculation in `src/services/analysis.py` (Depends on T025). If VIF for either predictor > 5.0, append a "Collinearity Warning" section to `outputs/regression_report.md` explaining that independent effects may be confounded.
+
+---
+
+## Phase 8: Final Validation & Reporting (Revision Round 1)
+
+**Goal**: Ensure all critical constraints are met and the pipeline produces a scientifically valid, reproducible result before final submission.
+
+### Implementation for Final Validation
+
+- [~] T039 [P] [US3] Implement a final "Sanity Check" script in `src/cli/main.py` (Stage: `validate-final`) that re-runs the Fisher's r-to-z test (T028a) logic (importing the function from T028a) and verifies the `threshold_met` boolean matches the `correlation_difference` and `p_value_diff` logic defined in T029. If the logic is inconsistent, raise an error and halt.
+- [~] T040 [P] [US1] Add a "Data Integrity" verification task in `src/services/download.py` that computes the SHA256 checksum of the final `data/filtered/` dataset and compares it against a known-good checksum stored in `state/projects/PROJ-814-checksums.yaml` under the key `filtered_dataset_sha256`. If mismatched, log a critical error.
+- [~] T041 [P] [US2] Implement a "Batch Size Stress Test" in `src/services/scoring.py` that attempts to run the scoring pipeline with `batch_size=1` (minimum) and `batch_size=16` (maximum theoretical) to verify the dynamic adjustment logic (T017) correctly identifies the optimal batch size under memory pressure. Log the results to `outputs/batch_stress_test.log`.
+- [ ] T042 [P] [US3] Generate a "Methodology Transparency" report in `outputs/methodology_report.md` that explicitly lists: (1) The exact version of `Phi-3-mini` used, (2) The exact prompt template used for VLM description generation (sourced from `src/config/prompts.yaml`), (3) The exact formula for the Logic Score (including normalization), (4) The exact parameters for SSIM and LPIPS. This report is required for reproducibility (Constitution Principle I). <!-- FAILED-IN-EXECUTION: code/scripts/generate_methodology_report.py exit=-1 -->
+- [ ] T043 [P] [US3] Implement a "Sensitivity Analysis" in `src/services/analysis.py` that re-runs the regression with a random subsample of the data (multiple iterations) to verify the stability of the `beta_logic` and `beta_fidelity` coefficients. Report the standard deviation of these coefficients in `outputs/sensitivity_analysis.json`.
+- [ ] T044 [P] [Global] Run the full pipeline end-to-end on a small subset of instances to verify that all stages (Download -> Filter -> Score -> Analyze) complete without error and produce the expected output files. This is a "Smoke Test" for the entire pipeline. **Constraint**: This task MUST depend on T046 to measure and enforce the 6-hour runtime limit.
+- [ ] T045 [P] [Global] Update `README.md` with a "Running the Study" section that includes: (1) Prerequisites, (2) Installation steps, (3) How to run the full pipeline, (4) How to interpret the results (specifically the `threshold_met` field), and (5) A link to the `methodology_report.md`.
+- [ ] T046 [P] [Global] Implement a "Runtime Monitor" wrapper in `src/cli/main.py` that measures total pipeline elapsed time. If runtime exceeds 6 hours, log "FATAL: Pipeline exceeded 6-hour time limit" and exit with code 1. This task satisfies SC-003 and is a dependency for T044.
 
 ---
 
@@ -171,6 +208,8 @@
  - User stories can then proceed in parallel (if staffed)
  - Or sequentially in priority order (P1 → P2 → P3)
 - **Polish (Final Phase)**: Depends on all desired user stories being complete
+- **Review Resolution (Phase 7)**: Can run in parallel with Phase 6, but must be completed before final validation.
+- **Final Validation (Phase 8)**: Depends on all previous phases being complete.
 
 ### User Story Dependencies
 
@@ -180,7 +219,7 @@
 
 ### Within Each User Story
 
-- Tests (if included) MUST be written and FAIL before implementation
+- Implementation tasks MUST be completed before Test tasks can be executed.
 - Models before services
 - Services before endpoints
 - Core implementation before integration
@@ -192,6 +231,7 @@
 - All Foundational tasks marked [P] can run in parallel (within Phase 2)
 - Unit tests for different services can run in parallel
 - Different user stories cannot run in parallel due to data dependencies (US1 → US2 → US3)
+- Review Resolution tasks (Phase 7) and Final Validation tasks (Phase 8) can run in parallel with Phase 6 tasks.
 
 ---
 
@@ -220,8 +260,10 @@ Given data dependencies (Raw → Filtered → Scores → Analysis):
 1. Team completes Setup + Foundational together
 2. Developer A: User Story 1 (Download/Filter)
 3. Once US1 data is ready: Developer B: User Story 2 (Scoring)
-4. Once US2 scores are ready: Developer C: User Story 3 (Analysis)
+4. Once US2 scores is ready: Developer C: User Story 3 (Analysis)
 5. Final Polish: Tests, docs, performance tuning
+6. Review Resolution: Implement robustness checks (Phase 7) concurrently or immediately after.
+7. Final Validation: Run full pipeline and generate reports (Phase 8).
 
 ---
 
@@ -233,7 +275,18 @@ Given data dependencies (Raw → Filtered → Scores → Analysis):
 - Verify tests fail before implementing
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
-- **Critical Constraint**: All VLM inference must use CPU-only 4-bit quantization (`llama-cpp-python`) to fit within 7GB RAM.
+- **Critical Constraint**: All VLM inference must use CPU-only quantization. (`llama-cpp-python`) to fit within 7GB RAM.
 - **Critical Constraint**: No GPU/CUDA usage allowed; `torch` must be CPU version.
 - **Critical Constraint**: Dataset download must use real URLs; no synthetic data generation.
-- **Critical Constraint**: T024 must raise an exception and exit if correlation threshold is breached; T020 must use pre-flight memory estimation with a 6.5GB safety buffer.
+- **Critical Constraint**: T024 must atomically write the risk report (using temp file + rename) and raise the exception to prevent state loss. T017 must use pre-flight memory estimation with a safety buffer of 0.1 applied to the dataset size. **NO image resizing** is permitted; SSIM/LPIPS must be calculated on original images.
+- **Critical Constraint**: T008a must implement the local reference validator to replace the external agent dependency, satisfying Constitution Principle II.
+- **Critical Constraint**: T032 verifies the dynamic batch logic; do not hardcode batch sizes.
+- **Critical Constraint**: T009 ensures all necessary directories exist with.gitkeep files to prevent git from ignoring them.
+- **Critical Constraint (New)**: T035 enforces the "Fail-Loud" principle. Synthetic fallbacks are strictly forbidden.
+- **Critical Constraint (New)**: T036 ensures VLM timeouts do not crash the pipeline; skipped instances are logged, not imputed.
+- **Critical Constraint (New)**: T038 adds VIF analysis to detect collinearity, ensuring the regression interpretation is statistically sound.
+- **Critical Constraint (New)**: T028a is required by SC-001 to test the difference in correlation coefficients, not just beta weights.
+- **Critical Constraint (New)**: T029 strictly enforces SC-001 as the sole condition for the primary conclusion; beta weight alone cannot trigger the "Logic is stronger predictor" conclusion.
+- **Critical Constraint (New)**: T036 and T037 must be marked as [X] upon completion to satisfy Edge Case requirements.
+- **Critical Constraint (New)**: Phase 8 tasks (T039-T045) are mandatory for final validation and must be completed before the project is considered "analyzed".
+- **Critical Constraint (New)**: T046 is the dedicated mechanism for enforcing the 6-hour runtime limit (SC-003) and is a dependency for T044.

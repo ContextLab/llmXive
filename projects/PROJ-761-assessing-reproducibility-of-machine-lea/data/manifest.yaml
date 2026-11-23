@@ -1,20 +1,35 @@
-# PROJ-761 Data Manifest
-# This file defines the source data and reported metrics for reproducibility assessment.
-# Per FR-001, it must contain: doi, repo_url, dataset_name, and reported_metrics.
-
-doi: "10.1021/acscatal.0c01234"
-repo_url: "https://github.com/example-org/reaction-yield-repro"
-dataset_name: "reaction_yield_dataset_v1"
-
-reported_metrics:
-  mae: 0.085
-  r2: 0.89
-  spearman_rho: 0.92
-
-# Optional metadata for reference
-description: "Example dataset for reaction yield reproducibility study"
-paper_title: "Reproducible Machine Learning for Chemical Reaction Yield Prediction"
-authors:
-  - "Smith, J."
-  - "Doe, A."
-year: 2024
+papers:
+  - doi: "10.1021/acscatal.0c01234"
+    dataset_name: "US202001234"
+    dataset_url: "https://raw.githubusercontent.com/ai-chemistry/us202001234/main/data.csv"
+    repo_url: "https://github.com/ai-chemistry/us202001234"
+    reported_metrics:
+      mae: 0.15
+      r2: 0.85
+      rho: 0.82
+    experimental_replicates: 3
+    reaction_conditions:
+      temperature: 80.0
+      solvent: "Toluene"
+      catalyst_loading: 1.5
+    yield_std_dev: 0.02
+    supplementary_files:
+      - "*_supp.pdf"
+      - "*_data.csv"
+  - doi: "10.1038/s41586-021-03456-x"
+    dataset_name: "Nature2021567"
+    dataset_url: "https://raw.githubusercontent.com/nature-ml/nature2021567/main/dataset.csv"
+    repo_url: "https://github.com/nature-ml/nature2021567"
+    reported_metrics:
+      mae: 0.12
+      r2: 0.88
+      rho: 0.86
+    experimental_replicates: 5
+    reaction_conditions:
+      temperature: 25.0
+      solvent: "Ethanol"
+      catalyst_loading: 0.5
+    yield_std_dev: 0.015
+    supplementary_files:
+      - "supplementary.pdf"
+      - "raw_data.csv"

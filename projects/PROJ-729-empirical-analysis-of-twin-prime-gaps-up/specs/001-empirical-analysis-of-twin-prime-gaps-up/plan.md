@@ -16,7 +16,7 @@ This project implements an empirical statistical analysis of twin prime gaps wit
 **Project Type**: Computational Research / CLI  
 **Performance Goals**: Complete full pipeline (generation + analysis) within 45 minutes; peak RAM < 2 GiB.  
 **Constraints**: No GPU; no external network calls for data (generation is local); deterministic execution (seeded RNGs).  
-**Scale/Scope**: [deferred] twin prime pairs up to $10^9$ (theoretical expectation).
+**Scale/Scope**: [deferred] twin prime pairs up to a sufficiently large upper bound (theoretical expectation).
 
 > Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
@@ -31,7 +31,7 @@ This project implements an empirical statistical analysis of twin prime gaps wit
 | **III. Data Hygiene** | **COMPLIANT** | Raw generated CSV will be checksummed. No in-place modification; derived statistics saved to new files. |
 | **IV. Single Source of Truth** | **COMPLIANT** | All figures and stats in the final report will be generated programmatically from the `data/` artifacts. |
 | **V. Versioning Discipline** | **COMPLIANT** | **FR-008** mandates the computation of SHA-256 hashes for all artifacts and the update of the project state YAML. The `hash_artifacts.py` script implements this mechanism. |
-| **VI. Computational Determinism & Resource Constraints** | **COMPLIANT** | `primesieve` is memory-efficient (sieve of Eratosthenes with wheel factorization). The dataset (~k rows) fits easily in 2 GiB RAM. Pipeline designed for ≤45 mins. |
+| **VI. Computational Determinism & Resource Constraints** | **COMPLIANT** | `primesieve` is memory-efficient (sieve of Eratosthenes with wheel factorization). The dataset (~k rows) fits easily in available RAM. Pipeline designed for ≤45 mins. |
 | **VII. Statistical Validation Integrity** | **COMPLIANT** | KS tests (Parametric Bootstrap) and two-sample distribution tests will use `scipy.stats` with documented parameters. Results saved to JSON. |
 
 ## Project Structure

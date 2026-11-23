@@ -1,36 +1,95 @@
+T001:
+  c: false
+  h: 4bb8a8a73ae935afc0d205c8df9301de2f63e0b4828c1982d1b5ebde4834cfeb
+  r: The `code/` directory contains many source files instead of being empty with
+    only a `.gitkeep`, and the required `logs/` directory (with a `.gitkeep`) is missing
+    entirely.
+  sig: 7378b3a1469c74b36e92259509f2ecde8a41b15510d0e4cf7b78fd8ad5d98b49
+T002:
+  c: false
+  h: bed6efbad7e93da0a3db97abf338e9d465f62202905ac6ec410a821e8957d877
+  r: The provided `requirements.txt` includes `scikit-learn`, which the task explicitly
+    required to be removed; thus the dependency list does not match the specification.
+    The file must be edited to contain only the listed packages (`numpy`, `scipy`,
+    `pandas`, `matplotlib`, `seaborn`, `pytest`, `statsmodels`) and omit `scikit-learn`.
+  sig: 3b9285c72e119cd839e00c3feee0f2d80d32501b761a459a3386fd6d481d7dea
+T003:
+  c: false
+  h: cd58a126612dccf4ce46f6e9c2a38954f6369e2930f2ae797f87c394fb67c62a
+  r: The repository contains a `pyproject.toml` with a Black configuration, but there
+    is no `setup.cfg` and the `pyproject.toml` lacks any Flake8 (or other linting)
+    settings. The task requires configuring both linting (Flake8) and formatting tools,
+    which is not satisfied. Adding a Flake8 section (e.g., `[tool.flake8]` with desired
+    options) to either `setup.cfg` or `pyproject.toml` would be needed.
+  sig: 408e7be356d09ff8c1eb90cf68cf40b6fcee8e65543bd6af3ae77e2358f588d8
+T004:
+  c: false
+  h: 07b7c415dd042376a72dcafd21322072f8d86a916ec8fbeb24320881c2ea3ff4
+  r: "The provided `code/config.py` exists and defines most required constants, but\
+    \ it does **not** expose a top\u2011level constant named `SEED_BASE` set to\u202F\
+    42 as the task specifies (it only uses a local `seed_base` variable inside `get_simulation_grid`).\
+    \ Consequently the required `SEED_BASE=42` parameter is missing. Adding `SEED_BASE\
+    \ = 42` (or renaming the existing variable) would satisfy the task."
+  sig: 12c2817427ffc2cc2016315ea1b9d197584c288b9e4b2fc7a9e3dc5139de50a6
+T005:
+  c: true
+  h: 17495e62d1fcd6d4ec22cccc6b0696640a030c5947c00ea7801aa705b58fc1fe
+  r: "The `code/__init__.py` file (resolved at `code/__init__.py`) is present, non\u2011\
+    empty (2.4\u202FKB), and defines a package\u2011level logger, helper functions\
+    \ for configuring logging, and exports the logger via `__all__`. This fulfills\
+    \ the task\u2019s requirement to implement the `__init__.py` module and provide\
+    \ basic logging infrastructure."
+  sig: 06744a1134576872d9f662e057955bb453c22ffb533ca2bb5054e5c3cb96395d
+T006:
+  c: true
+  h: dc0c4c49df81eb4931174418b11d24b59bdeb99cc95cbeceb5c4456251244623
+  r: "The evidence shows that both `data/raw/` and `data/processed/` directories exist\
+    \ in the project and each contains a `.gitkeep` file, fulfilling the task\u2019\
+    s requirement to create the directories with placeholder files."
+  sig: 997ee1903b7ed967bd0645133dcffd678d473dea1fa258ed6ee74b62c4188d27
 T014:
   c: false
-  h: 3b24f3ffd3f24e7d8aed0d2d5c5112d5811268857da5a033d72cc36b4803131f
+  h: 891f23fa890e88e6ac197873fe9341018c1521a9cb88c9f4b742274cd76d4bce
   r: The repository contains `code/run_data_gen.py`, but the file is truncated and
-    does not show code that actually writes the CSV, and the required output `data/raw/sample_validation.csv`
-    is absent. Consequently the required dataset with the specified schema and validation
-    checks is not present. The implementer must provide a complete script that generates
-    the CSV and include the generated `sample_validation.csv` file.
-T021b:
+    does not show the full implementation needed to write the required CSV. Moreover,
+    the expected output file `data/raw/sample_validation.csv` is absent. Without a
+    generated CSV containing the specified columns and checksum validation, the task
+    is not satisfied.
+T021c:
   c: false
-  h: fcc5164582cbca30438ed49200cdb3b00d46a4639acfeab843efb49778c42ded
-  r: "The repository lacks the required `data/processed/raw_pvalues.csv` file, and\
-    \ the `code/simulation_engine.py` source is truncated (e.g., the `generate_data`\
-    \ function is incomplete and there is no visible logic that writes raw p\u2011\
-    values to a CSV with the specified schema). Consequently the task\u2019s output\
-    \ and storage requirements are not met."
+  h: 4918e42abf222c2f4fcdaa3a382e983b2721ade3bd212113cf629419bacb2c5b
+  r: "The `validation_report.csv` file is absent, and the provided `simulation_engine.py`\
+    \ is truncated and contains no explicit validation routine comparing observed\
+    \ Type\u202FI error rates to the nominal alpha level. The required deliverable\
+    \ is therefore missing."
+T022:
+  c: true
+  h: d4d08153ffb5a6b993e3b709a6b6dc067b4c5462b150fceb3d57f779b6c16796
+  r: "The repository contains a non\u2011empty `code/run_simulation.py` (\u22487\u202F\
+    KB) that implements input\u2011file verification, logs \u201CERROR: Missing input\
+    \ files\u201D, exits with code\u202F1 when the required `raw_pvalues.csv` or `validation_report.csv`\
+    \ are absent, and includes scaffolding to run the full simulation batch and write\
+    \ intermediate results to `data/processed/`. The required input files are intentionally\
+    \ missing, and the script\u2019s fallback behavior matches the specification."
 T026b:
   c: false
-  h: 535e35ba6462a38d511e43046bb4083700beb5be6c369b3e3f07d6956140ba19
-  r: "The `code/analyzer.py` only contains placeholder functions (`analyze_stability_trend`\
-    \ is empty) and a variance calculator, not the required per\u2011sample\u2011\
-    size Type\u202FI error computation, regression trend analysis, CSV export, or\
-    \ plot generation. Moreover, the expected output file `data/processed/stability_trend.csv`\
-    \ does not exist."
-T027b:
+  h: c73563a9ccd21f64879a2ad7783a4fd222738b208415f1be1ffaaf126a9949ca
+  r: "The repository contains a partially\u2011implemented `code/analyzer.py` that\
+    \ stops at the start of `analyze_stability_trend` and does not include code to\
+    \ perform linear regression, write `data/processed/stability_trend.csv`, generate\
+    \ the required plot, or produce the slope/report with the success flag. The expected\
+    \ output file `stability_trend.csv` is absent. The task\u2019s core deliverables\
+    \ are therefore missing."
+T026c:
   c: false
-  h: 59dc1e61c222562f7439b5228e569de90abebb8f91152a0b7f927d0316af3d6c
-  r: "The repository contains a new `analyze_log_pvalue_regression` stub in `code/analyzer.py`,\
-    \ but the required input file `data/processed/raw_pvalues.csv` is absent, so the\
-    \ function cannot be exercised. Moreover, the posted code is truncated before\
-    \ showing the epsilon\u2011adjusted log\u2011transform, model fitting, and reporting\
-    \ of regression coefficients, indicating the implementation is incomplete. The\
-    \ missing CSV and incomplete function must be provided to satisfy T027b."
+  h: d5f693c5f1cd00524cc4bcc35628eaa12ec490e9bba005dc9bf60da559283330
+  r: "The repository contains a partially\u2011implemented `code/analyzer.py`, but\
+    \ it only loads and aggregates existing results; there is no visible logic that\
+    \ computes a per\u2011sample\u2011size Type\u202FI error trend, runs a linear\
+    \ regression, writes `data/processed/stability_trend.csv`, creates the required\
+    \ plot, or produces the report with slope and success flag. Moreover, the expected\
+    \ output file `data/processed/stability_trend.csv` is absent. The task therefore\
+    \ remains unfinished."
 T029:
   c: true
   h: a9dc4bab6d0351957b6ca0939b4befec7673979c2336654f3bff80672696c023
@@ -38,10 +97,3 @@ T029:
     \ function writes the aggregated DataFrame to `data/processed/error_rates.csv`\
     \ and generates plots in `data/processed/plots/` as specified. The required output\
     \ files will be created when the script is executed."
-T031:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No README.md content was provided; the claim of updated documentation cannot\
-    \ be verified because the required artifact is missing. The next implementer must\
-    \ add a non\u2011empty README.md that clearly explains how to execute the simulation\
-    \ and how to interpret its output."

@@ -31,7 +31,7 @@ The researcher trains a Random Forest classifier to predict cognitive decline st
 **Independent Test**: The pipeline can be executed to output a model file and a performance report (JSON/CSV) containing the ROC-AUC and F1-score for the nested cross-validation, without running the permutation test.
 
 **Acceptance Scenarios**:
-1. **Given** the feature matrix and binary labels, **When** the Random Forest classifier is trained with nested cross-validation (5-fold outer, grid search inner), **Then** the system outputs a performance report containing ROC-AUC, accuracy, and F1-score for each fold and the mean.
+1. **Given** the feature matrix and binary labels, **When** the Random Forest classifier is trained with nested cross-validation (5-fold outer, grid search inner), **Then** the system outputs a performance report containing ROC-AUC, accuracy, and F-score for each fold and the mean.
 2. **Given** the trained model, **When** it is applied to the test fold, **Then** the predicted probabilities are generated for all subjects in that fold.
 3. **Given** the model architecture, **When** it is trained on the CPU-only runner, **Then** the training time for the nested CV completes within 30 minutes, ensuring the full 6-hour job limit is respected.
 
@@ -46,7 +46,7 @@ The researcher performs a permutation test to validate that feature importance i
 **Independent Test**: The pipeline can take an existing model and performance metric, run the permutation test, and output a p-value and a sensitivity report showing metric variation across thresholds.
 
 **Acceptance Scenarios**:
-1. **Given** the trained model and original labels, **When** A sufficient number of label permutations are performed to ensure statistical robustness, bounded by a 2-hour runtime. and the model re-trained/re-evaluated, **Then** a p-value is calculated representing the proportion of permuted runs that achieved a higher ROC-AUC than the original model.
+1. **Given** the trained model and original labels, **When** A sufficient number of label permutations are performed to ensure statistical robustness, bounded by a reasonable runtime limit. and the model re-trained/re-evaluated, **Then** a p-value is calculated representing the proportion of permuted runs that achieved a higher ROC-AUC than the original model.
 2. **Given** the model's probability outputs, **When** the decision threshold is swept across a set of values including representative mid-range points, **Then** a report is generated showing how the False Positive Rate and False Negative Rate vary for each threshold.
 3. **Given** the observational nature of the data, **When** the results are summarized, **Then** the report explicitly frames findings as "associational" rather than "causal" in all text outputs.
 
@@ -68,10 +68,10 @@ The researcher performs a permutation test to validate that feature importance i
 - **FR-003**: System MUST train a Random Forest classifier (n_estimators=100, max_depth=None, random_seed=42) to predict cognitive decline status using topological features and perform 5-fold cross-validation. (See US-2)
 - **FR-004**: System MUST evaluate model performance using ROC-AUC, accuracy, and F1-score and output these metrics for each fold. (See US-2)
 - **FR-005**: System MUST perform a permutation test with n=500 label shuffles (bounded by max_runtime=2 hours) and random_seed=42 to calculate the statistical significance (p-value) of the model's predictive power. (See US-3)
-- **FR-006**: System MUST execute a sensitivity analysis by sweeping the decision threshold over the set {0.45, 0.50, 0.55} (standard ±0.05 bounds) and reporting the variation in false-positive and false-negative rates. (See US-3)
+- **FR-006**: System MUST execute a sensitivity analysis by sweeping the decision threshold over a range of values near the nominal 0.50 boundary (standard ±0.05 bounds) and reporting the variation in false-positive and false-negative rates. (See US-3)
 - **FR-007**: System MUST explicitly label all reported findings as "associational" and avoid causal language in the final output report, given the observational nature of the data. (See US-3)
 - **FR-008**: System MUST detect and handle predictor collinearity (correlation > 0.95) by excluding the feature with lower variance before model training. (See US-1)
-- **FR-010**: System MUST implement nested cross-validation with an outer loop of folds and an inner loop grid search over n_estimators and max_depth ∈ {5, 10, None} to prevent overfitting. The range of values for n_estimators will be explored to optimize performance. (See US-2)
+- **FR-010**: System MUST implement nested cross-validation with an outer loop of folds and an inner loop grid search over n_estimators and max_depth ∈ {small, medium, None} to prevent overfitting. The range of values for n_estimators will be explored to optimize performance. (See US-2)
 - **FR-011**: System MUST validate the model against an external clinical outcome (e.g., MCI conversion) where available in the dataset; if unavailable, the system MUST document this limitation in the final report. (See US-2)
 - **FR-012**: System MUST perform a sensitivity analysis on the cognitive decline threshold definition (±1 point variation) to assess the robustness of the label definition. (See US-3)
 
@@ -105,4 +105,4 @@ The researcher performs a permutation test to validate that feature importance i
 - The dataset contains no missing values for the primary graph metric calculations; if missing, the subject is excluded.
 - The "stable" vs. "decline" labels are pre-defined in the dataset or can be derived from the difference between baseline and follow-up scores without ambiguity.
 - The computational cost of 500 permutations is within the 6-hour job limit (estimated at < 2 hours).
-- The sensitivity analysis thresholds {0.45, 0.50, 0.55} are sufficient to capture the variability in classification performance for this dataset.
+- The sensitivity analysis thresholds including values near the decision boundary are sufficient. to capture the variability in classification performance for this dataset.

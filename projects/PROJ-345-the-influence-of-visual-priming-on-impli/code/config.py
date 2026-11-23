@@ -1,31 +1,95 @@
+"""
+Configuration module for the Visual Priming project.
+
+Defines base paths for data directories, state management, and
+ensures reproducibility by pinning random seeds across libraries.
+"""
 import os
 import random
 from pathlib import Path
 from typing import Any, Dict, Optional
 
-# Project root is assumed to be the directory containing this file's parent
-# Adjust based on actual project structure
-PROJECT_ROOT = Path(__file__).resolve().parent.parent
+import numpy as np
 
-def get_path(relative_path: str) -> Path:
-    """Get absolute path relative to project root."""
-    return PROJECT_ROOT / relative_path
+# Project Root (assumed to be the directory containing 'code' and 'data')
+_PROJECT_ROOT: Path = Path(__file__).resolve().parent.parent
 
-def set_seed(seed: int = 42) -> None:
-    """Set random seed for reproducibility."""
-    random.seed(seed)
-    os.environ['PYTHONHASHSEED'] = str(seed)
+# Base Directory Paths
+_PATHS: Dict[str, Path] = {
+    "raw": _PROJECT_ROOT / "data" / "raw",
+    "processed": _PROJECT_ROOT / "data" / "processed",
+    "primes": _PROJECT_ROOT / "data" / "primes",
+    "targets": _PROJECT_ROOT / "data" / "targets",
+    "state": _PROJECT_ROOT / "state" / "projects" / "PROJ-345",
+}
+
+# Default Random Seed for Reproducibility
+_RANDOM_SEED: int = 42
+
+class Config:
+    """
+    Configuration container providing direct access to paths and seed.
+    """
+    DATA_RAW: Path = _PATHS["raw"]
+    DATA_PROCESSED: Path = _PATHS["processed"]
+    PRIMES: Path = _PATHS["primes"]
+    TARGETS: Path = _PATHS["targets"]
+    STATE: Path = _PATHS["state"]
+    SEED: int = _RANDOM_SEED
 
 def ensure_directories() -> None:
-    """Create necessary directory structure."""
-    dirs = [
-        "data/raw",
-        "data/processed",
-        "data/primes",
-        "data/targets",
-        "code",
-        "tests",
-        "state/projects/PROJ-345"
-    ]
-    for d in dirs:
-        get_path(d).mkdir(parents=True, exist_ok=True)
+    """
+    Creates all base data and state directories if they do not exist.
+    
+    This function is idempotent and safe to call multiple times.
+    """
+    for path in _PATHS.values():
+        path.mkdir(parents=True, exist_ok=True)
+
+def get_path(key: str) -> Path:
+    """
+    Retrieves the Path object for a given directory key.
+    
+    Args:
+        key: The directory identifier (e.g., 'raw', 'processed', 'primes').
+            
+    Returns:
+        The absolute Path object.
+        
+    Raises:
+        KeyError: If the key is not recognized.
+    """
+    if key not in _PATHS:
+        raise KeyError(f"Unknown path key: {key}. Available keys: {list(_PATHS.keys())}")
+    return _PATHS[key]
+
+def get_all_base_paths() -> Dict[str, Path]:
+    """
+    Returns a copy of all configured base paths.
+    
+    Returns:
+        Dictionary mapping directory keys to Path objects.
+    """
+    return _PATHS.copy()
+
+def set_seed(seed: Optional[int] = None) -> None:
+    """
+    Sets the random seed for reproducibility across Python, NumPy, and random modules.
+    
+    Args:
+        seed: The integer seed to use. If None, uses the default _RANDOM_SEED.
+    """
+    if seed is None:
+        seed = _RANDOM_SEED
+    
+    random.seed(seed)
+    np.random.seed(seed)
+    
+def get_seed() -> int:
+    """
+    Returns the currently configured random seed.
+    
+    Returns:
+        The integer seed value.
+    """
+    return _RANDOM_SEED

@@ -12,8 +12,8 @@ project_root = Path(__file__).parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from code.symbolic.planner import SymbolicPlanner
-from code.exceptions import PARSE_FAILURE, CONTRADICTION_DETECTED, raise_parse_failure, raise_contradiction
+from code.symbolic.planner import SymbolicPlanner, CONTRADICTION_DETECTED, PARSE_FAILURE
+from code.exceptions import raise_parse_failure, raise_contradiction
 
 class TestSymbolicPlannerEdgeCases:
     """Tests for planner handling of edge cases."""

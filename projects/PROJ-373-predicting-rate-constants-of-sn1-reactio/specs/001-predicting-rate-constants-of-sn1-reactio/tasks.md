@@ -1,295 +1,120 @@
 # Tasks: Predicting Rate Constants of SN1 Reactions from Molecular Structure
 
-**Input**: Design documents from `/specs/001-predict-sn1-rate-constants/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories)
-
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `code/`, `tests/` at repository root
-- Paths shown below assume single project - adjusted based on plan.md structure
-
----
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [X] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `specs/`)
-- [X] T002 Initialize Python 3.11 project with `requirements.txt` (rdkit, torch, scikit-learn, shap, pandas, pyyaml, datasets)
-- [X] T003 [P] Configure linting (ruff/flake8) and formatting (black) tools
-- [X] T007A [P] Create `pytest.ini` configuration file in project root to enable test discovery and coverage reporting. **Deliverable**: `pytest.ini` with `[pytest]` section defining test paths and markers.
-
----
-
-## Phase 2: Foundational (Blocking Prerequisites)
-
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
-
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
-
-- [X] T004 [P] Implement `code/config.py` for hyperparameters, paths, and random seeds
-- [X] T005 [P] Setup `code/utils/logger.py` and `code/utils/checksum.py` for logging and data integrity
-- [X] T006 [P] Create base data schemas in `specs/001-predict-sn1-rate-constants/contracts/`.
- **Mandatory Schema Definitions** (Must be written as YAML files):
- 1. `dataset.schema.yaml`:
- ```yaml
- type: object
- required:
- - smiles
- - rate_constant
- - substrate_class
- properties:
- smiles:
- type: string
- description: Canonical SMILES string
- rate_constant:
- type: number
- description: Experimental rate constant
- substrate_class:
- type: string
- enum: [secondary, tertiary]
- description: Substrate classification
- gasteiger_charges:
- type: array
- items:
- type: number
- description: Gasteiger partial charges
- topological_indices:
- type: array
- items:
- type: number
- description: Topological indices
- source_id:
- type: string
- description: Source database ID
- ```
- 2. `model_output.schema.yaml`:
- ```yaml
- type: object
- required:
- - model_id
- - metrics
- properties:
- model_id:
- type: string
- hyperparameters:
- type: object
- metrics:
- type: object
- properties:
- r2:
- type: number
- mae:
- type: number
- weights_path:
- type: string
- ```
- 3. `exclusion_report.schema.yaml`:
- ```yaml
- type: object
- required:
- - row_index
- - reason
- - original_smiles
- properties:
- row_index:
- type: integer
- reason:
- type: string
- enum: [parsing_error, missing_rate, invalid_substrate]
- original_smiles:
- type: string
- ```
-- [ ] T007B [P] Implement contract test harness in `tests/contract/`. **Deliverable**: Create `tests/contract/__init__.py` and a base test runner that loads YAML schemas from `contracts/` and validates JSON/CSV data against them. **DEPENDS ON**: T006, T007A.
+**Inputs**: `specs/001-predict-sn1-rate-constants/spec.md`, `plan.md`, `data-model.md`, `contracts/`
+**Branch**: `001-predict-sn1-rate-constants`
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+## Phase 1: Setup and first end‑to‑end analysis
 
----
+- [ ] T011a_Gate [US1] **REDO (verifier‑rejected; consolidates T011a/T011c/T011d/T011e)**: Implement and execute `code/data/atomic_gate.py` performing ALL FR‑009 validations and download in one script.   <!-- FAILED-IN-EXECUTION: code/data/atomic_gate.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/data/atomic_gate.py exit=1 -->
+  **File**: `code/data/atomic_gate.py`  
+  **Verification**: Generates `data/raw/sn1_raw_merged.parquet`, `data/processed/exclusion_raw.log`, `data/processed/.pipeline_status`; aborts with `ABORTED` on missing metadata.
 
-## Phase 3: User Story 1 - Data Ingestion and Preprocessing Pipeline (Priority: P1) 🎯 MVP
+- [ ] T016 [US1] **Distribution‑Shift Check**: After merging datasets in T011a_Gate, run `code/data/distribution_shift.py` to compare temperature and solvent distributions, flagging rows with outliers (> 3 σ) or solvents absent from both sources. Excludes flagged rows, logs reasons `distribution_shift` to `exclusion_raw.log`.  
+  **File**: `code/data/distribution_shift.py`  
+  **Verification**: `distribution_shift_report.json` records excluded row count and criteria.
 
-**Goal**: Ingest public SN1 kinetic datasets, parse SMILES, compute electronic descriptors, and produce a clean, stratified dataset ready for modeling.
+- [ ] T600 [US1] **REDO (verifier‑rejected)**: Complete `tests/unit/test_download_failure.py` to verify the no‑fallback guarantee of T011a_Gate.  
+  **File**: `tests/unit/test_download_failure.py`  
+  **Verification**: Asserts exit code 1, absence of any `synthetic_*` files, and correct `ABORTED` status/log.
 
-**Independent Test**: Running the ingestion script on a known subset of the NIST database produces a CSV with valid SMILES, rate constants, and descriptors, with ≥95% success rate and proper stratification.
+- [ ] T012 [US1] **REDO (verifier‑rejected)**: Implement and execute `code/data/clean.py` on the merged Parquet.  
+  **File**: `code/data/clean.py`  
+  **Logic**: Uses only schema‑allowed exclusion reason codes (`primary_substrate`, `canonicalization_error`, `gasteiger_convergence_error`, `invalid_smiles`, `missing_substrate_class`, `unit_conversion_error`, `invalid_substrate_label`, `distribution_shift`). Writes `data/processed/cleaned_intermediate.csv` and appends to `exclusion_raw.log`.  
+  **Verification**: Output has no primary rows, no nulls, and exclusion log validates against `exclusion_report.schema.yaml`.
 
-### Tests for User Story 1
+- [ ] T013 [US1] **REDO (verifier‑rejected)**: Implement and execute `code/data/descriptors.py` computing Gasteiger charges and topological indices (CPU‑only).  
+  **File**: `code/data/descriptors.py`  
+  **Logic**: On Gasteiger convergence failure logs `gasteiger_convergence_error` (allowed code) and excludes the row. Produces `data/processed/descriptors.csv`.  
+  **Verification**: ≥95 % of input rows survive; all exclusions appear in log with allowed codes.
 
-- [X] T008 [P] [US1] Contract test for dataset schema in `tests/contract/test_dataset_schema.py` (DEPENDS ON T006, T007B)
-- [X] T009 [P] [US1] Unit test for SMILES parsing and descriptor calculation in `tests/unit/test_descriptors.py`
-- [X] T010 [P] [US1] Unit test for substrate filtering logic (SN2 removal) in `tests/unit/test_filtering.py`
+- [ ] T015 [US1] **REDO (verifier‑rejected)**: Implement and execute `code/data/exclusion_report.py` to aggregate, map, and validate exclusion logs.  
+  **File**: `code/data/exclusion_report.py`  
+  **Logic**: Maps all logged reasons to the extended allowed set (see T999b) and validates each row against `contracts/exclusion_report.schema.yaml`. Writes `exclusion_mapped.json`, `exclusion_report.csv`, and `success_rate.json` (PASS/FAIL based on ≥0.95 retained).  
+  **Verification**: Files exist and pass schema validation.
 
-### Implementation for User Story 1
+- [ ] T014 [US1] **Stratified Split**: Implement `code/data/split.py` to create 70/15/15 train/val/test splits stratified by `substrate_class`.  
+  **File**: `code/data/split.py`  
+  **Verification**: `split_report.json` shows per‑class proportions within 5 % variance; splits are non‑overlapping. Note: This split is used for baseline training and quick sanity checks; the final held‑out evaluation for SC‑001 relies on the outer‑fold test sets generated in T022a.
 
-- [X] T011 [US1] Implement `code/data/ingest.py` to fetch verified SN1 data. **Primary Source**: HuggingFace dataset `chemistry/dts-sn1`. **Fallback**: UCI `ucimlrepo` SN subset. **Column Mapping**: Map `smiles` -> SMILES, `rate` -> rate_constant, `substrate` -> substrate_class. **Logic**: If HuggingFace columns differ, apply transformation: `rate_constant = abs(row['rate'])`, `substrate_class = row['substrate'].lower()`. Handle missing values by logging to exclusion report.
-- [X] T013 [US1] Implement `code/data/descriptors.py` to compute Gasteiger partial charges and topological indices using RDKit (CPU-only, approved alternative to PM7 per Constitution Amendment).
-- [ ] T012 [US1] Implement `code/data/clean.py` to canonicalize SMILES and filter primary alkyl halides. **Filtering Rule**: Calculate `steric_hindrance_index = (CalcNumRotatableBonds + CalcMolMR) / MolecularWeight`. Filter row if `steric_hindrance_index > 2.0` OR if substrate class is explicitly 'primary'. **Justification**: This formula is the RDKit-compliant proxy for the spec's "steric hindrance index" requirement, normalized to ensure dimensional consistency with the threshold 2.0. Log all exclusions with reason. **DEPENDS ON**: T011, T013.
-- [ ] T015 [US1] Generate exclusion report for invalid rows and save to `data/processed/exclusion_report.csv`. **Logic**: Aggregate exclusion logs from T012 (filtering) and T013 (descriptor calculation failures) into a single CSV with columns `row_index`, `reason`, `original_smiles`. Ensure the report matches `exclusion_report.schema.yaml`. **DEPENDS ON**: T011, T012, T013.
-- [ ] T016 [US1] Save final processed dataset to `data/processed/cleaned_sn1.csv` with checksum. **DEPENDS ON**: T015.
-- [X] T014 [US1] Implement `code/data/split.py` to perform a stratified split by substrate class (secondary/tertiary) into training, validation, and test sets with a majority portion allocated to training. **DEPENDS ON**: T016.
+- [ ] T019 **Preserved Artifact – Training CLI**: `code/train.py` provides a CLI `python -m code.train --config <path> --max-runtime <seconds>` that trains the MPNN (or baselines) and respects the runtime limit.  
+  **File**: `code/train.py`
 
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [ ] T020 **Preserved Artifact – Evaluation CLI**: `code/evaluate.py` offers `python -m code.evaluate --model <path> --split <train|val|test>` for inference and metric calculation.  
+  **File**: `code/evaluate.py`
 
----
+- [ ] T021 **Preserved Artifact – MPNN Architecture**: `code/models/MPNN.py` defines the Message Passing Neural Network used throughout the project.  
+  **File**: `code/models/MPNN.py`
 
-## Phase 4: User Story 2 - Graph Neural Network Training and Evaluation (Priority: P2)
+- [ ] T024 **Preserved Artifact – Collinearity Unit Test**: `tests/unit/test_collinearity.py` validates VIF computation against known small examples.  
+  **File**: `tests/unit/test_collinearity.py`
 
-**Goal**: Train a Message Passing Neural Network (MPNN) on the processed dataset using CPU-only inference, perform hyperparameter optimization, and evaluate against baselines.
+## Phase 2: Complete the study and validate its evidence
 
-**Independent Test**: The training job completes within 6 hours on a 2-core CPU runner, saves model weights, and outputs R²/MAE metrics comparing MPNN to linear regression with statistical significance.
+- [ ] T022a [US2] **Nested CV – Outer Scaffold Splits**: Generate `data/processed/outer_folds.json` with 5 scaffold‑based outer folds.  
+  **File**: `code/modeling/outer_folds.py`  
+  **Verification**: JSON contains non‑overlapping train/validation indices per fold.
 
-### Implementation for User Story 2
+- [ ] T022b [US2] **Nested CV – Inner Random Search**: For each outer fold, run a 5‑fold inner CV (≤50 random configs) and record results in `artifacts/hyperparameter_search.csv`.  
+  **File**: `code/modeling/inner_search.py`  
+  **Verification**: CSV columns `config_id,learning_rate,hidden_dim,dropout,r2_val,mae_val`.
 
-- [X] T019 [US2] Implement `code/models/mpnn.py` with shallow architecture. **Constraint**: Layer count MUST be configurable via `config.py` but bounded between 1 and 4 layers. **Rationale**: The spec requires "configurable" layers, but the plan justifies the 1-4 bound as a CPU-tractable deviation. The code MUST allow configuration within these bounds. Enforce this via config validation.
-- [X] T020 [US2] Implement `code/models/train.py` with random search hyperparameter optimization (≤50 configurations).
-- [X] T021 [US2] Implement `code/models/evaluate.py` to calculate R² and MAE, and perform bootstrap comparison with a sufficient number of resamples against linear regression baseline.
-- [ ] T022 [US2] Save best model weights to `artifacts/best_model.pt` and metrics to `artifacts/metrics.json`. **Selection Logic**: Select the configuration with the highest validation R² from T021's output. **Schema**: `metrics.json` must conform to `model_output.schema.yaml`. **DEPENDS ON**: T016, T020, T021.
-- [ ] T023 [US2] Log top hyperparameter configurations and their validation scores to `artifacts/hyperparameter_search.log`. **Logic**: Identify top 10 configurations based on validation R² from T021. **DEPENDS ON**: T020, T021.
+- [ ] T022c [US2] **Baseline Training (Random, Linear, KRR)**: Train Random, Linear Regression, and **Kernel Ridge Regression (KRR)** baselines on each outer‑fold training split using the same descriptor set. Store metrics in `artifacts/baseline_metrics.csv`.  
+  **File**: `code/modeling/baselines.py`  
+  **Verification**: CSV includes `model_type` values `random`, `linear`, `krr`.
 
-### Tests for User Story 2
+- [ ] T022d [US2] **Bootstrap Comparison & SC‑001 Status**: Perform 1000 bootstrap resamples (seed = 42) comparing MPNN vs each baseline on R² and MAE, apply Holm‑Bonferroni correction, and write `artifacts/sc-001_status.json`.  
+  **File**: `code/modeling/bootstrap_compare.py`  
+  **Verification**: JSON conforms to amended `model_output.schema.yaml` and contains `delta_r2`, `p_value`, `status`.
 
-- [X] T017 [P] [US2] Unit test for MPNN architecture and forward pass in `tests/unit/test_mpnn.py` (DEPENDS ON T019)
-- [X] T018 [P] [US2] Integration test for training loop with small subset in `tests/integration/test_training.py` (DEPENDS ON T019, T020)
+- [ ] T999a **Schema Amendment – Add KRR Baseline**: Extend `contracts/model_output.schema.yaml` to (a) add `"KRR"` to the `model_type` enum, (b) add a `krr` object under `baselines` with required `r2` and `mae`.  
+  **File**: `specs/001-predicting-rate-constants-of-sn1-reactio/contracts/model_output.schema.yaml`
 
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
+- [ ] T022 [US2] **Orchestrate Modeling Stage**: Run T022a → T022b → T022c → T022d sequentially. Save best MPNN weights to `artifacts/best_model.pt` and overall metrics to `artifacts/metrics.json` (conforming to amended schema).  
+  **File**: `code/modeling/run_pipeline.py`  
+  **Verification**: All downstream artifacts exist; `metrics.json` validates.
 
----
+- [ ] T602 [US2] **Timeout Mechanism Test**: Complete `tests/integration/test_timeout_mechanism.py` verifying that `code/train.py` respects `--max-runtime`.  
+  **File**: `tests/integration/test_timeout_mechanism.py`  
+  **Verification**: Test passes; `artifacts/feasibility_test_log.json` records timeout status.
 
-## Phase 5: User Story 3 - Interpretability and Sensitivity Analysis (Priority: P3)
+- [ ] T028 [US3] **Collinearity Diagnostic**: Implement `code/analysis/collinearity.py` (FR‑007). Excludes Gasteiger charges, computes VIF for all cross‑class descriptor pairs, flags VIF > 5, writes `artifacts/collinear_report.json`.  
+  **File**: `code/analysis/collinearity.py`  
+  **Verification**: JSON validates against `contracts/collinear.schema.yaml`; unit test `tests/unit/test_collinearity.py` passes.
 
-**Goal**: Generate feature importance analysis, perform sensitivity analysis, validate findings via perturbation studies, and run collinearity diagnostics.
+- [ ] T026 [US3] **SHAP Attributions**: Execute `code/analysis/interpret.py` on the best model to produce SHAP values, then `code/analysis/aggregate_shap.py` to obtain top‑10 atoms. Save `artifacts/node_shap_values.npy`, `node_to_atom_mapping.json`, `top_k_atoms.json`, and a summary plot.  
+  **Files**: `code/analysis/interpret.py`, `code/analysis/aggregate_shap.py`  
+  **Verification**: Plot and JSON/NPY exist; generated text contains no causal language.
 
-**Independent Test**: The interpretability module produces a SHAP summary plot, a sensitivity report, and a perturbation study confirming feature importance correlates with predictive performance.
+- [ ] T029A [US3] **Descriptor Sensitivity Sweep**: Rank descriptors by absolute SHAP magnitude. For k = 1 .. 10, remove the top‑k descriptors, retrain MPNN using the full Nested CV pipeline, and record metrics in `artifacts/sensitivity_k{N}_metrics.json`. Compile results into `artifacts/descriptor_sensitivity_report.csv` and compute variance of R². **No fallback to a subset is permitted**; if runtime exceeds the 5.5 h budget the task fails and flags SC‑003 as unmet.  
+  **File**: `code/analysis/sensitivity_sweep.py`  
+  **Verification**: Variance < 0.01 recorded; all per‑k metric files exist.
 
-### Implementation for User Story 3
+- [ ] T029B [US3] **Atom Perturbation Study**: Implement `code/analysis/atom_perturbation.py` to zero features of top‑k atoms (from `top_k_atoms.json`) in the test split, re‑run inference via `code/evaluate.py`, and report R² drop in `artifacts/atom_perturbation_report.md`.  
+  **File**: `code/analysis/atom_perturbation.py`  
+  **Verification**: Report contains pre/post R² and references the atom list.
 
-- [X] T026 [US3] Implement `code/analysis/interpret.py` to generate SHAP values, rank the most salient structural features, and create summary plots for a single model. **DEPENDS ON**: T020, T021.
-- [ ] T035 [US3] Implement `code/analysis/consistency.py` to re-run training with 5 different random seeds (from `config.py`), generate SHAP rankings for each, and compute the consistency metric (Kendall's Tau) across seeds. **Deliverable**: `artifacts/shap_consistency_report.md` confirming stability. **DEPENDS ON**: T020, T021, T026.
-- [ ] T036 [US3] Implement `code/analysis/sensitivity_runner.py` to orchestrate the re-training of models with different feature subsets for sensitivity analysis. **Logic**: For each threshold in {0.01, 0.02, 0.05, 0.1, 0.2}, filter descriptors based on variance < threshold, re-train the model (using T020 logic), and evaluate. **DEPENDS ON**: T020, T021.
-- [ ] T027 [US3] Implement `code/analysis/sensitivity.py` to aggregate results from T036 and generate the sensitivity report. **Logic**: Sweep thresholds for descriptor inclusion (variance < threshold) over a range of low-to-moderate values. Report resulting R² and MAE variance. **Constraint**: Do NOT modify descriptor magnitudes; only filter which descriptors are included in the model input. **DEPENDS ON**: T036.
-- [X] T028 [US3] Implement `code/analysis/collinearity.py` to calculate VIF, flag pairs > 5, and perform PCA if necessary (DEPENDS ON T020, T021)
-- [ ] T029 [US3] Implement perturbation study in `code/analysis/interpret.py`. **Method**: Identify top SHAP-ranked descriptors. **Mapping**: Map these global feature indices to the corresponding node feature indices in the graph input tensor. For each, create a perturbed dataset by **zeroing out the corresponding node features** (graph masking), re-run inference, and measure the drop in R². **Justification**: Graph masking is the approved implementation of "feature removal" for MPNNs, satisfying the semantic requirement of FR-008. **Constraint**: Do NOT remove columns from feature matrix; use graph masking to align with MPNN architecture. (DEPENDS ON T020, T021, T026)
-- [ ] T030 [US3] Generate `artifacts/feature_importance.png`, `artifacts/sensitivity_report.csv`, and `artifacts/perturbation_results.csv`. **Format**: `sensitivity_report.csv` columns: `cutoff`, `r2`, `mae` (comma-delimited). `perturbation_results.csv` columns: `feature_id`, `original_r2`, `perturbed_r2`, `delta` (comma-delimited). **DEPENDS ON**: T026, T027, T029.
+- [ ] T035A [US3] **SHAP Consistency Across Seeds**: Implement `code/analysis/multi_seed_runner.py`. Retrains MPNN across seeds `[42,1,2,3,4]`, generates per‑seed SHAP values, runs `code/analysis/consistency.py` to compute average Spearman rank correlation (PASS ≥ 0.8) and measures R² drop when top‑10 SHAP atoms are removed (PASS ≥ 0.02). Writes `artifacts/shap_consistency_report.md`.  
+  **File**: `code/analysis/multi_seed_runner.py`  
+  **Verification**: Report lists seeds, both PASS/FAIL decisions.
 
-### Tests for User Story 3
+- [ ] T039 [US3] **Final Comprehensive Report & Combined Output**: Generate `artifacts/final_report.md` aggregating all real outputs and produce `artifacts/combined_output.json` conforming to `contracts/output.schema.yaml`. Includes PASS/FAIL for SC‑001 through SC‑005 using thresholds defined in earlier tasks.  
+  **File**: `code/reporting/generate_final_report.py`  
+  **Verification**: `combined_output.json` validates; markdown references only real artifact sources; no causal language.
 
-- [X] T024 [P] [US3] Unit test for VIF calculation in `tests/unit/test_collinearity.py` (DEPENDS ON T028)
-- [X] T025 [P] [US3] Unit test for SHAP value generation in `tests/unit/test_shap.py` (DEPENDS ON T026)
+## Phase 3: Reproducible results and paper handoff
 
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T040 **End‑to‑End Validation Run**: Implement missing orchestration in `code/main.py` to wire ingestion, descriptor computation, splitting, modeling (Nested CV, baselines, bootstrap), interpretability (SHAP, sensitivity, perturbation, collinearity, consistency), and final report generation. Enforce `--max-runtime` for all training runs; on timeout write `artifacts/feasibility_test_log.json` with `status: 'TIMEOUT'` and actual runtime, then exit gracefully. On success record total runtime and set SC‑002 PASS/FAIL (runtime ≤ 6 h). Verify that **all** downstream artifacts (`metrics.json`, `combined_output.json`, etc.) exist after the run.  
+  **File**: `code/main.py` (updated orchestration)  
+  **Verification**: Log contains measured runtime and SC‑002 status; all required artifacts are present.
 
----
+- [ ] T999d **Documentation of Prior Artifacts**: Record that the following previously‑implemented artifacts are available for downstream tasks: `code/train.py`, `code/evaluate.py`, `code/models/MPNN.py`, `tests/unit/test_collinearity.py`. This satisfies ordering/executability concerns for T022, T602, and T028.  
+  **File**: `docs/legacy_artifacts.md`
 
-## Phase 6: Polish & Cross-Cutting Concerns
+- [ ] T999b **Schema Amendment – Extend Exclusion Report Reason Codes**: Update `contracts/exclusion_report.schema.yaml` to include the full set of reason codes used throughout the pipeline (`primary_substrate`, `canonicalization_error`, `gasteiger_convergence_error`, `invalid_smiles`, `missing_substrate_class`, `unit_conversion_error`, `invalid_substrate_label`, `distribution_shift`, `ambiguous_structure`, `ambiguous_stereochemistry`, `descriptor_failure`).  
+  **File**: `specs/001-predicting-rate-constants-of-sn1-reactio/contracts/exclusion_report.schema.yaml`
 
-**Purpose**: Improvements that affect multiple user stories
+- [ ] T999c **Standardize Reason Codes in Cleaning & Mapping**: Modify T012, T013, and T015 to emit and map only the codes listed in the amended schema (see T999b), guaranteeing schema compliance.  
+  **Files Modified**: `code/data/clean.py`, `code/data/descriptors.py`, `code/data/exclusion_report.py`
 
-- [ ] T031 [P] Documentation updates in `specs/001-predict-sn1-rate-constants/quickstart.md`
-- [X] T032 Code cleanup and refactoring of `code/main.py` orchestration script
-- [ ] T033 [P] Run full pipeline integration test on small subset to verify end-to-end flow. **Dependencies**: T016 (Data), T022 (Model). **Deliverable**: `artifacts/integration_test_report.md` confirming all phases execute without error. **DEPENDS ON**: T016, T022.
-- [ ] T034 [P] Validate `quickstart.md` against actual execution
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - **Strictly depends on T016 (cleaned dataset)**
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - **Strictly depends on T020/T021 (Training/Evaluation)**
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Data ingestion/cleaning before splitting
-- Splitting before training
-- Training before evaluation and interpretability
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel (once their respective implementations are complete)
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all tests for User Story 1 together (IF T006, T007B are complete):
-# Note: T008 depends on T006, T007B, so those must finish first.
-Task: "Contract test for dataset schema in tests/contract/test_dataset_schema.py" (DEPENDS ON T006, T007B)
-Task: "Unit test for SMILES parsing and descriptor calculation in tests/unit/test_descriptors.py"
-Task: "Unit test for substrate filtering logic in tests/unit/test_filtering.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement code/data/ingest.py to fetch verified SN1 data"
-Task: "Implement code/data/descriptors.py to compute Gasteiger charges"
-Task: "Implement code/data/clean.py to canonicalize SMILES and filter"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Data Pipeline)
- - Developer B: User Story 2 (Model Training)
- - Developer C: User Story 3 (Analysis)
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical Constraint**: All tasks must be executable on CPU-only CI with limited resources and a bounded time limit. No GPU, no 8-bit quantization, no heavy QM calculations.
-- **Note on Constitution VI**: The Plan explicitly substitutes Gasteiger charges for PM7 to satisfy CPU constraints. This deviation is documented in the Plan's Constitution Check and is the approved implementation path for this project.
+- [ ] T999f **Constitution Amendment – Waiver for Principle VII**: Add a formal amendment to the constitution granting a waiver for the exclusion of NIST/Reaxys/UCI datasets, documenting the justification and linking to the plan’s rationale.  
+  **File**: `constitution/waiver_principle_VII.md`

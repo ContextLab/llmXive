@@ -1,84 +1,64 @@
 # Research: Neural Correlates of Simulated Social Exclusion on Default Mode Network Dynamics
 
-## 1. Research Question & Hypothesis
+## Research Question
+Does acute simulated social exclusion (Cyberball) modulate functional connectivity dynamics within the Default Mode Network (DMN), specifically altering the **mean absolute correlation** among PCC, mPFC, and bilateral Angular Gyrus between Inclusion and Exclusion conditions?
 
-**Primary Question**: How does acute simulated social exclusion modulate functional connectivity dynamics within the default mode network (DMN)?
+## Dataset Strategy
 
-**Hypothesis**: Social exclusion will significantly alter the connectivity strength (mean absolute correlation) among DMN nodes (PCC, mPFC, angular gyrus) compared to inclusion conditions.
+Only verified datasets listed in the project’s “# Verified datasets” block may be used. The required Cyberball dataset (`ds000030`) is **verified** and available at:
 
-**Statistical Framing**: Per FR-007, findings will be framed as **associational** unless the dataset metadata explicitly confirms `randomization_verified: true`.
+- **ds000030 (Cyberball)** – https://openneuro.org/datasets/ds000030 – Provides pre‑processed fMRI with clear Inclusion/Exclusion event markers.
 
-**Power & Interpretation Strategy**:
-- **Limitation**: With N ~-20 and only 3 edges, statistical power for edge-wise tests is limited.
-- **Strategy**: Edge-wise results are treated as **exploratory**. The primary conclusion relies on the global Mean Absolute Correlation (MAC) metric. FDR correction is applied to edge-wise p-values as required by FR-011, but non-significant edge results will not invalidate the global finding.
+No alternative open dataset matches the required task design; thus the analysis proceeds with this dataset.
 
-## 2. Dataset Strategy
+## Methodology
 
-### Verified Datasets
-The plan utilizes the following verified sources. **No other URLs are used.**
+### 1. Data Ingestion & Quality Control (FR‑001, FR‑002, FR‑010, FR‑013)
+- **Download**: Fetch `ds000030` via the OpenNeuro API using the verified URL.  
+- **Motion QC**: Compute mean framewise displacement (FD) per subject; exclude any subject with **mean FD > 0.2 mm** (stricter than the constitutional 3 mm limit).  
+- **Event Verification**: Parse `events.tsv`; abort with error `101897695` if either “Inclusion” or “Exclusion” markers are missing.  
+- **Retry Logic**: Up to three attempts with exponential backoff (1 s → 2 s → 4 s); final failure emits `ERR_DATA_UNAVAILABLE`.
 
-| Dataset Name | Verified Source URL | Format | Usage |
-| :--- | :--- | :--- | :--- |
-| **OpenNeuro fMRI (Cyberball)** | https://openneuro.org/datasets/ds000030 | BIDS (NIfTI, JSON, TSV) | Source for fMRI time-series (NIfTI) and event markers (events.tsv). |
-| **BOLD Data** | https://huggingface.co/datasets/AmazonScience/bold/resolve/main/gender_prompt_wiki.json | JSONL | *Not used* (Text data, irrelevant for fMRI). |
-| **DMN** | https://huggingface.co/datasets/dmntrd/QuijoteFullText/resolve/main/data/test-00000-of-00001.parquet | Parquet | *Not used* (Text data, irrelevant for fMRI). |
-| **PCC** | https://huggingface.co/datasets/pccl-org/formal-logic-simple-order-simple-objects-blivergent-50/resolve/main/data/train-00000-of-00001-0f55ec16e93d84a6.parquet | Parquet | *Not used* (Logic data, irrelevant for fMRI). |
+### 2. ROI Extraction (FR‑003)
+- Apply Harvard‑Oxford DMN masks for PCC, mPFC, and a **combined bilateral Angular Gyrus** to the pre‑processed data and extract mean BOLD time‑series for each ROI and condition.  
+- If any ROI extraction fails for a subject, that subject is excluded from all downstream analyses (FR‑014).
 
-**Critical Dataset Fit Analysis**:
-- **Source**: The pipeline fetches **ds000030** directly from OpenNeuro. This is a BIDS-compliant dataset containing 4D NIfTI images and `events.tsv` files.
-- **Format**: Data is **not** a Parquet file. The pipeline downloads raw/preprocessed NIfTI images and parses `events.tsv` for condition labels.
-- **Validation**: The system checks that `events.tsv` contains "Inclusion" and "Exclusion" trial types. If missing, the pipeline halts with `ERR_DATA_UNAVAILABLE`.
-- **Subject Count**: The pipeline verifies N ≥ 10 after motion QC. If not, it halts with `ERR_N_INSUFFICIENT`.
+### 3. Connectivity Computation (FR‑004, FR‑005, FR‑018)
+- **Static**: Compute Pearson correlation matrices among the three ROIs separately for Inclusion and Exclusion.  
+- **Strength Metric**: Average the **absolute** Pearson correlations across the three unique ROI‑pair edges → “connectivity strength” per condition.  
+- **Dynamic**: Sliding‑window (30 s window, 5 s step) Pearson correlations; compute a **mean absolute** strength series per window and condition. No multiple‑comparison correction is applied across windows; series are reported descriptively with per‑subject mean ± SD.
 
-**Load Strategy**:
-- Use `bids` library to locate files.
-- Use `nilearn` to load NIfTI images with memory mapping (`mmap=True`) to avoid OOM errors.
-- Extract time-series using standard atlases (AAL/Harvard-Oxford) aligned to the dataset's space.
+### 4. Statistical Hypothesis Testing (FR‑006, FR‑016, FR‑015, FR‑017)
+- **Paired permutation test**: 10 000 permutations on per‑subject strength differences (Exclusion – Inclusion).  
+- **Random Seed**: Accept explicit `--seed` argument for reproducibility.  
+- **Outputs**: Two‑tailed p‑value, Cohen’s d, 95 % CI, null‑distribution histogram, bar plot with CI, ROI‑wise heatmaps for Inclusion and Exclusion (PNG).  
 
-## 3. Methodological Rigor
+### 5. Sensitivity Analysis (SC‑006)
+- Re‑run the pipeline across motion thresholds (0.2 mm, 0.3 mm, 0.4 mm, 0.5 mm). Plot p‑value vs. threshold; include in the final report.
 
-### Statistical Approach
-- **Metric**: Mean Absolute Correlation (MAC) across DMN edges (PCC-mPFC, PCC-Angular, mPFC-Angular).
-- **Test**: Non-parametric paired permutation test (FR-006).
-  - **Null Hypothesis**: No difference in connectivity strength between Inclusion and Exclusion.
-  - **Iterations**: Adaptive based on N, capped to ensure runtime < 6h.
-  - **Correction**: FDR (q ≤ 0.05) applied to edge-wise tests (FR-008, FR-011).
-- **Power/Sample Size**:
-  - Minimum N = 10 (FR-009).
-  - If N < 10, the system halts.
-  - No power calculation is performed *a priori* as the dataset is fixed; the plan acknowledges the limitation of small N if applicable.
-- **Causal Assumptions**:
-  - If `randomization_verified` is missing/false, claims are strictly **associational**.
-  - No causal inference is claimed without explicit randomization verification.
+### 6. Edge Cases & Error Handling
+- **Insufficient Subjects**: Halt with `101897696` if retained N < 10 (FR‑009).  
+- **Missing Condition**: Exclude subject from paired analysis (FR‑011).  
+- **API Failure**: Exponential backoff then `ERR_DATA_UNAVAILABLE` (FR‑013).  
+- **No Verified Source**: Immediate abort with `ERR_DATA_UNVERIFIED` (resolved – source now verified).  
 
-### Multiple Comparison Correction
-- **Global Metric**: The primary test (MAC difference) is a single test.
-- **Edge-wise**: FR-011 requires testing each edge individually. FDR correction (Benjamini-Hochberg) is applied to the p-values of the 3 edges.
+## Compute Feasibility
+All steps run on CPU‑only CI (2 CPU, ~7 GB RAM). Streaming NIfTI ensures memory stays within limits. Permutation test completes within minutes.
 
-### Motion Artifact Handling
-- **Threshold**: 3mm displacement (FR-002, Constitution Principle VI).
-- **Action**: Subjects exceeding this are excluded *before* connectivity analysis.
-- **Sensitivity**: A sensitivity curve (SC-005) will be generated by re-calculating metrics on the **fixed set of retained subjects** (those passing 3mm) using alternative thresholds (2mm, 4mm) for reporting. This is a **post-hoc robustness check** and does not alter the primary inclusion criteria or re-include excluded subjects.
+## Statistical Rigor
+- **Multiple Comparisons**: No FDR correction across sliding‑window time points (temporal autocorrelation violates independence). Edge‑wise tests are not performed; the composite absolute‑strength metric is the primary focus.  
+- **Power**: With a minimum retained N ≈ 10 the study can reliably detect large effects (Cohen’s d ≈ 0.8) at α = 0.05; smaller effects may be under‑powered and are reported as a limitation (SC‑007).  
+- **Causal Framing**: Results presented as *associational*.  
+- **Collinearity**: Using a single composite **mean absolute** strength metric respects the high inter‑ROI correlation structure.  
 
-### Collinearity & Measurement Validity
-- **Collinearity**: PCC, mPFC, and Angular Gyrus are distinct anatomical regions. However, they are functionally connected. Correlations are expected to be high. The plan does *not* claim independent effects of each node on the outcome, but rather the *network* strength.
-- **Validity**: The use of standard atlases (AAL/Harvard-Oxford) is assumed valid for DMN extraction.
+## Expected Deliverables (if data are available)
+- `results/figures/null_distribution.png`  
+- `results/figures/strength_difference_bar.png`  
+- `results/figures/heatmap_inclusion.png` & `heatmap_exclusion.png`  
+- `results/dynamic_summary.csv` (mean ± SD of dynamic series per subject)  
+- `results/report.md` summarizing statistics, effect sizes, and sensitivity curves.
 
-## 4. Compute Feasibility
+**Current Status**: Ready to run now that a verified Cyberball dataset URL is provided.
 
-- **Environment**: GitHub Actions Free Tier (2 CPU, 7GB RAM).
-- **Strategy**:
-  - **Data**: Process subjects sequentially. Use memory-mapped NIfTI loading (`nilearn`) to stream 4D data from disk.
-  - **Libraries**: `numpy`, `scipy`, `pandas` (CPU-optimized). No GPU libraries.
- - **Permutation**: Limit iterations (e.g., [deferred] - [deferred]) based on N to ensure < 6h runtime.
-  - **Storage**: Intermediate time-series files are kept in memory or temporary disk; only final results are written to `data/derived/`.
+---
 
-## 5. Risks & Mitigations
-
-| Risk | Mitigation |
-| :--- | :--- |
-| **Dataset Mismatch**: The downloaded dataset lacks event markers or N < 10. | Pipeline halts with explicit error code `ERR_N_INSUFFICIENT` or `ERR_DATA_UNAVAILABLE`. Report flags the gap. |
-| **Motion Exclusion**: >50% of subjects excluded due to >3mm motion. | Sensitivity analysis (SC-005) will show the impact. If N < 10 remains, project halts. |
-| **Runtime Exceeds 6h**: Permutation test too slow. | Reduce iterations; process subjects in parallel (if memory allows) or sequentially with progress bars. |
-| **Missing Condition**: Subject has Inclusion but not Exclusion. | Exclude subject (FR-010). |
-| **Memory Overflow**: 4D data exceeds 7GB RAM. | Use `nilearn` memory mapping; process one subject at a time. |

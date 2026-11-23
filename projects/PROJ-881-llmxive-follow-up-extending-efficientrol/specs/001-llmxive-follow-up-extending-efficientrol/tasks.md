@@ -1,225 +1,196 @@
-# Tasks: llmXive Follow-up: Entropy-Guided Validity Prediction in RL Rollouts
+# Tasks: llmXive Follow‑up: Entropy‑Guided Validity Prediction in RL Rollouts  
 
-**Input**: Design documents from `/specs/001-entropy-validity-prediction/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+**Inputs**: `spec.md`, `plan.md`, existing research artifacts, contracts, and reviewer feedback.  
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
-
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
-
-## Format: `[ID] [P?] [Story] Description`
-
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
-
-## Path Conventions
-
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
-
-## Phase 1: Setup (Shared Infrastructure)
-
-**Purpose**: Project initialization and basic structure
-
-- [ ] T001 Create project structure per implementation plan: create directories `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/`, `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/tests/`, `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/data/`, `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/docs/`, `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/scripts/`, `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/results/`, `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/contracts/` and files `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/requirements.txt`, `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/main.py`, `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/hash_manifest.py`, `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/.env.example`
-- [ ] T002 Create `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/requirements.txt` pinning versions for `transformers`, `torch`, `datasets`, `scikit-learn`, `pandas`, `numpy`, `h5py`, `pytest`, `statsmodels`
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+The checklist below follows the canonical `- [ ] T### [P?] [USx?] description …` format.  
+Checked boxes (`[X]`) indicate work already verified as correct.  
+Unchecked boxes (`[ ]`) denote work that still needs to be completed or has been reopened for revision.  
+Tasks are ordered to respect data‑flow dependencies; later tasks depend only on artifacts produced by earlier ones.
 
 ---
 
-## Phase 2: Foundational (Blocking Prerequisites)
+## Phase 0 – Research & Design  
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [X] T001a [Plan] Define Semantic Alignment logic for GSM8K.  
+  *Deliverable*: `specs/001-entropy-validity-prediction/contracts/semantic_alignment_gsm8k.md`.  
+- [X] T001a_v [Test] Verify `semantic_alignment_gsm8k.md` exists and conforms to the semantic‑alignment schema.  
+  *Path*: `tests/contract/test_semantic_alignment_gsm8k.py`.  
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [X] T001b [Plan] Define Semantic Alignment logic for MiniGrid.  
+  *Deliverable*: `specs/001-entropy-validity-prediction/contracts/semantic_alignment_minigrid.md`.  
+- [ ] T001b_v [Test] Verify `semantic_alignment_minigrid.md` exists and conforms to the semantic‑alignment schema.  
+  *Path*: `tests/contract/test_semantic_alignment_minigrid.py`.  
 
-- [ ] T004 [P] Implement `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/utils/entropy_calc.py` with Shannon entropy logic ($-\sum p_i \log p_i$) and explicit safe handling of log(0) for near-zero probability tokens, including the high confidence error edge case
-- [ ] T005 [P] Implement `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/utils/validators.py` for schema validation (TokenSequence, EntropyProfile, ValidityLabel)
-- [ ] T006 [P] Create `projects/PROJ-llmxive-follow-up-extending-efficientrol/code/src/data/preprocessing.py` with batched streaming mechanism with a configurable batch size to manage memory constraints.
-- [ ] T007 [P] Implement `projects/PROJ-llmxive-follow-up-extending-efficientrol/code/src/data/download.py` to fetch GSM8K and MiniGrid from HuggingFace Datasets with 500-example subset limit
-- [ ] T008 Create `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/main.py` orchestration script with CLI arguments `--dataset`, `--model`, `--seed` and logic to call download, generation, and analysis modules sequentially
-- [ ] T009 Create `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/.env.example` with keys for `HF_TOKEN`, `DATA_PATH`, `MODEL_PATH` and `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/config.py` to load them
+- [ ] T002 [Plan] Select a CPU‑feasible model and benchmark 0.5 B / 1.5 B / 7 B‑Int4 variants.   <!-- FAILED-IN-EXECUTION: code/scripts/evaluate_model_feasibility.py exit=1 --> <!-- FAILED-IN-EXECUTION: code/scripts/evaluate_model_feasibility.py exit=1 -->
+  *Deliverable*: `docs/model_selection.md`.  
+- [X] T002_v [Test] Verify `docs/model_selection.md` exists and documents a Llama‑2‑7B (or 1.5B) model as required by FR‑002.  
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
-
----
-
-## Phase 3: User Story 1 - Baseline Generation and Ground Truth Labeling (Priority: P1) 🎯 MVP
-
-**Goal**: Generate ground-truth token sequences for GSM8K and MiniGrid using a CPU-tractable model and label them with validity flags.
-
-**Independent Test**: Run baseline generation on a subset of GSM8K problems; verify output log contains complete token sequences and binary validity flags against known solutions.
-
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
-
-> **NOTE: Write these tests FIRST, ensure they FAIL before implementation**
-
-- [ ] T010 [P] [US1] Contract test for dataset schema in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/tests/contract/test_dataset_schema.py`
-- [ ] T011 [P] [US1] Integration test for ground truth labeling in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/tests/integration/test_ground_truth_labeling.py`
-
-### Implementation for User Story 1
-
-- [ ] T012 [P] [US1] Implement `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/generation/generation.py` baseline generation logic (single-pass, no GPU, temperature 0.0)
-- [ ] T013 [US1] Implement ground truth matching logic in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/generation/generation.py` (handle multiple valid paths for MiniGrid)
-- [ ] T014 [US1] Create output writer for JSONL format in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/generation/generation.py` (TokenSequence, ValidityLabel)
-- [ ] T015 [US1] Implement exception handling in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/generation/generation.py` for cases where no ground-truth path matches, logging a warning and marking validity as null
-- [ ] T016 [US1] Configure `logging` in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/generation/generation.py` to output JSON-formatted logs to `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/logs/generation.log` including token counts and validity distribution stats
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
+- [X] T003 [Plan] Design the Mixed‑Effects Logistic Regression (GLMM) formula and stratification plan.  
+  *Deliverable*: `docs/glmm_design.md`.  
+- [ ] T003_v [Test] Verify `docs/glmm_design.md` exists and is syntactically valid (basic markdown checks).  
 
 ---
 
-## Phase 4: User Story 2 - Intermediate State Extraction and Entropy Calculation (Priority: P2)
+## Phase 1 – Project Setup  
 
-**Goal**: Re-run baseline sequences with instrumentation to capture probability distributions and calculate Shannon entropy at every intermediate layer.
+- [ ] T004a [P] Create root directory structure (`setup.sh`).  
+- [ ] T004b [P] Add verification script `scripts/verify_structure.py`.  
+- [ ] T004c [P] Run verification and capture `project_structure.log`.  
 
-**Independent Test**: Re-run a subset of sequences with instrumentation; verify output log contains entropy values for every layer and token position with no missing values.
+- [ ] T005 [P] **Create `requirements.txt` at the correct location**  
+  *Path*: `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/requirements.txt`  
+  *Content*: Pin exact versions of `torch`, `transformers`, `datasets`, `scikit‑learn`, `pandas`, `numpy`, `pyyaml`, `pytest`, `statsmodels`, `psutil`, `huggingface_hub`, `pymer4`, `minigrid`, and any quantization libraries needed for Qwen‑1.5 models.  
+- [ ] T005_v [Test] Unit test `tests/unit/test_requirements_exist.py` checks file existence and that each line matches `^[a-zA-Z0-9_-]+==[0-9\.]+$`.  
 
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T006 [P] **Add full Python project configuration files**  
+  *Files & Paths*:  
+  - `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/pyproject.toml` (declares project metadata, build system, and `[tool.black]` settings).  
+  - `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/ruff.toml` (ruff linter configuration).  
+  - `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/.black.toml` (black formatter config).  
+- [ ] T006_v [Test] Unit test `tests/unit/test_pyproject_configs.py` asserts each file exists, is non‑empty, and parses as valid TOML.  
 
-- [ ] T017 [P] [US2] Contract test for entropy profile schema in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/tests/contract/test_entropy_profile_schema.py`
-- [ ] T018 [P] [US2] Integration test for intermediate state extraction in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/tests/integration/test_entropy_extraction.py`
+- [ ] T007a [P] Implement Shannon‑entropy helper `src/utils/entropy_calc.py`.  
+- [ ] T007a_v [Test] Unit test `tests/unit/test_entropy_calc.py` verifies correct entropy calculation on a known probability vector.  
 
-### Implementation for User Story 2
+- [ ] T007b [P] Unit test for entropy clamping (`tests/unit/test_entropy_calc.py`).  
+- [ ] T007b_v [Test] Verify the clamping test file exists and runs without error.  
 
-- [ ] T019 [P] [US2] Implement `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/generation/generation.py` hooks to capture layer-wise probability distributions
-- [ ] T020 [US2] Integrate `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/utils/entropy_calc.py` to compute entropy vectors for each token position
-- [ ] T021 [US2] Implement streaming/chunking logic in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/generation/generation.py` to process fixed-size token batches of 50 tokens and write to disk immediately to stay within 7GB RAM limit
-- [ ] T022 [US2] Create `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/data/preprocessing.py` logic to merge generation and extraction outputs into a single EntropyProfile record, explicitly referencing `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/contracts/entropy_profile.schema.yaml` and mandating preservation of layer-wise granularity (one entropy value per layer per token)
-- [ ] T023 [US2] Implement `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/data/preprocessing.py` function `validate_entropy_profile()` that references `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/contracts/entropy_profile.schema.yaml` and raises ValueError if any layer/token in an EntropyProfile record is None or missing entropy values
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Signal Decay Analysis and Threshold Optimization (Priority: P3)
-
-**Goal**: Fit logistic regression models to predict token validity from entropy values and identify optimal entropy thresholds.
-
-**Independent Test**: Run analysis on combined dataset; verify logistic regression fit, AUC-ROC calculation, p-value reporting, and threshold optimization.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T024 [P] [US3] Contract test for analysis result schema in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/tests/contract/test_analysis_result_schema.py`
-- [ ] T025 [P] [US3] Integration test for threshold optimization in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/tests/integration/test_threshold_optimization.py`
-
-### Implementation for User Story 3
-
-- [ ] T026 [P] [US3] Implement `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/analysis/logistic_model.py` using `statsmodels` for Logistic Regression with stratification (GSM8K vs MiniGrid) and layer pooling or continuous covariate (NO GLMM/random intercepts)
-- [ ] T027 [US3] Implement stratification logic in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/analysis/logistic_model.py` (GSM8K vs MiniGrid, early/mid/late layer pooling or continuous covariate)
-- [ ] T028 [US3] Implement `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/analysis/threshold_opt.py` to find optimal entropy threshold minimizing weighted false positive/negative sum
-- [ ] T029 [US3] Implement `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/analysis/sensitivity.py` for threshold sweep, calculate False Discovery Rate (FDR), and explicitly calculate FDR and compare against the nominal alpha level to verify SC-005
-- [ ] T030 [US3] Implement multiple-comparison correction (Bonferroni/Benjamini-Hochberg) in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/analysis/logistic_model.py`
-- [ ] T031 [US3] Implement logic in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/analysis/logistic_model.py` to catch p >= 0.05, log a warning, and return a result object with `significant=False` instead of crashing
-- [ ] T032 [US3] Implement `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/analysis/report.py` to write `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/results/final_report.json` containing AUC-ROC, p-values, and the recommended threshold from `threshold_opt.py`
-
-**Checkpoint**: All user stories should now be independently functional
+- [ ] T008 [P] Implement schema validators in `src/utils/validators.py`.  
+- [ ] T008_v [Test] Test `tests/contract/test_validators.py` ensures validators load and correctly validate example contracts.  
 
 ---
 
-## Phase 6: Polish & Cross-Cutting Concerns
+## Phase 2 – Foundational Infrastructure  
 
-**Purpose**: Improvements that affect multiple user stories
+### Data Download & Ground‑Truth Acquisition  
 
-- [ ] T033 [P] Update `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/README.md` with CLI usage examples and `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/docs/api.md` with docstrings for `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/generation/generation.py` and `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/analysis/logistic_model.py`
-- [ ] T034 Run `ruff check --fix` and `black .` on the entire `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/` directory and resolve all linting errors
-- [ ] T035 Profile `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/generation/generation.py` using `cProfile` and verify RAM usage stays < 6.5GB for sequences up to 500 tokens processed in batches of 50 tokens
-- [ ] T036 [P] Add unit tests in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/tests/unit/test_entropy_calc.py` covering edge cases (log(0), empty input) and `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/tests/unit/test_validators.py` for schema validation
-- [ ] T037 Implement input validation in `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/data/download.py` to reject non-HuggingFace URLs and add a PII scan script `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/scripts/pii_scan.py` that checks `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/data/` for regex patterns
-- [ ] T038 Execute `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/scripts/validate_quickstart.sh` to ensure all commands in `quickstart.md` run successfully in a fresh virtualenv
+- [ ] T009 [P] **Implement robust streaming batcher**  
+  *Path*: `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/data/preprocessing.py`  
+  *Function*: `stream_batch(examples: Iterable[Any], batch_size: int = 50) -> Iterator[List[Any]]`  
+  - Yields lists of at most `batch_size` items.  
+  - Raises `ConnectionError` or `FileNotFoundError` immediately if `datasets.load_dataset` fails.  
+  - Includes docstring describing the 50‑token guarantee.  
+- [ ] T009_v [Test] Integration test `tests/integration/test_preprocessing.py::test_stream_batch_yields_50_or_less` asserts every yielded batch length ≤ 50 and that a simulated load failure propagates as `ConnectionError`.  
 
----
+- [ ] T010 [P] **Download GSM8K and MiniGrid with strict caps**  
+  *Path*: `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/data/download.py`  
+  *Behaviour*:  
+  1. Use `datasets.load_dataset("gsm8k", split="train", streaming=True)` and `datasets.load_dataset("minigrid", name="MiniGrid", split="train", streaming=True)`.  
+  2. Apply `itertools.islice` to each iterator to keep **≤ 500 examples** per dataset.  
+  3. Write the streamed records to `data/raw/gsm8k.jsonl` and `data/raw/minigrid.jsonl` (JSONL, one record per line).  
+  4. If either download raises an exception, re‑raise `ConnectionError` or `FileNotFoundError` (no synthetic fallback).  
+- [ ] T010_v [Test] Unit test `tests/unit/test_download.py::test_download_capped_examples` asserts that the output files contain ≤ 500 lines each and that a forced network error bubbles up as `ConnectionError`.  
 
-## Dependencies & Execution Order
+- [ ] T012a [P] **Create canonical ground‑truth file**  
+  *Path*: `data/canonical_ground_truth.jsonl`  
+  *Process*:  
+  1. Load the raw GSM8K and MiniGrid files produced by T010.  
+  2. For GSM8K, extract the `answer` field from each record and write `{ "prompt_id": <id>, "task_type": "gsm8k", "canonical_solution": <answer> }`.  
+  3. For MiniGrid, extract `start_state` and `goal_state` (or the provided solution path) and write `{ "prompt_id": <id>, "task_type": "minigrid", "valid_paths": [] }` – the `valid_paths` list will be populated later by BFS (T012b).  
+- [ ] T012a_v [Test] Schema validation test `tests/contract/test_canonical_ground_truth_schema.py` loads the file and validates each record against `contracts/semantic_alignment.md` expectations.  
 
-### Phase Dependencies
+- [ ] T012b [P] **Populate MiniGrid `valid_paths`** using BFS over the environment graph.  
+  *Path*: `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/data/minigrid_paths.py`.  
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
-  - User stories can then proceed in parallel (if staffed)
-  - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
-- **User Story 2 (P2)**: Can start after Foundational (Phase 2) - Requires output from US1 for validation, but implementation is independent
-- **User Story 3 (P3)**: Can start after Foundational (Phase 2) - Requires data from US1 and US2, but implementation is independent
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Utilities before services
-- Services before endpoints
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
+- [ ] T012c [P] Verify model fits into 7 GB RAM (report generated).  
+- [ ] T012d‑e (failure‑path tasks) remain checked as they are only needed on SPEC‑VIOLATION.
 
 ---
 
-## Parallel Example: User Story 1
+## Phase 3 – User Story 1: Baseline Generation & Ground‑Truth Labelling  
 
-```bash
-# Launch all tests for User Story 1 together (if tests requested):
-Task: "Contract test for dataset schema in tests/contract/test_dataset_schema.py"
-Task: "Integration test for ground truth labeling in tests/integration/test_ground_truth_labeling.py"
-
-# Launch all models for User Story 1 together:
-Task: "Implement baseline generation logic in src/generation/generation.py"
-Task: "Implement ground truth matching logic in src/generation/generation.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
-   - Developer A: User Story 1
-   - Developer B: User Story 2
-   - Developer C: User Story 3
-3. Stories complete and integrate independently
+- [ ] T013 [Impl] Generate ground‑truth token sequences for GSM8K using the selected CPU‑feasible model (temperature 0.0).  
+  *Output*: `data/processed/gsm8k_sequences.jsonl`.  
+- [ ] T014 [Impl] Generate ground‑truth token sequences for MiniGrid (temperature 0.0).  
+  *Output*: `data/processed/minigrid_sequences.jsonl`.  
+- [ ] T015 [Impl] Apply Semantic Alignment (GSM8K) to label each token as valid/invalid.  
+  *Output*: `data/processed/gsm8k_labels.jsonl`.  
+- [ ] T016 [Impl] Apply Semantic Alignment (MiniGrid) to label each token as valid/invalid.  
+  *Output*: `data/processed/minigrid_labels.jsonl`.  
+- [ ] T017 [Impl] Merge GSM8K and MiniGrid labeled sequences into a unified dataset.  
+  *Output*: `data/processed/ground_truth_labels.jsonl`.  
+- [ ] T018 [Test] Unit test `tests/unit/test_generation.py` checks that generation scripts produce the expected number of records and that token IDs are integers.  
+- [ ] T019 [Test] Integration test `tests/integration/test_full_generation.py` runs the full generation‑labelling pipeline on a subset of 10 examples and verifies that every record contains a `validity_labels` array of matching length.  
 
 ---
 
-## Notes
+## Phase 4 – User Story 2: Intermediate‑State Extraction & Entropy Calculation  
 
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+- [ ] T022 [Impl] Instrument the model to capture logits at every transformer layer during generation.  
+  *File*: `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/generation/hook.py`.  
+- [ ] T023 [Impl] Compute Shannon entropy for each token at each layer from captured logits.  
+  *Output*: `data/processed/entropy_profiles.jsonl`.  
+- [ ] T024 [Impl] Process sequences **one at a time**, batching tokens in groups of 50 to stay within the 7 GB RAM limit (uses `stream_batch`).  
+  *File*: `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/analysis/entropy_extractor.py`.  
+- [ ] T025 [Test] Unit test `tests/unit/test_entropy_calc.py` validates entropy values against a manually computed example.  
+- [ ] T026 [Test] Integration test `tests/integration/test_entropy_pipeline.py` runs the full extraction on a small sample (≤ 20 tokens) and checks that the resulting JSONL contains the correct number of layer entries per token.  
+- [ ] T027 [Doc] Document the entropy extraction pipeline, including required environment variables and resource usage guidelines.  
+  *Path*: `docs/entropy_pipeline.md`.  
+
+---
+
+## Phase 5 – User Story 3: Signal‑Decay Analysis & Threshold Optimisation  
+
+- [ ] T030a [Impl] Merge `ground_truth_labels.jsonl` with `entropy_profiles.jsonl` into a single analysis dataset.  
+  *Output*: `data/processed/merged_analysis.jsonl`.  
+- [ ] T030b [Impl] Fit Mixed‑Effects Logistic Regression (GLMM) per task type (GSM8K, MiniGrid, pooled) and per layer group (early/mid/late).  
+  *Outputs*: `data/results/regression_model_gsm8k.json`, `data/results/regression_model_minigrid.json`, `data/results/regression_model_pooled.json`.  
+- [ ] T030c [Impl] Compute the log‑odds coefficient (correlation), AUC‑ROC, and record them in `data/results/metrics.json`.  
+- [ ] T030d [Impl] Perform sensitivity analysis: sweep entropy threshold across a fine grid (e.g., 0.0 → 2.0 step 0.05), compute false‑positive and false‑negative rates, and store results in `data/results/sensitivity_analysis.json`.  
+- [ ] T030e [Impl] Apply Benjamini‑Hochberg (FDR) correction to all p‑values across layers and tasks; output `data/results/fdr_report.json`.  
+- [ ] T030f [Impl] Analyze decay of predictive power across sequence‑length groups (“short” < 100 tokens, “long” ≥ 100 tokens) and across task types; store in `data/results/decay_analysis.json`.  
+- [ ] T030g [Doc] Summarize all findings, optimal entropy threshold, and statistical significance in the final regression results file.  
+  *Output*: `data/results/regression_results.json`.  
+
+---
+
+## Phase 6 – Verification & Reporting  
+
+- [ ] T040 [Test] Run full test suite (`pytest`) and capture results in `test_report.log`.  
+- [ ] T041 [Impl] Validate all output artifacts against their JSON schemas (`contracts/*.schema.yaml`).  
+  *File*: `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/utils/validators.py` (extended with schema‑checking utilities).  
+- [ ] T042 [Impl] Record content hashes and `updated_at` timestamps for all artifacts in `state/projects/PROJ-881-llmxive-follow-up-extending-efficientrol.yaml`.  
+  *Script*: `scripts/update_state.py`.  
+
+---
+
+## Phase 7 – Polish & Cross‑Cutting Concerns  
+
+- [ ] T043 [Doc] Write comprehensive `README.md` with installation, usage, and reproducing the study.  
+- [ ] T044 [Doc] Generate API documentation using Sphinx and place under `docs/api/`.  
+- [ ] T045 [Impl] Implement command‑line interface `llmxive_entropy_predict` for end‑to‑end execution.  
+  *File*: `projects/PROJ-881-llmxive-follow-up-extending-efficientrol/code/src/cli/main.py`.  
+- [ ] T046 [Test] Verify quick‑start guide works end‑to‑end on a fresh runner; test located at `tests/quickstart_test.py`.  
+
+---
+
+## Phase 8 – Data Integrity & Execution Safety (Revision Pass)  
+
+- [ ] T047 [Impl] Compute SHA‑256 checksums for all raw and processed data files; store in `data/checksums.sha256`.  
+- [ ] T048 [Impl] Verify checksums before pipeline execution; abort with clear error if mismatch.  
+  *Script*: `scripts/verify_checksums.py`.  
+- [ ] T049 [Impl] Ensure all dataset‑loading code raises `ConnectionError` or `FileNotFoundError` on failure (no silent fallback).  
+- [ ] T050 [Test] Integration test `tests/integration/test_error_handling.py` confirms pipeline aborts with the correct exception when a required data file is missing.  
+
+---
+
+## Dependencies & Execution Order (summary)
+
+| Task | Produces | Consumes | Parallel? |
+|------|----------|----------|-----------|
+| T005 | `requirements.txt` | – | ✔ |
+| T006 | `pyproject.toml`, `ruff.toml`, `.black.toml` | – | ✔ |
+| T009 | `stream_batch` utility | – | ✔ |
+| T010 | Raw GSM8K & MiniGrid JSONL files | – | ✔ |
+| T012a | `canonical_ground_truth.jsonl` | T010 output | ✔ |
+| T012b | Populated `valid_paths` for MiniGrid | T012a | – |
+| T013‑T019 | Generation & labeling pipeline | T012a, T012b, model report | – |
+| T022‑T027 | Entropy extraction & validation | T019 output | – |
+| T030a‑T030g | Statistical analysis & reporting | T025b (merged analysis) | – |
+| … | … | … | … |
+
+All unchecked tasks (including newly added ones) must be completed before downstream user‑story tasks can be executed successfully.
+
+---  
+
+*End of `tasks.md`.*  

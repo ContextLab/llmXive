@@ -1,0 +1,18 @@
+status: none
+intent: GeoQA geometry CoT traces and number theory dataset download python package
+  dataset
+required_fields:
+- problem_id
+- domain
+- problem_text
+- cot_trace
+- atomic_step_id
+- step_text
+- dependency_step_ids
+- max_path_depth
+- human_difficulty_rating
+- expert_agreement_kappa
+- source_dataset
+cache_key: 0ce1597ffe26806c7a19db6f134e21e707f2dd5a559ff09f654ecc602d37dd1c
+searched_at: '2026-10-22T09:34:53.419532+00:00'
+retry_count: 1

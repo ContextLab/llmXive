@@ -6,7 +6,7 @@ failed_stage: null
 field: statistics
 human_escalation_reason: null
 id: PROJ-721-evaluating-calibration-of-predictive-int
-last_run_id: 6280ffdc-ff29-48a3-951b-d0caaff315c1
+last_run_id: 495ac1dd-41f4-448b-ab57-6198384fbc1d
 last_run_status: null
 points_paper: {}
 points_research: {}
@@ -15,4 +15,4 @@ revision_spec_path: null
 speckit_paper_dir: null
 speckit_research_dir: projects/PROJ-721-evaluating-calibration-of-predictive-int/specs/001-evaluating-calibration-of-predictive-int
 title: Evaluating Calibration of Predictive Intervals in Time Series Forecasting
-updated_at: '2026-07-03T02:39:19.206289Z'
+updated_at: '2026-09-23T23:43:56.014349Z'

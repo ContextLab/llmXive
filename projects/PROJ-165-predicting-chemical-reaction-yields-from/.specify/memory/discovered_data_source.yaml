@@ -1,0 +1,19 @@
+status: none
+intent: USPTO 50k reactions with experimental IR NMR spectra from NIST PubChem download
+  python package dataset
+required_fields:
+- reaction_id
+- reactant_smiles
+- product_smile
+- ir_spectrum_array
+- nmr_spectrum_array
+- solvent
+- catalyst
+- temperature
+- bemis_murcko_scaffold
+- reaction_template_id
+- md5_template_id
+- split
+cache_key: b089cdc6f6d0468444d8cec86f7b03dffa3c19367b4567425847bf1efcf14157
+searched_at: '2026-10-21T12:37:19.071478+00:00'
+retry_count: 1

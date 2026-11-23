@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Predictions Schema"
+description: "Schema for data/results/predictions.json"
+type: "object"
+properties:
+  predictions:
+    type: "array"
+    items:
+      type: "object"
+      properties:
+        material_id:
+          type: "string"
+        family:
+          type: "string"
+        true_young:
+          type: "number"
+        pred_young:
+          type: "number"
+        true_shear:
+          type: "number"
+        pred_shear:
+          type: "number"
+        true_poisson:
+          type: "number"
+        pred_poisson:
+          type: "number"
+        abs_pct_error_young:
+          type: "number"
+        abs_pct_error_shear:
+          type: "number"
+        abs_error_poisson:
+          type: "number"
+      required:
+        - material_id
+        - family
+        - true_young
+        - pred_young
+        - true_shear
+        - pred_shear
+        - true_poisson
+        - pred_poisson
+        - abs_pct_error_young
+        - abs_pct_error_shear
+        - abs_error_poisson
+required:
+  - predictions
+additionalProperties: false

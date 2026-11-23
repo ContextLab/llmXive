@@ -1,0 +1,79 @@
+[build-system]
+requires = ["setuptools>=45", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "proj-721-calibration-evaluation"
+version = "0.1.0"
+description = "Evaluating Calibration of Predictive Intervals in Time Series Forecasting"
+requires-python = ">=3.9"
+dependencies = [
+    "statsmodels",
+    "prophet",
+    "lightgbm",
+    "scikit-learn",
+    "pandas",
+    "numpy",
+    "scipy",
+    "matplotlib",
+    "seaborn",
+    "pyyaml",
+    "pytest",
+    "pytest-json-report",
+    "ruff",
+    "black",
+]
+
+[tool.ruff]
+# Linter configuration
+line-length = 88
+target-version = "py39"
+exclude = [
+    ".git",
+    "__pycache__",
+    "build",
+    "dist",
+    ".eggs",
+    "data",
+    "results",
+    "state",
+]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "W",   # pycodestyle warnings
+    "F",   # Pyflakes
+    "I",   # isort
+    "C",   # flake8-comprehensions
+    "B",   # flake8-bugbear
+]
+ignore = [
+    "E501", # Line too long (handled by black)
+    "B008", # Do not perform function call in argument defaults (common in data pipelines)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["S101"] # Allow assert in tests
+
+[tool.black]
+# Formatter configuration
+line-length = 88
+target-version = ['py39']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | data
+    | results
+    | state
+)/
+'''

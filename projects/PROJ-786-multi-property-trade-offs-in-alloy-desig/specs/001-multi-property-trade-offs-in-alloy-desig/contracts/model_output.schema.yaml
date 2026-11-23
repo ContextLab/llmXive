@@ -1,0 +1,55 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ModelValidationReport"
+description: "Schema for the model validation report containing performance metrics and uncertainty."
+type: "object"
+properties:
+  bulk_model:
+    type: "object"
+    properties:
+      r2:
+        type: "number"
+        description: "R² score on LOSO-CV"
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error"
+      loso_scores:
+        type: "array"
+        items:
+          type: "number"
+        description: "R² scores for each system left out"
+    required:
+      - r2
+      - rmse
+      - loso_scores
+  shear_model:
+    type: "object"
+    properties:
+      r2:
+        type: "number"
+        description: "R² score on LOSO-CV"
+      rmse:
+        type: "number"
+        description: "Root Mean Squared Error"
+      loso_scores:
+        type: "array"
+        items:
+          type: "number"
+        description: "R² scores for each system left out"
+    required:
+      - r2
+      - rmse
+      - loso_scores
+  uncertainty_variance:
+    type: "object"
+    description: "Variance of predictions for each point in the test set"
+    additionalProperties:
+      type: "number"
+  extrapolation_flags:
+    type: "integer"
+    description: "Count of points flagged as extrapolated"
+required:
+  - bulk_model
+  - shear_model
+  - uncertainty_variance
+  - extrapolation_flags
+additionalProperties: false

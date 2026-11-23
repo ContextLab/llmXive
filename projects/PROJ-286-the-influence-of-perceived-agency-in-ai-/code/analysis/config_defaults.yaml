@@ -1,0 +1,11 @@
+# Default sensitivity sweep ranges for analysis
+# These values represent standard practice and can be overridden by user config or CLI
+sensitivity_config:
+  attention_thresholds: [70, 80, 90, 95]
+  adherence_cutoffs: [70, 80, 90]
+  straightlining_thresholds: [3, 4, 5]
+  outlier_z_thresholds: [2.5, 3.0, 3.5]
+sample_size: 100 # Placeholder, will be updated by power analysis
+alpha_level: 0.05
+seed: 42
+data_path: data/raw/

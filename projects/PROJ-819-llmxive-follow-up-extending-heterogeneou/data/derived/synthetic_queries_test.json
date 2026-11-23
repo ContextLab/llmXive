@@ -1,64 +1,3502 @@
 [
   {
-    "prompt": "Calculate the kinetic energy of an object with mass 456.78 kg moving at velocity 123.45 m/s.",
-    "ground_truth": "Answer for physics problem: 3472222.22 (unit)",
-    "steps": [
-      "Identify known variables and the target formula.",
-      "Substitute values into the equation.",
-      "Perform unit conversions if necessary.",
-      "Calculate the result and check significant figures."
-    ],
-    "seed": 1000000,
-    "domain": "physics"
+    "prompt": "Determine the force required to accelerate a 64kg mass at 16m/s\u00b2.",
+    "ground_truth": "Result: 19.5000 (steps=1)",
+    "steps": 1,
+    "seed": 2509,
+    "domain": "Physics"
   },
   {
-    "prompt": "Balance the chemical equation: H2 + O2 -> H2O.",
-    "ground_truth": "Answer for chemistry problem: 2H2 + O2 -> 2H2O (unit)",
-    "steps": [
-      "Write down the unbalanced equation.",
-      "Balance atoms one by one, starting with the most complex molecule.",
-      "Check charge balance if ions are involved.",
-      "Verify the coefficients are in the simplest integer ratio."
-    ],
-    "seed": 1000001,
-    "domain": "chemistry"
+    "prompt": "Determine the pH of a solution with concentration 0.5086854991023729M.",
+    "ground_truth": "Result: 37.5300 (steps=2)",
+    "steps": 2,
+    "seed": 2510,
+    "domain": "Chemistry"
   },
   {
-    "prompt": "Explain the process of photosynthesis in plant organisms.",
-    "ground_truth": "Answer for biology problem: Photosynthesis converts light energy into chemical energy. (unit)",
-    "steps": [
-      "Identify the biological system involved.",
-      "Recall the relevant biological principles or laws.",
-      "Apply the principles to the specific case.",
-      "Formulate the conclusion based on evidence."
-    ],
-    "seed": 1000002,
-    "domain": "biology"
+    "prompt": "Calculate the metabolic rate for an organism of mass 92kg.",
+    "ground_truth": "Result: 99.2900 (steps=3)",
+    "steps": 3,
+    "seed": 2511,
+    "domain": "Biology"
   },
   {
-    "prompt": "Calculate the orbital period of a planet at distance 45.67 AU from the sun.",
-    "ground_truth": "Answer for astronomy problem: 308.76 (unit)",
-    "steps": [
-      "Identify the physical law governing the system (e.g., Kepler's laws).",
-      "Convert units to standard astronomical units.",
-      "Solve the equation for the unknown variable.",
-      "Interpret the result in the context of the observation."
-    ],
-    "seed": 1000003,
-    "domain": "astronomy"
+    "prompt": "Find the wavelength of light with frequency 2044Hz.",
+    "ground_truth": "Result: 36.5600 (steps=4)",
+    "steps": 4,
+    "seed": 2512,
+    "domain": "Physics"
   },
   {
-    "prompt": "Calculate the age of a rock sample given U-238 isotope decaying to Pb-206 with half-life 4.5 billion years and ratio 2.3456.",
-    "ground_truth": "Answer for geology problem: 5.3212 (unit)",
-    "steps": [
-      "Identify the geological process or law applicable.",
-      "Gather necessary parameters (mass, volume, time).",
-      "Apply the mathematical model.",
-      "Interpret the geological significance of the result."
-    ],
-    "seed": 1000004,
-    "domain": "geology"
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 53.4200 (steps=5)",
+    "steps": 5,
+    "seed": 2513,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 108 and growth 0.0186836595843597.",
+    "ground_truth": "Result: 55.4500 (steps=1)",
+    "steps": 1,
+    "seed": 2514,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9713Hz.",
+    "ground_truth": "Result: 63.4400 (steps=2)",
+    "steps": 2,
+    "seed": 2515,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 15.8900 (steps=3)",
+    "steps": 3,
+    "seed": 2516,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 224 and growth 0.028813922826084096.",
+    "ground_truth": "Result: 4.1600 (steps=4)",
+    "steps": 4,
+    "seed": 2517,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 54kg mass at 14m/s\u00b2.",
+    "ground_truth": "Result: 67.7600 (steps=5)",
+    "steps": 5,
+    "seed": 2518,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 5, 3.",
+    "ground_truth": "Result: 30.9200 (steps=1)",
+    "steps": 1,
+    "seed": 2519,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 70kg.",
+    "ground_truth": "Result: 70.4500 (steps=2)",
+    "steps": 2,
+    "seed": 2520,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 33kg mass at 9m/s\u00b2.",
+    "ground_truth": "Result: 69.2200 (steps=3)",
+    "steps": 3,
+    "seed": 2521,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 85.5200 (steps=4)",
+    "steps": 4,
+    "seed": 2522,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 114 and growth 0.019151433150820872.",
+    "ground_truth": "Result: 85.4600 (steps=5)",
+    "steps": 5,
+    "seed": 2523,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 1272Hz.",
+    "ground_truth": "Result: 94.9500 (steps=1)",
+    "steps": 1,
+    "seed": 2524,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 66.3400 (steps=2)",
+    "steps": 2,
+    "seed": 2525,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 954 and growth 0.09300343915939797.",
+    "ground_truth": "Result: 29.4500 (steps=3)",
+    "steps": 3,
+    "seed": 2526,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 2305Hz.",
+    "ground_truth": "Result: 52.6600 (steps=4)",
+    "steps": 4,
+    "seed": 2527,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 29.7300 (steps=5)",
+    "steps": 5,
+    "seed": 2528,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 283.",
+    "ground_truth": "Result: 55.3600 (steps=1)",
+    "steps": 1,
+    "seed": 2529,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 8379Hz.",
+    "ground_truth": "Result: 55.8000 (steps=2)",
+    "steps": 2,
+    "seed": 2530,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.7289852686320425M.",
+    "ground_truth": "Result: 24.7300 (steps=3)",
+    "steps": 3,
+    "seed": 2531,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 257 and growth 0.0317778933013192.",
+    "ground_truth": "Result: 1.0700 (steps=4)",
+    "steps": 4,
+    "seed": 2532,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 1118Hz.",
+    "ground_truth": "Result: 88.8400 (steps=5)",
+    "steps": 5,
+    "seed": 2533,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5390970708941991M.",
+    "ground_truth": "Result: 67.7300 (steps=1)",
+    "steps": 1,
+    "seed": 2534,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 87kg.",
+    "ground_truth": "Result: 50.3000 (steps=2)",
+    "steps": 2,
+    "seed": 2535,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 54kg mass at 14m/s\u00b2.",
+    "ground_truth": "Result: 64.8900 (steps=3)",
+    "steps": 3,
+    "seed": 2536,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 5, 4.",
+    "ground_truth": "Result: 43.7200 (steps=4)",
+    "steps": 4,
+    "seed": 2537,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 80kg.",
+    "ground_truth": "Result: 24.8500 (steps=5)",
+    "steps": 5,
+    "seed": 2538,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 54kg mass at 14m/s\u00b2.",
+    "ground_truth": "Result: 31.2500 (steps=1)",
+    "steps": 1,
+    "seed": 2539,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 5, 1.",
+    "ground_truth": "Result: 94.3000 (steps=2)",
+    "steps": 2,
+    "seed": 2540,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 69kg.",
+    "ground_truth": "Result: 34.6600 (steps=3)",
+    "steps": 3,
+    "seed": 2541,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 9kg object moving at 18m/s.",
+    "ground_truth": "Result: 27.5200 (steps=4)",
+    "steps": 4,
+    "seed": 2542,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 5, 4.",
+    "ground_truth": "Result: 76.6600 (steps=5)",
+    "steps": 5,
+    "seed": 2543,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 71kg.",
+    "ground_truth": "Result: 81.8100 (steps=1)",
+    "steps": 1,
+    "seed": 2544,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 60kg mass at 15m/s\u00b2.",
+    "ground_truth": "Result: 93.7900 (steps=2)",
+    "steps": 2,
+    "seed": 2545,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 58.8900 (steps=3)",
+    "steps": 3,
+    "seed": 2546,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 8 divisions starting with 341.",
+    "ground_truth": "Result: 66.6400 (steps=4)",
+    "steps": 4,
+    "seed": 2547,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 99kg mass at 9m/s\u00b2.",
+    "ground_truth": "Result: 54.0900 (steps=5)",
+    "steps": 5,
+    "seed": 2548,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.601838942649499M.",
+    "ground_truth": "Result: 7.4000 (steps=1)",
+    "steps": 1,
+    "seed": 2549,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 876 and growth 0.0861467922225968.",
+    "ground_truth": "Result: 78.8400 (steps=2)",
+    "steps": 2,
+    "seed": 2550,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9601Hz.",
+    "ground_truth": "Result: 68.2200 (steps=3)",
+    "steps": 3,
+    "seed": 2551,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 2, 3.",
+    "ground_truth": "Result: 35.4500 (steps=4)",
+    "steps": 4,
+    "seed": 2552,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 93kg.",
+    "ground_truth": "Result: 54.0700 (steps=5)",
+    "steps": 5,
+    "seed": 2553,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 42kg mass at 11m/s\u00b2.",
+    "ground_truth": "Result: 46.6600 (steps=1)",
+    "steps": 1,
+    "seed": 2554,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 68.0300 (steps=2)",
+    "steps": 2,
+    "seed": 2555,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 119 and growth 0.01964359973112182.",
+    "ground_truth": "Result: 96.4100 (steps=3)",
+    "steps": 3,
+    "seed": 2556,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 1kg object moving at 10m/s.",
+    "ground_truth": "Result: 34.8100 (steps=4)",
+    "steps": 4,
+    "seed": 2557,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5091699742949213M.",
+    "ground_truth": "Result: 70.6700 (steps=5)",
+    "steps": 5,
+    "seed": 2558,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 95kg.",
+    "ground_truth": "Result: 64.2000 (steps=1)",
+    "steps": 1,
+    "seed": 2559,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 58kg mass at 15m/s\u00b2.",
+    "ground_truth": "Result: 58.8900 (steps=2)",
+    "steps": 2,
+    "seed": 2560,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 3, 5.",
+    "ground_truth": "Result: 94.8000 (steps=3)",
+    "steps": 3,
+    "seed": 2561,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 326.",
+    "ground_truth": "Result: 68.7300 (steps=4)",
+    "steps": 4,
+    "seed": 2562,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9126Hz.",
+    "ground_truth": "Result: 49.3400 (steps=5)",
+    "steps": 5,
+    "seed": 2563,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 1, 1.",
+    "ground_truth": "Result: 67.0200 (steps=1)",
+    "steps": 1,
+    "seed": 2564,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 116 and growth 0.019394186910618644.",
+    "ground_truth": "Result: 90.0600 (steps=2)",
+    "steps": 2,
+    "seed": 2565,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 14kg object moving at 23m/s.",
+    "ground_truth": "Result: 57.8000 (steps=3)",
+    "steps": 3,
+    "seed": 2566,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 20.1800 (steps=4)",
+    "steps": 4,
+    "seed": 2567,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 74kg.",
+    "ground_truth": "Result: 5.0500 (steps=5)",
+    "steps": 5,
+    "seed": 2568,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 8379Hz.",
+    "ground_truth": "Result: 75.3800 (steps=1)",
+    "steps": 1,
+    "seed": 2569,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.6521240057158638M.",
+    "ground_truth": "Result: 57.4500 (steps=2)",
+    "steps": 2,
+    "seed": 2570,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 169 and growth 0.02403843478688141.",
+    "ground_truth": "Result: 78.7700 (steps=3)",
+    "steps": 3,
+    "seed": 2571,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 7kg object moving at 16m/s.",
+    "ground_truth": "Result: 94.9100 (steps=4)",
+    "steps": 4,
+    "seed": 2572,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 1, 3.",
+    "ground_truth": "Result: 33.0600 (steps=5)",
+    "steps": 5,
+    "seed": 2573,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 49 and growth 0.013475658619759695.",
+    "ground_truth": "Result: 15.4400 (steps=1)",
+    "steps": 1,
+    "seed": 2574,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 40kg mass at 10m/s\u00b2.",
+    "ground_truth": "Result: 76.4800 (steps=2)",
+    "steps": 2,
+    "seed": 2575,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.9510112881162288M.",
+    "ground_truth": "Result: 36.4900 (steps=3)",
+    "steps": 3,
+    "seed": 2576,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 79kg.",
+    "ground_truth": "Result: 69.1900 (steps=4)",
+    "steps": 4,
+    "seed": 2577,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 57kg mass at 15m/s\u00b2.",
+    "ground_truth": "Result: 22.0900 (steps=5)",
+    "steps": 5,
+    "seed": 2578,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.6986198524476649M.",
+    "ground_truth": "Result: 7.7100 (steps=1)",
+    "steps": 1,
+    "seed": 2579,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 112 and growth 0.018966532330074278.",
+    "ground_truth": "Result: 24.2000 (steps=2)",
+    "steps": 2,
+    "seed": 2580,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 18kg object moving at 27m/s.",
+    "ground_truth": "Result: 5.7400 (steps=3)",
+    "steps": 3,
+    "seed": 2581,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.8281318938203229M.",
+    "ground_truth": "Result: 50.2000 (steps=4)",
+    "steps": 4,
+    "seed": 2582,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 8 divisions starting with 843.",
+    "ground_truth": "Result: 94.0900 (steps=5)",
+    "steps": 5,
+    "seed": 2583,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 39kg mass at 10m/s\u00b2.",
+    "ground_truth": "Result: 1.7800 (steps=1)",
+    "steps": 1,
+    "seed": 2584,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 3, 3.",
+    "ground_truth": "Result: 78.4400 (steps=2)",
+    "steps": 2,
+    "seed": 2585,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 311.",
+    "ground_truth": "Result: 37.3800 (steps=3)",
+    "steps": 3,
+    "seed": 2586,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 33kg mass at 9m/s\u00b2.",
+    "ground_truth": "Result: 30.0400 (steps=4)",
+    "steps": 4,
+    "seed": 2587,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5703082369103036M.",
+    "ground_truth": "Result: 81.2900 (steps=5)",
+    "steps": 5,
+    "seed": 2588,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 114 and growth 0.019146521561236057.",
+    "ground_truth": "Result: 3.8100 (steps=1)",
+    "steps": 1,
+    "seed": 2589,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 2011Hz.",
+    "ground_truth": "Result: 65.9000 (steps=2)",
+    "steps": 2,
+    "seed": 2590,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 23.6400 (steps=3)",
+    "steps": 3,
+    "seed": 2591,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 71kg.",
+    "ground_truth": "Result: 68.6600 (steps=4)",
+    "steps": 4,
+    "seed": 2592,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 59kg mass at 15m/s\u00b2.",
+    "ground_truth": "Result: 88.8000 (steps=5)",
+    "steps": 5,
+    "seed": 2593,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 44.7600 (steps=1)",
+    "steps": 1,
+    "seed": 2594,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 89kg.",
+    "ground_truth": "Result: 83.6400 (steps=2)",
+    "steps": 2,
+    "seed": 2595,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 19kg object moving at 28m/s.",
+    "ground_truth": "Result: 49.3700 (steps=3)",
+    "steps": 3,
+    "seed": 2596,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5435621858146483M.",
+    "ground_truth": "Result: 26.8400 (steps=4)",
+    "steps": 4,
+    "seed": 2597,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 94kg.",
+    "ground_truth": "Result: 80.1000 (steps=5)",
+    "steps": 5,
+    "seed": 2598,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 8412Hz.",
+    "ground_truth": "Result: 95.3300 (steps=1)",
+    "steps": 1,
+    "seed": 2599,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5117141052206856M.",
+    "ground_truth": "Result: 60.6000 (steps=2)",
+    "steps": 2,
+    "seed": 2600,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 89kg.",
+    "ground_truth": "Result: 40.2300 (steps=3)",
+    "steps": 3,
+    "seed": 2601,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 12kg object moving at 21m/s.",
+    "ground_truth": "Result: 66.7400 (steps=4)",
+    "steps": 4,
+    "seed": 2602,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 16.1400 (steps=5)",
+    "steps": 5,
+    "seed": 2603,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 16 and growth 0.010579605423331044.",
+    "ground_truth": "Result: 70.6900 (steps=1)",
+    "steps": 1,
+    "seed": 2604,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 8692Hz.",
+    "ground_truth": "Result: 39.4500 (steps=2)",
+    "steps": 2,
+    "seed": 2605,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 37.1700 (steps=3)",
+    "steps": 3,
+    "seed": 2606,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 210 and growth 0.027632394581490707.",
+    "ground_truth": "Result: 72.7900 (steps=4)",
+    "steps": 4,
+    "seed": 2607,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 4279Hz.",
+    "ground_truth": "Result: 78.1100 (steps=5)",
+    "steps": 5,
+    "seed": 2608,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 4, 4.",
+    "ground_truth": "Result: 48.4100 (steps=1)",
+    "steps": 1,
+    "seed": 2609,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 10 divisions starting with 866.",
+    "ground_truth": "Result: 72.6600 (steps=2)",
+    "steps": 2,
+    "seed": 2610,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 54kg mass at 14m/s\u00b2.",
+    "ground_truth": "Result: 51.3700 (steps=3)",
+    "steps": 3,
+    "seed": 2611,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 3, 2.",
+    "ground_truth": "Result: 57.8300 (steps=4)",
+    "steps": 4,
+    "seed": 2612,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 292.",
+    "ground_truth": "Result: 48.3100 (steps=5)",
+    "steps": 5,
+    "seed": 2613,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 18kg object moving at 27m/s.",
+    "ground_truth": "Result: 37.9400 (steps=1)",
+    "steps": 1,
+    "seed": 2614,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5640373820401717M.",
+    "ground_truth": "Result: 12.3200 (steps=2)",
+    "steps": 2,
+    "seed": 2615,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 10 divisions starting with 489.",
+    "ground_truth": "Result: 13.2600 (steps=3)",
+    "steps": 3,
+    "seed": 2616,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 10kg object moving at 19m/s.",
+    "ground_truth": "Result: 98.2700 (steps=4)",
+    "steps": 4,
+    "seed": 2617,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.7375513626339866M.",
+    "ground_truth": "Result: 95.1200 (steps=5)",
+    "steps": 5,
+    "seed": 2618,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 71kg.",
+    "ground_truth": "Result: 87.4900 (steps=1)",
+    "steps": 1,
+    "seed": 2619,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 8053Hz.",
+    "ground_truth": "Result: 40.6400 (steps=2)",
+    "steps": 2,
+    "seed": 2620,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 95.7300 (steps=3)",
+    "steps": 3,
+    "seed": 2621,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 273.",
+    "ground_truth": "Result: 27.7600 (steps=4)",
+    "steps": 4,
+    "seed": 2622,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 4kg object moving at 13m/s.",
+    "ground_truth": "Result: 71.0600 (steps=5)",
+    "steps": 5,
+    "seed": 2623,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 1, 3.",
+    "ground_truth": "Result: 88.1500 (steps=1)",
+    "steps": 1,
+    "seed": 2624,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 95 and growth 0.017531284795592208.",
+    "ground_truth": "Result: 54.4400 (steps=2)",
+    "steps": 2,
+    "seed": 2625,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 4934Hz.",
+    "ground_truth": "Result: 99.2800 (steps=3)",
+    "steps": 3,
+    "seed": 2626,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.6442757704861068M.",
+    "ground_truth": "Result: 32.0500 (steps=4)",
+    "steps": 4,
+    "seed": 2627,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 310.",
+    "ground_truth": "Result: 41.0200 (steps=5)",
+    "steps": 5,
+    "seed": 2628,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 50kg mass at 13m/s\u00b2.",
+    "ground_truth": "Result: 19.3200 (steps=1)",
+    "steps": 1,
+    "seed": 2629,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 3, 2.",
+    "ground_truth": "Result: 14.5000 (steps=2)",
+    "steps": 2,
+    "seed": 2630,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 82kg.",
+    "ground_truth": "Result: 86.3100 (steps=3)",
+    "steps": 3,
+    "seed": 2631,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 32kg object moving at 41m/s.",
+    "ground_truth": "Result: 87.5900 (steps=4)",
+    "steps": 4,
+    "seed": 2632,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5127545655436709M.",
+    "ground_truth": "Result: 60.3900 (steps=5)",
+    "steps": 5,
+    "seed": 2633,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 80kg.",
+    "ground_truth": "Result: 88.6700 (steps=1)",
+    "steps": 1,
+    "seed": 2634,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 3645Hz.",
+    "ground_truth": "Result: 26.9300 (steps=2)",
+    "steps": 2,
+    "seed": 2635,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.6112139975640517M.",
+    "ground_truth": "Result: 38.5900 (steps=3)",
+    "steps": 3,
+    "seed": 2636,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 273.",
+    "ground_truth": "Result: 64.9200 (steps=4)",
+    "steps": 4,
+    "seed": 2637,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 8467Hz.",
+    "ground_truth": "Result: 92.8000 (steps=5)",
+    "steps": 5,
+    "seed": 2638,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5643487111858982M.",
+    "ground_truth": "Result: 45.0500 (steps=1)",
+    "steps": 1,
+    "seed": 2639,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 10 divisions starting with 1000.",
+    "ground_truth": "Result: 70.5700 (steps=2)",
+    "steps": 2,
+    "seed": 2640,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 98kg object moving at 37m/s.",
+    "ground_truth": "Result: 36.8100 (steps=3)",
+    "steps": 3,
+    "seed": 2641,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5756450173541514M.",
+    "ground_truth": "Result: 9.4300 (steps=4)",
+    "steps": 4,
+    "seed": 2642,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 986 and growth 0.09581689266831245.",
+    "ground_truth": "Result: 84.5800 (steps=5)",
+    "steps": 5,
+    "seed": 2643,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 443Hz.",
+    "ground_truth": "Result: 99.0200 (steps=1)",
+    "steps": 1,
+    "seed": 2644,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.9139336252531722M.",
+    "ground_truth": "Result: 22.4400 (steps=2)",
+    "steps": 2,
+    "seed": 2645,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 29 and growth 0.0117347693235418.",
+    "ground_truth": "Result: 83.3800 (steps=3)",
+    "steps": 3,
+    "seed": 2646,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 46kg mass at 12m/s\u00b2.",
+    "ground_truth": "Result: 6.0100 (steps=4)",
+    "steps": 4,
+    "seed": 2647,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 50.6200 (steps=5)",
+    "steps": 5,
+    "seed": 2648,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 145 and growth 0.021950909690959773.",
+    "ground_truth": "Result: 47.6000 (steps=1)",
+    "steps": 1,
+    "seed": 2649,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 4264Hz.",
+    "ground_truth": "Result: 7.5900 (steps=2)",
+    "steps": 2,
+    "seed": 2650,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5972619200621897M.",
+    "ground_truth": "Result: 41.0400 (steps=3)",
+    "steps": 3,
+    "seed": 2651,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 77 and growth 0.015896011045181527.",
+    "ground_truth": "Result: 56.8400 (steps=4)",
+    "steps": 4,
+    "seed": 2652,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 370Hz.",
+    "ground_truth": "Result: 82.5000 (steps=5)",
+    "steps": 5,
+    "seed": 2653,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 62.9300 (steps=1)",
+    "steps": 1,
+    "seed": 2654,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 139 and growth 0.021407626555321687.",
+    "ground_truth": "Result: 64.3900 (steps=2)",
+    "steps": 2,
+    "seed": 2655,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 17kg object moving at 26m/s.",
+    "ground_truth": "Result: 55.5800 (steps=3)",
+    "steps": 3,
+    "seed": 2656,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 1, 5.",
+    "ground_truth": "Result: 64.6900 (steps=4)",
+    "steps": 4,
+    "seed": 2657,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 56 and growth 0.014088164972463353.",
+    "ground_truth": "Result: 52.2700 (steps=5)",
+    "steps": 5,
+    "seed": 2658,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 8376Hz.",
+    "ground_truth": "Result: 78.9800 (steps=1)",
+    "steps": 1,
+    "seed": 2659,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 3, 1.",
+    "ground_truth": "Result: 41.2800 (steps=2)",
+    "steps": 2,
+    "seed": 2660,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 8 divisions starting with 924.",
+    "ground_truth": "Result: 63.2200 (steps=3)",
+    "steps": 3,
+    "seed": 2661,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 2020Hz.",
+    "ground_truth": "Result: 33.3400 (steps=4)",
+    "steps": 4,
+    "seed": 2662,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5965391559243343M.",
+    "ground_truth": "Result: 86.1300 (steps=5)",
+    "steps": 5,
+    "seed": 2663,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 79kg.",
+    "ground_truth": "Result: 27.2400 (steps=1)",
+    "steps": 1,
+    "seed": 2664,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 6988Hz.",
+    "ground_truth": "Result: 54.5200 (steps=2)",
+    "steps": 2,
+    "seed": 2665,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 97.9700 (steps=3)",
+    "steps": 3,
+    "seed": 2666,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 126 and growth 0.020253798084422004.",
+    "ground_truth": "Result: 34.9200 (steps=4)",
+    "steps": 4,
+    "seed": 2667,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 39kg mass at 10m/s\u00b2.",
+    "ground_truth": "Result: 60.4800 (steps=5)",
+    "steps": 5,
+    "seed": 2668,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 18.6500 (steps=1)",
+    "steps": 1,
+    "seed": 2669,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 78kg.",
+    "ground_truth": "Result: 3.0500 (steps=2)",
+    "steps": 2,
+    "seed": 2670,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 15kg object moving at 24m/s.",
+    "ground_truth": "Result: 50.6500 (steps=3)",
+    "steps": 3,
+    "seed": 2671,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 72.1900 (steps=4)",
+    "steps": 4,
+    "seed": 2672,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 227 and growth 0.029090277076877745.",
+    "ground_truth": "Result: 19.6400 (steps=5)",
+    "steps": 5,
+    "seed": 2673,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 98kg object moving at 14m/s.",
+    "ground_truth": "Result: 99.7800 (steps=1)",
+    "steps": 1,
+    "seed": 2674,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5863588869828136M.",
+    "ground_truth": "Result: 55.3300 (steps=2)",
+    "steps": 2,
+    "seed": 2675,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 267.",
+    "ground_truth": "Result: 95.2600 (steps=3)",
+    "steps": 3,
+    "seed": 2676,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 32kg object moving at 41m/s.",
+    "ground_truth": "Result: 79.2600 (steps=4)",
+    "steps": 4,
+    "seed": 2677,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 5, 5.",
+    "ground_truth": "Result: 19.5400 (steps=5)",
+    "steps": 5,
+    "seed": 2678,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 72kg.",
+    "ground_truth": "Result: 32.4200 (steps=1)",
+    "steps": 1,
+    "seed": 2679,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 8665Hz.",
+    "ground_truth": "Result: 8.4400 (steps=2)",
+    "steps": 2,
+    "seed": 2680,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 1, 5.",
+    "ground_truth": "Result: 55.8200 (steps=3)",
+    "steps": 3,
+    "seed": 2681,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 65 and growth 0.014885546736907786.",
+    "ground_truth": "Result: 62.2300 (steps=4)",
+    "steps": 4,
+    "seed": 2682,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9433Hz.",
+    "ground_truth": "Result: 70.0700 (steps=5)",
+    "steps": 5,
+    "seed": 2683,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 85.0400 (steps=1)",
+    "steps": 1,
+    "seed": 2684,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 953 and growth 0.09290007956711328.",
+    "ground_truth": "Result: 52.7000 (steps=2)",
+    "steps": 2,
+    "seed": 2685,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 29kg object moving at 38m/s.",
+    "ground_truth": "Result: 70.4100 (steps=3)",
+    "steps": 3,
+    "seed": 2686,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 64.5900 (steps=4)",
+    "steps": 4,
+    "seed": 2687,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 81kg.",
+    "ground_truth": "Result: 85.5100 (steps=5)",
+    "steps": 5,
+    "seed": 2688,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 5kg object moving at 14m/s.",
+    "ground_truth": "Result: 38.5800 (steps=1)",
+    "steps": 1,
+    "seed": 2689,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 85.5700 (steps=2)",
+    "steps": 2,
+    "seed": 2690,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 8 divisions starting with 372.",
+    "ground_truth": "Result: 29.0200 (steps=3)",
+    "steps": 3,
+    "seed": 2691,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 33kg mass at 9m/s\u00b2.",
+    "ground_truth": "Result: 73.6500 (steps=4)",
+    "steps": 4,
+    "seed": 2692,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.7207151010446172M.",
+    "ground_truth": "Result: 86.0500 (steps=5)",
+    "steps": 5,
+    "seed": 2693,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 319.",
+    "ground_truth": "Result: 79.1400 (steps=1)",
+    "steps": 1,
+    "seed": 2694,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 6312Hz.",
+    "ground_truth": "Result: 80.5700 (steps=2)",
+    "steps": 2,
+    "seed": 2695,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.9187436452355154M.",
+    "ground_truth": "Result: 55.1500 (steps=3)",
+    "steps": 3,
+    "seed": 2696,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 96kg.",
+    "ground_truth": "Result: 95.0800 (steps=4)",
+    "steps": 4,
+    "seed": 2697,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 29kg object moving at 38m/s.",
+    "ground_truth": "Result: 41.1400 (steps=5)",
+    "steps": 5,
+    "seed": 2698,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5318757346816921M.",
+    "ground_truth": "Result: 28.6100 (steps=1)",
+    "steps": 1,
+    "seed": 2699,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 976 and growth 0.09492216677632911.",
+    "ground_truth": "Result: 37.6400 (steps=2)",
+    "steps": 2,
+    "seed": 2700,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 63kg mass at 16m/s\u00b2.",
+    "ground_truth": "Result: 66.9000 (steps=3)",
+    "steps": 3,
+    "seed": 2701,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 4, 5.",
+    "ground_truth": "Result: 64.0200 (steps=4)",
+    "steps": 4,
+    "seed": 2702,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 9 divisions starting with 433.",
+    "ground_truth": "Result: 9.5800 (steps=5)",
+    "steps": 5,
+    "seed": 2703,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9670Hz.",
+    "ground_truth": "Result: 63.6900 (steps=1)",
+    "steps": 1,
+    "seed": 2704,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 2, 3.",
+    "ground_truth": "Result: 72.7600 (steps=2)",
+    "steps": 2,
+    "seed": 2705,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 83kg.",
+    "ground_truth": "Result: 89.6000 (steps=3)",
+    "steps": 3,
+    "seed": 2706,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 46kg mass at 12m/s\u00b2.",
+    "ground_truth": "Result: 62.1400 (steps=4)",
+    "steps": 4,
+    "seed": 2707,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.910680010428027M.",
+    "ground_truth": "Result: 41.6100 (steps=5)",
+    "steps": 5,
+    "seed": 2708,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 83kg.",
+    "ground_truth": "Result: 5.4700 (steps=1)",
+    "steps": 1,
+    "seed": 2709,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 8398Hz.",
+    "ground_truth": "Result: 63.8000 (steps=2)",
+    "steps": 2,
+    "seed": 2710,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 21.4200 (steps=3)",
+    "steps": 3,
+    "seed": 2711,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 917.",
+    "ground_truth": "Result: 97.7000 (steps=4)",
+    "steps": 4,
+    "seed": 2712,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 62kg mass at 16m/s\u00b2.",
+    "ground_truth": "Result: 10.6400 (steps=5)",
+    "steps": 5,
+    "seed": 2713,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 62.0100 (steps=1)",
+    "steps": 1,
+    "seed": 2714,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 90kg.",
+    "ground_truth": "Result: 63.9200 (steps=2)",
+    "steps": 2,
+    "seed": 2715,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 1kg object moving at 10m/s.",
+    "ground_truth": "Result: 70.7200 (steps=3)",
+    "steps": 3,
+    "seed": 2716,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.6266673597432056M.",
+    "ground_truth": "Result: 30.6700 (steps=4)",
+    "steps": 4,
+    "seed": 2717,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 232 and growth 0.029549490296684397.",
+    "ground_truth": "Result: 27.1200 (steps=5)",
+    "steps": 5,
+    "seed": 2718,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9065Hz.",
+    "ground_truth": "Result: 86.0700 (steps=1)",
+    "steps": 1,
+    "seed": 2719,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 5, 3.",
+    "ground_truth": "Result: 78.6500 (steps=2)",
+    "steps": 2,
+    "seed": 2720,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 70kg.",
+    "ground_truth": "Result: 4.4400 (steps=3)",
+    "steps": 3,
+    "seed": 2721,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 39kg mass at 10m/s\u00b2.",
+    "ground_truth": "Result: 51.8800 (steps=4)",
+    "steps": 4,
+    "seed": 2722,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.8502517754490445M.",
+    "ground_truth": "Result: 57.7200 (steps=5)",
+    "steps": 5,
+    "seed": 2723,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 88kg.",
+    "ground_truth": "Result: 38.8100 (steps=1)",
+    "steps": 1,
+    "seed": 2724,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 60kg mass at 15m/s\u00b2.",
+    "ground_truth": "Result: 28.3900 (steps=2)",
+    "steps": 2,
+    "seed": 2725,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 3, 1.",
+    "ground_truth": "Result: 68.5900 (steps=3)",
+    "steps": 3,
+    "seed": 2726,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 300.",
+    "ground_truth": "Result: 49.5200 (steps=4)",
+    "steps": 4,
+    "seed": 2727,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 6kg object moving at 15m/s.",
+    "ground_truth": "Result: 72.3100 (steps=5)",
+    "steps": 5,
+    "seed": 2728,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 1, 5.",
+    "ground_truth": "Result: 19.8700 (steps=1)",
+    "steps": 1,
+    "seed": 2729,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 27 and growth 0.011577368836111683.",
+    "ground_truth": "Result: 76.4600 (steps=2)",
+    "steps": 2,
+    "seed": 2730,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9247Hz.",
+    "ground_truth": "Result: 27.5700 (steps=3)",
+    "steps": 3,
+    "seed": 2731,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.7226836679704652M.",
+    "ground_truth": "Result: 37.0700 (steps=4)",
+    "steps": 4,
+    "seed": 2732,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 93kg.",
+    "ground_truth": "Result: 94.1800 (steps=5)",
+    "steps": 5,
+    "seed": 2733,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 1kg object moving at 10m/s.",
+    "ground_truth": "Result: 18.2300 (steps=1)",
+    "steps": 1,
+    "seed": 2734,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 44.8600 (steps=2)",
+    "steps": 2,
+    "seed": 2735,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 72 and growth 0.015473433037958815.",
+    "ground_truth": "Result: 28.4600 (steps=3)",
+    "steps": 3,
+    "seed": 2736,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 45kg mass at 12m/s\u00b2.",
+    "ground_truth": "Result: 28.5500 (steps=4)",
+    "steps": 4,
+    "seed": 2737,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 86.3200 (steps=5)",
+    "steps": 5,
+    "seed": 2738,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 9 divisions starting with 415.",
+    "ground_truth": "Result: 80.7900 (steps=1)",
+    "steps": 1,
+    "seed": 2739,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9446Hz.",
+    "ground_truth": "Result: 41.2200 (steps=2)",
+    "steps": 2,
+    "seed": 2740,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 98.9100 (steps=3)",
+    "steps": 3,
+    "seed": 2741,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 9 divisions starting with 397.",
+    "ground_truth": "Result: 66.8000 (steps=4)",
+    "steps": 4,
+    "seed": 2742,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 26kg object moving at 35m/s.",
+    "ground_truth": "Result: 33.3300 (steps=5)",
+    "steps": 5,
+    "seed": 2743,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 34.0200 (steps=1)",
+    "steps": 1,
+    "seed": 2744,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 10 divisions starting with 500.",
+    "ground_truth": "Result: 20.2300 (steps=2)",
+    "steps": 2,
+    "seed": 2745,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 17kg object moving at 26m/s.",
+    "ground_truth": "Result: 91.9900 (steps=3)",
+    "steps": 3,
+    "seed": 2746,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 3, 2.",
+    "ground_truth": "Result: 56.7800 (steps=4)",
+    "steps": 4,
+    "seed": 2747,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 86kg.",
+    "ground_truth": "Result: 92.3600 (steps=5)",
+    "steps": 5,
+    "seed": 2748,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 17kg object moving at 26m/s.",
+    "ground_truth": "Result: 31.8500 (steps=1)",
+    "steps": 1,
+    "seed": 2749,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 1, 5.",
+    "ground_truth": "Result: 76.0300 (steps=2)",
+    "steps": 2,
+    "seed": 2750,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 86kg.",
+    "ground_truth": "Result: 67.0500 (steps=3)",
+    "steps": 3,
+    "seed": 2751,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9068Hz.",
+    "ground_truth": "Result: 40.4100 (steps=4)",
+    "steps": 4,
+    "seed": 2752,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 5, 4.",
+    "ground_truth": "Result: 56.4000 (steps=5)",
+    "steps": 5,
+    "seed": 2753,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 75kg.",
+    "ground_truth": "Result: 13.3800 (steps=1)",
+    "steps": 1,
+    "seed": 2754,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 7661Hz.",
+    "ground_truth": "Result: 27.1200 (steps=2)",
+    "steps": 2,
+    "seed": 2755,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 85.0900 (steps=3)",
+    "steps": 3,
+    "seed": 2756,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 8 divisions starting with 370.",
+    "ground_truth": "Result: 76.3300 (steps=4)",
+    "steps": 4,
+    "seed": 2757,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 39kg mass at 10m/s\u00b2.",
+    "ground_truth": "Result: 9.0800 (steps=5)",
+    "steps": 5,
+    "seed": 2758,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 2, 2.",
+    "ground_truth": "Result: 82.9600 (steps=1)",
+    "steps": 1,
+    "seed": 2759,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 84kg.",
+    "ground_truth": "Result: 6.5800 (steps=2)",
+    "steps": 2,
+    "seed": 2760,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 22kg object moving at 31m/s.",
+    "ground_truth": "Result: 8.3000 (steps=3)",
+    "steps": 3,
+    "seed": 2761,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 3, 4.",
+    "ground_truth": "Result: 35.0600 (steps=4)",
+    "steps": 4,
+    "seed": 2762,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 8 divisions starting with 933.",
+    "ground_truth": "Result: 24.2000 (steps=5)",
+    "steps": 5,
+    "seed": 2763,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 62kg mass at 16m/s\u00b2.",
+    "ground_truth": "Result: 32.0200 (steps=1)",
+    "steps": 1,
+    "seed": 2764,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 4, 4.",
+    "ground_truth": "Result: 36.1400 (steps=2)",
+    "steps": 2,
+    "seed": 2765,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 10 divisions starting with 508.",
+    "ground_truth": "Result: 70.3200 (steps=3)",
+    "steps": 3,
+    "seed": 2766,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 63kg mass at 16m/s\u00b2.",
+    "ground_truth": "Result: 99.8200 (steps=4)",
+    "steps": 4,
+    "seed": 2767,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 2, 1.",
+    "ground_truth": "Result: 81.4000 (steps=5)",
+    "steps": 5,
+    "seed": 2768,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 185 and growth 0.025460885819178665.",
+    "ground_truth": "Result: 19.1700 (steps=1)",
+    "steps": 1,
+    "seed": 2769,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 15kg object moving at 24m/s.",
+    "ground_truth": "Result: 37.3300 (steps=2)",
+    "steps": 2,
+    "seed": 2770,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 4, 2.",
+    "ground_truth": "Result: 6.5500 (steps=3)",
+    "steps": 3,
+    "seed": 2771,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 10 divisions starting with 936.",
+    "ground_truth": "Result: 38.4200 (steps=4)",
+    "steps": 4,
+    "seed": 2772,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 24kg object moving at 33m/s.",
+    "ground_truth": "Result: 69.9400 (steps=5)",
+    "steps": 5,
+    "seed": 2773,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.58662926972162M.",
+    "ground_truth": "Result: 29.7100 (steps=1)",
+    "steps": 1,
+    "seed": 2774,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 84kg.",
+    "ground_truth": "Result: 85.6200 (steps=2)",
+    "steps": 2,
+    "seed": 2775,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 46kg mass at 12m/s\u00b2.",
+    "ground_truth": "Result: 75.3500 (steps=3)",
+    "steps": 3,
+    "seed": 2776,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.59628038091917M.",
+    "ground_truth": "Result: 18.6200 (steps=4)",
+    "steps": 4,
+    "seed": 2777,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 994.",
+    "ground_truth": "Result: 96.4300 (steps=5)",
+    "steps": 5,
+    "seed": 2778,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 3587Hz.",
+    "ground_truth": "Result: 88.5400 (steps=1)",
+    "steps": 1,
+    "seed": 2779,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5818320768359004M.",
+    "ground_truth": "Result: 28.8500 (steps=2)",
+    "steps": 2,
+    "seed": 2780,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 294.",
+    "ground_truth": "Result: 38.6300 (steps=3)",
+    "steps": 3,
+    "seed": 2781,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 44kg mass at 11m/s\u00b2.",
+    "ground_truth": "Result: 43.0000 (steps=4)",
+    "steps": 4,
+    "seed": 2782,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.628016252746332M.",
+    "ground_truth": "Result: 29.8900 (steps=5)",
+    "steps": 5,
+    "seed": 2783,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 128 and growth 0.020458317879269737.",
+    "ground_truth": "Result: 26.0100 (steps=1)",
+    "steps": 1,
+    "seed": 2784,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 43kg mass at 11m/s\u00b2.",
+    "ground_truth": "Result: 79.1900 (steps=2)",
+    "steps": 2,
+    "seed": 2785,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 86.0600 (steps=3)",
+    "steps": 3,
+    "seed": 2786,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 89kg.",
+    "ground_truth": "Result: 36.6000 (steps=4)",
+    "steps": 4,
+    "seed": 2787,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 48kg mass at 12m/s\u00b2.",
+    "ground_truth": "Result: 65.3000 (steps=5)",
+    "steps": 5,
+    "seed": 2788,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 1, 5.",
+    "ground_truth": "Result: 71.8700 (steps=1)",
+    "steps": 1,
+    "seed": 2789,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 86 and growth 0.016733446891069256.",
+    "ground_truth": "Result: 76.9300 (steps=2)",
+    "steps": 2,
+    "seed": 2790,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9985Hz.",
+    "ground_truth": "Result: 70.0000 (steps=3)",
+    "steps": 3,
+    "seed": 2791,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 1, 1.",
+    "ground_truth": "Result: 4.9000 (steps=4)",
+    "steps": 4,
+    "seed": 2792,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 71 and growth 0.015375114623256568.",
+    "ground_truth": "Result: 76.9700 (steps=5)",
+    "steps": 5,
+    "seed": 2793,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 6kg object moving at 15m/s.",
+    "ground_truth": "Result: 78.5400 (steps=1)",
+    "steps": 1,
+    "seed": 2794,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.6675443280395639M.",
+    "ground_truth": "Result: 93.7400 (steps=2)",
+    "steps": 2,
+    "seed": 2795,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 259 and growth 0.031934072635895.",
+    "ground_truth": "Result: 5.5400 (steps=3)",
+    "steps": 3,
+    "seed": 2796,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9051Hz.",
+    "ground_truth": "Result: 91.6500 (steps=4)",
+    "steps": 4,
+    "seed": 2797,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.7162649581837346M.",
+    "ground_truth": "Result: 63.7100 (steps=5)",
+    "steps": 5,
+    "seed": 2798,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 89kg.",
+    "ground_truth": "Result: 93.5300 (steps=1)",
+    "steps": 1,
+    "seed": 2799,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 8913Hz.",
+    "ground_truth": "Result: 99.8500 (steps=2)",
+    "steps": 2,
+    "seed": 2800,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 43.2300 (steps=3)",
+    "steps": 3,
+    "seed": 2801,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 8 divisions starting with 340.",
+    "ground_truth": "Result: 92.8700 (steps=4)",
+    "steps": 4,
+    "seed": 2802,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 5013Hz.",
+    "ground_truth": "Result: 34.4500 (steps=5)",
+    "steps": 5,
+    "seed": 2803,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 55.9600 (steps=1)",
+    "steps": 1,
+    "seed": 2804,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 151 and growth 0.022431442908998254.",
+    "ground_truth": "Result: 8.6200 (steps=2)",
+    "steps": 2,
+    "seed": 2805,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9979Hz.",
+    "ground_truth": "Result: 55.0500 (steps=3)",
+    "steps": 3,
+    "seed": 2806,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5576739517497431M.",
+    "ground_truth": "Result: 14.4900 (steps=4)",
+    "steps": 4,
+    "seed": 2807,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 168 and growth 0.023934885190212057.",
+    "ground_truth": "Result: 76.4600 (steps=5)",
+    "steps": 5,
+    "seed": 2808,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 2028Hz.",
+    "ground_truth": "Result: 84.4500 (steps=1)",
+    "steps": 1,
+    "seed": 2809,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 89.9600 (steps=2)",
+    "steps": 2,
+    "seed": 2810,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 28 and growth 0.011620560762518023.",
+    "ground_truth": "Result: 61.4400 (steps=3)",
+    "steps": 3,
+    "seed": 2811,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 1997Hz.",
+    "ground_truth": "Result: 77.2900 (steps=4)",
+    "steps": 4,
+    "seed": 2812,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5775950097089432M.",
+    "ground_truth": "Result: 85.4400 (steps=5)",
+    "steps": 5,
+    "seed": 2813,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 72kg.",
+    "ground_truth": "Result: 32.6000 (steps=1)",
+    "steps": 1,
+    "seed": 2814,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 6510Hz.",
+    "ground_truth": "Result: 58.8400 (steps=2)",
+    "steps": 2,
+    "seed": 2815,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 70.6700 (steps=3)",
+    "steps": 3,
+    "seed": 2816,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 66kg.",
+    "ground_truth": "Result: 0.7100 (steps=4)",
+    "steps": 4,
+    "seed": 2817,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 10kg object moving at 19m/s.",
+    "ground_truth": "Result: 22.2200 (steps=5)",
+    "steps": 5,
+    "seed": 2818,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 5, 4.",
+    "ground_truth": "Result: 47.5100 (steps=1)",
+    "steps": 1,
+    "seed": 2819,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 77kg.",
+    "ground_truth": "Result: 93.8700 (steps=2)",
+    "steps": 2,
+    "seed": 2820,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 53kg mass at 14m/s\u00b2.",
+    "ground_truth": "Result: 1.7000 (steps=3)",
+    "steps": 3,
+    "seed": 2821,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 83.6500 (steps=4)",
+    "steps": 4,
+    "seed": 2822,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 298.",
+    "ground_truth": "Result: 7.3500 (steps=5)",
+    "steps": 5,
+    "seed": 2823,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 25kg object moving at 34m/s.",
+    "ground_truth": "Result: 53.6200 (steps=1)",
+    "steps": 1,
+    "seed": 2824,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 2, 1.",
+    "ground_truth": "Result: 90.5000 (steps=2)",
+    "steps": 2,
+    "seed": 2825,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 201 and growth 0.026800694573980502.",
+    "ground_truth": "Result: 91.9200 (steps=3)",
+    "steps": 3,
+    "seed": 2826,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 15kg object moving at 24m/s.",
+    "ground_truth": "Result: 8.7500 (steps=4)",
+    "steps": 4,
+    "seed": 2827,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 43.4900 (steps=5)",
+    "steps": 5,
+    "seed": 2828,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 271.",
+    "ground_truth": "Result: 66.1100 (steps=1)",
+    "steps": 1,
+    "seed": 2829,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 7095Hz.",
+    "ground_truth": "Result: 74.4800 (steps=2)",
+    "steps": 2,
+    "seed": 2830,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 5.9000 (steps=3)",
+    "steps": 3,
+    "seed": 2831,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 856 and growth 0.08439452766264138.",
+    "ground_truth": "Result: 13.4200 (steps=4)",
+    "steps": 4,
+    "seed": 2832,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9274Hz.",
+    "ground_truth": "Result: 17.3000 (steps=5)",
+    "steps": 5,
+    "seed": 2833,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 35.9800 (steps=1)",
+    "steps": 1,
+    "seed": 2834,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 225 and growth 0.02890067953067639.",
+    "ground_truth": "Result: 32.7600 (steps=2)",
+    "steps": 2,
+    "seed": 2835,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9788Hz.",
+    "ground_truth": "Result: 26.5900 (steps=3)",
+    "steps": 3,
+    "seed": 2836,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 16.0900 (steps=4)",
+    "steps": 4,
+    "seed": 2837,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 91kg.",
+    "ground_truth": "Result: 9.8100 (steps=5)",
+    "steps": 5,
+    "seed": 2838,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 54kg mass at 14m/s\u00b2.",
+    "ground_truth": "Result: 38.5300 (steps=1)",
+    "steps": 1,
+    "seed": 2839,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 8.8800 (steps=2)",
+    "steps": 2,
+    "seed": 2840,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 8 divisions starting with 373.",
+    "ground_truth": "Result: 50.9200 (steps=3)",
+    "steps": 3,
+    "seed": 2841,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 1kg object moving at 10m/s.",
+    "ground_truth": "Result: 29.4600 (steps=4)",
+    "steps": 4,
+    "seed": 2842,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5700599967537718M.",
+    "ground_truth": "Result: 8.3500 (steps=5)",
+    "steps": 5,
+    "seed": 2843,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 10 divisions starting with 459.",
+    "ground_truth": "Result: 95.5700 (steps=1)",
+    "steps": 1,
+    "seed": 2844,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 25kg object moving at 34m/s.",
+    "ground_truth": "Result: 72.3700 (steps=2)",
+    "steps": 2,
+    "seed": 2845,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 0.9600 (steps=3)",
+    "steps": 3,
+    "seed": 2846,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 90kg.",
+    "ground_truth": "Result: 64.3400 (steps=4)",
+    "steps": 4,
+    "seed": 2847,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 8983Hz.",
+    "ground_truth": "Result: 8.0500 (steps=5)",
+    "steps": 5,
+    "seed": 2848,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 37.0600 (steps=1)",
+    "steps": 1,
+    "seed": 2849,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 26 and growth 0.011458928265547298.",
+    "ground_truth": "Result: 30.9500 (steps=2)",
+    "steps": 2,
+    "seed": 2850,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 42kg mass at 11m/s\u00b2.",
+    "ground_truth": "Result: 67.9800 (steps=3)",
+    "steps": 3,
+    "seed": 2851,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 2, 1.",
+    "ground_truth": "Result: 80.1700 (steps=4)",
+    "steps": 4,
+    "seed": 2852,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 171 and growth 0.024211323730231146.",
+    "ground_truth": "Result: 96.4400 (steps=5)",
+    "steps": 5,
+    "seed": 2853,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 12kg object moving at 21m/s.",
+    "ground_truth": "Result: 34.2000 (steps=1)",
+    "steps": 1,
+    "seed": 2854,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5153063155873908M.",
+    "ground_truth": "Result: 88.6600 (steps=2)",
+    "steps": 2,
+    "seed": 2855,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 79kg.",
+    "ground_truth": "Result: 98.0400 (steps=3)",
+    "steps": 3,
+    "seed": 2856,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 1837Hz.",
+    "ground_truth": "Result: 73.1100 (steps=4)",
+    "steps": 4,
+    "seed": 2857,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.6051118031870847M.",
+    "ground_truth": "Result: 44.2100 (steps=5)",
+    "steps": 5,
+    "seed": 2858,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 10 divisions starting with 506.",
+    "ground_truth": "Result: 9.5100 (steps=1)",
+    "steps": 1,
+    "seed": 2859,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 1865Hz.",
+    "ground_truth": "Result: 98.9000 (steps=2)",
+    "steps": 2,
+    "seed": 2860,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 22.2600 (steps=3)",
+    "steps": 3,
+    "seed": 2861,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 86kg.",
+    "ground_truth": "Result: 21.0500 (steps=4)",
+    "steps": 4,
+    "seed": 2862,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 8549Hz.",
+    "ground_truth": "Result: 50.8600 (steps=5)",
+    "steps": 5,
+    "seed": 2863,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5529274316121858M.",
+    "ground_truth": "Result: 31.5700 (steps=1)",
+    "steps": 1,
+    "seed": 2864,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 78kg.",
+    "ground_truth": "Result: 31.9900 (steps=2)",
+    "steps": 2,
+    "seed": 2865,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 62kg mass at 16m/s\u00b2.",
+    "ground_truth": "Result: 13.8000 (steps=3)",
+    "steps": 3,
+    "seed": 2866,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 4, 4.",
+    "ground_truth": "Result: 31.0100 (steps=4)",
+    "steps": 4,
+    "seed": 2867,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 10 divisions starting with 498.",
+    "ground_truth": "Result: 92.9100 (steps=5)",
+    "steps": 5,
+    "seed": 2868,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 63kg mass at 16m/s\u00b2.",
+    "ground_truth": "Result: 97.5900 (steps=1)",
+    "steps": 1,
+    "seed": 2869,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 22.1300 (steps=2)",
+    "steps": 2,
+    "seed": 2870,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 86kg.",
+    "ground_truth": "Result: 29.8900 (steps=3)",
+    "steps": 3,
+    "seed": 2871,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 100kg object moving at 10m/s.",
+    "ground_truth": "Result: 13.5800 (steps=4)",
+    "steps": 4,
+    "seed": 2872,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.6562540132375595M.",
+    "ground_truth": "Result: 7.1300 (steps=5)",
+    "steps": 5,
+    "seed": 2873,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 198 and growth 0.026603873841576614.",
+    "ground_truth": "Result: 82.2200 (steps=1)",
+    "steps": 1,
+    "seed": 2874,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 23kg object moving at 32m/s.",
+    "ground_truth": "Result: 91.0500 (steps=2)",
+    "steps": 2,
+    "seed": 2875,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5461088961000875M.",
+    "ground_truth": "Result: 87.9600 (steps=3)",
+    "steps": 3,
+    "seed": 2876,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 9 divisions starting with 400.",
+    "ground_truth": "Result: 66.5200 (steps=4)",
+    "steps": 4,
+    "seed": 2877,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 20kg object moving at 29m/s.",
+    "ground_truth": "Result: 79.2900 (steps=5)",
+    "steps": 5,
+    "seed": 2878,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 4, 1.",
+    "ground_truth": "Result: 8.4300 (steps=1)",
+    "steps": 1,
+    "seed": 2879,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 10 divisions starting with 511.",
+    "ground_truth": "Result: 27.1100 (steps=2)",
+    "steps": 2,
+    "seed": 2880,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 4kg object moving at 13m/s.",
+    "ground_truth": "Result: 25.9300 (steps=3)",
+    "steps": 3,
+    "seed": 2881,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 2, 2.",
+    "ground_truth": "Result: 73.6900 (steps=4)",
+    "steps": 4,
+    "seed": 2882,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 949 and growth 0.0925475686134551.",
+    "ground_truth": "Result: 73.6700 (steps=5)",
+    "steps": 5,
+    "seed": 2883,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 18kg object moving at 27m/s.",
+    "ground_truth": "Result: 90.1600 (steps=1)",
+    "steps": 1,
+    "seed": 2884,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 3, 5.",
+    "ground_truth": "Result: 58.1200 (steps=2)",
+    "steps": 2,
+    "seed": 2885,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 969.",
+    "ground_truth": "Result: 57.5500 (steps=3)",
+    "steps": 3,
+    "seed": 2886,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 1735Hz.",
+    "ground_truth": "Result: 33.1700 (steps=4)",
+    "steps": 4,
+    "seed": 2887,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 48.0200 (steps=5)",
+    "steps": 5,
+    "seed": 2888,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 72kg.",
+    "ground_truth": "Result: 70.8300 (steps=1)",
+    "steps": 1,
+    "seed": 2889,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 34kg mass at 9m/s\u00b2.",
+    "ground_truth": "Result: 11.0600 (steps=2)",
+    "steps": 2,
+    "seed": 2890,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 86.2400 (steps=3)",
+    "steps": 3,
+    "seed": 2891,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 85kg.",
+    "ground_truth": "Result: 94.3100 (steps=4)",
+    "steps": 4,
+    "seed": 2892,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 30kg object moving at 39m/s.",
+    "ground_truth": "Result: 72.4200 (steps=5)",
+    "steps": 5,
+    "seed": 2893,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5680380387092843M.",
+    "ground_truth": "Result: 29.0100 (steps=1)",
+    "steps": 1,
+    "seed": 2894,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 74kg.",
+    "ground_truth": "Result: 99.6600 (steps=2)",
+    "steps": 2,
+    "seed": 2895,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 54kg mass at 14m/s\u00b2.",
+    "ground_truth": "Result: 43.4800 (steps=3)",
+    "steps": 3,
+    "seed": 2896,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 2, 5.",
+    "ground_truth": "Result: 6.6200 (steps=4)",
+    "steps": 4,
+    "seed": 2897,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 183 and growth 0.025245623861908678.",
+    "ground_truth": "Result: 35.1300 (steps=5)",
+    "steps": 5,
+    "seed": 2898,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 8677Hz.",
+    "ground_truth": "Result: 13.0000 (steps=1)",
+    "steps": 1,
+    "seed": 2899,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 67.0900 (steps=2)",
+    "steps": 2,
+    "seed": 2900,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 116 and growth 0.019342868081041.",
+    "ground_truth": "Result: 48.5900 (steps=3)",
+    "steps": 3,
+    "seed": 2901,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9542Hz.",
+    "ground_truth": "Result: 55.0000 (steps=4)",
+    "steps": 4,
+    "seed": 2902,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 3, 2.",
+    "ground_truth": "Result: 95.6600 (steps=5)",
+    "steps": 5,
+    "seed": 2903,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 89kg.",
+    "ground_truth": "Result: 87.3400 (steps=1)",
+    "steps": 1,
+    "seed": 2904,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 2896Hz.",
+    "ground_truth": "Result: 66.7200 (steps=2)",
+    "steps": 2,
+    "seed": 2905,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 5, 4.",
+    "ground_truth": "Result: 53.7600 (steps=3)",
+    "steps": 3,
+    "seed": 2906,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 70kg.",
+    "ground_truth": "Result: 39.9600 (steps=4)",
+    "steps": 4,
+    "seed": 2907,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 6358Hz.",
+    "ground_truth": "Result: 3.4300 (steps=5)",
+    "steps": 5,
+    "seed": 2908,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.7289562695817827M.",
+    "ground_truth": "Result: 64.9100 (steps=1)",
+    "steps": 1,
+    "seed": 2909,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 28 and growth 0.011637975618443916.",
+    "ground_truth": "Result: 63.6500 (steps=2)",
+    "steps": 2,
+    "seed": 2910,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 61kg mass at 16m/s\u00b2.",
+    "ground_truth": "Result: 13.3200 (steps=3)",
+    "steps": 3,
+    "seed": 2911,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 3, 5.",
+    "ground_truth": "Result: 91.3600 (steps=4)",
+    "steps": 4,
+    "seed": 2912,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 299.",
+    "ground_truth": "Result: 95.4200 (steps=5)",
+    "steps": 5,
+    "seed": 2913,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9428Hz.",
+    "ground_truth": "Result: 9.8400 (steps=1)",
+    "steps": 1,
+    "seed": 2914,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 69.1900 (steps=2)",
+    "steps": 2,
+    "seed": 2915,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 10 divisions starting with 513.",
+    "ground_truth": "Result: 20.9900 (steps=3)",
+    "steps": 3,
+    "seed": 2916,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 11kg object moving at 20m/s.",
+    "ground_truth": "Result: 89.5300 (steps=4)",
+    "steps": 4,
+    "seed": 2917,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 1, 4.",
+    "ground_truth": "Result: 93.8300 (steps=5)",
+    "steps": 5,
+    "seed": 2918,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 123 and growth 0.020004905912566835.",
+    "ground_truth": "Result: 18.3400 (steps=1)",
+    "steps": 1,
+    "seed": 2919,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 7446Hz.",
+    "ground_truth": "Result: 95.2600 (steps=2)",
+    "steps": 2,
+    "seed": 2920,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 1, 5.",
+    "ground_truth": "Result: 12.5700 (steps=3)",
+    "steps": 3,
+    "seed": 2921,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 18 and growth 0.010762134608848414.",
+    "ground_truth": "Result: 40.0000 (steps=4)",
+    "steps": 4,
+    "seed": 2922,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 153Hz.",
+    "ground_truth": "Result: 34.4100 (steps=5)",
+    "steps": 5,
+    "seed": 2923,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 66.2400 (steps=1)",
+    "steps": 1,
+    "seed": 2924,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 82kg.",
+    "ground_truth": "Result: 79.9000 (steps=2)",
+    "steps": 2,
+    "seed": 2925,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 7152Hz.",
+    "ground_truth": "Result: 31.1300 (steps=3)",
+    "steps": 3,
+    "seed": 2926,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5923014143492789M.",
+    "ground_truth": "Result: 65.7000 (steps=4)",
+    "steps": 4,
+    "seed": 2927,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 8 divisions starting with 960.",
+    "ground_truth": "Result: 70.3500 (steps=5)",
+    "steps": 5,
+    "seed": 2928,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 35kg mass at 9m/s\u00b2.",
+    "ground_truth": "Result: 25.3000 (steps=1)",
+    "steps": 1,
+    "seed": 2929,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 86.2300 (steps=2)",
+    "steps": 2,
+    "seed": 2930,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 8 divisions starting with 360.",
+    "ground_truth": "Result: 28.8000 (steps=3)",
+    "steps": 3,
+    "seed": 2931,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 45kg mass at 12m/s\u00b2.",
+    "ground_truth": "Result: 96.6100 (steps=4)",
+    "steps": 4,
+    "seed": 2932,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 10.6100 (steps=5)",
+    "steps": 5,
+    "seed": 2933,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 9 divisions starting with 397.",
+    "ground_truth": "Result: 42.5600 (steps=1)",
+    "steps": 1,
+    "seed": 2934,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 26kg object moving at 35m/s.",
+    "ground_truth": "Result: 41.7800 (steps=2)",
+    "steps": 2,
+    "seed": 2935,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.6008761984455065M.",
+    "ground_truth": "Result: 15.8000 (steps=3)",
+    "steps": 3,
+    "seed": 2936,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 89kg.",
+    "ground_truth": "Result: 92.7100 (steps=4)",
+    "steps": 4,
+    "seed": 2937,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 11kg object moving at 20m/s.",
+    "ground_truth": "Result: 63.2300 (steps=5)",
+    "steps": 5,
+    "seed": 2938,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.922263620932033M.",
+    "ground_truth": "Result: 8.5700 (steps=1)",
+    "steps": 1,
+    "seed": 2939,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 91kg.",
+    "ground_truth": "Result: 62.1100 (steps=2)",
+    "steps": 2,
+    "seed": 2940,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 57kg mass at 15m/s\u00b2.",
+    "ground_truth": "Result: 35.4500 (steps=3)",
+    "steps": 3,
+    "seed": 2941,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.633044619239174M.",
+    "ground_truth": "Result: 65.5300 (steps=4)",
+    "steps": 4,
+    "seed": 2942,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 66kg.",
+    "ground_truth": "Result: 94.5300 (steps=5)",
+    "steps": 5,
+    "seed": 2943,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 3kg object moving at 12m/s.",
+    "ground_truth": "Result: 12.5800 (steps=1)",
+    "steps": 1,
+    "seed": 2944,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.7453097283606173M.",
+    "ground_truth": "Result: 23.1700 (steps=2)",
+    "steps": 2,
+    "seed": 2945,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 8 divisions starting with 373.",
+    "ground_truth": "Result: 76.5600 (steps=3)",
+    "steps": 3,
+    "seed": 2946,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 32kg object moving at 41m/s.",
+    "ground_truth": "Result: 80.0300 (steps=4)",
+    "steps": 4,
+    "seed": 2947,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 64.7200 (steps=5)",
+    "steps": 5,
+    "seed": 2948,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 10 divisions starting with 796.",
+    "ground_truth": "Result: 61.2300 (steps=1)",
+    "steps": 1,
+    "seed": 2949,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 41kg mass at 11m/s\u00b2.",
+    "ground_truth": "Result: 38.7300 (steps=2)",
+    "steps": 2,
+    "seed": 2950,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.7451016183547706M.",
+    "ground_truth": "Result: 3.3000 (steps=3)",
+    "steps": 3,
+    "seed": 2951,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 130 and growth 0.020617476144228535.",
+    "ground_truth": "Result: 39.0500 (steps=4)",
+    "steps": 4,
+    "seed": 2952,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 50kg mass at 13m/s\u00b2.",
+    "ground_truth": "Result: 6.7500 (steps=5)",
+    "steps": 5,
+    "seed": 2953,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.9110563688439094M.",
+    "ground_truth": "Result: 58.8000 (steps=1)",
+    "steps": 1,
+    "seed": 2954,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 84kg.",
+    "ground_truth": "Result: 39.3600 (steps=2)",
+    "steps": 2,
+    "seed": 2955,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9593Hz.",
+    "ground_truth": "Result: 35.6100 (steps=3)",
+    "steps": 3,
+    "seed": 2956,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 3, 3.",
+    "ground_truth": "Result: 40.9600 (steps=4)",
+    "steps": 4,
+    "seed": 2957,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 8 divisions starting with 958.",
+    "ground_truth": "Result: 36.0900 (steps=5)",
+    "steps": 5,
+    "seed": 2958,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 5362Hz.",
+    "ground_truth": "Result: 54.9200 (steps=1)",
+    "steps": 1,
+    "seed": 2959,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 3, 2.",
+    "ground_truth": "Result: 47.4900 (steps=2)",
+    "steps": 2,
+    "seed": 2960,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 8 divisions starting with 334.",
+    "ground_truth": "Result: 36.8900 (steps=3)",
+    "steps": 3,
+    "seed": 2961,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 20kg object moving at 29m/s.",
+    "ground_truth": "Result: 8.0700 (steps=4)",
+    "steps": 4,
+    "seed": 2962,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.740297582670673M.",
+    "ground_truth": "Result: 50.6800 (steps=5)",
+    "steps": 5,
+    "seed": 2963,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 85kg.",
+    "ground_truth": "Result: 62.6900 (steps=1)",
+    "steps": 1,
+    "seed": 2964,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 27kg object moving at 36m/s.",
+    "ground_truth": "Result: 0.7000 (steps=2)",
+    "steps": 2,
+    "seed": 2965,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.6006538889571852M.",
+    "ground_truth": "Result: 9.2900 (steps=3)",
+    "steps": 3,
+    "seed": 2966,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 799 and growth 0.07936504929711669.",
+    "ground_truth": "Result: 9.5500 (steps=4)",
+    "steps": 4,
+    "seed": 2967,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 8kg object moving at 17m/s.",
+    "ground_truth": "Result: 62.1400 (steps=5)",
+    "steps": 5,
+    "seed": 2968,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.9534877448506539M.",
+    "ground_truth": "Result: 65.0000 (steps=1)",
+    "steps": 1,
+    "seed": 2969,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 88kg.",
+    "ground_truth": "Result: 3.7900 (steps=2)",
+    "steps": 2,
+    "seed": 2970,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 9666Hz.",
+    "ground_truth": "Result: 54.1800 (steps=3)",
+    "steps": 3,
+    "seed": 2971,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 4, 1.",
+    "ground_truth": "Result: 79.6800 (steps=4)",
+    "steps": 4,
+    "seed": 2972,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 9 divisions starting with 809.",
+    "ground_truth": "Result: 24.2800 (steps=5)",
+    "steps": 5,
+    "seed": 2973,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 5kg object moving at 14m/s.",
+    "ground_truth": "Result: 99.8500 (steps=1)",
+    "steps": 1,
+    "seed": 2974,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.6684775491887842M.",
+    "ground_truth": "Result: 86.6800 (steps=2)",
+    "steps": 2,
+    "seed": 2975,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Determine the number of cells after 7 divisions starting with 328.",
+    "ground_truth": "Result: 59.6200 (steps=3)",
+    "steps": 3,
+    "seed": 2976,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 57kg mass at 15m/s\u00b2.",
+    "ground_truth": "Result: 51.0900 (steps=4)",
+    "steps": 4,
+    "seed": 2977,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.5749362751357747M.",
+    "ground_truth": "Result: 71.5600 (steps=5)",
+    "steps": 5,
+    "seed": 2978,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 164 and growth 0.023597008512401804.",
+    "ground_truth": "Result: 18.4000 (steps=1)",
+    "steps": 1,
+    "seed": 2979,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 8624Hz.",
+    "ground_truth": "Result: 8.6900 (steps=2)",
+    "steps": 2,
+    "seed": 2980,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.6496176663812524M.",
+    "ground_truth": "Result: 5.6600 (steps=3)",
+    "steps": 3,
+    "seed": 2981,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 93kg.",
+    "ground_truth": "Result: 60.4400 (steps=4)",
+    "steps": 4,
+    "seed": 2982,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 46kg mass at 12m/s\u00b2.",
+    "ground_truth": "Result: 81.9600 (steps=5)",
+    "steps": 5,
+    "seed": 2983,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 5, 1.",
+    "ground_truth": "Result: 97.0100 (steps=1)",
+    "steps": 1,
+    "seed": 2984,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 74kg.",
+    "ground_truth": "Result: 99.9900 (steps=2)",
+    "steps": 2,
+    "seed": 2985,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Calculate the kinetic energy of a 13kg object moving at 22m/s.",
+    "ground_truth": "Result: 56.5400 (steps=3)",
+    "steps": 3,
+    "seed": 2986,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 1, 5.",
+    "ground_truth": "Result: 78.7100 (steps=4)",
+    "steps": 4,
+    "seed": 2987,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 87kg.",
+    "ground_truth": "Result: 39.6100 (steps=5)",
+    "steps": 5,
+    "seed": 2988,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 8831Hz.",
+    "ground_truth": "Result: 47.4400 (steps=1)",
+    "steps": 1,
+    "seed": 2989,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 1, 5, 1.",
+    "ground_truth": "Result: 22.6500 (steps=2)",
+    "steps": 2,
+    "seed": 2990,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 74kg.",
+    "ground_truth": "Result: 24.5800 (steps=3)",
+    "steps": 3,
+    "seed": 2991,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 157Hz.",
+    "ground_truth": "Result: 67.7000 (steps=4)",
+    "steps": 4,
+    "seed": 2992,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 3.1400 (steps=5)",
+    "steps": 5,
+    "seed": 2993,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 74kg.",
+    "ground_truth": "Result: 16.8900 (steps=1)",
+    "steps": 1,
+    "seed": 2994,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 45kg mass at 12m/s\u00b2.",
+    "ground_truth": "Result: 93.3500 (steps=2)",
+    "steps": 2,
+    "seed": 2995,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 1, 4.",
+    "ground_truth": "Result: 13.7000 (steps=3)",
+    "steps": 3,
+    "seed": 2996,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the population growth rate given initial 58 and growth 0.014244396570405861.",
+    "ground_truth": "Result: 24.4000 (steps=4)",
+    "steps": 4,
+    "seed": 2997,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 51kg mass at 13m/s\u00b2.",
+    "ground_truth": "Result: 61.8100 (steps=5)",
+    "steps": 5,
+    "seed": 2998,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.6790180158317931M.",
+    "ground_truth": "Result: 35.8200 (steps=1)",
+    "steps": 1,
+    "seed": 2999,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 82kg.",
+    "ground_truth": "Result: 43.5200 (steps=2)",
+    "steps": 2,
+    "seed": 3000,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 38kg mass at 10m/s\u00b2.",
+    "ground_truth": "Result: 51.8900 (steps=3)",
+    "steps": 3,
+    "seed": 3001,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Balance the reaction: H2 + O2 -> H2O with coefficients 2, 5, 4.",
+    "ground_truth": "Result: 89.0700 (steps=4)",
+    "steps": 4,
+    "seed": 3002,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 72kg.",
+    "ground_truth": "Result: 50.7300 (steps=5)",
+    "steps": 5,
+    "seed": 3003,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Determine the force required to accelerate a 64kg mass at 16m/s\u00b2.",
+    "ground_truth": "Result: 51.8500 (steps=1)",
+    "steps": 1,
+    "seed": 3004,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Determine the pH of a solution with concentration 0.731426820314735M.",
+    "ground_truth": "Result: 92.9100 (steps=2)",
+    "steps": 2,
+    "seed": 3005,
+    "domain": "Chemistry"
+  },
+  {
+    "prompt": "Calculate the metabolic rate for an organism of mass 91kg.",
+    "ground_truth": "Result: 12.5100 (steps=3)",
+    "steps": 3,
+    "seed": 3006,
+    "domain": "Biology"
+  },
+  {
+    "prompt": "Find the wavelength of light with frequency 5746Hz.",
+    "ground_truth": "Result: 32.3800 (steps=4)",
+    "steps": 4,
+    "seed": 3007,
+    "domain": "Physics"
+  },
+  {
+    "prompt": "Calculate the molar mass of a compound with elements C, H, O.",
+    "ground_truth": "Result: 0.7700 (steps=5)",
+    "steps": 5,
+    "seed": 3008,
+    "domain": "Chemistry"
   }
 ]
-# Note: The full file contains 500 entries. This is a representative sample of the first 5 for brevity in the prompt display.
-# The actual generated file contains 500 objects with keys: prompt, ground_truth, steps, seed, domain.

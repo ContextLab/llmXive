@@ -1,0 +1,19 @@
+{
+  "project_id": "PROJ-026-the-influence-of-visual-complexity-on-im",
+  "ok": false,
+  "reason": "4 command(s) failed: python code/data/load.py --generate-synthetic --seed 42 --n-participants 60 --null-effect (rc=2); python code/data/load.py --generate-synthetic --seed 42 --n-participants 60 (rc=2); python code/main.py --process-stimuli --aggregate-responses (rc=1); 1 declared deliverable(s) absent: data/results/d_score_comparison.png",
+  "artifacts": [],
+  "failures": [
+    "python code/data/load.py --generate-synthetic --seed 42 --n-participants 60 --null-effect -> rc=2\n    usage: load.py [-h] [--null-effect] [--output OUTPUT]\nload.py: error: unrecognized arguments: --generate-synthetic --seed 42 --n-participants 60",
+    "python code/data/load.py --generate-synthetic --seed 42 --n-participants 60 -> rc=2\n    usage: load.py [-h] [--null-effect] [--output OUTPUT]\nload.py: error: unrecognized arguments: --generate-synthetic --seed 42 --n-participants 60",
+    "python code/main.py --process-stimuli --aggregate-responses -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-026-the-influence-of-visual-complexity-on-im/code/main.py\", line 20, in <module>\n    from data.process import main as run_process_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-026-the-influence-of-visual-complexity-on-im/code/data/__init__.py\", line 5, in <module>\n    from .models import ImageStimulus, ParticipantResponse, AggregatedScore\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-026-the-influence-of-visu",
+    "python code/main.py --run-analysis -> rc=1\n    Traceback (most recent call last):\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-026-the-influence-of-visual-complexity-on-im/code/main.py\", line 20, in <module>\n    from data.process import main as run_process_main\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-026-the-influence-of-visual-complexity-on-im/code/data/__init__.py\", line 5, in <module>\n    from .models import ImageStimulus, ParticipantResponse, AggregatedScore\n  File \"/home/runner/work/llmXive/llmXive/projects/PROJ-026-the-influence-of-visual-complexity-on-im/code/"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "execution_bug",
+  "evidence": [],
+  "updated_at": "2026-10-02T04:44:57Z"
+}

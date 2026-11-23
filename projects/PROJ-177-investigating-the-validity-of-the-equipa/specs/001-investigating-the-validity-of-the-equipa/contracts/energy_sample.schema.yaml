@@ -1,0 +1,47 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "EnergySample"
+description: "Schema for a single energy sample record derived from particle tracking data."
+type: "object"
+properties:
+  sample_id:
+    type: "integer"
+    description: "Unique identifier for the sample."
+  particle_id:
+    type: "integer"
+    description: "Identifier for the particle."
+  timestamp:
+    type: "number"
+    description: "Time in seconds."
+  E_trans:
+    type: "number"
+    description: "Translational kinetic energy in Joules."
+  E_rot:
+    type: "number"
+    description: "Rotational kinetic energy in Joules."
+  E_pot:
+    type: "number"
+    description: "Potential energy in Joules."
+  E_vib:
+    type: "number"
+    description: "Vibrational energy in Joules (calculated via PSD integration)."
+  frequency_bin:
+    type: "integer"
+    description: "Driving frequency bin (e.g., 10 for 10Hz)."
+  material_type:
+    type: "string"
+    description: "Material type of the particle."
+  is_excluded:
+    type: "boolean"
+    description: "Flag indicating if the sample was excluded from analysis."
+required:
+  - sample_id
+  - particle_id
+  - timestamp
+  - E_trans
+  - E_rot
+  - E_pot
+  - E_vib
+  - frequency_bin
+  - material_type
+  - is_excluded
+additionalProperties: false

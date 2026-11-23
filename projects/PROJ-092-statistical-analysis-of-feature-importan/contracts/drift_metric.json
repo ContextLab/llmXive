@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "urn:llmxive:contract:drift_metric:v1",
+  "title": "Drift Metric Schema",
+  "description": "Schema for the calculated drift metrics between consecutive windows.",
+  "type": "object",
+  "properties": {
+    "comparison_id": { "type": "integer" },
+    "window_t": { "type": "integer" },
+    "window_t_plus_1": { "type": "integer" },
+    "spearman_rho": { "type": "number", "minimum": -1, "maximum": 1 },
+    "p_value": { "type": "number", "minimum": 0, "maximum": 1 },
+    "null_baseline_mean_rho": {
+      "type": ["number", "null"],
+      "description": "Mean rho from null baseline shuffling if available"
+    },
+    "is_significant": { "type": "boolean" },
+    "drift_magnitude": {
+      "type": "string",
+      "enum": ["none", "low", "medium", "high"],
+      "description": "Categorized drift magnitude based on thresholds"
+    },
+    "trend_direction": {
+      "type": ["string", "null"],
+      "enum": ["monotonic increase", "monotonic decrease", "stable", null]
+    },
+    "calculated_at": { "type": "string", "format": "date-time" }
+  },
+  "required": ["comparison_id", "window_t", "window_t_plus_1", "spearman_rho", "p_value", "is_significant", "drift_magnitude", "calculated_at"]
+}

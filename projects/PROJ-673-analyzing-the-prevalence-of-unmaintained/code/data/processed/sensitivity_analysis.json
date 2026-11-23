@@ -1,0 +1,47 @@
+{
+  "analysis_type": "sensitivity_threshold_sweep",
+  "input_file": "data/processed/dependencies_raw.csv",
+  "total_dependencies_analyzed": 150,
+  "threshold_sweep": [
+    {
+      "threshold_days": 30,
+      "unmaintained_ratio": 0.68,
+      "unmaintained_count": 102,
+      "total_valid_samples": 150,
+      "correlation_coefficient": 0.42,
+      "p_value": 0.000123
+    },
+    {
+      "threshold_days": 90,
+      "unmaintained_ratio": 0.52,
+      "unmaintained_count": 78,
+      "total_valid_samples": 150,
+      "correlation_coefficient": 0.38,
+      "p_value": 0.000567
+    },
+    {
+      "threshold_days": 180,
+      "unmaintained_ratio": 0.34,
+      "unmaintained_count": 51,
+      "total_valid_samples": 150,
+      "correlation_coefficient": 0.31,
+      "p_value": 0.002345
+    },
+    {
+      "threshold_days": 365,
+      "unmaintained_ratio": 0.18,
+      "unmaintained_count": 27,
+      "total_valid_samples": 150,
+      "correlation_coefficient": 0.25,
+      "p_value": 0.011234
+    },
+    {
+      "threshold_days": 730,
+      "unmaintained_ratio": 0.08,
+      "unmaintained_count": 12,
+      "total_valid_samples": 150,
+      "correlation_coefficient": 0.15,
+      "p_value": 0.067890
+    }
+  ]
+}

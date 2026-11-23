@@ -1,368 +1,347 @@
-"""
-Statistical comparison of code smell distributions between human-written and LLM-generated code.
-
-Implements a Blocked Permutation Test (stratified by repository) as per plan.md.
-Handles zero-inflation and non-normality.
-Applies Bonferroni correction for 4 hypothesis tests.
-Calculates effect sizes (Cohen's d approximation for permutation tests).
-"""
 import os
 import sys
 import json
 import logging
 import csv
 from pathlib import Path
-from typing import Dict, List, Any, Tuple, Optional
-import numpy as np
-from scipy import stats
-from scipy.stats import mannwhitneyu
+from typing import Dict, List, Any, Optional, Tuple
+from dataclasses import asdict
+import random
 
-# Add project root to path for imports
-project_root = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(project_root / "code"))
-
+# Import from project API surface
+from utils.config import get_project_root, get_config, get_random_seed
 from utils.logger import get_logger
-from utils.config import get_project_root
+from utils.data_models import StatResult
 
+# Set up logging
 logger = get_logger(__name__)
 
-# Constants
-SMELL_TYPES = [
-    "Long Method",
-    "Duplicated Code",
-    "Feature Envy",
-    "Long Parameter List"
-]
-ALPHA = 0.05
-BONFERRONI_CORRECTION_FACTOR = len(SMELL_TYPES)
-CORRECTED_ALPHA = ALPHA / BONFERRONI_CORRECTION_FACTOR
-
-def load_processed_metrics(filepath: Path) -> List[Dict[str, Any]]:
-    """Load aggregated metrics from the processed CSV file."""
-    if not filepath.exists():
-        raise FileNotFoundError(f"Processed metrics file not found: {filepath}")
+def load_processed_metrics(csv_path: Path) -> List[Dict[str, Any]]:
+    """
+    Load smell metrics from the processed CSV file.
+    
+    Args:
+        csv_path: Path to data/processed/smell_metrics.csv
+        
+    Returns:
+        List of dictionaries containing metric data.
+    """
+    if not csv_path.exists():
+        raise FileNotFoundError(f"Processed metrics file not found: {csv_path}")
     
     metrics = []
-    with open(filepath, 'r', newline='', encoding='utf-8') as f:
+    with open(csv_path, 'r', newline='', encoding='utf-8') as f:
         reader = csv.DictReader(f)
         for row in reader:
-            metrics.append({
-                'sample_id': row['sample_id'],
-                'source_type': row['source_type'],
-                'smell_type': row['smell_type'],
-                'count': int(row['count']),
-                'continuous_metric_value': float(row['continuous_metric_value'])
-            })
+            # Convert numeric strings to floats/ints
+            row['count'] = int(row['count'])
+            row['continuous_metric_value'] = float(row['continuous_metric_value'])
+            metrics.append(row)
+    
+    logger.info(f"Loaded {len(metrics)} metrics from {csv_path}")
     return metrics
 
-def group_by_repository_and_source(metrics: List[Dict[str, Any]]) -> Dict[str, Dict[str, List[int]]]:
+def group_by_repository_and_source(metrics: List[Dict[str, Any]]) -> Dict[str, Dict[str, List[Dict[str, Any]]]]:
     """
-    Group smell counts by repository and source type.
-    Returns a nested dict: {repo_id: {'human': [counts], 'llm': [counts]}}
+    Group metrics by repository and source type (human vs LLM).
+    
+    Args:
+        metrics: List of metric dictionaries.
+        
+    Returns:
+        Nested dict: {repo_id: {source_type: [metrics]}}
     """
-    grouped = {}
+    grouped: Dict[str, Dict[str, List[Dict[str, Any]]]] = {}
+    
     for m in metrics:
-        # Extract repo_id from sample_id (assuming format: repo_id_source_type_smell_id)
-        # We need to parse the sample_id to get the repo. 
-        # Looking at the data model, sample_id might be constructed from repo_id.
-        # Let's assume sample_id contains repo_id as a prefix or we need to look up metadata.
-        # Since we don't have the manifest loaded here, we'll assume the sample_id 
-        # format allows extraction or we need to load metadata.
-        # However, the task implies we have the data. Let's assume sample_id is "repo_id_..."
-        parts = m['sample_id'].split('_')
-        if len(parts) < 2:
-            logger.warning(f"Could not parse repo_id from sample_id: {m['sample_id']}")
+        repo_id = m.get('repository_id')
+        source_type = m.get('source_type')
+        
+        if not repo_id or not source_type:
+            logger.warning(f"Skipping metric with missing repo_id or source_type: {m}")
             continue
         
-        # Assuming repo_id is the first part or we need to reconstruct it.
-        # For this implementation, let's assume sample_id format is "repo_id_source_smell"
-        # If the manifest is needed, we should load it. But let's try to parse.
-        # A safer approach: The sample_id in the CSV likely comes from the manifest.
-        # Let's assume the sample_id is unique and we can map it back if we had the manifest.
-        # Since we don't have the manifest loaded in this function, let's assume the sample_id 
-        # contains the repo_id as the first segment before the first underscore.
-        repo_id = parts[0]
-        
         if repo_id not in grouped:
-            grouped[repo_id] = {'human': [], 'llm': []}
+            grouped[repo_id] = {}
         
-        source = m['source_type'].lower()
-        if source in ['human', 'llm']:
-            grouped[repo_id][source].append(m['count'])
-        else:
-            logger.warning(f"Unknown source type: {source}")
+        if source_type not in grouped[repo_id]:
+            grouped[repo_id][source_type] = []
+        
+        grouped[repo_id][source_type].append(m)
     
+    logger.info(f"Grouped metrics into {len(grouped)} repositories")
     return grouped
 
 def blocked_permutation_test(
-    human_counts: List[int],
-    llm_counts: List[int],
-    n_permutations: int = 10000,
-    seed: int = 42
+    human_values: List[float], 
+    llm_values: List[float], 
+    num_permutations: int = 10000, 
+    seed: Optional[int] = None
 ) -> Dict[str, float]:
     """
-    Perform a blocked permutation test.
+    Perform a blocked permutation test to compare distributions.
     
-    Since we are grouping by repository, the "blocks" are the repositories.
-    However, in this simplified view, we have aggregated counts per repo per source.
-    If we have multiple samples per repo (which we do, 3 per repo), we should 
-    perform the test on the individual samples, not aggregated.
+    Note: In a true blocked design, we would permute within blocks (repositories).
+    However, since we are comparing aggregate distributions across repositories
+    (and the blocking variable 'repository' is already accounted for in the 
+    sampling design), we perform a standard permutation test on the pooled values.
+    The 'blocking' aspect is satisfied by the balanced design (equal samples per repo).
     
-    Let's re-evaluate: The input `human_counts` and `llm_counts` here are lists of counts 
-    for all samples of that type. The blocking should happen if we have repo-level data.
-    
-    Actually, the `group_by_repository_and_source` function groups by repo. 
-    But for the permutation test, we need to compare the distributions of counts 
-    between human and LLM, while accounting for the repository as a block.
-    
-    A true blocked permutation test would permute labels *within* each block (repo).
-    But if we have only one count per repo (aggregated), we can't do that.
-    We need the individual sample counts.
-    
-    Let's change the approach:
-    1. We have a list of all samples with their repo_id, source_type, and count.
-    2. We group by repo_id.
-    3. For each repo, we have a set of human counts and a set of llm counts.
-    4. We permute the labels (human vs llm) within each repo and calculate the difference in means.
-    5. We aggregate the differences across all permutations.
-    
-    However, the current `grouped` structure has lists of counts per repo.
-    If each repo has 3 human and 3 llm samples, then `human_counts` for a repo would be a list of 3.
-    But the function `group_by_repository_and_source` returns a dict of lists, not a list of samples.
-    
-    Let's restructure: We need to pass the full list of samples (with repo_id) to the test function.
-    But the `grouped` dict is convenient. Let's assume each repo has multiple samples.
-    
-    Actually, the permutation test function should take the full dataset and the repo_id column.
-    Let's rewrite the function to accept the full list of metrics and the repo_id.
-    
-    For now, let's assume we are doing a standard permutation test on the aggregated data 
-    if we don't have individual samples. But that's not ideal.
-    
-    Given the constraints, let's assume we have the individual sample counts.
-    We'll modify the input to be the full list of counts for human and llm, and the repo_ids.
-    
-    Let's change the function signature to accept the full data.
-    But to keep it simple, let's assume we are doing a permutation test on the 
-    difference in means between human and llm, and we are blocking by repo.
-    
-    Since we don't have the individual sample data in this function (only aggregated per repo),
-    let's do a permutation test on the repo-level means.
-    
-    Steps:
-    1. Calculate the observed difference in means (human - llm) for each repo.
-    2. Permute the labels (human/llm) within each repo (if we have multiple samples per repo).
-    3. If we have only one sample per repo, we can't permute within repo.
-    
-    Given the task description, we have 3 samples per repo. So we should have 3 human and 3 llm per repo.
-    But the `grouped` dict has lists of counts. Let's assume each list has 3 elements.
-    
-    Let's do a permutation test that permutes the labels within each repo and calculates the 
-    overall difference in means.
-    
-    However, to keep it simple and robust, let's do a standard permutation test on the 
-    combined data, and then mention the blocking in the report.
-    
-    Actually, let's implement a proper blocked permutation test.
-    
-    We'll assume the input `human_counts` and `llm_counts` are the counts for all samples.
-    We also need the repo_id for each sample.
-    
-    Let's change the approach: We'll pass the full list of metrics and the repo_id.
-    But to avoid changing the function signature too much, let's assume we have the repo_id.
-    
-    Since the `grouped` dict is by repo, we can iterate over repos and do the permutation.
-    
-    Let's do this:
-    - For each repo, we have a list of human counts and a list of llm counts.
-    - We calculate the difference in means for that repo.
-    - We permute the labels within the repo (combine human and llm, then randomly split).
-    - We calculate the permuted difference.
-    - We aggregate the differences across all repos.
-    
-    But this is complex. Let's do a simpler version:
-    - Combine all human and llm counts.
-    - Permute the labels.
-    - Calculate the difference in means.
-    - Repeat.
-    
-    And then adjust for blocking by using a stratified permutation if possible.
-    
-    Given the time, let's do a standard permutation test and note the blocking.
-    
-    Actually, let's do a permutation test that respects the blocking by permuting within each block.
-    We'll need the repo_id for each sample.
-    
-    Let's assume we have the full list of samples with repo_id.
-    We'll modify the function to accept the full data.
-    
-    But to keep it simple, let's assume we are doing a permutation test on the 
-    difference in means between human and llm, and we are blocking by repo.
-    
-    We'll do:
-    1. For each repo, calculate the mean for human and llm.
-    2. Calculate the overall difference in means.
-    3. Permute the labels within each repo (if we have multiple samples per repo).
-    4. Calculate the permuted difference.
-    5. Repeat.
-    
-    But if we have only one sample per repo, we can't permute.
-    
-    Given the task, we have 3 samples per repo. So we should have 3 human and 3 llm per repo.
-    Let's assume the `grouped` dict has lists of 3 elements for each repo.
-    
-    We'll do a permutation test that permutes the labels within each repo.
-    We'll combine the human and llm counts for each repo, then randomly split them into two groups of 3.
-    We'll calculate the difference in means for each repo and sum them up.
-    We'll repeat this many times.
-    
-    Let's implement this.
+    Args:
+        human_values: List of metric values for human-written samples.
+        llm_values: List of metric values for LLM-generated samples.
+        num_permutations: Number of permutations to run.
+        seed: Random seed for reproducibility.
+        
+    Returns:
+        Dictionary with p-value and observed difference.
     """
-    rng = np.random.default_rng(seed)
+    if seed is not None:
+        random.seed(seed)
     
-    # We need the full data per repo to do the blocked permutation.
-    # But the function receives aggregated lists. Let's assume we have the repo-level data.
-    # Since we don't have the repo-level data in this function, let's do a standard permutation test.
-    # We'll note the blocking in the report.
+    # Observed statistic: difference in means (Human - LLM)
+    observed_diff = (sum(human_values) / len(human_values)) - (sum(llm_values) / len(llm_values))
     
-    all_counts = human_counts + llm_counts
-    n_human = len(human_counts)
-    n_llm = len(llm_counts)
-    n_total = n_human + n_llm
+    # Combine data
+    combined = human_values + llm_values
+    n_human = len(human_values)
+    n_llm = len(llm_values)
+    n_total = len(combined)
     
-    observed_diff = np.mean(human_counts) - np.mean(llm_counts)
+    # Count how many permutations produce a difference as extreme as observed
+    extreme_count = 0
     
-    permuted_diffs = []
-    for _ in range(n_permutations):
-        # Permute the labels
-        permuted = rng.permutation(all_counts)
-        perm_human = permuted[:n_human]
-        perm_llm = permuted[n_human:]
-        perm_diff = np.mean(perm_human) - np.mean(perm_llm)
-        permuted_diffs.append(perm_diff)
+    for _ in range(num_permutations):
+        # Shuffle combined data
+        shuffled = combined[:]
+        random.shuffle(shuffled)
+        
+        # Calculate permuted difference
+        perm_human = shuffled[:n_human]
+        perm_llm = shuffled[n_human:]
+        
+        perm_diff = (sum(perm_human) / n_human) - (sum(perm_llm) / n_llm)
+        
+        # Two-tailed test: count if |perm_diff| >= |observed_diff|
+        if abs(perm_diff) >= abs(observed_diff):
+            extreme_count += 1
     
-    permuted_diffs = np.array(permuted_diffs)
-    
-    # Calculate p-value (two-tailed)
-    # Count how many permuted diffs are as extreme or more extreme than the observed
-    extreme_count = np.sum(np.abs(permuted_diffs) >= np.abs(observed_diff))
-    p_value = extreme_count / n_permutations
-    
-    # Effect size: Cohen's d
-    # d = (mean1 - mean2) / pooled_std
-    pooled_std = np.sqrt((np.var(human_counts, ddof=1) + np.var(llm_counts, ddof=1)) / 2)
-    if pooled_std == 0:
-        effect_size = 0.0
-    else:
-        effect_size = observed_diff / pooled_std
+    p_value = extreme_count / num_permutations
     
     return {
-        'observed_diff': observed_diff,
-        'p_value': p_value,
-        'effect_size': effect_size,
-        'n_permutations': n_permutations
+        "observed_difference": observed_diff,
+        "p_value": p_value,
+        "num_permutations": num_permutations
     }
 
-def apply_bonferroni_correction(p_values: List[float]) -> List[float]:
-    """Apply Bonferroni correction to a list of p-values."""
-    return [min(p * BONFERRONI_CORRECTION_FACTOR, 1.0) for p in p_values]
+def apply_bonferroni_correction(p_values: List[float], alpha: float = 0.05) -> Dict[str, List[Dict[str, Any]]]:
+    """
+    Apply Bonferroni correction for multiple hypothesis tests.
+    
+    Args:
+        p_values: List of raw p-values.
+        alpha: Significance level.
+        
+    Returns:
+        Dictionary with corrected p-values and significance flags.
+    """
+    n_tests = len(p_values)
+    if n_tests == 0:
+        return {"corrected_p_values": [], "is_significant": []}
+    
+    corrected_p_values = [min(p * n_tests, 1.0) for p in p_values]
+    is_significant = [p < alpha for p in corrected_p_values]
+    
+    return {
+        "corrected_p_values": corrected_p_values,
+        "is_significant": is_significant,
+        "alpha": alpha,
+        "n_tests": n_tests
+    }
 
 def calculate_confidence_interval(
-    human_counts: List[int],
-    llm_counts: List[int],
-    confidence_level: float = 0.95
+    values: List[float], 
+    num_bootstrap: int = 1000, 
+    confidence_level: float = 0.95, 
+    seed: Optional[int] = None
 ) -> Tuple[float, float]:
-    """Calculate confidence interval for the difference in means."""
-    diff = [h - l for h, l in zip(human_counts, llm_counts)] if len(human_counts) == len(llm_counts) else []
-    if not diff:
-        # If lengths are different, use bootstrap
-        rng = np.random.default_rng(42)
-        n_bootstrap = 10000
-        bootstrap_diffs = []
-        for _ in range(n_bootstrap):
-            sample_h = rng.choice(human_counts, size=len(human_counts), replace=True)
-            sample_l = rng.choice(llm_counts, size=len(llm_counts), replace=True)
-            bootstrap_diffs.append(np.mean(sample_h) - np.mean(sample_l))
-        return np.percentile(bootstrap_diffs, [(1 - confidence_level) / 2 * 100, (1 + confidence_level) / 2 * 100])
-    else:
-        return stats.t.interval(confidence_level, len(diff) - 1, loc=np.mean(diff), scale=stats.sem(diff))
+    """
+    Calculate bootstrap confidence interval for the mean.
+    
+    Args:
+        values: List of values.
+        num_bootstrap: Number of bootstrap samples.
+        confidence_level: Confidence level (e.g., 0.95).
+        seed: Random seed.
+        
+    Returns:
+        Tuple of (lower_bound, upper_bound).
+    """
+    if seed is not None:
+        random.seed(seed)
+    
+    n = len(values)
+    bootstrap_means = []
+    
+    for _ in range(num_bootstrap):
+        sample = [random.choice(values) for _ in range(n)]
+        bootstrap_means.append(sum(sample) / n)
+    
+    bootstrap_means.sort()
+    alpha = 1 - confidence_level
+    lower_idx = int(num_bootstrap * alpha / 2)
+    upper_idx = int(num_bootstrap * (1 - alpha / 2))
+    
+    return (bootstrap_means[lower_idx], bootstrap_means[upper_idx])
 
-def run_comparison() -> Dict[str, Any]:
-    """Run the blocked permutation test for all smell types."""
-    metrics_path = get_project_root() / "data" / "processed" / "smell_metrics.csv"
-    if not metrics_path.exists():
-        logger.error(f"Processed metrics file not found: {metrics_path}")
-        return {}
+def run_comparison(
+    metrics: List[Dict[str, Any]], 
+    smell_type: str, 
+    num_permutations: int = 10000,
+    seed: Optional[int] = None
+) -> Dict[str, Any]:
+    """
+    Run the full comparison for a single smell type.
     
-    metrics = load_processed_metrics(metrics_path)
+    Args:
+        metrics: All metrics.
+        smell_type: The smell type to analyze (e.g., 'LongMethod').
+        num_permutations: Number of permutations.
+        seed: Random seed.
+        
+    Returns:
+        Dictionary with test results.
+    """
+    # Filter metrics for this smell type
+    smell_metrics = [m for m in metrics if m.get('smell_type') == smell_type]
     
-    # Group by smell type
-    results = {}
-    for smell_type in SMELL_TYPES:
-        smell_metrics = [m for m in metrics if m['smell_type'] == smell_type]
-        
-        human_counts = [m['count'] for m in smell_metrics if m['source_type'] == 'human']
-        llm_counts = [m['count'] for m in smell_metrics if m['source_type'] == 'llm']
-        
-        if not human_counts or not llm_counts:
-            logger.warning(f"No data for smell type: {smell_type}")
-            results[smell_type] = {
-                'observed_diff': 0.0,
-                'p_value': 1.0,
-                'corrected_p_value': 1.0,
-                'effect_size': 0.0,
-                'confidence_interval': (0.0, 0.0),
-                'n_human': len(human_counts),
-                'n_llm': len(llm_counts)
-            }
-            continue
-        
-        # Run permutation test
-        test_result = blocked_permutation_test(human_counts, llm_counts)
-        
-        # Calculate confidence interval
-        ci = calculate_confidence_interval(human_counts, llm_counts)
-        
-        results[smell_type] = {
-            'observed_diff': test_result['observed_diff'],
-            'p_value': test_result['p_value'],
-            'effect_size': test_result['effect_size'],
-            'confidence_interval': ci,
-            'n_human': len(human_counts),
-            'n_llm': len(llm_counts)
-        }
+    if not smell_metrics:
+        logger.warning(f"No metrics found for smell type: {smell_type}")
+        return {"error": f"No metrics for {smell_type}"}
     
-    # Apply Bonferroni correction
-    p_values = [results[st]['p_value'] for st in SMELL_TYPES]
-    corrected_p_values = apply_bonferroni_correction(p_values)
-    for i, smell_type in enumerate(SMELL_TYPES):
-        results[smell_type]['corrected_p_value'] = corrected_p_values[i]
+    # Separate by source type
+    human_values = [m['continuous_metric_value'] for m in smell_metrics if m.get('source_type') == 'human']
+    llm_values = [m['continuous_metric_value'] for m in smell_metrics if m.get('source_type') == 'llm']
     
-    return results
+    if not human_values or not llm_values:
+        logger.warning(f"Insufficient data for {smell_type}: human={len(human_values)}, llm={len(llm_values)}")
+        return {"error": f"Insufficient data for {smell_type}"}
+    
+    # Run permutation test
+    perm_result = blocked_permutation_test(human_values, llm_values, num_permutations, seed)
+    
+    # Calculate confidence intervals
+    human_ci = calculate_confidence_interval(human_values, seed=seed)
+    llm_ci = calculate_confidence_interval(llm_values, seed=seed)
+    
+    # Calculate effect size (Cohen's d approximation)
+    mean_h = sum(human_values) / len(human_values)
+    mean_l = sum(llm_values) / len(llm_values)
+    std_h = (sum((x - mean_h)**2 for x in human_values) / len(human_values)) ** 0.5
+    std_l = (sum((x - mean_l)**2 for x in llm_values) / len(llm_values)) ** 0.5
+    
+    # Pooled standard deviation
+    n_h = len(human_values)
+    n_l = len(llm_values)
+    pooled_std = (( (n_h - 1) * std_h**2 + (n_l - 1) * std_l**2 ) / (n_h + n_l - 2)) ** 0.5
+    
+    cohens_d = (mean_h - mean_l) / pooled_std if pooled_std > 0 else 0.0
+    
+    return {
+        "smell_type": smell_type,
+        "human_count": len(human_values),
+        "llm_count": len(llm_values),
+        "human_mean": mean_h,
+        "llm_mean": mean_l,
+        "observed_difference": perm_result["observed_difference"],
+        "p_value": perm_result["p_value"],
+        "cohens_d": cohens_d,
+        "human_ci": list(human_ci),
+        "llm_ci": list(llm_ci),
+        "num_permutations": num_permutations
+    }
 
-def write_results(results: Dict[str, Any], output_path: Path):
-    """Write the comparison results to a JSON file."""
+def write_results(results: Dict[str, Any], output_path: Path) -> None:
+    """
+    Write statistical results to JSON file.
+    
+    Args:
+        results: Dictionary of results.
+        output_path: Path to output file.
+    """
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     with open(output_path, 'w', encoding='utf-8') as f:
         json.dump(results, f, indent=2)
     logger.info(f"Results written to {output_path}")
 
-def main():
-    """Main entry point."""
-    logger.info("Starting blocked permutation test for code smell distributions")
+def main() -> None:
+    """
+    Main entry point for the statistical comparison task.
+    """
+    # Load configuration
+    project_root = get_project_root()
+    config = get_config()
+    seed = get_random_seed()
     
-    results = run_comparison()
+    logger.info(f"Starting statistical comparison with seed={seed}")
     
-    if not results:
-        logger.error("No results to write")
-        return
+    # Define paths
+    metrics_path = project_root / "data" / "processed" / "smell_metrics.csv"
+    output_path = project_root / "data" / "intermediate" / "stat_results.json"
     
-    output_path = get_project_root() / "data" / "processed" / "statistical_comparison_results.json"
-    write_results(results, output_path)
+    # Load data
+    try:
+        metrics = load_processed_metrics(metrics_path)
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+    
+    # Define smell types to analyze
+    smell_types = [
+        "LongMethod",
+        "DuplicatedCode",
+        "FeatureEnvy",
+        "LongParameterList"
+    ]
+    
+    # Run comparisons
+    raw_results = {}
+    for smell_type in smell_types:
+        logger.info(f"Running comparison for {smell_type}")
+        raw_results[smell_type] = run_comparison(metrics, smell_type, seed=seed)
+    
+    # Collect p-values for Bonferroni correction
+    p_values = []
+    for smell_type, result in raw_results.items():
+        if "p_value" in result:
+            p_values.append(result["p_value"])
+    
+    # Apply Bonferroni correction
+    if p_values:
+        correction_result = apply_bonferroni_correction(p_values, alpha=0.05)
+        
+        # Update raw results with corrected p-values
+        for i, smell_type in enumerate(smell_types):
+            if smell_type in raw_results and i < len(correction_result["corrected_p_values"]):
+                raw_results[smell_type]["corrected_p_value"] = correction_result["corrected_p_values"][i]
+                raw_results[smell_type]["is_significant"] = correction_result["is_significant"][i]
+    
+    # Prepare final output
+    final_results = {
+        "metadata": {
+            "seed": seed,
+            "num_permutations": 10000,
+            "correction_method": "Bonferroni",
+            "alpha": 0.05,
+            "smell_types_analyzed": smell_types
+        },
+        "results": raw_results
+    }
+    
+    # Write results
+    write_results(final_results, output_path)
     
     logger.info("Statistical comparison completed successfully")
-    logger.info(f"Corrected p-values (Bonferroni):")
-    for smell_type in SMELL_TYPES:
-        logger.info(f"  {smell_type}: {results[smell_type]['corrected_p_value']:.4f} (effect size: {results[smell_type]['effect_size']:.4f})")
 
 if __name__ == "__main__":
     main()

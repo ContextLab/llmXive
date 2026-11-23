@@ -1,0 +1,42 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "ReactionRecord"
+description: "Schema for a single SN2 reaction record with normalized kinetic data."
+type: "object"
+required:
+  - "record_id"
+  - "nucleophile_smiles"
+  - "rate_constant"
+  - "log_rate"
+  - "temperature_kelvin"
+  - "pKa"
+properties:
+  record_id:
+    type: "string"
+    description: "Unique identifier for the record."
+  nucleophile_smiles:
+    type: "string"
+    description: "SMILES string of the amine reactant."
+  electrophile_smiles:
+    type: "string"
+    description: "SMILES string of the substrate."
+  product_smiles:
+    type: "string"
+    description: "SMILES string of the product."
+  rate_constant:
+    type: "number"
+    description: "Rate constant normalized to standard conditions (298K)."
+  log_rate:
+    type: "number"
+    description: "Log10 of the rate constant."
+  temperature_kelvin:
+    type: "number"
+    description: "Experimental temperature in Kelvin."
+  activation_energy:
+    type: ["number", "null"]
+    description: "Activation energy in kJ/mol, or null if imputed."
+  pKa:
+    type: "number"
+    description: "Calculated pKa of the nucleophile."
+  exclusion_reason:
+    type: ["string", "null"]
+    description: "Reason for exclusion if the record was filtered out."

@@ -1,0 +1,8 @@
+# This file ensures the directory structure exists for version control.
+# Required directories:
+# - code/
+# - data/raw/
+# - data/derived/
+# - results/
+# - tests/
+# - contracts/

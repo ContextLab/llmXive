@@ -1,0 +1,40 @@
+T011:
+  c: false
+  h: beddbbb2c024bba1c9397d0a951c6fc3b3895bef3a86cdb1ccf1e987cee2f41d
+  r: The required artifact `tests/contract/test_data_download.py` does not exist in
+    the repository, so the contract test for data download integrity is missing. The
+    task cannot be considered completed until this file is added with appropriate
+    test code.
+T012:
+  c: false
+  h: fac063d24c8f86550527e4b954dea3f30a7875350690637435d50ea897df99f1
+  r: "The required file `tests/integration/test_pipeline_flow.py` does not exist in\
+    \ the repository, so the integration test cannot be evaluated or run. The task\u2019\
+    s primary deliverable is missing."
+T016:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, script, or CSV output was provided that demonstrates the added logic
+    for handling partial intervals or the presence of a `partial_interval` boolean
+    column set to `true` for a shortened final bin. The required artifact (updated
+    pipeline code and a sample CSV showing the flag) is missing.
+T017:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No `run_all.sh` script (or any related code) was provided for inspection, so
+    we cannot confirm that it calls `run_pipeline.sh`, logs the required message,
+    or handles missing data sources as specified. The required artifact is missing.
+T019:
+  c: false
+  h: a3b474f5d93324a3ac724175b2fb134313127db2ccaa4981eb5c5358d2df0522
+  r: The required artifact `tests/contract/test_stats.py` does not exist in the repository,
+    so the contract test for statistical methods is missing. The task cannot be considered
+    completed until this file is added with appropriate test content.
+T023:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No code, script, notebook, or test output implementing the Monte\u2011Carlo\
+    \ shuffle test or integrating the T022 block\u2011bootstrap logic is present.\
+    \ The required artifact (e.g., a Python module or script that performs the shuffling\
+    \ with sufficient permutations and includes the conditional fallback for <\u202F\
+    30 blocks) is missing, so the task is not satisfied."

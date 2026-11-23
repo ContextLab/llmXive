@@ -1,0 +1,7 @@
+{
+  "task_id": "T007",
+  "fingerprint": "b236fcd7362c4b7a3f4cd22c20a613aaa545eceba355747aff752bc92ca53dce",
+  "count": 1,
+  "model": "google.gemma-4-31B-it",
+  "reason": "[implementer] refusing to write 'code/src/extraction/fetch_prs.py': SyntaxError at line 62: unexpected indent. Likely truncation (output ran out of tokens) or unbalanced bracket. Total chars: 11411"
+}

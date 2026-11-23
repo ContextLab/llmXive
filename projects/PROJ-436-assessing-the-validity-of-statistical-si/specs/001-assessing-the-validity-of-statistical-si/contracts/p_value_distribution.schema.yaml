@@ -1,0 +1,51 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "P-Value Distribution Schema"
+description: "Schema for individual p-values from simulation iterations."
+type: "object"
+properties:
+  run_id:
+    type: "string"
+    description: "Unique identifier for the simulation run."
+  dataset_id:
+    type: "string"
+    description: "Source dataset identifier."
+  mechanism:
+    type: "string"
+    enum:
+      - "MCAR"
+      - "MAR"
+      - "MNAR"
+    description: "Missing data mechanism."
+  missing_rate:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Proportion of missing data."
+  method:
+    type: "string"
+    enum:
+      - "CC"
+      - "MI"
+      - "IPW"
+    description: "Analysis method used."
+  p_value:
+    type: "number"
+    minimum: 0.0
+    maximum: 1.0
+    description: "Calculated p-value."
+  is_significant:
+    type: "boolean"
+    description: "True if p-value < 0.05."
+  seed:
+    type: "integer"
+    description: "Random seed used for this iteration."
+required:
+  - run_id
+  - dataset_id
+  - mechanism
+  - missing_rate
+  - method
+  - p_value
+  - is_significant
+  - seed
+additionalProperties: false

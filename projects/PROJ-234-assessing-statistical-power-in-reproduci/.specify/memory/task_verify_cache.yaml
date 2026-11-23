@@ -1,0 +1,32 @@
+T002:
+  c: true
+  h: 13009cbf6bbbe9e79673652dc8abd07a011767bde1c244cbe28b6fa24225b131
+  r: 'Both artifacts exist at the project root with the exact required content: `requirements.txt`
+    contains all eight pinned packages from the spec (plus openml), and `config.yaml`
+    contains `limits.max_runtime_hours: 6` and `limits.max_memory_gb: 7`, which `yaml.safe_load`
+    would parse into the required dict structure. No execution evidence of the pip
+    dry-run was provided, but the file contents match the task''s stated deliverables
+    exactly.'
+  sig: 241b1fb1024a97cc9b36294f94ceb892da376eea69fb127837ae577536a03ac3
+T003:
+  c: true
+  h: aa094afe95d1b18d283f51d2a35551726ae8072238efa0838eaf7a3dd3812ef0
+  r: "Checked the four schema files in `contracts/` (dataset_metadata.schema.yaml,\
+    \ power_audit_result.schema.yaml, extracted_params.schema.yaml, report.schema.yaml)\
+    \ and the execution log `code/.tasks/T003.code_verify_contracts.py.log`, which\
+    \ shows each file parsed with `yaml.safe_load` and passed `jsonschema.Draft7Validator`\
+    \ against a minimal instance. All required artifacts exist, are non\u2011empty,\
+    \ and meet the verification criteria."
+  sig: 25381a5d833cc23c614d5682172b137d91cc050dfd193066b1a7a09a3cd01dd7
+T005:
+  c: false
+  h: c5c5425a0e89b8711c01dfb92891c964e15a6f05eb3f2aeec1f6fc273dd0f474
+  r: "The ingestion script does not use the provided `api_client` wrapper, filters\
+    \ incorrectly (keeps only entries with a non\u2011null `url` which none of the\
+    \ raw records have, resulting in an empty filtered list), and writes an empty\
+    \ `data/processed/filtered_datasets.json` that does not conform to `contracts/dataset_metadata.schema.yaml`.\
+    \ Moreover, the required test `tests/unit/test_dataset_metadata_schema.py` is\
+    \ missing, so the verification step cannot be performed. The script must be revised\
+    \ to call `utils.api_client.fetch_top_classification_datasets`, correctly filter\
+    \ on `publication_link` or `task_"
+  sig: e297828babb1b0986564444c796d1076174d0ef3c860fda09b0fb87b3a4b0cf3

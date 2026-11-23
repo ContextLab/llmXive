@@ -64,5 +64,15 @@
     "sn-bibliography.bib",
     "sn-jnl.cls",
     "sn-nature.bst"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "15cc06702f25f0a1d5b5ecaef22cc72e1b505c55127fada7263a85f957ae221d",
+      "bytes": 11717009
+    },
+    "original.pdf": {
+      "sha256": "5cd59a873c0357d63a4cf6dc9b4056b1172b5a01b84f4f97761508a163cf4a96",
+      "bytes": 11540845
+    }
+  }
 }

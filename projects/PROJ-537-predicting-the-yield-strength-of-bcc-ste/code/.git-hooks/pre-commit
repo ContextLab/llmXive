@@ -1,0 +1,30 @@
+#!/bin/bash
+# Pre-commit hook to run pre-commit checks
+# This hook ensures seed usage and import validation
+
+set -e
+
+PROJECT_ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
+CODE_DIR="$PROJECT_ROOT/code"
+
+# Run pre-commit checks if pre-commit is installed
+if command -v pre-commit &> /dev/null; then
+    echo "Running pre-commit checks..."
+    cd "$PROJECT_ROOT"
+    pre-commit run --all-files
+else
+    # Fallback to manual checks if pre-commit is not installed
+    echo "Running manual seed and import checks..."
+    
+    # Check for seed usage
+    if [ -d "$CODE_DIR" ]; then
+        python "$CODE_DIR/utils/verify_seed.py" --check-all || exit 1
+    fi
+
+    # Check imports
+    if [ -d "$CODE_DIR" ]; then
+        python "$CODE_DIR/utils/check_imports.py" --check-all || exit 1
+    fi
+fi
+
+exit 0

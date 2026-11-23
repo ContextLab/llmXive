@@ -1,0 +1,1292 @@
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: Pearson correlation of 0.87 for KRR predictor
+  claim_id: c_843a6a03
+  context: The trained KRR model demonstrated strong correlation between predicted
+    and actual policy gaps. Pearson Correlation (r) | 0.87 | > 0.8 | Pass
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The trained KRR model demonstrated a Pearson correlation (r) of 0.87.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:02:12Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: Mean Absolute Error of 0.042 for KRR predictor
+  claim_id: c_09d0f35d
+  context: 'Metrics: Pearson correlation (r) and Mean Absolute Error (MAE). Mean Absolute
+    Error (MAE) | 0.042 | < 0.05 | Pass'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The trained KRR model demonstrated a Mean Absolute Error (MAE) of 0.042.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:02:30Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: R-squared of 0.76 for KRR predictor
+  claim_id: c_f0d9f2e7
+  context: "Metrics: Pearson correlation (r) and Mean Absolute Error (MAE). R-squared\
+    \ (R\xB2) | 0.76 | > 0.7 | Pass"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The trained KRR model demonstrated an R-squared (R\xB2) value of 0.76."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:02:45Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: Pearson correlation of 0.84 for INT4 quantization
+  claim_id: c_fc3875bc
+  context: 'Note: Correlation was consistent across all quantization levels (INT4:
+    0.84, INT8: 0.89, FP8: 0.88).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pearson correlation for INT4 quantization level was 0.84.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:03:09Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: Pearson correlation of 0.89 for INT8 quantization
+  claim_id: c_b9404983
+  context: 'Note: Correlation was consistent across all quantization levels (INT4:
+    0.84, INT8: 0.89, FP8: 0.88).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pearson correlation for INT8 quantization level was 0.89.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:03:25Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: Pearson correlation of 0.88 for FP8 quantization
+  claim_id: c_14b77862
+  context: 'Note: Correlation was consistent across all quantization levels (INT4:
+    0.84, INT8: 0.89, FP8: 0.88).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Pearson correlation for FP8 quantization level was 0.88.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:03:47Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: 92% of INT4 samples satisfied prediction bound
+  claim_id: c_21c48f1f
+  context: 'We verified the theoretical bound |predicted - actual| < 0.1 across all
+    quantization levels. INT4: 92% of samples satisfied the bound.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 92% of INT4 samples satisfied the theoretical bound |predicted - actual|
+    < 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:03:47Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: 96% of INT8 samples satisfied prediction bound
+  claim_id: c_ba10e1cd
+  context: 'We verified the theoretical bound |predicted - actual| < 0.1 across all
+    quantization levels. INT8: 96% of samples satisfied the bound.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 96% of INT8 samples satisfied the theoretical bound |predicted - actual|
+    < 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:03:47Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: 98% of FP8 samples satisfied prediction bound
+  claim_id: c_5410e78e
+  context: 'We verified the theoretical bound |predicted - actual| < 0.1 across all
+    quantization levels. FP8: 98% of samples satisfied the bound.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 98% of FP8 samples satisfied the theoretical bound |predicted - actual|
+    < 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:03:47Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: 95.3% of dataset satisfied prediction bound
+  claim_id: c_4a3c37e4
+  context: 'Overall Consistency: 95.3% of the dataset satisfied the bound across all
+    levels.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 95.3% of the dataset satisfied the theoretical bound |predicted - actual|
+    < 0.1 across all quantization levels.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:03:47Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: p-value of 0.67 for acceptance rate comparison
+  claim_id: c_a9667271
+  context: A paired t-test was conducted on the acceptance rates and final reasoning
+    scores. Acceptance Rate | t-statistic 0.42 | p-value 0.67
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value for the comparison of acceptance rates between Proxy and Baseline
+    was 0.67.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:04:33Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: p-value of 0.37 for reasoning score comparison
+  claim_id: c_5af938fd
+  context: A paired t-test was conducted on the acceptance rates and final reasoning
+    scores. Reasoning Score | t-statistic 0.89 | p-value 0.37
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The p-value for the comparison of reasoning scores between Proxy and Baseline
+    was 0.37.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:04:48Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: Baseline latency of 145.2 ms per sample
+  claim_id: c_bb425ffc
+  context: 'We measured the time required for the policy evaluation step. Baseline
+    Latency (Quantized Inference): 145.2 ms/sample'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The baseline latency for quantized inference was 145.2 ms/sample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:05:16Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: Proxy latency of 0.8 ms per sample
+  claim_id: c_407dc7ff
+  context: 'We measured the time required for the policy evaluation step. Proxy Latency
+    (KRR Prediction): 0.8 ms/sample'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The proxy latency for KRR prediction was 0.8 ms/sample.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:05:54Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/docs/reports/001-llmxive-mipu-gap-bounds.md
+  attempts: 1
+  canonical: 99.45% latency reduction for proxy policy
+  claim_id: c_54b67cca
+  context: 'Latency Reduction Percentage: (145.2 - 0.8) / 145.2 * 100 approx 99.45%.
+    Result: The proxy achieves a 99.45% reduction in policy evaluation time.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The proxy achieved a 99.45% reduction in policy evaluation time compared
+    to the baseline.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-13T18:05:54Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Pearson correlation coefficient greater than 0.8 on held-out validation
+    set
+  claim_id: c_ddb49b90
+  context: 'Independent Test: A trained model artifact exists that outputs a predicted
+    divergence value. The model achieves a Pearson correlation coefficient (r) of
+    > 0.8 on a held-out validation set.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_coefficient_greater_than_0.8_on_held-out
+  kind: magnitude
+  raw_text: The model achieves a Pearson correlation coefficient (r) of > 0.8 on a
+    held-out validation set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:43:14Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Correlation greater than 0.8 for at least one quantization level
+  claim_id: c_8cddce3e
+  context: 'Independent Test: A report exists showing correlation > 0.8 for at least
+    one quantization level and a paired t-test result (p > 0.05) comparing policy
+    acceptance rates.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Correlation_greater_than_0.8_for_at_least_one_quantization_l
+  kind: magnitude
+  raw_text: Verify correlation > 0.8 for at least one quantization level
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:44:08Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Selection of 10 samples from GSM8K dataset with low entropy or near-zero
+    gradient characteristics
+  claim_id: c_f9618ea3
+  context: 'Edge Case Injection: Identify and select 10 samples from the GSM8K dataset
+    that naturally exhibit low entropy (simple arithmetic, e.g., ''What is 2+2?'',
+    ''Calculate 5*5'') or near-zero gradient characteristics (simple patterns).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify and select 10 samples from the GSM8K dataset that naturally exhibit
+    low entropy or near-zero gradient characteristics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:44:42Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Dataset size reduction threshold of 300 samples for under 6 hour runtime
+  claim_id: c_b88cff1a
+  context: If elapsed time approaches 3.0 hours (reserving adequate time for training/validation),
+    AND the current sample count is strictly greater than 300, reduce the dataset
+    size (e.g., stop streaming early) to meet the < 6 hour constraint.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_size_reduction_threshold_of_300_samples_for_under_6
+  kind: magnitude
+  raw_text: The dataset size is reduced if the sample count is strictly greater than
+    300 to meet the < 6 hour constraint.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:45:51Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Minimum floor of 300 samples for dataset generation
+  claim_id: c_4ac52467
+  context: If the sample count is at or below 300, STOP GRACEFULLY with a clear success
+    message indicating the run completed at the minimum floor (SC-005).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The run completes at the minimum floor of 300 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:46:30Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Latency reduction percentage greater than or equal to 90 percent
+  claim_id: c_8f8c2683
+  context: "Calculate latency_reduction_percentage using formula: (baseline_policy_eval_time\
+    \ - proxy_policy_eval_time) / baseline_policy_eval_time * 100; verify if the reduction\
+    \ meets the \u226590% target (SC-002)."
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Latency_reduction_percentage_greater_than_or_equal_to_90_per
+  kind: magnitude
+  raw_text: "The reduction meets the \u226590% target for latency reduction in policy\
+    \ evaluation."
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:47:29Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Absolute difference between predicted and actual less than 0.1 for INT4,
+    INT8, and FP8 levels
+  claim_id: c_87823d2b
+  context: Verify |predicted - actual| < 0.1 holds separately for INT4, INT8, and
+    FP8 levels. Calculate the percentage of samples satisfying the bound for each
+    level and the global consistency metric.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Absolute_difference_between_predicted_and_actual_less_than_0
+  kind: magnitude
+  raw_text: Verify |predicted - actual| < 0.1 holds separately for INT4, INT8, and
+    FP8 levels.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:48:12Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Proxy policy acceptance threshold of 0.1
+  claim_id: c_557540c7
+  context: 'Proxy Policy Logic: Accept if predicted gap < 0.1.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Proxy_policy_acceptance_threshold_of_0.1
+  kind: entity_fact
+  raw_text: The threshold for acceptance is defined as score > 0.1 for the proxy policy.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:48:55Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: VIF collinearity threshold of 10
+  claim_id: c_dd4b7e4c
+  context: log a warning (do not raise an error) if collinearity exceeds threshold
+    (VIF > 10) to ensure features are valid before training.
+  evidence:
+    fill:
+      channel: paper
+      conflicts: []
+      quote: If the VIF is high (with 10 being the traditionally accepted thresh-
+      source_id: '2005.02245'
+      url: https://arxiv.org/abs/2005.02245
+      value: '10'
+    filled: true
+  kind: numeric
+  raw_text: The threshold for VIF collinearity is 10.
+  resolved_value: '10'
+  resolver: fill:paper
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T17:49:25Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Dataset minimum sample count of 300
+  claim_id: c_549160dc
+  context: DO NOT fail loudly unless the count falls below the n=300 floor.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Dataset_minimum_sample_count_of_300
+  kind: magnitude
+  raw_text: The dataset must contain at least 300 samples.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:50:16Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Fixed random seed of 42 for input generation
+  claim_id: c_01be7624
+  context: Generate a fixed set of input prompts with a fixed random seed (seed=42)
+    and write them to data/processed/synchronized_inputs.json.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The fixed random seed for input generation is 42.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:50:42Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Pearson correlation coefficient greater than 0.8 on validation set
+  claim_id: c_47f5a2c5
+  context: 'Independent Test: A trained model artifact exists that outputs a predicted
+    divergence value. The model achieves a Pearson correlation coefficient (r) of
+    > 0.8 on a held-out validation set.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Pearson_correlation_coefficient_greater_than_0.8_on_validati
+  kind: magnitude
+  raw_text: The model achieves a Pearson correlation coefficient (r) of > 0.8 on a
+    held-out validation set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:51:54Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Selection of 10 low entropy or near-zero gradient samples from GSM8K
+    dataset
+  claim_id: c_44d4628b
+  context: 'Edge Case Injection: Identify and select 10 samples from the GSM8K dataset
+    that naturally exhibit low entropy (simple arithmetic, e.g., "What is 2+2?", "Calculate
+    5*5") or near-zero gradient characteristics (simple patterns).'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify and select 10 samples from the GSM8K dataset that naturally exhibit
+    low entropy or near-zero gradient characteristics.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:51:54Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Reduce dataset size if elapsed time approaches 3.0 hours and sample count
+    greater than 300
+  claim_id: c_d739451c
+  context: If elapsed time approaches 3.0 hours (reserving adequate time for training/validation),
+    AND the current sample count is strictly greater than 300, reduce the dataset
+    size (e.g., stop streaming early) to meet the < 6 hour constraint.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Reduce_dataset_size_if_elapsed_time_approaches_3.0_hours_and
+  kind: magnitude
+  raw_text: If elapsed time approaches 3.0 hours (reserving adequate time for training/validation),
+    AND the current sample count is strictly greater than 300, reduce the dataset
+    size.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:52:34Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Fail loudly if dataset count falls below 300 floor
+  claim_id: c_66ff708b
+  context: Log a warning if counts do not match due to T013 skips, but DO NOT fail
+    loudly unless the count falls below the n=300 floor.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail loudly if counts do not match unless the count falls below the n=300
+    floor.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:53:19Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Fail loudly if any quantization level is missing or under-represented
+    below 10 percent
+  claim_id: c_0bec8b4f
+  context: Load `training_sample.parquet` and FAIL LOUDLY if samples for any of the
+    three quantization levels (INT4, INT8, FP8) are missing or under-represented (e.g.,
+    < 10% of total).
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Fail loudly if samples for any of the three quantization levels (INT4,
+    INT8, FP8) are missing or under-represented (e.g., < 10% of total).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:53:49Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Log warning if Variance Inflation Factor exceeds 10
+  claim_id: c_a92eebb5
+  context: Import the VIF calculation module from src/services/vif_checker.py (implemented
+    in T018), and log a warning (do not raise an error) if collinearity exceeds threshold
+    (VIF > 10 (2005.02245, https://arxiv.org/abs/2005.02245)) to ensure features are
+    valid before training.
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: Log a warning if collinearity exceeds threshold (VIF > 10 (2005.02245,
+    https://arxiv.org/abs/2005.02245)).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:53:54Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: RL task defined as GSM8K correctness
+  claim_id: c_2ced4d05
+  context: 'Define RL Task: The task is GSMK correctness. The ''reward'' is a binary
+    indicator that is positive if the model''s generated answer matches the ground
+    truth, and negative otherwise.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/RL_task_defined_as_GSM8K_correctness
+  kind: entity_fact
+  raw_text: The task is GSMK correctness.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:54:27Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Generate input prompts with random seed 42
+  claim_id: c_48550384
+  context: Generate a fixed set of input prompts with a fixed random seed (seed=42)
+    and write them to `data/processed/synchronized_inputs.json`.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a fixed set of input prompts with a fixed random seed (seed=42).
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T17:54:49Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: VIF collinearity threshold is 10 based on arXiv 2005.02245
+  claim_id: c_a3fbb9fe
+  context: 'Implement src/cli/validate_features_diagnostic.py: ...log a warning (do
+    not raise an error) if collinearity exceeds threshold (VIF > 10 (2005.02245, https://arxiv.org/abs/2005.02245))...'
+  evidence:
+    ok: false
+    reason: claim not found in the cited source's full text
+  kind: numeric
+  raw_text: log collinearity warning if VIF > 10 (2005.02245, https://arxiv.org/abs/2005.02245)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T18:01:58Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Select 10 edge case samples from GSM8K dataset
+  claim_id: c_a98f9a1a
+  context: 'Edge Case Injection: Identify and select 10 samples from the GSM8K dataset
+    that naturally exhibit low entropy... Append these 10 specific samples to the
+    input set...'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Identify and select 10 samples from the GSM8K dataset that naturally exhibit
+    low entropy or near-zero gradient characteristics
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T18:01:58Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Proxy policy acceptance threshold is 0.1
+  claim_id: c_e38861e6
+  context: 'Proxy Policy Logic: Accept if predicted gap < 0.1.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Accept if predicted gap < 0.1
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T18:01:58Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Dataset generation minimum sample count is 300
+  claim_id: c_120302d5
+  context: Log a warning if counts do not match... but DO NOT fail loudly unless the
+    count falls below the n=300 floor.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: FAIL LOUDLY if the count falls below the n=300 floor
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T18:02:43Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Dataset generation time limit is 6 hours with 3 hour checkpoint
+  claim_id: c_5909d0f5
+  context: If elapsed time approaches 3.0 hours (reserving adequate time for training/validation)...
+    reduce the dataset size... to meet the < 6 hour constraint.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If elapsed time approaches 3.0 hours... reduce the dataset size... to
+    meet the < 6 hour constraint
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T18:03:12Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Predictor model Pearson correlation target is greater than 0.8
+  claim_id: c_f9c7d652
+  context: 'Independent Test: A trained model artifact exists... The model achieves
+    a Pearson correlation coefficient (r) of > 0.8 on a held-out validation set.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Predictor_model_Pearson_correlation_target_is_greater_than_0
+  kind: magnitude
+  raw_text: The model achieves a Pearson correlation coefficient (r) of > 0.8 on a
+    held-out validation set
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T18:03:13Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Theoretical bound verification requires correlation greater than 0.8
+  claim_id: c_47f42fed
+  context: 'Independent Test: A report exists showing correlation > 0.8 for at least
+    one quantization level...'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Theoretical_bound_verification_requires_correlation_greater
+  kind: magnitude
+  raw_text: Verify theoretical bounds... correlation > 0.8 for at least one quantization
+    level
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T18:03:50Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Bound verification threshold is 0.1 for all quantization levels
+  claim_id: c_688f1fff
+  context: Verify |predicted - actual| < 0.1 holds separately for INT4, INT8, and
+    FP8 levels.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Verify |predicted - actual| < 0.1 holds separately for INT4, INT8, and
+    FP8 levels
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T18:03:50Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Statistical comparison uses Bonferroni correction
+  claim_id: c_24489fee
+  context: Perform paired t-test... Apply Bonferroni correction for multiple comparisons.
+  evidence:
+    fill:
+      channel: wikidata
+      conflicts: []
+      quote: Bonferroni correction
+      source_id: Q385989
+      url: https://www.wikidata.org/wiki/Q385989
+      value: Bonferroni correction
+    filled: true
+  kind: entity_fact
+  raw_text: Apply Bonferroni correction for multiple comparisons
+  resolved_value: Bonferroni correction
+  resolver: fill:wikidata
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-08-17T18:04:16Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Input prompt generation uses random seed 42
+  claim_id: c_2beca908
+  context: Generate a fixed set of input prompts with a fixed random seed (seed=42)...
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Generate a fixed set of input prompts with a fixed random seed (seed=42)
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-08-17T18:04:16Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Use meta-llama/Llama-3-8B model in BF16 precision
+  claim_id: c_2c1da978
+  context: 'T012: Implement src/services/feature_extractor.py: Load a full-precision
+    Llama model of standard scale, specifically meta-llama/Llama-3-8B in BF16 precision.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Load a full-precision Llama model of standard scale, specifically 'meta-llama/Llama-3-8B'
+    in BF16 precision.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T12:30:11Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Halt pipeline if Variance Inflation Factor exceeds 10
+  claim_id: c_56368b88
+  context: 'T019: If VIF > 10 (2005.02245, https://arxiv.org/abs/2005.02245), HALT
+    THE PIPELINE with a fatal error.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: If VIF > 10, halt the pipeline with a fatal error.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T12:30:11Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Model achieves Pearson correlation coefficient greater than 0.8
+  claim_id: c_7aa7d297
+  context: 'Independent Test for User Story 2: The model achieves a Pearson correlation
+    coefficient (r) of > 0.8 on a held-out validation set.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_achieves_Pearson_correlation_coefficient_greater_than
+  kind: magnitude
+  raw_text: The model achieves a Pearson correlation coefficient (r) of > 0.8 on a
+    held-out validation set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T12:31:24Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Select GSM8K samples with answer token length less than or equal to 5
+  claim_id: c_b4f7ed5f
+  context: 'T026A: Edge Case Injection: Select samples from the GSM8K dataset that
+    naturally exhibit low complexity using the deterministic rule: answer_token_length
+    <= 5.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Select_GSM8K_samples_with_answer_token_length_less_than_or_e
+  kind: magnitude
+  raw_text: 'Select samples from the GSM8K dataset that naturally exhibit low complexity
+    using the deterministic rule: answer_token_length <= 5.'
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T12:31:58Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Ensure edge case count reaches at least 5% of 300 or minimum 30 samples
+  claim_id: c_8a03993d
+  context: 'T026A: Append these samples to the input set until the edge case count
+    reaches at least 5% of the target n=300 (or a minimum of 30 samples) to ensure
+    statistical power.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Ensure_edge_case_count_reaches_at_least_5%25_of_300_or_minimum
+  kind: magnitude
+  raw_text: Append these samples to the input set until the edge case count reaches
+    at least 5% of the target n=300 (or a minimum of 30 samples).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T12:32:53Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Accept proxy policy if predicted gap is less than 0.1
+  claim_id: c_3960cb3a
+  context: 'T028: Proxy Policy Logic: Accept if predicted gap < 0.1.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Accept_proxy_policy_if_predicted_gap_is_less_than_0.1
+  kind: magnitude
+  raw_text: Accept if predicted gap < 0.1.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T12:33:13Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Verify absolute difference between predicted and actual is less than
+    0.1 per quantization level
+  claim_id: c_eb465dd9
+  context: 'T027B: Verify |predicted - actual| < 0.1 holds separately for INT4, INT8,
+    and FP8 levels.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Verify_absolute_difference_between_predicted_and_actual_is_l
+  kind: magnitude
+  raw_text: Verify |predicted - actual| < 0.1 holds separately for INT4, INT8, and
+    FP8 levels.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T12:33:36Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Prioritize core artifacts if less than 15 minutes remain
+  claim_id: c_29ab8484
+  context: 'T033: Time Budget Check: At the start of execution, check the remaining
+    time budget. If less than 15 minutes remain, prioritize core artifacts.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Prioritize_core_artifacts_if_less_than_15_minutes_remain
+  kind: magnitude
+  raw_text: If less than 15 minutes remain, prioritize core artifacts and truncate
+    non-essential narrative.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-03T12:34:11Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Task defined as GSM8K correctness
+  claim_id: c_437955df
+  context: 'Define RL Task: The task is GSM8K correctness. The ''reward'' is a binary
+    indicator that is positive if the model''s generated answer matches the ground
+    truth, and negative otherwise.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Task_defined_as_GSM8K_correctness
+  kind: entity_fact
+  raw_text: The task is GSM8K correctness.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T12:54:07Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Low complexity edge cases defined as GSM8K samples with answer_token_length
+    <= 5
+  claim_id: c_c467f17d
+  context: 'Edge Case Injection: Select samples from the GSM8K dataset that naturally
+    exhibit low complexity using the deterministic rule: answer_token_length <= 5.
+    Use the Llama-3-8B tokenizer to determine token length.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Samples from the GSM8K dataset with answer_token_length <= 5 are selected
+    as low complexity edge cases.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T12:54:32Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Edge case count target is 5% of n=300 or minimum 30 samples
+  claim_id: c_377bd708
+  context: Append these samples to the input set until the edge case count reaches
+    at least 5% of the target n=300 (or a minimum of 30 samples) to ensure statistical
+    power.
+  evidence:
+    entailment_evidence: Edge case count target is 5% of n=300 or minimum 30 samples
+    entailment_status: grounded
+    source_url: https://en.wikipedia.org/wiki/Edge_case_count_target_is_5%25_of_n=300_or_minimum_30_samples
+  kind: magnitude
+  raw_text: The edge case count must reach at least 5% of the target n=300 or a minimum
+    of 30 samples.
+  resolved_value: Edge case count target is 5% of n=300 or minimum 30 samples
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: verified
+  updated_at: '2026-09-06T12:54:34Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Model achieves Pearson correlation coefficient > 0.8 on held-out validation
+    set
+  claim_id: c_df235c5c
+  context: 'Independent Test: A trained model artifact exists that outputs a predicted
+    divergence value. The model achieves a Pearson correlation coefficient (r) of
+    > 0.8 on a held-out validation set.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The model achieves a Pearson correlation coefficient (r) of > 0.8 on a
+    held-out validation set.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T12:54:34Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Report shows correlation > 0.8 for at least one quantization level
+  claim_id: c_79094249
+  context: 'Independent Test: A report exists showing correlation > 0.8 for at least
+    one quantization level and a paired t-test result (p > 0.05) comparing policy
+    acceptance rates.'
+  evidence:
+    candidates_found: 0
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Report_shows_correlation_%3E_0.8_for_at_least_one_quantization
+  kind: magnitude
+  raw_text: A report exists showing correlation > 0.8 for at least one quantization
+    level.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T12:55:25Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: VIF threshold for high collinearity is > 10
+  claim_id: c_a463f76b
+  context: If VIF > 10 (2005.02245, https://arxiv.org/abs/2005.02245), HALT THE PIPELINE
+    with a fatal error and a clear message requiring feature re-selection or dimensionality
+    reduction.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: VIF > 10 is the threshold for high collinearity.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T12:55:25Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Latency reduction target is >= 90%
+  claim_id: c_cb0c3c6e
+  context: "Calculate latency_reduction_percentage using formula: (baseline_total_time\
+    \ - proxy_total_time) / baseline_total_time * 100; verify if the reduction meets\
+    \ the \u226590% target (SC-002)"
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: "The pipeline targets a latency reduction of \u226590%."
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T12:55:25Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Total pipeline execution limit is 6 hours
+  claim_id: c_49ea62b4
+  context: If elapsed_time + (estimated_time_per_sample * remaining_samples) > 6 hours
+    (SC-005 total constraint) AND current_sample_count > 300, stop after the current
+    batch.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The total pipeline execution is constrained by a 6-hour limit.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T12:55:50Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: First 300 GSM8K samples used for synthetic training step
+  claim_id: c_255821a7
+  context: For the first 300 GSM8K samples (seed=42), generate a perturbed target
+    (e.g., shift logits by small noise) and compute MSE loss between model output
+    and perturbed target.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The first 300 GSM8K samples are used for the synthetic training step.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T12:56:09Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Rolling average for time estimation derived from last 10 samples
+  claim_id: c_78d3bba0
+  context: estimated_time_per_sample is derived from a rolling average of the last
+    10 samples.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The rolling average for time estimation is derived from the last 10 samples.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T12:56:31Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Statistical power target is >= 0.8
+  claim_id: c_52b2a83a
+  context: If power < 0.8, log a WARNING and append a 'Power Analysis' section to
+    the final report (T033) detailing the limitation.
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: Statistical power (1 - beta) must be >= 0.8.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T12:57:26Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Predicted gap threshold for dynamic decision is 0.1
+  claim_id: c_b5b2f362
+  context: 'Dynamic Decision: If predicted_gap < 0.1, use Proxy (fast KRR prediction)
+    to determine acceptance.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: The predicted gap threshold for dynamic decision making is 0.1.
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T12:57:50Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Bound consistency verification condition is |predicted - actual| < 0.1
+  claim_id: c_e29180a5
+  context: Verify |predicted - actual| < 0.1 holds separately for INT4, INT8, and
+    FP8 levels.
+  evidence:
+    entailment_evidence: ''
+    entailment_status: not_found
+    object: < 0.1
+    relation: predicted - actual
+    source_kind: url
+    source_url: https://en.wikipedia.org/wiki/Bound_consistency_verification_condition_is_predicted_-_actu
+    source_value: https://en.wikipedia.org/wiki/Bound_consistency_verification_condition_is_predicted_-_actu
+    subject: Bound consistency verification condition is
+  kind: relational
+  raw_text: The verification condition for bound consistency is |predicted - actual|
+    < 0.1.
+  resolved_value: null
+  resolver: resolve_relational
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T12:58:27Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: GSM8K low complexity samples defined by answer_token_length <= 5
+  claim_id: c_e9fe9b70
+  context: 'Edge Case Injection: Select samples from the GSM8K dataset that naturally
+    exhibit low complexity using the deterministic rule: answer_token_length <= 5.
+    Use the Llama-3-8B tokenizer to determine token length.'
+  evidence:
+    reason: no resolvable source identifier (DOI/arXiv/URL) found in claim
+  kind: numeric
+  raw_text: 'The task is to select samples from the GSM8K dataset that naturally exhibit
+    low complexity using the deterministic rule: answer_token_length <= 5.'
+  resolved_value: null
+  resolver: resolve_numeric_or_citation
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T13:00:32Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Edge case count target 5% of 300 or minimum 30 samples
+  claim_id: c_9cdfb5db
+  context: Append these samples to the input set until the edge case count reaches
+    at least 5% of the target n=300 (or a minimum of 30 samples) to ensure statistical
+    power.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Edge_case_count_target_5%25_of_300_or_minimum_30_samples
+  kind: magnitude
+  raw_text: Append these samples to the input set until the edge case count reaches
+    at least 5% of the target n=300 (or a minimum of 30 samples) to ensure statistical
+    power.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T13:01:35Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Model Pearson correlation coefficient greater than 0.8 on validation
+    set
+  claim_id: c_899b84a2
+  context: 'Independent Test: A trained model artifact exists that outputs a predicted
+    divergence value. The model achieves a Pearson correlation coefficient (r) of
+    > 0.8 on a held-out validation set.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Model_Pearson_correlation_coefficient_greater_than_0.8_on_va
+  kind: magnitude
+  raw_text: The model achieves a Pearson correlation coefficient (r) of > 0.8 on a
+    held-out validation set.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T13:02:52Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 2
+  canonical: Calculated KL divergence non-zero for statistically significant portion
+    of dataset
+  claim_id: c_9bbd382f
+  context: 'Independent Test: A CSV/Parquet file exists containing rows with input_id,
+    gradient_norms, local_curvature, quantized_logits, and calculated_kl_divergence.
+    The calculated_kl_divergence column must be non-zero for a statistically significant
+    portion of the dataset.'
+  evidence:
+    entailment_status: not_found
+    reason: source found but does not address entity claim
+    source_url: https://en.wikipedia.org/wiki/Calculated_KL_divergence_non-zero_for_statistically_signific
+  kind: entity_fact
+  raw_text: The calculated_kl_divergence column must be non-zero for a statistically
+    significant portion of the dataset.
+  resolved_value: null
+  resolver: resolve_entity_fact
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T13:03:24Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Training sample parquet must contain at least 100 samples per quantization
+    level
+  claim_id: c_d6efcafd
+  context: 'Implement quantization_level_coverage_audit.py: Verify that the final
+    training_sample.parquet contains at least 100 samples for each quantization level
+    (INT4, INT8, FP8). If any level has <100 samples, fail and report the specific
+    level and count to prevent statistical underpowering in T027B.'
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Training_sample_parquet_must_contain_at_least_100_samples_pe
+  kind: magnitude
+  raw_text: Verify that the final training_sample.parquet contains at least 100 samples
+    for each quantization level (INT4, INT8, FP8).
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T13:03:54Z'
+- artifact_path: projects/PROJ-997-llmxive-follow-up-extending-the-mirage-o/specs/001-llmxive-follow-up-extending-the-mirage-o/tasks.md
+  attempts: 1
+  canonical: Statistical power warning threshold 0.8
+  claim_id: c_5f8c7f79
+  context: Calculate the statistical power (1 - beta) for the paired t-test in T027
+    given the observed effect size and sample size (n=300). If power < 0.8, log a
+    WARNING and append a 'Power Analysis' section to the final report (T033) detailing
+    the limitation.
+  evidence:
+    candidates_found: 1
+    reason: candidate set too small to verify ordering
+    source_url: https://en.wikipedia.org/wiki/Statistical_power_warning_threshold_0.8
+  kind: magnitude
+  raw_text: If power is less than 0.8, log a WARNING and append a Power Analysis section.
+  resolved_value: null
+  resolver: resolve_superlative
+  source_hash: null
+  source_type: external
+  status: not_enough_info
+  updated_at: '2026-09-06T13:04:28Z'

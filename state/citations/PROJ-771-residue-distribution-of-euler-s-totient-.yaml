@@ -1,11 +1,11 @@
-- artifact_hash: d3139a62f9ee46777797355140a44d82644a58ea98b12ee8b66bd2d13446ae41
-  artifact_path: projects/PROJ-771-residue-distribution-of-euler-s-totient-/specs/001-residue-distribution-of-euler-s-totient/tasks.md
+- artifact_hash: 6b9018465953f1c67315df7d4ac90e154791d6fff747114082ece18e529ccb26
+  artifact_path: projects/PROJ-771-residue-distribution-of-euler-s-totient-/specs/001-residue-distribution-of-euler-s-totient/research.md
   cite_id: c-001
   cited_authors: []
   cited_title: null
-  fetched_title: Golden ratio - Wikipedia
+  fetched_title: Replication crisis - Wikipedia
   kind: url
-  value: https://en.wikipedia.org/wiki/Golden_ratio
+  value: https://en.wikipedia.org/wiki/Replication_crisis
   verification_status: pending
-  verified_against_url: https://en.wikipedia.org/wiki/Golden_ratio
-  verified_at: '2026-07-15T18:38:52.520903Z'
+  verified_against_url: https://en.wikipedia.org/wiki/Replication_crisis
+  verified_at: '2026-10-20T10:28:08.840376Z'

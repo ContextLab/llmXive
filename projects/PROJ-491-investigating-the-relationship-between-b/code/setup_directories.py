@@ -1,48 +1,57 @@
 """
-Setup script for llmXive project structure.
-Creates required directories for code, tests, data, and state management.
+Module to create the project directory structure.
+Implements T001a: Create directory structure.
 """
 import os
 import sys
-
-# Define the project root relative to this script's location or current working dir
-# Assuming this script runs from the project root or code/ subdirectory
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-
-# Directories to create relative to project root
-DIRECTORIES = [
-    "code",
-    "tests",
-    "data/raw",
-    "data/processed",
-    "state"
-]
+from pathlib import Path
+from config import ensure_directories
 
 def create_directories():
-    """Create the required directory structure."""
-    created = []
-    failed = []
+    """
+    Creates the required directory structure for the project:
+    - code/
+    - tests/
+    - data/raw/
+    - data/processed/
+    - state/
+    """
+    base_path = Path(__file__).resolve().parent.parent
     
-    for dir_path in DIRECTORIES:
-        full_path = os.path.join(BASE_DIR, dir_path)
-        try:
-            if not os.path.exists(full_path):
-                os.makedirs(full_path, exist_ok=True)
-                created.append(dir_path)
-                print(f"Created directory: {dir_path}")
-            else:
-                print(f"Directory already exists: {dir_path}")
-        except OSError as e:
-            failed.append((dir_path, str(e)))
-            print(f"Error creating directory {dir_path}: {e}")
+    directories = [
+        "code",
+        "tests",
+        "data/raw",
+        "data/processed",
+        "state"
+    ]
     
-    if failed:
-        print(f"\nFailed to create {len(failed)} directories:")
-        for path, err in failed:
-            print(f"  - {path}: {err}")
-        sys.exit(1)
-    else:
-        print(f"\nSuccessfully created {len(created)} directories.")
+    created_count = 0
+    for dir_name in directories:
+        dir_path = base_path / dir_name
+        if not dir_path.exists():
+            dir_path.mkdir(parents=True, exist_ok=True)
+            print(f"Created directory: {dir_path}")
+            created_count += 1
+        else:
+            print(f"Directory already exists: {dir_path}")
+    
+    # Ensure __init__.py files exist in code and tests to make them packages
+    # (Though not strictly required by T001a, it's good practice for Python projects)
+    for dir_name in ["code", "tests"]:
+        init_path = base_path / dir_name / "__init__.py"
+        if not init_path.exists():
+            init_path.touch()
+            print(f"Created package init: {init_path}")
+    
+    return created_count
+
+def main():
+    """Entry point for script execution."""
+    print("Initializing project directory structure...")
+    created = create_directories()
+    print(f"Directory initialization complete. Created {created} new directories.")
+    return 0
 
 if __name__ == "__main__":
-    create_directories()
+    sys.exit(main())

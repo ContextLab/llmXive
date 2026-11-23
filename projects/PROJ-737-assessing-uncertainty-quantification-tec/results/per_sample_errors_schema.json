@@ -1,0 +1,20 @@
+{
+  "columns": [
+    "sample_id",
+    "method",
+    "prediction",
+    "lower_bound",
+    "upper_bound",
+    "ground_truth",
+    "dataset"
+  ],
+  "dtypes": {
+    "sample_id": "object",
+    "method": "object",
+    "prediction": "float64",
+    "lower_bound": "float64",
+    "upper_bound": "float64",
+    "ground_truth": "float64",
+    "dataset": "object"
+  }
+}

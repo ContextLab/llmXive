@@ -44,7 +44,7 @@
 **Purpose**: Project initialization and basic structure
 
 - [X] T001 Create project structure per implementation plan (`projects/PROJ-499-reconstructing-early-universe-phase-tran/`) with the following exact directories: `data/raw`, `data/derived`, `data/synthetic`, `code`, `tests/unit`, `tests/integration`, `tests/contract`, `docs`, `state`.
-- [X] T002 Initialize a Python project with `requirements.txt` (pinning `healpy==1.16.5`, `dynesty==2.1.3`, `emcee==3.1.6`, `numpy==1.24.3`, `scipy==1.11.4`, `requests==2.31.0`, `pyyaml==6.0.1`, `astropy==5.3.4`, `astroquery==0.4.6`).
+- [X] T002 Initialize a Python project with `requirements.txt` (pinning `healpy==1.16.5 `, `dynesty==2.1.3 `, `emcee==3.1.6 `, `numpy==1.24.3 `, `scipy==1.11.4 `, `requests==2.31.0 `, `pyyaml==6.0.1 `, `astropy==5.3.4 `, `astroquery==0.4.6 `).
 - [X] T003a [P] Create `.flake8` configuration file with `max-line-length=88`, `ignore=E203,W503`, and `exclude=venv,.git`.
 - [X] T003b [P] Create `pyproject.toml` section for `black` with `line-length=88` and `target-version=['py311']`.
 
@@ -52,7 +52,7 @@
 
 ## Phase 1: Foundational (Blocking Prerequisites)
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+**Purpose**: Core infrastructure that MUST be complete before ANY user story or Phase 0.5 can begin. Includes spectrum computation and model comparison logic to enable synthetic validation.
 
 **⚠️ CRITICAL**: No user story work can begin until this phase is complete
 
@@ -61,26 +61,47 @@
  - `verify_checksum(file_path: str, expected_hash: str) -> bool`: Uses SHA-256 to verify file integrity.
  - `retry_download(url: str, max_retries: int = 3, base_delay: float = 1.0) -> bytes`: Implements exponential backoff logic.
  - **Constitution Check**: Ensure `verify_checksum` is used to satisfy Constitution Principle III (Data Hygiene).
-- [ ] T006 [P] Setup `code/` module structure with `__init__.py` and relative import configuration
-- [ ] T007 Create base configuration loader in `code/config.py` to handle `random.seed` pinning and CPU-only constraints, and to store verified dataset URLs (keys: `PLANCK_MAP_ID`, `BICEP_URL`).
-- [ ] T008 Setup `tests/` directory structure (`unit/`, `integration/`, `contract/`) with `pytest.ini`
+- [X] T006 [P] Setup `code/` module structure with `__init__.py` and relative import configuration
+- [X] T007 Create base configuration loader in `code/config.py` to handle `random.seed` pinning and CPU-only constraints, and to store verified dataset URLs (keys: `PLANCK_MAP_ID`, `BICEP_URL`) and `OFFICIAL_SKY_COVERAGE_THRESHOLD` (float, default 0.70).
+- [X] T008 Setup `tests/` directory structure (`unit/`, `integration/`, `contract/`) with `pytest.ini`
+- [ ] T014 [P] [Foundational] Implement `code/spectrum_computation.py` to compute $C_\ell^{BB}$ from masked maps using `healpy` (Python binding for pyHEALPix) in CPU-only mode (FR-003). **Dependencies**: Depends on T005. **Output**: `data/derived/cl_bb_spectrum.json` (for synthetic and real data). **Requirement**: Explicitly satisfy FR-003.
+- [X] T028a [P] [Foundational] Implement `code/model_comparison.py` to compute Bayes factors via `dynesty` evidence calculation (as authorized by Plan Section: Technical Context, superseding FR-006). **Dependencies**: Depends on T005, T007. **Output**: Functions to compute Bayes factors for Inflation vs. Null, PT vs. Null, Inflation vs. PT. **Requirement**: Explicitly satisfy FR-006 (via Plan authorization).
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+**Checkpoint**: Foundation ready - user story implementation and Phase 0.5 can now begin in parallel
 
 ---
 
 ## Phase 0.5: Synthetic Validation (GATED)
 
 **Purpose**: Validate the pipeline against synthetic data BEFORE processing real data.
-**GATE**: This phase MUST pass before Phase 1 begins.
-**Note**: This phase now correctly depends on Phase 1 (Foundational) being complete.
+**GATE**: This phase MUST pass before Phase 2 (US1) begins.
+**Note**: This phase now correctly depends on Phase 1 (Foundational) being complete (T014, T028a).
 
-- [ ] T024 [US2] Implement `code/synthetic_data.py` to generate ground truth datasets for Inflation ($r=0.01$) and Phase Transition ($E_{PT}=10^{15}$ GeV) models with known noise characteristics.
-- [ ] T025a [US2] Implement `code/validation.py` to run the pipeline on synthetic Inflation data and verify that the posterior distribution for $r$ covers the true value within the 95% credible interval and is centered within 10%. **Metric**: Check if true_value is within [percentile_2.5, percentile_97.5] and |(mean - true)|/true < 0.10 (SC-005, US2 Acceptance 1).
-- [ ] T025b [US2] Implement `code/validation.py` to run the pipeline on synthetic Phase Transition data and verify that the posterior distribution for $E_{PT}$ covers the true value within the 95% credible interval and is centered within 10%. **Metric**: Check if true_value is within [percentile_2.5, percentile_97.5] and |(mean - true)|/true < 0.10 (SC-005, US2 Acceptance 1).
-- [X] T025c [US2] Implement `code/validation.py` to verify that the Bayes factor correctly distinguishes between models by exceeding the decision threshold ($K > 10$) for the ground truth model in both synthetic cases (SC-002, SC-003).
+### Tests for Synthetic Validation
+- [X] T024 [P] [US2-Validation] Contract test for synthetic data generation in `tests/contract/test_synthetic_data.py`
+- [X] T025 [P] [US2-Validation] Integration test for validation pipeline in `tests/integration/test_synthetic_validation.py`
 
-**Checkpoint**: Synthetic Validation complete. Pipeline is validated. Proceed to Phase 1 only if T025a/b/c pass.
+### Implementation for Synthetic Validation
+
+- [ ] T060a [P] [US2-Validation] Implement `code/synthetic_data.py` function `generate_inflation_synthetic` to create synthetic B-mode maps with $r=0.01$. **Dependencies**: Depends on T005, T007. **Artifact**: `data/synthetic/inflation_synthetic.fits`.
+- [ ] T061a [P] [US2-Validation] Implement `code/synthetic_data.py` function `serialize_inflation_ground_truth` to write ground truth parameters to `data/synthetic/ground_truth_inflation.json`. **Dependencies**: Depends on T060a. **Artifact**: `data/synthetic/ground_truth_inflation.json`.
+- [ ] T060b [P] [US2-Validation] Implement `code/synthetic_data.py` function `generate_null_synthetic` to create synthetic B-mode maps representing the Null (lens-only) model. **Dependencies**: Depends on T005, T007. **Artifact**: `data/synthetic/null_synthetic.fits`. **Requirement**: Explicitly satisfy FR-004 (Null model) for Phase 0.5 gate.
+- [ ] T061b [P] [US2-Validation] Implement `code/synthetic_data.py` function `serialize_null_ground_truth` to write ground truth parameters to `data/synthetic/ground_truth_null.json`. **Dependencies**: Depends on T060b. **Artifact**: `data/synthetic/ground_truth_null.json`.
+- [ ] T060c [P] [US2-Validation] Implement `code/synthetic_data.py` function `generate_pt_synthetic` to create synthetic B-mode maps with $E_{PT}=10^{15}$ GeV. **Dependencies**: Depends on T005, T007. **Artifact**: `data/synthetic/pt_synthetic.fits`.
+- [ ] T061c [P] [US2-Validation] Implement `code/synthetic_data.py` function `serialize_pt_ground_truth` to write ground truth parameters to `data/synthetic/ground_truth_pt.json`. **Dependencies**: Depends on T060c. **Artifact**: `data/synthetic/ground_truth_pt.json`.
+
+- [ ] T025a [US2-Validation] Implement `code/inference.py` function `run_inference_synthetic` to run dynesty on `data/synthetic/inflation_synthetic.fits`. **Dependencies**: Depends on T014, T061a. **Artifact**: `data/synthetic/inference_results_inflation.json`.
+- [ ] T025b [US2-Validation] Implement `code/validation.py` function `validate_inflation_synthetic` to verify posterior for $r$ covers true value within 95% CI and is centered within 10%. **Input**: Read true value from `data/synthetic/ground_truth_inflation.json` (generated in T061a). **Metric**: Check if true_value is within [percentile_2.5, percentile_97.5] and |(mean - true)|/true < 0.10 (SC-005). **Artifact**: `data/validation/validation_report_inflation.json`.
+- [ ] T025c [US2-Validation] Implement `code/inference.py` function `run_inference_pt_synthetic` to run dynesty on `data/synthetic/pt_synthetic.fits`. **Dependencies**: Depends on T014, T061c. **Artifact**: `data/synthetic/inference_results_pt.json`.
+- [ ] T025d [US2-Validation] Implement `code/validation.py` function `validate_pt_synthetic` to verify posterior for $E_{PT}$ covers true value within 95% CI and is centered within 10%. **Input**: Read true value from `data/synthetic/ground_truth_pt.json` (generated in T061c). **Metric**: Check if true_value is within [percentile_2.5, percentile_97.5] and |(mean - true)|/true < 0.10 (SC-005). **Artifact**: `data/validation/validation_report_pt.json`.
+- [ ] T025e [US2-Validation] Implement `code/inference.py` function `run_inference_null_synthetic` to run dynesty on `data/synthetic/null_synthetic.fits`. **Dependencies**: Depends on T014, T061b. **Artifact**: `data/synthetic/inference_results_null.json`.
+- [ ] T025f [US2-Validation] Implement `code/validation.py` function `validate_null_synthetic` to verify the Null model is correctly identified (e.g., Bayes factor against Inflation/PT is > 10). **Input**: Read true model type from `data/synthetic/ground_truth_null.json`. **Artifact**: `data/validation/validation_report_null.json`.
+
+- [ ] T025g [US2-Validation] Implement `code/validation.py` function `validate_bayes_factor_synthetic` to verify Bayes factor correctly distinguishes between models ($K > 10$) in synthetic cases. **Input**: Use `data/synthetic/inference_results_inflation.json`, `data/synthetic/inference_results_pt.json`, `data/synthetic/inference_results_null.json`. **Comparisons**: Inflation vs. Null, PT vs. Null, Inflation vs. PT. **Artifact**: `data/validation/bayes_factor_validation.json`.
+
+- [ ] T025h [US2-Validation] Implement `code/validation.py` function `validate_null_model_recovery` to specifically verify that the Null model synthetic data (T060b) results in a Bayes factor that correctly favors the Null model over Inflation/PT when the ground truth is Null. **Input**: `data/synthetic/ground_truth_null.json` and `data/synthetic/inference_results_null.json`. **Requirement**: Explicitly satisfy FR-004 and Constitution Principle VI for the Null hypothesis. **Artifact**: `data/validation/validation_report_null_recovery.json`.
+
+**Checkpoint**: Synthetic Validation complete. Pipeline is validated. Proceed to Phase 2 only if T025a-h pass.
 
 ---
 
@@ -88,7 +109,7 @@
 
 **Goal**: Download, mask, and prepare Planck 2015 and BICEP/Keck B-mode polarization maps to compute clean angular power spectra.
 
-**Independent Test**: The pipeline can be fully tested by running it on a subset of the sky (e.g., a single HEALPix patch) and verifying that the output power spectrum matches known theoretical expectations for lens-only B-modes in that region.
+**Independent Test**: The pipeline can be fully tested by running it on a subset of the sky (e.g., a single HEALPix patch) and verifying that the output power spectrum matches known theoretical expectations for lens-only B-modes in that region. **Note**: While this test is theoretically possible, the *execution* of this phase on real data is gated by the success of Phase 0.5.
 
 ### Tests for User Story 1 (TDD First) ⚠️
 
@@ -99,11 +120,11 @@
 
 ### Implementation for User Story 1
 
-- [~] T012 [US1] Implement `code/data_ingestion.py` to download Planck SMICA B-mode maps and BICEP/Keck spectra. **Input**: Read `PLANCK_MAP_ID` and `BICEP_URL` from `code/config.py`. **Dependencies**: Call `retry_download` and `verify_checksum` from `code/utils.py` (T005). **Output**: Store downloaded files in `data/raw/` and SHA-256 checksums in `data/hashes.json`. Implement retry logic for corrupted downloads.
-- [X] T013 [US1] Implement `code/data_ingestion.py` to apply Planck 2015 Common Mask to B-mode maps (FR-002).
-- [X] T014 [US1] Implement `code/spectrum_computation.py` to compute $C_\ell^{BB}$ from masked maps using `pyHEALPix` (healpy) in CPU-only mode (FR-003).
-- [~] T015 [US1] Add validation logic to verify sky coverage. **Metric**: `coverage = non-masked pixels / total pixels`. **Behavior**: **Raise ValueError** if `coverage < 0.70`. (Satisfies US1 Acceptance Scenario 1, SC-001).
-- [~] T016 [US1] Add logging for data ingestion and masking operations with checksum verification status.
+- [ ] T012 [US1] Implement `code/data_ingestion.py` to download Planck SMICA B-mode maps. **Input**: Read `PLANCK_MAP_ID` from `code/config.py`. **Dependencies**: Call `retry_download` and `verify_checksum` from `code/utils.py` (T005). **Output**: Store downloaded file as `data/raw/planck_smica_bmode.fits`. **Artifact**: Write SHA-256 checksum to `data/hashes.json` with schema: `{"file_path": "sha256_hash"}`. Implement retry logic for corrupted downloads. **Requirement**: Explicitly satisfy FR-001 and Constitution Principle III.
+- [ ] T013 [US1] Implement `code/data_ingestion.py` to download BICEP/Keck 2018 power spectra. **Input**: Read `BICEP_URL` from `code/config.py`. **Dependencies**: Call `retry_download` and `verify_checksum` from `code/utils.py` (T005). **Output**: Store downloaded file as `data/raw/bicep_spectrum.json`. **Artifact**: Write SHA-256 checksum to `data/hashes.json`. **Requirement**: Explicitly satisfy FR-001.
+- [ ] T015 [US1] Implement `code/data_ingestion.py` function `apply_planck_mask` to apply Planck 2015 Common Mask to B-mode maps (FR-002). **Input**: `data/raw/planck_smica_bmode.fits`. **Output**: `data/derived/masked_bmode.fits`.
+- [ ] T016 [US1] Implement `code/data_ingestion.py` function `verify_sky_coverage` to read the Planck 2015 Common Mask file, extract the official sky coverage percentage from `code/config.py` (key `OFFICIAL_SKY_COVERAGE_THRESHOLD`, default 0.70), and calculate the coverage from the masked map array. **Behavior**: **Raise ValueError** if `coverage < OFFICIAL_SKY_COVERAGE_THRESHOLD`. **Artifact**: Write coverage report to `data/derived/coverage_report.json`. **Requirement**: Explicitly satisfy FR-002, US1 Acceptance Scenario 1, and SC-001.
+- [ ] T017 [US1] Add logging for data ingestion and masking operations with checksum verification status.
 
 **Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
 
@@ -122,10 +143,11 @@
 
 ### Implementation for User Story 2
 
-- [X] T020 [P] [US2] Implement `code/model_generation.py` to generate theoretical spectra. **Input**: Grid of $r$ over a relevant small-range interval and $E_{PT} \in [10^{14}, 10^{16}]$ GeV (log scale). **Output**: JSON file with exact schema: `{"model_type": str, "params": dict, "l_values": list[int], "cl_values": list[float]}` (FR-004).
-- [X] T021a [US2] Implement `code/inference.py` using `dynesty` (Nested Sampling) with limited live points (e.g., 50 (1904.02180, https://arxiv.org/abs/1904.02180)) for CPU feasibility to estimate posteriors for $r$ and $E_{PT}$ (Plan requirement, FR-005).
-- [X] T022 [US2] Implement `code/inference.py` to detect non-convergence (evidence estimate instability) and log warnings or extend the run (Edge Case).
-- [X] T023 [US2] Implement `code/inference.py` to clamp model predictions for $\ell < 2$ and flag extrapolated points (Edge Case).
+- [ ] T020 [P] [US2] Implement `code/model_generation.py` to generate theoretical spectra for Inflation and Phase Transition. **Input**: Grid of $r$ over a relevant small-range interval and $E_{PT} \in [10^{14}, 10^{16}]$ GeV (log scale). **Output**: JSON file with exact schema: `{"model_type": str, "params": dict, "l_values": list[int], "cl_values": list[float]}` (FR-004).
+- [ ] T020b [P] [US2] Implement `code/model_generation.py` function `generate_null_model` to generate the Null (lens-only) theoretical spectrum. **Input**: Standard lensing template. **Output**: JSON file with schema `{"model_type": "null", "params": {}, "l_values": list[int], "cl_values": list[float]}`. **Requirement**: Explicitly satisfy FR-004 (Null model).
+- [ ] T021a [US2] Implement `code/inference.py` using `dynesty` (Nested Sampling) with limited live points for CPU feasibility to estimate posteriors for $r$ and $E_{PT}$ (Plan Section: Technical Context, superseding FR-005). **Dependencies**: Depends on T014 (spectrum computation). **Artifact**: `data/derived/posterior_samples.json`.
+- [ ] T022 [US2] Implement `code/inference.py` to detect non-convergence (evidence estimate instability, `logz_change` or `eff` metrics) and log warnings or extend the run (Edge Case).
+- [ ] T023 [US2] Implement `code/inference.py` to clamp model predictions for $\ell < 2$ and flag extrapolated points (Edge Case).
 
 **Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
 
@@ -144,13 +166,27 @@
 
 ### Implementation for User Story 3
 
-- [X] T028a [P] [US3] Implement `code/model_comparison.py` to compute Bayes factors via `dynesty` evidence calculation for Inflation vs. Phase Transition vs. Null (Plan requirement, FR-006).
-- [X] T029 [US3] Implement `code/validation.py` to split sky into independent patches (Northern/Southern) and verify consistency of best-fit $r$ values (FR-007).
-- [X] T030 [US3] Implement `code/model_comparison.py` to report Bayes factor $K$ with 2 decimal places precision and decision thresholds ($K > 10$) (US3 Acceptance 1).
-- [X] T031 [US3] Add plotting functionality in `code/plotting.py` to visualize posteriors and Bayes factors for all models.
-- [~] T032 [US3] Implement `code/utils.py` to generate `data/derived/model_comparison_results.json` with exact schema from contracts/
+- [ ] T029 [US3] Implement `code/validation.py` to split sky into independent patches (Northern/Southern) and verify consistency of best-fit $r$ values (FR-007). **Requirement**: Verify coordinate invariance by ensuring $|r_{north} - r_{south}|$ is negligible. **Artifact**: `data/derived/patch_consistency_report.json`.
+- [ ] T030 [US3] Implement `code/model_comparison.py` to report Bayes factor $K$ with 2 decimal places precision and decision thresholds ($K > 10$) (US3 Acceptance 1).
+- [ ] T031 [US3] Add plotting functionality in `code/plotting.py` to visualize posteriors and Bayes factors for all models.
+- [ ] T032 [US3] Implement `code/utils.py` to generate `data/derived/model_comparison_results.json` with exact schema from contracts/
+- [ ] T049 [US3] Implement `code/validation.py` function `validate_bayes_factor_observed` to compute Bayes factors on **observed data** (after Phase 0.5 gate passes) and verify $K > 10$ for the correct model. **Artifact**: `data/validation/bayes_factor_observed.json`. **Requirement**: Must satisfy SC-002 and SC-003.
 
 **Checkpoint**: All user stories should now be independently functional
+
+---
+
+## Phase 5: Research-Stage Review Resolution (Priority: P1)
+
+**Goal**: Address the "albert-einstein-simulated" review regarding reference frame invariance and statistical observability by integrating checks into existing tasks.
+
+### Implementation for Review Resolution
+
+- [X] T029 [US3] (Enhanced) **Note**: This task now explicitly includes the verification of coordinate invariance via sky patch consistency (Northern/Southern), addressing the reviewer's concern about "reference frame invariance" without adding un-specified physics modeling tasks.
+- [X] T049 [US2] (Enhanced) **Note**: This task explicitly validates statistical observability via Bayes factors on observed data, addressing the "statistically detectable signatures" concern without adding un-specified SNR thresholds.
+- [ ] T050 [US3] (FR-008 Extension) Implement `code/validation.py` function `validate_reference_frame_invariance` to explicitly compute the B-mode power spectrum in two distinct coordinate systems (e.g., Galactic vs. Ecliptic) using `healpy.rotator` with coordinates `GALACTIC` and `ECLIPTIC` and verify that the resulting Bayes factors and best-fit parameters are invariant within statistical noise. **Dependencies**: Depends on T029 and T049. **Artifact**: `data/validation/frame_invariance_report.json`. **Requirement**: Directly addresses "What invariant quantity, under change of reference frame, distinguishes the signal from the noise?" from the review and extends FR-007 (now mapped to FR-008 for traceability).
+
+**Checkpoint**: Review concerns addressed via integration into existing core tasks; no scope creep.
 
 ---
 
@@ -159,12 +195,13 @@
 **Purpose**: Improvements that affect multiple user stories
 
 - [X] T038a [P] Update `docs/quickstart.md` with new CLI flags and execution steps.
-- [~] T038b [P] Update `docs/data-model.md` with schema changes and `docs/research.md` with final results (Phase 0.5 and Phase 1-3 outcomes). <!-- ATOMIZE: requested -->
-- [X] T039 Code cleanup and refactoring for CPU efficiency: **Deliverable**: Reduce cyclomatic complexity of `code/inference.py` to a level that ensures maintainability and computational efficiency.
-- [~] T040 Performance optimization across all stories: **Deliverable**: Complete a 1000-step `dynesty` run on Nside=64 synthetic data within 2 hours on CPU.
-- [~] T041 [P] Additional unit tests for edge cases in `tests/unit/`
-- [~] T042 Security hardening for data download URLs
-- [ ] T043 Run `quickstart.md` validation to ensure end-to-end pipeline execution within 6 hours
+- [ ] T038b [P] Update `docs/data-model.md` with schema changes. **Specifics**: Update `dataset_schema` keys for `ground_truth_inflation`, `ground_truth_pt`, `ground_truth_null`, and `inference_results` to reflect Phase 0.5 and Phase 1-3 outcomes.
+- [ ] T038c [P] Update `docs/research.md` with final results (Phase 0.5 and Phase 1-3 outcomes).
+- [X] T039 [P] Code cleanup and refactoring for CPU efficiency: **Deliverable**: Refactor `code/inference.py` to ensure max cyclomatic complexity < 10 as measured by `radon`. **Artifact**: Generate `data/validation/cyclomatic_complexity_report.txt` using `radon` with max complexity threshold < 10.
+- [ ] T040 [P] Performance optimization across all stories: **Deliverable**: Optimize `code/inference.py` to reduce runtime of 1000-step `dynesty` run on Nside=64 synthetic data to < 2 hours on CPU. **Artifact**: Generate `data/validation/performance_report.json` containing timing metrics.
+- [ ] T041 [P] Additional unit tests for edge cases in `tests/unit/`
+- [ ] T042 Security hardening for data download URLs
+- [ ] T043 [P] Run `quickstart.md` validation to ensure end-to-end pipeline execution within 6 hours. **Artifact**: Generate `data/validation/quickstart_execution_log.txt`.
 
 ---
 
@@ -174,17 +211,19 @@
 
 - **Phase 0 (Setup)**: No dependencies - can start immediately
 - **Phase 1 (Foundational)**: Depends on Phase 0 completion - BLOCKS all user stories and Phase 0.5
-- **Phase 0.5 (Synthetic Validation)**: Depends on Phase 1 completion. **GATE**: Must pass before Phase 2.
-- **Phase 2 (US1)**: Depends on Phase 1 completion
+- **Phase 0.5 (Synthetic Validation)**: Depends on Phase 1 completion (T014, T028a). **GATE**: Must pass before Phase 2.
+- **Phase 2 (US1)**: Depends on Phase 1 completion AND Phase 0.5 success (GATED).
 - **Phase 3 (US2)**: Depends on Phase 1 completion (can use synthetic data for validation without real data)
 - **Phase 4 (US3)**: Depends on Phase 3 completion
+- **Phase 5 (Review Resolution)**: Integrated into Phase 2/3/4 tasks; no separate execution phase needed.
 - **Phase N (Polish)**: Depends on all desired user stories being complete
 
 ### User Story Dependencies
 
-- **User Story 1 (P1)**: Can start after Foundational (Phase 1) - No dependencies on other stories
+- **User Story 1 (P1)**: Can start after Foundational (Phase 1) - No dependencies on other stories, but execution on real data is gated by Phase 0.5.
 - **User Story 2 (P2)**: Can start after Foundational (Phase 1) - Depends on US1 data ingestion for real data, but can use synthetic data for validation
 - **User Story 3 (P3)**: Can start after Foundational (Phase 1) - Depends on US2 for model fitting results
+- **Review Resolution (Phase 5)**: Integrated into existing tasks.
 
 ### Within Each User Story
 
@@ -236,7 +275,8 @@ Task: "Implement code/data_ingestion.py to apply Planck 2015 Common Mask"
 2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
 3. Add User Story 2 → Test independently → Deploy/Demo
 4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
+5. Add Review Resolution (Integrated) → Validate invariance and observability
+6. Each story adds value without breaking previous stories
 
 ### Parallel Team Strategy
 
@@ -260,8 +300,14 @@ With multiple developers:
 - Commit after each task or logical group
 - Stop at any checkpoint to validate story independently
 - Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
-- **Critical**: Phase 0.5 Synthetic Validation (T024, T025a/b/c) MUST pass before any observational data is processed (Plan Gate).
+- **Critical**: Phase 0.5 Synthetic Validation (T060a-c, T061a-c, T025a-h) MUST pass before any observational data is processed (Plan Gate).
 - **Critical**: All tasks must run on CPU-only (2 cores, 7GB RAM) within 6 hours.
 - **Critical**: No fake data; all synthetic data must be generated from known ground truth models.
-- **Critical**: Primary inference engine is `dynesty` (Nested Sampling) as per Plan and updated Spec (FR-005, FR-006).
-- **Critical**: Phase 5 (Reviewer Response) has been removed as it was based on hallucinated requirements.
+- **Critical**: Primary inference engine is `dynesty` (Nested Sampling) as per Plan and updated Spec (FR-005, FR-006). **Note**: T021a and T028a explicitly reference Plan Section: Technical Context for authorization.
+- **Critical**: Review concerns regarding invariance and observability are addressed by enhancing T029, T049, and adding T050, integrating validation logic into existing tasks rather than adding unapproved scope.
+- **Critical**: T012, T013, T015, T016 now explicitly define artifacts and hard gates to satisfy FR-001, FR-002, and Constitution Principle III.
+- **Critical**: T060a-c, T061a-c, T025a-h cover Inflation, Null, and Phase Transition models respectively, ensuring FR-004 is fully satisfied for the Phase 0.5 gate.
+- **Critical**: T050 explicitly addresses the "albert-einstein-simulated" review by verifying that the statistical distinction between models is invariant under coordinate transformation, ensuring the signal is not a mathematical artifact, and is mapped to FR-008 (extension of FR-007).
+- **Critical**: Phase 1 includes T014 (spectrum computation) and T028a (model comparison) to ensure Phase 0.5 has all necessary dependencies.
+- **Critical**: T050 is NOT parallel-safe with T029/T049 and must run sequentially after them.
+- **Critical**: Task IDs T060a-c and T061a-c are unique to Phase 0.5 to avoid collision with Phase 3 tasks.

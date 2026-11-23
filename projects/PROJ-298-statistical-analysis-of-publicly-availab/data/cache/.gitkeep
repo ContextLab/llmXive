@@ -1,0 +1,4 @@
+# This directory is for API caching (T051)
+# GitHub and NPM API responses are cached here with 24h TTL
+# to prevent rate limiting and ensure reproducibility.
+# Do not commit cache files to git.

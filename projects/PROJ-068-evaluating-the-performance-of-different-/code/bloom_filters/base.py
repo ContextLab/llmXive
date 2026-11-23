@@ -3,72 +3,34 @@ from typing import List, Union, Dict, Tuple, Iterable, Optional
 import math
 from collections import defaultdict
 
-# Constants for FPR targets (Constitution Principle VI)
-FPR_TARGETS: Tuple[float, float, float] = (0.01, 0.05, 0.10)
-
-def calculate_optimal_parameters(n: int, p: float) -> Tuple[int, int]:
-    """
-    Calculate optimal m (number of bits) and k (number of hash functions)
-    for a given expected number of elements n and target false positive rate p.
-
-    Formulae:
-      m = -(n * ln(p)) / (ln(2)^2)
-      k = (m / n) * ln(2)
-
-    Args:
-        n: Expected number of elements to insert
-        p: Target false positive rate
-
-    Returns:
-        Tuple of (m, k)
-    """
-    if n <= 0:
-        raise ValueError("n must be positive")
-    if not 0 < p < 1:
-        raise ValueError("p must be between 0 and 1")
-
-    m = - (n * math.log(p)) / (math.log(2) ** 2)
-    m = int(math.ceil(m))
-    k = (m / n) * math.log(2)
-    k = int(round(k))
-    if k == 0:
-        k = 1
-    return m, k
-
-def get_config_for_sizes(sizes: List[int], fpr: float = 0.01) -> Dict[int, Dict[str, int]]:
-    """
-    Generate configuration parameters for a list of dataset sizes.
-
-    Args:
-        sizes: List of expected element counts
-        fpr: Target false positive rate (default 0.01)
-
-    Returns:
-        Dictionary mapping size -> {'m': bits, 'k': hash_functions}
-    """
-    return {n: {'m': calculate_optimal_parameters(n, fpr)[0],
-                'k': calculate_optimal_parameters(n, fpr)[1]}
-            for n in sizes}
+# Configuration constants
+FPR_TARGETS = {
+    "low": 1e-3,
+    "medium": 1e-2,
+    "high": 1e-1
+}
 
 class BloomFilter(ABC):
-    """
-    Abstract Base Class for Bloom Filter implementations.
-    All concrete implementations must provide insert and contains methods.
-    """
+    """Abstract base class for all Bloom filter implementations."""
 
-    def __init__(self, m: int, k: int, fpr_target: float):
+    def __init__(self, num_elements: int, false_positive_rate: float):
         """
-        Initialize the Bloom Filter.
+        Initialize the Bloom filter.
 
         Args:
-            m: Number of bits in the filter
-            k: Number of hash functions to use
-            fpr_target: Theoretical target false positive rate
+            num_elements: Expected number of elements to insert.
+            false_positive_rate: Target false positive rate (e.g., 0.01 for 1%).
         """
-        self.m = m
-        self.k = k
-        self.fpr_target = fpr_target
-        self._inserted_count = 0
+        self.num_elements = num_elements
+        self.false_positive_rate = false_positive_rate
+        self.m, self.k = calculate_optimal_parameters(num_elements, false_positive_rate)
+        self.bit_array = self._initialize_bit_array()
+        self.inserted_count = 0
+
+    @abstractmethod
+    def _initialize_bit_array(self) -> Union[List[int], bytearray, List[bool]]:
+        """Initialize the underlying bit storage."""
+        pass
 
     @abstractmethod
     def insert(self, item: Union[str, bytes, int]) -> None:
@@ -77,89 +39,114 @@ class BloomFilter(ABC):
 
     @abstractmethod
     def contains(self, item: Union[str, bytes, int]) -> bool:
-        """Check if an item is possibly in the filter."""
+        """Check if an item might be in the filter."""
         pass
 
     @abstractmethod
-    def get_memory_bits(self) -> int:
-        """Return the total number of bits used by this implementation."""
+    def get_memory_usage_bits(self) -> int:
+        """Return the memory usage in bits."""
         pass
 
-    def get_memory_bytes(self) -> int:
-        """Return the total number of bytes used by this implementation."""
-        return math.ceil(self.get_memory_bits() / 8)
+    def false_positive_rate(self) -> float:
+        """Return the theoretical false positive rate."""
+        return self.false_positive_rate
 
-    def _validate_consistency(self, items: List[Union[str, bytes, int]],
-                              other_filters: List['BloomFilter'],
-                              query_items: Optional[List[Union[str, bytes, int]]] = None) -> Dict[str, bool]:
+    def __len__(self) -> int:
+        """Return the number of inserted elements."""
+        return self.inserted_count
+
+    def validate_consistency(self, other: 'BloomFilter', test_set: List[Union[str, bytes, int]]) -> Dict[str, int]:
         """
-        Validate that this filter produces identical membership results
-        as the provided other filters for a given set of items.
+        Validate that this implementation produces identical results to another
+        implementation for a given set of test queries.
 
         Args:
-            items: List of items to insert into all filters
-            other_filters: List of other BloomFilter instances to compare against
-            query_items: Optional list of items to query (defaults to 'items')
+            other: Another BloomFilter instance to compare against.
+            test_set: List of items to query both filters with.
 
         Returns:
-            Dictionary with keys 'all_match' (bool) and 'details' (str)
+            A dictionary with counts of matches and mismatches.
         """
-        if not items:
-            return {'all_match': True, 'details': 'No items to validate.'}
+        mismatches = 0
+        total_queries = len(test_set)
 
-        if query_items is None:
-            query_items = items
-
-        # Insert items into all filters
-        for other in other_filters:
-            for item in items:
-                other.insert(item)
-
-        # Perform queries
-        mismatches = []
-        for item in query_items:
+        for item in test_set:
             self_result = self.contains(item)
-            for i, other in enumerate(other_filters):
-                other_result = other.contains(item)
-                if self_result != other_result:
-                    mismatches.append({
-                        'item': item,
-                        'self_result': self_result,
-                        'other_idx': i,
-                        'other_result': other_result
-                    })
+            other_result = other.contains(item)
 
-        if mismatches:
-            details = f"Found {len(mismatches)} mismatches. First: {mismatches[0]}"
-            return {'all_match': False, 'details': details}
-        else:
-            return {'all_match': True, 'details': 'All implementations returned identical results.'}
+            if self_result != other_result:
+                mismatches += 1
 
-    @classmethod
-    def validate_all_implementations(cls,
-                                     implementations: List['BloomFilter'],
-                                     items: List[Union[str, bytes, int]],
-                                     query_items: Optional[List[Union[str, bytes, int]]] = None) -> bool:
-        """
-        Static helper to validate consistency across a list of BloomFilter instances.
-        Ensures all implementations produce the same membership results for the same inputs.
+        return {
+            "total_queries": total_queries,
+            "mismatches": mismatches,
+            "match_rate": (total_queries - mismatches) / total_queries if total_queries > 0 else 1.0
+        }
 
-        Args:
-            implementations: List of BloomFilter instances to compare
-            items: Items to insert
-            query_items: Items to query (defaults to items)
 
-        Returns:
-            True if all implementations are consistent, False otherwise.
-        """
-        if len(implementations) < 2:
-            return True
+def calculate_optimal_parameters(n: int, p: float) -> Tuple[int, int]:
+    """
+    Calculate optimal m (number of bits) and k (number of hash functions)
+    for a Bloom filter given n expected elements and p desired false positive rate.
 
-        # Use the first implementation as the reference
-        reference = implementations[0]
-        others = implementations[1:]
+    Formula:
+      m = - (n * ln(p)) / (ln(2)^2)
+      k = (m / n) * ln(2)
 
-        result = reference._validate_consistency(items, others, query_items)
-        if not result['all_match']:
-            raise AssertionError(f"Implementation consistency check failed: {result['details']}")
-        return True
+    Args:
+        n: Expected number of elements.
+        p: Desired false positive rate.
+
+    Returns:
+        Tuple of (m, k) as integers.
+    """
+    if n <= 0:
+        raise ValueError("Number of elements must be positive")
+    if p <= 0 or p >= 1:
+        raise ValueError("False positive rate must be between 0 and 1 (exclusive)")
+
+    m = - (n * math.log(p)) / (math.log(2) ** 2)
+    k = (m / n) * math.log(2)
+
+    return int(math.ceil(m)), int(math.ceil(k))
+
+
+def get_config_for_sizes(sizes: List[int], fpr_targets: Optional[Dict[str, float]] = None) -> List[Dict]:
+    """
+    Generate configuration dictionaries for a list of dataset sizes.
+
+    Args:
+        sizes: List of dataset sizes (number of elements).
+        fpr_targets: Dictionary mapping FPR names to values. Defaults to FPR_TARGETS.
+
+    Returns:
+        List of config dicts with keys: 'size', 'fpr_target', 'm', 'k'
+    """
+    if fpr_targets is None:
+        fpr_targets = FPR_TARGETS
+
+    configs = []
+    for size in sizes:
+        for name, fpr in fpr_targets.items():
+            m, k = calculate_optimal_parameters(size, fpr)
+            configs.append({
+                "size": size,
+                "fpr_target": fpr,
+                "fpr_name": name,
+                "m": m,
+                "k": k
+            })
+    return configs
+
+
+def get_fpr_configs_for_sizes(sizes: List[int]) -> List[Dict]:
+    """
+    Convenience wrapper to get configurations for standard FPR targets.
+
+    Args:
+        sizes: List of dataset sizes.
+
+    Returns:
+        List of config dicts for all standard FPR targets.
+    """
+    return get_config_for_sizes(sizes, FPR_TARGETS)

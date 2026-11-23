@@ -1,71 +1,76 @@
-# Quickstart Guide
+# Quickstart Guide: Predicting Molecular Descriptors from Quantum Chemical Calculations
 
-This guide walks you through running the full pipeline from data download to final analysis.
+This guide provides a 5-step pipeline to download QM9 data, extract features, train models, and analyze failure boundaries.
 
 ## Prerequisites
-- Python 3.11+
-- ~14 GB free disk space (for QM9 dataset and features)
-- ~8 GB RAM (pipeline will auto-downsample if necessary)
 
-## Step 1: Environment Setup
+- Python 3.11+
+- pip
+- Git
+
+## Step 1: Setup Environment
+
 ```bash
-python -m venv venv
-source venv/bin/activate # On Windows: venv\Scripts\activate
+# Create virtual environment
+python -m venv.venv
+source.venv/bin/activate # On Windows:.venv\Scripts\activate
+
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-## Step 2: Run the Pipeline
-Execute the scripts in order. Each script writes artifacts to the `data/` or `artifacts/` directories.
+## Step 2: Download and Clean Data
 
-### 2.1 Download and Validate Data
 ```bash
+# Download QM9 dataset from HuggingFace
 python code/01_data_download.py
-```
-**Outputs**:
-- `data/raw/qm9_full.parquet`
-- `data/checksums.json`
-- `data/processed/molecules_cleaned.parquet`
 
-### 2.2 Extract Features
+# Clean and validate the dataset
+python code/02_clean.py
+```
+
+## Step 3: Extract Features
+
 ```bash
-python code/02_feature_extraction.py
+# Extract 2D and 3D features from cleaned molecules
+python code/03_feature_extraction.py
 ```
-**Outputs**:
-- `data/processed/features_2d.npy`
-- `data/processed/features_3d.npy`
-- `data/processed/labels.csv`
 
-### 2.3 Train Models
+## Step 4: Train Models
+
 ```bash
-python code/03_model_training.py
+# Train Random Forest models on 2D and 3D features
+python code/04_train_orchestrator.py
 ```
-**Outputs**:
-- `artifacts/models/model_2d.pkl`
-- `artifacts/models/model_3d.pkl`
-- `artifacts/metrics/cv_metrics.json`
-- `artifacts/metrics/stability_report.json`
 
-### 2.4 Analysis and Reporting
+## Step 5: Analyze Results
+
 ```bash
-python code/04_analysis.py
+# Run full analysis pipeline (baselines, predictions, statistics, failure boundaries, plots)
+python code/analyze.py
 ```
-**Outputs**:
-- `artifacts/metrics/baseline_error.json`
-- `artifacts/metrics/test_predictions.json`
-- `artifacts/metrics/statistics.json`
-- `artifacts/metrics/failure_boundary.json`
-- `artifacts/plots/parity_2d.png`
-- `artifacts/plots/parity_3d.png`
-- `artifacts/report.md`
 
-## Step 3: Validation
-Run the quickstart validator to ensure all artifacts were generated correctly:
+## Verification
+
+Run the validator to ensure all artifacts were created:
+
 ```bash
 python code/05_quickstart_validator.py
 ```
-This script checks for the existence and integrity of all required files.
 
-## Troubleshooting
-- **Memory Error**: If you encounter memory issues, the pipeline automatically downsamples. Ensure your system has at least 6.5 GB RAM available.
-- **RDKit Errors**: Ensure `rdkit` is installed and `LD_LIBRARY_PATH` is set correctly if running on Linux.
-- **HuggingFace Connection**: If `download_qm9_dataset` fails, check your internet connection and ensure you can access `huggingface.co`.
+## Expected Artifacts
+
+After successful execution, the following files should exist:
+
+- `data/raw/qm9_full.parquet`
+- `data/processed/molecules_cleaned.parquet`
+- `data/processed/features_2d.npy`
+- `data/processed/features_3d.npy`
+- `data/processed/labels_train.csv`
+- `data/processed/labels_test.csv`
+- `artifacts/models/model_2d.pkl`
+- `artifacts/models/model_3d.pkl`
+- `artifacts/metrics/cv_metrics.json`
+- `artifacts/plots/parity_2d.png`
+- `artifacts/plots/parity_3d.png`
+- `artifacts/report.md`

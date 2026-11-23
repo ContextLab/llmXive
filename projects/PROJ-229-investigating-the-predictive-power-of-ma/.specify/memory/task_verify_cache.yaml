@@ -1,0 +1,17 @@
+T001:
+  c: false
+  h: fb6e0c7b85e3b656c6be865f6433fd3423dd8378be867baa7a0f7c1052bfcc4e
+  r: All five schema files exist with substantive, well-formed content (including
+    `contracts/target_decision.schema.yaml`), but the required verification artifact
+    `tests/contract/test_all_schemas.py` is missing, so there is no evidence that
+    the schemas load, validate representative examples, or match the specification
+    as the task's verification clause requires. The implementer must add the test
+    suite (and ideally show it passing) to complete this task.
+  sig: 0aac6ae1cd245ce63968827dbda95aa8da960a61be45d5e4d2c5e7419593469d
+T013:
+  c: false
+  h: 4d80e982e819821bc405d4b303b9f42c488c9013285ad841d8f59d1a41a56ccb
+  r: The repository contains `code/data/fetch_literature_pcm.py`, but the file is
+    truncated (the final logging line is incomplete) and the required output `data/external/literature_pcms_raw.csv`
+    is absent. The CSV file must exist and contain the fetched data for the task to
+    be considered complete.

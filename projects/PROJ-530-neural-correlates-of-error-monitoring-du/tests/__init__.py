@@ -1,4 +1,3 @@
 """
-llmXive Project: Neural Correlates of Error Monitoring
-Tests package initialization.
+Test package for PROJ-530-neural-correlates-of-error-monitoring-du.
 """

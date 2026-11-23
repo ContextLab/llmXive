@@ -1,0 +1,45 @@
+T020b:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code, test, or documentation was provided showing a verification step that
+    checks column types and raises the required `ValueError`. The required artifact
+    implementing this logic is missing.
+T022a:
+  c: false
+  h: 10f4c94a9e0268c302f3b6d5cbe146969d09551f0e28201c354d107a094435af
+  r: "The repository contains `code/analysis.py`, but the shown portion ends before\
+    \ any implementation that computes a Spearman correlation and writes `data/processed/correlation_results.csv`.\
+    \ Moreover, the required file `data/processed/correlation_results.csv` is missing\
+    \ entirely, so the task\u2019s output artifact does not exist. The implementer\
+    \ must add the correlation logic (using the raw Shannon Index) and ensure the\
+    \ CSV with columns `r_value`, `p_value`, `n_obs` is created."
+T022b:
+  c: false
+  h: 10f4c94a9e0268c302f3b6d5cbe146969d09551f0e28201c354d107a094435af
+  r: "The required file `data/processed/correlation_results.csv` does not exist, and\
+    \ the provided `code/analysis.py` snippet is truncated before any code that computes\
+    \ the Spearman correlation and writes the required columns (`r_value`, `p_value`,\
+    \ `n_obs`). The task\u2019s core output is missing."
+T024a:
+  c: false
+  h: e98046fe043a1428e50a2e2db5e10dd598329ef5dababe975af0afb667f4f89c
+  r: "The repository contains the VIF calculation functions in `code/analysis.py`,\
+    \ but the required output file `data/processed/vif_results.json` is missing, so\
+    \ the task\u2019s core deliverable (saving VIF values to that JSON and ensuring\
+    \ it contains all predictor keys with positive values) has not been fulfilled.\
+    \ The next implementer must generate the VIF results and write them to the specified\
+    \ JSON file."
+T024b:
+  c: false
+  h: e98046fe043a1428e50a2e2db5e10dd598329ef5dababe975af0afb667f4f89c
+  r: The repository contains `code/analysis.py` with VIF calculation and a `save_vif_results`
+    function, but the required output file `data/processed/vif_results.json` is missing,
+    so the VIF values are not actually saved nor can they be verified. The task is
+    therefore not completed.
+T052:
+  c: false
+  h: 1f16545d81d59cbc65c846ea3a30929f36f5a572cabaccfcf2154afd921017a7
+  r: The required checksum file `state/projects/PROJ-077-investigating-the-correlation-between-gu.yaml`
+    does not exist, and the shown portion of `code/main.py` contains no logic that
+    reads this file or validates the checksums of files in `data/raw/`. Consequently
+    the provenance check mandated by the user story is not implemented.

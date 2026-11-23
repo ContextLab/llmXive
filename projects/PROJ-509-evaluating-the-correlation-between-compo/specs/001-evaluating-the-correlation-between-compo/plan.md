@@ -1,36 +1,39 @@
 # Implementation Plan: Evaluating the Correlation Between Compositional Features and Predicted Formation Energy in Inorganic Materials
 
-**Branch**: `001-evaluating-compositional-correlation` | **Date**: 2026-06-24 | **Spec**: `specs/001-evaluating-the-correlation-between-compo/spec.md`
+**Branch**: `001-evaluating-compositional-correlation` | **Date**: 2026-06-24 | **Spec**: [link]
+**Input**: Feature specification from `/specs/001-evaluating-the-correlation-between-compo/spec.md`
 
 ## Summary
 
-This project implements a CPU-tractable pipeline to evaluate the correlation between compositional descriptors (mean/variance of electronegativity, atomic radius, valence electrons, melting point, ionization energy) and predicted formation energy in inorganic materials. The approach involves downloading the MP-2020.12.1 dataset from a verified Zenodo source, filtering for inorganic compounds, computing descriptors using `pymatgen`/`matminer`, training Random Forest and Gradient Boosting regressors via `scikit-learn`, and performing feature importance analysis with Partial Dependence Plots. The pipeline includes a rigorous multicollinearity check (VIF) and a null model baseline to ensure scientific validity.
+This plan implements a CPU-first computational pipeline to evaluate the correlation between compositional descriptors (mean/variance of electronegativity, atomic radius, valence electrons, melting point, ionization energy) and predicted formation energy in inorganic materials. The approach involves downloading a verified subset of the Materials Project MP-2020 dataset via the MPDS API (with fallback to a checksummed local cache), computing descriptors using `pymatgen`/`matminer`, training Random Forest and Gradient Boosting regressors via `scikit-learn` on an A stratified split by Chemical Family will be employed, with the training set comprising the majority of the data and the test set comprising the remainder., and performing feature importance analysis including Conditional Permutation Importance, SHAP interactions, and Accumulated Local Effects (ALE) plots. The pipeline is designed to run within the GitHub Actions free-tier constraints (2 CPU, ~7 GB RAM, ≤6h) and strictly adheres to the project constitution regarding reproducibility and data hygiene.
 
 ## Technical Context
 
-**Language/Version**: Python 3.10  
-**Primary Dependencies**: `pymatgen` (elemental properties), `scikit-learn` (models), `pandas` (data), `numpy` (numerics), `matplotlib` (plots), `pyyaml` (contracts).  
-**Storage**: Local CSV/Parquet files in `data/` (raw and derived), JSON artifacts in `data/evaluation/`.  
-**Testing**: `pytest` with contract validation against `contracts/`.  
-**Target Platform**: GitHub Actions free-tier runner (Linux, 2 CPU, ~7 GB RAM, no GPU).  
-**Project Type**: Data science CLI / research pipeline.  
-**Performance Goals**: Total runtime ≤ 6 hours; Memory ≤ 4 GB during processing.  
-**Constraints**: No GPU; no heavy deep learning; dataset size capped at [deferred] rows if >60,000 detected to ensure feasibility.
-**Scale/Scope**: Processing up to 150k+ inorganic entries (automatically sampled to a reduced size if memory constraints are approached).
+**Language/Version**: Python 3.11  
+**Primary Dependencies**: `pymatgen`, `matminer`, `scikit-learn`, `pandas`, `numpy`, `eli5`, `shap`, `pytest`  
+**Storage**: Local file system (`data/`), JSON/YAML artifacts  
+**Testing**: `pytest` with contract validation  
+**Target Platform**: Linux (GitHub Actions Runner)  
+**Project Type**: Computational Research Pipeline  
+**Performance Goals**: Complete pipeline ≤ 6 hours; Memory usage < 6 GB; R² > 0.0 (baseline)  
+**Constraints**: CPU-only (no GPU); No external API calls during runtime (except dataset download); Strict reproducibility (fixed seeds); No synthetic data substitution.  
+**Scale/Scope**: A verified subset of inorganic compounds; descriptors per compound.
+
+> Domain-specific empirical specifics (exact counts, dataset sizes, measured quantities) are deferred to the research/implementation phase. For any quantity stated here, cite its source/reference rather than asserting a measured value.
 
 ## Constitution Check
 
-*GATE: Must pass before Phase 0 research.*
+*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
 
-| Principle | Status | Action Required |
-| :--- | :--- | :--- |
-| **I. Reproducibility** | **Pass** | Plan includes pinned `random_state` and explicit dataset versioning (Zenodo DOI). |
-| **II. Verified Accuracy** | **Pass** | Dataset source is the canonical MP-2020 Zenodo mirror (DOI: 10.5281/zenodo.4053859) which is verified and accessible. |
-| **III. Data Hygiene** | **Pass** | Plan mandates checksumming of raw data and versioned derived files. |
-| **IV. Single Source of Truth** | **Pass** | All metrics derived from `data/evaluation/model_metrics.json` (sole SSoT). |
-| **V. Versioning Discipline** | **Pass** | Content hashes will be recorded in `state/`. |
-| **VI. Deterministic Feature Engineering** | **Pass** | Descriptors computed via pure functions from a versioned elemental table. |
-| **VII. Statistical Evaluation Rigor** | **Pass** | Plan includes Chemical Family stratified split, VIF analysis, permutation importance, and PDPs. |
+| Principle | Compliance Strategy | Status |
+|-----------|---------------------|--------|
+| **I. Reproducibility** | All random seeds pinned in `code/`. Dataset fetched from canonical source (MP-2020 via MPDS API) every run. `requirements.txt` pins versions. Fallback to checksummed local cache if API fails. | ✅ Pass |
+| **II. Verified Accuracy** | Citations in `research.md` and `data-model.md` restricted to verified sources (MP-2020). No fabricated URLs. | ✅ Pass |
+| **III. Data Hygiene** | Raw data checksummed on download. Derived descriptors written to new files with versioned names. No in-place modification. | ✅ Pass |
+| **IV. Single Source of Truth** | All statistics in `data/evaluation/*.json` trace to specific code blocks. No hand-typed numbers in plan. | ✅ Pass |
+| **V. Versioning Discipline** | Content hashes tracked in `state/`. Artifacts updated only via pipeline execution. | ✅ Pass |
+| **VI. Deterministic Feature Engineering** | Descriptors computed via pure functions in `code/utils/descriptors.py` using a version-controlled elemental property table in `data/elemental_properties/`. Pipeline fails if table version/hash does not match expected value. | ✅ Pass |
+| **VII. Statistical Evaluation Rigor** | 80/20 stratified split, Conditional Permutation Importance, SHAP interactions, VIF logging (with warning, not removal), ALE plots, and permutation-based significance tests implemented as specified. Paired t-tests for model comparison (RF vs GB) with BH correction. | ✅ Pass |
 
 ## Project Structure
 
@@ -43,46 +46,74 @@ specs/001-evaluating-the-correlation-between-compo/
 ├── data-model.md        # Phase 1 output
 ├── quickstart.md        # Phase 1 output
 ├── contracts/           # Phase 1 output
-└── tasks.md             # Phase 2 output
+└── tasks.md             # Phase 2 output (NOT created by /speckit-plan)
 ```
 
 ### Source Code (repository root)
 
 ```text
-projects/PROJ-509-evaluating-the-correlation-between-compo/
-├── data/
-│   ├── raw/                 # Downloaded MP-2020.12.1 (parquet/csv)
-│   ├── elemental_properties/ # Versioned elemental reference table
-│   ├── processed/           # Computed descriptors (CSV)
-│   └── evaluation/          # Model metrics, PDP data
-├── code/
+code/
+├── __init__.py
+├── ingest.py            # Data download, filtering, checksumming (FR-001)
+├── features.py          # Descriptor computation (FR-002, VI)
+├── train.py             # Model training, splitting, saving (FR-003, FR-003a)
+├── evaluate.py          # Metrics calculation, overfitting check (FR-004, T025)
+├── importance.py        # Feature ranking, permutation, ALE, VIF (FR-005, FR-006, T038-T047)
+├── utils/
 │   ├── __init__.py
-│   ├── ingest.py            # FR-001: Download & Filter
-│   ├── descriptors.py       # FR-002: Compute features
-│   ├── train.py             # FR-003: Train RF & GB
-│   ├── evaluate.py          # FR-004: Metrics & Split check
-│   ├── importance.py        # FR-005: Permutation & Ranking
-│   └── plots.py             # FR-006: PDP generation
-├── tests/
-│   ├── contract/            # Schema validation tests
-│   └── unit/                # Descriptor logic tests
-├── contracts/               # Implementation artifacts for validation
-│   ├── dataset.schema.yaml
-│   └── model_output.schema.yaml
-├── requirements.txt         # Pinned dependencies
-└── README.md
+│   ├── descriptors.py   # Pure functions for mean/variance (VI)
+│   ├── chemical_families.py # Logic for deriving Chemical Family
+│   └── io.py            # JSON/CSV loading and saving
+└── main.py              # Pipeline orchestrator (FR-007, FR-009)
+
+data/
+├── raw/                 # Downloaded raw MP-2020 subset
+├── processed/           # Cleaned CSVs with descriptors
+├── elemental_properties/ # Versioned elemental tables
+└── evaluation/          # Models, metrics, plots, rankings
+
+tests/
+├── contract/            # Schema validation tests
+├── integration/         # Pipeline end-to-end tests
+└── unit/                # Descriptor logic tests
 ```
 
-**Structure Decision**: Single project structure with clear separation of `data/` (raw vs. processed) and `code/` (modular pipeline steps) to ensure reproducibility and easy testing on CI.
-
-## Memory & Sampling Protocol
-
-To guarantee feasibility on the GitHub Actions free-tier (7 GB RAM, 6h runtime):
-1. **Threshold**: If the filtered dataset exceeds **[deferred] rows**, a **stratified sample** (by **Chemical Family**) is taken to exactly **[deferred] rows**.
-2. **Stratification**: Sampling is stratified by the most abundant element in the compound (Chemical Family) to preserve compositional diversity.
-3. **Trigger**: This check occurs in `ingest.py` immediately after filtering.
-4. **Logging**: The sampling action and the resulting row count are logged to `data/logs/sampling.log`.
+**Structure Decision**: Single project structure selected for simplicity and tight coupling of data processing and modeling. `code/utils/` created to satisfy T049 (cleanup) and ensure deterministic feature engineering (Principle VI).
 
 ## Complexity Tracking
 
-No violations found. The project adheres to the CPU-only constraint by selecting `scikit-learn` models and limiting data size via stratified sampling. The stratification method has been updated to 'Chemical Family' to ensure scientific validity, overriding the legacy spec assumption of 'crystal system' stratification.
+| Violation | Why Needed | Simpler Alternative Rejected Because |
+|-----------|------------|-------------------------------------|
+| N/A | No violations detected. | N/A |
+
+## Implementation Phases
+
+### Phase 0: Data Ingestion & Verification (FR-001, SC-006)
+1.  **Download**: Fetch MP-2020 dataset via `matminer` MPDS loader (requires `MPDS_API_KEY` in CI).
+2.  **Fallback**: If API fails, load from `data/raw/mp-2020.csv` (checksummed, versioned).
+3.  **Verify**: Check file size (expected to contain a substantial number of rows) and SHA-256 checksum. Log result to `data/evaluation/dataset_verification.json`. Fail if mismatch.
+4.  **Filter**: Select inorganic compounds, exclude missing formation energy or composition.
+5.  **Version Pin**: Verify `data/elemental_properties/` matches expected version hash. Fail if mismatch.
+
+### Phase 1: Feature Engineering (FR-002, VI)
+1.  **Chemical Family Derivation**: Use `code/utils/chemical_families.py` to assign a `chemical_family` to each compound.
+    *   *Algorithm*: Identify the dominant element (highest stoichiometric coefficient). Map its group/block (e.g., Group 1 -> Alkali, d-block -> Transition, O-containing -> Oxide) to a fixed set of families.
+2.  **Descriptor Computation**: Compute mean/variance for 5 elemental properties using `code/utils/descriptors.py`.
+3.  **Output**: Write `data/processed/with_descriptors.csv`.
+
+### Phase 2: Model Training & Evaluation (FR-003, FR-004, FR-004a, FR-004b)
+1.  **Split**: 80/20 stratified split by `chemical_family`.
+2.  **Train**: Random Forest (max_depth=20, 200 trees), Gradient Boosting (a set of estimators).
+3.  **Evaluate**: Calculate R², MAE, RMSE. Allow negative R².
+4.  **Overfitting Check**: Compute `overfitting_ratio = train_r2 - val_r2`. Log to `data/evaluation/model_metrics.json`. Flag if > 0.1.
+5.  **Statistical Test**: Perform paired t-test comparing RF vs. GB validation scores. Apply Benjamini-Hochberg correction if multiple metrics tested. Save p-values/CIs to `data/evaluation/statistical_tests.json`.
+
+### Phase 3: Feature Importance & Sensitivity (FR-005, FR-006, SC-002, SC-003)
+1.  **Importance**: Extract tree-based importance.
+2.  **Validation**: Compute Conditional Permutation Importance (using `eli5` or custom) to handle collinearity.
+3.  **Ranking**: Rank top features. Validate stability (correlation r ≥ 0.8).
+4.  **SHAP**: Compute SHAP interaction values to assess joint effects of correlated descriptors.
+5.  **ALE Plots**: Generate ALE plots for top features.
+6.  **Write ALE**: Write PNG images to `data/evaluation/ale_*.png`. Verify file existence and non-zero size (FR-008).
+7.  **Non-linearity Score**: Calculate `|R²_quad - R²_lin|` for the ALE curve of each top feature. Log to `data/evaluation/ale_metrics.json`. Require > 0.5 for SC-003.
+8.  **VIF**: Calculate VIF scores. Log warning if > 10, but do not remove features.

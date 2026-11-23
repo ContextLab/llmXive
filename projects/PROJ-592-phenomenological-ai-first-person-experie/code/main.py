@@ -20,13 +20,16 @@ from analysis.stats import orchestrate_analysis
 from validation.stratified_sampler import run_stratified_sampling
 from validation.human_rater import run_rating_pipeline
 from utils.archiver import run_archiver
+from analysis.sensitivity_kappa import run_sensitivity_kappa_analysis
+from analysis.validity_score_writer import run_validity_score_writer
 
 
 def setup_environment(config_path: Optional[str] = None) -> Dict[str, Any]:
     """Initialize environment and load configuration."""
+    # Ensure logger is initialized before any log_operation calls
     logger = get_logger()
     log_operation("setup_environment", config_path=config_path)
-    
+
     config = get_config(config_path)
     logger.info("Environment setup complete")
     return config
@@ -47,6 +50,7 @@ def run_control_phase(config: Dict[str, Any]) -> None:
 def run_analysis_phase(config: Dict[str, Any]) -> None:
     """Run the analysis phase (consistency, stability, markers)."""
     log_operation("run_analysis_phase")
+    # Pass config to allow functions to extract paths if needed
     run_consistency_analysis(config)
     run_stability_analysis(config)
     run_marker_analysis(config)
@@ -97,20 +101,30 @@ def main() -> None:
     parser.add_argument(
         "--config",
         type=str,
-        default="code/config.py",
+        default="code/config.yaml",
         help="Path to configuration file"
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Limit number of samples for testing"
     )
 
     args = parser.parse_args()
 
-    # Setup logging
+    # Setup logging immediately
     logger = setup_logging("data/logs/pipeline.log")
-    
+
     try:
         log_operation("main_start", task=args.task, config=args.config)
-        
+
         config = setup_environment(args.config)
-        
+
+        # Inject limit if provided for T033 validation
+        if args.limit is not None:
+            config['generation_limit'] = args.limit
+
         if args.task == "generate":
             run_generation_phase(config)
         elif args.task == "generate_control":
@@ -122,18 +136,22 @@ def main() -> None:
         elif args.task == "validate_human":
             run_validation_phase(config)
         elif args.task == "sensitivity-kappa":
-            from analysis.sensitivity_kappa import run_sensitivity_kappa_analysis
             run_sensitivity_kappa_analysis(config)
         elif args.task == "archive":
             run_archiver(config)
         elif args.task == "full":
             run_full_pipeline(config)
-        
+
         log_operation("task_complete", task=args.task)
-        
+
     except Exception as e:
         log_operation("task_failed", task=args.task, error=str(e))
-        logger.error(f"Pipeline failed: {e}")
+        # Ensure logger is available even if setup failed partially
+        current_logger = get_logger()
+        if current_logger:
+            current_logger.error(f"Pipeline failed: {e}")
+        else:
+            print(f"Pipeline failed: {e}", file=sys.stderr)
         raise
 
 

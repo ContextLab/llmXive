@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "2311.00301",
+  "judged_at": "2026-07-31T15:58:05Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "the impact of interoceptive awareness on emotional regulation during simulated stress psychology",
+  "rationale": "The paper addresses \"word stress\" (linguistic prosody and pronunciation) in speech processing, which is a distinct construct sharing only the homonym keyword \"stress\" with the user's question about \"psychological stress\" and emotional regulation. It does not measure interoceptive awareness, emotional regulation, or the psychological stress response, failing all inclusion criteria (a-f) and triggering the rejection rule for distinct constructs sharing only homonym keywords.",
+  "relevant": false
+}

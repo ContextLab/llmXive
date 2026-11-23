@@ -1,0 +1,9 @@
+{
+  "rmse": 0.085,
+  "rmse_diff": 0.005,
+  "passed": true,
+  "threshold_rmse_diff": 0.02,
+  "threshold_abs_rmse": 0.15,
+  "data_source": "synthetic",
+  "limitation_flag": true
+}

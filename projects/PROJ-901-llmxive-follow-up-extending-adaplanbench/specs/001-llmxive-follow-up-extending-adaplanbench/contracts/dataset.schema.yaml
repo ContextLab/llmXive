@@ -1,0 +1,26 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Filtered Task Dataset Schema"
+type: "object"
+required:
+  - task_id
+  - raw_prompt
+  - progressive_constraints
+  - constraint_count
+properties:
+  task_id:
+    type: "string"
+    description: "Unique identifier for the task."
+  raw_prompt:
+    type: "string"
+    description: "The initial task description."
+  progressive_constraints:
+    type: "array"
+    items:
+      type: "string"
+    description: "List of constraints revealed over time."
+  constraint_count:
+    type: "integer"
+    minimum: 5
+    description: "Number of constraints in progressive_constraints."
+    example: 5
+additionalProperties: false

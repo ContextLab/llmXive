@@ -1,28 +1,30 @@
 # Statistical Properties of Integer Partitions Into Distinct Prime Summands
 
-## Project Overview
-This project investigates the statistical properties of $p_{\mathcal{P}}(n)$, the number of partitions of an integer $n$ into distinct prime summands. We compare exact computations against asymptotic baselines derived from the distinct-partition variant of Meinardus' theorem.
+This project investigates the statistical properties of $p_{\mathcal{P}}(n)$, the number of partitions of an integer $n$ into distinct prime summands.
+
+## Overview
+
+The study focuses on the asymptotic behavior and deviations of $p_{\mathcal{P}}(n)$ from theoretical baselines, specifically examining the impact of prime gaps on the partition function.
 
 ## Directory Structure
-- `code/`: Python implementation modules
-- `data/raw/`: Generated partition data
-- `data/processed/`: Processed features and model results
-- `data/schemas/`: Data validation schemas
-- `tests/`: Unit and integration tests
-- `docs/`: Documentation
-- `state/`: Project state tracking
 
-## Requirements
-Install dependencies:
+- `code/`: Source code for data generation, feature engineering, and modeling.
+- `data/`: Raw and processed data artifacts.
+- `tests/`: Unit and integration tests.
+- `docs/`: Documentation and methodology.
+- `state/`: Project state tracking and checksums.
+
+## Prerequisites
+
+- Python 3.8+
+- Dependencies listed in `requirements.txt`
+
+## Installation
+
 ```bash
 pip install -r requirements.txt
 ```
 
 ## Usage
-Run the pipeline:
-```bash
-python code/generate_partitions.py
-python code/feature_engineering.py
-python code/regression_model.py
-python code/visualize_results.py
-```
+
+Refer to `docs/quickstart.md` for pipeline execution instructions.

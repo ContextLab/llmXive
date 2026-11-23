@@ -1,36 +1,9 @@
-T033:
+T001:
   c: false
-  h: 2057f2824f07e6496d8b33f86ef48177314d627540f57fac30fc5e20f71683a9
-  r: "The `save_final_results` function is incomplete (truncated with a stray \u201C\
-    e\u201D and never writes the `final_results` dict to `data/processed/final_results.json`).\
-    \ Consequently the required JSON file does not exist, so the task\u2019s requirements\
-    \ are not met."
-T034:
-  c: false
-  h: 88874721cf2decbe26d820b2f9db68733ded8558dfb6f43a7ba29594bc636a20
-  r: "The repository lacks `reports/final_report.md` entirely, and the provided `tests/test_report.py`\
-    \ does not contain a `verify_report_constraints()` function (or any test that\
-    \ checks for the exact phrase \u201Cassociational\u201D in Limitations and the\
-    \ absence of \u201Ccausal\u201D in Results). Both the required artifact and the\
-    \ specific test implementation are missing."
-T035:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No `docs/` directory or updated `README.md` files were provided; the implementer
-    supplied only the feature specification text without any actual documentation
-    artifacts, so the required documentation updates are missing.
-T036:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: No code artifacts in the `code/` directory were provided or referenced, and there
-    is no evidence (e.g., diff, commit log, cleaned scripts) showing that any cleanup
-    or refactoring was performed. Without tangible files or changes, the requirement
-    cannot be confirmed as satisfied.
-T037:
-  c: false
-  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
-  r: "No code, benchmark results, or documentation were provided showing that the\
-    \ analysis pipeline has been optimized to run in \u2264\u202F6\u202Fhours for\
-    \ datasets with N\u202F\u2264\u202F500. The only artifacts described are the high\u2011\
-    level user stories; there is no implementation or performance evidence to verify\
-    \ the claimed optimization."
+  h: 6ec17b9ab9cbe1cd31b7b2b1875c8a1d4d29eec3a03b8cf436e0bf6ac638df01
+  r: "The project layout and `requirements.txt` are present, and `quickstart.md` contains\
+    \ the pipeline commands, but there is no evidence that `pip install -r code/requirements.txt`\
+    \ actually succeeds in a fresh virtual environment (no install log or exit\u2011\
+    code proof). Provide a fresh\u2011env install log showing a zero exit code to\
+    \ satisfy the task."
+  sig: e34ac4897ee6f00949ea448ff3593ed639b0488eabd419027089f29eb0f97daa

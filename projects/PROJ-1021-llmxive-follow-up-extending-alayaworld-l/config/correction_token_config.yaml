@@ -1,0 +1,19 @@
+# Configuration for Correction Token Mechanism (FR-004)
+# This is a VALID intervention, NOT artificial drift.
+# It allows the symbolic engine to inject state corrections into the generation loop.
+
+correction_token:
+  enabled: true
+  injection_format: " [OBJECT_{STATE}]"
+  states:
+    - ALIVE
+    - DEAD
+    - RESET
+    - REMOVE
+  trigger_conditions:
+    - "phantom_object_detected"
+    - "state_mismatch"
+    - "render_failure"
+  
+# Note: No 'drift_probability', 'error_injection_rules', or 'random_noise' keys here.
+# This file is preserved by T007.

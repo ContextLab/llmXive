@@ -1,0 +1,5 @@
+{
+  "conflict": "FR-005 FDR vs Constitution Bonferroni",
+  "resolution": "Bonferroni implemented",
+  "rationale": "Constitution Principle VII mandates Bonferroni"
+}

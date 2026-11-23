@@ -1,0 +1,33 @@
+# Python 3.11 dependencies for PROJ-815-llmxive-follow-up-extending-intern-atlas
+# Pinned versions to ensure reproducibility across environments
+
+# Core Data & Numerical
+pandas==2.1.4
+numpy==1.26.3
+scipy==1.12.0
+
+# Machine Learning & Statistics
+scikit-learn==1.4.0
+statsmodels==0.14.1
+
+# Graph Analysis
+networkx==3.2.1
+
+# HTTP & Configuration
+requests==2.31.0
+pyyaml==6.0.1
+
+# Visualization
+seaborn==0.13.2
+matplotlib==3.8.2
+
+# String Matching (for fuzzy retraction matching)
+python-Levenshtein==0.25.1
+
+# Testing & Linting (optional but recommended for pipeline)
+pytest==7.4.4
+ruff==0.1.13
+black==24.1.0
+
+# Hugging Face Datasets (for potential graph loading if needed)
+datasets==2.16.1

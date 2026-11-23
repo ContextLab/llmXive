@@ -1,0 +1,18 @@
+# Standalone black configuration file for IDE compatibility
+# (pyproject.toml also contains configuration for toolchain integration)
+
+include = '\.pyi?$'
+extend-exclude = '''
+/(
+    \.git
+    | \.hg
+    | \.mypy_cache
+    | \.tox
+    | \.venv
+    | _build
+    | buck-out
+    | build
+    | dist
+    | node_modules
+)/
+'''

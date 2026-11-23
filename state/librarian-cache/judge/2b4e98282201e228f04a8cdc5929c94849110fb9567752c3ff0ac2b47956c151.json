@@ -1,0 +1,9 @@
+{
+  "candidate_pointer": "1501.03632",
+  "judged_at": "2026-07-22T01:08:28Z",
+  "model": "qwen.qwen3.5-122b",
+  "prompt_version": "e0a9984f6571a9b4",
+  "query_normalized": "llmxive follow-up: extending \"ideas have genomes: benchmarking scientific lineage reasoning and line\" computer science",
+  "rationale": "The paper focuses on biological evolutionary dynamics (fixation probability, mutation rates, and genetic drift in asexual populations), which is a distinct construct from the user's question about \"scientific lineage reasoning\" and \"ideas have genomes\" in the context of computer science and LLMs. While both use evolutionary metaphors, the paper does not measure the same mechanism, variables, or domain (scientific citation networks or LLM reasoning) and falls under the rejection rule for distinct",
+  "relevant": false
+}

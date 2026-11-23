@@ -1,8 +1,11 @@
-# Simulation configuration for RD missing data study
+# Simulation Configuration
+# Defines the ground truth parameters for the RD simulation
+
 sample_size: 1000
 true_effect: 0.5
 seed: 42
+# Additional parameters for data generation (used by rd_data.py)
 beta0: 0.0
 beta1: 1.0
-beta2: 0.5
-sigma: 1.0
+beta2: 0.3
+sigma: 0.5

@@ -1,270 +1,116 @@
-# Tasks: llmXive follow-up: extending "Foundation Protocol: A Coordination Layer for Agentic Society"
+# Tasks: llmXive follow‑up – extending “Foundation Protocol: A Coordination Layer for Agentic Society”
+
+**Inputs**: `spec.md`, `plan.md`, the data‑model and contracts, and the reviewer feedback calling for a verifiable, deterministic pipeline.
 
-**Input**: Design documents from `/specs/001-policy-compression-tradeoff/`
-**Prerequisites**: plan.md (required), spec.md (required for user stories), research.md, data-model.md, contracts/
+The tasks are organized into research phases.  Each task follows the required checklist format  
+`- [ ] T### [P?] [USx?] description … with file path`.  The indented lines list the concrete requirement(s) it satisfies and the verification step(s).
+
+## Phase 1 – Setup, deterministic data generation, and first end‑to‑end run
 
-**Tests**: The examples below include test tasks. Tests are OPTIONAL - only include them if explicitly requested in the feature specification.
+- [~] T001 [P] **Implement deterministic workflow generator** – `code/services/generator.py` creates `data/raw/workflows.json` containing 500 synthetic workflows that conform to `contracts/workflow.schema.yaml`.  
+  - Requirements satisfied: FR‑001, FR‑008, SC‑001, deterministic seed (`SEED=42`).  
+  - Verification: after running `python -m code.services.generator --n 500 --seed 42`, the file exists, contains 500 entries, each workflow has a `delegation_depth` between 1‑10 and at least 25 workflows per depth level, and passes JSON‑schema validation.
 
-**Organization**: Tasks are grouped by user story to enable independent implementation and testing of each story.
+- [~] T002 [P] **Build independent Oracle Policy Engine** – `code/models/policy.py` provides a pure‑Python `OraclePolicyEngine` that evaluates a workflow against all policy nodes and returns a list of violations.  
+  - Requirements satisfied: FR‑008, SC‑001, Constitution VI (independence).  
+  - Verification: unit test `tests/unit/test_oracle.py` asserts that a known workflow with a budget‑cap violation yields exactly one violation of type `"budget_exceeded"`.
 
-## Format: `[ID] [P?] [Story] Description`
+- [~] T003 [P] **Create tokenizer wrapper** – `code/lib/utils.py` defines `count_tokens(text: str) -> int` using `tiktoken` with model `cl100k_base`.  
+  - Requirements satisfied: FR‑009, FR‑004 (consistent token measurement).  
+  - Verification: test `tests/unit/test_tokenizer.py` checks that the string `"Hello world"` yields 2 tokens.
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (e.g., US1, US2, US3)
-- Include exact file paths in descriptions
+- [ ] T004 [P] **Full‑context execution engine** – `code/services/executor_full.py` reads `data/raw/workflows.json`, runs each workflow through the Oracle, tokenizes the entire policy graph, and writes `data/processed/full_context_logs.json` adhering to `contracts/execution_log.schema.yaml` (mode=`full_context`, `compression_depth=0`). <!-- FAILED-IN-EXECUTION: code/services/executor_full.py exit=1 -->
+  - Requirements satisfied: FR‑002, FR‑004, FR‑007.  
+  - Verification: after `python -m code.services.executor_full --n 5`, the output file exists, contains 5 logs, each log passes schema validation, and token counts are > 0.
 
-## Path Conventions
+- [~] T005 [P] **Compressed‑context execution engine** – `code/services/executor_compressed.py` implements depth‑limited BFS/DFS extraction (configurable via `--depth K`), uses the tokenizer wrapper, and writes `data/processed/compressed_context_logs.json` (mode=`compressed`).  
+  - Handles edge cases:  
+    * `compression_depth=0` → `context_reduction_pct="[deferred]"`.  
+    * single‑node workflow → `context_reduction_pct="[deferred]"`.  
+  - Requirements satisfied: FR‑003, FR‑004, FR‑009, FR‑007.  
+  - Verification: run `python -m code.services.executor_compressed --depth 2 --n 5`; the file exists, each entry’s `context_reduction_pct` is a numeric value between 0‑100 (or the string `"[deferred]"` for edge cases), and schema validation succeeds.
 
-- **Single project**: `src/`, `tests/` at repository root
-- **Web app**: `backend/src/`, `frontend/src/`
-- **Mobile**: `api/src/`, `ios/src/` or `android/src/`
-- Paths shown below assume single project - adjust based on plan.md structure
+- [ ] T006 [P] **Expand execution logs to step‑level outcomes** – `code/utils/step_expander.py` reads both full‑ and compressed logs, creates `data/processed/step_outcomes.json` where each step is a binary record (`outcome` 0/1) together with `context_reduction_pct`, `policy_complexity`, and `delegation_depth`. Rows with `context_reduction_pct="[deferred]"` are flagged but **excluded** from the regression dataset.  
+  - Requirements satisfied: FR‑005, new `StepOutcome` model, SC‑001.  
+  - Verification: after execution, the JSON file exists, contains > 0 rows, and a separate script confirms that all numeric `context_reduction_pct` rows are ≤ 100 and that rows with the string value are not used in the GEE fit.
 
-<!--
- ============================================================================
- IMPORTANT: The tasks below are SAMPLE TASKS for illustration purposes only.
+- [ ] T007 [P] **Fit binomial GEE regression and produce trade‑off curve** – `code/services/analyzer.py` loads `step_outcomes.json`, fits a binomial GEE (logit link, exchangeable correlation) with covariates `context_reduction_pct`, `policy_complexity`, and `delegation_depth`. It writes:   <!-- FAILED-IN-EXECUTION: code/services/analyzer.py exit=1 -->
+  * `data/results/analysis_results.json` (conforms to `contracts/analysis_results.schema.yaml`).  
+  * `data/results/tradeoff_curve.csv` (aggregated `compression_ratio`, `error_rate`, `std_dev`, `n_samples`).  
+  - Requirements satisfied: FR‑005, FR‑006, SC‑003, SC‑004.  
+  - Verification: running `python -m code.services.analyzer` exits 0, both output files exist, JSON validates against its schema, and the CSV contains a column `compression_ratio` ranging from 0‑100 with at least three distinct points. The script also checks that `compression_ratio` equals the numeric `context_reduction_pct` from the source logs.
 
- The /speckit-tasks command MUST replace these with actual tasks based on:
- - User stories from spec.md (with their priorities P1, P2, P3...)
- - Feature requirements from plan.md
- - Entities from data-model.md
- - Endpoints from contracts/
+- [ ] T008 [S] **Multiple‑comparison correction and trend test** – extend `analyzer.py` to compute a Cochran‑Armitage trend test and Bonferroni‑adjusted pairwise p‑values, writing `data/results/multiplicity_tests.json`.   <!-- FAILED-IN-EXECUTION: code/services/analyzer.py exit=1 -->
+  - Requirements satisfied: FR‑005, SC‑003, Constitution III (statistical rigor).  
+  - Verification: the JSON file contains keys `trend_statistic`, `trend_p_value`, `bonferroni_corrected` (list of dicts with `depth_pair` and `p_value`), and a boolean `significant_at_0.05`.  
 
- Tasks MUST be organized by user story so each story can be:
- - Implemented independently
- - Tested independently
- - Delivered as an MVP increment
+- [ ] T009 [P] **Simulation‑based power analysis** – `code/utils/power_analysis.py` simulates 1 000 datasets matching the study design (effect size: logistic coefficient ≈ 0.10 per 10 % reduction). For each dataset it fits the same GEE model and records whether the 1 % error‑threshold is detected at α = 0.05 (Bonferroni‑adjusted). The script writes `data/results/power_analysis.json` with fields `n_simulations`, `effect_size`, `estimated_power`, `power_ci_lower`, `power_ci_upper`, `method`.  
+  - Requirements satisfied: FR‑005, SC‑004, reproducibility (fixed seed).  
+  - Verification: script runs, JSON exists, `estimated_power` is a number in [0, 1], and two runs with identical seed produce identical JSON files.
 
- DO NOT keep these sample tasks in the generated tasks.md file.
- ============================================================================
--->
+- [ ] T010 [P] **Invalid‑workflow exclusion verification** – `code/utils/verify_invalid_exclusion.py` cross‑checks `data/raw/workflows.json` for `is_valid:false` entries and ensures they do **not** appear in `tradeoff_curve.csv`. It writes `data/results/invalid_exclusion_report.json` with `invalid_workflow_count`, `excluded_count`, and `status` (`"passed"` or `"failed"`).  
+  - Requirements satisfied: FR‑008, edge‑case handling (US‑1).  
+  - Verification: script exits 0, report file exists, and `excluded_count` equals the number of invalid workflows; the CSV contains no rows originating from those workflows.
 
-## Phase 1: Setup (Shared Infrastructure)
+- [ ] T011 [P] **Add trade‑off‑curve schema** – create `contracts/tradeoff_curve.schema.yaml` that mirrors the columns of `tradeoff_curve.csv` (numeric `reduction_pct`, `error_rate`, `std_dev`, `n_samples`).  
+  - Requirements satisfied: Constitution IV (single source of truth).  
+  - Verification: schema file exists and can be used by a validation script without errors.
 
-**Purpose**: Project initialization and basic structure
+- [ ] T012 [P] **Validate trade‑off‑curve CSV against schema** – `code/utils/validate_tradeoff_csv.py` runs `jsonschema` validation of `data/results/tradeoff_curve.csv` (converted to JSON records) against `contracts/tradeoff_curve.schema.yaml`. Failure aborts the pipeline.  
+  - Requirements satisfied: Constitution IV, SC‑004.  
+  - Verification: script returns exit 0 on valid CSV, non‑zero on schema mismatch.
 
-- [ ] T001 Create project structure per implementation plan (`code/`, `data/`, `tests/`, `state/`)
-- [ ] T002 Initialize Python project with `requirements.txt` (networkx, tiktoken, numpy, pandas, scipy, statsmodels, pytest)
-- [ ] T003 [P] Configure linting (ruff) and formatting (black) tools
+## Phase 2 – Orchestration, reproducibility, and reporting
 
----
+- [ ] T013 [P] **Orchestrator / main pipeline** – `code/main.py` provides a CLI that runs the full workflow in order: generator → Oracle (implicit) → full executor → compressed executor (for a list of depths, e.g., `0,2,4,6,8,10`) → step expander → analyzer → validation scripts → reporting. Flags include `--n-workflows`, `--seed`, `--depths`, and `--adaptive` (optional).  
+  - Requirements satisfied: FR‑001 – FR‑007, overall pipeline cohesion.  
+  - Verification: `python code/main.py --help` prints usage and exits 0; a smoke run `python code/main.py --n-workflows 20 --seed 42 --depths 0,2,4` completes in < 2 min and all expected output files from Phases 1‑2 exist.
 
-## Phase 2: Foundational (Blocking Prerequisites)
+- [ ] T014 [P] **Record total wall‑clock time** – `code/utils/measure_runtime.py` is invoked by the orchestrator to capture start and end timestamps, compute elapsed seconds, and write `data/results/run_metrics.json` (fields `total_wall_clock_time_seconds`, `start_timestamp`, `end_timestamp`).  
+  - Requirements satisfied: SC‑005.  
+  - Verification: after a pipeline run, `run_metrics.json` exists and the elapsed time is ≤ 21600 seconds (6 h).
 
-**Purpose**: Core infrastructure that MUST be complete before ANY user story can be implemented
+- [ ] T015 [P] **Reproducibility report with checksums** – `code/utils/reproducibility_report.py` is invoked after successful completion and creates `data/results/reproducibility_report.json` containing:  
+  * the exact command line used,  
+  * SHA‑256 checksums for every file under `data/` (raw, processed, results),  
+  * an aggregate `reproducibility_hash` (hash of concatenated checksums).  
+  - Requirements satisfied: FR‑007, Constitution V, SC‑005.  
+  - Verification: after two consecutive runs with identical parameters, a diff of the two JSON files shows no differences in the checksum fields.
 
-**⚠️ CRITICAL**: No user story work can begin until this phase is complete
+- [ ] T016 [P] **Update project‑state YAML with artifact hashes** – `code/utils/update_state_yaml.py` reads `data/results/reproducibility_report.json`, extracts the checksums, and writes them into `state/projects/PROJ-866-llmxive-follow-up-extending-foundation-p.yaml` under `artifact_hashes`.  
+  - Requirements satisfied: Constitution III & V (data hygiene & versioning).  
+  - Verification: after pipeline run, the state YAML contains a key for each artifact and the values match the hashes in the reproducibility report.
 
-- [ ] T004 Create `contracts/` directory and define `workflow.schema.yaml`
-- [ ] T005 Create `contracts/` directory and define `execution_log.schema.yaml`
-- [ ] T006 Create `contracts/` directory and define `analysis_results.schema.yaml`
-- [ ] T007 Implement `code/utils/token_counter.py` using `tiktoken cl100k_base` (FR-009)
-- [X] T008 Initialize `state/` directory and create initial `state/projects/PROJ-866-llmxive-follow-up-extending-foundation-p.yaml`
-- [~] T009 Create `data/raw/`, `data/processed/`, and `data/results/` directories
+- [ ] T017 [P] **Verify Oracle Policy Engine independence** – `code/tests/integration/test_oracle_independence.py` uses static analysis to assert that `code/models/policy.py` does not import any symbols from `code/services/compression.py` or `code/services/executor_compressed.py`.  
+  - Requirements satisfied: Constitution VI, FR‑008.  
+  - Verification: test passes; any import from compression modules causes a failure.
 
-**Checkpoint**: Foundation ready - user story implementation can now begin in parallel
+- [ ] T018 [P] **Abort pipeline on unsafe threshold** – `code/services/analyzer.py` raises a custom `UnsafeThresholdError` if the predicted error rate exceeds 1 % before writing final artifacts. The orchestrator catches this and exits with a clear message.  
+  - Requirements satisfied: FR‑006 (safe‑zone enforcement).  
+  - Verification: simulated run with exaggerated compression triggers abort; exit code non‑zero and message logged.
 
----
+- [ ] T019 [P] **Validate numeric claims in results documentation** – `code/utils/validate_results_claims.py` parses `specs/001-policy-compression-tradeoff/results.md`, extracts reported numbers, and cross‑checks them against the corresponding values in `data/results/*.json` and `tradeoff_curve.csv`.  
+  - Requirements satisfied: Constitution IV, SC‑001‑SC‑004.  
+  - Verification: script exits 0 when all claims match; otherwise it reports mismatches and aborts.
 
-## Phase 3: User Story 1 - Generate Synthetic Workflow Baselines (Priority: P1) 🎯 MVP
+- [ ] T020 [P] **Verify reproducibility hash matches state YAML** – `code/utils/check_reproducibility_hash.py` reads the hash from `data/results/reproducibility_report.json` and from `state/projects/PROJ-866-llmxive-follow-up-extending-foundation-p.yaml`, asserts equality.  
+  - Requirements satisfied: Constitution V.  
+  - Verification: test passes; any mismatch causes pipeline failure.
 
-**Goal**: Generate a set of deterministic synthetic workflows with varying depths/complexities and a ground-truth Oracle Policy Engine.
+- [ ] T021 [P] **Generate trade‑off figure** – `code/utils/make_figure.py` reads `tradeoff_curve.csv` and produces `figures/tradeoff_curve.png` (line plot with error bars and the identified safe‑zone threshold marked).  
+  - Requirements satisfied: SC‑004, FR‑006, paper‑ready artifact.  
+  - Verification: script runs without error, PNG file exists, and its dimensions are ≥ 600 px width.
 
-**Independent Test**: Run generator script; verify a set of unique IDs, uniform depth distribution (1-20), and that an Oracle Engine produces a distinct ground-truth log for each.
+- [ ] T022 [P] **Results documentation for paper handoff** – author `specs/001-policy-compression-tradeoff/results.md` that (a) describes the methods (deterministic generator, Oracle, BFS/DFS compression, GEE analysis, power analysis), (b) reports the key numbers (safe‑zone threshold with 95 % CI, estimated power, number of invalid workflows excluded), (c) references the exact artifact paths (`figures/tradeoff_curve.png`, `data/results/tradeoff_curve.csv`, `data/results/threshold_report.json`, `data/results/multiplicity_tests.json`, `data/results/power_analysis.json`, `data/results/reproducibility_report.json`), and (d) notes any edge‑case handling (`"[deferred]"` cases).  
+  - Requirements satisfied: SC‑001‑SC‑004, Constitution IV, FR‑006.  
+  - Verification: markdown file exists, each numeric claim matches the corresponding value in its source JSON/CSV (checked by `validate_results_claims.py`).
 
-### Tests for User Story 1 (OPTIONAL - only if tests requested) ⚠️
+- [ ] T023 [P] **Paper‑stage handoff note** – create `specs/001-policy-compression-tradeoff/paper_handoff.md` that lists all artifacts required for the manuscript, includes the `reproducibility_hash`, and states that these satisfy Constitution IV (single source of truth) and V (hash verification).  
+  - Requirements satisfied: FR‑006, Constitution IV & V.  
+  - Verification: file exists, contains a bullet list with the exact relative paths, and the hash matches the value recorded in `reproducibility_report.json`.
 
-> **NOTE: Write these tests AFTER defining the interface in T012/T013, ensuring they FAIL before implementation**
+## Dependency ordering (explicit)
 
-- [~] T010 [US1] Unit test for graph variance in `tests/unit/test_generator.py`
- - **Assertion**: Verify exactly 20 unique depth levels exist and each level has at least 25 workflows.
-- [X] T011 [US1] Contract test for workflow JSON output in `tests/contract/test_workflow_schema.py`
+1. T001 → 2. T002 → 3. T003 → 4. T004 → 5. T005 → 6. T006 → 7. T007 → 8. T008 → 9. T009 → 10. T010 → 11. T011 → 12. T012 → 13. T013 → 14. T014 → 15. T015 → 16. T016 → 17. T017 → 18. T018 → 19. T019 → 20. T020 → 21. T021 → 22. T022 → 23. T023
 
-### Implementation for User Story 1
-
-- [X] T012 [P] [US1] Implement `code/generators/synthetic_workflow.py` with deterministic seeding (FR-001)
- - Generates a collection of DAGs, depths 1-20, complexities 1-10.
- - Records budget caps and metadata.
-- [X] T013 [P] [US1] Implement `code/engines/oracle_policy.py` as an independent rule-based validator (FR-008)
- - **Build the distinct Oracle logic** as a standalone module separate from execution engines.
- - Defines ground-truth validity; separate from execution engines.
-- [X] T014 [US1] Implement `code/engines/full_context.py` (FR-002)
- - Executes workflows with full policy graphs.
- - **MUST invoke oracle_policy.py to validate each step and record specific 'policy-violation' flags in the log** (SC-001).
- - Produces ground-truth execution logs against Oracle.
-- [~] T015 [US1] Create `main.py` orchestrator skeleton to generate and save raw workflows to `data/raw/`
-- [~] T016 [US1] Implement edge case handling in `full_context.py` for single-node graphs and depth=0. **Set `context_reduction_pct` to the string marker '[deferred]' and `status` to 'edge_case' in the execution log** for these instances.
-- [~] T017 [US1] Implement filter for "invalid workflows" (impossible even with full context) to exclude from error calculations
- - **Mechanism**: Add an `is_valid` boolean field to the ExecutionLog schema; set to `false` for invalid workflows and filter based on this flag during analysis.
-- [~] T018 [US1] **Update state registry** (`state/projects/PROJ-866-...yaml`) with checksums of generated workflows in `data/raw/` immediately after generation (Constitution Principle V). <!-- ATOMIZE: requested -->
-
-**Checkpoint**: At this point, User Story 1 should be fully functional and testable independently
-
----
-
-## Phase 4: User Story 2 - Execute Compressed Context Variants (Priority: P2)
-
-**Goal**: Execute generated workflows using compressed context (BFS/DFS truncation) and measure token counts/violations.
-
-**Independent Test**: Run execution engine with fixed depth=2 on a subset; verify reduced token count and logged violations vs. ground truth.
-
-### Tests for User Story 2 (OPTIONAL - only if tests requested) ⚠️
-
-- [~] T019 [P] [US2] Integration test: Compare Full vs. Compressed logs for 10 workflows in `tests/integration/test_compression.py`
-- [~] T020 [P] [US2] Contract test for execution log JSON in `tests/contract/test_execution_log_schema.py`
-
-### Implementation for User Story 2
-
-- [~] T021 [P] [US2] Implement `code/engines/compressed_context.py` (FR-003)
- - Uses constrained BFS/DFS to extract minimal policy subgraphs.
- - Configurable traversal depth parameter.
-- [~] T022 [US2] Integrate `code/utils/token_counter.py` into `compressed_context.py` to count actual tokens (FR-004, FR-009)
- - Do NOT use node count as a proxy.
-- [~] T023 [US2] Implement batch execution logic in `main.py` to run a substantial number of workflows across multiple compression levels
- - **Dependency**: Requires updated orchestrator logic from T015 and completed Compressed Engine from T021.
-- [ ] T024 [US2] Log policy violations specifically when truncation cuts off required nodes (e.g., data sovereignty rules)
-- [ ] T025 [US2] Save processed execution logs to `data/processed/` with compression level, token count, and violation flags
-- [ ] T026 [US2] Implement logic to handle compression depth=0 (no context passed) gracefully
-
-**Checkpoint**: At this point, User Stories 1 AND 2 should both work independently
-
----
-
-## Phase 5: User Story 3 - Analyze Trade-off and Threshold (Priority: P3)
-
-**Goal**: Perform statistical analysis to model the trade-off curve and identify the "safe operating zone" (≤1% error).
-
-**Independent Test**: Feed pre-generated logs into analysis module; verify regression curve and specific threshold value output.
-
-### Tests for User Story 3 (OPTIONAL - only if tests requested) ⚠️
-
-- [ ] T027 [P] [US3] Unit test for regression calculation with known synthetic data in `tests/unit/test_tradeoff_model.py`
-- [ ] T028 [P] [US3] Contract test for analysis results JSON in `tests/contract/test_analysis_results_schema.py`
-
-### Implementation for User Story 3
-
-- [ ] T029 [P] [US3] Implement `code/analysis/tradeoff_model.py` (FR-005)
- - Performs Logistic Regression on individual workflow observations.
- - Uses token reduction % as predictor; includes graph depth/complexity as covariates.
- - **Must handle non-monotonic regions** by modeling the full curve to correctly identify the "safe operating zone".
-- [ ] T030 [US3] Implement Bonferroni or Benjamini-Hoch correction for multiple comparisons (FR-005)
-- [ ] T031 [US3] Implement threshold detection logic to find max context reduction where error ≤ 1% (FR-006)
- - **Execute AFTER T030**: Ensure the threshold is derived from p-values corrected by the multiple-comparison correction.
- - **Implement bootstrapping (1000 resamples) to calculate the 95% confidence interval for the threshold**.
- - **Round threshold to exactly 2 decimal places** as required by FR-006 and SC-004.
- - **Write confidence interval bounds to `data/results/threshold_ci.json`**.
-- [ ] T032 [US3] Generate raw regression data for the paper in `data/results/tradeoff_curve.csv`
- - **Deliverable**: Save `data/results/tradeoff_curve.csv` containing the regression curve data points. (Replaces visualization task to adhere to scope).
-- [ ] T033 [US3] Update `main.py` to orchestrate the full pipeline: Generate → Full Exec → Compressed Exec → Analyze
- - **Integration**: Wire the completed Analysis module (T029-T031) into the existing partial orchestrator logic.
-- [ ] T034 [US3] Finalize `state/projects/...yaml` with artifact hashes and `updated_at` timestamp
-
-**Checkpoint**: All user stories should now be independently functional
-
----
-
-## Phase N: Polish & Cross-Cutting Concerns
-
-**Purpose**: Improvements that affect multiple user stories
-
-- [ ] T035 [P] Update `docs/api.md` with new engine signatures and analysis methods.
-- [ ] T036 [P] Update `quickstart.md` with the 500-workflow generation command and analysis steps.
-- [ ] T037 Code cleanup and refactoring
-- [ ] T038 Performance optimization: Verify full 500-run suite completes < 6h on CPU (Conservative bound per Spec Assumptions)
-- [ ] T039 [P] Run `pytest` full suite including contract tests
-- [ ] T040 Security hardening (ensure no external API calls for synthetic data)
-
----
-
-## Dependencies & Execution Order
-
-### Phase Dependencies
-
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup completion - BLOCKS all user stories
-- **User Stories (Phase 3+)**: All depend on Foundational phase completion
- - User stories can then proceed in parallel (if staffed)
- - Or sequentially in priority order (P1 → P2 → P3)
-- **Polish (Final Phase)**: Depends on all desired user stories being complete
-
-### User Story Dependencies
-
-- **User Story 1 (P1)**: Can start after Foundational (Phase 2) - No dependencies on other stories
- - *Note*: Must complete before US2 can generate ground truth logs.
-- **User Story 2 (P2)**: Depends on US1 completion (needs generated workflows and Oracle)
- - Must execute *after* US1 generates data.
-- **User Story 3 (P3)**: Depends on US2 completion (needs execution logs)
- - Must execute *after* US2 produces `data/processed/` logs.
-
-### Within Each User Story
-
-- Tests (if included) MUST be written and FAIL before implementation
-- Models/Generators before Engines
-- Engines before Analysis
-- Core implementation before integration
-- Story complete before moving to next priority
-
-### Parallel Opportunities
-
-- All Setup tasks marked [P] can run in parallel
-- All Foundational tasks marked [P] can run in parallel (within Phase 2)
-- Once Foundational phase completes, all user stories can start in parallel (if team capacity allows)
-- All tests for a user story marked [P] can run in parallel
-- Models within a story marked [P] can run in parallel
-- Different user stories can be worked on in parallel by different team members
-
----
-
-## Parallel Example: User Story 1
-
-```bash
-# Launch all models for User Story 1 together:
-Task: "Implement code/generators/synthetic_workflow.py with deterministic seeding"
-Task: "Implement code/engines/oracle_policy.py as an independent rule-based validator"
-
-# Then write tests against the defined interface:
-Task: "Unit test for graph variance in tests/unit/test_generator.py"
-```
-
----
-
-## Implementation Strategy
-
-### MVP First (User Story 1 Only)
-
-1. Complete Phase 1: Setup
-2. Complete Phase 2: Foundational (CRITICAL - blocks all stories)
-3. Complete Phase 3: User Story 1 (Generate + Oracle)
-4. **STOP and VALIDATE**: Test User Story 1 independently
-5. Deploy/demo if ready
-
-### Incremental Delivery
-
-1. Complete Setup + Foundational → Foundation ready
-2. Add User Story 1 → Test independently → Deploy/Demo (MVP!)
-3. Add User Story 2 → Test independently → Deploy/Demo
-4. Add User Story 3 → Test independently → Deploy/Demo
-5. Each story adds value without breaking previous stories
-
-### Parallel Team Strategy
-
-With multiple developers:
-
-1. Team completes Setup + Foundational together
-2. Once Foundational is done:
- - Developer A: User Story 1 (Generator + Oracle)
- - Developer B: User Story 2 (Compressed Engine) - *Depends on A*
- - Developer C: User Story 3 (Analysis) - *Depends on B*
-3. Stories complete and integrate independently
-
----
-
-## Notes
-
-- [P] tasks = different files, no dependencies
-- [Story] label maps task to specific user story for traceability
-- Each user story should be independently completable and testable
-- Verify tests fail before implementing
-- Commit after each task or logical group
-- Stop at any checkpoint to validate story independently
-- Avoid: vague tasks, same file conflicts, cross-story dependencies that break independence
+All tasks write only to project‑owned locations (`code/`, `data/`, `figures/`, `contracts/`, `specs/`, `state/`). No task touches platform‑owned `state/` directories beyond the permitted state YAML update. The entire pipeline is CPU‑only, respects the free‑tier CI resource limits, and each output can be deterministically validated.

@@ -1,0 +1,46 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "LightCurve Schema"
+description: "Schema for a re-binned, background-subtracted light curve."
+type: "object"
+properties:
+  grb_id:
+    type: "string"
+    description: "Foreign key to GRBEvent."
+  energy_band:
+    type: "string"
+    description: "Energy band string (e.g., '8-50', '50-200', '200-1000')."
+  time_bins:
+    type: "array"
+    items:
+      type: "number"
+    description: "Start time of each bin (seconds)."
+  photon_counts:
+    type: "array"
+    items:
+      type: "integer"
+      minimum: 0
+    description: "Observed photon counts."
+  background_counts:
+    type: "array"
+    items:
+      type: "integer"
+      minimum: 0
+    description: "Estimated background counts."
+  net_counts:
+    type: "array"
+    items:
+      type: "integer"
+      minimum: 0
+    description: "Background-subtracted counts (clipped to 0)."
+  excluded:
+    type: "boolean"
+    description: "True if >5% of bins had negative counts (clipped)."
+required:
+  - grb_id
+  - energy_band
+  - time_bins
+  - photon_counts
+  - background_counts
+  - net_counts
+  - excluded
+additionalProperties: false

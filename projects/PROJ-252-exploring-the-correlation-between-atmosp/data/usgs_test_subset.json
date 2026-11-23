@@ -1,0 +1,102 @@
+{
+  "status": "success",
+  "data": [
+    {
+      "earthquake_id": "query?eventid=ak018gq3vdva&format=quakeml",
+      "origin_time": "2018-12-30T07:14:11.104000",
+      "magnitude": 4.5,
+      "depth_km": 17.9,
+      "latitude": 69.561,
+      "longitude": -145.0271
+    },
+    {
+      "earthquake_id": "query?eventid=us2000iz28&format=quakeml",
+      "origin_time": "2018-12-30T00:36:17.380000",
+      "magnitude": 4.6,
+      "depth_km": 23.16,
+      "latitude": 56.2274,
+      "longitude": -148.6126
+    },
+    {
+      "earthquake_id": "query?eventid=ak018gl9gvsc&format=quakeml",
+      "origin_time": "2018-12-27T14:21:13.089000",
+      "magnitude": 4.8,
+      "depth_km": 41.0,
+      "latitude": 61.2856,
+      "longitude": -150.0681
+    },
+    {
+      "earthquake_id": "query?eventid=ak018gl8yvfy&format=quakeml",
+      "origin_time": "2018-12-27T13:37:10.547000",
+      "magnitude": 4.9,
+      "depth_km": 39.8,
+      "latitude": 56.4712,
+      "longitude": -154.8869
+    },
+    {
+      "earthquake_id": "query?eventid=us2000iwix&format=quakeml",
+      "origin_time": "2018-12-23T02:29:31.610000",
+      "magnitude": 4.2,
+      "depth_km": 10.0,
+      "latitude": 52.9842,
+      "longitude": -132.6037
+    },
+    {
+      "earthquake_id": "query?eventid=us2000iwhb&format=quakeml",
+      "origin_time": "2018-12-23T00:50:58.540000",
+      "magnitude": 4.1,
+      "depth_km": 10.0,
+      "latitude": 52.5573,
+      "longitude": -165.0476
+    },
+    {
+      "earthquake_id": "query?eventid=ak018g66jrl0&format=quakeml",
+      "origin_time": "2018-12-18T02:31:43.407000",
+      "magnitude": 4.3,
+      "depth_km": 13.8,
+      "latitude": 69.5301,
+      "longitude": -144.9286
+    },
+    {
+      "earthquake_id": "query?eventid=ak018g4iult4&format=quakeml",
+      "origin_time": "2018-12-17T02:04:31.122000",
+      "magnitude": 4.2,
+      "depth_km": 61.7,
+      "latitude": 61.4826,
+      "longitude": -150.2709
+    },
+    {
+      "earthquake_id": "query?eventid=us2000isx1&format=quakeml",
+      "origin_time": "2018-12-12T12:44:16.410000",
+      "magnitude": 4.0,
+      "depth_km": 10.0,
+      "latitude": 53.1796,
+      "longitude": -166.7441
+    },
+    {
+      "earthquake_id": "query?eventid=ak018frkncdg&format=quakeml",
+      "origin_time": "2018-12-09T19:00:32.365000",
+      "magnitude": 4.7,
+      "depth_km": 41.2,
+      "latitude": 61.4201,
+      "longitude": -149.8368
+    },
+    {
+      "earthquake_id": "query?eventid=ak018fo7boo4&format=quakeml",
+      "origin_time": "2018-12-07T15:22:57.643000",
+      "magnitude": 4.2,
+      "depth_km": 6.9,
+      "latitude": 69.5942,
+      "longitude": -144.947
+    },
+    {
+      "earthquake_id": "query?eventid=ak018fmni05v&format=quakeml",
+      "origin_time": "2018-12-06T21:46:20.995000",
+      "magnitude": 4.1,
+      "depth_km": 55.9,
+      "latitude": 61.456,
+      "longitude": -149.9463
+    }
+  ],
+  "count": 12
+}

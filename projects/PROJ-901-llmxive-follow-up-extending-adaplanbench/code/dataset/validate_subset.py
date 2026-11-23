@@ -3,6 +3,9 @@ Validation script for the filtered subset (T015).
 
 Samples tasks from data/processed/filtered_tasks.csv and verifies
 that the constraint_count matches the original metadata logic.
+
+This script is invoked by the run-book to ensure data integrity before
+proceeding to agent execution and analysis.
 """
 
 import os
@@ -17,8 +20,13 @@ project_root = Path(__file__).resolve().parent.parent.parent
 if str(project_root) not in sys.path:
     sys.path.insert(0, str(project_root))
 
-from config import Paths
-from dataset.loader import MIN_CONSTRAINT_REVEALS
+from config import Paths, get_dataset_config
+
+
+# Define the threshold constant locally to avoid circular import issues
+# with loader.py if it hasn't been fully stabilized in the execution chain.
+# This matches the requirement: filter tasks with >= 5 progressive constraint reveals.
+MIN_CONSTRAINT_REVEALS = 5
 
 
 def _parse_constraints_field(value):
@@ -54,14 +62,17 @@ def validate_subset(sample_size: int = 10):
     if not input_path.exists():
         raise FileNotFoundError(
             f"Filtered dataset not found at {input_path}. "
-            "Please run T012/T013/T014 first to generate the filtered dataset."
+            "Please run T012/T013 first to generate the filtered dataset."
         )
 
-    df = pd.read_csv(input_path)
+    try:
+        df = pd.read_csv(input_path)
+    except Exception as e:
+        raise RuntimeError(f"Failed to read filtered dataset: {e}")
 
     if len(df) == 0:
-        print("Warning: Filtered dataset is empty.")
-        return
+        print("Error: Filtered dataset is empty. Cannot validate.")
+        sys.exit(1)
 
     effective_sample_size = min(sample_size, len(df))
     print(f"Validating subset of {effective_sample_size} tasks from {len(df)} total...")
@@ -83,7 +94,13 @@ def validate_subset(sample_size: int = 10):
             fail_count += 1
             continue
 
-        count = int(row['constraint_count'])
+        try:
+            count = int(row['constraint_count'])
+        except (ValueError, TypeError):
+            print(f"  [FAIL] {task_id}: Invalid 'constraint_count' value: {row['constraint_count']}")
+            all_valid = False
+            fail_count += 1
+            continue
 
         # Verify count is >= 5 (MIN_CONSTRAINT_REVEALS)
         if count < MIN_CONSTRAINT_REVEALS:
@@ -98,6 +115,7 @@ def validate_subset(sample_size: int = 10):
 
             if constraints is None:
                 # If we can't parse it, we can't verify the length, but the count check passed
+                # We log a warning but do not fail the task if the count is correct.
                 print(f"  [WARN] {task_id}: Could not parse 'progressive_constraints' to verify length, but count check passed.")
                 pass_count += 1
                 continue
@@ -121,6 +139,7 @@ def validate_subset(sample_size: int = 10):
 
     if all_valid:
         print("Validation PASSED: All sampled tasks meet the criteria.")
+        sys.exit(0)
     else:
         print("Validation FAILED: Some tasks did not meet criteria.")
         sys.exit(1)

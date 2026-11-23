@@ -1,0 +1,39 @@
+T001 directory structure evidence
+
+code/  (exists=True)
+  [file] .flake8
+  [file] .pylintrc
+  [dir] .tasks
+  [file] __init__.py
+  [file] analysis.py
+  [file] config.py
+  [file] data_ingestion.py
+  [file] ensure_structure.py
+  [file] integration_test_runner.py
+  [file] lint_config.py
+  [file] lint_runner.py
+  [file] performance_benchmark.py
+  [file] physics.py
+  [file] physics_pipeline_runner.py
+  [file] pyproject.toml
+  [file] run_tests.sh
+  [file] setup_directories.py
+  [file] setup_env.py
+  [file] utils.py
+  [file] visualization.py
+
+tests/  (exists=True)
+  [file] __init__.py
+  [file] conftest.py
+  [file] test_analysis.py
+  [file] test_data_ingestion.py
+  [file] test_lint_config.py
+  [file] test_performance.py
+  [file] test_physics.py
+  [file] test_physics_pipeline.py
+  [file] test_physics_validation.py
+  [file] test_schema.py
+  [file] test_setup_directories.py
+  [file] test_setup_env.py
+  [file] test_t025_physics_pipeline.py
+  [file] test_utils.py

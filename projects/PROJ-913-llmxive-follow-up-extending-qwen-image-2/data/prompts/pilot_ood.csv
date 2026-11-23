@@ -1,0 +1,21 @@
+prompt_id,text,seed,category
+OOD_000,a physics experiment involving quantum entanglement in a laboratory setting,1234,out_distribution
+OOD_001,ancient history of the roman empire and its fall,5678,out_distribution
+OOD_002,a museum exhibit displaying ancient artifacts from egypt,9012,out_distribution
+OOD_003,a detailed diagram of a physics equation on a blackboard,3456,out_distribution
+OOD_004,a historian analyzing old manuscripts in a library,7890,out_distribution
+OOD_005,a laboratory setup for measuring particle acceleration,2345,out_distribution
+OOD_006,a historical reenactment of a medieval battle,6789,out_distribution
+OOD_007,a scientist observing a chemical reaction in a lab,1357,out_distribution
+OOD_008,a collection of ancient coins from the roman era,2468,out_distribution
+OOD_009,a physics demonstration of Newton's laws of motion,3579,out_distribution
+OOD_010,a documentary about the history of space exploration,4680,out_distribution
+OOD_011,a laboratory experiment testing the speed of light,5791,out_distribution
+OOD_012,a historical archive of ancient greek pottery,6802,out_distribution
+OOD_013,a physics lecture on thermodynamics and entropy,7913,out_distribution
+OOD_014,a museum guide explaining the history of art,8024,out_distribution
+OOD_015,a physics model of the solar system,9135,out_distribution
+OOD_016,a historical site with ancient ruins,1246,out_distribution
+OOD_017,a laboratory experiment with radioactive materials,2357,out_distribution
+OOD_018,a history book about the industrial revolution,3468,out_distribution
+OOD_019,a physics simulation of fluid dynamics,4579,out_distribution

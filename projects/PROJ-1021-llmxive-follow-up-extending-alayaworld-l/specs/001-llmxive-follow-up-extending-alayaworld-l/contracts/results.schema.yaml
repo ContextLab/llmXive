@@ -1,0 +1,44 @@
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "Drift Score and Resource Log"
+type: object
+properties:
+  sequence_id:
+    type: string
+  condition:
+    type: string
+    enum: ["baseline", "hybrid"]
+  semantic_drift_score:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Scalar metric of visual-logical divergence"
+  permanence_violations:
+    type: integer
+    description: "Count of objects alive in video but dead in logic"
+  phantom_objects:
+    type: integer
+    description: "Count of objects in video but not in logic"
+  cv_validation_accuracy:
+    type: number
+    minimum: 0.0
+    maximum: 1.0
+    description: "Accuracy on the 50-frame validation set"
+  validation_status:
+    type: string
+    enum: ["valid", "invalid", "inconclusive"]
+  resource_metrics:
+    type: object
+    properties:
+      peak_ram_mb:
+        type: number
+      wall_clock_seconds:
+        type: number
+      timestamp:
+        type: string
+        format: date-time
+    required: [peak_ram_mb, wall_clock_seconds, timestamp]
+  statistical_test_status:
+    type: string
+    enum: ["passed", "aborted", "not_run"]
+    description: "Result of Wilcoxon/Shapiro-Wilk tests"
+required: [sequence_id, condition, semantic_drift_score, resource_metrics]

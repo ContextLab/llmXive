@@ -1,0 +1,8 @@
+numpy
+pandas
+scipy
+matplotlib
+pyyaml
+jsonschema
+pytest
+# No additional dependencies required for T001a.

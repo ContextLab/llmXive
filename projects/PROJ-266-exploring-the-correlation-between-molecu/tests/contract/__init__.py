@@ -1,3 +1,1 @@
-"""
-Contract tests for data schemas and API boundaries.
-"""
+# Contract test package

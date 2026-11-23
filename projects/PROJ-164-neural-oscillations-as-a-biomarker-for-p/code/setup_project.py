@@ -1,18 +1,33 @@
 """
-Script to initialize the project directory structure for PROJ-164.
-Implements Task T001a: Create project structure.
+Project Structure Initialization Script for llmXive PROJ-164.
+
+This script implements Task T001a by creating the required directory tree
+as specified in FR-001.
 """
 import os
 import sys
+from pathlib import Path
 
 def main():
-    # Define the directory structure relative to the project root
-    # Assuming this script is run from the project root or the paths are relative to cwd
-    # The task requires specific directories under the project root.
+    """
+    Creates the project directory structure.
     
-    # We assume the script is executed from the project root.
-    # If run from elsewhere, we might need to adjust, but standard practice is root.
-    base_dirs = [
+    Directories to create:
+    - code/
+    - code/utils/
+    - tests/
+    - data/raw
+    - data/processed
+    - data/synthetic
+    - models/
+    - docs/
+    - docs/contracts/
+    - state/projects/
+    """
+    project_root = Path.cwd()
+    
+    # Define the required directories relative to the project root
+    required_dirs = [
         "code",
         "code/utils",
         "tests",
@@ -23,51 +38,49 @@ def main():
         "docs",
         "docs/contracts",
         "state/projects",
-        "logs"  # Added for FR-008 logging infrastructure readiness
     ]
-
-    created = 0
-    skipped = 0
-
-    print("Initializing project structure for PROJ-164...")
     
-    for dir_path in base_dirs:
+    created_count = 0
+    skipped_count = 0
+    
+    print(f"Initializing project structure at: {project_root}")
+    
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
         try:
-            if not os.path.exists(dir_path):
-                os.makedirs(dir_path, exist_ok=True)
+            if not full_path.exists():
+                full_path.mkdir(parents=True, exist_ok=True)
                 print(f"Created directory: {dir_path}")
-                created += 1
+                created_count += 1
             else:
-                # Check if it's actually a directory
-                if os.path.isdir(dir_path):
-                    print(f"Directory exists: {dir_path}")
-                    skipped += 1
+                # Verify it is actually a directory
+                if full_path.is_dir():
+                    print(f"Directory exists (skipped): {dir_path}")
+                    skipped_count += 1
                 else:
                     print(f"ERROR: Path exists but is not a directory: {dir_path}")
-                    return 1
+                    sys.exit(1)
         except PermissionError:
-            print(f"ERROR: Permission denied creating {dir_path}")
-            return 1
+            print(f"ERROR: Permission denied creating directory: {dir_path}")
+            sys.exit(1)
         except Exception as e:
-            print(f"ERROR: Failed to create {dir_path}: {e}")
-            return 1
-
+            print(f"ERROR: Failed to create directory {dir_path}: {e}")
+            sys.exit(1)
+    
     print(f"\nProject structure initialization complete.")
-    print(f"Directories created: {created}")
-    print(f"Directories skipped (already exist): {skipped}")
+    print(f"Directories created: {created_count}")
+    print(f"Directories skipped (already exist): {skipped_count}")
     
-    # Verify the critical paths exist
-    required_paths = [
-        "code/utils",
-        "data/raw",
-        "state/projects"
-    ]
+    # Verification step: List the created structure to confirm
+    print("\nVerifying directory structure:")
+    for dir_path in required_dirs:
+        full_path = project_root / dir_path
+        if full_path.exists() and full_path.is_dir():
+            print(f"  [OK] {dir_path}")
+        else:
+            print(f"  [FAIL] {dir_path}")
+            sys.exit(1)
     
-    for p in required_paths:
-        if not os.path.isdir(p):
-            print(f"CRITICAL ERROR: Required path {p} does not exist after setup.")
-            return 1
-
     return 0
 
 if __name__ == "__main__":

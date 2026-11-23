@@ -1,212 +1,248 @@
 """
-Hedge Extractor Module
-======================
+Hedge feature extraction module.
 
-This module provides functionality to compute the **hedge density** of textual
-data. Hedge density is defined as the proportion of words in a document that
-belong to a predefined list of hedging expressions (e.g., "maybe", "perhaps",
-"I think").
-
-The implementation relies on **NLTK** for tokenisation and uses a static hedge
-lexicon that can be extended if required.
-
-Public API
-----------
-- ``calculate_hedge_density(text: str, hedge_lexicon: Set[str] | None = None) -> float``
-  Compute the hedge density for a single piece of text.
-- ``extract_hedge_features(df: pd.DataFrame, text_column: str = "text") -> pd.DataFrame``
-  Add a ``hedge_density`` column to a DataFrame containing a text column.
-- ``main()`` – command‑line entry point that reads an input CSV, calculates the
-  feature, and writes the result to an output CSV.
-
-The module is deliberately lightweight and has no external side‑effects other
-than writing the output file when executed as a script.
+Extracts hedge counts and hedge ratios from conversation text using a predefined
+lexicon of 15 hedge words.
 """
-
 import argparse
 import logging
+import json
 from pathlib import Path
-from typing import Set, Optional
-
+from typing import Set, Optional, Dict, Any
 import pandas as pd
 import nltk
 from nltk.tokenize import word_tokenize
+from nltk.corpus import stopwords
 
-# --------------------------------------------------------------------------- #
-# Hedge lexicon
-# --------------------------------------------------------------------------- #
-DEFAULT_HEDGE_LEXICON: Set[str] = {
-    "maybe",
-    "perhaps",
-    "might",
-    "could",
-    "possibly",
-    "might",
-    "may",
-    "i think",
-    "i believe",
-    "it seems",
-    "it appears",
-    "likely",
-    "unlikely",
-    "probably",
-    "presumably",
-    "seems",
-    "appears",
-    "suggest",
-    "suggests",
-    "suggested",
-    "suggesting",
+# Ensure required NLTK data is available
+try:
+    stopwords.words('english')
+except LookupError:
+    nltk.download('stopwords', quiet=True)
+try:
+    word_tokenize("test")
+except LookupError:
+    nltk.download('punkt', quiet=True)
+
+# Predefined 15-word hedge lexicon as per task specification
+HEDGE_LEXICON: Set[str] = {
+    "maybe", "perhaps", "possibly", "probably", "likely", "unlikely",
+    "seem", "seems", "appear", "appears", "believe", "think",
+    "guess", "suppose", "assume"
 }
 
-# Ensure the NLTK tokenizer data is available.
-try:
-    nltk.data.find("tokenizers/punkt")
-except LookupError:  # pragma: no cover
-    nltk.download("punkt")
+logger = logging.getLogger(__name__)
 
-# --------------------------------------------------------------------------- #
-# Helper functions
-# --------------------------------------------------------------------------- #
-def _prepare_lexicon(lexicon: Optional[Set[str]]) -> Set[str]:
+def calculate_hedge_density(text: str, lexicon: Optional[Set[str]] = None) -> int:
     """
-    Normalise the supplied lexicon (lower‑case) or fall back to the default.
+    Count the number of hedge words in a given text.
+    
+    Args:
+        text: Input text string to analyze.
+        lexicon: Optional set of hedge words. Defaults to HEDGE_LEXICON.
+    
+    Returns:
+        int: Count of hedge words found in the text.
     """
     if lexicon is None:
-        return DEFAULT_HEDGE_LEXICON
-    # Normalise to lower case for case‑insensitive matching.
-    return {term.lower() for term in lexicon}
-
-
-def calculate_hedge_density(
-    text: str, hedge_lexicon: Optional[Set[str]] = None
-) -> float:
-    """
-    Calculate the proportion of tokens in *text* that are recognised as hedges.
-
-    Parameters
-    ----------
-    text: str
-        The raw text to analyse.
-    hedge_lexicon: set[str] | None
-        Optional custom hedge set. If ``None`` the built‑in default set is used.
-
-    Returns
-    -------
-    float
-        Hedge density in the range ``[0.0, 1.0]``. Returns ``0.0`` for empty
-        strings or when no tokens are present.
-    """
-    if not isinstance(text, str):
-        raise TypeError("text must be a string")
-    lexicon = _prepare_lexicon(hedge_lexicon)
-
-    # Tokenise and lower‑case for matching.
-    tokens = [tok.lower() for tok in word_tokenize(text)]
-    total_tokens = len(tokens)
-    if total_tokens == 0:
-        return 0.0
-
-    # Count tokens that appear in the lexicon.
-    hedge_count = sum(1 for token in tokens if token in lexicon)
-    density = hedge_count / total_tokens
-    return density
-
+        lexicon = HEDGE_LEXICON
+    
+    if not text or not isinstance(text, str):
+        return 0
+    
+    # Tokenize and lowercase
+    try:
+        tokens = word_tokenize(text.lower())
+    except Exception as e:
+        logger.warning(f"Tokenization failed for text of length {len(text)}: {e}")
+        return 0
+    
+    # Count matches
+    count = sum(1 for token in tokens if token in lexicon)
+    return count
 
 def extract_hedge_features(
-    df: pd.DataFrame, text_column: str = "text"
+    df: pd.DataFrame,
+    text_column: str = "text_content",
+    id_column: str = "conversation_id",
+    lexicon: Optional[Set[str]] = None
 ) -> pd.DataFrame:
     """
-    Append a ``hedge_density`` column to *df* based on the contents of *text_column*.
-
-    Parameters
-    ----------
-    df: pd.DataFrame
-        Input DataFrame containing at least the column named ``text_column``.
-    text_column: str
-        Name of the column that holds raw textual data.
-
-    Returns
-    -------
-    pd.DataFrame
-        A new DataFrame (a shallow copy) with an additional ``hedge_density`` column.
+    Extract hedge features (count and ratio) from a DataFrame of conversations.
+    
+    Args:
+        df: DataFrame containing conversation text and IDs.
+        text_column: Name of the column containing text content.
+        id_column: Name of the column containing conversation IDs.
+        lexicon: Optional set of hedge words.
+    
+    Returns:
+        DataFrame with added columns: 'hedge_count', 'hedge_ratio'.
+        - hedge_count: Number of hedge words found.
+        - hedge_ratio: hedge_count / total_word_count.
+    
+    Raises:
+        ValueError: If required columns are missing.
     """
+    if lexicon is None:
+        lexicon = HEDGE_LEXICON
+    
     if text_column not in df.columns:
-        raise ValueError(f"'{text_column}' column not found in the DataFrame")
-
-    # Apply the density calculation row‑wise.
-    df_copy = df.copy()
-    df_copy["hedge_density"] = df_copy[text_column].apply(calculate_hedge_density)
-    return df_copy
-
-
-# --------------------------------------------------------------------------- #
-# CLI entry point
-# --------------------------------------------------------------------------- #
-def _build_arg_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(
-        description="Calculate hedge density for a CSV of conversations."
+        raise ValueError(f"Missing required column: {text_column}")
+    if id_column not in df.columns:
+        raise ValueError(f"Missing required column: {id_column}")
+    
+    logger.info(f"Extracting hedge features from column '{text_column}' using lexicon of size {len(lexicon)}")
+    
+    hedge_counts = []
+    word_counts = []
+    
+    for idx, row in df.iterrows():
+        text = row[text_column]
+        if not text or not isinstance(text, str):
+            hedge_counts.append(0)
+            word_counts.append(0)
+            continue
+        
+        try:
+            tokens = word_tokenize(text.lower())
+            total_words = len(tokens)
+            hedge_count = sum(1 for token in tokens if token in lexicon)
+        except Exception as e:
+            logger.warning(f"Processing failed for row {idx}: {e}")
+            hedge_count = 0
+            total_words = 0
+        
+        hedge_counts.append(hedge_count)
+        word_counts.append(total_words)
+    
+    result_df = df.copy()
+    result_df['hedge_count'] = hedge_counts
+    
+    # Calculate ratio (avoid division by zero)
+    result_df['hedge_ratio'] = result_df.apply(
+        lambda row: row['hedge_count'] / row['hedge_count'] if row['hedge_count'] > 0 and row['hedge_count'] == row['hedge_count'] else (row['hedge_count'] / max(1, word_counts[result_df.index.get_loc(row.name)])) if max(1, word_counts[result_df.index.get_loc(row.name)]) > 0 else 0.0,
+        axis=1
     )
+    
+    # Recalculate ratio correctly using the stored word_counts list
+    # The previous apply logic was complex; let's do it cleanly
+    ratio_list = []
+    for i, h_count in enumerate(hedge_counts):
+        w_count = word_counts[i]
+        if w_count > 0:
+            ratio_list.append(h_count / w_count)
+        else:
+            ratio_list.append(0.0)
+    
+    result_df['hedge_ratio'] = ratio_list
+    
+    logger.info(f"Extraction complete. Processed {len(df)} rows. Max hedge count: {max(hedge_counts) if hedge_counts else 0}")
+    
+    return result_df
+
+def main():
+    """
+    CLI entry point for hedge extraction.
+    Reads from data/raw/conversations.jsonl and writes to data/processed/hedge_features.csv.
+    """
+    parser = argparse.ArgumentParser(description="Extract hedge features from conversations.")
     parser.add_argument(
         "--input",
-        "-i",
-        type=Path,
-        required=True,
-        help="Path to input CSV containing at least a 'text' column.",
+        type=str,
+        default="data/raw/conversations.jsonl",
+        help="Path to input JSONL file."
     )
     parser.add_argument(
         "--output",
-        "-o",
-        type=Path,
-        required=True,
-        help="Path where the output CSV with 'hedge_density' will be written.",
-    )
-    parser.add_argument(
-        "--text-column",
         type=str,
-        default="text",
-        help="Name of the column containing raw text (default: 'text').",
+        default="data/processed/hedge_features.csv",
+        help="Path to output CSV file."
     )
     parser.add_argument(
         "--log-level",
         type=str,
         default="INFO",
-        choices=["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"],
-        help="Logging verbosity.",
+        choices=["DEBUG", "INFO", "WARNING", "ERROR"],
+        help="Logging level."
     )
-    return parser
-
-
-def main() -> None:  # pragma: no cover
-    """
-    Command‑line interface for the hedge extractor.
-
-    Example
-    -------
-    ``python -m src.extraction.hedge_extractor \\
-         --input data/raw/conversations.csv \\
-         --output data/processed/hedge_features.csv``
-    """
-    args = _build_arg_parser().parse_args()
-    logging.basicConfig(level=getattr(logging, args.log_level))
-
-    input_path: Path = args.input
-    output_path: Path = args.output
-
-    if not input_path.is_file():
+    
+    args = parser.parse_args()
+    
+    logging.basicConfig(
+        level=getattr(logging, args.log_level),
+        format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    )
+    
+    input_path = Path(args.input)
+    output_path = Path(args.output)
+    
+    if not input_path.exists():
+        logger.error(f"Input file not found: {input_path}")
         raise FileNotFoundError(f"Input file not found: {input_path}")
-
-    logging.info("Loading input data from %s", input_path)
-    df = pd.read_csv(input_path)
-
-    logging.info("Calculating hedge density using column '%s'", args.text_column)
-    df_with_features = extract_hedge_features(df, text_column=args.text_column)
-
-    logging.info("Writing output to %s", output_path)
+    
+    # Ensure output directory exists
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    df_with_features.to_csv(output_path, index=False)
-    logging.info("Hedge extraction completed successfully.")
+    
+    # Load data
+    logger.info(f"Loading conversations from {input_path}")
+    records = []
+    with open(input_path, 'r', encoding='utf-8') as f:
+        for line_num, line in enumerate(f, 1):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                record = json.loads(line)
+                records.append(record)
+            except json.JSONDecodeError as e:
+                logger.warning(f"Skipping invalid JSON on line {line_num}: {e}")
+    
+    if not records:
+        logger.error("No valid records found in input file.")
+        raise ValueError("No valid records found in input file.")
+    
+    df = pd.DataFrame(records)
+    
+    # Determine column names dynamically or use defaults
+    # Assuming standard schema: 'conversation_id', 'text_content'
+    # If 'text_content' is missing, try 'text' or 'content'
+    text_col = "text_content"
+    if text_col not in df.columns:
+        if "text" in df.columns:
+            text_col = "text"
+        elif "content" in df.columns:
+            text_col = "content"
+        else:
+            available_cols = ", ".join(df.columns)
+            logger.error(f"Could not find text column. Available columns: {available_cols}")
+            raise ValueError(f"Could not find text column. Available: {available_cols}")
+    
+    id_col = "conversation_id"
+    if id_col not in df.columns:
+        if "id" in df.columns:
+            id_col = "id"
+        else:
+            available_cols = ", ".join(df.columns)
+            logger.error(f"Could not find ID column. Available columns: {available_cols}")
+            raise ValueError(f"Could not find ID column. Available: {available_cols}")
+    
+    logger.info(f"Using text column: '{text_col}', ID column: '{id_col}'")
+    
+    # Extract features
+    result_df = extract_hedge_features(df, text_column=text_col, id_column=id_col)
+    
+    # Select and order columns for output
+    output_cols = [id_col, text_col, "hedge_count", "hedge_ratio"]
+    # Only include columns that exist
+    final_cols = [c for c in output_cols if c in result_df.columns]
+    result_df = result_df[final_cols]
+    
+    # Save to CSV
+    result_df.to_csv(output_path, index=False)
+    logger.info(f"Successfully wrote hedge features to {output_path}")
+    logger.info(f"Output shape: {result_df.shape}")
+    logger.info(f"Columns: {list(result_df.columns)}")
 
-
-if __name__ == "__main__":  # pragma: no cover
+if __name__ == "__main__":
     main()

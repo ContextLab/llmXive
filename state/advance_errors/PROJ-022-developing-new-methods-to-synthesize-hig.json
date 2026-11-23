@@ -1,0 +1,14 @@
+{
+  "project_id": "PROJ-022-developing-new-methods-to-synthesize-hig",
+  "stage": "planned",
+  "class": "permanent",
+  "fingerprint": "template_rejection",
+  "consecutive_count": 1,
+  "first_seen": "2026-07-24T08:34:07.972916+00:00",
+  "last_seen": "2026-07-24T08:34:07.972916+00:00",
+  "retry_after": null,
+  "last_error": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md.\n  Rules fired: literal_template_phrases>=3=hits=8; sample=['[Title]', '[Brief description of what this story delivers]', '[How to verify this story works on its ow\n  Missing context: Multiple literal template placeholders remain (e.g. [FEATURE NAME], [DATE], [Brief Title]) \u2014 substitute concrete values.\n  Project progression points are NOT incremented.\n  Fix by supplying the missing inputs and re-running, or by abstaining cleanly.",
+  "evidence": "speckit refused to emit a 'template' artifact at /home/runner/work/llmXive/llmXive/projects/PROJ-022-developing-new-methods-to-synthesize-hig/specs/001-developing-new-methods-to-synthesize-hig/tasks.md. Rules fired: literal_template_phrases>=3=hits=8; sample=['[Title]', '[Brief description of what this story delivers]', '[How to verify this story works on its ow Missing context: Multiple literal t",
+  "remediation": "The reference/source is unreachable, or the emitted artifact is an unfilled template with no valid content. Do NOT re-dispatch unchanged: route the evidence to a source-aware re-plan (inject a verified replacement source) or back to the emitter, or mark terminal if genuinely unrecoverable.",
+  "status": "rerouted"
+}

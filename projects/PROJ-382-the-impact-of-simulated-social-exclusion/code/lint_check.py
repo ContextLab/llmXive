@@ -1,92 +1,99 @@
 """
-Linting Compliance Verification Script.
+Verification script for linting compliance.
 
-This script runs flake8 and black --check to validate that the codebase
-adheres to the project's linting standards defined in .flake8 and pyproject.toml.
+Runs flake8 and black --check to validate code quality standards.
+Exits with non-zero status if any violations are found.
 """
 import subprocess
 import sys
 from pathlib import Path
 
 
-def run_command(cmd: list[str], description: str) -> bool:
+def run_command(command: list, description: str) -> bool:
     """
-    Run a shell command and report the result.
-
+    Run a command and return True if it succeeds.
+    
     Args:
-        cmd: The command and arguments to run.
-        description: A human-readable description of the check.
-
+        command: List of command arguments.
+        description: Human-readable description for logging.
+        
     Returns:
-        True if the command succeeded, False otherwise.
+        True if command exits with code 0, False otherwise.
     """
-    print(f"Running: {description}...")
+    print(f"\n{'='*60}")
+    print(f"Running: {description}")
+    print(f"Command: {' '.join(command)}")
+    print(f"{'='*60}\n")
+    
     try:
         result = subprocess.run(
-            cmd,
+            command,
             check=True,
             capture_output=False,
             text=True
         )
-        print(f"✓ {description} passed.")
+        print(f"\n✓ {description} passed successfully.\n")
         return True
     except subprocess.CalledProcessError as e:
-        print(f"✗ {description} failed.")
+        print(f"\n✗ {description} failed with exit code {e.returncode}.\n")
         if e.stderr:
-            print(e.stderr)
+            print(f"Stderr: {e.stderr}\n")
         return False
     except FileNotFoundError:
-        print(f"✗ {description} failed: Command not found. "
-              f"Ensure '{cmd[0]}' is installed.")
+        print(f"\n✗ {description} failed: Command not found.\n")
+        print("Please ensure the required tools are installed:")
+        print("  pip install flake8 black\n")
         return False
 
 
-def main() -> int:
-    """
-    Execute linting checks and return appropriate exit code.
-
-    Returns:
-        0 if all checks pass, 1 if any check fails.
-    """
+def main():
+    """Run all linting checks."""
     project_root = Path(__file__).parent.parent
-    code_dir = project_root / "code"
-
+    osf_dir = project_root / 'projects' / 'PROJ-382-the-impact-of-simulated-social-exclusion'
+    
+    # Change to project root if the script is in code/
+    if (project_root / 'code').exists():
+        osf_dir = project_root
+    
+    code_dir = osf_dir / 'code'
+    
     if not code_dir.exists():
         print(f"Error: Code directory not found at {code_dir}")
-        return 1
-
-    # Change to project root so relative paths in configs work
-    # and to match the scope of .flake8 / pyproject.toml
-    try:
-        import os
-        os.chdir(project_root)
-    except OSError as e:
-        print(f"Error changing directory to {project_root}: {e}")
-        return 1
-
-    checks_passed = True
-
+        print("Please ensure the project structure is correct.")
+        sys.exit(1)
+    
+    print(f"Running linting checks for project: {osf_dir}")
+    print(f"Code directory: {code_dir}")
+    
+    all_passed = True
+    
     # Run flake8
-    if not run_command(
-        ["flake8", "code/"],
-        "Flake8 linting"
-    ):
-        checks_passed = False
-
+    flake8_cmd = [
+        sys.executable, "-m", "flake8",
+        str(code_dir),
+        "--config=.flake8"
+    ]
+    if not run_command(flake8_cmd, "flake8"):
+        all_passed = False
+    
     # Run black --check
-    if not run_command(
-        ["black", "--check", "code/"],
-        "Black formatting check"
-    ):
-        checks_passed = False
-
-    if checks_passed:
-        print("\n✓ All linting checks passed.")
-        return 0
+    black_cmd = [
+        sys.executable, "-m", "black",
+        "--check",
+        "--config=pyproject.toml",
+        str(code_dir)
+    ]
+    if not run_command(black_cmd, "black --check"):
+        all_passed = False
+    
+    print(f"\n{'='*60}")
+    if all_passed:
+        print("✓ All linting checks passed!")
+        sys.exit(0)
     else:
-        print("\n✗ Linting checks failed. Please fix the errors above.")
-        return 1
+        print("✗ Some linting checks failed. Please fix the issues above.")
+        sys.exit(1)
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

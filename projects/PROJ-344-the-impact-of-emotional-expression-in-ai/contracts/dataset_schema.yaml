@@ -1,0 +1,115 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Emotional Synchrony Trust Dataset Schema
+description: >
+  Schema for the dataset used in the study "The Impact of Emotional Expression 
+  in AI Avatars on User Trust". Defines the structure of raw and processed data 
+  artifacts required for the pipeline.
+type: object
+required:
+  - version
+  - interactions
+properties:
+  version:
+    type: string
+    description: Schema version identifier (e.g., "1.0.0")
+    const: "1.0.0"
+  metadata:
+    type: object
+    description: Dataset-level metadata
+    required:
+      - created_at
+      - source
+    properties:
+      created_at:
+        type: string
+        format: date-time
+      source:
+        type: string
+        description: Origin of the data (e.g., "synthetic", "real_collection")
+      total_interactions:
+        type: integer
+        minimum: 0
+  interactions:
+    type: array
+    description: List of interaction records
+    items:
+      type: object
+      required:
+        - interaction_id
+        - modalities
+        - trust_score
+      properties:
+        interaction_id:
+          type: string
+          pattern: "^[a-zA-Z0-9_-]+$"
+          description: Unique identifier for the interaction
+        modalities:
+          type: object
+          required:
+            - facial
+            - vocal
+          properties:
+            facial:
+              type: object
+              properties:
+                source_file:
+                  type: string
+                  description: Path to the video file (relative to data/raw)
+                timestamp:
+                  type: string
+                  format: date-time
+                landmarks:
+                  type: array
+                  description: Array of facial landmark coordinates
+                  items:
+                    type: array
+                    items:
+                      type: number
+            vocal:
+              type: object
+              properties:
+                source_file:
+                  type: string
+                  description: Path to the audio file (relative to data/raw)
+                timestamp:
+                  type: string
+                  format: date-time
+                prosody:
+                  type: object
+                  properties:
+                    pitch:
+                      type: array
+                      items:
+                        type: number
+                    energy:
+                      type: array
+                      items:
+                        type: number
+                    tempo:
+                      type: array
+                      items:
+                        type: number
+        trust_score:
+          type: integer
+          minimum: 1
+          maximum: 7
+          description: User trust rating (1-7 Likert scale)
+        avatar_type:
+          type: string
+          enum:
+            - neutral
+            - expressive
+            - exaggerated
+          description: Type of avatar emotional expression
+        duration:
+          type: number
+          minimum: 0
+          description: Duration of interaction in seconds
+        difficulty:
+          type: string
+          enum:
+            - easy
+            - medium
+            - hard
+          description: Task difficulty level
+additionalProperties: false

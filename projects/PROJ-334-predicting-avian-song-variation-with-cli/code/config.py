@@ -1,158 +1,240 @@
 """
-Base configuration loader for environment variables and paths.
+Configuration loader for the avian song variation project.
 
-This module provides a centralized way to manage project configuration,
-including environment variable overrides and path resolution.
+This module defines a ``Config`` dataclass that reads configuration values
+from (in order of priority):
+
+1. Environment variables (e.g., ``JOIN_RADIUS_KM``)
+2. A YAML configuration file (``config.yaml`` or ``config.yml`` in the
+   project root)
+3. Hard‑coded defaults.
+
+The primary purpose of the loader is to expose the ``join_radius_km``
+parameter with a default value of ``10`` km, as required by the
+specification.  Additional configuration fields are provided for
+completeness and future extension.
 """
+
 import os
-import json
+import yaml
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional, Dict, Any
+from typing import Optional, Any, Dict
 
-# Project root is assumed to be the parent of the 'code' directory
-# If running from code/, go up one level
-_CODE_DIR = Path(__file__).resolve().parent
-PROJECT_ROOT = _CODE_DIR.parent if _CODE_DIR.name == "code" else _CODE_DIR
-
-# Default directory structure
-DEFAULT_DATA_DIR = PROJECT_ROOT / "data"
-DEFAULT_DATA_RAW = DEFAULT_DATA_DIR / "raw"
-DEFAULT_DATA_PROCESSED = DEFAULT_DATA_DIR / "processed"
-DEFAULT_DATA_FIGURES = DEFAULT_DATA_DIR / "figures"
-DEFAULT_CONTRACTS_DIR = PROJECT_ROOT / "contracts"
-DEFAULT_LOGS_DIR = PROJECT_ROOT / "logs"
-
-# Environment variable prefixes
-ENV_PREFIX = "AVIAN_SONG_"
-
-def _get_env_str(key: str, default: str = "") -> str:
-    """Get string environment variable with fallback to default."""
-    full_key = f"{ENV_PREFIX}{key}"
-    return os.getenv(full_key, default)
-
-def _get_env_path(key: str, default: Optional[Path] = None) -> Path:
-    """Get path environment variable, resolving relative to project root if needed."""
-    val = _get_env_str(key)
-    if not val:
-        return default or PROJECT_ROOT
-    p = Path(val)
-    if not p.is_absolute():
-        p = PROJECT_ROOT / p
-    return p.resolve()
-
-def _get_env_bool(key: str, default: bool = False) -> bool:
-    """Get boolean environment variable."""
-    val = _get_env_str(key)
-    if not val:
-        return default
-    return val.lower() in ("true", "1", "yes", "on")
-
+@dataclass
 class Config:
     """
-    Central configuration object for the project.
-    
-    Loads settings from environment variables prefixed with AVIAN_SONG_.
-    If not set, falls back to defaults based on project structure.
+    Dataclass representing the project configuration.
+
+    Attributes
+    ----------
+    data_dir : Path
+        Directory where raw/processed data live.
+    code_dir : Path
+        Directory containing source code.
+    tests_dir : Path
+        Directory containing test modules.
+    state_dir : Path
+        Directory for project state files.
+    join_radius_km : float
+        Spatial join radius in kilometres (default 10 km).
+    max_records : Optional[int]
+        Optional cap on the number of records to process.
+    log_level : str
+        Logging verbosity (default ``INFO``).
     """
-    
-    def __init__(self):
-        # Paths
-        self.project_root = _get_env_path("PROJECT_ROOT", PROJECT_ROOT)
-        self.data_dir = _get_env_path("DATA_DIR", DEFAULT_DATA_DIR)
-        self.data_raw = _get_env_path("DATA_RAW_DIR", DEFAULT_DATA_RAW)
-        self.data_processed = _get_env_path("DATA_PROCESSED_DIR", DEFAULT_DATA_PROCESSED)
-        self.data_figures = _get_env_path("DATA_FIGURES_DIR", DEFAULT_DATA_FIGURES)
-        self.contracts_dir = _get_env_path("CONTRACTS_DIR", DEFAULT_CONTRACTS_DIR)
-        self.logs_dir = _get_env_path("LOGS_DIR", DEFAULT_LOGS_DIR)
-        
-        # Data sources
-        self.xeno_canto_api_base = _get_env_str("XENOCANTO_API_BASE", "https://www.xeno-canto.org/api/2")
-        self.worldclim_base_url = _get_env_str("WORLDCCLIM_BASE_URL", "https://biogeo.ucdavis.edu/data/worldclim/v2.1")
-        
-        # Analysis settings
-        self.spatial_join_radius_km = float(_get_env_str("SPATIAL_JOIN_RADIUS_KM", "10.0"))
-        self.multicollinearity_threshold = float(_get_env_str("MULTICOLLINEARITY_THRESHOLD", "0.8"))
-        self.vif_threshold = float(_get_env_str("VIF_THRESHOLD", "5.0"))
-        self.p_value_thresholds = [float(x) for x in _get_env_str("P_VALUE_THRESHOLDS", "0.01,0.05,0.10").split(",")]
-        
-        # Logging
-        self.log_level = _get_env_str("LOG_LEVEL", "INFO").upper()
-        self.log_to_file = _get_env_bool("LOG_TO_FILE", True)
-        self.log_to_console = _get_env_bool("LOG_TO_CONSOLE", True)
-        
-        # Validation
-        self.strict_validation = _get_env_bool("STRICT_VALIDATION", False)
-        
-        # Ensure directories exist
-        self._ensure_dirs()
+    # Core directories – defaults are relative to the project root.
+    data_dir: Path = field(default_factory=lambda: Path("data"))
+    code_dir: Path = field(default_factory=lambda: Path("code"))
+    tests_dir: Path = field(default_factory=lambda: Path("tests"))
+    state_dir: Path = field(default_factory=lambda: Path("state/projects"))
 
-    def _ensure_dirs(self):
-        """Create necessary directories if they don't exist."""
-        dirs = [
-            self.data_dir,
-            self.data_raw,
-            self.data_processed,
-            self.data_figures,
-            self.contracts_dir,
-            self.logs_dir
+    # Primary configurable parameter.
+    join_radius_km: float = 10.0
+
+    # Optional extras.
+    max_records: Optional[int] = None
+    log_level: str = "INFO"
+
+    # Internal storage for raw config dict (useful for debugging).
+    _raw_config: Dict[str, Any] = field(default_factory=dict, init=False, repr=False)
+
+    def __post_init__(self) -> None:
+        """
+        Resolve configuration sources and apply overrides.
+        """
+        # 1. Load from a YAML file if present.
+        yaml_path = self._detect_yaml_path()
+        if yaml_path:
+            self._load_from_yaml(yaml_path)
+
+        # 2. Override with environment variables.
+        self._load_from_env()
+
+        # 3. Apply any explicit overrides that may have been passed via
+        #    the ``load_config`` convenience function.
+        #    (Handled in ``load_config`` – no extra work here.)
+
+        # 4. Ensure defaults for any missing values.
+        self._apply_defaults()
+
+        # 5. Resolve any relative paths to absolute paths.
+        self._resolve_paths()
+
+    # ------------------------------------------------------------------
+    # Helper methods
+    # ------------------------------------------------------------------
+    @staticmethod
+    def _detect_yaml_path() -> Optional[Path]:
+        """Return the first existing config.yaml / config.yml file."""
+        possible = [
+            Path("config.yaml"),
+            Path("config.yml"),
+            Path("./config.yaml"),
+            Path("./config.yml"),
         ]
-        for d in dirs:
-            d.mkdir(parents=True, exist_ok=True)
+        for p in possible:
+            if p.is_file():
+                return p
+        return None
 
-    def to_dict(self) -> Dict[str, Any]:
-        """Export configuration as a dictionary."""
-        exclude = {"project_root"}  # Avoid recursion issues
-        return {
-            k: str(v) if isinstance(v, Path) else v
-            for k, v in self.__dict__.items()
-            if not k.startswith("_") and k not in exclude
+    def _load_from_yaml(self, yaml_path: Path) -> None:
+        """Load configuration values from a YAML file into ``_raw_config``."""
+        try:
+            with yaml_path.open("r", encoding="utf-8") as f:
+                data = yaml.safe_load(f) or {}
+                if isinstance(data, dict):
+                    self._raw_config.update(data)
+        except Exception as e:
+            # We deliberately do not raise – missing or malformed YAML should
+            # not crash the loader; we fall back to env vars / defaults.
+            print(f"Warning: could not read config file {yaml_path}: {e}")
+
+    def _load_from_env(self) -> None:
+        """Populate configuration from environment variables."""
+        env_map = {
+            "DATA_DIR": "data_dir",
+            "CODE_DIR": "code_dir",
+            "TESTS_DIR": "tests_dir",
+            "STATE_DIR": "state_dir",
+            "JOIN_RADIUS_KM": "join_radius_km",
+            "MAX_RECORDS": "max_records",
+            "LOG_LEVEL": "log_level",
+        }
+        for env_var, attr in env_map.items():
+            val = os.getenv(env_var)
+            if val is None:
+                continue
+            if attr in {"join_radius_km"}:
+                try:
+                    setattr(self, attr, float(val))
+                except ValueError:
+                    pass  # keep previous value if conversion fails
+            elif attr in {"max_records"}:
+                try:
+                    setattr(self, attr, int(val))
+                except ValueError:
+                    pass
+            else:
+                # For path‑like values we keep the raw string; later
+                # ``_resolve_paths`` will turn them into ``Path`` objects.
+                setattr(self, attr, Path(val) if "dir" in attr else val)
+
+    def _apply_defaults(self) -> None:
+        """Fill in any missing attributes from the YAML config or defaults."""
+        # Mapping of attribute names to their default values.
+        defaults = {
+            "data_dir": self.data_dir,
+            "code_dir": self.code_dir,
+            "tests_dir": self.tests_dir,
+            "state_dir": self.state_dir,
+            "join_radius_km": self.join_radius_km,
+            "max_records": self.max_records,
+            "log_level": self.log_level,
         }
 
-    def save(self, path: Optional[Path] = None):
-        """Save current configuration to a JSON file."""
-        if path is None:
-            path = self.data_dir / "config_snapshot.json"
-        else:
-            path = Path(path)
-            
-        with open(path, "w", encoding="utf-8") as f:
-            json.dump(self.to_dict(), f, indent=2, default=str)
+        for key, default_val in defaults.items():
+            # Prefer values already set on the instance; otherwise fall back
+            # to YAML values; finally use the hard‑coded default.
+            if getattr(self, key, None) is not None:
+                continue
+            yaml_val = self._raw_config.get(key)
+            if yaml_val is not None:
+                setattr(self, key, yaml_val)
+            else:
+                setattr(self, key, default_val)
 
-    @classmethod
-    def load(cls, path: Path) -> "Config":
-        """Load configuration from a JSON file and override defaults."""
-        cfg = cls()
-        with open(path, "r", encoding="utf-8") as f:
-            data = json.load(f)
-        
-        for key, value in data.items():
-            if hasattr(cfg, key):
-                setattr(cfg, key, value)
-        
-        cfg._ensure_dirs()
-        return cfg
+    def _resolve_paths(self) -> None:
+        """Convert directory attributes to absolute ``Path`` objects."""
+        project_root = Path.cwd()
+        for attr in ("data_dir", "code_dir", "tests_dir", "state_dir"):
+            current = getattr(self, attr)
+            if isinstance(current, (str, Path)):
+                p = Path(current)
+                if not p.is_absolute():
+                    p = project_root / p
+                setattr(self, attr, p.resolve())
 
-# Global instance for convenience
-config = Config()
+    # ------------------------------------------------------------------
+    # Convenience accessors
+    # ------------------------------------------------------------------
+    @property
+    def join_radius(self) -> float:
+        """Alias for ``join_radius_km`` – kept for backward compatibility."""
+        return self.join_radius_km
 
-if __name__ == "__main__":
-    # Simple test: print current config
-    import sys
-    print("Current Configuration:")
-    print(json.dumps(config.to_dict(), indent=2, default=str))
-    print(f"\nProject Root: {config.project_root}")
-    print(f"Data Dir: {config.data_dir}")
-    print(f"Contracts Dir: {config.contracts_dir}")
-    
-    # Test saving
-    save_path = config.data_dir / "test_config.json"
-    config.save(save_path)
-    print(f"\nSaved test config to: {save_path}")
-    
-    # Test loading
-    loaded = Config.load(save_path)
-    print(f"Loaded config project root: {loaded.project_root}")
-    
-    # Cleanup
-    save_path.unlink()
-    print("Test complete.")
+    def as_dict(self) -> Dict[str, Any]:
+        """Return a plain dictionary representation of the configuration."""
+        return {
+            "data_dir": str(self.data_dir),
+            "code_dir": str(self.code_dir),
+            "tests_dir": str(self.tests_dir),
+            "state_dir": str(self.state_dir),
+            "join_radius_km": self.join_radius_km,
+            "max_records": self.max_records,
+            "log_level": self.log_level,
+        }
+
+    def __repr__(self) -> str:
+        return (
+            f"Config(join_radius_km={self.join_radius_km}, "
+            f"data_dir={self.data_dir}, code_dir={self.code_dir}, "
+            f"tests_dir={self.tests_dir}, state_dir={self.state_dir})"
+        )
+
+def load_config(config_path: Optional[Path] = None, **overrides) -> Config:
+    """
+    Convenience wrapper to instantiate ``Config`` with an optional explicit
+    YAML path and any keyword overrides.
+
+    Parameters
+    ----------
+    config_path : Optional[Path]
+        Path to a YAML configuration file.  If omitted, the loader will
+        search for ``config.yaml`` / ``config.yml`` in the project root.
+    **overrides :
+        Direct keyword arguments that take precedence over all other
+        sources (environment variables and YAML file).
+
+    Returns
+    -------
+    Config
+        Fully populated configuration instance.
+    """
+    # If a custom path is supplied, we temporarily set the environment
+    # variable ``CONFIG_PATH`` so that ``Config`` can discover it during its
+    # initialization routine.
+    if config_path is not None:
+        os.environ["CONFIG_PATH"] = str(config_path)
+
+    config = Config()
+    # Apply explicit overrides after the object has been constructed.
+    for key, value in overrides.items():
+        if hasattr(config, key):
+            setattr(config, key, value)
+
+    # Clean up the temporary env var to avoid side effects.
+    if "CONFIG_PATH" in os.environ:
+        del os.environ["CONFIG_PATH"]
+
+    return config

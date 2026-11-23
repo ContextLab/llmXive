@@ -1,99 +1,66 @@
 # Data Model: Quantization Robustness of Multi-Effect LoRA Adapters
 
-## Overview
+## 1. Entity Definitions
 
-Defines the persistent data structures used throughout the pipeline. All files live under `data/` or `state/`. Schemas in `contracts/` enforce validity.
+### 1.1 SourceEffectRecord
+A record representing a specific effect **before** merging.
+- `effect_id`: string (e.g., "oil_painting")
+- `source_path`: string (relative path to source LoRA file)
+- `source_rank`: integer (computed via SVD on pre-merge matrix)
+- `rank_tolerance`: float (tolerance used for SVD, e.g., 1e-5)
+- `merge_protocol`: string (e.g., "WLA-OP")
 
-## Entity Definitions
+### 1.2 ReferenceImage
+A record for a ground-truth image used in CESR calculation.
+- `image_id`: string (unique hash)
+- `prompt`: string
+- `effect_id`: string (or "distractor")
+- `quantization_level`: string ("FP16")
+- `image_path`: string
+- `clip_embedding`: list[float] (512 or 768 dim)
 
-### 1. EffectAdapter
-- `effect_id`: string (e.g., `"oil_painting"`).
-- `weight_matrix_path`: path to the LoRA weight file (`.safetensors`).
-- `subspace_rank`: integer (effective rank from SVD, tolerance = 1e‑5).
-- `rank_tolerance`: float (default = 1e‑5).
+### 1.3 GenerationResult
+The core result of a generation run.
+- `run_id`: string (UUID)
+- `prompt`: string
+- `effect_id`: string
+- `quantization_level`: string ("FP16", "INT8", "INT4")
+- `seed`: integer
+- `image_path`: string
+- `clip_similarity`: float (cosine similarity to prompt)
+- `lpips_distance`: float (distance to FP16 baseline)
+- `cesr_raw`: float (similarity to *other* effect references)
+- `cesr_baseline`: float (mean similarity to *distractor* references)
+- `cesr_normalized`: float (`cesr_raw - cesr_baseline`)
+- `status`: string ("success", "skipped", "failed")
+- `failure_reason`: string (optional, e.g., "MemoryLimitExceeded", "CatastrophicCollapse", "BackendUnavailable")
+- `source_rank`: integer (intrinsic rank of the effect)
 
-### 2. ReferenceImage
-- `image_path`: path to the generated image.
-- `effect_id`: effect identifier (may be `"none"` for LoRA‑free references).
-- `prompt`: prompt text.
-- `clip_embedding`: list of floats (CLIP image embedding).
-- `checksum`: SHA‑256 hash of the image file.
+### 1.4 AnalysisMetric
+Derived statistical outputs.
+- `metric_name`: string ("quantization_effect", "rank_bleeding_correlation")
+- `posterior_mean`: float
+- `credible_interval_lower`: float
+- `credible_interval_upper`: float
+- `ess`: integer (Effective Sample Size)
+- `is_underpowered`: boolean
+- `is_unstable_posterior`: boolean
+- `status`: string ("Valid", "Underpowered", "DescriptiveOnly")
 
-### 3. GenerationResult
-- `run_id`: UUID for the generation run.
-- `prompt_id`: identifier linking to the prompt in `data/prompts.txt`.
-- `quantization_level`: `"FP16"`, `"INT8"`, or `"INT4"`.
-- `effect_id`: effect identifier.
-- `prompt`: prompt text.
-- `image_path`: relative path to the generated image.
-- `cosine_similarity`: float (prompt‑text ↔ image CLIP similarity).
-- `lpips_distance`: float (pixel‑space distance vs. FP16 baseline).
-- `cesr_score`: float (mean similarity to BaselineFP16ReferenceImages of other effects).
-- `style_classifier_score`: float (probability that the image matches its intended style, from a lightweight WikiArt classifier).
-- `checksum`: SHA‑256 hash of the image file.
-- `timestamp`: ISO‑8601 timestamp of generation.
+## 2. Data Flow
 
-### 4. AnalysisMetric
-- `metric_name`: string (e.g., `"bhm_adherence"`).
-- `posterior_mean`: float.
-- `credible_interval_95`: list `[lower, upper]`.
-- `probability_effect`: float (probability that the quantization effect is negative).
-- `width`: float (HDI width).
-- `status`: `"Valid"` or `"Underpowered"`.
+1. **Input**: `config.yaml` (prompts, seeds), `data/models/` (source LoRAs).
+2. **Process**:
+   - Load Source LoRAs -> Compute SVD Ranks -> Save `data/subspace_ranks.json` (SourceRank).
+   - Merge LoRAs (WLA-OP) -> Save `data/models/collection_lora.safetensors`.
+   - Generate Baseline (FP16) -> Save `data/generated/baseline/`.
+   - Generate Distractors -> Save `data/references/distractor_embeddings.json`.
+   - Generate Quantized Outputs -> Compute Metrics (CLIP, LPIPS, CESR Normalized) -> Aggregate to `data/results.csv`.
+3. **Output**: `data/results.csv`, `state/artifacts.yaml`, `data/analysis_results.json`.
 
-### 5. StateRecord
-- `artifact_type`: e.g., `"model"`, `"image"`, `"result"`.
-- `path`: relative path.
-- `sha256`: hash.
-- `updated_at`: ISO‑8601 timestamp.
+## 3. Schema Validation
 
-## File Schemas
-
-### `data/prompts.txt`
-Plain text, one line per prompt, formatted as:
-
-```
-<effect_id>\t<prompt text>
-```
-
-Example:
-
-```
-oil_painting	A high‑quality photo of an oil‑painting of a cat wearing a hat.
-cyberpunk	A neon‑lit cyberpunk cityscape at night.
-...
-```
-
-### `data/subspace_ranks.json`
-```json
-{
-  "oil_painting": {"rank": 12, "tolerance": 1e-05},
-  "cyberpunk": {"rank": 9, "tolerance": 1e-05},
-  "...": {"rank": ..., "tolerance": 1e-05}
-}
-```
-
-### `data/analysis_results.json`
-```json
-{
-  "bayesian_model": { ... },
-  "correlation_analysis": { ... },
-  "metadata": {
-    "timestamp": "2026-07-14T12:34:56Z",
-    "version": "1.0.0"
-  }
-}
-```
-
-### `state/artifact_hashes.yaml`
-```yaml
-artifacts:
-  - path: data/generated_images/fp16/oil_painting.png
-    sha256: abc123...
-    updated_at: 2026-07-14T10:00:00Z
-  - path: data/analysis_results.json
-    sha256: def456...
-    updated_at: 2026-07-14T12:00:00Z
-```
-
-All JSON/YAML files are written atomically and flushed to disk immediately after creation to satisfy FR‑010 and FR‑013.
+All data artifacts must conform to the schemas defined in `contracts/`.
+- `data/subspace_ranks.json`: Validated against `contracts/subspace_ranks.schema.yaml`.
+- `data/results.csv`: Validated against `contracts/dataset.schema.yaml`.
+- `state/artifacts.yaml`: Validated against `contracts/state.schema.yaml`.

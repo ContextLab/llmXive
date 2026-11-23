@@ -1,0 +1,38 @@
+type: object
+properties:
+  image_id:
+    type: string
+  region_count:
+    type: integer
+  bounding_boxes:
+    type: array
+    items:
+      type: object
+      properties:
+        x:
+          type: number
+        y:
+          type: number
+        w:
+          type: number
+        h:
+          type: number
+        id:
+          type: integer
+      required:
+        - x
+        - y
+        - w
+        - h
+        - id
+  derived_relations:
+    type: array
+    items:
+      type: string
+  metadata:
+    type: object
+required:
+  - image_id
+  - region_count
+  - bounding_boxes
+  - derived_relations

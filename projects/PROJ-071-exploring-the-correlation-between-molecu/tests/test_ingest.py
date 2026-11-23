@@ -1,81 +1,117 @@
 """
-Tests for code/ingest.py
+Tests for ingestion module.
 """
-import pytest
-import pandas as pd
-import numpy as np
-from pathlib import Path
-import sys
+import json
 import os
+from pathlib import Path
+from unittest.mock import MagicMock, patch
 
-# Add code directory to path
-sys.path.insert(0, str(Path(__file__).parent.parent / "code"))
+import pandas as pd
+import pytest
 
-from ingest import (
-    validate_smiles_series,
-    filter_valid_records,
+from code.ingest import (
+    SchemaError,
+    DataFetchError,
     check_degradation_columns,
-    generate_insufficiency_report,
-    run_data_availability_gate
+    update_gate_status,
+    run_data_availability_gate,
+    validate_smiles_column,
+    fetch_fda_drugs,
+    GATE_STATUS_PATH,
+    DEGRADATION_COLUMNS,
 )
-from logging_config import setup_logging
-
-setup_logging()
 
 @pytest.fixture
-def sample_df_with_valid_smiles():
-    data = {
-        'smiles': ['CCO', 'c1ccccc1', 'CC(=O)Oc1ccccc1C(=O)O', 'invalid_smiles_string'],
-        'degradation_half_life': [10.0, 20.0, 5.5, np.nan],
-        'degradation_rate': [0.1, 0.2, 0.3, 0.4]
-    }
-    return pd.DataFrame(data)
+def sample_df_with_smiles():
+    """Create a sample dataframe with smiles column."""
+    return pd.DataFrame({
+        "smiles": ["CCO", "CC(=O)O", "c1ccccc1"],
+        "name": ["Ethanol", "Acetic Acid", "Benzene"],
+        "half_life": [10.0, 20.0, 30.0]
+    })
 
 @pytest.fixture
-def sample_df_missing_degradation():
-    data = {
-        'smiles': ['CCO', 'c1ccccc1'],
-        'other_col': [1, 2]
-    }
-    return pd.DataFrame(data)
+def sample_df_without_smiles():
+    """Create a sample dataframe without smiles column."""
+    return pd.DataFrame({
+        "name": ["Ethanol", "Acetic Acid", "Benzene"],
+        "half_life": [10.0, 20.0, 30.0]
+    })
 
-def test_validate_smiles_series(sample_df_with_valid_smiles):
-    valid_idx, error_idx = validate_smiles_series(sample_df_with_valid_smiles['smiles'])
-    
-    # CCO, c1ccccc1, Aspirin are valid. 'invalid_smiles_string' is not.
-    assert len(valid_idx) == 3
-    assert len(error_idx) == 1
-    assert error_idx.iloc[0] == 3  # Index of invalid string
+@pytest.fixture
+def sample_df_no_degradation():
+    """Create a sample dataframe without degradation columns."""
+    return pd.DataFrame({
+        "smiles": ["CCO", "CC(=O)O", "c1ccccc1"],
+        "name": ["Ethanol", "Acetic Acid", "Benzene"],
+        "molecular_weight": [46.0, 60.0, 78.0]
+    })
 
-def test_filter_valid_records(sample_df_with_valid_smiles):
-    result = filter_valid_records(sample_df_with_valid_smiles)
-    
-    # Should exclude index 3 (invalid smiles) and potentially rows with NaN degradation
-    # In sample: Index 3 is invalid smiles. Index 3 also has NaN degradation.
-    # Valid smiles: 0, 1, 2. All have non-NaN degradation.
-    assert len(result) == 3
-    assert 'smiles' in result.columns
-    assert 'degradation_half_life' in result.columns
+def test_check_degradation_columns_found(sample_df_with_smiles):
+    """Test that degradation column is correctly identified."""
+    result = check_degradation_columns(sample_df_with_smiles)
+    assert result == "half_life"
 
-def test_check_degradation_columns_true(sample_df_with_valid_smiles):
-    assert check_degradation_columns(sample_df_with_valid_smiles) is True
+def test_check_degradation_columns_not_found(sample_df_no_degradation):
+    """Test that None is returned when no degradation column is found."""
+    result = check_degradation_columns(sample_df_no_degradation)
+    assert result is None
 
-def test_check_degradation_columns_false(sample_df_missing_degradation):
-    assert check_degradation_columns(sample_df_missing_degradation) is False
+def test_update_gate_status_pass(tmp_path, sample_df_with_smiles):
+    """Test updating gate status to PASS."""
+    # Mock the path
+    with patch("code.ingest.GATE_STATUS_PATH", tmp_path / "gate_status.json"):
+        result = update_gate_status("PASS", "Test reason", "half_life", 3)
+        
+        assert result["status"] == "PASS"
+        assert result["reason"] == "Test reason"
+        assert result["column_found"] == "half_life"
+        assert result["N"] == 3
+        
+        # Verify file was written
+        assert os.path.exists(tmp_path / "gate_status.json")
+        with open(tmp_path / "gate_status.json", "r") as f:
+            data = json.load(f)
+            assert data["status"] == "PASS"
 
-def test_run_data_availability_gate_insufficient():
-    # Create a small dataframe
-    small_df = pd.DataFrame({'smiles': ['CCO'] * 20, 'half_life': [1.0] * 20})
-    result = run_data_availability_gate(small_df, min_records=30)
-    assert result is False
-    assert Path("data/data_insufficiency_report.md").exists()
+def test_update_gate_status_fail(tmp_path):
+    """Test updating gate status to FAIL."""
+    with patch("code.ingest.GATE_STATUS_PATH", tmp_path / "gate_status.json"):
+        result = update_gate_status("FAIL", "No column", None)
+        
+        assert result["status"] == "FAIL"
+        assert result["column_found"] is None
 
-def test_run_data_availability_gate_sufficient():
-    # Create a large enough dataframe
-    large_df = pd.DataFrame({'smiles': ['CCO'] * 35, 'half_life': [1.0] * 35})
-    result = run_data_availability_gate(large_df, min_records=30)
-    assert result is True
-    # Clean up report if it was created in previous test
-    report_path = Path("data/data_insufficiency_report.md")
-    if report_path.exists():
-        report_path.unlink()
+def test_run_data_availability_gate_pass(sample_df_with_smiles, tmp_path):
+    """Test that gate passes when smiles and degradation columns are present."""
+    with patch("code.ingest.GATE_STATUS_PATH", tmp_path / "gate_status.json"):
+        result = run_data_availability_gate(sample_df_with_smiles)
+        assert result is True
+
+def test_run_data_availability_gate_fail_no_smiles(sample_df_without_smiles, tmp_path):
+    """Test that gate fails when smiles column is missing."""
+    with patch("code.ingest.GATE_STATUS_PATH", tmp_path / "gate_status.json"):
+        with pytest.raises(SchemaError):
+            run_data_availability_gate(sample_df_without_smiles)
+
+def test_run_data_availability_gate_fail_no_degradation(sample_df_no_degradation, tmp_path):
+    """Test that gate fails when no degradation column is found."""
+    with patch("code.ingest.GATE_STATUS_PATH", tmp_path / "gate_status.json"):
+        with pytest.raises(DataFetchError):
+            run_data_availability_gate(sample_df_no_degradation)
+
+def test_validate_smiles_column_true(sample_df_with_smiles):
+    """Test validation when smiles column exists and has data."""
+    assert validate_smiles_column(sample_df_with_smiles) is True
+
+def test_validate_smiles_column_false(sample_df_without_smiles):
+    """Test validation when smiles column is missing."""
+    assert validate_smiles_column(sample_df_without_smiles) is False
+
+def test_validate_smiles_column_empty(tmp_path):
+    """Test validation when smiles column exists but is empty."""
+    df = pd.DataFrame({
+        "smiles": [None, None, None],
+        "name": ["A", "B", "C"]
+    })
+    assert validate_smiles_column(df) is False

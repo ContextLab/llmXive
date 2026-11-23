@@ -1,0 +1,34 @@
+# Dataset schema definitions
+# Placeholder for T007/T047 implementation
+
+MEGData:
+  type: object
+  properties:
+    signal:
+      type: array
+      items:
+        type: number
+    sampling_rate:
+      type: number
+    channels:
+      type: array
+      items:
+        type: string
+    metadata:
+      type: object
+
+SpectralFeatures:
+  type: object
+  properties:
+    psd:
+      type: array
+      items:
+        type: number
+    frequencies:
+      type: array
+      items:
+        type: number
+    snr_db:
+      type: number
+    peak_frequency:
+      type: number

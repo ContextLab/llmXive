@@ -1,232 +1,210 @@
-"""
-Feature extraction module for EnterpriseClawBench logs.
-Implements syntax tree depth calculation, token frequency, and pragmatic markers.
-"""
 import ast
 import json
 import re
+import sys
+import os
 from collections import Counter
 from pathlib import Path
 from typing import Dict, List, Any, Optional, Iterator
 
-import networkx as nx
+from src.utils.resource_monitor import ResourceMonitor
 
-# Pragmatic marker patterns (error recovery, state transitions)
-PRAGMATIC_PATTERNS = [
-    r'\bretry\b',
-    r'\bfallback\b',
-    r'\bstate\s*transit(ion)?\b',
-    r'\berror\s*recovery\b',
-    r'\bexception\s*caught\b',
-    r'\brollback\b',
-    r'\bcompensat(e|ion)?\b',
-    r'\brecover\b',
-    r'\brestart\b',
-]
+# --- Existing API Surface (Preserved) ---
 
 def calculate_syntax_tree_depth(code_snippet: str) -> int:
     """
-    Calculate the maximum depth of the syntax tree for a given code snippet.
-    Uses Python's AST module and NetworkX to build and traverse the tree.
-    
-    Args:
-        code_snippet: The code string to analyze.
-        
-    Returns:
-        int: The maximum depth of the syntax tree. Returns 0 if parsing fails.
+    Calculate the maximum depth of the AST for a given code snippet.
+    Returns 0 if parsing fails or snippet is empty.
     """
-    if not code_snippet or not code_snippet.strip():
+    if not code_snippet or not isinstance(code_snippet, str):
         return 0
-    
     try:
         tree = ast.parse(code_snippet)
+        return _get_depth(tree)
     except SyntaxError:
-        # If the snippet is not valid Python, try to parse as a minimal expression
-        # or return 0 to indicate failure to parse.
         return 0
 
-    # Build a graph representation of the AST
-    G = nx.DiGraph()
-    G.add_node(0, type=tree.__class__.__name__)
-    
-    def add_nodes(node, parent_id, depth=0):
-        node_id = id(node)
-        # Ensure unique IDs for nodes if they are reused (though AST nodes are usually unique)
-        # We use a counter or the object id. Since object id is unique per run, it's fine.
-        G.add_node(node_id, type=node.__class__.__name__, depth=depth)
-        if parent_id is not None:
-            G.add_edge(parent_id, node_id)
-        
-        max_child_depth = depth
-        for child in ast.iter_child_nodes(node):
-            child_depth = add_nodes(child, node_id, depth + 1)
-            if child_depth > max_child_depth:
-                max_child_depth = child_depth
-        return max_child_depth
-
-    # Root node ID is 0 (arbitrary mapping for the root)
-    # We need to map the actual root object to our graph ID
-    root_id = id(tree)
-    G = nx.DiGraph()
-    G.add_node(root_id, type=tree.__class__.__name__, depth=0)
-    
-    def build_graph(node, parent_node_id):
-        current_id = id(node)
-        if parent_node_id is not None:
-            G.add_edge(parent_node_id, current_id)
-        
-        max_depth = 0
-        for child in ast.iter_child_nodes(node):
-            child_max = build_graph(child, current_id)
-            if child_max + 1 > max_depth:
-                max_depth = child_max + 1
-        return max_depth
-
-    if tree:
-        return build_graph(tree, None) + 1 # +1 because root is depth 1 usually, or 0 if empty
-    return 0
+def _get_depth(node: ast.AST) -> int:
+    """Helper to recursively calculate AST depth."""
+    if not hasattr(node, '_fields'):
+        return 1
+    max_child_depth = 0
+    for field, value in ast.iter_fields(node):
+        if isinstance(value, list):
+            for item in value:
+                if isinstance(item, ast.AST):
+                    max_child_depth = max(max_child_depth, _get_depth(item))
+        elif isinstance(value, ast.AST):
+            max_child_depth = max(max_child_depth, _get_depth(value))
+    return 1 + max_child_depth
 
 def calculate_token_frequency(code_snippet: str) -> Dict[str, int]:
     """
-    Calculate the frequency distribution of tokens in the code snippet.
-    
-    Args:
-        code_snippet: The code string to analyze.
-        
-    Returns:
-        Dict[str, int]: A dictionary mapping token strings to their counts.
+    Calculate token frequency distribution for a code snippet.
+    Uses a simple regex-based tokenizer for demonstration.
     """
     if not code_snippet:
         return {}
-    
-    # Simple tokenization: split by whitespace and punctuation, filter empty
-    # In a real scenario, use `tokenize` module for accurate Python tokenization
-    tokens = re.findall(r'\w+|[^\s\w]', code_snippet)
-    tokens = [t.lower() for t in tokens if t.strip()]
+    # Simple tokenization: split by non-alphanumeric, keep words
+    tokens = re.findall(r'\b\w+\b', code_snippet.lower())
     return dict(Counter(tokens))
 
-def detect_pragmatic_markers(log_text: str) -> List[str]:
+def detect_pragmatic_markers(code_snippet: str) -> List[str]:
     """
-    Detect pragmatic markers indicating error recovery or state transitions.
-    
-    Args:
-        log_text: The log text to analyze.
-        
-    Returns:
-        List[str]: A list of detected pragmatic markers found in the text.
+    Detect pragmatic markers such as error recovery attempts,
+    state transitions, or specific comments indicating logic flow.
     """
-    if not log_text:
-        return []
-    
-    found_markers = []
-    text_lower = log_text.lower()
-    
-    for pattern in PRAGMATIC_PATTERNS:
-        matches = re.findall(pattern, text_lower)
-        if matches:
-            # Extract the matched string itself for reporting
-            full_matches = re.findall(pattern, text_lower, re.IGNORECASE)
-            found_markers.extend(full_matches)
-    
-    return list(set(found_markers))
+    markers = []
+    if not code_snippet:
+        return markers
+
+    # Patterns for pragmatic markers
+    patterns = {
+        'error_recovery': r'except\s+.*:|try:|finally:|recovery|fallback',
+        'state_transition': r'state\s*=\s*|switch\s*\(|case\s*',
+        'comment_flow': r'#\s*(TODO|FIXME|NOTE|HACK|BUG)',
+        'loop_control': r'break\s*:|continue\s*:|pass\s*:|return\s*None'
+    }
+
+    for marker_type, pattern in patterns.items():
+        if re.search(pattern, code_snippet, re.IGNORECASE):
+            markers.append(marker_type)
+
+    return markers
 
 def extract_features_from_log(log_entry: Dict[str, Any]) -> Dict[str, Any]:
     """
-    Extract a feature vector from a single log entry.
-    
-    Args:
-        log_entry: A dictionary containing log data, expected to have 'code' and 'log_text' keys.
-        
-    Returns:
-        Dict[str, Any]: A dictionary containing the extracted features.
+    Extract features from a single log entry.
+    Expected log_entry keys: 'code', 'status', 'raw_text' (optional)
     """
     code = log_entry.get('code', '')
-    log_text = log_entry.get('log_text', '')
     status = log_entry.get('status', 'unknown')
-    
-    syntax_depth = calculate_syntax_tree_depth(code)
-    token_freq = calculate_token_frequency(code)
-    pragmatic_markers = detect_pragmatic_markers(log_text)
-    
-    return {
-        'syntax_tree_depth': syntax_depth,
-        'token_frequency': token_freq,
-        'pragmatic_markers': pragmatic_markers,
+
+    features = {
+        'syntax_depth': calculate_syntax_tree_depth(code),
+        'token_freq': calculate_token_frequency(code),
+        'pragmatic_markers': detect_pragmatic_markers(code),
         'status': status,
-        'original_entry': log_entry # Keep reference if needed
+        'raw_text_length': len(log_entry.get('raw_text', ''))
     }
 
-def process_logs_streaming(logs_path: Path, chunk_size: int = 1000) -> Iterator[List[Dict[str, Any]]]:
+    # Flatten token_freq for potential downstream use
+    # (Keeping as dict in this version as per generic structure)
+    return features
+
+# --- New Implementation for T016: Generator-based Streaming Parser ---
+
+def process_logs_streaming(
+    input_path: str,
+    output_path: str,
+    chunk_size: int = 1000
+) -> Iterator[Dict[str, Any]]:
     """
-    Generator that processes logs in chunks to prevent memory overflow.
-    
+    Generator-based log parser that yields chunks of processed features.
+    Reads raw logs line-by-line to prevent memory overflow on large files.
+    Yields dictionaries containing a list of processed features (a chunk).
+
     Args:
-        logs_path: Path to the raw logs file (JSONL or JSON).
-        chunk_size: Number of entries to process per chunk.
-        
+        input_path: Path to the raw JSONL log file.
+        output_path: Path to write the processed JSONL features file.
+        chunk_size: Number of log entries to process before yielding a chunk.
+
     Yields:
-        List[Dict[str, Any]]: A list of processed log entries with features.
+        Dict containing 'chunk_id' and 'features' (list of feature dicts).
     """
-    if not logs_path.exists():
-        raise FileNotFoundError(f"Log file not found: {logs_path}")
-    
-    # Determine file format
-    entries = []
-    with open(logs_path, 'r', encoding='utf-8') as f:
-        content = f.read().strip()
-        
-    if content.startswith('['):
-        # JSON array
+    input_file = Path(input_path)
+    output_file = Path(output_path)
+
+    if not input_file.exists():
+        raise FileNotFoundError(f"Input log file not found: {input_path}")
+
+    # Ensure output directory exists
+    output_file.parent.mkdir(parents=True, exist_ok=True)
+
+    # Initialize Resource Monitor to track peak RSS
+    monitor = ResourceMonitor()
+    monitor.start()
+
+    chunk = []
+    chunk_id = 0
+    processed_count = 0
+
+    # Open output file in append mode to write chunks as they are processed
+    with open(output_file, 'w', encoding='utf-8') as f_out:
         try:
-            all_logs = json.loads(content)
-        except json.JSONDecodeError:
-            raise ValueError("Invalid JSON format in log file.")
-    else:
-        # JSONL
-        all_logs = []
-        for line in content.split('\n'):
-            if line.strip():
-                all_logs.append(json.loads(line))
-    
-    for i in range(0, len(all_logs), chunk_size):
-        chunk = all_logs[i:i+chunk_size]
-        processed_chunk = [extract_features_from_log(entry) for entry in chunk]
-        yield processed_chunk
+            with open(input_file, 'r', encoding='utf-8') as f_in:
+                for line_num, line in enumerate(f_in):
+                    line = line.strip()
+                    if not line:
+                        continue
+
+                    try:
+                        log_entry = json.loads(line)
+                        features = extract_features_from_log(log_entry)
+                        chunk.append(features)
+                        processed_count += 1
+
+                        if len(chunk) >= chunk_size:
+                            chunk_id += 1
+                            chunk_data = {
+                                'chunk_id': chunk_id,
+                                'features': chunk,
+                                'count': len(chunk)
+                            }
+                            # Write chunk to output file immediately
+                            f_out.write(json.dumps(chunk_data) + '\n')
+                            # Yield the chunk for external processing/monitoring
+                            yield chunk_data
+                            chunk = []
+                    except json.JSONDecodeError as e:
+                        # Log error but continue processing
+                        sys.stderr.write(f"Warning: Skipping malformed line {line_num}: {e}\n")
+                        continue
+
+        except IOError as e:
+            monitor.stop()
+            raise RuntimeError(f"Failed to read input file {input_path}: {e}") from e
+
+    # Yield any remaining items in the last chunk
+    if chunk:
+        chunk_id += 1
+        chunk_data = {
+            'chunk_id': chunk_id,
+            'features': chunk,
+            'count': len(chunk)
+        }
+        f_out.write(json.dumps(chunk_data) + '\n')
+        yield chunk_data
+
+    monitor.stop()
+    peak_rss = monitor.get_peak_rss_mb()
+    sys.stderr.write(f"Processing complete. Total entries: {processed_count}, Peak RSS: {peak_rss:.2f} MB\n")
+
+    # Verify peak RSS constraint (7GB = 7168 MB)
+    if peak_rss > 7168:
+        raise MemoryError(f"Peak RSS {peak_rss:.2f} MB exceeded 7GB limit.")
 
 def main():
     """
-    Main entry point for feature extraction.
-    Reads raw logs, extracts features, and saves to processed output.
+    Main entry point for the streaming log parser.
+    Expects input_path and output_path as command line arguments or defaults.
     """
-    import sys
-    
-    # Default paths
-    input_path = Path("data/raw/enterprise_claw_bench.jsonl")
-    output_path = Path("data/processed/features.jsonl")
-    
-    # Allow override via command line
-    if len(sys.argv) > 1:
-        input_path = Path(sys.argv[1])
-    if len(sys.argv) > 2:
-        output_path = Path(sys.argv[2])
-        
-    if not input_path.exists():
-        print(f"Error: Input file not found at {input_path}")
+    # Default paths based on project structure
+    default_input = "data/raw/enterprise_claw_bench.jsonl"
+    default_output = "data/processed/features.jsonl"
+
+    input_path = sys.argv[1] if len(sys.argv) > 1 else default_input
+    output_path = sys.argv[2] if len(sys.argv) > 2 else default_output
+
+    print(f"Starting streaming extraction from {input_path} to {output_path}...")
+
+    try:
+        for chunk_data in process_logs_streaming(input_path, output_path):
+            print(f"Processed chunk {chunk_data['chunk_id']} with {chunk_data['count']} entries.")
+        print("Extraction completed successfully.")
+    except Exception as e:
+        print(f"Extraction failed: {e}", file=sys.stderr)
         sys.exit(1)
-        
-    output_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    print(f"Processing logs from {input_path}...")
-    processed_count = 0
-    
-    with open(output_path, 'w', encoding='utf-8') as out_f:
-        for chunk in process_logs_streaming(input_path):
-            for entry in chunk:
-                out_f.write(json.dumps(entry) + '\n')
-                processed_count += 1
-                
-    print(f"Successfully extracted features for {processed_count} entries.")
-    print(f"Output saved to {output_path}")
 
 if __name__ == "__main__":
     main()

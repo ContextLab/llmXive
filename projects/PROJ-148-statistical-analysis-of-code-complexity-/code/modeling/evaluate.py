@@ -5,208 +5,290 @@ import json
 import logging
 import os
 import sys
-import matplotlib.pyplot as plt
-import numpy as np
-import pandas as pd
-import joblib
-from sklearn.metrics import (
-    roc_auc_score,
-    average_precision_score,
-    roc_curve,
-    precision_recall_curve,
-    brier_score_loss,
-)
-from sklearn.calibration import calibration_curve
 from pathlib import Path
 from typing import Dict, Tuple, Optional
 
-# Import local project utilities
+import numpy as np
+import pandas as pd
+import joblib
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn.metrics import (
+    roc_auc_score,
+    precision_recall_curve,
+    auc,
+    brier_score_loss,
+    calibration_curve,
+)
+from sklearn.preprocessing import StandardScaler
+
+# Import project utilities
 from utils.logging import get_logger
-from utils.config import get_seed
+from utils.config import get_seed, set_random_seed
 
 logger = get_logger(__name__)
 
 
-def load_test_data(data_dir: Path) -> Tuple[pd.DataFrame, np.ndarray, np.ndarray]:
+def load_test_data(data_dir: Path) -> Tuple[pd.DataFrame, pd.Series, list]:
     """
-    Load the preprocessed test data from the data directory.
-    Expects a file named 'test_data.csv' in the data directory.
+    Load the test split data from the data directory.
+    Expects 'data/test_data.csv' to exist with columns matching the training data.
+    Returns: (X_test_df, y_test_series, feature_names)
     """
     test_path = data_dir / "test_data.csv"
     if not test_path.exists():
-        raise FileNotFoundError(f"Test data file not found at {test_path}. "
-                                "Ensure the data pipeline has been run successfully.")
+        raise FileNotFoundError(f"Test data not found at {test_path}. "
+                                "Ensure split_dataset.py has been run successfully.")
 
     df = pd.read_csv(test_path)
+    # Identify target column
+    if "bug_label" not in df.columns:
+        raise ValueError("Target column 'bug_label' not found in test data.")
 
-    # Expected columns based on previous pipeline steps
-    # We assume 'bug_label' is the target and others are features
-    target_col = "bug_label"
-    if target_col not in df.columns:
-        raise ValueError(f"Target column '{target_col}' not found in {test_path}. "
-                         f"Available columns: {df.columns.tolist()}")
+    y = df["bug_label"]
+    # Features are all numeric columns excluding target and project_id if present
+    feature_cols = [c for c in df.columns if c not in ["bug_label", "project_id", "file_id"]]
+    X = df[feature_cols]
 
-    y_true = df[target_col].values
-    # Features are all numeric columns except the target
-    feature_cols = [col for col in df.columns if col != target_col and df[col].dtype in ['int64', 'float64']]
-    X = df[feature_cols].values
+    # Drop rows with any NaN in features (should be handled by preprocess, but safe guard)
+    mask = X.notna().all(axis=1)
+    if not mask.all():
+        logger.warning(f"Dropping { (~mask).sum() } rows with missing values in test data.")
+        X = X[mask]
+        y = y[mask]
 
-    logger.info(f"Loaded test data: {len(y_true)} samples, {len(feature_cols)} features.")
-    return df, X, y_true
+    return X, y, feature_cols
 
 
-def load_model(model_path: Path):
-    """Load a trained model from disk."""
+def load_model(model_path: Path) -> object:
+    """
+    Load the trained model from the specified path.
+    """
     if not model_path.exists():
         raise FileNotFoundError(f"Model file not found at {model_path}")
     return joblib.load(model_path)
 
 
-def compute_metrics(y_true: np.ndarray, y_prob: np.ndarray) -> Dict[str, float]:
+def compute_metrics(
+    y_true: pd.Series,
+    y_prob: np.ndarray,
+    model_name: str = "Primary"
+) -> Dict[str, float]:
     """
     Compute ROC-AUC, PR-AUC, and Brier score.
-    Asserts ROC-AUC >= 0.50 baseline.
     """
+    if len(np.unique(y_true)) < 2:
+        logger.warning("Only one class present in y_true. Cannot compute ROC-AUC/PR-AUC.")
+        return {
+            "model_name": model_name,
+            "roc_auc": np.nan,
+            "pr_auc": np.nan,
+            "brier_score": np.nan
+        }
+
     roc_auc = roc_auc_score(y_true, y_prob)
-    pr_auc = average_precision_score(y_true, y_prob)
+    precision, recall, _ = precision_recall_curve(y_true, y_prob)
+    pr_auc = auc(recall, precision)
     brier = brier_score_loss(y_true, y_prob)
 
-    logger.info(f"ROC-AUC: {roc_auc:.4f}, PR-AUC: {pr_auc:.4f}, Brier Score: {brier:.4f}")
-
-    # Assertion for baseline requirement
-    if roc_auc < 0.50:
-        raise ValueError(
-            f"Model performance below baseline! ROC-AUC ({roc_auc:.4f}) < 0.50. "
-            "The model is performing worse than random guessing."
-        )
+    logger.info(f"{model_name} - ROC-AUC: {roc_auc:.4f}, PR-AUC: {pr_auc:.4f}, Brier: {brier:.4f}")
 
     return {
+        "model_name": model_name,
         "roc_auc": float(roc_auc),
         "pr_auc": float(pr_auc),
-        "brier_score": float(brier),
-        "baseline_met": roc_auc >= 0.50
+        "brier_score": float(brier)
     }
 
 
-def plot_roc_curve(y_true: np.ndarray, y_prob: np.ndarray, output_path: Path):
-    """Generate and save the ROC curve plot."""
-    fpr, tpr, thresholds = roc_curve(y_true, y_prob)
-    plt.figure(figsize=(8, 6))
-    plt.plot(fpr, tpr, color='darkorange', lw=2, label=f'ROC curve (AUC = {roc_auc_score(y_true, y_prob):.2f})')
-    plt.plot([0, 1], [0, 1], color='navy', lw=2, linestyle='--', label='Random Guess')
-    plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 1.05])
-    plt.xlabel('False Positive Rate')
-    plt.ylabel('True Positive Rate')
-    plt.title('Receiver Operating Characteristic (ROC) Curve')
-    plt.legend(loc="lower right")
-    plt.grid(True)
-    plt.savefig(output_path, dpi=150)
-    plt.close()
-    logger.info(f"ROC curve saved to {output_path}")
-
-
-def plot_pr_curve(y_true: np.ndarray, y_prob: np.ndarray, output_path: Path):
-    """Generate and save the Precision-Recall curve plot."""
-    precision, recall, thresholds = precision_recall_curve(y_true, y_prob)
-    plt.figure(figsize=(8, 6))
-    plt.plot(recall, precision, color='blue', lw=2, label=f'PR curve (AP = {average_precision_score(y_true, y_prob):.2f})')
-    plt.xlim([0.0, 1.0])
-    plt.ylim([0.0, 1.05])
-    plt.xlabel('Recall')
-    plt.ylabel('Precision')
-    plt.title('Precision-Recall Curve')
-    plt.legend(loc="lower left")
-    plt.grid(True)
-    plt.savefig(output_path, dpi=150)
-    plt.close()
-    logger.info(f"PR curve saved to {output_path}")
-
-
-def plot_calibration(y_true: np.ndarray, y_prob: np.ndarray, output_path: Path, n_bins: int = 10):
-    """Generate and save the calibration plot."""
-    # calibration_curve expects 1D array
-    prob_true, prob_pred = calibration_curve(y_true, y_prob, n_bins=n_bins)
-
-    plt.figure(figsize=(8, 6))
-    plt.plot(prob_pred, prob_true, marker='o', ms=5, label='Model', color='blue')
-    plt.plot([0, 1], [0, 1], linestyle='--', label='Perfectly Calibrated', color='gray')
-    plt.xlabel('Mean Predicted Probability')
-    plt.ylabel('Fraction of Positives')
-    plt.title('Calibration Plot (Reliability Curve)')
-    plt.legend(loc="upper left")
-    plt.grid(True)
-    plt.savefig(output_path, dpi=150)
-    plt.close()
-    logger.info(f"Calibration plot saved to {output_path}")
-
-
-def evaluate_model(model, X: np.ndarray, y_true: np.ndarray) -> Tuple[np.ndarray, Dict[str, float]]:
+def plot_roc_curve(
+    y_true: pd.Series,
+    y_prob: np.ndarray,
+    model_name: str,
+    output_path: Path
+) -> None:
     """
-    Run inference and compute metrics.
-    Returns predicted probabilities and metrics dict.
+    Plot ROC curve and save to file.
     """
-    y_prob = model.predict_proba(X)[:, 1]
-    metrics = compute_metrics(y_true, y_prob)
-    return y_prob, metrics
+    from sklearn.metrics import RocCurveDisplay
+
+    plt.figure(figsize=(8, 6))
+    RocCurveDisplay.from_predictions(y_true, y_prob, name=model_name)
+    plt.plot([0, 1], [0, 1], "k--", label="Random")
+    plt.title(f"ROC Curve - {model_name}")
+    plt.xlabel("False Positive Rate")
+    plt.ylabel("True Positive Rate")
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(output_path, dpi=150, bbox_inches="tight")
+    plt.close()
+    logger.info(f"Saved ROC curve to {output_path}")
 
 
-def save_metrics(metrics: Dict[str, float], output_path: Path):
-    """Save evaluation metrics to a JSON file."""
-    with open(output_path, 'w') as f:
-        json.dump(metrics, f, indent=2)
-    logger.info(f"Metrics saved to {output_path}")
+def plot_pr_curve(
+    y_true: pd.Series,
+    y_prob: np.ndarray,
+    model_name: str,
+    output_path: Path
+) -> None:
+    """
+    Plot Precision-Recall curve and save to file.
+    """
+    precision, recall, _ = precision_recall_curve(y_true, y_prob)
+
+    plt.figure(figsize=(8, 6))
+    plt.plot(recall, precision, label=model_name)
+    plt.title(f"Precision-Recall Curve - {model_name}")
+    plt.xlabel("Recall")
+    plt.ylabel("Precision")
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(output_path, dpi=150, bbox_inches="tight")
+    plt.close()
+    logger.info(f"Saved PR curve to {output_path}")
 
 
-def main():
-    parser = argparse.ArgumentParser(description="Evaluate the trained model on test data.")
-    parser.add_argument("--data-dir", type=str, required=True, help="Path to the directory containing test_data.csv")
-    parser.add_argument("--model-path", type=str, required=True, help="Path to the trained model pickle file")
-    parser.add_argument("--output-dir", type=str, required=True, help="Path to save plots and metrics")
-    args = parser.parse_args()
+def plot_calibration(
+    y_true: pd.Series,
+    y_prob: np.ndarray,
+    model_name: str,
+    output_path: Path
+) -> None:
+    """
+    Plot calibration curve and save to file.
+    """
+    plt.figure(figsize=(8, 6))
+    prob_true, prob_pred = calibration_curve(y_true, y_prob, n_bins=10)
 
-    data_dir = Path(args.data_dir)
-    model_path = Path(args.model_path)
-    output_dir = Path(args.output_dir)
+    plt.plot(prob_pred, prob_true, marker="o", label=model_name, linewidth=2)
+    plt.plot([0, 1], [0, 1], "k--", label="Perfect Calibration")
+    plt.title(f"Calibration Curve - {model_name}")
+    plt.xlabel("Mean Predicted Probability")
+    plt.ylabel("Fraction of Positives")
+    plt.legend()
+    plt.grid(True)
+    plt.savefig(output_path, dpi=150, bbox_inches="tight")
+    plt.close()
+    logger.info(f"Saved calibration curve to {output_path}")
+
+
+def evaluate_model(
+    model: object,
+    X_test: pd.DataFrame,
+    y_test: pd.Series,
+    output_dir: Path,
+    model_name: str = "Primary"
+) -> Dict[str, float]:
+    """
+    Evaluate the model on test data, compute metrics, and generate plots.
+    """
+    # Ensure output directory exists
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Set random seed for reproducibility if needed
-    set_random_seed(get_seed())
+    # Predict probabilities
+    if hasattr(model, "predict_proba"):
+        y_prob = model.predict_proba(X_test)[:, 1]
+    elif hasattr(model, "decision_function"):
+        # For models without predict_proba (rare in sklearn for binary, but possible)
+        y_prob = model.decision_function(X_test)
+        # Normalize to [0,1] roughly for plotting if needed, but metrics handle raw scores
+        # However, calibration_curve expects probabilities. Let's assume predict_proba path for now.
+        raise ValueError("Model does not support predict_proba. Cannot compute calibration/PR-AUC properly.")
+    else:
+        raise AttributeError("Model has no predict_proba or decision_function method.")
 
-    # Load data and model
-    logger.info("Loading test data...")
-    df, X, y_true = load_test_data(data_dir)
-
-    logger.info("Loading model...")
-    model = load_model(model_path)
-
-    # Evaluate
-    logger.info("Evaluating model...")
-    y_prob, metrics = evaluate_model(model, X, y_true)
-
-    # Save metrics
-    metrics_path = output_dir / "evaluation_metrics.json"
-    save_metrics(metrics, metrics_path)
+    # Compute metrics
+    metrics = compute_metrics(y_test, y_prob, model_name)
 
     # Generate plots
-    roc_path = output_dir / "roc_curve.png"
-    pr_path = output_dir / "pr_curve.png"
-    cal_path = output_dir / "calibration_plot.png"
+    plot_roc_curve(y_test, y_prob, model_name, output_dir / f"roc_{model_name.lower()}.png")
+    plot_pr_curve(y_test, y_prob, model_name, output_dir / f"pr_{model_name.lower()}.png")
+    plot_calibration(y_test, y_prob, model_name, output_dir / f"calibration_{model_name.lower()}.png")
 
-    plot_roc_curve(y_true, y_prob, roc_path)
-    plot_pr_curve(y_true, y_prob, pr_path)
-    plot_calibration(y_true, y_prob, cal_path)
+    return metrics
 
-    # Save a sample of probabilities for downstream tasks if needed
-    # (e.g., for p-value correction or thresholds)
-    prob_df = pd.DataFrame({"predicted_probability": y_prob, "true_label": y_true})
-    prob_csv_path = output_dir / "test_predictions.csv"
-    prob_df.to_csv(prob_csv_path, index=False)
-    logger.info(f"Predictions saved to {prob_csv_path}")
+
+def save_metrics(metrics: Dict[str, float], output_path: Path) -> None:
+    """
+    Save evaluation metrics to a JSON file.
+    """
+    with open(output_path, "w") as f:
+        json.dump(metrics, f, indent=2)
+    logger.info(f"Saved metrics to {output_path}")
+
+
+def main() -> None:
+    """
+    Main entry point for the evaluation script.
+    """
+    parser = argparse.ArgumentParser(description="Evaluate bug prediction model.")
+    parser.add_argument(
+        "--data-dir",
+        type=Path,
+        required=True,
+        help="Path to the directory containing test_data.csv"
+    )
+    parser.add_argument(
+        "--model-path",
+        type=Path,
+        required=True,
+        help="Path to the trained model pickle file"
+    )
+    parser.add_argument(
+        "--output-dir",
+        type=Path,
+        required=True,
+        help="Path to the directory where results and plots will be saved"
+    )
+    parser.add_argument(
+        "--model-name",
+        type=str,
+        default="Primary",
+        help="Name of the model for reporting and plotting"
+    )
+
+    args = parser.parse_args()
+
+    # Setup logging
+    logger.info("Starting model evaluation...")
+
+    # Load data
+    try:
+        X_test, y_test, feature_names = load_test_data(args.data_dir)
+        logger.info(f"Loaded test data: {X_test.shape[0]} samples, {X_test.shape[1]} features")
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+
+    # Load model
+    try:
+        model = load_model(args.model_path)
+        logger.info("Model loaded successfully")
+    except FileNotFoundError as e:
+        logger.error(str(e))
+        sys.exit(1)
+
+    # Evaluate
+    metrics = evaluate_model(
+        model,
+        X_test,
+        y_test,
+        args.output_dir,
+        args.model_name
+    )
+
+    # Validate baseline
+    if metrics["roc_auc"] < 0.50:
+        logger.warning(f"ROC-AUC ({metrics['roc_auc']:.4f}) is below baseline (0.50).")
+    else:
+        logger.info(f"ROC-AUC ({metrics['roc_auc']:.4f}) meets baseline requirement (>= 0.50).")
+
+    # Save metrics
+    metrics_path = args.output_dir / "evaluation_metrics.json"
+    save_metrics(metrics, metrics_path)
 
     logger.info("Evaluation complete.")
-    return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()

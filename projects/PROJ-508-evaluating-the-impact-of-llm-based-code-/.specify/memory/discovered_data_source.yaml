@@ -1,0 +1,19 @@
+status: none
+intent: GitHub repository metadata download GitHub Archive GHTorrent python package
+  dataset
+required_fields:
+- repo_id
+- repo_name
+- owner_login
+- owner_id
+- pull_number
+- pull_id
+- pull_title
+- pull_body
+- pull_state
+- pull_created_at
+- pull_closed_at
+- pull_merged_at
+cache_key: c2602013d2d854f408cc9e49e2ee99e8a5029e9d51441c5123eb28619d076821
+searched_at: '2026-10-09T17:18:28.831984+00:00'
+retry_count: 1

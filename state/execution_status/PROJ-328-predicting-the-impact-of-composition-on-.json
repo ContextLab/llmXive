@@ -1,0 +1,16 @@
+{
+  "project_id": "PROJ-328-predicting-the-impact-of-composition-on-",
+  "ok": false,
+  "reason": "1 fabricated/simulated-result signal(s) \u2014 results are not real measurements: code/models/verify_cpu.py: synthetic/fake INPUT data not authorized by the spec \u2014 \u201c\u2026try:         # Generate dummy data         X, y = make_regr\u2026\u201d; 1 run-book script(s) missing (plan/impl path mismatch): python code/run_pipeline.py; 1 declared deliverable(s) absent: data/processed/.ingestion_status.json",
+  "artifacts": [],
+  "failures": [
+    "python code/run_pipeline.py -> rc=2 [script missing]\n    /home/runner/work/llmXive/llmXive/projects/PROJ-328-predicting-the-impact-of-composition-on-/code/.venv/bin/python: can't open file '/home/runner/work/llmXive/llmXive/projects/PROJ-328-predicting-the-impact-of-composition-on-/code/run_pipeline.py': [Errno 2] No such file or directory"
+  ],
+  "fix_rounds": 1,
+  "model_tier": 0,
+  "total_attempts": 1,
+  "replan_rounds": 0,
+  "failure_class": "fabrication",
+  "evidence": [],
+  "updated_at": "2026-09-22T08:27:49Z"
+}

@@ -2,10 +2,7 @@
 
 A separate model checked the artifacts you produced for the tasks below and judged them NOT yet complete. Each is back to `- [ ]` — REDO it so the evidence genuinely satisfies the requirement (produce the real artifact, fix the content, remove any placeholder/fabricated stand-in). Do NOT just re-check the box without changing the work.
 
-- **T001** — No evidence of a `src/`, `tests/`, or `data/` directory (or any files within them) was presented, so the required project structure cannot be confirmed as created. The implementer must supply the actual directory layout and contents.
-- **T003** — No linting or formatting configuration files (e.g., `pyproject.toml`, `.ruff.toml`, or a `pre-commit` setup invoking ruff and black) are present, and the provided artifacts relate to a completely different feature (compression impact) rather than the required linting/formatting setup. The task therefore lacks the necessary configuration artifacts.
-- **T006** — No evidence was provided that the `data/raw/`, `data/interim/`, or `data/processed/` directories actually exist in the repository; the response contains only a description of the task without any file‑system listing or screenshots confirming the directory structure. The required artifacts are missing.
-- **T007** — No evidence of a `tests/` directory containing the required `unit/`, `integration/`, and `contract/` subfolders is provided; without these artifacts the task requirement is not satisfied.
-- **T008** — No pytest configuration file (e.g., pytest.ini, pyproject.toml, or similar) containing coverage thresholds and a 300‑second timeout setting was provided, nor any CI workflow showing these settings. Without such artifacts, the requirement cannot be verified as met.
-- **T010** — The provided `tests/unit/test_validate.py` is truncated (ends mid‑function) and thus not a complete, runnable test suite, and the required `src/data/validate.py` module is missing, so the unit test cannot be executed.
-- **T012** — declared artifact(s) missing/empty/invalid: src/data/download.py
+- **T001** — Only `code/provenance/deviation_constitution_principle_ii.md` is present (size 1914 bytes, SHA‑256 365826c5c2c09dc41b717437394abd370078b187fbc2bb9aca7906ab7b9dda06). The other four required provenance files are absent, and the `state/projects/...yaml` file that should contain the recorded checksums does not exist, so checksum verification cannot be performed.
+- **T002** — The provided `amendment_draft.md` only lists FR‑001, FR‑003, FR‑005, FR‑007, FR‑009, FR‑010, SC‑003, SC‑004 without giving the required exact replacement text, and it omits SC‑005 and SC‑006 entirely; the three user‑story narratives are also missing. The artifact does not meet the task’s specification.
+- **T003** — Requested task execution failed; rerun successfully: code/validate_amendment.py exit=1
+- **T004** — Requested task execution failed; rerun successfully: code/apply_spec_amendments.py exit=1

@@ -5,21 +5,26 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "llmxive-brain-topology"
 version = "0.1.0"
-description = "Investigating the influence of network topology on spontaneous brain activity patterns"
+description = "Investigating the Influence of Network Topology on Spontaneous Brain Activity Patterns"
 requires-python = ">=3.9"
 dependencies = [
-    "nilearn",
-    "networkx",
-    "scikit-learn",
-    "pandas",
-    "numpy",
-    "statsmodels",
-    "scipy",
-    "pyyaml",
-    "black",
-    "flake8",
-    "pylint",
-    "pre-commit"
+    "nilearn>=0.10.0",
+    "networkx>=3.1",
+    "scikit-learn>=1.3.0",
+    "pandas>=2.0.0",
+    "numpy>=1.24.0",
+    "statsmodels>=0.14.0",
+    "scipy>=1.11.0",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "black>=23.0.0",
+    "flake8>=6.0.0",
+    "pylint>=2.17.0",
+    "pytest>=7.0.0",
+    "pre-commit>=3.0.0",
 ]
 
 [tool.black]
@@ -28,7 +33,8 @@ target-version = ['py39', 'py310', 'py311']
 include = '\.pyi?$'
 exclude = '''
 /(
-    \.git
+    \.eggs
+    | \.git
     | \.hg
     | \.mypy_cache
     | \.tox
@@ -40,34 +46,38 @@ exclude = '''
 )/
 '''
 
+[tool.pylint.messages_control]
+max-line-length = 88
+disable = [
+    "too-many-arguments",
+    "too-many-locals",
+    "too-many-branches",
+    "too-many-statements",
+    "missing-module-docstring",
+    "missing-class-docstring",
+    "missing-function-docstring",
+    "invalid-name",
+    "import-outside-toplevel",
+    "cyclic-import",
+]
+
+[tool.pylint.format]
+max-line-length = 88
+
 [tool.flake8]
 max-line-length = 88
-extend-ignore = ["E203", "W503"]
 exclude = [
     ".git",
     "__pycache__",
     "build",
     "dist",
-    ".venv"
+    ".eggs",
+    "*.egg-info",
+    ".tox",
+    ".venv",
 ]
-per-file-ignores = []
-max-complexity = 15
-
-[tool.pylint.'MESSAGES CONTROL']
-max-line-length = 88
-disable = [
-    "C0114",  # missing-module-docstring
-    "C0115",  # missing-class-docstring
-    "C0116",  # missing-function-docstring
-    "R0903",  # too-few-public-methods
-    "R0913",  # too-many-arguments
-    "R0914",  # too-many-locals
-    "W0511"   # fixme
+ignore = [
+    "E203",
+    "W503",
+    "E501",
 ]
-
-[tool.pylint.FORMAT]
-max-line-length = 88
-
-[tool.pylint.DESIGN]
-max-args = 10
-max-locals = 20

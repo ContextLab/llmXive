@@ -189,5 +189,15 @@
     "passage/safety.tex",
     "passage/conclusion.tex",
     "references.bib"
-  ]
+  ],
+  "committed_pdf_digests": {
+    "original-llmxive.pdf": {
+      "sha256": "cafe409a77a86222ce7b8d63953d3369b49cd9e63c484e21b1986392736d8cbe",
+      "bytes": 14285538
+    },
+    "original.pdf": {
+      "sha256": "c8c71cc00a22b9a919417da67a04fa487205fa8eb038d8c96b328407ff6f190f",
+      "bytes": 14248086
+    }
+  }
 }

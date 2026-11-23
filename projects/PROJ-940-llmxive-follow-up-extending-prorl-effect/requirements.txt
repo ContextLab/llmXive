@@ -1,0 +1,8 @@
+pandas
+numpy
+scikit-learn
+networkx
+scipy
+datasets
+pyyaml
+pytest

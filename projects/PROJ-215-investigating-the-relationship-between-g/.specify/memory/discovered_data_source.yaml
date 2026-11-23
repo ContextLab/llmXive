@@ -1,0 +1,16 @@
+status: none
+intent: Qiita American Gut Project 10317 PHQ-9 GAD-7 downloadable dataset python package
+  dataset
+required_fields:
+- sample_id
+- otu_counts_or_asv_table_per_taxon
+- phq9_total_score
+- gad7_total_score
+- sequencing_depth
+- taxonomic_annotation
+- age
+- sex
+- bmi
+cache_key: f78a86505213a0085a3ebe8375cfea6f3bbdcb6f0b07e714ba19e7ecb640a25d
+searched_at: '2026-11-09T00:34:17.368250+00:00'
+retry_count: 1

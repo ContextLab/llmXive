@@ -1,0 +1,102 @@
+T000:
+  c: false
+  h: f3f279d696c6ac96e8a81ce2583e6e434e21bd892229124676396dd8779709a1
+  r: "The `data/raw/m4.csv` and `data/raw/uci.csv` files are absent, so the required\
+    \ verification step cannot succeed. Moreover, `fetcher.py` contains placeholder\
+    \ SHA\u2011256 values and incomplete/unfinished logic (e.g., comments about \u201C\
+    placeholder\u201D hashes and truncated code), indicating it does not reliably\
+    \ download and validate the datasets as specified. The task\u2019s core requirement\u2014\
+    ensuring the two CSV files exist and match real checksums\u2014is not met."
+T001a:
+  c: false
+  h: 1d0f53122060c5249ac51643b95d364f741f3410b43327e5cdd6ea33c5b9c292
+  r: "The provided `create_code_dir.py` script runs without error, but the automated\
+    \ tests for task\u202FT001a both fail: the idempotent\u2011creation test does\
+    \ not create a `code` directory in the temporary test location, and the config\u2011\
+    verification test raises a `NameError` because `sys` is not imported. Consequently\
+    \ the required verification (creating the directory with `parents=True, exist_ok=True`\
+    \ and asserting write access) is not demonstrated. The task needs a corrected\
+    \ script and passing tests."
+  sig: da96f138260ed298923504be0e29c623b6c58be95dd74c2b9f6c558e6056e9cb
+T001b:
+  c: true
+  h: b13e4d4613bd9c2d7b18bbfb82b5299d020eba099820429b1b6e057681106c9c
+  r: "Checked the presence of the `tests/` directory (13 entries) and the unit\u2011\
+    test log `tests/unit/test_create_tests_dir.py` which ran the creation script and\
+    \ passed, confirming the directory is created idempotently."
+  sig: 2ea8cf796cfa738032b19001c5b52f001e5406020fa777e4d6fd96389da5142d
+T001c:
+  c: true
+  h: 5febb11819eb610f26623b9aa12310a23ebfd941d2eb1e3cf87ebdc888805533
+  r: "Checked that the `data/raw/` directory exists (contains a `.gitkeep` placeholder)\
+    \ and that the pytest suite includes a passing idempotent\u2011creation test (`tests/test_data_raw_dir.py`),\
+    \ confirming the required script runs without error and creates the directory\
+    \ as specified."
+  sig: 66d0043425a0f96b2d86e3d379a2128513f15559a6a60a2229d63d83fa3f4cdc
+T001d:
+  c: true
+  h: d004f934e3091e22e89fcdeb13e3c6dce7a9a7e0fa964bf8519359f945e2ffab
+  r: Checked that `data/processed/` directory exists (contains a `.gitkeep` file)
+    and that the pytest log `code/.tasks/T001d.tests_test_create_data_processed_dir.py.log`
+    shows the idempotent creation test passed.
+  sig: e40de8b5a64301c64248a5e992913030d9385eb501e8899c1fd7e84481d63e47
+T001e:
+  c: true
+  h: 7412b373d8ea66dbbc00658b3ac7b04440f154e87e44da9e6009987a476f6c4b
+  r: Checked the `results/` directory (contains .gitkeep, figures/, logs/) and the
+    passing pytest log (`tests/test_create_results_dir.py`), which confirms the script
+    creates the directory idempotently.
+  sig: 3709da3aa3605fd29da7f90e57f01b41e50bade00b1f79c5dbc608252e347798
+T001f:
+  c: false
+  h: e713f2bbb3bbb63b6eb3e5c22908fe563c814ecd3928bca30526aff2557b43ca
+  r: The `code/config.yaml` file exists and defines the required five keys, but the
+    verification script (`code/verify_config.py`) raises errors (missing `os` import
+    and failing path existence checks), and the pytest test `test_verify_config_runs_without_error`
+    fails because the expected directories (e.g., `code`) do not exist. The task requires
+    that the paths point to existing directories, which is not satisfied.
+  sig: ba588c2a67c4957eb88932d52e734cec7a9d4a9672ffd6478d8f9b6c4d220a0e
+T017:
+  c: false
+  h: 76178f209e7ad92f8e2d25c7bd17c0aa4a9b566a9f89351273f7dd81362d2361
+  r: "The provided `runner_single.py` is incomplete (truncated) and does not demonstrate\
+    \ emitting the required JSON, nor does the repository contain the required `results/coverage.csv`\
+    \ file needed to verify schema alignment. Without the CSV and a complete script,\
+    \ the task\u2019s output requirements cannot be satisfied."
+T018:
+  c: false
+  h: d10389112748f2e55a08fc203e0b7e5e2d273f34ea4bec41ab16a58cd1105c5d
+  r: "The provided `code/evaluation/runner.py` is present but the visible portion\
+    \ shows no call to a global data\u2011validation routine from `code/data_loader.py`,\
+    \ no import or use of the required T040 component, and no code that writes the\
+    \ aggregated metrics to `results/coverage.csv` or `results/distributional_metrics.csv`.\
+    \ Consequently the script does not demonstrably fulfill the full\u2011pipeline,\
+    \ validation, aggregation, and output requirements."
+T019:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: No code changes, diff, or description of modifications to `runner.py` were provided,
+    so there is no evidence that error handling was added, logged, or that the pipeline
+    now avoids crashing on series failures. The required artifact (updated `runner.py`
+    with specific try/except and logging) is missing.
+T031b:
+  c: false
+  h: 61173760e1a5e8387188171fa8e3154b52ee36d5dfe8da46e539ac8f509fcbfa
+  r: "The repository contains `code/calibration/conformal_orchestrator.py`, but the\
+    \ required output file `results/conformal_results.csv` is absent, so the orchestrator\u2019\
+    s results are not produced and the required columns and calculated `improvement_delta`\
+    \ cannot be verified. The missing CSV must be generated for the task to be considered\
+    \ complete."
+T035a:
+  c: false
+  h: f128be074d0cbe1f4de2031be29a757d0aa8f045fa776f145210dd9bd3cd6b24
+  r: The required artifact `results/benchmark_timing.csv` does not exist, so no runtime
+    data was recorded to verify the time limit constraint. The implementer must generate
+    the CSV file with the pipeline timing results.
+T040:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No evidence was provided that `constitution.md` was modified; the content of\
+    \ Principle\u202FVI was not shown, nor is there a file excerpt confirming the\
+    \ replacement of \u201CKolmogorov\u2013Smirnov (KS) test\u201D with \u201CLjung\u2011\
+    Box test\u201D. The required artifact (the updated constitution file) is missing."

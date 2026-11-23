@@ -1,0 +1,57 @@
+T001:
+  c: true
+  h: aeb2bd2089dd4982cd1eedd6162c5ecd2f2c9b5870149aa5405b35a9dbc49700
+  r: "The `code/generate_primes.py` script implements a sieve via `utils.prime_sieve`,\
+    \ writes `data/raw/primes_up_to_50000.csv` with a single \u201Cprime\u201D header,\
+    \ and prints the SHA\u2011256 checksum. The CSV file exists, contains 5\u202F\
+    133 prime entries (matching \u03C0(50\u202F000)), and its checksum (`0ded44fa6a1ab6e4a3760b671b9459436e2f4bde2e895fc02225ca75766c31b6`)\
+    \ is output by the script, as confirmed by the execution logs and passing pytest."
+  sig: f5480d0ac116c7b87f42540b442e52bba3bcfb315b223c1843402fdd37071f8c
+T002:
+  c: false
+  h: 36a65e479d17d3268895afb471daaf9e402cb3301d989bed461aa58f2eee5ac0
+  r: "The script `code/generate_reference.py` correctly computes the partition counts\
+    \ and writes them to `tests/data/reference_values.csv`, and the CSV\u2019s first\
+    \ 20 rows match the expected values. However, the provided pytest suite `tests/test_reference_validation.py`\
+    \ looks for the file at `data/reference_values.csv` (project root) and therefore\
+    \ all four tests fail, indicating the verification step is not satisfied. The\
+    \ reference file must be placed (or the test path adjusted) so that the test can\
+    \ locate it and pass."
+  sig: ae756e136990700c8d4bf3ca5d30969e357fc0963fe3d7614af3692cf31b3580
+T004:
+  c: false
+  h: 771d9ccf7d3925d02ea276f1b84c5fe2ca789c1e325438c5068433deee364c00
+  r: "The repository lacks the required `code/utils/primes.npy` file, and the provided\
+    \ `prime_sieve.py` does not contain any logic that generates the primes up to\
+    \ 50,000, saves them as a 1\u2011D `np.int32` array, computes its SHA\u2011256\
+    \ hash, or writes the hash and a fresh timestamp into `state/projects/PROJ-799.yaml`.\
+    \ The YAML entry still has an empty checksum and an outdated timestamp."
+T006:
+  c: true
+  h: 3409cc9c6794096ba1e27741be5829d203052bb1bb79a8ca66140f5760f473d2
+  r: "Both `data/schemas/partition_record.schema.yaml` (867\u202Fbytes) and `data/schemas/regression_output.schema.yaml`\
+    \ (2367\u202Fbytes) exist, are non\u2011empty, and contain valid JSON\u2011Schema\
+    \ YAML definitions, fulfilling the task\u2019s requirement to create those two\
+    \ schema files."
+T008:
+  c: false
+  h: e855f9e3bf0d76cefe56a3163a89d25392a37fe89883b54ed6c4eb9d4e19d894
+  r: "The script `code/generate_reference.py` is present and appears to implement\
+    \ the required algorithm, but the required output file `tests/data/reference_values.csv`\
+    \ is missing, so the task\u2019s primary artifact (the CSV with the computed values)\
+    \ does not exist. The implementer must run the script (or otherwise create) the\
+    \ CSV file with the correct columns and data for n\u202F=\u202F1\u2026100."
+T009:
+  c: false
+  h: 11b207bc50b14fe8b29c5e9527fd8b72d2d74f07b1b0ce05d1b058c484da11c7
+  r: "The required test file `tests/test_partition_logic.py` does not exist, so there\
+    \ is no contract test verifying that `p_{\\mathcal{P}}(n)` matches the reference\
+    \ CSV for all n\u202F=\u202F1\u2026100. The reference CSV is present, but without\
+    \ the test script the task is not fulfilled."
+T031:
+  c: false
+  h: 036d4b3707b9669d56c64b008f8fbb1d147771b769242c2f563b7518dfbc628e
+  r: "No file `generate_partitions.py` with a new docstring is present; the claim\
+    \ provides no code or documentation showing the required explanation of the generating\
+    \ function \\(\\prod_{p\\in\\mathbb{P}}(1+q^{p})\\) and its distinction from \\\
+    (\\prod (1-q^{k})^{-1}\\). The task\u2019s artifact (the updated script) is missing."

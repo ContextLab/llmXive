@@ -1,0 +1,31 @@
+$schema: http://json-schema.org/draft-07/schema#
+title: Regression Result
+description: Schema for regression analysis results comparing parallel vs sequential inference performance.
+type: object
+required:
+  - region_count
+  - parallel_score
+  - sequential_score
+  - inference_time
+  - corrected_p_value
+  - is_significant
+properties:
+  region_count:
+    type: integer
+    description: Number of regions (objects) in the synthetic image.
+  parallel_score:
+    type: number
+    description: Semantic coherence score obtained from parallel inference.
+  sequential_score:
+    type: number
+    description: Semantic coherence score obtained from sequential inference (baseline).
+  inference_time:
+    type: number
+    description: Wall-clock inference time in seconds.
+  corrected_p_value:
+    type: number
+    description: Bonferroni-corrected p-value for the statistical test.
+  is_significant:
+    type: boolean
+    description: Indicates whether the difference between parallel and sequential scores is statistically significant.
+additionalProperties: false

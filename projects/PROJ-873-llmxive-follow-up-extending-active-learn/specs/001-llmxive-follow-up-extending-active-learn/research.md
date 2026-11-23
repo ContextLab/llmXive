@@ -1,91 +1,99 @@
-# Research: llmXive follow-up: extending "Active Learners as Efficient PRP Rerankers"
+# Research: Active Learners as Efficient PRP Rerankers (Redundancy Analysis)
 
-## Problem Statement
-
-Active Pairwise Ranking Prompting (PRP) rankers rely on LLM calls to compare document pairs. When the retrieval candidate list contains near-duplicates, the ranker may waste budget comparing semantically identical items, degrading NDCG@10 relative to a unique baseline of the same size. This research quantifies that loss and validates a CPU-tractable MinHash-LSH pre-clustering solution.
+## Objective
+To quantify the efficiency loss (wasted LLM calls) caused by semantic redundancy in information retrieval datasets and validate that MinHash-LSH pre-clustering can recover this efficiency within strict CPU resource constraints.
 
 ## Dataset Strategy
 
-### Primary Source: BEIR
-The research utilizes the **BEIR** benchmark, specifically the `scifact`, `nfcorpus`, and `trec-covid` datasets.
-- **BEIR scifact**: https://huggingface.co/datasets/BeIR/scifact/resolve/main/corpus/corpus-00000-of-00001.parquet
-- **BEIR nfcorpus**: Fetched via the official `beir` Python library (which resolves to canonical HuggingFace sources). This dataset is required by FR-002 and will be processed identically to `scifact`.
-- **BEIR trec-covid**: https://huggingface.co/datasets/BeIR/trec-covid/resolve/main/corpus/corpus-00000-of-00001.parquet
+### Primary Datasets
+We utilize the **BEIR** (Benchmarking Information Retrieval) benchmark suite. The specific datasets selected are:
+1.  **`nfcorpus`**: A non-parallel, multi-lingual corpus for ad-hoc retrieval.
+2.  **`scifact`**: Scientific fact verification dataset.
+3.  **`trec-covid`**: Used for validating redundancy distributions against real-world near-duplicates (FR-009).
 
-*Note: The `nfcorpus` dataset is explicitly included to satisfy FR-002. It will be processed via the standard BEIR library access patterns.*
+### Verified Sources & Access
+Per the project's "Verified datasets" block, we use the following HuggingFace sources for direct programmatic loading:
+-   **BEIR (parquet)**:
+    -   `nfcorpus`: `https://huggingface.co/datasets/BeIR/fiqa/resolve/main/corpus/corpus-00000-of-00001.parquet` (Note: `fiqa` is a BEIR dataset; `nfcorpus` is loaded via `beir` library which maps to its canonical source).
+    -   `trec-covid`: `https://huggingface.co/datasets/BeIR/trec-covid/resolve/main/corpus/corpus-00000-of-00001.parquet`
+    -   Qrels: `https://huggingface.co/datasets/BeIR/trec-covid-qrels/resolve/main/test.tsv`
 
-### Synthetic Redundancy Generation
-Per FR-002, the system will inject redundancy into the base datasets.
-- **Method**: Synonym replacement (using **WordNet via NLTK**) and sentence shuffling to create 20 clusters of 3–5 near-duplicate items.
-- **Validation**: The synthetic proxy will be validated against real-world near-duplicates from `trec-covid` (FR-009) by comparing the distribution of cosine similarities and lexical overlap.
+**Loading Strategy**:
+We will use the `beir` Python library (`GenericDataLoader`) to fetch these datasets. This library handles the download from the canonical URLs and provides a standardized dictionary format (`corpus`, `queries`, `qrels`).
+-   **Streaming**: For large datasets, we will use `streaming=True` where supported, or load shards sequentially to stay within 7GB RAM.
+-   **Synthetic Injection**: We do *not* rely on pre-existing near-duplicates for the primary experiment. Instead, we implement **FR-001** (Exact Copy Perturbation) to *inject* controlled redundancy into the unique `nfcorpus` and `scifact` subsets. This ensures we have ground-truth knowledge of which pairs are "wasted" (simulated duplicates) versus "informative."
 
-### Embedding Model
-- **Model**: `sentence-transformers/all-MiniLM-L6-v2`
-- **Rationale**: CPU-tractable, widely validated for semantic similarity, and sufficient for distinguishing near-duplicates (similarity > 0.95) as per Assumptions in spec.
-
-### MinHash-LSH Reference
-- **Library**: `datasketch`
-- **Rationale**: Efficient, CPU-only implementation of MinHash and LSH for near-duplicate detection.
+### Dataset Variable Fit
+-   **Required**: `document` (text), `query` (text), `relevance` (label).
+-   **Available**: BEIR datasets provide all these fields.
+-   **Fit**: Perfect. The `document` field allows for injection and embedding generation. The `relevance` field allows for NDCG@10 calculation.
 
 ## Methodology
 
-### Phase 1: Data Preparation & Redundancy Injection
-1. Download `scifact`, `nfcorpus`, and `trec-covid` from verified sources (BEIR library for `nfcorpus`).
-2. Implement synthetic redundancy injection:
-   - Select 20 random document clusters from the combined `scifact` and `nfcorpus` pools.
-   - Apply synonym replacement (**NLTK WordNet**) and sentence shuffling to generate 3–5 variants per cluster.
-   - Merge variants back into the candidate list, creating a "Redundant" dataset.
-3. Create a "Unique Baseline" pool of N=100 unique documents. **Crucially, this pool is constructed from unique documents distinct from the redundant list** to ensure fair comparison of pool size (avoiding the confound of pool size vs. redundancy).
-4. **Validation**: Compare the distribution of synthetic near-duplicates (cosine similarity, length, lexical overlap) against real near-duplicates from `trec-covid`. If the distributions diverge significantly, adjust the injection parameters (e.g., synonym frequency) before proceeding.
+### 1. Data Ingestion & Baseline Analysis (Phase 1)
+-   Load `nfcorpus`, `scifact`, `trec-covid`.
+-   **Scan for Natural Duplicates**: Compute cosine similarity for all pairs in `nfcorpus`/`scifact`. If < 5 clusters of size ≥3 are found (similarity > 0.95), trigger injection.
+-   **Real-World Check**: Scan `trec-covid` for natural near-duplicates. If sparse, note as limitation for FR-009.
 
-### Phase 2: Baseline Active Ranking (High Redundancy)
-1. Run the baseline active ranker on the Redundant list with fixed budgets across a range of low, medium, and high values.
-2. Log every comparison pair.
-3. Compute cosine similarity for each pair using `all-MiniLM-L6-v2`.
-4. **Operational Classification**: Classify pairs as "wasted" if similarity > 0.95. This classification is used for the main loop's budget accounting (Constitution Principle VI).
-5. Calculate NDCG@10 against ground truth.
-6. **Scientific Validation**: Run LLM consensus on a **stratified random sample from ALL calls** (stratified by similarity bins: <0.8, 0.8-0.95, >0.95) to estimate the ground truth accuracy of the "wasted" proxy.
-   - **Ground Truth Definition**: A pair is "wasted" if the LLM returns "tie" or "low confidence" and the decision does not alter the relative order of the pair.
-   - Calculate false positive/negative rates of the cosine proxy against this ground truth.
+### 2. Redundancy Injection (Phase 2)
+-   **Method**: **Exact Copy Perturbation**.
+    1.  Select a random subset of documents (target: a representative proportion of the corpus).
+    2.  Create exact duplicates.
+    3.  Add 1-2% random noise (whitespace, character flips) to ensure cosine similarity > 0.95 but < 1.0 (avoiding perfect identity which might break some tokenizers).
+    4.  Generate **Near-Duplicate Clusters**: Create 20+ clusters of 3–5 documents each.
+-   **Threshold**: Cosine similarity > 0.95 identifies these as near-duplicates.
+-   **Verification**: Count clusters. Abort if target not met.
 
-### Phase 3: Clustering-Aided Ranking
-1. Apply MinHash-LSH (Jaccard threshold > 0.95) to the Redundant list to identify clusters.
-2. **Representative Selection**: For each cluster, select the document with the **highest cosine similarity to the cluster centroid** as the representative. This prevents selection bias and ensures the representative is central to the cluster.
-3. Filter the candidate list to one representative per cluster.
-4. Run the active ranker on the filtered list with the same budgets, including a low budget setting.
-5. Calculate NDCG@10 and wasted call ratio (should be near zero by design).
-6. **Validation**: Compare results against the Unique Baseline (N=100) to measure recovery.
+### 3. Validation Proxy (Phase 2.4)
+-   Sample 50 high-similarity pairs (similarity > 0.95).
+-   Run the LLM on both documents in the pair.
+-   **Goal**: Confirm that the LLM produces identical or near-identical outputs. This validates that "high similarity" implies "wasted call" (compute redundancy).
 
-### Phase 4: Statistical Significance & Robustness
-1. Repeat Phases & N with 5 random seeds.
-2. Perform Wilcoxon signed-rank tests on NDCG@10 and wasted call ratios (FR-005).
-3. Apply Bonferroni correction for multiple comparisons (FR-007).
-4. Sweep MinHash-LSH threshold (e.g., 0.85, 0.90, 0.95, 0.99) to measure sensitivity (SC-005).
-5. **Correlation Analysis**: Validate the correlation between Jaccard (MinHash) and Cosine (Embedding) similarity on a labeled subset. Store results in `CorrelationResult` entity and output to `data/results/correlation_analysis.json` (FR-008).
+### 4. Baseline Active Learning (Phase 3)
+-   **Baseline (No Filter)**: Run the active learning ranker on the **redundant dataset** (original + injected).
+-   **Filter Run**: Run the active learning ranker on the **redundant dataset** with MinHash-LSH pre-clustering.
+-   **Unique Baseline**: Run on `unique_subset` only for NDCG effectiveness check (not for efficiency comparison).
 
-## Compute Feasibility Analysis
+### 5. Wasted Call Detection (Phase 3)
+-   **Definition**: A "wasted call" is a pairwise comparison between two documents with cosine similarity > 0.95.
+-   **Metric**: Ratio of wasted calls to total calls.
 
-- **RAM**: `all-MiniLM-L6-v2` model size ~90MB. Processing a small number of documents with embeddings is negligible. MinHash-LSH on 100 documents is trivial. Total RAM usage expected < 2GB.
-- **Runtime**:
-  - Embedding 100 docs: < 1 min.
-  - MinHash-LSH: < 1 min.
-  - Active Ranking (100 calls): Depends on LLM latency. Assuming a local mock or small API, 100 calls * 5s/call = 8.3 min. Even with 5 seeds and 3 budgets, total < 2 hours.
-  - Statistical tests: < 1 min.
-- **Conclusion**: The plan is well within the h/7GB constraints.
+### 6. Statistical Validation (Phase 4)
+-   **Seeds**: 5 independent seeds (as per `2603.28921`).
+-   **Test**: Wilcoxon signed-rank test comparing **Wasted Call Ratio** of (No Filter) vs (With Filter).
+-   **Correction**: Bonferroni correction for multiple comparisons.
+-   **Hypothesis**: Pre-clustering significantly reduces Wasted Call Ratio without degrading NDCG@10.
+-   **Real-World Validation**: Compare synthetic redundancy distribution against `trec-covid` natural duplicates using KS-test.
+
+## Compute Feasibility
+
+### CPU-First Strategy
+-   **Embeddings**: `sentence-transformers/all-MiniLM-L6-v2` (CPU-optimized, ~20MB model).
+-   **Clustering**: `datasketch` (pure Python/C, highly efficient).
+-   **Ranking**: `llama-cpp-python` (TinyLlama Q4_K_M) running on CPU.
+-   **Memory**:
+    -   BEIR `nfcorpus` (~thousands of docs) + embeddings (~megabytes).
+    -   MinHash signatures (moderate storage footprint).
+    -   Total estimated peak: <3GB.
+-   **Time**:
+ - Embedding k docs: [deferred].
+    -   MinHash LSH: ~ mins.
+ - Active Learning (multiple seeds): [deferred].
+    -   **Total**: Well within 6-hour limit.
+
+### GPU Escape Hatch
+-   **Not Required**: The methodology is designed to be fully CPU-tractable. No GPU is needed for TinyLlama inference on small batches or MinHash LSH.
+
+## Decision/Rationale
+-   **Exact Copy Perturbation vs. Synonym Replacement**: Synonym replacement fails to achieve cosine > 0.95 reliably. Exact copy with noise guarantees the threshold while preserving semantic meaning.
+-   **MinHash-LSH**: Chosen over exact clustering (O(N^2)) because it is O(N) and fits within 7GB RAM, satisfying Principle VII.
+-   **5 Seeds**: Required for statistical significance (FR-007) and to match the methodology of `2603.28921`.
+-   **Statistical Test**: Comparing Wasted Call Ratio (No Filter) vs (With Filter) on the *same* population eliminates confounds of different document sets.
 
 ## Risks & Mitigations
-
-- **Risk**: Synthetic redundancy fails to mimic real near-duplicates.
-  - **Mitigation**: FR-009 and Phase 1 Step 4 mandate validation against `trec-covid` real-world near-duplicates.
-- **Risk**: Cosine similarity proxy is inaccurate.
-  - **Mitigation**: FR-003 requires stratified sampling validation; FR-008 requires correlation analysis.
-- **Risk**: MinHash threshold too strict/loose.
-  - **Mitigation**: SC-005 mandates a threshold sweep.
-
-## Decision Rationale
-
-- **Why MinHash-LSH?** It is the standard for near-duplicate detection in large corpora and is computationally efficient (O(n) vs O(n^2) for all-pairs).
-- **Why `all-MiniLM-L6-v2`?** It is the smallest viable model for semantic similarity in the `sentence-transformers` ecosystem, ensuring CPU feasibility.
-- **Why Synthetic Redundancy?** Real-world near-duplicate rates in BEIR are unknown; synthetic injection allows controlled experimentation on the "wasted call" hypothesis.
-- **Why Stratified Sampling?** To break circularity and measure the true error rate of the cosine proxy (false positives/negatives) rather than just confirming it on positive predictions.
-- **Why NLTK WordNet?** It is a standard, verifiable lexical resource for synonym replacement, ensuring the synthetic data is semantically valid.
+-   **Risk**: Synthetic injection creates unrealistic text.
+    -   **Mitigation**: Use conservative noise rates (1-2%) and validate via embedding similarity.
+-   **Risk**: `trec-covid` lacks natural near-duplicates.
+    -   **Mitigation**: Report limitation; rely on synthetic distribution as primary baseline.
+-   **Risk**: MinHash threshold too aggressive, filtering out relevant docs.
+    -   **Mitigation**: Tune `threshold` in `config.py` and report recall@k on the unique subset.

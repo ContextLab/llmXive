@@ -1,126 +1,131 @@
 """
-Configuration management for the elastic anisotropy prediction pipeline.
+Configuration management for the elastic anisotropy pipeline.
 
-Handles path resolution, random seed management, and API key validation.
+Manages paths, random seeds, and constants.
 """
 import os
 from pathlib import Path
 from typing import Any, Dict, Optional
+
 import random
 import numpy as np
 
-# Project root is the parent of the 'code' directory
-_PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
-_CODE_ROOT = _PROJECT_ROOT / "code"
+# Project root directory
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent
 
-# Default paths relative to project root
-_PATHS = {
-    "data_raw": _PROJECT_ROOT / "data" / "raw",
-    "data_processed": _PROJECT_ROOT / "data" / "processed",
-    "output": _PROJECT_ROOT / "output",
-    "figures": _PROJECT_ROOT / "output" / "figures",
-    "src": _CODE_ROOT / "src",
-    "tests": _CODE_ROOT / "tests",
+# Default configuration
+DEFAULT_CONFIG = {
+    "paths": {
+        "data_raw": "data/raw",
+        "data_processed": "data/processed",
+        "output": "output",
+        "figures": "output/figures"
+    },
+    "seeds": {
+        "random": 42,
+        "numpy": 42
+    },
+    "constants": {
+        "atomic_masses": {},  # Will be populated if needed
+        "element_properties": {}
+    }
 }
 
-# Constants
-DEFAULT_SEED = 42
-VALIDATION_THRESHOLD = 0.1  # Variance threshold for sensitivity analysis
-ANISOTROPY_LOWER_BOUND = 0.0
-ANISOTROPY_UPPER_BOUND = 3.0
-
-# Cache for configuration
-_config_cache: Optional[Dict[str, Any]] = None
+_config: Optional[Dict[str, Any]] = None
 
 def get_config() -> Dict[str, Any]:
     """
-    Load and return the main configuration dictionary.
+    Get the configuration dictionary.
     
     Returns:
-        Dict containing paths, seeds, and constants.
+        Configuration dictionary with paths, seeds, and constants.
     """
-    global _config_cache
-    if _config_cache is None:
-        _config_cache = {
-            "paths": {k: str(v) for k, v in _PATHS.items()},
-            "seed": DEFAULT_SEED,
-            "constants": {
-                "validation_threshold": VALIDATION_THRESHOLD,
-                "anisotropy_lower_bound": ANISOTROPY_LOWER_BOUND,
-                "anisotropy_upper_bound": ANISOTROPY_UPPER_BOUND,
-            },
-            "environment": {
-                "mp_api_key": os.getenv("MP_API_KEY"),
-                "aflow_api_key": os.getenv("AFLOW_API_KEY"),
-            }
-        }
-    return _config_cache
+    global _config
+    if _config is None:
+        _config = DEFAULT_CONFIG.copy()
+        _config["paths"] = {k: str(PROJECT_ROOT / v) for k, v in _config["paths"].items()}
+    return _config
 
-def get_path(key: str) -> Path:
+def get_path(section: str, key: Optional[str] = None) -> Path:
     """
-    Retrieve a specific path by key.
+    Get a path from the configuration.
     
     Args:
-        key: One of 'data_raw', 'data_processed', 'output', 'figures', 'src', 'tests'.
+        section: Configuration section (e.g., 'paths').
+        key: Specific key within the section (optional).
         
     Returns:
-        Path object for the requested directory.
+        Path object for the requested configuration value.
         
     Raises:
-        KeyError: If the key is not found in the configuration.
+        KeyError: If the section or key is not found.
     """
-    if key not in _PATHS:
-        raise KeyError(f"Path key '{key}' not found in configuration. Available keys: {list(_PATHS.keys())}")
+    config = get_config()
+    if section not in config:
+        raise KeyError(f"Configuration section '{section}' not found")
     
-    path = _PATHS[key]
-    # Ensure directories exist
-    path.mkdir(parents=True, exist_ok=True)
-    return path
+    if key is None:
+        return Path(config[section])
+    
+    if key not in config[section]:
+        raise KeyError(f"Configuration key '{key}' not found in section '{section}'")
+    
+    return Path(config[section][key])
+
+def ensure_directories(paths: list) -> None:
+    """
+    Ensure that the given directories exist, creating them if necessary.
+    
+    Args:
+        paths: List of path strings or Path objects.
+    """
+    for p in paths:
+        path = Path(p) if isinstance(p, str) else p
+        path.mkdir(parents=True, exist_ok=True)
 
 def validate_api_keys() -> bool:
     """
-    Check if required API keys are present in the environment.
+    Validate that required API keys are set in the environment.
     
     Returns:
         True if all required keys are present, False otherwise.
     """
     required_keys = ["MP_API_KEY"]
-    missing = [key for key in required_keys if not os.getenv(key)]
+    missing_keys = [key for key in required_keys if not os.environ.get(key)]
     
-    if missing:
+    if missing_keys:
         return False
     return True
 
-def set_random_seed(seed: int = DEFAULT_SEED) -> None:
+def set_random_seed(seed: Optional[int] = None) -> None:
     """
-    Set the random seed for reproducibility across libraries.
+    Set random seeds for reproducibility.
     
     Args:
-        seed: Integer seed value. Defaults to 42.
+        seed: Random seed value. If None, uses the configured seed.
     """
+    if seed is None:
+        seed = get_seed()
+    
     random.seed(seed)
     np.random.seed(seed)
-    # If torch is available, set its seed too
-    try:
-        import torch
-        torch.manual_seed(seed)
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed_all(seed)
-    except ImportError:
-        pass
 
 def get_seed() -> int:
     """
-    Get the current default random seed.
+    Get the configured random seed.
     
     Returns:
-        The default seed value (42).
+        Random seed value.
     """
-    return DEFAULT_SEED
+    config = get_config()
+    return config["seeds"]["random"]
 
-def ensure_directories() -> None:
+def get_constants() -> Dict[str, Any]:
     """
-    Create all required directories defined in the configuration.
+    Get the constants dictionary.
+    
+    Returns:
+        Constants dictionary.
     """
-    for path in _PATHS.values():
-        path.mkdir(parents=True, exist_ok=True)
+    config = get_config()
+    return config["constants"]

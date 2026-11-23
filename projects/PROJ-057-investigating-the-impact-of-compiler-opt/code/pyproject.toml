@@ -33,21 +33,48 @@ exclude = '''
       | buck-out
       | build
       | dist
+      | __pycache__
     )/
 )
 '''
+
+[tool.isort]
+profile = "black"
+line_length = 88
+known_first_party = ["benchmarks", "kernels", "analysis", "utils"]
+skip = [".git", ".hg", ".mypy_cache", ".tox", ".venv", "_build", "buck-out", "build", "dist", "__pycache__"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 python_files = ["test_*.py"]
 python_functions = ["test_*"]
 addopts = "-v --tb=short"
-
-[tool.isort]
-profile = "black"
-line_length = 88
-known_first_party = ["benchmarks", "kernels", "analysis", "utils"]
+filterwarnings = [
+    "error",
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning"
+]
 
 [tool.flake8]
 max-line-length = 88
 extend-ignore = E203, W503
+exclude =
+    .git,
+    .hg,
+    .mypy_cache,
+    .tox,
+    .venv,
+    _build,
+    buck-out,
+    build,
+    dist,
+    __pycache__,
+    *.pyc
+per-file-ignores =
+    */__init__.py: F401
+    code/benchmarks/config.py: ARG001
+    code/analysis/stats.py: ARG001
+max-complexity = 10
+count = True
+show-source = True
+statistics = True

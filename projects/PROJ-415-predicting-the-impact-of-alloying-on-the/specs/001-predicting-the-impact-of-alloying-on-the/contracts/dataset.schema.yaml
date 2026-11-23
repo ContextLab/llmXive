@@ -1,58 +1,49 @@
 $schema: "http://json-schema.org/draft-07/schema#"
-title: "FCC Self-Diffusion Dataset Schema"
-description: "Schema for the curated FCC self-diffusion dataset used in the alloying impact study."
+title: "Curated Diffusion Dataset Schema"
+description: "Schema for the filtered FCC diffusion dataset used in the analysis."
 type: "object"
 properties:
-  id:
-    type: "string"
-    description: "Unique identifier for the record."
   host_element:
     type: "string"
-    description: "Symbol of the host metal (e.g., 'Ni')."
+    description: "Symbol of the host metal (e.g., Ni, Al)."
   solute_element:
     type: "string"
-    description: "Symbol of the solute metal (e.g., 'Cr')."
+    description: "Symbol of the solute element."
   crystal_structure:
     type: "string"
-    description: "Crystal structure of the host."
-    enum:
-      - "FCC"
+    enum: ["FCC"]
+    description: "Must be FCC."
   diffusion_mode:
     type: "string"
-    description: "Type of diffusion."
-    enum:
-      - "self"
+    enum: ["self", "solute", "impurity"]
+    description: "Diffusion mode; self rows supply baselines, solute/impurity rows supply training data (pending FR-001 spec amendment)."
+  concentration_at_percent:
+    type: "number"
+    minimum: 0
+    description: "Solute concentration in atomic percent; retained as a covariate in the inferential model."
   activation_energy_eV:
     type: "number"
+    minimum: 0
     description: "Activation energy in eV."
-    minimum: 0
-  solute_concentration_at_pct:
-    type: "number"
-    description: "Solute concentration in atomic percent."
-    minimum: 0
-  solute_radius_pm:
-    type: "number"
-    description: "Atomic radius of solute in picometers."
-    minimum: 0
-  host_radius_pm:
-    type: "number"
-    description: "Atomic radius of host in picometers."
-    minimum: 0
   size_mismatch:
     type: "number"
-    description: "Calculated size mismatch: (solute_r - host_r) / host_r."
-  source_url:
-    type: "string"
-    description: "URL of the original data source."
+    description: "Calculated size mismatch: (r_solute - r_host) / r_host."
+  electronegativity_diff:
+    type: "number"
+    description: "Absolute Pauling electronegativity difference between solute and host."
+  valence_electron_diff:
+    type: "integer"
+    description: "Difference in valence electron count between solute and host."
+  baseline_shift_eV:
+    type: "number"
+    description: "Difference between alloy activation energy and pure host baseline."
 required:
-  - id
   - host_element
   - solute_element
-  - crystal_structure
-  - diffusion_mode
+  - concentration_at_percent
   - activation_energy_eV
-  - solute_concentration_at_pct
-  - solute_radius_pm
-  - host_radius_pm
   - size_mismatch
+  - electronegativity_diff
+  - valence_electron_diff
+  - baseline_shift_eV
 additionalProperties: false

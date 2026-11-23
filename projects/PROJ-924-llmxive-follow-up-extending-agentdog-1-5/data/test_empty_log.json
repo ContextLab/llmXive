@@ -1,0 +1,18 @@
+[
+  {
+    "log_id": "empty_001",
+    "text": ""
+  },
+  {
+    "log_id": "whitespace_001",
+    "text": "   "
+  },
+  {
+    "log_id": "newline_001",
+    "text": "\n\n\n"
+  },
+  {
+    "log_id": "normal_001",
+    "text": "This is a standard log entry with content."
+  }
+]

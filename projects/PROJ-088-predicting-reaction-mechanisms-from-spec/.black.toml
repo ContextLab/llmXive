@@ -1,0 +1,2 @@
+# Standalone black config for IDE integration if pyproject.toml is not picked up
+extend = "pyproject.toml"
